@@ -10,6 +10,6 @@ I enjoy photography, travel and [Urban exploration](https://en.wikipedia.org/wik
 ### Contacts
 - Facebook: [Vojtěch Konopa](https://www.facebook.com/vojtech.konopa)
 - Instagram: [mrkonopa](https://www.instagram.com/mrkonopa/)
-- Email: [vojtech.konopa@gmail.com](voojtech.konopa@gmail.com)
+- Email: [vojtech.konopa@gmail.com](mailto:vojtech.konopa@gmail.com)
 - LinkedIn: [Vojtěch Konopa](https://www.linkedin.com/in/vojt%C4%9Bch-konopa-216614100/)
 
