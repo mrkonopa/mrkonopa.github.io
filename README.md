@@ -3,8 +3,8 @@
 Welcome to my personal website. What you may find here is information about me, all my projectc, my credentials and contacts.
 
 ## Some things about me
-My name is Vojtěch Konopa and I am Math and Physics teacher. I teach at ZŠ Husova in Liberec, Czech Republic. My aprobation is math and physics teacher for elementary and high school. However that is not all. 
-Apart from that I am also hold a black belt in karate. 
+My name is Vojtěch Konopa and teach Math and Physics at ZŠ Husova in Liberec, Czech Republic.
+I hold a black belt in shotokan karate and have been a judge for 11 years.
 I enjoy photography, travel and [Urban exploration](https://en.wikipedia.org/wiki/Urban_exploration).
 
 ### Contacts
