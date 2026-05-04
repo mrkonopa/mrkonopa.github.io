@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vojtěch Konopa — ~/</title>
+  <meta name="description" content="Personal website of Vojtěch Konopa — about, projects, credentials, contacts." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0b0f0a;
+      --bg-window: #0f1410;
+      --bg-chrome: #161c17;
+      --fg: #c8facc;
+      --fg-dim: #6f8a72;
+      --accent: #33ff7a;
+      --accent-soft: #1cc457;
+      --amber: #ffb454;
+      --red: #ff5f56;
+      --yellow: #ffbd2e;
+      --green: #27c93f;
+      --border: #1f2a21;
+      --shadow: 0 0 40px rgba(51, 255, 122, 0.08), 0 0 1px rgba(51, 255, 122, 0.2);
+      --mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: var(--mono);
+      font-size: 15px;
+      line-height: 1.6;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* subtle CRT scanline overlay */
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background: repeating-linear-gradient(
+        to bottom,
+        rgba(255, 255, 255, 0.015) 0px,
+        rgba(255, 255, 255, 0.015) 1px,
+        transparent 1px,
+        transparent 3px
+      );
+      z-index: 1;
+    }
+
+    /* faint vignette */
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background: radial-gradient(ellipse at center, transparent 50%, rgba(0,0,0,0.55) 100%);
+      z-index: 1;
+    }
+
+    main {
+      position: relative;
+      z-index: 2;
+      max-width: 780px;
+      margin: 0 auto;
+      padding: 48px 20px 80px;
+    }
+
+    .terminal {
+      background: var(--bg-window);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .chrome {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      background: var(--bg-chrome);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+    .dot.r { background: var(--red); }
+    .dot.y { background: var(--yellow); }
+    .dot.g { background: var(--green); }
+
+    .title {
+      margin-left: auto;
+      margin-right: auto;
+      font-size: 12px;
+      color: var(--fg-dim);
+      letter-spacing: 0.5px;
+    }
+
+    .screen {
+      padding: 24px 22px 28px;
+      min-height: 360px;
+    }
+
+    .line {
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+
+    .prompt {
+      color: var(--accent);
+    }
+    .prompt .user { color: var(--accent); }
+    .prompt .at { color: var(--fg-dim); }
+    .prompt .host { color: var(--amber); }
+    .prompt .path { color: var(--fg-dim); }
+    .prompt .sym { color: var(--fg); }
+
+    .cmd { color: var(--fg); }
+    .out { color: var(--fg); }
+    .dim { color: var(--fg-dim); }
+    .accent { color: var(--accent); }
+    .amber { color: var(--amber); }
+
+    h1.name {
+      font-size: 28px;
+      font-weight: 700;
+      margin: 6px 0 2px;
+      color: var(--accent);
+      letter-spacing: 0.5px;
+    }
+
+    .handle {
+      color: var(--fg-dim);
+      font-size: 14px;
+      margin: 0 0 8px;
+    }
+
+    .block { margin: 10px 0 18px; }
+
+    a {
+      color: var(--accent);
+      text-decoration: none;
+      border-bottom: 1px dashed transparent;
+      transition: border-color 0.15s ease, color 0.15s ease;
+    }
+    a:hover, a:focus {
+      color: var(--amber);
+      border-bottom-color: var(--amber);
+      outline: none;
+    }
+
+    ul.links {
+      list-style: none;
+      padding: 0;
+      margin: 6px 0 0;
+    }
+    ul.links li {
+      padding: 2px 0;
+    }
+    ul.links li::before {
+      content: "→ ";
+      color: var(--fg-dim);
+    }
+
+    /* blinking caret */
+    .caret {
+      display: inline-block;
+      width: 9px;
+      height: 1.05em;
+      background: var(--accent);
+      vertical-align: text-bottom;
+      margin-left: 2px;
+      animation: blink 1s steps(1) infinite;
+    }
+    @keyframes blink {
+      50% { opacity: 0; }
+    }
+
+    /* hide content nodes until the typewriter reveals them */
+    .typing { visibility: hidden; }
+    .typing.active { visibility: visible; }
+
+    @media (max-width: 540px) {
+      main { padding: 24px 12px 60px; }
+      .screen { padding: 20px 16px; }
+      h1.name { font-size: 22px; }
+      body { font-size: 14px; }
+    }
+
+    /* respect reduced motion */
+    @media (prefers-reduced-motion: reduce) {
+      .caret { animation: none; }
+    }
+
+    /* accessible focus */
+    a:focus-visible {
+      outline: 2px solid var(--amber);
+      outline-offset: 2px;
+      border-radius: 2px;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <section class="terminal" aria-label="Personal terminal">
+      <header class="chrome" aria-hidden="true">
+        <span class="dot r"></span>
+        <span class="dot y"></span>
+        <span class="dot g"></span>
+        <span class="title">vojta@konopa: ~</span>
+      </header>
+
+      <div class="screen" id="screen">
+        <!-- The script below renders the prompts and content with a typewriter effect. -->
+        <noscript>
+          <div class="block">
+            <div class="line"><span class="prompt"><span class="user">vojta</span><span class="at">@</span><span class="host">konopa</span><span class="path">:~</span><span class="sym">$</span></span> <span class="cmd">whoami</span></div>
+            <h1 class="name">Vojtěch Konopa</h1>
+            <p class="handle">@mrkonopa</p>
+          </div>
+          <div class="block">
+            <div class="line"><span class="prompt"><span class="user">vojta</span><span class="at">@</span><span class="host">konopa</span><span class="path">:~</span><span class="sym">$</span></span> <span class="cmd">cat about.txt</span></div>
+            <p class="out">Welcome to my personal website. What you may find here is information about me, all my projects, my credentials and contacts.</p>
+          </div>
+          <div class="block">
+            <div class="line"><span class="prompt"><span class="user">vojta</span><span class="at">@</span><span class="host">konopa</span><span class="path">:~</span><span class="sym">$</span></span> <span class="cmd">ls links/</span></div>
+            <ul class="links">
+              <li><a href="https://github.com/mrkonopa" target="_blank" rel="noopener">github.com/mrkonopa</a></li>
+              <li><a href="mailto:vojtech.konopa@gmail.com">vojtech.konopa@gmail.com</a></li>
+              <li><a href="https://www.linkedin.com/in/YOUR-LINKEDIN-SLUG" target="_blank" rel="noopener">linkedin.com/in/YOUR-LINKEDIN-SLUG</a> <span class="dim"># TODO: replace with your URL</span></li>
+              <li><a href="https://instagram.com/mrkonopa" target="_blank" rel="noopener">instagram.com/mrkonopa</a></li>
+            </ul>
+          </div>
+        </noscript>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    (function () {
+      const screen = document.getElementById('screen');
+      if (!screen) return;
+
+      const PROMPT_HTML =
+        '<span class="prompt"><span class="user">vojta</span><span class="at">@</span><span class="host">konopa</span><span class="path">:~</span><span class="sym">$</span></span> ';
+
+      // Each step either types a command after the prompt, or reveals a static block of HTML.
+      const steps = [
+        { type: 'prompt', cmd: 'whoami' },
+        {
+          type: 'reveal',
+          html: '<h1 class="name">Vojtěch Konopa</h1><p class="handle">@mrkonopa</p>'
+        },
+        { type: 'prompt', cmd: 'cat about.txt' },
+        {
+          type: 'typeOut',
+          html: 'Welcome to my personal website. What you may find here is information about me, all my projects, my credentials and contacts.'
+        },
+        { type: 'prompt', cmd: 'ls links/' },
+        {
+          type: 'reveal',
+          html:
+            '<ul class="links">' +
+              '<li><a href="https://github.com/mrkonopa" target="_blank" rel="noopener">github.com/mrkonopa</a></li>' +
+              '<li><a href="mailto:vojtech.konopa@gmail.com">vojtech.konopa@gmail.com</a></li>' +
+              '<li><a href="https://www.linkedin.com/in/YOUR-LINKEDIN-SLUG" target="_blank" rel="noopener">linkedin.com/in/YOUR-LINKEDIN-SLUG</a> <span class="dim"># TODO: replace with your URL</span></li>' +
+              '<li><a href="https://instagram.com/mrkonopa" target="_blank" rel="noopener">instagram.com/mrkonopa</a></li>' +
+            '</ul>'
+        }
+      ];
+
+      const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const TYPE_SPEED = reduceMotion ? 0 : 38;        // ms per char for commands
+      const TEXT_SPEED = reduceMotion ? 0 : 14;        // ms per char for prose
+      const PAUSE_AFTER_CMD = reduceMotion ? 0 : 220;  // pause after a command before its output
+      const PAUSE_BETWEEN = reduceMotion ? 0 : 360;    // pause before next prompt
+
+      // The active caret element follows whatever line is currently being typed.
+      const caret = document.createElement('span');
+      caret.className = 'caret';
+
+      function sleep(ms) {
+        return new Promise((res) => setTimeout(res, ms));
+      }
+
+      async function typeInto(el, text, speed) {
+        for (let i = 0; i < text.length; i++) {
+          el.appendChild(document.createTextNode(text[i]));
+          if (speed > 0) await sleep(speed);
+        }
+      }
+
+      async function runStep(step) {
+        const block = document.createElement('div');
+        block.className = 'block';
+        screen.appendChild(block);
+
+        if (step.type === 'prompt') {
+          const line = document.createElement('div');
+          line.className = 'line';
+          line.innerHTML = PROMPT_HTML;
+          const cmd = document.createElement('span');
+          cmd.className = 'cmd';
+          line.appendChild(cmd);
+          line.appendChild(caret);
+          block.appendChild(line);
+          await typeInto(cmd, step.cmd, TYPE_SPEED);
+          await sleep(PAUSE_AFTER_CMD);
+          return;
+        }
+
+        if (step.type === 'reveal') {
+          const wrap = document.createElement('div');
+          wrap.innerHTML = step.html;
+          block.appendChild(wrap);
+          // attach caret to end so it keeps blinking on the latest output
+          block.appendChild(caret);
+          await sleep(PAUSE_BETWEEN);
+          return;
+        }
+
+        if (step.type === 'typeOut') {
+          const p = document.createElement('p');
+          p.className = 'out';
+          block.appendChild(p);
+          block.appendChild(caret);
+          await typeInto(p, step.html, TEXT_SPEED);
+          await sleep(PAUSE_BETWEEN);
+          return;
+        }
+      }
+
+      async function run() {
+        for (const step of steps) {
+          await runStep(step);
+        }
+        // Final idle prompt with a blinking caret
+        const finalBlock = document.createElement('div');
+        finalBlock.className = 'block';
+        const line = document.createElement('div');
+        line.className = 'line';
+        line.innerHTML = PROMPT_HTML;
+        line.appendChild(caret);
+        finalBlock.appendChild(line);
+        screen.appendChild(finalBlock);
+      }
+
+      // Kick off after first paint so the layout is stable.
+      window.requestAnimationFrame(() => { run(); });
+    })();
+  </script>
+</body>
+</html>
