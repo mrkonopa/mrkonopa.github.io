@@ -162,16 +162,19 @@
       outline: none;
     }
 
-    ul.links {
+    ul.entries {
       list-style: none;
       padding: 0;
       margin: 6px 0 0;
     }
-    ul.links li {
+    ul.entries li {
       padding: 2px 0;
     }
-    ul.links li::before {
+    ul.entries li::before {
       content: "→ ";
+      color: var(--fg-dim);
+    }
+    .entry-meta {
       color: var(--fg-dim);
     }
 
@@ -188,10 +191,6 @@
     @keyframes blink {
       50% { opacity: 0; }
     }
-
-    /* hide content nodes until the typewriter reveals them */
-    .typing { visibility: hidden; }
-    .typing.active { visibility: visible; }
 
     @media (max-width: 540px) {
       main { padding: 24px 12px 60px; }
@@ -224,7 +223,6 @@
       </header>
 
       <div class="screen" id="screen">
-        <!-- The script below renders the prompts and content with a typewriter effect. -->
         <noscript>
           <div class="block">
             <div class="line"><span class="prompt"><span class="user">vojta</span><span class="at">@</span><span class="host">konopa</span><span class="path">:~</span><span class="sym">$</span></span> <span class="cmd">whoami</span></div>
@@ -236,11 +234,17 @@
             <p class="out">Welcome to my personal website. What you may find here is information about me, all my projects, my credentials and contacts.</p>
           </div>
           <div class="block">
+            <div class="line"><span class="prompt"><span class="user">vojta</span><span class="at">@</span><span class="host">konopa</span><span class="path">:~</span><span class="sym">$</span></span> <span class="cmd">ls projects/</span></div>
+            <ul class="entries">
+              <li><a href="./unikovka_procenta.html">unikovka_procenta.html</a> <span class="entry-meta">— Únikovka z matiky · Procenta (interactive math escape-room)</span></li>
+            </ul>
+          </div>
+          <div class="block">
             <div class="line"><span class="prompt"><span class="user">vojta</span><span class="at">@</span><span class="host">konopa</span><span class="path">:~</span><span class="sym">$</span></span> <span class="cmd">ls links/</span></div>
-            <ul class="links">
+            <ul class="entries">
               <li><a href="https://github.com/mrkonopa" target="_blank" rel="noopener">github.com/mrkonopa</a></li>
               <li><a href="mailto:vojtech.konopa@gmail.com">vojtech.konopa@gmail.com</a></li>
-              <li><a href="https://www.linkedin.com/in/vojt%C4%9Bch-konopa-216614100/" target="_blank" rel="noopener">linkedin.com/in/vojtech.konopa</a></li>
+              <li><a href="https://www.linkedin.com/in/YOUR-LINKEDIN-SLUG" target="_blank" rel="noopener">linkedin.com/in/YOUR-LINKEDIN-SLUG</a> <span class="dim"># TODO: replace with your URL</span></li>
               <li><a href="https://instagram.com/mrkonopa" target="_blank" rel="noopener">instagram.com/mrkonopa</a></li>
             </ul>
           </div>
@@ -257,7 +261,6 @@
       const PROMPT_HTML =
         '<span class="prompt"><span class="user">vojta</span><span class="at">@</span><span class="host">konopa</span><span class="path">:~</span><span class="sym">$</span></span> ';
 
-      // Each step either types a command after the prompt, or reveals a static block of HTML.
       const steps = [
         { type: 'prompt', cmd: 'whoami' },
         {
@@ -269,11 +272,19 @@
           type: 'typeOut',
           html: 'Welcome to my personal website. What you may find here is information about me, all my projects, my credentials and contacts.'
         },
+        { type: 'prompt', cmd: 'ls projects/' },
+        {
+          type: 'reveal',
+          html:
+            '<ul class="entries">' +
+              '<li><a href="./unikovka_procenta.html">unikovka_procenta.html</a> <span class="entry-meta">— Únikovka z matiky · Procenta (interactive math escape-room)</span></li>' +
+            '</ul>'
+        },
         { type: 'prompt', cmd: 'ls links/' },
         {
           type: 'reveal',
           html:
-            '<ul class="links">' +
+            '<ul class="entries">' +
               '<li><a href="https://github.com/mrkonopa" target="_blank" rel="noopener">github.com/mrkonopa</a></li>' +
               '<li><a href="mailto:vojtech.konopa@gmail.com">vojtech.konopa@gmail.com</a></li>' +
               '<li><a href="https://www.linkedin.com/in/YOUR-LINKEDIN-SLUG" target="_blank" rel="noopener">linkedin.com/in/YOUR-LINKEDIN-SLUG</a> <span class="dim"># TODO: replace with your URL</span></li>' +
@@ -283,12 +294,11 @@
       ];
 
       const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      const TYPE_SPEED = reduceMotion ? 0 : 38;        // ms per char for commands
-      const TEXT_SPEED = reduceMotion ? 0 : 14;        // ms per char for prose
-      const PAUSE_AFTER_CMD = reduceMotion ? 0 : 220;  // pause after a command before its output
-      const PAUSE_BETWEEN = reduceMotion ? 0 : 360;    // pause before next prompt
+      const TYPE_SPEED = reduceMotion ? 0 : 38;
+      const TEXT_SPEED = reduceMotion ? 0 : 14;
+      const PAUSE_AFTER_CMD = reduceMotion ? 0 : 220;
+      const PAUSE_BETWEEN = reduceMotion ? 0 : 360;
 
-      // The active caret element follows whatever line is currently being typed.
       const caret = document.createElement('span');
       caret.className = 'caret';
 
@@ -326,7 +336,6 @@
           const wrap = document.createElement('div');
           wrap.innerHTML = step.html;
           block.appendChild(wrap);
-          // attach caret to end so it keeps blinking on the latest output
           block.appendChild(caret);
           await sleep(PAUSE_BETWEEN);
           return;
@@ -347,7 +356,6 @@
         for (const step of steps) {
           await runStep(step);
         }
-        // Final idle prompt with a blinking caret
         const finalBlock = document.createElement('div');
         finalBlock.className = 'block';
         const line = document.createElement('div');
@@ -358,7 +366,6 @@
         screen.appendChild(finalBlock);
       }
 
-      // Kick off after first paint so the layout is stable.
       window.requestAnimationFrame(() => { run(); });
     })();
   </script>
