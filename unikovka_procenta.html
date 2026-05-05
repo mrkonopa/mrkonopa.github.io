@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Unikovka: Procenta</title>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;600;700;800&family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --gold-dark:#c89a10; --blue:#1a73c8; --blue-light:#e8f1fb;
+  --green:#1e9e5a; --green-light:#e6f7ef; --red:#d63c2f;
+  --purple:#7c3aad; --purple-light:#f3eefa;
+  --teal:#0f8a72; --teal-light:#e4f5f1;
+  --orange:#d4620a; --orange-light:#fdf0e5;
+  --pink:#b5286e; --pink-light:#fce8f2;
+  --indigo:#3730a3; --indigo-light:#eef2ff;
+  --rose:#9f1239; --rose-light:#fff1f2;
+  --cyan:#0e7490; --cyan-light:#ecfeff;
+  --bg:#f5f0e6; --card:#fff; --text:#1a1a2e; --muted:#6b7280;
+  --shadow:0 4px 24px rgba(0,0,0,.09); --radius:16px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Lexend',sans-serif;background:var(--bg);
+  background-image:radial-gradient(circle at 8% 15%,rgba(245,200,66,.12) 0%,transparent 38%),
+  radial-gradient(circle at 92% 82%,rgba(26,115,200,.09) 0%,transparent 38%);
+  min-height:100vh;color:var(--text)}
+.screen{display:none;min-height:100vh;padding:24px 16px 48px;max-width:680px;margin:0 auto}
+.screen.active{display:flex;flex-direction:column;align-items:center}
+/* INTRO */
+#intro{justify-content:center;text-align:center;gap:18px}
+.chest{font-size:88px;animation:float 3s ease-in-out infinite;display:inline-block;
+  filter:drop-shadow(0 8px 16px rgba(0,0,0,.15))}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
+.title-main{font-family:'Fredoka',cursive;font-size:2.5rem;color:var(--blue);line-height:1.1;font-weight:700}
+.title-sub{font-family:'Fredoka',cursive;font-size:1.45rem;color:var(--gold-dark);font-weight:600}
+.intro-card{background:var(--card);border-radius:var(--radius);padding:22px 26px;
+  box-shadow:var(--shadow);border-left:6px solid var(--blue);text-align:left;width:100%}
+.intro-card p{font-size:.97rem;line-height:1.75}
+.intro-card p+p{margin-top:10px}
+.intro-card b{color:var(--blue)}
+.rules{background:var(--card);border-radius:var(--radius);padding:18px 22px;
+  box-shadow:var(--shadow);width:100%;border-left:6px solid var(--gold-dark)}
+.rules h3{font-family:'Fredoka',cursive;color:var(--gold-dark);font-size:1.05rem;margin-bottom:10px;font-weight:600}
+.rules ul{list-style:none;display:flex;flex-direction:column;gap:8px}
+.rules li{display:flex;align-items:flex-start;gap:10px;font-size:.95rem;line-height:1.55}
+.btn-primary{background:linear-gradient(135deg,var(--blue),#1250a0);color:#fff;
+  font-family:'Fredoka',cursive;font-size:1.25rem;font-weight:600;border:none;
+  border-radius:50px;padding:15px 46px;cursor:pointer;
+  box-shadow:0 6px 20px rgba(26,115,200,.32);transition:transform .15s,box-shadow .15s}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(26,115,200,.38)}
+/* PROGRESS */
+.progress-wrap{width:100%;margin-bottom:18px}
+.progress-label{display:flex;justify-content:space-between;font-size:.82rem;font-weight:700;color:var(--muted);margin-bottom:5px}
+.progress-bar{background:#ddd8c6;border-radius:20px;height:9px;overflow:hidden}
+.progress-fill{height:100%;border-radius:20px;background:linear-gradient(90deg,var(--blue),var(--teal));transition:width .5s ease}
+.stars-wrap{display:flex;gap:3px}
+.star{font-size:1rem;opacity:.22;transition:opacity .3s,transform .3s}
+.star.lit{opacity:1;transform:scale(1.12)}
+/* GAME */
+#game{justify-content:flex-start;gap:0}
+.lock-header{width:100%;display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.lock-icon-big{font-size:2.2rem}
+.lock-title{font-family:'Fredoka',cursive;font-size:1.4rem;font-weight:600}
+.lock-badge{margin-left:auto;background:var(--blue);color:#fff;border-radius:50px;
+  padding:3px 13px;font-size:.82rem;font-weight:700;white-space:nowrap}
+.task-card{background:var(--card);border-radius:var(--radius);padding:22px 22px 18px;
+  box-shadow:var(--shadow);width:100%;margin-bottom:14px;position:relative;overflow:hidden}
+.task-card::before{content:'';position:absolute;top:0;left:0;width:5px;height:100%;border-radius:3px 0 0 3px}
+.task-card.blue::before{background:var(--blue)}
+.task-card.green::before{background:var(--green)}
+.task-card.purple::before{background:var(--purple)}
+.task-card.teal::before{background:var(--teal)}
+.task-card.orange::before{background:var(--orange)}
+.task-card.pink::before{background:var(--pink)}
+.task-card.indigo::before{background:var(--indigo)}
+.task-card.rose::before{background:var(--rose)}
+.task-card.cyan::before{background:var(--cyan)}
+.task-card.gold::before{background:var(--gold-dark)}
+.task-card h3{font-family:'Fredoka',cursive;font-size:1.02rem;margin-bottom:11px;font-weight:600}
+.task-card.blue h3{color:var(--blue)} .task-card.green h3{color:var(--green)}
+.task-card.purple h3{color:var(--purple)} .task-card.teal h3{color:var(--teal)}
+.task-card.orange h3{color:var(--orange)} .task-card.pink h3{color:var(--pink)}
+.task-card.indigo h3{color:var(--indigo)} .task-card.rose h3{color:var(--rose)}
+.task-card.cyan h3{color:var(--cyan)} .task-card.gold h3{color:var(--gold-dark)}
+.task-card p{font-size:.95rem;line-height:1.75}
+.task-card p+p{margin-top:8px}
+.hint-box{margin-top:11px;background:#fef9ec;border:1.5px dashed var(--gold-dark);
+  border-radius:10px;padding:9px 13px;font-size:.88rem;color:#7a5200;display:none}
+.hint-box.show{display:block}
+.hint-btn{background:none;border:1.5px solid var(--gold-dark);color:var(--gold-dark);
+  border-radius:20px;padding:4px 12px;font-size:.8rem;font-weight:700;cursor:pointer;
+  margin-top:9px;font-family:'Lexend',sans-serif;transition:background .15s}
+.hint-btn:hover{background:#fef9ec}
+.tag{display:inline-block;border-radius:20px;padding:2px 10px;font-size:.78rem;font-weight:700;margin-bottom:7px}
+.tag.blue{background:var(--blue-light);color:var(--blue)}
+.tag.green{background:var(--green-light);color:var(--green)}
+.tag.purple{background:var(--purple-light);color:var(--purple)}
+.tag.teal{background:var(--teal-light);color:var(--teal)}
+.tag.orange{background:var(--orange-light);color:var(--orange)}
+.tag.pink{background:var(--pink-light);color:var(--pink)}
+.tag.indigo{background:var(--indigo-light);color:var(--indigo)}
+.tag.rose{background:var(--rose-light);color:var(--rose)}
+.tag.cyan{background:var(--cyan-light);color:var(--cyan)}
+.tag.gold{background:#fef9ec;color:var(--gold-dark)}
+/* CODE INPUT */
+.code-wrap{background:var(--card);border-radius:var(--radius);padding:20px 22px;
+  box-shadow:var(--shadow);width:100%;margin-bottom:18px}
+.code-wrap label{display:block;font-family:'Fredoka',cursive;font-size:.98rem;color:var(--muted);
+  margin-bottom:11px;font-weight:600}
+.code-row{display:flex;gap:10px;align-items:center}
+.code-input{flex:1;font-family:'Fredoka',cursive;font-size:1.5rem;text-align:center;
+  letter-spacing:.12em;border:3px solid #ccc8bb;border-radius:12px;padding:11px 14px;
+  outline:none;transition:border-color .2s;background:#fafaf6;color:var(--text)}
+.code-input:focus{border-color:var(--blue);background:#fff}
+.code-input.error{border-color:var(--red);animation:shake .32s}
+.code-input.success{border-color:var(--green);background:var(--green-light)}
+@keyframes shake{0%,100%{transform:translateX(0)}30%{transform:translateX(-5px)}70%{transform:translateX(5px)}}
+.btn-check{background:linear-gradient(135deg,var(--blue),#1250a0);color:#fff;
+  font-family:'Fredoka',cursive;font-size:.97rem;font-weight:600;border:none;
+  border-radius:12px;padding:13px 20px;cursor:pointer;
+  box-shadow:0 4px 14px rgba(26,115,200,.28);transition:transform .15s;white-space:nowrap}
+.btn-check:hover{transform:translateY(-1px)}
+.feedback{margin-top:9px;font-weight:700;font-size:.92rem;min-height:20px}
+.feedback.ok{color:var(--green)} .feedback.err{color:var(--red)}
+.unlock-anim{display:none;flex-direction:column;align-items:center;gap:6px;padding:18px;
+  animation:popIn .4s cubic-bezier(.175,.885,.32,1.275)}
+.unlock-anim.show{display:flex}
+@keyframes popIn{from{transform:scale(.5);opacity:0}to{transform:scale(1);opacity:1}}
+.unlock-anim .big-icon{font-size:3.2rem}
+.unlock-anim p{font-family:'Fredoka',cursive;font-size:1.05rem;color:var(--green);text-align:center;font-weight:600}
+/* TABLE */
+table.tt{width:100%;border-collapse:collapse;margin:10px 0;font-size:.9rem}
+table.tt th{padding:7px 9px;text-align:center;font-weight:700}
+table.tt td{border:1px solid #e0dbd0;padding:7px 9px;text-align:center}
+table.tt tr:nth-child(even) td{background:#fafaf5}
+.blue table.tt th{background:var(--blue-light);color:var(--blue)}
+.green table.tt th{background:var(--green-light);color:var(--green)}
+.purple table.tt th{background:var(--purple-light);color:var(--purple)}
+.teal table.tt th{background:var(--teal-light);color:var(--teal)}
+.orange table.tt th{background:var(--orange-light);color:var(--orange)}
+.pink table.tt th{background:var(--pink-light);color:var(--pink)}
+.indigo table.tt th{background:var(--indigo-light);color:var(--indigo)}
+.rose table.tt th{background:var(--rose-light);color:var(--rose)}
+.cyan table.tt th{background:var(--cyan-light);color:var(--cyan)}
+.gold table.tt th{background:#fef9ec;color:var(--gold-dark)}
+/* FINISH */
+#finish{justify-content:center;text-align:center;gap:20px}
+.final-chest{font-size:96px;animation:bounce .6s cubic-bezier(.175,.885,.32,1.275)}
+@keyframes bounce{from{transform:scale(0)}to{transform:scale(1)}}
+.final-title{font-family:'Fredoka',cursive;font-size:2.3rem;color:var(--gold-dark);font-weight:700}
+.final-sub{font-size:.97rem;color:var(--muted);line-height:1.75;max-width:420px}
+.summary-card{background:var(--card);border-radius:var(--radius);padding:18px 22px;
+  box-shadow:var(--shadow);width:100%;text-align:left}
+.summary-card h3{font-family:'Fredoka',cursive;color:var(--blue);font-size:1.05rem;margin-bottom:12px;font-weight:600}
+.summary-row{display:flex;align-items:flex-start;gap:11px;padding:9px 0;
+  border-bottom:1px solid #f0ece0;font-size:.93rem;line-height:1.6}
+.summary-row:last-child{border-bottom:none}
+.s-icon{font-size:1.2rem;flex-shrink:0;margin-top:1px}
+.confetti-wrap{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:999}
+.confetti-piece{position:absolute;animation:fall linear forwards}
+@keyframes fall{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+</style>
+</head>
+<body>
+
+<!-- INTRO -->
+<div id="intro" class="screen active">
+  <div class="chest">&#127988;&#65039;</div>
+  <div class="title-main">&#218;nikovka z matiky</div>
+  <div class="title-sub">&#9889; PROCENTA &#9889;</div>
+  <div class="intro-card">
+    <p>P&#345;ed tebou je <b>truhla s pokladem</b> &#8211; uzam&#269;ena <b>10 z&#225;mky</b>.</p>
+    <p>Ka&#382;d&#253; z&#225;mek se odemkne spr&#225;vn&#253;m k&#243;dem. V&#253;po&#269;ty d&#283;lej <b>do se&#353;itu</b>, k&#243;d zadej sem.</p>
+    <p>&#381;&#225;dn&#233; kalkulа&#269;ky &#8211; dnes p&#345;ijde&#353; na to, jak procenta funguj&#237; <b>vlastn&#237; hlavou</b> &#129504;</p>
+  </div>
+  <div class="rules">
+    <h3>&#128203; Pravidla</h3>
+    <ul>
+      <li><span>&#9999;&#65039;</span>&#160;V&#253;po&#269;ty pi&#353; do se&#353;itu &#8211; ka&#382;d&#253; p&#345;&#237;klad cel&#253;.</li>
+      <li><span>&#128683;</span>&#160;Bez kalkulа&#269;ky, bez opisov&#225;n&#237;.</li>
+      <li><span>&#128161;</span>&#160;Nev&#237;&#353;? Zkus n&#225;pov&#283;du &#8211; ale nejd&#345;&#237;v se zamysli!</li>
+      <li><span>&#128290;</span>&#160;K&#243;d zadej jako &#269;&#237;slo (bez mezer, bez %).</li>
+    </ul>
+  </div>
+  <button class="btn-primary" onclick="startGame()">&#128275; Za&#269;&#237;t dobrodru&#382;stv&#237;!</button>
+</div>
+
+<!-- GAME -->
+<div id="game" class="screen">
+  <div class="progress-wrap" style="width:100%">
+    <div class="progress-label">
+      <span id="prog-label">Z&#225;mek 1 z 10</span>
+      <span class="stars-wrap" id="stars-wrap"></span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="prog-fill" style="width:0%"></div></div>
+  </div>
+  <div id="step-container" style="width:100%"></div>
+</div>
+
+<!-- FINISH -->
+<div id="finish" class="screen">
+  <div class="confetti-wrap" id="confetti"></div>
+  <div class="final-chest">&#127942;</div>
+  <div class="final-title">Poklad je tv&#367;j!</div>
+  <p class="final-sub">Zvl&#225;dl(a) jsi v&#353;ech 10 z&#225;mk&#367; a pronikl(a) do tajemstv&#237; procent. Gratulace!</p>
+  <div class="summary-card">
+    <h3>&#128214; Co jsi dnes objevil(a)</h3>
+    <div class="summary-row"><span class="s-icon">&#49;&#65039;&#8419;</span><span>1&#160;% = 1 setina celku = z&#225;klad &#247; 100</span></div>
+    <div class="summary-row"><span class="s-icon">&#50;&#65039;&#8419;</span><span>n&#160;% ze z&#225;kladu = (z&#225;klad &#247; 100) &#215; n</span></div>
+    <div class="summary-row"><span class="s-icon">&#51;&#65039;&#8419;</span><span>Procento = zlomek = desetinn&#233; &#269;&#237;slo &#160;(25&#160;% = 25/100 = 0,25)</span></div>
+    <div class="summary-row"><span class="s-icon">&#52;&#65039;&#8419;</span><span>Kolik procent? &#8594; &#269;&#225;st &#247; celek &#215; 100</span></div>
+  </div>
+  <button class="btn-primary" onclick="location.reload()">&#128260; Hr&#225;t znovu</button>
+</div>
+
+<script>
+const S = [
+{id:1,color:'blue',icon:'&#128309;',
+ title:'Z&#225;mek&#160;1 &#8211; Co je to 1&#160;%?',
+ tag:'Definice procenta',tagClass:'blue',
+ tasks:[
+  {title:'&#129513; Objev to s&#225;m(a)',
+   body:`<p>M&#225;&#353; cel&#253; kor&#225;&#269; rozd&#283;len&#253; na <b>100 stejn&#283; velk&#253;ch d&#237;lk&#367;</b>. Jeden d&#237;lek&#160;=&#160;<b>1&#160;%</b>.</p>
+   <p>Vypo&#269;&#237;tej <b>1&#160;% z ka&#382;d&#233;ho &#269;&#237;sla</b>:</p>
+   <table class="tt"><tr><th>Z&#225;klad</th><th>200</th><th>500</th><th>1&#160;000</th><th>4&#160;000</th><th>300</th></tr>
+   <tr><td><b>1&#160;%</b></td><td>&#160;</td><td>&#160;</td><td>&#160;</td><td>&#160;</td><td>&#160;</td></tr></table>`,
+   hint:'&#128161; Jak&#253;m &#269;&#237;slem must&#237;&#353; d&#283;lit, aby ses dostal(a) na 1&#160;setinu? Zkus &#269;&#237;slo 100.'},
+  {title:'&#128290; K&#243;d z&#225;mku',
+   body:`<p>Vypo&#269;&#237;tej <b>1&#160;% ze 700</b>. V&#253;sledek je tv&#367;j k&#243;d.</p>`,
+   hint:'&#128161; 700 &#247; 100 = ?'}
+ ],
+ code:'7',
+ successMsg:'&#128275; Spr&#225;vn&#283;! 1&#160;%&#160;=&#160;z&#225;klad&#160;&#247;&#160;100. Z&#225;mek 1 otev&#345;en!'},
+
+{id:2,color:'green',icon:'&#128994;',
+ title:'Z&#225;mek&#160;2 &#8211; V&#237;c ne&#382; 1&#160;%',
+ tag:'V&#253;po&#269;et procentov&#233; &#269;&#225;sti',tagClass:'green',
+ tasks:[
+  {title:'&#129513; Jak spo&#269;&#237;tat v&#237;ce procent',
+   body:`<p>V&#237;&#353; ji&#382;, jak spo&#269;&#237;tat 1&#160;%. Jak spo&#269;&#237;tat&#160;<b>n&#160;%</b>?</p>
+   <table class="tt"><tr><th>P&#345;&#237;klad</th><th>1. krok: 1&#160;%</th><th>2. krok: n&#160;%</th></tr>
+   <tr><td><b>3&#160;% z 200</b></td><td>1&#160;% = 2</td><td>3&#160;% = ?</td></tr>
+   <tr><td><b>25&#160;% z 400</b></td><td>1&#160;% = 4</td><td>25&#160;% = ?</td></tr>
+   <tr><td><b>10&#160;% z 80</b></td><td>1&#160;% = ?</td><td>10&#160;% = ?</td></tr></table>`,
+   hint:'&#128161; M&#225;&#353;-li 1&#160;%, t&#345;ikr&#225;t ho vyn&#225;sob&#237;&#353; pro 3&#160;%, dvacetp&#283;tkr&#225;t pro 25&#160;%.'},
+  {title:'&#128290; K&#243;d z&#225;mku',
+   body:`<p>a) <b>5&#160;% z 600</b>&#160;=&#160;?</p><p>b) <b>20&#160;% z 500</b>&#160;=&#160;?</p><p>K&#243;d = a&#160;+&#160;b</p>`,
+   hint:'&#128161; a) 1&#160;%&#160;ze&#160;600&#160;=&#160;6, pak &#215;5. b) 1&#160;%&#160;ze&#160;500&#160;=&#160;5, pak &#215;20.'}
+ ],
+ code:'130',
+ successMsg:'&#128275; V&#253;born&#283;! n&#160;%&#160;=&#160;1&#160;%&#160;&#215;&#160;n. Z&#225;mek 2 otev&#345;en!'},
+
+{id:3,color:'purple',icon:'&#128995;',
+ title:'Z&#225;mek&#160;3 &#8211; Procenta zpam&#283;ti',
+ tag:'Po&#269;&#237;t&#225;n&#237; zpam&#283;ti',tagClass:'purple',
+ tasks:[
+  {title:'&#129513; Zpam&#283;ti!',
+   body:`<p>Vypo&#269;&#237;tej <b>zpam&#283;ti</b> a dopi&#353; do tabulky:</p>
+   <table class="tt"><tr><th>Z&#225;klad</th><th>300</th><th>250</th><th>4&#160;000</th><th>600</th><th>500</th></tr>
+   <tr><td><b>1&#160;%</b></td><td>&#160;</td><td>&#160;</td><td>&#160;</td><td>&#160;</td><td>&#160;</td></tr>
+   <tr><td><b>10&#160;%</b></td><td>&#160;</td><td>&#160;</td><td>&#160;</td><td>&#160;</td><td>&#160;</td></tr></table>`,
+   hint:'&#128161; 10&#160;%&#160;=&#160;z&#225;klad &#247; 10.'},
+  {title:'&#128290; K&#243;d z&#225;mku',
+   body:`<p>Vypo&#269;&#237;tej zpam&#283;ti:<br><b>2&#160;% z 500</b>&#160;=&#160;a<br><b>50&#160;% z 200</b>&#160;=&#160;b<br>K&#243;d = a&#160;+&#160;b</p>`,
+   hint:'&#128161; 50&#160;%&#160;=&#160;polovina celku.'}
+ ],
+ code:'110',
+ successMsg:'&#128275; P&#345;esn&#283;! 10&#160;+&#160;100&#160;=&#160;110. Z&#225;mek 3 otev&#345;en!'},
+
+{id:4,color:'teal',icon:'&#129401;',
+ title:'Z&#225;mek&#160;4 &#8211; T&#345;i z&#225;pisy',
+ tag:'Procento = zlomek = des. &#269;&#237;slo',tagClass:'teal',
+ tasks:[
+  {title:'&#129513; T&#345;i zp&#367;soby, jak zapsat tot&#233;&#382;',
+   body:`<p>Vzor: <b>25&#160;%&#160;=&#160;25/100&#160;=&#160;0,25</b></p>
+   <table class="tt"><tr><th>Procenta</th><th>Zlomek</th><th>Des. &#269;&#237;slo</th></tr>
+   <tr><td><b>50&#160;%</b></td><td>50/100</td><td>&#160;</td></tr>
+   <tr><td>&#160;</td><td>7/100</td><td>0,07</td></tr>
+   <tr><td><b>3&#160;%</b></td><td>&#160;</td><td>&#160;</td></tr>
+   <tr><td><b>150&#160;%</b></td><td>&#160;</td><td>&#160;</td></tr>
+   <tr><td><b>200&#160;%</b></td><td>&#160;</td><td>&#160;</td></tr></table>`,
+   hint:'&#128161; Desetinn&#233; &#269;&#237;slo: p&#345;esu&#328; desetinnou &#269;&#225;rku o 2 m&#237;sta doleva. 150&#160;%&#160;=&#160;1,50.'},
+  {title:'&#128290; K&#243;d z&#225;mku',
+   body:`<p>P&#345;eve&#271; na desetinn&#233; &#269;&#237;slo:<br>a) <b>40&#160;%</b>&#160;=&#160;? &#160;&#160; b) <b>5&#160;%</b>&#160;=&#160;? &#160;&#160; c) <b>200&#160;%</b>&#160;=&#160;?</p><p>K&#243;d = (a&#160;+&#160;b&#160;+&#160;c)&#160;&#215;&#160;100 &#160;(zadej jako cel&#233; &#269;&#237;slo)</p>`,
+   hint:'&#128161; 40&#160;%&#160;=&#160;0,40; 5&#160;%&#160;=&#160;0,05; 200&#160;%&#160;=&#160;2,00. Sou&#269;et&#160;=&#160;2,45, pak &#215;100.'}
+ ],
+ code:'245',
+ successMsg:'&#128275; Spr&#225;vn&#283;! Sou&#269;et 2,45&#160;&#215;&#160;100&#160;=&#160;245. Z&#225;mek 4 otev&#345;en!'},
+
+{id:5,color:'orange',icon:'&#128992;',
+ title:'Z&#225;mek&#160;5 &#8211; Zlomek &#8594; procento',
+ tag:'P&#345;evody zlomek &#8594; %',tagClass:'orange',
+ tasks:[
+  {title:'&#129513; Zlomek vyj&#225;d&#345;i v procentech',
+   body:`<p>Vzor: 31/100&#160;=&#160;<b>31&#160;%</b></p>
+   <p>Vypo&#269;&#237;tej:</p>
+   <table class="tt"><tr><th>Zlomek</th><th>64/100</th><th>125/100</th><th>24/100</th><th>350/100</th><th>4/100</th></tr>
+   <tr><td><b>%</b></td><td>&#160;</td><td>&#160;</td><td>&#160;</td><td>&#160;</td><td>&#160;</td></tr></table>`,
+   hint:'&#128161; &#268;&#237;slo v &#269;&#237;siteli = po&#269;et procent.'},
+  {title:'&#128290; K&#243;d z&#225;mku',
+   body:`<p>Vyj&#225;d&#345;i v procentech:<br>a) <b>119/100</b>&#160;=&#160;? &#160;&#160; b) <b>700/100</b>&#160;=&#160;?</p><p>K&#243;d = a&#160;+&#160;b</p>`,
+   hint:'&#128161; 119/100&#160;=&#160;119&#160;%, 700/100&#160;=&#160;700&#160;%.'}
+ ],
+ code:'819',
+ successMsg:'&#128275; Spr&#225;vn&#283;! 119&#160;+&#160;700&#160;=&#160;819. Z&#225;mek 5 otev&#345;en!'},
+
+{id:6,color:'pink',icon:'&#129399;',
+ title:'Z&#225;mek&#160;6 &#8211; Vybarv&#283;n&#237;',
+ tag:'Procento jako &#269;&#225;st celku',tagClass:'pink',
+ tasks:[
+  {title:'&#129513; Procento a grafick&#233; zn&#225;zorn&#283;n&#237;',
+   body:`<p>Do se&#353;itu nakresli ob&#233;ln&#237;k z 10 &#269;tvere&#269;k&#367; a vybarvuj:</p>
+   <p>a) 10&#160;% &#8211; kolik &#269;tvere&#269;k&#367;?</p>
+   <p>b) 40&#160;% &#8211; kolik &#269;tvere&#269;k&#367;?</p>
+   <p>c) 100&#160;% &#8211; kolik &#269;tvere&#269;k&#367;?</p>`,
+   hint:'&#128161; 10&#160;% z 10 &#269;tvere&#269;k&#367; = 1&#160;&#269;tvere&#269;ek.'},
+  {title:'&#128290; K&#243;d z&#225;mku',
+   body:`<p>Ob&#233;ln&#237;k m&#225; <b>20&#160;&#269;tvere&#269;k&#367;</b>:<br>a) 50&#160;% = kolik &#269;tvere&#269;k&#367;?<br>b) 25&#160;% = kolik &#269;tvere&#269;k&#367;?</p><p>K&#243;d = a&#160;+&#160;b</p>`,
+   hint:'&#128161; 50&#160;%&#160;z&#160;20&#160;=&#160;10. 25&#160;% z 20 = 5.'}
+ ],
+ code:'15',
+ successMsg:'&#128275; Spr&#225;vn&#283;! 10&#160;+&#160;5&#160;=&#160;15. Z&#225;mek 6 otev&#345;en!'},
+
+{id:7,color:'indigo',icon:'&#128311;',
+ title:'Z&#225;mek&#160;7 &#8211; Des. &#269;&#237;slo &#8594; procento',
+ tag:'P&#345;evod des. &#269;&#237;sla na %',tagClass:'indigo',
+ tasks:[
+  {title:'&#129513; Z desetinn&#233;ho &#269;&#237;sla na procenta',
+   body:`<p>Vzor: 0,25&#160;=&#160;25/100&#160;=&#160;<b>25&#160;%</b></p>
+   <p>Pravidlo: desetinn&#233; &#269;&#237;slo&#160;&#215;&#160;100&#160;=&#160;po&#269;et procent</p>
+   <table class="tt"><tr><th>Des. &#269;&#237;slo</th><th>0,01</th><th>0,03</th><th>0,25</th><th>0,18</th><th>0,95</th><th>1,25</th></tr>
+   <tr><td><b>%</b></td><td>&#160;</td><td>&#160;</td><td>&#160;</td><td>&#160;</td><td>&#160;</td><td>&#160;</td></tr></table>`,
+   hint:'&#128161; Desetinn&#233; &#269;&#237;slo &#215; 100 = p&#345;esu&#328; &#269;&#225;rku o 2 m&#237;sta doprava.'},
+  {title:'&#128290; K&#243;d z&#225;mku',
+   body:`<p>P&#345;eve&#271; a spo&#269;&#237;tej:<br>a) <b>0,75</b>&#160;=&#160;? &#160;&#160; b) <b>2,4</b>&#160;=&#160;?</p><p>K&#243;d = a&#160;+&#160;b</p>`,
+   hint:'&#128161; 0,75&#160;&#215;&#160;100&#160;=&#160;75; 2,4&#160;&#215;&#160;100&#160;=&#160;240.'}
+ ],
+ code:'315',
+ successMsg:'&#128275; P&#345;esn&#283;! 75&#160;+&#160;240&#160;=&#160;315. Z&#225;mek 7 otev&#345;en!'},
+
+{id:8,color:'rose',icon:'&#127801;',
+ title:'Z&#225;mek&#160;8 &#8211; Kolik procent?',
+ tag:'Po&#269;et procent',tagClass:'rose',
+ tasks:[
+  {title:'&#129513; Kolik procent je &#269;&#225;st z celku?',
+   body:`<p>Vzorec: <b>&#269;&#225;st &#247; celek &#215; 100 = po&#269;et&#160;%</b></p>
+   <p>Procvi&#269;:</p>
+   <table class="tt"><tr><th>&#268;&#225;st</th><th>Celek</th><th>Kolik&#160;%?</th></tr>
+   <tr><td>1</td><td>100</td><td>&#160;</td></tr>
+   <tr><td>25</td><td>100</td><td>&#160;</td></tr>
+   <tr><td>3</td><td>300</td><td>&#160;</td></tr>
+   <tr><td>40</td><td>200</td><td>&#160;</td></tr>
+   <tr><td>32</td><td>800</td><td>&#160;</td></tr></table>`,
+   hint:'&#128161; Nap&#345;. 3 ze 300: 3 &#247; 300 = 0,01 &#8594; &#215; 100 = 1&#160;%.'},
+  {title:'&#128290; K&#243;d z&#225;mku',
+   body:`<p>Ve t&#345;&#237;d&#283; je <b>30 &#382;&#225;k&#367;</b>. <b>6</b> zapomn&#283;lo se&#353;it.</p><p>Kolik procent &#382;&#225;k&#367; zapomn&#283;lo?</p><p>K&#243;d = v&#253;sledek (bez&#160;%)</p>`,
+   hint:'&#128161; 6 &#247; 30 &#215; 100 = ?'}
+ ],
+ code:'20',
+ successMsg:'&#128275; Spr&#225;vn&#283;! 6&#160;&#247;&#160;30&#160;&#215;&#160;100&#160;=&#160;20&#160;%. Z&#225;mek 8 otev&#345;en!'},
+
+{id:9,color:'cyan',icon:'&#128309;',
+ title:'Z&#225;mek&#160;9 &#8211; Slovn&#237; &#250;loha',
+ tag:'Slovn&#237; &#250;loha &#8211; mix',tagClass:'cyan',
+ tasks:[
+  {title:'&#129513; Po&#269;t&#225;rna v obchod&#283;',
+   body:`<p>Vypo&#269;&#237;tej ka&#382;dou &#250;lohu do se&#353;itu.</p>
+   <p>a) V obchod&#283; bylo <b>400 v&#253;robk&#367;</b>. Prodali <b>30&#160;%</b>. Kolik v&#253;robk&#367; prodali?</p>
+   <p>b) Cena tri&#269;ka je <b>500&#160;K&#269;</b>. Sleva &#269;in&#237; <b>20&#160;%</b>. Kolik korun stoj&#237; sleva?</p>
+   <p>c) Ka&#382;d&#253; &#382;&#225;k m&#225; <b>1&#160;% z 1&#160;000 bod&#367;</b> na za&#269;&#225;tku roku. Kolik bod&#367; m&#225;?</p>`,
+   hint:'&#128161; Postup: 1&#160;% ze z&#225;kladu, pak vyn&#225;sob po&#269;tem procent.'},
+  {title:'&#128290; K&#243;d z&#225;mku',
+   body:`<p>K&#243;d = sou&#269;et v&#253;sledk&#367; a&#160;+&#160;b&#160;+&#160;c</p>`,
+   hint:'&#128161; a)&#160;120, b)&#160;100, c)&#160;10. Sou&#269;et = ?'}
+ ],
+ code:'230',
+ successMsg:'&#128275; Skvostn&#283;! 120&#160;+&#160;100&#160;+&#160;10&#160;=&#160;230. Z&#225;mek 9 otev&#345;en!'},
+
+{id:10,color:'gold',icon:'&#127942;',
+ title:'Z&#225;mek&#160;10 &#8211; Fin&#225;le!',
+ tag:'Komplexn&#237; &#250;loha',tagClass:'gold',
+ tasks:[
+  {title:'&#127942; Posledn&#237; v&#253;zva',
+   body:`<p>Tyto &#250;lohy spojuj&#237; v&#353;e, co jsi dnes nau&#269;il(a).</p>
+   <p>a) Vypo&#269;&#237;tej: <b>150&#160;% ze 40</b></p>
+   <p>b) V t&#253;mu je 25 hr&#225;&#269;&#367;. 8 je zran&#283;n&#253;ch. Kolik procent je zran&#283;no? (zaokrouhli na cel&#233;&#160;%)</p>
+   <p>c) P&#345;eve&#271; <b>0,37</b> na procenta.</p>`,
+   hint:'&#128161; a) 150&#160;% = 1,5 &#215; 40 = 60. b) 8 &#247; 25 &#215; 100 = 32. c) 0,37 &#215; 100 = 37.'},
+  {title:'&#128290; Fin&#225;ln&#237; k&#243;d',
+   body:`<p>K&#243;d = sou&#269;et a&#160;+&#160;b&#160;+&#160;c</p><p>Zadej v&#253;sledek a otev&#345;i posledn&#237; z&#225;mek!</p>`,
+   hint:'&#128161; 60&#160;+&#160;32&#160;+&#160;37&#160;=&#160;?'}
+ ],
+ code:'129',
+ successMsg:'&#127942; BRAV&#211;! V&#353;ech 10 z&#225;mk&#367; otev&#345;eno! Poklad je tv&#367;j!'}
+];
+
+let cur=0, att=new Array(S.length).fill(0);
+
+function startGame(){
+  document.getElementById('intro').classList.remove('active');
+  document.getElementById('game').classList.add('active');
+  document.getElementById('stars-wrap').innerHTML=
+    S.map((_,i)=>`<span class="star" id="s${i}">&#11088;</span>`).join('');
+  render(0);
+}
+
+function render(idx){
+  cur=idx;
+  const s=S[idx];
+  document.getElementById('prog-label').textContent=`Z\u00e1mek ${idx+1} z ${S.length}`;
+  document.getElementById('prog-fill').style.width=`${(idx/S.length)*100}%`;
+  for(let i=0;i<S.length;i++){
+    const el=document.getElementById(`s${i}`);
+    if(el) el.classList.toggle('lit',i<idx);
+  }
+  const cv={blue:'--blue',green:'--green',purple:'--purple',teal:'--teal',
+    orange:'--orange',pink:'--pink',indigo:'--indigo',rose:'--rose',cyan:'--cyan',gold:'--gold-dark'}[s.color]||'--blue';
+  const tasks=s.tasks.map(t=>`
+    <div class="task-card ${s.color}">
+      <span class="tag ${s.tagClass}">${s.tag}</span>
+      <h3>${t.title}</h3>${t.body}
+      <button class="hint-btn" onclick="toggleHint(this)">&#128161; Pot&#345;ebuji n&#225;pov&#283;du</button>
+      <div class="hint-box">${t.hint}</div>
+    </div>`).join('');
+  document.getElementById('step-container').innerHTML=`
+    <div class="lock-header">
+      <span class="lock-icon-big">${s.icon}</span>
+      <span class="lock-title" style="color:var(${cv})">${s.title}</span>
+      <span class="lock-badge">${idx+1}/${S.length}</span>
+    </div>
+    ${tasks}
+    <div class="code-wrap">
+      <label>&#128272; Zadej k&#243;d z&#225;mku ${idx+1}:</label>
+      <div class="code-row">
+        <input type="number" class="code-input" id="ci" placeholder="???"
+          onkeydown="if(event.key==='Enter')chk()">
+        <button class="btn-check" onclick="chk()">Odemknout &#128275;</button>
+      </div>
+      <div class="feedback" id="fb"></div>
+    </div>
+    <div class="unlock-anim" id="ua">
+      <div class="big-icon">&#128275;&#10024;</div>
+      <p>${s.successMsg}</p>
+    </div>`;
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function toggleHint(btn){
+  const h=btn.nextElementSibling;
+  h.classList.toggle('show');
+  btn.textContent=h.classList.contains('show')
+    ?'\uD83D\uDE48 Skr\u00edt n\u00e1pov\u011bdu'
+    :'\uD83D\uDCA1 Pot\u0159ebuji n\u00e1pov\u011bdu';
+}
+
+function chk(){
+  const inp=document.getElementById('ci');
+  const fb=document.getElementById('fb');
+  const val=inp.value.trim();
+  att[cur]++;
+  if(val===S[cur].code){
+    inp.classList.remove('error'); inp.classList.add('success');
+    fb.textContent='';
+    document.getElementById('ua').classList.add('show');
+    setTimeout(()=>{ if(cur<S.length-1) render(cur+1); else finish(); },1900);
+  } else {
+    inp.classList.add('error'); inp.classList.remove('success');
+    setTimeout(()=>inp.classList.remove('error'),380);
+    const m=['Hmm, to nen\u00ed ono. Zkontroluj postup!',
+      'Zkus to znovu \u2013 mo\u017en\u00e1 jin\u00fd v\u00fdpo\u010det?',
+      'Nevzdávej se! P\u0159e\u010dti si n\u00e1pov\u011bdu.',
+      'Je\u0161t\u011b jednou, jsi bl\u00edzko!'];
+    fb.className='feedback err';
+    fb.textContent=m[Math.min(att[cur]-1,m.length-1)];
+  }
+}
+
+function finish(){
+  document.getElementById('game').classList.remove('active');
+  document.getElementById('finish').classList.add('active');
+  const wrap=document.getElementById('confetti');
+  const cols=['#f5c842','#1a73c8','#1e9e5a','#e74c3c','#7c3aad','#0f8a72','#ff7f50','#b5286e'];
+  for(let i=0;i<90;i++){
+    const el=document.createElement('div');
+    el.className='confetti-piece';
+    const sz=6+Math.random()*9;
+    el.style.cssText=`left:${Math.random()*100}%;top:-12px;
+      background:${cols[Math.floor(Math.random()*cols.length)]};
+      width:${sz}px;height:${sz}px;
+      border-radius:${Math.random()>.5?'50%':'3px'};
+      animation:fall ${1.5+Math.random()*2.5}s ${Math.random()*1.5}s linear forwards;`;
+    wrap.appendChild(el);
+  }
+}
+</script>
+</body>
+</html>
