@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>~/projects · Vojtěch Konopa</title>
+  <meta name="description" content="Projects by Vojtěch Konopa." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0b0f0a;
+      --bg-window: #0f1410;
+      --bg-chrome: #161c17;
+      --fg: #c8facc;
+      --fg-dim: #6f8a72;
+      --accent: #33ff7a;
+      --amber: #ffb454;
+      --red: #ff5f56;
+      --yellow: #ffbd2e;
+      --green: #27c93f;
+      --border: #1f2a21;
+      --shadow: 0 0 40px rgba(51, 255, 122, 0.08), 0 0 1px rgba(51, 255, 122, 0.2);
+      --mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: var(--mono);
+      font-size: 15px;
+      line-height: 1.6;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background: repeating-linear-gradient(
+        to bottom,
+        rgba(255, 255, 255, 0.015) 0px,
+        rgba(255, 255, 255, 0.015) 1px,
+        transparent 1px,
+        transparent 3px
+      );
+      z-index: 1;
+    }
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background: radial-gradient(ellipse at center, transparent 50%, rgba(0,0,0,0.55) 100%);
+      z-index: 1;
+    }
+
+    main {
+      position: relative;
+      z-index: 2;
+      max-width: 780px;
+      margin: 0 auto;
+      padding: 48px 20px 80px;
+    }
+
+    .terminal {
+      background: var(--bg-window);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    .chrome {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      background: var(--bg-chrome);
+      border-bottom: 1px solid var(--border);
+    }
+    .dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+    .dot.r { background: var(--red); }
+    .dot.y { background: var(--yellow); }
+    .dot.g { background: var(--green); }
+    .title {
+      margin-left: auto;
+      margin-right: auto;
+      font-size: 12px;
+      color: var(--fg-dim);
+      letter-spacing: 0.5px;
+    }
+    .screen {
+      padding: 24px 22px 28px;
+      min-height: 360px;
+    }
+
+    .line { white-space: pre-wrap; word-wrap: break-word; }
+    .prompt { color: var(--accent); }
+    .prompt .user { color: var(--accent); }
+    .prompt .at   { color: var(--fg-dim); }
+    .prompt .host { color: var(--amber); }
+    .prompt .path { color: var(--fg-dim); }
+    .prompt .sym  { color: var(--fg); }
+    .cmd { color: var(--fg); }
+    .out { color: var(--fg); }
+    .dim { color: var(--fg-dim); }
+    .accent { color: var(--accent); }
+
+    .block { margin: 10px 0 18px; }
+
+    a {
+      color: var(--accent);
+      text-decoration: none;
+      border-bottom: 1px dashed transparent;
+      transition: border-color 0.15s ease, color 0.15s ease;
+    }
+    a:hover, a:focus { color: var(--amber); border-bottom-color: var(--amber); outline: none; }
+    a:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; border-radius: 2px; }
+
+    /* Project entries — looks like an ls -la row but with description below */
+    .project {
+      padding: 8px 0 12px;
+      border-bottom: 1px dashed var(--border);
+    }
+    .project:last-child { border-bottom: none; }
+    .project .perm { color: var(--fg-dim); }
+    .project .filename { color: var(--accent); margin-left: 6px; }
+    .project .desc {
+      color: var(--fg);
+      margin: 4px 0 0 0;
+      padding-left: 14px;
+      border-left: 2px solid var(--border);
+    }
+    .project .meta { color: var(--fg-dim); font-size: 13px; margin-top: 2px; padding-left: 14px; }
+
+    @keyframes blink { 50% { opacity: 0; } }
+    .caret {
+      display: inline-block;
+      width: 9px;
+      height: 1.05em;
+      background: var(--accent);
+      vertical-align: text-bottom;
+      margin-left: 2px;
+      animation: blink 1s steps(1) infinite;
+    }
+    @media (prefers-reduced-motion: reduce) { .caret { animation: none; } }
+
+    @media (max-width: 540px) {
+      main { padding: 24px 12px 60px; }
+      .screen { padding: 20px 16px; }
+      body { font-size: 14px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <section class="terminal" aria-label="Projects">
+      <header class="chrome" aria-hidden="true">
+        <span class="dot r"></span>
+        <span class="dot y"></span>
+        <span class="dot g"></span>
+        <span class="title">vojta@konopa: ~/projects</span>
+      </header>
+
+      <div class="screen">
+        <div class="block">
+          <div class="line"><span class="prompt"><span class="user">vojta</span><span class="at">@</span><span class="host">konopa</span><span class="path">:~/projects</span><span class="sym">$</span></span> <span class="cmd">pwd</span></div>
+          <p class="out">/projects</p>
+        </div>
+
+        <div class="block">
+          <div class="line"><span class="prompt"><span class="user">vojta</span><span class="at">@</span><span class="host">konopa</span><span class="path">:~/projects</span><span class="sym">$</span></span> <span class="cmd">cat README</span></div>
+          <p class="out">A growing collection of things I've built. Click any entry to open it.</p>
+        </div>
+
+        <div class="block">
+          <div class="line"><span class="prompt"><span class="user">vojta</span><span class="at">@</span><span class="host">konopa</span><span class="path">:~/projects</span><span class="sym">$</span></span> <span class="cmd">ls -la</span></div>
+
+          <!--
+            ──────────────────────────────────────────────────────────────────
+            To add a new project: copy one .project block and edit the fields.
+            Filename in the link must match the file you placed in /projects/.
+            ──────────────────────────────────────────────────────────────────
+          -->
+
+          <div class="project">
+            <div class="line">
+              <span class="perm">-rw-r--r--</span>
+              <a class="filename" href="./unikovka_procenta.html">unikovka_procenta.html</a>
+            </div>
+            <p class="desc">Únikovka z matiky · Procenta — an interactive math escape-room about percentages. Czech, browser-based, single-file.</p>
+            <p class="meta">tags: math · education · czech · interactive</p>
+          </div>
+
+          <!-- Add more <div class="project">…</div> blocks here as you ship things. -->
+        </div>
+
+        <div class="block">
+          <div class="line"><span class="prompt"><span class="user">vojta</span><span class="at">@</span><span class="host">konopa</span><span class="path">:~/projects</span><span class="sym">$</span></span> <span class="cmd">cd ..</span></div>
+          <p class="out"><a href="../">→ back to ~/</a><span class="caret"></span></p>
+        </div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
