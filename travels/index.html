@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Travels — Vojtěch Konopa</title>
+  <meta name="description" content="A field journal of urbex and travel — abandoned places, decommissioned infrastructure, photographed and noted." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #1c1c1c;
+      --surface: #262626;
+      --surface-2: #2e2e2e;
+      --border: #3a3a3a;
+      --border-strong: #555;
+      --fg: #ededec;
+      --fg-dim: #8a8a85;
+      --fg-muted: #5e5e5b;
+      --accent: #f5b800;       /* industrial caution-tape yellow, used sparingly */
+      --concrete: #4a4a48;     /* placeholder block colour */
+      --display: 'Archivo Black', 'Inter', system-ui, sans-serif;
+      --body: 'Inter', system-ui, -apple-system, Segoe UI, sans-serif;
+      --mono: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      background: var(--bg);
+      color: var(--fg);
+      font-family: var(--body);
+      font-size: 16px;
+      line-height: 1.55;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a { color: var(--fg); text-decoration: none; }
+    a:hover, a:focus { color: var(--accent); outline: none; }
+    a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+    img { display: block; max-width: 100%; }
+
+    /* ───────────── HEADER ───────────── */
+    .top-bar {
+      border-bottom: 1px solid var(--border);
+      padding: 18px 28px;
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 18px;
+      font-family: var(--mono);
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--fg-dim);
+    }
+    .top-bar a { color: var(--fg-dim); border-bottom: 1px solid transparent; }
+    .top-bar a:hover { color: var(--accent); border-bottom-color: var(--accent); }
+    .top-bar .crumb { color: var(--fg); }
+
+    .hero {
+      padding: 64px 28px 48px;
+      border-bottom: 1px solid var(--border);
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 24px;
+      max-width: 1280px;
+      margin: 0 auto;
+    }
+    .hero .label {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+    .hero h1 {
+      font-family: var(--display);
+      font-size: clamp(48px, 9vw, 120px);
+      line-height: 0.92;
+      letter-spacing: -0.02em;
+      text-transform: uppercase;
+    }
+    .hero .lede {
+      max-width: 640px;
+      color: var(--fg);
+      font-size: 17px;
+      line-height: 1.6;
+      font-weight: 300;
+    }
+    .hero .meta {
+      display: flex;
+      gap: 28px;
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--fg-dim);
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+    }
+    .hero .meta b { color: var(--fg); font-weight: 500; }
+
+    /* ───────────── GRID ───────────── */
+    .grid-section {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 56px 28px 96px;
+    }
+    .section-title {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--fg-dim);
+      margin-bottom: 28px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1px;
+      background: var(--border);   /* shows as gridlines between cards */
+    }
+    .card {
+      background: var(--surface);
+      display: block;
+      position: relative;
+      transition: background 0.15s ease;
+    }
+    .card:hover, .card:focus { background: var(--surface-2); }
+    .card:hover .cover, .card:focus .cover { filter: none; }
+    .card:hover .arrow, .card:focus .arrow { transform: translateX(4px); color: var(--accent); }
+
+    .cover {
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      background-color: var(--concrete);
+      background-size: cover;
+      background-position: center;
+      filter: grayscale(0.45) contrast(1.05);
+      transition: filter 0.25s ease;
+      position: relative;
+    }
+    /* When no image is set, show a stylised concrete swatch */
+    .cover.empty {
+      background-image:
+        repeating-linear-gradient(135deg, rgba(255,255,255,0.02) 0 8px, transparent 8px 16px),
+        radial-gradient(ellipse at 30% 20%, #555 0%, #3a3a3a 60%, #2a2a2a 100%);
+    }
+    .cover.empty::after {
+      content: 'IMG / TODO';
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      color: rgba(255,255,255,0.35);
+    }
+
+    .card-body {
+      padding: 18px 22px 24px;
+      border-top: 1px solid var(--border);
+    }
+    .card-num {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      color: var(--accent);
+      display: inline-block;
+      margin-bottom: 10px;
+    }
+    .card-title {
+      font-family: var(--display);
+      font-size: 22px;
+      letter-spacing: -0.01em;
+      line-height: 1.05;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+      color: var(--fg);
+    }
+    .card-meta {
+      font-family: var(--mono);
+      font-size: 10.5px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--fg-dim);
+      margin-bottom: 12px;
+    }
+    .card-desc {
+      font-size: 13.5px;
+      line-height: 1.55;
+      color: var(--fg-dim);
+      font-weight: 300;
+    }
+    .card .arrow {
+      display: inline-block;
+      margin-top: 12px;
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--fg-dim);
+      letter-spacing: 0.1em;
+      transition: transform 0.18s ease, color 0.18s ease;
+    }
+
+    /* ───────────── FOOTER ───────────── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 32px 28px;
+      max-width: 1280px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      gap: 18px;
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--fg-dim);
+    }
+    footer a { color: var(--fg-dim); border-bottom: 1px solid transparent; }
+    footer a:hover { color: var(--accent); border-bottom-color: var(--accent); }
+
+    /* ───────────── RESPONSIVE ───────────── */
+    @media (max-width: 900px) {
+      .grid { grid-template-columns: repeat(2, 1fr); }
+      .hero { padding: 40px 20px 32px; }
+      .grid-section { padding: 40px 20px 64px; }
+      .top-bar, footer { padding: 14px 20px; }
+    }
+    @media (max-width: 560px) {
+      .grid { grid-template-columns: 1fr; }
+      .hero h1 { font-size: 56px; }
+      .hero .meta { flex-wrap: wrap; gap: 16px 22px; }
+      footer { flex-direction: column; gap: 8px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ───────── TOP BAR ───────── -->
+  <div class="top-bar">
+    <a href="/">← back to home</a>
+    <span class="crumb">~/travels</span>
+    <span>vojta@konopa</span>
+  </div>
+
+  <!-- ───────── HERO ───────── -->
+  <section class="hero">
+    <span class="label">FIELD JOURNAL · 001</span>
+    <h1>TRAVELS<br>/ URBEX</h1>
+    <p class="lede">
+      A field journal of places that aren't on the tourist map — abandoned factories,
+      decommissioned infrastructure, forgotten cities. Photographed and noted as I find them.
+    </p>
+    <div class="meta">
+      <span>BY <b>VOJTĚCH KONOPA</b></span>
+      <span>LOCATIONS: <b id="count">4</b></span>
+      <span>STATUS: <b>ONGOING</b></span>
+    </div>
+  </section>
+
+  <!-- ───────── GRID ─────────
+       To add a new location:
+       1. Drop a cover image into /travels/images/ (e.g. mylocation.jpg, ~1200×900 works well).
+       2. Copy one <a class="card"> block below and edit the text + image path.
+       3. Create the per-location page using /travels/_template.html as a starting point.
+       Renumber the cards (01, 02, ...) and update LOCATIONS count above.
+  -->
+  <section class="grid-section">
+    <h2 class="section-title">// LOCATIONS</h2>
+    <div class="grid">
+
+      <!-- ─── card #1 ─── -->
+      <a class="card" href="./_template.html">
+        <!-- Replace `class="cover empty"` with style="background-image:url('./images/your-photo.jpg');" once you have an image -->
+        <div class="cover empty"></div>
+        <div class="card-body">
+          <span class="card-num">01 /</span>
+          <h3 class="card-title">Location One</h3>
+          <p class="card-meta">Country · Year</p>
+          <p class="card-desc">A short one-line description of the place — what it was, why you went, what you found.</p>
+          <span class="arrow">READ →</span>
+        </div>
+      </a>
+
+      <!-- ─── card #2 ─── -->
+      <a class="card" href="./_template.html">
+        <div class="cover empty"></div>
+        <div class="card-body">
+          <span class="card-num">02 /</span>
+          <h3 class="card-title">Location Two</h3>
+          <p class="card-meta">Country · Year</p>
+          <p class="card-desc">Another short description — keep it under two lines for grid balance.</p>
+          <span class="arrow">READ →</span>
+        </div>
+      </a>
+
+      <!-- ─── card #3 ─── -->
+      <a class="card" href="./_template.html">
+        <div class="cover empty"></div>
+        <div class="card-body">
+          <span class="card-num">03 /</span>
+          <h3 class="card-title">Location Three</h3>
+          <p class="card-meta">Country · Year</p>
+          <p class="card-desc">Each location card links to its own page in this folder (e.g. /travels/chernobyl.html).</p>
+          <span class="arrow">READ →</span>
+        </div>
+      </a>
+
+      <!-- ─── card #4 ─── -->
+      <a class="card" href="./_template.html">
+        <div class="cover empty"></div>
+        <div class="card-body">
+          <span class="card-num">04 /</span>
+          <h3 class="card-title">Location Four</h3>
+          <p class="card-meta">Country · Year</p>
+          <p class="card-desc">When you have many locations, the grid wraps automatically — 3 columns on desktop, 2 on tablet, 1 on phone.</p>
+          <span class="arrow">READ →</span>
+        </div>
+      </a>
+
+    </div>
+  </section>
+
+  <!-- ───────── FOOTER ───────── -->
+  <footer>
+    <span>© VOJTĚCH KONOPA</span>
+    <a href="/">HOME ↗</a>
+  </footer>
+
+</body>
+</html>

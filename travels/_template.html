@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<!--
+  ─────────────────────────────────────────────────────────────────────────────
+  PER-LOCATION PAGE TEMPLATE
+  How to use:
+    1. Copy this file to a new name like `chernobyl.html` or `kraftwerk-vockerode.html`.
+    2. Replace every block marked  [[ FILL ]]  with your content.
+    3. Drop photos into /travels/images/  (1600px wide is plenty).
+    4. Add a card on /travels/index.html that links to your new file.
+    5. Optional: increment the "FIELD JOURNAL · 002 / 003 / ..." counter.
+  ─────────────────────────────────────────────────────────────────────────────
+-->
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- [[ FILL ]] page title — shows in browser tab + search results -->
+  <title>Location Name — Travels · Vojtěch Konopa</title>
+  <!-- [[ FILL ]] one-line description — also used as social card preview -->
+  <meta name="description" content="Field notes from a single location — urbex / travel writing." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #1c1c1c;
+      --surface: #262626;
+      --surface-2: #2e2e2e;
+      --border: #3a3a3a;
+      --border-strong: #555;
+      --fg: #ededec;
+      --fg-dim: #8a8a85;
+      --fg-muted: #5e5e5b;
+      --accent: #f5b800;       /* caution-tape yellow */
+      --concrete: #4a4a48;
+      --display: 'Archivo Black', 'Inter', system-ui, sans-serif;
+      --body: 'Inter', system-ui, -apple-system, Segoe UI, sans-serif;
+      --mono: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      background: var(--bg);
+      color: var(--fg);
+      font-family: var(--body);
+      font-size: 16px;
+      line-height: 1.55;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a { color: var(--fg); text-decoration: none; border-bottom: 1px solid transparent; transition: color .15s, border-color .15s; }
+    a:hover, a:focus { color: var(--accent); border-bottom-color: var(--accent); outline: none; }
+    a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 1px; }
+
+    img { display: block; max-width: 100%; }
+
+    /* ───────────── TOP BAR ───────────── */
+    .top-bar {
+      border-bottom: 1px solid var(--border);
+      padding: 18px 28px;
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 18px;
+      font-family: var(--mono);
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--fg-dim);
+    }
+    .top-bar a { color: var(--fg-dim); }
+    .top-bar a:hover { color: var(--accent); }
+    .top-bar .crumb { color: var(--fg); }
+
+    /* ───────────── HERO ───────────── */
+    .hero {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      max-height: 80vh;
+      background-color: var(--concrete);
+      background-size: cover;
+      background-position: center;
+      overflow: hidden;
+    }
+    /* Empty hero looks like raw concrete */
+    .hero.empty {
+      background-image:
+        repeating-linear-gradient(135deg, rgba(255,255,255,0.02) 0 8px, transparent 8px 16px),
+        radial-gradient(ellipse at 30% 25%, #555 0%, #3a3a3a 60%, #2a2a2a 100%);
+    }
+    .hero.empty::after {
+      content: 'IMG / HERO';
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--mono);
+      font-size: 13px;
+      letter-spacing: 0.25em;
+      color: rgba(255,255,255,0.35);
+    }
+    .hero::before {
+      /* subtle bottom gradient so any caption reads on lighter photos */
+      content: '';
+      position: absolute;
+      inset: auto 0 0 0;
+      height: 50%;
+      background: linear-gradient(to top, rgba(0,0,0,0.55), transparent);
+      pointer-events: none;
+    }
+
+    /* ───────────── TITLE BLOCK ───────────── */
+    .title-block {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 56px 28px 28px;
+      border-bottom: 1px solid var(--border);
+    }
+    .label-row {
+      display: flex;
+      gap: 24px;
+      flex-wrap: wrap;
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 18px;
+    }
+    .label-row .dim { color: var(--fg-dim); }
+    h1.location {
+      font-family: var(--display);
+      font-size: clamp(40px, 7vw, 88px);
+      line-height: 0.95;
+      letter-spacing: -0.02em;
+      text-transform: uppercase;
+      margin-bottom: 18px;
+    }
+    .lede {
+      font-size: 18px;
+      font-weight: 300;
+      color: var(--fg);
+      max-width: 680px;
+      line-height: 1.6;
+    }
+
+    /* ───────────── DATA STRIP ─────────────
+       Six little fact slots — fill what you have, leave the rest blank. */
+    .data-strip {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 24px 28px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1px;
+      background: var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+    .data-strip > div {
+      background: var(--bg);
+      padding: 16px 20px;
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--fg-dim);
+      min-height: 64px;
+    }
+    .data-strip b {
+      display: block;
+      font-family: var(--body);
+      font-size: 15px;
+      font-weight: 500;
+      letter-spacing: 0;
+      text-transform: none;
+      color: var(--fg);
+      margin-top: 4px;
+    }
+
+    /* ───────────── BODY TEXT ───────────── */
+    article {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 56px 28px 56px;
+    }
+    article p {
+      font-size: 17px;
+      line-height: 1.75;
+      color: var(--fg);
+      font-weight: 300;
+      margin-bottom: 22px;
+    }
+    article p.first::first-letter {
+      font-family: var(--display);
+      font-size: 3.4em;
+      float: left;
+      line-height: 0.9;
+      margin: 4px 10px 0 0;
+      color: var(--accent);
+    }
+    article h2 {
+      font-family: var(--display);
+      font-size: 22px;
+      letter-spacing: -0.01em;
+      text-transform: uppercase;
+      margin: 40px 0 16px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
+    }
+    article blockquote {
+      border-left: 3px solid var(--accent);
+      padding: 4px 0 4px 22px;
+      margin: 28px 0;
+      font-size: 19px;
+      font-weight: 300;
+      color: var(--fg);
+      font-style: italic;
+    }
+    article blockquote cite {
+      display: block;
+      margin-top: 10px;
+      font-family: var(--mono);
+      font-style: normal;
+      font-size: 11px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--fg-dim);
+    }
+
+    /* ───────────── GALLERY ───────────── */
+    .gallery-section {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 28px 96px;
+    }
+    .section-title {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--fg-dim);
+      margin-bottom: 24px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    .gallery {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1px;
+      background: var(--border);
+    }
+    figure.shot {
+      background: var(--surface);
+      margin: 0;
+    }
+    figure.shot .img {
+      aspect-ratio: 4 / 3;
+      background-color: var(--concrete);
+      background-size: cover;
+      background-position: center;
+      filter: grayscale(0.45) contrast(1.05);
+      position: relative;
+    }
+    figure.shot .img.empty {
+      background-image:
+        repeating-linear-gradient(135deg, rgba(255,255,255,0.02) 0 8px, transparent 8px 16px),
+        radial-gradient(ellipse at 30% 20%, #555 0%, #3a3a3a 60%, #2a2a2a 100%);
+    }
+    figure.shot .img.empty::after {
+      content: 'IMG / TODO';
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      color: rgba(255,255,255,0.35);
+    }
+    figcaption {
+      padding: 12px 16px 18px;
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--fg-dim);
+      border-top: 1px solid var(--border);
+    }
+    figcaption b { color: var(--fg); font-weight: 500; }
+
+    /* "wide" gallery cell — spans 2 columns */
+    figure.shot.wide { grid-column: span 2; }
+
+    /* ───────────── PREV / NEXT NAV ───────────── */
+    .nav-strip {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 32px 28px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      gap: 24px;
+      font-family: var(--mono);
+      font-size: 12px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+    .nav-strip a { color: var(--fg-dim); }
+    .nav-strip a:hover { color: var(--accent); }
+    .nav-strip .label { color: var(--fg-muted); display: block; font-size: 10px; margin-bottom: 4px; }
+
+    /* ───────────── FOOTER ───────────── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 32px 28px;
+      max-width: 1280px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      gap: 18px;
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--fg-dim);
+    }
+    footer a { color: var(--fg-dim); }
+    footer a:hover { color: var(--accent); }
+
+    /* ───────────── RESPONSIVE ───────────── */
+    @media (max-width: 900px) {
+      .data-strip { grid-template-columns: repeat(2, 1fr); }
+      .gallery { grid-template-columns: repeat(2, 1fr); }
+      figure.shot.wide { grid-column: span 2; }
+      .title-block { padding: 36px 20px 24px; }
+      article { padding: 40px 20px; }
+      .gallery-section { padding: 0 20px 64px; }
+      .top-bar, footer, .nav-strip { padding: 14px 20px; }
+    }
+    @media (max-width: 560px) {
+      .gallery { grid-template-columns: 1fr; }
+      figure.shot.wide { grid-column: span 1; }
+      .data-strip { grid-template-columns: 1fr 1fr; }
+      h1.location { font-size: 44px; }
+      footer { flex-direction: column; gap: 8px; }
+      .nav-strip { flex-direction: column; gap: 16px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ───────── TOP BAR ───────── -->
+  <div class="top-bar">
+    <a href="./">← back to journal</a>
+    <!-- [[ FILL ]] update the breadcrumb path -->
+    <span class="crumb">~/travels/location-slug</span>
+    <span>vojta@konopa</span>
+  </div>
+
+  <!-- ───────── HERO PHOTO ─────────
+       To use a real photo, replace `class="hero empty"` with:
+       <section class="hero" style="background-image:url('./images/your-photo.jpg');">
+  -->
+  <section class="hero empty"></section>
+
+  <!-- ───────── TITLE BLOCK ───────── -->
+  <div class="title-block">
+    <div class="label-row">
+      <!-- [[ FILL ]] increment the journal entry number -->
+      <span>FIELD JOURNAL · 002</span>
+      <!-- [[ FILL ]] short status — e.g. ABANDONED, ACCESSIBLE, DEMOLISHED, RESTORED -->
+      <span class="dim">STATUS: ABANDONED</span>
+    </div>
+    <!-- [[ FILL ]] location name — keep it short, this becomes the big stencil headline -->
+    <h1 class="location">Location<br>Name</h1>
+    <!-- [[ FILL ]] one-paragraph hook — what is this place, why does it matter, why did you go -->
+    <p class="lede">
+      One or two sentences that set the scene — what this place was, what it is now,
+      and why it mattered enough to photograph. Keep it tight: this is the trailer, not the film.
+    </p>
+  </div>
+
+  <!-- ───────── DATA STRIP ─────────
+       Four data points. If you have fewer, leave content blank — but keep the boxes
+       (the grid pattern is part of the look). -->
+  <section class="data-strip">
+    <div>Country<br><b>Czechia</b></div>
+    <div>Visited<br><b>April 2026</b></div>
+    <div>Built / decom.<br><b>1932 / 1998</b></div>
+    <div>Coordinates<br><b>49.83°N · 18.28°E</b></div>
+  </section>
+
+  <!-- ───────── BODY TEXT ─────────
+       Write as much or as little as you want. Keep paragraphs short.
+       Use <h2> to break sections, <blockquote> for pulled quotes / found graffiti / signage. -->
+  <article>
+    <!-- The first paragraph gets a stencil-style drop cap — give it class="first" -->
+    <p class="first">
+      Open the story here. The first paragraph carries the reader in — what you saw
+      first, the smell, the sound. Concrete details, no clichés. Don't say "eerie."
+      [[ FILL ]]
+    </p>
+
+    <p>
+      Second paragraph. Continue the scene-setting, or jump to context — the building's
+      history, what was made here, who left and when. [[ FILL ]]
+    </p>
+
+    <h2>Section heading</h2>
+
+    <p>
+      [[ FILL ]] continue the story. Mix narrative with technical or historical
+      detail. Two short paragraphs read better than one long one.
+    </p>
+
+    <blockquote>
+      "A pulled quote, a fragment of graffiti you photographed, or a line from
+      whoever you met at the gate."
+      <cite>— attribution / sign / dust</cite>
+    </blockquote>
+
+    <p>
+      [[ FILL ]] close out the section.
+    </p>
+
+    <h2>Another section</h2>
+
+    <p>
+      [[ FILL ]] more story.
+    </p>
+  </article>
+
+  <!-- ───────── GALLERY ─────────
+       To use real photos: replace `<div class="img empty">` with
+       `<div class="img" style="background-image:url('./images/your-photo.jpg');"></div>`
+       Add `class="shot wide"` on a figure to span two columns (works well for landscapes).
+  -->
+  <section class="gallery-section">
+    <h2 class="section-title">// GALLERY</h2>
+    <div class="gallery">
+      <figure class="shot wide">
+        <div class="img empty"></div>
+        <figcaption>01 / <b>Caption goes here</b> · short context</figcaption>
+      </figure>
+      <figure class="shot">
+        <div class="img empty"></div>
+        <figcaption>02 / <b>Caption</b></figcaption>
+      </figure>
+      <figure class="shot">
+        <div class="img empty"></div>
+        <figcaption>03 / <b>Caption</b></figcaption>
+      </figure>
+      <figure class="shot">
+        <div class="img empty"></div>
+        <figcaption>04 / <b>Caption</b></figcaption>
+      </figure>
+      <figure class="shot">
+        <div class="img empty"></div>
+        <figcaption>05 / <b>Caption</b></figcaption>
+      </figure>
+      <figure class="shot wide">
+        <div class="img empty"></div>
+        <figcaption>06 / <b>Caption</b> · landscape spans two columns</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- ───────── PREV / NEXT NAV ─────────
+       Update href to point to the previous and next location pages.
+       If this is the first or last in your sequence, just remove that side. -->
+  <nav class="nav-strip">
+    <a href="./">
+      <span class="label">← previous</span>
+      back to journal
+    </a>
+    <a href="./">
+      <span class="label">next →</span>
+      back to journal
+    </a>
+  </nav>
+
+  <!-- ───────── FOOTER ───────── -->
+  <footer>
+    <span>© VOJTĚCH KONOPA</span>
+    <span><a href="/">HOME</a> · <a href="./">JOURNAL</a></span>
+  </footer>
+
+</body>
+</html>
