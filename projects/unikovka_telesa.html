@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Únikovka: Tělesa (krychle a kvádr)</title>
+<meta name="description" content="Interaktivní únikovka z matematiky pro 6. třídu – krychle, kvádr, povrch, objem.">
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;600;700;800&family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --gold-dark:#c89a10; --blue:#1a73c8; --blue-light:#e8f1fb;
+  --green:#1e9e5a; --green-light:#e6f7ef; --red:#d63c2f;
+  --purple:#7c3aad; --purple-light:#f3eefa;
+  --teal:#0f8a72; --teal-light:#e4f5f1;
+  --orange:#d4620a; --orange-light:#fdf0e5;
+  --pink:#b5286e; --pink-light:#fce8f2;
+  --indigo:#3730a3; --indigo-light:#eef2ff;
+  --rose:#9f1239; --rose-light:#fff1f2;
+  --cyan:#0e7490; --cyan-light:#ecfeff;
+  --bg:#f5f0e6; --card:#fff; --text:#1a1a2e; --muted:#6b7280;
+  --shadow:0 4px 24px rgba(0,0,0,.09); --radius:16px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:'Lexend',sans-serif;
+  background:var(--bg);
+  background-image:radial-gradient(circle at 8% 15%,rgba(245,200,66,.12) 0%,transparent 38%),
+    radial-gradient(circle at 92% 82%,rgba(26,115,200,.09) 0%,transparent 38%);
+  min-height:100vh;color:var(--text);
+}
+.screen{display:none;min-height:100vh;padding:24px 16px 48px;max-width:680px;margin:0 auto}
+.screen.active{display:flex;flex-direction:column;align-items:center}
+
+/* INTRO */
+#intro{justify-content:center;text-align:center;gap:18px}
+.chest{font-size:88px;animation:float 3s ease-in-out infinite;display:inline-block;
+  filter:drop-shadow(0 8px 16px rgba(0,0,0,.15))}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
+.title-main{font-family:'Fredoka',cursive;font-size:2.5rem;color:var(--blue);line-height:1.1;font-weight:700}
+.title-sub{font-family:'Fredoka',cursive;font-size:1.45rem;color:var(--gold-dark);font-weight:600}
+.intro-card{background:var(--card);border-radius:var(--radius);padding:22px 26px;
+  box-shadow:var(--shadow);border-left:6px solid var(--blue);text-align:left;width:100%}
+.intro-card p{font-size:.97rem;line-height:1.75}
+.intro-card p+p{margin-top:10px}
+.intro-card b{color:var(--blue)}
+.rules{background:var(--card);border-radius:var(--radius);padding:18px 22px;
+  box-shadow:var(--shadow);width:100%;border-left:6px solid var(--gold-dark)}
+.rules h3{font-family:'Fredoka',cursive;color:var(--gold-dark);font-size:1.05rem;margin-bottom:10px;font-weight:600}
+.rules ul{list-style:none;display:flex;flex-direction:column;gap:8px}
+.rules li{display:flex;align-items:flex-start;gap:10px;font-size:.95rem;line-height:1.55}
+.btn-primary{
+  background:linear-gradient(135deg,var(--blue),#1250a0);
+  color:#fff;
+  font-family:'Lexend',sans-serif;
+  font-size:1.2rem;font-weight:700;
+  border:none;border-radius:50px;padding:15px 46px;
+  cursor:pointer;box-shadow:0 6px 20px rgba(26,115,200,.32);
+  transition:transform .15s,box-shadow .15s;
+  letter-spacing:0.01em;
+}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(26,115,200,.38)}
+
+/* PROGRESS */
+.progress-wrap{width:100%;margin-bottom:18px}
+.progress-label{display:flex;justify-content:space-between;font-size:.82rem;font-weight:700;color:var(--muted);margin-bottom:5px}
+.progress-bar{background:#ddd8c6;border-radius:20px;height:9px;overflow:hidden}
+.progress-fill{height:100%;border-radius:20px;background:linear-gradient(90deg,var(--blue),var(--teal));transition:width .5s ease}
+.stars-wrap{display:flex;gap:3px}
+.star{font-size:1rem;opacity:.22;transition:opacity .3s,transform .3s}
+.star.lit{opacity:1;transform:scale(1.12)}
+
+/* GAME */
+#game{justify-content:flex-start;gap:0}
+.lock-header{width:100%;display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.lock-icon-big{font-size:2.2rem}
+.lock-title{font-family:'Fredoka',cursive;font-size:1.4rem;font-weight:600}
+.lock-badge{margin-left:auto;background:var(--blue);color:#fff;border-radius:50px;
+  padding:3px 13px;font-size:.82rem;font-weight:700;white-space:nowrap}
+.task-card{background:var(--card);border-radius:var(--radius);padding:22px 22px 18px;
+  box-shadow:var(--shadow);width:100%;margin-bottom:14px;position:relative;overflow:hidden}
+.task-card::before{content:'';position:absolute;top:0;left:0;width:5px;height:100%;border-radius:3px 0 0 3px}
+.task-card.blue::before{background:var(--blue)}
+.task-card.green::before{background:var(--green)}
+.task-card.purple::before{background:var(--purple)}
+.task-card.teal::before{background:var(--teal)}
+.task-card.orange::before{background:var(--orange)}
+.task-card.pink::before{background:var(--pink)}
+.task-card.indigo::before{background:var(--indigo)}
+.task-card.rose::before{background:var(--rose)}
+.task-card.cyan::before{background:var(--cyan)}
+.task-card.gold::before{background:var(--gold-dark)}
+.task-card h3{font-family:'Lexend',sans-serif;font-size:1.02rem;margin-bottom:11px;font-weight:700}
+.task-card.blue h3{color:var(--blue)} .task-card.green h3{color:var(--green)}
+.task-card.purple h3{color:var(--purple)} .task-card.teal h3{color:var(--teal)}
+.task-card.orange h3{color:var(--orange)} .task-card.pink h3{color:var(--pink)}
+.task-card.indigo h3{color:var(--indigo)} .task-card.rose h3{color:var(--rose)}
+.task-card.cyan h3{color:var(--cyan)} .task-card.gold h3{color:var(--gold-dark)}
+.task-card p{font-size:.95rem;line-height:1.75}
+.task-card p+p{margin-top:8px}
+.task-card ul{margin:6px 0 6px 1.2em;font-size:.95rem;line-height:1.7}
+.hint-box{margin-top:11px;background:#fef9ec;border:1.5px dashed var(--gold-dark);
+  border-radius:10px;padding:9px 13px;font-size:.88rem;color:#7a5200;display:none}
+.hint-box.show{display:block}
+.hint-btn{background:none;border:1.5px solid var(--gold-dark);color:var(--gold-dark);
+  border-radius:20px;padding:4px 12px;font-size:.8rem;font-weight:700;cursor:pointer;
+  margin-top:9px;font-family:'Lexend',sans-serif;transition:background .15s}
+.hint-btn:hover{background:#fef9ec}
+.tag{display:inline-block;border-radius:20px;padding:2px 10px;font-size:.78rem;font-weight:700;margin-bottom:7px}
+.tag.blue{background:var(--blue-light);color:var(--blue)}
+.tag.green{background:var(--green-light);color:var(--green)}
+.tag.purple{background:var(--purple-light);color:var(--purple)}
+.tag.teal{background:var(--teal-light);color:var(--teal)}
+.tag.orange{background:var(--orange-light);color:var(--orange)}
+.tag.pink{background:var(--pink-light);color:var(--pink)}
+.tag.indigo{background:var(--indigo-light);color:var(--indigo)}
+.tag.rose{background:var(--rose-light);color:var(--rose)}
+.tag.cyan{background:var(--cyan-light);color:var(--cyan)}
+.tag.gold{background:#fef9ec;color:var(--gold-dark)}
+
+/* CODE INPUT */
+.code-wrap{background:var(--card);border-radius:var(--radius);padding:20px 22px;
+  box-shadow:var(--shadow);width:100%;margin-bottom:18px}
+.code-wrap label{display:block;font-family:'Lexend',sans-serif;font-size:.98rem;color:var(--muted);
+  margin-bottom:11px;font-weight:700}
+.code-row{display:flex;gap:10px;align-items:center}
+.code-input{flex:1;font-family:'Lexend',sans-serif;font-size:1.5rem;text-align:center;
+  letter-spacing:.12em;border:3px solid #ccc8bb;border-radius:12px;padding:11px 14px;
+  outline:none;transition:border-color .2s;background:#fafaf6;color:var(--text)}
+.code-input:focus{border-color:var(--blue);background:#fff}
+.code-input.error{border-color:var(--red);animation:shake .32s}
+.code-input.success{border-color:var(--green);background:var(--green-light)}
+@keyframes shake{0%,100%{transform:translateX(0)}30%{transform:translateX(-5px)}70%{transform:translateX(5px)}}
+.btn-check{
+  background:linear-gradient(135deg,var(--blue),#1250a0);color:#fff;
+  font-family:'Lexend',sans-serif;font-size:.95rem;font-weight:700;
+  border:none;border-radius:12px;padding:13px 20px;
+  cursor:pointer;box-shadow:0 4px 14px rgba(26,115,200,.28);
+  transition:transform .15s;white-space:nowrap;
+}
+.btn-check:hover{transform:translateY(-1px)}
+.feedback{margin-top:9px;font-weight:700;font-size:.92rem;min-height:20px}
+.feedback.ok{color:var(--green)} .feedback.err{color:var(--red)}
+.unlock-anim{display:none;flex-direction:column;align-items:center;gap:6px;padding:18px;
+  animation:popIn .4s cubic-bezier(.175,.885,.32,1.275)}
+.unlock-anim.show{display:flex}
+@keyframes popIn{from{transform:scale(.5);opacity:0}to{transform:scale(1);opacity:1}}
+.unlock-anim .big-icon{font-size:3.2rem}
+.unlock-anim p{font-family:'Lexend',sans-serif;font-size:1.05rem;color:var(--green);text-align:center;font-weight:700}
+
+/* TABLE */
+table.tt{width:100%;border-collapse:collapse;margin:10px 0;font-size:.9rem}
+table.tt th{padding:7px 9px;text-align:center;font-weight:700}
+table.tt td{border:1px solid #e0dbd0;padding:7px 9px;text-align:center}
+table.tt tr:nth-child(even) td{background:#fafaf5}
+.blue table.tt th{background:var(--blue-light);color:var(--blue)}
+.green table.tt th{background:var(--green-light);color:var(--green)}
+.purple table.tt th{background:var(--purple-light);color:var(--purple)}
+.teal table.tt th{background:var(--teal-light);color:var(--teal)}
+.orange table.tt th{background:var(--orange-light);color:var(--orange)}
+.pink table.tt th{background:var(--pink-light);color:var(--pink)}
+.indigo table.tt th{background:var(--indigo-light);color:var(--indigo)}
+.rose table.tt th{background:var(--rose-light);color:var(--rose)}
+.cyan table.tt th{background:var(--cyan-light);color:var(--cyan)}
+.gold table.tt th{background:#fef9ec;color:var(--gold-dark)}
+
+/* FINISH */
+#finish{justify-content:center;text-align:center;gap:20px}
+.final-chest{font-size:96px;animation:bounce .6s cubic-bezier(.175,.885,.32,1.275)}
+@keyframes bounce{from{transform:scale(0)}to{transform:scale(1)}}
+.final-title{font-family:'Lexend',sans-serif;font-size:2.1rem;color:var(--gold-dark);font-weight:800}
+.final-sub{font-size:.97rem;color:var(--muted);line-height:1.75;max-width:420px}
+.summary-card{background:var(--card);border-radius:var(--radius);padding:18px 22px;
+  box-shadow:var(--shadow);width:100%;text-align:left}
+.summary-card h3{font-family:'Lexend',sans-serif;color:var(--blue);font-size:1.05rem;margin-bottom:12px;font-weight:700}
+.summary-row{display:flex;align-items:flex-start;gap:11px;padding:9px 0;
+  border-bottom:1px solid #f0ece0;font-size:.93rem;line-height:1.6}
+.summary-row:last-child{border-bottom:none}
+.s-icon{font-size:1.2rem;flex-shrink:0;margin-top:1px}
+.confetti-wrap{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:999}
+.confetti-piece{position:absolute;animation:fall linear forwards}
+@keyframes fall{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+</style>
+</head>
+<body>
+
+<!-- INTRO -->
+<div id="intro" class="screen active">
+  <div class="chest">📦</div>
+  <div class="title-main">Únikovka z matiky</div>
+  <div class="title-sub">📦 KRYCHLE & KVÁDR 📦</div>
+  <div class="intro-card">
+    <p>Před tebou je <b>truhla s pokladem</b> – uzamčena <b>10 zámky</b>.</p>
+    <p>Každý zámek se odemkne správným kódem. Výpočty si dělej <b>do sešitu</b> a kód zadej sem.</p>
+    <p>Žádné kalkulačky – dnes prozkoumáš <b>krychli a kvádr</b> vlastní hlavou 🧠</p>
+  </div>
+  <div class="rules">
+    <h3>📋 Pravidla</h3>
+    <ul>
+      <li><span>✏️</span> Výpočty piš do sešitu – každý příklad celý.</li>
+      <li><span>🚫</span> Bez kalkulačky, bez opisování.</li>
+      <li><span>💡</span> Nevíš? Zkus nápovědu – ale nejdřív se zamysli!</li>
+      <li><span>🔢</span> Kód zadej jako celé číslo (bez jednotek, bez mezer).</li>
+    </ul>
+  </div>
+  <button class="btn-primary" id="btn-start">🔓 Začít dobrodružství!</button>
+</div>
+
+<!-- GAME -->
+<div id="game" class="screen">
+  <div class="progress-wrap" style="width:100%">
+    <div class="progress-label">
+      <span id="prog-label">Zámek 1 z 10</span>
+      <span class="stars-wrap" id="stars-wrap"></span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="prog-fill" style="width:0%"></div></div>
+  </div>
+  <div id="step-container" style="width:100%"></div>
+</div>
+
+<!-- FINISH -->
+<div id="finish" class="screen">
+  <div class="confetti-wrap" id="confetti"></div>
+  <div class="final-chest">🏆</div>
+  <div class="final-title">Poklad je tvůj!</div>
+  <p class="final-sub">Zvládl(a) jsi všech 10 zámků a pronikl(a) do tajemství krychle a kvádru. Gratulace!</p>
+  <div class="summary-card">
+    <h3>📖 Co jsi dnes objevil(a)</h3>
+    <div class="summary-row"><span class="s-icon">1️⃣</span><span>Krychle i kvádr mají <b>8 vrcholů, 12 hran a 6 stěn</b>.</span></div>
+    <div class="summary-row"><span class="s-icon">2️⃣</span><span>Síť krychle = <b>6 stejných čtverců</b>. Síť kvádru = <b>6 obdélníků</b> (po dvojicích shodných).</span></div>
+    <div class="summary-row"><span class="s-icon">3️⃣</span><span>Povrch krychle: <b>S = 6 · a²</b>. Povrch kvádru: <b>S = 2 · (ab + bc + ac)</b>.</span></div>
+    <div class="summary-row"><span class="s-icon">4️⃣</span><span>Objem krychle: <b>V = a³</b>. Objem kvádru: <b>V = a · b · c</b>.</span></div>
+  </div>
+  <button class="btn-primary" id="btn-restart">🔄 Hrát znovu</button>
+</div>
+
+<script>
+// Veškerý český text je přímo v UTF-8 – žádné HTML entity
+const STEPS = [
+{
+  id:1, color:'blue', icon:'🔵',
+  title:'Zámek 1 – Co je to těleso?',
+  tag:'Rovinný útvar vs těleso', tagClass:'blue',
+  tasks:[
+    { title:'🧩 Rovina nebo prostor?',
+      body:'<p><b>Rovinný útvar</b> má 2 rozměry – délku a šířku (např. čtverec, obdélník, kruh).</p><p><b>Těleso</b> má 3 rozměry – délku, šířku a <b>výšku</b>. Můžeš ho vzít do ruky.</p><p>Roztřiď tyto věci na <b>rovinné útvary</b> a <b>tělesa</b>: <i>čtverec, krabice, trojúhelník, kostka, kniha, kruh, balón, obdélník</i>.</p>',
+      hint:'💡 Můžeš to vzít do ruky? Má to objem? Pak je to těleso.' },
+    { title:'🔢 Kód zámku',
+      body:'<p>V seznamu spočítej, kolik je <b>těles</b>:</p><p><b>kostka, kniha, obdélník, krabice, kruh, balón</b></p><p>Kód = počet těles.</p>',
+      hint:'💡 Obdélník a kruh jsou rovinné útvary (mají jen 2 rozměry).' }
+  ],
+  code:'4',
+  successMsg:'🔓 Správně! Tělesa: kostka, kniha, krabice, balón = 4. Zámek 1 otevřen!'
+},
+{
+  id:2, color:'green', icon:'🟢',
+  title:'Zámek 2 – Vrcholy, hrany, stěny',
+  tag:'Z čeho se těleso skládá', tagClass:'green',
+  tasks:[
+    { title:'🧩 Tři důležité části',
+      body:'<p>Krychle a kvádr mají:</p><ul><li><b>Vrcholy</b> – body, kde se sbíhají hrany (rohy krabice).</li><li><b>Hrany</b> – úsečky mezi vrcholy.</li><li><b>Stěny</b> – ploché části (boky krabice).</li></ul><p>Spočítej je u <b>krychle</b> a <b>kvádru</b>:</p><table class="tt"><tr><th></th><th>Krychle</th><th>Kvádr</th></tr><tr><td><b>Vrcholy</b></td><td>?</td><td>?</td></tr><tr><td><b>Hrany</b></td><td>?</td><td>?</td></tr><tr><td><b>Stěny</b></td><td>?</td><td>?</td></tr></table>',
+      hint:'💡 Krychle a kvádr mají <b>úplně stejný počet</b> vrcholů, hran i stěn! Zkus si představit hrací kostku.' },
+    { title:'🔢 Kód zámku',
+      body:'<p>Sečti u <b>krychle</b>: <b>počet vrcholů + počet hran + počet stěn</b>.</p>',
+      hint:'💡 8 + 12 + 6 = ?' }
+  ],
+  code:'26',
+  successMsg:'🔓 Výborně! 8 + 12 + 6 = 26. Zámek 2 otevřen!'
+},
+{
+  id:3, color:'purple', icon:'🟣',
+  title:'Zámek 3 – Krychle vs Kvádr',
+  tag:'Rozlišení krychle a kvádru', tagClass:'purple',
+  tasks:[
+    { title:'🧩 Co je krychle a co kvádr?',
+      body:'<p><b>Krychle</b>: všechny hrany jsou <b>stejně dlouhé</b> (a × a × a). Stěny = <b>čtverce</b>.</p><p><b>Kvádr</b>: hrany mohou mít <b>různé délky</b> (a × b × c). Stěny = <b>obdélníky</b> (někdy i čtverce).</p><p>Přiřaď ke každé věci, jestli je to <b>krychle</b> nebo <b>kvádr</b>:</p><ul><li>hrací kostka</li><li>krabice od mléka (1 l)</li><li>kostka cukru</li><li>kniha</li><li>cihla</li><li>kostka ledu</li></ul>',
+      hint:'💡 Pokud má všechny strany stejné = krychle. Pokud různé = kvádr.' },
+    { title:'🔢 Kód zámku',
+      body:'<p>Z těchto věcí spočítej, kolik je <b>krychlí</b>:</p><p><b>hrací kostka, kostka cukru, kostka ledu, Rubikova kostka, krabice od bot, kniha</b></p><p>Kód = počet krychlí.</p>',
+      hint:'💡 Krabice od bot a kniha jsou kvádry (mají různě dlouhé strany).' }
+  ],
+  code:'4',
+  successMsg:'🔓 Přesně! Krychle: hrací kostka, kostka cukru, kostka ledu, Rubikova kostka = 4. Zámek 3 otevřen!'
+},
+{
+  id:4, color:'teal', icon:'🩵',
+  title:'Zámek 4 – Síť krychle',
+  tag:'Síť tělesa – krychle', tagClass:'teal',
+  tasks:[
+    { title:'🧩 Co je síť tělesa',
+      body:'<p>Když krabici rozložíš a "narovnáš" ji, dostaneš <b>síť tělesa</b> – plochý obrazec.</p><p>Síť <b>krychle</b> tvoří <b>6 stejných čtverců</b> spojených hranami.</p><p>Existuje <b>11 různých sítí krychle</b> (různě uspořádaných).</p><p>Zkus si nakreslit do sešitu jednu síť krychle. Kolik má <b>čtverců</b>?</p>',
+      hint:'💡 Krychle má 6 stěn, každá je čtverec → síť má 6 čtverců.' },
+    { title:'🔢 Kód zámku',
+      body:'<p>Krychle má hranu <b>a = 5 cm</b>.</p><p>Kolik je <b>obvod jedné stěny</b> (jednoho čtverce ze sítě) v cm?</p>',
+      hint:'💡 Obvod čtverce = 4 × strana. 4 × 5 = ?' }
+  ],
+  code:'20',
+  successMsg:'🔓 Správně! Obvod čtverce = 4 · 5 = 20 cm. Zámek 4 otevřen!'
+},
+{
+  id:5, color:'orange', icon:'🟠',
+  title:'Zámek 5 – Síť kvádru',
+  tag:'Síť tělesa – kvádr', tagClass:'orange',
+  tasks:[
+    { title:'🧩 Síť kvádru',
+      body:'<p>Síť <b>kvádru</b> tvoří <b>6 obdélníků</b>, vždy <b>2 a 2 jsou shodné</b>:</p><ul><li>2× přední/zadní stěna</li><li>2× horní/dolní stěna</li><li>2× levá/pravá stěna</li></ul><p>Kvádr s rozměry <b>3 × 4 × 5 cm</b> má v síti <b>3 různé tvary obdélníků</b>:</p><ul><li>3 × 4 cm (2×)</li><li>4 × 5 cm (2×)</li><li>3 × 5 cm (2×)</li></ul>',
+      hint:'💡 Vezmi 2 ze 3 rozměrů – to jsou strany jedné stěny. To uděláš třikrát.' },
+    { title:'🔢 Kód zámku',
+      body:'<p>Kvádr má rozměry <b>2 × 3 × 4 cm</b>.</p><p>Spočítej <b>obsah jedné stěny</b> o stranách <b>2 × 3</b> v cm².</p>',
+      hint:'💡 Obsah obdélníku = délka × šířka.' }
+  ],
+  code:'6',
+  successMsg:'🔓 Správně! 2 · 3 = 6 cm². Zámek 5 otevřen!'
+},
+{
+  id:6, color:'pink', icon:'🩷',
+  title:'Zámek 6 – Hrany krychle',
+  tag:'Součet hran krychle', tagClass:'pink',
+  tasks:[
+    { title:'🧩 Kolik je hran dohromady?',
+      body:'<p>Krychle má <b>12 hran</b>, všechny stejně dlouhé.</p><p>Pokud má hrana délku <b>a</b>, pak <b>součet všech hran</b> = <b>12 · a</b>.</p><p>Doplň tabulku:</p><table class="tt"><tr><th>a</th><th>2 cm</th><th>5 cm</th><th>10 cm</th></tr><tr><td><b>12 · a</b></td><td>?</td><td>?</td><td>?</td></tr></table>',
+      hint:'💡 Vynásob každé a číslem 12: 12·2 = 24, 12·5 = 60, 12·10 = 120.' },
+    { title:'🔢 Kód zámku',
+      body:'<p>Krychle má hranu <b>a = 7 cm</b>.</p><p>Kolik je <b>součet všech hran</b> v cm?</p>',
+      hint:'💡 12 · 7 = ?' }
+  ],
+  code:'84',
+  successMsg:'🔓 Přesně! 12 · 7 = 84 cm. Zámek 6 otevřen!'
+},
+{
+  id:7, color:'indigo', icon:'🔷',
+  title:'Zámek 7 – Hrany kvádru',
+  tag:'Součet hran kvádru', tagClass:'indigo',
+  tasks:[
+    { title:'🧩 Kvádr má hrany ve třech délkách',
+      body:'<p>Kvádr má taky <b>12 hran</b>, ale ve <b>třech délkách</b>: <b>4 hrany délky a, 4 délky b, 4 délky c</b>.</p><p>Vzorec: <b>součet hran = 4 · (a + b + c)</b></p><p>Zkus pro kvádr <b>a = 2, b = 3, c = 4</b>:</p><p>4 · (2 + 3 + 4) = 4 · 9 = ?</p>',
+      hint:'💡 Nejdřív sečti všechny tři rozměry, pak vynásob 4.' },
+    { title:'🔢 Kód zámku',
+      body:'<p>Kvádr má rozměry <b>3 × 5 × 7 cm</b>.</p><p>Spočítej <b>součet všech hran</b> v cm.</p>',
+      hint:'💡 4 · (3 + 5 + 7) = 4 · 15 = ?' }
+  ],
+  code:'60',
+  successMsg:'🔓 Skvěle! 4 · (3+5+7) = 4 · 15 = 60 cm. Zámek 7 otevřen!'
+},
+{
+  id:8, color:'rose', icon:'🌹',
+  title:'Zámek 8 – Povrch krychle',
+  tag:'Povrch S = 6·a²', tagClass:'rose',
+  tasks:[
+    { title:'🧩 Co je povrch tělesa',
+      body:'<p><b>Povrch (S)</b> tělesa = <b>obsah všech stěn dohromady</b>.</p><p>Krychle má 6 stejných čtverců. Obsah jednoho čtverce = <b>a · a = a²</b>.</p><p>Vzorec: <b>S = 6 · a²</b></p><p>Doplň:</p><table class="tt"><tr><th>a</th><th>1 cm</th><th>2 cm</th><th>3 cm</th><th>4 cm</th></tr><tr><td><b>a²</b></td><td>?</td><td>?</td><td>?</td><td>?</td></tr><tr><td><b>S = 6·a²</b></td><td>?</td><td>?</td><td>?</td><td>?</td></tr></table>',
+      hint:'💡 Nejdřív umocni a (a · a), pak vynásob 6. Pro a=2: 2·2=4, pak 6·4=24.' },
+    { title:'🔢 Kód zámku',
+      body:'<p>Krychle má hranu <b>a = 5 cm</b>.</p><p>Kolik je její <b>povrch</b> v cm²?</p>',
+      hint:'💡 a² = 5·5 = 25; pak S = 6 · 25 = ?' }
+  ],
+  code:'150',
+  successMsg:'🔓 Bezvadně! S = 6 · 25 = 150 cm². Zámek 8 otevřen!'
+},
+{
+  id:9, color:'cyan', icon:'🩵',
+  title:'Zámek 9 – Povrch kvádru',
+  tag:'Povrch S = 2·(ab+bc+ac)', tagClass:'cyan',
+  tasks:[
+    { title:'🧩 Vzorec pro povrch kvádru',
+      body:'<p>Kvádr má 3 různé velikosti stěn (vždy po 2 stejných):</p><ul><li>2× obdélník <b>a × b</b></li><li>2× obdélník <b>b × c</b></li><li>2× obdélník <b>a × c</b></li></ul><p>Vzorec: <b>S = 2 · (a·b + b·c + a·c)</b></p><p>Zkus pro <b>a = 2, b = 3, c = 4</b>:</p><p>S = 2 · (2·3 + 3·4 + 2·4) = 2 · (6 + 12 + 8) = 2 · 26 = ?</p>',
+      hint:'💡 Spočítej tři součiny dvojic stran (ab, bc, ac), sečti je, vynásob 2.' },
+    { title:'🔢 Kód zámku',
+      body:'<p>Kvádr má rozměry <b>3 × 4 × 5 cm</b>.</p><p>Spočítej jeho <b>povrch</b> v cm².</p>',
+      hint:'💡 a·b = 12, b·c = 20, a·c = 15. Součet = 47. S = 2 · 47 = ?' }
+  ],
+  code:'94',
+  successMsg:'🔓 Výborně! S = 2 · (12+20+15) = 2 · 47 = 94 cm². Zámek 9 otevřen!'
+},
+{
+  id:10, color:'gold', icon:'🏆',
+  title:'Zámek 10 – Finále: Objem!',
+  tag:'Objem krychle a kvádru', tagClass:'gold',
+  tasks:[
+    { title:'🏆 Poslední výzva – Objem',
+      body:'<p><b>Objem (V)</b> = kolik místa těleso zaujímá v prostoru.</p><ul><li>Krychle: <b>V = a · a · a = a³</b></li><li>Kvádr: <b>V = a · b · c</b></li></ul><p>Vypočítej:</p><p>a) Objem <b>krychle</b> s hranou <b>a = 4 cm</b></p><p>b) Objem <b>kvádru</b> s rozměry <b>2 × 3 × 4 cm</b></p>',
+      hint:'💡 a) 4 · 4 · 4 = 64. b) 2 · 3 · 4 = 24.' },
+    { title:'🔢 Finální kód',
+      body:'<p>Sečti oba objemy z předchozí úlohy:</p><p><b>Kód = V<sub>krychle</sub> + V<sub>kvádru</sub></b> (v cm³)</p>',
+      hint:'💡 64 + 24 = ?' }
+  ],
+  code:'88',
+  successMsg:'🏆 BRAVO! 64 + 24 = 88. Všechny zámky tělesa jsou tvé! Poklad geometrie je tvůj!'
+}
+];
+
+let cur = 0;
+let att = new Array(STEPS.length).fill(0);
+
+document.getElementById('btn-start').addEventListener('click', startGame);
+document.getElementById('btn-restart').addEventListener('click', () => location.reload());
+
+function startGame() {
+  document.getElementById('intro').classList.remove('active');
+  document.getElementById('game').classList.add('active');
+  document.getElementById('stars-wrap').innerHTML =
+    STEPS.map((_,i) => `<span class="star" id="s${i}">⭐</span>`).join('');
+  render(0);
+}
+
+function render(idx) {
+  cur = idx;
+  const s = STEPS[idx];
+  document.getElementById('prog-label').textContent = `Zámek ${idx+1} z ${STEPS.length}`;
+  document.getElementById('prog-fill').style.width = `${(idx / STEPS.length) * 100}%`;
+  for (let i = 0; i < STEPS.length; i++) {
+    const el = document.getElementById(`s${i}`);
+    if (el) el.classList.toggle('lit', i < idx);
+  }
+
+  const colorMap = {
+    blue:'--blue', green:'--green', purple:'--purple', teal:'--teal',
+    orange:'--orange', pink:'--pink', indigo:'--indigo', rose:'--rose',
+    cyan:'--cyan', gold:'--gold-dark'
+  };
+  const cv = colorMap[s.color] || '--blue';
+
+  const tasksHTML = s.tasks.map(t => `
+    <div class="task-card ${s.color}">
+      <span class="tag ${s.tagClass}">${s.tag}</span>
+      <h3>${t.title}</h3>
+      ${t.body}
+      <button class="hint-btn" onclick="toggleHint(this)">💡 Potřebuji nápovědu</button>
+      <div class="hint-box">${t.hint}</div>
+    </div>
+  `).join('');
+
+  document.getElementById('step-container').innerHTML = `
+    <div class="lock-header">
+      <span class="lock-icon-big">${s.icon}</span>
+      <span class="lock-title" style="color:var(${cv})">${s.title}</span>
+      <span class="lock-badge">${idx+1}/${STEPS.length}</span>
+    </div>
+    ${tasksHTML}
+    <div class="code-wrap">
+      <label>🔐 Zadej kód zámku ${idx+1}:</label>
+      <div class="code-row">
+        <input type="number" class="code-input" id="ci" placeholder="???"
+          onkeydown="if(event.key==='Enter') chk()">
+        <button class="btn-check" onclick="chk()">Odemknout 🔓</button>
+      </div>
+      <div class="feedback" id="fb"></div>
+    </div>
+    <div class="unlock-anim" id="ua">
+      <div class="big-icon">🔓✨</div>
+      <p>${s.successMsg}</p>
+    </div>
+  `;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function toggleHint(btn) {
+  const h = btn.nextElementSibling;
+  h.classList.toggle('show');
+  btn.textContent = h.classList.contains('show') ? '🙈 Skrýt nápovědu' : '💡 Potřebuji nápovědu';
+}
+
+function chk() {
+  const inp = document.getElementById('ci');
+  const fb  = document.getElementById('fb');
+  att[cur]++;
+
+  if (inp.value.trim() === STEPS[cur].code) {
+    inp.classList.remove('error');
+    inp.classList.add('success');
+    fb.textContent = '';
+    document.getElementById('ua').classList.add('show');
+    setTimeout(() => {
+      if (cur < STEPS.length - 1) render(cur + 1);
+      else finish();
+    }, 1900);
+  } else {
+    inp.classList.add('error');
+    inp.classList.remove('success');
+    setTimeout(() => inp.classList.remove('error'), 380);
+    const msgs = [
+      'Hmm, to není ono. Zkontroluj postup!',
+      'Zkus to znovu – možná jiný výpočet?',
+      'Nevzdávej se! Přečti si nápovědu.',
+      'Ještě jednou, jsi blízko!'
+    ];
+    fb.className = 'feedback err';
+    fb.textContent = msgs[Math.min(att[cur] - 1, msgs.length - 1)];
+  }
+}
+
+function finish() {
+  document.getElementById('game').classList.remove('active');
+  document.getElementById('finish').classList.add('active');
+  const wrap = document.getElementById('confetti');
+  const cols = ['#f5c842','#1a73c8','#1e9e5a','#e74c3c','#7c3aad','#0f8a72','#ff7f50','#b5286e'];
+  for (let i = 0; i < 90; i++) {
+    const el = document.createElement('div');
+    el.className = 'confetti-piece';
+    const sz = 6 + Math.random() * 9;
+    el.style.cssText = `
+      left:${Math.random()*100}%;top:-12px;
+      background:${cols[Math.floor(Math.random()*cols.length)]};
+      width:${sz}px;height:${sz}px;
+      border-radius:${Math.random()>.5?'50%':'3px'};
+      animation:fall ${1.5+Math.random()*2.5}s ${Math.random()*1.5}s linear forwards;
+    `;
+    wrap.appendChild(el);
+  }
+}
+</script>
+</body>
+</html>
