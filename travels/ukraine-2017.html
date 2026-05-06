@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<!--
+  Ukraine 2017 — field journal entry.
+  Story body marked [[ FILL FROM DOCX ]] is waiting for content from the user's
+  Czech .docx (Komentář NEW.docx). Captions in the gallery are also placeholders
+  until the user describes each photo. Photo files are 1600px web-sized variants
+  living in ./images/ua_2017/.
+-->
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kyiv & Ukraine, Summer 2017 — Travels · Vojtěch Konopa</title>
+  <meta name="description" content="Eight days through Kyiv and Ukraine in late July 2017 — abandoned places, soviet residue, and the long ride home." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #1c1c1c;
+      --surface: #262626;
+      --surface-2: #2e2e2e;
+      --border: #3a3a3a;
+      --border-strong: #555;
+      --fg: #ededec;
+      --fg-dim: #8a8a85;
+      --fg-muted: #5e5e5b;
+      --accent: #f5b800;
+      --concrete: #4a4a48;
+      --display: 'Archivo Black', 'Inter', system-ui, sans-serif;
+      --body: 'Inter', system-ui, -apple-system, Segoe UI, sans-serif;
+      --mono: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      background: var(--bg);
+      color: var(--fg);
+      font-family: var(--body);
+      font-size: 16px;
+      line-height: 1.55;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a { color: var(--fg); text-decoration: none; border-bottom: 1px solid transparent; transition: color .15s, border-color .15s; }
+    a:hover, a:focus { color: var(--accent); border-bottom-color: var(--accent); outline: none; }
+    a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 1px; }
+
+    img { display: block; max-width: 100%; }
+
+    /* TOP BAR */
+    .top-bar {
+      border-bottom: 1px solid var(--border);
+      padding: 18px 28px;
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 18px;
+      font-family: var(--mono);
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--fg-dim);
+    }
+    .top-bar a { color: var(--fg-dim); }
+    .top-bar a:hover { color: var(--accent); }
+    .top-bar .crumb { color: var(--fg); }
+
+    /* HERO */
+    .hero {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      max-height: 80vh;
+      background-color: var(--concrete);
+      background-size: cover;
+      background-position: center;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: auto 0 0 0;
+      height: 50%;
+      background: linear-gradient(to top, rgba(0,0,0,0.55), transparent);
+      pointer-events: none;
+    }
+
+    /* TITLE */
+    .title-block {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 56px 28px 28px;
+      border-bottom: 1px solid var(--border);
+    }
+    .label-row {
+      display: flex;
+      gap: 24px;
+      flex-wrap: wrap;
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 18px;
+    }
+    .label-row .dim { color: var(--fg-dim); }
+    h1.location {
+      font-family: var(--display);
+      font-size: clamp(40px, 7vw, 88px);
+      line-height: 0.95;
+      letter-spacing: -0.02em;
+      text-transform: uppercase;
+      margin-bottom: 18px;
+    }
+    .lede {
+      font-size: 18px;
+      font-weight: 300;
+      color: var(--fg);
+      max-width: 680px;
+      line-height: 1.6;
+    }
+
+    /* DATA STRIP */
+    .data-strip {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 24px 28px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1px;
+      background: var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+    .data-strip > div {
+      background: var(--bg);
+      padding: 16px 20px;
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--fg-dim);
+      min-height: 64px;
+    }
+    .data-strip b {
+      display: block;
+      font-family: var(--body);
+      font-size: 15px;
+      font-weight: 500;
+      letter-spacing: 0;
+      text-transform: none;
+      color: var(--fg);
+      margin-top: 4px;
+    }
+
+    /* BODY */
+    article {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 56px 28px 56px;
+    }
+    article p {
+      font-size: 17px;
+      line-height: 1.75;
+      color: var(--fg);
+      font-weight: 300;
+      margin-bottom: 22px;
+    }
+    article p.first::first-letter {
+      font-family: var(--display);
+      font-size: 3.4em;
+      float: left;
+      line-height: 0.9;
+      margin: 4px 10px 0 0;
+      color: var(--accent);
+    }
+    article h2 {
+      font-family: var(--display);
+      font-size: 22px;
+      letter-spacing: -0.01em;
+      text-transform: uppercase;
+      margin: 40px 0 16px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
+    }
+    article blockquote {
+      border-left: 3px solid var(--accent);
+      padding: 4px 0 4px 22px;
+      margin: 28px 0;
+      font-size: 19px;
+      font-weight: 300;
+      color: var(--fg);
+      font-style: italic;
+    }
+    article blockquote cite {
+      display: block;
+      margin-top: 10px;
+      font-family: var(--mono);
+      font-style: normal;
+      font-size: 11px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--fg-dim);
+    }
+
+    /* TODO highlight — visual reminder for placeholder text. Remove when done. */
+    article p.todo, article h2.todo {
+      color: var(--fg-muted);
+      border-left: 3px dashed var(--accent);
+      padding-left: 14px;
+    }
+    article h2.todo { padding-top: 24px; }
+
+    /* GALLERY */
+    .gallery-section {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 28px 64px;
+    }
+    .section-title {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--fg-dim);
+      margin-bottom: 24px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    .gallery {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1px;
+      background: var(--border);
+    }
+    figure.shot {
+      background: var(--surface);
+      margin: 0;
+    }
+    figure.shot .img {
+      aspect-ratio: 4 / 3;
+      background-color: var(--concrete);
+      background-size: cover;
+      background-position: center;
+      filter: grayscale(0.45) contrast(1.05);
+      transition: filter 0.25s ease;
+      position: relative;
+    }
+    figure.shot:hover .img, figure.shot:focus-within .img { filter: none; }
+    figcaption {
+      padding: 12px 16px 18px;
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--fg-dim);
+      border-top: 1px solid var(--border);
+    }
+    figcaption b { color: var(--fg); font-weight: 500; }
+    figure.shot.wide { grid-column: span 2; }
+
+    /* VIDEO */
+    .video-section {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 28px 64px;
+    }
+    .video-wrap {
+      position: relative;
+      aspect-ratio: 16 / 9;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      overflow: hidden;
+    }
+    .video-wrap iframe {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%;
+      border: 0;
+    }
+    .video-placeholder {
+      position: absolute; inset: 0;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 8px;
+      background-image:
+        repeating-linear-gradient(135deg, rgba(255,255,255,0.02) 0 8px, transparent 8px 16px),
+        radial-gradient(ellipse at 30% 25%, #555 0%, #3a3a3a 60%, #2a2a2a 100%);
+      color: var(--fg-dim);
+      font-family: var(--mono);
+      font-size: 12px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      text-align: center;
+      padding: 24px;
+    }
+    .video-placeholder b { color: var(--accent); font-weight: 500; }
+
+    /* NAV */
+    .nav-strip {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 32px 28px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      gap: 24px;
+      font-family: var(--mono);
+      font-size: 12px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+    .nav-strip a { color: var(--fg-dim); }
+    .nav-strip a:hover { color: var(--accent); }
+    .nav-strip .label { color: var(--fg-muted); display: block; font-size: 10px; margin-bottom: 4px; }
+
+    /* FOOTER */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 32px 28px;
+      max-width: 1280px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      gap: 18px;
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--fg-dim);
+    }
+    footer a { color: var(--fg-dim); }
+    footer a:hover { color: var(--accent); }
+
+    /* RESPONSIVE */
+    @media (max-width: 900px) {
+      .data-strip { grid-template-columns: repeat(2, 1fr); }
+      .gallery { grid-template-columns: repeat(2, 1fr); }
+      figure.shot.wide { grid-column: span 2; }
+      .title-block { padding: 36px 20px 24px; }
+      article { padding: 40px 20px; }
+      .gallery-section, .video-section { padding: 0 20px 56px; }
+      .top-bar, footer, .nav-strip { padding: 14px 20px; }
+    }
+    @media (max-width: 560px) {
+      .gallery { grid-template-columns: 1fr; }
+      figure.shot.wide { grid-column: span 1; }
+      .data-strip { grid-template-columns: 1fr 1fr; }
+      h1.location { font-size: 44px; }
+      footer { flex-direction: column; gap: 8px; }
+      .nav-strip { flex-direction: column; gap: 16px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- TOP BAR -->
+  <div class="top-bar">
+    <a href="./">← back to journal</a>
+    <span class="crumb">~/travels/ukraine-2017</span>
+    <span>vojta@konopa</span>
+  </div>
+
+  <!-- HERO PHOTO — wide-aspect arrival shot -->
+  <section class="hero" style="background-image:url('./images/ua_2017/ua_sk-0059-27.07.2017_web.jpg');"></section>
+
+  <!-- TITLE BLOCK -->
+  <div class="title-block">
+    <div class="label-row">
+      <span>FIELD JOURNAL · 002</span>
+      <span class="dim">STATUS: VISITED</span>
+    </div>
+    <h1 class="location">Kyiv<br>& Ukraine</h1>
+    <p class="lede">
+      Eight days through Ukraine in the height of summer 2017 — Kyiv as the home base,
+      and a rolling list of places that aren't on the tourist map. Soviet-era industry,
+      empty corridors, long train rides east.
+    </p>
+  </div>
+
+  <!-- DATA STRIP -->
+  <section class="data-strip">
+    <div>Country<br><b>Ukraine</b></div>
+    <div>Visited<br><b>27 Jul – 3 Aug 2017</b></div>
+    <div>Base<br><b>Kyiv</b></div>
+    <div>Approx. coords<br><b>50.44° N · 30.49° E</b></div>
+  </section>
+
+  <!-- BODY TEXT — placeholder paragraphs, replace with the docx content.
+       Marked .todo class adds a yellow dashed line so they're visually obvious
+       until you fill them in. Drop the class once the real text is in place. -->
+  <article>
+    <p class="first todo">
+      [[ FILL FROM DOCX ]] — opening paragraph. The arrival into Kyiv: train,
+      airport, border? What did the city feel like in the first hour?
+    </p>
+
+    <p class="todo">
+      [[ FILL FROM DOCX ]] — second paragraph. Where you stayed, who you went with,
+      what the plan was. Any context from the document about why this trip happened.
+    </p>
+
+    <h2 class="todo">[[ FILL ]] — section heading (e.g. "Kyiv", "Out of the city", "The factories")</h2>
+
+    <p class="todo">
+      [[ FILL FROM DOCX ]] — story body. The places you went, in roughly the order you
+      went. Specific observations beat broad descriptions: smells, weights, what was
+      written on a wall, who you met.
+    </p>
+
+    <p class="todo">
+      [[ FILL FROM DOCX ]] — continue the story.
+    </p>
+
+    <blockquote class="todo">
+      "[[ FILL ]] — pulled quote, a line of graffiti, a sign you photographed,
+      or something a guide / fixer / stranger told you."
+      <cite>— [[ source ]]</cite>
+    </blockquote>
+
+    <h2 class="todo">[[ FILL ]] — second section heading</h2>
+
+    <p class="todo">
+      [[ FILL FROM DOCX ]] — more story. Closing thoughts, the train back, whatever
+      you wrote at the end of the document.
+    </p>
+  </article>
+
+  <!-- GALLERY — eight photos, web-sized, arranged so the grid fills cleanly.
+       To swap in different photos: change the file name in url(...). To re-order:
+       move the <figure> blocks. To make a card span 2 columns: add class="wide". -->
+  <section class="gallery-section">
+    <h2 class="section-title">// GALLERY</h2>
+    <div class="gallery">
+
+      <figure class="shot">
+        <div class="img" style="background-image:url('./images/ua_2017/ua_sk-0051-27.07.2017_web.jpg');"></div>
+        <figcaption>01 / <b>27 Jul 2017</b> · [[ caption ]]</figcaption>
+      </figure>
+
+      <figure class="shot">
+        <div class="img" style="background-image:url('./images/ua_2017/ua_sk-0137-29.07.2017_web.jpg');"></div>
+        <figcaption>02 / <b>29 Jul 2017</b> · [[ caption ]]</figcaption>
+      </figure>
+
+      <figure class="shot">
+        <div class="img" style="background-image:url('./images/ua_2017/ua_sk-0153-29.07.2017_web.jpg');"></div>
+        <figcaption>03 / <b>29 Jul 2017</b> · [[ caption ]]</figcaption>
+      </figure>
+
+      <figure class="shot wide">
+        <div class="img" style="background-image:url('./images/ua_2017/ua_sk-0322-30.07.2017_web.jpg');"></div>
+        <figcaption>04 / <b>30 Jul 2017</b> · [[ caption ]] — landscape spans two columns</figcaption>
+      </figure>
+
+      <figure class="shot">
+        <div class="img" style="background-image:url('./images/ua_2017/ua_sk-0416-03.08.2017_web.jpg');"></div>
+        <figcaption>05 / <b>03 Aug 2017</b> · [[ caption ]]</figcaption>
+      </figure>
+
+      <figure class="shot">
+        <div class="img" style="background-image:url('./images/ua_2017/ua_sk-0454-03.08.2017_web.jpg');"></div>
+        <figcaption>06 / <b>03 Aug 2017</b> · [[ caption ]]</figcaption>
+      </figure>
+
+      <figure class="shot">
+        <div class="img" style="background-image:url('./images/ua_2017/Ukraina_0348_web.jpg');"></div>
+        <figcaption>07 / <b>2017</b> · [[ caption ]]</figcaption>
+      </figure>
+
+      <figure class="shot">
+        <div class="img" style="background-image:url('./images/ua_2017/Ukraina_0365_web.jpg');"></div>
+        <figcaption>08 / <b>2017</b> · [[ caption ]]</figcaption>
+      </figure>
+
+    </div>
+  </section>
+
+  <!-- VIDEO — placeholder for YouTube/Vimeo embed.
+       To use: upload Ukrajina_2017.mp4 to YouTube (unlisted is fine), get the video ID
+       (the bit after `?v=` in the URL), and replace the entire <div class="video-placeholder">
+       block with:
+         <iframe src="https://www.youtube.com/embed/YOUR_VIDEO_ID"
+                 title="Ukrajina 2017"
+                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                 allowfullscreen></iframe>
+  -->
+  <section class="video-section">
+    <h2 class="section-title">// VIDEO</h2>
+    <div class="video-wrap">
+      <div class="video-placeholder">
+        <span>YOUTUBE / VIMEO EMBED</span>
+        <span><b>Ukrajina_2017.mp4</b> — upload externally and replace this block</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- PREV / NEXT NAV — only one entry so far, both go back to grid -->
+  <nav class="nav-strip">
+    <a href="./">
+      <span class="label">← previous</span>
+      back to journal
+    </a>
+    <a href="./">
+      <span class="label">next →</span>
+      back to journal
+    </a>
+  </nav>
+
+  <!-- FOOTER -->
+  <footer>
+    <span>© VOJTĚCH KONOPA</span>
+    <span><a href="/">HOME</a> · <a href="./">JOURNAL</a></span>
+  </footer>
+
+</body>
+</html>

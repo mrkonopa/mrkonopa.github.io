@@ -1,0 +1,8 @@
+# Full-resolution originals stay on disk for backup but are NOT tracked in git.
+# Only the *_web.jpg variants (≤1600px wide, EXIF stripped) get committed.
+*.jpg
+!*_web.jpg
+
+# Video files are too big for git — host externally (YouTube/Vimeo).
+*.mp4
+*.mov
