@@ -8,14 +8,19 @@ organizované do podsložek po ročnících a termínech.
 ```
 pdfs/
 ├── 2026/
-│   ├── 1_radny/   M9A_2026_*.pdf
-│   └── 2_radny/   M9B_2026_*.pdf
+│   ├── 1_radny/    M9A_2026_*.pdf
+│   └── 2_radny/    M9B_2026_*.pdf
 ├── 2025/
 │   ├── 1_radny/    M9A_2025_*.pdf
 │   ├── 2_radny/    M9B_2025_*.pdf
 │   ├── 3_nahradni/ M9C_2025_*.pdf
 │   ├── 4_nahradni/ M9D_2025_*.pdf
 │   └── 5_nanecisto/ nanecisto_2025_*.pdf
+├── 2024/
+│   ├── 1_radny/    M9A_2024_*.pdf
+│   ├── 2_radny/    M9B_2024_*.pdf
+│   ├── 3_nahradni/ M9C_2024_*.pdf
+│   └── 4_nahradni/ M9D_2024_*.pdf
 └── README.md
 ```
 
