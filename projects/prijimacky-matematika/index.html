@@ -2,13 +2,14 @@
 <!--
   ───────────────────────────────────────────────────────────────────────────
   PŘIJÍMAČKY NA SŠ Z MATEMATIKY — PDF archive
+  Tests covered: 4leté obory, jednotná přijímací zkouška z matematiky (CERMAT).
+  Files live in ./pdfs/<year>/<termin>/  with names like M9A_2025_TS.pdf etc.
+
   How to add a new test:
-    1. Drop the file into ./pdfs/  (suggested naming: prijimacky-YYYY-{4l|6l|8l}-{rt|nt}-{t1|t2}.pdf)
-       e.g.  prijimacky-2024-4l-rt-t1.pdf
-    2. Copy one <a class="row"> block in the right year-section and update the
-       fields: year, type, term, filename, optional notes/size.
-    3. If you're adding a brand new year, copy a whole <section class="year">
-       block. Newer years go at the top.
+    1. Drop the PDF(s) into ./pdfs/<year>/<termin>/
+    2. Copy one <li class="row"> block in the right year section and update
+       the year/termín label, the M9X code, and the three button hrefs.
+    3. If a button has no file, just delete that <a> — the row stays clean.
   ───────────────────────────────────────────────────────────────────────────
 -->
 <html lang="cs">
@@ -16,13 +17,15 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Přijímačky na SŠ — Matematika · Vojtěch Konopa</title>
-  <meta name="description" content="Sbírka testů z přijímacích zkoušek z matematiky na střední školy — k procvičování i ke stažení." />
-  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Lexend:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <meta name="description" content="Sbírka jednotných přijímacích testů z matematiky pro 4leté obory SŠ — k procvičování a ke stažení v PDF.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     :root {
       --blue:#1a73c8; --blue-light:#e8f1fb; --blue-dark:#1250a0;
       --teal:#0f8a72; --teal-light:#e4f5f1;
-      --gold-dark:#c89a10;
+      --gold:#c89a10; --gold-light:#fef9ec;
       --green:#1e9e5a; --green-light:#e6f7ef;
       --red:#d63c2f;
       --bg:#f5f0e6;
@@ -31,253 +34,213 @@
       --muted:#6b7280;
       --border:#e2dccc;
       --shadow:0 2px 14px rgba(0,0,0,.06);
-      --shadow-hover:0 6px 22px rgba(26,115,200,.18);
+      --shadow-hover:0 6px 22px rgba(26,115,200,.16);
       --radius:14px;
+
+      /* SAFE FONT STACKS — Czech diacritics fall back to system fonts that
+         all support Latin Extended-A (ž ř č š ě ů ť ď ň…). No "cursive" anywhere. */
+      --sans:'Lexend','Inter','Segoe UI',system-ui,-apple-system,'Helvetica Neue',Arial,sans-serif;
     }
 
     *{box-sizing:border-box;margin:0;padding:0}
 
     html, body {
-      font-family:'Lexend', system-ui, -apple-system, Segoe UI, sans-serif;
-      background:var(--bg);
+      font-family: var(--sans);
+      background: var(--bg);
       background-image:
         radial-gradient(circle at 8% 12%,rgba(245,200,66,.10) 0%,transparent 38%),
         radial-gradient(circle at 92% 88%,rgba(26,115,200,.07) 0%,transparent 38%);
-      color:var(--text);
-      min-height:100vh;
-      line-height:1.6;
-      -webkit-font-smoothing:antialiased;
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
     }
 
-    a{color:var(--blue); text-decoration:none}
-    a:hover, a:focus{color:var(--blue-dark); outline:none}
-    a:focus-visible{outline:2px solid var(--blue); outline-offset:3px; border-radius:3px}
+    a { color: var(--blue); text-decoration: none; }
+    a:hover, a:focus { color: var(--blue-dark); outline: none; }
+    a:focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; border-radius: 3px; }
 
     /* TOP BAR */
     .top-bar {
-      max-width:920px;
-      margin:0 auto;
-      padding:20px 24px 0;
-      display:flex;
-      justify-content:space-between;
-      gap:18px;
-      font-size:.82rem;
-      color:var(--muted);
+      max-width: 920px; margin: 0 auto;
+      padding: 20px 24px 0;
+      display: flex; justify-content: space-between; gap: 18px;
+      font-size: .82rem; color: var(--muted);
     }
-    .top-bar a { color:var(--muted) }
-    .top-bar a:hover { color:var(--blue) }
-    .top-bar .crumb { color:var(--text); font-weight:500 }
+    .top-bar a { color: var(--muted); }
+    .top-bar a:hover { color: var(--blue); }
+    .top-bar .crumb { color: var(--text); font-weight: 500; }
 
     /* HEADER */
     header.title-block {
-      max-width:920px;
-      margin:0 auto;
-      padding:36px 24px 20px;
+      max-width: 920px; margin: 0 auto;
+      padding: 36px 24px 18px;
     }
     .eyebrow {
-      display:inline-block;
-      font-size:.74rem;
-      font-weight:700;
-      letter-spacing:0.14em;
-      text-transform:uppercase;
-      color:var(--blue);
-      background:var(--blue-light);
-      padding:4px 12px;
-      border-radius:20px;
-      margin-bottom:14px;
+      display: inline-block;
+      font-size: .74rem; font-weight: 700;
+      letter-spacing: 0.14em; text-transform: uppercase;
+      color: var(--blue);
+      background: var(--blue-light);
+      padding: 4px 12px; border-radius: 20px;
+      margin-bottom: 14px;
     }
     h1.title {
-      font-family:'Fredoka', cursive;
-      font-size:clamp(28px, 5vw, 44px);
-      line-height:1.1;
-      font-weight:700;
-      color:var(--text);
-      margin-bottom:10px;
-      letter-spacing:-0.005em;
+      font-family: var(--sans);
+      font-weight: 800;
+      font-size: clamp(28px, 5vw, 44px);
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+      color: var(--text);
+      margin-bottom: 10px;
     }
-    h1.title .accent { color:var(--blue) }
+    h1.title .accent { color: var(--blue); }
     p.lede {
-      font-size:1.02rem;
-      color:var(--muted);
-      max-width:640px;
-      font-weight:300;
+      font-size: 1rem; font-weight: 300;
+      color: var(--muted);
+      max-width: 640px;
     }
 
     /* INTRO CARD */
     .intro-card {
-      max-width:920px;
-      margin:18px auto 0;
-      padding:18px 24px;
-      background:var(--card);
-      border-radius:var(--radius);
-      box-shadow:var(--shadow);
-      border-left:5px solid var(--blue);
-      font-size:.95rem;
-      color:var(--text);
-      line-height:1.7;
+      max-width: 920px; margin: 18px auto 0;
+      padding: 18px 24px;
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      border-left: 5px solid var(--blue);
+      font-size: .95rem; line-height: 1.7;
     }
-    .intro-card b { color:var(--blue) }
-
-    /* LEGEND */
-    .legend {
-      max-width:920px;
-      margin:18px auto 0;
-      padding:0 24px;
-      display:flex;
-      gap:8px;
-      flex-wrap:wrap;
-      font-size:.78rem;
-    }
-    .pill {
-      display:inline-flex;
-      align-items:center;
-      gap:6px;
-      padding:4px 11px;
-      border-radius:20px;
-      font-weight:600;
-      letter-spacing:0.02em;
-    }
-    .pill.l4 { background:var(--blue-light); color:var(--blue) }
-    .pill.l6 { background:var(--teal-light); color:var(--teal) }
-    .pill.l8 { background:var(--green-light); color:var(--green) }
-    .pill.term { background:#fef9ec; color:var(--gold-dark) }
+    .intro-card b { color: var(--blue); }
 
     /* YEAR SECTIONS */
     main {
-      max-width:920px;
-      margin:0 auto;
-      padding:24px 24px 80px;
+      max-width: 920px; margin: 0 auto;
+      padding: 18px 24px 80px;
     }
-    section.year {
-      margin-top:32px;
-    }
+    section.year { margin-top: 30px; }
     .year-header {
-      display:flex;
-      align-items:baseline;
-      justify-content:space-between;
-      gap:14px;
-      padding:6px 4px 12px;
-      border-bottom:1px solid var(--border);
-      margin-bottom:14px;
+      display: flex; align-items: baseline;
+      justify-content: space-between; gap: 14px;
+      padding: 6px 4px 12px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 14px;
     }
     .year-header h2 {
-      font-family:'Fredoka', cursive;
-      font-size:1.7rem;
-      font-weight:700;
-      letter-spacing:-0.01em;
-      color:var(--text);
+      font-family: var(--sans);
+      font-weight: 800;
+      font-size: 1.7rem;
+      letter-spacing: -0.01em;
+      color: var(--text);
     }
     .year-header .count {
-      font-size:.78rem;
-      color:var(--muted);
-      letter-spacing:0.05em;
+      font-size: .78rem;
+      color: var(--muted);
+      letter-spacing: 0.05em;
     }
 
-    /* PDF ROWS */
-    .rows {
-      display:grid;
-      gap:8px;
+    /* TEST ROWS */
+    ul.rows { list-style: none; display: grid; gap: 10px; }
+    li.row {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 18px;
+      box-shadow: 0 1px 3px rgba(0,0,0,.03);
+      transition: border-color .12s ease, box-shadow .12s ease, transform .12s ease;
     }
-    a.row {
-      display:grid;
-      grid-template-columns: auto 1fr auto;
-      align-items:center;
-      gap:14px;
-      padding:14px 18px;
-      background:var(--card);
-      border:1px solid var(--border);
-      border-radius:12px;
-      box-shadow:0 1px 3px rgba(0,0,0,.03);
-      color:var(--text);
-      transition:transform .12s ease, box-shadow .12s ease, border-color .12s ease;
-    }
-    a.row:hover, a.row:focus {
-      transform:translateY(-1px);
-      box-shadow:var(--shadow-hover);
-      border-color:var(--blue);
-      color:var(--text);
-    }
+    li.row:hover { border-color: var(--blue); box-shadow: var(--shadow-hover); transform: translateY(-1px); }
 
-    .row .icon {
-      font-size:1.25rem;
-      width:36px; height:36px;
-      display:flex; align-items:center; justify-content:center;
-      background:var(--blue-light);
-      color:var(--blue);
-      border-radius:9px;
-      font-weight:700;
-      font-size:.78rem;
-      letter-spacing:0.05em;
+    .row-header {
+      display: flex; align-items: center; gap: 12px;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
     }
-    .row .body {
-      display:flex;
-      flex-direction:column;
-      gap:4px;
-      min-width:0;
+    .row-header .label {
+      font-size: 1.02rem;
+      font-weight: 600;
+      color: var(--text);
     }
-    .row .body-line {
-      display:flex;
-      align-items:center;
-      flex-wrap:wrap;
-      gap:8px;
-      font-size:.95rem;
-      font-weight:500;
+    .row-header .code {
+      font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+      font-size: .82rem;
+      color: var(--muted);
+      background: #faf5e6;
+      padding: 2px 8px;
+      border-radius: 6px;
     }
-    .row .body-line .pill { font-size:.7rem; padding:2px 9px }
-    .row .desc {
-      color:var(--muted);
-      font-size:.82rem;
-      font-weight:300;
+    .row-header .tag {
+      font-size: .7rem; font-weight: 700;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      padding: 3px 10px; border-radius: 20px;
     }
-    .row .arrow {
-      color:var(--muted);
-      font-size:.85rem;
-      letter-spacing:0.04em;
-      font-weight:500;
-      white-space:nowrap;
-    }
-    a.row:hover .arrow, a.row:focus .arrow { color:var(--blue) }
+    .tag.radny    { background: var(--blue-light); color: var(--blue); }
+    .tag.nahradni { background: var(--teal-light); color: var(--teal); }
+    .tag.nanecisto{ background: var(--gold-light); color: var(--gold); }
 
-    /* PLACEHOLDER STATE — when a row has no real PDF yet */
-    a.row.placeholder {
-      pointer-events:none;
-      opacity:.55;
-      border-style:dashed;
+    /* FILE BUTTONS */
+    .files {
+      display: flex; flex-wrap: wrap; gap: 8px;
     }
-    a.row.placeholder .icon { background:#eee; color:var(--muted) }
+    .files a {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 8px 14px;
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      font-size: .87rem;
+      font-weight: 500;
+      color: var(--text);
+      background: #fafaf2;
+      transition: all .12s ease;
+    }
+    .files a:hover, .files a:focus {
+      background: var(--blue-light);
+      border-color: var(--blue);
+      color: var(--blue-dark);
+      transform: translateY(-1px);
+    }
+    .files a.primary {
+      background: var(--blue);
+      border-color: var(--blue);
+      color: #fff;
+    }
+    .files a.primary:hover, .files a.primary:focus {
+      background: var(--blue-dark);
+      border-color: var(--blue-dark);
+      color: #fff;
+    }
+    .files .ico { font-size: .9em; }
 
-    /* EMPTY STATE — when a year section has no entries yet */
-    .empty {
-      padding:14px 18px;
-      background:#fafaf2;
-      border:1px dashed var(--border);
-      border-radius:12px;
-      color:var(--muted);
-      font-size:.9rem;
-      font-style:italic;
+    /* NOTE / footnote */
+    .note {
+      max-width: 920px; margin: 30px auto 0;
+      padding: 14px 18px;
+      background: #fafaf2;
+      border: 1px dashed var(--border);
+      border-radius: 12px;
+      font-size: .85rem;
+      color: var(--muted);
+      line-height: 1.6;
     }
+    .note b { color: var(--text); }
 
     /* FOOTER */
     footer {
-      max-width:920px;
-      margin:0 auto;
-      padding:24px 24px 40px;
-      border-top:1px solid var(--border);
-      display:flex;
-      justify-content:space-between;
-      flex-wrap:wrap;
-      gap:12px;
-      color:var(--muted);
-      font-size:.82rem;
+      max-width: 920px; margin: 40px auto 0;
+      padding: 24px 24px 40px;
+      border-top: 1px solid var(--border);
+      display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px;
+      color: var(--muted);
+      font-size: .82rem;
     }
-    footer a { color:var(--muted) }
-    footer a:hover { color:var(--blue) }
+    footer a { color: var(--muted); }
+    footer a:hover { color: var(--blue); }
 
-    /* RESPONSIVE */
-    @media (max-width:560px) {
-      a.row { grid-template-columns: auto 1fr; }
-      a.row .arrow { grid-column: 1 / -1; text-align:right }
-      .year-header { flex-direction:column; align-items:flex-start; gap:4px }
+    @media (max-width: 560px) {
+      .year-header { flex-direction: column; align-items: flex-start; gap: 4px; }
+      .row-header { gap: 8px; }
+      .files a { padding: 7px 12px; font-size: .82rem; }
     }
   </style>
 </head>
@@ -293,124 +256,145 @@
     <span class="eyebrow">Studijní materiály</span>
     <h1 class="title">Přijímačky na SŠ <span class="accent">— Matematika</span></h1>
     <p class="lede">
-      Sbírka jednotných přijímacích testů z matematiky pro střední školy.
-      K procvičování i ke stažení v PDF.
+      Sbírka jednotných přijímacích testů z matematiky (CERMAT) pro 4leté obory SŠ.
+      K procvičování i ke stažení.
     </p>
   </header>
 
   <div class="intro-card">
     <p>
-      Tady najdeš jednotné přijímací testy z matematiky pořádané <b>CERMATem</b> pro
-      <b>4leté, 6leté i 8leté gymnázium</b> a další obory s maturitou. Klikni na řádek pro otevření PDF
-      (otevře se v novém okně). Postupně přidávám další ročníky a varianty.
+      Tady najdeš jednotné přijímací testy z matematiky pořádané <b>CERMATem</b>.
+      Klikni na <b>zadání</b> pro otevření testu, na <b>klíč</b> nebo
+      <b>vzorový arch</b> pro řešení a na <b>záznamový arch</b> pro tištěnou verzi
+      odpovědního formuláře. Všechny soubory se otevřou v novém okně.
     </p>
   </div>
 
-  <div class="legend">
-    <span class="pill l4">4letý</span>
-    <span class="pill l6">6letý</span>
-    <span class="pill l8">8letý</span>
-    <span class="pill term">Termín 1 / 2 · řádný / náhradní</span>
-  </div>
-
   <main>
+
+    <!-- ─── 2026 ─────────────────────────────────────────────────────────── -->
+    <section class="year">
+      <div class="year-header">
+        <h2>2026</h2>
+        <span class="count">2 řádné termíny</span>
+      </div>
+      <ul class="rows">
+
+        <li class="row">
+          <div class="row-header">
+            <span class="label">Termín 1</span>
+            <span class="tag radny">řádný</span>
+            <span class="code">M9A</span>
+          </div>
+          <div class="files">
+            <a class="primary" href="./pdfs/2026/1_radny/M9A_2026_TS.pdf" target="_blank" rel="noopener"><span class="ico">📄</span> zadání</a>
+            <a href="./pdfs/2026/1_radny/M9A_2026_VZA.pdf" target="_blank" rel="noopener"><span class="ico">✅</span> vzorový arch</a>
+            <a href="./pdfs/2026/1_radny/M9A_2026_ZA.pdf" target="_blank" rel="noopener"><span class="ico">📋</span> záznamový arch</a>
+          </div>
+        </li>
+
+        <li class="row">
+          <div class="row-header">
+            <span class="label">Termín 2</span>
+            <span class="tag radny">řádný</span>
+            <span class="code">M9B</span>
+          </div>
+          <div class="files">
+            <a class="primary" href="./pdfs/2026/2_radny/M9B_2026_TS.pdf" target="_blank" rel="noopener"><span class="ico">📄</span> zadání</a>
+            <a href="./pdfs/2026/2_radny/M9B_2026_VZA.pdf" target="_blank" rel="noopener"><span class="ico">✅</span> vzorový arch</a>
+            <a href="./pdfs/2026/2_radny/M9B_2026_ZA.pdf" target="_blank" rel="noopener"><span class="ico">📋</span> záznamový arch</a>
+          </div>
+        </li>
+
+      </ul>
+    </section>
 
     <!-- ─── 2025 ─────────────────────────────────────────────────────────── -->
     <section class="year">
       <div class="year-header">
         <h2>2025</h2>
-        <span class="count">[[ FILL ]] testů</span>
+        <span class="count">2 řádné · 2 náhradní · 1 nanečisto</span>
       </div>
-      <div class="rows">
-        <div class="empty">
-          Až budou testy 2025 zveřejněny, přidej je sem. Smaž tento odstavec a vlož &lt;a class="row"&gt; bloky.
-        </div>
-      </div>
+      <ul class="rows">
+
+        <li class="row">
+          <div class="row-header">
+            <span class="label">Termín 1</span>
+            <span class="tag radny">řádný</span>
+            <span class="code">M9A</span>
+          </div>
+          <div class="files">
+            <a class="primary" href="./pdfs/2025/1_radny/M9A_2025_TS.pdf" target="_blank" rel="noopener"><span class="ico">📄</span> zadání</a>
+            <a href="./pdfs/2025/1_radny/M9A_2025_klic.pdf" target="_blank" rel="noopener"><span class="ico">✅</span> klíč</a>
+          </div>
+        </li>
+
+        <li class="row">
+          <div class="row-header">
+            <span class="label">Termín 2</span>
+            <span class="tag radny">řádný</span>
+            <span class="code">M9B</span>
+          </div>
+          <div class="files">
+            <a class="primary" href="./pdfs/2025/2_radny/M9B_2025_TS.pdf" target="_blank" rel="noopener"><span class="ico">📄</span> zadání</a>
+            <a href="./pdfs/2025/2_radny/M9B_2025_klic.pdf" target="_blank" rel="noopener"><span class="ico">✅</span> klíč</a>
+            <a href="./pdfs/2025/2_radny/M9B_2025_ZA.pdf" target="_blank" rel="noopener"><span class="ico">📋</span> záznamový arch</a>
+          </div>
+        </li>
+
+        <li class="row">
+          <div class="row-header">
+            <span class="label">Termín 1</span>
+            <span class="tag nahradni">náhradní</span>
+            <span class="code">M9C</span>
+          </div>
+          <div class="files">
+            <a class="primary" href="./pdfs/2025/3_nahradni/M9C_2025_TS.pdf" target="_blank" rel="noopener"><span class="ico">📄</span> zadání</a>
+            <a href="./pdfs/2025/3_nahradni/M9C_2025_klic.pdf" target="_blank" rel="noopener"><span class="ico">✅</span> klíč</a>
+            <a href="./pdfs/2025/3_nahradni/M9C_2025_ZA.pdf" target="_blank" rel="noopener"><span class="ico">📋</span> záznamový arch</a>
+          </div>
+        </li>
+
+        <li class="row">
+          <div class="row-header">
+            <span class="label">Termín 2</span>
+            <span class="tag nahradni">náhradní</span>
+            <span class="code">M9D</span>
+          </div>
+          <div class="files">
+            <a class="primary" href="./pdfs/2025/4_nahradni/M9D_2025_TS.pdf" target="_blank" rel="noopener"><span class="ico">📄</span> zadání</a>
+            <a href="./pdfs/2025/4_nahradni/M9D_2025_klic.pdf" target="_blank" rel="noopener"><span class="ico">✅</span> klíč</a>
+            <a href="./pdfs/2025/4_nahradni/M9D_2025_ZA.pdf" target="_blank" rel="noopener"><span class="ico">📋</span> záznamový arch</a>
+          </div>
+        </li>
+
+        <li class="row">
+          <div class="row-header">
+            <span class="label">Nanečisto</span>
+            <span class="tag nanecisto">nanečisto</span>
+            <span class="code">Nový Amos</span>
+          </div>
+          <div class="files">
+            <a class="primary" href="./pdfs/2025/5_nanecisto/nanecisto_2025_TS.pdf" target="_blank" rel="noopener"><span class="ico">📄</span> zadání</a>
+            <a href="./pdfs/2025/5_nanecisto/nanecisto_2025_klic.pdf" target="_blank" rel="noopener"><span class="ico">✅</span> klíč &amp; řešení</a>
+            <a href="./pdfs/2025/5_nanecisto/nanecisto_2025_ZA.pdf" target="_blank" rel="noopener"><span class="ico">📋</span> záznamový arch</a>
+          </div>
+        </li>
+
+      </ul>
     </section>
-
-    <!-- ─── 2024 ─────────────────────────────────────────────────────────── -->
-    <section class="year">
-      <div class="year-header">
-        <h2>2024</h2>
-        <span class="count">2 ukázkové · doplň zbytek</span>
-      </div>
-      <div class="rows">
-
-        <!-- Skutečný odkaz: jakmile nahraješ soubor do ./pdfs/, smaž třídu "placeholder"
-             a uprav atribut href. -->
-        <a class="row placeholder" href="./pdfs/prijimacky-2024-4l-rt-t1.pdf" target="_blank" rel="noopener">
-          <span class="icon">PDF</span>
-          <span class="body">
-            <span class="body-line">
-              Matematika · Termín 1 · řádný
-              <span class="pill l4">4letý</span>
-            </span>
-            <span class="desc">[[ FILL ]] — krátký popis, počet úloh, body, čas.</span>
-          </span>
-          <span class="arrow">otevřít →</span>
-        </a>
-
-        <a class="row placeholder" href="./pdfs/prijimacky-2024-4l-rt-t2.pdf" target="_blank" rel="noopener">
-          <span class="icon">PDF</span>
-          <span class="body">
-            <span class="body-line">
-              Matematika · Termín 2 · řádný
-              <span class="pill l4">4letý</span>
-            </span>
-            <span class="desc">[[ FILL ]] — krátký popis.</span>
-          </span>
-          <span class="arrow">otevřít →</span>
-        </a>
-
-        <a class="row placeholder" href="./pdfs/prijimacky-2024-8l-rt-t1.pdf" target="_blank" rel="noopener">
-          <span class="icon">PDF</span>
-          <span class="body">
-            <span class="body-line">
-              Matematika · Termín 1 · řádný
-              <span class="pill l8">8letý</span>
-            </span>
-            <span class="desc">[[ FILL ]] — krátký popis.</span>
-          </span>
-          <span class="arrow">otevřít →</span>
-        </a>
-
-      </div>
-    </section>
-
-    <!-- ─── 2023 ─────────────────────────────────────────────────────────── -->
-    <section class="year">
-      <div class="year-header">
-        <h2>2023</h2>
-        <span class="count">[[ FILL ]] testů</span>
-      </div>
-      <div class="rows">
-        <div class="empty">Doplň testy z roku 2023.</div>
-      </div>
-    </section>
-
-    <!-- ─── šablona pro nový rok — zkopíruj a uprav ────────────────────────
-    <section class="year">
-      <div class="year-header">
-        <h2>2022</h2>
-        <span class="count">N testů</span>
-      </div>
-      <div class="rows">
-        <a class="row" href="./pdfs/prijimacky-2022-4l-rt-t1.pdf" target="_blank" rel="noopener">
-          <span class="icon">PDF</span>
-          <span class="body">
-            <span class="body-line">
-              Matematika · Termín 1 · řádný
-              <span class="pill l4">4letý</span>
-            </span>
-            <span class="desc">Popis testu, počet úloh, čas atd.</span>
-          </span>
-          <span class="arrow">otevřít →</span>
-        </a>
-      </div>
-    </section>
-    -->
 
   </main>
+
+  <p class="note">
+    <b>Vysvětlivky kódů:</b>
+    <b>M9A</b> · termín 1 řádný &nbsp;·&nbsp;
+    <b>M9B</b> · termín 2 řádný &nbsp;·&nbsp;
+    <b>M9C</b> · termín 1 náhradní &nbsp;·&nbsp;
+    <b>M9D</b> · termín 2 náhradní.
+    <b>TS</b> = testový sešit (zadání), <b>VZA</b> = vzorový záznamový arch (řešení),
+    <b>ZA</b> = záznamový arch (prázdný formulář na vyplnění), <b>klíč</b> = rozšířený klíč s vysvětlením úloh.
+  </p>
 
   <footer>
     <span>© Vojtěch Konopa</span>
