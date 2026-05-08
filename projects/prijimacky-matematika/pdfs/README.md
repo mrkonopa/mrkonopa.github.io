@@ -37,9 +37,10 @@ pdfs/
 
 | Suffix | Czech | What it is |
 |---|---|---|
-| `_TS` | Testový sešit | The actual test (CERMAT original) — for 2025 these are **hand-solved on iPad** so they show the working out, not blank |
-| `_TS_form` | Testový sešit (prázdný) | Blank version of the test for students to print/fill out themselves |
-| `_reseni` | Řešení | Hand-annotated solved version (used for nanečisto) |
+| `_zadani` | Zadání | Blank test (CERMAT original) for students to print and fill out |
+| `_vyplneno` | Vyplněno | Hand-solved version (annotated on iPad — shows the working out) |
+| `_reseni` | Řešení | Same idea as `_vyplneno` (used for nanečisto naming) |
+| `_TS` | Testový sešit | Used only for **2026** (where the file is the official blank zadání) |
 | `_VZA` | Vzorový záznamový arch | Filled-in answer sheet (CERMAT solutions) |
 | `_ZA` | Záznamový arch | Blank answer sheet for the student |
 | `_klic` | Rozšířený klíč | Extended key with explanations |
