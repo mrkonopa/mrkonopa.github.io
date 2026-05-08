@@ -1,0 +1,20 @@
+# Full-resolution / large source files stay on disk but aren't tracked.
+# Only the web-sized .jpg variants get committed.
+*.png
+*.PNG
+*.tif
+*.tiff
+*.TIF
+*.TIFF
+*.NEF
+*.RAW
+*.CR2
+*.CR3
+*.HEIC
+*.heic
+
+# Video files — host externally (YouTube/Vimeo).
+*.mp4
+*.mov
+*.MOV
+*.MP4
