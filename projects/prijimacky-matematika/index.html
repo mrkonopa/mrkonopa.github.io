@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<!--
+  ───────────────────────────────────────────────────────────────────────────
+  PŘIJÍMAČKY NA SŠ Z MATEMATIKY — PDF archive
+  Tests covered: 4leté obory, jednotná přijímací zkouška z matematiky (CERMAT).
+  Files live in ./pdfs/<year>/<termin>/  with names like
+    M9A_2025_zadani.pdf   (blank test)
+    M9A_2025_vyplneno.pdf (hand-solved iPad version)
+    M9A_2025_klic.pdf     (CERMAT extended key)
+    M9A_2025_ZA.pdf       (blank answer sheet)
+
+  How to add a new test:
+    1. Drop the PDF(s) into ./pdfs/<year>/<termin>/
+    2. Copy one <li class="row"> block in the right year section and update
+       the year/termín label, the M9X code, and the three button hrefs.
+    3. If a button has no file, just delete that <a> — the row stays clean.
+  ───────────────────────────────────────────────────────────────────────────
+-->
+<html lang="cs">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Přijímačky na SŠ — Matematika · Vojtěch Konopa</title>
+  <meta name="description" content="Sbírka jednotných přijímacích testů z matematiky pro 4leté obory SŠ — k procvičování a ke stažení v PDF.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --blue:#1a73c8; --blue-light:#e8f1fb; --blue-dark:#1250a0;
+      --teal:#0f8a72; --teal-light:#e4f5f1;
+      --gold:#c89a10; --gold-light:#fef9ec;
+      --green:#1e9e5a; --green-light:#e6f7ef;
+      --red:#d63c2f;
+      --bg:#f5f0e6;
+      --card:#fff;
+      --text:#1a1a2e;
+      --muted:#6b7280;
+      --border:#e2dccc;
+      --shadow:0 2px 14px rgba(0,0,0,.06);
+      --shadow-hover:0 6px 22px rgba(26,115,200,.16);
+      --radius:14px;
+
+      /* SAFE FONT STACKS — Czech diacritics fall back to system fonts that
+         all support Latin Extended-A (ž ř č š ě ů ť ď ň…). No "cursive" anywhere. */
+      --sans:'Lexend','Inter','Segoe UI',system-ui,-apple-system,'Helvetica Neue',Arial,sans-serif;
+    }
+
+    *{box-sizing:border-box;margin:0;padding:0}
+
+    html, body {
+      font-family: var(--sans);
+      background: var(--bg);
+      background-image:
+        radial-gradient(circle at 8% 12%,rgba(245,200,66,.10) 0%,transparent 38%),
+        radial-gradient(circle at 92% 88%,rgba(26,115,200,.07) 0%,transparent 38%);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+
+    a { color: var(--blue); text-decoration: none; }
+    a:hover, a:focus { color: var(--blue-dark); outline: none; }
+    a:focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; border-radius: 3px; }
+
+    /* TOP BAR */
+    .top-bar {
+      max-width: 920px; margin: 0 auto;
+      padding: 20px 24px 0;
+      display: flex; justify-content: space-between; gap: 18px;
+      font-size: .82rem; color: var(--muted);
+    }
+    .top-bar a { color: var(--muted); }
+    .top-bar a:hover { color: var(--blue); }
+    .top-bar .crumb { color: var(--text); font-weight: 500; }
+
+    /* HEADER */
+    header.title-block {
+      max-width: 920px; margin: 0 auto;
+      padding: 36px 24px 18px;
+    }
+    .eyebrow {
+      display: inline-block;
+      font-size: .74rem; font-weight: 700;
+      letter-spacing: 0.14em; text-transform: uppercase;
+      color: var(--blue);
+      background: var(--blue-light);
+      padding: 4px 12px; border-radius: 20px;
+      margin-bottom: 14px;
+    }
+    h1.title {
+      font-family: var(--sans);
+      font-weight: 800;
+      font-size: clamp(28px, 5vw, 44px);
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+      color: var(--text);
+      margin-bottom: 10px;
+    }
+    h1.title .accent { color: var(--blue); }
+    p.lede {
+      font-size: 1rem; font-weight: 300;
+      color: var(--muted);
+      max-width: 640px;
+    }
+
+    /* INTRO CARD */
+    .intro-card {
+      max-width: 920px; margin: 18px auto 0;
+      padding: 18px 24px;
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      border-left: 5px solid var(--blue);
+      font-size: .95rem; line-height: 1.7;
+    }
+    .intro-card b { color: var(--blue); }
+
+    /* YEAR SECTIONS */
+    main {
+      max-width: 920px; margin: 0 auto;
+      padding: 18px 24px 80px;
+    }
+    section.year { margin-top: 30px; }
+    .year-header {
+      display: flex; align-items: baseline;
+      justify-content: space-between; gap: 14px;
+      padding: 6px 4px 12px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 14px;
+    }
+    .year-header h2 {
+      font-family: var(--sans);
+      font-weight: 800;
+      font-size: 1.7rem;
+      letter-spacing: -0.01em;
+      color: var(--text);
+    }
+    .year-header .count {
+      font-size: .78rem;
+      color: var(--muted);
+      letter-spacing: 0.05em;
+    }
+
+    /* TEST ROWS */
+    ul.rows { list-style: none; display: grid; gap: 10px; }
+    li.row {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 18px;
+      box-shadow: 0 1px 3px rgba(0,0,0,.03);
+      transition: border-color .12s ease, box-shadow .12s ease, transform .12s ease;
+    }
+    li.row:hover { border-color: var(--blue); box-shadow: var(--shadow-hover); transform: translateY(-1px); }
+
+    .row-header {
+      display: flex; align-items: center; gap: 12px;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+    .row-header .label {
+      font-size: 1.02rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+    .row-header .code {
+      font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+      font-size: .82rem;
+      color: var(--muted);
+      background: #faf5e6;
+      padding: 2px 8px;
+      border-radius: 6px;
+    }
+    .row-header .tag {
+      font-size: .7rem; font-weight: 700;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      padding: 3px 10px; border-radius: 20px;
+    }
+    .tag.radny    { background: var(--blue-light); color: var(--blue); }
+    .tag.nahradni { background: var(--teal-light); color: var(--teal); }
+    .tag.nanecisto{ background: var(--gold-light); color: var(--gold); }
+
+    /* FILE BUTTONS */
+    .files {
+      display: flex; flex-wrap: wrap; gap: 8px;
+    }
+    .files a {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 8px 14px;
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      font-size: .87rem;
+      font-weight: 500;
+      color: var(--text);
+      background: #fafaf2;
+      transition: all .12s ease;
+    }
+    .files a:hover, .files a:focus {
+      background: var(--blue-light);
+      border-color: var(--blue);
+      color: var(--blue-dark);
+      transform: translateY(-1px);
+    }
+    .files a.primary {
+      background: var(--blue);
+      border-color: var(--blue);
+      color: #fff;
+    }
+    .files a.primary:hover, .files a.primary:focus {
+      background: var(--blue-dark);
+      border-color: var(--blue-dark);
+      color: #fff;
+    }
+    .files .ico { font-size: .9em; }
+
+    /* NOTE / footnote */
+    .note {
+      max-width: 920px; margin: 30px auto 0;
+      padding: 14px 18px;
+      background: #fafaf2;
+      border: 1px dashed var(--border);
+      border-radius: 12px;
+      font-size: .85rem;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+    .note b { color: var(--text); }
+
+    /* FOOTER */
+    footer {
+      max-width: 920px; margin: 40px auto 0;
+      padding: 24px 24px 40px;
+      border-top: 1px solid var(--border);
+      display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px;
+      color: var(--muted);
+      font-size: .82rem;
+    }
+    footer a { color: var(--muted); }
+    footer a:hover { color: var(--blue); }
+
+    @media (max-width: 560px) {
+      .year-header { flex-direction: column; align-items: flex-start; gap: 4px; }
+      .row-header { gap: 8px; }
+      .files a { padding: 7px 12px; font-size: .82rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="top-bar">
+    <a href="../">← zpět na projekty</a>
+    <span class="crumb">/projects/prijimacky-matematika</span>
+    <a href="/">domů</a>
+  </div>
+
+  <header class="title-block">
+    <span class="eyebrow">Studijní materiály</span>
+    <h1 class="title">Přijímačky na SŠ <span class="accent">— Matematika</span></h1>
+    <p class="lede">
+      Sbírka jednotných přijímacích testů z matematiky (CERMAT) pro 4leté obory SŠ.
+      K procvičování i ke stažení.
+    </p>
+  </header>
+
+  <div class="intro-card">
+    <p>
+      Tady najdeš jednotné přijímací testy z matematiky pořádané <b>CERMATem</b>.
+    </p>
+    <p>
+      <b>✏️ Řešení</b> jsou ručně dopsané přímo do testů (na iPadu) — uvidíš tedy
+      celý postup výpočtu, ne jenom výsledek. <b>📄 Zadání</b> je prázdný test
+      k vlastnímu vyplnění. <b>✅ Klíč</b> a <b>vzorový arch</b> jsou oficiální
+      řešení od CERMATu, <b>📋 záznamový arch</b> je prázdný odpovědní formulář
+      k vytištění. Všechny soubory se otevřou v novém okně.
+    </p>
+  </div>
+
+  <main>
+
+    <!-- ─── 2026 ─────────────────────────────────────────────────────────── -->
+    <section class="year">
+      <div class="year-header">
+        <h2>2026</h2>
+        <span class="count">2 řádné termíny</span>
+      </div>
+      <ul class="rows">
+
+        <li class="row">
+          <div class="row-header">
+            <span class="label">Termín 1</span>
+            <span class="tag radny">řádný</span>
+            <span class="code">M9A</span>
+          </div>
+          <div class="files">
+            <a href="./pdfs/2026/1_radny/M9A_2026_TS.pdf" target="_blank" rel="noopener"><span class="ico">📄</span> zadání</a>
+            <a href="./pdfs/2026/1_radny/M9A_2026_VZA.pdf" target="_blank" rel="noopener"><span class="ico">✅</span> vzorový arch</a>
+            <a href="./pdfs/2026/1_radny/M9A_2026_ZA.pdf" target="_blank" rel="noopener"><span class="ico">📋</span> záznamový arch</a>
+          </div>
+        </li>
+
+        <li class="row">
+          <div class="row-header">
+            <span class="label">Termín 2</span>
+            <span class="tag radny">řádný</span>
+            <span class="code">M9B</span>
+          </div>
+          <div class="files">
+            <a href="./pdfs/2026/2_radny/M9B_2026_TS.pdf" target="_blank" rel="noopener"><span class="ico">📄</span> zadání</a>
+            <a href="./pdfs/2026/2_radny/M9B_2026_VZA.pdf" target="_blank" rel="noopener"><span class="ico">✅</span> vzorový arch</a>
+            <a href="./pdfs/2026/2_radny/M9B_2026_ZA.pdf" target="_blank" rel="noopener"><span class="ico">📋</span> záznamový arch</a>
+          </div>
+        </li>
+
+      </ul>
+    </section>
+
+    <!-- ─── 2025 ─────────────────────────────────────────────────────────── -->
+    <section class="year">
+      <div class="year-header">
+        <h2>2025</h2>
+        <span class="count">2 řádné · 2 náhradní · 1 nanečisto</span>
+      </div>
+      <ul class="rows">
+
+        <li class="row">
+          <div class="row-header">
+            <span class="label">Termín 1</span>
+            <span class="tag radny">řádný</span>
+            <span class="code">M9A</span>
+          </div>
+          <div class="files">
+            <a href="./pdfs/2025/1_radny/M9A_2025_zadani.pdf" target="_blank" rel="noopener"><span class="ico">📄</span> zadání</a>
+            <a class="primary" href="./pdfs/2025/1_radny/M9A_2025_vyplneno.pdf" target="_blank" rel="noopener"><span class="ico">✏️</span> řešení</a>
+            <a href="./pdfs/2025/1_radny/M9A_2025_klic.pdf" target="_blank" rel="noopener"><span class="ico">✅</span> klíč</a>
+          </div>
+        </li>
+
+        <li class="row">
+          <div class="row-header">
+            <span class="label">Termín 2</span>
+            <span class="tag radny">řádný</span>
+            <span class="code">M9B</span>
+          </div>
+          <div class="files">
+            <a href="./pdfs/2025/2_radny/M9B_2025_zadani.pdf" target="_blank" rel="noopener"><span class="ico">📄</span> zadání</a>
+            <a class="primary" href="./pdfs/2025/2_radny/M9B_2025_vyplneno.pdf" target="_blank" rel="noopener"><span class="ico">✏️</span> řešení</a>
+            <a href="./pdfs/2025/2_radny/M9B_2025_klic.pdf" target="_blank" rel="noopener"><span class="ico">✅</span> klíč</a>
+            <a href="./pdfs/2025/2_radny/M9B_2025_ZA.pdf" target="_blank" rel="noopener"><span class="ico">📋</span> záznamový arch</a>
+          </div>
+        </li>
+
+        <li class="row">
+          <div class="row-header">
+            <span class="label">Termín 1</span>
+            <span class="tag nahradni">náhradní</span>
+            <span class="code">M9C</span>
+          </div>
+          <div class="files">
+            <a href="./pdfs/2025/3_nahradni/M9C_2025_zadani.pdf" target="_blank" rel="noopener"><span class="ico">📄</span> zadání</a>
+            <a class="primary" href="./pdfs/2025/3_nahradni/M9C_2025_vyplneno.pdf" target="_blank" rel="noopener"><span class="ico">✏️</span> řešení</a>
+            <a href="./pdfs/2025/3_nahradni/M9C_2025_klic.pdf" target="_blank" rel="noopener"><span class="ico">✅</span> klíč</a>
+            <a href="./pdfs/2025/3_nahradni/M9C_2025_ZA.pdf" target="_blank" rel="noopener"><span class="ico">📋</span> záznamový arch</a>
+          </div>
+        </li>
+
+        <li class="row">
+          <div class="row-header">
+            <span class="label">Termín 2</span>
+            <span class="tag nahradni">náhradní</span>
+            <span class="code">M9D</span>
+          </div>
+          <div class="files">
+            <a href="./pdfs/2025/4_nahradni/M9D_2025_zadani.pdf" target="_blank" rel="noopener"><span class="ico">📄</span> zadání</a>
+            <a class="primary" href="./pdfs/2025/4_nahradni/M9D_2025_vyplneno.pdf" target="_blank" rel="noopener"><span class="ico">✏️</span> řešení</a>
+            <a href="./pdfs/2025/4_nahradni/M9D_2025_klic.pdf" target="_blank" rel="noopener"><span class="ico">✅</span> klíč</a>
+            <a href="./pdfs/2025/4_nahradni/M9D_2025_ZA.pdf" target="_blank" rel="noopener"><span class="ico">📋</span> záznamový arch</a>
+          </div>
+        </li>
+
+        <li class="row">
+          <div class="row-header">
+            <span class="label">Nanečisto</span>
+            <span class="tag nanecisto">nanečisto</span>
+            <span class="code">Nový Amos</span>
+          </div>
+          <div class="files">
+            <a href="./pdfs/2025/5_nanecisto/nanecisto_2025_zadani.pdf" target="_blank" rel="noopener"><span class="ico">📄</span> zadání</a>
+            <a class="primary" href="./pdfs/2025/5_nanecisto/nanecisto_2025_reseni.pdf" target="_blank" rel="noopener"><span class="ico">✏️</span> řešení</a>
+            <a href="./pdfs/2025/5_nanecisto/nanecisto_2025_klic.pdf" target="_blank" rel="noopener"><span class="ico">✅</span> klíč</a>
+            <a href="./pdfs/2025/5_nanecisto/nanecisto_2025_ZA.pdf" target="_blank" rel="noopener"><span class="ico">📋</span> záznamový arch</a>
+          </div>
+        </li>
+
+      </ul>
+    </section>
+
+    <!-- ─── 2024 ─────────────────────────────────────────────────────────── -->
+    <section class="year">
+      <div class="year-header">
+        <h2>2024</h2>
+        <span class="count">2 řádné · 2 náhradní</span>
+      </div>
+      <ul class="rows">
+
+        <li class="row">
+          <div class="row-header">
+            <span class="label">Termín 1</span>
+            <span class="tag radny">řádný</span>
+            <span class="code">M9A</span>
+          </div>
+          <div class="files">
+            <a href="./pdfs/2024/1_radny/M9A_2024_zadani.pdf" target="_blank" rel="noopener"><span class="ico">📄</span> zadání</a>
+            <a class="primary" href="./pdfs/2024/1_radny/M9A_2024_vyplneno.pdf" target="_blank" rel="noopener"><span class="ico">✏️</span> řešení</a>
+            <a href="./pdfs/2024/1_radny/M9A_2024_klic.pdf" target="_blank" rel="noopener"><span class="ico">✅</span> klíč</a>
+          </div>
+        </li>
+
+        <li class="row">
+          <div class="row-header">
+            <span class="label">Termín 2</span>
+            <span class="tag radny">řádný</span>
+            <span class="code">M9B</span>
+          </div>
+          <div class="files">
+            <a href="./pdfs/2024/2_radny/M9B_2024_zadani.pdf" target="_blank" rel="noopener"><span class="ico">📄</span> zadání</a>
+            <a class="primary" href="./pdfs/2024/2_radny/M9B_2024_vyplneno.pdf" target="_blank" rel="noopener"><span class="ico">✏️</span> řešení</a>
+            <a href="./pdfs/2024/2_radny/M9B_2024_klic.pdf" target="_blank" rel="noopener"><span class="ico">✅</span> klíč</a>
+          </div>
+        </li>
+
+        <li class="row">
+          <div class="row-header">
+            <span class="label">Termín 1</span>
+            <span class="tag nahradni">náhradní</span>
+            <span class="code">M9C</span>
+          </div>
+          <div class="files">
+            <a href="./pdfs/2024/3_nahradni/M9C_2024_zadani.pdf" target="_blank" rel="noopener"><span class="ico">📄</span> zadání</a>
+            <a class="primary" href="./pdfs/2024/3_nahradni/M9C_2024_vyplneno.pdf" target="_blank" rel="noopener"><span class="ico">✏️</span> řešení</a>
+            <a href="./pdfs/2024/3_nahradni/M9C_2024_klic.pdf" target="_blank" rel="noopener"><span class="ico">✅</span> klíč</a>
+          </div>
+        </li>
+
+        <li class="row">
+          <div class="row-header">
+            <span class="label">Termín 2</span>
+            <span class="tag nahradni">náhradní</span>
+            <span class="code">M9D</span>
+          </div>
+          <div class="files">
+            <a href="./pdfs/2024/4_nahradni/M9D_2024_zadani.pdf" target="_blank" rel="noopener"><span class="ico">📄</span> zadání</a>
+            <a class="primary" href="./pdfs/2024/4_nahradni/M9D_2024_vyplneno.pdf" target="_blank" rel="noopener"><span class="ico">✏️</span> řešení</a>
+            <a href="./pdfs/2024/4_nahradni/M9D_2024_klic.pdf" target="_blank" rel="noopener"><span class="ico">✅</span> klíč</a>
+          </div>
+        </li>
+
+      </ul>
+    </section>
+
+    <!-- ─── 2023 ─────────────────────────────────────────────────────────── -->
+    <section class="year">
+      <div class="year-header">
+        <h2>2023</h2>
+        <span class="count">2 řádné termíny</span>
+      </div>
+      <ul class="rows">
+
+        <li class="row">
+          <div class="row-header">
+            <span class="label">Termín 1</span>
+            <span class="tag radny">řádný</span>
+            <span class="code">M9A</span>
+          </div>
+          <div class="files">
+            <a href="./pdfs/2023/1_radny/M9A_2023_zadani.pdf" target="_blank" rel="noopener"><span class="ico">📄</span> zadání</a>
+            <a class="primary" href="./pdfs/2023/1_radny/M9A_2023_vyplneno.pdf" target="_blank" rel="noopener"><span class="ico">✏️</span> řešení</a>
+            <a href="./pdfs/2023/1_radny/M9A_2023_klic.pdf" target="_blank" rel="noopener"><span class="ico">✅</span> klíč</a>
+            <a href="./pdfs/2023/1_radny/M9A_2023_ZA.pdf" target="_blank" rel="noopener"><span class="ico">📋</span> záznamový arch</a>
+          </div>
+        </li>
+
+        <li class="row">
+          <div class="row-header">
+            <span class="label">Termín 2</span>
+            <span class="tag radny">řádný</span>
+            <span class="code">M9B</span>
+          </div>
+          <div class="files">
+            <a href="./pdfs/2023/2_radny/M9B_2023_zadani.pdf" target="_blank" rel="noopener"><span class="ico">📄</span> zadání</a>
+            <a class="primary" href="./pdfs/2023/2_radny/M9B_2023_vyplneno.pdf" target="_blank" rel="noopener"><span class="ico">✏️</span> řešení</a>
+            <a href="./pdfs/2023/2_radny/M9B_2023_klic.pdf" target="_blank" rel="noopener"><span class="ico">✅</span> klíč</a>
+            <a href="./pdfs/2023/2_radny/M9B_2023_ZA.pdf" target="_blank" rel="noopener"><span class="ico">📋</span> záznamový arch</a>
+          </div>
+        </li>
+
+      </ul>
+    </section>
+
+  </main>
+
+  <p class="note">
+    <b>Vysvětlivky kódů:</b>
+    <b>M9A</b> · termín 1 řádný &nbsp;·&nbsp;
+    <b>M9B</b> · termín 2 řádný &nbsp;·&nbsp;
+    <b>M9C</b> · termín 1 náhradní &nbsp;·&nbsp;
+    <b>M9D</b> · termín 2 náhradní.
+    <b>TS</b> = testový sešit (zadání), <b>VZA</b> = vzorový záznamový arch (řešení),
+    <b>ZA</b> = záznamový arch (prázdný formulář na vyplnění), <b>klíč</b> = rozšířený klíč s vysvětlením úloh.
+  </p>
+
+  <footer>
+    <span>© Vojtěch Konopa</span>
+    <span><a href="/">domů</a> · <a href="../">projekty</a></span>
+  </footer>
+
+</body>
+</html>
