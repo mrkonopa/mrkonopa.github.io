@@ -126,19 +126,42 @@
 
     /* Project entries — looks like an ls -la row but with description below */
     .project {
-      padding: 8px 0 12px;
+      padding: 8px 0 14px;
       border-bottom: 1px dashed var(--border);
     }
     .project:last-child { border-bottom: none; }
     .project .perm { color: var(--fg-dim); }
     .project .filename { color: var(--accent); margin-left: 6px; }
-    .project .desc {
+
+    /* Per-language description rows. Smaller font, language tag prefix. */
+    .project .desc-en, .project .desc-cs {
       color: var(--fg);
-      margin: 4px 0 0 0;
+      font-size: 12px;
+      line-height: 1.55;
+      margin: 4px 0 0;
       padding-left: 14px;
       border-left: 2px solid var(--border);
     }
-    .project .meta { color: var(--fg-dim); font-size: 13px; margin-top: 2px; padding-left: 14px; }
+    .project .desc-en::before, .project .desc-cs::before {
+      display: inline-block;
+      width: 22px;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      color: var(--fg-dim);
+      margin-right: 6px;
+      vertical-align: 1px;
+    }
+    .project .desc-en::before { content: 'EN'; }
+    .project .desc-cs::before { content: 'CS'; color: var(--amber); }
+
+    .project .meta {
+      color: var(--fg-dim);
+      font-size: 11px;
+      margin-top: 6px;
+      padding-left: 14px;
+      letter-spacing: 0.02em;
+    }
 
     @keyframes blink { 50% { opacity: 0; } }
     .caret {
@@ -195,8 +218,19 @@
               <span class="perm">drwxr-xr-x</span>
               <a class="filename" href="./prijimacky-matematika/">prijimacky-matematika/</a>
             </div>
-            <p class="desc">Přijímačky na SŠ · Matematika — collection of CERMAT entrance-exam tests in PDF, organised by year and study type (4letý / 6letý / 8letý gymnázium). Work in progress.</p>
+            <p class="desc-en">CERMAT entrance-exam tests for 4-year secondary school programs, organised by year and term, with hand-annotated solutions.</p>
+            <p class="desc-cs">Sbírka jednotných přijímacích testů z matematiky (CERMAT) pro 4leté obory SŠ, řazená po ročnících a termínech — s vlastnoručně dopsanými řešeními.</p>
             <p class="meta">tags: math · education · czech · pdf-archive · entrance-exams · sš</p>
+          </div>
+
+          <div class="project">
+            <div class="line">
+              <span class="perm">-rw-r--r--</span>
+              <a class="filename" href="./procenta_priklady.html">procenta_priklady.html</a>
+            </div>
+            <p class="desc-en">Random math practice on percentages — 10 freshly-generated problems each session, covering parts, bases, percentage values, markups, and discounts. Step-by-step solutions shown for any wrong answers.</p>
+            <p class="desc-cs">Náhodně generované příklady na procenta — 10 příkladů v každé sadě, pokaždé jiné. Pokrývá procentovou část, základ, počet procent, zvýšení a slevy. Postup řešení se zobrazí u chybných odpovědí.</p>
+            <p class="meta">tags: math · percenta · education · czech · interactive · randomised</p>
           </div>
 
           <div class="project">
@@ -204,7 +238,8 @@
               <span class="perm">-rw-r--r--</span>
               <a class="filename" href="./unikovka_telesa.html">unikovka_telesa.html</a>
             </div>
-            <p class="desc">Únikovka z matiky · Tělesa (krychle a kvádr) — interactive math escape-room about cubes and cuboids for 6th grade. Czech, browser-based, single-file.</p>
+            <p class="desc-en">Interactive math escape-room about cubes and cuboids for 6th grade. 10 progressively harder locks, browser-based, single-file.</p>
+            <p class="desc-cs">Interaktivní únikovka z matematiky o krychli a kvádru pro 6. třídu. 10 zámků s rostoucí obtížností, v prohlížeči, jeden soubor.</p>
             <p class="meta">tags: math · geometry · education · czech · interactive · 6. třída</p>
           </div>
 
@@ -213,8 +248,9 @@
               <span class="perm">-rw-r--r--</span>
               <a class="filename" href="./unikovka_procenta.html">unikovka_procenta.html</a>
             </div>
-            <p class="desc">Únikovka z matiky · Procenta — an interactive math escape-room about percentages. Czech, browser-based, single-file.</p>
-            <p class="meta">tags: math · education · czech · interactive</p>
+            <p class="desc-en">Interactive math escape-room about percentages. 10 locks covering definitions, parts, bases, conversions, and word problems.</p>
+            <p class="desc-cs">Interaktivní únikovka z matematiky o procentech. 10 zámků pokrývajících definici procenta, část, základ, převody a slovní úlohy.</p>
+            <p class="meta">tags: math · percenta · education · czech · interactive</p>
           </div>
 
           <!-- Add more <div class="project">…</div> blocks here as you ship things. -->
