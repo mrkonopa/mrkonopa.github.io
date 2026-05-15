@@ -1,0 +1,1241 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cesta peněz — finanční výprava (8.–9. třída)</title>
+<meta name="description" content="Interaktivní příběhová hra o financích v ČR pro 8.–9. třídu: výdělek, daně, pojištění, půjčky, RPSN, hypotéka, lichva a kyberbezpečnost peněz. Náhodně generovaná čísla — každý hráč má vlastní úlohy.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#f5f0e6;
+  --card:#fff;
+  --text:#1a1a2e;
+  --muted:#6b7280;
+  --border:#e2dccc;
+  --shadow:0 2px 14px rgba(0,0,0,.06);
+  --shadow-hover:0 6px 22px rgba(26,115,200,.16);
+  --radius:14px;
+  --sans:'Lexend','Inter','Segoe UI',system-ui,-apple-system,'Helvetica Neue',Arial,sans-serif;
+
+  --act1-fg:#c89a10; --act1-bg:#fef9ec;
+  --act2-fg:#1a73c8; --act2-bg:#e8f1fb;
+  --act3-fg:#0f8a72; --act3-bg:#e4f5f1;
+  --act4-fg:#d4620a; --act4-bg:#fdf0e5;
+  --act5-fg:#7c3aad; --act5-bg:#f3eefa;
+  --act6-fg:#9f1239; --act6-bg:#fff1f2;
+  --act7-fg:#3730a3; --act7-bg:#eef2ff;
+  --act8-fg:#1e9e5a; --act8-bg:#e6f7ef;
+
+  --red:#d63c2f; --red-light:#fdecea;
+  --green:#1e9e5a; --green-light:#e6f7ef;
+  --gold:#c89a10; --gold-light:#fef9ec;
+  --blue:#1a73c8; --blue-light:#e8f1fb; --blue-dark:#1250a0;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+
+html, body {
+  font-family: var(--sans);
+  background: var(--bg);
+  background-image:
+    radial-gradient(circle at 8% 12%,rgba(245,200,66,.10) 0%,transparent 38%),
+    radial-gradient(circle at 92% 88%,rgba(26,115,200,.07) 0%,transparent 38%);
+  color: var(--text);
+  min-height: 100vh;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+a { color: var(--blue); text-decoration: none; }
+a:hover, a:focus { color: var(--blue-dark); outline: none; }
+a:focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; border-radius: 3px; }
+
+.screen { display: none; max-width: 760px; margin: 0 auto; padding: 20px 18px 60px; }
+.screen.active { display: block; }
+
+.top-bar {
+  font-size: .82rem; color: var(--muted);
+  display: flex; justify-content: space-between; gap: 18px;
+  padding-bottom: 10px;
+  align-items: center;
+}
+.top-bar a { color: var(--muted); }
+.top-bar a:hover { color: var(--blue); }
+.top-bar .mid { display:flex; align-items:center; gap:10px; }
+.coins {
+  font-weight: 700; color: var(--gold);
+  background: var(--gold-light);
+  padding: 2px 10px; border-radius: 20px;
+  font-size: .82rem;
+}
+
+/* INTRO */
+#intro { text-align: center; padding-top: 28px; }
+.intro-icon { font-size: 64px; margin-bottom: 10px; display: inline-block; }
+.intro-title {
+  font-family: var(--sans);
+  font-weight: 800;
+  font-size: clamp(28px, 5vw, 44px);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  margin-bottom: 6px;
+}
+.intro-title .accent { color: var(--blue); }
+.intro-sub {
+  font-size: 1rem;
+  color: var(--muted);
+  font-weight: 300;
+  max-width: 580px;
+  margin: 0 auto 24px;
+}
+
+.intro-card {
+  background: var(--card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 20px 24px;
+  text-align: left;
+  margin-bottom: 14px;
+  border-left: 5px solid var(--blue);
+}
+.intro-card h3 {
+  font-family: var(--sans);
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--blue);
+  margin-bottom: 10px;
+}
+.intro-card p { font-size: .95rem; margin-bottom: 8px; }
+.intro-card p:last-child { margin-bottom: 0; }
+.intro-card ul {
+  list-style: none; padding: 0; margin: 6px 0 0;
+  display: grid; gap: 6px;
+  font-size: .92rem;
+}
+.intro-card li { display: flex; gap: 10px; align-items: flex-start; }
+.intro-card li .bullet { color: var(--blue); font-weight: 700; flex-shrink: 0; }
+
+/* HUB */
+.hub-grid {
+  display: grid; gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  margin-bottom: 18px;
+}
+.hub-tile {
+  background: var(--card);
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 14px;
+  cursor: pointer;
+  text-align: left;
+  font-family: var(--sans);
+  position: relative;
+  transition: all .15s;
+  min-height: 124px;
+  display: flex; flex-direction: column; justify-content: space-between; gap: 8px;
+}
+.hub-tile:hover, .hub-tile:focus {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-hover);
+  outline: none;
+}
+.hub-tile.locked {
+  opacity: 0.5; cursor: not-allowed; background: #fafaf2;
+}
+.hub-tile.locked::after {
+  content: '🔒';
+  position: absolute; top: 10px; right: 10px;
+  font-size: 1rem;
+}
+.hub-tile.done::after {
+  content: '✓';
+  position: absolute; top: 10px; right: 10px;
+  font-size: 1rem;
+  background: var(--green); color: #fff;
+  width: 22px; height: 22px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700;
+}
+.hub-tile .hub-num {
+  font-size: .72rem; font-weight: 700;
+  letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--muted);
+}
+.hub-tile .hub-icon { font-size: 1.6rem; }
+.hub-tile .hub-title { font-weight: 700; font-size: .98rem; line-height: 1.2; }
+.hub-tile .hub-age { font-size: .8rem; color: var(--muted); }
+.hub-tile.act1 { border-left: 5px solid var(--act1-fg); }
+.hub-tile.act2 { border-left: 5px solid var(--act2-fg); }
+.hub-tile.act3 { border-left: 5px solid var(--act3-fg); }
+.hub-tile.act4 { border-left: 5px solid var(--act4-fg); }
+.hub-tile.act5 { border-left: 5px solid var(--act5-fg); }
+.hub-tile.act6 { border-left: 5px solid var(--act6-fg); }
+.hub-tile.act7 { border-left: 5px solid var(--act7-fg); }
+.hub-tile.act8 { border-left: 5px solid var(--act8-fg); }
+
+/* SCENE HEADER */
+.scene-header {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 14px; flex-wrap: wrap;
+}
+.scene-header .badge {
+  font-size: .72rem; font-weight: 700;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  padding: 4px 12px; border-radius: 20px;
+}
+.scene-header .badge.act1 { background: var(--act1-bg); color: var(--act1-fg); }
+.scene-header .badge.act2 { background: var(--act2-bg); color: var(--act2-fg); }
+.scene-header .badge.act3 { background: var(--act3-bg); color: var(--act3-fg); }
+.scene-header .badge.act4 { background: var(--act4-bg); color: var(--act4-fg); }
+.scene-header .badge.act5 { background: var(--act5-bg); color: var(--act5-fg); }
+.scene-header .badge.act6 { background: var(--act6-bg); color: var(--act6-fg); }
+.scene-header .badge.act7 { background: var(--act7-bg); color: var(--act7-fg); }
+.scene-header .badge.act8 { background: var(--act8-bg); color: var(--act8-fg); }
+.scene-header h2 {
+  font-size: 1.4rem; font-weight: 800; letter-spacing: -0.01em;
+}
+.scene-progress { font-size: .76rem; color: var(--muted); letter-spacing: 0.08em; }
+
+.scene {
+  background: var(--card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 22px 24px;
+  margin-bottom: 14px;
+  position: relative;
+  overflow: hidden;
+}
+.scene::before {
+  content: '';
+  position: absolute; top: 0; left: 0;
+  width: 5px; height: 100%;
+}
+.scene.act1::before { background: var(--act1-fg); }
+.scene.act2::before { background: var(--act2-fg); }
+.scene.act3::before { background: var(--act3-fg); }
+.scene.act4::before { background: var(--act4-fg); }
+.scene.act5::before { background: var(--act5-fg); }
+.scene.act6::before { background: var(--act6-fg); }
+.scene.act7::before { background: var(--act7-fg); }
+.scene.act8::before { background: var(--act8-fg); }
+
+.scene .scene-icon { font-size: 1.6rem; display: inline-block; margin-bottom: 10px; }
+.scene p { font-size: 1rem; line-height: 1.7; margin-bottom: 10px; }
+.scene p:last-child { margin-bottom: 0; }
+.scene p b { color: var(--text); font-weight: 700; }
+.scene ul li { margin-bottom: 4px; }
+
+.fact-box {
+  background: var(--gold-light);
+  border-left: 3px solid var(--gold);
+  padding: 10px 14px;
+  border-radius: 8px;
+  margin: 12px 0;
+  font-size: .9rem;
+}
+.fact-box b { color: var(--gold); }
+.calc-box {
+  background: #fafaf2;
+  border: 1px dashed var(--border);
+  padding: 10px 14px;
+  border-radius: 8px;
+  margin: 12px 0;
+  font-size: .92rem;
+  font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+}
+
+/* MATH */
+.math-q {
+  font-size: 1.05rem; font-weight: 500;
+  margin-bottom: 16px; line-height: 1.55;
+}
+.math-q b { color: var(--blue-dark); font-weight: 700; }
+
+.input-row { display: flex; gap: 10px; align-items: center; margin-bottom: 6px; }
+input.answer {
+  flex: 1;
+  font-family: var(--sans);
+  font-size: 1.3rem; text-align: center;
+  font-weight: 600;
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  padding: 12px 14px;
+  outline: none;
+  transition: border-color .2s;
+  background: #fafaf6;
+  color: var(--text);
+  -moz-appearance: textfield;
+}
+input.answer::-webkit-outer-spin-button,
+input.answer::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+input.answer:focus { border-color: var(--blue); background: #fff; }
+input.answer.correct { border-color: var(--green); background: var(--green-light); }
+input.answer.wrong { border-color: var(--red); background: var(--red-light); animation: shake .3s; }
+@keyframes shake {
+  0%,100% { transform: translateX(0); }
+  30% { transform: translateX(-6px); }
+  70% { transform: translateX(6px); }
+}
+.input-row .unit { font-size: 1.05rem; color: var(--muted); font-weight: 600; white-space: nowrap; }
+
+/* PROGRESSIVE HINTS */
+.hint-bar {
+  display: flex; gap: 8px; align-items: center; flex-wrap: wrap;
+  margin-top: 10px;
+}
+.hint-btn {
+  background: none; border: 1.5px dashed var(--gold);
+  color: var(--gold);
+  padding: 5px 14px; border-radius: 20px;
+  font-family: var(--sans); font-weight: 600; font-size: .82rem;
+  cursor: pointer;
+  transition: all .15s;
+}
+.hint-btn:hover:not([disabled]) { background: var(--gold-light); }
+.hint-btn[disabled] {
+  opacity: 0.5; cursor: not-allowed;
+  border-style: solid; border-color: var(--border); color: var(--muted);
+}
+.hint-counter { font-size: .76rem; color: var(--muted); }
+.hint-counter .dot {
+  display: inline-block; width: 8px; height: 8px; border-radius: 50%;
+  background: var(--border); margin: 0 1px;
+}
+.hint-counter .dot.shown { background: var(--gold); }
+.hint-counter .dot.shown.warn { background: var(--act4-fg); }
+
+.hint-box {
+  margin-top: 10px;
+  background: var(--gold-light);
+  border-left: 3px solid var(--gold);
+  padding: 10px 14px; border-radius: 8px;
+  font-size: .9rem;
+  display: none;
+}
+.hint-box.show { display: block; }
+.hint-box .h-label {
+  font-size: .7rem; font-weight: 700;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--gold);
+  display: block; margin-bottom: 4px;
+}
+.hint-box[data-level="3"] {
+  background: var(--act4-bg);
+  border-left-color: var(--act4-fg);
+}
+.hint-box[data-level="3"] .h-label { color: var(--act4-fg); }
+
+/* DECISION */
+.decision-options { display: grid; gap: 10px; margin-top: 14px; }
+.decision-opt {
+  background: var(--card);
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  padding: 14px 18px;
+  text-align: left; cursor: pointer;
+  font-family: var(--sans); font-size: .95rem; line-height: 1.5;
+  transition: all .15s;
+}
+.decision-opt:hover, .decision-opt:focus {
+  border-color: var(--blue); transform: translateY(-1px); outline: none;
+}
+.decision-opt.chosen.good { border-color: var(--green); background: var(--green-light); }
+.decision-opt.chosen.bad { border-color: var(--red); background: var(--red-light); }
+.decision-opt.chosen.meh { border-color: var(--gold); background: var(--gold-light); }
+.decision-opt[disabled] { cursor: not-allowed; }
+.decision-opt .opt-title { font-weight: 700; display: block; margin-bottom: 4px; }
+
+/* KUPNÍ SÍLA */
+.kupni-sila {
+  display: grid; gap: 12px; margin: 14px 0;
+}
+@media (min-width: 600px) {
+  .kupni-sila { grid-template-columns: 1fr 1fr; }
+}
+.kupni-sila > div {
+  background: #fafaf2;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 14px;
+}
+.kupni-sila h4 {
+  font-size: .9rem; font-weight: 700; margin-bottom: 8px;
+  letter-spacing: 0.02em;
+}
+.kupni-sila ul {
+  list-style: none; padding: 0;
+  display: grid; gap: 4px;
+  font-size: .88rem;
+}
+.kupni-sila li { display: flex; gap: 8px; line-height: 1.5; }
+.kupni-sila .ks-note {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--border);
+  font-size: .85rem;
+}
+.kupni-sila .ks-note b { color: var(--act6-fg); }
+.kupni-sila .ks-now { border-left: 3px solid var(--act3-fg); }
+.kupni-sila .ks-future { border-left: 3px solid var(--act6-fg); }
+
+/* BUTTONS */
+.btn-primary {
+  background: linear-gradient(135deg, var(--blue), var(--blue-dark));
+  color: #fff;
+  font-family: var(--sans);
+  font-size: 1.05rem; font-weight: 700;
+  border: none; border-radius: 50px;
+  padding: 13px 36px; cursor: pointer;
+  box-shadow: 0 6px 18px rgba(26,115,200,.28);
+  transition: transform .15s, box-shadow .15s;
+  margin-top: 10px;
+}
+.btn-primary:hover, .btn-primary:focus {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 26px rgba(26,115,200,.36);
+  outline: none;
+}
+.btn-primary[disabled] { opacity: .5; cursor: not-allowed; transform: none; }
+
+.btn-secondary {
+  background: var(--card); color: var(--text);
+  border: 1.5px solid var(--border);
+  border-radius: 50px; padding: 10px 22px;
+  font-family: var(--sans); font-size: .92rem; font-weight: 600;
+  cursor: pointer; transition: all .15s;
+}
+.btn-secondary:hover { background: var(--blue-light); border-color: var(--blue); color: var(--blue-dark); }
+
+.btn-check {
+  background: linear-gradient(135deg, var(--blue), var(--blue-dark));
+  color: #fff; border: none; border-radius: 12px;
+  padding: 12px 20px;
+  font-family: var(--sans); font-size: .92rem; font-weight: 700;
+  cursor: pointer; white-space: nowrap;
+  box-shadow: 0 4px 12px rgba(26,115,200,.24);
+  transition: transform .15s;
+}
+.btn-check:hover { transform: translateY(-1px); }
+.btn-check[disabled] { opacity: .5; cursor: not-allowed; }
+
+.btn-row {
+  display: flex; gap: 10px; justify-content: flex-end; margin-top: 14px;
+  flex-wrap: wrap;
+}
+
+/* FEEDBACK */
+.feedback {
+  margin-top: 14px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  font-size: .92rem;
+  display: none;
+  animation: popIn .25s ease;
+}
+.feedback.show { display: block; }
+@keyframes popIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
+.feedback.ok  { background: var(--green-light); color: #145e35; border-left: 4px solid var(--green); }
+.feedback.err { background: var(--red-light);   color: #8b1e15; border-left: 4px solid var(--red); }
+.feedback.info { background: var(--blue-light); color: var(--blue-dark); border-left: 4px solid var(--blue); }
+.feedback strong { font-weight: 700; }
+
+/* RESULT */
+#result { text-align: center; padding-top: 24px; }
+.cert {
+  background: linear-gradient(135deg, #fffaf0, #fff);
+  border: 3px solid var(--gold);
+  border-radius: var(--radius);
+  padding: 32px 26px;
+  box-shadow: var(--shadow);
+  margin: 0 auto 18px;
+}
+.cert .seal { font-size: 50px; margin-bottom: 8px; }
+.cert h2 { font-size: 1.4rem; margin-bottom: 6px; }
+.cert .for { font-size: .9rem; color: var(--muted); margin-bottom: 4px; }
+.cert .name { font-size: 1.8rem; font-weight: 800; color: var(--blue-dark); margin-bottom: 8px; }
+.cert .score { font-size: 1.1rem; margin-top: 12px; }
+.cert .score b { color: var(--green); }
+
+@media (max-width: 540px) {
+  input.answer { font-size: 1.15rem; padding: 10px 12px; }
+  .math-q { font-size: 1rem; }
+  .scene { padding: 18px 18px; }
+  .btn-row { justify-content: stretch; }
+  .btn-row .btn-primary, .btn-row .btn-check { flex: 1; }
+}
+</style>
+</head>
+<body>
+
+<!-- INTRO -->
+<section id="intro" class="screen active">
+  <div class="top-bar">
+    <a href="./">← zpět na projekty</a><span></span><a href="/">domů</a>
+  </div>
+  <div style="text-align:center;">
+    <div class="intro-icon">💸🛣️</div>
+    <h1 class="intro-title">Cesta peněz — <span class="accent">finanční výprava</span></h1>
+    <p class="intro-sub">
+      Interaktivní příběh o tom, kudy peníze v Česku tečou. Od první brigády po vlastní byt — s reálnými sazbami, počítáním a rozhodnutími, která se ti vrátí.
+    </p>
+  </div>
+
+  <div class="intro-card">
+    <h3>👋 Co tě čeká</h3>
+    <p>Projdeš si <b>8 kapitol života</b> jedné postavy (tebe). V každé kapitole něco spočítáš — daň, RPSN, hypotéku — a uděláš pár rozhodnutí, která ovlivní, kolik ti zbude na konci.</p>
+    <p>Pracujeme s <b>reálnými českými sazbami (rok 2025)</b>. <b>Čísla se generují náhodně</b> — každý spoluhráč u stolu má svoji vlastní brigádu, plat, inflaci.</p>
+  </div>
+
+  <div class="intro-card" style="border-left-color: var(--act2-fg);">
+    <h3 style="color: var(--act2-fg);">📋 Co se naučíš</h3>
+    <ul>
+      <li><span class="bullet">①</span><span><b>Daně a odvody</b> — kolik z hrubé výplaty fakt dostaneš na účet</span></li>
+      <li><span class="bullet">②</span><span><b>Inflace a spoření</b> — proč peníze pod polštářem v čase chudnou</span></li>
+      <li><span class="bullet">③</span><span><b>Půjčky a RPSN</b> — jak srovnat dvě nabídky a nenechat se nachytat</span></li>
+      <li><span class="bullet">④</span><span><b>Hypotéka</b> — co je LTV, anuita a kolik celkem za bydlení dáš</span></li>
+      <li><span class="bullet">⑤</span><span><b>Lichva</b> — proč rychlá půjčka může skončit exekucí</span></li>
+      <li><span class="bullet">⑥</span><span><b>Kyberbezpečnost peněz</b> — phishing, falešné e-shopy, "vyhráli jste"</span></li>
+    </ul>
+  </div>
+
+  <div class="intro-card" style="border-left-color: var(--gold);">
+    <h3 style="color: var(--gold);">💡 Pravidla</h3>
+    <ul>
+      <li><span class="bullet" style="color:var(--gold)">·</span><span>Odpovídej jako <b>celé číslo</b> (v Kč nebo v procentech dle zadání).</span></li>
+      <li><span class="bullet" style="color:var(--gold)">·</span><span>Kalkulačka je v pohodě — jde o postup, ne paměť.</span></li>
+      <li><span class="bullet" style="color:var(--gold)">·</span><span><b>Nápověda má 3 úrovně:</b> 1. nasměrování → 2. vzorec → 3. řešení s výsledkem. Tlačítkem postupuješ dál.</span></li>
+      <li><span class="bullet" style="color:var(--gold)">·</span><span>Postup se ukládá v prohlížeči — můžeš si dát pauzu a pokračovat.</span></li>
+    </ul>
+  </div>
+
+  <div style="text-align:center;">
+    <button class="btn-primary" id="btn-go-hub">▶ Vstoupit do hry</button>
+  </div>
+</section>
+
+<!-- HUB -->
+<section id="hub" class="screen">
+  <div class="top-bar">
+    <a href="./">← zpět na projekty</a>
+    <div class="mid"><span class="coins" id="hub-coins">0 ⭐</span></div>
+    <a href="javascript:void(0)" id="reset-link" title="Smazat postup">↺ reset</a>
+  </div>
+  <h2 style="text-align:center; font-weight:800; margin-bottom:6px;">Mapa cesty</h2>
+  <p style="text-align:center; color:var(--muted); font-size:.92rem; margin-bottom:18px;">
+    Kapitoly se odemykají postupně. Klikni na první bez zámku.
+  </p>
+  <div class="hub-grid" id="hub-grid"></div>
+  <p style="text-align:center; color:var(--muted); font-size:.78rem;">
+    Sazby platné k roku 2025. Čísla úloh se generují náhodně — sazby jsou ale skutečné. Viz <a href="https://www.financnisprava.cz" target="_blank" rel="noopener">finanční správa</a>.
+  </p>
+</section>
+
+<!-- ACT -->
+<section id="act" class="screen">
+  <div class="top-bar">
+    <a href="javascript:void(0)" id="back-to-hub">← mapa</a>
+    <div class="mid"><span id="act-progress" class="scene-progress"></span></div>
+    <span class="coins" id="act-coins">0 ⭐</span>
+  </div>
+  <div class="scene-header">
+    <span class="badge" id="act-badge">Kapitola 1</span>
+    <h2 id="act-title">První brigáda</h2>
+  </div>
+  <div id="scene-container"></div>
+</section>
+
+<!-- RESULT -->
+<section id="result" class="screen">
+  <div class="top-bar">
+    <a href="javascript:void(0)" id="result-to-hub">← mapa</a>
+    <span></span>
+    <a href="/">domů</a>
+  </div>
+  <div class="cert">
+    <div class="seal">🏆</div>
+    <p class="for">Osvědčení o finanční gramotnosti</p>
+    <p class="name">Tomu, kdo prošel <i>Cestu peněz</i></p>
+    <h2 id="cert-title">Dokončeno!</h2>
+    <p class="score">Tvoje skóre: <b id="cert-score">— / —</b></p>
+    <p id="cert-msg" style="font-size:.92rem; color:var(--muted); margin-top:10px;"></p>
+  </div>
+  <div style="text-align:center;">
+    <button class="btn-primary" id="result-restart">🔁 Začít znovu</button>
+  </div>
+</section>
+
+<script>
+/* ════════════════════════════════════════════════════════════════════════
+   CESTA PENĚZ — finanční výprava
+   8.–9. třída, lineární příběh
+   Hodnoty 2025: DPFO 15%, SP 7,1%, ZP 4,5%, sleva na poplatníka 2570 Kč/měs
+   Čísla úloh se generují náhodně — každá kapitola má vlastní `ctx`.
+   ════════════════════════════════════════════════════════════════════════ */
+
+const STORAGE_KEY = 'cesta_penez_v2';
+const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+const fmt = n => Number(n).toLocaleString('cs-CZ');
+
+/* ────────── STATE ────────── */
+
+const STATE = {
+  unlocked: [1],
+  done: [],
+  scores: {},
+};
+
+function loadState() {
+  try {
+    const s = JSON.parse(localStorage.getItem(STORAGE_KEY));
+    if (s && typeof s === 'object') Object.assign(STATE, s);
+  } catch (e) {}
+}
+function saveState() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(STATE)); } catch (e) {}
+}
+function resetState() {
+  STATE.unlocked = [1]; STATE.done = []; STATE.scores = {};
+  saveState();
+}
+function totalScore() {
+  let earned = 0, max = 0;
+  for (const id in STATE.scores) {
+    earned += STATE.scores[id].earned;
+    max    += STATE.scores[id].max;
+  }
+  return { earned, max };
+}
+
+/* ────────── KAPITOLY ──────────
+   Každá kapitola: { setup() → ctx, scenes: [{type, build(ctx)}, ...] }
+*/
+
+const ACTS = [
+
+  /* ═══════════ AKT 1 — Brigáda ═══════════ */
+  {
+    id: 1, color: 'act1', icon: '🍦', title: 'První brigáda', age: '15 let',
+    setup: () => {
+      // Pick a (hours, rate) pair such that total ≤ 11500 (DPP limit)
+      const pairs = [];
+      for (const h of [40, 45, 50, 55, 60, 65, 70, 75, 80]) {
+        for (const r of [110, 120, 130, 140, 150]) {
+          if (h * r <= 11500) pairs.push({ hours: h, rate: r, total: h * r });
+        }
+      }
+      const p = pick(pairs);
+      const jobs = [
+        { place: 'zmrzlinárna',         icon: '🍦', boss: 'šéfová', who: 'kamarád', period: 'srpen' },
+        { place: 'kavárna',             icon: '☕', boss: 'šéf',    who: 'sestra',  period: 'srpen' },
+        { place: 'pizza-rozvážka',      icon: '🍕', boss: 'majitel',who: 'kamarád', period: 'srpen' },
+        { place: 'doučování angličtiny',icon: '📚', boss: 'lektorka',who: 'kamarádka', period: 'celé léto' },
+        { place: 'letní tábor (asistent)',icon: '🏕️', boss: 'vedoucí',who: 'spolužačka', period: 'tři týdny' },
+        { place: 'knihovna',            icon: '📖', boss: 'paní knihovnice', who: 'maminka', period: 'srpen' },
+      ];
+      const job = pick(jobs);
+      return { ...p, job };
+    },
+    scenes: [
+      { type: 'story', build: ctx => ({
+        icon: ctx.job.icon,
+        html: `
+          <p>Léto, prázdniny. <b>${ctx.job.who.charAt(0).toUpperCase() + ctx.job.who.slice(1)}</b> ti dohodil(a) brigádu ve ${ctx.job.place === 'kavárna' ? 'kavárně' : ctx.job.place === 'pizza-rozvážka' ? 'pizzerii' : ctx.job.place === 'doučování angličtiny' ? 'doučování' : ctx.job.place === 'letní tábor (asistent)' ? 'letním táboře' : ctx.job.place === 'knihovna' ? 'knihovně' : 'zmrzlinárně'}. Smlouva: <b>dohoda o provedení práce (DPP)</b>.</p>
+          <p>${ctx.job.boss.charAt(0).toUpperCase() + ctx.job.boss.slice(1)} ti říká: <i>"Hodinová mzda <b>${ctx.rate} Kč</b>, makáme ${ctx.job.period}, asi <b>${ctx.hours} hodin</b> za měsíc."</i></p>
+          <div class="fact-box">📘 <b>DPP = Dohoda o provedení práce.</b> Forma brigády oblíbená u studentů. <b>Když si vyděláš do 11 500 Kč/měsíc, neplatí se daň ani pojištění</b> (limit pro rok 2025). Nad 11 500 Kč se začíná strhávat daň 15 %.</div>
+          <p>Spočítej, kolik si <b>hrubého</b> vyděláš za měsíc.</p>
+        `,
+      })},
+
+      { type: 'math', build: ctx => ({
+        q: `<b>${ctx.hours} hodin × ${ctx.rate} Kč/h</b> = ?`,
+        unit: 'Kč',
+        answer: ctx.total,
+        hints: [
+          'Jakou matematickou operaci potřebuješ — sčítání, odčítání, násobení nebo dělení?',
+          `Vynásob počet hodin a hodinovou mzdu: <b>${ctx.hours} × ${ctx.rate}</b>.`,
+          `${ctx.hours} × ${ctx.rate} = <b>${fmt(ctx.total)}</b> Kč.`,
+        ],
+        explain: `${ctx.hours} × ${ctx.rate} = <b>${fmt(ctx.total)} Kč</b>. Limit 11 500 Kč jsi nepřesáhl — daň ani pojištění platit nebudeš.`,
+      })},
+
+      { type: 'story', build: ctx => ({
+        icon: '✅',
+        html: `
+          <p>Skvělé. <b>Vydělal sis ${fmt(ctx.total)} Kč</b>, a protože jsi pod hranicí 11 500 Kč, dostaneš <b>celou sumu</b> na účet.</p>
+          <div class="fact-box">⚠️ <b>Pozor — častý omyl:</b> Pokud bys měl <b>dvě DPP u různých zaměstnavatelů</b> a součet by přesáhl 11 500 Kč, daňový limit platí pro <b>každou DPP zvlášť</b>, ale sociální pojištění se počítá z celkového příjmu nad limit.</div>
+        `,
+      })},
+
+      { type: 'decision', build: ctx => ({
+        q: `Co teď uděláš s ${fmt(ctx.total)} korunami?`,
+        options: [
+          { title: 'Utratím všechno za nové oblečení a hry', kind: 'bad',
+            feedback: 'Lákavé, ale když přijde nečekaný výdaj (rozbitý telefon, doprava na výlet), nebudeš mít nic. Aspoň <b>část si nech jako rezervu</b>.' },
+          { title: 'Polovinu utratím, polovinu si nechám stranou', kind: 'good',
+            feedback: `Dobré rozhodnutí. <b>Pravidlo 50/30/20</b> říká: 50 % potřeby, 30 % chutě, 20 % rezerva/investice. Pro pubertu je půl na půl rozumný kompromis. 🙂` },
+          { title: `Půjčím to kamarádovi, slíbil zaplatit 10 % navíc do měsíce`, kind: 'meh',
+            feedback: 'Půjčování mezi kamarády je riziko — když nezaplatí, ztratíš peníze <b>i kamaráda</b>. Pravidlo: půjčuj jen tolik, kolik si můžeš dovolit už nikdy nevidět.' },
+          { title: 'Pošlu to rodičům, ať to dají na spořicí účet', kind: 'good',
+            feedback: 'Dobrý nápad! Spořicí účet u banky úročí (i když dnes málo) a peníze máš mimo dosah náhodných nákupů.' },
+        ],
+      })},
+
+      { type: 'story', build: ctx => ({
+        icon: '🎯',
+        html: `
+          <p>Kapitola hotová. Naučil ses, že <b>brigáda do 11 500 Kč/měs neplatí daň</b> a že rezerva je důležitější než nové tenisky.</p>
+          <p>Za pár let ti skončí škola a začne první stálá práce — a tam už to s daněmi bude jinak.</p>
+        `,
+      })},
+    ],
+  },
+
+  /* ═══════════ AKT 2 — První plat ═══════════ */
+  {
+    id: 2, color: 'act2', icon: '💼', title: 'První stálý plat', age: '19 let',
+    setup: () => {
+      // Gross: multiple of 1000, between 24k and 40k
+      const gross = pick([24000, 26000, 28000, 30000, 32000, 34000, 36000, 38000, 40000]);
+      const social = Math.round(gross * 0.071);   // 7.1 %
+      const health = Math.round(gross * 0.045);   // 4.5 %
+      const taxBase = Math.round(gross * 0.15);   // 15 %
+      const discount = 2570;                       // sleva na poplatníka 2025
+      const tax = taxBase - discount;             // skutečná daň (záporné nemůže být v tomto rozmezí)
+      const net = gross - social - health - tax;
+      return { gross, social, health, taxBase, discount, tax, net };
+    },
+    scenes: [
+      { type: 'story', build: ctx => ({
+        icon: '📄',
+        html: `
+          <p>Po střední škole nastupuješ do první stálé práce. Smlouva na hlavní pracovní poměr (HPP).</p>
+          <p>Pracovní smlouva ti slibuje <b>hrubou mzdu ${fmt(ctx.gross)} Kč/měsíc</b>. Těšíš se, počítáš: "Po roce mám ${fmt(ctx.gross * 12)} korun!"</p>
+          <p>Jenže na účet ti přijde míň. Proč?</p>
+          <div class="fact-box">📘 <b>Hrubá mzda</b> je číslo ve smlouvě. <b>Čistá mzda</b> je to, co reálně dostaneš. Mezi nimi stojí stát se třemi srážkami:</div>
+          <p>① <b>Sociální pojištění</b> — 7,1 % z hrubé mzdy (důchody, nemocenská).<br>
+             ② <b>Zdravotní pojištění</b> — 4,5 % z hrubé mzdy (lékaři, nemocnice).<br>
+             ③ <b>Daň z příjmu</b> — 15 % z hrubé mzdy, <b>ale</b> sníží se o <b>slevu na poplatníka 2 570 Kč/měsíc</b>.</p>
+        `,
+      })},
+
+      { type: 'math', build: ctx => ({
+        q: `Spočítej <b>sociální pojištění</b> z hrubé mzdy <b>${fmt(ctx.gross)} Kč</b>. (7,1 %)`,
+        unit: 'Kč',
+        answer: ctx.social,
+        hints: [
+          'Co znamená "7,1 % z čísla"? Procenta převedeš na desetinné číslo.',
+          `7,1 % = 0,071. Vynásob hrubou mzdu tímto desetinným číslem: <b>${fmt(ctx.gross)} × 0,071</b>.`,
+          `${fmt(ctx.gross)} × 0,071 = <b>${fmt(ctx.social)}</b> Kč.`,
+        ],
+        explain: `${fmt(ctx.gross)} × 0,071 = <b>${fmt(ctx.social)} Kč</b>. Tahle částka jde státu na důchody a nemocenskou.`,
+      })},
+
+      { type: 'math', build: ctx => ({
+        q: `Teď <b>zdravotní pojištění</b> z <b>${fmt(ctx.gross)} Kč</b>. (4,5 %)`,
+        unit: 'Kč',
+        answer: ctx.health,
+        hints: [
+          'Postup je stejný jako u sociálního pojištění, jen je nižší sazba.',
+          `4,5 % = 0,045. Tedy <b>${fmt(ctx.gross)} × 0,045</b>.`,
+          `${fmt(ctx.gross)} × 0,045 = <b>${fmt(ctx.health)}</b> Kč.`,
+        ],
+        explain: `${fmt(ctx.gross)} × 0,045 = <b>${fmt(ctx.health)} Kč</b>. Jde tvé zdravotní pojišťovně.`,
+      })},
+
+      { type: 'math', build: ctx => ({
+        q: `Záloha na <b>daň z příjmu</b>: 15 % z ${fmt(ctx.gross)} = ? <br><span style="color:var(--muted);font-weight:400;font-size:.9rem;">(Jen samotná daň před uplatněním slevy.)</span>`,
+        unit: 'Kč',
+        answer: ctx.taxBase,
+        hints: [
+          'Vypočítej 15 % z hrubé mzdy — to je záloha, kterou stát zatím "drží".',
+          `15 % = 0,15. Tedy <b>${fmt(ctx.gross)} × 0,15</b>.`,
+          `${fmt(ctx.gross)} × 0,15 = <b>${fmt(ctx.taxBase)}</b> Kč.`,
+        ],
+        explain: `${fmt(ctx.gross)} × 0,15 = <b>${fmt(ctx.taxBase)} Kč</b>. Ale ještě se uplatní sleva na poplatníka.`,
+      })},
+
+      { type: 'math', build: ctx => ({
+        q: `Po slevě na poplatníka <b>2 570 Kč</b>: kolik je <b>skutečná daň</b>? <br><span style="color:var(--muted);font-weight:400;font-size:.9rem;">(záloha − sleva)</span>`,
+        unit: 'Kč',
+        answer: ctx.tax,
+        hints: [
+          'Odečti slevu od zálohy, kterou jsi spočítal v předchozím kroku.',
+          `<b>${fmt(ctx.taxBase)} − 2 570</b> = ?`,
+          `${fmt(ctx.taxBase)} − 2 570 = <b>${fmt(ctx.tax)}</b> Kč.`,
+        ],
+        explain: `${fmt(ctx.taxBase)} − 2 570 = <b>${fmt(ctx.tax)} Kč</b>. <b>Sleva na poplatníka</b> ti ušetří 2 570 Kč měsíčně — má ji každý zaměstnanec.`,
+      })},
+
+      { type: 'math', build: ctx => ({
+        q: `Konečná <b>čistá mzda</b>: ${fmt(ctx.gross)} − sociální − zdravotní − daň. Spočítej.`,
+        unit: 'Kč',
+        answer: ctx.net,
+        hints: [
+          'Odečti od hrubé mzdy postupně všechny tři srážky, které jsi spočítal.',
+          `<b>${fmt(ctx.gross)} − ${fmt(ctx.social)} − ${fmt(ctx.health)} − ${fmt(ctx.tax)}</b> = ?`,
+          `${fmt(ctx.gross)} − ${fmt(ctx.social)} − ${fmt(ctx.health)} − ${fmt(ctx.tax)} = <b>${fmt(ctx.net)}</b> Kč.`,
+        ],
+        explain: `${fmt(ctx.gross)} − ${fmt(ctx.social)} − ${fmt(ctx.health)} − ${fmt(ctx.tax)} = <b>${fmt(ctx.net)} Kč</b>. Z hrubé mzdy ${fmt(ctx.gross)} Kč ti na účet přijde <b>${fmt(ctx.net)} Kč</b> (cca ${Math.round(100 * ctx.net / ctx.gross)} %).`,
+      })},
+
+      { type: 'story', build: ctx => ({
+        icon: '💡',
+        html: `
+          <p>Z ${fmt(ctx.gross)} Kč hrubého ti přijde <b>${fmt(ctx.net)} Kč čistého</b>. Stát si vzal <b>${fmt(ctx.gross - ctx.net)} Kč</b> ve formě daní a pojištění — ale za to máš:</p>
+          <ul style="margin: 8px 0 8px 20px; font-size:.95rem; line-height:1.7;">
+            <li>zdarma léčbu u lékaře</li>
+            <li>nárok na důchod, až ti bude 65+</li>
+            <li>peněženku státu, která platí silnice, školy, policii a všechno ostatní</li>
+          </ul>
+          <div class="fact-box">📊 <b>Pravidlo palce:</b> Z hrubé mzdy ti zhruba <b>78–82 %</b> přijde na účet. Nad ~133 000 Kč/měsíc (rok 2025) navíc nastupuje druhá sazba daně <b>23 %</b>.</div>
+        `,
+      })},
+
+      { type: 'decision', build: ctx => {
+        const fivePct = Math.round(ctx.net * 0.05 / 100) * 100;
+        const tenPct = Math.round(ctx.net * 0.1 / 100) * 100;
+        const twentyPct = Math.round(ctx.net * 0.2 / 100) * 100;
+        return {
+          q: `Z čisté mzdy ${fmt(ctx.net)} Kč — kolik si máš ihned dát stranou?`,
+          options: [
+            { title: 'Nic — peníze jsou na utracení', kind: 'bad',
+              feedback: 'Špatně. Bez rezervy budeš muset při první větší ztrátě (rozbité auto, zubař) <b>vzít si půjčku</b>. A půjčka stojí peníze — viz Kapitola 4.' },
+            { title: `10 % (cca ${fmt(tenPct)} Kč) — nějaká rezerva by mohla být`, kind: 'meh',
+              feedback: `Lepší než nic, ale 10 % není moc. Spoříš cca ${fmt(tenPct)} Kč/měs — rezerva na 3 měsíce ti bude trvat <b>skoro 2 roky</b>.` },
+            { title: `20 % (cca ${fmt(twentyPct)} Kč) — pravidlo 50/30/20`, kind: 'good',
+              feedback: `Výborně! Spoříš ${fmt(twentyPct)} Kč/měsíc. <b>Rezerva na 3 měsíce výdajů</b> ti vyroste cca za rok. ✅` },
+            { title: '50 % — chci být milionář brzy', kind: 'meh',
+              feedback: 'Ambiciózní! Funguje, pokud máš nízké výdaje (bydlíš s rodiči). Ale pozor — pokud si nedovolíš nic, vyhoříš a začneš utrácet impulzivně.' },
+          ],
+        };
+      }},
+
+      { type: 'story', build: ctx => ({
+        icon: '🎯',
+        html: `
+          <p>Kapitola hotová. <b>Hrubá ≠ čistá</b> — vždycky počítej s tím, že stát si vezme cca 18–22 %. A rezerva 3 měsíce výdajů je zlaté pravidlo finanční gramotnosti.</p>
+          <p>Další zastávka: <b>spoření a inflace</b> — proč peníze pod polštářem v čase chudnou.</p>
+        `,
+      })},
+    ],
+  },
+
+  /* ═══════════ AKT 3 — Inflace ═══════════ */
+  {
+    id: 3, color: 'act3', icon: '🏦', title: 'Inflace a rezerva', age: '24 let',
+    setup: () => {
+      const savings = pick([50000, 75000, 100000, 125000, 150000, 200000]);
+      const inflation = pick([4, 5, 6, 7, 8]);          // %
+      // savingsRate < inflation (záporný reálný úrok)
+      const gap = pick([1, 2, 3]);
+      const savingsRate = Math.max(2, inflation - gap);
+      const basketAfter = savings + Math.round(savings * inflation / 100);
+      const savingsAfter = savings + Math.round(savings * savingsRate / 100);
+      const realLoss = basketAfter - savingsAfter;
+      const inflationLoss = basketAfter - savings;
+      // 10-year compound factor
+      const factor10 = Math.pow(1 + inflation / 100, 10);
+      const pct10 = Math.round(100 / factor10);
+      return { savings, inflation, savingsRate, basketAfter, savingsAfter, realLoss, inflationLoss, factor10, pct10 };
+    },
+    scenes: [
+      { type: 'story', build: ctx => ({
+        icon: '💰',
+        html: `
+          <p>Za 5 let pracovní praxe sis odložil <b>${fmt(ctx.savings)} Kč</b> do polštáře. Jsi pyšný — máš rezervu!</p>
+          <p>Pak slyšíš v rádiu: <i>"Roční inflace ${ctx.inflation} %."</i> Co to znamená pro tvoje peníze?</p>
+          <div class="fact-box">📘 <b>Inflace</b> = růst cen v čase. Když je inflace ${ctx.inflation} %, věc, která dnes stojí 100 Kč, bude za rok stát ${100 + ctx.inflation} Kč. Tvé peníze <b>nominálně</b> zůstávají stejné (pořád máš ${fmt(ctx.savings)} Kč), ale jejich <b>kupní síla</b> klesá.</div>
+        `,
+      })},
+
+      { type: 'math', build: ctx => ({
+        q: `Při inflaci <b>${ctx.inflation} %</b> — <b>kolik bude za rok stát</b> košík zboží, který dnes stojí <b>${fmt(ctx.savings)} Kč</b>?`,
+        unit: 'Kč',
+        answer: ctx.basketAfter,
+        hints: [
+          'Inflace ti říká, o kolik % se zvýší ceny. Přičti tento procentní nárůst k původní ceně.',
+          `${fmt(ctx.savings)} × (1 + ${ctx.inflation}/100) = ${fmt(ctx.savings)} × ${(1 + ctx.inflation/100).toFixed(2)}.`,
+          `${fmt(ctx.savings)} × ${(1 + ctx.inflation/100).toFixed(2)} = <b>${fmt(ctx.basketAfter)}</b> Kč.`,
+        ],
+        explain: `${fmt(ctx.savings)} × ${(1 + ctx.inflation/100).toFixed(2)} = <b>${fmt(ctx.basketAfter)} Kč</b>. Aby sis za rok koupil totéž, potřebuješ o ${fmt(ctx.inflationLoss)} Kč víc.`,
+      })},
+
+      { type: 'math', build: ctx => ({
+        q: `Tvoje peníze <b>${fmt(ctx.savings)} Kč</b> v polštáři nominálně zůstaly stejné. O kolik Kč ti klesla <b>kupní síla</b>?`,
+        unit: 'Kč',
+        answer: ctx.inflationLoss,
+        hints: [
+          'Předtím sis za peníze koupil celý košík. Teď ten košík stojí víc, ale ty máš pořád stejně.',
+          `Rozdíl mezi novou cenou košíku a tím, co máš v polštáři: <b>${fmt(ctx.basketAfter)} − ${fmt(ctx.savings)}</b>.`,
+          `${fmt(ctx.basketAfter)} − ${fmt(ctx.savings)} = <b>${fmt(ctx.inflationLoss)}</b> Kč.`,
+        ],
+        explain: `Za ${fmt(ctx.savings)} Kč si koupíš o <b>${fmt(ctx.inflationLoss)} Kč méně zboží</b> než loni. Peníze samy se nehýbou — <b>chudnou tím, že rostou ceny okolo</b>.`,
+      })},
+
+      { type: 'story', build: ctx => ({
+        icon: '🏦',
+        html: `
+          <p>Co s tím? Banky nabízejí <b>spořicí účty</b> — peníze tam aspoň pomalu rostou.</p>
+          <p>Spořicí účet ti dá <b>úrok cca ${ctx.savingsRate} % ročně</b> (pro porovnání s inflací).</p>
+        `,
+      })},
+
+      { type: 'math', build: ctx => ({
+        q: `Pokud uložíš <b>${fmt(ctx.savings)} Kč</b> na spořicí účet s úrokem <b>${ctx.savingsRate} %/rok</b>, kolik máš na účtu za rok?`,
+        unit: 'Kč',
+        answer: ctx.savingsAfter,
+        hints: [
+          'Postup je stejný jako u inflace — jen místo růstu cen tě teď zajímá růst peněz.',
+          `${fmt(ctx.savings)} × (1 + ${ctx.savingsRate}/100) = ${fmt(ctx.savings)} × ${(1 + ctx.savingsRate/100).toFixed(2)}.`,
+          `${fmt(ctx.savings)} × ${(1 + ctx.savingsRate/100).toFixed(2)} = <b>${fmt(ctx.savingsAfter)}</b> Kč.`,
+        ],
+        explain: `${fmt(ctx.savings)} × ${(1 + ctx.savingsRate/100).toFixed(2)} = <b>${fmt(ctx.savingsAfter)} Kč</b>. Vydělal sis ${fmt(ctx.savingsAfter - ctx.savings)} Kč úroku.`,
+      })},
+
+      { type: 'story', build: ctx => ({
+        icon: '⚖️',
+        html: `
+          <p>Porovnejme: <b>inflace ${ctx.inflation} %, úrok ${ctx.savingsRate} %.</b></p>
+          <div class="calc-box">Cena košíku za rok: ${fmt(ctx.basketAfter)} Kč
+Tvé peníze za rok:   ${fmt(ctx.savingsAfter)} Kč
+Reálná ztráta:       ${fmt(ctx.realLoss)} Kč</div>
+          <p>I se spořicím účtem jsi <b>v reálu chudší o ${fmt(ctx.realLoss)} Kč</b>. Inflace byla rychlejší než úrok. <b>Reálný úrok</b> = úrok − inflace = ${ctx.savingsRate} − ${ctx.inflation} = <b>${ctx.savingsRate - ctx.inflation} %</b>.</p>
+          <div class="fact-box">📘 <b>Reálný úrok</b> může být záporný! Pak spořicí účet <i>brzdí</i> ztrátu kupní síly, ale úplně ji nezastaví. Vyšší výnos nabízí investice (akcie, fondy) — ale za vyšší riziko.</div>
+        `,
+      })},
+
+      /* ═══ NOVÁ SCÉNA — KUPNÍ SÍLA (konkrétní příklady) ═══ */
+      { type: 'story', build: ctx => {
+        const items = [
+          { e: '📱', name: 'iPhone (cca 30 000 Kč)',                price: 30000 },
+          { e: '🏠', name: 'měsíční nájem 2+kk v Brně (~25 000 Kč)', price: 25000 },
+          { e: '🏖️', name: 'týden dovolené u moře pro dva (~25 000 Kč)', price: 25000 },
+          { e: '🥐', name: 'rohlík (3,50 Kč)',                       price: 3.5 },
+        ];
+        const f = ctx.factor10;
+        const li = (item, factor) => {
+          const n = Math.floor(ctx.savings / (item.price * factor));
+          return `<li><span>${item.e}</span><span><b>${fmt(n)}×</b> ${item.name}</span></li>`;
+        };
+        return {
+          icon: '🛒',
+          html: `
+            <p>Ale co to <b>fakticky znamená</b>? Pojďme to převést na věci, které znáš.</p>
+            <p>Tvých <b>${fmt(ctx.savings)} Kč</b> — co si za to opravdu koupíš?</p>
+
+            <div class="kupni-sila">
+              <div class="ks-now">
+                <h4>📅 Dnes (rok 2025)</h4>
+                <ul>
+                  ${items.map(it => li(it, 1)).join('')}
+                </ul>
+              </div>
+              <div class="ks-future">
+                <h4>⏭️ Za 10 let (inflace ${ctx.inflation} %/rok)</h4>
+                <ul>
+                  ${items.map(it => li(it, f)).join('')}
+                </ul>
+                <p class="ks-note">Stejných ${fmt(ctx.savings)} Kč si v roce 2035 koupí jen <b>${ctx.pct10} %</b> toho, co dnes. <br>(Cena košíku vzroste z ${fmt(ctx.savings)} Kč na ~${fmt(Math.round(ctx.savings * f))} Kč.)</p>
+              </div>
+            </div>
+
+            <div class="fact-box">💡 <b>Z toho plyne:</b> peníze, které <b>nepoužiješ teď nebo neinvestuješ</b>, ti pomalu mizí mezi prsty. Hotovost a polštář jsou na <b>krátkodobou</b> rezervu (3–6 měsíců). Na delší období potřebuješ něco, co poráží inflaci.</div>
+          `,
+        };
+      }},
+
+      { type: 'decision', build: ctx => ({
+        q: `Máš ${fmt(ctx.savings)} Kč rezervy. Co s nimi?`,
+        options: [
+          { title: 'Nechat v polštáři', kind: 'bad',
+            feedback: `Nejhorší volba — žádný úrok, inflace ti je sežere o plnou rychlost (-${ctx.inflation} % ročně). Za 10 let by měly kupní sílu cca ${ctx.pct10} % dneška.` },
+          { title: `Vše na spořicí účet (${ctx.savingsRate} %)`, kind: 'meh',
+            feedback: `Lepší než polštář — peníze jsou kdykoliv dostupné, ale reálně mírně chudnou (${ctx.savingsRate - ctx.inflation} %/rok). Vhodné pro <b>krátkodobou rezervu</b> (3–6 měs výdajů).` },
+          { title: 'Polovinu na spořicí účet, polovinu investovat', kind: 'good',
+            feedback: 'Rozumný kompromis! Polovina <b>likvidní rezerva</b>, polovina <b>dlouhodobý růst</b>. Akcie/fondy historicky dělají 6–8 % ročně (a porazí inflaci), ale kolísají v čase.' },
+          { title: 'Vše investovat do akcií', kind: 'meh',
+            feedback: 'Dobré pro výnos, ale <b>bez likvidní rezervy</b> — kdyby přišel nečekaný výdaj a akcie zrovna padly, prodáváš za ztrátu. <b>Rezerva napřed, investice až s přebytkem.</b>' },
+        ],
+      })},
+
+      { type: 'story', build: ctx => ({
+        icon: '🎯',
+        html: `
+          <p>Závěr Kapitoly 3: <b>peníze v polštáři chudnou</b>, spořicí účet je první pomoc, ale na dlouhý běh potřebuješ investice. <b>Rezerva napřed, investice až s přebytkem.</b></p>
+          <p>Příští kapitola: <b>půjčka na auto a co znamená RPSN</b>.</p>
+        `,
+      })},
+    ],
+  },
+
+  /* ═══════════ AKT 4–8 — placeholdery ═══════════ */
+  {
+    id: 4, color: 'act4', icon: '🚗', title: 'Auto na půjčku', age: '28 let',
+    scenes: [{ type: 'story', build: () => ({ icon: '🚧', html: `<p><b>Kapitola se připravuje.</b> Bude obsahovat: srovnání tří půjček, výpočet RPSN, identifikaci red flags (skryté poplatky, "půjčka bez prokazování příjmu", atd.).</p>` }) }],
+  },
+  {
+    id: 5, color: 'act5', icon: '🏠', title: 'Hypotéka', age: '32 let',
+    scenes: [{ type: 'story', build: () => ({ icon: '🚧', html: `<p><b>Kapitola se připravuje.</b> Cena bytu vs. akontace (LTV), výpočet anuitní splátky, fixace 3 vs. 5 let, celková zaplacená částka za 30 let.</p>` }) }],
+  },
+  {
+    id: 6, color: 'act6', icon: '⚠️', title: 'Lichva & dluhová past', age: '34 let',
+    scenes: [{ type: 'story', build: () => ({ icon: '🚧', html: `<p><b>Kapitola se připravuje.</b> Jak rychle roste dluh při RPSN 200 % nebo víc, varovné znaky predátorských věřitelů, exekuce.</p>` }) }],
+  },
+  {
+    id: 7, color: 'act7', icon: '🎣', title: 'Kyberpodvody', age: '35 let',
+    scenes: [{ type: 'story', build: () => ({ icon: '🚧', html: `<p><b>Kapitola se připravuje.</b> Rozpoznávání phishingu (e-mail, SMS), falešné výhry, podvodné e-shopy, statistiky obětí v ČR, odkazy na <a href="https://www.kybertest.cz" target="_blank" rel="noopener">kybertest.cz</a>.</p>` }) }],
+  },
+  {
+    id: 8, color: 'act8', icon: '🏆', title: 'Osvědčení', age: '— souhrn',
+    scenes: [{ type: 'story', build: () => ({ icon: '🚧', html: `<p><b>Závěr se připraví, jakmile dokončím Akty 4–7.</b> Bude souhrn všech pravidel, osvědčení s tvým skóre a tipy, kam pokračovat dál.</p>` }) }],
+  },
+];
+
+/* ────────── NAVIGACE ────────── */
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function renderHub() {
+  const grid = document.getElementById('hub-grid');
+  grid.innerHTML = '';
+  for (const act of ACTS) {
+    const unlocked = STATE.unlocked.includes(act.id);
+    const done = STATE.done.includes(act.id);
+    const tile = document.createElement('button');
+    tile.className = `hub-tile act${act.id} ${!unlocked ? 'locked' : ''} ${done ? 'done' : ''}`;
+    tile.innerHTML = `
+      <div>
+        <div class="hub-num">Kapitola ${act.id}</div>
+        <div class="hub-icon">${act.icon}</div>
+        <div class="hub-title">${act.title}</div>
+      </div>
+      <div class="hub-age">${act.age}</div>
+    `;
+    if (unlocked) tile.addEventListener('click', () => startAct(act.id));
+    else tile.disabled = true;
+    grid.appendChild(tile);
+  }
+  const sc = totalScore();
+  document.getElementById('hub-coins').textContent = `${sc.earned}/${sc.max} ⭐`;
+}
+
+/* ────────── PŘEHRÁVÁNÍ ────────── */
+
+let activeAct = null;
+let activeCtx = null;
+let sceneIdx = 0;
+let actScore = { earned: 0, max: 0 };
+let hintLevel = 0;   // per-math-scene
+
+function startAct(id) {
+  activeAct = ACTS.find(a => a.id === id);
+  activeCtx = activeAct.setup ? activeAct.setup() : {};
+  sceneIdx = 0;
+  actScore = { earned: 0, max: 0 };
+  document.getElementById('act-title').textContent = activeAct.title;
+  const badge = document.getElementById('act-badge');
+  badge.textContent = `Kapitola ${activeAct.id} · ${activeAct.age}`;
+  badge.className = `badge ${activeAct.color}`;
+  showScreen('act');
+  renderScene();
+}
+
+function renderScene() {
+  const scenes = activeAct.scenes;
+  const s = scenes[sceneIdx];
+  const content = s.build ? s.build(activeCtx) : s;
+  document.getElementById('act-progress').textContent = `Scéna ${sceneIdx+1} / ${scenes.length}`;
+  document.getElementById('act-coins').textContent = `${actScore.earned}/${actScore.max} ⭐`;
+  const cont = document.getElementById('scene-container');
+  cont.innerHTML = '';
+
+  if (s.type === 'story') {
+    cont.innerHTML = `
+      <div class="scene ${activeAct.color}">
+        ${content.icon ? `<span class="scene-icon">${content.icon}</span>` : ''}
+        ${content.html}
+        <div class="btn-row">
+          <button class="btn-primary" id="btn-continue">Pokračovat →</button>
+        </div>
+      </div>
+    `;
+    document.getElementById('btn-continue').addEventListener('click', nextScene);
+  }
+
+  else if (s.type === 'math') {
+    actScore.max += 1;
+    hintLevel = 0;
+    cont.innerHTML = `
+      <div class="scene ${activeAct.color}">
+        <div class="math-q">${content.q}</div>
+        <div class="input-row">
+          <input class="answer" id="m-ans" type="number" inputmode="numeric" placeholder="?" autocomplete="off" autofocus>
+          ${content.unit ? `<span class="unit">${content.unit}</span>` : ''}
+          <button class="btn-check" id="m-check">Zkontrolovat</button>
+        </div>
+        <div class="hint-bar">
+          <button class="hint-btn" id="m-hint-btn">💡 Nápověda 1/3</button>
+          <span class="hint-counter" id="m-hint-counter">
+            <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+          </span>
+        </div>
+        <div class="hint-box" id="m-hint" data-level="0"></div>
+        <div class="feedback" id="m-fb"></div>
+      </div>
+    `;
+    const inp = document.getElementById('m-ans');
+    const btn = document.getElementById('m-check');
+    const hintBtn = document.getElementById('m-hint-btn');
+    hintBtn.addEventListener('click', () => advanceHint(content));
+    btn.addEventListener('click', () => checkMath(content));
+    inp.addEventListener('keydown', (e) => { if (e.key === 'Enter') checkMath(content); });
+    inp.focus();
+  }
+
+  else if (s.type === 'decision') {
+    actScore.max += 1;
+    const opts = content.options.map((o, i) => `
+      <button class="decision-opt" data-i="${i}">
+        <span class="opt-title">${o.title}</span>
+      </button>
+    `).join('');
+    cont.innerHTML = `
+      <div class="scene ${activeAct.color}">
+        <p style="font-weight:600; font-size:1.05rem; margin-bottom:6px;">${content.q}</p>
+        <div class="decision-options">${opts}</div>
+        <div class="feedback" id="d-fb"></div>
+      </div>
+    `;
+    cont.querySelectorAll('.decision-opt').forEach(btn => {
+      btn.addEventListener('click', () => chooseDecision(content, parseInt(btn.dataset.i)));
+    });
+  }
+}
+
+/* ────────── PROGRESIVNÍ NÁPOVĚDA ────────── */
+
+function advanceHint(content) {
+  if (hintLevel >= 3) return;
+  hintLevel++;
+  const box = document.getElementById('m-hint');
+  const btn = document.getElementById('m-hint-btn');
+  const counter = document.getElementById('m-hint-counter');
+  box.classList.add('show');
+  box.dataset.level = hintLevel;
+  const labels = ['Nasměrování', 'Vzorec', 'Postup s výsledkem'];
+  box.innerHTML = `<span class="h-label">Nápověda ${hintLevel}/3 — ${labels[hintLevel-1]}</span>${content.hints[hintLevel - 1]}`;
+  const dots = counter.querySelectorAll('.dot');
+  dots.forEach((d, i) => {
+    d.classList.toggle('shown', i < hintLevel);
+    if (i === 2 && hintLevel === 3) d.classList.add('warn');
+  });
+  if (hintLevel < 3) {
+    btn.textContent = `💡 Další nápověda ${hintLevel+1}/3`;
+  } else {
+    btn.disabled = true;
+    btn.textContent = '💡 Všechny nápovědy ukázány';
+  }
+}
+
+/* ────────── KONTROLA ────────── */
+
+function checkMath(content) {
+  const inp = document.getElementById('m-ans');
+  const btn = document.getElementById('m-check');
+  const fb = document.getElementById('m-fb');
+  const raw = inp.value.trim();
+  if (raw === '') { inp.focus(); return; }
+  const val = Number(raw);
+  const correct = val === content.answer;
+  inp.disabled = true; btn.disabled = true;
+  if (correct) {
+    actScore.earned += 1;
+    inp.classList.add('correct');
+    fb.className = 'feedback ok show';
+    fb.innerHTML = `<strong>✓ Správně!</strong> ${content.explain || ''} <div class="btn-row"><button class="btn-primary" id="m-next">Pokračovat →</button></div>`;
+  } else {
+    inp.classList.add('wrong');
+    fb.className = 'feedback err show';
+    fb.innerHTML = `<strong>✗ Bohužel.</strong> Správně je <b>${fmt(content.answer)}${content.unit ? ' ' + content.unit : ''}</b>. ${content.explain || ''} <div class="btn-row"><button class="btn-primary" id="m-next">Pokračovat →</button></div>`;
+  }
+  document.getElementById('act-coins').textContent = `${actScore.earned}/${actScore.max} ⭐`;
+  document.getElementById('m-next').addEventListener('click', nextScene);
+  document.getElementById('m-next').focus();
+}
+
+function chooseDecision(content, i) {
+  const opt = content.options[i];
+  const fb = document.getElementById('d-fb');
+  document.querySelectorAll('.decision-opt').forEach((btn, idx) => {
+    btn.disabled = true;
+    if (idx === i) btn.classList.add('chosen', opt.kind);
+  });
+  if (opt.kind === 'good') actScore.earned += 1;
+  else if (opt.kind === 'meh') actScore.earned += 0.5;
+  fb.className = `feedback ${opt.kind === 'good' ? 'ok' : opt.kind === 'bad' ? 'err' : 'info'} show`;
+  fb.innerHTML = `<strong>${opt.kind === 'good' ? '✓ Dobrá volba' : opt.kind === 'meh' ? '~ Spíš obstojné' : '✗ Riskantní'}</strong> — ${opt.feedback} <div class="btn-row"><button class="btn-primary" id="d-next">Pokračovat →</button></div>`;
+  document.getElementById('act-coins').textContent = `${actScore.earned}/${actScore.max} ⭐`;
+  document.getElementById('d-next').addEventListener('click', nextScene);
+  document.getElementById('d-next').focus();
+}
+
+function nextScene() {
+  sceneIdx++;
+  if (sceneIdx >= activeAct.scenes.length) finishAct();
+  else renderScene();
+}
+
+function finishAct() {
+  if (!STATE.done.includes(activeAct.id)) STATE.done.push(activeAct.id);
+  STATE.scores[activeAct.id] = { earned: actScore.earned, max: actScore.max };
+  const nextId = activeAct.id + 1;
+  if (nextId <= ACTS.length && !STATE.unlocked.includes(nextId)) {
+    STATE.unlocked.push(nextId);
+  }
+  saveState();
+  if (activeAct.id === 8) showResult();
+  else { renderHub(); showScreen('hub'); }
+}
+
+function showResult() {
+  const sc = totalScore();
+  document.getElementById('cert-score').textContent = `${sc.earned} / ${sc.max} ⭐`;
+  const pct = sc.max ? Math.round((sc.earned / sc.max) * 100) : 0;
+  let msg = 'Prošel jsi celou Cestu peněz! Hodně teoretických základů máš.';
+  if (pct >= 90) msg = '🏆 Mistr finanční gramotnosti! Skvělé výsledky napříč všemi kapitolami.';
+  else if (pct >= 70) msg = '🎉 Velmi solidní výsledek. Pár věcí si ještě můžeš zopakovat — koukni do scén, kde jsi měl chybu.';
+  else if (pct >= 50) msg = '👍 Základ máš. Doporučuju projít znovu kapitoly, kde jsi měl skóre nízké.';
+  else msg = '📚 Začátek je tu — opakování je matkou moudrosti. Klikni na "Začít znovu" a zkus to ještě jednou.';
+  document.getElementById('cert-msg').textContent = msg;
+  showScreen('result');
+}
+
+/* ────────── WIRE UP ────────── */
+
+document.getElementById('btn-go-hub').addEventListener('click', () => { renderHub(); showScreen('hub'); });
+document.getElementById('back-to-hub').addEventListener('click', () => { renderHub(); showScreen('hub'); });
+document.getElementById('result-to-hub').addEventListener('click', () => { renderHub(); showScreen('hub'); });
+document.getElementById('result-restart').addEventListener('click', () => {
+  if (confirm('Začít cestu znovu? Smaže to tvůj postup.')) {
+    resetState(); renderHub(); showScreen('intro');
+  }
+});
+document.getElementById('reset-link').addEventListener('click', () => {
+  if (confirm('Smazat všechen postup? Tohle nelze vrátit.')) {
+    resetState(); renderHub();
+  }
+});
+
+loadState();
+renderHub();
+</script>
+</body>
+</html>
