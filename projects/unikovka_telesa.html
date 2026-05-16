@@ -123,6 +123,23 @@ body{
 .code-wrap label{display:block;font-family:'Lexend',sans-serif;font-size:.98rem;color:var(--muted);
   margin-bottom:11px;font-weight:700}
 .code-row{display:flex;gap:10px;align-items:center}
+.code-hint-bar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:12px}
+.code-hint-btn{background:none;border:1.5px dashed var(--gold-dark);color:var(--gold-dark);
+  padding:5px 14px;border-radius:20px;font-family:'Lexend',sans-serif;font-weight:600;font-size:.82rem;
+  cursor:pointer;transition:all .15s}
+.code-hint-btn:hover:not([disabled]){background:#fef9ec}
+.code-hint-btn[disabled]{opacity:.5;cursor:not-allowed;border-style:solid;border-color:#e0dbd0;color:var(--muted)}
+.code-hint-counter{font-size:.76rem;color:var(--muted)}
+.code-hint-counter .dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#e0dbd0;margin:0 1px}
+.code-hint-counter .dot.shown{background:var(--gold-dark)}
+.code-hint-counter .dot.shown.warn{background:var(--orange)}
+.code-hint-box{margin-top:10px;background:#fef9ec;border-left:3px solid var(--gold-dark);
+  padding:10px 14px;border-radius:8px;font-size:.9rem;display:none;color:#7a5200}
+.code-hint-box.show{display:block}
+.code-hint-box .h-label{font-size:.7rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;
+  color:var(--gold-dark);display:block;margin-bottom:4px}
+.code-hint-box[data-level="3"]{background:var(--orange-light);border-left-color:var(--orange);color:#8b3f08}
+.code-hint-box[data-level="3"] .h-label{color:var(--orange)}
 .code-input{flex:1;font-family:'Lexend',sans-serif;font-size:1.5rem;text-align:center;
   letter-spacing:.12em;border:3px solid #ccc8bb;border-radius:12px;padding:11px 14px;
   outline:none;transition:border-color .2s;background:#fafaf6;color:var(--text)}
@@ -388,6 +405,48 @@ const STEPS = [
 }
 ];
 
+/* Progresivní nápověda ke kódu zámku — 3 úrovně */
+const CODE_HINTS = {
+  1: ['Těleso má 3 rozměry (délku, šířku, výšku). Rovinný útvar jen 2.', 'V seznamu: kostka, kniha, obdélník, krabice, kruh, balón. Které jsou 3D?', 'kostka, kniha, krabice, balón = <b>4</b>.'],
+  2: ['Krychle má vrcholy (rohy), hrany (úsečky), stěny (plochy). Spočítej je.', 'Vrcholy = 8, hrany = 12, stěny = 6.', '8 + 12 + 6 = <b>26</b>.'],
+  3: ['Krychle = všechny hrany stejně dlouhé. Kvádr = různé.', 'Krychle v seznamu: hrací kostka, kostka cukru, kostka ledu, Rubikova kostka.', '<b>4</b> krychle.'],
+  4: ['Síť krychle = 6 čtverců. Obvod jednoho čtverce = 4 × strana.', 'Strana 5 cm. Obvod = 4 × 5 = ?', '4 × 5 = <b>20</b> cm.'],
+  5: ['Síť kvádru = 6 obdélníků. Obsah obdélníku = délka × šířka.', 'Strany 2 × 3 cm. Obsah = ?', '2 × 3 = <b>6</b> cm².'],
+  6: ['Krychle má 12 stejně dlouhých hran. Vzorec: 12 × a.', '12 × 7 = ?', '12 × 7 = <b>84</b> cm.'],
+  7: ['Kvádr má 12 hran ve 3 délkách: 4× a, 4× b, 4× c. Vzorec: 4 × (a + b + c).', '4 × (3 + 5 + 7) = 4 × 15 = ?', '4 × 15 = <b>60</b> cm.'],
+  8: ['Povrch = obsah všech stěn. Krychle = 6 čtverců. Vzorec: S = 6 × a².', 'a = 5, takže a² = 25. S = 6 × 25.', '6 × 25 = <b>150</b> cm².'],
+  9: ['Kvádr má 3 dvojice stěn: a×b, b×c, a×c. Vzorec: S = 2 × (ab + bc + ac).', '2 × (3·4 + 4·5 + 3·5) = 2 × (12 + 20 + 15).', '2 × 47 = <b>94</b> cm².'],
+  10: ['Objem: krychle V = a³, kvádr V = a·b·c. Spočítej oba a sečti.', 'a) 4³ = 64. b) 2·3·4 = 24.', '64 + 24 = <b>88</b> cm³.'],
+};
+
+let codeHintLevel = 0;
+
+function advanceCodeHint() {
+  if (codeHintLevel >= 3) return;
+  codeHintLevel++;
+  const hints = CODE_HINTS[STEPS[cur].id] || ['Přečti si pozorně postup nahoře.', 'Postupně spočítej, co se ptají.', 'Výsledek vyplyne z výpočtu.'];
+  const box = document.getElementById('ch-box');
+  const btn = document.getElementById('ch-btn');
+  const counter = document.getElementById('ch-counter');
+  if (!box || !btn) return;
+  box.classList.add('show');
+  box.dataset.level = codeHintLevel;
+  const labels = ['Nasměrování', 'Vzorec', 'Postup s výsledkem'];
+  box.innerHTML = `<span class="h-label">Nápověda ${codeHintLevel}/3 — ${labels[codeHintLevel-1]}</span>${hints[codeHintLevel - 1]}`;
+  if (counter) {
+    counter.querySelectorAll('.dot').forEach((d, i) => {
+      d.classList.toggle('shown', i < codeHintLevel);
+      if (i === 2 && codeHintLevel === 3) d.classList.add('warn');
+    });
+  }
+  if (codeHintLevel < 3) {
+    btn.textContent = `💡 Další nápověda ${codeHintLevel+1}/3`;
+  } else {
+    btn.disabled = true;
+    btn.textContent = '💡 Všechny nápovědy ukázány';
+  }
+}
+
 let cur = 0;
 let att = new Array(STEPS.length).fill(0);
 
@@ -404,6 +463,7 @@ function startGame() {
 
 function render(idx) {
   cur = idx;
+  codeHintLevel = 0;
   const s = STEPS[idx];
   document.getElementById('prog-label').textContent = `Zámek ${idx+1} z ${STEPS.length}`;
   document.getElementById('prog-fill').style.width = `${(idx / STEPS.length) * 100}%`;
@@ -443,6 +503,13 @@ function render(idx) {
           onkeydown="if(event.key==='Enter') chk()">
         <button class="btn-check" onclick="chk()">Odemknout 🔓</button>
       </div>
+      <div class="code-hint-bar">
+        <button class="code-hint-btn" id="ch-btn" onclick="advanceCodeHint()">💡 Nápověda ke kódu 1/3</button>
+        <span class="code-hint-counter" id="ch-counter">
+          <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+        </span>
+      </div>
+      <div class="code-hint-box" id="ch-box" data-level="0"></div>
       <div class="feedback" id="fb"></div>
     </div>
     <div class="unlock-anim" id="ua">
