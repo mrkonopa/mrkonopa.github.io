@@ -1,0 +1,1349 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Procenta — interaktivní příklady (pokročilé)</title>
+<meta name="description" content="Pokročilé procvičování procent — náhodně generované příklady ve třech úrovních obtížnosti. Část, základ, počet procent, slevy, zvýšení, složený výpočet, porovnání a poměry.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --blue:#1a73c8; --blue-light:#e8f1fb; --blue-dark:#1250a0;
+  --teal:#0f8a72; --teal-light:#e4f5f1;
+  --green:#1e9e5a; --green-light:#e6f7ef;
+  --red:#d63c2f; --red-light:#fdecea;
+  --orange:#d4620a; --orange-light:#fdf0e5;
+  --orange-dark:#a14906;
+  --purple:#7c3aad; --purple-light:#f3eefa;
+  --pink:#b5286e; --pink-light:#fce8f2;
+  --indigo:#3730a3; --indigo-light:#eef2ff;
+  --rose:#9f1239; --rose-light:#fff1f2;
+  --gold:#c89a10; --gold-light:#fef9ec;
+  --bg:#f5f0e6;
+  --card:#fff;
+  --text:#1a1a2e;
+  --muted:#6b7280;
+  --border:#e2dccc;
+  --shadow:0 2px 14px rgba(0,0,0,.06);
+  --shadow-hover:0 6px 22px rgba(26,115,200,.16);
+  --radius:14px;
+  --sans:'Lexend','Inter','Segoe UI',system-ui,-apple-system,'Helvetica Neue',Arial,sans-serif;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+
+html, body {
+  font-family: var(--sans);
+  background: var(--bg);
+  background-image:
+    radial-gradient(circle at 8% 12%,rgba(245,200,66,.10) 0%,transparent 38%),
+    radial-gradient(circle at 92% 88%,rgba(26,115,200,.07) 0%,transparent 38%);
+  color: var(--text);
+  min-height: 100vh;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+a { color: var(--blue); text-decoration: none; }
+a:hover, a:focus { color: var(--blue-dark); outline: none; }
+a:focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; border-radius: 3px; }
+
+.screen { display: none; max-width: 760px; margin: 0 auto; padding: 24px 20px 60px; }
+.screen.active { display: block; }
+
+/* TOP BAR */
+.top-bar {
+  font-size: .82rem; color: var(--muted);
+  display: flex; justify-content: space-between; gap: 18px;
+  padding-bottom: 10px;
+}
+.top-bar a { color: var(--muted); }
+.top-bar a:hover { color: var(--blue); }
+
+/* INTRO */
+#intro { text-align: center; padding-top: 30px; }
+.intro-icon { font-size: 56px; margin-bottom: 12px; display: inline-block; }
+
+.title-row {
+  display: flex; align-items: center; justify-content: center;
+  gap: 10px; flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+.intro-title {
+  font-family: var(--sans);
+  font-weight: 800;
+  font-size: clamp(26px, 4.6vw, 40px);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: var(--text);
+}
+.intro-title .accent { color: var(--blue); }
+
+.badge-advanced {
+  display: inline-block;
+  background: linear-gradient(135deg, var(--orange), var(--orange-dark));
+  color: #fff;
+  font-size: .68rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  padding: 5px 12px;
+  border-radius: 20px;
+  vertical-align: middle;
+  text-transform: uppercase;
+  box-shadow: 0 3px 10px rgba(212,98,10,.28);
+}
+
+.intro-sub {
+  font-size: 1rem;
+  color: var(--muted);
+  font-weight: 300;
+  max-width: 540px;
+  margin: 0 auto 24px;
+}
+
+/* STATS PANEL */
+.stats-panel {
+  background: var(--card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 14px 18px;
+  margin-bottom: 16px;
+  display: flex;
+  justify-content: space-around;
+  gap: 12px;
+  border-top: 3px solid var(--gold);
+}
+.stats-panel .stat { text-align: center; flex: 1; min-width: 0; }
+.stats-panel .stat-value {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--blue-dark);
+  display: block;
+  line-height: 1.1;
+}
+.stats-panel .stat-value.streak { color: var(--orange); }
+.stats-panel .stat-value.best { color: var(--green); }
+.stats-panel .stat-label {
+  font-size: .68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+  font-weight: 700;
+  margin-top: 2px;
+  display: block;
+}
+
+/* TIP BANNER (link to únikovka) */
+.tip-banner {
+  background: var(--orange-light);
+  border-left: 4px solid var(--orange);
+  border-radius: var(--radius);
+  padding: 12px 18px;
+  margin-bottom: 18px;
+  font-size: .9rem;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.tip-banner .tip-icon { font-size: 1.4rem; flex-shrink: 0; }
+.tip-banner b { color: var(--orange-dark); }
+.tip-banner a {
+  color: var(--orange-dark);
+  font-weight: 700;
+  border-bottom: 1px dashed var(--orange);
+}
+.tip-banner a:hover { color: var(--orange); }
+
+/* INFO CARDS */
+.intro-card {
+  background: var(--card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 18px 22px;
+  text-align: left;
+  margin-bottom: 14px;
+  border-left: 5px solid var(--blue);
+}
+.intro-card h3 {
+  font-family: var(--sans);
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--blue);
+  margin-bottom: 10px;
+}
+.intro-card ul {
+  list-style: none; padding: 0; margin: 0;
+  display: grid; gap: 6px;
+  font-size: .92rem;
+}
+.intro-card li {
+  display: flex; gap: 10px; align-items: flex-start;
+}
+.intro-card li .bullet {
+  color: var(--blue);
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+/* DIFFICULTY SELECTOR */
+.diff-section {
+  background: var(--card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 18px 22px 22px;
+  text-align: left;
+  margin-bottom: 14px;
+  border-left: 5px solid var(--purple);
+}
+.diff-section h3 {
+  font-family: var(--sans);
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--purple);
+  margin-bottom: 12px;
+}
+.diff-row {
+  display: flex; gap: 8px; flex-wrap: wrap;
+}
+.diff-btn {
+  flex: 1; min-width: 140px;
+  background: #fafaf2;
+  border: 2px solid var(--border);
+  padding: 12px 14px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-family: var(--sans);
+  text-align: center;
+  transition: all .15s;
+}
+.diff-btn:hover {
+  border-color: var(--purple);
+  transform: translateY(-1px);
+}
+.diff-btn.active {
+  background: var(--purple);
+  border-color: var(--purple);
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(124,58,173,.3);
+}
+.diff-btn .diff-label {
+  font-weight: 700;
+  font-size: 1rem;
+  display: block;
+  margin-bottom: 2px;
+}
+.diff-btn .diff-desc {
+  font-size: .76rem;
+  opacity: 0.85;
+  font-weight: 400;
+}
+
+/* PRIMARY BUTTON */
+.btn-primary {
+  background: linear-gradient(135deg, var(--blue), var(--blue-dark));
+  color: #fff;
+  font-family: var(--sans);
+  font-size: 1.15rem;
+  font-weight: 700;
+  border: none; border-radius: 50px;
+  padding: 15px 44px;
+  cursor: pointer;
+  box-shadow: 0 6px 20px rgba(26,115,200,.32);
+  transition: transform .15s, box-shadow .15s;
+  letter-spacing: 0.01em;
+  margin-top: 8px;
+}
+.btn-primary:hover, .btn-primary:focus {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 28px rgba(26,115,200,.38);
+  outline: none;
+}
+.btn-primary:active { transform: translateY(0); }
+
+.btn-secondary {
+  background: var(--card);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 50px;
+  padding: 12px 28px;
+  font-family: var(--sans);
+  font-size: .95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .15s;
+}
+.btn-secondary:hover { background: var(--blue-light); border-color: var(--blue); color: var(--blue-dark); }
+
+/* PROGRESS */
+.progress-wrap { width: 100%; margin-bottom: 20px; }
+.progress-row {
+  display: flex; justify-content: space-between; align-items: center;
+  font-size: .82rem; font-weight: 600; color: var(--muted);
+  margin-bottom: 6px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.progress-row .score { display: flex; gap: 12px; }
+.progress-row .score .ok { color: var(--green); }
+.progress-row .score .err { color: var(--red); }
+.progress-row .diff-tag {
+  font-size: .68rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.1em;
+  padding: 2px 8px; border-radius: 20px;
+  background: var(--purple-light); color: var(--purple);
+}
+.progress-bar {
+  background: #e2dccc;
+  border-radius: 20px; height: 8px; overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--blue), var(--teal));
+  border-radius: 20px;
+  transition: width .4s ease;
+}
+
+/* PROBLEM */
+.problem-card {
+  background: var(--card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 26px 26px 22px;
+  margin-bottom: 16px;
+  position: relative;
+  overflow: hidden;
+}
+.problem-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; height: 100%; width: 5px;
+}
+.problem-card.cat-part::before       { background: var(--blue); }
+.problem-card.cat-base::before       { background: var(--teal); }
+.problem-card.cat-percent::before    { background: var(--purple); }
+.problem-card.cat-increase::before   { background: var(--green); }
+.problem-card.cat-decrease::before   { background: var(--orange); }
+.problem-card.cat-compound::before   { background: var(--pink); }
+.problem-card.cat-comparison::before { background: var(--indigo); }
+.problem-card.cat-ratio::before      { background: var(--rose); }
+
+.tag {
+  display: inline-block;
+  font-size: .72rem; font-weight: 700;
+  letter-spacing: 0.06em; text-transform: uppercase;
+  padding: 3px 12px; border-radius: 20px;
+  margin-bottom: 14px;
+}
+.tag.cat-part       { background: var(--blue-light);    color: var(--blue); }
+.tag.cat-base       { background: var(--teal-light);    color: var(--teal); }
+.tag.cat-percent    { background: var(--purple-light);  color: var(--purple); }
+.tag.cat-increase   { background: var(--green-light);   color: var(--green); }
+.tag.cat-decrease   { background: var(--orange-light);  color: var(--orange); }
+.tag.cat-compound   { background: var(--pink-light);    color: var(--pink); }
+.tag.cat-comparison { background: var(--indigo-light);  color: var(--indigo); }
+.tag.cat-ratio      { background: var(--rose-light);    color: var(--rose); }
+
+.problem-text {
+  font-size: 1.18rem;
+  line-height: 1.5;
+  font-weight: 400;
+  color: var(--text);
+  margin-bottom: 22px;
+}
+.problem-text b { color: var(--blue-dark); font-weight: 700; }
+
+.input-row { display: flex; gap: 10px; align-items: center; }
+input.answer {
+  flex: 1;
+  font-family: var(--sans);
+  font-size: 1.4rem; text-align: center;
+  font-weight: 600;
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  padding: 12px 16px;
+  outline: none;
+  transition: border-color .2s;
+  background: #fafaf6;
+  color: var(--text);
+  -moz-appearance: textfield;
+}
+input.answer::-webkit-outer-spin-button,
+input.answer::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+input.answer:focus { border-color: var(--blue); background: #fff; }
+input.answer.correct { border-color: var(--green); background: var(--green-light); }
+input.answer.wrong { border-color: var(--red); background: var(--red-light); animation: shake .3s; }
+@keyframes shake {
+  0%,100% { transform: translateX(0); }
+  30% { transform: translateX(-6px); }
+  70% { transform: translateX(6px); }
+}
+
+.input-row .unit {
+  font-size: 1.05rem; color: var(--muted); font-weight: 600; white-space: nowrap;
+}
+
+.btn-check {
+  background: linear-gradient(135deg, var(--blue), var(--blue-dark));
+  color: #fff;
+  border: none; border-radius: 12px;
+  padding: 13px 22px;
+  font-family: var(--sans);
+  font-size: .95rem; font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  box-shadow: 0 4px 14px rgba(26,115,200,.28);
+  transition: transform .15s;
+}
+.btn-check:hover { transform: translateY(-1px); }
+.btn-check[disabled] { opacity: .5; cursor: not-allowed; }
+
+/* PROGRESIVNÍ NÁPOVĚDA */
+.hint-bar {
+  display: flex; gap: 8px; align-items: center; flex-wrap: wrap;
+  margin-top: 12px;
+}
+.hint-btn {
+  background: none; border: 1.5px dashed var(--gold);
+  color: var(--gold);
+  padding: 5px 14px; border-radius: 20px;
+  font-family: var(--sans); font-weight: 600; font-size: .82rem;
+  cursor: pointer;
+  transition: all .15s;
+}
+.hint-btn:hover:not([disabled]) { background: var(--gold-light); }
+.hint-btn[disabled] {
+  opacity: 0.5; cursor: not-allowed;
+  border-style: solid; border-color: var(--border); color: var(--muted);
+}
+.hint-counter { font-size: .76rem; color: var(--muted); }
+.hint-counter .dot {
+  display: inline-block; width: 8px; height: 8px; border-radius: 50%;
+  background: var(--border); margin: 0 1px;
+}
+.hint-counter .dot.shown { background: var(--gold); }
+.hint-counter .dot.shown.warn { background: var(--orange); }
+.hint-box {
+  margin-top: 10px;
+  background: var(--gold-light);
+  border-left: 3px solid var(--gold);
+  padding: 10px 14px; border-radius: 8px;
+  font-size: .9rem;
+  display: none;
+}
+.hint-box.show { display: block; }
+.hint-box .h-label {
+  font-size: .7rem; font-weight: 700;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--gold);
+  display: block; margin-bottom: 4px;
+}
+.hint-box[data-level="3"] {
+  background: var(--orange-light);
+  border-left-color: var(--orange);
+}
+.hint-box[data-level="3"] .h-label { color: var(--orange); }
+
+/* FEEDBACK */
+.feedback {
+  margin-top: 14px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  font-size: .95rem;
+  display: none;
+  animation: popIn .25s ease;
+}
+.feedback.show { display: block; }
+@keyframes popIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
+.feedback.ok  { background: var(--green-light); color: #145e35; border-left: 4px solid var(--green); }
+.feedback.err { background: var(--red-light);   color: #8b1e15; border-left: 4px solid var(--red); }
+.feedback strong { font-weight: 700; }
+.feedback .next-row { display: flex; justify-content: flex-end; margin-top: 12px; }
+
+.btn-next {
+  background: var(--text);
+  color: #fff;
+  border: none; border-radius: 10px;
+  padding: 10px 20px;
+  font-family: var(--sans);
+  font-size: .9rem; font-weight: 600;
+  cursor: pointer;
+  transition: background .15s;
+}
+.btn-next:hover { background: #2d2d44; }
+
+/* RESULT */
+#result { text-align: center; padding-top: 30px; }
+.result-icon { font-size: 60px; margin-bottom: 12px; }
+.result-title {
+  font-family: var(--sans);
+  font-weight: 800;
+  font-size: clamp(28px, 5vw, 40px);
+  margin-bottom: 6px;
+}
+.result-score {
+  font-size: 1.4rem; color: var(--blue-dark); font-weight: 700;
+  margin-bottom: 4px;
+}
+.result-pct { color: var(--muted); margin-bottom: 6px; font-size: 1rem; }
+.result-streak {
+  display: inline-block;
+  background: var(--orange-light);
+  color: var(--orange-dark);
+  padding: 4px 14px;
+  border-radius: 20px;
+  font-size: .85rem;
+  font-weight: 700;
+  margin-bottom: 22px;
+}
+
+.result-section {
+  background: var(--card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 22px 24px;
+  margin-bottom: 14px;
+  text-align: left;
+}
+.result-section h3 {
+  font-size: 1rem; font-weight: 700; margin-bottom: 12px;
+  display: flex; align-items: center; gap: 8px;
+}
+.result-section.ok h3 { color: var(--green); }
+.result-section.err h3 { color: var(--red); }
+
+.result-section .ok-line {
+  font-size: .9rem;
+  padding: 6px 0;
+  display: flex; gap: 10px; align-items: baseline;
+  justify-content: space-between;
+}
+.result-section .ok-line .count { color: var(--muted); }
+
+.miss {
+  border-left: 3px solid var(--red);
+  padding: 8px 0 8px 16px;
+  margin-bottom: 14px;
+}
+.miss:last-child { margin-bottom: 0; }
+.miss-q { font-size: .96rem; font-weight: 500; margin-bottom: 6px; line-height: 1.5; }
+.miss-q b { color: var(--blue-dark); }
+.miss-q .typeTag {
+  display: inline-block;
+  font-size: .65rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+  padding: 2px 8px; border-radius: 20px;
+  background: #f3eefa; color: var(--purple);
+  margin-right: 6px;
+}
+.miss-answers {
+  font-size: .82rem; color: var(--muted);
+  margin-bottom: 8px; display: flex; gap: 14px; flex-wrap: wrap;
+}
+.miss-answers .your { color: var(--red); }
+.miss-answers .right { color: var(--green); font-weight: 600; }
+.miss-steps {
+  background: #fafaf2;
+  border-radius: 8px; padding: 10px 14px;
+  font-size: .88rem; line-height: 1.7;
+}
+.miss-steps ol { margin: 0; padding-left: 20px; }
+.miss-steps li { margin-bottom: 2px; }
+.miss-steps li b { color: var(--text); }
+
+.result-actions { display: flex; gap: 12px; justify-content: center; margin-top: 24px; flex-wrap: wrap; }
+
+@media (max-width: 540px) {
+  .input-row { flex-wrap: wrap; }
+  input.answer { font-size: 1.2rem; padding: 10px 12px; }
+  .problem-text { font-size: 1.05rem; }
+  .btn-check { width: 100%; }
+  .stats-panel { flex-direction: row; }
+  .stats-panel .stat-value { font-size: 1.2rem; }
+  .diff-row { flex-direction: column; }
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════ INTRO ═══════════ -->
+<section id="intro" class="screen active">
+  <div class="top-bar">
+    <a href="./">← zpět na projekty</a>
+    <span></span>
+    <a href="/">domů</a>
+  </div>
+
+  <div class="intro-icon">🧮</div>
+  <div class="title-row">
+    <h1 class="intro-title">Procenta — <span class="accent">interaktivní příklady</span></h1>
+    <span class="badge-advanced">Pokročilé</span>
+  </div>
+  <p class="intro-sub">
+    Pokročilé procvičení procent. Náhodně generovaných <b>10 příkladů</b> v každé sadě, jiné pokaždé.
+    Na konci uvidíš svoji úspěšnost a postup řešení tam, kde jsi chyboval(a).
+  </p>
+
+  <!-- STATS PANEL — only shown if data in localStorage -->
+  <div class="stats-panel" id="stats-panel" style="display:none;">
+    <div class="stat">
+      <span class="stat-value best" id="stat-best">—</span>
+      <span class="stat-label">Nejlepší</span>
+    </div>
+    <div class="stat">
+      <span class="stat-value" id="stat-sessions">0</span>
+      <span class="stat-label">Sady</span>
+    </div>
+    <div class="stat">
+      <span class="stat-value streak" id="stat-streak">0</span>
+      <span class="stat-label">Série 🔥</span>
+    </div>
+  </div>
+
+  <!-- TIP BANNER → únikovka -->
+  <div class="tip-banner">
+    <span class="tip-icon">🚪</span>
+    <span><b>Začínáš s procenty?</b> Tahle stránka předpokládá, že už znáš základy. Doporučuji nejprve projít <a href="./unikovka_procenta.html">únikovku z procent</a> — provede tě postupně všemi typy úloh.</span>
+  </div>
+
+  <div class="intro-card">
+    <h3>📋 Co tě čeká</h3>
+    <ul>
+      <li><span class="bullet">①</span><span><b>Procentová část</b> — kolik je <i>n %</i> z čísla?</span></li>
+      <li><span class="bullet">②</span><span><b>Základ (celek)</b> — když znáš část, najdi celek.</span></li>
+      <li><span class="bullet">③</span><span><b>Počet procent</b> — kolika procenty z celku je daná část?</span></li>
+      <li><span class="bullet">④</span><span><b>Zvýšení o procenta</b> — slovní úlohy se zvýšením ceny.</span></li>
+      <li><span class="bullet">⑤</span><span><b>Sleva</b> — slovní úlohy se snížením ceny.</span></li>
+      <li><span class="bullet" style="color:var(--pink)">⑥</span><span><b>Složený výpočet</b> — nejdřív sleva, pak DPH (jen Pokročilá).</span></li>
+      <li><span class="bullet" style="color:var(--indigo)">⑦</span><span><b>Porovnání</b> — X je o n % větší/menší než Y, najdi Y (jen Pokročilá).</span></li>
+      <li><span class="bullet" style="color:var(--rose)">⑧</span><span><b>Poměry</b> — slovní úlohy s rozdělením na části (jen Pokročilá).</span></li>
+    </ul>
+  </div>
+
+  <!-- DIFFICULTY -->
+  <div class="diff-section">
+    <h3>🎯 Vyber obtížnost</h3>
+    <div class="diff-row">
+      <button class="diff-btn" data-diff="easy">
+        <span class="diff-label">Snadná</span>
+        <span class="diff-desc">3 typy · malá čísla · zaokrouhlená procenta</span>
+      </button>
+      <button class="diff-btn active" data-diff="medium">
+        <span class="diff-label">Střední</span>
+        <span class="diff-desc">5 typů · větší čísla · slovní úlohy</span>
+      </button>
+      <button class="diff-btn" data-diff="hard">
+        <span class="diff-label">Pokročilá</span>
+        <span class="diff-desc">8 typů · složené, porovnání, poměry</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="intro-card" style="border-left-color: var(--gold);">
+    <h3 style="color: var(--gold);">💡 Pravidla</h3>
+    <ul>
+      <li><span class="bullet" style="color: var(--gold);">·</span><span>Odpověď zadej jako <b>celé číslo</b> (bez %, bez Kč).</span></li>
+      <li><span class="bullet" style="color: var(--gold);">·</span><span>Stiskni <b>Enter</b> nebo tlačítko <b>Zkontrolovat</b>.</span></li>
+      <li><span class="bullet" style="color: var(--gold);">·</span><span>Po každém příkladu uvidíš správnou odpověď. Postup pro chybné příklady se zobrazí na konci.</span></li>
+      <li><span class="bullet" style="color: var(--gold);">·</span><span><b>Série 🔥</b> roste, pokud máš <b>aspoň 7/10</b>. Když dáš méně, série se vynuluje.</span></li>
+    </ul>
+  </div>
+
+  <button class="btn-primary" id="btn-start">▶ Začít sadu 10 příkladů</button>
+</section>
+
+<!-- ═══════════ GAME ═══════════ -->
+<section id="game" class="screen">
+  <div class="top-bar">
+    <a href="./">← zpět na projekty</a>
+    <span id="problem-of">Příklad 1 / 10</span>
+    <a href="/">domů</a>
+  </div>
+  <div class="progress-wrap">
+    <div class="progress-row">
+      <span id="prog-label">Příklad 1 / 10</span>
+      <span class="diff-tag" id="diff-tag">Střední</span>
+      <span class="score">
+        <span class="ok">✓ <span id="score-ok">0</span></span>
+        <span class="err">✗ <span id="score-err">0</span></span>
+      </span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="prog-fill" style="width:0%"></div></div>
+  </div>
+
+  <div id="problem-container"></div>
+</section>
+
+<!-- ═══════════ RESULT ═══════════ -->
+<section id="result" class="screen">
+  <div class="top-bar">
+    <a href="./">← zpět na projekty</a>
+    <span></span>
+    <a href="/">domů</a>
+  </div>
+  <div class="result-icon" id="result-icon">🎉</div>
+  <h1 class="result-title" id="result-title">Hotovo!</h1>
+  <div class="result-score" id="result-score">8 / 10</div>
+  <div class="result-pct" id="result-pct">Úspěšnost: 80 %</div>
+  <div class="result-streak" id="result-streak" style="display:none;">🔥 Série prodloužena na <b id="result-streak-num">2</b></div>
+
+  <div id="result-ok-section" class="result-section ok" style="display:none;">
+    <h3>✅ Co ti šlo</h3>
+    <div id="result-ok-list"></div>
+  </div>
+
+  <div id="result-err-section" class="result-section err" style="display:none;">
+    <h3>📝 Kde se ještě potrénovat (postup)</h3>
+    <div id="result-err-list"></div>
+  </div>
+
+  <div class="result-actions">
+    <button class="btn-primary" id="btn-restart">🔁 Hrát znovu (10 nových)</button>
+    <a class="btn-secondary" href="./">← zpět na projekty</a>
+  </div>
+</section>
+
+<script>
+/* ════════════════════════════════════════════════════════════════════════
+   PROCENTA — pokročilý procvičovák
+   8 typů příkladů × 3 úrovně obtížnosti
+   localStorage: best, sessions, streak, lastDiff
+   ════════════════════════════════════════════════════════════════════════ */
+
+const STORAGE_KEY = 'procenta_priklady_v2';
+const STREAK_THRESHOLD = 7;  // alespoň 7/10 → série pokračuje
+
+const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+
+/* ────────────────────────────────────────────────────────────────────────
+   GENERÁTORY (každý přijímá difficulty: 'easy' | 'medium' | 'hard')
+   ──────────────────────────────────────────────────────────────────────── */
+
+/* ① Procentová část */
+function genPart(diff) {
+  const easy = [
+    { n: 10, xs: [10, 20, 30, 50, 80, 100, 200] },
+    { n: 25, xs: [40, 80, 100, 200] },
+    { n: 50, xs: [10, 20, 40, 60, 80, 100] },
+  ];
+  const medium = [
+    { n: 5,  xs: [20, 40, 60, 100, 200, 400, 500, 1000] },
+    { n: 10, xs: [50, 100, 150, 200, 400, 700, 1000] },
+    { n: 20, xs: [25, 50, 100, 150, 200, 400, 500, 1000] },
+    { n: 25, xs: [40, 80, 200, 400, 800, 1000] },
+    { n: 50, xs: [40, 80, 100, 200, 500, 1000] },
+    { n: 75, xs: [40, 80, 200, 400, 800, 1000] },
+  ];
+  const hard = [
+    { n: 5,  xs: [200, 400, 600, 800, 1200, 2000, 2500] },
+    { n: 7,  xs: [100, 200, 400, 700, 1000, 2000] },
+    { n: 12, xs: [100, 200, 400, 500, 1000, 2000] },
+    { n: 15, xs: [40, 80, 200, 400, 800, 1000, 2000] },
+    { n: 35, xs: [100, 200, 400, 1000, 2000] },
+    { n: 65, xs: [100, 200, 400, 1000] },
+    { n: 80, xs: [50, 100, 200, 500, 1000, 2500] },
+    { n: 125,xs: [40, 80, 200, 400, 800] },
+  ];
+  const cases = diff === 'easy' ? easy : diff === 'hard' ? hard : medium;
+  const c = pick(cases);
+  const x = pick(c.xs);
+  const answer = (c.n * x) / 100;
+  return {
+    type: 'part',
+    typeLabel: 'Procentová část',
+    question: `Vypočítej <b>${c.n} %</b> z <b>${x}</b>.`,
+    unit: '',
+    answer,
+    steps: [
+      `Najdi <b>1 %</b> ze základu: <b>${x} ÷ 100 = ${x/100}</b>`,
+      `Vynásob to počtem procent: <b>${c.n} × ${x/100} = ${answer}</b>`,
+    ],
+  };
+}
+
+/* ② Základ */
+function genBase(diff) {
+  const ranges = {
+    easy:   { onePct: [1, 2, 3, 5, 10],          ns: [10, 25, 50] },
+    medium: { onePct: [1, 2, 3, 5, 6, 8, 10, 15, 20, 25], ns: [5, 10, 20, 25, 50, 75] },
+    hard:   { onePct: [1, 2, 3, 4, 7, 12, 15, 25, 35, 50], ns: [3, 8, 15, 35, 60, 65, 80] },
+  };
+  const r = ranges[diff] || ranges.medium;
+  const onePercent = pick(r.onePct);
+  const base = onePercent * 100;
+  const n = pick(r.ns);
+  const part = n * onePercent;
+  return {
+    type: 'base',
+    typeLabel: 'Základ (celek)',
+    question: `Číslo, kterého <b>${n} %</b> je <b>${part}</b>?`,
+    unit: '',
+    answer: base,
+    steps: [
+      `Najdi <b>1 %</b>: <b>${part} ÷ ${n} = ${onePercent}</b>`,
+      `Celý základ je <b>100 %</b>: <b>${onePercent} × 100 = ${base}</b>`,
+    ],
+  };
+}
+
+/* ③ Počet procent */
+function genPercent(diff) {
+  const ranges = {
+    easy:   { onePct: [1, 2, 5, 10],       ns: [10, 25, 50] },
+    medium: { onePct: [1, 2, 4, 5, 8, 10], ns: [10, 20, 25, 30, 50, 75] },
+    hard:   { onePct: [1, 3, 7, 12, 20],   ns: [15, 35, 45, 65, 85] },
+  };
+  const r = ranges[diff] || ranges.medium;
+  const onePercent = pick(r.onePct);
+  const base = onePercent * 100;
+  const n = pick(r.ns);
+  const part = n * onePercent;
+  return {
+    type: 'percent',
+    typeLabel: 'Počet procent',
+    question: `Kolik <b>%</b> je <b>${part}</b> z <b>${base}</b>?`,
+    unit: '%',
+    answer: n,
+    steps: [
+      `Vzorec: <b>(část ÷ celek) × 100 = počet %</b>`,
+      `(${part} ÷ ${base}) × 100 = <b>${n} %</b>`,
+    ],
+  };
+}
+
+/* ④ Zvýšení o n % */
+function genIncrease(diff) {
+  const ranges = {
+    medium: { onePct: [1, 2, 5, 10, 20, 30, 50], ns: [10, 15, 20, 25, 30, 50] },
+    hard:   { onePct: [3, 7, 12, 15, 25, 40], ns: [15, 35, 45, 60, 75] },
+  };
+  const r = ranges[diff] || ranges.medium;
+  const onePercent = pick(r.onePct);
+  const base = onePercent * 100;
+  const n = pick(r.ns);
+  const increase = n * onePercent;
+  const newValue = base + increase;
+  const stories = [
+    { ctx: `Cena výrobku <b>${base} Kč</b>`, action: `zvýšila o <b>${n} %</b>`, q: `Jaká je nová cena?`, unit: 'Kč' },
+    { ctx: `Plat <b>${base} Kč</b> měsíčně`, action: `zvýšil o <b>${n} %</b>`, q: `Kolik činí nový plat?`, unit: 'Kč' },
+    { ctx: `Knihovna měla <b>${base}</b> knih`, action: `přibylo o <b>${n} %</b> více`, q: `Kolik knih má teď?`, unit: '' },
+  ];
+  const s = pick(stories);
+  return {
+    type: 'increase',
+    typeLabel: 'Zvýšení o procenta',
+    question: `${s.ctx} se ${s.action}. ${s.q}`,
+    unit: s.unit,
+    answer: newValue,
+    steps: [
+      `Vypočítej zvýšení: <b>${n} %</b> z <b>${base}</b> = ${onePercent} × ${n} = <b>${increase}</b>`,
+      `Nová hodnota: <b>${base} + ${increase} = ${newValue}</b>${s.unit ? ' ' + s.unit : ''}`,
+    ],
+  };
+}
+
+/* ⑤ Snížení o n % (sleva) */
+function genDecrease(diff) {
+  const ranges = {
+    medium: { onePct: [1, 2, 5, 10, 20, 30], ns: [10, 15, 20, 25, 30, 40, 50] },
+    hard:   { onePct: [3, 7, 12, 15, 25, 40], ns: [15, 35, 45, 55, 65] },
+  };
+  const r = ranges[diff] || ranges.medium;
+  const onePercent = pick(r.onePct);
+  const base = onePercent * 100;
+  const n = pick(r.ns);
+  const discount = n * onePercent;
+  const newValue = base - discount;
+  if (newValue <= 0) return genDecrease(diff);
+  const stories = [
+    { ctx: `Tričko stálo <b>${base} Kč</b>`, action: `dostalo slevu <b>${n} %</b>`, q: `Kolik teď stojí?`, unit: 'Kč' },
+    { ctx: `Cena lyží <b>${base} Kč</b>`, action: `byla snížena o <b>${n} %</b>`, q: `Jaká je nová cena?`, unit: 'Kč' },
+    { ctx: `Z původních <b>${base}</b> žáků`, action: `ubylo <b>${n} %</b>`, q: `Kolik žáků zůstalo?`, unit: '' },
+  ];
+  const s = pick(stories);
+  return {
+    type: 'decrease',
+    typeLabel: 'Sleva',
+    question: `${s.ctx} ${s.action}. ${s.q}`,
+    unit: s.unit,
+    answer: newValue,
+    steps: [
+      `Vypočítej slevu/úbytek: <b>${n} %</b> z <b>${base}</b> = ${onePercent} × ${n} = <b>${discount}</b>`,
+      `Nová hodnota: <b>${base} − ${discount} = ${newValue}</b>${s.unit ? ' ' + s.unit : ''}`,
+    ],
+  };
+}
+
+/* ⑥ Složený výpočet (sleva → DPH / DPH → sleva) */
+function genCompound(diff) {
+  // Předpočítané čisté kombinace base × sleva% × markup%
+  const COMBOS = [
+    [1000, 50, 20], [800, 25, 50], [500, 40, 50], [2000, 30, 25],
+    [600, 50, 30], [1200, 25, 40], [2500, 60, 50], [400, 25, 60],
+    [1000, 30, 50], [1200, 50, 25], [2000, 25, 20], [800, 75, 100],
+    [1500, 40, 50], [3000, 50, 40], [400, 50, 50], [600, 25, 50],
+    [800, 50, 30], [1000, 25, 60], [400, 75, 80], [2000, 50, 40],
+  ];
+  const [base, sleva, markup] = pick(COMBOS);
+  const after1 = base * (100 - sleva) / 100;
+  const final = after1 * (100 + markup) / 100;
+  const stories = [
+    `Cena výrobku <b>${base} Kč</b>: nejdřív sleva <b>${sleva} %</b>, pak DPH navýšení <b>${markup} %</b>. Jaká je výsledná cena?`,
+    `Akce: zboží za <b>${base} Kč</b> má slevu <b>${sleva} %</b>, ale po skončení akce se zvýší o <b>${markup} %</b>. Kolik stojí pak?`,
+  ];
+  return {
+    type: 'compound',
+    typeLabel: 'Složený výpočet',
+    question: pick(stories),
+    unit: 'Kč',
+    answer: final,
+    steps: [
+      `Po slevě <b>${sleva} %</b>: ${base} − ${base * sleva / 100} = <b>${after1} Kč</b>`,
+      `Po zvýšení <b>${markup} %</b>: ${after1} + ${after1 * markup / 100} = <b>${final} Kč</b>`,
+    ],
+  };
+}
+
+/* ⑦ Porovnání (zpětný výpočet) */
+function genComparison(diff) {
+  const onePercent = pick([1, 2, 3, 4, 5, 6, 8, 10, 12, 15, 20]);
+  const base = onePercent * 100;     // Y, hledané číslo
+  const pct = pick([10, 20, 25, 50, 75]);
+  const direction = pick(['more', 'less']);
+  let X, story, step1;
+  if (direction === 'more') {
+    X = base + onePercent * pct;
+    story = `Číslo X je o <b>${pct} %</b> větší než číslo Y. Když je <b>X = ${X}</b>, kolik je Y?`;
+    step1 = `X = (100 % + ${pct} %) z Y = <b>${100 + pct} %</b> z Y`;
+  } else {
+    X = base - onePercent * pct;
+    if (X <= 0) return genComparison(diff);
+    story = `Číslo X je o <b>${pct} %</b> menší než číslo Y. Když je <b>X = ${X}</b>, kolik je Y?`;
+    step1 = `X = (100 % − ${pct} %) z Y = <b>${100 - pct} %</b> z Y`;
+  }
+  const factor = direction === 'more' ? 100 + pct : 100 - pct;
+  return {
+    type: 'comparison',
+    typeLabel: 'Porovnání (zpětný výpočet)',
+    question: story,
+    unit: '',
+    answer: base,
+    steps: [
+      step1,
+      `1 % z Y = ${X} ÷ ${factor} = <b>${onePercent}</b>`,
+      `Y (100 %) = ${onePercent} × 100 = <b>${base}</b>`,
+    ],
+  };
+}
+
+/* ⑧ Poměry (rozdělení celku) */
+function genRatio(diff) {
+  const onePercent = pick([2, 3, 4, 5, 6, 8, 10, 12, 15, 20, 25]);
+  const total = onePercent * 100;
+  const n = pick([20, 25, 30, 40, 60, 70, 75, 80]);
+  const yCount = onePercent * (100 - n);
+  const stories = [
+    `Ve třídě je <b>${n} %</b> chlapců a zbytek dívky. Pokud je ve třídě <b>${yCount} dívek</b>, kolik je celkem žáků?`,
+    `V parku je <b>${n} %</b> dubů a zbytek jiných stromů. Pokud je tam <b>${yCount}</b> jiných stromů, kolik je celkem stromů?`,
+    `V košíku je <b>${n} %</b> jablek a zbytek hrušek. Pokud je tam <b>${yCount} hrušek</b>, kolik je celkem ovoce?`,
+    `Knihovna má <b>${n} %</b> beletrie a zbytek odborné literatury. Pokud má <b>${yCount}</b> odborných knih, kolik knih je celkem?`,
+  ];
+  return {
+    type: 'ratio',
+    typeLabel: 'Poměry (rozdělení celku)',
+    question: pick(stories),
+    unit: '',
+    answer: total,
+    steps: [
+      `Zbytek tvoří <b>(100 − ${n}) % = ${100-n} %</b> celku.`,
+      `1 % z celku = ${yCount} ÷ ${100-n} = <b>${onePercent}</b>`,
+      `Celý počet (100 %) = ${onePercent} × 100 = <b>${total}</b>`,
+    ],
+  };
+}
+
+const ALL_GENERATORS = {
+  part:       genPart,
+  base:       genBase,
+  percent:    genPercent,
+  increase:   genIncrease,
+  decrease:   genDecrease,
+  compound:   genCompound,
+  comparison: genComparison,
+  ratio:      genRatio,
+};
+
+const TYPE_LABELS = {
+  part: 'Procentová část',
+  base: 'Základ (celek)',
+  percent: 'Počet procent',
+  increase: 'Zvýšení o procenta',
+  decrease: 'Sleva',
+  compound: 'Složený výpočet',
+  comparison: 'Porovnání',
+  ratio: 'Poměry',
+};
+
+const DIFF_TYPES = {
+  easy:   ['part', 'base', 'percent'],
+  medium: ['part', 'base', 'percent', 'increase', 'decrease'],
+  hard:   ['part', 'base', 'percent', 'increase', 'decrease', 'compound', 'comparison', 'ratio'],
+};
+
+const DIFF_LABELS = { easy: 'Snadná', medium: 'Střední', hard: 'Pokročilá' };
+
+/* Vytvoří sadu 10 příkladů podle obtížnosti, vyvážené napříč typy */
+function buildSet(diff) {
+  const types = DIFF_TYPES[diff] || DIFF_TYPES.medium;
+  const set = [];
+  // Zaručíme aspoň 1 z každého typu
+  for (const t of types) set.push(ALL_GENERATORS[t](diff));
+  // Doplníme do 10 náhodně z dostupných typů
+  while (set.length < 10) {
+    const t = pick(types);
+    set.push(ALL_GENERATORS[t](diff));
+  }
+  // Pokud máme přes 10 (pro hard 8 + 2 = 10, OK), oříznout
+  set.length = 10;
+  // Fisher-Yates shuffle
+  for (let i = set.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [set[i], set[j]] = [set[j], set[i]];
+  }
+  return set;
+}
+
+/* ────────────────────────────────────────────────────────────────────────
+   STORAGE — best score, total sessions, streak, last difficulty
+   ──────────────────────────────────────────────────────────────────────── */
+
+function loadStats() {
+  try {
+    const s = JSON.parse(localStorage.getItem(STORAGE_KEY));
+    return s && typeof s === 'object' ? s : {};
+  } catch (e) { return {}; }
+}
+
+function saveStats(s) {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(s)); } catch (e) {}
+}
+
+function recordSession(scoreOk, total, diff) {
+  const s = loadStats();
+  s.sessions = (s.sessions || 0) + 1;
+  s.lastDiff = diff;
+  s.lastScore = scoreOk;
+  // Best — porovnává absolutně (víc je lepší). U remízy preferuje vyšší obtížnost.
+  const diffWeight = { easy: 0, medium: 1, hard: 2 };
+  if (!s.best || scoreOk > s.best.score ||
+      (scoreOk === s.best.score && diffWeight[diff] > diffWeight[s.best.diff])) {
+    s.best = { score: scoreOk, total, diff };
+  }
+  // Série — pokračuje pokud aspoň STREAK_THRESHOLD/10
+  if (scoreOk >= STREAK_THRESHOLD) {
+    s.streak = (s.streak || 0) + 1;
+  } else {
+    s.streak = 0;
+  }
+  saveStats(s);
+  return s;
+}
+
+function refreshIntroStats() {
+  const s = loadStats();
+  const panel = document.getElementById('stats-panel');
+  if (!s.sessions) {
+    panel.style.display = 'none';
+    return;
+  }
+  panel.style.display = '';
+  document.getElementById('stat-best').textContent =
+    s.best ? `${s.best.score}/${s.best.total}` : '—';
+  document.getElementById('stat-sessions').textContent = s.sessions;
+  document.getElementById('stat-streak').textContent = s.streak || 0;
+
+  // Default obtížnosti — naposledy zvolená
+  if (s.lastDiff) selectDifficulty(s.lastDiff);
+}
+
+/* ────────────────────────────────────────────────────────────────────────
+   DIFFICULTY UI
+   ──────────────────────────────────────────────────────────────────────── */
+
+let currentDiff = 'medium';
+
+function selectDifficulty(d) {
+  currentDiff = d;
+  document.querySelectorAll('.diff-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.diff === d);
+  });
+}
+
+document.querySelectorAll('.diff-btn').forEach(btn => {
+  btn.addEventListener('click', () => selectDifficulty(btn.dataset.diff));
+});
+
+/* ────────────────────────────────────────────────────────────────────────
+   GAME LOOP
+   ──────────────────────────────────────────────────────────────────────── */
+
+let problems = [];
+let cur = 0;
+let scoreOk = 0, scoreErr = 0;
+let history = [];
+let activeDiff = 'medium';
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function startGame() {
+  activeDiff = currentDiff;
+  problems = buildSet(activeDiff);
+  cur = 0; scoreOk = 0; scoreErr = 0; history = [];
+  document.getElementById('diff-tag').textContent = DIFF_LABELS[activeDiff];
+  showScreen('game');
+  renderProblem();
+}
+
+function updateProgress() {
+  const pct = (cur / problems.length) * 100;
+  document.getElementById('prog-fill').style.width = pct + '%';
+  const label = `Příklad ${Math.min(cur+1, problems.length)} / ${problems.length}`;
+  document.getElementById('prog-label').textContent = label;
+  document.getElementById('problem-of').textContent = label;
+  document.getElementById('score-ok').textContent = scoreOk;
+  document.getElementById('score-err').textContent = scoreErr;
+}
+
+/* Progresivní nápověda — L1 generická per typ, L2/L3 ze stávajících `steps` */
+const L1_BY_TYPE = {
+  part:       'Co znamená "n % z čísla"? Začni převodem procent na desetinné číslo (n/100), nebo najdi nejdřív 1 % a pak vynásob.',
+  base:       'Když znáš procentovou část (kolik je n % z čísla) a procento n, jak najdeš celý základ (100 %)?',
+  percent:    'Vzorec: <b>(část ÷ celek) × 100 = počet procent</b>.',
+  increase:   'Nejdřív zjisti, o kolik se zvýší (v Kč), pak to přičti k původní hodnotě.',
+  decrease:   'Nejdřív zjisti, kolik činí sleva (v Kč), pak ji odečti od původní ceny.',
+  compound:   'Postupuj krok po kroku — nejdřív aplikuj slevu, pak na výsledek aplikuj DPH/zvýšení.',
+  comparison: 'X = (100 % ± n %) z Y. Když znáš X a procento, najdeš Y dělením a násobením.',
+  ratio:      'Druhá skupina tvoří (100 − n) % z celku. Najdi 1 % z údajů této skupiny.',
+};
+
+let hintLevel = 0;
+
+function advanceHint() {
+  if (hintLevel >= 3) return;
+  hintLevel++;
+  const p = problems[cur];
+  const hints = [
+    L1_BY_TYPE[p.type] || 'Zamysli se nad tím, co je v zadání.',
+    p.steps[0],
+    p.steps[1] || p.steps[0],
+  ];
+  const box = document.getElementById('hint-box');
+  const btn = document.getElementById('hint-btn');
+  const counter = document.getElementById('hint-counter');
+  box.classList.add('show');
+  box.dataset.level = hintLevel;
+  const labels = ['Nasměrování', 'Vzorec', 'Postup s výsledkem'];
+  box.innerHTML = `<span class="h-label">Nápověda ${hintLevel}/3 — ${labels[hintLevel-1]}</span>${hints[hintLevel - 1]}`;
+  const dots = counter.querySelectorAll('.dot');
+  dots.forEach((d, i) => {
+    d.classList.toggle('shown', i < hintLevel);
+    if (i === 2 && hintLevel === 3) d.classList.add('warn');
+  });
+  if (hintLevel < 3) {
+    btn.textContent = `💡 Další nápověda ${hintLevel+1}/3`;
+  } else {
+    btn.disabled = true;
+    btn.textContent = '💡 Všechny nápovědy ukázány';
+  }
+}
+
+function renderProblem() {
+  updateProgress();
+  hintLevel = 0;
+  const p = problems[cur];
+  const container = document.getElementById('problem-container');
+  container.innerHTML = `
+    <div class="problem-card cat-${p.type}">
+      <span class="tag cat-${p.type}">${p.typeLabel}</span>
+      <p class="problem-text">${p.question}</p>
+      <div class="input-row">
+        <input class="answer" id="ans" type="number" inputmode="numeric"
+               placeholder="?" autocomplete="off" autofocus>
+        ${p.unit ? `<span class="unit">${p.unit}</span>` : ''}
+        <button class="btn-check" id="btn-check">Zkontrolovat</button>
+      </div>
+      <div class="hint-bar">
+        <button class="hint-btn" id="hint-btn">💡 Nápověda 1/3</button>
+        <span class="hint-counter" id="hint-counter">
+          <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+        </span>
+      </div>
+      <div class="hint-box" id="hint-box" data-level="0"></div>
+      <div class="feedback" id="feedback"></div>
+    </div>
+  `;
+  const inp = document.getElementById('ans');
+  const btn = document.getElementById('btn-check');
+  const hintBtn = document.getElementById('hint-btn');
+  btn.addEventListener('click', checkAnswer);
+  inp.addEventListener('keydown', (e) => { if (e.key === 'Enter') checkAnswer(); });
+  hintBtn.addEventListener('click', advanceHint);
+  inp.focus();
+}
+
+function checkAnswer() {
+  const inp = document.getElementById('ans');
+  const btn = document.getElementById('btn-check');
+  const fb = document.getElementById('feedback');
+  const raw = inp.value.trim();
+  if (raw === '') { inp.focus(); return; }
+  const userVal = Number(raw);
+  const p = problems[cur];
+  const correct = userVal === p.answer;
+
+  inp.disabled = true;
+  btn.disabled = true;
+
+  if (correct) {
+    scoreOk++;
+    inp.classList.add('correct');
+    fb.className = 'feedback ok show';
+    fb.innerHTML = `
+      <strong>✓ Správně!</strong> Odpověď je <b>${p.answer}${p.unit ? ' ' + p.unit : ''}</b>.
+      <div class="next-row"><button class="btn-next" id="btn-next">Další →</button></div>
+    `;
+  } else {
+    scoreErr++;
+    inp.classList.add('wrong');
+    fb.className = 'feedback err show';
+    fb.innerHTML = `
+      <strong>✗ Bohužel.</strong> Správná odpověď je <b>${p.answer}${p.unit ? ' ' + p.unit : ''}</b>.
+      <span style="display:block;font-size:.85rem;color:var(--muted);margin-top:4px;">Postup uvidíš na konci v souhrnu.</span>
+      <div class="next-row"><button class="btn-next" id="btn-next">Další →</button></div>
+    `;
+  }
+  history.push({ problem: p, userAnswer: userVal, correct });
+  updateProgress();
+  document.getElementById('btn-next').addEventListener('click', nextProblem);
+  document.getElementById('btn-next').focus();
+}
+
+function nextProblem() {
+  cur++;
+  if (cur >= problems.length) showResult();
+  else renderProblem();
+}
+
+/* ────────────────────────────────────────────────────────────────────────
+   RESULT
+   ──────────────────────────────────────────────────────────────────────── */
+
+function showResult() {
+  const total = problems.length;
+  const ok = scoreOk;
+  const pct = Math.round((ok / total) * 100);
+
+  // Uložit a získat aktualizované staty
+  const stats = recordSession(ok, total, activeDiff);
+
+  let icon = '🎉', title = 'Skvěle!';
+  if (pct >= 90) { icon = '🏆'; title = 'Bezkonkurenční!'; }
+  else if (pct >= 70) { icon = '🎉'; title = 'Skvělá práce!'; }
+  else if (pct >= 50) { icon = '👍'; title = 'Dobrý začátek.'; }
+  else { icon = '📚'; title = 'Pojď to zkusit znovu.'; }
+
+  document.getElementById('result-icon').textContent = icon;
+  document.getElementById('result-title').textContent = title;
+  document.getElementById('result-score').textContent = `${ok} / ${total}`;
+  document.getElementById('result-pct').textContent =
+    `Úspěšnost: ${pct} % · obtížnost: ${DIFF_LABELS[activeDiff]}`;
+
+  // Streak banner
+  const streakEl = document.getElementById('result-streak');
+  if (ok >= STREAK_THRESHOLD && stats.streak >= 1) {
+    streakEl.style.display = '';
+    document.getElementById('result-streak-num').textContent = stats.streak;
+  } else if (ok < STREAK_THRESHOLD) {
+    if (stats.streak === 0) {
+      streakEl.style.display = '';
+      streakEl.innerHTML = '💧 Série se vynulovala — zkus to znovu!';
+    } else {
+      streakEl.style.display = 'none';
+    }
+  }
+
+  // Sekce co šlo
+  const okByType = {}, totalByType = {};
+  for (const h of history) {
+    const t = h.problem.type;
+    totalByType[t] = (totalByType[t] || 0) + 1;
+    if (h.correct) okByType[t] = (okByType[t] || 0) + 1;
+  }
+  const okList = document.getElementById('result-ok-list');
+  okList.innerHTML = '';
+  let anyOk = false;
+  for (const t in totalByType) {
+    const correctCount = okByType[t] || 0;
+    if (correctCount > 0) {
+      anyOk = true;
+      const div = document.createElement('div');
+      div.className = 'ok-line';
+      div.innerHTML = `
+        <span><span style="color:var(--green);">✓</span> ${TYPE_LABELS[t]}</span>
+        <span class="count">${correctCount} / ${totalByType[t]}</span>
+      `;
+      okList.appendChild(div);
+    }
+  }
+  document.getElementById('result-ok-section').style.display = anyOk ? '' : 'none';
+
+  // Sekce chyb
+  const errList = document.getElementById('result-err-list');
+  errList.innerHTML = '';
+  const misses = history.filter(h => !h.correct);
+  if (misses.length === 0) {
+    document.getElementById('result-err-section').style.display = 'none';
+  } else {
+    document.getElementById('result-err-section').style.display = '';
+    for (const h of misses) {
+      const p = h.problem;
+      const div = document.createElement('div');
+      div.className = 'miss';
+      div.innerHTML = `
+        <div class="miss-q"><span class="typeTag">${TYPE_LABELS[p.type]}</span>${p.question}</div>
+        <div class="miss-answers">
+          <span class="your">tvá odpověď: ${h.userAnswer}${p.unit ? ' ' + p.unit : ''}</span>
+          <span class="right">správně: ${p.answer}${p.unit ? ' ' + p.unit : ''}</span>
+        </div>
+        <div class="miss-steps">
+          <ol>${p.steps.map(s => `<li>${s}</li>`).join('')}</ol>
+        </div>
+      `;
+      errList.appendChild(div);
+    }
+  }
+  showScreen('result');
+}
+
+/* ────────────────────────────────────────────────────────────────────────
+   WIRE UP
+   ──────────────────────────────────────────────────────────────────────── */
+
+document.getElementById('btn-start').addEventListener('click', startGame);
+document.getElementById('btn-restart').addEventListener('click', () => {
+  showScreen('intro');
+  refreshIntroStats();   // refresh stats panel after a session
+});
+
+// Init: load stats on page load
+refreshIntroStats();
+</script>
+</body>
+</html>
