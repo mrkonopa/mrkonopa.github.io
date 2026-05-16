@@ -402,6 +402,52 @@ input.answer.wrong { border-color: var(--red); background: var(--red-light); ani
 .btn-check:hover { transform: translateY(-1px); }
 .btn-check[disabled] { opacity: .5; cursor: not-allowed; }
 
+/* PROGRESIVNÍ NÁPOVĚDA */
+.hint-bar {
+  display: flex; gap: 8px; align-items: center; flex-wrap: wrap;
+  margin-top: 12px;
+}
+.hint-btn {
+  background: none; border: 1.5px dashed var(--gold);
+  color: var(--gold);
+  padding: 5px 14px; border-radius: 20px;
+  font-family: var(--sans); font-weight: 600; font-size: .82rem;
+  cursor: pointer;
+  transition: all .15s;
+}
+.hint-btn:hover:not([disabled]) { background: var(--gold-light); }
+.hint-btn[disabled] {
+  opacity: 0.5; cursor: not-allowed;
+  border-style: solid; border-color: var(--border); color: var(--muted);
+}
+.hint-counter { font-size: .76rem; color: var(--muted); }
+.hint-counter .dot {
+  display: inline-block; width: 8px; height: 8px; border-radius: 50%;
+  background: var(--border); margin: 0 1px;
+}
+.hint-counter .dot.shown { background: var(--gold); }
+.hint-counter .dot.shown.warn { background: var(--orange); }
+.hint-box {
+  margin-top: 10px;
+  background: var(--gold-light);
+  border-left: 3px solid var(--gold);
+  padding: 10px 14px; border-radius: 8px;
+  font-size: .9rem;
+  display: none;
+}
+.hint-box.show { display: block; }
+.hint-box .h-label {
+  font-size: .7rem; font-weight: 700;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--gold);
+  display: block; margin-bottom: 4px;
+}
+.hint-box[data-level="3"] {
+  background: var(--orange-light);
+  border-left-color: var(--orange);
+}
+.hint-box[data-level="3"] .h-label { color: var(--orange); }
+
 /* FEEDBACK */
 .feedback {
   margin-top: 14px;
@@ -1075,8 +1121,52 @@ function updateProgress() {
   document.getElementById('score-err').textContent = scoreErr;
 }
 
+/* Progresivní nápověda — L1 generická per typ, L2/L3 ze stávajících `steps` */
+const L1_BY_TYPE = {
+  part:       'Co znamená "n % z čísla"? Začni převodem procent na desetinné číslo (n/100), nebo najdi nejdřív 1 % a pak vynásob.',
+  base:       'Když znáš procentovou část (kolik je n % z čísla) a procento n, jak najdeš celý základ (100 %)?',
+  percent:    'Vzorec: <b>(část ÷ celek) × 100 = počet procent</b>.',
+  increase:   'Nejdřív zjisti, o kolik se zvýší (v Kč), pak to přičti k původní hodnotě.',
+  decrease:   'Nejdřív zjisti, kolik činí sleva (v Kč), pak ji odečti od původní ceny.',
+  compound:   'Postupuj krok po kroku — nejdřív aplikuj slevu, pak na výsledek aplikuj DPH/zvýšení.',
+  comparison: 'X = (100 % ± n %) z Y. Když znáš X a procento, najdeš Y dělením a násobením.',
+  ratio:      'Druhá skupina tvoří (100 − n) % z celku. Najdi 1 % z údajů této skupiny.',
+};
+
+let hintLevel = 0;
+
+function advanceHint() {
+  if (hintLevel >= 3) return;
+  hintLevel++;
+  const p = problems[cur];
+  const hints = [
+    L1_BY_TYPE[p.type] || 'Zamysli se nad tím, co je v zadání.',
+    p.steps[0],
+    p.steps[1] || p.steps[0],
+  ];
+  const box = document.getElementById('hint-box');
+  const btn = document.getElementById('hint-btn');
+  const counter = document.getElementById('hint-counter');
+  box.classList.add('show');
+  box.dataset.level = hintLevel;
+  const labels = ['Nasměrování', 'Vzorec', 'Postup s výsledkem'];
+  box.innerHTML = `<span class="h-label">Nápověda ${hintLevel}/3 — ${labels[hintLevel-1]}</span>${hints[hintLevel - 1]}`;
+  const dots = counter.querySelectorAll('.dot');
+  dots.forEach((d, i) => {
+    d.classList.toggle('shown', i < hintLevel);
+    if (i === 2 && hintLevel === 3) d.classList.add('warn');
+  });
+  if (hintLevel < 3) {
+    btn.textContent = `💡 Další nápověda ${hintLevel+1}/3`;
+  } else {
+    btn.disabled = true;
+    btn.textContent = '💡 Všechny nápovědy ukázány';
+  }
+}
+
 function renderProblem() {
   updateProgress();
+  hintLevel = 0;
   const p = problems[cur];
   const container = document.getElementById('problem-container');
   container.innerHTML = `
@@ -1089,13 +1179,22 @@ function renderProblem() {
         ${p.unit ? `<span class="unit">${p.unit}</span>` : ''}
         <button class="btn-check" id="btn-check">Zkontrolovat</button>
       </div>
+      <div class="hint-bar">
+        <button class="hint-btn" id="hint-btn">💡 Nápověda 1/3</button>
+        <span class="hint-counter" id="hint-counter">
+          <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+        </span>
+      </div>
+      <div class="hint-box" id="hint-box" data-level="0"></div>
       <div class="feedback" id="feedback"></div>
     </div>
   `;
   const inp = document.getElementById('ans');
   const btn = document.getElementById('btn-check');
+  const hintBtn = document.getElementById('hint-btn');
   btn.addEventListener('click', checkAnswer);
   inp.addEventListener('keydown', (e) => { if (e.key === 'Enter') checkAnswer(); });
+  hintBtn.addEventListener('click', advanceHint);
   inp.focus();
 }
 

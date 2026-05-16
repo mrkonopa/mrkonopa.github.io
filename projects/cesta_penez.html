@@ -460,6 +460,68 @@ input.answer.wrong { border-color: var(--red); background: var(--red-light); ani
 .cert .score { font-size: 1.1rem; margin-top: 12px; }
 .cert .score b { color: var(--green); }
 
+/* CODE SYSTEM (pokračování odjinud) */
+.code-input-card { border-left-color: var(--act6-fg) !important; }
+.code-input-card h3 { color: var(--act6-fg) !important; }
+.code-input-row {
+  display: flex; gap: 8px; margin-top: 10px;
+  flex-wrap: wrap;
+}
+.code-input-row input {
+  flex: 1; min-width: 140px;
+  font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+  font-size: 1rem;
+  border: 2px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 14px;
+  outline: none;
+  background: #fafaf6;
+  letter-spacing: 0.02em;
+}
+.code-input-row input:focus { border-color: var(--act6-fg); background: #fff; }
+.code-feedback {
+  margin-top: 8px;
+  font-size: .9rem;
+  min-height: 1.3em;
+  font-weight: 500;
+}
+.code-feedback.ok { color: var(--green); }
+.code-feedback.err { color: var(--red); }
+.code-reveal {
+  background: var(--act8-bg);
+  border: 2px dashed var(--act8-fg);
+  border-radius: 10px;
+  padding: 16px 18px;
+  margin: 16px 0;
+  text-align: center;
+}
+.code-reveal .code-label {
+  font-size: .82rem;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+.code-reveal .code-value {
+  display: inline-block;
+  font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+  font-size: 1.25rem;
+  font-weight: 700;
+  background: var(--card);
+  color: var(--act6-fg);
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  margin: 4px 0 8px;
+  letter-spacing: 0.04em;
+  user-select: all;
+  -webkit-user-select: all;
+}
+.code-reveal .code-hint {
+  font-size: .85rem;
+  color: var(--muted);
+  margin-top: 6px;
+  line-height: 1.5;
+}
+
 @media (max-width: 540px) {
   input.answer { font-size: 1.15rem; padding: 10px 12px; }
   .math-q { font-size: 1rem; }
@@ -512,6 +574,16 @@ input.answer.wrong { border-color: var(--red); background: var(--red-light); ani
     </ul>
   </div>
 
+  <div class="intro-card code-input-card">
+    <h3>🔑 Mám kód odjinud</h3>
+    <p>Hraješ na jiném počítači, než předtím? Zadej kód, který jsi dostal po skončení kapitoly. Posuneš se rovnou k té další.</p>
+    <div class="code-input-row">
+      <input type="text" id="code-input-intro" placeholder="třeba: brigada11500" autocomplete="off" autocapitalize="off" spellcheck="false">
+      <button class="btn-check" id="code-apply-intro">Použít</button>
+    </div>
+    <div class="code-feedback" id="code-feedback-intro"></div>
+  </div>
+
   <div style="text-align:center;">
     <button class="btn-primary" id="btn-go-hub">▶ Vstoupit do hry</button>
   </div>
@@ -529,6 +601,16 @@ input.answer.wrong { border-color: var(--red); background: var(--red-light); ani
     Kapitoly se odemykají postupně. Klikni na první bez zámku.
   </p>
   <div class="hub-grid" id="hub-grid"></div>
+
+  <div class="intro-card code-input-card" style="margin-bottom: 18px;">
+    <h3>🔑 Mám kód odjinud</h3>
+    <div class="code-input-row">
+      <input type="text" id="code-input-hub" placeholder="třeba: brigada11500" autocomplete="off" autocapitalize="off" spellcheck="false">
+      <button class="btn-check" id="code-apply-hub">Použít</button>
+    </div>
+    <div class="code-feedback" id="code-feedback-hub"></div>
+  </div>
+
   <p style="text-align:center; color:var(--muted); font-size:.78rem;">
     Sazby platné k roku 2025. Čísla úloh se generují náhodně — sazby jsou ale skutečné. Viz <a href="https://www.financnisprava.cz" target="_blank" rel="noopener">finanční správa</a>.
   </p>
@@ -579,6 +661,17 @@ input.answer.wrong { border-color: var(--red); background: var(--red-light); ani
 const STORAGE_KEY = 'cesta_penez_v2';
 const pick = arr => arr[Math.floor(Math.random() * arr.length)];
 const fmt = n => Number(n).toLocaleString('cs-CZ');
+
+/* Kódy pro pokračování odjinud — student je dostane po dokončení kapitoly */
+const ACT_CODES = {
+  2: 'brigada11500',     // po Aktu 1 (DPP limit)
+  3: 'vyplata2570',      // po Aktu 2 (sleva na poplatníka)
+  4: 'polstarchudne',    // po Aktu 3 (inflace)
+  5: 'rpsnneklame',      // po Aktu 4 (půjčka)
+  6: 'anuita30let',      // po Aktu 5 (hypotéka)
+  7: 'lichvastopka',     // po Aktu 6 (lichva)
+  8: 'kyberbezpeci',     // po Aktu 7 (kyber)
+};
 
 /* ────────── STATE ────────── */
 
@@ -1202,8 +1295,80 @@ function finishAct() {
   }
   saveState();
   if (activeAct.id === 8) showResult();
-  else { renderHub(); showScreen('hub'); }
+  else showActComplete();
 }
+
+/* Obrazovka po dokončení kapitoly — ukáže skóre + kód pro další level */
+function showActComplete() {
+  const nextId = activeAct.id + 1;
+  const code = ACT_CODES[nextId];
+  const cont = document.getElementById('scene-container');
+  cont.innerHTML = `
+    <div class="scene ${activeAct.color}" style="text-align:center;">
+      <div class="scene-icon" style="font-size:3rem;">🎉</div>
+      <h2 style="font-size:1.4rem; margin-bottom:8px;">Kapitola ${activeAct.id} hotová!</h2>
+      <p>Skóre: <b>${actScore.earned} / ${actScore.max} ⭐</b></p>
+      ${code ? `
+        <div class="code-reveal">
+          <p class="code-label">🔑 Kód pro Kapitolu ${nextId}:</p>
+          <code class="code-value">${code}</code>
+          <p class="code-hint">Zapiš si ho. Jakmile přijdeš k jinému počítači, zadáš ho na úvodní obrazovce a pokračuješ rovnou z téhle kapitoly.</p>
+        </div>
+      ` : ''}
+      <div class="btn-row" style="justify-content:center;">
+        <button class="btn-primary" id="btn-to-hub">Mapa →</button>
+      </div>
+    </div>
+  `;
+  document.getElementById('btn-to-hub').addEventListener('click', () => {
+    renderHub(); showScreen('hub');
+  });
+}
+
+/* Aplikace kódu — odemkne danou kapitolu a označí předchozí jako splněné */
+function applyCode(raw, fbEl) {
+  const code = raw.trim().toLowerCase();
+  if (!code) {
+    fbEl.className = 'code-feedback';
+    fbEl.textContent = '';
+    return;
+  }
+  let foundId = null;
+  for (const [actId, expected] of Object.entries(ACT_CODES)) {
+    if (code === expected.toLowerCase()) {
+      foundId = parseInt(actId);
+      break;
+    }
+  }
+  if (foundId) {
+    for (let i = 1; i < foundId; i++) {
+      if (!STATE.done.includes(i)) STATE.done.push(i);
+      if (!STATE.unlocked.includes(i)) STATE.unlocked.push(i);
+      if (!STATE.scores[i]) STATE.scores[i] = { earned: 0, max: 0 };
+    }
+    if (!STATE.unlocked.includes(foundId)) STATE.unlocked.push(foundId);
+    saveState();
+    fbEl.className = 'code-feedback ok';
+    fbEl.innerHTML = `✓ Kód platí! Odemkl jsi přístup ke <b>Kapitole ${foundId}</b>. Otvírám mapu…`;
+    renderHub();
+    setTimeout(() => showScreen('hub'), 900);
+  } else {
+    fbEl.className = 'code-feedback err';
+    fbEl.textContent = '✗ Tento kód nesedí. Zkontroluj překlepy (vše malými písmeny, bez mezer).';
+  }
+}
+
+function bindCodeInput(inputId, btnId, fbId) {
+  const inp = document.getElementById(inputId);
+  const btn = document.getElementById(btnId);
+  const fb = document.getElementById(fbId);
+  if (!inp || !btn || !fb) return;
+  const submit = () => applyCode(inp.value, fb);
+  btn.addEventListener('click', submit);
+  inp.addEventListener('keydown', e => { if (e.key === 'Enter') submit(); });
+}
+bindCodeInput('code-input-intro', 'code-apply-intro', 'code-feedback-intro');
+bindCodeInput('code-input-hub', 'code-apply-hub', 'code-feedback-hub');
 
 function showResult() {
   const sc = totalScore();
