@@ -457,6 +457,24 @@ input.answer.wrong { border-color: var(--red); background: var(--red-light); ani
 .cert h2 { font-size: 1.4rem; margin-bottom: 6px; }
 .cert .for { font-size: .9rem; color: var(--muted); margin-bottom: 4px; }
 .cert .name { font-size: 1.8rem; font-weight: 800; color: var(--blue-dark); margin-bottom: 8px; }
+.cert-name-input { margin: 4px 0 6px; }
+.cert-name-input input {
+  font-family: var(--sans);
+  font-size: .92rem;
+  text-align: center;
+  border: 2px solid var(--border);
+  border-radius: 10px;
+  padding: 6px 14px;
+  width: 100%;
+  max-width: 280px;
+  outline: none;
+  background: #fafaf6;
+}
+.cert-name-input input:focus { border-color: var(--gold); background: #fff; }
+@media print {
+  .cert-name-input, .top-bar, .result-actions, .btn-primary, .btn-secondary { display: none !important; }
+  body { background: #fff !important; }
+}
 .cert .score { font-size: 1.1rem; margin-top: 12px; }
 .cert .score b { color: var(--green); }
 
@@ -640,7 +658,10 @@ input.answer.wrong { border-color: var(--red); background: var(--red-light); ani
   <div class="cert">
     <div class="seal">🏆</div>
     <p class="for">Osvědčení o finanční gramotnosti</p>
-    <p class="name">Tomu, kdo prošel <i>Cestu peněz</i></p>
+    <div class="cert-name-input">
+      <input type="text" id="cert-name-input" placeholder="Zadej své jméno…" autocomplete="off" maxlength="40">
+    </div>
+    <p class="name" id="cert-name-display">Tomu, kdo prošel <i>Cestu peněz</i></p>
     <h2 id="cert-title">Dokončeno!</h2>
     <p class="score">Tvoje skóre: <b id="cert-score">— / —</b></p>
     <p id="cert-msg" style="font-size:.92rem; color:var(--muted); margin-top:10px;"></p>
@@ -1068,23 +1089,396 @@ Reálná ztráta:       ${fmt(ctx.realLoss)} Kč</div>
   /* ═══════════ AKT 4–8 — placeholdery ═══════════ */
   {
     id: 4, color: 'act4', icon: '🚗', title: 'Auto na půjčku', age: '28 let',
-    scenes: [{ type: 'story', build: () => ({ icon: '🚧', html: `<p><b>Kapitola se připravuje.</b> Bude obsahovat: srovnání tří půjček, výpočet RPSN, identifikaci red flags (skryté poplatky, "půjčka bez prokazování příjmu", atd.).</p>` }) }],
+    setup: () => {
+      const price = pick([192000, 240000, 288000]);
+      const monthlyA = price * 1.2 / 48;
+      const monthlyB = price * 1.5 / 48;
+      const monthlyC = price * 2.0 / 48;
+      const totalA = monthlyA * 48;
+      const totalC = monthlyC * 48;
+      return { price, monthlyA, monthlyB, monthlyC, totalA, totalC,
+               overpayC: totalC - price, diffCA: totalC - totalA };
+    },
+    scenes: [
+      { type: 'story', build: ctx => ({
+        icon: '🚗',
+        html: `
+          <p>Po pár letech v práci ti šéf zvedl plat. Chceš si pořídit <b>ojeté auto za ${fmt(ctx.price)} Kč</b>. Na účtu máš jen <b>50 000 Kč</b> — zbytek potřebuješ z půjčky.</p>
+          <p>Tři nabídky:</p>
+          <div class="calc-box">A) Banka <b>RPSN 9 %</b> · splátka <b>${fmt(ctx.monthlyA)} Kč/měs</b> · 48 měsíců
+B) Nebankovní věřitel <b>RPSN 22 %</b> · splátka <b>${fmt(ctx.monthlyB)} Kč/měs</b> · 48 měsíců
+C) "Rychlá hotovost bez papírování" <b>RPSN 38 %</b> · splátka <b>${fmt(ctx.monthlyC)} Kč/měs</b> · 48 měsíců</div>
+          <div class="fact-box">📘 <b>RPSN</b> (roční procentní sazba nákladů) je <b>jediné správné srovnávací číslo</b> pro půjčky. Obsahuje úrok i všechny poplatky. Nižší RPSN = levnější půjčka. Marketing rád ukazuje "už od X Kč měsíčně", ale to je past — nízká splátka může znamenat dlouhou dobu a velký přeplatek.</div>
+        `,
+      })},
+
+      { type: 'math', build: ctx => ({
+        q: `Spočítej, kolik <b>celkem zaplatíš u Banky (A)</b>. <br><span style="color:var(--muted);font-weight:400;font-size:.9rem;">měsíční splátka × počet měsíců</span>`,
+        unit: 'Kč', answer: ctx.totalA,
+        hints: [
+          'Stačí jen násobení: splátka krát počet měsíců.',
+          `${fmt(ctx.monthlyA)} × 48 = ?`,
+          `${fmt(ctx.monthlyA)} × 48 = <b>${fmt(ctx.totalA)}</b> Kč.`,
+        ],
+        explain: `${fmt(ctx.monthlyA)} × 48 = <b>${fmt(ctx.totalA)} Kč</b>. Auto stálo ${fmt(ctx.price)} Kč → za půjčku přeplatíš ${fmt(ctx.totalA - ctx.price)} Kč.`,
+      })},
+
+      { type: 'math', build: ctx => ({
+        q: `Teď spočítej, kolik <b>celkem zaplatíš u "Rychlé půjčky" (C)</b>.`,
+        unit: 'Kč', answer: ctx.totalC,
+        hints: [
+          'Stejný postup jako u Banky — splátka × 48 měsíců.',
+          `${fmt(ctx.monthlyC)} × 48 = ?`,
+          `${fmt(ctx.monthlyC)} × 48 = <b>${fmt(ctx.totalC)}</b> Kč.`,
+        ],
+        explain: `${fmt(ctx.monthlyC)} × 48 = <b>${fmt(ctx.totalC)} Kč</b>. Za auto ${fmt(ctx.price)} Kč přeplatíš <b>${fmt(ctx.overpayC)} Kč</b> — víc než stálo samotné auto.`,
+      })},
+
+      { type: 'math', build: ctx => ({
+        q: `<b>O kolik víc zaplatíš u "Rychlé půjčky" (C) než u Banky (A)?</b>`,
+        unit: 'Kč', answer: ctx.diffCA,
+        hints: [
+          'Odečti částku za Banku od částky za "Rychlou půjčku".',
+          `${fmt(ctx.totalC)} − ${fmt(ctx.totalA)} = ?`,
+          `${fmt(ctx.totalC)} − ${fmt(ctx.totalA)} = <b>${fmt(ctx.diffCA)}</b> Kč.`,
+        ],
+        explain: `<b>${fmt(ctx.diffCA)} Kč navíc</b> jen kvůli "rychlejšímu papírování". Za tu částku bys mohl mít druhé auto.`,
+      })},
+
+      { type: 'decision', build: ctx => ({
+        q: 'Kterou půjčku si vybereš?',
+        options: [
+          { title: `A) Banka (RPSN 9 %, ${fmt(ctx.monthlyA)} Kč/měs)`, kind: 'good',
+            feedback: 'Správně! Banka je nejvýhodnější — nejnižší RPSN, nejmenší přeplatek. Musíš doložit příjem a chvíli to trvá, ale ušetříš statisíce.' },
+          { title: `B) Nebankovní (RPSN 22 %, ${fmt(ctx.monthlyB)} Kč/měs)`, kind: 'meh',
+            feedback: 'Spíš ne. Nebankovní jsou někdy potřeba (když banka odmítne), ale přeplatíš tisíce. Bankovní půjčka je téměř vždy lepší.' },
+          { title: `C) Rychlá půjčka (RPSN 38 %, ${fmt(ctx.monthlyC)} Kč/měs)`, kind: 'bad',
+            feedback: `Velmi špatně. Zaplatíš ${fmt(ctx.overpayC)} Kč přeplatek — víc než stálo auto. "Rychlé půjčky" jsou v Česku často predátorské.` },
+        ],
+      })},
+
+      { type: 'story', build: () => ({
+        icon: '🎯',
+        html: `
+          <p>Tři pravidla, která bys měl/a mít v hlavě před jakoukoliv půjčkou:</p>
+          <ul style="margin: 8px 0 8px 20px; font-size:.95rem; line-height:1.7;">
+            <li><b>① Srovnávej podle RPSN</b>, ne podle měsíční splátky.</li>
+            <li><b>② Spočítej si <i>celkem</i> zaplacenou částku</b> (splátka × počet měsíců).</li>
+            <li><b>③ "Bez prokazování příjmu / do 15 minut / bez registrů" = červené světlo.</b></li>
+          </ul>
+          <div class="fact-box">📘 <b>RPSN v ČR 2025:</b> bankovní spotřebitelská půjčka <b>7–13 %</b>, nebankovní <b>15–30 %</b>, "rychlé" predátorské půjčky <b>30 % a víc</b>. Zákon o spotřebitelském úvěru chrání před extrémy, ale stále se vyplatí číst smlouvu.</div>
+          <p>Příští kapitola: <b>hypotéka</b> — největší půjčka tvého života.</p>
+        `,
+      })},
+    ],
   },
   {
     id: 5, color: 'act5', icon: '🏠', title: 'Hypotéka', age: '32 let',
-    scenes: [{ type: 'story', build: () => ({ icon: '🚧', html: `<p><b>Kapitola se připravuje.</b> Cena bytu vs. akontace (LTV), výpočet anuitní splátky, fixace 3 vs. 5 let, celková zaplacená částka za 30 let.</p>` }) }],
+    setup: () => {
+      const price = pick([3000000, 4000000, 5000000]);
+      const ltv = pick([80, 90]);
+      const loan = price * ltv / 100;
+      const akontace = price - loan;
+      // pre-computed monthly @ 5% interest, 30 let, rounded to nearest 100 Kč
+      const monthly = Math.round(loan * 0.00537 / 100) * 100;
+      const months = 360;
+      const totalPaid = monthly * months;
+      const overpaid = totalPaid - loan;
+      return { price, ltv, loan, akontace, monthly, months, totalPaid, overpaid };
+    },
+    scenes: [
+      { type: 'story', build: ctx => ({
+        icon: '🏠',
+        html: `
+          <p>Sedíš v bance. Vyhlédl/a sis byt 2+kk za <b>${fmt(ctx.price)} Kč</b>. Bankéř ti vysvětluje hypotéku:</p>
+          <p><i>"Maximální půjčka je <b>${ctx.ltv} % z ceny nemovitosti</b> — tomu se říká <b>LTV</b> (Loan-to-Value). Zbytek musíš mít naspořeno jako <b>akontaci</b>."</i></p>
+          <div class="fact-box">📘 <b>LTV 80 %</b> = banka půjčí 80 % ceny, ty musíš mít 20 % vlastních. <b>LTV 90 %</b> = banka půjčí 90 %, ty máš 10 %. Nižší LTV = nižší úrok, ale potřebuješ víc našetřit.</div>
+          <p>Spočítej, kolik vlastních peněz potřebuješ jako akontaci.</p>
+        `,
+      })},
+
+      { type: 'math', build: ctx => ({
+        q: `Akontace = cena × <b>(100 − LTV)/100</b>. Spočítej: ${fmt(ctx.price)} × (100 − ${ctx.ltv}) / 100.`,
+        unit: 'Kč', answer: ctx.akontace,
+        hints: [
+          'Akontace je tvoje vlastní část — ta, kterou ti banka NEPŮJČÍ.',
+          `${fmt(ctx.price)} × ${100 - ctx.ltv} / 100 = ?`,
+          `${fmt(ctx.price)} × ${100 - ctx.ltv} / 100 = <b>${fmt(ctx.akontace)}</b> Kč.`,
+        ],
+        explain: `<b>${fmt(ctx.akontace)} Kč</b> musíš mít na účtu. Banka ti půjčí zbylých <b>${fmt(ctx.loan)} Kč</b>.`,
+      })},
+
+      { type: 'story', build: ctx => ({
+        icon: '💸',
+        html: `
+          <p>Bankéř pokračuje: <i>"Při dnešní úrokové sazbě cca <b>5 %</b> a době splácení <b>30 let</b> bude tvá <b>měsíční splátka přibližně ${fmt(ctx.monthly)} Kč</b>."</i></p>
+          <div class="fact-box">📘 <b>Anuita</b> (měsíční splátka) je matematicky komplikovaná (geometrická řada s úrokem). Banka ji spočítá za tebe. Pro tebe je důležité: <b>kolik to bude měsíčně</b> a <b>kolik celkem za 30 let</b>.</div>
+          <p>Spočítej teď, kolik celkem za 30 let bance vrátíš.</p>
+        `,
+      })},
+
+      { type: 'math', build: ctx => ({
+        q: `<b>Celkem zaplacené za 30 let</b> = měsíční splátka × počet měsíců (360). Spočítej.`,
+        unit: 'Kč', answer: ctx.totalPaid,
+        hints: [
+          'Násobení splátky a počtu měsíců (30 let = 360 měsíců).',
+          `${fmt(ctx.monthly)} × 360 = ?`,
+          `${fmt(ctx.monthly)} × 360 = <b>${fmt(ctx.totalPaid)}</b> Kč.`,
+        ],
+        explain: `<b>${fmt(ctx.totalPaid)} Kč</b> bance vrátíš za 30 let. Banka ti půjčila ${fmt(ctx.loan)} Kč.`,
+      })},
+
+      { type: 'math', build: ctx => ({
+        q: `Kolik je <b>přeplatek</b> nad to, co ti banka půjčila? <br><span style="color:var(--muted);font-weight:400;font-size:.9rem;">celkem zaplacené − jistina</span>`,
+        unit: 'Kč', answer: ctx.overpaid,
+        hints: [
+          'Rozdíl mezi tím, co celkem vrátíš, a tím, co ti banka půjčila.',
+          `${fmt(ctx.totalPaid)} − ${fmt(ctx.loan)} = ?`,
+          `${fmt(ctx.totalPaid)} − ${fmt(ctx.loan)} = <b>${fmt(ctx.overpaid)}</b> Kč.`,
+        ],
+        explain: `<b>${fmt(ctx.overpaid)} Kč</b> jsou úroky za 30 let. Téměř stejně jako jistina! To je cena za to, že banka peníze "drží" 30 let.`,
+      })},
+
+      { type: 'decision', build: ctx => ({
+        q: 'Tvoje strategie u hypotéky:',
+        options: [
+          { title: 'Vzít max LTV (90 %), abych nemusel/a moc spořit', kind: 'bad',
+            feedback: 'Riskantní. Nižší akontace = vyšší úrok + vyšší riziko, pokud cena bytu klesne. A vyšší půjčka = vyšší celkový přeplatek.' },
+          { title: 'Spořit do akontace 20 % (LTV 80 %), pak teprve hypotéka', kind: 'good',
+            feedback: 'Nejlepší. Banka ti dá lepší úrok, máš menší riziko a celkově přeplatíš méně. Trvá to déle, ale finančně se vyplatí.' },
+          { title: 'Vyhnout se hypotéce, bydlet v podnájmu napořád', kind: 'meh',
+            feedback: 'Možné, ale za nájem za 30 let zaplatíš zhruba stejně jako hypotéku — a nemáš nic. Hypotéka je dlouhodobě často výhodnější.' },
+          { title: 'Vzít hypotéku a hned splácet mimořádně', kind: 'good',
+            feedback: 'Skvělé! Mimořádné splátky výrazně snižují celkový přeplatek. Pozor jen na podmínky fixace — někdy je tam poplatek.' },
+        ],
+      })},
+
+      { type: 'story', build: () => ({
+        icon: '🎯',
+        html: `
+          <p>Tři věci, které byste měli vědět před hypotékou:</p>
+          <ul style="margin: 8px 0 8px 20px; font-size:.95rem; line-height:1.7;">
+            <li><b>LTV</b> = kolik z ceny ti banka půjčí. Nižší LTV = lepší úrok.</li>
+            <li><b>Fixace</b> (3, 5, 10 let) = doba, kdy se nemění úrok. Po fixaci přepočet.</li>
+            <li><b>Mimořádná splátka</b> = můžeš splatit víc najednou (občas s poplatkem).</li>
+          </ul>
+          <div class="fact-box">📘 <b>Pravidlo:</b> hypotéka je největší půjčka v tvém životě. Vyjedná-li s bankou úrok o <b>0,3 % nižší</b>, ušetříš za 30 let stovky tisíc. Vyplatí se to dvakrát ověřit.</div>
+          <p>Příští kapitola: <b>lichva</b> — jak rychle dluh přeroste do exekuce.</p>
+        `,
+      })},
+    ],
   },
   {
     id: 6, color: 'act6', icon: '⚠️', title: 'Lichva & dluhová past', age: '34 let',
-    scenes: [{ type: 'story', build: () => ({ icon: '🚧', html: `<p><b>Kapitola se připravuje.</b> Jak rychle roste dluh při RPSN 200 % nebo víc, varovné znaky predátorských věřitelů, exekuce.</p>` }) }],
+    setup: () => {
+      const jistina = pick([8000, 10000, 12000]);
+      const monthly = jistina * 0.08;       // ~75 % RPSN
+      const months = 36;
+      const total = monthly * months;
+      const overpay = total - jistina;
+      const penalty = jistina * 6;           // po neplacení dluh narůstá ~6×
+      return { jistina, monthly, months, total, overpay, penalty };
+    },
+    scenes: [
+      { type: 'story', build: ctx => ({
+        icon: '⚠️',
+        html: `
+          <p>Kamarádka Tereza ti volá. <i>"Potřebuju ${fmt(ctx.jistina)} korun do tří dnů. Auto v servisu, splatnost faktury. Banka prý 'nemá produkt pro mě', mám napůl částečný úvazek. Vidím všude reklamy 'půjčka do 15 minut bez prokazování příjmu'..."</i></p>
+          <p>Jdeš se na to s ní podívat. Web vypadá vesele, animace usmívajících se lidí. Drobné písmo úplně dole říká:</p>
+          <div class="calc-box">Jistina: ${fmt(ctx.jistina)} Kč
+Splátka: ${fmt(ctx.monthly)} Kč/měsíc po dobu 36 měsíců
+RPSN: 74,9 %
+Smluvní pokuta při prodlení: 1 000 Kč
+Při prodlení nad 30 dní: zesplatnění + exekuce</div>
+          <div class="fact-box">⚠️ <b>74,9 % RPSN</b> není v ČR zatím nelegální (zákon nestanoví strop), ale je to <b>typická predátorská sazba</b>. Bankovní spotřebitelská půjčka má 7–13 %. Tady platíš 10× tolik.</div>
+        `,
+      })},
+
+      { type: 'math', build: ctx => ({
+        q: `Kolik Tereza <b>celkem zaplatí</b>, pokud platí všechny splátky včas?`,
+        unit: 'Kč', answer: ctx.total,
+        hints: [
+          'Splátka × počet měsíců.',
+          `${fmt(ctx.monthly)} × 36 = ?`,
+          `${fmt(ctx.monthly)} × 36 = <b>${fmt(ctx.total)}</b> Kč.`,
+        ],
+        explain: `${fmt(ctx.monthly)} × 36 = <b>${fmt(ctx.total)} Kč</b>. Za půjčku ${fmt(ctx.jistina)} Kč.`,
+      })},
+
+      { type: 'math', build: ctx => ({
+        q: `Kolik to je <b>přeplatek</b> nad původní jistinou ${fmt(ctx.jistina)} Kč?`,
+        unit: 'Kč', answer: ctx.overpay,
+        hints: [
+          'Rozdíl mezi tím, co celkem zaplatí, a tím, co si půjčila.',
+          `${fmt(ctx.total)} − ${fmt(ctx.jistina)} = ?`,
+          `${fmt(ctx.total)} − ${fmt(ctx.jistina)} = <b>${fmt(ctx.overpay)}</b> Kč.`,
+        ],
+        explain: `<b>${fmt(ctx.overpay)} Kč přeplatek</b> — asi <b>3× tolik, kolik si půjčila</b>. A to je <i>nejlepší</i> scénář (vše splaceno včas).`,
+      })},
+
+      { type: 'story', build: ctx => ({
+        icon: '🔥',
+        html: `
+          <p>Po půl roce přijde špatná zpráva. Terezu propustili, dvě splátky neuhradila. <b>Co se stane:</b></p>
+          <ul style="margin: 8px 0 8px 20px; font-size:.95rem; line-height:1.7;">
+            <li><b>① Smluvní pokuta</b> 1 000 Kč za každou opožděnou splátku</li>
+            <li><b>② Úroky z prodlení</b> (zákonné, ale na vrchol toho původního úroku)</li>
+            <li><b>③ Zesplatnění</b> — věřitel požaduje celou zbylou částku najednou</li>
+            <li><b>④ Žaloba a exekuce</b> — exekutor přijde s nálepkou na auto, plat</li>
+            <li><b>⑤ Exekuční náklady</b> 10–20 tisíc navíc</li>
+          </ul>
+          <div class="fact-box">⚠️ <b>Tereza si půjčila ${fmt(ctx.jistina)} Kč. Po roce neplacení může dlužit přes ${fmt(ctx.penalty)} Kč.</b> Dluh roste exponenciálně. Tomuhle se říká <b>dluhová past</b> — i kdyby chtěla, nemůže splatit, protože každý měsíc dluh roste rychleji, než dokáže přivydělat.</div>
+        `,
+      })},
+
+      { type: 'decision', build: () => ({
+        q: 'Co Tereze poradíš?',
+        options: [
+          { title: 'Půjč si na to od mě / rodiny, ať to zaplatí celé hned', kind: 'meh',
+            feedback: 'Šlechetné, ale 1) možná na to nemáš, 2) přesouváš její problém na sebe. Pokud se rozhodneš pomoct, zaplať věřiteli přímo (vyhneš se daňové dani), a domluvte si návrat splátkami.' },
+          { title: 'Ať jde okamžitě do <b>bezplatné dluhové poradny</b> (např. Člověk v tísni)', kind: 'good',
+            feedback: 'Nejlepší. Poradny pomohou se zesplatněním, jednáním s věřitelem, případně s <b>oddlužením (insolvence)</b>. Není to ostuda — dluhové pasti dnes řeší stovky tisíc Čechů.' },
+          { title: 'Vezmi si jinou rychlou půjčku na splacení té první', kind: 'bad',
+            feedback: 'Klasická spirála. Druhá půjčka bude ještě dražší a první pokuty pořád běží. Takhle se z dluhové pasti nedostaneš — jen ji prohloubíš.' },
+          { title: 'Ať to ignoruje, ono se to nějak vyřeší', kind: 'bad',
+            feedback: 'Nejhorší. Bez reakce přijde žaloba a exekuce. Včasná komunikace s věřitelem nebo s poradnou je jediná cesta.' },
+        ],
+      })},
+
+      { type: 'story', build: () => ({
+        icon: '🎯',
+        html: `
+          <p>Pravidla pro situace, kdy ti někdo blízký řekne "potřebuju rychle peníze":</p>
+          <ul style="margin: 8px 0 8px 20px; font-size:.95rem; line-height:1.7;">
+            <li><b>① Nikdy "rychlou půjčku".</b> RPSN nad 30 % = past. Vždy raději banku, kreditní kartu, rodinu — v tomto pořadí.</li>
+            <li><b>② Bezplatné dluhové poradny existují.</b> Člověk v tísni, Poradna při finanční tísni, Charita — všechny pomáhají zadarmo.</li>
+            <li><b>③ Oddlužení (insolvence)</b> je legální cesta z dluhové pasti. Trvá 3–5 let, ale poté začínáš s čistým štítem.</li>
+            <li><b>④ S věřitelem komunikuj.</b> I ti predátorští občas přistoupí na splátkový kalendář — vědí, že z exekuce dostanou míň.</li>
+          </ul>
+          <p>Příští kapitola: <b>kyberpodvody</b> — jak ti vyzmizíkují peníze přes obrazovku.</p>
+        `,
+      })},
+    ],
   },
   {
     id: 7, color: 'act7', icon: '🎣', title: 'Kyberpodvody', age: '35 let',
-    scenes: [{ type: 'story', build: () => ({ icon: '🚧', html: `<p><b>Kapitola se připravuje.</b> Rozpoznávání phishingu (e-mail, SMS), falešné výhry, podvodné e-shopy, statistiky obětí v ČR, odkazy na <a href="https://www.kybertest.cz" target="_blank" rel="noopener">kybertest.cz</a>.</p>` }) }],
+    scenes: [
+      { type: 'story', build: () => ({
+        icon: '🎣',
+        html: `
+          <p>Otevřeš ráno zprávy. Titulek: <i>"Češi přišli loni kybernetickými podvody o miliardy korun. Nejčastěji o důvěře k SMS od České pošty a phishingu z 'banky'."</i></p>
+          <div class="fact-box">📊 <b>Realita ČR 2024:</b> Policejní statistiky uvádějí <b>desítky tisíc obětí ročně</b>. Průměrná škoda na osobu je <b>cca 30 000 Kč</b>, ale rekordy přesáhly milion. Naprostá většina případů začíná <b>jediným kliknutím</b> na podezřelý odkaz.</div>
+          <p>Pojďme si zkusit 4 reálné scénáře — poznáš, kde je podvod?</p>
+        `,
+      })},
+
+      { type: 'decision', build: () => ({
+        q: '📱 Přišla ti SMS: <i>"Česká pošta: Vaše zásilka čeká na úhradu cla 30 Kč. Zaplaťte zde: ceska-posta.cz.balik-id4729.com/pay"</i>. Co uděláš?',
+        options: [
+          { title: 'Kliknu — 30 Kč je málo, ať mi zásilka přijde', kind: 'bad',
+            feedback: `<b>Klasický phishing.</b> Po kliknutí tě stránka vyzve k zadání karty. Místo 30 Kč ti strhnou vše, co jde. Pozor na <b>doménu</b>: pravá je <b>ceskaposta.cz</b>, ne <b>ceska-posta.cz.balik-id4729.com</b> (skutečná doména je tady to poslední <i>.com</i>!). Skutečná Česká pošta tě nikdy nežádá o platbu cla přes odkaz v SMS.` },
+          { title: 'Otevřu si pravý web ceskaposta.cz a podívám se na sledování zásilky', kind: 'good',
+            feedback: 'Správně. Pravidlo: <b>nikdy neklikej</b> na odkazy v SMS/e-mailech. Vždy jdi přímo přes prohlížeč na oficiální web. Pokud zásilka existuje, najdeš ji tam.' },
+          { title: 'Zavolám na číslo z SMS', kind: 'bad',
+            feedback: 'Také past. Číslo v SMS vede k podvodníkům, kteří se vydají za poštu a získají od tebe údaje. Vždy <b>oficiální čísla</b> z webu poskytovatele.' },
+          { title: 'Smažu a ignoruju', kind: 'good',
+            feedback: 'Bezpečně. Pokud měla zásilka přijít, dorazí oznámení z oficiálního kanálu (e-mail z @ceskaposta.cz nebo papírová oznámenka).' },
+        ],
+      })},
+
+      { type: 'decision', build: () => ({
+        q: '📧 E-mail: <i>"GRATULUJEME! Byli jste vybráni jako náš tisící zákazník. Vyhráli jste iPhone 15 Pro Max. Vyzvedněte si výhru zde a zaplaťte pouze poštovné 99 Kč."</i> Tváří se jako Alza.',
+        options: [
+          { title: 'Super, vyplním údaje a zaplatím 99 Kč', kind: 'bad',
+            feedback: `<b>Falešná výhra</b> — jedna z nejstarších podvodných taktik. Po zadání karty ti strhnou opakované poplatky (např. 500 Kč týdně "předplatné"). Pravidlo: <b>výhry, o které jsi nesoutěžil, neexistují.</b> Skutečné soutěže nepožadují platbu.` },
+          { title: 'Pošlu odkaz Alze, ať si to ověří', kind: 'good',
+            feedback: 'Dobrá reakce. Alza má e-mail pro hlášení phishingu (security@alza.cz nebo přes podporu). Pomáháš ostatním tím, že podvod nahlásíš.' },
+          { title: 'Smažu, je to evidentně podvod', kind: 'good',
+            feedback: 'Správně. Pokud jsi pochyboval/a — výhry, o kterých nevíš, nebo "vy jste náš tisící zákazník", jsou téměř vždy podvod.' },
+          { title: 'Pošlu odkaz kamarádům, ať to vidí', kind: 'meh',
+            feedback: 'Lépe ne. Někteří kamarádi by mohli kliknout, aniž by věděli, že je to podvod. Spíš upozorni slovy, ne odkazem.' },
+        ],
+      })},
+
+      { type: 'decision', build: () => ({
+        q: '🛒 Vidíš na sociálních sítích reklamu: <i>"alza-vyprodej.cz — iPhone 15 za 9 990 Kč, jen do půlnoci!"</i>. Web vypadá hodně podobně jako Alza. Co uděláš?',
+        options: [
+          { title: 'Koupím — 9 990 Kč za iPhone je super cena', kind: 'bad',
+            feedback: `<b>Fake e-shop.</b> Doména <b>alza-vyprodej.cz</b> není Alza (pravá je <b>alza.cz</b>). Po zaplacení ti nepřijde nic. Pravidlo: <b>cena výrazně pod tržní = podvod</b>. Skutečné slevy jsou max. 20–30 %, ne 70 %.` },
+          { title: 'Najdu si ten samý telefon na alza.cz a porovnám', kind: 'good',
+            feedback: 'Skvěle. Pokud na <b>alza.cz</b> není tahle akce, je to fake. Vždy ověřuj přes <b>oficiální doménu</b>, ne přes odkaz v reklamě.' },
+          { title: 'Podívám se na recenze a ARES (kdo e-shop provozuje)', kind: 'good',
+            feedback: 'Profesionální přístup. <b>ARES.gov.cz</b> ti řekne, kdo IČO má — fake e-shopy často nejsou registrované v ČR. Recenze (Heureka, Google) pomáhají taky.' },
+          { title: 'Ignoruju, je to evidentně podivné', kind: 'good',
+            feedback: 'Bezpečně. Pravidlo: pokud cena vypadá příliš dobře, aby byla pravdivá — není pravdivá.' },
+        ],
+      })},
+
+      { type: 'decision', build: () => ({
+        q: '☎️ Volá ti pracovník s anglickým přízvukem: <i>"Dobrý den, voláme z ČSOB. Z vašeho účtu odchází podezřelá transakce. Pro zablokování mi prosím nadiktujte ověřovací SMS, kterou vám pošleme."</i>',
+        options: [
+          { title: 'Nadiktuji — vždyť mi to mají zablokovat', kind: 'bad',
+            feedback: `<b>Naprostý podvod (vishing).</b> Banka tě <b>NIKDY</b> nepožádá o ověřovací SMS kód po telefonu. Ten kód je pro <b>autorizaci platby</b> — nadiktováním ho dáš podvodníkovi a on převede tvé peníze. Důsledek: zhruba okamžitá ztráta celého zůstatku.` },
+          { title: 'Zavěsím a sám/a zavolám na číslo z webu banky', kind: 'good',
+            feedback: 'Přesně tak. <b>Banka nikdy nevolá kvůli SMS kódům.</b> Pokud máš podezření, zavěsím a zavoláš na <b>oficiální linku</b> (na webu banky nebo z karty). Tam ti ověří, jestli něco bylo skutečně podezřelé.' },
+          { title: 'Řeknu, že volám zpátky, a ověřím přes app banky', kind: 'good',
+            feedback: 'Bezpečně. Aplikace banky ti ukáže reálnou aktivitu na účtu. Pokud tam nic podezřelého není, byl to podvod.' },
+          { title: 'Nadiktuji jen polovinu kódu, ať mě nedostanou celého', kind: 'bad',
+            feedback: 'I "jen půlka" je dost, často kombinují s dalším telefonátem. Hlavně: legitimní zaměstnanec banky tě o žádný kód nikdy nepožádá.' },
+        ],
+      })},
+
+      { type: 'story', build: () => ({
+        icon: '🛡️',
+        html: `
+          <p>Univerzální pravidla, která tě před většinou podvodů ochrání:</p>
+          <ul style="margin: 8px 0 8px 20px; font-size:.95rem; line-height:1.7;">
+            <li><b>① Neklikej na odkazy v SMS/e-mailu.</b> Vždy jdi na oficiální web ručně přes prohlížeč.</li>
+            <li><b>② Banka nikdy neptá po telefonu na heslo ani SMS kód.</b> Ani policie. Ani Microsoft.</li>
+            <li><b>③ Příliš dobrá cena / výhra / nabídka = podvod.</b> Vždy ověř doménu (ne jen "obsahuje 'alza'").</li>
+            <li><b>④ Pokud zaplatíš podvodníkovi kartou, okamžitě zavolej do banky a transakci reklamuj.</b> Někdy se ještě dá zachránit.</li>
+          </ul>
+          <div class="fact-box">🔗 <b>Kybertest.cz</b> — bezplatný online test od NÚKIB, kde si můžeš ověřit kybernetické dovednosti. <b>Policie.cz/podvody</b> má návod, jak nahlásit. <b>Banka má linku 24/7</b> pro reklamace.</div>
+          <p>Poslední kapitola: <b>osvědčení</b> — co sis odnesl ze 7 kapitol.</p>
+        `,
+      })},
+    ],
   },
   {
     id: 8, color: 'act8', icon: '🏆', title: 'Osvědčení', age: '— souhrn',
-    scenes: [{ type: 'story', build: () => ({ icon: '🚧', html: `<p><b>Závěr se připraví, jakmile dokončím Akty 4–7.</b> Bude souhrn všech pravidel, osvědčení s tvým skóre a tipy, kam pokračovat dál.</p>` }) }],
+    scenes: [
+      { type: 'story', build: () => ({
+        icon: '🎓',
+        html: `
+          <p>Gratulujeme — prošel/prošla jsi celou Cestu peněz. Pojďme si ve dvou minutách projít, co sis odnesl/a.</p>
+          <h3 style="font-family:var(--sans);font-weight:700;font-size:1rem;margin:14px 0 8px;color:var(--act2-fg);">7 pravidel finanční gramotnosti</h3>
+          <ul style="margin:8px 0 8px 20px;font-size:.95rem;line-height:1.75;">
+            <li><b>① Hrubá ≠ čistá.</b> Stát si vezme cca 18–22 % z hrubé mzdy (daň 15 % + SP 7,1 % + ZP 4,5 %, mínus sleva na poplatníka 2 570 Kč/měs).</li>
+            <li><b>② Rezerva 3–6 měsíců výdajů</b> stranou. Bez ní si při první ztrátě půjčuješ.</li>
+            <li><b>③ Peníze v polštáři chudnou.</b> Inflace 5–8 % ročně. Spořicí účet brzdí, investice porážejí.</li>
+            <li><b>④ U půjček srovnávej RPSN</b>, ne měsíční splátku. Banka 7–13 %, "rychlé" 30 % a víc = past.</li>
+            <li><b>⑤ Hypotéka:</b> nižší LTV (víc akontace) = lepší úrok. Mimořádné splátky šetří statisíce.</li>
+            <li><b>⑥ Lichva existuje</b> i v ČR. Dluhové poradny (Člověk v tísni, Charita) pomohou zdarma.</li>
+            <li><b>⑦ Banka NIKDY</b> nežádá heslo ani SMS kód po telefonu. Klikni přímo na oficiální doménu, nikdy přes link v SMS.</li>
+          </ul>
+        `,
+      })},
+
+      { type: 'story', build: () => ({
+        icon: '🔗',
+        html: `
+          <p>Kam pokračovat, pokud tě finanční gramotnost zajímá víc:</p>
+          <ul style="margin:8px 0 8px 20px;font-size:.95rem;line-height:1.75;">
+            <li><b><a href="https://financnigramotnost.gov.cz" target="_blank" rel="noopener">financnigramotnost.gov.cz</a></b> — oficiální vládní portál finanční gramotnosti.</li>
+            <li><b><a href="https://www.fgdoskol.cz" target="_blank" rel="noopener">fgdoskol.cz</a></b> — finanční gramotnost do škol, hry pro různé věkové skupiny (Rozpočti si to!, Peníze na útěku, Filip od ČSOB).</li>
+            <li><b><a href="https://www.umimematiku.cz/cviceni-financni-gramotnost" target="_blank" rel="noopener">Umíme matiku — Finanční gramotnost</a></b> — cvičení na daně, úročení, pojmy.</li>
+            <li><b><a href="https://www.kybertest.cz" target="_blank" rel="noopener">kybertest.cz</a></b> — interaktivní test kyberbezpečnosti od NÚKIB.</li>
+            <li><b><a href="https://www.cnb.cz" target="_blank" rel="noopener">ČNB</a></b> — Česká národní banka. Informace o inflaci, úrokových sazbách, statistikách.</li>
+          </ul>
+          <p>Až klikneš na <b>Pokračovat →</b>, dostaneš se na své <b>osvědčení</b>. Můžeš si tam zadat jméno a osvědčení si vytisknout nebo stáhnout jako screenshot.</p>
+        `,
+      })},
+    ],
   },
 ];
 
@@ -1380,6 +1774,21 @@ function showResult() {
   else if (pct >= 50) msg = '👍 Základ máš. Doporučuju projít znovu kapitoly, kde jsi měl skóre nízké.';
   else msg = '📚 Začátek je tu — opakování je matkou moudrosti. Klikni na "Začít znovu" a zkus to ještě jednou.';
   document.getElementById('cert-msg').textContent = msg;
+
+  // Jméno na osvědčení — uloží se do localStorage a aktualizuje živě
+  const nameInp = document.getElementById('cert-name-input');
+  const nameDisp = document.getElementById('cert-name-display');
+  const defaultName = 'Tomu, kdo prošel <i>Cestu peněz</i>';
+  const savedName = STATE.studentName || '';
+  nameInp.value = savedName;
+  nameDisp.innerHTML = savedName ? savedName : defaultName;
+  nameInp.oninput = () => {
+    const v = nameInp.value.trim();
+    STATE.studentName = v;
+    nameDisp.innerHTML = v ? v : defaultName;
+    saveState();
+  };
+
   showScreen('result');
 }
 
