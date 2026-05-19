@@ -52,6 +52,10 @@
 - **Write tool truncates large files (~47 KB threshold).** For files larger than that, prefer small targeted Edits. If Write does truncate, you may get orphan content after `</html>` — delete the duplicate tail with an Edit.
 - **Bash can't unlink files on the Windows mount.** `cp` works (creating new files). `rm` doesn't. `mv` doesn't. **Tell the user to delete files locally** if cleanup is needed. Same for `rmdir` on empty folders.
 - **Bash `tail`/`grep` may show stale content** while Read tool shows fresh content. Read tool is the source of truth for file state.
+- **Navigation "zpět na projekty" href rule:**
+  - Files directly in `/projects/` (e.g. `unikovka_procenta.html`, `cesta_penez.html`) → use `href="./"` → resolves to `/projects/`
+  - Files in a subfolder of `/projects/` (e.g. `prijimacky-matematika/index.html`) → use `href="../"` → resolves to `/projects/`
+  - `href="../"` from a `/projects/` file goes to `/` (home), NOT to projects. This is a common mistake — double-check whenever adding nav to a projects page.
 - **Some allowlisted domains:** `github.com`, `npmjs.org`, `pypi.org`, `cdn.playwright.dev`, `*.anthropic.com`, `*.claude.com`. NOT allowlisted: `*.github.io`, most `*.gov.cz`. Czech educational sites work selectively (umimematiku.cz, fgdoskol.cz are usually OK; financnigramotnost.gov.cz blocked).
 
 ## Workflow with the user
