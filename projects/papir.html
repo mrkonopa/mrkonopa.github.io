@@ -70,6 +70,45 @@
     }
     .subtitle strong { color: var(--fg); font-weight: 600; }
 
+    /* ── paper visualization ── */
+    .paper-visual {
+      text-align: center;
+      margin-bottom: 36px;
+    }
+    .paper-scene {
+      display: inline-flex;
+      align-items: flex-end;
+      justify-content: center;
+      height: 180px;
+      width: 260px;
+      padding-bottom: 0;
+      border-bottom: 2px solid var(--border);
+      margin-bottom: 10px;
+      position: relative;
+    }
+    .paper-body {
+      width: 200px;
+      min-height: 4px;
+      height: 4px;
+      background: linear-gradient(to right, #7c3aed, #8b5cf6);
+      border-radius: 3px 3px 0 0;
+      transition: height 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+      transform-origin: bottom center;
+    }
+    @keyframes paper-pulse {
+      0%   { opacity: 1; transform: scaleX(1); }
+      25%  { opacity: 0.7; transform: scaleX(1.05) scaleY(0.92); }
+      55%  { opacity: 1; transform: scaleX(0.97) scaleY(1.04); }
+      80%  { transform: scaleX(1.01) scaleY(0.99); }
+      100% { opacity: 1; transform: scaleX(1) scaleY(1); }
+    }
+    .paper-body.pulse { animation: paper-pulse 0.38s ease; }
+    .paper-viz-label {
+      font-size: 12px;
+      color: var(--fg-muted);
+      font-weight: 500;
+    }
+
     /* ── fold button + counter ── */
     .fold-section {
       text-align: center;
@@ -170,7 +209,7 @@
       font-weight: 600;
     }
 
-    /* ── comparison bar ── */
+    /* ── comparison list ── */
     .comparison {
       margin-bottom: 40px;
     }
@@ -185,7 +224,7 @@
     }
     .comp-item:last-child { border-bottom: none; }
     .comp-item.reached { opacity: 1; }
-    .comp-item.active { opacity: 1; }
+    .comp-item.active  { opacity: 1; }
 
     .comp-icon { font-size: 1.4rem; width: 32px; text-align: center; flex-shrink: 0; }
     .comp-body { flex: 1; }
@@ -193,7 +232,6 @@
     .comp-dist { font-size: 12px; color: var(--fg-muted); margin-top: 1px; }
     .comp-folds { font-size: 11px; font-weight: 700; color: var(--accent); margin-left: auto; flex-shrink: 0; white-space: nowrap; }
 
-    /* fold bar fill */
     .comp-bar-wrap {
       width: 100%;
       height: 4px;
@@ -267,6 +305,14 @@
     Neuvěřitelné? Zkus to.
   </p>
 
+  <!-- paper visualization -->
+  <div class="paper-visual">
+    <div class="paper-scene">
+      <div class="paper-body" id="paper-body"></div>
+    </div>
+    <div class="paper-viz-label" id="paper-viz-label">výchozí list · 0,1 mm</div>
+  </div>
+
   <!-- fold button -->
   <div class="fold-section">
     <div class="fold-count" id="fold-count">0</div>
@@ -313,73 +359,88 @@
 </div>
 
 <script>
-// Milestones: [folds, icon, name, distance_m, distance_label]
 const MILESTONES = [
-  [1,  '📄', 'Dvojitý papír',          0.0002,   '0,2 mm'],
-  [7,  '📚', 'Silný sešit',            0.0128,   '1,28 cm'],
-  [10, '🧱', 'Cihla',                  0.1024,   '10,2 cm'],
-  [17, '🗼', 'Eiffelova věž',          13107,    '131 m'],
-  [20, '⛰️', 'Mount Everest',          104858,   '~105 km'],
-  [23, '✈️', 'Letová hladina',         838861,   '~839 km'],
-  [27, '🌍', 'Průměr Země',            13421773, '~13 400 km'],
-  [33, '🌙', 'Vzdálenost k Měsíci',   858993459,'~858 993 km'],
-  [42, '🚀', 'Měsíc (přesně)',         439804651110.4, '~440 000 000 km'],
-  [51, '☀️', 'Slunce',                 22517998136852480, '~22,5 bil. km'],
+  [ 1, '📄', 'Dvojitý papír',       '0,2 mm'],
+  [ 7, '📚', 'Silný sešit',         '1,3 cm'],
+  [10, '📖', 'Tlusté encyklopedie', '10 cm'],
+  [14, '🚶', 'Výška člověka',       '1,6 m'],
+  [20, '🏢', 'Výšková budova',      '105 m'],
+  [22, '🗼', 'Eiffelova věž',       '419 m'],
+  [27, '✈️', 'Letová hladina',      '13 km'],
+  [32, '🛸', 'Oběžná dráha ISS',    '430 km'],
+  [37, '🌍', 'Průměr Země',         '13 744 km'],
+  [42, '🌙', 'Vzdálenost k Měsíci', '440 000 km'],
+  [51, '☀️', 'Za Sluncem',          '225 mil. km'],
 ];
 
-const INIT_MM = 0.1; // tloušťka papíru v mm
-const INIT_M  = INIT_MM / 1000;
+const WOW_MSGS = new Map([
+  [ 7, '📚 Po 7 přeloženích je papír silný jako sešit — asi 1,3 cm.'],
+  [10, '📖 10 přeložení = 10 cm. Tlusté encyklopedie.'],
+  [14, '🚶 14 přeložení = 1,6 m. Výška dospělého člověka.'],
+  [20, '🏢 20 přeložení = 105 m. Výšková budova v centru města.'],
+  [22, '🗼 22 přeložení a papír by byl vysoký jako Eiffelova věž (419 m).'],
+  [27, '✈️ 27 přeložení = 13 km. Letová hladina dopravních letadel.'],
+  [32, '🛸 32 přeložení = 430 km. Výška oběžné dráhy ISS.'],
+  [37, '🌍 37 přeložení = 13 744 km. Překonali jsme průměr Země.'],
+  [42, '🌙 42 přeložení = 440 000 km. Dosáhli jsme za Měsíc!'],
+  [51, '☀️ 51 přeložení = 225 milionů km. Za Sluncem.'],
+]);
+
+const INIT_MM  = 0.1;
 const MAX_FOLDS = 51;
 
 let folds = 0;
-let lastMilestoneIdx = -1;
 
 function thicknessMm(n) { return INIT_MM * Math.pow(2, n); }
-function thicknessM(n)  { return INIT_M  * Math.pow(2, n); }
-
-function formatThickness(mm) {
-  if (mm < 10)          return fmtNum(mm, 2) + ' mm';
-  if (mm < 10000)       return fmtNum(mm / 10, 2) + ' cm';
-  if (mm < 1e6)         return fmtNum(mm / 1000, 2) + ' m';
-  if (mm < 1e9)         return fmtNum(mm / 1e6, 2) + ' km';
-  if (mm < 1e12)        return fmtNum(mm / 1e9, 2) + ' 000 km';
-  return fmtNum(mm / 1e12, 3) + ' mil. km';
-}
 
 function fmtNum(n, dec) {
   return n.toLocaleString('cs-CZ', { maximumFractionDigits: dec, minimumFractionDigits: 0 });
+}
+
+function formatThickness(mm) {
+  if (mm < 10)   return fmtNum(mm, 2)                   + ' mm';
+  if (mm < 1e4)  return fmtNum(mm, 1)                   + ' mm';
+  if (mm < 1e6)  return fmtNum(mm / 1e3, 1)             + ' m';
+  if (mm < 1e9)  return fmtNum(mm / 1e6, 1)             + ' km';
+  if (mm < 1e12) return fmtNum(Math.round(mm / 1e6), 0) + ' km';
+  return          fmtNum(Math.round(mm / 1e12), 0)       + ' mil. km';
 }
 
 function fmtPow(n) {
   return `0,1 mm × 2<sup>${n}</sup>`;
 }
 
-const WOW_MSGS = [
-  null, null, null, null, null, null, null,
-  [7,  '📚 Po 7 přeloženích je papír silný jako sešit — asi 1,3 cm. Pořád to zní normálně.'],
-  null, null,
-  [10, '🧱 10 přeložení = 10 cm. Zhruba jako cihla. Ještě nic dramatického.'],
-  null, null, null, null, null, null,
-  [17, '🗼 17 přeložení a papír by byl vysoký jako Eiffelova věž (131 m). Začíná to být divné.'],
-  null, null,
-  [20, '⛰️ 20 přeložení — přes 100 km. Papír by přesahoval Mount Everest i výšku atmosféry.'],
-  null, null,
-  [23, '✈️ 23 přeložení a jsi ve vesmíru. Přes 800 km nad Zemí.'],
-  null, null, null,
-  [27, '🌍 27 přeložení = průměr Země (13 400 km). Jeden list papíru.'],
-  null, null, null, null, null,
-  [33, '🌙 33 přeložení a papír dosahuje na Měsíc. Vzdálenost 384 000 km. Jeden list papíru, 33× přeložený.'],
-  null, null, null, null, null, null, null, null,
-  [42, '🚀 42 přeložení. Papír je tlustší než vzdálenost Země–Měsíc. Tloušťka ~440 milionů km.'],
-  null, null, null, null, null, null, null, null,
-  [51, '☀️ 51 přeložení — dosáhli bychom Slunce. Vzdálenost 150 milionů km je překonána o řád.'],
-];
+function updatePaperViz(n) {
+  const body  = document.getElementById('paper-body');
+  const label = document.getElementById('paper-viz-label');
+
+  // linear height scale: fold 0 → 4px, fold MAX_FOLDS → 158px
+  const h = n === 0 ? 4 : Math.round(4 + (n / MAX_FOLDS) * 154);
+  body.style.height = h + 'px';
+
+  // fold line stripes for first few folds, then dense texture
+  if (n === 0) {
+    body.style.background = 'linear-gradient(to right, #7c3aed, #8b5cf6)';
+  } else if (n <= 5) {
+    const pct = (100 / Math.pow(2, n)).toFixed(3);
+    body.style.background =
+      `repeating-linear-gradient(to bottom, #a78bfa 0%, #a78bfa calc(${pct}% - 1px), #7c3aed calc(${pct}% - 1px), #7c3aed ${pct}%)`;
+  } else {
+    body.style.background =
+      'repeating-linear-gradient(to bottom, rgba(255,255,255,0.15) 0px, rgba(255,255,255,0.15) 1px, rgba(124,58,237,0) 1px, rgba(124,58,237,0) 3px), linear-gradient(to right, #7c3aed, #8b5cf6)';
+  }
+
+  const mm = thicknessMm(n);
+  label.textContent = n === 0
+    ? 'výchozí list · 0,1 mm'
+    : `${n}× přeloženo · ${formatThickness(mm)}`;
+}
 
 function buildComparisons() {
   const wrap = document.getElementById('comparison');
   wrap.innerHTML = '';
   MILESTONES.forEach((m, i) => {
-    const [n, icon, name, , label] = m;
+    const [n, icon, name, label] = m;
     const div = document.createElement('div');
     div.className = 'comp-item';
     div.id = `comp-${i}`;
@@ -398,15 +459,14 @@ function buildComparisons() {
 function updateComparisons(n) {
   MILESTONES.forEach((m, i) => {
     const [mFolds] = m;
-    const el = document.getElementById(`comp-${i}`);
+    const el  = document.getElementById(`comp-${i}`);
     const bar = document.getElementById(`bar-${i}`);
     if (n >= mFolds) {
       el.className = 'comp-item reached';
       bar.style.width = '100%';
     } else if (n > 0) {
-      // partial progress toward this milestone
       const prev = i > 0 ? MILESTONES[i-1][0] : 0;
-      const pct = Math.max(0, Math.min(100, ((n - prev) / (mFolds - prev)) * 100));
+      const pct  = Math.max(0, Math.min(100, ((n - prev) / (mFolds - prev)) * 100));
       bar.style.width = pct + '%';
       el.className = 'comp-item active';
     }
@@ -417,30 +477,35 @@ function fold() {
   if (folds >= MAX_FOLDS) return;
   folds++;
 
-  // animate count
+  // animate fold counter
   const countEl = document.getElementById('fold-count');
   countEl.textContent = folds;
   countEl.classList.add('bump');
   setTimeout(() => countEl.classList.remove('bump'), 150);
 
-  // thickness
+  // paper visual: pulse + update
+  const body = document.getElementById('paper-body');
+  body.classList.remove('pulse');
+  void body.offsetWidth;
+  updatePaperViz(folds);
+  body.classList.add('pulse');
+  setTimeout(() => body.classList.remove('pulse'), 380);
+
+  // thickness card
   const mm = thicknessMm(folds);
   document.getElementById('thickness-value').textContent = formatThickness(mm);
   document.getElementById('thickness-formula').innerHTML =
     `<code>${fmtPow(folds)}</code> = ${formatThickness(mm)}`;
 
   // wow message
-  if (WOW_MSGS[folds]) {
-    const [, msg] = WOW_MSGS[folds];
+  if (WOW_MSGS.has(folds)) {
     const wow = document.getElementById('wow');
-    wow.textContent = msg;
+    wow.textContent = WOW_MSGS.get(folds);
     wow.className = 'wow visible';
   }
 
-  // comparisons
   updateComparisons(folds);
 
-  // disable at max
   if (folds >= MAX_FOLDS) {
     document.getElementById('btn-fold').disabled = true;
     document.getElementById('finished').className = 'finished visible';
@@ -455,10 +520,12 @@ function reset() {
   document.getElementById('wow').className = 'wow';
   document.getElementById('btn-fold').disabled = false;
   document.getElementById('finished').className = 'finished';
+  updatePaperViz(0);
   buildComparisons();
 }
 
 buildComparisons();
+updatePaperViz(0);
 </script>
 </body>
 </html>
