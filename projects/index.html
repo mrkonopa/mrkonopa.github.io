@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>~/projects · Vojtěch Konopa</title>
+  <meta name="description" content="Projects by Vojtěch Konopa." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0b0f0a;
+      --bg-window: #0f1410;
+      --bg-chrome: #161c17;
+      --fg: #c8facc;
+      --fg-dim: #6f8a72;
+      --accent: #33ff7a;
+      --amber: #ffb454;
+      --red: #ff5f56;
+      --yellow: #ffbd2e;
+      --green: #27c93f;
+      --border: #1f2a21;
+      --shadow: 0 0 40px rgba(51, 255, 122, 0.08), 0 0 1px rgba(51, 255, 122, 0.2);
+      --mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: var(--mono);
+      font-size: 15px;
+      line-height: 1.6;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background: repeating-linear-gradient(
+        to bottom,
+        rgba(255, 255, 255, 0.015) 0px,
+        rgba(255, 255, 255, 0.015) 1px,
+        transparent 1px,
+        transparent 3px
+      );
+      z-index: 1;
+    }
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background: radial-gradient(ellipse at center, transparent 50%, rgba(0,0,0,0.55) 100%);
+      z-index: 1;
+    }
+
+    main {
+      position: relative;
+      z-index: 2;
+      max-width: 780px;
+      margin: 0 auto;
+      padding: 48px 20px 80px;
+    }
+
+    .terminal {
+      background: var(--bg-window);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    .chrome {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      background: var(--bg-chrome);
+      border-bottom: 1px solid var(--border);
+    }
+    .dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+    .dot.r { background: var(--red); }
+    .dot.y { background: var(--yellow); }
+    .dot.g { background: var(--green); }
+    .title {
+      margin-left: auto;
+      margin-right: auto;
+      font-size: 12px;
+      color: var(--fg-dim);
+      letter-spacing: 0.5px;
+    }
+    .screen {
+      padding: 24px 22px 28px;
+      min-height: 360px;
+    }
+
+    .line { white-space: pre-wrap; word-wrap: break-word; }
+    .prompt { color: var(--accent); }
+    .prompt .user { color: var(--accent); }
+    .prompt .at   { color: var(--fg-dim); }
+    .prompt .host { color: var(--amber); }
+    .prompt .path { color: var(--fg-dim); }
+    .prompt .sym  { color: var(--fg); }
+    .cmd { color: var(--fg); }
+    .out { color: var(--fg); }
+    .dim { color: var(--fg-dim); }
+    .accent { color: var(--accent); }
+
+    .block { margin: 10px 0 18px; }
+
+    a {
+      color: var(--accent);
+      text-decoration: none;
+      border-bottom: 1px dashed transparent;
+      transition: border-color 0.15s ease, color 0.15s ease;
+    }
+    a:hover, a:focus { color: var(--amber); border-bottom-color: var(--amber); outline: none; }
+    a:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; border-radius: 2px; }
+
+    /* Project entries — looks like an ls -la row but with description below */
+    .project {
+      padding: 8px 0 14px;
+      border-bottom: 1px dashed var(--border);
+    }
+    .project:last-child { border-bottom: none; }
+    .project .perm { color: var(--fg-dim); }
+    .project .filename { color: var(--accent); margin-left: 6px; }
+
+    /* Per-language description rows. Smaller font, language tag prefix. */
+    .project .desc-en, .project .desc-cs {
+      color: var(--fg);
+      font-size: 12px;
+      line-height: 1.55;
+      margin: 4px 0 0;
+      padding-left: 14px;
+      border-left: 2px solid var(--border);
+    }
+    .project .desc-en::before, .project .desc-cs::before {
+      display: inline-block;
+      width: 22px;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      color: var(--fg-dim);
+      margin-right: 6px;
+      vertical-align: 1px;
+    }
+    .project .desc-en::before { content: 'EN'; }
+    .project .desc-cs::before { content: 'CS'; color: var(--amber); }
+
+    .project .meta {
+      color: var(--fg-dim);
+      font-size: 11px;
+      margin-top: 6px;
+      padding-left: 14px;
+      letter-spacing: 0.02em;
+    }
+
+    @keyframes blink { 50% { opacity: 0; } }
+    .caret {
+      display: inline-block;
+      width: 9px;
+      height: 1.05em;
+      background: var(--accent);
+      vertical-align: text-bottom;
+      margin-left: 2px;
+      animation: blink 1s steps(1) infinite;
+    }
+    @media (prefers-reduced-motion: reduce) { .caret { animation: none; } }
+
+    @media (max-width: 540px) {
+      main { padding: 24px 12px 60px; }
+      .screen { padding: 20px 16px; }
+      body { font-size: 14px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <section class="terminal" aria-label="Projects">
+      <header class="chrome" aria-hidden="true">
+        <span class="dot r"></span>
+        <span class="dot y"></span>
+        <span class="dot g"></span>
+        <span class="title">vojta@konopa: ~/projects</span>
+      </header>
+
+      <div class="screen">
+        <div class="block">
+          <div class="line"><span class="prompt"><span class="user">vojta</span><span class="at">@</span><span class="host">konopa</span><span class="path">:~/projects</span><span class="sym">$</span></span> <span class="cmd">pwd</span></div>
+          <p class="out">/projects</p>
+        </div>
+
+        <div class="block">
+          <div class="line"><span class="prompt"><span class="user">vojta</span><span class="at">@</span><span class="host">konopa</span><span class="path">:~/projects</span><span class="sym">$</span></span> <span class="cmd">cat README</span></div>
+          <p class="out">A growing collection of things I've built. Click any entry to open it.</p>
+        </div>
+
+        <div class="block">
+          <div class="line"><span class="prompt"><span class="user">vojta</span><span class="at">@</span><span class="host">konopa</span><span class="path">:~/projects</span><span class="sym">$</span></span> <span class="cmd">ls -la</span></div>
+
+          <!--
+            ──────────────────────────────────────────────────────────────────
+            To add a new project: copy one .project block and edit the fields.
+            Filename in the link must match the file you placed in /projects/.
+            ──────────────────────────────────────────────────────────────────
+          -->
+
+          <div class="project">
+            <div class="line">
+              <span class="perm">drwxr-xr-x</span>
+              <a class="filename" href="./prijimacky-matematika/">prijimacky-matematika/</a>
+            </div>
+            <p class="desc-en">CERMAT entrance-exam tests for 4-year secondary school programs, organised by year and term, with hand-annotated solutions.</p>
+            <p class="desc-cs">Sbírka jednotných přijímacích testů z matematiky (CERMAT) pro 4leté obory SŠ, řazená po ročnících a termínech — s vlastnoručně dopsanými řešeními.</p>
+            <p class="meta">tags: math · education · czech · pdf-archive · entrance-exams · sš</p>
+          </div>
+
+          <div class="project">
+            <div class="line">
+              <span class="perm">-rw-r--r--</span>
+              <a class="filename" href="./goniometrie.html">goniometrie.html</a>
+            </div>
+            <p class="desc-en">Interactive guide to trigonometric functions for 9th grade. Seven chapters: definitions (SOHCAHTOA), side calculation, angle calculation (arcsin/arccos/arctan), word problems (heights, distances), angles of elevation/depression, and a final mixed test. Randomised numbers, interactive SVG triangle, 3-level hints, progress codes.</p>
+            <p class="desc-cs">Výukový průvodce goniometrickými funkcemi pro 9. třídu. Sedm kapitol: definice (SOHCAHTOA), výpočet strany, výpočet úhlu (arcsin/arccos/arctan), slovní úlohy (výška, vzdálenost), úhel sklonu (elevační/depresivní), souhrnný test. Náhodná čísla, interaktivní SVG trojúhelník, 3 úrovně nápovědy, kódy pro pokračování.</p>
+            <p class="meta">tags: math · goniometrie · trigonometry · slovní úlohy · education · czech · interactive · 9. třída</p>
+          </div>
+
+          <div class="project">
+            <div class="line">
+              <span class="perm">-rw-r--r--</span>
+              <a class="filename" href="./cesta_penez.html">cesta_penez.html</a>
+            </div>
+            <p class="desc-en">Story-driven financial literacy game for Czech 8th–9th graders. Linear journey through 8 life chapters — DPP/brigáda, brutto→netto with real 2025 tax rates, inflation, loans &amp; APR, mortgage, predatory lending, online scams — with math problems and decisions. Acts 1–3 live; 4–8 in progress.</p>
+            <p class="desc-cs">Příběhová hra o financích pro 8.–9. třídu ZŠ. Lineární cesta 8 kapitolami života — brigáda DPP, brutto→netto s reálnými sazbami 2025, inflace, půjčky a RPSN, hypotéka, lichva, kyberpodvody — s výpočty a rozhodnutími. Kapitoly 1–3 hotové, 4–8 se připravují.</p>
+            <p class="meta">tags: math · finance · daně · RPSN · hypotéka · education · czech · interactive · 8.-9. třída</p>
+          </div>
+
+          <div class="project">
+            <div class="line">
+              <span class="perm">-rw-r--r--</span>
+              <a class="filename" href="./procenta_priklady.html">procenta_priklady.html</a>
+            </div>
+            <p class="desc-en">Random math practice on percentages — 10 freshly-generated problems each session, covering parts, bases, percentage values, markups, and discounts. Step-by-step solutions shown for any wrong answers.</p>
+            <p class="desc-cs">Náhodně generované příklady na procenta — 10 příkladů v každé sadě, pokaždé jiné. Pokrývá procentovou část, základ, počet procent, zvýšení a slevy. Postup řešení se zobrazí u chybných odpovědí.</p>
+            <p class="meta">tags: math · percenta · education · czech · interactive · randomised</p>
+          </div>
+
+          <div class="project">
+            <div class="line">
+              <span class="perm">-rw-r--r--</span>
+              <a class="filename" href="./unikovka_telesa.html">unikovka_telesa.html</a>
+            </div>
+            <p class="desc-en">Interactive math escape-room about cubes and cuboids for 6th grade. 10 progressively harder locks, browser-based, single-file.</p>
+            <p class="desc-cs">Interaktivní únikovka z matematiky o krychli a kvádru pro 6. třídu. 10 zámků s rostoucí obtížností, v prohlížeči, jeden soubor.</p>
+            <p class="meta">tags: math · geometry · education · czech · interactive · 6. třída</p>
+          </div>
+
+          <div class="project">
+            <div class="line">
+              <span class="perm">-rw-r--r--</span>
+              <a class="filename" href="./unikovka_procenta.html">unikovka_procenta.html</a>
+            </div>
+            <p class="desc-en">Interactive math escape-room about percentages. 10 locks covering definitions, parts, bases, conversions, and word problems.</p>
+            <p class="desc-cs">Interaktivní únikovka z matematiky o procentech. 10 zámků pokrývajících definici procenta, část, základ, převody a slovní úlohy.</p>
+            <p class="meta">tags: math · percenta · education · czech · interactive</p>
+          </div>
+
+          <!-- Add more <div class="project">…</div> blocks here as you ship things. -->
+        </div>
+
+        <div class="block">
+          <div class="line"><span class="prompt"><span class="user">vojta</span><span class="at">@</span><span class="host">konopa</span><span class="path">:~/projects</span><span class="sym">$</span></span> <span class="cmd">cd ..</span></div>
+          <p class="out"><a href="../">→ back to ~/</a><span class="caret"></span></p>
+        </div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
