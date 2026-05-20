@@ -52,6 +52,8 @@
 - **Write tool truncates large files (~47 KB threshold).** For files larger than that, prefer small targeted Edits. If Write does truncate, you may get orphan content after `</html>` — delete the duplicate tail with an Edit.
 - **Bash can't unlink files on the Windows mount.** `cp` works (creating new files). `rm` doesn't. `mv` doesn't. **Tell the user to delete files locally** if cleanup is needed. Same for `rmdir` on empty folders.
 - **Bash `tail`/`grep` may show stale content** while Read tool shows fresh content. Read tool is the source of truth for file state.
+- **Czech math convention — triangle side naming.** Strana se značí **malým písmenem protilehlého vrcholu** (a = naproti A, b = naproti B, c = naproti C). **NEPOUŽÍVAT** americkou SOHCAHTOA konvenci kde a = opposite (protilehlá), b = adjacent (přilehlá) bez ohledu na vrcholy — to je v Česku špatně. Pro pravoúhlý trojúhelník s α u B a pravým úhlem u C platí: a = přilehlá k α, b = protilehlá k α, c = přepona. Vzorce: sin α = b/c, cos α = a/c, tan α = b/a.
+- **SVG angle arcs** musí mít střed přesně ve vrcholu úhlu a oba konce na ramenech ve stejné vzdálenosti (radius). Použij `M x1,y1 A r,r 0 0,0 x2,y2` (sweep=0 pro arc bowing dovnitř úhlu). Spočítej koncové body přesně přes unit vector ramene × radius.
 - **Navigation "zpět na projekty" href rule:**
   - Files directly in `/projects/` (e.g. `unikovka_procenta.html`, `cesta_penez.html`) → use `href="./"` → resolves to `/projects/`
   - Files in a subfolder of `/projects/` (e.g. `prijimacky-matematika/index.html`) → use `href="../"` → resolves to `/projects/`
