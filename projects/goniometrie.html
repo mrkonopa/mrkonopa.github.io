@@ -249,6 +249,13 @@ function saveState() {
 }
 function resetState() { STATE.unlocked=[1]; STATE.done=[]; STATE.scores={}; saveState(); }
 
+/* SVG triangle.
+   Vrcholy: A (top, 200,28), B (bottom-left, 30,170, úhel α), C (bottom-right, 170,170, pravý úhel).
+   Strany podle Czech konvence (strana = malé písmeno protilehlého vrcholu):
+     - a = strana naproti A = dolní vodorovná (mezi B a C) = přilehlá odvěsna k α
+     - b = strana naproti B = pravá svislá (mezi C a A) = protilehlá odvěsna k α
+     - c = strana naproti C = úhlopříčka (mezi A a B) = přepona
+   Oblouk úhlu α (vrchol B) jde z bodu na vodorovné odvěsně do bodu na přeponě (sweep=0). */
 function svgTriangle(hi={}) {
   const c = {
     a: hi.a ? '#0f8a72' : '#d1c8b8',
@@ -257,15 +264,15 @@ function svgTriangle(hi={}) {
     al: hi.alpha ? '#d4620a' : '#aaa',
   };
   return `<svg viewBox="0 0 250 200" width="230" height="184" style="max-width:100%">
-    <line x1="200" y1="28" x2="200" y2="170" stroke="${c.a}" stroke-width="3" stroke-linecap="round"/>
-    <line x1="30" y1="170" x2="200" y2="170" stroke="${c.b}" stroke-width="3" stroke-linecap="round"/>
+    <line x1="200" y1="28" x2="200" y2="170" stroke="${c.b}" stroke-width="3" stroke-linecap="round"/>
+    <line x1="30" y1="170" x2="200" y2="170" stroke="${c.a}" stroke-width="3" stroke-linecap="round"/>
     <line x1="30" y1="170" x2="200" y2="28" stroke="${c.c}" stroke-width="3.5" stroke-linecap="round"/>
     <polyline points="185,170 185,155 200,155" fill="none" stroke="#aaa" stroke-width="1.8"/>
-    <path d="M 56,170 A 26,26 0 0,1 44,146" fill="none" stroke="${c.al}" stroke-width="2.2" stroke-linecap="round"/>
-    <text x="213" y="104" fill="${c.a}" font-size="16" font-weight="700" font-family="Lexend,sans-serif">a</text>
-    <text x="108" y="188" fill="${c.b}" font-size="16" font-weight="700" font-family="Lexend,sans-serif">b</text>
+    <path d="M 52,170 A 22,22 0 0,0 47,156" fill="none" stroke="${c.al}" stroke-width="2.4" stroke-linecap="round"/>
+    <text x="213" y="104" fill="${c.b}" font-size="16" font-weight="700" font-family="Lexend,sans-serif">b</text>
+    <text x="108" y="188" fill="${c.a}" font-size="16" font-weight="700" font-family="Lexend,sans-serif">a</text>
     <text x="98" y="84" fill="${c.c}" font-size="16" font-weight="700" font-family="Lexend,sans-serif">c</text>
-    <text x="60" y="157" fill="${c.al}" font-size="15" font-weight="700" font-family="Lexend,sans-serif">α</text>
+    <text x="62" y="160" fill="${c.al}" font-size="15" font-weight="700" font-family="Lexend,sans-serif">α</text>
     <text x="192" y="24" fill="#aaa" font-size="11" font-family="Lexend,sans-serif">A</text>
     <text x="18" y="176" fill="#aaa" font-size="11" font-family="Lexend,sans-serif">B</text>
     <text x="203" y="186" fill="#aaa" font-size="11" font-family="Lexend,sans-serif">C</text>
@@ -282,60 +289,64 @@ const ACTS = [
       title:'Pravoúhlý trojúhelník',
       html:`<p>Goniometrické funkce popisují <b>vztah mezi úhly a stranami</b> pravoúhlého trojúhelníku.</p>
         <div class="svg-wrap">${svgTriangle({a:true,b:true,c:true,alpha:true})}</div>
-        <div class="fact-box">📘 <b>Strany pravoúhlého trojúhelníku (vzhledem k úhlu α):</b><br>
-          <b style="color:#7c3aad">c</b> — přepona: strana naproti pravému úhlu, vždy nejdelší<br>
-          <b style="color:#0f8a72">a</b> — protilehlá odvěsna: naproti úhlu α<br>
-          <b style="color:#1a73c8">b</b> — přilehlá odvěsna: sousedí s úhlem α (ale není přeponou)
+        <div class="fact-box">📘 <b>Pravidlo pojmenování:</b> strana se značí <b>malým písmenem</b> protilehlého vrcholu.<br>
+          <b style="color:#0f8a72">a</b> — strana naproti vrcholu A (dole vodorovně)<br>
+          <b style="color:#1a73c8">b</b> — strana naproti vrcholu B (vpravo svisle)<br>
+          <b style="color:#7c3aad">c</b> — strana naproti vrcholu C (nejdelší = <b>přepona</b>, protože C je pravý úhel)
         </div>
-        <p>Pravý úhel je u vrcholu <b>C</b>. Úhel <b>α</b> je u vrcholu <b>B</b> (vlevo dole).</p>`,
+        <div class="warn-box">⚠️ <b>Vzhledem k úhlu α (u vrcholu B):</b><br>
+          • <b style="color:#1a73c8">b</b> = <b>protilehlá odvěsna</b> (leží naproti úhlu α)<br>
+          • <b style="color:#0f8a72">a</b> = <b>přilehlá odvěsna</b> (sousedí s úhlem α, ale není přeponou)<br>
+          • <b style="color:#7c3aad">c</b> = <b>přepona</b> (vždy naproti pravému úhlu)
+        </div>`,
     })},
     { type:'story', build: () => ({
-      title:'SOHCAHTOA',
-      html:`<p>Tři základní goniometrické funkce pro pravoúhlý trojúhelník:</p>
+      title:'SOHCAHTOA — tři základní funkce',
+      html:`<p>Pro úhel α v pravoúhlém trojúhelníku platí:</p>
         <div class="formula-grid">
-          <div class="formula-card fsin"><div class="fname">SIN α</div><div class="fval">a / c</div><div class="fwords">protilehlá / přepona</div></div>
-          <div class="formula-card fcos"><div class="fname">COS α</div><div class="fval">b / c</div><div class="fwords">přilehlá / přepona</div></div>
-          <div class="formula-card ftan"><div class="fname">TAN α</div><div class="fval">a / b</div><div class="fwords">protilehlá / přilehlá</div></div>
+          <div class="formula-card fsin"><div class="fname">SIN α</div><div class="fval">b / c</div><div class="fwords">protilehlá / přepona</div></div>
+          <div class="formula-card fcos"><div class="fname">COS α</div><div class="fval">a / c</div><div class="fwords">přilehlá / přepona</div></div>
+          <div class="formula-card ftan"><div class="fname">TAN α</div><div class="fval">b / a</div><div class="fwords">protilehlá / přilehlá</div></div>
         </div>
-        <div class="warn-box">⚠️ <b>Pomůcka SOH–CAH–TOA:</b><br>
+        <div class="warn-box">⚠️ <b>Pomůcka SOH–CAH–TOA</b> (anglická zkratka):<br>
           <b>S</b>in = <b>O</b>pposite / <b>H</b>ypotenuse &nbsp;·&nbsp;
           <b>C</b>os = <b>A</b>djacent / <b>H</b>ypotenuse &nbsp;·&nbsp;
           <b>T</b>an = <b>O</b>pposite / <b>A</b>djacent
         </div>
-        <div class="svg-wrap">${svgTriangle({a:true,c:true,alpha:true})}</div>
-        <p style="text-align:center;font-size:.88rem;color:var(--muted)">Zvýrazněno pro sin α = a / c</p>`,
+        <div class="svg-wrap">${svgTriangle({b:true,c:true,alpha:true})}</div>
+        <p style="text-align:center;font-size:.88rem;color:var(--muted)">Zvýrazněno pro sin α = b / c (protilehlá / přepona)</p>`,
     })},
     { type:'choice', build: () => ({
       title:'Kvíz: Která strana?',
-      q:'Znáš úhel α a přeponu c. Jak vyjádříš protilehlou odvěsnu <b>a</b>?',
-      choices:['a = c · sin α','a = c · cos α','a = c · tan α'],
-      correct:0, svg:svgTriangle({a:true,c:true,alpha:true}),
-      hints:[
-        'Protilehlá odvěsna + přepona — podívej se na SOH z SOHCAHTOA.',
-        'sin α = a/c, uprav: a = c · sin α',
-        'Správně: <b>a = c · sin α</b>',
-      ],
-    })},
-    { type:'choice', build: () => ({
-      title:'Kvíz: Která strana?',
-      q:'Znáš úhel α a přeponu c. Jak vyjádříš přilehlou odvěsnu <b>b</b>?',
+      q:'Znáš úhel α a přeponu c. Jak vyjádříš <b>protilehlou odvěsnu b</b>?',
       choices:['b = c · sin α','b = c · cos α','b = c · tan α'],
-      correct:1, svg:svgTriangle({b:true,c:true,alpha:true}),
+      correct:0, svg:svgTriangle({b:true,c:true,alpha:true}),
       hints:[
-        'Přilehlá odvěsna + přepona — podívej se na CAH z SOHCAHTOA.',
-        'cos α = b/c, uprav: b = c · cos α',
-        'Správně: <b>b = c · cos α</b>',
+        'Protilehlá odvěsna (b) a přepona (c) — podívej se na SOH z SOHCAHTOA.',
+        'sin α = b/c, uprav: b = c · sin α',
+        'Správně: <b>b = c · sin α</b>',
       ],
     })},
     { type:'choice', build: () => ({
       title:'Kvíz: Která strana?',
-      q:'Znáš úhel α a přilehlou odvěsnu b. Jak vyjádříš protilehlou odvěsnu <b>a</b>?',
-      choices:['a = b · sin α','a = b · cos α','a = b · tan α'],
+      q:'Znáš úhel α a přeponu c. Jak vyjádříš <b>přilehlou odvěsnu a</b>?',
+      choices:['a = c · sin α','a = c · cos α','a = c · tan α'],
+      correct:1, svg:svgTriangle({a:true,c:true,alpha:true}),
+      hints:[
+        'Přilehlá odvěsna (a) a přepona (c) — podívej se na CAH z SOHCAHTOA.',
+        'cos α = a/c, uprav: a = c · cos α',
+        'Správně: <b>a = c · cos α</b>',
+      ],
+    })},
+    { type:'choice', build: () => ({
+      title:'Kvíz: Která strana?',
+      q:'Znáš úhel α a přilehlou odvěsnu a. Jak vyjádříš <b>protilehlou odvěsnu b</b>?',
+      choices:['b = a · sin α','b = a · cos α','b = a · tan α'],
       correct:2, svg:svgTriangle({a:true,b:true,alpha:true}),
       hints:[
-        'Protilehlá + přilehlá — žádná přepona. To je tangens (TOA).',
-        'tan α = a/b, uprav: a = b · tan α',
-        'Správně: <b>a = b · tan α</b>',
+        'Protilehlá (b) + přilehlá (a) — žádná přepona. To je tangens (TOA).',
+        'tan α = b/a, uprav: b = a · tan α',
+        'Správně: <b>b = a · tan α</b>',
       ],
     })},
   ],
@@ -346,62 +357,66 @@ const ACTS = [
   setup: () => {
     const α = pick([30,35,40,45,50,55,60]);
     const aR = rad(α);
-    const c1=pick([8,10,12,15,20,25]), c2=pick([10,12,15,20,25]), b1=pick([6,8,10,12,15]);
-    const c3=pick([10,12,15,20]);
+    const c1=pick([8,10,12,15,20,25]), c2=pick([10,12,15,20,25]);
+    const a1=pick([6,8,10,12,15]), c3=pick([10,12,15,20]);
     return {
       α,
-      p1:{ c:c1, a:Math.round(c1*Math.sin(aR)) },
-      p2:{ c:c2, b:Math.round(c2*Math.cos(aR)) },
-      p3:{ b:b1, a:Math.round(b1*Math.tan(aR)) },
-      p4:{ a:Math.round(c3*Math.sin(aR)), c:c3 },
+      // p1: zadáno α a c, hledá se b (protilehlá): b = c·sin α
+      p1:{ c:c1, b:Math.round(c1*Math.sin(aR)) },
+      // p2: zadáno α a c, hledá se a (přilehlá): a = c·cos α
+      p2:{ c:c2, a:Math.round(c2*Math.cos(aR)) },
+      // p3: zadáno α a a (přilehlá), hledá se b (protilehlá): b = a·tan α
+      p3:{ a:a1, b:Math.round(a1*Math.tan(aR)) },
+      // p4: zadáno α a b (protilehlá), hledá se c (přepona): c = b/sin α
+      p4:{ b:Math.round(c3*Math.sin(aR)), c:c3 },
     };
   },
   scenes: [
     { type:'story', build: ctx => ({
       title:'Jak na výpočet strany',
       html:`<p>Pokud znáš <b>úhel α</b> a jednu stranu, ostatní spočítáš pomocí sin, cos nebo tan.</p>
-        <div class="fact-box">📘 <b>Tři základní vzorce:</b><br>
-          • sin α = a/c &nbsp;→&nbsp; <b>a = c · sin α</b><br>
-          • cos α = b/c &nbsp;→&nbsp; <b>b = c · cos α</b><br>
-          • tan α = a/b &nbsp;→&nbsp; <b>a = b · tan α</b>
+        <div class="fact-box">📘 <b>Tři základní vzorce (vzhledem k úhlu α u vrcholu B):</b><br>
+          • sin α = b/c &nbsp;→&nbsp; <b>b = c · sin α</b> &nbsp;(protilehlá z přepony)<br>
+          • cos α = a/c &nbsp;→&nbsp; <b>a = c · cos α</b> &nbsp;(přilehlá z přepony)<br>
+          • tan α = b/a &nbsp;→&nbsp; <b>b = a · tan α</b> &nbsp;(protilehlá z přilehlé)
         </div>
         <div class="svg-wrap">${svgTriangle({a:true,b:true,c:true,alpha:true})}</div>
         <p>Tvůj úhel pro tuto kapitolu: <b>α = ${ctx.α}°</b>. Zaokrouhluj na celé centimetry.</p>`,
     })},
     { type:'math', build: ctx => ({
-      q:`Úhel α = ${ctx.α}°, přepona c = ${ctx.p1.c} cm.<br>Vypočítej délku protilehlé odvěsny <b>a</b> (v cm).`,
-      svg:svgTriangle({a:true,c:true,alpha:true}), ans:ctx.p1.a, tol:1, unit:'cm',
+      q:`Úhel α = ${ctx.α}°, přepona c = ${ctx.p1.c} cm.<br>Vypočítej délku <b>protilehlé odvěsny b</b> (v cm).`,
+      svg:svgTriangle({b:true,c:true,alpha:true}), ans:ctx.p1.b, tol:1, unit:'cm',
       hints:[
-        `Protilehlá odvěsna a přepona — použij sinus.`,
-        `sin ${ctx.α}° = a / ${ctx.p1.c}, tedy a = ${ctx.p1.c} · sin ${ctx.α}°`,
-        `a = ${ctx.p1.c} · sin ${ctx.α}° ≈ <b>${ctx.p1.a} cm</b>`,
+        `Protilehlá odvěsna (b) a přepona (c) — použij sinus.`,
+        `sin ${ctx.α}° = b / ${ctx.p1.c}, tedy b = ${ctx.p1.c} · sin ${ctx.α}°`,
+        `b = ${ctx.p1.c} · sin ${ctx.α}° ≈ <b>${ctx.p1.b} cm</b>`,
       ],
     })},
     { type:'math', build: ctx => ({
-      q:`Úhel α = ${ctx.α}°, přepona c = ${ctx.p2.c} cm.<br>Vypočítej délku přilehlé odvěsny <b>b</b> (v cm).`,
-      svg:svgTriangle({b:true,c:true,alpha:true}), ans:ctx.p2.b, tol:1, unit:'cm',
+      q:`Úhel α = ${ctx.α}°, přepona c = ${ctx.p2.c} cm.<br>Vypočítej délku <b>přilehlé odvěsny a</b> (v cm).`,
+      svg:svgTriangle({a:true,c:true,alpha:true}), ans:ctx.p2.a, tol:1, unit:'cm',
       hints:[
-        `Přilehlá odvěsna a přepona — použij kosinus.`,
-        `cos ${ctx.α}° = b / ${ctx.p2.c}, tedy b = ${ctx.p2.c} · cos ${ctx.α}°`,
-        `b = ${ctx.p2.c} · cos ${ctx.α}° ≈ <b>${ctx.p2.b} cm</b>`,
+        `Přilehlá odvěsna (a) a přepona (c) — použij kosinus.`,
+        `cos ${ctx.α}° = a / ${ctx.p2.c}, tedy a = ${ctx.p2.c} · cos ${ctx.α}°`,
+        `a = ${ctx.p2.c} · cos ${ctx.α}° ≈ <b>${ctx.p2.a} cm</b>`,
       ],
     })},
     { type:'math', build: ctx => ({
-      q:`Úhel α = ${ctx.α}°, přilehlá odvěsna b = ${ctx.p3.b} cm.<br>Vypočítej délku protilehlé odvěsny <b>a</b> (v cm).`,
-      svg:svgTriangle({a:true,b:true,alpha:true}), ans:ctx.p3.a, tol:1, unit:'cm',
+      q:`Úhel α = ${ctx.α}°, přilehlá odvěsna a = ${ctx.p3.a} cm.<br>Vypočítej délku <b>protilehlé odvěsny b</b> (v cm).`,
+      svg:svgTriangle({a:true,b:true,alpha:true}), ans:ctx.p3.b, tol:1, unit:'cm',
       hints:[
-        `Protilehlá a přilehlá odvěsna — bez přepony. Použij tangens.`,
-        `tan ${ctx.α}° = a / ${ctx.p3.b}, tedy a = ${ctx.p3.b} · tan ${ctx.α}°`,
-        `a = ${ctx.p3.b} · tan ${ctx.α}° ≈ <b>${ctx.p3.a} cm</b>`,
+        `Protilehlá (b) a přilehlá (a) — bez přepony. Použij tangens.`,
+        `tan ${ctx.α}° = b / ${ctx.p3.a}, tedy b = ${ctx.p3.a} · tan ${ctx.α}°`,
+        `b = ${ctx.p3.a} · tan ${ctx.α}° ≈ <b>${ctx.p3.b} cm</b>`,
       ],
     })},
     { type:'math', build: ctx => ({
-      q:`Úhel α = ${ctx.α}°, protilehlá odvěsna a = ${ctx.p4.a} cm.<br>Tentokrát hledej přeponu <b>c</b> (v cm).`,
-      svg:svgTriangle({a:true,c:true,alpha:true}), ans:ctx.p4.c, tol:1, unit:'cm',
+      q:`Úhel α = ${ctx.α}°, protilehlá odvěsna b = ${ctx.p4.b} cm.<br>Tentokrát hledej <b>přeponu c</b> (v cm).`,
+      svg:svgTriangle({b:true,c:true,alpha:true}), ans:ctx.p4.c, tol:1, unit:'cm',
       hints:[
-        `Znáš a a hledáš c — to je sinus, ale teď musíš vzorec obrátit.`,
-        `sin ${ctx.α}° = ${ctx.p4.a} / c, tedy c = ${ctx.p4.a} / sin ${ctx.α}°`,
-        `c = ${ctx.p4.a} / sin ${ctx.α}° ≈ <b>${ctx.p4.c} cm</b>`,
+        `Znáš b a hledáš c — to je sinus, ale teď musíš vzorec obrátit.`,
+        `sin ${ctx.α}° = ${ctx.p4.b} / c, tedy c = ${ctx.p4.b} / sin ${ctx.α}°`,
+        `c = ${ctx.p4.b} / sin ${ctx.α}° ≈ <b>${ctx.p4.c} cm</b>`,
       ],
     })},
   ],
@@ -413,19 +428,19 @@ const ACTS = [
     const α = pick([25,30,35,40,45,50,55,60,65]);
     const aR = rad(α);
     const c1=pick([10,12,15,20,25]), c2=pick([10,12,15,20,25]);
-    const b3=pick([5,6,8,10,12]);
-    const a1=Math.round(c1*Math.sin(aR));
-    const b2=Math.round(c2*Math.cos(aR));
-    const a3=Math.round(b3*Math.tan(aR));
-    const ans1=Math.round(Math.asin(a1/c1)*180/Math.PI);
-    const ans2=Math.round(Math.acos(b2/c2)*180/Math.PI);
-    const ans3=Math.round(Math.atan(a3/b3)*180/Math.PI);
+    const a3=pick([5,6,8,10,12]);
+    const b1=Math.round(c1*Math.sin(aR));
+    const a2=Math.round(c2*Math.cos(aR));
+    const b3=Math.round(a3*Math.tan(aR));
+    const ans1=Math.round(Math.asin(b1/c1)*180/Math.PI);
+    const ans2=Math.round(Math.acos(a2/c2)*180/Math.PI);
+    const ans3=Math.round(Math.atan(b3/a3)*180/Math.PI);
     return {
       α,
-      p1:{ a:a1, c:c1, ans:ans1 },
-      p2:{ b:b2, c:c2, ans:ans2 },
-      p3:{ a:a3, b:b3, ans:ans3 },
-      p4:{ a:a1, c:c1, ans:90-ans1 },
+      p1:{ b:b1, c:c1, ans:ans1 },          // arcsin(b/c)
+      p2:{ a:a2, c:c2, ans:ans2 },          // arccos(a/c)
+      p3:{ b:b3, a:a3, ans:ans3 },          // arctan(b/a)
+      p4:{ b:b1, c:c1, ans:90-ans1 },       // β = 90° − α
     };
   },
   scenes: [
@@ -433,47 +448,47 @@ const ACTS = [
       title:'Jak na výpočet úhlu',
       html:`<p>Pokud znáš dvě strany, úhel α najdeš pomocí <b>inverzní funkce</b> na kalkulačce.</p>
         <div class="fact-box">📘 <b>Tři inverzní funkce:</b><br>
-          • sin α = a/c &nbsp;→&nbsp; <b>α = arcsin(a/c)</b><br>
-          • cos α = b/c &nbsp;→&nbsp; <b>α = arccos(b/c)</b><br>
-          • tan α = a/b &nbsp;→&nbsp; <b>α = arctan(a/b)</b><br><br>
+          • sin α = b/c &nbsp;→&nbsp; <b>α = arcsin(b/c)</b><br>
+          • cos α = a/c &nbsp;→&nbsp; <b>α = arccos(a/c)</b><br>
+          • tan α = b/a &nbsp;→&nbsp; <b>α = arctan(b/a)</b><br><br>
           Na kalkulačce: tlačítko <b>sin⁻¹</b>, <b>cos⁻¹</b>, <b>tan⁻¹</b> (nebo Shift + sin/cos/tan).
         </div>
         <div class="svg-wrap">${svgTriangle({a:true,b:true,c:true,alpha:true})}</div>
         <p>Výsledky zaokrouhluj na <b>celé stupně</b>.</p>`,
     })},
     { type:'math', build: ctx => ({
-      q:`Protilehlá odvěsna a = ${ctx.p1.a} cm, přepona c = ${ctx.p1.c} cm.<br>Vypočítej úhel <b>α</b> (v celých stupních).`,
-      svg:svgTriangle({a:true,c:true,alpha:true}), ans:ctx.p1.ans, tol:1, unit:'°',
+      q:`Protilehlá odvěsna b = ${ctx.p1.b} cm, přepona c = ${ctx.p1.c} cm.<br>Vypočítej úhel <b>α</b> (v celých stupních).`,
+      svg:svgTriangle({b:true,c:true,alpha:true}), ans:ctx.p1.ans, tol:1, unit:'°',
       hints:[
-        `Znáš protilehlou (a) a přeponu (c) — to je sinus.`,
-        `sin α = ${ctx.p1.a} / ${ctx.p1.c} = ${r1(ctx.p1.a/ctx.p1.c)}, takže α = arcsin(${r1(ctx.p1.a/ctx.p1.c)})`,
-        `α = arcsin(${r1(ctx.p1.a/ctx.p1.c)}) ≈ <b>${ctx.p1.ans}°</b>`,
+        `Znáš protilehlou (b) a přeponu (c) — to je sinus.`,
+        `sin α = ${ctx.p1.b} / ${ctx.p1.c} = ${r1(ctx.p1.b/ctx.p1.c)}, takže α = arcsin(${r1(ctx.p1.b/ctx.p1.c)})`,
+        `α = arcsin(${r1(ctx.p1.b/ctx.p1.c)}) ≈ <b>${ctx.p1.ans}°</b>`,
       ],
     })},
     { type:'math', build: ctx => ({
-      q:`Přilehlá odvěsna b = ${ctx.p2.b} cm, přepona c = ${ctx.p2.c} cm.<br>Vypočítej úhel <b>α</b> (v celých stupních).`,
-      svg:svgTriangle({b:true,c:true,alpha:true}), ans:ctx.p2.ans, tol:1, unit:'°',
+      q:`Přilehlá odvěsna a = ${ctx.p2.a} cm, přepona c = ${ctx.p2.c} cm.<br>Vypočítej úhel <b>α</b> (v celých stupních).`,
+      svg:svgTriangle({a:true,c:true,alpha:true}), ans:ctx.p2.ans, tol:1, unit:'°',
       hints:[
-        `Znáš přilehlou (b) a přeponu (c) — to je kosinus.`,
-        `cos α = ${ctx.p2.b} / ${ctx.p2.c} = ${r1(ctx.p2.b/ctx.p2.c)}, takže α = arccos(${r1(ctx.p2.b/ctx.p2.c)})`,
-        `α = arccos(${r1(ctx.p2.b/ctx.p2.c)}) ≈ <b>${ctx.p2.ans}°</b>`,
+        `Znáš přilehlou (a) a přeponu (c) — to je kosinus.`,
+        `cos α = ${ctx.p2.a} / ${ctx.p2.c} = ${r1(ctx.p2.a/ctx.p2.c)}, takže α = arccos(${r1(ctx.p2.a/ctx.p2.c)})`,
+        `α = arccos(${r1(ctx.p2.a/ctx.p2.c)}) ≈ <b>${ctx.p2.ans}°</b>`,
       ],
     })},
     { type:'math', build: ctx => ({
-      q:`Protilehlá odvěsna a = ${ctx.p3.a} cm, přilehlá odvěsna b = ${ctx.p3.b} cm.<br>Vypočítej úhel <b>α</b> (v celých stupních).`,
+      q:`Protilehlá odvěsna b = ${ctx.p3.b} cm, přilehlá odvěsna a = ${ctx.p3.a} cm.<br>Vypočítej úhel <b>α</b> (v celých stupních).`,
       svg:svgTriangle({a:true,b:true,alpha:true}), ans:ctx.p3.ans, tol:1, unit:'°',
       hints:[
-        `Znáš protilehlou (a) a přilehlou (b) — žádná přepona, to je tangens.`,
-        `tan α = ${ctx.p3.a} / ${ctx.p3.b} = ${r1(ctx.p3.a/ctx.p3.b)}, takže α = arctan(${r1(ctx.p3.a/ctx.p3.b)})`,
-        `α = arctan(${r1(ctx.p3.a/ctx.p3.b)}) ≈ <b>${ctx.p3.ans}°</b>`,
+        `Znáš protilehlou (b) a přilehlou (a) — žádná přepona, to je tangens.`,
+        `tan α = ${ctx.p3.b} / ${ctx.p3.a} = ${r1(ctx.p3.b/ctx.p3.a)}, takže α = arctan(${r1(ctx.p3.b/ctx.p3.a)})`,
+        `α = arctan(${r1(ctx.p3.b/ctx.p3.a)}) ≈ <b>${ctx.p3.ans}°</b>`,
       ],
     })},
     { type:'math', build: ctx => ({
-      q:`Pravoúhlý trojúhelník: přepona c = ${ctx.p4.c} cm, protilehlá odvěsna a = ${ctx.p4.a} cm (naproti α).<br>Vypočítej druhý ostrý úhel <b>β</b> (u vrcholu A, v celých stupních).`,
-      svg:svgTriangle({a:true,c:true}), ans:ctx.p4.ans, tol:1, unit:'°',
+      q:`Pravoúhlý trojúhelník: přepona c = ${ctx.p4.c} cm, protilehlá odvěsna b = ${ctx.p4.b} cm (naproti α u vrcholu B).<br>Vypočítej druhý ostrý úhel <b>β</b> (u vrcholu A, v celých stupních).`,
+      svg:svgTriangle({b:true,c:true}), ans:ctx.p4.ans, tol:1, unit:'°',
       hints:[
-        `Nejprve najdi α přes arcsin, pak využij faktu: součet úhlů v trojúhelníku = 180°.`,
-        `α = arcsin(${ctx.p4.a}/${ctx.p4.c}) ≈ ${ctx.p1.ans}°, pak β = 90° − α`,
+        `Nejprve najdi α přes arcsin(b/c), pak využij faktu: součet ostrých úhlů v pravoúhlém trojúhelníku = 90°.`,
+        `α = arcsin(${ctx.p4.b}/${ctx.p4.c}) ≈ ${ctx.p1.ans}°, pak β = 90° − α`,
         `β = 90° − ${ctx.p1.ans}° = <b>${ctx.p4.ans}°</b>`,
       ],
     })},
