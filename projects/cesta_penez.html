@@ -547,81 +547,46 @@ input.answer.wrong { border-color: var(--red); background: var(--red-light); ani
   .btn-row { justify-content: stretch; }
   .btn-row .btn-primary, .btn-row .btn-check { flex: 1; }
 }
+
+#lang-bar{position:fixed;bottom:16px;right:16px;z-index:200;display:flex;gap:6px;
+  background:rgba(255,255,255,.92);border-radius:50px;padding:5px 8px;
+  box-shadow:0 2px 12px rgba(0,0,0,.12);backdrop-filter:blur(6px)}
+.lang-btn{background:none;border:2px solid transparent;border-radius:50px;
+  font-size:1.35rem;cursor:pointer;padding:3px 7px;line-height:1;
+  transition:border-color .15s,box-shadow .15s}
+.lang-btn.active{border-color:var(--blue);box-shadow:0 0 0 2px rgba(26,115,200,.25)}
 </style>
 </head>
 <body>
 
+<div id="lang-bar">
+  <button class="lang-btn" data-lang="cs" onclick="setLang('cs')">&#x1F1E8;&#x1F1FF;</button>
+  <button class="lang-btn" data-lang="en" onclick="setLang('en')">&#x1F1EC;&#x1F1E7;</button>
+</div>
+
 <!-- INTRO -->
 <section id="intro" class="screen active">
   <div class="top-bar">
-    <a href="./">← zpět na projekty</a><span></span><a href="/">domů</a>
+    <a href="./" class="tp-back">← zpět na projekty</a><span></span><a href="/" class="tp-home">domů</a>
   </div>
-  <div style="text-align:center;">
-    <div class="intro-icon">💸🛣️</div>
-    <h1 class="intro-title">Cesta peněz — <span class="accent">finanční výprava</span></h1>
-    <p class="intro-sub">
-      Interaktivní příběh o tom, kudy peníze v Česku tečou. Od první brigády po vlastní byt — s reálnými sazbami, počítáním a rozhodnutími, která se ti vrátí.
-    </p>
-  </div>
-
-  <div class="intro-card">
-    <h3>👋 Co tě čeká</h3>
-    <p>Projdeš si <b>8 kapitol života</b> jedné postavy (tebe). V každé kapitole něco spočítáš — daň, RPSN, hypotéku — a uděláš pár rozhodnutí, která ovlivní, kolik ti zbude na konci.</p>
-    <p>Pracujeme s <b>reálnými českými sazbami (rok 2025)</b>. <b>Čísla se generují náhodně</b> — každý spoluhráč u stolu má svoji vlastní brigádu, plat, inflaci.</p>
-  </div>
-
-  <div class="intro-card" style="border-left-color: var(--act2-fg);">
-    <h3 style="color: var(--act2-fg);">📋 Co se naučíš</h3>
-    <ul>
-      <li><span class="bullet">①</span><span><b>Daně a odvody</b> — kolik z hrubé výplaty fakt dostaneš na účet</span></li>
-      <li><span class="bullet">②</span><span><b>Inflace a spoření</b> — proč peníze pod polštářem v čase chudnou</span></li>
-      <li><span class="bullet">③</span><span><b>Půjčky a RPSN</b> — jak srovnat dvě nabídky a nenechat se nachytat</span></li>
-      <li><span class="bullet">④</span><span><b>Hypotéka</b> — co je LTV, anuita a kolik celkem za bydlení dáš</span></li>
-      <li><span class="bullet">⑤</span><span><b>Lichva</b> — proč rychlá půjčka může skončit exekucí</span></li>
-      <li><span class="bullet">⑥</span><span><b>Kyberbezpečnost peněz</b> — phishing, falešné e-shopy, "vyhráli jste"</span></li>
-    </ul>
-  </div>
-
-  <div class="intro-card" style="border-left-color: var(--gold);">
-    <h3 style="color: var(--gold);">💡 Pravidla</h3>
-    <ul>
-      <li><span class="bullet" style="color:var(--gold)">·</span><span>Odpovídej jako <b>celé číslo</b> (v Kč nebo v procentech dle zadání).</span></li>
-      <li><span class="bullet" style="color:var(--gold)">·</span><span>Kalkulačka je v pohodě — jde o postup, ne paměť.</span></li>
-      <li><span class="bullet" style="color:var(--gold)">·</span><span><b>Nápověda má 3 úrovně:</b> 1. nasměrování → 2. vzorec → 3. řešení s výsledkem. Tlačítkem postupuješ dál.</span></li>
-      <li><span class="bullet" style="color:var(--gold)">·</span><span>Postup se ukládá v prohlížeči — můžeš si dát pauzu a pokračovat.</span></li>
-    </ul>
-  </div>
-
-  <div class="intro-card code-input-card">
-    <h3>🔑 Mám kód odjinud</h3>
-    <p>Hraješ na jiném počítači, než předtím? Zadej kód, který jsi dostal po skončení kapitoly. Posuneš se rovnou k té další.</p>
-    <div class="code-input-row">
-      <input type="text" id="code-input-intro" placeholder="třeba: brigada11500" autocomplete="off" autocapitalize="off" spellcheck="false">
-      <button class="btn-check" id="code-apply-intro">Použít</button>
-    </div>
-    <div class="code-feedback" id="code-feedback-intro"></div>
-  </div>
-
-  <div style="text-align:center;">
-    <button class="btn-primary" id="btn-go-hub">▶ Vstoupit do hry</button>
-  </div>
+  <div id="intro-content"></div>
 </section>
 
 <!-- HUB -->
 <section id="hub" class="screen">
   <div class="top-bar">
-    <a href="./">← zpět na projekty</a>
+    <a href="./" class="tp-back">← zpět na projekty</a>
     <div class="mid"><span class="coins" id="hub-coins">0 ⭐</span></div>
     <a href="javascript:void(0)" id="reset-link" title="Smazat postup">↺ reset</a>
   </div>
-  <h2 style="text-align:center; font-weight:800; margin-bottom:6px;">Mapa cesty</h2>
-  <p style="text-align:center; color:var(--muted); font-size:.92rem; margin-bottom:18px;">
+  <h2 id="hub-title" style="text-align:center; font-weight:800; margin-bottom:6px;">Mapa cesty</h2>
+  <p id="hub-subtitle" style="text-align:center; color:var(--muted); font-size:.92rem; margin-bottom:18px;">
     Kapitoly se odemykají postupně. Klikni na první bez zámku.
   </p>
   <div class="hub-grid" id="hub-grid"></div>
 
   <div class="intro-card code-input-card" style="margin-bottom: 18px;">
-    <h3>🔑 Mám kód odjinud</h3>
+    <h3 id="hub-code-title">🔑 Mám kód odjinud</h3>
     <div class="code-input-row">
       <input type="text" id="code-input-hub" placeholder="třeba: brigada11500" autocomplete="off" autocapitalize="off" spellcheck="false">
       <button class="btn-check" id="code-apply-hub">Použít</button>
@@ -637,7 +602,7 @@ input.answer.wrong { border-color: var(--red); background: var(--red-light); ani
 <!-- ACT -->
 <section id="act" class="screen">
   <div class="top-bar">
-    <a href="javascript:void(0)" id="back-to-hub">← mapa</a>
+    <a href="javascript:void(0)" id="back-to-hub" class="tp-map">← mapa</a>
     <div class="mid"><span id="act-progress" class="scene-progress"></span></div>
     <span class="coins" id="act-coins">0 ⭐</span>
   </div>
@@ -651,27 +616,44 @@ input.answer.wrong { border-color: var(--red); background: var(--red-light); ani
 <!-- RESULT -->
 <section id="result" class="screen">
   <div class="top-bar">
-    <a href="javascript:void(0)" id="result-to-hub">← mapa</a>
+    <a href="javascript:void(0)" id="result-to-hub" class="tp-map">← mapa</a>
     <span></span>
-    <a href="/">domů</a>
+    <a href="/" class="tp-home">domů</a>
   </div>
-  <div class="cert">
-    <div class="seal">🏆</div>
-    <p class="for">Osvědčení o finanční gramotnosti</p>
-    <div class="cert-name-input">
-      <input type="text" id="cert-name-input" placeholder="Zadej své jméno…" autocomplete="off" maxlength="40">
-    </div>
-    <p class="name" id="cert-name-display">Tomu, kdo prošel <i>Cestu peněz</i></p>
-    <h2 id="cert-title">Dokončeno!</h2>
-    <p class="score">Tvoje skóre: <b id="cert-score">— / —</b></p>
-    <p id="cert-msg" style="font-size:.92rem; color:var(--muted); margin-top:10px;"></p>
-  </div>
-  <div style="text-align:center;">
-    <button class="btn-primary" id="result-restart">🔁 Začít znovu</button>
-  </div>
+  <div id="result-content"></div>
 </section>
 
 <script>
+const LANG_KEY = 'cesta_penez_lang';
+let lang = localStorage.getItem(LANG_KEY) || 'cs';
+const i18n = (cs, en) => lang === 'en' ? en : cs;
+
+function setLang(l) {
+  lang = l;
+  try { localStorage.setItem(LANG_KEY, l); } catch(e) {}
+  document.querySelectorAll('.lang-btn').forEach(b =>
+    b.classList.toggle('active', b.dataset.lang === l));
+  document.querySelectorAll('.tp-back').forEach(el =>
+    el.textContent = i18n('← zpět na projekty', '← back to projects'));
+  document.querySelectorAll('.tp-home').forEach(el =>
+    el.textContent = i18n('domů', 'home'));
+  document.querySelectorAll('.tp-map').forEach(el =>
+    el.textContent = i18n('← mapa', '← map'));
+  const hubTitle = document.getElementById('hub-title');
+  if (hubTitle) hubTitle.textContent = i18n('Mapa cesty', 'Journey Map');
+  const hubSub = document.getElementById('hub-subtitle');
+  if (hubSub) hubSub.textContent = i18n('Kapitoly se odemykají postupně. Klikni na první bez zámku.', 'Chapters unlock in order. Click the first unlocked one.');
+  const hubCode = document.getElementById('hub-code-title');
+  if (hubCode) hubCode.textContent = i18n('🔑 Mám kód odjinud', '🔑 I have a code from elsewhere');
+  const codeHub = document.getElementById('code-apply-hub');
+  if (codeHub) codeHub.textContent = i18n('Použít', 'Apply');
+  const active = document.querySelector('.screen.active')?.id;
+  if (active === 'intro') buildIntro();
+  else if (active === 'hub') { renderHub(); }
+  else if (active === 'act') renderScene();
+  else if (active === 'result') buildResult();
+}
+
 /* ════════════════════════════════════════════════════════════════════════
    CESTA PENĚZ — finanční výprava
    8.–9. třída, lineární příběh
@@ -693,6 +675,123 @@ const ACT_CODES = {
   7: 'lichvastopka',     // po Aktu 6 (lichva)
   8: 'kyberbezpeci',     // po Aktu 7 (kyber)
 };
+
+/* English metadata for acts */
+const ACT_EN_META = {
+  1: { title: 'First Summer Job',         age: '15 years old' },
+  2: { title: 'First Real Salary',        age: '19 years old' },
+  3: { title: 'Inflation & Savings',      age: '24 years old' },
+  4: { title: 'Car Loan',                 age: '28 years old' },
+  5: { title: 'Mortgage',                 age: '32 years old' },
+  6: { title: 'Predatory Lending',        age: '34 years old' },
+  7: { title: 'Cyber Fraud',              age: '35 years old' },
+  8: { title: 'Certificate',              age: '— summary' },
+};
+
+function buildIntro() {
+  const el = document.getElementById('intro-content');
+  if (!el) return;
+  el.innerHTML = `
+    <div style="text-align:center;">
+      <div class="intro-icon">&#x1F4B8;&#x1F6E3;&#xFE0F;</div>
+      <h1 class="intro-title">${i18n('Cesta peněz — ', 'Money Journey — ')}<span class="accent">${i18n('finanční výprava', 'financial adventure')}</span></h1>
+      <p class="intro-sub">${i18n(
+        'Interaktivní příběh o tom, kudy peníze v Česku tečou. Od první brigády po vlastní byt — s reálnými sazbami, počítáním a rozhodnutími, která se ti vrátí.',
+        'An interactive story about how money flows through life — from your first summer job to your own flat — with real calculations and decisions that matter.'
+      )}</p>
+    </div>
+    <div class="intro-card">
+      <h3>&#x1F44B; ${i18n('Co tě čeká', "What's ahead")}</h3>
+      <p>${i18n(
+        'Projdeš si <b>8 kapitol života</b> jedné postavy (tebe). V každé kapitole něco spočítáš — daň, RPSN, hypotéku — a uděláš pár rozhodnutí, která ovlivní, kolik ti zbude na konci.',
+        'You\'ll travel through <b>8 life chapters</b> of one character (you). In each chapter you\'ll calculate something — tax, APR, mortgage — and make a few decisions that affect your final balance.'
+      )}</p>
+      <p>${i18n(
+        'Pracujeme s <b>reálnými českými sazbami (rok 2025)</b>. <b>Čísla se generují náhodně</b> — každý spoluhráč u stolu má svoji vlastní brigádu, plat, inflaci.',
+        'We use <b>real Czech rates (2025)</b>. <b>Numbers are randomised</b> — every player at the table gets their own job, salary, inflation rate.'
+      )}</p>
+    </div>
+    <div class="intro-card" style="border-left-color: var(--act2-fg);">
+      <h3 style="color: var(--act2-fg);">&#x1F4CB; ${i18n('Co se naučíš', "What you'll learn")}</h3>
+      <ul>
+        <li><span class="bullet">①</span><span><b>${i18n('Daně a odvody', 'Taxes & deductions')}</b> — ${i18n('kolik z hrubé výplaty fakt dostaneš na účet', 'how much of your gross pay actually lands in your account')}</span></li>
+        <li><span class="bullet">②</span><span><b>${i18n('Inflace a spoření', 'Inflation & saving')}</b> — ${i18n('proč peníze pod polštářem v čase chudnou', 'why cash under the mattress loses value over time')}</span></li>
+        <li><span class="bullet">③</span><span><b>${i18n('Půjčky a RPSN', 'Loans & APR')}</b> — ${i18n('jak srovnat dvě nabídky a nenechat se nachytat', 'how to compare two loan offers and not get caught out')}</span></li>
+        <li><span class="bullet">④</span><span><b>${i18n('Hypotéka', 'Mortgage')}</b> — ${i18n('co je LTV, anuita a kolik celkem za bydlení dáš', 'what LTV and annuity mean, and how much housing really costs')}</span></li>
+        <li><span class="bullet">⑤</span><span><b>${i18n('Lichva', 'Predatory lending')}</b> — ${i18n('proč rychlá půjčka může skončit exekucí', 'why a quick loan can end in debt enforcement')}</span></li>
+        <li><span class="bullet">⑥</span><span><b>${i18n('Kyberbezpečnost peněz', 'Cyber-financial safety')}</b> — ${i18n('phishing, falešné e-shopy, "vyhráli jste"', 'phishing, fake shops, "you\'ve won"')}</span></li>
+      </ul>
+    </div>
+    <div class="intro-card" style="border-left-color: var(--gold);">
+      <h3 style="color: var(--gold);">&#x1F4A1; ${i18n('Pravidla', 'Rules')}</h3>
+      <ul>
+        <li><span class="bullet" style="color:var(--gold)">·</span><span>${i18n('Odpovídej jako <b>celé číslo</b> (v Kč nebo v procentech dle zadání).', 'Answer as a <b>whole number</b> (in CZK or % as stated).')}</span></li>
+        <li><span class="bullet" style="color:var(--gold)">·</span><span>${i18n('Kalkulačka je v pohodě — jde o postup, ne paměť.', 'A calculator is fine — it\'s about understanding the process, not memory.')}</span></li>
+        <li><span class="bullet" style="color:var(--gold)">·</span><span><b>${i18n('Nápověda má 3 úrovně:', 'Hints have 3 levels:')}</b> ${i18n('1. nasměrování → 2. vzorec → 3. řešení s výsledkem.', '1. direction → 2. formula → 3. full solution.')} ${i18n('Tlačítkem postupuješ dál.', 'Press the button to advance.')}</span></li>
+        <li><span class="bullet" style="color:var(--gold)">·</span><span>${i18n('Postup se ukládá v prohlížeči — můžeš si dát pauzu a pokračovat.', 'Progress is saved in the browser — you can pause and continue.')}</span></li>
+      </ul>
+    </div>
+    <div class="intro-card code-input-card">
+      <h3>&#x1F511; ${i18n('Mám kód odjinud', 'I have a code from elsewhere')}</h3>
+      <p>${i18n('Hraješ na jiném počítači, než předtím? Zadej kód, který jsi dostal po skončení kapitoly. Posuneš se rovnou k té další.', 'Playing on a different computer? Enter the code you received at the end of a chapter. You\'ll jump straight to the next one.')}</p>
+      <div class="code-input-row">
+        <input type="text" id="code-input-intro" placeholder="${i18n('třeba: brigada11500', 'e.g.: brigada11500')}" autocomplete="off" autocapitalize="off" spellcheck="false">
+        <button class="btn-check" id="code-apply-intro">${i18n('Použít', 'Apply')}</button>
+      </div>
+      <div class="code-feedback" id="code-feedback-intro"></div>
+    </div>
+    <div style="text-align:center;">
+      <button class="btn-primary" id="btn-go-hub">&#x25B6; ${i18n('Vstoupit do hry', 'Enter the game')}</button>
+    </div>
+  `;
+  document.getElementById('btn-go-hub').addEventListener('click', () => { renderHub(); showScreen('hub'); });
+  bindCodeInput('code-input-intro', 'code-apply-intro', 'code-feedback-intro');
+}
+
+function buildResult() {
+  const sc = totalScore();
+  const pct = sc.max ? Math.round((sc.earned / sc.max) * 100) : 0;
+  let msg;
+  if (pct >= 90) msg = i18n('🏆 Mistr finanční gramotnosti! Skvělé výsledky napříč všemi kapitolami.', '🏆 Financial literacy master! Excellent results across all chapters.');
+  else if (pct >= 70) msg = i18n('🎉 Velmi solidní výsledek. Pár věcí si ještě můžeš zopakovat.', '🎉 Very solid result. A few things worth reviewing.');
+  else if (pct >= 50) msg = i18n('👍 Základ máš. Doporučuju projít znovu kapitoly, kde jsi měl skóre nízké.', '👍 Good foundation. Try re-reading the chapters where your score was low.');
+  else msg = i18n('📚 Začátek je tu — opakování je matkou moudrosti. Zkus to znovu.', '📚 Good start — practice makes perfect. Try again.');
+  const el = document.getElementById('result-content');
+  if (!el) return;
+  el.innerHTML = `
+    <div class="cert">
+      <div class="seal">&#x1F3C6;</div>
+      <p class="for">${i18n('Osvědčení o finanční gramotnosti', 'Certificate of Financial Literacy')}</p>
+      <div class="cert-name-input">
+        <input type="text" id="cert-name-input" placeholder="${i18n('Zadej své jméno…', 'Enter your name…')}" autocomplete="off" maxlength="40">
+      </div>
+      <p class="name" id="cert-name-display">${i18n('Tomu, kdo prošel <i>Cestu peněz</i>', 'To whoever completed <i>Money Journey</i>')}</p>
+      <h2>${i18n('Dokončeno!', 'Completed!')}</h2>
+      <p class="score">${i18n('Tvoje skóre:', 'Your score:')} <b id="cert-score">${sc.earned} / ${sc.max} ⭐</b></p>
+      <p style="font-size:.92rem; color:var(--muted); margin-top:10px;">${msg}</p>
+    </div>
+    <div style="text-align:center;">
+      <button class="btn-primary" id="result-restart">&#x1F501; ${i18n('Začít znovu', 'Start again')}</button>
+    </div>
+  `;
+  const nameInp = document.getElementById('cert-name-input');
+  const nameDisp = document.getElementById('cert-name-display');
+  const defaultName = i18n('Tomu, kdo prošel <i>Cestu peněz</i>', 'To whoever completed <i>Money Journey</i>');
+  const savedName = STATE.studentName || '';
+  nameInp.value = savedName;
+  nameDisp.innerHTML = savedName ? savedName : defaultName;
+  nameInp.oninput = () => {
+    const v = nameInp.value.trim();
+    STATE.studentName = v;
+    nameDisp.innerHTML = v ? v : defaultName;
+    saveState();
+  };
+  document.getElementById('result-restart').addEventListener('click', () => {
+    if (confirm(i18n('Začít cestu znovu? Smaže to tvůj postup.', 'Start the journey again? This will erase your progress.'))) {
+      resetState(); renderHub(); showScreen('intro');
+    }
+  });
+}
 
 /* ────────── STATE ────────── */
 
@@ -1482,6 +1581,369 @@ Při prodlení nad 30 dní: zesplatnění + exekuce</div>
   },
 ];
 
+/* ────────── ENGLISH SCENE BUILDS ────────── */
+const BUILD_EN = {
+
+  1: [
+    /* 0 story */ ctx => ({ icon: ctx.job.icon, html: `
+      <p>Summer holidays. <b>${ctx.job.who.charAt(0).toUpperCase() + ctx.job.who.slice(1)}</b> got you a summer job at a ${ctx.job.place === 'kavárna' ? 'café' : ctx.job.place === 'pizza-rozvážka' ? 'pizza delivery' : ctx.job.place === 'doučování angličtiny' ? 'tutoring agency' : ctx.job.place === 'letní tábor (asistent)' ? 'summer camp' : ctx.job.place === 'knihovna' ? 'library' : 'ice-cream parlour'}. Contract: <b>DPP — work agreement</b> (Czech short-term contract for students).</p>
+      <p>Your boss says: <i>"Hourly rate <b>${ctx.rate} CZK</b>, we're working ${ctx.job.period}, about <b>${ctx.hours} hours</b> per month."</i></p>
+      <div class="fact-box">📘 <b>DPP (work agreement)</b> is a popular Czech student work contract. <b>If you earn up to 11,500 CZK/month, no tax or insurance is deducted</b> (2025 limit). Above 11,500 CZK the 15% income tax kicks in.</div>
+      <p>Calculate your <b>gross</b> monthly earnings.</p>
+    `}),
+    /* 1 math  */ ctx => ({ q: `<b>${ctx.hours} hours × ${ctx.rate} CZK/h</b> = ?`, unit: 'CZK', answer: ctx.total, hints: [
+      'What math operation do you need — addition, subtraction, multiplication or division?',
+      `Multiply the number of hours by the hourly rate: <b>${ctx.hours} × ${ctx.rate}</b>.`,
+      `${ctx.hours} × ${ctx.rate} = <b>${fmt(ctx.total)}</b> CZK.`,
+    ], explain: `${ctx.hours} × ${ctx.rate} = <b>${fmt(ctx.total)} CZK</b>. You're under the 11,500 CZK limit — no tax or insurance to pay.` }),
+    /* 2 story */ ctx => ({ icon: '✅', html: `
+      <p>Great. <b>You earned ${fmt(ctx.total)} CZK</b>, and because you're under 11,500 CZK you receive the <b>full amount</b> in your account.</p>
+      <div class="fact-box">⚠️ <b>Common mistake:</b> If you had <b>two DPP contracts with different employers</b> and the combined total exceeded 11,500 CZK, the tax-free limit applies per contract — but social insurance is calculated on total income above the threshold.</div>
+    `}),
+    /* 3 decision */ ctx => ({ q: `What do you do with ${fmt(ctx.total)} CZK?`, options: [
+      { title: 'Spend it all on new clothes and games', kind: 'bad', feedback: 'Tempting, but if an unexpected cost comes up (broken phone, transport), you\'ll have nothing. Keep <b>some as a buffer</b>.' },
+      { title: 'Spend half, put half aside', kind: 'good', feedback: `Good decision. The <b>50/30/20 rule</b> says: 50% needs, 30% wants, 20% savings. Half-and-half is a reasonable compromise for a teenager.` },
+      { title: `Lend it to a friend who promised 10% back next month`, kind: 'meh', feedback: 'Lending to friends is risky — if they don\'t pay, you lose both the money <b>and the friendship</b>. Rule: only lend what you can afford to never see again.' },
+      { title: 'Send it to my parents to put in a savings account', kind: 'good', feedback: 'Smart! A savings account earns interest (modest, but better than nothing) and keeps money out of reach of impulse purchases.' },
+    ]}),
+    /* 4 story */ () => ({ icon: '🎯', html: `
+      <p>Chapter done. You learned that <b>DPP earnings under 11,500 CZK/month are tax-free</b> and that a buffer fund is more valuable than new trainers.</p>
+      <p>In a few years school ends and your first permanent job starts — and taxes will work differently.</p>
+    `}),
+  ],
+
+  2: [
+    /* 0 story */ ctx => ({ icon: '📄', html: `
+      <p>After secondary school you start your first permanent job (HPP — standard employment contract).</p>
+      <p>Your contract promises a <b>gross salary of ${fmt(ctx.gross)} CZK/month</b>. You think: "After a year I'll have ${fmt(ctx.gross * 12)} CZK!"</p>
+      <p>But your account receives less. Why?</p>
+      <div class="fact-box">📘 <b>Gross salary</b> is the number in the contract. <b>Net salary</b> is what you actually receive. Between them stands the state with three deductions:</div>
+      <p>① <b>Social insurance</b> — 7.1% of gross (pensions, sick pay).<br>
+         ② <b>Health insurance</b> — 4.5% of gross (doctors, hospitals).<br>
+         ③ <b>Income tax</b> — 15% of gross, <b>but</b> reduced by a <b>personal tax credit of 2,570 CZK/month</b>.</p>
+    `}),
+    /* 1 math */ ctx => ({ q: `Calculate <b>social insurance</b> on gross salary <b>${fmt(ctx.gross)} CZK</b>. (7.1%)`, unit: 'CZK', answer: ctx.social, hints: [
+      'Convert the percentage to a decimal, then multiply.',
+      `7.1% = 0.071. Multiply gross by this decimal: <b>${fmt(ctx.gross)} × 0.071</b>.`,
+      `${fmt(ctx.gross)} × 0.071 = <b>${fmt(ctx.social)}</b> CZK.`,
+    ], explain: `${fmt(ctx.gross)} × 0.071 = <b>${fmt(ctx.social)} CZK</b>. This goes to the state for pensions and sick pay.` }),
+    /* 2 math */ ctx => ({ q: `Now <b>health insurance</b> on <b>${fmt(ctx.gross)} CZK</b>. (4.5%)`, unit: 'CZK', answer: ctx.health, hints: [
+      'Same method as social insurance, just a lower rate.',
+      `4.5% = 0.045. So <b>${fmt(ctx.gross)} × 0.045</b>.`,
+      `${fmt(ctx.gross)} × 0.045 = <b>${fmt(ctx.health)}</b> CZK.`,
+    ], explain: `${fmt(ctx.gross)} × 0.045 = <b>${fmt(ctx.health)} CZK</b>. Goes to your health insurer.` }),
+    /* 3 math */ ctx => ({ q: `Income <b>tax advance</b>: 15% of ${fmt(ctx.gross)} = ? <br><span style="color:var(--muted);font-weight:400;font-size:.9rem;">(Tax before applying the personal credit.)</span>`, unit: 'CZK', answer: ctx.taxBase, hints: [
+      'Calculate 15% of gross salary — this is the advance the state holds.',
+      `15% = 0.15. So <b>${fmt(ctx.gross)} × 0.15</b>.`,
+      `${fmt(ctx.gross)} × 0.15 = <b>${fmt(ctx.taxBase)}</b> CZK.`,
+    ], explain: `${fmt(ctx.gross)} × 0.15 = <b>${fmt(ctx.taxBase)} CZK</b>. But the personal tax credit still applies.` }),
+    /* 4 math */ ctx => ({ q: `After the <b>2,570 CZK personal credit</b>: what is the <b>actual tax</b>? <br><span style="color:var(--muted);font-weight:400;font-size:.9rem;">(advance − credit)</span>`, unit: 'CZK', answer: ctx.tax, hints: [
+      'Subtract the credit from the advance you calculated in the previous step.',
+      `<b>${fmt(ctx.taxBase)} − 2,570</b> = ?`,
+      `${fmt(ctx.taxBase)} − 2,570 = <b>${fmt(ctx.tax)}</b> CZK.`,
+    ], explain: `${fmt(ctx.taxBase)} − 2,570 = <b>${fmt(ctx.tax)} CZK</b>. The <b>personal tax credit</b> saves you 2,570 CZK per month — every employee gets it.` }),
+    /* 5 math */ ctx => ({ q: `Final <b>net salary</b>: ${fmt(ctx.gross)} − social − health − tax. Calculate.`, unit: 'CZK', answer: ctx.net, hints: [
+      'Subtract all three deductions you calculated from the gross salary.',
+      `<b>${fmt(ctx.gross)} − ${fmt(ctx.social)} − ${fmt(ctx.health)} − ${fmt(ctx.tax)}</b> = ?`,
+      `${fmt(ctx.gross)} − ${fmt(ctx.social)} − ${fmt(ctx.health)} − ${fmt(ctx.tax)} = <b>${fmt(ctx.net)}</b> CZK.`,
+    ], explain: `${fmt(ctx.gross)} − ${fmt(ctx.social)} − ${fmt(ctx.health)} − ${fmt(ctx.tax)} = <b>${fmt(ctx.net)} CZK</b>. From gross ${fmt(ctx.gross)} CZK, <b>${fmt(ctx.net)} CZK</b> lands in your account (≈ ${Math.round(100 * ctx.net / ctx.gross)}%).` }),
+    /* 6 story */ ctx => ({ icon: '💡', html: `
+      <p>From ${fmt(ctx.gross)} CZK gross you receive <b>${fmt(ctx.net)} CZK net</b>. The state took <b>${fmt(ctx.gross - ctx.net)} CZK</b> in taxes and insurance — in return you get:</p>
+      <ul style="margin:8px 0 8px 20px;font-size:.95rem;line-height:1.7;">
+        <li>free medical care</li>
+        <li>entitlement to a pension at 65+</li>
+        <li>roads, schools, police and everything else funded by the state</li>
+      </ul>
+      <div class="fact-box">📊 <b>Rule of thumb:</b> About <b>78–82%</b> of gross salary arrives in your account. Above ~133,000 CZK/month (2025) a second tax rate of <b>23%</b> applies.</div>
+    `}),
+    /* 7 decision */ ctx => { const fivePct = Math.round(ctx.net * 0.05 / 100) * 100; const tenPct = Math.round(ctx.net * 0.1 / 100) * 100; const twentyPct = Math.round(ctx.net * 0.2 / 100) * 100; return { q: `From net salary ${fmt(ctx.net)} CZK — how much should you put aside immediately?`, options: [
+      { title: 'Nothing — money is for spending', kind: 'bad', feedback: 'Wrong. Without a buffer, any unexpected expense (broken car, dentist) forces you to <b>take out a loan</b>. And loans cost money — see Chapter 4.' },
+      { title: `10% (≈ ${fmt(tenPct)} CZK) — some buffer is better than nothing`, kind: 'meh', feedback: `Better than nothing, but 10% isn't much. You save ≈ ${fmt(tenPct)} CZK/month — building a 3-month buffer will take <b>nearly 2 years</b>.` },
+      { title: `20% (≈ ${fmt(twentyPct)} CZK) — the 50/30/20 rule`, kind: 'good', feedback: `Excellent! You save ${fmt(twentyPct)} CZK/month. A <b>3-month expense buffer</b> grows in about a year. ✅` },
+      { title: '50% — I want to be a millionaire soon', kind: 'meh', feedback: 'Ambitious! Works if your expenses are low (living with parents). But if you deny yourself everything you\'ll burn out and start impulse-spending.' },
+    ]}; },
+    /* 8 story */ () => ({ icon: '🎯', html: `
+      <p>Chapter done. <b>Gross ≠ net</b> — always calculate knowing the state takes ≈ 18–22%. And a 3-month expense buffer is the golden rule of financial literacy.</p>
+      <p>Next: <b>savings and inflation</b> — why cash under the mattress loses value over time.</p>
+    `}),
+  ],
+
+  3: [
+    /* 0 story */ ctx => ({ icon: '💰', html: `
+      <p>After 5 years of work you've saved <b>${fmt(ctx.savings)} CZK</b> under the mattress. You're proud — you have a buffer!</p>
+      <p>Then you hear on the radio: <i>"Annual inflation: ${ctx.inflation}%."</i> What does that mean for your money?</p>
+      <div class="fact-box">📘 <b>Inflation</b> = the rise in prices over time. With ${ctx.inflation}% inflation, something that costs 100 CZK today will cost ${100 + ctx.inflation} CZK next year. Your money stays the same <b>nominally</b> (you still have ${fmt(ctx.savings)} CZK), but its <b>purchasing power</b> falls.</div>
+    `}),
+    /* 1 math */ ctx => ({ q: `At inflation <b>${ctx.inflation}%</b> — <b>how much will next year's basket cost</b> if it costs <b>${fmt(ctx.savings)} CZK</b> today?`, unit: 'CZK', answer: ctx.basketAfter, hints: [
+      'Inflation tells you by how many % prices increase. Add that % increase to the original price.',
+      `${fmt(ctx.savings)} × (1 + ${ctx.inflation}/100) = ${fmt(ctx.savings)} × ${(1 + ctx.inflation/100).toFixed(2)}.`,
+      `${fmt(ctx.savings)} × ${(1 + ctx.inflation/100).toFixed(2)} = <b>${fmt(ctx.basketAfter)}</b> CZK.`,
+    ], explain: `${fmt(ctx.savings)} × ${(1 + ctx.inflation/100).toFixed(2)} = <b>${fmt(ctx.basketAfter)} CZK</b>. To buy the same things next year you'd need ${fmt(ctx.inflationLoss)} CZK more.` }),
+    /* 2 math */ ctx => ({ q: `Your <b>${fmt(ctx.savings)} CZK</b> under the mattress is nominally unchanged. By how many CZK did your <b>purchasing power</b> fall?`, unit: 'CZK', answer: ctx.inflationLoss, hints: [
+      'Before, you could buy the whole basket. Now the basket costs more but you have the same amount.',
+      `Difference between the new basket price and what you have: <b>${fmt(ctx.basketAfter)} − ${fmt(ctx.savings)}</b>.`,
+      `${fmt(ctx.basketAfter)} − ${fmt(ctx.savings)} = <b>${fmt(ctx.inflationLoss)}</b> CZK.`,
+    ], explain: `Your ${fmt(ctx.savings)} CZK buys <b>${fmt(ctx.inflationLoss)} CZK less in goods</b> than last year. Your money doesn't move — <b>it gets poorer because prices around it rise</b>.` }),
+    /* 3 story */ ctx => ({ icon: '🏦', html: `
+      <p>What to do? Banks offer <b>savings accounts</b> — your money at least grows slowly.</p>
+      <p>A savings account offers you <b>≈ ${ctx.savingsRate}% interest per year</b> (to compare with inflation).</p>
+    `}),
+    /* 4 math */ ctx => ({ q: `If you deposit <b>${fmt(ctx.savings)} CZK</b> in a savings account at <b>${ctx.savingsRate}%/year</b>, how much do you have after one year?`, unit: 'CZK', answer: ctx.savingsAfter, hints: [
+      'Same method as inflation — you\'re now asking how much your money grows instead of prices.',
+      `${fmt(ctx.savings)} × (1 + ${ctx.savingsRate}/100) = ${fmt(ctx.savings)} × ${(1 + ctx.savingsRate/100).toFixed(2)}.`,
+      `${fmt(ctx.savings)} × ${(1 + ctx.savingsRate/100).toFixed(2)} = <b>${fmt(ctx.savingsAfter)}</b> CZK.`,
+    ], explain: `${fmt(ctx.savings)} × ${(1 + ctx.savingsRate/100).toFixed(2)} = <b>${fmt(ctx.savingsAfter)} CZK</b>. You earned ${fmt(ctx.savingsAfter - ctx.savings)} CZK in interest.` }),
+    /* 5 story */ ctx => ({ icon: '⚖️', html: `
+      <p>Let's compare: <b>inflation ${ctx.inflation}%, interest ${ctx.savingsRate}%.</b></p>
+      <div class="calc-box">Basket price next year: ${fmt(ctx.basketAfter)} CZK
+Your money next year:   ${fmt(ctx.savingsAfter)} CZK
+Real loss:              ${fmt(ctx.realLoss)} CZK</div>
+      <p>Even with a savings account you're <b>effectively ${fmt(ctx.realLoss)} CZK poorer in real terms</b>. Inflation ran faster than interest. <b>Real interest rate</b> = rate − inflation = ${ctx.savingsRate} − ${ctx.inflation} = <b>${ctx.savingsRate - ctx.inflation}%</b>.</p>
+      <div class="fact-box">📘 The <b>real interest rate</b> can be negative! Then a savings account <i>slows</i> the loss of purchasing power but doesn't stop it. Higher returns come from investments (equities, funds) — at higher risk.</div>
+    `}),
+    /* 6 story */ ctx => { const items = [
+        { e: '📱', name: 'iPhone (≈ 30,000 CZK)', price: 30000 },
+        { e: '🏠', name: 'monthly rent 2-bed flat (≈ 25,000 CZK)', price: 25000 },
+        { e: '🏖️', name: 'week holiday for two (≈ 25,000 CZK)', price: 25000 },
+        { e: '🥐', name: 'bread roll (3.50 CZK)', price: 3.5 },
+      ];
+      const f = ctx.factor10;
+      const li = (item, factor) => { const n = Math.floor(ctx.savings / (item.price * factor)); return `<li><span>${item.e}</span><span><b>${fmt(n)}×</b> ${item.name}</span></li>`; };
+      return { icon: '🛒', html: `
+        <p>But what does it <b>actually mean</b>? Let's convert this to things you know.</p>
+        <p>Your <b>${fmt(ctx.savings)} CZK</b> — what can you really buy with it?</p>
+        <div class="kupni-sila">
+          <div class="ks-now">
+            <h4>📅 Today (2025)</h4>
+            <ul>${items.map(it => li(it, 1)).join('')}</ul>
+          </div>
+          <div class="ks-future">
+            <h4>⏭️ In 10 years (inflation ${ctx.inflation}%/yr)</h4>
+            <ul>${items.map(it => li(it, f)).join('')}</ul>
+            <p class="ks-note">The same ${fmt(ctx.savings)} CZK in 2035 will buy only <b>${ctx.pct10}%</b> of what it does today.<br>(Basket price rises from ${fmt(ctx.savings)} to ~${fmt(Math.round(ctx.savings * f))} CZK.)</p>
+          </div>
+        </div>
+        <div class="fact-box">💡 <b>Takeaway:</b> money you <b>don't use now or invest</b> slowly slips through your fingers. Cash and mattresses are for <b>short-term</b> reserves (3–6 months). For the long term you need something that beats inflation.</div>
+      `}; },
+    /* 7 decision */ ctx => ({ q: `You have ${fmt(ctx.savings)} CZK saved. What do you do with it?`, options: [
+      { title: 'Leave it under the mattress', kind: 'bad', feedback: `Worst choice — no interest, inflation eats it at full speed (−${ctx.inflation}%/yr). In 10 years it would have the purchasing power of ≈${ctx.pct10}% of today's value.` },
+      { title: `All in a savings account (${ctx.savingsRate}%)`, kind: 'meh', feedback: `Better than the mattress — money is accessible anytime, but you're mildly losing purchasing power (${ctx.savingsRate - ctx.inflation}%/yr). Good for a <b>short-term buffer</b> (3–6 months of expenses).` },
+      { title: 'Half in savings, half invested', kind: 'good', feedback: 'Sensible compromise! Half <b>liquid reserve</b>, half <b>long-term growth</b>. Equities/funds historically return 6–8%/yr (beating inflation) but fluctuate.' },
+      { title: 'Invest everything in equities', kind: 'meh', feedback: 'Good for returns, but <b>no liquid reserve</b> — if an unexpected cost hits while markets are down, you sell at a loss. <b>Buffer first, invest with the surplus.</b>' },
+    ]}),
+    /* 8 story */ () => ({ icon: '🎯', html: `
+      <p>Chapter 3 summary: <b>cash under the mattress loses value</b>, a savings account is first aid, but for the long run you need investments. <b>Buffer first, invest with the surplus.</b></p>
+      <p>Next chapter: <b>car loan and what APR means</b>.</p>
+    `}),
+  ],
+
+  4: [
+    /* 0 story */ ctx => ({ icon: '🚗', html: `
+      <p>A few years into work your boss gives you a raise. You want to buy a <b>used car for ${fmt(ctx.price)} CZK</b>. You only have <b>50,000 CZK</b> — you need a loan for the rest.</p>
+      <p>Three offers:</p>
+      <div class="calc-box">A) Bank <b>APR 9%</b> · payment <b>${fmt(ctx.monthlyA)} CZK/month</b> · 48 months
+B) Non-bank lender <b>APR 22%</b> · payment <b>${fmt(ctx.monthlyB)} CZK/month</b> · 48 months
+C) "Instant cash, no paperwork" <b>APR 38%</b> · payment <b>${fmt(ctx.monthlyC)} CZK/month</b> · 48 months</div>
+      <div class="fact-box">📘 <b>APR (Annual Percentage Rate)</b> is the <b>only correct comparison number</b> for loans. It includes both interest and all fees. Lower APR = cheaper loan. Marketing loves to show "from X CZK/month", but that's a trap — a low payment can mean a long term and a huge overpayment.</div>
+    `}),
+    /* 1 math */ ctx => ({ q: `Calculate the <b>total you'd pay to Bank (A)</b>. <br><span style="color:var(--muted);font-weight:400;font-size:.9rem;">monthly payment × number of months</span>`, unit: 'CZK', answer: ctx.totalA, hints: [
+      'Just multiplication: payment times number of months.',
+      `${fmt(ctx.monthlyA)} × 48 = ?`,
+      `${fmt(ctx.monthlyA)} × 48 = <b>${fmt(ctx.totalA)}</b> CZK.`,
+    ], explain: `${fmt(ctx.monthlyA)} × 48 = <b>${fmt(ctx.totalA)} CZK</b>. Car cost ${fmt(ctx.price)} CZK → loan overpayment: ${fmt(ctx.totalA - ctx.price)} CZK.` }),
+    /* 2 math */ ctx => ({ q: `Now calculate the <b>total for "Instant Cash" (C)</b>.`, unit: 'CZK', answer: ctx.totalC, hints: [
+      'Same method as Bank — payment × 48 months.',
+      `${fmt(ctx.monthlyC)} × 48 = ?`,
+      `${fmt(ctx.monthlyC)} × 48 = <b>${fmt(ctx.totalC)}</b> CZK.`,
+    ], explain: `${fmt(ctx.monthlyC)} × 48 = <b>${fmt(ctx.totalC)} CZK</b>. For a car worth ${fmt(ctx.price)} CZK you'd overpay <b>${fmt(ctx.overpayC)} CZK</b> — more than the car itself cost.` }),
+    /* 3 math */ ctx => ({ q: `<b>How much more do you pay with "Instant Cash" (C) vs Bank (A)?</b>`, unit: 'CZK', answer: ctx.diffCA, hints: [
+      'Subtract the Bank total from the Instant Cash total.',
+      `${fmt(ctx.totalC)} − ${fmt(ctx.totalA)} = ?`,
+      `${fmt(ctx.totalC)} − ${fmt(ctx.totalA)} = <b>${fmt(ctx.diffCA)}</b> CZK.`,
+    ], explain: `<b>${fmt(ctx.diffCA)} CZK extra</b> just for "faster paperwork". That's almost enough to buy a second car.` }),
+    /* 4 decision */ ctx => ({ q: 'Which loan do you choose?', options: [
+      { title: `A) Bank (APR 9%, ${fmt(ctx.monthlyA)} CZK/month)`, kind: 'good', feedback: 'Correct! The bank is the best deal — lowest APR, smallest overpayment. You need to show proof of income and it takes a little longer, but you save a huge amount.' },
+      { title: `B) Non-bank lender (APR 22%, ${fmt(ctx.monthlyB)} CZK/month)`, kind: 'meh', feedback: 'Not ideal. Non-bank lenders are sometimes necessary (when banks refuse), but you overpay thousands. A bank loan is almost always better.' },
+      { title: `C) Instant Cash (APR 38%, ${fmt(ctx.monthlyC)} CZK/month)`, kind: 'bad', feedback: `Very bad. You'd pay ${fmt(ctx.overpayC)} CZK in overpayments — more than the car cost. "Instant cash" lenders are often predatory.` },
+    ]}),
+    /* 5 story */ () => ({ icon: '🎯', html: `
+      <p>Three rules to keep in mind before any loan:</p>
+      <ul style="margin:8px 0 8px 20px;font-size:.95rem;line-height:1.7;">
+        <li><b>① Compare by APR</b>, not by monthly payment.</li>
+        <li><b>② Calculate the <i>total</i> amount paid</b> (payment × number of months).</li>
+        <li><b>③ "No income proof / approved in 15 min / no credit check" = red flag.</b></li>
+      </ul>
+      <div class="fact-box">📘 <b>Czech APR benchmarks (2025):</b> bank consumer loan <b>7–13%</b>, non-bank <b>15–30%</b>, predatory "instant" loans <b>30%+</b>. Consumer credit law provides some protection, but always read the contract.</div>
+      <p>Next chapter: <b>mortgage</b> — the biggest loan of your life.</p>
+    `}),
+  ],
+
+  5: [
+    /* 0 story */ ctx => ({ icon: '🏠', html: `
+      <p>You're at the bank. You've found a flat for <b>${fmt(ctx.price)} CZK</b>. The banker explains:</p>
+      <p><i>"The maximum loan is <b>${ctx.ltv}% of the property value</b> — this is called <b>LTV (Loan-to-Value)</b>. You must have the rest saved as a <b>down payment</b>."</i></p>
+      <div class="fact-box">📘 <b>LTV 80%</b> = bank lends 80% of the price, you need 20% of your own money. <b>LTV 90%</b> = bank lends 90%, you need 10%. Lower LTV = lower interest rate, but you need more saved first.</div>
+      <p>Calculate how much of your own money you need as a down payment.</p>
+    `}),
+    /* 1 math */ ctx => ({ q: `Down payment = price × <b>(100 − LTV)/100</b>. Calculate: ${fmt(ctx.price)} × (100 − ${ctx.ltv}) / 100.`, unit: 'CZK', answer: ctx.akontace, hints: [
+      'The down payment is your own share — the part the bank does NOT lend you.',
+      `${fmt(ctx.price)} × ${100 - ctx.ltv} / 100 = ?`,
+      `${fmt(ctx.price)} × ${100 - ctx.ltv} / 100 = <b>${fmt(ctx.akontace)}</b> CZK.`,
+    ], explain: `<b>${fmt(ctx.akontace)} CZK</b> must be in your account. The bank will lend you the remaining <b>${fmt(ctx.loan)} CZK</b>.` }),
+    /* 2 story */ ctx => ({ icon: '💸', html: `
+      <p>The banker continues: <i>"At today's interest rate of approx. <b>5%</b> and a term of <b>30 years</b>, your <b>monthly payment will be approximately ${fmt(ctx.monthly)} CZK</b>."</i></p>
+      <div class="fact-box">📘 The <b>monthly annuity</b> is mathematically complex (geometric series with interest). The bank calculates it for you. What matters to you: <b>how much per month</b> and <b>how much in total over 30 years</b>.</div>
+      <p>Now calculate how much in total you'll repay to the bank over 30 years.</p>
+    `}),
+    /* 3 math */ ctx => ({ q: `<b>Total repaid over 30 years</b> = monthly payment × number of months (360). Calculate.`, unit: 'CZK', answer: ctx.totalPaid, hints: [
+      'Multiply the monthly payment by the number of months (30 years = 360 months).',
+      `${fmt(ctx.monthly)} × 360 = ?`,
+      `${fmt(ctx.monthly)} × 360 = <b>${fmt(ctx.totalPaid)}</b> CZK.`,
+    ], explain: `<b>${fmt(ctx.totalPaid)} CZK</b> will be repaid to the bank over 30 years. The bank lent you ${fmt(ctx.loan)} CZK.` }),
+    /* 4 math */ ctx => ({ q: `How much <b>overpayment</b> is there beyond the amount the bank lent you? <br><span style="color:var(--muted);font-weight:400;font-size:.9rem;">total repaid − principal</span>`, unit: 'CZK', answer: ctx.overpaid, hints: [
+      'Difference between what you repay in total and what the bank originally lent you.',
+      `${fmt(ctx.totalPaid)} − ${fmt(ctx.loan)} = ?`,
+      `${fmt(ctx.totalPaid)} − ${fmt(ctx.loan)} = <b>${fmt(ctx.overpaid)}</b> CZK.`,
+    ], explain: `<b>${fmt(ctx.overpaid)} CZK</b> in interest over 30 years — nearly as much as the principal itself! That's the cost of borrowing money for 30 years.` }),
+    /* 5 decision */ () => ({ q: 'Your mortgage strategy:', options: [
+      { title: 'Take max LTV (90%) to avoid saving too much', kind: 'bad', feedback: 'Risky. Lower down payment = higher interest rate + greater risk if property value falls. Bigger loan = bigger total overpayment.' },
+      { title: 'Save up to 20% down payment (LTV 80%), then get mortgage', kind: 'good', feedback: 'Best. The bank gives you a better rate, you have less risk and pay less overall. It takes longer, but it pays off financially.' },
+      { title: 'Avoid mortgage completely, rent forever', kind: 'meh', feedback: 'Possible, but over 30 years you\'ll pay roughly as much in rent as in a mortgage — and have nothing to show for it. A mortgage is often better long-term.' },
+      { title: 'Take the mortgage and make overpayments straight away', kind: 'good', feedback: 'Excellent! Overpayments significantly reduce the total interest paid. Just watch the fixed-rate period conditions — there can be early repayment fees.' },
+    ]}),
+    /* 6 story */ () => ({ icon: '🎯', html: `
+      <p>Three things to know before a mortgage:</p>
+      <ul style="margin:8px 0 8px 20px;font-size:.95rem;line-height:1.7;">
+        <li><b>LTV</b> = how much of the price the bank lends. Lower LTV = better rate.</li>
+        <li><b>Fixed-rate period</b> (3, 5, 10 years) = how long the rate is locked. Recalculated after.</li>
+        <li><b>Overpayment</b> = you can repay more at once (sometimes with a fee).</li>
+      </ul>
+      <div class="fact-box">📘 <b>Rule:</b> a mortgage is the biggest loan in your life. Negotiating a rate <b>0.3% lower</b> with the bank can save you hundreds of thousands over 30 years. It's worth checking twice.</div>
+      <p>Next chapter: <b>predatory lending</b> — how debt spirals into enforcement proceedings.</p>
+    `}),
+  ],
+
+  6: [
+    /* 0 story */ ctx => ({ icon: '⚠️', html: `
+      <p>Your friend Tereza calls. <i>"I need ${fmt(ctx.jistina)} CZK within three days. Car in the garage, invoice due. Bank says 'no product for me' — I'm on a part-time contract. I keep seeing ads for 'loans in 15 minutes, no income proof'..."</i></p>
+      <p>You go look at it with her. The website looks cheerful, animations of smiling people. The tiny print at the very bottom says:</p>
+      <div class="calc-box">Principal: ${fmt(ctx.jistina)} CZK
+Payment: ${fmt(ctx.monthly)} CZK/month for 36 months
+APR: 74.9%
+Penalty for late payment: 1,000 CZK
+After 30 days in arrears: full acceleration + enforcement</div>
+      <div class="fact-box">⚠️ <b>74.9% APR</b> is not yet illegal in the Czech Republic (no legal cap), but it's a <b>typical predatory rate</b>. A bank consumer loan is 7–13%. Here you'd pay 10× as much.</div>
+    `}),
+    /* 1 math */ ctx => ({ q: `How much will Tereza pay <b>in total</b> if she pays every instalment on time?`, unit: 'CZK', answer: ctx.total, hints: [
+      'Payment × number of months.',
+      `${fmt(ctx.monthly)} × 36 = ?`,
+      `${fmt(ctx.monthly)} × 36 = <b>${fmt(ctx.total)}</b> CZK.`,
+    ], explain: `${fmt(ctx.monthly)} × 36 = <b>${fmt(ctx.total)} CZK</b>. For a ${fmt(ctx.jistina)} CZK loan.` }),
+    /* 2 math */ ctx => ({ q: `What is the <b>overpayment</b> above the original principal of ${fmt(ctx.jistina)} CZK?`, unit: 'CZK', answer: ctx.overpay, hints: [
+      'Difference between total paid and the amount borrowed.',
+      `${fmt(ctx.total)} − ${fmt(ctx.jistina)} = ?`,
+      `${fmt(ctx.total)} − ${fmt(ctx.jistina)} = <b>${fmt(ctx.overpay)}</b> CZK.`,
+    ], explain: `<b>${fmt(ctx.overpay)} CZK overpayment</b> — about <b>3× the amount borrowed</b>. And that's the <i>best-case</i> scenario (all paid on time).` }),
+    /* 3 story */ ctx => ({ icon: '🔥', html: `
+      <p>Six months later comes bad news. Tereza was made redundant, two instalments missed. <b>What happens:</b></p>
+      <ul style="margin:8px 0 8px 20px;font-size:.95rem;line-height:1.7;">
+        <li><b>① Contractual penalty</b> 1,000 CZK for each late payment</li>
+        <li><b>② Default interest</b> (statutory, on top of the original interest)</li>
+        <li><b>③ Acceleration</b> — creditor demands the entire remaining balance at once</li>
+        <li><b>④ Lawsuit and enforcement</b> — bailiff attaches the car, wages</li>
+        <li><b>⑤ Enforcement costs</b> 10–20k extra</li>
+      </ul>
+      <div class="fact-box">⚠️ <b>Tereza borrowed ${fmt(ctx.jistina)} CZK. After a year of non-payment the debt can exceed ${fmt(ctx.penalty)} CZK.</b> Debt grows exponentially. This is a <b>debt trap</b> — even if she wanted to, she can't pay it back because every month the debt grows faster than she can earn.</div>
+    `}),
+    /* 4 decision */ () => ({ q: 'What do you advise Tereza?', options: [
+      { title: 'Lend her the money from me/family to pay it all off now', kind: 'meh', feedback: 'Noble, but 1) you may not have it, 2) you\'re transferring her problem to yourself. If you decide to help, pay the creditor directly, and agree on repayment instalments.' },
+      { title: 'Go immediately to a <b>free debt advice charity</b>', kind: 'good', feedback: 'Best option. Charities help with acceleration, negotiating with creditors, and even <b>personal insolvency</b>. It\'s not shameful — debt traps affect hundreds of thousands of people.' },
+      { title: 'Take out another quick loan to pay off the first one', kind: 'bad', feedback: 'Classic spiral. The second loan will be even more expensive and the first penalties keep running. This only deepens the debt trap.' },
+      { title: 'Ignore it — it\'ll sort itself out', kind: 'bad', feedback: 'Worst option. Without action a lawsuit and enforcement will follow. Early communication with the creditor or a charity is the only way out.' },
+    ]}),
+    /* 5 story */ () => ({ icon: '🎯', html: `
+      <p>Rules for when someone close to you says "I urgently need money":</p>
+      <ul style="margin:8px 0 8px 20px;font-size:.95rem;line-height:1.7;">
+        <li><b>① Never a "quick loan".</b> APR above 30% = trap. Always prefer bank, credit card, family — in that order.</li>
+        <li><b>② Free debt advice charities exist.</b> They all help for free.</li>
+        <li><b>③ Personal insolvency</b> is a legal way out of a debt trap. It takes 3–5 years, but you start with a clean slate.</li>
+        <li><b>④ Communicate with the creditor.</b> Even predatory ones sometimes agree to a repayment plan — they know enforcement yields less.</li>
+      </ul>
+      <p>Next chapter: <b>cyber fraud</b> — how money disappears through a screen.</p>
+    `}),
+  ],
+
+  7: [
+    /* 0 story */ () => ({ icon: '🎣', html: `
+      <p>You open the news in the morning. Headline: <i>"Czechs lost billions to cyber fraud last year. Most common: fake Czech Post SMS and bank phishing."</i></p>
+      <div class="fact-box">📊 <b>Reality:</b> Police statistics show <b>tens of thousands of victims per year</b>. Average loss per person is <b>≈ 30,000 CZK</b>, but record cases exceeded one million. The vast majority begin with <b>a single click</b> on a suspicious link.</div>
+      <p>Let's try 4 real scenarios — can you spot the fraud?</p>
+    `}),
+    /* 1 decision */ () => ({ q: '📱 You receive an SMS: <i>"Czech Post: Your parcel is awaiting a customs fee of 30 CZK. Pay here: ceska-posta.cz.balik-id4729.com/pay"</i>. What do you do?', options: [
+      { title: 'Click — 30 CZK is a small amount, I want my parcel', kind: 'bad', feedback: `<b>Classic phishing.</b> After clicking, the page asks for your card. Instead of 30 CZK they drain everything they can. Watch the <b>domain</b>: the real one is <b>ceskaposta.cz</b>, not <b>ceska-posta.cz.balik-id4729.com</b> (the real domain here is the last <i>.com</i>!). The real Czech Post never asks for customs payment via a link in an SMS.` },
+      { title: 'Open the real ceskaposta.cz website and check parcel tracking', kind: 'good', feedback: 'Correct. Rule: <b>never click</b> links in SMS/emails. Always go directly to the official website via your browser. If the parcel exists, you\'ll find it there.' },
+      { title: 'Call the number in the SMS', kind: 'bad', feedback: 'Also a trap. The number in the SMS connects to fraudsters posing as the post office who extract your details. Always use <b>official numbers</b> from the provider\'s website.' },
+      { title: 'Delete and ignore', kind: 'good', feedback: 'Safe. If a parcel was expected, the notification will arrive via an official channel (email from the official domain or a paper card).' },
+    ]}),
+    /* 2 decision */ () => ({ q: '📧 Email: <i>"CONGRATULATIONS! You have been selected as our thousandth customer. You\'ve won an iPhone 15 Pro Max. Claim your prize here and pay only the postage of 99 CZK."</i> Looks like it\'s from a major retailer.', options: [
+      { title: 'Great, I\'ll fill in my details and pay 99 CZK', kind: 'bad', feedback: `<b>Fake prize</b> — one of the oldest fraud tactics. After entering your card they charge recurring fees (e.g. 500 CZK/week "subscription"). Rule: <b>prizes you didn't enter for don't exist.</b> Genuine competitions never require payment.` },
+      { title: 'Forward the link to the retailer so they can check it', kind: 'good', feedback: 'Good response. Major retailers have a security or phishing reporting email. You help others by reporting the fraud.' },
+      { title: 'Delete it — it\'s obviously a scam', kind: 'good', feedback: 'Correct. If you\'re in doubt — prizes you don\'t know about, or "you\'re our thousandth customer", are almost always fraud.' },
+      { title: 'Forward the link to friends so they can see it', kind: 'meh', feedback: 'Better not. Some friends might click without realising it\'s fraud. Warn them with words, not the link.' },
+    ]}),
+    /* 3 decision */ () => ({ q: '🛒 You see a social media ad: <i>"Apple-outlet.sale — iPhone 15 for £499, tonight only!"</i>. The website looks very similar to the real Apple store. What do you do?', options: [
+      { title: 'Buy it — great price', kind: 'bad', feedback: `<b>Fake shop.</b> The domain is not the real Apple store. After payment nothing arrives. Rule: <b>price significantly below market = fraud</b>. Real sales are at most 20–30% off, not 70%.` },
+      { title: 'Find the same phone on the real apple.com and compare', kind: 'good', feedback: 'Well done. If apple.com doesn\'t have that deal, it\'s fake. Always verify via the <b>official domain</b>, not via a link in an ad.' },
+      { title: 'Check reviews and company registration (who runs the shop)', kind: 'good', feedback: 'Professional approach. Company registries tell you who is behind the business — fake shops are often not registered. Google reviews help too.' },
+      { title: 'Ignore it — something looks off', kind: 'good', feedback: 'Safe. Rule: if the price looks too good to be true — it isn\'t true.' },
+    ]}),
+    /* 4 decision */ () => ({ q: '☎️ You get a call from someone with an accent: <i>"Good day, I\'m calling from your bank. A suspicious transaction is leaving your account. To block it, please read me the verification SMS we\'ll send you."</i>', options: [
+      { title: 'I dictate it — they\'re supposed to block it for me', kind: 'bad', feedback: `<b>Total fraud (vishing).</b> Your bank will <b>NEVER</b> ask for a verification SMS code over the phone. That code <b>authorises a payment</b> — by dictating it you give the fraudster permission to transfer your money. Result: immediate loss of your entire balance.` },
+      { title: 'Hang up and call the number on the bank\'s website myself', kind: 'good', feedback: 'Exactly right. <b>Banks never call about SMS codes.</b> If suspicious, hang up and call the <b>official line</b> (on the bank\'s website or from your card). They\'ll confirm whether anything was actually suspicious.' },
+      { title: 'Say I\'ll call back, and check via the bank\'s app', kind: 'good', feedback: 'Safe. The bank app shows real account activity. If nothing suspicious appears, it was fraud.' },
+      { title: 'Dictate only half the code so they can\'t get me completely', kind: 'bad', feedback: 'Even "just half" is often enough — they combine it with a follow-up call. Most importantly: a legitimate bank employee will never ask for any code.' },
+    ]}),
+    /* 5 story */ () => ({ icon: '🛡️', html: `
+      <p>Universal rules that protect against most fraud:</p>
+      <ul style="margin:8px 0 8px 20px;font-size:.95rem;line-height:1.7;">
+        <li><b>① Never click links in SMS/emails.</b> Always go to the official site manually via your browser.</li>
+        <li><b>② Banks never ask for passwords or SMS codes over the phone.</b> Nor does the police. Nor Microsoft.</li>
+        <li><b>③ Too-good price / prize / offer = fraud.</b> Always check the domain (not just "contains the brand name").</li>
+        <li><b>④ If you paid a fraudster by card, immediately call the bank and dispute the transaction.</b> Sometimes it can still be recovered.</li>
+      </ul>
+      <div class="fact-box">🔗 Your bank has a <b>24/7 fraud line</b>. The police have an online fraud reporting page. Always report — it helps protect others too.</div>
+      <p>Final chapter: <b>certificate</b> — what you take away from the 7 chapters.</p>
+    `}),
+  ],
+
+  8: [
+    /* 0 story */ () => ({ icon: '🎓', html: `
+      <p>Congratulations — you've completed the entire Money Journey. Let's take two minutes to review what you've learned.</p>
+      <h3 style="font-family:var(--sans);font-weight:700;font-size:1rem;margin:14px 0 8px;color:var(--act2-fg);">7 rules of financial literacy</h3>
+      <ul style="margin:8px 0 8px 20px;font-size:.95rem;line-height:1.75;">
+        <li><b>① Gross ≠ net.</b> The state takes ≈ 18–22% of your gross salary (income tax 15% + social 7.1% + health 4.5%, minus personal credit 2,570 CZK/month).</li>
+        <li><b>② Keep a 3–6 month expense buffer.</b> Without it, any loss forces you to borrow.</li>
+        <li><b>③ Cash loses value.</b> Inflation 5–8% per year. A savings account slows the loss; investments beat it.</li>
+        <li><b>④ Compare loans by APR</b>, not monthly payment. Bank 7–13%, "instant" 30%+ = trap.</li>
+        <li><b>⑤ Mortgage:</b> lower LTV (bigger down payment) = better rate. Overpayments save huge sums.</li>
+        <li><b>⑥ Debt traps exist.</b> Free debt advice charities help at no cost.</li>
+        <li><b>⑦ Banks NEVER</b> ask for passwords or SMS codes over the phone. Click only the official domain, never via a link in an SMS.</li>
+      </ul>
+    `}),
+    /* 1 story */ () => ({ icon: '🔗', html: `
+      <p>Where to continue if financial literacy interests you:</p>
+      <ul style="margin:8px 0 8px 20px;font-size:.95rem;line-height:1.75;">
+        <li><b>Your national financial regulator</b> — official information about consumer credit, mortgages, investments.</li>
+        <li><b>MoneySavingExpert.com</b> — practical UK-focused money advice.</li>
+        <li><b>Khan Academy — Personal Finance</b> — free video courses covering budgeting, loans, investing.</li>
+        <li><b>Your bank's financial literacy resources</b> — most major banks publish free guides.</li>
+      </ul>
+      <p>When you click <b>Continue →</b> you'll receive your <b>certificate</b>. You can enter your name and print or screenshot it.</p>
+    `}),
+  ],
+
+};
+
 /* ────────── NAVIGACE ────────── */
 
 function showScreen(id) {
@@ -1498,13 +1960,16 @@ function renderHub() {
     const done = STATE.done.includes(act.id);
     const tile = document.createElement('button');
     tile.className = `hub-tile act${act.id} ${!unlocked ? 'locked' : ''} ${done ? 'done' : ''}`;
+    const enMeta = ACT_EN_META[act.id];
+    const title = i18n(act.title, enMeta?.title || act.title);
+    const age   = i18n(act.age,   enMeta?.age   || act.age);
     tile.innerHTML = `
       <div>
-        <div class="hub-num">Kapitola ${act.id}</div>
+        <div class="hub-num">${i18n('Kapitola', 'Chapter')} ${act.id}</div>
         <div class="hub-icon">${act.icon}</div>
-        <div class="hub-title">${act.title}</div>
+        <div class="hub-title">${title}</div>
       </div>
-      <div class="hub-age">${act.age}</div>
+      <div class="hub-age">${age}</div>
     `;
     if (unlocked) tile.addEventListener('click', () => startAct(act.id));
     else tile.disabled = true;
@@ -1512,6 +1977,12 @@ function renderHub() {
   }
   const sc = totalScore();
   document.getElementById('hub-coins').textContent = `${sc.earned}/${sc.max} ⭐`;
+  const hubTitle = document.getElementById('hub-title');
+  if (hubTitle) hubTitle.textContent = i18n('Mapa cesty', 'Journey Map');
+  const hubSub = document.getElementById('hub-subtitle');
+  if (hubSub) hubSub.textContent = i18n('Kapitoly se odemykají postupně. Klikni na první bez zámku.', 'Chapters unlock in order. Click the first unlocked one.');
+  const codeHub = document.getElementById('code-apply-hub');
+  if (codeHub) codeHub.textContent = i18n('Použít', 'Apply');
 }
 
 /* ────────── PŘEHRÁVÁNÍ ────────── */
@@ -1527,9 +1998,10 @@ function startAct(id) {
   activeCtx = activeAct.setup ? activeAct.setup() : {};
   sceneIdx = 0;
   actScore = { earned: 0, max: 0 };
-  document.getElementById('act-title').textContent = activeAct.title;
+  const enMeta = ACT_EN_META[activeAct.id];
+  document.getElementById('act-title').textContent = i18n(activeAct.title, enMeta?.title || activeAct.title);
   const badge = document.getElementById('act-badge');
-  badge.textContent = `Kapitola ${activeAct.id} · ${activeAct.age}`;
+  badge.textContent = `${i18n('Kapitola', 'Chapter')} ${activeAct.id} · ${i18n(activeAct.age, enMeta?.age || activeAct.age)}`;
   badge.className = `badge ${activeAct.color}`;
   showScreen('act');
   renderScene();
@@ -1538,8 +2010,11 @@ function startAct(id) {
 function renderScene() {
   const scenes = activeAct.scenes;
   const s = scenes[sceneIdx];
-  const content = s.build ? s.build(activeCtx) : s;
-  document.getElementById('act-progress').textContent = `Scéna ${sceneIdx+1} / ${scenes.length}`;
+  // Resolve content: check BUILD_EN lookup, then s.build_en, then s.build
+  const enBuild = lang === 'en' && BUILD_EN[activeAct.id]?.[sceneIdx];
+  const builder = enBuild || (lang === 'en' && s.build_en ? s.build_en : s.build);
+  const content = builder ? builder(activeCtx) : s;
+  document.getElementById('act-progress').textContent = i18n(`Scéna ${sceneIdx+1} / ${scenes.length}`, `Scene ${sceneIdx+1} / ${scenes.length}`);
   document.getElementById('act-coins').textContent = `${actScore.earned}/${actScore.max} ⭐`;
   const cont = document.getElementById('scene-container');
   cont.innerHTML = '';
@@ -1550,7 +2025,7 @@ function renderScene() {
         ${content.icon ? `<span class="scene-icon">${content.icon}</span>` : ''}
         ${content.html}
         <div class="btn-row">
-          <button class="btn-primary" id="btn-continue">Pokračovat →</button>
+          <button class="btn-primary" id="btn-continue">${i18n('Pokračovat →', 'Continue →')}</button>
         </div>
       </div>
     `;
@@ -1560,16 +2035,17 @@ function renderScene() {
   else if (s.type === 'math') {
     actScore.max += 1;
     hintLevel = 0;
+    const unitLabel = content.unit ? (lang === 'en' ? 'CZK' : content.unit) : '';
     cont.innerHTML = `
       <div class="scene ${activeAct.color}">
         <div class="math-q">${content.q}</div>
         <div class="input-row">
           <input class="answer" id="m-ans" type="number" inputmode="numeric" placeholder="?" autocomplete="off" autofocus>
-          ${content.unit ? `<span class="unit">${content.unit}</span>` : ''}
-          <button class="btn-check" id="m-check">Zkontrolovat</button>
+          ${unitLabel ? `<span class="unit">${unitLabel}</span>` : ''}
+          <button class="btn-check" id="m-check">${i18n('Zkontrolovat', 'Check')}</button>
         </div>
         <div class="hint-bar">
-          <button class="hint-btn" id="m-hint-btn">💡 Nápověda 1/3</button>
+          <button class="hint-btn" id="m-hint-btn">&#x1F4A1; ${i18n('Nápověda 1/3', 'Hint 1/3')}</button>
           <span class="hint-counter" id="m-hint-counter">
             <span class="dot"></span><span class="dot"></span><span class="dot"></span>
           </span>
@@ -1617,18 +2093,18 @@ function advanceHint(content) {
   const counter = document.getElementById('m-hint-counter');
   box.classList.add('show');
   box.dataset.level = hintLevel;
-  const labels = ['Nasměrování', 'Vzorec', 'Postup s výsledkem'];
-  box.innerHTML = `<span class="h-label">Nápověda ${hintLevel}/3 — ${labels[hintLevel-1]}</span>${content.hints[hintLevel - 1]}`;
+  const labels = i18n(['Nasměrování', 'Vzorec', 'Postup s výsledkem'], ['Direction', 'Formula', 'Solution steps']);
+  box.innerHTML = `<span class="h-label">${i18n('Nápověda', 'Hint')} ${hintLevel}/3 — ${labels[hintLevel-1]}</span>${content.hints[hintLevel - 1]}`;
   const dots = counter.querySelectorAll('.dot');
   dots.forEach((d, i) => {
     d.classList.toggle('shown', i < hintLevel);
     if (i === 2 && hintLevel === 3) d.classList.add('warn');
   });
   if (hintLevel < 3) {
-    btn.textContent = `💡 Další nápověda ${hintLevel+1}/3`;
+    btn.textContent = `💡 ${i18n('Další nápověda', 'Next hint')} ${hintLevel+1}/3`;
   } else {
     btn.disabled = true;
-    btn.textContent = '💡 Všechny nápovědy ukázány';
+    btn.textContent = `💡 ${i18n('Všechny nápovědy ukázány', 'All hints shown')}`;
   }
 }
 
@@ -1643,15 +2119,16 @@ function checkMath(content) {
   const val = Number(raw);
   const correct = val === content.answer;
   inp.disabled = true; btn.disabled = true;
+  const unitLabel = content.unit ? (lang === 'en' ? ' CZK' : ' ' + content.unit) : '';
   if (correct) {
     actScore.earned += 1;
     inp.classList.add('correct');
     fb.className = 'feedback ok show';
-    fb.innerHTML = `<strong>✓ Správně!</strong> ${content.explain || ''} <div class="btn-row"><button class="btn-primary" id="m-next">Pokračovat →</button></div>`;
+    fb.innerHTML = `<strong>&#x2713; ${i18n('Správně!', 'Correct!')}</strong> ${content.explain || ''} <div class="btn-row"><button class="btn-primary" id="m-next">${i18n('Pokračovat →', 'Continue →')}</button></div>`;
   } else {
     inp.classList.add('wrong');
     fb.className = 'feedback err show';
-    fb.innerHTML = `<strong>✗ Bohužel.</strong> Správně je <b>${fmt(content.answer)}${content.unit ? ' ' + content.unit : ''}</b>. ${content.explain || ''} <div class="btn-row"><button class="btn-primary" id="m-next">Pokračovat →</button></div>`;
+    fb.innerHTML = `<strong>&#x2717; ${i18n('Bohužel.', 'Not quite.')}</strong> ${i18n('Správně je', 'Correct answer:')} <b>${fmt(content.answer)}${unitLabel}</b>. ${content.explain || ''} <div class="btn-row"><button class="btn-primary" id="m-next">${i18n('Pokračovat →', 'Continue →')}</button></div>`;
   }
   document.getElementById('act-coins').textContent = `${actScore.earned}/${actScore.max} ⭐`;
   document.getElementById('m-next').addEventListener('click', nextScene);
@@ -1668,7 +2145,12 @@ function chooseDecision(content, i) {
   if (opt.kind === 'good') actScore.earned += 1;
   else if (opt.kind === 'meh') actScore.earned += 0.5;
   fb.className = `feedback ${opt.kind === 'good' ? 'ok' : opt.kind === 'bad' ? 'err' : 'info'} show`;
-  fb.innerHTML = `<strong>${opt.kind === 'good' ? '✓ Dobrá volba' : opt.kind === 'meh' ? '~ Spíš obstojné' : '✗ Riskantní'}</strong> — ${opt.feedback} <div class="btn-row"><button class="btn-primary" id="d-next">Pokračovat →</button></div>`;
+  const decLabel = opt.kind === 'good'
+    ? i18n('✓ Dobrá volba', '✓ Good choice')
+    : opt.kind === 'meh'
+    ? i18n('~ Spíš obstojné', '~ Fairly reasonable')
+    : i18n('✗ Riskantní', '✗ Risky');
+  fb.innerHTML = `<strong>${decLabel}</strong> — ${opt.feedback} <div class="btn-row"><button class="btn-primary" id="d-next">${i18n('Pokračovat →', 'Continue →')}</button></div>`;
   document.getElementById('act-coins').textContent = `${actScore.earned}/${actScore.max} ⭐`;
   document.getElementById('d-next').addEventListener('click', nextScene);
   document.getElementById('d-next').focus();
@@ -1699,18 +2181,18 @@ function showActComplete() {
   const cont = document.getElementById('scene-container');
   cont.innerHTML = `
     <div class="scene ${activeAct.color}" style="text-align:center;">
-      <div class="scene-icon" style="font-size:3rem;">🎉</div>
-      <h2 style="font-size:1.4rem; margin-bottom:8px;">Kapitola ${activeAct.id} hotová!</h2>
-      <p>Skóre: <b>${actScore.earned} / ${actScore.max} ⭐</b></p>
+      <div class="scene-icon" style="font-size:3rem;">&#x1F389;</div>
+      <h2 style="font-size:1.4rem; margin-bottom:8px;">${i18n('Kapitola', 'Chapter')} ${activeAct.id} ${i18n('hotová!', 'done!')}</h2>
+      <p>${i18n('Skóre:', 'Score:')} <b>${actScore.earned} / ${actScore.max} ⭐</b></p>
       ${code ? `
         <div class="code-reveal">
-          <p class="code-label">🔑 Kód pro Kapitolu ${nextId}:</p>
+          <p class="code-label">&#x1F511; ${i18n(`Kód pro Kapitolu ${nextId}:`, `Code for Chapter ${nextId}:`)}</p>
           <code class="code-value">${code}</code>
-          <p class="code-hint">Zapiš si ho. Jakmile přijdeš k jinému počítači, zadáš ho na úvodní obrazovce a pokračuješ rovnou z téhle kapitoly.</p>
+          <p class="code-hint">${i18n('Zapiš si ho. Jakmile přijdeš k jinému počítači, zadáš ho na úvodní obrazovce a pokračuješ rovnou z téhle kapitoly.', 'Write it down. On a different computer, enter it on the intro screen to jump straight to this chapter.')}</p>
         </div>
       ` : ''}
       <div class="btn-row" style="justify-content:center;">
-        <button class="btn-primary" id="btn-to-hub">Mapa →</button>
+        <button class="btn-primary" id="btn-to-hub">${i18n('Mapa →', 'Map →')}</button>
       </div>
     </div>
   `;
@@ -1743,12 +2225,12 @@ function applyCode(raw, fbEl) {
     if (!STATE.unlocked.includes(foundId)) STATE.unlocked.push(foundId);
     saveState();
     fbEl.className = 'code-feedback ok';
-    fbEl.innerHTML = `✓ Kód platí! Odemkl jsi přístup ke <b>Kapitole ${foundId}</b>. Otvírám mapu…`;
+    fbEl.innerHTML = i18n(`✓ Kód platí! Odemkl jsi přístup ke <b>Kapitole ${foundId}</b>. Otvírám mapu…`, `✓ Valid code! Unlocked access to <b>Chapter ${foundId}</b>. Opening map…`);
     renderHub();
     setTimeout(() => showScreen('hub'), 900);
   } else {
     fbEl.className = 'code-feedback err';
-    fbEl.textContent = '✗ Tento kód nesedí. Zkontroluj překlepy (vše malými písmeny, bez mezer).';
+    fbEl.textContent = i18n('✗ Tento kód nesedí. Zkontroluj překlepy (vše malými písmeny, bez mezer).', '✗ This code doesn\'t match. Check for typos (all lowercase, no spaces).');
   }
 }
 
@@ -1761,54 +2243,35 @@ function bindCodeInput(inputId, btnId, fbId) {
   btn.addEventListener('click', submit);
   inp.addEventListener('keydown', e => { if (e.key === 'Enter') submit(); });
 }
-bindCodeInput('code-input-intro', 'code-apply-intro', 'code-feedback-intro');
-bindCodeInput('code-input-hub', 'code-apply-hub', 'code-feedback-hub');
+// code-input-intro is bound in buildIntro(); hub binding done in wire-up section
 
 function showResult() {
-  const sc = totalScore();
-  document.getElementById('cert-score').textContent = `${sc.earned} / ${sc.max} ⭐`;
-  const pct = sc.max ? Math.round((sc.earned / sc.max) * 100) : 0;
-  let msg = 'Prošel jsi celou Cestu peněz! Hodně teoretických základů máš.';
-  if (pct >= 90) msg = '🏆 Mistr finanční gramotnosti! Skvělé výsledky napříč všemi kapitolami.';
-  else if (pct >= 70) msg = '🎉 Velmi solidní výsledek. Pár věcí si ještě můžeš zopakovat — koukni do scén, kde jsi měl chybu.';
-  else if (pct >= 50) msg = '👍 Základ máš. Doporučuju projít znovu kapitoly, kde jsi měl skóre nízké.';
-  else msg = '📚 Začátek je tu — opakování je matkou moudrosti. Klikni na "Začít znovu" a zkus to ještě jednou.';
-  document.getElementById('cert-msg').textContent = msg;
-
-  // Jméno na osvědčení — uloží se do localStorage a aktualizuje živě
-  const nameInp = document.getElementById('cert-name-input');
-  const nameDisp = document.getElementById('cert-name-display');
-  const defaultName = 'Tomu, kdo prošel <i>Cestu peněz</i>';
-  const savedName = STATE.studentName || '';
-  nameInp.value = savedName;
-  nameDisp.innerHTML = savedName ? savedName : defaultName;
-  nameInp.oninput = () => {
-    const v = nameInp.value.trim();
-    STATE.studentName = v;
-    nameDisp.innerHTML = v ? v : defaultName;
-    saveState();
-  };
-
   showScreen('result');
+  buildResult();
 }
 
 /* ────────── WIRE UP ────────── */
 
-document.getElementById('btn-go-hub').addEventListener('click', () => { renderHub(); showScreen('hub'); });
 document.getElementById('back-to-hub').addEventListener('click', () => { renderHub(); showScreen('hub'); });
 document.getElementById('result-to-hub').addEventListener('click', () => { renderHub(); showScreen('hub'); });
-document.getElementById('result-restart').addEventListener('click', () => {
-  if (confirm('Začít cestu znovu? Smaže to tvůj postup.')) {
-    resetState(); renderHub(); showScreen('intro');
-  }
-});
 document.getElementById('reset-link').addEventListener('click', () => {
-  if (confirm('Smazat všechen postup? Tohle nelze vrátit.')) {
+  if (confirm(i18n('Smazat všechen postup? Tohle nelze vrátit.', 'Delete all progress? This cannot be undone.'))) {
     resetState(); renderHub();
   }
 });
+bindCodeInput('code-input-hub', 'code-apply-hub', 'code-feedback-hub');
 
 loadState();
+
+// Init lang bar
+document.querySelectorAll('.lang-btn').forEach(b =>
+  b.classList.toggle('active', b.dataset.lang === lang));
+document.querySelectorAll('.tp-back').forEach(el =>
+  el.textContent = i18n('← zpět na projekty', '← back to projects'));
+document.querySelectorAll('.tp-home').forEach(el =>
+  el.textContent = i18n('domů', 'home'));
+
+buildIntro();
 renderHub();
 </script>
 </body>
