@@ -153,62 +153,36 @@ a{color:var(--ch2);text-decoration:none}a:hover{color:#1250a0}
   border-radius:8px;font-family:var(--sans);font-size:1rem;margin:8px 0;
   text-align:center;width:100%;max-width:280px}
 @media(max-width:520px){.formula-grid{grid-template-columns:1fr}}
+/* ── lang bar ── */
+#lang-bar{position:fixed;bottom:16px;right:16px;z-index:200;display:flex;gap:6px}
+.lang-btn{background:#fff;border:1.5px solid var(--border);border-radius:8px;
+  padding:4px 8px;font-size:1.1rem;cursor:pointer;transition:border-color .12s,box-shadow .12s;
+  line-height:1;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.lang-btn:hover{border-color:var(--ch2);box-shadow:0 2px 8px rgba(26,115,200,.2)}
+.lang-btn.active{border-color:var(--ch2);box-shadow:0 0 0 2px rgba(26,115,200,.25)}
 </style>
 </head>
 <body>
 
+<!-- LANG BAR -->
+<div id="lang-bar">
+  <button class="lang-btn active" data-lang="cs" onclick="setLang('cs')">🇨🇿</button>
+  <button class="lang-btn" data-lang="en" onclick="setLang('en')">🇬🇧</button>
+</div>
+
 <!-- INTRO -->
 <section id="intro" class="screen active">
-  <div class="top-bar"><a href="./">← zpět na projekty</a><span></span><a href="/">domů</a></div>
-  <div class="intro-icon">📐</div>
-  <h1 class="intro-title">Goniometrie — <span class="accent">sin, cos, tan</span></h1>
-  <p class="intro-sub">Výukový průvodce goniometrickými funkcemi pro 9. třídu. Sedm kapitol — od definic přes slovní úlohy až po souhrnný test. Náhodné příklady, 3 úrovně nápovědy.</p>
-  <div class="card">
-    <h3>📋 Co tě čeká</h3>
-    <ul>
-      <li><span class="bullet" style="color:var(--ch1)">①</span><span><b>Definice</b> — sin, cos, tan v pravoúhlém trojúhelníku a SOHCAHTOA.</span></li>
-      <li><span class="bullet" style="color:var(--ch2)">②</span><span><b>Výpočet strany</b> — ze zadaného úhlu a jedné strany spočítej druhou.</span></li>
-      <li><span class="bullet" style="color:var(--ch3)">③</span><span><b>Výpočet úhlu</b> — arcsin, arccos, arctan.</span></li>
-      <li><span class="bullet" style="color:var(--ch4)">④</span><span><b>Slovní úlohy — výška</b> — žebřík, strom, stožár, skluzavka.</span></li>
-      <li><span class="bullet" style="color:var(--ch5)">⑤</span><span><b>Slovní úlohy — vzdálenost</b> — délka skluzavky, schodiště, stín, lano.</span></li>
-      <li><span class="bullet" style="color:var(--ch6)">⑥</span><span><b>Úhel sklonu</b> — elevační a depresivní úhel: letadlo, hora, maják, drak.</span></li>
-      <li><span class="bullet" style="color:var(--ch7)">⑦</span><span><b>Souhrnný test</b> — mix příkladů ze všech kapitol, bez nápověd.</span></li>
-    </ul>
-  </div>
-  <div class="card" style="border-left-color:var(--gold)">
-    <h3 style="color:var(--gold)">💡 Pravidla</h3>
-    <ul>
-      <li><span class="bullet" style="color:var(--gold)">·</span><span>Kalkulačka je v pořádku — jde o postup, ne paměť.</span></li>
-      <li><span class="bullet" style="color:var(--gold)">·</span><span><b>Nápověda má 3 úrovně:</b> nasměrování → vzorec → řešení. Postupuješ tlačítkem.</span></li>
-      <li><span class="bullet" style="color:var(--gold)">·</span><span>Po každé kapitole dostaneš <b>kód</b> pro pokračování na jiném počítači.</span></li>
-    </ul>
-  </div>
-  <div class="card">
-    <h3>🔑 Mám kód odjinud</h3>
-    <p style="font-size:.9rem;color:var(--muted);margin-bottom:8px">Hraješ na jiném počítači? Zadej kód z předchozí kapitoly.</p>
-    <div class="code-row">
-      <input type="text" id="code-input" placeholder="např. sohcahtoa" autocomplete="off" autocapitalize="off" spellcheck="false">
-      <button class="btn-check" id="code-apply">Použít</button>
-    </div>
-    <div class="code-feedback" id="code-feedback"></div>
-  </div>
-  <button class="btn-primary" id="btn-start">▶ Vstoupit do průvodce</button>
+  <div class="top-bar" id="intro-topbar"></div>
+  <div id="intro-dynamic"></div>
 </section>
 
 <!-- HUB -->
 <section id="hub" class="screen">
-  <div class="top-bar"><a href="./">← zpět na projekty</a><span></span><a href="/">domů</a></div>
-  <h2 class="hub-title">Kapitoly</h2>
-  <p class="hub-sub">Kapitoly se odemykají postupně.</p>
+  <div class="top-bar" id="hub-topbar"></div>
+  <h2 class="hub-title" id="hub-title">Kapitoly</h2>
+  <p class="hub-sub" id="hub-sub">Kapitoly se odemykají postupně.</p>
   <div class="hub-grid" id="hub-grid"></div>
-  <div class="card" style="margin-bottom:0">
-    <h3>🔑 Mám kód odjinud</h3>
-    <div class="code-row">
-      <input type="text" id="code-input-hub" placeholder="např. sohcahtoa" autocomplete="off" autocapitalize="off" spellcheck="false">
-      <button class="btn-check" id="code-apply-hub">Použít</button>
-    </div>
-    <div class="code-feedback" id="code-feedback-hub"></div>
-  </div>
+  <div id="hub-code-section"></div>
 </section>
 
 <!-- CHAPTER -->
@@ -216,7 +190,7 @@ a{color:var(--ch2);text-decoration:none}a:hover{color:#1250a0}
   <div class="top-bar">
     <a href="javascript:void(0)" id="btn-back-hub">← přehled</a>
     <span id="ch-progress" class="scene-progress"></span>
-    <span></span>
+    <span id="ch-topbar-right"></span>
   </div>
   <div class="chapter-header">
     <span class="chapter-badge" id="ch-badge">Kapitola 1</span>
@@ -228,7 +202,7 @@ a{color:var(--ch2);text-decoration:none}a:hover{color:#1250a0}
 
 <!-- CERT -->
 <section id="cert" class="screen">
-  <div class="top-bar"><a href="./">← zpět na projekty</a><span></span><a href="/">domů</a></div>
+  <div class="top-bar" id="cert-topbar"></div>
   <div class="cert">
     <div class="cert-seal">🎓</div>
     <h1 class="cert-title">Hotovo!</h1>
@@ -246,9 +220,108 @@ a{color:var(--ch2);text-decoration:none}a:hover{color:#1250a0}
 
 <script>
 const STORAGE_KEY = 'goniometrie_v1';
+const LANG_KEY = 'goniometrie_lang';
 const pick = arr => arr[Math.floor(Math.random() * arr.length)];
 const rad = deg => deg * Math.PI / 180;
 const r1 = x => Math.round(x * 10) / 10;
+
+/* ── i18n ── */
+let lang = localStorage.getItem(LANG_KEY) || 'cs';
+const i18n = (cs, en) => lang === 'en' ? en : cs;
+
+function setLang(l) {
+  lang = l;
+  try { localStorage.setItem(LANG_KEY, l); } catch(e) {}
+  document.querySelectorAll('.lang-btn').forEach(b =>
+    b.classList.toggle('active', b.dataset.lang === l));
+  // rebuild current screen
+  const activeId = document.querySelector('.screen.active')?.id;
+  if (activeId === 'intro') buildIntro();
+  else if (activeId === 'hub') { buildHub(); buildHubCode(); }
+  else if (activeId === 'chapter') { renderScene(); }
+  else if (activeId === 'cert') buildCert();
+}
+
+function buildIntro() {
+  const cs = lang === 'cs';
+  document.getElementById('intro-topbar').innerHTML =
+    `<a href="./">${i18n('← zpět na projekty','← back to projects')}</a><span></span><a href="/">${i18n('domů','home')}</a>`;
+  document.getElementById('intro-dynamic').innerHTML = `
+    <div class="intro-icon">📐</div>
+    <h1 class="intro-title">Goniometrie — <span class="accent">sin, cos, tan</span></h1>
+    <p class="intro-sub">${cs
+      ? 'Výukový průvodce goniometrickými funkcemi pro 9. třídu. Sedm kapitol — od definic přes slovní úlohy až po souhrnný test. Náhodné příklady, 3 úrovně nápovědy.'
+      : 'Interactive trigonometry guide for 9th grade. Seven chapters — from definitions through word problems to a final test. Randomised problems, 3-level hints.'}</p>
+    <div class="card">
+      <h3>${cs ? '📋 Co tě čeká' : '📋 What awaits you'}</h3>
+      <ul>
+        <li><span class="bullet" style="color:var(--ch1)">①</span><span><b>${cs?'Definice':'Definitions'}</b> — sin, cos, tan ${cs?'v pravoúhlém trojúhelníku a SOHCAHTOA.':'in a right triangle and SOHCAHTOA.'}</span></li>
+        <li><span class="bullet" style="color:var(--ch2)">②</span><span><b>${cs?'Výpočet strany':'Side calculation'}</b> — ${cs?'ze zadaného úhlu a jedné strany spočítej druhou.':'find a missing side from a known angle and one side.'}</span></li>
+        <li><span class="bullet" style="color:var(--ch3)">③</span><span><b>${cs?'Výpočet úhlu':'Angle calculation'}</b> — arcsin, arccos, arctan.</span></li>
+        <li><span class="bullet" style="color:var(--ch4)">④</span><span><b>${cs?'Slovní úlohy — výška':'Word problems — height'}</b> — ${cs?'žebřík, strom, stožár, skluzavka.':'ladder, tree, pole, slide.'}</span></li>
+        <li><span class="bullet" style="color:var(--ch5)">⑤</span><span><b>${cs?'Slovní úlohy — vzdálenost':'Word problems — distance'}</b> — ${cs?'délka skluzavky, schodiště, stín, lano.':'staircase, shadow, guy-wire, cliff path.'}</span></li>
+        <li><span class="bullet" style="color:var(--ch6)">⑥</span><span><b>${cs?'Úhel sklonu':'Angles of inclination'}</b> — ${cs?'elevační a depresivní úhel: letadlo, hora, maják, drak.':'elevation and depression: aircraft, mountain, lighthouse, kite.'}</span></li>
+        <li><span class="bullet" style="color:var(--ch7)">⑦</span><span><b>${cs?'Souhrnný test':'Final test'}</b> — ${cs?'mix příkladů ze všech kapitol, bez nápověd.':'mixed problems from all chapters, no hints.'}</span></li>
+      </ul>
+    </div>
+    <div class="card" style="border-left-color:var(--gold)">
+      <h3 style="color:var(--gold)">💡 ${cs?'Pravidla':'Rules'}</h3>
+      <ul>
+        <li><span class="bullet" style="color:var(--gold)">·</span><span>${cs?'Kalkulačka je v pořádku — jde o postup, ne paměť.':'A calculator is fine — it\'s about the process, not memorisation.'}</span></li>
+        <li><span class="bullet" style="color:var(--gold)">·</span><span><b>${cs?'Nápověda má 3 úrovně:':'Hints have 3 levels:'}</b> ${cs?'nasměrování → vzorec → řešení. Postupuješ tlačítkem.':'direction → formula → solution. Click the button.'}</span></li>
+        <li><span class="bullet" style="color:var(--gold)">·</span><span>${cs?'Po každé kapitole dostaneš ':'After each chapter you get a '}<b>${cs?'kód':'code'}</b> ${cs?'pro pokračování na jiném počítači.':'to continue on another computer.'}</span></li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>🔑 ${cs?'Mám kód odjinud':'I have a code'}</h3>
+      <p style="font-size:.9rem;color:var(--muted);margin-bottom:8px">${cs?'Hraješ na jiném počítači? Zadej kód z předchozí kapitoly.':'Playing on another device? Enter the code from your previous session.'}</p>
+      <div class="code-row">
+        <input type="text" id="code-input" placeholder="${cs?'např. sohcahtoa':'e.g. sohcahtoa'}" autocomplete="off" autocapitalize="off" spellcheck="false">
+        <button class="btn-check" id="code-apply">${cs?'Použít':'Apply'}</button>
+      </div>
+      <div class="code-feedback" id="code-feedback"></div>
+    </div>
+    <button class="btn-primary" id="btn-start">${cs?'▶ Vstoupit do průvodce':'▶ Enter the guide'}</button>
+  `;
+  // re-attach intro listeners
+  document.getElementById('btn-start').addEventListener('click',()=>{ buildHub(); showScreen('hub'); });
+  document.getElementById('code-apply').addEventListener('click',()=>applyCode(document.getElementById('code-input').value,document.getElementById('code-feedback')));
+  document.getElementById('code-input').addEventListener('keydown',e=>{ if(e.key==='Enter') document.getElementById('code-apply').click(); });
+}
+
+function buildHubCode() {
+  const cs = lang === 'cs';
+  document.getElementById('hub-code-section').innerHTML = `
+    <div class="card" style="margin-bottom:0">
+      <h3>🔑 ${cs?'Mám kód odjinud':'I have a code'}</h3>
+      <div class="code-row">
+        <input type="text" id="code-input-hub" placeholder="${cs?'např. sohcahtoa':'e.g. sohcahtoa'}" autocomplete="off" autocapitalize="off" spellcheck="false">
+        <button class="btn-check" id="code-apply-hub">${cs?'Použít':'Apply'}</button>
+      </div>
+      <div class="code-feedback" id="code-feedback-hub"></div>
+    </div>
+  `;
+  document.getElementById('code-apply-hub').addEventListener('click',()=>{ applyCode(document.getElementById('code-input-hub').value,document.getElementById('code-feedback-hub')); setTimeout(()=>{buildHub();buildHubCode();},300); });
+  document.getElementById('code-input-hub').addEventListener('keydown',e=>{ if(e.key==='Enter') document.getElementById('code-apply-hub').click(); });
+}
+
+function buildCert() {
+  const cs = lang === 'cs';
+  let earned=0,max=0;
+  for(const id in STATE.scores){ earned+=STATE.scores[id].earned; max+=STATE.scores[id].max; }
+  const pct=max>0?Math.round(earned/max*100):0;
+  const msg = pct>=80
+    ? i18n('Výborně! Goniometrie ti jde skvěle.','Excellent! You really know your trigonometry.')
+    : pct>=60
+    ? i18n('Dobrá práce! Ještě trochu procvičit a budeš expert.','Good job! A little more practice and you\'ll be an expert.')
+    : i18n('Nevadí — projdi si kapitoly znovu, nápovědy ti pomohou.','Never mind — go through the chapters again, the hints will help.');
+  document.getElementById('cert-score').textContent=`${earned} / ${max} (${pct} %)`;
+  document.getElementById('cert-msg').textContent=msg;
+  document.getElementById('cert-name').placeholder=cs?'Zadej své jméno…':'Enter your name…';
+  document.getElementById('cert-reset').textContent=cs?'↺ Začít znovu':'↺ Start over';
+  document.querySelector('#cert h1').textContent=cs?'Hotovo!':'Completed!';
+  document.querySelector('#cert .cert-sub').textContent=cs?'Prošel(a) jsi celý průvodce goniometrickými funkcemi.':'You have completed the full trigonometry guide.';
+}
 
 const ACT_CODES = { 2:'sohcahtoa', 3:'stranasin', 4:'arctan', 5:'zebrik', 6:'skluzavka', 7:'horizont' };
 const STATE = { unlocked:[1], done:[], scores:{} };
@@ -296,13 +369,15 @@ function svgTriangle(hi={}) {
 
 const ACTS = [
 {
-  id:1, color:'ch1', icon:'📐', title:'Definice — sin, cos, tan',
-  desc:'Pravoúhlý trojúhelník, strany, SOHCAHTOA a základní vzorce.',
+  id:1, color:'ch1', icon:'📐',
+  title: () => i18n('Definice — sin, cos, tan','Definitions — sin, cos, tan'),
+  desc: () => i18n('Pravoúhlý trojúhelník, strany, SOHCAHTOA a základní vzorce.','Right triangle, sides, SOHCAHTOA and basic formulas.'),
   setup: () => ({}),
   scenes: [
     { type:'story', build: () => ({
-      title:'Pravoúhlý trojúhelník',
-      html:`<p>Goniometrické funkce popisují <b>vztah mezi úhly a stranami</b> pravoúhlého trojúhelníku.</p>
+      title: i18n('Pravoúhlý trojúhelník','Right Triangle'),
+      html: i18n(
+        `<p>Goniometrické funkce popisují <b>vztah mezi úhly a stranami</b> pravoúhlého trojúhelníku.</p>
         <div class="svg-wrap">${svgTriangle({a:true,b:true,c:true,alpha:true})}</div>
         <div class="fact-box">📘 <b>Pravidlo pojmenování:</b><br>
           • <b>Vrcholy</b> A, B, C — <b>úhel</b> u vrcholu má jméno podle něj: α u A, β u B, γ u C.<br>
@@ -316,61 +391,90 @@ const ACTS = [
           • <b style="color:#1a73c8">b</b> = <b>přilehlá odvěsna</b> (sousedí s úhlem α, ale není přeponou)<br>
           • <b style="color:#7c3aad">c</b> = <b>přepona</b> (vždy naproti pravému úhlu)
         </div>`,
+        `<p>Trigonometric functions describe the <b>relationship between angles and sides</b> in a right triangle.</p>
+        <div class="svg-wrap">${svgTriangle({a:true,b:true,c:true,alpha:true})}</div>
+        <div class="fact-box">📘 <b>Naming rule:</b><br>
+          • <b>Vertices</b> A, B, C — the <b>angle</b> at each vertex is named after it: α at A, β at B, γ at C.<br>
+          • A <b>side</b> is labelled with the <b>lowercase letter</b> of the opposite vertex.<br><br>
+          <b style="color:#0f8a72">a</b> — side opposite vertex A<br>
+          <b style="color:#1a73c8">b</b> — side opposite vertex B<br>
+          <b style="color:#7c3aad">c</b> — side opposite vertex C (the longest = <b>hypotenuse</b>, because the right angle γ = 90° is at C)
+        </div>
+        <div class="warn-box">⚠️ <b>Relative to angle α (at vertex A):</b><br>
+          • <b style="color:#0f8a72">a</b> = <b>opposite leg</b> (across from α — opposite vertex A)<br>
+          • <b style="color:#1a73c8">b</b> = <b>adjacent leg</b> (next to α, but not the hypotenuse)<br>
+          • <b style="color:#7c3aad">c</b> = <b>hypotenuse</b> (always opposite the right angle)
+        </div>`),
     })},
     { type:'story', build: () => ({
-      title:'SOHCAHTOA — tři základní funkce',
-      html:`<p>Pro úhel α v pravoúhlém trojúhelníku platí:</p>
+      title: i18n('SOHCAHTOA — tři základní funkce','SOHCAHTOA — three basic functions'),
+      html: i18n(
+        `<p>Pro úhel α v pravoúhlém trojúhelníku platí:</p>
         <div class="formula-grid">
           <div class="formula-card fsin"><div class="fname">SIN α</div><div class="fval">a / c</div><div class="fwords">protilehlá / přepona</div></div>
           <div class="formula-card fcos"><div class="fname">COS α</div><div class="fval">b / c</div><div class="fwords">přilehlá / přepona</div></div>
           <div class="formula-card ftan"><div class="fname">TAN α</div><div class="fval">a / b</div><div class="fwords">protilehlá / přilehlá</div></div>
         </div>
-        <div class="warn-box">⚠️ <b>Pomůcka SOH–CAH–TOA</b> (anglická zkratka):<br>
+        <div class="warn-box">⚠️ <b>Pomůcka SOH–CAH–TOA:</b><br>
           <b>S</b>in = <b>O</b>pposite / <b>H</b>ypotenuse &nbsp;·&nbsp;
           <b>C</b>os = <b>A</b>djacent / <b>H</b>ypotenuse &nbsp;·&nbsp;
           <b>T</b>an = <b>O</b>pposite / <b>A</b>djacent
         </div>
         <div class="svg-wrap">${svgTriangle({a:true,c:true,alpha:true})}</div>
         <p style="text-align:center;font-size:.88rem;color:var(--muted)">Zvýrazněno pro sin α = a / c (protilehlá / přepona)</p>`,
+        `<p>For angle α in a right triangle:</p>
+        <div class="formula-grid">
+          <div class="formula-card fsin"><div class="fname">SIN α</div><div class="fval">a / c</div><div class="fwords">opposite / hypotenuse</div></div>
+          <div class="formula-card fcos"><div class="fname">COS α</div><div class="fval">b / c</div><div class="fwords">adjacent / hypotenuse</div></div>
+          <div class="formula-card ftan"><div class="fname">TAN α</div><div class="fval">a / b</div><div class="fwords">opposite / adjacent</div></div>
+        </div>
+        <div class="warn-box">⚠️ <b>SOHCAHTOA mnemonic:</b><br>
+          <b>S</b>in = <b>O</b>pposite / <b>H</b>ypotenuse &nbsp;·&nbsp;
+          <b>C</b>os = <b>A</b>djacent / <b>H</b>ypotenuse &nbsp;·&nbsp;
+          <b>T</b>an = <b>O</b>pposite / <b>A</b>djacent
+        </div>
+        <div class="svg-wrap">${svgTriangle({a:true,c:true,alpha:true})}</div>
+        <p style="text-align:center;font-size:.88rem;color:var(--muted)">Highlighted for sin α = a / c (opposite / hypotenuse)</p>`),
     })},
     { type:'choice', build: () => ({
-      title:'Kvíz: Která strana?',
-      q:'Znáš úhel α a přeponu c. Jak vyjádříš <b>protilehlou odvěsnu a</b>?',
+      title: i18n('Kvíz: Která strana?','Quiz: Which side?'),
+      q: i18n('Znáš úhel α a přeponu c. Jak vyjádříš <b>protilehlou odvěsnu a</b>?','You know angle α and hypotenuse c. How do you express the <b>opposite leg a</b>?'),
       choices:['a = c · sin α','a = c · cos α','a = c · tan α'],
       correct:0, svg:svgTriangle({a:true,c:true,alpha:true}),
       hints:[
-        'Protilehlá odvěsna (a) a přepona (c) — podívej se na SOH z SOHCAHTOA.',
-        'sin α = a/c, uprav: a = c · sin α',
-        'Správně: <b>a = c · sin α</b>',
+        i18n('Protilehlá odvěsna (a) a přepona (c) — podívej se na SOH z SOHCAHTOA.','Opposite leg (a) and hypotenuse (c) — look at SOH from SOHCAHTOA.'),
+        i18n('sin α = a/c, uprav: a = c · sin α','sin α = a/c, rearrange: a = c · sin α'),
+        i18n('Správně: <b>a = c · sin α</b>','Correct: <b>a = c · sin α</b>'),
       ],
     })},
     { type:'choice', build: () => ({
-      title:'Kvíz: Která strana?',
-      q:'Znáš úhel α a přeponu c. Jak vyjádříš <b>přilehlou odvěsnu b</b>?',
+      title: i18n('Kvíz: Která strana?','Quiz: Which side?'),
+      q: i18n('Znáš úhel α a přeponu c. Jak vyjádříš <b>přilehlou odvěsnu b</b>?','You know angle α and hypotenuse c. How do you express the <b>adjacent leg b</b>?'),
       choices:['b = c · sin α','b = c · cos α','b = c · tan α'],
       correct:1, svg:svgTriangle({b:true,c:true,alpha:true}),
       hints:[
-        'Přilehlá odvěsna (b) a přepona (c) — podívej se na CAH z SOHCAHTOA.',
-        'cos α = b/c, uprav: b = c · cos α',
-        'Správně: <b>b = c · cos α</b>',
+        i18n('Přilehlá odvěsna (b) a přepona (c) — podívej se na CAH z SOHCAHTOA.','Adjacent leg (b) and hypotenuse (c) — look at CAH from SOHCAHTOA.'),
+        i18n('cos α = b/c, uprav: b = c · cos α','cos α = b/c, rearrange: b = c · cos α'),
+        i18n('Správně: <b>b = c · cos α</b>','Correct: <b>b = c · cos α</b>'),
       ],
     })},
     { type:'choice', build: () => ({
-      title:'Kvíz: Která strana?',
-      q:'Znáš úhel α a přilehlou odvěsnu b. Jak vyjádříš <b>protilehlou odvěsnu a</b>?',
+      title: i18n('Kvíz: Která strana?','Quiz: Which side?'),
+      q: i18n('Znáš úhel α a přilehlou odvěsnu b. Jak vyjádříš <b>protilehlou odvěsnu a</b>?','You know angle α and adjacent leg b. How do you express the <b>opposite leg a</b>?'),
       choices:['a = b · sin α','a = b · cos α','a = b · tan α'],
       correct:2, svg:svgTriangle({a:true,b:true,alpha:true}),
       hints:[
-        'Protilehlá (a) + přilehlá (b) — žádná přepona. To je tangens (TOA).',
-        'tan α = a/b, uprav: a = b · tan α',
-        'Správně: <b>a = b · tan α</b>',
+        i18n('Protilehlá (a) + přilehlá (b) — žádná přepona. To je tangens (TOA).','Opposite (a) + adjacent (b) — no hypotenuse. That\'s tangent (TOA).'),
+        i18n('tan α = a/b, uprav: a = b · tan α','tan α = a/b, rearrange: a = b · tan α'),
+        i18n('Správně: <b>a = b · tan α</b>','Correct: <b>a = b · tan α</b>'),
       ],
     })},
   ],
 },
 {
-  id:2, color:'ch2', icon:'📏', title:'Výpočet neznámé strany',
-  desc:'Ze zadaného úhlu a jedné strany vypočítej druhou.',
+  id:2, color:'ch2', icon:'📏',
+  title: () => i18n('Výpočet neznámé strany','Finding a missing side'),
+  desc: () => i18n('Ze zadaného úhlu a jedné strany vypočítej druhou.','From a known angle and one side, calculate the other.'),
   setup: () => {
     const α = pick([30,35,40,45,50,55,60]);
     const aR = rad(α);
@@ -390,8 +494,9 @@ const ACTS = [
   },
   scenes: [
     { type:'story', build: ctx => ({
-      title:'Jak na výpočet strany',
-      html:`<p>Pokud znáš <b>úhel α</b> a jednu stranu, ostatní spočítáš pomocí sin, cos nebo tan.</p>
+      title: i18n('Jak na výpočet strany','How to find a missing side'),
+      html: i18n(
+        `<p>Pokud znáš <b>úhel α</b> a jednu stranu, ostatní spočítáš pomocí sin, cos nebo tan.</p>
         <div class="fact-box">📘 <b>Tři základní vzorce (vzhledem k úhlu α u vrcholu A):</b><br>
           • sin α = a/c &nbsp;→&nbsp; <b>a = c · sin α</b> &nbsp;(protilehlá z přepony)<br>
           • cos α = b/c &nbsp;→&nbsp; <b>b = c · cos α</b> &nbsp;(přilehlá z přepony)<br>
@@ -399,48 +504,61 @@ const ACTS = [
         </div>
         <div class="svg-wrap">${svgTriangle({a:true,b:true,c:true,alpha:true})}</div>
         <p>Tvůj úhel pro tuto kapitolu: <b>α = ${ctx.α}°</b>. Zaokrouhluj na celé centimetry.</p>`,
+        `<p>If you know <b>angle α</b> and one side, you can find the others using sin, cos or tan.</p>
+        <div class="fact-box">📘 <b>Three basic formulas (for angle α at vertex A):</b><br>
+          • sin α = a/c &nbsp;→&nbsp; <b>a = c · sin α</b> &nbsp;(opposite from hypotenuse)<br>
+          • cos α = b/c &nbsp;→&nbsp; <b>b = c · cos α</b> &nbsp;(adjacent from hypotenuse)<br>
+          • tan α = a/b &nbsp;→&nbsp; <b>a = b · tan α</b> &nbsp;(opposite from adjacent)
+        </div>
+        <div class="svg-wrap">${svgTriangle({a:true,b:true,c:true,alpha:true})}</div>
+        <p>Your angle for this chapter: <b>α = ${ctx.α}°</b>. Round to the nearest centimetre.</p>`),
     })},
     { type:'math', build: ctx => ({
-      q:`Úhel α = ${ctx.α}°, přepona c = ${ctx.p1.c} cm.<br>Vypočítej délku <b>protilehlé odvěsny a</b> (v cm).`,
+      q: i18n(`Úhel α = ${ctx.α}°, přepona c = ${ctx.p1.c} cm.<br>Vypočítej délku <b>protilehlé odvěsny a</b> (v cm).`,
+               `Angle α = ${ctx.α}°, hypotenuse c = ${ctx.p1.c} cm.<br>Calculate the <b>opposite leg a</b> (in cm).`),
       svg:svgTriangle({a:true,c:true,alpha:true}), ans:ctx.p1.a, tol:1, unit:'cm',
       hints:[
-        `Protilehlá odvěsna (a) a přepona (c) — použij sinus.`,
-        `sin ${ctx.α}° = a / ${ctx.p1.c}, tedy a = ${ctx.p1.c} · sin ${ctx.α}°`,
+        i18n(`Protilehlá odvěsna (a) a přepona (c) — použij sinus.`,`Opposite leg (a) and hypotenuse (c) — use sine.`),
+        i18n(`sin ${ctx.α}° = a / ${ctx.p1.c}, tedy a = ${ctx.p1.c} · sin ${ctx.α}°`,`sin ${ctx.α}° = a / ${ctx.p1.c}, so a = ${ctx.p1.c} · sin ${ctx.α}°`),
         `a = ${ctx.p1.c} · sin ${ctx.α}° ≈ <b>${ctx.p1.a} cm</b>`,
       ],
     })},
     { type:'math', build: ctx => ({
-      q:`Úhel α = ${ctx.α}°, přepona c = ${ctx.p2.c} cm.<br>Vypočítej délku <b>přilehlé odvěsny b</b> (v cm).`,
+      q: i18n(`Úhel α = ${ctx.α}°, přepona c = ${ctx.p2.c} cm.<br>Vypočítej délku <b>přilehlé odvěsny b</b> (v cm).`,
+               `Angle α = ${ctx.α}°, hypotenuse c = ${ctx.p2.c} cm.<br>Calculate the <b>adjacent leg b</b> (in cm).`),
       svg:svgTriangle({b:true,c:true,alpha:true}), ans:ctx.p2.b, tol:1, unit:'cm',
       hints:[
-        `Přilehlá odvěsna (b) a přepona (c) — použij kosinus.`,
-        `cos ${ctx.α}° = b / ${ctx.p2.c}, tedy b = ${ctx.p2.c} · cos ${ctx.α}°`,
+        i18n(`Přilehlá odvěsna (b) a přepona (c) — použij kosinus.`,`Adjacent leg (b) and hypotenuse (c) — use cosine.`),
+        i18n(`cos ${ctx.α}° = b / ${ctx.p2.c}, tedy b = ${ctx.p2.c} · cos ${ctx.α}°`,`cos ${ctx.α}° = b / ${ctx.p2.c}, so b = ${ctx.p2.c} · cos ${ctx.α}°`),
         `b = ${ctx.p2.c} · cos ${ctx.α}° ≈ <b>${ctx.p2.b} cm</b>`,
       ],
     })},
     { type:'math', build: ctx => ({
-      q:`Úhel α = ${ctx.α}°, přilehlá odvěsna b = ${ctx.p3.b} cm.<br>Vypočítej délku <b>protilehlé odvěsny a</b> (v cm).`,
+      q: i18n(`Úhel α = ${ctx.α}°, přilehlá odvěsna b = ${ctx.p3.b} cm.<br>Vypočítej délku <b>protilehlé odvěsny a</b> (v cm).`,
+               `Angle α = ${ctx.α}°, adjacent leg b = ${ctx.p3.b} cm.<br>Calculate the <b>opposite leg a</b> (in cm).`),
       svg:svgTriangle({a:true,b:true,alpha:true}), ans:ctx.p3.a, tol:1, unit:'cm',
       hints:[
-        `Protilehlá (a) a přilehlá (b) — bez přepony. Použij tangens.`,
-        `tan ${ctx.α}° = a / ${ctx.p3.b}, tedy a = ${ctx.p3.b} · tan ${ctx.α}°`,
+        i18n(`Protilehlá (a) a přilehlá (b) — bez přepony. Použij tangens.`,`Opposite (a) and adjacent (b) — no hypotenuse. Use tangent.`),
+        i18n(`tan ${ctx.α}° = a / ${ctx.p3.b}, tedy a = ${ctx.p3.b} · tan ${ctx.α}°`,`tan ${ctx.α}° = a / ${ctx.p3.b}, so a = ${ctx.p3.b} · tan ${ctx.α}°`),
         `a = ${ctx.p3.b} · tan ${ctx.α}° ≈ <b>${ctx.p3.a} cm</b>`,
       ],
     })},
     { type:'math', build: ctx => ({
-      q:`Úhel α = ${ctx.α}°, protilehlá odvěsna a = ${ctx.p4.a} cm.<br>Tentokrát hledej <b>přeponu c</b> (v cm).`,
+      q: i18n(`Úhel α = ${ctx.α}°, protilehlá odvěsna a = ${ctx.p4.a} cm.<br>Tentokrát hledej <b>přeponu c</b> (v cm).`,
+               `Angle α = ${ctx.α}°, opposite leg a = ${ctx.p4.a} cm.<br>Now find the <b>hypotenuse c</b> (in cm).`),
       svg:svgTriangle({a:true,c:true,alpha:true}), ans:ctx.p4.c, tol:1, unit:'cm',
       hints:[
-        `Znáš a a hledáš c — to je sinus, ale teď musíš vzorec obrátit.`,
-        `sin ${ctx.α}° = ${ctx.p4.a} / c, tedy c = ${ctx.p4.a} / sin ${ctx.α}°`,
+        i18n(`Znáš a a hledáš c — to je sinus, ale teď musíš vzorec obrátit.`,`You know a and need c — that's sine, but you need to rearrange.`),
+        i18n(`sin ${ctx.α}° = ${ctx.p4.a} / c, tedy c = ${ctx.p4.a} / sin ${ctx.α}°`,`sin ${ctx.α}° = ${ctx.p4.a} / c, so c = ${ctx.p4.a} / sin ${ctx.α}°`),
         `c = ${ctx.p4.a} / sin ${ctx.α}° ≈ <b>${ctx.p4.c} cm</b>`,
       ],
     })},
   ],
 },
 {
-  id:3, color:'ch3', icon:'📌', title:'Výpočet neznámého úhlu',
-  desc:'Ze dvou stran zjisti velikost úhlu pomocí arcsin, arccos nebo arctan.',
+  id:3, color:'ch3', icon:'📌',
+  title: () => i18n('Výpočet neznámého úhlu','Finding a missing angle'),
+  desc: () => i18n('Ze dvou stran zjisti velikost úhlu pomocí arcsin, arccos nebo arctan.','From two sides, find the angle using arcsin, arccos or arctan.'),
   setup: () => {
     const α = pick([25,30,35,40,45,50,55,60,65]);
     const aR = rad(α);
@@ -461,9 +579,10 @@ const ACTS = [
     };
   },
   scenes: [
-    { type:'story', build: ctx => ({
-      title:'Jak na výpočet úhlu',
-      html:`<p>Pokud znáš dvě strany, úhel α najdeš pomocí <b>inverzní funkce</b> na kalkulačce.</p>
+    { type:'story', build: () => ({
+      title: i18n('Jak na výpočet úhlu','Finding a missing angle'),
+      html: i18n(
+        `<p>Pokud znáš dvě strany, úhel α najdeš pomocí <b>inverzní funkce</b> na kalkulačce.</p>
         <div class="fact-box">📘 <b>Tři inverzní funkce:</b><br>
           • sin α = a/c &nbsp;→&nbsp; <b>α = arcsin(a/c)</b><br>
           • cos α = b/c &nbsp;→&nbsp; <b>α = arccos(b/c)</b><br>
@@ -472,48 +591,67 @@ const ACTS = [
         </div>
         <div class="svg-wrap">${svgTriangle({a:true,b:true,c:true,alpha:true})}</div>
         <p>Výsledky zaokrouhluj na <b>celé stupně</b>.</p>`,
+        `<p>If you know two sides, find angle α using the <b>inverse function</b> on your calculator.</p>
+        <div class="fact-box">📘 <b>Three inverse functions:</b><br>
+          • sin α = a/c &nbsp;→&nbsp; <b>α = arcsin(a/c)</b><br>
+          • cos α = b/c &nbsp;→&nbsp; <b>α = arccos(b/c)</b><br>
+          • tan α = a/b &nbsp;→&nbsp; <b>α = arctan(a/b)</b><br><br>
+          On the calculator: <b>sin⁻¹</b>, <b>cos⁻¹</b>, <b>tan⁻¹</b> buttons (or Shift + sin/cos/tan).
+        </div>
+        <div class="svg-wrap">${svgTriangle({a:true,b:true,c:true,alpha:true})}</div>
+        <p>Round your answers to the nearest <b>whole degree</b>.</p>`),
     })},
     { type:'math', build: ctx => ({
-      q:`Protilehlá odvěsna a = ${ctx.p1.a} cm, přepona c = ${ctx.p1.c} cm.<br>Vypočítej úhel <b>α</b> (v celých stupních).`,
+      q: i18n(`Protilehlá odvěsna a = ${ctx.p1.a} cm, přepona c = ${ctx.p1.c} cm.<br>Vypočítej úhel <b>α</b> (v celých stupních).`,
+               `Opposite leg a = ${ctx.p1.a} cm, hypotenuse c = ${ctx.p1.c} cm.<br>Calculate angle <b>α</b> (whole degrees).`),
       svg:svgTriangle({a:true,c:true,alpha:true}), ans:ctx.p1.ans, tol:1, unit:'°',
       hints:[
-        `Znáš protilehlou (a) a přeponu (c) — to je sinus.`,
-        `sin α = ${ctx.p1.a} / ${ctx.p1.c} = ${r1(ctx.p1.a/ctx.p1.c)}, takže α = arcsin(${r1(ctx.p1.a/ctx.p1.c)})`,
+        i18n(`Znáš protilehlou (a) a přeponu (c) — to je sinus.`,`You know opposite (a) and hypotenuse (c) — that's sine.`),
+        i18n(`sin α = ${ctx.p1.a} / ${ctx.p1.c} = ${r1(ctx.p1.a/ctx.p1.c)}, takže α = arcsin(${r1(ctx.p1.a/ctx.p1.c)})`,
+             `sin α = ${ctx.p1.a} / ${ctx.p1.c} = ${r1(ctx.p1.a/ctx.p1.c)}, so α = arcsin(${r1(ctx.p1.a/ctx.p1.c)})`),
         `α = arcsin(${r1(ctx.p1.a/ctx.p1.c)}) ≈ <b>${ctx.p1.ans}°</b>`,
       ],
     })},
     { type:'math', build: ctx => ({
-      q:`Přilehlá odvěsna b = ${ctx.p2.b} cm, přepona c = ${ctx.p2.c} cm.<br>Vypočítej úhel <b>α</b> (v celých stupních).`,
+      q: i18n(`Přilehlá odvěsna b = ${ctx.p2.b} cm, přepona c = ${ctx.p2.c} cm.<br>Vypočítej úhel <b>α</b> (v celých stupních).`,
+               `Adjacent leg b = ${ctx.p2.b} cm, hypotenuse c = ${ctx.p2.c} cm.<br>Calculate angle <b>α</b> (whole degrees).`),
       svg:svgTriangle({b:true,c:true,alpha:true}), ans:ctx.p2.ans, tol:1, unit:'°',
       hints:[
-        `Znáš přilehlou (b) a přeponu (c) — to je kosinus.`,
-        `cos α = ${ctx.p2.b} / ${ctx.p2.c} = ${r1(ctx.p2.b/ctx.p2.c)}, takže α = arccos(${r1(ctx.p2.b/ctx.p2.c)})`,
+        i18n(`Znáš přilehlou (b) a přeponu (c) — to je kosinus.`,`You know adjacent (b) and hypotenuse (c) — that's cosine.`),
+        i18n(`cos α = ${ctx.p2.b} / ${ctx.p2.c} = ${r1(ctx.p2.b/ctx.p2.c)}, takže α = arccos(${r1(ctx.p2.b/ctx.p2.c)})`,
+             `cos α = ${ctx.p2.b} / ${ctx.p2.c} = ${r1(ctx.p2.b/ctx.p2.c)}, so α = arccos(${r1(ctx.p2.b/ctx.p2.c)})`),
         `α = arccos(${r1(ctx.p2.b/ctx.p2.c)}) ≈ <b>${ctx.p2.ans}°</b>`,
       ],
     })},
     { type:'math', build: ctx => ({
-      q:`Protilehlá odvěsna a = ${ctx.p3.a} cm, přilehlá odvěsna b = ${ctx.p3.b} cm.<br>Vypočítej úhel <b>α</b> (v celých stupních).`,
+      q: i18n(`Protilehlá odvěsna a = ${ctx.p3.a} cm, přilehlá odvěsna b = ${ctx.p3.b} cm.<br>Vypočítej úhel <b>α</b> (v celých stupních).`,
+               `Opposite leg a = ${ctx.p3.a} cm, adjacent leg b = ${ctx.p3.b} cm.<br>Calculate angle <b>α</b> (whole degrees).`),
       svg:svgTriangle({a:true,b:true,alpha:true}), ans:ctx.p3.ans, tol:1, unit:'°',
       hints:[
-        `Znáš protilehlou (a) a přilehlou (b) — žádná přepona, to je tangens.`,
-        `tan α = ${ctx.p3.a} / ${ctx.p3.b} = ${r1(ctx.p3.a/ctx.p3.b)}, takže α = arctan(${r1(ctx.p3.a/ctx.p3.b)})`,
+        i18n(`Znáš protilehlou (a) a přilehlou (b) — žádná přepona, to je tangens.`,`You know opposite (a) and adjacent (b) — no hypotenuse, that's tangent.`),
+        i18n(`tan α = ${ctx.p3.a} / ${ctx.p3.b} = ${r1(ctx.p3.a/ctx.p3.b)}, takže α = arctan(${r1(ctx.p3.a/ctx.p3.b)})`,
+             `tan α = ${ctx.p3.a} / ${ctx.p3.b} = ${r1(ctx.p3.a/ctx.p3.b)}, so α = arctan(${r1(ctx.p3.a/ctx.p3.b)})`),
         `α = arctan(${r1(ctx.p3.a/ctx.p3.b)}) ≈ <b>${ctx.p3.ans}°</b>`,
       ],
     })},
     { type:'math', build: ctx => ({
-      q:`Pravoúhlý trojúhelník: přepona c = ${ctx.p4.c} cm, protilehlá odvěsna a = ${ctx.p4.a} cm (naproti α u vrcholu A).<br>Vypočítej druhý ostrý úhel <b>β</b> (u vrcholu B, v celých stupních).`,
+      q: i18n(`Pravoúhlý trojúhelník: přepona c = ${ctx.p4.c} cm, protilehlá odvěsna a = ${ctx.p4.a} cm (naproti α u vrcholu A).<br>Vypočítej druhý ostrý úhel <b>β</b> (u vrcholu B, v celých stupních).`,
+               `Right triangle: hypotenuse c = ${ctx.p4.c} cm, opposite leg a = ${ctx.p4.a} cm (opposite α at vertex A).<br>Find the second acute angle <b>β</b> (at vertex B, whole degrees).`),
       svg:svgTriangle({a:true,c:true}), ans:ctx.p4.ans, tol:1, unit:'°',
       hints:[
-        `Nejprve najdi α přes arcsin(a/c), pak využij faktu: součet ostrých úhlů v pravoúhlém trojúhelníku = 90°.`,
-        `α = arcsin(${ctx.p4.a}/${ctx.p4.c}) ≈ ${ctx.p1.ans}°, pak β = 90° − α`,
+        i18n(`Nejprve najdi α přes arcsin(a/c), pak využij faktu: součet ostrých úhlů v pravoúhlém trojúhelníku = 90°.`,
+             `First find α via arcsin(a/c), then use: the two acute angles in a right triangle add up to 90°.`),
+        i18n(`α = arcsin(${ctx.p4.a}/${ctx.p4.c}) ≈ ${ctx.p1.ans}°, pak β = 90° − α`,
+             `α = arcsin(${ctx.p4.a}/${ctx.p4.c}) ≈ ${ctx.p1.ans}°, then β = 90° − α`),
         `β = 90° − ${ctx.p1.ans}° = <b>${ctx.p4.ans}°</b>`,
       ],
     })},
   ],
 },
 {
-  id:4, color:'ch4', icon:'🪜', title:'Slovní úlohy — výška',
-  desc:'Žebřík, strom, stožár, skluzavka — hledáme výšku.',
+  id:4, color:'ch4', icon:'🪜',
+  title: () => i18n('Slovní úlohy — výška','Word problems — height'),
+  desc: () => i18n('Žebřík, strom, stožár, skluzavka — hledáme výšku.','Ladder, tree, pole, slide — finding heights.'),
   setup: () => {
     const zL=pick([5,6,7,8]), zU=pick([65,70,75]);
     const sV=pick([10,12,15,20]), sU=pick([30,35,40]);
@@ -528,8 +666,9 @@ const ACTS = [
   },
   scenes: [
     { type:'story', build: () => ({
-      title:'Jak řešit slovní úlohu',
-      html:`<p>Postup pro každou slovní úlohu:</p>
+      title: i18n('Jak řešit slovní úlohu','How to solve a word problem'),
+      html: i18n(
+        `<p>Postup pro každou slovní úlohu:</p>
         <div class="fact-box">📘 <b>4 kroky:</b><br>
           1. <b>Nakresli</b> si pravoúhlý trojúhelník.<br>
           2. <b>Označ</b>, co je úhel a co jsou strany — co je <b>protilehlá</b> a <b>přilehlá</b> k danému úhlu.<br>
@@ -540,48 +679,71 @@ const ACTS = [
         <div class="warn-box">⚠️ Klíč: <b>výška</b> je vždy <b>svislá</b> strana, <b>vzdálenost po zemi</b> je <b>vodorovná</b>.</div>
         <div class="svg-wrap">${svgTriangle({a:true,b:true,c:true,alpha:true})}</div>
         <p style="text-align:center;font-size:.88rem;color:var(--muted)">a = výška (svislá), b = vzdálenost po zemi (vodorovná), c = šikmá délka</p>`,
+        `<p>Steps for every word problem:</p>
+        <div class="fact-box">📘 <b>4 steps:</b><br>
+          1. <b>Sketch</b> a right triangle.<br>
+          2. <b>Label</b> the angle and sides — identify the <b>opposite</b> and <b>adjacent</b> legs.<br>
+          3. <b>Pick the function</b> based on what you know and need (sin, cos, tan).<br>
+          4. <b>Substitute and calculate</b> on your calculator.
+        </div>
+        <p>In this chapter we are looking for <b>height</b>. It is usually the <b>opposite leg</b>.</p>
+        <div class="warn-box">⚠️ Key: <b>height</b> is always the <b>vertical</b> side, <b>ground distance</b> is always <b>horizontal</b>.</div>
+        <div class="svg-wrap">${svgTriangle({a:true,b:true,c:true,alpha:true})}</div>
+        <p style="text-align:center;font-size:.88rem;color:var(--muted)">a = height (vertical), b = ground distance (horizontal), c = slant length</p>`),
     })},
     { type:'math', build: ctx => ({
-      q:`<b>🪜 Žebřík</b><br>Hasič opřel žebřík dlouhý <b>${ctx.zebrik.delka} m</b> o stěnu domu tak, že se zemí svírá úhel <b>${ctx.zebrik.uhel}°</b>.<br>Do jaké výšky žebřík sahá? (zaokrouhli na 1 desetinné místo)`,
+      q: i18n(`<b>🪜 Žebřík</b><br>Hasič opřel žebřík dlouhý <b>${ctx.zebrik.delka} m</b> o stěnu domu tak, že se zemí svírá úhel <b>${ctx.zebrik.uhel}°</b>.<br>Do jaké výšky žebřík sahá? (zaokrouhli na 1 desetinné místo)`,
+               `<b>🪜 Ladder</b><br>A firefighter leans a <b>${ctx.zebrik.delka} m</b> ladder against a wall at an angle of <b>${ctx.zebrik.uhel}°</b> from the ground.<br>How high up does the ladder reach? (1 decimal place)`),
       svg:svgTriangle({a:true,c:true,alpha:true}), ans:ctx.zebrik.vyska, tol:0.2, unit:'m', step:0.1,
       hints:[
-        `Žebřík = přepona (c). Výška = protilehlá odvěsna (a). Úhel ${ctx.zebrik.uhel}° = α.`,
-        `sin α = a/c, tedy a = c · sin α = ${ctx.zebrik.delka} · sin ${ctx.zebrik.uhel}°`,
+        i18n(`Žebřík = přepona (c). Výška = protilehlá odvěsna (a). Úhel ${ctx.zebrik.uhel}° = α.`,
+             `Ladder = hypotenuse (c). Height = opposite leg (a). Angle ${ctx.zebrik.uhel}° = α.`),
+        i18n(`sin α = a/c, tedy a = c · sin α = ${ctx.zebrik.delka} · sin ${ctx.zebrik.uhel}°`,
+             `sin α = a/c, so a = c · sin α = ${ctx.zebrik.delka} · sin ${ctx.zebrik.uhel}°`),
         `a = ${ctx.zebrik.delka} · sin ${ctx.zebrik.uhel}° ≈ <b>${ctx.zebrik.vyska} m</b>`,
       ],
     })},
     { type:'math', build: ctx => ({
-      q:`<b>🌳 Strom</b><br>Stojíš <b>${ctx.strom.vzd} m</b> od paty stromu. Vrchol stromu vidíš pod úhlem <b>${ctx.strom.uhel}°</b> nad vodorovnou rovinou (oči máš ve výšce země).<br>Jak vysoký je strom? (1 des. místo)`,
+      q: i18n(`<b>🌳 Strom</b><br>Stojíš <b>${ctx.strom.vzd} m</b> od paty stromu. Vrchol stromu vidíš pod úhlem <b>${ctx.strom.uhel}°</b> nad vodorovnou rovinou.<br>Jak vysoký je strom? (1 des. místo)`,
+               `<b>🌳 Tree</b><br>You stand <b>${ctx.strom.vzd} m</b> from the base of a tree. You see the top at an angle of <b>${ctx.strom.uhel}°</b> above the horizontal.<br>How tall is the tree? (1 decimal place)`),
       svg:svgTriangle({a:true,b:true,alpha:true}), ans:ctx.strom.vyska, tol:0.2, unit:'m', step:0.1,
       hints:[
-        `Vzdálenost po zemi = přilehlá (b). Výška = protilehlá (a). To je tangens.`,
-        `tan α = a/b, tedy a = b · tan α = ${ctx.strom.vzd} · tan ${ctx.strom.uhel}°`,
-        `výška = ${ctx.strom.vzd} · tan ${ctx.strom.uhel}° ≈ <b>${ctx.strom.vyska} m</b>`,
+        i18n(`Vzdálenost po zemi = přilehlá (b). Výška = protilehlá (a). To je tangens.`,
+             `Ground distance = adjacent (b). Height = opposite (a). That's tangent.`),
+        i18n(`tan α = a/b, tedy a = b · tan α = ${ctx.strom.vzd} · tan ${ctx.strom.uhel}°`,
+             `tan α = a/b, so a = b · tan α = ${ctx.strom.vzd} · tan ${ctx.strom.uhel}°`),
+        `${i18n('výška','height')} = ${ctx.strom.vzd} · tan ${ctx.strom.uhel}° ≈ <b>${ctx.strom.vyska} m</b>`,
       ],
     })},
     { type:'math', build: ctx => ({
-      q:`<b>☀️ Stožár a stín</b><br>Sluneční paprsky dopadají pod úhlem <b>${ctx.stozar.uhel}°</b> k vodorovné rovině. Stožár vrhá stín dlouhý <b>${ctx.stozar.stin} m</b>.<br>Jak vysoký je stožár? (1 des. místo)`,
+      q: i18n(`<b>☀️ Stožár a stín</b><br>Sluneční paprsky dopadají pod úhlem <b>${ctx.stozar.uhel}°</b> k vodorovné rovině. Stožár vrhá stín dlouhý <b>${ctx.stozar.stin} m</b>.<br>Jak vysoký je stožár? (1 des. místo)`,
+               `<b>☀️ Pole and shadow</b><br>Sunlight hits the ground at <b>${ctx.stozar.uhel}°</b>. A pole casts a shadow <b>${ctx.stozar.stin} m</b> long.<br>How tall is the pole? (1 decimal place)`),
       svg:svgTriangle({a:true,b:true,alpha:true}), ans:ctx.stozar.vyska, tol:0.3, unit:'m', step:0.1,
       hints:[
-        `Stín = vodorovná vzdálenost (přilehlá b). Stožár = výška (protilehlá a). Úhel paprsků = α.`,
-        `tan α = a/b, tedy a = b · tan α = ${ctx.stozar.stin} · tan ${ctx.stozar.uhel}°`,
-        `výška = ${ctx.stozar.stin} · tan ${ctx.stozar.uhel}° ≈ <b>${ctx.stozar.vyska} m</b>`,
+        i18n(`Stín = vodorovná vzdálenost (přilehlá b). Stožár = výška (protilehlá a). Úhel paprsků = α.`,
+             `Shadow = horizontal distance (adjacent b). Pole = height (opposite a). Sunlight angle = α.`),
+        i18n(`tan α = a/b, tedy a = b · tan α = ${ctx.stozar.stin} · tan ${ctx.stozar.uhel}°`,
+             `tan α = a/b, so a = b · tan α = ${ctx.stozar.stin} · tan ${ctx.stozar.uhel}°`),
+        `${i18n('výška','height')} = ${ctx.stozar.stin} · tan ${ctx.stozar.uhel}° ≈ <b>${ctx.stozar.vyska} m</b>`,
       ],
     })},
     { type:'math', build: ctx => ({
-      q:`<b>🛝 Skluzavka — délka</b><br>Skluzavka má sklon <b>${ctx.skluzavka.uhel}°</b> vzhledem k zemi. Horní plošina je ve výšce <b>${ctx.skluzavka.vyska} m</b>.<br>Jak dlouhá je šikmá část skluzavky? (1 des. místo)`,
+      q: i18n(`<b>🛝 Skluzavka</b><br>Skluzavka má sklon <b>${ctx.skluzavka.uhel}°</b> vzhledem k zemi. Horní plošina je ve výšce <b>${ctx.skluzavka.vyska} m</b>.<br>Jak dlouhá je šikmá část skluzavky? (1 des. místo)`,
+               `<b>🛝 Slide</b><br>A slide makes an angle of <b>${ctx.skluzavka.uhel}°</b> with the ground. The top is <b>${ctx.skluzavka.vyska} m</b> high.<br>How long is the slide? (1 decimal place)`),
       svg:svgTriangle({a:true,c:true,alpha:true}), ans:ctx.skluzavka.delka, tol:0.2, unit:'m', step:0.1,
       hints:[
-        `Skluzavka (šikmá) = přepona (c). Výška = protilehlá (a). Hledáš přeponu — sin α = a/c, takže c = a/sin α.`,
+        i18n(`Skluzavka = přepona (c). Výška = protilehlá (a). sin α = a/c → c = a/sin α.`,
+             `Slide = hypotenuse (c). Height = opposite (a). sin α = a/c → c = a/sin α.`),
         `c = ${ctx.skluzavka.vyska} / sin ${ctx.skluzavka.uhel}°`,
-        `c = ${ctx.skluzavka.vyska} / sin ${ctx.skluzavka.uhel}° ≈ <b>${ctx.skluzavka.delka} m</b>`,
+        `c ≈ <b>${ctx.skluzavka.delka} m</b>`,
       ],
     })},
   ],
 },
 {
-  id:5, color:'ch5', icon:'📐', title:'Slovní úlohy — vzdálenost',
-  desc:'Délka schodiště, stínu, lana — hledáme vzdálenost.',
+  id:5, color:'ch5', icon:'📐',
+  title: () => i18n('Slovní úlohy — vzdálenost','Word problems — distance'),
+  desc: () => i18n('Délka schodiště, stínu, lana — hledáme vzdálenost.','Staircase, shadow, guy-wire — finding distances.'),
   setup: () => {
     const schU=pick([25,30,35]), schV=pick([2.4,2.8,3.0]);
     const stV=pick([8,10,12,15]), stU=pick([30,35,40,45]);
@@ -596,55 +758,71 @@ const ACTS = [
   },
   scenes: [
     { type:'story', build: () => ({
-      title:'Hledáme vzdálenost',
-      html:`<p>V této kapitole hledáme <b>vodorovnou vzdálenost</b> nebo <b>šikmou délku</b> (přeponu).</p>
+      title: i18n('Hledáme vzdálenost','Finding a distance'),
+      html: i18n(
+        `<p>V této kapitole hledáme <b>vodorovnou vzdálenost</b> nebo <b>šikmou délku</b> (přeponu).</p>
         <div class="fact-box">📘 <b>Co kdy hledáš?</b><br>
           • <b>Vodorovná vzdálenost</b> = přilehlá odvěsna (b). Když znáš výšku (a) a úhel α: <b>b = a / tan α</b>.<br>
           • <b>Šikmá délka</b> = přepona (c). Když znáš výšku (a) a úhel α: <b>c = a / sin α</b>.
         </div>
-        <div class="warn-box">⚠️ <b>Pozor na obrácení vzorce!</b> Když je neznámá ve <i>jmenovateli</i> (např. sin α = a/c, hledáš c), musíš vzorec přehodit: <b>c = a / sin α</b>.</div>`,
+        <div class="warn-box">⚠️ <b>Pozor na obrácení vzorce!</b> Když je neznámá ve jmenovateli, přehoď vzorec: <b>c = a / sin α</b>.</div>`,
+        `<p>In this chapter we are looking for <b>horizontal distance</b> or <b>slant length</b> (hypotenuse).</p>
+        <div class="fact-box">📘 <b>What are you looking for?</b><br>
+          • <b>Horizontal distance</b> = adjacent leg (b). If you know height (a) and angle α: <b>b = a / tan α</b>.<br>
+          • <b>Slant length</b> = hypotenuse (c). If you know height (a) and angle α: <b>c = a / sin α</b>.
+        </div>
+        <div class="warn-box">⚠️ <b>Watch for rearranging!</b> When the unknown is in the denominator, flip the formula: <b>c = a / sin α</b>.</div>`),
     })},
     { type:'math', build: ctx => ({
-      q:`<b>🪜 Schodiště</b><br>Schodiště mezi dvěma patry stoupá pod úhlem <b>${ctx.schody.uhel}°</b>. Výškový rozdíl pater je <b>${ctx.schody.vyska} m</b>.<br>Jak dlouhé je šikmé rameno schodiště? (1 des. místo)`,
+      q: i18n(`<b>🪜 Schodiště</b><br>Schodiště stoupá pod úhlem <b>${ctx.schody.uhel}°</b>. Výškový rozdíl pater je <b>${ctx.schody.vyska} m</b>.<br>Jak dlouhé je šikmé rameno schodiště? (1 des. místo)`,
+               `<b>🪜 Staircase</b><br>A staircase rises at <b>${ctx.schody.uhel}°</b>. The height between floors is <b>${ctx.schody.vyska} m</b>.<br>How long is the slanted run? (1 decimal place)`),
       svg:svgTriangle({a:true,c:true,alpha:true}), ans:ctx.schody.delka, tol:0.2, unit:'m', step:0.1,
       hints:[
-        `Šikmé rameno = přepona (c). Výška = protilehlá (a). Použij sin α = a/c.`,
-        `c = a / sin α = ${ctx.schody.vyska} / sin ${ctx.schody.uhel}°`,
+        i18n(`Šikmé rameno = přepona (c). Výška = protilehlá (a). sin α = a/c → c = a/sin α.`,
+             `Slant = hypotenuse (c). Height = opposite (a). sin α = a/c → c = a/sin α.`),
+        `c = ${ctx.schody.vyska} / sin ${ctx.schody.uhel}°`,
         `c ≈ <b>${ctx.schody.delka} m</b>`,
       ],
     })},
     { type:'math', build: ctx => ({
-      q:`<b>🌳 Délka stínu</b><br>Strom vysoký <b>${ctx.stin.vyska} m</b> vrhá stín. Sluneční paprsky dopadají pod úhlem <b>${ctx.stin.uhel}°</b> vzhledem k zemi.<br>Jak dlouhý je stín? (1 des. místo)`,
+      q: i18n(`<b>🌳 Délka stínu</b><br>Strom vysoký <b>${ctx.stin.vyska} m</b> vrhá stín. Sluneční paprsky dopadají pod úhlem <b>${ctx.stin.uhel}°</b> k zemi.<br>Jak dlouhý je stín? (1 des. místo)`,
+               `<b>🌳 Shadow length</b><br>A tree <b>${ctx.stin.vyska} m</b> tall casts a shadow. Sunlight strikes at <b>${ctx.stin.uhel}°</b> to the ground.<br>How long is the shadow? (1 decimal place)`),
       svg:svgTriangle({a:true,b:true,alpha:true}), ans:ctx.stin.stin, tol:0.3, unit:'m', step:0.1,
       hints:[
-        `Strom = protilehlá (a). Stín = přilehlá (b). Použij tan α = a/b, takže b = a/tan α.`,
+        i18n(`Strom = protilehlá (a). Stín = přilehlá (b). tan α = a/b → b = a/tan α.`,
+             `Tree = opposite (a). Shadow = adjacent (b). tan α = a/b → b = a/tan α.`),
         `b = ${ctx.stin.vyska} / tan ${ctx.stin.uhel}°`,
-        `stín ≈ <b>${ctx.stin.stin} m</b>`,
+        `${i18n('stín','shadow')} ≈ <b>${ctx.stin.stin} m</b>`,
       ],
     })},
     { type:'math', build: ctx => ({
-      q:`<b>🎪 Lano k stěžni</b><br>Ke stěžni vysoké <b>${ctx.lano.vyska} m</b> vede napjaté lano upevněné v zemi. S vodorovnou rovinou svírá lano úhel <b>${ctx.lano.uhel}°</b>.<br>V jaké vzdálenosti od paty stěžně je lano upevněno? (1 des. místo)`,
+      q: i18n(`<b>🎪 Lano k stěžni</b><br>Ke stěžni vysoké <b>${ctx.lano.vyska} m</b> vede lano upevněné v zemi, svírající úhel <b>${ctx.lano.uhel}°</b> s vodorovnou rovinou.<br>V jaké vzdálenosti od paty stěžně je upevněno? (1 des. místo)`,
+               `<b>🎪 Guy-wire</b><br>A taut guy-wire supports a <b>${ctx.lano.vyska} m</b> mast, making an angle of <b>${ctx.lano.uhel}°</b> with the ground.<br>How far from the mast base is it anchored? (1 decimal place)`),
       svg:svgTriangle({a:true,b:true,alpha:true}), ans:ctx.lano.vzd, tol:0.3, unit:'m', step:0.1,
       hints:[
-        `Stěžeň = protilehlá (a). Vzdálenost po zemi = přilehlá (b). tan α = a/b → b = a/tan α.`,
+        i18n(`Stěžeň = protilehlá (a). Vzdálenost = přilehlá (b). tan α = a/b → b = a/tan α.`,
+             `Mast = opposite (a). Distance = adjacent (b). tan α = a/b → b = a/tan α.`),
         `b = ${ctx.lano.vyska} / tan ${ctx.lano.uhel}°`,
-        `vzdálenost ≈ <b>${ctx.lano.vzd} m</b>`,
+        `${i18n('vzdálenost','distance')} ≈ <b>${ctx.lano.vzd} m</b>`,
       ],
     })},
     { type:'math', build: ctx => ({
-      q:`<b>🚣 Sjezd k řece</b><br>Z bodu na hraně srázu sjíždíš dolů po šikmé pěšince. Sráz je vysoký <b>${ctx.most.vyska} m</b> a pěšinka se zemí svírá úhel <b>${ctx.most.uhel}°</b>.<br>Jak dlouhá je pěšinka? (1 des. místo)`,
+      q: i18n(`<b>🚣 Sjezd ke srázu</b><br>Sráz je vysoký <b>${ctx.most.vyska} m</b>, pěšinka se zemí svírá úhel <b>${ctx.most.uhel}°</b>.<br>Jak dlouhá je pěšinka? (1 des. místo)`,
+               `<b>🚣 Cliff path</b><br>A cliff is <b>${ctx.most.vyska} m</b> high; a path makes an angle of <b>${ctx.most.uhel}°</b> with the ground.<br>How long is the path? (1 decimal place)`),
       svg:svgTriangle({a:true,c:true,alpha:true}), ans:ctx.most.dolu, tol:0.3, unit:'m', step:0.1,
       hints:[
-        `Pěšinka = přepona (c). Výška srázu = protilehlá (a). sin α = a/c → c = a/sin α.`,
+        i18n(`Pěšinka = přepona (c). Výška = protilehlá (a). c = a/sin α.`,
+             `Path = hypotenuse (c). Height = opposite (a). c = a/sin α.`),
         `c = ${ctx.most.vyska} / sin ${ctx.most.uhel}°`,
-        `délka ≈ <b>${ctx.most.dolu} m</b>`,
+        `${i18n('délka','length')} ≈ <b>${ctx.most.dolu} m</b>`,
       ],
     })},
   ],
 },
 {
-  id:6, color:'ch6', icon:'🔭', title:'Úhel sklonu (elevační / depresivní)',
-  desc:'Když se díváš nahoru nebo dolů — letadlo, hora, maják, drak.',
+  id:6, color:'ch6', icon:'🔭',
+  title: () => i18n('Úhel sklonu (elevační / depresivní)','Angles of inclination (elevation / depression)'),
+  desc: () => i18n('Když se díváš nahoru nebo dolů — letadlo, hora, maják, drak.','Looking up or down — aircraft, mountain, lighthouse, kite.'),
   setup: () => {
     const lU=pick([20,25,30]), lV=pick([1500,1800,2000,2400]);
     const hU=pick([10,12,15,18]), hVzd=pick([3,4,5]);
@@ -659,57 +837,75 @@ const ACTS = [
   },
   scenes: [
     { type:'story', build: () => ({
-      title:'Elevační vs. depresivní úhel',
-      html:`<p>Když se díváš na něco, co není ve stejné výšce jako ty:</p>
+      title: i18n('Elevační vs. depresivní úhel','Elevation vs. depression angle'),
+      html: i18n(
+        `<p>Když se díváš na něco, co není ve stejné výšce jako ty:</p>
         <div class="fact-box">📘 <b>Definice:</b><br>
-          • <b>Elevační úhel</b> (úhel <i>nadhledu</i>) — díváš se <b>nahoru</b>, úhel se měří od vodorovné roviny k pohledu.<br>
-          • <b>Depresivní úhel</b> (úhel <i>podhledu</i>) — díváš se z výšky <b>dolů</b>, úhel se měří od vodorovné roviny k pohledu.
+          • <b>Elevační úhel</b> — díváš se <b>nahoru</b>, měří se od vodorovné roviny k pohledu.<br>
+          • <b>Depresivní úhel</b> — díváš se z výšky <b>dolů</b>, měří se od vodorovné roviny k pohledu.
         </div>
-        <div class="warn-box">⚠️ <b>Trik:</b> depresivní úhel pozorovatele <b>= </b>elevační úhel z bodu, na který se dívá (střídavé úhly při rovnoběžných vodorovných rovinách). Pro výpočet je to jedno — pracuj jako s úhlem α v pravoúhlém trojúhelníku.</div>
+        <div class="warn-box">⚠️ <b>Trik:</b> depresivní úhel pozorovatele = elevační úhel z bodu, na který se dívá (střídavé úhly). Pro výpočet pracuj jako s úhlem α v pravoúhlém trojúhelníku.</div>
         <div class="svg-wrap">${svgTriangle({a:true,b:true,c:true,alpha:true})}</div>
         <p style="text-align:center;font-size:.88rem;color:var(--muted)">a = svislý rozdíl výšek, b = vodorovná vzdálenost, α = úhel sklonu</p>`,
+        `<p>When you look at something not at the same height as you:</p>
+        <div class="fact-box">📘 <b>Definitions:</b><br>
+          • <b>Angle of elevation</b> — you look <b>up</b>; measured from the horizontal to the line of sight.<br>
+          • <b>Angle of depression</b> — you look <b>down</b> from a height; measured from the horizontal to the line of sight.
+        </div>
+        <div class="warn-box">⚠️ <b>Tip:</b> depression angle from observer = elevation angle from the target (alternate angles). For calculations treat it as α in a right triangle.</div>
+        <div class="svg-wrap">${svgTriangle({a:true,b:true,c:true,alpha:true})}</div>
+        <p style="text-align:center;font-size:.88rem;color:var(--muted)">a = vertical height difference, b = horizontal distance, α = angle of inclination</p>`),
     })},
     { type:'math', build: ctx => ({
-      q:`<b>✈️ Letadlo</b><br>Pilot letí ve výšce <b>${ctx.letadlo.vyska} m</b>. Letiště vidí pod depresivním úhlem <b>${ctx.letadlo.uhel}°</b>.<br>Jak daleko je letiště od bodu pod letadlem (po zemi, zaokrouhli na celé metry)?`,
+      q: i18n(`<b>✈️ Letadlo</b><br>Pilot letí ve výšce <b>${ctx.letadlo.vyska} m</b>. Letiště vidí pod depresivním úhlem <b>${ctx.letadlo.uhel}°</b>.<br>Jak daleko je letiště od bodu pod letadlem (po zemi, celé metry)?`,
+               `<b>✈️ Aircraft</b><br>A pilot flies at <b>${ctx.letadlo.vyska} m</b>. The airport is visible at a depression angle of <b>${ctx.letadlo.uhel}°</b>.<br>How far is the airport from the point below the aircraft (ground distance, whole metres)?`),
       svg:svgTriangle({a:true,b:true,alpha:true}), ans:ctx.letadlo.vzd, tol:30, unit:'m',
       hints:[
-        `Výška letadla = protilehlá (a). Vodorovná vzdálenost = přilehlá (b). Depresivní úhel = α. tan α = a/b → b = a/tan α.`,
+        i18n(`Výška = protilehlá (a). Vodorovná vzdálenost = přilehlá (b). tan α = a/b → b = a/tan α.`,
+             `Height = opposite (a). Horizontal distance = adjacent (b). tan α = a/b → b = a/tan α.`),
         `b = ${ctx.letadlo.vyska} / tan ${ctx.letadlo.uhel}°`,
-        `vzdálenost ≈ <b>${ctx.letadlo.vzd} m</b>`,
+        `${i18n('vzdálenost','distance')} ≈ <b>${ctx.letadlo.vzd} m</b>`,
       ],
     })},
     { type:'math', build: ctx => ({
-      q:`<b>⛰️ Hora</b><br>Stojíš <b>${ctx.hora.vzd_km} km</b> od paty hory. Vrchol vidíš pod elevačním úhlem <b>${ctx.hora.uhel}°</b>.<br>Jak vysoká je hora (v metrech, zaokrouhli na celé)?`,
+      q: i18n(`<b>⛰️ Hora</b><br>Stojíš <b>${ctx.hora.vzd_km} km</b> od paty hory. Vrchol vidíš pod elevačním úhlem <b>${ctx.hora.uhel}°</b>.<br>Jak vysoká je hora (v metrech, celé)?`,
+               `<b>⛰️ Mountain</b><br>You stand <b>${ctx.hora.vzd_km} km</b> from the foot of a mountain. You see the peak at an elevation angle of <b>${ctx.hora.uhel}°</b>.<br>How high is the mountain (in metres, whole)?`),
       svg:svgTriangle({a:true,b:true,alpha:true}), ans:ctx.hora.vyska_m, tol:50, unit:'m',
       hints:[
-        `Vzdálenost = přilehlá (b) = ${ctx.hora.vzd_km*1000} m. Výška hory = protilehlá (a). tan α = a/b → a = b · tan α.`,
+        i18n(`Vzdálenost = přilehlá (b) = ${ctx.hora.vzd_km*1000} m. Výška = protilehlá (a). a = b · tan α.`,
+             `Distance = adjacent (b) = ${ctx.hora.vzd_km*1000} m. Height = opposite (a). a = b · tan α.`),
         `a = ${ctx.hora.vzd_km*1000} · tan ${ctx.hora.uhel}°`,
-        `výška ≈ <b>${ctx.hora.vyska_m} m</b>`,
+        `${i18n('výška','height')} ≈ <b>${ctx.hora.vyska_m} m</b>`,
       ],
     })},
     { type:'math', build: ctx => ({
-      q:`<b>🗼 Maják</b><br>Strážník v majáku <b>${ctx.majak.vyska} m</b> nad hladinou vidí loď pod depresivním úhlem <b>${ctx.majak.uhel}°</b>.<br>Jak daleko je loď od paty majáku po hladině (celé metry)?`,
+      q: i18n(`<b>🗼 Maják</b><br>Strážník v majáku <b>${ctx.majak.vyska} m</b> nad hladinou vidí loď pod depresivním úhlem <b>${ctx.majak.uhel}°</b>.<br>Jak daleko je loď od paty majáku (po hladině, celé metry)?`,
+               `<b>🗼 Lighthouse</b><br>A keeper in a lighthouse <b>${ctx.majak.vyska} m</b> above sea level sees a ship at a depression angle of <b>${ctx.majak.uhel}°</b>.<br>How far is the ship from the lighthouse base (along the surface, whole metres)?`),
       svg:svgTriangle({a:true,b:true,alpha:true}), ans:ctx.majak.vzd, tol:5, unit:'m',
       hints:[
-        `Výška majáku = protilehlá (a). Vzdálenost po hladině = přilehlá (b). tan α = a/b → b = a/tan α.`,
+        i18n(`Výška = protilehlá (a). Vzdálenost = přilehlá (b). b = a/tan α.`,
+             `Height = opposite (a). Distance = adjacent (b). b = a/tan α.`),
         `b = ${ctx.majak.vyska} / tan ${ctx.majak.uhel}°`,
-        `vzdálenost ≈ <b>${ctx.majak.vzd} m</b>`,
+        `${i18n('vzdálenost','distance')} ≈ <b>${ctx.majak.vzd} m</b>`,
       ],
     })},
     { type:'math', build: ctx => ({
-      q:`<b>🪁 Drak</b><br>Pouštíš draka. Šňůra je dlouhá <b>${ctx.drak.snura} m</b>, je napjatá a se zemí svírá úhel <b>${ctx.drak.uhel}°</b>.<br>V jaké výšce drak letí? (1 des. místo)`,
+      q: i18n(`<b>🪁 Drak</b><br>Šňůra draka je <b>${ctx.drak.snura} m</b> dlouhá, napjatá, svírá se zemí úhel <b>${ctx.drak.uhel}°</b>.<br>V jaké výšce letí drak? (1 des. místo)`,
+               `<b>🪁 Kite</b><br>A kite string is <b>${ctx.drak.snura} m</b> long and taut, making an angle of <b>${ctx.drak.uhel}°</b> with the ground.<br>How high is the kite? (1 decimal place)`),
       svg:svgTriangle({a:true,c:true,alpha:true}), ans:ctx.drak.vyska, tol:0.5, unit:'m', step:0.1,
       hints:[
-        `Šňůra = přepona (c). Výška draka = protilehlá (a). sin α = a/c → a = c · sin α.`,
+        i18n(`Šňůra = přepona (c). Výška = protilehlá (a). a = c · sin α.`,
+             `String = hypotenuse (c). Height = opposite (a). a = c · sin α.`),
         `a = ${ctx.drak.snura} · sin ${ctx.drak.uhel}°`,
-        `výška ≈ <b>${ctx.drak.vyska} m</b>`,
+        `${i18n('výška','height')} ≈ <b>${ctx.drak.vyska} m</b>`,
       ],
     })},
   ],
 },
 {
-  id:7, color:'ch7', icon:'🎯', title:'Souhrnný test',
-  desc:'6 příkladů ze všech kapitol, bez nápověd. Ukaž, co umíš!',
+  id:7, color:'ch7', icon:'🎯',
+  title: () => i18n('Souhrnný test','Final test'),
+  desc: () => i18n('6 příkladů ze všech kapitol, bez nápověd. Ukaž, co umíš!','6 problems from all chapters, no hints. Show what you know!'),
   setup: () => {
     const u1=pick([30,40,45,50,60]);
     const u2=pick([35,40,45,50,55]); const c2=pick([15,20,25]);
@@ -729,39 +925,49 @@ const ACTS = [
   },
   scenes: [
     { type:'story', build: () => ({
-      title:'Souhrnný test',
-      html:`<p>Tohle je test ze všech kapitol — <b>bez nápověd</b>. Máš kalkulačku, máš všechno, co jsi se naučil. 6 příkladů.</p>
-        <div class="warn-box">⚠️ <b>Co dělat:</b> nakresli si trojúhelník, zjisti, co je co (protilehlá / přilehlá / přepona), vyber funkci (sin, cos, tan, nebo arc-), spočítej.</div>
+      title: i18n('Souhrnný test','Final test'),
+      html: i18n(
+        `<p>Tohle je test ze všech kapitol — <b>bez nápověd</b>. Máš kalkulačku, máš všechno, co jsi se naučil. 6 příkladů.</p>
+        <div class="warn-box">⚠️ <b>Co dělat:</b> nakresli si trojúhelník, zjisti, co je co (protilehlá / přilehlá / přepona), vyber funkci, spočítej.</div>
         <p>Hodně štěstí! 🎯</p>`,
+        `<p>This is a test from all chapters — <b>no hints</b>. You have a calculator and everything you've learned. 6 problems.</p>
+        <div class="warn-box">⚠️ <b>Strategy:</b> sketch a triangle, identify the sides (opposite / adjacent / hypotenuse), choose the function (sin, cos, tan, or inverse), calculate.</div>
+        <p>Good luck! 🎯</p>`),
     })},
     { type:'math', build: ctx => ({
-      title:'Test 1/6 — definice',
-      q:`Pro úhel α = ${ctx.t1.uhel}° spočítej <b>hodnotu sin α</b>. (zaokrouhli na 2 des. místa)`,
+      title: i18n('Test 1/6 — definice','Test 1/6 — definitions'),
+      q: i18n(`Pro úhel α = ${ctx.t1.uhel}° spočítej <b>hodnotu sin α</b>. (zaokrouhli na 2 des. místa)`,
+               `For angle α = ${ctx.t1.uhel}°, calculate the <b>value of sin α</b>. (round to 2 decimal places)`),
       ans:ctx.t1.ans, tol:0.02, unit:'', step:0.01, hints:[],
     })},
     { type:'math', build: ctx => ({
-      title:'Test 2/6 — strana',
-      q:`Úhel α = ${ctx.t2.uhel}°, přepona c = ${ctx.t2.c} cm. Vypočítej <b>přilehlou odvěsnu b</b> (celé cm).`,
+      title: i18n('Test 2/6 — strana','Test 2/6 — side'),
+      q: i18n(`Úhel α = ${ctx.t2.uhel}°, přepona c = ${ctx.t2.c} cm. Vypočítej <b>přilehlou odvěsnu b</b> (celé cm).`,
+               `Angle α = ${ctx.t2.uhel}°, hypotenuse c = ${ctx.t2.c} cm. Calculate the <b>adjacent leg b</b> (whole cm).`),
       svg:svgTriangle({b:true,c:true,alpha:true}), ans:ctx.t2.ans, tol:1, unit:'cm', hints:[],
     })},
     { type:'math', build: ctx => ({
-      title:'Test 3/6 — úhel',
-      q:`Protilehlá odvěsna a = ${ctx.t3.a} cm, přepona c = ${ctx.t3.c} cm. Vypočítej úhel <b>α</b> (celé °).`,
+      title: i18n('Test 3/6 — úhel','Test 3/6 — angle'),
+      q: i18n(`Protilehlá odvěsna a = ${ctx.t3.a} cm, přepona c = ${ctx.t3.c} cm. Vypočítej úhel <b>α</b> (celé °).`,
+               `Opposite leg a = ${ctx.t3.a} cm, hypotenuse c = ${ctx.t3.c} cm. Calculate angle <b>α</b> (whole °).`),
       svg:svgTriangle({a:true,c:true,alpha:true}), ans:ctx.t3.ans, tol:1, unit:'°', hints:[],
     })},
     { type:'math', build: ctx => ({
-      title:'Test 4/6 — slovní úloha (výška)',
-      q:`🪜 Žebřík dlouhý ${ctx.t4.delka} m je opřený o zeď a se zemí svírá úhel ${ctx.t4.uhel}°. Do jaké výšky sahá? (1 des. místo)`,
+      title: i18n('Test 4/6 — slovní úloha (výška)','Test 4/6 — word problem (height)'),
+      q: i18n(`🪜 Žebřík ${ctx.t4.delka} m opřený o zeď svírá se zemí úhel ${ctx.t4.uhel}°. Do jaké výšky sahá? (1 des. místo)`,
+               `🪜 A ${ctx.t4.delka} m ladder leans against a wall at ${ctx.t4.uhel}° from the ground. How high does it reach? (1 decimal place)`),
       ans:ctx.t4.ans, tol:0.2, unit:'m', step:0.1, hints:[],
     })},
     { type:'math', build: ctx => ({
-      title:'Test 5/6 — slovní úloha (vzdálenost)',
-      q:`🌳 Strom vysoký ${ctx.t5.vyska} m vrhá stín. Paprsky dopadají pod úhlem ${ctx.t5.uhel}° k zemi. Jak dlouhý je stín? (1 des. místo)`,
+      title: i18n('Test 5/6 — slovní úloha (vzdálenost)','Test 5/6 — word problem (distance)'),
+      q: i18n(`🌳 Strom vysoký ${ctx.t5.vyska} m vrhá stín. Paprsky dopadají pod úhlem ${ctx.t5.uhel}° k zemi. Jak dlouhý je stín? (1 des. místo)`,
+               `🌳 A tree ${ctx.t5.vyska} m tall casts a shadow. Sunlight at ${ctx.t5.uhel}° to the ground. How long is the shadow? (1 decimal place)`),
       ans:ctx.t5.ans, tol:0.3, unit:'m', step:0.1, hints:[],
     })},
     { type:'math', build: ctx => ({
-      title:'Test 6/6 — úhel sklonu',
-      q:`✈️ Letadlo ve výšce ${ctx.t6.vyska} m vidí letiště pod depresivním úhlem ${ctx.t6.uhel}°. Jak daleko je letiště po zemi? (celé m)`,
+      title: i18n('Test 6/6 — úhel sklonu','Test 6/6 — angle of inclination'),
+      q: i18n(`✈️ Letadlo ve výšce ${ctx.t6.vyska} m vidí letiště pod depresivním úhlem ${ctx.t6.uhel}°. Vzdálenost po zemi? (celé m)`,
+               `✈️ Aircraft at ${ctx.t6.vyska} m altitude sees the airport at a depression angle of ${ctx.t6.uhel}°. Ground distance? (whole m)`),
       ans:ctx.t6.ans, tol:50, unit:'m', hints:[],
     })},
   ],
@@ -779,6 +985,14 @@ function showScreen(id) {
 }
 
 function buildHub() {
+  // update top-bar, title, sub
+  const tb = document.getElementById('hub-topbar');
+  if (tb) tb.innerHTML = `<a href="./">${i18n('← zpět na projekty','← back to projects')}</a><span></span><a href="/">${i18n('domů','home')}</a>`;
+  const ht = document.getElementById('hub-title');
+  if (ht) ht.textContent = i18n('Kapitoly','Chapters');
+  const hs = document.getElementById('hub-sub');
+  if (hs) hs.textContent = i18n('Kapitoly se odemykají postupně.','Chapters unlock one by one.');
+
   const grid=document.getElementById('hub-grid');
   grid.innerHTML='';
   ACTS.forEach(act => {
@@ -787,8 +1001,8 @@ function buildHub() {
     const div=document.createElement('div');
     div.className='hub-card'+(done?' done':'')+(unlocked?'':' locked');
     div.innerHTML=`<div class="hub-icon">${act.icon}</div>
-      <div class="hub-meta"><h3>Kapitola ${act.id}: ${act.title}</h3><p>${act.desc}</p></div>
-      <div class="hub-badge ${done?'done':unlocked?'open':'locked'}">${done?'✓ Hotovo':unlocked?'▶ Hrát':'🔒'}</div>`;
+      <div class="hub-meta"><h3>${i18n('Kapitola','Chapter')} ${act.id}: ${act.title()}</h3><p>${act.desc()}</p></div>
+      <div class="hub-badge ${done?'done':unlocked?'open':'locked'}">${done?i18n('✓ Hotovo','✓ Done'):unlocked?i18n('▶ Hrát','▶ Play'):'🔒'}</div>`;
     if(unlocked) div.addEventListener('click',()=>startAct(act.id));
     grid.appendChild(div);
   });
@@ -801,8 +1015,9 @@ function startAct(id) {
   chapterScore={earned:0,max:0};
   const badge=document.getElementById('ch-badge');
   badge.className='chapter-badge '+currentAct.color;
-  badge.textContent='Kapitola '+id;
-  document.getElementById('ch-title').textContent=currentAct.title;
+  badge.textContent=i18n('Kapitola','Chapter')+' '+id;
+  document.getElementById('ch-title').textContent=currentAct.title();
+  document.getElementById('btn-back-hub').textContent=i18n('← přehled','← overview');
   showScreen('chapter');
   renderScene();
 }
@@ -837,21 +1052,22 @@ function finishAct() {
   const code=ACT_CODES[nextId];
   const container=document.getElementById('scene-container');
   container.innerHTML=`<div class="scene-card">
-    <h2>🎉 Kapitola ${currentAct.id} dokončena!</h2>
-    <p>Skóre: <b>${chapterScore.earned} / ${chapterScore.max}</b></p>
+    <h2>🎉 ${i18n('Kapitola','Chapter')} ${currentAct.id} ${i18n('dokončena!','complete!')}</h2>
+    <p>${i18n('Skóre:','Score:')} <b>${chapterScore.earned} / ${chapterScore.max}</b></p>
     <div class="code-reveal visible">
-      <h3>🔑 Tvůj kód pro kapitolu ${currentAct.id}</h3>
+      <h3>🔑 ${i18n('Tvůj kód pro kapitolu','Your code for chapter')} ${currentAct.id}</h3>
       <div class="code-val">${code}</div>
-      <p>Zapiš si ho — na jiném počítači ho zadáš a budeš pokračovat od kapitoly ${nextId}.</p>
+      <p>${i18n(`Zapiš si ho — na jiném počítači ho zadáš a budeš pokračovat od kapitoly ${nextId}.`,
+                `Write it down — enter it on another device to continue from chapter ${nextId}.`)}</p>
     </div>
-    <button class="btn-next visible" id="btn-to-hub" style="margin-top:16px">→ Zpět na přehled</button>
+    <button class="btn-next visible" id="btn-to-hub" style="margin-top:16px">→ ${i18n('Zpět na přehled','Back to overview')}</button>
   </div>`;
-  document.getElementById('btn-to-hub').addEventListener('click',()=>{ buildHub(); showScreen('hub'); });
+  document.getElementById('btn-to-hub').addEventListener('click',()=>{ buildHub(); buildHubCode(); showScreen('hub'); });
 }
 
 function renderStory(data,container) {
   container.innerHTML=`<div class="scene-card">${data.title?`<h2>${data.title}</h2>`:''} ${data.html}</div>
-    <button class="btn-next visible" id="btn-story-next">Rozumím →</button>`;
+    <button class="btn-next visible" id="btn-story-next">${i18n('Rozumím →','Got it →')}</button>`;
   document.getElementById('btn-story-next').addEventListener('click',nextScene);
 }
 
@@ -864,9 +1080,9 @@ function renderChoice(data,container) {
     <p class="problem-q">${data.q}</p>
     <div class="choice-list">${data.choices.map((c,i)=>`<button class="choice-btn" data-idx="${i}">${c}</button>`).join('')}</div>
     <div class="feedback" id="feedback"></div>
-    ${hasHints?`<div class="hint-section"><button class="hint-btn" id="hint-toggle">💡 Nápověda 1/3</button>${hHtml}</div>`:''}
+    ${hasHints?`<div class="hint-section"><button class="hint-btn" id="hint-toggle">💡 ${i18n('Nápověda','Hint')} 1/3</button>${hHtml}</div>`:''}
   </div>
-  <button class="btn-next" id="btn-next">Další →</button>`;
+  <button class="btn-next" id="btn-next">${i18n('Další →','Next →')}</button>`;
   chapterScore.max+=1;
   container.querySelectorAll('.choice-btn').forEach(btn=>{
     btn.addEventListener('click',()=>{
@@ -880,7 +1096,7 @@ function renderChoice(data,container) {
         else if(parseInt(b.dataset.idx)===parseInt(btn.dataset.idx)&&!ok) b.classList.add('wrong');
       });
       const fb=container.querySelector('#feedback');
-      fb.textContent=ok?'✓ Správně!':'✗ Správně je: '+data.choices[data.correct];
+      fb.textContent=ok?i18n('✓ Správně!','✓ Correct!'):i18n('✗ Správně je: ','✗ Correct: ')+data.choices[data.correct];
       fb.className='feedback '+(ok?'ok':'err');
       container.querySelector('#btn-next').classList.add('visible');
     });
@@ -899,12 +1115,12 @@ function renderMath(data,container) {
     <div class="input-row">
       <input type="number" class="answer-input" id="ans-input" placeholder="?" step="${data.step||1}">
       <span class="unit-label">${data.unit}</span>
-      <button class="btn-check" id="btn-check">Zkontrolovat</button>
+      <button class="btn-check" id="btn-check">${i18n('Zkontrolovat','Check')}</button>
     </div>
     <div class="feedback" id="feedback"></div>
-    ${hasHints?`<div class="hint-section"><button class="hint-btn" id="hint-toggle">💡 Nápověda 1/3</button>${hHtml}</div>`:''}
+    ${hasHints?`<div class="hint-section"><button class="hint-btn" id="hint-toggle">💡 ${i18n('Nápověda','Hint')} 1/3</button>${hHtml}</div>`:''}
   </div>
-  <button class="btn-next" id="btn-next">Další →</button>`;
+  <button class="btn-next" id="btn-next">${i18n('Další →','Next →')}</button>`;
   chapterScore.max+=1;
   const input=container.querySelector('#ans-input');
   const fb=container.querySelector('#feedback');
@@ -912,14 +1128,16 @@ function renderMath(data,container) {
   function check() {
     if(answered){ nextScene(); return; }
     const val=parseFloat(input.value);
-    if(isNaN(val)){ fb.innerHTML='Zadej číslo.'; fb.className='feedback err'; return; }
+    if(isNaN(val)){ fb.innerHTML=i18n('Zadej číslo.','Enter a number.'); fb.className='feedback err'; return; }
     const ok=Math.abs(val-data.ans)<=(data.tol||0);
     answered=true;
     if(ok) chapterScore.earned+=1;
-    fb.innerHTML=ok?`✓ Správně! ${data.ans} ${data.unit}`:`✗ Správná odpověď: <b>${data.ans} ${data.unit}</b>`;
+    fb.innerHTML=ok
+      ? `${i18n('✓ Správně!','✓ Correct!')} ${data.ans} ${data.unit}`
+      : `${i18n('✗ Správná odpověď:','✗ Correct answer:')} <b>${data.ans} ${data.unit}</b>`;
     fb.className='feedback '+(ok?'ok':'err');
     input.disabled=true;
-    container.querySelector('#btn-check').textContent='Další →';
+    container.querySelector('#btn-check').textContent=i18n('Další →','Next →');
     btnNext.classList.add('visible');
   }
   container.querySelector('#btn-check').addEventListener('click',check);
@@ -935,22 +1153,18 @@ function setupHints(container,hints) {
     if(level<3){
       container.querySelector(`#hint-${level}`).classList.add('visible');
       level++;
-      btn.textContent=level<3?`💡 Nápověda ${level+1}/3`:'✓ Všechny nápovědy zobrazeny';
+      btn.textContent=level<3?`💡 ${i18n('Nápověda','Hint')} ${level+1}/3`:i18n('✓ Všechny nápovědy zobrazeny','✓ All hints shown');
       if(level===3) btn.disabled=true;
     }
   });
 }
 
 function showCert() {
-  let earned=0,max=0;
-  for(const id in STATE.scores){ earned+=STATE.scores[id].earned; max+=STATE.scores[id].max; }
-  const pct=max>0?Math.round(earned/max*100):0;
-  document.getElementById('cert-score').textContent=`${earned} / ${max} (${pct} %)`;
-  document.getElementById('cert-msg').textContent=
-    pct>=80?'Výborně! Goniometrie ti jde skvěle.':
-    pct>=60?'Dobrá práce! Ještě trochu procvičit a budeš expert.':
-    'Nevadí — projdi si kapitoly znovu, nápovědy ti pomohou.';
   showScreen('cert');
+  // update cert topbar
+  const tb=document.getElementById('cert-topbar');
+  if(tb) tb.innerHTML=`<a href="./">${i18n('← zpět na projekty','← back to projects')}</a><span></span><a href="/">${i18n('domů','home')}</a>`;
+  buildCert();
 }
 
 function applyCode(code,feedbackEl) {
@@ -961,22 +1175,28 @@ function applyCode(code,feedbackEl) {
       for(let i=1;i<id;i++){ if(!STATE.unlocked.includes(i)) STATE.unlocked.push(i); if(!STATE.done.includes(i)) STATE.done.push(i); }
       if(!STATE.unlocked.includes(id)) STATE.unlocked.push(id);
       saveState();
-      feedbackEl.textContent=`✓ Odemčeno do kapitoly ${id}!`;
+      feedbackEl.textContent=i18n(`✓ Odemčeno do kapitoly ${id}!`,`✓ Unlocked up to chapter ${id}!`);
       feedbackEl.className='code-feedback ok';
       return;
     }
   }
-  feedbackEl.textContent='✗ Kód není platný.';
+  feedbackEl.textContent=i18n('✗ Kód není platný.','✗ Invalid code.');
   feedbackEl.className='code-feedback err';
 }
 
 loadState();
-document.getElementById('btn-start').addEventListener('click',()=>{ buildHub(); showScreen('hub'); });
-document.getElementById('btn-back-hub').addEventListener('click',()=>{ buildHub(); showScreen('hub'); });
-document.getElementById('code-apply').addEventListener('click',()=>applyCode(document.getElementById('code-input').value,document.getElementById('code-feedback')));
-document.getElementById('code-input').addEventListener('keydown',e=>{ if(e.key==='Enter') document.getElementById('code-apply').click(); });
-document.getElementById('code-apply-hub').addEventListener('click',()=>{ applyCode(document.getElementById('code-input-hub').value,document.getElementById('code-feedback-hub')); setTimeout(buildHub,300); });
-document.getElementById('code-input-hub').addEventListener('keydown',e=>{ if(e.key==='Enter') document.getElementById('code-apply-hub').click(); });
-document.getElementById('cert-reset').addEventListener('click',()=>{ if(confirm('Opravdu chceš smazat postup a začít znovu?')){ resetState(); showScreen('intro'); } });
+// apply initial lang state to flag buttons
+document.querySelectorAll('.lang-btn').forEach(b=>b.classList.toggle('active',b.dataset.lang===lang));
+// build dynamic screens
+buildIntro();
+buildHubCode();
+// chapter back button
+document.getElementById('btn-back-hub').addEventListener('click',()=>{ buildHub(); buildHubCode(); showScreen('hub'); });
+// cert reset
+document.getElementById('cert-reset').addEventListener('click',()=>{
+  if(confirm(i18n('Opravdu chceš smazat postup a začít znovu?','Really reset all progress and start over?'))){
+    resetState(); buildIntro(); showScreen('intro');
+  }
+});
 </script>
 </body></html>
