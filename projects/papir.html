@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Přeložení papíru</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #ffffff;
+      --fg: #111827;
+      --fg-muted: #6b7280;
+      --accent: #7c3aed;
+      --accent-light: #ede9fe;
+      --accent-mid: #8b5cf6;
+      --border: #e5e7eb;
+      --card-bg: #f9fafb;
+      --green: #16a34a;
+      --amber: #d97706;
+      --red: #dc2626;
+      --font: 'Lexend', 'Inter', 'Segoe UI', system-ui, -apple-system, Arial, sans-serif;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--fg);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .page {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 64px 24px 100px;
+    }
+
+    .back {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--fg-muted);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 500;
+      margin-bottom: 48px;
+      transition: color 0.15s;
+    }
+    .back:hover { color: var(--accent); }
+
+    h1 {
+      font-size: clamp(2rem, 6vw, 3.2rem);
+      font-weight: 700;
+      line-height: 1.15;
+      letter-spacing: -0.02em;
+      margin-bottom: 16px;
+    }
+
+    .subtitle {
+      font-size: 1.05rem;
+      color: var(--fg-muted);
+      font-weight: 400;
+      line-height: 1.65;
+      max-width: 560px;
+      margin-bottom: 56px;
+    }
+    .subtitle strong { color: var(--fg); font-weight: 600; }
+
+    /* ── fold button + counter ── */
+    .fold-section {
+      text-align: center;
+      margin-bottom: 48px;
+    }
+
+    .fold-count {
+      font-size: clamp(4rem, 14vw, 7rem);
+      font-weight: 700;
+      color: var(--accent);
+      line-height: 1;
+      letter-spacing: -0.03em;
+      margin-bottom: 4px;
+      transition: transform 0.12s ease, color 0.3s;
+    }
+    .fold-count.bump { transform: scale(1.08); }
+
+    .fold-label {
+      font-size: 14px;
+      color: var(--fg-muted);
+      font-weight: 500;
+      margin-bottom: 28px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .btn-fold {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 14px;
+      padding: 16px 40px;
+      font-family: var(--font);
+      font-size: 1.1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.1s, box-shadow 0.15s;
+      box-shadow: 0 4px 16px rgba(124,58,237,0.25);
+      letter-spacing: -0.01em;
+    }
+    .btn-fold:hover { background: #6d28d9; box-shadow: 0 6px 20px rgba(124,58,237,0.35); }
+    .btn-fold:active { transform: scale(0.96); }
+    .btn-fold:disabled { background: var(--border); color: var(--fg-muted); box-shadow: none; cursor: not-allowed; }
+
+    .btn-reset {
+      display: inline-block;
+      margin-top: 14px;
+      background: none;
+      border: none;
+      color: var(--fg-muted);
+      font-family: var(--font);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+      transition: color 0.15s;
+    }
+    .btn-reset:hover { color: var(--fg); }
+
+    /* ── thickness display ── */
+    .thickness-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 28px 24px;
+      margin-bottom: 28px;
+      text-align: center;
+    }
+    .thickness-value {
+      font-size: clamp(1.8rem, 5vw, 2.8rem);
+      font-weight: 700;
+      color: var(--fg);
+      line-height: 1.1;
+      margin-bottom: 6px;
+      transition: color 0.3s;
+    }
+    .thickness-unit {
+      font-size: 13px;
+      color: var(--fg-muted);
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+    .thickness-formula {
+      margin-top: 12px;
+      font-size: 13px;
+      color: var(--fg-muted);
+      font-weight: 400;
+    }
+    .thickness-formula code {
+      background: var(--accent-light);
+      color: var(--accent);
+      border-radius: 4px;
+      padding: 1px 6px;
+      font-family: var(--font);
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    /* ── comparison bar ── */
+    .comparison {
+      margin-bottom: 40px;
+    }
+    .comp-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+      opacity: 0.25;
+      transition: opacity 0.4s;
+    }
+    .comp-item:last-child { border-bottom: none; }
+    .comp-item.reached { opacity: 1; }
+    .comp-item.active { opacity: 1; }
+
+    .comp-icon { font-size: 1.4rem; width: 32px; text-align: center; flex-shrink: 0; }
+    .comp-body { flex: 1; }
+    .comp-name { font-size: 14px; font-weight: 600; color: var(--fg); }
+    .comp-dist { font-size: 12px; color: var(--fg-muted); margin-top: 1px; }
+    .comp-folds { font-size: 11px; font-weight: 700; color: var(--accent); margin-left: auto; flex-shrink: 0; white-space: nowrap; }
+
+    /* fold bar fill */
+    .comp-bar-wrap {
+      width: 100%;
+      height: 4px;
+      background: var(--border);
+      border-radius: 2px;
+      margin-top: 5px;
+      overflow: hidden;
+    }
+    .comp-bar-fill {
+      height: 100%;
+      border-radius: 2px;
+      background: var(--accent);
+      width: 0%;
+      transition: width 0.4s ease;
+    }
+
+    /* ── wow message ── */
+    .wow {
+      background: var(--accent-light);
+      border: 1px solid #c4b5fd;
+      border-radius: 12px;
+      padding: 18px 20px;
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--accent);
+      line-height: 1.55;
+      margin-bottom: 32px;
+      display: none;
+    }
+    .wow.visible { display: block; }
+
+    /* ── math fact ── */
+    .fact {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--accent);
+      border-radius: 8px;
+      padding: 16px 18px;
+      font-size: 13px;
+      color: var(--fg-muted);
+      line-height: 1.65;
+      margin-top: 40px;
+    }
+    .fact strong { color: var(--fg); }
+
+    /* ── max reached ── */
+    .finished {
+      text-align: center;
+      padding: 32px 0;
+      display: none;
+    }
+    .finished.visible { display: block; }
+    .finished .big { font-size: 3rem; margin-bottom: 12px; }
+    .finished p { color: var(--fg-muted); font-size: 15px; line-height: 1.6; max-width: 440px; margin: 0 auto 20px; }
+
+    @media (max-width: 540px) {
+      .page { padding: 40px 16px 80px; }
+      .comp-folds { display: none; }
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <a class="back" href="./">← zpět na projekty</a>
+
+  <h1>Přeložení papíru</h1>
+  <p class="subtitle">
+    Vezmi list papíru a přelož ho. Pak znovu. Pak znovu.
+    Po <strong>42 přeložení</strong> by byl tlustší než vzdálenost <strong>Země–Měsíc</strong>.
+    Neuvěřitelné? Zkus to.
+  </p>
+
+  <!-- fold button -->
+  <div class="fold-section">
+    <div class="fold-count" id="fold-count">0</div>
+    <div class="fold-label">přeložení</div>
+    <div>
+      <button class="btn-fold" id="btn-fold" onclick="fold()">📄 Přelož papír</button>
+    </div>
+    <div>
+      <button class="btn-reset" onclick="reset()">začít znovu</button>
+    </div>
+  </div>
+
+  <!-- thickness display -->
+  <div class="thickness-card" id="thickness-card">
+    <div class="thickness-value" id="thickness-value">0,1 mm</div>
+    <div class="thickness-unit">tloušťka papíru</div>
+    <div class="thickness-formula" id="thickness-formula">
+      výchozí tloušťka: <code>0,1 mm</code>
+    </div>
+  </div>
+
+  <!-- wow message -->
+  <div class="wow" id="wow"></div>
+
+  <!-- comparisons -->
+  <div class="comparison" id="comparison"></div>
+
+  <!-- finished -->
+  <div class="finished" id="finished">
+    <div class="big">🌌</div>
+    <p>Po 42 přeložení by papír dosáhl Měsíce. Po <strong>51</strong> by dosáhl Slunce.
+       Exponenciální růst překonává jakoukoliv představivost.</p>
+    <button class="btn-fold" onclick="reset()" style="margin-top:8px">Zkusit znovu</button>
+  </div>
+
+  <!-- math fact -->
+  <div class="fact">
+    📘 <strong>Mocniny čísla 2:</strong> každé přeložení zdvojnásobí tloušťku.
+    Po <em>n</em> přeloženích je tloušťka <strong>2<sup>n</sup> × 0,1 mm</strong>.
+    Tedy 2<sup>42</sup> = 4 398 046 511 104 — přes <strong>4 biliony</strong>
+    — vrstev papíru 0,1 mm silných dá dohromady ~440 000 km.
+  </div>
+
+</div>
+
+<script>
+// Milestones: [folds, icon, name, distance_m, distance_label]
+const MILESTONES = [
+  [1,  '📄', 'Dvojitý papír',          0.0002,   '0,2 mm'],
+  [7,  '📚', 'Silný sešit',            0.0128,   '1,28 cm'],
+  [10, '🧱', 'Cihla',                  0.1024,   '10,2 cm'],
+  [17, '🗼', 'Eiffelova věž',          13107,    '131 m'],
+  [20, '⛰️', 'Mount Everest',          104858,   '~105 km'],
+  [23, '✈️', 'Letová hladina',         838861,   '~839 km'],
+  [27, '🌍', 'Průměr Země',            13421773, '~13 400 km'],
+  [33, '🌙', 'Vzdálenost k Měsíci',   858993459,'~858 993 km'],
+  [42, '🚀', 'Měsíc (přesně)',         439804651110.4, '~440 000 000 km'],
+  [51, '☀️', 'Slunce',                 22517998136852480, '~22,5 bil. km'],
+];
+
+const INIT_MM = 0.1; // tloušťka papíru v mm
+const INIT_M  = INIT_MM / 1000;
+const MAX_FOLDS = 51;
+
+let folds = 0;
+let lastMilestoneIdx = -1;
+
+function thicknessMm(n) { return INIT_MM * Math.pow(2, n); }
+function thicknessM(n)  { return INIT_M  * Math.pow(2, n); }
+
+function formatThickness(mm) {
+  if (mm < 10)          return fmtNum(mm, 2) + ' mm';
+  if (mm < 10000)       return fmtNum(mm / 10, 2) + ' cm';
+  if (mm < 1e6)         return fmtNum(mm / 1000, 2) + ' m';
+  if (mm < 1e9)         return fmtNum(mm / 1e6, 2) + ' km';
+  if (mm < 1e12)        return fmtNum(mm / 1e9, 2) + ' 000 km';
+  return fmtNum(mm / 1e12, 3) + ' mil. km';
+}
+
+function fmtNum(n, dec) {
+  return n.toLocaleString('cs-CZ', { maximumFractionDigits: dec, minimumFractionDigits: 0 });
+}
+
+function fmtPow(n) {
+  return `0,1 mm × 2<sup>${n}</sup>`;
+}
+
+const WOW_MSGS = [
+  null, null, null, null, null, null, null,
+  [7,  '📚 Po 7 přeloženích je papír silný jako sešit — asi 1,3 cm. Pořád to zní normálně.'],
+  null, null,
+  [10, '🧱 10 přeložení = 10 cm. Zhruba jako cihla. Ještě nic dramatického.'],
+  null, null, null, null, null, null,
+  [17, '🗼 17 přeložení a papír by byl vysoký jako Eiffelova věž (131 m). Začíná to být divné.'],
+  null, null,
+  [20, '⛰️ 20 přeložení — přes 100 km. Papír by přesahoval Mount Everest i výšku atmosféry.'],
+  null, null,
+  [23, '✈️ 23 přeložení a jsi ve vesmíru. Přes 800 km nad Zemí.'],
+  null, null, null,
+  [27, '🌍 27 přeložení = průměr Země (13 400 km). Jeden list papíru.'],
+  null, null, null, null, null,
+  [33, '🌙 33 přeložení a papír dosahuje na Měsíc. Vzdálenost 384 000 km. Jeden list papíru, 33× přeložený.'],
+  null, null, null, null, null, null, null, null,
+  [42, '🚀 42 přeložení. Papír je tlustší než vzdálenost Země–Měsíc. Tloušťka ~440 milionů km.'],
+  null, null, null, null, null, null, null, null,
+  [51, '☀️ 51 přeložení — dosáhli bychom Slunce. Vzdálenost 150 milionů km je překonána o řád.'],
+];
+
+function buildComparisons() {
+  const wrap = document.getElementById('comparison');
+  wrap.innerHTML = '';
+  MILESTONES.forEach((m, i) => {
+    const [n, icon, name, , label] = m;
+    const div = document.createElement('div');
+    div.className = 'comp-item';
+    div.id = `comp-${i}`;
+    div.innerHTML = `
+      <span class="comp-icon">${icon}</span>
+      <div class="comp-body">
+        <div class="comp-name">${name}</div>
+        <div class="comp-dist">${label}</div>
+        <div class="comp-bar-wrap"><div class="comp-bar-fill" id="bar-${i}"></div></div>
+      </div>
+      <span class="comp-folds">${n}× přeložení</span>`;
+    wrap.appendChild(div);
+  });
+}
+
+function updateComparisons(n) {
+  MILESTONES.forEach((m, i) => {
+    const [mFolds] = m;
+    const el = document.getElementById(`comp-${i}`);
+    const bar = document.getElementById(`bar-${i}`);
+    if (n >= mFolds) {
+      el.className = 'comp-item reached';
+      bar.style.width = '100%';
+    } else if (n > 0) {
+      // partial progress toward this milestone
+      const prev = i > 0 ? MILESTONES[i-1][0] : 0;
+      const pct = Math.max(0, Math.min(100, ((n - prev) / (mFolds - prev)) * 100));
+      bar.style.width = pct + '%';
+      el.className = 'comp-item active';
+    }
+  });
+}
+
+function fold() {
+  if (folds >= MAX_FOLDS) return;
+  folds++;
+
+  // animate count
+  const countEl = document.getElementById('fold-count');
+  countEl.textContent = folds;
+  countEl.classList.add('bump');
+  setTimeout(() => countEl.classList.remove('bump'), 150);
+
+  // thickness
+  const mm = thicknessMm(folds);
+  document.getElementById('thickness-value').textContent = formatThickness(mm);
+  document.getElementById('thickness-formula').innerHTML =
+    `<code>${fmtPow(folds)}</code> = ${formatThickness(mm)}`;
+
+  // wow message
+  if (WOW_MSGS[folds]) {
+    const [, msg] = WOW_MSGS[folds];
+    const wow = document.getElementById('wow');
+    wow.textContent = msg;
+    wow.className = 'wow visible';
+  }
+
+  // comparisons
+  updateComparisons(folds);
+
+  // disable at max
+  if (folds >= MAX_FOLDS) {
+    document.getElementById('btn-fold').disabled = true;
+    document.getElementById('finished').className = 'finished visible';
+  }
+}
+
+function reset() {
+  folds = 0;
+  document.getElementById('fold-count').textContent = '0';
+  document.getElementById('thickness-value').textContent = '0,1 mm';
+  document.getElementById('thickness-formula').innerHTML = 'výchozí tloušťka: <code>0,1 mm</code>';
+  document.getElementById('wow').className = 'wow';
+  document.getElementById('btn-fold').disabled = false;
+  document.getElementById('finished').className = 'finished';
+  buildComparisons();
+}
+
+buildComparisons();
+</script>
+</body>
+</html>
