@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Únikovka: Pythagorova věta</title>
+<meta name="description" content="Interaktivní únikovka z matematiky – Pythagorova věta, pravoúhlý trojúhelník, přepona, odvěsny.">
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;600;700;800&family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --gold-dark:#c89a10; --blue:#1a73c8; --blue-light:#e8f1fb;
+  --green:#1e9e5a; --green-light:#e6f7ef; --red:#d63c2f;
+  --purple:#7c3aad; --purple-light:#f3eefa;
+  --teal:#0f8a72; --teal-light:#e4f5f1;
+  --orange:#d4620a; --orange-light:#fdf0e5;
+  --pink:#b5286e; --pink-light:#fce8f2;
+  --indigo:#3730a3; --indigo-light:#eef2ff;
+  --rose:#9f1239; --rose-light:#fff1f2;
+  --cyan:#0e7490; --cyan-light:#ecfeff;
+  --bg:#f5f0e6; --card:#fff; --text:#1a1a2e; --muted:#6b7280;
+  --shadow:0 4px 24px rgba(0,0,0,.09); --radius:16px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:'Lexend',sans-serif;
+  background:var(--bg);
+  background-image:radial-gradient(circle at 8% 15%,rgba(245,200,66,.12) 0%,transparent 38%),
+    radial-gradient(circle at 92% 82%,rgba(26,115,200,.09) 0%,transparent 38%);
+  min-height:100vh;color:var(--text);
+}
+.screen{display:none;min-height:100vh;padding:24px 16px 48px;max-width:680px;margin:0 auto}
+.screen.active{display:flex;flex-direction:column;align-items:center}
+
+/* INTRO */
+#intro{justify-content:center;text-align:center;gap:18px}
+.chest{font-size:88px;animation:float 3s ease-in-out infinite;display:inline-block;
+  filter:drop-shadow(0 8px 16px rgba(0,0,0,.15))}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
+.title-main{font-family:'Fredoka',cursive;font-size:2.5rem;color:var(--blue);line-height:1.1;font-weight:700}
+.title-sub{font-family:'Fredoka',cursive;font-size:1.45rem;color:var(--gold-dark);font-weight:600}
+.intro-card{background:var(--card);border-radius:var(--radius);padding:22px 26px;
+  box-shadow:var(--shadow);border-left:6px solid var(--blue);text-align:left;width:100%}
+.intro-card p{font-size:.97rem;line-height:1.75}
+.intro-card p+p{margin-top:10px}
+.intro-card b{color:var(--blue)}
+.rules{background:var(--card);border-radius:var(--radius);padding:18px 22px;
+  box-shadow:var(--shadow);width:100%;border-left:6px solid var(--gold-dark)}
+.rules h3{font-family:'Fredoka',cursive;color:var(--gold-dark);font-size:1.05rem;margin-bottom:10px;font-weight:600}
+.rules ul{list-style:none;display:flex;flex-direction:column;gap:8px}
+.rules li{display:flex;align-items:flex-start;gap:10px;font-size:.95rem;line-height:1.55}
+.btn-primary{
+  background:linear-gradient(135deg,var(--blue),#1250a0);
+  color:#fff;
+  font-family:'Lexend',sans-serif;
+  font-size:1.2rem;font-weight:700;
+  border:none;border-radius:50px;padding:15px 46px;
+  cursor:pointer;box-shadow:0 6px 20px rgba(26,115,200,.32);
+  transition:transform .15s,box-shadow .15s;
+  letter-spacing:0.01em;
+}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(26,115,200,.38)}
+
+/* PROGRESS */
+.progress-wrap{width:100%;margin-bottom:18px}
+.progress-label{display:flex;justify-content:space-between;font-size:.82rem;font-weight:700;color:var(--muted);margin-bottom:5px}
+.progress-bar{background:#ddd8c6;border-radius:20px;height:9px;overflow:hidden}
+.progress-fill{height:100%;border-radius:20px;background:linear-gradient(90deg,var(--blue),var(--teal));transition:width .5s ease}
+.stars-wrap{display:flex;gap:3px}
+.star{font-size:1rem;opacity:.22;transition:opacity .3s,transform .3s}
+.star.lit{opacity:1;transform:scale(1.12)}
+
+/* GAME */
+#game{justify-content:flex-start;gap:0}
+.lock-header{width:100%;display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.lock-icon-big{font-size:2.2rem}
+.lock-title{font-family:'Fredoka',cursive;font-size:1.4rem;font-weight:600}
+.lock-badge{margin-left:auto;background:var(--blue);color:#fff;border-radius:50px;
+  padding:3px 13px;font-size:.82rem;font-weight:700;white-space:nowrap}
+.task-card{background:var(--card);border-radius:var(--radius);padding:22px 22px 18px;
+  box-shadow:var(--shadow);width:100%;margin-bottom:14px;position:relative;overflow:hidden}
+.task-card::before{content:'';position:absolute;top:0;left:0;width:5px;height:100%;border-radius:3px 0 0 3px}
+.task-card.blue::before{background:var(--blue)}
+.task-card.green::before{background:var(--green)}
+.task-card.purple::before{background:var(--purple)}
+.task-card.teal::before{background:var(--teal)}
+.task-card.orange::before{background:var(--orange)}
+.task-card.pink::before{background:var(--pink)}
+.task-card.indigo::before{background:var(--indigo)}
+.task-card.rose::before{background:var(--rose)}
+.task-card.cyan::before{background:var(--cyan)}
+.task-card.gold::before{background:var(--gold-dark)}
+.task-card h3{font-family:'Lexend',sans-serif;font-size:1.02rem;margin-bottom:11px;font-weight:700}
+.task-card.blue h3{color:var(--blue)} .task-card.green h3{color:var(--green)}
+.task-card.purple h3{color:var(--purple)} .task-card.teal h3{color:var(--teal)}
+.task-card.orange h3{color:var(--orange)} .task-card.pink h3{color:var(--pink)}
+.task-card.indigo h3{color:var(--indigo)} .task-card.rose h3{color:var(--rose)}
+.task-card.cyan h3{color:var(--cyan)} .task-card.gold h3{color:var(--gold-dark)}
+.task-card p{font-size:.95rem;line-height:1.75}
+.task-card p+p{margin-top:8px}
+.task-card ul{margin:6px 0 6px 1.2em;font-size:.95rem;line-height:1.7}
+.task-card ol{margin:6px 0 6px 1.2em;font-size:.95rem;line-height:1.7}
+.hint-box{margin-top:11px;background:#fef9ec;border:1.5px dashed var(--gold-dark);
+  border-radius:10px;padding:9px 13px;font-size:.88rem;color:#7a5200;display:none}
+.hint-box.show{display:block}
+.hint-btn{background:none;border:1.5px solid var(--gold-dark);color:var(--gold-dark);
+  border-radius:20px;padding:4px 12px;font-size:.8rem;font-weight:700;cursor:pointer;
+  margin-top:9px;font-family:'Lexend',sans-serif;transition:background .15s}
+.hint-btn:hover{background:#fef9ec}
+.tag{display:inline-block;border-radius:20px;padding:2px 10px;font-size:.78rem;font-weight:700;margin-bottom:7px}
+.tag.blue{background:var(--blue-light);color:var(--blue)}
+.tag.green{background:var(--green-light);color:var(--green)}
+.tag.purple{background:var(--purple-light);color:var(--purple)}
+.tag.teal{background:var(--teal-light);color:var(--teal)}
+.tag.orange{background:var(--orange-light);color:var(--orange)}
+.tag.pink{background:var(--pink-light);color:var(--pink)}
+.tag.indigo{background:var(--indigo-light);color:var(--indigo)}
+.tag.rose{background:var(--rose-light);color:var(--rose)}
+.tag.cyan{background:var(--cyan-light);color:var(--cyan)}
+.tag.gold{background:#fef9ec;color:var(--gold-dark)}
+
+/* CODE INPUT */
+.code-wrap{background:var(--card);border-radius:var(--radius);padding:20px 22px;
+  box-shadow:var(--shadow);width:100%;margin-bottom:18px}
+.code-wrap label{display:block;font-family:'Lexend',sans-serif;font-size:.98rem;color:var(--muted);
+  margin-bottom:11px;font-weight:700}
+.code-row{display:flex;gap:10px;align-items:center}
+.code-hint-bar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:12px}
+.code-hint-btn{background:none;border:1.5px dashed var(--gold-dark);color:var(--gold-dark);
+  padding:5px 14px;border-radius:20px;font-family:'Lexend',sans-serif;font-weight:600;font-size:.82rem;
+  cursor:pointer;transition:all .15s}
+.code-hint-btn:hover:not([disabled]){background:#fef9ec}
+.code-hint-btn[disabled]{opacity:.5;cursor:not-allowed;border-style:solid;border-color:#e0dbd0;color:var(--muted)}
+.code-hint-counter{font-size:.76rem;color:var(--muted)}
+.code-hint-counter .dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#e0dbd0;margin:0 1px}
+.code-hint-counter .dot.shown{background:var(--gold-dark)}
+.code-hint-counter .dot.shown.warn{background:var(--orange)}
+.code-hint-box{margin-top:10px;background:#fef9ec;border-left:3px solid var(--gold-dark);
+  padding:10px 14px;border-radius:8px;font-size:.9rem;display:none;color:#7a5200}
+.code-hint-box.show{display:block}
+.code-hint-box .h-label{font-size:.7rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;
+  color:var(--gold-dark);display:block;margin-bottom:4px}
+.code-hint-box[data-level="3"]{background:var(--orange-light);border-left-color:var(--orange);color:#8b3f08}
+.code-hint-box[data-level="3"] .h-label{color:var(--orange)}
+.code-input{flex:1;font-family:'Lexend',sans-serif;font-size:1.5rem;text-align:center;
+  letter-spacing:.12em;border:3px solid #ccc8bb;border-radius:12px;padding:11px 14px;
+  outline:none;transition:border-color .2s;background:#fafaf6;color:var(--text)}
+.code-input:focus{border-color:var(--blue);background:#fff}
+.code-input.error{border-color:var(--red);animation:shake .32s}
+.code-input.success{border-color:var(--green);background:var(--green-light)}
+@keyframes shake{0%,100%{transform:translateX(0)}30%{transform:translateX(-5px)}70%{transform:translateX(5px)}}
+.btn-check{
+  background:linear-gradient(135deg,var(--blue),#1250a0);color:#fff;
+  font-family:'Lexend',sans-serif;font-size:.95rem;font-weight:700;
+  border:none;border-radius:12px;padding:13px 20px;
+  cursor:pointer;box-shadow:0 4px 14px rgba(26,115,200,.28);
+  transition:transform .15s;white-space:nowrap;
+}
+.btn-check:hover{transform:translateY(-1px)}
+.feedback{margin-top:9px;font-weight:700;font-size:.92rem;min-height:20px}
+.feedback.ok{color:var(--green)} .feedback.err{color:var(--red)}
+.unlock-anim{display:none;flex-direction:column;align-items:center;gap:6px;padding:18px;
+  animation:popIn .4s cubic-bezier(.175,.885,.32,1.275)}
+.unlock-anim.show{display:flex}
+@keyframes popIn{from{transform:scale(.5);opacity:0}to{transform:scale(1);opacity:1}}
+.unlock-anim .big-icon{font-size:3.2rem}
+.unlock-anim p{font-family:'Lexend',sans-serif;font-size:1.05rem;color:var(--green);text-align:center;font-weight:700}
+
+/* TABLE */
+table.tt{width:100%;border-collapse:collapse;margin:10px 0;font-size:.9rem}
+table.tt th{padding:7px 9px;text-align:center;font-weight:700}
+table.tt td{border:1px solid #e0dbd0;padding:7px 9px;text-align:center}
+table.tt tr:nth-child(even) td{background:#fafaf5}
+.blue table.tt th{background:var(--blue-light);color:var(--blue)}
+.green table.tt th{background:var(--green-light);color:var(--green)}
+.purple table.tt th{background:var(--purple-light);color:var(--purple)}
+.teal table.tt th{background:var(--teal-light);color:var(--teal)}
+.orange table.tt th{background:var(--orange-light);color:var(--orange)}
+.pink table.tt th{background:var(--pink-light);color:var(--pink)}
+.indigo table.tt th{background:var(--indigo-light);color:var(--indigo)}
+.rose table.tt th{background:var(--rose-light);color:var(--rose)}
+.cyan table.tt th{background:var(--cyan-light);color:var(--cyan)}
+.gold table.tt th{background:#fef9ec;color:var(--gold-dark)}
+
+/* FINISH */
+#finish{justify-content:center;text-align:center;gap:20px}
+.final-chest{font-size:96px;animation:bounce .6s cubic-bezier(.175,.885,.32,1.275)}
+@keyframes bounce{from{transform:scale(0)}to{transform:scale(1)}}
+.final-title{font-family:'Lexend',sans-serif;font-size:2.1rem;color:var(--gold-dark);font-weight:800}
+.final-sub{font-size:.97rem;color:var(--muted);line-height:1.75;max-width:420px}
+.summary-card{background:var(--card);border-radius:var(--radius);padding:18px 22px;
+  box-shadow:var(--shadow);width:100%;text-align:left}
+.summary-card h3{font-family:'Lexend',sans-serif;color:var(--blue);font-size:1.05rem;margin-bottom:12px;font-weight:700}
+.summary-row{display:flex;align-items:flex-start;gap:11px;padding:9px 0;
+  border-bottom:1px solid #f0ece0;font-size:.93rem;line-height:1.6}
+.summary-row:last-child{border-bottom:none}
+.s-icon{font-size:1.2rem;flex-shrink:0;margin-top:1px}
+.confetti-wrap{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:999}
+.confetti-piece{position:absolute;animation:fall linear forwards}
+@keyframes fall{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+.top-bar{max-width:680px;margin:0 auto;padding:16px 20px 0;display:flex;justify-content:space-between;gap:18px;font-size:.82rem;color:var(--muted);font-family:'Lexend',sans-serif}
+.top-bar a{color:var(--muted);text-decoration:none}
+.top-bar a:hover{color:var(--blue)}
+.top-bar .crumb{color:var(--text);font-weight:500}
+
+/* LANG BAR */
+#lang-bar{position:fixed;bottom:16px;right:16px;z-index:200;display:flex;gap:6px;
+  background:rgba(255,255,255,.92);border-radius:50px;padding:5px 8px;
+  box-shadow:0 2px 12px rgba(0,0,0,.12);backdrop-filter:blur(6px)}
+.lang-btn{background:none;border:2px solid transparent;border-radius:50px;
+  font-size:1.35rem;cursor:pointer;padding:3px 7px;line-height:1;
+  transition:border-color .15s,box-shadow .15s}
+.lang-btn.active{border-color:var(--blue);box-shadow:0 0 0 2px rgba(26,115,200,.25)}
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <a href="./" class="tp-back">&#8592; zpět na projekty</a>
+  <span class="crumb">/projects/unikovka_pythagoras</span>
+  <a href="/" class="tp-home">domů</a>
+</div>
+
+<div id="lang-bar">
+  <button class="lang-btn" data-lang="cs" onclick="setLang('cs')">&#x1F1E8;&#x1F1FF;</button>
+  <button class="lang-btn" data-lang="en" onclick="setLang('en')">&#x1F1EC;&#x1F1E7;</button>
+</div>
+
+<!-- INTRO -->
+<div id="intro" class="screen active">
+  <div id="intro-content"></div>
+</div>
+
+<!-- GAME -->
+<div id="game" class="screen">
+  <div class="progress-wrap" style="width:100%">
+    <div class="progress-label">
+      <span id="prog-label"></span>
+      <span class="stars-wrap" id="stars-wrap"></span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="prog-fill" style="width:0%"></div></div>
+  </div>
+  <div id="step-container" style="width:100%"></div>
+</div>
+
+<!-- FINISH -->
+<div id="finish" class="screen">
+  <div class="confetti-wrap" id="confetti"></div>
+  <div id="finish-content"></div>
+</div>
+
+<script>
+const LANG_KEY = 'unikovka_pythagoras_lang';
+let lang = localStorage.getItem(LANG_KEY) || 'cs';
+const i18n = (cs, en) => lang === 'en' ? en : cs;
+
+function setLang(l) {
+  lang = l;
+  try { localStorage.setItem(LANG_KEY, l); } catch(e) {}
+  document.querySelectorAll('.lang-btn').forEach(b =>
+    b.classList.toggle('active', b.dataset.lang === l));
+  document.querySelectorAll('.tp-back').forEach(el =>
+    el.textContent = i18n('← zpět na projekty', '← back to projects'));
+  document.querySelectorAll('.tp-home').forEach(el =>
+    el.textContent = i18n('domů', 'home'));
+  const activeId = document.querySelector('.screen.active')?.id;
+  if (activeId === 'intro') buildIntro();
+  else if (activeId === 'game') render(cur);
+  else if (activeId === 'finish') buildFinish();
+}
+
+function buildIntro() {
+  document.getElementById('intro-content').innerHTML = `
+    <div class="chest">&#x1F4D0;</div>
+    <div class="title-main">${i18n('Únikovka z matiky', 'Math Escape Room')}</div>
+    <div class="title-sub">&#x1F4D0; ${i18n('PYTHAGOROVA VĚTA', 'PYTHAGOREAN THEOREM')} &#x1F4D0;</div>
+    <div class="intro-card">
+      <p>${i18n('Před tebou je <b>truhla s pokladem</b> – uzamčena <b>10 zámky</b>.', 'Before you is a <b>treasure chest</b> – locked with <b>10 locks</b>.')}</p>
+      <p>${i18n('Každý zámek se odemkne správným kódem. Výpočty si dělej <b>do sešitu</b> a kód zadej sem.', 'Each lock opens with the correct code. Do your calculations <b>in your notebook</b> and enter the code here.')}</p>
+      <p>${i18n('Žádné kalkulačky – dnes prozkoumáš <b>Pythagorovu větu</b> vlastní hlavou 🧠', "No calculators – today you'll explore <b>the Pythagorean theorem</b> with your own mind 🧠")}</p>
+    </div>
+    <div class="rules">
+      <h3>&#x1F4CB; ${i18n('Pravidla', 'Rules')}</h3>
+      <ul>
+        <li><span>&#x270F;&#xFE0F;</span> ${i18n('Výpočty piš do sešitu – každý příklad celý.', 'Write your calculations in your notebook – every step.')}</li>
+        <li><span>&#x1F6AB;</span> ${i18n('Bez kalkulačky, bez opisování.', 'No calculator, no copying.')}</li>
+        <li><span>&#x1F4A1;</span> ${i18n('Nevíš? Zkus nápovědu – ale nejdřív se zamysli!', 'Stuck? Try the hint – but think first!')}</li>
+        <li><span>&#x1F522;</span> ${i18n('Kód zadej jako celé číslo (bez jednotek, bez mezer).', 'Enter the code as a whole number (no units, no spaces).')}</li>
+      </ul>
+    </div>
+    <button class="btn-primary" id="btn-start">&#x1F513; ${i18n('Začít dobrodružství!', 'Start the adventure!')}</button>
+  `;
+  document.getElementById('btn-start').addEventListener('click', startGame);
+}
+
+function buildFinish() {
+  document.getElementById('finish-content').innerHTML = `
+    <div class="final-chest">&#x1F3C6;</div>
+    <div class="final-title">${i18n('Poklad je tvůj!', 'The treasure is yours!')}</div>
+    <p class="final-sub">${i18n('Zvládl(a) jsi všech 10 zámků Pythagorovy věty. Gratulace – jsi génius geometrie!', 'You solved all 10 Pythagorean theorem locks. Congratulations – you\'re a geometry genius!')}</p>
+    <div class="summary-card">
+      <h3>&#x1F4D6; ${i18n('Co jsi dnes objevil(a)', 'What you discovered today')}</h3>
+      <div class="summary-row"><span class="s-icon">1&#xFE0F;&#x20E3;</span><span>${i18n('c² = a² + b² platí pro každý pravoúhlý trojúhelník.', 'c² = a² + b² holds for every right triangle.')}</span></div>
+      <div class="summary-row"><span class="s-icon">2&#xFE0F;&#x20E3;</span><span>${i18n('Přepona (c) je vždy naproti pravému úhlu a je nejdelší stranou.', 'The hypotenuse (c) is always opposite the right angle and is the longest side.')}</span></div>
+      <div class="summary-row"><span class="s-icon">3&#xFE0F;&#x20E3;</span><span>${i18n('Pythagorovy trojice: 3-4-5, 5-12-13, 8-15-17, 7-24-25, 9-40-41.', 'Pythagorean triples: 3-4-5, 5-12-13, 8-15-17, 7-24-25, 9-40-41.')}</span></div>
+      <div class="summary-row"><span class="s-icon">4&#xFE0F;&#x20E3;</span><span>${i18n('Větu lze použít obráceně: pokud c²=a²+b², trojúhelník je pravoúhlý.', 'The theorem works in reverse: if c²=a²+b², the triangle is right-angled.')}</span></div>
+    </div>
+    <button class="btn-primary" id="btn-restart">&#x1F504; ${i18n('Hrát znovu', 'Play again')}</button>
+  `;
+  document.getElementById('btn-restart').addEventListener('click', () => location.reload());
+}
+
+const STEPS = [
+{
+  id:1, color:'blue', icon:'📐',
+  title:'Zámek 1 – Co je Pythagorova věta?', title_en:'Lock 1 – What is the Pythagorean Theorem?',
+  tag:'Pravoúhlý trojúhelník', tag_en:'Right triangle', tagClass:'blue',
+  tasks:[
+    { title:'🧩 Pravoúhlý trojúhelník', title_en:'🧩 Right triangle',
+      body:'<p>V <b>pravoúhlém trojúhelníku</b> je jeden úhel <b>pravý (90°)</b>.</p><p>Strany mají speciální názvy:</p><ul><li><b>Přepona (c)</b> – strana naproti pravému úhlu, <b>vždy nejdelší</b>.</li><li><b>Odvěsny (a, b)</b> – dvě kratší strany svírající pravý úhel.</li></ul><p><b>Pythagorova věta:</b> c² = a² + b²</p><p>Tedy: přepona² = součet druhých mocnin odvěsen.</p>',
+      body_en:'<p>A <b>right triangle</b> has one angle equal to <b>90°</b>.</p><p>Its sides have special names:</p><ul><li><b>Hypotenuse (c)</b> – the side opposite the right angle, <b>always the longest</b>.</li><li><b>Legs (a, b)</b> – the two shorter sides forming the right angle.</li></ul><p><b>Pythagorean theorem:</b> c² = a² + b²</p><p>That is: hypotenuse² = sum of the squares of the legs.</p>',
+      hint:'💡 Přepona je vždy naproti pravému úhlu – je to nejdelší strana trojúhelníku.',
+      hint_en:'💡 The hypotenuse is always opposite the right angle – it is the longest side.' },
+    { title:'🔢 Kód zámku', title_en:'🔢 Lock code',
+      body:'<p>Pravoúhlý trojúhelník má odvěsny <b>a = 3 cm</b> a <b>b = 4 cm</b>.</p><p>Vypočítej přeponu <b>c</b>:</p><p>c² = 3² + 4² = 9 + 16 = 25<br>c = √25 = ?</p><p>Kód = délka přepony c (v cm).</p>',
+      body_en:'<p>A right triangle has legs <b>a = 3 cm</b> and <b>b = 4 cm</b>.</p><p>Calculate the hypotenuse <b>c</b>:</p><p>c² = 3² + 4² = 9 + 16 = 25<br>c = √25 = ?</p><p>Code = length of hypotenuse c (in cm).</p>',
+      hint:'💡 √25 = 5.',
+      hint_en:'💡 √25 = 5.' }
+  ],
+  code:'5',
+  successMsg:'🔓 Skvěle! c² = 9 + 16 = 25, c = 5 cm. Toto je nejslavnější trojúhelník v matematice! Zámek 1 otevřen!',
+  successMsg_en:'🔓 Great! c² = 9 + 16 = 25, c = 5 cm. The most famous triangle in mathematics! Lock 1 opened!'
+},
+{
+  id:2, color:'green', icon:'📏',
+  title:'Zámek 2 – Výpočet přepony', title_en:'Lock 2 – Calculating the hypotenuse',
+  tag:'Přepona c = √(a² + b²)', tag_en:'Hypotenuse c = √(a² + b²)', tagClass:'green',
+  tasks:[
+    { title:'🧩 Postup výpočtu', title_en:'🧩 Calculation method',
+      body:'<p>Postup pro výpočet přepony:</p><ol><li>Umocni obě odvěsny: a² a b²</li><li>Sečti je: a² + b²</li><li>Odmocni výsledek: c = √(a² + b²)</li></ol><p>Zkusíme: a = 5, b = 12<br>c² = 25 + 144 = 169<br>c = √169 = 13</p>',
+      body_en:'<p>Steps to calculate the hypotenuse:</p><ol><li>Square both legs: a² and b²</li><li>Add them: a² + b²</li><li>Take the square root: c = √(a² + b²)</li></ol><p>Example: a = 5, b = 12<br>c² = 25 + 144 = 169<br>c = √169 = 13</p>',
+      hint:'💡 Nejdřív umocni (6²=36, 8²=64), pak sečti a odmocni.',
+      hint_en:'💡 First square (6²=36, 8²=64), then add and take the square root.' },
+    { title:'🔢 Kód zámku', title_en:'🔢 Lock code',
+      body:'<p>Pravoúhlý trojúhelník má odvěsny <b>a = 6 cm</b> a <b>b = 8 cm</b>.</p><p>Vypočítej přeponu <b>c</b>. Kód = délka přepony (v cm).</p>',
+      body_en:'<p>A right triangle has legs <b>a = 6 cm</b> and <b>b = 8 cm</b>.</p><p>Calculate the hypotenuse <b>c</b>. Code = length of hypotenuse (in cm).</p>',
+      hint:'💡 c² = 36 + 64 = 100. c = √100 = ?',
+      hint_en:'💡 c² = 36 + 64 = 100. c = √100 = ?' }
+  ],
+  code:'10',
+  successMsg:'🔓 Přesně! c = 10 cm. Všimni si: 6-8-10 je zdvojená trojice 3-4-5! Zámek 2 otevřen!',
+  successMsg_en:'🔓 Correct! c = 10 cm. Notice: 6-8-10 is just the 3-4-5 triple doubled! Lock 2 opened!'
+},
+{
+  id:3, color:'purple', icon:'📐',
+  title:'Zámek 3 – Pythagorovy trojice', title_en:'Lock 3 – Pythagorean triples',
+  tag:'Pythagorova trojice', tag_en:'Pythagorean triple', tagClass:'purple',
+  tasks:[
+    { title:'🧩 Pythagorovy trojice', title_en:'🧩 Pythagorean triples',
+      body:'<p><b>Pythagorova trojice</b> jsou tři celá čísla (a, b, c), pro která platí c² = a² + b².</p><p>Nejznámější trojice:</p><table class="tt"><tr><th>a</th><th>b</th><th>c</th></tr><tr><td>3</td><td>4</td><td>5</td></tr><tr><td>5</td><td>12</td><td>13</td></tr><tr><td>8</td><td>15</td><td>17</td></tr><tr><td>7</td><td>24</td><td>25</td></tr></table><p>Tyto trojice si warto zapamatovat – šetří spoustu výpočtů!</p>',
+      body_en:'<p>A <b>Pythagorean triple</b> is three whole numbers (a, b, c) where c² = a² + b².</p><p>The most well-known triples:</p><table class="tt"><tr><th>a</th><th>b</th><th>c</th></tr><tr><td>3</td><td>4</td><td>5</td></tr><tr><td>5</td><td>12</td><td>13</td></tr><tr><td>8</td><td>15</td><td>17</td></tr><tr><td>7</td><td>24</td><td>25</td></tr></table><p>These triples are worth memorising – they save a lot of calculation!</p>',
+      hint:'💡 Trojice 5-12-13: 5²+12²=25+144=169=13². Platí!',
+      hint_en:'💡 Triple 5-12-13: 5²+12²=25+144=169=13². It works!' },
+    { title:'🔢 Kód zámku', title_en:'🔢 Lock code',
+      body:'<p>Pravoúhlý trojúhelník má odvěsny <b>a = 5 cm</b> a <b>b = 12 cm</b>.</p><p>Vypočítej přeponu <b>c</b>. Kód = délka přepony (v cm).</p>',
+      body_en:'<p>A right triangle has legs <b>a = 5 cm</b> and <b>b = 12 cm</b>.</p><p>Calculate the hypotenuse <b>c</b>. Code = length of hypotenuse (in cm).</p>',
+      hint:'💡 c² = 25 + 144 = 169. √169 = ?',
+      hint_en:'💡 c² = 25 + 144 = 169. √169 = ?' }
+  ],
+  code:'13',
+  successMsg:'🔓 Výborně! c = 13 cm. Trojice 5-12-13! Zámek 3 otevřen!',
+  successMsg_en:'🔓 Excellent! c = 13 cm. The 5-12-13 triple! Lock 3 opened!'
+},
+{
+  id:4, color:'teal', icon:'🔷',
+  title:'Zámek 4 – Výpočet odvěsny', title_en:'Lock 4 – Calculating a leg',
+  tag:'Odvěsna a = √(c² − b²)', tag_en:'Leg a = √(c² − b²)', tagClass:'teal',
+  tasks:[
+    { title:'🧩 Vzorec pro odvěsnu', title_en:'🧩 Formula for a leg',
+      body:'<p>Pythagorovu větu lze upravit, abychom vypočítali odvěsnu:</p><p>c² = a² + b²<br>→ a² = c² − b²<br>→ a = √(c² − b²)</p><p>Příklad: c = 13, b = 5<br>a² = 13² − 5² = 169 − 25 = 144<br>a = √144 = 12</p><p>Postup: nejdřív odečti mocniny, pak odmocni!</p>',
+      body_en:'<p>We can rearrange the Pythagorean theorem to find a leg:</p><p>c² = a² + b²<br>→ a² = c² − b²<br>→ a = √(c² − b²)</p><p>Example: c = 13, b = 5<br>a² = 13² − 5² = 169 − 25 = 144<br>a = √144 = 12</p><p>Steps: first subtract the squares, then take the square root!</p>',
+      hint:'💡 a² = c² − b². Nejdřív umocni c a b, pak odečti.',
+      hint_en:'💡 a² = c² − b². First square c and b, then subtract.' },
+    { title:'🔢 Kód zámku', title_en:'🔢 Lock code',
+      body:'<p>Pravoúhlý trojúhelník má přeponu <b>c = 17 cm</b> a odvěsnu <b>b = 15 cm</b>.</p><p>Vypočítej odvěsnu <b>a</b>. Kód = délka odvěsny a (v cm).</p>',
+      body_en:'<p>A right triangle has hypotenuse <b>c = 17 cm</b> and leg <b>b = 15 cm</b>.</p><p>Calculate leg <b>a</b>. Code = length of leg a (in cm).</p>',
+      hint:'💡 a² = 17² − 15² = 289 − 225 = 64. a = √64 = ?',
+      hint_en:'💡 a² = 17² − 15² = 289 − 225 = 64. a = √64 = ?' }
+  ],
+  code:'8',
+  successMsg:'🔓 Správně! a = 8 cm. Trojice 8-15-17! Zámek 4 otevřen!',
+  successMsg_en:'🔓 Correct! a = 8 cm. The 8-15-17 triple! Lock 4 opened!'
+},
+{
+  id:5, color:'orange', icon:'🟠',
+  title:'Zámek 5 – Trojice 7, 24, 25', title_en:'Lock 5 – The 7, 24, 25 triple',
+  tag:'Odvěsna b = √(c² − a²)', tag_en:'Leg b = √(c² − a²)', tagClass:'orange',
+  tasks:[
+    { title:'🧩 Procvičení: hledáme odvěsnu b', title_en:'🧩 Practice: finding leg b',
+      body:'<p>Stejným postupem najdeme odvěsnu b:</p><p>b² = c² − a²<br>b = √(c² − a²)</p><p>Vyzkoušej: c = 25, a = 7<br>b² = 25² − 7² = 625 − 49 = 576<br>b = √576 = ?</p><p>Nápověda: 24² = 576. Pamatuješ si trojici 7-24-25?</p>',
+      body_en:'<p>We use the same approach to find leg b:</p><p>b² = c² − a²<br>b = √(c² − a²)</p><p>Try it: c = 25, a = 7<br>b² = 25² − 7² = 625 − 49 = 576<br>b = √576 = ?</p><p>Hint: 24² = 576. Do you remember the 7-24-25 triple?</p>',
+      hint:'💡 b² = 625 − 49 = 576. b = √576 = 24.',
+      hint_en:'💡 b² = 625 − 49 = 576. b = √576 = 24.' },
+    { title:'🔢 Kód zámku', title_en:'🔢 Lock code',
+      body:'<p>Pravoúhlý trojúhelník má přeponu <b>c = 25 cm</b> a odvěsnu <b>a = 7 cm</b>.</p><p>Vypočítej odvěsnu <b>b</b>. Kód = délka odvěsny b (v cm).</p>',
+      body_en:'<p>A right triangle has hypotenuse <b>c = 25 cm</b> and leg <b>a = 7 cm</b>.</p><p>Calculate leg <b>b</b>. Code = length of leg b (in cm).</p>',
+      hint:'💡 b² = 625 − 49 = 576. b = √576 = ?',
+      hint_en:'💡 b² = 625 − 49 = 576. b = √576 = ?' }
+  ],
+  code:'24',
+  successMsg:'🔓 Bezvadně! b = 24 cm. Trojice 7-24-25! Zámek 5 otevřen!',
+  successMsg_en:'🔓 Excellent! b = 24 cm. The 7-24-25 triple! Lock 5 opened!'
+},
+{
+  id:6, color:'pink', icon:'🔍',
+  title:'Zámek 6 – Je trojúhelník pravoúhlý?', title_en:'Lock 6 – Is the triangle right-angled?',
+  tag:'Ověření pravoúhlosti', tag_en:'Verifying a right angle', tagClass:'pink',
+  tasks:[
+    { title:'🧩 Obrácená Pythagorova věta', title_en:'🧩 Converse of the Pythagorean theorem',
+      body:'<p>Pythagorovu větu lze použít <b>obráceně</b>: pokud pro strany trojúhelníku platí c² = a² + b², pak je trojúhelník <b>pravoúhlý</b>.</p><p>Příklad 1 – <b>Je pravoúhlý?</b> Strany: 3, 4, 5<br>3² + 4² = 9 + 16 = 25 = 5². ✅ ANO!</p><p>Příklad 2 – <b>Je pravoúhlý?</b> Strany: 2, 3, 4<br>2² + 3² = 4 + 9 = 13 ≠ 16 = 4². ❌ NE!</p><p>Vždy zkoušej: součet čtverců dvou kratších stran = čtverec nejdelší strany?</p>',
+      body_en:'<p>The Pythagorean theorem works in <b>reverse</b>: if the sides of a triangle satisfy c² = a² + b², then the triangle is <b>right-angled</b>.</p><p>Example 1 – <b>Right-angled?</b> Sides: 3, 4, 5<br>3² + 4² = 9 + 16 = 25 = 5². ✅ YES!</p><p>Example 2 – <b>Right-angled?</b> Sides: 2, 3, 4<br>2² + 3² = 4 + 9 = 13 ≠ 16 = 4². ❌ NO!</p><p>Always check: sum of squares of two shorter sides = square of longest side?</p>',
+      hint:'💡 Vždy sečti druhé mocniny dvou kratších stran a porovnej s druhou mocninou nejdelší.',
+      hint_en:'💡 Always add the squares of the two shorter sides and compare with the square of the longest.' },
+    { title:'🔢 Kód zámku', title_en:'🔢 Lock code',
+      body:'<p>Zkontroluj, zda trojúhelník se stranami <b>9 cm, 40 cm a 41 cm</b> je pravoúhlý.</p><p>Ověř: 9² + 40² = 81 + 1600 = ?</p><p>Kód = délka přepony, pokud je trojúhelník pravoúhlý.</p>',
+      body_en:'<p>Check whether the triangle with sides <b>9 cm, 40 cm and 41 cm</b> is right-angled.</p><p>Verify: 9² + 40² = 81 + 1600 = ?</p><p>Code = the length of the hypotenuse if the triangle is right-angled.</p>',
+      hint:'💡 81 + 1600 = 1681 = 41². Přepona = 41.',
+      hint_en:'💡 81 + 1600 = 1681 = 41². Hypotenuse = 41.' }
+  ],
+  code:'41',
+  successMsg:'🔓 Správně! 9² + 40² = 1681 = 41². Trojice 9-40-41 je pravoúhlá! Zámek 6 otevřen!',
+  successMsg_en:'🔓 Correct! 9² + 40² = 1681 = 41². The 9-40-41 triple is a right triangle! Lock 6 opened!'
+},
+{
+  id:7, color:'indigo', icon:'📦',
+  title:'Zámek 7 – Úhlopříčka obdélníku', title_en:'Lock 7 – Rectangle diagonal',
+  tag:'Aplikace: úhlopříčka', tag_en:'Application: diagonal', tagClass:'indigo',
+  tasks:[
+    { title:'🧩 Úhlopříčka obdélníku', title_en:'🧩 Rectangle diagonal',
+      body:'<p>Úhlopříčka rozděluje obdélník na <b>dva pravoúhlé trojúhelníky</b>.</p><p>Strany obdélníku jsou <b>odvěsny</b>, úhlopříčka je <b>přepona</b>.</p><p>Vzorec: d = √(a² + b²), kde a a b jsou strany obdélníku.</p><p>Příklad: obdélník 6 × 8 cm<br>d² = 6² + 8² = 36 + 64 = 100<br>d = √100 = 10 cm</p>',
+      body_en:'<p>The diagonal splits a rectangle into <b>two right triangles</b>.</p><p>The sides of the rectangle are the <b>legs</b>, and the diagonal is the <b>hypotenuse</b>.</p><p>Formula: d = √(a² + b²), where a and b are the sides of the rectangle.</p><p>Example: rectangle 6 × 8 cm<br>d² = 6² + 8² = 36 + 64 = 100<br>d = √100 = 10 cm</p>',
+      hint:'💡 Strany obdélníku jsou odvěsny. d = √(a² + b²).',
+      hint_en:'💡 The sides of the rectangle are the legs. d = √(a² + b²).' },
+    { title:'🔢 Kód zámku', title_en:'🔢 Lock code',
+      body:'<p>Obdélník má rozměry <b>9 cm × 12 cm</b>.</p><p>Vypočítej délku jeho <b>úhlopříčky d</b>. Kód = délka úhlopříčky (v cm).</p>',
+      body_en:'<p>A rectangle has dimensions <b>9 cm × 12 cm</b>.</p><p>Calculate the length of its <b>diagonal d</b>. Code = length of diagonal (in cm).</p>',
+      hint:'💡 d² = 81 + 144 = 225. d = √225 = ?',
+      hint_en:'💡 d² = 81 + 144 = 225. d = √225 = ?' }
+  ],
+  code:'15',
+  successMsg:'🔓 Výborně! d = 15 cm. Trojice 9-12-15 = trojnásobek 3-4-5! Zámek 7 otevřen!',
+  successMsg_en:'🔓 Excellent! d = 15 cm. The 9-12-15 triple = three times 3-4-5! Lock 7 opened!'
+},
+{
+  id:8, color:'rose', icon:'🌹',
+  title:'Zámek 8 – Výška rovnoramenného trojúhelníku', title_en:'Lock 8 – Height of an isosceles triangle',
+  tag:'Aplikace: výška trojúhelníku', tag_en:'Application: triangle height', tagClass:'rose',
+  tasks:[
+    { title:'🧩 Výška rovnoramenného trojúhelníku', title_en:'🧩 Height of an isosceles triangle',
+      body:'<p>Výška rovnoramenného trojúhelníku na základnu ji <b>půlí</b> – vzniknou dva shodné pravoúhlé trojúhelníky.</p><p>V každém trojúhelníku jsou:</p><ul><li><b>Přepona</b> = rameno rovnoramenného trojúhelníku</li><li><b>Jedna odvěsna</b> = polovina základny</li><li><b>Druhá odvěsna</b> = výška h</li></ul><p>Příklad: základna = 10 cm, ramena = 13 cm<br>Polovina základny = 5 cm<br>h² = 13² − 5² = 169 − 25 = 144<br>h = √144 = 12 cm</p>',
+      body_en:'<p>The height of an isosceles triangle to the base <b>bisects</b> it – creating two congruent right triangles.</p><p>In each right triangle:</p><ul><li><b>Hypotenuse</b> = equal side of the isosceles triangle</li><li><b>One leg</b> = half the base</li><li><b>Other leg</b> = height h</li></ul><p>Example: base = 10 cm, equal sides = 13 cm<br>Half base = 5 cm<br>h² = 13² − 5² = 169 − 25 = 144<br>h = √144 = 12 cm</p>',
+      hint:'💡 Výška půlí základnu. Pracuj s polovinou základny a ramenem.',
+      hint_en:'💡 The height bisects the base. Work with half the base and the equal side.' },
+    { title:'🔢 Kód zámku', title_en:'🔢 Lock code',
+      body:'<p>Rovnoramenný trojúhelník má <b>základnu 18 cm</b> a <b>ramena 15 cm</b>.</p><p>Vypočítej <b>výšku h</b> na základnu. Kód = výška (v cm).</p>',
+      body_en:'<p>An isosceles triangle has <b>base 18 cm</b> and <b>equal sides 15 cm</b>.</p><p>Calculate the <b>height h</b> to the base. Code = height (in cm).</p>',
+      hint:'💡 Polovina základny = 9 cm. h² = 15² − 9² = 225 − 81 = 144. h = √144 = ?',
+      hint_en:'💡 Half the base = 9 cm. h² = 15² − 9² = 225 − 81 = 144. h = √144 = ?' }
+  ],
+  code:'12',
+  successMsg:'🔓 Přesně! h = 12 cm. Skvělá geometrie! Zámek 8 otevřen!',
+  successMsg_en:'🔓 Exactly! h = 12 cm. Excellent geometry! Lock 8 opened!'
+},
+{
+  id:9, color:'cyan', icon:'🪜',
+  title:'Zámek 9 – Žebříkový problém', title_en:'Lock 9 – The ladder problem',
+  tag:'Aplikace: slovní úloha', tag_en:'Application: word problem', tagClass:'cyan',
+  tasks:[
+    { title:'🧩 Žebřík u zdi', title_en:'🧩 Ladder against a wall',
+      body:'<p>Klasická slovní úloha: <b>žebřík se opírá o svislou zeď</b>, která stojí kolmo na zem.</p><p>Vzniká pravoúhlý trojúhelník:</p><ul><li><b>Přepona</b> = délka žebříku</li><li><b>Jedna odvěsna</b> = vzdálenost paty žebříku od zdi (vodorovná)</li><li><b>Druhá odvěsna</b> = výška, kam žebřík dosáhne (svislá)</li></ul><p>Příklad: žebřík 13 m, pata 5 m od zdi<br>h² = 13² − 5² = 169 − 25 = 144<br>h = √144 = 12 m</p>',
+      body_en:'<p>A classic word problem: a <b>ladder leans against a vertical wall</b> that stands perpendicular to the ground.</p><p>This forms a right triangle:</p><ul><li><b>Hypotenuse</b> = length of the ladder</li><li><b>One leg</b> = distance of the foot of the ladder from the wall (horizontal)</li><li><b>Other leg</b> = height the ladder reaches up the wall (vertical)</li></ul><p>Example: ladder 13 m, foot 5 m from the wall<br>h² = 13² − 5² = 169 − 25 = 144<br>h = √144 = 12 m</p>',
+      hint:'💡 Žebřík = přepona. Vzdálenost od zdi = odvěsna. Hledáme výšku = druhou odvěsnu.',
+      hint_en:'💡 Ladder = hypotenuse. Distance from wall = one leg. We seek the height = the other leg.' },
+    { title:'🔢 Kód zámku', title_en:'🔢 Lock code',
+      body:'<p>Žebřík délky <b>25 m</b> se opírá o zeď. Pata žebříku stojí <b>24 m od zdi</b>.</p><p>Jak vysoko dosáhne žebřík na zeď? Kód = výška (v m).</p>',
+      body_en:'<p>A ladder <b>25 m</b> long leans against a wall. The foot of the ladder stands <b>24 m from the wall</b>.</p><p>How high does the ladder reach up the wall? Code = height (in m).</p>',
+      hint:'💡 h² = 25² − 24² = 625 − 576 = 49. h = √49 = ?',
+      hint_en:'💡 h² = 25² − 24² = 625 − 576 = 49. h = √49 = ?' }
+  ],
+  code:'7',
+  successMsg:'🔓 Správně! h = 7 m. Zámek 9 otevřen! Jsi téměř u cíle!',
+  successMsg_en:'🔓 Correct! h = 7 m. Lock 9 opened! You are almost there!'
+},
+{
+  id:10, color:'gold', icon:'🏆',
+  title:'Zámek 10 – Vzdálenost dvou bodů', title_en:'Lock 10 – Distance between two points',
+  tag:'Aplikace: vzdálenost bodů', tag_en:'Application: distance between points', tagClass:'gold',
+  tasks:[
+    { title:'🧩 Vzdálenost v souřadnicové soustavě', title_en:'🧩 Distance in a coordinate system',
+      body:'<p>Pythagorova věta se skrývá i ve vzorci pro vzdálenost dvou bodů v souřadnicové soustavě.</p><p>Body A[x₁, y₁] a B[x₂, y₂]:<br>d = √((x₂−x₁)² + (y₂−y₁)²)</p><p>Proč? Rozdíly souřadnic jsou odvěsny pravoúhlého trojúhelníku, vzdálenost AB je přepona!</p><p>Příklad: A[0, 0], B[3, 4]<br>d = √((3−0)² + (4−0)²) = √(9 + 16) = √25 = 5</p>',
+      body_en:'<p>The Pythagorean theorem is hidden inside the distance formula for two points in a coordinate system.</p><p>Points A[x₁, y₁] and B[x₂, y₂]:<br>d = √((x₂−x₁)² + (y₂−y₁)²)</p><p>Why? The differences in coordinates are the legs of a right triangle, and the distance AB is the hypotenuse!</p><p>Example: A[0, 0], B[3, 4]<br>d = √((3−0)² + (4−0)²) = √(9 + 16) = √25 = 5</p>',
+      hint:'💡 d = √(Δx² + Δy²). Spočítej rozdíly souřadnic, umocni, sečti, odmocni.',
+      hint_en:'💡 d = √(Δx² + Δy²). Compute the coordinate differences, square, add, and take the square root.' },
+    { title:'🔢 Kód zámku', title_en:'🔢 Lock code',
+      body:'<p>Body A[0, 0] a B[12, 16].</p><p>Vypočítej vzdálenost AB. Kód = vzdálenost (v jednotkách).</p>',
+      body_en:'<p>Points A[0, 0] and B[12, 16].</p><p>Calculate the distance AB. Code = distance (in units).</p>',
+      hint:'💡 d² = 12² + 16² = 144 + 256 = 400. d = √400 = ?',
+      hint_en:'💡 d² = 12² + 16² = 144 + 256 = 400. d = √400 = ?' }
+  ],
+  code:'20',
+  successMsg:'🏆 BRAVO! d = 20 jednotek. Zvládl(a) jsi všech 10 zámků Pythagorovy věty!',
+  successMsg_en:'🏆 BRAVO! d = 20 units. You solved all 10 Pythagorean theorem locks!'
+}
+];
+
+const CODE_HINTS_CS = {
+  1: ['Pythagorova věta: c² = a² + b². Přepona je naproti pravému úhlu.', '3² + 4² = 9 + 16 = 25. c = √25 = ?', 'c = <b>5</b> cm.'],
+  2: ['a=6, b=8. Umocni a sečti: 36 + 64 = 100. c = √100.', '√100 = ?', 'c = <b>10</b> cm.'],
+  3: ['a=5, b=12. c² = 25 + 144 = 169. c = √169.', '√169 = ?', 'c = <b>13</b> cm.'],
+  4: ['Odvěsna: a² = c² − b² = 17² − 15² = 289 − 225 = 64.', 'a = √64 = ?', 'a = <b>8</b> cm. Trojice 8-15-17.'],
+  5: ['b² = c² − a² = 25² − 7² = 625 − 49 = 576.', 'b = √576 = ?', 'b = <b>24</b> cm.'],
+  6: ['Ověř: 9² + 40² = 81 + 1600 = 1681. Je 1681 = 41²?', '41² = 41 × 41 = 1681. Ano! Přepona = ?', 'Přepona = <b>41</b>.'],
+  7: ['Strany obdélníku jsou odvěsny. d = √(9² + 12²).', 'd² = 81 + 144 = 225. d = √225 = ?', 'd = <b>15</b> cm.'],
+  8: ['Polovina základny = 9 cm. Odvěsny jsou 9 a h, přepona 15.', 'h² = 15² − 9² = 225 − 81 = 144. h = √144 = ?', 'h = <b>12</b> cm.'],
+  9: ['Žebřík=přepona, vzdálenost od zdi=odvěsna. h²=25²−24².', 'h² = 625 − 576 = 49. h = √49 = ?', 'h = <b>7</b> m.'],
+  10: ['d = √(12² + 16²). Spočítej 144 + 256.', 'd² = 400. d = √400 = ?', 'd = <b>20</b> jednotek.'],
+};
+
+const CODE_HINTS_EN = {
+  1: ['Pythagorean theorem: c² = a² + b². The hypotenuse is opposite the right angle.', '3² + 4² = 9 + 16 = 25. c = √25 = ?', 'c = <b>5</b> cm.'],
+  2: ['a=6, b=8. Square and add: 36 + 64 = 100. c = √100.', '√100 = ?', 'c = <b>10</b> cm.'],
+  3: ['a=5, b=12. c² = 25 + 144 = 169. c = √169.', '√169 = ?', 'c = <b>13</b> cm.'],
+  4: ['Leg: a² = c² − b² = 17² − 15² = 289 − 225 = 64.', 'a = √64 = ?', 'a = <b>8</b> cm. Triple 8-15-17.'],
+  5: ['b² = c² − a² = 25² − 7² = 625 − 49 = 576.', 'b = √576 = ?', 'b = <b>24</b> cm.'],
+  6: ['Verify: 9² + 40² = 81 + 1600 = 1681. Is 1681 = 41²?', '41² = 41 × 41 = 1681. Yes! Hypotenuse = ?', 'Hypotenuse = <b>41</b>.'],
+  7: ['The sides of the rectangle are the legs. d = √(9² + 12²).', 'd² = 81 + 144 = 225. d = √225 = ?', 'd = <b>15</b> cm.'],
+  8: ['Half the base = 9 cm. The legs are 9 and h, hypotenuse is 15.', 'h² = 15² − 9² = 225 − 81 = 144. h = √144 = ?', 'h = <b>12</b> cm.'],
+  9: ['Ladder = hypotenuse, distance from wall = leg. h² = 25² − 24².', 'h² = 625 − 576 = 49. h = √49 = ?', 'h = <b>7</b> m.'],
+  10: ['d = √(12² + 16²). Calculate 144 + 256.', 'd² = 400. d = √400 = ?', 'd = <b>20</b> units.'],
+};
+
+let codeHintLevel = 0;
+
+function advanceCodeHint() {
+  if (codeHintLevel >= 3) return;
+  codeHintLevel++;
+  const CODE_HINTS = lang === 'en' ? CODE_HINTS_EN : CODE_HINTS_CS;
+  const hints = CODE_HINTS[STEPS[cur].id] || [
+    i18n('Přečti si pozorně postup nahoře.', 'Read the instructions above carefully.'),
+    i18n('Postupně spočítej, co se ptají.', 'Work through the calculation step by step.'),
+    i18n('Výsledek vyplyne z výpočtu.', 'The answer follows from the calculation.')
+  ];
+  const box = document.getElementById('ch-box');
+  const btn = document.getElementById('ch-btn');
+  const counter = document.getElementById('ch-counter');
+  if (!box || !btn) return;
+  box.classList.add('show');
+  box.dataset.level = codeHintLevel;
+  const labels = i18n(
+    ['Nasměrování', 'Vzorec', 'Postup s výsledkem'],
+    ['Direction', 'Formula', 'Solution steps']
+  );
+  box.innerHTML = `<span class="h-label">${i18n('Nápověda','Hint')} ${codeHintLevel}/3 — ${labels[codeHintLevel-1]}</span>${hints[codeHintLevel - 1]}`;
+  if (counter) {
+    counter.querySelectorAll('.dot').forEach((d, i) => {
+      d.classList.toggle('shown', i < codeHintLevel);
+      if (i === 2 && codeHintLevel === 3) d.classList.add('warn');
+    });
+  }
+  if (codeHintLevel < 3) {
+    btn.textContent = `💡 ${i18n('Další nápověda','Next hint')} ${codeHintLevel+1}/3`;
+  } else {
+    btn.disabled = true;
+    btn.textContent = `💡 ${i18n('Všechny nápovědy ukázány','All hints shown')}`;
+  }
+}
+
+let cur = 0;
+let att = new Array(STEPS.length).fill(0);
+
+function startGame() {
+  document.getElementById('intro').classList.remove('active');
+  document.getElementById('game').classList.add('active');
+  document.getElementById('stars-wrap').innerHTML =
+    STEPS.map((_,i) => `<span class="star" id="s${i}">⭐</span>`).join('');
+  render(0);
+}
+
+function render(idx) {
+  cur = idx;
+  codeHintLevel = 0;
+  const s = STEPS[idx];
+  document.getElementById('prog-label').textContent =
+    i18n(`Zámek ${idx+1} z ${STEPS.length}`, `Lock ${idx+1} of ${STEPS.length}`);
+  document.getElementById('prog-fill').style.width = `${(idx / STEPS.length) * 100}%`;
+  for (let i = 0; i < STEPS.length; i++) {
+    const el = document.getElementById(`s${i}`);
+    if (el) el.classList.toggle('lit', i < idx);
+  }
+
+  const colorMap = {
+    blue:'--blue', green:'--green', purple:'--purple', teal:'--teal',
+    orange:'--orange', pink:'--pink', indigo:'--indigo', rose:'--rose',
+    cyan:'--cyan', gold:'--gold-dark'
+  };
+  const cv = colorMap[s.color] || '--blue';
+
+  const tasksHTML = s.tasks.map(t => `
+    <div class="task-card ${s.color}">
+      <span class="tag ${s.tagClass}">${i18n(s.tag, s.tag_en)}</span>
+      <h3>${i18n(t.title, t.title_en)}</h3>
+      ${i18n(t.body, t.body_en)}
+      <button class="hint-btn" onclick="toggleHint(this)">${i18n('💡 Potřebuji nápovědu','💡 I need a hint')}</button>
+      <div class="hint-box">${i18n(t.hint, t.hint_en)}</div>
+    </div>
+  `).join('');
+
+  document.getElementById('step-container').innerHTML = `
+    <div class="lock-header">
+      <span class="lock-icon-big">${s.icon}</span>
+      <span class="lock-title" style="color:var(${cv})">${i18n(s.title, s.title_en)}</span>
+      <span class="lock-badge">${idx+1}/${STEPS.length}</span>
+    </div>
+    ${tasksHTML}
+    <div class="code-wrap">
+      <label>&#x1F510; ${i18n(`Zadej kód zámku ${idx+1}:`, `Enter lock code ${idx+1}:`)}</label>
+      <div class="code-row">
+        <input type="number" class="code-input" id="ci" placeholder="???"
+          onkeydown="if(event.key==='Enter') chk()">
+        <button class="btn-check" onclick="chk()">${i18n('Odemknout 🔓','Unlock 🔓')}</button>
+      </div>
+      <div class="code-hint-bar">
+        <button class="code-hint-btn" id="ch-btn" onclick="advanceCodeHint()">💡 ${i18n('Nápověda ke kódu 1/3','Code hint 1/3')}</button>
+        <span class="code-hint-counter" id="ch-counter">
+          <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+        </span>
+      </div>
+      <div class="code-hint-box" id="ch-box" data-level="0"></div>
+      <div class="feedback" id="fb"></div>
+    </div>
+    <div class="unlock-anim" id="ua">
+      <div class="big-icon">&#x1F513;&#x2728;</div>
+      <p>${i18n(s.successMsg, s.successMsg_en)}</p>
+    </div>
+  `;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function toggleHint(btn) {
+  const h = btn.nextElementSibling;
+  h.classList.toggle('show');
+  btn.textContent = h.classList.contains('show')
+    ? i18n('🙈 Skrýt nápovědu', '🙈 Hide hint')
+    : i18n('💡 Potřebuji nápovědu', '💡 I need a hint');
+}
+
+function chk() {
+  const inp = document.getElementById('ci');
+  const fb  = document.getElementById('fb');
+  att[cur]++;
+
+  if (inp.value.trim() === STEPS[cur].code) {
+    inp.classList.remove('error');
+    inp.classList.add('success');
+    fb.textContent = '';
+    document.getElementById('ua').classList.add('show');
+    setTimeout(() => {
+      if (cur < STEPS.length - 1) render(cur + 1);
+      else finish();
+    }, 1900);
+  } else {
+    inp.classList.add('error');
+    inp.classList.remove('success');
+    setTimeout(() => inp.classList.remove('error'), 380);
+    const msgs = i18n(
+      ['Hmm, to není ono. Zkontroluj postup!', 'Zkus to znovu – možná jiný výpočet?', 'Nevzdávej se! Přečti si nápovědu.', 'Ještě jednou, jsi blízko!'],
+      ['Hmm, not quite. Check your working!', 'Try again – maybe a different approach?', "Don't give up! Read the hint.", "One more time, you're close!"]
+    );
+    fb.className = 'feedback err';
+    fb.textContent = msgs[Math.min(att[cur] - 1, msgs.length - 1)];
+  }
+}
+
+function finish() {
+  document.getElementById('game').classList.remove('active');
+  document.getElementById('finish').classList.add('active');
+  buildFinish();
+  const wrap = document.getElementById('confetti');
+  const cols = ['#f5c842','#1a73c8','#1e9e5a','#e74c3c','#7c3aad','#0f8a72','#ff7f50','#b5286e'];
+  for (let i = 0; i < 90; i++) {
+    const el = document.createElement('div');
+    el.className = 'confetti-piece';
+    const sz = 6 + Math.random() * 9;
+    el.style.cssText = `
+      left:${Math.random()*100}%;top:-12px;
+      background:${cols[Math.floor(Math.random()*cols.length)]};
+      width:${sz}px;height:${sz}px;
+      border-radius:${Math.random()>.5?'50%':'3px'};
+      animation:fall ${1.5+Math.random()*2.5}s ${Math.random()*1.5}s linear forwards;
+    `;
+    wrap.appendChild(el);
+  }
+}
+
+// Init
+document.querySelectorAll('.lang-btn').forEach(b =>
+  b.classList.toggle('active', b.dataset.lang === lang));
+document.querySelectorAll('.tp-back').forEach(el =>
+  el.textContent = i18n('← zpět na projekty', '← back to projects'));
+document.querySelectorAll('.tp-home').forEach(el =>
+  el.textContent = i18n('domů', 'home'));
+buildIntro();
+</script>
+</body>
+</html>

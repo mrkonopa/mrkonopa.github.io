@@ -180,6 +180,17 @@
       .screen { padding: 20px 16px; }
       body { font-size: 14px; }
     }
+
+    /* Tag filter bar */
+    .filter-bar { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin: 6px 0 10px; }
+    .filter-tag {
+      background: none; border: 1px dashed var(--fg-dim); color: var(--fg-dim);
+      border-radius: 3px; padding: 1px 8px; font-family: var(--mono); font-size: 11px;
+      cursor: pointer; transition: all 0.15s; line-height: 1.6;
+    }
+    .filter-tag:hover { border-color: var(--accent); color: var(--accent); border-style: solid; }
+    .filter-tag.active { background: var(--accent); border-color: var(--accent); color: var(--bg); border-style: solid; }
+    .project.hidden { display: none; }
   </style>
 </head>
 <body>
@@ -201,6 +212,11 @@
         <div class="block">
           <div class="line"><span class="prompt"><span class="user">vojta</span><span class="at">@</span><span class="host">konopa</span><span class="path">:~/projects</span><span class="sym">$</span></span> <span class="cmd">cat README</span></div>
           <p class="out">A growing collection of things I've built. Click any entry to open it.</p>
+        </div>
+
+        <div class="block">
+          <div class="line"><span class="prompt"><span class="user">vojta</span><span class="at">@</span><span class="host">konopa</span><span class="path">:~/projects</span><span class="sym">$</span></span> <span class="cmd">grep --tag <span id="active-tag" class="accent">*</span></span></div>
+          <div class="filter-bar" id="filter-bar"></div>
         </div>
 
         <div class="block">
@@ -272,6 +288,36 @@
             <p class="meta">tags: math · percenta · education · czech · interactive</p>
           </div>
 
+          <div class="project">
+            <div class="line">
+              <span class="perm">-rw-r--r--</span>
+              <a class="filename" href="./unikovka_pythagoras.html">unikovka_pythagoras.html</a>
+            </div>
+            <p class="desc-en">Interactive math escape-room about the Pythagorean theorem. 10 locks covering the theorem, finding the hypotenuse, finding a leg, Pythagorean triples, verification, and real-world applications (rectangle diagonal, triangle height, ladder, distance between points).</p>
+            <p class="desc-cs">Interaktivní únikovka z matematiky o Pythagorově větě. 10 zámků: výpočet přepony, výpočet odvěsny, Pythagorovy trojice, ověření pravoúhlosti a aplikace (úhlopříčka, výška trojúhelníku, žebřík, vzdálenost bodů).</p>
+            <p class="meta">tags: math · pythagoras · geometry · education · czech · interactive · 8.-9. třída</p>
+          </div>
+
+          <div class="project">
+            <div class="line">
+              <span class="perm">-rw-r--r--</span>
+              <a class="filename" href="./unikovka_mocniny.html">unikovka_mocniny.html</a>
+            </div>
+            <p class="desc-en">Interactive math escape-room about powers and roots. 10 locks covering squares, cubes, square roots, cube roots, the zeroth power, and the product / power-of-a-power / quotient rules for exponents.</p>
+            <p class="desc-cs">Interaktivní únikovka z matematiky o mocninách a odmocninách. 10 zámků: druhé a třetí mocniny, druhá a třetí odmocnina, nultá mocnina a pravidla součinu, mocniny mocniny a podílu mocnin.</p>
+            <p class="meta">tags: math · mocniny · odmocniny · education · czech · interactive · 8. třída</p>
+          </div>
+
+          <div class="project">
+            <div class="line">
+              <span class="perm">-rw-r--r--</span>
+              <a class="filename" href="./unikovka_rovnice.html">unikovka_rovnice.html</a>
+            </div>
+            <p class="desc-en">Interactive math escape-room about linear equations. 10 locks: one-step equations (add/subtract/multiply/divide), two-step equations, unknown on both sides, brackets (distributive law), fractions, and a word problem.</p>
+            <p class="desc-cs">Interaktivní únikovka z matematiky o lineárních rovnicích. 10 zámků: jednoduché rovnice (sčítání/odčítání/násobení/dělení), dvě operace, neznámá na obou stranách, závorky, zlomky a slovní úloha.</p>
+            <p class="meta">tags: math · rovnice · algebra · education · czech · interactive · 8.-9. třída</p>
+          </div>
+
           <!-- Add more <div class="project">…</div> blocks here as you ship things. -->
         </div>
 
@@ -282,5 +328,48 @@
       </div>
     </section>
   </main>
+<script>
+(function() {
+  const SHOW_TAGS = ['math','interactive','geometry','percenta','finance','trigonometry','rovnice','mocniny','pythagoras','algebra','odmocniny','pdf-archive','8.-9. třída','9. třída','6. třída','8. třída'];
+  const projects = document.querySelectorAll('.project');
+  const bar = document.getElementById('filter-bar');
+  const activeTagSpan = document.getElementById('active-tag');
+  if (!bar) return;
+
+  const allBtn = document.createElement('button');
+  allBtn.className = 'filter-tag active';
+  allBtn.textContent = '*';
+  allBtn.addEventListener('click', () => {
+    document.querySelectorAll('.filter-tag').forEach(b => b.classList.remove('active'));
+    allBtn.classList.add('active');
+    activeTagSpan.textContent = '*';
+    projects.forEach(p => p.classList.remove('hidden'));
+  });
+  bar.appendChild(allBtn);
+
+  const tagSet = new Set();
+  projects.forEach(p => {
+    const meta = p.querySelector('.meta');
+    if (!meta) return;
+    meta.textContent.replace('tags:', '').split('·').forEach(t => tagSet.add(t.trim()));
+  });
+
+  SHOW_TAGS.filter(t => tagSet.has(t)).forEach(tag => {
+    const btn = document.createElement('button');
+    btn.className = 'filter-tag';
+    btn.textContent = tag;
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.filter-tag').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      activeTagSpan.textContent = tag;
+      projects.forEach(p => {
+        const meta = p.querySelector('.meta');
+        p.classList.toggle('hidden', !(meta && meta.textContent.includes(tag)));
+      });
+    });
+    bar.appendChild(btn);
+  });
+})();
+</script>
 </body>
 </html>
