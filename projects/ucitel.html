@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pro učitele · Kódy únikovek</title>
+<meta name="robots" content="noindex">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#0b0f0a; --bg-window:#0f1410; --bg-chrome:#161c17;
+  --fg:#c8facc; --fg-dim:#6f8a72; --accent:#33ff7a; --amber:#ffb454;
+  --red:#ff5f56; --yellow:#ffbd2e; --green:#27c93f;
+  --border:#1f2a21; --shadow:0 0 40px rgba(51,255,122,.08),0 0 1px rgba(51,255,122,.2);
+  --mono:'JetBrains Mono',ui-monospace,'SF Mono',Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:14px;line-height:1.65;min-height:100vh;-webkit-font-smoothing:antialiased}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;background:repeating-linear-gradient(to bottom,rgba(255,255,255,.015) 0px,rgba(255,255,255,.015) 1px,transparent 1px,transparent 3px);z-index:1}
+body::after{content:"";position:fixed;inset:0;pointer-events:none;background:radial-gradient(ellipse at center,transparent 50%,rgba(0,0,0,.55) 100%);z-index:1}
+main{position:relative;z-index:2;max-width:820px;margin:0 auto;padding:40px 20px 80px}
+.terminal{background:var(--bg-window);border:1px solid var(--border);border-radius:8px;box-shadow:var(--shadow);overflow:hidden;margin-bottom:24px}
+.chrome{display:flex;align-items:center;gap:8px;padding:10px 14px;background:var(--bg-chrome);border-bottom:1px solid var(--border)}
+.dot{width:12px;height:12px;border-radius:50%;display:inline-block}
+.dot.r{background:var(--red)}.dot.y{background:var(--yellow)}.dot.g{background:var(--green)}
+.title{margin:0 auto;font-size:12px;color:var(--fg-dim);letter-spacing:.5px}
+.screen{padding:22px 22px 26px}
+.prompt{color:var(--accent)}
+.prompt .user{color:var(--accent)}
+.prompt .at{color:var(--fg-dim)}
+.prompt .host{color:var(--amber)}
+.prompt .path{color:var(--fg-dim)}
+.prompt .sym{color:var(--fg)}
+.cmd{color:var(--fg)}
+.out{color:var(--fg);margin:4px 0 14px}
+.dim{color:var(--fg-dim)}
+.accent{color:var(--accent)}
+.amber{color:var(--amber)}
+.warning{color:var(--amber);margin:0 0 12px;font-size:13px}
+a{color:var(--accent);text-decoration:none;border-bottom:1px dashed transparent;transition:border-color .15s,color .15s}
+a:hover{color:var(--amber);border-bottom-color:var(--amber)}
+
+.codes-table{width:100%;border-collapse:collapse;margin:10px 0}
+.codes-table th{text-align:left;padding:5px 12px 5px 0;color:var(--fg-dim);font-size:12px;font-weight:500;border-bottom:1px solid var(--border)}
+.codes-table td{padding:5px 12px 5px 0;font-size:13px;border-bottom:1px solid #131a14}
+.codes-table tr:last-child td{border-bottom:none}
+.codes-table .lock-num{color:var(--fg-dim);width:40px}
+.codes-table .lock-title{color:var(--fg)}
+.codes-table .lock-code{color:var(--accent);font-weight:700;font-size:1.05em;width:80px}
+.section-title{color:var(--amber);font-weight:700;font-size:13px;margin:0 0 10px}
+</style>
+</head>
+<body>
+<main>
+  <section class="terminal">
+    <header class="chrome">
+      <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+      <span class="title">vojta@konopa: ~/projects/ucitel</span>
+    </header>
+    <div class="screen">
+      <div><span class="prompt"><span class="user">vojta</span><span class="at">@</span><span class="host">konopa</span><span class="path">:~/projects</span><span class="sym">$</span></span> <span class="cmd">cat ucitel/kody.txt</span></div>
+      <p class="out dim"># Přehled kódů pro všechny únikovky — jen pro učitele. Nesdílejte se studenty.</p>
+      <p class="warning">⚠️  Tato stránka není odkazována z hlavního webu. Zadejte URL přímo nebo uložte do záložek.</p>
+    </div>
+  </section>
+
+  <section class="terminal">
+    <header class="chrome">
+      <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+      <span class="title">unikovka_procenta.html</span>
+    </header>
+    <div class="screen">
+      <p class="section-title">📊 Únikovka: Procenta &nbsp;<span class="dim">→</span> <a href="./unikovka_procenta.html">unikovka_procenta.html</a></p>
+      <table class="codes-table">
+        <tr><th>#</th><th>Téma zámku</th><th>Kód</th></tr>
+        <tr><td class="lock-num">1</td><td class="lock-title">Co je procento? (základní definice)</td><td class="lock-code">7</td></tr>
+        <tr><td class="lock-num">2</td><td class="lock-title">Procentová část (část ze základu)</td><td class="lock-code">130</td></tr>
+        <tr><td class="lock-num">3</td><td class="lock-title">Základ (výpočet základu)</td><td class="lock-code">110</td></tr>
+        <tr><td class="lock-num">4</td><td class="lock-title">Počet procent (p%)</td><td class="lock-code">245</td></tr>
+        <tr><td class="lock-num">5</td><td class="lock-title">Převody (zlomek ↔ procento ↔ desetinné číslo)</td><td class="lock-code">819</td></tr>
+        <tr><td class="lock-num">6</td><td class="lock-title">Zvýšení o procenta</td><td class="lock-code">15</td></tr>
+        <tr><td class="lock-num">7</td><td class="lock-title">Sleva (snížení o procenta)</td><td class="lock-code">315</td></tr>
+        <tr><td class="lock-num">8</td><td class="lock-title">Složené úlohy</td><td class="lock-code">20</td></tr>
+        <tr><td class="lock-num">9</td><td class="lock-title">Slovní úloha – procentová část</td><td class="lock-code">230</td></tr>
+        <tr><td class="lock-num">10</td><td class="lock-title">Finální výzva (smíšená)</td><td class="lock-code">129</td></tr>
+      </table>
+    </div>
+  </section>
+
+  <section class="terminal">
+    <header class="chrome">
+      <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+      <span class="title">unikovka_telesa.html</span>
+    </header>
+    <div class="screen">
+      <p class="section-title">📦 Únikovka: Tělesa (krychle &amp; kvádr) &nbsp;<span class="dim">→</span> <a href="./unikovka_telesa.html">unikovka_telesa.html</a></p>
+      <table class="codes-table">
+        <tr><th>#</th><th>Téma zámku</th><th>Kód</th></tr>
+        <tr><td class="lock-num">1</td><td class="lock-title">Co je těleso? (rovinný útvar vs těleso)</td><td class="lock-code">4</td></tr>
+        <tr><td class="lock-num">2</td><td class="lock-title">Vrcholy, hrany, stěny (8+12+6)</td><td class="lock-code">26</td></tr>
+        <tr><td class="lock-num">3</td><td class="lock-title">Krychle vs kvádr</td><td class="lock-code">4</td></tr>
+        <tr><td class="lock-num">4</td><td class="lock-title">Síť krychle (obvod stěny)</td><td class="lock-code">20</td></tr>
+        <tr><td class="lock-num">5</td><td class="lock-title">Síť kvádru (obsah stěny)</td><td class="lock-code">6</td></tr>
+        <tr><td class="lock-num">6</td><td class="lock-title">Součet hran krychle (12·a)</td><td class="lock-code">84</td></tr>
+        <tr><td class="lock-num">7</td><td class="lock-title">Součet hran kvádru (4·(a+b+c))</td><td class="lock-code">60</td></tr>
+        <tr><td class="lock-num">8</td><td class="lock-title">Povrch krychle (6·a²)</td><td class="lock-code">150</td></tr>
+        <tr><td class="lock-num">9</td><td class="lock-title">Povrch kvádru (2·(ab+bc+ac))</td><td class="lock-code">94</td></tr>
+        <tr><td class="lock-num">10</td><td class="lock-title">Objem krychle + kvádru (sečti)</td><td class="lock-code">88</td></tr>
+      </table>
+    </div>
+  </section>
+
+  <section class="terminal">
+    <header class="chrome">
+      <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+      <span class="title">unikovka_pythagoras.html</span>
+    </header>
+    <div class="screen">
+      <p class="section-title">📐 Únikovka: Pythagorova věta &nbsp;<span class="dim">→</span> <a href="./unikovka_pythagoras.html">unikovka_pythagoras.html</a></p>
+      <table class="codes-table">
+        <tr><th>#</th><th>Téma zámku</th><th>Kód</th></tr>
+        <tr><td class="lock-num">1</td><td class="lock-title">Úvod – trojice 3-4-5, přepona c</td><td class="lock-code">5</td></tr>
+        <tr><td class="lock-num">2</td><td class="lock-title">Výpočet přepony (a=6, b=8)</td><td class="lock-code">10</td></tr>
+        <tr><td class="lock-num">3</td><td class="lock-title">Pythagorovy trojice (a=5, b=12)</td><td class="lock-code">13</td></tr>
+        <tr><td class="lock-num">4</td><td class="lock-title">Výpočet odvěsny (c=17, b=15)</td><td class="lock-code">8</td></tr>
+        <tr><td class="lock-num">5</td><td class="lock-title">Odvěsna – trojice 7-24-25 (c=25, a=7)</td><td class="lock-code">24</td></tr>
+        <tr><td class="lock-num">6</td><td class="lock-title">Ověření pravoúhlosti (9-40-41)</td><td class="lock-code">41</td></tr>
+        <tr><td class="lock-num">7</td><td class="lock-title">Úhlopříčka obdélníku (9×12)</td><td class="lock-code">15</td></tr>
+        <tr><td class="lock-num">8</td><td class="lock-title">Výška rovnoramenného trojúhelníku (základ 18, rameno 15)</td><td class="lock-code">12</td></tr>
+        <tr><td class="lock-num">9</td><td class="lock-title">Žebřík (délka 25m, vzdálenost od zdi 24m)</td><td class="lock-code">7</td></tr>
+        <tr><td class="lock-num">10</td><td class="lock-title">Vzdálenost bodů A[0,0] a B[12,16]</td><td class="lock-code">20</td></tr>
+      </table>
+    </div>
+  </section>
+
+  <section class="terminal">
+    <header class="chrome">
+      <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+      <span class="title">unikovka_mocniny.html</span>
+    </header>
+    <div class="screen">
+      <p class="section-title">🔢 Únikovka: Mocniny a odmocniny &nbsp;<span class="dim">→</span> <a href="./unikovka_mocniny.html">unikovka_mocniny.html</a></p>
+      <table class="codes-table">
+        <tr><th>#</th><th>Téma zámku</th><th>Kód</th></tr>
+        <tr><td class="lock-num">1</td><td class="lock-title">Co je mocnina? (2⁴)</td><td class="lock-code">16</td></tr>
+        <tr><td class="lock-num">2</td><td class="lock-title">Druhá mocnina – čtverec (9²)</td><td class="lock-code">81</td></tr>
+        <tr><td class="lock-num">3</td><td class="lock-title">Třetí mocnina – krychle (5³)</td><td class="lock-code">125</td></tr>
+        <tr><td class="lock-num">4</td><td class="lock-title">Druhá odmocnina (√196)</td><td class="lock-code">14</td></tr>
+        <tr><td class="lock-num">5</td><td class="lock-title">Třetí odmocnina (∛216)</td><td class="lock-code">6</td></tr>
+        <tr><td class="lock-num">6</td><td class="lock-title">Nultá mocnina (3⁰+7⁰+11⁰+100⁰)</td><td class="lock-code">4</td></tr>
+        <tr><td class="lock-num">7</td><td class="lock-title">Součin mocnin – aᵐ·aⁿ = aᵐ⁺ⁿ (2³·2⁴)</td><td class="lock-code">128</td></tr>
+        <tr><td class="lock-num">8</td><td class="lock-title">Mocnina mocniny – (aᵐ)ⁿ = aᵐˣⁿ ((3²)³)</td><td class="lock-code">729</td></tr>
+        <tr><td class="lock-num">9</td><td class="lock-title">Podíl mocnin – aᵐ÷aⁿ = aᵐ⁻ⁿ (6⁵÷6³)</td><td class="lock-code">36</td></tr>
+        <tr><td class="lock-num">10</td><td class="lock-title">Smíšený výpočet (2⁵ + √225 − 4²)</td><td class="lock-code">31</td></tr>
+      </table>
+    </div>
+  </section>
+
+  <section class="terminal">
+    <header class="chrome">
+      <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+      <span class="title">unikovka_rovnice.html</span>
+    </header>
+    <div class="screen">
+      <p class="section-title">⚖️ Únikovka: Lineární rovnice &nbsp;<span class="dim">→</span> <a href="./unikovka_rovnice.html">unikovka_rovnice.html</a></p>
+      <table class="codes-table">
+        <tr><th>#</th><th>Téma zámku / rovnice</th><th>Kód (x)</th></tr>
+        <tr><td class="lock-num">1</td><td class="lock-title">x + 8 = 15</td><td class="lock-code">7</td></tr>
+        <tr><td class="lock-num">2</td><td class="lock-title">x − 11 = 5</td><td class="lock-code">16</td></tr>
+        <tr><td class="lock-num">3</td><td class="lock-title">4x = 32</td><td class="lock-code">8</td></tr>
+        <tr><td class="lock-num">4</td><td class="lock-title">x / 6 = 7</td><td class="lock-code">42</td></tr>
+        <tr><td class="lock-num">5</td><td class="lock-title">3x + 7 = 25</td><td class="lock-code">6</td></tr>
+        <tr><td class="lock-num">6</td><td class="lock-title">5x − 8 = 37</td><td class="lock-code">9</td></tr>
+        <tr><td class="lock-num">7</td><td class="lock-title">4x + 3 = 2x + 11 (neznámá na obou stranách)</td><td class="lock-code">4</td></tr>
+        <tr><td class="lock-num">8</td><td class="lock-title">3(2x − 1) = 27 (závorka)</td><td class="lock-code">5</td></tr>
+        <tr><td class="lock-num">9</td><td class="lock-title">x/3 + 4 = 10 (zlomek)</td><td class="lock-code">18</td></tr>
+        <tr><td class="lock-num">10</td><td class="lock-title">Slovní úloha: Jan + Petra, 48 samolepek, Petra 3× více</td><td class="lock-code">12</td></tr>
+      </table>
+    </div>
+  </section>
+
+  <section class="terminal">
+    <header class="chrome">
+      <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+      <span class="title">navigace</span>
+    </header>
+    <div class="screen">
+      <div><span class="prompt"><span class="user">vojta</span><span class="at">@</span><span class="host">konopa</span><span class="path">:~/projects</span><span class="sym">$</span></span> <span class="cmd">cd ..</span></div>
+      <p class="out"><a href="./">← zpět na projekty</a></p>
+    </div>
+  </section>
+</main>
+</body>
+</html>
