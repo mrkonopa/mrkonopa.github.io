@@ -198,36 +198,30 @@ table.tt tr:nth-child(even) td{background:#fafaf5}
 .top-bar a{color:var(--muted);text-decoration:none}
 .top-bar a:hover{color:var(--blue)}
 .top-bar .crumb{color:var(--text);font-weight:500}
+#lang-bar{position:fixed;bottom:16px;right:16px;z-index:200;display:flex;gap:6px}
+.lang-btn{background:#fff;border:1.5px solid #e0dbd0;border-radius:8px;
+  padding:4px 8px;font-size:1.1rem;cursor:pointer;transition:border-color .12s,box-shadow .12s;
+  line-height:1;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.lang-btn:hover{border-color:var(--blue);box-shadow:0 2px 8px rgba(26,115,200,.2)}
+.lang-btn.active{border-color:var(--blue);box-shadow:0 0 0 2px rgba(26,115,200,.25)}
 </style>
 </head>
 <body>
 
+<div id="lang-bar">
+  <button class="lang-btn active" data-lang="cs" onclick="setLang('cs')">&#x1F1E8;&#x1F1FF;</button>
+  <button class="lang-btn" data-lang="en" onclick="setLang('en')">&#x1F1EC;&#x1F1E7;</button>
+</div>
+
 <div class="top-bar">
-  <a href="./">← zpět na projekty</a>
+  <a href="./" class="tp-back">&#8592; zpět na projekty</a>
   <span class="crumb">/projects/unikovka_procenta</span>
-  <a href="/">domů</a>
+  <a href="/" class="tp-home">domů</a>
 </div>
 
 <!-- INTRO -->
 <div id="intro" class="screen active">
-  <div class="chest">🏴‍☠️</div>
-  <div class="title-main">Únikovka z matiky</div>
-  <div class="title-sub">⚡ PROCENTA ⚡</div>
-  <div class="intro-card">
-    <p>Před tebou je <b>truhla s pokladem</b> – uzamčena <b>10 zámky</b>.</p>
-    <p>Každý zámek se odemkne správným kódem. Výpočty dělej <b>do sešitu</b>, kód zadej sem.</p>
-    <p>Žádné kalkulačky – dnes přijdeš na to, jak procenta fungují <b>vlastní hlavou</b> 🧠</p>
-  </div>
-  <div class="rules">
-    <h3>📋 Pravidla</h3>
-    <ul>
-      <li><span>✏️</span> Výpočty piš do sešitu – každý příklad celý.</li>
-      <li><span>🚫</span> Bez kalkulačky, bez opisování.</li>
-      <li><span>💡</span> Nevíš? Zkus nápovědu – ale nejdřív se zamysli!</li>
-      <li><span>🔢</span> Kód zadej jako číslo (bez mezer, bez %).</li>
-    </ul>
-  </div>
-  <button class="btn-primary" id="btn-start">🔓 Začít dobrodružství!</button>
+  <div id="intro-content"></div>
 </div>
 
 <!-- GAME -->
@@ -245,176 +239,270 @@ table.tt tr:nth-child(even) td{background:#fafaf5}
 <!-- FINISH -->
 <div id="finish" class="screen">
   <div class="confetti-wrap" id="confetti"></div>
-  <div class="final-chest">🏆</div>
-  <div class="final-title">Poklad je tvůj!</div>
-  <p class="final-sub">Zvládl(a) jsi všech 10 zámků a pronikl(a) do tajemství procent. Gratulace!</p>
-  <div class="summary-card">
-    <h3>📖 Co jsi dnes objevil(a)</h3>
-    <div class="summary-row"><span class="s-icon">1️⃣</span><span>1 % = 1 setina celku = základ ÷ 100</span></div>
-    <div class="summary-row"><span class="s-icon">2️⃣</span><span>n % ze základu = (základ ÷ 100) × n</span></div>
-    <div class="summary-row"><span class="s-icon">3️⃣</span><span>Procento = zlomek = desetinné číslo (25 % = 25/100 = 0,25)</span></div>
-    <div class="summary-row"><span class="s-icon">4️⃣</span><span>Kolik procent? → část ÷ celek × 100</span></div>
-  </div>
-  <button class="btn-primary" id="btn-restart">🔄 Hrát znovu</button>
+  <div id="finish-content"></div>
 </div>
 
 <script>
-// Veškerý český text je přímo v UTF-8 – žádné HTML entity
+/* ─── i18n ───────────────────────────────────────────────────────────── */
+const LANG_KEY = 'unikovka_procenta_lang';
+let lang = localStorage.getItem(LANG_KEY) || 'cs';
+const i18n = (cs, en) => lang === 'en' ? en : cs;
+
+function setLang(l) {
+  lang = l;
+  try { localStorage.setItem(LANG_KEY, l); } catch(e) {}
+  document.querySelectorAll('.lang-btn').forEach(b =>
+    b.classList.toggle('active', b.dataset.lang === l));
+  document.querySelectorAll('.tp-back').forEach(el =>
+    el.textContent = i18n('← zpět na projekty', '← back to projects'));
+  document.querySelectorAll('.tp-home').forEach(el =>
+    el.textContent = i18n('domů', 'home'));
+  const activeId = document.querySelector('.screen.active')?.id;
+  if (activeId === 'intro') buildIntro();
+  else if (activeId === 'game') render(cur);
+  else if (activeId === 'finish') buildFinish();
+}
+
+function buildIntro() {
+  document.getElementById('intro-content').innerHTML = `
+    <div class="chest">🏴‍☠️</div>
+    <div class="title-main">${i18n('Únikovka z matiky','Math Escape Room')}</div>
+    <div class="title-sub">⚡ ${i18n('PROCENTA','PERCENTAGES')} ⚡</div>
+    <div class="intro-card">
+      <p>${i18n('Před tebou je <b>truhla s pokladem</b> – uzamčena <b>10 zámky</b>.','Before you lies a <b>treasure chest</b> – locked with <b>10 locks</b>.')}</p>
+      <p>${i18n('Každý zámek se odemkne správným kódem. Výpočty dělej <b>do sešitu</b>, kód zadej sem.','Each lock opens with the correct code. Do your calculations <b>in a notebook</b>, then enter the code here.')}</p>
+      <p>${i18n('Žádné kalkulаčky – dnes přijd eš na to, jak procenta fungují <b>vlastní hlavou</b> 🧠','No calculators – today you\'ll figure out how percentages work <b>on your own</b> 🧠')}</p>
+    </div>
+    <div class="rules">
+      <h3>📋 ${i18n('Pravidla','Rules')}</h3>
+      <ul>
+        <li><span>✏️</span> ${i18n('Výpočty piš do sešitu – každý příklad celý.','Write your calculations in a notebook – show every step.')}</li>
+        <li><span>🚫</span> ${i18n('Bez kalkulаčky, bez opisování.','No calculator, no copying.')}</li>
+        <li><span>💡</span> ${i18n('Nevíš? Zkus nápovědu – ale nejdřív se zamysli!','Stuck? Try a hint – but think first!')}</li>
+        <li><span>🔢</span> ${i18n('Kód zadej jako číslo (bez mezer, bez %).','Enter the code as a number (no spaces, no %).')}</li>
+      </ul>
+    </div>
+    <button class="btn-primary" id="btn-start">${i18n('🔓 Začít dobrodružství!','🔓 Start the adventure!')}</button>
+  `;
+  document.getElementById('btn-start').addEventListener('click', startGame);
+}
+
+function buildFinish() {
+  document.getElementById('finish-content').innerHTML = `
+    <div class="final-chest">🏆</div>
+    <div class="final-title">${i18n('Poklad je tvůj!','The treasure is yours!')}</div>
+    <p class="final-sub">${i18n('Zvládl(a) jsi všech 10 zámků a pronikl(a) do tajemství procent. Gratulace!','You cracked all 10 locks and unlocked the secrets of percentages. Congratulations!')}</p>
+    <div class="summary-card">
+      <h3>📖 ${i18n('Co jsi dnes objevil(a)','What you discovered today')}</h3>
+      <div class="summary-row"><span class="s-icon">1️⃣</span><span>${i18n('1 % = 1 setina celku = základ ÷ 100','1% = 1 hundredth of the whole = base ÷ 100')}</span></div>
+      <div class="summary-row"><span class="s-icon">2️⃣</span><span>${i18n('n % ze základu = (základ ÷ 100) × n','n% of base = (base ÷ 100) × n')}</span></div>
+      <div class="summary-row"><span class="s-icon">3️⃣</span><span>${i18n('Procento = zlomek = desetinné číslo (25 % = 25/100 = 0,25)','Percent = fraction = decimal (25% = 25/100 = 0.25)')}</span></div>
+      <div class="summary-row"><span class="s-icon">4️⃣</span><span>${i18n('Kolik procent? → část ÷ celek × 100','How many percent? → part ÷ whole × 100')}</span></div>
+    </div>
+    <button class="btn-primary" id="btn-restart">${i18n('🔄 Hrát znovu','🔄 Play again')}</button>
+  `;
+  document.getElementById('btn-restart').addEventListener('click', () => location.reload());
+}
+
 const STEPS = [
 {
   id:1, color:'blue', icon:'🔵',
-  title:'Zámek 1 – Co je to 1 %?',
-  tag:'Definice procenta', tagClass:'blue',
+  title:'Zámek 1 – Co je to 1 %?', title_en:'Lock 1 – What is 1%?',
+  tag:'Definice procenta', tag_en:'Definition of percent', tagClass:'blue',
   tasks:[
-    { title:'🧩 Objev to sám(a)',
-      body:'<p>Máš celý koláč rozdělený na <b>100 stejně velkých dílků</b>. Jeden dílek = <b>1 %</b>.</p><p>Vypočítej <b>1 % z každého čísla</b>:</p><table class="tt"><tr><th>Základ</th><th>200</th><th>500</th><th>1 000</th><th>4 000</th><th>300</th></tr><tr><td><b>1 %</b></td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr></table>',
-      hint:'💡 Jakým číslem musíš dělit, aby ses dostal(a) na 1 setinu? Zkus číslo 100.' },
-    { title:'🔢 Kód zámku',
+    { title:'🧩 Objev to sám(a)', title_en:'🧩 Discover it yourself',
+      body:'<p>Máš celý koláč rozdělený na <b>100 stejně velkých dílků</b>. Jeden dílek = <b>1 %</b>.</p><p>Vypočítej <b>1 % z každého čísla</b>:</p><table class="tt"><tr><th>Základ</th><th>200</th><th>500</th><th>1 000</th><th>4 000</th><th>300</th></tr><tr><td><b>1 %</b></td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr></table>',
+      body_en:'<p>You have a whole pie divided into <b>100 equal pieces</b>. One piece = <b>1%</b>.</p><p>Calculate <b>1% of each number</b>:</p><table class="tt"><tr><th>Base</th><th>200</th><th>500</th><th>1 000</th><th>4 000</th><th>300</th></tr><tr><td><b>1%</b></td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr></table>',
+      hint:'💡 Jakým číslem musíš dělit, aby ses dostal(a) na 1 setinu? Zkus číslo 100.',
+      hint_en:'💡 What number do you divide by to get one hundredth? Try 100.' },
+    { title:'🔢 Kód zámku', title_en:'🔢 Lock code',
       body:'<p>Vypočítej <b>1 % ze 700</b>. Výsledek je tvůj kód.</p>',
-      hint:'💡 700 ÷ 100 = ?' }
+      body_en:'<p>Calculate <b>1% of 700</b>. The result is your code.</p>',
+      hint:'💡 700 ÷ 100 = ?', hint_en:'💡 700 ÷ 100 = ?' }
   ],
   code:'7',
-  successMsg:'🔓 Správně! 1 % = základ ÷ 100. Zámek 1 otevřen!'
+  successMsg:'🔓 Správně! 1 % = základ ÷ 100. Zámek 1 otevřen!',
+  successMsg_en:'🔓 Correct! 1% = base ÷ 100. Lock 1 opened!'
 },
 {
   id:2, color:'green', icon:'🟢',
-  title:'Zámek 2 – Víc než 1 %',
-  tag:'Výpočet procentové části', tagClass:'green',
+  title:'Zámek 2 – Víc než 1 %', title_en:'Lock 2 – More than 1%',
+  tag:'Výpočet procentové části', tag_en:'Calculating a percentage part', tagClass:'green',
   tasks:[
-    { title:'🧩 Jak spočítat více procent',
+    { title:'🧩 Jak spočítat více procent', title_en:'🧩 How to calculate more percent',
       body:'<p>Víš již, jak spočítat 1 %. Jak spočítat <b>n %</b>?</p><table class="tt"><tr><th>Příklad</th><th>1. krok: 1 %</th><th>2. krok: n %</th></tr><tr><td><b>3 % z 200</b></td><td>1 % = 2</td><td>3 % = ?</td></tr><tr><td><b>25 % z 400</b></td><td>1 % = 4</td><td>25 % = ?</td></tr><tr><td><b>10 % z 80</b></td><td>1 % = ?</td><td>10 % = ?</td></tr></table>',
-      hint:'💡 Máš-li 1 %, třikrát ho vynásobíš pro 3 %, dvacetpětkrát pro 25 %.' },
-    { title:'🔢 Kód zámku',
+      body_en:'<p>You already know how to calculate 1%. How do you calculate <b>n%</b>?</p><table class="tt"><tr><th>Example</th><th>Step 1: 1%</th><th>Step 2: n%</th></tr><tr><td><b>3% of 200</b></td><td>1% = 2</td><td>3% = ?</td></tr><tr><td><b>25% of 400</b></td><td>1% = 4</td><td>25% = ?</td></tr><tr><td><b>10% of 80</b></td><td>1% = ?</td><td>10% = ?</td></tr></table>',
+      hint:'💡 Máš-li 1 %, třikrát ho vynásobíš pro 3 %, dvacetipětkrát pro 25 %.',
+      hint_en:'💡 If you have 1%, multiply it 3× for 3%, 25× for 25%.' },
+    { title:'🔢 Kód zámku', title_en:'🔢 Lock code',
       body:'<p>a) <b>5 % z 600</b> = ?</p><p>b) <b>20 % z 500</b> = ?</p><p>Kód = a + b</p>',
-      hint:'💡 a) 1 % ze 600 = 6, pak ×5. b) 1 % ze 500 = 5, pak ×20.' }
+      body_en:'<p>a) <b>5% of 600</b> = ?</p><p>b) <b>20% of 500</b> = ?</p><p>Code = a + b</p>',
+      hint:'💡 a) 1 % ze 600 = 6, pak ×5. b) 1 % ze 500 = 5, pak ×20.',
+      hint_en:'💡 a) 1% of 600 = 6, then ×5. b) 1% of 500 = 5, then ×20.' }
   ],
   code:'130',
-  successMsg:'🔓 Výborně! n % = 1 % × n. Zámek 2 otevřen!'
+  successMsg:'🔓 Výborně! n % = 1 % × n. Zámek 2 otevřen!',
+  successMsg_en:'🔓 Excellent! n% = 1% × n. Lock 2 opened!'
 },
 {
   id:3, color:'purple', icon:'🟣',
-  title:'Zámek 3 – Procenta zpaměti',
-  tag:'Počítání zpaměti', tagClass:'purple',
+  title:'Zámek 3 – Procenta zpaměti', title_en:'Lock 3 – Mental arithmetic',
+  tag:'Počítání zpaměti', tag_en:'Mental calculation', tagClass:'purple',
   tasks:[
-    { title:'🧩 Zpaměti!',
-      body:'<p>Vypočítej <b>zpaměti</b> a doplň tabulku:</p><table class="tt"><tr><th>Základ</th><th>300</th><th>250</th><th>4 000</th><th>600</th><th>500</th></tr><tr><td><b>1 %</b></td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr><tr><td><b>10 %</b></td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr></table>',
-      hint:'💡 10 % = základ ÷ 10.' },
-    { title:'🔢 Kód zámku',
+    { title:'🧩 Zpaměti!', title_en:'🧩 In your head!',
+      body:'<p>Vypočítej <b>zpaměti</b> a doplň tabulku:</p><table class="tt"><tr><th>Základ</th><th>300</th><th>250</th><th>4 000</th><th>600</th><th>500</th></tr><tr><td><b>1 %</b></td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr><tr><td><b>10 %</b></td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr></table>',
+      body_en:'<p>Calculate <b>mentally</b> and fill in the table:</p><table class="tt"><tr><th>Base</th><th>300</th><th>250</th><th>4 000</th><th>600</th><th>500</th></tr><tr><td><b>1%</b></td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr><tr><td><b>10%</b></td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr></table>',
+      hint:'💡 10 % = základ ÷ 10.', hint_en:'💡 10% = base ÷ 10.' },
+    { title:'🔢 Kód zámku', title_en:'🔢 Lock code',
       body:'<p>Vypočítej zpaměti:<br><b>2 % z 500</b> = a<br><b>50 % z 200</b> = b<br>Kód = a + b</p>',
-      hint:'💡 50 % = polovina celku.' }
+      body_en:'<p>Calculate mentally:<br><b>2% of 500</b> = a<br><b>50% of 200</b> = b<br>Code = a + b</p>',
+      hint:'💡 50 % = polovina celku.', hint_en:'💡 50% = half of the whole.' }
   ],
   code:'110',
-  successMsg:'🔓 Přesně! 10 + 100 = 110. Zámek 3 otevřen!'
+  successMsg:'🔓 Přesně! 10 + 100 = 110. Zámek 3 otevřen!',
+  successMsg_en:'🔓 Exactly! 10 + 100 = 110. Lock 3 opened!'
 },
 {
-  id:4, color:'teal', icon:'🩵',
-  title:'Zámek 4 – Tři zápisy',
-  tag:'Procento = zlomek = des. číslo', tagClass:'teal',
+  id:4, color:'teal', icon:'💙',
+  title:'Zámek 4 – Tři zápisy', title_en:'Lock 4 – Three notations',
+  tag:'Procento = zlomek = des. číslo', tag_en:'Percent = fraction = decimal', tagClass:'teal',
   tasks:[
-    { title:'🧩 Tři způsoby, jak zapsat totéž',
+    { title:'🧩 Tři způsoby, jak zapsat totéž', title_en:'🧩 Three ways to write the same thing',
       body:'<p>Vzor: <b>25 % = 25/100 = 0,25</b></p><table class="tt"><tr><th>Procenta</th><th>Zlomek</th><th>Des. číslo</th></tr><tr><td><b>50 %</b></td><td>50/100</td><td>&nbsp;</td></tr><tr><td>&nbsp;</td><td>7/100</td><td>0,07</td></tr><tr><td><b>3 %</b></td><td>&nbsp;</td><td>&nbsp;</td></tr><tr><td><b>150 %</b></td><td>&nbsp;</td><td>&nbsp;</td></tr><tr><td><b>200 %</b></td><td>&nbsp;</td><td>&nbsp;</td></tr></table>',
-      hint:'💡 Desetinné číslo: přesuň desetinnou čárku o 2 místa doleva. 150 % = 1,50.' },
-    { title:'🔢 Kód zámku',
+      body_en:'<p>Example: <b>25% = 25/100 = 0.25</b></p><table class="tt"><tr><th>Percent</th><th>Fraction</th><th>Decimal</th></tr><tr><td><b>50%</b></td><td>50/100</td><td>&nbsp;</td></tr><tr><td>&nbsp;</td><td>7/100</td><td>0.07</td></tr><tr><td><b>3%</b></td><td>&nbsp;</td><td>&nbsp;</td></tr><tr><td><b>150%</b></td><td>&nbsp;</td><td>&nbsp;</td></tr><tr><td><b>200%</b></td><td>&nbsp;</td><td>&nbsp;</td></tr></table>',
+      hint:'💡 Desetinné číslo: přesunň desetinnou čárku o 2 místa doleva. 150 % = 1,50.',
+      hint_en:'💡 Decimal: move the decimal point 2 places left. 150% = 1.50.' },
+    { title:'🔢 Kód zámku', title_en:'🔢 Lock code',
       body:'<p>Převeď na desetinné číslo:<br>a) <b>40 %</b> = ? &nbsp; b) <b>5 %</b> = ? &nbsp; c) <b>200 %</b> = ?</p><p>Kód = (a + b + c) × 100 &nbsp;(zadej jako celé číslo)</p>',
-      hint:'💡 40 % = 0,40; 5 % = 0,05; 200 % = 2,00. Součet = 2,45, pak ×100.' }
+      body_en:'<p>Convert to decimal:<br>a) <b>40%</b> = ? &nbsp; b) <b>5%</b> = ? &nbsp; c) <b>200%</b> = ?</p><p>Code = (a + b + c) × 100 &nbsp;(enter as whole number)</p>',
+      hint:'💡 40 % = 0,40; 5 % = 0,05; 200 % = 2,00. Součet = 2,45, pak ×100.',
+      hint_en:'💡 40%=0.40; 5%=0.05; 200%=2.00. Sum=2.45, then ×100.' }
   ],
   code:'245',
-  successMsg:'🔓 Správně! Součet 2,45 × 100 = 245. Zámek 4 otevřen!'
+  successMsg:'🔓 Správně! Součet 2,45 × 100 = 245. Zámek 4 otevřen!',
+  successMsg_en:'🔓 Correct! Sum 2.45 × 100 = 245. Lock 4 opened!'
 },
 {
   id:5, color:'orange', icon:'🟠',
-  title:'Zámek 5 – Zlomek → procento',
-  tag:'Převody zlomek → %', tagClass:'orange',
+  title:'Zámek 5 – Zlomek → procento', title_en:'Lock 5 – Fraction → percent',
+  tag:'Převody zlomek → %', tag_en:'Converting fraction → %', tagClass:'orange',
   tasks:[
-    { title:'🧩 Zlomek vyjádři v procentech',
+    { title:'🧩 Zlomek vyjádři v procentech', title_en:'🧩 Express a fraction as percent',
       body:'<p>Vzor: 31/100 = <b>31 %</b></p><p>Vypočítej:</p><table class="tt"><tr><th>Zlomek</th><th>64/100</th><th>125/100</th><th>24/100</th><th>350/100</th><th>4/100</th></tr><tr><td><b>%</b></td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr></table>',
-      hint:'💡 Číslo v čitateli = počet procent.' },
-    { title:'🔢 Kód zámku',
+      body_en:'<p>Example: 31/100 = <b>31%</b></p><p>Calculate:</p><table class="tt"><tr><th>Fraction</th><th>64/100</th><th>125/100</th><th>24/100</th><th>350/100</th><th>4/100</th></tr><tr><td><b>%</b></td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr></table>',
+      hint:'💡 Číslo v čitateli = počet procent.',
+      hint_en:'💡 The numerator = the percentage.' },
+    { title:'🔢 Kód zámku', title_en:'🔢 Lock code',
       body:'<p>Vyjádři v procentech:<br>a) <b>119/100</b> = ? &nbsp; b) <b>700/100</b> = ?</p><p>Kód = a + b</p>',
-      hint:'💡 119/100 = 119 %, 700/100 = 700 %.' }
+      body_en:'<p>Express as percent:<br>a) <b>119/100</b> = ? &nbsp; b) <b>700/100</b> = ?</p><p>Code = a + b</p>',
+      hint:'💡 119/100 = 119 %, 700/100 = 700 %.',
+      hint_en:'💡 119/100 = 119%, 700/100 = 700%.' }
   ],
   code:'819',
-  successMsg:'🔓 Správně! 119 + 700 = 819. Zámek 5 otevřen!'
+  successMsg:'🔓 Správně! 119 + 700 = 819. Zámek 5 otevřen!',
+  successMsg_en:'🔓 Correct! 119 + 700 = 819. Lock 5 opened!'
 },
 {
-  id:6, color:'pink', icon:'🩷',
-  title:'Zámek 6 – Vybarvování',
-  tag:'Procento jako část celku', tagClass:'pink',
+  id:6, color:'pink', icon:'🪷',
+  title:'Zámek 6 – Vybarvování', title_en:'Lock 6 – Shading',
+  tag:'Procento jako část celku', tag_en:'Percent as part of the whole', tagClass:'pink',
   tasks:[
-    { title:'🧩 Procento a grafické znázornění',
-      body:'<p>Do sešitu nakresli obdélník z 10 čtverečků (1 řada) a vybarvuj:</p><p>a) 10 % – kolik čtverečků?</p><p>b) 40 % – kolik čtverečků?</p><p>c) 100 % – kolik čtverečků?</p>',
-      hint:'💡 10 % z 10 čtverečků = 1 čtvereček.' },
-    { title:'🔢 Kód zámku',
-      body:'<p>Obdélník má <b>20 čtverečků</b>:<br>a) 50 % = kolik čtverečků?<br>b) 25 % = kolik čtverečků?</p><p>Kód = a + b</p>',
-      hint:'💡 50 % z 20 = 10. 25 % z 20 = 5.' }
+    { title:'🧩 Procento a grafické znázornění', title_en:'🧩 Percent and visual representation',
+      body:'<p>Do sešitu nakresli obdélník z 10 čtverecek (1 řada) a vybarv uj:</p><p>a) 10 % – kolik čtverecek?</p><p>b) 40 % – kolik čtverecek?</p><p>c) 100 % – kolik čtverecek?</p>',
+      body_en:'<p>In your notebook, draw a rectangle with 10 squares (1 row) and shade:</p><p>a) 10% – how many squares?</p><p>b) 40% – how many squares?</p><p>c) 100% – how many squares?</p>',
+      hint:'💡 10 % z 10 čtverecek = 1 čtvereček.',
+      hint_en:'💡 10% of 10 squares = 1 square.' },
+    { title:'🔢 Kód zámku', title_en:'🔢 Lock code',
+      body:'<p>Obdélník má <b>20 čtverecek</b>:<br>a) 50 % = kolik čtverecek?<br>b) 25 % = kolik čtverecek?</p><p>Kód = a + b</p>',
+      body_en:'<p>A rectangle has <b>20 squares</b>:<br>a) 50% = how many squares?<br>b) 25% = how many squares?</p><p>Code = a + b</p>',
+      hint:'💡 50 % z 20 = 10. 25 % z 20 = 5.',
+      hint_en:'💡 50% of 20 = 10. 25% of 20 = 5.' }
   ],
   code:'15',
-  successMsg:'🔓 Správně! 10 + 5 = 15. Zámek 6 otevřen!'
+  successMsg:'🔓 Správně! 10 + 5 = 15. Zámek 6 otevřen!',
+  successMsg_en:'🔓 Correct! 10 + 5 = 15. Lock 6 opened!'
 },
 {
   id:7, color:'indigo', icon:'🔷',
-  title:'Zámek 7 – Des. číslo → procento',
-  tag:'Převod des. čísla na %', tagClass:'indigo',
+  title:'Zámek 7 – Des. číslo → procento', title_en:'Lock 7 – Decimal → percent',
+  tag:'Převod des. čísla na %', tag_en:'Converting decimal to %', tagClass:'indigo',
   tasks:[
-    { title:'🧩 Z desetinného čísla na procenta',
+    { title:'🧩 Z desetinného čísla na procenta', title_en:'🧩 From decimal to percent',
       body:'<p>Vzor: 0,25 = 25/100 = <b>25 %</b></p><p>Pravidlo: desetinné číslo × 100 = počet procent</p><table class="tt"><tr><th>Des. číslo</th><th>0,01</th><th>0,03</th><th>0,25</th><th>0,18</th><th>0,95</th><th>1,25</th></tr><tr><td><b>%</b></td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr></table>',
-      hint:'💡 Desetinné číslo × 100 = přesuň čárku o 2 místa doprava.' },
-    { title:'🔢 Kód zámku',
+      body_en:'<p>Example: 0.25 = 25/100 = <b>25%</b></p><p>Rule: decimal × 100 = percentage</p><table class="tt"><tr><th>Decimal</th><th>0.01</th><th>0.03</th><th>0.25</th><th>0.18</th><th>0.95</th><th>1.25</th></tr><tr><td><b>%</b></td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr></table>',
+      hint:'💡 Desetinné číslo × 100 = přesunň čárku o 2 místa doprava.',
+      hint_en:'💡 Decimal × 100 = move the point 2 places right.' },
+    { title:'🔢 Kód zámku', title_en:'🔢 Lock code',
       body:'<p>Převeď a sečti:<br>a) <b>0,75</b> = ? &nbsp; b) <b>2,4</b> = ?</p><p>Kód = a + b</p>',
-      hint:'💡 0,75 × 100 = 75; 2,4 × 100 = 240.' }
+      body_en:'<p>Convert and add:<br>a) <b>0.75</b> = ? &nbsp; b) <b>2.4</b> = ?</p><p>Code = a + b</p>',
+      hint:'💡 0,75 × 100 = 75; 2,4 × 100 = 240.',
+      hint_en:'💡 0.75 × 100 = 75; 2.4 × 100 = 240.' }
   ],
   code:'315',
-  successMsg:'🔓 Přesně! 75 + 240 = 315. Zámek 7 otevřen!'
+  successMsg:'🔓 Přesně! 75 + 240 = 315. Zámek 7 otevřen!',
+  successMsg_en:'🔓 Exactly! 75 + 240 = 315. Lock 7 opened!'
 },
 {
   id:8, color:'rose', icon:'🌹',
-  title:'Zámek 8 – Kolik procent?',
-  tag:'Počet procent', tagClass:'rose',
+  title:'Zámek 8 – Kolik procent?', title_en:'Lock 8 – How many percent?',
+  tag:'Počet procent', tag_en:'Number of percent', tagClass:'rose',
   tasks:[
-    { title:'🧩 Kolik procent je část z celku?',
+    { title:'🧩 Kolik procent je část z celku?', title_en:'🧩 What percentage is the part of the whole?',
       body:'<p>Vzorec: <b>část ÷ celek × 100 = počet %</b></p><p>Procvič:</p><table class="tt"><tr><th>Část</th><th>Celek</th><th>Kolik %?</th></tr><tr><td>1</td><td>100</td><td>&nbsp;</td></tr><tr><td>25</td><td>100</td><td>&nbsp;</td></tr><tr><td>3</td><td>300</td><td>&nbsp;</td></tr><tr><td>40</td><td>200</td><td>&nbsp;</td></tr><tr><td>32</td><td>800</td><td>&nbsp;</td></tr></table>',
-      hint:'💡 Např. 3 ze 300: 3 ÷ 300 = 0,01 → × 100 = 1 %.' },
-    { title:'🔢 Kód zámku',
+      body_en:'<p>Formula: <b>part ÷ whole × 100 = percentage</b></p><p>Practice:</p><table class="tt"><tr><th>Part</th><th>Whole</th><th>How many %?</th></tr><tr><td>1</td><td>100</td><td>&nbsp;</td></tr><tr><td>25</td><td>100</td><td>&nbsp;</td></tr><tr><td>3</td><td>300</td><td>&nbsp;</td></tr><tr><td>40</td><td>200</td><td>&nbsp;</td></tr><tr><td>32</td><td>800</td><td>&nbsp;</td></tr></table>',
+      hint:'💡 Např. 3 ze 300: 3 ÷ 300 = 0,01 → × 100 = 1 %.',
+      hint_en:'💡 E.g. 3 out of 300: 3 ÷ 300 = 0.01 → × 100 = 1%.' },
+    { title:'🔢 Kód zámku', title_en:'🔢 Lock code',
       body:'<p>Ve třídě je <b>30 žáků</b>. <b>6</b> zapomnělo sešit.</p><p>Kolik procent žáků zapomnělo?</p><p>Kód = výsledek (bez %)</p>',
-      hint:'💡 6 ÷ 30 × 100 = ?' }
+      body_en:'<p>A class has <b>30 students</b>. <b>6</b> forgot their notebook.</p><p>What percentage of students forgot?</p><p>Code = result (without %)</p>',
+      hint:'💡 6 ÷ 30 × 100 = ?', hint_en:'💡 6 ÷ 30 × 100 = ?' }
   ],
   code:'20',
-  successMsg:'🔓 Správně! 6 ÷ 30 × 100 = 20 %. Zámek 8 otevřen!'
+  successMsg:'🔓 Správně! 6 ÷ 30 × 100 = 20 %. Zámek 8 otevřen!',
+  successMsg_en:'🔓 Correct! 6 ÷ 30 × 100 = 20%. Lock 8 opened!'
 },
 {
-  id:9, color:'cyan', icon:'🩵',
-  title:'Zámek 9 – Slovní úloha',
-  tag:'Slovní úloha – mix', tagClass:'cyan',
+  id:9, color:'cyan', icon:'💙',
+  title:'Zámek 9 – Slovní úloha', title_en:'Lock 9 – Word problem',
+  tag:'Slovní úloha – mix', tag_en:'Word problem – mix', tagClass:'cyan',
   tasks:[
-    { title:'🧩 Počtárna v obchodě',
-      body:'<p>Vypočítej každou úlohu do sešitu.</p><p>a) V obchodě bylo <b>400 výrobků</b>. Prodali <b>30 %</b>. Kolik výrobků prodali?</p><p>b) Cena tričku je <b>500 Kč</b>. Sleva činí <b>20 %</b>. Kolik korun stojí sleva?</p><p>c) Každý žák má <b>1 % z 1 000 bodů</b> na začátku roku. Kolik bodů má?</p>',
-      hint:'💡 Postup: 1 % ze základu, pak vynásob počtem procent.' },
-    { title:'🔢 Kód zámku',
+    { title:'🧩 Počtárna v obchodě', title_en:'🧩 Calculations in a shop',
+      body:'<p>Vypočítej každou úlohu do sešitu.</p><p>a) V obchodě bylo <b>400 výrobků</b>. Prodali <b>30 %</b>. Kolik výrobků prodali?</p><p>b) Cena tričku je <b>500 Kč</b>. Sleva činí <b>20 %</b>. Kolik korun stojí sleva?</p><p>c) Každý žák má <b>1 % z 1 000 bodů</b> na začátku roku. Kolik bodů má?</p>',
+      body_en:'<p>Calculate each problem in your notebook.</p><p>a) A shop had <b>400 items</b>. They sold <b>30%</b>. How many items did they sell?</p><p>b) A T-shirt costs <b>500 CZK</b>. The discount is <b>20%</b>. How much is the discount?</p><p>c) Every student gets <b>1% of 1 000 points</b> at the start of the year. How many points do they get?</p>',
+      hint:'💡 Postup: 1 % ze základu, pak vynásob počtem procent.',
+      hint_en:'💡 Method: find 1% of the base, then multiply by the percentage.' },
+    { title:'🔢 Kód zámku', title_en:'🔢 Lock code',
       body:'<p>Kód = součet výsledků a + b + c</p>',
-      hint:'💡 a) 120, b) 100, c) 10. Součet = ?' }
+      body_en:'<p>Code = sum of results a + b + c</p>',
+      hint:'💡 a) 120, b) 100, c) 10. Součet = ?',
+      hint_en:'💡 a) 120, b) 100, c) 10. Sum = ?' }
   ],
   code:'230',
-  successMsg:'🔓 Skvostně! 120 + 100 + 10 = 230. Zámek 9 otevřen!'
+  successMsg:'🔓 Skvostně! 120 + 100 + 10 = 230. Zámek 9 otevřen!',
+  successMsg_en:'🔓 Brilliant! 120 + 100 + 10 = 230. Lock 9 opened!'
 },
 {
   id:10, color:'gold', icon:'🏆',
-  title:'Zámek 10 – Finále!',
-  tag:'Komplexní úloha', tagClass:'gold',
+  title:'Zámek 10 – Finále!', title_en:'Lock 10 – Final!',
+  tag:'Komplexní úloha', tag_en:'Complex problem', tagClass:'gold',
   tasks:[
-    { title:'🏆 Poslední výzva',
+    { title:'🏆 Poslední výzva', title_en:'🏆 Final challenge',
       body:'<p>Tyto úlohy spojují vše, co jsi dnes naučil(a).</p><p>a) Vypočítej: <b>150 % ze 40</b></p><p>b) V týmu je 25 hráčů. 8 je zraněných. Kolik procent je zraněno? (zaokrouhli na celé %)</p><p>c) Převeď <b>0,37</b> na procenta.</p>',
-      hint:'💡 a) 150 % = 1,5 × 40 = 60. b) 8 ÷ 25 × 100 = 32. c) 0,37 × 100 = 37.' },
-    { title:'🔢 Finální kód',
+      body_en:'<p>These problems combine everything you\'ve learned today.</p><p>a) Calculate: <b>150% of 40</b></p><p>b) A team has 25 players. 8 are injured. What percentage are injured? (round to whole %)</p><p>c) Convert <b>0.37</b> to a percentage.</p>',
+      hint:'💡 a) 150 % = 1,5 × 40 = 60. b) 8 ÷ 25 × 100 = 32. c) 0,37 × 100 = 37.',
+      hint_en:'💡 a) 150% = 1.5 × 40 = 60. b) 8 ÷ 25 × 100 = 32. c) 0.37 × 100 = 37.' },
+    { title:'🔢 Finální kód', title_en:'🔢 Final code',
       body:'<p>Kód = součet a + b + c</p><p>Zadej výsledek a otevři poslední zámek!</p>',
-      hint:'💡 60 + 32 + 37 = ?' }
+      body_en:'<p>Code = sum a + b + c</p><p>Enter the result and open the last lock!</p>',
+      hint:'💡 60 + 32 + 37 = ?', hint_en:'💡 60 + 32 + 37 = ?' }
   ],
   code:'129',
-  successMsg:'🏆 BRAVO! Všech 10 zámků otevřeno! Poklad je tvůj!'
+  successMsg:'🏆 BRAVO! Všech 10 zámků otevřeno! Poklad je tvůj!',
+  successMsg_en:'🏆 BRAVO! All 10 locks opened! The treasure is yours!'
 }
 ];
 
-/* Progresivní nápověda ke kódu zámku — 3 úrovně (L1 směr → L2 vzorec → L3 výsledek) */
-const CODE_HINTS = {
+const CODE_HINTS_CS = {
   1: ['Tahle úloha se ptá: 1 % ze 700. Jakou operací dostaneš jednu setinu?', '1 % = základ ÷ 100. Tedy 700 ÷ 100 = ?', '700 ÷ 100 = 7. Kód: <b>7</b>.'],
   2: ['Najdi 1 % pro každé číslo, vynásob počtem procent, pak sečti.', 'a) 1 % ze 600 = 6, ×5 = 30. b) 1 % ze 500 = 5, ×20 = 100.', '30 + 100 = <b>130</b>.'],
   3: ['Najdi 1 % a vynásob, nebo využij fintu — 50 % je polovina.', 'a) 2 % z 500 = 10. b) 50 % z 200 = polovina = 100.', '10 + 100 = <b>110</b>.'],
@@ -423,8 +511,20 @@ const CODE_HINTS = {
   6: ['50 % je polovina celku, 25 % je čtvrtina. Spočítej obě a sečti.', 'a) 50 % z 20 = 10. b) 25 % z 20 = 5.', '10 + 5 = <b>15</b>.'],
   7: ['Desetinné číslo × 100 = procenta. Posuň čárku o 2 místa doprava.', '0,75 × 100 = 75. 2,4 × 100 = 240.', '75 + 240 = <b>315</b>.'],
   8: ['Vzorec: <b>část ÷ celek × 100 = počet procent</b>.', '6 ÷ 30 × 100 = ?', '6 ÷ 30 × 100 = <b>20</b> %.'],
-  9: ['Tři úlohy — spočítej procentovou část v každé a sečti.', 'a) 30 % ze 400 = 120. b) 20 % z 500 = 100. c) 1 % z 1 000 = 10.', '120 + 100 + 10 = <b>230</b>.'],
+  9: ['Tři úlohy — spočítej procentovou část v každé a sečti.', 'a) 30 % ze 400 = 120. b) 20 % z 500 = 100. c) 1 % z 1 000 = 10.', '120 + 100 + 10 = <b>230</b>.'],
   10: ['Tři úlohy najednou: procentová část, počet procent, převod desetinného čísla.', 'a) 150 % ze 40 = 60. b) 8 ÷ 25 × 100 = 32. c) 0,37 × 100 = 37.', '60 + 32 + 37 = <b>129</b>.'],
+};
+const CODE_HINTS_EN = {
+  1: ['This problem asks: 1% of 700. What operation gives you one hundredth?', '1% = base ÷ 100. So 700 ÷ 100 = ?', '700 ÷ 100 = 7. Code: <b>7</b>.'],
+  2: ['Find 1% for each number, multiply by the percentage, then add up.', 'a) 1% of 600 = 6, ×5 = 30. b) 1% of 500 = 5, ×20 = 100.', '30 + 100 = <b>130</b>.'],
+  3: ['Find 1% and multiply, or use the shortcut — 50% is half.', 'a) 2% of 500 = 10. b) 50% of 200 = half = 100.', '10 + 100 = <b>110</b>.'],
+  4: ['Percent → decimal: move the point 2 places left. Then add up and ×100.', '40%=0.40; 5%=0.05; 200%=2.00. Add them up.', '0.40 + 0.05 + 2.00 = 2.45. ×100 = <b>245</b>.'],
+  5: ['With a fraction X/100, the numerator directly = percentage.', '119/100 = 119%. 700/100 = 700%. Add them up.', '119 + 700 = <b>819</b>.'],
+  6: ['50% is half the whole, 25% is a quarter. Calculate both and add up.', 'a) 50% of 20 = 10. b) 25% of 20 = 5.', '10 + 5 = <b>15</b>.'],
+  7: ['Decimal × 100 = percentage. Move the point 2 places right.', '0.75 × 100 = 75. 2.4 × 100 = 240.', '75 + 240 = <b>315</b>.'],
+  8: ['Formula: <b>part ÷ whole × 100 = percentage</b>.', '6 ÷ 30 × 100 = ?', '6 ÷ 30 × 100 = <b>20</b>%.'],
+  9: ['Three problems — calculate the percentage part for each and add up.', 'a) 30% of 400 = 120. b) 20% of 500 = 100. c) 1% of 1 000 = 10.', '120 + 100 + 10 = <b>230</b>.'],
+  10: ['Three problems: percentage part, number of percent, converting a decimal.', 'a) 150% of 40 = 60. b) 8 ÷ 25 × 100 = 32. c) 0.37 × 100 = 37.', '60 + 32 + 37 = <b>129</b>.'],
 };
 
 let codeHintLevel = 0;
@@ -432,34 +532,36 @@ let codeHintLevel = 0;
 function advanceCodeHint() {
   if (codeHintLevel >= 3) return;
   codeHintLevel++;
-  const hints = CODE_HINTS[STEPS[cur].id] || ['Přečti si pozorně postup nahoře.', 'Postupně spočítej, co se ptají.', 'Výsledek vyplyne z výpočtu.'];
+  const CODE_HINTS = lang === 'en' ? CODE_HINTS_EN : CODE_HINTS_CS;
+  const fallback = i18n(
+    ['Čti si pozorně postup nahoře.', 'Postupně spočítej, co se ptá.', 'Výsledek vyplyne z výpočtu.'],
+    ['Read the instructions above carefully.', 'Work through the problem step by step.', 'The result follows from the calculation.']
+  );
+  const hints = CODE_HINTS[STEPS[cur].id] || fallback;
   const box = document.getElementById('ch-box');
   const btn = document.getElementById('ch-btn');
   const counter = document.getElementById('ch-counter');
   if (!box || !btn) return;
   box.classList.add('show');
   box.dataset.level = codeHintLevel;
-  const labels = ['Nasměrování', 'Vzorec', 'Postup s výsledkem'];
-  box.innerHTML = `<span class="h-label">Nápověda ${codeHintLevel}/3 — ${labels[codeHintLevel-1]}</span>${hints[codeHintLevel - 1]}`;
+  const labels = i18n(['Nasměrování','Vzorec','Postup s výsledkem'],['Direction','Formula','Solution steps']);
+  box.innerHTML = `<span class="h-label">${i18n('Nápověda','Hint')} ${codeHintLevel}/3 — ${labels[codeHintLevel-1]}</span>${hints[codeHintLevel-1]}`;
   if (counter) {
-    counter.querySelectorAll('.dot').forEach((d, i) => {
+    counter.querySelectorAll('.dot').forEach((d,i) => {
       d.classList.toggle('shown', i < codeHintLevel);
       if (i === 2 && codeHintLevel === 3) d.classList.add('warn');
     });
   }
   if (codeHintLevel < 3) {
-    btn.textContent = `💡 Další nápověda ${codeHintLevel+1}/3`;
+    btn.textContent = i18n(`💡 Další nápověda ${codeHintLevel+1}/3`, `💡 Next hint ${codeHintLevel+1}/3`);
   } else {
     btn.disabled = true;
-    btn.textContent = '💡 Všechny nápovědy ukázány';
+    btn.textContent = i18n('💡 Všechny nápovědy ukázány','💡 All hints shown');
   }
 }
 
 let cur = 0;
 let att = new Array(STEPS.length).fill(0);
-
-document.getElementById('btn-start').addEventListener('click', startGame);
-document.getElementById('btn-restart').addEventListener('click', () => location.reload());
 
 function startGame() {
   document.getElementById('intro').classList.remove('active');
@@ -473,7 +575,7 @@ function render(idx) {
   cur = idx;
   codeHintLevel = 0;
   const s = STEPS[idx];
-  document.getElementById('prog-label').textContent = `Zámek ${idx+1} z ${STEPS.length}`;
+  document.getElementById('prog-label').textContent = i18n(`Zámek ${idx+1} z ${STEPS.length}`,`Lock ${idx+1} of ${STEPS.length}`);
   document.getElementById('prog-fill').style.width = `${(idx / STEPS.length) * 100}%`;
   for (let i = 0; i < STEPS.length; i++) {
     const el = document.getElementById(`s${i}`);
@@ -481,38 +583,38 @@ function render(idx) {
   }
 
   const colorMap = {
-    blue:'--blue', green:'--green', purple:'--purple', teal:'--teal',
-    orange:'--orange', pink:'--pink', indigo:'--indigo', rose:'--rose',
-    cyan:'--cyan', gold:'--gold-dark'
+    blue:'--blue',green:'--green',purple:'--purple',teal:'--teal',
+    orange:'--orange',pink:'--pink',indigo:'--indigo',rose:'--rose',
+    cyan:'--cyan',gold:'--gold-dark'
   };
   const cv = colorMap[s.color] || '--blue';
 
   const tasksHTML = s.tasks.map(t => `
     <div class="task-card ${s.color}">
-      <span class="tag ${s.tagClass}">${s.tag}</span>
-      <h3>${t.title}</h3>
-      ${t.body}
-      <button class="hint-btn" onclick="toggleHint(this)">💡 Potřebuji nápovědu</button>
-      <div class="hint-box">${t.hint}</div>
+      <span class="tag ${s.tagClass}">${i18n(s.tag, s.tag_en)}</span>
+      <h3>${i18n(t.title, t.title_en)}</h3>
+      ${i18n(t.body, t.body_en)}
+      <button class="hint-btn" onclick="toggleHint(this)">${i18n('💡 Potřebuji nápovědu','💡 I need a hint')}</button>
+      <div class="hint-box">${i18n(t.hint, t.hint_en)}</div>
     </div>
   `).join('');
 
   document.getElementById('step-container').innerHTML = `
     <div class="lock-header">
       <span class="lock-icon-big">${s.icon}</span>
-      <span class="lock-title" style="color:var(${cv})">${s.title}</span>
+      <span class="lock-title" style="color:var(${cv})">${i18n(s.title, s.title_en)}</span>
       <span class="lock-badge">${idx+1}/${STEPS.length}</span>
     </div>
     ${tasksHTML}
     <div class="code-wrap">
-      <label>🔐 Zadej kód zámku ${idx+1}:</label>
+      <label>🔐 ${i18n(`Zadej kód zámku ${idx+1}:`,`Enter lock ${idx+1} code:`)}</label>
       <div class="code-row">
         <input type="number" class="code-input" id="ci" placeholder="???"
           onkeydown="if(event.key==='Enter') chk()">
-        <button class="btn-check" onclick="chk()">Odemknout 🔓</button>
+        <button class="btn-check" onclick="chk()">${i18n('Odemknout 🔓','Unlock 🔓')}</button>
       </div>
       <div class="code-hint-bar">
-        <button class="code-hint-btn" id="ch-btn" onclick="advanceCodeHint()">💡 Nápověda ke kódu 1/3</button>
+        <button class="code-hint-btn" id="ch-btn" onclick="advanceCodeHint()">💡 ${i18n('Nápověda ke kódu 1/3','Code hint 1/3')}</button>
         <span class="code-hint-counter" id="ch-counter">
           <span class="dot"></span><span class="dot"></span><span class="dot"></span>
         </span>
@@ -522,7 +624,7 @@ function render(idx) {
     </div>
     <div class="unlock-anim" id="ua">
       <div class="big-icon">🔓✨</div>
-      <p>${s.successMsg}</p>
+      <p>${i18n(s.successMsg, s.successMsg_en)}</p>
     </div>
   `;
   window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -531,7 +633,9 @@ function render(idx) {
 function toggleHint(btn) {
   const h = btn.nextElementSibling;
   h.classList.toggle('show');
-  btn.textContent = h.classList.contains('show') ? '🙈 Skrýt nápovědu' : '💡 Potřebuji nápovědu';
+  btn.textContent = h.classList.contains('show')
+    ? i18n('🙈 Skrýt nápovědu','🙈 Hide hint')
+    : i18n('💡 Potřebuji nápovědu','💡 I need a hint');
 }
 
 function chk() {
@@ -552,12 +656,10 @@ function chk() {
     inp.classList.add('error');
     inp.classList.remove('success');
     setTimeout(() => inp.classList.remove('error'), 380);
-    const msgs = [
-      'Hmm, to není ono. Zkontroluj postup!',
-      'Zkus to znovu – možná jiný výpočet?',
-      'Nevzdávej se! Přečti si nápovědu.',
-      'Ještě jednou, jsi blízko!'
-    ];
+    const msgs = i18n(
+      ['Hmm, to není ono. Zkontroluj postup!','Zkus to znovu – možná jiný výpočet?','Nevzdávej se! Přečti si nápovědu.','Ještě jednou, jsi blízko!'],
+      ['Hmm, not quite. Check your working!','Try again – maybe a different calculation?','Don\'t give up! Read the hint.','One more try, you\'re close!']
+    );
     fb.className = 'feedback err';
     fb.textContent = msgs[Math.min(att[cur] - 1, msgs.length - 1)];
   }
@@ -566,6 +668,7 @@ function chk() {
 function finish() {
   document.getElementById('game').classList.remove('active');
   document.getElementById('finish').classList.add('active');
+  buildFinish();
   const wrap = document.getElementById('confetti');
   const cols = ['#f5c842','#1a73c8','#1e9e5a','#e74c3c','#7c3aad','#0f8a72','#ff7f50','#b5286e'];
   for (let i = 0; i < 90; i++) {
@@ -582,6 +685,11 @@ function finish() {
     wrap.appendChild(el);
   }
 }
+
+// Init
+document.querySelectorAll('.lang-btn').forEach(b =>
+  b.classList.toggle('active', b.dataset.lang === lang));
+buildIntro();
 </script>
 </body>
 </html>
