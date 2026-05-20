@@ -240,113 +240,6 @@
     }
     .person.matched .bday { color: var(--match); font-weight: 600; }
 
-    /* ── simulation ── */
-    .sim-section {
-      border-top: 1px solid var(--border);
-      padding-top: 40px;
-    }
-    .sim-section h2 {
-      font-size: 1.2rem;
-      font-weight: 700;
-      margin-bottom: 8px;
-    }
-    .sim-section p {
-      font-size: 14px;
-      color: var(--fg-muted);
-      margin-bottom: 20px;
-      line-height: 1.6;
-    }
-    .sim-controls {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin-bottom: 24px;
-    }
-    .btn-sim {
-      background: var(--fg);
-      color: #fff;
-      border: none;
-      border-radius: 8px;
-      padding: 10px 22px;
-      font-family: var(--font);
-      font-size: 14px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: opacity 0.15s, transform 0.1s;
-    }
-    .btn-sim:hover { opacity: 0.85; }
-    .btn-sim:active { transform: scale(0.97); }
-    .btn-reset {
-      background: none;
-      color: var(--fg-muted);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 10px 18px;
-      font-family: var(--font);
-      font-size: 14px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: border-color 0.15s, color 0.15s;
-    }
-    .btn-reset:hover { border-color: var(--fg-muted); color: var(--fg); }
-
-    .sim-result {
-      display: none;
-    }
-    .sim-result.visible { display: block; }
-
-    .sim-stats {
-      display: flex;
-      gap: 16px;
-      flex-wrap: wrap;
-      margin-bottom: 20px;
-    }
-    .sim-stat {
-      flex: 1;
-      min-width: 120px;
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 16px;
-      text-align: center;
-    }
-    .sim-stat .val { font-size: 2rem; font-weight: 700; color: var(--fg); line-height: 1; }
-    .sim-stat .lbl { font-size: 11px; color: var(--fg-muted); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.06em; font-weight: 500; }
-
-    /* histogram bars */
-    .histogram {
-      display: flex;
-      align-items: flex-end;
-      gap: 2px;
-      height: 80px;
-      margin-bottom: 8px;
-    }
-    .hbar {
-      flex: 1;
-      background: var(--accent-light);
-      border-radius: 2px 2px 0 0;
-      transition: height 0.3s ease;
-      min-height: 2px;
-    }
-    .hbar.match { background: var(--match-light); border: 1px solid var(--match-border); }
-    .hist-labels {
-      display: flex;
-      justify-content: space-between;
-      font-size: 10px;
-      color: var(--fg-muted);
-    }
-
-    .insight {
-      background: var(--accent-light);
-      border-radius: 8px;
-      padding: 14px 16px;
-      font-size: 14px;
-      color: var(--accent);
-      font-weight: 500;
-      margin-top: 16px;
-      line-height: 1.5;
-    }
-
     /* ── fact box ── */
     .fact {
       background: var(--card-bg);
@@ -361,10 +254,175 @@
     }
     .fact strong { color: var(--fg); }
 
+    /* ── simulation ── */
+    .sim-section {
+      border-top: 1px solid var(--border);
+      padding-top: 40px;
+    }
+    .sim-section h2 {
+      font-size: 1.2rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .sim-section > p {
+      font-size: 14px;
+      color: var(--fg-muted);
+      margin-bottom: 24px;
+      line-height: 1.6;
+    }
+
+    .sim-controls {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 28px;
+    }
+    .btn-sim {
+      background: var(--fg);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 12px 24px;
+      font-family: var(--font);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.15s, transform 0.1s;
+    }
+    .btn-sim:hover { opacity: 0.85; }
+    .btn-sim:active { transform: scale(0.97); }
+    .btn-reset {
+      background: none;
+      color: var(--fg-muted);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 18px;
+      font-family: var(--font);
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: border-color 0.15s, color 0.15s;
+    }
+    .btn-reset:hover { border-color: var(--fg-muted); color: var(--fg); }
+
+    .sim-result { display: none; }
+    .sim-result.visible { display: block; }
+
+    /* stats row */
+    .sim-stats {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 24px;
+    }
+    .sim-stat {
+      flex: 1;
+      min-width: 100px;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 12px;
+      text-align: center;
+    }
+    .sim-stat .val { font-size: 1.8rem; font-weight: 700; color: var(--fg); line-height: 1; }
+    .sim-stat .val.match-val { color: var(--match); }
+    .sim-stat .lbl { font-size: 11px; color: var(--fg-muted); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.06em; font-weight: 500; }
+
+    /* comparison bars */
+    .cmp-bars { margin-bottom: 28px; }
+    .cmp-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .cmp-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--fg-muted);
+      width: 72px;
+      flex-shrink: 0;
+    }
+    .cmp-track {
+      flex: 1;
+      height: 10px;
+      background: var(--border);
+      border-radius: 5px;
+      overflow: hidden;
+    }
+    .cmp-fill {
+      height: 100%;
+      border-radius: 5px;
+      width: 0%;
+      transition: width 0.4s ease;
+    }
+    .cmp-measured { background: var(--match); }
+    .cmp-theory   { background: var(--accent); }
+    .cmp-val {
+      font-size: 13px;
+      font-weight: 600;
+      width: 50px;
+      text-align: right;
+      flex-shrink: 0;
+      color: var(--fg);
+    }
+
+    /* dot grid */
+    .dot-grid-section { margin-bottom: 24px; }
+    .dot-legend {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      font-size: 12px;
+      color: var(--fg-muted);
+      margin-bottom: 10px;
+    }
+    .dot-legend-item { display: flex; align-items: center; gap: 5px; }
+    .dot-samp {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .dot-match   { background: var(--match); }
+    .dot-nomatch { background: var(--green); }
+    .dot-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 3px;
+      min-height: 13px;
+    }
+    .dg {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .dg.m { background: var(--match); }
+    .dg.n { background: var(--green); }
+
+    .dot-overflow {
+      font-size: 11px;
+      color: var(--fg-muted);
+      margin-top: 6px;
+    }
+
+    .insight {
+      background: var(--accent-light);
+      border-radius: 8px;
+      padding: 14px 16px;
+      font-size: 14px;
+      color: var(--accent);
+      font-weight: 500;
+      line-height: 1.55;
+    }
+
     @media (max-width: 540px) {
       .page { padding: 40px 16px 80px; }
       .prob-display { flex-direction: column; }
       .room-grid { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); }
+      .sim-stats { gap: 8px; }
     }
   </style>
 </head>
@@ -419,33 +477,56 @@
   <!-- simulation -->
   <div class="sim-section">
     <h2>Simulace mnoha skupin</h2>
-    <p>Chceš vidět, jak moc se pravděpodobnost potvrzuje v praxi? Simuluj stovky náhodných skupin najednou.</p>
+    <p>Simuluj stovky náhodných skupin najednou a sleduj, jak se naměřený výsledek přibližuje teorii.</p>
+
     <div class="sim-controls">
-      <button class="btn-sim" onclick="simulate(100)">Simuluj 100 skupin</button>
-      <button class="btn-sim" onclick="simulate(1000)">Simuluj 1 000 skupin</button>
+      <button class="btn-sim" onclick="simulate(100)">+ 100 skupin</button>
+      <button class="btn-sim" onclick="simulate(1000)">+ 1 000 skupin</button>
       <button class="btn-reset" onclick="resetSim()">Reset</button>
     </div>
+
     <div class="sim-result" id="sim-result">
+
+      <!-- stats -->
       <div class="sim-stats">
         <div class="sim-stat">
           <div class="val" id="sim-total">0</div>
           <div class="lbl">skupin celkem</div>
         </div>
         <div class="sim-stat">
-          <div class="val" id="sim-match">0</div>
-          <div class="lbl">mělo shodu</div>
+          <div class="val match-val" id="sim-match">0</div>
+          <div class="lbl">se shodou</div>
         </div>
         <div class="sim-stat">
           <div class="val" id="sim-pct">0 %</div>
           <div class="lbl">naměřeno</div>
         </div>
-        <div class="sim-stat">
-          <div class="val" id="sim-theory">—</div>
-          <div class="lbl">teorie říká</div>
+      </div>
+
+      <!-- comparison bars: naměřeno vs teorie -->
+      <div class="cmp-bars">
+        <div class="cmp-row">
+          <span class="cmp-label">Naměřeno</span>
+          <div class="cmp-track"><div class="cmp-fill cmp-measured" id="cmp-measured"></div></div>
+          <span class="cmp-val" id="cmp-val-measured">0 %</span>
+        </div>
+        <div class="cmp-row">
+          <span class="cmp-label">Teorie</span>
+          <div class="cmp-track"><div class="cmp-fill cmp-theory" id="cmp-theory"></div></div>
+          <span class="cmp-val" id="cmp-val-theory">— %</span>
         </div>
       </div>
-      <div class="histogram" id="histogram"></div>
-      <div class="hist-labels"><span>shoda</span><span>bez shody</span></div>
+
+      <!-- dot grid: last ~200 groups visualized as dots -->
+      <div class="dot-grid-section">
+        <div class="dot-legend">
+          <span class="dot-legend-item"><span class="dot-samp dot-match"></span> shoda</span>
+          <span class="dot-legend-item"><span class="dot-samp dot-nomatch"></span> bez shody</span>
+        </div>
+        <div class="dot-grid" id="dot-grid"></div>
+        <div class="dot-overflow" id="dot-overflow"></div>
+      </div>
+
       <div class="insight" id="insight"></div>
     </div>
   </div>
@@ -470,6 +551,7 @@ const AVATARS_F = ['👧','👩','👱‍♀️','🧑‍🦰','🧕'];
 
 let people = [];
 let simTotal = 0, simMatch = 0;
+let simHistory = []; // array of booleans: true=match
 
 function randInt(n) { return Math.floor(Math.random() * n); }
 
@@ -561,11 +643,18 @@ function updateProb(n) {
   bar.style.background = clr;
 
   document.getElementById('count-display').textContent = n;
-  document.getElementById('room-title').textContent = `Místnost s ${n} ${n === 1 ? 'člověkem' : n < 5 ? 'lidmi' : 'lidmi'}`;
+  document.getElementById('room-title').textContent = `Místnost s ${n} ${n === 1 ? 'člověkem' : 'lidmi'}`;
   document.getElementById('fact-n').textContent = 365 - n + 1;
   document.getElementById('fact-exp').textContent = n;
   document.getElementById('fact-no-match').textContent = noMatchPct + ' %';
-  document.getElementById('sim-theory').textContent = pct + ' %';
+
+  // update theory bar if sim is visible
+  const theoryFill = document.getElementById('cmp-theory');
+  const theoryVal  = document.getElementById('cmp-val-theory');
+  if (theoryFill) {
+    theoryFill.style.width = (p * 100) + '%';
+    theoryVal.textContent  = pct + ' %';
+  }
 }
 
 function shuffle() {
@@ -574,9 +663,12 @@ function shuffle() {
   renderRoom();
 }
 
+const DOT_SHOW = 200; // how many dots to display
+
 function simulate(runs) {
   const n = +document.getElementById('slider').value;
   let newMatches = 0;
+  const newResults = [];
   for (let r = 0; r < runs; r++) {
     const seen = new Set();
     let found = false;
@@ -586,24 +678,39 @@ function simulate(runs) {
       seen.add(key);
     }
     if (found) newMatches++;
+    newResults.push(found);
   }
   simTotal += runs;
   simMatch += newMatches;
+  simHistory = [...simHistory, ...newResults].slice(-DOT_SHOW);
 
-  const pct = ((simMatch / simTotal) * 100).toFixed(1).replace('.', ',');
-  const theory = (calcProb(n) * 100).toFixed(1).replace('.', ',');
+  const pctNum    = (simMatch / simTotal) * 100;
+  const theoryNum = calcProb(n) * 100;
+  const pct       = pctNum.toFixed(1).replace('.', ',');
+  const theory    = theoryNum.toFixed(1).replace('.', ',');
 
   document.getElementById('sim-total').textContent = simTotal.toLocaleString('cs-CZ');
   document.getElementById('sim-match').textContent = simMatch.toLocaleString('cs-CZ');
-  document.getElementById('sim-pct').textContent = pct + ' %';
+  document.getElementById('sim-pct').textContent   = pct + ' %';
 
-  // histogram — 2 bars: match vs no match
-  const hm = document.getElementById('histogram');
-  const matchH = Math.round((simMatch / simTotal) * 80);
-  const noMatchH = 80 - matchH;
-  hm.innerHTML = `<div class="hbar match" style="height:${matchH}px;flex:${simMatch}"></div><div class="hbar" style="height:${noMatchH}px;flex:${simTotal - simMatch}"></div>`;
+  // comparison bars
+  document.getElementById('cmp-measured').style.width  = pctNum + '%';
+  document.getElementById('cmp-val-measured').textContent = pct + ' %';
+  document.getElementById('cmp-theory').style.width    = theoryNum + '%';
+  document.getElementById('cmp-val-theory').textContent   = theory + ' %';
 
-  const diff = Math.abs(parseFloat(pct.replace(',','.')) - parseFloat(theory.replace(',','.'))).toFixed(1);
+  // dot grid
+  const grid = document.getElementById('dot-grid');
+  grid.innerHTML = simHistory.map(m => `<div class="dg ${m ? 'm' : 'n'}"></div>`).join('');
+
+  const overflow = document.getElementById('dot-overflow');
+  if (simTotal > DOT_SHOW) {
+    overflow.textContent = `(zobrazeno posledních ${DOT_SHOW} z ${simTotal.toLocaleString('cs-CZ')} skupin)`;
+  } else {
+    overflow.textContent = '';
+  }
+
+  const diff = Math.abs(pctNum - theoryNum).toFixed(1).replace('.', ',');
   document.getElementById('insight').textContent =
     `Teorie říká ${theory} %, naměřeno ${pct} % — rozdíl ${diff} procentního bodu. Čím víc skupin, tím blíže se výsledek přiblíží teorii.`;
 
@@ -611,7 +718,7 @@ function simulate(runs) {
 }
 
 function resetSim() {
-  simTotal = 0; simMatch = 0;
+  simTotal = 0; simMatch = 0; simHistory = [];
   document.getElementById('sim-result').className = 'sim-result';
 }
 

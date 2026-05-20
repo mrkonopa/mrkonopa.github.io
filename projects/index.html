@@ -126,7 +126,7 @@
     /* Project grid */
     .project-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
       gap: 1px;
       background: var(--border);
       border: 1px solid var(--border);
@@ -137,20 +137,20 @@
 
     .project {
       background: var(--bg-window);
-      padding: 12px 14px 14px;
+      padding: 8px 10px 10px;
       transition: background 0.12s;
     }
     .project:hover { background: #121a13; }
 
-    .project .perm { color: var(--fg-dim); font-size: 11px; display: block; }
-    .project .filename { color: var(--accent); display: block; margin-top: 2px; }
+    .project .perm { color: var(--fg-dim); font-size: 10px; display: block; }
+    .project .filename { color: var(--accent); display: block; margin-top: 1px; font-size: 13px; }
 
     .project .desc-en, .project .desc-cs {
       color: var(--fg);
-      font-size: 11px;
-      line-height: 1.5;
-      margin: 5px 0 0;
-      padding-left: 12px;
+      font-size: 10px;
+      line-height: 1.45;
+      margin: 4px 0 0;
+      padding-left: 10px;
       border-left: 2px solid var(--border);
     }
     .project .desc-en::before, .project .desc-cs::before {
@@ -327,7 +327,7 @@
               </div>
               <p class="desc-en">Birthday paradox — interactive slider, room of random people, match finder, bulk simulation.</p>
               <p class="desc-cs">Narozeninový paradox — slider, místnost s lidmi, hledání shod, simulace skupin.</p>
-              <p class="meta">tags: math · probability · interactive · czech · 8.-9. třída</p>
+              <p class="meta">tags: math · probability · interactive · czech · fun · 8.-9. třída</p>
             </div>
 
             <div class="project">
@@ -337,7 +337,7 @@
               </div>
               <p class="desc-en">Paper folding — exponential growth visualised. Fold by fold to the Moon.</p>
               <p class="desc-cs">Přeložení papíru — vizualizace exponenciálního růstu. Přeložení po přeložení na Měsíc.</p>
-              <p class="meta">tags: math · mocniny · interactive · czech · 8. třída</p>
+              <p class="meta">tags: math · mocniny · interactive · czech · fun · 8. třída</p>
             </div>
 
             <!-- Add more <div class="project">…</div> blocks here as you ship things. -->
@@ -354,7 +354,7 @@
   </main>
 <script>
 (function() {
-  const SHOW_TAGS = ['math','interactive','geometry','procenta','finance','trigonometry','rovnice','mocniny','pythagoras','algebra','odmocniny','pdf-archive','8.-9. třída','9. třída','6. třída','8. třída'];
+  const SHOW_TAGS = ['math','interactive','fun','geometry','procenta','finance','trigonometry','rovnice','mocniny','pythagoras','algebra','odmocniny','pdf-archive','8.-9. třída','9. třída','6. třída','8. třída'];
   const projects = document.querySelectorAll('.project');
   const bar = document.getElementById('filter-bar');
   const activeTagSpan = document.getElementById('active-tag');
