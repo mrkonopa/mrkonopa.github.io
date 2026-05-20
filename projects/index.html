@@ -65,7 +65,7 @@
     main {
       position: relative;
       z-index: 2;
-      max-width: 780px;
+      max-width: 1100px;
       margin: 0 auto;
       padding: 48px 20px 80px;
     }
@@ -98,7 +98,6 @@
     }
     .screen {
       padding: 24px 22px 28px;
-      min-height: 360px;
     }
 
     .line { white-space: pre-wrap; word-wrap: break-word; }
@@ -124,32 +123,44 @@
     a:hover, a:focus { color: var(--amber); border-bottom-color: var(--amber); outline: none; }
     a:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; border-radius: 2px; }
 
-    /* Project entries — looks like an ls -la row but with description below */
-    .project {
-      padding: 8px 0 14px;
-      border-bottom: 1px dashed var(--border);
+    /* Project grid */
+    .project-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      margin-top: 10px;
+      overflow: hidden;
     }
-    .project:last-child { border-bottom: none; }
+
+    .project {
+      background: var(--bg-window);
+      padding: 12px 14px 14px;
+      transition: background 0.12s;
+    }
+    .project:hover { background: #121a13; }
+
     .project .perm { color: var(--fg-dim); }
     .project .filename { color: var(--accent); margin-left: 6px; }
 
-    /* Per-language description rows. Smaller font, language tag prefix. */
     .project .desc-en, .project .desc-cs {
       color: var(--fg);
-      font-size: 12px;
-      line-height: 1.55;
-      margin: 4px 0 0;
-      padding-left: 14px;
+      font-size: 11px;
+      line-height: 1.5;
+      margin: 5px 0 0;
+      padding-left: 12px;
       border-left: 2px solid var(--border);
     }
     .project .desc-en::before, .project .desc-cs::before {
       display: inline-block;
-      width: 22px;
+      width: 20px;
       font-size: 9px;
       font-weight: 700;
       letter-spacing: 0.12em;
       color: var(--fg-dim);
-      margin-right: 6px;
+      margin-right: 5px;
       vertical-align: 1px;
     }
     .project .desc-en::before { content: 'EN'; }
@@ -157,9 +168,9 @@
 
     .project .meta {
       color: var(--fg-dim);
-      font-size: 11px;
-      margin-top: 6px;
-      padding-left: 14px;
+      font-size: 10px;
+      margin-top: 8px;
+      padding-left: 12px;
       letter-spacing: 0.02em;
     }
 
@@ -175,10 +186,11 @@
     }
     @media (prefers-reduced-motion: reduce) { .caret { animation: none; } }
 
-    @media (max-width: 540px) {
+    @media (max-width: 640px) {
       main { padding: 24px 12px 60px; }
       .screen { padding: 20px 16px; }
       body { font-size: 14px; }
+      .project-grid { grid-template-columns: 1fr; }
     }
 
     /* Tag filter bar */
@@ -205,11 +217,6 @@
 
       <div class="screen">
         <div class="block">
-          <div class="line"><span class="prompt"><span class="user">vojta</span><span class="at">@</span><span class="host">konopa</span><span class="path">:~/projects</span><span class="sym">$</span></span> <span class="cmd">pwd</span></div>
-          <p class="out">/projects</p>
-        </div>
-
-        <div class="block">
           <div class="line"><span class="prompt"><span class="user">vojta</span><span class="at">@</span><span class="host">konopa</span><span class="path">:~/projects</span><span class="sym">$</span></span> <span class="cmd">cat README</span></div>
           <p class="out">A growing collection of things I've built. Click any entry to open it.</p>
         </div>
@@ -222,103 +229,100 @@
         <div class="block">
           <div class="line"><span class="prompt"><span class="user">vojta</span><span class="at">@</span><span class="host">konopa</span><span class="path">:~/projects</span><span class="sym">$</span></span> <span class="cmd">ls -la</span></div>
 
-          <!--
-            ──────────────────────────────────────────────────────────────────
-            To add a new project: copy one .project block and edit the fields.
-            Filename in the link must match the file you placed in /projects/.
-            ──────────────────────────────────────────────────────────────────
-          -->
+          <div class="project-grid">
 
-          <div class="project">
-            <div class="line">
-              <span class="perm">drwxr-xr-x</span>
-              <a class="filename" href="./prijimacky-matematika/">prijimacky-matematika/</a>
+            <div class="project">
+              <div class="line">
+                <span class="perm">drwxr-xr-x</span>
+                <a class="filename" href="./prijimacky-matematika/">prijimacky-matematika/</a>
+              </div>
+              <p class="desc-cs">Sbírka CERMAT testů z matematiky pro 4leté SŠ (2023–2026) s řešeními.</p>
+              <p class="meta">tags: math · education · czech · pdf-archive · entrance-exams · sš</p>
             </div>
-            <p class="desc-cs">Sbírka jednotných přijímacích testů z matematiky (CERMAT) pro 4leté obory SŠ, řazená po ročnících a termínech — s vlastnoručně dopsanými řešeními.</p>
-            <p class="meta">tags: math · education · czech · pdf-archive · entrance-exams · sš</p>
-          </div>
 
-          <div class="project">
-            <div class="line">
-              <span class="perm">-rw-r--r--</span>
-              <a class="filename" href="./goniometrie.html">goniometrie.html</a>
+            <div class="project">
+              <div class="line">
+                <span class="perm">-rw-r--r--</span>
+                <a class="filename" href="./goniometrie.html">goniometrie.html</a>
+              </div>
+              <p class="desc-en">Trigonometry guide — sin, cos, tan, 7 chapters, 9th grade.</p>
+              <p class="desc-cs">Průvodce goniometrickými funkcemi — sin, cos, tan, 7 kapitol, 9. třída.</p>
+              <p class="meta">tags: math · goniometrie · trigonometry · slovní úlohy · education · czech · interactive · 9. třída</p>
             </div>
-            <p class="desc-en">Interactive guide to trigonometric functions for 9th grade. Seven chapters: definitions (SOHCAHTOA), side calculation, angle calculation (arcsin/arccos/arctan), word problems (heights, distances), angles of elevation/depression, and a final mixed test. Randomised numbers, interactive SVG triangle, 3-level hints, progress codes.</p>
-            <p class="desc-cs">Výukový průvodce goniometrickými funkcemi pro 9. třídu. Sedm kapitol: definice (SOHCAHTOA), výpočet strany, výpočet úhlu (arcsin/arccos/arctan), slovní úlohy (výška, vzdálenost), úhel sklonu (elevační/depresivní), souhrnný test. Náhodná čísla, interaktivní SVG trojúhelník, 3 úrovně nápovědy, kódy pro pokračování.</p>
-            <p class="meta">tags: math · goniometrie · trigonometry · slovní úlohy · education · czech · interactive · 9. třída</p>
-          </div>
 
-          <div class="project">
-            <div class="line">
-              <span class="perm">-rw-r--r--</span>
-              <a class="filename" href="./cesta_penez.html">cesta_penez.html</a>
+            <div class="project">
+              <div class="line">
+                <span class="perm">-rw-r--r--</span>
+                <a class="filename" href="./cesta_penez.html">cesta_penez.html</a>
+              </div>
+              <p class="desc-en">Financial literacy story game — brigáda, taxes, loans, mortgage, scams — 8 chapters.</p>
+              <p class="desc-cs">Příběhová hra o financích — brigáda, daně, půjčky, hypotéka, podvody — 8 kapitol.</p>
+              <p class="meta">tags: math · finance · daně · RPSN · hypotéka · education · czech · interactive · 8.-9. třída</p>
             </div>
-            <p class="desc-en">Story-driven financial literacy game for Czech 8th–9th graders. Linear journey through 8 life chapters — DPP/brigáda, brutto→netto with real 2025 tax rates, inflation, loans &amp; APR, mortgage, predatory lending, online scams — with math problems and decisions. Acts 1–3 live; 4–8 in progress.</p>
-            <p class="desc-cs">Příběhová hra o financích pro 8.–9. třídu ZŠ. Lineární cesta 8 kapitolami života — brigáda DPP, brutto→netto s reálnými sazbami 2025, inflace, půjčky a RPSN, hypotéka, lichva, kyberpodvody — s výpočty a rozhodnutími. Kapitoly 1–3 hotové, 4–8 se připravují.</p>
-            <p class="meta">tags: math · finance · daně · RPSN · hypotéka · education · czech · interactive · 8.-9. třída</p>
-          </div>
 
-          <div class="project">
-            <div class="line">
-              <span class="perm">-rw-r--r--</span>
-              <a class="filename" href="./procenta_priklady.html">procenta_priklady.html</a>
+            <div class="project">
+              <div class="line">
+                <span class="perm">-rw-r--r--</span>
+                <a class="filename" href="./procenta_priklady.html">procenta_priklady.html</a>
+              </div>
+              <p class="desc-en">10 randomised percentage problems per session with step-by-step solutions.</p>
+              <p class="desc-cs">10 náhodně generovaných příkladů na procenta s postupem řešení.</p>
+              <p class="meta">tags: math · percenta · education · czech · interactive · randomised</p>
             </div>
-            <p class="desc-en">Random math practice on percentages — 10 freshly-generated problems each session, covering parts, bases, percentage values, markups, and discounts. Step-by-step solutions shown for any wrong answers.</p>
-            <p class="desc-cs">Náhodně generované příklady na procenta — 10 příkladů v každé sadě, pokaždé jiné. Pokrývá procentovou část, základ, počet procent, zvýšení a slevy. Postup řešení se zobrazí u chybných odpovědí.</p>
-            <p class="meta">tags: math · percenta · education · czech · interactive · randomised</p>
-          </div>
 
-          <div class="project">
-            <div class="line">
-              <span class="perm">-rw-r--r--</span>
-              <a class="filename" href="./unikovka_telesa.html">unikovka_telesa.html</a>
+            <div class="project">
+              <div class="line">
+                <span class="perm">-rw-r--r--</span>
+                <a class="filename" href="./unikovka_telesa.html">unikovka_telesa.html</a>
+              </div>
+              <p class="desc-en">Escape room — cubes &amp; cuboids, 10 locks, 6th grade.</p>
+              <p class="desc-cs">Únikovka — krychle a kvádr, 10 zámků, 6. třída.</p>
+              <p class="meta">tags: math · geometry · education · czech · interactive · 6. třída</p>
             </div>
-            <p class="desc-en">Interactive math escape-room about cubes and cuboids for 6th grade. 10 progressively harder locks, browser-based, single-file.</p>
-            <p class="desc-cs">Interaktivní únikovka z matematiky o krychli a kvádru pro 6. třídu. 10 zámků s rostoucí obtížností, v prohlížeči, jeden soubor.</p>
-            <p class="meta">tags: math · geometry · education · czech · interactive · 6. třída</p>
-          </div>
 
-          <div class="project">
-            <div class="line">
-              <span class="perm">-rw-r--r--</span>
-              <a class="filename" href="./unikovka_procenta.html">unikovka_procenta.html</a>
+            <div class="project">
+              <div class="line">
+                <span class="perm">-rw-r--r--</span>
+                <a class="filename" href="./unikovka_procenta.html">unikovka_procenta.html</a>
+              </div>
+              <p class="desc-en">Escape room — percentages, 10 locks.</p>
+              <p class="desc-cs">Únikovka — procenta, 10 zámků.</p>
+              <p class="meta">tags: math · percenta · education · czech · interactive</p>
             </div>
-            <p class="desc-en">Interactive math escape-room about percentages. 10 locks covering definitions, parts, bases, conversions, and word problems.</p>
-            <p class="desc-cs">Interaktivní únikovka z matematiky o procentech. 10 zámků pokrývajících definici procenta, část, základ, převody a slovní úlohy.</p>
-            <p class="meta">tags: math · percenta · education · czech · interactive</p>
-          </div>
 
-          <div class="project">
-            <div class="line">
-              <span class="perm">-rw-r--r--</span>
-              <a class="filename" href="./unikovka_pythagoras.html">unikovka_pythagoras.html</a>
+            <div class="project">
+              <div class="line">
+                <span class="perm">-rw-r--r--</span>
+                <a class="filename" href="./unikovka_pythagoras.html">unikovka_pythagoras.html</a>
+              </div>
+              <p class="desc-en">Escape room — Pythagorean theorem, 10 locks, 8th–9th grade.</p>
+              <p class="desc-cs">Únikovka — Pythagorova věta, 10 zámků, 8.–9. třída.</p>
+              <p class="meta">tags: math · pythagoras · geometry · education · czech · interactive · 8.-9. třída</p>
             </div>
-            <p class="desc-en">Interactive math escape-room about the Pythagorean theorem. 10 locks covering the theorem, finding the hypotenuse, finding a leg, Pythagorean triples, verification, and real-world applications (rectangle diagonal, triangle height, ladder, distance between points).</p>
-            <p class="desc-cs">Interaktivní únikovka z matematiky o Pythagorově větě. 10 zámků: výpočet přepony, výpočet odvěsny, Pythagorovy trojice, ověření pravoúhlosti a aplikace (úhlopříčka, výška trojúhelníku, žebřík, vzdálenost bodů).</p>
-            <p class="meta">tags: math · pythagoras · geometry · education · czech · interactive · 8.-9. třída</p>
-          </div>
 
-          <div class="project">
-            <div class="line">
-              <span class="perm">-rw-r--r--</span>
-              <a class="filename" href="./unikovka_mocniny.html">unikovka_mocniny.html</a>
+            <div class="project">
+              <div class="line">
+                <span class="perm">-rw-r--r--</span>
+                <a class="filename" href="./unikovka_mocniny.html">unikovka_mocniny.html</a>
+              </div>
+              <p class="desc-en">Escape room — powers &amp; roots, 10 locks, 8th grade.</p>
+              <p class="desc-cs">Únikovka — mocniny a odmocniny, 10 zámků, 8. třída.</p>
+              <p class="meta">tags: math · mocniny · odmocniny · education · czech · interactive · 8. třída</p>
             </div>
-            <p class="desc-en">Interactive math escape-room about powers and roots. 10 locks covering squares, cubes, square roots, cube roots, the zeroth power, and the product / power-of-a-power / quotient rules for exponents.</p>
-            <p class="desc-cs">Interaktivní únikovka z matematiky o mocninách a odmocninách. 10 zámků: druhé a třetí mocniny, druhá a třetí odmocnina, nultá mocnina a pravidla součinu, mocniny mocniny a podílu mocnin.</p>
-            <p class="meta">tags: math · mocniny · odmocniny · education · czech · interactive · 8. třída</p>
-          </div>
 
-          <div class="project">
-            <div class="line">
-              <span class="perm">-rw-r--r--</span>
-              <a class="filename" href="./unikovka_rovnice.html">unikovka_rovnice.html</a>
+            <div class="project">
+              <div class="line">
+                <span class="perm">-rw-r--r--</span>
+                <a class="filename" href="./unikovka_rovnice.html">unikovka_rovnice.html</a>
+              </div>
+              <p class="desc-en">Escape room — linear equations, 10 locks, 8th–9th grade.</p>
+              <p class="desc-cs">Únikovka — lineární rovnice, 10 zámků, 8.–9. třída.</p>
+              <p class="meta">tags: math · rovnice · algebra · education · czech · interactive · 8.-9. třída</p>
             </div>
-            <p class="desc-en">Interactive math escape-room about linear equations. 10 locks: one-step equations (add/subtract/multiply/divide), two-step equations, unknown on both sides, brackets (distributive law), fractions, and a word problem.</p>
-            <p class="desc-cs">Interaktivní únikovka z matematiky o lineárních rovnicích. 10 zámků: jednoduché rovnice (sčítání/odčítání/násobení/dělení), dvě operace, neznámá na obou stranách, závorky, zlomky a slovní úloha.</p>
-            <p class="meta">tags: math · rovnice · algebra · education · czech · interactive · 8.-9. třída</p>
-          </div>
 
-          <!-- Add more <div class="project">…</div> blocks here as you ship things. -->
+            <!-- Add more <div class="project">…</div> blocks here as you ship things. -->
+
+          </div>
         </div>
 
         <div class="block">
