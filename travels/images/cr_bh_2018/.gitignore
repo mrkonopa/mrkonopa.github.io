@@ -13,6 +13,12 @@
 *.HEIC
 *.heic
 
+# Block original JPGs — only allow *_web.jpg and *_LQ.jpg
+*.jpg
+*.JPG
+!*_web.jpg
+!*_LQ.jpg
+
 # Video files — host externally (YouTube/Vimeo).
 *.mp4
 *.mov

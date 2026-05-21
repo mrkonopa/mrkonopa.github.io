@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Croatia & Bosnia 2018 — Travels · Vojtěch Konopa</title>
+  <meta name="description" content="Field notes from a road trip through Croatia and Bosnia & Herzegovina — July 2018." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #1c1c1c;
+      --surface: #262626;
+      --surface-2: #2e2e2e;
+      --border: #3a3a3a;
+      --border-strong: #555;
+      --fg: #ededec;
+      --fg-dim: #8a8a85;
+      --fg-muted: #5e5e5b;
+      --accent: #f5b800;
+      --concrete: #4a4a48;
+      --display: 'Archivo Black', 'Inter', system-ui, sans-serif;
+      --body: 'Inter', system-ui, -apple-system, Segoe UI, sans-serif;
+      --mono: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      background: var(--bg);
+      color: var(--fg);
+      font-family: var(--body);
+      font-size: 16px;
+      line-height: 1.55;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a { color: var(--fg); text-decoration: none; border-bottom: 1px solid transparent; transition: color .15s, border-color .15s; }
+    a:hover, a:focus { color: var(--accent); border-bottom-color: var(--accent); outline: none; }
+    a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 1px; }
+
+    img { display: block; max-width: 100%; }
+
+    .top-bar {
+      border-bottom: 1px solid var(--border);
+      padding: 18px 28px;
+      display: flex; justify-content: space-between; align-items: baseline; gap: 18px;
+      font-family: var(--mono); font-size: 12px;
+      letter-spacing: 0.08em; text-transform: uppercase; color: var(--fg-dim);
+    }
+    .top-bar a { color: var(--fg-dim); }
+    .top-bar a:hover { color: var(--accent); }
+    .top-bar .crumb { color: var(--fg); }
+
+    .hero {
+      position: relative; width: 100%;
+      aspect-ratio: 16 / 9; max-height: 80vh;
+      background-color: var(--concrete);
+      background-size: cover; background-position: center; overflow: hidden;
+    }
+    .hero::before {
+      content: ''; position: absolute; inset: auto 0 0 0; height: 50%;
+      background: linear-gradient(to top, rgba(0,0,0,0.55), transparent);
+      pointer-events: none;
+    }
+
+    .title-block {
+      max-width: 1080px; margin: 0 auto; padding: 56px 28px 28px;
+      border-bottom: 1px solid var(--border);
+    }
+    .label-row {
+      display: flex; gap: 24px; flex-wrap: wrap;
+      font-family: var(--mono); font-size: 11px;
+      letter-spacing: 0.18em; text-transform: uppercase;
+      color: var(--accent); margin-bottom: 18px;
+    }
+    .label-row .dim { color: var(--fg-dim); }
+    h1.location {
+      font-family: var(--display);
+      font-size: clamp(40px, 7vw, 88px);
+      line-height: 0.95; letter-spacing: -0.02em;
+      text-transform: uppercase; margin-bottom: 18px;
+    }
+    .lede {
+      font-size: 18px; font-weight: 300;
+      color: var(--fg); max-width: 680px; line-height: 1.6;
+    }
+
+    .data-strip {
+      max-width: 1080px; margin: 0 auto; padding: 24px 28px;
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      gap: 1px; background: var(--border); border-bottom: 1px solid var(--border);
+    }
+    .data-strip > div {
+      background: var(--bg); padding: 16px 20px;
+      font-family: var(--mono); font-size: 11px;
+      letter-spacing: 0.12em; text-transform: uppercase; color: var(--fg-dim);
+      min-height: 64px;
+    }
+    .data-strip b {
+      display: block; font-family: var(--body);
+      font-size: 15px; font-weight: 500; letter-spacing: 0;
+      text-transform: none; color: var(--fg); margin-top: 4px;
+    }
+
+    article {
+      max-width: 720px; margin: 0 auto; padding: 56px 28px 56px;
+    }
+    article p {
+      font-size: 17px; line-height: 1.75;
+      color: var(--fg); font-weight: 300; margin-bottom: 22px;
+    }
+    article p.first::first-letter {
+      font-family: var(--display); font-size: 3.4em;
+      float: left; line-height: 0.9; margin: 4px 10px 0 0;
+      color: var(--accent);
+    }
+    article h2 {
+      font-family: var(--display); font-size: 22px;
+      letter-spacing: -0.01em; text-transform: uppercase;
+      margin: 40px 0 16px; padding-top: 24px;
+      border-top: 1px solid var(--border);
+    }
+    article blockquote {
+      border-left: 3px solid var(--accent);
+      padding: 4px 0 4px 22px; margin: 28px 0;
+      font-size: 19px; font-weight: 300; color: var(--fg);
+      font-style: italic;
+    }
+
+    .gallery-section {
+      max-width: 1280px; margin: 0 auto; padding: 0 28px 96px;
+    }
+    .section-title {
+      font-family: var(--mono); font-size: 11px;
+      letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--fg-dim); margin-bottom: 24px;
+      padding-bottom: 12px; border-bottom: 1px solid var(--border);
+    }
+    .gallery {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 1px; background: var(--border);
+    }
+    figure.shot { background: var(--surface); margin: 0; }
+    figure.shot .img {
+      aspect-ratio: 4 / 3;
+      background-color: var(--concrete);
+      background-size: cover; background-position: center;
+      filter: grayscale(0.25) contrast(1.05);
+      transition: filter 0.3s;
+    }
+    figure.shot:hover .img { filter: none; }
+    figure.shot.pano .img { aspect-ratio: 21 / 9; }
+    figure.shot.wide { grid-column: span 2; }
+    figure.shot.full { grid-column: span 3; }
+    figcaption {
+      padding: 10px 14px 14px;
+      font-family: var(--mono); font-size: 10.5px;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--fg-dim); border-top: 1px solid var(--border);
+    }
+    figcaption b { color: var(--fg); font-weight: 500; }
+    .day-marker {
+      grid-column: 1 / -1;
+      padding: 22px 4px 6px;
+      font-family: var(--mono); font-size: 10.5px;
+      letter-spacing: 0.22em; text-transform: uppercase;
+      color: var(--accent);
+      background: var(--bg);
+    }
+    .day-marker:first-child { padding-top: 6px; }
+
+    .nav-strip {
+      max-width: 1080px; margin: 0 auto; padding: 32px 28px;
+      border-top: 1px solid var(--border);
+      display: flex; justify-content: space-between; gap: 24px;
+      font-family: var(--mono); font-size: 12px;
+      letter-spacing: 0.14em; text-transform: uppercase;
+    }
+    .nav-strip a { color: var(--fg-dim); }
+    .nav-strip a:hover { color: var(--accent); }
+    .nav-strip .label { color: var(--fg-muted); display: block; font-size: 10px; margin-bottom: 4px; }
+
+    footer {
+      border-top: 1px solid var(--border); padding: 32px 28px;
+      max-width: 1280px; margin: 0 auto;
+      display: flex; justify-content: space-between; gap: 18px;
+      font-family: var(--mono); font-size: 11px;
+      letter-spacing: 0.16em; text-transform: uppercase; color: var(--fg-dim);
+    }
+    footer a { color: var(--fg-dim); }
+    footer a:hover { color: var(--accent); }
+
+    @media (max-width: 900px) {
+      .data-strip { grid-template-columns: repeat(2, 1fr); }
+      .gallery { grid-template-columns: repeat(2, 1fr); }
+      figure.shot.wide, figure.shot.full { grid-column: span 2; }
+      .title-block { padding: 36px 20px 24px; }
+      article { padding: 40px 20px; }
+      .gallery-section { padding: 0 20px 64px; }
+      .top-bar, footer, .nav-strip { padding: 14px 20px; }
+    }
+    @media (max-width: 560px) {
+      .gallery { grid-template-columns: 1fr; }
+      figure.shot.wide, figure.shot.full { grid-column: span 1; }
+      .data-strip { grid-template-columns: 1fr 1fr; }
+      h1.location { font-size: 44px; }
+      footer { flex-direction: column; gap: 8px; }
+      .nav-strip { flex-direction: column; gap: 16px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="top-bar">
+    <a href="./">← back to journal</a>
+    <span class="crumb">~/travels/cr-bh-2018</span>
+    <span>vojta@konopa</span>
+  </div>
+
+  <section class="hero" style="background-image:url('./images/cr_bh_2018/cr_bh_pano_0007_04.07.2018_web.jpg');"></section>
+
+  <div class="title-block">
+    <div class="label-row">
+      <span>FIELD JOURNAL · 002</span>
+      <span class="dim">STATUS: TRAVEL</span>
+    </div>
+    <h1 class="location">Croatia<br>&amp; Bosnia</h1>
+    <p class="lede">
+      <!-- [[ FILL ]] One-paragraph hook — why this trip, what you went looking for.
+           Keep it tight: this is the trailer, not the film. -->
+      Nine days through the Adriatic coast and into Herzegovina —
+      from Croatian limestone and sun-bleached harbours to the bridges of Mostar
+      and the green canyons of Bosnia.
+    </p>
+  </div>
+
+  <section class="data-strip">
+    <div>Countries<br><b>Croatia, BiH</b></div>
+    <div>Dates<br><b>4 – 12 July 2018</b></div>
+    <div>Days<br><b>9</b></div>
+    <div>Mode<br><b>Road trip</b></div>
+  </section>
+
+  <article>
+    <!-- [[ FILL ]] body text — write your story here, drop or add paragraphs as needed -->
+    <p class="first">
+      Open the story here. The first paragraph carries the reader in — what you saw
+      first, the smell, the sound. [[ FILL ]]
+    </p>
+
+    <p>
+      [[ FILL ]] Second paragraph. Continue the scene-setting, or jump to context —
+      the route, the border crossing, the first impression of Mostar.
+    </p>
+
+    <h2>// Across the Adriatic</h2>
+
+    <p>
+      [[ FILL ]] Croatia section — the coast, the islands, the towns.
+    </p>
+
+    <h2>// Into Herzegovina</h2>
+
+    <p>
+      [[ FILL ]] Bosnia section — Mostar, the bridge, the bullet-pocked walls,
+      the green Neretva canyon.
+    </p>
+
+    <blockquote>
+      "A pulled quote, a fragment of graffiti, or a line from someone you met."
+    </blockquote>
+
+    <p>
+      [[ FILL ]] Close out the story.
+    </p>
+  </article>
+
+  <section class="gallery-section">
+    <h2 class="section-title">// GALLERY · 50 FRAMES</h2>
+    <div class="gallery">
+
+      <!-- ── 04.07.2018 — Day 1 ── -->
+      <div class="day-marker">04 . 07 . 2018  ·  Day 1</div>
+
+      <figure class="shot full pano">
+        <div class="img" style="background-image:url('./images/cr_bh_2018/cr_bh_pano_0007_04.07.2018_web.jpg');"></div>
+        <figcaption>01 / <b>Panorama</b></figcaption>
+      </figure>
+      <figure class="shot wide pano">
+        <div class="img" style="background-image:url('./images/cr_bh_2018/cr_bh_pano_0002_04.07.2018_LQ.jpg');"></div>
+        <figcaption>02 / <b>Panorama</b></figcaption>
+      </figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/cr_bh_2018/cr_bh_0016_04.07.2018_web.jpg');"></div><figcaption>03</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/cr_bh_2018/cr_bh_0036_04.07.2018_web.jpg');"></div><figcaption>04</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/cr_bh_2018/cr_bh_0053_04.07.2018_web.jpg');"></div><figcaption>05</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/cr_bh_2018/cr_bh_0068_04.07.2018_web.jpg');"></div><figcaption>06</figcaption></figure>
+
+      <!-- ── 05.07.2018 — Day 2 ── -->
+      <div class="day-marker">05 . 07 . 2018  ·  Day 2</div>
+      <figure class="shot"><div class="img" style="background-image:url('./images/cr_bh_2018/cr_bh_0131_05.07.2018_web.jpg');"></div><figcaption>07</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/cr_bh_2018/cr_bh_0137_05.07.2018_web.jpg');"></div><figcaption>08</figcaption></figure>
+
+      <!-- ── 07.07.2018 — Day 4 ── -->
+      <div class="day-marker">07 . 07 . 2018  ·  Day 4</div>
+      <figure class="shot"><div class="img" style="background-image:url('./images/cr_bh_2018/cr_bh_0208_07.07.2018_web.jpg');"></div><figcaption>09</figcaption></figure>
+
+      <!-- ── 08.07.2018 — Day 5 ── -->
+      <div class="day-marker">08 . 07 . 2018  ·  Day 5</div>
+      <figure class="shot"><div class="img" style="background-image:url('./images/cr_bh_2018/cr_bh_0245_08.07.2018_web.jpg');"></div><figcaption>10</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/cr_bh_2018/cr_bh_0246_08.07.2018_web.jpg');"></div><figcaption>11</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/cr_bh_2018/cr_bh_0260_08.07.2018_web.jpg');"></div><figcaption>12</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/cr_bh_2018/cr_bh_0278_08.07.2018_web.jpg');"></div><figcaption>13</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/cr_bh_2018/cr_bh_0287_08.07.2018_web.jpg');"></div><figcaption>14</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/cr_bh_2018/cr_bh_0292_08.07.2018_web.jpg');"></div><figcaption>15</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/cr_bh_2018/cr_bh_0300_08.07.2018_web.jpg');"></div><figcaption>16</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/cr_bh_2018/cr_bh_0304_08.07.2018_web.jpg');"></div><figcaption>17</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/cr_bh_2018/cr_bh_0320_08.07.2018_web.jpg');"></div><figcaption>18</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/cr_bh_2018/cr_bh_0322_08.07.2018_web.jpg');"></div><figcaption>19</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/cr_bh_2018/cr_bh_0350_08.07.2018_web.jpg');"></div><figcaption>20</figcaption></figure>
+
+      <!-- ── 10.07.2018 — Day 7 ── -->
+      <div class="day-marker">10 . 07 . 2018  ·  Day 7</div>
+      <figure class="shot"><div class="img" style="background-image:url('./images/cr_bh_2018/cr_bh_0378_10.07.2018_web.jpg');"></div><figcaption>21</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/cr_bh_2018/cr_bh_0380_10.07.2018_web.jpg');"></div><figcaption>22</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/cr_bh_2018/cr_bh_0389_10.07.2018_web.jpg');"></div><figcaption>23</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/cr_bh_2018/cr_bh_0416_10.07.2018_web.jpg');"></div><figcaption>24</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/cr_bh_2018/cr_bh_0435_10.07.2018_web.jpg');"></div><figcaption>25</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/cr_bh_2018/cr_bh_0444_10.07.2018_web.jpg');"></div><figcaption>26</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/cr_bh_2018/cr_bh_0448_10.07.2018_web.jpg');"></div><figcaption>27</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/cr_bh_2018/cr_bh_0466_10.07.2018_web.jpg');"></div><figcaption>28</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/cr_bh_2018/cr_bh_0480_10.07.2018_web.jpg');"></div><figcaption>29</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/cr_bh_2018/cr_bh_0486_10.07.2018_web.jpg');"></div><figcaption>30</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/cr_bh_2018/cr_bh_0492_10.07.2018_web.jpg');"></div><figcaption>31</figcaption></figure>
+
+      <!-- ── 11.07.2018 — Day 8 ── -->
+      <div class="day-marker">11 . 07 . 2018  ·  Day 8</div>
+      <figure class="shot"><div class="img" style="background-image:url('./images/cr_bh_2018/cr_bh_0498_11.07.2018_web.jpg');"></div><figcaption>32</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/cr_bh_2018/cr_bh_0505_11.07.2018_web.jpg');"></div><figcaption>33</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/cr_bh_2018/cr_bh_0509_11.07.2018_web.jpg');"></div><figcaption>34</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/cr_bh_2018/cr_bh_0510_11.07.2018_web.jpg');"></div><figcaption>35</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/cr_bh_2018/cr_bh_0517_11.07.2018_web.jpg');"></div><figcaption>36</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/cr_bh_2018/cr_bh_0521_11.07.2018_web.jpg');"></div><figcaption>37</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/cr_bh_2018/cr_bh_0525_11.07.2018_web.jpg');"></div><figcaption>38</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/cr_bh_2018/cr_bh_0526_11.07.2018_web.jpg');"></div><figcaption>39</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/cr_bh_2018/cr_bh_0532_11.07.2018_web.jpg');"></div><figcaption>40</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/cr_bh_2018/cr_bh_0538_11.07.2018_web.jpg');"></div><figcaption>41</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/cr_bh_2018/cr_bh_0539_11.07.2018_web.jpg');"></div><figcaption>42</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/cr_bh_2018/cr_bh_0547_11.07.2018_web.jpg');"></div><figcaption>43</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/cr_bh_2018/cr_bh_0548_11.07.2018_web.jpg');"></div><figcaption>44</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/cr_bh_2018/cr_bh_0550_11.07.2018_web.jpg');"></div><figcaption>45</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/cr_bh_2018/cr_bh_0561_11.07.2018_web.jpg');"></div><figcaption>46</figcaption></figure>
+
+      <!-- ── 12.07.2018 — Day 9 ── -->
+      <div class="day-marker">12 . 07 . 2018  ·  Day 9</div>
+      <figure class="shot"><div class="img" style="background-image:url('./images/cr_bh_2018/cr_bh_0602_12.07.2018_web.jpg');"></div><figcaption>47</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/cr_bh_2018/cr_bh_0603_12.07.2018_web.jpg');"></div><figcaption>48</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/cr_bh_2018/cr_bh_0604_12.07.2018_web.jpg');"></div><figcaption>49</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/cr_bh_2018/cr_bh_0608_12.07.2018_web.jpg');"></div><figcaption>50</figcaption></figure>
+
+    </div>
+  </section>
+
+  <nav class="nav-strip">
+    <a href="./ukraine-2017.html">
+      <span class="label">← previous</span>
+      Kyiv &amp; Ukraine
+    </a>
+    <a href="./">
+      <span class="label">next →</span>
+      back to journal
+    </a>
+  </nav>
+
+  <footer>
+    <span>© VOJTĚCH KONOPA</span>
+    <span><a href="/">HOME</a> · <a href="./">JOURNAL</a></span>
+  </footer>
+
+</body>
+</html>
