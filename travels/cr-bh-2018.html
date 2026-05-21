@@ -184,6 +184,24 @@
     .nav-strip a:hover { color: var(--accent); }
     .nav-strip .label { color: var(--fg-muted); display: block; font-size: 10px; margin-bottom: 4px; }
 
+    .video-section {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 0 28px 64px;
+    }
+    .video-wrap {
+      position: relative;
+      aspect-ratio: 16 / 9;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      overflow: hidden;
+    }
+    .video-wrap iframe {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%;
+      border: 0;
+    }
+
     footer {
       border-top: 1px solid var(--border); padding: 32px 28px;
       max-width: 1280px; margin: 0 auto;
@@ -200,7 +218,7 @@
       figure.shot.wide, figure.shot.full { grid-column: span 2; }
       .title-block { padding: 36px 20px 24px; }
       article { padding: 40px 20px; }
-      .gallery-section { padding: 0 20px 64px; }
+      .gallery-section, .video-section { padding: 0 20px 64px; }
       .top-bar, footer, .nav-strip { padding: 14px 20px; }
     }
     @media (max-width: 560px) {
@@ -230,11 +248,9 @@
     </div>
     <h1 class="location">Croatia<br>&amp; Bosnia</h1>
     <p class="lede">
-      <!-- [[ FILL ]] One-paragraph hook — why this trip, what you went looking for.
-           Keep it tight: this is the trailer, not the film. -->
-      Nine days through the Adriatic coast and into Herzegovina —
-      from Croatian limestone and sun-bleached harbours to the bridges of Mostar
-      and the green canyons of Bosnia.
+      Nine days, two countries, zero hotel check-ins — chasing the ruins of
+      a state that dissolved before anyone could sweep them up. The Adriatic
+      coast as a back road to forgotten Yugoslavia.
     </p>
   </div>
 
@@ -246,38 +262,109 @@
   </section>
 
   <article>
-    <!-- [[ FILL ]] body text — write your story here, drop or add paragraphs as needed -->
     <p class="first">
-      Open the story here. The first paragraph carries the reader in — what you saw
-      first, the smell, the sound. [[ FILL ]]
+      People always ask us why we sleep in ruins. The honest answer: we can't
+      afford hotels. Somewhere between the cheap excuse and the truth, there's a
+      story about Yugoslavia — a country that built monuments to its own permanence,
+      then dissolved before anyone got the memo. We went to find what it left behind.
     </p>
 
     <p>
-      [[ FILL ]] Second paragraph. Continue the scene-setting, or jump to context —
-      the route, the border crossing, the first impression of Mostar.
+      The former Yugoslavia is one of the stranger political grief-sites on earth.
+      After Tito's death in 1980 the cracks widened slowly, then catastrophically.
+      By 1991 Slovenia was gone, Croatia was burning, and Bosnia was heading for
+      three years of a war so tangled that at various points everyone fought everyone.
+      What they left — military airports, luxury hotels, partisan monuments, Olympic
+      venues — is now a patchwork of ruins along coasts and mountains that tourists
+      photograph for their pools and sunsets, mostly unaware of what's just inland.
     </p>
 
     <h2>// Across the Adriatic</h2>
 
     <p>
-      [[ FILL ]] Croatia section — the coast, the islands, the towns.
+      The first stop was Petrova Gora, a 512-metre hill in the Croatian interior
+      where a massive steel monument was built in the 1980s to honour partisan
+      fighters from World War II. On 4 March 1990, just days before Croatia's
+      first free election, 70,000 people gathered here for what started as a
+      brotherhood rally and turned into a Serbian nationalist demonstration.
+      The hill was primed. Within weeks the wars began. The monument still stands,
+      stripped of its reflective panels, rusting in the forest.
+    </p>
+
+    <p>
+      Fifty kilometres south and underground: Željava. Designed from 1948,
+      finished in 1968 at a cost of $6 million, the Željava Air Base was built
+      into the mountain on the Croatian-Bosnian border — 3.5 km of tunnels,
+      hangars for 100 aircraft, capable of operating autonomously for 30 days
+      with the doors sealed. When the JNA (Yugoslav People's Army) was forced
+      to abandon it in 1992, they mined it first. The Republika Srpska Krajina
+      forces finished the job. What remains is a cavern you walk through with
+      a head torch and the hairs standing up on your neck.
+    </p>
+
+    <p>
+      Further south along the Dalmatian coast: Hotel Marina Lučica near Primošten,
+      opened 1971, over 700 rooms, once considered one of the most modern hotels
+      in the Mediterranean — and famously open about being nudist. The war ended
+      it by 1994. The nudist beach below it is apparently still in use. The hotel
+      is not. Then Krvavica: a children's respiratory sanatorium on the coast,
+      opened 1964, shuttered by the war in 1991. The state couldn't afford to
+      renovate it and didn't want to sell it to a developer. So it just… stands there.
     </p>
 
     <h2>// Into Herzegovina</h2>
 
     <p>
-      [[ FILL ]] Bosnia section — Mostar, the bridge, the bullet-pocked walls,
-      the green Neretva canyon.
+      Kupari is the one that gets you. In 1920 a Czech entrepreneur built a spa
+      and hotel called Grand in a small bay near Dubrovník — the first hotel in
+      the area. Tito loved it. He added more: Hotel Gloričina (1962), Hotel
+      Pelegrin (1963), Hotel Kupari (1978), Hotel Gloričina II (1980).
+      The whole bay became a resort reserved for the military-political elite
+      — up to 2,000 guests in the hotels, 4,000 more in the surrounding complex.
+      On 1 October 1991 the siege of Dubrovnik began. The JNA looted everything
+      that wasn't shelled, then dropped white phosphorus bombs on the hotels as
+      a demonstration of force to the city nearby. The siege ended May 1992.
+      Kupari hasn't been used since.
+    </p>
+
+    <p>
+      Mostar was the hardest to stand in. The old bridge — Stari Most — spanned
+      the Neretva River since the 16th century, connecting the Catholic Croatian
+      west bank with the Muslim Bosniak east bank. During the war 60 Croatian
+      artillery pieces brought it down in November 1993. It has been rebuilt.
+      The bullet holes in the walls haven't been filled — they're left as record.
+      The city is beautiful and fractured in exactly the right ways to make you
+      understand the phrase "never again" is a wish, not a guarantee.
     </p>
 
     <blockquote>
-      "A pulled quote, a fragment of graffiti, or a line from someone you met."
+      "The ones who build monuments never imagine who'll be picking through them fifty years later."
     </blockquote>
 
     <p>
-      [[ FILL ]] Close out the story.
+      From Mostar we tracked north to Sarajevo — the Olympic bobsled track from
+      the 1984 Winter Games, overgrown and spray-painted, winding down from
+      Trebević mountain. Hotel Igman and the ski jumps, used as NATO UNPROFOR
+      positions during the siege, still pockmarked with shrapnel. The road
+      between the airport and the hotel was called the most dangerous road
+      in Europe during the war. We drove it at dusk and it was just a road.
+      That's the strangest part: how quickly places go back to being just places.
+      Until you look at the walls.
     </p>
   </article>
+
+  <section class="video-section">
+    <h2 class="section-title">// VIDEO</h2>
+    <div class="video-wrap">
+      <iframe
+        src="https://www.youtube-nocookie.com/embed/1F7U8kxYCT8"
+        title="Croatia &amp; Bosnia 2018"
+        loading="lazy"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        referrerpolicy="strict-origin-when-cross-origin"
+        allowfullscreen></iframe>
+    </div>
+  </section>
 
   <section class="gallery-section">
     <h2 class="section-title">// GALLERY · 50 FRAMES</h2>
