@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Făgăraș & Romania 2019 — Travels · Vojtěch Konopa</title>
+  <meta name="description" content="Field notes from a road trip through the Romanian Carpathians — summer 2019." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #1c1c1c;
+      --surface: #262626;
+      --surface-2: #2e2e2e;
+      --border: #3a3a3a;
+      --border-strong: #555;
+      --fg: #ededec;
+      --fg-dim: #8a8a85;
+      --fg-muted: #5e5e5b;
+      --accent: #f5b800;
+      --concrete: #4a4a48;
+      --display: 'Archivo Black', 'Inter', system-ui, sans-serif;
+      --body: 'Inter', system-ui, -apple-system, Segoe UI, sans-serif;
+      --mono: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      background: var(--bg);
+      color: var(--fg);
+      font-family: var(--body);
+      font-size: 16px;
+      line-height: 1.55;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a { color: var(--fg); text-decoration: none; border-bottom: 1px solid transparent; transition: color .15s, border-color .15s; }
+    a:hover, a:focus { color: var(--accent); border-bottom-color: var(--accent); outline: none; }
+    a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 1px; }
+
+    img { display: block; max-width: 100%; }
+
+    .top-bar {
+      border-bottom: 1px solid var(--border);
+      padding: 18px 28px;
+      display: flex; justify-content: space-between; align-items: baseline; gap: 18px;
+      font-family: var(--mono); font-size: 12px;
+      letter-spacing: 0.08em; text-transform: uppercase; color: var(--fg-dim);
+    }
+    .top-bar a { color: var(--fg-dim); }
+    .top-bar a:hover { color: var(--accent); }
+    .top-bar .crumb { color: var(--fg); }
+
+    .hero {
+      position: relative; width: 100%;
+      aspect-ratio: 16 / 9; max-height: 80vh;
+      background-color: var(--concrete);
+      background-size: cover; background-position: center; overflow: hidden;
+    }
+    .hero::before {
+      content: ''; position: absolute; inset: auto 0 0 0; height: 50%;
+      background: linear-gradient(to top, rgba(0,0,0,0.55), transparent);
+      pointer-events: none;
+    }
+
+    .title-block {
+      max-width: 1080px; margin: 0 auto; padding: 56px 28px 28px;
+      border-bottom: 1px solid var(--border);
+    }
+    .label-row {
+      display: flex; gap: 24px; flex-wrap: wrap;
+      font-family: var(--mono); font-size: 11px;
+      letter-spacing: 0.18em; text-transform: uppercase;
+      color: var(--accent); margin-bottom: 18px;
+    }
+    .label-row .dim { color: var(--fg-dim); }
+    h1.location {
+      font-family: var(--display);
+      font-size: clamp(40px, 7vw, 88px);
+      line-height: 0.95; letter-spacing: -0.02em;
+      text-transform: uppercase; margin-bottom: 18px;
+    }
+    .lede {
+      font-size: 18px; font-weight: 300;
+      color: var(--fg); max-width: 680px; line-height: 1.6;
+    }
+
+    .data-strip {
+      max-width: 1080px; margin: 0 auto; padding: 24px 28px;
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      gap: 1px; background: var(--border); border-bottom: 1px solid var(--border);
+    }
+    .data-strip > div {
+      background: var(--bg); padding: 16px 20px;
+      font-family: var(--mono); font-size: 11px;
+      letter-spacing: 0.12em; text-transform: uppercase; color: var(--fg-dim);
+    }
+    .data-strip > div b { display: block; font-size: 18px; color: var(--fg); letter-spacing: 0; margin-top: 4px; font-family: var(--body); }
+
+    article {
+      max-width: 720px; margin: 0 auto; padding: 56px 28px;
+    }
+    article h2 {
+      font-family: var(--mono); font-size: 11px;
+      letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--accent); margin: 48px 0 20px;
+      padding-bottom: 12px; border-bottom: 1px solid var(--border);
+    }
+    article h2:first-child { margin-top: 0; }
+    article p { margin-bottom: 1.4em; color: var(--fg); }
+    article p:last-child { margin-bottom: 0; }
+
+    .section-title {
+      font-family: var(--mono); font-size: 11px;
+      letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--fg-dim); margin-bottom: 28px;
+      padding-bottom: 12px; border-bottom: 1px solid var(--border);
+    }
+
+    .video-section {
+      max-width: 1080px; margin: 0 auto; padding: 0 28px 56px;
+    }
+    .video-wrap {
+      position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;
+      background: var(--surface);
+    }
+    .video-wrap iframe {
+      position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+      border: none;
+    }
+
+    .gallery-section {
+      max-width: 1080px; margin: 0 auto; padding: 0 28px 96px;
+    }
+    .day-heading {
+      font-family: var(--mono); font-size: 11px;
+      letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--accent);
+      padding: 40px 0 12px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 1px;
+    }
+    .day-heading:first-child { padding-top: 8px; }
+    .gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 1px;
+      background: var(--border);
+      margin-bottom: 0;
+    }
+    .gallery a { display: block; aspect-ratio: 4/3; overflow: hidden; background: var(--concrete); }
+    .gallery a img { width: 100%; height: 100%; object-fit: cover; display: block; transition: opacity .2s; }
+    .gallery a:hover img { opacity: 0.8; }
+
+    .gallery-placeholder {
+      padding: 64px 0; text-align: center;
+      font-family: var(--mono); font-size: 11px;
+      letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--fg-muted);
+      border: 1px dashed var(--border);
+    }
+
+    footer {
+      border-top: 1px solid var(--border); padding: 32px 28px;
+      max-width: 1080px; margin: 0 auto;
+      display: flex; justify-content: space-between; gap: 18px;
+      font-family: var(--mono); font-size: 11px;
+      letter-spacing: 0.16em; text-transform: uppercase; color: var(--fg-dim);
+    }
+    footer a { color: var(--fg-dim); border-bottom: 1px solid transparent; }
+    footer a:hover { color: var(--accent); border-bottom-color: var(--accent); }
+
+    @media (max-width: 720px) {
+      .title-block, article { padding-left: 20px; padding-right: 20px; }
+      .data-strip { grid-template-columns: repeat(2, 1fr); padding: 16px 20px; }
+      .gallery-section, .video-section { padding-left: 20px; padding-right: 20px; }
+      .top-bar, footer { padding: 14px 20px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="top-bar">
+    <a href="./index.html">← travels</a>
+    <span class="crumb">~/travels/romania-2019</span>
+    <span>vojta@konopa</span>
+  </div>
+
+  <!-- Hero — replace src with a strong cover photo once images are uploaded -->
+  <div class="hero" style="background-image: url('./images/romania_2019/cover.jpg'); background-color: var(--concrete);"></div>
+
+  <div class="title-block">
+    <div class="label-row">
+      <span>Romania</span>
+      <span class="dim">/</span>
+      <span>Summer 2019</span>
+      <span class="dim">/</span>
+      <span>Road Trip</span>
+    </div>
+    <h1 class="location">Făgăraș<br>& Romania</h1>
+    <p class="lede">
+      [[ FILL — one or two sentences: the essential mood of the trip. ]]
+    </p>
+  </div>
+
+  <div class="data-strip">
+    <div>Days<b>[[ N ]]</b></div>
+    <div>People<b>[[ N ]]</b></div>
+    <div>Distance<b>[[ N ]] km</b></div>
+    <div>Photos<b>[[ N ]]</b></div>
+  </div>
+
+  <article>
+
+    <h2>// [[ FILL SECTION TITLE ]]</h2>
+
+    <p>
+      [[ FILL — article text goes here. Will be written based on photos and map once uploaded. ]]
+    </p>
+
+  </article>
+
+  <!-- Video section — add embed once you have a video, or remove this block -->
+  <!--
+  <section class="video-section">
+    <h2 class="section-title">// VIDEO</h2>
+    <div class="video-wrap">
+      <iframe src="https://www.youtube-nocookie.com/embed/XXXXXXXXXXX"
+        title="Făgăraș &amp; Romania 2019" loading="lazy"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+    </div>
+  </section>
+  -->
+
+  <section class="gallery-section">
+    <h2 class="section-title">// GALLERY · [[ N ]] FRAMES</h2>
+
+    <div class="gallery-placeholder">
+      photos coming soon — upload _web.jpg files to travels/images/romania_2019/
+    </div>
+
+  </section>
+
+  <footer>
+    <span>© VOJTĚCH KONOPA</span>
+    <a href="./index.html">← ALL TRAVELS</a>
+  </footer>
+
+</body>
+</html>
