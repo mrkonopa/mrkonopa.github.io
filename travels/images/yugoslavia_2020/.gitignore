@@ -1,0 +1,17 @@
+# block all images by default — only web-sized copies go in git
+*.jpg
+*.jpeg
+*.png
+*.JPG
+*.JPEG
+*.PNG
+*.tif
+*.tiff
+*.raw
+*.CR2
+*.NEF
+*.ARW
+
+# allow web-sized copies
+!*_web.jpg
+!*_LQ.jpg
