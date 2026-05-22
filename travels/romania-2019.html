@@ -256,80 +256,85 @@
   <section class="route-section">
     <h2 class="section-title">// ROUTE · AVRIG → VICTORIA · 52.1 KM</h2>
     <div class="route-svg-wrap">
-      <svg id="route-svg" viewBox="0 0 1000 310" xmlns="http://www.w3.org/2000/svg"
+      <!--
+        GPX-accurate elevation profile. viewBox 0 0 1060 270.
+        Route x: 20–940, y: 25–225. Extra right margin 940–1060 for ele labels.
+        Scale: y = 25 + 200*(1 - (ele-400)/2250)  |  x = 20 + km/52.05*920
+        Generated from /travels/images/romania_2019 GPX track (3001 pts, 52.05 km).
+      -->
+      <svg id="route-svg" viewBox="0 0 1060 270" xmlns="http://www.w3.org/2000/svg"
            aria-label="Elevation profile of the Făgăraș ridge traverse from Avrig to Victoria">
 
-        <!-- mountain fill -->
-        <path d="M 20,266 C 40,240 60,200 76,180 C 95,158 120,100 152,90 C 172,85 200,84 242,82
-                 C 262,81 282,83 296,84 C 315,79 326,76 336,74 C 347,79 360,83 374,86
-                 C 392,76 412,63 428,60 C 447,61 468,63 484,64 C 502,69 522,78 540,81
-                 C 558,78 587,76 612,76 C 630,73 650,72 668,71 C 686,70 704,68 722,67
-                 C 737,67 752,67 762,67 C 777,67 787,68 798,68 C 812,71 823,73 836,74
-                 C 850,64 862,59 872,58 C 884,69 896,90 910,106 C 922,138 936,178 947,181
-                 C 960,200 974,240 984,266 L 1000,310 L 0,310 Z"
-              fill="#222" opacity="0.95"/>
+        <defs>
+          <!-- text outline for readability over the route line -->
+          <filter id="txt-bg" x="-10%" y="-20%" width="120%" height="140%">
+            <feMorphology in="SourceGraphic" operator="dilate" radius="2.5" result="expanded"/>
+            <feFlood flood-color="#1c1c1c" result="bg"/>
+            <feComposite in="bg" in2="expanded" operator="in" result="outline"/>
+            <feMerge><feMergeNode in="outline"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+        </defs>
 
-        <!-- elevation grid -->
-        <line x1="20" y1="82"  x2="984" y2="82"  stroke="#2e2e2e" stroke-width="1"/>
-        <line x1="20" y1="134" x2="984" y2="134" stroke="#2e2e2e" stroke-width="1"/>
-        <line x1="20" y1="186" x2="984" y2="186" stroke="#2e2e2e" stroke-width="1"/>
-        <line x1="20" y1="238" x2="984" y2="238" stroke="#2e2e2e" stroke-width="1"/>
-        <text x="992" y="85"  font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a4a48" text-anchor="start">2400 m</text>
-        <text x="992" y="137" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a4a48" text-anchor="start">2000 m</text>
-        <text x="992" y="189" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a4a48" text-anchor="start">1500 m</text>
-        <text x="992" y="241" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a4a48" text-anchor="start">1000 m</text>
+        <!-- mountain fill — exact GPX polygon -->
+        <polygon points="20.0,212.6 38.1,211.3 51.4,209.1 69.4,205.4 91.6,201.4 117.9,195.8 131.5,185.9 147.8,178.7 154.9,173.3 162.2,166.7 167.6,159.2 173.7,151.3 178.1,143.3 183.6,135.7 187.1,128.5 193.4,121.3 209.2,114.0 222.7,107.4 239.7,101.5 252.7,95.1 260.6,89.8 266.5,84.0 273.1,78.2 285.4,72.1 297.3,67.8 306.1,64.9 316.2,63.1 323.5,62.1 332.1,61.7 339.5,62.3 348.1,63.9 355.7,65.4 366.5,66.8 375.4,67.7 382.5,69.0 391.8,68.4 397.2,68.1 403.1,68.9 413.4,70.7 427.0,72.8 435.2,74.5 444.1,75.7 452.1,76.4 462.7,76.3 468.9,75.2 473.5,72.9 478.9,70.8 483.9,69.1 490.6,67.3 494.0,66.7 496.3,67.6 499.6,68.9 503.8,69.5 508.4,69.7 516.1,70.4 524.2,70.6 532.8,70.1 544.6,70.0 552.2,70.1 559.9,70.0 570.3,70.2 578.4,71.3 586.6,72.2 590.7,73.1 596.0,73.0 604.1,72.3 610.1,71.4 615.2,70.1 620.1,69.2 623.7,66.9 627.4,65.1 632.9,63.6 637.1,61.4 642.0,59.1 658.6,57.1 673.7,55.7 693.2,54.1 708.5,52.9 716.2,52.9 720.1,54.6 724.3,57.6 728.4,61.6 732.6,66.2 738.9,70.7 744.1,75.7 751.6,80.9 760.5,86.8 770.3,93.9 777.3,101.4 786.2,109.6 792.1,118.1 798.2,127.1 804.4,136.0 812.3,144.8 821.9,152.0 831.8,154.6 842.2,161.4 858.8,168.6 878.7,181.5 905.2,191.0 940.0,201.0 940.0,230 20,230"
+                fill="#212121"/>
 
-        <!-- route path -->
-        <path id="route-path"
-          d="M 20,266 C 40,240 60,200 76,180 C 95,158 120,100 152,90 C 172,85 200,84 242,82
-             C 262,81 282,83 296,84 C 315,79 326,76 336,74 C 347,79 360,83 374,86
-             C 392,76 412,63 428,60 C 447,61 468,63 484,64 C 502,69 522,78 540,81
-             C 558,78 587,76 612,76 C 630,73 650,72 668,71 C 686,70 704,68 722,67
-             C 737,67 752,67 762,67 C 777,67 787,68 798,68 C 812,71 823,73 836,74
-             C 850,64 862,59 872,58 C 884,69 896,90 910,106 C 922,138 936,178 947,181
-             C 960,200 974,240 984,266"/>
+        <!-- elevation grid lines (x: 20–940) -->
+        <line x1="20" y1="38"  x2="940" y2="38"  stroke="#2d2d2d" stroke-width="1"/>
+        <line x1="20" y1="83"  x2="940" y2="83"  stroke="#2d2d2d" stroke-width="1"/>
+        <line x1="20" y1="127" x2="940" y2="127" stroke="#2d2d2d" stroke-width="1"/>
+        <line x1="20" y1="172" x2="940" y2="172" stroke="#2d2d2d" stroke-width="1"/>
 
-        <!-- endpoints -->
-        <circle class="endpoint-dot" id="dot-start" cx="20" cy="266" r="4"/>
-        <text class="endpoint-label start" id="lbl-start" x="20" y="284" text-anchor="middle">Avrig</text>
-        <circle class="endpoint-dot" id="dot-end" cx="984" cy="266" r="4"/>
-        <text class="endpoint-label" id="lbl-end" x="984" y="284" text-anchor="middle">Victoria</text>
+        <!-- elevation labels — x=948 fits in viewBox width 1060 -->
+        <text x="948" y="41"  font-family="'JetBrains Mono',monospace" font-size="9" fill="#555" text-anchor="start">2500 m</text>
+        <text x="948" y="86"  font-family="'JetBrains Mono',monospace" font-size="9" fill="#555" text-anchor="start">2000 m</text>
+        <text x="948" y="130" font-family="'JetBrains Mono',monospace" font-size="9" fill="#555" text-anchor="start">1500 m</text>
+        <text x="948" y="175" font-family="'JetBrains Mono',monospace" font-size="9" fill="#555" text-anchor="start">1000 m</text>
 
-        <!-- Cabana Bârcaciu (1560m, km 10) — first hut -->
-        <circle class="peak-dot" id="dot-barcaciu" cx="202" cy="119" r="3"/>
-        <text class="peak-label" id="lbl-barcaciu" x="202" y="109" text-anchor="middle">Câb. Bârcaciu</text>
-        <text class="peak-label" id="lbl-barcaciu2" x="202" y="99" text-anchor="middle">1560 m</text>
+        <!-- route line — exact GPX polyline -->
+        <polyline id="route-path"
+          points="20.0,212.6 38.1,211.3 51.4,209.1 69.4,205.4 91.6,201.4 117.9,195.8 131.5,185.9 147.8,178.7 154.9,173.3 162.2,166.7 167.6,159.2 173.7,151.3 178.1,143.3 183.6,135.7 187.1,128.5 193.4,121.3 209.2,114.0 222.7,107.4 239.7,101.5 252.7,95.1 260.6,89.8 266.5,84.0 273.1,78.2 285.4,72.1 297.3,67.8 306.1,64.9 316.2,63.1 323.5,62.1 332.1,61.7 339.5,62.3 348.1,63.9 355.7,65.4 366.5,66.8 375.4,67.7 382.5,69.0 391.8,68.4 397.2,68.1 403.1,68.9 413.4,70.7 427.0,72.8 435.2,74.5 444.1,75.7 452.1,76.4 462.7,76.3 468.9,75.2 473.5,72.9 478.9,70.8 483.9,69.1 490.6,67.3 494.0,66.7 496.3,67.6 499.6,68.9 503.8,69.5 508.4,69.7 516.1,70.4 524.2,70.6 532.8,70.1 544.6,70.0 552.2,70.1 559.9,70.0 570.3,70.2 578.4,71.3 586.6,72.2 590.7,73.1 596.0,73.0 604.1,72.3 610.1,71.4 615.2,70.1 620.1,69.2 623.7,66.9 627.4,65.1 632.9,63.6 637.1,61.4 642.0,59.1 658.6,57.1 673.7,55.7 693.2,54.1 708.5,52.9 716.2,52.9 720.1,54.6 724.3,57.6 728.4,61.6 732.6,66.2 738.9,70.7 744.1,75.7 751.6,80.9 760.5,86.8 770.3,93.9 777.3,101.4 786.2,109.6 792.1,118.1 798.2,127.1 804.4,136.0 812.3,144.8 821.9,152.0 831.8,154.6 842.2,161.4 858.8,168.6 878.7,181.5 905.2,191.0 940.0,201.0"
+          fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
 
-        <!-- Scara 2306m -->
-        <circle class="peak-dot" id="dot-scara" cx="242" cy="82" r="3"/>
-        <text class="peak-label peak-top" id="lbl-scara" x="242" y="72" text-anchor="middle">Scara</text>
-        <text class="peak-label" id="lbl-scara2" x="242" y="62" text-anchor="middle">2306</text>
+        <!-- START: Avrig -->
+        <circle class="endpoint-dot" id="dot-start" cx="20" cy="212.6" r="4"/>
+        <text class="endpoint-label start" id="lbl-start" x="20" y="244" text-anchor="middle" filter="url(#txt-bg)">Avrig</text>
 
-        <!-- Espezi 2522m -->
-        <circle class="peak-dot" id="dot-espezi" cx="428" cy="60" r="3"/>
-        <text class="peak-label peak-top" id="lbl-espezi" x="428" y="50" text-anchor="middle">Espezi</text>
-        <text class="peak-label" id="lbl-espezi2" x="428" y="40" text-anchor="middle">2522</text>
+        <!-- END: Victoria — cx=940 so text fits fully inside viewBox -->
+        <circle class="endpoint-dot" id="dot-end" cx="940" cy="201" r="4"/>
+        <text class="endpoint-label" id="lbl-end" x="940" y="244" text-anchor="middle" filter="url(#txt-bg)">Victoria</text>
 
-        <!-- Cabana Podragu 2136m (km 40) -->
-        <circle class="peak-dot" id="dot-podragu" cx="780" cy="84" r="3"/>
-        <text class="peak-label" id="lbl-podragu" x="780" y="74" text-anchor="middle">Câb. Podragu</text>
-        <text class="peak-label" id="lbl-podragu2" x="780" y="64" text-anchor="middle">2136 m</text>
+        <!-- ESPEZI area — western high point (km ~16.8, GPX ele ~2280m) -->
+        <!-- Espezi summit 2522m is 570m from track; labelled as nearest major peak -->
+        <circle class="peak-dot" id="dot-espezi" cx="332" cy="61.7" r="3"/>
+        <text class="peak-label peak-top" id="lbl-espezi"  x="332" y="50" text-anchor="middle" filter="url(#txt-bg)">Espezi</text>
+        <text class="peak-label"          id="lbl-espezi2" x="332" y="40" text-anchor="middle" filter="url(#txt-bg)">2522 m</text>
 
-        <!-- Moldoveanu 2544m — highest in Romania -->
-        <circle class="peak-dot" id="dot-moldo" cx="872" cy="58" r="5"/>
-        <line id="moldo-tick" x1="872" y1="36" x2="872" y2="52" stroke="#f5b800" stroke-width="1.5" opacity="0"/>
-        <text class="peak-label peak-highest" id="lbl-moldo"  x="872" y="26" text-anchor="middle">Moldoveanu</text>
-        <text class="peak-label peak-highest" id="lbl-moldo2" x="872" y="16" text-anchor="middle">2544 m ▲</text>
+        <!-- NEGOIU — km 28.6, summit 2535m is 1.4km from track -->
+        <circle class="peak-dot" id="dot-negoiu" cx="526" cy="70.6" r="3"/>
+        <text class="peak-label peak-top" id="lbl-negoiu"  x="510" y="56" text-anchor="end" filter="url(#txt-bg)">Negoiu</text>
+        <text class="peak-label"          id="lbl-negoiu2" x="510" y="46" text-anchor="end" filter="url(#txt-bg)">2535 m</text>
 
-        <!-- day dividers -->
-        <line id="day2-tick" x1="297" y1="268" x2="297" y2="280" stroke="#444" stroke-width="1" opacity="0"/>
-        <text id="day2-lbl" x="297" y="295" font-family="'JetBrains Mono',monospace" font-size="8" fill="#555" text-anchor="middle" opacity="0">DAY 2</text>
-        <line id="day3-tick" x1="558" y1="268" x2="558" y2="280" stroke="#444" stroke-width="1" opacity="0"/>
-        <text id="day3-lbl" x="558" y="295" font-family="'JetBrains Mono',monospace" font-size="8" fill="#555" text-anchor="middle" opacity="0">DAY 3</text>
-        <line id="day4-tick" x1="724" y1="268" x2="724" y2="280" stroke="#444" stroke-width="1" opacity="0"/>
-        <text id="day4-lbl" x="724" y="295" font-family="'JetBrains Mono',monospace" font-size="8" fill="#555" text-anchor="middle" opacity="0">DAY 4</text>
-        <line id="day5-tick" x1="853" y1="268" x2="853" y2="280" stroke="#444" stroke-width="1" opacity="0"/>
-        <text id="day5-lbl" x="853" y="295" font-family="'JetBrains Mono',monospace" font-size="8" fill="#555" text-anchor="middle" opacity="0">DAY 5</text>
+        <!-- CABANA PODRAGU hut — km 29.8, 2136m -->
+        <rect class="peak-dot" id="dot-podragu" x="543" y="67" width="6" height="6" rx="1"/>
+        <text class="peak-label" id="lbl-podragu"  x="553" y="60" text-anchor="start" filter="url(#txt-bg)">Câb. Podragu</text>
+        <text class="peak-label" id="lbl-podragu2" x="553" y="70" text-anchor="start" filter="url(#txt-bg)">2136 m</text>
+
+        <!-- MOLDOVEANU 2544m — highest in Romania, km 40.1 -->
+        <circle class="peak-dot" id="dot-moldo" cx="729" cy="52.9" r="5"/>
+        <line id="moldo-tick" x1="729" y1="28" x2="729" y2="47" stroke="#f5b800" stroke-width="1.5" opacity="0"/>
+        <text class="peak-label peak-highest" id="lbl-moldo"  x="729" y="22" text-anchor="middle" filter="url(#txt-bg)">Moldoveanu</text>
+        <text class="peak-label peak-highest" id="lbl-moldo2" x="729" y="12" text-anchor="middle" filter="url(#txt-bg)">2544 m ▲</text>
+
+        <!-- day dividers at approximate day boundaries -->
+        <line id="day2-tick" x1="214" y1="215" x2="214" y2="227" stroke="#444" stroke-width="1" opacity="0"/>
+        <text id="day2-lbl" x="214" y="241" font-family="'JetBrains Mono',monospace" font-size="8" fill="#555" text-anchor="middle" opacity="0">DAY 2</text>
+        <line id="day3-tick" x1="409" y1="215" x2="409" y2="227" stroke="#444" stroke-width="1" opacity="0"/>
+        <text id="day3-lbl" x="409" y="241" font-family="'JetBrains Mono',monospace" font-size="8" fill="#555" text-anchor="middle" opacity="0">DAY 3</text>
+        <line id="day4-tick" x1="550" y1="215" x2="550" y2="227" stroke="#444" stroke-width="1" opacity="0"/>
+        <text id="day4-lbl" x="550" y="241" font-family="'JetBrains Mono',monospace" font-size="8" fill="#555" text-anchor="middle" opacity="0">DAY 4</text>
+        <line id="day5-tick" x1="692" y1="215" x2="692" y2="227" stroke="#444" stroke-width="1" opacity="0"/>
+        <text id="day5-lbl" x="692" y="241" font-family="'JetBrains Mono',monospace" font-size="8" fill="#555" text-anchor="middle" opacity="0">DAY 5</text>
 
       </svg>
     </div>
@@ -519,18 +524,19 @@
   <script>
     (function () {
       const svg  = document.getElementById('route-svg');
-      const path = document.getElementById('route-path');
+      const line = document.getElementById('route-path');
       let triggered = false;
 
       function trigger() {
         if (triggered) return;
         triggered = true;
 
-        const len = path.getTotalLength();
-        path.style.strokeDasharray  = len;
-        path.style.strokeDashoffset = len;
-        path.style.setProperty('--total-len', len);
-        path.classList.add('animate');
+        // polyline uses getTotalLength() same as path
+        const len = line.getTotalLength();
+        line.style.strokeDasharray  = len;
+        line.style.strokeDashoffset = len;
+        line.style.setProperty('--total-len', len);
+        line.classList.add('animate');
 
         const dur = 4000;
 
@@ -548,25 +554,21 @@
         delayEl('dot-start', 0.01);  delayEl('lbl-start', 0.01);
         delayEl('dot-end',   0.99);  delayEl('lbl-end',   0.99);
 
-        // Cabana Bârcaciu ≈ km 10 → 10/52 = 0.19
-        delayEl('dot-barcaciu', 0.19);
-        delayEl('lbl-barcaciu', 0.19); delayEl('lbl-barcaciu2', 0.19);
+        // Espezi ≈ km 16.8 → 0.32
+        delayEl('dot-espezi', 0.32);
+        delayEl('lbl-espezi', 0.32); delayEl('lbl-espezi2', 0.32);
 
-        // Scara 2306 ≈ km 12 → 0.23
-        delayEl('dot-scara', 0.23);
-        delayEl('lbl-scara', 0.23); delayEl('lbl-scara2', 0.23);
+        // Negoiu ≈ km 28.6 → 0.55
+        delayEl('dot-negoiu', 0.55);
+        delayEl('lbl-negoiu', 0.55); delayEl('lbl-negoiu2', 0.55);
 
-        // Espezi 2522 ≈ km 22 → 0.42
-        delayEl('dot-espezi', 0.42);
-        delayEl('lbl-espezi', 0.42); delayEl('lbl-espezi2', 0.42);
+        // Cabana Podragu ≈ km 29.8 → 0.57
+        delayEl('dot-podragu', 0.57);
+        delayEl('lbl-podragu', 0.57); delayEl('lbl-podragu2', 0.57);
 
-        // Cabana Podragu ≈ km 40 → 0.77
-        delayEl('dot-podragu', 0.77);
-        delayEl('lbl-podragu', 0.77); delayEl('lbl-podragu2', 0.77);
-
-        // Moldoveanu ≈ km 46 → 0.88
-        delayEl('dot-moldo',  0.88);
-        delayEl('lbl-moldo',  0.88); delayEl('lbl-moldo2', 0.88);
+        // Moldoveanu ≈ km 40.1 → 0.77
+        delayEl('dot-moldo',  0.77);
+        delayEl('lbl-moldo',  0.77); delayEl('lbl-moldo2', 0.77);
         delayOpacity('moldo-tick', 0.88);
 
         // day dividers
