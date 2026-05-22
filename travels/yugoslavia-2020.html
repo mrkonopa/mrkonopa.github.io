@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Jugoslávie — Balkans 2020 · Travels · Vojtěch Konopa</title>
+  <meta name="description" content="A road trip across the remnants of Yugoslavia — coal plants, bunkers, radar stations, and an Olympic ghost stadium across six Balkan countries." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #1c1c1c;
+      --surface: #262626;
+      --surface-2: #2e2e2e;
+      --border: #3a3a3a;
+      --border-strong: #555;
+      --fg: #ededec;
+      --fg-dim: #8a8a85;
+      --fg-muted: #5e5e5b;
+      --accent: #f5b800;
+      --concrete: #4a4a48;
+      --display: 'Archivo Black', 'Inter', system-ui, sans-serif;
+      --body: 'Inter', system-ui, -apple-system, Segoe UI, sans-serif;
+      --mono: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      background: var(--bg);
+      color: var(--fg);
+      font-family: var(--body);
+      font-size: 16px;
+      line-height: 1.55;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a { color: var(--fg); text-decoration: none; border-bottom: 1px solid transparent; transition: color .15s, border-color .15s; }
+    a:hover, a:focus { color: var(--accent); border-bottom-color: var(--accent); outline: none; }
+    a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 1px; }
+    img { display: block; max-width: 100%; }
+
+    .top-bar {
+      border-bottom: 1px solid var(--border);
+      padding: 18px 28px;
+      display: flex; justify-content: space-between; align-items: baseline; gap: 18px;
+      font-family: var(--mono); font-size: 12px;
+      letter-spacing: 0.08em; text-transform: uppercase; color: var(--fg-dim);
+    }
+    .top-bar a { color: var(--fg-dim); }
+    .top-bar a:hover { color: var(--accent); }
+    .top-bar .crumb { color: var(--fg); }
+
+    .hero {
+      position: relative; width: 100%;
+      aspect-ratio: 16 / 9; max-height: 80vh;
+      background-color: var(--concrete);
+      background-size: cover; background-position: center; overflow: hidden;
+    }
+    .hero.empty {
+      background-image:
+        repeating-linear-gradient(135deg, rgba(255,255,255,0.02) 0 8px, transparent 8px 16px),
+        radial-gradient(ellipse at 40% 30%, #555 0%, #3a3a3a 60%, #2a2a2a 100%);
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--mono); font-size: 12px; letter-spacing: 0.2em;
+      color: rgba(255,255,255,0.3); text-transform: uppercase;
+    }
+    .hero::before {
+      content: ''; position: absolute; inset: auto 0 0 0; height: 50%;
+      background: linear-gradient(to top, rgba(0,0,0,0.55), transparent);
+      pointer-events: none;
+    }
+
+    .title-block {
+      max-width: 1080px; margin: 0 auto; padding: 56px 28px 28px;
+      border-bottom: 1px solid var(--border);
+    }
+    .label-row {
+      display: flex; gap: 24px; flex-wrap: wrap;
+      font-family: var(--mono); font-size: 11px;
+      letter-spacing: 0.18em; text-transform: uppercase;
+      color: var(--accent); margin-bottom: 18px;
+    }
+    .label-row .dim { color: var(--fg-dim); }
+    h1.location {
+      font-family: var(--display);
+      font-size: clamp(52px, 10vw, 130px);
+      line-height: 0.88;
+      letter-spacing: -0.025em;
+      text-transform: uppercase;
+      margin-bottom: 22px;
+    }
+    .subtitle {
+      font-size: 18px; font-weight: 300;
+      color: var(--fg-dim); max-width: 680px; line-height: 1.65;
+      margin-bottom: 28px;
+    }
+
+    .data-strip {
+      display: flex; flex-wrap: wrap; gap: 0;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      font-family: var(--mono);
+    }
+    .data-item {
+      padding: 14px 28px 14px 0;
+      margin-right: 28px;
+      border-right: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .data-item:last-child { border-right: none; }
+    .data-label {
+      font-size: 9.5px; letter-spacing: 0.22em;
+      text-transform: uppercase; color: var(--fg-muted);
+      display: block; margin-bottom: 4px;
+    }
+    .data-val {
+      font-size: 18px; font-weight: 700; color: var(--fg);
+      letter-spacing: -0.01em;
+    }
+    .data-val span { font-size: 11px; font-weight: 400; color: var(--fg-dim); margin-left: 2px; }
+
+    /* ── ROUTE MAP SVG ── */
+    .route-section {
+      max-width: 1080px; margin: 0 auto; padding: 56px 28px 48px;
+      border-bottom: 1px solid var(--border);
+    }
+    .section-label {
+      font-family: var(--mono); font-size: 11px;
+      letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--fg-dim); margin-bottom: 20px;
+    }
+    .route-svg-wrap { position: relative; width: 100%; overflow: hidden; }
+    .route-svg-wrap svg { width: 100%; height: auto; display: block; }
+
+    /* ── ARTICLE ── */
+    .article {
+      max-width: 780px; margin: 0 auto; padding: 64px 28px 80px;
+    }
+    .article h2 {
+      font-family: var(--mono); font-size: 11px;
+      letter-spacing: 0.22em; text-transform: uppercase;
+      color: var(--accent); margin-bottom: 20px; margin-top: 52px;
+      padding-bottom: 10px; border-bottom: 1px solid var(--border);
+    }
+    .article h2:first-child { margin-top: 0; }
+    .article h3 {
+      font-family: var(--display); font-size: 22px;
+      text-transform: uppercase; letter-spacing: -0.01em;
+      margin: 36px 0 14px; color: var(--fg);
+    }
+    .article p {
+      font-size: 15.5px; line-height: 1.75; color: var(--fg-dim);
+      font-weight: 300; margin-bottom: 18px;
+    }
+    .article p strong { color: var(--fg); font-weight: 500; }
+    .article .location-tag {
+      display: inline-block;
+      font-family: var(--mono); font-size: 10px;
+      letter-spacing: 0.18em; text-transform: uppercase;
+      color: var(--accent); background: rgba(245,184,0,0.08);
+      border: 1px solid rgba(245,184,0,0.25);
+      padding: 3px 8px; border-radius: 2px;
+      margin-bottom: 12px;
+    }
+
+    /* ── GALLERY ── */
+    .gallery-section {
+      max-width: 1280px; margin: 0 auto; padding: 0 0 96px;
+    }
+    .day-heading {
+      font-family: var(--mono); font-size: 11px;
+      letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--fg-dim); padding: 20px 28px 12px;
+      border-top: 1px solid var(--border);
+    }
+    .day-heading b { color: var(--accent); }
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 1px; background: var(--border);
+    }
+    .gallery-grid img {
+      width: 100%; aspect-ratio: 4/3;
+      object-fit: cover; display: block;
+      filter: grayscale(0.35) contrast(1.05);
+      transition: filter 0.25s ease;
+    }
+    .gallery-grid img:hover { filter: none; cursor: zoom-in; }
+
+    /* lightbox */
+    #lb { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.92);
+      z-index:1000; align-items:center; justify-content:center; }
+    #lb.open { display:flex; }
+    #lb img { max-width:90vw; max-height:90vh; object-fit:contain; display:block; }
+    #lb-close { position:fixed; top:18px; right:22px; font-size:28px; color:#fff;
+      cursor:pointer; font-family:var(--mono); line-height:1; opacity:0.7; }
+    #lb-close:hover { opacity:1; }
+
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 32px 28px; max-width: 1280px; margin: 0 auto;
+      display: flex; justify-content: space-between; gap: 18px;
+      font-family: var(--mono); font-size: 11px;
+      letter-spacing: 0.16em; text-transform: uppercase; color: var(--fg-dim);
+    }
+    footer a { color: var(--fg-dim); border-bottom: 1px solid transparent; }
+    footer a:hover { color: var(--accent); border-bottom-color: var(--accent); }
+
+    @media (max-width: 768px) {
+      .title-block { padding: 36px 20px 24px; }
+      .article { padding: 40px 20px 60px; }
+      .route-section { padding: 36px 20px 32px; }
+      .top-bar, footer { padding: 14px 20px; }
+      .data-item { padding: 12px 18px 12px 0; margin-right: 18px; }
+      .data-val { font-size: 16px; }
+    }
+    @media (max-width: 480px) {
+      h1.location { font-size: 52px; }
+      .gallery-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="top-bar">
+    <a href="./index.html">← back to travels</a>
+    <span class="crumb">~/travels/yugoslavia-2020</span>
+    <span>vojta@konopa</span>
+  </div>
+
+  <!-- HERO — replace class="empty" and add style="background-image:url(...)" when cover photo is ready -->
+  <div class="hero empty">IMG / TODO — cover photo</div>
+
+  <div class="title-block">
+    <div class="label-row">
+      <span>FIELD JOURNAL · 004</span>
+      <span class="dim">BALKANS · SUMMER 2020</span>
+    </div>
+    <h1 class="location">JUGO&shy;SLÁVIE</h1>
+    <p class="subtitle">
+      A road trip through the bones of a country that no longer exists —
+      coal-fired power plants, a monumental socialist UFO, NATO radar hilltops,
+      ammunition bunkers, an Olympic stadium turned refugee camp, and a train
+      graveyard by the Aegean. Six countries. One ghost empire.
+    </p>
+    <div class="data-strip">
+      <div class="data-item">
+        <span class="data-label">Countries</span>
+        <div class="data-val">6 <span>HU · RS · BG · GR · AL · HR</span></div>
+      </div>
+      <div class="data-item">
+        <span class="data-label">Year</span>
+        <div class="data-val">2020</div>
+      </div>
+      <div class="data-item">
+        <span class="data-label">Key Sites</span>
+        <div class="data-val">7+</div>
+      </div>
+      <div class="data-item">
+        <span class="data-label">Photos</span>
+        <div class="data-val" id="photo-count">—</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ROUTE MAP -->
+  <section class="route-section">
+    <p class="section-label">// ROUTE — CZ → HU → RS → BG → GR → AL → HR → CZ</p>
+    <div class="route-svg-wrap">
+      <!--
+        Schematic Balkans loop. Countries shown as labelled dots connected
+        by a dashed route line. Not to scale — topology only.
+        Coordinates (cx,cy) are hand-placed for clarity, not geographic accuracy.
+
+        Approximate positions in a 900×420 viewport:
+          CZ (Prague):   cx=390, cy=50
+          HU (Oroszlány):cx=410, cy=110   — coal plant
+          RS (Belgrade): cx=450, cy=175   — capital
+          BG (Buzludzha):cx=530, cy=185   — monument + Sofia
+          GR (Thessaloniki): cx=540, cy=255  — train graveyard
+          GR (Athens):   cx=490, cy=310   — Ellinikon / NATO ACE High
+          AL (Poliçan):  cx=410, cy=290   — ammo factory
+          HR (Dalmatia): cx=310, cy=230   — south coast swim
+          CZ return:     cx=390, cy=50    — close the loop
+      -->
+      <svg viewBox="0 0 900 420" xmlns="http://www.w3.org/2000/svg"
+           style="background:var(--surface); border:1px solid var(--border);">
+        <defs>
+          <filter id="lbl-bg">
+            <feMorphology in="SourceGraphic" operator="dilate" radius="2" result="exp"/>
+            <feFlood flood-color="#262626" result="bg"/>
+            <feComposite in="bg" in2="exp" operator="in" result="outline"/>
+            <feMerge><feMergeNode in="outline"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+          <marker id="arr" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto">
+            <path d="M0,0 L6,3 L0,6 Z" fill="#f5b800" opacity="0.7"/>
+          </marker>
+        </defs>
+
+        <!-- Route line — draw as one closed polyline, animate with dashoffset -->
+        <polyline id="route-line"
+          points="390,50 410,110 450,175 530,185 540,255 490,310 410,290 310,230 390,50"
+          fill="none" stroke="#f5b800" stroke-width="1.5"
+          stroke-dasharray="4 6" opacity="0.6"/>
+
+        <!-- Country / city dots -->
+        <!-- CZ start/end -->
+        <circle cx="390" cy="50" r="5" fill="#f5b800"/>
+        <!-- HU — coal plant -->
+        <circle cx="410" cy="110" r="4" fill="var(--fg-dim)"/>
+        <!-- RS — Belgrade -->
+        <circle cx="450" cy="175" r="4" fill="var(--fg-dim)"/>
+        <!-- BG — Buzludzha -->
+        <circle cx="530" cy="185" r="4" fill="var(--fg-dim)"/>
+        <!-- GR — Thessaloniki trains -->
+        <circle cx="540" cy="255" r="4" fill="var(--fg-dim)"/>
+        <!-- GR — Athens (Ellinikon / ACE High) -->
+        <circle cx="490" cy="310" r="4" fill="var(--fg-dim)"/>
+        <!-- AL — Poliçan -->
+        <circle cx="410" cy="290" r="4" fill="var(--fg-dim)"/>
+        <!-- HR — Dalmatia -->
+        <circle cx="310" cy="230" r="4" fill="var(--fg-dim)"/>
+
+        <!-- Labels -->
+        <g font-family="'JetBrains Mono', monospace" fill="var(--fg)"
+           font-size="10.5" letter-spacing="0.12em" filter="url(#lbl-bg)">
+
+          <!-- CZ -->
+          <text x="400" y="44" text-anchor="start" fill="#f5b800" font-size="11">CZ · PRAGUE</text>
+
+          <!-- HU -->
+          <text x="422" y="105" text-anchor="start" fill="var(--fg-dim)">HU · OROSZLÁNY</text>
+          <text x="422" y="118" text-anchor="start" fill="var(--fg-muted)" font-size="9.5">coal plant</text>
+
+          <!-- RS -->
+          <text x="462" y="170" text-anchor="start" fill="var(--fg-dim)">RS · BELGRADE</text>
+          <text x="462" y="183" text-anchor="start" fill="var(--fg-muted)" font-size="9.5">capital</text>
+
+          <!-- BG -->
+          <text x="542" y="180" text-anchor="start" fill="var(--fg-dim)">BG · BUZLUDZHA</text>
+          <text x="542" y="193" text-anchor="start" fill="var(--fg-muted)" font-size="9.5">monument · sofia</text>
+
+          <!-- GR trains -->
+          <text x="552" y="250" text-anchor="start" fill="var(--fg-dim)">GR · THESSALONIKI</text>
+          <text x="552" y="263" text-anchor="start" fill="var(--fg-muted)" font-size="9.5">train graveyard</text>
+
+          <!-- GR athens — right side overflow, anchor end -->
+          <text x="478" y="320" text-anchor="end" fill="var(--fg-dim)">GR · ATHENS</text>
+          <text x="478" y="333" text-anchor="end" fill="var(--fg-muted)" font-size="9.5">ellinikon · ace high</text>
+
+          <!-- AL -->
+          <text x="398" y="296" text-anchor="end" fill="var(--fg-dim)">AL · POLIÇAN</text>
+          <text x="398" y="309" text-anchor="end" fill="var(--fg-muted)" font-size="9.5">ammo factory</text>
+
+          <!-- HR -->
+          <text x="298" y="225" text-anchor="end" fill="var(--fg-dim)">HR · DALMATIA</text>
+          <text x="298" y="238" text-anchor="end" fill="var(--fg-muted)" font-size="9.5">south coast</text>
+        </g>
+
+        <!-- Direction arrows along segments -->
+        <line x1="400" y1="80" x2="408" y2="95" stroke="#f5b800" stroke-width="1"
+              marker-end="url(#arr)" opacity="0.5"/>
+        <line x1="430" y1="143" x2="440" y2="158" stroke="#f5b800" stroke-width="1"
+              marker-end="url(#arr)" opacity="0.5"/>
+        <line x1="490" y1="180" x2="508" y2="183" stroke="#f5b800" stroke-width="1"
+              marker-end="url(#arr)" opacity="0.5"/>
+        <line x1="535" y1="220" x2="538" y2="235" stroke="#f5b800" stroke-width="1"
+              marker-end="url(#arr)" opacity="0.5"/>
+        <line x1="520" y1="283" x2="505" y2="298" stroke="#f5b800" stroke-width="1"
+              marker-end="url(#arr)" opacity="0.5"/>
+        <line x1="452" y1="291" x2="433" y2="290" stroke="#f5b800" stroke-width="1"
+              marker-end="url(#arr)" opacity="0.5"/>
+        <line x1="360" y1="260" x2="352" y2="244" stroke="#f5b800" stroke-width="1"
+              marker-end="url(#arr)" opacity="0.5"/>
+        <line x1="350" y1="140" x2="368" y2="95" stroke="#f5b800" stroke-width="1"
+              marker-end="url(#arr)" opacity="0.5"/>
+      </svg>
+    </div>
+  </section>
+
+  <!-- ARTICLE -->
+  <article class="article">
+
+    <h2>// THE GHOST EMPIRE</h2>
+    <p>
+      Yugoslavia dissolved in the nineties, but the infrastructure it left behind
+      didn't disappear — it just stopped being maintained. In the summer of 2020,
+      we drove a loop through six successor states and former satellite countries,
+      following the decay: cooling towers, ideological monuments, military hilltops
+      abandoned when the Cold War ended, and facilities that outlasted the states
+      that built them by thirty years.
+    </p>
+    <p>
+      <strong>[[ FILL — how the trip started, who came, what vehicle, how many days ]]</strong>
+    </p>
+
+    <h2>// HUNGARY — THE COAL PLANT</h2>
+    <span class="location-tag">HU · Oroszlány · Vértes Power Plant</span>
+    <p>
+      The Vértes power plant at Oroszlány was one of the last functioning lignite
+      plants in Hungary — or rather, it had just stopped functioning. The cooling towers
+      were still standing, the turbine halls still intact, but the generators had gone
+      cold. <strong>[[ FILL — describe entry, interior, cooling towers, scale ]]</strong>
+    </p>
+    <p>
+      <strong>[[ FILL — atmosphere, what you found inside, any specific machinery or details that stood out ]]</strong>
+    </p>
+
+    <h2>// SERBIA — BELGRADE</h2>
+    <span class="location-tag">RS · Belgrade · City centre</span>
+    <p>
+      <strong>[[ FILL — Belgrade impressions, what you did there, any specific urbex or sightseeing ]]</strong>
+    </p>
+
+    <h2>// BULGARIA — BUZLUDZHA & SOFIA</h2>
+    <span class="location-tag">BG · Buzludzha · Monument House of the Bulgarian Communist Party</span>
+    <p>
+      Buzludzha sits at 1441 m on the Balkan ridge, a flying saucer in concrete
+      dropped onto a mountain summit. Built in 1981 as a monument to Bulgarian
+      communism, it was sealed in 1989 when the regime fell. The dome, the mosaic
+      interior with its hammer-and-sickle floors, the propaganda murals — all
+      still there, slowly surrendering to the cold and the damp.
+    </p>
+    <p>
+      <strong>[[ FILL — describe entry, interior state, mosaics, views from the tower, how many visitors/guards ]]</strong>
+    </p>
+    <span class="location-tag" style="margin-top:20px">BG · Sofia</span>
+    <p>
+      <strong>[[ FILL — Sofia — what you saw, any specific spots ]]</strong>
+    </p>
+
+    <h2>// GREECE — TRAIN GRAVEYARD & THESSALONIKI</h2>
+    <span class="location-tag">GR · Near Thessaloniki · OSE locomotive depot</span>
+    <p>
+      Just south of Thessaloniki, beside the main rail line, the Greek railway
+      operator OSE left dozens of locomotives and passenger cars to rust in
+      the open. The graveyard grew as the network shrank — austerity-era
+      cutbacks accelerated what time was already doing.
+    </p>
+    <p>
+      <strong>[[ FILL — describe scale, specific locomotive types spotted, condition, access ]]</strong>
+    </p>
+
+    <h2>// GREECE — ATHENS: ELLINIKON & THE NATO RADAR</h2>
+    <span class="location-tag">GR · Athens · Ellinikon Olympic Complex / UNHCR site</span>
+    <p>
+      Athens' old international airport at Ellinikon closed in 2001 when the new
+      airport opened in time for the 2004 Olympics. The runway was repurposed
+      as an Olympic venue — softball, hockey, canoe — and then abandoned again
+      after the games. When the refugee crisis hit in 2015, UNHCR set up a
+      temporary camp in the old terminal buildings and the sports halls.
+    </p>
+    <p>
+      <strong>[[ FILL — what was still there when you visited, state of the sports facilities, any signage or camp remnants ]]</strong>
+    </p>
+    <span class="location-tag" style="margin-top:20px">GR · ACE High NATO Radar Station</span>
+    <p>
+      The ACE High system was NATO's Cold War troposcatter communications backbone —
+      a chain of relay stations that didn't need satellites or undersea cables.
+      The Greek station, decommissioned when the network was retired in the 1990s,
+      sits on a hilltop with the dish still in place.
+    </p>
+    <p>
+      <strong>[[ FILL — location on the hill, how you got there, state of the installation, any equipment still visible ]]</strong>
+    </p>
+
+    <h2>// ALBANIA — THE AMMUNITION FACTORY</h2>
+    <span class="location-tag">AL · Poliçan · Uzina e Ndërtimit të Armëve (UNA)</span>
+    <p>
+      Poliçan was the heart of Albania's Cold War munitions industry — a valley
+      town in the central highlands built entirely around weapons production under
+      Enver Hoxha's regime of enforced self-sufficiency. At its peak, the factory
+      complex employed most of the town. When the regime collapsed in 1991 and
+      the arms contracts with China ended, the factory followed.
+    </p>
+    <p>
+      <strong>[[ FILL — describe the entry, scale of the complex, which buildings you entered, what machinery/equipment remained, the bunkers ]]</strong>
+    </p>
+    <p>
+      <strong>[[ FILL — the atmosphere — isolated valley, local reactions if any, condition of the site ]]</strong>
+    </p>
+
+    <h2>// CROATIA — SOUTH COAST</h2>
+    <span class="location-tag">HR · Dalmatia · South coast</span>
+    <p>
+      After Albania, Croatia felt like a different planet. The Dalmatian coast at
+      the end of the trip — <strong>[[ FILL — location on the coast, what you did, how it felt after a week of ruins ]]</strong>
+    </p>
+    <p>
+      <strong>[[ FILL — any closing thoughts on the trip as a whole ]]</strong>
+    </p>
+
+  </article>
+
+  <!-- GALLERY — populated once photos are uploaded and resized -->
+  <!-- To add photos:
+       1. Drop originals into travels/images/yugoslavia_2020/
+       2. Run: python tools/resize-photos.py travels/images/yugoslavia_2020
+       3. Replace each [[ IMG ]] block below with an <img> tag.
+       4. Update #photo-count in the data strip.
+  -->
+  <section class="gallery-section">
+
+    <h3 class="day-heading">// <b>HU</b> — Hungary · Coal Plant</h3>
+    <div class="gallery-grid" id="gallery-hu">
+      <!-- <img src="./images/yugoslavia_2020/FILENAME_web.jpg" alt="..."> -->
+    </div>
+
+    <h3 class="day-heading">// <b>RS</b> — Serbia · Belgrade</h3>
+    <div class="gallery-grid" id="gallery-rs">
+      <!-- <img src="./images/yugoslavia_2020/FILENAME_web.jpg" alt="..."> -->
+    </div>
+
+    <h3 class="day-heading">// <b>BG</b> — Bulgaria · Buzludzha &amp; Sofia</h3>
+    <div class="gallery-grid" id="gallery-bg">
+      <!-- <img src="./images/yugoslavia_2020/FILENAME_web.jpg" alt="..."> -->
+    </div>
+
+    <h3 class="day-heading">// <b>GR</b> — Greece · Thessaloniki train graveyard</h3>
+    <div class="gallery-grid" id="gallery-gr-trains">
+      <!-- <img src="./images/yugoslavia_2020/FILENAME_web.jpg" alt="..."> -->
+    </div>
+
+    <h3 class="day-heading">// <b>GR</b> — Greece · Athens: Ellinikon &amp; ACE High radar</h3>
+    <div class="gallery-grid" id="gallery-gr-athens">
+      <!-- <img src="./images/yugoslavia_2020/FILENAME_web.jpg" alt="..."> -->
+    </div>
+
+    <h3 class="day-heading">// <b>AL</b> — Albania · Poliçan ammunition factory</h3>
+    <div class="gallery-grid" id="gallery-al">
+      <!-- <img src="./images/yugoslavia_2020/FILENAME_web.jpg" alt="..."> -->
+    </div>
+
+    <h3 class="day-heading">// <b>HR</b> — Croatia · South coast</h3>
+    <div class="gallery-grid" id="gallery-hr">
+      <!-- <img src="./images/yugoslavia_2020/FILENAME_web.jpg" alt="..."> -->
+    </div>
+
+  </section>
+
+  <!-- lightbox -->
+  <div id="lb">
+    <span id="lb-close" onclick="closeLb()">✕</span>
+    <img id="lb-img" src="" alt="">
+  </div>
+
+  <footer>
+    <span>© VOJTĚCH KONOPA</span>
+    <a href="./index.html">TRAVELS ↗</a>
+    <a href="/">HOME ↗</a>
+  </footer>
+
+  <script>
+    // Lightbox
+    document.querySelectorAll('.gallery-grid img').forEach(img => {
+      img.addEventListener('click', () => {
+        document.getElementById('lb-img').src = img.src;
+        document.getElementById('lb').classList.add('open');
+      });
+    });
+    function closeLb() {
+      document.getElementById('lb').classList.remove('open');
+      document.getElementById('lb-img').src = '';
+    }
+    document.getElementById('lb').addEventListener('click', e => {
+      if (e.target === e.currentTarget) closeLb();
+    });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLb(); });
+
+    // Photo count
+    const total = document.querySelectorAll('.gallery-grid img').length;
+    if (total > 0) document.getElementById('photo-count').textContent = total;
+  </script>
+
+</body>
+</html>
