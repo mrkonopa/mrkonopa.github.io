@@ -363,6 +363,17 @@
       footer { flex-direction: column; gap: 8px; }
       .nav-strip { flex-direction: column; gap: 16px; }
     }
+
+    /* ── lightbox ── */
+    #lb { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.92);
+      z-index:1000; align-items:center; justify-content:center; cursor:zoom-out; }
+    #lb.open { display:flex; }
+    #lb img { max-width:90vw; max-height:90vh; object-fit:contain; cursor:default; }
+    #lb-close { position:fixed; top:18px; right:22px; font-size:28px; color:#fff;
+      cursor:pointer; font-family:'JetBrains Mono',monospace; line-height:1; opacity:0.7; z-index:1001; }
+    #lb-close:hover { opacity:1; }
+    .gallery .shot .img { cursor:zoom-in; transition:filter .2s; }
+    .gallery .shot .img:hover { filter:none !important; }
   </style>
 </head>
 <body>
@@ -754,6 +765,32 @@
     <span>© VOJTĚCH KONOPA</span>
     <span><a href="/">HOME</a> · <a href="./">JOURNAL</a></span>
   </footer>
+
+  <!-- LIGHTBOX -->
+  <div id="lb">
+    <span id="lb-close" onclick="closeLb()">✕</span>
+    <img id="lb-img" src="" alt="">
+  </div>
+  <script>
+    function openLb(src){
+      document.getElementById('lb-img').src = src;
+      document.getElementById('lb').classList.add('open');
+    }
+    function closeLb(){
+      document.getElementById('lb').classList.remove('open');
+      document.getElementById('lb-img').src = '';
+    }
+    document.querySelectorAll('.gallery .shot .img').forEach(el=>{
+      el.addEventListener('click', ()=>{
+        const m = el.style.backgroundImage.match(/url\(['"]?(.+?)['"]?\)/);
+        if (m) openLb(m[1]);
+      });
+    });
+    document.getElementById('lb').addEventListener('click', e=>{
+      if (e.target === e.currentTarget) closeLb();
+    });
+    document.addEventListener('keydown', e=>{ if (e.key === 'Escape') closeLb(); });
+  </script>
 
 </body>
 </html>

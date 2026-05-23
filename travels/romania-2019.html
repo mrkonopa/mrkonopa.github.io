@@ -217,6 +217,15 @@
       .gallery-section, .route-section { padding-left: 20px; padding-right: 20px; }
       .top-bar, footer { padding: 14px 20px; }
     }
+
+    /* ── lightbox ── */
+    #lb { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.92);
+      z-index:1000; align-items:center; justify-content:center; cursor:zoom-out; }
+    #lb.open { display:flex; }
+    #lb img { max-width:90vw; max-height:90vh; object-fit:contain; cursor:default; }
+    #lb-close { position:fixed; top:18px; right:22px; font-size:28px; color:#fff;
+      cursor:pointer; font-family:'JetBrains Mono',monospace; line-height:1; opacity:0.7; z-index:1001; }
+    #lb-close:hover { opacity:1; }
   </style>
 </head>
 <body>
@@ -587,6 +596,32 @@
         trigger();
       }
     })();
+  </script>
+
+  <!-- LIGHTBOX -->
+  <div id="lb">
+    <span id="lb-close" onclick="closeLb()">✕</span>
+    <img id="lb-img" src="" alt="">
+  </div>
+  <script>
+    function openLb(src){
+      document.getElementById('lb-img').src = src;
+      document.getElementById('lb').classList.add('open');
+    }
+    function closeLb(){
+      document.getElementById('lb').classList.remove('open');
+      document.getElementById('lb-img').src = '';
+    }
+    document.querySelectorAll('.gallery a').forEach(a=>{
+      a.addEventListener('click', e=>{
+        e.preventDefault();
+        openLb(a.href);
+      });
+    });
+    document.getElementById('lb').addEventListener('click', e=>{
+      if (e.target === e.currentTarget) closeLb();
+    });
+    document.addEventListener('keydown', e=>{ if (e.key === 'Escape') closeLb(); });
   </script>
 
 </body>
