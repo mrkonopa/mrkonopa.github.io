@@ -130,7 +130,7 @@
       margin: 0 auto;
       padding: 24px 28px;
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(5, 1fr);
       gap: 1px;
       background: var(--border);
       border-bottom: 1px solid var(--border);
@@ -420,9 +420,10 @@
   <!-- DATA STRIP -->
   <section class="data-strip">
     <div>Country<br><b>Ukraine</b></div>
-    <div>Visited<br><b>27 Jul – 3 Aug 2017</b></div>
-    <div>Base<br><b>Kyiv</b></div>
-    <div>Approx. coords<br><b>50.44° N · 30.49° E</b></div>
+    <div>Dates<br><b>24 Jul – 6 Aug 2017</b></div>
+    <div>Days<br><b>14</b></div>
+    <div title="5 Kyiv &amp; Chernobyl · 4 Carpathians">People<br><b>4–5</b></div>
+    <div>Photos<br><b id="photo-count">—</b></div>
   </section>
 
   <!-- ROUTE MAP -->
@@ -850,6 +851,9 @@
       if (e.target === e.currentTarget) closeLb();
     });
     document.addEventListener('keydown', e=>{ if (e.key === 'Escape') closeLb(); });
+    const _pc = document.querySelectorAll('.gallery .shot .img').length;
+    const _pcEl = document.getElementById('photo-count');
+    if (_pcEl && _pc > 0) _pcEl.textContent = _pc;
   </script>
 
 </body>

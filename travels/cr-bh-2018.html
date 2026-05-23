@@ -91,7 +91,7 @@
 
     .data-strip {
       max-width: 1080px; margin: 0 auto; padding: 24px 28px;
-      display: grid; grid-template-columns: repeat(4, 1fr);
+      display: grid; grid-template-columns: repeat(5, 1fr);
       gap: 1px; background: var(--border); border-bottom: 1px solid var(--border);
     }
     .data-strip > div {
@@ -284,9 +284,10 @@
 
   <section class="data-strip">
     <div>Countries<br><b>Croatia, BiH</b></div>
-    <div>Dates<br><b>4 – 12 July 2018</b></div>
-    <div>Days<br><b>9</b></div>
-    <div>Mode<br><b>Road trip</b></div>
+    <div>Dates<br><b>4 – 14 Jul 2018</b></div>
+    <div>Days<br><b>11</b></div>
+    <div>People<br><b>4</b></div>
+    <div>Photos<br><b id="photo-count">—</b></div>
   </section>
 
   <!-- ROUTE MAP -->
@@ -623,6 +624,9 @@
       if (e.target === e.currentTarget) closeLb();
     });
     document.addEventListener('keydown', e=>{ if (e.key === 'Escape') closeLb(); });
+    const _pc = document.querySelectorAll('.gallery .shot .img').length;
+    const _pcEl = document.getElementById('photo-count');
+    if (_pcEl && _pc > 0) _pcEl.textContent = _pc;
   </script>
 
 </body>

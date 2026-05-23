@@ -90,7 +90,7 @@
 
     .data-strip {
       max-width: 1080px; margin: 0 auto; padding: 24px 28px;
-      display: grid; grid-template-columns: repeat(5, 1fr);
+      display: grid; grid-template-columns: repeat(4, 1fr);
       gap: 1px; background: var(--border); border-bottom: 1px solid var(--border);
     }
     .data-strip > div {
@@ -254,11 +254,13 @@
   </div>
 
   <div class="data-strip">
+    <div>Dates<b>20 – 29 Jul 2019</b></div>
+    <div>People<b>3</b></div>
     <div>Days on ridge<b>5</b></div>
     <div>Distance<b>52.1 km</b></div>
     <div>Ascent<b>+4 160 m</b></div>
     <div>Highest<b>2 544 m</b></div>
-    <div>Photos<b>63</b></div>
+    <div>Photos<b id="photo-count">—</b></div>
   </div>
 
   <!-- ── ROUTE ANIMATION ── -->
@@ -622,6 +624,9 @@
       if (e.target === e.currentTarget) closeLb();
     });
     document.addEventListener('keydown', e=>{ if (e.key === 'Escape') closeLb(); });
+    const _pc = document.querySelectorAll('.gallery-grid img').length;
+    const _pcEl = document.getElementById('photo-count');
+    if (_pcEl && _pc > 0) _pcEl.textContent = _pc;
   </script>
 
 </body>
