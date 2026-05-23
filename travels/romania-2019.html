@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Făgăraș & Romania 2019 — Travels · Vojtěch Konopa</title>
+  <meta name="description" content="Field notes from a five-day ridge traverse through the Făgăraș massif — Avrig to Victoria, summer 2019." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #1c1c1c;
+      --surface: #262626;
+      --surface-2: #2e2e2e;
+      --border: #3a3a3a;
+      --border-strong: #555;
+      --fg: #ededec;
+      --fg-dim: #8a8a85;
+      --fg-muted: #5e5e5b;
+      --accent: #f5b800;
+      --concrete: #4a4a48;
+      --display: 'Archivo Black', 'Inter', system-ui, sans-serif;
+      --body: 'Inter', system-ui, -apple-system, Segoe UI, sans-serif;
+      --mono: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      background: var(--bg);
+      color: var(--fg);
+      font-family: var(--body);
+      font-size: 16px;
+      line-height: 1.55;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a { color: var(--fg); text-decoration: none; border-bottom: 1px solid transparent; transition: color .15s, border-color .15s; }
+    a:hover, a:focus { color: var(--accent); border-bottom-color: var(--accent); outline: none; }
+    a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 1px; }
+    img { display: block; max-width: 100%; }
+
+    .top-bar {
+      border-bottom: 1px solid var(--border);
+      padding: 18px 28px;
+      display: flex; justify-content: space-between; align-items: baseline; gap: 18px;
+      font-family: var(--mono); font-size: 12px;
+      letter-spacing: 0.08em; text-transform: uppercase; color: var(--fg-dim);
+    }
+    .top-bar a { color: var(--fg-dim); }
+    .top-bar a:hover { color: var(--accent); }
+    .top-bar .crumb { color: var(--fg); }
+
+    .hero {
+      position: relative; width: 100%;
+      aspect-ratio: 16 / 9; max-height: 80vh;
+      background-color: var(--concrete);
+      background-size: cover; background-position: center; overflow: hidden;
+    }
+    .hero::before {
+      content: ''; position: absolute; inset: auto 0 0 0; height: 50%;
+      background: linear-gradient(to top, rgba(0,0,0,0.55), transparent);
+      pointer-events: none;
+    }
+
+    .title-block {
+      max-width: 1080px; margin: 0 auto; padding: 56px 28px 28px;
+      border-bottom: 1px solid var(--border);
+    }
+    .label-row {
+      display: flex; gap: 24px; flex-wrap: wrap;
+      font-family: var(--mono); font-size: 11px;
+      letter-spacing: 0.18em; text-transform: uppercase;
+      color: var(--accent); margin-bottom: 18px;
+    }
+    .label-row .dim { color: var(--fg-dim); }
+    h1.location {
+      font-family: var(--display);
+      font-size: clamp(40px, 7vw, 88px);
+      line-height: 0.95; letter-spacing: -0.02em;
+      text-transform: uppercase; margin-bottom: 18px;
+    }
+    .lede {
+      font-size: 18px; font-weight: 300;
+      color: var(--fg); max-width: 680px; line-height: 1.6;
+    }
+
+    .data-strip {
+      max-width: 1080px; margin: 0 auto; padding: 24px 28px;
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      gap: 1px; background: var(--border); border-bottom: 1px solid var(--border);
+    }
+    .data-strip > div {
+      background: var(--bg); padding: 16px 20px;
+      font-family: var(--mono); font-size: 11px;
+      letter-spacing: 0.12em; text-transform: uppercase; color: var(--fg-dim);
+    }
+    .data-strip > div b { display: block; font-size: 18px; color: var(--fg); letter-spacing: 0; margin-top: 4px; font-family: var(--body); }
+
+    /* ── ROUTE SVG ── */
+    .route-section {
+      max-width: 1080px; margin: 0 auto; padding: 56px 28px 40px;
+      border-bottom: 1px solid var(--border);
+    }
+    .route-section .section-title {
+      font-family: var(--mono); font-size: 11px;
+      letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--fg-dim); margin-bottom: 24px;
+      padding-bottom: 12px; border-bottom: 1px solid var(--border);
+    }
+    .route-svg-wrap {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      overflow: hidden;
+    }
+    .route-svg-wrap svg { display: block; width: 100%; height: auto; }
+
+    #route-path {
+      fill: none;
+      stroke: var(--accent);
+      stroke-width: 2.5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    #route-path.animate {
+      animation: draw-route 4s cubic-bezier(.4,0,.2,1) forwards;
+    }
+    @keyframes draw-route {
+      from { stroke-dashoffset: var(--total-len); }
+      to   { stroke-dashoffset: 0; }
+    }
+    .peak-dot { fill: var(--accent); opacity: 0; transform-origin: center; }
+    .peak-dot.animate { animation: pop-in .3s ease forwards; }
+    @keyframes pop-in {
+      from { opacity: 0; transform: scale(0); }
+      to   { opacity: 1; transform: scale(1); }
+    }
+    .peak-label {
+      font-family: var(--mono); font-size: 11px;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      fill: var(--fg-dim); opacity: 0;
+    }
+    .peak-label.peak-top { fill: var(--fg); }
+    .peak-label.peak-highest { fill: var(--accent); }
+    .peak-label.animate { animation: fade-in .4s ease forwards; }
+    @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+    .endpoint-label {
+      font-family: var(--mono); font-size: 11px;
+      letter-spacing: 0.15em; text-transform: uppercase;
+      fill: var(--fg); opacity: 0;
+    }
+    .endpoint-label.start { fill: var(--fg-dim); }
+    .endpoint-label.animate { animation: fade-in .4s ease forwards; }
+    .endpoint-dot { fill: var(--fg); opacity: 0; }
+    .endpoint-dot.animate { animation: pop-in .3s ease forwards; }
+
+    /* ── ARTICLE ── */
+    article {
+      max-width: 720px; margin: 0 auto; padding: 56px 28px;
+    }
+    article h2 {
+      font-family: var(--mono); font-size: 11px;
+      letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--accent); margin: 48px 0 20px;
+      padding-bottom: 12px; border-bottom: 1px solid var(--border);
+    }
+    article h2:first-child { margin-top: 0; }
+    article p { margin-bottom: 1.4em; color: var(--fg); }
+    article p:last-child { margin-bottom: 0; }
+
+    /* ── GALLERY ── */
+    .gallery-section {
+      max-width: 1080px; margin: 0 auto; padding: 0 28px 96px;
+    }
+    .section-title {
+      font-family: var(--mono); font-size: 11px;
+      letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--fg-dim); margin-bottom: 28px;
+      padding-bottom: 12px; border-bottom: 1px solid var(--border);
+    }
+    .day-heading {
+      font-family: var(--mono); font-size: 11px;
+      letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--accent);
+      padding: 40px 0 12px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 1px;
+    }
+    .day-heading:first-child { padding-top: 8px; }
+    .gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 1px;
+      background: var(--border);
+      margin-bottom: 0;
+    }
+    .gallery a { display: block; aspect-ratio: 4/3; overflow: hidden; background: var(--concrete); }
+    .gallery a img { width: 100%; height: 100%; object-fit: cover; display: block; transition: opacity .2s; }
+    .gallery a:hover img { opacity: 0.8; }
+
+    footer {
+      border-top: 1px solid var(--border); padding: 32px 28px;
+      max-width: 1080px; margin: 0 auto;
+      display: flex; justify-content: space-between; gap: 18px;
+      font-family: var(--mono); font-size: 11px;
+      letter-spacing: 0.16em; text-transform: uppercase; color: var(--fg-dim);
+    }
+    footer a { color: var(--fg-dim); border-bottom: 1px solid transparent; }
+    footer a:hover { color: var(--accent); border-bottom-color: var(--accent); }
+
+    @media (max-width: 720px) {
+      .title-block, article { padding-left: 20px; padding-right: 20px; }
+      .data-strip { grid-template-columns: repeat(2, 1fr); padding: 16px 20px; }
+      .gallery-section, .route-section { padding-left: 20px; padding-right: 20px; }
+      .top-bar, footer { padding: 14px 20px; }
+    }
+
+    /* ── lightbox ── */
+    #lb { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.92);
+      z-index:1000; align-items:center; justify-content:center; cursor:zoom-out; }
+    #lb.open { display:flex; }
+    #lb img { max-width:90vw; max-height:90vh; object-fit:contain; cursor:default; }
+    #lb-close { position:fixed; top:18px; right:22px; font-size:28px; color:#fff;
+      cursor:pointer; font-family:'JetBrains Mono',monospace; line-height:1; opacity:0.7; z-index:1001; }
+    #lb-close:hover { opacity:1; }
+  </style>
+</head>
+<body>
+
+  <div class="top-bar">
+    <a href="./index.html">← travels</a>
+    <span class="crumb">~/travels/romania-2019</span>
+    <span>vojta@konopa</span>
+  </div>
+
+  <div class="hero" style="background-image: url('./images/romania_2019/ro_fagaras_0219_24.07.19_web.jpg');"></div>
+
+  <div class="title-block">
+    <div class="label-row">
+      <span>Romania</span>
+      <span class="dim">/</span>
+      <span>Summer 2019</span>
+      <span class="dim">/</span>
+      <span>Ridge Traverse</span>
+    </div>
+    <h1 class="location">Făgăraș</h1>
+    <p class="lede">
+      Fifty-two kilometres along the spine of the Southern Carpathians, from Avrig to Victoria.
+      Five days on the roof of Romania.
+    </p>
+  </div>
+
+  <div class="data-strip">
+    <div>Dates<b>20 – 29 Jul 2019</b></div>
+    <div>People<b>3</b></div>
+    <div>Days on ridge<b>5</b></div>
+    <div>Distance<b>52.1 km</b></div>
+    <div>Ascent<b>+4 160 m</b></div>
+    <div>Highest<b>2 544 m</b></div>
+    <div>Photos<b id="photo-count">—</b></div>
+  </div>
+
+  <!-- ── ROUTE ANIMATION ── -->
+  <section class="route-section">
+    <h2 class="section-title">// ROUTE · AVRIG → VICTORIA · 52.1 KM</h2>
+    <div class="route-svg-wrap">
+      <!--
+        GPX-accurate elevation profile. viewBox 0 0 1060 270.
+        Route x: 20–940, y: 25–225. Extra right margin 940–1060 for ele labels.
+        Scale: y = 25 + 200*(1 - (ele-400)/2250)  |  x = 20 + km/52.05*920
+        Generated from /travels/images/romania_2019 GPX track (3001 pts, 52.05 km).
+      -->
+      <svg id="route-svg" viewBox="0 0 1060 270" xmlns="http://www.w3.org/2000/svg"
+           aria-label="Elevation profile of the Făgăraș ridge traverse from Avrig to Victoria">
+
+        <defs>
+          <!-- text outline for readability over the route line -->
+          <filter id="txt-bg" x="-10%" y="-20%" width="120%" height="140%">
+            <feMorphology in="SourceGraphic" operator="dilate" radius="2.5" result="expanded"/>
+            <feFlood flood-color="#1c1c1c" result="bg"/>
+            <feComposite in="bg" in2="expanded" operator="in" result="outline"/>
+            <feMerge><feMergeNode in="outline"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+        </defs>
+
+        <!-- mountain fill — exact GPX polygon -->
+        <polygon points="20.0,212.6 38.1,211.3 51.4,209.1 69.4,205.4 91.6,201.4 117.9,195.8 131.5,185.9 147.8,178.7 154.9,173.3 162.2,166.7 167.6,159.2 173.7,151.3 178.1,143.3 183.6,135.7 187.1,128.5 193.4,121.3 209.2,114.0 222.7,107.4 239.7,101.5 252.7,95.1 260.6,89.8 266.5,84.0 273.1,78.2 285.4,72.1 297.3,67.8 306.1,64.9 316.2,63.1 323.5,62.1 332.1,61.7 339.5,62.3 348.1,63.9 355.7,65.4 366.5,66.8 375.4,67.7 382.5,69.0 391.8,68.4 397.2,68.1 403.1,68.9 413.4,70.7 427.0,72.8 435.2,74.5 444.1,75.7 452.1,76.4 462.7,76.3 468.9,75.2 473.5,72.9 478.9,70.8 483.9,69.1 490.6,67.3 494.0,66.7 496.3,67.6 499.6,68.9 503.8,69.5 508.4,69.7 516.1,70.4 524.2,70.6 532.8,70.1 544.6,70.0 552.2,70.1 559.9,70.0 570.3,70.2 578.4,71.3 586.6,72.2 590.7,73.1 596.0,73.0 604.1,72.3 610.1,71.4 615.2,70.1 620.1,69.2 623.7,66.9 627.4,65.1 632.9,63.6 637.1,61.4 642.0,59.1 658.6,57.1 673.7,55.7 693.2,54.1 708.5,52.9 716.2,52.9 720.1,54.6 724.3,57.6 728.4,61.6 732.6,66.2 738.9,70.7 744.1,75.7 751.6,80.9 760.5,86.8 770.3,93.9 777.3,101.4 786.2,109.6 792.1,118.1 798.2,127.1 804.4,136.0 812.3,144.8 821.9,152.0 831.8,154.6 842.2,161.4 858.8,168.6 878.7,181.5 905.2,191.0 940.0,201.0 940.0,230 20,230"
+                fill="#212121"/>
+
+        <!-- elevation grid lines (x: 20–940) -->
+        <line x1="20" y1="38"  x2="940" y2="38"  stroke="#2d2d2d" stroke-width="1"/>
+        <line x1="20" y1="83"  x2="940" y2="83"  stroke="#2d2d2d" stroke-width="1"/>
+        <line x1="20" y1="127" x2="940" y2="127" stroke="#2d2d2d" stroke-width="1"/>
+        <line x1="20" y1="172" x2="940" y2="172" stroke="#2d2d2d" stroke-width="1"/>
+
+        <!-- elevation labels — x=948 fits in viewBox width 1060 -->
+        <text x="948" y="41"  font-family="'JetBrains Mono',monospace" font-size="9" fill="#555" text-anchor="start">2500 m</text>
+        <text x="948" y="86"  font-family="'JetBrains Mono',monospace" font-size="9" fill="#555" text-anchor="start">2000 m</text>
+        <text x="948" y="130" font-family="'JetBrains Mono',monospace" font-size="9" fill="#555" text-anchor="start">1500 m</text>
+        <text x="948" y="175" font-family="'JetBrains Mono',monospace" font-size="9" fill="#555" text-anchor="start">1000 m</text>
+
+        <!-- route line — exact GPX polyline -->
+        <polyline id="route-path"
+          points="20.0,212.6 38.1,211.3 51.4,209.1 69.4,205.4 91.6,201.4 117.9,195.8 131.5,185.9 147.8,178.7 154.9,173.3 162.2,166.7 167.6,159.2 173.7,151.3 178.1,143.3 183.6,135.7 187.1,128.5 193.4,121.3 209.2,114.0 222.7,107.4 239.7,101.5 252.7,95.1 260.6,89.8 266.5,84.0 273.1,78.2 285.4,72.1 297.3,67.8 306.1,64.9 316.2,63.1 323.5,62.1 332.1,61.7 339.5,62.3 348.1,63.9 355.7,65.4 366.5,66.8 375.4,67.7 382.5,69.0 391.8,68.4 397.2,68.1 403.1,68.9 413.4,70.7 427.0,72.8 435.2,74.5 444.1,75.7 452.1,76.4 462.7,76.3 468.9,75.2 473.5,72.9 478.9,70.8 483.9,69.1 490.6,67.3 494.0,66.7 496.3,67.6 499.6,68.9 503.8,69.5 508.4,69.7 516.1,70.4 524.2,70.6 532.8,70.1 544.6,70.0 552.2,70.1 559.9,70.0 570.3,70.2 578.4,71.3 586.6,72.2 590.7,73.1 596.0,73.0 604.1,72.3 610.1,71.4 615.2,70.1 620.1,69.2 623.7,66.9 627.4,65.1 632.9,63.6 637.1,61.4 642.0,59.1 658.6,57.1 673.7,55.7 693.2,54.1 708.5,52.9 716.2,52.9 720.1,54.6 724.3,57.6 728.4,61.6 732.6,66.2 738.9,70.7 744.1,75.7 751.6,80.9 760.5,86.8 770.3,93.9 777.3,101.4 786.2,109.6 792.1,118.1 798.2,127.1 804.4,136.0 812.3,144.8 821.9,152.0 831.8,154.6 842.2,161.4 858.8,168.6 878.7,181.5 905.2,191.0 940.0,201.0"
+          fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+
+        <!-- START: Avrig -->
+        <circle class="endpoint-dot" id="dot-start" cx="20" cy="212.6" r="4"/>
+        <text class="endpoint-label start" id="lbl-start" x="20" y="244" text-anchor="middle" filter="url(#txt-bg)">Avrig</text>
+
+        <!-- END: Victoria — cx=940 so text fits fully inside viewBox -->
+        <circle class="endpoint-dot" id="dot-end" cx="940" cy="201" r="4"/>
+        <text class="endpoint-label" id="lbl-end" x="940" y="244" text-anchor="middle" filter="url(#txt-bg)">Victoria</text>
+
+        <!-- ESPEZI area — western high point (km ~16.8, GPX ele ~2280m) -->
+        <!-- Espezi summit 2522m is 570m from track; labelled as nearest major peak -->
+        <circle class="peak-dot" id="dot-espezi" cx="332" cy="61.7" r="3"/>
+        <text class="peak-label peak-top" id="lbl-espezi"  x="332" y="49" text-anchor="middle" filter="url(#txt-bg)">Espezi</text>
+        <text class="peak-label"          id="lbl-espezi2" x="332" y="35" text-anchor="middle" filter="url(#txt-bg)">2522 m</text>
+
+        <!-- NEGOIU — km 28.6, summit 2535m is 1.4km from track -->
+        <circle class="peak-dot" id="dot-negoiu" cx="526" cy="70.6" r="3"/>
+        <text class="peak-label peak-top" id="lbl-negoiu"  x="514" y="55" text-anchor="end" filter="url(#txt-bg)">Negoiu</text>
+        <text class="peak-label"          id="lbl-negoiu2" x="514" y="41" text-anchor="end" filter="url(#txt-bg)">2535 m</text>
+
+        <!-- CABANA PODRAGU hut — km 29.8, 2136m -->
+        <rect class="peak-dot" id="dot-podragu" x="543" y="67" width="6" height="6" rx="1"/>
+        <text class="peak-label" id="lbl-podragu"  x="555" y="55" text-anchor="start" filter="url(#txt-bg)">Câb. Podragu</text>
+        <text class="peak-label" id="lbl-podragu2" x="555" y="41" text-anchor="start" filter="url(#txt-bg)">2136 m</text>
+
+        <!-- MOLDOVEANU 2544m — highest in Romania, km 40.1 -->
+        <circle class="peak-dot" id="dot-moldo" cx="729" cy="52.9" r="5"/>
+        <line id="moldo-tick" x1="729" y1="32" x2="729" y2="47" stroke="#f5b800" stroke-width="1.5" opacity="0"/>
+        <text class="peak-label peak-highest" id="lbl-moldo"  x="729" y="28" text-anchor="middle" filter="url(#txt-bg)">Moldoveanu</text>
+        <text class="peak-label peak-highest" id="lbl-moldo2" x="729" y="14" text-anchor="middle" filter="url(#txt-bg)">2544 m ▲</text>
+
+        <!-- day dividers at approximate day boundaries -->
+        <line id="day2-tick" x1="214" y1="215" x2="214" y2="227" stroke="#444" stroke-width="1" opacity="0"/>
+        <text id="day2-lbl" x="214" y="241" font-family="'JetBrains Mono',monospace" font-size="8" fill="#555" text-anchor="middle" opacity="0">DAY 2</text>
+        <line id="day3-tick" x1="409" y1="215" x2="409" y2="227" stroke="#444" stroke-width="1" opacity="0"/>
+        <text id="day3-lbl" x="409" y="241" font-family="'JetBrains Mono',monospace" font-size="8" fill="#555" text-anchor="middle" opacity="0">DAY 3</text>
+        <line id="day4-tick" x1="550" y1="215" x2="550" y2="227" stroke="#444" stroke-width="1" opacity="0"/>
+        <text id="day4-lbl" x="550" y="241" font-family="'JetBrains Mono',monospace" font-size="8" fill="#555" text-anchor="middle" opacity="0">DAY 4</text>
+        <line id="day5-tick" x1="692" y1="215" x2="692" y2="227" stroke="#444" stroke-width="1" opacity="0"/>
+        <text id="day5-lbl" x="692" y="241" font-family="'JetBrains Mono',monospace" font-size="8" fill="#555" text-anchor="middle" opacity="0">DAY 5</text>
+
+      </svg>
+    </div>
+  </section>
+
+  <!-- ── ARTICLE ── -->
+  <article>
+
+    <h2>// The Long Way South</h2>
+
+    <p>
+      We left by bus. Romanian newspaper, green hills through the window, the weight of the pack already
+      real before the mountains even appeared. Transylvania looks exactly like you'd imagine it from a
+      train — low white houses with terracotta roofs, wooden fences, hills that keep promising something
+      bigger just behind them.
+    </p>
+    <p>
+      The Făgăraș massif is the highest part of the Southern Carpathians. Fifty-two kilometres of
+      ridge running roughly east–west above the 2000-metre line, punctuated by glacial lakes and a
+      handful of stone huts that have been there long enough to stop looking temporary. The classic
+      traverse goes Avrig to Victoria — five days if you keep moving, more if the weather turns or you
+      stop minding.
+    </p>
+
+    <h2>// Day 1 · Into the Forest</h2>
+
+    <p>
+      The trail out of Avrig climbs hard through Carpathian spruce and beech before the treeline
+      relents. Rocky roots, a red-striped blaze on the bark every hundred metres, nothing dramatic
+      yet. The first hut — Cabana Bârcaciu at 1560 metres — appears like a rumour made solid: red
+      painted wood, yellow-green trim, a cross on the roofline. We had coffee from an enamel mug
+      on a brick ledge outside, shared a Kinder bar, and watched the clouds decide what kind of
+      day they were going to be.
+    </p>
+
+    <h2>// Days 2–3 · The Ridge</h2>
+
+    <p>
+      The ridge does not introduce itself gently. You gain the crest and suddenly there is nothing
+      on either side except air and the next peak. On day two the clouds sat low on the cirques —
+      green bowls of alpine meadow, scree, and leftover snow from a winter that hadn't quite let go.
+      The kind of fog that makes the scale of things impossible to read.
+    </p>
+    <p>
+      Then in the afternoon the clouds broke. The whole massif opened up: layer after layer of
+      peaks running south and east into haze, a small trail marker post standing at the rock edge
+      like a comma. That's the photo that explains why you carry a twelve-kilogram pack for five days.
+    </p>
+    <p>
+      Snow in July is not unusual up here. Patches of it cling to the north-facing hollows through
+      most of the summer, white interruptions in the green and grey. You cross them quickly — wet
+      rock underneath, good ice axe weather if you slipped — and keep walking.
+    </p>
+
+    <h2>// Day 4 · Cabana Podragu</h2>
+
+    <p>
+      Cabana Podragu sits at 2136 metres in a natural bowl below the ridge, built from the same
+      grey limestone the mountain is made of. It looks like it grew there. The hut is one of the
+      highest permanently staffed refuges in Romania — wood smoke, wet boots outside the door,
+      a notebook on the counter where you sign your name. We arrived in rain, the kind that doesn't
+      hurry. The mountains were invisible. We stayed the night anyway.
+    </p>
+
+    <h2>// Day 5 · 2537</h2>
+
+    <p>
+      Moldoveanu is the highest point in Romania — 2544 metres, no fanfare, just a cairn and a
+      view that on a clear day reaches across three countries. The altimeter on the watch said 2537
+      at 15:11. The peak was close enough.
+    </p>
+    <p>
+      The descent to Victoria is long and the knees notice it. The town itself is post-industrial
+      Transylvania in miniature: apartment blocks, a factory that used to make something important,
+      a train station with a conductor in dress uniform who looks at your ticket like it might be
+      forged. We took the train north.
+    </p>
+
+  </article>
+
+  <!-- ── GALLERY ── -->
+  <section class="gallery-section">
+    <h2 class="section-title">// GALLERY · 63 FRAMES</h2>
+
+    <h3 class="day-heading">21 Jul 2019 · Travel</h3>
+    <div class="gallery">
+      <a href="./images/romania_2019/ro_fagaras_0002_21.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0002_21.07.19_web.jpg" alt="" loading="lazy"/></a>
+      <a href="./images/romania_2019/ro_fagaras_0006_21.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0006_21.07.19_web.jpg" alt="" loading="lazy"/></a>
+    </div>
+
+    <h3 class="day-heading">22 Jul 2019 · Arrival</h3>
+    <div class="gallery">
+      <a href="./images/romania_2019/ro_fagaras_0025_22.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0025_22.07.19_web.jpg" alt="" loading="lazy"/></a>
+      <a href="./images/romania_2019/ro_fagaras_0028_22.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0028_22.07.19_web.jpg" alt="" loading="lazy"/></a>
+      <a href="./images/romania_2019/ro_fagaras_0036_22.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0036_22.07.19_web.jpg" alt="" loading="lazy"/></a>
+      <a href="./images/romania_2019/ro_fagaras_0037_22.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0037_22.07.19_web.jpg" alt="" loading="lazy"/></a>
+      <a href="./images/romania_2019/ro_fagaras_0043_22.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0043_22.07.19_web.jpg" alt="" loading="lazy"/></a>
+      <a href="./images/romania_2019/ro_fagaras_0054_22.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0054_22.07.19_web.jpg" alt="" loading="lazy"/></a>
+    </div>
+
+    <h3 class="day-heading">23 Jul 2019 · Day 1 · Into the Forest</h3>
+    <div class="gallery">
+      <a href="./images/romania_2019/ro_fagaras_0058_23.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0058_23.07.19_web.jpg" alt="" loading="lazy"/></a>
+      <a href="./images/romania_2019/ro_fagaras_0060_23.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0060_23.07.19_web.jpg" alt="" loading="lazy"/></a>
+      <a href="./images/romania_2019/ro_fagaras_0065_23.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0065_23.07.19_web.jpg" alt="" loading="lazy"/></a>
+      <a href="./images/romania_2019/ro_fagaras_0068_23.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0068_23.07.19_web.jpg" alt="" loading="lazy"/></a>
+      <a href="./images/romania_2019/ro_fagaras_0077_23.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0077_23.07.19_web.jpg" alt="" loading="lazy"/></a>
+      <a href="./images/romania_2019/ro_fagaras_0081_23.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0081_23.07.19_web.jpg" alt="" loading="lazy"/></a>
+      <a href="./images/romania_2019/ro_fagaras_0092_23.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0092_23.07.19_web.jpg" alt="" loading="lazy"/></a>
+      <a href="./images/romania_2019/ro_fagaras_0094_23.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0094_23.07.19_web.jpg" alt="" loading="lazy"/></a>
+      <a href="./images/romania_2019/ro_fagaras_0097_23.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0097_23.07.19_web.jpg" alt="" loading="lazy"/></a>
+      <a href="./images/romania_2019/ro_fagaras_0101_23.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0101_23.07.19_web.jpg" alt="" loading="lazy"/></a>
+      <a href="./images/romania_2019/ro_fagaras_0103_23.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0103_23.07.19_web.jpg" alt="" loading="lazy"/></a>
+      <a href="./images/romania_2019/ro_fagaras_0104_23.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0104_23.07.19_web.jpg" alt="" loading="lazy"/></a>
+    </div>
+
+    <h3 class="day-heading">24 Jul 2019 · Day 2 · The Ridge</h3>
+    <div class="gallery">
+      <a href="./images/romania_2019/ro_fagaras_0117_24.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0117_24.07.19_web.jpg" alt="" loading="lazy"/></a>
+      <a href="./images/romania_2019/ro_fagaras_0120_24.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0120_24.07.19_web.jpg" alt="" loading="lazy"/></a>
+      <a href="./images/romania_2019/ro_fagaras_0129_24.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0129_24.07.19_web.jpg" alt="" loading="lazy"/></a>
+      <a href="./images/romania_2019/ro_fagaras_0131_24.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0131_24.07.19_web.jpg" alt="" loading="lazy"/></a>
+      <a href="./images/romania_2019/ro_fagaras_0140_24.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0140_24.07.19_web.jpg" alt="" loading="lazy"/></a>
+      <a href="./images/romania_2019/ro_fagaras_0154_24.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0154_24.07.19_web.jpg" alt="" loading="lazy"/></a>
+      <a href="./images/romania_2019/ro_fagaras_0158_24.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0158_24.07.19_web.jpg" alt="" loading="lazy"/></a>
+      <a href="./images/romania_2019/ro_fagaras_0162_24.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0162_24.07.19_web.jpg" alt="" loading="lazy"/></a>
+      <a href="./images/romania_2019/ro_fagaras_0176_24.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0176_24.07.19_web.jpg" alt="" loading="lazy"/></a>
+      <a href="./images/romania_2019/ro_fagaras_0180_24.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0180_24.07.19_web.jpg" alt="" loading="lazy"/></a>
+      <a href="./images/romania_2019/ro_fagaras_0184_24.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0184_24.07.19_web.jpg" alt="" loading="lazy"/></a>
+      <a href="./images/romania_2019/ro_fagaras_0196_24.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0196_24.07.19_web.jpg" alt="" loading="lazy"/></a>
+      <a href="./images/romania_2019/ro_fagaras_0208_24.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0208_24.07.19_web.jpg" alt="" loading="lazy"/></a>
+      <a href="./images/romania_2019/ro_fagaras_0219_24.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0219_24.07.19_web.jpg" alt="" loading="lazy"/></a>
+      <a href="./images/romania_2019/ro_fagaras_0237_24.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0237_24.07.19_web.jpg" alt="" loading="lazy"/></a>
+    </div>
+
+    <h3 class="day-heading">25 Jul 2019 · Day 3 · Snow and Mist</h3>
+    <div class="gallery">
+      <a href="./images/romania_2019/ro_fagaras_0262_25.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0262_25.07.19_web.jpg" alt="" loading="lazy"/></a>
+      <a href="./images/romania_2019/ro_fagaras_0268_25.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0268_25.07.19_web.jpg" alt="" loading="lazy"/></a>
+      <a href="./images/romania_2019/ro_fagaras_0283_25.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0283_25.07.19_web.jpg" alt="" loading="lazy"/></a>
+      <a href="./images/romania_2019/ro_fagaras_0291_25.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0291_25.07.19_web.jpg" alt="" loading="lazy"/></a>
+      <a href="./images/romania_2019/ro_fagaras_0307_25.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0307_25.07.19_web.jpg" alt="" loading="lazy"/></a>
+      <a href="./images/romania_2019/ro_fagaras_0313_25.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0313_25.07.19_web.jpg" alt="" loading="lazy"/></a>
+      <a href="./images/romania_2019/ro_fagaras_0326_25.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0326_25.07.19_web.jpg" alt="" loading="lazy"/></a>
+    </div>
+
+    <h3 class="day-heading">26 Jul 2019 · Day 4 · Cabana Podragu</h3>
+    <div class="gallery">
+      <a href="./images/romania_2019/ro_fagaras_0346_26.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0346_26.07.19_web.jpg" alt="" loading="lazy"/></a>
+      <a href="./images/romania_2019/ro_fagaras_0360_26.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0360_26.07.19_web.jpg" alt="" loading="lazy"/></a>
+      <a href="./images/romania_2019/ro_fagaras_0365_26.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0365_26.07.19_web.jpg" alt="" loading="lazy"/></a>
+      <a href="./images/romania_2019/ro_fagaras_0395_26.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0395_26.07.19_web.jpg" alt="" loading="lazy"/></a>
+      <a href="./images/romania_2019/ro_fagaras_0401_26.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0401_26.07.19_web.jpg" alt="" loading="lazy"/></a>
+      <a href="./images/romania_2019/ro_fagaras_0404_26.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0404_26.07.19_web.jpg" alt="" loading="lazy"/></a>
+      <a href="./images/romania_2019/ro_fagaras_0410_26.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0410_26.07.19_web.jpg" alt="" loading="lazy"/></a>
+    </div>
+
+    <h3 class="day-heading">27 Jul 2019 · Day 5 · Moldoveanu</h3>
+    <div class="gallery">
+      <a href="./images/romania_2019/ro_fagaras_0420_27.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0420_27.07.19_web.jpg" alt="" loading="lazy"/></a>
+      <a href="./images/romania_2019/ro_fagaras_0426_27.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0426_27.07.19_web.jpg" alt="" loading="lazy"/></a>
+      <a href="./images/romania_2019/ro_fagaras_0441_27.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0441_27.07.19_web.jpg" alt="" loading="lazy"/></a>
+      <a href="./images/romania_2019/ro_fagaras_0464_27.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0464_27.07.19_web.jpg" alt="" loading="lazy"/></a>
+      <a href="./images/romania_2019/ro_fagaras_0465_27.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0465_27.07.19_web.jpg" alt="" loading="lazy"/></a>
+      <a href="./images/romania_2019/ro_fagaras_0467_27.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0467_27.07.19_web.jpg" alt="" loading="lazy"/></a>
+      <a href="./images/romania_2019/ro_fagaras_0486_27.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0486_27.07.19_web.jpg" alt="" loading="lazy"/></a>
+      <a href="./images/romania_2019/ro_fagaras_0487_27.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0487_27.07.19_web.jpg" alt="" loading="lazy"/></a>
+      <a href="./images/romania_2019/ro_fagaras_0496_27.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0496_27.07.19_web.jpg" alt="" loading="lazy"/></a>
+      <a href="./images/romania_2019/ro_fagaras_0500_27.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0500_27.07.19_web.jpg" alt="" loading="lazy"/></a>
+    </div>
+
+    <h3 class="day-heading">28 Jul 2019 · Return</h3>
+    <div class="gallery">
+      <a href="./images/romania_2019/ro_fagaras_0509_28.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0509_28.07.19_web.jpg" alt="" loading="lazy"/></a>
+      <a href="./images/romania_2019/ro_fagaras_0517_28.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0517_28.07.19_web.jpg" alt="" loading="lazy"/></a>
+      <a href="./images/romania_2019/ro_fagaras_0525_28.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0525_28.07.19_web.jpg" alt="" loading="lazy"/></a>
+      <a href="./images/romania_2019/ro_fagaras_0532_28.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0532_28.07.19_web.jpg" alt="" loading="lazy"/></a>
+    </div>
+
+  </section>
+
+  <footer>
+    <span>© VOJTĚCH KONOPA</span>
+    <a href="./index.html">← ALL TRAVELS</a>
+  </footer>
+
+  <script>
+    (function () {
+      const svg  = document.getElementById('route-svg');
+      const line = document.getElementById('route-path');
+      let triggered = false;
+
+      function trigger() {
+        if (triggered) return;
+        triggered = true;
+
+        // polyline uses getTotalLength() same as path
+        const len = line.getTotalLength();
+        line.style.strokeDasharray  = len;
+        line.style.strokeDashoffset = len;
+        line.style.setProperty('--total-len', len);
+        line.classList.add('animate');
+
+        const dur = 4000;
+
+        function delayEl(id, frac) {
+          const el = document.getElementById(id);
+          if (!el) return;
+          setTimeout(() => el.classList.add('animate'), dur * frac);
+        }
+        function delayOpacity(id, frac) {
+          const el = document.getElementById(id);
+          if (!el) return;
+          setTimeout(() => { el.style.opacity = 1; el.style.transition = 'opacity .4s'; }, dur * frac);
+        }
+
+        delayEl('dot-start', 0.01);  delayEl('lbl-start', 0.01);
+        delayEl('dot-end',   0.99);  delayEl('lbl-end',   0.99);
+
+        // Espezi ≈ km 16.8 → 0.32
+        delayEl('dot-espezi', 0.32);
+        delayEl('lbl-espezi', 0.32); delayEl('lbl-espezi2', 0.32);
+
+        // Negoiu ≈ km 28.6 → 0.55
+        delayEl('dot-negoiu', 0.55);
+        delayEl('lbl-negoiu', 0.55); delayEl('lbl-negoiu2', 0.55);
+
+        // Cabana Podragu ≈ km 29.8 → 0.57
+        delayEl('dot-podragu', 0.57);
+        delayEl('lbl-podragu', 0.57); delayEl('lbl-podragu2', 0.57);
+
+        // Moldoveanu ≈ km 40.1 → 0.77
+        delayEl('dot-moldo',  0.77);
+        delayEl('lbl-moldo',  0.77); delayEl('lbl-moldo2', 0.77);
+        delayOpacity('moldo-tick', 0.88);
+
+        // day dividers
+        delayOpacity('day2-tick', 0.27); delayOpacity('day2-lbl', 0.27);
+        delayOpacity('day3-tick', 0.54); delayOpacity('day3-lbl', 0.54);
+        delayOpacity('day4-tick', 0.70); delayOpacity('day4-lbl', 0.70);
+        delayOpacity('day5-tick', 0.85); delayOpacity('day5-lbl', 0.85);
+      }
+
+      if ('IntersectionObserver' in window) {
+        const obs = new IntersectionObserver(entries => {
+          if (entries[0].isIntersecting) { trigger(); obs.disconnect(); }
+        }, { threshold: 0.25 });
+        obs.observe(svg);
+      } else {
+        trigger();
+      }
+    })();
+  </script>
+
+  <!-- LIGHTBOX -->
+  <div id="lb">
+    <span id="lb-close" onclick="closeLb()">✕</span>
+    <img id="lb-img" src="" alt="">
+  </div>
+  <script>
+    function openLb(src){
+      document.getElementById('lb-img').src = src;
+      document.getElementById('lb').classList.add('open');
+    }
+    function closeLb(){
+      document.getElementById('lb').classList.remove('open');
+      document.getElementById('lb-img').src = '';
+    }
+    document.querySelectorAll('.gallery a').forEach(a=>{
+      a.addEventListener('click', e=>{
+        e.preventDefault();
+        openLb(a.href);
+      });
+    });
+    document.getElementById('lb').addEventListener('click', e=>{
+      if (e.target === e.currentTarget) closeLb();
+    });
+    document.addEventListener('keydown', e=>{ if (e.key === 'Escape') closeLb(); });
+    const _pc = document.querySelectorAll('.gallery-grid img').length;
+    const _pcEl = document.getElementById('photo-count');
+    if (_pcEl && _pc > 0) _pcEl.textContent = _pc;
+  </script>
+
+</body>
+</html>
