@@ -1,0 +1,1051 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Italy 2022 · Travels · Vojtěch Konopa</title>
+  <meta name="description" content="Thirteen days through southern Italy — abandoned asylums and seaside resorts, Craco ghost town, Etna, Agrigento, a Palermo night ferry, Cold War NATO bunkers, Rome, and a Dolomite via ferrata to close the loop." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #1c1c1c;
+      --surface: #262626;
+      --surface-2: #2e2e2e;
+      --border: #3a3a3a;
+      --border-strong: #555;
+      --fg: #ededec;
+      --fg-dim: #8a8a85;
+      --fg-muted: #5e5e5b;
+      --accent: #f5b800;
+      --concrete: #4a4a48;
+      --display: 'Archivo Black', 'Inter', system-ui, sans-serif;
+      --body: 'Inter', system-ui, -apple-system, Segoe UI, sans-serif;
+      --mono: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      background: var(--bg);
+      color: var(--fg);
+      font-family: var(--body);
+      font-size: 16px;
+      line-height: 1.55;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a { color: var(--fg); text-decoration: none; border-bottom: 1px solid transparent; transition: color .15s, border-color .15s; }
+    a:hover, a:focus { color: var(--accent); border-bottom-color: var(--accent); outline: none; }
+    a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 1px; }
+    img { display: block; max-width: 100%; }
+
+    .top-bar {
+      border-bottom: 1px solid var(--border);
+      padding: 18px 28px;
+      display: flex; justify-content: space-between; align-items: baseline; gap: 18px;
+      font-family: var(--mono); font-size: 12px;
+      letter-spacing: 0.08em; text-transform: uppercase; color: var(--fg-dim);
+    }
+    .top-bar a { color: var(--fg-dim); }
+    .top-bar a:hover { color: var(--accent); }
+    .top-bar .crumb { color: var(--fg); }
+
+    .hero {
+      position: relative; width: 100%;
+      aspect-ratio: 16 / 9; max-height: 80vh;
+      background-color: var(--concrete);
+      background-size: cover; background-position: center; overflow: hidden;
+    }
+    .hero::before {
+      content: ''; position: absolute; inset: auto 0 0 0; height: 50%;
+      background: linear-gradient(to top, rgba(0,0,0,0.55), transparent);
+      pointer-events: none;
+    }
+
+    .title-block {
+      max-width: 1080px; margin: 0 auto; padding: 56px 28px 28px;
+      border-bottom: 1px solid var(--border);
+    }
+    .label-row {
+      display: flex; gap: 24px; flex-wrap: wrap;
+      font-family: var(--mono); font-size: 11px;
+      letter-spacing: 0.18em; text-transform: uppercase;
+      color: var(--accent); margin-bottom: 18px;
+    }
+    .label-row .dim { color: var(--fg-dim); }
+    h1.location {
+      font-family: var(--display);
+      font-size: clamp(52px, 10vw, 130px);
+      line-height: 0.88;
+      letter-spacing: -0.025em;
+      text-transform: uppercase;
+      margin-bottom: 22px;
+    }
+    .subtitle {
+      font-size: 18px; font-weight: 300;
+      color: var(--fg-dim); max-width: 680px; line-height: 1.65;
+      margin-bottom: 28px;
+    }
+
+    .data-strip {
+      display: flex; flex-wrap: wrap; gap: 0;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      font-family: var(--mono);
+    }
+    .data-item {
+      padding: 14px 28px 14px 0;
+      margin-right: 28px;
+      border-right: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .data-item:last-child { border-right: none; }
+    .data-label {
+      font-size: 9.5px; letter-spacing: 0.22em;
+      text-transform: uppercase; color: var(--fg-muted);
+      display: block; margin-bottom: 4px;
+    }
+    .data-val {
+      font-size: 18px; font-weight: 700; color: var(--fg);
+      letter-spacing: -0.01em;
+    }
+    .data-val span { font-size: 11px; font-weight: 400; color: var(--fg-dim); margin-left: 2px; }
+
+    /* ── ROUTE MAP ── */
+    .route-section {
+      max-width: 1080px; margin: 0 auto; padding: 56px 28px 48px;
+      border-bottom: 1px solid var(--border);
+    }
+    .section-label {
+      font-family: var(--mono); font-size: 11px;
+      letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--fg-dim); margin-bottom: 20px;
+    }
+    .route-svg-wrap { position: relative; width: 100%; overflow: hidden; }
+    .route-svg-wrap svg { width: 100%; height: auto; display: block; }
+
+    /* ── ARTICLE ── */
+    .article {
+      max-width: 780px; margin: 0 auto; padding: 64px 28px 80px;
+    }
+    .article h2 {
+      font-family: var(--mono); font-size: 11px;
+      letter-spacing: 0.22em; text-transform: uppercase;
+      color: var(--accent); margin-bottom: 20px; margin-top: 52px;
+      padding-bottom: 10px; border-bottom: 1px solid var(--border);
+    }
+    .article h2:first-child { margin-top: 0; }
+    .article h3 {
+      font-family: var(--display); font-size: 22px;
+      text-transform: uppercase; letter-spacing: -0.01em;
+      margin: 36px 0 14px; color: var(--fg);
+    }
+    .article p {
+      font-size: 15.5px; line-height: 1.75; color: var(--fg-dim);
+      font-weight: 300; margin-bottom: 18px;
+    }
+    .article p strong { color: var(--fg); font-weight: 500; }
+    .article .location-tag {
+      display: inline-block;
+      font-family: var(--mono); font-size: 10px;
+      letter-spacing: 0.18em; text-transform: uppercase;
+      color: var(--accent); background: rgba(245,184,0,0.08);
+      border: 1px solid rgba(245,184,0,0.25);
+      padding: 3px 8px; border-radius: 2px;
+      margin-bottom: 12px;
+    }
+
+    /* ── VIDEO ── */
+    .video-section {
+      max-width: 1080px; margin: 0 auto; padding: 0 28px 64px;
+    }
+    .video-wrap {
+      position: relative; aspect-ratio: 16 / 9;
+      background: var(--surface); border: 1px solid var(--border); overflow: hidden;
+    }
+    .video-wrap iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+
+    /* ── GALLERY ── */
+    .gallery-section {
+      max-width: 1280px; margin: 0 auto; padding: 0 0 96px;
+    }
+    .day-heading {
+      font-family: var(--mono); font-size: 11px;
+      letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--fg-dim); padding: 20px 28px 12px;
+      border-top: 1px solid var(--border);
+    }
+    .day-heading b { color: var(--accent); }
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 1px; background: var(--border);
+    }
+    .gallery-grid img {
+      width: 100%; aspect-ratio: 4/3;
+      object-fit: cover; display: block;
+      filter: grayscale(0.35) contrast(1.05);
+      transition: filter 0.25s ease;
+    }
+    .gallery-grid img:hover { filter: none; cursor: zoom-in; }
+
+    /* lightbox */
+    #lb { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.92);
+      z-index:1000; align-items:center; justify-content:center; }
+    #lb.open { display:flex; }
+    #lb img { max-width:90vw; max-height:90vh; object-fit:contain; display:block; }
+    #lb-close { position:fixed; top:18px; right:22px; font-size:28px; color:#fff;
+      cursor:pointer; font-family:var(--mono); line-height:1; opacity:0.7; }
+    #lb-close:hover { opacity:1; }
+
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 32px 28px; max-width: 1280px; margin: 0 auto;
+      display: flex; justify-content: space-between; gap: 18px;
+      font-family: var(--mono); font-size: 11px;
+      letter-spacing: 0.16em; text-transform: uppercase; color: var(--fg-dim);
+    }
+    footer a { color: var(--fg-dim); border-bottom: 1px solid transparent; }
+    footer a:hover { color: var(--accent); border-bottom-color: var(--accent); }
+
+    @media (max-width: 768px) {
+      .title-block { padding: 36px 20px 24px; }
+      .article { padding: 40px 20px 60px; }
+      .route-section { padding: 36px 20px 32px; }
+      .top-bar, footer { padding: 14px 20px; }
+      .data-item { padding: 12px 18px 12px 0; margin-right: 18px; }
+      .data-val { font-size: 16px; }
+      .video-section { padding: 0 20px 48px; }
+    }
+    @media (max-width: 480px) {
+      h1.location { font-size: 52px; }
+      .gallery-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="top-bar">
+    <a href="./index.html">← back to travels</a>
+    <span class="crumb">~/travels/italy-2022</span>
+    <span>vojta@konopa</span>
+  </div>
+
+  <div class="hero" style="background-image:url('./images/italy_2022/italy_jpg_0300_26.07.2022_web.jpg');"></div>
+
+  <div class="title-block">
+    <div class="label-row">
+      <span>FIELD JOURNAL · 006</span>
+      <span class="dim">ITALY · SUMMER 2022</span>
+    </div>
+    <h1 class="location">ITALY</h1>
+    <p class="subtitle">
+      Thirteen days from the Alps to Sicily and back — abandoned asylums and seaside
+      resorts, a ghost town on a Basilicata hilltop, Etna, the Valley of the Temples,
+      a night ferry from Palermo to Salerno, Cold War NATO bunkers under a Campanian
+      hillside, the Roman Forum at dawn, and a via ferrata in the Dolomites to
+      close the loop.
+    </p>
+    <div class="data-strip">
+      <div class="data-item">
+        <span class="data-label">Country</span>
+        <div class="data-val">IT</div>
+      </div>
+      <div class="data-item">
+        <span class="data-label">Dates</span>
+        <div class="data-val">17 – 29 Jul 2022</div>
+      </div>
+      <div class="data-item">
+        <span class="data-label">Days</span>
+        <div class="data-val">13</div>
+      </div>
+      <div class="data-item">
+        <span class="data-label">People</span>
+        <div class="data-val">4</div>
+      </div>
+      <div class="data-item">
+        <span class="data-label">Ferry</span>
+        <div class="data-val">Palermo <span>→ Salerno</span></div>
+      </div>
+      <div class="data-item">
+        <span class="data-label">Key Sites</span>
+        <div class="data-val">9</div>
+      </div>
+      <div class="data-item">
+        <span class="data-label">Photos</span>
+        <div class="data-val" id="photo-count">—</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ROUTE MAP -->
+  <section class="route-section">
+    <p class="section-label">// ROUTE — CZ → IT North → IT South → Sicily → Ferry → Campania → Rome → IT North → CZ</p>
+    <div class="route-svg-wrap">
+      <svg viewBox="0 0 900 540" xmlns="http://www.w3.org/2000/svg"
+           style="background:var(--surface); border:1px solid var(--border);">
+        <defs>
+          <filter id="lbl-bg" x="-20%" y="-40%" width="140%" height="180%">
+            <feMorphology in="SourceGraphic" operator="dilate" radius="3" result="exp"/>
+            <feFlood flood-color="#262626" result="bg"/>
+            <feComposite in="bg" in2="exp" operator="in" result="outline"/>
+            <feMerge><feMergeNode in="outline"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+        </defs>
+
+        <!-- Outgoing route: CZ → North Urbex → south → Resort → Craco → [Messina] → Etna → Agrigento → Palermo -->
+        <polyline
+          points="510,28 270,105 215,242 220,385 395,378 278,425 292,445 430,440 320,488 250,462"
+          fill="none" stroke="#f5b800" stroke-width="1.5"
+          stroke-dasharray="5 7" opacity="0.55"/>
+
+        <!-- Ferry: Palermo → Salerno (thicker dashed, slightly lighter) -->
+        <line x1="250" y1="462" x2="375" y2="315"
+          stroke="#f5b800" stroke-width="2.5"
+          stroke-dasharray="4 5" opacity="0.8"/>
+        <!-- ferry label mid-line -->
+        <text x="295" y="385" font-family="'JetBrains Mono',monospace"
+          font-size="9" letter-spacing="0.12em" fill="#f5b800" opacity="0.7"
+          transform="rotate(-38,295,385)" filter="url(#lbl-bg)">FERRY GNV</text>
+
+        <!-- Return route: Salerno → NATO → Rome → Oculus → Dolomites → Lago d'Iseo → CZ -->
+        <polyline
+          points="375,315 360,292 325,252 325,180 445,95 265,125 510,28"
+          fill="none" stroke="#f5b800" stroke-width="1.5"
+          stroke-dasharray="5 7" opacity="0.55"/>
+
+        <!-- ── DOTS ── -->
+        <circle cx="510" cy="28"  r="5" fill="#f5b800"/>     <!-- CZ start/end -->
+        <circle cx="270" cy="105" r="4" fill="var(--fg-dim)"/> <!-- IT North Urbex -->
+        <circle cx="220" cy="385" r="4" fill="var(--fg-dim)"/> <!-- Abandoned Resort -->
+        <circle cx="395" cy="378" r="4" fill="var(--fg-dim)"/> <!-- Craco -->
+        <circle cx="430" cy="440" r="4" fill="var(--fg-dim)"/> <!-- Etna -->
+        <circle cx="320" cy="488" r="4" fill="var(--fg-dim)"/> <!-- Agrigento -->
+        <circle cx="250" cy="462" r="4" fill="var(--fg-dim)"/> <!-- Palermo -->
+        <circle cx="375" cy="315" r="4" fill="var(--fg-dim)"/> <!-- Salerno/Vietri -->
+        <circle cx="360" cy="292" r="4" fill="var(--fg-dim)"/> <!-- NATO Proto -->
+        <circle cx="325" cy="252" r="4" fill="var(--fg-dim)"/> <!-- Rome -->
+        <circle cx="325" cy="180" r="4" fill="var(--fg-dim)"/> <!-- Oculus Tower -->
+        <circle cx="445" cy="95"  r="4" fill="var(--fg-dim)"/> <!-- Dolomites -->
+        <circle cx="265" cy="125" r="4" fill="var(--fg-dim)"/> <!-- Lago d'Iseo -->
+
+        <!-- ── LABELS ── -->
+        <g font-family="'JetBrains Mono', monospace"
+           font-size="10.5" letter-spacing="0.12em" filter="url(#lbl-bg)">
+
+          <text x="522" y="22"  text-anchor="start" fill="#f5b800" font-size="11">CZ · LIBEREC</text>
+
+          <text x="258" y="100" text-anchor="end" fill="var(--fg-dim)">IT · NORTH URBEX</text>
+          <text x="258" y="113" text-anchor="end" fill="var(--fg-muted)" font-size="9.5">abandoned complex</text>
+
+          <text x="208" y="380" text-anchor="end" fill="var(--fg-dim)">IT · RESORT</text>
+          <text x="208" y="393" text-anchor="end" fill="var(--fg-muted)" font-size="9.5">south italy · derelict</text>
+
+          <text x="407" y="373" text-anchor="start" fill="var(--fg-dim)">IT · CRACO</text>
+          <text x="407" y="386" text-anchor="start" fill="var(--fg-muted)" font-size="9.5">ghost town · basilicata</text>
+
+          <text x="442" y="435" text-anchor="start" fill="var(--fg-dim)">IT · ETNA</text>
+          <text x="442" y="448" text-anchor="start" fill="var(--fg-muted)" font-size="9.5">sicily · volcano</text>
+
+          <text x="308" y="500" text-anchor="end" fill="var(--fg-dim)">IT · AGRIGENTO</text>
+          <text x="308" y="513" text-anchor="end" fill="var(--fg-muted)" font-size="9.5">valley of temples</text>
+
+          <text x="238" y="457" text-anchor="end" fill="var(--fg-dim)">IT · PALERMO</text>
+          <text x="238" y="470" text-anchor="end" fill="var(--fg-muted)" font-size="9.5">ferry port</text>
+
+          <text x="387" y="310" text-anchor="start" fill="var(--fg-dim)">IT · VIETRI · AMALFI</text>
+          <text x="387" y="323" text-anchor="start" fill="var(--fg-muted)" font-size="9.5">campania coast</text>
+
+          <text x="348" y="288" text-anchor="end" fill="var(--fg-dim)">IT · NATO PROTO</text>
+          <text x="348" y="301" text-anchor="end" fill="var(--fg-muted)" font-size="9.5">cold war bunkers</text>
+
+          <text x="313" y="248" text-anchor="end" fill="var(--fg-dim)">IT · ROME</text>
+          <text x="313" y="261" text-anchor="end" fill="var(--fg-muted)" font-size="9.5">basilica · forum</text>
+
+          <text x="313" y="176" text-anchor="end" fill="var(--fg-dim)">IT · OCULUS TOWER</text>
+          <text x="313" y="189" text-anchor="end" fill="var(--fg-muted)" font-size="9.5">derelict · en route n.</text>
+
+          <text x="457" y="90"  text-anchor="start" fill="var(--fg-dim)">IT · DOLOMITES</text>
+          <text x="457" y="103" text-anchor="start" fill="var(--fg-muted)" font-size="9.5">via ferrata</text>
+
+          <text x="253" y="121" text-anchor="end" fill="var(--fg-dim)">IT · LAGO D'ISEO</text>
+          <text x="253" y="134" text-anchor="end" fill="var(--fg-muted)" font-size="9.5">hans nalejvárna</text>
+        </g>
+      </svg>
+    </div>
+  </section>
+
+  <!-- ARTICLE -->
+  <article class="article">
+
+    <h2>// GOING SOUTH</h2>
+    <p>
+      In July 2022 we drove a Czech-plated car from Liberec to Sicily and back — thirteen
+      days, four people, one long loop down the spine of Italy to the end of the boot and
+      across the strait onto the island. The plan was deliberately loose: a sequence of
+      locations connected by driving, no fixed hotels until the ferry booking forced it.
+    </p>
+    <p>
+      Italy has a particular quality of abandonment — the scale of what gets left behind
+      is different from elsewhere. Churches, asylums, seaside resorts, military complexes:
+      all built with an ambition that outlasted whatever it was meant to serve.
+    </p>
+
+    <h2>// NORTH ITALY — URBEX · 19 JUL</h2>
+    <span class="location-tag">IT · Northern Italy · Abandoned Complex</span>
+    <p>
+      First stop after crossing the Alps was a large abandoned complex in northern Italy.
+      The scale of the place — the corridor lengths, the number of rooms, the institutional
+      proportions — suggested something built to hold many people for a long time. Peeling
+      paint, collapsed ceilings in the newer wings, the older sections structurally intact.
+      Light coming through windows that had lost their frames years ago.
+    </p>
+    <p>
+      <strong>Thirty-seven frames</strong> from this site. It was the kind of place where you
+      keep finding another wing, another courtyard, another stairwell going somewhere unexpected.
+    </p>
+
+    <h2>// ABANDONED SEASIDE RESORT · 20 JUL</h2>
+    <span class="location-tag">IT · Southern Italy · Derelict Holiday Complex</span>
+    <p>
+      Somewhere in the southern half of the country, set back from the coast, was a
+      holiday complex that had closed a long time ago. The pools were still in place —
+      empty, cracked, the plaster going the colour of old concrete. Cabanas along one
+      side, a main building with a reception area that still had the desk. The kind of
+      place that operated for two or three seasons in the seventies, then didn't.
+    </p>
+    <p>
+      In high Italian summer heat, abandoned water infrastructure has a specific sadness
+      to it. The engineering was all still correct — drains, filter housing, pump
+      connections — just without water, without people, without the context that made
+      any of it make sense.
+    </p>
+
+    <h2>// CRACO · 21 JUL</h2>
+    <span class="location-tag">IT · Basilicata · Craco · Ghost Town</span>
+    <p>
+      Craco is a medieval hilltop town in Basilicata that was evacuated in 1963 following
+      a landslide and never reoccupied. The buildings are still there — the church, the
+      castle tower, the streets and stairways — just completely empty, and steadily
+      losing the battle with the hillside.
+    </p>
+    <p>
+      It's legitimately eerie in a way that most abandoned places aren't. Most abandoned
+      buildings feel like they were just stopped; Craco feels like it was interrupted.
+      The street layout implies the life that used to happen in it — the routes between
+      houses, the public square, the logic of daily movement — and all of it is still
+      physically present, just without anyone to use it.
+    </p>
+    <p>
+      The views from the upper part of the town are significant: the Basento valley
+      spread below, the pale Basilicata light, the colours of the stone matching
+      the colours of the landscape in a way that makes the town look grown rather than built.
+    </p>
+
+    <h2>// SICILY — ETNA · 22 JUL</h2>
+    <span class="location-tag">IT · Sicily · Etna · 3357 m</span>
+    <p>
+      We crossed into Sicily on the Messina ferry — the mainland to island crossing takes
+      twenty minutes and costs almost nothing — and drove northeast to Etna. The summit
+      area is accessible by road to around 2000 metres; above that, on foot. The volcanic
+      landscape is unlike anything else: black lava fields, solidified mid-flow, vegetation
+      growing back through the rock in the older sections. Craters in various states of
+      geological youth.
+    </p>
+    <p>
+      Eleven frames from Etna, which undercounts the experience. Some places are hard to
+      photograph because what's striking about them is the scale rather than any
+      particular view.
+    </p>
+
+    <h2>// AGRIGENTO + PALERMO · 23 JUL</h2>
+    <span class="location-tag">IT · Sicily · Agrigento · Valley of the Temples</span>
+    <p>
+      The Valley of the Temples at Agrigento is a UNESCO site containing some of the
+      best-preserved Doric temples outside Greece — built between the 6th and 5th
+      centuries BC, when Akragas was one of the wealthiest cities in the ancient
+      Mediterranean. They're not in a valley at all but on a ridge, visible from a
+      long distance, which presumably was the point.
+    </p>
+    <p>
+      The Temple of Concordia is the best preserved. It survived because it was
+      converted into a Christian church in the 6th century and maintained continuously
+      for another thousand years. The columns are still standing because someone
+      always needed them to be.
+    </p>
+    <span class="location-tag" style="margin-top:20px">IT · Sicily · Palermo · Ferry Port</span>
+    <p>
+      Palermo in the evening, heading for the port. The city moves at a different pace
+      from the north — narrower streets, louder, the architecture a layering of
+      Arab-Norman and Baroque that produces something unlike anywhere else in Italy.
+      We didn't have time for it that evening. The ferry was boarding.
+    </p>
+
+    <h2>// PALERMO → SALERNO FERRY · 24 JUL</h2>
+    <span class="location-tag">IT · Tyrrhenian Sea · GNV Night Ferry</span>
+    <p>
+      The GNV overnight ferry from Palermo to Salerno takes around ten hours. Two
+      photographs from the crossing: the ship leaving port and the coast resolving
+      out of the morning haze on the other side. The Tyrrhenian in July is flat enough
+      that the crossing is unremarkable as sailing goes. The point is to wake up on
+      the other side.
+    </p>
+
+    <h2>// AMALFI COAST · 25 JUL</h2>
+    <span class="location-tag">IT · Campania · Vietri sul Mare · Amalfi Coast</span>
+    <p>
+      The Amalfi Coast is the section of Campania coastline between Salerno and Positano:
+      cliffs dropping directly to the sea, villages built vertically into the rock,
+      a single road cut into the cliff face that alternates between tunnel and open
+      drop depending on the metre. In summer it's extremely busy and extremely beautiful —
+      two facts that coexist without resolving.
+    </p>
+    <p>
+      Vietri sul Mare at the eastern end of the coast is known for its ceramics — the
+      hand-painted tilework that covers the church dome and decorates the shopfronts.
+      We walked it and moved on, aware that the next day had a long programme.
+    </p>
+
+    <h2>// NATO BASE PROTO · 26 JUL</h2>
+    <span class="location-tag">IT · Campania · Cold War NATO Underground Facility</span>
+    <p>
+      This was the main event of the trip — a decommissioned NATO facility built into
+      a hillside in Campania during the Cold War, intended to function as a hardened
+      command-and-control installation capable of surviving a nuclear event nearby.
+      The construction involved tunnelling directly into the rock: kilometres of
+      corridors, blast doors at intervals, equipment rooms off the main passages,
+      ventilation shafts going up through the hillside to the surface.
+    </p>
+    <p>
+      <strong>Ninety-six photographs</strong> from inside. The scale demands it — the
+      corridor lengths alone justify stopping every fifty metres. The installation is
+      in the particular state of abandonment where nothing has been cleared out but
+      nothing functions: racks of communications equipment, cable runs still in their
+      conduit clips, indicator panels with the bulbs gone but the labels still readable.
+      The blast doors are impressive objects in their own right — steel, counterweighted,
+      three hundred millimetres of closure tolerances still holding after forty years
+      of no maintenance.
+    </p>
+    <p>
+      Cold War infrastructure in Italy is less documented than equivalent sites in
+      Germany or the UK. The facility is not well-known outside specialist circles.
+      The hillside above it looks completely normal — farmland, scrub, nothing that
+      marks the volume of engineered space beneath.
+    </p>
+
+    <h2>// ROME · 27 JUL</h2>
+    <span class="location-tag">IT · Lazio · Rome · Basilica San Giovanni in Laterano · Imperial Forum</span>
+    <p>
+      Rome after the NATO base felt like a shift in register. The Basilica of
+      San Giovanni in Laterano — the cathedral of Rome, technically outranking
+      St Peter's in ecclesiastical hierarchy — has an interior that operates at
+      a different scale from anything built in the last two centuries. The nave
+      proportions, the Cosmatesque floor, the baldachin above the main altar.
+      Baroque ambition expressed through Gothic space.
+    </p>
+    <p>
+      The Imperial Forum area — the sequence of forums built by Caesar, Augustus,
+      Nerva, Trajan — is still partially visible from street level, the excavated
+      sections lower than the modern city, the columns standing at their original
+      height above a grade that has risen two metres since they were placed. The
+      Forum of Nerva is particularly strange: two Corinthian columns still standing
+      between apartment buildings, a frieze of Minerva carved into the wall above
+      them, the surrounding forum entirely gone.
+    </p>
+
+    <h2>// OCULUS TOWER · 28 JUL</h2>
+    <span class="location-tag">IT · Central Italy · Oculus Tower · Derelict</span>
+    <p>
+      On the drive north from Rome, we stopped at a derelict tower the urbex community
+      calls the Oculus Tower — named for the circular opening at the top that lets
+      a column of daylight fall through the centre of the structure. The tower is
+      industrial or institutional in origin, now completely empty, its interior
+      volume lit only by that single circular aperture at the apex.
+    </p>
+    <p>
+      The light effect is genuine architecture — intentional or not, it produces
+      something that looks like a precedent from antiquity. Thirty-three photographs,
+      most of them looking upward.
+    </p>
+
+    <h2>// DOLOMITES + LAGO D'ISEO · 29 JUL</h2>
+    <span class="location-tag">IT · Dolomites · Via Ferrata Michielli-Strobel</span>
+    <p>
+      The last full day. A via ferrata in the Dolomites — the fixed-cable route that
+      allows non-climbers to ascend rock faces that would otherwise require ropes and
+      technical gear. The Dolomite limestone is distinctive in colour and texture: pale
+      orange-grey, sharp-edged where it breaks, the faces nearly vertical and often
+      overhanging. The via ferrata goes directly up sections that would be unpleasant
+      without the hardware.
+    </p>
+    <p>
+      At altitude, above the treeline, the scale of the surrounding peaks becomes
+      apparent in a way it isn't from the road. The valleys are deep; the walls on
+      either side are effectively cliffs. You understand why this was serious military
+      terrain in 1915.
+    </p>
+    <span class="location-tag" style="margin-top:20px">IT · Lombardy · Lago d'Iseo · Hans Nalejvárna</span>
+    <p>
+      The final stop before the drive home: a small lakeside bar on Lago d'Iseo that
+      has become a tradition on Italy trips. The lake sits in a pre-Alpine basin west
+      of Brescia, surrounded by steep wooded slopes, one of the less-visited of the
+      northern lakes. Hans serves cold beer. After thirteen days, that is exactly
+      what is needed.
+    </p>
+    <p>
+      From there: north through Austria, back into the Czech Republic, Liberec by
+      late evening.
+    </p>
+
+  </article>
+
+  <!-- VIDEO -->
+  <section class="video-section">
+    <p class="section-label" style="margin-bottom:16px">// VIDEO — ITALY 2022</p>
+    <div class="video-wrap">
+      <iframe
+        src="https://www.youtube-nocookie.com/embed/huBWnNVq3ps"
+        title="Italy 2022"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowfullscreen></iframe>
+    </div>
+  </section>
+
+  <!-- GALLERY -->
+  <section class="gallery-section">
+
+    <h3 class="day-heading">// <b>17 JUL</b> — Liberec · departure</h3>
+    <div class="gallery-grid" id="gallery-d1">
+      <img src="./images/italy_2022/italy_jpg_0049_17.07.2022_web.jpg" alt="" loading="lazy">
+    </div>
+
+    <h3 class="day-heading">// <b>19 JUL</b> — North Italy · abandoned complex</h3>
+    <div class="gallery-grid" id="gallery-d2">
+      <img src="./images/italy_2022/italy_jpg_0051_19.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0052_19.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0053_19.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0054_19.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0055_19.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0056_19.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0058_19.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0059_19.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0060_19.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0061_19.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0065_19.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0067_19.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0069_19.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0070_19.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0071_19.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0073_19.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0074_19.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0078_19.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0080_19.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0081_19.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0082_19.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0084_19.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0085_19.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0087_19.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0088_19.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0089_19.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0090_19.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0092_19.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0094_19.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0095_19.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0096_19.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0099_19.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0100_19.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0103_19.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0104_19.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0105_19.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0108_19.07.2022_web.jpg" alt="" loading="lazy">
+    </div>
+
+    <h3 class="day-heading">// <b>20 JUL</b> — Southern Italy · abandoned resort</h3>
+    <div class="gallery-grid" id="gallery-d3">
+      <img src="./images/italy_2022/italy_jpg_0110_20.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0111_20.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0112_20.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0114_20.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0115_20.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0117_20.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0118_20.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0119_20.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0120_20.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0121_20.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0122_20.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0124_20.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0126_20.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0128_20.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0129_20.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0130_20.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0131_20.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0132_20.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0133_20.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0135_20.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0137_20.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0138_20.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0139_20.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0140_20.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0141_20.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0142_20.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0143_20.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0144_20.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0145_20.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0146_20.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0147_20.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0148_20.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0149_20.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0150_20.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0151_20.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0152_20.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0153_20.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0154_20.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0155_20.07.2022_web.jpg" alt="" loading="lazy">
+    </div>
+
+    <h3 class="day-heading">// <b>21 JUL</b> — Craco · ghost town · Basilicata</h3>
+    <div class="gallery-grid" id="gallery-d4">
+      <img src="./images/italy_2022/italy_jpg_0158_21.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0160_21.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0162_21.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0163_21.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0164_21.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0167_21.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0168_21.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0170_21.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0172_21.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0173_21.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0175_21.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0179_21.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0180_21.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0181_21.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0182_21.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0183_21.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0184_21.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0186_21.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0188_21.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0189_21.07.2022_web.jpg" alt="" loading="lazy">
+    </div>
+
+    <h3 class="day-heading">// <b>22 JUL</b> — Sicily · Etna</h3>
+    <div class="gallery-grid" id="gallery-d5">
+      <img src="./images/italy_2022/italy_jpg_0191_22.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0192_22.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0193_22.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0195_22.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0196_22.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0198_22.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0199_22.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0201_22.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0202_22.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0204_22.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0206_22.07.2022_web.jpg" alt="" loading="lazy">
+    </div>
+
+    <h3 class="day-heading">// <b>23 JUL</b> — Agrigento · Valley of the Temples · Palermo port</h3>
+    <div class="gallery-grid" id="gallery-d6">
+      <img src="./images/italy_2022/italy_jpg_0208_23.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0209_23.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0210_23.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0211_23.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0214_23.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0221_23.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0223_23.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0225_23.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0227_23.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0228_23.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0235_23.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0236_23.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0237_23.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0239_23.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0240_23.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0241_23.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0242_23.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0243_23.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0244_23.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0246_23.07.2022_web.jpg" alt="" loading="lazy">
+    </div>
+
+    <h3 class="day-heading">// <b>24 JUL</b> — Ferry · Palermo → Salerno · GNV</h3>
+    <div class="gallery-grid" id="gallery-d7">
+      <img src="./images/italy_2022/italy_jpg_0247_24.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0248_24.07.2022_web.jpg" alt="" loading="lazy">
+    </div>
+
+    <h3 class="day-heading">// <b>25 JUL</b> — Campania · Vietri sul Mare · Amalfi Coast</h3>
+    <div class="gallery-grid" id="gallery-d8">
+      <img src="./images/italy_2022/italy_jpg_0249_25.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0252_25.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0253_25.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0254_25.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0255_25.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0257_25.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0258_25.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0259_25.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0260_25.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0261_25.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0262_25.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0263_25.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0264_25.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0265_25.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0266_25.07.2022_web.jpg" alt="" loading="lazy">
+    </div>
+
+    <h3 class="day-heading">// <b>26 JUL</b> — Campania · NATO Base Proto · Cold War underground facility</h3>
+    <div class="gallery-grid" id="gallery-d9">
+      <img src="./images/italy_2022/italy_jpg_0269_26.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0270_26.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0272_26.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0273_26.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0274_26.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0275_26.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0276_26.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0277_26.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0278_26.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0279_26.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0280_26.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0281_26.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0282_26.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0283_26.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0284_26.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0286_26.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0289_26.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0290_26.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0291_26.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0292_26.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0293_26.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0294_26.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0295_26.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0296_26.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0297_26.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0298_26.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0299_26.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0300_26.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0301_26.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0302_26.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0303_26.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0304_26.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0305_26.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0306_26.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0308_26.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0309_26.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0310_26.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0311_26.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0312_26.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0313_26.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0314_26.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0315_26.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0316_26.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0317_26.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0318_26.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0319_26.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0320_26.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0324_26.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0326_26.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0327_26.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0328_26.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0329_26.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0330_26.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0331_26.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0332_26.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0333_26.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0334_26.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0335_26.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0336_26.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0337_26.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0338_26.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0339_26.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0340_26.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0341_26.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0342_26.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0343_26.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0344_26.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0345_26.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0346_26.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0347_26.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0348_26.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0349_26.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0350_26.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0351_26.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0352_26.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0354_26.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0355_26.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0356_26.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0357_26.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0358_26.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0359_26.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0360_26.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0361_26.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0362_26.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0363_26.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0364_26.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0365_26.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0366_26.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0367_26.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0368_26.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0369_26.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0370_26.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0372_26.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0374_26.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0375_26.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0380_26.07.2022_web.jpg" alt="" loading="lazy">
+    </div>
+
+    <h3 class="day-heading">// <b>27 JUL</b> — Rome · Basilica San Giovanni · Imperial Forum</h3>
+    <div class="gallery-grid" id="gallery-d10">
+      <img src="./images/italy_2022/italy_jpg_0384_27.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0385_27.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0386_27.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0388_27.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0390_27.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0392_27.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0394_27.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0396_27.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0397_27.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0399_27.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0401_27.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0402_27.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0403_27.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0406_27.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0407_27.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0408_27.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0409_27.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0411_27.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0412_27.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0413_27.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0414_27.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0415_27.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0416_27.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0418_27.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0421_27.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0422_27.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0424_27.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0426_27.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0427_27.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0429_27.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0430_27.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0432_27.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0433_27.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0434_27.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0438_27.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0441_27.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0443_27.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0444_27.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0445_27.07.2022_web.jpg" alt="" loading="lazy">
+    </div>
+
+    <h3 class="day-heading">// <b>28 JUL</b> — Oculus Tower · Central Italy</h3>
+    <div class="gallery-grid" id="gallery-d11">
+      <img src="./images/italy_2022/italy_jpg_0449_28.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0451_28.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0452_28.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0453_28.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0454_28.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0456_28.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0458_28.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0459_28.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0460_28.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0463_28.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0465_28.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0466_28.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0467_28.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0468_28.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0469_28.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0470_28.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0471_28.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0472_28.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0473_28.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0474_28.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0475_28.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0476_28.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0477_28.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0478_28.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0479_28.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0480_28.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0481_28.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0485_28.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0487_28.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0488_28.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0489_28.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0490_28.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0492_28.07.2022_web.jpg" alt="" loading="lazy">
+    </div>
+
+    <h3 class="day-heading">// <b>29 JUL</b> — Dolomites · Via Ferrata · Lago d'Iseo · home</h3>
+    <div class="gallery-grid" id="gallery-d12">
+      <img src="./images/italy_2022/italy_jpg_0002_29.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0003_29.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0004_29.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0006_29.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0007_29.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0008_29.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0009_29.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0011_29.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0012_29.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0015_29.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0016_29.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0026_29.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0033_29.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0036_29.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0042_29.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0044_29.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0046_29.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0502_29.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0517_29.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0519_29.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0522_29.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0523_29.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0524_29.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0525_29.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0529_29.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0532_29.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0533_29.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0535_29.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0538_29.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0540_29.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0541_29.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0545_29.07.2022_web.jpg" alt="" loading="lazy">
+    </div>
+
+  </section>
+
+  <!-- LIGHTBOX -->
+  <div id="lb">
+    <span id="lb-close" onclick="document.getElementById('lb').classList.remove('open')">×</span>
+    <img id="lb-img" src="" alt="">
+  </div>
+
+  <footer>
+    <span>© VOJTĚCH KONOPA</span>
+    <a href="./index.html">ALL TRAVELS ↗</a>
+    <a href="/">HOME ↗</a>
+  </footer>
+
+  <script>
+    // photo count
+    const count = document.querySelectorAll('.gallery-grid img').length;
+    document.getElementById('photo-count').textContent = count;
+
+    // lightbox
+    const lb = document.getElementById('lb');
+    const lbImg = document.getElementById('lb-img');
+    document.querySelectorAll('.gallery-grid img').forEach(img => {
+      img.addEventListener('click', () => {
+        lbImg.src = img.src;
+        lb.classList.add('open');
+      });
+    });
+    lb.addEventListener('click', e => {
+      if (e.target !== lbImg) lb.classList.remove('open');
+    });
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') lb.classList.remove('open');
+    });
+  </script>
+
+</body>
+</html>
