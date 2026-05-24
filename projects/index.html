@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>~/projects · Vojtěch Konopa</title>
+  <meta name="description" content="Projects by Vojtěch Konopa." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0b0f0a;
+      --bg-window: #0f1410;
+      --bg-chrome: #161c17;
+      --fg: #c8facc;
+      --fg-dim: #6f8a72;
+      --accent: #33ff7a;
+      --amber: #ffb454;
+      --red: #ff5f56;
+      --yellow: #ffbd2e;
+      --green: #27c93f;
+      --border: #1f2a21;
+      --shadow: 0 0 40px rgba(51, 255, 122, 0.08), 0 0 1px rgba(51, 255, 122, 0.2);
+      --mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: var(--mono);
+      font-size: 15px;
+      line-height: 1.6;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background: repeating-linear-gradient(
+        to bottom,
+        rgba(255, 255, 255, 0.015) 0px,
+        rgba(255, 255, 255, 0.015) 1px,
+        transparent 1px,
+        transparent 3px
+      );
+      z-index: 1;
+    }
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background: radial-gradient(ellipse at center, transparent 50%, rgba(0,0,0,0.55) 100%);
+      z-index: 1;
+    }
+
+    main {
+      position: relative;
+      z-index: 2;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 48px 20px 80px;
+    }
+
+    .terminal {
+      background: var(--bg-window);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    .chrome {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      background: var(--bg-chrome);
+      border-bottom: 1px solid var(--border);
+    }
+    .dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+    .dot.r { background: var(--red); }
+    .dot.y { background: var(--yellow); }
+    .dot.g { background: var(--green); }
+    .title {
+      margin-left: auto;
+      margin-right: auto;
+      font-size: 12px;
+      color: var(--fg-dim);
+      letter-spacing: 0.5px;
+    }
+    .screen {
+      padding: 24px 22px 28px;
+    }
+
+    .line { white-space: pre-wrap; word-wrap: break-word; }
+    .prompt { color: var(--accent); }
+    .prompt .user { color: var(--accent); }
+    .prompt .at   { color: var(--fg-dim); }
+    .prompt .host { color: var(--amber); }
+    .prompt .path { color: var(--fg-dim); }
+    .prompt .sym  { color: var(--fg); }
+    .cmd { color: var(--fg); }
+    .out { color: var(--fg); }
+    .dim { color: var(--fg-dim); }
+    .accent { color: var(--accent); }
+
+    .block { margin: 10px 0 18px; }
+
+    a {
+      color: var(--accent);
+      text-decoration: none;
+      border-bottom: 1px dashed transparent;
+      transition: border-color 0.15s ease, color 0.15s ease;
+    }
+    a:hover, a:focus { color: var(--amber); border-bottom-color: var(--amber); outline: none; }
+    a:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; border-radius: 2px; }
+
+    /* Project grid */
+    .project-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      margin-top: 10px;
+      overflow: hidden;
+    }
+
+    .project {
+      background: var(--bg-window);
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      transition: background 0.12s;
+    }
+    .project:hover { background: #121a13; }
+
+    /* perm + filename on same line */
+    .project .line {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      flex-wrap: wrap;
+      white-space: normal;
+    }
+    .project .perm { color: var(--fg-dim); font-size: 10px; flex-shrink: 0; }
+    .project .filename { color: var(--accent); font-size: 14px; }
+
+    .project .desc-en, .project .desc-cs {
+      color: var(--fg);
+      font-size: 12px;
+      line-height: 1.5;
+      margin: 6px 0 0;
+    }
+    .project .desc-en::before, .project .desc-cs::before {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      margin-right: 5px;
+    }
+    .project .desc-en::before { content: 'EN'; color: var(--fg-dim); }
+    .project .desc-cs::before { content: 'CS'; color: var(--amber); }
+
+    .project .meta {
+      color: var(--fg-dim);
+      font-size: 10px;
+      margin-top: auto;
+      padding-top: 8px;
+      letter-spacing: 0.02em;
+    }
+
+    @keyframes blink { 50% { opacity: 0; } }
+    .caret {
+      display: inline-block;
+      width: 9px;
+      height: 1.05em;
+      background: var(--accent);
+      vertical-align: text-bottom;
+      margin-left: 2px;
+      animation: blink 1s steps(1) infinite;
+    }
+    @media (prefers-reduced-motion: reduce) { .caret { animation: none; } }
+
+    @media (max-width: 640px) {
+      main { padding: 24px 12px 60px; }
+      .screen { padding: 20px 16px; }
+      body { font-size: 14px; }
+      .project-grid { grid-template-columns: 1fr; }
+    }
+
+    /* Tag filter bar */
+    .filter-bar { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin: 6px 0 10px; }
+    .filter-tag {
+      background: none; border: 1px dashed var(--fg-dim); color: var(--fg-dim);
+      border-radius: 3px; padding: 1px 8px; font-family: var(--mono); font-size: 11px;
+      cursor: pointer; transition: all 0.15s; line-height: 1.6;
+    }
+    .filter-tag:hover { border-color: var(--accent); color: var(--accent); border-style: solid; }
+    .filter-tag.active { background: var(--accent); border-color: var(--accent); color: var(--bg); border-style: solid; }
+    .project.hidden { display: none; }
+  </style>
+</head>
+<body>
+  <main>
+    <section class="terminal" aria-label="Projects">
+      <header class="chrome" aria-hidden="true">
+        <span class="dot r"></span>
+        <span class="dot y"></span>
+        <span class="dot g"></span>
+        <span class="title">vojta@konopa: ~/projects</span>
+      </header>
+
+      <div class="screen">
+        <div class="block">
+          <div class="line"><span class="prompt"><span class="user">vojta</span><span class="at">@</span><span class="host">konopa</span><span class="path">:~/projects</span><span class="sym">$</span></span> <span class="cmd">cat README</span></div>
+          <p class="out">A growing collection of things I've built. Click any entry to open it.</p>
+        </div>
+
+        <div class="block">
+          <div class="line"><span class="prompt"><span class="user">vojta</span><span class="at">@</span><span class="host">konopa</span><span class="path">:~/projects</span><span class="sym">$</span></span> <span class="cmd">grep --tag <span id="active-tag" class="accent">*</span></span></div>
+          <div class="filter-bar" id="filter-bar"></div>
+        </div>
+
+        <div class="block">
+          <div class="line"><span class="prompt"><span class="user">vojta</span><span class="at">@</span><span class="host">konopa</span><span class="path">:~/projects</span><span class="sym">$</span></span> <span class="cmd">ls -la</span></div>
+
+          <div class="project-grid">
+
+            <div class="project">
+              <div class="line">
+                <span class="perm">drwxr-xr-x</span>
+                <a class="filename" href="./prijimacky-matematika/">prijimacky-matematika/</a>
+              </div>
+              <p class="desc-cs">Sbírka CERMAT testů z matematiky pro 4leté SŠ (2023–2026) s řešeními.</p>
+              <p class="meta">tags: math · education · czech · pdf-archive · entrance-exams · sš</p>
+            </div>
+
+            <div class="project">
+              <div class="line">
+                <span class="perm">-rw-r--r--</span>
+                <a class="filename" href="./goniometrie.html">goniometrie.html</a>
+              </div>
+              <p class="desc-en">Trigonometry guide — sin, cos, tan, 7 chapters, 9th grade.</p>
+              <p class="desc-cs">Průvodce goniometrickými funkcemi — sin, cos, tan, 7 kapitol, 9. třída.</p>
+              <p class="meta">tags: math · goniometrie · trigonometry · slovní úlohy · education · czech · interactive · 9. třída</p>
+            </div>
+
+            <div class="project">
+              <div class="line">
+                <span class="perm">-rw-r--r--</span>
+                <a class="filename" href="./cesta_penez.html">cesta_penez.html</a>
+              </div>
+              <p class="desc-en">Financial literacy story game — brigáda, taxes, loans, mortgage, scams — 8 chapters.</p>
+              <p class="desc-cs">Příběhová hra o financích — brigáda, daně, půjčky, hypotéka, podvody — 8 kapitol.</p>
+              <p class="meta">tags: math · finance · daně · RPSN · hypotéka · education · czech · interactive · 8.-9. třída</p>
+            </div>
+
+            <div class="project">
+              <div class="line">
+                <span class="perm">-rw-r--r--</span>
+                <a class="filename" href="./procenta_priklady.html">procenta_priklady.html</a>
+              </div>
+              <p class="desc-en">10 randomised percentage problems per session with step-by-step solutions.</p>
+              <p class="desc-cs">10 náhodně generovaných příkladů na procenta s postupem řešení.</p>
+              <p class="meta">tags: math · procenta · education · czech · interactive · randomised</p>
+            </div>
+
+            <div class="project">
+              <div class="line">
+                <span class="perm">-rw-r--r--</span>
+                <a class="filename" href="./unikovka_telesa.html">unikovka_telesa.html</a>
+              </div>
+              <p class="desc-en">Escape room — cubes &amp; cuboids, 10 locks, 6th grade.</p>
+              <p class="desc-cs">Únikovka — krychle a kvádr, 10 zámků, 6. třída.</p>
+              <p class="meta">tags: math · geometry · education · czech · interactive · 6. třída</p>
+            </div>
+
+            <div class="project">
+              <div class="line">
+                <span class="perm">-rw-r--r--</span>
+                <a class="filename" href="./unikovka_procenta.html">unikovka_procenta.html</a>
+              </div>
+              <p class="desc-en">Escape room — percentages, 10 locks.</p>
+              <p class="desc-cs">Únikovka — procenta, 10 zámků.</p>
+              <p class="meta">tags: math · procenta · education · czech · interactive</p>
+            </div>
+
+            <div class="project">
+              <div class="line">
+                <span class="perm">-rw-r--r--</span>
+                <a class="filename" href="./unikovka_pythagoras.html">unikovka_pythagoras.html</a>
+              </div>
+              <p class="desc-en">Escape room — Pythagorean theorem, 10 locks, 8th–9th grade.</p>
+              <p class="desc-cs">Únikovka — Pythagorova věta, 10 zámků, 8.–9. třída.</p>
+              <p class="meta">tags: math · pythagoras · geometry · education · czech · interactive · 8.-9. třída</p>
+            </div>
+
+            <div class="project">
+              <div class="line">
+                <span class="perm">-rw-r--r--</span>
+                <a class="filename" href="./unikovka_mocniny.html">unikovka_mocniny.html</a>
+              </div>
+              <p class="desc-en">Escape room — powers &amp; roots, 10 locks, 8th grade.</p>
+              <p class="desc-cs">Únikovka — mocniny a odmocniny, 10 zámků, 8. třída.</p>
+              <p class="meta">tags: math · mocniny · odmocniny · education · czech · interactive · 8. třída</p>
+            </div>
+
+            <div class="project">
+              <div class="line">
+                <span class="perm">-rw-r--r--</span>
+                <a class="filename" href="./unikovka_rovnice.html">unikovka_rovnice.html</a>
+              </div>
+              <p class="desc-en">Escape room — linear equations, 10 locks, 8th–9th grade.</p>
+              <p class="desc-cs">Únikovka — lineární rovnice, 10 zámků, 8.–9. třída.</p>
+              <p class="meta">tags: math · rovnice · algebra · education · czech · interactive · 8.-9. třída</p>
+            </div>
+
+            <div class="project">
+              <div class="line">
+                <span class="perm">-rw-r--r--</span>
+                <a class="filename" href="./narozeniny.html">narozeniny.html</a>
+              </div>
+              <p class="desc-en">Birthday paradox — interactive slider, room of random people, match finder, bulk simulation.</p>
+              <p class="desc-cs">Narozeninový paradox — slider, místnost s lidmi, hledání shod, simulace skupin.</p>
+              <p class="meta">tags: math · probability · interactive · czech · fun · 8.-9. třída</p>
+            </div>
+
+            <div class="project">
+              <div class="line">
+                <span class="perm">-rw-r--r--</span>
+                <a class="filename" href="./papir.html">papir.html</a>
+              </div>
+              <p class="desc-en">Paper folding — exponential growth visualised. Fold by fold to the Moon.</p>
+              <p class="desc-cs">Přeložení papíru — vizualizace exponenciálního růstu. Přeložení po přeložení na Měsíc.</p>
+              <p class="meta">tags: math · mocniny · interactive · czech · fun · 8. třída</p>
+            </div>
+
+            <!-- Add more <div class="project">…</div> blocks here as you ship things. -->
+
+          </div>
+        </div>
+
+        <div class="block">
+          <div class="line"><span class="prompt"><span class="user">vojta</span><span class="at">@</span><span class="host">konopa</span><span class="path">:~/projects</span><span class="sym">$</span></span> <span class="cmd">cd ..</span></div>
+          <p class="out"><a href="../">→ back to ~/</a><span class="caret"></span></p>
+        </div>
+      </div>
+    </section>
+  </main>
+<script>
+(function() {
+  const SHOW_TAGS = ['math','interactive','fun','geometry','procenta','finance','trigonometry','rovnice','mocniny','pythagoras','algebra','odmocniny','pdf-archive','8.-9. třída','9. třída','6. třída','8. třída'];
+  const projects = document.querySelectorAll('.project');
+  const bar = document.getElementById('filter-bar');
+  const activeTagSpan = document.getElementById('active-tag');
+  if (!bar) return;
+
+  const allBtn = document.createElement('button');
+  allBtn.className = 'filter-tag active';
+  allBtn.textContent = '*';
+  allBtn.addEventListener('click', () => {
+    document.querySelectorAll('.filter-tag').forEach(b => b.classList.remove('active'));
+    allBtn.classList.add('active');
+    activeTagSpan.textContent = '*';
+    projects.forEach(p => p.classList.remove('hidden'));
+  });
+  bar.appendChild(allBtn);
+
+  const tagSet = new Set();
+  projects.forEach(p => {
+    const meta = p.querySelector('.meta');
+    if (!meta) return;
+    meta.textContent.replace('tags:', '').split('·').forEach(t => tagSet.add(t.trim()));
+  });
+
+  SHOW_TAGS.filter(t => tagSet.has(t)).forEach(tag => {
+    const btn = document.createElement('button');
+    btn.className = 'filter-tag';
+    btn.textContent = tag;
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.filter-tag').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      activeTagSpan.textContent = tag;
+      projects.forEach(p => {
+        const meta = p.querySelector('.meta');
+        p.classList.toggle('hidden', !(meta && meta.textContent.includes(tag)));
+      });
+    });
+    bar.appendChild(btn);
+  });
+})();
+</script>
+</body>
+</html>

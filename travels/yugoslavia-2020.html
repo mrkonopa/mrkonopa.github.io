@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Jugoslávie — Balkans 2020 · Travels · Vojtěch Konopa</title>
+  <meta name="description" content="A road trip across the remnants of Yugoslavia — coal plants, bunkers, radar stations, and an Olympic ghost stadium across six Balkan countries." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #1c1c1c;
+      --surface: #262626;
+      --surface-2: #2e2e2e;
+      --border: #3a3a3a;
+      --border-strong: #555;
+      --fg: #ededec;
+      --fg-dim: #8a8a85;
+      --fg-muted: #5e5e5b;
+      --accent: #f5b800;
+      --concrete: #4a4a48;
+      --display: 'Archivo Black', 'Inter', system-ui, sans-serif;
+      --body: 'Inter', system-ui, -apple-system, Segoe UI, sans-serif;
+      --mono: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      background: var(--bg);
+      color: var(--fg);
+      font-family: var(--body);
+      font-size: 16px;
+      line-height: 1.55;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a { color: var(--fg); text-decoration: none; border-bottom: 1px solid transparent; transition: color .15s, border-color .15s; }
+    a:hover, a:focus { color: var(--accent); border-bottom-color: var(--accent); outline: none; }
+    a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 1px; }
+    img { display: block; max-width: 100%; }
+
+    .top-bar {
+      border-bottom: 1px solid var(--border);
+      padding: 18px 28px;
+      display: flex; justify-content: space-between; align-items: baseline; gap: 18px;
+      font-family: var(--mono); font-size: 12px;
+      letter-spacing: 0.08em; text-transform: uppercase; color: var(--fg-dim);
+    }
+    .top-bar a { color: var(--fg-dim); }
+    .top-bar a:hover { color: var(--accent); }
+    .top-bar .crumb { color: var(--fg); }
+
+    .hero {
+      position: relative; width: 100%;
+      aspect-ratio: 16 / 9; max-height: 80vh;
+      background-color: var(--concrete);
+      background-size: cover; background-position: center; overflow: hidden;
+    }
+    .hero.empty {
+      background-image:
+        repeating-linear-gradient(135deg, rgba(255,255,255,0.02) 0 8px, transparent 8px 16px),
+        radial-gradient(ellipse at 40% 30%, #555 0%, #3a3a3a 60%, #2a2a2a 100%);
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--mono); font-size: 12px; letter-spacing: 0.2em;
+      color: rgba(255,255,255,0.3); text-transform: uppercase;
+    }
+    .hero::before {
+      content: ''; position: absolute; inset: auto 0 0 0; height: 50%;
+      background: linear-gradient(to top, rgba(0,0,0,0.55), transparent);
+      pointer-events: none;
+    }
+
+    .title-block {
+      max-width: 1080px; margin: 0 auto; padding: 56px 28px 28px;
+      border-bottom: 1px solid var(--border);
+    }
+    .label-row {
+      display: flex; gap: 24px; flex-wrap: wrap;
+      font-family: var(--mono); font-size: 11px;
+      letter-spacing: 0.18em; text-transform: uppercase;
+      color: var(--accent); margin-bottom: 18px;
+    }
+    .label-row .dim { color: var(--fg-dim); }
+    h1.location {
+      font-family: var(--display);
+      font-size: clamp(52px, 10vw, 130px);
+      line-height: 0.88;
+      letter-spacing: -0.025em;
+      text-transform: uppercase;
+      margin-bottom: 22px;
+    }
+    .subtitle {
+      font-size: 18px; font-weight: 300;
+      color: var(--fg-dim); max-width: 680px; line-height: 1.65;
+      margin-bottom: 28px;
+    }
+
+    .data-strip {
+      display: flex; flex-wrap: wrap; gap: 0;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      font-family: var(--mono);
+    }
+    .data-item {
+      padding: 14px 28px 14px 0;
+      margin-right: 28px;
+      border-right: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .data-item:last-child { border-right: none; }
+    .data-label {
+      font-size: 9.5px; letter-spacing: 0.22em;
+      text-transform: uppercase; color: var(--fg-muted);
+      display: block; margin-bottom: 4px;
+    }
+    .data-val {
+      font-size: 18px; font-weight: 700; color: var(--fg);
+      letter-spacing: -0.01em;
+    }
+    .data-val span { font-size: 11px; font-weight: 400; color: var(--fg-dim); margin-left: 2px; }
+
+    /* ── ROUTE MAP SVG ── */
+    .route-section {
+      max-width: 1080px; margin: 0 auto; padding: 56px 28px 48px;
+      border-bottom: 1px solid var(--border);
+    }
+    .section-label {
+      font-family: var(--mono); font-size: 11px;
+      letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--fg-dim); margin-bottom: 20px;
+    }
+    .route-svg-wrap { position: relative; width: 100%; overflow: hidden; }
+    .route-svg-wrap svg { width: 100%; height: auto; display: block; }
+
+    /* ── ARTICLE ── */
+    .article {
+      max-width: 780px; margin: 0 auto; padding: 64px 28px 80px;
+    }
+    .article h2 {
+      font-family: var(--mono); font-size: 11px;
+      letter-spacing: 0.22em; text-transform: uppercase;
+      color: var(--accent); margin-bottom: 20px; margin-top: 52px;
+      padding-bottom: 10px; border-bottom: 1px solid var(--border);
+    }
+    .article h2:first-child { margin-top: 0; }
+    .article h3 {
+      font-family: var(--display); font-size: 22px;
+      text-transform: uppercase; letter-spacing: -0.01em;
+      margin: 36px 0 14px; color: var(--fg);
+    }
+    .article p {
+      font-size: 15.5px; line-height: 1.75; color: var(--fg-dim);
+      font-weight: 300; margin-bottom: 18px;
+    }
+    .article p strong { color: var(--fg); font-weight: 500; }
+    .article .location-tag {
+      display: inline-block;
+      font-family: var(--mono); font-size: 10px;
+      letter-spacing: 0.18em; text-transform: uppercase;
+      color: var(--accent); background: rgba(245,184,0,0.08);
+      border: 1px solid rgba(245,184,0,0.25);
+      padding: 3px 8px; border-radius: 2px;
+      margin-bottom: 12px;
+    }
+
+    /* ── GALLERY ── */
+    .gallery-section {
+      max-width: 1280px; margin: 0 auto; padding: 0 0 96px;
+    }
+    .day-heading {
+      font-family: var(--mono); font-size: 11px;
+      letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--fg-dim); padding: 20px 28px 12px;
+      border-top: 1px solid var(--border);
+    }
+    .day-heading b { color: var(--accent); }
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 1px; background: var(--border);
+    }
+    .gallery-grid img {
+      width: 100%; aspect-ratio: 4/3;
+      object-fit: cover; display: block;
+      filter: grayscale(0.35) contrast(1.05);
+      transition: filter 0.25s ease;
+    }
+    .gallery-grid img:hover { filter: none; cursor: zoom-in; }
+
+    /* lightbox */
+    #lb { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.92);
+      z-index:1000; align-items:center; justify-content:center; }
+    #lb.open { display:flex; }
+    #lb img { max-width:90vw; max-height:90vh; object-fit:contain; display:block; }
+    #lb-close { position:fixed; top:18px; right:22px; font-size:28px; color:#fff;
+      cursor:pointer; font-family:var(--mono); line-height:1; opacity:0.7; }
+    #lb-close:hover { opacity:1; }
+
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 32px 28px; max-width: 1280px; margin: 0 auto;
+      display: flex; justify-content: space-between; gap: 18px;
+      font-family: var(--mono); font-size: 11px;
+      letter-spacing: 0.16em; text-transform: uppercase; color: var(--fg-dim);
+    }
+    footer a { color: var(--fg-dim); border-bottom: 1px solid transparent; }
+    footer a:hover { color: var(--accent); border-bottom-color: var(--accent); }
+
+    @media (max-width: 768px) {
+      .title-block { padding: 36px 20px 24px; }
+      .article { padding: 40px 20px 60px; }
+      .route-section { padding: 36px 20px 32px; }
+      .top-bar, footer { padding: 14px 20px; }
+      .data-item { padding: 12px 18px 12px 0; margin-right: 18px; }
+      .data-val { font-size: 16px; }
+    }
+    @media (max-width: 480px) {
+      h1.location { font-size: 52px; }
+      .gallery-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="top-bar">
+    <a href="./index.html">← back to travels</a>
+    <span class="crumb">~/travels/yugoslavia-2020</span>
+    <span>vojta@konopa</span>
+  </div>
+
+  <div class="hero" style="background-image:url('./images/yugoslavia_2020/yugoslavia_0095_20200708%20-%20kopie%20%282%29_web.jpg');"></div>
+
+  <div class="title-block">
+    <div class="label-row">
+      <span>FIELD JOURNAL · 004</span>
+      <span class="dim">BALKANS · SUMMER 2020</span>
+    </div>
+    <h1 class="location">JUGO&shy;SLÁVIE</h1>
+    <p class="subtitle">
+      A road trip through the bones of a country that no longer exists —
+      coal-fired power plants, a monumental socialist UFO, NATO radar hilltops,
+      ammunition bunkers, an Olympic stadium turned refugee camp, and a train
+      graveyard by the Aegean. Six countries. One ghost empire.
+    </p>
+    <div class="data-strip">
+      <div class="data-item">
+        <span class="data-label">Countries</span>
+        <div class="data-val">6 <span>HU · RS · BG · GR · AL · HR</span></div>
+      </div>
+      <div class="data-item">
+        <span class="data-label">Dates</span>
+        <div class="data-val">7 – 17 Jul 2020</div>
+      </div>
+      <div class="data-item">
+        <span class="data-label">Days</span>
+        <div class="data-val">11</div>
+      </div>
+      <div class="data-item">
+        <span class="data-label">People</span>
+        <div class="data-val">4</div>
+      </div>
+      <div class="data-item">
+        <span class="data-label">Distance</span>
+        <div class="data-val">5 328 <span>km</span></div>
+      </div>
+      <div class="data-item">
+        <span class="data-label">Key Sites</span>
+        <div class="data-val">8</div>
+      </div>
+      <div class="data-item">
+        <span class="data-label">Photos</span>
+        <div class="data-val" id="photo-count">—</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ROUTE MAP -->
+  <section class="route-section">
+    <p class="section-label">// ROUTE — CZ → HU → RS → BG → GR → AL → HR → CZ</p>
+    <div class="route-svg-wrap">
+      <!--
+        Schematic Balkans loop — topology only, not to geographic scale.
+        Route: CZ → HU → RS → BG(Buzludzha) → BG(Sofia) → GR(Thessaloniki) → GR(Athens) → AL → HR → CZ
+        Each label is placed on the side of the dot away from the route line to avoid overlap.
+      -->
+      <svg viewBox="0 0 900 430" xmlns="http://www.w3.org/2000/svg"
+           style="background:var(--surface); border:1px solid var(--border);">
+        <defs>
+          <!-- Thick dark halo so labels are always readable over the route line -->
+          <filter id="lbl-bg" x="-20%" y="-40%" width="140%" height="180%">
+            <feMorphology in="SourceGraphic" operator="dilate" radius="3" result="exp"/>
+            <feFlood flood-color="#262626" result="bg"/>
+            <feComposite in="bg" in2="exp" operator="in" result="outline"/>
+            <feMerge><feMergeNode in="outline"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+        </defs>
+
+        <!-- Route line (closed loop, dashed yellow) -->
+        <polyline id="route-line"
+          points="370,45 388,122 420,200 565,178 545,220 548,280 480,345 388,308 278,250 370,45"
+          fill="none" stroke="#f5b800" stroke-width="1.5"
+          stroke-dasharray="5 7" opacity="0.55"/>
+
+        <!-- ── dots ── -->
+        <circle cx="370" cy="45"  r="5" fill="#f5b800"/>          <!-- CZ start/end -->
+        <circle cx="388" cy="122" r="4" fill="var(--fg-dim)"/>    <!-- HU coal plant -->
+        <circle cx="420" cy="200" r="4" fill="var(--fg-dim)"/>    <!-- RS Belgrade -->
+        <circle cx="565" cy="178" r="4" fill="var(--fg-dim)"/>    <!-- BG Buzludzha -->
+        <circle cx="545" cy="220" r="4" fill="var(--fg-dim)"/>    <!-- BG Sofia -->
+        <circle cx="548" cy="280" r="4" fill="var(--fg-dim)"/>    <!-- GR Thessaloniki -->
+        <circle cx="480" cy="345" r="4" fill="var(--fg-dim)"/>    <!-- GR Athens -->
+        <circle cx="388" cy="308" r="4" fill="var(--fg-dim)"/>    <!-- AL Poliçan -->
+        <circle cx="278" cy="250" r="4" fill="var(--fg-dim)"/>    <!-- HR Dalmatia -->
+
+        <!-- ── labels (each pushed away from the route line) ── -->
+        <g font-family="'JetBrains Mono', monospace"
+           font-size="10.5" letter-spacing="0.12em" filter="url(#lbl-bg)">
+
+          <!-- CZ — above the dot, route leaves downward -->
+          <text x="382" y="38"  text-anchor="start" fill="#f5b800" font-size="11">CZ · LIBEREC</text>
+
+          <!-- HU — left, route enters from above-left and exits toward below-right -->
+          <text x="376" y="117" text-anchor="end" fill="var(--fg-dim)">HU · OROSZLÁNY</text>
+          <text x="376" y="130" text-anchor="end" fill="var(--fg-muted)" font-size="9.5">coal plant</text>
+
+          <!-- RS — left, route exits right toward Buzludzha -->
+          <text x="408" y="195" text-anchor="end" fill="var(--fg-dim)">RS · BELGRADE</text>
+          <text x="408" y="208" text-anchor="end" fill="var(--fg-muted)" font-size="9.5">capital</text>
+
+          <!-- BG Buzludzha — right, route line is to its left -->
+          <text x="577" y="173" text-anchor="start" fill="var(--fg-dim)">BG · BUZLUDZHA</text>
+          <text x="577" y="186" text-anchor="start" fill="var(--fg-muted)" font-size="9.5">monument</text>
+
+          <!-- BG Sofia — right, below Buzludzha -->
+          <text x="557" y="216" text-anchor="start" fill="var(--fg-dim)">BG · SOFIA</text>
+          <text x="557" y="229" text-anchor="start" fill="var(--fg-muted)" font-size="9.5">city</text>
+
+          <!-- GR Thessaloniki — right, route passes mostly vertically here -->
+          <text x="560" y="275" text-anchor="start" fill="var(--fg-dim)">GR · THESSALONIKI</text>
+          <text x="560" y="288" text-anchor="start" fill="var(--fg-muted)" font-size="9.5">train graveyard</text>
+
+          <!-- GR Athens — left, route exits upper-left toward Albania -->
+          <text x="468" y="350" text-anchor="end" fill="var(--fg-dim)">GR · ATHENS</text>
+          <text x="468" y="363" text-anchor="end" fill="var(--fg-muted)" font-size="9.5">ellinikon · ace high</text>
+
+          <!-- AL — left, route exits upper-right toward HR -->
+          <text x="376" y="303" text-anchor="end" fill="var(--fg-dim)">AL · POLIÇAN</text>
+          <text x="376" y="316" text-anchor="end" fill="var(--fg-muted)" font-size="9.5">ammo factory</text>
+
+          <!-- HR — left, route exits upper-right back to CZ -->
+          <text x="266" y="246" text-anchor="end" fill="var(--fg-dim)">HR · DALMATIA</text>
+          <text x="266" y="259" text-anchor="end" fill="var(--fg-muted)" font-size="9.5">south coast</text>
+        </g>
+      </svg>
+    </div>
+  </section>
+
+  <!-- ARTICLE -->
+  <article class="article">
+
+    <h2>// THE GHOST EMPIRE</h2>
+    <p>
+      Yugoslavia dissolved in the nineties, but the infrastructure it left behind
+      didn't disappear — it just stopped being maintained. In the summer of 2020,
+      we drove a loop through six successor states and former satellite countries,
+      following the decay: cooling towers, ideological monuments, military hilltops
+      abandoned when the Cold War ended, and facilities that outlasted the states
+      that built them by thirty years.
+    </p>
+    <p>
+      Ten days, a Czech-plated VW, four people. We left Liberec in early July —
+      in the narrow window when Europe had briefly reopened after the first lockdown
+      and before it shut again — and headed south to find what was left.
+    </p>
+
+    <h2>// HUNGARY — THE COAL PLANT</h2>
+    <span class="location-tag">HU · Oroszlány · Vértes Power Plant</span>
+    <p>
+      The Vértes power plant ran on brown coal dug from the ground a few kilometres
+      away. Three concrete cooling towers visible from the motorway — the kind of
+      structure you see from thirty kilometres on a clear day. Hungary was closing
+      its last lignite plants under EU pressure; Vértes had just gone cold.
+    </p>
+    <p>
+      Inside, the scale of industrial abandonment is different from buildings. The turbine
+      halls are cathedral-sized, the pipe runs go for hundreds of metres, the transformer
+      bays hold equipment that couldn't be moved without a crane. Everything coated in the
+      same grey-brown of lignite dust. Everything still — the kind of stillness that only
+      exists in places that used to be very loud.
+    </p>
+
+    <h2>// SERBIA — BELGRADE</h2>
+    <span class="location-tag">RS · Belgrade · City centre</span>
+    <p>
+      Belgrade was one night and most of a morning. Kalemegdan above the Sava confluence,
+      the blocky socialist architecture of New Belgrade across the river. A city that could
+      fill a separate page; we gave it twelve hours and moved on.
+    </p>
+
+    <h2>// BULGARIA — BUZLUDZHA &amp; SOFIA</h2>
+    <span class="location-tag">BG · Buzludzha · Monument House of the Bulgarian Communist Party</span>
+    <p>
+      You see Buzludzha from the road as you climb toward the Shipka Pass — a concrete
+      disc on the ridgeline, the size of a sports arena, sitting at 1441 metres with no
+      visible reason to be there. The closer you get, the more it looks like something
+      landed rather than was built.
+    </p>
+    <p>
+      The Monument House of the Bulgarian Communist Party was inaugurated in 1981.
+      Fifty thousand people came to the ceremony. Eight years later the regime fell and
+      the building was sealed. The exterior has been deteriorating since; the interior —
+      the mosaics, the hammer-and-sickle floors, the propaganda murals — still technically
+      in there, behind boarded-up entrances that open if you know which boards move.
+    </p>
+    <span class="location-tag" style="margin-top:20px">BG · Sofia</span>
+    <p>
+      Sofia afterward: wide Soviet boulevards, the Alexander Nevsky cathedral, yellow trams.
+      A horse grazing on the abandoned tarmac of a parking lot outside the city.
+    </p>
+
+    <h2>// GREECE — THESSALONIKI: TRAIN GRAVEYARD</h2>
+    <span class="location-tag">GR · Near Thessaloniki · OSE locomotive depot</span>
+    <p>
+      Just off the main rail line south of Thessaloniki, behind a chain-link fence with
+      gaps in several places, the Greek railway operator OSE parked dozens of 1970s and
+      1980s passenger cars and left them. The network shrank after the financial crisis;
+      the surplus rolling stock had nowhere to go. The cars stand in long rows, vegetation
+      grown up through the floor panels, upholstery still in the seats. Blue sky above,
+      rust below, nothing moving.
+    </p>
+
+    <h2>// GREECE — ATHENS: ELLINIKON</h2>
+    <span class="location-tag">GR · Athens · Ellinikon Olympic Complex / UNHCR camp</span>
+    <p>
+      The old Athens airport at Ellinikon closed in 2001 when the new one opened. Three
+      years later, for the 2004 Olympics, the zone was repurposed — softball diamond here,
+      field hockey pitch there, canoe slalom course dug into the tarmac. Then abandoned
+      again after the closing ceremony.
+    </p>
+    <p>
+      The sports halls are open to the weather now, roof panels gone. In one of the field
+      hockey buildings, a grey UNHCR banner hangs from a steel upright — the refugee camp
+      was here from 2016, families in temporary shelter where Olympic athletes had competed
+      two years before. The banner is the only thing that marks the transition.
+    </p>
+
+    <h2>// GREECE — ELEUSIS: SHIP GRAVEYARD</h2>
+    <span class="location-tag">GR · Eleusis · Ship breaking bay</span>
+    <p>
+      Twenty kilometres west of Athens, the bay at Eleusis is where ships end up when they
+      can no longer justify the cost of fuel. Some are being actively broken apart at the
+      yards on the shore; others just sit at anchor in the shallows, waiting.
+    </p>
+    <p>
+      One vessel had its gangway lowered — either forgotten or deliberately left. The bridge
+      was intact: navigation consoles, chart tables, the view forward through angled windows
+      to the rust-streaked bow. Life vests piled in the corner, still orange, still bright.
+    </p>
+
+    <h2>// GREECE — ACE HIGH NATO RADAR</h2>
+    <span class="location-tag">GR · ACE High troposcatter relay station</span>
+    <p>
+      The ACE High system was NATO's Cold War communications backbone — a chain of
+      troposcatter relay stations stretching from Norway to Turkey that didn't require
+      satellites or undersea cables. Each station bounced signals off the troposphere to the
+      next link in the chain. The Greek station sits on a hilltop, the main dish — a lattice
+      of aluminium rings large enough to walk under — still pointing at where the next
+      station used to be.
+    </p>
+    <p>
+      Inside: equipment left in place. Filter cartridges on the floor. A wall of pinned
+      photographs and documents in what was once the operations room — left by someone,
+      for reasons that aren't obvious.
+    </p>
+
+    <h2>// ALBANIA — THE AMMUNITION FACTORY</h2>
+    <span class="location-tag">AL · Poliçan · Uzina e Ndërtimit të Armëve (UNA)</span>
+    <p>
+      Poliçan is a town that exists because of a factory, and a factory that no longer
+      exists. Under Enver Hoxha's regime of total self-sufficiency, Albania built its own
+      arms industry in this mountain valley, supplied with Chinese technology and Chinese
+      technicians. At its peak, the UNA complex employed most of the town.
+    </p>
+    <p>
+      The Chinese connection shows in what was left behind: precision instruments in wooden
+      carrying cases with Chinese labels, calibration tools, measurement apparatus from
+      Shanghai factories — things that couldn't be taken when the contracts ended in 1978,
+      when Albania broke with China as sharply as it had broken with Yugoslavia and the
+      Soviet Union before it. Furnaces for heat-treating metal components, bunkers cut into
+      the valley walls, assembly halls where the ceiling lights still hang. A shelf in one
+      room holds a cassette player and a transistor radio, things left by whoever came here
+      last.
+    </p>
+    <p>
+      The complex is enormous and almost entirely accessible. The valley keeps it quiet.
+    </p>
+
+    <h2>// CROATIA — SOUTH COAST</h2>
+    <span class="location-tag">HR · Dalmatia · South coast</span>
+    <p>
+      After Albania the Dalmatian coast is a different kind of extreme. Pine forest straight
+      down to turquoise water, limestone pale in the afternoon heat. We swam. After ten days
+      of industrial archaeology, the act of getting into clear water felt disproportionately
+      good.
+    </p>
+    <p>
+      The drive back north — petrol stations every hundred kilometres, a barren landscape that
+      doesn't care which country it's in. You cross from Croatia into Bosnia without noticing,
+      then Slovenia, then back into Czech Republic. The cooling towers at home look smaller
+      than the ones in Hungary.
+    </p>
+
+  </article>
+
+  <section class="gallery-section">
+
+    <h3 class="day-heading">// <b>HU</b> — Hungary · Vértes coal plant · 7–8 Jul</h3>
+    <div class="gallery-grid" id="gallery-hu">
+      <img src="./images/yugoslavia_2020/yugoslavia_0001_20200707%20-%20kopie%20%282%29_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0004_20200708%20-%20kopie%20%282%29_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0008_20200708%20-%20kopie%20%282%29_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0020_20200708%20-%20kopie%20%282%29_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0028_20200708%20-%20kopie%20%282%29_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0030_20200708%20-%20kopie%20%282%29_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0033_20200708%20-%20kopie%20%282%29_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0035_20200708%20-%20kopie%20%282%29_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0040_20200708%20-%20kopie%20%282%29_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0041_20200708%20-%20kopie%20%282%29_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0043_20200708%20-%20kopie%20%282%29_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0044_20200708%20-%20kopie%20%282%29_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0049_20200708%20-%20kopie%20%282%29_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0052_20200708%20-%20kopie%20%282%29_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0053_20200708%20-%20kopie%20%282%29_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0060_20200708%20-%20kopie%20%282%29_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0064_20200708%20-%20kopie%20%282%29_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0072_20200708%20-%20kopie%20%282%29_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0073_20200708%20-%20kopie%20%282%29_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0074_20200708%20-%20kopie%20%282%29_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0080_20200708%20-%20kopie%20%282%29_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0082_20200708%20-%20kopie%20%282%29_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0092_20200708%20-%20kopie%20%282%29_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0095_20200708%20-%20kopie%20%282%29_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0103_20200708%20-%20kopie%20%282%29_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0104_20200708%20-%20kopie%20%282%29_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0105_20200708%20-%20kopie%20%282%29_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0107_20200708%20-%20kopie%20%282%29_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0109_20200708%20-%20kopie%20%282%29_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0111_20200708%20-%20kopie%20%282%29_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0123_20200708%20-%20kopie%20%282%29_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0124_20200708%20-%20kopie%20%282%29_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0129_20200708%20-%20kopie%20%282%29_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0133_20200708%20-%20kopie%20%282%29_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0143_20200708%20-%20kopie%20%282%29_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0148_20200708%20-%20kopie%20%282%29_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0149_20200708%20-%20kopie%20%282%29_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0158_20200708%20-%20kopie%20%282%29_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0163_20200708%20-%20kopie%20%282%29_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0166_20200708%20-%20kopie%20%282%29_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0168_20200708%20-%20kopie%20%282%29_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0170_20200708%20-%20kopie%20%282%29_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0175_20200708%20-%20kopie%20%282%29_web.jpg" alt="" loading="lazy">
+    </div>
+
+    <h3 class="day-heading">// <b>BG</b> — Bulgaria · Buzludzha &amp; Sofia · 9 Jul</h3>
+    <div class="gallery-grid" id="gallery-bg">
+      <img src="./images/yugoslavia_2020/yugoslavia_0180_20200709%20-%20kopie%20%282%29_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0182_20200709%20-%20kopie%20%282%29_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0190_20200709%20-%20kopie%20%282%29_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0191_20200709%20-%20kopie%20%282%29_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0192_20200709%20-%20kopie%20%282%29_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0208_20200709%20-%20kopie%20%282%29_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0214_20200709%20-%20kopie%20%282%29_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0217_20200709%20-%20kopie%20%282%29_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0223_20200709%20-%20kopie%20%282%29_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0232_20200709%20-%20kopie_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0235_20200709%20-%20kopie_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0238_20200709%20-%20kopie_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0240_20200709%20-%20kopie_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0242_20200709%20-%20kopie_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0246_20200709%20-%20kopie_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0247_20200709%20-%20kopie_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0248_20200709%20-%20kopie_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0249_20200709%20-%20kopie_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0251_20200709%20-%20kopie_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0254_20200709%20-%20kopie_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0255_20200709%20-%20kopie_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0257_20200709%20-%20kopie%20%282%29_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0260_20200709%20-%20kopie_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0266_20200709%20-%20kopie_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0268_20200709%20-%20kopie_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0271_20200709%20-%20kopie_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0274_20200709%20-%20kopie_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0275_20200709%20-%20kopie_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0276_20200709%20-%20kopie_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0281_20200709%20-%20kopie_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0289_20200709%20-%20kopie_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0291_20200709%20-%20kopie_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0297_20200709%20-%20kopie_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0298_20200709%20-%20kopie_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0299_20200709%20-%20kopie_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0308_20200709%20-%20kopie_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0313_20200709%20-%20kopie_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0314_20200709%20-%20kopie_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0315_20200709%20-%20kopie_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0319_20200709%20-%20kopie_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0320_20200709%20-%20kopie_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0323_20200709%20-%20kopie_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0328_20200709%20-%20kopie_web.jpg" alt="" loading="lazy">
+    </div>
+
+    <h3 class="day-heading">// <b>GR</b> — Greece · Thessaloniki train graveyard · 10 Jul</h3>
+    <div class="gallery-grid" id="gallery-gr-trains">
+      <img src="./images/yugoslavia_2020/yugoslavia_0336_20200710%20-%20kopie_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0339_20200710%20-%20kopie_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0342_20200710%20-%20kopie_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0347_20200710%20-%20kopie_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0349_20200710%20-%20kopie_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0354_20200710%20-%20kopie_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0361_20200710%20-%20kopie_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0364_20200710%20-%20kopie_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0365_20200710%20-%20kopie_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0367_20200710%20-%20kopie_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0373_20200710%20-%20kopie_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0380_20200710%20-%20kopie_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0387_20200710%20-%20kopie_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0395_20200710%20-%20kopie_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0404_20200710%20-%20kopie_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0414_20200710%20-%20kopie_web.jpg" alt="" loading="lazy">
+    </div>
+
+    <h3 class="day-heading">// <b>GR</b> — Greece · Athens · Ellinikon Olympic complex · 11 Jul</h3>
+    <div class="gallery-grid" id="gallery-gr-athens">
+      <img src="./images/yugoslavia_2020/yugoslavia_0421_20200711%20-%20kopie_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0423_20200711%20-%20kopie_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0426_20200711%20-%20kopie_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0428_20200711%20-%20kopie_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0430_20200711%20-%20kopie_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0431_20200711%20-%20kopie_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0434_20200711%20-%20kopie_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0436_20200711%20-%20kopie_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0437_20200711%20-%20kopie_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0439_20200711%20-%20kopie_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0442_20200711%20-%20kopie_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0443_20200711%20-%20kopie_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0444_20200711%20-%20kopie_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0451_20200711%20-%20kopie_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0454_20200711%20-%20kopie_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0458_20200711%20-%20kopie_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0459_20200711%20-%20kopie_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0463_20200711%20-%20kopie_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0464_20200711%20-%20kopie_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0467_20200711%20-%20kopie_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0468_20200711%20-%20kopie_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0469_20200711%20-%20kopie_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0474_20200711%20-%20kopie_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0475_20200711%20-%20kopie_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0476_20200711%20-%20kopie_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0478_20200711%20-%20kopie_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0481_20200711%20-%20kopie_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0484_20200711%20-%20kopie_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0486_20200711%20-%20kopie_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0488_20200711%20-%20kopie_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0489_20200711%20-%20kopie_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0490_20200711%20-%20kopie_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0494_20200711%20-%20kopie_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0497_20200711%20-%20kopie_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0500_20200711%20-%20kopie_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0505_20200711%20-%20kopie_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0508_20200711%20-%20kopie_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0509_20200711%20-%20kopie_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0513_20200711%20-%20kopie_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0514_20200711%20-%20kopie_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0520_20200711%20-%20kopie_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0523_20200711%20-%20kopie_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0527_20200711%20-%20kopie_web.jpg" alt="" loading="lazy">
+    </div>
+
+    <h3 class="day-heading">// <b>GR</b> — Greece · Eleusis · ship graveyard · 12 Jul</h3>
+    <div class="gallery-grid" id="gallery-gr-ship">
+      <img src="./images/yugoslavia_2020/yugoslavia_0528_20200712%20-%20kopie_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0534_20200712%20-%20kopie_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0537_20200712%20-%20kopie_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0539_20200712%20-%20kopie_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0548_20200712%20-%20kopie_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0549_20200712%20-%20kopie_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0550_20200712%20-%20kopie_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0556_20200712%20-%20kopie_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0558_20200712%20-%20kopie_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0563_20200712%20-%20kopie_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0566_20200712%20-%20kopie_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0568_20200712%20-%20kopie_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0573_20200712%20-%20kopie_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0574_20200712%20-%20kopie_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0577_20200712%20-%20kopie_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0582_20200712%20-%20kopie_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0583_20200712%20-%20kopie_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0585_20200712%20-%20kopie_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0586_20200712%20-%20kopie_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0590_20200712_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0591_20200712_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0593_20200712_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0603_20200712_web.jpg" alt="" loading="lazy">
+    </div>
+
+    <h3 class="day-heading">// <b>GR</b> — Greece · ACE High NATO radar station · 13 Jul</h3>
+    <div class="gallery-grid" id="gallery-gr-ace">
+      <img src="./images/yugoslavia_2020/yugoslavia_0609_20200713_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0610_20200713_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0614_20200713_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0619_20200713_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0624_20200713_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0628_20200713_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0629_20200713_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0639_20200713_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0643_20200713_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0646_20200713_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0650_20200713_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0658_20200713_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0660_20200713_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0663_20200713_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0668_20200713_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0670_20200713_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0671_20200713_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0673_20200713_web.jpg" alt="" loading="lazy">
+    </div>
+
+    <h3 class="day-heading">// <b>AL</b> — Albania · Poliçan ammunition factory · 14–15 Jul</h3>
+    <div class="gallery-grid" id="gallery-al">
+      <img src="./images/yugoslavia_2020/yugoslavia_0694_20200714_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0697_20200714_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0699_20200714_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0701_20200714_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0707_20200714_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0709_20200714_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0713_20200714_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0714_20200714_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0716_20200714_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0720_20200714_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0721_20200714_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0724_20200714_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0727_20200714_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0728_20200714_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0732_20200714_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0742_20200714_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0743_20200714_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0746_20200714_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0748_20200714_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0751_20200714_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0764_20200715_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0767_20200715_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0772_20200715_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0774_20200715_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0778_20200715_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0782_20200715_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0785_20200715_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0786_20200715_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0789_20200715_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0792_20200715_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0793_20200715_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0794_20200715_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0796_20200715_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0801_20200715_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0802_20200715_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0813_20200715_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0820_20200715_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0821_20200715_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0832_20200715_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0833_20200715_web.jpg" alt="" loading="lazy">
+    </div>
+
+    <h3 class="day-heading">// <b>HR</b> — Croatia · Dalmatia · 16 Jul</h3>
+    <div class="gallery-grid" id="gallery-hr">
+      <img src="./images/yugoslavia_2020/yugoslavia_0835_20200716_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0838_20200716_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0839_20200716_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0842_20200716_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0847_20200716_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0851_20200716_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0867_20200716_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0868_20200716_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0873_20200716_web.jpg" alt="" loading="lazy">
+      <img src="./images/yugoslavia_2020/yugoslavia_0874_20200716_web.jpg" alt="" loading="lazy">
+    </div>
+
+  </section>
+
+  <!-- lightbox -->
+  <div id="lb">
+    <span id="lb-close" onclick="closeLb()">✕</span>
+    <img id="lb-img" src="" alt="">
+  </div>
+
+  <footer>
+    <span>© VOJTĚCH KONOPA</span>
+    <a href="./index.html">TRAVELS ↗</a>
+    <a href="/">HOME ↗</a>
+  </footer>
+
+  <script>
+    // Lightbox
+    document.querySelectorAll('.gallery-grid img').forEach(img => {
+      img.addEventListener('click', () => {
+        document.getElementById('lb-img').src = img.src;
+        document.getElementById('lb').classList.add('open');
+      });
+    });
+    function closeLb() {
+      document.getElementById('lb').classList.remove('open');
+      document.getElementById('lb-img').src = '';
+    }
+    document.getElementById('lb').addEventListener('click', e => {
+      if (e.target === e.currentTarget) closeLb();
+    });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLb(); });
+
+    // Photo count
+    const total = document.querySelectorAll('.gallery-grid img').length;
+    if (total > 0) document.getElementById('photo-count').textContent = total;
+  </script>
+
+</body>
+</html>

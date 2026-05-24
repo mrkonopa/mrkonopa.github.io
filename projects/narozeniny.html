@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Narozeninový paradox</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #ffffff;
+      --fg: #111827;
+      --fg-muted: #6b7280;
+      --accent: #2563eb;
+      --accent-light: #dbeafe;
+      --match: #dc2626;
+      --match-light: #fee2e2;
+      --match-border: #fca5a5;
+      --green: #16a34a;
+      --green-light: #dcfce7;
+      --border: #e5e7eb;
+      --card-bg: #f9fafb;
+      --font: 'Lexend', 'Inter', 'Segoe UI', system-ui, -apple-system, Arial, sans-serif;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--fg);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .page {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 64px 24px 100px;
+    }
+
+    /* ── header ── */
+    .back {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--fg-muted);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 500;
+      margin-bottom: 48px;
+      transition: color 0.15s;
+    }
+    .back:hover { color: var(--accent); }
+
+    h1 {
+      font-size: clamp(2rem, 6vw, 3.2rem);
+      font-weight: 700;
+      line-height: 1.15;
+      letter-spacing: -0.02em;
+      margin-bottom: 16px;
+    }
+    .subtitle {
+      font-size: 1.05rem;
+      color: var(--fg-muted);
+      font-weight: 400;
+      line-height: 1.6;
+      max-width: 560px;
+      margin-bottom: 56px;
+    }
+    .subtitle strong { color: var(--fg); font-weight: 600; }
+
+    /* ── slider section ── */
+    .slider-section {
+      margin-bottom: 48px;
+    }
+    .slider-label {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 12px;
+    }
+    .slider-label span { font-size: 14px; color: var(--fg-muted); font-weight: 500; }
+    .slider-label .count {
+      font-size: 2.4rem;
+      font-weight: 700;
+      color: var(--accent);
+      line-height: 1;
+    }
+
+    input[type=range] {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 6px;
+      background: var(--border);
+      border-radius: 3px;
+      outline: none;
+      cursor: pointer;
+    }
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 1px 4px rgba(37,99,235,0.35);
+      transition: transform 0.1s;
+    }
+    input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.15); }
+    input[type=range]::-moz-range-thumb {
+      width: 22px; height: 22px;
+      border-radius: 50%; border: none;
+      background: var(--accent);
+    }
+
+    .range-ends {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: var(--fg-muted);
+      margin-top: 6px;
+    }
+
+    /* ── probability display ── */
+    .prob-display {
+      display: flex;
+      align-items: stretch;
+      gap: 16px;
+      margin-bottom: 48px;
+    }
+    .prob-card {
+      flex: 1;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px 20px;
+      text-align: center;
+    }
+    .prob-card .value {
+      font-size: clamp(2.2rem, 7vw, 3.5rem);
+      font-weight: 700;
+      line-height: 1;
+      margin-bottom: 8px;
+      transition: color 0.3s;
+    }
+    .prob-card .value.low  { color: var(--green); }
+    .prob-card .value.mid  { color: #d97706; }
+    .prob-card .value.high { color: var(--match); }
+    .prob-card .label { font-size: 12px; color: var(--fg-muted); font-weight: 500; text-transform: uppercase; letter-spacing: 0.06em; }
+
+    /* probability bar */
+    .prob-bar-wrap {
+      background: var(--border);
+      border-radius: 4px;
+      height: 8px;
+      margin: 16px 0 0;
+      overflow: hidden;
+    }
+    .prob-bar-fill {
+      height: 100%;
+      border-radius: 4px;
+      transition: width 0.35s ease, background-color 0.35s;
+    }
+
+    /* ── room ── */
+    .room-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .room-title { font-size: 15px; font-weight: 600; color: var(--fg-muted); }
+    .btn-shuffle {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 20px;
+      font-family: var(--font);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.1s;
+      white-space: nowrap;
+    }
+    .btn-shuffle:hover { background: #1d4ed8; }
+    .btn-shuffle:active { transform: scale(0.97); }
+
+    .match-banner {
+      border-radius: 8px;
+      padding: 12px 16px;
+      font-size: 14px;
+      font-weight: 500;
+      margin-bottom: 16px;
+      line-height: 1.5;
+      transition: all 0.2s;
+    }
+    .match-banner.has-match { background: var(--match-light); color: var(--match); border: 1px solid var(--match-border); }
+    .match-banner.no-match  { background: var(--green-light); color: var(--green); border: 1px solid #86efac; }
+    .match-banner.hidden { display: none; }
+
+    .room-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+      gap: 8px;
+      margin-bottom: 40px;
+    }
+    .person {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 10px 8px;
+      text-align: center;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .person.matched {
+      background: var(--match-light);
+      border-color: var(--match-border);
+    }
+    .person .avatar {
+      font-size: 1.6rem;
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+    .person .name {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--fg);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .person .bday {
+      font-size: 10px;
+      color: var(--fg-muted);
+      margin-top: 2px;
+    }
+    .person.matched .bday { color: var(--match); font-weight: 600; }
+
+    /* ── fact box ── */
+    .fact {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--accent);
+      border-radius: 8px;
+      padding: 16px 18px;
+      font-size: 13px;
+      color: var(--fg-muted);
+      line-height: 1.6;
+      margin-bottom: 40px;
+    }
+    .fact strong { color: var(--fg); }
+
+    /* ── simulation ── */
+    .sim-section {
+      border-top: 1px solid var(--border);
+      padding-top: 40px;
+    }
+    .sim-section h2 {
+      font-size: 1.2rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .sim-section > p {
+      font-size: 14px;
+      color: var(--fg-muted);
+      margin-bottom: 24px;
+      line-height: 1.6;
+    }
+
+    .sim-controls {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 28px;
+    }
+    .btn-sim {
+      background: var(--fg);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 12px 24px;
+      font-family: var(--font);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.15s, transform 0.1s;
+    }
+    .btn-sim:hover { opacity: 0.85; }
+    .btn-sim:active { transform: scale(0.97); }
+    .btn-reset {
+      background: none;
+      color: var(--fg-muted);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 18px;
+      font-family: var(--font);
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: border-color 0.15s, color 0.15s;
+    }
+    .btn-reset:hover { border-color: var(--fg-muted); color: var(--fg); }
+
+    .sim-result { display: none; }
+    .sim-result.visible { display: block; }
+
+    /* stats row */
+    .sim-stats {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 24px;
+    }
+    .sim-stat {
+      flex: 1;
+      min-width: 100px;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 12px;
+      text-align: center;
+    }
+    .sim-stat .val { font-size: 1.8rem; font-weight: 700; color: var(--fg); line-height: 1; }
+    .sim-stat .val.match-val { color: var(--match); }
+    .sim-stat .lbl { font-size: 11px; color: var(--fg-muted); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.06em; font-weight: 500; }
+
+    /* comparison bars */
+    .cmp-bars { margin-bottom: 28px; }
+    .cmp-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .cmp-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--fg-muted);
+      width: 72px;
+      flex-shrink: 0;
+    }
+    .cmp-track {
+      flex: 1;
+      height: 10px;
+      background: var(--border);
+      border-radius: 5px;
+      overflow: hidden;
+    }
+    .cmp-fill {
+      height: 100%;
+      border-radius: 5px;
+      width: 0%;
+      transition: width 0.4s ease;
+    }
+    .cmp-measured { background: var(--match); }
+    .cmp-theory   { background: var(--accent); }
+    .cmp-val {
+      font-size: 13px;
+      font-weight: 600;
+      width: 50px;
+      text-align: right;
+      flex-shrink: 0;
+      color: var(--fg);
+    }
+
+    /* dot grid */
+    .dot-grid-section { margin-bottom: 24px; }
+    .dot-legend {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      font-size: 12px;
+      color: var(--fg-muted);
+      margin-bottom: 10px;
+    }
+    .dot-legend-item { display: flex; align-items: center; gap: 5px; }
+    .dot-samp {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .dot-match   { background: var(--match); }
+    .dot-nomatch { background: var(--green); }
+    .dot-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 3px;
+      min-height: 13px;
+    }
+    .dg {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .dg.m { background: var(--match); }
+    .dg.n { background: var(--green); }
+
+    .dot-overflow {
+      font-size: 11px;
+      color: var(--fg-muted);
+      margin-top: 6px;
+    }
+
+    .insight {
+      background: var(--accent-light);
+      border-radius: 8px;
+      padding: 14px 16px;
+      font-size: 14px;
+      color: var(--accent);
+      font-weight: 500;
+      line-height: 1.55;
+    }
+
+    @media (max-width: 540px) {
+      .page { padding: 40px 16px 80px; }
+      .prob-display { flex-direction: column; }
+      .room-grid { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); }
+      .sim-stats { gap: 8px; }
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <a class="back" href="./">← zpět na projekty</a>
+
+  <h1>Narozeninový paradox</h1>
+  <p class="subtitle">
+    Ve třídě <strong>23 žáků</strong> je větší pravděpodobnost, že <strong>dva mají narozeniny ve stejný den</strong>,
+    než že ne. Zní to nevěřitelně? Pohraj si s tím sám.
+  </p>
+
+  <!-- slider -->
+  <div class="slider-section">
+    <div class="slider-label">
+      <span>Počet lidí v místnosti</span>
+      <span class="count" id="count-display">23</span>
+    </div>
+    <input type="range" id="slider" min="2" max="70" value="23" />
+    <div class="range-ends"><span>2 lidi</span><span>70 lidí</span></div>
+  </div>
+
+  <!-- probability cards -->
+  <div class="prob-display">
+    <div class="prob-card">
+      <div class="value" id="prob-value">50,7 %</div>
+      <div class="label">pravděpodobnost shody</div>
+      <div class="prob-bar-wrap">
+        <div class="prob-bar-fill" id="prob-bar" style="width:50.7%"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- fact box -->
+  <div class="fact" id="fact-box">
+    📘 <strong>Výpočet:</strong> P(shoda) = 1 − (365 × 364 × 363 × … × <span id="fact-n">343</span>) / 365<sup><span id="fact-exp">23</span></sup>
+    — pravděpodobnost, že <em>žádné</em> dva narozeniny nespadají na stejný den, je <strong id="fact-no-match">49,3 %</strong>.
+  </div>
+
+  <!-- room -->
+  <div class="room-header">
+    <span class="room-title" id="room-title">Místnost s 23 lidmi</span>
+    <button class="btn-shuffle" id="btn-shuffle" onclick="shuffle()">🎲 Zamíchej narozeniny</button>
+  </div>
+
+  <div class="match-banner hidden" id="match-banner"></div>
+
+  <div class="room-grid" id="room"></div>
+
+  <!-- simulation -->
+  <div class="sim-section">
+    <h2>Simulace mnoha skupin</h2>
+    <p>Simuluj stovky náhodných skupin najednou a sleduj, jak se naměřený výsledek přibližuje teorii.</p>
+
+    <div class="sim-controls">
+      <button class="btn-sim" onclick="simulate(100)">+ 100 skupin</button>
+      <button class="btn-sim" onclick="simulate(1000)">+ 1 000 skupin</button>
+      <button class="btn-reset" onclick="resetSim()">Reset</button>
+    </div>
+
+    <div class="sim-result" id="sim-result">
+
+      <!-- stats -->
+      <div class="sim-stats">
+        <div class="sim-stat">
+          <div class="val" id="sim-total">0</div>
+          <div class="lbl">skupin celkem</div>
+        </div>
+        <div class="sim-stat">
+          <div class="val match-val" id="sim-match">0</div>
+          <div class="lbl">se shodou</div>
+        </div>
+        <div class="sim-stat">
+          <div class="val" id="sim-pct">0 %</div>
+          <div class="lbl">naměřeno</div>
+        </div>
+      </div>
+
+      <!-- comparison bars: naměřeno vs teorie -->
+      <div class="cmp-bars">
+        <div class="cmp-row">
+          <span class="cmp-label">Naměřeno</span>
+          <div class="cmp-track"><div class="cmp-fill cmp-measured" id="cmp-measured"></div></div>
+          <span class="cmp-val" id="cmp-val-measured">0 %</span>
+        </div>
+        <div class="cmp-row">
+          <span class="cmp-label">Teorie</span>
+          <div class="cmp-track"><div class="cmp-fill cmp-theory" id="cmp-theory"></div></div>
+          <span class="cmp-val" id="cmp-val-theory">— %</span>
+        </div>
+      </div>
+
+      <!-- dot grid: last ~200 groups visualized as dots -->
+      <div class="dot-grid-section">
+        <div class="dot-legend">
+          <span class="dot-legend-item"><span class="dot-samp dot-match"></span> shoda</span>
+          <span class="dot-legend-item"><span class="dot-samp dot-nomatch"></span> bez shody</span>
+        </div>
+        <div class="dot-grid" id="dot-grid"></div>
+        <div class="dot-overflow" id="dot-overflow"></div>
+      </div>
+
+      <div class="insight" id="insight"></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const NAMES = [
+  'Adam','Jakub','Martin','Tomáš','Jan','Petr','Ondřej','Lukáš','David','Michal',
+  'Filip','Marek','Pavel','Jiří','Radek','Zdeněk','Karel','Václav','Miroslav','Stanislav',
+  'Anna','Marie','Jana','Eva','Lucie','Tereza','Petra','Kateřina','Monika','Lenka',
+  'Klára','Veronika','Alena','Hana','Zuzana','Martina','Nikola','Dominika','Barbora','Adéla',
+  'Vojtěch','Matěj','Daniel','Robert','Vladimír','Tomáš','Aleš','Jaroslav','Roman','Ladislav',
+  'Simona','Ivana','Renata','Libuše','Dagmar','Pavla','Věra','Jitka','Naděžda','Soňa',
+  'Antonín','František','Josef','Bohumil','Oldřich'
+];
+const MONTHS = ['ledna','února','března','dubna','května','června',
+                'července','srpna','září','října','listopadu','prosince'];
+const DAYS = [31,28,31,30,31,30,31,31,30,31,30,31];
+const AVATARS_M = [
+  '👦','👦🏻','👦🏼','👦🏽','👦🏾','👦🏿',
+  '👨','👨🏻','👨🏼','👨🏽','👨🏾','👨🏿',
+  '🧑','🧑🏻','🧑🏼','🧑🏽','🧑🏾','🧑🏿',
+  '🧔','🧔🏻','🧔🏼','🧔🏽','🧔🏾','🧔🏿',
+];
+const AVATARS_F = [
+  '👧','👧🏻','👧🏼','👧🏽','👧🏾','👧🏿',
+  '👩','👩🏻','👩🏼','👩🏽','👩🏾','👩🏿',
+  '🧕','🧕🏻','🧕🏼','🧕🏽','🧕🏾','🧕🏿',
+  '🧑','🧑🏻','🧑🏼','🧑🏽','🧑🏾','🧑🏿',
+];
+
+let people = [];
+let simTotal = 0, simMatch = 0;
+let simHistory = []; // array of booleans: true=match
+
+function randInt(n) { return Math.floor(Math.random() * n); }
+
+function dayOfYear() {
+  const m = randInt(12);
+  const d = randInt(DAYS[m]) + 1;
+  return { m, d, key: m * 31 + d, label: `${d}. ${MONTHS[m]}` };
+}
+
+function calcProb(n) {
+  let p = 1;
+  for (let i = 0; i < n; i++) p *= (365 - i) / 365;
+  return 1 - p;
+}
+
+function probColor(p) {
+  if (p < 0.45) return 'low';
+  if (p < 0.75) return 'mid';
+  return 'high';
+}
+
+function buildPeople(n) {
+  const pool = [...NAMES].sort(() => Math.random() - 0.5);
+  people = [];
+  for (let i = 0; i < n; i++) {
+    const name = pool[i % pool.length];
+    const isFemale = ['Anna','Marie','Jana','Eva','Lucie','Tereza','Petra','Kateřina',
+      'Monika','Lenka','Klára','Veronika','Alena','Hana','Zuzana','Martina','Nikola',
+      'Dominika','Barbora','Adéla','Simona','Ivana','Renata','Libuše','Dagmar','Pavla',
+      'Věra','Jitka','Naděžda','Soňa'].includes(name);
+    const avatar = isFemale ? AVATARS_F[randInt(AVATARS_F.length)] : AVATARS_M[randInt(AVATARS_M.length)];
+    people.push({ name, avatar, bday: dayOfYear() });
+  }
+}
+
+function findMatches() {
+  const counts = {};
+  people.forEach((p, i) => {
+    if (!counts[p.bday.key]) counts[p.bday.key] = [];
+    counts[p.bday.key].push(i);
+  });
+  const matched = new Set();
+  const pairs = [];
+  Object.values(counts).forEach(idxs => {
+    if (idxs.length > 1) {
+      idxs.forEach(i => matched.add(i));
+      pairs.push(idxs);
+    }
+  });
+  return { matched, pairs };
+}
+
+function renderRoom() {
+  const { matched, pairs } = findMatches();
+  const grid = document.getElementById('room');
+  grid.innerHTML = '';
+  people.forEach((p, i) => {
+    const div = document.createElement('div');
+    div.className = 'person' + (matched.has(i) ? ' matched' : '');
+    div.innerHTML = `<div class="avatar">${p.avatar}</div><div class="name">${p.name}</div><div class="bday">${p.bday.label}</div>`;
+    grid.appendChild(div);
+  });
+
+  const banner = document.getElementById('match-banner');
+  if (pairs.length > 0) {
+    const pair = pairs[0];
+    const p1 = people[pair[0]], p2 = people[pair[1]];
+    banner.className = 'match-banner has-match';
+    banner.textContent = `🎉 Shoda! ${p1.name} a ${p2.name} mají narozeniny ${p1.bday.label}.` +
+      (pairs.length > 1 ? ` (+${pairs.length - 1} další ${pairs.length - 1 === 1 ? 'pár' : 'páry'})` : '');
+  } else {
+    banner.className = 'match-banner no-match';
+    banner.textContent = '✓ Žádná shoda tentokrát — ale zkus to znovu!';
+  }
+}
+
+function updateProb(n) {
+  const p = calcProb(n);
+  const pct = (p * 100).toFixed(1).replace('.', ',');
+  const noMatchPct = ((1 - p) * 100).toFixed(1).replace('.', ',');
+
+  const val = document.getElementById('prob-value');
+  val.textContent = pct + ' %';
+  val.className = 'value ' + probColor(p);
+
+  const bar = document.getElementById('prob-bar');
+  bar.style.width = (p * 100) + '%';
+  const clr = p < 0.45 ? '#16a34a' : p < 0.75 ? '#d97706' : '#dc2626';
+  bar.style.background = clr;
+
+  document.getElementById('count-display').textContent = n;
+  document.getElementById('room-title').textContent = `Místnost s ${n} ${n === 1 ? 'člověkem' : 'lidmi'}`;
+  document.getElementById('fact-n').textContent = 365 - n + 1;
+  document.getElementById('fact-exp').textContent = n;
+  document.getElementById('fact-no-match').textContent = noMatchPct + ' %';
+
+  // update theory bar if sim is visible
+  const theoryFill = document.getElementById('cmp-theory');
+  const theoryVal  = document.getElementById('cmp-val-theory');
+  if (theoryFill) {
+    theoryFill.style.width = (p * 100) + '%';
+    theoryVal.textContent  = pct + ' %';
+  }
+}
+
+function shuffle() {
+  const n = +document.getElementById('slider').value;
+  buildPeople(n);
+  renderRoom();
+}
+
+const DOT_SHOW = 200; // how many dots to display
+
+function simulate(runs) {
+  const n = +document.getElementById('slider').value;
+  let newMatches = 0;
+  const newResults = [];
+  for (let r = 0; r < runs; r++) {
+    const seen = new Set();
+    let found = false;
+    for (let i = 0; i < n; i++) {
+      const key = randInt(365);
+      if (seen.has(key)) { found = true; break; }
+      seen.add(key);
+    }
+    if (found) newMatches++;
+    newResults.push(found);
+  }
+  simTotal += runs;
+  simMatch += newMatches;
+  simHistory = [...simHistory, ...newResults].slice(-DOT_SHOW);
+
+  const pctNum    = (simMatch / simTotal) * 100;
+  const theoryNum = calcProb(n) * 100;
+  const pct       = pctNum.toFixed(1).replace('.', ',');
+  const theory    = theoryNum.toFixed(1).replace('.', ',');
+
+  document.getElementById('sim-total').textContent = simTotal.toLocaleString('cs-CZ');
+  document.getElementById('sim-match').textContent = simMatch.toLocaleString('cs-CZ');
+  document.getElementById('sim-pct').textContent   = pct + ' %';
+
+  // comparison bars
+  document.getElementById('cmp-measured').style.width  = pctNum + '%';
+  document.getElementById('cmp-val-measured').textContent = pct + ' %';
+  document.getElementById('cmp-theory').style.width    = theoryNum + '%';
+  document.getElementById('cmp-val-theory').textContent   = theory + ' %';
+
+  // dot grid
+  const grid = document.getElementById('dot-grid');
+  grid.innerHTML = simHistory.map(m => `<div class="dg ${m ? 'm' : 'n'}"></div>`).join('');
+
+  const overflow = document.getElementById('dot-overflow');
+  if (simTotal > DOT_SHOW) {
+    overflow.textContent = `(zobrazeno posledních ${DOT_SHOW} z ${simTotal.toLocaleString('cs-CZ')} skupin)`;
+  } else {
+    overflow.textContent = '';
+  }
+
+  const diff = Math.abs(pctNum - theoryNum).toFixed(1).replace('.', ',');
+  document.getElementById('insight').textContent =
+    `Teorie říká ${theory} %, naměřeno ${pct} % — rozdíl ${diff} procentního bodu. Čím víc skupin, tím blíže se výsledek přiblíží teorii.`;
+
+  document.getElementById('sim-result').className = 'sim-result visible';
+}
+
+function resetSim() {
+  simTotal = 0; simMatch = 0; simHistory = [];
+  document.getElementById('sim-result').className = 'sim-result';
+}
+
+// slider wiring
+const slider = document.getElementById('slider');
+slider.addEventListener('input', () => {
+  const n = +slider.value;
+  updateProb(n);
+  buildPeople(n);
+  renderRoom();
+});
+
+// init
+updateProb(23);
+buildPeople(23);
+renderRoom();
+</script>
+</body>
+</html>

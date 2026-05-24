@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Únikovka: Mocniny a odmocniny</title>
+<meta name="description" content="Interaktivní únikovka z matematiky – mocniny, odmocniny, pravidla pro počítání s mocninami.">
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --gold-dark:#c89a10; --blue:#1a73c8; --blue-light:#e8f1fb;
+  --green:#1e9e5a; --green-light:#e6f7ef; --red:#d63c2f;
+  --purple:#7c3aad; --purple-light:#f3eefa;
+  --teal:#0f8a72; --teal-light:#e4f5f1;
+  --orange:#d4620a; --orange-light:#fdf0e5;
+  --pink:#b5286e; --pink-light:#fce8f2;
+  --indigo:#3730a3; --indigo-light:#eef2ff;
+  --rose:#9f1239; --rose-light:#fff1f2;
+  --cyan:#0e7490; --cyan-light:#ecfeff;
+  --bg:#f5f0e6; --card:#fff; --text:#1a1a2e; --muted:#6b7280;
+  --shadow:0 4px 24px rgba(0,0,0,.09); --radius:16px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Lexend',sans-serif;background:var(--bg);background-image:radial-gradient(circle at 8% 15%,rgba(245,200,66,.12) 0%,transparent 38%),radial-gradient(circle at 92% 82%,rgba(26,115,200,.09) 0%,transparent 38%);min-height:100vh;color:var(--text)}
+.screen{display:none;min-height:100vh;padding:24px 16px 48px;max-width:680px;margin:0 auto}
+.screen.active{display:flex;flex-direction:column;align-items:center}
+#intro{justify-content:center;text-align:center;gap:18px}
+.chest{font-size:88px;animation:float 3s ease-in-out infinite;display:inline-block;filter:drop-shadow(0 8px 16px rgba(0,0,0,.15))}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
+.title-main{font-size:2.5rem;color:var(--blue);line-height:1.1;font-weight:800}
+.title-sub{font-size:1.45rem;color:var(--gold-dark);font-weight:700}
+.intro-card{background:var(--card);border-radius:var(--radius);padding:22px 26px;box-shadow:var(--shadow);border-left:6px solid var(--blue);text-align:left;width:100%}
+.intro-card p{font-size:.97rem;line-height:1.75}
+.intro-card p+p{margin-top:10px}
+.intro-card b{color:var(--blue)}
+.rules{background:var(--card);border-radius:var(--radius);padding:18px 22px;box-shadow:var(--shadow);width:100%;border-left:6px solid var(--gold-dark)}
+.rules h3{color:var(--gold-dark);font-size:1.05rem;margin-bottom:10px;font-weight:700}
+.rules ul{list-style:none;display:flex;flex-direction:column;gap:8px}
+.rules li{display:flex;align-items:flex-start;gap:10px;font-size:.95rem;line-height:1.55}
+.btn-primary{background:linear-gradient(135deg,var(--blue),#1250a0);color:#fff;font-family:'Lexend',sans-serif;font-size:1.2rem;font-weight:700;border:none;border-radius:50px;padding:15px 46px;cursor:pointer;box-shadow:0 6px 20px rgba(26,115,200,.32);transition:transform .15s,box-shadow .15s;letter-spacing:.01em}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(26,115,200,.38)}
+.progress-wrap{width:100%;margin-top:10px;margin-bottom:18px}
+.progress-label{display:flex;justify-content:space-between;font-size:.82rem;font-weight:700;color:var(--muted);margin-bottom:5px}
+.progress-bar{background:#ddd8c6;border-radius:20px;height:9px;overflow:hidden}
+.progress-fill{height:100%;border-radius:20px;background:linear-gradient(90deg,var(--blue),var(--teal));transition:width .5s ease}
+.stars-wrap{display:flex;gap:3px}
+.star{font-size:1rem;opacity:.22;transition:opacity .3s,transform .3s}
+.star.lit{opacity:1;transform:scale(1.12)}
+#game{justify-content:flex-start;gap:0}
+.lock-header{width:100%;display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.lock-icon-big{font-size:2.2rem}
+.lock-title{font-size:1.4rem;font-weight:700}
+.lock-badge{margin-left:auto;background:var(--blue);color:#fff;border-radius:50px;padding:3px 13px;font-size:.82rem;font-weight:700;white-space:nowrap}
+.task-card{background:var(--card);border-radius:var(--radius);padding:22px 22px 18px;box-shadow:var(--shadow);width:100%;margin-bottom:22px;position:relative;overflow:hidden}
+.task-card::before{content:'';position:absolute;top:0;left:0;width:5px;height:100%;border-radius:3px 0 0 3px}
+.task-card.blue::before{background:var(--blue)}.task-card.green::before{background:var(--green)}.task-card.purple::before{background:var(--purple)}.task-card.teal::before{background:var(--teal)}.task-card.orange::before{background:var(--orange)}.task-card.pink::before{background:var(--pink)}.task-card.indigo::before{background:var(--indigo)}.task-card.rose::before{background:var(--rose)}.task-card.cyan::before{background:var(--cyan)}.task-card.gold::before{background:var(--gold-dark)}
+.task-card h3{font-size:1.02rem;margin-bottom:11px;font-weight:700}
+.task-card.blue h3{color:var(--blue)}.task-card.green h3{color:var(--green)}.task-card.purple h3{color:var(--purple)}.task-card.teal h3{color:var(--teal)}.task-card.orange h3{color:var(--orange)}.task-card.pink h3{color:var(--pink)}.task-card.indigo h3{color:var(--indigo)}.task-card.rose h3{color:var(--rose)}.task-card.cyan h3{color:var(--cyan)}.task-card.gold h3{color:var(--gold-dark)}
+.task-card p{font-size:.95rem;line-height:1.75}.task-card p+p{margin-top:8px}.task-card ul,.task-card ol{margin:6px 0 6px 1.2em;font-size:.95rem;line-height:1.7}
+table.tt{width:100%;border-collapse:collapse;margin:10px 0;font-size:.9rem}
+table.tt th{padding:7px 9px;text-align:center;font-weight:700}
+table.tt td{border:1px solid #e0dbd0;padding:7px 9px;text-align:center}
+table.tt tr:nth-child(even) td{background:#fafaf5}
+.blue table.tt th{background:var(--blue-light);color:var(--blue)}.green table.tt th{background:var(--green-light);color:var(--green)}.purple table.tt th{background:var(--purple-light);color:var(--purple)}.teal table.tt th{background:var(--teal-light);color:var(--teal)}.orange table.tt th{background:var(--orange-light);color:var(--orange)}.pink table.tt th{background:var(--pink-light);color:var(--pink)}.indigo table.tt th{background:var(--indigo-light);color:var(--indigo)}.rose table.tt th{background:var(--rose-light);color:var(--rose)}.cyan table.tt th{background:var(--cyan-light);color:var(--cyan)}.gold table.tt th{background:#fef9ec;color:var(--gold-dark)}
+.hint-box{margin-top:11px;background:#fef9ec;border:1.5px dashed var(--gold-dark);border-radius:10px;padding:9px 13px;font-size:.88rem;color:#7a5200;display:none}
+.hint-box.show{display:block}
+.hint-btn{background:none;border:1.5px solid var(--gold-dark);color:var(--gold-dark);border-radius:20px;padding:4px 12px;font-size:.8rem;font-weight:700;cursor:pointer;margin-top:9px;font-family:'Lexend',sans-serif;transition:background .15s}
+.hint-btn:hover{background:#fef9ec}
+.tag{display:inline-block;border-radius:20px;padding:2px 10px;font-size:.78rem;font-weight:700;margin-bottom:7px}
+.tag.blue{background:var(--blue-light);color:var(--blue)}.tag.green{background:var(--green-light);color:var(--green)}.tag.purple{background:var(--purple-light);color:var(--purple)}.tag.teal{background:var(--teal-light);color:var(--teal)}.tag.orange{background:var(--orange-light);color:var(--orange)}.tag.pink{background:var(--pink-light);color:var(--pink)}.tag.indigo{background:var(--indigo-light);color:var(--indigo)}.tag.rose{background:var(--rose-light);color:var(--rose)}.tag.cyan{background:var(--cyan-light);color:var(--cyan)}.tag.gold{background:#fef9ec;color:var(--gold-dark)}
+.code-wrap{background:var(--card);border-radius:var(--radius);padding:20px 22px;box-shadow:var(--shadow);width:100%;margin-top:10px;margin-bottom:18px}
+.code-wrap label{display:block;font-size:.98rem;color:var(--muted);margin-bottom:11px;font-weight:700}
+.code-row{display:flex;gap:10px;align-items:center}
+.code-hint-bar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:12px}
+.code-hint-btn{background:none;border:1.5px dashed var(--gold-dark);color:var(--gold-dark);padding:5px 14px;border-radius:20px;font-family:'Lexend',sans-serif;font-weight:600;font-size:.82rem;cursor:pointer;transition:all .15s}
+.code-hint-btn:hover:not([disabled]){background:#fef9ec}
+.code-hint-btn[disabled]{opacity:.5;cursor:not-allowed;border-style:solid;border-color:#e0dbd0;color:var(--muted)}
+.code-hint-counter{font-size:.76rem;color:var(--muted)}
+.code-hint-counter .dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#e0dbd0;margin:0 1px}
+.code-hint-counter .dot.shown{background:var(--gold-dark)}
+.code-hint-counter .dot.shown.warn{background:var(--orange)}
+.code-hint-box{margin-top:10px;background:#fef9ec;border-left:3px solid var(--gold-dark);padding:10px 14px;border-radius:8px;font-size:.9rem;display:none;color:#7a5200}
+.code-hint-box.show{display:block}
+.code-hint-box .h-label{font-size:.7rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gold-dark);display:block;margin-bottom:4px}
+.code-hint-box[data-level="3"]{background:var(--orange-light);border-left-color:var(--orange);color:#8b3f08}
+.code-hint-box[data-level="3"] .h-label{color:var(--orange)}
+.code-input{flex:1;font-family:'Lexend',sans-serif;font-size:1.5rem;text-align:center;letter-spacing:.12em;border:3px solid #ccc8bb;border-radius:12px;padding:11px 14px;outline:none;transition:border-color .2s;background:#fafaf6;color:var(--text)}
+.code-input:focus{border-color:var(--blue);background:#fff}
+.code-input.error{border-color:var(--red);animation:shake .32s}
+.code-input.success{border-color:var(--green);background:var(--green-light)}
+@keyframes shake{0%,100%{transform:translateX(0)}30%{transform:translateX(-5px)}70%{transform:translateX(5px)}}
+.btn-check{background:linear-gradient(135deg,var(--blue),#1250a0);color:#fff;font-family:'Lexend',sans-serif;font-size:.95rem;font-weight:700;border:none;border-radius:12px;padding:13px 20px;cursor:pointer;box-shadow:0 4px 14px rgba(26,115,200,.28);transition:transform .15s;white-space:nowrap}
+.btn-check:hover{transform:translateY(-1px)}
+.feedback{margin-top:9px;font-weight:700;font-size:.92rem;min-height:20px}
+.feedback.ok{color:var(--green)}.feedback.err{color:var(--red)}
+.unlock-anim{display:none;flex-direction:column;align-items:center;gap:6px;padding:18px;animation:popIn .4s cubic-bezier(.175,.885,.32,1.275)}
+.unlock-anim.show{display:flex}
+@keyframes popIn{from{transform:scale(.5);opacity:0}to{transform:scale(1);opacity:1}}
+.unlock-anim .big-icon{font-size:3.2rem}
+.unlock-anim p{font-size:1.05rem;color:var(--green);text-align:center;font-weight:700}
+#finish{justify-content:center;text-align:center;gap:20px}
+.final-chest{font-size:96px;animation:bounce .6s cubic-bezier(.175,.885,.32,1.275)}
+@keyframes bounce{from{transform:scale(0)}to{transform:scale(1)}}
+.final-title{font-size:2.1rem;color:var(--gold-dark);font-weight:800}
+.final-sub{font-size:.97rem;color:var(--muted);line-height:1.75;max-width:420px}
+.summary-card{background:var(--card);border-radius:var(--radius);padding:18px 22px;box-shadow:var(--shadow);width:100%;text-align:left}
+.summary-card h3{color:var(--blue);font-size:1.05rem;margin-bottom:12px;font-weight:700}
+.summary-row{display:flex;align-items:flex-start;gap:11px;padding:9px 0;border-bottom:1px solid #f0ece0;font-size:.93rem;line-height:1.6}
+.summary-row:last-child{border-bottom:none}
+.s-icon{font-size:1.2rem;flex-shrink:0;margin-top:1px}
+.confetti-wrap{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:999}
+.confetti-piece{position:absolute;animation:fall linear forwards}
+@keyframes fall{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+.top-bar{max-width:680px;margin:0 auto;padding:16px 20px 0;display:flex;justify-content:space-between;gap:18px;font-size:.82rem;color:var(--muted)}
+.top-bar a{color:var(--muted);text-decoration:none}
+.top-bar a:hover{color:var(--blue)}
+.top-bar .crumb{color:var(--text);font-weight:500}
+#lang-bar{position:fixed;bottom:16px;right:16px;z-index:200;display:flex;gap:6px;background:rgba(255,255,255,.92);border-radius:50px;padding:5px 8px;box-shadow:0 2px 12px rgba(0,0,0,.12);backdrop-filter:blur(6px)}
+.lang-btn{background:none;border:2px solid transparent;border-radius:50px;font-size:1.35rem;cursor:pointer;padding:3px 7px;line-height:1;transition:border-color .15s,box-shadow .15s}
+.lang-btn.active{border-color:var(--blue);box-shadow:0 0 0 2px rgba(26,115,200,.25)}
+</style>
+</head>
+<body>
+<div class="top-bar">
+  <a href="./" class="tp-back">← zpět na projekty</a>
+  <span class="crumb">/projects/unikovka_mocniny</span>
+  <a href="/" class="tp-home">domů</a>
+</div>
+<div id="lang-bar">
+  <button class="lang-btn" data-lang="cs" onclick="setLang('cs')">&#x1F1E8;&#x1F1FF;</button>
+  <button class="lang-btn" data-lang="en" onclick="setLang('en')">&#x1F1EC;&#x1F1E7;</button>
+</div>
+<div id="intro" class="screen active"><div id="intro-content"></div></div>
+<div id="game" class="screen">
+  <div class="progress-wrap" style="width:100%">
+    <div class="progress-label"><span id="prog-label"></span><span class="stars-wrap" id="stars-wrap"></span></div>
+    <div class="progress-bar"><div class="progress-fill" id="prog-fill" style="width:0%"></div></div>
+  </div>
+  <div id="step-container" style="width:100%"></div>
+</div>
+<div id="finish" class="screen">
+  <div class="confetti-wrap" id="confetti"></div>
+  <div id="finish-content"></div>
+</div>
+<script>
+const LANG_KEY = 'unikovka_mocniny_lang';
+let lang = localStorage.getItem(LANG_KEY) || 'cs';
+const i18n = (cs, en) => lang === 'en' ? en : cs;
+
+function setLang(l) {
+  lang = l;
+  try { localStorage.setItem(LANG_KEY, l); } catch(e) {}
+  document.querySelectorAll('.lang-btn').forEach(b => b.classList.toggle('active', b.dataset.lang === l));
+  document.querySelectorAll('.tp-back').forEach(el => el.textContent = i18n('← zpět na projekty','← back to projects'));
+  document.querySelectorAll('.tp-home').forEach(el => el.textContent = i18n('domů','home'));
+  const activeId = document.querySelector('.screen.active')?.id;
+  if (activeId === 'intro') buildIntro();
+  else if (activeId === 'game') render(cur);
+  else if (activeId === 'finish') buildFinish();
+}
+
+function buildIntro() {
+  document.getElementById('intro-content').innerHTML = `
+    <div class="chest">🔢</div>
+    <div class="title-main">${i18n('Únikovka z matiky','Math Escape Room')}</div>
+    <div class="title-sub">🔢 ${i18n('MOCNINY & ODMOCNINY','POWERS & ROOTS')} 🔢</div>
+    <div class="intro-card">
+      <p>${i18n('Před tebou je <b>truhla s pokladem</b> – uzamčena <b>10 zámky</b>.','Before you is a <b>treasure chest</b> – locked with <b>10 locks</b>.')}</p>
+      <p>${i18n('Každý zámek se odemkne správným kódem. Výpočty si dělej <b>do sešitu</b> a kód zadej sem.','Each lock opens with the correct code. Do your calculations <b>in your notebook</b> and enter the code here.')}</p>
+      <p>${i18n('Žádné kalkulačky – dnes prozkoumáš <b>mocniny a odmocniny</b> vlastní hlavou 🧠','No calculators – today you\'ll explore <b>powers and roots</b> with your own mind 🧠')}</p>
+    </div>
+    <div class="rules">
+      <h3>📋 ${i18n('Pravidla','Rules')}</h3>
+      <ul>
+        <li><span>✏️</span> ${i18n('Výpočty piš do sešitu – každý příklad celý.','Write your calculations in your notebook – every step.')}</li>
+        <li><span>🚫</span> ${i18n('Bez kalkulačky, bez opisování.','No calculator, no copying.')}</li>
+        <li><span>💡</span> ${i18n('Nevíš? Zkus nápovědu – ale nejdřív se zamysli!','Stuck? Try the hint – but think first!')}</li>
+        <li><span>🔢</span> ${i18n('Kód zadej jako celé číslo (bez jednotek, bez mezer).','Enter the code as a whole number (no units, no spaces).')}</li>
+      </ul>
+    </div>
+    <button class="btn-primary" id="btn-start">🔓 ${i18n('Začít dobrodružství!','Start the adventure!')}</button>
+  `;
+  document.getElementById('btn-start').addEventListener('click', startGame);
+}
+
+function buildFinish() {
+  document.getElementById('finish-content').innerHTML = `
+    <div class="final-chest">🏆</div>
+    <div class="final-title">${i18n('Poklad je tvůj!','The treasure is yours!')}</div>
+    <p class="final-sub">${i18n('Zvládl(a) jsi všech 10 zámků. Mocniny a odmocniny jsou teď tvoji přátelé!','You solved all 10 locks. Powers and roots are now your friends!')}</p>
+    <div class="summary-card">
+      <h3>📖 ${i18n('Co jsi dnes zvládl(a)','What you mastered today')}</h3>
+      <div class="summary-row"><span class="s-icon">1️⃣</span><span>${i18n('aⁿ = a × a × … × a (n-krát). Mocnina je zkrácený zápis opakovaného násobení.','aⁿ = a × a × … × a (n times). A power is shorthand for repeated multiplication.')}</span></div>
+      <div class="summary-row"><span class="s-icon">2️⃣</span><span>${i18n('√a je číslo, jehož čtverec je a. Platí: (√a)² = a.','√a is the number whose square is a. It holds: (√a)² = a.')}</span></div>
+      <div class="summary-row"><span class="s-icon">3️⃣</span><span>${i18n('Pravidla: aᵐ × aⁿ = aᵐ⁺ⁿ, (aᵐ)ⁿ = aᵐˣⁿ, aᵐ ÷ aⁿ = aᵐ⁻ⁿ.','Rules: aᵐ × aⁿ = aᵐ⁺ⁿ, (aᵐ)ⁿ = aᵐˣⁿ, aᵐ ÷ aⁿ = aᵐ⁻ⁿ.')}</span></div>
+      <div class="summary-row"><span class="s-icon">4️⃣</span><span>${i18n('a⁰ = 1 pro každé a ≠ 0.','a⁰ = 1 for any a ≠ 0.')}</span></div>
+    </div>
+    <button class="btn-primary" id="btn-restart">🔄 ${i18n('Hrát znovu','Play again')}</button>
+  `;
+  document.getElementById('btn-restart').addEventListener('click', () => location.reload());
+}
+
+const STEPS = [
+{id:1,color:'blue',icon:'🔢',code:'16',
+ title:'Zámek 1 – Co je mocnina?',title_en:'Lock 1 – What is a power?',
+ tag:'Základní pojmy',tag_en:'Basic concepts',tagClass:'blue',
+ tasks:[
+  {title:'🧩 Základ a mocnitel',title_en:'🧩 Base and exponent',
+   body:'<p><b>Mocnina aⁿ</b> = číslo <b>a</b> vynásobené samo sebou <b>n-krát</b>.</p><p>a = základ (base), n = mocnitel (exponent).</p><table class="tt"><tr><th>Mocnina</th><th>Rozepsání</th><th>Výsledek</th></tr><tr><td>2¹</td><td>2</td><td>2</td></tr><tr><td>2²</td><td>2 × 2</td><td>4</td></tr><tr><td>2³</td><td>2 × 2 × 2</td><td>8</td></tr><tr><td>2⁴</td><td>2 × 2 × 2 × 2</td><td>16</td></tr><tr><td>2⁵</td><td>2 × 2 × 2 × 2 × 2</td><td>32</td></tr></table>',
+   body_en:'<p><b>Power aⁿ</b> = number <b>a</b> multiplied by itself <b>n times</b>.</p><p>a = base, n = exponent.</p><table class="tt"><tr><th>Power</th><th>Expanded</th><th>Result</th></tr><tr><td>2¹</td><td>2</td><td>2</td></tr><tr><td>2²</td><td>2 × 2</td><td>4</td></tr><tr><td>2³</td><td>2 × 2 × 2</td><td>8</td></tr><tr><td>2⁴</td><td>2 × 2 × 2 × 2</td><td>16</td></tr><tr><td>2⁵</td><td>2 × 2 × 2 × 2 × 2</td><td>32</td></tr></table>',
+   hint:'💡 Mocnina = opakované násobení. 2⁴ = 2 × 2 × 2 × 2.',
+   hint_en:'💡 A power is repeated multiplication. 2⁴ = 2 × 2 × 2 × 2.'},
+  {title:'🔢 Kód zámku',title_en:'🔢 Lock code',
+   body:'<p>Vypočítej <b>2⁴</b>.</p><p>Kód = výsledek.</p>',
+   body_en:'<p>Calculate <b>2⁴</b>.</p><p>Code = the result.</p>',
+   hint:'💡 2⁴ = 2 × 2 × 2 × 2 = ?',hint_en:'💡 2⁴ = 2 × 2 × 2 × 2 = ?'}],
+ successMsg:'🔓 Správně! 2⁴ = 16. Zámek 1 otevřen!',
+ successMsg_en:'🔓 Correct! 2⁴ = 16. Lock 1 opened!'},
+
+{id:2,color:'green',icon:'⬛',code:'81',
+ title:'Zámek 2 – Druhá mocnina (čtverec)',title_en:'Lock 2 – Squaring a number',
+ tag:'a² = a × a',tag_en:'a² = a × a',tagClass:'green',
+ tasks:[
+  {title:'🧩 Druhé mocniny – čtvercová čísla',title_en:'🧩 Squares – perfect square numbers',
+   body:'<p>Druhá mocnina a² = a × a. Výsledky se nazývají <b>čtvercová čísla</b>.</p><table class="tt"><tr><th>a</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th><th>9</th><th>10</th></tr><tr><td>a²</td><td>1</td><td>4</td><td>9</td><td>16</td><td>25</td><td>36</td><td>49</td><td>64</td><td>81</td><td>100</td></tr></table><p>Tato čísla se vyplatí znát nazpaměť!</p>',
+   body_en:'<p>The second power a² = a × a. The results are called <b>perfect squares</b>.</p><table class="tt"><tr><th>a</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th><th>9</th><th>10</th></tr><tr><td>a²</td><td>1</td><td>4</td><td>9</td><td>16</td><td>25</td><td>36</td><td>49</td><td>64</td><td>81</td><td>100</td></tr></table><p>Worth memorising – they come up all the time!</p>',
+   hint:'💡 9² = 9 × 9. Spočítej!',hint_en:'💡 9² = 9 × 9. Calculate it!'},
+  {title:'🔢 Kód zámku',title_en:'🔢 Lock code',
+   body:'<p>Vypočítej <b>9²</b>. Kód = výsledek.</p>',
+   body_en:'<p>Calculate <b>9²</b>. Code = the result.</p>',
+   hint:'💡 9 × 9 = ?',hint_en:'💡 9 × 9 = ?'}],
+ successMsg:'🔓 Přesně! 9² = 81. Zámek 2 otevřen!',
+ successMsg_en:'🔓 Correct! 9² = 81. Lock 2 opened!'},
+
+{id:3,color:'purple',icon:'🟣',code:'125',
+ title:'Zámek 3 – Třetí mocnina (krychle)',title_en:'Lock 3 – Cubing a number',
+ tag:'a³ = a × a × a',tag_en:'a³ = a × a × a',tagClass:'purple',
+ tasks:[
+  {title:'🧩 Krychlová čísla',title_en:'🧩 Perfect cubes',
+   body:'<p>Třetí mocnina a³ = a × a × a. Výsledky se nazývají <b>krychlová čísla</b>.</p><table class="tt"><tr><th>a</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th></tr><tr><td>a³</td><td>1</td><td>8</td><td>27</td><td>64</td><td>125</td></tr></table><p>Krychlová čísla: objem krychle se stranou a = a³ cm³.</p>',
+   body_en:'<p>The third power a³ = a × a × a. Results are called <b>perfect cubes</b>.</p><table class="tt"><tr><th>a</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th></tr><tr><td>a³</td><td>1</td><td>8</td><td>27</td><td>64</td><td>125</td></tr></table><p>A cube with side a has volume a³ cm³ – that\'s why these are called perfect cubes!</p>',
+   hint:'💡 5³ = 5 × 5 × 5 = 25 × 5 = ?',hint_en:'💡 5³ = 5 × 5 × 5 = 25 × 5 = ?'},
+  {title:'🔢 Kód zámku',title_en:'🔢 Lock code',
+   body:'<p>Vypočítej <b>5³</b>. Kód = výsledek.</p>',
+   body_en:'<p>Calculate <b>5³</b>. Code = the result.</p>',
+   hint:'💡 5 × 5 = 25. 25 × 5 = ?',hint_en:'💡 5 × 5 = 25. 25 × 5 = ?'}],
+ successMsg:'🔓 Výborně! 5³ = 125. Krychlová čísla jsou krásná! Zámek 3 otevřen!',
+ successMsg_en:'🔓 Excellent! 5³ = 125. Perfect cubes are beautiful! Lock 3 opened!'},
+
+{id:4,color:'teal',icon:'🔵',code:'14',
+ title:'Zámek 4 – Druhá odmocnina',title_en:'Lock 4 – Square root',
+ tag:'√a – druhá odmocnina',tag_en:'√a – square root',tagClass:'teal',
+ tasks:[
+  {title:'🧩 Odmocnina je opak mocniny',title_en:'🧩 Square root is the inverse of squaring',
+   body:'<p><b>√a</b> = číslo, jehož druhá mocnina je a. Tedy (√a)² = a.</p><p>Důležité druhé odmocniny:</p><table class="tt"><tr><th>a</th><th>1</th><th>4</th><th>9</th><th>16</th><th>25</th><th>36</th><th>49</th><th>64</th><th>81</th><th>100</th><th>121</th><th>144</th><th>169</th><th>196</th><th>225</th></tr><tr><td>√a</td><td>1</td><td>2</td><td>3</td><td>4</td><td>5</td><td>6</td><td>7</td><td>8</td><td>9</td><td>10</td><td>11</td><td>12</td><td>13</td><td>14</td><td>15</td></tr></table>',
+   body_en:'<p><b>√a</b> = the number whose square is a. So (√a)² = a.</p><p>Important square roots:</p><table class="tt"><tr><th>a</th><th>1</th><th>4</th><th>9</th><th>16</th><th>25</th><th>36</th><th>49</th><th>64</th><th>81</th><th>100</th><th>121</th><th>144</th><th>169</th><th>196</th><th>225</th></tr><tr><td>√a</td><td>1</td><td>2</td><td>3</td><td>4</td><td>5</td><td>6</td><td>7</td><td>8</td><td>9</td><td>10</td><td>11</td><td>12</td><td>13</td><td>14</td><td>15</td></tr></table>',
+   hint:'💡 Hledáš číslo x takové, že x² = 196. Zkus x = 14.',
+   hint_en:'💡 You are looking for x such that x² = 196. Try x = 14.'},
+  {title:'🔢 Kód zámku',title_en:'🔢 Lock code',
+   body:'<p>Vypočítej <b>√196</b>. Kód = výsledek.</p>',
+   body_en:'<p>Calculate <b>√196</b>. Code = the result.</p>',
+   hint:'💡 14² = 196. Takže √196 = ?',hint_en:'💡 14² = 196. So √196 = ?'}],
+ successMsg:'🔓 Správně! √196 = 14. (14² = 196.) Zámek 4 otevřen!',
+ successMsg_en:'🔓 Correct! √196 = 14. (14² = 196.) Lock 4 opened!'},
+
+{id:5,color:'orange',icon:'🟠',code:'6',
+ title:'Zámek 5 – Třetí odmocnina',title_en:'Lock 5 – Cube root',
+ tag:'∛a – třetí odmocnina',tag_en:'∛a – cube root',tagClass:'orange',
+ tasks:[
+  {title:'🧩 Třetí odmocnina',title_en:'🧩 Cube root',
+   body:'<p><b>∛a</b> = číslo, jehož třetí mocnina je a. Tedy (∛a)³ = a.</p><p>Důležité třetí odmocniny:</p><table class="tt"><tr><th>a</th><th>1</th><th>8</th><th>27</th><th>64</th><th>125</th><th>216</th><th>343</th><th>512</th><th>729</th><th>1000</th></tr><tr><td>∛a</td><td>1</td><td>2</td><td>3</td><td>4</td><td>5</td><td>6</td><td>7</td><td>8</td><td>9</td><td>10</td></tr></table>',
+   body_en:'<p><b>∛a</b> = the number whose cube is a. So (∛a)³ = a.</p><p>Important cube roots:</p><table class="tt"><tr><th>a</th><th>1</th><th>8</th><th>27</th><th>64</th><th>125</th><th>216</th><th>343</th><th>512</th><th>729</th><th>1000</th></tr><tr><td>∛a</td><td>1</td><td>2</td><td>3</td><td>4</td><td>5</td><td>6</td><td>7</td><td>8</td><td>9</td><td>10</td></tr></table>',
+   hint:'💡 Hledáš x, kde x³ = 216. Zkus x = 6: 6 × 6 × 6 = ?',
+   hint_en:'💡 You are looking for x where x³ = 216. Try x = 6: 6 × 6 × 6 = ?'},
+  {title:'🔢 Kód zámku',title_en:'🔢 Lock code',
+   body:'<p>Vypočítej <b>∛216</b>. Kód = výsledek.</p>',
+   body_en:'<p>Calculate <b>∛216</b>. Code = the result.</p>',
+   hint:'💡 6³ = 6 × 6 × 6 = 216. Takže ∛216 = ?',hint_en:'💡 6³ = 6 × 6 × 6 = 216. So ∛216 = ?'}],
+ successMsg:'🔓 Bezvadně! ∛216 = 6 (6³ = 216). Zámek 5 otevřen!',
+ successMsg_en:'🔓 Perfect! ∛216 = 6 (6³ = 216). Lock 5 opened!'},
+
+{id:6,color:'pink',icon:'0️⃣',code:'4',
+ title:'Zámek 6 – Nultá mocnina',title_en:'Lock 6 – The zeroth power',
+ tag:'a⁰ = 1',tag_en:'a⁰ = 1',tagClass:'pink',
+ tasks:[
+  {title:'🧩 Proč je a⁰ = 1?',title_en:'🧩 Why is a⁰ = 1?',
+   body:'<p>Sleduj vzor – každým krokem dělíme základem 2:</p><table class="tt"><tr><th>2⁴</th><th>2³</th><th>2²</th><th>2¹</th><th>2⁰</th></tr><tr><td>16</td><td>8</td><td>4</td><td>2</td><td>?</td></tr></table><p>16 ÷ 2 = 8, 8 ÷ 2 = 4, 4 ÷ 2 = 2, 2 ÷ 2 = <b>1</b>.</p><p>Tedy: <b>a⁰ = 1 pro každé a ≠ 0</b>.</p><p>Také: aᵐ ÷ aᵐ = aᵐ⁻ᵐ = a⁰ = 1.</p>',
+   body_en:'<p>Follow the pattern – divide by 2 each step:</p><table class="tt"><tr><th>2⁴</th><th>2³</th><th>2²</th><th>2¹</th><th>2⁰</th></tr><tr><td>16</td><td>8</td><td>4</td><td>2</td><td>?</td></tr></table><p>16 ÷ 2 = 8, 8 ÷ 2 = 4, 4 ÷ 2 = 2, 2 ÷ 2 = <b>1</b>.</p><p>Therefore: <b>a⁰ = 1 for any a ≠ 0</b>.</p><p>Also: aᵐ ÷ aᵐ = aᵐ⁻ᵐ = a⁰ = 1.</p>',
+   hint:'💡 Každé číslo na nultou = 1. Kolik sčítanců?',hint_en:'💡 Any number to the power 0 = 1. How many terms?'},
+  {title:'🔢 Kód zámku',title_en:'🔢 Lock code',
+   body:'<p>Vypočítej: <b>3⁰ + 7⁰ + 11⁰ + 100⁰</b>. Kód = výsledek.</p>',
+   body_en:'<p>Calculate: <b>3⁰ + 7⁰ + 11⁰ + 100⁰</b>. Code = the result.</p>',
+   hint:'💡 Každý sčítanec = 1. Kolik sčítanců máš?',hint_en:'💡 Each term = 1. How many terms do you have?'}],
+ successMsg:'🔓 Správně! 1+1+1+1 = 4. Každé a⁰ = 1! Zámek 6 otevřen!',
+ successMsg_en:'🔓 Correct! 1+1+1+1 = 4. Every a⁰ = 1! Lock 6 opened!'},
+
+{id:7,color:'indigo',icon:'✖️',code:'128',
+ title:'Zámek 7 – Součin mocnin (stejný základ)',title_en:'Lock 7 – Product of powers (same base)',
+ tag:'aᵐ × aⁿ = aᵐ⁺ⁿ',tag_en:'aᵐ × aⁿ = aᵐ⁺ⁿ',tagClass:'indigo',
+ tasks:[
+  {title:'🧩 Pravidlo součinu mocnin',title_en:'🧩 Product rule for powers',
+   body:'<p>Pokud násobíme dvě mocniny se <b>stejným základem</b>, mocnitele <b>sečteme</b>:</p><p><b>aᵐ × aⁿ = aᵐ⁺ⁿ</b></p><p>Proč? 2³ × 2² = (2×2×2) × (2×2) = 2⁵</p><p>Příklady:</p><ul><li>3² × 3⁴ = 3⁶ = 729</li><li>5¹ × 5³ = 5⁴ = 625</li><li>10² × 10³ = 10⁵ = 100 000</li></ul>',
+   body_en:'<p>When multiplying two powers with the <b>same base</b>, we <b>add</b> the exponents:</p><p><b>aᵐ × aⁿ = aᵐ⁺ⁿ</b></p><p>Why? 2³ × 2² = (2×2×2) × (2×2) = 2⁵</p><p>Examples:</p><ul><li>3² × 3⁴ = 3⁶ = 729</li><li>5¹ × 5³ = 5⁴ = 625</li><li>10² × 10³ = 10⁵ = 100 000</li></ul>',
+   hint:'💡 Stejný základ → sečti mocnitele: 2³ × 2⁴ = 2^(3+4) = 2⁷.',
+   hint_en:'💡 Same base → add exponents: 2³ × 2⁴ = 2^(3+4) = 2⁷.'},
+  {title:'🔢 Kód zámku',title_en:'🔢 Lock code',
+   body:'<p>Vypočítej: <b>2³ × 2⁴</b>. Kód = konkrétní číslo (ne mocnina).</p>',
+   body_en:'<p>Calculate: <b>2³ × 2⁴</b>. Code = a specific number (not a power).</p>',
+   hint:'💡 2³ × 2⁴ = 2⁷ = 2×2×2×2×2×2×2 = ?',hint_en:'💡 2³ × 2⁴ = 2⁷ = 2×2×2×2×2×2×2 = ?'}],
+ successMsg:'🔓 Výborně! 2³ × 2⁴ = 2⁷ = 128. Zámek 7 otevřen!',
+ successMsg_en:'🔓 Excellent! 2³ × 2⁴ = 2⁷ = 128. Lock 7 opened!'},
+
+{id:8,color:'rose',icon:'🌹',code:'729',
+ title:'Zámek 8 – Mocnina mocniny',title_en:'Lock 8 – Power of a power',
+ tag:'(aᵐ)ⁿ = aᵐˣⁿ',tag_en:'(aᵐ)ⁿ = aᵐˣⁿ',tagClass:'rose',
+ tasks:[
+  {title:'🧩 Pravidlo mocniny mocniny',title_en:'🧩 Power of a power rule',
+   body:'<p>Pokud umocňujeme mocninu, mocnitele <b>vynásobíme</b>:</p><p><b>(aᵐ)ⁿ = aᵐˣⁿ</b></p><p>Proč? (2³)² = 2³ × 2³ = 2⁶</p><p>Příklady:</p><ul><li>(5²)³ = 5⁶ = 15 625</li><li>(2⁴)² = 2⁸ = 256</li><li>(10³)² = 10⁶ = 1 000 000</li></ul>',
+   body_en:'<p>When raising a power to another power, we <b>multiply</b> the exponents:</p><p><b>(aᵐ)ⁿ = aᵐˣⁿ</b></p><p>Why? (2³)² = 2³ × 2³ = 2⁶</p><p>Examples:</p><ul><li>(5²)³ = 5⁶ = 15 625</li><li>(2⁴)² = 2⁸ = 256</li><li>(10³)² = 10⁶ = 1 000 000</li></ul>',
+   hint:'💡 Mocnina mocniny → vynásob mocnitele: (3²)³ = 3^(2×3) = 3⁶.',
+   hint_en:'💡 Power of a power → multiply exponents: (3²)³ = 3^(2×3) = 3⁶.'},
+  {title:'🔢 Kód zámku',title_en:'🔢 Lock code',
+   body:'<p>Vypočítej: <b>(3²)³</b>. Kód = konkrétní číslo.</p>',
+   body_en:'<p>Calculate: <b>(3²)³</b>. Code = a specific number.</p>',
+   hint:'💡 (3²)³ = 3⁶. Kolik je 3⁶ = 3×3×3×3×3×3 = ?',hint_en:'💡 (3²)³ = 3⁶. What is 3⁶ = 3×3×3×3×3×3 = ?'}],
+ successMsg:'🔓 Přesně! (3²)³ = 3⁶ = 729. Zámek 8 otevřen!',
+ successMsg_en:'🔓 Exactly! (3²)³ = 3⁶ = 729. Lock 8 opened!'},
+
+{id:9,color:'cyan',icon:'➗',code:'36',
+ title:'Zámek 9 – Podíl mocnin (stejný základ)',title_en:'Lock 9 – Quotient of powers (same base)',
+ tag:'aᵐ ÷ aⁿ = aᵐ⁻ⁿ',tag_en:'aᵐ ÷ aⁿ = aᵐ⁻ⁿ',tagClass:'cyan',
+ tasks:[
+  {title:'🧩 Pravidlo podílu mocnin',title_en:'🧩 Quotient rule for powers',
+   body:'<p>Pokud dělíme dvě mocniny se <b>stejným základem</b>, mocnitele <b>odečteme</b>:</p><p><b>aᵐ ÷ aⁿ = aᵐ⁻ⁿ</b></p><p>Proč? 2⁵ ÷ 2³ = (2×2×2×2×2) ÷ (2×2×2) = 2×2 = 2²</p><p>Příklady:</p><ul><li>5⁵ ÷ 5³ = 5² = 25</li><li>3⁷ ÷ 3⁵ = 3² = 9</li><li>10⁶ ÷ 10⁴ = 10² = 100</li></ul>',
+   body_en:'<p>When dividing two powers with the <b>same base</b>, we <b>subtract</b> the exponents:</p><p><b>aᵐ ÷ aⁿ = aᵐ⁻ⁿ</b></p><p>Why? 2⁵ ÷ 2³ = (2×2×2×2×2) ÷ (2×2×2) = 2×2 = 2²</p><p>Examples:</p><ul><li>5⁵ ÷ 5³ = 5² = 25</li><li>3⁷ ÷ 3⁵ = 3² = 9</li><li>10⁶ ÷ 10⁴ = 10² = 100</li></ul>',
+   hint:'💡 Stejný základ → odečti mocnitele: 6⁵ ÷ 6³ = 6^(5−3) = 6².',
+   hint_en:'💡 Same base → subtract exponents: 6⁵ ÷ 6³ = 6^(5−3) = 6².'},
+  {title:'🔢 Kód zámku',title_en:'🔢 Lock code',
+   body:'<p>Vypočítej: <b>6⁵ ÷ 6³</b>. Kód = konkrétní číslo.</p>',
+   body_en:'<p>Calculate: <b>6⁵ ÷ 6³</b>. Code = a specific number.</p>',
+   hint:'💡 6⁵ ÷ 6³ = 6² = ?',hint_en:'💡 6⁵ ÷ 6³ = 6² = ?'}],
+ successMsg:'🔓 Správně! 6⁵ ÷ 6³ = 6² = 36. Zámek 9 otevřen!',
+ successMsg_en:'🔓 Correct! 6⁵ ÷ 6³ = 6² = 36. Lock 9 opened!'},
+
+{id:10,color:'gold',icon:'🏆',code:'31',
+ title:'Zámek 10 – Finální výzva!',title_en:'Lock 10 – Final challenge!',
+ tag:'Smíšený výpočet',tag_en:'Mixed calculation',tagClass:'gold',
+ tasks:[
+  {title:'🏆 Všechna pravidla dohromady',title_en:'🏆 All rules together',
+   body:'<p>Vypočítej krok za krokem:</p><p><b>2⁵ + √225 − 4²</b></p><ul><li>2⁵ = ?</li><li>√225 = ? (vzpomeň: x² = 225 → x = ?)</li><li>4² = ?</li></ul><p>Sečti a odečti výsledky. Kód = výsledek celého výrazu.</p>',
+   body_en:'<p>Calculate step by step:</p><p><b>2⁵ + √225 − 4²</b></p><ul><li>2⁵ = ?</li><li>√225 = ? (recall: x² = 225 → x = ?)</li><li>4² = ?</li></ul><p>Add and subtract the results. Code = result of the whole expression.</p>',
+   hint:'💡 2⁵=32, √225=15 (15²=225), 4²=16. Tedy: 32 + 15 − 16 = ?',
+   hint_en:'💡 2⁵=32, √225=15 (15²=225), 4²=16. So: 32 + 15 − 16 = ?'},
+  {title:'🔢 Finální kód',title_en:'🔢 Final code',
+   body:'<p>Kód = výsledek výrazu <b>2⁵ + √225 − 4²</b>.</p>',
+   body_en:'<p>Code = result of the expression <b>2⁵ + √225 − 4²</b>.</p>',
+   hint:'💡 32 + 15 − 16 = 47 − 16 = ?',hint_en:'💡 32 + 15 − 16 = 47 − 16 = ?'}],
+ successMsg:'🏆 BRAVO! 32 + 15 − 16 = 31. Zvládl(a) jsi všechny mocninové zámky!',
+ successMsg_en:'🏆 BRAVO! 32 + 15 − 16 = 31. You solved all power locks!'}
+];
+
+const CODE_HINTS_CS = {
+  1:['Mocnina aⁿ = a × a × … × a (n-krát). 2⁴ = 2×2×2×2.','2×2=4, 4×2=8, 8×2=?','2⁴ = <b>16</b>.'],
+  2:['9² = 9 × 9.','9 × 9 = ?','9² = <b>81</b>.'],
+  3:['5³ = 5 × 5 × 5.','5×5=25, 25×5=?','5³ = <b>125</b>.'],
+  4:['√196 = x, kde x² = 196. Zkus x = 14.','14 × 14 = 196.','√196 = <b>14</b>.'],
+  5:['∛216 = x, kde x³ = 216. Zkus x = 6.','6×6×6 = 216.','∛216 = <b>6</b>.'],
+  6:['a⁰ = 1 pro každé a ≠ 0. Sečti čtyři jedničky.','1+1+1+1 = ?','3⁰+7⁰+11⁰+100⁰ = <b>4</b>.'],
+  7:['aᵐ × aⁿ = aᵐ⁺ⁿ. 2³ × 2⁴ = 2^(3+4) = 2⁷.','2⁷ = 2×2×2×2×2×2×2. Vypočítej.','2⁷ = <b>128</b>.'],
+  8:['(aᵐ)ⁿ = aᵐˣⁿ. (3²)³ = 3^(2×3) = 3⁶.','3⁶ = 3×3×3×3×3×3. Vypočítej.','3⁶ = <b>729</b>.'],
+  9:['aᵐ ÷ aⁿ = aᵐ⁻ⁿ. 6⁵ ÷ 6³ = 6^(5−3) = 6².','6² = ?','6² = <b>36</b>.'],
+  10:['2⁵=32, √225=15, 4²=16. Sečti a odečti.','32 + 15 = 47. 47 − 16 = ?','Výsledek = <b>31</b>.'],
+};
+const CODE_HINTS_EN = {
+  1:['Power aⁿ = a × a × … × a (n times). 2⁴ = 2×2×2×2.','2×2=4, 4×2=8, 8×2=?','2⁴ = <b>16</b>.'],
+  2:['9² = 9 × 9.','9 × 9 = ?','9² = <b>81</b>.'],
+  3:['5³ = 5 × 5 × 5.','5×5=25, 25×5=?','5³ = <b>125</b>.'],
+  4:['√196 = x where x² = 196. Try x = 14.','14 × 14 = 196.','√196 = <b>14</b>.'],
+  5:['∛216 = x where x³ = 216. Try x = 6.','6×6×6 = 216.','∛216 = <b>6</b>.'],
+  6:['a⁰ = 1 for any a ≠ 0. Add four ones.','1+1+1+1 = ?','3⁰+7⁰+11⁰+100⁰ = <b>4</b>.'],
+  7:['aᵐ × aⁿ = aᵐ⁺ⁿ. 2³ × 2⁴ = 2^(3+4) = 2⁷.','2⁷ = 2×2×2×2×2×2×2. Calculate it.','2⁷ = <b>128</b>.'],
+  8:['(aᵐ)ⁿ = aᵐˣⁿ. (3²)³ = 3^(2×3) = 3⁶.','3⁶ = 3×3×3×3×3×3. Calculate it.','3⁶ = <b>729</b>.'],
+  9:['aᵐ ÷ aⁿ = aᵐ⁻ⁿ. 6⁵ ÷ 6³ = 6^(5−3) = 6².','6² = ?','6² = <b>36</b>.'],
+  10:['2⁵=32, √225=15, 4²=16. Add and subtract.','32 + 15 = 47. 47 − 16 = ?','Result = <b>31</b>.'],
+};
+
+let codeHintLevel = 0;
+function advanceCodeHint() {
+  if (codeHintLevel >= 3) return;
+  codeHintLevel++;
+  const CODE_HINTS = lang === 'en' ? CODE_HINTS_EN : CODE_HINTS_CS;
+  const hints = CODE_HINTS[STEPS[cur].id] || [i18n('Přečti si pozorně postup nahoře.','Read the instructions above carefully.'),i18n('Postupně spočítej, co se ptají.','Work through the calculation step by step.'),i18n('Výsledek vyplyne z výpočtu.','The answer follows from the calculation.')];
+  const box = document.getElementById('ch-box');
+  const btn = document.getElementById('ch-btn');
+  const counter = document.getElementById('ch-counter');
+  if (!box||!btn) return;
+  box.classList.add('show'); box.dataset.level = codeHintLevel;
+  const labels = i18n(['Nasměrování','Vzorec','Postup s výsledkem'],['Direction','Formula','Solution steps']);
+  box.innerHTML = `<span class="h-label">${i18n('Nápověda','Hint')} ${codeHintLevel}/3 — ${labels[codeHintLevel-1]}</span>${hints[codeHintLevel-1]}`;
+  if (counter) counter.querySelectorAll('.dot').forEach((d,i)=>{d.classList.toggle('shown',i<codeHintLevel);if(i===2&&codeHintLevel===3)d.classList.add('warn');});
+  if (codeHintLevel<3){btn.textContent=`💡 ${i18n('Další nápověda','Next hint')} ${codeHintLevel+1}/3`;}
+  else{btn.disabled=true;btn.textContent=`💡 ${i18n('Všechny nápovědy ukázány','All hints shown')}`;}
+}
+
+let cur = 0;
+let att = new Array(STEPS.length).fill(0);
+
+function startGame() {
+  document.getElementById('intro').classList.remove('active');
+  document.getElementById('game').classList.add('active');
+  document.getElementById('stars-wrap').innerHTML = STEPS.map((_,i)=>`<span class="star" id="s${i}">⭐</span>`).join('');
+  render(0);
+}
+
+function render(idx) {
+  cur=idx; codeHintLevel=0;
+  const s=STEPS[idx];
+  document.getElementById('prog-label').textContent=i18n(`Zámek ${idx+1} z ${STEPS.length}`,`Lock ${idx+1} of ${STEPS.length}`);
+  document.getElementById('prog-fill').style.width=`${(idx/STEPS.length)*100}%`;
+  for(let i=0;i<STEPS.length;i++){const el=document.getElementById(`s${i}`);if(el)el.classList.toggle('lit',i<idx);}
+  const colorMap={blue:'--blue',green:'--green',purple:'--purple',teal:'--teal',orange:'--orange',pink:'--pink',indigo:'--indigo',rose:'--rose',cyan:'--cyan',gold:'--gold-dark'};
+  const cv=colorMap[s.color]||'--blue';
+  const tasksHTML=s.tasks.map(t=>`
+    <div class="task-card ${s.color}">
+      <span class="tag ${s.tagClass}">${i18n(s.tag,s.tag_en)}</span>
+      <h3>${i18n(t.title,t.title_en)}</h3>
+      ${i18n(t.body,t.body_en)}
+      <button class="hint-btn" onclick="toggleHint(this)">${i18n('💡 Potřebuji nápovědu','💡 I need a hint')}</button>
+      <div class="hint-box">${i18n(t.hint,t.hint_en)}</div>
+    </div>`).join('');
+  document.getElementById('step-container').innerHTML=`
+    <div class="lock-header">
+      <span class="lock-icon-big">${s.icon}</span>
+      <span class="lock-title" style="color:var(${cv})">${i18n(s.title,s.title_en)}</span>
+      <span class="lock-badge">${idx+1}/${STEPS.length}</span>
+    </div>
+    ${tasksHTML}
+    <div class="code-wrap">
+      <label>🔐 ${i18n(`Zadej kód zámku ${idx+1}:`,`Enter lock code ${idx+1}:`)}</label>
+      <div class="code-row">
+        <input type="number" class="code-input" id="ci" placeholder="???" onkeydown="if(event.key==='Enter') chk()">
+        <button class="btn-check" onclick="chk()">${i18n('Odemknout 🔓','Unlock 🔓')}</button>
+      </div>
+      <div class="code-hint-bar">
+        <button class="code-hint-btn" id="ch-btn" onclick="advanceCodeHint()">💡 ${i18n('Nápověda ke kódu 1/3','Code hint 1/3')}</button>
+        <span class="code-hint-counter" id="ch-counter"><span class="dot"></span><span class="dot"></span><span class="dot"></span></span>
+      </div>
+      <div class="code-hint-box" id="ch-box" data-level="0"></div>
+      <div class="feedback" id="fb"></div>
+    </div>
+    <div class="unlock-anim" id="ua">
+      <div class="big-icon">🔓✨</div>
+      <p>${i18n(s.successMsg,s.successMsg_en)}</p>
+    </div>`;
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function toggleHint(btn) {
+  const h=btn.nextElementSibling; h.classList.toggle('show');
+  btn.textContent=h.classList.contains('show')?i18n('🙈 Skrýt nápovědu','🙈 Hide hint'):i18n('💡 Potřebuji nápovědu','💡 I need a hint');
+}
+
+function chk() {
+  const inp=document.getElementById('ci'); const fb=document.getElementById('fb'); att[cur]++;
+  if(inp.value.trim()===STEPS[cur].code){
+    inp.classList.remove('error');inp.classList.add('success');fb.textContent='';
+    document.getElementById('ua').classList.add('show');
+    setTimeout(()=>{if(cur<STEPS.length-1)render(cur+1);else finish();},1900);
+  } else {
+    inp.classList.add('error');inp.classList.remove('success');
+    setTimeout(()=>inp.classList.remove('error'),380);
+    const msgs=i18n(['Hmm, to není ono. Zkontroluj postup!','Zkus to znovu – možná jiný výpočet?','Nevzdávej se! Přečti si nápovědu.','Ještě jednou, jsi blízko!'],['Hmm, not quite. Check your working!','Try again – maybe a different approach?',"Don't give up! Read the hint.",'One more time, you\'re close!']);
+    fb.className='feedback err'; fb.textContent=msgs[Math.min(att[cur]-1,msgs.length-1)];
+  }
+}
+
+function finish() {
+  document.getElementById('game').classList.remove('active');
+  document.getElementById('finish').classList.add('active');
+  buildFinish();
+  const wrap=document.getElementById('confetti');
+  const cols=['#f5c842','#1a73c8','#1e9e5a','#e74c3c','#7c3aad','#0f8a72','#ff7f50','#b5286e'];
+  for(let i=0;i<90;i++){
+    const el=document.createElement('div');el.className='confetti-piece';
+    const sz=6+Math.random()*9;
+    el.style.cssText=`left:${Math.random()*100}%;top:-12px;background:${cols[Math.floor(Math.random()*cols.length)]};width:${sz}px;height:${sz}px;border-radius:${Math.random()>.5?'50%':'3px'};animation:fall ${1.5+Math.random()*2.5}s ${Math.random()*1.5}s linear forwards;`;
+    wrap.appendChild(el);
+  }
+}
+
+document.querySelectorAll('.lang-btn').forEach(b=>b.classList.toggle('active',b.dataset.lang===lang));
+document.querySelectorAll('.tp-back').forEach(el=>el.textContent=i18n('← zpět na projekty','← back to projects'));
+document.querySelectorAll('.tp-home').forEach(el=>el.textContent=i18n('domů','home'));
+buildIntro();
+</script>
+</body>
+</html>
