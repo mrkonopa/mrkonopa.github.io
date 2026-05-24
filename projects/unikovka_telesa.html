@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Únikovka: Tělesa (krychle a kvádr)</title>
 <meta name="description" content="Interaktivní únikovka z matematiky pro 6. třídu – krychle, kvádr, povrch, objem.">
-<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;600;700;800&family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root {
   --gold-dark:#c89a10; --blue:#1a73c8; --blue-light:#e8f1fb;
@@ -36,8 +36,8 @@ body{
 .chest{font-size:88px;animation:float 3s ease-in-out infinite;display:inline-block;
   filter:drop-shadow(0 8px 16px rgba(0,0,0,.15))}
 @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
-.title-main{font-family:'Fredoka',cursive;font-size:2.5rem;color:var(--blue);line-height:1.1;font-weight:700}
-.title-sub{font-family:'Fredoka',cursive;font-size:1.45rem;color:var(--gold-dark);font-weight:600}
+.title-main{font-family:'Lexend',sans-serif;font-size:2.5rem;color:var(--blue);line-height:1.1;font-weight:700}
+.title-sub{font-family:'Lexend',sans-serif;font-size:1.45rem;color:var(--gold-dark);font-weight:600}
 .intro-card{background:var(--card);border-radius:var(--radius);padding:22px 26px;
   box-shadow:var(--shadow);border-left:6px solid var(--blue);text-align:left;width:100%}
 .intro-card p{font-size:.97rem;line-height:1.75}
@@ -45,7 +45,7 @@ body{
 .intro-card b{color:var(--blue)}
 .rules{background:var(--card);border-radius:var(--radius);padding:18px 22px;
   box-shadow:var(--shadow);width:100%;border-left:6px solid var(--gold-dark)}
-.rules h3{font-family:'Fredoka',cursive;color:var(--gold-dark);font-size:1.05rem;margin-bottom:10px;font-weight:600}
+.rules h3{font-family:'Lexend',sans-serif;color:var(--gold-dark);font-size:1.05rem;margin-bottom:10px;font-weight:600}
 .rules ul{list-style:none;display:flex;flex-direction:column;gap:8px}
 .rules li{display:flex;align-items:flex-start;gap:10px;font-size:.95rem;line-height:1.55}
 .btn-primary{
@@ -61,7 +61,7 @@ body{
 .btn-primary:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(26,115,200,.38)}
 
 /* PROGRESS */
-.progress-wrap{width:100%;margin-bottom:18px}
+.progress-wrap{width:100%;margin-top:10px;margin-bottom:18px}
 .progress-label{display:flex;justify-content:space-between;font-size:.82rem;font-weight:700;color:var(--muted);margin-bottom:5px}
 .progress-bar{background:#ddd8c6;border-radius:20px;height:9px;overflow:hidden}
 .progress-fill{height:100%;border-radius:20px;background:linear-gradient(90deg,var(--blue),var(--teal));transition:width .5s ease}
@@ -73,11 +73,11 @@ body{
 #game{justify-content:flex-start;gap:0}
 .lock-header{width:100%;display:flex;align-items:center;gap:12px;margin-bottom:16px}
 .lock-icon-big{font-size:2.2rem}
-.lock-title{font-family:'Fredoka',cursive;font-size:1.4rem;font-weight:600}
+.lock-title{font-family:'Lexend',sans-serif;font-size:1.4rem;font-weight:600}
 .lock-badge{margin-left:auto;background:var(--blue);color:#fff;border-radius:50px;
   padding:3px 13px;font-size:.82rem;font-weight:700;white-space:nowrap}
 .task-card{background:var(--card);border-radius:var(--radius);padding:22px 22px 18px;
-  box-shadow:var(--shadow);width:100%;margin-bottom:14px;position:relative;overflow:hidden}
+  box-shadow:var(--shadow);width:100%;margin-bottom:22px;position:relative;overflow:hidden}
 .task-card::before{content:'';position:absolute;top:0;left:0;width:5px;height:100%;border-radius:3px 0 0 3px}
 .task-card.blue::before{background:var(--blue)}
 .task-card.green::before{background:var(--green)}
@@ -119,7 +119,7 @@ body{
 
 /* CODE INPUT */
 .code-wrap{background:var(--card);border-radius:var(--radius);padding:20px 22px;
-  box-shadow:var(--shadow);width:100%;margin-bottom:18px}
+  box-shadow:var(--shadow);width:100%;margin-top:10px;margin-bottom:18px}
 .code-wrap label{display:block;font-family:'Lexend',sans-serif;font-size:.98rem;color:var(--muted);
   margin-bottom:11px;font-weight:700}
 .code-row{display:flex;gap:10px;align-items:center}
@@ -200,43 +200,40 @@ table.tt tr:nth-child(even) td{background:#fafaf5}
 .top-bar a{color:var(--muted);text-decoration:none}
 .top-bar a:hover{color:var(--blue)}
 .top-bar .crumb{color:var(--text);font-weight:500}
+
+/* LANG BAR */
+#lang-bar{position:fixed;bottom:16px;right:16px;z-index:200;display:flex;gap:6px;
+  background:rgba(255,255,255,.92);border-radius:50px;padding:5px 8px;
+  box-shadow:0 2px 12px rgba(0,0,0,.12);backdrop-filter:blur(6px)}
+.lang-btn{background:none;border:2px solid transparent;border-radius:50px;
+  font-size:1.35rem;cursor:pointer;padding:3px 7px;line-height:1;
+  transition:border-color .15s,box-shadow .15s}
+.lang-btn.active{border-color:var(--blue);box-shadow:0 0 0 2px rgba(26,115,200,.25)}
 </style>
 </head>
 <body>
 
 <div class="top-bar">
-  <a href="./">← zpět na projekty</a>
+  <a href="./" class="tp-back">&#8592; zpět na projekty</a>
   <span class="crumb">/projects/unikovka_telesa</span>
-  <a href="/">domů</a>
+  <a href="/" class="tp-home">domů</a>
+</div>
+
+<div id="lang-bar">
+  <button class="lang-btn" data-lang="cs" onclick="setLang('cs')">&#x1F1E8;&#x1F1FF;</button>
+  <button class="lang-btn" data-lang="en" onclick="setLang('en')">&#x1F1EC;&#x1F1E7;</button>
 </div>
 
 <!-- INTRO -->
 <div id="intro" class="screen active">
-  <div class="chest">📦</div>
-  <div class="title-main">Únikovka z matiky</div>
-  <div class="title-sub">📦 KRYCHLE & KVÁDR 📦</div>
-  <div class="intro-card">
-    <p>Před tebou je <b>truhla s pokladem</b> – uzamčena <b>10 zámky</b>.</p>
-    <p>Každý zámek se odemkne správným kódem. Výpočty si dělej <b>do sešitu</b> a kód zadej sem.</p>
-    <p>Žádné kalkulačky – dnes prozkoumáš <b>krychli a kvádr</b> vlastní hlavou 🧠</p>
-  </div>
-  <div class="rules">
-    <h3>📋 Pravidla</h3>
-    <ul>
-      <li><span>✏️</span> Výpočty piš do sešitu – každý příklad celý.</li>
-      <li><span>🚫</span> Bez kalkulačky, bez opisování.</li>
-      <li><span>💡</span> Nevíš? Zkus nápovědu – ale nejdřív se zamysli!</li>
-      <li><span>🔢</span> Kód zadej jako celé číslo (bez jednotek, bez mezer).</li>
-    </ul>
-  </div>
-  <button class="btn-primary" id="btn-start">🔓 Začít dobrodružství!</button>
+  <div id="intro-content"></div>
 </div>
 
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="progress-wrap" style="width:100%">
     <div class="progress-label">
-      <span id="prog-label">Zámek 1 z 10</span>
+      <span id="prog-label"></span>
       <span class="stars-wrap" id="stars-wrap"></span>
     </div>
     <div class="progress-bar"><div class="progress-fill" id="prog-fill" style="width:0%"></div></div>
@@ -247,176 +244,274 @@ table.tt tr:nth-child(even) td{background:#fafaf5}
 <!-- FINISH -->
 <div id="finish" class="screen">
   <div class="confetti-wrap" id="confetti"></div>
-  <div class="final-chest">🏆</div>
-  <div class="final-title">Poklad je tvůj!</div>
-  <p class="final-sub">Zvládl(a) jsi všech 10 zámků a pronikl(a) do tajemství krychle a kvádru. Gratulace!</p>
-  <div class="summary-card">
-    <h3>📖 Co jsi dnes objevil(a)</h3>
-    <div class="summary-row"><span class="s-icon">1️⃣</span><span>Krychle i kvádr mají <b>8 vrcholů, 12 hran a 6 stěn</b>.</span></div>
-    <div class="summary-row"><span class="s-icon">2️⃣</span><span>Síť krychle = <b>6 stejných čtverců</b>. Síť kvádru = <b>6 obdélníků</b> (po dvojicích shodných).</span></div>
-    <div class="summary-row"><span class="s-icon">3️⃣</span><span>Povrch krychle: <b>S = 6 · a²</b>. Povrch kvádru: <b>S = 2 · (ab + bc + ac)</b>.</span></div>
-    <div class="summary-row"><span class="s-icon">4️⃣</span><span>Objem krychle: <b>V = a³</b>. Objem kvádru: <b>V = a · b · c</b>.</span></div>
-  </div>
-  <button class="btn-primary" id="btn-restart">🔄 Hrát znovu</button>
+  <div id="finish-content"></div>
 </div>
 
 <script>
-// Veškerý český text je přímo v UTF-8 – žádné HTML entity
+const LANG_KEY = 'unikovka_telesa_lang';
+let lang = localStorage.getItem(LANG_KEY) || 'cs';
+const i18n = (cs, en) => lang === 'en' ? en : cs;
+
+function setLang(l) {
+  lang = l;
+  try { localStorage.setItem(LANG_KEY, l); } catch(e) {}
+  document.querySelectorAll('.lang-btn').forEach(b =>
+    b.classList.toggle('active', b.dataset.lang === l));
+  document.querySelectorAll('.tp-back').forEach(el =>
+    el.textContent = i18n('← zpět na projekty', '← back to projects'));
+  document.querySelectorAll('.tp-home').forEach(el =>
+    el.textContent = i18n('domů', 'home'));
+  const activeId = document.querySelector('.screen.active')?.id;
+  if (activeId === 'intro') buildIntro();
+  else if (activeId === 'game') render(cur);
+  else if (activeId === 'finish') buildFinish();
+}
+
+function buildIntro() {
+  document.getElementById('intro-content').innerHTML = `
+    <div class="chest">&#x1F4E6;</div>
+    <div class="title-main">${i18n('Únikovka z matiky', 'Math Escape Room')}</div>
+    <div class="title-sub">&#x1F4E6; ${i18n('KRYCHLE & KVÁDR', 'CUBE & CUBOID')} &#x1F4E6;</div>
+    <div class="intro-card">
+      <p>${i18n('Před tebou je <b>truhla s pokladem</b> – uzamčena <b>10 zámky</b>.', 'Before you is a <b>treasure chest</b> – locked with <b>10 locks</b>.')}</p>
+      <p>${i18n('Každý zámek se odemkne správným kódem. Výpočty si dělej <b>do sešitu</b> a kód zadej sem.', 'Each lock opens with the correct code. Do your calculations <b>in your notebook</b> and enter the code here.')}</p>
+      <p>${i18n('Žádné kalkulačky – dnes prozkoumáš <b>krychli a kvádr</b> vlastní hlavou 🧠', 'No calculators – today you\'ll explore <b>cubes and cuboids</b> with your own mind 🧠')}</p>
+    </div>
+    <div class="rules">
+      <h3>&#x1F4CB; ${i18n('Pravidla', 'Rules')}</h3>
+      <ul>
+        <li><span>&#x270F;&#xFE0F;</span> ${i18n('Výpočty piš do sešitu – každý příklad celý.', 'Write your calculations in your notebook – every step.')}</li>
+        <li><span>&#x1F6AB;</span> ${i18n('Bez kalkulačky, bez opisování.', 'No calculator, no copying.')}</li>
+        <li><span>&#x1F4A1;</span> ${i18n('Nevíš? Zkus nápovědu – ale nejdřív se zamysli!', 'Stuck? Try the hint – but think first!')}</li>
+        <li><span>&#x1F522;</span> ${i18n('Kód zadej jako celé číslo (bez jednotek, bez mezer).', 'Enter the code as a whole number (no units, no spaces).')}</li>
+      </ul>
+    </div>
+    <button class="btn-primary" id="btn-start">&#x1F513; ${i18n('Začít dobrodružství!', 'Start the adventure!')}</button>
+  `;
+  document.getElementById('btn-start').addEventListener('click', startGame);
+}
+
+function buildFinish() {
+  document.getElementById('finish-content').innerHTML = `
+    <div class="final-chest">&#x1F3C6;</div>
+    <div class="final-title">${i18n('Poklad je tvůj!', 'The treasure is yours!')}</div>
+    <p class="final-sub">${i18n('Zvládl(a) jsi všech 10 zámků a pronikl(a) do tajemství krychle a kvádru. Gratulace!', 'You solved all 10 locks and unlocked the secrets of the cube and cuboid. Congratulations!')}</p>
+    <div class="summary-card">
+      <h3>&#x1F4D6; ${i18n('Co jsi dnes objevil(a)', 'What you discovered today')}</h3>
+      <div class="summary-row"><span class="s-icon">1&#xFE0F;&#x20E3;</span><span>${i18n('Krychle i kvádr mají <b>8 vrcholů, 12 hran a 6 stěn</b>.', 'A cube and cuboid both have <b>8 vertices, 12 edges, and 6 faces</b>.')}</span></div>
+      <div class="summary-row"><span class="s-icon">2&#xFE0F;&#x20E3;</span><span>${i18n('Síť krychle = <b>6 stejných čtverců</b>. Síť kvádru = <b>6 obdélníků</b> (po dvojicích shodných).', 'Net of a cube = <b>6 identical squares</b>. Net of a cuboid = <b>6 rectangles</b> (in matching pairs).')}</span></div>
+      <div class="summary-row"><span class="s-icon">3&#xFE0F;&#x20E3;</span><span>${i18n('Povrch krychle: <b>S = 6 · a²</b>. Povrch kvádru: <b>S = 2 · (ab + bc + ac)</b>.', 'Surface area of a cube: <b>S = 6 · a²</b>. Cuboid: <b>S = 2 · (ab + bc + ac)</b>.')}</span></div>
+      <div class="summary-row"><span class="s-icon">4&#xFE0F;&#x20E3;</span><span>${i18n('Objem krychle: <b>V = a³</b>. Objem kvádru: <b>V = a · b · c</b>.', 'Volume of a cube: <b>V = a³</b>. Cuboid: <b>V = a · b · c</b>.')}</span></div>
+    </div>
+    <button class="btn-primary" id="btn-restart">&#x1F504; ${i18n('Hrát znovu', 'Play again')}</button>
+  `;
+  document.getElementById('btn-restart').addEventListener('click', () => location.reload());
+}
+
 const STEPS = [
 {
   id:1, color:'blue', icon:'🔵',
-  title:'Zámek 1 – Co je to těleso?',
-  tag:'Rovinný útvar vs těleso', tagClass:'blue',
+  title:'Zámek 1 – Co je to těleso?', title_en:'Lock 1 – What is a solid?',
+  tag:'Rovinný útvar vs těleso', tag_en:'Flat shape vs. solid', tagClass:'blue',
   tasks:[
-    { title:'🧩 Rovina nebo prostor?',
+    { title:'🧩 Rovina nebo prostor?', title_en:'🧩 Flat or 3D?',
       body:'<p><b>Rovinný útvar</b> má 2 rozměry – délku a šířku (např. čtverec, obdélník, kruh).</p><p><b>Těleso</b> má 3 rozměry – délku, šířku a <b>výšku</b>. Můžeš ho vzít do ruky.</p><p>Roztřiď tyto věci na <b>rovinné útvary</b> a <b>tělesa</b>: <i>čtverec, krabice, trojúhelník, kostka, kniha, kruh, balón, obdélník</i>.</p>',
-      hint:'💡 Můžeš to vzít do ruky? Má to objem? Pak je to těleso.' },
-    { title:'🔢 Kód zámku',
+      body_en:'<p>A <b>flat shape</b> has 2 dimensions – length and width (e.g. square, rectangle, circle).</p><p>A <b>solid</b> has 3 dimensions – length, width and <b>height</b>. You can pick it up.</p><p>Sort these into <b>flat shapes</b> and <b>solids</b>: <i>square, box, triangle, cube, book, circle, balloon, rectangle</i>.</p>',
+      hint:'💡 Můžeš to vzít do ruky? Má to objem? Pak je to těleso.',
+      hint_en:'💡 Can you pick it up? Does it have volume? Then it\'s a solid.' },
+    { title:'🔢 Kód zámku', title_en:'🔢 Lock code',
       body:'<p>V seznamu spočítej, kolik je <b>těles</b>:</p><p><b>kostka, kniha, obdélník, krabice, kruh, balón</b></p><p>Kód = počet těles.</p>',
-      hint:'💡 Obdélník a kruh jsou rovinné útvary (mají jen 2 rozměry).' }
+      body_en:'<p>From the list, count how many are <b>solids</b>:</p><p><b>cube, book, rectangle, box, circle, balloon</b></p><p>Code = number of solids.</p>',
+      hint:'💡 Obdélník a kruh jsou rovinné útvary (mají jen 2 rozměry).',
+      hint_en:'💡 Rectangle and circle are flat shapes (they only have 2 dimensions).' }
   ],
   code:'4',
-  successMsg:'🔓 Správně! Tělesa: kostka, kniha, krabice, balón = 4. Zámek 1 otevřen!'
+  successMsg:'🔓 Správně! Tělesa: kostka, kniha, krabice, balón = 4. Zámek 1 otevřen!',
+  successMsg_en:'🔓 Correct! Solids: cube, book, box, balloon = 4. Lock 1 opened!'
 },
 {
   id:2, color:'green', icon:'🟢',
-  title:'Zámek 2 – Vrcholy, hrany, stěny',
-  tag:'Z čeho se těleso skládá', tagClass:'green',
+  title:'Zámek 2 – Vrcholy, hrany, stěny', title_en:'Lock 2 – Vertices, Edges, Faces',
+  tag:'Z čeho se těleso skládá', tag_en:'Parts of a solid', tagClass:'green',
   tasks:[
-    { title:'🧩 Tři důležité části',
+    { title:'🧩 Tři důležité části', title_en:'🧩 Three key parts',
       body:'<p>Krychle a kvádr mají:</p><ul><li><b>Vrcholy</b> – body, kde se sbíhají hrany (rohy krabice).</li><li><b>Hrany</b> – úsečky mezi vrcholy.</li><li><b>Stěny</b> – ploché části (boky krabice).</li></ul><p>Spočítej je u <b>krychle</b> a <b>kvádru</b>:</p><table class="tt"><tr><th></th><th>Krychle</th><th>Kvádr</th></tr><tr><td><b>Vrcholy</b></td><td>?</td><td>?</td></tr><tr><td><b>Hrany</b></td><td>?</td><td>?</td></tr><tr><td><b>Stěny</b></td><td>?</td><td>?</td></tr></table>',
-      hint:'💡 Krychle a kvádr mají <b>úplně stejný počet</b> vrcholů, hran i stěn! Zkus si představit hrací kostku.' },
-    { title:'🔢 Kód zámku',
+      body_en:'<p>A cube and cuboid have:</p><ul><li><b>Vertices</b> – points where edges meet (corners of a box).</li><li><b>Edges</b> – line segments between vertices.</li><li><b>Faces</b> – flat surfaces (sides of a box).</li></ul><p>Count them for a <b>cube</b> and <b>cuboid</b>:</p><table class="tt"><tr><th></th><th>Cube</th><th>Cuboid</th></tr><tr><td><b>Vertices</b></td><td>?</td><td>?</td></tr><tr><td><b>Edges</b></td><td>?</td><td>?</td></tr><tr><td><b>Faces</b></td><td>?</td><td>?</td></tr></table>',
+      hint:'💡 Krychle a kvádr mají <b>úplně stejný počet</b> vrcholů, hran i stěn! Zkus si představit hrací kostku.',
+      hint_en:'💡 A cube and cuboid have <b>exactly the same number</b> of vertices, edges, and faces! Imagine a dice.' },
+    { title:'🔢 Kód zámku', title_en:'🔢 Lock code',
       body:'<p>Sečti u <b>krychle</b>: <b>počet vrcholů + počet hran + počet stěn</b>.</p>',
-      hint:'💡 8 + 12 + 6 = ?' }
+      body_en:'<p>Add up for a <b>cube</b>: <b>number of vertices + number of edges + number of faces</b>.</p>',
+      hint:'💡 8 + 12 + 6 = ?',
+      hint_en:'💡 8 + 12 + 6 = ?' }
   ],
   code:'26',
-  successMsg:'🔓 Výborně! 8 + 12 + 6 = 26. Zámek 2 otevřen!'
+  successMsg:'🔓 Výborně! 8 + 12 + 6 = 26. Zámek 2 otevřen!',
+  successMsg_en:'🔓 Excellent! 8 + 12 + 6 = 26. Lock 2 opened!'
 },
 {
   id:3, color:'purple', icon:'🟣',
-  title:'Zámek 3 – Krychle vs Kvádr',
-  tag:'Rozlišení krychle a kvádru', tagClass:'purple',
+  title:'Zámek 3 – Krychle vs Kvádr', title_en:'Lock 3 – Cube vs Cuboid',
+  tag:'Rozlišení krychle a kvádru', tag_en:'Identifying cube and cuboid', tagClass:'purple',
   tasks:[
-    { title:'🧩 Co je krychle a co kvádr?',
+    { title:'🧩 Co je krychle a co kvádr?', title_en:'🧩 What is a cube and what is a cuboid?',
       body:'<p><b>Krychle</b>: všechny hrany jsou <b>stejně dlouhé</b> (a × a × a). Stěny = <b>čtverce</b>.</p><p><b>Kvádr</b>: hrany mohou mít <b>různé délky</b> (a × b × c). Stěny = <b>obdélníky</b> (někdy i čtverce).</p><p>Přiřaď ke každé věci, jestli je to <b>krychle</b> nebo <b>kvádr</b>:</p><ul><li>hrací kostka</li><li>krabice od mléka (1 l)</li><li>kostka cukru</li><li>kniha</li><li>cihla</li><li>kostka ledu</li></ul>',
-      hint:'💡 Pokud má všechny strany stejné = krychle. Pokud různé = kvádr.' },
-    { title:'🔢 Kód zámku',
+      body_en:'<p><b>Cube</b>: all edges are <b>the same length</b> (a × a × a). Faces = <b>squares</b>.</p><p><b>Cuboid</b>: edges can have <b>different lengths</b> (a × b × c). Faces = <b>rectangles</b> (sometimes squares too).</p><p>Classify each object as a <b>cube</b> or <b>cuboid</b>:</p><ul><li>dice</li><li>milk carton (1 L)</li><li>sugar cube</li><li>book</li><li>brick</li><li>ice cube</li></ul>',
+      hint:'💡 Pokud má všechny strany stejné = krychle. Pokud různé = kvádr.',
+      hint_en:'💡 All sides equal = cube. Different sides = cuboid.' },
+    { title:'🔢 Kód zámku', title_en:'🔢 Lock code',
       body:'<p>Z těchto věcí spočítej, kolik je <b>krychlí</b>:</p><p><b>hrací kostka, kostka cukru, kostka ledu, Rubikova kostka, krabice od bot, kniha</b></p><p>Kód = počet krychlí.</p>',
-      hint:'💡 Krabice od bot a kniha jsou kvádry (mají různě dlouhé strany).' }
+      body_en:'<p>Count how many are <b>cubes</b>:</p><p><b>dice, sugar cube, ice cube, Rubik\'s cube, shoebox, book</b></p><p>Code = number of cubes.</p>',
+      hint:'💡 Krabice od bot a kniha jsou kvádry (mají různě dlouhé strany).',
+      hint_en:'💡 Shoebox and book are cuboids (they have different-length sides).' }
   ],
   code:'4',
-  successMsg:'🔓 Přesně! Krychle: hrací kostka, kostka cukru, kostka ledu, Rubikova kostka = 4. Zámek 3 otevřen!'
+  successMsg:'🔓 Přesně! Krychle: hrací kostka, kostka cukru, kostka ledu, Rubikova kostka = 4. Zámek 3 otevřen!',
+  successMsg_en:'🔓 Exactly! Cubes: dice, sugar cube, ice cube, Rubik\'s cube = 4. Lock 3 opened!'
 },
 {
   id:4, color:'teal', icon:'🩵',
-  title:'Zámek 4 – Síť krychle',
-  tag:'Síť tělesa – krychle', tagClass:'teal',
+  title:'Zámek 4 – Síť krychle', title_en:'Lock 4 – Net of a Cube',
+  tag:'Síť tělesa – krychle', tag_en:'Net of a solid – cube', tagClass:'teal',
   tasks:[
-    { title:'🧩 Co je síť tělesa',
+    { title:'🧩 Co je síť tělesa', title_en:'🧩 What is a net?',
       body:'<p>Když krabici rozložíš a "narovnáš" ji, dostaneš <b>síť tělesa</b> – plochý obrazec.</p><p>Síť <b>krychle</b> tvoří <b>6 stejných čtverců</b> spojených hranami.</p><p>Existuje <b>11 různých sítí krychle</b> (různě uspořádaných).</p><p>Zkus si nakreslit do sešitu jednu síť krychle. Kolik má <b>čtverců</b>?</p>',
-      hint:'💡 Krychle má 6 stěn, každá je čtverec → síť má 6 čtverců.' },
-    { title:'🔢 Kód zámku',
+      body_en:'<p>When you unfold a box flat, you get a <b>net</b> – a flat diagram of all its faces.</p><p>The net of a <b>cube</b> consists of <b>6 identical squares</b> joined along edges.</p><p>There are <b>11 different nets</b> of a cube.</p><p>Try drawing one net of a cube in your notebook. How many <b>squares</b> does it have?</p>',
+      hint:'💡 Krychle má 6 stěn, každá je čtverec → síť má 6 čtverců.',
+      hint_en:'💡 A cube has 6 faces, each a square → the net has 6 squares.' },
+    { title:'🔢 Kód zámku', title_en:'🔢 Lock code',
       body:'<p>Krychle má hranu <b>a = 5 cm</b>.</p><p>Kolik je <b>obvod jedné stěny</b> (jednoho čtverce ze sítě) v cm?</p>',
-      hint:'💡 Obvod čtverce = 4 × strana. 4 × 5 = ?' }
+      body_en:'<p>A cube has edge <b>a = 5 cm</b>.</p><p>What is the <b>perimeter of one face</b> (one square from the net) in cm?</p>',
+      hint:'💡 Obvod čtverce = 4 × strana. 4 × 5 = ?',
+      hint_en:'💡 Perimeter of a square = 4 × side. 4 × 5 = ?' }
   ],
   code:'20',
-  successMsg:'🔓 Správně! Obvod čtverce = 4 · 5 = 20 cm. Zámek 4 otevřen!'
+  successMsg:'🔓 Správně! Obvod čtverce = 4 · 5 = 20 cm. Zámek 4 otevřen!',
+  successMsg_en:'🔓 Correct! Perimeter of a square = 4 · 5 = 20 cm. Lock 4 opened!'
 },
 {
   id:5, color:'orange', icon:'🟠',
-  title:'Zámek 5 – Síť kvádru',
-  tag:'Síť tělesa – kvádr', tagClass:'orange',
+  title:'Zámek 5 – Síť kvádru', title_en:'Lock 5 – Net of a Cuboid',
+  tag:'Síť tělesa – kvádr', tag_en:'Net of a solid – cuboid', tagClass:'orange',
   tasks:[
-    { title:'🧩 Síť kvádru',
+    { title:'🧩 Síť kvádru', title_en:'🧩 Net of a cuboid',
       body:'<p>Síť <b>kvádru</b> tvoří <b>6 obdélníků</b>, vždy <b>2 a 2 jsou shodné</b>:</p><ul><li>2× přední/zadní stěna</li><li>2× horní/dolní stěna</li><li>2× levá/pravá stěna</li></ul><p>Kvádr s rozměry <b>3 × 4 × 5 cm</b> má v síti <b>3 různé tvary obdélníků</b>:</p><ul><li>3 × 4 cm (2×)</li><li>4 × 5 cm (2×)</li><li>3 × 5 cm (2×)</li></ul>',
-      hint:'💡 Vezmi 2 ze 3 rozměrů – to jsou strany jedné stěny. To uděláš třikrát.' },
-    { title:'🔢 Kód zámku',
+      body_en:'<p>The net of a <b>cuboid</b> has <b>6 rectangles</b>, always <b>in matching pairs</b>:</p><ul><li>2× front/back face</li><li>2× top/bottom face</li><li>2× left/right face</li></ul><p>A cuboid with dimensions <b>3 × 4 × 5 cm</b> has <b>3 different rectangle shapes</b>:</p><ul><li>3 × 4 cm (×2)</li><li>4 × 5 cm (×2)</li><li>3 × 5 cm (×2)</li></ul>',
+      hint:'💡 Vezmi 2 ze 3 rozměrů – to jsou strany jedné stěny. To uděláš třikrát.',
+      hint_en:'💡 Take 2 of the 3 dimensions – those are the sides of one face. Do this three times.' },
+    { title:'🔢 Kód zámku', title_en:'🔢 Lock code',
       body:'<p>Kvádr má rozměry <b>2 × 3 × 4 cm</b>.</p><p>Spočítej <b>obsah jedné stěny</b> o stranách <b>2 × 3</b> v cm².</p>',
-      hint:'💡 Obsah obdélníku = délka × šířka.' }
+      body_en:'<p>A cuboid has dimensions <b>2 × 3 × 4 cm</b>.</p><p>Calculate the <b>area of one face</b> with sides <b>2 × 3</b> in cm².</p>',
+      hint:'💡 Obsah obdélníku = délka × šířka.',
+      hint_en:'💡 Area of a rectangle = length × width.' }
   ],
   code:'6',
-  successMsg:'🔓 Správně! 2 · 3 = 6 cm². Zámek 5 otevřen!'
+  successMsg:'🔓 Správně! 2 · 3 = 6 cm². Zámek 5 otevřen!',
+  successMsg_en:'🔓 Correct! 2 · 3 = 6 cm². Lock 5 opened!'
 },
 {
   id:6, color:'pink', icon:'🩷',
-  title:'Zámek 6 – Hrany krychle',
-  tag:'Součet hran krychle', tagClass:'pink',
+  title:'Zámek 6 – Hrany krychle', title_en:'Lock 6 – Edges of a Cube',
+  tag:'Součet hran krychle', tag_en:'Sum of edges of a cube', tagClass:'pink',
   tasks:[
-    { title:'🧩 Kolik je hran dohromady?',
+    { title:'🧩 Kolik je hran dohromady?', title_en:'🧩 Total length of all edges?',
       body:'<p>Krychle má <b>12 hran</b>, všechny stejně dlouhé.</p><p>Pokud má hrana délku <b>a</b>, pak <b>součet všech hran</b> = <b>12 · a</b>.</p><p>Doplň tabulku:</p><table class="tt"><tr><th>a</th><th>2 cm</th><th>5 cm</th><th>10 cm</th></tr><tr><td><b>12 · a</b></td><td>?</td><td>?</td><td>?</td></tr></table>',
-      hint:'💡 Vynásob každé a číslem 12: 12·2 = 24, 12·5 = 60, 12·10 = 120.' },
-    { title:'🔢 Kód zámku',
+      body_en:'<p>A cube has <b>12 edges</b>, all the same length.</p><p>If the edge length is <b>a</b>, then the <b>sum of all edges</b> = <b>12 · a</b>.</p><p>Complete the table:</p><table class="tt"><tr><th>a</th><th>2 cm</th><th>5 cm</th><th>10 cm</th></tr><tr><td><b>12 · a</b></td><td>?</td><td>?</td><td>?</td></tr></table>',
+      hint:'💡 Vynásob každé a číslem 12: 12·2 = 24, 12·5 = 60, 12·10 = 120.',
+      hint_en:'💡 Multiply each a by 12: 12·2 = 24, 12·5 = 60, 12·10 = 120.' },
+    { title:'🔢 Kód zámku', title_en:'🔢 Lock code',
       body:'<p>Krychle má hranu <b>a = 7 cm</b>.</p><p>Kolik je <b>součet všech hran</b> v cm?</p>',
-      hint:'💡 12 · 7 = ?' }
+      body_en:'<p>A cube has edge <b>a = 7 cm</b>.</p><p>What is the <b>sum of all edges</b> in cm?</p>',
+      hint:'💡 12 · 7 = ?',
+      hint_en:'💡 12 · 7 = ?' }
   ],
   code:'84',
-  successMsg:'🔓 Přesně! 12 · 7 = 84 cm. Zámek 6 otevřen!'
+  successMsg:'🔓 Přesně! 12 · 7 = 84 cm. Zámek 6 otevřen!',
+  successMsg_en:'🔓 Exactly! 12 · 7 = 84 cm. Lock 6 opened!'
 },
 {
   id:7, color:'indigo', icon:'🔷',
-  title:'Zámek 7 – Hrany kvádru',
-  tag:'Součet hran kvádru', tagClass:'indigo',
+  title:'Zámek 7 – Hrany kvádru', title_en:'Lock 7 – Edges of a Cuboid',
+  tag:'Součet hran kvádru', tag_en:'Sum of edges of a cuboid', tagClass:'indigo',
   tasks:[
-    { title:'🧩 Kvádr má hrany ve třech délkách',
+    { title:'🧩 Kvádr má hrany ve třech délkách', title_en:'🧩 A cuboid has edges in three lengths',
       body:'<p>Kvádr má taky <b>12 hran</b>, ale ve <b>třech délkách</b>: <b>4 hrany délky a, 4 délky b, 4 délky c</b>.</p><p>Vzorec: <b>součet hran = 4 · (a + b + c)</b></p><p>Zkus pro kvádr <b>a = 2, b = 3, c = 4</b>:</p><p>4 · (2 + 3 + 4) = 4 · 9 = ?</p>',
-      hint:'💡 Nejdřív sečti všechny tři rozměry, pak vynásob 4.' },
-    { title:'🔢 Kód zámku',
+      body_en:'<p>A cuboid also has <b>12 edges</b>, but in <b>three lengths</b>: <b>4 edges of length a, 4 of b, 4 of c</b>.</p><p>Formula: <b>sum of edges = 4 · (a + b + c)</b></p><p>Try it for a cuboid <b>a = 2, b = 3, c = 4</b>:</p><p>4 · (2 + 3 + 4) = 4 · 9 = ?</p>',
+      hint:'💡 Nejdřív sečti všechny tři rozměry, pak vynásob 4.',
+      hint_en:'💡 First add all three dimensions, then multiply by 4.' },
+    { title:'🔢 Kód zámku', title_en:'🔢 Lock code',
       body:'<p>Kvádr má rozměry <b>3 × 5 × 7 cm</b>.</p><p>Spočítej <b>součet všech hran</b> v cm.</p>',
-      hint:'💡 4 · (3 + 5 + 7) = 4 · 15 = ?' }
+      body_en:'<p>A cuboid has dimensions <b>3 × 5 × 7 cm</b>.</p><p>Calculate the <b>sum of all edges</b> in cm.</p>',
+      hint:'💡 4 · (3 + 5 + 7) = 4 · 15 = ?',
+      hint_en:'💡 4 · (3 + 5 + 7) = 4 · 15 = ?' }
   ],
   code:'60',
-  successMsg:'🔓 Skvěle! 4 · (3+5+7) = 4 · 15 = 60 cm. Zámek 7 otevřen!'
+  successMsg:'🔓 Skvěle! 4 · (3+5+7) = 4 · 15 = 60 cm. Zámek 7 otevřen!',
+  successMsg_en:'🔓 Great! 4 · (3+5+7) = 4 · 15 = 60 cm. Lock 7 opened!'
 },
 {
   id:8, color:'rose', icon:'🌹',
-  title:'Zámek 8 – Povrch krychle',
-  tag:'Povrch S = 6·a²', tagClass:'rose',
+  title:'Zámek 8 – Povrch krychle', title_en:'Lock 8 – Surface Area of a Cube',
+  tag:'Povrch S = 6·a²', tag_en:'Surface S = 6·a²', tagClass:'rose',
   tasks:[
-    { title:'🧩 Co je povrch tělesa',
+    { title:'🧩 Co je povrch tělesa', title_en:'🧩 What is surface area?',
       body:'<p><b>Povrch (S)</b> tělesa = <b>obsah všech stěn dohromady</b>.</p><p>Krychle má 6 stejných čtverců. Obsah jednoho čtverce = <b>a · a = a²</b>.</p><p>Vzorec: <b>S = 6 · a²</b></p><p>Doplň:</p><table class="tt"><tr><th>a</th><th>1 cm</th><th>2 cm</th><th>3 cm</th><th>4 cm</th></tr><tr><td><b>a²</b></td><td>?</td><td>?</td><td>?</td><td>?</td></tr><tr><td><b>S = 6·a²</b></td><td>?</td><td>?</td><td>?</td><td>?</td></tr></table>',
-      hint:'💡 Nejdřív umocni a (a · a), pak vynásob 6. Pro a=2: 2·2=4, pak 6·4=24.' },
-    { title:'🔢 Kód zámku',
+      body_en:'<p>The <b>surface area (S)</b> of a solid = <b>the total area of all its faces</b>.</p><p>A cube has 6 identical squares. Area of one square = <b>a · a = a²</b>.</p><p>Formula: <b>S = 6 · a²</b></p><p>Complete:</p><table class="tt"><tr><th>a</th><th>1 cm</th><th>2 cm</th><th>3 cm</th><th>4 cm</th></tr><tr><td><b>a²</b></td><td>?</td><td>?</td><td>?</td><td>?</td></tr><tr><td><b>S = 6·a²</b></td><td>?</td><td>?</td><td>?</td><td>?</td></tr></table>',
+      hint:'💡 Nejdřív umocni a (a · a), pak vynásob 6. Pro a=2: 2·2=4, pak 6·4=24.',
+      hint_en:'💡 First square a (a · a), then multiply by 6. For a=2: 2·2=4, then 6·4=24.' },
+    { title:'🔢 Kód zámku', title_en:'🔢 Lock code',
       body:'<p>Krychle má hranu <b>a = 5 cm</b>.</p><p>Kolik je její <b>povrch</b> v cm²?</p>',
-      hint:'💡 a² = 5·5 = 25; pak S = 6 · 25 = ?' }
+      body_en:'<p>A cube has edge <b>a = 5 cm</b>.</p><p>What is its <b>surface area</b> in cm²?</p>',
+      hint:'💡 a² = 5·5 = 25; pak S = 6 · 25 = ?',
+      hint_en:'💡 a² = 5·5 = 25; then S = 6 · 25 = ?' }
   ],
   code:'150',
-  successMsg:'🔓 Bezvadně! S = 6 · 25 = 150 cm². Zámek 8 otevřen!'
+  successMsg:'🔓 Bezvadně! S = 6 · 25 = 150 cm². Zámek 8 otevřen!',
+  successMsg_en:'🔓 Perfect! S = 6 · 25 = 150 cm². Lock 8 opened!'
 },
 {
   id:9, color:'cyan', icon:'🩵',
-  title:'Zámek 9 – Povrch kvádru',
-  tag:'Povrch S = 2·(ab+bc+ac)', tagClass:'cyan',
+  title:'Zámek 9 – Povrch kvádru', title_en:'Lock 9 – Surface Area of a Cuboid',
+  tag:'Povrch S = 2·(ab+bc+ac)', tag_en:'Surface S = 2·(ab+bc+ac)', tagClass:'cyan',
   tasks:[
-    { title:'🧩 Vzorec pro povrch kvádru',
+    { title:'🧩 Vzorec pro povrch kvádru', title_en:'🧩 Formula for the surface area of a cuboid',
       body:'<p>Kvádr má 3 různé velikosti stěn (vždy po 2 stejných):</p><ul><li>2× obdélník <b>a × b</b></li><li>2× obdélník <b>b × c</b></li><li>2× obdélník <b>a × c</b></li></ul><p>Vzorec: <b>S = 2 · (a·b + b·c + a·c)</b></p><p>Zkus pro <b>a = 2, b = 3, c = 4</b>:</p><p>S = 2 · (2·3 + 3·4 + 2·4) = 2 · (6 + 12 + 8) = 2 · 26 = ?</p>',
-      hint:'💡 Spočítej tři součiny dvojic stran (ab, bc, ac), sečti je, vynásob 2.' },
-    { title:'🔢 Kód zámku',
+      body_en:'<p>A cuboid has 3 different face sizes (always 2 of each):</p><ul><li>2× rectangle <b>a × b</b></li><li>2× rectangle <b>b × c</b></li><li>2× rectangle <b>a × c</b></li></ul><p>Formula: <b>S = 2 · (a·b + b·c + a·c)</b></p><p>Try for <b>a = 2, b = 3, c = 4</b>:</p><p>S = 2 · (2·3 + 3·4 + 2·4) = 2 · (6 + 12 + 8) = 2 · 26 = ?</p>',
+      hint:'💡 Spočítej tři součiny dvojic stran (ab, bc, ac), sečti je, vynásob 2.',
+      hint_en:'💡 Calculate the three pairwise products (ab, bc, ac), add them, multiply by 2.' },
+    { title:'🔢 Kód zámku', title_en:'🔢 Lock code',
       body:'<p>Kvádr má rozměry <b>3 × 4 × 5 cm</b>.</p><p>Spočítej jeho <b>povrch</b> v cm².</p>',
-      hint:'💡 a·b = 12, b·c = 20, a·c = 15. Součet = 47. S = 2 · 47 = ?' }
+      body_en:'<p>A cuboid has dimensions <b>3 × 4 × 5 cm</b>.</p><p>Calculate its <b>surface area</b> in cm².</p>',
+      hint:'💡 a·b = 12, b·c = 20, a·c = 15. Součet = 47. S = 2 · 47 = ?',
+      hint_en:'💡 a·b = 12, b·c = 20, a·c = 15. Sum = 47. S = 2 · 47 = ?' }
   ],
   code:'94',
-  successMsg:'🔓 Výborně! S = 2 · (12+20+15) = 2 · 47 = 94 cm². Zámek 9 otevřen!'
+  successMsg:'🔓 Výborně! S = 2 · (12+20+15) = 2 · 47 = 94 cm². Zámek 9 otevřen!',
+  successMsg_en:'🔓 Excellent! S = 2 · (12+20+15) = 2 · 47 = 94 cm². Lock 9 opened!'
 },
 {
   id:10, color:'gold', icon:'🏆',
-  title:'Zámek 10 – Finále: Objem!',
-  tag:'Objem krychle a kvádru', tagClass:'gold',
+  title:'Zámek 10 – Finále: Objem!', title_en:'Lock 10 – Final: Volume!',
+  tag:'Objem krychle a kvádru', tag_en:'Volume of cube and cuboid', tagClass:'gold',
   tasks:[
-    { title:'🏆 Poslední výzva – Objem',
+    { title:'🏆 Poslední výzva – Objem', title_en:'🏆 Final challenge – Volume',
       body:'<p><b>Objem (V)</b> = kolik místa těleso zaujímá v prostoru.</p><ul><li>Krychle: <b>V = a · a · a = a³</b></li><li>Kvádr: <b>V = a · b · c</b></li></ul><p>Vypočítej:</p><p>a) Objem <b>krychle</b> s hranou <b>a = 4 cm</b></p><p>b) Objem <b>kvádru</b> s rozměry <b>2 × 3 × 4 cm</b></p>',
-      hint:'💡 a) 4 · 4 · 4 = 64. b) 2 · 3 · 4 = 24.' },
-    { title:'🔢 Finální kód',
+      body_en:'<p><b>Volume (V)</b> = how much space a solid takes up.</p><ul><li>Cube: <b>V = a · a · a = a³</b></li><li>Cuboid: <b>V = a · b · c</b></li></ul><p>Calculate:</p><p>a) Volume of a <b>cube</b> with edge <b>a = 4 cm</b></p><p>b) Volume of a <b>cuboid</b> with dimensions <b>2 × 3 × 4 cm</b></p>',
+      hint:'💡 a) 4 · 4 · 4 = 64. b) 2 · 3 · 4 = 24.',
+      hint_en:'💡 a) 4 · 4 · 4 = 64. b) 2 · 3 · 4 = 24.' },
+    { title:'🔢 Finální kód', title_en:'🔢 Final code',
       body:'<p>Sečti oba objemy z předchozí úlohy:</p><p><b>Kód = V<sub>krychle</sub> + V<sub>kvádru</sub></b> (v cm³)</p>',
-      hint:'💡 64 + 24 = ?' }
+      body_en:'<p>Add both volumes from the previous task:</p><p><b>Code = V<sub>cube</sub> + V<sub>cuboid</sub></b> (in cm³)</p>',
+      hint:'💡 64 + 24 = ?',
+      hint_en:'💡 64 + 24 = ?' }
   ],
   code:'88',
-  successMsg:'🏆 BRAVO! 64 + 24 = 88. Všechny zámky tělesa jsou tvé! Poklad geometrie je tvůj!'
+  successMsg:'🏆 BRAVO! 64 + 24 = 88. Všechny zámky tělesa jsou tvé! Poklad geometrie je tvůj!',
+  successMsg_en:'🏆 BRAVO! 64 + 24 = 88. All solid locks are yours! The geometry treasure is yours!'
 }
 ];
 
-/* Progresivní nápověda ke kódu zámku — 3 úrovně */
-const CODE_HINTS = {
+const CODE_HINTS_CS = {
   1: ['Těleso má 3 rozměry (délku, šířku, výšku). Rovinný útvar jen 2.', 'V seznamu: kostka, kniha, obdélník, krabice, kruh, balón. Které jsou 3D?', 'kostka, kniha, krabice, balón = <b>4</b>.'],
   2: ['Krychle má vrcholy (rohy), hrany (úsečky), stěny (plochy). Spočítej je.', 'Vrcholy = 8, hrany = 12, stěny = 6.', '8 + 12 + 6 = <b>26</b>.'],
   3: ['Krychle = všechny hrany stejně dlouhé. Kvádr = různé.', 'Krychle v seznamu: hrací kostka, kostka cukru, kostka ledu, Rubikova kostka.', '<b>4</b> krychle.'],
@@ -429,20 +524,41 @@ const CODE_HINTS = {
   10: ['Objem: krychle V = a³, kvádr V = a·b·c. Spočítej oba a sečti.', 'a) 4³ = 64. b) 2·3·4 = 24.', '64 + 24 = <b>88</b> cm³.'],
 };
 
+const CODE_HINTS_EN = {
+  1: ['A solid has 3 dimensions (length, width, height). A flat shape only has 2.', 'From the list: cube, book, rectangle, box, circle, balloon. Which ones are 3D?', 'cube, book, box, balloon = <b>4</b>.'],
+  2: ['A cube has vertices (corners), edges (line segments), faces (flat surfaces). Count them.', 'Vertices = 8, edges = 12, faces = 6.', '8 + 12 + 6 = <b>26</b>.'],
+  3: ['Cube = all edges equal length. Cuboid = different lengths.', 'Cubes in the list: dice, sugar cube, ice cube, Rubik\'s cube.', '<b>4</b> cubes.'],
+  4: ['Net of a cube = 6 squares. Perimeter of one square = 4 × side.', 'Side = 5 cm. Perimeter = 4 × 5 = ?', '4 × 5 = <b>20</b> cm.'],
+  5: ['Net of a cuboid = 6 rectangles. Area of a rectangle = length × width.', 'Sides 2 × 3 cm. Area = ?', '2 × 3 = <b>6</b> cm².'],
+  6: ['A cube has 12 edges of equal length. Formula: 12 × a.', '12 × 7 = ?', '12 × 7 = <b>84</b> cm.'],
+  7: ['A cuboid has 12 edges in 3 lengths: 4× a, 4× b, 4× c. Formula: 4 × (a + b + c).', '4 × (3 + 5 + 7) = 4 × 15 = ?', '4 × 15 = <b>60</b> cm.'],
+  8: ['Surface area = total area of all faces. Cube = 6 squares. Formula: S = 6 × a².', 'a = 5, so a² = 25. S = 6 × 25.', '6 × 25 = <b>150</b> cm².'],
+  9: ['A cuboid has 3 pairs of faces: a×b, b×c, a×c. Formula: S = 2 × (ab + bc + ac).', '2 × (3·4 + 4·5 + 3·5) = 2 × (12 + 20 + 15).', '2 × 47 = <b>94</b> cm².'],
+  10: ['Volume: cube V = a³, cuboid V = a·b·c. Calculate both and add.', 'a) 4³ = 64. b) 2·3·4 = 24.', '64 + 24 = <b>88</b> cm³.'],
+};
+
 let codeHintLevel = 0;
 
 function advanceCodeHint() {
   if (codeHintLevel >= 3) return;
   codeHintLevel++;
-  const hints = CODE_HINTS[STEPS[cur].id] || ['Přečti si pozorně postup nahoře.', 'Postupně spočítej, co se ptají.', 'Výsledek vyplyne z výpočtu.'];
+  const CODE_HINTS = lang === 'en' ? CODE_HINTS_EN : CODE_HINTS_CS;
+  const hints = CODE_HINTS[STEPS[cur].id] || [
+    i18n('Přečti si pozorně postup nahoře.', 'Read the instructions above carefully.'),
+    i18n('Postupně spočítej, co se ptají.', 'Work through the calculation step by step.'),
+    i18n('Výsledek vyplyne z výpočtu.', 'The answer follows from the calculation.')
+  ];
   const box = document.getElementById('ch-box');
   const btn = document.getElementById('ch-btn');
   const counter = document.getElementById('ch-counter');
   if (!box || !btn) return;
   box.classList.add('show');
   box.dataset.level = codeHintLevel;
-  const labels = ['Nasměrování', 'Vzorec', 'Postup s výsledkem'];
-  box.innerHTML = `<span class="h-label">Nápověda ${codeHintLevel}/3 — ${labels[codeHintLevel-1]}</span>${hints[codeHintLevel - 1]}`;
+  const labels = i18n(
+    ['Nasměrování', 'Vzorec', 'Postup s výsledkem'],
+    ['Direction', 'Formula', 'Solution steps']
+  );
+  box.innerHTML = `<span class="h-label">${i18n('Nápověda','Hint')} ${codeHintLevel}/3 — ${labels[codeHintLevel-1]}</span>${hints[codeHintLevel - 1]}`;
   if (counter) {
     counter.querySelectorAll('.dot').forEach((d, i) => {
       d.classList.toggle('shown', i < codeHintLevel);
@@ -450,18 +566,15 @@ function advanceCodeHint() {
     });
   }
   if (codeHintLevel < 3) {
-    btn.textContent = `💡 Další nápověda ${codeHintLevel+1}/3`;
+    btn.textContent = `💡 ${i18n('Další nápověda','Next hint')} ${codeHintLevel+1}/3`;
   } else {
     btn.disabled = true;
-    btn.textContent = '💡 Všechny nápovědy ukázány';
+    btn.textContent = `💡 ${i18n('Všechny nápovědy ukázány','All hints shown')}`;
   }
 }
 
 let cur = 0;
 let att = new Array(STEPS.length).fill(0);
-
-document.getElementById('btn-start').addEventListener('click', startGame);
-document.getElementById('btn-restart').addEventListener('click', () => location.reload());
 
 function startGame() {
   document.getElementById('intro').classList.remove('active');
@@ -475,7 +588,8 @@ function render(idx) {
   cur = idx;
   codeHintLevel = 0;
   const s = STEPS[idx];
-  document.getElementById('prog-label').textContent = `Zámek ${idx+1} z ${STEPS.length}`;
+  document.getElementById('prog-label').textContent =
+    i18n(`Zámek ${idx+1} z ${STEPS.length}`, `Lock ${idx+1} of ${STEPS.length}`);
   document.getElementById('prog-fill').style.width = `${(idx / STEPS.length) * 100}%`;
   for (let i = 0; i < STEPS.length; i++) {
     const el = document.getElementById(`s${i}`);
@@ -491,30 +605,30 @@ function render(idx) {
 
   const tasksHTML = s.tasks.map(t => `
     <div class="task-card ${s.color}">
-      <span class="tag ${s.tagClass}">${s.tag}</span>
-      <h3>${t.title}</h3>
-      ${t.body}
-      <button class="hint-btn" onclick="toggleHint(this)">💡 Potřebuji nápovědu</button>
-      <div class="hint-box">${t.hint}</div>
+      <span class="tag ${s.tagClass}">${i18n(s.tag, s.tag_en)}</span>
+      <h3>${i18n(t.title, t.title_en)}</h3>
+      ${i18n(t.body, t.body_en)}
+      <button class="hint-btn" onclick="toggleHint(this)">${i18n('💡 Potřebuji nápovědu','💡 I need a hint')}</button>
+      <div class="hint-box">${i18n(t.hint, t.hint_en)}</div>
     </div>
   `).join('');
 
   document.getElementById('step-container').innerHTML = `
     <div class="lock-header">
       <span class="lock-icon-big">${s.icon}</span>
-      <span class="lock-title" style="color:var(${cv})">${s.title}</span>
+      <span class="lock-title" style="color:var(${cv})">${i18n(s.title, s.title_en)}</span>
       <span class="lock-badge">${idx+1}/${STEPS.length}</span>
     </div>
     ${tasksHTML}
     <div class="code-wrap">
-      <label>🔐 Zadej kód zámku ${idx+1}:</label>
+      <label>&#x1F510; ${i18n(`Zadej kód zámku ${idx+1}:`, `Enter lock code ${idx+1}:`)}</label>
       <div class="code-row">
         <input type="number" class="code-input" id="ci" placeholder="???"
           onkeydown="if(event.key==='Enter') chk()">
-        <button class="btn-check" onclick="chk()">Odemknout 🔓</button>
+        <button class="btn-check" onclick="chk()">${i18n('Odemknout 🔓','Unlock 🔓')}</button>
       </div>
       <div class="code-hint-bar">
-        <button class="code-hint-btn" id="ch-btn" onclick="advanceCodeHint()">💡 Nápověda ke kódu 1/3</button>
+        <button class="code-hint-btn" id="ch-btn" onclick="advanceCodeHint()">💡 ${i18n('Nápověda ke kódu 1/3','Code hint 1/3')}</button>
         <span class="code-hint-counter" id="ch-counter">
           <span class="dot"></span><span class="dot"></span><span class="dot"></span>
         </span>
@@ -523,8 +637,8 @@ function render(idx) {
       <div class="feedback" id="fb"></div>
     </div>
     <div class="unlock-anim" id="ua">
-      <div class="big-icon">🔓✨</div>
-      <p>${s.successMsg}</p>
+      <div class="big-icon">&#x1F513;&#x2728;</div>
+      <p>${i18n(s.successMsg, s.successMsg_en)}</p>
     </div>
   `;
   window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -533,7 +647,9 @@ function render(idx) {
 function toggleHint(btn) {
   const h = btn.nextElementSibling;
   h.classList.toggle('show');
-  btn.textContent = h.classList.contains('show') ? '🙈 Skrýt nápovědu' : '💡 Potřebuji nápovědu';
+  btn.textContent = h.classList.contains('show')
+    ? i18n('🙈 Skrýt nápovědu', '🙈 Hide hint')
+    : i18n('💡 Potřebuji nápovědu', '💡 I need a hint');
 }
 
 function chk() {
@@ -554,12 +670,10 @@ function chk() {
     inp.classList.add('error');
     inp.classList.remove('success');
     setTimeout(() => inp.classList.remove('error'), 380);
-    const msgs = [
-      'Hmm, to není ono. Zkontroluj postup!',
-      'Zkus to znovu – možná jiný výpočet?',
-      'Nevzdávej se! Přečti si nápovědu.',
-      'Ještě jednou, jsi blízko!'
-    ];
+    const msgs = i18n(
+      ['Hmm, to není ono. Zkontroluj postup!', 'Zkus to znovu – možná jiný výpočet?', 'Nevzdávej se! Přečti si nápovědu.', 'Ještě jednou, jsi blízko!'],
+      ['Hmm, not quite. Check your working!', 'Try again – maybe a different approach?', "Don't give up! Read the hint.", 'One more time, you\'re close!']
+    );
     fb.className = 'feedback err';
     fb.textContent = msgs[Math.min(att[cur] - 1, msgs.length - 1)];
   }
@@ -568,6 +682,7 @@ function chk() {
 function finish() {
   document.getElementById('game').classList.remove('active');
   document.getElementById('finish').classList.add('active');
+  buildFinish();
   const wrap = document.getElementById('confetti');
   const cols = ['#f5c842','#1a73c8','#1e9e5a','#e74c3c','#7c3aad','#0f8a72','#ff7f50','#b5286e'];
   for (let i = 0; i < 90; i++) {
@@ -584,6 +699,15 @@ function finish() {
     wrap.appendChild(el);
   }
 }
+
+// Init
+document.querySelectorAll('.lang-btn').forEach(b =>
+  b.classList.toggle('active', b.dataset.lang === lang));
+document.querySelectorAll('.tp-back').forEach(el =>
+  el.textContent = i18n('← zpět na projekty', '← back to projects'));
+document.querySelectorAll('.tp-home').forEach(el =>
+  el.textContent = i18n('domů', 'home'));
+buildIntro();
 </script>
 </body>
 </html>

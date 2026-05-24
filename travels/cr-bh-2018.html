@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Croatia & Bosnia 2018 — Travels · Vojtěch Konopa</title>
+  <meta name="description" content="Field notes from a road trip through Croatia and Bosnia & Herzegovina — July 2018." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #1c1c1c;
+      --surface: #262626;
+      --surface-2: #2e2e2e;
+      --border: #3a3a3a;
+      --border-strong: #555;
+      --fg: #ededec;
+      --fg-dim: #8a8a85;
+      --fg-muted: #5e5e5b;
+      --accent: #f5b800;
+      --concrete: #4a4a48;
+      --display: 'Archivo Black', 'Inter', system-ui, sans-serif;
+      --body: 'Inter', system-ui, -apple-system, Segoe UI, sans-serif;
+      --mono: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      background: var(--bg);
+      color: var(--fg);
+      font-family: var(--body);
+      font-size: 16px;
+      line-height: 1.55;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a { color: var(--fg); text-decoration: none; border-bottom: 1px solid transparent; transition: color .15s, border-color .15s; }
+    a:hover, a:focus { color: var(--accent); border-bottom-color: var(--accent); outline: none; }
+    a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 1px; }
+
+    img { display: block; max-width: 100%; }
+
+    .top-bar {
+      border-bottom: 1px solid var(--border);
+      padding: 18px 28px;
+      display: flex; justify-content: space-between; align-items: baseline; gap: 18px;
+      font-family: var(--mono); font-size: 12px;
+      letter-spacing: 0.08em; text-transform: uppercase; color: var(--fg-dim);
+    }
+    .top-bar a { color: var(--fg-dim); }
+    .top-bar a:hover { color: var(--accent); }
+    .top-bar .crumb { color: var(--fg); }
+
+    .hero {
+      position: relative; width: 100%;
+      aspect-ratio: 16 / 9; max-height: 80vh;
+      background-color: var(--concrete);
+      background-size: cover; background-position: center; overflow: hidden;
+    }
+    .hero::before {
+      content: ''; position: absolute; inset: auto 0 0 0; height: 50%;
+      background: linear-gradient(to top, rgba(0,0,0,0.55), transparent);
+      pointer-events: none;
+    }
+
+    .title-block {
+      max-width: 1080px; margin: 0 auto; padding: 56px 28px 28px;
+      border-bottom: 1px solid var(--border);
+    }
+    .label-row {
+      display: flex; gap: 24px; flex-wrap: wrap;
+      font-family: var(--mono); font-size: 11px;
+      letter-spacing: 0.18em; text-transform: uppercase;
+      color: var(--accent); margin-bottom: 18px;
+    }
+    .label-row .dim { color: var(--fg-dim); }
+    h1.location {
+      font-family: var(--display);
+      font-size: clamp(40px, 7vw, 88px);
+      line-height: 0.95; letter-spacing: -0.02em;
+      text-transform: uppercase; margin-bottom: 18px;
+    }
+    .lede {
+      font-size: 18px; font-weight: 300;
+      color: var(--fg); max-width: 680px; line-height: 1.6;
+    }
+
+    .data-strip {
+      max-width: 1080px; margin: 0 auto; padding: 24px 28px;
+      display: grid; grid-template-columns: repeat(5, 1fr);
+      gap: 1px; background: var(--border); border-bottom: 1px solid var(--border);
+    }
+    .data-strip > div {
+      background: var(--bg); padding: 16px 20px;
+      font-family: var(--mono); font-size: 11px;
+      letter-spacing: 0.12em; text-transform: uppercase; color: var(--fg-dim);
+      min-height: 64px;
+    }
+    .data-strip b {
+      display: block; font-family: var(--body);
+      font-size: 15px; font-weight: 500; letter-spacing: 0;
+      text-transform: none; color: var(--fg); margin-top: 4px;
+    }
+
+    article {
+      max-width: 720px; margin: 0 auto; padding: 56px 28px 56px;
+    }
+    article p {
+      font-size: 15.5px; line-height: 1.75;
+      color: var(--fg-dim); font-weight: 300; margin-bottom: 18px;
+    }
+    article p strong { color: var(--fg); font-weight: 500; }
+    article p.first::first-letter {
+      font-family: var(--display); font-size: 3.4em;
+      float: left; line-height: 0.9; margin: 4px 10px 0 0;
+      color: var(--accent);
+    }
+    article h2 {
+      font-family: var(--mono); font-size: 11px;
+      letter-spacing: 0.22em; text-transform: uppercase;
+      color: var(--accent);
+      margin: 52px 0 20px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+    /* route map */
+    .route-section {
+      max-width: 1080px; margin: 0 auto;
+      padding: 48px 28px;
+      border-bottom: 1px solid var(--border);
+    }
+    .route-section .section-label {
+      font-family: var(--mono); font-size: 11px;
+      letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--fg-dim); margin-bottom: 20px;
+    }
+    .route-svg-wrap { position: relative; width: 100%; overflow: hidden; }
+    .route-svg-wrap svg { width: 100%; height: auto; display: block; }
+    article blockquote {
+      border-left: 3px solid var(--accent);
+      padding: 4px 0 4px 22px; margin: 28px 0;
+      font-size: 19px; font-weight: 300; color: var(--fg);
+      font-style: italic;
+    }
+
+    .gallery-section {
+      max-width: 1280px; margin: 0 auto; padding: 0 28px 96px;
+    }
+    .section-title {
+      font-family: var(--mono); font-size: 11px;
+      letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--fg-dim); margin-bottom: 24px;
+      padding-bottom: 12px; border-bottom: 1px solid var(--border);
+    }
+    .gallery {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 1px; background: var(--border);
+    }
+    figure.shot { background: var(--surface); margin: 0; }
+    figure.shot .img {
+      aspect-ratio: 4 / 3;
+      background-color: var(--concrete);
+      background-size: cover; background-position: center;
+      filter: grayscale(0.25) contrast(1.05);
+      transition: filter 0.3s;
+    }
+    figure.shot:hover .img { filter: none; }
+    figure.shot.pano .img { aspect-ratio: 21 / 9; }
+    figure.shot.wide { grid-column: span 2; }
+    figure.shot.full { grid-column: span 3; }
+    figcaption {
+      padding: 10px 14px 14px;
+      font-family: var(--mono); font-size: 10.5px;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--fg-dim); border-top: 1px solid var(--border);
+    }
+    figcaption b { color: var(--fg); font-weight: 500; }
+    .day-heading {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--accent);
+      padding: 40px 0 12px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 1px;
+    }
+    .day-heading:first-child { padding-top: 8px; }
+
+    .nav-strip {
+      max-width: 1080px; margin: 0 auto; padding: 32px 28px;
+      border-top: 1px solid var(--border);
+      display: flex; justify-content: space-between; gap: 24px;
+      font-family: var(--mono); font-size: 12px;
+      letter-spacing: 0.14em; text-transform: uppercase;
+    }
+    .nav-strip a { color: var(--fg-dim); }
+    .nav-strip a:hover { color: var(--accent); }
+    .nav-strip .label { color: var(--fg-muted); display: block; font-size: 10px; margin-bottom: 4px; }
+
+    .video-section {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 0 28px 64px;
+    }
+    .video-wrap {
+      position: relative;
+      aspect-ratio: 16 / 9;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      overflow: hidden;
+    }
+    .video-wrap iframe {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%;
+      border: 0;
+    }
+
+    footer {
+      border-top: 1px solid var(--border); padding: 32px 28px;
+      max-width: 1280px; margin: 0 auto;
+      display: flex; justify-content: space-between; gap: 18px;
+      font-family: var(--mono); font-size: 11px;
+      letter-spacing: 0.16em; text-transform: uppercase; color: var(--fg-dim);
+    }
+    footer a { color: var(--fg-dim); }
+    footer a:hover { color: var(--accent); }
+
+    @media (max-width: 900px) {
+      .data-strip { grid-template-columns: repeat(2, 1fr); }
+      .gallery { grid-template-columns: repeat(2, 1fr); }
+      figure.shot.wide, figure.shot.full { grid-column: span 2; }
+      .title-block { padding: 36px 20px 24px; }
+      article { padding: 40px 20px; }
+      .gallery-section, .video-section { padding: 0 20px 64px; }
+      .top-bar, footer, .nav-strip { padding: 14px 20px; }
+    }
+    @media (max-width: 560px) {
+      .gallery { grid-template-columns: 1fr; }
+      figure.shot.wide, figure.shot.full { grid-column: span 1; }
+      .data-strip { grid-template-columns: 1fr 1fr; }
+      h1.location { font-size: 44px; }
+      footer { flex-direction: column; gap: 8px; }
+      .nav-strip { flex-direction: column; gap: 16px; }
+    }
+
+    /* ── lightbox ── */
+    #lb { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.92);
+      z-index:1000; align-items:center; justify-content:center; cursor:zoom-out; }
+    #lb.open { display:flex; }
+    #lb img { max-width:90vw; max-height:90vh; object-fit:contain; cursor:default; }
+    #lb-close { position:fixed; top:18px; right:22px; font-size:28px; color:#fff;
+      cursor:pointer; font-family:'JetBrains Mono',monospace; line-height:1; opacity:0.7; z-index:1001; }
+    #lb-close:hover { opacity:1; }
+    .gallery .shot .img { cursor:zoom-in; }
+  </style>
+</head>
+<body>
+
+  <div class="top-bar">
+    <a href="./">← back to journal</a>
+    <span class="crumb">~/travels/cr-bh-2018</span>
+    <span>vojta@konopa</span>
+  </div>
+
+  <section class="hero" style="background-image:url('./images/cr_bh_2018/cr_bh_pano_0007_04.07.2018_web.jpg');"></section>
+
+  <div class="title-block">
+    <div class="label-row">
+      <span>FIELD JOURNAL · 002</span>
+      <span class="dim">STATUS: TRAVEL</span>
+    </div>
+    <h1 class="location">Croatia<br>&amp; Bosnia</h1>
+    <p class="lede">
+      Nine days, two countries, zero hotel check-ins — chasing the ruins of
+      a state that dissolved before anyone could sweep them up. The Adriatic
+      coast as a back road to forgotten Yugoslavia.
+    </p>
+  </div>
+
+  <section class="data-strip">
+    <div>Countries<br><b>Croatia, BiH</b></div>
+    <div>Dates<br><b>4 – 14 Jul 2018</b></div>
+    <div>Days<br><b>11</b></div>
+    <div>People<br><b>4</b></div>
+    <div>Photos<br><b id="photo-count">—</b></div>
+  </section>
+
+  <!-- ROUTE MAP -->
+  <section class="route-section">
+    <p class="section-label">// ROUTE — CZ → ADRIATIC → MOSTAR → ŠTRBAČKI BUK → KUMROVEC → CZ</p>
+    <div class="route-svg-wrap">
+      <svg viewBox="0 0 900 380" xmlns="http://www.w3.org/2000/svg"
+           style="background:var(--surface); border:1px solid var(--border);">
+        <defs>
+          <filter id="lbl-bg-crbh" x="-20%" y="-40%" width="140%" height="180%">
+            <feMorphology in="SourceGraphic" operator="dilate" radius="3" result="exp"/>
+            <feFlood flood-color="#262626" result="bg"/>
+            <feComposite in="bg" in2="exp" operator="in" result="outline"/>
+            <feMerge><feMergeNode in="outline"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+        </defs>
+
+        <!-- Closed loop polyline -->
+        <polyline points="280,60 320,240 480,320 545,290 350,205 285,150 280,60"
+          fill="none" stroke="#f5b800" stroke-width="1.5"
+          stroke-dasharray="5 7" opacity="0.55"/>
+
+        <!-- Dots -->
+        <circle cx="280" cy="60"  r="5" fill="#f5b800"/>           <!-- CZ -->
+        <circle cx="320" cy="240" r="4" fill="var(--fg-dim)"/>     <!-- Dalmatia -->
+        <circle cx="480" cy="320" r="4" fill="var(--fg-dim)"/>     <!-- Dubrovnik -->
+        <circle cx="545" cy="290" r="4" fill="var(--fg-dim)"/>     <!-- Mostar -->
+        <circle cx="350" cy="205" r="4" fill="var(--fg-dim)"/>     <!-- Štrbački Buk -->
+        <circle cx="285" cy="150" r="4" fill="var(--fg-dim)"/>     <!-- Kumrovec -->
+
+        <!-- Labels -->
+        <g font-family="'JetBrains Mono', monospace"
+           font-size="11" letter-spacing="0.12em" filter="url(#lbl-bg-crbh)">
+
+          <text x="292" y="55" text-anchor="start" fill="#f5b800">CZ · LIBEREC</text>
+
+          <text x="308" y="247" text-anchor="end" fill="var(--fg-dim)">HR · DALMATIA</text>
+          <text x="308" y="261" text-anchor="end" fill="var(--fg-muted)" font-size="9.5">adriatic coast</text>
+
+          <text x="468" y="326" text-anchor="end" fill="var(--fg-dim)">HR · DUBROVNIK</text>
+          <text x="468" y="340" text-anchor="end" fill="var(--fg-muted)" font-size="9.5">south coast</text>
+
+          <text x="557" y="285" text-anchor="start" fill="var(--fg-dim)">BiH · MOSTAR</text>
+          <text x="557" y="299" text-anchor="start" fill="var(--fg-muted)" font-size="9.5">herzegovina · bridge</text>
+
+          <text x="362" y="201" text-anchor="start" fill="var(--fg-dim)">ŠTRBAČKI BUK</text>
+          <text x="362" y="215" text-anchor="start" fill="var(--fg-muted)" font-size="9.5">waterfall · una river</text>
+
+          <text x="273" y="146" text-anchor="end" fill="var(--fg-dim)">HR · KUMROVEC</text>
+          <text x="273" y="160" text-anchor="end" fill="var(--fg-muted)" font-size="9.5">tito birthplace</text>
+        </g>
+      </svg>
+    </div>
+  </section>
+
+  <article>
+    <p class="first">
+      People always ask us why we sleep in ruins. The honest answer: we can't
+      afford hotels. Somewhere between the cheap excuse and the truth, there's a
+      story about Yugoslavia — a country that built monuments to its own permanence,
+      then dissolved before anyone got the memo. We went to find what it left behind.
+    </p>
+
+    <p>
+      The former Yugoslavia is one of the stranger political grief-sites on earth.
+      After Tito's death in 1980 the cracks widened slowly, then catastrophically.
+      By 1991 Slovenia was gone, Croatia was burning, and Bosnia was heading for
+      three years of a war so tangled that at various points everyone fought everyone.
+      What they left — military airports, luxury hotels, partisan monuments, Olympic
+      venues — is now a patchwork of ruins along coasts and mountains that tourists
+      photograph for their pools and sunsets, mostly unaware of what's just inland.
+    </p>
+
+    <h2>// Across the Adriatic</h2>
+
+    <p>
+      The first stop was Petrova Gora, a 512-metre hill in the Croatian interior
+      where a massive steel monument was built in the 1980s to honour partisan
+      fighters from World War II. On 4 March 1990, just days before Croatia's
+      first free election, 70,000 people gathered here for what started as a
+      brotherhood rally and turned into a Serbian nationalist demonstration.
+      The hill was primed. Within weeks the wars began. The monument still stands,
+      stripped of its reflective panels, rusting in the forest.
+    </p>
+
+    <p>
+      Fifty kilometres south and underground: Željava. Designed from 1948,
+      finished in 1968 at a cost of $6 million, the Željava Air Base was built
+      into the mountain on the Croatian-Bosnian border — 3.5 km of tunnels,
+      hangars for 100 aircraft, capable of operating autonomously for 30 days
+      with the doors sealed. When the JNA (Yugoslav People's Army) was forced
+      to abandon it in 1992, they mined it first. The Republika Srpska Krajina
+      forces finished the job. What remains is a cavern you walk through with
+      a head torch and the hairs standing up on your neck.
+    </p>
+
+    <p>
+      Further south along the Dalmatian coast: Hotel Marina Lučica near Primošten,
+      opened 1971, over 700 rooms, once considered one of the most modern hotels
+      in the Mediterranean — and famously open about being nudist. The war ended
+      it by 1994. The nudist beach below it is apparently still in use. The hotel
+      is not. Then Krvavica: a children's respiratory sanatorium on the coast,
+      opened 1964, shuttered by the war in 1991. The state couldn't afford to
+      renovate it and didn't want to sell it to a developer. So it just… stands there.
+    </p>
+
+    <h2>// Into Herzegovina</h2>
+
+    <p>
+      Kupari is the one that gets you. In 1920 a Czech entrepreneur built a spa
+      and hotel called Grand in a small bay near Dubrovník — the first hotel in
+      the area. Tito loved it. He added more: Hotel Gloričina (1962), Hotel
+      Pelegrin (1963), Hotel Kupari (1978), Hotel Gloričina II (1980).
+      The whole bay became a resort reserved for the military-political elite
+      — up to 2,000 guests in the hotels, 4,000 more in the surrounding complex.
+      On 1 October 1991 the siege of Dubrovnik began. The JNA looted everything
+      that wasn't shelled, then dropped white phosphorus bombs on the hotels as
+      a demonstration of force to the city nearby. The siege ended May 1992.
+      Kupari hasn't been used since.
+    </p>
+
+    <p>
+      Mostar was the hardest to stand in. The old bridge — Stari Most — spanned
+      the Neretva River since the 16th century, connecting the Catholic Croatian
+      west bank with the Muslim Bosniak east bank. During the war 60 Croatian
+      artillery pieces brought it down in November 1993. It has been rebuilt.
+      The bullet holes in the walls haven't been filled — they're left as record.
+      The city is beautiful and fractured in exactly the right ways to make you
+      understand the phrase "never again" is a wish, not a guarantee.
+    </p>
+
+    <blockquote>
+      "The ones who build monuments never imagine who'll be picking through them fifty years later."
+    </blockquote>
+
+    <p>
+      From Mostar we tracked north to Sarajevo — the Olympic bobsled track from
+      the 1984 Winter Games, overgrown and spray-painted, winding down from
+      Trebević mountain. Hotel Igman and the ski jumps, used as NATO UNPROFOR
+      positions during the siege, still pockmarked with shrapnel. The road
+      between the airport and the hotel was called the most dangerous road
+      in Europe during the war. We drove it at dusk and it was just a road.
+      That's the strangest part: how quickly places go back to being just places.
+      Until you look at the walls.
+    </p>
+
+    <h2>// North, Through Kumrovec</h2>
+
+    <p>
+      On the way back we stopped at Kumrovec, the village in northern Croatia
+      where Josip Broz Tito was born and where, in 1975, a political school
+      bearing his name was opened — one of the most prestigious in Yugoslavia.
+      A new wing with 145 double rooms followed in 1981, a year after Tito's
+      death. Through the 1980s it functioned as a political academy; by the
+      end of the decade, as a military one too. During the war it housed
+      refugees from Vukovar. The last residents left in 2003. Since then the
+      building has sat empty — its corridors still, rooms scattered with
+      newspapers and personal effects, the lecture hall's books exactly where
+      someone left them in a hurry. A Chinese investor bought it in 2019 for
+      two million euros with plans to turn it into a Tito museum. At the time
+      of our visit it was just the quiet kind of abandoned that gets under
+      your skin.
+    </p>
+
+    <p>
+      We also made a detour to Strbacki Buk, a waterfall on the Una River
+      just inside the Bosnian border — a reminder that not everything the
+      former Yugoslavia left behind is scarred. Some of it is just beautiful.
+    </p>
+  </article>
+
+  <section class="video-section">
+    <h2 class="section-title">// VIDEO</h2>
+    <div class="video-wrap">
+      <iframe
+        src="https://www.youtube-nocookie.com/embed/1F7U8kxYCT8"
+        title="Croatia &amp; Bosnia 2018"
+        loading="lazy"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        referrerpolicy="strict-origin-when-cross-origin"
+        allowfullscreen></iframe>
+    </div>
+  </section>
+
+  <section class="gallery-section">
+    <h2 class="section-title">// GALLERY · 67 FRAMES</h2>
+    <h3 class="day-heading">04 Jul 2018  ·  Day 1</h3>
+    <div class="gallery">
+      <figure class="shot full pano">
+      <div class="img" style="background-image:url('./images/cr_bh_2018/cr_bh_pano_0007_04.07.2018_web.jpg');"></div>
+      <figcaption>01 / <b>Panorama</b></figcaption>
+      </figure>
+      <figure class="shot wide pano">
+      <div class="img" style="background-image:url('./images/cr_bh_2018/cr_bh_pano_0002_04.07.2018_LQ.jpg');"></div>
+      <figcaption>02 / <b>Panorama</b></figcaption>
+      </figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/cr_bh_2018/cr_bh_0016_04.07.2018_web.jpg');"></div><figcaption>03</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/cr_bh_2018/cr_bh_0036_04.07.2018_web.jpg');"></div><figcaption>04</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/cr_bh_2018/cr_bh_0053_04.07.2018_web.jpg');"></div><figcaption>05</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/cr_bh_2018/cr_bh_0068_04.07.2018_web.jpg');"></div><figcaption>06</figcaption></figure>
+      <!-- ── 05.07.2018 — Day 2 ── -->
+    </div>
+    <h3 class="day-heading">05 Jul 2018  ·  Day 2</h3>
+    <div class="gallery">
+      <figure class="shot"><div class="img" style="background-image:url('./images/cr_bh_2018/cr_bh_0131_05.07.2018_web.jpg');"></div><figcaption>07</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/cr_bh_2018/cr_bh_0137_05.07.2018_web.jpg');"></div><figcaption>08</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/cr_bh_2018/cr_bh_0146_05.07.2018_web.jpg');"></div><figcaption>09</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/cr_bh_2018/cr_bh_0149_05.07.2018_web.jpg');"></div><figcaption>10</figcaption></figure>
+      <!-- ── 06.07.2018 — Day 3 ── -->
+    </div>
+    <h3 class="day-heading">06 Jul 2018  ·  Day 3</h3>
+    <div class="gallery">
+      <figure class="shot"><div class="img" style="background-image:url('./images/cr_bh_2018/cr_bh_0167_06.07.2018_web.jpg');"></div><figcaption>11</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/cr_bh_2018/cr_bh_0184_06.07.2018_web.jpg');"></div><figcaption>12</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/cr_bh_2018/cr_bh_0191_06.07.2018_web.jpg');"></div><figcaption>13</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/cr_bh_2018/cr_bh_0193_06.07.2018_web.jpg');"></div><figcaption>14</figcaption></figure>
+      <!-- ── 07.07.2018 — Day 4 ── -->
+    </div>
+    <h3 class="day-heading">07 Jul 2018  ·  Day 4</h3>
+    <div class="gallery">
+      <figure class="shot"><div class="img" style="background-image:url('./images/cr_bh_2018/cr_bh_0208_07.07.2018_web.jpg');"></div><figcaption>15</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/cr_bh_2018/cr_bh_0223_07.07.2018_web.jpg');"></div><figcaption>16</figcaption></figure>
+      <!-- ── 08.07.2018 — Day 5 ── -->
+    </div>
+    <h3 class="day-heading">08 Jul 2018  ·  Day 5</h3>
+    <div class="gallery">
+      <figure class="shot"><div class="img" style="background-image:url('./images/cr_bh_2018/cr_bh_0245_08.07.2018_web.jpg');"></div><figcaption>17</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/cr_bh_2018/cr_bh_0246_08.07.2018_web.jpg');"></div><figcaption>18</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/cr_bh_2018/cr_bh_0260_08.07.2018_web.jpg');"></div><figcaption>19</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/cr_bh_2018/cr_bh_0278_08.07.2018_web.jpg');"></div><figcaption>20</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/cr_bh_2018/cr_bh_0287_08.07.2018_web.jpg');"></div><figcaption>21</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/cr_bh_2018/cr_bh_0292_08.07.2018_web.jpg');"></div><figcaption>22</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/cr_bh_2018/cr_bh_0300_08.07.2018_web.jpg');"></div><figcaption>23</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/cr_bh_2018/cr_bh_0304_08.07.2018_web.jpg');"></div><figcaption>24</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/cr_bh_2018/cr_bh_0320_08.07.2018_web.jpg');"></div><figcaption>25</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/cr_bh_2018/cr_bh_0322_08.07.2018_web.jpg');"></div><figcaption>26</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/cr_bh_2018/cr_bh_0350_08.07.2018_web.jpg');"></div><figcaption>27</figcaption></figure>
+      <!-- ── 10.07.2018 — Day 7 ── -->
+    </div>
+    <h3 class="day-heading">10 Jul 2018  ·  Day 7</h3>
+    <div class="gallery">
+      <figure class="shot"><div class="img" style="background-image:url('./images/cr_bh_2018/cr_bh_0378_10.07.2018_web.jpg');"></div><figcaption>28</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/cr_bh_2018/cr_bh_0380_10.07.2018_web.jpg');"></div><figcaption>29</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/cr_bh_2018/cr_bh_0389_10.07.2018_web.jpg');"></div><figcaption>30</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/cr_bh_2018/cr_bh_0416_10.07.2018_web.jpg');"></div><figcaption>31</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/cr_bh_2018/cr_bh_0435_10.07.2018_web.jpg');"></div><figcaption>32</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/cr_bh_2018/cr_bh_0444_10.07.2018_web.jpg');"></div><figcaption>33</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/cr_bh_2018/cr_bh_0448_10.07.2018_web.jpg');"></div><figcaption>34</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/cr_bh_2018/cr_bh_0466_10.07.2018_web.jpg');"></div><figcaption>35</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/cr_bh_2018/cr_bh_0480_10.07.2018_web.jpg');"></div><figcaption>36</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/cr_bh_2018/cr_bh_0486_10.07.2018_web.jpg');"></div><figcaption>37</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/cr_bh_2018/cr_bh_0492_10.07.2018_web.jpg');"></div><figcaption>38</figcaption></figure>
+      <!-- ── 11.07.2018 — Day 8 ── -->
+    </div>
+    <h3 class="day-heading">11 Jul 2018  ·  Day 8</h3>
+    <div class="gallery">
+      <figure class="shot"><div class="img" style="background-image:url('./images/cr_bh_2018/cr_bh_0498_11.07.2018_web.jpg');"></div><figcaption>39</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/cr_bh_2018/cr_bh_0505_11.07.2018_web.jpg');"></div><figcaption>40</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/cr_bh_2018/cr_bh_0509_11.07.2018_web.jpg');"></div><figcaption>41</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/cr_bh_2018/cr_bh_0510_11.07.2018_web.jpg');"></div><figcaption>42</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/cr_bh_2018/cr_bh_0517_11.07.2018_web.jpg');"></div><figcaption>43</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/cr_bh_2018/cr_bh_0521_11.07.2018_web.jpg');"></div><figcaption>44</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/cr_bh_2018/cr_bh_0525_11.07.2018_web.jpg');"></div><figcaption>45</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/cr_bh_2018/cr_bh_0526_11.07.2018_web.jpg');"></div><figcaption>46</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/cr_bh_2018/cr_bh_0532_11.07.2018_web.jpg');"></div><figcaption>47</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/cr_bh_2018/cr_bh_0538_11.07.2018_web.jpg');"></div><figcaption>48</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/cr_bh_2018/cr_bh_0539_11.07.2018_web.jpg');"></div><figcaption>49</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/cr_bh_2018/cr_bh_0547_11.07.2018_web.jpg');"></div><figcaption>50</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/cr_bh_2018/cr_bh_0548_11.07.2018_web.jpg');"></div><figcaption>51</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/cr_bh_2018/cr_bh_0550_11.07.2018_web.jpg');"></div><figcaption>52</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/cr_bh_2018/cr_bh_0561_11.07.2018_web.jpg');"></div><figcaption>53</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/cr_bh_2018/cr_bh_martin_0040_11.07.2018_web.jpg');"></div><figcaption>54 / <b>Martin</b></figcaption></figure>
+      <!-- ── 12.07.2018 — Day 9 ── -->
+    </div>
+    <h3 class="day-heading">12 Jul 2018  ·  Day 9</h3>
+    <div class="gallery">
+      <figure class="shot"><div class="img" style="background-image:url('./images/cr_bh_2018/cr_bh_0602_12.07.2018_web.jpg');"></div><figcaption>55</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/cr_bh_2018/cr_bh_0603_12.07.2018_web.jpg');"></div><figcaption>56</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/cr_bh_2018/cr_bh_0604_12.07.2018_web.jpg');"></div><figcaption>57</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/cr_bh_2018/cr_bh_0608_12.07.2018_web.jpg');"></div><figcaption>58</figcaption></figure>
+      <!-- ── Various — second camera / Flickr archive ── -->
+    </div>
+    <h3 class="day-heading">Various  ·  Second camera</h3>
+    <div class="gallery">
+      <figure class="shot"><div class="img" style="background-image:url('./images/cr_bh_2018/004-img_8867_29506095817_o_web.jpg');"></div><figcaption>59</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/cr_bh_2018/005-img_8885_43534798905_o_web.jpg');"></div><figcaption>60</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/cr_bh_2018/015-img_9010_30574914878_o_web.jpg');"></div><figcaption>61</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/cr_bh_2018/032-dsc02653_30574912308_o_web.jpg');"></div><figcaption>62</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/cr_bh_2018/069-dsc03067_43726332174_o_web.jpg');"></div><figcaption>63</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/cr_bh_2018/070-dsc03070_42634800740_o_web.jpg');"></div><figcaption>64</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/cr_bh_2018/071-dsc03072_43534794595_o_web.jpg');"></div><figcaption>65</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/cr_bh_2018/073-dsc03076_42634800690_o_web.jpg');"></div><figcaption>66</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/cr_bh_2018/082-dsc03104_43726335644_o_web.jpg');"></div><figcaption>67</figcaption></figure>
+    </div>
+  </section>
+
+  <nav class="nav-strip">
+    <a href="./ukraine-2017.html">
+      <span class="label">← previous</span>
+      Kyiv &amp; Ukraine
+    </a>
+    <a href="./">
+      <span class="label">next →</span>
+      back to journal
+    </a>
+  </nav>
+
+  <footer>
+    <span>© VOJTĚCH KONOPA</span>
+    <span><a href="/">HOME</a> · <a href="./">JOURNAL</a></span>
+  </footer>
+
+  <!-- LIGHTBOX -->
+  <div id="lb">
+    <span id="lb-close" onclick="closeLb()">✕</span>
+    <img id="lb-img" src="" alt="">
+  </div>
+  <script>
+    function openLb(src){
+      document.getElementById('lb-img').src = src;
+      document.getElementById('lb').classList.add('open');
+    }
+    function closeLb(){
+      document.getElementById('lb').classList.remove('open');
+      document.getElementById('lb-img').src = '';
+    }
+    document.querySelectorAll('.gallery .shot .img').forEach(el=>{
+      el.addEventListener('click', ()=>{
+        const m = el.style.backgroundImage.match(/url\(['"]?(.+?)['"]?\)/);
+        if (m) openLb(m[1]);
+      });
+    });
+    document.getElementById('lb').addEventListener('click', e=>{
+      if (e.target === e.currentTarget) closeLb();
+    });
+    document.addEventListener('keydown', e=>{ if (e.key === 'Escape') closeLb(); });
+    const _pc = document.querySelectorAll('.gallery .shot .img').length;
+    const _pcEl = document.getElementById('photo-count');
+    if (_pcEl && _pc > 0) _pcEl.textContent = _pc;
+  </script>
+
+</body>
+</html>

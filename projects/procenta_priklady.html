@@ -565,102 +565,33 @@ input.answer.wrong { border-color: var(--red); background: var(--red-light); ani
   .stats-panel .stat-value { font-size: 1.2rem; }
   .diff-row { flex-direction: column; }
 }
+/* lang bar */
+#lang-bar{position:fixed;bottom:16px;right:16px;z-index:200;display:flex;gap:6px}
+.lang-btn{background:#fff;border:1.5px solid var(--border);border-radius:8px;
+  padding:4px 8px;font-size:1.1rem;cursor:pointer;transition:border-color .12s,box-shadow .12s;
+  line-height:1;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.lang-btn:hover{border-color:var(--blue);box-shadow:0 2px 8px rgba(26,115,200,.2)}
+.lang-btn.active{border-color:var(--blue);box-shadow:0 0 0 2px rgba(26,115,200,.25)}
 </style>
 </head>
 <body>
 
+<div id="lang-bar">
+  <button class="lang-btn active" data-lang="cs" onclick="setLang('cs')">🇨🇿</button>
+  <button class="lang-btn" data-lang="en" onclick="setLang('en')">🇬🇧</button>
+</div>
+
 <!-- ═══════════ INTRO ═══════════ -->
 <section id="intro" class="screen active">
-  <div class="top-bar">
-    <a href="./">← zpět na projekty</a>
-    <span></span>
-    <a href="/">domů</a>
-  </div>
-
-  <div class="intro-icon">🧮</div>
-  <div class="title-row">
-    <h1 class="intro-title">Procenta — <span class="accent">interaktivní příklady</span></h1>
-    <span class="badge-advanced">Pokročilé</span>
-  </div>
-  <p class="intro-sub">
-    Pokročilé procvičení procent. Náhodně generovaných <b>10 příkladů</b> v každé sadě, jiné pokaždé.
-    Na konci uvidíš svoji úspěšnost a postup řešení tam, kde jsi chyboval(a).
-  </p>
-
-  <!-- STATS PANEL — only shown if data in localStorage -->
-  <div class="stats-panel" id="stats-panel" style="display:none;">
-    <div class="stat">
-      <span class="stat-value best" id="stat-best">—</span>
-      <span class="stat-label">Nejlepší</span>
-    </div>
-    <div class="stat">
-      <span class="stat-value" id="stat-sessions">0</span>
-      <span class="stat-label">Sady</span>
-    </div>
-    <div class="stat">
-      <span class="stat-value streak" id="stat-streak">0</span>
-      <span class="stat-label">Série 🔥</span>
-    </div>
-  </div>
-
-  <!-- TIP BANNER → únikovka -->
-  <div class="tip-banner">
-    <span class="tip-icon">🚪</span>
-    <span><b>Začínáš s procenty?</b> Tahle stránka předpokládá, že už znáš základy. Doporučuji nejprve projít <a href="./unikovka_procenta.html">únikovku z procent</a> — provede tě postupně všemi typy úloh.</span>
-  </div>
-
-  <div class="intro-card">
-    <h3>📋 Co tě čeká</h3>
-    <ul>
-      <li><span class="bullet">①</span><span><b>Procentová část</b> — kolik je <i>n %</i> z čísla?</span></li>
-      <li><span class="bullet">②</span><span><b>Základ (celek)</b> — když znáš část, najdi celek.</span></li>
-      <li><span class="bullet">③</span><span><b>Počet procent</b> — kolika procenty z celku je daná část?</span></li>
-      <li><span class="bullet">④</span><span><b>Zvýšení o procenta</b> — slovní úlohy se zvýšením ceny.</span></li>
-      <li><span class="bullet">⑤</span><span><b>Sleva</b> — slovní úlohy se snížením ceny.</span></li>
-      <li><span class="bullet" style="color:var(--pink)">⑥</span><span><b>Složený výpočet</b> — nejdřív sleva, pak DPH (jen Pokročilá).</span></li>
-      <li><span class="bullet" style="color:var(--indigo)">⑦</span><span><b>Porovnání</b> — X je o n % větší/menší než Y, najdi Y (jen Pokročilá).</span></li>
-      <li><span class="bullet" style="color:var(--rose)">⑧</span><span><b>Poměry</b> — slovní úlohy s rozdělením na části (jen Pokročilá).</span></li>
-    </ul>
-  </div>
-
-  <!-- DIFFICULTY -->
-  <div class="diff-section">
-    <h3>🎯 Vyber obtížnost</h3>
-    <div class="diff-row">
-      <button class="diff-btn" data-diff="easy">
-        <span class="diff-label">Snadná</span>
-        <span class="diff-desc">3 typy · malá čísla · zaokrouhlená procenta</span>
-      </button>
-      <button class="diff-btn active" data-diff="medium">
-        <span class="diff-label">Střední</span>
-        <span class="diff-desc">5 typů · větší čísla · slovní úlohy</span>
-      </button>
-      <button class="diff-btn" data-diff="hard">
-        <span class="diff-label">Pokročilá</span>
-        <span class="diff-desc">8 typů · složené, porovnání, poměry</span>
-      </button>
-    </div>
-  </div>
-
-  <div class="intro-card" style="border-left-color: var(--gold);">
-    <h3 style="color: var(--gold);">💡 Pravidla</h3>
-    <ul>
-      <li><span class="bullet" style="color: var(--gold);">·</span><span>Odpověď zadej jako <b>celé číslo</b> (bez %, bez Kč).</span></li>
-      <li><span class="bullet" style="color: var(--gold);">·</span><span>Stiskni <b>Enter</b> nebo tlačítko <b>Zkontrolovat</b>.</span></li>
-      <li><span class="bullet" style="color: var(--gold);">·</span><span>Po každém příkladu uvidíš správnou odpověď. Postup pro chybné příklady se zobrazí na konci.</span></li>
-      <li><span class="bullet" style="color: var(--gold);">·</span><span><b>Série 🔥</b> roste, pokud máš <b>aspoň 7/10</b>. Když dáš méně, série se vynuluje.</span></li>
-    </ul>
-  </div>
-
-  <button class="btn-primary" id="btn-start">▶ Začít sadu 10 příkladů</button>
+  <div id="intro-content"></div>
 </section>
 
 <!-- ═══════════ GAME ═══════════ -->
 <section id="game" class="screen">
   <div class="top-bar">
-    <a href="./">← zpět na projekty</a>
+    <a href="./" class="tp-back">← zpět na projekty</a>
     <span id="problem-of">Příklad 1 / 10</span>
-    <a href="/">domů</a>
+    <a href="/" class="tp-home">domů</a>
   </div>
   <div class="progress-wrap">
     <div class="progress-row">
@@ -680,9 +611,9 @@ input.answer.wrong { border-color: var(--red); background: var(--red-light); ani
 <!-- ═══════════ RESULT ═══════════ -->
 <section id="result" class="screen">
   <div class="top-bar">
-    <a href="./">← zpět na projekty</a>
+    <a href="./" class="tp-back">← zpět na projekty</a>
     <span></span>
-    <a href="/">domů</a>
+    <a href="/" class="tp-home">domů</a>
   </div>
   <div class="result-icon" id="result-icon">🎉</div>
   <h1 class="result-title" id="result-title">Hotovo!</h1>
@@ -691,18 +622,18 @@ input.answer.wrong { border-color: var(--red); background: var(--red-light); ani
   <div class="result-streak" id="result-streak" style="display:none;">🔥 Série prodloužena na <b id="result-streak-num">2</b></div>
 
   <div id="result-ok-section" class="result-section ok" style="display:none;">
-    <h3>✅ Co ti šlo</h3>
+    <h3 id="result-ok-h3">✅ Co ti šlo</h3>
     <div id="result-ok-list"></div>
   </div>
 
   <div id="result-err-section" class="result-section err" style="display:none;">
-    <h3>📝 Kde se ještě potrénovat (postup)</h3>
+    <h3 id="result-err-h3">📝 Kde se ještě potrénovat (postup)</h3>
     <div id="result-err-list"></div>
   </div>
 
   <div class="result-actions">
     <button class="btn-primary" id="btn-restart">🔁 Hrát znovu (10 nových)</button>
-    <a class="btn-secondary" href="./">← zpět na projekty</a>
+    <a class="btn-secondary tp-back" href="./">← zpět na projekty</a>
   </div>
 </section>
 
@@ -712,6 +643,119 @@ input.answer.wrong { border-color: var(--red); background: var(--red-light); ani
    8 typů příkladů × 3 úrovně obtížnosti
    localStorage: best, sessions, streak, lastDiff
    ════════════════════════════════════════════════════════════════════════ */
+
+/* ─── i18n ───────────────────────────────────────────────────────────── */
+const LANG_KEY = 'procenta_lang';
+let lang = localStorage.getItem(LANG_KEY) || 'cs';
+const i18n = (cs, en) => lang === 'en' ? en : cs;
+
+function setLang(l) {
+  lang = l;
+  try { localStorage.setItem(LANG_KEY, l); } catch(e) {}
+  document.querySelectorAll('.lang-btn').forEach(b =>
+    b.classList.toggle('active', b.dataset.lang === l));
+  document.querySelectorAll('.tp-back').forEach(el =>
+    el.textContent = i18n('← zpět na projekty', '← back to projects'));
+  document.querySelectorAll('.tp-home').forEach(el =>
+    el.textContent = i18n('domů', 'home'));
+  const activeId = document.querySelector('.screen.active')?.id;
+  if (activeId === 'intro') { buildIntro(); refreshIntroStats(); }
+  else if (activeId === 'game') { updateProgress(); renderProblem(); }
+  else if (activeId === 'result') buildResultStatic();
+}
+
+function buildIntro() {
+  document.getElementById('intro-content').innerHTML = `
+    <div class="top-bar">
+      <a href="./" class="tp-back">${i18n('← zpět na projekty','← back to projects')}</a>
+      <span></span>
+      <a href="/" class="tp-home">${i18n('domů','home')}</a>
+    </div>
+    <div class="intro-icon">🧮</div>
+    <div class="title-row">
+      <h1 class="intro-title">${i18n('Procenta — ','Percentages — ')}<span class="accent">${i18n('interaktivní příklady','interactive exercises')}</span></h1>
+      <span class="badge-advanced">${i18n('Pokročilé','Advanced')}</span>
+    </div>
+    <p class="intro-sub">${i18n(
+      'Pokročilé procvičení procent. Náhodně generovaných <b>10 příkladů</b> v každé sadě, jiné pokaždé. Na konci uvidíš svoji úspěšnost a postup řešení tam, kde jsi chyboval(a).',
+      'Advanced percentage practice. Randomly generated <b>10 problems</b> per set, different every time. At the end you\'ll see your score and step-by-step solutions for any mistakes.'
+    )}</p>
+    <div class="stats-panel" id="stats-panel" style="display:none;">
+      <div class="stat">
+        <span class="stat-value best" id="stat-best">—</span>
+        <span class="stat-label">${i18n('Nejlepší','Best')}</span>
+      </div>
+      <div class="stat">
+        <span class="stat-value" id="stat-sessions">0</span>
+        <span class="stat-label">${i18n('Sady','Sets')}</span>
+      </div>
+      <div class="stat">
+        <span class="stat-value streak" id="stat-streak">0</span>
+        <span class="stat-label">${i18n('Série 🔥','Streak 🔥')}</span>
+      </div>
+    </div>
+    <div class="tip-banner">
+      <span class="tip-icon">🚪</span>
+      <span>${i18n(
+        '<b>Začínáš s procenty?</b> Tahle stránka předpokládá, že už znáš základy. Doporučuji nejprve projít <a href="./unikovka_procenta.html">únikovku z procent</a> — provede tě postupně všemi typy úloh.',
+        '<b>New to percentages?</b> This page assumes you know the basics. I recommend first completing the <a href="./unikovka_procenta.html">percentage escape room</a> — it guides you through all problem types step by step.'
+      )}</span>
+    </div>
+    <div class="intro-card">
+      <h3>${i18n('📋 Co tě čeká','📋 What awaits you')}</h3>
+      <ul>
+        <li><span class="bullet">①</span><span>${i18n('<b>Procentová část</b> — kolik je <i>n %</i> z čísla?','<b>Percentage part</b> — how much is <i>n %</i> of a number?')}</span></li>
+        <li><span class="bullet">②</span><span>${i18n('<b>Základ (celek)</b> — když znáš část, najdi celek.','<b>Base (whole)</b> — given the part, find the whole.')}</span></li>
+        <li><span class="bullet">③</span><span>${i18n('<b>Počet procent</b> — kolika procenty z celku je daná část?','<b>Percentage</b> — what percentage of the whole is the given part?')}</span></li>
+        <li><span class="bullet">④</span><span>${i18n('<b>Zvýšení o procenta</b> — slovní úlohy se zvýšením ceny.','<b>Percentage increase</b> — word problems with price increases.')}</span></li>
+        <li><span class="bullet">⑤</span><span>${i18n('<b>Sleva</b> — slovní úlohy se snížením ceny.','<b>Discount</b> — word problems with price reductions.')}</span></li>
+        <li><span class="bullet" style="color:var(--pink)">⑥</span><span>${i18n('<b>Složený výpočet</b> — nejdřív sleva, pak DPH (jen Pokročilá).','<b>Compound calculation</b> — discount first, then markup (Advanced only).')}</span></li>
+        <li><span class="bullet" style="color:var(--indigo)">⑦</span><span>${i18n('<b>Porovnání</b> — X je o n % větší/menší než Y, najdi Y (jen Pokročilá).','<b>Comparison</b> — X is n % larger/smaller than Y, find Y (Advanced only).')}</span></li>
+        <li><span class="bullet" style="color:var(--rose)">⑧</span><span>${i18n('<b>Poměry</b> — slovní úlohy s rozdělením na části (jen Pokročilá).','<b>Ratios</b> — word problems with dividing into parts (Advanced only).')}</span></li>
+      </ul>
+    </div>
+    <div class="diff-section">
+      <h3>${i18n('🎯 Vyber obtížnost','🎯 Choose difficulty')}</h3>
+      <div class="diff-row">
+        <button class="diff-btn" data-diff="easy">
+          <span class="diff-label">${i18n('Snadná','Easy')}</span>
+          <span class="diff-desc">${i18n('3 typy · malá čísla · zaokrouhlená procenta','3 types · small numbers · round percentages')}</span>
+        </button>
+        <button class="diff-btn" data-diff="medium">
+          <span class="diff-label">${i18n('Střední','Medium')}</span>
+          <span class="diff-desc">${i18n('5 typů · větší čísla · slovní úlohy','5 types · larger numbers · word problems')}</span>
+        </button>
+        <button class="diff-btn" data-diff="hard">
+          <span class="diff-label">${i18n('Pokročilá','Advanced')}</span>
+          <span class="diff-desc">${i18n('8 typů · složené, porovnání, poměry','8 types · compound, comparison, ratios')}</span>
+        </button>
+      </div>
+    </div>
+    <div class="intro-card" style="border-left-color: var(--gold);">
+      <h3 style="color: var(--gold);">💡 ${i18n('Pravidla','Rules')}</h3>
+      <ul>
+        <li><span class="bullet" style="color: var(--gold);">·</span><span>${i18n('Odpověď zadej jako <b>celé číslo</b> (bez %, bez Kč).','Enter the answer as a <b>whole number</b> (no %, no currency symbol).')}</span></li>
+        <li><span class="bullet" style="color: var(--gold);">·</span><span>${i18n('Stiskni <b>Enter</b> nebo tlačítko <b>Zkontrolovat</b>.','Press <b>Enter</b> or the <b>Check</b> button.')}</span></li>
+        <li><span class="bullet" style="color: var(--gold);">·</span><span>${i18n('Po každém příkladu uvidíš správnou odpověď. Postup pro chybné příklady se zobrazí na konci.','After each problem you\'ll see the correct answer. Step-by-step solutions for wrong answers appear at the end.')}</span></li>
+        <li><span class="bullet" style="color: var(--gold);">·</span><span>${i18n('<b>Série 🔥</b> roste, pokud máš <b>aspoň 7/10</b>. Když dáš méně, série se vynuluje.','<b>Streak 🔥</b> grows if you score <b>at least 7/10</b>. Getting less resets it.')}</span></li>
+      </ul>
+    </div>
+    <button class="btn-primary" id="btn-start">${i18n('▶ Začít sadu 10 příkladů','▶ Start 10 problems')}</button>
+  `;
+  document.querySelectorAll('.diff-btn').forEach(btn =>
+    btn.addEventListener('click', () => selectDifficulty(btn.dataset.diff)));
+  selectDifficulty(currentDiff);
+  document.getElementById('btn-start').addEventListener('click', startGame);
+}
+
+function buildResultStatic() {
+  const okH = document.getElementById('result-ok-h3');
+  const errH = document.getElementById('result-err-h3');
+  if (okH) okH.innerHTML = i18n('✅ Co ti šlo','✅ What went well');
+  if (errH) errH.innerHTML = i18n('📝 Kde se ještě potrénovat (postup)','📝 Where to practice more (solutions)');
+  const restartBtn = document.getElementById('btn-restart');
+  if (restartBtn) restartBtn.textContent = i18n('🔁 Hrát znovu (10 nových)','🔁 Play again (10 new)');
+}
 
 const STORAGE_KEY = 'procenta_priklady_v2';
 const STREAK_THRESHOLD = 7;  // alespoň 7/10 → série pokračuje
@@ -753,13 +797,18 @@ function genPart(diff) {
   const answer = (c.n * x) / 100;
   return {
     type: 'part',
-    typeLabel: 'Procentová část',
-    question: `Vypočítej <b>${c.n} %</b> z <b>${x}</b>.`,
+    typeLabel: () => i18n('Procentová část','Percentage part'),
+    question_cs: `Vypočítej <b>${c.n} %</b> z <b>${x}</b>.`,
+    question_en: `Calculate <b>${c.n} %</b> of <b>${x}</b>.`,
     unit: '',
     answer,
-    steps: [
+    steps_cs: [
       `Najdi <b>1 %</b> ze základu: <b>${x} ÷ 100 = ${x/100}</b>`,
       `Vynásob to počtem procent: <b>${c.n} × ${x/100} = ${answer}</b>`,
+    ],
+    steps_en: [
+      `Find <b>1 %</b> of the base: <b>${x} ÷ 100 = ${x/100}</b>`,
+      `Multiply by the percentage: <b>${c.n} × ${x/100} = ${answer}</b>`,
     ],
   };
 }
@@ -778,13 +827,18 @@ function genBase(diff) {
   const part = n * onePercent;
   return {
     type: 'base',
-    typeLabel: 'Základ (celek)',
-    question: `Číslo, kterého <b>${n} %</b> je <b>${part}</b>?`,
+    typeLabel: () => i18n('Základ (celek)','Base (whole)'),
+    question_cs: `Číslo, kterého <b>${n} %</b> je <b>${part}</b>?`,
+    question_en: `What number has <b>${n} %</b> equal to <b>${part}</b>?`,
     unit: '',
     answer: base,
-    steps: [
+    steps_cs: [
       `Najdi <b>1 %</b>: <b>${part} ÷ ${n} = ${onePercent}</b>`,
       `Celý základ je <b>100 %</b>: <b>${onePercent} × 100 = ${base}</b>`,
+    ],
+    steps_en: [
+      `Find <b>1 %</b>: <b>${part} ÷ ${n} = ${onePercent}</b>`,
+      `The whole base is <b>100 %</b>: <b>${onePercent} × 100 = ${base}</b>`,
     ],
   };
 }
@@ -803,12 +857,17 @@ function genPercent(diff) {
   const part = n * onePercent;
   return {
     type: 'percent',
-    typeLabel: 'Počet procent',
-    question: `Kolik <b>%</b> je <b>${part}</b> z <b>${base}</b>?`,
+    typeLabel: () => i18n('Počet procent','Percentage'),
+    question_cs: `Kolik <b>%</b> je <b>${part}</b> z <b>${base}</b>?`,
+    question_en: `What <b>%</b> is <b>${part}</b> of <b>${base}</b>?`,
     unit: '%',
     answer: n,
-    steps: [
+    steps_cs: [
       `Vzorec: <b>(část ÷ celek) × 100 = počet %</b>`,
+      `(${part} ÷ ${base}) × 100 = <b>${n} %</b>`,
+    ],
+    steps_en: [
+      `Formula: <b>(part ÷ whole) × 100 = percentage</b>`,
       `(${part} ÷ ${base}) × 100 = <b>${n} %</b>`,
     ],
   };
@@ -827,20 +886,29 @@ function genIncrease(diff) {
   const increase = n * onePercent;
   const newValue = base + increase;
   const stories = [
-    { ctx: `Cena výrobku <b>${base} Kč</b>`, action: `zvýšila o <b>${n} %</b>`, q: `Jaká je nová cena?`, unit: 'Kč' },
-    { ctx: `Plat <b>${base} Kč</b> měsíčně`, action: `zvýšil o <b>${n} %</b>`, q: `Kolik činí nový plat?`, unit: 'Kč' },
-    { ctx: `Knihovna měla <b>${base}</b> knih`, action: `přibylo o <b>${n} %</b> více`, q: `Kolik knih má teď?`, unit: '' },
+    { ctx_cs: `Cena výrobku <b>${base} Kč</b>`, action_cs: `zvýšila o <b>${n} %</b>`, q_cs: `Jaká je nová cena?`,
+      ctx_en: `The price of a product <b>${base} CZK</b>`, action_en: `increased by <b>${n} %</b>`, q_en: `What is the new price?`, unit: i18n('Kč','CZK') },
+    { ctx_cs: `Plat <b>${base} Kč</b> měsíčně`, action_cs: `zvýšil o <b>${n} %</b>`, q_cs: `Kolik činí nový plat?`,
+      ctx_en: `A salary of <b>${base} CZK</b> per month`, action_en: `increased by <b>${n} %</b>`, q_en: `What is the new salary?`, unit: i18n('Kč','CZK') },
+    { ctx_cs: `Knihovna měla <b>${base}</b> knih`, action_cs: `přibylo o <b>${n} %</b> více`, q_cs: `Kolik knih má teď?`,
+      ctx_en: `A library had <b>${base}</b> books`, action_en: `gained <b>${n} %</b> more`, q_en: `How many books does it have now?`, unit: '' },
   ];
   const s = pick(stories);
+  const unit = s.unit;
   return {
     type: 'increase',
-    typeLabel: 'Zvýšení o procenta',
-    question: `${s.ctx} se ${s.action}. ${s.q}`,
-    unit: s.unit,
+    typeLabel: () => i18n('Zvýšení o procenta','Percentage increase'),
+    question_cs: `${s.ctx_cs} se ${s.action_cs}. ${s.q_cs}`,
+    question_en: `${s.ctx_en} ${s.action_en}. ${s.q_en}`,
+    unit,
     answer: newValue,
-    steps: [
+    steps_cs: [
       `Vypočítej zvýšení: <b>${n} %</b> z <b>${base}</b> = ${onePercent} × ${n} = <b>${increase}</b>`,
-      `Nová hodnota: <b>${base} + ${increase} = ${newValue}</b>${s.unit ? ' ' + s.unit : ''}`,
+      `Nová hodnota: <b>${base} + ${increase} = ${newValue}</b>${unit ? ' ' + unit : ''}`,
+    ],
+    steps_en: [
+      `Calculate increase: <b>${n} %</b> of <b>${base}</b> = ${onePercent} × ${n} = <b>${increase}</b>`,
+      `New value: <b>${base} + ${increase} = ${newValue}</b>${unit ? ' ' + unit : ''}`,
     ],
   };
 }
@@ -859,20 +927,29 @@ function genDecrease(diff) {
   const newValue = base - discount;
   if (newValue <= 0) return genDecrease(diff);
   const stories = [
-    { ctx: `Tričko stálo <b>${base} Kč</b>`, action: `dostalo slevu <b>${n} %</b>`, q: `Kolik teď stojí?`, unit: 'Kč' },
-    { ctx: `Cena lyží <b>${base} Kč</b>`, action: `byla snížena o <b>${n} %</b>`, q: `Jaká je nová cena?`, unit: 'Kč' },
-    { ctx: `Z původních <b>${base}</b> žáků`, action: `ubylo <b>${n} %</b>`, q: `Kolik žáků zůstalo?`, unit: '' },
+    { ctx_cs: `Tričko stálo <b>${base} Kč</b>`, action_cs: `dostalo slevu <b>${n} %</b>`, q_cs: `Kolik teď stojí?`,
+      ctx_en: `A T-shirt cost <b>${base} CZK</b>`, action_en: `was discounted by <b>${n} %</b>`, q_en: `How much does it cost now?`, unit: i18n('Kč','CZK') },
+    { ctx_cs: `Cena lyží <b>${base} Kč</b>`, action_cs: `byla snížena o <b>${n} %</b>`, q_cs: `Jaká je nová cena?`,
+      ctx_en: `Skis priced at <b>${base} CZK</b>`, action_en: `were reduced by <b>${n} %</b>`, q_en: `What is the new price?`, unit: i18n('Kč','CZK') },
+    { ctx_cs: `Z původních <b>${base}</b> žáků`, action_cs: `ubylo <b>${n} %</b>`, q_cs: `Kolik žáků zůstalo?`,
+      ctx_en: `From the original <b>${base}</b> students`, action_en: `<b>${n} %</b> left`, q_en: `How many students remain?`, unit: '' },
   ];
   const s = pick(stories);
+  const unit = s.unit;
   return {
     type: 'decrease',
-    typeLabel: 'Sleva',
-    question: `${s.ctx} ${s.action}. ${s.q}`,
-    unit: s.unit,
+    typeLabel: () => i18n('Sleva','Discount'),
+    question_cs: `${s.ctx_cs} ${s.action_cs}. ${s.q_cs}`,
+    question_en: `${s.ctx_en} ${s.action_en}. ${s.q_en}`,
+    unit,
     answer: newValue,
-    steps: [
+    steps_cs: [
       `Vypočítej slevu/úbytek: <b>${n} %</b> z <b>${base}</b> = ${onePercent} × ${n} = <b>${discount}</b>`,
-      `Nová hodnota: <b>${base} − ${discount} = ${newValue}</b>${s.unit ? ' ' + s.unit : ''}`,
+      `Nová hodnota: <b>${base} − ${discount} = ${newValue}</b>${unit ? ' ' + unit : ''}`,
+    ],
+    steps_en: [
+      `Calculate discount/reduction: <b>${n} %</b> of <b>${base}</b> = ${onePercent} × ${n} = <b>${discount}</b>`,
+      `New value: <b>${base} − ${discount} = ${newValue}</b>${unit ? ' ' + unit : ''}`,
     ],
   };
 }
@@ -890,19 +967,29 @@ function genCompound(diff) {
   const [base, sleva, markup] = pick(COMBOS);
   const after1 = base * (100 - sleva) / 100;
   const final = after1 * (100 + markup) / 100;
-  const stories = [
+  const idx = Math.floor(Math.random() * 2);
+  const stories_cs = [
     `Cena výrobku <b>${base} Kč</b>: nejdřív sleva <b>${sleva} %</b>, pak DPH navýšení <b>${markup} %</b>. Jaká je výsledná cena?`,
     `Akce: zboží za <b>${base} Kč</b> má slevu <b>${sleva} %</b>, ale po skončení akce se zvýší o <b>${markup} %</b>. Kolik stojí pak?`,
   ];
+  const stories_en = [
+    `Product price <b>${base} CZK</b>: first a <b>${sleva} %</b> discount, then a <b>${markup} %</b> markup. What is the final price?`,
+    `Sale: item at <b>${base} CZK</b> has a <b>${sleva} %</b> discount, but after the sale ends it goes up by <b>${markup} %</b>. How much does it cost then?`,
+  ];
   return {
     type: 'compound',
-    typeLabel: 'Složený výpočet',
-    question: pick(stories),
-    unit: 'Kč',
+    typeLabel: () => i18n('Složený výpočet','Compound calculation'),
+    question_cs: stories_cs[idx],
+    question_en: stories_en[idx],
+    unit: i18n('Kč','CZK'),
     answer: final,
-    steps: [
+    steps_cs: [
       `Po slevě <b>${sleva} %</b>: ${base} − ${base * sleva / 100} = <b>${after1} Kč</b>`,
       `Po zvýšení <b>${markup} %</b>: ${after1} + ${after1 * markup / 100} = <b>${final} Kč</b>`,
+    ],
+    steps_en: [
+      `After discount <b>${sleva} %</b>: ${base} − ${base * sleva / 100} = <b>${after1} CZK</b>`,
+      `After markup <b>${markup} %</b>: ${after1} + ${after1 * markup / 100} = <b>${final} CZK</b>`,
     ],
   };
 }
@@ -913,27 +1000,37 @@ function genComparison(diff) {
   const base = onePercent * 100;     // Y, hledané číslo
   const pct = pick([10, 20, 25, 50, 75]);
   const direction = pick(['more', 'less']);
-  let X, story, step1;
+  let X, story_cs, story_en, step1_cs, step1_en;
   if (direction === 'more') {
     X = base + onePercent * pct;
-    story = `Číslo X je o <b>${pct} %</b> větší než číslo Y. Když je <b>X = ${X}</b>, kolik je Y?`;
-    step1 = `X = (100 % + ${pct} %) z Y = <b>${100 + pct} %</b> z Y`;
+    story_cs = `Číslo X je o <b>${pct} %</b> větší než číslo Y. Když je <b>X = ${X}</b>, kolik je Y?`;
+    story_en = `Number X is <b>${pct} %</b> greater than number Y. If <b>X = ${X}</b>, what is Y?`;
+    step1_cs = `X = (100 % + ${pct} %) z Y = <b>${100 + pct} %</b> z Y`;
+    step1_en = `X = (100 % + ${pct} %) of Y = <b>${100 + pct} %</b> of Y`;
   } else {
     X = base - onePercent * pct;
     if (X <= 0) return genComparison(diff);
-    story = `Číslo X je o <b>${pct} %</b> menší než číslo Y. Když je <b>X = ${X}</b>, kolik je Y?`;
-    step1 = `X = (100 % − ${pct} %) z Y = <b>${100 - pct} %</b> z Y`;
+    story_cs = `Číslo X je o <b>${pct} %</b> menší než číslo Y. Když je <b>X = ${X}</b>, kolik je Y?`;
+    story_en = `Number X is <b>${pct} %</b> less than number Y. If <b>X = ${X}</b>, what is Y?`;
+    step1_cs = `X = (100 % − ${pct} %) z Y = <b>${100 - pct} %</b> z Y`;
+    step1_en = `X = (100 % − ${pct} %) of Y = <b>${100 - pct} %</b> of Y`;
   }
   const factor = direction === 'more' ? 100 + pct : 100 - pct;
   return {
     type: 'comparison',
-    typeLabel: 'Porovnání (zpětný výpočet)',
-    question: story,
+    typeLabel: () => i18n('Porovnání (zpětný výpočet)','Comparison (reverse calculation)'),
+    question_cs: story_cs,
+    question_en: story_en,
     unit: '',
     answer: base,
-    steps: [
-      step1,
+    steps_cs: [
+      step1_cs,
       `1 % z Y = ${X} ÷ ${factor} = <b>${onePercent}</b>`,
+      `Y (100 %) = ${onePercent} × 100 = <b>${base}</b>`,
+    ],
+    steps_en: [
+      step1_en,
+      `1 % of Y = ${X} ÷ ${factor} = <b>${onePercent}</b>`,
       `Y (100 %) = ${onePercent} × 100 = <b>${base}</b>`,
     ],
   };
@@ -945,22 +1042,35 @@ function genRatio(diff) {
   const total = onePercent * 100;
   const n = pick([20, 25, 30, 40, 60, 70, 75, 80]);
   const yCount = onePercent * (100 - n);
-  const stories = [
+  const ridx = Math.floor(Math.random() * 4);
+  const stories_cs = [
     `Ve třídě je <b>${n} %</b> chlapců a zbytek dívky. Pokud je ve třídě <b>${yCount} dívek</b>, kolik je celkem žáků?`,
     `V parku je <b>${n} %</b> dubů a zbytek jiných stromů. Pokud je tam <b>${yCount}</b> jiných stromů, kolik je celkem stromů?`,
     `V košíku je <b>${n} %</b> jablek a zbytek hrušek. Pokud je tam <b>${yCount} hrušek</b>, kolik je celkem ovoce?`,
     `Knihovna má <b>${n} %</b> beletrie a zbytek odborné literatury. Pokud má <b>${yCount}</b> odborných knih, kolik knih je celkem?`,
   ];
+  const stories_en = [
+    `A class has <b>${n} %</b> boys and the rest are girls. If there are <b>${yCount} girls</b>, how many students are there in total?`,
+    `A park has <b>${n} %</b> oak trees and the rest are other trees. If there are <b>${yCount}</b> other trees, how many trees are there in total?`,
+    `A basket has <b>${n} %</b> apples and the rest are pears. If there are <b>${yCount} pears</b>, how many fruits are there in total?`,
+    `A library has <b>${n} %</b> fiction and the rest is non-fiction. If there are <b>${yCount}</b> non-fiction books, how many books are there in total?`,
+  ];
   return {
     type: 'ratio',
-    typeLabel: 'Poměry (rozdělení celku)',
-    question: pick(stories),
+    typeLabel: () => i18n('Poměry (rozdělení celku)','Ratios (dividing the whole)'),
+    question_cs: stories_cs[ridx],
+    question_en: stories_en[ridx],
     unit: '',
     answer: total,
-    steps: [
+    steps_cs: [
       `Zbytek tvoří <b>(100 − ${n}) % = ${100-n} %</b> celku.`,
       `1 % z celku = ${yCount} ÷ ${100-n} = <b>${onePercent}</b>`,
       `Celý počet (100 %) = ${onePercent} × 100 = <b>${total}</b>`,
+    ],
+    steps_en: [
+      `The remainder is <b>(100 − ${n}) % = ${100-n} %</b> of the whole.`,
+      `1 % of whole = ${yCount} ÷ ${100-n} = <b>${onePercent}</b>`,
+      `Total (100 %) = ${onePercent} × 100 = <b>${total}</b>`,
     ],
   };
 }
@@ -976,16 +1086,16 @@ const ALL_GENERATORS = {
   ratio:      genRatio,
 };
 
-const TYPE_LABELS = {
-  part: 'Procentová část',
-  base: 'Základ (celek)',
-  percent: 'Počet procent',
-  increase: 'Zvýšení o procenta',
-  decrease: 'Sleva',
-  compound: 'Složený výpočet',
-  comparison: 'Porovnání',
-  ratio: 'Poměry',
-};
+const TYPE_LABELS = () => ({
+  part:       i18n('Procentová část','Percentage part'),
+  base:       i18n('Základ (celek)','Base (whole)'),
+  percent:    i18n('Počet procent','Percentage'),
+  increase:   i18n('Zvýšení o procenta','Percentage increase'),
+  decrease:   i18n('Sleva','Discount'),
+  compound:   i18n('Složený výpočet','Compound calculation'),
+  comparison: i18n('Porovnání','Comparison'),
+  ratio:      i18n('Poměry','Ratios'),
+});
 
 const DIFF_TYPES = {
   easy:   ['part', 'base', 'percent'],
@@ -993,7 +1103,11 @@ const DIFF_TYPES = {
   hard:   ['part', 'base', 'percent', 'increase', 'decrease', 'compound', 'comparison', 'ratio'],
 };
 
-const DIFF_LABELS = { easy: 'Snadná', medium: 'Střední', hard: 'Pokročilá' };
+const DIFF_LABELS = () => ({
+  easy:   i18n('Snadná','Easy'),
+  medium: i18n('Střední','Medium'),
+  hard:   i18n('Pokročilá','Advanced'),
+});
 
 /* Vytvoří sadu 10 příkladů podle obtížnosti, vyvážené napříč typy */
 function buildSet(diff) {
@@ -1082,10 +1196,6 @@ function selectDifficulty(d) {
   });
 }
 
-document.querySelectorAll('.diff-btn').forEach(btn => {
-  btn.addEventListener('click', () => selectDifficulty(btn.dataset.diff));
-});
-
 /* ────────────────────────────────────────────────────────────────────────
    GAME LOOP
    ──────────────────────────────────────────────────────────────────────── */
@@ -1106,7 +1216,7 @@ function startGame() {
   activeDiff = currentDiff;
   problems = buildSet(activeDiff);
   cur = 0; scoreOk = 0; scoreErr = 0; history = [];
-  document.getElementById('diff-tag').textContent = DIFF_LABELS[activeDiff];
+  document.getElementById('diff-tag').textContent = DIFF_LABELS()[activeDiff];
   showScreen('game');
   renderProblem();
 }
@@ -1114,7 +1224,10 @@ function startGame() {
 function updateProgress() {
   const pct = (cur / problems.length) * 100;
   document.getElementById('prog-fill').style.width = pct + '%';
-  const label = `Příklad ${Math.min(cur+1, problems.length)} / ${problems.length}`;
+  const label = i18n(
+    `Příklad ${Math.min(cur+1, problems.length)} / ${problems.length}`,
+    `Problem ${Math.min(cur+1, problems.length)} / ${problems.length}`
+  );
   document.getElementById('prog-label').textContent = label;
   document.getElementById('problem-of').textContent = label;
   document.getElementById('score-ok').textContent = scoreOk;
@@ -1122,16 +1235,32 @@ function updateProgress() {
 }
 
 /* Progresivní nápověda — L1 generická per typ, L2/L3 ze stávajících `steps` */
-const L1_BY_TYPE = {
-  part:       'Co znamená "n % z čísla"? Začni převodem procent na desetinné číslo (n/100), nebo najdi nejdřív 1 % a pak vynásob.',
-  base:       'Když znáš procentovou část (kolik je n % z čísla) a procento n, jak najdeš celý základ (100 %)?',
-  percent:    'Vzorec: <b>(část ÷ celek) × 100 = počet procent</b>.',
-  increase:   'Nejdřív zjisti, o kolik se zvýší (v Kč), pak to přičti k původní hodnotě.',
-  decrease:   'Nejdřív zjisti, kolik činí sleva (v Kč), pak ji odečti od původní ceny.',
-  compound:   'Postupuj krok po kroku — nejdřív aplikuj slevu, pak na výsledek aplikuj DPH/zvýšení.',
-  comparison: 'X = (100 % ± n %) z Y. Když znáš X a procento, najdeš Y dělením a násobením.',
-  ratio:      'Druhá skupina tvoří (100 − n) % z celku. Najdi 1 % z údajů této skupiny.',
-};
+const L1_BY_TYPE = () => ({
+  part:       i18n(
+    'Co znamená "n % z čísla"? Začni převodem procent na desetinné číslo (n/100), nebo najdi nejdřív 1 % a pak vynásob.',
+    'What does "n % of a number" mean? Convert the percentage to a decimal (n/100), or first find 1 % and then multiply.'),
+  base:       i18n(
+    'Když znáš procentovou část (kolik je n % z čísla) a procento n, jak najdeš celý základ (100 %)?',
+    'You know the part (what n % of the number is) and the percentage n — how do you find the whole base (100 %)?'),
+  percent:    i18n(
+    'Vzorec: <b>(část ÷ celek) × 100 = počet procent</b>.',
+    'Formula: <b>(part ÷ whole) × 100 = percentage</b>.'),
+  increase:   i18n(
+    'Nejdřív zjisti, o kolik se zvýší (v Kč), pak to přičti k původní hodnotě.',
+    'First find how much the increase is (in numbers), then add it to the original value.'),
+  decrease:   i18n(
+    'Nejdřív zjisti, kolik činí sleva (v Kč), pak ji odečti od původní ceny.',
+    'First find how much the discount is, then subtract it from the original price.'),
+  compound:   i18n(
+    'Postupuj krok po kroku — nejdřív aplikuj slevu, pak na výsledek aplikuj DPH/zvýšení.',
+    'Work step by step — first apply the discount, then apply the markup to the result.'),
+  comparison: i18n(
+    'X = (100 % ± n %) z Y. Když znáš X a procento, najdeš Y dělením a násobením.',
+    'X = (100 % ± n %) of Y. Knowing X and the percentage, find Y by dividing and multiplying.'),
+  ratio:      i18n(
+    'Druhá skupina tvoří (100 − n) % z celku. Najdi 1 % z údajů této skupiny.',
+    'The other group makes up (100 − n) % of the whole. Use that group\'s count to find 1 %.'),
+});
 
 let hintLevel = 0;
 
@@ -1139,28 +1268,32 @@ function advanceHint() {
   if (hintLevel >= 3) return;
   hintLevel++;
   const p = problems[cur];
+  const steps = lang === 'en' ? p.steps_en : p.steps_cs;
   const hints = [
-    L1_BY_TYPE[p.type] || 'Zamysli se nad tím, co je v zadání.',
-    p.steps[0],
-    p.steps[1] || p.steps[0],
+    L1_BY_TYPE()[p.type] || i18n('Zamysli se nad tím, co je v zadání.','Think about what is given in the problem.'),
+    steps[0],
+    steps[1] || steps[0],
   ];
   const box = document.getElementById('hint-box');
   const btn = document.getElementById('hint-btn');
   const counter = document.getElementById('hint-counter');
   box.classList.add('show');
   box.dataset.level = hintLevel;
-  const labels = ['Nasměrování', 'Vzorec', 'Postup s výsledkem'];
-  box.innerHTML = `<span class="h-label">Nápověda ${hintLevel}/3 — ${labels[hintLevel-1]}</span>${hints[hintLevel - 1]}`;
+  const labels = i18n(
+    ['Nasměrování', 'Vzorec', 'Postup s výsledkem'],
+    ['Direction', 'Formula', 'Solution steps']
+  );
+  box.innerHTML = `<span class="h-label">${i18n('Nápověda','Hint')} ${hintLevel}/3 — ${labels[hintLevel-1]}</span>${hints[hintLevel - 1]}`;
   const dots = counter.querySelectorAll('.dot');
   dots.forEach((d, i) => {
     d.classList.toggle('shown', i < hintLevel);
     if (i === 2 && hintLevel === 3) d.classList.add('warn');
   });
   if (hintLevel < 3) {
-    btn.textContent = `💡 Další nápověda ${hintLevel+1}/3`;
+    btn.textContent = i18n(`💡 Další nápověda ${hintLevel+1}/3`, `💡 Next hint ${hintLevel+1}/3`);
   } else {
     btn.disabled = true;
-    btn.textContent = '💡 Všechny nápovědy ukázány';
+    btn.textContent = i18n('💡 Všechny nápovědy ukázány','💡 All hints shown');
   }
 }
 
@@ -1171,16 +1304,16 @@ function renderProblem() {
   const container = document.getElementById('problem-container');
   container.innerHTML = `
     <div class="problem-card cat-${p.type}">
-      <span class="tag cat-${p.type}">${p.typeLabel}</span>
-      <p class="problem-text">${p.question}</p>
+      <span class="tag cat-${p.type}">${p.typeLabel()}</span>
+      <p class="problem-text">${i18n(p.question_cs, p.question_en)}</p>
       <div class="input-row">
         <input class="answer" id="ans" type="number" inputmode="numeric"
                placeholder="?" autocomplete="off" autofocus>
         ${p.unit ? `<span class="unit">${p.unit}</span>` : ''}
-        <button class="btn-check" id="btn-check">Zkontrolovat</button>
+        <button class="btn-check" id="btn-check">${i18n('Zkontrolovat','Check')}</button>
       </div>
       <div class="hint-bar">
-        <button class="hint-btn" id="hint-btn">💡 Nápověda 1/3</button>
+        <button class="hint-btn" id="hint-btn">💡 ${i18n('Nápověda 1/3','Hint 1/3')}</button>
         <span class="hint-counter" id="hint-counter">
           <span class="dot"></span><span class="dot"></span><span class="dot"></span>
         </span>
@@ -1216,17 +1349,17 @@ function checkAnswer() {
     inp.classList.add('correct');
     fb.className = 'feedback ok show';
     fb.innerHTML = `
-      <strong>✓ Správně!</strong> Odpověď je <b>${p.answer}${p.unit ? ' ' + p.unit : ''}</b>.
-      <div class="next-row"><button class="btn-next" id="btn-next">Další →</button></div>
+      <strong>${i18n('✓ Správně!','✓ Correct!')}</strong> ${i18n('Odpověď je','The answer is')} <b>${p.answer}${p.unit ? ' ' + p.unit : ''}</b>.
+      <div class="next-row"><button class="btn-next" id="btn-next">${i18n('Další →','Next →')}</button></div>
     `;
   } else {
     scoreErr++;
     inp.classList.add('wrong');
     fb.className = 'feedback err show';
     fb.innerHTML = `
-      <strong>✗ Bohužel.</strong> Správná odpověď je <b>${p.answer}${p.unit ? ' ' + p.unit : ''}</b>.
-      <span style="display:block;font-size:.85rem;color:var(--muted);margin-top:4px;">Postup uvidíš na konci v souhrnu.</span>
-      <div class="next-row"><button class="btn-next" id="btn-next">Další →</button></div>
+      <strong>${i18n('✗ Bohužel.','✗ Not quite.')}</strong> ${i18n('Správná odpověď je','The correct answer is')} <b>${p.answer}${p.unit ? ' ' + p.unit : ''}</b>.
+      <span style="display:block;font-size:.85rem;color:var(--muted);margin-top:4px;">${i18n('Postup uvidíš na konci v souhrnu.','You\'ll see the solution at the end in the summary.')}</span>
+      <div class="next-row"><button class="btn-next" id="btn-next">${i18n('Další →','Next →')}</button></div>
     `;
   }
   history.push({ problem: p, userAnswer: userVal, correct });
@@ -1253,27 +1386,34 @@ function showResult() {
   // Uložit a získat aktualizované staty
   const stats = recordSession(ok, total, activeDiff);
 
-  let icon = '🎉', title = 'Skvěle!';
-  if (pct >= 90) { icon = '🏆'; title = 'Bezkonkurenční!'; }
-  else if (pct >= 70) { icon = '🎉'; title = 'Skvělá práce!'; }
-  else if (pct >= 50) { icon = '👍'; title = 'Dobrý začátek.'; }
-  else { icon = '📚'; title = 'Pojď to zkusit znovu.'; }
+  let icon = '🎉';
+  let title = i18n('Skvěle!','Great job!');
+  if (pct >= 90) { icon = '🏆'; title = i18n('Bezkonkurenční!','Outstanding!'); }
+  else if (pct >= 70) { icon = '🎉'; title = i18n('Skvělá práce!','Great work!'); }
+  else if (pct >= 50) { icon = '👍'; title = i18n('Dobrý začátek.','Good start.'); }
+  else { icon = '📚'; title = i18n('Pojď to zkusit znovu.','Let\'s try again.'); }
 
   document.getElementById('result-icon').textContent = icon;
   document.getElementById('result-title').textContent = title;
   document.getElementById('result-score').textContent = `${ok} / ${total}`;
   document.getElementById('result-pct').textContent =
-    `Úspěšnost: ${pct} % · obtížnost: ${DIFF_LABELS[activeDiff]}`;
+    i18n(`Úspěšnost: ${pct} % · obtížnost: ${DIFF_LABELS()[activeDiff]}`,
+         `Score: ${pct} % · difficulty: ${DIFF_LABELS()[activeDiff]}`);
+
+  buildResultStatic();
 
   // Streak banner
   const streakEl = document.getElementById('result-streak');
   if (ok >= STREAK_THRESHOLD && stats.streak >= 1) {
     streakEl.style.display = '';
-    document.getElementById('result-streak-num').textContent = stats.streak;
+    streakEl.innerHTML = i18n(
+      `🔥 Série prodloužena na <b id="result-streak-num">${stats.streak}</b>`,
+      `🔥 Streak extended to <b id="result-streak-num">${stats.streak}</b>`
+    );
   } else if (ok < STREAK_THRESHOLD) {
     if (stats.streak === 0) {
       streakEl.style.display = '';
-      streakEl.innerHTML = '💧 Série se vynulovala — zkus to znovu!';
+      streakEl.innerHTML = i18n('💧 Série se vynulovala — zkus to znovu!','💧 Streak reset — try again!');
     } else {
       streakEl.style.display = 'none';
     }
@@ -1296,7 +1436,7 @@ function showResult() {
       const div = document.createElement('div');
       div.className = 'ok-line';
       div.innerHTML = `
-        <span><span style="color:var(--green);">✓</span> ${TYPE_LABELS[t]}</span>
+        <span><span style="color:var(--green);">✓</span> ${TYPE_LABELS()[t]}</span>
         <span class="count">${correctCount} / ${totalByType[t]}</span>
       `;
       okList.appendChild(div);
@@ -1316,14 +1456,15 @@ function showResult() {
       const p = h.problem;
       const div = document.createElement('div');
       div.className = 'miss';
+      const steps = lang === 'en' ? p.steps_en : p.steps_cs;
       div.innerHTML = `
-        <div class="miss-q"><span class="typeTag">${TYPE_LABELS[p.type]}</span>${p.question}</div>
+        <div class="miss-q"><span class="typeTag">${TYPE_LABELS()[p.type]}</span>${i18n(p.question_cs, p.question_en)}</div>
         <div class="miss-answers">
-          <span class="your">tvá odpověď: ${h.userAnswer}${p.unit ? ' ' + p.unit : ''}</span>
-          <span class="right">správně: ${p.answer}${p.unit ? ' ' + p.unit : ''}</span>
+          <span class="your">${i18n('tvá odpověď:','your answer:')} ${h.userAnswer}${p.unit ? ' ' + p.unit : ''}</span>
+          <span class="right">${i18n('správně:','correct:')} ${p.answer}${p.unit ? ' ' + p.unit : ''}</span>
         </div>
         <div class="miss-steps">
-          <ol>${p.steps.map(s => `<li>${s}</li>`).join('')}</ol>
+          <ol>${steps.map(s => `<li>${s}</li>`).join('')}</ol>
         </div>
       `;
       errList.appendChild(div);
@@ -1336,13 +1477,16 @@ function showResult() {
    WIRE UP
    ──────────────────────────────────────────────────────────────────────── */
 
-document.getElementById('btn-start').addEventListener('click', startGame);
 document.getElementById('btn-restart').addEventListener('click', () => {
   showScreen('intro');
-  refreshIntroStats();   // refresh stats panel after a session
+  buildIntro();
+  refreshIntroStats();
 });
 
-// Init: load stats on page load
+// Init
+document.querySelectorAll('.lang-btn').forEach(b =>
+  b.classList.toggle('active', b.dataset.lang === lang));
+buildIntro();
 refreshIntroStats();
 </script>
 </body>

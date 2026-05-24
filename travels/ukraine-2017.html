@@ -130,7 +130,7 @@
       margin: 0 auto;
       padding: 24px 28px;
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(5, 1fr);
       gap: 1px;
       background: var(--border);
       border-bottom: 1px solid var(--border);
@@ -163,12 +163,13 @@
       padding: 56px 28px 56px;
     }
     article p {
-      font-size: 17px;
+      font-size: 15.5px;
       line-height: 1.75;
-      color: var(--fg);
+      color: var(--fg-dim);
       font-weight: 300;
-      margin-bottom: 22px;
+      margin-bottom: 18px;
     }
+    article p strong { color: var(--fg); font-weight: 500; }
     article p.first::first-letter {
       font-family: var(--display);
       font-size: 3.4em;
@@ -178,14 +179,28 @@
       color: var(--accent);
     }
     article h2 {
-      font-family: var(--display);
-      font-size: 22px;
-      letter-spacing: -0.01em;
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.22em;
       text-transform: uppercase;
-      margin: 40px 0 16px;
-      padding-top: 24px;
-      border-top: 1px solid var(--border);
+      color: var(--accent);
+      margin: 52px 0 20px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
     }
+    /* route map */
+    .route-section {
+      max-width: 1080px; margin: 0 auto;
+      padding: 48px 28px;
+      border-bottom: 1px solid var(--border);
+    }
+    .route-section .section-label {
+      font-family: var(--mono); font-size: 11px;
+      letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--fg-dim); margin-bottom: 20px;
+    }
+    .route-svg-wrap { position: relative; width: 100%; overflow: hidden; }
+    .route-svg-wrap svg { width: 100%; height: auto; display: block; }
     article blockquote {
       border-left: 3px solid var(--accent);
       padding: 4px 0 4px 22px;
@@ -261,6 +276,18 @@
     }
     figcaption b { color: var(--fg); font-weight: 500; }
     figure.shot.wide { grid-column: span 2; }
+
+    .day-heading {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--accent);
+      padding: 40px 0 12px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 1px;
+    }
+    .day-heading:first-child { padding-top: 8px; }
 
     /* VIDEO */
     .video-section {
@@ -351,6 +378,17 @@
       footer { flex-direction: column; gap: 8px; }
       .nav-strip { flex-direction: column; gap: 16px; }
     }
+
+    /* ── lightbox ── */
+    #lb { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.92);
+      z-index:1000; align-items:center; justify-content:center; cursor:zoom-out; }
+    #lb.open { display:flex; }
+    #lb img { max-width:90vw; max-height:90vh; object-fit:contain; cursor:default; }
+    #lb-close { position:fixed; top:18px; right:22px; font-size:28px; color:#fff;
+      cursor:pointer; font-family:'JetBrains Mono',monospace; line-height:1; opacity:0.7; z-index:1001; }
+    #lb-close:hover { opacity:1; }
+    .gallery .shot .img { cursor:zoom-in; transition:filter .2s; }
+    .gallery .shot .img:hover { filter:none !important; }
   </style>
 </head>
 <body>
@@ -382,44 +420,143 @@
   <!-- DATA STRIP -->
   <section class="data-strip">
     <div>Country<br><b>Ukraine</b></div>
-    <div>Visited<br><b>27 Jul – 3 Aug 2017</b></div>
-    <div>Base<br><b>Kyiv</b></div>
-    <div>Approx. coords<br><b>50.44° N · 30.49° E</b></div>
+    <div>Dates<br><b>24 Jul – 6 Aug 2017</b></div>
+    <div>Days<br><b>14</b></div>
+    <div title="5 Kyiv &amp; Chernobyl · 4 Carpathians">People<br><b>4–5</b></div>
+    <div>Photos<br><b id="photo-count">—</b></div>
   </section>
 
-  <!-- BODY TEXT — placeholder paragraphs, replace with the docx content.
-       Marked .todo class adds a yellow dashed line so they're visually obvious
-       until you fill them in. Drop the class once the real text is in place. -->
+  <!-- ROUTE MAP -->
+  <section class="route-section">
+    <p class="section-label">// ROUTE — CZ → KYIV → CHERNOBYL → CARPATHIANS → CZ</p>
+    <div class="route-svg-wrap">
+      <svg viewBox="0 0 900 380" xmlns="http://www.w3.org/2000/svg"
+           style="background:var(--surface); border:1px solid var(--border);">
+        <defs>
+          <filter id="lbl-bg-ua" x="-20%" y="-40%" width="140%" height="180%">
+            <feMorphology in="SourceGraphic" operator="dilate" radius="3" result="exp"/>
+            <feFlood flood-color="#262626" result="bg"/>
+            <feComposite in="bg" in2="exp" operator="in" result="outline"/>
+            <feMerge><feMergeNode in="outline"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+        </defs>
+
+        <!-- Route polyline -->
+        <polyline points="160,80 670,170 660,100 480,240 160,80"
+          fill="none" stroke="#f5b800" stroke-width="1.5"
+          stroke-dasharray="5 7" opacity="0.55"/>
+
+        <!-- Dots -->
+        <circle cx="160" cy="80"  r="5" fill="#f5b800"/>
+        <circle cx="670" cy="170" r="4" fill="var(--fg-dim)"/>
+        <circle cx="660" cy="100" r="4" fill="var(--fg-dim)"/>
+        <circle cx="480" cy="240" r="4" fill="var(--fg-dim)"/>
+
+        <!-- Labels -->
+        <g font-family="'JetBrains Mono', monospace"
+           font-size="11" letter-spacing="0.12em" filter="url(#lbl-bg-ua)">
+
+          <text x="172" y="75" text-anchor="start" fill="#f5b800">CZ · LIBEREC</text>
+
+          <text x="682" y="166" text-anchor="start" fill="var(--fg-dim)">UA · KYIV</text>
+          <text x="682" y="180" text-anchor="start" fill="var(--fg-muted)" font-size="9.5">capital · base</text>
+
+          <text x="672" y="95"  text-anchor="start" fill="var(--fg-dim)">CHERNOBYL</text>
+          <text x="672" y="109" text-anchor="start" fill="var(--fg-muted)" font-size="9.5">exclusion zone</text>
+
+          <text x="468" y="246" text-anchor="end"   fill="var(--fg-dim)">CARPATHIANS</text>
+          <text x="468" y="260" text-anchor="end"   fill="var(--fg-muted)" font-size="9.5">SW mountains</text>
+        </g>
+      </svg>
+    </div>
+  </section>
+
   <article>
-    <p class="first todo">
-      [[ FILL FROM DOCX ]] — opening paragraph. The arrival into Kyiv: train,
-      airport, border? What did the city feel like in the first hour?
+    <p class="first">
+      Five friends — some of us met through airsoft, some by chance and the general
+      will of the world. The hobby consists of attempting to maim your friends with
+      plastic pellets; the travel was a natural extension of that logic. We don't travel often, but when
+      we do it tends to involve abandoned buildings, sleeping bags on concrete,
+      and a great deal of talking about it afterwards. Ukraine 2017 was the first
+      time we left the country for it. The reason we sleep in ruins, by the way,
+      is not that it makes us interesting. It's that we can't afford normal hotels.
     </p>
 
-    <p class="todo">
-      [[ FILL FROM DOCX ]] — second paragraph. Where you stayed, who you went with,
-      what the plan was. Any context from the document about why this trip happened.
+    <p>
+      Kyiv is a city of violent contrasts. A 4-star hotel room costs around 250 CZK
+      a night. The deepest metro station in the world — Arsenalnaya, 105 metres
+      underground — sits a short walk from parliament. Czech trams run on the tracks.
+      The cheapest beer on earth is on tap three streets from the Maidan, where in 2014
+      a trade-union building burned to the ground and the scorched facade still reads
+      <em>Svoboda je naše víra</em> — Freedom is our faith. Nearly 80% of Ukrainians
+      have never left the country. The minimum official wage is 3,000 hryvnia. People
+      frequently don't reach it.
     </p>
 
-    <h2 class="todo">[[ FILL ]] — section heading (e.g. "Kyiv", "Out of the city", "The factories")</h2>
+    <h2>// Underground Kyiv</h2>
 
-    <p class="todo">
-      [[ FILL FROM DOCX ]] — story body. The places you went, in roughly the order you
-      went. Specific observations beat broad descriptions: smells, weights, what was
-      written on a wall, who you met.
+    <p>
+      Below the city run three independent systems: sewage, underground rivers, and
+      a storm-drain network for surface runoff. We went in through the third. The
+      tunnels branch and stack — some descend tens of metres. In places they narrow
+      to a crawl. Even if it rains heavily the water reaches waist height at most,
+      but you need to watch the forecast: it's the underground rivers you have to
+      worry about, not the tunnels themselves. Our guide was a local who runs
+      expeditions to abandoned rocket silos in Kazakhstan and spent time in Fukushima
+      (where the fine for unauthorised access is about 30,000 CZK per person, versus
+      the organised Chernobyl tours). He charged a few euros a day and was worth
+      every one of them. The fauna at the bottom included at least one representative
+      waiting patiently in the dark.
     </p>
 
-    <p class="todo">
-      [[ FILL FROM DOCX ]] — continue the story.
+    <h2>// The Bridge</h2>
+
+    <p>
+      The Podilsko-Voskresensky Bridge was born in 1993 — three years before me —
+      and has been under construction since. Its predicted completion date was 2021,
+      which we do have in common. Height: approximately 140 metres. Access: through
+      the hollow side beams. We set an alarm for the pre-dawn so we'd make the
+      sunrise from the top. The climb up was demanding enough. The view from the
+      deck — the city spreading out in every direction, the Dnipro below, a single
+      construction worker who was presumably the foreman, site engineer, and security
+      guard simultaneously — was worth every step. Some photos were taken for
+      Facebook. It was visibly getting lighter.
     </p>
 
-    <blockquote class="todo">
-      "[[ FILL ]] — pulled quote, a line of graffiti, a sign you photographed,
-      or something a guide / fixer / stranger told you."
-      <cite>— [[ source ]]</cite>
+    <h2>// Chernobyl</h2>
+
+    <p>
+      The exclusion zone is divided into three rings by contamination level. In the
+      outermost, a few original residents still live. The wildlife, paradoxically,
+      thrives — radiation is apparently a smaller burden than people. We took a
+      minibus from Kyiv main station (about an hour, documentary shown en route),
+      passed the entrance monument at the town of Chernobyl, which predates the
+      plant and gave it its name, and headed for Duga II — the Soviet over-the-horizon
+      radar nicknamed "the Russian Woodpecker." Structure: 120 metres high, support
+      towers at 150 m, total length 770 metres. It was meant to be the largest
+      radar and communications jammer ever built. In practice it mostly jammed
+      radio in the surrounding area. It cannot be demolished: the risk of ground
+      vibration damaging the reactor is too high. So it stands.
+    </p>
+
+    <p>
+      Pripyat. The city built for the plant's workers was self-sufficient in every
+      way — supermarket, cultural centre, sports hall, swimming pool (the famous
+      one from the video games), a funfair that opened four days before the
+      explosion. Gas masks in the school storeroom that were never collected.
+      Shopping trolleys in the mall, because metals absorb radiation and nobody
+      came back for them. The tourist paths through the city have been worn down
+      by years of guided groups walking exactly the same routes — you can see the
+      worn lines through the moss. Our guide suggested the obligatory carousel
+      photo. Our guide was told no. Then everyone started climbing and she
+      eventually agreed to take the picture.
+    </p>
+
+    <blockquote>
+      "Zákaz vstupu jako by ani neexistoval." — No entry signs might as well not exist.
     </blockquote>
 
-    <h2 class="todo">[[ FILL ]] — second section heading</h2>
+    <h2>// The Carpathians</h2>
 
     <p>
       After Kyiv and the zone, a train east to the mountains. Ukrainian Carpathians:
@@ -437,65 +574,6 @@
     </p>
   </article>
 
-  <!-- GALLERY — eight photos, web-sized, arranged so the grid fills cleanly.
-       To swap in different photos: change the file name in url(...). To re-order:
-       move the <figure> blocks. To make a card span 2 columns: add class="wide". -->
-  <section class="gallery-section">
-    <h2 class="section-title">// GALLERY</h2>
-    <div class="gallery">
-
-      <figure class="shot">
-        <div class="img" style="background-image:url('./images/ua_2017/ua_sk-0051-27.07.2017_web.jpg');"></div>
-        <figcaption>01 / <b>27 Jul 2017</b> · [[ caption ]]</figcaption>
-      </figure>
-
-      <figure class="shot">
-        <div class="img" style="background-image:url('./images/ua_2017/ua_sk-0137-29.07.2017_web.jpg');"></div>
-        <figcaption>02 / <b>29 Jul 2017</b> · [[ caption ]]</figcaption>
-      </figure>
-
-      <figure class="shot">
-        <div class="img" style="background-image:url('./images/ua_2017/ua_sk-0153-29.07.2017_web.jpg');"></div>
-        <figcaption>03 / <b>29 Jul 2017</b> · [[ caption ]]</figcaption>
-      </figure>
-
-      <figure class="shot wide">
-        <div class="img" style="background-image:url('./images/ua_2017/ua_sk-0322-30.07.2017_web.jpg');"></div>
-        <figcaption>04 / <b>30 Jul 2017</b> · [[ caption ]] — landscape spans two columns</figcaption>
-      </figure>
-
-      <figure class="shot">
-        <div class="img" style="background-image:url('./images/ua_2017/ua_sk-0416-03.08.2017_web.jpg');"></div>
-        <figcaption>05 / <b>03 Aug 2017</b> · [[ caption ]]</figcaption>
-      </figure>
-
-      <figure class="shot">
-        <div class="img" style="background-image:url('./images/ua_2017/ua_sk-0454-03.08.2017_web.jpg');"></div>
-        <figcaption>06 / <b>03 Aug 2017</b> · [[ caption ]]</figcaption>
-      </figure>
-
-      <figure class="shot">
-        <div class="img" style="background-image:url('./images/ua_2017/Ukraina_0348_web.jpg');"></div>
-        <figcaption>07 / <b>2017</b> · [[ caption ]]</figcaption>
-      </figure>
-
-      <figure class="shot">
-        <div class="img" style="background-image:url('./images/ua_2017/Ukraina_0365_web.jpg');"></div>
-        <figcaption>08 / <b>2017</b> · [[ caption ]]</figcaption>
-      </figure>
-
-    </div>
-  </section>
-
-  <!-- VIDEO — placeholder for YouTube/Vimeo embed.
-       To use: upload Ukrajina_2017.mp4 to YouTube (unlisted is fine), get the video ID
-       (the bit after `?v=` in the URL), and replace the entire <div class="video-placeholder">
-       block with:
-         <iframe src="https://www.youtube.com/embed/YOUR_VIDEO_ID"
-                 title="Ukrajina 2017"
-                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                 allowfullscreen></iframe>
-  -->
   <section class="video-section">
     <h2 class="section-title">// VIDEO</h2>
     <div class="video-wrap">
@@ -506,6 +584,228 @@
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
         referrerpolicy="strict-origin-when-cross-origin"
         allowfullscreen></iframe>
+    </div>
+  </section>
+
+  <section class="gallery-section">
+    <h2 class="section-title">// GALLERY · 188 FRAMES</h2>
+    <h3 class="day-heading">24 Jul 2017  ·  Preparation</h3>
+    <div class="gallery">
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0001-24.07.2017_web.jpg');"></div><figcaption>1</figcaption></figure>
+    </div>
+    <h3 class="day-heading">27 Jul 2017  ·  Day 1  ·  Kyiv</h3>
+    <div class="gallery">
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0009-27.07.2017_web.jpg');"></div><figcaption>2</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0013-27.07.2017_web.jpg');"></div><figcaption>3</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0014-27.07.2017_web.jpg');"></div><figcaption>4</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0015-27.07.2017_web.jpg');"></div><figcaption>5</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0016-27.07.2017_web.jpg');"></div><figcaption>6</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0019-27.07.2017_web.jpg');"></div><figcaption>7</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0021-27.07.2017_web.jpg');"></div><figcaption>8</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0026-27.07.2017_web.jpg');"></div><figcaption>9</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0028-27.07.2017_web.jpg');"></div><figcaption>10</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0030-27.07.2017_web.jpg');"></div><figcaption>11</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0032-27.07.2017_web.jpg');"></div><figcaption>12</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0034-27.07.2017_web.jpg');"></div><figcaption>13</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0035-27.07.2017_web.jpg');"></div><figcaption>14</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0036-27.07.2017_web.jpg');"></div><figcaption>15</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0037-27.07.2017_web.jpg');"></div><figcaption>16</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0042-27.07.2017_web.jpg');"></div><figcaption>17</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0044-27.07.2017_web.jpg');"></div><figcaption>18</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0045-27.07.2017_web.jpg');"></div><figcaption>19</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0047-27.07.2017_web.jpg');"></div><figcaption>20</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0048-27.07.2017_web.jpg');"></div><figcaption>21</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0051-27.07.2017_web.jpg');"></div><figcaption>22</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0052-27.07.2017_web.jpg');"></div><figcaption>23</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0055-27.07.2017_web.jpg');"></div><figcaption>24</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0056-27.07.2017_web.jpg');"></div><figcaption>25</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0059-27.07.2017_web.jpg');"></div><figcaption>26</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0060-27.07.2017_web.jpg');"></div><figcaption>27</figcaption></figure>
+    </div>
+    <h3 class="day-heading">28 Jul 2017  ·  Day 2  ·  Kyiv</h3>
+    <div class="gallery">
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0064-28.07.2017_web.jpg');"></div><figcaption>28</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0065-28.07.2017_web.jpg');"></div><figcaption>29</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0066-28.07.2017_web.jpg');"></div><figcaption>30</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0068-28.07.2017_web.jpg');"></div><figcaption>31</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0071-28.07.2017_web.jpg');"></div><figcaption>32</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0072-28.07.2017_web.jpg');"></div><figcaption>33</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0074-28.07.2017_web.jpg');"></div><figcaption>34</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0075-28.07.2017_web.jpg');"></div><figcaption>35</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0078-28.07.2017_web.jpg');"></div><figcaption>36</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0081-28.07.2017_web.jpg');"></div><figcaption>37</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0082-28.07.2017_web.jpg');"></div><figcaption>38</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0084-28.07.2017_web.jpg');"></div><figcaption>39</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0086-28.07.2017_web.jpg');"></div><figcaption>40</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0090-28.07.2017_web.jpg');"></div><figcaption>41</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0092-28.07.2017_web.jpg');"></div><figcaption>42</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0095-28.07.2017_web.jpg');"></div><figcaption>43</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0100-28.07.2017_web.jpg');"></div><figcaption>44</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0102-28.07.2017_web.jpg');"></div><figcaption>45</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0103-28.07.2017_web.jpg');"></div><figcaption>46</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0105-28.07.2017_web.jpg');"></div><figcaption>47</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0106-28.07.2017_web.jpg');"></div><figcaption>48</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0107-28.07.2017_web.jpg');"></div><figcaption>49</figcaption></figure>
+    </div>
+    <h3 class="day-heading">29 Jul 2017  ·  Day 3  ·  Chernobyl</h3>
+    <div class="gallery">
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0115-29.07.2017_web.jpg');"></div><figcaption>50</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0117-29.07.2017_web.jpg');"></div><figcaption>51</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0119-29.07.2017_web.jpg');"></div><figcaption>52</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0120-29.07.2017_web.jpg');"></div><figcaption>53</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0121-29.07.2017_web.jpg');"></div><figcaption>54</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0122-29.07.2017_web.jpg');"></div><figcaption>55</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0124-29.07.2017_web.jpg');"></div><figcaption>56</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0126-29.07.2017_web.jpg');"></div><figcaption>57</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0132-29.07.2017_web.jpg');"></div><figcaption>58</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0133-29.07.2017_web.jpg');"></div><figcaption>59</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0135-29.07.2017_web.jpg');"></div><figcaption>60</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0137-29.07.2017_web.jpg');"></div><figcaption>61</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0139-29.07.2017_web.jpg');"></div><figcaption>62</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0141-29.07.2017_web.jpg');"></div><figcaption>63</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0142-29.07.2017_web.jpg');"></div><figcaption>64</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0143-29.07.2017_web.jpg');"></div><figcaption>65</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0144-29.07.2017_web.jpg');"></div><figcaption>66</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0145-29.07.2017_web.jpg');"></div><figcaption>67</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0146-29.07.2017_web.jpg');"></div><figcaption>68</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0152-29.07.2017_web.jpg');"></div><figcaption>69</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0155-29.07.2017_web.jpg');"></div><figcaption>70</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0157-29.07.2017_web.jpg');"></div><figcaption>71</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0158-29.07.2017_web.jpg');"></div><figcaption>72</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0160-29.07.2017_web.jpg');"></div><figcaption>73</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0166-29.07.2017_web.jpg');"></div><figcaption>74</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0168-29.07.2017_web.jpg');"></div><figcaption>75</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0170-29.07.2017_web.jpg');"></div><figcaption>76</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0173-29.07.2017_web.jpg');"></div><figcaption>77</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0177-29.07.2017_web.jpg');"></div><figcaption>78</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0179-29.07.2017_web.jpg');"></div><figcaption>79</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0180-29.07.2017_web.jpg');"></div><figcaption>80</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0181-29.07.2017_web.jpg');"></div><figcaption>81</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0182-29.07.2017_web.jpg');"></div><figcaption>82</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0185-29.07.2017_web.jpg');"></div><figcaption>83</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0186-29.07.2017_web.jpg');"></div><figcaption>84</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0187-29.07.2017_web.jpg');"></div><figcaption>85</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0189-29.07.2017_web.jpg');"></div><figcaption>86</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0195-29.07.2017_web.jpg');"></div><figcaption>87</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0196-29.07.2017_web.jpg');"></div><figcaption>88</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0203-29.07.2017_web.jpg');"></div><figcaption>89</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0207-29.07.2017_web.jpg');"></div><figcaption>90</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0209-29.07.2017_web.jpg');"></div><figcaption>91</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0211-29.07.2017_web.jpg');"></div><figcaption>92</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0215-29.07.2017_web.jpg');"></div><figcaption>93</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0216-29.07.2017_web.jpg');"></div><figcaption>94</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0219-29.07.2017_web.jpg');"></div><figcaption>95</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0220-29.07.2017_web.jpg');"></div><figcaption>96</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0224-29.07.2017_web.jpg');"></div><figcaption>97</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0231-29.07.2017_web.jpg');"></div><figcaption>98</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0235-29.07.2017_web.jpg');"></div><figcaption>99</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0239-29.07.2017_web.jpg');"></div><figcaption>100</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0243-29.07.2017_web.jpg');"></div><figcaption>101</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0244-29.07.2017_web.jpg');"></div><figcaption>102</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0245-29.07.2017_web.jpg');"></div><figcaption>103</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0248-29.07.2017_web.jpg');"></div><figcaption>104</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0249-29.07.2017_web.jpg');"></div><figcaption>105</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0264-29.07.2017_web.jpg');"></div><figcaption>106</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0265-29.07.2017_web.jpg');"></div><figcaption>107</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0276-29.07.2017_web.jpg');"></div><figcaption>108</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0279-29.07.2017_web.jpg');"></div><figcaption>109</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0280-29.07.2017_web.jpg');"></div><figcaption>110</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0281-29.07.2017_web.jpg');"></div><figcaption>111</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0282-29.07.2017_web.jpg');"></div><figcaption>112</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0293-29.07.2017_web.jpg');"></div><figcaption>113</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0297-29.07.2017_web.jpg');"></div><figcaption>114</figcaption></figure>
+    </div>
+    <h3 class="day-heading">30 Jul 2017  ·  Day 4  ·  Kyiv</h3>
+    <div class="gallery">
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0302-30.07.2017_web.jpg');"></div><figcaption>115</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0303-30.07.2017_web.jpg');"></div><figcaption>116</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0304-30.07.2017_web.jpg');"></div><figcaption>117</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0307-30.07.2017_web.jpg');"></div><figcaption>118</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0309-30.07.2017_web.jpg');"></div><figcaption>119</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0310-30.07.2017_web.jpg');"></div><figcaption>120</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0311-30.07.2017_web.jpg');"></div><figcaption>121</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0312-30.07.2017_web.jpg');"></div><figcaption>122</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0313-30.07.2017_web.jpg');"></div><figcaption>123</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0316-30.07.2017_web.jpg');"></div><figcaption>124</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0317-30.07.2017_web.jpg');"></div><figcaption>125</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0322-30.07.2017_web.jpg');"></div><figcaption>126</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0324-30.07.2017_web.jpg');"></div><figcaption>127</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0326-30.07.2017_web.jpg');"></div><figcaption>128</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0327-30.07.2017_web.jpg');"></div><figcaption>129</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0328-30.07.2017_web.jpg');"></div><figcaption>130</figcaption></figure>
+    </div>
+    <h3 class="day-heading">01 Aug 2017  ·  Day 5  ·  Kyiv</h3>
+    <div class="gallery">
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0340-01.08.2017_web.jpg');"></div><figcaption>131</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0344-01.08.2017_web.jpg');"></div><figcaption>132</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0351-01.08.2017_web.jpg');"></div><figcaption>133</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0353-01.08.2017_web.jpg');"></div><figcaption>134</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0357-01.08.2017_web.jpg');"></div><figcaption>135</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0358-01.08.2017_web.jpg');"></div><figcaption>136</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0360-01.08.2017_web.jpg');"></div><figcaption>137</figcaption></figure>
+    </div>
+    <h3 class="day-heading">02 Aug 2017  ·  Day 6  ·  Carpathians</h3>
+    <div class="gallery">
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0361-02.08.2017_web.jpg');"></div><figcaption>138</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0369-02.08.2017_web.jpg');"></div><figcaption>139</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0372-02.08.2017_web.jpg');"></div><figcaption>140</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0373-02.08.2017_web.jpg');"></div><figcaption>141</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0374-02.08.2017_web.jpg');"></div><figcaption>142</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0378-02.08.2017_web.jpg');"></div><figcaption>143</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0379-02.08.2017_web.jpg');"></div><figcaption>144</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0380-02.08.2017_web.jpg');"></div><figcaption>145</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0381-02.08.2017_web.jpg');"></div><figcaption>146</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0387-02.08.2017_web.jpg');"></div><figcaption>147</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0393-02.08.2017_web.jpg');"></div><figcaption>148</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0395-02.08.2017_web.jpg');"></div><figcaption>149</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0396-02.08.2017_web.jpg');"></div><figcaption>150</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0397-02.08.2017_web.jpg');"></div><figcaption>151</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0398-02.08.2017_web.jpg');"></div><figcaption>152</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0399-02.08.2017_web.jpg');"></div><figcaption>153</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0400-02.08.2017_web.jpg');"></div><figcaption>154</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0401-02.08.2017_web.jpg');"></div><figcaption>155</figcaption></figure>
+    </div>
+    <h3 class="day-heading">03 Aug 2017  ·  Day 7  ·  Carpathians</h3>
+    <div class="gallery">
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0402-03.08.2017_web.jpg');"></div><figcaption>156</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0403-03.08.2017_web.jpg');"></div><figcaption>157</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0404-03.08.2017_web.jpg');"></div><figcaption>158</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0405-03.08.2017_web.jpg');"></div><figcaption>159</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0408-03.08.2017_web.jpg');"></div><figcaption>160</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0412-03.08.2017_web.jpg');"></div><figcaption>161</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0414-03.08.2017_web.jpg');"></div><figcaption>162</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0416-03.08.2017_web.jpg');"></div><figcaption>163</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0417-03.08.2017_web.jpg');"></div><figcaption>164</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0423-03.08.2017_web.jpg');"></div><figcaption>165</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0425-03.08.2017_web.jpg');"></div><figcaption>166</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0428-03.08.2017_web.jpg');"></div><figcaption>167</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0432-03.08.2017_web.jpg');"></div><figcaption>168</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0444-03.08.2017_web.jpg');"></div><figcaption>169</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0451-03.08.2017_web.jpg');"></div><figcaption>170</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0456-03.08.2017_web.jpg');"></div><figcaption>171</figcaption></figure>
+    </div>
+    <h3 class="day-heading">04 Aug 2017  ·  Day 8  ·  Descent</h3>
+    <div class="gallery">
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0468-04.08.2017_web.jpg');"></div><figcaption>172</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0480-04.08.2017_web.jpg');"></div><figcaption>173</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0481-04.08.2017_web.jpg');"></div><figcaption>174</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/ua_sk-0504-04.08.2017_web.jpg');"></div><figcaption>175</figcaption></figure>
+    </div>
+    <h3 class="day-heading">Various</h3>
+    <div class="gallery">
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/Ukraina_0304_web.jpg');"></div><figcaption>176</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/Ukraina_0308_web.jpg');"></div><figcaption>177</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/Ukraina_0317_web.jpg');"></div><figcaption>178</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/Ukraina_0324_web.jpg');"></div><figcaption>179</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/Ukraina_0335_web.jpg');"></div><figcaption>180</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/Ukraina_0348_web.jpg');"></div><figcaption>181</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/Ukraina_0360_web.jpg');"></div><figcaption>182</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/Ukraina_0365_web.jpg');"></div><figcaption>183</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/Ukraina_0367_web.jpg');"></div><figcaption>184</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/Ukraina_0368_web.jpg');"></div><figcaption>185</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/Ukraina_0371_web.jpg');"></div><figcaption>186</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/Ukraina_0373_web.jpg');"></div><figcaption>187</figcaption></figure>
+      <figure class="shot"><div class="img" style="background-image:url('./images/ua_2017/Ukraina_0374_web.jpg');"></div><figcaption>188</figcaption></figure>
     </div>
   </section>
 
@@ -526,6 +826,35 @@
     <span>© VOJTĚCH KONOPA</span>
     <span><a href="/">HOME</a> · <a href="./">JOURNAL</a></span>
   </footer>
+
+  <!-- LIGHTBOX -->
+  <div id="lb">
+    <span id="lb-close" onclick="closeLb()">✕</span>
+    <img id="lb-img" src="" alt="">
+  </div>
+  <script>
+    function openLb(src){
+      document.getElementById('lb-img').src = src;
+      document.getElementById('lb').classList.add('open');
+    }
+    function closeLb(){
+      document.getElementById('lb').classList.remove('open');
+      document.getElementById('lb-img').src = '';
+    }
+    document.querySelectorAll('.gallery .shot .img').forEach(el=>{
+      el.addEventListener('click', ()=>{
+        const m = el.style.backgroundImage.match(/url\(['"]?(.+?)['"]?\)/);
+        if (m) openLb(m[1]);
+      });
+    });
+    document.getElementById('lb').addEventListener('click', e=>{
+      if (e.target === e.currentTarget) closeLb();
+    });
+    document.addEventListener('keydown', e=>{ if (e.key === 'Escape') closeLb(); });
+    const _pc = document.querySelectorAll('.gallery .shot .img').length;
+    const _pcEl = document.getElementById('photo-count');
+    if (_pcEl && _pc > 0) _pcEl.textContent = _pc;
+  </script>
 
 </body>
 </html>

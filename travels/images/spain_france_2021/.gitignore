@@ -1,0 +1,6 @@
+# block originals; only web-sized exports go to git
+*
+!.gitignore
+!*_web.jpg
+!*_web.JPG
+!*_LQ.jpg
