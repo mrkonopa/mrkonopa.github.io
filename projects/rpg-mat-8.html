@@ -234,6 +234,20 @@ body::before{
   0%,100%{transform:scale(1)}
   50%{transform:scale(1.35);color:#fff;text-shadow:0 0 8px var(--gold),2px 2px 0 #000}
 }
+/* ── POWER-UP ITEMS ── */
+.items-bar{display:flex;gap:8px;justify-content:center;align-items:center;min-height:54px;margin-bottom:8px}
+.items-bar .empty{font-family:var(--px);font-weight:500;font-size:10px;color:var(--muted);letter-spacing:.5px}
+.item-btn{font-family:var(--px);font-weight:700;font-size:11px;background:var(--panel2);color:var(--purple);border:3px solid var(--purple);padding:8px 10px;cursor:pointer;box-shadow:3px 3px 0 #5a2a8a;display:flex;flex-direction:column;align-items:center;gap:2px;min-width:66px;line-height:1.1}
+.item-btn:hover:not(:disabled){transform:translate(-1px,-1px);box-shadow:4px 4px 0 #5a2a8a;border-color:#c084fc;color:#c084fc}
+.item-btn:active:not(:disabled){transform:translate(2px,2px);box-shadow:1px 1px 0 #5a2a8a}
+.item-btn:disabled{opacity:.35;cursor:not-allowed;transform:none!important}
+.item-btn .ib-ic{font-size:22px}
+.item-btn .ib-lb{font-size:9px;letter-spacing:.4px;opacity:.9}
+/* item pickup notification */
+.item-pickup{text-align:center;font-family:var(--px);font-weight:700;font-size:11px;color:var(--purple);min-height:18px;margin-bottom:4px;letter-spacing:.4px;transition:opacity .4s}
+/* frozen timer */
+.bar-timer-in.frozen{background:repeating-linear-gradient(90deg,#5dade2 0 8px,#1a4f73 8px 16px);animation:frozen-pulse .7s steps(4) infinite}
+@keyframes frozen-pulse{0%,100%{filter:brightness(1)}50%{filter:brightness(1.9) drop-shadow(0 0 6px #5dade2)}}
 .bt-problem{font-family:var(--vt);font-size:26px;line-height:1.4;background:var(--panel);border:3px solid var(--blue);padding:16px;margin-bottom:10px;white-space:pre-wrap;text-align:center;color:var(--text)}
 .bt-row{display:flex;gap:8px;margin-bottom:10px}
 .bt-input{flex:1;font-family:var(--px);font-weight:600;font-size:22px;background:var(--panel2);color:var(--gold);border:3px solid var(--gold);padding:11px;outline:none;text-align:center}
@@ -358,6 +372,8 @@ body::before{
   </div>
   <div id="proj" class="proj"></div>
   <div class="player-hp" id="player-hp"></div>
+  <div class="item-pickup" id="item-pickup"></div>
+  <div class="items-bar" id="items-bar"><div class="empty">— žádné předměty —</div></div>
   <div class="timer-wrap" id="timer-wrap" style="display:none">
     <div class="timer-lbl"><span class="l">⏱ ČAS</span><span class="v"><span id="timer-v">30</span> s</span></div>
     <div class="bar-timer"><div class="bar-timer-in" id="timer-bar" style="width:100%"></div></div>
@@ -757,17 +773,27 @@ function openArea(aid){
 //  BATTLE
 // ══════════════════════════════════════════
 let BT={tasks:[],idx:0,hl:0,curTask:null,aid:null,mid:null,combo:0,
-        hp:3,maxHp:3,timer:null,timeLeft:30,timeMax:30,mcMode:false,phase:1};
+        hp:3,maxHp:3,timer:null,timeLeft:30,timeMax:30,mcMode:false,phase:1,
+        items:[],timerFrozen:false,freezeTimeout:null};
 
 const MAX_PLAYER_HP=3;
 const TIME_PER_TASK=30;
+const ITEM_DROP_CHANCE=0.28;
+const MAX_ITEMS=3;
+const ITEM_TYPES=['hp','freeze','skip'];
+const ITEM_DEFS={
+  hp:    {ic:'🧪',lb:'LEKTVAR',  desc:'Obnoví 1 život'},
+  freeze:{ic:'❄️', lb:'ZMRZLINA',desc:'Zmrazí čas na 15 s'},
+  skip:  {ic:'💨',lb:'PŘESKOČ', desc:'Přeskočí úkol bez penalizace'}
+};
 
 function launchBattle(aid,mid){
   const ar=AREAS.find(a=>a.id===aid);
   const m=ar.missions.find(x=>x.id===mid);
   BT.aid=aid;BT.mid=mid;BT.combo=0;
   BT.hp=MAX_PLAYER_HP;BT.maxHp=MAX_PLAYER_HP;
-  BT.phase=1;
+  BT.phase=1;BT.items=[];BT.timerFrozen=false;
+  if(BT.freezeTimeout){clearTimeout(BT.freezeTimeout);BT.freezeTimeout=null;}
   BT.mcMode=!!m.mc;
   // reset top styling
   const top=document.getElementById('bt-top');
@@ -775,6 +801,7 @@ function launchBattle(aid,mid){
   document.getElementById('fail-overlay').classList.remove('show');
   updateCombo();
   updatePlayerHp();
+  renderItems();
   // generate fresh tasks (mission must be re-completed from scratch for failure restart)
   BT.tasks=m.tasks();
   BT.idx=0;
@@ -844,6 +871,7 @@ function startTimer(){
   document.getElementById('timer-wrap').style.display='block';
   updateTimerUi();
   BT.timer=setInterval(()=>{
+    if(BT.timerFrozen)return;
     BT.timeLeft--;
     updateTimerUi();
     if(BT.timeLeft<=0){
@@ -887,6 +915,9 @@ function onTimeOut(){
 function renderTask(){
   const t=BT.tasks[BT.idx];
   BT.curTask=t;BT.hl=0;
+  BT.timerFrozen=false;
+  if(BT.freezeTimeout){clearTimeout(BT.freezeTimeout);BT.freezeTimeout=null;}
+  document.getElementById('timer-bar').classList.remove('frozen');
   const tot=BT.tasks.length;
   document.getElementById('bt-num').textContent=BT.idx+1;
   document.getElementById('bt-tot').textContent=tot;
@@ -979,6 +1010,7 @@ function submitMC(opt,btn){
     document.getElementById('next-btn').style.display='inline-block';
     damageMonster(xpGain,isCrit);
     updateCombo();
+    tryDropItem();
     checkMissionComplete();
   }else{
     btn.classList.add('wrong');
@@ -1082,6 +1114,70 @@ function updateCombo(){
   }
 }
 
+// ── POWER-UPS ──
+function tryDropItem(){
+  if(BT.items.length>=MAX_ITEMS)return;
+  if(Math.random()>ITEM_DROP_CHANCE)return;
+  const type=ITEM_TYPES[ri(0,ITEM_TYPES.length-1)];
+  BT.items.push(type);
+  renderItems();
+  showItemPickup(type);
+}
+
+function showItemPickup(type){
+  const el=document.getElementById('item-pickup');
+  const def=ITEM_DEFS[type];
+  el.textContent=def.ic+' '+def.lb+' NALEZEN!';
+  el.style.opacity='1';
+  setTimeout(()=>{el.style.opacity='0';},2000);
+}
+
+function renderItems(){
+  const bar=document.getElementById('items-bar');
+  if(!bar)return;
+  bar.innerHTML='';
+  if(!BT.items.length){
+    bar.innerHTML='<div class="empty">— žádné předměty —</div>';
+    return;
+  }
+  BT.items.forEach(type=>{
+    const def=ITEM_DEFS[type];
+    const b=document.createElement('button');
+    b.className='item-btn';
+    b.title=def.desc;
+    b.innerHTML=`<span class="ib-ic">${def.ic}</span><span class="ib-lb">${def.lb}</span>`;
+    b.onclick=()=>useItem(type);
+    bar.appendChild(b);
+  });
+}
+
+function useItem(type){
+  const idx=BT.items.indexOf(type);
+  if(idx<0)return;
+  BT.items.splice(idx,1);
+  renderItems();
+  const fb=document.getElementById('bt-fb');
+  if(type==='hp'){
+    if(BT.hp<BT.maxHp){BT.hp++;updatePlayerHp();}
+    fb.textContent='🧪 +1 ŽIVOT OBNOVEN!';fb.className='feedback ok';
+  }else if(type==='freeze'){
+    BT.timerFrozen=true;
+    const bar=document.getElementById('timer-bar');
+    bar.classList.remove('warn','danger');bar.classList.add('frozen');
+    fb.textContent='❄️ ČAS ZMRAŽEN NA 15 S!';fb.className='feedback ok';
+    if(BT.freezeTimeout)clearTimeout(BT.freezeTimeout);
+    BT.freezeTimeout=setTimeout(()=>{
+      BT.timerFrozen=false;BT.freezeTimeout=null;
+      document.getElementById('timer-bar').classList.remove('frozen');
+    },15000);
+  }else if(type==='skip'){
+    stopTimer();
+    S.done[`${BT.mid}-${BT.idx}`]=true;saveS();
+    fb.textContent='💨 ÚKOL PŘESKOČEN!';fb.className='feedback ok';
+    setTimeout(()=>nextTask(),700);
+  }
+}
+
 function submitAnswer(){
   const t=BT.curTask;
   const inp=document.getElementById('bt-ans').value;
@@ -1104,6 +1200,7 @@ function submitAnswer(){
     document.getElementById('next-btn').style.display='inline-block';
     damageMonster(xpGain,isCrit);
     updateCombo();
+    tryDropItem();
     checkMissionComplete();
   }else{
     BT.combo=0;
@@ -1139,7 +1236,7 @@ function nextTask(){
   else{openArea(BT.aid);}
 }
 
-function exitBattle(){stopTimer();const m=document.getElementById('bt-mon');if(m)m.style.filter='';openArea(BT.aid);}
+function exitBattle(){stopTimer();if(BT.freezeTimeout){clearTimeout(BT.freezeTimeout);BT.freezeTimeout=null;}const m=document.getElementById('bt-mon');if(m)m.style.filter='';openArea(BT.aid);}
 
 function checkMissionComplete(){
   const ar=AREAS.find(a=>a.id===BT.aid);
