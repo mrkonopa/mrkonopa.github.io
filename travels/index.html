@@ -229,6 +229,135 @@
     footer a:hover { color: var(--accent); border-bottom-color: var(--accent); }
 
     /* ───────────── RESPONSIVE ───────────── */
+    /* ───────────── EUROPE MAP ───────────── */
+    .map-section {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 48px 28px 0;
+    }
+    .map-section .section-title {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--fg-dim);
+      margin-bottom: 24px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    .map-wrap {
+      position: relative;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      overflow: hidden;
+    }
+    #europe-map {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+    .country {
+      fill: url(#hatch);
+      stroke: #5a5a5a;
+      stroke-width: 0.7;
+      transform-box: fill-box;
+      transform-origin: center;
+      transition: fill 0.18s ease, stroke 0.18s ease, transform 0.18s ease;
+    }
+    .country.visited {
+      fill: #c89018;
+      stroke: #8a6510;
+      stroke-width: 0.7;
+      cursor: pointer;
+    }
+    .country.visited:hover {
+      fill: var(--accent);
+      stroke: var(--fg);
+      stroke-width: 1.2;
+      transform: scale(1.08);
+    }
+    .country.home {
+      fill: #4d8a6a;
+      stroke: #6fb592;
+      stroke-width: 1;
+    }
+    .map-legend {
+      display: flex;
+      gap: 22px;
+      padding: 14px 18px;
+      border-top: 1px solid var(--border);
+      font-family: var(--mono);
+      font-size: 10.5px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--fg-dim);
+      flex-wrap: wrap;
+    }
+    .map-legend .swatch {
+      display: inline-block;
+      width: 12px; height: 12px;
+      vertical-align: middle;
+      margin-right: 6px;
+      border: 1px solid var(--border-strong);
+    }
+
+    /* tooltip */
+    .map-tooltip {
+      position: absolute;
+      pointer-events: auto;
+      background: var(--surface);
+      border: 1px solid var(--border-strong);
+      display: none;
+      min-width: 240px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+      z-index: 10;
+    }
+    .map-tooltip.open { display: block; }
+    .tt-country {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--fg-dim);
+      padding: 9px 14px 7px;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface-2);
+    }
+    .tt-trip {
+      display: block;
+      padding: 11px 14px;
+      border-bottom: 1px solid var(--border);
+      transition: background 0.12s ease;
+      cursor: pointer;
+      text-decoration: none;
+      color: var(--fg);
+    }
+    .tt-trip:last-child { border-bottom: none; }
+    .tt-trip:hover { background: var(--surface-2); }
+    .tt-num {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.16em;
+      color: var(--accent);
+      margin-bottom: 4px;
+    }
+    .tt-title {
+      font-family: var(--display);
+      font-size: 15px;
+      letter-spacing: -0.01em;
+      text-transform: uppercase;
+      color: var(--fg);
+      line-height: 1.05;
+      margin-bottom: 4px;
+    }
+    .tt-meta {
+      font-family: var(--mono);
+      font-size: 9.5px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--fg-dim);
+    }
+
     @media (max-width: 900px) {
       .grid { grid-template-columns: repeat(2, 1fr); }
       .hero { padding: 40px 20px 32px; }
@@ -262,10 +391,76 @@
     </p>
     <div class="meta">
       <span>BY <b>VOJTĚCH KONOPA</b></span>
-      <span>LOCATIONS: <b id="count">4</b></span>
+      <span>LOCATIONS: <b id="count">6</b></span>
       <span>STATUS: <b>ONGOING</b></span>
     </div>
   </section>
+  <!-- ───────── EUROPE MAP ───────── -->
+  <section class="map-section">
+    <h2 class="section-title">// VISITED · EUROPE</h2>
+    <div class="map-wrap">
+      <svg id="europe-map" viewBox="0 0 900 700" xmlns="http://www.w3.org/2000/svg"
+           preserveAspectRatio="xMidYMid meet">
+        <defs>
+          <pattern id="hatch" patternUnits="userSpaceOnUse" width="6" height="6" patternTransform="rotate(45)">
+            <rect width="6" height="6" fill="#2e2e2e"/>
+            <line x1="0" y1="0" x2="0" y2="6" stroke="#4a4a4a" stroke-width="1.2"/>
+          </pattern>
+        </defs>
+        <path class="country" data-code="RU" data-name="Russia" d="M582.4,408.0L561.6,408.2L547.7,406.3L550.3,398.9L565.8,393.3L577.7,396.3L582.7,399.0L581.4,403.7L582.4,408.0Z M929.6,-48.3L931.5,48.0L928.5,34.6L908.1,26.5L906.4,9.5L918.0,2.7L917.6,-15.1L939.9,-44.0L929.6,-48.3Z M941.1,461.4L916.3,450.5L898.6,450.9L875.4,467.9L873.9,479.1L862.4,470.2L853.4,486.9L856.6,490.0L850.1,501.3L859.7,511.2L868.1,510.8L875.3,520.5L874.1,527.8L879.9,530.2L874.7,538.5L863.8,540.8L852.6,555.2L862.8,568.1L861.7,577.2L874.0,592.9L867.3,598.1L865.3,601.4L860.4,600.6L852.6,592.6L849.5,592.2L842.3,589.1L838.9,583.7L828.4,580.9L821.5,583.0L819.6,580.5L804.2,574.1L787.6,571.9L778.1,569.6L776.7,571.2L762.3,559.7L749.4,554.5L739.7,546.4L747.9,544.2L757.3,532.4L750.9,526.8L767.6,520.9L767.2,517.8L757.1,520.1L757.5,513.7L763.3,509.6L774.2,508.6L776.0,503.7L773.5,495.5L778.1,487.7L778.0,483.2L761.3,478.3L754.7,478.5L747.8,471.3L739.1,473.7L724.8,468.3L725.0,465.3L721.0,458.5L712.0,457.8L711.1,452.9L713.9,449.7L706.7,440.7L695.0,442.2L691.6,441.4L688.7,445.0L684.5,444.4L681.8,434.1L679.1,428.7L681.3,427.2L690.4,427.8L694.7,424.2L691.5,419.8L683.9,416.9L684.6,413.9L680.0,410.8L672.9,399.8L675.3,395.2L674.2,387.1L663.2,383.0L657.3,385.0L655.7,380.7L643.8,376.3L640.2,365.8L639.2,357.1L633.7,352.9L638.6,347.1L635.2,329.8L643.3,318.8L641.6,315.4L654.4,304.6L642.6,295.3L666.7,269.3L677.2,257.3L681.5,246.4L664.8,231.5L669.4,217.0L659.2,200.0L666.8,179.8L653.7,152.0L664.1,132.8L646.8,115.4L648.5,96.5L657.6,93.9L676.8,82.8L688.4,72.9L706.9,90.0L737.8,96.5L780.5,126.7L789.1,139.0L789.9,155.8L777.4,168.7L758.9,175.2L708.6,156.6L700.3,159.7L718.7,177.6L719.4,188.6L720.1,212.2L734.7,219.1L743.5,224.9L745.0,214.1L738.1,204.2L745.3,195.5L772.6,209.8L782.1,204.2L774.5,187.2L800.8,163.6L811.2,165.0L821.8,173.5L828.3,156.7L818.9,141.7L824.4,126.3L816.2,109.9L847.7,118.4L854.1,133.1L839.9,136.2L839.9,150.3L848.8,158.9L866.2,153.5L869.0,137.4L892.5,125.0L931.9,102.1L940.4,103.5L929.3,119.7L943.3,122.4Z M703.1,536.2L706.1,532.7L714.1,535.7L717.7,536.3L719.2,539.1L720.9,539.5L721.0,540.7L726.5,544.1L738.0,543.3L735.8,548.2L723.5,550.6L708.2,558.6L701.9,555.8L704.4,549.3L692.0,545.2L694.1,542.6L704.8,537.9L703.1,536.2Z"/>
+        <path class="country" data-code="NO" data-name="Norway" d="M676.8,82.8L657.6,93.9L648.5,96.5L653.2,76.9L638.8,65.5L621.3,75.2L615.7,95.7L604.9,107.8L592.8,101.2L578.1,102.5L565.6,88.0L558.8,95.3L551.8,96.5L550.2,114.2L528.9,109.9L525.9,124.7L515.1,124.6L507.6,143.0L496.3,170.5L478.8,203.7L482.9,211.6L479.0,220.5L467.8,220.1L460.5,240.8L461.2,268.9L468.4,279.4L464.7,302.9L455.3,316.2L450.3,327.3L442.7,315.5L420.5,337.5L405.4,341.8L389.8,332.3L385.8,311.8L382.2,265.4L392.6,251.8L422.4,233.7L444.7,210.6L465.3,178.1L492.4,129.9L511.3,110.1L542.3,75.5L567.1,62.9L585.7,64.4L602.8,40.0L623.4,41.3L643.7,35.3L679.0,57.1L664.4,64.9L676.8,82.8Z"/>
+        <path class="country" data-code="SE" data-name="Sweden" d="M450.3,327.3L455.3,316.2L464.7,302.9L468.4,279.4L461.2,268.9L460.5,240.8L467.8,220.1L479.0,220.5L482.9,211.6L478.8,203.7L496.3,170.5L507.6,143.0L515.1,124.6L525.9,124.7L528.9,109.9L550.2,114.2L551.8,96.5L558.8,95.3L573.9,108.6L591.5,126.6L591.8,165.6L595.6,175.0L576.2,181.8L565.2,198.2L567.0,212.2L549.1,230.2L527.3,248.9L519.0,278.4L527.1,292.6L537.9,303.6L527.5,325.4L515.8,329.8L511.5,360.8L505.1,377.5L491.4,375.8L485.0,389.6L471.9,390.4L468.3,373.9L458.9,353.5L450.3,327.3Z"/>
+        <path class="country" data-code="BY" data-name="Belarus" d="M643.8,376.3L655.7,380.7L657.3,385.0L663.2,383.0L674.2,387.1L675.3,395.2L672.9,399.8L680.0,410.8L684.6,413.9L683.9,416.9L691.5,419.8L694.7,424.2L690.4,427.8L681.3,427.2L679.1,428.7L681.8,434.1L684.5,444.4L674.8,445.4L671.4,448.8L670.6,456.8L666.1,455.3L656.0,456.0L653.0,452.3L648.8,455.1L644.5,452.8L635.7,452.5L623.1,448.7L611.6,447.4L602.9,447.8L596.7,452.1L591.3,452.7L591.1,445.7L587.6,438.2L594.4,434.9L594.5,428.5L591.3,422.2L590.9,414.9L601.7,415.0L614.0,408.7L616.6,399.2L625.9,393.7L624.8,386.0L631.7,383.1L643.8,376.3Z"/>
+        <path class="country" data-code="PL" data-name="Poland" d="M590.9,414.9L591.3,422.2L594.5,428.5L594.4,434.9L587.6,438.2L591.1,445.7L591.3,452.7L597.0,466.3L595.8,470.7L590.2,472.5L580.0,485.1L582.9,491.9L580.4,491.0L569.7,485.2L561.6,487.3L556.2,485.8L549.5,489.0L543.9,483.7L539.2,485.7L538.6,484.8L533.4,477.4L525.0,476.4L524.0,471.6L516.2,469.9L514.5,473.9L508.4,470.7L509.1,466.5L500.7,465.1L495.3,460.1L490.7,450.1L491.6,444.6L488.8,436.0L484.7,430.2L487.8,425.9L485.2,417.5L492.9,412.6L510.5,404.9L524.7,399.1L536.0,402.0L536.8,406.1L547.7,406.3L561.6,408.2L582.4,408.0L588.1,409.8L590.9,414.9Z"/>
+        <path class="country" data-code="AT" data-name="Austria" d="M517.5,505.3L516.6,511.2L510.3,511.3L512.4,514.4L508.7,523.7L506.5,526.1L496.7,526.4L491.0,529.7L481.7,528.6L465.5,524.9L463.0,519.9L451.9,522.4L450.6,525.1L443.7,523.1L437.9,522.7L432.9,520.1L434.6,516.5L434.2,514.0L437.5,513.2L443.3,517.2L444.8,513.4L454.8,514.0L462.9,511.4L468.3,511.8L471.8,514.8L472.9,512.4L471.2,502.8L475.3,500.9L479.3,494.1L487.6,498.9L494.0,492.8L498.0,491.7L506.7,496.2L512.1,495.5L517.3,498.3L516.3,500.1L517.5,505.3Z"/>
+        <path class="country" data-code="MD" data-name="Moldova" d="M626.2,503.8L628.9,501.6L636.4,500.2L644.7,504.8L649.4,505.3L654.5,509.3L653.6,514.2L657.7,516.6L659.4,522.6L663.3,526.2L662.5,528.4L664.7,529.8L661.6,530.9L655.0,530.4L653.9,528.5L651.5,529.6L652.3,532.2L649.3,536.7L647.3,541.5L644.4,543.0L642.4,536.6L643.6,530.5L643.2,524.3L636.8,515.7L633.1,509.6L629.6,505.3L626.2,503.8Z"/>
+        <path class="country" data-code="LT" data-name="Lithuania" d="M624.8,386.0L625.9,393.7L616.6,399.2L614.0,408.7L601.7,415.0L590.9,414.9L588.1,409.8L582.4,408.0L581.4,403.7L582.7,399.0L577.7,396.3L565.8,393.3L563.4,378.7L576.4,373.3L595.3,374.5L606.4,372.7L608.0,376.4L614.0,377.5L624.8,386.0Z"/>
+        <path class="country" data-code="LV" data-name="Latvia" d="M633.7,352.9L639.2,357.1L640.2,365.8L643.8,376.3L631.7,383.1L624.8,386.0L614.0,377.5L608.0,376.4L606.4,372.7L595.3,374.5L576.4,373.3L563.4,378.7L563.8,365.4L569.4,354.1L580.0,347.8L589.0,361.4L598.0,361.0L600.2,347.1L609.8,343.8L614.7,346.1L624.4,352.9L633.7,352.9Z"/>
+        <path class="country" data-code="EE" data-name="Estonia" d="M641.6,315.4L643.3,318.8L635.2,329.8L638.6,347.1L633.7,352.9L624.4,352.9L614.7,346.1L609.8,343.8L600.2,347.1L601.5,336.1L597.4,338.5L590.2,331.9L589.2,320.9L603.5,315.6L617.7,312.8L629.9,316.0L641.6,315.4Z"/>
+        <path class="country" data-code="DE" data-name="Germany" d="M485.2,417.5L487.8,425.9L484.7,430.2L488.8,436.0L491.6,444.6L490.7,450.1L495.3,460.1L490.3,461.7L487.3,459.9L484.5,462.9L476.4,465.9L472.2,469.8L464.0,473.1L466.0,477.7L467.2,484.1L472.9,487.7L479.3,494.1L475.3,500.9L471.2,502.8L472.9,512.4L471.8,514.8L468.3,511.8L462.9,511.4L454.8,514.0L444.8,513.4L443.3,517.2L437.5,513.2L434.2,514.0L422.1,509.5L419.7,512.7L410.2,512.6L411.6,502.2L417.3,492.0L401.0,489.3L395.7,485.3L396.3,478.7L394.1,475.2L395.4,464.8L393.5,448.4L400.2,448.4L403.1,442.4L405.9,427.6L403.8,422.0L406.0,418.5L415.4,417.6L417.5,421.3L425.2,413.1L422.6,406.8L422.1,397.2L430.6,399.5L437.9,396.9L438.0,403.4L449.4,407.4L449.3,413.3L460.8,410.2L467.1,405.6L479.9,412.2L485.2,417.5Z"/>
+        <path class="country" data-code="TR" data-name="Turkey" d="M831.0,651.8L825.6,653.9L821.7,650.7L808.5,649.1L803.7,651.1L790.8,653.0L784.8,652.8L771.8,657.4L762.5,657.4L756.5,655.1L744.1,658.5L740.4,656.1L739.8,662.9L736.7,665.6L733.7,668.2L729.6,662.7L733.9,658.1L727.0,659.2L717.5,656.4L709.8,663.4L692.7,664.8L683.5,658.2L671.4,657.8L668.8,662.9L661.0,664.3L650.1,657.8L637.8,658.1L631.1,645.8L622.8,638.9L628.3,629.2L621.2,623.1L633.7,610.9L651.0,610.4L655.8,600.6L677.3,602.3L690.9,593.8L704.0,590.1L722.7,589.8L742.4,599.1L758.6,604.1L771.7,602.1L781.4,603.2L794.7,596.4L806.7,595.8L817.6,602.2L819.5,606.8L818.4,613.1L826.8,616.3L831.3,620.0L823.5,623.6L827.1,638.0L824.8,641.9L831.0,651.8Z M620.5,592.6L632.0,588.5L641.7,590.2L643.1,595.3L653.0,599.5L650.9,602.7L637.5,603.4L632.7,607.4L623.3,614.4L619.7,608.4L619.9,605.7L622.5,604.2L626.0,596.1L620.5,592.6Z"/>
+        <path class="country" data-code="CH" data-name="Switzerland" d="M434.2,514.0L434.6,516.5L432.9,520.1L437.9,522.7L443.7,523.1L442.8,529.0L437.9,531.4L429.5,529.6L427.1,535.3L421.7,535.7L419.7,533.5L413.4,538.3L408.0,538.9L403.1,535.9L399.2,529.7L393.8,531.9L394.0,525.5L402.3,517.4L401.9,513.8L407.0,515.1L410.2,512.6L419.7,512.7L422.1,509.5L434.2,514.0Z"/>
+        <path class="country" data-code="LU" data-name="Luxembourg" d="M394.1,475.2L396.3,478.7L395.7,485.3L392.4,485.6L389.9,484.3L391.1,475.8L394.1,475.2Z"/>
+        <path class="country" data-code="BE" data-name="Belgium" d="M395.4,464.8L394.1,475.2L391.1,475.8L389.9,484.3L380.1,477.4L374.3,478.6L366.4,471.4L361.1,465.2L355.9,464.9L354.3,459.5L363.3,456.4L371.6,457.6L382.0,454.3L389.2,461.2L395.4,464.8Z"/>
+        <path class="country" data-code="NL" data-name="Netherlands" d="M403.8,422.0L405.9,427.6L403.1,442.4L400.2,448.4L393.5,448.4L395.4,464.8L389.2,461.2L382.0,454.3L371.6,457.6L363.3,456.4L369.1,452.1L379.0,428.4L394.4,421.6L403.8,422.0Z"/>
+        <path class="country" data-code="PT" data-name="Portugal" d="M224.0,591.9L228.1,588.5L232.7,586.6L235.5,593.1L242.2,593.1L244.1,591.4L250.7,591.9L253.8,598.4L248.6,602.0L248.5,612.1L246.6,613.9L246.2,620.0L241.3,621.0L245.8,628.6L242.7,636.9L246.6,640.6L245.1,644.0L240.9,648.6L241.8,652.7L237.3,655.9L231.3,654.1L225.5,655.5L227.2,645.9L226.2,638.2L221.1,637.1L218.4,632.3L219.3,624.1L223.8,619.4L224.6,614.3L227.0,606.5L226.7,601.0L224.5,596.3L224.0,591.9Z"/>
+        <path class="country" data-code="IE" data-name="Ireland" d="M256.0,415.7L257.8,427.4L249.3,441.9L229.3,451.3L213.3,448.9L222.5,432.1L216.6,415.4L231.9,402.3L240.5,394.3L242.8,403.5L240.5,412.5L247.4,412.2L256.0,415.7Z"/>
+        <path class="country" data-code="DK" data-name="Denmark" d="M437.9,396.9L430.6,399.5L422.1,397.2L417.5,387.7L417.2,369.7L419.0,364.9L422.3,359.6L432.2,358.4L436.2,353.4L445.2,348.2L444.9,357.6L441.6,363.5L442.9,368.5L449.0,371.2L446.3,377.8L442.9,375.9L434.8,388.5L437.9,396.9Z M465.5,377.3L469.0,386.1L462.3,400.0L450.5,390.3L448.9,383.1L465.5,377.3Z"/>
+        <path class="country" data-code="GB" data-name="United Kingdom" d="M256.0,415.7L247.4,412.2L240.5,412.5L242.8,403.5L240.5,394.3L249.9,393.6L262.0,404.1L256.0,415.7Z M291.0,423.3L292.7,413.7L285.1,403.4L284.9,403.1L271.2,400.2L268.6,395.5L272.7,387.8L268.9,383.1L262.9,391.2L262.2,374.4L256.5,365.4L260.6,346.6L269.4,331.5L278.4,333.0L292.0,331.4L279.9,351.5L291.4,349.0L303.8,349.1L300.9,363.8L290.7,379.7L302.4,380.9L303.3,382.7L313.3,403.0L321.0,405.7L328.0,424.6L331.2,431.1L344.9,434.2L343.5,444.5L337.7,449.1L342.2,457.2L332.1,465.4L317.0,465.3L297.8,469.5L292.5,466.5L285.1,473.7L274.7,471.9L266.7,477.8L260.7,474.7L277.3,458.5L287.4,455.1L287.3,455.1L269.7,452.5L266.5,446.2L278.3,441.2L272.1,432.5L274.2,421.8L291.0,423.3Z"/>
+        <path class="country" data-code="IS" data-name="Iceland" d="M162.2,164.1L159.6,179.8L172.3,195.9L157.7,213.4L125.2,228.7L115.4,232.7L100.6,229.5L69.1,222.5L80.2,212.5L55.6,201.3L75.6,196.9L75.1,190.0L51.4,184.5L59.1,168.8L76.2,165.2L93.8,181.6L110.9,168.5L125.1,175.3L143.5,162.4L162.2,164.1Z"/>
+        <path class="country" data-code="SI" data-name="Slovenia" d="M481.7,528.6L491.0,529.7L496.7,526.4L506.5,526.1L508.7,523.7L510.6,523.8L512.8,528.7L503.8,532.4L502.7,538.2L498.8,539.6L498.8,543.5L494.4,543.2L490.6,540.9L488.5,543.3L480.6,542.8L483.1,541.6L480.4,535.6L481.7,528.6Z"/>
+        <path class="country" data-code="FI" data-name="Finland" d="M648.5,96.5L646.8,115.4L664.1,132.8L653.7,152.0L666.8,179.8L659.2,200.0L669.4,217.0L664.8,231.5L681.5,246.4L677.2,257.3L666.7,269.3L642.6,295.3L622.1,296.9L602.3,304.1L583.9,308.2L577.4,297.5L566.4,291.0L569.0,270.9L563.5,252.0L568.9,239.4L579.1,225.6L604.9,201.1L612.4,196.2L611.3,186.3L595.6,175.0L591.8,165.6L591.5,126.6L573.9,108.6L558.8,95.3L565.6,88.0L578.1,102.5L592.8,101.2L604.9,107.8L615.7,95.7L621.3,75.2L638.8,65.5L653.2,76.9L648.5,96.5Z"/>
+        <path class="country" data-code="SK" data-name="Slovakia" d="M580.4,491.0L577.3,494.9L575.1,500.8L572.7,502.4L560.6,497.9L556.9,498.8L554.2,502.2L548.9,504.1L547.7,503.1L542.2,505.4L537.7,505.9L536.8,508.8L527.4,510.6L523.2,509.0L517.5,505.3L516.3,500.1L517.3,498.3L518.8,495.0L523.8,495.2L527.7,493.7L528.0,492.3L530.2,491.6L530.9,488.2L533.5,487.6L535.3,484.9L538.6,484.8L539.2,485.7L543.9,483.7L549.5,489.0L556.2,485.8L561.6,487.3L569.7,485.2L580.4,491.0Z"/>
+        <path class="country" data-code="CY" data-name="Cyprus" d="M695.2,676.4L697.3,677.1L700.4,676.0L702.5,676.2L703.4,676.9L703.6,678.1L704.1,677.7L705.8,677.9L708.0,677.0L709.2,677.4L709.5,678.4L698.0,683.2L692.4,681.7L689.8,676.9L695.2,676.4Z"/>
+        <path class="country" data-code="MK" data-name="Macedonia" d="M578.4,586.1L584.0,590.3L584.8,599.0L582.7,599.5L580.8,601.7L574.7,601.5L570.4,604.3L563.0,605.5L558.4,602.3L556.8,596.7L558.2,592.2L559.6,592.3L560.1,589.6L566.8,587.6L569.3,587.1L573.2,586.3L578.4,586.1Z"/>
+        <path class="country" data-code="ME" data-name="Montenegro" d="M552.4,582.5L549.3,583.7L548.6,581.2L543.7,587.7L544.4,591.9L542.1,590.9L538.9,586.6L534.0,584.0L535.3,581.7L537.0,574.4L540.6,571.2L542.7,570.0L545.7,572.3L547.4,574.2L551.1,575.6L555.4,578.4L554.5,579.6L552.4,582.5Z"/>
+        <path class="country" data-code="XK" data-name="Kosovo" d="M558.2,592.2L557.4,587.5L554.7,586.1L552.4,582.5L554.5,579.6L557.1,578.6L558.7,574.1L560.7,573.4L562.3,575.3L564.5,576.1L565.9,578.2L567.8,578.9L570.0,581.4L571.6,581.3L570.3,584.5L569.0,586.1L569.3,587.1L566.8,587.6L560.1,589.6L559.6,592.3L558.2,592.2Z"/>
+        <path class="country visited" data-code="FR" data-name="France" d="M395.7,485.3L401.0,489.3L417.3,492.0L411.6,502.2L410.2,512.6L407.0,515.1L401.9,513.8L402.3,517.4L394.0,525.5L393.8,531.9L399.2,529.7L403.1,535.9L402.6,539.9L406.0,545.2L402.0,549.4L405.0,560.1L411.1,561.8L409.8,567.7L399.6,575.3L377.3,571.7L360.9,576.0L359.6,584.1L346.5,585.8L333.8,579.8L329.7,582.6L308.9,576.6L304.4,571.3L310.3,563.2L312.4,535.6L300.8,520.7L292.5,513.3L275.2,507.7L274.1,497.0L288.7,493.7L307.6,497.6L304.1,480.6L314.7,487.1L341.0,475.2L344.4,462.6L354.3,459.5L355.9,464.9L361.1,465.2L366.4,471.4L374.3,478.6L380.1,477.4L389.9,484.3L392.4,485.6L395.7,485.3Z M424.6,582.0L431.8,576.9L433.8,588.3L430.0,598.5L424.9,595.8L422.3,586.9L424.6,582.0Z"/>
+        <path class="country visited" data-code="UA" data-name="Ukraine" d="M684.5,444.4L688.7,445.0L691.6,441.4L695.0,442.2L706.7,440.7L713.9,449.7L711.1,452.9L712.0,457.8L721.0,458.5L725.0,465.3L724.8,468.3L739.1,473.7L747.8,471.3L754.7,478.5L761.3,478.3L778.0,483.2L778.1,487.7L773.5,495.5L776.0,503.7L774.2,508.6L763.3,509.6L757.5,513.7L757.1,520.1L748.1,521.3L740.6,525.9L730.0,526.6L720.3,531.9L720.9,539.5L719.2,539.1L717.7,536.3L714.1,535.7L706.1,532.7L703.1,536.2L701.6,534.7L684.0,531.1L683.3,525.8L672.8,527.5L668.6,535.3L659.9,545.7L654.8,543.3L649.5,545.6L644.4,543.0L647.3,541.5L649.3,536.7L652.3,532.2L651.5,529.6L653.9,528.5L655.0,530.4L661.6,530.9L664.7,529.8L662.5,528.4L663.3,526.2L659.4,522.6L657.7,516.6L653.6,514.2L654.5,509.3L649.4,505.3L644.7,504.8L636.4,500.2L628.9,501.6L626.2,503.8L621.4,503.8L618.6,507.3L610.3,508.6L606.5,510.9L601.2,507.3L594.0,507.3L587.0,505.7L582.1,508.8L581.4,504.9L575.1,500.8L577.3,494.9L580.4,491.0L582.9,491.9L580.0,485.1L590.2,472.5L595.8,470.7L597.0,466.3L591.3,452.7L596.7,452.1L602.9,447.8L611.6,447.4L623.1,448.7L635.7,452.5L644.5,452.8L648.8,455.1L653.0,452.3L656.0,456.0L666.1,455.3L670.6,456.8L671.4,448.8L674.8,445.4L684.5,444.4Z"/>
+        <path class="country visited" data-code="HU" data-name="Hungary" d="M575.1,500.8L581.4,504.9L582.1,508.8L575.2,511.8L569.9,521.6L563.1,531.3L554.0,534.0L547.0,533.4L538.3,537.1L534.1,539.2L524.8,536.5L516.4,530.4L512.8,528.7L510.6,523.8L508.7,523.7L512.4,514.4L510.3,511.3L516.6,511.2L517.5,505.3L523.2,509.0L527.4,510.6L536.8,508.8L537.7,505.9L542.2,505.4L547.7,503.1L548.9,504.1L554.2,502.2L556.9,498.8L560.6,497.9L572.7,502.4L575.1,500.8Z"/>
+        <path class="country visited" data-code="RO" data-name="Romania" d="M644.4,543.0L649.5,545.6L654.8,543.3L659.9,545.7L660.1,549.3L654.7,552.3L651.3,551.0L648.1,567.5L641.5,566.1L633.3,561.1L620.0,564.3L614.4,567.8L597.8,567.0L589.1,564.9L584.8,565.9L581.5,560.3L579.4,557.9L582.1,555.6L579.3,553.9L575.7,557.0L569.2,553.0L568.3,547.3L561.4,544.0L560.1,539.5L554.0,534.0L563.1,531.3L569.9,521.6L575.2,511.8L582.1,508.8L587.0,505.7L594.0,507.3L601.2,507.3L606.5,510.9L610.3,508.6L618.6,507.3L621.4,503.8L626.2,503.8L629.6,505.3L633.1,509.6L636.8,515.7L643.2,524.3L643.6,530.5L642.4,536.6L644.4,543.0Z"/>
+        <path class="country visited" data-code="BG" data-name="Bulgaria" d="M581.5,560.3L584.8,565.9L589.1,564.9L597.8,567.0L614.4,567.8L620.0,564.3L633.3,561.1L641.5,566.1L648.1,567.5L642.2,573.1L638.1,582.7L641.7,590.2L632.0,588.5L620.5,592.6L620.4,599.1L610.2,600.4L602.2,595.8L593.2,599.4L584.8,599.0L584.0,590.3L578.4,586.1L580.3,584.2L579.0,582.6L580.9,578.4L585.2,574.2L579.7,568.4L578.8,563.4L581.5,560.3Z"/>
+        <path class="country visited" data-code="GR" data-name="Greece" d="M622.5,674.5L621.1,678.1L604.8,679.1L604.9,677.1L591.2,674.7L593.3,669.6L599.5,673.7L608.2,673.0L616.6,673.9L616.4,675.9L622.5,674.5Z M584.8,599.0L593.2,599.4L602.2,595.8L610.2,600.4L620.4,599.1L620.5,592.6L626.0,596.1L622.5,604.2L619.9,605.7L613.0,605.3L607.1,604.1L593.5,607.5L601.3,614.7L595.5,616.8L589.3,616.8L583.3,610.2L581.2,613.0L583.7,620.7L589.4,626.6L585.1,629.4L591.4,635.2L596.9,638.8L597.1,645.8L586.7,642.5L590.0,648.8L582.9,650.1L587.1,660.9L579.6,661.1L570.4,655.8L566.2,645.9L564.2,637.7L559.8,631.9L554.0,624.7L553.2,621.1L558.5,614.9L559.1,610.7L562.8,608.9L563.0,605.5L570.4,604.3L574.7,601.5L580.8,601.7L582.7,599.5L584.8,599.0Z"/>
+        <path class="country visited" data-code="AL" data-name="Albania" d="M563.0,605.5L562.8,608.9L559.1,610.7L558.5,614.9L553.2,621.1L551.3,620.2L551.1,617.4L544.8,613.1L543.9,607.0L544.8,598.1L546.3,594.0L544.4,591.9L543.7,587.7L548.6,581.2L549.3,583.7L552.4,582.5L554.7,586.1L557.4,587.5L558.2,592.2L556.8,596.7L558.4,602.3L563.0,605.5Z"/>
+        <path class="country visited" data-code="HR" data-name="Croatia" d="M512.8,528.7L516.4,530.4L524.8,536.5L534.1,539.2L538.3,537.1L541.1,542.5L544.7,546.5L540.3,551.7L535.2,548.7L527.4,548.8L517.7,546.5L512.4,546.8L510.0,549.7L506.0,546.5L503.6,552.3L509.1,558.7L511.6,563.0L516.7,568.1L521.0,571.0L525.3,576.7L535.3,581.7L534.0,584.0L523.4,579.1L516.9,574.2L506.6,570.2L497.1,560.2L499.4,559.2L494.2,553.4L494.0,548.7L486.8,546.5L483.3,552.5L480.0,547.9L480.2,543.0L480.6,542.8L488.5,543.3L490.6,540.9L494.4,543.2L498.8,543.5L498.8,539.6L502.7,538.2L503.8,532.4L512.8,528.7Z"/>
+        <path class="country visited" data-code="ES" data-name="Spain" d="M241.8,652.7L240.9,648.6L245.1,644.0L246.6,640.6L242.7,636.9L245.8,628.6L241.3,621.0L246.2,620.0L246.6,613.9L248.5,612.1L248.6,602.0L253.8,598.4L250.7,591.9L244.1,591.4L242.2,593.1L235.5,593.1L232.7,586.6L228.1,588.5L224.0,591.9L224.5,582.5L219.9,576.7L235.9,567.0L249.7,569.4L264.8,569.3L276.9,571.6L286.2,570.9L304.4,571.3L308.9,576.6L329.7,582.6L333.8,579.8L346.5,585.8L359.6,584.1L360.2,591.8L349.5,600.5L335.1,603.2L334.0,607.6L327.1,614.7L322.7,625.1L327.1,632.3L320.6,637.9L318.2,646.0L309.7,648.4L301.7,657.9L287.4,658.0L276.6,657.8L269.5,662.1L265.2,666.7L259.7,665.7L255.5,661.6L252.3,654.6L241.8,652.7Z"/>
+        <path class="country visited" data-code="IT" data-name="Italy" d="M443.7,523.1L450.6,525.1L451.9,522.4L463.0,519.9L465.5,524.9L481.7,528.6L480.4,535.6L483.1,541.6L474.2,539.5L465.0,544.5L465.6,551.4L464.2,555.3L467.9,562.3L478.5,569.1L484.2,580.2L496.7,590.9L505.6,590.8L508.3,593.7L505.2,596.4L515.3,601.1L523.6,605.0L533.2,611.7L534.4,614.1L532.3,618.7L526.0,612.7L516.2,610.6L511.5,618.9L519.6,623.6L518.3,630.2L513.6,631.0L507.6,641.7L502.8,642.7L502.9,638.8L505.2,632.1L507.6,629.4L503.2,622.1L499.8,615.7L495.1,614.1L491.8,608.5L484.5,606.2L479.6,601.0L471.3,600.1L462.5,594.2L452.2,585.6L444.5,578.0L441.0,564.6L435.4,563.0L426.2,558.5L421.0,560.4L414.5,566.7L409.8,567.7L411.1,561.8L405.0,560.1L402.0,549.4L406.0,545.2L402.6,539.9L403.1,535.9L408.0,538.9L413.4,538.3L419.7,533.5L421.7,535.7L427.1,535.3L429.5,529.6L437.9,531.4L442.8,529.0L443.7,523.1Z M492.4,639.7L501.0,638.7L497.0,648.4L498.6,652.2L496.3,658.5L487.6,653.9L481.9,652.6L466.2,646.3L467.7,639.9L480.9,641.1L492.4,639.7Z M424.2,604.7L429.8,600.7L436.6,609.9L435.0,626.8L429.9,626.0L425.3,630.2L421.0,626.8L420.6,611.5L418.0,604.1L424.2,604.7Z"/>
+        <path class="country visited" data-code="BA" data-name="Bosnia and Herz." d="M535.3,581.7L525.3,576.7L521.0,571.0L516.7,568.1L511.6,563.0L509.1,558.7L503.6,552.3L506.0,546.5L510.0,549.7L512.4,546.8L517.7,546.5L527.4,548.8L535.2,548.7L540.3,551.7L544.4,551.7L541.6,557.7L547.0,563.0L545.4,569.4L542.7,570.0L540.6,571.2L537.0,574.4L535.3,581.7Z"/>
+        <path class="country visited" data-code="RS" data-name="Serbia" d="M538.3,537.1L547.0,533.4L554.0,534.0L560.1,539.5L561.4,544.0L568.3,547.3L569.2,553.0L575.7,557.0L579.3,553.9L582.1,555.6L579.4,557.9L581.5,560.3L578.8,563.4L579.7,568.4L585.2,574.2L580.9,578.4L579.0,582.6L580.3,584.2L578.4,586.1L573.2,586.3L569.3,587.1L569.0,586.1L570.3,584.5L571.6,581.3L570.0,581.4L567.8,578.9L565.9,578.2L564.5,576.1L562.3,575.3L560.7,573.4L558.7,574.1L557.1,578.6L554.5,579.6L555.4,578.4L551.1,575.6L547.4,574.2L545.7,572.3L542.7,570.0L545.4,569.4L547.0,563.0L541.6,557.7L544.4,551.7L540.3,551.7L544.7,546.5L541.1,542.5L538.3,537.1Z"/>
+        <path class="country home" data-code="CZ" data-name="Czechia" d="M495.3,460.1L500.7,465.1L509.1,466.5L508.4,470.7L514.5,473.9L516.2,469.9L524.0,471.6L525.0,476.4L533.4,477.4L538.6,484.8L535.3,484.9L533.5,487.6L530.9,488.2L530.2,491.6L528.0,492.3L527.7,493.7L523.8,495.2L518.8,495.0L517.3,498.3L512.1,495.5L506.7,496.2L498.0,491.7L494.0,492.8L487.6,498.9L479.3,494.1L472.9,487.7L467.2,484.1L466.0,477.7L464.0,473.1L472.2,469.8L476.4,465.9L484.5,462.9L487.3,459.9L490.3,461.7L495.3,460.1Z"/>
+      </svg>
+      <div id="map-tt" class="map-tooltip">
+        <div class="tt-country" id="tt-country"></div>
+        <div id="tt-trips"></div>
+      </div>
+      <div class="map-legend">
+        <span><span class="swatch" style="background:#c89018;border-color:#8a6510"></span>VISITED</span>
+        <span><span class="swatch" style="background:#4d8a6a;border-color:#6fb592"></span>HOME</span>
+        <span><span class="swatch" style="background:repeating-linear-gradient(45deg,#2e2e2e 0 3px,#4a4a4a 3px 4px);border-color:#5a5a5a"></span>NOT YET</span>
+      </div>
+    </div>
+  </section>
+
 
   <!-- ───────── GRID ─────────
        To add a new location:
@@ -280,7 +475,7 @@
 
       <!-- ─── card #1 — Ukraine / Kyiv 2017 ─── -->
       <a class="card" href="./ukraine-2017.html">
-        <div class="cover" style="background-image:url('./images/ua_2017/ua_sk-0153-29.07.2017_web.jpg');"></div>
+        <div class="cover" style="background-image:url('./images/ua_2017/ua_sk-0209-29.07.2017_web.jpg');"></div>
         <div class="card-body">
           <span class="card-num">01 /</span>
           <h3 class="card-title">Kyiv & Ukraine</h3>
@@ -290,38 +485,75 @@
         </div>
       </a>
 
-      <!-- ─── card #2 ─── -->
-      <a class="card" href="./_template.html">
-        <div class="cover empty"></div>
+      <!-- ─── card #2 — Croatia & Bosnia 2018 ─── -->
+      <a class="card" href="./cr-bh-2018.html">
+        <div class="cover" style="background-image:url('./images/cr_bh_2018/cr_bh_pano_0007_04.07.2018_web.jpg');"></div>
         <div class="card-body">
           <span class="card-num">02 /</span>
-          <h3 class="card-title">Location Two</h3>
-          <p class="card-meta">Country · Year</p>
-          <p class="card-desc">Another short description — keep it under two lines for grid balance.</p>
+          <h3 class="card-title">Croatia &amp; Bosnia</h3>
+          <p class="card-meta">CR · BiH · Summer 2018</p>
+          <p class="card-desc">Nine days down the Adriatic coast and into Herzegovina — limestone, salt, and the bridges of Mostar.</p>
           <span class="arrow">READ →</span>
         </div>
       </a>
 
-      <!-- ─── card #3 ─── -->
-      <a class="card" href="./_template.html">
-        <div class="cover empty"></div>
+      <!-- ─── card #3 — Romania / Făgăraș 2019 ─── -->
+      <a class="card" href="./romania-2019.html">
+        <div class="cover" style="background-image:url('./images/romania_2019/ro_fagaras_0219_24.07.19_web.jpg');"></div>
         <div class="card-body">
           <span class="card-num">03 /</span>
-          <h3 class="card-title">Location Three</h3>
-          <p class="card-meta">Country · Year</p>
-          <p class="card-desc">Each location card links to its own page in this folder (e.g. /travels/chernobyl.html).</p>
+          <h3 class="card-title">Făgăraș &amp; Romania</h3>
+          <p class="card-meta">Romania · Summer 2019</p>
+          <p class="card-desc">Through the Carpathian ridgeline — mountain roads, abandoned communist infrastructure, and the Transfăgărășan.</p>
           <span class="arrow">READ →</span>
         </div>
       </a>
 
-      <!-- ─── card #4 ─── -->
-      <a class="card" href="./_template.html">
-        <div class="cover empty"></div>
+      <!-- ─── card #4 — Yugoslavia / Balkans 2020 ─── -->
+      <a class="card" href="./yugoslavia-2020.html">
+        <div class="cover" style="background-image:url('./images/yugoslavia_2020/yugoslavia_0095_20200708%20-%20kopie%20%282%29_web.jpg');"></div>
         <div class="card-body">
           <span class="card-num">04 /</span>
-          <h3 class="card-title">Location Four</h3>
-          <p class="card-meta">Country · Year</p>
-          <p class="card-desc">When you have many locations, the grid wraps automatically — 3 columns on desktop, 2 on tablet, 1 on phone.</p>
+          <h3 class="card-title">Jugoslávie</h3>
+          <p class="card-meta">HU · RS · BG · GR · AL · HR · Summer 2020</p>
+          <p class="card-desc">Six countries, one ghost empire — coal plants, a communist flying saucer, NATO radar hilltops, an ammo factory, and a train graveyard by the Aegean.</p>
+          <span class="arrow">READ →</span>
+        </div>
+      </a>
+
+      <!-- ─── card #5 — France & Spain 2021 ─── -->
+      <a class="card" href="./spain-france-2021.html">
+        <div class="cover" style="background-image:url('./images/spain_france_2021/spain_france_0640_18.08.2021_web.jpg'); background-position: center bottom;"></div>
+        <div class="card-body">
+          <span class="card-num">05 /</span>
+          <h3 class="card-title">France &amp; Spain</h3>
+          <p class="card-meta">FR · ES · IT · Summer 2021</p>
+          <p class="card-desc">Eleven days, one closed loop — abandoned air base, Norman D-Day cliffs, a Breton ship graveyard, Pyrenees trains, the Andalusian desert, and home through the Dolomites.</p>
+          <span class="arrow">READ →</span>
+        </div>
+      </a>
+
+
+      <!-- ─── card #6 — Italy 2022 ─── -->
+      <a class="card" href="./italy-2022.html">
+        <div class="cover" style="background-image:url('./images/italy_2022/italy_jpg_0380_26.07.2022_web.jpg');"></div>
+        <div class="card-body">
+          <span class="card-num">06 /</span>
+          <h3 class="card-title">Italy</h3>
+          <p class="card-meta">IT · Summer 2022</p>
+          <p class="card-desc">Thirteen days to Sicily and back — ghost towns, NATO bunkers, a Palermo night ferry, the Valley of the Temples, and a Dolomite via ferrata to close the loop.</p>
+          <span class="arrow">READ →</span>
+        </div>
+      </a>
+
+      <!-- ─── card #7 — Baltics 2023 ─── -->
+      <a class="card" href="./baltic-2023.html">
+        <div class="cover" style="background:#1e2a1e;"></div>
+        <div class="card-body">
+          <span class="card-num">07 /</span>
+          <h3 class="card-title">Baltics</h3>
+          <p class="card-meta">PL · LT · LV · EE · Summer 2023</p>
+          <p class="card-desc">From Silesian industrial ruins through the Curonian Spit and the Hill of Crosses to Estonian prisons — fourteen Soviet-era stops across four countries.</p>
           <span class="arrow">READ →</span>
         </div>
       </a>
@@ -334,6 +566,76 @@
     <span>© VOJTĚCH KONOPA</span>
     <a href="/">HOME ↗</a>
   </footer>
+
+  <script>
+    const TRIPS = {
+      1: { num:"01", title:"Kyiv & Ukraine",    meta:"Ukraine · Summer 2017",            href:"./ukraine-2017.html" },
+      2: { num:"02", title:"Croatia & Bosnia",  meta:"CR · BiH · Summer 2018",           href:"./cr-bh-2018.html" },
+      3: { num:"03", title:"Făgăraș & Romania", meta:"Romania · Summer 2019",            href:"./romania-2019.html" },
+      4: { num:"04", title:"Jugoslávie",        meta:"HU·RS·BG·GR·AL·HR · Summer 2020",  href:"./yugoslavia-2020.html" },
+      5: { num:"05", title:"France & Spain",    meta:"FR·ES·IT · Summer 2021",           href:"./spain-france-2021.html" },
+      6: { num:"06", title:"Italy",             meta:"IT · Summer 2022",                 href:"./italy-2022.html" },
+      7: { num:"07", title:"Baltics",           meta:"PL·LT·LV·EE · Summer 2023",        href:"./baltic-2023.html" },
+    };
+    const COUNTRY_TRIPS = {
+      UA:[1], BA:[2], HR:[2,4], RO:[3], HU:[4], RS:[4], BG:[4],
+      GR:[4], AL:[4], FR:[5], ES:[5], IT:[5,6],
+      PL:[7], LT:[7], LV:[7], EE:[7],
+    };
+
+    const tt        = document.getElementById('map-tt');
+    const ttCountry = document.getElementById('tt-country');
+    const ttTrips   = document.getElementById('tt-trips');
+    const mapWrap   = document.querySelector('.map-wrap');
+
+    let hideTimer = null;
+    function scheduleHide() {
+      clearTimeout(hideTimer);
+      hideTimer = setTimeout(() => tt.classList.remove('open'), 140);
+    }
+    function cancelHide() { clearTimeout(hideTimer); }
+
+    function showTip(target) {
+      const code = target.dataset.code;
+      const name = target.dataset.name;
+      const trips = COUNTRY_TRIPS[code];
+      if (!trips) return;
+      ttCountry.textContent = name + ' · ' + code;
+      ttTrips.innerHTML = trips.map(id => {
+        const t = TRIPS[id];
+        return '<a class="tt-trip" href="' + t.href + '">' +
+          '<div class="tt-num">' + t.num + ' /</div>' +
+          '<div class="tt-title">' + t.title + '</div>' +
+          '<div class="tt-meta">' + t.meta + '</div>' +
+          '</a>';
+      }).join('');
+      tt.classList.add('open');
+
+      // Position near the country
+      const wrapRect = mapWrap.getBoundingClientRect();
+      const r = target.getBoundingClientRect();
+      const tipW = tt.offsetWidth || 260;
+      const tipH = tt.offsetHeight || 200;
+      let left = r.right - wrapRect.left + 14;
+      let top  = r.top   - wrapRect.top;
+      if (left + tipW > wrapRect.width) left = r.left - wrapRect.left - tipW - 14;
+      if (left < 4) left = 4;
+      if (top + tipH > wrapRect.height) top = wrapRect.height - tipH - 4;
+      if (top < 4) top = 4;
+      tt.style.left = left + 'px';
+      tt.style.top  = top  + 'px';
+
+      // Raise the hovered country above its neighbours
+      target.parentNode.appendChild(target);
+    }
+
+    document.querySelectorAll('.country.visited').forEach(p => {
+      p.addEventListener('mouseenter', () => { cancelHide(); showTip(p); });
+      p.addEventListener('mouseleave', scheduleHide);
+    });
+    tt.addEventListener('mouseenter', cancelHide);
+    tt.addEventListener('mouseleave', () => tt.classList.remove('open'));
+  </script>
 
 </body>
 </html>
