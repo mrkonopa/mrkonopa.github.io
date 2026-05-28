@@ -1,0 +1,1334 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>RPG Matematika · 8. ročník</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;500;600;700&family=VT323&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d1117;--panel:#161b27;--panel2:#1e2535;
+  --gold:#f4d03f;--blue:#5dade2;--red:#e74c3c;--green:#2ecc71;--purple:#9b59b6;
+  --text:#e8eaf6;--muted:#8896a6;
+  --px:'Pixelify Sans','VT323',monospace;
+  --vt:'VT323',monospace;
+}
+body{background:var(--bg);color:var(--text);font-family:var(--vt);min-height:100vh;overflow-x:hidden;font-size:18px}
+/* ── STARFIELD ── */
+body::before{
+  content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:
+    radial-gradient(1px 1px at 12% 18%,#fff 0,transparent 0),
+    radial-gradient(1px 1px at 34% 72%,#aaa 0,transparent 0),
+    radial-gradient(1px 1px at 58% 9%, #fff 0,transparent 0),
+    radial-gradient(1px 1px at 76% 51%,#ccc 0,transparent 0),
+    radial-gradient(1px 1px at 90% 28%,#aaa 0,transparent 0),
+    radial-gradient(1px 1px at 23% 85%,#fff 0,transparent 0),
+    radial-gradient(1px 1px at 67% 37%,#bbb 0,transparent 0),
+    radial-gradient(1px 1px at 44% 62%,#aaa 0,transparent 0),
+    radial-gradient(1px 1px at 81% 79%,#fff 0,transparent 0),
+    radial-gradient(1px 1px at 5%  44%,#ccc 0,transparent 0);
+  background-size:300px 300px;
+}
+/* ── SCREENS ── */
+.screen{display:none;min-height:100vh;padding:12px}
+.screen.active{display:flex;flex-direction:column;align-items:center}
+.wrap{position:relative;z-index:1;width:100%;max-width:680px}
+/* ── PANEL ── */
+.panel{background:var(--panel);border:3px solid var(--gold);box-shadow:4px 4px 0 #7a5c00;padding:16px;margin-bottom:12px}
+.panel.b{border-color:var(--blue);box-shadow:4px 4px 0 #1a4f73}
+.panel.g{border-color:var(--green);box-shadow:4px 4px 0 #1a7a3a}
+.panel.r{border-color:var(--red);box-shadow:4px 4px 0 #7b241c}
+/* ── BUTTONS ── */
+.btn{font-family:var(--px);font-weight:600;font-size:15px;background:var(--panel2);color:var(--gold);border:3px solid var(--gold);padding:10px 16px;cursor:pointer;box-shadow:3px 3px 0 #7a5c00;letter-spacing:.5px;display:inline-block;text-transform:uppercase;line-height:1.1}
+.btn:hover:not(:disabled){transform:translate(-1px,-1px);box-shadow:4px 4px 0 #7a5c00}
+.btn:active:not(:disabled){transform:translate(2px,2px);box-shadow:1px 1px 0 #7a5c00}
+.btn.b{color:var(--blue);border-color:var(--blue);box-shadow:3px 3px 0 #1a4f73}
+.btn.b:hover:not(:disabled){box-shadow:4px 4px 0 #1a4f73}
+.btn.g{color:var(--green);border-color:var(--green);box-shadow:3px 3px 0 #1a7a3a}
+.btn.r{color:var(--red);border-color:var(--red);box-shadow:3px 3px 0 #7b241c}
+.btn.sm{font-size:12px;padding:7px 11px}
+.btn.full{width:100%;text-align:center;font-size:17px;padding:14px}
+.btn:disabled{opacity:.35;cursor:not-allowed;transform:none!important}
+/* ── BARS ── */
+.bar-out{background:#111;border:2px solid var(--muted);height:14px}
+.bar-in{height:100%;transition:width .4s steps(8)}
+.bar-xp .bar-in{background:repeating-linear-gradient(90deg,var(--green) 0 8px,#197a3a 8px 16px)}
+.bar-attr .bar-in{background:repeating-linear-gradient(90deg,var(--blue) 0 8px,#1a4f73 8px 16px)}
+.bar-hp .bar-in{background:repeating-linear-gradient(90deg,var(--red) 0 8px,#7b241c 8px 16px)}
+/* ── TOP NAV ── */
+.topnav{font-family:var(--px);font-weight:500;font-size:13px;color:var(--muted);display:flex;justify-content:space-between;align-items:center;gap:8px;padding-bottom:10px;margin-bottom:10px;border-bottom:2px solid var(--panel2)}
+.topnav .hl{color:var(--gold)}
+/* ── MAP ── */
+.map-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0}
+.map-node{background:var(--panel);border:3px solid #333;padding:13px 6px;text-align:center;cursor:pointer;transition:none}
+.map-node.unlocked{border-color:var(--blue)}
+.map-node.active{border-color:var(--gold);box-shadow:0 0 10px #f4d03f44;animation:glow 1.2s steps(2) infinite}
+.map-node.done{border-color:var(--green)}
+.map-node.locked{opacity:.4;cursor:not-allowed}
+.map-node:not(.locked):hover{transform:translate(-2px,-2px)}
+.map-node .ni{font-size:30px;display:block;margin-bottom:6px}
+.map-node .nn{font-family:var(--px);font-weight:600;font-size:12px;line-height:1.3;white-space:pre-line;color:var(--text)}
+.map-node .ns{font-family:var(--px);font-weight:500;font-size:11px;margin-top:6px;letter-spacing:.3px}
+.map-node.done .ns{color:var(--green)}
+.map-node.active .ns{color:var(--gold)}
+.map-node.unlocked .ns{color:var(--blue)}
+.map-node.locked .ns{color:var(--muted)}
+@keyframes glow{0%{box-shadow:0 0 4px #f4d03f44}100%{box-shadow:0 0 18px #f4d03f88}}
+/* ── MISSION LIST ── */
+.ms-item{display:flex;align-items:center;gap:10px;padding:12px;background:var(--panel);border:2px solid var(--panel2);margin-bottom:8px;cursor:pointer}
+.ms-item.done{border-color:var(--green)}
+.ms-item.avail{border-color:var(--blue)}
+.ms-item.locked{opacity:.35;cursor:not-allowed}
+.ms-item:not(.locked):hover{border-color:var(--gold)}
+.ms-num{font-family:var(--px);font-weight:700;font-size:20px;min-width:34px;text-align:center}
+.ms-name{font-family:var(--px);font-weight:600;font-size:19px;line-height:1.1;color:var(--text)}
+.ms-sub{font-family:var(--vt);font-size:18px;color:var(--muted);margin-top:2px;line-height:1}
+/* ── BATTLE ── */
+.bt-top{background:linear-gradient(180deg,#0a0e1a 0%,#0f1730 50%,#1a1f35 100%);border:3px solid var(--gold);padding:24px 18px 16px;text-align:center;margin-bottom:10px;overflow:hidden;position:relative;min-height:240px}
+.bt-top.phase2{background:linear-gradient(180deg,#1a0a0e 0%,#2a0f1a 50%,#1a1525 100%);border-color:var(--red);box-shadow:0 0 20px #e74c3c44 inset;animation:phase-flash .8s steps(8)}
+@keyframes phase-flash{0%{filter:brightness(3)}100%{filter:brightness(1)}}
+.bt-top::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 80% at center 70%,#5dade233 0%,transparent 70%);pointer-events:none;animation:arena-pulse 3s steps(20) infinite}
+@keyframes arena-pulse{0%,100%{opacity:.5}50%{opacity:1}}
+.bt-top::after{content:'';position:absolute;left:0;right:0;bottom:0;height:30px;background:repeating-linear-gradient(90deg,#2a2030 0 8px,#1a1525 8px 16px);border-top:2px solid #3a2a45;pointer-events:none}
+.bt-monster{font-size:110px;display:inline-block;margin-bottom:4px;transform-origin:center;filter:drop-shadow(0 6px 0 #0008) drop-shadow(0 0 14px #5dade233);will-change:transform,opacity,filter;line-height:1;position:relative;z-index:2}
+.bt-monster.enter{animation:mon-enter .55s steps(8) forwards}
+.bt-monster.idle{animation:mon-idle 1.6s steps(8) infinite}
+.bt-monster.idle-2{animation:mon-idle-2 2.2s steps(10) infinite}
+.bt-monster.hit{animation:mon-hit .5s steps(6) forwards}
+.bt-monster.defeat{animation:mon-defeat .9s steps(10) forwards}
+.bt-mname{font-family:var(--px);font-weight:700;font-size:15px;color:var(--red);letter-spacing:1.2px}
+@keyframes mon-enter{
+  0%  {transform:translateX(180px) translateY(-40px) scale(.3) rotate(-25deg);opacity:0}
+  60% {transform:translateX(-12px) translateY(0)    scale(1.15) rotate(8deg); opacity:1}
+  80% {transform:translateX(6px)   translateY(-4px) scale(.95)  rotate(-3deg);opacity:1}
+  100%{transform:translateX(0)     translateY(0)    scale(1)    rotate(0);    opacity:1}
+}
+@keyframes mon-idle{
+  0%,100%{transform:translateY(0)    rotate(-2deg)}
+  50%    {transform:translateY(-10px) rotate(2deg)}
+}
+@keyframes mon-idle-2{
+  0%,100%{transform:translateX(-8px) translateY(0)    scale(1)}
+  25%    {transform:translateX(0)    translateY(-6px) scale(1.04)}
+  50%    {transform:translateX(8px)  translateY(0)    scale(1)}
+  75%    {transform:translateX(0)    translateY(-6px) scale(1.04)}
+}
+@keyframes mon-hit{
+  0%  {transform:translateX(0) scale(1);   filter:drop-shadow(2px 2px 0 #0008) brightness(1)}
+  10% {transform:translateX(-14px) scale(1.18);filter:drop-shadow(2px 2px 0 #0008) brightness(3.5) sepia(1) hue-rotate(-50deg) saturate(7)}
+  30% {transform:translateX(12px)  scale(.85); filter:drop-shadow(2px 2px 0 #0008) brightness(3.5) sepia(1) hue-rotate(-50deg) saturate(7)}
+  50% {transform:translateX(-10px) scale(1.08);filter:drop-shadow(2px 2px 0 #0008) brightness(2.5) sepia(1) hue-rotate(-50deg) saturate(5)}
+  70% {transform:translateX(8px)   scale(.95); filter:drop-shadow(2px 2px 0 #0008) brightness(1.5)}
+  100%{transform:translateX(0)     scale(1);   filter:drop-shadow(2px 2px 0 #0008) brightness(1)}
+}
+@keyframes mon-defeat{
+  0%  {transform:translateY(0) scale(1) rotate(0);opacity:1;filter:drop-shadow(2px 2px 0 #0008) brightness(1)}
+  20% {transform:translateY(-12px) scale(1.3) rotate(-15deg);opacity:1;filter:brightness(3) saturate(0)}
+  40% {transform:translateY(-6px) scale(1.1) rotate(20deg);opacity:.8;filter:brightness(2) saturate(0)}
+  60% {transform:translateY(20px) scale(.7) rotate(-30deg);opacity:.5;filter:brightness(1) saturate(0)}
+  100%{transform:translateY(80px) scale(.2) rotate(180deg);opacity:0;filter:brightness(.3) saturate(0)}
+}
+/* damage spark */
+.dmg-spark{position:absolute;left:50%;top:25%;font-family:var(--px);font-weight:700;font-size:36px;color:var(--gold);text-shadow:4px 4px 0 #7a2a00,3px 3px 0 #000;pointer-events:none;opacity:0;z-index:5}
+.dmg-spark.show{animation:spark 1s steps(10) forwards}
+@keyframes spark{
+  0%  {transform:translate(-50%,20px) scale(.2) rotate(-12deg);opacity:0}
+  15% {transform:translate(-50%,-10px) scale(1.6) rotate(8deg);opacity:1}
+  35% {transform:translate(-50%,-30px) scale(1.1) rotate(-4deg);opacity:1}
+  65% {transform:translate(-50%,-55px) scale(.95) rotate(2deg);opacity:1}
+  100%{transform:translate(-50%,-90px) scale(.7) rotate(0);opacity:0}
+}
+/* screen shake */
+.bt-top.shake{animation:bt-shake .4s steps(5)}
+.bt-top.big-shake{animation:bt-shake-big .55s steps(7)}
+@keyframes bt-shake{
+  0%,100%{transform:translate(0,0)}
+  20%{transform:translate(-7px,3px)}
+  40%{transform:translate(6px,-4px)}
+  60%{transform:translate(-5px,4px)}
+  80%{transform:translate(4px,-3px)}
+}
+@keyframes bt-shake-big{
+  0%,100%{transform:translate(0,0)}
+  15%{transform:translate(-14px,5px)}
+  30%{transform:translate(12px,-6px)}
+  45%{transform:translate(-10px,6px)}
+  60%{transform:translate(9px,-5px)}
+  80%{transform:translate(-5px,3px)}
+}
+/* hit flash overlay */
+.hit-flash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none;z-index:4;mix-blend-mode:screen}
+.hit-flash.go{animation:flash .25s steps(4) forwards}
+@keyframes flash{0%{opacity:.85}100%{opacity:0}}
+/* particles on hit */
+.particle{position:absolute;left:50%;top:35%;width:8px;height:8px;background:var(--gold);box-shadow:2px 2px 0 #000;opacity:0;pointer-events:none;z-index:3}
+.particle.go{animation:p-fly .8s steps(8) forwards}
+@keyframes p-fly{
+  0%  {transform:translate(-50%,-50%) scale(1);opacity:1}
+  100%{transform:translate(var(--dx,40px),var(--dy,-50px)) scale(.2);opacity:0}
+}
+/* boss "charging" / telegraph attack on wrong answer */
+.bt-monster.charge{animation:mon-charge .9s steps(8) forwards}
+@keyframes mon-charge{
+  0%  {transform:scale(1)         translateY(0);   filter:drop-shadow(0 6px 0 #0008) brightness(1)}
+  30% {transform:scale(.85)       translateY(8px); filter:drop-shadow(0 6px 0 #0008) brightness(.7) hue-rotate(-30deg)}
+  50% {transform:scale(.85)       translateY(8px); filter:drop-shadow(0 6px 0 #0008) brightness(.7) hue-rotate(-30deg)}
+  70% {transform:scale(1.3)       translateY(-10px);filter:drop-shadow(0 0 20px #e74c3c) brightness(2.5) saturate(3) hue-rotate(-20deg)}
+  100%{transform:scale(1)         translateY(0);   filter:drop-shadow(0 6px 0 #0008) brightness(1)}
+}
+/* boss projectile (red orb flying down to player) */
+.proj{position:absolute;left:50%;top:50%;width:18px;height:18px;border-radius:50%;background:radial-gradient(circle,#fff 0%,#e74c3c 40%,#7b1010 100%);box-shadow:0 0 12px #e74c3c,2px 2px 0 #000;opacity:0;pointer-events:none;z-index:5}
+.proj.fire{animation:proj-fly .55s steps(8) forwards}
+@keyframes proj-fly{
+  0%  {transform:translate(-50%,-50%) scale(.3);opacity:0}
+  20% {transform:translate(-50%,-50%) scale(1.3);opacity:1}
+  100%{transform:translate(-50%,calc(100vh - 200px)) scale(.6);opacity:0}
+}
+/* player damage flash (border red briefly) */
+.bt-input.player-hit{animation:player-hit .5s steps(4)}
+@keyframes player-hit{
+  0%,100%{box-shadow:0 0 0 transparent;border-color:var(--gold)}
+  50%{box-shadow:0 0 18px var(--red);border-color:var(--red)}
+}
+/* timer bar */
+.timer-wrap{margin-bottom:10px}
+.timer-lbl{display:flex;justify-content:space-between;font-family:var(--px);font-weight:600;font-size:11px;margin-bottom:4px}
+.timer-lbl .l{color:var(--muted)}
+.timer-lbl .v{color:var(--gold)}
+.bar-timer{background:#111;border:2px solid var(--muted);height:10px;overflow:hidden}
+.bar-timer-in{height:100%;background:repeating-linear-gradient(90deg,#f4d03f 0 8px,#7a5c00 8px 16px);transition:width .25s linear,background .3s}
+.bar-timer-in.warn{background:repeating-linear-gradient(90deg,#ff9933 0 8px,#7a3a00 8px 16px);animation:warn-pulse .5s steps(4) infinite}
+.bar-timer-in.danger{background:repeating-linear-gradient(90deg,#e74c3c 0 8px,#7b1010 8px 16px);animation:warn-pulse .25s steps(4) infinite}
+@keyframes warn-pulse{0%,100%{filter:brightness(1)}50%{filter:brightness(1.6)}}
+/* player HP hearts */
+.player-hp{display:flex;gap:6px;justify-content:center;font-size:28px;margin-bottom:10px;font-family:var(--px);line-height:1}
+.player-hp .heart{display:inline-block;transition:transform .2s}
+.player-hp .heart.lost{opacity:.18;filter:saturate(0)}
+.player-hp .heart.flash{animation:heart-flash .35s steps(4)}
+@keyframes heart-flash{0%,100%{transform:scale(1)}50%{transform:scale(1.6) rotate(15deg);filter:brightness(2)}}
+/* multiple choice buttons */
+.mc-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:10px}
+.mc-btn{font-family:var(--px);font-weight:600;font-size:20px;background:var(--panel2);color:var(--blue);border:3px solid var(--blue);padding:18px 10px;cursor:pointer;box-shadow:3px 3px 0 #1a4f73;text-align:center;letter-spacing:.5px}
+.mc-btn:hover:not(:disabled){transform:translate(-1px,-1px);box-shadow:4px 4px 0 #1a4f73;color:var(--gold);border-color:var(--gold)}
+.mc-btn:disabled{opacity:.4;cursor:not-allowed}
+.mc-btn.right{background:#0f2a0f;color:var(--green);border-color:var(--green);box-shadow:3px 3px 0 #1a7a3a;animation:mc-right .4s steps(4)}
+.mc-btn.wrong{background:#2a0f0f;color:var(--red);border-color:var(--red);box-shadow:3px 3px 0 #7b241c;animation:mc-wrong .35s steps(3)}
+@keyframes mc-right{0%{transform:scale(1)}50%{transform:scale(1.08)}100%{transform:scale(1)}}
+@keyframes mc-wrong{0%,100%{transform:translateX(0)}33%{transform:translateX(-6px)}66%{transform:translateX(6px)}}
+/* mission failed modal */
+.fail-overlay{display:none;position:absolute;inset:0;background:#000c;z-index:30;flex-direction:column;align-items:center;justify-content:center;padding:14px;text-align:center}
+.fail-overlay.show{display:flex}
+.fail-overlay .ic{font-size:64px;margin-bottom:8px}
+.fail-overlay .ti{font-family:var(--px);font-weight:700;font-size:20px;color:var(--red);text-shadow:3px 3px 0 #000;margin-bottom:8px;letter-spacing:1px}
+.fail-overlay .sb{font-family:var(--vt);font-size:21px;color:var(--text);margin-bottom:14px}
+/* combo badge */
+.combo{position:absolute;right:14px;top:12px;font-family:var(--px);font-weight:700;font-size:14px;color:var(--gold);text-shadow:2px 2px 0 #000;z-index:6;opacity:0;transition:opacity .25s}
+.combo.show{opacity:1}
+.combo .x{font-size:10px;color:var(--blue);margin-right:3px}
+.combo.bump{animation:combo-bump .3s steps(4)}
+@keyframes combo-bump{
+  0%,100%{transform:scale(1)}
+  50%{transform:scale(1.35);color:#fff;text-shadow:0 0 8px var(--gold),2px 2px 0 #000}
+}
+/* ── POWER-UP ITEMS ── */
+.items-bar{display:flex;gap:8px;justify-content:center;align-items:center;min-height:54px;margin-bottom:8px}
+.items-bar .empty{font-family:var(--px);font-weight:500;font-size:10px;color:var(--muted);letter-spacing:.5px}
+.item-btn{font-family:var(--px);font-weight:700;font-size:11px;background:var(--panel2);color:var(--purple);border:3px solid var(--purple);padding:8px 10px;cursor:pointer;box-shadow:3px 3px 0 #5a2a8a;display:flex;flex-direction:column;align-items:center;gap:2px;min-width:66px;line-height:1.1}
+.item-btn:hover:not(:disabled){transform:translate(-1px,-1px);box-shadow:4px 4px 0 #5a2a8a;border-color:#c084fc;color:#c084fc}
+.item-btn:active:not(:disabled){transform:translate(2px,2px);box-shadow:1px 1px 0 #5a2a8a}
+.item-btn:disabled{opacity:.35;cursor:not-allowed;transform:none!important}
+.item-btn .ib-ic{font-size:22px}
+.item-btn .ib-lb{font-size:9px;letter-spacing:.4px;opacity:.9}
+/* item pickup notification */
+.item-pickup{text-align:center;font-family:var(--px);font-weight:700;font-size:11px;color:var(--purple);min-height:18px;margin-bottom:4px;letter-spacing:.4px;transition:opacity .4s}
+/* frozen timer */
+.bar-timer-in.frozen{background:repeating-linear-gradient(90deg,#5dade2 0 8px,#1a4f73 8px 16px);animation:frozen-pulse .7s steps(4) infinite}
+@keyframes frozen-pulse{0%,100%{filter:brightness(1)}50%{filter:brightness(1.9) drop-shadow(0 0 6px #5dade2)}}
+.bt-problem{font-family:var(--vt);font-size:26px;line-height:1.4;background:var(--panel);border:3px solid var(--blue);padding:16px;margin-bottom:10px;white-space:pre-wrap;text-align:center;color:var(--text)}
+.bt-row{display:flex;gap:8px;margin-bottom:10px}
+.bt-input{flex:1;font-family:var(--px);font-weight:600;font-size:22px;background:var(--panel2);color:var(--gold);border:3px solid var(--gold);padding:11px;outline:none;text-align:center}
+.bt-input:focus{box-shadow:0 0 8px #f4d03f55}
+.bt-input:disabled{opacity:.5}
+.hint-box{font-family:var(--vt);font-size:21px;padding:12px;background:#0f1a0f;border:2px solid var(--green);color:#7fe87f;margin-bottom:10px;display:none;white-space:pre-wrap;line-height:1.4}
+.hint-box.show{display:block}
+.feedback{font-family:var(--px);font-weight:600;font-size:16px;text-align:center;padding:10px;margin-bottom:10px;display:none}
+.feedback.ok{color:var(--green);display:block}
+.feedback.err{color:var(--red);display:block;animation:shake .15s steps(2) 3}
+@keyframes shake{0%{transform:translateX(0)}50%{transform:translateX(6px)}100%{transform:translateX(0)}}
+.task-ctr{font-family:var(--px);font-weight:500;font-size:13px;color:var(--muted);text-align:center}
+.task-ctr span{color:var(--gold)}
+/* ── PROFILE ── */
+.attr-row{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.attr-ic{font-size:22px;min-width:30px}
+.attr-nm{font-family:var(--px);font-weight:500;font-size:13px;min-width:170px;color:var(--text)}
+.attr-vl{font-family:var(--px);font-weight:700;font-size:15px;color:var(--gold);min-width:36px;text-align:right}
+.inv-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-top:10px}
+.inv-slot{background:var(--panel2);border:2px solid #2a2a2a;padding:10px 6px;text-align:center;min-height:80px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px}
+.inv-slot.have{border-color:var(--gold)}
+.inv-slot .ic{font-size:26px}
+.inv-slot .nm{font-family:var(--px);font-weight:500;font-size:10px;color:var(--muted);line-height:1.2;text-align:center;white-space:pre-line}
+/* ── INTRO ── */
+.blink{animation:blink 1s steps(1) infinite}
+@keyframes blink{0%,49%{opacity:1}50%,100%{opacity:0}}
+.ni-input{font-family:var(--px);font-weight:600;font-size:20px;background:var(--panel2);color:var(--gold);border:3px solid var(--gold);padding:13px 16px;width:100%;outline:none;text-align:center;margin-bottom:14px;letter-spacing:1px}
+/* ── REWARD MODAL ── */
+.modal{display:none;position:fixed;inset:0;z-index:100;background:#000a;align-items:center;justify-content:center;padding:16px}
+.modal.show{display:flex}
+.modal-box{background:var(--panel);border:4px solid var(--gold);box-shadow:6px 6px 0 #7a5c00;padding:24px;max-width:420px;width:100%;text-align:center}
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar{width:8px;background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--panel2);border:2px solid var(--gold)}
+/* ── RESPONSIVE ── */
+@media(max-width:480px){
+  .map-grid{grid-template-columns:repeat(2,1fr)}
+  .inv-grid{grid-template-columns:repeat(3,1fr)}
+  .bt-problem{font-size:22px}
+  .attr-nm{min-width:140px;font-size:11px}
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════════ INTRO ══════════════ -->
+<div id="s-intro" class="screen active">
+<div class="wrap">
+  <div style="text-align:center;padding:28px 0 20px">
+    <div style="font-size:56px;margin-bottom:12px">⚔️</div>
+    <div style="font-family:var(--px);font-weight:700;font-size:30px;color:var(--gold);text-shadow:4px 4px 0 #7a5c00;line-height:1.1;margin-bottom:10px">RPG<br>MATEMATIKA</div>
+    <div style="font-family:var(--vt);font-size:24px;color:var(--blue)">8. ročník · ZŠ Husova Liberec</div>
+  </div>
+  <div class="panel">
+    <div style="font-family:var(--vt);font-size:22px;color:var(--muted);margin-bottom:10px">Zadej své jméno, hrdino:</div>
+    <input id="ni" class="ni-input" type="text" placeholder="JMÉNO" maxlength="14" autocomplete="off">
+    <button class="btn full" onclick="startGame()">▶ ZAHAJ DOBRODRUŽSTVÍ</button>
+  </div>
+  <div id="continue-panel" class="panel b" style="display:none">
+    <div style="font-family:var(--px);font-weight:600;font-size:14px;color:var(--blue);margin-bottom:10px">POKRAČOVAT VE HŘE</div>
+    <button class="btn b full" style="margin-bottom:8px" onclick="continueGame()">▶ NAČÍST ULOŽENOU HRU</button>
+    <button class="btn sm" onclick="document.getElementById('continue-panel').style.display='none'">nebo začít znovu</button>
+  </div>
+  <div style="text-align:center;font-family:var(--px);font-weight:500;font-size:13px;color:var(--muted);margin-top:8px">
+    STISKNI ENTER PRO START <span class="blink">▌</span>
+  </div>
+</div>
+</div>
+
+<!-- ══════════════ MAP ══════════════ -->
+<div id="s-map" class="screen">
+<div class="wrap">
+  <div class="topnav">
+    <span class="hl" id="map-name">HRDINA</span>
+    <span>LV <span class="hl" id="map-lv">1</span> &nbsp;·&nbsp; XP <span class="hl" id="map-xp">0</span></span>
+    <button class="btn sm" onclick="go('profile')">👤 PROFIL</button>
+  </div>
+  <div class="panel" style="padding:10px 14px;text-align:center">
+    <div style="font-family:var(--px);font-weight:500;font-size:13px;color:var(--muted);letter-spacing:1px">✦ &nbsp;MAPPA MATHEMATICAE&nbsp; · &nbsp;ANNUS VIII&nbsp; ✦</div>
+  </div>
+  <div class="map-grid" id="map-grid"></div>
+  <div class="panel" style="padding:10px 14px">
+    <div style="display:flex;justify-content:space-between;font-family:var(--px);font-weight:500;font-size:13px;margin-bottom:6px">
+      <span style="color:var(--muted)">ZKUŠENOSTI</span>
+      <span style="color:var(--gold)"><span id="map-xp2">0</span> / <span id="map-xpmax">100</span></span>
+    </div>
+    <div class="bar-out bar-xp"><div class="bar-in" id="map-xpbar" style="width:0%"></div></div>
+  </div>
+</div>
+</div>
+
+<!-- ══════════════ AREA ══════════════ -->
+<div id="s-area" class="screen">
+<div class="wrap">
+  <div class="topnav">
+    <button class="btn sm" onclick="go('map')">← MAPA</button>
+    <span class="hl" id="area-title-sm" style="font-family:var(--px);font-weight:600;font-size:13px;text-align:center;flex:1"></span>
+    <button class="btn sm" onclick="go('profile')">👤</button>
+  </div>
+  <div class="panel" id="area-head"></div>
+  <div id="mission-list"></div>
+</div>
+</div>
+
+<!-- ══════════════ BATTLE ══════════════ -->
+<div id="s-battle" class="screen">
+<div class="wrap">
+  <div class="topnav">
+    <button class="btn sm r" onclick="exitBattle()">✕ ÚTĚK</button>
+    <div class="task-ctr">ÚKOL <span id="bt-num">1</span> / <span id="bt-tot">3</span></div>
+    <span style="min-width:60px"></span>
+  </div>
+  <div class="bt-top" id="bt-top">
+    <div class="hit-flash" id="hit-flash"></div>
+    <div class="combo" id="combo"><span class="x">×</span><span id="combo-n">2</span> COMBO!</div>
+    <span class="bt-monster" id="bt-mon">👾</span>
+    <div id="dmg-spark" class="dmg-spark">-10 HP!</div>
+    <div class="bt-mname" id="bt-mname">???</div>
+    <div class="bar-out bar-hp" style="margin-top:10px;height:12px;border-color:var(--red)">
+      <div class="bar-in" id="bt-hpbar" style="width:100%"></div>
+    </div>
+  </div>
+  <div id="proj" class="proj"></div>
+  <div class="player-hp" id="player-hp"></div>
+  <div class="item-pickup" id="item-pickup"></div>
+  <div class="items-bar" id="items-bar"><div class="empty">— žádné předměty —</div></div>
+  <div class="timer-wrap" id="timer-wrap" style="display:none">
+    <div class="timer-lbl"><span class="l">⏱ ČAS</span><span class="v"><span id="timer-v">30</span> s</span></div>
+    <div class="bar-timer"><div class="bar-timer-in" id="timer-bar" style="width:100%"></div></div>
+  </div>
+  <div class="bt-problem" id="bt-prob">...</div>
+  <div class="bt-row" id="bt-input-row">
+    <input id="bt-ans" class="bt-input" type="text" placeholder="?" autocomplete="off">
+    <button class="btn" onclick="submitAnswer()" style="white-space:nowrap">ÚTOK ⚔</button>
+  </div>
+  <div class="mc-grid" id="mc-grid" style="display:none"></div>
+  <div id="hint-box" class="hint-box"></div>
+  <div id="bt-fb" class="feedback"></div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap">
+    <button class="btn sm b" id="hint-btn" onclick="showHint()">💡 NÁPOVĚDA 1/2</button>
+    <button class="btn sm g" id="next-btn" style="display:none" onclick="nextTask()">DÁLE →</button>
+  </div>
+  <div class="fail-overlay" id="fail-overlay">
+    <div class="ic">💀</div>
+    <div class="ti">PORAŽEN</div>
+    <div class="sb" id="fail-msg">Hrdina padl v boji. Mise musí být zopakována.</div>
+    <button class="btn r" onclick="retryMission()">▶ ZKUSIT ZNOVU</button>
+    <button class="btn sm" style="margin-top:10px" onclick="openArea(BT.aid)">← MAPA OBLASTI</button>
+  </div>
+</div>
+</div>
+
+<!-- ══════════════ PROFILE ══════════════ -->
+<div id="s-profile" class="screen">
+<div class="wrap">
+  <div class="topnav">
+    <button class="btn sm" onclick="go('map')">← MAPA</button>
+    <span style="font-family:var(--px);font-weight:600;font-size:14px;color:var(--gold)">PROFIL HRDINY</span>
+    <span style="min-width:60px"></span>
+  </div>
+  <div class="panel">
+    <div style="display:flex;gap:14px;align-items:center;margin-bottom:14px">
+      <div style="font-size:48px">🧙</div>
+      <div>
+        <div id="pr-name" style="font-family:var(--px);font-weight:700;font-size:20px;color:var(--gold);letter-spacing:1px">HRDINA</div>
+        <div style="font-family:var(--px);font-weight:500;font-size:13px;color:var(--muted);margin-top:4px">ÚROVEŇ <span id="pr-lv">1</span></div>
+        <div style="font-family:var(--px);font-weight:500;font-size:13px;color:var(--blue);margin-top:2px">XP: <span id="pr-xp">0</span></div>
+      </div>
+    </div>
+    <div style="font-family:var(--px);font-weight:600;font-size:12px;color:var(--muted);margin-bottom:10px;letter-spacing:1px">— ATRIBUTY —</div>
+    <div id="pr-attrs"></div>
+  </div>
+  <div class="panel">
+    <div style="font-family:var(--px);font-weight:600;font-size:12px;color:var(--muted);margin-bottom:10px;letter-spacing:1px">— INVENTÁŘ ARTEFAKTŮ —</div>
+    <div class="inv-grid" id="pr-inv"></div>
+  </div>
+  <div class="panel">
+    <div style="font-family:var(--px);font-weight:600;font-size:12px;color:var(--muted);margin-bottom:10px;letter-spacing:1px">— ZÁLOHA POSTUPU —</div>
+    <button class="btn sm b" onclick="exportCode()">📋 ZKOPÍROVAT KÓD</button>
+    <div id="code-out" style="display:none;margin-top:10px">
+      <div id="code-txt" style="font-family:var(--px);font-weight:500;font-size:11px;word-break:break-all;background:var(--bg);border:2px solid var(--muted);padding:10px;color:var(--blue);margin-bottom:8px;line-height:1.6"></div>
+      <button class="btn sm" onclick="importPrompt()">NAČÍST KÓD</button>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ══════════════ REWARD MODAL ══════════════ -->
+<div id="modal" class="modal">
+<div class="modal-box">
+  <div id="modal-ic" style="font-size:56px;margin-bottom:10px">🎉</div>
+  <div id="modal-title" style="font-family:var(--px);font-weight:700;font-size:17px;color:var(--gold);margin-bottom:12px;line-height:1.3;letter-spacing:.5px"></div>
+  <div id="modal-txt" style="font-family:var(--vt);font-size:22px;color:var(--text);margin-bottom:16px;line-height:1.4;white-space:pre-wrap"></div>
+  <button class="btn full" onclick="closeModal()">▶ POKRAČOVAT</button>
+</div>
+</div>
+
+<script>
+// ══════════════════════════════════════════
+//  HELPERS
+// ══════════════════════════════════════════
+const ri = (a,b) => Math.floor(Math.random()*(b-a+1))+a;
+function gcd(a,b){return b?gcd(b,a%b):Math.abs(a);}
+
+function checkAns(raw, correct){
+  const norm = s => String(s).trim().toLowerCase().replace(/\s+/g,'').replace(',','.');
+  const u = norm(raw), c = norm(correct);
+  if(u===c) return true;
+  // fraction eval
+  const evalS = s => {
+    if(/^-?\d+\/-?\d+$/.test(s)){const[a,b]=s.split('/');return parseFloat(a)/parseFloat(b);}
+    return parseFloat(s);
+  };
+  const un=evalS(u), cn=evalS(c);
+  if(!isNaN(un)&&!isNaN(cn)) return Math.abs(un-cn)<0.016;
+  return false;
+}
+
+// ══════════════════════════════════════════
+//  GAME DATA — AREAS
+// ══════════════════════════════════════════
+const AREAS = [
+{
+  id:1, icon:'🏔️', name:'ÚDOLÍ\nOPAKOVÁNÍ',
+  desc:'Opakování ze 7. ročníku. Celá čísla, racionální čísla, procenta.',
+  art:{id:'map',ic:'🗺️',nm:'Mapa\nsedmi krajin'},
+  attrGain:{calc:12,anal:8},
+  missions:[
+    {
+      id:'1-1', name:'Celá čísla', sub:'rychlovka · výběr ze 4',
+      mon:'🔢', mname:'STRÁŽCE ČÍSEL',
+      intro:'Na začátku cesty stojí Strážce celých čísel. Ovládni záporná čísla, aby ti otevřel bránu.',
+      mc:true, tc:6,
+      tasks:()=>[
+        (()=>{const a=ri(-15,-2),b=ri(2,12),ans=a+b;return{
+          text:`Vypočítej:\n(${a}) + ${b} =`,ans:String(ans),
+          hints:[`Sčítáš záporné a kladné číslo. Najdi, které má větší absolutní hodnotu.`,`|${a}| = ${Math.abs(a)}, druhé číslo: ${b}. Větší absolutní hodnotou je ${Math.abs(a)>b?'záporné':'kladné'}, takže výsledek bude ${Math.abs(a)>b?'záporný':'kladný'}.`],skill:'calc'};})(),
+        (()=>{const a=ri(-12,-2),b=ri(-9,-1),ans=a-b;return{
+          text:`Vypočítej:\n(${a}) − (${b}) =`,ans:String(ans),
+          hints:[`Odečítání záporného čísla = přičtení jeho absolutní hodnoty.`,`${a} − (${b}) přepiš jako ${a} + ${Math.abs(b)}.`],skill:'calc'};})(),
+        (()=>{const a=ri(-7,-2),b=ri(2,8),ans=a*b;return{
+          text:`Vypočítej:\n(${a}) · ${b} =`,ans:String(ans),
+          hints:[`Záporné × kladné = záporné.`,`Spočítej |${a}| × ${b} = ${Math.abs(ans)} a doplň znaménko.`],skill:'calc'};})(),
+        (()=>{const a=ri(2,9),b=ri(2,9),ans=(-a)*(-b);return{
+          text:`Vypočítej:\n(−${a}) · (−${b}) =`,ans:String(ans),
+          hints:[`Záporné × záporné = ?`,`Mínus krát mínus dává plus. Spočítej ${a} × ${b}.`],skill:'calc'};})(),
+        (()=>{const b=ri(2,12),k=ri(2,9),a=-b*k,ans=a/b;return{
+          text:`Vypočítej:\n(${a}) ÷ ${b} =`,ans:String(ans),
+          hints:[`Záporné ÷ kladné = záporné.`,`|${a}| ÷ ${b} = ${Math.abs(ans)}.`],skill:'calc'};})(),
+        (()=>{const a=ri(-15,-3),b=ri(-9,-2),c=ri(2,12),ans=a-b+c;return{
+          text:`Vypočítej:\n(${a}) − (${b}) + ${c} =`,ans:String(ans),
+          hints:[`Nejdřív si přepiš odečítání záporného na sčítání: ${a} + ${Math.abs(b)} + ${c}.`,`Postupuj zleva doprava: ${a + Math.abs(b)} + ${c}.`],skill:'calc'};})()
+      ]
+    },
+    {
+      id:'1-2', name:'Zlomky a desetinná čísla', sub:'racionální čísla',
+      mon:'🧮', mname:'TROLL ZLOMKŮ',
+      intro:'V říčním mlýně žije Troll zlomků. Kdo neumí počítat se zlomky, nedostane přes most.',
+      tc:6,
+      tasks:()=>[
+        (()=>{const b=ri(2,6),d=ri(2,6);const num=b+d,den=b*d,g=gcd(num,den);const ans=den/g===1?String(num/g):`${num/g}/${den/g}`;return{
+          text:`Vypočítej (zjednodušený zlomek):\n1/${b} + 1/${d} =`,ans,
+          hints:[`Najdi společný jmenovatel — vynásob jmenovatele mezi sebou.`,`Společný jmenovatel je ${den}. Převeď oba zlomky a sečti čitatele.`],skill:'calc'};})(),
+        (()=>{const a=ri(1,9);const ans=String((a/10).toFixed(1));return{
+          text:`Převeď na desetinné číslo:\n${a}/10 =`,ans,
+          hints:[`Dělení deseti = posun desetinné čárky o jedno místo doleva.`,`Napiš ${a},0 a posuň čárku o jedno místo doleva.`],skill:'calc'};})(),
+        (()=>{const c=ri(2,6),a=ri(2,9),b=ri(2,9),ans=c*a+c*b;return{
+          text:`Použij distributivní zákon:\n${c} · ${a} + ${c} · ${b} =`,ans:String(ans),
+          hints:[`Vytkni společné číslo: c·a + c·b = c·(a+b).`,`Spočítej ${c}·(${a}+${b}) = ${c}·${a+b}.`],skill:'calc'};})(),
+        (()=>{const b=ri(3,8),d=b,a=ri(2,b-1),c=ri(1,b-1);const num=a-c,den=b,g=gcd(Math.abs(num),den);const ans=num===0?'0':(den/g===1?String(num/g):`${num/g}/${den/g}`);return{
+          text:`Vypočítej (zjednodušený zlomek):\n${a}/${b} − ${c}/${d} =`,ans,
+          hints:[`Jmenovatelé jsou stejné. Odčítej jen čitatele.`,`(${a} − ${c})/${b} = ${num}/${den}. Pokud lze, zkrať.`],skill:'calc'};})(),
+        (()=>{const a=ri(2,6),b=ri(3,8),c=ri(2,6),d=ri(3,8);const num=a*c,den=b*d,g=gcd(num,den);const ans=den/g===1?String(num/g):`${num/g}/${den/g}`;return{
+          text:`Vypočítej (zjednodušený zlomek):\n${a}/${b} · ${c}/${d} =`,ans,
+          hints:[`Zlomky se násobí "po patrech": čitatel × čitatel, jmenovatel × jmenovatel.`,`${a}·${c}/(${b}·${d}) = ${num}/${den}. Pak zkrať.`],skill:'calc'};})(),
+        (()=>{const a=ri(2,6),k=ri(2,9);const dec=(k/10).toFixed(1);const ans=String(a+k/10);return{
+          text:`Vypočítej:\n${a} + ${dec} =`,ans,
+          hints:[`Sčítáš celé číslo a desetinné. Zarovnej desetinné čárky.`,`${a},0 + ${dec} — sečti po sloupcích.`],skill:'calc'};})()
+      ]
+    },
+    {
+      id:'1-3', name:'Procenta', sub:'výpočet procentové hodnoty',
+      mon:'💯', mname:'ČARODĚJ PROCENT',
+      intro:'Čaroděj procent střeží průsmyk. Každé procento je 1/100 celku — pamatuj si to.',
+      tc:6,
+      tasks:()=>[
+        (()=>{const z=ri(2,10)*10,p=ri(5,40),ans=Math.round(z*p/100);return{
+          text:`Kolik je ${p} % z čísla ${z}?`,ans:String(ans),
+          hints:[`${p} % znamená ${p}/100, tedy ${p} setin celku.`,`Spočítej ${z} · ${p} a vyděl 100.`],skill:'anal'};})(),
+        (()=>{const c=ri(4,20)*10,v=ri(1,c/10)*10;const ans=Math.round(v/c*100);return{
+          text:`Kolika procenty je ${v} z ${c}?\n(celé číslo)`,ans:String(ans),
+          hints:[`Procento = část ÷ celek · 100.`,`Spočítej ${v} ÷ ${c} · 100.`],skill:'anal'};})(),
+        (()=>{const p=ri(1,4)*10,z=ri(10,40)*10;const sleva=Math.round(z*p/100),ans=z-sleva;return{
+          text:`Zboží stojí ${z} Kč a je zlevněno o ${p} %.\nKolik stojí teď?`,ans:String(ans),
+          hints:[`Nejdřív spočítej slevu — ${p} % z ${z} Kč.`,`Sleva je ${sleva} Kč. Odečti ji od původní ceny.`],skill:'anal'};})(),
+        (()=>{const p=ri(5,25),z=ri(10,30)*10;const navic=Math.round(z*p/100),ans=z+navic;return{
+          text:`Cena ${z} Kč byla zvýšena o ${p} %.\nKolik stojí teď?`,ans:String(ans),
+          hints:[`Spočítej zvýšení — ${p} % z ${z} Kč.`,`Zvýšení je ${navic} Kč. Přičti k původní ceně.`],skill:'anal'};})(),
+        (()=>{const p=ri(2,5)*5,z=ri(8,30)*100;const ans=Math.round(z*p/100);return{
+          text:`Na účtu máš ${z} Kč s úrokem ${p} % ročně.\nKolik si připíšeš za rok? (Kč)`,ans:String(ans),
+          hints:[`Úrok = ${p} % z částky na účtu.`,`${z} · ${p} ÷ 100 = ?`],skill:'anal'};})(),
+        (()=>{const p=ri(10,40),v=ri(2,9)*10;const z=Math.round(v*100/p);return{
+          text:`${v} žáků dostalo jedničku.\nTo je ${p} % třídy.\nKolik žáků je celkem ve třídě?`,ans:String(z),
+          hints:[`Když ${p} % = ${v}, kolik je 100 %?`,`Použij úměru: ${v} ÷ ${p} · 100.`],skill:'anal'};})()
+      ]
+    }
+  ]
+},
+{
+  id:2, icon:'⛰️', name:'HORA\nPYTHAGOROVA',
+  desc:'Mocniny, odmocniny a Pythagorova věta. Výpočet přepony i odvěsny.',
+  art:{id:'sword',ic:'⚔️',nm:'Pythagorův\nmeč'},
+  attrGain:{calc:10,geo:20},
+  missions:[
+    {
+      id:'2-1', name:'Mocniny a odmocniny', sub:'rychlovka · výběr ze 4',
+      mon:'🔷', mname:'RUNA MOCNINY',
+      intro:'Na skalní stěně jsou vytesány runy mocnin. Jen ten, kdo je rozluští, smí vystoupat výš.',
+      mc:true, tc:6,
+      tasks:()=>[
+        (()=>{const a=ri(2,15),ans=a*a;return{
+          text:`Vypočítej:\n${a}² =`,ans:String(ans),
+          hints:[`a² znamená a · a (druhá mocnina = číslo krát samo sebe).`,`Vynásob ${a} krát ${a}.`],skill:'calc'};})(),
+        (()=>{const a=ri(2,8),ans=a*a*a;return{
+          text:`Vypočítej:\n${a}³ =`,ans:String(ans),
+          hints:[`a³ znamená a · a · a (třetí mocnina = krychle).`,`Nejdřív ${a} · ${a} = ${a*a}. Potom vynásob ještě jednou ${a}.`],skill:'calc'};})(),
+        (()=>{const a=ri(2,13),ans=a;return{
+          text:`Vypočítej:\n√${a*a} =`,ans:String(ans),
+          hints:[`Druhá odmocnina hledá číslo, které vynásobeno samo sebou dá zadané.`,`Najdi ? takové, že ? · ? = ${a*a}.`],skill:'calc'};})(),
+        (()=>{const a=ri(2,9),ans=a*a;return{
+          text:`Vypočítej:\n(−${a})² =`,ans:String(ans),
+          hints:[`Mínus krát mínus = plus. Záporné číslo na druhou je vždy kladné.`,`(−${a})·(−${a}) = ?`],skill:'calc'};})(),
+        (()=>{const a=ri(2,7),ans=a;return{
+          text:`Vypočítej třetí odmocninu:\n³√${a*a*a} =`,ans:String(ans),
+          hints:[`Třetí odmocnina hledá číslo, jehož třetí mocnina dá ${a*a*a}.`,`Hledej ? takové, že ? · ? · ? = ${a*a*a}.`],skill:'calc'};})(),
+        (()=>{const a=ri(2,6),b=ri(2,6),ans=a*a*b*b;return{
+          text:`Vypočítej:\n${a}² · ${b}² =`,ans:String(ans),
+          hints:[`Můžeš spočítat každou mocninu zvlášť, nebo využít pravidlo: a²·b² = (a·b)².`,`Spočítej ${a}² = ${a*a} a ${b}² = ${b*b}, pak vynásob.`],skill:'calc'};})()
+      ]
+    },
+    {
+      id:'2-2', name:'Pythagorova věta — přepona', sub:'c² = a² + b²',
+      mon:'📐', mname:'MOST PŘES PROPAST',
+      intro:'Horský most je rozbitý. Pomocí Pythagorovy věty spočítej délku nové přepony.',
+      tc:6,
+      tasks:()=>[
+        (()=>{const a=ri(3,9),b=ri(3,12);const c2=a*a+b*b;const cv=Math.sqrt(c2);const ans=Number.isInteger(cv)?String(cv):cv.toFixed(2);return{
+          text:`Pravoúhlý trojúhelník: a = ${a}, b = ${b}.\nVypočítej přeponu c.\n(na 2 desetinná místa)`,ans,
+          hints:[`Pythagorova věta: c² = a² + b².`,`Spočítej a² = ${a*a} a b² = ${b*b}, sečti a pak odmocni.`],skill:'geo'};})(),
+        (()=>{return{
+          text:`Jsou strany 3, 4, 5 stranami\npravoúhlého trojúhelníku?\n(napiš ANO nebo NE)`,ans:'ANO',
+          hints:[`Ověř, zda platí a² + b² = c² pro tyto strany.`,`Spočítej 3² + 4² a porovnej s 5².`],skill:'geo'};})(),
+        (()=>{const a=ri(4,10),b=ri(4,10);const c2=a*a+b*b;const ans=Math.sqrt(c2).toFixed(2);return{
+          text:`Žebřík je opřený o zeď.\nVýška zdi = ${a} m, odstup paty od zdi = ${b} m.\nJak dlouhý je žebřík? (2 des. místa)`,ans,
+          hints:[`Žebřík tvoří přeponu pravoúhlého trojúhelníku.`,`Spočítej ${a}² + ${b}² a odmocni.`],skill:'geo'};})(),
+        (()=>{const trojice=[[5,12,13],[8,15,17],[7,24,25],[20,21,29],[9,40,41]];const t=trojice[ri(0,trojice.length-1)];const a=t[0],b=t[1],ans=String(t[2]);return{
+          text:`Pravoúhlý trojúhelník: a = ${a}, b = ${b}.\nVypočítej přeponu c.\n(přepona je celé číslo)`,ans,
+          hints:[`c² = a² + b². Spočítej a² + b².`,`Po sečtení odmocni. Výsledek je celé číslo (pythagorejská trojice).`],skill:'geo'};})(),
+        (()=>{const a=ri(6,12),b=ri(6,16);const c2=a*a+b*b;const ans=Math.sqrt(c2).toFixed(2);return{
+          text:`Obdélníková zahrada má strany ${a} m a ${b} m.\nJak dlouhá je úhlopříčka? (2 des. místa)`,ans,
+          hints:[`Úhlopříčka obdélníku = přepona pravoúhlého trojúhelníku.`,`Spočítej ${a}² + ${b}² a odmocni.`],skill:'geo'};})(),
+        (()=>{const a=ri(40,80),b=ri(20,50);const c2=a*a+b*b;const ans=Math.sqrt(c2).toFixed(1);return{
+          text:`TV obrazovka má šířku ${a} cm a výšku ${b} cm.\nJaká je úhlopříčka? (1 des. místo, v cm)`,ans,
+          hints:[`Úhlopříčka TV = přepona pravoúhlého trojúhelníku.`,`Spočítej ${a}² + ${b}² a odmocni.`],skill:'geo'};})()
+      ]
+    },
+    {
+      id:'2-3', name:'Pythagorova věta — odvěsna', sub:'b² = c² − a²',
+      mon:'🌀', mname:'ČARODĚJ GEOMETRIE',
+      intro:'Čaroděj geometrie ukryl odvěsnu v záhybech prostoru. Najdi ji!',
+      tc:6,
+      tasks:()=>[
+        (()=>{const c=ri(10,17),a=ri(3,c-3);const b2=c*c-a*a;const b=Math.sqrt(b2).toFixed(2);return{
+          text:`Pravoúhlý trojúhelník:\npřepona c = ${c}, odvěsna a = ${a}.\nVypočítej odvěsnu b. (2 des. místa)`,ans:b,
+          hints:[`Z Pythagorovy věty plyne: b² = c² − a².`,`Spočítej ${c}² − ${a}² a odmocni.`],skill:'geo'};})(),
+        (()=>{return{
+          text:`Pravoúhlý trojúhelník:\nc = 13, a = 5.\nVypočítej odvěsnu b.`,ans:'12',
+          hints:[`b² = c² − a². Spočítej druhé mocniny.`,`b² = 169 − 25. Pak odmocni.`],skill:'geo'};})(),
+        (()=>{const c=ri(10,20),b=ri(3,c-3);const a2=c*c-b*b;const a=Math.sqrt(a2).toFixed(2);return{
+          text:`U vrcholu stromu je drak. Vzdálenost ke konci stínu = ${c} m,\ndélka stínu = ${b} m.\nJak vysoko je drak? (2 des. místa)`,ans,
+          hints:[`Výška = odvěsna pravoúhlého trojúhelníku.`,`Spočítej ${c}² − ${b}² a odmocni.`],skill:'geo'};})(),
+        (()=>{return{
+          text:`Pravoúhlý trojúhelník:\nc = 25, a = 7.\nVypočítej odvěsnu b.`,ans:'24',
+          hints:[`b² = c² − a². Spočítej druhé mocniny.`,`b² = 625 − 49. Pak odmocni.`],skill:'geo'};})(),
+        (()=>{const v=ri(5,12),c=v+ri(3,8);const sirka2=c*c-v*v;const ans=Math.sqrt(sirka2).toFixed(2);return{
+          text:`Žebřík dlouhý ${c} m je opřený o zeď,\nvrchol dosahuje výšky ${v} m.\nJak daleko je pata od zdi? (2 des. místa)`,ans,
+          hints:[`Žebřík je přepona, výška a odstup jsou odvěsny.`,`Odstup² = ${c}² − ${v}².`],skill:'geo'};})(),
+        (()=>{const a=ri(8,15),c=a+ri(3,10);const b2=c*c-a*a;const ans=Math.sqrt(b2).toFixed(1);return{
+          text:`Lano dlouhé ${c} m vede z vrcholu stožáru k zemi,\nvzdálenost paty stožáru od kotvy = ${a} m.\nJak vysoký je stožár? (1 des. místo)`,ans,
+          hints:[`Lano = přepona, vzdálenost a výška = odvěsny.`,`Výška² = ${c}² − ${a}².`],skill:'geo'};})()
+      ]
+    }
+  ]
+},
+{id:3,icon:'🌿',name:'BAŽINY\nROVNIC',  desc:'Lineární rovnice s jednou neznámou a slovní úlohy.',locked:true,art:{id:'wand',  ic:'🪄',nm:'Algebraická\nhůl'}, attrGain:{calc:15,anal:15},missions:[]},
+{id:4,icon:'🏰',name:'VĚŽE\nALGEBRY', desc:'Algebraické výrazy — sčítání, odčítání, násobení, vytýkání.',locked:true,art:{id:'shield',ic:'🛡️',nm:'Výrazový\nštít'}, attrGain:{calc:10,anal:20},missions:[]},
+{id:5,icon:'🌊',name:'JEZERO\nKRUŽNIC',desc:'Kruh, kružnice, válec. Obvod, obsah, objem.',locked:true,art:{id:'ring',  ic:'💍',nm:'Kruhový\nprsten'},attrGain:{geo:25,craft:10},missions:[]},
+{id:6,icon:'🔧',name:'DÍLNA\nKONSTR.', desc:'Konstrukční úlohy. Množiny bodů, Thaletova věta.',locked:true,art:{id:'compass',ic:'🧭',nm:'Rýsovací\nkompas'}, attrGain:{geo:15,craft:25},missions:[]},
+{id:7,icon:'🏛️',name:'CITADELA\nARCIMÁGA',desc:'Závěrečné opakování a přijímačkové úlohy. Finální boss!',locked:true,art:{id:'crown', ic:'👑',nm:'Diplom\narcimága'}, attrGain:{calc:10,geo:10,anal:10,craft:10},missions:[]}
+];
+
+const ATTR_META = {
+  calc: {ic:'⚔️', nm:'Výpočetní síla'},
+  geo:  {ic:'🔺', nm:'Geometr. moudrost'},
+  anal: {ic:'🧮', nm:'Analytická bystrost'},
+  craft:{ic:'📐', nm:'Konstr. zručnost'}
+};
+
+// ══════════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════════
+const SAVE_KEY = 'RPG_MAT_8';
+let S = {name:'HRDINA',xp:0,level:1,attrs:{calc:0,geo:0,anal:0,craft:0},done:{},inv:[]};
+
+function saveS(){localStorage.setItem(SAVE_KEY,JSON.stringify(S));}
+function loadS(){const r=localStorage.getItem(SAVE_KEY);if(r){S=JSON.parse(r);return true;}return false;}
+function calcLevel(){S.level=Math.floor(S.xp/100)+1;}
+
+// ══════════════════════════════════════════
+//  SCREEN ROUTER
+// ══════════════════════════════════════════
+function go(name){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('s-'+name).classList.add('active');
+  window.scrollTo(0,0);
+  if(name==='map')renderMap();
+  if(name==='profile')renderProfile();
+}
+
+// ══════════════════════════════════════════
+//  INTRO
+// ══════════════════════════════════════════
+function startGame(){
+  const v=document.getElementById('ni').value.trim().toUpperCase().slice(0,14);
+  S.name=v||'HRDINA';
+  saveS();go('map');
+}
+function continueGame(){if(loadS())go('map');}
+
+// ══════════════════════════════════════════
+//  MAP
+// ══════════════════════════════════════════
+function isAreaUnlocked(ar){
+  if(ar.id===1)return true;
+  if(ar.locked)return false;
+  const prev=AREAS.find(a=>a.id===ar.id-1);
+  return prev?isAreaDone(prev):true;
+}
+function isAreaDone(ar){
+  if(!ar.missions.length)return false;
+  return ar.missions.every(m=>m.tc===countDone(m.id,m.tc));
+}
+function countDone(mid,tc){
+  let n=0;for(let i=0;i<tc;i++)if(S.done[`${mid}-${i}`])n++;return n;
+}
+
+function renderMap(){
+  calcLevel();
+  document.getElementById('map-name').textContent=S.name;
+  document.getElementById('map-lv').textContent=S.level;
+  document.getElementById('map-xp').textContent=S.xp;
+  document.getElementById('map-xp2').textContent=S.xp;
+  document.getElementById('map-xpmax').textContent=S.level*100;
+  const pct=Math.min(100,(S.xp%100));
+  document.getElementById('map-xpbar').style.width=pct+'%';
+  const g=document.getElementById('map-grid');
+  g.innerHTML='';
+  AREAS.forEach(ar=>{
+    const unl=isAreaUnlocked(ar),done=isAreaDone(ar);
+    const finalCls = done?'done': (unl && !done)?'active':'locked';
+    const nd=document.createElement('div');
+    nd.className='map-node '+finalCls;
+    nd.innerHTML=`<span class="ni">${ar.icon}</span><div class="nn">${ar.name}</div><div class="ns">${done?'✓ SPLNĚNO':unl?'▶ VSTUP':'🔒 ZAMČENO'}</div>`;
+    if(unl)nd.onclick=()=>openArea(ar.id);
+    g.appendChild(nd);
+  });
+}
+
+// ══════════════════════════════════════════
+//  AREA
+// ══════════════════════════════════════════
+let curArea=null;
+
+function openArea(aid){
+  const ar=AREAS.find(a=>a.id===aid);
+  curArea=ar;
+  document.getElementById('area-title-sm').textContent=ar.name.replace('\n',' ');
+  const hd=document.getElementById('area-head');
+  const artHave=S.inv.includes(ar.art.id);
+  hd.innerHTML=`
+    <div style="display:flex;gap:14px;align-items:center">
+      <div style="font-size:42px">${ar.icon}</div>
+      <div>
+        <div style="font-family:var(--px);font-weight:700;font-size:17px;color:var(--gold);letter-spacing:.5px">${ar.name.replace('\n',' ')}</div>
+        <div style="font-family:var(--vt);font-size:21px;color:var(--muted);margin-top:4px;line-height:1.3">${ar.desc}</div>
+      </div>
+    </div>
+    <div style="margin-top:12px;display:flex;align-items:center;gap:10px;padding-top:10px;border-top:2px solid var(--panel2)">
+      <div style="font-size:26px">${ar.art.ic}</div>
+      <div style="font-family:var(--px);font-weight:500;font-size:12px;color:var(--muted);line-height:1.3">Artefakt oblasti:<br><span style="color:var(--gold);font-weight:600">${ar.art.nm.replace('\n',' ')}</span></div>
+      ${artHave?'<div style="margin-left:auto;font-family:var(--px);font-weight:700;font-size:13px;color:var(--gold)">✓ ZÍSKÁNO</div>':''}
+    </div>`;
+  const ml=document.getElementById('mission-list');
+  ml.innerHTML='';
+  ar.missions.forEach((m,mi)=>{
+    const dn=countDone(m.id,m.tc),tot=m.tc,allDn=dn===tot;
+    const avail=mi===0||countDone(ar.missions[mi-1].id,ar.missions[mi-1].tc)===ar.missions[mi-1].tc;
+    const cls=allDn?'done':avail?'avail':'locked';
+    const stars=allDn?'⭐⭐⭐':dn>0?'⭐'.repeat(Math.ceil(dn/tot*3))+'☆'.repeat(3-Math.ceil(dn/tot*3)):'☆☆☆';
+    const it=document.createElement('div');
+    it.className='ms-item '+cls;
+    it.innerHTML=`
+      <div class="ms-num" style="color:${allDn?'var(--green)':avail?'var(--blue)':'var(--muted)'}">${allDn?'✓':String(mi+1).padStart(2,'0')}</div>
+      <div style="flex:1"><div class="ms-name">${m.name}</div><div class="ms-sub">${m.sub} · ${dn}/${tot}</div></div>
+      <div style="font-size:14px">${stars}</div>`;
+    if(avail)it.onclick=()=>launchBattle(ar.id,m.id);
+    ml.appendChild(it);
+  });
+  go('area');
+}
+
+// ══════════════════════════════════════════
+//  BATTLE
+// ══════════════════════════════════════════
+let BT={tasks:[],idx:0,hl:0,curTask:null,aid:null,mid:null,combo:0,
+        hp:3,maxHp:3,timer:null,timeLeft:30,timeMax:30,mcMode:false,phase:1,
+        items:[],timerFrozen:false,freezeTimeout:null};
+
+const MAX_PLAYER_HP=3;
+const TIME_PER_TASK=30;
+const ITEM_DROP_CHANCE=0.28;
+const MAX_ITEMS=3;
+const ITEM_TYPES=['hp','freeze','skip'];
+const ITEM_DEFS={
+  hp:    {ic:'🧪',lb:'LEKTVAR',  desc:'Obnoví 1 život'},
+  freeze:{ic:'❄️', lb:'ZMRZLINA',desc:'Zmrazí čas na 15 s'},
+  skip:  {ic:'💨',lb:'PŘESKOČ', desc:'Přeskočí úkol bez penalizace'}
+};
+
+function launchBattle(aid,mid){
+  const ar=AREAS.find(a=>a.id===aid);
+  const m=ar.missions.find(x=>x.id===mid);
+  BT.aid=aid;BT.mid=mid;BT.combo=0;
+  BT.hp=MAX_PLAYER_HP;BT.maxHp=MAX_PLAYER_HP;
+  BT.phase=1;BT.items=[];BT.timerFrozen=false;
+  if(BT.freezeTimeout){clearTimeout(BT.freezeTimeout);BT.freezeTimeout=null;}
+  BT.mcMode=!!m.mc;
+  // reset top styling
+  const top=document.getElementById('bt-top');
+  top.classList.remove('phase2');
+  document.getElementById('fail-overlay').classList.remove('show');
+  updateCombo();
+  updatePlayerHp();
+  renderItems();
+  // generate fresh tasks (mission must be re-completed from scratch for failure restart)
+  BT.tasks=m.tasks();
+  BT.idx=0;
+  // for retry, restart from beginning; for normal launch, find first undone
+  for(let i=0;i<BT.tasks.length;i++){if(!S.done[`${mid}-${i}`]){BT.idx=i;break;}}
+  const mon=document.getElementById('bt-mon');
+  mon.textContent=m.mon;
+  mon.style.filter='';
+  document.getElementById('bt-mname').textContent=m.mname;
+  mon.className='bt-monster';
+  void mon.offsetWidth;
+  mon.classList.add('enter');
+  setTimeout(()=>{mon.classList.remove('enter');mon.classList.add(Math.random()<.5?'idle':'idle-2');},560);
+  renderTask();
+  go('battle');
+}
+
+function retryMission(){
+  // wipe progress for this mission, restart fresh
+  const m=AREAS.find(a=>a.id===BT.aid).missions.find(x=>x.id===BT.mid);
+  for(let i=0;i<m.tc;i++) delete S.done[`${BT.mid}-${i}`];
+  saveS();
+  launchBattle(BT.aid,BT.mid);
+}
+
+function updatePlayerHp(){
+  const el=document.getElementById('player-hp');
+  let h='';
+  for(let i=0;i<BT.maxHp;i++){
+    h+=`<span class="heart${i<BT.hp?'':' lost'}" data-i="${i}">❤️</span>`;
+  }
+  el.innerHTML=h;
+}
+
+function flashHeart(idx){
+  const h=document.querySelector(`.heart[data-i="${idx}"]`);
+  if(!h)return;
+  h.classList.add('flash');
+  setTimeout(()=>h.classList.remove('flash'),360);
+}
+
+function damagePlayer(){
+  if(BT.hp<=0)return;
+  flashHeart(BT.hp-1);
+  BT.hp--;
+  setTimeout(updatePlayerHp,360);
+  if(BT.hp<=0){
+    setTimeout(missionFailed,800);
+  }
+}
+
+function missionFailed(){
+  stopTimer();
+  const el=document.getElementById('fail-overlay');
+  const msgs=[
+    'Hrdina padl v boji. Mise musí být zopakována.',
+    'Tvá síla byla nedostatečná. Nabuď odvahu a zkus to znovu!',
+    'Boss byl silnější. Vrať se s odhodláním a vyzkoušej znovu.'
+  ];
+  document.getElementById('fail-msg').textContent=msgs[ri(0,msgs.length-1)];
+  el.classList.add('show');
+}
+
+function startTimer(){
+  stopTimer();
+  BT.timeLeft=TIME_PER_TASK;BT.timeMax=TIME_PER_TASK;
+  document.getElementById('timer-wrap').style.display='block';
+  updateTimerUi();
+  BT.timer=setInterval(()=>{
+    if(BT.timerFrozen)return;
+    BT.timeLeft--;
+    updateTimerUi();
+    if(BT.timeLeft<=0){
+      stopTimer();
+      onTimeOut();
+    }
+  },1000);
+}
+
+function stopTimer(){if(BT.timer){clearInterval(BT.timer);BT.timer=null;}}
+
+function updateTimerUi(){
+  document.getElementById('timer-v').textContent=BT.timeLeft;
+  const pct=Math.max(0,BT.timeLeft/BT.timeMax*100);
+  const bar=document.getElementById('timer-bar');
+  bar.style.width=pct+'%';
+  bar.classList.toggle('warn',BT.timeLeft<=10&&BT.timeLeft>5);
+  bar.classList.toggle('danger',BT.timeLeft<=5);
+}
+
+function onTimeOut(){
+  if(BT.hp<=0)return;
+  const fb=document.getElementById('bt-fb');
+  fb.textContent='⏱ ČAS VYPRŠEL!';
+  fb.className='feedback err';
+  monsterAttack();
+  damagePlayer();
+  // hide hint/next, let player retry on this task
+  setTimeout(()=>{
+    if(BT.hp>0){
+      // re-enable input and restart timer for same task
+      const inp=document.getElementById('bt-ans');
+      if(inp){inp.disabled=false;inp.value='';inp.focus();}
+      document.querySelectorAll('#mc-grid .mc-btn').forEach(b=>{b.disabled=false;b.classList.remove('right','wrong');});
+      fb.className='feedback';
+      startTimer();
+    }
+  },1300);
+}
+
+function renderTask(){
+  const t=BT.tasks[BT.idx];
+  BT.curTask=t;BT.hl=0;
+  BT.timerFrozen=false;
+  if(BT.freezeTimeout){clearTimeout(BT.freezeTimeout);BT.freezeTimeout=null;}
+  document.getElementById('timer-bar').classList.remove('frozen');
+  const tot=BT.tasks.length;
+  document.getElementById('bt-num').textContent=BT.idx+1;
+  document.getElementById('bt-tot').textContent=tot;
+  const remainingHp=((tot-BT.idx)/tot*100);
+  document.getElementById('bt-hpbar').style.width=remainingHp+'%';
+  // boss phase transition
+  if(remainingHp<=55 && BT.phase===1){
+    BT.phase=2;
+    const top=document.getElementById('bt-top');
+    top.classList.add('phase2');
+    setTimeout(()=>document.getElementById('bt-fb').textContent='',0);
+    const fb=document.getElementById('bt-fb');
+    fb.textContent='🔥 BOSS JE V ZUŘIVOSTI! 🔥';
+    fb.className='feedback err';
+    const mon=document.getElementById('bt-mon');
+    mon.style.filter='drop-shadow(0 6px 0 #0008) drop-shadow(0 0 14px #e74c3c)';
+  }
+  document.getElementById('bt-prob').textContent=t.text;
+  document.getElementById('bt-fb').className='feedback';
+  document.getElementById('hint-box').textContent='';
+  document.getElementById('hint-box').classList.remove('show');
+  document.getElementById('hint-btn').textContent='💡 NÁPOVĚDA 1/2';
+  document.getElementById('hint-btn').disabled=false;
+  document.getElementById('next-btn').style.display='none';
+  // input vs multiple choice
+  if(BT.mcMode){
+    document.getElementById('bt-input-row').style.display='none';
+    document.getElementById('hint-btn').style.display='none';
+    renderMC(t);
+  }else{
+    document.getElementById('bt-input-row').style.display='flex';
+    document.getElementById('hint-btn').style.display='inline-block';
+    document.getElementById('mc-grid').style.display='none';
+    document.getElementById('bt-ans').value='';
+    document.getElementById('bt-ans').disabled=false;
+    document.getElementById('bt-ans').focus();
+  }
+  startTimer();
+}
+
+function renderMC(t){
+  const grid=document.getElementById('mc-grid');
+  grid.style.display='grid';
+  // generate 3 wrong answers
+  const correct=t.ans;
+  const cn=parseFloat(correct.replace(',','.'));
+  const opts=new Set([correct]);
+  let tries=0;
+  while(opts.size<4 && tries<30){
+    tries++;
+    let alt;
+    if(!isNaN(cn)){
+      const delta=ri(-5,5)||ri(1,3);
+      let v=Math.round((cn+delta)*100)/100;
+      if(Number.isInteger(cn) && Math.abs(cn)<200) v=cn+delta;
+      alt=String(v);
+    }else{
+      alt=correct==='ANO'?'NE':'ANO';
+    }
+    if(alt!==correct) opts.add(alt);
+  }
+  const arr=[...opts].sort(()=>Math.random()-.5);
+  grid.innerHTML='';
+  arr.forEach(opt=>{
+    const b=document.createElement('button');
+    b.className='mc-btn';
+    b.textContent=opt;
+    b.onclick=()=>submitMC(opt,b);
+    grid.appendChild(b);
+  });
+}
+
+function submitMC(opt,btn){
+  stopTimer();
+  const t=BT.curTask;
+  const ok=checkAns(opt,t.ans);
+  if(ok){
+    document.querySelectorAll('#mc-grid .mc-btn').forEach(b=>b.disabled=true);
+    btn.classList.add('right');
+    BT.combo++;
+    const isCrit=BT.combo>=3 && BT.hl===0;
+    const xpGain=Math.max(3,10-BT.hl*3)*(isCrit?2:1);
+    const fb=document.getElementById('bt-fb');
+    fb.textContent=(isCrit?'✓✓ KRITICKÝ ZÁSAH! +':'✓ SPRÁVNĚ! +')+xpGain+' XP';
+    fb.className='feedback ok';
+    S.xp+=xpGain;
+    S.done[`${BT.mid}-${BT.idx}`]=true;
+    if(t.skill&&S.attrs[t.skill]!==undefined)S.attrs[t.skill]+=3;
+    saveS();
+    document.getElementById('next-btn').style.display='inline-block';
+    damageMonster(xpGain,isCrit);
+    updateCombo();
+    tryDropItem();
+    checkMissionComplete();
+  }else{
+    btn.classList.add('wrong');
+    btn.disabled=true;
+    BT.combo=0;
+    updateCombo();
+    monsterAttack();
+    damagePlayer();
+    // timer keeps running; student picks another option
+  }
+}
+
+function spawnParticles(){
+  const top=document.getElementById('bt-top');
+  // remove old particles
+  top.querySelectorAll('.particle').forEach(p=>p.remove());
+  const colors=['#f4d03f','#fff','#5dade2','#ffaa33','#ff7733'];
+  for(let i=0;i<12;i++){
+    const p=document.createElement('div');
+    p.className='particle';
+    const angle=(i/12)*Math.PI*2 + (Math.random()-.5)*.3;
+    const dist=60+Math.random()*60;
+    p.style.setProperty('--dx',(Math.cos(angle)*dist).toFixed(0)+'px');
+    p.style.setProperty('--dy',(Math.sin(angle)*dist-20).toFixed(0)+'px');
+    p.style.background=colors[i%colors.length];
+    top.appendChild(p);
+    void p.offsetWidth;
+    p.classList.add('go');
+    setTimeout(()=>p.remove(),900);
+  }
+}
+
+function damageMonster(xpGain,isCrit){
+  const mon=document.getElementById('bt-mon');
+  const top=document.getElementById('bt-top');
+  const spark=document.getElementById('dmg-spark');
+  const flash=document.getElementById('hit-flash');
+  mon.classList.remove('idle','idle-2');
+  void mon.offsetWidth;
+  mon.classList.add('hit');
+  top.classList.add(isCrit?'big-shake':'shake');
+  // flash
+  flash.classList.remove('go');
+  void flash.offsetWidth;
+  flash.classList.add('go');
+  // damage number
+  const tot=BT.tasks.length;
+  const dmg=Math.ceil(100/tot)*(isCrit?2:1);
+  spark.textContent=(isCrit?'KRIT! −':'−')+dmg+' HP!';
+  spark.style.color=isCrit?'#ff5577':'var(--gold)';
+  spark.classList.remove('show');
+  void spark.offsetWidth;
+  spark.classList.add('show');
+  spawnParticles();
+  setTimeout(()=>{
+    mon.classList.remove('hit');
+    top.classList.remove('shake','big-shake');
+    const allDn=BT.tasks.every((_,i)=>S.done[`${BT.mid}-${i}`]);
+    if(!allDn) mon.classList.add(Math.random()<.5?'idle':'idle-2');
+    else mon.classList.add('defeat');
+  },550);
+}
+
+function monsterAttack(){
+  const mon=document.getElementById('bt-mon');
+  const top=document.getElementById('bt-top');
+  const proj=document.getElementById('proj');
+  const inp=document.getElementById('bt-ans');
+  mon.classList.remove('idle','idle-2');
+  void mon.offsetWidth;
+  mon.classList.add('charge');
+  setTimeout(()=>{
+    // fire projectile
+    proj.classList.remove('fire');
+    void proj.offsetWidth;
+    proj.classList.add('fire');
+    setTimeout(()=>{
+      inp.classList.remove('player-hit');
+      void inp.offsetWidth;
+      inp.classList.add('player-hit');
+      top.classList.add('shake');
+      setTimeout(()=>top.classList.remove('shake'),400);
+    },420);
+  },650);
+  setTimeout(()=>{
+    mon.classList.remove('charge');
+    mon.classList.add(Math.random()<.5?'idle':'idle-2');
+  },900);
+}
+
+function updateCombo(){
+  const el=document.getElementById('combo');
+  document.getElementById('combo-n').textContent=BT.combo;
+  if(BT.combo>=2){
+    el.classList.add('show');
+    el.classList.remove('bump');
+    void el.offsetWidth;
+    el.classList.add('bump');
+  }else{
+    el.classList.remove('show');
+  }
+}
+
+// ── POWER-UPS ──
+function tryDropItem(){
+  if(BT.items.length>=MAX_ITEMS)return;
+  if(Math.random()>ITEM_DROP_CHANCE)return;
+  const type=ITEM_TYPES[ri(0,ITEM_TYPES.length-1)];
+  BT.items.push(type);
+  renderItems();
+  showItemPickup(type);
+}
+
+function showItemPickup(type){
+  const el=document.getElementById('item-pickup');
+  const def=ITEM_DEFS[type];
+  el.textContent=def.ic+' '+def.lb+' NALEZEN!';
+  el.style.opacity='1';
+  setTimeout(()=>{el.style.opacity='0';},2000);
+}
+
+function renderItems(){
+  const bar=document.getElementById('items-bar');
+  if(!bar)return;
+  bar.innerHTML='';
+  if(!BT.items.length){
+    bar.innerHTML='<div class="empty">— žádné předměty —</div>';
+    return;
+  }
+  BT.items.forEach(type=>{
+    const def=ITEM_DEFS[type];
+    const b=document.createElement('button');
+    b.className='item-btn';
+    b.title=def.desc;
+    b.innerHTML=`<span class="ib-ic">${def.ic}</span><span class="ib-lb">${def.lb}</span>`;
+    b.onclick=()=>useItem(type);
+    bar.appendChild(b);
+  });
+}
+
+function useItem(type){
+  const idx=BT.items.indexOf(type);
+  if(idx<0)return;
+  BT.items.splice(idx,1);
+  renderItems();
+  const fb=document.getElementById('bt-fb');
+  if(type==='hp'){
+    if(BT.hp<BT.maxHp){BT.hp++;updatePlayerHp();}
+    fb.textContent='🧪 +1 ŽIVOT OBNOVEN!';fb.className='feedback ok';
+  }else if(type==='freeze'){
+    BT.timerFrozen=true;
+    const bar=document.getElementById('timer-bar');
+    bar.classList.remove('warn','danger');bar.classList.add('frozen');
+    fb.textContent='❄️ ČAS ZMRAŽEN NA 15 S!';fb.className='feedback ok';
+    if(BT.freezeTimeout)clearTimeout(BT.freezeTimeout);
+    BT.freezeTimeout=setTimeout(()=>{
+      BT.timerFrozen=false;BT.freezeTimeout=null;
+      document.getElementById('timer-bar').classList.remove('frozen');
+    },15000);
+  }else if(type==='skip'){
+    stopTimer();
+    S.done[`${BT.mid}-${BT.idx}`]=true;saveS();
+    fb.textContent='💨 ÚKOL PŘESKOČEN!';fb.className='feedback ok';
+    setTimeout(()=>nextTask(),700);
+  }
+}
+
+function submitAnswer(){
+  const t=BT.curTask;
+  const inp=document.getElementById('bt-ans').value;
+  if(!inp.trim())return;
+  const ok=checkAns(inp,t.ans);
+  const fb=document.getElementById('bt-fb');
+  if(ok){
+    stopTimer();
+    BT.combo++;
+    const isCrit=BT.combo>=3 && BT.hl===0;
+    const xpGain=Math.max(3,10-BT.hl*3)*(isCrit?2:1);
+    fb.textContent=(isCrit?'✓✓ KRITICKÝ ZÁSAH! +':'✓ SPRÁVNĚ! +')+xpGain+' XP';
+    fb.className='feedback ok';
+    S.xp+=xpGain;
+    S.done[`${BT.mid}-${BT.idx}`]=true;
+    if(t.skill&&S.attrs[t.skill]!==undefined)S.attrs[t.skill]+=3;
+    saveS();
+    document.getElementById('bt-ans').disabled=true;
+    document.getElementById('hint-btn').disabled=true;
+    document.getElementById('next-btn').style.display='inline-block';
+    damageMonster(xpGain,isCrit);
+    updateCombo();
+    tryDropItem();
+    checkMissionComplete();
+  }else{
+    BT.combo=0;
+    updateCombo();
+    fb.textContent='✗ ŠPATNĚ — "'+inp+'" není správně.';
+    fb.className='feedback err';
+    monsterAttack();
+    damagePlayer();
+  }
+}
+
+function showHint(){
+  const t=BT.curTask;
+  const maxHints=Math.min(2,t.hints.length); // only 2 levels
+  if(BT.hl>=maxHints)return;
+  const hb=document.getElementById('hint-box');
+  const colors=['var(--green)','var(--gold)'];
+  hb.style.borderColor=colors[BT.hl];
+  hb.style.color=BT.hl===1?'#ffd966':'#7fe87f';
+  hb.style.background=BT.hl===1?'#1a1500':'#0f1a0f';
+  hb.textContent='💡 Nápověda '+(BT.hl+1)+'/2:\n'+t.hints[BT.hl];
+  hb.classList.add('show');
+  BT.hl++;
+  const btn=document.getElementById('hint-btn');
+  if(BT.hl>=maxHints){btn.disabled=true;btn.textContent='💡 NÁPOVĚDA 2/2';}
+  else btn.textContent='💡 NÁPOVĚDA '+(BT.hl+1)+'/2';
+}
+
+function nextTask(){
+  let nxt=-1;
+  for(let i=BT.idx+1;i<BT.tasks.length;i++){if(!S.done[`${BT.mid}-${i}`]){nxt=i;break;}}
+  if(nxt>=0){BT.idx=nxt;renderTask();}
+  else{openArea(BT.aid);}
+}
+
+function exitBattle(){stopTimer();if(BT.freezeTimeout){clearTimeout(BT.freezeTimeout);BT.freezeTimeout=null;}const m=document.getElementById('bt-mon');if(m)m.style.filter='';openArea(BT.aid);}
+
+function checkMissionComplete(){
+  const ar=AREAS.find(a=>a.id===BT.aid);
+  const m=ar.missions.find(x=>x.id===BT.mid);
+  const allDn=BT.tasks.every((_,i)=>S.done[`${m.id}-${i}`]);
+  if(allDn&&isAreaDone(ar)&&!S.inv.includes(ar.art.id)){
+    S.inv.push(ar.art.id);
+    Object.entries(ar.attrGain).forEach(([k,v])=>{if(S.attrs[k]!==undefined)S.attrs[k]+=v;});
+    saveS();
+    setTimeout(()=>showModal(ar.art.ic,'OBLAST SPLNĚNA!',`Získal jsi artefakt:\n${ar.art.nm.replace('\n',' ')}!\n\n+${Object.entries(ar.attrGain).map(([k,v])=>v+' '+ATTR_META[k].ic).join('  ')}`),400);
+  }
+}
+
+// ══════════════════════════════════════════
+//  PROFILE
+// ══════════════════════════════════════════
+function renderProfile(){
+  calcLevel();
+  document.getElementById('pr-name').textContent=S.name;
+  document.getElementById('pr-lv').textContent=S.level;
+  document.getElementById('pr-xp').textContent=S.xp;
+  const el=document.getElementById('pr-attrs');
+  el.innerHTML='';
+  Object.entries(ATTR_META).forEach(([k,m])=>{
+    const v=S.attrs[k]||0,pct=Math.min(100,v);
+    const row=document.createElement('div');
+    row.className='attr-row';
+    row.innerHTML=`<div class="attr-ic">${m.ic}</div><div class="attr-nm">${m.nm}</div>
+      <div style="flex:1"><div class="bar-out bar-attr"><div class="bar-in" style="width:${pct}%"></div></div></div>
+      <div class="attr-vl">${v}</div>`;
+    el.appendChild(row);
+  });
+  const inv=document.getElementById('pr-inv');
+  inv.innerHTML='';
+  AREAS.forEach(ar=>{
+    const have=S.inv.includes(ar.art.id);
+    const s=document.createElement('div');
+    s.className='inv-slot'+(have?' have':'');
+    s.innerHTML=have
+      ?`<div class="ic">${ar.art.ic}</div><div class="nm">${ar.art.nm}</div>`
+      :`<div class="ic" style="opacity:.15">❓</div><div class="nm" style="opacity:.25">???</div>`;
+    inv.appendChild(s);
+  });
+}
+
+function exportCode(){
+  const code=btoa(unescape(encodeURIComponent(JSON.stringify(S))));
+  document.getElementById('code-txt').textContent=code;
+  document.getElementById('code-out').style.display='block';
+  if(navigator.clipboard)navigator.clipboard.writeText(code).catch(()=>{});
+}
+function importPrompt(){
+  const c=prompt('Vlož zálohovací kód:');
+  if(!c)return;
+  try{S=JSON.parse(decodeURIComponent(escape(atob(c))));saveS();renderProfile();alert('Načteno!');}
+  catch(e){alert('Chybný kód.');}
+}
+
+// ══════════════════════════════════════════
+//  MODAL
+// ══════════════════════════════════════════
+function showModal(ic,title,txt){
+  document.getElementById('modal-ic').textContent=ic;
+  document.getElementById('modal-title').textContent=title;
+  document.getElementById('modal-txt').textContent=txt;
+  document.getElementById('modal').classList.add('show');
+}
+function closeModal(){document.getElementById('modal').classList.remove('show');}
+
+// ══════════════════════════════════════════
+//  KEYBOARD
+// ══════════════════════════════════════════
+document.addEventListener('keydown',e=>{
+  if(e.key!=='Enter')return;
+  const active=document.querySelector('.screen.active');
+  if(!active)return;
+  if(active.id==='s-intro'){startGame();return;}
+  if(active.id==='s-battle'){
+    const nxt=document.getElementById('next-btn');
+    if(nxt.style.display!=='none')nextTask();
+    else submitAnswer();
+  }
+});
+
+// ══════════════════════════════════════════
+//  BOOT
+// ══════════════════════════════════════════
+window.addEventListener('load',()=>{
+  if(localStorage.getItem(SAVE_KEY)){
+    document.getElementById('continue-panel').style.display='block';
+  }
+});
+</script>
+</body>
+</html>
