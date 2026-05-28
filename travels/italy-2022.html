@@ -235,7 +235,7 @@
     <span>vojta@konopa</span>
   </div>
 
-  <div class="hero" style="background-image:url('./images/italy_2022/italy_jpg_0300_26.07.2022_web.jpg');"></div>
+  <div class="hero" style="background-image:url('./images/italy_2022/italy_jpg_0380_26.07.2022_web.jpg'); background-position: center bottom;"></div>
 
   <div class="title-block">
     <div class="label-row">
@@ -244,11 +244,11 @@
     </div>
     <h1 class="location">ITALY</h1>
     <p class="subtitle">
-      Thirteen days from the Alps to Sicily and back — abandoned asylums and seaside
-      resorts, a ghost town on a Basilicata hilltop, Etna, the Valley of the Temples,
-      a night ferry from Palermo to Salerno, Cold War NATO bunkers under a Campanian
-      hillside, the Roman Forum at dawn, and a via ferrata in the Dolomites to
-      close the loop.
+      Thirteen days from the Alps to Sicily and back — a Dolomite via ferrata on day two,
+      then the Oculus Tower, an abandoned seaside resort, Craco ghost town, Etna,
+      the Valley of the Temples, a night ferry from Palermo to Salerno, Cold War NATO
+      bunkers under a Campanian hillside, the Roman Forum, and an abandoned cinema on
+      the drive home.
     </p>
     <div class="data-strip">
       <div class="data-item">
@@ -284,7 +284,7 @@
 
   <!-- ROUTE MAP -->
   <section class="route-section">
-    <p class="section-label">// ROUTE — CZ → IT North → IT South → Sicily → Ferry → Campania → Rome → IT North → CZ</p>
+    <p class="section-label">// ROUTE — CZ → Dolomites → Ferrara (Oculus) → Adriatic → Craco → Sicily → Ferry GNV → Campania → Rome → Tuscany → CZ</p>
     <div class="route-svg-wrap">
       <svg viewBox="0 0 900 540" xmlns="http://www.w3.org/2000/svg"
            style="background:var(--surface); border:1px solid var(--border);">
@@ -297,83 +297,83 @@
           </filter>
         </defs>
 
-        <!-- Outgoing route: CZ → North Urbex → south → Resort → Craco → [Messina] → Etna → Agrigento → Palermo -->
+        <!-- Outbound: CZ → Via Ferrata (Dolomites) → Oculus Tower (Ferrara) → Adriatic coast → Resort → Craco → Calabria → Etna → Agrigento → Palermo -->
         <polyline
-          points="510,28 270,105 215,242 220,385 395,378 278,425 292,445 430,440 320,488 250,462"
+          points="566,40 357,173 253,241 444,294 689,393 564,484 435,498 414,471"
           fill="none" stroke="#f5b800" stroke-width="1.5"
           stroke-dasharray="5 7" opacity="0.55"/>
 
-        <!-- Ferry: Palermo → Salerno (thicker dashed, slightly lighter) -->
-        <line x1="250" y1="462" x2="375" y2="315"
+        <!-- Ferry: Palermo → Salerno (GNV overnight) -->
+        <line x1="414" y1="471" x2="538" y2="383"
           stroke="#f5b800" stroke-width="2.5"
           stroke-dasharray="4 5" opacity="0.8"/>
-        <!-- ferry label mid-line -->
-        <text x="295" y="385" font-family="'JetBrains Mono',monospace"
+        <text x="476" y="432" font-family="'JetBrains Mono',monospace"
           font-size="9" letter-spacing="0.12em" fill="#f5b800" opacity="0.7"
-          transform="rotate(-38,295,385)" filter="url(#lbl-bg)">FERRY GNV</text>
+          transform="rotate(-35,476,432)" filter="url(#lbl-bg)">FERRY GNV</text>
 
-        <!-- Return route: Salerno → NATO → Rome → Oculus → Dolomites → Lago d'Iseo → CZ -->
+        <!-- Return: Salerno/Amalfi → NATO Proto → Rome → Abandoned Cinema → Lago d'Iseo → CZ -->
         <polyline
-          points="375,315 360,292 325,252 325,180 445,95 265,125 510,28"
+          points="538,383 568,372 334,340 258,287 117,213 566,40"
           fill="none" stroke="#f5b800" stroke-width="1.5"
           stroke-dasharray="5 7" opacity="0.55"/>
 
         <!-- ── DOTS ── -->
-        <circle cx="510" cy="28"  r="5" fill="#f5b800"/>     <!-- CZ start/end -->
-        <circle cx="270" cy="105" r="4" fill="var(--fg-dim)"/> <!-- IT North Urbex -->
-        <circle cx="220" cy="385" r="4" fill="var(--fg-dim)"/> <!-- Abandoned Resort -->
-        <circle cx="395" cy="378" r="4" fill="var(--fg-dim)"/> <!-- Craco -->
-        <circle cx="430" cy="440" r="4" fill="var(--fg-dim)"/> <!-- Etna -->
-        <circle cx="320" cy="488" r="4" fill="var(--fg-dim)"/> <!-- Agrigento -->
-        <circle cx="250" cy="462" r="4" fill="var(--fg-dim)"/> <!-- Palermo -->
-        <circle cx="375" cy="315" r="4" fill="var(--fg-dim)"/> <!-- Salerno/Vietri -->
-        <circle cx="360" cy="292" r="4" fill="var(--fg-dim)"/> <!-- NATO Proto -->
-        <circle cx="325" cy="252" r="4" fill="var(--fg-dim)"/> <!-- Rome -->
-        <circle cx="325" cy="180" r="4" fill="var(--fg-dim)"/> <!-- Oculus Tower -->
-        <circle cx="445" cy="95"  r="4" fill="var(--fg-dim)"/> <!-- Dolomites -->
-        <circle cx="265" cy="125" r="4" fill="var(--fg-dim)"/> <!-- Lago d'Iseo -->
+        <circle cx="566" cy="40"  r="5" fill="#f5b800"/>      <!-- CZ start/end -->
+        <circle cx="357" cy="173" r="4" fill="var(--fg-dim)"/> <!-- Via Ferrata / Dolomites -->
+        <circle cx="253" cy="241" r="4" fill="var(--fg-dim)"/> <!-- Oculus Tower -->
+        <circle cx="444" cy="294" r="4" fill="var(--fg-dim)"/> <!-- Abandoned Resort (Adriatic) -->
+        <circle cx="689" cy="393" r="4" fill="var(--fg-dim)"/> <!-- Craco -->
+        <circle cx="564" cy="484" r="4" fill="var(--fg-dim)"/> <!-- Etna -->
+        <circle cx="435" cy="498" r="4" fill="var(--fg-dim)"/> <!-- Agrigento -->
+        <circle cx="414" cy="471" r="4" fill="var(--fg-dim)"/> <!-- Palermo -->
+        <circle cx="538" cy="383" r="4" fill="var(--fg-dim)"/> <!-- Salerno / Vietri -->
+        <circle cx="568" cy="372" r="4" fill="var(--fg-dim)"/> <!-- NATO Proto -->
+        <circle cx="334" cy="340" r="4" fill="var(--fg-dim)"/> <!-- Rome -->
+        <circle cx="258" cy="287" r="4" fill="var(--fg-dim)"/> <!-- Abandoned Cinema -->
+        <circle cx="117" cy="213" r="4" fill="var(--fg-dim)"/> <!-- Lago d'Iseo -->
 
         <!-- ── LABELS ── -->
         <g font-family="'JetBrains Mono', monospace"
            font-size="10.5" letter-spacing="0.12em" filter="url(#lbl-bg)">
 
-          <text x="522" y="22"  text-anchor="start" fill="#f5b800" font-size="11">CZ · LIBEREC</text>
+          <text x="578" y="34"  text-anchor="start" fill="#f5b800" font-size="11">CZ · LIBEREC</text>
 
-          <text x="258" y="100" text-anchor="end" fill="var(--fg-dim)">IT · NORTH URBEX</text>
-          <text x="258" y="113" text-anchor="end" fill="var(--fg-muted)" font-size="9.5">abandoned complex</text>
+          <text x="369" y="167" text-anchor="start" fill="var(--fg-dim)">IT · DOLOMITES</text>
+          <text x="369" y="180" text-anchor="start" fill="var(--fg-muted)" font-size="9.5">via ferrata</text>
 
-          <text x="208" y="380" text-anchor="end" fill="var(--fg-dim)">IT · RESORT</text>
-          <text x="208" y="393" text-anchor="end" fill="var(--fg-muted)" font-size="9.5">south italy · derelict</text>
+          <text x="265" y="235" text-anchor="start" fill="var(--fg-dim)">IT · OCULUS TOWER</text>
+          <text x="265" y="248" text-anchor="start" fill="var(--fg-muted)" font-size="9.5">derelict · near ferrara</text>
 
-          <text x="407" y="373" text-anchor="start" fill="var(--fg-dim)">IT · CRACO</text>
-          <text x="407" y="386" text-anchor="start" fill="var(--fg-muted)" font-size="9.5">ghost town · basilicata</text>
+          <text x="432" y="288" text-anchor="end" fill="var(--fg-dim)">IT · RESORT</text>
+          <text x="432" y="301" text-anchor="end" fill="var(--fg-muted)" font-size="9.5">adriatic coast · derelict</text>
 
-          <text x="442" y="435" text-anchor="start" fill="var(--fg-dim)">IT · ETNA</text>
-          <text x="442" y="448" text-anchor="start" fill="var(--fg-muted)" font-size="9.5">sicily · volcano</text>
+          <text x="701" y="387" text-anchor="start" fill="var(--fg-dim)">IT · CRACO</text>
+          <text x="701" y="400" text-anchor="start" fill="var(--fg-muted)" font-size="9.5">ghost town · basilicata</text>
 
-          <text x="308" y="500" text-anchor="end" fill="var(--fg-dim)">IT · AGRIGENTO</text>
-          <text x="308" y="513" text-anchor="end" fill="var(--fg-muted)" font-size="9.5">valley of temples</text>
+          <text x="552" y="490" text-anchor="end" fill="var(--fg-dim)">IT · ETNA</text>
+          <text x="552" y="503" text-anchor="end" fill="var(--fg-muted)" font-size="9.5">sicily · volcano</text>
 
-          <text x="238" y="457" text-anchor="end" fill="var(--fg-dim)">IT · PALERMO</text>
-          <text x="238" y="470" text-anchor="end" fill="var(--fg-muted)" font-size="9.5">ferry port</text>
+          <text x="423" y="504" text-anchor="end" fill="var(--fg-dim)">IT · AGRIGENTO</text>
+          <text x="423" y="517" text-anchor="end" fill="var(--fg-muted)" font-size="9.5">valley of temples</text>
 
-          <text x="387" y="310" text-anchor="start" fill="var(--fg-dim)">IT · VIETRI · AMALFI</text>
-          <text x="387" y="323" text-anchor="start" fill="var(--fg-muted)" font-size="9.5">campania coast</text>
+          <text x="402" y="465" text-anchor="end" fill="var(--fg-dim)">IT · PALERMO</text>
+          <text x="402" y="478" text-anchor="end" fill="var(--fg-muted)" font-size="9.5">ferry port</text>
 
-          <text x="348" y="288" text-anchor="end" fill="var(--fg-dim)">IT · NATO PROTO</text>
-          <text x="348" y="301" text-anchor="end" fill="var(--fg-muted)" font-size="9.5">cold war bunkers</text>
+          <text x="526" y="398" text-anchor="end" fill="var(--fg-dim)">IT · VIETRI · AMALFI</text>
+          <text x="526" y="411" text-anchor="end" fill="var(--fg-muted)" font-size="9.5">campania coast</text>
 
-          <text x="313" y="248" text-anchor="end" fill="var(--fg-dim)">IT · ROME</text>
-          <text x="313" y="261" text-anchor="end" fill="var(--fg-muted)" font-size="9.5">basilica · forum</text>
+          <text x="556" y="366" text-anchor="end" fill="var(--fg-dim)">IT · NATO PROTO</text>
+          <text x="556" y="379" text-anchor="end" fill="var(--fg-muted)" font-size="9.5">cold war bunkers</text>
 
-          <text x="313" y="176" text-anchor="end" fill="var(--fg-dim)">IT · OCULUS TOWER</text>
-          <text x="313" y="189" text-anchor="end" fill="var(--fg-muted)" font-size="9.5">derelict · en route n.</text>
+          <text x="322" y="334" text-anchor="end" fill="var(--fg-dim)">IT · ROME</text>
+          <text x="322" y="347" text-anchor="end" fill="var(--fg-muted)" font-size="9.5">basilica · forum</text>
 
-          <text x="457" y="90"  text-anchor="start" fill="var(--fg-dim)">IT · DOLOMITES</text>
-          <text x="457" y="103" text-anchor="start" fill="var(--fg-muted)" font-size="9.5">via ferrata</text>
+          <text x="246" y="281" text-anchor="end" fill="var(--fg-dim)">IT · CINEMA</text>
+          <text x="246" y="294" text-anchor="end" fill="var(--fg-muted)" font-size="9.5">abandoned · central italy</text>
 
-          <text x="253" y="121" text-anchor="end" fill="var(--fg-dim)">IT · LAGO D'ISEO</text>
-          <text x="253" y="134" text-anchor="end" fill="var(--fg-muted)" font-size="9.5">hans nalejvárna</text>
+          <text x="129" y="207" text-anchor="start" fill="var(--fg-dim)">IT · LAGO D'ISEO</text>
+          <text x="129" y="220" text-anchor="start" fill="var(--fg-muted)" font-size="9.5">hans nalejvárna</text>
+
         </g>
       </svg>
     </div>
@@ -395,18 +395,39 @@
       all built with an ambition that outlasted whatever it was meant to serve.
     </p>
 
-    <h2>// NORTH ITALY — URBEX · 19 JUL</h2>
-    <span class="location-tag">IT · Northern Italy · Abandoned Complex</span>
+    <h2>// VIA FERRATA · 18 JUL</h2>
+    <span class="location-tag">IT · Dolomites · Via Ferrata</span>
     <p>
-      First stop after crossing the Alps was a large abandoned complex in northern Italy.
-      The scale of the place — the corridor lengths, the number of rooms, the institutional
-      proportions — suggested something built to hold many people for a long time. Peeling
-      paint, collapsed ceilings in the newer wings, the older sections structurally intact.
-      Light coming through windows that had lost their frames years ago.
+      The second day of the drive south, we stopped in the Dolomites for a via ferrata —
+      the fixed-cable route system that allows non-climbers to ascend rock faces that
+      would otherwise require ropes and technical gear. The Dolomite limestone is
+      distinctive: pale orange-grey, sharp-edged, the faces nearly vertical. The via
+      ferrata goes directly up sections that would be unpleasant without the hardware.
     </p>
     <p>
-      <strong>Thirty-seven frames</strong> from this site. It was the kind of place where you
-      keep finding another wing, another courtyard, another stairwell going somewhere unexpected.
+      At altitude, above the treeline, the scale of the surrounding peaks becomes apparent
+      in a way it isn't from the road. The valleys are deep; the walls on either side are
+      effectively cliffs. You understand why this was serious military terrain in 1915.
+    </p>
+    <p>
+      <strong>Thirty-two photographs</strong> from the ascent and the ridge. The camera date
+      was set wrong — all the files say 29 July — but this was day two of the trip.
+    </p>
+
+    <h2>// OCULUS TOWER · 19 JUL</h2>
+    <span class="location-tag">IT · Northern Italy · Oculus Tower · Abandoned Complex</span>
+    <p>
+      First dedicated urbex stop: a large derelict complex in northern Italy near Ferrara
+      (GPS 44.84°N, 11.59°E) known in the urbex community as the Oculus Tower — named for
+      the circular aperture at the top of the main tower that draws a column of daylight
+      straight down through the interior. The structure is industrial or institutional in
+      origin, now completely empty.
+    </p>
+    <p>
+      The light effect is genuine architecture — intentional or not, it produces something
+      that recalls a precedent from antiquity. The surrounding complex added its own
+      corridors, collapsed roofing, and overgrown courtyards. <strong>Thirty-seven
+      frames</strong> from this site: most of them looking upward.
     </p>
 
     <h2>// ABANDONED SEASIDE RESORT · 20 JUL</h2>
@@ -557,44 +578,28 @@
       them, the surrounding forum entirely gone.
     </p>
 
-    <h2>// OCULUS TOWER · 28 JUL</h2>
-    <span class="location-tag">IT · Central Italy · Oculus Tower · Derelict</span>
+    <h2>// ABANDONED CINEMA · 28 JUL</h2>
+    <span class="location-tag">IT · Central Italy · Abandoned Cinema</span>
     <p>
-      On the drive north from Rome, we stopped at a derelict tower the urbex community
-      calls the Oculus Tower — named for the circular opening at the top that lets
-      a column of daylight fall through the centre of the structure. The tower is
-      industrial or institutional in origin, now completely empty, its interior
-      volume lit only by that single circular aperture at the apex.
+      On the drive north from Rome, we stopped at an abandoned cinema — a large derelict
+      theatre somewhere in central Italy, its auditorium intact but stripped, the projection
+      booth still accessible, the screen frame still standing. The kind of building that
+      closed somewhere in the eighties or nineties and was never repurposed, just left.
     </p>
     <p>
-      The light effect is genuine architecture — intentional or not, it produces
-      something that looks like a precedent from antiquity. Thirty-three photographs,
-      most of them looking upward.
+      The acoustics of an empty auditorium are specific. Thirty-three photographs from
+      the interior — the seating rake, the stage area, the ceiling details that survive
+      long after everything else has gone.
     </p>
 
-    <h2>// DOLOMITES + LAGO D'ISEO · 29 JUL</h2>
-    <span class="location-tag">IT · Dolomites · Via Ferrata Michielli-Strobel</span>
-    <p>
-      The last full day. A via ferrata in the Dolomites — the fixed-cable route that
-      allows non-climbers to ascend rock faces that would otherwise require ropes and
-      technical gear. The Dolomite limestone is distinctive in colour and texture: pale
-      orange-grey, sharp-edged where it breaks, the faces nearly vertical and often
-      overhanging. The via ferrata goes directly up sections that would be unpleasant
-      without the hardware.
-    </p>
-    <p>
-      At altitude, above the treeline, the scale of the surrounding peaks becomes
-      apparent in a way it isn't from the road. The valleys are deep; the walls on
-      either side are effectively cliffs. You understand why this was serious military
-      terrain in 1915.
-    </p>
-    <span class="location-tag" style="margin-top:20px">IT · Lombardy · Lago d'Iseo · Hans Nalejvárna</span>
+    <h2>// LAGO D'ISEO · 29 JUL</h2>
+    <span class="location-tag">IT · Lombardy · Lago d'Iseo · Hans Nalejvárna</span>
     <p>
       The final stop before the drive home: a small lakeside bar on Lago d'Iseo that
       has become a tradition on Italy trips. The lake sits in a pre-Alpine basin west
       of Brescia, surrounded by steep wooded slopes, one of the less-visited of the
-      northern lakes. Hans serves cold beer. After thirteen days, that is exactly
-      what is needed.
+      northern lakes. Hans serves cold beer. After thirteen days on the road, that
+      is exactly what is needed.
     </p>
     <p>
       From there: north through Austria, back into the Czech Republic, Liberec by
@@ -623,7 +628,43 @@
       <img src="./images/italy_2022/italy_jpg_0049_17.07.2022_web.jpg" alt="" loading="lazy">
     </div>
 
-    <h3 class="day-heading">// <b>19 JUL</b> — North Italy · abandoned complex</h3>
+    <h3 class="day-heading">// <b>18 JUL</b> — Dolomites · Via Ferrata</h3>
+    <div class="gallery-grid" id="gallery-d18">
+      <img src="./images/italy_2022/italy_jpg_0002_29.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0003_29.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0004_29.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0006_29.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0007_29.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0008_29.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0009_29.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0011_29.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0012_29.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0015_29.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0016_29.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0026_29.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0033_29.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0036_29.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0042_29.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0044_29.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0046_29.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0502_29.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0517_29.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0519_29.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0522_29.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0523_29.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0524_29.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0525_29.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0529_29.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0532_29.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0533_29.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0535_29.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0538_29.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0540_29.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0541_29.07.2022_web.jpg" alt="" loading="lazy">
+      <img src="./images/italy_2022/italy_jpg_0545_29.07.2022_web.jpg" alt="" loading="lazy">
+    </div>
+
+    <h3 class="day-heading">// <b>19 JUL</b> — Oculus Tower · North Italy</h3>
     <div class="gallery-grid" id="gallery-d2">
       <img src="./images/italy_2022/italy_jpg_0051_19.07.2022_web.jpg" alt="" loading="lazy">
       <img src="./images/italy_2022/italy_jpg_0052_19.07.2022_web.jpg" alt="" loading="lazy">
@@ -938,7 +979,7 @@
       <img src="./images/italy_2022/italy_jpg_0445_27.07.2022_web.jpg" alt="" loading="lazy">
     </div>
 
-    <h3 class="day-heading">// <b>28 JUL</b> — Oculus Tower · Central Italy</h3>
+    <h3 class="day-heading">// <b>28 JUL</b> — Abandoned Cinema · Central Italy</h3>
     <div class="gallery-grid" id="gallery-d11">
       <img src="./images/italy_2022/italy_jpg_0449_28.07.2022_web.jpg" alt="" loading="lazy">
       <img src="./images/italy_2022/italy_jpg_0451_28.07.2022_web.jpg" alt="" loading="lazy">
@@ -975,41 +1016,6 @@
       <img src="./images/italy_2022/italy_jpg_0492_28.07.2022_web.jpg" alt="" loading="lazy">
     </div>
 
-    <h3 class="day-heading">// <b>29 JUL</b> — Dolomites · Via Ferrata · Lago d'Iseo · home</h3>
-    <div class="gallery-grid" id="gallery-d12">
-      <img src="./images/italy_2022/italy_jpg_0002_29.07.2022_web.jpg" alt="" loading="lazy">
-      <img src="./images/italy_2022/italy_jpg_0003_29.07.2022_web.jpg" alt="" loading="lazy">
-      <img src="./images/italy_2022/italy_jpg_0004_29.07.2022_web.jpg" alt="" loading="lazy">
-      <img src="./images/italy_2022/italy_jpg_0006_29.07.2022_web.jpg" alt="" loading="lazy">
-      <img src="./images/italy_2022/italy_jpg_0007_29.07.2022_web.jpg" alt="" loading="lazy">
-      <img src="./images/italy_2022/italy_jpg_0008_29.07.2022_web.jpg" alt="" loading="lazy">
-      <img src="./images/italy_2022/italy_jpg_0009_29.07.2022_web.jpg" alt="" loading="lazy">
-      <img src="./images/italy_2022/italy_jpg_0011_29.07.2022_web.jpg" alt="" loading="lazy">
-      <img src="./images/italy_2022/italy_jpg_0012_29.07.2022_web.jpg" alt="" loading="lazy">
-      <img src="./images/italy_2022/italy_jpg_0015_29.07.2022_web.jpg" alt="" loading="lazy">
-      <img src="./images/italy_2022/italy_jpg_0016_29.07.2022_web.jpg" alt="" loading="lazy">
-      <img src="./images/italy_2022/italy_jpg_0026_29.07.2022_web.jpg" alt="" loading="lazy">
-      <img src="./images/italy_2022/italy_jpg_0033_29.07.2022_web.jpg" alt="" loading="lazy">
-      <img src="./images/italy_2022/italy_jpg_0036_29.07.2022_web.jpg" alt="" loading="lazy">
-      <img src="./images/italy_2022/italy_jpg_0042_29.07.2022_web.jpg" alt="" loading="lazy">
-      <img src="./images/italy_2022/italy_jpg_0044_29.07.2022_web.jpg" alt="" loading="lazy">
-      <img src="./images/italy_2022/italy_jpg_0046_29.07.2022_web.jpg" alt="" loading="lazy">
-      <img src="./images/italy_2022/italy_jpg_0502_29.07.2022_web.jpg" alt="" loading="lazy">
-      <img src="./images/italy_2022/italy_jpg_0517_29.07.2022_web.jpg" alt="" loading="lazy">
-      <img src="./images/italy_2022/italy_jpg_0519_29.07.2022_web.jpg" alt="" loading="lazy">
-      <img src="./images/italy_2022/italy_jpg_0522_29.07.2022_web.jpg" alt="" loading="lazy">
-      <img src="./images/italy_2022/italy_jpg_0523_29.07.2022_web.jpg" alt="" loading="lazy">
-      <img src="./images/italy_2022/italy_jpg_0524_29.07.2022_web.jpg" alt="" loading="lazy">
-      <img src="./images/italy_2022/italy_jpg_0525_29.07.2022_web.jpg" alt="" loading="lazy">
-      <img src="./images/italy_2022/italy_jpg_0529_29.07.2022_web.jpg" alt="" loading="lazy">
-      <img src="./images/italy_2022/italy_jpg_0532_29.07.2022_web.jpg" alt="" loading="lazy">
-      <img src="./images/italy_2022/italy_jpg_0533_29.07.2022_web.jpg" alt="" loading="lazy">
-      <img src="./images/italy_2022/italy_jpg_0535_29.07.2022_web.jpg" alt="" loading="lazy">
-      <img src="./images/italy_2022/italy_jpg_0538_29.07.2022_web.jpg" alt="" loading="lazy">
-      <img src="./images/italy_2022/italy_jpg_0540_29.07.2022_web.jpg" alt="" loading="lazy">
-      <img src="./images/italy_2022/italy_jpg_0541_29.07.2022_web.jpg" alt="" loading="lazy">
-      <img src="./images/italy_2022/italy_jpg_0545_29.07.2022_web.jpg" alt="" loading="lazy">
-    </div>
 
   </section>
 
