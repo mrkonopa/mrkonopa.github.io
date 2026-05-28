@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Baltics 2023 · Travels · Vojtěch Konopa</title>
+  <meta name="description" content="Léto 2023 v Pobaltí — opuštěné sovětské objekty napříč Polskem, Litvou, Lotyšskem a Estonskem. Karosta, Patarei, Rummu, Hora křížů a 14 dalších zastávek za jednu cestu." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #1c1c1c;
+      --surface: #262626;
+      --surface-2: #2e2e2e;
+      --border: #3a3a3a;
+      --border-strong: #555;
+      --fg: #ededec;
+      --fg-dim: #8a8a85;
+      --fg-muted: #5e5e5b;
+      --accent: #f5b800;
+      --concrete: #4a4a48;
+      --display: 'Archivo Black', 'Inter', system-ui, sans-serif;
+      --body: 'Inter', system-ui, -apple-system, Segoe UI, sans-serif;
+      --mono: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      background: var(--bg);
+      color: var(--fg);
+      font-family: var(--body);
+      font-size: 16px;
+      line-height: 1.55;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a { color: var(--fg); text-decoration: none; border-bottom: 1px solid transparent; transition: color .15s, border-color .15s; }
+    a:hover, a:focus { color: var(--accent); border-bottom-color: var(--accent); outline: none; }
+    a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 1px; }
+    img { display: block; max-width: 100%; }
+
+    .top-bar {
+      border-bottom: 1px solid var(--border);
+      padding: 18px 28px;
+      display: flex; justify-content: space-between; align-items: baseline; gap: 18px;
+      font-family: var(--mono); font-size: 12px;
+      letter-spacing: 0.08em; text-transform: uppercase; color: var(--fg-dim);
+    }
+    .top-bar a { color: var(--fg-dim); }
+    .top-bar a:hover { color: var(--accent); }
+    .top-bar .crumb { color: var(--fg); }
+
+    .hero {
+      position: relative; width: 100%;
+      aspect-ratio: 16 / 9; max-height: 80vh;
+      background-color: var(--concrete);
+      background-size: cover; background-position: center; overflow: hidden;
+    }
+    .hero::before {
+      content: ''; position: absolute; inset: auto 0 0 0; height: 50%;
+      background: linear-gradient(to top, rgba(0,0,0,0.55), transparent);
+      pointer-events: none;
+    }
+    .hero-placeholder {
+      width: 100%; aspect-ratio: 16/9; max-height: 80vh;
+      background: linear-gradient(160deg, #1e2a1e 0%, #1a1a2e 40%, #2a1a1a 100%);
+      display: flex; align-items: center; justify-content: center;
+      border-bottom: 1px solid var(--border);
+    }
+    .hero-placeholder span {
+      font-family: var(--mono); font-size: 11px; letter-spacing: 0.22em;
+      text-transform: uppercase; color: var(--fg-muted);
+    }
+
+    .title-block {
+      max-width: 1080px; margin: 0 auto; padding: 56px 28px 28px;
+      border-bottom: 1px solid var(--border);
+    }
+    .label-row {
+      display: flex; gap: 24px; flex-wrap: wrap;
+      font-family: var(--mono); font-size: 11px;
+      letter-spacing: 0.18em; text-transform: uppercase;
+      color: var(--accent); margin-bottom: 18px;
+    }
+    .label-row .dim { color: var(--fg-dim); }
+    h1.location {
+      font-family: var(--display);
+      font-size: clamp(52px, 10vw, 130px);
+      line-height: 0.88;
+      letter-spacing: -0.025em;
+      text-transform: uppercase;
+      margin-bottom: 22px;
+    }
+    .subtitle {
+      font-size: 18px; font-weight: 300;
+      color: var(--fg-dim); max-width: 680px; line-height: 1.65;
+      margin-bottom: 28px;
+    }
+
+    .data-strip {
+      display: flex; flex-wrap: wrap; gap: 0;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      font-family: var(--mono);
+    }
+    .data-item {
+      padding: 14px 28px 14px 0;
+      margin-right: 28px;
+      border-right: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .data-item:last-child { border-right: none; }
+    .data-label {
+      font-size: 9.5px; letter-spacing: 0.22em;
+      text-transform: uppercase; color: var(--fg-muted);
+      display: block; margin-bottom: 4px;
+    }
+    .data-val {
+      font-size: 18px; font-weight: 700; color: var(--fg);
+      letter-spacing: -0.01em;
+    }
+    .data-val span { font-size: 11px; font-weight: 400; color: var(--fg-dim); margin-left: 2px; }
+
+    /* ── ROUTE MAP ── */
+    .route-section {
+      max-width: 1080px; margin: 0 auto; padding: 56px 28px 48px;
+      border-bottom: 1px solid var(--border);
+    }
+    .section-label {
+      font-family: var(--mono); font-size: 11px;
+      letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--fg-dim); margin-bottom: 20px;
+    }
+    .route-svg-wrap { position: relative; width: 100%; overflow: hidden; }
+    .route-svg-wrap svg { width: 100%; height: auto; display: block; }
+
+    /* ── ARTICLE ── */
+    .article {
+      max-width: 780px; margin: 0 auto; padding: 64px 28px 80px;
+    }
+    .article h2 {
+      font-family: var(--mono); font-size: 11px;
+      letter-spacing: 0.22em; text-transform: uppercase;
+      color: var(--accent); margin-bottom: 20px; margin-top: 52px;
+      padding-bottom: 10px; border-bottom: 1px solid var(--border);
+    }
+    .article h2:first-child { margin-top: 0; }
+    .article h3 {
+      font-family: var(--display); font-size: 22px;
+      text-transform: uppercase; letter-spacing: -0.01em;
+      margin: 36px 0 14px; color: var(--fg);
+    }
+    .article p {
+      font-size: 15.5px; line-height: 1.75; color: var(--fg-dim);
+      font-weight: 300; margin-bottom: 18px;
+    }
+    .article p strong { color: var(--fg); font-weight: 500; }
+    .article .location-tag {
+      display: inline-block;
+      font-family: var(--mono); font-size: 10px;
+      letter-spacing: 0.18em; text-transform: uppercase;
+      color: var(--accent); background: rgba(245,184,0,0.08);
+      border: 1px solid rgba(245,184,0,0.25);
+      padding: 3px 8px; border-radius: 2px;
+      margin-bottom: 12px;
+    }
+
+    /* ── GALLERY ── */
+    .gallery-section {
+      max-width: 1280px; margin: 0 auto; padding: 0 0 96px;
+    }
+    .day-heading {
+      font-family: var(--mono); font-size: 11px;
+      letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--fg-dim); padding: 20px 28px 12px;
+      border-top: 1px solid var(--border);
+    }
+    .day-heading b { color: var(--accent); }
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 1px; background: var(--border);
+    }
+    .gallery-grid img {
+      width: 100%; aspect-ratio: 4/3;
+      object-fit: cover; display: block;
+      filter: grayscale(0.35) contrast(1.05);
+      transition: filter 0.25s ease;
+    }
+    .gallery-grid img:hover { filter: none; cursor: zoom-in; }
+
+    .photo-placeholder {
+      padding: 28px; background: var(--surface);
+      font-family: var(--mono); font-size: 11px; letter-spacing: 0.18em;
+      text-transform: uppercase; color: var(--fg-muted);
+      border: 1px dashed var(--border);
+      text-align: center;
+    }
+
+    /* lightbox */
+    #lb { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.92);
+      z-index:1000; align-items:center; justify-content:center; }
+    #lb.open { display:flex; }
+    #lb img { max-width:90vw; max-height:90vh; object-fit:contain; display:block; }
+    #lb-close { position:fixed; top:18px; right:22px; font-size:28px; color:#fff;
+      cursor:pointer; font-family:var(--mono); line-height:1; opacity:0.7; }
+    #lb-close:hover { opacity:1; }
+
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 32px 28px; max-width: 1280px; margin: 0 auto;
+      display: flex; justify-content: space-between; gap: 18px;
+      font-family: var(--mono); font-size: 11px;
+      letter-spacing: 0.16em; text-transform: uppercase; color: var(--fg-dim);
+    }
+    footer a { color: var(--fg-dim); border-bottom: 1px solid transparent; }
+    footer a:hover { color: var(--accent); border-bottom-color: var(--accent); }
+
+    @media (max-width: 768px) {
+      .title-block { padding: 36px 20px 24px; }
+      .article { padding: 40px 20px 60px; }
+      .route-section { padding: 36px 20px 32px; }
+      .top-bar, footer { padding: 14px 20px; }
+      .data-item { padding: 12px 18px 12px 0; margin-right: 18px; }
+      .data-val { font-size: 16px; }
+    }
+    @media (max-width: 480px) {
+      h1.location { font-size: 52px; }
+      .gallery-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="top-bar">
+    <a href="./index.html">← back to travels</a>
+    <span class="crumb">~/travels/baltic-2023</span>
+    <span>vojta@konopa</span>
+  </div>
+
+  <!-- hero placeholder — replace with actual photo when ready -->
+  <div class="hero-placeholder">
+    <span>// foto brzy</span>
+  </div>
+
+  <div class="title-block">
+    <div class="label-row">
+      <span>FIELD JOURNAL · 007</span>
+      <span class="dim">PL · LT · LV · EE · LÉTO 2023</span>
+    </div>
+    <h1 class="location">BALTICS</h1>
+    <p class="subtitle">
+      Čtyři země, čtrnáct zastávek, plno betonu a rezu. Od slezských průmyslových ruin přes
+      Kurskou kosu a litevskou Horu křížů až po estonská vězení — pozůstatky sovětské éry
+      naskládané do jedné cesty na sever.
+    </p>
+    <div class="data-strip">
+      <div class="data-item">
+        <span class="data-label">Countries</span>
+        <div class="data-val">PL · LT · LV · EE</div>
+      </div>
+      <div class="data-item">
+        <span class="data-label">Year</span>
+        <div class="data-val">2023</div>
+      </div>
+      <div class="data-item">
+        <span class="data-label">Key Sites</span>
+        <div class="data-val">14</div>
+      </div>
+      <div class="data-item">
+        <span class="data-label">Photos</span>
+        <div class="data-val" id="photo-count">—</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ROUTE MAP -->
+  <section class="route-section">
+    <p class="section-label">// TRASA (GPX) — CZ → Slezsko → Łódź → Gdańsk → Kaliningradská oblast → Kurská kosa → Liepāja → Tallinn → Vilnius → CZ</p>
+    <div class="route-svg-wrap">
+      <!-- viewBox: lon 18–27, lat 49.5–60.5 → X=(lon-18)*77.8, Y=600-(lat-49.5)*54.5 -->
+      <svg viewBox="0 0 700 600" xmlns="http://www.w3.org/2000/svg"
+           style="background:var(--surface); border:1px solid var(--border);">
+        <defs>
+          <filter id="lbl-bg" x="-20%" y="-40%" width="140%" height="180%">
+            <feMorphology in="SourceGraphic" operator="dilate" radius="3" result="exp"/>
+            <feFlood flood-color="#262626" result="bg"/>
+            <feComposite in="bg" in2="exp" operator="in" result="outline"/>
+            <feMerge><feMergeNode in="outline"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+        </defs>
+
+        <!-- country labels -->
+        <text x="160" y="490" font-family="'JetBrains Mono',monospace" font-size="11"
+              fill="#4a4a48" letter-spacing="3" text-anchor="middle">POLSKA</text>
+        <text x="400" y="310" font-family="'JetBrains Mono',monospace" font-size="11"
+              fill="#4a4a48" letter-spacing="3" text-anchor="middle">LIETUVA</text>
+        <text x="380" y="205" font-family="'JetBrains Mono',monospace" font-size="11"
+              fill="#4a4a48" letter-spacing="3" text-anchor="middle">LATVIJA</text>
+        <text x="460" y="108" font-family="'JetBrains Mono',monospace" font-size="11"
+              fill="#4a4a48" letter-spacing="3" text-anchor="middle">EESTI</text>
+
+        <!-- Actual GPX track (mapy.cz export, simplified to 624 points) -->
+        <polyline
+          points="39,501 41,504 42,508 45,511 48,513 52,515 56,516 59,518 63,520 67,521 70,523 74,525 77,527 80,525 83,522 86,520 90,520 94,520 98,518 102,518 106,519 110,519 114,518 118,518 119,514 123,513 125,510 129,510 132,506 132,502 133,498 134,494 136,491 138,487 137,483 140,481 144,481 148,478 152,478 156,478 160,478 164,478 168,477 171,474 176,474 180,474 184,474 188,474 192,473 196,473 200,472 203,474 207,473 211,473 215,473 219,472 223,470 227,468 228,465 230,461 234,460 238,459 242,460 246,461 250,461 254,460 258,459 260,456 264,454 268,453 271,451 275,451 278,449 279,445 277,441 274,439 273,435 271,431 270,427 267,425 264,422 261,419 258,416 254,415 251,412 247,411 244,408 241,405 239,402 237,399 234,396 231,393 229,390 232,387 232,383 232,379 231,375 230,371 229,368 226,365 225,361 226,357 226,353 226,349 226,345 227,341 228,337 229,333 227,329 225,326 223,323 220,320 219,316 217,312 221,311 217,312 219,315 220,319 223,322 227,323 230,322 234,322 239,324 243,325 247,326 251,327 255,329 259,330 263,330 267,331 271,330 275,328 278,327 282,325 286,324 289,322 293,320 297,320 301,322 304,324 308,326 312,325 316,324 320,324 324,324 328,324 332,325 336,326 340,325 344,327 347,328 351,329 355,331 359,331 364,331 367,333 371,334 375,334 379,332 382,330 386,331 391,331 395,331 398,333 401,335 405,337 409,337 413,337 417,336 421,335 425,335 429,334 433,334 437,333 441,334 445,334 448,332 452,331 455,328 458,326 461,323 464,320 465,316 467,312 470,309 474,308 477,306 481,305 485,303 489,302 492,300 496,298 500,297 498,293 501,293 500,289 498,285 496,282 492,280 488,278 485,276 481,275 477,274 473,273 469,272 465,271 461,271 457,270 453,269 449,268 445,266 441,265 437,264 433,263 429,263 425,262 421,261 418,260 414,259 410,258 406,257 402,256 398,255 394,255 390,254 386,253 382,252 378,252 374,251 370,250 366,251 362,252 358,253 357,257 356,261 354,264 356,261 357,257 357,253 359,249 356,246 355,242 355,238 356,234 358,230 357,226 355,223 353,219 350,216 351,212 354,210 358,210 362,209 366,208 370,207 374,207 378,207 382,207 386,207 390,206 394,205 398,204 402,203 406,203 410,203 414,203 418,203 422,203 426,203 430,202 434,203 438,204 442,204 446,204 450,204 454,203 458,203 462,202 465,200 470,199 474,198 478,197 482,196 486,194 489,192 493,192 497,191 501,190 505,189 509,190 513,189 516,188 520,187 523,184 524,180 526,177 529,174 530,170 529,166 530,162 530,158 527,155 526,151 525,147 526,143 529,140 531,137 534,134 534,130 532,126 535,123 539,121 536,118 533,116 535,112 534,108 533,104 530,101 529,97 530,93 531,89 531,85 528,82 524,81 521,78 520,74 523,72 527,70 531,69 534,67 538,66 542,64 545,63 550,64 554,63 558,63 562,63 566,63 570,64 575,63 579,63 583,63 588,63 592,62 596,62 600,62 604,63 608,63 612,62 616,63 624,64 628,66 630,69 634,72 638,74 641,76 643,79 645,83 649,85 653,86 654,90 657,93 660,94 658,97 655,100 653,104 651,107 652,111 652,115 649,117 645,120 642,121 638,122 634,124 630,126 627,128 624,131 621,134 620,138 620,142 617,145 614,147 610,149 607,151 604,154 600,155 596,155 592,155 588,157 584,158 580,159 577,161 573,163 570,165 566,166 562,167 558,168 555,171 552,173 549,175 545,177 542,180 538,181 534,183 530,184 526,185 523,186 519,187 515,188 512,191 510,194 506,196 503,198 499,200 497,204 493,205 492,209 491,213 490,217 488,221 486,224 484,228 481,231 478,234 475,237 471,238 467,239 466,243 462,245 459,247 455,249 453,252 450,255 447,258 443,260 440,263 442,266 446,267 450,268 454,269 458,270 462,271 466,271 470,273 474,274 478,275 482,276 486,277 490,279 493,281 497,283 498,287 500,290 498,293 499,297 496,298 492,300 488,302 485,304 481,305 477,306 474,308 470,309 467,312 465,316 464,319 461,322 459,326 456,328 453,331 449,331 449,335 446,338 442,340 439,343 436,344 431,345 427,345 424,347 421,350 417,351 418,355 419,359 416,362 413,365 411,368 410,372 408,376 404,377 401,380 403,383 400,386 397,389 396,393 397,396 395,399 391,401 387,402 383,404 379,406 376,408 373,411 370,413 366,415 363,417 360,420 357,423 353,423 349,424 346,426 342,428 346,430 349,432 347,435 344,438 342,441 342,445 344,449 346,452 348,456 350,460 353,462 352,466 351,470 350,474 347,476 343,477 342,481 341,485 339,489 336,491 332,492 328,494 325,495 323,499 320,502 317,505 314,507 311,510 308,512 308,516 305,519 302,522 299,525 298,529 300,532 297,534 293,534 289,535 285,536 281,535 277,535 273,537 269,537 266,539 262,538 259,536 259,532 256,530 252,529 248,527 244,527 240,527 236,526 232,526 228,526 224,526 222,522 218,521 214,519 211,517 207,516 203,516 198,515 194,515 190,513 187,511 183,510 180,508 176,506 173,504 169,503 165,502 161,501 157,499 154,497 151,495 147,493 144,490 141,487 137,487 132,487 128,488 124,488 120,487 117,486 113,485 109,484 105,483 101,482 97,481 93,481 89,479 86,478 82,477 78,475 74,474 70,473 66,473 62,474 59,476 54,476 51,478 46,478 43,479 38,480 37,484 35,487 33,491 29,493 31,497 35,499 38,501 40,501"
+          fill="none" stroke="var(--accent)" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"
+          opacity="0.85"/>
+
+        <!-- CZ start/end marker -->
+        <circle cx="39" cy="501" r="4" fill="var(--fg-muted)" stroke="var(--bg)" stroke-width="1.5"/>
+        <text x="22" y="494" font-family="'JetBrains Mono',monospace" font-size="9"
+              fill="var(--fg-muted)" filter="url(#lbl-bg)">Liberec</text>
+
+        <!-- POLAND dots -->
+        <!-- P7 Energylandia -->
+        <circle cx="267" cy="540" r="5" fill="var(--accent)" stroke="var(--bg)" stroke-width="1.5"/>
+        <text x="275" y="544" font-family="'JetBrains Mono',monospace" font-size="9"
+              fill="var(--fg)" filter="url(#lbl-bg)">Energylandia</text>
+
+        <!-- P16 Cementárna Grodziec -->
+        <circle cx="250" cy="522" r="5" fill="var(--accent)" stroke="var(--bg)" stroke-width="1.5"/>
+        <text x="242" y="518" font-family="'JetBrains Mono',monospace" font-size="9"
+              fill="var(--fg)" filter="url(#lbl-bg)" text-anchor="end">Cementárna Grodziec</text>
+
+        <!-- P9 EC2 Łódź -->
+        <circle cx="269" cy="452" r="5" fill="var(--accent)" stroke="var(--bg)" stroke-width="1.5"/>
+        <text x="277" y="449" font-family="'JetBrains Mono',monospace" font-size="9"
+              fill="var(--fg)" filter="url(#lbl-bg)">EC2 Łódź</text>
+
+        <!-- P5 Vrak lodi -->
+        <circle cx="222" cy="311" r="5" fill="var(--accent)" stroke="var(--bg)" stroke-width="1.5"/>
+        <text x="214" y="307" font-family="'JetBrains Mono',monospace" font-size="9"
+              fill="var(--fg)" filter="url(#lbl-bg)" text-anchor="end">Vrak lodi</text>
+
+        <!-- P1 Vlčáčky -->
+        <circle cx="376" cy="334" r="5" fill="var(--accent)" stroke="var(--bg)" stroke-width="1.5"/>
+        <text x="384" y="330" font-family="'JetBrains Mono',monospace" font-size="9"
+              fill="var(--fg)" filter="url(#lbl-bg)">Vlčáčky</text>
+
+        <!-- LITHUANIA dots -->
+        <!-- LI1 Curonian Spit -->
+        <circle cx="355" cy="265" r="5" fill="var(--accent)" stroke="var(--bg)" stroke-width="1.5"/>
+        <text x="347" y="261" font-family="'JetBrains Mono',monospace" font-size="9"
+              fill="var(--fg)" filter="url(#lbl-bg)" text-anchor="end">Kurská kosa</text>
+
+        <!-- LI2 Hill of Crosses -->
+        <circle cx="477" cy="236" r="5" fill="var(--accent)" stroke="var(--bg)" stroke-width="1.5"/>
+        <text x="485" y="232" font-family="'JetBrains Mono',monospace" font-size="9"
+              fill="var(--fg)" filter="url(#lbl-bg)">Hora křížů</text>
+
+        <!-- LI4 Kaunas -->
+        <circle cx="502" cy="292" r="5" fill="var(--accent)" stroke="var(--bg)" stroke-width="1.5"/>
+        <text x="510" y="289" font-family="'JetBrains Mono',monospace" font-size="9"
+              fill="var(--fg)" filter="url(#lbl-bg)">Kaunas</text>
+
+        <!-- LI5 Vilnius -->
+        <circle cx="574" cy="303" r="5" fill="var(--accent)" stroke="var(--bg)" stroke-width="1.5"/>
+        <text x="582" y="300" font-family="'JetBrains Mono',monospace" font-size="9"
+              fill="var(--fg)" filter="url(#lbl-bg)">Vilnius</text>
+
+        <!-- LATVIA dots -->
+        <!-- LO1 Karosta -->
+        <circle cx="350" cy="208" r="5" fill="var(--accent)" stroke="var(--bg)" stroke-width="1.5"/>
+        <text x="342" y="204" font-family="'JetBrains Mono',monospace" font-size="9"
+              fill="var(--fg)" filter="url(#lbl-bg)" text-anchor="end">Karosta</text>
+
+        <!-- LO2 Riga KGB -->
+        <circle cx="513" cy="189" r="5" fill="var(--accent)" stroke="var(--bg)" stroke-width="1.5"/>
+        <text x="521" y="185" font-family="'JetBrains Mono',monospace" font-size="9"
+              fill="var(--fg)" filter="url(#lbl-bg)">Riga / KGB</text>
+
+        <!-- ESTONIA dots -->
+        <!-- ES1 Rummu -->
+        <circle cx="517" cy="74" r="5" fill="var(--accent)" stroke="var(--bg)" stroke-width="1.5"/>
+        <text x="509" y="70" font-family="'JetBrains Mono',monospace" font-size="9"
+              fill="var(--fg)" filter="url(#lbl-bg)" text-anchor="end">Rummu</text>
+
+        <!-- ES6 Patarei -->
+        <circle cx="546" cy="63" r="5" fill="var(--accent)" stroke="var(--bg)" stroke-width="1.5"/>
+        <text x="540" y="54" font-family="'JetBrains Mono',monospace" font-size="9"
+              fill="var(--fg)" filter="url(#lbl-bg)" text-anchor="middle">Patarei / Tallinn</text>
+
+        <!-- ES5 Jägala -->
+        <circle cx="569" cy="63" r="5" fill="var(--accent)" stroke="var(--bg)" stroke-width="1.5"/>
+        <text x="577" y="60" font-family="'JetBrains Mono',monospace" font-size="9"
+              fill="var(--fg)" filter="url(#lbl-bg)">Jägala</text>
+
+        <!-- legend -->
+        <line x1="20" y1="22" x2="48" y2="22" stroke="var(--accent)" stroke-width="1.6"/>
+        <text x="54" y="26" font-family="'JetBrains Mono',monospace" font-size="9"
+              fill="var(--fg-dim)">trasa (GPX export z mapy.cz)</text>
+      </svg>
+    </div>
+  </section>
+
+  <!-- ARTICLE -->
+  <article class="article">
+
+    <h2>// Polsko — průmyslové ruiny a pobřeží</h2>
+
+    <h3>Energylandia</h3>
+    <span class="location-tag">Zator · PL</span>
+    <p>
+      Zábavní park u Krakova jako první zastávka. Protiváha k tomu, co přijde — betonové ruiny a
+      rez. Největší zábavní park v Polsku.
+    </p>
+
+    <h3>Cementárna Grodziec</h3>
+    <span class="location-tag">Będzin · Horní Slezsko · PL</span>
+    <p>
+      Nieczynna Cementownia „Grodziec" — odstavená cementárna ve Slezsku.
+      <strong>Monumentální průmyslová architektura</strong>, továrna stojí od 80. let.
+      Obří rotační pece, prašné chodby, výhled na Slezskou průmyslovou pánev.
+    </p>
+
+    <h3>EC2 — opuštěná teplárna</h3>
+    <span class="location-tag">Łódź · PL</span>
+    <p>
+      Elektrociepłownia EC2 v centru Łódź — jedna z nejfotogeničtějších průmyslových ruin
+      v Polsku. <strong>Červené cihlové kotelny</strong>, obrovské turbíny, komíny.
+      Část areálu byla přestavěna na muzeum, část čeká.
+    </p>
+
+    <h3>Vrak sovětské lodi</h3>
+    <span class="location-tag">Gdaňský záliv · PL</span>
+    <p>
+      Na pobřeží Gdaňského zálivu leží na mělčině <strong>vraky</strong> — pozůstatky
+      sovětské i německé námořní přítomnosti. Rezavé trupy vylézající z vody za odlivu.
+    </p>
+
+    <h3>Vlčáčky — sovětský vojenský objekt</h3>
+    <span class="location-tag">Kaliningradská oblast · PL/RU</span>
+    <p>
+      V okolí Kaliningradské enklávy zůstaly roztroušené pozůstatky sovětské vojenské
+      infrastruktury. <strong>Podzemní bunkry, opuštěné kasárny</strong>, ostnatý drát
+      a nápisy v azbuce na zdech — jako by čas zastavil někdy v 90. letech.
+    </p>
+
+    <h2>// Litva — kříže, duny, sovětská architektura</h2>
+
+    <h3>Kurská kosa — migrující duny</h3>
+    <span class="location-tag">Nida · LT · UNESCO</span>
+    <p>
+      Kurská kosa je úzký písčitý poloostrov oddělující Kurský záliv od Baltského moře.
+      <strong>Migrující písečné přesypy</strong> dosahují výšky až 60 metrů — největší
+      v Evropě. Pohybují se na východ rychlostí několika metrů ročně a v 18.–19. století
+      pohřbily několik vesnic.
+    </p>
+
+    <h3>Hora křížů</h3>
+    <span class="location-tag">Šiauliai · LT</span>
+    <p>
+      Místo poutí severně od Šiauliai, kde věřící po staletí zanechávají kříže.
+      Dnes jich jsou <strong>statisíce</strong> — všech velikostí, z dřeva, kovu, kamene.
+      Sovětská vláda nechala horu třikrát srovnat buldozery, pokaždé kříže přibyly znovu.
+    </p>
+
+    <h3>Kaunas</h3>
+    <span class="location-tag">Kaunas · LT</span>
+    <p>
+      Druhé největší město Litvy — meziválečné hlavní město, dnes živé město
+      s brutalistními sovětskými budovami vedle art-déco a baroka.
+      <strong>IX. fort</strong>, místo masových poprav za druhé světové války.
+    </p>
+
+    <h3>Sporto rūmai — sportovní palác</h3>
+    <span class="location-tag">Vilnius · LT</span>
+    <p>
+      Sovětský sportovní palác ve Vilniusu z roku 1971. <strong>Obří betonová hala</strong>
+      s charakteristickými konzolami a výzdobou z doby SSSR. Opuštěný, čekající
+      na rekonstrukci nebo demolici.
+    </p>
+
+    <h2>// Lotyšsko — Karosta a Rižský rohový dům</h2>
+
+    <h3>Karosta — opuštěná vojenská základna</h3>
+    <span class="location-tag">Liepāja · LV</span>
+    <p>
+      Karosta (doslova „válečný přístav") je část Liepāje vybudovaná původně pro ruské
+      carské námořnictvo, pak využívaná sovětskou armádou až do roku 1994.
+      <strong>Celé čtvrti opuštěných kasáren</strong>, vojenská nemocnice, věznice —
+      vše zůstalo prakticky tak, jak Rusové odešli. Část je dnes muzeum, zbytek chátrá.
+    </p>
+
+    <h3>Rohový dům — muzeum KGB</h3>
+    <span class="location-tag">Riga · LV</span>
+    <p>
+      „Stūra māja" — rohový dům v centru Rigy, sídlo sovětské tajné policie (NKVD/KGB)
+      od 40. do 90. let. <strong>Cely, výslechovny, kartotéky</strong> zachované in situ.
+      Dnes muzeum o době komunistické represe v Lotyšsku — jedno z nejsilnějších
+      v Pobaltí.
+    </p>
+
+    <h2>// Estonsko — vězení a vodopád</h2>
+
+    <h3>Rummu — zatopené vězení</h3>
+    <span class="location-tag">Rummu · EE</span>
+    <p>
+      Vápencový lom s přidruženým sovětským trestaneckým táborem. Po uzavření lomu v 90. letech
+      začala spodní část zaplavovat voda — dnes je část komplexu pod vodou.
+      <strong>Betonové věže a zdi vylézají z tyrkysového jezera</strong>, oblíbené místo
+      potápěčů i fotografů.
+    </p>
+
+    <h3>Patarei — komunismus je vězení</h3>
+    <span class="location-tag">Tallinn · EE</span>
+    <p>
+      Námořní pevnost z 19. století přebudovaná na věznici — fungovala od carských dob
+      přes německou okupaci až po sovětskou éru, posledního vězně propustili roku 2004.
+      Dnes muzeum s výstavou <strong>„Kommunism on vangla"</strong> (Komunismus je vězení).
+      Opadaná omítka, zrezlé mříže, výslechové záznamy na zdech.
+    </p>
+
+    <h3>Jägalský vodopád</h3>
+    <span class="location-tag">Jägala · EE</span>
+    <p>
+      Nejširší vodopád v Estonsku (klidně i přes 50 metrů v šíři) — ne příliš vysoký,
+      ale <strong>impozantní svou šířkou</strong> a průtokem. Řeka Jägala spadá přes
+      ordovický vápencový práh. Odpočinek od betonu a rezu před cestou zpět.
+    </p>
+
+  </article>
+
+  <!-- GALLERY PLACEHOLDER — fotky přidat až budou připraveny -->
+  <section class="gallery-section">
+    <div class="day-heading">
+      <b>// fotky</b> — brzy
+    </div>
+    <div class="photo-placeholder">
+      fotografie budou doplněny
+    </div>
+  </section>
+
+  <!-- lightbox -->
+  <div id="lb"><span id="lb-close">×</span><img id="lb-img" src="" alt=""/></div>
+
+  <footer>
+    <span>07 · BALTICS · 2023</span>
+    <a href="./index.html">← travels</a>
+    <span>vojta@konopa</span>
+  </footer>
+
+  <script>
+    // lightbox
+    document.querySelectorAll('.gallery-grid img').forEach(img => {
+      img.addEventListener('click', () => {
+        document.getElementById('lb-img').src = img.src;
+        document.getElementById('lb').classList.add('open');
+      });
+    });
+    document.getElementById('lb-close').addEventListener('click', () =>
+      document.getElementById('lb').classList.remove('open'));
+    document.getElementById('lb').addEventListener('click', e => {
+      if (e.target === e.currentTarget) e.currentTarget.classList.remove('open');
+    });
+
+    // photo count
+    const imgs = document.querySelectorAll('.gallery-grid img');
+    if (imgs.length) document.getElementById('photo-count').textContent = imgs.length;
+  </script>
+</body>
+</html>
