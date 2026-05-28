@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>RPG Matematika · 8. ročník</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;500;600;700&family=VT323&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d1117;--panel:#161b27;--panel2:#1e2535;
+  --gold:#f4d03f;--blue:#5dade2;--red:#e74c3c;--green:#2ecc71;--purple:#9b59b6;
+  --text:#e8eaf6;--muted:#8896a6;
+  --px:'Pixelify Sans','VT323',monospace;
+  --vt:'VT323',monospace;
+}
+body{background:var(--bg);color:var(--text);font-family:var(--vt);min-height:100vh;overflow-x:hidden;font-size:18px}
+/* ── STARFIELD ── */
+body::before{
+  content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:
+    radial-gradient(1px 1px at 12% 18%,#fff 0,transparent 0),
+    radial-gradient(1px 1px at 34% 72%,#aaa 0,transparent 0),
+    radial-gradient(1px 1px at 58% 9%, #fff 0,transparent 0),
+    radial-gradient(1px 1px at 76% 51%,#ccc 0,transparent 0),
+    radial-gradient(1px 1px at 90% 28%,#aaa 0,transparent 0),
+    radial-gradient(1px 1px at 23% 85%,#fff 0,transparent 0),
+    radial-gradient(1px 1px at 67% 37%,#bbb 0,transparent 0),
+    radial-gradient(1px 1px at 44% 62%,#aaa 0,transparent 0),
+    radial-gradient(1px 1px at 81% 79%,#fff 0,transparent 0),
+    radial-gradient(1px 1px at 5%  44%,#ccc 0,transparent 0);
+  background-size:300px 300px;
+}
+/* ── SCREENS ── */
+.screen{display:none;min-height:100vh;padding:12px}
+.screen.active{display:flex;flex-direction:column;align-items:center}
+.wrap{position:relative;z-index:1;width:100%;max-width:680px}
+/* ── PANEL ── */
+.panel{background:var(--panel);border:3px solid var(--gold);box-shadow:4px 4px 0 #7a5c00;padding:16px;margin-bottom:12px}
+.panel.b{border-color:var(--blue);box-shadow:4px 4px 0 #1a4f73}
+.panel.g{border-color:var(--green);box-shadow:4px 4px 0 #1a7a3a}
+.panel.r{border-color:var(--red);box-shadow:4px 4px 0 #7b241c}
+/* ── BUTTONS ── */
+.btn{font-family:var(--px);font-weight:600;font-size:15px;background:var(--panel2);color:var(--gold);border:3px solid var(--gold);padding:10px 16px;cursor:pointer;box-shadow:3px 3px 0 #7a5c00;letter-spacing:.5px;display:inline-block;text-transform:uppercase;line-height:1.1}
+.btn:hover:not(:disabled){transform:translate(-1px,-1px);box-shadow:4px 4px 0 #7a5c00}
+.btn:active:not(:disabled){transform:translate(2px,2px);box-shadow:1px 1px 0 #7a5c00}
+.btn.b{color:var(--blue);border-color:var(--blue);box-shadow:3px 3px 0 #1a4f73}
+.btn.b:hover:not(:disabled){box-shadow:4px 4px 0 #1a4f73}
+.btn.g{color:var(--green);border-color:var(--green);box-shadow:3px 3px 0 #1a7a3a}
+.btn.r{color:var(--red);border-color:var(--red);box-shadow:3px 3px 0 #7b241c}
+.btn.sm{font-size:12px;padding:7px 11px}
+.btn.full{width:100%;text-align:center;font-size:17px;padding:14px}
+.btn:disabled{opacity:.35;cursor:not-allowed;transform:none!important}
+/* ── BARS ── */
+.bar-out{background:#111;border:2px solid var(--muted);height:14px}
+.bar-in{height:100%;transition:width .4s steps(8)}
+.bar-xp .bar-in{background:repeating-linear-gradient(90deg,var(--green) 0 8px,#197a3a 8px 16px)}
+.bar-attr .bar-in{background:repeating-linear-gradient(90deg,var(--blue) 0 8px,#1a4f73 8px 16px)}
+.bar-hp .bar-in{background:repeating-linear-gradient(90deg,var(--red) 0 8px,#7b241c 8px 16px)}
+/* ── TOP NAV ── */
+.topnav{font-family:var(--px);font-weight:500;font-size:13px;color:var(--muted);display:flex;justify-content:space-between;align-items:center;gap:8px;padding-bottom:10px;margin-bottom:10px;border-bottom:2px solid var(--panel2)}
+.topnav .hl{color:var(--gold)}
+/* ── MAP ── */
+.map-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0}
+.map-node{background:var(--panel);border:3px solid #333;padding:13px 6px;text-align:center;cursor:pointer;transition:none}
+.map-node.unlocked{border-color:var(--blue)}
+.map-node.active{border-color:var(--gold);box-shadow:0 0 10px #f4d03f44;animation:glow 1.2s steps(2) infinite}
+.map-node.done{border-color:var(--green)}
+.map-node.locked{opacity:.4;cursor:not-allowed}
+.map-node:not(.locked):hover{transform:translate(-2px,-2px)}
+.map-node .ni{font-size:30px;display:block;margin-bottom:6px}
+.map-node .nn{font-family:var(--px);font-weight:600;font-size:12px;line-height:1.3;white-space:pre-line;color:var(--text)}
+.map-node .ns{font-family:var(--px);font-weight:500;font-size:11px;margin-top:6px;letter-spacing:.3px}
+.map-node.done .ns{color:var(--green)}
+.map-node.active .ns{color:var(--gold)}
+.map-node.unlocked .ns{color:var(--blue)}
+.map-node.locked .ns{color:var(--muted)}
+@keyframes glow{0%{box-shadow:0 0 4px #f4d03f44}100%{box-shadow:0 0 18px #f4d03f88}}
+/* ── MISSION LIST ── */
+.ms-item{display:flex;align-items:center;gap:10px;padding:12px;background:var(--panel);border:2px solid var(--panel2);margin-bottom:8px;cursor:pointer}
+.ms-item.done{border-color:var(--green)}
+.ms-item.avail{border-color:var(--blue)}
+.ms-item.locked{opacity:.35;cursor:not-allowed}
+.ms-item:not(.locked):hover{border-color:var(--gold)}
+.ms-num{font-family:var(--px);font-weight:700;font-size:20px;min-width:34px;text-align:center}
+.ms-name{font-family:var(--px);font-weight:600;font-size:19px;line-height:1.1;color:var(--text)}
+.ms-sub{font-family:var(--vt);font-size:18px;color:var(--muted);margin-top:2px;line-height:1}
+/* ── BATTLE ── */
+.bt-top{background:linear-gradient(180deg,#0a0e1a 0%,#1a1f35 100%);border:3px solid var(--gold);padding:18px;text-align:center;margin-bottom:10px}
+.bt-monster{font-size:46px;display:block;margin-bottom:6px}
+.bt-mname{font-family:var(--px);font-weight:700;font-size:15px;color:var(--red);letter-spacing:1.2px}
+.bt-problem{font-family:var(--vt);font-size:26px;line-height:1.4;background:var(--panel);border:3px solid var(--blue);padding:16px;margin-bottom:10px;white-space:pre-wrap;text-align:center;color:var(--text)}
+.bt-row{display:flex;gap:8px;margin-bottom:10px}
+.bt-input{flex:1;font-family:var(--px);font-weight:600;font-size:22px;background:var(--panel2);color:var(--gold);border:3px solid var(--gold);padding:11px;outline:none;text-align:center}
+.bt-input:focus{box-shadow:0 0 8px #f4d03f55}
+.bt-input:disabled{opacity:.5}
+.hint-box{font-family:var(--vt);font-size:21px;padding:12px;background:#0f1a0f;border:2px solid var(--green);color:#7fe87f;margin-bottom:10px;display:none;white-space:pre-wrap;line-height:1.4}
+.hint-box.show{display:block}
+.feedback{font-family:var(--px);font-weight:600;font-size:16px;text-align:center;padding:10px;margin-bottom:10px;display:none}
+.feedback.ok{color:var(--green);display:block}
+.feedback.err{color:var(--red);display:block;animation:shake .15s steps(2) 3}
+@keyframes shake{0%{transform:translateX(0)}50%{transform:translateX(6px)}100%{transform:translateX(0)}}
+.task-ctr{font-family:var(--px);font-weight:500;font-size:13px;color:var(--muted);text-align:center}
+.task-ctr span{color:var(--gold)}
+/* ── PROFILE ── */
+.attr-row{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.attr-ic{font-size:22px;min-width:30px}
+.attr-nm{font-family:var(--px);font-weight:500;font-size:13px;min-width:170px;color:var(--text)}
+.attr-vl{font-family:var(--px);font-weight:700;font-size:15px;color:var(--gold);min-width:36px;text-align:right}
+.inv-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-top:10px}
+.inv-slot{background:var(--panel2);border:2px solid #2a2a2a;padding:10px 6px;text-align:center;min-height:80px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px}
+.inv-slot.have{border-color:var(--gold)}
+.inv-slot .ic{font-size:26px}
+.inv-slot .nm{font-family:var(--px);font-weight:500;font-size:10px;color:var(--muted);line-height:1.2;text-align:center;white-space:pre-line}
+/* ── INTRO ── */
+.blink{animation:blink 1s steps(1) infinite}
+@keyframes blink{0%,49%{opacity:1}50%,100%{opacity:0}}
+.ni-input{font-family:var(--px);font-weight:600;font-size:20px;background:var(--panel2);color:var(--gold);border:3px solid var(--gold);padding:13px 16px;width:100%;outline:none;text-align:center;margin-bottom:14px;letter-spacing:1px}
+/* ── REWARD MODAL ── */
+.modal{display:none;position:fixed;inset:0;z-index:100;background:#000a;align-items:center;justify-content:center;padding:16px}
+.modal.show{display:flex}
+.modal-box{background:var(--panel);border:4px solid var(--gold);box-shadow:6px 6px 0 #7a5c00;padding:24px;max-width:420px;width:100%;text-align:center}
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar{width:8px;background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--panel2);border:2px solid var(--gold)}
+/* ── RESPONSIVE ── */
+@media(max-width:480px){
+  .map-grid{grid-template-columns:repeat(2,1fr)}
+  .inv-grid{grid-template-columns:repeat(3,1fr)}
+  .bt-problem{font-size:22px}
+  .attr-nm{min-width:140px;font-size:11px}
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════════ INTRO ══════════════ -->
+<div id="s-intro" class="screen active">
+<div class="wrap">
+  <div style="text-align:center;padding:28px 0 20px">
+    <div style="font-size:56px;margin-bottom:12px">⚔️</div>
+    <div style="font-family:var(--px);font-weight:700;font-size:30px;color:var(--gold);text-shadow:4px 4px 0 #7a5c00;line-height:1.1;margin-bottom:10px">RPG<br>MATEMATIKA</div>
+    <div style="font-family:var(--vt);font-size:24px;color:var(--blue)">8. ročník · ZŠ Husova Liberec</div>
+  </div>
+  <div class="panel">
+    <div style="font-family:var(--vt);font-size:22px;color:var(--muted);margin-bottom:10px">Zadej své jméno, hrdino:</div>
+    <input id="ni" class="ni-input" type="text" placeholder="JMÉNO" maxlength="14" autocomplete="off">
+    <button class="btn full" onclick="startGame()">▶ ZAHAJ DOBRODRUŽSTVÍ</button>
+  </div>
+  <div id="continue-panel" class="panel b" style="display:none">
+    <div style="font-family:var(--px);font-weight:600;font-size:14px;color:var(--blue);margin-bottom:10px">POKRAČOVAT VE HŘE</div>
+    <button class="btn b full" style="margin-bottom:8px" onclick="continueGame()">▶ NAČÍST ULOŽENOU HRU</button>
+    <button class="btn sm" onclick="document.getElementById('continue-panel').style.display='none'">nebo začít znovu</button>
+  </div>
+  <div style="text-align:center;font-family:var(--px);font-weight:500;font-size:13px;color:var(--muted);margin-top:8px">
+    STISKNI ENTER PRO START <span class="blink">▌</span>
+  </div>
+</div>
+</div>
+
+<!-- ══════════════ MAP ══════════════ -->
+<div id="s-map" class="screen">
+<div class="wrap">
+  <div class="topnav">
+    <span class="hl" id="map-name">HRDINA</span>
+    <span>LV <span class="hl" id="map-lv">1</span> &nbsp;·&nbsp; XP <span class="hl" id="map-xp">0</span></span>
+    <button class="btn sm" onclick="go('profile')">👤 PROFIL</button>
+  </div>
+  <div class="panel" style="padding:10px 14px;text-align:center">
+    <div style="font-family:var(--px);font-weight:500;font-size:13px;color:var(--muted);letter-spacing:1px">✦ &nbsp;MAPPA MATHEMATICAE&nbsp; · &nbsp;ANNUS VIII&nbsp; ✦</div>
+  </div>
+  <div class="map-grid" id="map-grid"></div>
+  <div class="panel" style="padding:10px 14px">
+    <div style="display:flex;justify-content:space-between;font-family:var(--px);font-weight:500;font-size:13px;margin-bottom:6px">
+      <span style="color:var(--muted)">ZKUŠENOSTI</span>
+      <span style="color:var(--gold)"><span id="map-xp2">0</span> / <span id="map-xpmax">100</span></span>
+    </div>
+    <div class="bar-out bar-xp"><div class="bar-in" id="map-xpbar" style="width:0%"></div></div>
+  </div>
+</div>
+</div>
+
+<!-- ══════════════ AREA ══════════════ -->
+<div id="s-area" class="screen">
+<div class="wrap">
+  <div class="topnav">
+    <button class="btn sm" onclick="go('map')">← MAPA</button>
+    <span class="hl" id="area-title-sm" style="font-family:var(--px);font-weight:600;font-size:13px;text-align:center;flex:1"></span>
+    <button class="btn sm" onclick="go('profile')">👤</button>
+  </div>
+  <div class="panel" id="area-head"></div>
+  <div id="mission-list"></div>
+</div>
+</div>
+
+<!-- ══════════════ BATTLE ══════════════ -->
+<div id="s-battle" class="screen">
+<div class="wrap">
+  <div class="topnav">
+    <button class="btn sm r" onclick="exitBattle()">✕ ÚTĚK</button>
+    <div class="task-ctr">ÚKOL <span id="bt-num">1</span> / <span id="bt-tot">3</span></div>
+    <span style="min-width:60px"></span>
+  </div>
+  <div class="bt-top">
+    <span class="bt-monster" id="bt-mon">👾</span>
+    <div class="bt-mname" id="bt-mname">???</div>
+    <div class="bar-out bar-hp" style="margin-top:10px;height:10px;border-color:var(--red)">
+      <div class="bar-in" id="bt-hpbar" style="width:100%"></div>
+    </div>
+  </div>
+  <div class="bt-problem" id="bt-prob">...</div>
+  <div class="bt-row">
+    <input id="bt-ans" class="bt-input" type="text" placeholder="?" autocomplete="off">
+    <button class="btn" onclick="submitAnswer()" style="white-space:nowrap">ÚTOK ⚔</button>
+  </div>
+  <div id="hint-box" class="hint-box"></div>
+  <div id="bt-fb" class="feedback"></div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap">
+    <button class="btn sm b" id="hint-btn" onclick="showHint()">💡 NÁPOVĚDA 1/3</button>
+    <button class="btn sm g" id="next-btn" style="display:none" onclick="nextTask()">DÁLE →</button>
+  </div>
+</div>
+</div>
+
+<!-- ══════════════ PROFILE ══════════════ -->
+<div id="s-profile" class="screen">
+<div class="wrap">
+  <div class="topnav">
+    <button class="btn sm" onclick="go('map')">← MAPA</button>
+    <span style="font-family:var(--px);font-weight:600;font-size:14px;color:var(--gold)">PROFIL HRDINY</span>
+    <span style="min-width:60px"></span>
+  </div>
+  <div class="panel">
+    <div style="display:flex;gap:14px;align-items:center;margin-bottom:14px">
+      <div style="font-size:48px">🧙</div>
+      <div>
+        <div id="pr-name" style="font-family:var(--px);font-weight:700;font-size:20px;color:var(--gold);letter-spacing:1px">HRDINA</div>
+        <div style="font-family:var(--px);font-weight:500;font-size:13px;color:var(--muted);margin-top:4px">ÚROVEŇ <span id="pr-lv">1</span></div>
+        <div style="font-family:var(--px);font-weight:500;font-size:13px;color:var(--blue);margin-top:2px">XP: <span id="pr-xp">0</span></div>
+      </div>
+    </div>
+    <div style="font-family:var(--px);font-weight:600;font-size:12px;color:var(--muted);margin-bottom:10px;letter-spacing:1px">— ATRIBUTY —</div>
+    <div id="pr-attrs"></div>
+  </div>
+  <div class="panel">
+    <div style="font-family:var(--px);font-weight:600;font-size:12px;color:var(--muted);margin-bottom:10px;letter-spacing:1px">— INVENTÁŘ ARTEFAKTŮ —</div>
+    <div class="inv-grid" id="pr-inv"></div>
+  </div>
+  <div class="panel">
+    <div style="font-family:var(--px);font-weight:600;font-size:12px;color:var(--muted);margin-bottom:10px;letter-spacing:1px">— ZÁLOHA POSTUPU —</div>
+    <button class="btn sm b" onclick="exportCode()">📋 ZKOPÍROVAT KÓD</button>
+    <div id="code-out" style="display:none;margin-top:10px">
+      <div id="code-txt" style="font-family:var(--px);font-weight:500;font-size:11px;word-break:break-all;background:var(--bg);border:2px solid var(--muted);padding:10px;color:var(--blue);margin-bottom:8px;line-height:1.6"></div>
+      <button class="btn sm" onclick="importPrompt()">NAČÍST KÓD</button>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ══════════════ REWARD MODAL ══════════════ -->
+<div id="modal" class="modal">
+<div class="modal-box">
+  <div id="modal-ic" style="font-size:56px;margin-bottom:10px">🎉</div>
+  <div id="modal-title" style="font-family:var(--px);font-weight:700;font-size:17px;color:var(--gold);margin-bottom:12px;line-height:1.3;letter-spacing:.5px"></div>
+  <div id="modal-txt" style="font-family:var(--vt);font-size:22px;color:var(--text);margin-bottom:16px;line-height:1.4;white-space:pre-wrap"></div>
+  <button class="btn full" onclick="closeModal()">▶ POKRAČOVAT</button>
+</div>
+</div>
+
+<script>
+// ══════════════════════════════════════════
+//  HELPERS
+// ══════════════════════════════════════════
+const ri = (a,b) => Math.floor(Math.random()*(b-a+1))+a;
+function gcd(a,b){return b?gcd(b,a%b):Math.abs(a);}
+
+function checkAns(raw, correct){
+  const norm = s => String(s).trim().toLowerCase().replace(/\s+/g,'').replace(',','.');
+  const u = norm(raw), c = norm(correct);
+  if(u===c) return true;
+  // fraction eval
+  const evalS = s => {
+    if(/^-?\d+\/-?\d+$/.test(s)){const[a,b]=s.split('/');return parseFloat(a)/parseFloat(b);}
+    return parseFloat(s);
+  };
+  const un=evalS(u), cn=evalS(c);
+  if(!isNaN(un)&&!isNaN(cn)) return Math.abs(un-cn)<0.016;
+  return false;
+}
+
+// ══════════════════════════════════════════
+//  GAME DATA — AREAS
+// ══════════════════════════════════════════
+const AREAS = [
+{
+  id:1, icon:'🏔️', name:'ÚDOLÍ\nOPAKOVÁNÍ',
+  desc:'Opakování ze 7. ročníku. Celá čísla, racionální čísla, procenta.',
+  art:{id:'map',ic:'🗺️',nm:'Mapa\nsedmi krajin'},
+  attrGain:{calc:12,anal:8},
+  missions:[
+    {
+      id:'1-1', name:'Celá čísla', sub:'operace se zápornými čísly',
+      mon:'🔢', mname:'STRÁŽCE ČÍSEL',
+      intro:'Na začátku cesty stojí Strážce celých čísel. Ovládni záporná čísla, aby ti otevřel bránu.',
+      tc:3,
+      tasks:()=>[
+        (()=>{const a=ri(-15,-2),b=ri(2,12),ans=a+b;return{
+          text:`Vypočítej:\n(${a}) + ${b} =`,ans:String(ans),
+          hints:[`Sčítáš záporné a kladné číslo.`,`|${a}| = ${Math.abs(a)}, druhé číslo: ${b}. Větší absolutní hodnotou je ${Math.abs(a)>b?'záporné':'kladné'}.`,`Výsledek: ${ans}`],skill:'calc'};})(),
+        (()=>{const a=ri(-12,-2),b=ri(-9,-1),ans=a-b;return{
+          text:`Vypočítej:\n(${a}) − (${b}) =`,ans:String(ans),
+          hints:[`Odečítání záporného = přičtení jeho absolutní hodnoty.`,`${a} − (${b}) = ${a} + ${Math.abs(b)}`,`Výsledek: ${ans}`],skill:'calc'};})(),
+        (()=>{const a=ri(-7,-2),b=ri(2,8),ans=a*b;return{
+          text:`Vypočítej:\n(${a}) · ${b} =`,ans:String(ans),
+          hints:[`Záporné × kladné = záporné.`,`${Math.abs(a)} × ${b} = ${Math.abs(ans)}`,`Výsledek: ${ans}`],skill:'calc'};})()
+      ]
+    },
+    {
+      id:'1-2', name:'Zlomky a desetinná čísla', sub:'racionální čísla',
+      mon:'🧮', mname:'TROLL ZLOMKŮ',
+      intro:'V říčním mlýně žije Troll zlomků. Kdo neumí počítat se zlomky, nedostane přes most.',
+      tc:3,
+      tasks:()=>[
+        (()=>{const b=ri(2,6),d=ri(2,6);const num=b+d,den=b*d,g=gcd(num,den);const ans=den/g===1?String(num/g):`${num/g}/${den/g}`;return{
+          text:`Vypočítej (zjednodušený zlomek):\n1/${b} + 1/${d} =`,ans,
+          hints:[`Společný jmenovatel: ${den}.`,`1/${b} + 1/${d} = ${d}/${den} + ${b}/${den} = ${num}/${den}`,`Po zkrácení: ${ans}`],skill:'calc'};})(),
+        (()=>{const a=ri(1,9);const ans=String((a/10).toFixed(1));return{
+          text:`Převeď na desetinné číslo:\n${a}/10 =`,ans,
+          hints:[`Dělení deseti = posun desetinné čárky o jedno místo doleva.`,`${a} ÷ 10 = ?`,`Výsledek: ${ans}`],skill:'calc'};})(),
+        (()=>{const c=ri(2,6),a=ri(2,9),b=ri(2,9),ans=c*a+c*b;return{
+          text:`Použij distributivní zákon:\n${c} · ${a} + ${c} · ${b} =`,ans:String(ans),
+          hints:[`c·a + c·b = c·(a+b)`,`${c}·(${a}+${b}) = ${c}·${a+b}`,`Výsledek: ${ans}`],skill:'calc'};})()
+      ]
+    },
+    {
+      id:'1-3', name:'Procenta', sub:'výpočet procentové hodnoty',
+      mon:'💯', mname:'ČARODĚJ PROCENT',
+      intro:'Čaroděj procent střeží průsmyk. Každé procento je 1/100 celku — pamatuj si to.',
+      tc:3,
+      tasks:()=>[
+        (()=>{const z=ri(2,10)*10,p=ri(5,40),ans=Math.round(z*p/100);return{
+          text:`Kolik je ${p} % z čísla ${z}?`,ans:String(ans),
+          hints:[`${p} % = ${p}/100`,`${z} · ${p} ÷ 100`,`Výsledek: ${ans}`],skill:'anal'};})(),
+        (()=>{const c=ri(4,20)*10,v=ri(1,c/10)*10;const ans=Math.round(v/c*100);return{
+          text:`Kolika procenty je ${v} z ${c}?\n(celé číslo)`,ans:String(ans),
+          hints:[`Procento = část ÷ celek · 100`,`${v} ÷ ${c} · 100 = ?`,`Výsledek: ${ans} %`],skill:'anal'};})(),
+        (()=>{const p=ri(1,4)*10,z=ri(10,40)*10;const sleva=Math.round(z*p/100),ans=z-sleva;return{
+          text:`Zboží stojí ${z} Kč a je zlevněno o ${p} %.\nKolik stojí teď?`,ans:String(ans),
+          hints:[`Sleva = ${p} % z ${z} Kč = ${sleva} Kč`,`Nová cena = ${z} − ${sleva}`,`Výsledek: ${ans} Kč`],skill:'anal'};})()
+      ]
+    }
+  ]
+},
+{
+  id:2, icon:'⛰️', name:'HORA\nPYTHAGOROVA',
+  desc:'Mocniny, odmocniny a Pythagorova věta. Výpočet přepony i odvěsny.',
+  art:{id:'sword',ic:'⚔️',nm:'Pythagorův\nmeč'},
+  attrGain:{calc:10,geo:20},
+  missions:[
+    {
+      id:'2-1', name:'Mocniny a odmocniny', sub:'2. a 3. mocnina, odmocniny',
+      mon:'🔷', mname:'RUNA MOCNINY',
+      intro:'Na skalní stěně jsou vytesány runy mocnin. Jen ten, kdo je rozluští, smí vystoupat výš.',
+      tc:3,
+      tasks:()=>[
+        (()=>{const a=ri(2,15),ans=a*a;return{
+          text:`Vypočítej:\n${a}² =`,ans:String(ans),
+          hints:[`a² znamená a · a.`,`${a} · ${a} = ?`,`Výsledek: ${ans}`],skill:'calc'};})(),
+        (()=>{const a=ri(2,8),ans=a*a*a;return{
+          text:`Vypočítej:\n${a}³ =`,ans:String(ans),
+          hints:[`a³ znamená a · a · a.`,`${a} · ${a} = ${a*a}, pak ještě · ${a}.`,`Výsledek: ${ans}`],skill:'calc'};})(),
+        (()=>{const a=ri(2,13),ans=a;return{
+          text:`Vypočítej:\n√${a*a} =`,ans:String(ans),
+          hints:[`√x je číslo, jehož druhá mocnina dá x.`,`Hledáme: ? · ? = ${a*a}.`,`Výsledek: ${ans}`],skill:'calc'};})()
+      ]
+    },
+    {
+      id:'2-2', name:'Pythagorova věta — přepona', sub:'c² = a² + b²',
+      mon:'📐', mname:'MOST PŘES PROPAST',
+      intro:'Horský most je rozbitý. Pomocí Pythagorovy věty spočítej délku nové přepony.',
+      tc:3,
+      tasks:()=>[
+        (()=>{const a=ri(3,9),b=ri(3,12);const c2=a*a+b*b;const cv=Math.sqrt(c2);const ans=Number.isInteger(cv)?String(cv):cv.toFixed(2);return{
+          text:`Pravoúhlý trojúhelník: a = ${a}, b = ${b}.\nVypočítej přeponu c.\n(na 2 desetinná místa)`,ans,
+          hints:[`c² = a² + b²`,`c² = ${a*a} + ${b*b} = ${c2}`,`c = √${c2} ≈ ${ans}`],skill:'geo'};})(),
+        (()=>{return{
+          text:`Jsou strany 3, 4, 5 stranami\npravoúhlého trojúhelníku?\n(napiš ANO nebo NE)`,ans:'ANO',
+          hints:[`Použij Pythagorovu větu: a² + b² = c²?`,`3² + 4² = 9 + 16 = 25 = 5²`,`Výsledek: ANO — pythagorejská trojice.`],skill:'geo'};})(),
+        (()=>{const a=ri(4,10),b=ri(4,10);const c2=a*a+b*b;const ans=Math.sqrt(c2).toFixed(2);return{
+          text:`Žebřík je opřený o zeď.\nVýška zdi = ${a} m, odstup paty od zdi = ${b} m.\nJak dlouhý je žebřík? (2 des. místa)`,ans,
+          hints:[`Žebřík tvoří přeponu pravoúhlého trojúhelníku.`,`c² = ${a}² + ${b}² = ${c2}`,`c = √${c2} ≈ ${ans} m`],skill:'geo'};})()
+      ]
+    },
+    {
+      id:'2-3', name:'Pythagorova věta — odvěsna', sub:'b² = c² − a²',
+      mon:'🌀', mname:'ČARODĚJ GEOMETRIE',
+      intro:'Čaroděj geometrie ukryl odvěsnu v záhybech prostoru. Najdi ji!',
+      tc:3,
+      tasks:()=>[
+        (()=>{const c=ri(10,17),a=ri(3,c-3);const b2=c*c-a*a;const b=Math.sqrt(b2).toFixed(2);return{
+          text:`Pravoúhlý trojúhelník:\npřepona c = ${c}, odvěsna a = ${a}.\nVypočítej odvěsnu b. (2 des. místa)`,ans:b,
+          hints:[`b² = c² − a²`,`b² = ${c*c} − ${a*a} = ${b2}`,`b = √${b2} ≈ ${b}`],skill:'geo'};})(),
+        (()=>{return{
+          text:`Pravoúhlý trojúhelník:\nc = 13, a = 5.\nVypočítej odvěsnu b.`,ans:'12',
+          hints:[`b² = c² − a² = 169 − 25 = 144`,`b = √144`,`b = 12`],skill:'geo'};})(),
+        (()=>{const c=ri(10,20),b=ri(3,c-3);const a2=c*c-b*b;const a=Math.sqrt(a2).toFixed(2);return{
+          text:`U vrcholu stromu je drak. Vzdálenost ke konci stínu = ${c} m,\ndélka stínu = ${b} m.\nJak vysoko je drak? (2 des. místa)`,ans,
+          hints:[`Výška = odvěsna trojúhelníku. a² = c² − b²`,`a² = ${c*c} − ${b*b} = ${a2}`,`a = √${a2} ≈ ${a} m`],skill:'geo'};})()
+      ]
+    }
+  ]
+},
+{id:3,icon:'🌿',name:'BAŽINY\nROVNIC',  desc:'Lineární rovnice s jednou neznámou a slovní úlohy.',locked:true,art:{id:'wand',  ic:'🪄',nm:'Algebraická\nhůl'}, attrGain:{calc:15,anal:15},missions:[]},
+{id:4,icon:'🏰',name:'VĚŽE\nALGEBRY', desc:'Algebraické výrazy — sčítání, odčítání, násobení, vytýkání.',locked:true,art:{id:'shield',ic:'🛡️',nm:'Výrazový\nštít'}, attrGain:{calc:10,anal:20},missions:[]},
+{id:5,icon:'🌊',name:'JEZERO\nKRUŽNIC',desc:'Kruh, kružnice, válec. Obvod, obsah, objem.',locked:true,art:{id:'ring',  ic:'💍',nm:'Kruhový\nprsten'},attrGain:{geo:25,craft:10},missions:[]},
+{id:6,icon:'🔧',name:'DÍLNA\nKONSTR.', desc:'Konstrukční úlohy. Množiny bodů, Thaletova věta.',locked:true,art:{id:'compass',ic:'🧭',nm:'Rýsovací\nkompas'}, attrGain:{geo:15,craft:25},missions:[]},
+{id:7,icon:'🏛️',name:'CITADELA\nARCIMÁGA',desc:'Závěrečné opakování a přijímačkové úlohy. Finální boss!',locked:true,art:{id:'crown', ic:'👑',nm:'Diplom\narcimága'}, attrGain:{calc:10,geo:10,anal:10,craft:10},missions:[]}
+];
+
+const ATTR_META = {
+  calc: {ic:'⚔️', nm:'Výpočetní síla'},
+  geo:  {ic:'🔺', nm:'Geometr. moudrost'},
+  anal: {ic:'🧮', nm:'Analytická bystrost'},
+  craft:{ic:'📐', nm:'Konstr. zručnost'}
+};
+
+// ══════════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════════
+const SAVE_KEY = 'RPG_MAT_8';
+let S = {name:'HRDINA',xp:0,level:1,attrs:{calc:0,geo:0,anal:0,craft:0},done:{},inv:[]};
+
+function saveS(){localStorage.setItem(SAVE_KEY,JSON.stringify(S));}
+function loadS(){const r=localStorage.getItem(SAVE_KEY);if(r){S=JSON.parse(r);return true;}return false;}
+function calcLevel(){S.level=Math.floor(S.xp/100)+1;}
+
+// ══════════════════════════════════════════
+//  SCREEN ROUTER
+// ══════════════════════════════════════════
+function go(name){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('s-'+name).classList.add('active');
+  window.scrollTo(0,0);
+  if(name==='map')renderMap();
+  if(name==='profile')renderProfile();
+}
+
+// ══════════════════════════════════════════
+//  INTRO
+// ══════════════════════════════════════════
+function startGame(){
+  const v=document.getElementById('ni').value.trim().toUpperCase().slice(0,14);
+  S.name=v||'HRDINA';
+  saveS();go('map');
+}
+function continueGame(){if(loadS())go('map');}
+
+// ══════════════════════════════════════════
+//  MAP
+// ══════════════════════════════════════════
+function isAreaUnlocked(ar){
+  if(ar.id===1)return true;
+  if(ar.locked)return false;
+  const prev=AREAS.find(a=>a.id===ar.id-1);
+  return prev?isAreaDone(prev):true;
+}
+function isAreaDone(ar){
+  if(!ar.missions.length)return false;
+  return ar.missions.every(m=>m.tc===countDone(m.id,m.tc));
+}
+function countDone(mid,tc){
+  let n=0;for(let i=0;i<tc;i++)if(S.done[`${mid}-${i}`])n++;return n;
+}
+
+function renderMap(){
+  calcLevel();
+  document.getElementById('map-name').textContent=S.name;
+  document.getElementById('map-lv').textContent=S.level;
+  document.getElementById('map-xp').textContent=S.xp;
+  document.getElementById('map-xp2').textContent=S.xp;
+  document.getElementById('map-xpmax').textContent=S.level*100;
+  const pct=Math.min(100,(S.xp%100));
+  document.getElementById('map-xpbar').style.width=pct+'%';
+  const g=document.getElementById('map-grid');
+  g.innerHTML='';
+  AREAS.forEach(ar=>{
+    const unl=isAreaUnlocked(ar),done=isAreaDone(ar);
+    const finalCls = done?'done': (unl && !done)?'active':'locked';
+    const nd=document.createElement('div');
+    nd.className='map-node '+finalCls;
+    nd.innerHTML=`<span class="ni">${ar.icon}</span><div class="nn">${ar.name}</div><div class="ns">${done?'✓ SPLNĚNO':unl?'▶ VSTUP':'🔒 ZAMČENO'}</div>`;
+    if(unl)nd.onclick=()=>openArea(ar.id);
+    g.appendChild(nd);
+  });
+}
+
+// ══════════════════════════════════════════
+//  AREA
+// ══════════════════════════════════════════
+let curArea=null;
+
+function openArea(aid){
+  const ar=AREAS.find(a=>a.id===aid);
+  curArea=ar;
+  document.getElementById('area-title-sm').textContent=ar.name.replace('\n',' ');
+  const hd=document.getElementById('area-head');
+  const artHave=S.inv.includes(ar.art.id);
+  hd.innerHTML=`
+    <div style="display:flex;gap:14px;align-items:center">
+      <div style="font-size:42px">${ar.icon}</div>
+      <div>
+        <div style="font-family:var(--px);font-weight:700;font-size:17px;color:var(--gold);letter-spacing:.5px">${ar.name.replace('\n',' ')}</div>
+        <div style="font-family:var(--vt);font-size:21px;color:var(--muted);margin-top:4px;line-height:1.3">${ar.desc}</div>
+      </div>
+    </div>
+    <div style="margin-top:12px;display:flex;align-items:center;gap:10px;padding-top:10px;border-top:2px solid var(--panel2)">
+      <div style="font-size:26px">${ar.art.ic}</div>
+      <div style="font-family:var(--px);font-weight:500;font-size:12px;color:var(--muted);line-height:1.3">Artefakt oblasti:<br><span style="color:var(--gold);font-weight:600">${ar.art.nm.replace('\n',' ')}</span></div>
+      ${artHave?'<div style="margin-left:auto;font-family:var(--px);font-weight:700;font-size:13px;color:var(--gold)">✓ ZÍSKÁNO</div>':''}
+    </div>`;
+  const ml=document.getElementById('mission-list');
+  ml.innerHTML='';
+  ar.missions.forEach((m,mi)=>{
+    const dn=countDone(m.id,m.tc),tot=m.tc,allDn=dn===tot;
+    const avail=mi===0||countDone(ar.missions[mi-1].id,ar.missions[mi-1].tc)===ar.missions[mi-1].tc;
+    const cls=allDn?'done':avail?'avail':'locked';
+    const stars=allDn?'⭐⭐⭐':dn>0?'⭐'.repeat(Math.ceil(dn/tot*3))+'☆'.repeat(3-Math.ceil(dn/tot*3)):'☆☆☆';
+    const it=document.createElement('div');
+    it.className='ms-item '+cls;
+    it.innerHTML=`
+      <div class="ms-num" style="color:${allDn?'var(--green)':avail?'var(--blue)':'var(--muted)'}">${allDn?'✓':String(mi+1).padStart(2,'0')}</div>
+      <div style="flex:1"><div class="ms-name">${m.name}</div><div class="ms-sub">${m.sub} · ${dn}/${tot}</div></div>
+      <div style="font-size:14px">${stars}</div>`;
+    if(avail)it.onclick=()=>launchBattle(ar.id,m.id);
+    ml.appendChild(it);
+  });
+  go('area');
+}
+
+// ══════════════════════════════════════════
+//  BATTLE
+// ══════════════════════════════════════════
+let BT={tasks:[],idx:0,hl:0,curTask:null,aid:null,mid:null};
+
+function launchBattle(aid,mid){
+  const ar=AREAS.find(a=>a.id===aid);
+  const m=ar.missions.find(x=>x.id===mid);
+  BT.aid=aid;BT.mid=mid;
+  BT.tasks=m.tasks();
+  BT.idx=0;
+  for(let i=0;i<BT.tasks.length;i++){if(!S.done[`${mid}-${i}`]){BT.idx=i;break;}}
+  document.getElementById('bt-mon').textContent=m.mon;
+  document.getElementById('bt-mname').textContent=m.mname;
+  renderTask();
+  go('battle');
+}
+
+function renderTask(){
+  const t=BT.tasks[BT.idx];
+  BT.curTask=t;BT.hl=0;
+  const tot=BT.tasks.length;
+  document.getElementById('bt-num').textContent=BT.idx+1;
+  document.getElementById('bt-tot').textContent=tot;
+  document.getElementById('bt-hpbar').style.width=((tot-BT.idx)/tot*100)+'%';
+  document.getElementById('bt-prob').textContent=t.text;
+  document.getElementById('bt-ans').value='';
+  document.getElementById('bt-ans').disabled=false;
+  document.getElementById('bt-ans').focus();
+  document.getElementById('hint-box').textContent='';
+  document.getElementById('hint-box').classList.remove('show');
+  document.getElementById('bt-fb').className='feedback';
+  document.getElementById('hint-btn').textContent='💡 NÁPOVĚDA 1/3';
+  document.getElementById('hint-btn').disabled=false;
+  document.getElementById('next-btn').style.display='none';
+}
+
+function submitAnswer(){
+  const t=BT.curTask;
+  const inp=document.getElementById('bt-ans').value;
+  if(!inp.trim())return;
+  const ok=checkAns(inp,t.ans);
+  const fb=document.getElementById('bt-fb');
+  if(ok){
+    const xpGain=Math.max(2,10-BT.hl*2);
+    fb.textContent='✓ SPRÁVNĚ! +'+xpGain+' XP';
+    fb.className='feedback ok';
+    S.xp+=xpGain;
+    S.done[`${BT.mid}-${BT.idx}`]=true;
+    if(t.skill&&S.attrs[t.skill]!==undefined)S.attrs[t.skill]+=3;
+    saveS();
+    document.getElementById('bt-ans').disabled=true;
+    document.getElementById('hint-btn').disabled=true;
+    document.getElementById('next-btn').style.display='inline-block';
+    checkMissionComplete();
+  }else{
+    fb.textContent='✗ ŠPATNĚ — "'+inp+'" není správně. Zkus to znovu.';
+    fb.className='feedback err';
+  }
+}
+
+function showHint(){
+  const t=BT.curTask;
+  if(BT.hl>=t.hints.length)return;
+  const hb=document.getElementById('hint-box');
+  const colors=['var(--green)','var(--gold)','#ff9933'];
+  hb.style.borderColor=colors[BT.hl];
+  hb.style.color=BT.hl===2?'#ffcc88':'#7fe87f';
+  hb.style.background=BT.hl===2?'#1a0f00':'#0f1a0f';
+  hb.textContent='💡 Nápověda '+(BT.hl+1)+'/3:\n'+t.hints[BT.hl];
+  hb.classList.add('show');
+  BT.hl++;
+  const btn=document.getElementById('hint-btn');
+  if(BT.hl>=t.hints.length){btn.disabled=true;btn.textContent='💡 NÁPOVĚDA 3/3';}
+  else btn.textContent='💡 NÁPOVĚDA '+(BT.hl+1)+'/3';
+}
+
+function nextTask(){
+  let nxt=-1;
+  for(let i=BT.idx+1;i<BT.tasks.length;i++){if(!S.done[`${BT.mid}-${i}`]){nxt=i;break;}}
+  if(nxt>=0){BT.idx=nxt;renderTask();}
+  else{openArea(BT.aid);}
+}
+
+function exitBattle(){openArea(BT.aid);}
+
+function checkMissionComplete(){
+  const ar=AREAS.find(a=>a.id===BT.aid);
+  const m=ar.missions.find(x=>x.id===BT.mid);
+  const allDn=BT.tasks.every((_,i)=>S.done[`${m.id}-${i}`]);
+  if(allDn&&isAreaDone(ar)&&!S.inv.includes(ar.art.id)){
+    S.inv.push(ar.art.id);
+    Object.entries(ar.attrGain).forEach(([k,v])=>{if(S.attrs[k]!==undefined)S.attrs[k]+=v;});
+    saveS();
+    setTimeout(()=>showModal(ar.art.ic,'OBLAST SPLNĚNA!',`Získal jsi artefakt:\n${ar.art.nm.replace('\n',' ')}!\n\n+${Object.entries(ar.attrGain).map(([k,v])=>v+' '+ATTR_META[k].ic).join('  ')}`),400);
+  }
+}
+
+// ══════════════════════════════════════════
+//  PROFILE
+// ══════════════════════════════════════════
+function renderProfile(){
+  calcLevel();
+  document.getElementById('pr-name').textContent=S.name;
+  document.getElementById('pr-lv').textContent=S.level;
+  document.getElementById('pr-xp').textContent=S.xp;
+  const el=document.getElementById('pr-attrs');
+  el.innerHTML='';
+  Object.entries(ATTR_META).forEach(([k,m])=>{
+    const v=S.attrs[k]||0,pct=Math.min(100,v);
+    const row=document.createElement('div');
+    row.className='attr-row';
+    row.innerHTML=`<div class="attr-ic">${m.ic}</div><div class="attr-nm">${m.nm}</div>
+      <div style="flex:1"><div class="bar-out bar-attr"><div class="bar-in" style="width:${pct}%"></div></div></div>
+      <div class="attr-vl">${v}</div>`;
+    el.appendChild(row);
+  });
+  const inv=document.getElementById('pr-inv');
+  inv.innerHTML='';
+  AREAS.forEach(ar=>{
+    const have=S.inv.includes(ar.art.id);
+    const s=document.createElement('div');
+    s.className='inv-slot'+(have?' have':'');
+    s.innerHTML=have
+      ?`<div class="ic">${ar.art.ic}</div><div class="nm">${ar.art.nm}</div>`
+      :`<div class="ic" style="opacity:.15">❓</div><div class="nm" style="opacity:.25">???</div>`;
+    inv.appendChild(s);
+  });
+}
+
+function exportCode(){
+  const code=btoa(unescape(encodeURIComponent(JSON.stringify(S))));
+  document.getElementById('code-txt').textContent=code;
+  document.getElementById('code-out').style.display='block';
+  if(navigator.clipboard)navigator.clipboard.writeText(code).catch(()=>{});
+}
+function importPrompt(){
+  const c=prompt('Vlož zálohovací kód:');
+  if(!c)return;
+  try{S=JSON.parse(decodeURIComponent(escape(atob(c))));saveS();renderProfile();alert('Načteno!');}
+  catch(e){alert('Chybný kód.');}
+}
+
+// ══════════════════════════════════════════
+//  MODAL
+// ══════════════════════════════════════════
+function showModal(ic,title,txt){
+  document.getElementById('modal-ic').textContent=ic;
+  document.getElementById('modal-title').textContent=title;
+  document.getElementById('modal-txt').textContent=txt;
+  document.getElementById('modal').classList.add('show');
+}
+function closeModal(){document.getElementById('modal').classList.remove('show');}
+
+// ══════════════════════════════════════════
+//  KEYBOARD
+// ══════════════════════════════════════════
+document.addEventListener('keydown',e=>{
+  if(e.key!=='Enter')return;
+  const active=document.querySelector('.screen.active');
+  if(!active)return;
+  if(active.id==='s-intro'){startGame();return;}
+  if(active.id==='s-battle'){
+    const nxt=document.getElementById('next-btn');
+    if(nxt.style.display!=='none')nextTask();
+    else submitAnswer();
+  }
+});
+
+// ══════════════════════════════════════════
+//  BOOT
+// ══════════════════════════════════════════
+window.addEventListener('load',()=>{
+  if(localStorage.getItem(SAVE_KEY)){
+    document.getElementById('continue-panel').style.display='block';
+  }
+});
+</script>
+</body>
+</html>
