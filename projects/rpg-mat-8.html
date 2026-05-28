@@ -88,7 +88,9 @@ body::before{
 .ms-name{font-family:var(--px);font-weight:600;font-size:19px;line-height:1.1;color:var(--text)}
 .ms-sub{font-family:var(--vt);font-size:18px;color:var(--muted);margin-top:2px;line-height:1}
 /* ── BATTLE ── */
-.bt-top{background:linear-gradient(180deg,#0a0e1a 0%,#0f1730 50%,#1a1f35 100%);border:3px solid var(--gold);padding:24px 18px 16px;text-align:center;margin-bottom:10px;overflow:hidden;position:relative;min-height:220px}
+.bt-top{background:linear-gradient(180deg,#0a0e1a 0%,#0f1730 50%,#1a1f35 100%);border:3px solid var(--gold);padding:24px 18px 16px;text-align:center;margin-bottom:10px;overflow:hidden;position:relative;min-height:240px}
+.bt-top.phase2{background:linear-gradient(180deg,#1a0a0e 0%,#2a0f1a 50%,#1a1525 100%);border-color:var(--red);box-shadow:0 0 20px #e74c3c44 inset;animation:phase-flash .8s steps(8)}
+@keyframes phase-flash{0%{filter:brightness(3)}100%{filter:brightness(1)}}
 .bt-top::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 80% at center 70%,#5dade233 0%,transparent 70%);pointer-events:none;animation:arena-pulse 3s steps(20) infinite}
 @keyframes arena-pulse{0%,100%{opacity:.5}50%{opacity:1}}
 .bt-top::after{content:'';position:absolute;left:0;right:0;bottom:0;height:30px;background:repeating-linear-gradient(90deg,#2a2030 0 8px,#1a1525 8px 16px);border-top:2px solid #3a2a45;pointer-events:none}
@@ -192,6 +194,37 @@ body::before{
   0%,100%{box-shadow:0 0 0 transparent;border-color:var(--gold)}
   50%{box-shadow:0 0 18px var(--red);border-color:var(--red)}
 }
+/* timer bar */
+.timer-wrap{margin-bottom:10px}
+.timer-lbl{display:flex;justify-content:space-between;font-family:var(--px);font-weight:600;font-size:11px;margin-bottom:4px}
+.timer-lbl .l{color:var(--muted)}
+.timer-lbl .v{color:var(--gold)}
+.bar-timer{background:#111;border:2px solid var(--muted);height:10px;overflow:hidden}
+.bar-timer-in{height:100%;background:repeating-linear-gradient(90deg,#f4d03f 0 8px,#7a5c00 8px 16px);transition:width .25s linear,background .3s}
+.bar-timer-in.warn{background:repeating-linear-gradient(90deg,#ff9933 0 8px,#7a3a00 8px 16px);animation:warn-pulse .5s steps(4) infinite}
+.bar-timer-in.danger{background:repeating-linear-gradient(90deg,#e74c3c 0 8px,#7b1010 8px 16px);animation:warn-pulse .25s steps(4) infinite}
+@keyframes warn-pulse{0%,100%{filter:brightness(1)}50%{filter:brightness(1.6)}}
+/* player HP hearts */
+.player-hp{display:flex;gap:6px;justify-content:center;font-size:28px;margin-bottom:10px;font-family:var(--px);line-height:1}
+.player-hp .heart{display:inline-block;transition:transform .2s}
+.player-hp .heart.lost{opacity:.18;filter:saturate(0)}
+.player-hp .heart.flash{animation:heart-flash .35s steps(4)}
+@keyframes heart-flash{0%,100%{transform:scale(1)}50%{transform:scale(1.6) rotate(15deg);filter:brightness(2)}}
+/* multiple choice buttons */
+.mc-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:10px}
+.mc-btn{font-family:var(--px);font-weight:600;font-size:20px;background:var(--panel2);color:var(--blue);border:3px solid var(--blue);padding:18px 10px;cursor:pointer;box-shadow:3px 3px 0 #1a4f73;text-align:center;letter-spacing:.5px}
+.mc-btn:hover:not(:disabled){transform:translate(-1px,-1px);box-shadow:4px 4px 0 #1a4f73;color:var(--gold);border-color:var(--gold)}
+.mc-btn:disabled{opacity:.4;cursor:not-allowed}
+.mc-btn.right{background:#0f2a0f;color:var(--green);border-color:var(--green);box-shadow:3px 3px 0 #1a7a3a;animation:mc-right .4s steps(4)}
+.mc-btn.wrong{background:#2a0f0f;color:var(--red);border-color:var(--red);box-shadow:3px 3px 0 #7b241c;animation:mc-wrong .35s steps(3)}
+@keyframes mc-right{0%{transform:scale(1)}50%{transform:scale(1.08)}100%{transform:scale(1)}}
+@keyframes mc-wrong{0%,100%{transform:translateX(0)}33%{transform:translateX(-6px)}66%{transform:translateX(6px)}}
+/* mission failed modal */
+.fail-overlay{display:none;position:absolute;inset:0;background:#000c;z-index:30;flex-direction:column;align-items:center;justify-content:center;padding:14px;text-align:center}
+.fail-overlay.show{display:flex}
+.fail-overlay .ic{font-size:64px;margin-bottom:8px}
+.fail-overlay .ti{font-family:var(--px);font-weight:700;font-size:20px;color:var(--red);text-shadow:3px 3px 0 #000;margin-bottom:8px;letter-spacing:1px}
+.fail-overlay .sb{font-family:var(--vt);font-size:21px;color:var(--text);margin-bottom:14px}
 /* combo badge */
 .combo{position:absolute;right:14px;top:12px;font-family:var(--px);font-weight:700;font-size:14px;color:var(--gold);text-shadow:2px 2px 0 #000;z-index:6;opacity:0;transition:opacity .25s}
 .combo.show{opacity:1}
@@ -324,16 +357,29 @@ body::before{
     </div>
   </div>
   <div id="proj" class="proj"></div>
+  <div class="player-hp" id="player-hp"></div>
+  <div class="timer-wrap" id="timer-wrap" style="display:none">
+    <div class="timer-lbl"><span class="l">⏱ ČAS</span><span class="v"><span id="timer-v">30</span> s</span></div>
+    <div class="bar-timer"><div class="bar-timer-in" id="timer-bar" style="width:100%"></div></div>
+  </div>
   <div class="bt-problem" id="bt-prob">...</div>
-  <div class="bt-row">
+  <div class="bt-row" id="bt-input-row">
     <input id="bt-ans" class="bt-input" type="text" placeholder="?" autocomplete="off">
     <button class="btn" onclick="submitAnswer()" style="white-space:nowrap">ÚTOK ⚔</button>
   </div>
+  <div class="mc-grid" id="mc-grid" style="display:none"></div>
   <div id="hint-box" class="hint-box"></div>
   <div id="bt-fb" class="feedback"></div>
   <div style="display:flex;gap:8px;flex-wrap:wrap">
     <button class="btn sm b" id="hint-btn" onclick="showHint()">💡 NÁPOVĚDA 1/2</button>
     <button class="btn sm g" id="next-btn" style="display:none" onclick="nextTask()">DÁLE →</button>
+  </div>
+  <div class="fail-overlay" id="fail-overlay">
+    <div class="ic">💀</div>
+    <div class="ti">PORAŽEN</div>
+    <div class="sb" id="fail-msg">Hrdina padl v boji. Mise musí být zopakována.</div>
+    <button class="btn r" onclick="retryMission()">▶ ZKUSIT ZNOVU</button>
+    <button class="btn sm" style="margin-top:10px" onclick="openArea(BT.aid)">← MAPA OBLASTI</button>
   </div>
 </div>
 </div>
@@ -415,10 +461,10 @@ const AREAS = [
   attrGain:{calc:12,anal:8},
   missions:[
     {
-      id:'1-1', name:'Celá čísla', sub:'operace se zápornými čísly',
+      id:'1-1', name:'Celá čísla', sub:'rychlovka · výběr ze 4',
       mon:'🔢', mname:'STRÁŽCE ČÍSEL',
       intro:'Na začátku cesty stojí Strážce celých čísel. Ovládni záporná čísla, aby ti otevřel bránu.',
-      tc:6,
+      mc:true, tc:6,
       tasks:()=>[
         (()=>{const a=ri(-15,-2),b=ri(2,12),ans=a+b;return{
           text:`Vypočítej:\n(${a}) + ${b} =`,ans:String(ans),
@@ -501,10 +547,10 @@ const AREAS = [
   attrGain:{calc:10,geo:20},
   missions:[
     {
-      id:'2-1', name:'Mocniny a odmocniny', sub:'2. a 3. mocnina, odmocniny',
+      id:'2-1', name:'Mocniny a odmocniny', sub:'rychlovka · výběr ze 4',
       mon:'🔷', mname:'RUNA MOCNINY',
       intro:'Na skalní stěně jsou vytesány runy mocnin. Jen ten, kdo je rozluští, smí vystoupat výš.',
-      tc:6,
+      mc:true, tc:6,
       tasks:()=>[
         (()=>{const a=ri(2,15),ans=a*a;return{
           text:`Vypočítej:\n${a}² =`,ans:String(ans),
@@ -710,20 +756,34 @@ function openArea(aid){
 // ══════════════════════════════════════════
 //  BATTLE
 // ══════════════════════════════════════════
-let BT={tasks:[],idx:0,hl:0,curTask:null,aid:null,mid:null,combo:0};
+let BT={tasks:[],idx:0,hl:0,curTask:null,aid:null,mid:null,combo:0,
+        hp:3,maxHp:3,timer:null,timeLeft:30,timeMax:30,mcMode:false,phase:1};
+
+const MAX_PLAYER_HP=3;
+const TIME_PER_TASK=30;
 
 function launchBattle(aid,mid){
   const ar=AREAS.find(a=>a.id===aid);
   const m=ar.missions.find(x=>x.id===mid);
   BT.aid=aid;BT.mid=mid;BT.combo=0;
+  BT.hp=MAX_PLAYER_HP;BT.maxHp=MAX_PLAYER_HP;
+  BT.phase=1;
+  BT.mcMode=!!m.mc;
+  // reset top styling
+  const top=document.getElementById('bt-top');
+  top.classList.remove('phase2');
+  document.getElementById('fail-overlay').classList.remove('show');
   updateCombo();
+  updatePlayerHp();
+  // generate fresh tasks (mission must be re-completed from scratch for failure restart)
   BT.tasks=m.tasks();
   BT.idx=0;
+  // for retry, restart from beginning; for normal launch, find first undone
   for(let i=0;i<BT.tasks.length;i++){if(!S.done[`${mid}-${i}`]){BT.idx=i;break;}}
   const mon=document.getElementById('bt-mon');
   mon.textContent=m.mon;
+  mon.style.filter='';
   document.getElementById('bt-mname').textContent=m.mname;
-  // entry animation, then idle
   mon.className='bt-monster';
   void mon.offsetWidth;
   mon.classList.add('enter');
@@ -732,23 +792,203 @@ function launchBattle(aid,mid){
   go('battle');
 }
 
+function retryMission(){
+  // wipe progress for this mission, restart fresh
+  const m=AREAS.find(a=>a.id===BT.aid).missions.find(x=>x.id===BT.mid);
+  for(let i=0;i<m.tc;i++) delete S.done[`${BT.mid}-${i}`];
+  saveS();
+  launchBattle(BT.aid,BT.mid);
+}
+
+function updatePlayerHp(){
+  const el=document.getElementById('player-hp');
+  let h='';
+  for(let i=0;i<BT.maxHp;i++){
+    h+=`<span class="heart${i<BT.hp?'':' lost'}" data-i="${i}">❤️</span>`;
+  }
+  el.innerHTML=h;
+}
+
+function flashHeart(idx){
+  const h=document.querySelector(`.heart[data-i="${idx}"]`);
+  if(!h)return;
+  h.classList.add('flash');
+  setTimeout(()=>h.classList.remove('flash'),360);
+}
+
+function damagePlayer(){
+  if(BT.hp<=0)return;
+  flashHeart(BT.hp-1);
+  BT.hp--;
+  setTimeout(updatePlayerHp,360);
+  if(BT.hp<=0){
+    setTimeout(missionFailed,800);
+  }
+}
+
+function missionFailed(){
+  stopTimer();
+  const el=document.getElementById('fail-overlay');
+  const msgs=[
+    'Hrdina padl v boji. Mise musí být zopakována.',
+    'Tvá síla byla nedostatečná. Nabuď odvahu a zkus to znovu!',
+    'Boss byl silnější. Vrať se s odhodláním a vyzkoušej znovu.'
+  ];
+  document.getElementById('fail-msg').textContent=msgs[ri(0,msgs.length-1)];
+  el.classList.add('show');
+}
+
+function startTimer(){
+  stopTimer();
+  BT.timeLeft=TIME_PER_TASK;BT.timeMax=TIME_PER_TASK;
+  document.getElementById('timer-wrap').style.display='block';
+  updateTimerUi();
+  BT.timer=setInterval(()=>{
+    BT.timeLeft--;
+    updateTimerUi();
+    if(BT.timeLeft<=0){
+      stopTimer();
+      onTimeOut();
+    }
+  },1000);
+}
+
+function stopTimer(){if(BT.timer){clearInterval(BT.timer);BT.timer=null;}}
+
+function updateTimerUi(){
+  document.getElementById('timer-v').textContent=BT.timeLeft;
+  const pct=Math.max(0,BT.timeLeft/BT.timeMax*100);
+  const bar=document.getElementById('timer-bar');
+  bar.style.width=pct+'%';
+  bar.classList.toggle('warn',BT.timeLeft<=10&&BT.timeLeft>5);
+  bar.classList.toggle('danger',BT.timeLeft<=5);
+}
+
+function onTimeOut(){
+  if(BT.hp<=0)return;
+  const fb=document.getElementById('bt-fb');
+  fb.textContent='⏱ ČAS VYPRŠEL!';
+  fb.className='feedback err';
+  monsterAttack();
+  damagePlayer();
+  // hide hint/next, let player retry on this task
+  setTimeout(()=>{
+    if(BT.hp>0){
+      // re-enable input and restart timer for same task
+      const inp=document.getElementById('bt-ans');
+      if(inp){inp.disabled=false;inp.value='';inp.focus();}
+      document.querySelectorAll('#mc-grid .mc-btn').forEach(b=>{b.disabled=false;b.classList.remove('right','wrong');});
+      fb.className='feedback';
+      startTimer();
+    }
+  },1300);
+}
+
 function renderTask(){
   const t=BT.tasks[BT.idx];
   BT.curTask=t;BT.hl=0;
   const tot=BT.tasks.length;
   document.getElementById('bt-num').textContent=BT.idx+1;
   document.getElementById('bt-tot').textContent=tot;
-  document.getElementById('bt-hpbar').style.width=((tot-BT.idx)/tot*100)+'%';
+  const remainingHp=((tot-BT.idx)/tot*100);
+  document.getElementById('bt-hpbar').style.width=remainingHp+'%';
+  // boss phase transition
+  if(remainingHp<=55 && BT.phase===1){
+    BT.phase=2;
+    const top=document.getElementById('bt-top');
+    top.classList.add('phase2');
+    setTimeout(()=>document.getElementById('bt-fb').textContent='',0);
+    const fb=document.getElementById('bt-fb');
+    fb.textContent='🔥 BOSS JE V ZUŘIVOSTI! 🔥';
+    fb.className='feedback err';
+    const mon=document.getElementById('bt-mon');
+    mon.style.filter='drop-shadow(0 6px 0 #0008) drop-shadow(0 0 14px #e74c3c)';
+  }
   document.getElementById('bt-prob').textContent=t.text;
-  document.getElementById('bt-ans').value='';
-  document.getElementById('bt-ans').disabled=false;
-  document.getElementById('bt-ans').focus();
+  document.getElementById('bt-fb').className='feedback';
   document.getElementById('hint-box').textContent='';
   document.getElementById('hint-box').classList.remove('show');
-  document.getElementById('bt-fb').className='feedback';
   document.getElementById('hint-btn').textContent='💡 NÁPOVĚDA 1/2';
   document.getElementById('hint-btn').disabled=false;
   document.getElementById('next-btn').style.display='none';
+  // input vs multiple choice
+  if(BT.mcMode){
+    document.getElementById('bt-input-row').style.display='none';
+    document.getElementById('hint-btn').style.display='none';
+    renderMC(t);
+  }else{
+    document.getElementById('bt-input-row').style.display='flex';
+    document.getElementById('hint-btn').style.display='inline-block';
+    document.getElementById('mc-grid').style.display='none';
+    document.getElementById('bt-ans').value='';
+    document.getElementById('bt-ans').disabled=false;
+    document.getElementById('bt-ans').focus();
+  }
+  startTimer();
+}
+
+function renderMC(t){
+  const grid=document.getElementById('mc-grid');
+  grid.style.display='grid';
+  // generate 3 wrong answers
+  const correct=t.ans;
+  const cn=parseFloat(correct.replace(',','.'));
+  const opts=new Set([correct]);
+  let tries=0;
+  while(opts.size<4 && tries<30){
+    tries++;
+    let alt;
+    if(!isNaN(cn)){
+      const delta=ri(-5,5)||ri(1,3);
+      let v=Math.round((cn+delta)*100)/100;
+      if(Number.isInteger(cn) && Math.abs(cn)<200) v=cn+delta;
+      alt=String(v);
+    }else{
+      alt=correct==='ANO'?'NE':'ANO';
+    }
+    if(alt!==correct) opts.add(alt);
+  }
+  const arr=[...opts].sort(()=>Math.random()-.5);
+  grid.innerHTML='';
+  arr.forEach(opt=>{
+    const b=document.createElement('button');
+    b.className='mc-btn';
+    b.textContent=opt;
+    b.onclick=()=>submitMC(opt,b);
+    grid.appendChild(b);
+  });
+}
+
+function submitMC(opt,btn){
+  stopTimer();
+  const t=BT.curTask;
+  const ok=checkAns(opt,t.ans);
+  if(ok){
+    document.querySelectorAll('#mc-grid .mc-btn').forEach(b=>b.disabled=true);
+    btn.classList.add('right');
+    BT.combo++;
+    const isCrit=BT.combo>=3 && BT.hl===0;
+    const xpGain=Math.max(3,10-BT.hl*3)*(isCrit?2:1);
+    const fb=document.getElementById('bt-fb');
+    fb.textContent=(isCrit?'✓✓ KRITICKÝ ZÁSAH! +':'✓ SPRÁVNĚ! +')+xpGain+' XP';
+    fb.className='feedback ok';
+    S.xp+=xpGain;
+    S.done[`${BT.mid}-${BT.idx}`]=true;
+    if(t.skill&&S.attrs[t.skill]!==undefined)S.attrs[t.skill]+=3;
+    saveS();
+    document.getElementById('next-btn').style.display='inline-block';
+    damageMonster(xpGain,isCrit);
+    updateCombo();
+    checkMissionComplete();
+  }else{
+    btn.classList.add('wrong');
+    btn.disabled=true;
+    BT.combo=0;
+    updateCombo();
+    monsterAttack();
+    damagePlayer();
+    // timer keeps running; student picks another option
+  }
 }
 
 function spawnParticles(){
@@ -849,6 +1089,7 @@ function submitAnswer(){
   const ok=checkAns(inp,t.ans);
   const fb=document.getElementById('bt-fb');
   if(ok){
+    stopTimer();
     BT.combo++;
     const isCrit=BT.combo>=3 && BT.hl===0;
     const xpGain=Math.max(3,10-BT.hl*3)*(isCrit?2:1);
@@ -867,9 +1108,10 @@ function submitAnswer(){
   }else{
     BT.combo=0;
     updateCombo();
-    fb.textContent='✗ ŠPATNĚ — "'+inp+'" není správně. Zkus to znovu.';
+    fb.textContent='✗ ŠPATNĚ — "'+inp+'" není správně.';
     fb.className='feedback err';
     monsterAttack();
+    damagePlayer();
   }
 }
 
@@ -897,7 +1139,7 @@ function nextTask(){
   else{openArea(BT.aid);}
 }
 
-function exitBattle(){openArea(BT.aid);}
+function exitBattle(){stopTimer();const m=document.getElementById('bt-mon');if(m)m.style.filter='';openArea(BT.aid);}
 
 function checkMissionComplete(){
   const ar=AREAS.find(a=>a.id===BT.aid);
