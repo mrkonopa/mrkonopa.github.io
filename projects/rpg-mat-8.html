@@ -642,7 +642,92 @@ const AREAS = [
     }
   ]
 },
-{id:3,icon:'🌿',name:'BAŽINY\nROVNIC',  desc:'Lineární rovnice s jednou neznámou a slovní úlohy.',locked:true,art:{id:'wand',  ic:'🪄',nm:'Algebraická\nhůl'}, attrGain:{calc:15,anal:15},missions:[]},
+{
+  id:3, icon:'🌿', name:'BAŽINY\nROVNIC',
+  desc:'Lineární rovnice s jednou neznámou a slovní úlohy.',
+  art:{id:'wand',ic:'🪄',nm:'Algebraická\nhůl'},
+  attrGain:{calc:15,anal:15},
+  missions:[
+    {
+      id:'3-1', name:'Jednoduché rovnice', sub:'rychlovka · výběr ze 4',
+      mon:'🐸', mname:'BAŽINOVÝ STRÁŽCE',
+      intro:'Na okraji bažiny sedí Bažinový strážce. Zná jen jednoduché rovnice — poraž ho a postup dál.',
+      mc:true, tc:6,
+      tasks:()=>[
+        (()=>{const a=ri(3,15),b=ri(a+1,25);const ans=b-a;return{
+          text:`Vyřeš rovnici:\nx + ${a} = ${b}`,ans:String(ans),
+          hints:[`Chceš x samo — odečti ${a} z obou stran.`,`x = ${b} − ${a} = ?`],skill:'calc'};})(),
+        (()=>{const a=ri(3,12),b=ri(5,18);const ans=a+b;return{
+          text:`Vyřeš rovnici:\nx − ${a} = ${b}`,ans:String(ans),
+          hints:[`Přičti ${a} k oběma stranám.`,`x = ${b} + ${a} = ?`],skill:'calc'};})(),
+        (()=>{const a=ri(2,9),x=ri(2,12);const b=a*x;return{
+          text:`Vyřeš rovnici:\n${a}x = ${b}`,ans:String(x),
+          hints:[`Vyděl obě strany číslem ${a}.`,`x = ${b} ÷ ${a} = ?`],skill:'calc'};})(),
+        (()=>{const a=ri(2,8),b=ri(2,10);const ans=a*b;return{
+          text:`Vyřeš rovnici:\nx ÷ ${a} = ${b}`,ans:String(ans),
+          hints:[`Vynásob obě strany číslem ${a}.`,`x = ${b} · ${a} = ?`],skill:'calc'};})(),
+        (()=>{const b=ri(2,8),x=ri(2,10);const a=b+x;return{
+          text:`Vyřeš rovnici:\n${a} − x = ${b}`,ans:String(x),
+          hints:[`Přesuň x: odečti ${b} z obou stran. Pak ${a} − ${b} = x.`,`x = ${a} − ${b} = ?`],skill:'calc'};})(),
+        (()=>{const a=ri(1,8),x=ri(2,10);const b=2*x+a;return{
+          text:`Vyřeš rovnici:\n2x + ${a} = ${b}`,ans:String(x),
+          hints:[`Odečti ${a} z obou stran. Pak vyděl 2.`,`2x = ${b-a}, x = ?`],skill:'calc'};})()
+      ]
+    },
+    {
+      id:'3-2', name:'Dvojkrokové rovnice', sub:'rovnice s více kroky',
+      mon:'🐊', mname:'KROKODÝL ALGEBRY',
+      intro:'Krokodýl algebry hlídá bažinový most. Potřebuje dvě akce — nejprve přidej nebo odečti, pak vyděl.',
+      tc:6,
+      tasks:()=>[
+        (()=>{const a=ri(2,7),b=ri(1,10),x=ri(1,10);const c=a*x+b;return{
+          text:`Vyřeš rovnici:\n${a}x + ${b} = ${c}`,ans:String(x),
+          hints:[`Krok 1: odečti ${b} z obou stran.\nKrok 2: vyděl ${a}.`,`${a}x = ${c-b}, x = ?`],skill:'anal'};})(),
+        (()=>{const a=ri(2,7),b=ri(1,10),x=ri(1,10);const c=a*x-b;return{
+          text:`Vyřeš rovnici:\n${a}x − ${b} = ${c}`,ans:String(x),
+          hints:[`Krok 1: přičti ${b} k oběma stranám.\nKrok 2: vyděl ${a}.`,`${a}x = ${c+b}, x = ?`],skill:'anal'};})(),
+        (()=>{const a=ri(2,5),b=ri(1,8),x=ri(1,10);const c=a*(x+b);return{
+          text:`Vyřeš rovnici:\n${a}(x + ${b}) = ${c}`,ans:String(x),
+          hints:[`Vyděl obě strany ${a}: dostaneš x + ${b} = ${c/a}.`,`x = ${c/a} − ${b} = ?`],skill:'anal'};})(),
+        (()=>{const aa=ri(4,9),cc=ri(1,aa-2),xx=ri(2,8),bb=ri(1,8),dd=(aa-cc)*xx+bb;return{
+          text:`Vyřeš rovnici:\n${aa}x + ${bb} = ${cc}x + ${dd}`,ans:String(xx),
+          hints:[`Přesuň x na levou stranu: ${aa}x − ${cc}x = ${dd} − ${bb}.`,`${aa-cc}x = ${dd-bb}, x = ?`],skill:'anal'};})(),
+        (()=>{const a=ri(2,5),b=ri(1,8),x=ri(1,10);const c=a*(x-b);return{
+          text:`Vyřeš rovnici:\n${a}(x − ${b}) = ${c}`,ans:String(x),
+          hints:[`Vyděl obě strany ${a}: x − ${b} = ${c/a}.`,`x = ${c/a} + ${b} = ?`],skill:'anal'};})(),
+        (()=>{const a=ri(2,5),b=ri(1,8),x=ri(2,10)*a;const c=x/a+b;return{
+          text:`Vyřeš rovnici:\nx / ${a} + ${b} = ${c}`,ans:String(x),
+          hints:[`Odečti ${b}: x / ${a} = ${c-b}. Pak vynásob ${a}.`,`x = ${c-b} · ${a} = ?`],skill:'anal'};})()
+      ]
+    },
+    {
+      id:'3-3', name:'Slovní úlohy', sub:'rovnice ze zadání',
+      mon:'🧙‍♂️', mname:'MUDRC BAŽIN',
+      intro:'Mudrc bažin skrývá neznámé v příbězích. Sestav rovnici a vyřeš ji.',
+      tc:6,
+      tasks:()=>[
+        (()=>{const age=ri(12,25),diff=ri(3,15);return{
+          text:`Markovi je ${age} let.\nJeho starší bratr je o ${diff} let starší.\nKolik let je bratrovi?`,ans:String(age+diff),
+          hints:[`Bratrův věk = Markův věk + ${diff}.`,`${age} + ${diff} = ?`],skill:'anal'};})(),
+        (()=>{const price=ri(3,9)*5,count=ri(2,6),paid=(price*count)+ri(1,4)*10;const change=paid-price*count;return{
+          text:`Každá knížka stojí ${price} Kč.\nKoupíš ${count} knížek a zaplatíš ${paid} Kč.\nKolik Kč dostaneš zpět?`,ans:String(change),
+          hints:[`Cena celkem = ${price} · ${count} = ${price*count} Kč.`,`Vráceno = ${paid} − ${price*count}.`],skill:'anal'};})(),
+        (()=>{const w=ri(4,15),h=ri(4,20);return{
+          text:`Obdélník má šířku ${w} cm a délku ${h} cm.\nVypočítej obvod. (cm)`,ans:String(2*(w+h)),
+          hints:[`Obvod obdélníku: O = 2 · (a + b).`,`O = 2 · (${w} + ${h}) = ?`],skill:'geo'};})(),
+        (()=>{const tot=ri(10,25)*2,diff=ri(1,8)*2;const big=(tot+diff)/2;return{
+          text:`Dvě čísla se liší o ${diff}.\nJejich součet je ${tot}.\nJaké je větší číslo?`,ans:String(big),
+          hints:[`Označ menší číslo x. Větší = x + ${diff}.\nRovnice: x + (x + ${diff}) = ${tot}.`,`2x = ${tot-diff}, x = ${(tot-diff)/2}, větší = ?`],skill:'anal'};})(),
+        (()=>{const v=ri(3,8)*10,t=ri(1,5);return{
+          text:`Auto jede rychlostí ${v} km/h\npo dobu ${t} hodin.\nJakou vzdálenost urazí? (km)`,ans:String(v*t),
+          hints:[`Vzdálenost = rychlost · čas.`,`s = ${v} · ${t} = ?`],skill:'anal'};})(),
+        (()=>{const parts=ri(2,5),each=ri(4,16)*10,total=parts*each;return{
+          text:`${total} Kč si rozdělí ${parts} kamarádi\nrovným dílem.\nKolik Kč dostane každý?`,ans:String(each),
+          hints:[`Vydel celkovou částku počtem kamarádů.`,`${total} ÷ ${parts} = ?`],skill:'anal'};})()
+      ]
+    }
+  ]
+},
 {id:4,icon:'🏰',name:'VĚŽE\nALGEBRY', desc:'Algebraické výrazy — sčítání, odčítání, násobení, vytýkání.',locked:true,art:{id:'shield',ic:'🛡️',nm:'Výrazový\nštít'}, attrGain:{calc:10,anal:20},missions:[]},
 {id:5,icon:'🌊',name:'JEZERO\nKRUŽNIC',desc:'Kruh, kružnice, válec. Obvod, obsah, objem.',locked:true,art:{id:'ring',  ic:'💍',nm:'Kruhový\nprsten'},attrGain:{geo:25,craft:10},missions:[]},
 {id:6,icon:'🔧',name:'DÍLNA\nKONSTR.', desc:'Konstrukční úlohy. Množiny bodů, Thaletova věta.',locked:true,art:{id:'compass',ic:'🧭',nm:'Rýsovací\nkompas'}, attrGain:{geo:15,craft:25},missions:[]},
