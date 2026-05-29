@@ -102,15 +102,19 @@ body::after{
 .topnav .hl{color:var(--gold)}
 /* ── MAP ── */
 .map-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0}
-.map-node{background:var(--panel);border:3px solid #333;padding:13px 6px;text-align:center;cursor:pointer;transition:none}
+.map-node{background:linear-gradient(160deg,var(--tint,#222) -40%,var(--panel) 55%);border:3px solid #333;padding:13px 6px;text-align:center;cursor:pointer;transition:transform .15s,box-shadow .15s;position:relative;overflow:hidden;animation:node-in .4s ease-out backwards}
+@keyframes node-in{0%{opacity:0;transform:translateY(12px) scale(.92)}100%{opacity:1;transform:translateY(0) scale(1)}}
+.map-node::after{content:'';position:absolute;inset:0;background:radial-gradient(circle at 50% 0%,#ffffff14 0%,transparent 60%);pointer-events:none}
 .map-node.unlocked{border-color:var(--blue)}
 .map-node.active{border-color:var(--gold);box-shadow:0 0 10px #f4d03f44;animation:glow 1.2s steps(2) infinite}
 .map-node.done{border-color:var(--green)}
-.map-node.locked{opacity:.4;cursor:not-allowed}
-.map-node:not(.locked):hover{transform:translate(-2px,-2px)}
-.map-node .ni{font-size:30px;display:block;margin-bottom:6px}
-.map-node .nn{font-family:var(--px);font-weight:600;font-size:12px;line-height:1.3;white-space:pre-line;color:var(--text)}
-.map-node .ns{font-family:var(--px);font-weight:500;font-size:11px;margin-top:6px;letter-spacing:.3px}
+.map-node.locked{cursor:not-allowed}
+.map-node.locked::after{background:repeating-linear-gradient(135deg,#0a0e16cc 0 6px,#10151fcc 6px 12px),radial-gradient(circle at 50% 40%,#0006,#000c);backdrop-filter:blur(1px)}
+.map-node.locked .ni,.map-node.locked .nn{opacity:.35;filter:grayscale(1)}
+.map-node:not(.locked):hover{transform:translate(-3px,-4px) scale(1.03);box-shadow:0 8px 16px #0007,0 0 14px var(--tint)}
+.map-node .ni{font-size:30px;display:block;margin-bottom:6px;position:relative;z-index:1}
+.map-node .nn{font-family:var(--px);font-weight:600;font-size:12px;line-height:1.3;white-space:pre-line;color:var(--text);position:relative;z-index:1}
+.map-node .ns{font-family:var(--px);font-weight:500;font-size:11px;margin-top:6px;letter-spacing:.3px;position:relative;z-index:1}
 .map-node.done .ns{color:var(--green)}
 .map-node.active .ns{color:var(--gold)}
 .map-node.unlocked .ns{color:var(--blue)}
@@ -268,11 +272,17 @@ body::after{
 @keyframes mc-right{0%{transform:scale(1)}40%{transform:scale(1.12)}100%{transform:scale(1)}}
 @keyframes mc-wrong{0%,100%{transform:translateX(0)}33%{transform:translateX(-7px)}66%{transform:translateX(7px)}}
 /* mission failed modal */
-.fail-overlay{display:none;position:absolute;inset:0;background:#000c;z-index:30;flex-direction:column;align-items:center;justify-content:center;padding:14px;text-align:center}
-.fail-overlay.show{display:flex}
-.fail-overlay .ic{font-size:64px;margin-bottom:8px}
-.fail-overlay .ti{font-family:var(--px);font-weight:700;font-size:20px;color:var(--red);text-shadow:3px 3px 0 #000;margin-bottom:8px;letter-spacing:1px}
-.fail-overlay .sb{font-family:var(--vt);font-size:21px;color:var(--text);margin-bottom:14px}
+.fail-overlay{display:none;position:absolute;inset:0;background:radial-gradient(ellipse at center,#3a0808ee 0%,#000d 80%);z-index:30;flex-direction:column;align-items:center;justify-content:center;padding:14px;text-align:center;overflow:hidden}
+.fail-overlay.show{display:flex;animation:fail-in .4s ease-out}
+@keyframes fail-in{0%{opacity:0}100%{opacity:1}}
+.fail-overlay::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,#ff000010 0 2px,transparent 2px 4px);pointer-events:none;animation:fail-scan 8s linear infinite}
+@keyframes fail-scan{0%{background-position:0 0}100%{background-position:0 100px}}
+.fail-overlay .ic{font-size:72px;margin-bottom:8px;animation:fail-skull 1.2s ease-in-out infinite;position:relative;z-index:1}
+@keyframes fail-skull{0%,100%{transform:scale(1) rotate(-4deg)}50%{transform:scale(1.1) rotate(4deg)}}
+.fail-overlay .ti{font-family:var(--px);font-weight:700;font-size:26px;color:var(--red);text-shadow:3px 3px 0 #000,0 0 16px #e74c3c;margin-bottom:8px;letter-spacing:2px;position:relative;z-index:1;animation:fail-ti .5s steps(4)}
+@keyframes fail-ti{0%{transform:scale(2);opacity:0}100%{transform:scale(1);opacity:1}}
+.fail-overlay .sb{font-family:var(--vt);font-size:21px;color:var(--text);margin-bottom:14px;position:relative;z-index:1}
+.fail-overlay .btn{position:relative;z-index:1}
 /* combo badge */
 .combo{position:absolute;right:14px;top:12px;font-family:var(--px);font-weight:700;font-size:14px;color:var(--gold);text-shadow:2px 2px 0 #000;z-index:6;opacity:0;transition:opacity .25s,font-size .25s}
 .combo.show{opacity:1}
@@ -300,6 +310,8 @@ body::after{
 .item-btn:disabled{opacity:.35;cursor:not-allowed;transform:none!important}
 .item-btn .ib-ic{font-size:22px}
 .item-btn .ib-lb{font-size:9px;letter-spacing:.4px;opacity:.9}
+.item-btn.new{animation:item-pop .5s ease-out}
+@keyframes item-pop{0%{transform:scale(0) rotate(-180deg);opacity:0}60%{transform:scale(1.25) rotate(10deg);box-shadow:0 0 24px #c084fc}100%{transform:scale(1) rotate(0)}}
 /* item pickup notification */
 .item-pickup{text-align:center;font-family:var(--px);font-weight:700;font-size:11px;color:var(--purple);min-height:18px;margin-bottom:4px;letter-spacing:.4px;transition:opacity .4s}
 /* frozen timer */
@@ -310,11 +322,13 @@ body::after{
 .bt-problem.pop{animation:prob-pop .35s ease-out}
 @keyframes prob-pop{0%{transform:scale(.93);opacity:.3}60%{transform:scale(1.02)}100%{transform:scale(1);opacity:1}}
 .bt-row{display:flex;gap:8px;margin-bottom:10px}
-.bt-input{flex:1;font-family:var(--px);font-weight:600;font-size:22px;background:var(--panel2);color:var(--gold);border:3px solid var(--gold);padding:11px;outline:none;text-align:center}
-.bt-input:focus{box-shadow:0 0 8px #f4d03f55}
-.bt-input:disabled{opacity:.5}
+.bt-input{flex:1;font-family:var(--px);font-weight:600;font-size:24px;background:var(--panel2);color:var(--gold);border:3px solid var(--gold);padding:12px;outline:none;text-align:center;transition:box-shadow .2s}
+.bt-input:focus{animation:input-pulse 1.4s ease-in-out infinite}
+@keyframes input-pulse{0%,100%{box-shadow:0 0 6px #f4d03f44}50%{box-shadow:0 0 16px #f4d03faa,inset 0 0 8px #f4d03f22}}
+.bt-input:disabled{opacity:.5;animation:none}
 .hint-box{font-family:var(--vt);font-size:21px;padding:12px;background:#0f1a0f;border:2px solid var(--green);color:#7fe87f;margin-bottom:10px;display:none;white-space:pre-wrap;line-height:1.4}
-.hint-box.show{display:block}
+.hint-box.show{display:block;animation:hint-slide .35s ease-out}
+@keyframes hint-slide{0%{opacity:0;transform:translateY(-10px);max-height:0}100%{opacity:1;transform:translateY(0);max-height:300px}}
 .feedback{font-family:var(--px);font-weight:600;font-size:16px;text-align:center;padding:10px;margin-bottom:10px;display:none}
 .feedback.ok{color:var(--green);display:block}
 .feedback.err{color:var(--red);display:block;animation:shake .15s steps(2) 3}
@@ -1252,11 +1266,15 @@ function renderMap(){
   document.getElementById('map-xpbar').style.width=pct+'%';
   const g=document.getElementById('map-grid');
   g.innerHTML='';
-  AREAS.forEach(ar=>{
+  // unikátní barevný nádech krajiny pro každou oblast
+  const TINT={1:'#3a5a2e',2:'#4a4a52',3:'#2e5a4a',4:'#5a3a2e',5:'#2e4a6a',6:'#5a4a2e',7:'#4a2e5a'};
+  AREAS.forEach((ar,i)=>{
     const unl=isAreaUnlocked(ar),done=isAreaDone(ar);
     const finalCls = done?'done': (unl && !done)?'active':'locked';
     const nd=document.createElement('div');
     nd.className='map-node '+finalCls;
+    nd.style.setProperty('--tint',TINT[ar.id]||'#333');
+    nd.style.animationDelay=(i*0.05)+'s';
     nd.innerHTML=`<span class="ni">${ar.icon}</span><div class="nn">${ar.name}</div><div class="ns">${done?'✓ SPLNĚNO':unl?'▶ VSTUP':'🔒 ZAMČENO'}</div>`;
     if(unl)nd.onclick=()=>openArea(ar.id);
     g.appendChild(nd);
@@ -1665,6 +1683,7 @@ function tryDropItem(){
   if(Math.random()>ITEM_DROP_CHANCE)return;
   const type=ITEM_TYPES[ri(0,ITEM_TYPES.length-1)];
   BT.items.push(type);
+  BT._newItem=true;
   renderItems();
   showItemPickup(type);
 }
@@ -1685,15 +1704,16 @@ function renderItems(){
     bar.innerHTML='<div class="empty">— žádné předměty —</div>';
     return;
   }
-  BT.items.forEach(type=>{
+  BT.items.forEach((type,i)=>{
     const def=ITEM_DEFS[type];
     const b=document.createElement('button');
-    b.className='item-btn';
+    b.className='item-btn'+(i===BT.items.length-1&&BT._newItem?' new':'');
     b.title=def.desc;
     b.innerHTML=`<span class="ib-ic">${def.ic}</span><span class="ib-lb">${def.lb}</span>`;
     b.onclick=()=>useItem(type);
     bar.appendChild(b);
   });
+  BT._newItem=false;
 }
 
 function useItem(type){
