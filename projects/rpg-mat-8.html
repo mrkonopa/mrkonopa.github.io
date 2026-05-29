@@ -17,40 +17,30 @@
   --vt:'VT323',monospace;
 }
 body{background:var(--bg);color:var(--text);font-family:var(--vt);min-height:100vh;overflow-x:hidden;font-size:18px}
-/* ── STARFIELD (2 vrstvy + blikání = paralax) ── */
+/* ── STARFIELD — statické pozadí, žádný compositor layer ── */
 body::before{
   content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
   background-image:
-    radial-gradient(1px 1px at 12% 18%,#fff 0,transparent 0),
-    radial-gradient(1px 1px at 34% 72%,#aaa 0,transparent 0),
-    radial-gradient(1px 1px at 58% 9%, #fff 0,transparent 0),
-    radial-gradient(1px 1px at 76% 51%,#ccc 0,transparent 0),
-    radial-gradient(1px 1px at 90% 28%,#aaa 0,transparent 0),
-    radial-gradient(1px 1px at 23% 85%,#fff 0,transparent 0),
-    radial-gradient(1px 1px at 67% 37%,#bbb 0,transparent 0),
-    radial-gradient(1px 1px at 44% 62%,#aaa 0,transparent 0),
-    radial-gradient(1px 1px at 81% 79%,#fff 0,transparent 0),
-    radial-gradient(1px 1px at 5%  44%,#ccc 0,transparent 0);
+    radial-gradient(1px 1px at 12% 18%,#fff8 0,transparent 0),
+    radial-gradient(1px 1px at 34% 72%,#aaa8 0,transparent 0),
+    radial-gradient(1px 1px at 58% 9%, #fff8 0,transparent 0),
+    radial-gradient(1px 1px at 76% 51%,#ccc8 0,transparent 0),
+    radial-gradient(1px 1px at 90% 28%,#aaa8 0,transparent 0),
+    radial-gradient(1px 1px at 23% 85%,#fff8 0,transparent 0),
+    radial-gradient(1px 1px at 67% 37%,#bbb8 0,transparent 0),
+    radial-gradient(1px 1px at 44% 62%,#aaa8 0,transparent 0),
+    radial-gradient(2px 2px at 20% 30%,#fff6 0,transparent 0),
+    radial-gradient(2px 2px at 65% 15%,#bcd4ff66 0,transparent 0),
+    radial-gradient(2px 2px at 88% 62%,#fff6 0,transparent 0),
+    radial-gradient(1px 1px at 81% 79%,#fff8 0,transparent 0),
+    radial-gradient(1px 1px at 5%  44%,#ccc8 0,transparent 0),
+    radial-gradient(2px 2px at 40% 88%,#bcd4ff55 0,transparent 0),
+    radial-gradient(2px 2px at 52% 48%,#dde6 0,transparent 0);
   background-size:300px 300px;
-  animation:star-twinkle 4s steps(8) infinite;
+  opacity:.8;
 }
-body::after{
-  content:'';position:fixed;inset:-460px;z-index:0;pointer-events:none;
-  background-image:
-    radial-gradient(2px 2px at 20% 30%,#fff 0,transparent 0),
-    radial-gradient(2px 2px at 65% 15%,#bcd4ff 0,transparent 0),
-    radial-gradient(2px 2px at 88% 62%,#fff 0,transparent 0),
-    radial-gradient(2px 2px at 40% 88%,#bcd4ff 0,transparent 0),
-    radial-gradient(2px 2px at 8% 70%,#fff 0,transparent 0),
-    radial-gradient(2px 2px at 52% 48%,#dde 0,transparent 0);
-  background-size:420px 420px;opacity:.7;will-change:transform;
-  animation:star-drift 60s linear infinite,star-twinkle2 6s steps(6) infinite;
-}
-@keyframes star-twinkle{0%,100%{opacity:.55}50%{opacity:1}}
-@keyframes star-twinkle2{0%,100%{opacity:.4}50%{opacity:.9}}
-@keyframes star-drift{0%{transform:translate(0,0)}100%{transform:translate(-420px,-210px)}}
 /* ── SCREENS ── */
-.screen{display:none;min-height:100vh;padding:12px}
+.screen{display:none;min-height:100vh;padding:12px;contain:layout style}
 .screen.active{display:flex;flex-direction:column;align-items:center;animation:screen-in .32s ease-out}
 @keyframes screen-in{0%{opacity:0;transform:translateY(14px) scale(.985)}100%{opacity:1;transform:translateY(0) scale(1)}}
 .wrap{position:relative;z-index:1;width:100%;max-width:680px}
@@ -252,7 +242,7 @@ body::after{
 .bar-timer-in{height:100%;background:repeating-linear-gradient(90deg,#f4d03f 0 8px,#7a5c00 8px 16px);transition:width .25s linear,background .3s}
 .bar-timer-in.warn{background:repeating-linear-gradient(90deg,#ff9933 0 8px,#7a3a00 8px 16px);animation:warn-pulse .5s steps(4) infinite}
 .bar-timer-in.danger{background:repeating-linear-gradient(90deg,#e74c3c 0 8px,#7b1010 8px 16px);animation:warn-pulse .25s steps(4) infinite}
-@keyframes warn-pulse{0%,100%{filter:brightness(1)}50%{filter:brightness(1.6)}}
+@keyframes warn-pulse{0%,100%{opacity:1}50%{opacity:.55}}
 /* player HP hearts */
 .player-hp{display:flex;gap:6px;justify-content:center;font-size:28px;margin-bottom:10px;font-family:var(--px);line-height:1}
 .player-hp .heart{display:inline-block;transition:transform .2s}
@@ -323,7 +313,7 @@ body::after{
 .item-pickup{text-align:center;font-family:var(--px);font-weight:700;font-size:11px;color:var(--purple);min-height:18px;margin-bottom:4px;letter-spacing:.4px;transition:opacity .4s}
 /* frozen timer */
 .bar-timer-in.frozen{background:repeating-linear-gradient(90deg,#5dade2 0 8px,#1a4f73 8px 16px);animation:frozen-pulse .7s steps(4) infinite}
-@keyframes frozen-pulse{0%,100%{filter:brightness(1)}50%{filter:brightness(1.9) drop-shadow(0 0 6px #5dade2)}}
+@keyframes frozen-pulse{0%,100%{opacity:1}50%{opacity:.45}}
 .bt-problem{font-family:var(--px);font-weight:600;font-size:31px;line-height:1.4;background:linear-gradient(180deg,#101a2e 0%,#16203a 100%);border:3px solid var(--blue);padding:20px 16px;margin-bottom:10px;white-space:pre-wrap;text-align:center;color:#fff;box-shadow:0 0 20px #5dade233,inset 0 0 26px #5dade214,4px 4px 0 #1a4f73;text-shadow:0 2px 0 #000a;letter-spacing:.3px;position:relative}
 .bt-problem::before{content:'';position:absolute;inset:3px;border:1px solid #5dade233;pointer-events:none}
 .bt-problem.pop{animation:prob-pop .35s ease-out}
@@ -331,7 +321,7 @@ body::after{
 .bt-row{display:flex;gap:8px;margin-bottom:10px}
 .bt-input{flex:1;font-family:var(--px);font-weight:600;font-size:24px;background:var(--panel2);color:var(--gold);border:3px solid var(--gold);padding:12px;outline:none;text-align:center;transition:box-shadow .2s}
 .bt-input:focus{animation:input-pulse 1.4s ease-in-out infinite}
-@keyframes input-pulse{0%,100%{box-shadow:0 0 6px #f4d03f44}50%{box-shadow:0 0 16px #f4d03faa,inset 0 0 8px #f4d03f22}}
+@keyframes input-pulse{0%,100%{opacity:.8}50%{opacity:1}}
 .bt-input:disabled{opacity:.5;animation:none}
 .hint-box{font-family:var(--vt);font-size:21px;padding:12px;background:#0f1a0f;border:2px solid var(--green);color:#7fe87f;margin-bottom:10px;display:none;white-space:pre-wrap;line-height:1.4}
 .hint-box.show{display:block;animation:hint-slide .35s ease-out}
