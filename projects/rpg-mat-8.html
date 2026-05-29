@@ -211,14 +211,24 @@ body::before{
 .player-hp .heart.flash{animation:heart-flash .35s steps(4)}
 @keyframes heart-flash{0%,100%{transform:scale(1)}50%{transform:scale(1.6) rotate(15deg);filter:brightness(2)}}
 /* multiple choice buttons */
-.mc-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:10px}
-.mc-btn{font-family:var(--px);font-weight:600;font-size:20px;background:var(--panel2);color:var(--blue);border:3px solid var(--blue);padding:18px 10px;cursor:pointer;box-shadow:3px 3px 0 #1a4f73;text-align:center;letter-spacing:.5px}
-.mc-btn:hover:not(:disabled){transform:translate(-1px,-1px);box-shadow:4px 4px 0 #1a4f73;color:var(--gold);border-color:var(--gold)}
+.mc-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:10px}
+.mc-btn{font-family:var(--px);font-weight:700;font-size:24px;background:var(--panel2);padding:22px 10px;cursor:pointer;text-align:center;letter-spacing:.5px;position:relative;transition:transform .1s;animation:mc-in .35s ease-out backwards}
+.mc-btn .mc-key{position:absolute;left:8px;top:8px;font-size:13px;opacity:.55;font-weight:700}
+.mc-btn:nth-child(1){animation-delay:.02s}.mc-btn:nth-child(2){animation-delay:.08s}
+.mc-btn:nth-child(3){animation-delay:.14s}.mc-btn:nth-child(4){animation-delay:.2s}
+@keyframes mc-in{0%{transform:translateY(14px) scale(.9);opacity:0}100%{transform:translateY(0) scale(1);opacity:1}}
+/* four distinct colours */
+.mc-btn.c0{color:var(--gold);  border:3px solid var(--gold);  box-shadow:3px 3px 0 #7a5c00}
+.mc-btn.c1{color:var(--blue);  border:3px solid var(--blue);  box-shadow:3px 3px 0 #1a4f73}
+.mc-btn.c2{color:var(--green); border:3px solid var(--green); box-shadow:3px 3px 0 #1a7a3a}
+.mc-btn.c3{color:var(--purple);border:3px solid #b06fd6;       box-shadow:3px 3px 0 #5a2a8a}
+.mc-btn:hover:not(:disabled){transform:translate(-2px,-2px);filter:brightness(1.25)}
+.mc-btn:active:not(:disabled){transform:translate(2px,2px)}
 .mc-btn:disabled{opacity:.4;cursor:not-allowed}
-.mc-btn.right{background:#0f2a0f;color:var(--green);border-color:var(--green);box-shadow:3px 3px 0 #1a7a3a;animation:mc-right .4s steps(4)}
-.mc-btn.wrong{background:#2a0f0f;color:var(--red);border-color:var(--red);box-shadow:3px 3px 0 #7b241c;animation:mc-wrong .35s steps(3)}
-@keyframes mc-right{0%{transform:scale(1)}50%{transform:scale(1.08)}100%{transform:scale(1)}}
-@keyframes mc-wrong{0%,100%{transform:translateX(0)}33%{transform:translateX(-6px)}66%{transform:translateX(6px)}}
+.mc-btn.right{background:#0f3a14!important;color:#5dff8f!important;border-color:var(--green)!important;box-shadow:0 0 22px #2ecc7188,3px 3px 0 #1a7a3a!important;animation:mc-right .45s ease-out}
+.mc-btn.wrong{background:#3a0f0f!important;color:#ff7a6e!important;border-color:var(--red)!important;box-shadow:0 0 16px #e74c3c66,3px 3px 0 #7b241c!important;animation:mc-wrong .35s steps(3)}
+@keyframes mc-right{0%{transform:scale(1)}40%{transform:scale(1.12)}100%{transform:scale(1)}}
+@keyframes mc-wrong{0%,100%{transform:translateX(0)}33%{transform:translateX(-7px)}66%{transform:translateX(7px)}}
 /* mission failed modal */
 .fail-overlay{display:none;position:absolute;inset:0;background:#000c;z-index:30;flex-direction:column;align-items:center;justify-content:center;padding:14px;text-align:center}
 .fail-overlay.show{display:flex}
@@ -248,7 +258,10 @@ body::before{
 /* frozen timer */
 .bar-timer-in.frozen{background:repeating-linear-gradient(90deg,#5dade2 0 8px,#1a4f73 8px 16px);animation:frozen-pulse .7s steps(4) infinite}
 @keyframes frozen-pulse{0%,100%{filter:brightness(1)}50%{filter:brightness(1.9) drop-shadow(0 0 6px #5dade2)}}
-.bt-problem{font-family:var(--vt);font-size:26px;line-height:1.4;background:var(--panel);border:3px solid var(--blue);padding:16px;margin-bottom:10px;white-space:pre-wrap;text-align:center;color:var(--text)}
+.bt-problem{font-family:var(--px);font-weight:600;font-size:31px;line-height:1.4;background:linear-gradient(180deg,#101a2e 0%,#16203a 100%);border:3px solid var(--blue);padding:20px 16px;margin-bottom:10px;white-space:pre-wrap;text-align:center;color:#fff;box-shadow:0 0 20px #5dade233,inset 0 0 26px #5dade214,4px 4px 0 #1a4f73;text-shadow:0 2px 0 #000a;letter-spacing:.3px;position:relative}
+.bt-problem::before{content:'';position:absolute;inset:3px;border:1px solid #5dade233;pointer-events:none}
+.bt-problem.pop{animation:prob-pop .35s ease-out}
+@keyframes prob-pop{0%{transform:scale(.93);opacity:.3}60%{transform:scale(1.02)}100%{transform:scale(1);opacity:1}}
 .bt-row{display:flex;gap:8px;margin-bottom:10px}
 .bt-input{flex:1;font-family:var(--px);font-weight:600;font-size:22px;background:var(--panel2);color:var(--gold);border:3px solid var(--gold);padding:11px;outline:none;text-align:center}
 .bt-input:focus{box-shadow:0 0 8px #f4d03f55}
@@ -286,7 +299,8 @@ body::before{
 @media(max-width:480px){
   .map-grid{grid-template-columns:repeat(2,1fr)}
   .inv-grid{grid-template-columns:repeat(3,1fr)}
-  .bt-problem{font-size:22px}
+  .bt-problem{font-size:25px}
+  .mc-btn{font-size:21px;padding:18px 8px}
   .attr-nm{min-width:140px;font-size:11px}
 }
 </style>
@@ -1361,7 +1375,9 @@ function renderTask(){
     const mon=document.getElementById('bt-mon');
     mon.style.filter='drop-shadow(0 6px 0 #0008) drop-shadow(0 0 14px #e74c3c)';
   }
-  document.getElementById('bt-prob').textContent=t.text;
+  const probEl=document.getElementById('bt-prob');
+  probEl.textContent=t.text;
+  probEl.classList.remove('pop');void probEl.offsetWidth;probEl.classList.add('pop');
   document.getElementById('bt-fb').className='feedback';
   document.getElementById('hint-box').textContent='';
   document.getElementById('hint-box').classList.remove('show');
@@ -1407,10 +1423,10 @@ function renderMC(t){
   }
   const arr=[...opts].sort(()=>Math.random()-.5);
   grid.innerHTML='';
-  arr.forEach(opt=>{
+  arr.forEach((opt,i)=>{
     const b=document.createElement('button');
-    b.className='mc-btn';
-    b.textContent=opt;
+    b.className='mc-btn c'+i;
+    b.innerHTML=`<span class="mc-key">${'ABCD'[i]}</span>${opt}`;
     b.onclick=()=>submitMC(opt,b);
     grid.appendChild(b);
   });
