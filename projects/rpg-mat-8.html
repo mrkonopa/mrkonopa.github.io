@@ -17,7 +17,7 @@
   --vt:'VT323',monospace;
 }
 body{background:var(--bg);color:var(--text);font-family:var(--vt);min-height:100vh;overflow-x:hidden;font-size:18px}
-/* ── STARFIELD ── */
+/* ── STARFIELD (2 vrstvy + blikání = paralax) ── */
 body::before{
   content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
   background-image:
@@ -32,7 +32,23 @@ body::before{
     radial-gradient(1px 1px at 81% 79%,#fff 0,transparent 0),
     radial-gradient(1px 1px at 5%  44%,#ccc 0,transparent 0);
   background-size:300px 300px;
+  animation:star-twinkle 4s steps(8) infinite;
 }
+body::after{
+  content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:
+    radial-gradient(2px 2px at 20% 30%,#fff 0,transparent 0),
+    radial-gradient(2px 2px at 65% 15%,#bcd4ff 0,transparent 0),
+    radial-gradient(2px 2px at 88% 62%,#fff 0,transparent 0),
+    radial-gradient(2px 2px at 40% 88%,#bcd4ff 0,transparent 0),
+    radial-gradient(2px 2px at 8% 70%,#fff 0,transparent 0),
+    radial-gradient(2px 2px at 52% 48%,#dde 0,transparent 0);
+  background-size:420px 420px;opacity:.7;
+  animation:star-drift 60s linear infinite,star-twinkle2 6s steps(6) infinite;
+}
+@keyframes star-twinkle{0%,100%{opacity:.55}50%{opacity:1}}
+@keyframes star-twinkle2{0%,100%{opacity:.4}50%{opacity:.9}}
+@keyframes star-drift{0%{background-position:0 0}100%{background-position:420px 210px}}
 /* ── SCREENS ── */
 .screen{display:none;min-height:100vh;padding:12px}
 .screen.active{display:flex;flex-direction:column;align-items:center;animation:screen-in .32s ease-out}
@@ -258,13 +274,22 @@ body::before{
 .fail-overlay .ti{font-family:var(--px);font-weight:700;font-size:20px;color:var(--red);text-shadow:3px 3px 0 #000;margin-bottom:8px;letter-spacing:1px}
 .fail-overlay .sb{font-family:var(--vt);font-size:21px;color:var(--text);margin-bottom:14px}
 /* combo badge */
-.combo{position:absolute;right:14px;top:12px;font-family:var(--px);font-weight:700;font-size:14px;color:var(--gold);text-shadow:2px 2px 0 #000;z-index:6;opacity:0;transition:opacity .25s}
+.combo{position:absolute;right:14px;top:12px;font-family:var(--px);font-weight:700;font-size:14px;color:var(--gold);text-shadow:2px 2px 0 #000;z-index:6;opacity:0;transition:opacity .25s,font-size .25s}
 .combo.show{opacity:1}
 .combo .x{font-size:10px;color:var(--blue);margin-right:3px}
 .combo.bump{animation:combo-bump .3s steps(4)}
 @keyframes combo-bump{
   0%,100%{transform:scale(1)}
   50%{transform:scale(1.35);color:#fff;text-shadow:0 0 8px var(--gold),2px 2px 0 #000}
+}
+.combo.hot{font-size:18px;animation:combo-hot .6s steps(6) infinite}
+@keyframes combo-hot{0%,100%{color:#ff9933;text-shadow:0 0 10px #ff9933,2px 2px 0 #000}50%{color:#ffd966;text-shadow:0 0 16px #ffcc33,2px 2px 0 #000}}
+.combo.fire{font-size:22px;animation:combo-fire .35s steps(7) infinite}
+@keyframes combo-fire{
+  0%{color:#ff3355;text-shadow:0 0 14px #ff3355,2px 2px 0 #000}
+  33%{color:#ffaa00;text-shadow:0 0 18px #ffaa00,2px 2px 0 #000}
+  66%{color:#ffee44;text-shadow:0 0 20px #fff,2px 2px 0 #000}
+  100%{color:#ff66aa;text-shadow:0 0 16px #ff66aa,2px 2px 0 #000}
 }
 /* ── POWER-UP ITEMS ── */
 .items-bar{display:flex;gap:8px;justify-content:center;align-items:center;min-height:54px;margin-bottom:8px}
@@ -1322,6 +1347,7 @@ function launchBattle(aid,mid){
   const mon=document.getElementById('bt-mon');
   mon.textContent=m.mon;
   mon.style.filter='';
+  mon.style.fontSize='';
   document.getElementById('bt-mname').textContent=m.mname;
   mon.className='bt-monster';
   void mon.offsetWidth;
@@ -1447,6 +1473,8 @@ function renderTask(){
     fb.className='feedback err';
     const mon=document.getElementById('bt-mon');
     mon.style.filter='drop-shadow(0 6px 0 #0008) drop-shadow(0 0 14px #e74c3c)';
+    mon.style.fontSize='132px';
+    hitVignette();
   }
   const probEl=document.getElementById('bt-prob');
   probEl.textContent=t.text;
@@ -1619,6 +1647,8 @@ function monsterAttack(){
 function updateCombo(){
   const el=document.getElementById('combo');
   document.getElementById('combo-n').textContent=BT.combo;
+  el.classList.toggle('hot',BT.combo>=5);
+  el.classList.toggle('fire',BT.combo>=8);
   if(BT.combo>=2){
     el.classList.add('show');
     el.classList.remove('bump');
