@@ -75,6 +75,13 @@ body::after{
 @keyframes lvl-txt{0%{transform:scale(.2) rotate(-8deg);opacity:0}25%{transform:scale(1.15) rotate(2deg);opacity:1}75%{transform:scale(1) rotate(0);opacity:1}100%{transform:scale(1.05);opacity:0}}
 #levelup .lvl-sub{font-family:var(--px);font-weight:600;font-size:18px;color:#fff;margin-top:8px;opacity:0;letter-spacing:1px}
 #levelup.show .lvl-sub{animation:lvl-txt 1.6s ease-out .1s}
+/* victory banner */
+.victory-banner{position:fixed;left:50%;top:38%;transform:translate(-50%,-50%);z-index:108;font-family:var(--px);font-weight:700;font-size:40px;color:var(--gold);text-shadow:3px 3px 0 #7a5c00,0 0 22px #f4d03f;pointer-events:none;white-space:nowrap}
+.victory-banner.go{animation:vict 1.5s ease-out forwards}
+@keyframes vict{0%{transform:translate(-50%,-50%) scale(.3) rotate(-6deg);opacity:0}20%{transform:translate(-50%,-50%) scale(1.15) rotate(2deg);opacity:1}80%{transform:translate(-50%,-50%) scale(1) rotate(0);opacity:1}100%{transform:translate(-50%,-90%) scale(.9);opacity:0}}
+.gold-drop{position:fixed;top:-20px;z-index:107;font-size:20px;pointer-events:none}
+.gold-drop.go{animation:gold-fall linear forwards}
+@keyframes gold-fall{0%{transform:translateY(0) rotate(0);opacity:1}100%{transform:translateY(110vh) rotate(360deg);opacity:.3}}
 /* ── PANEL ── */
 .panel{background:var(--panel);border:3px solid var(--gold);box-shadow:4px 4px 0 #7a5c00;padding:16px;margin-bottom:12px}
 .panel.b{border-color:var(--blue);box-shadow:4px 4px 0 #1a4f73}
@@ -356,6 +363,11 @@ body::after{
 /* ── SCROLLBAR ── */
 ::-webkit-scrollbar{width:8px;background:var(--bg)}
 ::-webkit-scrollbar-thumb{background:var(--panel2);border:2px solid var(--gold)}
+/* ── INTRO ANIM ── */
+.intro-sword{font-size:64px;margin-bottom:12px;display:inline-block;animation:sword-float 3s ease-in-out infinite;filter:drop-shadow(0 0 16px #f4d03f88)}
+@keyframes sword-float{0%,100%{transform:translateY(0) rotate(-8deg)}50%{transform:translateY(-12px) rotate(8deg)}}
+.intro-title{font-family:var(--px);font-weight:700;font-size:34px;color:var(--gold);text-shadow:4px 4px 0 #7a5c00;line-height:1.1;margin-bottom:10px;animation:title-glow 2.5s ease-in-out infinite}
+@keyframes title-glow{0%,100%{text-shadow:4px 4px 0 #7a5c00,0 0 8px #f4d03f44}50%{text-shadow:4px 4px 0 #7a5c00,0 0 22px #f4d03faa}}
 /* ── RESPONSIVE ── */
 @media(max-width:480px){
   .map-grid{grid-template-columns:repeat(2,1fr)}
@@ -372,8 +384,8 @@ body::after{
 <div id="s-intro" class="screen active">
 <div class="wrap">
   <div style="text-align:center;padding:28px 0 20px">
-    <div style="font-size:56px;margin-bottom:12px">⚔️</div>
-    <div style="font-family:var(--px);font-weight:700;font-size:30px;color:var(--gold);text-shadow:4px 4px 0 #7a5c00;line-height:1.1;margin-bottom:10px">RPG<br>MATEMATIKA</div>
+    <div class="intro-sword">⚔️</div>
+    <div class="intro-title">RPG<br>MATEMATIKA</div>
     <div style="font-family:var(--vt);font-size:24px;color:var(--blue)">8. ročník · ZŠ Husova Liberec</div>
   </div>
   <div class="panel">
@@ -1212,6 +1224,24 @@ function levelUpBurst(lvl){
   }
   setTimeout(()=>lu.classList.remove('show'),1700);
 }
+function victoryBurst(){
+  const b=document.createElement('div');
+  b.className='victory-banner';b.textContent='⚔ VÍTĚZSTVÍ! ⚔';
+  document.body.appendChild(b);void b.offsetWidth;b.classList.add('go');
+  setTimeout(()=>b.remove(),1500);
+  // golden coin rain
+  const coins=['🪙','✨','⭐','💰'];
+  for(let i=0;i<22;i++){
+    const d=document.createElement('div');
+    d.className='gold-drop';d.textContent=coins[i%coins.length];
+    d.style.left=(Math.random()*100)+'vw';
+    const dur=(1.4+Math.random()*1.2);
+    d.style.animationDuration=dur+'s';
+    d.style.animationDelay=(Math.random()*0.4)+'s';
+    document.body.appendChild(d);void d.offsetWidth;d.classList.add('go');
+    setTimeout(()=>d.remove(),(dur+0.5)*1000);
+  }
+}
 function hitVignette(){
   const v=document.getElementById('hit-vignette');
   v.classList.remove('go');void v.offsetWidth;v.classList.add('go');
@@ -1808,11 +1838,15 @@ function checkMissionComplete(){
   const ar=AREAS.find(a=>a.id===BT.aid);
   const m=ar.missions.find(x=>x.id===BT.mid);
   const allDn=BT.tasks.every((_,i)=>S.done[`${m.id}-${i}`]);
-  if(allDn&&isAreaDone(ar)&&!S.inv.includes(ar.art.id)){
-    S.inv.push(ar.art.id);
-    Object.entries(ar.attrGain).forEach(([k,v])=>{if(S.attrs[k]!==undefined)S.attrs[k]+=v;});
-    saveS();
-    setTimeout(()=>showModal(ar.art.ic,'OBLAST SPLNĚNA!',`Získal jsi artefakt:\n${ar.art.nm.replace('\n',' ')}!\n\n+${Object.entries(ar.attrGain).map(([k,v])=>v+' '+ATTR_META[k].ic).join('  ')}`),400);
+  if(allDn){
+    // boss poražen — vítězná sekvence (synchro s defeat animací)
+    setTimeout(victoryBurst,650);
+    if(isAreaDone(ar)&&!S.inv.includes(ar.art.id)){
+      S.inv.push(ar.art.id);
+      Object.entries(ar.attrGain).forEach(([k,v])=>{if(S.attrs[k]!==undefined)S.attrs[k]+=v;});
+      saveS();
+      setTimeout(()=>showModal(ar.art.ic,'OBLAST SPLNĚNA!',`Získal jsi artefakt:\n${ar.art.nm.replace('\n',' ')}!\n\n+${Object.entries(ar.attrGain).map(([k,v])=>v+' '+ATTR_META[k].ic).join('  ')}`),1700);
+    }
   }
 }
 
