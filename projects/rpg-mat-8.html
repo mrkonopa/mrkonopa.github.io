@@ -35,7 +35,7 @@ body::before{
   animation:star-twinkle 4s steps(8) infinite;
 }
 body::after{
-  content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  content:'';position:fixed;inset:-460px;z-index:0;pointer-events:none;
   background-image:
     radial-gradient(2px 2px at 20% 30%,#fff 0,transparent 0),
     radial-gradient(2px 2px at 65% 15%,#bcd4ff 0,transparent 0),
@@ -43,12 +43,12 @@ body::after{
     radial-gradient(2px 2px at 40% 88%,#bcd4ff 0,transparent 0),
     radial-gradient(2px 2px at 8% 70%,#fff 0,transparent 0),
     radial-gradient(2px 2px at 52% 48%,#dde 0,transparent 0);
-  background-size:420px 420px;opacity:.7;
+  background-size:420px 420px;opacity:.7;will-change:transform;
   animation:star-drift 60s linear infinite,star-twinkle2 6s steps(6) infinite;
 }
 @keyframes star-twinkle{0%,100%{opacity:.55}50%{opacity:1}}
 @keyframes star-twinkle2{0%,100%{opacity:.4}50%{opacity:.9}}
-@keyframes star-drift{0%{background-position:0 0}100%{background-position:420px 210px}}
+@keyframes star-drift{0%{transform:translate(0,0)}100%{transform:translate(-420px,-210px)}}
 /* ── SCREENS ── */
 .screen{display:none;min-height:100vh;padding:12px}
 .screen.active{display:flex;flex-direction:column;align-items:center;animation:screen-in .32s ease-out}
@@ -116,7 +116,7 @@ body::after{
 .map-node.active{border-color:var(--gold);box-shadow:0 0 10px #f4d03f44;animation:glow 1.2s steps(2) infinite}
 .map-node.done{border-color:var(--green)}
 .map-node.locked{cursor:not-allowed}
-.map-node.locked::after{background:repeating-linear-gradient(135deg,#0a0e16cc 0 6px,#10151fcc 6px 12px),radial-gradient(circle at 50% 40%,#0006,#000c);backdrop-filter:blur(1px)}
+.map-node.locked::after{background:repeating-linear-gradient(135deg,#0a0e16e6 0 6px,#10151fe6 6px 12px),radial-gradient(circle at 50% 40%,#0008,#000d)}
 .map-node.locked .ni,.map-node.locked .nn{opacity:.35;filter:grayscale(1)}
 .map-node:not(.locked):hover{transform:translate(-3px,-4px) scale(1.03);box-shadow:0 8px 16px #0007,0 0 14px var(--tint)}
 .map-node .ni{font-size:30px;display:block;margin-bottom:6px;position:relative;z-index:1}
