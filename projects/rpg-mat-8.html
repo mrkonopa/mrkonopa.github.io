@@ -642,11 +642,437 @@ const AREAS = [
     }
   ]
 },
-{id:3,icon:'🌿',name:'BAŽINY\nROVNIC',  desc:'Lineární rovnice s jednou neznámou a slovní úlohy.',locked:true,art:{id:'wand',  ic:'🪄',nm:'Algebraická\nhůl'}, attrGain:{calc:15,anal:15},missions:[]},
-{id:4,icon:'🏰',name:'VĚŽE\nALGEBRY', desc:'Algebraické výrazy — sčítání, odčítání, násobení, vytýkání.',locked:true,art:{id:'shield',ic:'🛡️',nm:'Výrazový\nštít'}, attrGain:{calc:10,anal:20},missions:[]},
-{id:5,icon:'🌊',name:'JEZERO\nKRUŽNIC',desc:'Kruh, kružnice, válec. Obvod, obsah, objem.',locked:true,art:{id:'ring',  ic:'💍',nm:'Kruhový\nprsten'},attrGain:{geo:25,craft:10},missions:[]},
-{id:6,icon:'🔧',name:'DÍLNA\nKONSTR.', desc:'Konstrukční úlohy. Množiny bodů, Thaletova věta.',locked:true,art:{id:'compass',ic:'🧭',nm:'Rýsovací\nkompas'}, attrGain:{geo:15,craft:25},missions:[]},
-{id:7,icon:'🏛️',name:'CITADELA\nARCIMÁGA',desc:'Závěrečné opakování a přijímačkové úlohy. Finální boss!',locked:true,art:{id:'crown', ic:'👑',nm:'Diplom\narcimága'}, attrGain:{calc:10,geo:10,anal:10,craft:10},missions:[]}
+{
+  id:3, icon:'🌿', name:'BAŽINY\nROVNIC',
+  desc:'Lineární rovnice s jednou neznámou a slovní úlohy.',
+  art:{id:'wand',ic:'🪄',nm:'Algebraická\nhůl'},
+  attrGain:{calc:15,anal:15},
+  missions:[
+    {
+      id:'3-1', name:'Jednoduché rovnice', sub:'rychlovka · výběr ze 4',
+      mon:'🐸', mname:'BAŽINOVÝ STRÁŽCE',
+      intro:'Na okraji bažiny sedí Bažinový strážce. Zná jen jednoduché rovnice — poraž ho a postup dál.',
+      mc:true, tc:6,
+      tasks:()=>[
+        (()=>{const a=ri(3,15),b=ri(a+1,25);const ans=b-a;return{
+          text:`Vyřeš rovnici:\nx + ${a} = ${b}`,ans:String(ans),
+          hints:[`Chceš x samo — odečti ${a} z obou stran.`,`x = ${b} − ${a} = ?`],skill:'calc'};})(),
+        (()=>{const a=ri(3,12),b=ri(5,18);const ans=a+b;return{
+          text:`Vyřeš rovnici:\nx − ${a} = ${b}`,ans:String(ans),
+          hints:[`Přičti ${a} k oběma stranám.`,`x = ${b} + ${a} = ?`],skill:'calc'};})(),
+        (()=>{const a=ri(2,9),x=ri(2,12);const b=a*x;return{
+          text:`Vyřeš rovnici:\n${a}x = ${b}`,ans:String(x),
+          hints:[`Vyděl obě strany číslem ${a}.`,`x = ${b} ÷ ${a} = ?`],skill:'calc'};})(),
+        (()=>{const a=ri(2,8),b=ri(2,10);const ans=a*b;return{
+          text:`Vyřeš rovnici:\nx ÷ ${a} = ${b}`,ans:String(ans),
+          hints:[`Vynásob obě strany číslem ${a}.`,`x = ${b} · ${a} = ?`],skill:'calc'};})(),
+        (()=>{const b=ri(2,8),x=ri(2,10);const a=b+x;return{
+          text:`Vyřeš rovnici:\n${a} − x = ${b}`,ans:String(x),
+          hints:[`Přesuň x: odečti ${b} z obou stran. Pak ${a} − ${b} = x.`,`x = ${a} − ${b} = ?`],skill:'calc'};})(),
+        (()=>{const a=ri(1,8),x=ri(2,10);const b=2*x+a;return{
+          text:`Vyřeš rovnici:\n2x + ${a} = ${b}`,ans:String(x),
+          hints:[`Odečti ${a} z obou stran. Pak vyděl 2.`,`2x = ${b-a}, x = ?`],skill:'calc'};})()
+      ]
+    },
+    {
+      id:'3-2', name:'Dvojkrokové rovnice', sub:'rovnice s více kroky',
+      mon:'🐊', mname:'KROKODÝL ALGEBRY',
+      intro:'Krokodýl algebry hlídá bažinový most. Potřebuje dvě akce — nejprve přidej nebo odečti, pak vyděl.',
+      tc:6,
+      tasks:()=>[
+        (()=>{const a=ri(2,7),b=ri(1,10),x=ri(1,10);const c=a*x+b;return{
+          text:`Vyřeš rovnici:\n${a}x + ${b} = ${c}`,ans:String(x),
+          hints:[`Krok 1: odečti ${b} z obou stran.\nKrok 2: vyděl ${a}.`,`${a}x = ${c-b}, x = ?`],skill:'anal'};})(),
+        (()=>{const a=ri(2,7),b=ri(1,10),x=ri(1,10);const c=a*x-b;return{
+          text:`Vyřeš rovnici:\n${a}x − ${b} = ${c}`,ans:String(x),
+          hints:[`Krok 1: přičti ${b} k oběma stranám.\nKrok 2: vyděl ${a}.`,`${a}x = ${c+b}, x = ?`],skill:'anal'};})(),
+        (()=>{const a=ri(2,5),b=ri(1,8),x=ri(1,10);const c=a*(x+b);return{
+          text:`Vyřeš rovnici:\n${a}(x + ${b}) = ${c}`,ans:String(x),
+          hints:[`Vyděl obě strany ${a}: dostaneš x + ${b} = ${c/a}.`,`x = ${c/a} − ${b} = ?`],skill:'anal'};})(),
+        (()=>{const aa=ri(4,9),cc=ri(1,aa-2),xx=ri(2,8),bb=ri(1,8),dd=(aa-cc)*xx+bb;return{
+          text:`Vyřeš rovnici:\n${aa}x + ${bb} = ${cc}x + ${dd}`,ans:String(xx),
+          hints:[`Přesuň x na levou stranu: ${aa}x − ${cc}x = ${dd} − ${bb}.`,`${aa-cc}x = ${dd-bb}, x = ?`],skill:'anal'};})(),
+        (()=>{const a=ri(2,5),b=ri(1,8),x=ri(1,10);const c=a*(x-b);return{
+          text:`Vyřeš rovnici:\n${a}(x − ${b}) = ${c}`,ans:String(x),
+          hints:[`Vyděl obě strany ${a}: x − ${b} = ${c/a}.`,`x = ${c/a} + ${b} = ?`],skill:'anal'};})(),
+        (()=>{const a=ri(2,5),b=ri(1,8),x=ri(2,10)*a;const c=x/a+b;return{
+          text:`Vyřeš rovnici:\nx / ${a} + ${b} = ${c}`,ans:String(x),
+          hints:[`Odečti ${b}: x / ${a} = ${c-b}. Pak vynásob ${a}.`,`x = ${c-b} · ${a} = ?`],skill:'anal'};})()
+      ]
+    },
+    {
+      id:'3-3', name:'Slovní úlohy', sub:'rovnice ze zadání',
+      mon:'🧙‍♂️', mname:'MUDRC BAŽIN',
+      intro:'Mudrc bažin skrývá neznámé v příbězích. Sestav rovnici a vyřeš ji.',
+      tc:6,
+      tasks:()=>[
+        (()=>{const age=ri(12,25),diff=ri(3,15);return{
+          text:`Markovi je ${age} let.\nJeho starší bratr je o ${diff} let starší.\nKolik let je bratrovi?`,ans:String(age+diff),
+          hints:[`Bratrův věk = Markův věk + ${diff}.`,`${age} + ${diff} = ?`],skill:'anal'};})(),
+        (()=>{const price=ri(3,9)*5,count=ri(2,6),paid=(price*count)+ri(1,4)*10;const change=paid-price*count;return{
+          text:`Každá knížka stojí ${price} Kč.\nKoupíš ${count} knížek a zaplatíš ${paid} Kč.\nKolik Kč dostaneš zpět?`,ans:String(change),
+          hints:[`Cena celkem = ${price} · ${count} = ${price*count} Kč.`,`Vráceno = ${paid} − ${price*count}.`],skill:'anal'};})(),
+        (()=>{const w=ri(4,15),h=ri(4,20);return{
+          text:`Obdélník má šířku ${w} cm a délku ${h} cm.\nVypočítej obvod. (cm)`,ans:String(2*(w+h)),
+          hints:[`Obvod obdélníku: O = 2 · (a + b).`,`O = 2 · (${w} + ${h}) = ?`],skill:'geo'};})(),
+        (()=>{const tot=ri(10,25)*2,diff=ri(1,8)*2;const big=(tot+diff)/2;return{
+          text:`Dvě čísla se liší o ${diff}.\nJejich součet je ${tot}.\nJaké je větší číslo?`,ans:String(big),
+          hints:[`Označ menší číslo x. Větší = x + ${diff}.\nRovnice: x + (x + ${diff}) = ${tot}.`,`2x = ${tot-diff}, x = ${(tot-diff)/2}, větší = ?`],skill:'anal'};})(),
+        (()=>{const v=ri(3,8)*10,t=ri(1,5);return{
+          text:`Auto jede rychlostí ${v} km/h\npo dobu ${t} hodin.\nJakou vzdálenost urazí? (km)`,ans:String(v*t),
+          hints:[`Vzdálenost = rychlost · čas.`,`s = ${v} · ${t} = ?`],skill:'anal'};})(),
+        (()=>{const parts=ri(2,5),each=ri(4,16)*10,total=parts*each;return{
+          text:`${total} Kč si rozdělí ${parts} kamarádi\nrovným dílem.\nKolik Kč dostane každý?`,ans:String(each),
+          hints:[`Vydel celkovou částku počtem kamarádů.`,`${total} ÷ ${parts} = ?`],skill:'anal'};})()
+      ]
+    }
+  ]
+},
+{
+  id:4, icon:'🏰', name:'VĚŽE\nALGEBRY',
+  desc:'Algebraické výrazy — dosazování, závorky, vzorce, vytýkání.',
+  art:{id:'shield',ic:'🛡️',nm:'Výrazový\nštít'},
+  attrGain:{calc:10,anal:20},
+  missions:[
+    {
+      id:'4-1', name:'Dosazování', sub:'výrazy · rychlovka · výběr ze 4',
+      mon:'🧱', mname:'VĚŽNÍ STRÁŽCE',
+      intro:'Strážce věže tě vyzkouší z dosazování. Za každé x dosaď správnou hodnotu.',
+      mc:true, tc:6,
+      tasks:()=>[
+        (()=>{const a=ri(2,8),b=ri(1,12),k=ri(2,7);return{
+          text:`Vypočítej pro x = ${k}:\n${a}x + ${b}`,ans:String(a*k+b),
+          hints:[`Dosaď: ${a}·${k} + ${b}.`,`${a*k} + ${b} = ?`],skill:'calc'};})(),
+        (()=>{const a=ri(2,8),b=ri(2,12),k=ri(2,8);return{
+          text:`Vypočítej pro x = ${k}:\n${a}x − ${b}`,ans:String(a*k-b),
+          hints:[`Dosaď: ${a}·${k} − ${b}.`,`${a*k} − ${b} = ?`],skill:'calc'};})(),
+        (()=>{const a=ri(1,5),k=ri(2,7);return{
+          text:`Vypočítej pro x = ${k}:\nx² + ${a}x`,ans:String(k*k+a*k),
+          hints:[`Dosaď: ${k}² + ${a}·${k}.`,`${k*k} + ${a*k} = ?`],skill:'calc'};})(),
+        (()=>{const a=ri(1,4),b=ri(1,10),k=ri(2,5);return{
+          text:`Vypočítej pro x = ${k}:\n${a}x² − ${b}`,ans:String(a*k*k-b),
+          hints:[`Dosaď: ${a}·${k}² − ${b} = ${a*k*k} − ${b}.`,`Výsledek?`],skill:'calc'};})(),
+        (()=>{const a=ri(2,6),b=ri(1,8),c=ri(2,6),d=ri(1,8),k=ri(1,5);return{
+          text:`Sečti a vypočítej pro x = ${k}:\n(${a}x + ${b}) + (${c}x + ${d})`,ans:String((a+c)*k+(b+d)),
+          hints:[`Sečti: (${a}+${c})x + (${b}+${d}), pak dosaď x = ${k}.`,`${a+c}·${k} + ${b+d} = ?`],skill:'calc'};})(),
+        (()=>{const a=ri(2,7),b=ri(2,8),k=ri(2,7);return{
+          text:`Rozvij závorku, vypočítej pro x = ${k}:\n${a}(x + ${b})`,ans:String(a*(k+b)),
+          hints:[`${a}(x+${b}) = ${a}x + ${a*b}. Dosaď x = ${k}.`,`${a*k} + ${a*b} = ?`],skill:'calc'};})()
+      ]
+    },
+    {
+      id:'4-2', name:'Závorky a vzorce', sub:'čtverec součtu a rozdílu',
+      mon:'⚗️', mname:'ALCHYMISTA VÝRAZŮ',
+      intro:'Alchymista ovládá vzorce jako kouzla. Nauč se čtverec součtu, rozdílu a součin součtu s rozdílem.',
+      tc:6,
+      tasks:()=>[
+        (()=>{const a=ri(3,10),b=ri(1,6);const ans=(a+b)*(a+b);return{
+          text:`Vypočítej (čtverec součtu):\n(${a} + ${b})²`,ans:String(ans),
+          hints:[`Vzorec: (a+b)² = a² + 2ab + b².`,`${a}² + 2·${a}·${b} + ${b}² = ${a*a} + ${2*a*b} + ${b*b}.`],skill:'calc'};})(),
+        (()=>{const a=ri(5,14),b=ri(1,5);const ans=(a-b)*(a-b);return{
+          text:`Vypočítej (čtverec rozdílu):\n(${a} − ${b})²`,ans:String(ans),
+          hints:[`Vzorec: (a−b)² = a² − 2ab + b².`,`Nebo rovnou: ${a}−${b} = ${a-b}, pak ${a-b}² = ?`],skill:'calc'};})(),
+        (()=>{const a=ri(5,14),b=ri(1,6);const ans=a*a-b*b;return{
+          text:`Vypočítej (součin součtu a rozdílu):\n(${a} + ${b}) · (${a} − ${b})`,ans:String(ans),
+          hints:[`Vzorec: (a+b)(a−b) = a² − b².`,`${a}² − ${b}² = ${a*a} − ${b*b}.`],skill:'calc'};})(),
+        (()=>{const a=ri(2,7),b=ri(2,9),c=ri(2,9);return{
+          text:`Rozvij a vypočítej:\n${a} · (${b} + ${c})`,ans:String(a*(b+c)),
+          hints:[`Roznes: ${a}·${b} + ${a}·${c}.`,`${a*b} + ${a*c} = ?`],skill:'calc'};})(),
+        (()=>{const a=ri(2,5),b=ri(1,7),k=ri(2,5);const ans=(a*k+b)*(a*k+b);return{
+          text:`Vypočítej pro x = ${k} (čtverec součtu):\n(${a}x + ${b})²`,ans:String(ans),
+          hints:[`Dosaď x = ${k}: (${a*k} + ${b})².`,`${a*k+b}² = ?`],skill:'calc'};})(),
+        (()=>{const a=ri(2,6),b=ri(2,8),c=ri(2,6),d=ri(1,6);const ans=a*b*c*d;return{
+          text:`Vypočítej:\n${a} · ${b} · ${c} · ${d}`,ans:String(ans),
+          hints:[`Násobení více čísel — jde v libovolném pořadí.`,`(${a}·${b}) · (${c}·${d}) = ${a*b} · ${c*d}.`],skill:'calc'};})()
+      ]
+    },
+    {
+      id:'4-3', name:'Vytýkání', sub:'NSD a rozklad výrazů',
+      mon:'🔮', mname:'MISTR ROZKLADU',
+      intro:'Mistr rozkladu vidí v každém výrazu skrytý součin. Najdi největšího společného dělitele!',
+      tc:6,
+      tasks:()=>[
+        (()=>{const a=ri(2,6),b=ri(2,8),c=ri(2,8);const g=gcd(a*b,a*c);return{
+          text:`Z výrazu ${a*b} + ${a*c} vytkni největší\nspolečný faktor.\nJaký je? (jen číslo)`,ans:String(g),
+          hints:[`Hledáš číslo, které dělí ${a*b} i ${a*c}.`,`NSD(${a*b}, ${a*c}) = ?`],skill:'anal'};})(),
+        (()=>{const a=ri(2,5),b=ri(2,6),c=ri(2,6);return{
+          text:`Vytkni a z výrazu:\n${a}·${b} + ${a}·${c} = ${a}·(b+c)\nb+c = ?`,ans:String(b+c),
+          hints:[`Po vytyknutí ${a} dostaneš ${a}·(? + ?).`,`${a*b}÷${a} = ${b}, ${a*c}÷${a} = ${c}.`],skill:'anal'};})(),
+        (()=>{const k=ri(2,7),a=ri(1,6),b=ri(1,6);return{
+          text:`${k}x + ${k*a} = ${k}·(x + a)\na = ?`,ans:String(a),
+          hints:[`${k*a} ÷ ${k} = ?`,`Druhý člen po vytyknutí ${k} je: ${k*a}÷${k}.`],skill:'anal'};})(),
+        (()=>{const a=ri(2,5),b=ri(2,7),x=ri(2,8);return{
+          text:`Vypočítej hodnotu (vytkni ${a}):\n${a*b} + ${a}·${x}`,ans:String(a*(b+x)),
+          hints:[`Vytkni ${a}: ${a}·(${b} + ${x}).`,`${a} · ${b+x} = ?`],skill:'anal'};})(),
+        (()=>{const a=ri(3,8);const b=ri(2,5)*a,c=ri(2,5)*a;const g=gcd(b,c);return{
+          text:`NSD(${b}, ${c}) = ?`,ans:String(g),
+          hints:[`Rozlož obě čísla na prvočinitele nebo použij Euklidův algoritmus.`,`${b} = ${g}·${b/g}, ${c} = ${g}·${c/g}. Největší společný dělitel je?`],skill:'anal'};})(),
+        (()=>{const a=ri(2,6),b=ri(2,7),c=ri(2,7);return{
+          text:`Vytkni největší společný faktor z:\n${a*b} + ${a*c}\n= ${a} · (? + ?) → b + c = ?`,ans:String(b+c),
+          hints:[`Vytkni ${a}: ${a*b} ÷ ${a} = ${b}, ${a*c} ÷ ${a} = ${c}.`,`V závorce bude ${b} + ${c}.`],skill:'anal'};})()
+      ]
+    }
+  ]
+},
+{
+  id:5, icon:'🌊', name:'JEZERO\nKRUŽNIC',
+  desc:'Kruh, kružnice, válec. Obvod, obsah, objem.',
+  art:{id:'ring',ic:'💍',nm:'Kruhový\nprsten'},
+  attrGain:{geo:25,craft:10},
+  missions:[
+    {
+      id:'5-1', name:'Obvod a obsah kruhu', sub:'rychlovka · výběr ze 4',
+      mon:'🌀', mname:'VODNÍ VÍLA',
+      intro:'Vodní víla vládne kružnicím. Použi π = 3,14 a dokaž, že ovládáš kruh.',
+      mc:true, tc:6,
+      tasks:()=>[
+        (()=>{const r=ri(2,10);const ans=(2*3.14*r).toFixed(2);return{
+          text:`Obvod kružnice (π = 3,14):\nr = ${r} cm\nO = ?`,ans,
+          hints:[`Vzorec: O = 2πr.`,`O = 2 · 3,14 · ${r} = ?`],skill:'geo'};})(),
+        (()=>{const r=ri(2,9);const ans=(3.14*r*r).toFixed(2);return{
+          text:`Obsah kruhu (π = 3,14):\nr = ${r} cm\nS = ?`,ans,
+          hints:[`Vzorec: S = πr².`,`S = 3,14 · ${r}² = 3,14 · ${r*r} = ?`],skill:'geo'};})(),
+        (()=>{const d=ri(4,18);const r=d/2;const ans=(2*3.14*r).toFixed(2);return{
+          text:`Průměr kruhu d = ${d} cm.\nVypočítej obvod kružnice. (π = 3,14)`,ans,
+          hints:[`Průměr = 2r, tedy r = ${r}. Vzorec: O = 2πr = πd.`,`O = 3,14 · ${d} = ?`],skill:'geo'};})(),
+        (()=>{const r=ri(3,10);const o=2*3.14*r;const ans=(o/2/3.14).toFixed(1);return{
+          text:`Obvod kružnice je ${o.toFixed(2)} cm.\nVypočítej poloměr r. (π = 3,14, 1 des. místo)`,ans,
+          hints:[`Z O = 2πr plyne r = O ÷ (2π).`,`r = ${o.toFixed(2)} ÷ (2·3,14) = ${o.toFixed(2)} ÷ 6,28.`],skill:'geo'};})(),
+        (()=>{const r=ri(2,8);const s=(3.14*r*r).toFixed(2);const r2=ri(2,8);const s2=(3.14*r2*r2).toFixed(2);const bigger=parseFloat(s)>parseFloat(s2)?r:r2;return{
+          text:`Který kruh má větší obsah?\nKruh A: r = ${r} cm\nKruh B: r = ${r2} cm\n(napiš A nebo B)`,ans:parseFloat(s)>parseFloat(s2)?'A':'B',
+          hints:[`Porovnej r². Větší poloměr = větší obsah.`,`${r}² = ${r*r} vs ${r2}² = ${r2*r2}.`],skill:'geo'};})(),
+        (()=>{const r=ri(3,9);const ans=(3.14*r*r).toFixed(2);return{
+          text:`Pizzeria prodává pizza s poloměrem ${r} cm.\nJaký je obsah pizzy? cm² (π = 3,14)`,ans,
+          hints:[`Pizza = kruh s r = ${r} cm. S = πr².`,`S = 3,14 · ${r*r} = ?`],skill:'geo'};})()
+      ]
+    },
+    {
+      id:'5-2', name:'Válec — povrch a objem', sub:'3D tvar',
+      mon:'🏺', mname:'STARÝ DŽBÁN',
+      intro:'Starý džbán v jezeře střeží vzorce pro válec. Ovládni objem i povrch.',
+      tc:6,
+      tasks:()=>[
+        (()=>{const r=ri(2,7),h=ri(3,10);const ans=(3.14*r*r*h).toFixed(2);return{
+          text:`Objem válce (π = 3,14):\nr = ${r} cm, h = ${h} cm\nV = ?`,ans,
+          hints:[`Vzorec: V = πr²h.`,`V = 3,14 · ${r}² · ${h} = 3,14 · ${r*r} · ${h} = ?`],skill:'geo'};})(),
+        (()=>{const r=ri(2,6),h=ri(4,12);const lateral=(2*3.14*r*h).toFixed(2);const bases=(2*3.14*r*r).toFixed(2);const ans=(2*3.14*r*(r+h)).toFixed(2);return{
+          text:`Povrch válce (π = 3,14):\nr = ${r} cm, h = ${h} cm\nS = ?`,ans,
+          hints:[`Vzorec: S = 2πr(r + h) = plášť + dvě základny.`,`S = 2 · 3,14 · ${r} · (${r} + ${h}) = 6,28 · ${r} · ${r+h}.`],skill:'geo'};})(),
+        (()=>{const r=ri(2,6),v_target=ri(3,10);const h=v_target;const ans=(3.14*r*r*h).toFixed(2);return{
+          text:`Plechovka má r = ${r} cm a výšku h = ${h} cm.\nJaký je objem? (π = 3,14, cm³)`,ans,
+          hints:[`V = πr²h.`,`V = 3,14 · ${r*r} · ${h} = ?`],skill:'craft'};})(),
+        (()=>{const r=ri(2,5),h=ri(4,10);const v=(3.14*r*r*h).toFixed(2);return{
+          text:`Válec: r = ${r} dm, h = ${h} dm.\nKolik litrů vody pojme?\n(1 dm³ = 1 litr, π = 3,14)`,ans:v,
+          hints:[`Objem v dm³ = V = πr²h. Objem v dm³ přímo = litry.`,`V = 3,14 · ${r*r} · ${h} = ?`],skill:'craft'};})(),
+        (()=>{const r=ri(3,7),h=ri(5,14);const ans=Math.round(3.14*r*r*h).toString();return{
+          text:`Silo (válec) má r = ${r} m a h = ${h} m.\nJaký je objem? (m³, celé číslo, π = 3,14)`,ans,
+          hints:[`V = πr²h ≈ 3,14 · ${r*r} · ${h}.`,`Zaokrouhli výsledek na celé číslo.`],skill:'craft'};})(),
+        (()=>{const r=ri(2,5),h1=ri(3,8),h2=ri(3,8);const v1=3.14*r*r*h1,v2=3.14*r*r*h2;return{
+          text:`Dva válce mají stejný poloměr r = ${r} cm.\nVálec A: h = ${h1} cm, válec B: h = ${h2} cm.\nKterý má větší objem? (A nebo B)`,ans:h1>h2?'A':'B',
+          hints:[`Při stejném r záleží jen na výšce.`,`Větší výška → větší objem.`],skill:'geo'};})()
+      ]
+    },
+    {
+      id:'5-3', name:'Kružnice — slovní úlohy', sub:'obvod, obsah, válec v praxi',
+      mon:'🐙', mname:'CHOBOTNICE KRUHU',
+      intro:'Chobotnice obepíná vše svými rameny jako kružnice. Poraď si s jejími záhadami!',
+      tc:6,
+      tasks:()=>[
+        (()=>{const r=ri(5,15);const ans=Math.round(2*3.14*r);return{
+          text:`Kulatý bazén má poloměr ${r} m.\nJak dlouhé je jeho oplocení? (m, celé číslo, π = 3,14)`,ans:String(ans),
+          hints:[`Délka oplocení = obvod kružnice = 2πr.`,`O = 2 · 3,14 · ${r} ≈ ?`],skill:'geo'};})(),
+        (()=>{const r=ri(10,20);const ans=Math.round(3.14*r*r);return{
+          text:`Hřiště má tvar kruhu s r = ${r} m.\nJaká je jeho plocha? (m², celé číslo, π = 3,14)`,ans:String(ans),
+          hints:[`Plocha kruhu = πr².`,`S ≈ 3,14 · ${r*r} = ?`],skill:'geo'};})(),
+        (()=>{const d=ri(3,8)*2;const r=d/2;const ans=(3.14*r*r).toFixed(2);return{
+          text:`Kruhová fontána má průměr ${d} m.\nJaká je plocha vodní hladiny? (m², π = 3,14)`,ans,
+          hints:[`Průměr = ${d} m → r = ${r} m. Obsah = πr².`,`S = 3,14 · ${r}² = 3,14 · ${r*r} = ?`],skill:'geo'};})(),
+        (()=>{const r=ri(3,7),h=ri(10,25);const ans=Math.round(2*3.14*r*h);return{
+          text:`Válcová nádrž r = ${r} m, h = ${h} m.\nJaký je povrch pláště? (m², celé číslo, π = 3,14)`,ans:String(ans),
+          hints:[`Plášť válce = 2πrh.`,`P = 2 · 3,14 · ${r} · ${h} ≈ ?`],skill:'craft'};})(),
+        (()=>{const r=ri(4,9),h=ri(5,12);const ans=Math.round(3.14*r*r*h);return{
+          text:`Do válcové studny (r = ${r} m, h = ${h} m) se napustí voda.\nKolik m³ vody pojme? (celé číslo, π = 3,14)`,ans:String(ans),
+          hints:[`Objem = πr²h.`,`V ≈ 3,14 · ${r*r} · ${h} = ?`],skill:'craft'};})(),
+        (()=>{const o=ri(5,14)*2;const r=(o/(2*3.14)).toFixed(1);return{
+          text:`Obvod kolečka je ${o} cm.\nJaký je jeho poloměr? (1 des. místo, π = 3,14)`,ans:r,
+          hints:[`Z O = 2πr: r = O ÷ (2π).`,`r = ${o} ÷ 6,28 = ?`],skill:'geo'};})()
+      ]
+    }
+  ]
+},
+{
+  id:6, icon:'🔧', name:'DÍLNA\nKONSTR.',
+  desc:'Konstrukční úlohy. Množiny bodů, Thaletova věta, osy souměrnosti.',
+  art:{id:'compass',ic:'🧭',nm:'Rýsovací\nkompas'},
+  attrGain:{geo:15,craft:25},
+  missions:[
+    {
+      id:'6-1', name:'Množiny bodů', sub:'rychlovka · výběr ze 4',
+      mon:'📏', mname:'RÝSOVAČ ZÁHAD',
+      intro:'Rýsovač záhad zná každou množinu bodů. Odpověz správně a projdeš dílnou.',
+      mc:true, tc:6,
+      tasks:()=>[
+        (()=>{const r=ri(3,10);return{
+          text:`Osa úsečky AB délky ${r*2} cm je kolmá přímka\nprocházející středem. Jak daleko je střed\nod každého krajního bodu? (cm)`,ans:String(r),
+          hints:[`Střed úsečky = polovina délky.`,`${r*2} ÷ 2 = ?`],skill:'geo'};})(),
+        (()=>{const a=ri(30,70),b=ri(10,a-5);return{
+          text:`Trojúhelník ABC: α = ${a}°, β = ${b}°.\nJaký je úhel γ? (°)`,ans:String(180-a-b),
+          hints:[`Součet vnitřních úhlů trojúhelníku = 180°.`,`γ = 180° − ${a}° − ${b}° = ?`],skill:'geo'};})(),
+        (()=>{const r=ri(4,12);return{
+          text:`Kolik os souměrnosti má čtverec se stranou ${r} cm?`,ans:'4',
+          hints:[`Čtverec má 4 osy: 2 rovnoběžné se stranami + 2 úhlopříčné.`,`Čtverec → 4 osy.`],skill:'geo'};})(),
+        (()=>{return{
+          text:`Thaletova věta: úhel vepsaný\ndo kružnice nad průměrem je vždy:\n(v stupních)`,ans:'90',
+          hints:[`Thaletova věta říká, že úhel nad průměrem = pravý úhel.`,`Pravý úhel = ? stupňů.`],skill:'geo'};})(),
+        (()=>{const r=ri(3,9);return{
+          text:`Kružnice má poloměr ${r} cm.\nJak daleko je bod přesně na kružnici\nod středu? (cm)`,ans:String(r),
+          hints:[`Kružnice = množina všech bodů ve vzdálenosti r od středu.`,`Vzdálenost = poloměr = ?`],skill:'geo'};})(),
+        (()=>{const a=ri(40,80);return{
+          text:`Vnější úhel trojúhelníku = ${180-a}°.\nJaký je vnitřní úhel při témž vrcholu? (°)`,ans:String(a),
+          hints:[`Vnitřní a vnější úhel jsou na přímce → doplňují se do 180°.`,`${a}° + ${180-a}° = 180°.`],skill:'geo'};})()
+      ]
+    },
+    {
+      id:'6-2', name:'Thaletova kružnice', sub:'pravý úhel a středová souměrnost',
+      mon:'🔵', mname:'DÉMANT STŘEDU',
+      intro:'Démant středu vládne Thaletovou větou. Každý pravý úhel nad průměrem má svůj tajemný střed.',
+      tc:6,
+      tasks:()=>[
+        (()=>{const ab=ri(6,20);return{
+          text:`Úsečka AB je průměr kružnice.\nAB = ${ab} cm.\nJaký je poloměr Thaletovy kružnice? (cm)`,ans:String(ab/2),
+          hints:[`Thaletova kružnice má střed ve středu AB.`,`r = AB ÷ 2 = ${ab} ÷ 2 = ?`],skill:'geo'};})(),
+        (()=>{const a=ri(3,8),b=ri(3,10);const c=Math.sqrt(a*a+b*b).toFixed(2);return{
+          text:`Bod C leží na Thaletově kružnici nad AB.\nCa = ${a} cm, Cb = ${b} cm.\nUrči délku průměru AB. (2 des. místa)`,ans:c,
+          hints:[`Úhel ACB = 90°, takže AB je přepona pravoúhlého trojúhelníku.`,`AB = √(${a}² + ${b}²) = √${a*a+b*b}.`],skill:'geo'};})(),
+        (()=>{const a=ri(3,10),b=ri(3,10);const c=Math.sqrt(a*a+b*b).toFixed(2);const r=(Math.sqrt(a*a+b*b)/2).toFixed(2);return{
+          text:`Pravoúhlý trojúhelník: odvěsny ${a} a ${b} cm.\nPočítáme poloměr opsané kružnice.\nNejdřív urči přeponu c. (2 des. místa)`,ans:c,
+          hints:[`Pythagorova věta: c² = a² + b².`,`c = √(${a}²+${b}²) = √${a*a+b*b}.`],skill:'geo'};})(),
+        (()=>{const a=ri(3,10),b=ri(3,10);const c2=a*a+b*b;const c=Math.sqrt(c2);const r=(c/2).toFixed(2);return{
+          text:`Pravoúhlý trojúhelník: odvěsny ${a} a ${b} cm.\nJaký je poloměr opsané kružnice? (2 des. místa)`,ans:r,
+          hints:[`U pravoúhlého trojúhelníku je přepona průměr opsané kružnice.`,`přepona c = √(${a}²+${b}²) = √${c2}, r = c ÷ 2.`],skill:'geo'};})(),
+        (()=>{const sides=[3,4,5,5,12,13,8,15,17,7,24,25];const i=ri(0,3)*3;const a=sides[i],b=sides[i+1],c=sides[i+2];return{
+          text:`Trojúhelník se stranami ${a}, ${b}, ${c} cm.\nJe to pravoúhlý trojúhelník?\n(ANO / NE)`,ans:'ANO',
+          hints:[`Ověř Pythagorovu větu pro největší stranu jako přeponu.`,`${a}² + ${b}² = ${a*a+b*b}, ${c}² = ${c*c}. Souhlasí?`],skill:'geo'};})(),
+        (()=>{const a=ri(30,80),b=ri(10,90-a);const c=180-a-b;const ext=180-c;return{
+          text:`Trojúhelník: α = ${a}°, β = ${b}°, γ = ${c}°.\nJaký je vnější úhel při vrcholu C? (°)`,ans:String(ext),
+          hints:[`Vnější úhel = 180° − vnitřní úhel.`,`${180}° − ${c}° = ?`],skill:'geo'};})()
+      ]
+    },
+    {
+      id:'6-3', name:'Osy a souměrnosti', sub:'praktické konstrukční úlohy',
+      mon:'🪞', mname:'ZRCADLO GEOMETRIE',
+      intro:'Zrcadlo geometrie odráží každý tvar do dokonalosti. Ovládni osy souměrnosti!',
+      tc:6,
+      tasks:()=>[
+        (()=>{return{
+          text:`Kolik os souměrnosti má rovnostranný\ntrojúhelník?`,ans:'3',
+          hints:[`Každá osa prochází vrcholem a středem protilehlé strany.`,`Rovnostranný trojúhelník: 3 osy.`],skill:'craft'};})(),
+        (()=>{return{
+          text:`Kolik os souměrnosti má obdélník\n(který není čtverec)?`,ans:'2',
+          hints:[`Osy spojují středy protilehlých stran.`,`Obdélník: 2 osy.`],skill:'craft'};})(),
+        (()=>{const a=ri(3,10);return{
+          text:`Bod A [${a}, 0] se zobrazí středovou souměrností\npod středem O [0,0].\nJaká je souřadnice x obrazu? (jen číslo)`,ans:String(-a),
+          hints:[`Středová souměrnost kolem počátku: [x,y] → [−x,−y].`,`x-souřadnice: −(${a}) = ?`],skill:'craft'};})(),
+        (()=>{const x=ri(2,8),y=ri(2,8);return{
+          text:`Bod P [${x}, ${y}] se zobrazí osovou souměrností\npodél osy x (přímka y = 0).\nJaká je y-souřadnice obrazu?`,ans:String(-y),
+          hints:[`Souměrnost podle osy x: [x, y] → [x, −y].`,`y-souřadnice: −${y} = ?`],skill:'craft'};})(),
+        (()=>{const ns=[4,5,6,8,9,10];const n=ns[ri(0,ns.length-1)];const ext=360/n;return{
+          text:`Pravidelný ${n}-úhelník má ____° rotační souměrnost.\n(nejmenší úhel otočení, celé číslo)`,ans:String(ext),
+          hints:[`Pravidelný n-úhelník se zobrazí sám na sebe otočením o 360°/n.`,`360 ÷ ${n} = ?`],skill:'craft'};})(),
+        (()=>{const a=ri(2,8);return{
+          text:`Střed úsečky PQ leží v bodě M.\nPM = ${a} cm.\nJaká je délka celé úsečky PQ? (cm)`,ans:String(2*a),
+          hints:[`Střed rozděluje úsečku na dvě stejné části.`,`PQ = 2 · PM = 2 · ${a} = ?`],skill:'craft'};})()
+      ]
+    }
+  ]
+},
+{
+  id:7, icon:'🏛️', name:'CITADELA\nARCIMÁGA',
+  desc:'Závěrečné opakování a přijímačkové úlohy. Finální boss!',
+  art:{id:'crown',ic:'👑',nm:'Diplom\narcimága'},
+  attrGain:{calc:10,geo:10,anal:10,craft:10},
+  missions:[
+    {
+      id:'7-1', name:'Zkouška ohněm', sub:'kombinace všech témat',
+      mon:'🐲', mname:'DRAK OPAKOVÁNÍ',
+      intro:'Drak opakování zná celou matematiku 8. ročníku. Prokáž, že jsi zvládl vše!',
+      tc:6,
+      tasks:()=>[
+        (()=>{const a=ri(3,8),b=ri(3,10),c=a*a+b*b;const cv=Math.sqrt(c).toFixed(2);return{
+          text:`Pravoúhlý trojúhelník: a = ${a}, b = ${b}.\nVypočítej přeponu c. (2 des. místa)`,ans:cv,
+          hints:[`c² = a² + b².`,`√(${a}²+${b}²) = √${c}.`],skill:'geo'};})(),
+        (()=>{const p=ri(5,40),z=ri(5,20)*1000;const sleva=Math.round(z*p/100);return{
+          text:`Laptop stál ${z} Kč, nyní je zlevněn o ${p} %.\nKolik stojí teď? (Kč)`,ans:String(z-sleva),
+          hints:[`Sleva = ${p} % z ${z} = ${sleva} Kč.`,`Nová cena = ${z} − ${sleva}.`],skill:'anal'};})(),
+        (()=>{const r=ri(3,8),h=ri(4,10);return{
+          text:`Válec: r = ${r} cm, h = ${h} cm.\nObjem? (cm³, π = 3,14, celé číslo)`,ans:String(Math.round(3.14*r*r*h)),
+          hints:[`V = πr²h.`,`V ≈ 3,14 · ${r*r} · ${h} = ?`],skill:'geo'};})(),
+        (()=>{const aa=ri(3,8),cc=ri(1,aa-1),xx=ri(2,7),bb=ri(1,8),dd=(aa-cc)*xx+bb;return{
+          text:`Vyřeš rovnici:\n${aa}x + ${bb} = ${cc}x + ${dd}`,ans:String(xx),
+          hints:[`Přesuň x: ${aa-cc}x = ${dd-bb}.`,`x = ${dd-bb} ÷ ${aa-cc} = ?`],skill:'anal'};})(),
+        (()=>{const a=ri(4,10),b=ri(1,a-1);return{
+          text:`Vypočítej (součin součtu a rozdílu):\n(${a} + ${b})(${a} − ${b})`,ans:String(a*a-b*b),
+          hints:[`Vzorec: (a+b)(a−b) = a²−b².`,`${a}²−${b}² = ${a*a}−${b*b}.`],skill:'calc'};})(),
+        (()=>{const parts=ri(2,5),each=ri(3,12)*100,total=parts*each;return{
+          text:`${parts} kamarádů si rozdělí výhru ${total} Kč\nrovným dílem.\nKolik Kč dostane každý?`,ans:String(each),
+          hints:[`Vydel výhru počtem kamarádů.`,`${total} ÷ ${parts} = ?`],skill:'anal'};})()
+      ]
+    },
+    {
+      id:'7-2', name:'Přijímačkový trénink', sub:'úlohy jako CERMAT',
+      mon:'📜', mname:'KANCLÉŘ PŘIJÍMAČEK',
+      intro:'Kancléř přijímaček testuje vše najednou — jako na skutečných přijímacích zkouškách na střední školu.',
+      tc:6,
+      tasks:()=>[
+        (()=>{const v=ri(40,80),t=ri(2,5),v2=ri(30,60),t2=t+ri(1,3);const sA=v*t,sB=v2*t2;return{
+          text:`Auto A jede ${v} km/h po dobu ${t} h.\nAuto B jede ${v2} km/h po dobu ${t2} h.\nKterý z nich ujel více? (A nebo B)`,ans:sA>sB?'A':'B',
+          hints:[`Vypočítej dráhu každého: s = v · t.`,`Auto A: ${v}·${t} = ${sA} km, Auto B: ${v2}·${t2} = ${sB} km.`],skill:'anal'};})(),
+        (()=>{const a=ri(3,9),b=ri(3,9),c=ri(5,14);const x=c-a-b;if(x>0){return{
+          text:`Jana má ${a} jablek, Petr ${b} jablek.\nDohromady chtějí mít ${a+b+x} jablek.\nKolik jablek chybí? (ks)`,ans:String(x),
+          hints:[`Celkem potřebují ${a+b+x}. Mají ${a+b}.`,`${a+b+x} − ${a+b} = ?`],skill:'anal'};}
+          const y=a+b;return{text:`Jana má ${a} jablek, Petr ${b} jablek.\nKolik mají dohromady?`,ans:String(y),hints:[`${a}+${b}.`,`= ?`],skill:'anal'};})(),
+        (()=>{const a=ri(2,8),b=ri(2,8),k=ri(2,6);const ans=(a+b)*k;return{
+          text:`Obvod obdélníku je ${ans} cm.\nJedna strana je ${a*k} cm.\nJaká je druhá strana? (cm)`,ans:String(b*k),
+          hints:[`O = 2(a+b), tedy a+b = O÷2 = ${ans/2}.`,`Druhá strana = ${ans/2} − ${a*k} = ?`],skill:'geo'};})(),
+        (()=>{const p=ri(10,40),tot=ri(20,60)*10;const ans=Math.round(tot*p/100);return{
+          text:`Ve třídě je ${tot} žáků.\n${p} % z nich je chlapci.\nKolik chlapců je ve třídě?`,ans:String(ans),
+          hints:[`${p} % z ${tot} = ${tot}·${p}÷100.`,`= ?`],skill:'anal'};})(),
+        (()=>{const r=ri(4,10);const o=Math.round(2*3.14*r);return{
+          text:`Obvod kružnice je ${o} cm. (π = 3,14)\nJaký je poloměr? (cm, celé číslo)`,ans:String(r),
+          hints:[`r = O ÷ (2π) = ${o} ÷ 6,28.`,`Výsledek zaokrouhli na celé číslo.`],skill:'geo'};})(),
+        (()=>{const a=ri(3,12),b=ri(3,12);const c2=a*a+b*b;const c=Math.sqrt(c2).toFixed(2);return{
+          text:`Úhlopříčka obdélníku ${a} × ${b} cm.\nJak je dlouhá? (cm, 2 des. místa)`,ans:c,
+          hints:[`Úhlopříčka = přepona pravoúhlého trojúhelníku.`,`d = √(${a}²+${b}²) = √${c2}.`],skill:'geo'};})()
+      ]
+    },
+    {
+      id:'7-3', name:'Finální duel', sub:'nejtěžší výzva · výběr ze 4',
+      mon:'🧙‍♂️', mname:'ARCIMÁG',
+      intro:'🔥 ARCIMÁG 🔥 — nejsilnější bytost v celém království matematiky. Toto je tvůj největší souboj. Každý úkol je náročný. Combo je tvou jedinou záchranou!',
+      mc:true, tc:6,
+      tasks:()=>[
+        (()=>{const a=ri(5,12),b=ri(3,8);const ans=(a+b)*(a+b);return{
+          text:`Vypočítej bez kalkulačky:\n(${a} + ${b})²`,ans:String(ans),
+          hints:[`(a+b)² = a²+2ab+b².`,`${a*a} + ${2*a*b} + ${b*b} = ?`],skill:'calc'};})(),
+        (()=>{const r=ri(4,9),h=ri(4,10);const v=Math.round(3.14*r*r*h);return{
+          text:`Válcová nádrž: r = ${r} m, h = ${h} m.\nKolik m³ vody pojme? (π = 3,14)`,ans:String(v),
+          hints:[`V = πr²h ≈ 3,14 · ${r*r} · ${h}.`,`Zaokrouhli: ?`],skill:'geo'};})(),
+        (()=>{const aa=ri(4,9),cc=ri(1,aa-2),xx=ri(2,9),bb=ri(2,10),dd=(aa-cc)*xx+bb;return{
+          text:`Vyřeš rovnici (přijímačkový typ):\n${aa}x + ${bb} = ${cc}x + ${dd}`,ans:String(xx),
+          hints:[`Přesuň x na levo, čísla na pravo.`,`${aa-cc}x = ${dd-bb}, x = ?`],skill:'anal'};})(),
+        (()=>{const p1=ri(10,40),p2=ri(5,20);const z=ri(4,12)*100;const po1=z*(1-p1/100),po2=po1*(1-p2/100);return{
+          text:`Cena ${z} Kč, sleva ${p1} %, pak další ${p2} %.\nKonečná cena? (Kč, celé číslo)`,ans:String(Math.round(po2)),
+          hints:[`Po první slevě: ${z}·${(100-p1)/100} = ${Math.round(z*(1-p1/100))} Kč.`,`Z té pak ${p2} %: · ${(100-p2)/100}.`],skill:'anal'};})(),
+        (()=>{const a=ri(3,8),b=ri(3,8),c=ri(3,8),p=ri(5,35);const tot=a+b+c;const ans=Math.round(tot*p/100);return{
+          text:`Třída: ${a} výborných, ${b} chvalitebných, ${c} ostatních.\n${p} % celé třídy dostane výlet.\nKolik žáků pojede?`,ans:String(ans),
+          hints:[`Celkem žáků: ${a}+${b}+${c} = ${tot}.`,`${p} % z ${tot} = ${tot}·${p}÷100 ≈ ?`],skill:'anal'};})(),
+        (()=>{const c=ri(10,17),a=ri(3,c-3);const b2=c*c-a*a;const b=Math.sqrt(b2).toFixed(2);return{
+          text:`Pravoúhlý trojúhelník:\npřepona c = ${c} cm, odvěsna a = ${a} cm.\nOdvěsna b = ? (2 des. místa)`,ans:b,
+          hints:[`b² = c² − a².`,`b = √(${c}²−${a}²) = √${b2}.`],skill:'geo'};})()
+      ]
+    }
+  ]
+}
 ];
 
 const ATTR_META = {
@@ -777,7 +1203,7 @@ let BT={tasks:[],idx:0,hl:0,curTask:null,aid:null,mid:null,combo:0,
         items:[],timerFrozen:false,freezeTimeout:null};
 
 const MAX_PLAYER_HP=3;
-const TIME_PER_TASK=30;
+const TIME_PER_TASK=40;
 const ITEM_DROP_CHANCE=0.28;
 const MAX_ITEMS=3;
 const ITEM_TYPES=['hp','freeze','skip'];
@@ -1174,6 +1600,7 @@ function useItem(type){
     stopTimer();
     S.done[`${BT.mid}-${BT.idx}`]=true;saveS();
     fb.textContent='💨 ÚKOL PŘESKOČEN!';fb.className='feedback ok';
+    checkMissionComplete();
     setTimeout(()=>nextTask(),700);
   }
 }
