@@ -399,11 +399,11 @@ body::before{
 <div class="wrap">
  <div class="topnav">
  <span class="hl" id="map-name">HRDINA</span>
- <span>LV <span class="hl" id="map-lv">1</span> &nbsp; × &nbsp; XP <span class="hl" id="map-xp">0</span></span>
+ <span>LV <span class="hl" id="map-lv">1</span> &nbsp; · &nbsp; XP <span class="hl" id="map-xp">0</span></span>
  <button class="btn sm" onclick="go('profile')">👤 PROFIL</button>
  </div>
  <div class="panel" style="padding:10px 14px;text-align:center">
- <div style="font-family:var(--px);font-weight:400;font-size:13px;color:var(--muted);letter-spacing:1px">✦ &nbsp;MAPPA MATHEMATICAE&nbsp; × &nbsp;ANNUS VIII&nbsp; ✦</div>
+ <div style="font-family:var(--px);font-weight:400;font-size:13px;color:var(--muted);letter-spacing:1px">✦ &nbsp;MAPPA MATHEMATICAE&nbsp; · &nbsp;ANNUS VIII&nbsp; ✦</div>
  </div>
  <div class="map-grid" id="map-grid"></div>
  <div class="panel" style="padding:10px 14px">
@@ -536,6 +536,8 @@ body::before{
 // ══════════════════════════════════════════
 const ri = (a,b) => Math.floor(Math.random()*(b-a+1))+a;
 function gcd(a,b){return b?gcd(b,a%b):Math.abs(a);}
+// české skloňování podle počtu: skl(n,'kamarád','kamarádi','kamarádů')
+const skl = (n,one,few,many) => n===1?one : (n>=2&&n<=4?few:many);
 
 function checkAns(raw, correct){
  const norm = s => String(s).trim().toLowerCase().replace(/\s+/g,'').replace(',','.');
@@ -562,7 +564,7 @@ const AREAS = [
  attrGain:{calc:12,anal:8},
  missions:[
  {
- id:'1-1', name:'Celá čísla', sub:'rychlovka × výběr ze 4',
+ id:'1-1', name:'Celá čísla', sub:'rychlovka · výběr ze 4',
  mon:'🔢', mname:'STRÁŽCE ČÍSEL',
  intro:'Na začátku cesty stojí Strážce celých čísel. Ovládni záporná čísla, aby ti otevřel bránu.',
  mc:true, tc:6,
@@ -571,19 +573,19 @@ const AREAS = [
  text:`Vypočítej:\n(${a}) + ${b} =`,ans:String(ans),
  hints:[`Sčítáš záporné a kladné číslo. Najdi, které má větší absolutní hodnotu.`,`|${a}| = ${Math.abs(a)}, druhé číslo: ${b}. Větší absolutní hodnotou je ${Math.abs(a)>b?'záporné':'kladné'}, takže výsledek bude ${Math.abs(a)>b?'záporný':'kladný'}.`],skill:'calc'};})(),
  (()=>{const a=ri(-12,-2),b=ri(-9,-1),ans=a-b;return{
- text:`Vypočítej:\n(${a}) − (${b}) =`,ans:String(ans),
- hints:[`Odečítání záporného čísla = přičtení jeho absolutní hodnoty.`,`${a} − (${b}) přepiš jako ${a} + ${Math.abs(b)}.`],skill:'calc'};})(),
+ text:`Vypočítej:\n(${a}) - (${b}) =`,ans:String(ans),
+ hints:[`Odečítání záporného čísla = přičtení jeho absolutní hodnoty.`,`${a} - (${b}) přepiš jako ${a} + ${Math.abs(b)}.`],skill:'calc'};})(),
  (()=>{const a=ri(-7,-2),b=ri(2,8),ans=a*b;return{
  text:`Vypočítej:\n(${a}) × ${b} =`,ans:String(ans),
  hints:[`Záporné × kladné = záporné.`,`Spočítej |${a}| × ${b} = ${Math.abs(ans)} a doplň znaménko.`],skill:'calc'};})(),
  (()=>{const a=ri(2,9),b=ri(2,9),ans=(-a)*(-b);return{
- text:`Vypočítej:\n(−${a}) × (−${b}) =`,ans:String(ans),
+ text:`Vypočítej:\n(-${a}) × (-${b}) =`,ans:String(ans),
  hints:[`Záporné × záporné = ?`,`Mínus krát mínus dává plus. Spočítej ${a} × ${b}.`],skill:'calc'};})(),
  (()=>{const b=ri(2,12),k=ri(2,9),a=-b*k,ans=a/b;return{
  text:`Vypočítej:\n(${a}) ÷ ${b} =`,ans:String(ans),
  hints:[`Záporné ÷ kladné = záporné.`,`|${a}| ÷ ${b} = ${Math.abs(ans)}.`],skill:'calc'};})(),
  (()=>{const a=ri(-15,-3),b=ri(-9,-2),c=ri(2,12),ans=a-b+c;return{
- text:`Vypočítej:\n(${a}) − (${b}) + ${c} =`,ans:String(ans),
+ text:`Vypočítej:\n(${a}) - (${b}) + ${c} =`,ans:String(ans),
  hints:[`Nejdřív si přepiš odečítání záporného na sčítání: ${a} + ${Math.abs(b)} + ${c}.`,`Postupuj zleva doprava: ${a + Math.abs(b)} + ${c}.`],skill:'calc'};})()
  ]
  },
@@ -603,8 +605,8 @@ const AREAS = [
  text:`Použij distributivní zákon:\n${c} × ${a} + ${c} × ${b} =`,ans:String(ans),
  hints:[`Vytkni společné číslo: c × a + c × b = c × (a+b).`,`Spočítej ${c} × (${a}+${b}) = ${c} × ${a+b}.`],skill:'calc'};})(),
  (()=>{const b=ri(3,8),d=b,a=ri(2,b-1),c=ri(1,b-1);const num=a-c,den=b,g=gcd(Math.abs(num),den);const ans=num===0?'0':(den/g===1?String(num/g):`${num/g}/${den/g}`);return{
- text:`Vypočítej (zjednodušený zlomek):\n${a}/${b} − ${c}/${d} =`,ans,
- hints:[`Jmenovatelé jsou stejné. Odčítej jen čitatele.`,`(${a} − ${c})/${b} = ${num}/${den}. Pokud lze, zkrať.`],skill:'calc'};})(),
+ text:`Vypočítej (zjednodušený zlomek):\n${a}/${b} - ${c}/${d} =`,ans,
+ hints:[`Jmenovatelé jsou stejné. Odčítej jen čitatele.`,`(${a} - ${c})/${b} = ${num}/${den}. Pokud lze, zkrať.`],skill:'calc'};})(),
  (()=>{const a=ri(2,6),b=ri(3,8),c=ri(2,6),d=ri(3,8);const num=a*c,den=b*d,g=gcd(num,den);const ans=den/g===1?String(num/g):`${num/g}/${den/g}`;return{
  text:`Vypočítej (zjednodušený zlomek):\n${a}/${b} × ${c}/${d} =`,ans,
  hints:[`Zlomky se násobí "po patrech": čitatel × čitatel, jmenovatel × jmenovatel.`,`${a} × ${c}/(${b} × ${d}) = ${num}/${den}. Pak zkrať.`],skill:'calc'};})(),
@@ -634,9 +636,9 @@ const AREAS = [
  (()=>{const p=ri(2,5)*5,z=ri(8,30)*100;const ans=Math.round(z*p/100);return{
  text:`Na účtu máš ${z} Kč s úrokem ${p} % ročně.\nKolik si připíšeš za rok? (Kč)`,ans:String(ans),
  hints:[`Úrok = ${p} % z částky na účtu.`,`${z} × ${p} ÷ 100 = ?`],skill:'anal'};})(),
- (()=>{const p=ri(10,40),v=ri(2,9)*10;const z=Math.round(v*100/p);return{
- text:`${v} žáků dostalo jedničku.\nTo je ${p} % třídy.\nKolik žáků je celkem ve třídě?`,ans:String(z),
- hints:[`Když ${p} % = ${v}, kolik je 100 %?`,`Použij úměru: ${v} ÷ ${p} × 100.`],skill:'anal'};})()
+ (()=>{const cases=[[20,25,5],[24,25,6],[28,25,7],[30,20,6],[25,20,5],[20,50,10],[30,10,3]];const[tot,p,v]=cases[Math.floor(Math.random()*cases.length)];return{
+ text:`${v} žáků ve třídě dostalo jedničku.\nTo je ${p} % třídy.\nKolik žáků je celkem ve třídě?`,ans:String(tot),
+ hints:[`Když ${p} % = ${v} žáků, kolik je 100 %?`,`Použij úměru: ${v} ÷ ${p} × 100.`],skill:'anal'};})()
  ]
  }
  ]
@@ -648,7 +650,7 @@ const AREAS = [
  attrGain:{calc:10,geo:20},
  missions:[
  {
- id:'2-1', name:'Mocniny a odmocniny', sub:'rychlovka × výběr ze 4',
+ id:'2-1', name:'Mocniny a odmocniny', sub:'rychlovka · výběr ze 4',
  mon:'🔷', mname:'RUNA MOCNINY',
  intro:'Na skalní stěně jsou vytesány runy mocnin. Jen ten, kdo je rozluští, smí vystoupat výš.',
  mc:true, tc:6,
@@ -663,8 +665,8 @@ const AREAS = [
  text:`Vypočítej:\n√${a*a} =`,ans:String(ans),
  hints:[`Druhá odmocnina hledá číslo, které vynásobeno samo sebou dá zadané.`,`Najdi ? takové, že ? × ? = ${a*a}.`],skill:'calc'};})(),
  (()=>{const a=ri(2,9),ans=a*a;return{
- text:`Vypočítej:\n(−${a})² =`,ans:String(ans),
- hints:[`Mínus krát mínus = plus. Záporné číslo na druhou je vždy kladné.`,`(−${a}) × (−${a}) = ?`],skill:'calc'};})(),
+ text:`Vypočítej:\n(-${a})² =`,ans:String(ans),
+ hints:[`Mínus krát mínus = plus. Záporné číslo na druhou je vždy kladné.`,`(-${a}) × (-${a}) = ?`],skill:'calc'};})(),
  (()=>{const a=ri(2,7),ans=a;return{
  text:`Vypočítej třetí odmocninu:\n³√${a*a*a} =`,ans:String(ans),
  hints:[`Třetí odmocnina hledá číslo, jehož třetí mocnina dá ${a*a*a}.`,`Hledej ? takové, že ? × ? × ? = ${a*a*a}.`],skill:'calc'};})(),
@@ -700,29 +702,29 @@ const AREAS = [
  ]
  },
  {
- id:'2-3', name:'Pythagorova věta — odvěsna', sub:'b² = c² − a²',
+ id:'2-3', name:'Pythagorova věta — odvěsna', sub:'b² = c² - a²',
  mon:'🌀', mname:'ČARODĚJ GEOMETRIE',
  intro:'Čaroděj geometrie ukryl odvěsnu v záhybech prostoru. Najdi ji!',
  tc:6,
  tasks:()=>[
  (()=>{const c=ri(10,17),a=ri(3,c-3);const b2=c*c-a*a;const b=Math.sqrt(b2).toFixed(2);return{
  text:`Pravoúhlý trojúhelník:\npřepona c = ${c}, odvěsna a = ${a}.\nVypočítej odvěsnu b. (2 des. místa)`,ans:b,
- hints:[`Z Pythagorovy věty plyne: b² = c² − a².`,`Spočítej ${c}² − ${a}² a odmocni.`],skill:'geo'};})(),
+ hints:[`Z Pythagorovy věty plyne: b² = c² - a².`,`Spočítej ${c}² - ${a}² a odmocni.`],skill:'geo'};})(),
  (()=>{return{
  text:`Pravoúhlý trojúhelník:\nc = 13, a = 5.\nVypočítej odvěsnu b.`,ans:'12',
- hints:[`b² = c² − a². Spočítej druhé mocniny.`,`b² = 169 − 25. Pak odmocni.`],skill:'geo'};})(),
- (()=>{const c=ri(10,20),b=ri(3,c-3);const a2=c*c-b*b;const a=Math.sqrt(a2).toFixed(2);return{
+ hints:[`b² = c² - a². Spočítej druhé mocniny.`,`b² = 169 - 25. Pak odmocni.`],skill:'geo'};})(),
+ (()=>{const c=ri(10,20),b=ri(3,c-3);const a2=c*c-b*b;const ans=Math.sqrt(a2).toFixed(2);return{
  text:`U vrcholu stromu je drak. Vzdálenost ke konci stínu = ${c} m,\ndélka stínu = ${b} m.\nJak vysoko je drak? (2 des. místa)`,ans,
- hints:[`Výška = odvěsna pravoúhlého trojúhelníku.`,`Spočítej ${c}² − ${b}² a odmocni.`],skill:'geo'};})(),
+ hints:[`Výška = odvěsna pravoúhlého trojúhelníku.`,`Spočítej ${c}² - ${b}² a odmocni.`],skill:'geo'};})(),
  (()=>{return{
  text:`Pravoúhlý trojúhelník:\nc = 25, a = 7.\nVypočítej odvěsnu b.`,ans:'24',
- hints:[`b² = c² − a². Spočítej druhé mocniny.`,`b² = 625 − 49. Pak odmocni.`],skill:'geo'};})(),
+ hints:[`b² = c² - a². Spočítej druhé mocniny.`,`b² = 625 - 49. Pak odmocni.`],skill:'geo'};})(),
  (()=>{const v=ri(5,12),c=v+ri(3,8);const sirka2=c*c-v*v;const ans=Math.sqrt(sirka2).toFixed(2);return{
  text:`Žebřík dlouhý ${c} m je opřený o zeď,\nvrchol dosahuje výšky ${v} m.\nJak daleko je pata od zdi? (2 des. místa)`,ans,
- hints:[`Žebřík je přepona, výška a odstup jsou odvěsny.`,`Odstup² = ${c}² − ${v}².`],skill:'geo'};})(),
+ hints:[`Žebřík je přepona, výška a odstup jsou odvěsny.`,`Odstup² = ${c}² - ${v}².`],skill:'geo'};})(),
  (()=>{const a=ri(8,15),c=a+ri(3,10);const b2=c*c-a*a;const ans=Math.sqrt(b2).toFixed(1);return{
  text:`Lano dlouhé ${c} m vede z vrcholu stožáru k zemi,\nvzdálenost paty stožáru od kotvy = ${a} m.\nJak vysoký je stožár? (1 des. místo)`,ans,
- hints:[`Lano = přepona, vzdálenost a výška = odvěsny.`,`Výška² = ${c}² − ${a}².`],skill:'geo'};})()
+ hints:[`Lano = přepona, vzdálenost a výška = odvěsny.`,`Výška² = ${c}² - ${a}².`],skill:'geo'};})()
  ]
  }
  ]
@@ -734,16 +736,16 @@ const AREAS = [
  attrGain:{calc:15,anal:15},
  missions:[
  {
- id:'3-1', name:'Jednoduché rovnice', sub:'rychlovka × výběr ze 4',
+ id:'3-1', name:'Jednoduché rovnice', sub:'rychlovka · výběr ze 4',
  mon:'🐸', mname:'BAŽINOVÝ STRÁŽCE',
  intro:'Na okraji bažiny sedí Bažinový strážce. Zná jen jednoduché rovnice — poraž ho a postup dál.',
  mc:true, tc:6,
  tasks:()=>[
  (()=>{const a=ri(3,15),b=ri(a+1,25);const ans=b-a;return{
  text:`Vyřeš rovnici:\nx + ${a} = ${b}`,ans:String(ans),
- hints:[`Chceš x samo — odečti ${a} z obou stran.`,`x = ${b} − ${a} = ?`],skill:'calc'};})(),
+ hints:[`Chceš x samo — odečti ${a} z obou stran.`,`x = ${b} - ${a} = ?`],skill:'calc'};})(),
  (()=>{const a=ri(3,12),b=ri(5,18);const ans=a+b;return{
- text:`Vyřeš rovnici:\nx − ${a} = ${b}`,ans:String(ans),
+ text:`Vyřeš rovnici:\nx - ${a} = ${b}`,ans:String(ans),
  hints:[`Přičti ${a} k oběma stranám.`,`x = ${b} + ${a} = ?`],skill:'calc'};})(),
  (()=>{const a=ri(2,9),x=ri(2,12);const b=a*x;return{
  text:`Vyřeš rovnici:\n${a}x = ${b}`,ans:String(x),
@@ -752,8 +754,8 @@ const AREAS = [
  text:`Vyřeš rovnici:\nx ÷ ${a} = ${b}`,ans:String(ans),
  hints:[`Vynásob obě strany číslem ${a}.`,`x = ${b} × ${a} = ?`],skill:'calc'};})(),
  (()=>{const b=ri(2,8),x=ri(2,10);const a=b+x;return{
- text:`Vyřeš rovnici:\n${a} − x = ${b}`,ans:String(x),
- hints:[`Přesuň x: odečti ${b} z obou stran. Pak ${a} − ${b} = x.`,`x = ${a} − ${b} = ?`],skill:'calc'};})(),
+ text:`Vyřeš rovnici:\n${a} - x = ${b}`,ans:String(x),
+ hints:[`Přesuň x: odečti ${b} z obou stran. Pak ${a} - ${b} = x.`,`x = ${a} - ${b} = ?`],skill:'calc'};})(),
  (()=>{const a=ri(1,8),x=ri(2,10);const b=2*x+a;return{
  text:`Vyřeš rovnici:\n2x + ${a} = ${b}`,ans:String(x),
  hints:[`Odečti ${a} z obou stran. Pak vyděl 2.`,`2x = ${b-a}, x = ?`],skill:'calc'};})()
@@ -769,17 +771,17 @@ const AREAS = [
  text:`Vyřeš rovnici:\n${a}x + ${b} = ${c}`,ans:String(x),
  hints:[`Krok 1: odečti ${b} z obou stran.\nKrok 2: vyděl ${a}.`,`${a}x = ${c-b}, x = ?`],skill:'anal'};})(),
  (()=>{const a=ri(2,7),b=ri(1,10),x=ri(1,10);const c=a*x-b;return{
- text:`Vyřeš rovnici:\n${a}x − ${b} = ${c}`,ans:String(x),
+ text:`Vyřeš rovnici:\n${a}x - ${b} = ${c}`,ans:String(x),
  hints:[`Krok 1: přičti ${b} k oběma stranám.\nKrok 2: vyděl ${a}.`,`${a}x = ${c+b}, x = ?`],skill:'anal'};})(),
  (()=>{const a=ri(2,5),b=ri(1,8),x=ri(1,10);const c=a*(x+b);return{
  text:`Vyřeš rovnici:\n${a}(x + ${b}) = ${c}`,ans:String(x),
- hints:[`Vyděl obě strany ${a}: dostaneš x + ${b} = ${c/a}.`,`x = ${c/a} − ${b} = ?`],skill:'anal'};})(),
+ hints:[`Vyděl obě strany ${a}: dostaneš x + ${b} = ${c/a}.`,`x = ${c/a} - ${b} = ?`],skill:'anal'};})(),
  (()=>{const aa=ri(4,9),cc=ri(1,aa-2),xx=ri(2,8),bb=ri(1,8),dd=(aa-cc)*xx+bb;return{
  text:`Vyřeš rovnici:\n${aa}x + ${bb} = ${cc}x + ${dd}`,ans:String(xx),
- hints:[`Přesuň x na levou stranu: ${aa}x − ${cc}x = ${dd} − ${bb}.`,`${aa-cc}x = ${dd-bb}, x = ?`],skill:'anal'};})(),
+ hints:[`Přesuň x na levou stranu: ${aa}x - ${cc}x = ${dd} - ${bb}.`,`${aa-cc}x = ${dd-bb}, x = ?`],skill:'anal'};})(),
  (()=>{const a=ri(2,5),b=ri(1,8),x=ri(1,10);const c=a*(x-b);return{
- text:`Vyřeš rovnici:\n${a}(x − ${b}) = ${c}`,ans:String(x),
- hints:[`Vyděl obě strany ${a}: x − ${b} = ${c/a}.`,`x = ${c/a} + ${b} = ?`],skill:'anal'};})(),
+ text:`Vyřeš rovnici:\n${a}(x - ${b}) = ${c}`,ans:String(x),
+ hints:[`Vyděl obě strany ${a}: x - ${b} = ${c/a}.`,`x = ${c/a} + ${b} = ?`],skill:'anal'};})(),
  (()=>{const a=ri(2,5),b=ri(1,8),x=ri(2,10)*a;const c=x/a+b;return{
  text:`Vyřeš rovnici:\nx / ${a} + ${b} = ${c}`,ans:String(x),
  hints:[`Odečti ${b}: x / ${a} = ${c-b}. Pak vynásob ${a}.`,`x = ${c-b} × ${a} = ?`],skill:'anal'};})()
@@ -791,12 +793,12 @@ const AREAS = [
  intro:'Mudrc bažin skrývá neznámé v příbězích. Sestav rovnici a vyřeš ji.',
  tc:6,
  tasks:()=>[
- (()=>{const age=ri(12,25),diff=ri(3,15);return{
- text:`Markovi je ${age} let.\nJeho starší bratr je o ${diff} let starší.\nKolik let je bratrovi?`,ans:String(age+diff),
+ (()=>{const age=ri(12,25),diff=ri(2,15);return{
+ text:`Markovi je ${age} let.\nJeho starší bratr je o ${diff} ${skl(diff,'rok','roky','let')} starší.\nKolik let je bratrovi?`,ans:String(age+diff),
  hints:[`Bratrův věk = Markův věk + ${diff}.`,`${age} + ${diff} = ?`],skill:'anal'};})(),
  (()=>{const price=ri(3,9)*5,count=ri(2,6),paid=(price*count)+ri(1,4)*10;const change=paid-price*count;return{
  text:`Každá knížka stojí ${price} Kč.\nKoupíš ${count} knížek a zaplatíš ${paid} Kč.\nKolik Kč dostaneš zpět?`,ans:String(change),
- hints:[`Cena celkem = ${price} × ${count} = ${price*count} Kč.`,`Vráceno = ${paid} − ${price*count}.`],skill:'anal'};})(),
+ hints:[`Cena celkem = ${price} × ${count} = ${price*count} Kč.`,`Vráceno = ${paid} - ${price*count}.`],skill:'anal'};})(),
  (()=>{const w=ri(4,15),h=ri(4,20);return{
  text:`Obdélník má šířku ${w} cm a délku ${h} cm.\nVypočítej obvod. (cm)`,ans:String(2*(w+h)),
  hints:[`Obvod obdélníku: O = 2 × (a + b).`,`O = 2 × (${w} + ${h}) = ?`],skill:'geo'};})(),
@@ -807,7 +809,7 @@ const AREAS = [
  text:`Auto jede rychlostí ${v} km/h\npo dobu ${t} hodin.\nJakou vzdálenost urazí? (km)`,ans:String(v*t),
  hints:[`Vzdálenost = rychlost × čas.`,`s = ${v} × ${t} = ?`],skill:'anal'};})(),
  (()=>{const parts=ri(2,5),each=ri(4,16)*10,total=parts*each;return{
- text:`${total} Kč si rozdělí ${parts} kamarádi\nrovným dílem.\nKolik Kč dostane každý?`,ans:String(each),
+ text:`${total} Kč si rozdělí ${parts} ${skl(parts,'kamarád','kamarádi','kamarádů')}\nrovným dílem.\nKolik Kč dostane každý?`,ans:String(each),
  hints:[`Vydel celkovou částku počtem kamarádů.`,`${total} ÷ ${parts} = ?`],skill:'anal'};})()
  ]
  }
@@ -820,7 +822,7 @@ const AREAS = [
  attrGain:{calc:10,anal:20},
  missions:[
  {
- id:'4-1', name:'Dosazování', sub:'výrazy × rychlovka × výběr ze 4',
+ id:'4-1', name:'Dosazování', sub:'výrazy · rychlovka · výběr ze 4',
  mon:'🧱', mname:'VĚŽNÍ STRÁŽCE',
  intro:'Strážce věže tě vyzkouší z dosazování. Za každé x dosaď správnou hodnotu.',
  mc:true, tc:6,
@@ -829,14 +831,14 @@ const AREAS = [
  text:`Vypočítej pro x = ${k}:\n${a}x + ${b}`,ans:String(a*k+b),
  hints:[`Dosaď: ${a} × ${k} + ${b}.`,`${a*k} + ${b} = ?`],skill:'calc'};})(),
  (()=>{const a=ri(2,8),b=ri(2,12),k=ri(2,8);return{
- text:`Vypočítej pro x = ${k}:\n${a}x − ${b}`,ans:String(a*k-b),
- hints:[`Dosaď: ${a} × ${k} − ${b}.`,`${a*k} − ${b} = ?`],skill:'calc'};})(),
+ text:`Vypočítej pro x = ${k}:\n${a}x - ${b}`,ans:String(a*k-b),
+ hints:[`Dosaď: ${a} × ${k} - ${b}.`,`${a*k} - ${b} = ?`],skill:'calc'};})(),
  (()=>{const a=ri(1,5),k=ri(2,7);return{
  text:`Vypočítej pro x = ${k}:\nx² + ${a}x`,ans:String(k*k+a*k),
  hints:[`Dosaď: ${k}² + ${a} × ${k}.`,`${k*k} + ${a*k} = ?`],skill:'calc'};})(),
  (()=>{const a=ri(1,4),b=ri(1,10),k=ri(2,5);return{
- text:`Vypočítej pro x = ${k}:\n${a}x² − ${b}`,ans:String(a*k*k-b),
- hints:[`Dosaď: ${a} × ${k}² − ${b} = ${a*k*k} − ${b}.`,`Výsledek?`],skill:'calc'};})(),
+ text:`Vypočítej pro x = ${k}:\n${a}x² - ${b}`,ans:String(a*k*k-b),
+ hints:[`Dosaď: ${a} × ${k}² - ${b} = ${a*k*k} - ${b}.`,`Výsledek?`],skill:'calc'};})(),
  (()=>{const a=ri(2,6),b=ri(1,8),c=ri(2,6),d=ri(1,8),k=ri(1,5);return{
  text:`Sečti a vypočítej pro x = ${k}:\n(${a}x + ${b}) + (${c}x + ${d})`,ans:String((a+c)*k+(b+d)),
  hints:[`Sečti: (${a}+${c})x + (${b}+${d}), pak dosaď x = ${k}.`,`${a+c} × ${k} + ${b+d} = ?`],skill:'calc'};})(),
@@ -855,11 +857,11 @@ const AREAS = [
  text:`Vypočítej (čtverec součtu):\n(${a} + ${b})²`,ans:String(ans),
  hints:[`Vzorec: (a+b)² = a² + 2ab + b².`,`${a}² + 2 × ${a} × ${b} + ${b}² = ${a*a} + ${2*a*b} + ${b*b}.`],skill:'calc'};})(),
  (()=>{const a=ri(5,14),b=ri(1,5);const ans=(a-b)*(a-b);return{
- text:`Vypočítej (čtverec rozdílu):\n(${a} − ${b})²`,ans:String(ans),
- hints:[`Vzorec: (a−b)² = a² − 2ab + b².`,`Nebo rovnou: ${a}−${b} = ${a-b}, pak ${a-b}² = ?`],skill:'calc'};})(),
+ text:`Vypočítej (čtverec rozdílu):\n(${a} - ${b})²`,ans:String(ans),
+ hints:[`Vzorec: (a-b)² = a² - 2ab + b².`,`Nebo rovnou: ${a}-${b} = ${a-b}, pak ${a-b}² = ?`],skill:'calc'};})(),
  (()=>{const a=ri(5,14),b=ri(1,6);const ans=a*a-b*b;return{
- text:`Vypočítej (součin součtu a rozdílu):\n(${a} + ${b}) × (${a} − ${b})`,ans:String(ans),
- hints:[`Vzorec: (a+b)(a−b) = a² − b².`,`${a}² − ${b}² = ${a*a} − ${b*b}.`],skill:'calc'};})(),
+ text:`Vypočítej (součin součtu a rozdílu):\n(${a} + ${b}) × (${a} - ${b})`,ans:String(ans),
+ hints:[`Vzorec: (a+b)(a-b) = a² - b².`,`${a}² - ${b}² = ${a*a} - ${b*b}.`],skill:'calc'};})(),
  (()=>{const a=ri(2,7),b=ri(2,9),c=ri(2,9);return{
  text:`Rozvij a vypočítej:\n${a} × (${b} + ${c})`,ans:String(a*(b+c)),
  hints:[`Roznes: ${a} × ${b} + ${a} × ${c}.`,`${a*b} + ${a*c} = ?`],skill:'calc'};})(),
@@ -906,7 +908,7 @@ const AREAS = [
  attrGain:{geo:25,craft:10},
  missions:[
  {
- id:'5-1', name:'Obvod a obsah kruhu', sub:'rychlovka × výběr ze 4',
+ id:'5-1', name:'Obvod a obsah kruhu', sub:'rychlovka · výběr ze 4',
  mon:'🌀', mname:'VODNÍ VÍLA',
  intro:'Vodní víla vládne kružnicím. Použi π = 3,14 a dokaž, že ovládáš kruh.',
  mc:true, tc:6,
@@ -992,7 +994,7 @@ const AREAS = [
  attrGain:{geo:15,craft:25},
  missions:[
  {
- id:'6-1', name:'Množiny bodů', sub:'rychlovka × výběr ze 4',
+ id:'6-1', name:'Množiny bodů', sub:'rychlovka · výběr ze 4',
  mon:'📏', mname:'RÝSOVAČ ZÁHAD',
  intro:'Rýsovač záhad zná každou množinu bodů. Odpověz správně a projdeš dílnou.',
  mc:true, tc:6,
@@ -1002,7 +1004,7 @@ const AREAS = [
  hints:[`Střed úsečky = polovina délky.`,`${r*2} ÷ 2 = ?`],skill:'geo'};})(),
  (()=>{const a=ri(30,70),b=ri(10,a-5);return{
  text:`Trojúhelník ABC: α = ${a}°, β = ${b}°.\nJaký je úhel γ? (°)`,ans:String(180-a-b),
- hints:[`Součet vnitřních úhlů trojúhelníku = 180°.`,`γ = 180° − ${a}° − ${b}° = ?`],skill:'geo'};})(),
+ hints:[`Součet vnitřních úhlů trojúhelníku = 180°.`,`γ = 180° - ${a}° - ${b}° = ?`],skill:'geo'};})(),
  (()=>{const r=ri(4,12);return{
  text:`Kolik os souměrnosti má čtverec se stranou ${r} cm?`,ans:'4',
  hints:[`Čtverec má 4 osy: 2 rovnoběžné se stranami + 2 úhlopříčné.`,`Čtverec → 4 osy.`],skill:'geo'};})(),
@@ -1040,7 +1042,7 @@ const AREAS = [
  hints:[`Ověř Pythagorovu větu pro největší stranu jako přeponu.`,`${a}² + ${b}² = ${a*a+b*b}, ${c}² = ${c*c}. Souhlasí?`],skill:'geo'};})(),
  (()=>{const a=ri(30,80),b=ri(10,90-a);const c=180-a-b;const ext=180-c;return{
  text:`Trojúhelník: α = ${a}°, β = ${b}°, γ = ${c}°.\nJaký je vnější úhel při vrcholu C? (°)`,ans:String(ext),
- hints:[`Vnější úhel = 180° − vnitřní úhel.`,`${180}° − ${c}° = ?`],skill:'geo'};})()
+ hints:[`Vnější úhel = 180° - vnitřní úhel.`,`${180}° - ${c}° = ?`],skill:'geo'};})()
  ]
  },
  {
@@ -1057,10 +1059,10 @@ const AREAS = [
  hints:[`Osy spojují středy protilehlých stran.`,`Obdélník: 2 osy.`],skill:'craft'};})(),
  (()=>{const a=ri(3,10);return{
  text:`Bod A [${a}, 0] se zobrazí středovou souměrností\npod středem O [0,0].\nJaká je souřadnice x obrazu? (jen číslo)`,ans:String(-a),
- hints:[`Středová souměrnost kolem počátku: [x,y] → [−x,−y].`,`x-souřadnice: −(${a}) = ?`],skill:'craft'};})(),
+ hints:[`Středová souměrnost kolem počátku: [x,y] → [-x,-y].`,`x-souřadnice: -(${a}) = ?`],skill:'craft'};})(),
  (()=>{const x=ri(2,8),y=ri(2,8);return{
  text:`Bod P [${x}, ${y}] se zobrazí osovou souměrností\npodél osy x (přímka y = 0).\nJaká je y-souřadnice obrazu?`,ans:String(-y),
- hints:[`Souměrnost podle osy x: [x, y] → [x, −y].`,`y-souřadnice: −${y} = ?`],skill:'craft'};})(),
+ hints:[`Souměrnost podle osy x: [x, y] → [x, -y].`,`y-souřadnice: -${y} = ?`],skill:'craft'};})(),
  (()=>{const ns=[4,5,6,8,9,10];const n=ns[ri(0,ns.length-1)];const ext=360/n;return{
  text:`Pravidelný ${n}-úhelník má ____° rotační souměrnost.\n(nejmenší úhel otočení, celé číslo)`,ans:String(ext),
  hints:[`Pravidelný n-úhelník se zobrazí sám na sebe otočením o 360°/n.`,`360 ÷ ${n} = ?`],skill:'craft'};})(),
@@ -1088,7 +1090,7 @@ const AREAS = [
  hints:[`c² = a² + b².`,`√(${a}²+${b}²) = √${c}.`],skill:'geo'};})(),
  (()=>{const p=ri(5,40),z=ri(5,20)*1000;const sleva=Math.round(z*p/100);return{
  text:`Laptop stál ${z} Kč, nyní je zlevněn o ${p} %.\nKolik stojí teď? (Kč)`,ans:String(z-sleva),
- hints:[`Sleva = ${p} % z ${z} = ${sleva} Kč.`,`Nová cena = ${z} − ${sleva}.`],skill:'anal'};})(),
+ hints:[`Sleva = ${p} % z ${z} = ${sleva} Kč.`,`Nová cena = ${z} - ${sleva}.`],skill:'anal'};})(),
  (()=>{const r=ri(3,8),h=ri(4,10);return{
  text:`Válec: r = ${r} cm, h = ${h} cm.\nObjem? (cm³, π = 3,14, celé číslo)`,ans:String(Math.round(3.14*r*r*h)),
  hints:[`V = πr²h.`,`V ≈ 3,14 × ${r*r} × ${h} = ?`],skill:'geo'};})(),
@@ -1096,10 +1098,10 @@ const AREAS = [
  text:`Vyřeš rovnici:\n${aa}x + ${bb} = ${cc}x + ${dd}`,ans:String(xx),
  hints:[`Přesuň x: ${aa-cc}x = ${dd-bb}.`,`x = ${dd-bb} ÷ ${aa-cc} = ?`],skill:'anal'};})(),
  (()=>{const a=ri(4,10),b=ri(1,a-1);return{
- text:`Vypočítej (součin součtu a rozdílu):\n(${a} + ${b})(${a} − ${b})`,ans:String(a*a-b*b),
- hints:[`Vzorec: (a+b)(a−b) = a²−b².`,`${a}²−${b}² = ${a*a}−${b*b}.`],skill:'calc'};})(),
+ text:`Vypočítej (součin součtu a rozdílu):\n(${a} + ${b})(${a} - ${b})`,ans:String(a*a-b*b),
+ hints:[`Vzorec: (a+b)(a-b) = a²-b².`,`${a}²-${b}² = ${a*a}-${b*b}.`],skill:'calc'};})(),
  (()=>{const parts=ri(2,5),each=ri(3,12)*100,total=parts*each;return{
- text:`${parts} kamarádů si rozdělí výhru ${total} Kč\nrovným dílem.\nKolik Kč dostane každý?`,ans:String(each),
+ text:`${parts} ${skl(parts,'kamarád','kamarádi','kamarádů')} si rozdělí výhru ${total} Kč\nrovným dílem.\nKolik Kč dostane každý?`,ans:String(each),
  hints:[`Vydel výhru počtem kamarádů.`,`${total} ÷ ${parts} = ?`],skill:'anal'};})()
  ]
  },
@@ -1112,13 +1114,12 @@ const AREAS = [
  (()=>{const v=ri(40,80),t=ri(2,5),v2=ri(30,60),t2=t+ri(1,3);const sA=v*t,sB=v2*t2;return{
  text:`Auto A jede ${v} km/h po dobu ${t} h.\nAuto B jede ${v2} km/h po dobu ${t2} h.\nKterý z nich ujel více? (A nebo B)`,ans:sA>sB?'A':'B',
  hints:[`Vypočítej dráhu každého: s = v × t.`,`Auto A: ${v} × ${t} = ${sA} km, Auto B: ${v2} × ${t2} = ${sB} km.`],skill:'anal'};})(),
- (()=>{const a=ri(3,9),b=ri(3,9),c=ri(5,14);const x=c-a-b;if(x>0){return{
- text:`Jana má ${a} jablek, Petr ${b} jablek.\nDohromady chtějí mít ${a+b+x} jablek.\nKolik jablek chybí? (ks)`,ans:String(x),
- hints:[`Celkem potřebují ${a+b+x}. Mají ${a+b}.`,`${a+b+x} − ${a+b} = ?`],skill:'anal'};}
- const y=a+b;return{text:`Jana má ${a} jablek, Petr ${b} jablek.\nKolik mají dohromady?`,ans:String(y),hints:[`${a}+${b}.`,`= ?`],skill:'anal'};})(),
+ (()=>{const a=ri(4,9),b=ri(4,9),need=ri(6,12);const total=a+b+need;return{
+ text:`Jana má ${a} ${skl(a,'jablko','jablka','jablek')}, Petr ${b} ${skl(b,'jablko','jablka','jablek')}.\nDohromady chtějí mít ${total} jablek.\nKolik jablek jim chybí? (ks)`,ans:String(need),
+ hints:[`Celkem potřebují ${total}, mají ${a+b}.`,`${total} - ${a+b} = ?`],skill:'anal'};})(),
  (()=>{const a=ri(2,8),b=ri(2,8),k=ri(2,6);const ans=(a+b)*k;return{
  text:`Obvod obdélníku je ${ans} cm.\nJedna strana je ${a*k} cm.\nJaká je druhá strana? (cm)`,ans:String(b*k),
- hints:[`O = 2(a+b), tedy a+b = O÷2 = ${ans/2}.`,`Druhá strana = ${ans/2} − ${a*k} = ?`],skill:'geo'};})(),
+ hints:[`O = 2(a+b), tedy a+b = O÷2 = ${ans/2}.`,`Druhá strana = ${ans/2} - ${a*k} = ?`],skill:'geo'};})(),
  (()=>{const p=ri(10,40),tot=ri(20,60)*10;const ans=Math.round(tot*p/100);return{
  text:`Ve třídě je ${tot} žáků.\n${p} % z nich je chlapci.\nKolik chlapců je ve třídě?`,ans:String(ans),
  hints:[`${p} % z ${tot} = ${tot} × ${p}÷100.`,`= ?`],skill:'anal'};})(),
@@ -1131,7 +1132,7 @@ const AREAS = [
  ]
  },
  {
- id:'7-3', name:'Finální duel', sub:'nejtěžší výzva × výběr ze 4',
+ id:'7-3', name:'Finální duel', sub:'nejtěžší výzva · výběr ze 4',
  mon:'🧙‍♂️', mname:'ARCIMÁG',
  intro:'🔥 ARCIMÁG 🔥 — nejsilnější bytost v celém království matematiky. Toto je tvůj největší souboj. Každý úkol je náročný. Combo je tvou jedinou záchranou!',
  mc:true, tc:6,
@@ -1148,12 +1149,12 @@ const AREAS = [
  (()=>{const p1=ri(10,40),p2=ri(5,20);const z=ri(4,12)*100;const po1=z*(1-p1/100),po2=po1*(1-p2/100);return{
  text:`Cena ${z} Kč, sleva ${p1} %, pak další ${p2} %.\nKonečná cena? (Kč, celé číslo)`,ans:String(Math.round(po2)),
  hints:[`Po první slevě: ${z} × ${(100-p1)/100} = ${Math.round(z*(1-p1/100))} Kč.`,`Z té pak ${p2} %: × ${(100-p2)/100}.`],skill:'anal'};})(),
- (()=>{const a=ri(3,8),b=ri(3,8),c=ri(3,8),p=ri(5,35);const tot=a+b+c;const ans=Math.round(tot*p/100);return{
- text:`Třída: ${a} výborných, ${b} chvalitebných, ${c} ostatních.\n${p} % celé třídy dostane výlet.\nKolik žáků pojede?`,ans:String(ans),
- hints:[`Celkem žáků: ${a}+${b}+${c} = ${tot}.`,`${p} % z ${tot} = ${tot} × ${p}÷100 ≈ ?`],skill:'anal'};})(),
+ (()=>{const sets=[[20,25],[20,50],[24,25],[30,20],[25,20],[30,10]];const[tot,p]=sets[Math.floor(Math.random()*sets.length)];const ans=tot*p/100;const a=ri(2,Math.floor(tot/3)),b=ri(2,Math.floor(tot/3)),c=tot-a-b;return{
+ text:`Třída: ${a} výborných, ${b} chvalitebných, ${c} ostatních.\n${p} % celé třídy pojede na výlet.\nKolik žáků pojede?`,ans:String(ans),
+ hints:[`Celkem žáků: ${a}+${b}+${c} = ${tot}.`,`${p} % z ${tot} = ${tot} × ${p} ÷ 100 = ?`],skill:'anal'};})(),
  (()=>{const c=ri(10,17),a=ri(3,c-3);const b2=c*c-a*a;const b=Math.sqrt(b2).toFixed(2);return{
  text:`Pravoúhlý trojúhelník:\npřepona c = ${c} cm, odvěsna a = ${a} cm.\nOdvěsna b = ? (2 des. místa)`,ans:b,
- hints:[`b² = c² − a².`,`b = √(${c}²−${a}²) = √${b2}.`],skill:'geo'};})()
+ hints:[`b² = c² - a².`,`b = √(${c}²-${a}²) = √${b2}.`],skill:'geo'};})()
  ]
  }
  ]
@@ -1336,7 +1337,7 @@ function openArea(aid){
  it.className='ms-item '+cls;
  it.innerHTML=`
  <div class="ms-num" style="color:${allDn?'var(--green)':avail?'var(--blue)':'var(--muted)'}">${allDn?'✓':String(mi+1).padStart(2,'0')}</div>
- <div style="flex:1"><div class="ms-name">${m.name}</div><div class="ms-sub">${m.sub} × ${dn}/${tot}</div></div>
+ <div style="flex:1"><div class="ms-name">${m.name}</div><div class="ms-sub">${m.sub} · ${dn}/${tot}</div></div>
  <div style="font-size:14px">${stars}</div>`;
  if(avail)it.onclick=()=>launchBattle(ar.id,m.id);
  ml.appendChild(it);
@@ -1640,7 +1641,7 @@ function damageMonster(xpGain,isCrit){
  // damage number
  const tot=BT.tasks.length;
  const dmg=Math.ceil(100/tot)*(isCrit?2:1);
- spark.textContent=(isCrit?'KRIT! −':'−')+dmg+' HP!';
+ spark.textContent=(isCrit?'KRIT! -':'-')+dmg+' HP!';
  spark.style.color=isCrit?'#ff5577':'var(--gold)';
  spark.classList.remove('show');
  void spark.offsetWidth;
