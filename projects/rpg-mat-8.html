@@ -3,17 +3,17 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>RPG Matematika × 8. ročník</title>
+<title>RPG Matematika · 8. ročník</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&family=VT323&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&family=VT323&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
  --bg:#0d1117;--panel:#161b27;--panel2:#1e2535;
  --gold:#f4d03f;--blue:#5dade2;--red:#e74c3c;--green:#2ecc71;--purple:#9b59b6;
  --text:#e8eaf6;--muted:#8896a6;
- --px:'Silkscreen','VT323',monospace;
+ --px:'Roboto Mono','VT323',monospace;
  --vt:'VT323',monospace;
 }
 body{background:var(--bg);color:var(--text);font-family:var(--vt);min-height:100vh;overflow-x:hidden;font-size:18px}
@@ -376,7 +376,7 @@ body::before{
  <div style="text-align:center;padding:28px 0 20px">
  <div class="intro-sword">⚔️</div>
  <div class="intro-title">RPG<br>MATEMATIKA</div>
- <div style="font-family:var(--vt);font-size:24px;color:var(--blue)">8. ročník × ZŠ Husova Liberec</div>
+ <div style="font-family:var(--vt);font-size:24px;color:var(--blue)">8. ročník · ZŠ Husova Liberec</div>
  </div>
  <div class="panel">
  <div style="font-family:var(--vt);font-size:22px;color:var(--muted);margin-bottom:10px">Zadej své jméno, hrdino:</div>
@@ -925,9 +925,9 @@ const AREAS = [
  (()=>{const r=ri(3,10);const o=2*3.14*r;const ans=(o/2/3.14).toFixed(1);return{
  text:`Obvod kružnice je ${o.toFixed(2)} cm.\nVypočítej poloměr r. (π = 3,14, 1 des. místo)`,ans,
  hints:[`Z O = 2πr plyne r = O ÷ (2π).`,`r = ${o.toFixed(2)} ÷ (2 × 3,14) = ${o.toFixed(2)} ÷ 6,28.`],skill:'geo'};})(),
- (()=>{const r=ri(2,8);const s=(3.14*r*r).toFixed(2);const r2=ri(2,8);const s2=(3.14*r2*r2).toFixed(2);const bigger=parseFloat(s)>parseFloat(s2)?r:r2;return{
- text:`Který kruh má větší obsah?\nKruh A: r = ${r} cm\nKruh B: r = ${r2} cm\n(napiš A nebo B)`,ans:parseFloat(s)>parseFloat(s2)?'A':'B',
- hints:[`Porovnej r². Větší poloměr = větší obsah.`,`${r}² = ${r*r} vs ${r2}² = ${r2*r2}.`],skill:'geo'};})(),
+ (()=>{const d=ri(2,8)*2;const r=d/2;const ans=(3.14*r*r).toFixed(2);return{
+ text:`Kruh má průměr d = ${d} cm.\nVypočítej obsah kruhu. (π = 3,14)`,ans,
+ hints:[`Nejdřív poloměr: r = d ÷ 2 = ${r}. Pak S = πr².`,`S = 3,14 × ${r}² = 3,14 × ${r*r} = ?`],skill:'geo'};})(),
  (()=>{const r=ri(3,9);const ans=(3.14*r*r).toFixed(2);return{
  text:`Pizzeria prodává pizza s poloměrem ${r} cm.\nJaký je obsah pizzy? cm² (π = 3,14)`,ans,
  hints:[`Pizza = kruh s r = ${r} cm. S = πr².`,`S = 3,14 × ${r*r} = ?`],skill:'geo'};})()
