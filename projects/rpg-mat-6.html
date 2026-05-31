@@ -597,7 +597,7 @@ function svgMirror(shape){
 }
 
 function checkAns(raw, correct){
- const norm = s => String(s).trim().toLowerCase().replace(/\s+/g,'').replace(',','.');
+ const norm = s => String(s).trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,'').replace(',','.');
  const u = norm(raw), c = norm(correct);
  if(u===c) return true;
  // fraction eval
@@ -771,10 +771,10 @@ const AREAS = [
  attrGain:{geo:16,craft:8},
  missions:[
  {
- id:'4-1', name:'Druhy úhlů', sub:'rychlovka · výběr ze 4',
+ id:'4-1', name:'Druhy a velikosti úhlů', sub:'ostrý · pravý · tupý',
  mon:'🌌', mname:'MLHOVINNÝ STRÁŽCE',
  intro:'Mlhovinný strážce ti ukazuje úhly. Rozpoznej, který je ostrý, pravý nebo tupý.',
- mc:true, tc:6,
+ tc:6,
  tasks:()=>[
  (()=>{const deg=[30,45,60,75][ri(0,3)];return{svg:svgAngle(deg,{label:deg+'°'}),text:`Kolik stupňů chybí úhlu do pravého úhlu (90°)?`,ans:String(90-deg),hints:[`Pravý úhel má 90°.`,`90 - ${deg}`],skill:'geo'};})(),
  (()=>{const deg=ri(2,8)*10;return{svg:svgAngle(deg,{label:deg+'°'}),text:`Doplň úhel do přímého úhlu (180°).\nKolik stupňů chybí?`,ans:String(180-deg),hints:[`Přímý úhel má 180°.`,`180 - ${deg}`],skill:'geo'};})(),
