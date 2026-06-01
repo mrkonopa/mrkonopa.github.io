@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>RPG Matematika · Velitelské centrum · ZŠ Husova</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&family=VT323&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+ --bg:#0a0d16;--panel:#131826;--panel2:#1b2233;
+ --text:#e6ecf7;--muted:#7a89a8;--line:#283150;
+ --px:'Roboto Mono','VT323',monospace;
+ --vt:'VT323',monospace;
+}
+body{background:var(--bg);color:var(--text);font-family:var(--px);min-height:100vh;font-size:16px;overflow-x:hidden}
+body::before{
+ content:'';position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.5;
+ background-image:
+ radial-gradient(1px 1px at 14% 20%,#fff6 0,transparent 0),
+ radial-gradient(1px 1px at 38% 70%,#9ab8 0,transparent 0),
+ radial-gradient(1px 1px at 60% 12%,#fff6 0,transparent 0),
+ radial-gradient(1px 1px at 80% 48%,#bcd8 0,transparent 0),
+ radial-gradient(1px 1px at 26% 86%,#fff6 0,transparent 0),
+ radial-gradient(1px 1px at 70% 34%,#9ab8 0,transparent 0);
+}
+.wrap{position:relative;z-index:1;max-width:1000px;margin:0 auto;padding:22px 16px 60px}
+.topnav{display:flex;justify-content:space-between;align-items:center;font-size:13px;margin-bottom:22px}
+.topnav a{color:var(--muted);text-decoration:none;border:1px solid var(--line);padding:7px 12px;border-radius:4px;transition:.15s}
+.topnav a:hover{color:var(--text);border-color:var(--muted)}
+.head{text-align:center;padding:8px 0 18px}
+.head .glyph{font-size:48px;display:inline-block;animation:float 3s ease-in-out infinite}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+.head h1{font-weight:700;font-size:30px;letter-spacing:3px;margin:6px 0 4px;
+ background:linear-gradient(90deg,#5dc8f0,#f4d03f,#19e6e6);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.head .sub{font-family:var(--vt);font-size:22px;color:var(--muted);letter-spacing:1px}
+/* student bar */
+.student{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:14px 16px;margin:18px 0;display:flex;flex-wrap:wrap;gap:14px;align-items:center;justify-content:space-between}
+.student .who{font-size:14px;color:var(--muted)}
+.student .who b{color:var(--text);font-size:16px}
+.stat-strip{display:flex;gap:20px;flex-wrap:wrap}
+.stat-strip .s{text-align:center}
+.stat-strip .s .v{font-weight:700;font-size:20px;color:var(--text)}
+.stat-strip .s .l{font-size:11px;color:var(--muted);letter-spacing:1px;text-transform:uppercase}
+/* grid */
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-top:8px}
+@media(max-width:680px){.grid{grid-template-columns:1fr}}
+.card{position:relative;background:var(--gbg,var(--panel));border:1px solid var(--accent,#333);border-radius:10px;padding:18px;overflow:hidden;
+ box-shadow:0 0 0 1px #0004 inset,0 6px 18px #0006}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--accent)}
+.card .ctop{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.card .emoji{font-size:38px;line-height:1;filter:drop-shadow(0 0 10px var(--accent))}
+.card .ctitle{flex:1}
+.card .ctitle .nm{font-weight:700;font-size:17px;color:#fff;letter-spacing:1px;line-height:1.1}
+.card .ctitle .gr{font-family:var(--vt);font-size:18px;color:var(--accent)}
+.card .badge{font-size:10px;letter-spacing:1px;color:#0a0d16;background:var(--accent);padding:3px 8px;border-radius:20px;font-weight:700;white-space:nowrap}
+/* save details */
+.charline{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px}
+.charline .cn{font-weight:700;font-size:15px;color:#fff}
+.charline .lv{font-size:12px;color:var(--accent);font-weight:700}
+.attrs{display:flex;gap:10px;margin:8px 0 10px;flex-wrap:wrap}
+.attrs .a{font-size:12px;color:var(--muted)}
+.attrs .a b{color:#fff}
+.prog{margin:10px 0 6px}
+.prog .pl{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:4px;letter-spacing:.5px}
+.bar{height:9px;background:#0006;border:1px solid var(--accent);border-radius:6px;overflow:hidden}
+.bar > i{display:block;height:100%;background:var(--accent);width:0;transition:width .8s ease;box-shadow:0 0 8px var(--accent)}
+.arts{font-size:12px;color:var(--muted);margin-top:4px}
+.empty{font-family:var(--vt);font-size:19px;color:var(--muted);padding:10px 0 14px;letter-spacing:1px}
+.cbtns{display:flex;gap:8px;margin-top:12px}
+.btn{flex:1;text-align:center;text-decoration:none;font-family:var(--px);font-weight:700;font-size:13px;letter-spacing:1px;
+ padding:11px 10px;border-radius:6px;cursor:pointer;border:2px solid var(--accent);background:var(--accent);color:#0a0d16;transition:.15s}
+.btn:hover{filter:brightness(1.12)}
+.btn.ghost{background:transparent;color:var(--accent);flex:0 0 auto;padding:11px 12px}
+.btn.ghost:hover{background:var(--accent);color:#0a0d16}
+.note{margin-top:26px;background:var(--panel);border:1px dashed var(--line);border-radius:8px;padding:16px 18px;font-size:13px;color:var(--muted);line-height:1.6}
+.note b{color:var(--text)}
+.note .tag{display:inline-block;font-size:11px;color:var(--bg);background:var(--muted);padding:2px 7px;border-radius:4px;font-weight:700;letter-spacing:1px;margin-right:6px}
+</style>
+</head>
+<body>
+<div class="wrap">
+ <div class="topnav">
+  <a href="./">← zpět na projekty</a>
+  <a href="#" onclick="resetAll();return false;">🗑 vymazat vše z tohoto zařízení</a>
+ </div>
+
+ <div class="head">
+  <div class="glyph">🎮</div>
+  <h1>RPG MATEMATIKA</h1>
+  <div class="sub">Velitelské centrum · ZŠ Husova Liberec</div>
+ </div>
+
+ <div class="student">
+  <div class="who">Postavy uložené na <b>tomto zařízení</b> · <span id="started">0</span>/4 her rozehráno</div>
+  <div class="stat-strip">
+   <div class="s"><div class="v" id="tot-xp">0</div><div class="l">XP celkem</div></div>
+   <div class="s"><div class="v" id="tot-tasks">0</div><div class="l">úkolů hotovo</div></div>
+   <div class="s"><div class="v" id="tot-arts">0</div><div class="l">artefaktů</div></div>
+  </div>
+ </div>
+
+ <div class="grid" id="grid"></div>
+
+ <div class="note">
+  <div style="margin-bottom:8px"><span class="tag">POZOR</span> Pokrok se ukládá <b>jen do tohoto prohlížeče a zařízení</b> (localStorage).</div>
+  Když žák hraje na jiném počítači, začíná znovu. Chystané <b>přihlášení přes školní Google účet</b> umožní mít postavu u sebe na všech zařízeních a tobě uvidět pokrok celé třídy na jednom místě.
+ </div>
+</div>
+
+<script>
+const GAMES=[
+ {key:'RPG_MAT_6',file:'rpg-mat-6.html',emoji:'🚀',nm:'VESMÍRNÁ EXPEDICE',gr:'6. ročník',accent:'#5dc8f0',gbg:'#141038'},
+ {key:'RPG_MAT_7',file:'rpg-mat-7.html',emoji:'⛏️',nm:'ZTRACENÝ CHRÁM',gr:'7. ročník',accent:'#f2c14e',gbg:'#17110a'},
+ {key:'RPG_MAT_8',file:'rpg-mat-8.html',emoji:'🎓',nm:'MATEMATICKÁ AKADEMIE',gr:'8. ročník',accent:'#f4d03f',gbg:'#0d1117'},
+ {key:'RPG_MAT_9',file:'rpg-mat-9.html',emoji:'💻',nm:'NULL_BYTE',gr:'9. ročník',accent:'#19e6e6',gbg:'#080b14'},
+];
+const TOTAL_TASKS=126; // 7 oblastí × 3 mise × 6 úkolů
+const ATTR=[['calc','🔢'],['geo','📐'],['anal','🧠'],['craft','⚡']];
+
+function load(key){
+ try{const r=localStorage.getItem(key);return r?JSON.parse(r):null;}catch(e){return null;}
+}
+function esc(s){return String(s).replace(/[<>&]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]));}
+
+function render(){
+ const grid=document.getElementById('grid');
+ grid.innerHTML='';
+ let started=0,totXp=0,totTasks=0,totArts=0;
+ GAMES.forEach(g=>{
+  const S=load(g.key);
+  let body,btns;
+  if(S){
+   started++;
+   const lv=S.level||1, xp=S.xp||0;
+   const done=S.done?Object.keys(S.done).length:0;
+   const arts=Array.isArray(S.inv)?S.inv.length:0;
+   totXp+=xp; totTasks+=done; totArts+=arts;
+   const pct=Math.min(100,Math.round(done/TOTAL_TASKS*100));
+   const attrHtml=ATTR.map(([k,ic])=>`<span class="a">${ic} <b>${(S.attrs&&S.attrs[k])||0}</b></span>`).join('');
+   body=`<div class="charline"><span class="cn">👤 ${esc(S.name||'HRDINA')}</span><span class="lv">LV ${lv} · ${xp} XP</span></div>
+   <div class="attrs">${attrHtml}</div>
+   <div class="prog"><div class="pl"><span>POKROK</span><span>${done} / ${TOTAL_TASKS} úkolů · ${pct}%</span></div>
+   <div class="bar"><i data-w="${pct}"></i></div></div>
+   <div class="arts">🎒 artefaktů: <b style="color:#fff">${arts}</b></div>`;
+   btns=`<a class="btn" href="./${g.file}">▶ POKRAČOVAT</a><a class="btn ghost" href="#" onclick="resetOne('${g.key}');return false;" title="vymazat tuto postavu">🗑</a>`;
+  }else{
+   body=`<div class="empty">— zatím nehráno —</div>`;
+   btns=`<a class="btn" href="./${g.file}">▶ ZAČÍT HRÁT</a>`;
+  }
+  const div=document.createElement('div');
+  div.className='card';
+  div.style.setProperty('--accent',g.accent);
+  div.style.setProperty('--gbg',g.gbg);
+  div.innerHTML=`<div class="ctop"><span class="emoji">${g.emoji}</span>
+   <div class="ctitle"><div class="nm">${g.nm}</div><div class="gr">${g.gr}</div></div>
+   <span class="badge">${S?'ROZEHRÁNO':'NOVÉ'}</span></div>
+   ${body}<div class="cbtns">${btns}</div>`;
+  grid.appendChild(div);
+ });
+ document.getElementById('started').textContent=started;
+ document.getElementById('tot-xp').textContent=totXp.toLocaleString('cs-CZ');
+ document.getElementById('tot-tasks').textContent=totTasks;
+ document.getElementById('tot-arts').textContent=totArts;
+ // animate bars
+ requestAnimationFrame(()=>document.querySelectorAll('.bar > i').forEach(i=>i.style.width=i.dataset.w+'%'));
+}
+function resetOne(key){
+ const S=load(key);
+ if(confirm(`Opravdu vymazat postavu „${(S&&S.name)||''}" z této hry? Tohle nejde vrátit.`)){
+  localStorage.removeItem(key); render();
+ }
+}
+function resetAll(){
+ if(confirm('Vymazat VŠECHNY postavy ze všech her na tomto zařízení? Tohle nejde vrátit.')){
+  GAMES.forEach(g=>localStorage.removeItem(g.key)); render();
+ }
+}
+render();
+</script>
+</body>
+</html>
