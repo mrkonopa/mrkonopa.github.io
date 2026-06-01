@@ -1337,7 +1337,7 @@ function checkAnswer() {
   const fb = document.getElementById('feedback');
   const raw = inp.value.trim();
   if (raw === '') { inp.focus(); return; }
-  const userVal = Number(raw);
+  const userVal = Number(raw.replace(/[\s ]/g, ''));
   const p = problems[cur];
   const correct = userVal === p.answer;
 
