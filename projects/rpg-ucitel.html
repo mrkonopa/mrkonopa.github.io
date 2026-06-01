@@ -118,6 +118,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--px);min-height:100
     <div class="s"><div class="v" id="st-chars">0</div><div class="l">postav</div></div>
     <div class="s"><div class="v" id="st-tasks">0</div><div class="l">úkolů hotovo</div></div>
     <div class="s"><div class="v" id="st-active">0</div><div class="l">aktivních (7 dní)</div></div>
+    <div class="s"><div class="v" id="st-mastery" style="color:var(--gold)">0</div><div class="l">🏅 mistrovství (9.r.)</div></div>
    </div>
    <div class="controls">
     <input id="search" placeholder="🔍 hledat jméno nebo e-mail…" oninput="renderTable()">
@@ -172,12 +173,23 @@ const GAMES=[
  {key:'RPG_MAT_9',file:'rpg-mat-9.html',emoji:'💻',nm:'NULL_BYTE',gr:'9. ročník',accent:'#19e6e6'},
 ];
 const TOTAL_TASKS=126;
+const MISSIONS_9=[
+ {id:'1-1',name:'Bootovací sekvence'},{id:'1-2',name:'Procentní skener'},{id:'1-3',name:'Záporná zóna'},
+ {id:'2-1',name:'Energetické články'},{id:'2-2',name:'Pravidla mocnin'},{id:'2-3',name:'Vědecký zápis & Pythagoras'},
+ {id:'3-1',name:'Základní rovnice'},{id:'3-2',name:'Rovnice se závorkami'},{id:'3-3',name:'Vyjádři ze vzorce'},
+ {id:'4-1',name:'Podmínky řešitelnosti'},{id:'4-2',name:'Hodnota výrazu'},{id:'4-3',name:'Rovnice ve jmenovateli'},
+ {id:'5-1',name:'Soustavy rovnic'},{id:'5-2',name:'Směsi a práce'},{id:'5-3',name:'Úlohy o pohybu'},
+ {id:'6-1',name:'Lineární funkce'},{id:'6-2',name:'Vlastnosti funkcí'},{id:'6-3',name:'Lomená funkce'},
+ {id:'7-1',name:'Podobnost a měřítko'},{id:'7-2',name:'Objem a povrch těles'},{id:'7-3',name:'FINÁLNÍ PRŮLOM'},
+];
 const ATTR=[['calc','🔢 Výpočty'],['geo','📐 Geometrie'],['anal','🧠 Analýza'],['craft','⚡ Instinkt']];
 const gMeta=k=>GAMES.find(g=>g.key===k)||{emoji:'❓',nm:k,gr:'',accent:'#888'};
 let ROWS=[];   // všechny postavy
 
 function esc(s){return String(s==null?'':s).replace(/[<>&"]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c]));}
 function doneCount(d){return d&&d.done?Object.keys(d.done).length:0;}
+function masteryCount(d){if(!d||!d.mastery)return 0;return Object.values(d.mastery).filter(m=>m&&m.mastered).length;}
+function masteryList(d){if(!d||!d.mastery)return[];return MISSIONS_9.filter(m=>d.mastery[m.id]&&d.mastery[m.id].mastered);}
 function pct(d){return Math.min(100,Math.round(doneCount(d)/TOTAL_TASKS*100));}
 function fmtDate(s){if(!s)return'—';const dt=new Date(s);return dt.toLocaleDateString('cs-CZ')+' '+dt.toLocaleTimeString('cs-CZ',{hour:'2-digit',minute:'2-digit'});}
 function daysAgo(s){if(!s)return 1e9;return (Date.now()-new Date(s).getTime())/864e5;}
@@ -247,10 +259,12 @@ function renderStats(){
  const students=new Set(ROWS.map(r=>r.user_id)).size;
  const tasks=ROWS.reduce((a,r)=>a+doneCount(r.data),0);
  const active=ROWS.filter(r=>daysAgo(r.updated_at)<=7).length;
+ const mastery9=ROWS.filter(r=>r.game==='RPG_MAT_9').reduce((a,r)=>a+masteryCount(r.data),0);
  document.getElementById('st-students').textContent=students;
  document.getElementById('st-chars').textContent=ROWS.length;
  document.getElementById('st-tasks').textContent=tasks;
  document.getElementById('st-active').textContent=active;
+ document.getElementById('st-mastery').textContent=mastery9;
 }
 function filtered(){
  const q=document.getElementById('search').value.trim().toLowerCase();
@@ -265,15 +279,20 @@ function renderTable(){
  const rows=filtered();
  if(!rows.length){document.getElementById('tbl-wrap').innerHTML='<div class="empty">— žádné postavy —</div>';return;}
  const admin=RPGCloud.isAdmin();
- let html='<table class="tbl"><thead><tr><th>Žák</th><th>Hra</th><th>LV</th><th>XP</th><th>Pokrok</th><th>Poslední aktivita</th><th>Akce</th></tr></thead><tbody>';
+ let html='<table class="tbl"><thead><tr><th>Žák</th><th>Hra</th><th>LV</th><th>XP</th><th>Pokrok</th><th>Mistrovství</th><th>Poslední aktivita</th><th>Akce</th></tr></thead><tbody>';
  rows.forEach((r,i)=>{
   const g=gMeta(r.game), d=r.data||{}, p=pct(d);
+  const mc=masteryCount(d), isNine=r.game==='RPG_MAT_9';
+  const mastCell=isNine
+   ?'<span style="color:var(--gold);font-weight:700">'+mc+'</span><span style="color:var(--muted)">/21 🏅</span>'
+   :'<span style="color:var(--muted)">—</span>';
   html+='<tr>'+
    '<td><div class="nm">'+esc(d.name||'—')+'</div><div class="em">'+esc(r.full_name||r.email||'')+'</div></td>'+
    '<td><span class="tag" style="background:'+g.accent+'">'+g.emoji+' '+g.gr+'</span></td>'+
    '<td>'+(d.level||1)+'</td>'+
    '<td>'+(d.xp||0)+'</td>'+
    '<td><div style="display:flex;align-items:center;gap:8px"><div class="bar" style="flex:1"><i style="width:'+p+'%;background:'+g.accent+'"></i></div><span style="font-size:11px;color:var(--muted)">'+p+'%</span></div></td>'+
+   '<td style="font-size:13px">'+mastCell+'</td>'+
    '<td style="font-size:12px;color:var(--muted)">'+fmtDate(r.updated_at)+'</td>'+
    '<td><div class="rowbtns">'+
      '<button class="mini" onclick="openDetail('+i+')">Detail</button>'+
@@ -284,6 +303,26 @@ function renderTable(){
  html+='</tbody></table>';
  document.getElementById('tbl-wrap').innerHTML=html;
  window.__filtered=rows;
+}
+
+/* ── mastery HTML ── */
+function buildMasteryHtml(d){
+ const mc=masteryCount(d);
+ const mastered=masteryList(d);
+ const unmastered=MISSIONS_9.filter(m=>!(d.mastery&&d.mastery[m.id]&&d.mastery[m.id].mastered));
+ let pills='';
+ mastered.forEach(m=>{
+  const score=(d.mastery[m.id]&&d.mastery[m.id].score)||0;
+  pills+='<span title="skóre: '+score+'" style="display:inline-block;font-size:11px;font-weight:700;padding:3px 8px;border-radius:20px;margin:2px;background:var(--gold);color:#06101e">🏅 '+esc(m.id)+' '+esc(m.name)+'</span>';
+ });
+ unmastered.forEach(m=>{
+  const score=(d.mastery&&d.mastery[m.id]&&d.mastery[m.id].score)||0;
+  const bar=score>0?'<span style="color:var(--muted);font-size:10px"> ('+score+'/15)</span>':'';
+  pills+='<span style="display:inline-block;font-size:11px;padding:3px 8px;border-radius:20px;margin:2px;background:var(--panel2);color:var(--muted);border:1px solid var(--line)">'+esc(m.id)+''+bar+'</span>';
+ });
+ return '<h4>Mistrovství</h4>'+
+  '<div class="row"><span>Zvládnutých misí</span><b style="color:var(--gold)">'+mc+' / 21 🏅</b></div>'+
+  (mc===0?'<div style="font-size:12px;color:var(--muted);margin:8px 0">Zatím žádná mise nezvládnuta.</div>':'<div style="margin:10px 0 4px;line-height:2">'+pills+'</div>');
 }
 
 /* ── detail žáka ── */
@@ -311,6 +350,7 @@ function openDetail(i){
   '<div class="row"><span>Artefakty</span><b>'+(inv.length?esc(inv.join(', ')):'—')+'</b></div>'+
   '<div class="row"><span>Poslední aktivita</span><b>'+fmtDate(r.updated_at)+'</b></div>'+
   '<h4>Atributy</h4>'+attrHtml+
+  (r.game==='RPG_MAT_9'?buildMasteryHtml(d):'')+
   '<h4>Náhled</h4>'+
   '<div class="actrow"><a class="mini" style="text-decoration:none" target="_blank" href="'+g.file+'?su='+encodeURIComponent(r.user_id)+'">👁 Otevřít postavu žáka</a>'+
     '<a class="mini" style="text-decoration:none" target="_blank" href="'+g.file+'?preview=1">🎬 Hra nanečisto</a></div>'+
@@ -352,12 +392,13 @@ async function delChar(i){
 /* ── export CSV ── */
 function exportCSV(){
  const rows=filtered();
- const head=['email','full_name','postava','hra','rocnik','level','xp','splneno','celkem','procenta','posledni_aktivita'];
+ const head=['email','full_name','postava','hra','rocnik','level','xp','splneno','celkem','procenta','mistrovstvi_21','posledni_aktivita'];
  const lines=[head.join(',')];
  rows.forEach(r=>{const g=gMeta(r.game),d=r.data||{};
   const cell=v=>'"'+String(v==null?'':v).replace(/"/g,'""')+'"';
+  const mc=r.game==='RPG_MAT_9'?masteryCount(d):'';
   lines.push([cell(r.email),cell(r.full_name),cell(d.name),cell(g.nm),cell(g.gr),
-   d.level||1,d.xp||0,doneCount(d),TOTAL_TASKS,pct(d),cell(fmtDate(r.updated_at))].join(','));
+   d.level||1,d.xp||0,doneCount(d),TOTAL_TASKS,pct(d),mc,cell(fmtDate(r.updated_at))].join(','));
  });
  const blob=new Blob(['﻿'+lines.join('\n')],{type:'text/csv;charset=utf-8'});
  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
