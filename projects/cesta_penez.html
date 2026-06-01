@@ -2116,7 +2116,7 @@ function checkMath(content) {
   const fb = document.getElementById('m-fb');
   const raw = inp.value.trim();
   if (raw === '') { inp.focus(); return; }
-  const val = Number(raw);
+  const val = Number(raw.replace(/[\s ]/g, ''));
   const correct = val === content.answer;
   inp.disabled = true; btn.disabled = true;
   const unitLabel = content.unit ? (lang === 'en' ? ' CZK' : ' ' + content.unit) : '';
