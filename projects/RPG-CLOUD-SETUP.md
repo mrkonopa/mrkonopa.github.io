@@ -55,5 +55,34 @@ Commitni a pushni. Hotovo — na hubu i ve hrách se objeví **🔑 Přihlásit 
 - Žádná hesla neukládáš — ověřuje Google.
 - **Row Level Security** v DB zajišťuje, že žák vidí/mění jen svou postavu.
 
-## Co bude ve Fázi 2
-Učitelský přehled: pokrok celé třídy na jednom místě (role `teacher` + politika pro čtení všech řádků, dashboard s filtrem podle hry/žáka a exportem).
+---
+
+# Fáze 2 — Učitelská konzole
+
+Stránka [`rpg-ucitel.html`](./rpg-ucitel.html): přehled pokroku celé třídy, náhledy her, odměny, mazání a správa učitelů. Přístup hlídají role v DB + Row Level Security.
+
+## 1) Spusť SQL Fáze 2
+V Supabase **SQL Editor → New query** vlož obsah [`rpg-cloud-setup-phase2.sql`](./rpg-cloud-setup-phase2.sql) a **Run**.
+
+> ⚠️ **Než spustíš:** v souboru nahoře je řádek `insert into public.roles … 'vojtech.konopa@husovaliberec.cz'`. Zkontroluj, že je tam **přesně ten školní e-mail, kterým se přihlašuješ přes Google**. Pokud máš jiný, uprav ho — jinak se k vlastní konzoli nedostaneš.
+
+Skript vytvoří:
+- tabulku **`roles`** (allowlist e-mailů → `teacher` / `superadmin`),
+- funkci `my_role()` a politiky, které učiteli dovolí číst všechny postavy a superadminovi je i mazat/upravovat.
+
+## 2) Hotovo
+Po přihlášení na [`rpg-ucitel.html`](./rpg-ucitel.html) (nebo přes odkaz **🎓 učitelská konzole** na hubu, který se učitelům objeví sám) uvidíš:
+- **Přehled žáků** — tabulka (jméno, hra, level, XP, % pokrok, poslední aktivita), filtr podle hry, hledání, **export CSV**.
+- **Detail žáka** — atributy, splněné úkoly, artefakty; superadmin navíc přidá XP / artefakt nebo postavu smaže.
+- **Náhled her** — `?preview=1` (hraješ nanečisto) a `👁 Náhled` u žáka (`?su=…`, jen ke čtení).
+- **Správa učitelů** (jen superadmin) — přidej kolegu školním e-mailem + roli; roli získá při prvním přihlášení.
+
+## Role
+| Role | Co může |
+|---|---|
+| **student** (výchozí) | hraje, vidí jen svou postavu |
+| **teacher** | + přehled celé třídy, náhledy, export |
+| **superadmin** (ty) | + mazání/úpravy postav, odměny, správa učitelů |
+
+## Co bude ve Fázi 3 (nápady)
+Poznámky k žákům, hromadné akce (vyčistit třídu na začátku roku), „kdo je právě online" (Supabase Realtime), jemnější posun pokroku (odemknout oblast).

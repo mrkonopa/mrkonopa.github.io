@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Učitelská konzole · RPG Matematika · ZŠ Husova</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&family=VT323&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+ --bg:#0a0d16;--panel:#131826;--panel2:#1b2233;
+ --text:#e6ecf7;--muted:#7a89a8;--line:#283150;
+ --accent:#19e6e6;--gold:#f4d03f;--red:#ff5d7f;--green:#39ff9e;
+ --px:'Roboto Mono','VT323',monospace;--vt:'VT323',monospace;
+}
+body{background:var(--bg);color:var(--text);font-family:var(--px);min-height:100vh;font-size:15px}
+.wrap{max-width:1100px;margin:0 auto;padding:22px 16px 70px}
+.topnav{display:flex;justify-content:space-between;align-items:center;font-size:13px;margin-bottom:18px;flex-wrap:wrap;gap:10px}
+.topnav a,.topnav button{color:var(--muted);text-decoration:none;border:1px solid var(--line);padding:7px 12px;border-radius:4px;background:none;font-family:inherit;font-size:13px;cursor:pointer;transition:.15s}
+.topnav a:hover,.topnav button:hover{color:var(--text);border-color:var(--muted)}
+.head{padding:4px 0 14px}
+.head h1{font-weight:700;font-size:26px;letter-spacing:2px;color:#fff}
+.head h1 .em{filter:drop-shadow(0 0 8px var(--accent))}
+.head .sub{font-family:var(--vt);font-size:20px;color:var(--accent);letter-spacing:1px}
+.gate{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:28px;text-align:center;margin-top:24px}
+.gate .big{font-family:var(--vt);font-size:26px;letter-spacing:1px;margin-bottom:10px}
+.gate p{color:var(--muted);margin-bottom:16px;line-height:1.5}
+.bigbtn{font-family:inherit;font-weight:700;font-size:14px;padding:11px 18px;border-radius:6px;cursor:pointer;
+ border:2px solid var(--accent);background:var(--accent);color:#06101e}
+.bigbtn:hover{filter:brightness(1.1)}
+.hidden{display:none!important}
+/* tabs */
+.tabs{display:flex;gap:6px;border-bottom:1px solid var(--line);margin:6px 0 18px;flex-wrap:wrap}
+.tab{font-family:inherit;font-size:13px;font-weight:700;letter-spacing:1px;padding:10px 16px;background:none;border:none;
+ color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px}
+.tab.on{color:var(--accent);border-bottom-color:var(--accent)}
+/* stat strip */
+.stats{display:flex;gap:24px;flex-wrap:wrap;margin-bottom:16px}
+.stats .s .v{font-weight:700;font-size:22px;color:#fff}
+.stats .s .l{font-size:11px;color:var(--muted);letter-spacing:1px;text-transform:uppercase}
+/* controls */
+.controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+.controls input,.controls select{font-family:inherit;font-size:13px;padding:8px 10px;border-radius:5px;
+ border:1px solid var(--line);background:var(--panel2);color:var(--text)}
+.controls input{flex:1;min-width:160px}
+.controls .sp{flex:1}
+.mini{font-family:inherit;font-size:12px;font-weight:700;padding:8px 12px;border-radius:5px;cursor:pointer;
+ border:1px solid var(--accent);background:none;color:var(--accent)}
+.mini:hover{background:var(--accent);color:#06101e}
+.mini.red{border-color:var(--red);color:var(--red)}.mini.red:hover{background:var(--red);color:#06101e}
+.mini.gold{border-color:var(--gold);color:var(--gold)}.mini.gold:hover{background:var(--gold);color:#06101e}
+/* table */
+.tbl{width:100%;border-collapse:collapse;font-size:13px}
+.tbl th{text-align:left;color:var(--muted);font-size:11px;letter-spacing:1px;text-transform:uppercase;
+ padding:9px 10px;border-bottom:1px solid var(--line)}
+.tbl td{padding:10px;border-bottom:1px solid var(--line)}
+.tbl tr:hover td{background:var(--panel)}
+.tbl .nm{font-weight:700;color:#fff}
+.tbl .em{font-size:11px;color:var(--muted)}
+.tag{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px;color:#06101e}
+.bar{height:7px;background:#0006;border:1px solid var(--line);border-radius:5px;overflow:hidden;min-width:80px}
+.bar > i{display:block;height:100%;background:var(--accent)}
+.rowbtns{display:flex;gap:6px;flex-wrap:wrap}
+.empty{font-family:var(--vt);font-size:20px;color:var(--muted);padding:24px 0;text-align:center}
+/* modal */
+.ovl{position:fixed;inset:0;background:#000a;display:none;align-items:center;justify-content:center;z-index:100;padding:16px}
+.ovl.show{display:flex}
+.modal{background:var(--panel);border:1px solid var(--line);border-radius:12px;max-width:520px;width:100%;
+ max-height:90vh;overflow:auto;padding:22px}
+.modal h3{font-size:18px;color:#fff;margin-bottom:4px}
+.modal .msub{font-size:12px;color:var(--muted);margin-bottom:14px}
+.modal .row{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--line);font-size:13px}
+.modal .row b{color:#fff}
+.modal h4{font-size:12px;letter-spacing:1px;color:var(--accent);margin:16px 0 8px;text-transform:uppercase}
+.actrow{display:flex;gap:8px;align-items:center;margin-bottom:8px;flex-wrap:wrap}
+.actrow input{font-family:inherit;font-size:13px;padding:7px 9px;border-radius:5px;border:1px solid var(--line);
+ background:var(--panel2);color:var(--text);width:90px}
+.actrow input.wide{flex:1;width:auto;min-width:120px}
+.modal .close{float:right;background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;line-height:1}
+.note{margin-top:18px;background:var(--panel);border:1px dashed var(--line);border-radius:8px;padding:14px 16px;font-size:12px;color:var(--muted);line-height:1.6}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--green);color:#06101e;
+ font-weight:700;font-size:13px;padding:10px 18px;border-radius:6px;box-shadow:0 4px 16px #0008;z-index:200;display:none}
+.toast.err{background:var(--red)}
+</style>
+</head>
+<body>
+<div class="wrap">
+ <div class="topnav">
+  <a href="rpg-matematika.html">← zpět na hub</a>
+  <button id="logout-btn" class="hidden" onclick="RPGCloud.logout()">odhlásit</button>
+ </div>
+ <div class="head">
+  <h1><span class="em">🎓</span> UČITELSKÁ KONZOLE</h1>
+  <div class="sub">RPG Matematika · ZŠ Husova Liberec</div>
+ </div>
+
+ <!-- brána -->
+ <div id="gate" class="gate">
+  <div class="big" id="gate-big">Ověřuji přístup…</div>
+  <p id="gate-msg">Moment, kontroluji tvé oprávnění.</p>
+  <button id="gate-btn" class="bigbtn hidden">🔑 Přihlásit přes Google</button>
+ </div>
+
+ <!-- konzole -->
+ <div id="console" class="hidden">
+  <div class="tabs">
+   <button class="tab on" data-tab="overview">PŘEHLED ŽÁKŮ</button>
+   <button class="tab" data-tab="preview">NÁHLED HER</button>
+   <button class="tab hidden" id="tab-teachers" data-tab="teachers">SPRÁVA UČITELŮ</button>
+  </div>
+
+  <!-- PŘEHLED -->
+  <div id="t-overview">
+   <div class="stats">
+    <div class="s"><div class="v" id="st-students">0</div><div class="l">žáků</div></div>
+    <div class="s"><div class="v" id="st-chars">0</div><div class="l">postav</div></div>
+    <div class="s"><div class="v" id="st-tasks">0</div><div class="l">úkolů hotovo</div></div>
+    <div class="s"><div class="v" id="st-active">0</div><div class="l">aktivních (7 dní)</div></div>
+   </div>
+   <div class="controls">
+    <input id="search" placeholder="🔍 hledat jméno nebo e-mail…" oninput="renderTable()">
+    <select id="fgame" onchange="renderTable()">
+     <option value="">Všechny hry</option>
+    </select>
+    <button class="mini" onclick="exportCSV()">⬇ Export CSV</button>
+    <button class="mini" onclick="loadData()">↻ Obnovit</button>
+   </div>
+   <div id="tbl-wrap"><div class="empty">Načítám data…</div></div>
+  </div>
+
+  <!-- NÁHLED HER -->
+  <div id="t-preview" class="hidden">
+   <p style="color:var(--muted);margin-bottom:14px;line-height:1.6">
+    Spusť libovolnou hru v <b style="color:var(--gold)">náhledovém režimu</b> — hraješ nanečisto,
+    nic se neukládá. Ideální pro kontrolu úkolů nebo ukázku ve třídě.</p>
+   <div id="preview-cards" class="stats" style="flex-direction:column;gap:10px"></div>
+  </div>
+
+  <!-- UČITELÉ -->
+  <div id="t-teachers" class="hidden">
+   <p style="color:var(--muted);margin-bottom:14px;line-height:1.6">
+    Přidej kolegu jeho <b>školním e-mailem</b> — roli získá, jakmile se poprvé přihlásí přes Google.
+    <b>Učitel</b> vidí přehled a náhledy; <b>superadmin</b> navíc maže/upravuje postavy a spravuje učitele.</p>
+   <div class="controls">
+    <input id="new-email" class="" placeholder="jmeno@husovaliberec.cz" style="flex:1">
+    <select id="new-role">
+     <option value="teacher">učitel</option>
+     <option value="superadmin">superadmin</option>
+    </select>
+    <button class="mini gold" onclick="addTeacher()">+ Přidat</button>
+   </div>
+   <div id="teachers-wrap"><div class="empty">Načítám…</div></div>
+  </div>
+
+  <div class="note" id="role-note"></div>
+ </div>
+</div>
+
+<!-- modal detailu žáka -->
+<div class="ovl" id="ovl">
+ <div class="modal" id="modal"></div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const GAMES=[
+ {key:'RPG_MAT_6',file:'rpg-mat-6.html',emoji:'🚀',nm:'Vesmírná expedice',gr:'6. ročník',accent:'#5dc8f0'},
+ {key:'RPG_MAT_7',file:'rpg-mat-7.html',emoji:'⛏️',nm:'Ztracený chrám',gr:'7. ročník',accent:'#f2c14e'},
+ {key:'RPG_MAT_8',file:'rpg-mat-8.html',emoji:'🎓',nm:'Matematická akademie',gr:'8. ročník',accent:'#f4d03f'},
+ {key:'RPG_MAT_9',file:'rpg-mat-9.html',emoji:'💻',nm:'NULL_BYTE',gr:'9. ročník',accent:'#19e6e6'},
+];
+const TOTAL_TASKS=126;
+const ATTR=[['calc','🔢 Výpočty'],['geo','📐 Geometrie'],['anal','🧠 Analýza'],['craft','⚡ Instinkt']];
+const gMeta=k=>GAMES.find(g=>g.key===k)||{emoji:'❓',nm:k,gr:'',accent:'#888'};
+let ROWS=[];   // všechny postavy
+
+function esc(s){return String(s==null?'':s).replace(/[<>&"]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c]));}
+function doneCount(d){return d&&d.done?Object.keys(d.done).length:0;}
+function pct(d){return Math.min(100,Math.round(doneCount(d)/TOTAL_TASKS*100));}
+function fmtDate(s){if(!s)return'—';const dt=new Date(s);return dt.toLocaleDateString('cs-CZ')+' '+dt.toLocaleTimeString('cs-CZ',{hour:'2-digit',minute:'2-digit'});}
+function daysAgo(s){if(!s)return 1e9;return (Date.now()-new Date(s).getTime())/864e5;}
+function toast(msg,err){const t=document.getElementById('toast');t.textContent=msg;t.className='toast'+(err?' err':'');t.style.display='block';setTimeout(()=>t.style.display='none',2600);}
+
+/* ── brána ── */
+async function boot(){
+ if(!RPGCloud.configured()){
+  await RPGCloud.init();
+ }
+ await RPGCloud.init();
+ paintGate();
+ RPGCloud.onChange(()=>paintGate());
+}
+function paintGate(){
+ const u=RPGCloud.currentUser();
+ const staff=RPGCloud.isStaff();
+ const gate=document.getElementById('gate'), con=document.getElementById('console');
+ const big=document.getElementById('gate-big'), msg=document.getElementById('gate-msg'), btn=document.getElementById('gate-btn');
+ document.getElementById('logout-btn').classList.toggle('hidden',!u);
+ if(!RPGCloud.configured()){
+  gate.classList.remove('hidden');con.classList.add('hidden');
+  big.textContent='Cloud není nastavený';msg.textContent='Vyplň klíče v rpg-cloud.js (viz RPG-CLOUD-SETUP.md).';btn.classList.add('hidden');return;
+ }
+ if(!u){
+  gate.classList.remove('hidden');con.classList.add('hidden');
+  big.textContent='Přihlaš se';msg.textContent='Konzole je jen pro učitele. Přihlas se školním účtem.';
+  btn.classList.remove('hidden');btn.onclick=()=>RPGCloud.login();return;
+ }
+ if(!staff){
+  gate.classList.remove('hidden');con.classList.add('hidden');
+  big.textContent='Nemáš oprávnění';
+  msg.textContent='Účet '+(u.email||'')+' není veden jako učitel. Požádej správce ('+'role v Supabase).';
+  btn.classList.remove('hidden');btn.textContent='Odhlásit';btn.onclick=()=>RPGCloud.logout();return;
+ }
+ // staff → konzole
+ gate.classList.add('hidden');con.classList.remove('hidden');
+ const admin=RPGCloud.isAdmin();
+ document.getElementById('tab-teachers').classList.toggle('hidden',!admin);
+ document.getElementById('role-note').innerHTML=
+  'Přihlášen jako <b style="color:#fff">'+esc(u.email||'')+'</b> · role <b style="color:var(--accent)">'+esc(RPGCloud.getRole())+'</b>'+
+  (admin?' — máš plná práva (mazání, úpravy, správa učitelů).':' — vidíš přehled a náhledy. Mazat/upravovat smí superadmin.');
+ buildFilters();buildPreviewCards();loadData();
+}
+
+function buildFilters(){
+ const sel=document.getElementById('fgame');
+ if(sel.options.length>1)return;
+ GAMES.forEach(g=>{const o=document.createElement('option');o.value=g.key;o.textContent=g.emoji+' '+g.nm;sel.appendChild(o);});
+}
+function buildPreviewCards(){
+ const w=document.getElementById('preview-cards');w.innerHTML='';
+ GAMES.forEach(g=>{
+  const d=document.createElement('div');
+  d.style.cssText='display:flex;align-items:center;gap:14px;background:var(--panel);border:1px solid var(--line);border-left:3px solid '+g.accent+';border-radius:8px;padding:12px 16px';
+  d.innerHTML='<span style="font-size:28px">'+g.emoji+'</span>'+
+   '<div style="flex:1"><div style="font-weight:700;color:#fff">'+esc(g.nm)+'</div><div style="font-size:12px;color:var(--muted)">'+g.gr+'</div></div>'+
+   '<a class="mini" style="text-decoration:none" target="_blank" href="'+g.file+'?preview=1">🎬 Spustit náhled</a>';
+  w.appendChild(d);
+ });
+}
+
+/* ── data ── */
+async function loadData(){
+ document.getElementById('tbl-wrap').innerHTML='<div class="empty">Načítám data…</div>';
+ ROWS=await RPGCloud.listAllSaves();
+ renderStats();renderTable();
+}
+function renderStats(){
+ const students=new Set(ROWS.map(r=>r.user_id)).size;
+ const tasks=ROWS.reduce((a,r)=>a+doneCount(r.data),0);
+ const active=ROWS.filter(r=>daysAgo(r.updated_at)<=7).length;
+ document.getElementById('st-students').textContent=students;
+ document.getElementById('st-chars').textContent=ROWS.length;
+ document.getElementById('st-tasks').textContent=tasks;
+ document.getElementById('st-active').textContent=active;
+}
+function filtered(){
+ const q=document.getElementById('search').value.trim().toLowerCase();
+ const fg=document.getElementById('fgame').value;
+ return ROWS.filter(r=>{
+  if(fg&&r.game!==fg)return false;
+  if(q){const hay=((r.full_name||'')+' '+(r.email||'')+' '+((r.data&&r.data.name)||'')).toLowerCase();if(!hay.includes(q))return false;}
+  return true;
+ });
+}
+function renderTable(){
+ const rows=filtered();
+ if(!rows.length){document.getElementById('tbl-wrap').innerHTML='<div class="empty">— žádné postavy —</div>';return;}
+ const admin=RPGCloud.isAdmin();
+ let html='<table class="tbl"><thead><tr><th>Žák</th><th>Hra</th><th>LV</th><th>XP</th><th>Pokrok</th><th>Poslední aktivita</th><th>Akce</th></tr></thead><tbody>';
+ rows.forEach((r,i)=>{
+  const g=gMeta(r.game), d=r.data||{}, p=pct(d);
+  html+='<tr>'+
+   '<td><div class="nm">'+esc(d.name||'—')+'</div><div class="em">'+esc(r.full_name||r.email||'')+'</div></td>'+
+   '<td><span class="tag" style="background:'+g.accent+'">'+g.emoji+' '+g.gr+'</span></td>'+
+   '<td>'+(d.level||1)+'</td>'+
+   '<td>'+(d.xp||0)+'</td>'+
+   '<td><div style="display:flex;align-items:center;gap:8px"><div class="bar" style="flex:1"><i style="width:'+p+'%;background:'+g.accent+'"></i></div><span style="font-size:11px;color:var(--muted)">'+p+'%</span></div></td>'+
+   '<td style="font-size:12px;color:var(--muted)">'+fmtDate(r.updated_at)+'</td>'+
+   '<td><div class="rowbtns">'+
+     '<button class="mini" onclick="openDetail('+i+')">Detail</button>'+
+     '<a class="mini" style="text-decoration:none" target="_blank" href="'+g.file+'?su='+encodeURIComponent(r.user_id)+'">👁 Náhled</a>'+
+     (admin?'<button class="mini red" onclick="delChar('+i+')">🗑</button>':'')+
+   '</div></td></tr>';
+ });
+ html+='</tbody></table>';
+ document.getElementById('tbl-wrap').innerHTML=html;
+ window.__filtered=rows;
+}
+
+/* ── detail žáka ── */
+function openDetail(i){
+ const r=window.__filtered[i];if(!r)return;
+ const g=gMeta(r.game), d=r.data||{}, admin=RPGCloud.isAdmin();
+ const attrHtml=ATTR.map(([k,lbl])=>'<div class="row"><span>'+lbl+'</span><b>'+((d.attrs&&d.attrs[k])||0)+'</b></div>').join('');
+ const inv=Array.isArray(d.inv)?d.inv:[];
+ let admHtml='';
+ if(admin){
+  admHtml=
+   '<h4>Odměny a úpravy (superadmin)</h4>'+
+   '<div class="actrow"><input type="number" id="adj-xp" placeholder="±XP" value="100"><button class="mini gold" onclick="giveXP('+i+')">Přidat XP</button>'+
+     '<span style="font-size:11px;color:var(--muted)">level se dopočítá z XP</span></div>'+
+   '<div class="actrow"><input class="wide" id="adj-item" placeholder="název artefaktu"><button class="mini gold" onclick="giveItem('+i+')">+ Artefakt</button></div>'+
+   '<div class="actrow"><button class="mini red" onclick="delChar('+i+')">🗑 Smazat celou postavu</button></div>';
+ }
+ document.getElementById('modal').innerHTML=
+  '<button class="close" onclick="closeModal()">✕</button>'+
+  '<h3>'+g.emoji+' '+esc(d.name||'—')+'</h3>'+
+  '<div class="msub">'+esc(r.full_name||'')+' · '+esc(r.email||'')+' · '+g.nm+'</div>'+
+  '<div class="row"><span>Level</span><b>'+(d.level||1)+'</b></div>'+
+  '<div class="row"><span>XP</span><b>'+(d.xp||0)+'</b></div>'+
+  '<div class="row"><span>Splněno úkolů</span><b>'+doneCount(d)+' / '+TOTAL_TASKS+' ('+pct(d)+' %)</b></div>'+
+  '<div class="row"><span>Artefakty</span><b>'+(inv.length?esc(inv.join(', ')):'—')+'</b></div>'+
+  '<div class="row"><span>Poslední aktivita</span><b>'+fmtDate(r.updated_at)+'</b></div>'+
+  '<h4>Atributy</h4>'+attrHtml+
+  '<h4>Náhled</h4>'+
+  '<div class="actrow"><a class="mini" style="text-decoration:none" target="_blank" href="'+g.file+'?su='+encodeURIComponent(r.user_id)+'">👁 Otevřít postavu žáka</a>'+
+    '<a class="mini" style="text-decoration:none" target="_blank" href="'+g.file+'?preview=1">🎬 Hra nanečisto</a></div>'+
+  admHtml;
+ document.getElementById('ovl').classList.add('show');
+}
+function closeModal(){document.getElementById('ovl').classList.remove('show');}
+document.getElementById('ovl').addEventListener('click',e=>{if(e.target.id==='ovl')closeModal();});
+
+async function giveXP(i){
+ const r=window.__filtered[i];if(!r)return;
+ const delta=parseInt(document.getElementById('adj-xp').value,10);
+ if(isNaN(delta)){toast('Zadej číslo.',1);return;}
+ const d=Object.assign({},r.data||{});
+ d.xp=Math.max(0,(d.xp||0)+delta);
+ d.level=Math.floor(d.xp/100)+1;
+ const res=await RPGCloud.updateSaveFor(r.user_id,r.game,d);
+ if(res.ok){r.data=d;toast((delta>=0?'+':'')+delta+' XP přidáno');renderStats();renderTable();openDetail(i);}
+ else toast('Chyba: '+res.error,1);
+}
+async function giveItem(i){
+ const r=window.__filtered[i];if(!r)return;
+ const name=document.getElementById('adj-item').value.trim();
+ if(!name){toast('Zadej název artefaktu.',1);return;}
+ const d=Object.assign({},r.data||{});
+ d.inv=Array.isArray(d.inv)?d.inv.slice():[];d.inv.push(name);
+ const res=await RPGCloud.updateSaveFor(r.user_id,r.game,d);
+ if(res.ok){r.data=d;toast('Artefakt přidán');openDetail(i);}
+ else toast('Chyba: '+res.error,1);
+}
+async function delChar(i){
+ const r=window.__filtered?window.__filtered[i]:null;if(!r)return;
+ if(!confirm('Smazat postavu „'+((r.data&&r.data.name)||'')+'" žáka '+(r.email||'')+'?\nTohle nejde vrátit.'))return;
+ const res=await RPGCloud.deleteSaveFor(r.user_id,r.game);
+ if(res.ok){toast('Postava smazána');closeModal();loadData();}
+ else toast('Chyba: '+res.error,1);
+}
+
+/* ── export CSV ── */
+function exportCSV(){
+ const rows=filtered();
+ const head=['email','full_name','postava','hra','rocnik','level','xp','splneno','celkem','procenta','posledni_aktivita'];
+ const lines=[head.join(',')];
+ rows.forEach(r=>{const g=gMeta(r.game),d=r.data||{};
+  const cell=v=>'"'+String(v==null?'':v).replace(/"/g,'""')+'"';
+  lines.push([cell(r.email),cell(r.full_name),cell(d.name),cell(g.nm),cell(g.gr),
+   d.level||1,d.xp||0,doneCount(d),TOTAL_TASKS,pct(d),cell(fmtDate(r.updated_at))].join(','));
+ });
+ const blob=new Blob(['﻿'+lines.join('\n')],{type:'text/csv;charset=utf-8'});
+ const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+ a.download='rpg-matematika-prehled-'+new Date().toISOString().slice(0,10)+'.csv';a.click();
+}
+
+/* ── správa učitelů ── */
+async function loadTeachers(){
+ const w=document.getElementById('teachers-wrap');w.innerHTML='<div class="empty">Načítám…</div>';
+ const list=await RPGCloud.listRoles();
+ if(!list.length){w.innerHTML='<div class="empty">— zatím žádní —</div>';return;}
+ let html='<table class="tbl"><thead><tr><th>E-mail</th><th>Role</th><th>Přidal</th><th></th></tr></thead><tbody>';
+ list.forEach(t=>{
+  html+='<tr><td class="nm">'+esc(t.email)+'</td>'+
+   '<td><span class="tag" style="background:'+(t.role==='superadmin'?'var(--gold)':'var(--accent)')+'">'+t.role+'</span></td>'+
+   '<td class="em">'+esc(t.added_by||'')+'</td>'+
+   '<td><button class="mini red" onclick="delTeacher(\''+esc(t.email)+'\')">odebrat</button></td></tr>';
+ });
+ html+='</tbody></table>';w.innerHTML=html;
+}
+async function addTeacher(){
+ const email=document.getElementById('new-email').value.trim();
+ const role=document.getElementById('new-role').value;
+ const res=await RPGCloud.upsertRole(email,role);
+ if(res.ok){toast('Učitel přidán');document.getElementById('new-email').value='';loadTeachers();}
+ else toast('Chyba: '+res.error,1);
+}
+async function delTeacher(email){
+ if(!confirm('Odebrat roli '+email+'?'))return;
+ const res=await RPGCloud.deleteRole(email);
+ if(res.ok){toast('Role odebrána');loadTeachers();}
+ else toast('Chyba: '+res.error,1);
+}
+
+/* ── taby ── */
+document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
+ document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));
+ t.classList.add('on');
+ const tab=t.dataset.tab;
+ document.getElementById('t-overview').classList.toggle('hidden',tab!=='overview');
+ document.getElementById('t-preview').classList.toggle('hidden',tab!=='preview');
+ document.getElementById('t-teachers').classList.toggle('hidden',tab!=='teachers');
+ if(tab==='teachers')loadTeachers();
+});
+</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="./rpg-cloud.js"></script>
+<script>boot();</script>
+</body>
+</html>
