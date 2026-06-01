@@ -65,6 +65,13 @@
   - `href="../"` from a `/projects/` file goes to `/` (home), NOT to projects. This is a common mistake — double-check whenever adding nav to a projects page.
 - **Some allowlisted domains:** `github.com`, `npmjs.org`, `pypi.org`, `cdn.playwright.dev`, `*.anthropic.com`, `*.claude.com`. NOT allowlisted: `*.github.io`, most `*.gov.cz`. Czech educational sites work selectively (umimematiku.cz, fgdoskol.cz are usually OK; financnigramotnost.gov.cz blocked).
 
+## RPG Matematika série (6.–9. ročník)
+- Single-file pixel-art RPG engine, sdílený mezi `projects/rpg-mat-6/7/8/9.html`. Každá hra: 7 oblastí × 3 mise × 6 úkolů = 126, save `{name,xp,level,attrs:{calc,geo,anal,craft},done,inv}` v localStorage pod `RPG_MAT_X`.
+- Témata: 6 = Vesmírná expedice 🚀, 7 = Ztracený chrám ⛏️, 8 = Matematická akademie 🎓, 9 = NULL_BYTE 💻 (cyberpunk). Úvodní obrazovky mají konzistentní strukturu, ale tématickou výzvu+tlačítko.
+- Fonts: Roboto Mono + VT323 (`--px`/`--vt`). MC mise (`mc:true`) smí mít **jen numerické nebo ANO/NE odpovědi** (jinak se rozbije generátor distraktorů). Audit: extrahuj AREAS přes `new Function()`, vygeneruj tisíce úloh, hlídej NaN/undefined a MC bezpečnost.
+- **Hub** `projects/rpg-matematika.html` — rozcestník, čte všechny `RPG_MAT_*` saves z localStorage (stejný origin) a ukazuje postavu+pokrok.
+- **Cloud (Fáze 1)** `projects/rpg-cloud.js` — Supabase Auth (Google, omezeno na `@husovaliberec.cz`) + ukládání postav. **Graceful degradation:** prázdný CONFIG nebo nenačtené CDN ⇒ vše běží lokálně jako dřív, login lišta skrytá. Setup: `RPG-CLOUD-SETUP.md` + `rpg-cloud-setup.sql`. Vojta je admin Workspace domény. Fáze 2 = učitelský přehled třídy.
+
 ## Workflow with the user
 1. **User uploads files / asks for a project.** Often via D:\SynologyShare\ZŠ_HUSOVA paths (his school folder, mounted in sandbox).
 2. **You edit files in the repo** (`C:\Users\vojte\mrkonopa.github.io\`).
