@@ -1127,8 +1127,8 @@ function renderMath(data,container) {
   const btnNext=container.querySelector('#btn-next');
   function check() {
     if(answered){ nextScene(); return; }
-    const val=parseFloat(input.value);
-    if(isNaN(val)){ fb.innerHTML=i18n('Zadej číslo.','Enter a number.'); fb.className='feedback err'; return; }
+    const val=parseFloat(input.value.replace(',','.'));
+    if(isNaN(val)){ fb.innerHTML=i18n('Zadej číslo (desetinnou čárku nebo tečku).','Enter a number (use comma or dot for decimals).'); fb.className='feedback err'; return; }
     const ok=Math.abs(val-data.ans)<=(data.tol||0);
     answered=true;
     if(ok) chapterScore.earned+=1;
