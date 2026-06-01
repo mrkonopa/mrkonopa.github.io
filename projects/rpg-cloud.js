@@ -8,9 +8,8 @@
    ════════════════════════════════════════════════════════════════════ */
 window.RPGCloud = (function () {
   const CONFIG = {
-    // ↓↓↓ VYPLŇ z Supabase: Project Settings → API ↓↓↓
-    SUPABASE_URL: '',          // Project URL, např. https://abcd.supabase.co
-    SUPABASE_ANON_KEY: '',     // anon public key (je bezpečné dát do frontendu)
+    SUPABASE_URL: 'https://ovajoalbyofenjbbyhcy.supabase.co',
+    SUPABASE_ANON_KEY: 'sb_publishable_XWQ96Yv5YfvUtJ001hiXsw_HZpxJcAp',
     ALLOWED_DOMAIN: 'husovaliberec.cz'   // povolíme jen školní účty
   };
 
