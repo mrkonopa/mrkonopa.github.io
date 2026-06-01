@@ -44,8 +44,8 @@ window.RPGCloud = (function () {
       client.auth.onAuthStateChange(async (_event, s) => {
         const nu = s ? s.user : null;
         if (nu && !emailOK(nu)) { client.auth.signOut(); return; }
-        user = nu; role = null;
-        if (user) await fetchRole();
+        user = nu;
+        if (user) await fetchRole(); else role = null;
         emit();
       });
       emit();
