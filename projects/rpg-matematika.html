@@ -93,8 +93,10 @@ body::before{
   <div class="sub">Velitelské centrum · ZŠ Husova Liberec</div>
  </div>
 
+ <div id="cloud-mount"></div>
+
  <div class="student">
-  <div class="who">Postavy uložené na <b>tomto zařízení</b> · <span id="started">0</span>/4 her rozehráno</div>
+  <div class="who"><span id="who-where">Postavy uložené na <b>tomto zařízení</b></span> · <span id="started">0</span>/4 her rozehráno</div>
   <div class="stat-strip">
    <div class="s"><div class="v" id="tot-xp">0</div><div class="l">XP celkem</div></div>
    <div class="s"><div class="v" id="tot-tasks">0</div><div class="l">úkolů hotovo</div></div>
@@ -179,6 +181,15 @@ function resetAll(){
  }
 }
 render();
+</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="./rpg-cloud.js"></script>
+<script>
+RPGCloud.attachHub(GAMES.map(g=>g.key), render, '.wrap');
+RPGCloud.onChange(u=>{
+  const w=document.getElementById('who-where');
+  if(w) w.innerHTML = u ? 'Postavy účtu <b>'+(u.email||'')+'</b>' : 'Postavy uložené na <b>tomto zařízení</b>';
+});
 </script>
 </body>
 </html>
