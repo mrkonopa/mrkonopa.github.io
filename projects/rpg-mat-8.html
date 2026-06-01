@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>RPG Matematika · 8. ročník</title>
+<title>RPG Matematika · 8. ročník · Matematická akademie</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&family=VT323&display=swap" rel="stylesheet">
@@ -374,14 +374,14 @@ body::before{
 <div id="s-intro" class="screen active">
 <div class="wrap">
  <div style="text-align:center;padding:28px 0 20px">
- <div class="intro-sword">⚔️</div>
- <div class="intro-title">RPG<br>MATEMATIKA</div>
- <div style="font-family:var(--vt);font-size:24px;color:var(--blue)">8. ročník · ZŠ Husova Liberec</div>
+ <div class="intro-sword">🎓</div>
+ <div class="intro-title">MATEMATICKÁ<br>AKADEMIE</div>
+ <div style="font-family:var(--vt);font-size:24px;color:var(--blue)">Matematika 8. ročník · ZŠ Husova Liberec</div>
  </div>
  <div class="panel">
- <div style="font-family:var(--vt);font-size:22px;color:var(--muted);margin-bottom:10px">Zadej své jméno, hrdino:</div>
+ <div style="font-family:var(--vt);font-size:22px;color:var(--muted);margin-bottom:10px">Zapiš se do akademie, studente:</div>
  <input id="ni" class="ni-input" type="text" placeholder="JMÉNO" maxlength="14" autocomplete="off">
- <button class="btn full" onclick="startGame()">▶ ZAHAJ DOBRODRUŽSTVÍ</button>
+ <button class="btn full" onclick="startGame()">▶ ZAHÁJIT STUDIUM</button>
  </div>
  <div id="continue-panel" class="panel b" style="display:none">
  <div style="font-family:var(--px);font-weight:700;font-size:14px;color:var(--blue);margin-bottom:10px">POKRAČOVAT VE HŘE</div>
@@ -1174,7 +1174,7 @@ const ATTR_META = {
 const SAVE_KEY = 'RPG_MAT_8';
 let S = {name:'HRDINA',xp:0,level:1,attrs:{calc:0,geo:0,anal:0,craft:0},done:{},inv:[]};
 
-function saveS(){localStorage.setItem(SAVE_KEY,JSON.stringify(S));}
+function saveS(){localStorage.setItem(SAVE_KEY,JSON.stringify(S));if(window.RPGCloud&&RPGCloud.push)RPGCloud.push(SAVE_KEY,S);}
 function loadS(){const r=localStorage.getItem(SAVE_KEY);if(r){S=JSON.parse(r);return true;}return false;}
 function calcLevel(){S.level=Math.floor(S.xp/100)+1;}
 
@@ -1921,5 +1921,8 @@ window.addEventListener('load',()=>{
  }
 });
 </script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="./rpg-cloud.js"></script>
+<script>RPGCloud.attachGame(SAVE_KEY);</script>
 </body>
 </html>
