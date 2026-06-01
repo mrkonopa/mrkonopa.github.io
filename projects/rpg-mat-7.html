@@ -379,12 +379,12 @@ body::before{
  <div style="text-align:center;padding:28px 0 20px">
  <div class="intro-sword">⛏️</div>
  <div class="intro-title">ZTRACENÝ<br>CHRÁM</div>
- <div style="font-family:var(--vt);font-size:24px;color:var(--blue)">Matematika 7. ročník · ZŠ Husova</div>
+ <div style="font-family:var(--vt);font-size:24px;color:var(--blue)">Matematika 7. ročník · ZŠ Husova Liberec</div>
  </div>
  <div class="panel">
- <div style="font-family:var(--vt);font-size:22px;color:var(--muted);margin-bottom:10px">Zadej své jméno, hrdino:</div>
+ <div style="font-family:var(--vt);font-size:22px;color:var(--muted);margin-bottom:10px">Zadej své jméno, badateli:</div>
  <input id="ni" class="ni-input" type="text" placeholder="JMÉNO" maxlength="14" autocomplete="off">
- <button class="btn full" onclick="startGame()">▶ ZAHAJ DOBRODRUŽSTVÍ</button>
+ <button class="btn full" onclick="startGame()">▶ VYDAT SE NA VÝPRAVU</button>
  </div>
  <div id="continue-panel" class="panel b" style="display:none">
  <div style="font-family:var(--px);font-weight:700;font-size:14px;color:var(--blue);margin-bottom:10px">POKRAČOVAT VE HŘE</div>
@@ -991,7 +991,7 @@ const ATTR_META = {
 const SAVE_KEY = 'RPG_MAT_7';
 let S = {name:'HRDINA',xp:0,level:1,attrs:{calc:0,geo:0,anal:0,craft:0},done:{},inv:[]};
 
-function saveS(){localStorage.setItem(SAVE_KEY,JSON.stringify(S));}
+function saveS(){localStorage.setItem(SAVE_KEY,JSON.stringify(S));if(window.RPGCloud&&RPGCloud.push)RPGCloud.push(SAVE_KEY,S);}
 function loadS(){const r=localStorage.getItem(SAVE_KEY);if(r){S=JSON.parse(r);return true;}return false;}
 function calcLevel(){S.level=Math.floor(S.xp/100)+1;}
 
@@ -1743,5 +1743,8 @@ window.addEventListener('load',()=>{
  }
 });
 </script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="./rpg-cloud.js"></script>
+<script>RPGCloud.attachGame(SAVE_KEY);</script>
 </body>
 </html>
