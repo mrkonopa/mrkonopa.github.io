@@ -533,11 +533,15 @@ body::before{
  <div class="lvl-sub">NOVÁ ÚROVEŇ HRDINY!</div>
 </div>
 
+<!-- rozšiřující banka úloh (nepovinná; bez ní hra běží na základním poolu) -->
+<script src="./rpg-tasks-9.js"></script>
 <script>
 // ══════════════════════════════════════════
 // HELPERS
 // ══════════════════════════════════════════
 const ri = (a,b) => Math.floor(Math.random()*(b-a+1))+a;
+// náhodné zamíchání kopie pole (Fisher–Yates)
+function shuffleArr(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
 function gcd(a,b){return b?gcd(b,a%b):Math.abs(a);}
 function countDiv(n){let c=0;for(let i=1;i<=n;i++)if(n%i===0)c++;return c;}
 // české skloňování podle počtu: skl(n,'kamarád','kamarádi','kamarádů')
@@ -1225,8 +1229,12 @@ function launchBattle(aid,mid){
  updateCombo();
  updatePlayerHp();
  renderItems();
- // generate fresh tasks (mission must be re-completed from scratch for failure restart)
- BT.tasks=m.tasks();
+ // generate fresh tasks: základní pool + rozšiřující banka (rpg-tasks-9.js),
+ // pak náhodně vyber tc úloh → každé hraní/opakování dá jiné příklady
+ let pool=m.tasks();
+ const ex=window.RPG_TASK_EXTRA_9;
+ if(ex && typeof ex[m.id]==='function'){ try{ pool=pool.concat(ex[m.id]()); }catch(e){} }
+ BT.tasks=shuffleArr(pool).slice(0,m.tc);
  BT.idx=0;
  // for retry, restart from beginning; for normal launch, find first undone
  for(let i=0;i<BT.tasks.length;i++){if(!S.done[`${mid}-${i}`]){BT.idx=i;break;}}
