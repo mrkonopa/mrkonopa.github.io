@@ -132,7 +132,7 @@ window.RPG_LEARN_7 = {
   { q: 'Zkrať zlomek 24/36 na základní tvar', s: ['NSD(24, 36) = 12', '24/36 = (24÷12)/(36÷12) = <b>2/3</b>'] },
   { q: 'Rozšiř 3/4 na jmenovatele 20', s: ['4 × 5 = 20, takže rozšiřujeme 5×', '3/4 = (3×5)/(4×5) = <b>15/20</b>'] },
  ],
- video: null,
+ video: { id: 'A05HhHZwfoQ', title: 'Krácení zlomků' },
 },
 
 '2-2': {
@@ -163,7 +163,7 @@ window.RPG_LEARN_7 = {
   { q: 'Spočítej: 3/4 + 2/6', s: ['NSN(4, 6) = 12', '3/4 = 9/12, 2/6 = 4/12', '9/12 + 4/12 = 13/12 = <b>1 1/12</b>'] },
   { q: 'Spočítej: 2 1/3 − 5/6', s: ['2 1/3 = 7/3', 'NSN(3, 6) = 6', '7/3 = 14/6', '14/6 − 5/6 = 9/6 = 3/2 = <b>1 1/2</b>'] },
  ],
- video: null,
+ video: { id: 'fhe7WsRPDa0', title: 'Sčítání a odčítání zlomků' },
 },
 
 '2-3': {
@@ -192,7 +192,7 @@ window.RPG_LEARN_7 = {
   { q: 'Spočítej: 4/9 × 3/8', s: ['4/9 × 3/8 — zkrácení křížem: 4:4 a 8:4 → 1/9 × 3/2', 'Ještě: 3:3 a 9:3 → 1/3 × 1/2 = <b>1/6</b>'] },
   { q: 'Spočítej: 5/6 ÷ 10/3', s: ['5/6 × 3/10 = 15/60 = <b>1/4</b>'] },
  ],
- video: null,
+ video: { id: 'zmNQViemnXk', title: 'Násobení a dělení zlomků' },
 },
 
 /* ─── Oblast 3: PODZEMNÍ MRAZÍRNA ─────────────────────────────── */
@@ -224,7 +224,7 @@ window.RPG_LEARN_7 = {
   { q: 'Spočítej: 3 − (−7)', s: ['3 − (−7) = 3 + 7 = <b>10</b>'] },
   { q: 'Spočítej: (−4) − (−9)', s: ['(−4) − (−9) = −4 + 9 = <b>5</b>'] },
  ],
- video: null,
+ video: { id: 'd_w3jiDwUbk', title: 'Sčítání a odčítání záporných čísel' },
 },
 
 '3-2': {
@@ -257,7 +257,7 @@ window.RPG_LEARN_7 = {
   { q: 'Spočítej: (−36) ÷ (+4)', s: ['různá znaménka → záporný výsledek', '36 ÷ 4 = 9 → <b>−9</b>'] },
   { q: 'Spočítej: (−3)⁴', s: ['sudá mocnina záporného čísla → kladná', '3⁴ = 81 → <b>+81</b>'] },
  ],
- video: null,
+ video: { id: 'zxS8ylGtYDU', title: 'Násobení a dělení záporných čísel' },
 },
 
 '3-3': {
@@ -320,7 +320,7 @@ window.RPG_LEARN_7 = {
   { q: 'Zjednoduš poměr 36 : 48', s: ['NSD(36, 48) = 12', '36:48 = (36÷12):(48÷12) = <b>3 : 4</b>'] },
   { q: 'Rozděl 180 cm v poměru 2 : 3 : 4', s: ['Celkem dílů: 2+3+4 = 9', '1 díl = 180 ÷ 9 = 20 cm', 'Části: <b>40 cm, 60 cm, 80 cm</b>', 'Kontrola: 40+60+80 = 180 ✓'] },
  ],
- video: null,
+ video: { id: 'YeptEbvYohc', title: 'Poměr – slovní úlohy' },
 },
 
 '4-2': {
@@ -407,7 +407,7 @@ window.RPG_LEARN_7 = {
   { q: 'Kolik je 25 % z 360?', s: ['z = 360 × 25/100 = 360 × 0,25 = <b>90</b>'] },
   { q: 'DPH (21 %) z ceny 1200 Kč je kolik?', s: ['z = 1200 × 21/100 = 12 × 21 = <b>252 Kč</b>'] },
  ],
- video: null,
+ video: { id: 'GFkEBrieSuA', title: 'Výpočet procentové části' },
 },
 
 '5-2': {
@@ -437,7 +437,7 @@ window.RPG_LEARN_7 = {
   { q: 'Ze 150 žáků dostalo jedničku 45. Kolik procent?', s: ['p = 45/150 × 100 = 0,3 × 100 = <b>30 %</b>'] },
   { q: '48 Kč je 16 % z jaké ceny?', s: ['C = 48 × 100 / 16 = 4800 / 16 = <b>300 Kč</b>'] },
  ],
- video: null,
+ video: { id: 'nLaeLsK824g', title: 'Výpočet počtu procent' },
 },
 
 '5-3': {
@@ -468,7 +468,7 @@ window.RPG_LEARN_7 = {
   { q: 'Kniha stojí původně 250 Kč, je o 12 % levnější. Kolik stojí?', s: ['Cena po slevě = 250 × (1 − 0,12) = 250 × 0,88 = <b>220 Kč</b>'] },
   { q: 'Po zdražení o 25 % stojí výrobek 500 Kč. Kolik stál původně?', s: ['500 = C × 1,25', 'C = 500 / 1,25 = <b>400 Kč</b>'] },
  ],
- video: null,
+ video: { id: 'XG7dmH-wMJI', title: 'Procenta – procvičování' },
 },
 
 /* ─── Oblast 6: ZRCADLOVÁ SVATYNĚ ─────────────────────────────── */
@@ -528,7 +528,7 @@ window.RPG_LEARN_7 = {
   { q: 'Bod A[3, 5] zobrazíme středovou souměrností přes střed O[0, 0]. Najdi A\'.', s: ['A\' = [−3, −5]'] },
   { q: 'Bod B[1, 2] zobrazíme přes střed S[3, 4]. Najdi B\'.', s: ['x\' = 2×3 − 1 = 5, y\' = 2×4 − 2 = 6', 'B\'[5, 6]'] },
  ],
- video: null,
+ video: { id: 'XCEX14hh_t0', title: 'Středová souměrnost' },
 },
 
 '6-3': {
@@ -589,7 +589,7 @@ window.RPG_LEARN_7 = {
   { q: 'Lichoběžník: základny 6 cm a 10 cm, výška 4 cm. Obsah?', s: ['S = (6 + 10)/2 × 4 = 8 × 4 = <b>32 cm²</b>'] },
   { q: 'Kosočtverec s úhlopříčkami 12 cm a 7 cm. Obsah?', s: ['S = 12 × 7 / 2 = 84/2 = <b>42 cm²</b>'] },
  ],
- video: null,
+ video: { id: 'X5Xc16Z8GXc', title: 'Obsah lichoběžníku' },
 },
 
 '7-2': {
@@ -618,7 +618,7 @@ window.RPG_LEARN_7 = {
   { q: 'Kvádr: a = 5 cm, b = 4 cm, c = 3 cm. Objem a povrch?', s: ['V = 5 × 4 × 3 = <b>60 cm³</b>', 'S = 2(5×4 + 4×3 + 5×3) = 2(20+12+15) = 2×47 = <b>94 cm²</b>'] },
   { q: 'Hranol s pravoúhlou trojúhelníkovou podstavou (odvěsny 3 a 4 cm) a výškou 10 cm. Objem?', s: ['S_p = (3 × 4)/2 = 6 cm²', 'V = 6 × 10 = <b>60 cm³</b>'] },
  ],
- video: null,
+ video: { id: 'LUgKaMWPels', title: 'Objem a povrch hranolu' },
 },
 
 '7-3': {
