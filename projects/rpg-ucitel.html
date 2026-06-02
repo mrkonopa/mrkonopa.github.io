@@ -83,6 +83,11 @@ body{background:var(--bg);color:var(--text);font-family:var(--px);min-height:100
 .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--green);color:#06101e;
  font-weight:700;font-size:13px;padding:10px 18px;border-radius:6px;box-shadow:0 4px 16px #0008;z-index:200;display:none}
 .toast.err{background:var(--red)}
+.bulk-bar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;background:var(--panel2);
+ border:1px solid var(--gold);border-radius:8px;padding:10px 14px;margin-bottom:10px}
+.bulk-bar select,.bulk-bar input{font-family:inherit;font-size:12px;padding:6px 8px;border-radius:4px;
+ border:1px solid var(--line);background:var(--panel);color:var(--text)}
+.bulk-bar input{width:80px}
 </style>
 </head>
 <body>
@@ -127,6 +132,16 @@ body{background:var(--bg);color:var(--text);font-family:var(--px);min-height:100
     </select>
     <button class="mini" onclick="exportCSV()">⬇ Export CSV</button>
     <button class="mini" onclick="loadData()">↻ Obnovit</button>
+   </div>
+   <div id="bulk-bar" class="bulk-bar hidden">
+    <b style="color:var(--gold)"><span id="bulk-count">0</span> vybráno</b>
+    <span style="color:var(--muted);font-size:12px">🔓</span>
+    <select id="bulk-mid"><option value="">— mise k odemčení —</option></select>
+    <button class="mini gold" onclick="bulkUnlock()">Odemknout vybraným</button>
+    <span style="color:var(--muted);font-size:12px">⭐</span>
+    <input type="number" id="bulk-xp" placeholder="±XP" value="50">
+    <button class="mini gold" onclick="bulkAwardXp()">Přidat XP vybraným</button>
+    <button class="mini" onclick="clearSel()">✕ Zrušit výběr</button>
    </div>
    <div id="tbl-wrap"><div class="empty">Načítám data…</div></div>
   </div>
@@ -324,18 +339,27 @@ function filtered(){
   return true;
  });
 }
+const SEL=new Set();              // klíče vybraných postav: user_id|game
+function selKey(r){return r.user_id+'|'+r.game;}
 function renderTable(){
  const rows=filtered();
- if(!rows.length){document.getElementById('tbl-wrap').innerHTML='<div class="empty">— žádné postavy —</div>';return;}
+ if(!rows.length){document.getElementById('tbl-wrap').innerHTML='<div class="empty">— žádné postavy —</div>';window.__filtered=rows;updateBulkBar();return;}
  const admin=RPGCloud.isAdmin();
- let html='<table class="tbl"><thead><tr><th>Žák</th><th>Hra</th><th>LV</th><th>XP</th><th>Pokrok</th><th>Mistrovství</th><th>Poslední aktivita</th><th>Akce</th></tr></thead><tbody>';
+ // vyčisti výběr od postav, které zmizely z filtru
+ const keys=new Set(rows.map(selKey));
+ [...SEL].forEach(k=>{if(!keys.has(k))SEL.delete(k);});
+ let html='<table class="tbl"><thead><tr>'+
+   (admin?'<th style="width:28px"><input type="checkbox" id="sel-all" onclick="toggleSelAll(this.checked)" title="vybrat vše"></th>':'')+
+   '<th>Žák</th><th>Hra</th><th>LV</th><th>XP</th><th>Pokrok</th><th>Mistrovství</th><th>Poslední aktivita</th><th>Akce</th></tr></thead><tbody>';
  rows.forEach((r,i)=>{
   const g=gMeta(r.game), d=r.data||{}, p=pct(d);
   const mc=masteryCount(d), totalM=missionsFor(r.game).length||21;
   const mastCell=mc>0
    ?'<span style="color:var(--gold);font-weight:700">'+mc+'</span><span style="color:var(--muted)">/'+totalM+' 🏅</span>'
    :'<span style="color:var(--muted)">0/'+totalM+'</span>';
+  const checked=SEL.has(selKey(r))?' checked':'';
   html+='<tr>'+
+   (admin?'<td><input type="checkbox" class="sel-row" data-i="'+i+'" onclick="toggleSel('+i+',this.checked)"'+checked+'></td>':'')+
    '<td><div class="nm">'+esc(d.name||'—')+'</div><div class="em">'+esc(r.full_name||r.email||'')+'</div></td>'+
    '<td><span class="tag" style="background:'+g.accent+'">'+g.emoji+' '+g.gr+'</span></td>'+
    '<td>'+(d.level||1)+'</td>'+
@@ -352,6 +376,78 @@ function renderTable(){
  html+='</tbody></table>';
  document.getElementById('tbl-wrap').innerHTML=html;
  window.__filtered=rows;
+ updateBulkBar();
+}
+
+/* ── hromadné akce (jen superadmin) ── */
+function toggleSel(i,on){
+ const r=window.__filtered[i];if(!r)return;
+ if(on)SEL.add(selKey(r));else SEL.delete(selKey(r));
+ updateBulkBar();
+}
+function toggleSelAll(on){
+ (window.__filtered||[]).forEach(r=>{if(on)SEL.add(selKey(r));else SEL.delete(selKey(r));});
+ document.querySelectorAll('.sel-row').forEach(cb=>{cb.checked=on;});
+ updateBulkBar();
+}
+function clearSel(){
+ SEL.clear();
+ document.querySelectorAll('.sel-row').forEach(cb=>{cb.checked=false;});
+ const a=document.getElementById('sel-all');if(a)a.checked=false;
+ updateBulkBar();
+}
+function selectedRows(){return (window.__filtered||[]).filter(r=>SEL.has(selKey(r)));}
+function updateBulkBar(){
+ const bar=document.getElementById('bulk-bar');if(!bar)return;
+ const n=selectedRows().length;
+ document.getElementById('bulk-count').textContent=n;
+ bar.classList.toggle('hidden',n===0);
+ if(n>0)fillBulkMidSelect();
+}
+// nabídni jen mise, které mají VŠECHNY vybrané postavy společné (stejný ročník)
+function fillBulkMidSelect(){
+ const sel=document.getElementById('bulk-mid');if(!sel)return;
+ const games=new Set(selectedRows().map(r=>r.game));
+ let opts='<option value="">— mise k odemčení —</option>';
+ if(games.size===1){
+  const game=[...games][0];
+  missionsFor(game).forEach(m=>{opts+='<option value="'+m.id+'">'+m.id+' '+esc(m.name)+'</option>';});
+ }else{
+  opts='<option value="">— vyber žáky jednoho ročníku —</option>';
+ }
+ sel.innerHTML=opts;
+}
+async function bulkUnlock(){
+ const rows=selectedRows();if(!rows.length){toast('Nikdo není vybrán.',1);return;}
+ const games=new Set(rows.map(r=>r.game));
+ if(games.size!==1){toast('Hromadné odemčení jen v rámci jednoho ročníku.',1);return;}
+ const mid=document.getElementById('bulk-mid').value;
+ if(!mid){toast('Vyber misi.',1);return;}
+ let okN=0,errN=0;
+ for(const r of rows){
+  const d=Object.assign({},r.data||{});
+  d.teacherUnlocked=Array.isArray(d.teacherUnlocked)?d.teacherUnlocked.slice():[];
+  if(!d.teacherUnlocked.includes(mid))d.teacherUnlocked.push(mid);
+  const res=await RPGCloud.updateSaveFor(r.user_id,r.game,d);
+  if(res.ok){r.data=d;okN++;}else errN++;
+ }
+ toast('🔓 '+mid+' odemčeno '+okN+'×'+(errN?' ('+errN+' chyb)':''),errN>0);
+ renderTable();
+}
+async function bulkAwardXp(){
+ const rows=selectedRows();if(!rows.length){toast('Nikdo není vybrán.',1);return;}
+ const delta=parseInt(document.getElementById('bulk-xp').value,10);
+ if(isNaN(delta)){toast('Zadej číslo XP.',1);return;}
+ let okN=0,errN=0;
+ for(const r of rows){
+  const d=Object.assign({},r.data||{});
+  d.xp=Math.max(0,(d.xp||0)+delta);
+  d.level=Math.floor(d.xp/100)+1;
+  const res=await RPGCloud.updateSaveFor(r.user_id,r.game,d);
+  if(res.ok){r.data=d;okN++;}else errN++;
+ }
+ toast((delta>=0?'+':'')+delta+' XP přidáno '+okN+'×'+(errN?' ('+errN+' chyb)':''),errN>0);
+ renderStats();renderTable();
 }
 
 /* ── teacher unlock ── */
