@@ -416,6 +416,57 @@ body::before{
  </div>
  <div class="bar-out bar-xp"><div class="bar-in" id="map-xpbar" style="width:0%"></div></div>
  </div>
+ <button class="btn b" style="width:100%;margin-top:12px" onclick="go('train')">🎯 TRÉNINK — procvičuj libovolné téma bez boje</button>
+ <a href="rpg-matematika.html" class="btn" style="display:block;width:100%;margin-top:8px;text-align:center;text-decoration:none;opacity:.7;font-size:13px">← RPG MATEMATIKA HUB</a>
+</div>
+</div>
+
+<!-- ══════════════ TRÉNINK ══════════════ -->
+<div id="s-train" class="screen">
+<div class="wrap">
+ <div class="topnav">
+ <button class="btn sm" onclick="go('map')">← MAPA</button>
+ <span style="font-family:var(--px);font-weight:700;font-size:14px;color:var(--gold)">🎯 TRÉNINK</span>
+ <span style="min-width:60px"></span>
+ </div>
+ <div id="train-picker">
+ <div class="panel" style="text-align:center;padding:12px 14px">
+ <div style="font-family:var(--vt);font-size:21px;color:var(--muted);line-height:1.3">Procvičuj bez boje, časomíry a životů.<br>Úloh je nekonečně — trénuj, dokud téma nezvládneš na <span style="color:var(--gold)">🏅 mistrovství</span>.</div>
+ </div>
+ <div id="train-list"></div>
+ </div>
+ <div id="train-play" style="display:none">
+ <div class="panel" style="padding:10px 14px;margin-bottom:12px">
+ <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap">
+  <div style="font-family:var(--px);font-weight:700;font-size:13px;color:var(--gold)" id="tr-title">TÉMA</div>
+  <button class="btn sm r" onclick="trEnd()">✕ KONEC</button>
+ </div>
+ <div style="display:flex;gap:18px;margin-top:8px;font-family:var(--px);font-size:12px;color:var(--muted)">
+  <span>✓ Správně <b style="color:var(--green)" id="tr-correct">0</b></span>
+  <span>Celkem <b style="color:var(--text)" id="tr-total">0</b></span>
+  <span>🔥 Série <b style="color:var(--gold)" id="tr-streak">0</b></span>
+ </div>
+ <div style="margin-top:8px">
+  <div style="display:flex;justify-content:space-between;font-family:var(--px);font-size:11px;margin-bottom:4px">
+  <span style="color:var(--muted)">CESTA K MISTROVSTVÍ</span>
+  <span style="color:var(--gold)"><span id="tr-mscore">0</span> / <span id="tr-msgoal">15</span></span>
+  </div>
+  <div class="bar-out bar-xp"><div class="bar-in" id="tr-msbar" style="width:0%"></div></div>
+ </div>
+ </div>
+ <div class="bt-problem" id="tr-prob">...</div>
+ <div class="bt-row" id="tr-input-row">
+ <input id="tr-ans" class="bt-input" type="text" placeholder="?" autocomplete="off">
+ <button class="btn" onclick="trSubmit()" style="white-space:nowrap">OVĚŘIT ✓</button>
+ </div>
+ <div class="mc-grid" id="tr-mc" style="display:none"></div>
+ <div id="tr-hint-box" class="hint-box"></div>
+ <div id="tr-fb" class="feedback"></div>
+ <div style="display:flex;gap:8px;flex-wrap:wrap">
+ <button class="btn sm b" id="tr-hint-btn" onclick="trHint()">💡 NÁPOVĚDA 1/2</button>
+ <button class="btn sm g" id="tr-next-btn" style="display:none" onclick="trNext()">DALŠÍ ÚKOL →</button>
+ </div>
+ </div>
 </div>
 </div>
 
@@ -539,6 +590,7 @@ body::before{
 // ══════════════════════════════════════════
 const ri = (a,b) => Math.floor(Math.random()*(b-a+1))+a;
 function gcd(a,b){return b?gcd(b,a%b):Math.abs(a);}
+function shuffleArr(a){const r=[...a];for(let i=r.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[r[i],r[j]]=[r[j],r[i]];}return r;}
 function countDiv(n){let c=0;for(let i=1;i<=n;i++)if(n%i===0)c++;return c;}
 // české skloňování podle počtu: skl(n,'kamarád','kamarádi','kamarádů')
 const skl = (n,one,few,many) => n===1?one : (n>=2&&n<=4?few:many);
@@ -989,10 +1041,10 @@ const ATTR_META = {
 // STATE
 // ══════════════════════════════════════════
 const SAVE_KEY = 'RPG_MAT_7';
-let S = {name:'HRDINA',xp:0,level:1,attrs:{calc:0,geo:0,anal:0,craft:0},done:{},inv:[]};
+let S = {name:'HRDINA',xp:0,level:1,attrs:{calc:0,geo:0,anal:0,craft:0},done:{},inv:[],mastery:{},xpClaimed:{}};
 
 function saveS(){localStorage.setItem(SAVE_KEY,JSON.stringify(S));if(window.RPGCloud&&RPGCloud.push)RPGCloud.push(SAVE_KEY,S);}
-function loadS(){const r=localStorage.getItem(SAVE_KEY);if(r){S=JSON.parse(r);return true;}return false;}
+function loadS(){const r=localStorage.getItem(SAVE_KEY);if(!r)return false;try{S=JSON.parse(r);}catch(e){return false;}if(!S||typeof S!=='object'){S={name:'HRDINA',xp:0,level:1,attrs:{calc:0,geo:0,anal:0,craft:0},done:{},inv:[],mastery:{},xpClaimed:{}};return false;}if(typeof S.name!=='string')S.name='HRDINA';if(typeof S.xp!=='number'||!isFinite(S.xp))S.xp=0;if(typeof S.level!=='number'||!isFinite(S.level))S.level=1;if(!S.attrs||typeof S.attrs!=='object')S.attrs={calc:0,geo:0,anal:0,craft:0};if(!S.done||typeof S.done!=='object')S.done={};if(!Array.isArray(S.inv))S.inv=[];if(!S.mastery||typeof S.mastery!=='object')S.mastery={};if(!S.xpClaimed||typeof S.xpClaimed!=='object')S.xpClaimed={};return true;}
 function calcLevel(){S.level=Math.floor(S.xp/100)+1;}
 
 // ── JUICE: XP award + level-up + floaties + vignette ──
@@ -1064,6 +1116,7 @@ function go(name){
  window.scrollTo(0,0);
  if(name==='map')renderMap();
  if(name==='profile')renderProfile();
+ if(name==='train')renderTrainPicker();
 }
 
 // ══════════════════════════════════════════
@@ -1154,7 +1207,7 @@ function openArea(aid){
  it.className='ms-item '+cls;
  it.innerHTML=`
  <div class="ms-num" style="color:${allDn?'var(--green)':avail?'var(--blue)':'var(--muted)'}">${allDn?'✓':String(mi+1).padStart(2,'0')}</div>
- <div style="flex:1"><div class="ms-name">${m.name}</div><div class="ms-sub">${m.sub} · ${dn}/${tot}</div></div>
+ <div style="flex:1"><div class="ms-name">${masteryOf(m.id).mastered?'🏅 ':''}${m.name}</div><div class="ms-sub">${m.sub} · ${dn}/${tot}</div></div>
  <div style="font-size:14px">${stars}</div>`;
  if(avail)it.onclick=()=>launchBattle(ar.id,m.id);
  ml.appendChild(it);
@@ -1195,8 +1248,11 @@ function launchBattle(aid,mid){
  updateCombo();
  updatePlayerHp();
  renderItems();
- // generate fresh tasks (mission must be re-completed from scratch for failure restart)
- BT.tasks=m.tasks();
+ // generate fresh tasks — merge base pool with bank
+ let pool=m.tasks();
+ const ex=window.RPG_TASK_EXTRA_7;
+ if(ex && typeof ex[m.id]==='function'){try{pool=pool.concat(ex[m.id]());}catch(e){}}
+ BT.tasks=shuffleArr(pool).slice(0,m.tc);
  BT.idx=0;
  // for retry, restart from beginning; for normal launch, find first undone
  for(let i=0;i<BT.tasks.length;i++){if(!S.done[`${mid}-${i}`]){BT.idx=i;break;}}
@@ -1366,7 +1422,7 @@ function renderMC(t){
  const grid=document.getElementById('mc-grid');
  grid.style.display='grid';
  // generate 3 wrong answers
- const correct=t.ans;
+ const correct=String(t.ans);
  const cn=parseFloat(correct.replace(',','.'));
  const opts=new Set([correct]);
  let tries=0;
@@ -1403,13 +1459,14 @@ function submitMC(opt,btn){
  btn.classList.add('right');
  BT.combo++;
  const isCrit=BT.combo>=3 && BT.hl===0;
- const xpGain=Math.max(3,10-BT.hl*3)*(isCrit?2:1);
+ const xpKey=`${BT.mid}-${BT.idx}`;
+ const firstTime=!S.xpClaimed[xpKey];
+ const xpGain=firstTime?Math.max(3,10-BT.hl*3)*(isCrit?2:1):0;
  const fb=document.getElementById('bt-fb');
- fb.textContent=(isCrit?'✓✓ KRITICKÝ ZÁSAH! +':'✓ SPRÁVNĚ! +')+xpGain+' XP';
+ fb.textContent=firstTime?((isCrit?'✓✓ KRITICKÝ ZÁSAH! +':'✓ SPRÁVNĚ! +')+xpGain+' XP'):'✓ SPRÁVNĚ! (mise už splněna — bez XP)';
  fb.className='feedback ok';
- awardXp(xpGain,isCrit);
+ if(firstTime){awardXp(xpGain,isCrit);if(t.skill&&S.attrs[t.skill]!==undefined)S.attrs[t.skill]+=3;S.xpClaimed[xpKey]=true;}
  S.done[`${BT.mid}-${BT.idx}`]=true;
- if(t.skill&&S.attrs[t.skill]!==undefined)S.attrs[t.skill]+=3;
  saveS();
  document.getElementById('next-btn').style.display='inline-block';
  damageMonster(xpGain,isCrit);
@@ -1597,12 +1654,13 @@ function submitAnswer(){
  stopTimer();
  BT.combo++;
  const isCrit=BT.combo>=3 && BT.hl===0;
- const xpGain=Math.max(3,10-BT.hl*3)*(isCrit?2:1);
- fb.textContent=(isCrit?'✓✓ KRITICKÝ ZÁSAH! +':'✓ SPRÁVNĚ! +')+xpGain+' XP';
+ const xpKey=`${BT.mid}-${BT.idx}`;
+ const firstTime=!S.xpClaimed[xpKey];
+ const xpGain=firstTime?Math.max(3,10-BT.hl*3)*(isCrit?2:1):0;
+ fb.textContent=firstTime?((isCrit?'✓✓ KRITICKÝ ZÁSAH! +':'✓ SPRÁVNĚ! +')+xpGain+' XP'):'✓ SPRÁVNĚ! (mise už splněna — bez XP)';
  fb.className='feedback ok';
- awardXp(xpGain,isCrit);
+ if(firstTime){awardXp(xpGain,isCrit);if(t.skill&&S.attrs[t.skill]!==undefined)S.attrs[t.skill]+=3;S.xpClaimed[xpKey]=true;}
  S.done[`${BT.mid}-${BT.idx}`]=true;
- if(t.skill&&S.attrs[t.skill]!==undefined)S.attrs[t.skill]+=3;
  saveS();
  document.getElementById('bt-ans').disabled=true;
  document.getElementById('hint-btn').disabled=true;
@@ -1720,6 +1778,168 @@ function showModal(ic,title,txt){
 function closeModal(){document.getElementById('modal').classList.remove('show');}
 
 // ══════════════════════════════════════════
+// TRÉNINK (nekonečné procvičování + mistrovství)
+// ══════════════════════════════════════════
+const MASTERY_GOAL=15;
+let TR={mid:null,m:null,task:null,hl:0,correct:0,total:0,streak:0};
+
+function masteryOf(mid){const x=S.mastery&&S.mastery[mid];return x?{score:x.score||0,mastered:!!x.mastered}:{score:0,mastered:false};}
+
+function renderTrainPicker(){
+ document.getElementById('train-play').style.display='none';
+ document.getElementById('train-picker').style.display='block';
+ const list=document.getElementById('train-list');
+ list.innerHTML='';
+ AREAS.forEach(ar=>{
+  const sec=document.createElement('div');
+  sec.className='panel';
+  sec.style.marginTop='12px';
+  let html=`<div style="font-family:var(--px);font-weight:700;font-size:14px;color:var(--gold);margin-bottom:8px">${ar.icon} ${ar.name.replace('\n',' ')}</div>`;
+  ar.missions.forEach(m=>{
+   const ms=masteryOf(m.id);
+   const pct=Math.min(100,Math.round(ms.score/MASTERY_GOAL*100));
+   html+=`<button class="ms-item avail" style="width:100%;text-align:left;border:none;cursor:pointer" onclick="startTrain('${m.id}')">
+     <div style="flex:1"><div class="ms-name">${ms.mastered?'🏅 ':''}${m.name}</div>
+     <div class="ms-sub">${m.sub} · ${ms.mastered?'mistrovství splněno':ms.score+' / '+MASTERY_GOAL}</div>
+     <div class="bar-out bar-xp" style="margin-top:6px;height:6px"><div class="bar-in" style="width:${pct}%"></div></div></div>
+     <div style="font-size:16px;margin-left:8px">${ms.mastered?'🏅':'🎯'}</div></button>`;
+  });
+  sec.innerHTML=html;
+  list.appendChild(sec);
+ });
+}
+
+function startTrain(mid){
+ const ar=AREAS.find(a=>a.missions.some(m=>m.id===mid));
+ TR.m=ar.missions.find(m=>m.id===mid);
+ TR.mid=mid;TR.correct=0;TR.total=0;TR.streak=0;
+ document.getElementById('train-picker').style.display='none';
+ document.getElementById('train-play').style.display='block';
+ document.getElementById('tr-title').textContent=ar.icon+' '+TR.m.name;
+ document.getElementById('tr-msgoal').textContent=MASTERY_GOAL;
+ trStats();
+ trDraw();
+}
+
+function trDraw(){
+ let pool=TR.m.tasks();
+ const ex=window.RPG_TASK_EXTRA_7;
+ if(ex && typeof ex[TR.mid]==='function'){try{pool=pool.concat(ex[TR.mid]());}catch(e){}}
+ TR.task=pool[Math.floor(Math.random()*pool.length)];
+ TR.hl=0;
+ trRender();
+}
+
+function trRender(){
+ const t=TR.task;
+ document.getElementById('tr-prob').textContent=t.text;
+ const probEl=document.getElementById('tr-prob');
+ probEl.classList.remove('pop');void probEl.offsetWidth;probEl.classList.add('pop');
+ document.getElementById('tr-fb').className='feedback';
+ document.getElementById('tr-fb').textContent='';
+ const hb=document.getElementById('tr-hint-box');hb.textContent='';hb.classList.remove('show');
+ document.getElementById('tr-next-btn').style.display='none';
+ const hbtn=document.getElementById('tr-hint-btn');
+ hbtn.textContent='💡 NÁPOVĚDA 1/2';hbtn.disabled=false;
+ if(TR.m.mc){
+  document.getElementById('tr-input-row').style.display='none';
+  hbtn.style.display='none';
+  trRenderMC(t);
+ }else{
+  document.getElementById('tr-input-row').style.display='flex';
+  hbtn.style.display='inline-block';
+  document.getElementById('tr-mc').style.display='none';
+  const inp=document.getElementById('tr-ans');inp.value='';inp.disabled=false;inp.focus();
+ }
+}
+
+function trRenderMC(t){
+ const grid=document.getElementById('tr-mc');
+ grid.style.display='grid';
+ const correct=t.ans,cn=parseFloat(String(correct).replace(',','.'));
+ const opts=new Set([correct]);let tries=0;
+ while(opts.size<4 && tries<30){tries++;let alt;
+  if(!isNaN(cn)){const delta=ri(-5,5)||ri(1,3);let v=Math.round((cn+delta)*100)/100;if(Number.isInteger(cn)&&Math.abs(cn)<200)v=cn+delta;alt=String(v);}
+  else alt=correct==='ANO'?'NE':'ANO';
+  if(alt!==correct)opts.add(alt);
+ }
+ const arr=[...opts].sort(()=>Math.random()-.5);
+ grid.innerHTML='';
+ arr.forEach((opt,i)=>{const b=document.createElement('button');b.className='mc-btn c'+i;b.innerHTML=`<span class="mc-key">${'ABCD'[i]}</span>${opt}`;b.onclick=()=>trPickMC(opt,b);grid.appendChild(b);});
+}
+
+function trPickMC(opt,btn){
+ if(checkAns(opt,TR.task.ans)){
+  document.querySelectorAll('#tr-mc .mc-btn').forEach(b=>b.disabled=true);
+  btn.classList.add('right');trCorrect();
+ }else{btn.classList.add('wrong');btn.disabled=true;trWrong(opt);}
+}
+
+function trSubmit(){
+ const inp=document.getElementById('tr-ans');const v=inp.value;
+ if(!v.trim())return;
+ if(checkAns(v,TR.task.ans)){inp.disabled=true;trCorrect();}
+ else trWrong(v);
+}
+
+function trCorrect(){
+ TR.correct++;TR.total++;TR.streak++;
+ const m=S.mastery[TR.mid]||(S.mastery[TR.mid]={score:0,mastered:false});
+ const wasMastered=m.mastered;
+ m.score=(m.score||0)+1;
+ if(m.score>=MASTERY_GOAL)m.mastered=true;
+ if(TR.task.skill&&S.attrs[TR.task.skill]!==undefined)S.attrs[TR.task.skill]+=1;
+ S.xp+=3;
+ saveS();
+ const fb=document.getElementById('tr-fb');
+ fb.className='feedback ok';
+ fb.textContent=(!wasMastered&&m.mastered)?'🏅 MISTROVSTVÍ SPLNĚNO! +3 XP':'✓ SPRÁVNĚ! +3 XP';
+ document.getElementById('tr-hint-btn').disabled=true;
+ document.getElementById('tr-next-btn').style.display='inline-block';
+ document.getElementById('tr-next-btn').focus();
+ trStats();
+}
+
+function trWrong(given){
+ TR.total++;TR.streak=0;
+ const fb=document.getElementById('tr-fb');
+ fb.className='feedback err';
+ fb.textContent='✗ Není to ono. Správně: '+TR.task.ans;
+ document.getElementById('tr-hint-btn').disabled=true;
+ document.getElementById('tr-next-btn').style.display='inline-block';
+ document.getElementById('tr-next-btn').focus();
+ trStats();
+}
+
+function trHint(){
+ const t=TR.task;const maxH=Math.min(2,t.hints.length);
+ if(TR.hl>=maxH)return;
+ const hb=document.getElementById('tr-hint-box');
+ hb.style.borderColor=TR.hl===1?'var(--gold)':'var(--green)';
+ hb.style.color=TR.hl===1?'#ffd966':'#7fe87f';
+ hb.style.background=TR.hl===1?'#1a1500':'#0f1a0f';
+ hb.textContent='💡 Nápověda '+(TR.hl+1)+'/2:\n'+t.hints[TR.hl];
+ hb.classList.add('show');
+ TR.hl++;
+ const btn=document.getElementById('tr-hint-btn');
+ btn.textContent='💡 NÁPOVĚDA '+Math.min(TR.hl+1,2)+'/2';
+ if(TR.hl>=maxH){btn.disabled=true;btn.textContent='💡 NÁPOVĚDA 2/2';}
+}
+
+function trNext(){trDraw();}
+
+function trStats(){
+ document.getElementById('tr-correct').textContent=TR.correct;
+ document.getElementById('tr-total').textContent=TR.total;
+ document.getElementById('tr-streak').textContent=TR.streak;
+ const ms=masteryOf(TR.mid);
+ document.getElementById('tr-mscore').textContent=ms.score;
+ document.getElementById('tr-msbar').style.width=Math.min(100,Math.round(ms.score/MASTERY_GOAL*100))+'%';
+}
+
+function trEnd(){renderTrainPicker();}
+
+// ══════════════════════════════════════════
 // KEYBOARD
 // ══════════════════════════════════════════
 document.addEventListener('keydown',e=>{
@@ -1732,6 +1952,11 @@ document.addEventListener('keydown',e=>{
  if(nxt.style.display!=='none')nextTask();
  else submitAnswer();
  }
+ if(active.id==='s-train'){
+  const nxt=document.getElementById('tr-next-btn');
+  if(nxt.style.display!=='none')trNext();
+  else if(!TR.m||!TR.m.mc)trSubmit();
+ }
 });
 
 // ══════════════════════════════════════════
@@ -1743,6 +1968,7 @@ window.addEventListener('load',()=>{
  }
 });
 </script>
+<script src="./rpg-tasks-7.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="./rpg-cloud.js"></script>
 <script>RPGCloud.attachGame(SAVE_KEY);</script>
