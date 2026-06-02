@@ -356,17 +356,18 @@ function renderTable(){
 
 /* ── teacher unlock ── */
 function buildUnlockHtml(r){
- if(r.game!=='RPG_MAT_9')return'';
+ const missions=missionsFor(r.game);
+ if(!missions.length)return'';
  const d=r.data||{};
  const unlocked=Array.isArray(d.teacherUnlocked)?d.teacherUnlocked:[];
  const i=window.__filtered.indexOf(r);
  let pills='';
  unlocked.forEach(mid=>{
-  const mn=(MISSIONS_9.find(x=>x.id===mid)||{name:mid}).name;
+  const mn=(missions.find(x=>x.id===mid)||{name:mid}).name;
   pills+='<span style="display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;padding:3px 8px;border-radius:20px;margin:2px;background:var(--panel2);border:1px solid var(--gold);color:var(--gold)">🔓 '+esc(mid)+' '+esc(mn)+' <button onclick="revokeUnlock('+i+',\''+esc(mid)+'\')" style="background:none;border:none;color:var(--red);cursor:pointer;font-size:12px;padding:0 0 0 4px">✕</button></span>';
  });
  let selOpts='<option value="">— vyberte misi —</option>';
- MISSIONS_9.forEach(m=>{
+ missions.forEach(m=>{
   selOpts+='<option value="'+m.id+'">'+m.id+' '+esc(m.name)+'</option>';
  });
  return '<h4>Odemknout misi učitelem</h4>'+

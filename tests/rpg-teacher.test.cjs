@@ -283,6 +283,51 @@ async function run(){
       await ctx.close();
     }
 
+    // ── 8) Teacher unlock napříč ročníky 6/7/8/9 ────────────────────────
+    console.log('[ 8 ] Teacher unlock v konzoli pro 6./7./8./9. ročník');
+    {
+      const unlockSaves=[
+        {user_id:'u-ul6', game:'RPG_MAT_6', email:'ul6@husovaliberec.cz', full_name:'Šestka',
+         data:{name:'ASTRO', xp:0, level:1, attrs:{calc:0,geo:0,anal:0,craft:0}, done:{}, inv:[], mastery:{}, xpClaimed:{}, teacherUnlocked:['2-1']},
+         updated_at:new Date().toISOString()},
+        {user_id:'u-ul7', game:'RPG_MAT_7', email:'ul7@husovaliberec.cz', full_name:'Sedmička',
+         data:{name:'INDY', xp:0, level:1, attrs:{calc:0,geo:0,anal:0,craft:0}, done:{}, inv:[], mastery:{}, xpClaimed:{}, teacherUnlocked:[]},
+         updated_at:new Date().toISOString()},
+        {user_id:'u-ul8', game:'RPG_MAT_8', email:'ul8@husovaliberec.cz', full_name:'Osmička',
+         data:{name:'EULER', xp:0, level:1, attrs:{calc:0,geo:0,anal:0,craft:0}, done:{}, inv:[], mastery:{}, xpClaimed:{}, teacherUnlocked:['3-2']},
+         updated_at:new Date().toISOString()},
+        {user_id:'u-ul9', game:'RPG_MAT_9', email:'ul9@husovaliberec.cz', full_name:'Devítka',
+         data:{name:'NEO', xp:0, level:1, attrs:{calc:0,geo:0,anal:0,craft:0}, done:{}, inv:[], mastery:{}, xpClaimed:{}, teacherUnlocked:[]},
+         updated_at:new Date().toISOString()},
+      ];
+      const {ctx,pg}=await page({ session: sess('admin@husovaliberec.cz'),
+        roles:[{email:'admin@husovaliberec.cz',role:'superadmin'}], saves:unlockSaves });
+      await pg.goto(`${BASE}/projects/rpg-ucitel.html`,{waitUntil:'domcontentloaded'});
+      await pg.waitForFunction(()=>document.querySelectorAll('.tbl tbody tr').length>0,{timeout:6000}).catch(()=>{});
+
+      // buildUnlockHtml vrací HTML pro všechny ročníky (ne prázdné)
+      const unlockHtmls=await pg.evaluate(()=>{
+        return ['RPG_MAT_6','RPG_MAT_7','RPG_MAT_8','RPG_MAT_9'].map(game=>{
+          const i=window.__filtered.findIndex(r=>r.game===game);
+          return i>=0?buildUnlockHtml(window.__filtered[i]):'';
+        });
+      });
+      ok('buildUnlockHtml vrací HTML pro 6. ročník', unlockHtmls[0].includes('Odemknout misi'));
+      ok('buildUnlockHtml vrací HTML pro 7. ročník', unlockHtmls[1].includes('Odemknout misi'));
+      ok('buildUnlockHtml vrací HTML pro 8. ročník', unlockHtmls[2].includes('Odemknout misi'));
+      ok('buildUnlockHtml vrací HTML pro 9. ročník', unlockHtmls[3].includes('Odemknout misi'));
+
+      // existující unlock 2-1 v 6.r. se zobrazí jako pill
+      ok('Unlock 2-1 viditelný v 6.r. detailu', unlockHtmls[0].includes('2-1'));
+      // dropdown pro 8.r. obsahuje mise 8. ročníku (nikoli 9.)
+      ok('Dropdown 8.r. obsahuje misi z 8.r. (Celá čísla)', unlockHtmls[2].includes('Celá čísla'));
+      ok('Dropdown 8.r. NEobsahuje mise 9.r. (Bootovací)', !unlockHtmls[2].includes('Bootovací'));
+      // dropdown pro 6.r. obsahuje mise 6. ročníku
+      ok('Dropdown 6.r. obsahuje misi z 6.r. (Obvod a obsah)', unlockHtmls[0].includes('Obvod a obsah'));
+
+      await ctx.close();
+    }
+
   }catch(e){ console.error('\nChyba testu:',e.message,e.stack); fail++; }
 
   await browser.close(); srv.close();
