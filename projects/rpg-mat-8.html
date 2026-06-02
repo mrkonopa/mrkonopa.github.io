@@ -1224,10 +1224,11 @@ const ATTR_META = {
 // STATE
 // ══════════════════════════════════════════
 const SAVE_KEY = 'RPG_MAT_8';
-let S = {name:'HRDINA',xp:0,level:1,attrs:{calc:0,geo:0,anal:0,craft:0},done:{},inv:[],mastery:{},xpClaimed:{}};
+let S = {name:'HRDINA',xp:0,level:1,attrs:{calc:0,geo:0,anal:0,craft:0},done:{},inv:[],mastery:{},xpClaimed:{},teacherUnlocked:[]};
+let GODMODE=false;
 
 function saveS(){localStorage.setItem(SAVE_KEY,JSON.stringify(S));if(window.RPGCloud&&RPGCloud.push)RPGCloud.push(SAVE_KEY,S);}
-function loadS(){const r=localStorage.getItem(SAVE_KEY);if(!r)return false;try{S=JSON.parse(r);}catch(e){return false;}if(!S||typeof S!=='object'){S={name:'HRDINA',xp:0,level:1,attrs:{calc:0,geo:0,anal:0,craft:0},done:{},inv:[],mastery:{},xpClaimed:{}};return false;}if(typeof S.name!=='string')S.name='HRDINA';if(typeof S.xp!=='number'||!isFinite(S.xp))S.xp=0;if(typeof S.level!=='number'||!isFinite(S.level))S.level=1;if(!S.attrs||typeof S.attrs!=='object')S.attrs={calc:0,geo:0,anal:0,craft:0};if(!S.done||typeof S.done!=='object')S.done={};if(!Array.isArray(S.inv))S.inv=[];if(!S.mastery||typeof S.mastery!=='object')S.mastery={};if(!S.xpClaimed||typeof S.xpClaimed!=='object')S.xpClaimed={};return true;}
+function loadS(){const r=localStorage.getItem(SAVE_KEY);if(!r)return false;try{S=JSON.parse(r);}catch(e){return false;}if(!S||typeof S!=='object'){S={name:'HRDINA',xp:0,level:1,attrs:{calc:0,geo:0,anal:0,craft:0},done:{},inv:[],mastery:{},xpClaimed:{},teacherUnlocked:[]};return false;}if(typeof S.name!=='string')S.name='HRDINA';if(typeof S.xp!=='number'||!isFinite(S.xp))S.xp=0;if(typeof S.level!=='number'||!isFinite(S.level))S.level=1;if(!S.attrs||typeof S.attrs!=='object')S.attrs={calc:0,geo:0,anal:0,craft:0};if(!S.done||typeof S.done!=='object')S.done={};if(!Array.isArray(S.inv))S.inv=[];if(!S.mastery||typeof S.mastery!=='object')S.mastery={};if(!S.xpClaimed||typeof S.xpClaimed!=='object')S.xpClaimed={};if(!Array.isArray(S.teacherUnlocked))S.teacherUnlocked=[];return true;}
 function calcLevel(){S.level=Math.floor(S.xp/100)+1;}
 
 // ── JUICE: XP award + level-up + floaties + vignette ──
@@ -1316,8 +1317,10 @@ function continueGame(){if(loadS())go('map');}
 // MAP
 // ══════════════════════════════════════════
 function isAreaUnlocked(ar){
+ if(GODMODE)return true;
  if(ar.id===1)return true;
  if(ar.locked)return false;
+ if(S.teacherUnlocked&&ar.missions.some(m=>S.teacherUnlocked.includes(m.id)))return true;
  const prev=AREAS.find(a=>a.id===ar.id-1);
  return prev?isAreaDone(prev):true;
 }
@@ -1383,14 +1386,15 @@ function openArea(aid){
  ml.innerHTML='';
  ar.missions.forEach((m,mi)=>{
  const dn=countDone(m.id,m.tc),tot=m.tc,allDn=dn===tot;
- const avail=mi===0||countDone(ar.missions[mi-1].id,ar.missions[mi-1].tc)===ar.missions[mi-1].tc;
+ const teacherUnlk=GODMODE||(S.teacherUnlocked&&S.teacherUnlocked.includes(m.id));
+ const avail=teacherUnlk||mi===0||countDone(ar.missions[mi-1].id,ar.missions[mi-1].tc)===ar.missions[mi-1].tc;
  const cls=allDn?'done':avail?'avail':'locked';
  const stars=allDn?'⭐⭐⭐':dn>0?'⭐'.repeat(Math.ceil(dn/tot*3))+'☆'.repeat(3-Math.ceil(dn/tot*3)):'☆☆☆';
  const it=document.createElement('div');
  it.className='ms-item '+cls;
  it.innerHTML=`
  <div class="ms-num" style="color:${allDn?'var(--green)':avail?'var(--blue)':'var(--muted)'}">${allDn?'✓':String(mi+1).padStart(2,'0')}</div>
- <div style="flex:1"><div class="ms-name">${masteryOf(m.id).mastered?'🏅 ':''}${m.name}</div><div class="ms-sub">${m.sub} · ${dn}/${tot}</div></div>
+ <div style="flex:1"><div class="ms-name">${masteryOf(m.id).mastered?'🏅 ':''}${(!allDn&&teacherUnlk&&!GODMODE)?'🔓 ':''}${m.name}</div><div class="ms-sub">${m.sub} · ${dn}/${tot}</div></div>
  <div style="font-size:14px">${stars}</div>`;
  if(avail)it.onclick=()=>launchBattle(ar.id,m.id);
  ml.appendChild(it);
@@ -2145,6 +2149,15 @@ function trEnd(){renderTrainPicker();}
 window.addEventListener('load',()=>{
  if(localStorage.getItem(SAVE_KEY)){
  document.getElementById('continue-panel').style.display='block';
+ }
+ const _p=new URLSearchParams(location.search);
+ if(_p.get('preview')==='1'&&_p.get('mid')){
+  GODMODE=true;
+  const _mid=_p.get('mid');
+  const _aid=parseInt(_mid.split('-')[0]);
+  document.getElementById('ni').value='NÁHLED';
+  startGame();
+  launchBattle(_aid,_mid);
  }
 });
 </script>
