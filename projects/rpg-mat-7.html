@@ -369,6 +369,21 @@ body::before{
  .mc-btn{font-size:16px;padding:16px 8px}
  .attr-nm{min-width:140px;font-size:11px}
 }
+/* ── TEORIE (s-learn) ── */
+.learn-section{margin-bottom:18px}
+.learn-section h3{font-family:var(--px);font-weight:700;font-size:13px;color:var(--accent);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;border-bottom:1px solid var(--gold);padding-bottom:4px}
+.learn-section p{font-family:var(--vt);font-size:19px;color:var(--text);line-height:1.55;margin-bottom:8px}
+.learn-formula{background:#0f1a2f;border:2px solid var(--blue);border-radius:4px;padding:12px 16px;margin:10px 0;font-family:var(--px);font-size:13px;color:var(--blue);line-height:1.8}
+.learn-formula b{color:#fff}
+.learn-example{background:var(--panel);border-left:4px solid var(--gold);padding:12px 16px;margin:10px 0;border-radius:0 6px 6px 0}
+.learn-example .ex-q{font-family:var(--px);font-weight:700;font-size:13px;color:var(--gold);margin-bottom:6px}
+.learn-example .ex-s{font-family:var(--vt);font-size:18px;color:var(--text);line-height:1.6}
+.learn-example .ex-s b{color:var(--green)}
+.learn-video{display:inline-flex;align-items:center;gap:8px;font-family:var(--px);font-weight:700;font-size:13px;padding:10px 16px;border:2px solid var(--red);color:var(--red);text-decoration:none;margin-top:6px;cursor:pointer;background:none;letter-spacing:.5px}
+.learn-video:hover{background:var(--red);color:#fff}
+.learn-intro{font-family:var(--vt);font-size:22px;color:var(--muted);line-height:1.5;padding:10px 14px;background:#1a0f00;border:2px dashed #7a5c00;margin-bottom:18px}
+.learn-btn{background:none;border:2px solid var(--blue);color:var(--blue);font-family:var(--px);font-size:11px;font-weight:700;padding:4px 8px;cursor:pointer;margin-left:6px;flex-shrink:0}
+.learn-btn:hover{background:var(--blue);color:#06101e}
 </style>
 </head>
 <body>
@@ -466,6 +481,22 @@ body::before{
  <button class="btn sm b" id="tr-hint-btn" onclick="trHint()">💡 NÁPOVĚDA 1/2</button>
  <button class="btn sm g" id="tr-next-btn" style="display:none" onclick="trNext()">DALŠÍ ÚKOL →</button>
  </div>
+ </div>
+</div>
+</div>
+
+<!-- ══════════════ TEORIE ══════════════ -->
+<div id="s-learn" class="screen">
+<div class="wrap">
+ <div class="topnav">
+ <button class="btn sm" id="learn-back-btn" onclick="go('area')">← ZPĚT</button>
+ <span style="font-family:var(--px);font-weight:700;font-size:14px;color:var(--blue)">📖 TEORIE</span>
+ <span style="min-width:60px"></span>
+ </div>
+ <div id="learn-content"></div>
+ <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:18px">
+  <button class="btn b" id="learn-battle-btn" onclick="launchLearnBattle()">⚔️ BOJOVAT NYNÍ</button>
+  <button class="btn sm" onclick="go('train')">🎯 TRÉNOVAT</button>
  </div>
 </div>
 </div>
@@ -1209,15 +1240,66 @@ function openArea(aid){
  const stars=allDn?'⭐⭐⭐':dn>0?'⭐'.repeat(Math.ceil(dn/tot*3))+'☆'.repeat(3-Math.ceil(dn/tot*3)):'☆☆☆';
  const it=document.createElement('div');
  it.className='ms-item '+cls;
+ const hasLearn=window.RPG_LEARN_7&&window.RPG_LEARN_7[m.id];
  it.innerHTML=`
  <div class="ms-num" style="color:${allDn?'var(--green)':avail?'var(--blue)':'var(--muted)'}">${allDn?'✓':String(mi+1).padStart(2,'0')}</div>
  <div style="flex:1"><div class="ms-name">${masteryOf(m.id).mastered?'🏅 ':''}${(!allDn&&teacherUnlk&&!GODMODE)?'🔓 ':''}${m.name}</div><div class="ms-sub">${m.sub} · ${dn}/${tot}</div></div>
+ ${hasLearn?`<button class="learn-btn" onclick="startLearn('${m.id}');event.stopPropagation()">📖 Teorie</button>`:''}
  <div style="font-size:14px">${stars}</div>`;
  if(avail)it.onclick=()=>launchBattle(ar.id,m.id);
  ml.appendChild(it);
  });
  go('area');
 }
+
+// ══════════════════════════════════════════
+// TEORIE
+// ══════════════════════════════════════════
+let LEARN_MID=null;
+
+function startLearn(mid){
+ LEARN_MID=mid;
+ const ar=AREAS.find(a=>a.missions.some(m=>m.id===mid));
+ const m=ar?ar.missions.find(x=>x.id===mid):null;
+ renderLearn(mid,m);
+ go('learn');
+}
+function launchLearnBattle(){
+ if(!LEARN_MID)return;
+ const ar=AREAS.find(a=>a.missions.some(m=>m.id===LEARN_MID));
+ if(ar)launchBattle(ar.id,LEARN_MID);
+}
+function renderLearn(mid,m){
+ const L=window.RPG_LEARN_7&&window.RPG_LEARN_7[mid];
+ const el=document.getElementById('learn-content');
+ if(!L){el.innerHTML='<div style="font-family:var(--vt);font-size:20px;color:var(--muted);padding:20px">Teorie pro tuto misi není dostupná.</div>';return;}
+ let html=`<div class="panel b" style="margin-bottom:14px">
+  <div style="font-family:var(--px);font-weight:700;font-size:17px;color:var(--blue);letter-spacing:.5px">${esc2(m?m.name:mid)}</div>
+  <div style="font-family:var(--vt);font-size:18px;color:var(--muted);margin-top:4px">${esc2(m?m.sub:'')}</div>
+ </div>`;
+ if(L.intro)html+=`<div class="learn-intro">${esc2(L.intro)}</div>`;
+ (L.sections||[]).forEach(s=>{
+  html+=`<div class="learn-section"><h3>${esc2(s.h)}</h3>`;
+  (Array.isArray(s.p)?s.p:[s.p]).forEach(p=>{html+=`<p>${p}</p>`;});
+  html+='</div>';
+ });
+ if(L.formulas&&L.formulas.length){
+  html+='<div class="learn-formula">';
+  L.formulas.forEach(f=>{html+=f+'<br>';});
+  html+='</div>';
+ }
+ (L.examples||[]).forEach(ex=>{
+  html+=`<div class="learn-example"><div class="ex-q">📝 ${esc2(ex.q)}</div><div class="ex-s">`;
+  (Array.isArray(ex.s)?ex.s:[ex.s]).forEach(step=>{html+=step+'<br>';});
+  html+='</div></div>';
+ });
+ if(L.video){
+  html+=`<div style="margin-top:16px"><a class="learn-video" href="https://www.youtube.com/watch?v=${L.video.id}" target="_blank" rel="noopener">▶ VIDEO: ${esc2(L.video.title)}</a></div>`;
+ }
+ el.innerHTML=html;
+ document.getElementById('learn-battle-btn').onclick=launchLearnBattle;
+}
+function esc2(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 
 // ══════════════════════════════════════════
 // BATTLE
@@ -1961,6 +2043,7 @@ document.addEventListener('keydown',e=>{
   if(nxt.style.display!=='none')trNext();
   else if(!TR.m||!TR.m.mc)trSubmit();
  }
+ if(active.id==='s-learn'){launchLearnBattle();}
 });
 
 // ══════════════════════════════════════════
@@ -1982,6 +2065,7 @@ window.addEventListener('load',()=>{
 });
 </script>
 <script src="./rpg-tasks-7.js"></script>
+<script src="./rpg-learn-7.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="./rpg-cloud.js"></script>
 <script>RPGCloud.attachGame(SAVE_KEY);</script>
