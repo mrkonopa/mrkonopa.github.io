@@ -328,6 +328,103 @@ async function run(){
       await ctx.close();
     }
 
+    // ── 9) Hromadné akce (jen superadmin) ───────────────────────────────
+    console.log('[ 9 ] Hromadné akce — výběr, +XP, unlock, cross-grade guard');
+    {
+      const bulkSaves=[
+        {user_id:'b-1', game:'RPG_MAT_8', email:'b1@husovaliberec.cz', full_name:'Anna',
+         data:{name:'A', xp:100, level:2, attrs:{calc:0,geo:0,anal:0,craft:0}, done:{}, inv:[], mastery:{}, xpClaimed:{}, teacherUnlocked:[]},
+         updated_at:new Date().toISOString()},
+        {user_id:'b-2', game:'RPG_MAT_8', email:'b2@husovaliberec.cz', full_name:'Bára',
+         data:{name:'B', xp:200, level:3, attrs:{calc:0,geo:0,anal:0,craft:0}, done:{}, inv:[], mastery:{}, xpClaimed:{}, teacherUnlocked:[]},
+         updated_at:new Date().toISOString()},
+        {user_id:'b-3', game:'RPG_MAT_9', email:'b3@husovaliberec.cz', full_name:'Cyril',
+         data:{name:'C', xp:0, level:1, attrs:{calc:0,geo:0,anal:0,craft:0}, done:{}, inv:[], mastery:{}, xpClaimed:{}, teacherUnlocked:[]},
+         updated_at:new Date().toISOString()},
+      ];
+      const {ctx,pg}=await page({ session: sess('admin@husovaliberec.cz'),
+        roles:[{email:'admin@husovaliberec.cz',role:'superadmin'}], saves:bulkSaves });
+      await pg.goto(`${BASE}/projects/rpg-ucitel.html`,{waitUntil:'domcontentloaded'});
+      await pg.waitForFunction(()=>document.querySelectorAll('.tbl tbody tr').length>0,{timeout:6000}).catch(()=>{});
+
+      // superadmin vidí zaškrtávací sloupec
+      const hasChecks=await pg.evaluate(()=>document.querySelectorAll('.sel-row').length);
+      ok('Superadmin vidí zaškrtávací sloupec', hasChecks===3, 'checkboxů: '+hasChecks);
+
+      // bulk bar je skrytý dokud nic není vybráno
+      const hiddenInit=await pg.evaluate(()=>document.getElementById('bulk-bar').classList.contains('hidden'));
+      ok('Bulk bar skrytý bez výběru', hiddenInit===true);
+
+      // vyber dvě postavy 8. ročníku (b-1, b-2)
+      const barShown=await pg.evaluate(()=>{
+        const idx=window.__filtered.map((r,i)=>[r.user_id,i]).filter(([u])=>u==='b-1'||u==='b-2').map(([,i])=>i);
+        idx.forEach(i=>toggleSel(i,true));
+        return {count:document.getElementById('bulk-count').textContent,
+                hidden:document.getElementById('bulk-bar').classList.contains('hidden')};
+      });
+      ok('Bulk bar ukáže "2 vybráno"', barShown.count==='2', 'count: '+barShown.count);
+      ok('Bulk bar se zobrazí při výběru', barShown.hidden===false);
+
+      // dropdown nabízí mise 8. ročníku (stejný ročník)
+      const midOpts=await pg.evaluate(()=>document.getElementById('bulk-mid').innerHTML);
+      ok('Bulk dropdown obsahuje mise 8.r. (Celá čísla)', midOpts.includes('Celá čísla'));
+
+      // hromadné +50 XP oběma vybraným
+      const afterXp=await pg.evaluate(async()=>{
+        document.getElementById('bulk-xp').value='50';
+        await bulkAwardXp();
+        const a=window.__filtered.find(r=>r.user_id==='b-1').data.xp;
+        const b=window.__filtered.find(r=>r.user_id==='b-2').data.xp;
+        const c=window.__filtered.find(r=>r.user_id==='b-3').data.xp;
+        return {a,b,c};
+      });
+      ok('b-1 dostal +50 XP (100→150)', afterXp.a===150, 'xp: '+afterXp.a);
+      ok('b-2 dostal +50 XP (200→250)', afterXp.b===250, 'xp: '+afterXp.b);
+      ok('Nevybraný b-3 beze změny (0)', afterXp.c===0, 'xp: '+afterXp.c);
+
+      // hromadné odemčení mise 3-2 vybraným (po renderTable se výběr drží podle klíče)
+      const afterUnlock=await pg.evaluate(async()=>{
+        const idx=window.__filtered.map((r,i)=>[r.user_id,i]).filter(([u])=>u==='b-1'||u==='b-2').map(([,i])=>i);
+        idx.forEach(i=>toggleSel(i,true));
+        document.getElementById('bulk-mid').value='3-2';
+        await bulkUnlock();
+        const a=window.__filtered.find(r=>r.user_id==='b-1').data.teacherUnlocked;
+        const b=window.__filtered.find(r=>r.user_id==='b-2').data.teacherUnlocked;
+        const c=window.__filtered.find(r=>r.user_id==='b-3').data.teacherUnlocked;
+        return {a,b,c};
+      });
+      ok('b-1 má odemčeno 3-2', afterUnlock.a.includes('3-2'));
+      ok('b-2 má odemčeno 3-2', afterUnlock.b.includes('3-2'));
+      ok('Nevybraný b-3 nemá nic odemčeno', afterUnlock.c.length===0);
+
+      // cross-grade guard: vyber 8.r. + 9.r. → unlock zablokován
+      const crossGuard=await pg.evaluate(async()=>{
+        clearSel();
+        window.__filtered.forEach((r,i)=>{if(r.user_id==='b-1'||r.user_id==='b-3')toggleSel(i,true);});
+        const optsHtml=document.getElementById('bulk-mid').innerHTML;
+        // pokus o unlock musí selhat (různé ročníky) → b-3 stále bez unlocku z tohoto kroku
+        document.getElementById('bulk-mid').value='';
+        await bulkUnlock();
+        return {opts:optsHtml, b3unlocks:window.__filtered.find(r=>r.user_id==='b-3').data.teacherUnlocked.length};
+      });
+      ok('Cross-grade výběr blokuje dropdown misí', crossGuard.opts.includes('jednoho ročníku'));
+      ok('Cross-grade unlock nic neprovede (b-3 = 0)', crossGuard.b3unlocks===0);
+
+      // clearSel schová bulk bar
+      const cleared=await pg.evaluate(()=>{clearSel();return document.getElementById('bulk-bar').classList.contains('hidden');});
+      ok('clearSel schová bulk bar', cleared===true);
+
+      // učitel (ne superadmin) zaškrtávací sloupec nevidí
+      await ctx.close();
+      const {ctx:ctx2,pg:pg2}=await page({ session: sess('ucitel@husovaliberec.cz'),
+        roles:[{email:'ucitel@husovaliberec.cz',role:'teacher'}], saves:bulkSaves });
+      await pg2.goto(`${BASE}/projects/rpg-ucitel.html`,{waitUntil:'domcontentloaded'});
+      await pg2.waitForFunction(()=>document.querySelectorAll('.tbl tbody tr').length>0,{timeout:6000}).catch(()=>{});
+      const teacherChecks=await pg2.evaluate(()=>document.querySelectorAll('.sel-row').length);
+      ok('Učitel (ne admin) nevidí zaškrtávací sloupec', teacherChecks===0, 'checkboxů: '+teacherChecks);
+      await ctx2.close();
+    }
+
   }catch(e){ console.error('\nChyba testu:',e.message,e.stack); fail++; }
 
   await browser.close(); srv.close();
