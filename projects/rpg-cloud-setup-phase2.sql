@@ -74,3 +74,9 @@ create policy "saves_delete_admin" on public.saves
 -- Pozn.: učitel (role 'teacher') má jen čtení cizích postav; mazat/měnit
 -- smí pouze superadmin. (Když budeš chtít dát učitelům i editaci, přidáš
 -- 'teacher' do using/with check výše.)
+
+-- ── 5) Bezpečnost: zablokuj přímé volání my_role() přes REST API ────────────
+-- Funkce je potřeba jen pro RLS politiky, ne přes /rest/v1/rpc/my_role.
+-- (Řeší Supabase security lint: anon/authenticated_security_definer_function_executable)
+revoke execute on function public.my_role() from anon;
+revoke execute on function public.my_role() from authenticated;
