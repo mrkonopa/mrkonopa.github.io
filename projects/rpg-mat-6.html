@@ -1029,10 +1029,10 @@ const ATTR_META = {
 // STATE
 // ══════════════════════════════════════════
 const SAVE_KEY = 'RPG_MAT_6';
-let S = {name:'HRDINA',xp:0,level:1,attrs:{calc:0,geo:0,anal:0,craft:0},done:{},inv:[],mastery:{}};
+let S = {name:'HRDINA',xp:0,level:1,attrs:{calc:0,geo:0,anal:0,craft:0},done:{},inv:[],mastery:{},xpClaimed:{}};
 
 function saveS(){localStorage.setItem(SAVE_KEY,JSON.stringify(S));if(window.RPGCloud&&RPGCloud.push)RPGCloud.push(SAVE_KEY,S);}
-function loadS(){const r=localStorage.getItem(SAVE_KEY);if(r){S=JSON.parse(r);if(!S.mastery)S.mastery={};return true;}return false;}
+function loadS(){const r=localStorage.getItem(SAVE_KEY);if(!r)return false;try{S=JSON.parse(r);}catch(e){return false;}if(!S||typeof S!=='object'){S={name:'HRDINA',xp:0,level:1,attrs:{calc:0,geo:0,anal:0,craft:0},done:{},inv:[],mastery:{},xpClaimed:{}};return false;}if(typeof S.name!=='string')S.name='HRDINA';if(typeof S.xp!=='number'||!isFinite(S.xp))S.xp=0;if(typeof S.level!=='number'||!isFinite(S.level))S.level=1;if(!S.attrs||typeof S.attrs!=='object')S.attrs={calc:0,geo:0,anal:0,craft:0};if(!S.done||typeof S.done!=='object')S.done={};if(!Array.isArray(S.inv))S.inv=[];if(!S.mastery||typeof S.mastery!=='object')S.mastery={};if(!S.xpClaimed||typeof S.xpClaimed!=='object')S.xpClaimed={};return true;}
 function calcLevel(){S.level=Math.floor(S.xp/100)+1;}
 
 // ── JUICE: XP award + level-up + floaties + vignette ──
@@ -1447,13 +1447,14 @@ function submitMC(opt,btn){
  btn.classList.add('right');
  BT.combo++;
  const isCrit=BT.combo>=3 && BT.hl===0;
- const xpGain=Math.max(3,10-BT.hl*3)*(isCrit?2:1);
+ const xpKey=`${BT.mid}-${BT.idx}`;
+ const firstTime=!S.xpClaimed[xpKey];
+ const xpGain=firstTime?Math.max(3,10-BT.hl*3)*(isCrit?2:1):0;
  const fb=document.getElementById('bt-fb');
- fb.textContent=(isCrit?'✓✓ KRITICKÝ ZÁSAH! +':'✓ SPRÁVNĚ! +')+xpGain+' XP';
+ fb.textContent=firstTime?((isCrit?'✓✓ KRITICKÝ ZÁSAH! +':'✓ SPRÁVNĚ! +')+xpGain+' XP'):'✓ SPRÁVNĚ! (mise už splněna — bez XP)';
  fb.className='feedback ok';
- awardXp(xpGain,isCrit);
+ if(firstTime){awardXp(xpGain,isCrit);if(t.skill&&S.attrs[t.skill]!==undefined)S.attrs[t.skill]+=3;S.xpClaimed[xpKey]=true;}
  S.done[`${BT.mid}-${BT.idx}`]=true;
- if(t.skill&&S.attrs[t.skill]!==undefined)S.attrs[t.skill]+=3;
  saveS();
  document.getElementById('next-btn').style.display='inline-block';
  damageMonster(xpGain,isCrit);
@@ -1641,12 +1642,13 @@ function submitAnswer(){
  stopTimer();
  BT.combo++;
  const isCrit=BT.combo>=3 && BT.hl===0;
- const xpGain=Math.max(3,10-BT.hl*3)*(isCrit?2:1);
- fb.textContent=(isCrit?'✓✓ KRITICKÝ ZÁSAH! +':'✓ SPRÁVNĚ! +')+xpGain+' XP';
+ const xpKey=`${BT.mid}-${BT.idx}`;
+ const firstTime=!S.xpClaimed[xpKey];
+ const xpGain=firstTime?Math.max(3,10-BT.hl*3)*(isCrit?2:1):0;
+ fb.textContent=firstTime?((isCrit?'✓✓ KRITICKÝ ZÁSAH! +':'✓ SPRÁVNĚ! +')+xpGain+' XP'):'✓ SPRÁVNĚ! (mise už splněna — bez XP)';
  fb.className='feedback ok';
- awardXp(xpGain,isCrit);
+ if(firstTime){awardXp(xpGain,isCrit);if(t.skill&&S.attrs[t.skill]!==undefined)S.attrs[t.skill]+=3;S.xpClaimed[xpKey]=true;}
  S.done[`${BT.mid}-${BT.idx}`]=true;
- if(t.skill&&S.attrs[t.skill]!==undefined)S.attrs[t.skill]+=3;
  saveS();
  document.getElementById('bt-ans').disabled=true;
  document.getElementById('hint-btn').disabled=true;
