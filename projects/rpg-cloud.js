@@ -294,11 +294,21 @@ window.RPGCloud = (function () {
         paint();
         if (u) {
           const cloud = await pull(saveKey);
-          if (cloud) {
+          let local = null;
+          try { local = JSON.parse(localStorage.getItem(saveKey)); } catch {}
+          const localDone = local && local.done ? Object.keys(local.done).length : 0;
+          const cloudDone = cloud && cloud.done ? Object.keys(cloud.done).length : 0;
+          if (cloud && cloudDone >= localDone) {
+            // cloud je stejně pokročilý nebo lepší → přepiš lokál
             localStorage.setItem(saveKey, JSON.stringify(cloud));
             const cp = document.getElementById('continue-panel');
             if (cp) cp.style.display = 'block';
             if (typeof onLoaded === 'function') onLoaded(cloud);
+          } else if (local && localDone > 0) {
+            // lokál je pokročilejší → nahraj ho do cloudu
+            push(saveKey, local);
+            const cp = document.getElementById('continue-panel');
+            if (cp) cp.style.display = 'block';
           }
         }
       });
