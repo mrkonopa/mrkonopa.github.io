@@ -227,6 +227,62 @@ async function run(){
       await ctx.close();
     }
 
+    console.log();
+
+    // ── 7) Mistrovství napříč ročníky 6/7/8/9 ───────────────────────────
+    console.log('[ 7 ] Mistrovství v konzoli pro 6./7./8./9. ročník');
+    {
+      const M=(s)=>({score:15,mastered:true});
+      const masterySaves=[
+        {user_id:'u-m6', game:'RPG_MAT_6', email:'m6@husovaliberec.cz', full_name:'Šestka',
+         data:{name:'ASTRO', xp:200, level:3, attrs:{calc:3,geo:2,anal:2,craft:1}, done:{'1-0':1},
+           mastery:{'1-2':M()}}, updated_at:new Date().toISOString()},
+        {user_id:'u-m7', game:'RPG_MAT_7', email:'m7@husovaliberec.cz', full_name:'Sedmička',
+         data:{name:'INDY', xp:300, level:4, attrs:{calc:4,geo:2,anal:3,craft:2}, done:{'1-0':1},
+           mastery:{'3-2':M(),'4-1':M()}}, updated_at:new Date().toISOString()},
+        {user_id:'u-m8', game:'RPG_MAT_8', email:'m8@husovaliberec.cz', full_name:'Osmička',
+         data:{name:'EULER', xp:400, level:5, attrs:{calc:5,geo:3,anal:4,craft:2}, done:{'1-0':1},
+           mastery:{'1-1':M(),'2-1':M(),'5-2':M()}}, updated_at:new Date().toISOString()},
+        {user_id:'u-m9', game:'RPG_MAT_9', email:'m9@husovaliberec.cz', full_name:'Devítka',
+         data:{name:'NEO', xp:500, level:6, attrs:{calc:6,geo:4,anal:5,craft:3}, done:{'1-0':1},
+           mastery:{'7-3':M()}}, updated_at:new Date().toISOString()},
+      ];
+      const {ctx,pg}=await page({ session: sess('vojta@husovaliberec.cz'),
+        roles:[{email:'vojta@husovaliberec.cz',role:'superadmin'}], saves:masterySaves });
+      await pg.goto(`${BASE}/projects/rpg-ucitel.html`,{waitUntil:'domcontentloaded'});
+      await pg.waitForFunction(()=>document.querySelectorAll('.tbl tbody tr').length>0,{timeout:6000}).catch(()=>{});
+
+      // stat počítá mistrovství napříč všemi ročníky (1+2+3+1 = 7)
+      const stMastery=await pg.evaluate(()=>document.getElementById('st-mastery').textContent);
+      ok('Stat mistrovství = 7 (napříč všemi ročníky)', stMastery==='7', stMastery);
+
+      // tabulka ukazuje 🏅 buňku i pro ne-9. ročníky
+      const badgeRows=await pg.evaluate(()=>[...document.querySelectorAll('.tbl tbody tr')]
+        .filter(tr=>tr.innerHTML.includes('🏅')).length);
+      ok('Všechny 4 ročníky mají 🏅 buňku v tabulce', badgeRows===4, 'řádků s 🏅: '+badgeRows);
+
+      // detail 8. ročníku → buildMasteryHtml s názvy misí 8. ročníku
+      const det8=await pg.evaluate(()=>{
+        const i=window.__filtered.findIndex(r=>r.game==='RPG_MAT_8');
+        openDetail(i);
+        return document.getElementById('modal').innerHTML;
+      });
+      ok('Detail 8.r. ukazuje "3 / 21 🏅"', det8.includes('3 / 21'), 'chybí počet');
+      ok('Detail 8.r. má název mise 8.r. (Celá čísla)', det8.includes('Celá čísla'));
+      ok('Detail 8.r. NEukazuje názvy z 9.r. (Bootovací)', !det8.includes('Bootovací'));
+
+      // detail 6. ročníku → názvy misí 6. ročníku
+      const det6=await pg.evaluate(()=>{
+        const i=window.__filtered.findIndex(r=>r.game==='RPG_MAT_6');
+        openDetail(i);
+        return document.getElementById('modal').innerHTML;
+      });
+      ok('Detail 6.r. má název mise 6.r. (Obvod a obsah)', det6.includes('Obvod a obsah'));
+      ok('Detail 6.r. ukazuje "1 / 21 🏅"', det6.includes('1 / 21'));
+
+      await ctx.close();
+    }
+
   }catch(e){ console.error('\nChyba testu:',e.message,e.stack); fail++; }
 
   await browser.close(); srv.close();

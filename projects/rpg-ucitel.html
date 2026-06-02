@@ -118,7 +118,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--px);min-height:100
     <div class="s"><div class="v" id="st-chars">0</div><div class="l">postav</div></div>
     <div class="s"><div class="v" id="st-tasks">0</div><div class="l">úkolů hotovo</div></div>
     <div class="s"><div class="v" id="st-active">0</div><div class="l">aktivních (7 dní)</div></div>
-    <div class="s"><div class="v" id="st-mastery" style="color:var(--gold)">0</div><div class="l">🏅 mistrovství (9.r.)</div></div>
+    <div class="s"><div class="v" id="st-mastery" style="color:var(--gold)">0</div><div class="l">🏅 mistrovství (celkem)</div></div>
    </div>
    <div class="controls">
     <input id="search" placeholder="🔍 hledat jméno nebo e-mail…" oninput="renderTable()">
@@ -173,6 +173,33 @@ const GAMES=[
  {key:'RPG_MAT_9',file:'rpg-mat-9.html',emoji:'💻',nm:'NULL_BYTE',gr:'9. ročník',accent:'#19e6e6'},
 ];
 const TOTAL_TASKS=126;
+const MISSIONS_6=[
+ {id:'1-1',name:'Přirozená čísla'},{id:'1-2',name:'Obvod a obsah'},{id:'1-3',name:'Logika a slovní úlohy'},
+ {id:'2-1',name:'Desetinná čísla'},{id:'2-2',name:'Počítání s desetinnými'},{id:'2-3',name:'Zlomky a průměr'},
+ {id:'3-1',name:'Znaky dělitelnosti'},{id:'3-2',name:'Prvočísla a dělitelé'},{id:'3-3',name:'NSD a NSN'},
+ {id:'4-1',name:'Druhy a velikosti úhlů'},{id:'4-2',name:'Vedlejší a vrcholové úhly'},{id:'4-3',name:'Úhly ve stupních a minutách'},
+ {id:'5-1',name:'Osová souměrnost'},{id:'5-2',name:'Zobrazení v osové souměrnosti'},{id:'5-3',name:'Shodnost útvarů'},
+ {id:'6-1',name:'Objem krychle a kvádru'},{id:'6-2',name:'Povrch krychle a kvádru'},{id:'6-3',name:'Jednotky objemu a sítě'},
+ {id:'7-1',name:'Úhly v trojúhelníku'},{id:'7-2',name:'Vlastnosti trojúhelníku'},{id:'7-3',name:'Finální duel s Vládcem galaxie'},
+];
+const MISSIONS_7=[
+ {id:'1-1',name:'Počítání zpaměti'},{id:'1-2',name:'Desetinná čísla'},{id:'1-3',name:'Obvod a obsah'},
+ {id:'2-1',name:'Krácení a rozšiřování'},{id:'2-2',name:'Sčítání a odčítání zlomků'},{id:'2-3',name:'Násobení a dělení zlomků'},
+ {id:'3-1',name:'Sčítání a odčítání celých čísel'},{id:'3-2',name:'Násobení a dělení celých čísel'},{id:'3-3',name:'Racionální čísla'},
+ {id:'4-1',name:'Poměr'},{id:'4-2',name:'Trojčlenka'},{id:'4-3',name:'Měřítko mapy a plánu'},
+ {id:'5-1',name:'Procentová část'},{id:'5-2',name:'Počet procent a základ'},{id:'5-3',name:'Slovní úlohy s procenty'},
+ {id:'6-1',name:'Osová souměrnost'},{id:'6-2',name:'Středová souměrnost'},{id:'6-3',name:'Shodnost trojúhelníků'},
+ {id:'7-1',name:'Obsah čtyřúhelníků'},{id:'7-2',name:'Hranoly — povrch a objem'},{id:'7-3',name:'Finální duel se Strážcem pyramidy'},
+];
+const MISSIONS_8=[
+ {id:'1-1',name:'Celá čísla'},{id:'1-2',name:'Zlomky a desetinná čísla'},{id:'1-3',name:'Procenta'},
+ {id:'2-1',name:'Mocniny a odmocniny'},{id:'2-2',name:'Pythagorova věta — přepona'},{id:'2-3',name:'Pythagorova věta — odvěsna'},
+ {id:'3-1',name:'Jednoduché rovnice'},{id:'3-2',name:'Dvojkrokové rovnice'},{id:'3-3',name:'Slovní úlohy'},
+ {id:'4-1',name:'Dosazování'},{id:'4-2',name:'Závorky a vzorce'},{id:'4-3',name:'Vytýkání'},
+ {id:'5-1',name:'Obvod a obsah kruhu'},{id:'5-2',name:'Válec — povrch a objem'},{id:'5-3',name:'Kružnice — slovní úlohy'},
+ {id:'6-1',name:'Množiny bodů'},{id:'6-2',name:'Thaletova kružnice'},{id:'6-3',name:'Osy a souměrnosti'},
+ {id:'7-1',name:'Zkouška ohněm'},{id:'7-2',name:'Přijímačkový trénink'},{id:'7-3',name:'Finální duel'},
+];
 const MISSIONS_9=[
  {id:'1-1',name:'Bootovací sekvence'},{id:'1-2',name:'Procentní skener'},{id:'1-3',name:'Záporná zóna'},
  {id:'2-1',name:'Energetické články'},{id:'2-2',name:'Pravidla mocnin'},{id:'2-3',name:'Vědecký zápis & Pythagoras'},
@@ -182,6 +209,8 @@ const MISSIONS_9=[
  {id:'6-1',name:'Lineární funkce'},{id:'6-2',name:'Vlastnosti funkcí'},{id:'6-3',name:'Lomená funkce'},
  {id:'7-1',name:'Podobnost a měřítko'},{id:'7-2',name:'Objem a povrch těles'},{id:'7-3',name:'FINÁLNÍ PRŮLOM'},
 ];
+const MISSIONS_BY_GAME={RPG_MAT_6:MISSIONS_6,RPG_MAT_7:MISSIONS_7,RPG_MAT_8:MISSIONS_8,RPG_MAT_9:MISSIONS_9};
+function missionsFor(gameKey){return MISSIONS_BY_GAME[gameKey]||[];}
 const ATTR=[['calc','🔢 Výpočty'],['geo','📐 Geometrie'],['anal','🧠 Analýza'],['craft','⚡ Instinkt']];
 const gMeta=k=>GAMES.find(g=>g.key===k)||{emoji:'❓',nm:k,gr:'',accent:'#888'};
 let ROWS=[];   // všechny postavy
@@ -189,7 +218,7 @@ let ROWS=[];   // všechny postavy
 function esc(s){return String(s==null?'':s).replace(/[<>&"]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c]));}
 function doneCount(d){return d&&d.done?Object.keys(d.done).length:0;}
 function masteryCount(d){if(!d||!d.mastery)return 0;return Object.values(d.mastery).filter(m=>m&&m.mastered).length;}
-function masteryList(d){if(!d||!d.mastery)return[];return MISSIONS_9.filter(m=>d.mastery[m.id]&&d.mastery[m.id].mastered);}
+function masteryList(d,gameKey){if(!d||!d.mastery)return[];return missionsFor(gameKey).filter(m=>d.mastery[m.id]&&d.mastery[m.id].mastered);}
 function pct(d){return Math.min(100,Math.round(doneCount(d)/TOTAL_TASKS*100));}
 function fmtDate(s){if(!s)return'—';const dt=new Date(s);return dt.toLocaleDateString('cs-CZ')+' '+dt.toLocaleTimeString('cs-CZ',{hour:'2-digit',minute:'2-digit'});}
 function daysAgo(s){if(!s)return 1e9;return (Date.now()-new Date(s).getTime())/864e5;}
@@ -246,7 +275,7 @@ function buildPreviewCards(){
   let selOpts='<option value="">— oblast/mise —</option>';
   for(let a=1;a<=7;a++)for(let m=1;m<=3;m++){
    const mid=a+'-'+m;
-   const mname=g.key==='RPG_MAT_9'?(MISSIONS_9.find(x=>x.id===mid)||{name:mid}).name:mid;
+   const mname=(missionsFor(g.key).find(x=>x.id===mid)||{name:mid}).name;
    selOpts+='<option value="'+mid+'">'+mid+' '+esc(mname)+'</option>';
   }
   const sid='gm-'+g.key;
@@ -279,12 +308,12 @@ function renderStats(){
  const students=new Set(ROWS.map(r=>r.user_id)).size;
  const tasks=ROWS.reduce((a,r)=>a+doneCount(r.data),0);
  const active=ROWS.filter(r=>daysAgo(r.updated_at)<=7).length;
- const mastery9=ROWS.filter(r=>r.game==='RPG_MAT_9').reduce((a,r)=>a+masteryCount(r.data),0);
+ const masteryAll=ROWS.reduce((a,r)=>a+masteryCount(r.data),0);
  document.getElementById('st-students').textContent=students;
  document.getElementById('st-chars').textContent=ROWS.length;
  document.getElementById('st-tasks').textContent=tasks;
  document.getElementById('st-active').textContent=active;
- document.getElementById('st-mastery').textContent=mastery9;
+ document.getElementById('st-mastery').textContent=masteryAll;
 }
 function filtered(){
  const q=document.getElementById('search').value.trim().toLowerCase();
@@ -302,10 +331,10 @@ function renderTable(){
  let html='<table class="tbl"><thead><tr><th>Žák</th><th>Hra</th><th>LV</th><th>XP</th><th>Pokrok</th><th>Mistrovství</th><th>Poslední aktivita</th><th>Akce</th></tr></thead><tbody>';
  rows.forEach((r,i)=>{
   const g=gMeta(r.game), d=r.data||{}, p=pct(d);
-  const mc=masteryCount(d), isNine=r.game==='RPG_MAT_9';
-  const mastCell=isNine
-   ?'<span style="color:var(--gold);font-weight:700">'+mc+'</span><span style="color:var(--muted)">/21 🏅</span>'
-   :'<span style="color:var(--muted)">—</span>';
+  const mc=masteryCount(d), totalM=missionsFor(r.game).length||21;
+  const mastCell=mc>0
+   ?'<span style="color:var(--gold);font-weight:700">'+mc+'</span><span style="color:var(--muted)">/'+totalM+' 🏅</span>'
+   :'<span style="color:var(--muted)">0/'+totalM+'</span>';
   html+='<tr>'+
    '<td><div class="nm">'+esc(d.name||'—')+'</div><div class="em">'+esc(r.full_name||r.email||'')+'</div></td>'+
    '<td><span class="tag" style="background:'+g.accent+'">'+g.emoji+' '+g.gr+'</span></td>'+
@@ -368,10 +397,11 @@ async function revokeUnlock(i,mid){
 }
 
 /* ── mastery HTML ── */
-function buildMasteryHtml(d){
+function buildMasteryHtml(d,gameKey){
  const mc=masteryCount(d);
- const mastered=masteryList(d);
- const unmastered=MISSIONS_9.filter(m=>!(d.mastery&&d.mastery[m.id]&&d.mastery[m.id].mastered));
+ const total=missionsFor(gameKey).length||21;
+ const mastered=masteryList(d,gameKey);
+ const unmastered=missionsFor(gameKey).filter(m=>!(d.mastery&&d.mastery[m.id]&&d.mastery[m.id].mastered));
  let pills='';
  mastered.forEach(m=>{
   const score=(d.mastery[m.id]&&d.mastery[m.id].score)||0;
@@ -383,7 +413,7 @@ function buildMasteryHtml(d){
   pills+='<span style="display:inline-block;font-size:11px;padding:3px 8px;border-radius:20px;margin:2px;background:var(--panel2);color:var(--muted);border:1px solid var(--line)">'+esc(m.id)+''+bar+'</span>';
  });
  return '<h4>Mistrovství</h4>'+
-  '<div class="row"><span>Zvládnutých misí</span><b style="color:var(--gold)">'+mc+' / 21 🏅</b></div>'+
+  '<div class="row"><span>Zvládnutých misí</span><b style="color:var(--gold)">'+mc+' / '+total+' 🏅</b></div>'+
   (mc===0?'<div style="font-size:12px;color:var(--muted);margin:8px 0">Zatím žádná mise nezvládnuta.</div>':'<div style="margin:10px 0 4px;line-height:2">'+pills+'</div>');
 }
 
@@ -413,7 +443,7 @@ function openDetail(i){
   (r.game==='RPG_MAT_9'&&Array.isArray(d.teacherUnlocked)&&d.teacherUnlocked.length?'<div class="row"><span>Odemčeno učitelem</span><b style="color:var(--gold)">🔓 '+d.teacherUnlocked.join(', ')+'</b></div>':'')+
   '<div class="row"><span>Poslední aktivita</span><b>'+fmtDate(r.updated_at)+'</b></div>'+
   '<h4>Atributy</h4>'+attrHtml+
-  (r.game==='RPG_MAT_9'?buildMasteryHtml(d):'')+
+  (MISSIONS_BY_GAME[r.game]?buildMasteryHtml(d,r.game):'')+
   buildUnlockHtml(r)+
   '<h4>Náhled</h4>'+
   '<div class="actrow"><a class="mini" style="text-decoration:none" target="_blank" href="'+g.file+'?su='+encodeURIComponent(r.user_id)+'">👁 Otevřít postavu žáka</a>'+
@@ -460,7 +490,7 @@ function exportCSV(){
  const lines=[head.join(',')];
  rows.forEach(r=>{const g=gMeta(r.game),d=r.data||{};
   const cell=v=>'"'+String(v==null?'':v).replace(/"/g,'""')+'"';
-  const mc=r.game==='RPG_MAT_9'?masteryCount(d):'';
+  const mc=MISSIONS_BY_GAME[r.game]?masteryCount(d):'';
   lines.push([cell(r.email),cell(r.full_name),cell(d.name),cell(g.nm),cell(g.gr),
    d.level||1,d.xp||0,doneCount(d),TOTAL_TASKS,pct(d),mc,cell(fmtDate(r.updated_at))].join(','));
  });
