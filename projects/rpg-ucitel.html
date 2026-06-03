@@ -112,6 +112,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--px);min-height:100
  <div id="console" class="hidden">
   <div class="tabs">
    <button class="tab on" data-tab="overview">PŘEHLED ŽÁKŮ</button>
+   <button class="tab" data-tab="classes">TŘÍDY</button>
    <button class="tab" data-tab="preview">NÁHLED HER</button>
    <button class="tab hidden" id="tab-teachers" data-tab="teachers">SPRÁVA UČITELŮ</button>
   </div>
@@ -130,6 +131,9 @@ body{background:var(--bg);color:var(--text);font-family:var(--px);min-height:100
     <select id="fgame" onchange="renderTable()">
      <option value="">Všechny hry</option>
     </select>
+    <select id="fclass" onchange="renderTable()">
+     <option value="">Všechny třídy</option>
+    </select>
     <button class="mini" onclick="exportCSV()">⬇ Export CSV</button>
     <button class="mini" onclick="loadData()">↻ Obnovit</button>
    </div>
@@ -144,6 +148,18 @@ body{background:var(--bg);color:var(--text);font-family:var(--px);min-height:100
     <button class="mini" onclick="clearSel()">✕ Zrušit výběr</button>
    </div>
    <div id="tbl-wrap"><div class="empty">Načítám data…</div></div>
+  </div>
+
+  <!-- TŘÍDY -->
+  <div id="t-classes" class="hidden">
+   <p style="color:var(--muted);margin-bottom:14px;line-height:1.6">
+    Rozděl žáky do <b style="color:var(--gold)">tříd</b> (klidně napříč ročníky) a v přehledu pak filtruj
+    celou třídu najednou — odměny, odemykání i export pak řešíš hromadně. Žáka přiřadíš ručně ze seznamu.</p>
+   <div class="controls">
+    <input id="new-class" placeholder="název třídy, např. 9.A" style="flex:1">
+    <button class="mini gold" onclick="createClassUI()">+ Založit třídu</button>
+   </div>
+   <div id="classes-wrap"><div class="empty">Načítám…</div></div>
   </div>
 
   <!-- NÁHLED HER -->
@@ -229,6 +245,25 @@ function missionsFor(gameKey){return MISSIONS_BY_GAME[gameKey]||[];}
 const ATTR=[['calc','🔢 Výpočty'],['geo','📐 Geometrie'],['anal','🧠 Analýza'],['craft','⚡ Instinkt']];
 const gMeta=k=>GAMES.find(g=>g.key===k)||{emoji:'❓',nm:k,gr:'',accent:'#888'};
 let ROWS=[];   // všechny postavy
+let CLASSES=[];       // [{id,name,…}]
+let MEMBERSHIPS=[];   // [{class_id,user_id}]
+// user_id → Set(class_id)
+function classesOfUser(uid){const s=new Set();MEMBERSHIPS.forEach(m=>{if(m.user_id===uid)s.add(m.class_id);});return s;}
+// class_id → Set(user_id)
+function membersOfClass(cid){const s=new Set();MEMBERSHIPS.forEach(m=>{if(m.class_id===cid)s.add(m.user_id);});return s;}
+// distinct žáci (osoby) napříč hrami: [{user_id,name,email,games:[gr…]}]
+function studentsDistinct(){
+ const map=new Map();
+ ROWS.forEach(r=>{
+  const cur=map.get(r.user_id)||{user_id:r.user_id,name:'',email:r.email||'',games:[]};
+  if(r.full_name&&!cur.name)cur.name=r.full_name;
+  if((r.data&&r.data.name)&&!cur.name)cur.name=r.data.name;
+  cur.games.push(gMeta(r.game).gr);
+  map.set(r.user_id,cur);
+ });
+ return [...map.values()].sort((a,b)=>(a.name||a.email).localeCompare(b.name||b.email,'cs'));
+}
+function classNameOf(cid){const c=CLASSES.find(x=>x.id===cid);return c?c.name:'?';}
 
 function esc(s){return String(s==null?'':s).replace(/[<>&"]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c]));}
 function doneCount(d){return d&&d.done?Object.keys(d.done).length:0;}
@@ -317,7 +352,20 @@ function openGodMode(file,sid){
 async function loadData(){
  document.getElementById('tbl-wrap').innerHTML='<div class="empty">Načítám data…</div>';
  ROWS=await RPGCloud.listAllSaves();
+ await loadClasses();
  renderStats();renderTable();
+}
+async function loadClasses(){
+ CLASSES=await RPGCloud.listClasses();
+ MEMBERSHIPS=await RPGCloud.listMemberships();
+ fillClassFilter();
+}
+function fillClassFilter(){
+ const sel=document.getElementById('fclass');if(!sel)return;
+ const cur=sel.value;
+ sel.innerHTML='<option value="">Všechny třídy</option>'+
+  CLASSES.map(c=>'<option value="'+c.id+'">🏫 '+esc(c.name)+'</option>').join('');
+ sel.value=cur;
 }
 function renderStats(){
  const students=new Set(ROWS.map(r=>r.user_id)).size;
@@ -333,8 +381,11 @@ function renderStats(){
 function filtered(){
  const q=document.getElementById('search').value.trim().toLowerCase();
  const fg=document.getElementById('fgame').value;
+ const fc=document.getElementById('fclass')?document.getElementById('fclass').value:'';
+ const members=fc?membersOfClass(fc):null;
  return ROWS.filter(r=>{
   if(fg&&r.game!==fg)return false;
+  if(members&&!members.has(r.user_id))return false;
   if(q){const hay=((r.full_name||'')+' '+(r.email||'')+' '+((r.data&&r.data.name)||'')).toLowerCase();if(!hay.includes(q))return false;}
   return true;
  });
@@ -537,16 +588,47 @@ function openDetail(i){
   '<div class="row"><span>XP</span><b>'+(d.xp||0)+'</b></div>'+
   '<div class="row"><span>Splněno úkolů</span><b>'+doneCount(d)+' / '+TOTAL_TASKS+' ('+pct(d)+' %)</b></div>'+
   '<div class="row"><span>Artefakty</span><b>'+(inv.length?esc(inv.join(', ')):'—')+'</b></div>'+
-  (r.game==='RPG_MAT_9'&&Array.isArray(d.teacherUnlocked)&&d.teacherUnlocked.length?'<div class="row"><span>Odemčeno učitelem</span><b style="color:var(--gold)">🔓 '+d.teacherUnlocked.join(', ')+'</b></div>':'')+
+  (Array.isArray(d.teacherUnlocked)&&d.teacherUnlocked.length?'<div class="row"><span>Odemčeno učitelem</span><b style="color:var(--gold)">🔓 '+d.teacherUnlocked.join(', ')+'</b></div>':'')+
+  '<div class="row"><span>Třídy</span><b>'+([...classesOfUser(r.user_id)].map(cid=>'🏫 '+esc(classNameOf(cid))).join(', ')||'<span style="color:var(--muted)">— žádná —</span>')+'</b></div>'+
   '<div class="row"><span>Poslední aktivita</span><b>'+fmtDate(r.updated_at)+'</b></div>'+
   '<h4>Atributy</h4>'+attrHtml+
   (MISSIONS_BY_GAME[r.game]?buildMasteryHtml(d,r.game):'')+
   buildUnlockHtml(r)+
+  '<h4>📨 Poznámky <span style="font-size:11px;color:var(--muted);font-weight:400">(vidí je i žák ve hře)</span></h4>'+
+  '<div class="actrow"><input class="wide" id="note-body" placeholder="napiš vzkaz / pochvalu / poznámku…"><button class="mini gold" onclick="addNoteUI('+i+')">+ Přidat</button></div>'+
+  '<div id="notes-box"><div class="empty" style="padding:8px">Načítám…</div></div>'+
   '<h4>Náhled</h4>'+
   '<div class="actrow"><a class="mini" style="text-decoration:none" target="_blank" href="'+g.file+'?su='+encodeURIComponent(r.user_id)+'">👁 Otevřít postavu žáka</a>'+
     '<a class="mini" style="text-decoration:none" target="_blank" href="'+g.file+'?preview=1">🎬 Hra nanečisto</a></div>'+
   admHtml;
  document.getElementById('ovl').classList.add('show');
+ loadNotes(r.user_id);
+}
+async function loadNotes(uid){
+ const box=document.getElementById('notes-box');if(!box)return;
+ const notes=await RPGCloud.listNotesFor(uid);
+ if(!notes.length){box.innerHTML='<div class="empty" style="padding:8px">— zatím žádné poznámky —</div>';return;}
+ box.innerHTML=notes.map(n=>
+  '<div style="background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:8px 10px;margin:6px 0">'+
+   '<div style="font-size:13px;color:var(--text);line-height:1.5">'+esc(n.body)+'</div>'+
+   '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px">'+
+    '<span style="font-size:11px;color:var(--muted)">'+esc(n.author_name||n.author_email||'')+' · '+fmtDate(n.created_at)+'</span>'+
+    '<button class="mini red" onclick="delNoteUI(\''+n.id+'\',\''+uid+'\')">smazat</button>'+
+   '</div>'+
+  '</div>').join('');
+}
+async function addNoteUI(i){
+ const r=window.__filtered[i];if(!r)return;
+ const body=document.getElementById('note-body').value.trim();
+ if(!body){toast('Napiš text poznámky.',1);return;}
+ const res=await RPGCloud.addNote(r.user_id,body);
+ if(res.ok){document.getElementById('note-body').value='';toast('Poznámka přidána');loadNotes(r.user_id);}
+ else toast('Chyba: '+res.error,1);
+}
+async function delNoteUI(noteId,uid){
+ const res=await RPGCloud.deleteNote(noteId);
+ if(res.ok){toast('Poznámka smazána');loadNotes(uid);}
+ else toast('Chyba: '+res.error,1);
 }
 function closeModal(){document.getElementById('ovl').classList.remove('show');}
 document.getElementById('ovl').addEventListener('click',e=>{if(e.target.id==='ovl')closeModal();});
@@ -624,14 +706,83 @@ async function delTeacher(email){
  else toast('Chyba: '+res.error,1);
 }
 
+/* ── třídy ── */
+async function createClassUI(){
+ const name=document.getElementById('new-class').value.trim();
+ const res=await RPGCloud.createClass(name);
+ if(res.ok){toast('Třída založena');document.getElementById('new-class').value='';await loadClasses();renderClasses();}
+ else toast('Chyba: '+res.error,1);
+}
+async function renameClassUI(id){
+ const c=CLASSES.find(x=>x.id===id);
+ const name=prompt('Nový název třídy:',c?c.name:'');
+ if(name==null)return;
+ const res=await RPGCloud.renameClass(id,name);
+ if(res.ok){toast('Přejmenováno');await loadClasses();renderClasses();}
+ else toast('Chyba: '+res.error,1);
+}
+async function deleteClassUI(id){
+ const c=CLASSES.find(x=>x.id===id);
+ if(!confirm('Smazat třídu „'+(c?c.name:'')+'"? Žáci zůstanou, jen se zruší zařazení.'))return;
+ const res=await RPGCloud.deleteClass(id);
+ if(res.ok){toast('Třída smazána');await loadClasses();renderClasses();renderTable();}
+ else toast('Chyba: '+res.error,1);
+}
+let OPEN_CLASS=null; // id rozbalené třídy (správa žáků)
+function toggleRoster(id){OPEN_CLASS=OPEN_CLASS===id?null:id;renderClasses();}
+async function toggleMember(classId,uid,on){
+ const res=on?await RPGCloud.addToClass(classId,uid):await RPGCloud.removeFromClass(classId,uid);
+ if(res.ok){await loadClasses();renderClasses();renderTable();}
+ else toast('Chyba: '+res.error,1);
+}
+function renderClasses(){
+ const w=document.getElementById('classes-wrap');
+ if(!CLASSES.length){w.innerHTML='<div class="empty">— zatím žádné třídy. Založ první výše. —</div>';return;}
+ const students=studentsDistinct();
+ let html='';
+ CLASSES.forEach(c=>{
+  const mem=membersOfClass(c.id);
+  const open=OPEN_CLASS===c.id;
+  html+='<div style="background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:12px 16px;margin-bottom:10px">'+
+   '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">'+
+    '<span style="font-size:20px">🏫</span>'+
+    '<b style="color:#fff;font-size:15px">'+esc(c.name)+'</b>'+
+    '<span class="tag" style="background:var(--accent)">'+mem.size+' žáků</span>'+
+    '<div style="margin-left:auto;display:flex;gap:6px">'+
+     '<button class="mini gold" onclick="toggleRoster(\''+c.id+'\')">'+(open?'▲ hotovo':'👥 spravovat žáky')+'</button>'+
+     '<button class="mini" onclick="renameClassUI(\''+c.id+'\')">✎</button>'+
+     '<button class="mini red" onclick="deleteClassUI(\''+c.id+'\')">🗑</button>'+
+    '</div>'+
+   '</div>';
+  if(open){
+   if(!students.length){html+='<div class="empty" style="margin-top:10px">— žádní žáci zatím nehráli —</div>';}
+   else{
+    html+='<div style="margin-top:12px;border-top:1px solid var(--line);padding-top:10px;display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:6px">';
+    students.forEach(s=>{
+     const inC=mem.has(s.user_id);
+     html+='<label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;padding:4px 6px;border-radius:4px;background:'+(inC?'rgba(244,208,63,.12)':'transparent')+'">'+
+      '<input type="checkbox"'+(inC?' checked':'')+' onclick="toggleMember(\''+c.id+'\',\''+s.user_id+'\',this.checked)">'+
+      '<span><b style="color:#fff">'+esc(s.name||'—')+'</b> <span style="color:var(--muted);font-size:11px">'+esc(s.email||'')+'</span></span>'+
+     '</label>';
+    });
+    html+='</div>';
+   }
+  }
+  html+='</div>';
+ });
+ w.innerHTML=html;
+}
+
 /* ── taby ── */
 document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));
  t.classList.add('on');
  const tab=t.dataset.tab;
  document.getElementById('t-overview').classList.toggle('hidden',tab!=='overview');
+ document.getElementById('t-classes').classList.toggle('hidden',tab!=='classes');
  document.getElementById('t-preview').classList.toggle('hidden',tab!=='preview');
  document.getElementById('t-teachers').classList.toggle('hidden',tab!=='teachers');
+ if(tab==='classes')renderClasses();
  if(tab==='teachers')loadTeachers();
 });
 </script>
