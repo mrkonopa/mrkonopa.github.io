@@ -186,6 +186,121 @@ window.RPGCloud = (function () {
     } catch (e) { return { ok: false, error: e.message }; }
   }
 
+  // ── Fáze 3: třídy ──────────────────────────────────────────────────────
+  async function listClasses() {
+    if (!client || !isStaff()) return [];
+    try {
+      const { data, error } = await client.from('classes')
+        .select('id,name,created_by,created_at').order('name', { ascending: true });
+      if (error) throw error;
+      return data || [];
+    } catch (e) { console.warn('[RPGCloud] listClasses selhal:', e); return []; }
+  }
+  async function createClass(name) {
+    if (!client || !isStaff()) return { ok: false, error: 'Nemáš oprávnění.' };
+    name = String(name || '').trim();
+    if (!name) return { ok: false, error: 'Zadej název třídy.' };
+    try {
+      const { data, error } = await client.from('classes')
+        .insert({ name, created_by: user.email || '' }).select('id').single();
+      if (error) throw error;
+      return { ok: true, id: data.id };
+    } catch (e) { return { ok: false, error: e.message }; }
+  }
+  async function renameClass(id, name) {
+    if (!client || !isStaff()) return { ok: false, error: 'Nemáš oprávnění.' };
+    name = String(name || '').trim();
+    if (!name) return { ok: false, error: 'Zadej název třídy.' };
+    try {
+      const { error } = await client.from('classes').update({ name }).eq('id', id);
+      if (error) throw error;
+      return { ok: true };
+    } catch (e) { return { ok: false, error: e.message }; }
+  }
+  async function deleteClass(id) {
+    if (!client || !isStaff()) return { ok: false, error: 'Nemáš oprávnění.' };
+    try {
+      const { error } = await client.from('classes').delete().eq('id', id);
+      if (error) throw error;
+      return { ok: true };
+    } catch (e) { return { ok: false, error: e.message }; }
+  }
+
+  // všechna členství (sbor) — konzole si je seskupí podle class_id
+  async function listMemberships() {
+    if (!client || !isStaff()) return [];
+    try {
+      const { data, error } = await client.from('class_members')
+        .select('class_id,user_id,added_at');
+      if (error) throw error;
+      return data || [];
+    } catch (e) { console.warn('[RPGCloud] listMemberships selhal:', e); return []; }
+  }
+  async function addToClass(classId, userId) {
+    if (!client || !isStaff()) return { ok: false, error: 'Nemáš oprávnění.' };
+    try {
+      const { error } = await client.from('class_members')
+        .upsert({ class_id: classId, user_id: userId, added_by: user.email || '' },
+                { onConflict: 'class_id,user_id' });
+      if (error) throw error;
+      return { ok: true };
+    } catch (e) { return { ok: false, error: e.message }; }
+  }
+  async function removeFromClass(classId, userId) {
+    if (!client || !isStaff()) return { ok: false, error: 'Nemáš oprávnění.' };
+    try {
+      const { error } = await client.from('class_members')
+        .delete().eq('class_id', classId).eq('user_id', userId);
+      if (error) throw error;
+      return { ok: true };
+    } catch (e) { return { ok: false, error: e.message }; }
+  }
+
+  // ── Fáze 3: poznámky k žákům ───────────────────────────────────────────
+  async function listNotesFor(studentId) {
+    if (!client || !isStaff()) return [];
+    try {
+      const { data, error } = await client.from('notes')
+        .select('id,student_id,author_email,author_name,body,created_at')
+        .eq('student_id', studentId).order('created_at', { ascending: false });
+      if (error) throw error;
+      return data || [];
+    } catch (e) { console.warn('[RPGCloud] listNotesFor selhal:', e); return []; }
+  }
+  async function addNote(studentId, body) {
+    if (!client || !isStaff()) return { ok: false, error: 'Nemáš oprávnění.' };
+    body = String(body || '').trim();
+    if (!body) return { ok: false, error: 'Napiš text poznámky.' };
+    try {
+      const { error } = await client.from('notes').insert({
+        student_id: studentId, body,
+        author_email: user.email || '',
+        author_name: (user.user_metadata && user.user_metadata.full_name) || user.email || ''
+      });
+      if (error) throw error;
+      return { ok: true };
+    } catch (e) { return { ok: false, error: e.message }; }
+  }
+  async function deleteNote(noteId) {
+    if (!client || !isStaff()) return { ok: false, error: 'Nemáš oprávnění.' };
+    try {
+      const { error } = await client.from('notes').delete().eq('id', noteId);
+      if (error) throw error;
+      return { ok: true };
+    } catch (e) { return { ok: false, error: e.message }; }
+  }
+  // poznámky pro přihlášeného žáka (in-game „vzkazy") — RLS pustí jen vlastní
+  async function pullMyNotes() {
+    if (!client || !user) return [];
+    try {
+      const { data, error } = await client.from('notes')
+        .select('id,author_name,body,created_at')
+        .eq('student_id', user.id).order('created_at', { ascending: false });
+      if (error) throw error;
+      return data || [];
+    } catch (e) { console.warn('[RPGCloud] pullMyNotes selhal:', e); return []; }
+  }
+
   // stránku smí vidět jen učitel/superadmin — jinak přesměruj na hub
   async function requireStaff(redirect) {
     await init();
@@ -255,6 +370,42 @@ window.RPGCloud = (function () {
     document.body.style.paddingTop = '38px';
   }
 
+  /* plovoucí widget „Vzkazy" — poznámky učitele pro přihlášeného žáka.
+     Funguje ve všech hrách bez per-game úprav (volá se z attachGame). */
+  function esc(s){return String(s==null?'':s).replace(/[<>&"]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c]));}
+  async function refreshNotesWidget() {
+    if (previewActive || !user) return;
+    let notes = [];
+    try { notes = await pullMyNotes(); } catch (e) { return; }
+    let btn = document.getElementById('rpg-notes-btn');
+    if (!notes.length) { if (btn) btn.remove(); const p=document.getElementById('rpg-notes-panel'); if(p)p.remove(); return; }
+    if (!btn) {
+      btn = document.createElement('button');
+      btn.id = 'rpg-notes-btn';
+      btn.style.cssText = 'position:fixed;right:14px;bottom:14px;z-index:9998;background:#19e6e6;color:#06101e;border:none;border-radius:22px;padding:10px 16px;font-family:inherit;font-weight:700;font-size:14px;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.4)';
+      btn.onclick = () => {
+        const p = document.getElementById('rpg-notes-panel');
+        if (p) p.style.display = (p.style.display === 'none' ? 'block' : 'none');
+      };
+      document.body.appendChild(btn);
+    }
+    btn.textContent = '📨 Vzkazy (' + notes.length + ')';
+    let panel = document.getElementById('rpg-notes-panel');
+    if (!panel) {
+      panel = document.createElement('div');
+      panel.id = 'rpg-notes-panel';
+      panel.style.cssText = 'position:fixed;right:14px;bottom:62px;z-index:9998;width:min(340px,90vw);max-height:60vh;overflow:auto;background:#161b2e;color:#e8eaf6;border:1px solid #2b3350;border-radius:12px;padding:12px 14px;box-shadow:0 8px 28px rgba(0,0,0,.5);display:none;font-family:inherit';
+      document.body.appendChild(panel);
+    }
+    panel.innerHTML = '<div style="font-weight:700;color:#19e6e6;margin-bottom:8px;font-size:14px">📨 Vzkazy od učitele</div>' +
+      notes.map(n =>
+        '<div style="background:#1f2740;border-radius:8px;padding:8px 10px;margin:6px 0">' +
+        '<div style="font-size:14px;line-height:1.5">' + esc(n.body) + '</div>' +
+        '<div style="font-size:11px;color:#8896a6;margin-top:5px">' + esc(n.author_name || 'učitel') + ' · ' +
+        new Date(n.created_at).toLocaleDateString('cs-CZ') + '</div></div>'
+      ).join('');
+  }
+
   /* napojení pro jednotlivou hru: lišta + stažení postavy po přihlášení.
      Učitelský náhled přes URL: ?preview=1 (hraní nanečisto) nebo
      ?su=<user_id>&game=<KEY> (read-only pohled na postavu žáka). */
@@ -293,6 +444,7 @@ window.RPGCloud = (function () {
       onChange(async (u) => {
         paint();
         if (u) {
+          refreshNotesWidget();
           const cloud = await pull(saveKey);
           let local = null;
           try { local = JSON.parse(localStorage.getItem(saveKey)); } catch {}
@@ -342,5 +494,9 @@ window.RPGCloud = (function () {
            // Fáze 2 — role a učitelská konzole
            getRole, isStaff, isAdmin, fetchRole, requireStaff,
            listAllSaves, pullSaveFor, updateSaveFor, deleteSaveFor,
-           listRoles, upsertRole, deleteRole };
+           listRoles, upsertRole, deleteRole,
+           // Fáze 3 — třídy a poznámky
+           listClasses, createClass, renameClass, deleteClass,
+           listMemberships, addToClass, removeFromClass,
+           listNotesFor, addNote, deleteNote, pullMyNotes };
 })();
