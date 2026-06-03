@@ -23,7 +23,7 @@ const GRADES = [6,7,8,9];
 function startServer(){
   const mime={html:'text/html',js:'application/javascript',css:'text/css',svg:'image/svg+xml',json:'application/json'};
   const srv=http.createServer((req,res)=>{let p=req.url.split('?')[0];if(p==='/')p='/index.html';
-   try{const b=fs.readFileSync(path.join(ROOT,p));res.writeHead(200,{'Content-Type':mime[p.split('.').pop()]||'application/octet-stream'});res.end(b);}catch{res.writeHead(404);res.end('nf');}});
+   try{const fp=path.normalize(path.join(ROOT,p));if(!fp.startsWith(ROOT+path.sep)){res.writeHead(403);res.end('forbidden');return;}const b=fs.readFileSync(fp);res.writeHead(200,{'Content-Type':mime[p.split('.').pop()]||'application/octet-stream'});res.end(b);}catch{res.writeHead(404);res.end('nf');}});
   return new Promise(r=>srv.listen(PORT,()=>r(srv)));
 }
 let pass=0,fail=0;
