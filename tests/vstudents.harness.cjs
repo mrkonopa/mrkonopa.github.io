@@ -15,8 +15,8 @@ function serve() {
     const srv = http.createServer((req, rep) => {
       let u = decodeURIComponent(req.url.split('?')[0]);
       if (u.endsWith('/')) u += 'index.html';
-      const fp = path.join(ROOT, u);
-      if (!fp.startsWith(ROOT) || !fs.existsSync(fp) || fs.statSync(fp).isDirectory()) { rep.writeHead(404); return rep.end('nf'); }
+      const fp = path.normalize(path.join(ROOT, u));
+      if (!fp.startsWith(ROOT + path.sep) || !fs.existsSync(fp) || fs.statSync(fp).isDirectory()) { rep.writeHead(404); return rep.end('nf'); }
       rep.writeHead(200, {'Content-Type': MIME[path.extname(fp)] || 'application/octet-stream'});
       fs.createReadStream(fp).pipe(rep);
     });
