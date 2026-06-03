@@ -779,11 +779,14 @@ function buildResult() {
   const defaultName = i18n('Tomu, kdo prošel <i>Cestu peněz</i>', 'To whoever completed <i>Money Journey</i>');
   const savedName = STATE.studentName || '';
   nameInp.value = savedName;
-  nameDisp.innerHTML = savedName ? savedName : defaultName;
+  // jméno od uživatele vykreslíme jako text (textContent → žádné XSS);
+  // výchozí popisek je důvěryhodné HTML (<i>…</i>), ten jako innerHTML.
+  const setNameDisp = v => { if (v) nameDisp.textContent = v; else nameDisp.innerHTML = defaultName; };
+  setNameDisp(savedName);
   nameInp.oninput = () => {
     const v = nameInp.value.trim();
     STATE.studentName = v;
-    nameDisp.innerHTML = v ? v : defaultName;
+    setNameDisp(v);
     saveState();
   };
   document.getElementById('result-restart').addEventListener('click', () => {

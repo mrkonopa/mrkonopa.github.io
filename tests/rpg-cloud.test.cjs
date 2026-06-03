@@ -37,7 +37,8 @@ function startServer() {
   const srv = http.createServer((req, res) => {
     let p = req.url.split('?')[0];
     if (p === '/') p = '/index.html';
-    const full = path.join(ROOT, p);
+    const full = path.normalize(path.join(ROOT, p));
+    if (!full.startsWith(ROOT + path.sep)) { res.writeHead(403); res.end('forbidden'); return; }
     try {
       const buf = fs.readFileSync(full);
       const ext = p.split('.').pop();
