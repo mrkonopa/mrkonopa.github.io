@@ -301,6 +301,44 @@ window.RPGCloud = (function () {
     } catch (e) { console.warn('[RPGCloud] pullMyNotes selhal:', e); return []; }
   }
 
+  // ── FÁZE 4: žebříček třídy ──
+  // vrací pořadí spolužáků v daném ročníku (jen jméno/level/xp; viz SQL leaderboard())
+  async function leaderboard(game) {
+    if (!client || !user) return [];
+    try {
+      const { data, error } = await client.rpc('leaderboard', { p_game: game });
+      if (error) throw error;
+      return data || [];
+    } catch (e) { console.warn('[RPGCloud] leaderboard selhal:', e); return []; }
+  }
+  // centrální vykreslení žebříčku do prvku v mapě (žádné per-game edity).
+  // Graceful: bez přihlášení / bez spolužáků / chyba ⇒ prvek se skryje.
+  async function renderLeaderboardInto(elId, game) {
+    const el = document.getElementById(elId);
+    if (!el) return;
+    if (!client || !user || previewActive) { el.style.display = 'none'; return; }
+    let rows = [];
+    try { rows = await leaderboard(game); } catch (e) { el.style.display = 'none'; return; }
+    // sám hráč bez spolužáků = jen 1 řádek (on sám) → nemá smysl ukazovat
+    if (!rows || rows.length < 2) { el.style.display = 'none'; return; }
+    const medal = i => (i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : (i + 1) + '.');
+    el.innerHTML =
+      '<div style="font-family:var(--px,monospace);font-weight:700;font-size:12px;color:var(--gold,#19e6e6);' +
+      'margin-bottom:8px;letter-spacing:1px">— 🏆 ŽEBŘÍČEK TŘÍDY —</div>' +
+      rows.map((r, i) =>
+        '<div style="display:flex;align-items:center;gap:8px;padding:5px 8px;border-radius:5px;' +
+        'font-family:var(--px,monospace);font-size:13px;margin:3px 0;' +
+        (r.is_me ? 'background:rgba(25,230,230,.14);border:1px solid var(--gold,#19e6e6)' : 'background:rgba(255,255,255,.03)') + '">' +
+        '<span style="min-width:26px;text-align:center">' + medal(i) + '</span>' +
+        '<span style="flex:1;color:' + (r.is_me ? 'var(--gold,#19e6e6)' : 'var(--text,#e8eaf6)') + ';font-weight:700;' +
+        'overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + esc(r.display_name) + (r.is_me ? ' (ty)' : '') + '</span>' +
+        '<span style="color:var(--muted,#8895b5);font-size:11px">LV ' + (r.lvl || 1) + '</span>' +
+        '<span style="color:var(--blue,#5dc8f0);min-width:62px;text-align:right">' + (r.xp || 0) + ' XP</span>' +
+        '</div>'
+      ).join('');
+    el.style.display = 'block';
+  }
+
   // stránku smí vidět jen učitel/superadmin — jinak přesměruj na hub
   async function requireStaff(redirect) {
     await init();
@@ -445,6 +483,8 @@ window.RPGCloud = (function () {
         paint();
         if (u) {
           refreshNotesWidget();
+          // žebříček na mapě (pokud hra má prvek #map-leaderboard a renderMap)
+          if (typeof window.renderMap === 'function') { try { window.renderMap(); } catch (e) {} }
           const cloud = await pull(saveKey);
           let local = null;
           try { local = JSON.parse(localStorage.getItem(saveKey)); } catch {}
@@ -498,5 +538,7 @@ window.RPGCloud = (function () {
            // Fáze 3 — třídy a poznámky
            listClasses, createClass, renameClass, deleteClass,
            listMemberships, addToClass, removeFromClass,
-           listNotesFor, addNote, deleteNote, pullMyNotes };
+           listNotesFor, addNote, deleteNote, pullMyNotes,
+           // Fáze 4 — žebříček třídy
+           leaderboard, renderLeaderboardInto };
 })();
