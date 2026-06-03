@@ -1314,20 +1314,20 @@ let curArea=null;
 function openArea(aid){
  const ar=AREAS.find(a=>a.id===aid);
  curArea=ar;
- document.getElementById('area-title-sm').textContent=ar.name.replace('\n',' ');
+ document.getElementById('area-title-sm').textContent=ar.name.replace(/\n/g,' ');
  const hd=document.getElementById('area-head');
  const artHave=S.inv.includes(ar.art.id);
  hd.innerHTML=`
  <div style="display:flex;gap:14px;align-items:center">
  <div style="font-size:42px">${ar.icon}</div>
  <div>
- <div style="font-family:var(--px);font-weight:700;font-size:17px;color:var(--gold);letter-spacing:.5px">${ar.name.replace('\n',' ')}</div>
+ <div style="font-family:var(--px);font-weight:700;font-size:17px;color:var(--gold);letter-spacing:.5px">${ar.name.replace(/\n/g,' ')}</div>
  <div style="font-family:var(--vt);font-size:21px;color:var(--muted);margin-top:4px;line-height:1.3">${ar.desc}</div>
  </div>
  </div>
  <div style="margin-top:12px;display:flex;align-items:center;gap:10px;padding-top:10px;border-top:2px solid var(--panel2)">
  <div style="font-size:26px">${ar.art.ic}</div>
- <div style="font-family:var(--px);font-weight:400;font-size:12px;color:var(--muted);line-height:1.3">Artefakt oblasti:<br><span style="color:var(--gold);font-weight:700">${ar.art.nm.replace('\n',' ')}</span></div>
+ <div style="font-family:var(--px);font-weight:400;font-size:12px;color:var(--muted);line-height:1.3">Artefakt oblasti:<br><span style="color:var(--gold);font-weight:700">${ar.art.nm.replace(/\n/g,' ')}</span></div>
  ${artHave?'<div style="margin-left:auto;font-family:var(--px);font-weight:700;font-size:13px;color:var(--gold)">✓ ZÍSKÁNO</div>':''}
  </div>`;
  const ml=document.getElementById('mission-list');
@@ -1909,7 +1909,7 @@ function checkMissionComplete(){
  S.inv.push(ar.art.id);
  Object.entries(ar.attrGain).forEach(([k,v])=>{if(S.attrs[k]!==undefined)S.attrs[k]+=v;});
  saveS();
- setTimeout(()=>showModal(ar.art.ic,'OBLAST SPLNĚNA!',`Získal jsi artefakt:\n${ar.art.nm.replace('\n',' ')}!\n\n+${Object.entries(ar.attrGain).map(([k,v])=>v+' '+ATTR_META[k].ic).join(' ')}`),1700);
+ setTimeout(()=>showModal(ar.art.ic,'OBLAST SPLNĚNA!',`Získal jsi artefakt:\n${ar.art.nm.replace(/\n/g,' ')}!\n\n+${Object.entries(ar.attrGain).map(([k,v])=>v+' '+ATTR_META[k].ic).join(' ')}`),1700);
  }
  }
 }
@@ -2000,7 +2000,7 @@ function renderTrainPicker(){
   const sec=document.createElement('div');
   sec.className='panel';
   sec.style.marginTop='12px';
-  let html=`<div style="font-family:var(--px);font-weight:700;font-size:14px;color:var(--gold);margin-bottom:8px">${ar.icon} ${ar.name.replace('\n',' ')}</div>`;
+  let html=`<div style="font-family:var(--px);font-weight:700;font-size:14px;color:var(--gold);margin-bottom:8px">${ar.icon} ${ar.name.replace(/\n/g,' ')}</div>`;
   ar.missions.forEach(m=>{
    const ms=masteryOf(m.id);
    const pct=Math.min(100,Math.round(ms.score/MASTERY_GOAL*100));
