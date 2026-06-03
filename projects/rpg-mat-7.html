@@ -345,6 +345,25 @@ body::before{
 .inv-slot.have{border-color:var(--gold)}
 .inv-slot .ic{font-size:26px}
 .inv-slot .nm{font-family:var(--px);font-weight:400;font-size:10px;color:var(--muted);line-height:1.2;text-align:center;white-space:pre-line}
+.ach-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:10px}
+.ach-slot{background:var(--panel2);border:2px solid #2a2a2a;padding:10px 6px;text-align:center;min-height:96px;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:3px;opacity:.55}
+.ach-slot.have{border-color:var(--gold);opacity:1;box-shadow:0 0 10px #19e6e633}
+.ach-slot .ach-ic{font-size:24px;filter:grayscale(1)}
+.ach-slot.have .ach-ic{filter:none}
+.ach-slot .ach-nm{font-family:var(--px);font-weight:700;font-size:10px;color:var(--text);line-height:1.15}
+.ach-slot.have .ach-nm{color:var(--gold)}
+.ach-slot .ach-desc{font-family:var(--px);font-weight:400;font-size:9px;color:var(--muted);line-height:1.2}
+/* ── ODZNAK TOAST ── */
+.ach-toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,140%);z-index:130;display:flex;align-items:center;gap:12px;background:var(--panel);border:3px solid var(--gold);box-shadow:4px 4px 0 #7a5c00,0 0 18px #19e6e655;padding:11px 18px 11px 13px;transition:transform .34s cubic-bezier(.2,1.4,.4,1);max-width:90vw}
+.ach-toast.show{transform:translate(-50%,0)}
+.ach-toast-ic{font-size:34px;line-height:1;animation:ach-pop .5s ease}
+@keyframes ach-pop{0%{transform:scale(0) rotate(-30deg)}70%{transform:scale(1.3) rotate(10deg)}100%{transform:scale(1)}}
+.ach-toast-h{font-family:var(--px);font-weight:400;font-size:10px;color:var(--muted);letter-spacing:2px}
+.ach-toast-n{font-family:var(--px);font-weight:700;font-size:15px;color:var(--gold)}
+/* ── STREAK CHIP ── */
+.streak-chip{display:inline-flex;align-items:center;gap:5px;font-family:var(--px);font-weight:700;font-size:12px;color:#ffae3d;background:#1c1206;border:2px solid #ffae3d;padding:3px 9px;letter-spacing:.5px}
+.streak-chip .sf{animation:streak-flicker 1.4s ease-in-out infinite}
+@keyframes streak-flicker{0%,100%{transform:scale(1);filter:drop-shadow(0 0 2px #ffae3d)}50%{transform:scale(1.18);filter:drop-shadow(0 0 7px #ff7733)}}
 /* ── INTRO ── */
 .blink{animation:blink 1s steps(1) infinite}
 @keyframes blink{0%,49%{opacity:1}50%,100%{opacity:0}}
@@ -365,6 +384,7 @@ body::before{
 @media(max-width:480px){
  .map-grid{grid-template-columns:repeat(2,1fr)}
  .inv-grid{grid-template-columns:repeat(3,1fr)}
+ .ach-grid{grid-template-columns:repeat(2,1fr)}
  .bt-problem{font-size:18px}
  .mc-btn{font-size:16px;padding:16px 8px}
  .attr-nm{min-width:140px;font-size:11px}
@@ -420,8 +440,9 @@ body::before{
  <span>LV <span class="hl" id="map-lv">1</span> &nbsp; · &nbsp; XP <span class="hl" id="map-xp">0</span></span>
  <button class="btn sm" onclick="go('profile')">👤 PROFIL</button>
  </div>
- <div class="panel" style="padding:10px 14px;text-align:center">
+ <div class="panel" style="padding:10px 14px;display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap">
  <div style="font-family:var(--px);font-weight:400;font-size:13px;color:var(--muted);letter-spacing:1px">✦ &nbsp;TEMPLUM PERDITUM&nbsp; · &nbsp;ANNUS VII&nbsp; ✦</div>
+ <span class="streak-chip" id="map-streak" style="display:none"><span class="sf">🔥</span> <span id="map-streak-n">0</span> dní v řadě</span>
  </div>
  <div class="map-grid" id="map-grid"></div>
  <div class="panel" style="padding:10px 14px">
@@ -585,6 +606,13 @@ body::before{
  <div class="panel">
  <div style="font-family:var(--px);font-weight:700;font-size:12px;color:var(--muted);margin-bottom:10px;letter-spacing:1px">— INVENTÁŘ ARTEFAKTŮ —</div>
  <div class="inv-grid" id="pr-inv"></div>
+ </div>
+ <div class="panel">
+ <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+ <div style="font-family:var(--px);font-weight:700;font-size:12px;color:var(--muted);letter-spacing:1px">— ODZNAKY —</div>
+ <div style="font-family:var(--px);font-weight:700;font-size:12px;color:var(--gold)"><span id="pr-ach-n">0</span> / <span id="pr-ach-t">0</span></div>
+ </div>
+ <div class="ach-grid" id="pr-ach"></div>
  </div>
  <div class="panel">
  <div style="font-family:var(--px);font-weight:700;font-size:12px;color:var(--muted);margin-bottom:10px;letter-spacing:1px">— ZÁLOHA POSTUPU —</div>
@@ -1072,11 +1100,11 @@ const ATTR_META = {
 // STATE
 // ══════════════════════════════════════════
 const SAVE_KEY = 'RPG_MAT_7';
-let S = {name:'HRDINA',xp:0,level:1,attrs:{calc:0,geo:0,anal:0,craft:0},done:{},inv:[],mastery:{},xpClaimed:{},teacherUnlocked:[]};
+let S = {name:'HRDINA',xp:0,level:1,attrs:{calc:0,geo:0,anal:0,craft:0},done:{},inv:[],mastery:{},xpClaimed:{},teacherUnlocked:[],ach:{},stats:{crits:0,trainCorrect:0,bestCombo:0},streak:{count:0,last:''}};
 let GODMODE=false;
 
 function saveS(){localStorage.setItem(SAVE_KEY,JSON.stringify(S));if(window.RPGCloud&&RPGCloud.push)RPGCloud.push(SAVE_KEY,S);}
-function loadS(){const r=localStorage.getItem(SAVE_KEY);if(!r)return false;try{S=JSON.parse(r);}catch(e){return false;}if(!S||typeof S!=='object'){S={name:'HRDINA',xp:0,level:1,attrs:{calc:0,geo:0,anal:0,craft:0},done:{},inv:[],mastery:{},xpClaimed:{},teacherUnlocked:[]};return false;}if(typeof S.name!=='string')S.name='HRDINA';if(typeof S.xp!=='number'||!isFinite(S.xp))S.xp=0;if(typeof S.level!=='number'||!isFinite(S.level))S.level=1;if(!S.attrs||typeof S.attrs!=='object')S.attrs={calc:0,geo:0,anal:0,craft:0};if(!S.done||typeof S.done!=='object')S.done={};if(!Array.isArray(S.inv))S.inv=[];if(!S.mastery||typeof S.mastery!=='object')S.mastery={};if(!S.xpClaimed||typeof S.xpClaimed!=='object')S.xpClaimed={};if(!Array.isArray(S.teacherUnlocked))S.teacherUnlocked=[];return true;}
+function loadS(){const r=localStorage.getItem(SAVE_KEY);if(!r)return false;try{S=JSON.parse(r);}catch(e){return false;}if(!S||typeof S!=='object'){S={name:'HRDINA',xp:0,level:1,attrs:{calc:0,geo:0,anal:0,craft:0},done:{},inv:[],mastery:{},xpClaimed:{},teacherUnlocked:[]};return false;}if(typeof S.name!=='string')S.name='HRDINA';if(typeof S.xp!=='number'||!isFinite(S.xp))S.xp=0;if(typeof S.level!=='number'||!isFinite(S.level))S.level=1;if(!S.attrs||typeof S.attrs!=='object')S.attrs={calc:0,geo:0,anal:0,craft:0};if(!S.done||typeof S.done!=='object')S.done={};if(!Array.isArray(S.inv))S.inv=[];if(!S.mastery||typeof S.mastery!=='object')S.mastery={};if(!S.xpClaimed||typeof S.xpClaimed!=='object')S.xpClaimed={};if(!Array.isArray(S.teacherUnlocked))S.teacherUnlocked=[];if(!S.ach||typeof S.ach!=='object')S.ach={};if(!S.stats||typeof S.stats!=='object')S.stats={crits:0,trainCorrect:0,bestCombo:0};if(!S.streak||typeof S.streak!=='object')S.streak={count:0,last:''};return true;}
 function calcLevel(){S.level=Math.floor(S.xp/100)+1;}
 
 // ── JUICE: XP award + level-up + floaties + vignette ──
@@ -1089,6 +1117,8 @@ function awardXp(amount,isCrit){
  if(top){const r=top.getBoundingClientRect();
  floatText('+'+amount+' XP',r.left+r.width/2,r.top+r.height*0.32,isCrit?'#ff5577':'#5dff8f');}
  if(after>before){S.level=after;setTimeout(()=>levelUpBurst(after),650);}
+ if(isCrit){if(!S.stats)S.stats={};S.stats.crits=(S.stats.crits||0)+1;}
+ evalAch({crit:isCrit});
 }
 function floatText(txt,x,y,color){
  const el=document.createElement('div');
@@ -1138,6 +1168,72 @@ function hitVignette(){
  const v=document.getElementById('hit-vignette');
  v.classList.remove('go');void v.offsetWidth;v.classList.add('go');
 }
+// ══════════════════════════════════════════
+// ODZNAKY (ACHIEVEMENTS) + DENNÍ SÉRIE
+// ══════════════════════════════════════════
+const ACH=[
+ {id:'boot',   ic:'🩸', nm:'První průnik',     desc:'Vyřeš první úkol'},
+ {id:'crit',   ic:'⚡', nm:'Overclock',        desc:'10× kritický zásah'},
+ {id:'combo5', ic:'🔥', nm:'Řetězová reakce',  desc:'Combo 5 v jednom boji'},
+ {id:'flawless',ic:'🧠',nm:'Čistý kód',        desc:'Mise bez nápovědy'},
+ {id:'flash',  ic:'⏱️', nm:'Bleskový průnik',  desc:'Správně s 30+ s na čase'},
+ {id:'survivor',ic:'💀',nm:'Z posledních sil', desc:'Vyhraj boj s 1 životem'},
+ {id:'area1',  ic:'🔑', nm:'Insider',          desc:'Splň první oblast'},
+ {id:'half',   ic:'🌗', nm:'Půlka systému',    desc:'Splň 4 oblasti'},
+ {id:'root',   ic:'👁️', nm:'ROOT přístup',     desc:'Splň všech 7 oblastí'},
+ {id:'lv5',    ic:'📈', nm:'Level 5',          desc:'Dosáhni úrovně 5'},
+ {id:'lv10',   ic:'🚀', nm:'Level 10',         desc:'Dosáhni úrovně 10'},
+ {id:'master1',ic:'🏅', nm:'Mistr tématu',     desc:'1 mistrovství v tréninku'},
+ {id:'train50',ic:'🎯', nm:'Trenér',           desc:'50 správných v tréninku'},
+ {id:'streak3',ic:'📅', nm:'Návyk',            desc:'Hraj 3 dny v řadě'},
+ {id:'streak7',ic:'🗓️', nm:'Týden disciplíny', desc:'Hraj 7 dní v řadě'},
+];
+function unlockAch(id){
+ if(S.ach&&S.ach[id])return;
+ const a=ACH.find(x=>x.id===id);if(!a)return;
+ if(!S.ach)S.ach={};
+ S.ach[id]=new Date().toISOString().slice(0,10);
+ saveS();achToast(a);
+}
+function evalAch(ev){
+ ev=ev||{};
+ const doneAreas=AREAS.filter(isAreaDone).length;
+ const masteredCount=Object.values(S.mastery||{}).filter(m=>m&&m.mastered).length;
+ const st=S.stats||{};
+ if(Object.keys(S.done||{}).length>=1)unlockAch('boot');
+ if((st.crits||0)>=10)unlockAch('crit');
+ if(ev.combo>=5)unlockAch('combo5');
+ if(ev.flawlessMission)unlockAch('flawless');
+ if(ev.correct&&ev.timeLeft>=30)unlockAch('flash');
+ if(ev.wonAtOneHp)unlockAch('survivor');
+ if(doneAreas>=1)unlockAch('area1');
+ if(doneAreas>=4)unlockAch('half');
+ if(doneAreas>=7)unlockAch('root');
+ if(S.level>=5)unlockAch('lv5');
+ if(S.level>=10)unlockAch('lv10');
+ if(masteredCount>=1)unlockAch('master1');
+ if((st.trainCorrect||0)>=50)unlockAch('train50');
+ if((S.streak&&S.streak.count||0)>=3)unlockAch('streak3');
+ if((S.streak&&S.streak.count||0)>=7)unlockAch('streak7');
+}
+let _achQ=[],_achBusy=false;
+function achToast(a){_achQ.push(a);if(!_achBusy)_achNext();}
+function _achNext(){
+ if(!_achQ.length){_achBusy=false;return;}
+ _achBusy=true;const a=_achQ.shift();
+ const t=document.createElement('div');t.className='ach-toast';
+ t.innerHTML=`<div class="ach-toast-ic">${a.ic}</div><div><div class="ach-toast-h">ODZNAK ODEMČEN</div><div class="ach-toast-n">${a.nm}</div></div>`;
+ document.body.appendChild(t);void t.offsetWidth;t.classList.add('show');
+ setTimeout(()=>{t.classList.remove('show');setTimeout(()=>{t.remove();_achNext();},360);},2200);
+}
+function touchStreak(){
+ if(!S.streak)S.streak={count:0,last:''};
+ const today=new Date().toISOString().slice(0,10);
+ if(S.streak.last===today){evalAch({});return;}
+ const y=new Date(Date.now()-864e5).toISOString().slice(0,10);
+ S.streak.count=(S.streak.last===y)?(S.streak.count||0)+1:1;
+ S.streak.last=today;saveS();evalAch({});
+}
 
 // ══════════════════════════════════════════
 // SCREEN ROUTER
@@ -1157,9 +1253,9 @@ function go(name){
 function startGame(){
  const v=document.getElementById('ni').value.trim().toUpperCase().slice(0,14);
  S.name=v||'HRDINA';
- saveS();go('map');
+ saveS();touchStreak();go('map');
 }
-function continueGame(){if(loadS())go('map');}
+function continueGame(){if(loadS()){touchStreak();go('map');}}
 
 // ══════════════════════════════════════════
 // MAP
@@ -1189,6 +1285,8 @@ function renderMap(){
  document.getElementById('map-xpmax').textContent=S.level*100;
  const pct=Math.min(100,(S.xp%100));
  document.getElementById('map-xpbar').style.width=pct+'%';
+ const sc=(S.streak&&S.streak.count)||0,sch=document.getElementById('map-streak');
+ if(sch){if(sc>=2){sch.style.display='inline-flex';document.getElementById('map-streak-n').textContent=sc;}else sch.style.display='none';}
  const g=document.getElementById('map-grid');
  g.innerHTML='';
  // unikátní barevný nádech krajiny pro každou oblast
@@ -1322,7 +1420,7 @@ const ITEM_DEFS={
 function launchBattle(aid,mid){
  const ar=AREAS.find(a=>a.id===aid);
  const m=ar.missions.find(x=>x.id===mid);
- BT.aid=aid;BT.mid=mid;BT.combo=0;
+ BT.aid=aid;BT.mid=mid;BT.combo=0;BT.missionHinted=false;
  BT.hp=MAX_PLAYER_HP;BT.maxHp=MAX_PLAYER_HP;
  BT.phase=1;BT.items=[];BT.timerFrozen=false;
  if(BT.freezeTimeout){clearTimeout(BT.freezeTimeout);BT.freezeTimeout=null;}
@@ -1558,6 +1656,8 @@ function submitMC(opt,btn){
  damageMonster(xpGain,isCrit);
  updateCombo();
  tryDropItem();
+ if(!S.stats)S.stats={};if(BT.combo>(S.stats.bestCombo||0))S.stats.bestCombo=BT.combo;
+ evalAch({correct:true,combo:BT.combo,timeLeft:BT.timeLeft});
  checkMissionComplete();
  }else{
  btn.classList.add('wrong');
@@ -1754,6 +1854,8 @@ function submitAnswer(){
  damageMonster(xpGain,isCrit);
  updateCombo();
  tryDropItem();
+ if(!S.stats)S.stats={};if(BT.combo>(S.stats.bestCombo||0))S.stats.bestCombo=BT.combo;
+ evalAch({correct:true,combo:BT.combo,timeLeft:BT.timeLeft});
  checkMissionComplete();
  }else{
  BT.combo=0;
@@ -1769,6 +1871,7 @@ function showHint(){
  const t=BT.curTask;
  const maxHints=Math.min(2,t.hints.length); // only 2 levels
  if(BT.hl>=maxHints)return;
+ BT.missionHinted=true;
  const hb=document.getElementById('hint-box');
  const colors=['var(--green)','var(--gold)'];
  hb.style.borderColor=colors[BT.hl];
@@ -1798,6 +1901,7 @@ function checkMissionComplete(){
  if(allDn){
  // boss poražen — vítězná sekvence (synchro s defeat animací)
  setTimeout(victoryBurst,650);
+ evalAch({flawlessMission:!BT.missionHinted,wonAtOneHp:BT.hp===1});
  if(isAreaDone(ar)&&!S.inv.includes(ar.art.id)){
  S.inv.push(ar.art.id);
  Object.entries(ar.attrGain).forEach(([k,v])=>{if(S.attrs[k]!==undefined)S.attrs[k]+=v;});
@@ -1837,6 +1941,19 @@ function renderProfile(){
  :`<div class="ic" style="opacity:.15">❓</div><div class="nm" style="opacity:.25">???</div>`;
  inv.appendChild(s);
  });
+ const ag=document.getElementById('pr-ach');
+ if(ag){
+ ag.innerHTML='';let got=0;
+ ACH.forEach(a=>{
+ const have=!!(S.ach&&S.ach[a.id]);if(have)got++;
+ const s=document.createElement('div');
+ s.className='ach-slot'+(have?' have':'');
+ s.innerHTML=`<div class="ach-ic">${have?a.ic:'🔒'}</div><div class="ach-nm">${have?a.nm:'???'}</div><div class="ach-desc">${have?a.desc:'zatím zamčeno'}</div>`;
+ ag.appendChild(s);
+ });
+ document.getElementById('pr-ach-n').textContent=got;
+ document.getElementById('pr-ach-t').textContent=ACH.length;
+ }
 }
 
 function exportCode(){
@@ -1848,7 +1965,7 @@ function exportCode(){
 function importPrompt(){
  const c=prompt('Vlož zálohovací kód:');
  if(!c)return;
- try{S=JSON.parse(decodeURIComponent(escape(atob(c))));saveS();renderProfile();alert('Načteno!');}
+ try{S=JSON.parse(decodeURIComponent(escape(atob(c))));if(!S.mastery)S.mastery={};if(!S.teacherUnlocked)S.teacherUnlocked=[];if(!S.ach)S.ach={};if(!S.stats)S.stats={crits:0,trainCorrect:0,bestCombo:0};if(!S.streak)S.streak={count:0,last:''};saveS();renderProfile();alert('Načteno!');}
  catch(e){alert('Chybný kód.');}
 }
 
@@ -1976,7 +2093,9 @@ function trCorrect(){
  if(m.score>=MASTERY_GOAL)m.mastered=true;
  if(TR.task.skill&&S.attrs[TR.task.skill]!==undefined)S.attrs[TR.task.skill]+=1;
  S.xp+=3;
+ if(!S.stats)S.stats={};S.stats.trainCorrect=(S.stats.trainCorrect||0)+1;
  saveS();
+ calcLevel();evalAch({});
  const fb=document.getElementById('tr-fb');
  fb.className='feedback ok';
  fb.textContent=(!wasMastered&&m.mastered)?'🏅 MISTROVSTVÍ SPLNĚNO! +3 XP':'✓ SPRÁVNĚ! +3 XP';
