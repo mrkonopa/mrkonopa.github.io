@@ -379,6 +379,10 @@ body::before{
 .streak-chip{display:inline-flex;align-items:center;gap:5px;font-family:var(--px);font-weight:700;font-size:12px;color:#ffae3d;background:#1c1206;border:2px solid #ffae3d;padding:3px 9px;letter-spacing:.5px}
 .streak-chip .sf{animation:streak-flicker 1.4s ease-in-out infinite}
 @keyframes streak-flicker{0%,100%{transform:scale(1);filter:drop-shadow(0 0 2px #ffae3d)}50%{transform:scale(1.18);filter:drop-shadow(0 0 7px #ff7733)}}
+/* ── CERMAT CHIP ── */
+.cermat-chip{display:inline-flex;align-items:center;gap:5px;font-family:var(--px);font-weight:700;font-size:12px;padding:3px 9px;border:2px solid;letter-spacing:.5px}
+.cermat-chip.cc-far{color:#6dd0e8;background:#040d12;border-color:#3a8a9e}
+.cermat-chip.cc-soon{color:#ff6b6b;background:#1c0606;border-color:#ff4c4c}
 /* ── INTRO ── */
 .blink{animation:blink 1s steps(1) infinite}
 @keyframes blink{0%,49%{opacity:1}50%,100%{opacity:0}}
@@ -443,6 +447,7 @@ body::before{
  <div class="panel" style="padding:10px 14px;display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap">
  <div style="font-family:var(--px);font-weight:400;font-size:13px;color:var(--muted);letter-spacing:1px">&gt; &nbsp;SYS://NEXUS-9&nbsp; · &nbsp;ACCESS LVL_IX&nbsp; &lt;</div>
  <span class="streak-chip" id="map-streak" style="display:none"><span class="sf">🔥</span> <span id="map-streak-n">0</span> dní v řadě</span>
+ <span class="cermat-chip cc-far" id="map-cermat" style="display:none">📅 <span id="map-cermat-txt"></span></span>
  </div>
  <div class="map-grid" id="map-grid"></div>
  <div class="panel" style="padding:10px 14px">
@@ -1137,6 +1142,8 @@ const ATTR_META = {
 // STATE
 // ══════════════════════════════════════════
 const SAVE_KEY = 'RPG_MAT_9';
+// ── Datum přijímaček (1. kolo) — uprav dle aktuálního CERMAT harmonogramu ──
+const CERMAT_DATE = new Date('2027-04-13T08:00:00');
 let S = {name:'HRDINA',xp:0,level:1,attrs:{calc:0,geo:0,anal:0,craft:0},done:{},inv:[],mastery:{},xpClaimed:{},teacherUnlocked:[],ach:{},stats:{crits:0,trainCorrect:0,bestCombo:0},streak:{count:0,last:''},errs:{}};
 let GODMODE=false;
 
@@ -1275,6 +1282,22 @@ function touchStreak(){
  S.streak.last=today;saveS();evalAch({});
 }
 
+// CERMAT odpočet
+function updateCermatChip(){
+ const el=document.getElementById('map-cermat');
+ if(!el)return;
+ const diff=CERMAT_DATE.getTime()-Date.now();
+ if(diff<=0){el.style.display='none';return;}
+ const days=Math.floor(diff/864e5);
+ const hrs=Math.floor((diff%864e5)/36e5);
+ const mins=Math.floor((diff%36e5)/6e4);
+ const pad=n=>String(n).padStart(2,'0');
+ const txt=days>0?`Přijímačky za ${days} dní ${hrs}:${pad(mins)}`:`Přijímačky za ${hrs}:${pad(mins)}`;
+ document.getElementById('map-cermat-txt').textContent=txt;
+ el.className='cermat-chip '+(days<14?'cc-soon':'cc-far');
+ el.style.display='inline-flex';
+}
+
 // ══════════════════════════════════════════
 // SCREEN ROUTER
 // ══════════════════════════════════════════
@@ -1328,6 +1351,7 @@ function renderMap(){
  const sc=(S.streak&&S.streak.count)||0,sch=document.getElementById('map-streak');
  if(sch){if(sc>=2){sch.style.display='inline-flex';document.getElementById('map-streak-n').textContent=sc;}else sch.style.display='none';}
  if(window.RPGCloud&&RPGCloud.renderLeaderboardInto)RPGCloud.renderLeaderboardInto('map-leaderboard',SAVE_KEY);
+ updateCermatChip();
  const g=document.getElementById('map-grid');
  g.innerHTML='';
  // unikátní barevný nádech krajiny pro každou oblast
@@ -2217,6 +2241,7 @@ window.addEventListener('load',()=>{
  if(localStorage.getItem(SAVE_KEY)){
  document.getElementById('continue-panel').style.display='block';
  }
+ setInterval(updateCermatChip,60000);
  // God mode: ?preview=1&mid=X-X → vstup přímo do mise bez odemykání
  const _p=new URLSearchParams(location.search);
  if(_p.get('preview')==='1'&&_p.get('mid')){
