@@ -146,6 +146,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--px);min-height:100
     <span style="color:var(--muted);font-size:12px">⭐</span>
     <input type="number" id="bulk-xp" placeholder="±XP" value="50">
     <button class="mini gold" onclick="bulkAwardXp()">Přidat XP vybraným</button>
+    <button class="mini red" onclick="bulkDelete()">🗑 Smazat vybrané</button>
     <button class="mini" onclick="clearSel()">✕ Zrušit výběr</button>
    </div>
    <div id="tbl-wrap"><div class="empty">Načítám data…</div></div>
@@ -157,9 +158,20 @@ body{background:var(--bg);color:var(--text);font-family:var(--px);min-height:100
     Rozděl žáky do <b style="color:var(--gold)">tříd</b> (klidně napříč ročníky) a v přehledu pak filtruj
     celou třídu najednou — odměny, odemykání i export pak řešíš hromadně. Žáka přiřadíš ručně ze seznamu.</p>
    <div class="controls">
-    <input id="new-class" placeholder="název třídy, např. 9.A" style="flex:1">
+    <input id="new-section" placeholder="označení, např. B" style="max-width:140px">
+    <select id="new-grade">
+     <option value="">ročník teď…</option>
+     <option value="6">6. ročník</option>
+     <option value="7">7. ročník</option>
+     <option value="8">8. ročník</option>
+     <option value="9">9. ročník</option>
+    </select>
+    <input id="new-class" placeholder="nebo vlastní název (Doučování…)" style="flex:1">
     <button class="mini gold" onclick="createClassUI()">+ Založit třídu</button>
    </div>
+   <p style="color:var(--muted);font-size:12px;margin:-6px 0 12px;line-height:1.5">
+    💡 Zadej <b>označení</b> + <b>ročník teď</b> a třída se každé <b>1. září</b> sama posune
+    (6.B → 7.B → …). Nebo nech ročník prázdný a použij jen vlastní název.</p>
    <div id="classes-wrap"><div class="empty">Načítám…</div></div>
   </div>
 
@@ -277,7 +289,36 @@ function studentsDistinct(){
  });
  return [...map.values()].sort((a,b)=>(a.name||a.email).localeCompare(b.name||b.email,'cs'));
 }
-function classNameOf(cid){const c=CLASSES.find(x=>x.id===cid);return c?c.name:'?';}
+function classNameOf(cid){const c=CLASSES.find(x=>x.id===cid);return c?classLabel(c):'?';}
+
+/* ── ročníkové kohorty ──
+   Školní rok začíná 1. září. cohort_start_year = kalendářní rok září, kdy
+   kohorta nastoupila do 6. třídy. Aktuální ročník se počítá z dnešního data,
+   takže se třída po 1. září sama „posune". */
+function schoolYearStart(d){d=d||new Date();return d.getMonth()>=8?d.getFullYear():d.getFullYear()-1;}
+function gradeOfCohort(startYear,d){
+ if(startYear==null)return null;
+ const g=6+(schoolYearStart(d)-startYear);
+ return g; // může být <6 (ještě nenastoupili) nebo >9 (už odešli)
+}
+// "25/26" z roku 2025
+function syLabel(y){const a=((y%100)+100)%100,b=((y+1)%100);return String(a).padStart(2,'0')+'/'+String(b).padStart(2,'0');}
+// rozsah "25/26–28/29" pro 6.→9.
+function cohortRangeLabel(startYear){return syLabel(startYear)+'–'+syLabel(startYear+3);}
+// zobrazený název třídy: pokud má kohortu, sestav "<ročník>.<section>"; jinak name
+function classLabel(c){
+ const g=gradeOfCohort(c.cohort_start_year);
+ if(g!=null&&c.section)return g+'.'+c.section;
+ return c.name;
+}
+// stavový text kohorty pro UI
+function cohortStatus(c){
+ if(c.cohort_start_year==null)return '';
+ const g=gradeOfCohort(c.cohort_start_year);
+ if(g<6)return 'nastoupí do 6. v '+syLabel(c.cohort_start_year);
+ if(g>9)return 'ukončili 9. ('+syLabel(c.cohort_start_year+3)+')';
+ return g+'. ročník · '+syLabel(schoolYearStart());
+}
 
 function esc(s){return String(s==null?'':s).replace(/[<>&"]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c]));}
 function doneCount(d){return d&&d.done?Object.keys(d.done).length:0;}
@@ -378,7 +419,7 @@ function fillClassFilter(){
  const sel=document.getElementById('fclass');if(!sel)return;
  const cur=sel.value;
  sel.innerHTML='<option value="">Všechny třídy</option>'+
-  CLASSES.map(c=>'<option value="'+c.id+'">🏫 '+esc(c.name)+'</option>').join('');
+  CLASSES.map(c=>'<option value="'+c.id+'">🏫 '+esc(classLabel(c))+'</option>').join('');
  sel.value=cur;
 }
 function renderStats(){
@@ -513,6 +554,18 @@ async function bulkAwardXp(){
  }
  toast((delta>=0?'+':'')+delta+' XP přidáno '+okN+'×'+(errN?' ('+errN+' chyb)':''),errN>0);
  renderStats();renderTable();
+}
+async function bulkDelete(){
+ const rows=selectedRows();if(!rows.length){toast('Nikdo není vybrán.',1);return;}
+ if(!confirm('Opravdu nevratně smazat '+rows.length+' vybraných postav? Postup nelze vrátit zpět.'))return;
+ let okN=0,errN=0;
+ for(const r of rows){
+  const res=await RPGCloud.deleteSaveFor(r.user_id,r.game);
+  if(res.ok)okN++;else errN++;
+ }
+ SEL.clear();
+ toast('🗑 smazáno '+okN+' postav'+(errN?' ('+errN+' chyb)':''),errN>0);
+ await loadData();
 }
 
 /* ── teacher unlock ── */
@@ -722,9 +775,41 @@ async function delTeacher(email){
 
 /* ── třídy ── */
 async function createClassUI(){
- const name=document.getElementById('new-class').value.trim();
- const res=await RPGCloud.createClass(name);
- if(res.ok){toast('Třída založena');document.getElementById('new-class').value='';await loadClasses();renderClasses();}
+ const section=document.getElementById('new-section').value.trim();
+ const grade=parseInt(document.getElementById('new-grade').value,10);
+ let name=document.getElementById('new-class').value.trim();
+ const meta={};
+ if(grade>=6&&grade<=9){
+  meta.cohort_start_year=schoolYearStart()-(grade-6);
+  meta.section=section;
+  if(!name)name=section?grade+'.'+section:grade+'. ročník';
+ }
+ if(!name){toast('Zadej označení + ročník, nebo vlastní název.',1);return;}
+ const res=await RPGCloud.createClass(name,meta);
+ if(res.ok){
+  toast('Třída založena');
+  document.getElementById('new-class').value='';
+  document.getElementById('new-section').value='';
+  document.getElementById('new-grade').value='';
+  await loadClasses();renderClasses();
+ } else toast('Chyba: '+res.error,1);
+}
+async function editCohortUI(id){
+ const c=CLASSES.find(x=>x.id===id);if(!c)return;
+ const cur=c.cohort_start_year!=null?String(gradeOfCohort(c.cohort_start_year)):'';
+ const g=prompt('V kterém ročníku je třída TEĎ? (6–9; prázdné = zrušit automatický posun)',cur);
+ if(g==null)return;
+ const meta={};
+ if(g.trim()===''){meta.cohort_start_year='';}
+ else{
+  const gi=parseInt(g,10);
+  if(!(gi>=6&&gi<=9)){toast('Ročník musí být 6–9.',1);return;}
+  meta.cohort_start_year=schoolYearStart()-(gi-6);
+  const sec=prompt('Označení třídy (písmeno, např. B):',c.section||'');
+  if(sec!=null)meta.section=sec;
+ }
+ const res=await RPGCloud.updateClassMeta(id,meta);
+ if(res.ok){toast('Kohorta upravena');await loadClasses();renderClasses();renderTable();}
  else toast('Chyba: '+res.error,1);
 }
 async function renameClassUI(id){
@@ -749,25 +834,74 @@ async function toggleMember(classId,uid,on){
  if(res.ok){await loadClasses();renderClasses();renderTable();}
  else toast('Chyba: '+res.error,1);
 }
+// postavy žáků dané třídy (napříč hrami)
+function rowsOfClass(cid){const mem=membersOfClass(cid);return ROWS.filter(r=>mem.has(r.user_id));}
+async function classAwardXp(cid){
+ const rows=rowsOfClass(cid);if(!rows.length){toast('Třída nemá žádné hrající žáky.',1);return;}
+ const v=prompt('Kolik XP přidat všem postavám ve třídě? (může být i záporné)','50');
+ if(v==null)return;const delta=parseInt(v,10);if(isNaN(delta)){toast('Zadej číslo.',1);return;}
+ let okN=0,errN=0;
+ for(const r of rows){const d=Object.assign({},r.data||{});d.xp=Math.max(0,(d.xp||0)+delta);d.level=Math.floor(d.xp/100)+1;const res=await RPGCloud.updateSaveFor(r.user_id,r.game,d);if(res.ok){r.data=d;okN++;}else errN++;}
+ toast((delta>=0?'+':'')+delta+' XP · '+okN+' postav'+(errN?' ('+errN+' chyb)':''),errN>0);
+ renderStats();renderTable();
+}
+async function classUnlock(cid){
+ const sel=document.getElementById('cls-mid-'+cid);const mid=sel?sel.value:'';if(!mid){toast('Vyber misi.',1);return;}
+ const c=CLASSES.find(x=>x.id===cid);const grade=gradeOfCohort(c.cohort_start_year);
+ const gameKey='RPG_MAT_'+grade;
+ const rows=rowsOfClass(cid).filter(r=>r.game===gameKey);
+ if(!rows.length){toast('Nikdo ve třídě nehraje '+grade+'. ročník.',1);return;}
+ let okN=0,errN=0;
+ for(const r of rows){const d=Object.assign({},r.data||{});d.teacherUnlocked=Array.isArray(d.teacherUnlocked)?d.teacherUnlocked.slice():[];if(!d.teacherUnlocked.includes(mid))d.teacherUnlocked.push(mid);const res=await RPGCloud.updateSaveFor(r.user_id,r.game,d);if(res.ok){r.data=d;okN++;}else errN++;}
+ toast('🔓 '+mid+' odemčeno '+okN+'×'+(errN?' ('+errN+' chyb)':''),errN>0);
+ renderTable();
+}
+async function classDeleteChars(cid){
+ const rows=rowsOfClass(cid);if(!rows.length){toast('Třída nemá žádné postavy.',1);return;}
+ if(!confirm('Nevratně smazat VŠECHNY postavy ('+rows.length+') žáků této třídy? Zařazení žáků ve třídě zůstane.'))return;
+ let okN=0,errN=0;for(const r of rows){const res=await RPGCloud.deleteSaveFor(r.user_id,r.game);if(res.ok)okN++;else errN++;}
+ toast('🗑 smazáno '+okN+' postav'+(errN?' ('+errN+' chyb)':''),errN>0);
+ await loadData();
+}
 function renderClasses(){
  const w=document.getElementById('classes-wrap');
  if(!CLASSES.length){w.innerHTML='<div class="empty">— zatím žádné třídy. Založ první výše. —</div>';return;}
  const students=studentsDistinct();
+ const admin=RPGCloud.isAdmin();
  let html='';
  CLASSES.forEach(c=>{
   const mem=membersOfClass(c.id);
   const open=OPEN_CLASS===c.id;
+  const grade=gradeOfCohort(c.cohort_start_year);
+  const cohortBadge=c.cohort_start_year!=null
+   ?'<span class="tag" style="background:#3a6ea5" title="'+esc(cohortStatus(c))+'">📈 '+cohortRangeLabel(c.cohort_start_year)+'</span>'
+   :'';
   html+='<div style="background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:12px 16px;margin-bottom:10px">'+
    '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">'+
     '<span style="font-size:20px">🏫</span>'+
-    '<b style="color:#fff;font-size:15px">'+esc(c.name)+'</b>'+
+    '<b style="color:#fff;font-size:15px">'+esc(classLabel(c))+'</b>'+
+    cohortBadge+
     '<span class="tag" style="background:var(--accent)">'+mem.size+' žáků</span>'+
     '<div style="margin-left:auto;display:flex;gap:6px">'+
      '<button class="mini gold" onclick="toggleRoster(\''+c.id+'\')">'+(open?'▲ hotovo':'👥 spravovat žáky')+'</button>'+
-     '<button class="mini" onclick="renameClassUI(\''+c.id+'\')">✎</button>'+
+     '<button class="mini" onclick="editCohortUI(\''+c.id+'\')" title="ročník / automatický posun">📈</button>'+
+     '<button class="mini" onclick="renameClassUI(\''+c.id+'\')" title="přejmenovat">✎</button>'+
      '<button class="mini red" onclick="deleteClassUI(\''+c.id+'\')">🗑</button>'+
     '</div>'+
    '</div>';
+  // akce pro celou třídu
+  html+='<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:10px">'+
+   '<span style="color:var(--muted);font-size:12px">Hromadně třídě:</span>'+
+   '<button class="mini gold" onclick="classAwardXp(\''+c.id+'\')">⭐ +XP</button>';
+  if(grade>=6&&grade<=9){
+   const missions=missionsFor('RPG_MAT_'+grade);
+   let opts='<option value="">— mise '+grade+'. roč. —</option>';
+   missions.forEach(m=>{opts+='<option value="'+m.id+'">'+m.id+' '+esc(m.name)+'</option>';});
+   html+='<select id="cls-mid-'+c.id+'" style="max-width:220px">'+opts+'</select>'+
+    '<button class="mini gold" onclick="classUnlock(\''+c.id+'\')">🔓 Odemknout třídě</button>';
+  }
+  if(admin)html+='<button class="mini red" onclick="classDeleteChars(\''+c.id+'\')">🗑 Smazat postavy třídy</button>';
+  html+='</div>';
   if(open){
    if(!students.length){html+='<div class="empty" style="margin-top:10px">— žádní žáci zatím nehráli —</div>';}
    else{
