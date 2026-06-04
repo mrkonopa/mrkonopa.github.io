@@ -192,6 +192,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--px);min-height:100
     Řádek <b>„nově +X chyb"</b> ukazuje <b>trend</b>: kolik chyb v misi přibylo za poslední týdenní období oproti minulému (🔽 zlepšení, 🔺 zhoršení). Naplní se po pár týdnech hraní.</p>
    <div class="controls">
     <select id="diag-game" onchange="renderDiag()"></select>
+    <select id="diag-class" onchange="renderDiag()"></select>
     <button class="mini" onclick="loadData().then(renderDiag)">↻ Obnovit</button>
    </div>
    <div id="diag-wrap"><div class="empty">Načítám…</div></div>
@@ -958,10 +959,13 @@ function renderDiag(){
  const sel=document.getElementById('diag-game');if(!sel)return;
  if(sel.options.length===0){GAMES.forEach(g=>{const o=document.createElement('option');o.value=g.key;o.textContent=g.emoji+' '+g.gr;sel.appendChild(o);});}
  const game=sel.value||GAMES[0].key;sel.value=game;
- const rows=ROWS.filter(r=>r.game===game);
+ const csel=document.getElementById('diag-class');
+ if(csel){const cur=csel.value;csel.innerHTML='<option value="">Všechny třídy</option>'+CLASSES.map(c=>'<option value="'+c.id+'">🏫 '+esc(classLabel(c))+'</option>').join('');csel.value=cur;}
+ const fc=csel?csel.value:'';const members=fc?membersOfClass(fc):null;
+ const rows=ROWS.filter(r=>r.game===game&&(!members||members.has(r.user_id)));
  const miss=missionsFor(game);
  const wrap=document.getElementById('diag-wrap');
- if(!rows.length){wrap.innerHTML='<div class="empty">Zatím žádná data pro tento ročník.</div>';return;}
+ if(!rows.length){wrap.innerHTML='<div class="empty">'+(fc?'V této třídě zatím nikdo nehrál tento ročník.':'Zatím žádná data pro tento ročník.')+'</div>';return;}
  const TC=6; // úkolů na misi
  let html='';
  for(let area=1;area<=7;area++){

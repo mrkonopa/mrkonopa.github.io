@@ -19,7 +19,7 @@ function ok(name, cond, d='') { if (cond){console.log('  ✅ '+name);pass++;} el
 function mockScript(scenario) {
   return `(function(){
     const S = ${JSON.stringify(scenario)};
-    const db = { roles:S.roles||[], saves:S.saves||[], classes:[], class_members:[], notes:[] };
+    const db = { roles:S.roles||[], saves:S.saves||[], classes:S.classes||[], class_members:S.class_members||[], notes:[] };
     function mkClient(){
       function q(table){
         let op='select', filters=[], single=false, payload=null;
@@ -78,6 +78,8 @@ async function run() {
         { user_id:'z2', game:'RPG_MAT_9', name:'Trinity', email:'z2@husovaliberec.cz', full_name:'Žák 2', updated_at:new Date().toISOString(),
           data:{ name:'Trinity', xp:120, level:2, done:{ '1-1-0':1, '1-1-1':1 }, errs:{ '1-1':2 } } },
       ],
+      classes: [{ id:'c1', name:'9.A', section:'A', cohort_start_year:2021, created_by:'u-admin' }],
+      class_members: [{ class_id:'c1', user_id:'z1' }],  // jen Neo je v 9.A
     };
     const ctx = await browser.newContext();
     const page = await ctx.newPage();
@@ -116,6 +118,15 @@ async function run() {
     // heat barva: zkoušené mise dostanou hsl pozadí (zelená→červená dle chyb)
     const heatCells = await page.evaluate(()=>document.querySelectorAll('#diag-wrap div[style*="hsl"]').length);
     ok('mise s daty mají heat-barvu (hsl pozadí)', heatCells>=2, 'hsl buněk='+heatCells);
+
+    // filtr třídy: 9.A obsahuje jen Neo (errs 1-1:4) → ⌀ 4.0, 1/1 dokončilo
+    const classOpts = await page.evaluate(()=>document.getElementById('diag-class')?document.getElementById('diag-class').options.length:0);
+    ok('filtr tříd je naplněn (Všechny + 9.A)', classOpts===2, 'options='+classOpts);
+    await page.evaluate(()=>{ const c=document.getElementById('diag-class'); c.value='c1'; renderDiag(); });
+    const txtC = await page.evaluate(()=>document.getElementById('diag-wrap').textContent);
+    ok('po filtru 9.A: mise 1-1 jen Neo → 1/1 ⌀ 4.0', /1\/1 dokončilo · ⌀ 4\.0 chyb/.test(txtC), txtC.slice(0,200));
+    // zpět na všechny třídy
+    await page.evaluate(()=>{ const c=document.getElementById('diag-class'); c.value=''; renderDiag(); });
 
     ok('žádné JS chyby na stránce', errors.length===0, errors.slice(0,3).join(' | '));
     await ctx.close();
