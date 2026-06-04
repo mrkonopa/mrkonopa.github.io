@@ -6,7 +6,7 @@
 <title>RPG Matematika · 8. ročník · Matematická akademie</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&family=VT323&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600&family=Roboto+Mono:wght@400;700&family=VT323&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -15,6 +15,7 @@
  --text:#e8eaf6;--muted:#8896a6;
  --px:'Roboto Mono','VT323',monospace;
  --vt:'VT323',monospace;
+ --read:'Lexend','Inter','Segoe UI',system-ui,-apple-system,Arial,sans-serif;
 }
 body{background:var(--bg);color:var(--text);font-family:var(--vt);min-height:100vh;overflow-x:hidden;font-size:18px}
 /* ── STARFIELD — statické pozadí, žádný compositor layer ── */
@@ -125,16 +126,16 @@ body::before{
 .ms-item:not(.locked):hover{border-color:var(--gold)}
 .learn-section{margin-bottom:18px}
 .learn-section h3{font-family:var(--px);font-weight:700;font-size:13px;color:var(--blue);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;border-bottom:1px solid var(--gold);padding-bottom:4px}
-.learn-section p{font-family:var(--vt);font-size:19px;color:var(--text);line-height:1.55;margin-bottom:8px}
+.learn-section p{font-family:var(--read);font-size:15px;color:var(--text);line-height:1.65;margin-bottom:9px}
 .learn-formula{background:#0f1a2f;border:2px solid var(--blue);border-radius:4px;padding:12px 16px;margin:10px 0;font-family:var(--px);font-size:13px;color:var(--blue);line-height:1.8}
 .learn-formula b{color:#fff}
 .learn-example{background:var(--panel);border-left:4px solid var(--gold);padding:12px 16px;margin:10px 0;border-radius:0 6px 6px 0}
 .learn-example .ex-q{font-family:var(--px);font-weight:700;font-size:13px;color:var(--gold);margin-bottom:6px}
-.learn-example .ex-s{font-family:var(--vt);font-size:18px;color:var(--text);line-height:1.6}
+.learn-example .ex-s{font-family:var(--read);font-size:14.5px;color:var(--text);line-height:1.65}
 .learn-example .ex-s b{color:var(--green)}
 .learn-video{display:inline-flex;align-items:center;gap:8px;font-family:var(--px);font-weight:700;font-size:13px;padding:10px 16px;border:2px solid var(--red);color:var(--red);text-decoration:none;margin-top:6px;cursor:pointer;background:none;letter-spacing:.5px}
 .learn-video:hover{background:var(--red);color:#fff}
-.learn-intro{font-family:var(--vt);font-size:22px;color:var(--muted);line-height:1.5;padding:10px 14px;background:#1a1540;border:2px dashed #4a3f8a;margin-bottom:18px}
+.learn-intro{font-family:var(--read);font-size:15.5px;color:var(--muted);line-height:1.6;padding:11px 15px;background:#1a1540;border:2px dashed #4a3f8a;margin-bottom:18px}
 .learn-btn{background:none;border:2px solid var(--blue);color:var(--blue);font-family:var(--px);font-size:11px;font-weight:700;padding:4px 8px;cursor:pointer;margin-left:6px;flex-shrink:0}
 .learn-btn:hover{background:var(--blue);color:#06101e}
 .ms-num{font-family:var(--px);font-weight:700;font-size:16px;min-width:34px;text-align:center}
