@@ -38,11 +38,16 @@
 /procenta_priklady.html        # random practice (3 difficulty levels, 8 problem types)
 /cesta_penez.html              # financial literacy adventure (8 acts)
 /travels/
-  /index.html                  # journal grid
+  /index.html                  # journal grid (cards + JS nav map)
   /_template.html              # per-location template
-  /ukraine-2017.html           # first urbex post (text placeholders, photos in)
-  /images/ua_2017/*.jpg        # web-sized photos only (originals gitignored)
-  /images/cr_bh_2018/          # second urbex page material (page not built yet)
+  /ukraine-2017.html           # 01 — first urbex post
+  /cr-bh-2018.html             # 02 — Croatia & Bosnia (built, 68 photos)
+  /romania-2019.html           # 03
+  /yugoslavia-2020.html        # 04
+  /spain-france-2021.html      # 05
+  /italy-2022.html             # 06
+  /baltic-2023.html            # 07
+  /images/<trip>/*.jpg         # web-sized photos only (originals gitignored)
 /tools/compress-pdfs.sh        # Ghostscript wrapper, runs locally
 ```
 
@@ -102,8 +107,7 @@ git push
 4. **For PDF projects (přijímačky):** compress big PDFs before commit using `bash tools/compress-pdfs.sh`. Big scanned tests go from ~15 MB to ~2 MB. The script needs Ghostscript installed (`choco install ghostscript`).
 5. **For travel photos:** resize via Python+Pillow in sandbox to ~1600px wide, JPEG q82, strip EXIF (GPS!). Original PNGs/RAWs go in folder's `.gitignore`.
 
-## What's still pending (Nov 2025 state)
-- **`travels/cr-bh-2018.html`** (second urbex page) — photos are resized and in place, but the page itself isn't built. User said he'll provide text and more pictures.
+## What's still pending (Jun 2026 state)
 - **2024 přijímačky zadání blanks** — user needs to download 6 PDFs from `prijimacky.cermat.cz` and drop them in the right folders. The HTML already references the expected paths.
 - **Únikovka tělesa / procenta — verify hints work for all 10 zámků.** They use a CODE_HINTS map keyed by zámek ID. If any zámek had its `code` value changed without updating the map, hints could be misleading.
 
