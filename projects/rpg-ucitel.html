@@ -188,7 +188,8 @@ body{background:var(--bg);color:var(--text);font-family:var(--px);min-height:100
    <p style="color:var(--muted);margin-bottom:14px;line-height:1.6">
     Kde žáci <b style="color:var(--gold)">nejvíc chybují</b>. Pro každou misi vidíš, kolik žáků ji
     dokončilo a <b>průměrný počet chyb</b> (špatná odpověď nebo vypršený čas) na žáka, který ji zkoušel —
-    počítá se z boje <b>i tréninku</b>. Čím <span style="color:#ff6b6b">červenější</span>, tím těžší — dobré téma na společné probrání.</p>
+    počítá se z boje <b>i tréninku</b>. Čím <span style="color:#ff6b6b">červenější</span>, tím těžší — dobré téma na společné probrání.
+    Řádek <b>„nově +X chyb"</b> ukazuje <b>trend</b>: kolik chyb v misi přibylo za poslední týdenní období oproti minulému (🔽 zlepšení, 🔺 zhoršení). Naplní se po pár týdnech hraní.</p>
    <div class="controls">
     <select id="diag-game" onchange="renderDiag()"></select>
     <button class="mini" onclick="loadData().then(renderDiag)">↻ Obnovit</button>
@@ -966,22 +967,31 @@ function renderDiag(){
  for(let area=1;area<=7;area++){
   let cells='';
   miss.filter(m=>m.id.indexOf(area+'-')===0).forEach(m=>{
-   let reached=0,completed=0,totErr=0;
+   let reached=0,completed=0,totErr=0,recent=0,prev=0,hasTrend=false,hasPrev=false;
    rows.forEach(r=>{
     const d=r.data||{},errs=d.errs||{},done=d.done||{};
     const e=errs[m.id]||0;
     let dc=0;for(let i=0;i<TC;i++)if(done[m.id+'-'+i])dc++;
     if(e>0||dc>0){reached++;totErr+=e;if(dc>=TC)completed++;}
+    const sn=Array.isArray(d.errsSnap)?d.errsSnap:[];
+    if(sn.length>=2){const a=(sn[sn.length-1].errs||{})[m.id]||0,b=(sn[sn.length-2].errs||{})[m.id]||0;recent+=Math.max(0,a-b);hasTrend=true;}
+    if(sn.length>=3){const b=(sn[sn.length-2].errs||{})[m.id]||0,c=(sn[sn.length-3].errs||{})[m.id]||0;prev+=Math.max(0,b-c);hasPrev=true;}
    });
    const avg=reached?totErr/reached:0;
    const hue=Math.max(0,120-Math.min(120,avg*30)); // 0 chyb→zelená, ~4 chyby→červená
    const bg=reached?'hsl('+hue+',65%,20%)':'#161b2e';
    const bd=reached?'hsl('+hue+',65%,42%)':'#2a3450';
+   let trendHtml='';
+   if(hasTrend){
+    let ar='',tcol='var(--muted)';
+    if(hasPrev){ar=recent<prev?'🔽 ':recent>prev?'🔺 ':'▶️ ';tcol=recent<prev?'#5fd38a':recent>prev?'#ff7a7a':'var(--muted)';}
+    trendHtml='<div style="font-size:11px;color:'+tcol+';margin-top:3px">'+ar+'nově +'+recent+' chyb'+(hasPrev?(' (minule +'+prev+')'):' za období')+'</div>';
+   }
    cells+='<div style="background:'+bg+';border:1px solid '+bd+';border-radius:7px;padding:9px 11px">'+
     '<div style="font-weight:700;font-size:13px;color:#fff;margin-bottom:4px">'+m.id+' · '+esc(m.name)+'</div>'+
     '<div style="font-size:12px;color:var(--muted)">'+
     (reached?('✅ '+completed+'/'+reached+' dokončilo · ⌀ '+avg.toFixed(1)+' chyb'):'zatím nikdo nezkoušel')+
-    '</div></div>';
+    '</div>'+trendHtml+'</div>';
   });
   html+='<div style="margin-bottom:14px"><div style="font-weight:700;color:var(--gold);font-size:13px;margin-bottom:7px">Oblast '+area+'</div>'+
    '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px">'+cells+'</div></div>';

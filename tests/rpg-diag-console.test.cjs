@@ -73,7 +73,8 @@ async function run() {
       session: { user:{ id:'u-admin', email:admin, user_metadata:{full_name:'Vojta'} } },
       saves: [
         { user_id:'z1', game:'RPG_MAT_9', name:'Neo', email:'z1@husovaliberec.cz', full_name:'Žák 1', updated_at:new Date().toISOString(),
-          data:{ name:'Neo', xp:300, level:4, done:fullDone('1-1'), errs:{ '1-1':4, '5-2':6 } } },
+          data:{ name:'Neo', xp:300, level:4, done:fullDone('1-1'), errs:{ '1-1':4, '5-2':6 },
+            errsSnap:[{t:'2026-05-01',errs:{'1-1':1}},{t:'2026-05-08',errs:{'1-1':3}},{t:'2026-05-15',errs:{'1-1':4}}] } },
         { user_id:'z2', game:'RPG_MAT_9', name:'Trinity', email:'z2@husovaliberec.cz', full_name:'Žák 2', updated_at:new Date().toISOString(),
           data:{ name:'Trinity', xp:120, level:2, done:{ '1-1-0':1, '1-1-1':1 }, errs:{ '1-1':2 } } },
       ],
@@ -106,6 +107,11 @@ async function run() {
     ok('mise 5-2: vysoká chybovost ⌀ 6.0', /⌀ 6\.0 chyb/.test(txt));
     ok('mise bez dat má text „zatím nikdo nezkoušel"', /zatím nikdo nezkoušel/.test(txt));
     ok('vykresleno všech 7 oblastí', (txt.match(/Oblast \d/g)||[]).length===7);
+
+    // trend z errsSnap: 1-1 má snímky [1,3,4] → recent +1, prev +2 → zlepšení 🔽
+    ok('trend mise 1-1: nově +1 (minule +2)', /nově \+1 chyb \(minule \+2\)/.test(txt), txt.match(/nově[^<]{0,40}/)?.[0]||'(nic)');
+    const hasDown = await page.evaluate(()=>/🔽/.test(document.getElementById('diag-wrap').innerHTML));
+    ok('trend zlepšení má zelenou šipku 🔽', hasDown);
 
     // heat barva: zkoušené mise dostanou hsl pozadí (zelená→červená dle chyb)
     const heatCells = await page.evaluate(()=>document.querySelectorAll('#diag-wrap div[style*="hsl"]').length);
