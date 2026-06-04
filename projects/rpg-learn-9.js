@@ -1,434 +1,1159 @@
-/* ══════════════════════════════════════════════════════════════════
-   RPG Matematika 9 — Teorie ke všem 21 misím (NULL_BYTE 💻 cyberpunk)
-   Zdroje: RVP ZV, učebnice Odvárko/Kadleček, CERMAT, MŠMT
-   Videa: kanál @matematikajednoduse (Lucie Straková)
-   ══════════════════════════════════════════════════════════════════ */
+// rpg-learn-9.js — Teorie pro NULL_BYTE 💻 (9. ročník)
+// Audience: 14letí žáci, téma: cyberpunk, jazyk: čeština
 (function(){
 'use strict';
 window.RPG_LEARN_9 = {
 
-/* ─── Oblast 1: VSTUPNÍ TERMINÁL ──────────────────────────────── */
-
 '1-1': {
- intro: '🔓 [BOOT] Vstupní terminál vyžaduje ověření základů. Zopakuj početní operace a pořadí.',
- sections: [
-  { h: 'Obor čísel',
-    p: ['Pracujeme s racionálními čísly: celá, zlomky, desetinná (konečná i periodická). Lze je zapsat jako zlomek a/b.'] },
-  { h: 'Pořadí operací',
-    p: ['Závorky → mocniny a odmocniny → násobení a dělení → sčítání a odčítání.',
-        'Operace stejné úrovně počítej zleva doprava.'] },
-  { h: 'Znaménka',
-    p: ['Stejná znaménka při násobení/dělení → kladně, různá → záporně. Odčítání = přičtení opačného.'] },
- ],
- formulas: [
-  '<b>Pořadí:</b> ( ) → ^ √ → × ÷ → + −',
-  '<b>− · − = +</b>',
- ],
- examples: [
-  { q: 'Spočítej: 2 + 3 · 4²', s: ['Mocnina: 4² = 16', 'Násobení: 3 · 16 = 48', '2 + 48 = <b>50</b>'] },
- ],
- video: null,
+  intro: 'Pořadí operací a obory čísel — základ každého výpočtu.',
+  sections: [
+    {
+      h: 'Obory čísel',
+      p: [
+        '<b>Racionální čísla (Q)</b> — zlomky, celá čísla, konečná nebo periodická desetinná čísla. Příklady: 3, −7, ½, 0,25.',
+        '<b>Iracionální čísla (R − Q)</b> — nekonečná neperiodická desetinná čísla. Příklady: √2 = 1,41421…, π = 3,14159…',
+        '<b>Reálná čísla (R)</b> = racionální + iracionální. Zahrnují úplně vše na číselné ose.'
+      ]
+    },
+    {
+      h: 'Pořadí operací',
+      p: [
+        '1. <b>Závorky</b> — vypočítej obsah závorek jako první.<br>2. <b>Mocniny a odmocniny</b>.<br>3. <b>Násobení a dělení</b> — zleva doprava.<br>4. <b>Sčítání a odčítání</b> — zleva doprava.',
+        '⚠️ Operace stejné úrovně (např. × a ÷) se vyhodnocují <b>zleva doprava</b>: 12 ÷ 4 × 3 = 3 × 3 = 9, <b>ne</b> 12 ÷ 12 = 1!'
+      ]
+    },
+    {
+      h: 'Záporná čísla v mocninách',
+      p: [
+        '<b>(−3)² = 9</b> — záporné číslo v závorce, sudá mocnina → výsledek kladný.',
+        '<b>−3² = −9</b> — nejprve mocnina (3² = 9), pak záporné znaménko. Závorka mění vše!',
+        '⚠️ Pravidlo: sudá mocnina záporného čísla je <b>kladná</b>; lichá mocnina záporného čísla je <b>záporná</b>.'
+      ]
+    }
+  ],
+  formulas: [
+    'Pořadí: závorky → mocniny → × ÷ → + −',
+    '(−a)<sup>2n</sup> = a<sup>2n</sup> &gt; 0 (sudá mocnina → kladné)',
+    '(−a)<sup>2n+1</sup> = −a<sup>2n+1</sup> (lichá mocnina → záporné)'
+  ],
+  examples: [
+    {
+      q: 'Vypočítej: 3 + 4 · 2 − (8 − 3)',
+      s: [
+        'Závorka: (8 − 3) = 5',
+        'Násobení: 4 · 2 = 8',
+        'Výsledek: 3 + 8 − 5 = <b>6</b>'
+      ]
+    },
+    {
+      q: 'Jak se liší (−3)² a −3²?',
+      s: [
+        '(−3)² = (−3) · (−3) = <b>9</b> — závorka zahrnuje i znaménko.',
+        '−3² = −(3 · 3) = <b>−9</b> — nejprve mocnina, pak znaménko.'
+      ]
+    },
+    {
+      q: 'Je číslo √5 racionální nebo iracionální?',
+      s: [
+        'Zkus: 2² = 4, 3² = 9 — √5 není celé číslo.',
+        'Desetinný rozvoj √5 = 2,2360679… je nekonečný a neperiodický.',
+        'Závěr: √5 je <b>iracionální číslo</b>.'
+      ]
+    }
+  ],
+  video: { id: 'dd9r3g6WMKI', title: 'Celá čísla — přednost operací' }
 },
 
 '1-2': {
- intro: '📊 [SCAN] Procentní skener čte data v procentech a promile. Ovládni je a projdeš firewallem.',
- sections: [
-  { h: 'Procenta a promile',
-    p: ['1 % = 1/100 = 0,01. 1 ‰ (promile) = 1/1000 = 0,001. Promile se hodí pro malé podíly (alkohol v krvi, solnost).'] },
-  { h: 'Tři základní úlohy',
-    p: ['Část = základ · p/100. Počet procent = (část/základ)·100. Základ = část · 100/p.'] },
-  { h: 'Změny v procentech',
-    p: ['Zdražení o p % → násob (1 + p/100). Zlevnění o p % → násob (1 − p/100).'] },
- ],
- formulas: [
-  '<b>část = základ · p/100</b>',
-  '<b>1 ‰ = 0,001</b>',
- ],
- examples: [
-  { q: 'Kolik je 8 % z 1 500 Kč?', s: ['1 500 · 0,08 = <b>120 Kč</b>'] },
-  { q: 'Cena 600 Kč vzroste o 20 %. Nová cena?', s: ['600 · 1,20 = <b>720 Kč</b>'] },
- ],
- video: null,
+  intro: 'Procenta a promile — základ finanční gramotnosti.',
+  sections: [
+    {
+      h: 'Co je 1 % a 1 ‰',
+      p: [
+        '<b>1 % (jedno procento)</b> = jedna setina celku = 1/100 = 0,01.',
+        '<b>1 ‰ (jedno promile)</b> = jedna tisícina celku = 1/1000 = 0,001. Promile se používají např. pro alkohol v krvi nebo náklon silnice.'
+      ]
+    },
+    {
+      h: 'Tři typy úloh',
+      p: [
+        '<b>Výpočet části:</b> část = základ · p / 100 → Kolik je 15 % z 800?<br><b>Výpočet procent:</b> p = část · 100 / základ → Kolik procent je 120 ze 400?<br><b>Výpočet základu:</b> základ = část · 100 / p → 60 Kč je 20 %, kolik je 100 %?',
+        '💡 Pomůcka: nakresli si trojúhelník — nahoře <b>část</b>, dole vlevo <b>základ</b>, dole vpravo <b>p/100</b>. Překryj hledanou veličinu — zbylé dvě ukazují operaci.'
+      ]
+    },
+    {
+      h: 'Procentní změna',
+      p: [
+        '<b>Zdražení o p %:</b> nová cena = původní · (1 + p/100)',
+        '<b>Zlevnění o p %:</b> nová cena = původní · (1 − p/100)',
+        '⚠️ <b>Zdražení o 20 % a pak zlevnění o 20 % ≠ původní cena!</b><br>100 · 1,2 · 0,8 = 96 Kč — ztratili jsme 4 Kč!'
+      ]
+    },
+    {
+      h: 'Zpětná úloha',
+      p: [
+        'Víme výsledek <i>po</i> procentní změně, hledáme původní hodnotu.',
+        'Zboží stojí po slevě 20 % cenu 640 Kč. Jaká byla původní cena?',
+        'Původní = 640 ÷ (1 − 20/100) = 640 ÷ 0,8 = <b>800 Kč</b>.'
+      ]
+    }
+  ],
+  formulas: [
+    'část = základ · p / 100',
+    'základ = část · 100 / p',
+    'nová cena = základ · (1 ± p/100)'
+  ],
+  examples: [
+    {
+      q: 'Kolik je 35 % z 2 400 Kč?',
+      s: [
+        'část = 2 400 · 35 / 100',
+        'část = 2 400 · 0,35 = <b>840 Kč</b>'
+      ]
+    },
+    {
+      q: 'Tričko stojí 360 Kč po slevě 25 %. Jaká byla původní cena?',
+      s: [
+        'Po slevě 25 % zaplatíš 75 % původní ceny.',
+        'Původní = 360 ÷ 0,75 = <b>480 Kč</b>'
+      ]
+    },
+    {
+      q: 'Cena televize vzrostla o 10 % a pak ještě o 10 %. O kolik procent celkem?',
+      s: [
+        '1. zvýšení: 100 · 1,1 = 110',
+        '2. zvýšení: 110 · 1,1 = 121',
+        'Celkový růst: 21 %, <b>ne 20 %</b>!'
+      ]
+    }
+  ],
+  video: { id: 'Sl9CxhhrnUE', title: 'Promile a procenta' }
 },
 
 '1-3': {
- intro: '⚠️ [WARN] Záporná zóna — datové toky se znaménky. Spočítej je správně, jinak crash.',
- sections: [
-  { h: 'Celá čísla a absolutní hodnota',
-    p: ['|a| je vzdálenost od nuly, vždy nezáporná. |−7| = 7, |7| = 7.'] },
-  { h: 'Operace se znaménky',
-    p: ['Sčítání různých znamének: odečti menší od většího, vezmi znaménko většího.',
-        'Násobení/dělení: stejná znaménka → +, různá → −.'] },
- ],
- formulas: [
-  '<b>a − (−b) = a + b</b>',
-  '<b>(−)·(−) = (+)</b>, <b>(−)·(+) = (−)</b>',
- ],
- examples: [
-  { q: 'Spočítej: −8 − (−15)', s: ['−8 + 15 = <b>7</b>'] },
-  { q: 'Spočítej: (−12) ÷ (−4)', s: ['Stejná znaménka → kladně', '12 ÷ 4 = <b>3</b>'] },
- ],
- video: null,
+  intro: 'Záporná čísla a absolutní hodnota — orientace na číselné ose.',
+  sections: [
+    {
+      h: 'Číselná osa a absolutní hodnota',
+      p: [
+        'Kladná čísla jsou napravo od nuly, záporná čísla nalevo. Čím menší (zápornější), tím víc vlevo.',
+        '<b>Absolutní hodnota |a|</b> = vzdálenost čísla od nuly na číselné ose. Vždy platí |a| ≥ 0.<br>|−7| = 7, |3| = 3, |0| = 0.'
+      ]
+    },
+    {
+      h: 'Sčítání a odčítání záporných čísel',
+      p: [
+        'Odčítání záporného čísla = přičítání kladného: <b>a − (−b) = a + b</b>.<br>Příklad: 5 − (−3) = 5 + 3 = 8.',
+        'Sčítání stejně znamínkových: sečti absolutní hodnoty, zachovej znaménko.<br>Sčítání různě znamínkových: odečti absolutní hodnoty, výsledek má znaménko většího.'
+      ]
+    },
+    {
+      h: 'Násobení a dělení záporných čísel',
+      p: [
+        '<b>Pravidlo znamének při násobení/dělení:</b><br>(+) · (+) = (+) &nbsp;&nbsp; (+) · (−) = (−)<br>(−) · (+) = (−) &nbsp;&nbsp; (−) · (−) = (+)',
+        'Sudý počet záporných čísel v součinu → výsledek kladný. Lichý počet → záporný.<br>Příklad: (−2) · (−3) · (−1) = −6 (tři záporné → záporný výsledek).'
+      ]
+    }
+  ],
+  formulas: [
+    '|a| ≥ 0 pro všechna reálná a',
+    'a − (−b) = a + b',
+    '(−) · (−) = (+), &nbsp; (+) · (−) = (−)'
+  ],
+  examples: [
+    {
+      q: 'Vypočítej: −8 + 3 − (−5)',
+      s: [
+        '−8 + 3 − (−5) = −8 + 3 + 5',
+        '= (3 + 5) − 8 = 8 − 8 = <b>0</b>'
+      ]
+    },
+    {
+      q: 'Vypočítej: (−4) · (−3) · 2',
+      s: [
+        '(−4) · (−3) = +12',
+        '12 · 2 = <b>24</b>'
+      ]
+    },
+    {
+      q: 'Seřaď od nejmenšího: −3; |−5|; −|−1|; 2',
+      s: [
+        '|−5| = 5, &nbsp; −|−1| = −1',
+        'Seřazeno: −3 &lt; −1 &lt; 2 &lt; 5',
+        'Tedy: <b>−3; −|−1|; 2; |−5|</b>'
+      ]
+    }
+  ],
+  video: { id: 'EsJkCWLytiI', title: 'Celá čísla — sčítání a odčítání' }
 },
 
-/* ─── Oblast 2: MOCNINOVÝ REAKTOR ─────────────────────────────── */
-
 '2-1': {
- intro: '⚡ [CORE] Energetické články běží na mocninách a odmocninách. Nabij je správně.',
- sections: [
-  { h: 'Mocniny a odmocniny',
-    p: ['aⁿ = a · a · … · a (n-krát). √a je číslo, jehož druhá mocnina je a (pro a ≥ 0).',
-        'a⁰ = 1 (pro a ≠ 0). a¹ = a.'] },
-  { h: 'Odmocniny zpaměti',
-    p: ['Znej druhé mocniny do 20² a odpovídající odmocniny. √169 = 13, √225 = 15, √400 = 20.'] },
- ],
- formulas: [
-  '<b>aⁿ = a · a · … · a</b> (n-krát)',
-  '<b>a⁰ = 1</b> (a ≠ 0)',
- ],
- examples: [
-  { q: 'Spočítej: 2⁵', s: ['2·2·2·2·2 = <b>32</b>'] },
-  { q: 'Spočítej: √196', s: ['14 · 14 = 196 → <b>14</b>'] },
- ],
- video: { id: 'DVQl6pLx8qI', title: 'Druhá mocnina a odmocnina' },
+  intro: 'Mocniny a odmocniny — základ každého výpočtu v reaktoru.',
+  sections: [
+    {
+      h: 'Definice mocniny',
+      p: [
+        '<b>aⁿ</b> = a · a · a · … · a (n-krát). Číslo <i>a</i> je základ, <i>n</i> je exponent.',
+        'Záporný základ: sudá mocnina je vždy <b>kladná</b> (−3)² = 9; lichá mocnina je <b>záporná</b> (−2)³ = −8.',
+        '<b>a⁰ = 1</b> pro každé a ≠ 0. Cokoliv na nultou je 1!'
+      ]
+    },
+    {
+      h: 'Odmocnina',
+      p: [
+        '<b>√a</b> je číslo x ≥ 0 takové, že x² = a. Platí jen pro a ≥ 0 (odmocnina záporného čísla v R neexistuje).',
+        '√a · √a = a &nbsp;|&nbsp; √(a²) = |a| &nbsp;|&nbsp; √(ab) = √a · √b'
+      ]
+    },
+    {
+      h: 'Druhé mocniny 1–15 zpaměti',
+      p: [
+        '<table style="border-collapse:collapse;font-size:13px;color:#c9d1d9;margin:6px auto"><tr><th style="padding:3px 8px;border:1px solid #4a9eff">n</th><th style="padding:3px 8px;border:1px solid #4a9eff">n²</th><th style="padding:3px 8px;border:1px solid #4a9eff">n</th><th style="padding:3px 8px;border:1px solid #4a9eff">n²</th></tr><tr><td style="padding:3px 8px;border:1px solid #4a9eff">1</td><td style="padding:3px 8px;border:1px solid #4a9eff">1</td><td style="padding:3px 8px;border:1px solid #4a9eff">9</td><td style="padding:3px 8px;border:1px solid #4a9eff">81</td></tr><tr><td style="padding:3px 8px;border:1px solid #4a9eff">2</td><td style="padding:3px 8px;border:1px solid #4a9eff">4</td><td style="padding:3px 8px;border:1px solid #4a9eff">10</td><td style="padding:3px 8px;border:1px solid #4a9eff">100</td></tr><tr><td style="padding:3px 8px;border:1px solid #4a9eff">3</td><td style="padding:3px 8px;border:1px solid #4a9eff">9</td><td style="padding:3px 8px;border:1px solid #4a9eff">11</td><td style="padding:3px 8px;border:1px solid #4a9eff">121</td></tr><tr><td style="padding:3px 8px;border:1px solid #4a9eff">4</td><td style="padding:3px 8px;border:1px solid #4a9eff">16</td><td style="padding:3px 8px;border:1px solid #4a9eff">12</td><td style="padding:3px 8px;border:1px solid #4a9eff">144</td></tr><tr><td style="padding:3px 8px;border:1px solid #4a9eff">5</td><td style="padding:3px 8px;border:1px solid #4a9eff">25</td><td style="padding:3px 8px;border:1px solid #4a9eff">13</td><td style="padding:3px 8px;border:1px solid #4a9eff">169</td></tr><tr><td style="padding:3px 8px;border:1px solid #4a9eff">6</td><td style="padding:3px 8px;border:1px solid #4a9eff">36</td><td style="padding:3px 8px;border:1px solid #4a9eff">14</td><td style="padding:3px 8px;border:1px solid #4a9eff">196</td></tr><tr><td style="padding:3px 8px;border:1px solid #4a9eff">7</td><td style="padding:3px 8px;border:1px solid #4a9eff">49</td><td style="padding:3px 8px;border:1px solid #4a9eff">15</td><td style="padding:3px 8px;border:1px solid #4a9eff">225</td></tr><tr><td style="padding:3px 8px;border:1px solid #4a9eff">8</td><td style="padding:3px 8px;border:1px solid #4a9eff">64</td><td style="padding:3px 8px;border:1px solid #4a9eff">&nbsp;</td><td style="padding:3px 8px;border:1px solid #4a9eff">&nbsp;</td></tr></table>'
+      ]
+    }
+  ],
+  formulas: [
+    'aⁿ = a · a · … · a &nbsp;(n-krát)',
+    '√a · √a = a &nbsp;(pro a ≥ 0)',
+    'a⁰ = 1 &nbsp;(pro a ≠ 0)'
+  ],
+  examples: [
+    {
+      q: 'Vypočítej 2⁵',
+      s: [
+        '2⁵ = 2 · 2 · 2 · 2 · 2',
+        '= 4 · 4 · 2 = <b>32</b>'
+      ]
+    },
+    {
+      q: 'Vypočítej √196',
+      s: [
+        'Hledáme číslo x ≥ 0 takové, že x² = 196.',
+        'Z tabulky: 14² = 196, tedy √196 = <b>14</b>.'
+      ]
+    },
+    {
+      q: 'Vypočítej (−4)²',
+      s: [
+        '(−4)² = (−4) · (−4)',
+        '(−) · (−) = (+), tedy (−4)² = <b>16</b>.'
+      ]
+    }
+  ],
+  video: { id: 'DVQl6pLx8qI', title: 'Druhá mocnina a odmocnina' }
 },
 
 '2-2': {
- intro: '🔋 [RULES] Reaktor vyžaduje pravidla pro počítání s mocninami. Sjednoť exponenty.',
- sections: [
-  { h: 'Pravidla pro mocniny se stejným základem',
-    p: ['Násobení: exponenty sčítáme. Dělení: exponenty odečítáme. Mocnina mocniny: exponenty násobíme.'] },
-  { h: 'Mocnina součinu a podílu',
-    p: ['(a · b)ⁿ = aⁿ · bⁿ. (a/b)ⁿ = aⁿ/bⁿ.'] },
- ],
- formulas: [
-  '<b>aᵐ · aⁿ = aᵐ⁺ⁿ</b>',
-  '<b>aᵐ ÷ aⁿ = aᵐ⁻ⁿ</b>',
-  '<b>(aᵐ)ⁿ = aᵐ·ⁿ</b>',
- ],
- examples: [
-  { q: 'Zjednoduš: 2³ · 2⁴', s: ['Sčítáme exponenty: 2³⁺⁴ = 2⁷ = <b>128</b>'] },
-  { q: 'Zjednoduš: (3²)³', s: ['Násobíme exponenty: 3⁶ = <b>729</b>'] },
- ],
- video: { id: 'x0Yv5r2NjTU', title: 'Součin mocnin' },
+  intro: 'Pravidla pro práci s mocninami — zkratky výpočtů.',
+  sections: [
+    {
+      h: 'Stejný základ — násobení, dělení, mocnina mocniny',
+      p: [
+        '<b>Násobení:</b> aᵐ · aⁿ = aᵐ⁺ⁿ &nbsp;→&nbsp; 3² · 3⁴ = 3⁶ = 729',
+        '<b>Dělení:</b> aᵐ ÷ aⁿ = aᵐ⁻ⁿ &nbsp;→&nbsp; 5⁷ ÷ 5³ = 5⁴ = 625',
+        '<b>Mocnina mocniny:</b> (aᵐ)ⁿ = aᵐⁿ &nbsp;→&nbsp; (2³)⁴ = 2¹² = 4 096'
+      ]
+    },
+    {
+      h: 'Mocnina součinu a podílu',
+      p: [
+        '<b>Součin:</b> (a · b)ⁿ = aⁿ · bⁿ &nbsp;→&nbsp; (2 · 3)⁴ = 2⁴ · 3⁴ = 16 · 81 = 1 296',
+        '<b>Podíl:</b> (a / b)ⁿ = aⁿ / bⁿ &nbsp;→&nbsp; (3/5)² = 9/25'
+      ]
+    },
+    {
+      h: 'Záporný exponent',
+      p: [
+        '<b>a⁻ⁿ = 1 / aⁿ</b> &nbsp;(pro a ≠ 0)',
+        'Příklad: 2⁻³ = 1/2³ = 1/8 = 0,125',
+        '⚠️ Záporný exponent <b>neznamená záporné číslo</b> — výsledek je zlomek!'
+      ]
+    }
+  ],
+  formulas: [
+    'aᵐ · aⁿ = aᵐ⁺ⁿ',
+    'aᵐ ÷ aⁿ = aᵐ⁻ⁿ &nbsp;(a ≠ 0)',
+    '(aᵐ)ⁿ = aᵐ·ⁿ',
+    '(a·b)ⁿ = aⁿ·bⁿ',
+    'a⁻ⁿ = 1/aⁿ &nbsp;(a ≠ 0)'
+  ],
+  examples: [
+    {
+      q: 'Zjednodušš: x³ · x⁵',
+      s: [
+        'Stejný základ x, exponenty sečti.',
+        'x³ · x⁵ = x³⁺⁵ = <b>x⁸</b>'
+      ]
+    },
+    {
+      q: 'Zjednodušš: (y²)⁶ ÷ y⁸',
+      s: [
+        '(y²)⁶ = y¹²',
+        'y¹² ÷ y⁸ = y¹²⁻⁸ = <b>y⁴</b>'
+      ]
+    },
+    {
+      q: 'Vypočítej: 4⁻²',
+      s: [
+        '4⁻² = 1 / 4² = 1 / 16 = <b>0,0625</b>'
+      ]
+    }
+  ],
+  video: { id: 'x0Yv5r2NjTU', title: 'Součin mocnin' }
 },
 
 '2-3': {
- intro: '🛰️ [SIGNAL] Vědecký zápis komprimuje obří čísla. A Pythagoras hlídá geometrii sítě.',
- sections: [
-  { h: 'Vědecký (semilogaritmický) zápis',
-    p: ['Číslo zapíšeme jako a · 10ⁿ, kde 1 ≤ a < 10. Velká čísla mají kladné n, malá záporné.',
-        '6 500 = 6,5 · 10³. 0,0042 = 4,2 · 10⁻³.'] },
-  { h: 'Pythagorova věta',
-    p: ['V pravoúhlém trojúhelníku c² = a² + b² (c je přepona naproti pravému úhlu).',
-        'Přepona: c = √(a²+b²). Odvěsna: a = √(c²−b²).'] },
- ],
- formulas: [
-  '<b>Vědecký zápis:</b> a · 10ⁿ, 1 ≤ a < 10',
-  '<b>c² = a² + b²</b>',
- ],
- examples: [
-  { q: 'Zapiš vědecky: 73 000', s: ['7,3 · 10⁴ → <b>7,3 · 10⁴</b>'] },
-  { q: 'Odvěsny 9 a 12. Přepona?', s: ['c² = 81 + 144 = 225', 'c = <b>15</b>'] },
- ],
- video: { id: 'ssvz3u8imgk', title: 'Pythagorova věta' },
+  intro: 'Vědecký zápis a Pythagorova věta — dva mocné nástroje.',
+  sections: [
+    {
+      h: 'Vědecký zápis',
+      p: [
+        '<b>Vědecký zápis:</b> a · 10ⁿ, kde 1 ≤ a &lt; 10 a n je celé číslo.',
+        '<b>Velká čísla:</b> 93 000 000 = 9,3 · 10⁷ &nbsp;(desetinná čárka se posune o 7 míst doleva).<br><b>Malá čísla:</b> 0,0000045 = 4,5 · 10⁻⁶ &nbsp;(čárka se posune o 6 míst doprava).',
+        '💡 Počet nul u mocniny 10 = počet míst, o která se desetinná čárka posune.'
+      ]
+    },
+    {
+      h: 'Pythagorova věta',
+      p: [
+        'V pravoúhlém trojúhelníku ABC s pravým úhlem γ u vrcholu C platí: <b>c² = a² + b²</b><br>kde c je přepona (strana AB naproti pravému úhlu), a = BC a b = AC jsou odvěsny.',
+        '<svg width="220" height="170" style="display:block;margin:8px auto 0" viewBox="0 0 220 170"><rect width="220" height="170" fill="#0d1117"/><polygon points="30,140 30,40 160,140" fill="none" stroke="#4a9eff" stroke-width="2"/><rect x="30" y="120" width="20" height="20" fill="none" stroke="#00ff88" stroke-width="2"/><text x="20" y="36" fill="#ffcc00" font-size="14" font-family="monospace">A</text><text x="164" y="152" fill="#ffcc00" font-size="14" font-family="monospace">B</text><text x="14" y="152" fill="#ffcc00" font-size="14" font-family="monospace">C</text><text x="97" y="105" fill="#00ff88" font-size="13" font-family="monospace">c</text><text x="6" y="92" fill="#c9d1d9" font-size="13" font-family="monospace">b</text><text x="90" y="157" fill="#c9d1d9" font-size="13" font-family="monospace">a</text><text x="30" y="18" fill="#c9d1d9" font-size="11" font-family="monospace">pravý úhel γ u C</text></svg>'
+      ]
+    },
+    {
+      h: 'Pythagorejské trojice zpaměti',
+      p: [
+        'Celočíselné trojice (a, b, c) splňující a² + b² = c² — tyto se vyskytují na přijímačkách!',
+        '<b>3–4–5</b> &nbsp;(9+16=25) &nbsp;|&nbsp; <b>5–12–13</b> &nbsp;(25+144=169)<br><b>8–15–17</b> &nbsp;(64+225=289) &nbsp;|&nbsp; <b>6–8–10</b> &nbsp;(násobek 3-4-5)',
+        '💡 Každý násobek trojice je také pythagorejská trojice: 2×(3,4,5) = (6,8,10).'
+      ]
+    }
+  ],
+  formulas: [
+    'Vědecký zápis: a · 10ⁿ, kde 1 ≤ a &lt; 10',
+    'Pythagorova věta: c² = a² + b²',
+    'Odvěsna: a = √(c² − b²)'
+  ],
+  examples: [
+    {
+      q: 'Zapiš ve vědeckém zápisu: 0,00078',
+      s: [
+        'Posuneme čárku o 4 místa doprava: 7,8',
+        '0,00078 = <b>7,8 · 10⁻⁴</b>'
+      ]
+    },
+    {
+      q: 'Vypočítej z vědeckého zápisu: 3,6 · 10⁵',
+      s: [
+        'Posuneme čárku o 5 míst doprava.',
+        '3,6 · 10⁵ = <b>360 000</b>'
+      ]
+    },
+    {
+      q: 'Trojúhelník má odvěsny a = 9 cm, b = 12 cm. Jaká je přepona c?',
+      s: [
+        'c² = a² + b² = 81 + 144 = 225',
+        'c = √225 = <b>15 cm</b> &nbsp;(trojice 9-12-15 = 3×(3,4,5))'
+      ]
+    }
+  ],
+  video: { id: 'ssvz3u8imgk', title: 'Pythagorova věta' }
 },
 
-/* ─── Oblast 3: ROVNICOVÝ PROCESOR ────────────────────────────── */
-
 '3-1': {
- intro: '🧮 [SOLVE] Procesor čeká na hodnotu x. Vyřeš základní rovnici a odemkni jádro.',
- sections: [
-  { h: 'Lineární rovnice',
-    p: ['Rovnice s neznámou x v první mocnině. Cíl: osamostatnit x ekvivalentními úpravami.',
-        'Co uděláš jedné straně, udělej i druhé.'] },
-  { h: 'Postup a zkouška',
-    p: ['Členy s x na jednu stranu, čísla na druhou, pak vyděl koeficientem. Výsledek ověř dosazením.'] },
- ],
- formulas: [
-  '<b>ax + b = c → x = (c − b)/a</b>',
- ],
- examples: [
-  { q: 'Vyřeš: 5x − 8 = 17', s: ['5x = 25', 'x = <b>5</b>'] },
- ],
- video: null,
+  intro: 'Lineární rovnice — jádro algebry.',
+  sections: [
+    {
+      h: 'Co je lineární rovnice',
+      p: [
+        '<b>Lineární rovnice</b> = neznámá (x) se vyskytuje jen v <b>první mocnině</b>. Tvar: ax + b = c.',
+        '<b>Ekvivalentní úpravy</b> — co uděláš jedné straně, musíš udělat i druhé: přičíst/odečíst stejné číslo, vynásobit/dělit stejným číslem (≠ 0).'
+      ]
+    },
+    {
+      h: 'Postup řešení',
+      p: [
+        '1. Přesuň členy s x na <b>levou stranu</b> (odečti od obou stran).<br>2. Přesuň <b>čísla na pravou stranu</b>.<br>3. Vydělte koeficientem u x.',
+        '⚠️ Nikdy nesmíme <b>dělit nulou</b>! Pokud je koeficient u x roven 0, rovnice je buď splněna pro všechna x, nebo pro žádné.'
+      ]
+    },
+    {
+      h: 'Zkouška',
+      p: [
+        'Vždy dosaď výsledek zpět do <b>původní</b> rovnice a ověř, zda levá strana = pravá strana.',
+        'Zkouška odhalí chyby ve výpočtu — nevynechávej ji při písemce!'
+      ]
+    }
+  ],
+  formulas: [
+    'ax + b = c &nbsp;→&nbsp; ax = c − b &nbsp;→&nbsp; x = (c − b) / a',
+    'Zkouška: dosaď x do původní rovnice a ověř rovnost'
+  ],
+  examples: [
+    {
+      q: 'Řeš: 3x − 7 = 14',
+      s: [
+        '3x = 14 + 7 = 21',
+        'x = 21 ÷ 3 = <b>7</b>',
+        'Zkouška: 3 · 7 − 7 = 21 − 7 = 14 ✓'
+      ]
+    },
+    {
+      q: 'Řeš: x/2 + 3 = x/4 + 5',
+      s: [
+        'Vynásob rovnici 4: 2x + 12 = x + 20',
+        '2x − x = 20 − 12',
+        'x = <b>8</b> &nbsp;|&nbsp; Zkouška: 4 + 3 = 2 + 5 = 7 ✓'
+      ]
+    },
+    {
+      q: 'Řeš a zkontroluj: 5(x − 2) = 3x + 4',
+      s: [
+        '5x − 10 = 3x + 4',
+        '2x = 14, &nbsp; x = <b>7</b>',
+        'Zkouška: 5·(7−2) = 25; 3·7+4 = 25 ✓'
+      ]
+    }
+  ],
+  video: { id: 'q2saJQdkF34', title: 'Rovnice' }
 },
 
 '3-2': {
- intro: '🔁 [PARSE] Rovnice se závorkami a neznámou na obou stranách. Rozparsuj je.',
- sections: [
-  { h: 'Odstranění závorek',
-    p: ['Roznásob závorky (pozor na znaménko před závorkou): −(x − 3) = −x + 3.'] },
-  { h: 'Neznámá na obou stranách',
-    p: ['Členy s x dej vlevo, čísla vpravo, sečti a vyděl koeficientem.'] },
- ],
- formulas: [
-  '<b>−(a − b) = −a + b</b>',
-  '<b>Postup:</b> roznásob → x vlevo → ÷ koeficient',
- ],
- examples: [
-  { q: 'Vyřeš: 3(x − 2) = x + 4', s: ['3x − 6 = x + 4', '3x − x = 4 + 6', '2x = 10 → x = <b>5</b>'] },
- ],
- video: null,
+  intro: 'Závorky a neznámá na obou stranách — pokročilá rovnicová technika.',
+  sections: [
+    {
+      h: 'Roznásobení závorek',
+      p: [
+        'Každý člen závorky vynásob číslem před ní (distribuční zákon).',
+        '<b>Pozor na záporné znaménko:</b> −(a − b) = −a + b &nbsp;(každé znaménko se otočí!)',
+        'Příklady: 3(x − 4) = 3x − 12 &nbsp;|&nbsp; −2(x + 5) = −2x − 10'
+      ]
+    },
+    {
+      h: 'Neznámá na obou stranách',
+      p: [
+        '1. Roznásob závorky.<br>2. Přesuň všechny členy s x na jednu stranu (odečti od obou stran).<br>3. Přesuň čísla na druhou stranu.<br>4. Vydělte koeficientem.',
+        '⚠️ Vždy proveď <b>zkoušku</b> dosazením do původní rovnice!'
+      ]
+    },
+    {
+      h: 'Zvláštní případy',
+      p: [
+        '<b>0 = 0:</b> rovnice je splněna pro <b>každé x</b> (nekonečně mnoho řešení). Příklad: x + 2 = x + 2.',
+        '<b>5 = 0:</b> rovnice <b>nemá řešení</b> (je nesplnitelná). Příklad: x + 3 = x + 7.'
+      ]
+    }
+  ],
+  formulas: [
+    '−(a − b) = −a + b',
+    'a(b + c) = ab + ac'
+  ],
+  examples: [
+    {
+      q: 'Řeš: 2(x + 3) = 4x − 2',
+      s: [
+        '2x + 6 = 4x − 2',
+        '6 + 2 = 4x − 2x',
+        '8 = 2x, &nbsp; x = <b>4</b>'
+      ]
+    },
+    {
+      q: 'Řeš: 3(x − 1) − 2(x + 4) = x − 15',
+      s: [
+        '3x − 3 − 2x − 8 = x − 15',
+        'x − 11 = x − 15',
+        '−11 = −15 — <b>žádné řešení!</b>'
+      ]
+    },
+    {
+      q: 'Řeš: 5 − (2x − 3) = 11 − 2x',
+      s: [
+        '5 − 2x + 3 = 11 − 2x',
+        '8 − 2x = 11 − 2x',
+        '8 = 11 — <b>žádné řešení</b> (8 ≠ 11)'
+      ]
+    }
+  ],
+  video: { id: 'zDCDOr_kFBU', title: 'Rovnice se zlomky' }
 },
 
 '3-3': {
- intro: '📐 [EXTRACT] Vyjádři neznámou ze vzorce a vyřeš slovní rovnici. Datová extrakce.',
- sections: [
-  { h: 'Vyjádření neznámé ze vzorce',
-    p: ['Se vzorcem zacházíme jako s rovnicí — osamostatníme hledanou veličinu ekvivalentními úpravami.',
-        'Z S = a · b vyjádříme a = S / b.'] },
-  { h: 'Slovní rovnice',
-    p: ['Označ neznámou, vyjádři vztahy, sestav rovnici, vyřeš a napiš odpověď.'] },
- ],
- formulas: [
-  '<b>S = a·b → a = S/b</b>',
-  '<b>o = 2(a+b) → a = o/2 − b</b>',
- ],
- examples: [
-  { q: 'Ze vzorce V = a³ vyjádři a', s: ['Odmocni obě strany (třetí odmocnina)', 'a = <b>³√V</b>'] },
-  { q: 'Obdélník: o = 30 cm, b = 7 cm. Strana a?', s: ['a = o/2 − b = 15 − 7 = <b>8 cm</b>'] },
- ],
- video: null,
+  intro: 'Vyjádření ze vzorce a slovní úlohy — algebra v praxi.',
+  sections: [
+    {
+      h: 'Vyjádření neznámé ze vzorce',
+      p: [
+        'Vzorec je rovnice s více proměnnými. Vyjádřit jednu proměnnou = zacházíme s ní jako s neznámou x a ostatní bereme jako konstanty.',
+        'Postup: izoluj hledanou proměnnou pomocí ekvivalentních úprav (stejně jako při řešení rovnice).'
+      ]
+    },
+    {
+      h: 'Postup pro slovní úlohy',
+      p: [
+        '1. <b>Označ</b> neznámou (x = ?).<br>2. <b>Sestav rovnici</b> z podmínek úlohy.<br>3. <b>Vyřeš</b> rovnici.<br>4. <b>Odpověz</b> celou větou a ověř, zda výsledek dává smysl.'
+      ]
+    },
+    {
+      h: 'Příklady vzorců z fyziky a geometrie',
+      p: [
+        '<b>Obsah obdélníku:</b> S = a · b &nbsp;→&nbsp; a = S / b',
+        '<b>Obvod obdélníku:</b> o = 2(a + b) &nbsp;→&nbsp; a = o/2 − b',
+        '<b>Dráha:</b> s = v · t &nbsp;→&nbsp; t = s / v &nbsp;→&nbsp; v = s / t'
+      ]
+    }
+  ],
+  formulas: [
+    'S = a · b &nbsp;→&nbsp; a = S / b',
+    'o = 2(a + b) &nbsp;→&nbsp; a = o/2 − b',
+    's = v · t &nbsp;→&nbsp; v = s/t, &nbsp; t = s/v'
+  ],
+  examples: [
+    {
+      q: 'Vyjádři t ze vzorce s = ½ · a · t²',
+      s: [
+        '2s = a · t²',
+        't² = 2s / a',
+        't = √(2s / a)'
+      ]
+    },
+    {
+      q: 'Obdélník má obvod 38 cm a jednu stranu 12 cm. Jaká je druhá strana?',
+      s: [
+        'o = 2(a + b): &nbsp; 38 = 2(12 + b)',
+        '19 = 12 + b',
+        'b = <b>7 cm</b>'
+      ]
+    },
+    {
+      q: 'Auto ujelo 240 km za 3 hodiny. Jaká byla průměrná rychlost?',
+      s: [
+        's = v · t &nbsp;→&nbsp; v = s / t',
+        'v = 240 / 3 = <b>80 km/h</b>'
+      ]
+    }
+  ],
+  video: { id: '9KL_tx0SYJk', title: 'Slovní úlohy — rovnice' }
 },
 
-/* ─── Oblast 4: SEKTOR LOMENÉHO KÓDU ──────────────────────────── */
-
 '4-1': {
- intro: '🧬 [VALIDATE] Lomené výrazy mají podmínky. Zjisti, kdy jmenovatel nesmí být nula.',
- sections: [
-  { h: 'Lomený výraz',
-    p: ['Lomený výraz má proměnnou ve jmenovateli. Jmenovatel nikdy nesmí být roven nule (dělení nulou není definováno).'] },
-  { h: 'Podmínky řešitelnosti',
-    p: ['Najdi hodnoty, pro které je jmenovatel nula, a vyluč je. Pro 1/(x−3) platí podmínka x ≠ 3.'] },
- ],
- formulas: [
-  '<b>Jmenovatel ≠ 0</b>',
-  '<b>x − a ≠ 0 → x ≠ a</b>',
- ],
- examples: [
-  { q: 'Urči podmínku pro 5/(x − 2)', s: ['Jmenovatel x − 2 ≠ 0', 'Podmínka: <b>x ≠ 2</b>'] },
-  { q: 'Urči podmínku pro x/(x + 4)', s: ['x + 4 ≠ 0', '<b>x ≠ −4</b>'] },
- ],
- video: null,
+  intro: 'Podmínky lomeného výrazu — hlídej jmenovatel!',
+  sections: [
+    {
+      h: 'Lomený výraz a dělení nulou',
+      p: [
+        '<b>Lomený výraz</b> = zlomek, v jehož jmenovateli je proměnná. Příklad: (x+3)/(x−2).',
+        'Dělení nulou je <b>nedefinované</b> — lomený výraz nemá hodnotu, když je jmenovatel = 0.',
+        '<b>Podmínka</b> = hodnota(y) proměnné, pro které by byl jmenovatel nulový, a které jsou proto <b>zakázané</b>.'
+      ]
+    },
+    {
+      h: 'Jak najít podmínku',
+      p: [
+        'Postav jmenovatel roven nule a vyřeš. Tato hodnota je zakázaná.',
+        'Příklad: výraz 5/(x − 4) → podmínka: x − 4 ≠ 0 → <b>x ≠ 4</b>.'
+      ]
+    },
+    {
+      h: 'Složitější jmenovatel',
+      p: [
+        'Jmenovatel x² − x = x(x − 1) → dvě podmínky: x ≠ 0 a x ≠ 1.',
+        'Postup: rozlož jmenovatel na součin, každý činitel polož ≠ 0.'
+      ]
+    }
+  ],
+  formulas: [
+    'Podmínka: jmenovatel ≠ 0',
+    'Složitý jmenovatel: rozlož na součin, každý činitel ≠ 0'
+  ],
+  examples: [
+    {
+      q: 'Urči podmínky výrazu: (2x+1)/(x+5)',
+      s: [
+        'Jmenovatel: x + 5 ≠ 0',
+        'Podmínka: <b>x ≠ −5</b>'
+      ]
+    },
+    {
+      q: 'Urči podmínky výrazu: 3/(x² − 4)',
+      s: [
+        'x² − 4 = (x−2)(x+2) ≠ 0',
+        'Podmínky: <b>x ≠ 2</b> a <b>x ≠ −2</b>'
+      ]
+    },
+    {
+      q: 'Urči podmínky výrazu: (x−1)/(x² − 3x)',
+      s: [
+        'x² − 3x = x(x − 3) ≠ 0',
+        'Podmínky: <b>x ≠ 0</b> a <b>x ≠ 3</b>'
+      ]
+    }
+  ],
+  video: { id: 'Gxwd7Nr3H7k', title: 'Rovnice se zlomky 1' }
 },
 
 '4-2': {
- intro: '🔢 [EVAL] Vyhodnoť hodnotu lomeného výrazu — dosaď a zkrať.',
- sections: [
-  { h: 'Hodnota výrazu',
-    p: ['Dosaď číslo za proměnnou (musí splňovat podmínku) a vypočítej. Pozor na pořadí operací.'] },
-  { h: 'Krácení lomených výrazů',
-    p: ['Čitatel i jmenovatel rozlož na součin a zkrať společné činitele. (x²−9)/(x−3) = (x−3)(x+3)/(x−3) = x+3.'] },
- ],
- formulas: [
-  '<b>Krácení:</b> rozlož na součin, zkrať společné',
-  '<b>x² − a² = (x − a)(x + a)</b>',
- ],
- examples: [
-  { q: 'Hodnota (x + 1)/(x − 1) pro x = 3', s: ['(3+1)/(3−1) = 4/2 = <b>2</b>'] },
-  { q: 'Zkrať: (x² − 4)/(x − 2)', s: ['(x−2)(x+2)/(x−2) = <b>x + 2</b> (x ≠ 2)'] },
- ],
- video: null,
+  intro: 'Hodnota a krácení lomených výrazů — rozklady jsou klíč.',
+  sections: [
+    {
+      h: 'Výpočet hodnoty lomeného výrazu',
+      p: [
+        'Dosaď konkrétní číslo za proměnnou. Nejdříve ověř, že dosazovaná hodnota <b>splňuje podmínky</b>.',
+        'Příklad: hodnota (x+3)/(x−1) pro x = 4 → (4+3)/(4−1) = 7/3.'
+      ]
+    },
+    {
+      h: 'Krácení lomeného výrazu',
+      p: [
+        'Rozlož čitatel i jmenovatel na součin. Zkrať <b>shodné činitele</b> (nenulové!).',
+        '⚠️ Krátit lze jen celé součiny — NELZE krátit sčítance: (x+2)/(x+5) nelze zkrátit!'
+      ]
+    },
+    {
+      h: 'Klíčové rozklady',
+      p: [
+        '<b>Rozdíl čtverců:</b> x² − a² = (x − a)(x + a)',
+        '<b>Úplný čtverec:</b> x² + 2ax + a² = (x + a)²',
+        'Příklad krácení: (x² − 9)/(x + 3) = (x−3)(x+3)/(x+3) = x − 3 &nbsp;(pro x ≠ −3)'
+      ]
+    }
+  ],
+  formulas: [
+    'x² − a² = (x − a)(x + a)',
+    'x² + 2ax + a² = (x + a)²',
+    'x² − 2ax + a² = (x − a)²'
+  ],
+  examples: [
+    {
+      q: 'Zkrať: (x² − 25)/(x + 5)',
+      s: [
+        'x² − 25 = (x−5)(x+5)',
+        '(x−5)(x+5)/(x+5) = <b>x − 5</b> &nbsp;(pro x ≠ −5)'
+      ]
+    },
+    {
+      q: 'Zkrať: (2x² − 8)/(x − 2)',
+      s: [
+        'Čitatel: 2x² − 8 = 2(x² − 4) = 2(x−2)(x+2)',
+        '2(x−2)(x+2)/(x−2) = <b>2(x+2)</b> &nbsp;(pro x ≠ 2)'
+      ]
+    },
+    {
+      q: 'Vypočítej hodnotu (x²−1)/(x+1) pro x = 3',
+      s: [
+        'Podmínka: x ≠ −1 ✓ (3 ≠ −1)',
+        'Zkrať: (x−1)(x+1)/(x+1) = x − 1',
+        'Pro x = 3: 3 − 1 = <b>2</b>'
+      ]
+    }
+  ],
+  video: { id: '_w3pjQikcX8', title: 'Algebraické vzorce' }
 },
 
 '4-3': {
- intro: '🧩 [DECODE] Rovnice s neznámou ve jmenovateli. Dekóduj ji opatrně — nezapomeň podmínky.',
- sections: [
-  { h: 'Rovnice s neznámou ve jmenovateli',
-    p: ['Nejdřív urči podmínky (jmenovatel ≠ 0). Pak vynásob rovnici společným jmenovatelem a vyřeš lineární rovnici.',
-        'Výsledek nesmí porušit podmínku — jinak je řešení nepřípustné.'] },
- ],
- formulas: [
-  '<b>Postup:</b> podmínky → vynásob jmenovatelem → vyřeš → ověř podmínku',
- ],
- examples: [
-  { q: 'Vyřeš: 6/x = 2  (x ≠ 0)', s: ['Vynásob x: 6 = 2x', 'x = <b>3</b> (splňuje x ≠ 0)'] },
- ],
- video: null,
+  intro: 'Rovnice s neznámou ve jmenovateli — podmínky jsou nutnost.',
+  sections: [
+    {
+      h: 'Postup řešení',
+      p: [
+        '1. Urči <b>podmínky</b> (zakázané hodnoty).<br>2. Vynásob obě strany rovnice <b>jmenovatelem</b> (nebo LCD).<br>3. Vyřeš vzniklou <b>lineární rovnici</b>.<br>4. <b>Ověř podmínky</b> — pokud vychází zakázaná hodnota, rovnice nemá řešení!'
+      ]
+    },
+    {
+      h: 'Nepřípustné řešení',
+      p: [
+        'Pokud výsledek rovnice je zakázaná hodnota, tuto hodnotu <b>odmítáme</b>.',
+        'Příklad: řeší-li rovnice na x = 3, ale podmínka říká x ≠ 3, pak rovnice <b>nemá řešení</b>.',
+        '⚠️ Vždy piš podmínky ještě <i>před</i> výpočtem — jinak snadno zapomeneš ověřit!'
+      ]
+    }
+  ],
+  formulas: [
+    'Postup: podmínky → vynásob jmenovatelem → lineární rovnice → ověř podmínky'
+  ],
+  examples: [
+    {
+      q: 'Řeš: 3/(x − 2) = 1',
+      s: [
+        'Podmínka: x ≠ 2',
+        'Vynásob (x−2): 3 = x − 2',
+        'x = 5 &nbsp;|&nbsp; 5 ≠ 2 ✓ &nbsp;→&nbsp; <b>x = 5</b>'
+      ]
+    },
+    {
+      q: 'Řeš: 1/(x−3) = 2/(x−3) − 1',
+      s: [
+        'Podmínka: x ≠ 3',
+        'Vynásob (x−3): 1 = 2 − (x−3) = 5 − x',
+        'x = 4 &nbsp;|&nbsp; 4 ≠ 3 ✓ &nbsp;→&nbsp; <b>x = 4</b>'
+      ]
+    }
+  ],
+  video: { id: 'SIVaNSiq2ZY', title: 'Rovnice se zlomky' }
 },
 
-/* ─── Oblast 5: SÍŤOVÝ UZEL ───────────────────────────────────── */
-
 '5-1': {
- intro: '🔗 [LINK] Dvě rovnice, dvě neznámé. Propoj uzel řešením soustavy.',
- sections: [
-  { h: 'Soustava dvou rovnic',
-    p: ['Hledáme dvojici (x, y), která vyhovuje oběma rovnicím současně.'] },
-  { h: 'Metoda dosazovací a sčítací',
-    p: ['Dosazovací: z jedné rovnice vyjádři jednu neznámou a dosaď do druhé.',
-        'Sčítací: rovnice sečti/odečti tak, aby jedna neznámá vypadla.'] },
- ],
- formulas: [
-  '<b>Dosazovací:</b> vyjádři x → dosaď do 2. rovnice',
-  '<b>Sčítací:</b> uprav koeficienty → sečti → 1 neznámá vypadne',
- ],
- examples: [
-  { q: 'Vyřeš: x + y = 10, x − y = 4', s: ['Sečti rovnice: 2x = 14 → x = 7', 'y = 10 − 7 = 3', 'Řešení: <b>x = 7, y = 3</b>'] },
- ],
- video: null,
+  intro: 'Soustava dvou rovnic — dvě podmínky, jedna odpověď.',
+  sections: [
+    {
+      h: 'Co je soustava rovnic',
+      p: [
+        'Hledáme dvojici čísel (x, y), která <b>splňuje obě rovnice najednou</b>.',
+        'Geometricky: průsečík dvou přímek. Soustava může mít 1 řešení (přímky se kříží), žádné (rovnoběžky) nebo nekonečně mnoho (splývají).'
+      ]
+    },
+    {
+      h: 'Metoda dosazovací',
+      p: [
+        '1. Z jedné rovnice vyjádři <b>jednu neznámou</b> (např. y = …).<br>2. Dosaď do <b>druhé rovnice</b> — dostaneš rovnici s jednou neznámou.<br>3. Vyřeš, pak dosaď zpět pro druhou neznámou.',
+        'Vhodná, když je koeficient 1 nebo −1.'
+      ]
+    },
+    {
+      h: 'Metoda sčítací',
+      p: [
+        '1. Uprav rovnice tak, aby koeficienty jedné neznámé byly <b>opačná čísla</b> (např. +3y a −3y).<br>2. <b>Sečti</b> obě rovnice — jedna neznámá vypadne.<br>3. Vyřeš zbývající, dosaď zpět.',
+        '⚠️ Vždy ověř výsledek v <b>obou původních rovnicích</b>!'
+      ]
+    }
+  ],
+  formulas: [
+    'Dosazovací: z jedné rovnice vyjádři x (nebo y), dosaď do druhé',
+    'Sčítací: násobíme rovnice tak, aby jedna neznámá vypadla sečtením'
+  ],
+  examples: [
+    {
+      q: 'Dosazovací: x + y = 7 a x − y = 3',
+      s: [
+        'Z 1. rovnice: x = 7 − y',
+        'Do 2.: (7−y) − y = 3 → 7 − 2y = 3 → y = 2',
+        'x = 7 − 2 = 5. Řešení: <b>x = 5, y = 2</b>'
+      ]
+    },
+    {
+      q: 'Sčítací: 2x + 3y = 12 a 4x − 3y = 6',
+      s: [
+        'Sečteme: (2x+4x) + (3y−3y) = 18 → 6x = 18 → x = 3',
+        'Do 1.: 6 + 3y = 12 → y = 2',
+        'Řešení: <b>x = 3, y = 2</b>'
+      ]
+    }
+  ],
+  video: { id: '1FqALSmZYFQ', title: 'Soustava rovnic — metoda sčítací' }
 },
 
 '5-2': {
- intro: '⚗️ [MIX] Roztoky, slitiny a výkon. Sestav rovnice pro směsi a práci.',
- sections: [
-  { h: 'Úlohy o směsích',
-    p: ['Hlídej množství „čisté" složky: koncentrace × množství. Součet složek = výsledná směs.',
-        'Příklad roztoku: 2 l 10% + 3 l 20% → čistá látka 0,2 + 0,6 = 0,8 l v 5 l → 16 %.'] },
-  { h: 'Úlohy o společné práci',
-    p: ['Pracuj s výkonem za jednotku času. Kdo udělá práci za a hodin, zvládne za hodinu 1/a práce.'] },
- ],
- formulas: [
-  '<b>Směs:</b> Σ(koncentrace · množství) = výsledná látka',
-  '<b>Práce:</b> výkon = 1/čas',
- ],
- examples: [
-  { q: 'Smícháme 2 kg za 50 Kč/kg a 3 kg za 100 Kč/kg. Cena za kg směsi?', s: ['Celkem: 2·50 + 3·100 = 100 + 300 = 400 Kč', '400 ÷ 5 kg = <b>80 Kč/kg</b>'] },
- ],
- video: null,
+  intro: 'Soustavy v praxi — směsi a spolupráce.',
+  sections: [
+    {
+      h: 'Úlohy o směsích',
+      p: [
+        '<b>Klíč:</b> (cena nebo koncentrace) × množství = celková hodnota. Součet složek = výsledná směs.',
+        'Postup: sestav dvě rovnice — jednu pro množství, druhou pro hodnotu (cenu / obsah látky).'
+      ]
+    },
+    {
+      h: 'Úlohy o práci a výkonu',
+      p: [
+        'Pracovník dokončí úkol za <i>a</i> hodin → za 1 hodinu udělá <b>1/a</b> práce.',
+        'Za t hodin udělá t/a práce. Společná práce: t/a + t/b = 1 (celá práce).'
+      ]
+    },
+    {
+      h: 'Tip: tabulka hodnot',
+      p: [
+        'Nakresli tabulku se sloupci: složka, množství, cena/výkon. Řádky vyplň ze zadání a sestav rovnice z součtů sloupců.',
+        'Tabulka zabrání záměně proměnných a pomůže sestavit rovnice správně.'
+      ]
+    }
+  ],
+  formulas: [
+    'Směs: c₁·m₁ + c₂·m₂ = c_výsl·(m₁+m₂)',
+    'Práce: t/a + t/b = 1, kde a, b jsou časy na celou práci'
+  ],
+  examples: [
+    {
+      q: 'Čaj za 80 Kč/100 g a za 120 Kč/100 g smícháme na 500 g za 92 Kč/100 g. Kolik g každého?',
+      s: [
+        'x + y = 500 &nbsp;|&nbsp; 80x + 120y = 92 · 500 = 46 000',
+        'Z 1.: x = 500 − y → 80(500−y) + 120y = 46 000',
+        '40 000 + 40y = 46 000 → y = 150 g, x = <b>350 g</b>'
+      ]
+    },
+    {
+      q: 'Instalatér udělá práci za 6 hodin, pomocník za 10 hodin. Za jak dlouho spolu?',
+      s: [
+        't/6 + t/10 = 1 &nbsp;|&nbsp; Vynásob 30: 5t + 3t = 30',
+        '8t = 30 → t = 30/8 = <b>3,75 hodiny = 3 h 45 min</b>'
+      ]
+    }
+  ],
+  video: { id: 'uT3O19Ds6Ds', title: 'Slovní úlohy — rovnice' }
 },
 
 '5-3': {
- intro: '🚀 [MOVE] Dráha, rychlost, čas. Vyřeš úlohy o pohybu napříč sítí.',
- sections: [
-  { h: 'Vztah dráhy, rychlosti a času',
-    p: ['Dráha = rychlost × čas. Z toho rychlost = dráha ÷ čas a čas = dráha ÷ rychlost.'] },
-  { h: 'Pohyb proti sobě a za sebou',
-    p: ['Proti sobě: rychlosti se sčítají (sbližují se). Za sebou stejným směrem: rychlosti se odečítají.'] },
- ],
- formulas: [
-  '<b>s = v · t</b>',
-  '<b>v = s / t</b>, <b>t = s / v</b>',
- ],
- examples: [
-  { q: 'Auto jede 90 km/h. Jakou dráhu ujede za 2,5 h?', s: ['s = 90 · 2,5 = <b>225 km</b>'] },
- ],
- video: null,
+  intro: 'Pohybové úlohy — dráha, rychlost, čas.',
+  sections: [
+    {
+      h: 'Základní vztah s = v · t',
+      p: [
+        '<b>s = v · t</b> — dráha = rychlost × čas. Trojúhelník: překryj hledanou veličinu.<br>v = s/t &nbsp;|&nbsp; t = s/v',
+        '⚠️ Dbej na <b>jednotky</b>: km/h × h = km; m/s × s = m. Nemíchej!'
+      ]
+    },
+    {
+      h: 'Pohyb vstříc (protijedoucí)',
+      p: [
+        'Dvě tělesa jedou <b>naproti sobě</b>: vzdálenosti se sčítají.',
+        'Po čase t: s₁ + s₂ = d → (v₁ + v₂) · t = d'
+      ]
+    },
+    {
+      h: 'Pohyb za sebou (dostih)',
+      p: [
+        'Jedno těleso dohání druhé: těleso A má náskok d, těleso B jede rychleji.',
+        'Dostih nastane, když B doběhne náskok: (v_B − v_A) · t = d',
+        '💡 Pokud vyjíždí ve stejný čas, nastav rovnici pro stejnou ujetou vzdálenost: v_A · t = v_B · t − d.'
+      ]
+    }
+  ],
+  formulas: [
+    's = v · t, &nbsp; v = s/t, &nbsp; t = s/v',
+    'Vstříc: (v₁ + v₂) · t = d',
+    'Dostih: (v_B − v_A) · t = d'
+  ],
+  examples: [
+    {
+      q: 'Dvě města jsou 240 km od sebe. Vlaky vyjíždí naproti sobě: jeden 80 km/h, druhý 100 km/h. Za jak dlouho se setkají?',
+      s: [
+        '(80 + 100) · t = 240',
+        '180t = 240 → t = 4/3 h = <b>1 h 20 min</b>'
+      ]
+    },
+    {
+      q: 'Cyklista 18 km/h vyjede o hodinu dříve. Druhý jede 27 km/h. Kdy ho dohoní?',
+      s: [
+        'Náskok cyklisty za 1 h: 18 · 1 = 18 km',
+        '(27 − 18) · t = 18 → 9t = 18 → t = 2 hodiny od startu druhého',
+        'Celkový čas od startu prvního: <b>3 hodiny</b>'
+      ]
+    },
+    {
+      q: 'Lodní motorka jede 60 km/h. Po 2 hodinách vyjede záchranný člun 90 km/h. Za jak dlouho záchranáři doplují?',
+      s: [
+        'Náskok motorky: 60 · 2 = 120 km',
+        '(90 − 60) · t = 120 → 30t = 120 → t = <b>4 hodiny</b>'
+      ]
+    }
+  ],
+  video: { id: 'h0m6TOGF3Ug', title: 'Rychlost a čtení z grafu' }
 },
 
-/* ─── Oblast 6: GRAFOVÝ MONITOR ───────────────────────────────── */
-
 '6-1': {
- intro: '📈 [PLOT] Monitor vykresluje lineární funkce. Pochop tvar y = kx + q.',
- sections: [
-  { h: 'Lineární funkce',
-    p: ['Funkce y = kx + q. Grafem je přímka. k je směrnice (sklon), q je úsek na ose y (kde přímka protne osu y).'] },
-  { h: 'Smysl k a q',
-    p: ['k > 0 → rostoucí, k < 0 → klesající, k = 0 → konstantní (vodorovná).',
-        'q je hodnota y pro x = 0.'] },
- ],
- formulas: [
-  '<b>y = kx + q</b>',
-  '<b>k</b> = sklon · <b>q</b> = úsek na ose y',
- ],
- examples: [
-  { q: 'Urči y pro funkci y = 2x + 3 při x = 4', s: ['y = 2·4 + 3 = 8 + 3 = <b>11</b>'] },
-  { q: 'Kde protne y = 2x + 3 osu y?', s: ['Pro x = 0: y = 3', 'Bod <b>[0; 3]</b>'] },
- ],
- video: null,
+  intro: 'Lineární funkce y = kx + q — základ analytické geometrie.',
+  sections: [
+    {
+      h: 'Definice a parametry',
+      p: [
+        '<b>y = kx + q</b> — každé reálné x dává přesně jednu hodnotu y. Grafem je <b>přímka</b>.',
+        '<b>k (směrnice)</b> = sklon přímky. <b>q (absolutní člen)</b> = průsečík s osou y (bod [0; q]).'
+      ]
+    },
+    {
+      h: 'Jak nakreslit přímku',
+      p: [
+        'Stačí <b>dva body</b>. Nejjednodušší: dosaď x = 0 → dostaneš y = q (bod na ose y). Dosaď x = 1 → y = k + q.',
+        '<svg width="240" height="180" style="display:block;margin:8px auto 0" viewBox="0 0 240 180"><rect width="240" height="180" fill="#0d1117"/><line x1="20" y1="90" x2="220" y2="90" stroke="#4a9eff" stroke-width="1.5"/><line x1="110" y1="10" x2="110" y2="170" stroke="#4a9eff" stroke-width="1.5"/><text x="222" y="94" fill="#4a9eff" font-size="11" font-family="monospace">x</text><text x="113" y="10" fill="#4a9eff" font-size="11" font-family="monospace">y</text><line x1="20" y1="150" x2="210" y2="30" stroke="#00ff88" stroke-width="2"/><circle cx="110" cy="68" r="4" fill="#ffcc00"/><text x="115" y="64" fill="#ffcc00" font-size="11" font-family="monospace">[0; 1]</text><circle cx="55" cy="90" r="4" fill="#ff5555"/><text x="28" y="108" fill="#ff5555" font-size="11" font-family="monospace">[−0,5; 0]</text><text x="145" y="28" fill="#00ff88" font-size="12" font-family="monospace">y = 2x + 1</text></svg>'
+      ]
+    },
+    {
+      h: 'Vliv parametru k',
+      p: [
+        '<b>k &gt; 0</b>: přímka stoupá zleva doprava.<br><b>k &lt; 0</b>: přímka klesá.<br><b>k = 0</b>: vodorovná přímka y = q.',
+        'Čím větší |k|, tím <b>strmější</b> přímka. Rovnoběžné přímky mají stejné k.'
+      ]
+    }
+  ],
+  formulas: [
+    'y = kx + q',
+    'Průsečík s osou y: [0; q] (dosaď x = 0)',
+    'Průsečík s osou x: [−q/k; 0] (dosaď y = 0)'
+  ],
+  examples: [
+    {
+      q: 'Nakresli přímku y = 3x − 2 (najdi dva body)',
+      s: [
+        'x = 0: y = −2 → bod [0; −2]',
+        'x = 1: y = 1 → bod [1; 1]',
+        'Přímka <b>stoupá</b> (k = 3 &gt; 0), průsečík s osou y je −2.'
+      ]
+    },
+    {
+      q: 'Jaká je směrnice přímky procházející body [2; 5] a [4; 11]?',
+      s: [
+        'k = (y₂ − y₁) / (x₂ − x₁) = (11 − 5) / (4 − 2) = 6 / 2 = <b>3</b>'
+      ]
+    }
+  ],
+  video: { id: 'Ft4bVyLP9Gc', title: 'Graf lineární funkce' }
 },
 
 '6-2': {
- intro: '🔍 [ANALYZE] Vlastnosti funkcí — rostoucí, klesající, průsečíky. Analyzuj graf.',
- sections: [
-  { h: 'Rostoucí a klesající',
-    p: ['Rostoucí: s rostoucím x roste i y (k > 0). Klesající: s rostoucím x klesá y (k < 0).'] },
-  { h: 'Průsečíky s osami',
-    p: ['S osou y: dosaď x = 0. S osou x: polož y = 0 a vyřeš rovnici pro x.'] },
- ],
- formulas: [
-  '<b>Průsečík s osou x:</b> y = 0 → vyřeš pro x',
-  '<b>Průsečík s osou y:</b> x = 0 → y = q',
- ],
- examples: [
-  { q: 'Je y = −3x + 6 rostoucí, nebo klesající?', s: ['k = −3 < 0 → <b>klesající</b>'] },
-  { q: 'Kde protne y = −3x + 6 osu x?', s: ['y = 0: 0 = −3x + 6 → x = 2', 'Bod <b>[2; 0]</b>'] },
- ],
- video: null,
+  intro: 'Vlastnosti lineárních funkcí a průsečíky přímek.',
+  sections: [
+    {
+      h: 'Rostoucí a klesající funkce',
+      p: [
+        '<b>Rostoucí:</b> k &gt; 0 — s rostoucím x roste i y.',
+        '<b>Klesající:</b> k &lt; 0 — s rostoucím x y klesá.',
+        '<b>Konstantní:</b> k = 0 — hodnota y je stále stejná (q).'
+      ]
+    },
+    {
+      h: 'Průsečíky s osami',
+      p: [
+        '<b>S osou y:</b> dosaď x = 0 → y = q. Bod [0; q].',
+        '<b>S osou x:</b> dosaď y = 0 → 0 = kx + q → x = −q/k. Bod [−q/k; 0].',
+        '⚠️ Průsečík s osou x neexistuje, pokud k = 0 (přímka je rovnoběžná s osou x, nebo splývá s ní).'
+      ]
+    },
+    {
+      h: 'Průsečík dvou přímek',
+      p: [
+        'Přímky y = k₁x + q₁ a y = k₂x + q₂ se kříží, kde y₁ = y₂.',
+        'Sestav rovnici: k₁x + q₁ = k₂x + q₂, vyřeš pro x, pak dosaď pro y.'
+      ]
+    }
+  ],
+  formulas: [
+    'Průsečík s osou y: [0; q]',
+    'Průsečík s osou x: [−q/k; 0]',
+    'Průsečík dvou přímek: k₁x + q₁ = k₂x + q₂'
+  ],
+  examples: [
+    {
+      q: 'Najdi průsečíky přímky y = 2x − 4 s oběma osami.',
+      s: [
+        'Osa y (x=0): y = −4 → bod <b>[0; −4]</b>',
+        'Osa x (y=0): 2x − 4 = 0 → x = 2 → bod <b>[2; 0]</b>'
+      ]
+    },
+    {
+      q: 'Kde se kříží přímky y = x + 3 a y = 3x − 1?',
+      s: [
+        'x + 3 = 3x − 1',
+        '4 = 2x → x = 2',
+        'y = 2 + 3 = 5. Průsečík: <b>[2; 5]</b>'
+      ]
+    },
+    {
+      q: 'Jsou přímky y = 2x + 1 a y = 2x − 3 rovnoběžné?',
+      s: [
+        'Obě mají k = 2, ale různé q (1 ≠ −3).',
+        'Ano, přímky jsou <b>rovnoběžné</b> — nikdy se nesetkají.'
+      ]
+    }
+  ],
+  video: { id: 'ZKkrOVxUYlU', title: 'Lineární funkce — průsečíky s osami' }
 },
 
 '6-3': {
- intro: '〽️ [INVERSE] Lomená funkce a nepřímá úměrnost y = k/x. Křivka v monitoru.',
- sections: [
-  { h: 'Nepřímá úměrnost',
-    p: ['y = k/x (x ≠ 0). Když x roste, y klesá a naopak. Součin x · y = k je stálý.',
-        'Grafem je hyperbola (dvě větve).'] },
-  { h: 'Užití',
-    p: ['Čím víc dělníků, tím kratší čas. Čím vyšší rychlost, tím kratší čas na danou dráhu.'] },
- ],
- formulas: [
-  '<b>y = k/x</b> (x ≠ 0)',
-  '<b>x · y = k</b> (konstantní)',
- ],
- examples: [
-  { q: 'Pro y = 12/x urči y při x = 3', s: ['y = 12/3 = <b>4</b>'] },
-  { q: '6 dělníků udělá práci za 8 dní. Za kolik dní 4 dělníci?', s: ['Součin stálý: 6·8 = 48', '48 ÷ 4 = <b>12 dní</b>'] },
- ],
- video: null,
+  intro: 'Nepřímá úměra y = k/x — hyperbola v síti.',
+  sections: [
+    {
+      h: 'Definice a vlastnosti',
+      p: [
+        '<b>y = k/x</b> (pro x ≠ 0). <b>k</b> je konstanta úměrnosti (k ≠ 0).',
+        'Klíčová vlastnost: součin x · y = k je vždy konstantní. Když x zdvojnásobíš, y se půlí.'
+      ]
+    },
+    {
+      h: 'Graf — hyperbola',
+      p: [
+        '<svg width="220" height="200" style="display:block;margin:8px auto 0" viewBox="0 0 220 200"><rect width="220" height="200" fill="#0d1117"/><line x1="15" y1="100" x2="205" y2="100" stroke="#4a9eff" stroke-width="1.5"/><line x1="110" y1="10" x2="110" y2="190" stroke="#4a9eff" stroke-width="1.5"/><text x="207" y="104" fill="#4a9eff" font-size="10" font-family="monospace">x</text><text x="113" y="10" fill="#4a9eff" font-size="10" font-family="monospace">y</text><path d="M125,20 C140,30 165,55 190,100" fill="none" stroke="#00ff88" stroke-width="2"/><path d="M125,180 C140,170 165,145 190,100" fill="none" stroke="#00ff88" stroke-width="2" opacity="0.5"/><path d="M95,20 C80,30 55,55 30,100" fill="none" stroke="#ffcc00" stroke-width="2"/><path d="M95,180 C80,170 55,145 30,100" fill="none" stroke="#ffcc00" stroke-width="2" opacity="0.6"/><text x="155" y="42" fill="#00ff88" font-size="11" font-family="monospace">k&gt;0</text><text x="22" y="38" fill="#ffcc00" font-size="11" font-family="monospace">k&lt;0</text></svg>',
+        'Graf má <b>dvě větve</b>: pro k &gt; 0 v I. a III. kvadrantu. Osy x a y jsou asymptoty — křivka se k nim přibližuje, ale nikdy jich nedosáhne.'
+      ]
+    },
+    {
+      h: 'Přímá vs nepřímá úměra',
+      p: [
+        '<table style="border-collapse:collapse;font-size:12px;color:#c9d1d9;margin:4px auto"><tr><th style="padding:3px 7px;border:1px solid #4a9eff">&nbsp;</th><th style="padding:3px 7px;border:1px solid #4a9eff">Přímá</th><th style="padding:3px 7px;border:1px solid #4a9eff">Nepřímá</th></tr><tr><td style="padding:3px 7px;border:1px solid #4a9eff">Vzorec</td><td style="padding:3px 7px;border:1px solid #4a9eff">y = kx</td><td style="padding:3px 7px;border:1px solid #4a9eff">y = k/x</td></tr><tr><td style="padding:3px 7px;border:1px solid #4a9eff">Konstantní</td><td style="padding:3px 7px;border:1px solid #4a9eff">y/x = k</td><td style="padding:3px 7px;border:1px solid #4a9eff">x·y = k</td></tr><tr><td style="padding:3px 7px;border:1px solid #4a9eff">Graf</td><td style="padding:3px 7px;border:1px solid #4a9eff">přímka</td><td style="padding:3px 7px;border:1px solid #4a9eff">hyperbola</td></tr><tr><td style="padding:3px 7px;border:1px solid #4a9eff">Příklad</td><td style="padding:3px 7px;border:1px solid #4a9eff">cena × ks</td><td style="padding:3px 7px;border:1px solid #4a9eff">rychlost × čas</td></tr></table>'
+      ]
+    }
+  ],
+  formulas: [
+    'y = k/x &nbsp;(x ≠ 0)',
+    'x · y = k = konst.'
+  ],
+  examples: [
+    {
+      q: 'Pro y = 12/x: jaká je hodnota y při x = 4?',
+      s: [
+        'y = 12 / 4 = <b>3</b>',
+        'Ověř: x · y = 4 · 3 = 12 = k ✓'
+      ]
+    },
+    {
+      q: 'Cesta trvá 3 h při rychlosti 80 km/h. Jak dlouho trvá při 120 km/h?',
+      s: [
+        'k = v · t = 80 · 3 = 240 km (konstanta = vzdálenost)',
+        't = 240 / 120 = <b>2 hodiny</b>'
+      ]
+    }
+  ],
+  video: { id: '1jnAzljrmZk', title: 'Graf nepřímé úměrnosti' }
 },
 
-/* ─── Oblast 7: JÁDRO SYSTÉMU ─────────────────────────────────── */
-
 '7-1': {
- intro: '🏛️ [SCALE] Podobnost a měřítko — klíč k jádru. Urči koeficient podobnosti.',
- sections: [
-  { h: 'Podobnost útvarů',
-    p: ['Podobné útvary mají stejný tvar, ale jinou velikost. Odpovídající strany jsou ve stejném poměru — koeficient podobnosti k.',
-        'Úhly se při podobnosti zachovávají.'] },
-  { h: 'Měřítko',
-    p: ['Měřítko 1 : 50 000 znamená, že 1 cm na mapě = 50 000 cm = 500 m ve skutečnosti.'] },
- ],
- formulas: [
-  '<b>k</b> = poměr odpovídajících stran',
-  '<b>Měřítko 1 : m</b> → skutečnost = mapa · m',
- ],
- examples: [
-  { q: 'Trojúhelníky podobné, k = 3. Strana originálu 4 cm. Odpovídající strana obrazu?', s: ['4 · 3 = <b>12 cm</b>'] },
-  { q: 'Mapa 1 : 100 000. Úsečka 3 cm = kolik km?', s: ['3 · 100 000 = 300 000 cm = 3 000 m = <b>3 km</b>'] },
- ],
- video: { id: 'XFIg5VJ2Ujc', title: 'Podobnost trojúhelníků' },
+  intro: 'Podobnost trojúhelníků a měřítko — zachování tvaru.',
+  sections: [
+    {
+      h: 'Co je podobnost',
+      p: [
+        'Dvě tělesa jsou <b>podobná</b>, mají-li stejný tvar (všechny odpovídající úhly jsou shodné) a poměry odpovídajících stran jsou stejné.',
+        '<b>Koeficient podobnosti k</b> = (strana obrazu) / (strana originálu).',
+        '<svg width="280" height="140" style="display:block;margin:8px auto 0" viewBox="0 0 280 140"><rect width="280" height="140" fill="#0d1117"/><polygon points="20,120 80,20 130,120" fill="none" stroke="#4a9eff" stroke-width="2"/><text x="13" y="134" fill="#ffcc00" font-size="12" font-family="monospace">A</text><text x="77" y="16" fill="#ffcc00" font-size="12" font-family="monospace">B</text><text x="128" y="134" fill="#ffcc00" font-size="12" font-family="monospace">C</text><text x="61" y="130" fill="#c9d1d9" font-size="11" font-family="monospace">a</text><text x="34" y="72" fill="#c9d1d9" font-size="11" font-family="monospace">c</text><text x="114" y="72" fill="#c9d1d9" font-size="11" font-family="monospace">b</text><polygon points="155,120 215,45 265,120" fill="none" stroke="#00ff88" stroke-width="2"/><text x="148" y="134" fill="#ffcc00" font-size="12" font-family="monospace">A\'</text><text x="212" y="41" fill="#ffcc00" font-size="12" font-family="monospace">B\'</text><text x="262" y="134" fill="#ffcc00" font-size="12" font-family="monospace">C\'</text><text x="204" y="130" fill="#00ff88" font-size="11" font-family="monospace">ka</text><text x="166" y="83" fill="#00ff88" font-size="11" font-family="monospace">kc</text><text x="252" y="83" fill="#00ff88" font-size="11" font-family="monospace">kb</text></svg>'
+      ]
+    },
+    {
+      h: 'Obvod a obsah podobných útvarů',
+      p: [
+        '<b>Obvod</b> se zvětší <b>k-krát</b>: o₂ = k · o₁.',
+        '<b>Obsah</b> se zvětší <b>k²-krát</b>: S₂ = k² · S₁.',
+        'Příklad: trojúhelník zvětšíme 3× → obvod je 3× větší, obsah je 9× větší!'
+      ]
+    },
+    {
+      h: 'Měřítko mapy a plánů',
+      p: [
+        'Měřítko <b>1 : m</b> → skutečná vzdálenost = mapa × m.',
+        'Příklad: měřítko 1 : 50 000 → 1 cm na mapě = 50 000 cm = 500 m ve skutečnosti.',
+        'Obrácený postup: skutečnost → mapa: mapa = skutečnost / m.'
+      ]
+    }
+  ],
+  formulas: [
+    'k = strana obrazu / strana originálu',
+    'Obvod: o₂ = k · o₁',
+    'Obsah: S₂ = k² · S₁'
+  ],
+  examples: [
+    {
+      q: 'Trojúhelníky jsou podobné, poměr stran 2 : 5. Menší má obsah 8 cm². Jaký je obsah většího?',
+      s: [
+        'k = 5/2 = 2,5',
+        'S₂ = k² · S₁ = 6,25 · 8 = <b>50 cm²</b>'
+      ]
+    },
+    {
+      q: 'Na mapě v měřítku 1 : 25 000 je vzdálenost 4,5 cm. Jaká je skutečná vzdálenost?',
+      s: [
+        'skutečnost = 4,5 · 25 000 = 112 500 cm = 1 125 m = <b>1,125 km</b>'
+      ]
+    },
+    {
+      q: 'Trojúhelník se zvětšil 4×. Původní obvod byl 15 cm. Jaký je nový obvod?',
+      s: [
+        'o₂ = k · o₁ = 4 · 15 = <b>60 cm</b>'
+      ]
+    }
+  ],
+  video: { id: 'XFIg5VJ2Ujc', title: 'Podobnost trojúhelníků' }
 },
 
 '7-2': {
- intro: '🧊 [VOLUME] Objem a povrch těles — válec, kužel, koule. Naplň jádro daty.',
- sections: [
-  { h: 'Válec',
-    p: ['Objem V = π·r²·v. Povrch S = 2πr² + 2πrv.'] },
-  { h: 'Kužel',
-    p: ['Objem V = ⅓·π·r²·v. Povrch S = πr² + πrs (s je strana kužele).'] },
-  { h: 'Koule',
-    p: ['Objem V = ⁴⁄₃·π·r³. Povrch S = 4πr².'] },
- ],
- formulas: [
-  '<b>Válec:</b> V = πr²v',
-  '<b>Kužel:</b> V = ⅓πr²v',
-  '<b>Koule:</b> V = ⁴⁄₃πr³, S = 4πr²',
- ],
- examples: [
-  { q: 'Koule r = 3 cm. Povrch? (π ≈ 3,14)', s: ['S = 4·3,14·3² = 4·3,14·9 = <b>113,04 cm²</b>'] },
-  { q: 'Kužel r = 3 cm, v = 4 cm. Objem? (π ≈ 3,14)', s: ['V = ⅓·3,14·9·4 = ⅓·113,04 = <b>37,68 cm³</b>'] },
- ],
- video: { id: 'GG9WF955El4', title: 'Objem a povrch válce' },
+  intro: 'Objem a povrch rotačních těles — válec, kužel, koule.',
+  sections: [
+    {
+      h: 'Válec',
+      p: [
+        '<svg width="160" height="120" style="display:block;margin:8px auto 0" viewBox="0 0 160 120"><rect width="160" height="120" fill="#0d1117"/><ellipse cx="80" cy="30" rx="50" ry="15" fill="none" stroke="#4a9eff" stroke-width="2"/><ellipse cx="80" cy="90" rx="50" ry="15" fill="none" stroke="#4a9eff" stroke-width="2"/><line x1="30" y1="30" x2="30" y2="90" stroke="#4a9eff" stroke-width="2"/><line x1="130" y1="30" x2="130" y2="90" stroke="#4a9eff" stroke-width="2"/><line x1="80" y1="30" x2="130" y2="30" stroke="#ffcc00" stroke-width="1.5" stroke-dasharray="4,3"/><text x="100" y="24" fill="#ffcc00" font-size="11" font-family="monospace">r</text><line x1="132" y1="30" x2="132" y2="90" stroke="#00ff88" stroke-width="1.5" stroke-dasharray="4,3"/><text x="136" y="63" fill="#00ff88" font-size="11" font-family="monospace">v</text></svg>',
+        '<b>r</b> = poloměr základny, <b>v</b> = výška.<br><b>Objem:</b> V = π · r² · v<br><b>Povrch:</b> S = 2πr² + 2πrv &nbsp;(2 podstavy + plášť)'
+      ]
+    },
+    {
+      h: 'Kužel',
+      p: [
+        '<svg width="160" height="130" style="display:block;margin:8px auto 0" viewBox="0 0 160 130"><rect width="160" height="130" fill="#0d1117"/><ellipse cx="80" cy="105" rx="55" ry="16" fill="none" stroke="#4a9eff" stroke-width="2"/><line x1="25" y1="105" x2="80" y2="15" stroke="#4a9eff" stroke-width="2"/><line x1="135" y1="105" x2="80" y2="15" stroke="#4a9eff" stroke-width="2"/><line x1="80" y1="105" x2="135" y2="105" stroke="#ffcc00" stroke-width="1.5" stroke-dasharray="4,3"/><text x="103" y="100" fill="#ffcc00" font-size="11" font-family="monospace">r</text><line x1="80" y1="15" x2="80" y2="105" stroke="#00ff88" stroke-width="1.5" stroke-dasharray="4,3"/><text x="83" y="63" fill="#00ff88" font-size="11" font-family="monospace">v</text><text x="100" y="55" fill="#ff5555" font-size="11" font-family="monospace">s</text><text x="77" y="12" fill="#c9d1d9" font-size="10" font-family="monospace">vrchol</text></svg>',
+        '<b>s = √(r² + v²)</b> = délka strany (šikmá výška). ⚠️ <b>Plášť kužele používá s, ne v!</b><br><b>Objem:</b> V = ⅓ · π · r² · v<br><b>Povrch:</b> S = πr² + πrs &nbsp;(podstava + plášť)'
+      ]
+    },
+    {
+      h: 'Koule',
+      p: [
+        '<b>r</b> = poloměr koule.',
+        '<b>Objem:</b> V = (4/3) · π · r³',
+        '<b>Povrch:</b> S = 4 · π · r²'
+      ]
+    }
+  ],
+  formulas: [
+    'Válec: V = πr²v, &nbsp; S = 2πr² + 2πrv',
+    'Kužel: s = √(r²+v²), &nbsp; V = ⅓πr²v, &nbsp; S = πr² + πrs',
+    'Koule: V = (4/3)πr³, &nbsp; S = 4πr²'
+  ],
+  examples: [
+    {
+      q: 'Koule má poloměr r = 3 cm. Vypočítej povrch.',
+      s: [
+        'S = 4 · π · r² = 4 · π · 9',
+        'S = 36π ≈ <b>113,1 cm²</b>'
+      ]
+    },
+    {
+      q: 'Kužel: r = 4 cm, v = 3 cm. Vypočítej objem.',
+      s: [
+        'V = ⅓ · π · r² · v = ⅓ · π · 16 · 3',
+        'V = 16π ≈ <b>50,3 cm³</b>'
+      ]
+    }
+  ],
+  video: { id: 'GG9WF955El4', title: 'Objem a povrch válce' }
 },
 
 '7-3': {
- intro: '💥 [BREACH] Finální průlom do systémového jádra. Mix všech témat 9. ročníku — všechno se počítá.',
- sections: [
-  { h: 'Co tě čeká',
-    p: ['Procenta, mocniny, rovnice, lomené výrazy, soustavy, funkce, podobnost i tělesa — vše dohromady.',
-        'Toto je příprava na přijímačky i na konec ZŠ.'] },
-  { h: 'Strategie závěru',
-    p: ['Čti zadání pozorně, dělej zkoušku u rovnic, hlídej podmínky u lomených výrazů a jednotky u geometrie.'] },
- ],
- formulas: [
-  '<b>c² = a² + b²</b> · <b>y = kx + q</b>',
-  '<b>Koule:</b> V = ⁴⁄₃πr³ · <b>Válec:</b> V = πr²v',
- ],
- examples: [
-  { q: 'Vyřeš: 4/(x − 1) = 2  (x ≠ 1)', s: ['Vynásob (x−1): 4 = 2(x−1)', '4 = 2x − 2 → 2x = 6 → x = <b>3</b>'] },
- ],
- video: null,
-},
+  intro: 'Finální mise — přehled všeho a přijímačkové tipy.',
+  sections: [
+    {
+      h: 'Co testují přijímačky CERMAT',
+      p: [
+        '• Pořadí operací, racionální a iracionální čísla<br>• Procenta a procentní změna<br>• Mocniny, odmocniny, vědecký zápis<br>• Pythagorova věta a pythagorejské trojice<br>• Lineární rovnice, rovnice se závorkami<br>• Vyjádření ze vzorce, slovní úlohy<br>• Lomené výrazy — podmínky, krácení<br>• Soustavy dvou rovnic (dosazovací, sčítací)<br>• Lineární funkce y = kx + q — průsečíky, sklon<br>• Nepřímá úměra y = k/x<br>• Podobnost a měřítko<br>• Objem a povrch válce, kužele, koule'
+      ]
+    },
+    {
+      h: 'Nejčastější chyby',
+      p: [
+        '• <b>Závorky a znaménka:</b> −(a−b) = −a+b, ne −a−b<br>• <b>Záporné mocniny:</b> −3² = −9, ale (−3)² = 9<br>• <b>Podmínky u lomených výrazů</b> zapomenuté nebo nevyhodnocené<br>• <b>Jednotky:</b> km/h × h = km, ne míchej km a m<br>• <b>Obsah vs. obvod</b> u podobných útvarů (k vs. k²)<br>• <b>s vs. v u kužele</b> — do vzorce pro plášť patří s!'
+      ]
+    },
+    {
+      h: 'Postup řešení na písemce',
+      p: [
+        '1. <b>Čti dvakrát</b> — co je dáno, co hledáš.',
+        '2. <b>Nakresli nebo zapiš</b> — schéma, tabulka, vzorec.',
+        '3. <b>Řeš systematicky</b> — ekvivalentní úpravy, nic nepřeskakuj.',
+        '4. <b>Zkouška</b> — dosaď výsledek, ověř jednotky, zkontroluj podmínky.'
+      ]
+    }
+  ],
+  formulas: [
+    'Pythagorova věta: c² = a² + b²',
+    'Povrch koule: S = 4πr²',
+    'Objem koule: V = (4/3)πr³',
+    'Lineární funkce: y = kx + q',
+    'Lineární rovnice: ax + b = c → x = (c−b)/a'
+  ],
+  examples: [
+    {
+      q: 'Kovová koule o poloměru 6 cm se přetaví na válec s výškou v = 8 cm. Jaký je poloměr válce?',
+      s: [
+        'Objem koule = objem válce',
+        '(4/3)π · 6³ = π · r² · 8',
+        '(4/3) · 216 = 8r² → 288 = 8r² → r² = 36 → r = <b>6 cm</b>'
+      ]
+    }
+  ],
+  video: { id: 'FO-xAjpo3b0', title: 'CERMAT 2025 — přijímací zkoušky' }
+}
 
 };
 })();
