@@ -2125,6 +2125,7 @@ function trCorrect(){
 
 function trWrong(given){
  TR.total++;TR.streak=0;
+ if(!S.errs)S.errs={};if(TR.mid){S.errs[TR.mid]=(S.errs[TR.mid]||0)+1;saveS();}
  const fb=document.getElementById('tr-fb');
  fb.className='feedback err';
  fb.textContent='✗ Není to ono. Správně: '+TR.task.ans;

@@ -187,8 +187,8 @@ body{background:var(--bg);color:var(--text);font-family:var(--px);min-height:100
   <div id="t-diag" class="hidden">
    <p style="color:var(--muted);margin-bottom:14px;line-height:1.6">
     Kde žáci <b style="color:var(--gold)">nejvíc chybují</b>. Pro každou misi vidíš, kolik žáků ji
-    dokončilo a <b>průměrný počet chyb</b> (špatná odpověď nebo vypršený čas) na žáka, který ji zkoušel.
-    Čím <span style="color:#ff6b6b">červenější</span>, tím těžší — dobré téma na společné probrání.</p>
+    dokončilo a <b>průměrný počet chyb</b> (špatná odpověď nebo vypršený čas) na žáka, který ji zkoušel —
+    počítá se z boje <b>i tréninku</b>. Čím <span style="color:#ff6b6b">červenější</span>, tím těžší — dobré téma na společné probrání.</p>
    <div class="controls">
     <select id="diag-game" onchange="renderDiag()"></select>
     <button class="mini" onclick="loadData().then(renderDiag)">↻ Obnovit</button>
@@ -631,9 +631,23 @@ function buildMasteryHtml(d,gameKey){
   const bar=score>0?'<span style="color:var(--muted);font-size:10px"> ('+score+'/15)</span>':'';
   pills+='<span style="display:inline-block;font-size:11px;padding:3px 8px;border-radius:20px;margin:2px;background:var(--panel2);color:var(--muted);border:1px solid var(--line)">'+esc(m.id)+''+bar+'</span>';
  });
+ let errHtml='';
+ if(d.errs&&Object.keys(d.errs).length){
+  const errs=Object.entries(d.errs).filter(([,v])=>v>0).sort((a,b)=>b[1]-a[1]);
+  if(errs.length){
+   const errPills=errs.map(([mid,cnt])=>{
+    const mObj=missionsFor(gameKey).find(m=>m.id===mid);
+    const nm=mObj?mObj.name:mid;
+    const col=cnt>=4?'var(--red)':cnt>=2?'var(--gold)':'var(--muted)';
+    return '<span style="display:inline-block;font-size:11px;padding:2px 7px;border-radius:20px;margin:2px;background:var(--panel2);border:1px solid '+col+';color:'+col+'">'+esc(mid)+' '+cnt+'×</span>';
+   }).join('');
+   errHtml='<div style="font-size:11px;color:var(--muted);margin:6px 0 2px">Chyby po misi (boj + trénink):</div><div style="margin-bottom:8px;line-height:2">'+errPills+'</div>';
+  }
+ }
  return '<h4>Mistrovství</h4>'+
   '<div class="row"><span>Zvládnutých misí</span><b style="color:var(--gold)">'+mc+' / '+total+' 🏅</b></div>'+
-  (mc===0?'<div style="font-size:12px;color:var(--muted);margin:8px 0">Zatím žádná mise nezvládnuta.</div>':'<div style="margin:10px 0 4px;line-height:2">'+pills+'</div>');
+  (mc===0?'<div style="font-size:12px;color:var(--muted);margin:8px 0">Zatím žádná mise nezvládnuta.</div>':'<div style="margin:10px 0 4px;line-height:2">'+pills+'</div>')+
+  errHtml;
 }
 
 /* ── detail žáka ── */
