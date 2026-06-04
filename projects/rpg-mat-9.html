@@ -380,6 +380,13 @@ body::before{
 .streak-chip{display:inline-flex;align-items:center;gap:5px;font-family:var(--px);font-weight:700;font-size:12px;color:#ffae3d;background:#1c1206;border:2px solid #ffae3d;padding:3px 9px;letter-spacing:.5px}
 .streak-chip .sf{animation:streak-flicker 1.4s ease-in-out infinite}
 @keyframes streak-flicker{0%,100%{transform:scale(1);filter:drop-shadow(0 0 2px #ffae3d)}50%{transform:scale(1.18);filter:drop-shadow(0 0 7px #ff7733)}}
+/* ── REDUCED MOTION (přístupnost) ── */
+.reduced-motion .float-txt{display:none!important}
+.reduced-motion #hit-vignette{display:none!important}
+.reduced-motion #levelup.show .lvl-bg,.reduced-motion #levelup.show .lvl-ring,.reduced-motion #levelup.show .lvl-txt,.reduced-motion #levelup.show .lvl-sub{animation:none!important;opacity:1!important;transform:none!important}
+.reduced-motion .victory-banner.go{animation:none!important;opacity:1!important;transform:translate(-50%,-50%)!important}
+.reduced-motion .gold-drop.go,.reduced-motion .particle.go{display:none!important}
+.reduced-motion .hit-flash.go,.reduced-motion .bt-input.player-hit,.reduced-motion .bt-monster.charge{animation:none!important}
 /* ── CERMAT CHIP ── */
 .cermat-chip{display:inline-flex;align-items:center;gap:5px;font-family:var(--px);font-weight:700;font-size:12px;padding:3px 9px;border:2px solid;letter-spacing:.5px}
 .cermat-chip.cc-far{color:#6dd0e8;background:#040d12;border-color:#3a8a9e}
@@ -624,6 +631,13 @@ body::before{
  <div style="font-family:var(--px);font-weight:700;font-size:12px;color:var(--gold)"><span id="pr-ach-n">0</span> / <span id="pr-ach-t">0</span></div>
  </div>
  <div class="ach-grid" id="pr-ach"></div>
+ </div>
+ <div class="panel">
+ <div style="font-family:var(--px);font-weight:700;font-size:12px;color:var(--muted);margin-bottom:12px;letter-spacing:1px">— NASTAVENÍ ⚙️ —</div>
+ <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-family:var(--read);font-size:14px;color:var(--text)">
+  <input type="checkbox" id="pr-rm" onchange="toggleReducedMotion(this.checked)" style="width:18px;height:18px;cursor:pointer;accent-color:var(--blue)">
+  <span>Vypnout vizuální efekty<br><span style="font-size:12px;color:var(--muted)">Skryje blikání, floaty (+XP), animace výhry a poškození. Hodí se při citlivosti na pohyb.</span></span>
+ </label>
  </div>
  <div class="panel">
  <div style="font-family:var(--px);font-weight:700;font-size:12px;color:var(--muted);margin-bottom:10px;letter-spacing:1px">— ZÁLOHA POSTUPU —</div>
@@ -1151,7 +1165,9 @@ let S = {name:'HRDINA',xp:0,level:1,attrs:{calc:0,geo:0,anal:0,craft:0},done:{},
 let GODMODE=false;
 
 function saveS(){localStorage.setItem(SAVE_KEY,JSON.stringify(S));if(window.RPGCloud&&RPGCloud.push)RPGCloud.push(SAVE_KEY,S);}
-function loadS(){const r=localStorage.getItem(SAVE_KEY);if(!r)return false;try{S=JSON.parse(r);}catch(e){return false;}if(!S||typeof S!=='object'){S={name:'HRDINA',xp:0,level:1,attrs:{calc:0,geo:0,anal:0,craft:0},done:{},inv:[],mastery:{},xpClaimed:{},teacherUnlocked:[]};return false;}if(typeof S.name!=='string')S.name='HRDINA';if(typeof S.xp!=='number'||!isFinite(S.xp))S.xp=0;if(typeof S.level!=='number'||!isFinite(S.level))S.level=1;if(!S.attrs||typeof S.attrs!=='object')S.attrs={calc:0,geo:0,anal:0,craft:0};if(!S.done||typeof S.done!=='object')S.done={};if(!Array.isArray(S.inv))S.inv=[];if(!S.mastery||typeof S.mastery!=='object')S.mastery={};if(!S.xpClaimed||typeof S.xpClaimed!=='object')S.xpClaimed={};if(!Array.isArray(S.teacherUnlocked))S.teacherUnlocked=[];if(!S.ach||typeof S.ach!=='object')S.ach={};if(!S.stats||typeof S.stats!=='object')S.stats={crits:0,trainCorrect:0,bestCombo:0};if(!S.streak||typeof S.streak!=='object')S.streak={count:0,last:''};if(!S.errs||typeof S.errs!=='object')S.errs={};return true;}
+function loadS(){const r=localStorage.getItem(SAVE_KEY);if(!r)return false;try{S=JSON.parse(r);}catch(e){return false;}if(!S||typeof S!=='object'){S={name:'HRDINA',xp:0,level:1,attrs:{calc:0,geo:0,anal:0,craft:0},done:{},inv:[],mastery:{},xpClaimed:{},teacherUnlocked:[]};return false;}if(typeof S.name!=='string')S.name='HRDINA';if(typeof S.xp!=='number'||!isFinite(S.xp))S.xp=0;if(typeof S.level!=='number'||!isFinite(S.level))S.level=1;if(!S.attrs||typeof S.attrs!=='object')S.attrs={calc:0,geo:0,anal:0,craft:0};if(!S.done||typeof S.done!=='object')S.done={};if(!Array.isArray(S.inv))S.inv=[];if(!S.mastery||typeof S.mastery!=='object')S.mastery={};if(!S.xpClaimed||typeof S.xpClaimed!=='object')S.xpClaimed={};if(!Array.isArray(S.teacherUnlocked))S.teacherUnlocked=[];if(!S.ach||typeof S.ach!=='object')S.ach={};if(!S.stats||typeof S.stats!=='object')S.stats={crits:0,trainCorrect:0,bestCombo:0};if(!S.streak||typeof S.streak!=='object')S.streak={count:0,last:''};if(!S.errs||typeof S.errs!=='object')S.errs={};if(!S.settings||typeof S.settings!=='object')S.settings={reducedMotion:false};return true;}
+function applyMotionPref(){document.documentElement.classList.toggle('reduced-motion',(S.settings&&S.settings.reducedMotion)||false);}
+function toggleReducedMotion(on){if(!S.settings||typeof S.settings!=='object')S.settings={reducedMotion:false};S.settings.reducedMotion=on;applyMotionPref();saveS();}
 function calcLevel(){S.level=Math.floor(S.xp/100)+1;}
 
 // ── JUICE: XP award + level-up + floaties + vignette ──
@@ -1319,9 +1335,9 @@ function go(name){
 function startGame(){
  const v=document.getElementById('ni').value.trim().toUpperCase().slice(0,14);
  S.name=v||'HRDINA';
- saveS();touchStreak();go('map');
+ saveS();touchStreak();applyMotionPref();go('map');
 }
-function continueGame(){if(loadS()){touchStreak();go('map');}}
+function continueGame(){if(loadS()){touchStreak();applyMotionPref();go('map');}}
 
 // ══════════════════════════════════════════
 // MAP
@@ -2189,6 +2205,7 @@ function renderProfile(){
  document.getElementById('pr-ach-n').textContent=got;
  document.getElementById('pr-ach-t').textContent=ACH.length;
  }
+ const rm=document.getElementById('pr-rm');if(rm)rm.checked=!!(S.settings&&S.settings.reducedMotion);
 }
 
 function exportCode(){

@@ -327,6 +327,8 @@ function masteryList(d,gameKey){if(!d||!d.mastery)return[];return missionsFor(ga
 function pct(d){return Math.min(100,Math.round(doneCount(d)/TOTAL_TASKS*100));}
 function fmtDate(s){if(!s)return'—';const dt=new Date(s);return dt.toLocaleDateString('cs-CZ')+' '+dt.toLocaleTimeString('cs-CZ',{hour:'2-digit',minute:'2-digit'});}
 function daysAgo(s){if(!s)return 1e9;return (Date.now()-new Date(s).getTime())/864e5;}
+function minAgo(s){if(!s)return 1e9;return (Date.now()-new Date(s).getTime())/6e4;}
+function onlineDot(s){const m=minAgo(s);if(m<3)return'🟢 ';if(m<20)return'🟡 ';return'';}
 function toast(msg,err){const t=document.getElementById('toast');t.textContent=msg;t.className='toast'+(err?' err':'');t.style.display='block';setTimeout(()=>t.style.display='none',2600);}
 
 /* ── brána ── */
@@ -409,6 +411,8 @@ async function loadData(){
  ROWS=await RPGCloud.listAllSaves();
  await loadClasses();
  renderStats();renderTable();
+ // Auto-refresh online indikátoru každých 60 s
+ if(!window.__autoRefreshSet){window.__autoRefreshSet=true;setInterval(()=>{if(ROWS.length)renderTable();},60000);}
 }
 async function loadClasses(){
  CLASSES=await RPGCloud.listClasses();
@@ -472,7 +476,7 @@ function renderTable(){
    '<td>'+(d.xp||0)+'</td>'+
    '<td><div style="display:flex;align-items:center;gap:8px"><div class="bar" style="flex:1"><i style="width:'+p+'%;background:'+g.accent+'"></i></div><span style="font-size:11px;color:var(--muted)">'+p+'%</span></div></td>'+
    '<td style="font-size:13px">'+mastCell+'</td>'+
-   '<td style="font-size:12px;color:var(--muted)">'+fmtDate(r.updated_at)+'</td>'+
+   '<td style="font-size:12px;color:var(--muted)">'+onlineDot(r.updated_at)+fmtDate(r.updated_at)+'</td>'+
    '<td><div class="rowbtns">'+
      '<button class="mini" onclick="openDetail('+i+')">Detail</button>'+
      '<a class="mini" style="text-decoration:none" target="_blank" href="'+g.file+'?su='+encodeURIComponent(r.user_id)+'">👁 Náhled</a>'+
@@ -863,6 +867,15 @@ async function classDeleteChars(cid){
  toast('🗑 smazáno '+okN+' postav'+(errN?' ('+errN+' chyb)':''),errN>0);
  await loadData();
 }
+async function classNote(cid){
+ const inp=document.getElementById('cls-note-'+cid);
+ const body=(inp&&inp.value||'').trim();if(!body){toast('Vzkaz je prázdný.',1);return;}
+ const mem=membersOfClass(cid);if(!mem.size){toast('Třída je prázdná.',1);return;}
+ let okN=0,errN=0;
+ for(const uid of mem){const res=await RPGCloud.addNote(uid,body);if(res&&!res.error)okN++;else errN++;}
+ toast('📨 vzkaz odeslán '+okN+' žákům'+(errN?' ('+errN+' chyb)':''),errN>0);
+ if(inp)inp.value='';
+}
 function renderClasses(){
  const w=document.getElementById('classes-wrap');
  if(!CLASSES.length){w.innerHTML='<div class="empty">— zatím žádné třídy. Založ první výše. —</div>';return;}
@@ -901,7 +914,11 @@ function renderClasses(){
     '<button class="mini gold" onclick="classUnlock(\''+c.id+'\')">🔓 Odemknout třídě</button>';
   }
   if(admin)html+='<button class="mini red" onclick="classDeleteChars(\''+c.id+'\')">🗑 Smazat postavy třídy</button>';
-  html+='</div>';
+  html+='</div>'+
+   '<div style="display:flex;gap:6px;align-items:center;margin-top:8px">'+
+    '<input id="cls-note-'+c.id+'" placeholder="📨 Vzkaz celé třídě…" style="flex:1;padding:5px 8px;border-radius:6px;border:1px solid var(--line);background:var(--bg);color:#fff;font-size:13px">'+
+    '<button class="mini gold" onclick="classNote(\''+c.id+'\')">Odeslat</button>'+
+   '</div>';
   if(open){
    if(!students.length){html+='<div class="empty" style="margin-top:10px">— žádní žáci zatím nehráli —</div>';}
    else{
