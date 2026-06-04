@@ -74,7 +74,7 @@ window.RPG_LEARN_7 = {
   { q: 'Spočítej: 2,4 × 3,5', s: ['24 × 35 = 840', 'Celkem 2 des. místa → <b>8,40</b>'] },
   { q: 'Spočítej: 9,6 ÷ 0,4', s: ['Vynásobíme 10: 96 ÷ 4 = <b>24</b>', 'Výsledek je větší než 9,6 — správně!'] },
  ],
- video: null,
+ video: { id: '8-H_UX9zCzM', title: 'Zaokrouhlování desetinných čísel' }
 },
 
 '1-3': {
@@ -292,7 +292,7 @@ window.RPG_LEARN_7 = {
   { q: 'Porovnej: −3/5 a −1/2', s: ['NSN(5, 2) = 10', '−3/5 = −6/10, &ensp; −1/2 = −5/10', 'Protože −6 &lt; −5, platí <b>−3/5 &lt; −1/2</b>'] },
   { q: 'Spočítej: (−2/3) × (−9/4)', s: ['(−) × (−) = (+)', '(2×9)/(3×4) = 18/12 = <b>3/2 = 1,5</b>'] },
  ],
- video: null,
+ video: { id: 'ME5pLObMogw', title: 'Racionální čísla — zlomky' }
 },
 
 /* ─── Oblast 4: VÁŽNICE POMĚRŮ ────────────────────────────────── */
@@ -352,7 +352,7 @@ window.RPG_LEARN_7 = {
   { q: 'Za 3 hodiny ujede vlak 210 km. Kolik ujede za 5 hodin?', s: ['1 hod → 210 ÷ 3 = 70 km', '5 hod → 70 × 5 = <b>350 km</b>'] },
   { q: '4 sešity stojí 52 Kč. Kolik stojí 7 sešitů?', s: ['1 sešit → 52 ÷ 4 = 13 Kč', '7 sešitů → 13 × 7 = <b>91 Kč</b>'] },
  ],
- video: null,
+ video: { id: 'Rm7OylsDDts', title: 'Trojčlenka — přímá a nepřímá úměrnost' }
 },
 
 '4-3': {
@@ -384,7 +384,7 @@ window.RPG_LEARN_7 = {
   { q: 'Na mapě 1 : 20 000 měříme 6,5 cm. Jak dlouhá je cesta?', s: ['d = 6,5 × 20 000 = 130 000 cm = <b>1,3 km</b>'] },
   { q: '6 dělníků postaví zeď za 4 dny. Za kolik dní to zvládnou 3 dělníci?', s: ['6 × 4 = 24 dní práce celkem', '3 dělníci → 24 ÷ 3 = <b>8 dní</b>'] },
  ],
- video: null,
+ video: { id: 'xGATRuT_yGA', title: 'Nepřímá úměrnost' }
 },
 
 /* ─── Oblast 5: ZLATÁ POKLADNICE ──────────────────────────────── */
@@ -569,7 +569,7 @@ window.RPG_LEARN_7 = {
   { q: '△ABC: a=5, b=7, c=9; △DEF: d=5, e=7, f=9. Jsou shodné?', s: ['Shodují se všechny tři strany → <b>věta sss</b>', '△ABC ≅ △DEF ✓'] },
   { q: 'AB = DE, AC = DF, úhel A = úhel D. Která věta?', s: ['Dvě strany a úhel jimi sevřený → <b>věta sus</b>'] },
  ],
- video: null,
+ video: { id: 'ycpR3sbBwbA', title: 'Konstrukce trojúhelníku — věta USU' }
 },
 
 /* ─── Oblast 7: VELKÁ PYRAMIDA ─────────────────────────────────── */
@@ -672,7 +672,7 @@ window.RPG_LEARN_7 = {
   { q: 'Kolik je 15 % z 240?', s: ['z = 240 × 15/100 = 240 × 0,15 = <b>36</b>'] },
   { q: 'Po zdražení o 20 % stojí věc 360 Kč. Kolik stála původně?', s: ['360 = C × 1,20', 'C = 360 / 1,20 = <b>300 Kč</b>'] },
  ],
- video: null,
+ video: { id: 'RbkRs2cS8dk', title: 'CERMAT 2023 — přijímací zkoušky' }
 },
 
 };

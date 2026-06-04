@@ -61,7 +61,7 @@ window.RPG_LEARN_9 = {
       ]
     }
   ],
-  video: null
+  video: { id: 'dd9r3g6WMKI', title: 'Celá čísla — přednost operací' }
 },
 
 '1-2': {
@@ -127,7 +127,7 @@ window.RPG_LEARN_9 = {
       ]
     }
   ],
-  video: null
+  video: { id: 'Sl9CxhhrnUE', title: 'Promile a procenta' }
 },
 
 '1-3': {
@@ -184,7 +184,7 @@ window.RPG_LEARN_9 = {
       ]
     }
   ],
-  video: null
+  video: { id: 'EsJkCWLytiI', title: 'Celá čísla — sčítání a odčítání' }
 },
 
 '2-1': {
@@ -415,7 +415,7 @@ window.RPG_LEARN_9 = {
       ]
     }
   ],
-  video: null
+  video: { id: 'q2saJQdkF34', title: 'Rovnice' }
 },
 
 '3-2': {
@@ -474,7 +474,7 @@ window.RPG_LEARN_9 = {
       ]
     }
   ],
-  video: null
+  video: { id: 'zDCDOr_kFBU', title: 'Rovnice se zlomky' }
 },
 
 '3-3': {
@@ -532,7 +532,7 @@ window.RPG_LEARN_9 = {
       ]
     }
   ],
-  video: null
+  video: { id: '9KL_tx0SYJk', title: 'Slovní úlohy — rovnice' }
 },
 
 '4-1': {
@@ -588,7 +588,7 @@ window.RPG_LEARN_9 = {
       ]
     }
   ],
-  video: null
+  video: { id: 'Gxwd7Nr3H7k', title: 'Rovnice se zlomky 1' }
 },
 
 '4-2': {
@@ -646,7 +646,7 @@ window.RPG_LEARN_9 = {
       ]
     }
   ],
-  video: null
+  video: { id: '_w3pjQikcX8', title: 'Algebraické vzorce' }
 },
 
 '4-3': {
@@ -688,7 +688,7 @@ window.RPG_LEARN_9 = {
       ]
     }
   ],
-  video: null
+  video: { id: 'SIVaNSiq2ZY', title: 'Rovnice se zlomky' }
 },
 
 '5-1': {
@@ -738,7 +738,7 @@ window.RPG_LEARN_9 = {
       ]
     }
   ],
-  video: null
+  video: { id: '1FqALSmZYFQ', title: 'Soustava rovnic — metoda sčítací' }
 },
 
 '5-2': {
@@ -787,7 +787,7 @@ window.RPG_LEARN_9 = {
       ]
     }
   ],
-  video: null
+  video: { id: 'uT3O19Ds6Ds', title: 'Slovní úlohy — rovnice' }
 },
 
 '5-3': {
@@ -845,7 +845,7 @@ window.RPG_LEARN_9 = {
       ]
     }
   ],
-  video: null
+  video: { id: 'h0m6TOGF3Ug', title: 'Rychlost a čtení z grafu' }
 },
 
 '6-1': {
@@ -894,7 +894,7 @@ window.RPG_LEARN_9 = {
       ]
     }
   ],
-  video: null
+  video: { id: 'Ft4bVyLP9Gc', title: 'Graf lineární funkce' }
 },
 
 '6-2': {
@@ -953,7 +953,7 @@ window.RPG_LEARN_9 = {
       ]
     }
   ],
-  video: null
+  video: { id: 'ZKkrOVxUYlU', title: 'Lineární funkce — průsečíky s osami' }
 },
 
 '6-3': {
@@ -1000,7 +1000,7 @@ window.RPG_LEARN_9 = {
       ]
     }
   ],
-  video: null
+  video: { id: '1jnAzljrmZk', title: 'Graf nepřímé úměrnosti' }
 },
 
 '7-1': {
@@ -1152,7 +1152,7 @@ window.RPG_LEARN_9 = {
       ]
     }
   ],
-  video: null
+  video: { id: 'FO-xAjpo3b0', title: 'CERMAT 2025 — přijímací zkoušky' }
 }
 
 };

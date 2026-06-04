@@ -39,7 +39,7 @@ window.RPG_LEARN_6 = {
   { q: 'Zaokrouhli 6 481 na stovky', s: ['Číslice na desítkách je 8 → nahoru', 'Výsledek: <b>6 500</b>'] },
   { q: 'Je číslo −3 přirozené? Celé? Racionální?', s: ['Přirozené: <b>NE</b> (N obsahuje jen kladná čísla + 0)', 'Celé: <b>ANO</b> (Z obsahuje záporná čísla)', 'Racionální: <b>ANO</b> (Q obsahuje vše z Z)'] },
  ],
- video: null,
+ video: { id: '8-H_UX9zCzM', title: 'Zaokrouhlování desetinných čísel' }
 },
 
 '1-2': {
@@ -124,7 +124,7 @@ window.RPG_LEARN_6 = {
   { q: 'Zaokrouhli 5,063 na setiny', s: ['Číslice na tisícinách je 3 → dolů', 'Výsledek: <b>5,06</b>'] },
   { q: 'Které číslo leží mezi 1,2 a 1,3?', s: ['Např. <b>1,25</b> (nebo 1,21, 1,28 — možností je nekonečně mnoho)'] },
  ],
- video: null,
+ video: { id: 'EtOriZ2cNeQ', title: 'Desítková soustava' }
 },
 
 '2-2': {
@@ -185,7 +185,7 @@ window.RPG_LEARN_6 = {
   { q: 'Průměr čísel 4, 6, 6, 8', s: ['Součet: 4+6+6+8 = 24', 'Počet: 4', '24 ÷ 4 = <b>6</b>'] },
   { q: 'Rozšiř 2/5 tak, aby jmenovatel byl 20', s: ['5 × 4 = 20, takže k = 4', '2·4 / 5·4 = <b>8/20</b>'] },
  ],
- video: null,
+ video: { id: '4_MuthDfVJQ', title: 'Aritmetický průměr' }
 },
 
 /* ─── Oblast 3: POLE DĚLITELNOSTI ─────────────────────────────── */
@@ -290,7 +290,7 @@ window.RPG_LEARN_6 = {
   { q: 'Jaký druh úhlu je 90°?', s: ['Přesně 90° → <b>pravý</b>'] },
   { q: 'Jaký druh úhlu je 7°?', s: ['7° je mezi 0° a 90° → <b>ostrý</b>'] },
  ],
- video: null,
+ video: { id: 'x-oIA8Xc-e0', title: 'Měření úhlů a různoběžky' }
 },
 
 '4-2': {
@@ -313,7 +313,7 @@ window.RPG_LEARN_6 = {
   { q: 'Vrcholový úhel k 110° má velikost?', s: ['Vrcholové úhly jsou shodné → <b>110°</b>'] },
   { q: 'Přímky se kříží. Jeden z úhlů je 40°. Urči všechny čtyři úhly.', s: ['Vedlejší k 40°: 180°−40° = 140°', 'Vrcholový k 40°: 40°; vrcholový k 140°: 140°', 'Čtyři úhly: <b>40°, 140°, 40°, 140°</b>'] },
  ],
- video: null,
+ video: { id: 'a0OCeHpRcOI', title: 'Vedlejší úhly' }
 },
 
 '4-3': {
@@ -340,7 +340,7 @@ window.RPG_LEARN_6 = {
   { q: 'Převeď 150′ na stupně a minuty', s: ['150′ = 120′ + 30′ = 2° + 30′ = <b>2°30′</b>'] },
   { q: 'Kolik minut je 2,75°?', s: ['0,75 × 60 = 45′', '2,75° = <b>2°45′</b>'] },
  ],
- video: null,
+ video: { id: 'yhsgmMrGpng', title: 'Sčítání úhlů — stupně a minuty' }
 },
 
 /* ─── Oblast 5: ZRCADLOVÝ MĚSÍC ───────────────────────────────── */
@@ -417,7 +417,7 @@ window.RPG_LEARN_6 = {
   { q: 'Zachová shodnost zvětšení 2×?', s: ['Mění velikost → <b>NE</b> (je to podobnost, ne shodnost)'] },
   { q: 'Je obraz v osové souměrnosti shodný s původním útvarem?', s: ['Osová souměrnost zachovává vzdálenosti → <b>ANO</b>'] },
  ],
- video: null,
+ video: { id: 'ycpR3sbBwbA', title: 'Konstrukce trojúhelníku — věta USU' }
 },
 
 /* ─── Oblast 6: KRYCHLOVÁ STANICE ─────────────────────────────── */
@@ -493,7 +493,7 @@ window.RPG_LEARN_6 = {
   { q: 'Kolik litrů je 3 000 cm³?', s: ['3 000 cm³ = 3 dm³ → <b>3 litry</b>'] },
   { q: 'Nádrž má objem 0,5 m³. Kolik litrů pojme?', s: ['0,5 m³ = 0,5 · 1000 dm³ = 500 dm³ = <b>500 litrů</b>'] },
  ],
- video: null,
+ video: { id: 'KS8_EShoz1M', title: 'Převody jednotek objemu' }
 },
 
 /* ─── Oblast 7: TROJÚHELNÍKOVÁ GALAXIE ────────────────────────── */
@@ -521,7 +521,7 @@ window.RPG_LEARN_6 = {
   { q: 'V trojúhelníku je α = 70°, β = 60°. Kolik je γ?', s: ['γ = 180° − 70° − 60° = <b>50°</b>'] },
   { q: 'Pravoúhlý trojúhelník má jeden ostrý úhel 35°. Druhý ostrý úhel?', s: ['180° − 90° − 35° = <b>55°</b>'] },
  ],
- video: null,
+ video: { id: 'PyAQUUIJuvQ', title: 'Součet úhlů v trojúhelníku' }
 },
 
 '7-2': {
@@ -551,7 +551,7 @@ window.RPG_LEARN_6 = {
   { q: 'Lze sestrojit trojúhelník se stranami 3, 4, 8 cm?', s: ['3 + 4 = 7, ale 7 < 8', '<b>NE</b> — trojúhelníková nerovnost nesplněna'] },
   { q: 'Lze sestrojit trojúhelník 5, 6, 9 cm?', s: ['5 + 6 = 11 > 9 ✓ ; 5 + 9 = 14 > 6 ✓ ; 6 + 9 = 15 > 5 ✓', '<b>ANO</b>'] },
  ],
- video: null,
+ video: { id: 'RbkRs2cS8dk', title: 'Trojúhelníky — CERMAT 2023' }
 },
 
 '7-3': {
@@ -574,7 +574,7 @@ window.RPG_LEARN_6 = {
   { q: 'Rozcvička: 3 + 4 × 2 − (6 − 4)', s: ['Závorka: 6−4 = 2', 'Násobení: 4·2 = 8', '3 + 8 − 2 = <b>9</b>'] },
   { q: 'Kvádr 3 × 4 × 5 cm. Objem i povrch?', s: ['V = 3·4·5 = <b>60 cm³</b>', 'S = 2·(3·4 + 4·5 + 3·5) = 2·(12+20+15) = 2·47 = <b>94 cm²</b>'] },
  ],
- video: null,
+ video: { id: 'rBi6FeeDgM4', title: 'CERMAT 2023 — přijímací zkoušky' }
 },
 
 };

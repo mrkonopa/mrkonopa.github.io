@@ -58,7 +58,7 @@ window.RPG_LEARN_8 = {
   { q: 'Vyřeš nerovnici |x| &lt; 4',
     s: ['|x| &lt; 4 ⟺ −4 &lt; x &lt; 4', 'Výsledek: <b>x ∈ (−4; 4)</b>'] },
  ],
- video: null,
+ video: { id: 'IEhTvjkjLtU', title: 'Celá čísla — opakování' }
 },
 
 '1-2': {
@@ -99,7 +99,7 @@ window.RPG_LEARN_8 = {
   { q: 'Převeď 5/8 na desetinné číslo',
     s: ['5 ÷ 8 = 0,625', 'Výsledek: <b>0,625</b> (konečné)'] },
  ],
- video: null,
+ video: { id: 'ME5pLObMogw', title: 'Racionální čísla — zlomky' }
 },
 
 '1-3': {
@@ -149,7 +149,7 @@ window.RPG_LEARN_8 = {
   { q: 'Zdražení o 20 %, pak sleva 20 %. Vstupní cena 1 000 Kč, výsledná?',
     s: ['Po zdražení: 1 000 · 1,2 = 1 200 Kč', 'Po slevě: 1 200 · 0,8 = <b>960 Kč</b> (ne 1 000!)'] },
  ],
- video: null,
+ video: { id: 'yxORjK7z3xI', title: 'Procenta — výpočet procentové části' }
 },
 
 /* ─── Oblast 2: HORA PYTHAGOROVA ──────────────────────────────── */
@@ -305,7 +305,7 @@ window.RPG_LEARN_8 = {
   { q: 'Vyřeš: 5x − 2 = 2x + 7',
     s: ['5x − 2x = 7 + 2', '3x = 9', 'x = <b>3</b>'] },
  ],
- video: null,
+ video: { id: 'q2saJQdkF34', title: 'Rovnice' }
 },
 
 '3-2': {
@@ -345,7 +345,7 @@ window.RPG_LEARN_8 = {
   { q: 'Vyřeš: x/2 − x/3 = 1',
     s: ['NSN(2,3) = 6; nastob 6: 3x − 2x = 6', 'x = <b>6</b>'] },
  ],
- video: null,
+ video: { id: 'zDCDOr_kFBU', title: 'Rovnice se zlomky' }
 },
 
 '3-3': {
@@ -380,7 +380,7 @@ window.RPG_LEARN_8 = {
   { q: 'Martinovi je o 8 let méně než Alžbětě. Dohromady jim je 44 let. Kolik je každému?',
     s: ['x = věk Martina; Alžběta: x + 8', 'x + (x + 8) = 44 → 2x = 36 → x = 18', 'Odpověď: <b>Martin má 18 let, Alžběta 26 let</b>'] },
  ],
- video: null,
+ video: { id: '9KL_tx0SYJk', title: 'Slovní úlohy — rovnice' }
 },
 
 /* ─── Oblast 4: VĚŽE ALGEBRY ──────────────────────────────────── */
@@ -415,7 +415,7 @@ window.RPG_LEARN_8 = {
   { q: 'Zjednodušti: 4a − 2b + a + 5b',
     s: ['Sesbírej a: 4a + a = 5a', 'Sesbírej b: −2b + 5b = 3b', 'Výsledek: <b>5a + 3b</b>'] },
  ],
- video: null,
+ video: { id: 'TwzbrIEIwn0', title: 'Algebraické vzorce 1' }
 },
 
 '4-2': {
@@ -599,7 +599,7 @@ window.RPG_LEARN_8 = {
   { q: 'Válcový sud r = 0,4 m, v = 1,2 m. Kolik litrů pojme?',
     s: ['V = 3,14 · 0,16 · 1,2 = 0,602 88 m³', '0,602 88 m³ = 602,88 dm³ = <b>přibližně 603 litrů</b>'] },
  ],
- video: null,
+ video: { id: '0WyDjeYY2mg', title: 'Obsah mezikruží' }
 },
 
 /* ─── Oblast 6: DÍLNA KONSTRUKCÍ ──────────────────────────────── */
@@ -636,7 +636,7 @@ window.RPG_LEARN_8 = {
   { q: 'Jaká množina jsou body stejně vzdálené od bodů A a B?',
     s: ['<b>Osa úsečky AB</b> — přímka kolmá na AB procházející jeho středem'] },
  ],
- video: null,
+ video: { id: 'M5MoEys_w5I', title: 'Množiny bodů dané vlastnosti 1' }
 },
 
 '6-2': {
@@ -670,7 +670,7 @@ window.RPG_LEARN_8 = {
   { q: 'Narýsuj pravoúhlý trojúhelník s přeponou 6 cm. Popiš postup.',
     s: ['Narýsuj AB = 6 cm', 'Střed S = střed AB; kružnice se středem S a r = 3 cm', 'Vyber P na kružnici (ne A, B) → trojúhelník APB je pravoúhlý u P'] },
  ],
- video: null,
+ video: { id: '1rYON5bw8_w', title: 'Množiny bodů dané vlastnosti 2 — Thaletova kružnice' }
 },
 
 '6-3': {
@@ -707,7 +707,7 @@ window.RPG_LEARN_8 = {
   { q: 'Kolik os souměrnosti má čtverec?',
     s: ['Čtverec má <b>4 osy</b>: 2 spojující středy protilehlých stran, 2 diagonály'] },
  ],
- video: null,
+ video: { id: 'Rm937j0MHxA', title: 'Tečna ke kružnici a Thaletova kružnice' }
 },
 
 /* ─── Oblast 7: CITADELA ARCIMÁGA ─────────────────────────────── */
@@ -744,7 +744,7 @@ window.RPG_LEARN_8 = {
   { q: 'Pravoúhlý trojúhelník: odvěsna a = 8 cm, b = 15 cm. Obsah trojúhelníku a délka přepony.',
     s: ['Přepona: c = √(8² + 15²) = √(64+225) = √289 = <b>17 cm</b>', 'Obsah: S = a·b/2 = 8·15/2 = <b>60 cm²</b>'] },
  ],
- video: null,
+ video: { id: 'f4CXEHf_3gw', title: 'CERMAT 2024 — přijímací zkoušky' }
 },
 
 '7-2': {
@@ -786,7 +786,7 @@ window.RPG_LEARN_8 = {
   { q: 'Zeď je 2,4 m vysoká. Žebřík 3 m je opřen o zeď. Jak daleko stojí od zdě?',
     s: ['b = √(3² − 2,4²) = √(9 − 5,76) = √3,24 = <b>1,8 m</b>'] },
  ],
- video: null,
+ video: { id: 'FwqLx8x_bjY', title: 'CERMAT 2024 — 2. řádný termín' }
 },
 
 '7-3': {
@@ -812,7 +812,7 @@ window.RPG_LEARN_8 = {
   { q: 'Válcová nádrž r = 0,5 m, v = 2 m je z 60 % plná. Kolik litrů obsahuje? (π ≈ 3,14)',
     s: ['Plný objem: V = 3,14 · 0,25 · 2 = 1,57 m³', '60 % z 1,57 = 0,942 m³', '0,942 m³ = 942 dm³ = <b>942 litrů</b>'] },
  ],
- video: null,
+ video: { id: 'FO-xAjpo3b0', title: 'CERMAT 2025 — přijímací zkoušky' }
 },
 
 };
