@@ -530,6 +530,13 @@ window.RPGCloud = (function () {
           }
         }
       });
+      // Heartbeat: udržuje updated_at čerstvé → indikátor „online" v konzoli
+      setInterval(() => {
+        try {
+          const s = JSON.parse(localStorage.getItem(saveKey));
+          if (s && client && currentUser()) push(saveKey, s);
+        } catch {}
+      }, 120000);
       init().then(paint);
     });
   }
