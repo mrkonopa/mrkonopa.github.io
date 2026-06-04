@@ -191,20 +191,46 @@ window.RPGCloud = (function () {
     if (!client || !isStaff()) return [];
     try {
       const { data, error } = await client.from('classes')
-        .select('id,name,created_by,created_at').order('name', { ascending: true });
+        .select('id,name,section,cohort_start_year,created_by,created_at').order('name', { ascending: true });
       if (error) throw error;
       return data || [];
     } catch (e) { console.warn('[RPGCloud] listClasses selhal:', e); return []; }
   }
-  async function createClass(name) {
+  async function createClass(name, meta) {
     if (!client || !isStaff()) return { ok: false, error: 'Nemáš oprávnění.' };
     name = String(name || '').trim();
     if (!name) return { ok: false, error: 'Zadej název třídy.' };
+    meta = meta || {};
+    const row = { name, created_by: user.email || '' };
+    if (meta.section != null) row.section = String(meta.section || '').trim();
+    if (meta.cohort_start_year != null && meta.cohort_start_year !== '')
+      row.cohort_start_year = parseInt(meta.cohort_start_year, 10) || null;
     try {
       const { data, error } = await client.from('classes')
-        .insert({ name, created_by: user.email || '' }).select('id').single();
+        .insert(row).select('id').single();
       if (error) throw error;
       return { ok: true, id: data.id };
+    } catch (e) { return { ok: false, error: e.message }; }
+  }
+  // úprava kohortních metadat třídy (název / section / cohort_start_year)
+  async function updateClassMeta(id, meta) {
+    if (!client || !isStaff()) return { ok: false, error: 'Nemáš oprávnění.' };
+    meta = meta || {};
+    const patch = {};
+    if (meta.name != null) {
+      const n = String(meta.name).trim();
+      if (!n) return { ok: false, error: 'Zadej název třídy.' };
+      patch.name = n;
+    }
+    if (meta.section != null) patch.section = String(meta.section || '').trim();
+    if (meta.cohort_start_year !== undefined)
+      patch.cohort_start_year = (meta.cohort_start_year === '' || meta.cohort_start_year == null)
+        ? null : (parseInt(meta.cohort_start_year, 10) || null);
+    if (!Object.keys(patch).length) return { ok: true };
+    try {
+      const { error } = await client.from('classes').update(patch).eq('id', id);
+      if (error) throw error;
+      return { ok: true };
     } catch (e) { return { ok: false, error: e.message }; }
   }
   async function renameClass(id, name) {
@@ -536,7 +562,7 @@ window.RPGCloud = (function () {
            listAllSaves, pullSaveFor, updateSaveFor, deleteSaveFor,
            listRoles, upsertRole, deleteRole,
            // Fáze 3 — třídy a poznámky
-           listClasses, createClass, renameClass, deleteClass,
+           listClasses, createClass, renameClass, deleteClass, updateClassMeta,
            listMemberships, addToClass, removeFromClass,
            listNotesFor, addNote, deleteNote, pullMyNotes,
            // Fáze 4 — žebříček třídy
