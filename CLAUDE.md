@@ -108,8 +108,10 @@ git push
 5. **For travel photos:** resize via Python+Pillow in sandbox to ~1600px wide, JPEG q82, strip EXIF (GPS!). Original PNGs/RAWs go in folder's `.gitignore`.
 
 ## What's still pending (Jun 2026 state)
-- **2024 přijímačky zadání blanks** — user needs to download 6 PDFs from `prijimacky.cermat.cz` and drop them in the right folders. The HTML already references the expected paths.
-- **Únikovka tělesa / procenta — verify hints work for all 10 zámků.** They use a CODE_HINTS map keyed by zámek ID. If any zámek had its `code` value changed without updating the map, hints could be misleading.
+- ~~Mastery badge v detailu žáka~~ ✅ — `buildMasteryHtml` v konzoli hotovo (PR #65).
+- **`errsSnap` → SQL migrace** — TODO fáze 6+, viz poznámka v sekci Diagnostika výše.
+- ~~Přijímačky PDF~~ ✅ — všech 45 PDF existuje, žádný chybějící odkaz.
+- ~~Únikovky hinty~~ ✅ — všech 20 L3 hintů sedí přesně na kódy zámků (procenta i tělesa).
 
 ## Cesta peněz — finished structure (reference)
 - 8 chapters (Akty), narrative: brigáda → plat → inflace → půjčka → hypotéka → lichva → kyberpodvody → certifikát
