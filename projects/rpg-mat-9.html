@@ -769,9 +769,11 @@ const SHOP_ITEMS=[
 ];
 
 function earnCredits(n){
- if(!n||n<=0)return;
- if(typeof S.credits!=='number')S.credits=0;
- S.credits+=n;
+ n=Number(n);
+ if(!isFinite(n)||n<=0)return;
+ n=Math.floor(n);
+ if(typeof S.credits!=='number'||!isFinite(S.credits)||S.credits<0)S.credits=0;
+ S.credits=Math.floor(S.credits)+n;
  saveS();
  const el=document.createElement('div');
  el.className='float-txt';
@@ -783,6 +785,25 @@ function earnCredits(n){
  const mc=document.getElementById('map-credits');if(mc)mc.textContent=S.credits;
  const pc=document.getElementById('pr-credits');if(pc)pc.textContent=S.credits;
  const sb=document.getElementById('shop-bal');if(sb)sb.textContent=S.credits;
+}
+
+// normalizace kosmetiky — i po manipulaci s localStorage:
+// owned jen známá ID bez duplikátů (+ free položky); active jen vlastněná/free
+function sanitizeCosmetics(){
+ if(!S.cosmetics||typeof S.cosmetics!=='object'||Array.isArray(S.cosmetics))S.cosmetics={owned:[],active:{}};
+ const valid=new Set(SHOP_ITEMS.map(i=>i.id));
+ const free=SHOP_ITEMS.filter(i=>i.price===0).map(i=>i.id);
+ let owned=Array.isArray(S.cosmetics.owned)?S.cosmetics.owned.filter(id=>valid.has(id)):[];
+ owned=[...new Set([...free,...owned])];
+ S.cosmetics.owned=owned;
+ const act=(S.cosmetics.active&&typeof S.cosmetics.active==='object'&&!Array.isArray(S.cosmetics.active))?S.cosmetics.active:{};
+ const clean={border:null,badge:null,theme:'theme-default',victory:'victory-default'};
+ ['border','badge','theme','victory'].forEach(cat=>{
+  const id=act[cat];
+  const item=SHOP_ITEMS.find(i=>i.id===id&&i.cat===cat);
+  if(item&&(item.price===0||owned.includes(id)))clean[cat]=id;
+ });
+ S.cosmetics.active=clean;
 }
 
 function applyCosmetics(){
@@ -840,17 +861,23 @@ function renderShop(){
 
 function buyItem(id){
  const item=SHOP_ITEMS.find(i=>i.id===id);if(!item)return;
- if(!S.cosmetics)S.cosmetics={owned:[],active:{}};
- if((S.credits||0)<item.price){alert('Nedostatek kreditů!');return;}
+ if(!S.cosmetics)S.cosmetics={owned:['theme-default','victory-default'],active:{}};
+ if(!Array.isArray(S.cosmetics.owned))S.cosmetics.owned=['theme-default','victory-default'];
+ // už vlastní nebo je zdarma → jen aktivuj, neúčtuj znovu
+ if(item.price===0||S.cosmetics.owned.includes(id)){activateItem(id);return;}
+ if(typeof S.credits!=='number'||!isFinite(S.credits)||S.credits<item.price){alert('Nedostatek kreditů!');return;}
  S.credits-=item.price;
- if(!S.cosmetics.owned.includes(id))S.cosmetics.owned.push(id);
+ S.cosmetics.owned.push(id);
  activateItem(id);
 }
 
 function activateItem(id){
  const item=SHOP_ITEMS.find(i=>i.id===id);if(!item)return;
  if(!S.cosmetics)S.cosmetics={owned:[],active:{}};
+ if(!Array.isArray(S.cosmetics.owned))S.cosmetics.owned=['theme-default','victory-default'];
  if(!S.cosmetics.active)S.cosmetics.active={};
+ // nelze aktivovat nevlastněnou placenou položku (anti-cheat z konzole)
+ if(item.price>0&&!S.cosmetics.owned.includes(id))return;
  S.cosmetics.active[item.cat]=id;
  saveS();
  applyCosmetics();
@@ -1334,11 +1361,11 @@ const ATTR_META = {
 const SAVE_KEY = 'RPG_MAT_9';
 // ── Datum přijímaček (1. kolo) — uprav dle aktuálního CERMAT harmonogramu ──
 const CERMAT_DATE = new Date('2027-04-13T08:00:00');
-let S = {name:'HRDINA',xp:0,level:1,attrs:{calc:0,geo:0,anal:0,craft:0},done:{},inv:[],mastery:{},xpClaimed:{},teacherUnlocked:[],ach:{},stats:{crits:0,trainCorrect:0,bestCombo:0},streak:{count:0,last:''},errs:{}};
+let S = {name:'HRDINA',xp:0,level:1,attrs:{calc:0,geo:0,anal:0,craft:0},done:{},inv:[],mastery:{},xpClaimed:{},teacherUnlocked:[],ach:{},stats:{crits:0,trainCorrect:0,bestCombo:0},streak:{count:0,last:''},errs:{},credits:0,cosmetics:{owned:['theme-default','victory-default'],active:{border:null,badge:null,theme:'theme-default',victory:'victory-default'}},creditsClaimed:{}};
 let GODMODE=false;
 
 function saveS(){localStorage.setItem(SAVE_KEY,JSON.stringify(S));if(window.RPGCloud&&RPGCloud.push)RPGCloud.push(SAVE_KEY,S);}
-function loadS(){const r=localStorage.getItem(SAVE_KEY);if(!r)return false;try{S=JSON.parse(r);}catch(e){return false;}if(!S||typeof S!=='object'){S={name:'HRDINA',xp:0,level:1,attrs:{calc:0,geo:0,anal:0,craft:0},done:{},inv:[],mastery:{},xpClaimed:{},teacherUnlocked:[]};return false;}if(typeof S.name!=='string')S.name='HRDINA';if(typeof S.xp!=='number'||!isFinite(S.xp))S.xp=0;if(typeof S.level!=='number'||!isFinite(S.level))S.level=1;if(!S.attrs||typeof S.attrs!=='object')S.attrs={calc:0,geo:0,anal:0,craft:0};if(!S.done||typeof S.done!=='object')S.done={};if(!Array.isArray(S.inv))S.inv=[];if(!S.mastery||typeof S.mastery!=='object')S.mastery={};if(!S.xpClaimed||typeof S.xpClaimed!=='object')S.xpClaimed={};if(!Array.isArray(S.teacherUnlocked))S.teacherUnlocked=[];if(!S.ach||typeof S.ach!=='object')S.ach={};if(!S.stats||typeof S.stats!=='object')S.stats={crits:0,trainCorrect:0,bestCombo:0};if(!S.streak||typeof S.streak!=='object')S.streak={count:0,last:''};if(!S.errs||typeof S.errs!=='object')S.errs={};if(!Array.isArray(S.errsSnap))S.errsSnap=[];if(!S.settings||typeof S.settings!=='object')S.settings={reducedMotion:false};if(typeof S.credits!=='number')S.credits=0;if(!S.cosmetics||typeof S.cosmetics!=='object')S.cosmetics={owned:['theme-default','victory-default'],active:{border:null,badge:null,theme:'theme-default',victory:'victory-default'}};if(!Array.isArray(S.cosmetics.owned))S.cosmetics.owned=['theme-default','victory-default'];if(!S.cosmetics.active||typeof S.cosmetics.active!=='object')S.cosmetics.active={border:null,badge:null,theme:'theme-default',victory:'victory-default'};if(!S.creditsClaimed||typeof S.creditsClaimed!=='object')S.creditsClaimed={};return true;}
+function loadS(){const r=localStorage.getItem(SAVE_KEY);if(!r)return false;try{S=JSON.parse(r);}catch(e){return false;}if(!S||typeof S!=='object'){S={name:'HRDINA',xp:0,level:1,attrs:{calc:0,geo:0,anal:0,craft:0},done:{},inv:[],mastery:{},xpClaimed:{},teacherUnlocked:[]};return false;}if(typeof S.name!=='string')S.name='HRDINA';if(typeof S.xp!=='number'||!isFinite(S.xp))S.xp=0;if(typeof S.level!=='number'||!isFinite(S.level))S.level=1;if(!S.attrs||typeof S.attrs!=='object')S.attrs={calc:0,geo:0,anal:0,craft:0};if(!S.done||typeof S.done!=='object')S.done={};if(!Array.isArray(S.inv))S.inv=[];if(!S.mastery||typeof S.mastery!=='object')S.mastery={};if(!S.xpClaimed||typeof S.xpClaimed!=='object')S.xpClaimed={};if(!Array.isArray(S.teacherUnlocked))S.teacherUnlocked=[];if(!S.ach||typeof S.ach!=='object')S.ach={};if(!S.stats||typeof S.stats!=='object')S.stats={crits:0,trainCorrect:0,bestCombo:0};if(!S.streak||typeof S.streak!=='object')S.streak={count:0,last:''};if(!S.errs||typeof S.errs!=='object')S.errs={};if(!Array.isArray(S.errsSnap))S.errsSnap=[];if(!S.settings||typeof S.settings!=='object')S.settings={reducedMotion:false};if(typeof S.credits!=='number'||!isFinite(S.credits)||S.credits<0)S.credits=0;S.credits=Math.floor(S.credits);if(!S.cosmetics||typeof S.cosmetics!=='object')S.cosmetics={owned:['theme-default','victory-default'],active:{border:null,badge:null,theme:'theme-default',victory:'victory-default'}};if(!Array.isArray(S.cosmetics.owned))S.cosmetics.owned=['theme-default','victory-default'];if(!S.cosmetics.active||typeof S.cosmetics.active!=='object')S.cosmetics.active={border:null,badge:null,theme:'theme-default',victory:'victory-default'};if(!S.creditsClaimed||typeof S.creditsClaimed!=='object')S.creditsClaimed={};sanitizeCosmetics();return true;}
 function applyMotionPref(){document.documentElement.classList.toggle('reduced-motion',(S.settings&&S.settings.reducedMotion)||false);}
 function toggleReducedMotion(on){if(!S.settings||typeof S.settings!=='object')S.settings={reducedMotion:false};S.settings.reducedMotion=on;applyMotionPref();saveS();}
 function calcLevel(){S.level=Math.floor(S.xp/100)+1;}
@@ -2403,7 +2430,7 @@ function exportCode(){
 function importPrompt(){
  const c=prompt('Vlož zálohovací kód:');
  if(!c)return;
- try{S=JSON.parse(decodeURIComponent(escape(atob(c))));if(!S.mastery)S.mastery={};if(!S.teacherUnlocked)S.teacherUnlocked=[];if(!S.ach)S.ach={};if(!S.stats)S.stats={crits:0,trainCorrect:0,bestCombo:0};if(!S.streak)S.streak={count:0,last:''};if(!S.errs)S.errs={};if(!Array.isArray(S.errsSnap))S.errsSnap=[];if(typeof S.credits!=='number')S.credits=0;if(!S.cosmetics||typeof S.cosmetics!=='object')S.cosmetics={owned:['theme-default','victory-default'],active:{border:null,badge:null,theme:'theme-default',victory:'victory-default'}};if(!S.creditsClaimed||typeof S.creditsClaimed!=='object')S.creditsClaimed={};saveS();applyCosmetics();renderProfile();alert('Načteno!');}
+ try{S=JSON.parse(decodeURIComponent(escape(atob(c))));if(!S.mastery)S.mastery={};if(!S.teacherUnlocked)S.teacherUnlocked=[];if(!S.ach)S.ach={};if(!S.stats)S.stats={crits:0,trainCorrect:0,bestCombo:0};if(!S.streak)S.streak={count:0,last:''};if(!S.errs)S.errs={};if(!Array.isArray(S.errsSnap))S.errsSnap=[];if(typeof S.credits!=='number'||!isFinite(S.credits)||S.credits<0)S.credits=0;S.credits=Math.floor(S.credits);if(!S.cosmetics||typeof S.cosmetics!=='object')S.cosmetics={owned:['theme-default','victory-default'],active:{border:null,badge:null,theme:'theme-default',victory:'victory-default'}};if(!S.creditsClaimed||typeof S.creditsClaimed!=='object')S.creditsClaimed={};sanitizeCosmetics();saveS();applyCosmetics();renderProfile();alert('Načteno!');}
  catch(e){alert('Chybný kód.');}
 }
 
