@@ -418,6 +418,39 @@ body::before{
  .mc-btn{font-size:16px;padding:16px 8px}
  .attr-nm{min-width:140px;font-size:11px}
 }
+/* ── KREDITY ── */
+.credits-chip{display:inline-flex;align-items:center;gap:5px;font-family:var(--px);font-size:13px;color:#f4d03f;background:#1a1500;border:2px solid #7a5c00;padding:2px 9px;border-radius:2px}
+/* ── SHOP ── */
+.shop-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:10px 0}
+.shop-item{background:var(--panel2);border:2px solid var(--muted);padding:12px 10px;text-align:center;cursor:default;transition:border-color .2s,box-shadow .2s}
+.shop-item.owned{border-color:var(--blue)}
+.shop-item.active-item{border-color:var(--gold);box-shadow:0 0 10px #f4d03f44}
+.shop-item .si-ic{font-size:28px;display:block;margin-bottom:6px}
+.shop-item .si-nm{font-family:var(--px);font-weight:700;font-size:12px;color:var(--text);margin-bottom:4px;letter-spacing:.3px}
+.shop-item .si-pr{font-family:var(--px);font-weight:400;font-size:11px;color:var(--muted)}
+.shop-item .si-btn{margin-top:8px}
+.shop-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.shop-tab{opacity:.55}
+.shop-tab.active-tab{opacity:1}
+/* ── AVATAR BORDER ── */
+#pr-avatar{display:inline-block;font-size:48px;line-height:1}
+#pr-avatar.av-silver{filter:drop-shadow(0 0 7px silver)}
+#pr-avatar.av-cyan{filter:drop-shadow(0 0 9px #4d9fff) drop-shadow(0 0 3px #4d9fff)}
+#pr-avatar.av-gold{filter:drop-shadow(0 0 9px #f4d03f) drop-shadow(0 0 3px #f4d03f)}
+#pr-avatar.av-holo{animation:holo-border 2.5s linear infinite}
+@keyframes holo-border{0%{filter:drop-shadow(0 0 8px #f4d03f)}33%{filter:drop-shadow(0 0 8px #39ff9e)}66%{filter:drop-shadow(0 0 8px #b06cff)}100%{filter:drop-shadow(0 0 8px #f4d03f)}}
+/* ── BADGE (name color) ── */
+.nm-cyan{color:#4d9fff!important}
+.nm-gold{color:#f4d03f!important}
+.nm-green{color:#39ff9e!important}
+.nm-purple{color:#b06cff!important}
+/* ── MAP THEMES (applied via html data-theme) ── */
+html[data-theme="matrix"]{--gold:#39ff9e;--panel:#0a1a0f;--panel2:#0f2215;--blue:#39e6b0}
+html[data-theme="blood"]{--gold:#ff6090;--panel:#1a0808;--panel2:#220f0f;--blue:#ff3d7f}
+html[data-theme="violet"]{--gold:#b06cff;--panel:#100a20;--panel2:#18103a;--blue:#c590ff}
+/* ── VICTORY CYBER (optional cosmetic) ── */
+.victory-banner.vc-cyber{text-shadow:3px 3px 0 #ff3d7f,0 0 22px #ff3d7f,0 0 44px #ff3d7f}
+.victory-banner.vc-neon{text-shadow:3px 3px 0 #39ff9e,0 0 22px #39ff9e,0 0 44px #39ff9e}
 </style>
 </head>
 <body>
@@ -458,6 +491,7 @@ body::before{
  <div style="font-family:var(--px);font-weight:400;font-size:13px;color:var(--muted);letter-spacing:1px">&gt; &nbsp;SYS://NEXUS-9&nbsp; · &nbsp;ACCESS LVL_IX&nbsp; &lt;</div>
  <span class="streak-chip" id="map-streak" style="display:none"><span class="sf">🔥</span> <span id="map-streak-n">0</span> dní v řadě</span>
  <a class="cermat-chip cc-far" id="map-cermat" href="prijimacky-matematika/" target="_blank" rel="noopener" title="Otevřít archiv přijímaček CERMAT" style="display:none;text-decoration:none">📅 <span id="map-cermat-txt"></span> <span style="opacity:.7">↗</span></a>
+ <span class="credits-chip" id="map-credits-chip">💰 <span id="map-credits">0</span> kr</span>
  </div>
  <div class="map-grid" id="map-grid"></div>
  <div class="panel" style="padding:10px 14px">
@@ -468,7 +502,10 @@ body::before{
  <div class="bar-out bar-xp"><div class="bar-in" id="map-xpbar" style="width:0%"></div></div>
  </div>
  <div class="panel" id="map-leaderboard" style="display:none;padding:12px 14px"></div>
- <button class="btn b" style="width:100%;margin-top:12px" onclick="go('train')">🎯 TRÉNINK — procvičuj libovolné téma bez boje</button></div>
+ <div style="display:flex;gap:8px;margin-top:12px">
+  <button class="btn b" style="flex:1" onclick="go('train')">🎯 TRÉNINK</button>
+  <button class="btn" style="flex:none" onclick="go('shop')">🛍️ OBCHOD</button>
+ </div></div>
 </div>
 
 <!-- ══════════════ AREA ══════════════ -->
@@ -602,6 +639,27 @@ body::before{
 </div>
 
 <!-- ══════════════ PROFILE ══════════════ -->
+<!-- ══════════════ SHOP ══════════════ -->
+<div id="s-shop" class="screen">
+<div class="wrap">
+ <div class="topnav">
+  <button class="btn sm" onclick="go('map')">← MAPA</button>
+  <span style="font-family:var(--px);font-weight:700;font-size:14px;color:var(--gold)">🛍️ OBCHOD</span>
+  <span class="credits-chip">💰 <span id="shop-bal">0</span> kr</span>
+ </div>
+ <div class="panel" style="padding:10px 14px;font-family:var(--px);font-size:12px;color:var(--muted)">
+  Kredity získáš za správné odpovědi, mistrovství a denní sérii. Kosmetika nemá vliv na boj — jde jen o styl.
+ </div>
+ <div class="shop-tabs" id="shop-tabs">
+  <button class="btn sm shop-tab active-tab" onclick="shopCat('border')">🔲 Rámy avatara</button>
+  <button class="btn sm shop-tab" onclick="shopCat('badge')">🏷️ Jméno</button>
+  <button class="btn sm shop-tab" onclick="shopCat('theme')">🎨 Téma mapy</button>
+  <button class="btn sm shop-tab" onclick="shopCat('victory')">🎯 Výhra efekt</button>
+ </div>
+ <div class="shop-grid" id="shop-content"></div>
+</div>
+</div>
+
 <div id="s-profile" class="screen">
 <div class="wrap">
  <div class="topnav">
@@ -611,11 +669,12 @@ body::before{
  </div>
  <div class="panel">
  <div style="display:flex;gap:14px;align-items:center;margin-bottom:14px">
- <div style="font-size:48px">🧙</div>
+ <div id="pr-avatar">🧙</div>
  <div>
  <div id="pr-name" style="font-family:var(--px);font-weight:700;font-size:20px;color:var(--gold);letter-spacing:1px">HRDINA</div>
  <div style="font-family:var(--px);font-weight:400;font-size:13px;color:var(--muted);margin-top:4px">ÚROVEŇ <span id="pr-lv">1</span></div>
  <div style="font-family:var(--px);font-weight:400;font-size:13px;color:var(--blue);margin-top:2px">XP: <span id="pr-xp">0</span></div>
+ <div style="font-family:var(--px);font-weight:400;font-size:13px;color:#f4d03f;margin-top:4px">💰 <span id="pr-credits">0</span> kr &nbsp;<button class="btn sm" style="font-size:11px;padding:3px 8px;margin-left:4px" onclick="go('shop')">🛍️ OBCHOD</button></div>
  </div>
  </div>
  <div style="font-family:var(--px);font-weight:700;font-size:12px;color:var(--muted);margin-bottom:10px;letter-spacing:1px">— ATRIBUTY —</div>
@@ -683,6 +742,147 @@ function countDiv(n){let c=0;for(let i=1;i<=n;i++)if(n%i===0)c++;return c;}
 // české skloňování podle počtu: skl(n,'kamarád','kamarádi','kamarádů')
 const skl = (n,one,few,many) => n===1?one : (n>=2&&n<=4?few:many);
 const cz = n => String(n).replace('.',',');
+
+// ══════════════════════════════════════════
+// OBCHOD — definice položek + kredity
+// ══════════════════════════════════════════
+const SHOP_ITEMS=[
+ // ── rámy avatara ──
+ {id:'border-silver',cat:'border',name:'Stříbrný rám',  ic:'🔲',price:40,  cssKey:'av-silver'},
+ {id:'border-cyan',  cat:'border',name:'Kyber modrý',   ic:'💠',price:80,  cssKey:'av-cyan'},
+ {id:'border-gold',  cat:'border',name:'Zlatý rám',     ic:'🏆',price:130, cssKey:'av-gold'},
+ {id:'border-holo',  cat:'border',name:'Hologram',      ic:'✨',price:220, cssKey:'av-holo'},
+ // ── barva jména ──
+ {id:'badge-cyan',   cat:'badge', name:'Cyan jméno',    ic:'🔵',price:60,  cssKey:'nm-cyan'},
+ {id:'badge-gold',   cat:'badge', name:'Zlaté jméno',   ic:'🌟',price:90,  cssKey:'nm-gold'},
+ {id:'badge-green',  cat:'badge', name:'Neon zelená',   ic:'🟢',price:80,  cssKey:'nm-green'},
+ {id:'badge-purple', cat:'badge', name:'Fialová',       ic:'🟣',price:120, cssKey:'nm-purple'},
+ // ── téma mapy ──
+ {id:'theme-default',cat:'theme', name:'Výchozí téma',  ic:'🖤',price:0,   cssKey:''},
+ {id:'theme-matrix', cat:'theme', name:'Matrix',        ic:'🟩',price:150, cssKey:'matrix'},
+ {id:'theme-blood',  cat:'theme', name:'Red Circuit',   ic:'🔴',price:200, cssKey:'blood'},
+ {id:'theme-violet', cat:'theme', name:'Violet Hack',   ic:'🟣',price:180, cssKey:'violet'},
+ // ── efekt výhry ──
+ {id:'victory-default',cat:'victory',name:'Výchozí',   ic:'⚡',price:0,   cssKey:''},
+ {id:'victory-cyber',  cat:'victory',name:'Cyber výbuch',ic:'🔥',price:100, cssKey:'vc-cyber'},
+ {id:'victory-neon',   cat:'victory',name:'Neon záření', ic:'💚',price:140, cssKey:'vc-neon'},
+];
+
+function earnCredits(n){
+ n=Number(n);
+ if(!isFinite(n)||n<=0)return;
+ n=Math.floor(n);
+ if(typeof S.credits!=='number'||!isFinite(S.credits)||S.credits<0)S.credits=0;
+ S.credits=Math.floor(S.credits)+n;
+ saveS();
+ const el=document.createElement('div');
+ el.className='float-txt';
+ el.style.cssText='left:60%;top:42%;color:#f4d03f';
+ el.textContent='💰 +'+n;
+ document.body.appendChild(el);
+ void el.offsetWidth;el.classList.add('go');
+ setTimeout(()=>el.remove(),1200);
+ const mc=document.getElementById('map-credits');if(mc)mc.textContent=S.credits;
+ const pc=document.getElementById('pr-credits');if(pc)pc.textContent=S.credits;
+ const sb=document.getElementById('shop-bal');if(sb)sb.textContent=S.credits;
+}
+
+// normalizace kosmetiky — i po manipulaci s localStorage:
+// owned jen známá ID bez duplikátů (+ free položky); active jen vlastněná/free
+function sanitizeCosmetics(){
+ if(!S.cosmetics||typeof S.cosmetics!=='object'||Array.isArray(S.cosmetics))S.cosmetics={owned:[],active:{}};
+ const valid=new Set(SHOP_ITEMS.map(i=>i.id));
+ const free=SHOP_ITEMS.filter(i=>i.price===0).map(i=>i.id);
+ let owned=Array.isArray(S.cosmetics.owned)?S.cosmetics.owned.filter(id=>valid.has(id)):[];
+ owned=[...new Set([...free,...owned])];
+ S.cosmetics.owned=owned;
+ const act=(S.cosmetics.active&&typeof S.cosmetics.active==='object'&&!Array.isArray(S.cosmetics.active))?S.cosmetics.active:{};
+ const clean={border:null,badge:null,theme:'theme-default',victory:'victory-default'};
+ ['border','badge','theme','victory'].forEach(cat=>{
+  const id=act[cat];
+  const item=SHOP_ITEMS.find(i=>i.id===id&&i.cat===cat);
+  if(item&&(item.price===0||owned.includes(id)))clean[cat]=id;
+ });
+ S.cosmetics.active=clean;
+}
+
+function applyCosmetics(){
+ if(!S.cosmetics)return;
+ const av=document.getElementById('pr-avatar');
+ if(av){
+  av.className='';
+  const b=SHOP_ITEMS.find(i=>i.id===S.cosmetics.active?.border&&i.cat==='border');
+  if(b&&b.cssKey)av.classList.add(b.cssKey);
+ }
+ const nm=document.getElementById('pr-name');
+ const mnm=document.getElementById('map-name');
+ if(nm||mnm){
+  const bg=SHOP_ITEMS.find(i=>i.id===S.cosmetics.active?.badge&&i.cat==='badge');
+  const cls=bg?.cssKey||'';
+  ['nm-cyan','nm-gold','nm-green','nm-purple'].forEach(c=>{nm&&nm.classList.remove(c);mnm&&mnm.classList.remove(c);});
+  if(cls){nm&&nm.classList.add(cls);mnm&&mnm.classList.add(cls);}
+ }
+ const th=SHOP_ITEMS.find(i=>i.id===S.cosmetics.active?.theme&&i.cat==='theme');
+ document.documentElement.dataset.theme=th?.cssKey||'';
+}
+
+let _shopCat='border';
+function shopCat(cat){
+ _shopCat=cat;
+ document.querySelectorAll('.shop-tab').forEach(b=>b.classList.toggle('active-tab',b.textContent.includes(
+  {border:'Rámy',badge:'Jméno',theme:'Téma',victory:'Výhra'}[cat]
+ )));
+ renderShop();
+}
+
+function renderShop(){
+ if(!S.cosmetics){S.cosmetics={owned:['theme-default','victory-default'],active:{border:null,badge:null,theme:'theme-default',victory:'victory-default'}};}
+ const sb=document.getElementById('shop-bal');if(sb)sb.textContent=S.credits||0;
+ const grid=document.getElementById('shop-content');if(!grid)return;
+ const items=SHOP_ITEMS.filter(i=>i.cat===_shopCat);
+ grid.innerHTML='';
+ items.forEach(item=>{
+  const owned=S.cosmetics.owned.includes(item.id)||item.price===0;
+  const isActive=S.cosmetics.active?.[item.cat]===item.id||(item.price===0&&!S.cosmetics.active?.[item.cat]);
+  const canBuy=!owned&&(S.credits||0)>=item.price;
+  const div=document.createElement('div');
+  div.className='shop-item'+(owned?' owned':'')+(isActive?' active-item':'');
+  div.innerHTML=`<span class="si-ic">${item.ic}</span>
+   <div class="si-nm">${item.name}</div>
+   <div class="si-pr">${item.price===0?'ZDARMA':'💰 '+item.price+' kr'}</div>
+   <div class="si-btn">
+    ${isActive?`<span class="btn sm" style="opacity:.4;cursor:default">✓ AKTIVNÍ</span>`
+     :owned?`<button class="btn sm g" onclick="activateItem('${item.id}')">AKTIVOVAT</button>`
+     :`<button class="btn sm" onclick="buyItem('${item.id}')" ${canBuy?'':'disabled'} title="${!canBuy?'Nedostatek kreditů':''}">KOUPIT ${item.price} kr</button>`}
+   </div>`;
+  grid.appendChild(div);
+ });
+}
+
+function buyItem(id){
+ const item=SHOP_ITEMS.find(i=>i.id===id);if(!item)return;
+ if(!S.cosmetics)S.cosmetics={owned:['theme-default','victory-default'],active:{}};
+ if(!Array.isArray(S.cosmetics.owned))S.cosmetics.owned=['theme-default','victory-default'];
+ // už vlastní nebo je zdarma → jen aktivuj, neúčtuj znovu
+ if(item.price===0||S.cosmetics.owned.includes(id)){activateItem(id);return;}
+ if(typeof S.credits!=='number'||!isFinite(S.credits)||S.credits<item.price){alert('Nedostatek kreditů!');return;}
+ S.credits-=item.price;
+ S.cosmetics.owned.push(id);
+ activateItem(id);
+}
+
+function activateItem(id){
+ const item=SHOP_ITEMS.find(i=>i.id===id);if(!item)return;
+ if(!S.cosmetics)S.cosmetics={owned:[],active:{}};
+ if(!Array.isArray(S.cosmetics.owned))S.cosmetics.owned=['theme-default','victory-default'];
+ if(!S.cosmetics.active)S.cosmetics.active={};
+ // nelze aktivovat nevlastněnou placenou položku (anti-cheat z konzole)
+ if(item.price>0&&!S.cosmetics.owned.includes(id))return;
+ S.cosmetics.active[item.cat]=id;
+ saveS();
+ applyCosmetics();
+ renderShop();
+}
 
 // ══════════════════════════════════════════
 // SVG DIAGRAMY (pro geometrické úlohy)
@@ -1161,11 +1361,11 @@ const ATTR_META = {
 const SAVE_KEY = 'RPG_MAT_9';
 // ── Datum přijímaček (1. kolo) — uprav dle aktuálního CERMAT harmonogramu ──
 const CERMAT_DATE = new Date('2027-04-13T08:00:00');
-let S = {name:'HRDINA',xp:0,level:1,attrs:{calc:0,geo:0,anal:0,craft:0},done:{},inv:[],mastery:{},xpClaimed:{},teacherUnlocked:[],ach:{},stats:{crits:0,trainCorrect:0,bestCombo:0},streak:{count:0,last:''},errs:{}};
+let S = {name:'HRDINA',xp:0,level:1,attrs:{calc:0,geo:0,anal:0,craft:0},done:{},inv:[],mastery:{},xpClaimed:{},teacherUnlocked:[],ach:{},stats:{crits:0,trainCorrect:0,bestCombo:0},streak:{count:0,last:''},errs:{},credits:0,cosmetics:{owned:['theme-default','victory-default'],active:{border:null,badge:null,theme:'theme-default',victory:'victory-default'}},creditsClaimed:{}};
 let GODMODE=false;
 
 function saveS(){localStorage.setItem(SAVE_KEY,JSON.stringify(S));if(window.RPGCloud&&RPGCloud.push)RPGCloud.push(SAVE_KEY,S);}
-function loadS(){const r=localStorage.getItem(SAVE_KEY);if(!r)return false;try{S=JSON.parse(r);}catch(e){return false;}if(!S||typeof S!=='object'){S={name:'HRDINA',xp:0,level:1,attrs:{calc:0,geo:0,anal:0,craft:0},done:{},inv:[],mastery:{},xpClaimed:{},teacherUnlocked:[]};return false;}if(typeof S.name!=='string')S.name='HRDINA';if(typeof S.xp!=='number'||!isFinite(S.xp))S.xp=0;if(typeof S.level!=='number'||!isFinite(S.level))S.level=1;if(!S.attrs||typeof S.attrs!=='object')S.attrs={calc:0,geo:0,anal:0,craft:0};if(!S.done||typeof S.done!=='object')S.done={};if(!Array.isArray(S.inv))S.inv=[];if(!S.mastery||typeof S.mastery!=='object')S.mastery={};if(!S.xpClaimed||typeof S.xpClaimed!=='object')S.xpClaimed={};if(!Array.isArray(S.teacherUnlocked))S.teacherUnlocked=[];if(!S.ach||typeof S.ach!=='object')S.ach={};if(!S.stats||typeof S.stats!=='object')S.stats={crits:0,trainCorrect:0,bestCombo:0};if(!S.streak||typeof S.streak!=='object')S.streak={count:0,last:''};if(!S.errs||typeof S.errs!=='object')S.errs={};if(!Array.isArray(S.errsSnap))S.errsSnap=[];if(!S.settings||typeof S.settings!=='object')S.settings={reducedMotion:false};return true;}
+function loadS(){const r=localStorage.getItem(SAVE_KEY);if(!r)return false;try{S=JSON.parse(r);}catch(e){return false;}if(!S||typeof S!=='object'){S={name:'HRDINA',xp:0,level:1,attrs:{calc:0,geo:0,anal:0,craft:0},done:{},inv:[],mastery:{},xpClaimed:{},teacherUnlocked:[]};return false;}if(typeof S.name!=='string')S.name='HRDINA';if(typeof S.xp!=='number'||!isFinite(S.xp))S.xp=0;if(typeof S.level!=='number'||!isFinite(S.level))S.level=1;if(!S.attrs||typeof S.attrs!=='object')S.attrs={calc:0,geo:0,anal:0,craft:0};if(!S.done||typeof S.done!=='object')S.done={};if(!Array.isArray(S.inv))S.inv=[];if(!S.mastery||typeof S.mastery!=='object')S.mastery={};if(!S.xpClaimed||typeof S.xpClaimed!=='object')S.xpClaimed={};if(!Array.isArray(S.teacherUnlocked))S.teacherUnlocked=[];if(!S.ach||typeof S.ach!=='object')S.ach={};if(!S.stats||typeof S.stats!=='object')S.stats={crits:0,trainCorrect:0,bestCombo:0};if(!S.streak||typeof S.streak!=='object')S.streak={count:0,last:''};if(!S.errs||typeof S.errs!=='object')S.errs={};if(!Array.isArray(S.errsSnap))S.errsSnap=[];if(!S.settings||typeof S.settings!=='object')S.settings={reducedMotion:false};if(typeof S.credits!=='number'||!isFinite(S.credits)||S.credits<0)S.credits=0;S.credits=Math.floor(S.credits);if(!S.cosmetics||typeof S.cosmetics!=='object')S.cosmetics={owned:['theme-default','victory-default'],active:{border:null,badge:null,theme:'theme-default',victory:'victory-default'}};if(!Array.isArray(S.cosmetics.owned))S.cosmetics.owned=['theme-default','victory-default'];if(!S.cosmetics.active||typeof S.cosmetics.active!=='object')S.cosmetics.active={border:null,badge:null,theme:'theme-default',victory:'victory-default'};if(!S.creditsClaimed||typeof S.creditsClaimed!=='object')S.creditsClaimed={};sanitizeCosmetics();return true;}
 function applyMotionPref(){document.documentElement.classList.toggle('reduced-motion',(S.settings&&S.settings.reducedMotion)||false);}
 function toggleReducedMotion(on){if(!S.settings||typeof S.settings!=='object')S.settings={reducedMotion:false};S.settings.reducedMotion=on;applyMotionPref();saveS();}
 function calcLevel(){S.level=Math.floor(S.xp/100)+1;}
@@ -1299,6 +1499,7 @@ function touchStreak(){
  const y=new Date(Date.now()-864e5).toISOString().slice(0,10);
  S.streak.count=(S.streak.last===y)?(S.streak.count||0)+1:1;
  S.streak.last=today;saveS();evalAch({});
+ const sc=S.streak.count;earnCredits(sc>=7?20:sc>=3?10:5);
 }
 
 // CERMAT odpočet
@@ -1327,6 +1528,7 @@ function go(name){
  if(name==='map')renderMap();
  if(name==='profile')renderProfile();
  if(name==='train')renderTrainPicker();
+ if(name==='shop'){_shopCat='border';shopCat('border');}
 }
 
 // ══════════════════════════════════════════
@@ -1335,10 +1537,10 @@ function go(name){
 function startGame(){
  const v=document.getElementById('ni').value.trim().toUpperCase().slice(0,14);
  S.name=v||'HRDINA';
- saveS();touchStreak();applyMotionPref();go('map');
+ saveS();touchStreak();applyMotionPref();applyCosmetics();go('map');
 }
 function snapErrs(){if(!Array.isArray(S.errsSnap))S.errsSnap=[];const t=new Date().toISOString().slice(0,10);const last=S.errsSnap[S.errsSnap.length-1];if(last&&(new Date(t)-new Date(last.t))/864e5<7)return;const c={};for(const k in(S.errs||{}))if(S.errs[k]>0)c[k]=S.errs[k];S.errsSnap.push({t,errs:c});if(S.errsSnap.length>12)S.errsSnap=S.errsSnap.slice(-12);saveS();}
-function continueGame(){if(loadS()){snapErrs();touchStreak();applyMotionPref();go('map');}}
+function continueGame(){if(loadS()){snapErrs();touchStreak();applyMotionPref();applyCosmetics();go('map');}}
 
 // ══════════════════════════════════════════
 // MAP
@@ -1365,6 +1567,8 @@ function renderMap(){
  document.getElementById('map-lv').textContent=S.level;
  document.getElementById('map-xp').textContent=S.xp;
  document.getElementById('map-xp2').textContent=S.xp;
+ const mc=document.getElementById('map-credits');if(mc)mc.textContent=S.credits||0;
+ applyCosmetics();
  document.getElementById('map-xpmax').textContent=S.level*100;
  const pct=Math.min(100,(S.xp%100));
  document.getElementById('map-xpbar').style.width=pct+'%';
@@ -1736,7 +1940,8 @@ function submitMC(opt,btn){
  const fb=document.getElementById('bt-fb');
  fb.textContent=firstTime?((isCrit?'✓✓ KRITICKÝ ZÁSAH! +':'✓ SPRÁVNĚ! +')+xpGain+' XP'):'✓ SPRÁVNĚ! (mise už splněna — bez XP)';
  fb.className='feedback ok';
- if(firstTime){awardXp(xpGain,isCrit);if(t.skill&&S.attrs[t.skill]!==undefined)S.attrs[t.skill]+=3;S.xpClaimed[xpKey]=true;}
+ if(firstTime){awardXp(xpGain,isCrit);if(t.skill&&S.attrs[t.skill]!==undefined)S.attrs[t.skill]+=3;S.xpClaimed[xpKey]=true;earnCredits(isCrit?7:5);}
+ else earnCredits(2);
  S.done[`${BT.mid}-${BT.idx}`]=true;
  saveS();
  document.getElementById('next-btn').style.display='inline-block';
@@ -1932,7 +2137,8 @@ function submitAnswer(){
  const xpGain=firstTime?Math.max(3,10-BT.hl*3)*(isCrit?2:1):0;
  fb.textContent=firstTime?((isCrit?'✓✓ KRITICKÝ ZÁSAH! +':'✓ SPRÁVNĚ! +')+xpGain+' XP'):'✓ SPRÁVNĚ! (mise už splněna — bez XP)';
  fb.className='feedback ok';
- if(firstTime){awardXp(xpGain,isCrit);if(t.skill&&S.attrs[t.skill]!==undefined)S.attrs[t.skill]+=3;S.xpClaimed[xpKey]=true;}
+ if(firstTime){awardXp(xpGain,isCrit);if(t.skill&&S.attrs[t.skill]!==undefined)S.attrs[t.skill]+=3;S.xpClaimed[xpKey]=true;earnCredits(isCrit?7:5);}
+ else earnCredits(2);
  S.done[`${BT.mid}-${BT.idx}`]=true;
  saveS();
  document.getElementById('bt-ans').disabled=true;
@@ -1989,6 +2195,8 @@ function checkMissionComplete(){
  // boss poražen — vítězná sekvence (synchro s defeat animací)
  setTimeout(victoryBurst,650);
  evalAch({flawlessMission:!BT.missionHinted,wonAtOneHp:BT.hp===1});
+ if(!S.creditsClaimed)S.creditsClaimed={};
+ if(!S.creditsClaimed[BT.mid]){S.creditsClaimed[BT.mid]=true;earnCredits(15);}
  if(isAreaDone(ar)&&!S.inv.includes(ar.art.id)){
  S.inv.push(ar.art.id);
  Object.entries(ar.attrGain).forEach(([k,v])=>{if(S.attrs[k]!==undefined)S.attrs[k]+=v;});
@@ -2117,7 +2325,8 @@ function trCorrect(){
  calcLevel();evalAch({});
  const fb=document.getElementById('tr-fb');
  fb.className='feedback ok';
- fb.textContent=(!wasMastered&&m.mastered)?'🏅 MISTROVSTVÍ SPLNĚNO! +3 XP':'✓ SPRÁVNĚ! +3 XP';
+ if(!wasMastered&&m.mastered){earnCredits(30);fb.textContent='🏅 MISTROVSTVÍ SPLNĚNO! +3 XP +30 kr';}
+ else{earnCredits(1);fb.textContent='✓ SPRÁVNĚ! +3 XP +1 kr';}
  document.getElementById('tr-hint-btn').disabled=true;
  document.getElementById('tr-next-btn').style.display='inline-block';
  document.getElementById('tr-next-btn').focus();
@@ -2172,6 +2381,8 @@ function renderProfile(){
  document.getElementById('pr-name').textContent=S.name;
  document.getElementById('pr-lv').textContent=S.level;
  document.getElementById('pr-xp').textContent=S.xp;
+ const pc=document.getElementById('pr-credits');if(pc)pc.textContent=S.credits||0;
+ applyCosmetics();
  const el=document.getElementById('pr-attrs');
  el.innerHTML='';
  Object.entries(ATTR_META).forEach(([k,m])=>{
@@ -2219,7 +2430,7 @@ function exportCode(){
 function importPrompt(){
  const c=prompt('Vlož zálohovací kód:');
  if(!c)return;
- try{S=JSON.parse(decodeURIComponent(escape(atob(c))));if(!S.mastery)S.mastery={};if(!S.teacherUnlocked)S.teacherUnlocked=[];if(!S.ach)S.ach={};if(!S.stats)S.stats={crits:0,trainCorrect:0,bestCombo:0};if(!S.streak)S.streak={count:0,last:''};if(!S.errs)S.errs={};if(!Array.isArray(S.errsSnap))S.errsSnap=[];saveS();renderProfile();alert('Načteno!');}
+ try{S=JSON.parse(decodeURIComponent(escape(atob(c))));if(!S.mastery)S.mastery={};if(!S.teacherUnlocked)S.teacherUnlocked=[];if(!S.ach)S.ach={};if(!S.stats)S.stats={crits:0,trainCorrect:0,bestCombo:0};if(!S.streak)S.streak={count:0,last:''};if(!S.errs)S.errs={};if(!Array.isArray(S.errsSnap))S.errsSnap=[];if(typeof S.credits!=='number'||!isFinite(S.credits)||S.credits<0)S.credits=0;S.credits=Math.floor(S.credits);if(!S.cosmetics||typeof S.cosmetics!=='object')S.cosmetics={owned:['theme-default','victory-default'],active:{border:null,badge:null,theme:'theme-default',victory:'victory-default'}};if(!S.creditsClaimed||typeof S.creditsClaimed!=='object')S.creditsClaimed={};sanitizeCosmetics();saveS();applyCosmetics();renderProfile();alert('Načteno!');}
  catch(e){alert('Chybný kód.');}
 }
 

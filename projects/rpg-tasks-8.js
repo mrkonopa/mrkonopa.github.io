@@ -34,7 +34,7 @@ window.RPG_TASK_EXTRA_8 = {
   (()=>{const a=ri(2,8);return{text:`Vypočítej:\n(-${a})² =`,ans:String(a*a),hints:[`Záporné číslo na sudou mocninu → kladné: ${a}×${a}.`,``],skill:'calc'};})(),
   (()=>{const a=ri(2,7),b=ri(2,6),c=ri(2,9);return{text:`Vypočítej:\n${a} × (-${b}) + ${c} =`,ans:String(-a*b+c),hints:[`Nejdřív součin, pak přičti ${c}.`,`-${a*b} + ${c}`],skill:'calc'};})(),
   (()=>{const a=ri(5,25),b=ri(30,60);return{text:`Porovnej: je výsledek kladný nebo záporný?\n(-${a}) + ${b} = ?`,ans:String(-a+b),hints:[`Větší číslo je kladné, výsledek bude kladný.`,``],skill:'calc'};})(),
-  (()=>{const a=ri(2,9),b=ri(2,6);return{text:`Vypočítej:\n(-${a})³ =`,ans:String(-a**3),hints:[`Záporné číslo na liché mocninu → záporné: -(${a**3}).`,``],skill:'calc'};})()
+  (()=>{const a=ri(2,9),b=ri(2,6);return{text:`Vypočítej:\n(-${a})³ =`,ans:String(-(a**3)),hints:[`Záporné číslo na liché mocninu → záporné: -(${a**3}).`,``],skill:'calc'};})()
  ],
  '1-2': () => [   // Zlomky a desetinná čísla
   (()=>{const b=ri(2,7),d=ri(2,7);const num=b+d,den=b*d,g=gcd(num,den);const ans=den/g===1?String(num/g):`${num/g}/${den/g}`;return{text:`Vypočítej (zjednodušený zlomek):\n1/${b} + 1/${d} =`,ans,hints:[`Společný jmenovatel = ${den}.`,`(${d}+${b})/${den}, pak zkrať.`],skill:'calc'};})(),
@@ -245,7 +245,7 @@ window.RPG_TASK_EXTRA_8 = {
   (()=>{return{text:`Má rovnoběžník (kosodélník) osu\nsouměrnosti?\n(ANO/NE)`,ans:'NE',hints:[`Má jen středovou souměrnost.`,``],skill:'geo'};})(),
   (()=>{return{text:`Kolik os souměrnosti má pravidelný\npětiúhelník?`,ans:'5',hints:[`Pravidelný n-úhelník má n os.`,``],skill:'geo'};})(),
   (()=>{return{text:`Je střed úsečky jejím středem\nsouměrnosti?\n(ANO/NE)`,ans:'ANO',hints:[`Úsečka je středově souměrná podle svého středu.`,``],skill:'geo'};})(),
-  (()=>{return{text:`Kolik os souměrnosti má kruh?`,ans:'∞',hints:[`Nekonečně mnoho — každý průměr je osou.`,``],skill:'geo'};})(),
+  (()=>{const sh=[['čtverec',4],['obdélník (není čtverec)',2],['rovnostranný trojúhelník',3],['kosočtverec',2],['pravidelný pětiúhelník',5],['pravidelný šestiúhelník',6]][ri(0,5)];return{text:`Kolik os souměrnosti má ${sh[0]}?`,ans:String(sh[1]),hints:[`Osa souměrnosti rozdělí útvar na dvě zrcadlové poloviny.`,``],skill:'geo'};})(),
   (()=>{return{text:`Má trojúhelník s různě dlouhými stranami\nosu souměrnosti?\n(ANO/NE)`,ans:'NE',hints:[`Skalény trojúhelník nemá osu souměrnosti.`,``],skill:'geo'};})(),
   (()=>{return{text:`Kolik os souměrnosti má pravidelný\nšestiúhelník?`,ans:'6',hints:[`Pravidelný n-úhelník má n os.`,``],skill:'geo'};})(),
   (()=>{return{text:`Obraz bodu při osové souměrnosti leží\nna přímce kolmé k ose v téže vzdálenosti.\nPlatí to?\n(ANO/NE)`,ans:'ANO',hints:[`To je definice osové souměrnosti.`,``],skill:'geo'};})()
