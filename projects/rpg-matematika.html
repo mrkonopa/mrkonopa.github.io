@@ -162,7 +162,8 @@ function render(){
   div.innerHTML=`<div class="ctop"><span class="emoji">${g.emoji}</span>
    <div class="ctitle"><div class="nm">${g.nm}</div><div class="gr">${g.gr}</div></div>
    <span class="badge">${S?'ROZEHRÁNO':'NOVÉ'}</span></div>
-   ${body}<div class="cbtns">${btns}</div>`;
+   ${body}<div class="cbtns">${btns}</div>
+   <div id="lb-${g.key}" style="display:none;margin-top:8px;padding:8px 10px;background:#0a0d14;border:1px solid #222;border-radius:8px;font-size:12px"></div>`;
   grid.appendChild(div);
  });
  document.getElementById('started').textContent=started;
@@ -188,12 +189,17 @@ render();
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="./rpg-cloud.js"></script>
 <script>
-RPGCloud.attachHub(GAMES.map(g=>g.key), render, '.wrap');
+function refreshLeaderboards(){
+  if(!window.RPGCloud||!RPGCloud.renderLeaderboardInto)return;
+  GAMES.forEach(g=>RPGCloud.renderLeaderboardInto('lb-'+g.key, g.key));
+}
+RPGCloud.attachHub(GAMES.map(g=>g.key), ()=>{render();refreshLeaderboards();}, '.wrap');
 RPGCloud.onChange(u=>{
   const w=document.getElementById('who-where');
   if(w) w.innerHTML = u ? 'Postavy účtu <b>'+(u.email||'')+'</b>' : 'Postavy uložené na <b>tomto zařízení</b>';
   const tl=document.getElementById('teacher-link');
   if(tl) tl.style.display = RPGCloud.isStaff() ? 'inline-block' : 'none';
+  refreshLeaderboards();
 });
 </script>
 </body>
