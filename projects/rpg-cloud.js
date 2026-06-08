@@ -337,6 +337,52 @@ window.RPGCloud = (function () {
       return data || [];
     } catch (e) { console.warn('[RPGCloud] leaderboard selhal:', e); return []; }
   }
+
+  /* ════════ VYSVĚTLENÍ POSTUPU — Fáze 6 ════════ */
+  async function saveExplanation(game, mid, taskIdx, taskText, answer, explanation) {
+    if (!client || !user || previewActive) return false;
+    const text = String(explanation || '').trim();
+    if (!text) return false;
+    try {
+      const { error } = await client.from('explanations').insert({
+        user_id: user.id,
+        display_name: (user.user_metadata && user.user_metadata.full_name) || user.email || '',
+        game: String(game),
+        mid: String(mid),
+        task_idx: Number(taskIdx) || 0,
+        task_text: String(taskText || '').slice(0, 500),
+        answer: String(answer || '').slice(0, 100),
+        explanation: text.slice(0, 1000)
+      });
+      if (error) throw error;
+      return true;
+    } catch (e) { console.warn('[RPGCloud] saveExplanation selhal:', e); return false; }
+  }
+
+  async function listExplanations({ game, mid, limit = 50, offset = 0, classId } = {}) {
+    if (!client || !isStaff()) return [];
+    try {
+      let q = client.from('explanations')
+        .select('id,created_at,display_name,game,mid,task_text,answer,explanation')
+        .order('created_at', { ascending: false })
+        .range(offset, offset + limit - 1);
+      if (game) q = q.eq('game', game);
+      if (mid)  q = q.eq('mid', mid);
+      if (classId) {
+        // filter to user_ids in that class
+        const { data: members } = await client.from('class_members')
+          .select('user_id').eq('class_id', classId);
+        if (members && members.length) {
+          q = q.in('user_id', members.map(m => m.user_id));
+        } else {
+          return [];
+        }
+      }
+      const { data, error } = await q;
+      if (error) throw error;
+      return data || [];
+    } catch (e) { console.warn('[RPGCloud] listExplanations selhal:', e); return []; }
+  }
   // centrální vykreslení žebříčku do prvku v mapě (žádné per-game edity).
   // Graceful: bez přihlášení / bez spolužáků / chyba ⇒ prvek se skryje.
   async function renderLeaderboardInto(elId, game) {
@@ -436,7 +482,7 @@ window.RPGCloud = (function () {
 
   /* plovoucí widget „Vzkazy" — poznámky učitele pro přihlášeného žáka.
      Funguje ve všech hrách bez per-game úprav (volá se z attachGame). */
-  function esc(s){return String(s==null?'':s).replace(/[<>&"]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c]));}
+  function esc(s){return String(s==null?'':s).replace(/[<>&"']/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;',"'":'&#39;'}[c]));}
   async function refreshNotesWidget() {
     if (previewActive || !user) return;
     let notes = [];
@@ -573,5 +619,7 @@ window.RPGCloud = (function () {
            listMemberships, addToClass, removeFromClass,
            listNotesFor, addNote, deleteNote, pullMyNotes,
            // Fáze 4 — žebříček třídy
-           leaderboard, renderLeaderboardInto };
+           leaderboard, renderLeaderboardInto,
+           // Fáze 6 — vysvětlení postupu
+           saveExplanation, listExplanations };
 })();

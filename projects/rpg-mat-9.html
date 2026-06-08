@@ -571,6 +571,10 @@ html[data-theme="violet"]{--gold:#b06cff;--panel:#100a20;--panel2:#18103a;--blue
  <div class="mc-grid" id="mc-grid" style="display:none"></div>
  <div id="hint-box" class="hint-box"></div>
  <div id="bt-fb" class="feedback"></div>
+ <div id="bt-explain" style="display:none;margin:8px 0">
+  <label style="font-size:13px;color:var(--green);opacity:.85;display:block;margin-bottom:4px">✍ Jak jsi na to přišel? <span style="opacity:.6">(volitelně, 1–2 věty)</span></label>
+  <textarea id="bt-explain-txt" rows="2" style="width:100%;box-sizing:border-box;background:#0a0a0f;color:#d0d0e0;border:1px solid var(--green);border-radius:4px;padding:6px;font-family:var(--vt);font-size:18px;resize:vertical" placeholder="Napsal jsem…"></textarea>
+ </div>
  <div style="display:flex;gap:8px;flex-wrap:wrap">
  <button class="btn sm b" id="hint-btn" onclick="showHint()">💡 NÁPOVĚDA 1/2</button>
  <button class="btn sm g" id="next-btn" style="display:none" onclick="nextTask()">DÁLE →</button>
@@ -1877,6 +1881,8 @@ function renderTask(){
  document.getElementById('hint-btn').textContent='💡 NÁPOVĚDA 1/2';
  document.getElementById('hint-btn').disabled=false;
  document.getElementById('next-btn').style.display='none';
+ document.getElementById('bt-explain').style.display='none';
+ document.getElementById('bt-explain-txt').value='';
  // input vs multiple choice
  if(BT.mcMode){
  document.getElementById('bt-input-row').style.display='none';
@@ -2144,6 +2150,7 @@ function submitAnswer(){
  document.getElementById('bt-ans').disabled=true;
  document.getElementById('hint-btn').disabled=true;
  document.getElementById('next-btn').style.display='inline-block';
+ document.getElementById('bt-explain').style.display='block';
  damageMonster(xpGain,isCrit);
  updateCombo();
  tryDropItem();
@@ -2179,6 +2186,11 @@ function showHint(){
 }
 
 function nextTask(){
+ const explTxt=(document.getElementById('bt-explain-txt').value||'').trim();
+ if(explTxt&&typeof RPGCloud!=='undefined'&&RPGCloud.saveExplanation){
+  const t=BT.curTask;
+  RPGCloud.saveExplanation('RPG_MAT_9',BT.mid,BT.idx,t?t.text:'',t?t.ans:'',explTxt);
+ }
  let nxt=-1;
  for(let i=BT.idx+1;i<BT.tasks.length;i++){if(!S.done[`${BT.mid}-${i}`]){nxt=i;break;}}
  if(nxt>=0){BT.idx=nxt;renderTask();}

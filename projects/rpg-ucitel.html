@@ -114,6 +114,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--px);min-height:100
    <button class="tab on" data-tab="overview">PŘEHLED ŽÁKŮ</button>
    <button class="tab" data-tab="classes">TŘÍDY</button>
    <button class="tab" data-tab="diag">DIAGNOSTIKA</button>
+   <button class="tab" data-tab="explain">VYSVĚTLENÍ</button>
    <button class="tab" data-tab="preview">NÁHLED HER</button>
    <button class="tab hidden" id="tab-teachers" data-tab="teachers">SPRÁVA UČITELŮ</button>
   </div>
@@ -196,6 +197,25 @@ body{background:var(--bg);color:var(--text);font-family:var(--px);min-height:100
     <button class="mini" onclick="loadData().then(renderDiag)">↻ Obnovit</button>
    </div>
    <div id="diag-wrap"><div class="empty">Načítám…</div></div>
+  </div>
+
+  <!-- VYSVĚTLENÍ POSTUPU -->
+  <div id="t-explain" class="hidden">
+   <p style="color:var(--muted);margin-bottom:14px;line-height:1.6">
+    Žáci mohou po správné odpovědi v boji napsat <b style="color:var(--gold)">jednou větou jak na to přišli</b>. Zde vidíš jejich vzkazy — pilotně jen pro <b>9. ročník</b>. Slouží jako formativní zpětná vazba: kde žáci přemýšlejí správně a kde jen tipují.</p>
+   <div class="controls">
+    <select id="expl-game" onchange="renderExplain()">
+     <option value="RPG_MAT_9">💻 NULL_BYTE (9. ročník)</option>
+    </select>
+    <select id="expl-class" onchange="renderExplain()">
+     <option value="">Všechny třídy</option>
+    </select>
+    <select id="expl-mid" onchange="renderExplain()">
+     <option value="">Všechny mise</option>
+    </select>
+    <button class="mini" onclick="loadExplain()">↻ Načíst</button>
+   </div>
+   <div id="expl-wrap"><div class="empty">Klikni ↻ Načíst pro zobrazení vysvětlení.</div></div>
   </div>
 
   <!-- UČITELÉ -->
@@ -322,7 +342,7 @@ function cohortStatus(c){
  return g+'. ročník · '+syLabel(schoolYearStart());
 }
 
-function esc(s){return String(s==null?'':s).replace(/[<>&"]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c]));}
+function esc(s){return String(s==null?'':s).replace(/[<>&"']/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;',"'":'&#39;'}[c]));}
 function doneCount(d){return d&&d.done?Object.keys(d.done).length:0;}
 function masteryCount(d){if(!d||!d.mastery)return 0;return Object.values(d.mastery).filter(m=>m&&m.mastered).length;}
 function masteryList(d,gameKey){if(!d||!d.mastery)return[];return missionsFor(gameKey).filter(m=>d.mastery[m.id]&&d.mastery[m.id].mastered);}
@@ -675,7 +695,7 @@ function openDetail(i){
   '<div class="row"><span>XP</span><b>'+(d.xp||0)+'</b></div>'+
   '<div class="row"><span>Splněno úkolů</span><b>'+doneCount(d)+' / '+TOTAL_TASKS+' ('+pct(d)+' %)</b></div>'+
   '<div class="row"><span>Artefakty</span><b>'+(inv.length?esc(inv.join(', ')):'—')+'</b></div>'+
-  (Array.isArray(d.teacherUnlocked)&&d.teacherUnlocked.length?'<div class="row"><span>Odemčeno učitelem</span><b style="color:var(--gold)">🔓 '+d.teacherUnlocked.join(', ')+'</b></div>':'')+
+  (Array.isArray(d.teacherUnlocked)&&d.teacherUnlocked.length?'<div class="row"><span>Odemčeno učitelem</span><b style="color:var(--gold)">🔓 '+esc(d.teacherUnlocked.join(', '))+'</b></div>':'')+
   '<div class="row"><span>Třídy</span><b>'+([...classesOfUser(r.user_id)].map(cid=>'🏫 '+esc(classNameOf(cid))).join(', ')||'<span style="color:var(--muted)">— žádná —</span>')+'</b></div>'+
   '<div class="row"><span>Poslední aktivita</span><b>'+fmtDate(r.updated_at)+'</b></div>'+
   '<h4>Atributy</h4>'+attrHtml+
@@ -1003,6 +1023,70 @@ function renderDiag(){
  wrap.innerHTML=html;
 }
 
+/* ── VYSVĚTLENÍ POSTUPU ── */
+let explData=[];
+let explInited=false;
+
+function initExplainTab(){
+ if(!explInited){
+  // populate class filter
+  const cs=document.getElementById('expl-class');
+  cs.innerHTML='<option value="">Všechny třídy</option>';
+  (CLASSES||[]).forEach(c=>{const o=document.createElement('option');o.value=c.id;o.textContent=classLabel(c);cs.appendChild(o);});
+  // populate mission filter
+  const ms=document.getElementById('expl-mid');
+  ms.innerHTML='<option value="">Všechny mise</option>';
+  MISSIONS_9.forEach(m=>{const o=document.createElement('option');o.value=m.id;o.textContent=m.id+' '+m.name;ms.appendChild(o);});
+  explInited=true;
+ }
+}
+
+async function loadExplain(){
+ const wrap=document.getElementById('expl-wrap');
+ wrap.innerHTML='<div class="empty">Načítám…</div>';
+ const game=document.getElementById('expl-game').value||'RPG_MAT_9';
+ const mid=document.getElementById('expl-mid').value||'';
+ const cid=document.getElementById('expl-class').value||'';
+ try{
+  explData=await RPGCloud.listExplanations({game,mid,limit:100,classId:cid||undefined});
+  renderExplain();
+ }catch(e){wrap.innerHTML='<div class="empty">Chyba při načítání.</div>';}
+}
+
+function renderExplain(){
+ const wrap=document.getElementById('expl-wrap');
+ if(!explData.length){wrap.innerHTML='<div class="empty">Žádná vysvětlení zatím. Klikni ↻ Načíst.</div>';return;}
+ const mid=document.getElementById('expl-mid').value;
+ const rows=mid?explData.filter(r=>r.mid===mid):explData;
+ if(!rows.length){wrap.innerHTML='<div class="empty">Žádné záznamy pro vybraný filtr.</div>';return;}
+ let html='<table style="width:100%;border-collapse:collapse;font-size:13px">'
+  +'<thead><tr style="color:var(--muted);text-align:left;border-bottom:1px solid #2a3450">'
+  +'<th style="padding:6px 8px;white-space:nowrap">Čas</th>'
+  +'<th style="padding:6px 8px">Žák</th>'
+  +'<th style="padding:6px 8px;white-space:nowrap">Mise</th>'
+  +'<th style="padding:6px 8px">Otázka</th>'
+  +'<th style="padding:6px 8px">Odpověď</th>'
+  +'<th style="padding:6px 8px">Jak na to přišel</th>'
+  +'</tr></thead><tbody>';
+ rows.forEach((r,i)=>{
+  const dt=new Date(r.created_at);
+  const dstr=dt.toLocaleDateString('cs-CZ',{day:'numeric',month:'numeric'})+' '+dt.toLocaleTimeString('cs-CZ',{hour:'2-digit',minute:'2-digit'});
+  const bg=i%2===0?'':'background:#0d1226';
+  const mname=(MISSIONS_BY_GAME[r.game||'RPG_MAT_9']||[]).find(m=>m.id===r.mid);
+  html+=`<tr style="${bg}">
+   <td style="padding:5px 8px;color:var(--muted);white-space:nowrap;font-size:12px">${esc(dstr)}</td>
+   <td style="padding:5px 8px;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(r.display_name||'?')}</td>
+   <td style="padding:5px 8px;white-space:nowrap;color:var(--gold);font-size:12px">${esc(r.mid)}${mname?'<br><span style="color:var(--muted);font-size:11px">'+esc(mname.name)+'</span>':''}</td>
+   <td style="padding:5px 8px;max-width:200px;font-size:12px;color:#b0b8d0">${esc((r.task_text||'').slice(0,80))}</td>
+   <td style="padding:5px 8px;color:var(--green);white-space:nowrap">${esc(r.answer||'')}</td>
+   <td style="padding:5px 8px;max-width:300px;line-height:1.5">${esc(r.explanation||'')}</td>
+  </tr>`;
+ });
+ html+='</tbody></table>';
+ html+='<p style="color:var(--muted);font-size:12px;margin-top:10px">Zobrazeno: '+rows.length+' záznamů</p>';
+ wrap.innerHTML=html;
+}
+
 /* ── taby ── */
 document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));
@@ -1012,10 +1096,12 @@ document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
  document.getElementById('t-classes').classList.toggle('hidden',tab!=='classes');
  document.getElementById('t-preview').classList.toggle('hidden',tab!=='preview');
  document.getElementById('t-diag').classList.toggle('hidden',tab!=='diag');
+ document.getElementById('t-explain').classList.toggle('hidden',tab!=='explain');
  document.getElementById('t-teachers').classList.toggle('hidden',tab!=='teachers');
  if(tab==='classes')renderClasses();
  if(tab==='teachers')loadTeachers();
  if(tab==='diag')renderDiag();
+ if(tab==='explain')initExplainTab();
 });
 </script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
