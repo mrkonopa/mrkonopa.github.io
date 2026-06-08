@@ -2,3 +2,4 @@ node_modules/
 *.orig
 travels/images/ua_2017/originals/
 travels/images/cr_bh_2018/originals/
+.claude/
