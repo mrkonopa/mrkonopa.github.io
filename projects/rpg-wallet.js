@@ -58,6 +58,7 @@ window.RPGWallet = (function () {
       },
       settings: { reducedMotion: false },
       migrated: [],
+      absorbed: {},
       v: 1
     };
   }
@@ -84,6 +85,7 @@ window.RPGWallet = (function () {
     if (!w.settings || typeof w.settings !== 'object') w.settings = {};
     w.settings.reducedMotion = !!w.settings.reducedMotion;
     if (!Array.isArray(w.migrated)) w.migrated = [];
+    if (!w.absorbed || typeof w.absorbed !== 'object' || Array.isArray(w.absorbed)) w.absorbed = {};
     w.v = 1;
     return w;
   }
@@ -171,6 +173,31 @@ window.RPGWallet = (function () {
     return changed;
   }
 
+  /* Net-new absorb (pro HUB): při každé návštěvě stáhne nově vydělané per-game
+     kredity do sdílené peněženky bez dvojího započítání. Sleduje poslední viděný
+     stav `w.absorbed[gameKey]`. Když per-game zůstatek klesne (utratil ve hře),
+     jen sníží sledovanou hodnotu (bez refundu) — sdílený pot je čistě motivační,
+     kosmetický, takže drobné dvojí utracení nevadí. */
+  function absorbGame(gameKey, legacyS) {
+    if (!gameKey || !legacyS || typeof legacyS !== 'object') return false;
+    const w = get();
+    let changed = false;
+    const cur = (typeof legacyS.credits === 'number' && isFinite(legacyS.credits) && legacyS.credits > 0) ? Math.floor(legacyS.credits) : 0;
+    const seen = Math.floor(w.absorbed[gameKey] || 0);
+    if (cur > seen) { w.credits = Math.floor(w.credits) + (cur - seen); w.absorbed[gameKey] = cur; changed = true; }
+    else if (cur !== seen) { w.absorbed[gameKey] = cur; }  // utraceno ve hře → jen posuň značku dolů
+    if (legacyS.cosmetics && Array.isArray(legacyS.cosmetics.owned)) {
+      const add = legacyS.cosmetics.owned.filter(id => VALID.has(id));
+      if (add.length) {
+        const before = w.cosmetics.owned.length;
+        w.cosmetics.owned = [...new Set([...w.cosmetics.owned, ...add])];
+        if (w.cosmetics.owned.length !== before) changed = true;
+      }
+    }
+    put(w);
+    return changed;
+  }
+
   // ── Živé aktualizace (i napříč záložkami) ──
   function onChange(fn) { if (typeof fn === 'function') listeners.push(fn); }
   try { window.addEventListener('storage', e => { if (e.key === KEY) emit(); }); } catch (e) {}
@@ -180,6 +207,6 @@ window.RPGWallet = (function () {
     getCredits, earn,
     buy, activate, owns, activeId, isActive, cssFor,
     getReducedMotion, setReducedMotion,
-    migrateFrom, onChange
+    migrateFrom, absorbGame, onChange
   };
 })();

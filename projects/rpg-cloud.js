@@ -482,7 +482,7 @@ window.RPGCloud = (function () {
 
   /* plovoucí widget „Vzkazy" — poznámky učitele pro přihlášeného žáka.
      Funguje ve všech hrách bez per-game úprav (volá se z attachGame). */
-  function esc(s){return String(s==null?'':s).replace(/[<>&"]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c]));}
+  function esc(s){return String(s==null?'':s).replace(/[<>&"']/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;',"'":'&#39;'}[c]));}
   async function refreshNotesWidget() {
     if (previewActive || !user) return;
     let notes = [];

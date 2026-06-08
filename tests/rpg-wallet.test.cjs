@@ -208,6 +208,53 @@ test('items() vrací kopii (nelze zvenčí přepsat ceny)', () => {
   assert.ok(fresh[0].price > 0, 'cena nezměněna zvenčí');
 });
 
+test('absorbGame: net-new kredity, žádné dvojí započítání', () => {
+  // 1. návštěva HUBu: hra má 50 kr
+  assert.strictEqual(W.absorbGame('RPG_MAT_6', { credits: 50 }), true);
+  assert.strictEqual(W.getCredits(), 50);
+  // 2. návštěva beze změny → nic
+  assert.strictEqual(W.absorbGame('RPG_MAT_6', { credits: 50 }), false);
+  assert.strictEqual(W.getCredits(), 50);
+  // hra vydělala dalších 30 (teď 80) → přiteče jen 30
+  assert.strictEqual(W.absorbGame('RPG_MAT_6', { credits: 80 }), true);
+  assert.strictEqual(W.getCredits(), 80);
+});
+
+test('absorbGame: utracení ve hře nesnižuje sdílený pot, ale re-absorb funguje', () => {
+  W.absorbGame('RPG_MAT_7', { credits: 100 });
+  assert.strictEqual(W.getCredits(), 100);
+  // hráč utratil ve hře → per-game kleslo na 20; sdílený pot zůstává 100
+  assert.strictEqual(W.absorbGame('RPG_MAT_7', { credits: 20 }), false);
+  assert.strictEqual(W.getCredits(), 100);
+  // znovu vydělal nad značku (60) → přiteče 40 (60-20)
+  W.absorbGame('RPG_MAT_7', { credits: 60 });
+  assert.strictEqual(W.getCredits(), 140);
+});
+
+test('absorbGame: více her se sčítá nezávisle', () => {
+  W.absorbGame('RPG_MAT_6', { credits: 10 });
+  W.absorbGame('RPG_MAT_7', { credits: 20 });
+  W.absorbGame('RPG_MAT_8', { credits: 30 });
+  W.absorbGame('RPG_MAT_9', { credits: 40 });
+  assert.strictEqual(W.getCredits(), 100);
+  // re-běh beze změny → nic
+  W.absorbGame('RPG_MAT_6', { credits: 10 });
+  assert.strictEqual(W.getCredits(), 100);
+});
+
+test('absorbGame: absorbuje i vlastněnou kosmetiku', () => {
+  W.absorbGame('RPG_MAT_9', { credits: 0, cosmetics: { owned: ['border-gold', 'CHEAT'] } });
+  assert.ok(W.owns('border-gold'));
+  assert.ok(!W.owns('CHEAT'));
+});
+
+test('absorbGame: ignoruje nevalidní vstup bez crashe', () => {
+  assert.strictEqual(W.absorbGame(null, { credits: 5 }), false);
+  assert.strictEqual(W.absorbGame('RPG_MAT_6', null), false);
+  assert.strictEqual(W.absorbGame('RPG_MAT_6', { credits: NaN }), false);
+  assert.strictEqual(W.getCredits(), 0);
+});
+
 test('cssFor vrací aktivní cssKey pro kategorii', () => {
   W.earn(500);
   W.buy('theme-matrix');
