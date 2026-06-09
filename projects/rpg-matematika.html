@@ -439,7 +439,7 @@ function refreshLeaderboards(){
 RPGCloud.attachHub(GAMES.map(g=>g.key), ()=>{render();refreshLeaderboards();}, '.wrap');
 RPGCloud.onChange(u=>{
   const w=document.getElementById('who-where');
-  if(w) w.innerHTML = u ? 'Postavy účtu <b>'+(u.email||'')+'</b>' : 'Postavy uložené na <b>tomto zařízení</b>';
+  if(w) w.innerHTML = u ? 'Postavy účtu <b>'+esc(u.email||'')+'</b>' : 'Postavy uložené na <b>tomto zařízení</b>';
   const tl=document.getElementById('teacher-link');
   if(tl) tl.style.display = RPGCloud.isStaff() ? 'inline-block' : 'none';
   refreshLeaderboards();

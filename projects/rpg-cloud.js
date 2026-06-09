@@ -487,8 +487,8 @@ window.RPGCloud = (function () {
         '<span style="min-width:26px;text-align:center">' + medal(i) + '</span>' +
         '<span style="flex:1;color:' + (r.is_me ? 'var(--gold,#19e6e6)' : 'var(--text,#e8eaf6)') + ';font-weight:700;' +
         'overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + esc(r.display_name) + (r.is_me ? ' (ty)' : '') + '</span>' +
-        '<span style="color:var(--muted,#8895b5);font-size:11px">LV ' + (r.lvl || 1) + '</span>' +
-        '<span style="color:var(--blue,#5dc8f0);min-width:62px;text-align:right">' + (r.xp || 0) + ' XP</span>' +
+        '<span style="color:var(--muted,#8895b5);font-size:11px">LV ' + ((r.lvl || 1) | 0) + '</span>' +
+        '<span style="color:var(--blue,#5dc8f0);min-width:62px;text-align:right">' + ((r.xp || 0) | 0) + ' XP</span>' +
         '</div>'
       ).join('');
     el.style.display = 'block';
