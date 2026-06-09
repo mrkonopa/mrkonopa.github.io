@@ -736,14 +736,14 @@ function openDetail(i){
  document.getElementById('modal').innerHTML=
   '<button class="close" onclick="closeModal()">✕</button>'+
   '<h3>'+g.emoji+' '+esc(d.name||'—')+'</h3>'+
-  '<div class="msub">'+esc(r.full_name||'')+' · '+esc(r.email||'')+' · '+g.nm+'</div>'+
-  '<div class="row"><span>Level</span><b>'+(d.level||1)+'</b></div>'+
-  '<div class="row"><span>XP</span><b>'+(d.xp||0)+'</b></div>'+
-  '<div class="row"><span>Splněno úkolů</span><b>'+doneCount(d)+' / '+TOTAL_TASKS+' ('+pct(d)+' %)</b></div>'+
+  '<div class="msub">'+esc(r.full_name||'')+' · '+esc(r.email||'')+' · '+esc(g.nm)+'</div>'+
+  '<div class="row"><span>Level</span><b>'+((d.level||1)|0)+'</b></div>'+
+  '<div class="row"><span>XP</span><b>'+((d.xp||0)|0)+'</b></div>'+
+  '<div class="row"><span>Splněno úkolů</span><b>'+(doneCount(d)|0)+' / '+TOTAL_TASKS+' ('+(pct(d)|0)+' %)</b></div>'+
   '<div class="row"><span>Artefakty</span><b>'+(inv.length?esc(inv.join(', ')):'—')+'</b></div>'+
   (Array.isArray(d.teacherUnlocked)&&d.teacherUnlocked.length?'<div class="row"><span>Odemčeno učitelem</span><b style="color:var(--gold)">🔓 '+esc(d.teacherUnlocked.join(', '))+'</b></div>':'')+
   '<div class="row"><span>Třídy</span><b>'+([...classesOfUser(r.user_id)].map(cid=>'🏫 '+esc(classNameOf(cid))).join(', ')||'<span style="color:var(--muted)">— žádná —</span>')+'</b></div>'+
-  '<div class="row"><span>Poslední aktivita</span><b>'+fmtDate(r.updated_at)+'</b></div>'+
+  '<div class="row"><span>Poslední aktivita</span><b>'+esc(fmtDate(r.updated_at))+'</b></div>'+
   '<h4>Atributy</h4>'+attrHtml+
   (MISSIONS_BY_GAME[r.game]?buildMasteryHtml(d,r.game):'')+
   buildUnlockHtml(r)+
