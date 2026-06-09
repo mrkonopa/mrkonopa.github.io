@@ -467,22 +467,31 @@ window.RPGCloud = (function () {
   }
 
   // centrální vykreslení žebříčku do prvku v mapě (žádné per-game edity).
-  // Graceful: bez přihlášení / bez spolužáků / chyba ⇒ prvek se skryje.
+  // Bez cloudu/preview → skryje. Bez přihlášení → teaser. Přihlášen → reálná data.
   async function renderLeaderboardInto(elId, game) {
     const el = document.getElementById(elId);
     if (!el) return;
-    if (!client || !user || previewActive) { el.style.display = 'none'; return; }
+    if (!client || previewActive) { el.style.display = 'none'; return; }
+    const px = 'font-family:var(--px,monospace)';
+    const header = '<div style="' + px + ';font-weight:700;font-size:12px;color:var(--gold,#19e6e6);margin-bottom:8px;letter-spacing:1px">— 🏆 ŽEBŘÍČEK TŘÍDY —</div>';
+    if (!user) {
+      const ghost = ['🥇 ████████  LV ?  ??? XP', '🥈 ██████  LV ?  ??? XP', '🥉 ███████  LV ?  ??? XP'];
+      el.style.display = 'block';
+      el.innerHTML = header +
+        ghost.map(t => '<div style="' + px + ';font-size:13px;padding:5px 8px;border-radius:5px;background:rgba(255,255,255,.03);margin:3px 0;filter:blur(3.5px);user-select:none;color:var(--muted,#8895b5)">' + t + '</div>').join('') +
+        '<div style="text-align:center;margin-top:10px;' + px + ';font-size:11px;color:var(--muted,#8895b5)">Přihlas se a zjisti pořadí ve třídě<br>' +
+        '<button onclick="var b=document.getElementById(\'cloud-btn\');if(b)b.click();" style="margin-top:6px;cursor:pointer;' + px + ';font-weight:700;font-size:11px;padding:5px 10px;border-radius:4px;border:1px solid var(--blue,#5dc8f0);background:transparent;color:var(--blue,#5dc8f0)">🔑 Přihlásit</button></div>';
+      return;
+    }
     let rows = [];
     try { rows = await leaderboard(game); } catch (e) { el.style.display = 'none'; return; }
     // sám hráč bez spolužáků = jen 1 řádek (on sám) → nemá smysl ukazovat
     if (!rows || rows.length < 2) { el.style.display = 'none'; return; }
     const medal = i => (i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : (i + 1) + '.');
-    el.innerHTML =
-      '<div style="font-family:var(--px,monospace);font-weight:700;font-size:12px;color:var(--gold,#19e6e6);' +
-      'margin-bottom:8px;letter-spacing:1px">— 🏆 ŽEBŘÍČEK TŘÍDY —</div>' +
+    el.innerHTML = header +
       rows.map((r, i) =>
         '<div style="display:flex;align-items:center;gap:8px;padding:5px 8px;border-radius:5px;' +
-        'font-family:var(--px,monospace);font-size:13px;margin:3px 0;' +
+        px + ';font-size:13px;margin:3px 0;' +
         (r.is_me ? 'background:rgba(25,230,230,.14);border:1px solid var(--gold,#19e6e6)' : 'background:rgba(255,255,255,.03)') + '">' +
         '<span style="min-width:26px;text-align:center">' + medal(i) + '</span>' +
         '<span style="flex:1;color:' + (r.is_me ? 'var(--gold,#19e6e6)' : 'var(--text,#e8eaf6)') + ';font-weight:700;' +

@@ -773,13 +773,14 @@ const SHOP_ITEMS=[
  {id:'victory-neon',   cat:'victory',name:'Neon záření', ic:'💚',price:140, cssKey:'vc-neon'},
 ];
 
+function _walletBal(){return(typeof RPGWallet!=='undefined')?RPGWallet.getCredits():(S.credits||0);}
+function _updateCreditsUI(){const b=_walletBal();const mc=document.getElementById('map-credits');if(mc)mc.textContent=b;const pc=document.getElementById('pr-credits');if(pc)pc.textContent=b;const sb=document.getElementById('shop-bal');if(sb)sb.textContent=b;}
 function earnCredits(n){
  n=Number(n);
  if(!isFinite(n)||n<=0)return;
  n=Math.floor(n);
- if(typeof S.credits!=='number'||!isFinite(S.credits)||S.credits<0)S.credits=0;
- S.credits=Math.floor(S.credits)+n;
- saveS();
+ if(typeof RPGWallet!=='undefined'){RPGWallet.earn(n);}
+ else{if(typeof S.credits!=='number'||!isFinite(S.credits)||S.credits<0)S.credits=0;S.credits=Math.floor(S.credits)+n;saveS();}
  const el=document.createElement('div');
  el.className='float-txt';
  el.style.cssText='left:60%;top:42%;color:#f4d03f';
@@ -787,9 +788,7 @@ function earnCredits(n){
  document.body.appendChild(el);
  void el.offsetWidth;el.classList.add('go');
  setTimeout(()=>el.remove(),1200);
- const mc=document.getElementById('map-credits');if(mc)mc.textContent=S.credits;
- const pc=document.getElementById('pr-credits');if(pc)pc.textContent=S.credits;
- const sb=document.getElementById('shop-bal');if(sb)sb.textContent=S.credits;
+ _updateCreditsUI();
 }
 
 // normalizace kosmetiky — i po manipulaci s localStorage:
@@ -811,23 +810,25 @@ function sanitizeCosmetics(){
  S.cosmetics.active=clean;
 }
 
+function _activeCosmetics(){return(typeof RPGWallet!=='undefined')?RPGWallet.get().cosmetics:S.cosmetics;}
 function applyCosmetics(){
- if(!S.cosmetics)return;
+ const cos=_activeCosmetics();
+ if(!cos)return;
  const av=document.getElementById('pr-avatar');
  if(av){
   av.className='';
-  const b=SHOP_ITEMS.find(i=>i.id===S.cosmetics.active?.border&&i.cat==='border');
+  const b=SHOP_ITEMS.find(i=>i.id===cos.active?.border&&i.cat==='border');
   if(b&&b.cssKey)av.classList.add(b.cssKey);
  }
  const nm=document.getElementById('pr-name');
  const mnm=document.getElementById('map-name');
  if(nm||mnm){
-  const bg=SHOP_ITEMS.find(i=>i.id===S.cosmetics.active?.badge&&i.cat==='badge');
+  const bg=SHOP_ITEMS.find(i=>i.id===cos.active?.badge&&i.cat==='badge');
   const cls=bg?.cssKey||'';
   ['nm-cyan','nm-gold','nm-green','nm-purple'].forEach(c=>{nm&&nm.classList.remove(c);mnm&&mnm.classList.remove(c);});
   if(cls){nm&&nm.classList.add(cls);mnm&&mnm.classList.add(cls);}
  }
- const th=SHOP_ITEMS.find(i=>i.id===S.cosmetics.active?.theme&&i.cat==='theme');
+ const th=SHOP_ITEMS.find(i=>i.id===cos.active?.theme&&i.cat==='theme');
  document.documentElement.dataset.theme=th?.cssKey||'';
 }
 
@@ -841,15 +842,17 @@ function shopCat(cat){
 }
 
 function renderShop(){
- if(!S.cosmetics){S.cosmetics={owned:['theme-default','victory-default'],active:{border:null,badge:null,theme:'theme-default',victory:'victory-default'}};}
- const sb=document.getElementById('shop-bal');if(sb)sb.textContent=S.credits||0;
+ const cos=_activeCosmetics();
+ if(!cos&&!S.cosmetics){S.cosmetics={owned:['theme-default','victory-default'],active:{border:null,badge:null,theme:'theme-default',victory:'victory-default'}};}
+ _updateCreditsUI();
  const grid=document.getElementById('shop-content');if(!grid)return;
  const items=SHOP_ITEMS.filter(i=>i.cat===_shopCat);
+ const bal=_walletBal();
  grid.innerHTML='';
  items.forEach(item=>{
-  const owned=S.cosmetics.owned.includes(item.id)||item.price===0;
-  const isActive=S.cosmetics.active?.[item.cat]===item.id||(item.price===0&&!S.cosmetics.active?.[item.cat]);
-  const canBuy=!owned&&(S.credits||0)>=item.price;
+  const owned=(typeof RPGWallet!=='undefined')?RPGWallet.owns(item.id)||(item.price===0):(cos||S.cosmetics).owned.includes(item.id)||item.price===0;
+  const isActive=(typeof RPGWallet!=='undefined')?RPGWallet.isActive(item.id)||(item.price===0&&!(cos||{active:{}}).active?.[item.cat]):(cos||S.cosmetics).active?.[item.cat]===item.id||(item.price===0&&!(cos||S.cosmetics).active?.[item.cat]);
+  const canBuy=!owned&&bal>=item.price;
   const div=document.createElement('div');
   div.className='shop-item'+(owned?' owned':'')+(isActive?' active-item':'');
   div.innerHTML=`<span class="si-ic">${item.ic}</span>
@@ -865,10 +868,14 @@ function renderShop(){
 }
 
 function buyItem(id){
+ if(typeof RPGWallet!=='undefined'){
+  const r=RPGWallet.buy(id);
+  if(!r.ok){alert('Nedostatek kreditů!');return;}
+  applyCosmetics();renderShop();return;
+ }
  const item=SHOP_ITEMS.find(i=>i.id===id);if(!item)return;
  if(!S.cosmetics)S.cosmetics={owned:['theme-default','victory-default'],active:{}};
  if(!Array.isArray(S.cosmetics.owned))S.cosmetics.owned=['theme-default','victory-default'];
- // už vlastní nebo je zdarma → jen aktivuj, neúčtuj znovu
  if(item.price===0||S.cosmetics.owned.includes(id)){activateItem(id);return;}
  if(typeof S.credits!=='number'||!isFinite(S.credits)||S.credits<item.price){alert('Nedostatek kreditů!');return;}
  S.credits-=item.price;
@@ -877,11 +884,11 @@ function buyItem(id){
 }
 
 function activateItem(id){
+ if(typeof RPGWallet!=='undefined'){RPGWallet.activate(id);applyCosmetics();renderShop();return;}
  const item=SHOP_ITEMS.find(i=>i.id===id);if(!item)return;
  if(!S.cosmetics)S.cosmetics={owned:[],active:{}};
  if(!Array.isArray(S.cosmetics.owned))S.cosmetics.owned=['theme-default','victory-default'];
  if(!S.cosmetics.active)S.cosmetics.active={};
- // nelze aktivovat nevlastněnou placenou položku (anti-cheat z konzole)
  if(item.price>0&&!S.cosmetics.owned.includes(id))return;
  S.cosmetics.active[item.cat]=id;
  saveS();
@@ -1370,7 +1377,7 @@ let S = {name:'HRDINA',xp:0,level:1,attrs:{calc:0,geo:0,anal:0,craft:0},done:{},
 let GODMODE=false;
 
 function saveS(){localStorage.setItem(SAVE_KEY,JSON.stringify(S));if(window.RPGCloud&&RPGCloud.push)RPGCloud.push(SAVE_KEY,S);}
-function loadS(){const r=localStorage.getItem(SAVE_KEY);if(!r)return false;try{S=JSON.parse(r);}catch(e){return false;}if(!S||typeof S!=='object'){S={name:'HRDINA',xp:0,level:1,attrs:{calc:0,geo:0,anal:0,craft:0},done:{},inv:[],mastery:{},xpClaimed:{},teacherUnlocked:[]};return false;}if(typeof S.name!=='string')S.name='HRDINA';if(typeof S.xp!=='number'||!isFinite(S.xp))S.xp=0;if(typeof S.level!=='number'||!isFinite(S.level))S.level=1;if(!S.attrs||typeof S.attrs!=='object')S.attrs={calc:0,geo:0,anal:0,craft:0};if(!S.done||typeof S.done!=='object')S.done={};if(!Array.isArray(S.inv))S.inv=[];if(!S.mastery||typeof S.mastery!=='object')S.mastery={};if(!S.xpClaimed||typeof S.xpClaimed!=='object')S.xpClaimed={};if(!Array.isArray(S.teacherUnlocked))S.teacherUnlocked=[];if(!S.ach||typeof S.ach!=='object')S.ach={};if(!S.stats||typeof S.stats!=='object')S.stats={crits:0,trainCorrect:0,bestCombo:0};if(!S.streak||typeof S.streak!=='object')S.streak={count:0,last:''};if(!S.errs||typeof S.errs!=='object')S.errs={};if(!Array.isArray(S.errsSnap))S.errsSnap=[];if(!S.settings||typeof S.settings!=='object')S.settings={reducedMotion:false};if(typeof S.credits!=='number'||!isFinite(S.credits)||S.credits<0)S.credits=0;S.credits=Math.floor(S.credits);if(!S.cosmetics||typeof S.cosmetics!=='object')S.cosmetics={owned:['theme-default','victory-default'],active:{border:null,badge:null,theme:'theme-default',victory:'victory-default'}};if(!Array.isArray(S.cosmetics.owned))S.cosmetics.owned=['theme-default','victory-default'];if(!S.cosmetics.active||typeof S.cosmetics.active!=='object')S.cosmetics.active={border:null,badge:null,theme:'theme-default',victory:'victory-default'};if(!S.creditsClaimed||typeof S.creditsClaimed!=='object')S.creditsClaimed={};sanitizeCosmetics();return true;}
+function loadS(){const r=localStorage.getItem(SAVE_KEY);if(!r)return false;try{S=JSON.parse(r);}catch(e){return false;}if(!S||typeof S!=='object'){S={name:'HRDINA',xp:0,level:1,attrs:{calc:0,geo:0,anal:0,craft:0},done:{},inv:[],mastery:{},xpClaimed:{},teacherUnlocked:[]};return false;}if(typeof S.name!=='string')S.name='HRDINA';if(typeof S.xp!=='number'||!isFinite(S.xp))S.xp=0;if(typeof S.level!=='number'||!isFinite(S.level))S.level=1;if(!S.attrs||typeof S.attrs!=='object')S.attrs={calc:0,geo:0,anal:0,craft:0};if(!S.done||typeof S.done!=='object')S.done={};if(!Array.isArray(S.inv))S.inv=[];if(!S.mastery||typeof S.mastery!=='object')S.mastery={};if(!S.xpClaimed||typeof S.xpClaimed!=='object')S.xpClaimed={};if(!Array.isArray(S.teacherUnlocked))S.teacherUnlocked=[];if(!S.ach||typeof S.ach!=='object')S.ach={};if(!S.stats||typeof S.stats!=='object')S.stats={crits:0,trainCorrect:0,bestCombo:0};if(!S.streak||typeof S.streak!=='object')S.streak={count:0,last:''};if(!S.errs||typeof S.errs!=='object')S.errs={};if(!Array.isArray(S.errsSnap))S.errsSnap=[];if(!S.settings||typeof S.settings!=='object')S.settings={reducedMotion:false};if(typeof S.credits!=='number'||!isFinite(S.credits)||S.credits<0)S.credits=0;S.credits=Math.floor(S.credits);if(!S.cosmetics||typeof S.cosmetics!=='object')S.cosmetics={owned:['theme-default','victory-default'],active:{border:null,badge:null,theme:'theme-default',victory:'victory-default'}};if(!Array.isArray(S.cosmetics.owned))S.cosmetics.owned=['theme-default','victory-default'];if(!S.cosmetics.active||typeof S.cosmetics.active!=='object')S.cosmetics.active={border:null,badge:null,theme:'theme-default',victory:'victory-default'};if(!S.creditsClaimed||typeof S.creditsClaimed!=='object')S.creditsClaimed={};sanitizeCosmetics();if(typeof RPGWallet!=='undefined')RPGWallet.migrateFrom(SAVE_KEY,S);return true;}
 function applyMotionPref(){document.documentElement.classList.toggle('reduced-motion',(S.settings&&S.settings.reducedMotion)||false);}
 function toggleReducedMotion(on){if(!S.settings||typeof S.settings!=='object')S.settings={reducedMotion:false};S.settings.reducedMotion=on;applyMotionPref();saveS();}
 function calcLevel(){S.level=Math.floor(S.xp/100)+1;}
@@ -1744,8 +1751,23 @@ function launchBattle(aid,mid){
  void mon.offsetWidth;
  mon.classList.add('enter');
  setTimeout(()=>{mon.classList.remove('enter');mon.classList.add(Math.random()<.5?'idle':'idle-2');},560);
+ setTimeout(introStrike,660);
  renderTask();
  go('battle');
+}
+
+function introStrike(){
+ const mon=document.getElementById('bt-mon');
+ const top=document.getElementById('bt-top');
+ const flash=document.getElementById('hit-flash');
+ if(!mon||!top||!flash)return;
+ mon.classList.remove('idle','idle-2');
+ void mon.offsetWidth;
+ mon.classList.add('hit');
+ top.classList.add('shake');
+ flash.classList.remove('go');void flash.offsetWidth;flash.classList.add('go');
+ spawnParticles();
+ setTimeout(()=>{mon.classList.remove('hit');top.classList.remove('shake');mon.classList.add(Math.random()<.5?'idle':'idle-2');},550);
 }
 
 function retryMission(){
@@ -1947,14 +1969,12 @@ function submitMC(opt,btn){
  const fb=document.getElementById('bt-fb');
  fb.textContent=firstTime?((isCrit?'✓✓ KRITICKÝ ZÁSAH! +':'✓ SPRÁVNĚ! +')+xpGain+' XP'):'✓ SPRÁVNĚ! (mise už splněna — bez XP)';
  fb.className='feedback ok';
- if(firstTime){awardXp(xpGain,isCrit);if(t.skill&&S.attrs[t.skill]!==undefined)S.attrs[t.skill]+=3;S.xpClaimed[xpKey]=true;earnCredits(isCrit?7:5);}
- else earnCredits(2);
+ if(firstTime){awardXp(xpGain,isCrit);if(t.skill&&S.attrs[t.skill]!==undefined)S.attrs[t.skill]+=3;S.xpClaimed[xpKey]=true;earnCredits(isCrit?7:5);tryDropItem();}
  S.done[`${BT.mid}-${BT.idx}`]=true;
  saveS();
  document.getElementById('next-btn').style.display='inline-block';
  damageMonster(xpGain,isCrit);
  updateCombo();
- tryDropItem();
  if(!S.stats)S.stats={};if(BT.combo>(S.stats.bestCombo||0))S.stats.bestCombo=BT.combo;
  evalAch({correct:true,combo:BT.combo,timeLeft:BT.timeLeft});
  checkMissionComplete();
@@ -2144,8 +2164,7 @@ function submitAnswer(){
  const xpGain=firstTime?Math.max(3,10-BT.hl*3)*(isCrit?2:1):0;
  fb.textContent=firstTime?((isCrit?'✓✓ KRITICKÝ ZÁSAH! +':'✓ SPRÁVNĚ! +')+xpGain+' XP'):'✓ SPRÁVNĚ! (mise už splněna — bez XP)';
  fb.className='feedback ok';
- if(firstTime){awardXp(xpGain,isCrit);if(t.skill&&S.attrs[t.skill]!==undefined)S.attrs[t.skill]+=3;S.xpClaimed[xpKey]=true;earnCredits(isCrit?7:5);}
- else earnCredits(2);
+ if(firstTime){awardXp(xpGain,isCrit);if(t.skill&&S.attrs[t.skill]!==undefined)S.attrs[t.skill]+=3;S.xpClaimed[xpKey]=true;earnCredits(isCrit?7:5);tryDropItem();}
  S.done[`${BT.mid}-${BT.idx}`]=true;
  saveS();
  document.getElementById('bt-ans').disabled=true;
@@ -2154,7 +2173,6 @@ function submitAnswer(){
  document.getElementById('bt-explain').style.display='block';
  damageMonster(xpGain,isCrit);
  updateCombo();
- tryDropItem();
  if(!S.stats)S.stats={};if(BT.combo>(S.stats.bestCombo||0))S.stats.bestCombo=BT.combo;
  evalAch({correct:true,combo:BT.combo,timeLeft:BT.timeLeft});
  checkMissionComplete();
@@ -2339,7 +2357,8 @@ function trCorrect(){
  const fb=document.getElementById('tr-fb');
  fb.className='feedback ok';
  if(!wasMastered&&m.mastered){earnCredits(30);fb.textContent='🏅 MISTROVSTVÍ SPLNĚNO! +3 XP +30 kr';}
- else{earnCredits(1);fb.textContent='✓ SPRÁVNĚ! +3 XP +1 kr';}
+ else if(!wasMastered){earnCredits(1);fb.textContent='✓ SPRÁVNĚ! +3 XP +1 kr';}
+ else{fb.textContent='✓ SPRÁVNĚ! +3 XP';}
  document.getElementById('tr-hint-btn').disabled=true;
  document.getElementById('tr-next-btn').style.display='inline-block';
  document.getElementById('tr-next-btn').focus();
@@ -2522,6 +2541,7 @@ window.addEventListener('load',()=>{
  }
 });
 </script>
+<script src="./rpg-wallet.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="./rpg-cloud.js"></script>
 <script>RPGCloud.attachGame(SAVE_KEY);</script>
