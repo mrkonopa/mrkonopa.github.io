@@ -383,6 +383,89 @@ window.RPGCloud = (function () {
       return data || [];
     } catch (e) { console.warn('[RPGCloud] listExplanations selhal:', e); return []; }
   }
+
+  // ════════════ Fáze 7 — živý souboj (Kahoot-style) ════════════
+  // Tenké wrappery nad SECURITY DEFINER RPC funkcemi (viz phase7.sql).
+  // Vše graceful: bez clienta/přihlášení vrací null/[]/false.
+  async function createBattle(game, qcount, hostName) {
+    if (!client || !user) return null;
+    try {
+      const { data, error } = await client.rpc('create_battle',
+        { p_game: game, p_qcount: qcount, p_host_name: hostName });
+      if (error) throw error; return data;
+    } catch (e) { console.warn('[RPGCloud] createBattle:', e); return null; }
+  }
+  async function joinBattle(code, name) {
+    if (!client || !user) return null;
+    try {
+      const { data, error } = await client.rpc('join_battle', { p_code: code, p_name: name });
+      if (error) throw error; return data;
+    } catch (e) { console.warn('[RPGCloud] joinBattle:', e); return null; }
+  }
+  async function battleState(battleId) {
+    if (!client || !user) return null;
+    try {
+      const { data, error } = await client.rpc('battle_state', { p_battle: battleId });
+      if (error) throw error; return data;
+    } catch (e) { return null; }
+  }
+  async function submitBattleAnswer(battleId, qi, correct, points) {
+    if (!client || !user) return false;
+    try {
+      const { error } = await client.rpc('submit_battle_answer',
+        { p_battle: battleId, p_qi: qi, p_correct: !!correct, p_points: Math.round(points) || 0 });
+      return !error;
+    } catch (e) { return false; }
+  }
+  async function advanceBattle(battleId, qi) {
+    if (!client || !user) return null;
+    try {
+      const { data, error } = await client.rpc('advance_battle', { p_battle: battleId, p_qi: qi });
+      if (error) throw error; return data;
+    } catch (e) { console.warn('[RPGCloud] advanceBattle:', e); return null; }
+  }
+  async function setBattleStatus(battleId, status) {
+    if (!client || !user) return null;
+    try {
+      const { data, error } = await client.rpc('set_battle_status', { p_battle: battleId, p_status: status });
+      if (error) throw error; return data;
+    } catch (e) { console.warn('[RPGCloud] setBattleStatus:', e); return null; }
+  }
+  async function listActiveBattles() {
+    if (!client || !user) return [];
+    try {
+      const { data, error } = await client.rpc('list_active_battles');
+      if (error) throw error; return data || [];
+    } catch (e) { return []; }
+  }
+  async function inviteBattleEmail(battleId, email) {
+    if (!client || !user) return false;
+    try {
+      const { error } = await client.rpc('invite_battle_email', { p_battle: battleId, p_email: email });
+      return !error;
+    } catch (e) { return false; }
+  }
+  async function myBattleInvites() {
+    if (!client || !user) return [];
+    try {
+      const { data, error } = await client.rpc('my_battle_invites');
+      if (error) throw error; return data || [];
+    } catch (e) { return []; }
+  }
+  /* Polling: zavolá cb(state) hned a pak každých intervalMs (default 1200).
+     Vrací stop() funkci. Klient tím drží živý stav bez websocketů. */
+  function pollBattle(battleId, cb, intervalMs) {
+    let stopped = false, timer = null;
+    async function tick() {
+      if (stopped) return;
+      const st = await battleState(battleId);
+      if (!stopped && st && typeof cb === 'function') { try { cb(st); } catch (e) {} }
+      if (!stopped) timer = setTimeout(tick, intervalMs || 1200);
+    }
+    tick();
+    return () => { stopped = true; if (timer) clearTimeout(timer); };
+  }
+
   // centrální vykreslení žebříčku do prvku v mapě (žádné per-game edity).
   // Graceful: bez přihlášení / bez spolužáků / chyba ⇒ prvek se skryje.
   async function renderLeaderboardInto(elId, game) {
@@ -621,5 +704,9 @@ window.RPGCloud = (function () {
            // Fáze 4 — žebříček třídy
            leaderboard, renderLeaderboardInto,
            // Fáze 6 — vysvětlení postupu
-           saveExplanation, listExplanations };
+           saveExplanation, listExplanations,
+           // Fáze 7 — živý souboj
+           createBattle, joinBattle, battleState, submitBattleAnswer,
+           advanceBattle, setBattleStatus, listActiveBattles,
+           inviteBattleEmail, myBattleInvites, pollBattle };
 })();
