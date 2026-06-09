@@ -706,11 +706,29 @@ window.RPGCloud = (function () {
           }
         }
       });
-      // Heartbeat: udržuje updated_at čerstvé → indikátor „online" v konzoli
-      setInterval(() => {
+      // Heartbeat: udržuje updated_at čerstvé + kontroluje teacherUnlocked ze serveru
+      setInterval(async () => {
         try {
+          if (!client || !currentUser()) return;
           const s = JSON.parse(localStorage.getItem(saveKey));
-          if (s && client && currentUser()) push(saveKey, s);
+          if (!s) return;
+          push(saveKey, s);
+          // Stáhni aktuální save ze serveru a sluč teacherUnlocked
+          const cloud = await pull(saveKey);
+          if (!cloud) return;
+          const localNow = (() => { try { return JSON.parse(localStorage.getItem(saveKey)); } catch { return null; } })();
+          const tuSet = new Set([
+            ...(Array.isArray(cloud.teacherUnlocked) ? cloud.teacherUnlocked : []),
+            ...(Array.isArray(localNow && localNow.teacherUnlocked) ? localNow.teacherUnlocked : [])
+          ]);
+          if (tuSet.size === (Array.isArray(localNow && localNow.teacherUnlocked) ? localNow.teacherUnlocked.length : 0)) return;
+          // Nové učitelské odemčení → aktualizuj lokál + notifikuj hru
+          const merged = [...tuSet];
+          if (localNow) {
+            localNow.teacherUnlocked = merged;
+            localStorage.setItem(saveKey, JSON.stringify(localNow));
+            if (typeof window.renderMap === 'function') { try { window.renderMap(); } catch (e) {} }
+          }
         } catch {}
       }, 120000);
       init().then(paint);

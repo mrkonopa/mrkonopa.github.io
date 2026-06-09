@@ -697,11 +697,11 @@ function buildMasteryHtml(d,gameKey){
  const unmastered=missionsFor(gameKey).filter(m=>!(d.mastery&&d.mastery[m.id]&&d.mastery[m.id].mastered));
  let pills='';
  mastered.forEach(m=>{
-  const score=(d.mastery[m.id]&&d.mastery[m.id].score)||0;
+  const score=((d.mastery[m.id]&&d.mastery[m.id].score)||0)|0;
   pills+='<span title="skóre: '+score+'" style="display:inline-block;font-size:11px;font-weight:700;padding:3px 8px;border-radius:20px;margin:2px;background:var(--gold);color:#06101e">🏅 '+esc(m.id)+' '+esc(m.name)+'</span>';
  });
  unmastered.forEach(m=>{
-  const score=(d.mastery&&d.mastery[m.id]&&d.mastery[m.id].score)||0;
+  const score=((d.mastery&&d.mastery[m.id]&&d.mastery[m.id].score)||0)|0;
   const bar=score>0?'<span style="color:var(--muted);font-size:10px"> ('+score+'/15)</span>':'';
   pills+='<span style="display:inline-block;font-size:11px;padding:3px 8px;border-radius:20px;margin:2px;background:var(--panel2);color:var(--muted);border:1px solid var(--line)">'+esc(m.id)+''+bar+'</span>';
  });
@@ -728,7 +728,7 @@ function buildMasteryHtml(d,gameKey){
 function openDetail(i){
  const r=window.__filtered[i];if(!r)return;
  const g=gMeta(r.game), d=r.data||{}, admin=RPGCloud.isAdmin();
- const attrHtml=ATTR.map(([k,lbl])=>'<div class="row"><span>'+lbl+'</span><b>'+((d.attrs&&d.attrs[k])||0)+'</b></div>').join('');
+ const attrHtml=ATTR.map(([k,lbl])=>'<div class="row"><span>'+lbl+'</span><b>'+((d.attrs&&d.attrs[k]||0)|0)+'</b></div>').join('');
  const inv=Array.isArray(d.inv)?d.inv:[];
  let admHtml='';
  if(admin){
@@ -736,7 +736,7 @@ function openDetail(i){
    '<h4>Odměny a úpravy (superadmin)</h4>'+
    '<div class="actrow"><input type="number" id="adj-xp" placeholder="±XP" value="100"><button class="mini gold" onclick="giveXP('+i+')">Přidat XP</button>'+
      '<span style="font-size:11px;color:var(--muted)">level se dopočítá z XP</span></div>'+
-   (()=>{const arts=ARTIFACTS_BY_GAME[r.game]||[];const opts='<option value="">— vybrat artefakt —</option>'+arts.map(a=>'<option value="'+a.id+'"'+(inv.includes(a.id)?' disabled':'')+'>'+esc(a.id)+' – '+esc(a.nm)+'</option>').join('');return '<div class="actrow"><select id="adj-item" style="font-family:inherit;font-size:13px;padding:7px 9px;border-radius:5px;border:1px solid var(--line);background:var(--panel2);color:var(--text);flex:1">'+opts+'</select><button class="mini gold" onclick="giveItem('+i+')">+ Artefakt</button></div>';})()+'
+   (()=>{const arts=ARTIFACTS_BY_GAME[r.game]||[];const opts='<option value="">— vybrat artefakt —</option>'+arts.map(a=>'<option value="'+esc(a.id)+'"'+(inv.includes(a.id)?' disabled':'')+'>'+esc(a.id)+' – '+esc(a.nm)+'</option>').join('');return '<div class="actrow"><select id="adj-item" style="font-family:inherit;font-size:13px;padding:7px 9px;border-radius:5px;border:1px solid var(--line);background:var(--panel2);color:var(--text);flex:1">'+opts+'</select><button class="mini gold" onclick="giveItem('+i+')">+ Artefakt</button></div>';})()+'
    '<div class="actrow"><button class="mini red" onclick="delChar('+i+')">🗑 Smazat celou postavu</button></div>';
  }
  document.getElementById('modal').innerHTML=
