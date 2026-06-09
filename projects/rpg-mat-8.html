@@ -2331,7 +2331,7 @@ function renderProfile(){
  const el=document.getElementById('pr-attrs');
  el.innerHTML='';
  Object.entries(ATTR_META).forEach(([k,m])=>{
- const v=S.attrs[k]||0,pct=Math.min(100,v);
+ const v=(S.attrs[k]||0)|0,pct=Math.min(100,v)|0;
  const row=document.createElement('div');
  row.className='attr-row';
  row.innerHTML=`<div class="attr-ic">${m.ic}</div><div class="attr-nm">${m.nm}</div>
