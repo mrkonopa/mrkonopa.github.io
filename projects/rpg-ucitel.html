@@ -839,7 +839,7 @@ async function loadTeachers(){
  let html='<table class="tbl"><thead><tr><th>E-mail</th><th>Role</th><th>Přidal</th><th></th></tr></thead><tbody>';
  list.forEach(t=>{
   html+='<tr><td class="nm">'+esc(t.email)+'</td>'+
-   '<td><span class="tag" style="background:'+(t.role==='superadmin'?'var(--gold)':'var(--accent)')+'">'+t.role+'</span></td>'+
+   '<td><span class="tag" style="background:'+(t.role==='superadmin'?'var(--gold)':'var(--accent)')+'">'+esc(t.role)+'</span></td>'+
    '<td class="em">'+esc(t.added_by||'')+'</td>'+
    '<td><button class="mini red" onclick="delTeacher(\''+esc(t.email)+'\')">odebrat</button></td></tr>';
  });
@@ -978,28 +978,28 @@ function renderClasses(){
     cohortBadge+
     '<span class="tag" style="background:var(--accent)">'+mem.size+' žáků</span>'+
     '<div style="margin-left:auto;display:flex;gap:6px">'+
-     '<button class="mini gold" onclick="toggleRoster(\''+c.id+'\')">'+(open?'▲ hotovo':'👥 spravovat žáky')+'</button>'+
-     '<button class="mini" onclick="editCohortUI(\''+c.id+'\')" title="ročník / automatický posun">📈</button>'+
-     '<button class="mini" onclick="renameClassUI(\''+c.id+'\')" title="přejmenovat">✎</button>'+
-     '<button class="mini red" onclick="deleteClassUI(\''+c.id+'\')">🗑</button>'+
+     '<button class="mini gold" onclick="toggleRoster(\''+esc(c.id)+'\')">'+(open?'▲ hotovo':'👥 spravovat žáky')+'</button>'+
+     '<button class="mini" onclick="editCohortUI(\''+esc(c.id)+'\')" title="ročník / automatický posun">📈</button>'+
+     '<button class="mini" onclick="renameClassUI(\''+esc(c.id)+'\')" title="přejmenovat">✎</button>'+
+     '<button class="mini red" onclick="deleteClassUI(\''+esc(c.id)+'\')">🗑</button>'+
     '</div>'+
    '</div>';
   // akce pro celou třídu
   html+='<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:10px">'+
    '<span style="color:var(--muted);font-size:12px">Hromadně třídě:</span>'+
-   '<button class="mini gold" onclick="classAwardXp(\''+c.id+'\')">⭐ +XP</button>';
+   '<button class="mini gold" onclick="classAwardXp(\''+esc(c.id)+'\')">⭐ +XP</button>';
   if(grade>=6&&grade<=9){
    const missions=missionsFor('RPG_MAT_'+grade);
    let opts='<option value="">— mise '+grade+'. roč. —</option>';
    missions.forEach(m=>{opts+='<option value="'+m.id+'">'+m.id+' '+esc(m.name)+'</option>';});
-   html+='<select id="cls-mid-'+c.id+'" style="max-width:220px">'+opts+'</select>'+
-    '<button class="mini gold" onclick="classUnlock(\''+c.id+'\')">🔓 Odemknout třídě</button>';
+   html+='<select id="cls-mid-'+esc(c.id)+'" style="max-width:220px">'+opts+'</select>'+
+    '<button class="mini gold" onclick="classUnlock(\''+esc(c.id)+'\')">🔓 Odemknout třídě</button>';
   }
-  if(admin)html+='<button class="mini red" onclick="classDeleteChars(\''+c.id+'\')">🗑 Smazat postavy třídy</button>';
+  if(admin)html+='<button class="mini red" onclick="classDeleteChars(\''+esc(c.id)+'\')">🗑 Smazat postavy třídy</button>';
   html+='</div>'+
    '<div style="display:flex;gap:6px;align-items:center;margin-top:8px">'+
-    '<input id="cls-note-'+c.id+'" placeholder="📨 Vzkaz celé třídě…" style="flex:1;padding:5px 8px;border-radius:6px;border:1px solid var(--line);background:var(--bg);color:#fff;font-size:13px">'+
-    '<button class="mini gold" onclick="classNote(\''+c.id+'\')">Odeslat</button>'+
+    '<input id="cls-note-'+esc(c.id)+'" placeholder="📨 Vzkaz celé třídě…" style="flex:1;padding:5px 8px;border-radius:6px;border:1px solid var(--line);background:var(--bg);color:#fff;font-size:13px">'+
+    '<button class="mini gold" onclick="classNote(\''+esc(c.id)+'\')">Odeslat</button>'+
    '</div>';
   if(open){
    if(!students.length){html+='<div class="empty" style="margin-top:10px">— žádní žáci zatím nehráli —</div>';}
@@ -1008,7 +1008,7 @@ function renderClasses(){
     students.forEach(s=>{
      const inC=mem.has(s.user_id);
      html+='<label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;padding:4px 6px;border-radius:4px;background:'+(inC?'rgba(244,208,63,.12)':'transparent')+'">'+
-      '<input type="checkbox"'+(inC?' checked':'')+' onclick="toggleMember(\''+c.id+'\',\''+s.user_id+'\',this.checked)">'+
+      '<input type="checkbox"'+(inC?' checked':'')+' onclick="toggleMember(\''+esc(c.id)+'\',\''+esc(s.user_id)+'\',this.checked)">'+
       '<span><b style="color:#fff">'+esc(s.name||'—')+'</b> <span style="color:var(--muted);font-size:11px">'+esc(s.email||'')+'</span></span>'+
      '</label>';
     });
