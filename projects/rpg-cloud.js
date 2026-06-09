@@ -731,11 +731,16 @@ window.RPGCloud = (function () {
             ...(Array.isArray(localNow && localNow.teacherUnlocked) ? localNow.teacherUnlocked : [])
           ]);
           if (tuSet.size === (Array.isArray(localNow && localNow.teacherUnlocked) ? localNow.teacherUnlocked.length : 0)) return;
-          // Nové učitelské odemčení → aktualizuj lokál + notifikuj hru
+          // Nové učitelské odemčení → aktualizuj in-memory stav + localStorage + překresli mapu
           const merged = [...tuSet];
           if (localNow) {
             localNow.teacherUnlocked = merged;
             localStorage.setItem(saveKey, JSON.stringify(localNow));
+            // Aktualizuj i globální S (in-memory) aby mapa ihned reagovala
+            if (typeof window.S !== 'undefined' && window.S) {
+              window.S.teacherUnlocked = merged;
+              if (typeof window.saveS === 'function') window.saveS();
+            }
             if (typeof window.renderMap === 'function') { try { window.renderMap(); } catch (e) {} }
           }
         } catch {}
