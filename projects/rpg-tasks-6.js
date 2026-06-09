@@ -52,12 +52,12 @@ function gen_1_2(){
 function gen_1_3(){
   const tasks=[];
   const a=ri(3,9),b=ri(10,30);
-  tasks.push({text:`V krabici je ${a} sáčků, v každém ${b} bonbónů. Kolik bonbónů je celkem?`,ans:a*b,hints:['Počet sáčků × bonbonů v sáčku.',`${a}·${b} = ${a*b}`],skill:'anal'});
+  tasks.push({text:`V krabici je ${a} ${skl(a,'sáček','sáčky','sáčků')}, v každém ${b} bonbónů. Kolik bonbónů je celkem?`,ans:a*b,hints:['Počet sáčků × bonbonů v sáčku.',`${a}·${b} = ${a*b}`],skill:'anal'});
   const c=ri(50,200),d=ri(3,9);
   const rem=c%d;
   tasks.push({text:`Rozdělíme ${c} kuliček mezi ${d} dětí rovnoměrně. Kolik kuliček zbude?`,ans:rem,hints:['Spočítej zbytek po dělení '+c+' ÷ '+d+'.',`zbytek = ${rem}`],skill:'anal'});
   const e=ri(2,6),f=ri(20,60);
-  tasks.push({text:`Auto ujede za hodinu ${f} km. Kolik km ujede za ${e} hodin?`,ans:e*f,hints:['Vzdálenost = rychlost × čas.',`${e}·${f} = ${e*f} km`],skill:'anal'});
+  tasks.push({text:`Auto ujede za hodinu ${f} km. Kolik km ujede za ${e} ${skl(e,'hodinu','hodiny','hodin')}?`,ans:e*f,hints:['Vzdálenost = rychlost × čas.',`${e}·${f} = ${e*f} km`],skill:'anal'});
   const g=ri(100,500),h=ri(20,80);
   tasks.push({text:`Máš ${g} Kč a utratíš ${h} Kč. Kolik ti zbude?`,ans:g-h,hints:['Odečti utracenou částku.',`${g}−${h} = ${g-h} Kč`],skill:'anal'});
   const k=ri(2,5),l=ri(3,8);

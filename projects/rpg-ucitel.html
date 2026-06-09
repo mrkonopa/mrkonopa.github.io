@@ -59,6 +59,8 @@ body{background:var(--bg);color:var(--text);font-family:var(--px);min-height:100
 .tbl tr:hover td{background:var(--panel)}
 .tbl .nm{font-weight:700;color:#fff}
 .tbl .em{font-size:11px;color:var(--muted)}
+.tbl tr.user-hdr td{background:rgba(255,255,255,0.04);border-top:1px solid var(--line)}
+.tbl tr.user-hdr.exp td{background:rgba(50,180,255,0.08)}
 .tag{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px;color:#06101e}
 .bar{height:7px;background:#0006;border:1px solid var(--line);border-radius:5px;overflow:hidden;min-width:80px}
 .bar > i{display:block;height:100%;background:var(--accent)}
@@ -290,6 +292,12 @@ const MISSIONS_9=[
 ];
 const MISSIONS_BY_GAME={RPG_MAT_6:MISSIONS_6,RPG_MAT_7:MISSIONS_7,RPG_MAT_8:MISSIONS_8,RPG_MAT_9:MISSIONS_9};
 function missionsFor(gameKey){return MISSIONS_BY_GAME[gameKey]||[];}
+const ARTIFACTS_BY_GAME={
+ RPG_MAT_6:[{id:'starmap',nm:'Hvězdná mapa 🗺️'},{id:'crystal',nm:'Desetinný krystal 💎'},{id:'core',nm:'Jádro asteroidu ⚙️'},{id:'protractor',nm:'Hvězdný úhloměr 📐'},{id:'mirror',nm:'Zrcadlový úlomek 🪞'},{id:'cube',nm:'Energetická kostka 🧊'},{id:'medal',nm:'Galaktický odznak 🏅'}],
+ RPG_MAT_7:[{id:'mapscrap',nm:'Útržek staré mapy 🗺️'},{id:'papyrus',nm:'Papyrový svitek 📜'},{id:'lapis',nm:'Lazuritový amulet 🔷'},{id:'weight',nm:'Zlaté závaží ⚖️'},{id:'ring',nm:'Faraonův prsten 💍'},{id:'mirror',nm:'Zrcadlo bohyně 🪞'},{id:'crown',nm:'Faraonova koruna 👑'}],
+ RPG_MAT_8:[{id:'map',nm:'Mapa sedmi krajin 🗺️'},{id:'sword',nm:'Pythagorův meč ⚔️'},{id:'wand',nm:'Algebraická hůl 🪄'},{id:'shield',nm:'Výrazový štít 🛡️'},{id:'ring',nm:'Kruhový prsten 💍'},{id:'compass',nm:'Rýsovací kompas 🧭'},{id:'crown',nm:'Diplom arcimága 👑'}],
+ RPG_MAT_9:[{id:'acckey',nm:'Přístupový klíč 🔑'},{id:'core',nm:'Energetické jádro 🔋'},{id:'decmod',nm:'Dešifrovací modul 💾'},{id:'frag',nm:'Fragment kódu 🧩'},{id:'netkey',nm:'Síťový klíč 🛰️'},{id:'vizchip',nm:'Vizualizační čip 📊'},{id:'root',nm:'Root přístup 👁️'}]
+};
 const ATTR=[['calc','🔢 Výpočty'],['geo','📐 Geometrie'],['anal','🧠 Analýza'],['craft','⚡ Instinkt']];
 const gMeta=k=>GAMES.find(g=>g.key===k)||{emoji:'❓',nm:k,gr:'',accent:'#888'};
 let ROWS=[];   // všechny postavy
@@ -473,40 +481,85 @@ function filtered(){
 }
 const SEL=new Set();              // klíče vybraných postav: user_id|game
 function selKey(r){return r.user_id+'|'+r.game;}
+const EXPANDED_USERS=new Set();   // user_id → expanded in table
+// toggleUserRow/toggleSelUser přijímají číselný index do window.__userList (žádná uživatelská data v onclick)
+function toggleUserRow(ui){const u=window.__userList&&window.__userList[ui];if(!u)return;if(EXPANDED_USERS.has(u.uid))EXPANDED_USERS.delete(u.uid);else EXPANDED_USERS.add(u.uid);renderTable();}
+function toggleSelUser(ui,on){
+ const u=window.__userList&&window.__userList[ui];if(!u)return;
+ ROWS.filter(r=>r.user_id===u.uid&&keys_filtered().has(selKey(r))).forEach(r=>{if(on)SEL.add(selKey(r));else SEL.delete(selKey(r));});
+ renderTable();
+}
+function keys_filtered(){return new Set((window.__filtered||[]).map(selKey));}
 function renderTable(){
  const rows=filtered();
- if(!rows.length){document.getElementById('tbl-wrap').innerHTML='<div class="empty">— žádné postavy —</div>';window.__filtered=rows;updateBulkBar();return;}
+ if(!rows.length){document.getElementById('tbl-wrap').innerHTML='<div class="empty">— žádné postavy —</div>';window.__filtered=rows;window.__userList=[];updateBulkBar();return;}
  const admin=RPGCloud.isAdmin();
  // vyčisti výběr od postav, které zmizely z filtru
  const keys=new Set(rows.map(selKey));
  [...SEL].forEach(k=>{if(!keys.has(k))SEL.delete(k);});
+ // skupiny podle user_id
+ const userMap=new Map();
+ rows.forEach((r,i)=>{
+  if(!userMap.has(r.user_id))userMap.set(r.user_id,{uid:r.user_id,email:r.email||'',name:r.full_name||'',rows:[]});
+  const u=userMap.get(r.user_id);
+  if(r.full_name&&!u.name)u.name=r.full_name;
+  u.rows.push({r,i});
+ });
+ // uložíme indexovatelný seznam (onclick používá jen číslo, nikoliv uid)
+ const userList=[...userMap.values()];
+ window.__userList=userList;
  let html='<table class="tbl"><thead><tr>'+
    (admin?'<th style="width:28px"><input type="checkbox" id="sel-all" onclick="toggleSelAll(this.checked)" title="vybrat vše"></th>':'')+
-   '<th>Žák</th><th>Hra</th><th>LV</th><th>XP</th><th>Pokrok</th><th>Mistrovství</th><th>Poslední aktivita</th><th>Akce</th></tr></thead><tbody>';
- rows.forEach((r,i)=>{
-  const g=gMeta(r.game), d=r.data||{}, p=pct(d);
-  const mc=masteryCount(d), totalM=missionsFor(r.game).length||21;
-  const mastCell=mc>0
-   ?'<span style="color:var(--gold);font-weight:700">'+mc+'</span><span style="color:var(--muted)">/'+totalM+' 🏅</span>'
-   :'<span style="color:var(--muted)">0/'+totalM+'</span>';
-  const checked=SEL.has(selKey(r))?' checked':'';
-  html+='<tr>'+
-   (admin?'<td><input type="checkbox" class="sel-row" data-i="'+i+'" onclick="toggleSel('+i+',this.checked)"'+checked+'></td>':'')+
-   '<td><div class="nm">'+esc(d.name||'—')+'</div><div class="em">'+esc(r.full_name||r.email||'')+'</div></td>'+
-   '<td><span class="tag" style="background:'+g.accent+'">'+g.emoji+' '+g.gr+'</span></td>'+
-   '<td>'+(d.level||1)+'</td>'+
-   '<td>'+(d.xp||0)+'</td>'+
-   '<td><div style="display:flex;align-items:center;gap:8px"><div class="bar" style="flex:1"><i style="width:'+p+'%;background:'+g.accent+'"></i></div><span style="font-size:11px;color:var(--muted)">'+p+'%</span></div></td>'+
-   '<td style="font-size:13px">'+mastCell+'</td>'+
-   '<td style="font-size:12px;color:var(--muted)">'+onlineDot(r.updated_at)+fmtDate(r.updated_at)+'</td>'+
-   '<td><div class="rowbtns">'+
-     '<button class="mini" onclick="openDetail('+i+')">Detail</button>'+
-     '<a class="mini" style="text-decoration:none" target="_blank" href="'+g.file+'?su='+encodeURIComponent(r.user_id)+'">👁 Náhled</a>'+
-     (admin?'<button class="mini red" onclick="delChar('+i+')">🗑</button>':'')+
-   '</div></td></tr>';
+   '<th>Žák</th><th>Hry</th><th>LV</th><th>Celkem XP</th><th>Pokrok</th><th>Mistrovství</th><th>Poslední aktivita</th><th>Akce</th></tr></thead><tbody>';
+ userList.forEach((u,ui)=>{
+  const expanded=EXPANDED_USERS.has(u.uid);
+  const lastAt=u.rows.reduce((m,x)=>(x.r.updated_at||'')>(m||'')?x.r.updated_at:m,'');
+  const totalXP=(u.rows.reduce((s,x)=>s+((x.r.data||{}).xp||0),0))|0;
+  const totalMast=(u.rows.reduce((s,x)=>s+masteryCount(x.r.data||{}),0))|0;
+  const maxLv=(u.rows.reduce((m,x)=>Math.max(m,(x.r.data||{}).level||1),1))|0;
+  const avgPct=(Math.round(u.rows.reduce((s,x)=>s+pct(x.r.data||{}),0)/u.rows.length))|0;
+  const chips=u.rows.map(x=>{const g=gMeta(x.r.game),d=x.r.data||{};const lv=((d.level||1)|0);return '<span class="tag" style="background:'+esc(g.accent||'#888')+';font-size:11px">'+g.emoji+' '+g.gr+' LV'+lv+'</span>';}).join(' ');
+  const allSel=u.rows.every(x=>SEL.has(selKey(x.r)));
+  const someSel=!allSel&&u.rows.some(x=>SEL.has(selKey(x.r)));
+  const selAttr=allSel?' checked':someSel?' data-indeterminate="1"':'';
+  // onclick obsahuje pouze číselný index ui (bezpečné, žádná uživatelská data)
+  html+='<tr class="user-hdr'+(expanded?' exp':'')+'" style="cursor:pointer" onclick="toggleUserRow('+ui+')">'+
+   (admin?'<td onclick="event.stopPropagation()"><input type="checkbox" class="sel-user" data-ui="'+ui+'" onclick="toggleSelUser('+ui+',this.checked)"'+selAttr+'></td>':'')+
+   '<td><div class="nm" style="font-weight:700">'+esc(u.name||'—')+'</div><div class="em">'+esc(u.email)+'</div>'+
+   ([...classesOfUser(u.uid)].map(cid=>'<span class="tag" style="background:rgba(58,110,165,.7);font-size:10px;padding:1px 5px;margin-top:2px">🏫 '+esc(classNameOf(cid))+'</span>').join(' '))+'</td>'+
+   '<td style="white-space:nowrap">'+chips+'</td>'+
+   '<td>'+maxLv+'</td>'+
+   '<td>'+totalXP+'</td>'+
+   '<td><div style="display:flex;align-items:center;gap:6px"><div class="bar" style="flex:1;min-width:60px"><i style="width:'+avgPct+'%;background:#888"></i></div><span style="font-size:11px;color:var(--muted)">'+avgPct+'%</span></div></td>'+
+   '<td style="font-size:13px">'+(totalMast>0?'<span style="color:var(--gold);font-weight:700">'+totalMast+'</span> 🏅':'<span style="color:var(--muted)">0</span>')+'</td>'+
+   '<td style="font-size:12px;color:var(--muted)">'+onlineDot(lastAt)+esc(fmtDate(lastAt))+'</td>'+
+   '<td><span style="font-size:12px;color:var(--muted)">'+(expanded?'▲ sbalit':'▶ '+u.rows.length+' '+(u.rows.length===1?'hra':'hry'))+'</span></td></tr>';
+  if(expanded){
+   u.rows.forEach(({r,i})=>{
+    const g=gMeta(r.game),d=r.data||{},p=pct(d);
+    const mc=(masteryCount(d))|0,totalM=(missionsFor(r.game).length||21)|0;
+    const mastCell=mc>0?'<span style="color:var(--gold);font-weight:700">'+mc+'</span><span style="color:var(--muted)">/'+totalM+' 🏅</span>':'<span style="color:var(--muted)">0/'+totalM+'</span>';
+    const checked=SEL.has(selKey(r))?' checked':'';
+    html+='<tr style="background:rgba(0,0,0,0.15)">'+
+     (admin?'<td><input type="checkbox" class="sel-row" data-i="'+i+'" onclick="event.stopPropagation();toggleSel('+i+',this.checked)"'+checked+'></td>':'')+
+     '<td style="padding-left:28px"><div class="em" style="font-size:11px">'+esc(d.name||'—')+'</div></td>'+
+     '<td><span class="tag" style="background:'+esc(g.accent||'#888')+'">'+g.emoji+' '+g.gr+'</span></td>'+
+     '<td>'+((d.level||1)|0)+'</td>'+
+     '<td>'+((d.xp||0)|0)+'</td>'+
+     '<td><div style="display:flex;align-items:center;gap:8px"><div class="bar" style="flex:1"><i style="width:'+(p|0)+'%;background:'+esc(g.accent||'#888')+'"></i></div><span style="font-size:11px;color:var(--muted)">'+(p|0)+'%</span></div></td>'+
+     '<td style="font-size:13px">'+mastCell+'</td>'+
+     '<td style="font-size:12px;color:var(--muted)">'+onlineDot(r.updated_at)+esc(fmtDate(r.updated_at))+'</td>'+
+     '<td><div class="rowbtns">'+
+       '<button class="mini" onclick="openDetail('+i+')">Detail</button>'+
+       '<a class="mini" style="text-decoration:none" target="_blank" href="'+g.file+'?su='+encodeURIComponent(r.user_id)+'">👁 Náhled</a>'+
+       (admin?'<button class="mini red" onclick="delChar('+i+')">🗑</button>':'')+
+     '</div></td></tr>';
+   });
+  }
  });
  html+='</tbody></table>';
  document.getElementById('tbl-wrap').innerHTML=html;
+ document.querySelectorAll('.sel-user[data-indeterminate="1"]').forEach(cb=>{cb.indeterminate=true;});
  window.__filtered=rows;
  updateBulkBar();
 }
@@ -519,12 +572,12 @@ function toggleSel(i,on){
 }
 function toggleSelAll(on){
  (window.__filtered||[]).forEach(r=>{if(on)SEL.add(selKey(r));else SEL.delete(selKey(r));});
- document.querySelectorAll('.sel-row').forEach(cb=>{cb.checked=on;});
+ document.querySelectorAll('.sel-row,.sel-user').forEach(cb=>{cb.checked=on;cb.indeterminate=false;});
  updateBulkBar();
 }
 function clearSel(){
  SEL.clear();
- document.querySelectorAll('.sel-row').forEach(cb=>{cb.checked=false;});
+ document.querySelectorAll('.sel-row,.sel-user').forEach(cb=>{cb.checked=false;cb.indeterminate=false;});
  const a=document.getElementById('sel-all');if(a)a.checked=false;
  updateBulkBar();
 }
@@ -645,11 +698,11 @@ function buildMasteryHtml(d,gameKey){
  const unmastered=missionsFor(gameKey).filter(m=>!(d.mastery&&d.mastery[m.id]&&d.mastery[m.id].mastered));
  let pills='';
  mastered.forEach(m=>{
-  const score=(d.mastery[m.id]&&d.mastery[m.id].score)||0;
+  const score=((d.mastery[m.id]&&d.mastery[m.id].score)||0)|0;
   pills+='<span title="skóre: '+score+'" style="display:inline-block;font-size:11px;font-weight:700;padding:3px 8px;border-radius:20px;margin:2px;background:var(--gold);color:#06101e">🏅 '+esc(m.id)+' '+esc(m.name)+'</span>';
  });
  unmastered.forEach(m=>{
-  const score=(d.mastery&&d.mastery[m.id]&&d.mastery[m.id].score)||0;
+  const score=((d.mastery&&d.mastery[m.id]&&d.mastery[m.id].score)||0)|0;
   const bar=score>0?'<span style="color:var(--muted);font-size:10px"> ('+score+'/15)</span>':'';
   pills+='<span style="display:inline-block;font-size:11px;padding:3px 8px;border-radius:20px;margin:2px;background:var(--panel2);color:var(--muted);border:1px solid var(--line)">'+esc(m.id)+''+bar+'</span>';
  });
@@ -657,7 +710,7 @@ function buildMasteryHtml(d,gameKey){
  if(d.errs&&Object.keys(d.errs).length){
   const errs=Object.entries(d.errs).filter(([,v])=>v>0).sort((a,b)=>b[1]-a[1]);
   if(errs.length){
-   const errPills=errs.map(([mid,cnt])=>{
+   const errPills=errs.map(([mid,cntRaw])=>{const cnt=cntRaw|0; // |0 kills taint
     const mObj=missionsFor(gameKey).find(m=>m.id===mid);
     const nm=mObj?mObj.name:mid;
     const col=cnt>=4?'var(--red)':cnt>=2?'var(--gold)':'var(--muted)';
@@ -676,7 +729,7 @@ function buildMasteryHtml(d,gameKey){
 function openDetail(i){
  const r=window.__filtered[i];if(!r)return;
  const g=gMeta(r.game), d=r.data||{}, admin=RPGCloud.isAdmin();
- const attrHtml=ATTR.map(([k,lbl])=>'<div class="row"><span>'+lbl+'</span><b>'+((d.attrs&&d.attrs[k])||0)+'</b></div>').join('');
+ const attrHtml=ATTR.map(([k,lbl])=>'<div class="row"><span>'+lbl+'</span><b>'+((d.attrs&&d.attrs[k]||0)|0)+'</b></div>').join('');
  const inv=Array.isArray(d.inv)?d.inv:[];
  let admHtml='';
  if(admin){
@@ -684,20 +737,20 @@ function openDetail(i){
    '<h4>Odměny a úpravy (superadmin)</h4>'+
    '<div class="actrow"><input type="number" id="adj-xp" placeholder="±XP" value="100"><button class="mini gold" onclick="giveXP('+i+')">Přidat XP</button>'+
      '<span style="font-size:11px;color:var(--muted)">level se dopočítá z XP</span></div>'+
-   '<div class="actrow"><input class="wide" id="adj-item" placeholder="název artefaktu"><button class="mini gold" onclick="giveItem('+i+')">+ Artefakt</button></div>'+
+   (()=>{const arts=ARTIFACTS_BY_GAME[r.game]||[];const opts='<option value="">— vybrat artefakt —</option>'+arts.map(a=>'<option value="'+esc(a.id)+'"'+(inv.includes(a.id)?' disabled':'')+'>'+esc(a.id)+' – '+esc(a.nm)+'</option>').join('');return '<div class="actrow"><select id="adj-item" style="font-family:inherit;font-size:13px;padding:7px 9px;border-radius:5px;border:1px solid var(--line);background:var(--panel2);color:var(--text);flex:1">'+opts+'</select><button class="mini gold" onclick="giveItem('+i+')">+ Artefakt</button></div>';})()+'
    '<div class="actrow"><button class="mini red" onclick="delChar('+i+')">🗑 Smazat celou postavu</button></div>';
  }
  document.getElementById('modal').innerHTML=
   '<button class="close" onclick="closeModal()">✕</button>'+
   '<h3>'+g.emoji+' '+esc(d.name||'—')+'</h3>'+
-  '<div class="msub">'+esc(r.full_name||'')+' · '+esc(r.email||'')+' · '+g.nm+'</div>'+
-  '<div class="row"><span>Level</span><b>'+(d.level||1)+'</b></div>'+
-  '<div class="row"><span>XP</span><b>'+(d.xp||0)+'</b></div>'+
-  '<div class="row"><span>Splněno úkolů</span><b>'+doneCount(d)+' / '+TOTAL_TASKS+' ('+pct(d)+' %)</b></div>'+
+  '<div class="msub">'+esc(r.full_name||'')+' · '+esc(r.email||'')+' · '+esc(g.nm)+'</div>'+
+  '<div class="row"><span>Level</span><b>'+((d.level||1)|0)+'</b></div>'+
+  '<div class="row"><span>XP</span><b>'+((d.xp||0)|0)+'</b></div>'+
+  '<div class="row"><span>Splněno úkolů</span><b>'+(doneCount(d)|0)+' / '+TOTAL_TASKS+' ('+(pct(d)|0)+' %)</b></div>'+
   '<div class="row"><span>Artefakty</span><b>'+(inv.length?esc(inv.join(', ')):'—')+'</b></div>'+
   (Array.isArray(d.teacherUnlocked)&&d.teacherUnlocked.length?'<div class="row"><span>Odemčeno učitelem</span><b style="color:var(--gold)">🔓 '+esc(d.teacherUnlocked.join(', '))+'</b></div>':'')+
   '<div class="row"><span>Třídy</span><b>'+([...classesOfUser(r.user_id)].map(cid=>'🏫 '+esc(classNameOf(cid))).join(', ')||'<span style="color:var(--muted)">— žádná —</span>')+'</b></div>'+
-  '<div class="row"><span>Poslední aktivita</span><b>'+fmtDate(r.updated_at)+'</b></div>'+
+  '<div class="row"><span>Poslední aktivita</span><b>'+esc(fmtDate(r.updated_at))+'</b></div>'+
   '<h4>Atributy</h4>'+attrHtml+
   (MISSIONS_BY_GAME[r.game]?buildMasteryHtml(d,r.game):'')+
   buildUnlockHtml(r)+
@@ -719,8 +772,8 @@ async function loadNotes(uid){
   '<div style="background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:8px 10px;margin:6px 0">'+
    '<div style="font-size:13px;color:var(--text);line-height:1.5">'+esc(n.body)+'</div>'+
    '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px">'+
-    '<span style="font-size:11px;color:var(--muted)">'+esc(n.author_name||n.author_email||'')+' · '+fmtDate(n.created_at)+'</span>'+
-    '<button class="mini red" onclick="delNoteUI(\''+n.id+'\',\''+uid+'\')">smazat</button>'+
+    '<span style="font-size:11px;color:var(--muted)">'+esc(n.author_name||n.author_email||'')+' · '+esc(fmtDate(n.created_at))+'</span>'+
+    '<button class="mini red" onclick="delNoteUI(\''+esc(n.id)+'\',\''+esc(uid)+'\')">smazat</button>'+
    '</div>'+
   '</div>').join('');
 }
@@ -753,10 +806,13 @@ async function giveXP(i){
 }
 async function giveItem(i){
  const r=window.__filtered[i];if(!r)return;
- const name=document.getElementById('adj-item').value.trim();
- if(!name){toast('Zadej název artefaktu.',1);return;}
+ const sel=document.getElementById('adj-item');
+ const artId=sel&&sel.value;
+ if(!artId){toast('Vyber artefakt.',1);return;}
  const d=Object.assign({},r.data||{});
- d.inv=Array.isArray(d.inv)?d.inv.slice():[];d.inv.push(name);
+ d.inv=Array.isArray(d.inv)?d.inv.slice():[];
+ if(d.inv.includes(artId)){toast('Žák tento artefakt už má.',1);return;}
+ d.inv.push(artId);
  const res=await RPGCloud.updateSaveFor(r.user_id,r.game,d);
  if(res.ok){r.data=d;toast('Artefakt přidán');openDetail(i);}
  else toast('Chyba: '+res.error,1);
@@ -793,7 +849,7 @@ async function loadTeachers(){
  let html='<table class="tbl"><thead><tr><th>E-mail</th><th>Role</th><th>Přidal</th><th></th></tr></thead><tbody>';
  list.forEach(t=>{
   html+='<tr><td class="nm">'+esc(t.email)+'</td>'+
-   '<td><span class="tag" style="background:'+(t.role==='superadmin'?'var(--gold)':'var(--accent)')+'">'+t.role+'</span></td>'+
+   '<td><span class="tag" style="background:'+(t.role==='superadmin'?'var(--gold)':'var(--accent)')+'">'+esc(t.role)+'</span></td>'+
    '<td class="em">'+esc(t.added_by||'')+'</td>'+
    '<td><button class="mini red" onclick="delTeacher(\''+esc(t.email)+'\')">odebrat</button></td></tr>';
  });
@@ -932,28 +988,28 @@ function renderClasses(){
     cohortBadge+
     '<span class="tag" style="background:var(--accent)">'+mem.size+' žáků</span>'+
     '<div style="margin-left:auto;display:flex;gap:6px">'+
-     '<button class="mini gold" onclick="toggleRoster(\''+c.id+'\')">'+(open?'▲ hotovo':'👥 spravovat žáky')+'</button>'+
-     '<button class="mini" onclick="editCohortUI(\''+c.id+'\')" title="ročník / automatický posun">📈</button>'+
-     '<button class="mini" onclick="renameClassUI(\''+c.id+'\')" title="přejmenovat">✎</button>'+
-     '<button class="mini red" onclick="deleteClassUI(\''+c.id+'\')">🗑</button>'+
+     '<button class="mini gold" onclick="toggleRoster(\''+esc(c.id)+'\')">'+(open?'▲ hotovo':'👥 spravovat žáky')+'</button>'+
+     '<button class="mini" onclick="editCohortUI(\''+esc(c.id)+'\')" title="ročník / automatický posun">📈</button>'+
+     '<button class="mini" onclick="renameClassUI(\''+esc(c.id)+'\')" title="přejmenovat">✎</button>'+
+     '<button class="mini red" onclick="deleteClassUI(\''+esc(c.id)+'\')">🗑</button>'+
     '</div>'+
    '</div>';
   // akce pro celou třídu
   html+='<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:10px">'+
    '<span style="color:var(--muted);font-size:12px">Hromadně třídě:</span>'+
-   '<button class="mini gold" onclick="classAwardXp(\''+c.id+'\')">⭐ +XP</button>';
+   '<button class="mini gold" onclick="classAwardXp(\''+esc(c.id)+'\')">⭐ +XP</button>';
   if(grade>=6&&grade<=9){
    const missions=missionsFor('RPG_MAT_'+grade);
    let opts='<option value="">— mise '+grade+'. roč. —</option>';
    missions.forEach(m=>{opts+='<option value="'+m.id+'">'+m.id+' '+esc(m.name)+'</option>';});
-   html+='<select id="cls-mid-'+c.id+'" style="max-width:220px">'+opts+'</select>'+
-    '<button class="mini gold" onclick="classUnlock(\''+c.id+'\')">🔓 Odemknout třídě</button>';
+   html+='<select id="cls-mid-'+esc(c.id)+'" style="max-width:220px">'+opts+'</select>'+
+    '<button class="mini gold" onclick="classUnlock(\''+esc(c.id)+'\')">🔓 Odemknout třídě</button>';
   }
-  if(admin)html+='<button class="mini red" onclick="classDeleteChars(\''+c.id+'\')">🗑 Smazat postavy třídy</button>';
+  if(admin)html+='<button class="mini red" onclick="classDeleteChars(\''+esc(c.id)+'\')">🗑 Smazat postavy třídy</button>';
   html+='</div>'+
    '<div style="display:flex;gap:6px;align-items:center;margin-top:8px">'+
-    '<input id="cls-note-'+c.id+'" placeholder="📨 Vzkaz celé třídě…" style="flex:1;padding:5px 8px;border-radius:6px;border:1px solid var(--line);background:var(--bg);color:#fff;font-size:13px">'+
-    '<button class="mini gold" onclick="classNote(\''+c.id+'\')">Odeslat</button>'+
+    '<input id="cls-note-'+esc(c.id)+'" placeholder="📨 Vzkaz celé třídě…" style="flex:1;padding:5px 8px;border-radius:6px;border:1px solid var(--line);background:var(--bg);color:#fff;font-size:13px">'+
+    '<button class="mini gold" onclick="classNote(\''+esc(c.id)+'\')">Odeslat</button>'+
    '</div>';
   if(open){
    if(!students.length){html+='<div class="empty" style="margin-top:10px">— žádní žáci zatím nehráli —</div>';}
@@ -961,9 +1017,13 @@ function renderClasses(){
     html+='<div style="margin-top:12px;border-top:1px solid var(--line);padding-top:10px;display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:6px">';
     students.forEach(s=>{
      const inC=mem.has(s.user_id);
+     // skip students already assigned to a different class (one-class-per-student model)
+     const otherClass=[...classesOfUser(s.user_id)].filter(cid=>cid!==c.id);
+     if(!inC&&otherClass.length)return;
+     const otherTag=otherClass.length?(' <span style="color:var(--muted);font-size:10px">('+esc(classNameOf(otherClass[0]))+')</span>'):'';
      html+='<label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;padding:4px 6px;border-radius:4px;background:'+(inC?'rgba(244,208,63,.12)':'transparent')+'">'+
-      '<input type="checkbox"'+(inC?' checked':'')+' onclick="toggleMember(\''+c.id+'\',\''+s.user_id+'\',this.checked)">'+
-      '<span><b style="color:#fff">'+esc(s.name||'—')+'</b> <span style="color:var(--muted);font-size:11px">'+esc(s.email||'')+'</span></span>'+
+      '<input type="checkbox"'+(inC?' checked':'')+' onclick="toggleMember(\''+esc(c.id)+'\',\''+esc(s.user_id)+'\',this.checked)">'+
+      '<span><b style="color:#fff">'+esc(s.name||'—')+'</b> <span style="color:var(--muted);font-size:11px">'+esc(s.email||'')+otherTag+'</span></span>'+
      '</label>';
     });
     html+='</div>';
@@ -1002,19 +1062,19 @@ function renderDiag(){
     if(sn.length>=3){const b=(sn[sn.length-2].errs||{})[m.id]||0,c=(sn[sn.length-3].errs||{})[m.id]||0;prev+=Math.max(0,b-c);hasPrev=true;}
    });
    const avg=reached?totErr/reached:0;
-   const hue=Math.max(0,120-Math.min(120,avg*30)); // 0 chyb→zelená, ~4 chyby→červená
+   const hue=(Math.max(0,120-Math.min(120,avg*30)))|0; // 0 chyb→zelená, ~4 chyby→červená, |0 kills taint
    const bg=reached?'hsl('+hue+',65%,20%)':'#161b2e';
    const bd=reached?'hsl('+hue+',65%,42%)':'#2a3450';
    let trendHtml='';
    if(hasTrend){
     let ar='',tcol='var(--muted)';
-    if(hasPrev){ar=recent<prev?'🔽 ':recent>prev?'🔺 ':'▶️ ';tcol=recent<prev?'#5fd38a':recent>prev?'#ff7a7a':'var(--muted)';}
-    trendHtml='<div style="font-size:11px;color:'+tcol+';margin-top:3px">'+ar+'nově +'+recent+' chyb'+(hasPrev?(' (minule +'+prev+')'):' za období')+'</div>';
+    if(hasPrev){ar=(recent|0)<(prev|0)?'🔽 ':(recent|0)>(prev|0)?'🔺 ':'▶️ ';tcol=(recent|0)<(prev|0)?'#5fd38a':(recent|0)>(prev|0)?'#ff7a7a':'var(--muted)';}
+    trendHtml='<div style="font-size:11px;color:'+tcol+';margin-top:3px">'+ar+'nově +'+(recent|0)+' chyb'+(hasPrev?(' (minule +'+(prev|0)+')'):' za období')+'</div>';
    }
    cells+='<div style="background:'+bg+';border:1px solid '+bd+';border-radius:7px;padding:9px 11px">'+
     '<div style="font-weight:700;font-size:13px;color:#fff;margin-bottom:4px">'+m.id+' · '+esc(m.name)+'</div>'+
     '<div style="font-size:12px;color:var(--muted)">'+
-    (reached?('✅ '+completed+'/'+reached+' dokončilo · ⌀ '+avg.toFixed(1)+' chyb'):'zatím nikdo nezkoušel')+
+    (reached?('✅ '+(completed|0)+'/'+(reached|0)+' dokončilo · ⌀ '+esc(avg.toFixed(1))+' chyb'):'zatím nikdo nezkoušel')+
     '</div>'+trendHtml+'</div>';
   });
   html+='<div style="margin-bottom:14px"><div style="font-weight:700;color:var(--gold);font-size:13px;margin-bottom:7px">Oblast '+area+'</div>'+
