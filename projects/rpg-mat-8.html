@@ -693,6 +693,7 @@ html[data-theme="violet"]{--gold:#b06cff;--panel:#100a20;--panel2:#18103a;--blue
  <button class="btn sm" onclick="importPrompt()">NAČÍST KÓD</button>
  </div>
  </div>
+ <div class="panel" id="pr-allgames"></div>
 </div>
 </div>
 
@@ -2301,6 +2302,27 @@ function checkMissionComplete(){
 // ══════════════════════════════════════════
 // PROFILE
 // ══════════════════════════════════════════
+const ALL_GAMES=[
+ {key:'RPG_MAT_6',ic:'🚀',nm:'6. ročník – Vesmírná expedice'},
+ {key:'RPG_MAT_7',ic:'⛏️',nm:'7. ročník – Ztracený chrám'},
+ {key:'RPG_MAT_8',ic:'🎓',nm:'8. ročník – Mat. akademie'},
+ {key:'RPG_MAT_9',ic:'💻',nm:'9. ročník – NULL_BYTE'},
+];
+function renderCrossGames(){
+ const el=document.getElementById('pr-allgames');if(!el)return;
+ let html='<div style="font-family:var(--px);font-weight:700;font-size:12px;color:var(--muted);margin-bottom:10px;letter-spacing:1px">— PŘEHLED VŠECH HER —</div>';
+ ALL_GAMES.forEach(g=>{
+  let s=null;try{s=JSON.parse(localStorage.getItem(g.key));}catch{}
+  const cur=g.key===SAVE_KEY;
+  html+='<div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--line)'+(cur?';font-weight:700':'')+'">' +
+   '<span style="font-size:16px">'+g.ic+'</span>'+
+   '<span style="flex:1;font-size:12px;color:'+(cur?'#fff':'var(--muted)')+'">'+g.nm+(cur?' ◀':'')+'</span>'+
+   (s?'<span style="font-size:12px;color:var(--gold)">LV '+((s.level||1)|0)+' · '+((s.xp||0)|0)+' XP</span>':'<span style="font-size:11px;color:var(--muted)">—</span>')+
+  '</div>';
+ });
+ html+='<a href="rpg-matematika.html" style="display:block;margin-top:10px;color:var(--blue);font-size:12px;font-family:var(--px);text-align:center">🌐 Velitelské centrum – přehled a obchod pro všechny hry</a>';
+ el.innerHTML=html;
+}
 function renderProfile(){
  calcLevel();
  document.getElementById('pr-name').textContent=S.name;
@@ -2342,6 +2364,7 @@ function renderProfile(){
  document.getElementById('pr-ach-t').textContent=ACH.length;
  }
  const rm=document.getElementById('pr-rm');if(rm)rm.checked=!!(S.settings&&S.settings.reducedMotion);
+ renderCrossGames();
 }
 
 function exportCode(){
