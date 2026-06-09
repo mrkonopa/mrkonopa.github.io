@@ -595,7 +595,7 @@ window.RPGCloud = (function () {
         '<div style="background:#1f2740;border-radius:8px;padding:8px 10px;margin:6px 0">' +
         '<div style="font-size:14px;line-height:1.5">' + esc(n.body) + '</div>' +
         '<div style="font-size:11px;color:#8896a6;margin-top:5px">' + esc(n.author_name || 'učitel') + ' · ' +
-        new Date(n.created_at).toLocaleDateString('cs-CZ') + '</div></div>'
+        esc(new Date(n.created_at).toLocaleDateString('cs-CZ')) + '</div></div>'
       ).join('');
   }
 
