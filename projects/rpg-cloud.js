@@ -645,17 +645,59 @@ window.RPGCloud = (function () {
           try { local = JSON.parse(localStorage.getItem(saveKey)); } catch {}
           const localDone = local && local.done ? Object.keys(local.done).length : 0;
           const cloudDone = cloud && cloud.done ? Object.keys(cloud.done).length : 0;
+
+          // Vždy sluč teacherUnlocked z cloudu i lokálu — unlock nesmí být nikdy ztracen
+          const tuSet = new Set([
+            ...(Array.isArray(cloud && cloud.teacherUnlocked) ? cloud.teacherUnlocked : []),
+            ...(Array.isArray(local && local.teacherUnlocked) ? local.teacherUnlocked : [])
+          ]);
+          const mergedTU = [...tuSet];
+
+          let chosen = null;
           if (cloud && cloudDone >= localDone) {
             // cloud je stejně pokročilý nebo lepší → přepiš lokál
+            if (mergedTU.length) cloud.teacherUnlocked = mergedTU;
             localStorage.setItem(saveKey, JSON.stringify(cloud));
-            const cp = document.getElementById('continue-panel');
-            if (cp) cp.style.display = 'block';
+            chosen = cloud;
             if (typeof onLoaded === 'function') onLoaded(cloud);
           } else if (local && localDone > 0) {
-            // lokál je pokročilejší → nahraj ho do cloudu
+            // lokál je pokročilejší → nahraj ho do cloudu (s mergnutými unlocks)
+            if (mergedTU.length) local.teacherUnlocked = mergedTU;
+            localStorage.setItem(saveKey, JSON.stringify(local));
             push(saveKey, local);
-            const cp = document.getElementById('continue-panel');
-            if (cp) cp.style.display = 'block';
+            chosen = local;
+          }
+
+          // Předvyplnit #ni jménem z libovolného existujícího save (cross-game)
+          const ni = document.getElementById('ni');
+          if (ni && !ni.value) {
+            const existingName = chosen && chosen.name ? chosen.name
+              : ['RPG_MAT_6','RPG_MAT_7','RPG_MAT_8','RPG_MAT_9']
+                  .map(k=>{ try{ const s=JSON.parse(localStorage.getItem(k)); return s&&s.name?s.name:null; }catch{return null;} })
+                  .find(n=>n && n!=='HRDINA');
+            if (existingName) ni.value = existingName;
+          }
+
+          // Doménový žák (@husovaliberec.cz): přeskočit intro obrazovku → rovnou do hry
+          const isDomain = (u.email || '').toLowerCase().endsWith('@husovaliberec.cz');
+          if (isDomain) {
+            // Předvyplnit z Google jména, pokud ještě nic není
+            if (ni && !ni.value) {
+              const gFirst = ((u.user_metadata && u.user_metadata.full_name) || '').split(' ')[0];
+              if (gFirst) ni.value = gFirst.toUpperCase().slice(0, 14);
+            }
+            if (chosen && typeof window.continueGame === 'function') {
+              window.continueGame();
+            } else if (!chosen && typeof window.startGame === 'function') {
+              // První přihlášení bez jakéhokoliv save — automaticky spustit
+              window.startGame();
+            }
+          } else {
+            // Nespravovaný účet: ukázat tlačítko Pokračovat
+            if (chosen) {
+              const cp = document.getElementById('continue-panel');
+              if (cp) cp.style.display = 'block';
+            }
           }
         }
       });

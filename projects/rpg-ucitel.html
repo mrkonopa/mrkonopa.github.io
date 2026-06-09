@@ -59,6 +59,8 @@ body{background:var(--bg);color:var(--text);font-family:var(--px);min-height:100
 .tbl tr:hover td{background:var(--panel)}
 .tbl .nm{font-weight:700;color:#fff}
 .tbl .em{font-size:11px;color:var(--muted)}
+.tbl tr.user-hdr td{background:rgba(255,255,255,0.04);border-top:1px solid var(--line)}
+.tbl tr.user-hdr.exp td{background:rgba(50,180,255,0.08)}
 .tag{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px;color:#06101e}
 .bar{height:7px;background:#0006;border:1px solid var(--line);border-radius:5px;overflow:hidden;min-width:80px}
 .bar > i{display:block;height:100%;background:var(--accent)}
@@ -473,6 +475,8 @@ function filtered(){
 }
 const SEL=new Set();              // klíče vybraných postav: user_id|game
 function selKey(r){return r.user_id+'|'+r.game;}
+const EXPANDED_USERS=new Set();   // user_id → expanded in table
+function toggleUserRow(uid){if(EXPANDED_USERS.has(uid))EXPANDED_USERS.delete(uid);else EXPANDED_USERS.add(uid);renderTable();}
 function renderTable(){
  const rows=filtered();
  if(!rows.length){document.getElementById('tbl-wrap').innerHTML='<div class="empty">— žádné postavy —</div>';window.__filtered=rows;updateBulkBar();return;}
@@ -480,36 +484,76 @@ function renderTable(){
  // vyčisti výběr od postav, které zmizely z filtru
  const keys=new Set(rows.map(selKey));
  [...SEL].forEach(k=>{if(!keys.has(k))SEL.delete(k);});
+ // skupiny podle user_id
+ const userMap=new Map();
+ rows.forEach((r,i)=>{
+  if(!userMap.has(r.user_id))userMap.set(r.user_id,{uid:r.user_id,email:r.email||'',name:r.full_name||'',rows:[]});
+  const u=userMap.get(r.user_id);
+  if(r.full_name&&!u.name)u.name=r.full_name;
+  u.rows.push({r,i});
+ });
+ const COLS=admin?9:8;
  let html='<table class="tbl"><thead><tr>'+
    (admin?'<th style="width:28px"><input type="checkbox" id="sel-all" onclick="toggleSelAll(this.checked)" title="vybrat vše"></th>':'')+
-   '<th>Žák</th><th>Hra</th><th>LV</th><th>XP</th><th>Pokrok</th><th>Mistrovství</th><th>Poslední aktivita</th><th>Akce</th></tr></thead><tbody>';
- rows.forEach((r,i)=>{
-  const g=gMeta(r.game), d=r.data||{}, p=pct(d);
-  const mc=masteryCount(d), totalM=missionsFor(r.game).length||21;
-  const mastCell=mc>0
-   ?'<span style="color:var(--gold);font-weight:700">'+mc+'</span><span style="color:var(--muted)">/'+totalM+' 🏅</span>'
-   :'<span style="color:var(--muted)">0/'+totalM+'</span>';
-  const checked=SEL.has(selKey(r))?' checked':'';
-  html+='<tr>'+
-   (admin?'<td><input type="checkbox" class="sel-row" data-i="'+i+'" onclick="toggleSel('+i+',this.checked)"'+checked+'></td>':'')+
-   '<td><div class="nm">'+esc(d.name||'—')+'</div><div class="em">'+esc(r.full_name||r.email||'')+'</div></td>'+
-   '<td><span class="tag" style="background:'+g.accent+'">'+g.emoji+' '+g.gr+'</span></td>'+
-   '<td>'+(d.level||1)+'</td>'+
-   '<td>'+(d.xp||0)+'</td>'+
-   '<td><div style="display:flex;align-items:center;gap:8px"><div class="bar" style="flex:1"><i style="width:'+p+'%;background:'+g.accent+'"></i></div><span style="font-size:11px;color:var(--muted)">'+p+'%</span></div></td>'+
-   '<td style="font-size:13px">'+mastCell+'</td>'+
-   '<td style="font-size:12px;color:var(--muted)">'+onlineDot(r.updated_at)+fmtDate(r.updated_at)+'</td>'+
-   '<td><div class="rowbtns">'+
-     '<button class="mini" onclick="openDetail('+i+')">Detail</button>'+
-     '<a class="mini" style="text-decoration:none" target="_blank" href="'+g.file+'?su='+encodeURIComponent(r.user_id)+'">👁 Náhled</a>'+
-     (admin?'<button class="mini red" onclick="delChar('+i+')">🗑</button>':'')+
-   '</div></td></tr>';
+   '<th>Žák</th><th>Hry</th><th>LV</th><th>Celkem XP</th><th>Pokrok</th><th>Mistrovství</th><th>Poslední aktivita</th><th>Akce</th></tr></thead><tbody>';
+ userMap.forEach(u=>{
+  const expanded=EXPANDED_USERS.has(u.uid);
+  const lastAt=u.rows.reduce((m,x)=>(x.r.updated_at||'')>(m||'')?x.r.updated_at:m,'');
+  const totalXP=u.rows.reduce((s,x)=>s+((x.r.data||{}).xp||0),0);
+  const totalMast=u.rows.reduce((s,x)=>s+masteryCount(x.r.data||{}),0);
+  const maxLv=u.rows.reduce((m,x)=>Math.max(m,(x.r.data||{}).level||1),1);
+  const avgPct=Math.round(u.rows.reduce((s,x)=>s+pct(x.r.data||{}),0)/u.rows.length);
+  // gamečipy
+  const chips=u.rows.map(x=>{const g=gMeta(x.r.game),d=x.r.data||{};return '<span class="tag" style="background:'+g.accent+';font-size:11px">'+g.emoji+' '+g.gr+' LV'+(d.level||1)+'</span>';}).join(' ');
+  // checkbox pro všechny hry uživatele
+  const allSel=u.rows.every(x=>SEL.has(selKey(x.r)));
+  const someSel=!allSel&&u.rows.some(x=>SEL.has(selKey(x.r)));
+  const selAttr=allSel?' checked':someSel?' data-indeterminate="1"':'';
+  html+='<tr class="user-hdr'+(expanded?' exp':'')+'" style="cursor:pointer" onclick="toggleUserRow(\''+esc(u.uid)+'\')">'+
+   (admin?'<td onclick="event.stopPropagation()"><input type="checkbox" class="sel-user" data-uid="'+esc(u.uid)+'" onclick="toggleSelUser(\''+esc(u.uid)+'\',this.checked)"'+selAttr+'></td>':'')+
+   '<td><div class="nm" style="font-weight:700">'+esc(u.name||'—')+'</div><div class="em">'+esc(u.email)+'</div></td>'+
+   '<td style="white-space:nowrap">'+chips+'</td>'+
+   '<td>'+maxLv+'</td>'+
+   '<td>'+totalXP+'</td>'+
+   '<td><div style="display:flex;align-items:center;gap:6px"><div class="bar" style="flex:1;min-width:60px"><i style="width:'+avgPct+'%;background:#888"></i></div><span style="font-size:11px;color:var(--muted)">'+avgPct+'%</span></div></td>'+
+   '<td style="font-size:13px">'+(totalMast>0?'<span style="color:var(--gold);font-weight:700">'+totalMast+'</span> 🏅':'<span style="color:var(--muted)">0</span>')+'</td>'+
+   '<td style="font-size:12px;color:var(--muted)">'+onlineDot(lastAt)+fmtDate(lastAt)+'</td>'+
+   '<td><span style="font-size:12px;color:var(--muted)">'+(expanded?'▲ sbalit':'▶ '+u.rows.length+' '+(u.rows.length===1?'hra':'hry'))+'</span></td></tr>';
+  if(expanded){
+   u.rows.forEach(({r,i})=>{
+    const g=gMeta(r.game),d=r.data||{},p=pct(d);
+    const mc=masteryCount(d),totalM=missionsFor(r.game).length||21;
+    const mastCell=mc>0?'<span style="color:var(--gold);font-weight:700">'+mc+'</span><span style="color:var(--muted)">/'+totalM+' 🏅</span>':'<span style="color:var(--muted)">0/'+totalM+'</span>';
+    const checked=SEL.has(selKey(r))?' checked':'';
+    html+='<tr style="background:rgba(0,0,0,0.15)">'+
+     (admin?'<td><input type="checkbox" class="sel-row" data-i="'+i+'" onclick="event.stopPropagation();toggleSel('+i+',this.checked)"'+checked+'></td>':'')+
+     '<td style="padding-left:28px"><div class="em" style="font-size:11px">'+esc(d.name||'—')+'</div></td>'+
+     '<td><span class="tag" style="background:'+g.accent+'">'+g.emoji+' '+g.gr+'</span></td>'+
+     '<td>'+(d.level||1)+'</td>'+
+     '<td>'+(d.xp||0)+'</td>'+
+     '<td><div style="display:flex;align-items:center;gap:8px"><div class="bar" style="flex:1"><i style="width:'+p+'%;background:'+g.accent+'"></i></div><span style="font-size:11px;color:var(--muted)">'+p+'%</span></div></td>'+
+     '<td style="font-size:13px">'+mastCell+'</td>'+
+     '<td style="font-size:12px;color:var(--muted)">'+onlineDot(r.updated_at)+fmtDate(r.updated_at)+'</td>'+
+     '<td><div class="rowbtns">'+
+       '<button class="mini" onclick="openDetail('+i+')">Detail</button>'+
+       '<a class="mini" style="text-decoration:none" target="_blank" href="'+g.file+'?su='+encodeURIComponent(r.user_id)+'">👁 Náhled</a>'+
+       (admin?'<button class="mini red" onclick="delChar('+i+')">🗑</button>':'')+
+     '</div></td></tr>';
+   });
+  }
  });
  html+='</tbody></table>';
  document.getElementById('tbl-wrap').innerHTML=html;
+ // obnov indeterminate checkbox stav
+ document.querySelectorAll('.sel-user[data-indeterminate="1"]').forEach(cb=>{cb.indeterminate=true;});
  window.__filtered=rows;
  updateBulkBar();
 }
+function toggleSelUser(uid,on){
+ ROWS.filter(r=>r.user_id===uid&&keys_filtered().has(selKey(r))).forEach(r=>{if(on)SEL.add(selKey(r));else SEL.delete(selKey(r));});
+ renderTable();
+}
+function keys_filtered(){return new Set((window.__filtered||[]).map(selKey));}
 
 /* ── hromadné akce (jen superadmin) ── */
 function toggleSel(i,on){
@@ -519,12 +563,12 @@ function toggleSel(i,on){
 }
 function toggleSelAll(on){
  (window.__filtered||[]).forEach(r=>{if(on)SEL.add(selKey(r));else SEL.delete(selKey(r));});
- document.querySelectorAll('.sel-row').forEach(cb=>{cb.checked=on;});
+ document.querySelectorAll('.sel-row,.sel-user').forEach(cb=>{cb.checked=on;cb.indeterminate=false;});
  updateBulkBar();
 }
 function clearSel(){
  SEL.clear();
- document.querySelectorAll('.sel-row').forEach(cb=>{cb.checked=false;});
+ document.querySelectorAll('.sel-row,.sel-user').forEach(cb=>{cb.checked=false;cb.indeterminate=false;});
  const a=document.getElementById('sel-all');if(a)a.checked=false;
  updateBulkBar();
 }

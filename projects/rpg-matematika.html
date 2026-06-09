@@ -161,7 +161,15 @@ body::before{
    <div class="gp-id">
     <span class="gp-av" id="gp-av">🧙</span>
     <div>
-     <div class="gp-name" id="gp-name">TY</div>
+     <div style="display:flex;align-items:center;gap:8px">
+      <div class="gp-name" id="gp-name">TY</div>
+      <button id="gp-edit-btn" onclick="startHeroRename()" title="Přejmenovat hrdinu" style="background:none;border:none;cursor:pointer;font-size:13px;color:var(--muted);padding:0 4px;display:none">✏️</button>
+     </div>
+     <div id="gp-rename" style="display:none;margin-top:4px">
+      <input id="gp-rename-in" maxlength="14" style="width:120px;background:#111;border:1px solid #555;color:#fff;padding:3px 6px;border-radius:4px;font-size:14px;text-transform:uppercase">
+      <button onclick="saveHeroRename()" style="background:var(--accent);border:none;color:#000;padding:3px 10px;border-radius:4px;cursor:pointer;font-size:12px;font-weight:700;margin-left:4px">OK</button>
+      <button onclick="cancelHeroRename()" style="background:#333;border:none;color:#aaa;padding:3px 8px;border-radius:4px;cursor:pointer;font-size:12px;margin-left:2px">✕</button>
+     </div>
      <div class="gp-sub">Tvůj společný profil pro všechny hry</div>
     </div>
    </div>
@@ -372,11 +380,54 @@ function renderGlobalProfile(){
  // VFX přepínač
  const vfxCheck=document.getElementById('gp-vfx');
  if(vfxCheck) vfxCheck.checked=w.settings.reducedMotion;
+ // Edit tlačítko (jen pokud má save)
+ maybeShowEditBtn();
+}
+function maybeShowEditBtn(){
+ const hasAny=GAMES.some(g=>{try{return!!localStorage.getItem(g.key);}catch{return false;}});
+ const btn=document.getElementById('gp-edit-btn');
+ if(btn)btn.style.display=hasAny?'':'none';
 }
 
 if(HUB_HAS_WALLET) RPGWallet.onChange(()=>{ renderGlobalProfile(); renderShop(); });
 
+// Zakázaná slova (základní filtr)
+const BAD_WORDS=['kurva','kokot','pica','suka','prdel','hovno','debil','blbec','idiot','cretin','bastard','asshole','fuck','shit','cunt','dick','bitch','nigger','faggot'];
+function containsBad(str){const lo=str.toLowerCase();return BAD_WORDS.some(w=>lo.includes(w));}
+
+function startHeroRename(){
+  const nameEl=document.getElementById('gp-name');
+  const ri=document.getElementById('gp-rename-in');
+  if(ri)ri.value=nameEl.textContent!=='TY'?nameEl.textContent:'';
+  document.getElementById('gp-edit-btn').style.display='none';
+  document.getElementById('gp-rename').style.display='block';
+  if(ri){ri.focus();ri.select();}
+}
+function cancelHeroRename(){
+  document.getElementById('gp-rename').style.display='none';
+  document.getElementById('gp-edit-btn').style.display='';
+}
+async function saveHeroRename(){
+  const ri=document.getElementById('gp-rename-in');
+  const v=(ri.value||'').trim().toUpperCase().slice(0,14);
+  if(!v){ri.focus();return;}
+  if(containsBad(v)){alert('Toto jméno není povoleno. Zvol jiné.');ri.focus();return;}
+  // Ulož do všech her v localStorage
+  GAMES.forEach(g=>{
+    try{
+      const s=JSON.parse(localStorage.getItem(g.key));
+      if(s){s.name=v;localStorage.setItem(g.key,JSON.stringify(s));
+        // Odešli do cloudu (pokud existuje API)
+        if(window.RPGCloud&&RPGCloud.currentUser&&RPGCloud.currentUser())RPGCloud.push(g.key,s);
+      }
+    }catch{}
+  });
+  cancelHeroRename();
+  renderGlobalProfile();
+}
+
 render();
+setTimeout(maybeShowEditBtn,200);
 </script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="./rpg-cloud.js"></script>
