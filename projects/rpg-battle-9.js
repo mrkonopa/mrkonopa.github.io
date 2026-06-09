@@ -189,9 +189,10 @@
     return out;
   }
 
-  window.RPG_BATTLE_9 = {
-    game: 'RPG_MAT_9',
-    topicCount: GEN.length,
-    build,
-  };
+  const API = { game: 'RPG_MAT_9', topicCount: GEN.length, build };
+  if (typeof module !== 'undefined' && module.exports) {
+    module.exports = API;
+  } else {
+    window.RPG_BATTLE_9 = API;
+  }
 })();
