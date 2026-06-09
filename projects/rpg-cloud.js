@@ -696,7 +696,12 @@ window.RPGCloud = (function () {
             // Nespravovaný účet: ukázat tlačítko Pokračovat
             if (chosen) {
               const cp = document.getElementById('continue-panel');
-              if (cp) cp.style.display = 'block';
+              if (cp) {
+                cp.style.display = 'block';
+                // Přihlášení přes Google = save v cloudu → nelze začít znovu bez ztráty dat
+                const rb = document.getElementById('go-fresh-btn');
+                if (rb) rb.style.display = 'none';
+              }
             }
           }
         }
