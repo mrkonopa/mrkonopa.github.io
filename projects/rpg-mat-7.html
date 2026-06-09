@@ -2212,10 +2212,10 @@ function renderTrainPicker(){
   let html=`<div style="font-family:var(--px);font-weight:700;font-size:14px;color:var(--gold);margin-bottom:8px">${ar.icon} ${ar.name.replace(/\n/g,' ')}</div>`;
   ar.missions.forEach(m=>{
    const ms=masteryOf(m.id);
-   const pct=Math.min(100,Math.round(ms.score/MASTERY_GOAL*100));
+   const pct=Math.min(100,Math.round((ms.score|0)/MASTERY_GOAL*100))|0;
    html+=`<button class="ms-item avail" style="width:100%;text-align:left;border:none;cursor:pointer" onclick="startTrain('${m.id}')">
      <div style="flex:1"><div class="ms-name">${ms.mastered?'🏅 ':''}${m.name}</div>
-     <div class="ms-sub">${m.sub} · ${ms.mastered?'mistrovství splněno':ms.score+' / '+MASTERY_GOAL}</div>
+     <div class="ms-sub">${m.sub} · ${ms.mastered?'mistrovství splněno':(ms.score|0)+' / '+MASTERY_GOAL}</div>
      <div class="bar-out bar-xp" style="margin-top:6px;height:6px"><div class="bar-in" style="width:${pct}%"></div></div></div>
      <div style="font-size:16px;margin-left:8px">${ms.mastered?'🏅':'🎯'}</div></button>`;
   });
