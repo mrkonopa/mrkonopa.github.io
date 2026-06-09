@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&family=VT323&display=swap" rel="stylesheet">
+<script src="./rpg-wallet.js"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -78,6 +79,53 @@ body::before{
 .note{margin-top:26px;background:var(--panel);border:1px dashed var(--line);border-radius:8px;padding:16px 18px;font-size:13px;color:var(--muted);line-height:1.6}
 .note b{color:var(--text)}
 .note .tag{display:inline-block;font-size:11px;color:var(--bg);background:var(--muted);padding:2px 7px;border-radius:4px;font-weight:700;letter-spacing:1px;margin-right:6px}
+/* ── GLOBÁLNÍ PROFIL ── */
+.gprofile{background:linear-gradient(135deg,#131826,#10131f);border:1px solid #2a3658;border-radius:10px;padding:18px;margin:18px 0;position:relative;overflow:hidden}
+.gprofile::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#5dc8f0,#f4d03f,#19e6e6)}
+.gp-row{display:flex;flex-wrap:wrap;gap:18px;align-items:center;justify-content:space-between}
+.gp-id{display:flex;align-items:center;gap:14px}
+.gp-av{font-size:46px;line-height:1}
+.gp-av.av-silver{filter:drop-shadow(0 0 7px silver)}
+.gp-av.av-cyan{filter:drop-shadow(0 0 9px #4d9fff) drop-shadow(0 0 3px #4d9fff)}
+.gp-av.av-gold{filter:drop-shadow(0 0 9px #f4d03f) drop-shadow(0 0 3px #f4d03f)}
+.gp-av.av-holo{animation:holo 2.5s linear infinite}
+@keyframes holo{0%{filter:drop-shadow(0 0 8px #f4d03f)}25%{filter:drop-shadow(0 0 8px #4d9fff)}50%{filter:drop-shadow(0 0 8px #ff6090)}75%{filter:drop-shadow(0 0 8px #39ff9e)}100%{filter:drop-shadow(0 0 8px #f4d03f)}}
+.gp-name{font-weight:700;font-size:18px;color:#fff;letter-spacing:1px}
+.gp-name.nm-cyan{color:#4d9fff}.gp-name.nm-gold{color:#f4d03f}.gp-name.nm-green{color:#39ff9e}.gp-name.nm-purple{color:#b06cff}
+.gp-sub{font-size:12px;color:var(--muted);margin-top:3px}
+.gp-credits{text-align:center}
+.gp-credits .v{font-weight:700;font-size:26px;color:#f4d03f}
+.gp-credits .l{font-size:11px;color:var(--muted);letter-spacing:1px;text-transform:uppercase}
+.gp-attrs{display:flex;gap:16px;flex-wrap:wrap;margin-top:14px;padding-top:14px;border-top:1px solid var(--line)}
+.gp-attrs .a{font-size:13px;color:var(--muted)}
+.gp-attrs .a b{color:#fff;font-size:15px}
+.gp-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;align-items:center}
+.gp-btn{font-family:var(--px);font-weight:700;font-size:12px;letter-spacing:1px;padding:9px 14px;border-radius:6px;cursor:pointer;border:1px solid #2a3658;background:var(--panel2);color:var(--text);transition:.15s}
+.gp-btn:hover{border-color:var(--muted)}
+.gp-btn.on{background:#f4d03f;color:#0a0d16;border-color:#f4d03f}
+.gp-vfx{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--muted);margin-left:auto;cursor:pointer;user-select:none}
+.gp-vfx input{width:16px;height:16px;accent-color:#19e6e6;cursor:pointer}
+.ach-grid{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.ach-grid .ab{font-size:20px;width:34px;height:34px;display:flex;align-items:center;justify-content:center;background:var(--panel2);border:1px solid var(--line);border-radius:7px;filter:grayscale(1) opacity(.35)}
+.ach-grid .ab.on{filter:none;border-color:#f4d03f;box-shadow:0 0 8px #f4d03f55}
+/* ── SDÍLENÝ OBCHOD ── */
+.shop{margin-top:14px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px;display:none}
+.shop.open{display:block}
+.shop-h{font-weight:700;font-size:14px;color:#fff;letter-spacing:1px;margin-bottom:4px}
+.shop-tabs{display:flex;gap:6px;flex-wrap:wrap;margin:12px 0}
+.shop-tab{font-family:var(--px);font-size:12px;background:var(--panel2);color:var(--muted);border:1px solid var(--line);padding:6px 11px;cursor:pointer;border-radius:5px}
+.shop-tab.on{background:#19e6e6;color:#06121a;border-color:#19e6e6;font-weight:700}
+.shop-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.sc{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:12px;text-align:center}
+.sc.owned{border-color:#39ff9e66}
+.sc.active{border-color:#f4d03f;background:#1a1604}
+.sc .ic{font-size:30px;margin-bottom:5px}
+.sc .nm{font-size:12px;color:#fff;margin-bottom:5px;min-height:30px;display:flex;align-items:center;justify-content:center}
+.sc .pr{font-size:11px;color:var(--muted);margin-bottom:8px}
+.sc button{font-family:var(--px);font-weight:700;font-size:11px;letter-spacing:.5px;padding:7px 10px;border-radius:5px;cursor:pointer;width:100%;border:1px solid #2a3658;background:var(--panel);color:var(--text)}
+.sc button.buy{background:#19e6e6;color:#06121a;border-color:#19e6e6}
+.sc button:disabled{opacity:.4;cursor:not-allowed}
+.sc .act{font-size:11px;color:#f4d03f;font-weight:700;letter-spacing:1px;padding:7px 0}
 </style>
 </head>
 <body>
@@ -107,11 +155,58 @@ body::before{
   </div>
  </div>
 
+ <!-- ══ GLOBÁLNÍ PROFIL ══ -->
+ <div class="gprofile" id="gprofile">
+  <div class="gp-row">
+   <div class="gp-id">
+    <span class="gp-av" id="gp-av">🧙</span>
+    <div>
+     <div style="display:flex;align-items:center;gap:8px">
+      <div class="gp-name" id="gp-name">TY</div>
+      <button id="gp-edit-btn" onclick="startHeroRename()" title="Přejmenovat hrdinu" style="background:none;border:none;cursor:pointer;font-size:13px;color:var(--muted);padding:0 4px;display:none">✏️</button>
+     </div>
+     <div id="gp-rename" style="display:none;margin-top:4px">
+      <input id="gp-rename-in" maxlength="14" style="width:120px;background:#111;border:1px solid #555;color:#fff;padding:3px 6px;border-radius:4px;font-size:14px;text-transform:uppercase">
+      <button onclick="saveHeroRename()" style="background:var(--accent);border:none;color:#000;padding:3px 10px;border-radius:4px;cursor:pointer;font-size:12px;font-weight:700;margin-left:4px">OK</button>
+      <button onclick="cancelHeroRename()" style="background:#333;border:none;color:#aaa;padding:3px 8px;border-radius:4px;cursor:pointer;font-size:12px;margin-left:2px">✕</button>
+     </div>
+     <div class="gp-sub">Tvůj společný profil pro všechny hry</div>
+    </div>
+   </div>
+   <div class="gp-credits">
+    <div class="v" id="gp-credits">0</div>
+    <div class="l">💰 kreditů ve společné peněžence</div>
+   </div>
+  </div>
+  <div class="gp-attrs" id="gp-attrs"></div>
+  <div class="ach-grid" id="gp-ach"></div>
+  <div class="gp-actions">
+   <button class="gp-btn" id="gp-shop-btn" onclick="toggleShop()">🛍️ SDÍLENÝ OBCHOD</button>
+   <label class="gp-vfx" title="Vypne blikání, otřesy a částice ve všech 4 hrách">
+    <input type="checkbox" id="gp-vfx" onchange="toggleGlobalVfx(this.checked)">
+    Vypnout vizuální efekty (všechny hry)
+   </label>
+  </div>
+ </div>
+
+ <!-- ══ SDÍLENÝ OBCHOD ══ -->
+ <div class="shop" id="shop">
+  <div class="shop-h">🛍️ Sdílený obchod</div>
+  <div style="font-size:12px;color:var(--muted);line-height:1.6">Kredity vyděláváš v kterékoli hře — tady je utratíš za vzhled, který pak nosíš <b style="color:var(--text)">ve všech hrách</b>. Kosmetika nemá vliv na obtížnost ani postup.</div>
+  <div class="shop-tabs" id="shop-tabs">
+   <button class="shop-tab on" onclick="setShopCat('border',this)">🖼 Rám</button>
+   <button class="shop-tab" onclick="setShopCat('badge',this)">🏷 Jméno</button>
+   <button class="shop-tab" onclick="setShopCat('theme',this)">🎨 Téma</button>
+   <button class="shop-tab" onclick="setShopCat('victory',this)">🎉 Vítězství</button>
+  </div>
+  <div class="shop-grid" id="shop-grid"></div>
+ </div>
+
  <div class="grid" id="grid"></div>
 
  <div class="note">
-  <div style="margin-bottom:8px"><span class="tag">POZOR</span> Pokrok se ukládá <b>jen do tohoto prohlížeče a zařízení</b> (localStorage).</div>
-  Když žák hraje na jiném počítači, začíná znovu. Chystané <b>přihlášení přes školní Google účet</b> umožní mít postavu u sebe na všech zařízeních a tobě uvidět pokrok celé třídy na jednom místě.
+  <div style="margin-bottom:8px"><span class="tag">TIP</span> <b>Přihlas se školním Google účtem</b> a postava se ti uloží do cloudu.</div>
+  Pak ji máš u sebe na <b>všech zařízeních</b> — můžeš hrát doma i ve škole a navázat tam, kde jsi skončil. Učitel zároveň vidí pokrok celé třídy na jednom místě. Bez přihlášení se pokrok ukládá jen do tohoto prohlížeče (localStorage), takže na jiném počítači začínáš znovu.
  </div>
 </div>
 
@@ -123,12 +218,21 @@ const GAMES=[
  {key:'RPG_MAT_9',file:'rpg-mat-9.html',emoji:'💻',nm:'NULL_BYTE',gr:'9. ročník',accent:'#19e6e6',gbg:'#080b14'},
 ];
 const TOTAL_TASKS=126; // 7 oblastí × 3 mise × 6 úkolů
-const ATTR=[['calc','🔢'],['geo','📐'],['anal','🧠'],['craft','⚡']];
+const ATTR=[['calc','🔢','Výpočty'],['geo','📐','Geometrie'],['anal','🧠','Analýza'],['craft','⚡','Zručnost']];
+// odznaky (zrcadlo ACH z her — jen ikona+název pro souhrn napříč hrami)
+const ACH=[
+ {id:'boot',ic:'🩸',nm:'První průnik'},{id:'crit',ic:'⚡',nm:'Overclock'},{id:'combo5',ic:'🔥',nm:'Řetězová reakce'},
+ {id:'flawless',ic:'🧠',nm:'Čistý kód'},{id:'flash',ic:'⏱️',nm:'Bleskový průnik'},{id:'survivor',ic:'💀',nm:'Z posledních sil'},
+ {id:'area1',ic:'🔑',nm:'Insider'},{id:'half',ic:'🌗',nm:'Půlka systému'},{id:'root',ic:'👁️',nm:'ROOT přístup'},
+ {id:'lv5',ic:'📈',nm:'Level 5'},{id:'lv10',ic:'🚀',nm:'Level 10'},{id:'master1',ic:'🏅',nm:'Mistr tématu'},
+ {id:'train50',ic:'🎯',nm:'Trenér'},{id:'streak3',ic:'📅',nm:'Návyk'},{id:'streak7',ic:'🗓️',nm:'Týden disciplíny'},
+];
+const HUB_HAS_WALLET = (typeof RPGWallet !== 'undefined');
 
 function load(key){
  try{const r=localStorage.getItem(key);return r?JSON.parse(r):null;}catch(e){return null;}
 }
-function esc(s){return String(s).replace(/[<>&]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]));}
+function esc(s){return String(s).replace(/[<>&"']/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;',"'":'&#39;'}[c]));}
 
 function render(){
  const grid=document.getElementById('grid');
@@ -139,12 +243,13 @@ function render(){
   let body,btns;
   if(S){
    started++;
-   const lv=S.level||1, xp=S.xp||0;
+   if(HUB_HAS_WALLET) RPGWallet.absorbGame(g.key, S);
+   const lv=(S.level||1)|0, xp=(S.xp||0)|0;
    const done=S.done?Object.keys(S.done).length:0;
    const arts=Array.isArray(S.inv)?S.inv.length:0;
    totXp+=xp; totTasks+=done; totArts+=arts;
    const pct=Math.min(100,Math.round(done/TOTAL_TASKS*100));
-   const attrHtml=ATTR.map(([k,ic])=>`<span class="a">${ic} <b>${(S.attrs&&S.attrs[k])||0}</b></span>`).join('');
+   const attrHtml=ATTR.map(([k,ic])=>`<span class="a">${ic} <b>${((S.attrs&&S.attrs[k])||0)|0}</b></span>`).join('');
    body=`<div class="charline"><span class="cn">👤 ${esc(S.name||'HRDINA')}</span><span class="lv">LV ${lv} · ${xp} XP</span></div>
    <div class="attrs">${attrHtml}</div>
    <div class="prog"><div class="pl"><span>POKROK</span><span>${done} / ${TOTAL_TASKS} úkolů · ${pct}%</span></div>
@@ -162,7 +267,8 @@ function render(){
   div.innerHTML=`<div class="ctop"><span class="emoji">${g.emoji}</span>
    <div class="ctitle"><div class="nm">${g.nm}</div><div class="gr">${g.gr}</div></div>
    <span class="badge">${S?'ROZEHRÁNO':'NOVÉ'}</span></div>
-   ${body}<div class="cbtns">${btns}</div>`;
+   ${body}<div class="cbtns">${btns}</div>
+   <div id="lb-${g.key}" style="display:none;margin-top:8px;padding:8px 10px;background:#0a0d14;border:1px solid #222;border-radius:8px;font-size:12px"></div>`;
   grid.appendChild(div);
  });
  document.getElementById('started').textContent=started;
@@ -171,6 +277,7 @@ function render(){
  document.getElementById('tot-arts').textContent=totArts;
  // animate bars
  requestAnimationFrame(()=>document.querySelectorAll('.bar > i').forEach(i=>i.style.width=i.dataset.w+'%'));
+ renderGlobalProfile();
 }
 function resetOne(key){
  const S=load(key);
@@ -183,17 +290,159 @@ function resetAll(){
   GAMES.forEach(g=>localStorage.removeItem(g.key)); render();
  }
 }
+
+// ── Sdílený obchod ──
+let _shopCat='border';
+function setShopCat(cat,btn){
+ _shopCat=cat;
+ document.querySelectorAll('.shop-tab').forEach(b=>b.classList.remove('on'));
+ if(btn) btn.classList.add('on');
+ renderShop();
+}
+function renderShop(){
+ if(!HUB_HAS_WALLET) return;
+ const grid=document.getElementById('shop-grid');
+ if(!grid) return;
+ const items=RPGWallet.items().filter(i=>i.cat===_shopCat);
+ const w=RPGWallet.get();
+ grid.innerHTML=items.map(it=>{
+  const isActive=w.cosmetics.active[it.cat]===it.id;
+  const isOwned=w.cosmetics.owned.includes(it.id);
+  const cls='sc'+(isActive?' active':isOwned?' owned':'');
+  let btn;
+  if(isActive){
+   btn=`<div class="act">✓ AKTIVNÍ</div>`;
+  } else if(isOwned||it.price===0){
+   btn=`<button onclick="activateItem('${esc(it.id)}')">✓ Aktivovat</button>`;
+  } else {
+   const can=w.credits>=it.price;
+   btn=`<button class="${can?'buy':''}" ${can?'':'disabled'} onclick="buyItem('${esc(it.id)}')">${can?'🛒 Koupit':'🔒'} ${it.price} kr</button>`;
+  }
+  return `<div class="${cls}"><div class="ic">${it.ic}</div><div class="nm">${esc(it.name)}</div><div class="pr">${it.price===0?'ZDARMA':it.price+' kr'}</div>${btn}</div>`;
+ }).join('');
+}
+function buyItem(id){
+ if(!HUB_HAS_WALLET) return;
+ const res=RPGWallet.buy(id);
+ if(!res.ok&&res.reason==='insufficient'){
+  alert(`Nestačí kreditů. Máš ${res.have} kr, potřebuješ ${res.need} kr. Hraj dál a vydělej víc!`);
+ }
+ renderShop(); renderGlobalProfile();
+}
+function activateItem(id){
+ if(!HUB_HAS_WALLET) return;
+ RPGWallet.activate(id);
+ renderShop(); renderGlobalProfile();
+}
+function toggleShop(){
+ const sh=document.getElementById('shop');
+ const btn=document.getElementById('gp-shop-btn');
+ if(!sh) return;
+ const open=sh.classList.toggle('open');
+ if(btn) btn.classList.toggle('on',open);
+ if(open) renderShop();
+}
+function toggleGlobalVfx(checked){
+ if(HUB_HAS_WALLET) RPGWallet.setReducedMotion(checked);
+}
+
+// ── Globální profil ──
+function renderGlobalProfile(){
+ const gp=document.getElementById('gprofile');
+ if(!gp) return;
+ if(!HUB_HAS_WALLET){ gp.style.opacity='.4'; return; }
+ const w=RPGWallet.get();
+ // kredity
+ document.getElementById('gp-credits').textContent=w.credits.toLocaleString('cs-CZ');
+ // rámeček avatara
+ const av=document.getElementById('gp-av');
+ av.className='gp-av';
+ const borderCss=RPGWallet.cssFor('border');
+ if(borderCss) av.classList.add(borderCss);
+ // jméno + badge barva
+ const nameEl=document.getElementById('gp-name');
+ const firstName=GAMES.map(g=>{ const S=load(g.key); return S?S.name:null; }).find(n=>n);
+ nameEl.textContent=firstName||'TY';
+ nameEl.className='gp-name';
+ const badgeCss=RPGWallet.cssFor('badge');
+ if(badgeCss) nameEl.classList.add(badgeCss);
+ // souhrn atributů přes všechny hry
+ const tot={};
+ ATTR.forEach(([k])=>{ tot[k]=0; });
+ GAMES.forEach(g=>{ const S=load(g.key); if(S&&S.attrs) ATTR.forEach(([k])=>{ tot[k]+=(S.attrs[k]||0); }); });
+ document.getElementById('gp-attrs').innerHTML=ATTR.map(([k,ic,label])=>
+  `<span class="a">${ic} ${esc(label)}<br><b>${tot[k]|0}</b></span>`
+ ).join('');
+ // odznaky z všech her dohromady
+ const allAch={};
+ GAMES.forEach(g=>{ const S=load(g.key); if(S&&S.ach) Object.assign(allAch,S.ach); });
+ document.getElementById('gp-ach').innerHTML=ACH.map(a=>`<div class="ab${allAch[a.id]?' on':''}" title="${esc(a.nm)}">${a.ic}</div>`).join('');
+ // VFX přepínač
+ const vfxCheck=document.getElementById('gp-vfx');
+ if(vfxCheck) vfxCheck.checked=w.settings.reducedMotion;
+ // Edit tlačítko (jen pokud má save)
+ maybeShowEditBtn();
+}
+function maybeShowEditBtn(){
+ const hasAny=GAMES.some(g=>{try{return!!localStorage.getItem(g.key);}catch{return false;}});
+ const btn=document.getElementById('gp-edit-btn');
+ if(btn)btn.style.display=hasAny?'':'none';
+}
+
+if(HUB_HAS_WALLET) RPGWallet.onChange(()=>{ renderGlobalProfile(); renderShop(); });
+
+// Zakázaná slova (základní filtr)
+const BAD_WORDS=['kurva','kokot','pica','suka','prdel','hovno','debil','blbec','idiot','cretin','bastard','asshole','fuck','shit','cunt','dick','bitch','nigger','faggot'];
+function containsBad(str){const lo=str.toLowerCase();return BAD_WORDS.some(w=>lo.includes(w));}
+
+function startHeroRename(){
+  const nameEl=document.getElementById('gp-name');
+  const ri=document.getElementById('gp-rename-in');
+  if(ri)ri.value=nameEl.textContent!=='TY'?nameEl.textContent:'';
+  document.getElementById('gp-edit-btn').style.display='none';
+  document.getElementById('gp-rename').style.display='block';
+  if(ri){ri.focus();ri.select();}
+}
+function cancelHeroRename(){
+  document.getElementById('gp-rename').style.display='none';
+  document.getElementById('gp-edit-btn').style.display='';
+}
+async function saveHeroRename(){
+  const ri=document.getElementById('gp-rename-in');
+  const v=(ri.value||'').trim().toUpperCase().slice(0,14);
+  if(!v){ri.focus();return;}
+  if(containsBad(v)){alert('Toto jméno není povoleno. Zvol jiné.');ri.focus();return;}
+  // Ulož do všech her v localStorage
+  GAMES.forEach(g=>{
+    try{
+      const s=JSON.parse(localStorage.getItem(g.key));
+      if(s){s.name=v;localStorage.setItem(g.key,JSON.stringify(s));
+        // Odešli do cloudu (pokud existuje API)
+        if(window.RPGCloud&&RPGCloud.currentUser&&RPGCloud.currentUser())RPGCloud.push(g.key,s);
+      }
+    }catch{}
+  });
+  cancelHeroRename();
+  renderGlobalProfile();
+}
+
 render();
+setTimeout(maybeShowEditBtn,200);
 </script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="./rpg-cloud.js"></script>
 <script>
-RPGCloud.attachHub(GAMES.map(g=>g.key), render, '.wrap');
+function refreshLeaderboards(){
+  if(!window.RPGCloud||!RPGCloud.renderLeaderboardInto)return;
+  GAMES.forEach(g=>RPGCloud.renderLeaderboardInto('lb-'+g.key, g.key));
+}
+RPGCloud.attachHub(GAMES.map(g=>g.key), ()=>{render();refreshLeaderboards();}, '.wrap');
 RPGCloud.onChange(u=>{
   const w=document.getElementById('who-where');
-  if(w) w.innerHTML = u ? 'Postavy účtu <b>'+(u.email||'')+'</b>' : 'Postavy uložené na <b>tomto zařízení</b>';
+  if(w) w.innerHTML = u ? 'Postavy účtu <b>'+esc(u.email||'')+'</b>' : 'Postavy uložené na <b>tomto zařízení</b>';
   const tl=document.getElementById('teacher-link');
   if(tl) tl.style.display = RPGCloud.isStaff() ? 'inline-block' : 'none';
+  refreshLeaderboards();
 });
 </script>
 </body>
