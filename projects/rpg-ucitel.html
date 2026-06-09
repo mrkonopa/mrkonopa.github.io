@@ -512,7 +512,7 @@ function renderTable(){
   const totalMast=(u.rows.reduce((s,x)=>s+masteryCount(x.r.data||{}),0))|0;
   const maxLv=(u.rows.reduce((m,x)=>Math.max(m,(x.r.data||{}).level||1),1))|0;
   const avgPct=(Math.round(u.rows.reduce((s,x)=>s+pct(x.r.data||{}),0)/u.rows.length))|0;
-  const chips=u.rows.map(x=>{const g=gMeta(x.r.game),d=x.r.data||{};const lv=((d.level||1)|0);return '<span class="tag" style="background:'+g.accent+';font-size:11px">'+g.emoji+' '+g.gr+' LV'+lv+'</span>';}).join(' ');
+  const chips=u.rows.map(x=>{const g=gMeta(x.r.game),d=x.r.data||{};const lv=((d.level||1)|0);return '<span class="tag" style="background:'+esc(g.accent||'#888')+';font-size:11px">'+g.emoji+' '+g.gr+' LV'+lv+'</span>';}).join(' ');
   const allSel=u.rows.every(x=>SEL.has(selKey(x.r)));
   const someSel=!allSel&&u.rows.some(x=>SEL.has(selKey(x.r)));
   const selAttr=allSel?' checked':someSel?' data-indeterminate="1"':'';
@@ -530,16 +530,16 @@ function renderTable(){
   if(expanded){
    u.rows.forEach(({r,i})=>{
     const g=gMeta(r.game),d=r.data||{},p=pct(d);
-    const mc=masteryCount(d),totalM=missionsFor(r.game).length||21;
+    const mc=(masteryCount(d))|0,totalM=(missionsFor(r.game).length||21)|0;
     const mastCell=mc>0?'<span style="color:var(--gold);font-weight:700">'+mc+'</span><span style="color:var(--muted)">/'+totalM+' 🏅</span>':'<span style="color:var(--muted)">0/'+totalM+'</span>';
     const checked=SEL.has(selKey(r))?' checked':'';
     html+='<tr style="background:rgba(0,0,0,0.15)">'+
      (admin?'<td><input type="checkbox" class="sel-row" data-i="'+i+'" onclick="event.stopPropagation();toggleSel('+i+',this.checked)"'+checked+'></td>':'')+
      '<td style="padding-left:28px"><div class="em" style="font-size:11px">'+esc(d.name||'—')+'</div></td>'+
-     '<td><span class="tag" style="background:'+g.accent+'">'+g.emoji+' '+g.gr+'</span></td>'+
+     '<td><span class="tag" style="background:'+esc(g.accent||'#888')+'">'+g.emoji+' '+g.gr+'</span></td>'+
      '<td>'+((d.level||1)|0)+'</td>'+
      '<td>'+((d.xp||0)|0)+'</td>'+
-     '<td><div style="display:flex;align-items:center;gap:8px"><div class="bar" style="flex:1"><i style="width:'+(p|0)+'%;background:'+g.accent+'"></i></div><span style="font-size:11px;color:var(--muted)">'+(p|0)+'%</span></div></td>'+
+     '<td><div style="display:flex;align-items:center;gap:8px"><div class="bar" style="flex:1"><i style="width:'+(p|0)+'%;background:'+esc(g.accent||'#888')+'"></i></div><span style="font-size:11px;color:var(--muted)">'+(p|0)+'%</span></div></td>'+
      '<td style="font-size:13px">'+mastCell+'</td>'+
      '<td style="font-size:12px;color:var(--muted)">'+onlineDot(r.updated_at)+esc(fmtDate(r.updated_at))+'</td>'+
      '<td><div class="rowbtns">'+
