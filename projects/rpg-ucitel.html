@@ -59,6 +59,8 @@ body{background:var(--bg);color:var(--text);font-family:var(--px);min-height:100
 .tbl tr:hover td{background:var(--panel)}
 .tbl .nm{font-weight:700;color:#fff}
 .tbl .em{font-size:11px;color:var(--muted)}
+.tbl tr.user-hdr td{background:rgba(255,255,255,0.04);border-top:1px solid var(--line)}
+.tbl tr.user-hdr.exp td{background:rgba(50,180,255,0.08)}
 .tag{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px;color:#06101e}
 .bar{height:7px;background:#0006;border:1px solid var(--line);border-radius:5px;overflow:hidden;min-width:80px}
 .bar > i{display:block;height:100%;background:var(--accent)}
@@ -114,6 +116,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--px);min-height:100
    <button class="tab on" data-tab="overview">PŘEHLED ŽÁKŮ</button>
    <button class="tab" data-tab="classes">TŘÍDY</button>
    <button class="tab" data-tab="diag">DIAGNOSTIKA</button>
+   <button class="tab" data-tab="explain">VYSVĚTLENÍ</button>
    <button class="tab" data-tab="preview">NÁHLED HER</button>
    <button class="tab hidden" id="tab-teachers" data-tab="teachers">SPRÁVA UČITELŮ</button>
   </div>
@@ -146,6 +149,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--px);min-height:100
     <span style="color:var(--muted);font-size:12px">⭐</span>
     <input type="number" id="bulk-xp" placeholder="±XP" value="50">
     <button class="mini gold" onclick="bulkAwardXp()">Přidat XP vybraným</button>
+    <button class="mini red" onclick="bulkDelete()">🗑 Smazat vybrané</button>
     <button class="mini" onclick="clearSel()">✕ Zrušit výběr</button>
    </div>
    <div id="tbl-wrap"><div class="empty">Načítám data…</div></div>
@@ -157,9 +161,20 @@ body{background:var(--bg);color:var(--text);font-family:var(--px);min-height:100
     Rozděl žáky do <b style="color:var(--gold)">tříd</b> (klidně napříč ročníky) a v přehledu pak filtruj
     celou třídu najednou — odměny, odemykání i export pak řešíš hromadně. Žáka přiřadíš ručně ze seznamu.</p>
    <div class="controls">
-    <input id="new-class" placeholder="název třídy, např. 9.A" style="flex:1">
+    <input id="new-section" placeholder="označení, např. B" style="max-width:140px">
+    <select id="new-grade">
+     <option value="">ročník teď…</option>
+     <option value="6">6. ročník</option>
+     <option value="7">7. ročník</option>
+     <option value="8">8. ročník</option>
+     <option value="9">9. ročník</option>
+    </select>
+    <input id="new-class" placeholder="nebo vlastní název (Doučování…)" style="flex:1">
     <button class="mini gold" onclick="createClassUI()">+ Založit třídu</button>
    </div>
+   <p style="color:var(--muted);font-size:12px;margin:-6px 0 12px;line-height:1.5">
+    💡 Zadej <b>označení</b> + <b>ročník teď</b> a třída se každé <b>1. září</b> sama posune
+    (6.B → 7.B → …). Nebo nech ročník prázdný a použij jen vlastní název.</p>
    <div id="classes-wrap"><div class="empty">Načítám…</div></div>
   </div>
 
@@ -175,13 +190,34 @@ body{background:var(--bg);color:var(--text);font-family:var(--px);min-height:100
   <div id="t-diag" class="hidden">
    <p style="color:var(--muted);margin-bottom:14px;line-height:1.6">
     Kde žáci <b style="color:var(--gold)">nejvíc chybují</b>. Pro každou misi vidíš, kolik žáků ji
-    dokončilo a <b>průměrný počet chyb</b> (špatná odpověď nebo vypršený čas) na žáka, který ji zkoušel.
-    Čím <span style="color:#ff6b6b">červenější</span>, tím těžší — dobré téma na společné probrání.</p>
+    dokončilo a <b>průměrný počet chyb</b> (špatná odpověď nebo vypršený čas) na žáka, který ji zkoušel —
+    počítá se z boje <b>i tréninku</b>. Čím <span style="color:#ff6b6b">červenější</span>, tím těžší — dobré téma na společné probrání.
+    Řádek <b>„nově +X chyb"</b> ukazuje <b>trend</b>: kolik chyb v misi přibylo za poslední týdenní období oproti minulému (🔽 zlepšení, 🔺 zhoršení). Naplní se po pár týdnech hraní.</p>
    <div class="controls">
     <select id="diag-game" onchange="renderDiag()"></select>
+    <select id="diag-class" onchange="renderDiag()"></select>
     <button class="mini" onclick="loadData().then(renderDiag)">↻ Obnovit</button>
    </div>
    <div id="diag-wrap"><div class="empty">Načítám…</div></div>
+  </div>
+
+  <!-- VYSVĚTLENÍ POSTUPU -->
+  <div id="t-explain" class="hidden">
+   <p style="color:var(--muted);margin-bottom:14px;line-height:1.6">
+    Žáci mohou po správné odpovědi v boji napsat <b style="color:var(--gold)">jednou větou jak na to přišli</b>. Zde vidíš jejich vzkazy — pilotně jen pro <b>9. ročník</b>. Slouží jako formativní zpětná vazba: kde žáci přemýšlejí správně a kde jen tipují.</p>
+   <div class="controls">
+    <select id="expl-game" onchange="renderExplain()">
+     <option value="RPG_MAT_9">💻 NULL_BYTE (9. ročník)</option>
+    </select>
+    <select id="expl-class" onchange="renderExplain()">
+     <option value="">Všechny třídy</option>
+    </select>
+    <select id="expl-mid" onchange="renderExplain()">
+     <option value="">Všechny mise</option>
+    </select>
+    <button class="mini" onclick="loadExplain()">↻ Načíst</button>
+   </div>
+   <div id="expl-wrap"><div class="empty">Klikni ↻ Načíst pro zobrazení vysvětlení.</div></div>
   </div>
 
   <!-- UČITELÉ -->
@@ -256,6 +292,12 @@ const MISSIONS_9=[
 ];
 const MISSIONS_BY_GAME={RPG_MAT_6:MISSIONS_6,RPG_MAT_7:MISSIONS_7,RPG_MAT_8:MISSIONS_8,RPG_MAT_9:MISSIONS_9};
 function missionsFor(gameKey){return MISSIONS_BY_GAME[gameKey]||[];}
+const ARTIFACTS_BY_GAME={
+ RPG_MAT_6:[{id:'starmap',nm:'Hvězdná mapa 🗺️'},{id:'crystal',nm:'Desetinný krystal 💎'},{id:'core',nm:'Jádro asteroidu ⚙️'},{id:'protractor',nm:'Hvězdný úhloměr 📐'},{id:'mirror',nm:'Zrcadlový úlomek 🪞'},{id:'cube',nm:'Energetická kostka 🧊'},{id:'medal',nm:'Galaktický odznak 🏅'}],
+ RPG_MAT_7:[{id:'mapscrap',nm:'Útržek staré mapy 🗺️'},{id:'papyrus',nm:'Papyrový svitek 📜'},{id:'lapis',nm:'Lazuritový amulet 🔷'},{id:'weight',nm:'Zlaté závaží ⚖️'},{id:'ring',nm:'Faraonův prsten 💍'},{id:'mirror',nm:'Zrcadlo bohyně 🪞'},{id:'crown',nm:'Faraonova koruna 👑'}],
+ RPG_MAT_8:[{id:'map',nm:'Mapa sedmi krajin 🗺️'},{id:'sword',nm:'Pythagorův meč ⚔️'},{id:'wand',nm:'Algebraická hůl 🪄'},{id:'shield',nm:'Výrazový štít 🛡️'},{id:'ring',nm:'Kruhový prsten 💍'},{id:'compass',nm:'Rýsovací kompas 🧭'},{id:'crown',nm:'Diplom arcimága 👑'}],
+ RPG_MAT_9:[{id:'acckey',nm:'Přístupový klíč 🔑'},{id:'core',nm:'Energetické jádro 🔋'},{id:'decmod',nm:'Dešifrovací modul 💾'},{id:'frag',nm:'Fragment kódu 🧩'},{id:'netkey',nm:'Síťový klíč 🛰️'},{id:'vizchip',nm:'Vizualizační čip 📊'},{id:'root',nm:'Root přístup 👁️'}]
+};
 const ATTR=[['calc','🔢 Výpočty'],['geo','📐 Geometrie'],['anal','🧠 Analýza'],['craft','⚡ Instinkt']];
 const gMeta=k=>GAMES.find(g=>g.key===k)||{emoji:'❓',nm:k,gr:'',accent:'#888'};
 let ROWS=[];   // všechny postavy
@@ -277,15 +319,46 @@ function studentsDistinct(){
  });
  return [...map.values()].sort((a,b)=>(a.name||a.email).localeCompare(b.name||b.email,'cs'));
 }
-function classNameOf(cid){const c=CLASSES.find(x=>x.id===cid);return c?c.name:'?';}
+function classNameOf(cid){const c=CLASSES.find(x=>x.id===cid);return c?classLabel(c):'?';}
 
-function esc(s){return String(s==null?'':s).replace(/[<>&"]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c]));}
+/* ── ročníkové kohorty ──
+   Školní rok začíná 1. září. cohort_start_year = kalendářní rok září, kdy
+   kohorta nastoupila do 6. třídy. Aktuální ročník se počítá z dnešního data,
+   takže se třída po 1. září sama „posune". */
+function schoolYearStart(d){d=d||new Date();return d.getMonth()>=8?d.getFullYear():d.getFullYear()-1;}
+function gradeOfCohort(startYear,d){
+ if(startYear==null)return null;
+ const g=6+(schoolYearStart(d)-startYear);
+ return g; // může být <6 (ještě nenastoupili) nebo >9 (už odešli)
+}
+// "25/26" z roku 2025
+function syLabel(y){const a=((y%100)+100)%100,b=((y+1)%100);return String(a).padStart(2,'0')+'/'+String(b).padStart(2,'0');}
+// rozsah "25/26–28/29" pro 6.→9.
+function cohortRangeLabel(startYear){return syLabel(startYear)+'–'+syLabel(startYear+3);}
+// zobrazený název třídy: pokud má kohortu, sestav "<ročník>.<section>"; jinak name
+function classLabel(c){
+ const g=gradeOfCohort(c.cohort_start_year);
+ if(g!=null&&c.section)return g+'.'+c.section;
+ return c.name;
+}
+// stavový text kohorty pro UI
+function cohortStatus(c){
+ if(c.cohort_start_year==null)return '';
+ const g=gradeOfCohort(c.cohort_start_year);
+ if(g<6)return 'nastoupí do 6. v '+syLabel(c.cohort_start_year);
+ if(g>9)return 'ukončili 9. ('+syLabel(c.cohort_start_year+3)+')';
+ return g+'. ročník · '+syLabel(schoolYearStart());
+}
+
+function esc(s){return String(s==null?'':s).replace(/[<>&"']/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;',"'":'&#39;'}[c]));}
 function doneCount(d){return d&&d.done?Object.keys(d.done).length:0;}
 function masteryCount(d){if(!d||!d.mastery)return 0;return Object.values(d.mastery).filter(m=>m&&m.mastered).length;}
 function masteryList(d,gameKey){if(!d||!d.mastery)return[];return missionsFor(gameKey).filter(m=>d.mastery[m.id]&&d.mastery[m.id].mastered);}
 function pct(d){return Math.min(100,Math.round(doneCount(d)/TOTAL_TASKS*100));}
 function fmtDate(s){if(!s)return'—';const dt=new Date(s);return dt.toLocaleDateString('cs-CZ')+' '+dt.toLocaleTimeString('cs-CZ',{hour:'2-digit',minute:'2-digit'});}
 function daysAgo(s){if(!s)return 1e9;return (Date.now()-new Date(s).getTime())/864e5;}
+function minAgo(s){if(!s)return 1e9;return (Date.now()-new Date(s).getTime())/6e4;}
+function onlineDot(s){const m=minAgo(s);if(m<3)return'🟢 ';if(m<20)return'🟡 ';return'';}
 function toast(msg,err){const t=document.getElementById('toast');t.textContent=msg;t.className='toast'+(err?' err':'');t.style.display='block';setTimeout(()=>t.style.display='none',2600);}
 
 /* ── brána ── */
@@ -368,6 +441,8 @@ async function loadData(){
  ROWS=await RPGCloud.listAllSaves();
  await loadClasses();
  renderStats();renderTable();
+ // Auto-refresh online indikátoru každých 60 s
+ if(!window.__autoRefreshSet){window.__autoRefreshSet=true;setInterval(()=>{if(ROWS.length)renderTable();},60000);}
 }
 async function loadClasses(){
  CLASSES=await RPGCloud.listClasses();
@@ -378,7 +453,7 @@ function fillClassFilter(){
  const sel=document.getElementById('fclass');if(!sel)return;
  const cur=sel.value;
  sel.innerHTML='<option value="">Všechny třídy</option>'+
-  CLASSES.map(c=>'<option value="'+c.id+'">🏫 '+esc(c.name)+'</option>').join('');
+  CLASSES.map(c=>'<option value="'+c.id+'">🏫 '+esc(classLabel(c))+'</option>').join('');
  sel.value=cur;
 }
 function renderStats(){
@@ -406,40 +481,85 @@ function filtered(){
 }
 const SEL=new Set();              // klíče vybraných postav: user_id|game
 function selKey(r){return r.user_id+'|'+r.game;}
+const EXPANDED_USERS=new Set();   // user_id → expanded in table
+// toggleUserRow/toggleSelUser přijímají číselný index do window.__userList (žádná uživatelská data v onclick)
+function toggleUserRow(ui){const u=window.__userList&&window.__userList[ui];if(!u)return;if(EXPANDED_USERS.has(u.uid))EXPANDED_USERS.delete(u.uid);else EXPANDED_USERS.add(u.uid);renderTable();}
+function toggleSelUser(ui,on){
+ const u=window.__userList&&window.__userList[ui];if(!u)return;
+ ROWS.filter(r=>r.user_id===u.uid&&keys_filtered().has(selKey(r))).forEach(r=>{if(on)SEL.add(selKey(r));else SEL.delete(selKey(r));});
+ renderTable();
+}
+function keys_filtered(){return new Set((window.__filtered||[]).map(selKey));}
 function renderTable(){
  const rows=filtered();
- if(!rows.length){document.getElementById('tbl-wrap').innerHTML='<div class="empty">— žádné postavy —</div>';window.__filtered=rows;updateBulkBar();return;}
+ if(!rows.length){document.getElementById('tbl-wrap').innerHTML='<div class="empty">— žádné postavy —</div>';window.__filtered=rows;window.__userList=[];updateBulkBar();return;}
  const admin=RPGCloud.isAdmin();
  // vyčisti výběr od postav, které zmizely z filtru
  const keys=new Set(rows.map(selKey));
  [...SEL].forEach(k=>{if(!keys.has(k))SEL.delete(k);});
+ // skupiny podle user_id
+ const userMap=new Map();
+ rows.forEach((r,i)=>{
+  if(!userMap.has(r.user_id))userMap.set(r.user_id,{uid:r.user_id,email:r.email||'',name:r.full_name||'',rows:[]});
+  const u=userMap.get(r.user_id);
+  if(r.full_name&&!u.name)u.name=r.full_name;
+  u.rows.push({r,i});
+ });
+ // uložíme indexovatelný seznam (onclick používá jen číslo, nikoliv uid)
+ const userList=[...userMap.values()];
+ window.__userList=userList;
  let html='<table class="tbl"><thead><tr>'+
    (admin?'<th style="width:28px"><input type="checkbox" id="sel-all" onclick="toggleSelAll(this.checked)" title="vybrat vše"></th>':'')+
-   '<th>Žák</th><th>Hra</th><th>LV</th><th>XP</th><th>Pokrok</th><th>Mistrovství</th><th>Poslední aktivita</th><th>Akce</th></tr></thead><tbody>';
- rows.forEach((r,i)=>{
-  const g=gMeta(r.game), d=r.data||{}, p=pct(d);
-  const mc=masteryCount(d), totalM=missionsFor(r.game).length||21;
-  const mastCell=mc>0
-   ?'<span style="color:var(--gold);font-weight:700">'+mc+'</span><span style="color:var(--muted)">/'+totalM+' 🏅</span>'
-   :'<span style="color:var(--muted)">0/'+totalM+'</span>';
-  const checked=SEL.has(selKey(r))?' checked':'';
-  html+='<tr>'+
-   (admin?'<td><input type="checkbox" class="sel-row" data-i="'+i+'" onclick="toggleSel('+i+',this.checked)"'+checked+'></td>':'')+
-   '<td><div class="nm">'+esc(d.name||'—')+'</div><div class="em">'+esc(r.full_name||r.email||'')+'</div></td>'+
-   '<td><span class="tag" style="background:'+g.accent+'">'+g.emoji+' '+g.gr+'</span></td>'+
-   '<td>'+(d.level||1)+'</td>'+
-   '<td>'+(d.xp||0)+'</td>'+
-   '<td><div style="display:flex;align-items:center;gap:8px"><div class="bar" style="flex:1"><i style="width:'+p+'%;background:'+g.accent+'"></i></div><span style="font-size:11px;color:var(--muted)">'+p+'%</span></div></td>'+
-   '<td style="font-size:13px">'+mastCell+'</td>'+
-   '<td style="font-size:12px;color:var(--muted)">'+fmtDate(r.updated_at)+'</td>'+
-   '<td><div class="rowbtns">'+
-     '<button class="mini" onclick="openDetail('+i+')">Detail</button>'+
-     '<a class="mini" style="text-decoration:none" target="_blank" href="'+g.file+'?su='+encodeURIComponent(r.user_id)+'">👁 Náhled</a>'+
-     (admin?'<button class="mini red" onclick="delChar('+i+')">🗑</button>':'')+
-   '</div></td></tr>';
+   '<th>Žák</th><th>Hry</th><th>LV</th><th>Celkem XP</th><th>Pokrok</th><th>Mistrovství</th><th>Poslední aktivita</th><th>Akce</th></tr></thead><tbody>';
+ userList.forEach((u,ui)=>{
+  const expanded=EXPANDED_USERS.has(u.uid);
+  const lastAt=u.rows.reduce((m,x)=>(x.r.updated_at||'')>(m||'')?x.r.updated_at:m,'');
+  const totalXP=(u.rows.reduce((s,x)=>s+((x.r.data||{}).xp||0),0))|0;
+  const totalMast=(u.rows.reduce((s,x)=>s+masteryCount(x.r.data||{}),0))|0;
+  const maxLv=(u.rows.reduce((m,x)=>Math.max(m,(x.r.data||{}).level||1),1))|0;
+  const avgPct=(Math.round(u.rows.reduce((s,x)=>s+pct(x.r.data||{}),0)/u.rows.length))|0;
+  const chips=u.rows.map(x=>{const g=gMeta(x.r.game),d=x.r.data||{};const lv=((d.level||1)|0);return '<span class="tag" style="background:'+esc(g.accent||'#888')+';font-size:11px">'+g.emoji+' '+g.gr+' LV'+lv+'</span>';}).join(' ');
+  const allSel=u.rows.every(x=>SEL.has(selKey(x.r)));
+  const someSel=!allSel&&u.rows.some(x=>SEL.has(selKey(x.r)));
+  const selAttr=allSel?' checked':someSel?' data-indeterminate="1"':'';
+  // onclick obsahuje pouze číselný index ui (bezpečné, žádná uživatelská data)
+  html+='<tr class="user-hdr'+(expanded?' exp':'')+'" style="cursor:pointer" onclick="toggleUserRow('+ui+')">'+
+   (admin?'<td onclick="event.stopPropagation()"><input type="checkbox" class="sel-user" data-ui="'+ui+'" onclick="toggleSelUser('+ui+',this.checked)"'+selAttr+'></td>':'')+
+   '<td><div class="nm" style="font-weight:700">'+esc(u.name||'—')+'</div><div class="em">'+esc(u.email)+'</div>'+
+   ([...classesOfUser(u.uid)].map(cid=>'<span class="tag" style="background:rgba(58,110,165,.7);font-size:10px;padding:1px 5px;margin-top:2px">🏫 '+esc(classNameOf(cid))+'</span>').join(' '))+'</td>'+
+   '<td style="white-space:nowrap">'+chips+'</td>'+
+   '<td>'+maxLv+'</td>'+
+   '<td>'+totalXP+'</td>'+
+   '<td><div style="display:flex;align-items:center;gap:6px"><div class="bar" style="flex:1;min-width:60px"><i style="width:'+avgPct+'%;background:#888"></i></div><span style="font-size:11px;color:var(--muted)">'+avgPct+'%</span></div></td>'+
+   '<td style="font-size:13px">'+(totalMast>0?'<span style="color:var(--gold);font-weight:700">'+totalMast+'</span> 🏅':'<span style="color:var(--muted)">0</span>')+'</td>'+
+   '<td style="font-size:12px;color:var(--muted)">'+onlineDot(lastAt)+esc(fmtDate(lastAt))+'</td>'+
+   '<td><span style="font-size:12px;color:var(--muted)">'+(expanded?'▲ sbalit':'▶ '+u.rows.length+' '+(u.rows.length===1?'hra':'hry'))+'</span></td></tr>';
+  if(expanded){
+   u.rows.forEach(({r,i})=>{
+    const g=gMeta(r.game),d=r.data||{},p=pct(d);
+    const mc=(masteryCount(d))|0,totalM=(missionsFor(r.game).length||21)|0;
+    const mastCell=mc>0?'<span style="color:var(--gold);font-weight:700">'+mc+'</span><span style="color:var(--muted)">/'+totalM+' 🏅</span>':'<span style="color:var(--muted)">0/'+totalM+'</span>';
+    const checked=SEL.has(selKey(r))?' checked':'';
+    html+='<tr style="background:rgba(0,0,0,0.15)">'+
+     (admin?'<td><input type="checkbox" class="sel-row" data-i="'+i+'" onclick="event.stopPropagation();toggleSel('+i+',this.checked)"'+checked+'></td>':'')+
+     '<td style="padding-left:28px"><div class="em" style="font-size:11px">'+esc(d.name||'—')+'</div></td>'+
+     '<td><span class="tag" style="background:'+esc(g.accent||'#888')+'">'+g.emoji+' '+g.gr+'</span></td>'+
+     '<td>'+((d.level||1)|0)+'</td>'+
+     '<td>'+((d.xp||0)|0)+'</td>'+
+     '<td><div style="display:flex;align-items:center;gap:8px"><div class="bar" style="flex:1"><i style="width:'+(p|0)+'%;background:'+esc(g.accent||'#888')+'"></i></div><span style="font-size:11px;color:var(--muted)">'+(p|0)+'%</span></div></td>'+
+     '<td style="font-size:13px">'+mastCell+'</td>'+
+     '<td style="font-size:12px;color:var(--muted)">'+onlineDot(r.updated_at)+esc(fmtDate(r.updated_at))+'</td>'+
+     '<td><div class="rowbtns">'+
+       '<button class="mini" onclick="openDetail('+i+')">Detail</button>'+
+       '<a class="mini" style="text-decoration:none" target="_blank" href="'+g.file+'?su='+encodeURIComponent(r.user_id)+'">👁 Náhled</a>'+
+       (admin?'<button class="mini red" onclick="delChar('+i+')">🗑</button>':'')+
+     '</div></td></tr>';
+   });
+  }
  });
  html+='</tbody></table>';
  document.getElementById('tbl-wrap').innerHTML=html;
+ document.querySelectorAll('.sel-user[data-indeterminate="1"]').forEach(cb=>{cb.indeterminate=true;});
  window.__filtered=rows;
  updateBulkBar();
 }
@@ -452,12 +572,12 @@ function toggleSel(i,on){
 }
 function toggleSelAll(on){
  (window.__filtered||[]).forEach(r=>{if(on)SEL.add(selKey(r));else SEL.delete(selKey(r));});
- document.querySelectorAll('.sel-row').forEach(cb=>{cb.checked=on;});
+ document.querySelectorAll('.sel-row,.sel-user').forEach(cb=>{cb.checked=on;cb.indeterminate=false;});
  updateBulkBar();
 }
 function clearSel(){
  SEL.clear();
- document.querySelectorAll('.sel-row').forEach(cb=>{cb.checked=false;});
+ document.querySelectorAll('.sel-row,.sel-user').forEach(cb=>{cb.checked=false;cb.indeterminate=false;});
  const a=document.getElementById('sel-all');if(a)a.checked=false;
  updateBulkBar();
 }
@@ -514,6 +634,18 @@ async function bulkAwardXp(){
  toast((delta>=0?'+':'')+delta+' XP přidáno '+okN+'×'+(errN?' ('+errN+' chyb)':''),errN>0);
  renderStats();renderTable();
 }
+async function bulkDelete(){
+ const rows=selectedRows();if(!rows.length){toast('Nikdo není vybrán.',1);return;}
+ if(!confirm('Opravdu nevratně smazat '+rows.length+' vybraných postav? Postup nelze vrátit zpět.'))return;
+ let okN=0,errN=0;
+ for(const r of rows){
+  const res=await RPGCloud.deleteSaveFor(r.user_id,r.game);
+  if(res.ok)okN++;else errN++;
+ }
+ SEL.clear();
+ toast('🗑 smazáno '+okN+' postav'+(errN?' ('+errN+' chyb)':''),errN>0);
+ await loadData();
+}
 
 /* ── teacher unlock ── */
 function buildUnlockHtml(r){
@@ -566,24 +698,38 @@ function buildMasteryHtml(d,gameKey){
  const unmastered=missionsFor(gameKey).filter(m=>!(d.mastery&&d.mastery[m.id]&&d.mastery[m.id].mastered));
  let pills='';
  mastered.forEach(m=>{
-  const score=(d.mastery[m.id]&&d.mastery[m.id].score)||0;
+  const score=((d.mastery[m.id]&&d.mastery[m.id].score)||0)|0;
   pills+='<span title="skóre: '+score+'" style="display:inline-block;font-size:11px;font-weight:700;padding:3px 8px;border-radius:20px;margin:2px;background:var(--gold);color:#06101e">🏅 '+esc(m.id)+' '+esc(m.name)+'</span>';
  });
  unmastered.forEach(m=>{
-  const score=(d.mastery&&d.mastery[m.id]&&d.mastery[m.id].score)||0;
+  const score=((d.mastery&&d.mastery[m.id]&&d.mastery[m.id].score)||0)|0;
   const bar=score>0?'<span style="color:var(--muted);font-size:10px"> ('+score+'/15)</span>':'';
   pills+='<span style="display:inline-block;font-size:11px;padding:3px 8px;border-radius:20px;margin:2px;background:var(--panel2);color:var(--muted);border:1px solid var(--line)">'+esc(m.id)+''+bar+'</span>';
  });
+ let errHtml='';
+ if(d.errs&&Object.keys(d.errs).length){
+  const errs=Object.entries(d.errs).filter(([,v])=>v>0).sort((a,b)=>b[1]-a[1]);
+  if(errs.length){
+   const errPills=errs.map(([mid,cntRaw])=>{const cnt=cntRaw|0; // |0 kills taint
+    const mObj=missionsFor(gameKey).find(m=>m.id===mid);
+    const nm=mObj?mObj.name:mid;
+    const col=cnt>=4?'var(--red)':cnt>=2?'var(--gold)':'var(--muted)';
+    return '<span style="display:inline-block;font-size:11px;padding:2px 7px;border-radius:20px;margin:2px;background:var(--panel2);border:1px solid '+col+';color:'+col+'">'+esc(mid)+' '+cnt+'×</span>';
+   }).join('');
+   errHtml='<div style="font-size:11px;color:var(--muted);margin:6px 0 2px">Chyby po misi (boj + trénink):</div><div style="margin-bottom:8px;line-height:2">'+errPills+'</div>';
+  }
+ }
  return '<h4>Mistrovství</h4>'+
   '<div class="row"><span>Zvládnutých misí</span><b style="color:var(--gold)">'+mc+' / '+total+' 🏅</b></div>'+
-  (mc===0?'<div style="font-size:12px;color:var(--muted);margin:8px 0">Zatím žádná mise nezvládnuta.</div>':'<div style="margin:10px 0 4px;line-height:2">'+pills+'</div>');
+  (mc===0?'<div style="font-size:12px;color:var(--muted);margin:8px 0">Zatím žádná mise nezvládnuta.</div>':'<div style="margin:10px 0 4px;line-height:2">'+pills+'</div>')+
+  errHtml;
 }
 
 /* ── detail žáka ── */
 function openDetail(i){
  const r=window.__filtered[i];if(!r)return;
  const g=gMeta(r.game), d=r.data||{}, admin=RPGCloud.isAdmin();
- const attrHtml=ATTR.map(([k,lbl])=>'<div class="row"><span>'+lbl+'</span><b>'+((d.attrs&&d.attrs[k])||0)+'</b></div>').join('');
+ const attrHtml=ATTR.map(([k,lbl])=>'<div class="row"><span>'+lbl+'</span><b>'+((d.attrs&&d.attrs[k]||0)|0)+'</b></div>').join('');
  const inv=Array.isArray(d.inv)?d.inv:[];
  let admHtml='';
  if(admin){
@@ -591,20 +737,20 @@ function openDetail(i){
    '<h4>Odměny a úpravy (superadmin)</h4>'+
    '<div class="actrow"><input type="number" id="adj-xp" placeholder="±XP" value="100"><button class="mini gold" onclick="giveXP('+i+')">Přidat XP</button>'+
      '<span style="font-size:11px;color:var(--muted)">level se dopočítá z XP</span></div>'+
-   '<div class="actrow"><input class="wide" id="adj-item" placeholder="název artefaktu"><button class="mini gold" onclick="giveItem('+i+')">+ Artefakt</button></div>'+
+   (()=>{const arts=ARTIFACTS_BY_GAME[r.game]||[];const opts='<option value="">— vybrat artefakt —</option>'+arts.map(a=>'<option value="'+esc(a.id)+'"'+(inv.includes(a.id)?' disabled':'')+'>'+esc(a.id)+' – '+esc(a.nm)+'</option>').join('');return '<div class="actrow"><select id="adj-item" style="font-family:inherit;font-size:13px;padding:7px 9px;border-radius:5px;border:1px solid var(--line);background:var(--panel2);color:var(--text);flex:1">'+opts+'</select><button class="mini gold" onclick="giveItem('+i+')">+ Artefakt</button></div>';})()+'
    '<div class="actrow"><button class="mini red" onclick="delChar('+i+')">🗑 Smazat celou postavu</button></div>';
  }
  document.getElementById('modal').innerHTML=
   '<button class="close" onclick="closeModal()">✕</button>'+
   '<h3>'+g.emoji+' '+esc(d.name||'—')+'</h3>'+
-  '<div class="msub">'+esc(r.full_name||'')+' · '+esc(r.email||'')+' · '+g.nm+'</div>'+
-  '<div class="row"><span>Level</span><b>'+(d.level||1)+'</b></div>'+
-  '<div class="row"><span>XP</span><b>'+(d.xp||0)+'</b></div>'+
-  '<div class="row"><span>Splněno úkolů</span><b>'+doneCount(d)+' / '+TOTAL_TASKS+' ('+pct(d)+' %)</b></div>'+
+  '<div class="msub">'+esc(r.full_name||'')+' · '+esc(r.email||'')+' · '+esc(g.nm)+'</div>'+
+  '<div class="row"><span>Level</span><b>'+((d.level||1)|0)+'</b></div>'+
+  '<div class="row"><span>XP</span><b>'+((d.xp||0)|0)+'</b></div>'+
+  '<div class="row"><span>Splněno úkolů</span><b>'+(doneCount(d)|0)+' / '+TOTAL_TASKS+' ('+(pct(d)|0)+' %)</b></div>'+
   '<div class="row"><span>Artefakty</span><b>'+(inv.length?esc(inv.join(', ')):'—')+'</b></div>'+
-  (Array.isArray(d.teacherUnlocked)&&d.teacherUnlocked.length?'<div class="row"><span>Odemčeno učitelem</span><b style="color:var(--gold)">🔓 '+d.teacherUnlocked.join(', ')+'</b></div>':'')+
+  (Array.isArray(d.teacherUnlocked)&&d.teacherUnlocked.length?'<div class="row"><span>Odemčeno učitelem</span><b style="color:var(--gold)">🔓 '+esc(d.teacherUnlocked.join(', '))+'</b></div>':'')+
   '<div class="row"><span>Třídy</span><b>'+([...classesOfUser(r.user_id)].map(cid=>'🏫 '+esc(classNameOf(cid))).join(', ')||'<span style="color:var(--muted)">— žádná —</span>')+'</b></div>'+
-  '<div class="row"><span>Poslední aktivita</span><b>'+fmtDate(r.updated_at)+'</b></div>'+
+  '<div class="row"><span>Poslední aktivita</span><b>'+esc(fmtDate(r.updated_at))+'</b></div>'+
   '<h4>Atributy</h4>'+attrHtml+
   (MISSIONS_BY_GAME[r.game]?buildMasteryHtml(d,r.game):'')+
   buildUnlockHtml(r)+
@@ -626,8 +772,8 @@ async function loadNotes(uid){
   '<div style="background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:8px 10px;margin:6px 0">'+
    '<div style="font-size:13px;color:var(--text);line-height:1.5">'+esc(n.body)+'</div>'+
    '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px">'+
-    '<span style="font-size:11px;color:var(--muted)">'+esc(n.author_name||n.author_email||'')+' · '+fmtDate(n.created_at)+'</span>'+
-    '<button class="mini red" onclick="delNoteUI(\''+n.id+'\',\''+uid+'\')">smazat</button>'+
+    '<span style="font-size:11px;color:var(--muted)">'+esc(n.author_name||n.author_email||'')+' · '+esc(fmtDate(n.created_at))+'</span>'+
+    '<button class="mini red" onclick="delNoteUI(\''+esc(n.id)+'\',\''+esc(uid)+'\')">smazat</button>'+
    '</div>'+
   '</div>').join('');
 }
@@ -660,10 +806,13 @@ async function giveXP(i){
 }
 async function giveItem(i){
  const r=window.__filtered[i];if(!r)return;
- const name=document.getElementById('adj-item').value.trim();
- if(!name){toast('Zadej název artefaktu.',1);return;}
+ const sel=document.getElementById('adj-item');
+ const artId=sel&&sel.value;
+ if(!artId){toast('Vyber artefakt.',1);return;}
  const d=Object.assign({},r.data||{});
- d.inv=Array.isArray(d.inv)?d.inv.slice():[];d.inv.push(name);
+ d.inv=Array.isArray(d.inv)?d.inv.slice():[];
+ if(d.inv.includes(artId)){toast('Žák tento artefakt už má.',1);return;}
+ d.inv.push(artId);
  const res=await RPGCloud.updateSaveFor(r.user_id,r.game,d);
  if(res.ok){r.data=d;toast('Artefakt přidán');openDetail(i);}
  else toast('Chyba: '+res.error,1);
@@ -700,7 +849,7 @@ async function loadTeachers(){
  let html='<table class="tbl"><thead><tr><th>E-mail</th><th>Role</th><th>Přidal</th><th></th></tr></thead><tbody>';
  list.forEach(t=>{
   html+='<tr><td class="nm">'+esc(t.email)+'</td>'+
-   '<td><span class="tag" style="background:'+(t.role==='superadmin'?'var(--gold)':'var(--accent)')+'">'+t.role+'</span></td>'+
+   '<td><span class="tag" style="background:'+(t.role==='superadmin'?'var(--gold)':'var(--accent)')+'">'+esc(t.role)+'</span></td>'+
    '<td class="em">'+esc(t.added_by||'')+'</td>'+
    '<td><button class="mini red" onclick="delTeacher(\''+esc(t.email)+'\')">odebrat</button></td></tr>';
  });
@@ -722,9 +871,41 @@ async function delTeacher(email){
 
 /* ── třídy ── */
 async function createClassUI(){
- const name=document.getElementById('new-class').value.trim();
- const res=await RPGCloud.createClass(name);
- if(res.ok){toast('Třída založena');document.getElementById('new-class').value='';await loadClasses();renderClasses();}
+ const section=document.getElementById('new-section').value.trim();
+ const grade=parseInt(document.getElementById('new-grade').value,10);
+ let name=document.getElementById('new-class').value.trim();
+ const meta={};
+ if(grade>=6&&grade<=9){
+  meta.cohort_start_year=schoolYearStart()-(grade-6);
+  meta.section=section;
+  if(!name)name=section?grade+'.'+section:grade+'. ročník';
+ }
+ if(!name){toast('Zadej označení + ročník, nebo vlastní název.',1);return;}
+ const res=await RPGCloud.createClass(name,meta);
+ if(res.ok){
+  toast('Třída založena');
+  document.getElementById('new-class').value='';
+  document.getElementById('new-section').value='';
+  document.getElementById('new-grade').value='';
+  await loadClasses();renderClasses();
+ } else toast('Chyba: '+res.error,1);
+}
+async function editCohortUI(id){
+ const c=CLASSES.find(x=>x.id===id);if(!c)return;
+ const cur=c.cohort_start_year!=null?String(gradeOfCohort(c.cohort_start_year)):'';
+ const g=prompt('V kterém ročníku je třída TEĎ? (6–9; prázdné = zrušit automatický posun)',cur);
+ if(g==null)return;
+ const meta={};
+ if(g.trim()===''){meta.cohort_start_year='';}
+ else{
+  const gi=parseInt(g,10);
+  if(!(gi>=6&&gi<=9)){toast('Ročník musí být 6–9.',1);return;}
+  meta.cohort_start_year=schoolYearStart()-(gi-6);
+  const sec=prompt('Označení třídy (písmeno, např. B):',c.section||'');
+  if(sec!=null)meta.section=sec;
+ }
+ const res=await RPGCloud.updateClassMeta(id,meta);
+ if(res.ok){toast('Kohorta upravena');await loadClasses();renderClasses();renderTable();}
  else toast('Chyba: '+res.error,1);
 }
 async function renameClassUI(id){
@@ -749,24 +930,86 @@ async function toggleMember(classId,uid,on){
  if(res.ok){await loadClasses();renderClasses();renderTable();}
  else toast('Chyba: '+res.error,1);
 }
+// postavy žáků dané třídy (napříč hrami)
+function rowsOfClass(cid){const mem=membersOfClass(cid);return ROWS.filter(r=>mem.has(r.user_id));}
+async function classAwardXp(cid){
+ const rows=rowsOfClass(cid);if(!rows.length){toast('Třída nemá žádné hrající žáky.',1);return;}
+ const v=prompt('Kolik XP přidat všem postavám ve třídě? (může být i záporné)','50');
+ if(v==null)return;const delta=parseInt(v,10);if(isNaN(delta)){toast('Zadej číslo.',1);return;}
+ let okN=0,errN=0;
+ for(const r of rows){const d=Object.assign({},r.data||{});d.xp=Math.max(0,(d.xp||0)+delta);d.level=Math.floor(d.xp/100)+1;const res=await RPGCloud.updateSaveFor(r.user_id,r.game,d);if(res.ok){r.data=d;okN++;}else errN++;}
+ toast((delta>=0?'+':'')+delta+' XP · '+okN+' postav'+(errN?' ('+errN+' chyb)':''),errN>0);
+ renderStats();renderTable();
+}
+async function classUnlock(cid){
+ const sel=document.getElementById('cls-mid-'+cid);const mid=sel?sel.value:'';if(!mid){toast('Vyber misi.',1);return;}
+ const c=CLASSES.find(x=>x.id===cid);const grade=gradeOfCohort(c.cohort_start_year);
+ const gameKey='RPG_MAT_'+grade;
+ const rows=rowsOfClass(cid).filter(r=>r.game===gameKey);
+ if(!rows.length){toast('Nikdo ve třídě nehraje '+grade+'. ročník.',1);return;}
+ let okN=0,errN=0;
+ for(const r of rows){const d=Object.assign({},r.data||{});d.teacherUnlocked=Array.isArray(d.teacherUnlocked)?d.teacherUnlocked.slice():[];if(!d.teacherUnlocked.includes(mid))d.teacherUnlocked.push(mid);const res=await RPGCloud.updateSaveFor(r.user_id,r.game,d);if(res.ok){r.data=d;okN++;}else errN++;}
+ toast('🔓 '+mid+' odemčeno '+okN+'×'+(errN?' ('+errN+' chyb)':''),errN>0);
+ renderTable();
+}
+async function classDeleteChars(cid){
+ const rows=rowsOfClass(cid);if(!rows.length){toast('Třída nemá žádné postavy.',1);return;}
+ if(!confirm('Nevratně smazat VŠECHNY postavy ('+rows.length+') žáků této třídy? Zařazení žáků ve třídě zůstane.'))return;
+ let okN=0,errN=0;for(const r of rows){const res=await RPGCloud.deleteSaveFor(r.user_id,r.game);if(res.ok)okN++;else errN++;}
+ toast('🗑 smazáno '+okN+' postav'+(errN?' ('+errN+' chyb)':''),errN>0);
+ await loadData();
+}
+async function classNote(cid){
+ const inp=document.getElementById('cls-note-'+cid);
+ const body=(inp&&inp.value||'').trim();if(!body){toast('Vzkaz je prázdný.',1);return;}
+ const mem=membersOfClass(cid);if(!mem.size){toast('Třída je prázdná.',1);return;}
+ let okN=0,errN=0;
+ for(const uid of mem){const res=await RPGCloud.addNote(uid,body);if(res&&!res.error)okN++;else errN++;}
+ toast('📨 vzkaz odeslán '+okN+' žákům'+(errN?' ('+errN+' chyb)':''),errN>0);
+ if(inp)inp.value='';
+}
 function renderClasses(){
  const w=document.getElementById('classes-wrap');
  if(!CLASSES.length){w.innerHTML='<div class="empty">— zatím žádné třídy. Založ první výše. —</div>';return;}
  const students=studentsDistinct();
+ const admin=RPGCloud.isAdmin();
  let html='';
  CLASSES.forEach(c=>{
   const mem=membersOfClass(c.id);
   const open=OPEN_CLASS===c.id;
+  const grade=gradeOfCohort(c.cohort_start_year);
+  const cohortBadge=c.cohort_start_year!=null
+   ?'<span class="tag" style="background:#3a6ea5" title="'+esc(cohortStatus(c))+'">📈 '+cohortRangeLabel(c.cohort_start_year)+'</span>'
+   :'';
   html+='<div style="background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:12px 16px;margin-bottom:10px">'+
    '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">'+
     '<span style="font-size:20px">🏫</span>'+
-    '<b style="color:#fff;font-size:15px">'+esc(c.name)+'</b>'+
+    '<b style="color:#fff;font-size:15px">'+esc(classLabel(c))+'</b>'+
+    cohortBadge+
     '<span class="tag" style="background:var(--accent)">'+mem.size+' žáků</span>'+
     '<div style="margin-left:auto;display:flex;gap:6px">'+
-     '<button class="mini gold" onclick="toggleRoster(\''+c.id+'\')">'+(open?'▲ hotovo':'👥 spravovat žáky')+'</button>'+
-     '<button class="mini" onclick="renameClassUI(\''+c.id+'\')">✎</button>'+
-     '<button class="mini red" onclick="deleteClassUI(\''+c.id+'\')">🗑</button>'+
+     '<button class="mini gold" onclick="toggleRoster(\''+esc(c.id)+'\')">'+(open?'▲ hotovo':'👥 spravovat žáky')+'</button>'+
+     '<button class="mini" onclick="editCohortUI(\''+esc(c.id)+'\')" title="ročník / automatický posun">📈</button>'+
+     '<button class="mini" onclick="renameClassUI(\''+esc(c.id)+'\')" title="přejmenovat">✎</button>'+
+     '<button class="mini red" onclick="deleteClassUI(\''+esc(c.id)+'\')">🗑</button>'+
     '</div>'+
+   '</div>';
+  // akce pro celou třídu
+  html+='<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:10px">'+
+   '<span style="color:var(--muted);font-size:12px">Hromadně třídě:</span>'+
+   '<button class="mini gold" onclick="classAwardXp(\''+esc(c.id)+'\')">⭐ +XP</button>';
+  if(grade>=6&&grade<=9){
+   const missions=missionsFor('RPG_MAT_'+grade);
+   let opts='<option value="">— mise '+grade+'. roč. —</option>';
+   missions.forEach(m=>{opts+='<option value="'+m.id+'">'+m.id+' '+esc(m.name)+'</option>';});
+   html+='<select id="cls-mid-'+esc(c.id)+'" style="max-width:220px">'+opts+'</select>'+
+    '<button class="mini gold" onclick="classUnlock(\''+esc(c.id)+'\')">🔓 Odemknout třídě</button>';
+  }
+  if(admin)html+='<button class="mini red" onclick="classDeleteChars(\''+esc(c.id)+'\')">🗑 Smazat postavy třídy</button>';
+  html+='</div>'+
+   '<div style="display:flex;gap:6px;align-items:center;margin-top:8px">'+
+    '<input id="cls-note-'+esc(c.id)+'" placeholder="📨 Vzkaz celé třídě…" style="flex:1;padding:5px 8px;border-radius:6px;border:1px solid var(--line);background:var(--bg);color:#fff;font-size:13px">'+
+    '<button class="mini gold" onclick="classNote(\''+esc(c.id)+'\')">Odeslat</button>'+
    '</div>';
   if(open){
    if(!students.length){html+='<div class="empty" style="margin-top:10px">— žádní žáci zatím nehráli —</div>';}
@@ -774,9 +1017,13 @@ function renderClasses(){
     html+='<div style="margin-top:12px;border-top:1px solid var(--line);padding-top:10px;display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:6px">';
     students.forEach(s=>{
      const inC=mem.has(s.user_id);
+     // skip students already assigned to a different class (one-class-per-student model)
+     const otherClass=[...classesOfUser(s.user_id)].filter(cid=>cid!==c.id);
+     if(!inC&&otherClass.length)return;
+     const otherTag=otherClass.length?(' <span style="color:var(--muted);font-size:10px">('+esc(classNameOf(otherClass[0]))+')</span>'):'';
      html+='<label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;padding:4px 6px;border-radius:4px;background:'+(inC?'rgba(244,208,63,.12)':'transparent')+'">'+
-      '<input type="checkbox"'+(inC?' checked':'')+' onclick="toggleMember(\''+c.id+'\',\''+s.user_id+'\',this.checked)">'+
-      '<span><b style="color:#fff">'+esc(s.name||'—')+'</b> <span style="color:var(--muted);font-size:11px">'+esc(s.email||'')+'</span></span>'+
+      '<input type="checkbox"'+(inC?' checked':'')+' onclick="toggleMember(\''+esc(c.id)+'\',\''+esc(s.user_id)+'\',this.checked)">'+
+      '<span><b style="color:#fff">'+esc(s.name||'—')+'</b> <span style="color:var(--muted);font-size:11px">'+esc(s.email||'')+otherTag+'</span></span>'+
      '</label>';
     });
     html+='</div>';
@@ -792,35 +1039,111 @@ function renderDiag(){
  const sel=document.getElementById('diag-game');if(!sel)return;
  if(sel.options.length===0){GAMES.forEach(g=>{const o=document.createElement('option');o.value=g.key;o.textContent=g.emoji+' '+g.gr;sel.appendChild(o);});}
  const game=sel.value||GAMES[0].key;sel.value=game;
- const rows=ROWS.filter(r=>r.game===game);
+ const csel=document.getElementById('diag-class');
+ if(csel){const cur=csel.value;csel.innerHTML='<option value="">Všechny třídy</option>'+CLASSES.map(c=>'<option value="'+c.id+'">🏫 '+esc(classLabel(c))+'</option>').join('');csel.value=cur;}
+ const fc=csel?csel.value:'';const members=fc?membersOfClass(fc):null;
+ const rows=ROWS.filter(r=>r.game===game&&(!members||members.has(r.user_id)));
  const miss=missionsFor(game);
  const wrap=document.getElementById('diag-wrap');
- if(!rows.length){wrap.innerHTML='<div class="empty">Zatím žádná data pro tento ročník.</div>';return;}
+ if(!rows.length){wrap.innerHTML='<div class="empty">'+(fc?'V této třídě zatím nikdo nehrál tento ročník.':'Zatím žádná data pro tento ročník.')+'</div>';return;}
  const TC=6; // úkolů na misi
  let html='';
  for(let area=1;area<=7;area++){
   let cells='';
   miss.filter(m=>m.id.indexOf(area+'-')===0).forEach(m=>{
-   let reached=0,completed=0,totErr=0;
+   let reached=0,completed=0,totErr=0,recent=0,prev=0,hasTrend=false,hasPrev=false;
    rows.forEach(r=>{
     const d=r.data||{},errs=d.errs||{},done=d.done||{};
     const e=errs[m.id]||0;
     let dc=0;for(let i=0;i<TC;i++)if(done[m.id+'-'+i])dc++;
     if(e>0||dc>0){reached++;totErr+=e;if(dc>=TC)completed++;}
+    const sn=Array.isArray(d.errsSnap)?d.errsSnap:[];
+    if(sn.length>=2){const a=(sn[sn.length-1].errs||{})[m.id]||0,b=(sn[sn.length-2].errs||{})[m.id]||0;recent+=Math.max(0,a-b);hasTrend=true;}
+    if(sn.length>=3){const b=(sn[sn.length-2].errs||{})[m.id]||0,c=(sn[sn.length-3].errs||{})[m.id]||0;prev+=Math.max(0,b-c);hasPrev=true;}
    });
    const avg=reached?totErr/reached:0;
-   const hue=Math.max(0,120-Math.min(120,avg*30)); // 0 chyb→zelená, ~4 chyby→červená
+   const hue=(Math.max(0,120-Math.min(120,avg*30)))|0; // 0 chyb→zelená, ~4 chyby→červená, |0 kills taint
    const bg=reached?'hsl('+hue+',65%,20%)':'#161b2e';
    const bd=reached?'hsl('+hue+',65%,42%)':'#2a3450';
+   let trendHtml='';
+   if(hasTrend){
+    let ar='',tcol='var(--muted)';
+    if(hasPrev){ar=(recent|0)<(prev|0)?'🔽 ':(recent|0)>(prev|0)?'🔺 ':'▶️ ';tcol=(recent|0)<(prev|0)?'#5fd38a':(recent|0)>(prev|0)?'#ff7a7a':'var(--muted)';}
+    trendHtml='<div style="font-size:11px;color:'+tcol+';margin-top:3px">'+ar+'nově +'+(recent|0)+' chyb'+(hasPrev?(' (minule +'+(prev|0)+')'):' za období')+'</div>';
+   }
    cells+='<div style="background:'+bg+';border:1px solid '+bd+';border-radius:7px;padding:9px 11px">'+
     '<div style="font-weight:700;font-size:13px;color:#fff;margin-bottom:4px">'+m.id+' · '+esc(m.name)+'</div>'+
     '<div style="font-size:12px;color:var(--muted)">'+
-    (reached?('✅ '+completed+'/'+reached+' dokončilo · ⌀ '+avg.toFixed(1)+' chyb'):'zatím nikdo nezkoušel')+
-    '</div></div>';
+    (reached?('✅ '+(completed|0)+'/'+(reached|0)+' dokončilo · ⌀ '+esc(avg.toFixed(1))+' chyb'):'zatím nikdo nezkoušel')+
+    '</div>'+trendHtml+'</div>';
   });
   html+='<div style="margin-bottom:14px"><div style="font-weight:700;color:var(--gold);font-size:13px;margin-bottom:7px">Oblast '+area+'</div>'+
    '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px">'+cells+'</div></div>';
  }
+ wrap.innerHTML=html;
+}
+
+/* ── VYSVĚTLENÍ POSTUPU ── */
+let explData=[];
+let explInited=false;
+
+function initExplainTab(){
+ if(!explInited){
+  // populate class filter
+  const cs=document.getElementById('expl-class');
+  cs.innerHTML='<option value="">Všechny třídy</option>';
+  (CLASSES||[]).forEach(c=>{const o=document.createElement('option');o.value=c.id;o.textContent=classLabel(c);cs.appendChild(o);});
+  // populate mission filter
+  const ms=document.getElementById('expl-mid');
+  ms.innerHTML='<option value="">Všechny mise</option>';
+  MISSIONS_9.forEach(m=>{const o=document.createElement('option');o.value=m.id;o.textContent=m.id+' '+m.name;ms.appendChild(o);});
+  explInited=true;
+ }
+}
+
+async function loadExplain(){
+ const wrap=document.getElementById('expl-wrap');
+ wrap.innerHTML='<div class="empty">Načítám…</div>';
+ const game=document.getElementById('expl-game').value||'RPG_MAT_9';
+ const mid=document.getElementById('expl-mid').value||'';
+ const cid=document.getElementById('expl-class').value||'';
+ try{
+  explData=await RPGCloud.listExplanations({game,mid,limit:100,classId:cid||undefined});
+  renderExplain();
+ }catch(e){wrap.innerHTML='<div class="empty">Chyba při načítání.</div>';}
+}
+
+function renderExplain(){
+ const wrap=document.getElementById('expl-wrap');
+ if(!explData.length){wrap.innerHTML='<div class="empty">Žádná vysvětlení zatím. Klikni ↻ Načíst.</div>';return;}
+ const mid=document.getElementById('expl-mid').value;
+ const rows=mid?explData.filter(r=>r.mid===mid):explData;
+ if(!rows.length){wrap.innerHTML='<div class="empty">Žádné záznamy pro vybraný filtr.</div>';return;}
+ let html='<table style="width:100%;border-collapse:collapse;font-size:13px">'
+  +'<thead><tr style="color:var(--muted);text-align:left;border-bottom:1px solid #2a3450">'
+  +'<th style="padding:6px 8px;white-space:nowrap">Čas</th>'
+  +'<th style="padding:6px 8px">Žák</th>'
+  +'<th style="padding:6px 8px;white-space:nowrap">Mise</th>'
+  +'<th style="padding:6px 8px">Otázka</th>'
+  +'<th style="padding:6px 8px">Odpověď</th>'
+  +'<th style="padding:6px 8px">Jak na to přišel</th>'
+  +'</tr></thead><tbody>';
+ rows.forEach((r,i)=>{
+  const dt=new Date(r.created_at);
+  const dstr=dt.toLocaleDateString('cs-CZ',{day:'numeric',month:'numeric'})+' '+dt.toLocaleTimeString('cs-CZ',{hour:'2-digit',minute:'2-digit'});
+  const bg=i%2===0?'':'background:#0d1226';
+  const mname=(MISSIONS_BY_GAME[r.game||'RPG_MAT_9']||[]).find(m=>m.id===r.mid);
+  html+=`<tr style="${bg}">
+   <td style="padding:5px 8px;color:var(--muted);white-space:nowrap;font-size:12px">${esc(dstr)}</td>
+   <td style="padding:5px 8px;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(r.display_name||'?')}</td>
+   <td style="padding:5px 8px;white-space:nowrap;color:var(--gold);font-size:12px">${esc(r.mid)}${mname?'<br><span style="color:var(--muted);font-size:11px">'+esc(mname.name)+'</span>':''}</td>
+   <td style="padding:5px 8px;max-width:200px;font-size:12px;color:#b0b8d0">${esc((r.task_text||'').slice(0,80))}</td>
+   <td style="padding:5px 8px;color:var(--green);white-space:nowrap">${esc(r.answer||'')}</td>
+   <td style="padding:5px 8px;max-width:300px;line-height:1.5">${esc(r.explanation||'')}</td>
+  </tr>`;
+ });
+ html+='</tbody></table>';
+ html+='<p style="color:var(--muted);font-size:12px;margin-top:10px">Zobrazeno: '+rows.length+' záznamů</p>';
  wrap.innerHTML=html;
 }
 
@@ -833,10 +1156,12 @@ document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
  document.getElementById('t-classes').classList.toggle('hidden',tab!=='classes');
  document.getElementById('t-preview').classList.toggle('hidden',tab!=='preview');
  document.getElementById('t-diag').classList.toggle('hidden',tab!=='diag');
+ document.getElementById('t-explain').classList.toggle('hidden',tab!=='explain');
  document.getElementById('t-teachers').classList.toggle('hidden',tab!=='teachers');
  if(tab==='classes')renderClasses();
  if(tab==='teachers')loadTeachers();
  if(tab==='diag')renderDiag();
+ if(tab==='explain')initExplainTab();
 });
 </script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
