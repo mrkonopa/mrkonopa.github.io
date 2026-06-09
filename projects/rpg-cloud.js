@@ -680,13 +680,22 @@ window.RPGCloud = (function () {
 
           // Doménový žák (@husovaliberec.cz): přeskočit intro obrazovku → rovnou do hry
           const isDomain = (u.email || '').toLowerCase().endsWith('@husovaliberec.cz');
+          // Zjistit, zda hráč už hraje (není na intro obrazovce) — pokud ano, nepřerušovat
+          const introVisible = (()=>{ const s=document.getElementById('s-intro'); return s&&s.classList.contains('active'); })();
           if (isDomain) {
             // Předvyplnit z Google jména, pokud ještě nic není
             if (ni && !ni.value) {
               const gFirst = ((u.user_metadata && u.user_metadata.full_name) || '').split(' ')[0];
               if (gFirst) ni.value = gFirst.toUpperCase().slice(0, 14);
             }
-            if (chosen && typeof window.continueGame === 'function') {
+            if (!introVisible) {
+              // Hráč je ve hře — pouze slouč teacherUnlocked, nerušit in-memory stav
+              if (chosen && mergedTU.length && typeof window.S !== 'undefined') {
+                window.S.teacherUnlocked = mergedTU;
+                if (typeof window.saveS === 'function') window.saveS();
+                if (typeof window.renderMap === 'function') { try { window.renderMap(); } catch (e) {} }
+              }
+            } else if (chosen && typeof window.continueGame === 'function') {
               window.continueGame();
             } else if (!chosen && typeof window.startGame === 'function') {
               // První přihlášení bez jakéhokoliv save — automaticky spustit
