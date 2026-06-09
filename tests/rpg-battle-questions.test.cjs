@@ -2,18 +2,10 @@
    Determinismus + validita MC napříč tisíci seedy.
    Spusť: node tests/rpg-battle-questions.test.cjs */
 'use strict';
-const fs = require('fs');
 const path = require('path');
-const vm = require('vm');
 
 const ROOT = path.join(__dirname, '..');
-// Načtení modulu izolovaně v sandboxu (stejný vzor jako rpg-leaderboard.test.cjs)
-// codeql[js/code-injection]
-const code = fs.readFileSync(path.join(ROOT, 'projects/rpg-battle-9.js'), 'utf8');
-const ctx = vm.createContext({ window: {}, console, Math, String, Number, Set, Array });
-// codeql[js/code-injection]
-vm.runInContext(code, ctx);
-const B = ctx.window.RPG_BATTLE_9;
+const B = require(path.join(ROOT, 'projects/rpg-battle-9.js'));
 
 let pass = 0, fail = 0;
 const ok = (label, cond, d) => { if (cond) { pass++; } else { fail++; console.error('  ✗', label, d ? `[${d}]` : ''); } };
