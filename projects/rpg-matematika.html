@@ -244,12 +244,12 @@ function render(){
   if(S){
    started++;
    if(HUB_HAS_WALLET) RPGWallet.absorbGame(g.key, S);
-   const lv=S.level||1, xp=S.xp||0;
+   const lv=(S.level||1)|0, xp=(S.xp||0)|0;
    const done=S.done?Object.keys(S.done).length:0;
    const arts=Array.isArray(S.inv)?S.inv.length:0;
    totXp+=xp; totTasks+=done; totArts+=arts;
    const pct=Math.min(100,Math.round(done/TOTAL_TASKS*100));
-   const attrHtml=ATTR.map(([k,ic])=>`<span class="a">${ic} <b>${(S.attrs&&S.attrs[k])||0}</b></span>`).join('');
+   const attrHtml=ATTR.map(([k,ic])=>`<span class="a">${ic} <b>${((S.attrs&&S.attrs[k])||0)|0}</b></span>`).join('');
    body=`<div class="charline"><span class="cn">👤 ${esc(S.name||'HRDINA')}</span><span class="lv">LV ${lv} · ${xp} XP</span></div>
    <div class="attrs">${attrHtml}</div>
    <div class="prog"><div class="pl"><span>POKROK</span><span>${done} / ${TOTAL_TASKS} úkolů · ${pct}%</span></div>
@@ -371,7 +371,7 @@ function renderGlobalProfile(){
  ATTR.forEach(([k])=>{ tot[k]=0; });
  GAMES.forEach(g=>{ const S=load(g.key); if(S&&S.attrs) ATTR.forEach(([k])=>{ tot[k]+=(S.attrs[k]||0); }); });
  document.getElementById('gp-attrs').innerHTML=ATTR.map(([k,ic,label])=>
-  `<span class="a">${ic} ${esc(label)}<br><b>${tot[k]}</b></span>`
+  `<span class="a">${ic} ${esc(label)}<br><b>${tot[k]|0}</b></span>`
  ).join('');
  // odznaky z všech her dohromady
  const allAch={};
