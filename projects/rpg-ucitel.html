@@ -703,7 +703,7 @@ function buildMasteryHtml(d,gameKey){
  if(d.errs&&Object.keys(d.errs).length){
   const errs=Object.entries(d.errs).filter(([,v])=>v>0).sort((a,b)=>b[1]-a[1]);
   if(errs.length){
-   const errPills=errs.map(([mid,cnt])=>{
+   const errPills=errs.map(([mid,cntRaw])=>{const cnt=cntRaw|0; // |0 kills taint
     const mObj=missionsFor(gameKey).find(m=>m.id===mid);
     const nm=mObj?mObj.name:mid;
     const col=cnt>=4?'var(--red)':cnt>=2?'var(--gold)':'var(--muted)';
