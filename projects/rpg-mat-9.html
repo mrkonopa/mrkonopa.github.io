@@ -471,7 +471,7 @@ html[data-theme="violet"]{--gold:#b06cff;--panel:#100a20;--panel2:#18103a;--blue
  <div id="continue-panel" class="panel b" style="display:none">
  <div style="font-family:var(--px);font-weight:700;font-size:14px;color:var(--blue);margin-bottom:10px">POKRAČOVAT VE HŘE</div>
  <button class="btn b full" style="margin-bottom:8px" onclick="continueGame()">▶ NAČÍST ULOŽENOU HRU</button>
- <button class="btn sm" onclick="document.getElementById('continue-panel').style.display='none'">nebo začít znovu</button>
+ <button id="go-fresh-btn" class="btn sm" onclick="document.getElementById('continue-panel').style.display='none'">nebo začít znovu</button>
  </div>
  <div style="text-align:center;font-family:var(--px);font-weight:400;font-size:13px;color:var(--muted);margin-top:8px">
  STISKNI ENTER PRO START <span class="blink">▌</span>
@@ -1227,9 +1227,9 @@ const AREAS = [
   tc:6,
   tasks:()=>[
    (()=>{const m=ri(2,8)*50,p=[10,20,25,50][ri(0,3)];return{text:`V roztoku o hmotnosti ${m} g je ${p} % soli.\nKolik gramů soli obsahuje?`,ans:String(m*p/100),hints:[`${p} % z ${m} = ${m}·${p/100}.`,``],skill:'anal'};})(),
-   (()=>{const s=ri(2,9)*10,m=s*ri(4,8);return{text:`Roztok má hmotnost ${m} g a obsahuje ${s} g soli.\nKolik procent soli obsahuje?`,ans:String(Math.round(s/m*100)),hints:[`Část ÷ celek × 100.`,`${s} ÷ ${m} × 100`],skill:'anal'};})(),
+   (()=>{const f=[4,5,8,10][ri(0,3)],s=ri(2,9)*10,m=s*f;const p=100/f;return{text:`Roztok má hmotnost ${m} g a obsahuje ${s} g soli.\nKolik procent soli obsahuje?`,ans:cz(p),hints:[`Část ÷ celek × 100.`,`${s} ÷ ${m} × 100 = ${cz(p)}`],skill:'anal'};})(),
    (()=>{const a=ri(2,5),pa=ri(8,15)*10,b=ri(2,5),pb=ri(2,7)*10;const tot=(a*pa+b*pb)/(a+b);return{text:`Smícháme ${a} kg kávy po ${pa} Kč a ${b} kg po ${pb} Kč.\nCena 1 kg směsi? (Kč)`,ans:String(Math.round(tot)),hints:[`(${a}·${pa} + ${b}·${pb}) ÷ ${a+b}.`,`${a*pa+b*pb} ÷ ${a+b}`],skill:'anal'};})(),
-   (()=>{const t=ri(4,10);return{text:`Dělník zvládne celou práci za ${t} hodin.\nKolik procent práce udělá za 1 hodinu?`,ans:String(Math.round(100/t)),hints:[`Za 1 h udělá 1/${t} práce.`,`100 ÷ ${t}`],skill:'anal'};})(),
+   (()=>{const t=[4,5,8,10,20,25][ri(0,5)];const pct=100/t;return{text:`Dělník zvládne celou práci za ${t} hodin.\nKolik procent práce udělá za 1 hodinu?`,ans:cz(pct),hints:[`Za 1 h udělá 1/${t} práce.`,`100 ÷ ${t} = ${cz(pct)}`],skill:'anal'};})(),
    (()=>{const t=ri(2,5)*2,h=t/2;return{text:`Stroj udělá zakázku za ${t} hodin.\nKolik zakázek (i nedokončených, v %) zvládne za ${h} hodin?`,ans:String(Math.round(h/t*100)),hints:[`${h}/${t} celé práce.`,`${h} ÷ ${t} × 100`],skill:'anal'};})(),
    (()=>{const c=ri(2,6)*10,p=[20,25,40,50][ri(0,3)],voda=c*(100-p)/p;return{text:`Chceš ${p}% roztok. Máš ${c} g soli.\nKolik g vody přidat? (celková hmotnost − sůl)`,ans:String(Math.round(c*100/p - c)),hints:[`Celý roztok = sůl ÷ ${p/100} = ${Math.round(c*100/p)} g.`,`voda = ${Math.round(c*100/p)} − ${c}`],skill:'anal'};})()
   ]
