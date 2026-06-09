@@ -292,6 +292,12 @@ const MISSIONS_9=[
 ];
 const MISSIONS_BY_GAME={RPG_MAT_6:MISSIONS_6,RPG_MAT_7:MISSIONS_7,RPG_MAT_8:MISSIONS_8,RPG_MAT_9:MISSIONS_9};
 function missionsFor(gameKey){return MISSIONS_BY_GAME[gameKey]||[];}
+const ARTIFACTS_BY_GAME={
+ RPG_MAT_6:[{id:'starmap',nm:'Hvězdná mapa 🗺️'},{id:'crystal',nm:'Desetinný krystal 💎'},{id:'core',nm:'Jádro asteroidu ⚙️'},{id:'protractor',nm:'Hvězdný úhloměr 📐'},{id:'mirror',nm:'Zrcadlový úlomek 🪞'},{id:'cube',nm:'Energetická kostka 🧊'},{id:'medal',nm:'Galaktický odznak 🏅'}],
+ RPG_MAT_7:[{id:'mapscrap',nm:'Útržek staré mapy 🗺️'},{id:'papyrus',nm:'Papyrový svitek 📜'},{id:'lapis',nm:'Lazuritový amulet 🔷'},{id:'weight',nm:'Zlaté závaží ⚖️'},{id:'ring',nm:'Faraonův prsten 💍'},{id:'mirror',nm:'Zrcadlo bohyně 🪞'},{id:'crown',nm:'Faraonova koruna 👑'}],
+ RPG_MAT_8:[{id:'map',nm:'Mapa sedmi krajin 🗺️'},{id:'sword',nm:'Pythagorův meč ⚔️'},{id:'wand',nm:'Algebraická hůl 🪄'},{id:'shield',nm:'Výrazový štít 🛡️'},{id:'ring',nm:'Kruhový prsten 💍'},{id:'compass',nm:'Rýsovací kompas 🧭'},{id:'crown',nm:'Diplom arcimága 👑'}],
+ RPG_MAT_9:[{id:'acckey',nm:'Přístupový klíč 🔑'},{id:'core',nm:'Energetické jádro 🔋'},{id:'decmod',nm:'Dešifrovací modul 💾'},{id:'frag',nm:'Fragment kódu 🧩'},{id:'netkey',nm:'Síťový klíč 🛰️'},{id:'vizchip',nm:'Vizualizační čip 📊'},{id:'root',nm:'Root přístup 👁️'}]
+};
 const ATTR=[['calc','🔢 Výpočty'],['geo','📐 Geometrie'],['anal','🧠 Analýza'],['craft','⚡ Instinkt']];
 const gMeta=k=>GAMES.find(g=>g.key===k)||{emoji:'❓',nm:k,gr:'',accent:'#888'};
 let ROWS=[];   // všechny postavy
@@ -730,7 +736,7 @@ function openDetail(i){
    '<h4>Odměny a úpravy (superadmin)</h4>'+
    '<div class="actrow"><input type="number" id="adj-xp" placeholder="±XP" value="100"><button class="mini gold" onclick="giveXP('+i+')">Přidat XP</button>'+
      '<span style="font-size:11px;color:var(--muted)">level se dopočítá z XP</span></div>'+
-   '<div class="actrow"><input class="wide" id="adj-item" placeholder="název artefaktu"><button class="mini gold" onclick="giveItem('+i+')">+ Artefakt</button></div>'+
+   (()=>{const arts=ARTIFACTS_BY_GAME[r.game]||[];const opts='<option value="">— vybrat artefakt —</option>'+arts.map(a=>'<option value="'+a.id+'"'+(inv.includes(a.id)?' disabled':'')+'>'+esc(a.id)+' – '+esc(a.nm)+'</option>').join('');return '<div class="actrow"><select id="adj-item" style="font-family:inherit;font-size:13px;padding:7px 9px;border-radius:5px;border:1px solid var(--line);background:var(--panel2);color:var(--text);flex:1">'+opts+'</select><button class="mini gold" onclick="giveItem('+i+')">+ Artefakt</button></div>';})()+'
    '<div class="actrow"><button class="mini red" onclick="delChar('+i+')">🗑 Smazat celou postavu</button></div>';
  }
  document.getElementById('modal').innerHTML=
@@ -799,10 +805,13 @@ async function giveXP(i){
 }
 async function giveItem(i){
  const r=window.__filtered[i];if(!r)return;
- const name=document.getElementById('adj-item').value.trim();
- if(!name){toast('Zadej název artefaktu.',1);return;}
+ const sel=document.getElementById('adj-item');
+ const artId=sel&&sel.value;
+ if(!artId){toast('Vyber artefakt.',1);return;}
  const d=Object.assign({},r.data||{});
- d.inv=Array.isArray(d.inv)?d.inv.slice():[];d.inv.push(name);
+ d.inv=Array.isArray(d.inv)?d.inv.slice():[];
+ if(d.inv.includes(artId)){toast('Žák tento artefakt už má.',1);return;}
+ d.inv.push(artId);
  const res=await RPGCloud.updateSaveFor(r.user_id,r.game,d);
  if(res.ok){r.data=d;toast('Artefakt přidán');openDetail(i);}
  else toast('Chyba: '+res.error,1);
