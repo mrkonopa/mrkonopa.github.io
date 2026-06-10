@@ -551,6 +551,10 @@ html[data-theme="violet"]{--gold:#b06cff;--panel:#100a20;--panel2:#18103a;--blue
  <input id="tr-ans" class="bt-input" type="text" placeholder="?" autocomplete="off">
  <button class="btn" onclick="trSubmit()" style="white-space:nowrap">OVĚŘIT ✓</button>
  </div>
+ <div class="bt-row" id="tr-yn-row" style="display:none">
+ <button class="btn g" style="flex:1" onclick="trAnswerYN('ANO')">✓ ANO</button>
+ <button class="btn r" style="flex:1" onclick="trAnswerYN('NE')">✗ NE</button>
+ </div>
  <div class="mc-grid" id="tr-mc" style="display:none"></div>
  <div id="tr-hint-box" class="hint-box"></div>
  <div id="tr-fb" class="feedback"></div>
@@ -622,6 +626,10 @@ html[data-theme="violet"]{--gold:#b06cff;--panel:#100a20;--panel2:#18103a;--blue
  <div class="bt-row" id="bt-input-row">
  <input id="bt-ans" class="bt-input" type="text" placeholder="?" autocomplete="off">
  <button class="btn" onclick="submitAnswer()" style="white-space:nowrap">ÚTOK ⚔</button>
+ </div>
+ <div class="bt-row" id="yn-row" style="display:none">
+ <button class="btn g" style="flex:1" onclick="answerYN('ANO')">✓ ANO</button>
+ <button class="btn r" style="flex:1" onclick="answerYN('NE')">✗ NE</button>
  </div>
  <div class="mc-grid" id="mc-grid" style="display:none"></div>
  <div id="hint-box" class="hint-box"></div>
@@ -778,7 +786,8 @@ function svgMirror(shape){
 }
 
 function checkAns(raw, correct){
- const norm = s => String(s).trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,'').replace(',','.');
+ // normalizace: bez diakritiky/mezer, "," → ".", Unicode minus (−) i en-dash (–) → "-"
+ const norm = s => String(s).trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,'').replace(/,/g,'.').replace(/[\u2212\u2013]/g,'-');
  const u = norm(raw), c = norm(correct);
  if(u===c) return true;
  // fraction eval
@@ -787,9 +796,14 @@ function checkAns(raw, correct){
  return parseFloat(s);
  };
  const un=evalS(u), cn=evalS(c);
+ // tolerance 0.016 ≈ 1/60: pokryje zaokrouhlení na 2 des. místa i periodické zlomky (1/3, 1/6…)
  if(!isNaN(un)&&!isNaN(cn)) return Math.abs(un-cn)<0.016;
  return false;
 }
+// ANO/NE úlohy: místo psaní rovnou dvě tlačítka (boj i trénink)
+function isYN(t){return !!t&&/^(ano|ne)$/i.test(String(t.ans||'').trim());}
+function answerYN(v){const i=document.getElementById('bt-ans');if(i.disabled)return;i.value=v;submitAnswer();}
+function trAnswerYN(v){const i=document.getElementById('tr-ans');if(i.disabled)return;i.value=v;trSubmit();}
 
 // ══════════════════════════════════════════
 // GAME DATA — AREAS
@@ -1788,15 +1802,18 @@ function renderTask(){
  // input vs multiple choice
  if(BT.mcMode){
  document.getElementById('bt-input-row').style.display='none';
+ document.getElementById('yn-row').style.display='none';
  document.getElementById('hint-btn').style.display='none';
  renderMC(t);
  }else{
- document.getElementById('bt-input-row').style.display='flex';
+ const yn=isYN(t);
+ document.getElementById('bt-input-row').style.display=yn?'none':'flex';
+ document.getElementById('yn-row').style.display=yn?'flex':'none';
  document.getElementById('hint-btn').style.display='inline-block';
  document.getElementById('mc-grid').style.display='none';
  document.getElementById('bt-ans').value='';
  document.getElementById('bt-ans').disabled=false;
- document.getElementById('bt-ans').focus();
+ if(!yn)document.getElementById('bt-ans').focus();
  }
  startTimer();
 }
@@ -2277,13 +2294,16 @@ function trRender(){
  hbtn.textContent='💡 NÁPOVĚDA 1/2';hbtn.disabled=false;
  if(TR.m.mc){
   document.getElementById('tr-input-row').style.display='none';
+  document.getElementById('tr-yn-row').style.display='none';
   hbtn.style.display='none';
   trRenderMC(t);
  }else{
-  document.getElementById('tr-input-row').style.display='flex';
+  const yn=isYN(t);
+  document.getElementById('tr-input-row').style.display=yn?'none':'flex';
+  document.getElementById('tr-yn-row').style.display=yn?'flex':'none';
   hbtn.style.display='inline-block';
   document.getElementById('tr-mc').style.display='none';
-  const inp=document.getElementById('tr-ans');inp.value='';inp.disabled=false;inp.focus();
+  const inp=document.getElementById('tr-ans');inp.value='';inp.disabled=false;if(!yn)inp.focus();
  }
 }
 
