@@ -790,25 +790,8 @@ function svgMirror(shape){
  return `<svg viewBox="0 0 250 160">${axis}${body}</svg>`;
 }
 
-function checkAns(raw, correct){
- // normalizace: bez diakritiky/mezer, "," → ".", Unicode minus (−) i en-dash (–) → "-"
- const norm = s => String(s).trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,'').replace(/,/g,'.').replace(/[\u2212\u2013]/g,'-');
- const u = norm(raw), c = norm(correct);
- if(u===c) return true;
- // fraction eval
- const evalS = s => {
- if(/^-?\d+\/-?\d+$/.test(s)){const[a,b]=s.split('/');return parseFloat(a)/parseFloat(b);}
- return parseFloat(s);
- };
- const un=evalS(u), cn=evalS(c);
- // tolerance 0.016 ≈ 1/60: pokryje zaokrouhlení na 2 des. místa i periodické zlomky (1/3, 1/6…)
- if(!isNaN(un)&&!isNaN(cn)) return Math.abs(un-cn)<0.016;
- return false;
-}
-// ANO/NE úlohy: místo psaní rovnou dvě tlačítka (boj i trénink)
-function isYN(t){return !!t&&/^(ano|ne)$/i.test(String(t.ans||'').trim());}
-function answerYN(v){const i=document.getElementById('bt-ans');if(i.disabled)return;i.value=v;submitAnswer();}
-function trAnswerYN(v){const i=document.getElementById('tr-ans');if(i.disabled)return;i.value=v;trSubmit();}
+// checkAns → přesunuto do sdíleného projects/rpg-shared.js
+// isYN/answerYN/trAnswerYN → rpg-shared.js
 
 // ══════════════════════════════════════════
 // GAME DATA — AREAS
@@ -2499,6 +2482,7 @@ window.addEventListener('load',()=>{
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="./rpg-cloud.js"></script>
 <script src="./rpg-battle-6.js"></script>
+<script src="./rpg-shared.js"></script>
 <script src="./rpg-tasktypes.js"></script>
 <script src="./rpg-battle-ui.js"></script>
 <script>RPGCloud.attachGame(SAVE_KEY);</script>

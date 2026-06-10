@@ -742,21 +742,7 @@ function gcd(a,b){return b?gcd(b,a%b):Math.abs(a);}
 // české skloňování podle počtu: skl(n,'kamarád','kamarádi','kamarádů')
 const skl = (n,one,few,many) => n===1?one : (n>=2&&n<=4?few:many);
 
-function checkAns(raw, correct){
- // normalizace: bez diakritiky/mezer, "," → ".", Unicode minus (−) i en-dash (–) → "-"
- const norm = s => String(s).trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,'').replace(/,/g,'.').replace(/[\u2212\u2013]/g,'-');
- const u = norm(raw), c = norm(correct);
- if(u===c) return true;
- // fraction eval
- const evalS = s => {
- if(/^-?\d+\/-?\d+$/.test(s)){const[a,b]=s.split('/');return parseFloat(a)/parseFloat(b);}
- return parseFloat(s);
- };
- const un=evalS(u), cn=evalS(c);
- // tolerance 0.016 ≈ 1/60: pokryje zaokrouhlení na 2 des. místa i periodické zlomky (1/3, 1/6…)
- if(!isNaN(un)&&!isNaN(cn)) return Math.abs(un-cn)<0.016;
- return false;
-}
+// checkAns → přesunuto do sdíleného projects/rpg-shared.js
 // ── SVG diagramy (geometrie 8. ročníku) ──
 // Pravoúhlý trojúhelník s popisky stran: lbl={a,b,c} (např. {a:'a = 6', c:'c = ?'}).
 // Pravý úhel je u vrcholu C vlevo dole (česká konvence: c = přepona naproti C).
@@ -776,10 +762,7 @@ function svgCyl(rl,vl){
 function svgThales(abl){
  return `<svg viewBox="0 0 250 160"><path d="M 35 125 A 90 90 0 0 1 215 125" fill="#101a2e" stroke="#5dade2" stroke-width="3"/><line x1="35" y1="125" x2="215" y2="125" stroke="#f4d03f" stroke-width="2.5"/><circle cx="125" cy="125" r="3" fill="#e74c3c"/><text x="125" y="143" fill="#e74c3c" font-size="12" font-family="monospace" text-anchor="middle">S</text><circle cx="80" cy="46" r="4" fill="#2ecc71"/><line x1="35" y1="125" x2="80" y2="46" stroke="#2ecc71" stroke-width="2"/><line x1="215" y1="125" x2="80" y2="46" stroke="#2ecc71" stroke-width="2"/><text x="80" y="34" fill="#2ecc71" font-size="13" font-family="monospace" text-anchor="middle">C</text><text x="25" y="140" fill="#fff" font-size="13" font-family="monospace">A</text><text x="218" y="140" fill="#fff" font-size="13" font-family="monospace">B</text><text x="125" y="115" fill="#f4d03f" font-size="13" font-family="monospace" text-anchor="middle">${abl}</text></svg>`;
 }
-// ANO/NE úlohy: místo psaní rovnou dvě tlačítka (boj i trénink)
-function isYN(t){return !!t&&/^(ano|ne)$/i.test(String(t.ans||'').trim());}
-function answerYN(v){const i=document.getElementById('bt-ans');if(i.disabled)return;i.value=v;submitAnswer();}
-function trAnswerYN(v){const i=document.getElementById('tr-ans');if(i.disabled)return;i.value=v;trSubmit();}
+// isYN/answerYN/trAnswerYN → rpg-shared.js
 
 // ══════════════════════════════════════════
 // GAME DATA — AREAS
@@ -2742,6 +2725,7 @@ window.addEventListener('load',()=>{
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="./rpg-cloud.js"></script>
 <script src="./rpg-battle-8.js"></script>
+<script src="./rpg-shared.js"></script>
 <script src="./rpg-tasktypes.js"></script>
 <script src="./rpg-battle-ui.js"></script>
 <script>RPGCloud.attachGame(SAVE_KEY);setInterval(updateCermatChip,60000);</script>
