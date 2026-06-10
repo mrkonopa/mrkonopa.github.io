@@ -493,6 +493,7 @@ html[data-theme="violet"]{--gold:#b06cff;--panel:#100a20;--panel2:#18103a;--blue
  <div class="panel" id="map-leaderboard" style="display:none;padding:12px 14px"></div>
  <div style="display:flex;gap:8px;margin-top:12px">
   <button class="btn sm gold" style="flex:0 0 auto" onclick="go('shop')">🛍️ OBCHOD</button>
+  <button class="btn" style="flex:none" onclick="openBattle()">⚔️ ŽIVÝ SOUBOJ</button>
   <button class="btn b" style="flex:1" onclick="go('train')">🎯 TRÉNINK — procvičuj libovolné téma bez boje</button>
  </div></div>
 </div>
@@ -1544,8 +1545,11 @@ const ACH=[
  {id:'lv10',   ic:'🚀', nm:'Level 10',         desc:'Dosáhni úrovně 10'},
  {id:'master1',ic:'🏅', nm:'Mistr tématu',     desc:'1 mistrovství v tréninku'},
  {id:'train50',ic:'🎯', nm:'Trenér',           desc:'50 správných v tréninku'},
- {id:'streak3',ic:'📅', nm:'Návyk',            desc:'Hraj 3 dny v řadě'},
- {id:'streak7',ic:'🗓️', nm:'Týden disciplíny', desc:'Hraj 7 dní v řadě'},
+ {id:'streak3',     ic:'📅', nm:'Návyk',            desc:'Hraj 3 dny v řadě'},
+ {id:'streak7',     ic:'🗓️', nm:'Týden disciplíny', desc:'Hraj 7 dní v řadě'},
+ {id:'battle1',     ic:'⚔️', nm:'První klání',       desc:'Zúčastni se živého souboje'},
+ {id:'battlewin',   ic:'🏆', nm:'Bojovník',           desc:'Vyhraj živý souboj (1. místo)'},
+ {id:'battleflawless',ic:'💎',nm:'Bezchybný',        desc:'Všechny otázky správně v živém souboji'},
 ];
 function unlockAch(id){
  if(S.ach&&S.ach[id])return;
@@ -1574,6 +1578,8 @@ function evalAch(ev){
  if((st.trainCorrect||0)>=50)unlockAch('train50');
  if((S.streak&&S.streak.count||0)>=3)unlockAch('streak3');
  if((S.streak&&S.streak.count||0)>=7)unlockAch('streak7');
+ const br=ev.battleResult;
+ if(br){unlockAch('battle1');if(br.rank===1)unlockAch('battlewin');if(br.correct>=br.q_count&&br.q_count>0)unlockAch('battleflawless');}
 }
 let _achQ=[],_achBusy=false;
 function achToast(a){_achQ.push(a);if(!_achBusy)_achNext();}
@@ -1655,6 +1661,15 @@ function countDone(mid,tc){
  let n=0;for(let i=0;i<tc;i++)if(S.done[`${mid}-${i}`])n++;return n;
 }
 
+function openBattle(){
+ if(!window.RPGBattle){alert('Živý souboj se nenačetl. Zkus obnovit stránku.');return;}
+ RPGBattle.open({game:SAVE_KEY,name:S.name||'HRDINA',bank:window.RPG_BATTLE_8,onResult:function(r){
+  const base=r.rank===1?80:r.rank===2?50:r.rank===3?30:20;
+  awardXp(base+Math.min(r.correct*3,30),false);
+  earnCredits(r.rank===1?25:r.rank===2?15:r.rank===3?10:5);
+  evalAch({battleResult:r});
+ }});
+}
 function renderMap(){
  calcLevel();
  document.getElementById('map-name').textContent=S.name;
@@ -2616,6 +2631,8 @@ window.addEventListener('load',()=>{
 <script src="./rpg-wallet.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="./rpg-cloud.js"></script>
+<script src="./rpg-battle-8.js"></script>
+<script src="./rpg-battle-ui.js"></script>
 <script>RPGCloud.attachGame(SAVE_KEY);setInterval(updateCermatChip,60000);</script>
 </body>
 </html>

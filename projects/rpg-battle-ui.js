@@ -82,6 +82,7 @@
   function open(opts) {
     opts = opts || {};
     NAME = opts.name || NAME;
+    var onResult = opts.onResult || null;
     GAME = opts.game || GAME;
     BANK = opts.bank || window.RPG_BATTLE_9 || null;
     injectCss();
@@ -130,7 +131,7 @@
     shell('<div class="rpgb-sub">Zakládám místnost…</div>');
     c.createBattle(GAME, count, NAME).then(function (b) {
       if (!b || !b.id) { shell('<div class="rpgb-sub">Nepodařilo se založit souboj.</div><button class="rpgb-btn sm" onclick="RPGBattle._menu()">← zpět</button>'); return; }
-      B = { id: b.id, code: b.code, role: 'host', questions: null, lastQi: -2, picked: -1, locked: false };
+      B = { id: b.id, code: b.code, role: 'host', questions: null, lastQi: -2, picked: -1, locked: false, onResult: onResult };
       startPoll();
     });
   }
@@ -152,7 +153,7 @@
     shell('<div class="rpgb-sub">Připojuji…</div>');
     c.joinBattle(code, NAME).then(function (b) {
       if (!b || !b.id) { joinUI(); var e2 = document.getElementById('rpgb-codein'); if (e2) { e2.value = code; e2.style.borderColor = '#ff6b6b'; } return; }
-      B = { id: b.id, code: b.code, role: 'player', questions: null, lastQi: -2, picked: -1, locked: false };
+      B = { id: b.id, code: b.code, role: 'player', questions: null, lastQi: -2, picked: -1, locked: false, onResult: onResult };
       startPoll();
     });
   }
@@ -297,6 +298,21 @@
       '<button class="rpgb-btn go" style="margin-top:16px" onclick="RPGBattle._menu()">⚔️ Nový souboj</button>' +
       '<button class="rpgb-btn sm" style="display:block;width:100%" onclick="RPGBattle.close()">Zavřít</button>';
     shell(inner);
+    // Odměny: zavolej hru zpět s výsledky (XP/kredity/odznaky řeší hra, ne UI)
+    if (B && typeof B.onResult === 'function') {
+      var me = st.me;
+      var myRow = (st.players || []).find(function (p) { return p.user_id === me; });
+      var rank = players.findIndex(function (p) { return p.user_id === me; }) + 1;
+      try {
+        B.onResult({
+          rank: rank || players.length,       // 1 = vítěz
+          total: players.length,
+          correct: myRow ? (myRow.correct_count || 0) : 0,
+          score:   myRow ? (myRow.score || 0) : 0,
+          q_count: (st.battle && st.battle.q_count) || 10
+        });
+      } catch (e) {}
+    }
   }
 
   // ════════════ UČITEL: běžící souboje ════════════
