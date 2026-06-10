@@ -412,6 +412,7 @@ html[data-theme="violet"]{--gold:#b06cff;--panel:#100a20;--panel2:#18103a;--blue
 .cermat-chip{cursor:pointer;transition:filter .15s}
 .cermat-chip:hover{filter:brightness(1.35)}
 /* ── REDUCED MOTION (přístupnost) ── */
+.reduced-motion *,.reduced-motion *::before,.reduced-motion *::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
 .reduced-motion .float-txt{display:none!important}
 .reduced-motion #hit-vignette{display:none!important}
 .reduced-motion #levelup.show .lvl-bg,.reduced-motion #levelup.show .lvl-ring,.reduced-motion #levelup.show .lvl-txt,.reduced-motion #levelup.show .lvl-sub{animation:none!important;opacity:1!important;transform:none!important}
@@ -1497,8 +1498,9 @@ let GODMODE=false;
 
 function saveS(){localStorage.setItem(SAVE_KEY,JSON.stringify(S));if(window.RPGCloud&&RPGCloud.push)RPGCloud.push(SAVE_KEY,S);}
 function loadS(){const r=localStorage.getItem(SAVE_KEY);if(!r)return false;try{S=JSON.parse(r);}catch(e){return false;}if(!S||typeof S!=='object'){S={name:'HRDINA',xp:0,level:1,attrs:{calc:0,geo:0,anal:0,craft:0},done:{},inv:[],mastery:{},xpClaimed:{},teacherUnlocked:[]};return false;}if(typeof S.name!=='string')S.name='HRDINA';if(typeof S.xp!=='number'||!isFinite(S.xp))S.xp=0;if(typeof S.level!=='number'||!isFinite(S.level))S.level=1;if(!S.attrs||typeof S.attrs!=='object')S.attrs={calc:0,geo:0,anal:0,craft:0};if(!S.done||typeof S.done!=='object')S.done={};if(!Array.isArray(S.inv))S.inv=[];if(!S.mastery||typeof S.mastery!=='object')S.mastery={};if(!S.xpClaimed||typeof S.xpClaimed!=='object')S.xpClaimed={};if(!Array.isArray(S.teacherUnlocked))S.teacherUnlocked=[];if(!S.ach||typeof S.ach!=='object')S.ach={};if(!S.stats||typeof S.stats!=='object')S.stats={crits:0,trainCorrect:0,bestCombo:0};if(!S.streak||typeof S.streak!=='object')S.streak={count:0,last:''};if(!S.errs||typeof S.errs!=='object')S.errs={};if(!Array.isArray(S.errsSnap))S.errsSnap=[];if(!S.settings||typeof S.settings!=='object')S.settings={reducedMotion:false};if(typeof S.credits!=='number'||!isFinite(S.credits)||S.credits<0)S.credits=0;S.credits=Math.floor(S.credits);if(!S.cosmetics||typeof S.cosmetics!=='object')S.cosmetics={owned:['theme-default','victory-default'],active:{border:null,badge:null,theme:'theme-default',victory:'victory-default'}};if(!Array.isArray(S.cosmetics.owned))S.cosmetics.owned=['theme-default','victory-default'];if(!S.cosmetics.active||typeof S.cosmetics.active!=='object')S.cosmetics.active={border:null,badge:null,theme:'theme-default',victory:'victory-default'};if(!S.creditsClaimed||typeof S.creditsClaimed!=='object')S.creditsClaimed={};sanitizeCosmetics();if(typeof RPGWallet!=='undefined')RPGWallet.migrateFrom(SAVE_KEY,S);return true;}
-function applyMotionPref(){document.documentElement.classList.toggle('reduced-motion',(S.settings&&S.settings.reducedMotion)||false);}
-function toggleReducedMotion(on){if(!S.settings||typeof S.settings!=='object')S.settings={reducedMotion:false};S.settings.reducedMotion=on;applyMotionPref();saveS();}
+function rmActive(){return((typeof RPGWallet!=='undefined')&&RPGWallet.getReducedMotion())||(S.settings&&S.settings.reducedMotion)||false;}
+function applyMotionPref(){document.documentElement.classList.toggle('reduced-motion',rmActive());}
+function toggleReducedMotion(on){if(!S.settings||typeof S.settings!=='object')S.settings={reducedMotion:false};S.settings.reducedMotion=on;if(typeof RPGWallet!=='undefined')RPGWallet.setReducedMotion(on);applyMotionPref();saveS();}
 function calcLevel(){S.level=Math.floor(S.xp/100)+1;}
 
 // ── JUICE: XP award + level-up + floaties + vignette ──
@@ -2429,7 +2431,7 @@ function renderProfile(){
  document.getElementById('pr-ach-n').textContent=got;
  document.getElementById('pr-ach-t').textContent=ACH.length;
  }
- const rm=document.getElementById('pr-rm');if(rm)rm.checked=!!(S.settings&&S.settings.reducedMotion);
+ const rm=document.getElementById('pr-rm');if(rm)rm.checked=rmActive();
  renderCrossGames();
 }
 

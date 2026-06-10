@@ -126,6 +126,8 @@ body::before{
 .sc button.buy{background:#19e6e6;color:#06121a;border-color:#19e6e6}
 .sc button:disabled{opacity:.4;cursor:not-allowed}
 .sc .act{font-size:11px;color:#f4d03f;font-weight:700;letter-spacing:1px;padding:7px 0}
+/* přístupnost: vypnout veškerý pohyb */
+.reduced-motion *,.reduced-motion *::before,.reduced-motion *::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
 </style>
 </head>
 <body>
@@ -380,6 +382,11 @@ function toggleShop(){
 }
 function toggleGlobalVfx(checked){
  if(HUB_HAS_WALLET) RPGWallet.setReducedMotion(checked);
+ applyHubMotionPref();
+}
+function applyHubMotionPref(){
+ const on=HUB_HAS_WALLET&&RPGWallet.getReducedMotion();
+ document.documentElement.classList.toggle('reduced-motion',!!on);
 }
 
 // ── Globální profil ──
@@ -463,6 +470,7 @@ async function saveHeroRename(){
 }
 
 render();
+applyHubMotionPref();
 setTimeout(maybeShowEditBtn,200);
 </script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
