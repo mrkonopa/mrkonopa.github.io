@@ -377,6 +377,14 @@ function paintGate(){
   gate.classList.remove('hidden');con.classList.add('hidden');
   big.textContent='Cloud není nastavený';msg.textContent='Vyplň klíče v rpg-cloud.js (viz RPG-CLOUD-SETUP.md).';btn.classList.add('hidden');return;
  }
+ const err=RPGCloud.getError&&RPGCloud.getError();
+ if(err&&String(err.message||'').startsWith('timeout')){
+  gate.classList.remove('hidden');con.classList.add('hidden');
+  big.textContent='Supabase neodpovídá';
+  msg.innerHTML='Server se neozval do 8 s. Nejčastější příčina: <b>projekt je pozastavený</b> (free tier usne po týdnu nečinnosti). '+
+   'Obnov ho na <a href="https://supabase.com/dashboard/project/ovajoalbyofenjbbyhcy" target="_blank" style="color:var(--accent)">dashboardu</a> a načti stránku znovu.';
+  btn.classList.remove('hidden');btn.textContent='🔄 Zkusit znovu';btn.onclick=()=>location.reload();return;
+ }
  if(!u){
   gate.classList.remove('hidden');con.classList.add('hidden');
   big.textContent='Přihlaš se';msg.textContent='Konzole je jen pro učitele. Přihlas se školním účtem.';

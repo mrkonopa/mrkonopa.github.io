@@ -28,11 +28,25 @@ window.RPGCloud = (function () {
   function onChange(fn) { listeners.push(fn); }
   function emit() { listeners.forEach(f => { try { f(user); } catch (e) {} }); }
 
+  // Když je Supabase projekt pozastavený / nedostupný, await se nikdy nevrátí
+  // a stránka se točí donekonečna. Tahle obálka po `ms` vyhodí chybu, takže
+  // se ukáže smysluplná hláška místo nekonečného „Ověřuji přístup…".
+  function withTimeout(promise, ms, label) {
+    return Promise.race([
+      promise,
+      new Promise((_, rej) => setTimeout(
+        () => rej(new Error('timeout:' + (label || '') + ' (' + ms + 'ms)')), ms))
+    ]);
+  }
+  let lastError = null;
+  const getError = () => lastError;
+
   async function init() {
     if (!configured()) { emit(); return false; }
     try {
       client = window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
-      const { data: { session } } = await client.auth.getSession();
+      const { data: { session } } = await withTimeout(
+        client.auth.getSession(), 8000, 'getSession');
       user = session ? session.user : null;
       if (user && !emailOK(user)) {
         await client.auth.signOut();
@@ -50,7 +64,7 @@ window.RPGCloud = (function () {
       });
       emit();
       return true;
-    } catch (e) { console.warn('[RPGCloud] init selhal:', e); emit(); return false; }
+    } catch (e) { lastError = e; console.warn('[RPGCloud] init selhal:', e); emit(); return false; }
   }
 
   async function login() {
@@ -95,10 +109,11 @@ window.RPGCloud = (function () {
   async function fetchRole() {
     if (!client || !user) { role = null; return null; }
     try {
-      const { data } = await client.from('roles')
-        .select('role').eq('email', (user.email || '').toLowerCase()).maybeSingle();
+      const { data } = await withTimeout(client.from('roles')
+        .select('role').eq('email', (user.email || '').toLowerCase()).maybeSingle(),
+        8000, 'fetchRole');
       role = data ? data.role : 'student';
-    } catch (e) { console.warn('[RPGCloud] fetchRole selhal:', e); role = 'student'; }
+    } catch (e) { lastError = e; console.warn('[RPGCloud] fetchRole selhal:', e); role = 'student'; }
     return role;
   }
   const getRole   = () => role;
@@ -779,7 +794,7 @@ window.RPGCloud = (function () {
     });
   }
 
-  return { CONFIG, configured, init, login, logout, currentUser,
+  return { CONFIG, configured, init, login, logout, currentUser, getError,
            pull, push, onChange, attachGame, attachHub,
            // Fáze 2 — role a učitelská konzole
            getRole, isStaff, isAdmin, fetchRole, requireStaff,
