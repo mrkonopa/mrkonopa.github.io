@@ -8,6 +8,7 @@
 ## How Vojta operates
 - **Iterative.** He says "do this", reviews result, gives feedback, iterates. Don't try to build huge things in one shot.
 - **Token-conscious.** He's experienced you eating a 5-hour limit fast. Be efficient: small targeted Edits over big Writes, no verbose commentary, no re-reading files you've already touched in this session.
+- **NO background Agent tasks.** Never spawn Agent tasks with `run_in_background:true`. Never auto-parallelize into multiple background agents. Work sequentially in the main conversation. Vojta finds the background task panel distracting and the tasks often duplicate already-completed work.
 - **Visual quality matters.** He notices font issues, animations, layouts. If a page "feels off" he'll say so.
 - **Czech school context.** Real Czech values (CERMAT exam rates, 2025 tax sazby, real bank/service names like ČSOB, Česká pošta, Alza). Authenticity > generic.
 - **Asks you to ask.** If he writes "ptej se", use `AskUserQuestion` for 2–4 focused choices before committing to a direction.

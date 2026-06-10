@@ -28,11 +28,25 @@ window.RPGCloud = (function () {
   function onChange(fn) { listeners.push(fn); }
   function emit() { listeners.forEach(f => { try { f(user); } catch (e) {} }); }
 
+  // Když je Supabase projekt pozastavený / nedostupný, await se nikdy nevrátí
+  // a stránka se točí donekonečna. Tahle obálka po `ms` vyhodí chybu, takže
+  // se ukáže smysluplná hláška místo nekonečného „Ověřuji přístup…".
+  function withTimeout(promise, ms, label) {
+    return Promise.race([
+      promise,
+      new Promise((_, rej) => setTimeout(
+        () => rej(new Error('timeout:' + (label || '') + ' (' + ms + 'ms)')), ms))
+    ]);
+  }
+  let lastError = null;
+  const getError = () => lastError;
+
   async function init() {
     if (!configured()) { emit(); return false; }
     try {
       client = window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
-      const { data: { session } } = await client.auth.getSession();
+      const { data: { session } } = await withTimeout(
+        client.auth.getSession(), 8000, 'getSession');
       user = session ? session.user : null;
       if (user && !emailOK(user)) {
         await client.auth.signOut();
@@ -50,7 +64,7 @@ window.RPGCloud = (function () {
       });
       emit();
       return true;
-    } catch (e) { console.warn('[RPGCloud] init selhal:', e); emit(); return false; }
+    } catch (e) { lastError = e; console.warn('[RPGCloud] init selhal:', e); emit(); return false; }
   }
 
   async function login() {
@@ -95,10 +109,11 @@ window.RPGCloud = (function () {
   async function fetchRole() {
     if (!client || !user) { role = null; return null; }
     try {
-      const { data } = await client.from('roles')
-        .select('role').eq('email', (user.email || '').toLowerCase()).maybeSingle();
+      const { data } = await withTimeout(client.from('roles')
+        .select('role').eq('email', (user.email || '').toLowerCase()).maybeSingle(),
+        8000, 'fetchRole');
       role = data ? data.role : 'student';
-    } catch (e) { console.warn('[RPGCloud] fetchRole selhal:', e); role = 'student'; }
+    } catch (e) { lastError = e; console.warn('[RPGCloud] fetchRole selhal:', e); role = 'student'; }
     return role;
   }
   const getRole   = () => role;
@@ -287,22 +302,24 @@ window.RPGCloud = (function () {
     if (!client || !isStaff()) return [];
     try {
       const { data, error } = await client.from('notes')
-        .select('id,student_id,author_email,author_name,body,created_at')
+        .select('id,student_id,author_email,author_name,body,created_at,read_at,deleted_at,batch_id')
         .eq('student_id', studentId).order('created_at', { ascending: false });
       if (error) throw error;
       return data || [];
     } catch (e) { console.warn('[RPGCloud] listNotesFor selhal:', e); return []; }
   }
-  async function addNote(studentId, body) {
+  async function addNote(studentId, body, batchId) {
     if (!client || !isStaff()) return { ok: false, error: 'Nemáš oprávnění.' };
     body = String(body || '').trim();
     if (!body) return { ok: false, error: 'Napiš text poznámky.' };
     try {
-      const { error } = await client.from('notes').insert({
+      const row = {
         student_id: studentId, body,
         author_email: user.email || '',
         author_name: (user.user_metadata && user.user_metadata.full_name) || user.email || ''
-      });
+      };
+      if (batchId) row.batch_id = batchId;
+      const { error } = await client.from('notes').insert(row);
       if (error) throw error;
       return { ok: true };
     } catch (e) { return { ok: false, error: e.message }; }
@@ -315,16 +332,63 @@ window.RPGCloud = (function () {
       return { ok: true };
     } catch (e) { return { ok: false, error: e.message }; }
   }
-  // poznámky pro přihlášeného žáka (in-game „vzkazy") — RLS pustí jen vlastní
+  // „stáhnout zpět" celý hromadný vzkaz — smaže všechny řádky dané dávky.
+  // RLS pustí jen řádky, jejichž je přihlášený autorem (nebo superadmin).
+  async function deleteBroadcast(batchId) {
+    if (!client || !isStaff()) return { ok: false, error: 'Nemáš oprávnění.' };
+    if (!batchId) return { ok: false, error: 'Chybí identifikátor vzkazu.' };
+    try {
+      const { error } = await client.from('notes').delete().eq('batch_id', batchId);
+      if (error) throw error;
+      return { ok: true };
+    } catch (e) { return { ok: false, error: e.message }; }
+  }
+  // přehled odeslaných vzkazů seskupený do dávek (broadcast = 1 batch → N žáků).
+  // Vrací [{batch_id, body, author_name, created_at, total, read, deleted}], nejnovější první.
+  async function listMyBroadcasts() {
+    if (!client || !isStaff()) return [];
+    try {
+      const { data, error } = await client.from('notes')
+        .select('batch_id,body,author_name,author_email,created_at,read_at,deleted_at')
+        .eq('author_email', (user.email || '').toLowerCase())
+        .order('created_at', { ascending: false }).limit(600);
+      if (error) throw error;
+      const map = new Map();
+      (data || []).forEach(n => {
+        const k = n.batch_id || n.created_at;
+        let g = map.get(k);
+        if (!g) { g = { batch_id: k, body: n.body, author_name: n.author_name, created_at: n.created_at, total: 0, read: 0, deleted: 0 }; map.set(k, g); }
+        g.total++; if (n.read_at) g.read++; if (n.deleted_at) g.deleted++;
+        if (n.created_at < g.created_at) g.created_at = n.created_at;
+      });
+      return [...map.values()].sort((a, b) => (a.created_at < b.created_at ? 1 : -1));
+    } catch (e) { console.warn('[RPGCloud] listMyBroadcasts selhal:', e); return []; }
+  }
+  // poznámky pro přihlášeného žáka (in-game „vzkazy") — RLS pustí jen vlastní.
+  // Vrací jen nesmazané.
   async function pullMyNotes() {
     if (!client || !user) return [];
     try {
       const { data, error } = await client.from('notes')
-        .select('id,author_name,body,created_at')
-        .eq('student_id', user.id).order('created_at', { ascending: false });
+        .select('id,author_name,body,created_at,read_at')
+        .eq('student_id', user.id).is('deleted_at', null)
+        .order('created_at', { ascending: false });
       if (error) throw error;
       return data || [];
     } catch (e) { console.warn('[RPGCloud] pullMyNotes selhal:', e); return []; }
+  }
+  // žák si otevřel panel → označ všechny nepřečtené jako přečtené
+  async function markMyNotesRead() {
+    if (!client || !user) return;
+    try { await client.rpc('mark_my_notes_read'); }
+    catch (e) { console.warn('[RPGCloud] markMyNotesRead selhal:', e); }
+  }
+  // žák smaže svůj vzkaz (soft-delete; učiteli zůstane viditelný se stavem „smazáno")
+  async function deleteMyNote(noteId) {
+    if (!client || !user) return { ok: false };
+    try { const { error } = await client.rpc('soft_delete_my_note', { p_id: noteId });
+      if (error) throw error; return { ok: true }; }
+    catch (e) { console.warn('[RPGCloud] deleteMyNote selhal:', e); return { ok: false, error: e.message }; }
   }
 
   // ── FÁZE 4: žebříček třídy ──
@@ -383,29 +447,123 @@ window.RPGCloud = (function () {
       return data || [];
     } catch (e) { console.warn('[RPGCloud] listExplanations selhal:', e); return []; }
   }
+
+  // ════════════ Fáze 7 — živý souboj (Kahoot-style) ════════════
+  // Tenké wrappery nad SECURITY DEFINER RPC funkcemi (viz phase7.sql).
+  // Vše graceful: bez clienta/přihlášení vrací null/[]/false.
+  async function createBattle(game, qcount, hostName) {
+    if (!client || !user) return { error: 'Nejsi přihlášen.' };
+    try {
+      const { data, error } = await client.rpc('create_battle',
+        { p_game: game, p_qcount: qcount, p_host_name: hostName });
+      if (error) return { error: error.message || String(error) };
+      return data;
+    } catch (e) { console.warn('[RPGCloud] createBattle:', e); return { error: String(e) }; }
+  }
+  async function joinBattle(code, name) {
+    if (!client || !user) return { error: 'Nejsi přihlášen.' };
+    try {
+      const { data, error } = await client.rpc('join_battle', { p_code: code, p_name: name });
+      if (error) return { error: error.message || String(error) };
+      return data;
+    } catch (e) { console.warn('[RPGCloud] joinBattle:', e); return { error: String(e) }; }
+  }
+  async function battleState(battleId) {
+    if (!client || !user) return null;
+    try {
+      const { data, error } = await client.rpc('battle_state', { p_battle: battleId });
+      if (error) throw error; return data;
+    } catch (e) { return null; }
+  }
+  async function submitBattleAnswer(battleId, qi, correct, points) {
+    if (!client || !user) return false;
+    try {
+      const { error } = await client.rpc('submit_battle_answer',
+        { p_battle: battleId, p_qi: qi, p_correct: !!correct, p_points: Math.round(points) || 0 });
+      return !error;
+    } catch (e) { return false; }
+  }
+  async function advanceBattle(battleId, qi) {
+    if (!client || !user) return null;
+    try {
+      const { data, error } = await client.rpc('advance_battle', { p_battle: battleId, p_qi: qi });
+      if (error) throw error; return data;
+    } catch (e) { console.warn('[RPGCloud] advanceBattle:', e); return null; }
+  }
+  async function setBattleStatus(battleId, status) {
+    if (!client || !user) return null;
+    try {
+      const { data, error } = await client.rpc('set_battle_status', { p_battle: battleId, p_status: status });
+      if (error) throw error; return data;
+    } catch (e) { console.warn('[RPGCloud] setBattleStatus:', e); return null; }
+  }
+  async function listActiveBattles() {
+    if (!client || !user) return [];
+    try {
+      const { data, error } = await client.rpc('list_active_battles');
+      if (error) throw error; return data || [];
+    } catch (e) { return []; }
+  }
+  async function inviteBattleEmail(battleId, email) {
+    if (!client || !user) return false;
+    try {
+      const { error } = await client.rpc('invite_battle_email', { p_battle: battleId, p_email: email });
+      return !error;
+    } catch (e) { return false; }
+  }
+  async function myBattleInvites() {
+    if (!client || !user) return [];
+    try {
+      const { data, error } = await client.rpc('my_battle_invites');
+      if (error) throw error; return data || [];
+    } catch (e) { return []; }
+  }
+  /* Polling: zavolá cb(state) hned a pak každých intervalMs (default 1200).
+     Vrací stop() funkci. Klient tím drží živý stav bez websocketů. */
+  function pollBattle(battleId, cb, intervalMs) {
+    let stopped = false, timer = null;
+    async function tick() {
+      if (stopped) return;
+      const st = await battleState(battleId);
+      if (!stopped && st && typeof cb === 'function') { try { cb(st); } catch (e) {} }
+      if (!stopped) timer = setTimeout(tick, intervalMs || 1200);
+    }
+    tick();
+    return () => { stopped = true; if (timer) clearTimeout(timer); };
+  }
+
   // centrální vykreslení žebříčku do prvku v mapě (žádné per-game edity).
-  // Graceful: bez přihlášení / bez spolužáků / chyba ⇒ prvek se skryje.
+  // Bez cloudu/preview → skryje. Bez přihlášení → teaser. Přihlášen → reálná data.
   async function renderLeaderboardInto(elId, game) {
     const el = document.getElementById(elId);
     if (!el) return;
-    if (!client || !user || previewActive) { el.style.display = 'none'; return; }
+    if (!client || previewActive) { el.style.display = 'none'; return; }
+    const px = 'font-family:var(--px,monospace)';
+    const header = '<div style="' + px + ';font-weight:700;font-size:12px;color:var(--gold,#19e6e6);margin-bottom:8px;letter-spacing:1px">— 🏆 ŽEBŘÍČEK TŘÍDY —</div>';
+    if (!user) {
+      const ghost = ['🥇 ████████  LV ?  ??? XP', '🥈 ██████  LV ?  ??? XP', '🥉 ███████  LV ?  ??? XP'];
+      el.style.display = 'block';
+      el.innerHTML = header +
+        ghost.map(t => '<div style="' + px + ';font-size:13px;padding:5px 8px;border-radius:5px;background:rgba(255,255,255,.03);margin:3px 0;filter:blur(3.5px);user-select:none;color:var(--muted,#8895b5)">' + t + '</div>').join('') +
+        '<div style="text-align:center;margin-top:10px;' + px + ';font-size:11px;color:var(--muted,#8895b5)">Přihlas se a zjisti pořadí ve třídě<br>' +
+        '<button onclick="var b=document.getElementById(\'cloud-btn\');if(b)b.click();" style="margin-top:6px;cursor:pointer;' + px + ';font-weight:700;font-size:11px;padding:5px 10px;border-radius:4px;border:1px solid var(--blue,#5dc8f0);background:transparent;color:var(--blue,#5dc8f0)">🔑 Přihlásit</button></div>';
+      return;
+    }
     let rows = [];
     try { rows = await leaderboard(game); } catch (e) { el.style.display = 'none'; return; }
     // sám hráč bez spolužáků = jen 1 řádek (on sám) → nemá smysl ukazovat
     if (!rows || rows.length < 2) { el.style.display = 'none'; return; }
     const medal = i => (i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : (i + 1) + '.');
-    el.innerHTML =
-      '<div style="font-family:var(--px,monospace);font-weight:700;font-size:12px;color:var(--gold,#19e6e6);' +
-      'margin-bottom:8px;letter-spacing:1px">— 🏆 ŽEBŘÍČEK TŘÍDY —</div>' +
+    el.innerHTML = header +
       rows.map((r, i) =>
         '<div style="display:flex;align-items:center;gap:8px;padding:5px 8px;border-radius:5px;' +
-        'font-family:var(--px,monospace);font-size:13px;margin:3px 0;' +
+        px + ';font-size:13px;margin:3px 0;' +
         (r.is_me ? 'background:rgba(25,230,230,.14);border:1px solid var(--gold,#19e6e6)' : 'background:rgba(255,255,255,.03)') + '">' +
         '<span style="min-width:26px;text-align:center">' + medal(i) + '</span>' +
         '<span style="flex:1;color:' + (r.is_me ? 'var(--gold,#19e6e6)' : 'var(--text,#e8eaf6)') + ';font-weight:700;' +
         'overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + esc(r.display_name) + (r.is_me ? ' (ty)' : '') + '</span>' +
-        '<span style="color:var(--muted,#8895b5);font-size:11px">LV ' + (r.lvl || 1) + '</span>' +
-        '<span style="color:var(--blue,#5dc8f0);min-width:62px;text-align:right">' + (r.xp || 0) + ' XP</span>' +
+        '<span style="color:var(--muted,#8895b5);font-size:11px">LV ' + ((r.lvl || 1) | 0) + '</span>' +
+        '<span style="color:var(--blue,#5dc8f0);min-width:62px;text-align:right">' + ((r.xp || 0) | 0) + ' XP</span>' +
         '</div>'
       ).join('');
     el.style.display = 'block';
@@ -434,7 +592,11 @@ window.RPGCloud = (function () {
       '<span id="cloud-status" style="color:var(--muted,#8895b5)"></span>' +
       '<button id="cloud-btn" style="cursor:pointer;font-family:inherit;font-weight:700;font-size:12px;' +
       'padding:7px 13px;border-radius:5px;border:2px solid var(--blue,#5dc8f0);' +
-      'background:var(--blue,#5dc8f0);color:#06101e">🔑 Přihlásit přes Google</button>';
+      'background:var(--blue,#5dc8f0);color:#06101e">🔑 Přihlásit přes Google</button>' +
+      '<span style="flex-basis:100%;height:0"></span>' +
+      '<span style="font-size:11px;color:var(--muted,#8895b5)">Přihlášením souhlasíš se ' +
+      '<a href="soukromi.html" target="_blank" style="color:var(--blue,#5dc8f0)">zásadami soukromí</a> a ' +
+      '<a href="podminky.html" target="_blank" style="color:var(--blue,#5dc8f0)">podmínkami</a>.</span>';
     return b;
   }
   function paint() {
@@ -495,11 +657,23 @@ window.RPGCloud = (function () {
       btn.style.cssText = 'position:fixed;right:14px;bottom:14px;z-index:9998;background:#19e6e6;color:#06101e;border:none;border-radius:22px;padding:10px 16px;font-family:inherit;font-weight:700;font-size:14px;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.4)';
       btn.onclick = () => {
         const p = document.getElementById('rpg-notes-panel');
-        if (p) p.style.display = (p.style.display === 'none' ? 'block' : 'none');
+        if (!p) return;
+        const opening = (p.style.display === 'none');
+        p.style.display = opening ? 'block' : 'none';
+        if (opening) {                      // otevření panelu = přečteno
+          markMyNotesRead().then(() => {
+            const b = document.getElementById('rpg-notes-btn');
+            if (b) b.style.background = '#19e6e6';   // shodit „nepřečteno" zvýraznění
+            const dot = document.getElementById('rpg-notes-dot');
+            if (dot) dot.remove();
+          });
+        }
       };
       document.body.appendChild(btn);
     }
+    const unread = notes.filter(n => !n.read_at).length;
     btn.textContent = '📨 Vzkazy (' + notes.length + ')';
+    btn.style.background = unread ? '#ffb020' : '#19e6e6';   // oranžová = něco nepřečteno
     let panel = document.getElementById('rpg-notes-panel');
     if (!panel) {
       panel = document.createElement('div');
@@ -509,11 +683,23 @@ window.RPGCloud = (function () {
     }
     panel.innerHTML = '<div style="font-weight:700;color:#19e6e6;margin-bottom:8px;font-size:14px">📨 Vzkazy od učitele</div>' +
       notes.map(n =>
-        '<div style="background:#1f2740;border-radius:8px;padding:8px 10px;margin:6px 0">' +
+        '<div data-note="' + esc(n.id) + '" style="background:#1f2740;border-radius:8px;padding:8px 10px;margin:6px 0' +
+        (n.read_at ? '' : ';border-left:3px solid #ffb020') + '">' +
         '<div style="font-size:14px;line-height:1.5">' + esc(n.body) + '</div>' +
-        '<div style="font-size:11px;color:#8896a6;margin-top:5px">' + esc(n.author_name || 'učitel') + ' · ' +
-        new Date(n.created_at).toLocaleDateString('cs-CZ') + '</div></div>'
+        '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:5px">' +
+        '<span style="font-size:11px;color:#8896a6">' + esc(n.author_name || 'učitel') + ' · ' +
+        esc(new Date(n.created_at).toLocaleDateString('cs-CZ')) + '</span>' +
+        '<button class="rpg-note-del" data-del="' + esc(n.id) + '" style="background:none;border:none;color:#ff6b6b;cursor:pointer;font-size:13px;padding:2px 4px" title="smazat vzkaz">🗑</button>' +
+        '</div></div>'
       ).join('');
+    panel.querySelectorAll('.rpg-note-del').forEach(b => {
+      b.onclick = async () => {
+        const id = b.getAttribute('data-del');
+        b.disabled = true;
+        const r = await deleteMyNote(id);
+        if (r.ok) refreshNotesWidget(); else b.disabled = false;
+      };
+    });
   }
 
   /* napojení pro jednotlivou hru: lišta + stažení postavy po přihlášení.
@@ -562,25 +748,104 @@ window.RPGCloud = (function () {
           try { local = JSON.parse(localStorage.getItem(saveKey)); } catch {}
           const localDone = local && local.done ? Object.keys(local.done).length : 0;
           const cloudDone = cloud && cloud.done ? Object.keys(cloud.done).length : 0;
+
+          // Vždy sluč teacherUnlocked z cloudu i lokálu — unlock nesmí být nikdy ztracen
+          const tuSet = new Set([
+            ...(Array.isArray(cloud && cloud.teacherUnlocked) ? cloud.teacherUnlocked : []),
+            ...(Array.isArray(local && local.teacherUnlocked) ? local.teacherUnlocked : [])
+          ]);
+          const mergedTU = [...tuSet];
+
+          let chosen = null;
           if (cloud && cloudDone >= localDone) {
             // cloud je stejně pokročilý nebo lepší → přepiš lokál
+            if (mergedTU.length) cloud.teacherUnlocked = mergedTU;
             localStorage.setItem(saveKey, JSON.stringify(cloud));
-            const cp = document.getElementById('continue-panel');
-            if (cp) cp.style.display = 'block';
+            chosen = cloud;
             if (typeof onLoaded === 'function') onLoaded(cloud);
           } else if (local && localDone > 0) {
-            // lokál je pokročilejší → nahraj ho do cloudu
+            // lokál je pokročilejší → nahraj ho do cloudu (s mergnutými unlocks)
+            if (mergedTU.length) local.teacherUnlocked = mergedTU;
+            localStorage.setItem(saveKey, JSON.stringify(local));
             push(saveKey, local);
-            const cp = document.getElementById('continue-panel');
-            if (cp) cp.style.display = 'block';
+            chosen = local;
+          }
+
+          // Předvyplnit #ni jménem z libovolného existujícího save (cross-game)
+          const ni = document.getElementById('ni');
+          if (ni && !ni.value) {
+            const existingName = chosen && chosen.name ? chosen.name
+              : ['RPG_MAT_6','RPG_MAT_7','RPG_MAT_8','RPG_MAT_9']
+                  .map(k=>{ try{ const s=JSON.parse(localStorage.getItem(k)); return s&&s.name?s.name:null; }catch{return null;} })
+                  .find(n=>n && n!=='HRDINA');
+            if (existingName) ni.value = existingName;
+          }
+
+          // Doménový žák (@husovaliberec.cz): přeskočit intro obrazovku → rovnou do hry
+          const isDomain = (u.email || '').toLowerCase().endsWith('@husovaliberec.cz');
+          // Zjistit, zda hráč už hraje (není na intro obrazovce) — pokud ano, nepřerušovat
+          const introVisible = (()=>{ const s=document.getElementById('s-intro'); return s&&s.classList.contains('active'); })();
+          if (isDomain) {
+            // Předvyplnit z Google jména, pokud ještě nic není
+            if (ni && !ni.value) {
+              const gFirst = ((u.user_metadata && u.user_metadata.full_name) || '').split(' ')[0];
+              if (gFirst) ni.value = gFirst.toUpperCase().slice(0, 14);
+            }
+            if (!introVisible) {
+              // Hráč je ve hře — pouze slouč teacherUnlocked, nerušit in-memory stav
+              if (chosen && mergedTU.length && typeof window.S !== 'undefined') {
+                window.S.teacherUnlocked = mergedTU;
+                if (typeof window.saveS === 'function') window.saveS();
+                if (typeof window.renderMap === 'function') { try { window.renderMap(); } catch (e) {} }
+              }
+            } else if (chosen && typeof window.continueGame === 'function') {
+              window.continueGame();
+            } else if (!chosen && typeof window.startGame === 'function') {
+              // První přihlášení bez jakéhokoliv save — automaticky spustit
+              window.startGame();
+            }
+          } else {
+            // Nespravovaný účet: ukázat tlačítko Pokračovat
+            if (chosen) {
+              const cp = document.getElementById('continue-panel');
+              if (cp) {
+                cp.style.display = 'block';
+                // Přihlášení přes Google = save v cloudu → nelze začít znovu bez ztráty dat
+                const rb = document.getElementById('go-fresh-btn');
+                if (rb) rb.style.display = 'none';
+              }
+            }
           }
         }
       });
-      // Heartbeat: udržuje updated_at čerstvé → indikátor „online" v konzoli
-      setInterval(() => {
+      // Heartbeat: udržuje updated_at čerstvé + kontroluje teacherUnlocked ze serveru
+      setInterval(async () => {
         try {
+          if (!client || !currentUser()) return;
           const s = JSON.parse(localStorage.getItem(saveKey));
-          if (s && client && currentUser()) push(saveKey, s);
+          if (!s) return;
+          push(saveKey, s);
+          // Stáhni aktuální save ze serveru a sluč teacherUnlocked
+          const cloud = await pull(saveKey);
+          if (!cloud) return;
+          const localNow = (() => { try { return JSON.parse(localStorage.getItem(saveKey)); } catch { return null; } })();
+          const tuSet = new Set([
+            ...(Array.isArray(cloud.teacherUnlocked) ? cloud.teacherUnlocked : []),
+            ...(Array.isArray(localNow && localNow.teacherUnlocked) ? localNow.teacherUnlocked : [])
+          ]);
+          if (tuSet.size === (Array.isArray(localNow && localNow.teacherUnlocked) ? localNow.teacherUnlocked.length : 0)) return;
+          // Nové učitelské odemčení → aktualizuj in-memory stav + localStorage + překresli mapu
+          const merged = [...tuSet];
+          if (localNow) {
+            localNow.teacherUnlocked = merged;
+            localStorage.setItem(saveKey, JSON.stringify(localNow));
+            // Aktualizuj i globální S (in-memory) aby mapa ihned reagovala
+            if (typeof window.S !== 'undefined' && window.S) {
+              window.S.teacherUnlocked = merged;
+              if (typeof window.saveS === 'function') window.saveS();
+            }
+            if (typeof window.renderMap === 'function') { try { window.renderMap(); } catch (e) {} }
+          }
         } catch {}
       }, 120000);
       init().then(paint);
@@ -608,7 +873,7 @@ window.RPGCloud = (function () {
     });
   }
 
-  return { CONFIG, configured, init, login, logout, currentUser,
+  return { CONFIG, configured, init, login, logout, currentUser, getError,
            pull, push, onChange, attachGame, attachHub,
            // Fáze 2 — role a učitelská konzole
            getRole, isStaff, isAdmin, fetchRole, requireStaff,
@@ -617,9 +882,14 @@ window.RPGCloud = (function () {
            // Fáze 3 — třídy a poznámky
            listClasses, createClass, renameClass, deleteClass, updateClassMeta,
            listMemberships, addToClass, removeFromClass,
-           listNotesFor, addNote, deleteNote, pullMyNotes,
+           listNotesFor, addNote, deleteNote, deleteBroadcast, pullMyNotes,
+           listMyBroadcasts, markMyNotesRead, deleteMyNote,
            // Fáze 4 — žebříček třídy
            leaderboard, renderLeaderboardInto,
            // Fáze 6 — vysvětlení postupu
-           saveExplanation, listExplanations };
+           saveExplanation, listExplanations,
+           // Fáze 7 — živý souboj
+           createBattle, joinBattle, battleState, submitBattleAnswer,
+           advanceBattle, setBattleStatus, listActiveBattles,
+           inviteBattleEmail, myBattleInvites, pollBattle };
 })();

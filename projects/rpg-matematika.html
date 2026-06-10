@@ -161,7 +161,15 @@ body::before{
    <div class="gp-id">
     <span class="gp-av" id="gp-av">🧙</span>
     <div>
-     <div class="gp-name" id="gp-name">TY</div>
+     <div style="display:flex;align-items:center;gap:8px">
+      <div class="gp-name" id="gp-name">TY</div>
+      <button id="gp-edit-btn" onclick="startHeroRename()" title="Přejmenovat hrdinu" style="background:none;border:none;cursor:pointer;font-size:13px;color:var(--muted);padding:0 4px;display:none">✏️</button>
+     </div>
+     <div id="gp-rename" style="display:none;margin-top:4px">
+      <input id="gp-rename-in" maxlength="14" style="width:120px;background:#111;border:1px solid #555;color:#fff;padding:3px 6px;border-radius:4px;font-size:14px;text-transform:uppercase">
+      <button onclick="saveHeroRename()" style="background:var(--accent);border:none;color:#000;padding:3px 10px;border-radius:4px;cursor:pointer;font-size:12px;font-weight:700;margin-left:4px">OK</button>
+      <button onclick="cancelHeroRename()" style="background:#333;border:none;color:#aaa;padding:3px 8px;border-radius:4px;cursor:pointer;font-size:12px;margin-left:2px">✕</button>
+     </div>
      <div class="gp-sub">Tvůj společný profil pro všechny hry</div>
     </div>
    </div>
@@ -200,6 +208,25 @@ body::before{
   <div style="margin-bottom:8px"><span class="tag">TIP</span> <b>Přihlas se školním Google účtem</b> a postava se ti uloží do cloudu.</div>
   Pak ji máš u sebe na <b>všech zařízeních</b> — můžeš hrát doma i ve škole a navázat tam, kde jsi skončil. Učitel zároveň vidí pokrok celé třídy na jednom místě. Bez přihlášení se pokrok ukládá jen do tohoto prohlížeče (localStorage), takže na jiném počítači začínáš znovu.
  </div>
+
+ <!-- ══ ŽIVÝ SOUBOJ ══ -->
+ <div id="hub-battle" style="display:none;margin-top:20px">
+  <div style="background:linear-gradient(135deg,#0d1a1a,#081418);border:1px solid #19e6e6;border-radius:10px;padding:18px;position:relative;overflow:hidden">
+   <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#19e6e6,#5dc8f0)"></div>
+   <div style="font-weight:700;font-size:16px;color:#19e6e6;letter-spacing:2px;margin-bottom:6px">⚔️ ŽIVÝ SOUBOJ</div>
+   <div style="font-size:13px;color:var(--muted);margin-bottom:14px">Vyber ročníky, z nichž budou otázky. Pak založ nebo se připoj.</div>
+   <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:16px">
+    <label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-size:14px;color:var(--text)"><input type="checkbox" class="hb-grade" value="6" style="width:16px;height:16px;accent-color:#5dc8f0"> 🚀 6. roč.</label>
+    <label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-size:14px;color:var(--text)"><input type="checkbox" class="hb-grade" value="7" style="width:16px;height:16px;accent-color:#f2c14e"> ⛏️ 7. roč.</label>
+    <label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-size:14px;color:var(--text)"><input type="checkbox" class="hb-grade" value="8" style="width:16px;height:16px;accent-color:#f4d03f"> 🎓 8. roč.</label>
+    <label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-size:14px;color:var(--text)"><input type="checkbox" class="hb-grade" value="9" style="width:16px;height:16px;accent-color:#19e6e6" checked> 💻 9. roč.</label>
+   </div>
+   <div style="display:flex;gap:8px;flex-wrap:wrap">
+    <button onclick="openHubBattle('host')" class="btn" style="flex:0 0 auto;background:transparent;color:#19e6e6;border-color:#19e6e6;font-size:13px;padding:10px 16px">🎮 Založit souboj</button>
+    <button onclick="openHubBattle('join')" class="btn ghost" style="flex:0 0 auto;font-size:13px;padding:10px 16px">🔑 Připojit se kódem</button>
+   </div>
+  </div>
+ </div>
 </div>
 
 <script>
@@ -236,12 +263,12 @@ function render(){
   if(S){
    started++;
    if(HUB_HAS_WALLET) RPGWallet.absorbGame(g.key, S);
-   const lv=S.level||1, xp=S.xp||0;
+   const lv=(S.level||1)|0, xp=(S.xp||0)|0;
    const done=S.done?Object.keys(S.done).length:0;
    const arts=Array.isArray(S.inv)?S.inv.length:0;
    totXp+=xp; totTasks+=done; totArts+=arts;
    const pct=Math.min(100,Math.round(done/TOTAL_TASKS*100));
-   const attrHtml=ATTR.map(([k,ic])=>`<span class="a">${ic} <b>${(S.attrs&&S.attrs[k])||0}</b></span>`).join('');
+   const attrHtml=ATTR.map(([k,ic])=>`<span class="a">${ic} <b>${((S.attrs&&S.attrs[k])||0)|0}</b></span>`).join('');
    body=`<div class="charline"><span class="cn">👤 ${esc(S.name||'HRDINA')}</span><span class="lv">LV ${lv} · ${xp} XP</span></div>
    <div class="attrs">${attrHtml}</div>
    <div class="prog"><div class="pl"><span>POKROK</span><span>${done} / ${TOTAL_TASKS} úkolů · ${pct}%</span></div>
@@ -363,7 +390,7 @@ function renderGlobalProfile(){
  ATTR.forEach(([k])=>{ tot[k]=0; });
  GAMES.forEach(g=>{ const S=load(g.key); if(S&&S.attrs) ATTR.forEach(([k])=>{ tot[k]+=(S.attrs[k]||0); }); });
  document.getElementById('gp-attrs').innerHTML=ATTR.map(([k,ic,label])=>
-  `<span class="a">${ic} ${esc(label)}<br><b>${tot[k]}</b></span>`
+  `<span class="a">${ic} ${esc(label)}<br><b>${tot[k]|0}</b></span>`
  ).join('');
  // odznaky z všech her dohromady
  const allAch={};
@@ -372,11 +399,54 @@ function renderGlobalProfile(){
  // VFX přepínač
  const vfxCheck=document.getElementById('gp-vfx');
  if(vfxCheck) vfxCheck.checked=w.settings.reducedMotion;
+ // Edit tlačítko (jen pokud má save)
+ maybeShowEditBtn();
+}
+function maybeShowEditBtn(){
+ const hasAny=GAMES.some(g=>{try{return!!localStorage.getItem(g.key);}catch{return false;}});
+ const btn=document.getElementById('gp-edit-btn');
+ if(btn)btn.style.display=hasAny?'':'none';
 }
 
 if(HUB_HAS_WALLET) RPGWallet.onChange(()=>{ renderGlobalProfile(); renderShop(); });
 
+// Zakázaná slova (základní filtr)
+const BAD_WORDS=['kurva','kokot','pica','suka','prdel','hovno','debil','blbec','idiot','cretin','bastard','asshole','fuck','shit','cunt','dick','bitch','nigger','faggot'];
+function containsBad(str){const lo=str.toLowerCase();return BAD_WORDS.some(w=>lo.includes(w));}
+
+function startHeroRename(){
+  const nameEl=document.getElementById('gp-name');
+  const ri=document.getElementById('gp-rename-in');
+  if(ri)ri.value=nameEl.textContent!=='TY'?nameEl.textContent:'';
+  document.getElementById('gp-edit-btn').style.display='none';
+  document.getElementById('gp-rename').style.display='block';
+  if(ri){ri.focus();ri.select();}
+}
+function cancelHeroRename(){
+  document.getElementById('gp-rename').style.display='none';
+  document.getElementById('gp-edit-btn').style.display='';
+}
+async function saveHeroRename(){
+  const ri=document.getElementById('gp-rename-in');
+  const v=(ri.value||'').trim().toUpperCase().slice(0,14);
+  if(!v){ri.focus();return;}
+  if(containsBad(v)){alert('Toto jméno není povoleno. Zvol jiné.');ri.focus();return;}
+  // Ulož do všech her v localStorage
+  GAMES.forEach(g=>{
+    try{
+      const s=JSON.parse(localStorage.getItem(g.key));
+      if(s){s.name=v;localStorage.setItem(g.key,JSON.stringify(s));
+        // Odešli do cloudu (pokud existuje API)
+        if(window.RPGCloud&&RPGCloud.currentUser&&RPGCloud.currentUser())RPGCloud.push(g.key,s);
+      }
+    }catch{}
+  });
+  cancelHeroRename();
+  renderGlobalProfile();
+}
+
 render();
+setTimeout(maybeShowEditBtn,200);
 </script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="./rpg-cloud.js"></script>
@@ -388,11 +458,31 @@ function refreshLeaderboards(){
 RPGCloud.attachHub(GAMES.map(g=>g.key), ()=>{render();refreshLeaderboards();}, '.wrap');
 RPGCloud.onChange(u=>{
   const w=document.getElementById('who-where');
-  if(w) w.innerHTML = u ? 'Postavy účtu <b>'+(u.email||'')+'</b>' : 'Postavy uložené na <b>tomto zařízení</b>';
+  if(w) w.innerHTML = u ? 'Postavy účtu <b>'+esc(u.email||'')+'</b>' : 'Postavy uložené na <b>tomto zařízení</b>';
   const tl=document.getElementById('teacher-link');
   if(tl) tl.style.display = RPGCloud.isStaff() ? 'inline-block' : 'none';
   refreshLeaderboards();
 });
+</script>
+<script src="./rpg-battle-6.js"></script>
+<script src="./rpg-battle-7.js"></script>
+<script src="./rpg-battle-8.js"></script>
+<script src="./rpg-battle-9.js"></script>
+<script src="./rpg-battle-ui.js"></script>
+<script>
+if(window.RPGBattle) document.getElementById('hub-battle').style.display='';
+function openHubBattle(role){
+  if(!window.RPGBattle){alert('Živý souboj se nenačetl. Zkus obnovit stránku.');return;}
+  const grades=Array.from(document.querySelectorAll('.hb-grade:checked')).map(el=>el.value);
+  if(!grades.length){alert('Vyber aspoň jeden ročník.');return;}
+  const banks=grades.map(g=>window['RPG_BATTLE_'+g]).filter(Boolean);
+  if(!banks.length){alert('Banka otázek se nenačetla. Zkus obnovit stránku.');return;}
+  const bank=banks.length===1?banks[0]:banks;
+  const game=grades.length===1?'RPG_MAT_'+grades[0]:'RPG_MAT_MIX';
+  let playerName='HRDINA';
+  GAMES.forEach(g=>{try{const s=JSON.parse(localStorage.getItem(g.key));if(s&&s.name)playerName=s.name;}catch{}});
+  RPGBattle.open({game,name:playerName,bank,autoAction:role==='host'?'host':'join'});
+}
 </script>
 </body>
 </html>
