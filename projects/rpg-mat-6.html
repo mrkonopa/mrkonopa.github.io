@@ -6,7 +6,7 @@
 <title>RPG Matematika · 6. ročník · Vesmírná expedice</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&family=VT323&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600&family=Roboto+Mono:wght@400;700&family=VT323&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -15,6 +15,7 @@
  --text:#e8eaf6;--muted:#8896a6;
  --px:'Roboto Mono','VT323',monospace;
  --vt:'VT323',monospace;
+ --read:'Lexend','Inter','Segoe UI',system-ui,-apple-system,Arial,sans-serif;
 }
 body{background:var(--bg);color:var(--text);font-family:var(--vt);min-height:100vh;overflow-x:hidden;font-size:18px}
 /* ── STARFIELD — statické pozadí, žádný compositor layer ── */
@@ -125,16 +126,16 @@ body::before{
 .ms-item:not(.locked):hover{border-color:var(--gold)}
 .learn-section{margin-bottom:18px}
 .learn-section h3{font-family:var(--px);font-weight:700;font-size:13px;color:var(--blue);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;border-bottom:1px solid var(--gold);padding-bottom:4px}
-.learn-section p{font-family:var(--vt);font-size:19px;color:var(--text);line-height:1.55;margin-bottom:8px}
+.learn-section p{font-family:var(--read);font-size:15px;color:var(--text);line-height:1.65;margin-bottom:9px}
 .learn-formula{background:#0f1a2f;border:2px solid var(--blue);border-radius:4px;padding:12px 16px;margin:10px 0;font-family:var(--px);font-size:13px;color:var(--blue);line-height:1.8}
 .learn-formula b{color:#fff}
 .learn-example{background:var(--panel);border-left:4px solid var(--gold);padding:12px 16px;margin:10px 0;border-radius:0 6px 6px 0}
 .learn-example .ex-q{font-family:var(--px);font-weight:700;font-size:13px;color:var(--gold);margin-bottom:6px}
-.learn-example .ex-s{font-family:var(--vt);font-size:18px;color:var(--text);line-height:1.6}
+.learn-example .ex-s{font-family:var(--read);font-size:14.5px;color:var(--text);line-height:1.65}
 .learn-example .ex-s b{color:var(--green)}
 .learn-video{display:inline-flex;align-items:center;gap:8px;font-family:var(--px);font-weight:700;font-size:13px;padding:10px 16px;border:2px solid var(--red);color:var(--red);text-decoration:none;margin-top:6px;cursor:pointer;background:none;letter-spacing:.5px}
 .learn-video:hover{background:var(--red);color:#fff}
-.learn-intro{font-family:var(--vt);font-size:22px;color:var(--muted);line-height:1.5;padding:10px 14px;background:#1a1540;border:2px dashed #4a3f8a;margin-bottom:18px}
+.learn-intro{font-family:var(--read);font-size:15.5px;color:var(--muted);line-height:1.6;padding:11px 15px;background:#1a1540;border:2px dashed #4a3f8a;margin-bottom:18px}
 .learn-btn{background:none;border:2px solid var(--blue);color:var(--blue);font-family:var(--px);font-size:11px;font-weight:700;padding:4px 8px;cursor:pointer;margin-left:6px;flex-shrink:0}
 .learn-btn:hover{background:var(--blue);color:#06101e}
 .ms-num{font-family:var(--px);font-weight:700;font-size:16px;min-width:34px;text-align:center}
@@ -343,6 +344,32 @@ body::before{
 .hint-box{font-family:var(--vt);font-size:21px;padding:12px;background:#0f1a0f;border:2px solid var(--green);color:#7fe87f;margin-bottom:10px;display:none;white-space:pre-wrap;line-height:1.4}
 .hint-box.show{display:block;animation:hint-slide .35s ease-out}
 @keyframes hint-slide{0%{opacity:0;transform:translateY(-10px);max-height:0}100%{opacity:1;transform:translateY(0);max-height:300px}}
+.credits-chip{display:inline-flex;align-items:center;gap:5px;font-family:var(--px);font-size:13px;color:#f4d03f;background:#1a1500;border:2px solid #7a5c00;padding:2px 9px;border-radius:2px}
+#pr-avatar{display:inline-block;font-size:48px;line-height:1}
+#pr-avatar.av-silver{filter:drop-shadow(0 0 7px silver)}
+#pr-avatar.av-cyan{filter:drop-shadow(0 0 9px #4d9fff) drop-shadow(0 0 3px #4d9fff)}
+#pr-avatar.av-gold{filter:drop-shadow(0 0 9px #f4d03f) drop-shadow(0 0 3px #f4d03f)}
+#pr-avatar.av-holo{animation:holo-border 2.5s linear infinite}
+@keyframes holo-border{0%{filter:drop-shadow(0 0 8px #f4d03f)}25%{filter:drop-shadow(0 0 8px #4d9fff)}50%{filter:drop-shadow(0 0 8px #ff6090)}75%{filter:drop-shadow(0 0 8px #39ff9e)}100%{filter:drop-shadow(0 0 8px #f4d03f)}}
+.nm-cyan{color:#4d9fff!important}.nm-gold{color:#f4d03f!important}.nm-green{color:#39ff9e!important}.nm-purple{color:#b06cff!important}
+/* ── MAP THEMES ── */
+html[data-theme="matrix"]{--gold:#39ff9e;--panel:#0a1a0f;--panel2:#0f2215;--blue:#39e6b0}
+html[data-theme="blood"]{--gold:#ff6090;--panel:#1a0808;--panel2:#220f0f;--blue:#ff3d7f}
+html[data-theme="violet"]{--gold:#b06cff;--panel:#100a20;--panel2:#18103a;--blue:#c590ff}
+.victory-banner.vc-cyber{text-shadow:3px 3px 0 #ff3d7f,0 0 22px #ff3d7f,0 0 44px #ff3d7f}
+.victory-banner.vc-neon{text-shadow:0 0 20px #39ff9e,0 0 40px #39ff9e,0 0 80px #39ff9e}
+.shop-tabs{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
+.shop-tab{font-family:var(--px);font-size:12px;background:var(--panel2);color:var(--muted);border:1px solid #2a3450;padding:5px 10px;cursor:pointer;border-radius:2px}
+.shop-tab.on{background:var(--gold);color:#000}
+.shop-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px}
+.shop-card{background:var(--panel2);border:1px solid #2a3450;padding:10px;text-align:center;border-radius:3px}
+.shop-card.owned{border-color:var(--green)}
+.shop-card.active{border-color:var(--gold);background:#1a1500}
+.shop-ic{font-size:28px;margin-bottom:4px}
+.shop-nm{font-family:var(--px);font-size:11px;color:var(--text);margin-bottom:6px}
+.shop-pr{font-family:var(--px);font-size:11px;color:var(--muted)}
+.float-txt{position:fixed;font-family:var(--px);font-size:20px;color:#f4d03f;pointer-events:none;animation:float-up .9s ease-out forwards;z-index:9999}
+@keyframes float-up{0%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(-60px)}}
 .feedback{font-family:var(--px);font-weight:700;font-size:16px;text-align:center;padding:10px;margin-bottom:10px;display:none}
 .feedback.ok{color:var(--green);display:block}
 .feedback.err{color:var(--red);display:block;animation:shake .15s steps(2) 3}
@@ -378,6 +405,13 @@ body::before{
 .streak-chip{display:inline-flex;align-items:center;gap:5px;font-family:var(--px);font-weight:700;font-size:12px;color:#ffae3d;background:#1c1206;border:2px solid #ffae3d;padding:3px 9px;letter-spacing:.5px}
 .streak-chip .sf{animation:streak-flicker 1.4s ease-in-out infinite}
 @keyframes streak-flicker{0%,100%{transform:scale(1);filter:drop-shadow(0 0 2px #ffae3d)}50%{transform:scale(1.18);filter:drop-shadow(0 0 7px #ff7733)}}
+/* ── REDUCED MOTION (přístupnost) ── */
+.reduced-motion .float-txt{display:none!important}
+.reduced-motion #hit-vignette{display:none!important}
+.reduced-motion #levelup.show .lvl-bg,.reduced-motion #levelup.show .lvl-ring,.reduced-motion #levelup.show .lvl-txt,.reduced-motion #levelup.show .lvl-sub{animation:none!important;opacity:1!important;transform:none!important}
+.reduced-motion .victory-banner.go{animation:none!important;opacity:1!important;transform:translate(-50%,-50%)!important}
+.reduced-motion .gold-drop.go,.reduced-motion .particle.go{display:none!important}
+.reduced-motion .hit-flash.go,.reduced-motion .bt-input.player-hit,.reduced-motion .bt-monster.charge{animation:none!important}
 /* ── INTRO ── */
 .blink{animation:blink 1s steps(1) infinite}
 @keyframes blink{0%,49%{opacity:1}50%,100%{opacity:0}}
@@ -423,7 +457,7 @@ body::before{
  <div id="continue-panel" class="panel b" style="display:none">
  <div style="font-family:var(--px);font-weight:700;font-size:14px;color:var(--blue);margin-bottom:10px">POKRAČOVAT VE HŘE</div>
  <button class="btn b full" style="margin-bottom:8px" onclick="continueGame()">▶ NAČÍST ULOŽENOU HRU</button>
- <button class="btn sm" onclick="document.getElementById('continue-panel').style.display='none'">nebo začít znovu</button>
+ <button id="go-fresh-btn" class="btn sm" onclick="document.getElementById('continue-panel').style.display='none'">nebo začít znovu</button>
  </div>
  <div style="text-align:center;font-family:var(--px);font-weight:400;font-size:13px;color:var(--muted);margin-top:8px">
  STISKNI ENTER PRO START <span class="blink">▌</span>
@@ -435,13 +469,14 @@ body::before{
 <div id="s-map" class="screen">
 <div class="wrap">
  <div class="topnav">
- <span class="hl" id="map-name">HRDINA</span>
+ <span style="display:flex;align-items:center;gap:10px"><a href="rpg-matematika.html" class="btn sm" style="text-decoration:none" title="Zpět na RPG Matematika HUB">← HUB</a><span class="hl" id="map-name">HRDINA</span></span>
  <span>LV <span class="hl" id="map-lv">1</span> &nbsp; · &nbsp; XP <span class="hl" id="map-xp">0</span></span>
  <button class="btn sm" onclick="go('profile')">👤 PROFIL</button>
  </div>
  <div class="panel" style="padding:10px 14px;display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap">
  <div style="font-family:var(--px);font-weight:400;font-size:13px;color:var(--muted);letter-spacing:1px">✦ &nbsp;EXPEDITIO COSMICA&nbsp; · &nbsp;ANNUS VI&nbsp; ✦</div>
  <span class="streak-chip" id="map-streak" style="display:none"><span class="sf">🔥</span> <span id="map-streak-n">0</span> dní v řadě</span>
+ <span class="credits-chip" id="map-credits-chip">💰 <span id="map-credits">0</span> kr</span>
  </div>
  <div class="map-grid" id="map-grid"></div>
  <div class="panel" style="padding:10px 14px">
@@ -452,8 +487,29 @@ body::before{
  <div class="bar-out bar-xp"><div class="bar-in" id="map-xpbar" style="width:0%"></div></div>
  </div>
  <div class="panel" id="map-leaderboard" style="display:none;padding:12px 14px"></div>
- <button class="btn b" style="width:100%;margin-top:12px" onclick="go('train')">🎯 TRÉNINK — procvičuj libovolné téma bez boje</button>
- <a href="rpg-matematika.html" class="btn" style="display:block;width:100%;margin-top:8px;text-align:center;text-decoration:none;opacity:.7;font-size:13px">← RPG MATEMATIKA HUB</a>
+ <div style="display:flex;gap:8px;margin-top:12px">
+  <button class="btn sm gold" style="flex:0 0 auto" onclick="go('shop')">🛍️ OBCHOD</button>
+  <button class="btn" style="flex:none" onclick="openBattle()">⚔️ ŽIVÝ SOUBOJ</button>
+  <button class="btn b" style="flex:1" onclick="go('train')">🎯 TRÉNINK — procvičuj libovolné téma bez boje</button>
+ </div></div>
+</div>
+
+<!-- ══════════════ OBCHOD ══════════════ -->
+<div id="s-shop" class="screen">
+<div class="wrap">
+ <div class="topnav">
+  <button class="btn sm" onclick="go('map')">← MAPA</button>
+  <span style="font-family:var(--px);font-size:14px;color:var(--gold)">🛍️ OBCHOD</span>
+  <span class="credits-chip">💰 <span id="shop-bal">0</span> kr</span>
+ </div>
+ <p style="font-size:13px;color:var(--muted);margin-bottom:12px;line-height:1.6">Kredity získáváš za správné odpovědi v boji a za splnění misí. Kosmetika nemá vliv na hratelnost.</p>
+ <div class="shop-tabs">
+  <button class="shop-tab on" onclick="setShopCat('border',this)">🖼 Rám</button>
+  <button class="shop-tab" onclick="setShopCat('badge',this)">🏷 Jméno</button>
+  <button class="shop-tab" onclick="setShopCat('theme',this)">🎨 Téma</button>
+  <button class="shop-tab" onclick="setShopCat('victory',this)">🎉 Vítězství</button>
+ </div>
+ <div class="shop-grid" id="shop-grid"></div>
 </div>
 </div>
 
@@ -489,11 +545,20 @@ body::before{
   </div>
   <div class="bar-out bar-xp"><div class="bar-in" id="tr-msbar" style="width:0%"></div></div>
  </div>
+ <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+  <button class="btn sm b" onclick="trStartMatch()">🔗 SPOJOVAČKA</button>
+  <button class="btn sm b" onclick="trStartOrder()">↕ ŘAZENÍ</button>
+  <button class="btn sm b" onclick="trStartPexeso()">🃏 PEXESO</button>
+ </div>
  </div>
  <div class="bt-problem" id="tr-prob">...</div>
  <div class="bt-row" id="tr-input-row">
  <input id="tr-ans" class="bt-input" type="text" placeholder="?" autocomplete="off">
  <button class="btn" onclick="trSubmit()" style="white-space:nowrap">OVĚŘIT ✓</button>
+ </div>
+ <div class="bt-row" id="tr-yn-row" style="display:none">
+ <button class="btn g" style="flex:1" onclick="trAnswerYN('ANO')">✓ ANO</button>
+ <button class="btn r" style="flex:1" onclick="trAnswerYN('NE')">✗ NE</button>
  </div>
  <div class="mc-grid" id="tr-mc" style="display:none"></div>
  <div id="tr-hint-box" class="hint-box"></div>
@@ -567,9 +632,17 @@ body::before{
  <input id="bt-ans" class="bt-input" type="text" placeholder="?" autocomplete="off">
  <button class="btn" onclick="submitAnswer()" style="white-space:nowrap">ÚTOK ⚔</button>
  </div>
+ <div class="bt-row" id="yn-row" style="display:none">
+ <button class="btn g" style="flex:1" onclick="answerYN('ANO')">✓ ANO</button>
+ <button class="btn r" style="flex:1" onclick="answerYN('NE')">✗ NE</button>
+ </div>
  <div class="mc-grid" id="mc-grid" style="display:none"></div>
  <div id="hint-box" class="hint-box"></div>
  <div id="bt-fb" class="feedback"></div>
+ <div id="bt-explain" style="display:none;margin:8px 0">
+  <label style="font-size:13px;color:var(--green);opacity:.85;display:block;margin-bottom:4px">✍ Jak jsi na to přišel? <span style="opacity:.6">(volitelně, 1–2 věty)</span></label>
+  <textarea id="bt-explain-txt" rows="2" style="width:100%;box-sizing:border-box;background:#0a0a0f;color:#d0d0e0;border:1px solid var(--green);border-radius:4px;padding:6px;font-family:var(--vt);font-size:18px;resize:vertical" placeholder="Napsal jsem…"></textarea>
+ </div>
  <div style="display:flex;gap:8px;flex-wrap:wrap">
  <button class="btn sm b" id="hint-btn" onclick="showHint()">💡 NÁPOVĚDA 1/2</button>
  <button class="btn sm g" id="next-btn" style="display:none" onclick="nextTask()">DÁLE →</button>
@@ -594,11 +667,12 @@ body::before{
  </div>
  <div class="panel">
  <div style="display:flex;gap:14px;align-items:center;margin-bottom:14px">
- <div style="font-size:48px">🧙</div>
+ <div id="pr-avatar">🧙</div>
  <div>
  <div id="pr-name" style="font-family:var(--px);font-weight:700;font-size:20px;color:var(--gold);letter-spacing:1px">HRDINA</div>
  <div style="font-family:var(--px);font-weight:400;font-size:13px;color:var(--muted);margin-top:4px">ÚROVEŇ <span id="pr-lv">1</span></div>
  <div style="font-family:var(--px);font-weight:400;font-size:13px;color:var(--blue);margin-top:2px">XP: <span id="pr-xp">0</span></div>
+ <div style="font-family:var(--px);font-weight:400;font-size:13px;color:#f4d03f;margin-top:2px">💰 <span id="pr-credits">0</span> kr &nbsp;<button class="btn sm" style="font-size:11px;padding:2px 8px" onclick="go('shop')">🛍️ OBCHOD</button></div>
  </div>
  </div>
  <div style="font-family:var(--px);font-weight:700;font-size:12px;color:var(--muted);margin-bottom:10px;letter-spacing:1px">— ATRIBUTY —</div>
@@ -616,6 +690,13 @@ body::before{
  <div class="ach-grid" id="pr-ach"></div>
  </div>
  <div class="panel">
+ <div style="font-family:var(--px);font-weight:700;font-size:12px;color:var(--muted);margin-bottom:12px;letter-spacing:1px">— NASTAVENÍ ⚙️ —</div>
+ <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-family:var(--read);font-size:14px;color:var(--text)">
+  <input type="checkbox" id="pr-rm" onchange="toggleReducedMotion(this.checked)" style="width:18px;height:18px;cursor:pointer;accent-color:var(--blue)">
+  <span>Vypnout vizuální efekty<br><span style="font-size:12px;color:var(--muted)">Skryje blikání, floaty (+XP), animace výhry a poškození. Hodí se při citlivosti na pohyb.</span></span>
+ </label>
+ </div>
+ <div class="panel">
  <div style="font-family:var(--px);font-weight:700;font-size:12px;color:var(--muted);margin-bottom:10px;letter-spacing:1px">— ZÁLOHA POSTUPU —</div>
  <button class="btn sm b" onclick="exportCode()">📋 ZKOPÍROVAT KÓD</button>
  <div id="code-out" style="display:none;margin-top:10px">
@@ -623,6 +704,7 @@ body::before{
  <button class="btn sm" onclick="importPrompt()">NAČÍST KÓD</button>
  </div>
  </div>
+ <div class="panel" id="pr-allgames"></div>
 </div>
 </div>
 
@@ -708,19 +790,8 @@ function svgMirror(shape){
  return `<svg viewBox="0 0 250 160">${axis}${body}</svg>`;
 }
 
-function checkAns(raw, correct){
- const norm = s => String(s).trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,'').replace(',','.');
- const u = norm(raw), c = norm(correct);
- if(u===c) return true;
- // fraction eval
- const evalS = s => {
- if(/^-?\d+\/-?\d+$/.test(s)){const[a,b]=s.split('/');return parseFloat(a)/parseFloat(b);}
- return parseFloat(s);
- };
- const un=evalS(u), cn=evalS(c);
- if(!isNaN(un)&&!isNaN(cn)) return Math.abs(un-cn)<0.016;
- return false;
-}
+// checkAns → přesunuto do sdíleného projects/rpg-shared.js
+// isYN/answerYN/trAnswerYN → rpg-shared.js
 
 // ══════════════════════════════════════════
 // GAME DATA — AREAS
@@ -1086,14 +1157,119 @@ const ATTR_META = {
 };
 
 // ══════════════════════════════════════════
+// SHOP
+// ══════════════════════════════════════════
+const SHOP_ITEMS=[
+ {id:'border-silver',cat:'border',name:'Stříbrný rám',  ic:'🔲',price:40,  cssKey:'av-silver'},
+ {id:'border-cyan',  cat:'border',name:'Kyber modrý',   ic:'💠',price:80,  cssKey:'av-cyan'},
+ {id:'border-gold',  cat:'border',name:'Zlatý rám',     ic:'🏆',price:130, cssKey:'av-gold'},
+ {id:'border-holo',  cat:'border',name:'Hologram',      ic:'✨',price:220, cssKey:'av-holo'},
+ {id:'badge-cyan',   cat:'badge', name:'Cyan jméno',    ic:'🔵',price:60,  cssKey:'nm-cyan'},
+ {id:'badge-gold',   cat:'badge', name:'Zlaté jméno',   ic:'🌟',price:90,  cssKey:'nm-gold'},
+ {id:'badge-green',  cat:'badge', name:'Neon zelená',   ic:'🟢',price:80,  cssKey:'nm-green'},
+ {id:'badge-purple', cat:'badge', name:'Fialová',       ic:'🟣',price:120, cssKey:'nm-purple'},
+ {id:'theme-default',cat:'theme', name:'Výchozí téma',  ic:'🖤',price:0,   cssKey:''},
+ {id:'theme-matrix', cat:'theme', name:'Matrix',        ic:'🟩',price:150, cssKey:'matrix'},
+ {id:'theme-blood',  cat:'theme', name:'Red Circuit',   ic:'🔴',price:200, cssKey:'blood'},
+ {id:'theme-violet', cat:'theme', name:'Violet Hack',   ic:'🟣',price:180, cssKey:'violet'},
+ {id:'victory-default',cat:'victory',name:'Výchozí',    ic:'⚡',price:0,   cssKey:''},
+ {id:'victory-cyber',  cat:'victory',name:'Cyber výbuch',ic:'🔥',price:100, cssKey:'vc-cyber'},
+ {id:'victory-neon',   cat:'victory',name:'Neon záření', ic:'💚',price:140, cssKey:'vc-neon'},
+];
+let _shopCat='border';
+function setShopCat(cat,btn){_shopCat=cat;document.querySelectorAll('.shop-tab').forEach(b=>b.classList.remove('on'));if(btn)btn.classList.add('on');renderShop();}
+function _walletBal(){return(typeof RPGWallet!=='undefined')?RPGWallet.getCredits():(S.credits||0);}
+function _updateCreditsUI(){const b=_walletBal();const mc=document.getElementById('map-credits');if(mc)mc.textContent=b;const sb=document.getElementById('shop-bal');if(sb)sb.textContent=b;const pc=document.getElementById('pr-credits');if(pc)pc.textContent=b;}
+function earnCredits(n){
+ n=Number(n);
+ if(!isFinite(n)||n<=0)return;
+ n=Math.floor(n);
+ if(typeof RPGWallet!=='undefined'){RPGWallet.earn(n);}
+ else{if(typeof S.credits!=='number'||!isFinite(S.credits)||S.credits<0)S.credits=0;S.credits=Math.floor(S.credits)+n;saveS();}
+ _updateCreditsUI();
+ try{const r=document.createElement('div');r.className='float-txt';r.textContent='+'+n+' kr';r.style.cssText='left:50%;top:40%;transform:translateX(-50%)';document.body.appendChild(r);setTimeout(()=>r.remove(),950);}catch(e){}
+}
+function sanitizeCosmetics(){
+ if(!S.cosmetics||typeof S.cosmetics!=='object'||Array.isArray(S.cosmetics))S.cosmetics={owned:[],active:{}};
+ const valid=new Set(SHOP_ITEMS.map(i=>i.id));
+ const free=SHOP_ITEMS.filter(i=>i.price===0).map(i=>i.id);
+ let owned=Array.isArray(S.cosmetics.owned)?S.cosmetics.owned.filter(id=>valid.has(id)):[];
+ owned=[...new Set([...free,...owned])];
+ S.cosmetics.owned=owned;
+ if(!S.cosmetics.active||typeof S.cosmetics.active!=='object')S.cosmetics.active={border:null,badge:null,theme:'theme-default',victory:'victory-default'};
+ ['border','badge','theme','victory'].forEach(cat=>{
+  const id=S.cosmetics.active[cat];
+  const item=SHOP_ITEMS.find(i=>i.id===id&&i.cat===cat);
+  if(!item){S.cosmetics.active[cat]=cat==='theme'?'theme-default':cat==='victory'?'victory-default':null;return;}
+  if(item.price>0&&!owned.includes(id))S.cosmetics.active[cat]=cat==='theme'?'theme-default':cat==='victory'?'victory-default':null;
+ });
+}
+function _activeCosmetics(){return(typeof RPGWallet!=='undefined')?RPGWallet.get().cosmetics:S.cosmetics;}
+function applyCosmetics(){
+ const cos=_activeCosmetics()||S.cosmetics;
+ if(!cos)return;
+ const av=document.getElementById('pr-avatar');
+ if(av){av.className='';const b=SHOP_ITEMS.find(i=>i.id===cos.active?.border&&i.cat==='border');if(b)av.classList.add(b.cssKey);}
+ const nm=document.getElementById('pr-name');const mnm=document.getElementById('map-name');
+ ['nm-cyan','nm-gold','nm-green','nm-purple'].forEach(c=>{nm&&nm.classList.remove(c);mnm&&mnm.classList.remove(c);});
+ const bg=SHOP_ITEMS.find(i=>i.id===cos.active?.badge&&i.cat==='badge');
+ if(bg){nm&&nm.classList.add(bg.cssKey);mnm&&mnm.classList.add(bg.cssKey);}
+ const th=SHOP_ITEMS.find(i=>i.id===cos.active?.theme&&i.cat==='theme');
+ document.documentElement.dataset.theme=th&&th.cssKey?th.cssKey:'';
+ _updateCreditsUI();
+ renderShop();
+}
+function renderShop(){
+ const grid=document.getElementById('shop-grid');if(!grid)return;
+ const bal=_walletBal();
+ const items=SHOP_ITEMS.filter(i=>i.cat===_shopCat);
+ grid.innerHTML=items.map(item=>{
+  const owned=(typeof RPGWallet!=='undefined')?RPGWallet.owns(item.id)||(item.price===0):(S.cosmetics&&S.cosmetics.owned&&S.cosmetics.owned.includes(item.id))||item.price===0;
+  const active=(typeof RPGWallet!=='undefined')?RPGWallet.isActive(item.id):(S.cosmetics&&S.cosmetics.active&&S.cosmetics.active[item.cat]===item.id);
+  const canBuy=!owned&&bal>=item.price;
+  return `<div class="shop-card${active?' active':owned?' owned':''}">
+   <div class="shop-ic">${item.ic}</div>
+   <div class="shop-nm">${item.name}</div>
+   <div class="shop-pr">${item.price===0?'ZDARMA':item.price+' kr'}</div>
+   <div style="margin-top:6px">
+   ${active?`<span style="color:var(--gold);font-family:var(--px);font-size:11px">✓ AKTIVNÍ</span>`
+    :owned?`<button class="btn sm g" onclick="activateItem('${item.id}')">AKTIVOVAT</button>`
+    :`<button class="btn sm" onclick="buyItem('${item.id}')" ${canBuy?'':'disabled'} title="${!canBuy?'Nedostatek kreditů':''}">KOUPIT ${item.price} kr</button>`}
+   </div>
+  </div>`;
+ }).join('');
+}
+function buyItem(id){
+ if(typeof RPGWallet!=='undefined'){const r=RPGWallet.buy(id);if(!r.ok){alert('Nedostatek kreditů!');return;}applyCosmetics();return;}
+ const item=SHOP_ITEMS.find(i=>i.id===id);if(!item)return;
+ if(!S.cosmetics||!Array.isArray(S.cosmetics.owned))sanitizeCosmetics();
+ if(item.price===0||S.cosmetics.owned.includes(id)){activateItem(id);return;}
+ if(S.credits<item.price){alert('Nedostatek kreditů! Potřebuješ '+item.price+' kr, máš '+S.credits+' kr.');return;}
+ S.credits=Math.floor(S.credits)-item.price;
+ S.cosmetics.owned=[...new Set([...S.cosmetics.owned,id])];
+ saveS();activateItem(id);
+}
+function activateItem(id){
+ if(typeof RPGWallet!=='undefined'){RPGWallet.activate(id);applyCosmetics();renderShop();return;}
+ const item=SHOP_ITEMS.find(i=>i.id===id);if(!item)return;
+ if(!S.cosmetics||!Array.isArray(S.cosmetics.owned))sanitizeCosmetics();
+ if(item.price>0&&!S.cosmetics.owned.includes(id)){console.warn('[shop] activateItem: not owned',id);return;}
+ if(!S.cosmetics.active||typeof S.cosmetics.active!=='object')S.cosmetics.active={border:null,badge:null,theme:'theme-default',victory:'victory-default'};
+ S.cosmetics.active[item.cat]=id;
+ saveS();applyCosmetics();renderShop();
+}
+
+// ══════════════════════════════════════════
 // STATE
 // ══════════════════════════════════════════
 const SAVE_KEY = 'RPG_MAT_6';
-let S = {name:'HRDINA',xp:0,level:1,attrs:{calc:0,geo:0,anal:0,craft:0},done:{},inv:[],mastery:{},xpClaimed:{},teacherUnlocked:[],ach:{},stats:{crits:0,trainCorrect:0,bestCombo:0},streak:{count:0,last:''},errs:{}};
+let S = {name:'HRDINA',xp:0,level:1,attrs:{calc:0,geo:0,anal:0,craft:0},done:{},inv:[],mastery:{},xpClaimed:{},teacherUnlocked:[],ach:{},stats:{crits:0,trainCorrect:0,bestCombo:0},streak:{count:0,last:''},errs:{},credits:0,cosmetics:{owned:['theme-default','victory-default'],active:{border:null,badge:null,theme:'theme-default',victory:'victory-default'}},creditsClaimed:{}};
 let GODMODE=false;
 
 function saveS(){localStorage.setItem(SAVE_KEY,JSON.stringify(S));if(window.RPGCloud&&RPGCloud.push)RPGCloud.push(SAVE_KEY,S);}
-function loadS(){const r=localStorage.getItem(SAVE_KEY);if(!r)return false;try{S=JSON.parse(r);}catch(e){return false;}if(!S||typeof S!=='object'){S={name:'HRDINA',xp:0,level:1,attrs:{calc:0,geo:0,anal:0,craft:0},done:{},inv:[],mastery:{},xpClaimed:{},teacherUnlocked:[]};return false;}if(typeof S.name!=='string')S.name='HRDINA';if(typeof S.xp!=='number'||!isFinite(S.xp))S.xp=0;if(typeof S.level!=='number'||!isFinite(S.level))S.level=1;if(!S.attrs||typeof S.attrs!=='object')S.attrs={calc:0,geo:0,anal:0,craft:0};if(!S.done||typeof S.done!=='object')S.done={};if(!Array.isArray(S.inv))S.inv=[];if(!S.mastery||typeof S.mastery!=='object')S.mastery={};if(!S.xpClaimed||typeof S.xpClaimed!=='object')S.xpClaimed={};if(!Array.isArray(S.teacherUnlocked))S.teacherUnlocked=[];if(!S.ach||typeof S.ach!=='object')S.ach={};if(!S.stats||typeof S.stats!=='object')S.stats={crits:0,trainCorrect:0,bestCombo:0};if(!S.streak||typeof S.streak!=='object')S.streak={count:0,last:''};if(!S.errs||typeof S.errs!=='object')S.errs={};return true;}
+function loadS(){const r=localStorage.getItem(SAVE_KEY);if(!r)return false;try{S=JSON.parse(r);}catch(e){return false;}if(!S||typeof S!=='object'){S={name:'HRDINA',xp:0,level:1,attrs:{calc:0,geo:0,anal:0,craft:0},done:{},inv:[],mastery:{},xpClaimed:{},teacherUnlocked:[]};return false;}if(typeof S.name!=='string')S.name='HRDINA';if(typeof S.xp!=='number'||!isFinite(S.xp))S.xp=0;if(typeof S.level!=='number'||!isFinite(S.level))S.level=1;if(!S.attrs||typeof S.attrs!=='object')S.attrs={calc:0,geo:0,anal:0,craft:0};if(!S.done||typeof S.done!=='object')S.done={};if(!Array.isArray(S.inv))S.inv=[];if(!S.mastery||typeof S.mastery!=='object')S.mastery={};if(!S.xpClaimed||typeof S.xpClaimed!=='object')S.xpClaimed={};if(!Array.isArray(S.teacherUnlocked))S.teacherUnlocked=[];if(!S.ach||typeof S.ach!=='object')S.ach={};if(!S.stats||typeof S.stats!=='object')S.stats={crits:0,trainCorrect:0,bestCombo:0};if(!S.streak||typeof S.streak!=='object')S.streak={count:0,last:''};if(!S.errs||typeof S.errs!=='object')S.errs={};if(!Array.isArray(S.errsSnap))S.errsSnap=[];if(!S.settings||typeof S.settings!=='object')S.settings={reducedMotion:false};if(typeof S.credits!=='number'||!isFinite(S.credits)||S.credits<0)S.credits=0;S.credits=Math.floor(S.credits);if(!S.cosmetics||typeof S.cosmetics!=='object')S.cosmetics={owned:['theme-default','victory-default'],active:{border:null,badge:null,theme:'theme-default',victory:'victory-default'}};if(!Array.isArray(S.cosmetics.owned))S.cosmetics.owned=['theme-default','victory-default'];if(!S.cosmetics.active||typeof S.cosmetics.active!=='object')S.cosmetics.active={border:null,badge:null,theme:'theme-default',victory:'victory-default'};if(!S.creditsClaimed||typeof S.creditsClaimed!=='object')S.creditsClaimed={};sanitizeCosmetics();if(typeof RPGWallet!=='undefined')RPGWallet.migrateFrom(SAVE_KEY,S);return true;}
+function applyMotionPref(){document.documentElement.classList.toggle('reduced-motion',(S.settings&&S.settings.reducedMotion)||false);}
+function toggleReducedMotion(on){if(!S.settings||typeof S.settings!=='object')S.settings={reducedMotion:false};S.settings.reducedMotion=on;applyMotionPref();saveS();}
 function calcLevel(){S.level=Math.floor(S.xp/100)+1;}
 
 // ── JUICE: XP award + level-up + floaties + vignette ──
@@ -1174,8 +1350,11 @@ const ACH=[
  {id:'lv10',   ic:'🚀', nm:'Level 10',         desc:'Dosáhni úrovně 10'},
  {id:'master1',ic:'🏅', nm:'Mistr tématu',     desc:'1 mistrovství v tréninku'},
  {id:'train50',ic:'🎯', nm:'Trenér',           desc:'50 správných v tréninku'},
- {id:'streak3',ic:'📅', nm:'Návyk',            desc:'Hraj 3 dny v řadě'},
- {id:'streak7',ic:'🗓️', nm:'Týden disciplíny', desc:'Hraj 7 dní v řadě'},
+ {id:'streak3',     ic:'📅', nm:'Návyk',            desc:'Hraj 3 dny v řadě'},
+ {id:'streak7',     ic:'🗓️', nm:'Týden disciplíny', desc:'Hraj 7 dní v řadě'},
+ {id:'battle1',     ic:'⚔️', nm:'První klání',       desc:'Zúčastni se živého souboje'},
+ {id:'battlewin',   ic:'🏆', nm:'Bojovník',           desc:'Vyhraj živý souboj (1. místo)'},
+ {id:'battleflawless',ic:'💎',nm:'Bezchybný',        desc:'Všechny otázky správně v živém souboji'},
 ];
 function unlockAch(id){
  if(S.ach&&S.ach[id])return;
@@ -1204,6 +1383,8 @@ function evalAch(ev){
  if((st.trainCorrect||0)>=50)unlockAch('train50');
  if((S.streak&&S.streak.count||0)>=3)unlockAch('streak3');
  if((S.streak&&S.streak.count||0)>=7)unlockAch('streak7');
+ const br=ev.battleResult;
+ if(br){unlockAch('battle1');if(br.rank===1)unlockAch('battlewin');if(br.correct>=br.q_count&&br.q_count>0)unlockAch('battleflawless');}
 }
 let _achQ=[],_achBusy=false;
 function achToast(a){_achQ.push(a);if(!_achBusy)_achNext();}
@@ -1222,6 +1403,7 @@ function touchStreak(){
  const y=new Date(Date.now()-864e5).toISOString().slice(0,10);
  S.streak.count=(S.streak.last===y)?(S.streak.count||0)+1:1;
  S.streak.last=today;saveS();evalAch({});
+ const sc=S.streak.count;earnCredits(sc>=7?20:sc>=3?10:5);
 }
 
 // ══════════════════════════════════════════
@@ -1233,6 +1415,7 @@ function go(name){
  window.scrollTo(0,0);
  if(name==='map')renderMap();
  if(name==='profile')renderProfile();
+ if(name==='shop')renderShop();
  if(name==='train')renderTrainPicker();
 }
 
@@ -1242,9 +1425,10 @@ function go(name){
 function startGame(){
  const v=document.getElementById('ni').value.trim().toUpperCase().slice(0,14);
  S.name=v||'HRDINA';
- saveS();touchStreak();go('map');
+ saveS();touchStreak();applyMotionPref();applyCosmetics();go('map');
 }
-function continueGame(){if(loadS()){touchStreak();go('map');}}
+function snapErrs(){if(!Array.isArray(S.errsSnap))S.errsSnap=[];const t=new Date().toISOString().slice(0,10);const last=S.errsSnap[S.errsSnap.length-1];if(last&&(new Date(t)-new Date(last.t))/864e5<7)return;const c={};for(const k in(S.errs||{}))if(S.errs[k]>0)c[k]=S.errs[k];S.errsSnap.push({t,errs:c});if(S.errsSnap.length>12)S.errsSnap=S.errsSnap.slice(-12);saveS();}
+function continueGame(){if(loadS()){snapErrs();touchStreak();applyMotionPref();applyCosmetics();go('map');}}
 
 // ══════════════════════════════════════════
 // MAP
@@ -1265,6 +1449,15 @@ function countDone(mid,tc){
  let n=0;for(let i=0;i<tc;i++)if(S.done[`${mid}-${i}`])n++;return n;
 }
 
+function openBattle(){
+ if(!window.RPGBattle){alert('Živý souboj se nenačetl. Zkus obnovit stránku.');return;}
+ RPGBattle.open({game:SAVE_KEY,name:S.name||'HRDINA',bank:window.RPG_BATTLE_6,onResult:function(r){
+  const base=r.rank===1?80:r.rank===2?50:r.rank===3?30:20;
+  awardXp(base+Math.min(r.correct*3,30),false);
+  earnCredits(r.rank===1?25:r.rank===2?15:r.rank===3?10:5);
+  evalAch({battleResult:r});
+ }});
+}
 function renderMap(){
  calcLevel();
  document.getElementById('map-name').textContent=S.name;
@@ -1302,20 +1495,20 @@ let curArea=null;
 function openArea(aid){
  const ar=AREAS.find(a=>a.id===aid);
  curArea=ar;
- document.getElementById('area-title-sm').textContent=ar.name.replace('\n',' ');
+ document.getElementById('area-title-sm').textContent=ar.name.replace(/\n/g,' ');
  const hd=document.getElementById('area-head');
  const artHave=S.inv.includes(ar.art.id);
  hd.innerHTML=`
  <div style="display:flex;gap:14px;align-items:center">
  <div style="font-size:42px">${ar.icon}</div>
  <div>
- <div style="font-family:var(--px);font-weight:700;font-size:17px;color:var(--gold);letter-spacing:.5px">${ar.name.replace('\n',' ')}</div>
+ <div style="font-family:var(--px);font-weight:700;font-size:17px;color:var(--gold);letter-spacing:.5px">${ar.name.replace(/\n/g,' ')}</div>
  <div style="font-family:var(--vt);font-size:21px;color:var(--muted);margin-top:4px;line-height:1.3">${ar.desc}</div>
  </div>
  </div>
  <div style="margin-top:12px;display:flex;align-items:center;gap:10px;padding-top:10px;border-top:2px solid var(--panel2)">
  <div style="font-size:26px">${ar.art.ic}</div>
- <div style="font-family:var(--px);font-weight:400;font-size:12px;color:var(--muted);line-height:1.3">Artefakt oblasti:<br><span style="color:var(--gold);font-weight:700">${ar.art.nm.replace('\n',' ')}</span></div>
+ <div style="font-family:var(--px);font-weight:400;font-size:12px;color:var(--muted);line-height:1.3">Artefakt oblasti:<br><span style="color:var(--gold);font-weight:700">${ar.art.nm.replace(/\n/g,' ')}</span></div>
  ${artHave?'<div style="margin-left:auto;font-family:var(--px);font-weight:700;font-size:13px;color:var(--gold)">✓ ZÍSKÁNO</div>':''}
  </div>`;
  const ml=document.getElementById('mission-list');
@@ -1439,8 +1632,23 @@ function launchBattle(aid,mid){
  void mon.offsetWidth;
  mon.classList.add('enter');
  setTimeout(()=>{mon.classList.remove('enter');mon.classList.add(Math.random()<.5?'idle':'idle-2');},560);
+ setTimeout(introStrike,660);
  renderTask();
  go('battle');
+}
+
+function introStrike(){
+ const mon=document.getElementById('bt-mon');
+ const top=document.getElementById('bt-top');
+ const flash=document.getElementById('hit-flash');
+ if(!mon||!top||!flash)return;
+ mon.classList.remove('idle','idle-2');
+ void mon.offsetWidth;
+ mon.classList.add('hit');
+ top.classList.add('shake');
+ flash.classList.remove('go');void flash.offsetWidth;flash.classList.add('go');
+ spawnParticles();
+ setTimeout(()=>{mon.classList.remove('hit');top.classList.remove('shake');mon.classList.add(Math.random()<.5?'idle':'idle-2');},550);
 }
 
 function retryMission(){
@@ -1577,18 +1785,23 @@ function renderTask(){
  document.getElementById('hint-btn').textContent='💡 NÁPOVĚDA 1/2';
  document.getElementById('hint-btn').disabled=false;
  document.getElementById('next-btn').style.display='none';
+ document.getElementById('bt-explain').style.display='none';
+ document.getElementById('bt-explain-txt').value='';
  // input vs multiple choice
  if(BT.mcMode){
  document.getElementById('bt-input-row').style.display='none';
+ document.getElementById('yn-row').style.display='none';
  document.getElementById('hint-btn').style.display='none';
  renderMC(t);
  }else{
- document.getElementById('bt-input-row').style.display='flex';
+ const yn=isYN(t);
+ document.getElementById('bt-input-row').style.display=yn?'none':'flex';
+ document.getElementById('yn-row').style.display=yn?'flex':'none';
  document.getElementById('hint-btn').style.display='inline-block';
  document.getElementById('mc-grid').style.display='none';
  document.getElementById('bt-ans').value='';
  document.getElementById('bt-ans').disabled=false;
- document.getElementById('bt-ans').focus();
+ if(!yn)document.getElementById('bt-ans').focus();
  }
  startTimer();
 }
@@ -1640,13 +1853,12 @@ function submitMC(opt,btn){
  const fb=document.getElementById('bt-fb');
  fb.textContent=firstTime?((isCrit?'✓✓ KRITICKÝ ZÁSAH! +':'✓ SPRÁVNĚ! +')+xpGain+' XP'):'✓ SPRÁVNĚ! (mise už splněna — bez XP)';
  fb.className='feedback ok';
- if(firstTime){awardXp(xpGain,isCrit);if(t.skill&&S.attrs[t.skill]!==undefined)S.attrs[t.skill]+=3;S.xpClaimed[xpKey]=true;}
+ if(firstTime){awardXp(xpGain,isCrit);if(t.skill&&S.attrs[t.skill]!==undefined)S.attrs[t.skill]+=3;S.xpClaimed[xpKey]=true;earnCredits(isCrit?7:5);tryDropItem();}
  S.done[`${BT.mid}-${BT.idx}`]=true;
  saveS();
  document.getElementById('next-btn').style.display='inline-block';
  damageMonster(xpGain,isCrit);
  updateCombo();
- tryDropItem();
  if(!S.stats)S.stats={};if(BT.combo>(S.stats.bestCombo||0))S.stats.bestCombo=BT.combo;
  evalAch({correct:true,combo:BT.combo,timeLeft:BT.timeLeft});
  checkMissionComplete();
@@ -1836,15 +2048,15 @@ function submitAnswer(){
  const xpGain=firstTime?Math.max(3,10-BT.hl*3)*(isCrit?2:1):0;
  fb.textContent=firstTime?((isCrit?'✓✓ KRITICKÝ ZÁSAH! +':'✓ SPRÁVNĚ! +')+xpGain+' XP'):'✓ SPRÁVNĚ! (mise už splněna — bez XP)';
  fb.className='feedback ok';
- if(firstTime){awardXp(xpGain,isCrit);if(t.skill&&S.attrs[t.skill]!==undefined)S.attrs[t.skill]+=3;S.xpClaimed[xpKey]=true;}
+ if(firstTime){awardXp(xpGain,isCrit);if(t.skill&&S.attrs[t.skill]!==undefined)S.attrs[t.skill]+=3;S.xpClaimed[xpKey]=true;earnCredits(isCrit?7:5);tryDropItem();}
  S.done[`${BT.mid}-${BT.idx}`]=true;
  saveS();
  document.getElementById('bt-ans').disabled=true;
  document.getElementById('hint-btn').disabled=true;
  document.getElementById('next-btn').style.display='inline-block';
+ if(!BT.mcMode)document.getElementById('bt-explain').style.display='block';
  damageMonster(xpGain,isCrit);
  updateCombo();
- tryDropItem();
  if(!S.stats)S.stats={};if(BT.combo>(S.stats.bestCombo||0))S.stats.bestCombo=BT.combo;
  evalAch({correct:true,combo:BT.combo,timeLeft:BT.timeLeft});
  checkMissionComplete();
@@ -1877,6 +2089,11 @@ function showHint(){
 }
 
 function nextTask(){
+ const explTxt=(document.getElementById('bt-explain-txt').value||'').trim();
+ if(explTxt&&typeof RPGCloud!=='undefined'&&RPGCloud.saveExplanation){
+  const t=BT.curTask;
+  RPGCloud.saveExplanation('RPG_MAT_6',BT.mid,BT.idx,t?t.text:'',t?t.ans:'',explTxt);
+ }
  let nxt=-1;
  for(let i=BT.idx+1;i<BT.tasks.length;i++){if(!S.done[`${BT.mid}-${i}`]){nxt=i;break;}}
  if(nxt>=0){BT.idx=nxt;renderTask();}
@@ -1890,6 +2107,8 @@ function checkMissionComplete(){
  const m=ar.missions.find(x=>x.id===BT.mid);
  const allDn=BT.tasks.every((_,i)=>S.done[`${m.id}-${i}`]);
  if(allDn){
+ if(!S.creditsClaimed)S.creditsClaimed={};
+ if(!S.creditsClaimed[BT.mid]){S.creditsClaimed[BT.mid]=true;earnCredits(15);}
  // boss poražen — vítězná sekvence (synchro s defeat animací)
  setTimeout(victoryBurst,650);
  evalAch({flawlessMission:!BT.missionHinted,wonAtOneHp:BT.hp===1});
@@ -1897,7 +2116,7 @@ function checkMissionComplete(){
  S.inv.push(ar.art.id);
  Object.entries(ar.attrGain).forEach(([k,v])=>{if(S.attrs[k]!==undefined)S.attrs[k]+=v;});
  saveS();
- setTimeout(()=>showModal(ar.art.ic,'OBLAST SPLNĚNA!',`Získal jsi artefakt:\n${ar.art.nm.replace('\n',' ')}!\n\n+${Object.entries(ar.attrGain).map(([k,v])=>v+' '+ATTR_META[k].ic).join(' ')}`),1700);
+ setTimeout(()=>showModal(ar.art.ic,'OBLAST SPLNĚNA!',`Získal jsi artefakt:\n${ar.art.nm.replace(/\n/g,' ')}!\n\n+${Object.entries(ar.attrGain).map(([k,v])=>v+' '+ATTR_META[k].ic).join(' ')}`),1700);
  }
  }
 }
@@ -1905,6 +2124,27 @@ function checkMissionComplete(){
 // ══════════════════════════════════════════
 // PROFILE
 // ══════════════════════════════════════════
+const ALL_GAMES=[
+ {key:'RPG_MAT_6',ic:'🚀',nm:'6. ročník – Vesmírná expedice'},
+ {key:'RPG_MAT_7',ic:'⛏️',nm:'7. ročník – Ztracený chrám'},
+ {key:'RPG_MAT_8',ic:'🎓',nm:'8. ročník – Mat. akademie'},
+ {key:'RPG_MAT_9',ic:'💻',nm:'9. ročník – NULL_BYTE'},
+];
+function renderCrossGames(){
+ const el=document.getElementById('pr-allgames');if(!el)return;
+ let html='<div style="font-family:var(--px);font-weight:700;font-size:12px;color:var(--muted);margin-bottom:10px;letter-spacing:1px">— PŘEHLED VŠECH HER —</div>';
+ ALL_GAMES.forEach(g=>{
+  let s=null;try{s=JSON.parse(localStorage.getItem(g.key));}catch{}
+  const cur=g.key===SAVE_KEY;
+  html+='<div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--line)'+(cur?';font-weight:700':'')+'">' +
+   '<span style="font-size:16px">'+g.ic+'</span>'+
+   '<span style="flex:1;font-size:12px;color:'+(cur?'#fff':'var(--muted)')+'">'+g.nm+(cur?' ◀':'')+'</span>'+
+   (s?'<span style="font-size:12px;color:var(--gold)">LV '+((s.level||1)|0)+' · '+((s.xp||0)|0)+' XP</span>':'<span style="font-size:11px;color:var(--muted)">—</span>')+
+  '</div>';
+ });
+ html+='<a href="rpg-matematika.html" style="display:block;margin-top:10px;color:var(--blue);font-size:12px;font-family:var(--px);text-align:center">🌐 Velitelské centrum – přehled a obchod pro všechny hry</a>';
+ el.innerHTML=html;
+}
 function renderProfile(){
  calcLevel();
  document.getElementById('pr-name').textContent=S.name;
@@ -1913,7 +2153,7 @@ function renderProfile(){
  const el=document.getElementById('pr-attrs');
  el.innerHTML='';
  Object.entries(ATTR_META).forEach(([k,m])=>{
- const v=S.attrs[k]||0,pct=Math.min(100,v);
+ const v=(S.attrs[k]||0)|0,pct=Math.min(100,v)|0;
  const row=document.createElement('div');
  row.className='attr-row';
  row.innerHTML=`<div class="attr-ic">${m.ic}</div><div class="attr-nm">${m.nm}</div>
@@ -1945,6 +2185,8 @@ function renderProfile(){
  document.getElementById('pr-ach-n').textContent=got;
  document.getElementById('pr-ach-t').textContent=ACH.length;
  }
+ const rm=document.getElementById('pr-rm');if(rm)rm.checked=!!(S.settings&&S.settings.reducedMotion);
+ renderCrossGames();
 }
 
 function exportCode(){
@@ -1956,7 +2198,7 @@ function exportCode(){
 function importPrompt(){
  const c=prompt('Vlož zálohovací kód:');
  if(!c)return;
- try{S=JSON.parse(decodeURIComponent(escape(atob(c))));if(!S.mastery)S.mastery={};if(!S.teacherUnlocked)S.teacherUnlocked=[];if(!S.ach)S.ach={};if(!S.stats)S.stats={crits:0,trainCorrect:0,bestCombo:0};if(!S.streak)S.streak={count:0,last:''};if(!S.errs)S.errs={};saveS();renderProfile();alert('Načteno!');}
+ try{S=JSON.parse(decodeURIComponent(escape(atob(c))));if(!S.mastery)S.mastery={};if(!S.teacherUnlocked)S.teacherUnlocked=[];if(!S.ach)S.ach={};if(!S.stats)S.stats={crits:0,trainCorrect:0,bestCombo:0};if(!S.streak)S.streak={count:0,last:''};if(!S.errs)S.errs={};if(!Array.isArray(S.errsSnap))S.errsSnap=[];if(typeof S.credits!=='number'||!isFinite(S.credits)||S.credits<0)S.credits=0;S.credits=Math.floor(S.credits);if(!S.cosmetics||typeof S.cosmetics!=='object')S.cosmetics={owned:['theme-default','victory-default'],active:{border:null,badge:null,theme:'theme-default',victory:'victory-default'}};if(!S.creditsClaimed||typeof S.creditsClaimed!=='object')S.creditsClaimed={};sanitizeCosmetics();saveS();applyCosmetics();renderProfile();alert('Načteno!');}
  catch(e){alert('Chybný kód.');}
 }
 
@@ -1991,13 +2233,13 @@ function renderTrainPicker(){
   const sec=document.createElement('div');
   sec.className='panel';
   sec.style.marginTop='12px';
-  let html=`<div style="font-family:var(--px);font-weight:700;font-size:14px;color:var(--gold);margin-bottom:8px">${ar.icon} ${ar.name.replace('\n',' ')}</div>`;
+  let html=`<div style="font-family:var(--px);font-weight:700;font-size:14px;color:var(--gold);margin-bottom:8px">${ar.icon} ${ar.name.replace(/\n/g,' ')}</div>`;
   ar.missions.forEach(m=>{
    const ms=masteryOf(m.id);
-   const pct=Math.min(100,Math.round(ms.score/MASTERY_GOAL*100));
+   const pct=Math.min(100,Math.round((ms.score|0)/MASTERY_GOAL*100))|0;
    html+=`<button class="ms-item avail" style="width:100%;text-align:left;border:none;cursor:pointer" onclick="startTrain('${m.id}')">
      <div style="flex:1"><div class="ms-name">${ms.mastered?'🏅 ':''}${m.name}</div>
-     <div class="ms-sub">${m.sub} · ${ms.mastered?'mistrovství splněno':ms.score+' / '+MASTERY_GOAL}</div>
+     <div class="ms-sub">${m.sub} · ${ms.mastered?'mistrovství splněno':(ms.score|0)+' / '+MASTERY_GOAL}</div>
      <div class="bar-out bar-xp" style="margin-top:6px;height:6px"><div class="bar-in" style="width:${pct}%"></div></div></div>
      <div style="font-size:16px;margin-left:8px">${ms.mastered?'🏅':'🎯'}</div></button>`;
   });
@@ -2040,13 +2282,16 @@ function trRender(){
  hbtn.textContent='💡 NÁPOVĚDA 1/2';hbtn.disabled=false;
  if(TR.m.mc){
   document.getElementById('tr-input-row').style.display='none';
+  document.getElementById('tr-yn-row').style.display='none';
   hbtn.style.display='none';
   trRenderMC(t);
  }else{
-  document.getElementById('tr-input-row').style.display='flex';
+  const yn=isYN(t);
+  document.getElementById('tr-input-row').style.display=yn?'none':'flex';
+  document.getElementById('tr-yn-row').style.display=yn?'flex':'none';
   hbtn.style.display='inline-block';
   document.getElementById('tr-mc').style.display='none';
-  const inp=document.getElementById('tr-ans');inp.value='';inp.disabled=false;inp.focus();
+  const inp=document.getElementById('tr-ans');inp.value='';inp.disabled=false;if(!yn)inp.focus();
  }
 }
 
@@ -2079,6 +2324,57 @@ function trSubmit(){
  else trWrong(v);
 }
 
+// sloučený pool mise (základ + rozšiřující banka) — pro speciální režimy
+function trPool(){
+ let pool=TR.m.tasks();
+ const ex=window.RPG_TASK_EXTRA_6;
+ if(ex && typeof ex[TR.mid]==='function'){try{pool=pool.concat(ex[TR.mid]());}catch(e){}}
+ return pool;
+}
+function trStartMatch(){
+ if(!window.RPGTaskTypes||!TR.m)return;
+ const pairs=RPGTaskTypes.pickPairs(trPool(),4);
+ const fb=document.getElementById('tr-fb');
+ if(!pairs){fb.className='feedback err';fb.textContent='Pro toto téma se spojovačka nedá sestavit.';return;}
+ trSpecialBegin();
+ RPGTaskTypes.renderMatch(document.getElementById('tr-prob'),pairs,trSpecialDone);
+}
+function trStartOrder(){
+ if(!window.RPGTaskTypes||!TR.m)return;
+ const items=RPGTaskTypes.pickOrderItems(trPool(),5);
+ const fb=document.getElementById('tr-fb');
+ if(!items){fb.className='feedback err';fb.textContent='Pro toto téma se řazení nedá sestavit.';return;}
+ trSpecialBegin();
+ RPGTaskTypes.renderOrder(document.getElementById('tr-prob'),items,trSpecialDone);
+}
+function trStartPexeso(){
+ if(!window.RPGTaskTypes||!TR.m)return;
+ // kratší texty (karty jsou malé); pexeso má 2 „omluvené" chyby z paměti
+ const pairs=RPGTaskTypes.pickPairs(trPool(),4,80);
+ const fb=document.getElementById('tr-fb');
+ if(!pairs){fb.className='feedback err';fb.textContent='Pro toto téma se pexeso nedá sestavit (texty úloh jsou moc dlouhé).';return;}
+ trSpecialBegin();
+ RPGTaskTypes.renderPexeso(document.getElementById('tr-prob'),pairs,m=>trSpecialDone(Math.max(0,m-2)));
+}
+function trSpecialBegin(){
+ TR.task={ans:'',skill:null,hints:[]};
+ document.getElementById('tr-input-row').style.display='none';
+ document.getElementById('tr-yn-row').style.display='none';
+ document.getElementById('tr-mc').style.display='none';
+ document.getElementById('tr-hint-btn').style.display='none';
+ document.getElementById('tr-next-btn').style.display='none';
+ const fb=document.getElementById('tr-fb');fb.className='feedback';fb.textContent='';
+ const hb=document.getElementById('tr-hint-box');hb.textContent='';hb.classList.remove('show');
+}
+function trSpecialDone(mistakes){
+ if(mistakes===0){trCorrect();}
+ else{
+  TR.total++;TR.streak=0;trStats();
+  const fb=document.getElementById('tr-fb');fb.className='feedback err';
+  fb.textContent='Hotovo — ale s '+mistakes+' '+skl(mistakes,'chybou','chybami','chybami')+'. Bod za mistrovství jen bez chyb!';
+ }
+ document.getElementById('tr-next-btn').style.display='inline-block';
+}
 function trCorrect(){
  TR.correct++;TR.total++;TR.streak++;
  const m=S.mastery[TR.mid]||(S.mastery[TR.mid]={score:0,mastered:false});
@@ -2092,7 +2388,9 @@ function trCorrect(){
  calcLevel();evalAch({});
  const fb=document.getElementById('tr-fb');
  fb.className='feedback ok';
- fb.textContent=(!wasMastered&&m.mastered)?'🏅 MISTROVSTVÍ SPLNĚNO! +3 XP':'✓ SPRÁVNĚ! +3 XP';
+ if(!wasMastered&&m.mastered){earnCredits(30);fb.textContent='🏅 MISTROVSTVÍ SPLNĚNO! +3 XP +30 kr';}
+ else if(!wasMastered){earnCredits(1);fb.textContent='✓ SPRÁVNĚ! +3 XP +1 kr';}
+ else{fb.textContent='✓ SPRÁVNĚ! +3 XP';}
  document.getElementById('tr-hint-btn').disabled=true;
  document.getElementById('tr-next-btn').style.display='inline-block';
  document.getElementById('tr-next-btn').focus();
@@ -2101,6 +2399,7 @@ function trCorrect(){
 
 function trWrong(given){
  TR.total++;TR.streak=0;
+ if(!S.errs)S.errs={};if(TR.mid){S.errs[TR.mid]=(S.errs[TR.mid]||0)+1;saveS();}
  const fb=document.getElementById('tr-fb');
  fb.className='feedback err';
  fb.textContent='✗ Není to ono. Správně: '+TR.task.ans;
@@ -2179,8 +2478,13 @@ window.addEventListener('load',()=>{
 </script>
 <script src="./rpg-tasks-6.js"></script>
 <script src="./rpg-learn-6.js"></script>
+<script src="./rpg-wallet.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="./rpg-cloud.js"></script>
+<script src="./rpg-battle-6.js"></script>
+<script src="./rpg-shared.js"></script>
+<script src="./rpg-tasktypes.js"></script>
+<script src="./rpg-battle-ui.js"></script>
 <script>RPGCloud.attachGame(SAVE_KEY);</script>
 </body>
 </html>
