@@ -208,6 +208,25 @@ body::before{
   <div style="margin-bottom:8px"><span class="tag">TIP</span> <b>Přihlas se školním Google účtem</b> a postava se ti uloží do cloudu.</div>
   Pak ji máš u sebe na <b>všech zařízeních</b> — můžeš hrát doma i ve škole a navázat tam, kde jsi skončil. Učitel zároveň vidí pokrok celé třídy na jednom místě. Bez přihlášení se pokrok ukládá jen do tohoto prohlížeče (localStorage), takže na jiném počítači začínáš znovu.
  </div>
+
+ <!-- ══ ŽIVÝ SOUBOJ ══ -->
+ <div id="hub-battle" style="display:none;margin-top:20px">
+  <div style="background:linear-gradient(135deg,#0d1a1a,#081418);border:1px solid #19e6e6;border-radius:10px;padding:18px;position:relative;overflow:hidden">
+   <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#19e6e6,#5dc8f0)"></div>
+   <div style="font-weight:700;font-size:16px;color:#19e6e6;letter-spacing:2px;margin-bottom:6px">⚔️ ŽIVÝ SOUBOJ</div>
+   <div style="font-size:13px;color:var(--muted);margin-bottom:14px">Vyber ročníky, z nichž budou otázky. Pak založ nebo se připoj.</div>
+   <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:16px">
+    <label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-size:14px;color:var(--text)"><input type="checkbox" class="hb-grade" value="6" style="width:16px;height:16px;accent-color:#5dc8f0"> 🚀 6. roč.</label>
+    <label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-size:14px;color:var(--text)"><input type="checkbox" class="hb-grade" value="7" style="width:16px;height:16px;accent-color:#f2c14e"> ⛏️ 7. roč.</label>
+    <label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-size:14px;color:var(--text)"><input type="checkbox" class="hb-grade" value="8" style="width:16px;height:16px;accent-color:#f4d03f"> 🎓 8. roč.</label>
+    <label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-size:14px;color:var(--text)"><input type="checkbox" class="hb-grade" value="9" style="width:16px;height:16px;accent-color:#19e6e6" checked> 💻 9. roč.</label>
+   </div>
+   <div style="display:flex;gap:8px;flex-wrap:wrap">
+    <button onclick="openHubBattle('host')" class="btn" style="flex:0 0 auto;background:transparent;color:#19e6e6;border-color:#19e6e6;font-size:13px;padding:10px 16px">🎮 Založit souboj</button>
+    <button onclick="openHubBattle('join')" class="btn ghost" style="flex:0 0 auto;font-size:13px;padding:10px 16px">🔑 Připojit se kódem</button>
+   </div>
+  </div>
+ </div>
 </div>
 
 <script>
@@ -444,6 +463,26 @@ RPGCloud.onChange(u=>{
   if(tl) tl.style.display = RPGCloud.isStaff() ? 'inline-block' : 'none';
   refreshLeaderboards();
 });
+</script>
+<script src="./rpg-battle-6.js"></script>
+<script src="./rpg-battle-7.js"></script>
+<script src="./rpg-battle-8.js"></script>
+<script src="./rpg-battle-9.js"></script>
+<script src="./rpg-battle-ui.js"></script>
+<script>
+if(window.RPGBattle) document.getElementById('hub-battle').style.display='';
+function openHubBattle(role){
+  if(!window.RPGBattle){alert('Živý souboj se nenačetl. Zkus obnovit stránku.');return;}
+  const grades=Array.from(document.querySelectorAll('.hb-grade:checked')).map(el=>el.value);
+  if(!grades.length){alert('Vyber aspoň jeden ročník.');return;}
+  const banks=grades.map(g=>window['RPG_BATTLE_'+g]).filter(Boolean);
+  if(!banks.length){alert('Banka otázek se nenačetla. Zkus obnovit stránku.');return;}
+  const bank=banks.length===1?banks[0]:banks;
+  const game=grades.length===1?'RPG_MAT_'+grades[0]:'RPG_MAT_MIX';
+  let playerName='HRDINA';
+  GAMES.forEach(g=>{try{const s=JSON.parse(localStorage.getItem(g.key));if(s&&s.name)playerName=s.name;}catch{}});
+  RPGBattle.open({game,name:playerName,bank,autoAction:role==='host'?'host':'join'});
+}
 </script>
 </body>
 </html>
