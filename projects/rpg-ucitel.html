@@ -117,6 +117,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--px);min-height:100
    <button class="tab" data-tab="classes">TŘÍDY</button>
    <button class="tab" data-tab="diag">DIAGNOSTIKA</button>
    <button class="tab" data-tab="explain">VYSVĚTLENÍ</button>
+   <button class="tab" data-tab="feedback">ZPĚTNÁ VAZBA</button>
    <button class="tab" data-tab="preview">NÁHLED HER</button>
    <button class="tab hidden" id="tab-teachers" data-tab="teachers">SPRÁVA UČITELŮ</button>
   </div>
@@ -181,6 +182,17 @@ body{background:var(--bg);color:var(--text);font-family:var(--px);min-height:100
    <div id="broadcasts-wrap"><div class="empty" style="padding:8px">Načítám…</div></div>
   </div>
 
+  <!-- ZPĚTNÁ VAZBA -->
+  <div id="t-feedback" class="hidden">
+   <p style="color:var(--muted);margin-bottom:14px;line-height:1.6">
+    Nápady a návrhy, které hráči napsali z <b style="color:var(--gold)">hlavní stránky RPG Matematika</b>.
+    Žáci musí být přihlášeni školním účtem, aby zprávu odeslali.</p>
+   <div class="controls">
+    <button class="mini" onclick="loadFeedback()">↻ Načíst</button>
+   </div>
+   <div id="feedback-wrap"><div class="empty">Klikni ↻ Načíst pro zobrazení zpětné vazby.</div></div>
+  </div>
+
   <!-- NÁHLED HER -->
   <div id="t-preview" class="hidden">
    <p style="color:var(--muted);margin-bottom:14px;line-height:1.6">
@@ -210,6 +222,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--px);min-height:100
     Žáci mohou po správné odpovědi v boji napsat <b style="color:var(--gold)">jednou větou jak na to přišli</b>. Zde vidíš jejich vzkazy ze všech ročníků. Slouží jako formativní zpětná vazba: kde žáci přemýšlejí správně a kde jen tipují.</p>
    <div class="controls">
     <select id="expl-game" onchange="onExplGameChange()">
+     <option value="">— Všechny ročníky —</option>
      <option value="RPG_MAT_6">🚀 Vesmírná expedice (6. ročník)</option>
      <option value="RPG_MAT_7">⛏️ Ztracený chrám (7. ročník)</option>
      <option value="RPG_MAT_8">🎓 Matematická akademie (8. ročník)</option>
@@ -493,6 +506,8 @@ function filtered(){
   return true;
  });
 }
+let sortCol=null,sortDir=1;  // 'name'|'games'|'lv'|'xp', 1=asc/-1=desc
+function setSortCol(col){sortCol=sortCol===col?sortDir===1?(sortDir=-1,col):(sortDir=1,null):((sortDir=1),col);renderTable();}
 const SEL=new Set();              // klíče vybraných postav: user_id|game
 function selKey(r){return r.user_id+'|'+r.game;}
 const EXPANDED_USERS=new Set();   // user_id → expanded in table
@@ -521,10 +536,27 @@ function renderTable(){
  });
  // uložíme indexovatelný seznam (onclick používá jen číslo, nikoliv uid)
  const userList=[...userMap.values()];
+ // sort
+ if(sortCol){
+  userList.sort((a,b)=>{
+   let va,vb;
+   if(sortCol==='name'){va=(a.name||a.email||'').toLowerCase();vb=(b.name||b.email||'').toLowerCase();return sortDir*va.localeCompare(vb,'cs');}
+   if(sortCol==='games'){va=a.rows.length;vb=b.rows.length;}
+   else if(sortCol==='lv'){va=a.rows.reduce((m,x)=>Math.max(m,(x.r.data||{}).level||1),1);vb=b.rows.reduce((m,x)=>Math.max(m,(x.r.data||{}).level||1),1);}
+   else if(sortCol==='xp'){va=a.rows.reduce((s,x)=>s+((x.r.data||{}).xp||0),0);vb=b.rows.reduce((s,x)=>s+((x.r.data||{}).xp||0),0);}
+   return sortDir*(vb-va);
+  });
+ }
  window.__userList=userList;
+ const sIco=c=>sortCol===c?(sortDir===1?' ▲':' ▼'):'';
+ const sStyle='cursor:pointer;user-select:none';
  let html='<table class="tbl"><thead><tr>'+
    (admin?'<th style="width:28px"><input type="checkbox" id="sel-all" onclick="toggleSelAll(this.checked)" title="vybrat vše"></th>':'')+
-   '<th>Žák</th><th>Hry</th><th>LV</th><th>Celkem XP</th><th>Pokrok</th><th>Mistrovství</th><th>Poslední aktivita</th><th>Akce</th></tr></thead><tbody>';
+   '<th style="'+sStyle+'" onclick="setSortCol(\'name\')">Žák'+sIco('name')+'</th>'+
+   '<th style="'+sStyle+'" onclick="setSortCol(\'games\')">Hry'+sIco('games')+'</th>'+
+   '<th style="'+sStyle+'" onclick="setSortCol(\'lv\')">LV'+sIco('lv')+'</th>'+
+   '<th style="'+sStyle+'" onclick="setSortCol(\'xp\')">Celkem XP'+sIco('xp')+'</th>'+
+   '<th>Pokrok</th><th>Mistrovství</th><th>Poslední aktivita</th><th>Akce</th></tr></thead><tbody>';
  userList.forEach((u,ui)=>{
   const expanded=EXPANDED_USERS.has(u.uid);
   const lastAt=u.rows.reduce((m,x)=>(x.r.updated_at||'')>(m||'')?x.r.updated_at:m,'');
@@ -1154,21 +1186,22 @@ function initExplainTab(){
  }
 }
 function fillExplMissions(){
- const game=document.getElementById('expl-game').value||'RPG_MAT_9';
+ const game=document.getElementById('expl-game').value;
  const ms=document.getElementById('expl-mid');
  ms.innerHTML='<option value="">Všechny mise</option>';
- missionsFor(game).forEach(m=>{const o=document.createElement('option');o.value=m.id;o.textContent=m.id+' '+m.name;ms.appendChild(o);});
+ if(game){missionsFor(game).forEach(m=>{const o=document.createElement('option');o.value=m.id;o.textContent=m.id+' '+m.name;ms.appendChild(o);});}
+ else{GAMES.forEach(g=>{missionsFor(g.key).forEach(m=>{const o=document.createElement('option');o.value=m.id;o.textContent=g.emoji+' '+m.id+' '+m.name;ms.appendChild(o);});});}
 }
 function onExplGameChange(){fillExplMissions();loadExplain();}
 
 async function loadExplain(){
  const wrap=document.getElementById('expl-wrap');
  wrap.innerHTML='<div class="empty">Načítám…</div>';
- const game=document.getElementById('expl-game').value||'RPG_MAT_9';
+ const game=document.getElementById('expl-game').value||'';
  const mid=document.getElementById('expl-mid').value||'';
  const cid=document.getElementById('expl-class').value||'';
  try{
-  explData=await RPGCloud.listExplanations({game,mid,limit:100,classId:cid||undefined});
+  explData=await RPGCloud.listExplanations({game:game||undefined,mid,limit:200,classId:cid||undefined});
   renderExplain();
  }catch(e){wrap.innerHTML='<div class="empty">Chyba při načítání.</div>';}
 }
@@ -1179,32 +1212,80 @@ function renderExplain(){
  const mid=document.getElementById('expl-mid').value;
  const rows=mid?explData.filter(r=>r.mid===mid):explData;
  if(!rows.length){wrap.innerHTML='<div class="empty">Žádné záznamy pro vybraný filtr.</div>';return;}
+ const allGrades=!document.getElementById('expl-game').value;
  let html='<table style="width:100%;border-collapse:collapse;font-size:13px">'
   +'<thead><tr style="color:var(--muted);text-align:left;border-bottom:1px solid #2a3450">'
   +'<th style="padding:6px 8px;white-space:nowrap">Čas</th>'
+  +(allGrades?'<th style="padding:6px 8px">Hra</th>':'')
   +'<th style="padding:6px 8px">Žák</th>'
   +'<th style="padding:6px 8px;white-space:nowrap">Mise</th>'
   +'<th style="padding:6px 8px">Otázka</th>'
   +'<th style="padding:6px 8px">Odpověď</th>'
   +'<th style="padding:6px 8px">Jak na to přišel</th>'
+  +'<th style="padding:6px 8px"></th>'
   +'</tr></thead><tbody>';
  rows.forEach((r,i)=>{
   const dt=new Date(r.created_at);
   const dstr=dt.toLocaleDateString('cs-CZ',{day:'numeric',month:'numeric'})+' '+dt.toLocaleTimeString('cs-CZ',{hour:'2-digit',minute:'2-digit'});
   const bg=i%2===0?'':'background:#0d1226';
+  const gm=gMeta(r.game||'RPG_MAT_9');
   const mname=(MISSIONS_BY_GAME[r.game||'RPG_MAT_9']||[]).find(m=>m.id===r.mid);
   html+=`<tr style="${bg}">
    <td style="padding:5px 8px;color:var(--muted);white-space:nowrap;font-size:12px">${esc(dstr)}</td>
+   ${allGrades?`<td style="padding:5px 8px;white-space:nowrap;font-size:12px">${esc(gm.emoji)} ${esc(gm.gr)}</td>`:''}
    <td style="padding:5px 8px;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(r.display_name||'?')}</td>
    <td style="padding:5px 8px;white-space:nowrap;color:var(--gold);font-size:12px">${esc(r.mid)}${mname?'<br><span style="color:var(--muted);font-size:11px">'+esc(mname.name)+'</span>':''}</td>
    <td style="padding:5px 8px;max-width:200px;font-size:12px;color:#b0b8d0">${esc((r.task_text||'').slice(0,80))}</td>
    <td style="padding:5px 8px;color:var(--green);white-space:nowrap">${esc(r.answer||'')}</td>
    <td style="padding:5px 8px;max-width:300px;line-height:1.5">${esc(r.explanation||'')}</td>
+   <td style="padding:5px 8px"><button class="mini red" onclick="deleteExplainUI(${i})">🗑</button></td>
   </tr>`;
  });
  html+='</tbody></table>';
  html+='<p style="color:var(--muted);font-size:12px;margin-top:10px">Zobrazeno: '+rows.length+' záznamů</p>';
  wrap.innerHTML=html;
+ window.__explRows=rows;
+}
+async function deleteExplainUI(i){
+ const r=window.__explRows&&window.__explRows[i];if(!r)return;
+ if(!confirm('Smazat toto vysvětlení?'))return;
+ const res=await RPGCloud.deleteExplanation(r.id);
+ if(res.ok){toast('Vysvětlení smazáno');explData=explData.filter(x=>x.id!==r.id);renderExplain();}
+ else toast('Chyba: '+res.error,1);
+}
+
+/* ── zpětná vazba ── */
+let feedbackData=[];
+async function loadFeedback(){
+ const wrap=document.getElementById('feedback-wrap');
+ wrap.innerHTML='<div class="empty">Načítám…</div>';
+ try{
+  feedbackData=await RPGCloud.listFeedback({limit:200});
+  renderFeedback();
+ }catch(e){wrap.innerHTML='<div class="empty">Chyba při načítání.</div>';}
+}
+function renderFeedback(){
+ const wrap=document.getElementById('feedback-wrap');
+ if(!feedbackData.length){wrap.innerHTML='<div class="empty">Žádná zpětná vazba zatím.</div>';return;}
+ let html='';
+ feedbackData.forEach((r,i)=>{
+  html+='<div style="background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:12px 14px;margin-bottom:8px">'+
+   '<div style="font-size:14px;color:var(--text);line-height:1.6">'+esc(r.body)+'</div>'+
+   '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;gap:10px;flex-wrap:wrap">'+
+    '<span style="font-size:12px;color:var(--muted)">'+esc(r.display_name||'—')+' · '+esc(fmtDate(r.created_at))+'</span>'+
+    '<button class="mini red" onclick="deleteFeedbackUI('+i+')">🗑 Smazat</button>'+
+   '</div></div>';
+ });
+ html+='<p style="color:var(--muted);font-size:12px;margin-top:6px">Celkem: '+feedbackData.length+' zpráv</p>';
+ wrap.innerHTML=html;
+ window.__feedbackData=feedbackData.slice();
+}
+async function deleteFeedbackUI(i){
+ const r=window.__feedbackData&&window.__feedbackData[i];if(!r)return;
+ if(!confirm('Smazat tuto zprávu?'))return;
+ const res=await RPGCloud.deleteFeedback(r.id);
+ if(res.ok){toast('Zpráva smazána');feedbackData=feedbackData.filter(x=>x.id!==r.id);renderFeedback();}
+ else toast('Chyba: '+res.error,1);
 }
 
 /* ── taby ── */
@@ -1217,11 +1298,13 @@ document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
  document.getElementById('t-preview').classList.toggle('hidden',tab!=='preview');
  document.getElementById('t-diag').classList.toggle('hidden',tab!=='diag');
  document.getElementById('t-explain').classList.toggle('hidden',tab!=='explain');
+ document.getElementById('t-feedback').classList.toggle('hidden',tab!=='feedback');
  document.getElementById('t-teachers').classList.toggle('hidden',tab!=='teachers');
  if(tab==='classes'){renderClasses();renderBroadcasts();}
  if(tab==='teachers')loadTeachers();
  if(tab==='diag')renderDiag();
  if(tab==='explain')initExplainTab();
+ if(tab==='feedback')loadFeedback();
 });
 </script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>

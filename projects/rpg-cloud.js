@@ -433,7 +433,6 @@ window.RPGCloud = (function () {
       if (game) q = q.eq('game', game);
       if (mid)  q = q.eq('mid', mid);
       if (classId) {
-        // filter to user_ids in that class
         const { data: members } = await client.from('class_members')
           .select('user_id').eq('class_id', classId);
         if (members && members.length) {
@@ -446,6 +445,52 @@ window.RPGCloud = (function () {
       if (error) throw error;
       return data || [];
     } catch (e) { console.warn('[RPGCloud] listExplanations selhal:', e); return []; }
+  }
+
+  async function deleteExplanation(id) {
+    if (!client || !isStaff()) return { ok: false, error: 'Nemáš oprávnění.' };
+    try {
+      const { error } = await client.from('explanations').delete().eq('id', id);
+      if (error) throw error;
+      return { ok: true };
+    } catch (e) { return { ok: false, error: String(e) }; }
+  }
+
+  // ── Fáze 10 — zpětná vazba od hráčů ────────────────────────────────
+  async function saveFeedback(body) {
+    if (!client || !user) return { ok: false, error: 'Nejsi přihlášen.' };
+    const text = String(body || '').trim();
+    if (!text) return { ok: false, error: 'Zpráva je prázdná.' };
+    try {
+      const { error } = await client.from('feedback').insert({
+        user_id: user.id,
+        display_name: (user.user_metadata && user.user_metadata.full_name) || user.email || '',
+        body: text.slice(0, 2000)
+      });
+      if (error) throw error;
+      return { ok: true };
+    } catch (e) { return { ok: false, error: String(e) }; }
+  }
+
+  async function listFeedback({ limit = 100 } = {}) {
+    if (!client || !isStaff()) return [];
+    try {
+      const { data, error } = await client.from('feedback')
+        .select('id,created_at,display_name,body')
+        .order('created_at', { ascending: false })
+        .limit(limit);
+      if (error) throw error;
+      return data || [];
+    } catch (e) { console.warn('[RPGCloud] listFeedback:', e); return []; }
+  }
+
+  async function deleteFeedback(id) {
+    if (!client || !isStaff()) return { ok: false, error: 'Nemáš oprávnění.' };
+    try {
+      const { error } = await client.from('feedback').delete().eq('id', id);
+      if (error) throw error;
+      return { ok: true };
+    } catch (e) { return { ok: false, error: String(e) }; }
   }
 
   // ════════════ Fáze 7 — živý souboj (Kahoot-style) ════════════
@@ -887,7 +932,9 @@ window.RPGCloud = (function () {
            // Fáze 4 — žebříček třídy
            leaderboard, renderLeaderboardInto,
            // Fáze 6 — vysvětlení postupu
-           saveExplanation, listExplanations,
+           saveExplanation, listExplanations, deleteExplanation,
+           // Fáze 10 — zpětná vazba
+           saveFeedback, listFeedback, deleteFeedback,
            // Fáze 7 — živý souboj
            createBattle, joinBattle, battleState, submitBattleAnswer,
            advanceBattle, setBattleStatus, listActiveBattles,
