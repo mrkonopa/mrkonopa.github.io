@@ -1,0 +1,174 @@
+/* ══════════════════════════════════════════════════════════════════
+   RPG Matematika — ŽIVÝ SOUBOJ: banka otázek (8. ročník / Matematická akademie)
+   Deterministická: build(seed, count) → stejný seed = stejné otázky.
+   ══════════════════════════════════════════════════════════════════ */
+(function () {
+  'use strict';
+
+  function rng(seed) {
+    let a = seed >>> 0;
+    return function () {
+      a |= 0; a = (a + 0x6D2B79F5) | 0;
+      let t = Math.imul(a ^ (a >>> 15), 1 | a);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+  const ri = (r, lo, hi) => lo + Math.floor(r() * (hi - lo + 1));
+  const pick = (r, arr) => arr[Math.floor(r() * arr.length)];
+  const S = v => String(v);
+
+  const GEN = [
+
+    // 1) záporná čísla — součin
+    function (r) {
+      const a = ri(r, 2, 9), b = ri(r, 2, 9);
+      if (r() < 0.5) {
+        const v = -a * b;
+        return { topic: 'záporná čísla', text: `Vypočítej: (−${a}) × ${b}`, value: v,
+                 distractors: [a * b, -a - b, v + a] };
+      }
+      const v = a * b;
+      return { topic: 'záporná čísla', text: `Vypočítej: (−${a}) × (−${b})`, value: v,
+               distractors: [-v, a + b, v + 1] };
+    },
+
+    // 2) procenta — sleva
+    function (r) {
+      const price = ri(r, 3, 20) * 100, p = pick(r, [10, 20, 25, 50]);
+      const v = Math.round(price * (100 - p) / 100);
+      return { topic: 'procenta',
+               text: `Zboží za ${price} Kč zlevněno o ${p} %. Nová cena?`,
+               value: v, distractors: [Math.round(price * p / 100), v - 100, price] };
+    },
+
+    // 3) procenta — kolik procent
+    function (r) {
+      const base = ri(r, 3, 10) * 100, p = pick(r, [10, 20, 25, 50, 75]);
+      const v = Math.round(base * p / 100);
+      return { topic: 'procenta', text: `Kolika procenty je ${v} z ${base}?`, value: p,
+               distractors: [100 - p, p + 10, p - 10] };
+    },
+
+    // 4) mocniny (2. a 3.)
+    function (r) {
+      if (r() < 0.6) {
+        const a = ri(r, 2, 13);
+        return { topic: 'mocniny', text: `Vypočítej: ${a}²`, value: a * a,
+                 distractors: [a * 2, a * a + a, a * a - a] };
+      }
+      const b = ri(r, 2, 7);
+      return { topic: 'mocniny', text: `Vypočítej: ${b}³`, value: b * b * b,
+               distractors: [b * b, b * 3, b * b * b + b] };
+    },
+
+    // 5) odmocniny (z úplného čtverce)
+    function (r) {
+      const a = ri(r, 2, 15);
+      return { topic: 'odmocniny', text: `Vypočítej: √${a * a}`, value: a,
+               distractors: [a + 1, a - 1, Math.round(a * a / 2)] };
+    },
+
+    // 6) lineární funkce f(x) = ax + b
+    function (r) {
+      const a = ri(r, 2, 6), b = ri(r, -6, 6), k = ri(r, -4, 6);
+      const v = a * k + b;
+      const sign = b >= 0 ? `+ ${b}` : `− ${-b}`;
+      return { topic: 'funkce', text: `f(x) = ${a}x ${sign}. Kolik je f(${k})?`, value: v,
+               distractors: [a + k + b, a * k - b, v + a] };
+    },
+
+    // 7) Pythagorova věta — přepona
+    function (r) {
+      const trips = [[3, 4, 5], [6, 8, 10], [5, 12, 13], [8, 15, 17], [9, 12, 15]];
+      const [p, q, c] = pick(r, trips);
+      return { topic: 'Pythagoras',
+               text: `Pravoúhlý trojúhelník: odvěsny ${p} cm a ${q} cm. Jak dlouhá je přepona? (cm)`,
+               value: c, distractors: [c + 1, c - 1, p + q] };
+    },
+
+    // 8) rovnice s neznámou na obou stranách
+    function (r) {
+      const x = ri(r, 1, 9), a = ri(r, 2, 5), b = ri(r, 2, 5), c = ri(r, 1, 8);
+      // (a+b)x = a*x + c  → b*x = c ... nebezpečné pokud c%b != 0
+      // Použij ax + c = bx + d kde a>b
+      const d = (a - b) * x + c;
+      return { topic: 'rovnice',
+               text: `Vyřeš: ${a}x + ${c} = ${b}x + ${d}`, value: x,
+               distractors: [x + 1, x - 1, x + 2] };
+    },
+
+    // 9) pořadí operací s mocninou
+    function (r) {
+      const a = ri(r, 2, 6), b = ri(r, 2, 4), c = ri(r, 1, 9);
+      const v = c + b * b;
+      return { topic: 'operace', text: `Vypočítej: ${c} + ${b}² (pozor: nejdříve mocnina)`, value: v,
+               distractors: [(c + b) * (c + b), c + b * 2, c + b + 2] };
+    },
+
+    // 10) přímá/nepřímá úměra
+    function (r) {
+      if (r() < 0.5) {
+        const unit = ri(r, 2, 8), q1 = ri(r, 2, 5), q2 = q1 * ri(r, 2, 3);
+        const v = unit * q2;
+        return { topic: 'přímá úměra',
+                 text: `${q1} pracovníků udělá díl za ${unit} hodin.\nKolik hodin udělají stejný díl ${q2} pracovníci?`,
+                 value: unit, distractors: [unit * q2 / q1, unit + q2, unit * 2] };
+      }
+      // nepřímá — x pracovníků, víc pracovníků = míň hodin
+      const workers1 = ri(r, 2, 5), hours1 = ri(r, 4, 12), workers2 = workers1 * ri(r, 2, 3);
+      const v = Math.round(workers1 * hours1 / workers2);
+      return { topic: 'nepřímá úměra',
+               text: `${workers1} pracovníci postaví zeď za ${hours1} hodin.\nKolik hodin to bude trvat ${workers2} pracovníkům?`,
+               value: v, distractors: [hours1, v + 2, workers1 * hours1 / workers2 + 1] };
+    },
+
+  ];
+
+  function assemble(r, raw, id) {
+    const correct = S(raw.value);
+    const seen = new Set([correct]);
+    const distractors = [];
+    for (const d of raw.distractors) {
+      const s = S(d);
+      if (seen.has(s) || s === 'NaN' || s === 'undefined' || s === '') continue;
+      seen.add(s); distractors.push(s);
+    }
+    let bump = 1;
+    const baseNum = Number(raw.value);
+    while (distractors.length < 3) {
+      const cand = Number.isFinite(baseNum) ? S(baseNum + bump) : S('?' + bump);
+      if (!seen.has(cand)) { seen.add(cand); distractors.push(cand); }
+      bump++; if (bump > 50) { distractors.push(S('x' + distractors.length)); }
+    }
+    const choices = [correct, distractors[0], distractors[1], distractors[2]];
+    for (let i = choices.length - 1; i > 0; i--) {
+      const j = Math.floor(r() * (i + 1));
+      [choices[i], choices[j]] = [choices[j], choices[i]];
+    }
+    return { id, topic: raw.topic, text: raw.text, choices,
+             correct: choices.indexOf(correct), answer: correct };
+  }
+
+  function build(seed, count) {
+    seed = (seed >>> 0) || 1;
+    count = Math.max(1, Math.min(40, count | 0 || 10));
+    const r = rng(seed);
+    const out = [];
+    let guard = 0;
+    while (out.length < count && guard < count * 20) {
+      guard++;
+      const gen = GEN[Math.floor(r() * GEN.length)];
+      const raw = gen(r);
+      const q = assemble(r, raw, out.length + 1);
+      if (q.correct < 0 || q.choices.length !== 4) continue;
+      if (new Set(q.choices).size !== 4) continue;
+      out.push(q);
+    }
+    return out;
+  }
+
+  const API = { game: 'RPG_MAT_8', topicCount: GEN.length, build };
+  if (typeof module !== 'undefined' && module.exports) module.exports = API;
+  else window.RPG_BATTLE_8 = API;
+})();
