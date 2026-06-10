@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Zásady ochrany osobních údajů · RPG Matematika</title>
+<meta name="description" content="Jak se zachází s osobními údaji ve vzdělávacích nástrojích RPG Matematika.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#f4f6fb; --card:#ffffff; --ink:#1f2733; --muted:#5b6675;
+    --accent:#3a6ea5; --line:#e3e8f0; --warn:#b4690e;
+    --read:'Lexend','Inter','Segoe UI',system-ui,-apple-system,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);
+    font-family:var(--read);font-size:17px;line-height:1.7;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:760px;margin:0 auto;padding:32px 20px 80px}
+  header{margin-bottom:28px}
+  .back{display:inline-block;color:var(--accent);text-decoration:none;font-size:14px;margin-bottom:18px}
+  .back:hover{text-decoration:underline}
+  h1{font-size:30px;font-weight:700;line-height:1.25;margin:0 0 6px}
+  .sub{color:var(--muted);font-size:14px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;
+    padding:22px 26px;margin:18px 0;box-shadow:0 1px 3px rgba(20,30,50,.04)}
+  h2{font-size:20px;font-weight:600;margin:26px 0 10px;color:var(--ink)}
+  h2:first-child{margin-top:0}
+  p{margin:10px 0}
+  ul{margin:10px 0;padding-left:22px}
+  li{margin:6px 0}
+  a{color:var(--accent)}
+  .tldr{background:#eaf2fb;border:1px solid #cfe0f4;border-radius:12px;padding:16px 20px;margin:18px 0}
+  .tldr b{color:var(--accent)}
+  .note{background:#fff7ea;border:1px solid #f3e0bd;border-radius:12px;padding:14px 18px;font-size:15px;color:#6b5320}
+  table{border-collapse:collapse;width:100%;margin:12px 0;font-size:15px}
+  th,td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+  th{background:#eef2f8;font-weight:600}
+  footer{color:var(--muted);font-size:13px;margin-top:30px;text-align:center}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <a class="back" href="./">← zpět na projekty</a>
+  <h1>Zásady ochrany osobních údajů</h1>
+  <div class="sub">Vzdělávací nástroje <b>RPG Matematika</b> · účinné od 10. 6. 2026</div>
+</header>
+
+<div class="tldr">
+  <b>Stručně:</b> Tyhle hry ukládají jen to, co je potřeba k tomu, abys mohl/a pokračovat
+  v učení (jméno postavy, postup, vzkazy od učitele) a aby tě učitel viděl v přehledu třídy.
+  <b>Nic neprodáváme, nikde není reklama ani sledovací cookies.</b> Data jsou uložená v EU
+  a kdykoli můžeš požádat o jejich výmaz.
+</div>
+
+<div class="card">
+  <h2>1. Kdo zpracovává tvoje údaje (správce)</h2>
+  <p><b>Vojtěch Konopa</b> — učitel matematiky, autor těchto nástrojů.<br>
+  Kontakt: <a href="mailto:vojtech.konopa@gmail.com">vojtech.konopa@gmail.com</a></p>
+  <p>Nástroje vznikly pro výuku žáků ZŠ Husova Liberec. Správcem osobních údajů je
+  Vojtěch Konopa jako fyzická osoba.</p>
+
+  <h2>2. Jaké údaje se zpracovávají</h2>
+  <table>
+    <tr><th>Údaj</th><th>Odkud</th><th>K čemu</th></tr>
+    <tr><td>Školní e-mail (@husovaliberec.cz)</td><td>přihlášení přes Google</td><td>ověření, že jsi žák školy; spárování postavy s tebou</td></tr>
+    <tr><td>Jméno z Google účtu</td><td>přihlášení přes Google</td><td>aby tě učitel poznal v přehledu třídy</td></tr>
+    <tr><td>Jméno postavy</td><td>zadáš ve hře</td><td>zobrazení ve hře a v žebříčku</td></tr>
+    <tr><td>Herní postup</td><td>vzniká hraním</td><td>XP, úroveň, splněné mise, atributy, kredity, kosmetika, odznaky — aby ses mohl/a vrátit tam, kde jsi skončil/a</td></tr>
+    <tr><td>Vzkazy od učitele</td><td>napíše učitel</td><td>zpětná vazba a pochvaly; stav „přečteno / smazáno"</td></tr>
+    <tr><td>Statistika chybovosti</td><td>vzniká hraním</td><td>učitel vidí, kde žáci nejčastěji chybují, a může líp učit</td></tr>
+  </table>
+  <p>Hra <b>nesbírá</b> polohu, kontakty, fotky ani nic ze zařízení. Nepoužívá reklamní
+  ani sledovací cookies.</p>
+
+  <h2>3. Kde a jak dlouho jsou data uložená</h2>
+  <ul>
+    <li><b>Server (Supabase):</b> databáze v <b>Evropské unii</b> (Frankfurt/Irsko). Data EU neopouštějí.</li>
+    <li><b>Přihlášení (Google):</b> ověření identity zajišťuje Google v rámci školního účtu.</li>
+    <li><b>Tvůj prohlížeč (localStorage):</b> kopie postupu, aby hra fungovala i bez přihlášení. Smažeš ji vymazáním dat prohlížeče.</li>
+  </ul>
+  <p>Údaje uchováváme, dokud nástroj používáš nebo dokud o výmaz nepožádáš (viz bod 6).
+  Po skončení školní docházky nebo na žádost je smažeme.</p>
+
+  <h2>4. Právní základ zpracování</h2>
+  <p>Zpracování probíhá na základě <b>souhlasu</b> a pro účely výuky. Protože jde
+  o žáky mladší 15 let, souhlas uděluje (nebo schvaluje) <b>zákonný zástupce</b>.
+  Souhlas lze kdykoli odvolat — napiš na kontaktní e-mail.</p>
+
+  <h2>5. Komu se data předávají (zpracovatelé)</h2>
+  <ul>
+    <li><b>Supabase</b> — uložení dat (server v EU). Vystupuje jako zpracovatel.</li>
+    <li><b>Google</b> — ověření přihlášení školním účtem.</li>
+  </ul>
+  <p>Data se <b>neprodávají</b> a nepředávají třetím stranám pro marketing. Žebříček
+  ve hře ukazuje spolužákům jen <b>jméno postavy, úroveň a XP</b> — žádné e-maily.</p>
+
+  <h2>6. Tvoje práva (a práva rodičů)</h2>
+  <p>Podle GDPR máš právo:</p>
+  <ul>
+    <li>vědět, jaké údaje o tobě máme (<b>přístup</b>),</li>
+    <li>nechat je <b>opravit</b>, pokud jsou špatně,</li>
+    <li>nechat je <b>smazat</b> („právo být zapomenut"),</li>
+    <li>získat je <b>přenositelně</b> (kopie),</li>
+    <li><b>odvolat souhlas</b> se zpracováním,</li>
+    <li>podat <b>stížnost</b> u Úřadu pro ochranu osobních údajů (<a href="https://www.uoou.cz" target="_blank" rel="noopener">uoou.cz</a>).</li>
+  </ul>
+  <p>Stačí napsat na <a href="mailto:vojtech.konopa@gmail.com">vojtech.konopa@gmail.com</a>.
+  Učitel umí postavu žáka smazat i přímo v učitelské konzoli.</p>
+
+  <h2>7. Děti a nezletilí</h2>
+  <p>Nástroj je určený žákům základní školy. Pracujeme s vědomím, že jde o údaje
+  nezletilých — proto sbíráme jen nezbytné minimum, data nikomu neprodáváme a držíme
+  je chráněná (přístup má jen daný žák a jeho učitelé).</p>
+
+  <h2>8. Bezpečnost</h2>
+  <p>Přístup k datům je chráněný na úrovni databáze (Row Level Security): každý žák
+  vidí jen svoje data, učitel data své třídy. Přenosy jsou šifrované (HTTPS).</p>
+
+  <h2>9. Změny těchto zásad</h2>
+  <p>Pokud se něco změní, upravíme tuto stránku a aktualizujeme datum účinnosti nahoře.</p>
+
+  <div class="note">
+    📌 Máš dotaz nebo chceš data smazat? Napiš na
+    <a href="mailto:vojtech.konopa@gmail.com">vojtech.konopa@gmail.com</a> — ozveme se.
+  </div>
+</div>
+
+<footer>
+  RPG Matematika · Vojtěch Konopa ·
+  <a href="podminky.html">Podmínky použití</a>
+</footer>
+</div>
+</body>
+</html>

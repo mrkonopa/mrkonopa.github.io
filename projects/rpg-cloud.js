@@ -579,7 +579,11 @@ window.RPGCloud = (function () {
       '<span id="cloud-status" style="color:var(--muted,#8895b5)"></span>' +
       '<button id="cloud-btn" style="cursor:pointer;font-family:inherit;font-weight:700;font-size:12px;' +
       'padding:7px 13px;border-radius:5px;border:2px solid var(--blue,#5dc8f0);' +
-      'background:var(--blue,#5dc8f0);color:#06101e">🔑 Přihlásit přes Google</button>';
+      'background:var(--blue,#5dc8f0);color:#06101e">🔑 Přihlásit přes Google</button>' +
+      '<span style="flex-basis:100%;height:0"></span>' +
+      '<span style="font-size:11px;color:var(--muted,#8895b5)">Přihlášením souhlasíš se ' +
+      '<a href="soukromi.html" target="_blank" style="color:var(--blue,#5dc8f0)">zásadami soukromí</a> a ' +
+      '<a href="podminky.html" target="_blank" style="color:var(--blue,#5dc8f0)">podmínkami</a>.</span>';
     return b;
   }
   function paint() {
