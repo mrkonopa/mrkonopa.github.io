@@ -21,7 +21,7 @@ function makeClient(role) {
     calls.push(rec);
     const b = {};
     const chain = name => (...a) => { rec.ops.push([name, a]); return b; };
-    ['select','eq','order','insert','upsert','update','delete','neq'].forEach(m => b[m] = chain(m));
+    ['select','eq','order','insert','upsert','update','delete','neq','is'].forEach(m => b[m] = chain(m));
     function result() {
       if (table === 'roles') return { data: { role }, error: null };
       if (table === 'classes' && rec.ops.some(o=>o[0]==='insert')) return { data: { id: 'c-new' }, error: null };
