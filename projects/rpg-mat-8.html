@@ -149,17 +149,23 @@ body::before{
 @keyframes arena-pulse{0%,100%{opacity:.5}50%{opacity:1}}
 .bt-top::after{content:'';position:absolute;left:0;right:0;bottom:0;height:30px;background:repeating-linear-gradient(90deg,#2a2030 0 8px,#1a1525 8px 16px);border-top:2px solid #3a2a45;pointer-events:none}
 .bt-monster{font-size:110px;display:inline-block;margin-bottom:4px;transform-origin:center;filter:drop-shadow(0 6px 0 #0008) drop-shadow(0 0 14px #5dade233);will-change:transform,opacity,filter;line-height:1;position:relative;z-index:2}
-.bt-monster.enter{animation:mon-enter .55s steps(8) forwards}
+.bt-monster.enter{animation:mon-enter 1.05s steps(14) forwards}
 .bt-monster.idle{animation:mon-idle 1.6s steps(8) infinite}
 .bt-monster.idle-2{animation:mon-idle-2 2.2s steps(10) infinite}
 .bt-monster.hit{animation:mon-hit .5s steps(6) forwards}
 .bt-monster.defeat{animation:mon-defeat .9s steps(10) forwards}
 .bt-mname{font-family:var(--px);font-weight:700;font-size:15px;color:var(--red);letter-spacing:1.2px}
 @keyframes mon-enter{
- 0% {transform:translateX(180px) translateY(-40px) scale(.3) rotate(-25deg);opacity:0}
- 60% {transform:translateX(-12px) translateY(0) scale(1.15) rotate(8deg); opacity:1}
- 80% {transform:translateX(6px) translateY(-4px) scale(.95) rotate(-3deg);opacity:1}
- 100%{transform:translateX(0) translateY(0) scale(1) rotate(0); opacity:1}
+ 0%  {transform:translateY(-150px) scale(.2);opacity:0;filter:brightness(4) saturate(0)}
+ 10% {transform:translateY(-125px) scale(.38);opacity:.75;filter:brightness(3.2) saturate(.2)}
+ 16% {transform:translateY(-115px) scale(.42);opacity:.15;filter:brightness(3.2) saturate(.2)}
+ 24% {transform:translateY(-98px) scale(.52);opacity:.9;filter:brightness(2.6) saturate(.45)}
+ 31% {transform:translateY(-86px) scale(.58);opacity:.25;filter:brightness(2.6) saturate(.45)}
+ 42% {transform:translateY(-52px) scale(.78);opacity:1;filter:brightness(1.9) saturate(.7)}
+ 58% {transform:translateY(0) scale(1.28,.68);opacity:1;filter:brightness(1.5)}
+ 70% {transform:translateY(-16px) scale(.84,1.22);opacity:1;filter:brightness(1.2)}
+ 82% {transform:translateY(0) scale(1.1,.92);opacity:1;filter:brightness(1.05)}
+ 100%{transform:translateY(0) scale(1);opacity:1;filter:brightness(1)}
 }
 @keyframes mon-idle{
  0%,100%{transform:translateY(0) rotate(-2deg)}
@@ -1881,24 +1887,10 @@ function launchBattle(aid,mid){
  mon.className='bt-monster';
  void mon.offsetWidth;
  mon.classList.add('enter');
- setTimeout(()=>{mon.classList.remove('enter');mon.classList.add(Math.random()<.5?'idle':'idle-2');},560);
- setTimeout(introStrike,660);
+ setTimeout(()=>{top.classList.add('shake');spawnParticles();setTimeout(()=>top.classList.remove('shake'),400);},610);
+ setTimeout(()=>{mon.classList.remove('enter');mon.classList.add(Math.random()<.5?'idle':'idle-2');},1070);
  renderTask();
  go('battle');
-}
-
-function introStrike(){
- const mon=document.getElementById('bt-mon');
- const top=document.getElementById('bt-top');
- const flash=document.getElementById('hit-flash');
- if(!mon||!top||!flash)return;
- mon.classList.remove('idle','idle-2');
- void mon.offsetWidth;
- mon.classList.add('hit');
- top.classList.add('shake');
- flash.classList.remove('go');void flash.offsetWidth;flash.classList.add('go');
- spawnParticles();
- setTimeout(()=>{mon.classList.remove('hit');top.classList.remove('shake');mon.classList.add(Math.random()<.5?'idle':'idle-2');},550);
 }
 
 function retryMission(){
