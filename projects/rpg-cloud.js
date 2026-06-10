@@ -452,19 +452,21 @@ window.RPGCloud = (function () {
   // Tenké wrappery nad SECURITY DEFINER RPC funkcemi (viz phase7.sql).
   // Vše graceful: bez clienta/přihlášení vrací null/[]/false.
   async function createBattle(game, qcount, hostName) {
-    if (!client || !user) return null;
+    if (!client || !user) return { error: 'Nejsi přihlášen.' };
     try {
       const { data, error } = await client.rpc('create_battle',
         { p_game: game, p_qcount: qcount, p_host_name: hostName });
-      if (error) throw error; return data;
-    } catch (e) { console.warn('[RPGCloud] createBattle:', e); return null; }
+      if (error) return { error: error.message || String(error) };
+      return data;
+    } catch (e) { console.warn('[RPGCloud] createBattle:', e); return { error: String(e) }; }
   }
   async function joinBattle(code, name) {
-    if (!client || !user) return null;
+    if (!client || !user) return { error: 'Nejsi přihlášen.' };
     try {
       const { data, error } = await client.rpc('join_battle', { p_code: code, p_name: name });
-      if (error) throw error; return data;
-    } catch (e) { console.warn('[RPGCloud] joinBattle:', e); return null; }
+      if (error) return { error: error.message || String(error) };
+      return data;
+    } catch (e) { console.warn('[RPGCloud] joinBattle:', e); return { error: String(e) }; }
   }
   async function battleState(battleId) {
     if (!client || !user) return null;

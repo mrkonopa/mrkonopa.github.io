@@ -22,6 +22,7 @@
   var NAME = 'HRDINA', GAME = 'RPG_MAT_9', BANK = null;
   var B = null;                  // aktuální stav souboje
   var root = null, timer = null;
+  var onResult = null;           // callback z open() — module-level, ne uzávěr
 
   function cloud() { return (typeof RPGCloud !== 'undefined') ? RPGCloud : null; }
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) {
@@ -82,9 +83,9 @@
   function open(opts) {
     opts = opts || {};
     NAME = opts.name || NAME;
-    var onResult = opts.onResult || null;
+    onResult = opts.onResult || null;
     GAME = opts.game || GAME;
-    BANK = opts.bank || window.RPG_BATTLE_9 || null;
+    BANK = opts.bank || window['RPG_BATTLE_' + (GAME.replace('RPG_MAT_', ''))] || null;
     injectCss();
     if (!root) { root = document.createElement('div'); root.id = 'rpgb-ovl'; document.body.appendChild(root); }
     root.style.display = 'flex';
@@ -130,9 +131,19 @@
     var c = cloud(); if (!c) return;
     shell('<div class="rpgb-sub">Zakládám místnost…</div>');
     c.createBattle(GAME, count, NAME).then(function (b) {
-      if (!b || !b.id) { shell('<div class="rpgb-sub">Nepodařilo se založit souboj.</div><button class="rpgb-btn sm" onclick="RPGBattle._menu()">← zpět</button>'); return; }
-      B = { id: b.id, code: b.code, role: 'host', questions: null, lastQi: -2, picked: -1, locked: false, onResult: onResult };
+      if (!b || !b.id) {
+        var errMsg = (b && b.error) ? esc(b.error) : 'Zkus to znovu nebo obnov stránku.';
+        shell('<div class="rpgb-h">❌ Chyba</div>' +
+          '<div class="rpgb-sub">Nepodařilo se založit souboj.<br><small style="color:#ff6b6b">' + errMsg + '</small></div>' +
+          '<button class="rpgb-btn sm" style="display:block;width:100%" onclick="RPGBattle._menu()">← zpět</button>');
+        return;
+      }
+      B = { id: b.id, code: b.code, role: 'host', questions: null, lastQi: -2, picked: -1, locked: false };
       startPoll();
+    }).catch(function (err) {
+      shell('<div class="rpgb-h">❌ Chyba</div>' +
+        '<div class="rpgb-sub"><small style="color:#ff6b6b">' + esc(String(err)) + '</small></div>' +
+        '<button class="rpgb-btn sm" style="display:block;width:100%" onclick="RPGBattle._menu()">← zpět</button>');
     });
   }
 
@@ -153,7 +164,7 @@
     shell('<div class="rpgb-sub">Připojuji…</div>');
     c.joinBattle(code, NAME).then(function (b) {
       if (!b || !b.id) { joinUI(); var e2 = document.getElementById('rpgb-codein'); if (e2) { e2.value = code; e2.style.borderColor = '#ff6b6b'; } return; }
-      B = { id: b.id, code: b.code, role: 'player', questions: null, lastQi: -2, picked: -1, locked: false, onResult: onResult };
+      B = { id: b.id, code: b.code, role: 'player', questions: null, lastQi: -2, picked: -1, locked: false };
       startPoll();
     });
   }
@@ -182,15 +193,26 @@
   // ════════════ LOBBY ════════════
   function renderLobby(st) {
     var players = st.players || [];
+    // Klíč = seznam jmen; změna = přibyl/odebral hráč → plný re-render
+    var pKey = players.map(function (p) { return p.user_id; }).sort().join(',');
+    if (B.lastLobbyKey === pKey && document.getElementById('rpgb-plycount')) {
+      // pouze aktualizuj počet a stav tlačítka, bez DOM bourání
+      var cnt = document.getElementById('rpgb-plycount');
+      if (cnt) cnt.textContent = players.length;
+      var btn = document.getElementById('rpgb-startbtn');
+      if (btn) btn.disabled = players.length < 1;
+      return;
+    }
+    B.lastLobbyKey = pKey;
     var inner = '<div class="rpgb-h">⏳ Čekárna</div>' +
       '<div class="rpgb-sub">' + (B.role === 'host' ? 'Nadiktuj kód spolužákům. Až se sejdou, spusť.' : 'Čekej, až host spustí souboj.') + '</div>' +
       '<div class="rpgb-code">' + esc(B.code) + '</div>' +
-      '<div class="rpgb-row"><span>HRÁČI</span><span>' + players.length + '</span></div>' +
+      '<div class="rpgb-row"><span>HRÁČI</span><span id="rpgb-plycount">' + players.length + '</span></div>' +
       players.map(function (p) {
         return '<div class="rpgb-ply' + (p.user_id === st.me ? ' me' : '') + '">👤 ' + esc(p.display_name) + (p.user_id === st.me ? ' (ty)' : '') + '</div>';
       }).join('');
     if (B.role === 'host') {
-      inner += '<button class="rpgb-btn go" style="margin-top:16px"' + (players.length < 1 ? ' disabled' : '') +
+      inner += '<button id="rpgb-startbtn" class="rpgb-btn go" style="margin-top:16px"' + (players.length < 1 ? ' disabled' : '') +
         ' onclick="RPGBattle._start()">▶️ Spustit souboj</button>';
     }
     inner += '<button class="rpgb-btn sm red" style="display:block;width:100%" onclick="RPGBattle._leave()">' +
@@ -299,12 +321,12 @@
       '<button class="rpgb-btn sm" style="display:block;width:100%" onclick="RPGBattle.close()">Zavřít</button>';
     shell(inner);
     // Odměny: zavolej hru zpět s výsledky (XP/kredity/odznaky řeší hra, ne UI)
-    if (B && typeof B.onResult === 'function') {
+    if (B && typeof onResult === 'function') {
       var me = st.me;
       var myRow = (st.players || []).find(function (p) { return p.user_id === me; });
       var rank = players.findIndex(function (p) { return p.user_id === me; }) + 1;
       try {
-        B.onResult({
+        onResult({
           rank: rank || players.length,       // 1 = vítěz
           total: players.length,
           correct: myRow ? (myRow.correct_count || 0) : 0,
