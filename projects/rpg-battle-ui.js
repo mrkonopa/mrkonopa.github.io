@@ -34,8 +34,8 @@
     var css = document.createElement('style');
     css.id = 'rpgb-css';
     css.textContent =
-      '#rpgb-ovl{position:fixed;inset:0;z-index:9999;background:rgba(5,8,16,.92);' +
-      'backdrop-filter:blur(3px);display:flex;align-items:center;justify-content:center;' +
+      '#rpgb-ovl{position:fixed;inset:0;z-index:9999;background:rgba(5,8,16,.97);' +
+      'display:flex;align-items:center;justify-content:center;' +
       'font-family:var(--px,"Roboto Mono",monospace);padding:16px;overflow:auto}' +
       '#rpgb-card{background:var(--bg,#0a0e1a);border:2px solid var(--blue,#5dc8f0);' +
       'border-radius:14px;max-width:560px;width:100%;padding:22px;box-shadow:0 0 40px rgba(93,200,240,.25);' +
@@ -68,15 +68,18 @@
       '.rpgb-ch.ok{border-color:#4ade80;background:rgba(74,222,128,.18);color:#4ade80}' +
       '.rpgb-ch.bad{border-color:#ff6b6b;background:rgba(255,107,107,.18);color:#ff6b6b}' +
       '.rpgb-bar{height:8px;border-radius:5px;background:rgba(255,255,255,.08);overflow:hidden;margin:6px 0 14px}' +
-      '.rpgb-bar>i{display:block;height:100%;background:var(--gold,#19e6e6);transition:width .25s linear}' +
+      '.rpgb-bar>i{display:block;height:100%;background:var(--gold,#19e6e6);' +
+      'transform-origin:left center;transform:scaleX(1);transition:transform .25s linear}' +
       '.rpgb-row{display:flex;justify-content:space-between;align-items:center;font-size:13px;color:var(--muted,#8895b5);margin-bottom:8px}' +
-      '.rpgb-x{position:absolute;top:14px;right:18px;font-size:24px;color:var(--muted,#8895b5);cursor:pointer;background:none;border:none}';
+      '.rpgb-hdr{display:flex;justify-content:flex-end;margin:0 -4px 4px}' +
+      '.rpgb-x{font-size:22px;color:var(--muted,#8895b5);cursor:pointer;background:none;border:none;padding:2px 6px;line-height:1}';
     document.head.appendChild(css);
   }
 
   function shell(inner) {
-    root.innerHTML = '<div id="rpgb-card" style="position:relative">' +
-      '<button class="rpgb-x" onclick="RPGBattle.close()" title="zavřít">✕</button>' + inner + '</div>';
+    root.innerHTML = '<div id="rpgb-card">' +
+      '<div class="rpgb-hdr"><button class="rpgb-x" onclick="RPGBattle.close()" title="zavřít">✕</button></div>' +
+      inner + '</div>';
   }
 
   // ════════════ VSTUP ════════════
@@ -96,12 +99,35 @@
         '<button class="rpgb-btn go" onclick="RPGBattle.close();var b=document.getElementById(\'cloud-btn\');if(b)b.click();">🔑 Přihlásit se</button>');
       return;
     }
+    if (Array.isArray(BANK)) BANK = mergeBank(BANK);
     if (!BANK || typeof BANK.build !== 'function') {
       shell('<div class="rpgb-h">⚔️ ŽIVÝ SOUBOJ</div>' +
         '<div class="rpgb-sub">Banka otázek se nenačetla. Zkus obnovit stránku.</div>');
       return;
     }
+    if (opts.autoAction === 'host') { hostUI(); return; }
+    if (opts.autoAction === 'join') { joinUI(); return; }
     renderMenu();
+  }
+
+  function mulberry32(a) {
+    return function () { a |= 0; a = a + 0x6D2B79F5 | 0; var t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+  }
+  function mergeBank(banks) {
+    return {
+      build: function (seed, count) {
+        var pool = [];
+        banks.forEach(function (b, i) {
+          if (b && typeof b.build === 'function') {
+            var qs = b.build(seed ^ (i * 0x1F3D7), Math.min(40, count * 4));
+            if (qs) pool = pool.concat(qs);
+          }
+        });
+        var rng = mulberry32(seed);
+        for (var i = pool.length - 1; i > 0; i--) { var j = Math.floor(rng() * (i + 1)); var tmp = pool[i]; pool[i] = pool[j]; pool[j] = tmp; }
+        return pool.slice(0, Math.min(count, pool.length));
+      }
+    };
   }
 
   function renderMenu() {
@@ -237,7 +263,7 @@
       var q = B.questions[qi];
       var inner = '<div class="rpgb-row"><span>OTÁZKA ' + (qi + 1) + ' / ' + bt.q_count + '</span>' +
         '<span id="rpgb-ans">·</span></div>' +
-        '<div class="rpgb-bar"><i id="rpgb-time" style="width:100%"></i></div>' +
+        '<div class="rpgb-bar"><i id="rpgb-time" style="transform:scaleX(1)"></i></div>' +
         '<div class="rpgb-q">' + esc(q.text) + '</div>' +
         '<div id="rpgb-choices">' +
         q.choices.map(function (ch, i) {
@@ -265,7 +291,7 @@
     timer = setInterval(function () {
       var left = Math.max(0, B.deadline - Date.now());
       var bar = document.getElementById('rpgb-time');
-      if (bar) bar.style.width = Math.round(left / (QSEC * 1000) * 100) + '%';
+      if (bar) bar.style.transform = 'scaleX(' + (left / (QSEC * 1000)).toFixed(3) + ')';
       if (left <= 0) {
         clearInterval(timer); timer = null;
         if (!B.locked) lockChoices(false);   // čas vypršel bez odpovědi
@@ -280,6 +306,7 @@
     var left = Math.max(0, B.deadline - Date.now());
     var pts = correct ? Math.round(500 + 1000 * (left / (QSEC * 1000))) : 0;
     B.picked = idx; B.locked = true;
+    if (timer) { clearInterval(timer); timer = null; }
     var c = cloud(); if (c) c.submitBattleAnswer(B.id, qi, correct, pts);
     lockChoices(true);
     var fb = document.getElementById('rpgb-fb');
