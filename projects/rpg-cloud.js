@@ -332,6 +332,17 @@ window.RPGCloud = (function () {
       return { ok: true };
     } catch (e) { return { ok: false, error: e.message }; }
   }
+  // „stáhnout zpět" celý hromadný vzkaz — smaže všechny řádky dané dávky.
+  // RLS pustí jen řádky, jejichž je přihlášený autorem (nebo superadmin).
+  async function deleteBroadcast(batchId) {
+    if (!client || !isStaff()) return { ok: false, error: 'Nemáš oprávnění.' };
+    if (!batchId) return { ok: false, error: 'Chybí identifikátor vzkazu.' };
+    try {
+      const { error } = await client.from('notes').delete().eq('batch_id', batchId);
+      if (error) throw error;
+      return { ok: true };
+    } catch (e) { return { ok: false, error: e.message }; }
+  }
   // přehled odeslaných vzkazů seskupený do dávek (broadcast = 1 batch → N žáků).
   // Vrací [{batch_id, body, author_name, created_at, total, read, deleted}], nejnovější první.
   async function listMyBroadcasts() {
@@ -869,7 +880,7 @@ window.RPGCloud = (function () {
            // Fáze 3 — třídy a poznámky
            listClasses, createClass, renameClass, deleteClass, updateClassMeta,
            listMemberships, addToClass, removeFromClass,
-           listNotesFor, addNote, deleteNote, pullMyNotes,
+           listNotesFor, addNote, deleteNote, deleteBroadcast, pullMyNotes,
            listMyBroadcasts, markMyNotesRead, deleteMyNote,
            // Fáze 4 — žebříček třídy
            leaderboard, renderLeaderboardInto,

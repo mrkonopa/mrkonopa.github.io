@@ -504,6 +504,7 @@ html[data-theme="violet"]{--gold:#b06cff;--panel:#100a20;--panel2:#18103a;--blue
  <div class="panel" id="map-leaderboard" style="display:none;padding:12px 14px"></div>
  <div style="display:flex;gap:8px;margin-top:12px">
   <button class="btn b" style="flex:1" onclick="go('train')">🎯 TRÉNINK</button>
+  <button class="btn" style="flex:none" onclick="openBattle()">⚔️ ŽIVÝ SOUBOJ</button>
   <button class="btn" style="flex:none" onclick="go('shop')">🛍️ OBCHOD</button>
  </div></div>
 </div>
@@ -1573,6 +1574,10 @@ function countDone(mid,tc){
  let n=0;for(let i=0;i<tc;i++)if(S.done[`${mid}-${i}`])n++;return n;
 }
 
+function openBattle(){
+ if(window.RPGBattle)RPGBattle.open({game:SAVE_KEY,name:S.name||'HRDINA'});
+ else alert('Živý souboj se nenačetl. Zkus obnovit stránku.');
+}
 function renderMap(){
  calcLevel();
  document.getElementById('map-name').textContent=S.name;
@@ -2544,6 +2549,8 @@ window.addEventListener('load',()=>{
 <script src="./rpg-wallet.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="./rpg-cloud.js"></script>
+<script src="./rpg-battle-9.js"></script>
+<script src="./rpg-battle-ui.js"></script>
 <script>RPGCloud.attachGame(SAVE_KEY);</script>
 </body>
 </html>

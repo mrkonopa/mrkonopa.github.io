@@ -207,10 +207,13 @@ body{background:var(--bg);color:var(--text);font-family:var(--px);min-height:100
   <!-- VYSVĚTLENÍ POSTUPU -->
   <div id="t-explain" class="hidden">
    <p style="color:var(--muted);margin-bottom:14px;line-height:1.6">
-    Žáci mohou po správné odpovědi v boji napsat <b style="color:var(--gold)">jednou větou jak na to přišli</b>. Zde vidíš jejich vzkazy — pilotně jen pro <b>9. ročník</b>. Slouží jako formativní zpětná vazba: kde žáci přemýšlejí správně a kde jen tipují.</p>
+    Žáci mohou po správné odpovědi v boji napsat <b style="color:var(--gold)">jednou větou jak na to přišli</b>. Zde vidíš jejich vzkazy ze všech ročníků. Slouží jako formativní zpětná vazba: kde žáci přemýšlejí správně a kde jen tipují.</p>
    <div class="controls">
-    <select id="expl-game" onchange="renderExplain()">
-     <option value="RPG_MAT_9">💻 NULL_BYTE (9. ročník)</option>
+    <select id="expl-game" onchange="onExplGameChange()">
+     <option value="RPG_MAT_6">🚀 Vesmírná expedice (6. ročník)</option>
+     <option value="RPG_MAT_7">⛏️ Ztracený chrám (7. ročník)</option>
+     <option value="RPG_MAT_8">🎓 Matematická akademie (8. ročník)</option>
+     <option value="RPG_MAT_9" selected>💻 NULL_BYTE (9. ročník)</option>
     </select>
     <select id="expl-class" onchange="renderExplain()">
      <option value="">Všechny třídy</option>
@@ -989,18 +992,36 @@ async function renderBroadcasts(){
  const w=document.getElementById('broadcasts-wrap');if(!w)return;
  const list=await RPGCloud.listMyBroadcasts();
  if(!list.length){w.innerHTML='<div class="empty" style="padding:8px">— zatím jsi neodeslal žádný vzkaz —</div>';return;}
- w.innerHTML=list.map(b=>{
+ window.__broadcasts=list;
+ const head='<div style="display:flex;justify-content:flex-end;margin-bottom:4px">'+
+  '<button class="mini red" onclick="recallAllBroadcasts()" title="stáhnout zpět všechny odeslané vzkazy">🗑 smazat vše ('+list.length+')</button></div>';
+ w.innerHTML=head+list.map(b=>{
   const pct=b.total?Math.round(b.read/b.total*100):0;
   return '<div style="background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:8px 10px;margin:6px 0">'+
    '<div style="font-size:13px;color:var(--text);line-height:1.5">'+esc(b.body)+'</div>'+
    '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px;gap:10px;flex-wrap:wrap">'+
     '<span style="font-size:11px;color:var(--muted)">'+esc(fmtDate(b.created_at))+'</span>'+
-    '<span style="font-size:11px">'+
-     '<b style="color:#4ade80">✓ '+b.read+'/'+b.total+'</b> přečteno ('+pct+'%) · '+
-     '<b style="color:#ff6b6b">🗑 '+b.deleted+'</b> smazáno'+
+    '<span style="display:flex;align-items:center;gap:8px;font-size:11px">'+
+     '<span><b style="color:#4ade80">✓ '+b.read+'/'+b.total+'</b> přečteno ('+pct+'%) · '+
+     '<b style="color:#ff6b6b">🗑 '+b.deleted+'</b> smazáno</span>'+
+     '<button class="mini red" onclick="recallBroadcast(\''+esc(b.batch_id)+'\')" title="smazat tento vzkaz všem žákům">↩ stáhnout zpět</button>'+
     '</span>'+
    '</div></div>';
  }).join('');
+}
+async function recallBroadcast(batchId){
+ if(!confirm('Stáhnout tento vzkaz zpět? Smaže se všem žákům, kterým byl odeslán.'))return;
+ const res=await RPGCloud.deleteBroadcast(batchId);
+ if(res.ok){toast('↩ vzkaz stažen zpět');renderBroadcasts();}
+ else toast('Chyba: '+(res.error||'nepodařilo se'),1);
+}
+async function recallAllBroadcasts(){
+ const list=window.__broadcasts||[];if(!list.length)return;
+ if(!confirm('Smazat VŠECH '+list.length+' odeslaných vzkazů? Zmizí všem žákům.'))return;
+ let err=0;
+ for(const b of list){const res=await RPGCloud.deleteBroadcast(b.batch_id);if(!res.ok)err++;}
+ toast(err?('Hotovo, ale '+err+' se nepodařilo'):'🗑 všechny vzkazy smazány',err>0);
+ renderBroadcasts();
 }
 function renderClasses(){
  const w=document.getElementById('classes-wrap');
@@ -1127,13 +1148,18 @@ function initExplainTab(){
   const cs=document.getElementById('expl-class');
   cs.innerHTML='<option value="">Všechny třídy</option>';
   (CLASSES||[]).forEach(c=>{const o=document.createElement('option');o.value=c.id;o.textContent=classLabel(c);cs.appendChild(o);});
-  // populate mission filter
-  const ms=document.getElementById('expl-mid');
-  ms.innerHTML='<option value="">Všechny mise</option>';
-  MISSIONS_9.forEach(m=>{const o=document.createElement('option');o.value=m.id;o.textContent=m.id+' '+m.name;ms.appendChild(o);});
+  // populate mission filter dle zvoleného ročníku
+  fillExplMissions();
   explInited=true;
  }
 }
+function fillExplMissions(){
+ const game=document.getElementById('expl-game').value||'RPG_MAT_9';
+ const ms=document.getElementById('expl-mid');
+ ms.innerHTML='<option value="">Všechny mise</option>';
+ missionsFor(game).forEach(m=>{const o=document.createElement('option');o.value=m.id;o.textContent=m.id+' '+m.name;ms.appendChild(o);});
+}
+function onExplGameChange(){fillExplMissions();loadExplain();}
 
 async function loadExplain(){
  const wrap=document.getElementById('expl-wrap');
