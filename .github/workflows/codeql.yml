@@ -1,0 +1,43 @@
+# CodeQL — advanced setup (nahrazuje GitHubem spravovaný "default setup",
+# který na tomto repu opakovaně padá v init kroku na interní auth chybě).
+#
+# DŮLEŽITÉ: po mergi tohoto souboru vypni default setup, jinak GitHub
+# odmítne nahrát výsledky (konflikt konfigurací):
+#   Settings → Code security and analysis → CodeQL analysis → ⋯ → Disable
+name: CodeQL
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: '30 4 * * 1'   # pondělí ráno — týdenní sken i bez commitů
+
+jobs:
+  analyze:
+    name: Analyze (${{ matrix.language }})
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write   # nahrání výsledků do code scanning
+      packages: read           # CodeQL packy
+      actions: read
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [javascript-typescript, python]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v4
+        with:
+          languages: ${{ matrix.language }}
+          build-mode: none
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v4
+        with:
+          category: '/language:${{ matrix.language }}'
