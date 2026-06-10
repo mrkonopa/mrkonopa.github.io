@@ -58,15 +58,15 @@ window.RPGTaskTypes = (function () {
   /* ── SPOJOVAČKA ──
      Z poolu vybere n úloh s krátkými UNIKÁTNÍMI odpověďmi (jinak by spoj
      nebyl jednoznačný). Vrací [{q,a}] nebo null, když se nedá sestavit. */
-  function pickPairs(pool, n) {
-    n = n || 4;
+  function pickPairs(pool, n, maxQLen) {
+    n = n || 4; maxQLen = maxQLen || 110;
     const seen = new Set(), out = [];
     for (const t of shuffle(pool || [])) {
       if (!t || !t.text || t.ans == null || t.svg) continue;     // SVG úlohy nemají v 2 sloupcích místo
       const a = String(t.ans).trim();
       if (!a || a.length > 8 || seen.has(a)) continue;
       const q = String(t.text).replace(/\s+/g, ' ').trim();
-      if (q.length < 4 || q.length > 110) continue;
+      if (q.length < 4 || q.length > maxQLen) continue;
       seen.add(a); out.push({ q, a });
       if (out.length === n) return out;
     }
@@ -149,5 +149,55 @@ window.RPGTaskTypes = (function () {
     });
   }
 
-  return { pickPairs, renderMatch, pickOrderItems, renderOrder };
+  /* ── PEXESO ──
+     Karty = úloha + její výsledek. Otoč dvě; dvojice zůstane otočená.
+     mistakes = počet neúspěšných otočení (2 „zdarma" odečítá volající). */
+  function renderPexeso(el, pairs, onDone) {
+    injectCss();
+    if (!document.getElementById('ttp-css')) {
+      const css = document.createElement('style');
+      css.id = 'ttp-css';
+      css.textContent =
+        '.ttp-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}' +
+        '@media(max-width:480px){.ttp-grid{grid-template-columns:repeat(2,1fr)}}' +
+        '.ttp-card{font-family:var(--vt,monospace);font-size:16px;line-height:1.3;min-height:74px;' +
+        'padding:8px;border-radius:9px;cursor:pointer;border:2px solid var(--line,#2a3450);' +
+        'background:rgba(255,255,255,.05);color:transparent;transition:.15s;word-break:break-word;' +
+        'display:flex;align-items:center;justify-content:center;text-align:center;position:relative}' +
+        '.ttp-card::after{content:"❓";position:absolute;inset:0;display:flex;align-items:center;' +
+        'justify-content:center;font-size:26px;color:var(--muted,#8895b5)}' +
+        '.ttp-card.open{color:var(--text,#e8eaf6);background:rgba(93,200,240,.12);border-color:var(--blue,#5dc8f0)}' +
+        '.ttp-card.open::after,.ttp-card.done::after{content:""}' +
+        '.ttp-card.done{color:#4ade80;border-color:#4ade80;background:rgba(74,222,128,.12);cursor:default}' +
+        '.ttp-card.sm{font-size:12px;line-height:1.25}';
+      document.head.appendChild(css);
+    }
+    let open = null, lock = false, solved = 0, mistakes = 0;
+    const cards = shuffle(pairs.flatMap((p, i) => [{ k: i, t: p.q }, { k: i, t: p.a }]));
+    el.innerHTML = '<div class="ttm-head">🃏 PEXESO — najdi dvojice úloha + výsledek</div>' +
+      '<div class="ttp-grid" data-ttm="grid"></div>';
+    const grid = el.querySelector('[data-ttm="grid"]');
+    cards.forEach(c => {
+      const b = document.createElement('button');
+      b.className = 'ttp-card' + (String(c.t).length > 34 ? ' sm' : ''); b.textContent = c.t;
+      b.onclick = () => {
+        if (lock || b.classList.contains('open') || b.classList.contains('done')) return;
+        b.classList.add('open');
+        if (!open) { open = { b, k: c.k }; return; }
+        if (open.k === c.k) {
+          open.b.classList.remove('open'); b.classList.remove('open');
+          open.b.classList.add('done'); b.classList.add('done');
+          open = null; solved++;
+          if (solved === pairs.length && typeof onDone === 'function') onDone(mistakes);
+        } else {
+          mistakes++; lock = true;
+          const prev = open.b; open = null;
+          setTimeout(() => { prev.classList.remove('open'); b.classList.remove('open'); lock = false; }, 750);
+        }
+      };
+      grid.appendChild(b);
+    });
+  }
+
+  return { pickPairs, renderMatch, pickOrderItems, renderOrder, renderPexeso };
 })();
