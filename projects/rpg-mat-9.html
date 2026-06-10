@@ -630,6 +630,10 @@ html[data-theme="violet"]{--gold:#b06cff;--panel:#100a20;--panel2:#18103a;--blue
   </div>
   <div class="bar-out bar-xp"><div class="bar-in" id="tr-msbar" style="width:0%"></div></div>
  </div>
+ <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+  <button class="btn sm b" onclick="trStartMatch()">🔗 SPOJOVAČKA</button>
+  <button class="btn sm b" onclick="trStartOrder()">↕ ŘAZENÍ</button>
+ </div>
  </div>
  <div class="bt-problem" id="tr-prob">...</div>
  <div class="bt-row" id="tr-input-row">
@@ -2381,6 +2385,48 @@ function trSubmit(){
  else trWrong(v);
 }
 
+// sloučený pool mise (základ + rozšiřující banka) — pro speciální režimy
+function trPool(){
+ let pool=TR.m.tasks();
+ const ex=window.RPG_TASK_EXTRA_9;
+ if(ex && typeof ex[TR.mid]==='function'){try{pool=pool.concat(ex[TR.mid]());}catch(e){}}
+ return pool;
+}
+function trStartMatch(){
+ if(!window.RPGTaskTypes||!TR.m)return;
+ const pairs=RPGTaskTypes.pickPairs(trPool(),4);
+ const fb=document.getElementById('tr-fb');
+ if(!pairs){fb.className='feedback err';fb.textContent='Pro toto téma se spojovačka nedá sestavit.';return;}
+ trSpecialBegin();
+ RPGTaskTypes.renderMatch(document.getElementById('tr-prob'),pairs,trSpecialDone);
+}
+function trStartOrder(){
+ if(!window.RPGTaskTypes||!TR.m)return;
+ const items=RPGTaskTypes.pickOrderItems(trPool(),5);
+ const fb=document.getElementById('tr-fb');
+ if(!items){fb.className='feedback err';fb.textContent='Pro toto téma se řazení nedá sestavit.';return;}
+ trSpecialBegin();
+ RPGTaskTypes.renderOrder(document.getElementById('tr-prob'),items,trSpecialDone);
+}
+function trSpecialBegin(){
+ TR.task={ans:'',skill:null,hints:[]};
+ document.getElementById('tr-input-row').style.display='none';
+ document.getElementById('tr-yn-row').style.display='none';
+ document.getElementById('tr-mc').style.display='none';
+ document.getElementById('tr-hint-btn').style.display='none';
+ document.getElementById('tr-next-btn').style.display='none';
+ const fb=document.getElementById('tr-fb');fb.className='feedback';fb.textContent='';
+ const hb=document.getElementById('tr-hint-box');hb.textContent='';hb.classList.remove('show');
+}
+function trSpecialDone(mistakes){
+ if(mistakes===0){trCorrect();}
+ else{
+  TR.total++;TR.streak=0;trStats();
+  const fb=document.getElementById('tr-fb');fb.className='feedback err';
+  fb.textContent='Hotovo — ale s '+mistakes+' '+skl(mistakes,'chybou','chybami','chybami')+'. Bod za mistrovství jen bez chyb!';
+ }
+ document.getElementById('tr-next-btn').style.display='inline-block';
+}
 function trCorrect(){
  TR.correct++;TR.total++;TR.streak++;
  const m=S.mastery[TR.mid]||(S.mastery[TR.mid]={score:0,mastered:false});
@@ -2583,6 +2629,7 @@ window.addEventListener('load',()=>{
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="./rpg-cloud.js"></script>
 <script src="./rpg-battle-9.js"></script>
+<script src="./rpg-tasktypes.js"></script>
 <script src="./rpg-battle-ui.js"></script>
 <script>RPGCloud.attachGame(SAVE_KEY);</script>
 </body>
