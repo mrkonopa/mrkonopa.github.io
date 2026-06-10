@@ -176,6 +176,9 @@ body{background:var(--bg);color:var(--text);font-family:var(--px);min-height:100
     💡 Zadej <b>označení</b> + <b>ročník teď</b> a třída se každé <b>1. září</b> sama posune
     (6.B → 7.B → …). Nebo nech ročník prázdný a použij jen vlastní název.</p>
    <div id="classes-wrap"><div class="empty">Načítám…</div></div>
+
+   <h4 style="margin-top:24px">📨 Odeslané vzkazy <span style="font-size:11px;color:var(--muted);font-weight:400">(přečteno / smazáno žáky)</span></h4>
+   <div id="broadcasts-wrap"><div class="empty" style="padding:8px">Načítám…</div></div>
   </div>
 
   <!-- NÁHLED HER -->
@@ -776,14 +779,18 @@ async function loadNotes(uid){
  const box=document.getElementById('notes-box');if(!box)return;
  const notes=await RPGCloud.listNotesFor(uid);
  if(!notes.length){box.innerHTML='<div class="empty" style="padding:8px">— zatím žádné poznámky —</div>';return;}
- box.innerHTML=notes.map(n=>
-  '<div style="background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:8px 10px;margin:6px 0">'+
+ box.innerHTML=notes.map(n=>{
+  const st=n.deleted_at?'<span style="color:#ff6b6b">🗑 smazáno žákem</span>'
+           :(n.read_at?'<span style="color:#4ade80">✓ přečteno</span>'
+           :'<span style="color:#ffb020">• nepřečteno</span>');
+  return '<div style="background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:8px 10px;margin:6px 0'+(n.deleted_at?';opacity:.6':'')+'">'+
    '<div style="font-size:13px;color:var(--text);line-height:1.5">'+esc(n.body)+'</div>'+
-   '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px">'+
-    '<span style="font-size:11px;color:var(--muted)">'+esc(n.author_name||n.author_email||'')+' · '+esc(fmtDate(n.created_at))+'</span>'+
+   '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px;gap:8px">'+
+    '<span style="font-size:11px;color:var(--muted)">'+esc(n.author_name||n.author_email||'')+' · '+esc(fmtDate(n.created_at))+' · '+st+'</span>'+
     '<button class="mini red" onclick="delNoteUI(\''+esc(n.id)+'\',\''+esc(uid)+'\')">smazat</button>'+
    '</div>'+
-  '</div>').join('');
+  '</div>';
+ }).join('');
 }
 async function addNoteUI(i){
  const r=window.__filtered[i];if(!r)return;
@@ -971,10 +978,29 @@ async function classNote(cid){
  const inp=document.getElementById('cls-note-'+cid);
  const body=(inp&&inp.value||'').trim();if(!body){toast('Vzkaz je prázdný.',1);return;}
  const mem=membersOfClass(cid);if(!mem.size){toast('Třída je prázdná.',1);return;}
+ const batch=(crypto&&crypto.randomUUID)?crypto.randomUUID():('b'+Date.now()+Math.random());
  let okN=0,errN=0;
- for(const uid of mem){const res=await RPGCloud.addNote(uid,body);if(res&&!res.error)okN++;else errN++;}
+ for(const uid of mem){const res=await RPGCloud.addNote(uid,body,batch);if(res&&!res.error)okN++;else errN++;}
  toast('📨 vzkaz odeslán '+okN+' žákům'+(errN?' ('+errN+' chyb)':''),errN>0);
  if(inp)inp.value='';
+ if(typeof renderBroadcasts==='function')renderBroadcasts();
+}
+async function renderBroadcasts(){
+ const w=document.getElementById('broadcasts-wrap');if(!w)return;
+ const list=await RPGCloud.listMyBroadcasts();
+ if(!list.length){w.innerHTML='<div class="empty" style="padding:8px">— zatím jsi neodeslal žádný vzkaz —</div>';return;}
+ w.innerHTML=list.map(b=>{
+  const pct=b.total?Math.round(b.read/b.total*100):0;
+  return '<div style="background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:8px 10px;margin:6px 0">'+
+   '<div style="font-size:13px;color:var(--text);line-height:1.5">'+esc(b.body)+'</div>'+
+   '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px;gap:10px;flex-wrap:wrap">'+
+    '<span style="font-size:11px;color:var(--muted)">'+esc(fmtDate(b.created_at))+'</span>'+
+    '<span style="font-size:11px">'+
+     '<b style="color:#4ade80">✓ '+b.read+'/'+b.total+'</b> přečteno ('+pct+'%) · '+
+     '<b style="color:#ff6b6b">🗑 '+b.deleted+'</b> smazáno'+
+    '</span>'+
+   '</div></div>';
+ }).join('');
 }
 function renderClasses(){
  const w=document.getElementById('classes-wrap');
@@ -1166,7 +1192,7 @@ document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
  document.getElementById('t-diag').classList.toggle('hidden',tab!=='diag');
  document.getElementById('t-explain').classList.toggle('hidden',tab!=='explain');
  document.getElementById('t-teachers').classList.toggle('hidden',tab!=='teachers');
- if(tab==='classes')renderClasses();
+ if(tab==='classes'){renderClasses();renderBroadcasts();}
  if(tab==='teachers')loadTeachers();
  if(tab==='diag')renderDiag();
  if(tab==='explain')initExplainTab();
