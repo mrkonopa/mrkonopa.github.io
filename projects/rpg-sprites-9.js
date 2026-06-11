@@ -859,5 +859,20 @@ window.RPGSprites9 = (function () {
 
   window.addEventListener('resize', resize);
 
-  return { attach, detach, active, spawn, heroAttack, bossAttack, defeat, setProgress, setHeroHp };
+  /* hrdina na cizí canvas (věž legend aj.) — nepotřebuje attach() */
+  function drawHeroOn(c2, x, y, scale, frame, flipX) {
+    const grid = HERO_IDLE[frame ? 1 : 0];
+    for (let r = 0; r < grid.length; r++) {
+      const row = grid[r];
+      for (let c = 0; c < row.length; c++) {
+        const ch = row[c];
+        if (ch === '.') continue;
+        c2.fillStyle = PAL_HERO[ch] || COMMON[ch] || '#f0f';
+        const px = flipX ? x + (row.length - 1 - c) * scale : x + c * scale;
+        c2.fillRect(px, y + r * scale, scale, scale);
+      }
+    }
+  }
+
+  return { attach, detach, active, spawn, heroAttack, bossAttack, defeat, setProgress, setHeroHp, drawHeroOn };
 })();
