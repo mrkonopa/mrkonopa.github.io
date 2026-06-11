@@ -320,6 +320,7 @@ const ARTIFACTS_BY_GAME={
 const ATTR=[['calc','🔢 Výpočty'],['geo','📐 Geometrie'],['anal','🧠 Analýza'],['craft','⚡ Instinkt']];
 const gMeta=k=>GAMES.find(g=>g.key===k)||{emoji:'❓',nm:k,gr:'',accent:'#888'};
 let ROWS=[];   // všechny postavy
+let SNAP_DATA={}; // game → [{user_id,snapped_at,errs}]
 let CLASSES=[];       // [{id,name,…}]
 let MEMBERSHIPS=[];   // [{class_id,user_id}]
 // user_id → Set(class_id)
@@ -467,6 +468,12 @@ async function loadData(){
  document.getElementById('tbl-wrap').innerHTML='<div class="empty">Načítám data…</div>';
  ROWS=await RPGCloud.listAllSaves();
  await loadClasses();
+ // Načti snímky chybovosti ze snap_events (fáze 6b)
+ if(RPGCloud.getErrsSnaps){
+  SNAP_DATA={};
+  const results=await Promise.all(GAMES.map(g=>RPGCloud.getErrsSnaps(g.key).then(rows=>({game:g.key,rows}))));
+  results.forEach(({game,rows})=>{SNAP_DATA[game]=rows||[];});
+ }
  renderStats();renderTable();
  // Auto-refresh online indikátoru každých 60 s
  if(!window.__autoRefreshSet){window.__autoRefreshSet=true;setInterval(()=>{if(ROWS.length)renderTable();},60000);}
@@ -1139,12 +1146,18 @@ function renderDiag(){
   let cells='';
   miss.filter(m=>m.id.indexOf(area+'-')===0).forEach(m=>{
    let reached=0,completed=0,totErr=0,recent=0,prev=0,hasTrend=false,hasPrev=false;
+   // index SQL snímků per user pro tento ročník (seřazeny vzestupně)
+   const sqlSnaps=SNAP_DATA[game]||[];
+   const sqlByUser=new Map();
+   sqlSnaps.forEach(s=>{if(!sqlByUser.has(s.user_id))sqlByUser.set(s.user_id,[]);sqlByUser.get(s.user_id).push(s);});
    rows.forEach(r=>{
     const d=r.data||{},errs=d.errs||{},done=d.done||{};
     const e=errs[m.id]||0;
     let dc=0;for(let i=0;i<TC;i++)if(done[m.id+'-'+i])dc++;
     if(e>0||dc>0){reached++;totErr+=e;if(dc>=TC)completed++;}
-    const sn=Array.isArray(d.errsSnap)?d.errsSnap:[];
+    // Preferuj SQL snímky (fáze 6b); fallback na errsSnap v save JSON
+    const sqlU=sqlByUser.get(r.user_id)||[];
+    const sn=sqlU.length>=2?sqlU.map(s=>({t:s.snapped_at,errs:s.errs||{}})):(Array.isArray(d.errsSnap)?d.errsSnap:[]);
     if(sn.length>=2){const a=(sn[sn.length-1].errs||{})[m.id]||0,b=(sn[sn.length-2].errs||{})[m.id]||0;recent+=Math.max(0,a-b);hasTrend=true;}
     if(sn.length>=3){const b=(sn[sn.length-2].errs||{})[m.id]||0,c=(sn[sn.length-3].errs||{})[m.id]||0;prev+=Math.max(0,b-c);hasPrev=true;}
    });

@@ -456,6 +456,29 @@ window.RPGCloud = (function () {
     } catch (e) { return { ok: false, error: String(e) }; }
   }
 
+  // ── Fáze 6b — týdenní snímky chybovosti (snap_events) ───────────────
+  async function pushErrsSnap(game, snaps) {
+    if (!client || !user) return;
+    if (!Array.isArray(snaps) || snaps.length === 0) return;
+    const rows = snaps
+      .filter(s => s && s.t && typeof s.errs === 'object')
+      .map(s => ({ user_id: user.id, game, snapped_at: s.t, errs: s.errs || {} }));
+    if (!rows.length) return;
+    const { error } = await client.from('snap_events')
+      .upsert(rows, { onConflict: 'user_id,game,snapped_at', ignoreDuplicates: true });
+    if (error) console.warn('[RPGCloud] pushErrsSnap:', error.message);
+  }
+
+  async function getErrsSnaps(game) {
+    if (!client || !isStaff()) return [];
+    const { data, error } = await client.from('snap_events')
+      .select('user_id,snapped_at,errs')
+      .eq('game', game)
+      .order('snapped_at', { ascending: true });
+    if (error) { console.warn('[RPGCloud] getErrsSnaps:', error.message); return []; }
+    return data || [];
+  }
+
   // ── Fáze 10 — zpětná vazba od hráčů ────────────────────────────────
   async function saveFeedback(body) {
     if (!client || !user) return { ok: false, error: 'Nejsi přihlášen.' };
@@ -933,6 +956,8 @@ window.RPGCloud = (function () {
            leaderboard, renderLeaderboardInto,
            // Fáze 6 — vysvětlení postupu
            saveExplanation, listExplanations, deleteExplanation,
+           // Fáze 6b — snímky chybovosti
+           pushErrsSnap, getErrsSnaps,
            // Fáze 10 — zpětná vazba
            saveFeedback, listFeedback, deleteFeedback,
            // Fáze 7 — živý souboj
