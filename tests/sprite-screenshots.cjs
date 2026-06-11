@@ -31,7 +31,7 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
   const base = `http://127.0.0.1:${srv.address().port}`;
   const browser = await chromium.launch({ executablePath: EXEC });
 
-  for (const game of [6, 8]) {
+  for (const game of [6, 7, 8]) {
     const ctx = await browser.newContext({ viewport: { width: 480, height: 800 } });
     const page = await ctx.newPage();
     await page.goto(`${base}/projects/rpg-mat-${game}.html`, { waitUntil: 'load' });
