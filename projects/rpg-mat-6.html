@@ -1618,8 +1618,6 @@ function launchBattle(aid,mid){
  if(BT.freezeTimeout){clearTimeout(BT.freezeTimeout);BT.freezeTimeout=null;}
  BT.mcMode=!!m.mc;
  BT._bid=(BT._bid||0)+1;
- const _doneSoFar=BT.tasks.filter((_,i)=>S.done[`${mid}-${i}`]).length;
- BT._doneBattle=(_doneSoFar>=BT.tasks.length)?0:_doneSoFar;
  const _mIdx=ar.missions.findIndex(x=>x.id===mid);
  BT._bossStartDamage=Math.max(0,_mIdx/ar.missions.length);
  // reset top styling
@@ -1635,6 +1633,8 @@ function launchBattle(aid,mid){
  if(ex && typeof ex[m.id]==='function'){try{pool=pool.concat(ex[m.id]());}catch(e){}}
  BT.tasks=shuffleArr(pool).slice(0,m.tc);
  BT.idx=0;
+ const _doneSoFar=BT.tasks.filter((_,i)=>S.done[`${mid}-${i}`]).length;
+ BT._doneBattle=(_doneSoFar>=BT.tasks.length)?0:_doneSoFar;
  // for retry, restart from beginning; for normal launch, find first undone
  for(let i=0;i<BT.tasks.length;i++){if(!S.done[`${mid}-${i}`]){BT.idx=i;break;}}
  const mon=document.getElementById('bt-mon');
