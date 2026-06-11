@@ -2074,7 +2074,8 @@ function showHint(){
  hb.style.borderColor=colors[BT.hl];
  hb.style.color=BT.hl===1?'#ffd966':'#7fe87f';
  hb.style.background=BT.hl===1?'#1a1500':'#0f1a0f';
- hb.textContent='💡 Nápověda '+(BT.hl+1)+'/2:\n'+t.hints[BT.hl];
+ const hintText=(t.hints[BT.hl]&&t.hints[BT.hl].trim())?t.hints[BT.hl]:('Výsledek: '+t.ans);
+ hb.textContent='💡 Nápověda '+(BT.hl+1)+'/2:\n'+hintText;
  hb.classList.add('show');
  BT.hl++;
  const btn=document.getElementById('hint-btn');
@@ -2410,7 +2411,8 @@ function trHint(){
  hb.style.borderColor=TR.hl===1?'var(--gold)':'var(--green)';
  hb.style.color=TR.hl===1?'#ffd966':'#7fe87f';
  hb.style.background=TR.hl===1?'#1a1500':'#0f1a0f';
- hb.textContent='💡 Nápověda '+(TR.hl+1)+'/2:\n'+t.hints[TR.hl];
+ const trHintText=(t.hints[TR.hl]&&t.hints[TR.hl].trim())?t.hints[TR.hl]:('Výsledek: '+t.ans);
+ hb.textContent='💡 Nápověda '+(TR.hl+1)+'/2:\n'+trHintText;
  hb.classList.add('show');
  TR.hl++;
  const btn=document.getElementById('tr-hint-btn');
