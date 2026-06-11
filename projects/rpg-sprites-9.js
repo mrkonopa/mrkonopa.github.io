@@ -488,7 +488,7 @@ window.RPGSprites9 = (function () {
     if (m === 'cast')  return HERO_CAST;
     if (m === 'shoot') return HERO_SHOOT;
     if (m === 'hit')   return HERO_HIT;
-    return HERO_IDLE[tick % 2];
+    return HERO_IDLE[rm() ? 0 : tick % 2];
   }
 
   function render(now) {
@@ -576,12 +576,40 @@ window.RPGSprites9 = (function () {
       const dash = p < 0.5 ? p * 2 : (1 - p) * 2;
       hx = hp.x + dash * (bp.x - hp.x - 15 * SCALE);
     }
-    drawSprite(heroGrid(), PAL_HERO, hx, hp.y, SCALE, false, h.mode === 'hit');
+    // ── vizuální stav hrdiny podle HP (zrcadlí poškozování bosse) ──
+    // plné HP: nic | 2/3: šrámy + pot | 1/3: třes, shrbení, supění
+    const hpf = h.hpFrac === undefined ? 1 : h.hpFrac;
+    let hy = hp.y;
+    if (hpf <= 0.34) {
+      hy += 3;
+      if (!rm() && h.mode === 'idle') hx += Math.sin(performance.now() / 70) * 2;
+    }
+    drawSprite(heroGrid(), PAL_HERO, hx, hy, SCALE, false, h.mode === 'hit');
+    if (hpf <= 0.67 && h.mode !== 'hit') {
+      const bad = hpf <= 0.34;
+      ctx.globalAlpha = 0.75;
+      ctx.fillStyle = '#ff3355';
+      ctx.fillRect(hx + 4 * SCALE, hy + 8 * SCALE, 2 * SCALE, 2);
+      ctx.fillRect(hx + 7 * SCALE, hy + 10 * SCALE, 2 * SCALE, 2);
+      if (bad) {
+        ctx.fillRect(hx + 5 * SCALE, hy + 4 * SCALE, 2 * SCALE, 2);
+        ctx.fillRect(hx + 8 * SCALE, hy + 12 * SCALE, 2 * SCALE, 2);
+      }
+      ctx.globalAlpha = 1;
+      if (!rm() && Math.random() < (bad ? 0.09 : 0.035)) {
+        ST.fx.push({ kind: 'sweat', x: hx + (4 + Math.random() * 6) * SCALE, y: hy + 2 * SCALE,
+          vx: (Math.random() - 0.5) * 0.8, vy: 1.1 + Math.random(), t: 0 });
+      }
+      if (bad && !rm() && Math.random() < 0.06) {
+        ST.fx.push({ kind: 'smoke', x: hx + 11 * SCALE, y: hy + 4 * SCALE,
+          vx: 0.5 + Math.random() * 0.5, vy: -0.4 - Math.random() * 0.4, t: 0 });
+      }
+    }
     // ── android parťák — levituje vedle hrdiny ──
     {
       const bob = rm() ? 0 : Math.sin(performance.now() / 380) * 6;
       const ax = hp.x + 15 * SCALE + 6, ay = hp.y - 8 + bob;
-      drawSprite(ANDROID[tick % 2], PAL_AND, ax, ay, ASCALE, false, false);
+      drawSprite(ANDROID[rm() ? 0 : tick % 2], PAL_AND, ax, ay, ASCALE, false, false);
       if (!rm()) {  // tryskový plamínek pod tělem
         ctx.fillStyle = (tick % 2) ? '#19e6e6' : '#0e8a8a';
         ctx.fillRect(ax + 3 * ASCALE, ay + 10 * ASCALE, ASCALE, ASCALE);
@@ -713,6 +741,12 @@ window.RPGSprites9 = (function () {
         ctx.fillStyle = 'rgba(255,255,180,' + (0.6 - p * 0.6) + ')';
         ctx.fillRect(f.x - 1, f.y - 1, 2, 2);
         if (p >= 1 || f.y > 210) ST.fx.splice(i, 1);
+      } else if (f.kind === 'sweat') {
+        f.x += f.vx; f.y += f.vy; f.vy += 0.15;
+        const p = Math.min(1, f.t / 420);
+        ctx.fillStyle = 'rgba(120,200,255,' + (1 - p) + ')';
+        ctx.fillRect(f.x - 2, f.y - 2, 4, 4);
+        if (p >= 1 || f.y > 210) ST.fx.splice(i, 1);
       } else if (f.kind === 'smoke') {
         f.x += f.vx; f.y += f.vy;
         const p = Math.min(1, f.t / 700);
@@ -740,13 +774,19 @@ window.RPGSprites9 = (function () {
   }
 
   /* ── veřejné akce ── */
+
+  function setHeroHp(frac) {
+    const f = +frac;
+    ST.hero.hpFrac = isFinite(f) ? Math.max(0, Math.min(1, f)) : 1;
+  }
+
   function spawn(areaId, startDmg) {
     curArea = Math.max(1, Math.min(7, areaId | 0));
     resize();
     ST.boss.mode = rm() ? 'idle' : 'enter';
     ST.boss.t = 0; ST.boss.flash = 0;
     ST.boss.progress = Math.max(0, Math.min(1, startDmg || 0));
-    ST.hero.mode = 'idle'; ST.hero.t = 0;
+    ST.hero.mode = 'idle'; ST.hero.t = 0; ST.hero.hpFrac = 1;
     ST.fx.length = 0;
   }
 
@@ -819,5 +859,20 @@ window.RPGSprites9 = (function () {
 
   window.addEventListener('resize', resize);
 
-  return { attach, detach, active, spawn, heroAttack, bossAttack, defeat, setProgress };
+  /* hrdina na cizí canvas (věž legend aj.) — nepotřebuje attach() */
+  function drawHeroOn(c2, x, y, scale, frame, flipX) {
+    const grid = HERO_IDLE[frame ? 1 : 0];
+    for (let r = 0; r < grid.length; r++) {
+      const row = grid[r];
+      for (let c = 0; c < row.length; c++) {
+        const ch = row[c];
+        if (ch === '.') continue;
+        c2.fillStyle = PAL_HERO[ch] || COMMON[ch] || '#f0f';
+        const px = flipX ? x + (row.length - 1 - c) * scale : x + c * scale;
+        c2.fillRect(px, y + r * scale, scale, scale);
+      }
+    }
+  }
+
+  return { attach, detach, active, spawn, heroAttack, bossAttack, defeat, setProgress, setHeroHp, drawHeroOn };
 })();

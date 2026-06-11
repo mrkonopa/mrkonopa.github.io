@@ -22,113 +22,113 @@ window.RPGSprites6 = (function () {
     G:'#7a5a40', B:'#23232e', W:'#e8ecf5', Y:'#4dc8ff'
   };
 
-  /* ── hrdina (14×16, kouká doprava) ── */
+  /* ── hrdina (14×16, kouká doprava) — astronaut s vizorem ── */
   const HERO_IDLE = [[
-    '....KKKKK.....',
-    '...KJJJJJK....',
-    '..KJJJJJJJK...',
-    '..KJCCCCCJK...',
-    '..KJcccccJK...',
-    '...KJJJJJK....',
-    '..KGJJJJJGK...',
-    '.KJJJJJJJJJK..',
-    '.KJjJJJJJjJK..',
-    '.KJjJJJJJjJK..',
-    '..KjJJJJJjK...',
-    '...KjJJJjK....',
-    '...KBJ.JBK....',
-    '...KB...BK....',
-    '...KB...BK....',
-    '..KBB...BBK...'
+    '...KKKKKK.....',
+    '..KWWWWWWK....',
+    '.KWWWWWWWWK...',
+    '.KWCCCCCCWK...',
+    '.KWCccccCWK...',
+    '.KWWWWWWWWK...',
+    '..KWWWWWWK....',
+    '..KJJJJJJK....',
+    '.KGJJYYJJGK...',
+    '.KGJjYYjJGK...',
+    '..KJJJJJJK....',
+    '...KjJJjK.....',
+    '..KJJK.KJJK...',
+    '..KjJK.KJjK...',
+    '..KBBK.KBBK...',
+    '.KBBBK.KBBBK..'
   ],[
     '..............',
-    '....KKKKK.....',
-    '...KJJJJJK....',
-    '..KJJJJJJJK...',
-    '..KJCCCCCJK...',
-    '..KJcccccJK...',
-    '...KJJJJJK....',
-    '..KGJJJJJGK...',
-    '.KJJJJJJJJJK..',
-    '.KJjJJJJJjJK..',
-    '..KjJJJJJjK...',
-    '...KjJJJjK....',
-    '...KBJ.JBK....',
-    '...KB...BK....',
-    '...KB...BK....',
-    '..KBB...BBK...'
+    '...KKKKKK.....',
+    '..KWWWWWWK....',
+    '.KWWWWWWWWK...',
+    '.KWCCCCCCWK...',
+    '.KWCccccCWK...',
+    '.KWWWWWWWWK...',
+    '..KWWWWWWK....',
+    '..KJJJJJJK....',
+    '.KGJJYYJJGK...',
+    '..KJJJJJJK....',
+    '...KjJJjK.....',
+    '..KJJK.KJJK...',
+    '..KjJK.KJjK...',
+    '..KBBK.KBBK...',
+    '.KBBBK.KBBBK..'
   ]];
   const HERO_SLASH = [
-    '....KKKKK.....',
-    '...KJJJJJK....',
-    '..KJJJJJJJK...',
-    '..KJCCCCCJK...',
-    '..KJcccccJK...',
-    '...KJJJJJK....',
-    '..KGJJJJJGKWW.',
-    '.KJJJJJJJJKWW.',
-    '.KJjJJJJJJKW..',
-    '.KJjJJJJJjK...',
-    '..KjJJJJJjK...',
-    '...KjJJJjK....',
-    '...KBJ.JBK....',
-    '...KB...BK....',
-    '...KB...BK....',
-    '..KBB...BBK...'
+    '...KKKKKK.....',
+    '..KWWWWWWK....',
+    '.KWWWWWWWWK...',
+    '.KWCCCCCCWK...',
+    '.KWCccccCWK...',
+    '.KWWWWWWWWK...',
+    '..KWWWWWWK....',
+    '..KJJJJJJKWW..',
+    '.KGJJYYJJJKWW.',
+    '.KGJjYYjJJKW..',
+    '..KJJJJJJK....',
+    '...KjJJjK.....',
+    '..KJJK.KJJK...',
+    '..KjJK.KJjK...',
+    '..KBBK.KBBK...',
+    '.KBBBK.KBBBK..'
   ];
   const HERO_CAST = [
-    '....KKKKK..Y..',
-    '...KJJJJJK.YY.',
-    '..KJJJJJJJKY..',
-    '..KJCCCCCJK...',
-    '..KJcccccJKK..',
-    '...KJJJJJKJK..',
-    '..KGJJJJJGJK..',
-    '.KJJJJJJJJJK..',
-    '.KJjJJJJJjK...',
-    '.KJjJJJJJjK...',
-    '..KjJJJJJjK...',
-    '...KjJJJjK....',
-    '...KBJ.JBK....',
-    '...KB...BK....',
-    '...KB...BK....',
-    '..KBB...BBK...'
+    '...KKKKKK..Y..',
+    '..KWWWWWWK.YY.',
+    '.KWWWWWWWWK...',
+    '.KWCCCCCCWK...',
+    '.KWCccccCWKJK.',
+    '.KWWWWWWWWKJK.',
+    '..KWWWWWWKJK..',
+    '..KJJJJJJK....',
+    '.KGJJYYJJGK...',
+    '.KGJjYYjJGK...',
+    '..KJJJJJJK....',
+    '...KjJJjK.....',
+    '..KJJK.KJJK...',
+    '..KjJK.KJjK...',
+    '..KBBK.KBBK...',
+    '.KBBBK.KBBBK..'
   ];
   const HERO_SHOOT = [
-    '....KKKKK.....',
-    '...KJJJJJK....',
-    '..KJJJJJJJK...',
-    '..KJCCCCCJK...',
-    '..KJcccccJK...',
-    '...KJJJJJK....',
-    '..KGJJJJJGKKK.',
-    '.KJJJJJJJJGGK.',
-    '.KJjJJJJJJKKK.',
-    '.KJjJJJJJjK...',
-    '..KjJJJJJjK...',
-    '...KjJJJjK....',
-    '...KBJ.JBK....',
-    '...KB...BK....',
-    '...KB...BK....',
-    '..KBB...BBK...'
+    '...KKKKKK.....',
+    '..KWWWWWWK....',
+    '.KWWWWWWWWK...',
+    '.KWCCCCCCWK...',
+    '.KWCccccCWK...',
+    '.KWWWWWWWWK...',
+    '..KWWWWWWK....',
+    '..KJJJJJJK....',
+    '.KGJJYYJJJKKK.',
+    '.KGJjYYjJJGGK.',
+    '..KJJJJJJKKK..',
+    '...KjJJjK.....',
+    '..KJJK.KJJK...',
+    '..KjJK.KJjK...',
+    '..KBBK.KBBK...',
+    '.KBBBK.KBBBK..'
   ];
   const HERO_HIT = [
-    '....KKKKK.....',
-    '...KJJJJJK....',
-    '..KJJJJJJJK...',
-    '..KJWWWWWJK...',
-    '..KJWWWWWJK...',
-    '...KJJJJJK....',
-    '.KGJJJJJGK....',
-    'KJJJJJJJJJK...',
-    'KJjJJJJJjJK...',
-    'KJjJJJJJjJK...',
-    '.KjJJJJJjK....',
-    '..KjJJJjK.....',
-    '..KBJ.JBK.....',
-    '..KB...BK.....',
-    '..KB...BK.....',
-    '.KBB...BBK....'
+    '..KKKKKK......',
+    '.KWWWWWWK.....',
+    'KWWWWWWWWK....',
+    'KWWWWWWWWK....',
+    'KWWWWWWWWK....',
+    'KWWWWWWWWK....',
+    '.KWWWWWWK.....',
+    '.KJJJJJJK.....',
+    'KGJJYYJJGK....',
+    'KGJjYYjJGK....',
+    '.KJJJJJJK.....',
+    '..KjJJjK......',
+    '.KJJK.KJJK....',
+    '.KjJK.KJjK....',
+    '.KBBK.KBBK....',
+    'KBBBK.KBBBK...'
   ];
 
   /* ── vesmírná sonda (parťák, 10×10) ── */
@@ -160,12 +160,12 @@ window.RPGSprites6 = (function () {
   /* ── bossové: 7 oblastí (1–7), vesmírná témata ── */
   const BOSS_PALS = {
     1:{A:'#4dc8ff',a:'#1a6a8a',M:'#2a3a5c',m:'#1a2a42'},   // palubní robot — cyan
-    2:{A:'#ff8833',a:'#994422',M:'#4a2a1a',m:'#321a10'},   // měřicí dron — orange
-    3:{A:'#cc66ff',a:'#662288',M:'#3a1a5c',m:'#281040'},   // navigační AI — purple
+    2:{A:'#ff8833',a:'#994422',M:'#7a4a2a',m:'#54321c'},   // měřicí dron — orange
+    3:{A:'#cc66ff',a:'#662288',M:'#6a3a9a',m:'#4a286e'},   // navigační AI — purple
     4:{A:'#88ccff',a:'#3a6a9f',M:'#2a3a66',m:'#1a2a46'},   // oblačný strážce — light blue
-    5:{A:'#ff66aa',a:'#882244',M:'#5c1a3a',m:'#3d1027'},   // mlhovinný strážce — pink
+    5:{A:'#ff66aa',a:'#882244',M:'#a03060',m:'#702045'},   // mlhovinný strážce — pink
     6:{A:'#ffd040',a:'#997a10',M:'#4a3a10',m:'#322a0a'},   // kometární mistr — gold
-    7:{A:'#aa80ff',a:'#5522aa',M:'#564080',m:'#382a58'}    // vládce galaxie — violet
+    7:{A:'#bb94ff',a:'#6a3ac0',M:'#6e54a8',m:'#4c3a7a'}    // vládce galaxie — violet
   };
   const COMMON = { K:'#0a0c12', W:'#e8ecf5', R:'#ff3355' };
 
@@ -483,7 +483,7 @@ window.RPGSprites6 = (function () {
     if (m === 'cast')  return HERO_CAST;
     if (m === 'shoot') return HERO_SHOOT;
     if (m === 'hit')   return HERO_HIT;
-    return HERO_IDLE[tick % 2];
+    return HERO_IDLE[rm() ? 0 : tick % 2];
   }
 
   function render(now) {
@@ -561,12 +561,40 @@ window.RPGSprites6 = (function () {
       const dash = p < 0.5 ? p * 2 : (1 - p) * 2;
       hx = hp.x + dash * (bp.x - hp.x - 15 * SCALE);
     }
-    drawSprite(heroGrid(), PAL_HERO, hx, hp.y, SCALE, false, h.mode === 'hit');
+    // ── vizuální stav hrdiny podle HP (zrcadlí poškozování bosse) ──
+    // plné HP: nic | 2/3: šrámy + pot | 1/3: třes, shrbení, supění
+    const hpf = h.hpFrac === undefined ? 1 : h.hpFrac;
+    let hy = hp.y;
+    if (hpf <= 0.34) {
+      hy += 3;
+      if (!rm() && h.mode === 'idle') hx += Math.sin(performance.now() / 70) * 2;
+    }
+    drawSprite(heroGrid(), PAL_HERO, hx, hy, SCALE, false, h.mode === 'hit');
+    if (hpf <= 0.67 && h.mode !== 'hit') {
+      const bad = hpf <= 0.34;
+      ctx.globalAlpha = 0.75;
+      ctx.fillStyle = '#ff3355';
+      ctx.fillRect(hx + 4 * SCALE, hy + 8 * SCALE, 2 * SCALE, 2);
+      ctx.fillRect(hx + 7 * SCALE, hy + 10 * SCALE, 2 * SCALE, 2);
+      if (bad) {
+        ctx.fillRect(hx + 5 * SCALE, hy + 4 * SCALE, 2 * SCALE, 2);
+        ctx.fillRect(hx + 8 * SCALE, hy + 12 * SCALE, 2 * SCALE, 2);
+      }
+      ctx.globalAlpha = 1;
+      if (!rm() && Math.random() < (bad ? 0.09 : 0.035)) {
+        ST.fx.push({ kind: 'sweat', x: hx + (4 + Math.random() * 6) * SCALE, y: hy + 2 * SCALE,
+          vx: (Math.random() - 0.5) * 0.8, vy: 1.1 + Math.random(), t: 0 });
+      }
+      if (bad && !rm() && Math.random() < 0.06) {
+        ST.fx.push({ kind: 'smoke', x: hx + 11 * SCALE, y: hy + 4 * SCALE,
+          vx: 0.5 + Math.random() * 0.5, vy: -0.4 - Math.random() * 0.4, t: 0 });
+      }
+    }
     // vesmírná sonda — levituje vedle hrdiny
     {
       const bob = rm() ? 0 : Math.sin(performance.now() / 380) * 6;
       const ax = hp.x + 15 * SCALE + 6, ay = hp.y - 8 + bob;
-      drawSprite(COMPANION[tick % 2], PAL_COM, ax, ay, ASCALE, false, false);
+      drawSprite(COMPANION[rm() ? 0 : tick % 2], PAL_COM, ax, ay, ASCALE, false, false);
       if (!rm()) {
         // iontový pohon — modré plamínky
         ctx.fillStyle = (tick % 2) ? '#4dc8ff' : '#1a6a8a';
@@ -699,6 +727,12 @@ window.RPGSprites6 = (function () {
         ctx.fillStyle = 'rgba(255,255,180,' + (0.6 - p * 0.6) + ')';
         ctx.fillRect(f.x - 1, f.y - 1, 2, 2);
         if (p >= 1 || f.y > 210) ST.fx.splice(i, 1);
+      } else if (f.kind === 'sweat') {
+        f.x += f.vx; f.y += f.vy; f.vy += 0.15;
+        const p = Math.min(1, f.t / 420);
+        ctx.fillStyle = 'rgba(120,200,255,' + (1 - p) + ')';
+        ctx.fillRect(f.x - 2, f.y - 2, 4, 4);
+        if (p >= 1 || f.y > 210) ST.fx.splice(i, 1);
       } else if (f.kind === 'smoke') {
         f.x += f.vx; f.y += f.vy;
         const p = Math.min(1, f.t / 700);
@@ -725,13 +759,19 @@ window.RPGSprites6 = (function () {
     render(now);
   }
 
+
+  function setHeroHp(frac) {
+    const f = +frac;
+    ST.hero.hpFrac = isFinite(f) ? Math.max(0, Math.min(1, f)) : 1;
+  }
+
   function spawn(areaId, startDmg) {
     curArea = Math.max(1, Math.min(7, areaId | 0));
     resize();
     ST.boss.mode = rm() ? 'idle' : 'enter';
     ST.boss.t = 0; ST.boss.flash = 0;
     ST.boss.progress = Math.max(0, Math.min(1, startDmg || 0));
-    ST.hero.mode = 'idle'; ST.hero.t = 0;
+    ST.hero.mode = 'idle'; ST.hero.t = 0; ST.hero.hpFrac = 1;
     ST.fx.length = 0;
   }
 
@@ -802,5 +842,5 @@ window.RPGSprites6 = (function () {
 
   window.addEventListener('resize', resize);
 
-  return { attach, detach, active, spawn, heroAttack, bossAttack, defeat, setProgress };
+  return { attach, detach, active, spawn, heroAttack, bossAttack, defeat, setProgress, setHeroHp };
 })();

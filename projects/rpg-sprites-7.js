@@ -22,111 +22,111 @@ window.RPGSprites7 = (function () {
     G:'#7a6a48', B:'#23232e', W:'#e8ecf5', Y:'#d4401c'
   };
 
-  /* ── hrdina (14×16, kouká doprava) ── */
+  /* ── hrdina (14×16, kouká doprava) — průzkumník s kloboukem ── */
   const HERO_IDLE = [[
+    '..............',
     '....KKKKK.....',
-    '...KJJJJJK....',
-    '..KJJJJJJJK...',
-    '..KJCCCCCJK...',
-    '..KJcccccJK...',
-    '...KJJJJJK....',
-    '..KGJJJJJGK...',
-    '.KJJJJJJJJJK..',
-    '.KJjJJJJJjJK..',
-    '.KJjJJJJJjJK..',
-    '..KjJJJJJjK...',
+    '...KcCCCcK....',
+    '..KCCCCCCCK...',
+    '.KCCCCCCCCCK..',
+    '..KGGGGGGK....',
+    '..KGKGGKGK....',
+    '...KYYYYK.....',
+    '.KccJJJJJJK...',
+    '.KccJjJJjJK...',
+    '.KccJJJJJJK...',
+    '..KKjJJJJjK...',
     '...KjJJJjK....',
-    '...KBJ.JBK....',
-    '...KB...BK....',
+    '...KG...GK....',
     '...KB...BK....',
     '..KBB...BBK...'
   ],[
     '..............',
     '....KKKKK.....',
-    '...KJJJJJK....',
-    '..KJJJJJJJK...',
-    '..KJCCCCCJK...',
-    '..KJcccccJK...',
-    '...KJJJJJK....',
-    '..KGJJJJJGK...',
-    '.KJJJJJJJJJK..',
-    '.KJjJJJJJjJK..',
-    '..KjJJJJJjK...',
+    '...KcCCCcK....',
+    '..KCCCCCCCK...',
+    '.KCCCCCCCCCK..',
+    '..KGGGGGGK....',
+    '..KGKGGKGK....',
+    '...KYYYYK.....',
+    '.KccJJJJJJK...',
+    '.KccJjJJjJK...',
+    '..KKjJJJJjK...',
     '...KjJJJjK....',
-    '...KBJ.JBK....',
+    '...KG...GK....',
     '...KB...BK....',
-    '...KB...BK....',
-    '..KBB...BBK...'
+    '..KBB...BBK...',
+    '..............'
   ]];
   const HERO_SLASH = [
+    '..............',
     '....KKKKK.....',
-    '...KJJJJJK....',
-    '..KJJJJJJJK...',
-    '..KJCCCCCJK...',
-    '..KJcccccJK...',
-    '...KJJJJJK....',
-    '..KGJJJJJGKWW.',
-    '.KJJJJJJJJKWW.',
-    '.KJjJJJJJJKW..',
-    '.KJjJJJJJjK...',
-    '..KjJJJJJjK...',
+    '...KcCCCcK....',
+    '..KCCCCCCCK...',
+    '.KCCCCCCCCCK..',
+    '..KGGGGGGK....',
+    '..KGKGGKGK....',
+    '...KYYYYK.....',
+    '.KccJJJJJJKWW.',
+    '.KccJjJJjJKWW.',
+    '.KccJJJJJJKW..',
+    '..KKjJJJJjK...',
     '...KjJJJjK....',
-    '...KBJ.JBK....',
-    '...KB...BK....',
+    '...KG...GK....',
     '...KB...BK....',
     '..KBB...BBK...'
   ];
   const HERO_CAST = [
-    '....KKKKK..Y..',
-    '...KJJJJJK.YY.',
-    '..KJJJJJJJKY..',
-    '..KJCCCCCJK...',
-    '..KJcccccJKK..',
-    '...KJJJJJKJK..',
-    '..KGJJJJJGJK..',
-    '.KJJJJJJJJJK..',
-    '.KJjJJJJJjK...',
-    '.KJjJJJJJjK...',
-    '..KjJJJJJjK...',
+    '.........Y....',
+    '....KKKKK..YY.',
+    '...KcCCCcK....',
+    '..KCCCCCCCK...',
+    '.KCCCCCCCCCK..',
+    '..KGGGGGGKJK..',
+    '..KGKGGKGKJK..',
+    '...KYYYYK.....',
+    '.KccJJJJJJK...',
+    '.KccJjJJjJK...',
+    '.KccJJJJJJK...',
+    '..KKjJJJJjK...',
     '...KjJJJjK....',
-    '...KBJ.JBK....',
-    '...KB...BK....',
+    '...KG...GK....',
     '...KB...BK....',
     '..KBB...BBK...'
   ];
   const HERO_SHOOT = [
+    '..............',
     '....KKKKK.....',
-    '...KJJJJJK....',
-    '..KJJJJJJJK...',
-    '..KJCCCCCJK...',
-    '..KJcccccJK...',
-    '...KJJJJJK....',
-    '..KGJJJJJGKKK.',
-    '.KJJJJJJJJGGK.',
-    '.KJjJJJJJJKKK.',
-    '.KJjJJJJJjK...',
-    '..KjJJJJJjK...',
+    '...KcCCCcK....',
+    '..KCCCCCCCK...',
+    '.KCCCCCCCCCK..',
+    '..KGGGGGGK....',
+    '..KGKGGKGK....',
+    '...KYYYYK.....',
+    '.KccJJJJJJKKK.',
+    '.KccJjJJjJGGK.',
+    '.KccJJJJJJK...',
+    '..KKjJJJJjK...',
     '...KjJJJjK....',
-    '...KBJ.JBK....',
-    '...KB...BK....',
+    '...KG...GK....',
     '...KB...BK....',
     '..KBB...BBK...'
   ];
   const HERO_HIT = [
-    '....KKKKK.....',
-    '...KJJJJJK....',
-    '..KJJJJJJJK...',
-    '..KJWWWWWJK...',
-    '..KJWWWWWJK...',
-    '...KJJJJJK....',
-    '.KGJJJJJGK....',
-    'KJJJJJJJJJK...',
-    'KJjJJJJJjJK...',
-    'KJjJJJJJjJK...',
-    '.KjJJJJJjK....',
+    '..............',
+    '...KKKKK......',
+    '..KcCCCcK.....',
+    '.KCCCCCCCK....',
+    'KCCCCCCCCCK...',
+    '.KGGGGGGK.....',
+    '.KGWGGWGK.....',
+    '..KYYYYK......',
+    'KccJJJJJJK....',
+    'KccJjJJjJK....',
+    'KccJJJJJJK....',
+    '.KKjJJJJjK....',
     '..KjJJJjK.....',
-    '..KBJ.JBK.....',
-    '..KB...BK.....',
+    '..KG...GK.....',
     '..KB...BK.....',
     '.KBB...BBK....'
   ];
@@ -160,7 +160,7 @@ window.RPGSprites7 = (function () {
   /* ── bossové: 7 oblastí, egyptská/chrámová témata ── */
   const BOSS_PALS = {
     1:{A:'#e8c060',a:'#806820',M:'#5c3a10',m:'#3d2808'},   // strážce karavany — zlatá
-    2:{A:'#c8a830',a:'#705e18',M:'#8a7a40',m:'#5a4e28'},   // had hieroglyfů — pískový
+    2:{A:'#e0c050',a:'#8a7020',M:'#a89858',m:'#706438'},   // had hieroglyfů — pískový
     3:{A:'#88ddff',a:'#3a7a9f',M:'#2a3a5c',m:'#1a2840'},   // ledový strážce — modrá
     4:{A:'#d4a820',a:'#8a6810',M:'#5c3a10',m:'#3d2808'},   // strážce vah — bronz
     5:{A:'#c0c8d8',a:'#6a7888',M:'#3a4050',m:'#282a38'},   // strážce zrcadla — stříbro
@@ -483,7 +483,7 @@ window.RPGSprites7 = (function () {
     if (m === 'cast')  return HERO_CAST;
     if (m === 'shoot') return HERO_SHOOT;
     if (m === 'hit')   return HERO_HIT;
-    return HERO_IDLE[tick % 2];
+    return HERO_IDLE[rm() ? 0 : tick % 2];
   }
 
   function render(now) {
@@ -561,12 +561,40 @@ window.RPGSprites7 = (function () {
       const dash = p < 0.5 ? p * 2 : (1 - p) * 2;
       hx = hp.x + dash * (bp.x - hp.x - 15 * SCALE);
     }
-    drawSprite(heroGrid(), PAL_HERO, hx, hp.y, SCALE, false, h.mode === 'hit');
+    // ── vizuální stav hrdiny podle HP (zrcadlí poškozování bosse) ──
+    // plné HP: nic | 2/3: šrámy + pot | 1/3: třes, shrbení, supění
+    const hpf = h.hpFrac === undefined ? 1 : h.hpFrac;
+    let hy = hp.y;
+    if (hpf <= 0.34) {
+      hy += 3;
+      if (!rm() && h.mode === 'idle') hx += Math.sin(performance.now() / 70) * 2;
+    }
+    drawSprite(heroGrid(), PAL_HERO, hx, hy, SCALE, false, h.mode === 'hit');
+    if (hpf <= 0.67 && h.mode !== 'hit') {
+      const bad = hpf <= 0.34;
+      ctx.globalAlpha = 0.75;
+      ctx.fillStyle = '#ff3355';
+      ctx.fillRect(hx + 4 * SCALE, hy + 8 * SCALE, 2 * SCALE, 2);
+      ctx.fillRect(hx + 7 * SCALE, hy + 10 * SCALE, 2 * SCALE, 2);
+      if (bad) {
+        ctx.fillRect(hx + 5 * SCALE, hy + 4 * SCALE, 2 * SCALE, 2);
+        ctx.fillRect(hx + 8 * SCALE, hy + 12 * SCALE, 2 * SCALE, 2);
+      }
+      ctx.globalAlpha = 1;
+      if (!rm() && Math.random() < (bad ? 0.09 : 0.035)) {
+        ST.fx.push({ kind: 'sweat', x: hx + (4 + Math.random() * 6) * SCALE, y: hy + 2 * SCALE,
+          vx: (Math.random() - 0.5) * 0.8, vy: 1.1 + Math.random(), t: 0 });
+      }
+      if (bad && !rm() && Math.random() < 0.06) {
+        ST.fx.push({ kind: 'smoke', x: hx + 11 * SCALE, y: hy + 4 * SCALE,
+          vx: 0.5 + Math.random() * 0.5, vy: -0.4 - Math.random() * 0.4, t: 0 });
+      }
+    }
     // zlatý skarabeus — levituje vedle hrdiny
     {
       const bob = rm() ? 0 : Math.sin(performance.now() / 380) * 6;
       const ax = hp.x + 15 * SCALE + 6, ay = hp.y - 8 + bob;
-      drawSprite(COMPANION[tick % 2], PAL_COM, ax, ay, ASCALE, false, false);
+      drawSprite(COMPANION[rm() ? 0 : tick % 2], PAL_COM, ax, ay, ASCALE, false, false);
       if (!rm()) {
         // zlaté jiskry pod skarabeem
         ctx.fillStyle = (tick % 2) ? '#e8c060' : '#a07820';
@@ -698,6 +726,12 @@ window.RPGSprites7 = (function () {
         ctx.fillStyle = 'rgba(255,255,180,' + (0.6 - p * 0.6) + ')';
         ctx.fillRect(f.x - 1, f.y - 1, 2, 2);
         if (p >= 1 || f.y > 210) ST.fx.splice(i, 1);
+      } else if (f.kind === 'sweat') {
+        f.x += f.vx; f.y += f.vy; f.vy += 0.15;
+        const p = Math.min(1, f.t / 420);
+        ctx.fillStyle = 'rgba(120,200,255,' + (1 - p) + ')';
+        ctx.fillRect(f.x - 2, f.y - 2, 4, 4);
+        if (p >= 1 || f.y > 210) ST.fx.splice(i, 1);
       } else if (f.kind === 'smoke') {
         f.x += f.vx; f.y += f.vy;
         const p = Math.min(1, f.t / 700);
@@ -724,13 +758,19 @@ window.RPGSprites7 = (function () {
     render(now);
   }
 
+
+  function setHeroHp(frac) {
+    const f = +frac;
+    ST.hero.hpFrac = isFinite(f) ? Math.max(0, Math.min(1, f)) : 1;
+  }
+
   function spawn(areaId, startDmg) {
     curArea = Math.max(1, Math.min(7, areaId | 0));
     resize();
     ST.boss.mode = rm() ? 'idle' : 'enter';
     ST.boss.t = 0; ST.boss.flash = 0;
     ST.boss.progress = Math.max(0, Math.min(1, startDmg || 0));
-    ST.hero.mode = 'idle'; ST.hero.t = 0;
+    ST.hero.mode = 'idle'; ST.hero.t = 0; ST.hero.hpFrac = 1;
     ST.fx.length = 0;
   }
 
@@ -801,5 +841,5 @@ window.RPGSprites7 = (function () {
 
   window.addEventListener('resize', resize);
 
-  return { attach, detach, active, spawn, heroAttack, bossAttack, defeat, setProgress };
+  return { attach, detach, active, spawn, heroAttack, bossAttack, defeat, setProgress, setHeroHp };
 })();

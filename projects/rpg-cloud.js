@@ -457,16 +457,19 @@ window.RPGCloud = (function () {
   }
 
   // ── Fáze 6b — týdenní snímky chybovosti (snap_events) ───────────────
+  // Vrací true jen když upload reálně proběhl — hra podle toho nastavuje
+  // S.snapsMigrated (nepřihlášený žák nesmí o historické snímky přijít).
   async function pushErrsSnap(game, snaps) {
-    if (!client || !user) return;
-    if (!Array.isArray(snaps) || snaps.length === 0) return;
+    if (!client || !user) return false;
+    if (!Array.isArray(snaps) || snaps.length === 0) return false;
     const rows = snaps
       .filter(s => s && s.t && typeof s.errs === 'object')
       .map(s => ({ user_id: user.id, game, snapped_at: s.t, errs: s.errs || {} }));
-    if (!rows.length) return;
+    if (!rows.length) return false;
     const { error } = await client.from('snap_events')
       .upsert(rows, { onConflict: 'user_id,game,snapped_at', ignoreDuplicates: true });
-    if (error) console.warn('[RPGCloud] pushErrsSnap:', error.message);
+    if (error) { console.warn('[RPGCloud] pushErrsSnap:', error.message); return false; }
+    return true;
   }
 
   async function getErrsSnaps(game) {
@@ -598,6 +601,53 @@ window.RPGCloud = (function () {
     }
     tick();
     return () => { stopped = true; if (timer) clearTimeout(timer); };
+  }
+
+  // ════════════ Fáze 11 — věž legend ════════════
+  // Soutěžní výstup věží. Vstup hlídá SERVER (tower_eligible podle kohorty
+  // třídy z Fáze 5). Vše graceful: bez clienta/přihlášení null/[]/false.
+  async function towerEligible(game) {
+    if (!client || !user) return false;
+    try {
+      const { data, error } = await client.rpc('tower_eligible', { p_game: game });
+      if (error) throw error;
+      return data === true;
+    } catch (e) { console.warn('[RPGCloud] towerEligible:', e); return false; }
+  }
+  // odešle výsledek pokusu; vrací {ok, best} (best = nejlepší patro sezóny)
+  async function towerSubmit(game, floor) {
+    if (!client || !user || previewActive) return { ok: false };
+    try {
+      const { data, error } = await client.rpc('tower_submit',
+        { p_game: game, p_floor: Math.max(0, Math.round(floor) || 0) });
+      if (error) return { ok: false, error: error.message };
+      return { ok: true, best: data };
+    } catch (e) { return { ok: false, error: String(e) }; }
+  }
+  async function towerBoard(game) {
+    if (!client || !user) return [];
+    try {
+      const { data, error } = await client.rpc('tower_board', { p_game: game });
+      if (error) throw error;
+      return data || [];
+    } catch (e) { console.warn('[RPGCloud] towerBoard:', e); return []; }
+  }
+  async function towerHall(game) {
+    if (!client || !user) return [];
+    try {
+      const { data, error } = await client.rpc('tower_hall_of_fame', { p_game: game });
+      if (error) throw error;
+      return data || [];
+    } catch (e) { console.warn('[RPGCloud] towerHall:', e); return []; }
+  }
+  // konec školního roku: zapíše top 10 do síně slávy (jen učitel/superadmin)
+  async function towerCloseSeason(game) {
+    if (!client || !isStaff()) return { ok: false, error: 'Nemáš oprávnění.' };
+    try {
+      const { data, error } = await client.rpc('tower_close_season', { p_game: game });
+      if (error) return { ok: false, error: error.message };
+      return { ok: true, count: data };
+    } catch (e) { return { ok: false, error: String(e) }; }
   }
 
   // centrální vykreslení žebříčku do prvku v mapě (žádné per-game edity).
@@ -963,5 +1013,7 @@ window.RPGCloud = (function () {
            // Fáze 7 — živý souboj
            createBattle, joinBattle, battleState, submitBattleAnswer,
            advanceBattle, setBattleStatus, listActiveBattles,
-           inviteBattleEmail, myBattleInvites, pollBattle };
+           inviteBattleEmail, myBattleInvites, pollBattle,
+           // Fáze 11 — věž legend
+           towerEligible, towerSubmit, towerBoard, towerHall, towerCloseSeason };
 })();

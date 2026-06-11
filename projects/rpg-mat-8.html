@@ -411,12 +411,7 @@ html[data-theme="violet"]{--gold:#b06cff;--panel:#100a20;--panel2:#18103a;--blue
 .streak-chip{display:inline-flex;align-items:center;gap:5px;font-family:var(--px);font-weight:700;font-size:12px;color:#ffae3d;background:#1c1206;border:2px solid #ffae3d;padding:3px 9px;letter-spacing:.5px}
 .streak-chip .sf{animation:streak-flicker 1.4s ease-in-out infinite}
 @keyframes streak-flicker{0%,100%{transform:scale(1);filter:drop-shadow(0 0 2px #ffae3d)}50%{transform:scale(1.18);filter:drop-shadow(0 0 7px #ff7733)}}
-/* ── CERMAT CHIP ── */
-.cermat-chip{display:inline-flex;align-items:center;gap:5px;font-family:var(--px);font-weight:700;font-size:12px;padding:3px 9px;border:2px solid;letter-spacing:.5px}
-.cermat-chip.cc-far{color:#6dd0e8;background:#040d12;border-color:#3a8a9e}
-.cermat-chip.cc-soon{color:#ff6b6b;background:#1c0606;border-color:#ff4c4c}
-.cermat-chip{cursor:pointer;transition:filter .15s}
-.cermat-chip:hover{filter:brightness(1.35)}
+
 /* ── REDUCED MOTION (přístupnost) ── */
 .reduced-motion *,.reduced-motion *::before,.reduced-motion *::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
 .reduced-motion .float-txt{display:none!important}
@@ -490,7 +485,6 @@ html[data-theme="violet"]{--gold:#b06cff;--panel:#100a20;--panel2:#18103a;--blue
  <div style="font-family:var(--px);font-weight:400;font-size:13px;color:var(--muted);letter-spacing:1px">✦ &nbsp;MAPPA MATHEMATICAE&nbsp; · &nbsp;ANNUS VIII&nbsp; ✦</div>
  <span class="streak-chip" id="map-streak" style="display:none"><span class="sf">🔥</span> <span id="map-streak-n">0</span> dní v řadě</span>
  <span class="credits-chip" id="map-credits-chip">💰 <span id="map-credits">0</span> kr</span>
- <a class="cermat-chip cc-far" id="map-cermat" href="../prijimacky-matematika/" target="_blank" rel="noopener" title="Otevřít archiv přijímaček CERMAT" style="display:none;text-decoration:none">📅 <span id="map-cermat-txt"></span> <span style="opacity:.7">↗</span></a>
  </div>
  <div class="map-grid" id="map-grid"></div>
  <div class="panel" style="padding:10px 14px">
@@ -1643,22 +1637,7 @@ function touchStreak(){
  const sc=S.streak.count;earnCredits(sc>=7?20:sc>=3?10:5);
 }
 
-// CERMAT odpočet (9. ročník přijímačky — osmáci přijdou na řadu za rok)
-const CERMAT_DATE = new Date('2027-04-13T08:00:00');
-function updateCermatChip(){
- const el=document.getElementById('map-cermat');
- if(!el)return;
- const diff=CERMAT_DATE.getTime()-Date.now();
- if(diff<=0){el.style.display='none';return;}
- const days=Math.floor(diff/864e5);
- const hrs=Math.floor((diff%864e5)/36e5);
- const mins=Math.floor((diff%36e5)/6e4);
- const pad=n=>String(n).padStart(2,'0');
- const txt=days>0?`Přijímačky za ${days} dní ${hrs}:${pad(mins)}`:`Přijímačky za ${hrs}:${pad(mins)}`;
- document.getElementById('map-cermat-txt').textContent=txt;
- el.className='cermat-chip '+(days<14?'cc-soon':'cc-far');
- el.style.display='inline-flex';
-}
+
 
 // ══════════════════════════════════════════
 // SCREEN ROUTER
@@ -1683,7 +1662,7 @@ function startGame(){
  saveS();touchStreak();applyMotionPref();applyCosmetics();go('map');
 }
 function snapErrs(){if(!Array.isArray(S.errsSnap))S.errsSnap=[];const t=new Date().toISOString().slice(0,10);const last=S.errsSnap[S.errsSnap.length-1];if(last&&(new Date(t)-new Date(last.t))/864e5<7)return;const c={};for(const k in(S.errs||{}))if(S.errs[k]>0)c[k]=S.errs[k];S.errsSnap.push({t,errs:c});if(S.errsSnap.length>12)S.errsSnap=S.errsSnap.slice(-12);saveS();if(typeof RPGCloud!=='undefined'&&RPGCloud.pushErrsSnap)RPGCloud.pushErrsSnap(SAVE_KEY,S.errsSnap);}
-function continueGame(){if(loadS()){snapErrs();if(!S.snapsMigrated&&S.errsSnap.length>0&&typeof RPGCloud!=='undefined'&&RPGCloud.pushErrsSnap){RPGCloud.pushErrsSnap(SAVE_KEY,S.errsSnap).then(()=>{S.snapsMigrated=true;saveS();});}touchStreak();applyMotionPref();applyCosmetics();go('map');}}
+function continueGame(){if(loadS()){snapErrs();if(!S.snapsMigrated&&S.errsSnap.length>0&&typeof RPGCloud!=='undefined'&&RPGCloud.pushErrsSnap){RPGCloud.pushErrsSnap(SAVE_KEY,S.errsSnap).then(ok=>{if(ok){S.snapsMigrated=true;saveS();}});}touchStreak();applyMotionPref();applyCosmetics();go('map');}}
 
 // ══════════════════════════════════════════
 // MAP
@@ -1725,7 +1704,6 @@ function renderMap(){
  const sc=(S.streak&&S.streak.count)||0,sch=document.getElementById('map-streak');
  if(sch){if(sc>=2){sch.style.display='inline-flex';document.getElementById('map-streak-n').textContent=sc;}else sch.style.display='none';}
  if(window.RPGCloud&&RPGCloud.renderLeaderboardInto)RPGCloud.renderLeaderboardInto('map-leaderboard',SAVE_KEY);
- updateCermatChip();
  const g=document.getElementById('map-grid');
  g.innerHTML='';
  // unikátní barevný nádech krajiny pro každou oblast
@@ -1920,7 +1898,8 @@ function updatePlayerHp(){
  for(let i=0;i<BT.maxHp;i++){
  h+=`<span class="heart${i<BT.hp?'':' lost'}" data-i="${i}">❤️</span>`;
  }
- el.innerHTML=h;
+el.innerHTML=h;
+ if(window.RPGSprites8&&RPGSprites8.setHeroHp)RPGSprites8.setHeroHp(BT.hp/BT.maxHp);
 }
 
 function flashHeart(idx){
@@ -2774,6 +2753,6 @@ window.addEventListener('load',()=>{
 <script src="./rpg-shared.js"></script>
 <script src="./rpg-tasktypes.js"></script>
 <script src="./rpg-battle-ui.js"></script>
-<script>RPGCloud.attachGame(SAVE_KEY);setInterval(updateCermatChip,60000);</script>
+<script>RPGCloud.attachGame(SAVE_KEY);</script>
 </body>
 </html>
