@@ -193,7 +193,7 @@ body::before{
  100%{transform:translateY(80px) scale(.2) rotate(180deg);opacity:0;filter:brightness(.3) saturate(0)}
 }
 /* damage spark */
-.dmg-spark{position:absolute;left:50%;top:25%;font-family:var(--px);font-weight:700;font-size:36px;color:var(--gold);text-shadow:4px 4px 0 #7a2a00,3px 3px 0 #000;pointer-events:none;opacity:0;z-index:5}
+.dmg-spark{position:absolute;left:70%;top:22%;font-family:var(--px);font-weight:700;font-size:36px;color:var(--gold);text-shadow:4px 4px 0 #7a2a00,3px 3px 0 #000;pointer-events:none;opacity:0;z-index:5}
 .dmg-spark.show{animation:spark 1s steps(10) forwards}
 @keyframes spark{
  0% {transform:translate(-50%,20px) scale(.2) rotate(-12deg);opacity:0}
@@ -559,8 +559,8 @@ html[data-theme="violet"]{--gold:#b06cff;--panel:#100a20;--panel2:#18103a;--blue
  <span class="bt-monster" id="bt-mon">👾</span>
  <div id="dmg-spark" class="dmg-spark">-10 HP!</div>
  <div class="bt-mname" id="bt-mname">???</div>
- <div class="bar-out bar-hp" style="margin-top:10px;height:12px;border-color:var(--red)">
- <div class="bar-in" id="bt-hpbar" style="width:100%"></div>
+ <div class="bar-out bar-boss" style="margin-top:10px;height:12px;border-color:#19e6e6">
+ <div class="bar-in" id="bt-hpbar" style="width:100%;background:repeating-linear-gradient(90deg,#19e6e6 0 8px,#0a8a8a 8px 16px)"></div>
  </div>
  </div>
  <div id="proj" class="proj"></div>
@@ -574,7 +574,7 @@ html[data-theme="violet"]{--gold:#b06cff;--panel:#100a20;--panel2:#18103a;--blue
  <div class="bt-problem" id="bt-prob">...</div>
  <div class="bt-row" id="bt-input-row">
  <input id="bt-ans" class="bt-input" type="text" placeholder="?" autocomplete="off">
- <button class="btn" onclick="submitAnswer()" style="white-space:nowrap">ÚTOK ⚔</button>
+ <button id="attack-btn" class="btn" onclick="submitAnswer()" style="white-space:nowrap">ÚTOK ⚔</button>
  </div>
  <div class="bt-row" id="yn-row" style="display:none">
  <button class="btn g" style="flex:1" onclick="answerYN('ANO')">✓ ANO</button>
@@ -1402,7 +1402,7 @@ function awardXp(amount,isCrit){
  // floating "+N XP" near the monster
  const top=document.getElementById('bt-top');
  if(top){const r=top.getBoundingClientRect();
- floatText('+'+amount+' XP',r.left+r.width/2,r.top+r.height*0.32,isCrit?'#ff5577':'#5dff8f');}
+ floatText('+'+amount+' XP',r.left+r.width*0.18,r.top+r.height*0.55,isCrit?'#ff5577':'#5dff8f');}
  if(after>before){S.level=after;setTimeout(()=>levelUpBurst(after),650);}
  if(isCrit){if(!S.stats)S.stats={};S.stats.crits=(S.stats.crits||0)+1;}
  evalAch({crit:isCrit});
@@ -1753,7 +1753,7 @@ function launchBattle(aid,mid){
  const m=ar.missions.find(x=>x.id===mid);
  BT.aid=aid;BT.mid=mid;BT.combo=0;BT.missionHinted=false;
  BT.hp=MAX_PLAYER_HP;BT.maxHp=MAX_PLAYER_HP;
- BT.phase=1;BT.items=[];BT.timerFrozen=false;
+ BT.phase=1;BT.items=[];BT.timerFrozen=false;BT._bid=(BT._bid||0)+1;
  if(BT.freezeTimeout){clearTimeout(BT.freezeTimeout);BT.freezeTimeout=null;}
  BT.mcMode=!!m.mc;
  // reset top styling
@@ -1770,6 +1770,7 @@ function launchBattle(aid,mid){
  if(ex && typeof ex[m.id]==='function'){ try{ pool=pool.concat(ex[m.id]()); }catch(e){} }
  BT.tasks=shuffleArr(pool).slice(0,m.tc);
  BT.idx=0;
+ updateBossHpBar();
  // for retry, restart from beginning; for normal launch, find first undone
  for(let i=0;i<BT.tasks.length;i++){if(!S.done[`${mid}-${i}`]){BT.idx=i;break;}}
  const mon=document.getElementById('bt-mon');
@@ -1807,6 +1808,26 @@ function updatePlayerHp(){
  h+=`<span class="heart${i<BT.hp?'':' lost'}" data-i="${i}">❤️</span>`;
  }
  el.innerHTML=h;
+}
+
+function updateBossHpBar(){
+ const tot=BT.tasks&&BT.tasks.length;if(!tot)return;
+ const done=BT.tasks.filter((_,i)=>S.done[`${BT.mid}-${i}`]).length;
+ const pct=Math.max(0,(1-done/tot)*100);
+ document.getElementById('bt-hpbar').style.width=pct+'%';
+ if(window.RPGSprites9&&RPGSprites9.setProgress)RPGSprites9.setProgress(done/tot);
+ if(pct<=55&&BT.phase===1){
+  BT.phase=2;
+  const top=document.getElementById('bt-top');
+  top.classList.add('phase2');
+  setTimeout(()=>document.getElementById('bt-fb').textContent='',0);
+  const fb=document.getElementById('bt-fb');
+  fb.textContent='🔥 BOSS JE V ZUŘIVOSTI! 🔥';fb.className='feedback err';
+  const mon=document.getElementById('bt-mon');
+  mon.style.filter='drop-shadow(0 6px 0 #0008) drop-shadow(0 0 14px #e74c3c)';
+  mon.style.fontSize='132px';
+  hitVignette();
+ }
 }
 
 function flashHeart(idx){
@@ -1880,6 +1901,7 @@ function onTimeOut(){
  // re-enable input and restart timer for same task
  const inp=document.getElementById('bt-ans');
  if(inp){inp.disabled=false;inp.value='';inp.focus();}
+ const atkBtn2=document.getElementById('attack-btn');if(atkBtn2)atkBtn2.disabled=false;
  document.querySelectorAll('#mc-grid .mc-btn').forEach(b=>{b.disabled=false;b.classList.remove('right','wrong');});
  fb.className='feedback';
  startTimer();
@@ -1896,22 +1918,7 @@ function renderTask(){
  const tot=BT.tasks.length;
  document.getElementById('bt-num').textContent=BT.idx+1;
  document.getElementById('bt-tot').textContent=tot;
- const remainingHp=((tot-BT.idx)/tot*100);
- document.getElementById('bt-hpbar').style.width=remainingHp+'%';
- // boss phase transition
- if(remainingHp<=55 && BT.phase===1){
- BT.phase=2;
- const top=document.getElementById('bt-top');
- top.classList.add('phase2');
- setTimeout(()=>document.getElementById('bt-fb').textContent='',0);
- const fb=document.getElementById('bt-fb');
- fb.textContent='🔥 BOSS JE V ZUŘIVOSTI! 🔥';
- fb.className='feedback err';
- const mon=document.getElementById('bt-mon');
- mon.style.filter='drop-shadow(0 6px 0 #0008) drop-shadow(0 0 14px #e74c3c)';
- mon.style.fontSize='132px';
- hitVignette();
- }
+ updateBossHpBar();
  const probEl=document.getElementById('bt-prob');
  if(t.svg){
    probEl.innerHTML=`<div class="prob-svg">${t.svg}</div><div class="prob-txt"></div>`;
@@ -1926,6 +1933,7 @@ function renderTask(){
  document.getElementById('hint-btn').textContent='💡 NÁPOVĚDA 1/2';
  document.getElementById('hint-btn').disabled=false;
  document.getElementById('next-btn').style.display='none';
+ const atkBtn=document.getElementById('attack-btn');if(atkBtn)atkBtn.disabled=false;
  document.getElementById('bt-explain').style.display='none';
  document.getElementById('bt-explain-txt').value='';
  // input vs multiple choice
@@ -2035,6 +2043,7 @@ function spawnParticles(){
 }
 
 function damageMonster(xpGain,isCrit){
+ updateBossHpBar();
  const mon=document.getElementById('bt-mon');
  const top=document.getElementById('bt-top');
  const spark=document.getElementById('dmg-spark');
@@ -2060,10 +2069,13 @@ function damageMonster(xpGain,isCrit){
  void spark.offsetWidth;
  spark.classList.add('show');
  spawnParticles();
+ const _bid=BT._bid;
  setTimeout(()=>{
+ if(BT._bid!==_bid)return;
  mon.classList.remove('hit');
  top.classList.remove('shake','big-shake');
  const allDn=BT.tasks.every((_,i)=>S.done[`${BT.mid}-${i}`]);
+ if(allDn)updateBossHpBar();
  if(spriteOn){if(allDn)RPGSprites9.defeat();}
  else if(!allDn) mon.classList.add(Math.random()<.5?'idle':'idle-2');
  else mon.classList.add('defeat');
@@ -2077,7 +2089,9 @@ function monsterAttack(){
  const inp=document.getElementById('bt-ans');
  if(window.RPGSprites9&&RPGSprites9.active()){
   RPGSprites9.bossAttack();
+  const _bid=BT._bid;
   setTimeout(()=>{
+   if(BT._bid!==_bid)return;
    inp.classList.remove('player-hit');
    void inp.offsetWidth;
    inp.classList.add('player-hit');
@@ -2210,6 +2224,7 @@ function submitAnswer(){
  saveS();
  document.getElementById('bt-ans').disabled=true;
  document.getElementById('hint-btn').disabled=true;
+ document.getElementById('attack-btn').disabled=true;
  document.getElementById('next-btn').style.display='inline-block';
  document.getElementById('bt-explain').style.display='block';
  damageMonster(xpGain,isCrit);
