@@ -1773,6 +1773,10 @@ function launchBattle(aid,mid){
  // per-battle done counter: if mission fully completed treat as fresh (bar = 100%)
  const _doneSoFar=BT.tasks.filter((_,i)=>S.done[`${mid}-${i}`]).length;
  BT._doneBattle=(_doneSoFar>=BT.tasks.length)?0:_doneSoFar;
+ // boss vstupní poškození = jak moc je boss v této oblasti historicky zdecimovaný
+ // (missionIndex / totalMissions → 0 = pristine, 0.33 = poškozený, 0.67 = kritický)
+ const _mIdx=ar.missions.findIndex(x=>x.id===mid);
+ BT._bossStartDamage=Math.max(0,_mIdx/ar.missions.length);
  updateBossHpBar();
  // for retry, restart from beginning; for normal launch, find first undone
  for(let i=0;i<BT.tasks.length;i++){if(!S.done[`${mid}-${i}`]){BT.idx=i;break;}}
@@ -1783,7 +1787,7 @@ function launchBattle(aid,mid){
  document.getElementById('bt-mname').textContent=m.mname;
  if(window.RPGSprites9){
   RPGSprites9.attach(top);
-  RPGSprites9.spawn(aid);
+  RPGSprites9.spawn(aid,BT._bossStartDamage);
   setTimeout(()=>{top.classList.add('shake');setTimeout(()=>top.classList.remove('shake'),400);},560);
  }else{
   mon.className='bt-monster';
@@ -1818,7 +1822,11 @@ function updateBossHpBar(){
  const done=Math.min(tot,BT._doneBattle||0);
  const pct=Math.max(0,(1-done/tot)*100);
  document.getElementById('bt-hpbar').style.width=pct+'%';
- if(window.RPGSprites9&&RPGSprites9.setProgress)RPGSprites9.setProgress(done/tot);
+ // sprite progress: startDamage → 1.0 (boss vizuálně degraduje skrz celý level)
+ if(window.RPGSprites9&&RPGSprites9.setProgress){
+  const sd=BT._bossStartDamage||0;
+  RPGSprites9.setProgress(sd+(done/tot)*(1-sd));
+ }
  if(pct<=55&&BT.phase===1){
   BT.phase=2;
   const top=document.getElementById('bt-top');

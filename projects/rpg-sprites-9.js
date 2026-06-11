@@ -527,26 +527,37 @@ window.RPGSprites9 = (function () {
       drawSprite(grid, pal, bx + off, by, bscale, false, b.flash > 0);
       ctx.globalAlpha = 1;
       if (b.flash > 0) b.flash -= 16;
-      // ── poškození bosse (3 stavy: pristine / damaged / critical) ──
-      if (b.progress > 0.45 && b.mode !== 'defeat' && b.mode !== 'gone' && !rm()) {
-        const dmgAlpha = Math.min(1, (b.progress - 0.45) * 3) * alpha;
-        // náhodné jiskry
-        const sparkChance = (b.progress - 0.45) * 0.35;
+      // ── vizuální poškození bosse (3 stupně) ──
+      // Stav 1 (progress>0.22): jiskry — boss ztrácí energii
+      // Stav 2 (progress>0.52): trhliny + chvění — konstrukce popraskala
+      // Stav 3 (progress>0.72): kouř + silné trhliny — kritický stav
+      if (b.progress > 0.22 && b.mode !== 'defeat' && b.mode !== 'gone' && !rm()) {
+        const sparkChance = Math.min(0.4, (b.progress - 0.22) * 0.55);
         if (Math.random() < sparkChance) {
           ST.fx.push({ kind: 'spark', x: bx + (3 + Math.random() * 12) * bscale,
             y: by + (1 + Math.random() * 9) * bscale,
             vx: (Math.random() - 0.5) * 2.5, vy: -1.5 - Math.random() * 2, t: 0 });
         }
-        if (b.progress >= 0.75) {
-          // kritické stádium — trhliny + červené linky
-          ctx.globalAlpha = dmgAlpha * 0.55;
+        if (b.progress >= 0.52) {
+          // chvění při idle
+          if (b.mode === 'idle') bx += Math.sin(performance.now() / 85) * (b.progress - 0.52) * 11;
+          // trhliny
+          const nCracks = b.progress >= 0.72 ? 5 : 3;
+          const dmgAlpha = Math.min(1, (b.progress - 0.52) * 2.4) * alpha;
+          ctx.globalAlpha = dmgAlpha * 0.65;
           ctx.fillStyle = '#ff5522';
-          for (let k = 0; k < 3; k++) {
-            const cy = by + (3 + k * 4) * bscale;
-            const cw = (3 + Math.floor(b.t / 200 % 3)) * bscale;
-            ctx.fillRect(bx + (3 + k * 2) * bscale, cy, cw, 2);
+          for (let k = 0; k < nCracks; k++) {
+            const cy = by + (2 + k * 3) * bscale;
+            const cw = (2 + k % 3 + (b.t % 220 < 70 ? 1 : 0)) * bscale;
+            ctx.fillRect(bx + (2 + k * 2) * bscale, cy, cw, 2);
           }
           ctx.globalAlpha = 1;
+          // STAV 3: kouř/popel stoupá nad bossem
+          if (b.progress >= 0.72 && Math.random() < 0.18) {
+            ST.fx.push({ kind: 'smoke', x: bx + (3 + Math.random() * 12) * bscale,
+              y: by + Math.random() * 4 * bscale,
+              vx: (Math.random() - 0.5) * 1.2, vy: -0.9 - Math.random() * 0.8, t: 0 });
+          }
         }
       }
       // telegraf útoku: blikající ! nad bossem
@@ -702,6 +713,13 @@ window.RPGSprites9 = (function () {
         ctx.fillStyle = 'rgba(255,255,180,' + (0.6 - p * 0.6) + ')';
         ctx.fillRect(f.x - 1, f.y - 1, 2, 2);
         if (p >= 1 || f.y > 210) ST.fx.splice(i, 1);
+      } else if (f.kind === 'smoke') {
+        f.x += f.vx; f.y += f.vy;
+        const p = Math.min(1, f.t / 700);
+        const s = 3 + p * 5;
+        ctx.fillStyle = 'rgba(80,65,55,' + (0.45 - p * 0.44) + ')';
+        ctx.fillRect(f.x - s / 2, f.y - s / 2, s, s);
+        if (p >= 1 || f.y < -10) ST.fx.splice(i, 1);
       }
     }
   }
@@ -722,11 +740,12 @@ window.RPGSprites9 = (function () {
   }
 
   /* ── veřejné akce ── */
-  function spawn(areaId) {
+  function spawn(areaId, startDmg) {
     curArea = Math.max(1, Math.min(7, areaId | 0));
     resize();
     ST.boss.mode = rm() ? 'idle' : 'enter';
-    ST.boss.t = 0; ST.boss.flash = 0; ST.boss.progress = 0;
+    ST.boss.t = 0; ST.boss.flash = 0;
+    ST.boss.progress = Math.max(0, Math.min(1, startDmg || 0));
     ST.hero.mode = 'idle'; ST.hero.t = 0;
     ST.fx.length = 0;
   }
