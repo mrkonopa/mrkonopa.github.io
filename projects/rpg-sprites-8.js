@@ -18,8 +18,8 @@ window.RPGSprites8 = (function () {
   /* ── palety ── */
   // Hrdina ve fialovém akademickém rouchu
   const PAL_HERO = {
-    K:'#0a0c12', J:'#2a3a8a', j:'#1a2460', C:'#a0a0ff', c:'#6060cc',
-    G:'#6068a0', B:'#23232e', W:'#e8ecf5', Y:'#f4d03f'
+    K:'#0a0c12', J:'#4a5ec8', j:'#2a3a8a', C:'#b8c0ff', c:'#7878e0',
+    G:'#8a92c0', B:'#23232e', W:'#e8ecf5', Y:'#f4d03f'
   };
 
   /* ── hrdina (14×16, kouká doprava) ── */
@@ -132,7 +132,7 @@ window.RPGSprites8 = (function () {
   ];
 
   /* ── sova — akademická průvodkyně (10×10) ── */
-  const PAL_COM = { K:'#0a0c12', B:'#2a3a8a', b:'#1a2460', W:'#e8ecf5', Y:'#f4d03f', G:'#8a97ad' };
+  const PAL_COM = { K:'#0a0c12', B:'#8a6a40', b:'#5a4428', W:'#e8ecf5', Y:'#f4d03f', y:'#c8a020', k:'#3a2c18', G:'#c8b090' };
   const COMPANION = [[
     '..KKKKKKK.',
     '.KBBBBBbK.',
