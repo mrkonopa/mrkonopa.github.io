@@ -1920,7 +1920,8 @@ function updatePlayerHp(){
  for(let i=0;i<BT.maxHp;i++){
  h+=`<span class="heart${i<BT.hp?'':' lost'}" data-i="${i}">❤️</span>`;
  }
- el.innerHTML=h;
+el.innerHTML=h;
+ if(window.RPGSprites8&&RPGSprites8.setHeroHp)RPGSprites8.setHeroHp(BT.hp/BT.maxHp);
 }
 
 function flashHeart(idx){
