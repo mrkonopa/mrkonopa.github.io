@@ -1418,6 +1418,7 @@ function touchStreak(){
 // SCREEN ROUTER
 // ══════════════════════════════════════════
 function go(name){
+ if(name!=='battle'&&window.RPGSprites6&&RPGSprites6.active())RPGSprites6.detach();
  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
  document.getElementById('s-'+name).classList.add('active');
  window.scrollTo(0,0);
@@ -1616,6 +1617,9 @@ function launchBattle(aid,mid){
  BT.phase=1;BT.items=[];BT.timerFrozen=false;
  if(BT.freezeTimeout){clearTimeout(BT.freezeTimeout);BT.freezeTimeout=null;}
  BT.mcMode=!!m.mc;
+ BT._bid=(BT._bid||0)+1;
+ const _mIdx=ar.missions.findIndex(x=>x.id===mid);
+ BT._bossStartDamage=Math.max(0,_mIdx/ar.missions.length);
  // reset top styling
  const top=document.getElementById('bt-top');
  top.classList.remove('phase2');
@@ -1629,6 +1633,8 @@ function launchBattle(aid,mid){
  if(ex && typeof ex[m.id]==='function'){try{pool=pool.concat(ex[m.id]());}catch(e){}}
  BT.tasks=shuffleArr(pool).slice(0,m.tc);
  BT.idx=0;
+ const _doneSoFar=BT.tasks.filter((_,i)=>S.done[`${mid}-${i}`]).length;
+ BT._doneBattle=(_doneSoFar>=BT.tasks.length)?0:_doneSoFar;
  // for retry, restart from beginning; for normal launch, find first undone
  for(let i=0;i<BT.tasks.length;i++){if(!S.done[`${mid}-${i}`]){BT.idx=i;break;}}
  const mon=document.getElementById('bt-mon');
@@ -1636,11 +1642,18 @@ function launchBattle(aid,mid){
  mon.style.filter='';
  mon.style.fontSize='';
  document.getElementById('bt-mname').textContent=m.mname;
- mon.className='bt-monster';
- void mon.offsetWidth;
- mon.classList.add('enter');
- setTimeout(()=>{top.classList.add('shake');spawnParticles();setTimeout(()=>top.classList.remove('shake'),400);},610);
- setTimeout(()=>{mon.classList.remove('enter');mon.classList.add(Math.random()<.5?'idle':'idle-2');},1070);
+ updateBossHpBar();
+ if(window.RPGSprites6){
+  RPGSprites6.attach(top);
+  RPGSprites6.spawn(aid,BT._bossStartDamage);
+  setTimeout(()=>{top.classList.add('shake');setTimeout(()=>top.classList.remove('shake'),400);},560);
+ }else{
+  mon.className='bt-monster';
+  void mon.offsetWidth;
+  mon.classList.add('enter');
+  setTimeout(()=>{top.classList.add('shake');spawnParticles();setTimeout(()=>top.classList.remove('shake'),400);},610);
+  setTimeout(()=>{mon.classList.remove('enter');mon.classList.add(Math.random()<.5?'idle':'idle-2');},1070);
+ }
  renderTask();
  go('battle');
 }
@@ -1749,10 +1762,9 @@ function renderTask(){
  const tot=BT.tasks.length;
  document.getElementById('bt-num').textContent=BT.idx+1;
  document.getElementById('bt-tot').textContent=tot;
- const remainingHp=((tot-BT.idx)/tot*100);
- document.getElementById('bt-hpbar').style.width=remainingHp+'%';
+ const _hpPct=updateBossHpBar();
  // boss phase transition
- if(remainingHp<=55 && BT.phase===1){
+ if(_hpPct<=55 && BT.phase===1){
  BT.phase=2;
  const top=document.getElementById('bt-top');
  top.classList.add('phase2');
@@ -1887,14 +1899,32 @@ function spawnParticles(){
  }
 }
 
+function updateBossHpBar(){
+ const tot=BT.tasks&&BT.tasks.length;if(!tot)return 100;
+ const done=Math.min(tot,BT._doneBattle||0);
+ const pct=Math.max(0,(1-done/tot)*100);
+ document.getElementById('bt-hpbar').style.width=pct+'%';
+ if(window.RPGSprites6&&RPGSprites6.setProgress){
+  const sd=BT._bossStartDamage||0;
+  RPGSprites6.setProgress(sd+(done/tot)*(1-sd));
+ }
+ return pct;
+}
+
 function damageMonster(xpGain,isCrit){
+ BT._doneBattle=(BT._doneBattle||0)+1;
+ updateBossHpBar();
  const mon=document.getElementById('bt-mon');
  const top=document.getElementById('bt-top');
  const spark=document.getElementById('dmg-spark');
  const flash=document.getElementById('hit-flash');
- mon.classList.remove('idle','idle-2');
- void mon.offsetWidth;
- mon.classList.add('hit');
+ const spriteOn=window.RPGSprites6&&RPGSprites6.active();
+ if(spriteOn){RPGSprites6.heroAttack(isCrit);}
+ else{
+  mon.classList.remove('idle','idle-2');
+  void mon.offsetWidth;
+  mon.classList.add('hit');
+ }
  top.classList.add(isCrit?'big-shake':'shake');
  // flash
  flash.classList.remove('go');
@@ -1909,12 +1939,18 @@ function damageMonster(xpGain,isCrit){
  void spark.offsetWidth;
  spark.classList.add('show');
  spawnParticles();
+ const _bid=BT._bid;
  setTimeout(()=>{
- mon.classList.remove('hit');
+ if(BT._bid!==_bid)return;
  top.classList.remove('shake','big-shake');
  const allDn=BT.tasks.every((_,i)=>S.done[`${BT.mid}-${i}`]);
- if(!allDn) mon.classList.add(Math.random()<.5?'idle':'idle-2');
- else mon.classList.add('defeat');
+ if(allDn)updateBossHpBar();
+ if(spriteOn){if(allDn)RPGSprites6.defeat();}
+ else{
+  mon.classList.remove('hit');
+  if(!allDn) mon.classList.add(Math.random()<.5?'idle':'idle-2');
+  else mon.classList.add('defeat');
+ }
  },550);
 }
 
@@ -1923,6 +1959,19 @@ function monsterAttack(){
  const top=document.getElementById('bt-top');
  const proj=document.getElementById('proj');
  const inp=document.getElementById('bt-ans');
+ if(window.RPGSprites6&&RPGSprites6.active()){
+  RPGSprites6.bossAttack();
+  const _bid=BT._bid;
+  setTimeout(()=>{
+   if(BT._bid!==_bid)return;
+   inp.classList.remove('player-hit');
+   void inp.offsetWidth;
+   inp.classList.add('player-hit');
+   top.classList.add('shake');
+   setTimeout(()=>top.classList.remove('shake'),400);
+  },1000);
+  return;
+ }
  mon.classList.remove('idle','idle-2');
  void mon.offsetWidth;
  mon.classList.add('charge');
@@ -2074,7 +2123,8 @@ function showHint(){
  hb.style.borderColor=colors[BT.hl];
  hb.style.color=BT.hl===1?'#ffd966':'#7fe87f';
  hb.style.background=BT.hl===1?'#1a1500':'#0f1a0f';
- hb.textContent='💡 Nápověda '+(BT.hl+1)+'/2:\n'+t.hints[BT.hl];
+ const hintText=(t.hints[BT.hl]&&t.hints[BT.hl].trim())?t.hints[BT.hl]:('Výsledek: '+t.ans);
+ hb.textContent='💡 Nápověda '+(BT.hl+1)+'/2:\n'+hintText;
  hb.classList.add('show');
  BT.hl++;
  const btn=document.getElementById('hint-btn');
@@ -2410,7 +2460,8 @@ function trHint(){
  hb.style.borderColor=TR.hl===1?'var(--gold)':'var(--green)';
  hb.style.color=TR.hl===1?'#ffd966':'#7fe87f';
  hb.style.background=TR.hl===1?'#1a1500':'#0f1a0f';
- hb.textContent='💡 Nápověda '+(TR.hl+1)+'/2:\n'+t.hints[TR.hl];
+ const trHintText=(t.hints[TR.hl]&&t.hints[TR.hl].trim())?t.hints[TR.hl]:('Výsledek: '+t.ans);
+ hb.textContent='💡 Nápověda '+(TR.hl+1)+'/2:\n'+trHintText;
  hb.classList.add('show');
  TR.hl++;
  const btn=document.getElementById('tr-hint-btn');
@@ -2470,6 +2521,7 @@ window.addEventListener('load',()=>{
  }
 });
 </script>
+<script src="./rpg-sprites-6.js"></script>
 <script src="./rpg-tasks-6.js"></script>
 <script src="./rpg-learn-6.js"></script>
 <script src="./rpg-wallet.js"></script>
