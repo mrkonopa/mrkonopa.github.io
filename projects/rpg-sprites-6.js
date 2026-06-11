@@ -132,7 +132,7 @@ window.RPGSprites6 = (function () {
   ];
 
   /* ── vesmírná sonda (parťák, 10×10) ── */
-  const PAL_COM = { K:'#0a0c12', S:'#a0b4c8', s:'#606878', C:'#4dc8ff', Y:'#ffd040' };
+  const PAL_COM = { K:'#0a0c12', S:'#a0b4c8', s:'#606878', C:'#4dc8ff', c:'#2a88bb', Y:'#ffd040', k:'#aa8800' };
   const COMPANION = [[
     '....KYK...',
     '..KYYKYYK.',
