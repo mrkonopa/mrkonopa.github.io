@@ -843,11 +843,11 @@ const AREAS = [
   tc:6,
   tasks:()=>[
    (()=>{const a=ri(11,89)/10,b=ri(11,89)/10;const ans=Math.round((a+b)*10)/10;return{text:`Vypočítej:\n${cz(a)} + ${cz(b)} =`,ans:String(ans),hints:[`Zarovnej desetinné čárky pod sebe.`,`Sečti po sloupcích.`],skill:'calc'};})(),
-   (()=>{const a=ri(50,98)/10,b=ri(11,Math.round(a*10)-5)/10;const ans=Math.round((a-b)*10)/10;return{text:`Vypočítej:\n${cz(a)} - ${cz(b)} =`,ans:String(ans),hints:[`Zarovnej čárky a odečti.`,``],skill:'calc'};})(),
+   (()=>{const a=ri(50,98)/10,b=ri(11,Math.round(a*10)-5)/10;const ans=Math.round((a-b)*10)/10;return{text:`Vypočítej:\n${cz(a)} - ${cz(b)} =`,ans:String(ans),hints:[`Zarovnej čárky a odečti.`,`Výsledek: ${ans}`],skill:'calc'};})(),
    (()=>{const a=ri(11,49)/10,b=ri(2,9);const ans=Math.round(a*b*10)/10;return{text:`Vypočítej:\n${cz(a)} × ${b} =`,ans:String(ans),hints:[`Násob jako celá čísla, pak umísti čárku.`,`Výsledek má 1 desetinné místo.`],skill:'calc'};})(),
-   (()=>{const b=ri(2,8),q=ri(11,49)/10;const a=Math.round(q*b*10)/10;return{text:`Vypočítej:\n${cz(a)} ÷ ${b} =`,ans:String(q),hints:[`Děl jako obvykle, čárku piš nad čárkou.`,``],skill:'calc'};})(),
-   (()=>{const v=ri(115,985)/100;const r=Math.round(v*10)/10;return{text:`Zaokrouhli na desetiny:\n${cz(v)} ≈`,ans:String(r),hints:[`Rozhoduje místo setin.`,``],skill:'calc'};})(),
-   (()=>{const a=ri(15,45)/10,b=ri(15,45)/10;const ans=Math.round(a*b*100)/100;return{text:`Vypočítej:\n${cz(a)} × ${cz(b)} =`,ans:String(ans),hints:[`Násob bez čárek, pak součet des. míst = 2.`,``],skill:'calc'};})()
+   (()=>{const b=ri(2,8),q=ri(11,49)/10;const a=Math.round(q*b*10)/10;return{text:`Vypočítej:\n${cz(a)} ÷ ${b} =`,ans:String(q),hints:[`Děl jako obvykle, čárku piš nad čárkou.`,`Výsledek: ${q}`],skill:'calc'};})(),
+   (()=>{const v=ri(115,985)/100;const r=Math.round(v*10)/10;return{text:`Zaokrouhli na desetiny:\n${cz(v)} ≈`,ans:String(r),hints:[`Rozhoduje místo setin.`,`Výsledek: ${r}`],skill:'calc'};})(),
+   (()=>{const a=ri(15,45)/10,b=ri(15,45)/10;const ans=Math.round(a*b*100)/100;return{text:`Vypočítej:\n${cz(a)} × ${cz(b)} =`,ans:String(ans),hints:[`Násob bez čárek, pak součet des. míst = 2.`,`Výsledek: ${ans}`],skill:'calc'};})()
   ]
  },
  {
@@ -881,7 +881,7 @@ const AREAS = [
    (()=>{const g=ri(2,6),a=ri(1,4),b=ri(a+1,7);return{text:`Zkrať zlomek a napiš nový ČITATEL:\n${a*g}/${b*g}`,ans:String(a),hints:[`Vyděl čitatele i jmenovatele číslem ${g}.`,`${a*g} ÷ ${g}`],skill:'calc'};})(),
    (()=>{const g=ri(2,6),a=ri(1,4),b=ri(a+1,7);return{text:`Zkrať zlomek a napiš nový JMENOVATEL:\n${a*g}/${b*g}`,ans:String(b),hints:[`Vyděl obě čísla jejich společným dělitelem ${g}.`,`${b*g} ÷ ${g}`],skill:'calc'};})(),
    (()=>{const a=ri(1,5),b=ri(a+1,8),k=ri(2,5);return{text:`Rozšiř zlomek ${k}× a napiš nový ČITATEL:\n${a}/${b}`,ans:String(a*k),hints:[`Násob čitatele i jmenovatele ${k}.`,`${a} × ${k}`],skill:'calc'};})(),
-   (()=>{const a=ri(1,5),b=ri(a+1,8);const g=gcd(a,b);return{text:`Je zlomek ${a}/${b} v základním tvaru?\n(napiš jeho největšího společného dělitele čitatele a jmenovatele)`,ans:String(g),hints:[`NSD(${a}, ${b}). Je-li 1, zlomek už zkrátit nejde.`,``],skill:'anal'};})(),
+   (()=>{const a=ri(1,5),b=ri(a+1,8);const g=gcd(a,b);return{text:`Je zlomek ${a}/${b} v základním tvaru?\n(napiš jeho největšího společného dělitele čitatele a jmenovatele)`,ans:String(g),hints:[`NSD(${a}, ${b}). Je-li 1, zlomek už zkrátit nejde.`,`Výsledek: ${g}`],skill:'anal'};})(),
    (()=>{const d=ri(3,9),num=ri(d+1,d*3);const w=Math.floor(num/d);return{text:`Kolikrát se celek vejde do zlomku ${num}/${d}?\n(celá část smíšeného čísla)`,ans:String(w),hints:[`Kolikrát se ${d} vejde do ${num}?`,`${num} ÷ ${d} (celá část)`],skill:'calc'};})(),
    (()=>{const w=ri(2,5),d=ri(3,7),num=ri(1,d-1);const imp=w*d+num;return{text:`Převeď na nepravý zlomek a napiš ČITATEL:\n${w} a ${num}/${d}`,ans:String(imp),hints:[`Celé × jmenovatel + čitatel.`,`${w} × ${d} + ${num}`],skill:'calc'};})()
   ]
@@ -933,7 +933,7 @@ const AREAS = [
    (()=>{const a=ri(2,15),b=ri(2,15);return{text:`Vypočítej:\n(-${a}) + ${b} =`,ans:String(-a+b),hints:[`Sčítáš čísla s různým znaménkem — odečti menší od většího.`,`${b} - ${a}`],skill:'calc'};})(),
    (()=>{const a=ri(2,15),b=ri(2,15);return{text:`Vypočítej (odčítání záporného):\n${a} - (-${b}) =`,ans:String(a+b),hints:[`Mínus mínus = plus. Stává se z toho ${a} + ${b}.`,`${a} + ${b}`],skill:'calc'};})(),
    (()=>{const rano=-ri(3,12),zmena=ri(5,20);return{text:`Ráno bylo ${rano} °C, do poledne se oteplilo o ${zmena} °C.\nKolik °C je v poledne?`,ans:String(rano+zmena),hints:[`Oteplení = přičítáš.`,`${rano} + ${zmena}`],skill:'anal'};})(),
-   (()=>{const a=ri(-9,9),b=ri(-9,9);return{text:`Vypočítej:\n${a<0?`(${a})`:a} + ${b<0?`(${b})`:b} =`,ans:String(a+b),hints:[`Pozor na znaménka.`,``],skill:'calc'};})()
+   (()=>{const a=ri(-9,9),b=ri(-9,9);return{text:`Vypočítej:\n${a<0?`(${a})`:a} + ${b<0?`(${b})`:b} =`,ans:String(a+b),hints:[`Pozor na znaménka.`,`Výsledek: ${a+b}`],skill:'calc'};})()
   ]
  },
  {
@@ -956,12 +956,12 @@ const AREAS = [
   intro:'Vír mrazu míchá kladná i záporná racionální čísla. Udrž si v hlavě znaménka i čárky.',
   tc:6,
   tasks:()=>[
-   (()=>{const a=ri(11,49)/10,b=ri(11,49)/10;const ans=Math.round((-a+b)*10)/10;return{text:`Vypočítej:\n-${cz(a)} + ${cz(b)} =`,ans:String(ans),hints:[`Různá znaménka — odečti menší od většího, znaménko většího.`,``],skill:'calc'};})(),
+   (()=>{const a=ri(11,49)/10,b=ri(11,49)/10;const ans=Math.round((-a+b)*10)/10;return{text:`Vypočítej:\n-${cz(a)} + ${cz(b)} =`,ans:String(ans),hints:[`Různá znaménka — odečti menší od většího, znaménko většího.`,`Výsledek: ${ans}`],skill:'calc'};})(),
    (()=>{const a=ri(11,49)/10,b=ri(11,49)/10;const ans=Math.round((-a-b)*10)/10;return{text:`Vypočítej:\n-${cz(a)} - ${cz(b)} =`,ans:String(ans),hints:[`Obě záporná — sčítej a výsledek je záporný.`,`-(${cz(a)} + ${cz(b)})`],skill:'calc'};})(),
    (()=>{const d=ri(3,7),a=ri(1,d-1);const g=gcd(a,d);const ans=d/g===1?String(-(a/g)):`-${a/g}/${d/g}`;return{text:`Vypočítej (zkrať):\n-${2*a}/${2*d} =\n(zkrácený tvar se znaménkem)`,ans,hints:[`Zkrať a zachovej znaménko mínus.`,`-${2*a}/${2*d} → -${a}/${d}`],skill:'calc'};})(),
    (()=>{const a=ri(2,9),b=ri(11,29)/10;const ans=Math.round(-a*b*10)/10;return{text:`Vypočítej:\n(-${a}) × ${cz(b)} =`,ans:String(ans),hints:[`Mínus × plus = mínus.`,`-(${a} × ${cz(b)})`],skill:'calc'};})(),
    (()=>{const a=ri(2,8);return{text:`Jaké číslo je opačné k -${a}?`,ans:String(a),hints:[`Opačné číslo má opačné znaménko.`,`-(-${a}) = ${a}`],skill:'anal'};})(),
-   (()=>{const a=ri(11,79)/10;return{text:`Jaká je absolutní hodnota čísla -${cz(a)}?\n|-${cz(a)}| =`,ans:String(a),hints:[`Absolutní hodnota je vzdálenost od nuly — vždy nezáporná.`,``],skill:'anal'};})()
+   (()=>{const a=ri(11,79)/10;return{text:`Jaká je absolutní hodnota čísla -${cz(a)}?\n|-${cz(a)}| =`,ans:String(a),hints:[`Absolutní hodnota je vzdálenost od nuly — vždy nezáporná.`,`Výsledek: ${a}`],skill:'anal'};})()
   ]
  }
  ]
@@ -983,7 +983,7 @@ const AREAS = [
    (()=>{const a=ri(2,6),b=ri(2,6);return{text:`Jaký je převrácený poměr k ${a} : ${b}?\nNapiš jeho PRVNÍ člen.`,ans:String(b),hints:[`Převrácený poměr má členy prohozené.`,`${b} : ${a}`],skill:'anal'};})(),
    (()=>{const a=ri(2,5),b=ri(2,5),cel=ri(2,5);const sum=a+b;const dil=cel;return{text:`Poměr ${a} : ${b}, jeden díl = ${dil}.\nJaká je celková hodnota? (součet obou částí)`,ans:String(sum*dil),hints:[`Počet dílů = ${a}+${b}=${sum}. Vynásob hodnotou dílu.`,`${sum} × ${dil}`],skill:'anal'};})(),
    (()=>{const dil=ri(3,9),a=ri(2,5);return{text:`Poměr je ${a} : 1 a jeden díl má hodnotu ${dil}.\nKolik je první část?`,ans:String(a*dil),hints:[`První část = ${a} díly.`,`${a} × ${dil}`],skill:'anal'};})(),
-   (()=>{const a=ri(2,6),b=ri(2,6);const g=gcd(a,b);return{text:`Je poměr ${a} : ${b} v základním tvaru?\n(napiš společného dělitele obou členů)`,ans:String(g),hints:[`NSD(${a}, ${b}). Je-li 1, poměr je základní.`,``],skill:'anal'};})()
+   (()=>{const a=ri(2,6),b=ri(2,6);const g=gcd(a,b);return{text:`Je poměr ${a} : ${b} v základním tvaru?\n(napiš společného dělitele obou členů)`,ans:String(g),hints:[`NSD(${a}, ${b}). Je-li 1, poměr je základní.`,`Výsledek: ${g}`],skill:'anal'};})()
   ]
  },
  {
@@ -1031,7 +1031,7 @@ const AREAS = [
    (()=>{const z=ri(2,9)*100,p=[10,20,25,50][ri(0,3)];return{text:`Vypočítej:\n${p} % z ${z} =`,ans:String(z*p/100),hints:[`1 % = ${z}/100 = ${z/100}. Pak × ${p}.`,`${z} ÷ 100 × ${p}`],skill:'calc'};})(),
    (()=>{const z=ri(2,9)*10,p=[10,20,30,40,50][ri(0,4)];return{text:`Vypočítej:\n${p} % z ${z} =`,ans:String(z*p/100),hints:[`1 % = ${z/100}.`,`${z/100} × ${p}`],skill:'calc'};})(),
    (()=>{const z=ri(2,9)*100;return{text:`Kolik je 1 % z ${z}?`,ans:String(z/100),hints:[`1 % = celek ÷ 100.`,`${z} ÷ 100`],skill:'calc'};})(),
-   (()=>{const z=ri(2,8)*100;return{text:`Kolik je 100 % z ${z}?`,ans:String(z),hints:[`100 % = celek.`,``],skill:'anal'};})(),
+   (()=>{const z=ri(2,8)*100;return{text:`Kolik je 100 % z ${z}?`,ans:String(z),hints:[`100 % = celek.`,`Výsledek: ${z}`],skill:'anal'};})(),
    (()=>{const z=ri(2,8)*200;return{text:`Kolik je 50 % z ${z}?`,ans:String(z/2),hints:[`50 % = polovina.`,`${z} ÷ 2`],skill:'calc'};})(),
    (()=>{const z=ri(2,6)*100;return{text:`Kolik je 75 % z ${z}?`,ans:String(z*3/4),hints:[`75 % = tři čtvrtiny.`,`${z} ÷ 4 × 3`],skill:'calc'};})()
   ]
@@ -1080,10 +1080,10 @@ const AREAS = [
   tasks:()=>[
    (()=>{const x=ri(2,9),y=ri(2,9);return{svg:svgMirror('flag'),text:`Bod A [${x}, ${y}] zrcadlíme podle osy y (svislá osa, x = 0).\nJaká je x-ová souřadnice obrazu A'?`,ans:String(-x),hints:[`Osa y obrátí znaménko x-ové souřadnice.`,`x → -x`],skill:'geo'};})(),
    (()=>{const x=ri(2,9),y=ri(2,9);return{svg:svgMirror('flag'),text:`Bod A [${x}, ${y}] zrcadlíme podle osy x (vodorovná osa, y = 0).\nJaká je y-ová souřadnice obrazu A'?`,ans:String(-y),hints:[`Osa x obrátí znaménko y-ové souřadnice.`,`y → -y`],skill:'geo'};})(),
-   (()=>{const x=ri(2,9),y=ri(2,9);return{text:`Bod A [${x}, ${y}] zrcadlíme podle osy y.\nObraz má souřadnice [?, ${y}]. Napiš chybějící x.`,ans:String(-x),hints:[`y zůstává, x mění znaménko.`,``],skill:'geo'};})(),
-   (()=>{const d=ri(2,9);return{svg:svgMirror('L'),text:`Bod leží ${d} cm od osy souměrnosti.\nJak daleko od osy leží jeho obraz? (cm)`,ans:String(d),hints:[`Obraz je stejně daleko jako vzor — souměrně.`,``],skill:'geo'};})(),
-   (()=>{return{svg:svgMirror('flag'),text:`Kolik os souměrnosti má čtverec?`,ans:'4',hints:[`Dvě úhlopříčky a dvě středem stran.`,``],skill:'craft'};})(),
-   (()=>{return{text:`Kolik os souměrnosti má rovnostranný trojúhelník?`,ans:'3',hints:[`Z každého vrcholu jedna.`,``],skill:'craft'};})()
+   (()=>{const x=ri(2,9),y=ri(2,9);return{text:`Bod A [${x}, ${y}] zrcadlíme podle osy y.\nObraz má souřadnice [?, ${y}]. Napiš chybějící x.`,ans:String(-x),hints:[`y zůstává, x mění znaménko.`,`Výsledek: ${-x}`],skill:'geo'};})(),
+   (()=>{const d=ri(2,9);return{svg:svgMirror('L'),text:`Bod leží ${d} cm od osy souměrnosti.\nJak daleko od osy leží jeho obraz? (cm)`,ans:String(d),hints:[`Obraz je stejně daleko jako vzor — souměrně.`,`Výsledek: ${d}`],skill:'geo'};})(),
+   (()=>{return{svg:svgMirror('flag'),text:`Kolik os souměrnosti má čtverec?`,ans:'4',hints:[`Dvě úhlopříčky a dvě středem stran.`,`Výsledek: 4`],skill:'craft'};})(),
+   (()=>{return{text:`Kolik os souměrnosti má rovnostranný trojúhelník?`,ans:'3',hints:[`Z každého vrcholu jedna.`,`Výsledek: 3`],skill:'craft'};})()
   ]
  },
  {
@@ -1095,8 +1095,8 @@ const AREAS = [
    (()=>{const x=ri(2,9),y=ri(2,9);return{svg:svgPointSym(),text:`Bod A [${x}, ${y}] zobrazíme ve středové souměrnosti se středem v počátku [0, 0].\nJaká je x-ová souřadnice obrazu A'?`,ans:String(-x),hints:[`Středová souměrnost obrátí obě souřadnice.`,`x → -x`],skill:'geo'};})(),
    (()=>{const x=ri(2,9),y=ri(2,9);return{svg:svgPointSym(),text:`Bod A [${x}, ${y}], střed v počátku.\nJaká je y-ová souřadnice obrazu A'?`,ans:String(-y),hints:[`Obě souřadnice mění znaménko.`,`y → -y`],skill:'geo'};})(),
    (()=>{const x=ri(2,9),y=ri(2,9);return{text:`Bod A [-${x}, ${y}] zobrazíme středově podle počátku.\nJaká je x-ová souřadnice obrazu?`,ans:String(x),hints:[`-x se změní na +x.`,`-(-${x}) = ${x}`],skill:'geo'};})(),
-   (()=>{return{svg:svgPointSym(),text:`O kolik stupňů otočíme útvar při středové souměrnosti?`,ans:'180',hints:[`Středová souměrnost = otočení o půlkruh.`,``],skill:'craft'};})(),
-   (()=>{return{text:`Kolik středů souměrnosti má kruh?\n(napiš číslo)`,ans:'1',hints:[`Střed kruhu.`,``],skill:'craft'};})(),
+   (()=>{return{svg:svgPointSym(),text:`O kolik stupňů otočíme útvar při středové souměrnosti?`,ans:'180',hints:[`Středová souměrnost = otočení o půlkruh.`,`Výsledek: 180`],skill:'craft'};})(),
+   (()=>{return{text:`Kolik středů souměrnosti má kruh?\n(napiš číslo)`,ans:'1',hints:[`Střed kruhu.`,`Výsledek: 1`],skill:'craft'};})(),
    (()=>{const x=ri(2,9),y=ri(2,9);return{text:`Střed souměrnosti je v bodě [0, 0], vzor v [${x}, ${y}].\nSečti souřadnice obrazu A' (tj. -${x} a -${y}).`,ans:String(-x-y),hints:[`Obraz je [-${x}, -${y}]. Sečti je.`,`-${x} + (-${y})`],skill:'anal'};})()
   ]
  },
@@ -1106,12 +1106,12 @@ const AREAS = [
   intro:'Kněz svatyně rozpozná shodné trojúhelníky podle vět. Pojmenuj správnou větu o shodnosti.',
   tc:6,
   tasks:()=>[
-   (()=>{return{svg:svgTriangle('obecny'),text:`Dva trojúhelníky se shodují ve všech TŘECH stranách.\nPodle které věty jsou shodné?\n(napiš: sss / sus / usu)`,ans:'sss',hints:[`tři strany = strana-strana-strana.`,``],skill:'craft'};})(),
-   (()=>{return{svg:svgTriangle('obecny'),text:`Shodují se ve DVOU stranách a úhlu jimi SEVŘENÉM.\nKterá věta?\n(sss / sus / usu)`,ans:'sus',hints:[`strana-úhel-strana.`,``],skill:'craft'};})(),
-   (()=>{return{svg:svgTriangle('obecny'),text:`Shodují se v jedné STRANĚ a DVOU úhlech k ní přilehlých.\nKterá věta?\n(sss / sus / usu)`,ans:'usu',hints:[`úhel-strana-úhel.`,``],skill:'craft'};})(),
+   (()=>{return{svg:svgTriangle('obecny'),text:`Dva trojúhelníky se shodují ve všech TŘECH stranách.\nPodle které věty jsou shodné?\n(napiš: sss / sus / usu)`,ans:'sss',hints:[`tři strany = strana-strana-strana.`,`Výsledek: sss`],skill:'craft'};})(),
+   (()=>{return{svg:svgTriangle('obecny'),text:`Shodují se ve DVOU stranách a úhlu jimi SEVŘENÉM.\nKterá věta?\n(sss / sus / usu)`,ans:'sus',hints:[`strana-úhel-strana.`,`Výsledek: sus`],skill:'craft'};})(),
+   (()=>{return{svg:svgTriangle('obecny'),text:`Shodují se v jedné STRANĚ a DVOU úhlech k ní přilehlých.\nKterá věta?\n(sss / sus / usu)`,ans:'usu',hints:[`úhel-strana-úhel.`,`Výsledek: usu`],skill:'craft'};})(),
    (()=>{const a=ri(40,80),b=ri(30,80);const c=180-a-b;if(c<10){return{svg:svgTriangle('obecny'),text:`Trojúhelník: α = 50°, β = 60°.\nJaký je úhel γ? (°)`,ans:'70',hints:[`Součet úhlů = 180°.`,`180 - 50 - 60`],skill:'geo'};}return{svg:svgTriangle('obecny'),text:`Trojúhelník: α = ${a}°, β = ${b}°.\nJaký je úhel γ? (°)`,ans:String(c),hints:[`Součet vnitřních úhlů = 180°.`,`180 - ${a} - ${b}`],skill:'geo'};})(),
    (()=>{const a=ri(3,9);return{svg:svgTriangle('rovnostr'),text:`Rovnostranný trojúhelník má stranu ${a} cm.\nJaký je jeho obvod? (cm)`,ans:String(3*a),hints:[`Všechny strany stejné.`,`3 × ${a}`],skill:'geo'};})(),
-   (()=>{return{text:`Shodné útvary mají stejný tvar i stejnou…\n(napiš jedno slovo: velikost / barvu)`,ans:'velikost',hints:[`Shodnost = stejný tvar i rozměry.`,``],skill:'craft'};})()
+   (()=>{return{text:`Shodné útvary mají stejný tvar i stejnou…\n(napiš jedno slovo: velikost / barvu)`,ans:'velikost',hints:[`Shodnost = stejný tvar i rozměry.`,`Výsledek: velikost`],skill:'craft'};})()
   ]
  }
  ]
@@ -1156,12 +1156,12 @@ const AREAS = [
   intro:'Na vrcholu pyramidy stojí kamenný Strážce. Zná celou matematiku 7. ročníku. Poraz ho a poklad je tvůj!',
   tc:6,
   tasks:()=>[
-   (()=>{const d=ri(5,10),a=ri(1,d-2),b=ri(1,d-a-1);const num=a+b,g=gcd(num,d);const ans=d/g===1?String(num/g):`${num/g}/${d/g}`;return{text:`Vypočítej (zkrať):\n${a}/${d} + ${b}/${d} =`,ans,hints:[`Stejný jmenovatel — sečti čitatele.`,``],skill:'calc'};})(),
-   (()=>{const a=ri(2,12),b=ri(2,9);return{text:`Vypočítej:\n(-${a}) × ${b} =`,ans:String(-a*b),hints:[`Mínus × plus = mínus.`,``],skill:'calc'};})(),
-   (()=>{const z=ri(2,8)*100,p=[10,20,25,50][ri(0,3)];return{text:`Vypočítej:\n${p} % z ${z} =`,ans:String(z*p/100),hints:[`1 % = ${z/100}, pak × ${p}.`,``],skill:'anal'};})(),
-   (()=>{const a=ri(4,12),v=ri(3,9);return{svg:svgParallelogram(a,v),text:`Rovnoběžník: a = ${a} cm, v = ${v} cm.\nVypočítej obsah S. (cm²)`,ans:String(a*v),hints:[`S = a × v.`,``],skill:'geo'};})(),
-   (()=>{const a=ri(2,8),b=ri(2,8),c=ri(2,8);return{svg:svgCuboid(a,b,c),text:`Kvádr ${a} × ${b} × ${c} cm.\nVypočítej objem. (cm³)`,ans:String(a*b*c),hints:[`V = a × b × c.`,``],skill:'geo'};})(),
-   (()=>{const x=ri(2,9),y=ri(2,9);return{svg:svgPointSym(),text:`Bod A [${x}, ${y}], středová souměrnost podle počátku.\nx-ová souřadnice obrazu A'?`,ans:String(-x),hints:[`Obě souřadnice mění znaménko.`,``],skill:'geo'};})()
+   (()=>{const d=ri(5,10),a=ri(1,d-2),b=ri(1,d-a-1);const num=a+b,g=gcd(num,d);const ans=d/g===1?String(num/g):`${num/g}/${d/g}`;return{text:`Vypočítej (zkrať):\n${a}/${d} + ${b}/${d} =`,ans,hints:[`Stejný jmenovatel — sečti čitatele.`,`Výsledek: ${ans}`],skill:'calc'};})(),
+   (()=>{const a=ri(2,12),b=ri(2,9);return{text:`Vypočítej:\n(-${a}) × ${b} =`,ans:String(-a*b),hints:[`Mínus × plus = mínus.`,`Výsledek: ${-a*b}`],skill:'calc'};})(),
+   (()=>{const z=ri(2,8)*100,p=[10,20,25,50][ri(0,3)];return{text:`Vypočítej:\n${p} % z ${z} =`,ans:String(z*p/100),hints:[`1 % = ${z/100}, pak × ${p}.`,`Výsledek: ${z*p/100}`],skill:'anal'};})(),
+   (()=>{const a=ri(4,12),v=ri(3,9);return{svg:svgParallelogram(a,v),text:`Rovnoběžník: a = ${a} cm, v = ${v} cm.\nVypočítej obsah S. (cm²)`,ans:String(a*v),hints:[`S = a × v.`,`Výsledek: ${a*v}`],skill:'geo'};})(),
+   (()=>{const a=ri(2,8),b=ri(2,8),c=ri(2,8);return{svg:svgCuboid(a,b,c),text:`Kvádr ${a} × ${b} × ${c} cm.\nVypočítej objem. (cm³)`,ans:String(a*b*c),hints:[`V = a × b × c.`,`Výsledek: ${a*b*c}`],skill:'geo'};})(),
+   (()=>{const x=ri(2,9),y=ri(2,9);return{svg:svgPointSym(),text:`Bod A [${x}, ${y}], středová souměrnost podle počátku.\nx-ová souřadnice obrazu A'?`,ans:String(-x),hints:[`Obě souřadnice mění znaménko.`,`Výsledek: ${-x}`],skill:'geo'};})()
   ]
  }
  ]

@@ -53,6 +53,13 @@
 ```
 
 ## Recurring technical pitfalls (avoid these)
+- **RPG regrese, které se vracejí při změnách kódu** — po KAŽDÉM zásahu do her/sprite enginů spusť `node tests/vstudents-deep.harness.cjs` (žáci vyhrávají i prohrávají, HP bar, srdíčka, nápovědy, reduced-motion, trénink, odkazy). Konkrétní opakované chyby:
+  - **`rm()` guard u nových kreslicích volání.** Každé `[tick % 2]` přepínání snímků (hrdina/parťák/boss) i particle spawn v render() MUSÍ být `rm() ? 0 : tick % 2` / `!rm() && …`. Už 2× se stalo, že VFX toggle zastavil bosse, ale hrdina/parťák se hýbali dál.
+  - **Prázdné druhé hinty `hints:[\`…\`,\`\`]`.** Generátory úloh občas vzniknou s prázdným L2 hintem. `showHint`/`trHint` mají fallback `'Výsledek: '+t.ans`, ale obsah má být explicitní. Audit: `grep -c ',\`\`\]' projects/rpg-mat-*.html` musí být 0.
+  - **Nedefinované znaky palety → magenta `#f0f` pixely.** Každý znak v sprite gridu musí existovat v příslušné paletě (PAL_HERO/PAL_COM/BOSS_PALS+COMMON).
+  - **`_doneSoFar`/`_doneBattle` pořadí** — počítat až PO `BT.tasks=…` přiřazení.
+  - **Navigační odkazy z `/projects/` souborů** — `../prijimacky-matematika/` je ŠPATNĚ (vede na root), správně `prijimacky-matematika/`. Viz href pravidlo níže.
+  - **Tmavé boss/hero palety** — sprite na tmavém pozadí arény musí mít M-odstín ≥ ~#4a3a78 jasu; kontrola screenshotem (`tests/sprite-screenshots.cjs`).
 - **CRLF noise on `projects/unikovka_procenta.html`.** Every `git status` shows it as modified because of Windows line-ending churn. Always tell user to `git checkout -- projects/unikovka_procenta.html` before staging.
 - **Git index corruption.** Bash sandbox can't atomically rewrite `.git/index` on Windows mount. If user sees many false `D ` (deleted) entries in `git status`, recover with: `rm -f .git/index.lock .git/index && git reset`.
 - **Write tool truncates large files (~47 KB threshold).** For files larger than that, prefer small targeted Edits. If Write does truncate, you may get orphan content after `</html>` — delete the duplicate tail with an Edit.

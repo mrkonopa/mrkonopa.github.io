@@ -488,7 +488,7 @@ window.RPGSprites9 = (function () {
     if (m === 'cast')  return HERO_CAST;
     if (m === 'shoot') return HERO_SHOOT;
     if (m === 'hit')   return HERO_HIT;
-    return HERO_IDLE[tick % 2];
+    return HERO_IDLE[rm() ? 0 : tick % 2];
   }
 
   function render(now) {
@@ -609,7 +609,7 @@ window.RPGSprites9 = (function () {
     {
       const bob = rm() ? 0 : Math.sin(performance.now() / 380) * 6;
       const ax = hp.x + 15 * SCALE + 6, ay = hp.y - 8 + bob;
-      drawSprite(ANDROID[tick % 2], PAL_AND, ax, ay, ASCALE, false, false);
+      drawSprite(ANDROID[rm() ? 0 : tick % 2], PAL_AND, ax, ay, ASCALE, false, false);
       if (!rm()) {  // tryskový plamínek pod tělem
         ctx.fillStyle = (tick % 2) ? '#19e6e6' : '#0e8a8a';
         ctx.fillRect(ax + 3 * ASCALE, ay + 10 * ASCALE, ASCALE, ASCALE);

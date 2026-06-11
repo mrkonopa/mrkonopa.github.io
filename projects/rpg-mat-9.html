@@ -1081,12 +1081,12 @@ const AREAS = [
   intro:'Reaktor běží na mocninách energie. Spočítej je dřív, než přetíží síť.',
   mc:true, tc:6,
   tasks:()=>[
-   (()=>{const a=ri(2,15);return{text:`Vypočítej:\n${a}² =`,ans:String(a*a),hints:[`${a}² = ${a} × ${a}.`,``],skill:'calc'};})(),
+   (()=>{const a=ri(2,15);return{text:`Vypočítej:\n${a}² =`,ans:String(a*a),hints:[`${a}² = ${a} × ${a}.`,`Výsledek: ${a*a}`],skill:'calc'};})(),
    (()=>{const a=ri(2,7);return{text:`Vypočítej:\n${a}³ =`,ans:String(a*a*a),hints:[`${a}³ = ${a} × ${a} × ${a}.`,`${a*a} × ${a}`],skill:'calc'};})(),
-   (()=>{const a=ri(2,15);return{text:`Vypočítej:\n√${a*a} =`,ans:String(a),hints:[`Které číslo na druhou dá ${a*a}?`,``],skill:'calc'};})(),
-   (()=>{const a=ri(2,6);return{text:`Vypočítej:\n∛${a*a*a} =`,ans:String(a),hints:[`Které číslo na třetí dá ${a*a*a}?`,``],skill:'calc'};})(),
-   (()=>{const n=ri(2,7);return{text:`Vypočítej:\n2^${n} =`,ans:String(2**n),hints:[`Násob dvojku ${n}×.`,``],skill:'calc'};})(),
-   (()=>{const n=ri(2,5);return{text:`Vypočítej:\n10^${n} =`,ans:String(10**n),hints:[`Jednička a ${n} nul.`,``],skill:'calc'};})()
+   (()=>{const a=ri(2,15);return{text:`Vypočítej:\n√${a*a} =`,ans:String(a),hints:[`Které číslo na druhou dá ${a*a}?`,`Výsledek: ${a}`],skill:'calc'};})(),
+   (()=>{const a=ri(2,6);return{text:`Vypočítej:\n∛${a*a*a} =`,ans:String(a),hints:[`Které číslo na třetí dá ${a*a*a}?`,`Výsledek: ${a}`],skill:'calc'};})(),
+   (()=>{const n=ri(2,7);return{text:`Vypočítej:\n2^${n} =`,ans:String(2**n),hints:[`Násob dvojku ${n}×.`,`Výsledek: ${2**n}`],skill:'calc'};})(),
+   (()=>{const n=ri(2,5);return{text:`Vypočítej:\n10^${n} =`,ans:String(10**n),hints:[`Jednička a ${n} nul.`,`Výsledek: ${10**n}`],skill:'calc'};})()
   ]
  },
  {
@@ -1098,7 +1098,7 @@ const AREAS = [
    (()=>{const z=ri(2,4),m=ri(2,3),n=ri(2,3);return{text:`Vypočítej (zapiš číslem):\n${z}^${m} · ${z}^${n} =`,ans:String(z**(m+n)),hints:[`Stejný základ — exponenty se sčítají: ${z}^${m+n}.`,`${z}^${m+n}`],skill:'anal'};})(),
    (()=>{const z=ri(2,4),m=ri(4,5),n=ri(2,3);return{text:`Vypočítej (zapiš číslem):\n${z}^${m} : ${z}^${n} =`,ans:String(z**(m-n)),hints:[`Stejný základ — exponenty se odčítají: ${z}^${m-n}.`,`${z}^${m-n}`],skill:'anal'};})(),
    (()=>{const z=ri(2,3),m=ri(2,3),n=ri(2,3);return{text:`Vypočítej (zapiš číslem):\n(${z}^${m})^${n} =`,ans:String(z**(m*n)),hints:[`Mocnina mocniny — exponenty se násobí: ${z}^${m*n}.`,`${z}^${m*n}`],skill:'anal'};})(),
-   (()=>{const a=ri(2,20);return{text:`Vypočítej:\n${a}^0 =`,ans:'1',hints:[`Cokoliv (kromě 0) na nultou je 1.`,``],skill:'anal'};})(),
+   (()=>{const a=ri(2,20);return{text:`Vypočítej:\n${a}^0 =`,ans:'1',hints:[`Cokoliv (kromě 0) na nultou je 1.`,`Výsledek: 1`],skill:'anal'};})(),
    (()=>{const a=ri(2,5),b=ri(2,4);return{text:`Vypočítej (zapiš číslem):\n(${a} · ${b})² =`,ans:String((a*b)**2),hints:[`Umocni součin: (${a*b})².`,`${a*b} × ${a*b}`],skill:'anal'};})(),
    (()=>{const a=ri(2,5);return{text:`Vypočítej:\n(-${a})³ =`,ans:String(-(a**3)),hints:[`Lichý exponent zachová znaménko mínus.`,`-(${a}³)`],skill:'anal'};})()
   ]
@@ -1110,7 +1110,7 @@ const AREAS = [
   tc:6,
   tasks:()=>[
    (()=>{const a=ri(2,9),n=ri(3,6),v=a*(10**n);return{text:`Číslo ${v.toLocaleString('cs-CZ')} zapiš jako ${a}·10ⁿ.\nJaké je n?`,ans:String(n),hints:[`Spočítej, o kolik míst se posune čárka.`,`${v.toLocaleString('cs-CZ')} = ${a}·10^${n}`],skill:'anal'};})(),
-   (()=>{const a=ri(2,9),n=ri(2,4),v=a*(10**n);return{text:`Vyjádři jako běžné číslo:\n${a}·10^${n} =`,ans:String(v),hints:[`Posuň desetinnou čárku o ${n} míst doprava.`,``],skill:'anal'};})(),
+   (()=>{const a=ri(2,9),n=ri(2,4),v=a*(10**n);return{text:`Vyjádři jako běžné číslo:\n${a}·10^${n} =`,ans:String(v),hints:[`Posuň desetinnou čárku o ${n} míst doprava.`,`Výsledek: ${v}`],skill:'anal'};})(),
    (()=>{const a=ri(1,9),n=ri(2,4);return{text:`Číslo 0,${'0'.repeat(n-1)}${a} zapiš jako ${a}·10ⁿ.\nJaké je n (může být záporné)?`,ans:String(-n),hints:[`Malá čísla mají záporný exponent.`,`n = -${n}`],skill:'anal'};})(),
    (()=>{const t=[[3,4,5],[6,8,10],[5,12,13],[8,15,17]][ri(0,3)];return{svg:svgTriangle('pravo',{v:['C','A','B']}),text:`Pravoúhlý trojúhelník, odvěsny ${t[0]} cm a ${t[1]} cm.\nVypočítej přeponu c. (cm)`,ans:String(t[2]),hints:[`c² = a² + b² = ${t[0]*t[0]} + ${t[1]*t[1]}.`,`c = √${t[2]*t[2]}`],skill:'geo'};})(),
    (()=>{const t=[[3,4,5],[6,8,10],[5,12,13],[8,15,17]][ri(0,3)];return{svg:svgTriangle('pravo',{v:['C','A','B']}),text:`Pravoúhlý trojúhelník: přepona ${t[2]} cm, jedna odvěsna ${t[0]} cm.\nDruhá odvěsna? (cm)`,ans:String(t[1]),hints:[`b² = c² − a² = ${t[2]*t[2]} − ${t[0]*t[0]}.`,`b = √${t[1]*t[1]}`],skill:'geo'};})(),
@@ -1159,10 +1159,10 @@ const AREAS = [
   intro:'Automat zná vzorce, ale chybí mu hodnoty. Dosaď a dopočítej neznámou.',
   tc:6,
   tasks:()=>[
-   (()=>{const a=ri(3,12),b=ri(3,12),o=2*(a+b);return{text:`Obvod obdélníku: o = 2(a+b).\no = ${o} cm, a = ${a} cm. Urči b. (cm)`,ans:String(b),hints:[`b = o/2 − a = ${o/2} − ${a}.`,``],skill:'anal'};})(),
-   (()=>{const a=ri(3,12),v=ri(3,12),S=a*v;return{text:`Obsah obdélníku: S = a · v.\nS = ${S} cm², a = ${a} cm. Urči v. (cm)`,ans:String(v),hints:[`v = S / a = ${S} ÷ ${a}.`,``],skill:'anal'};})(),
-   (()=>{const v=ri(40,90),t=ri(2,5),sd=v*t;return{text:`Dráha: s = v · t.\ns = ${sd} km, v = ${v} km/h. Urči čas t. (h)`,ans:String(t),hints:[`t = s / v = ${sd} ÷ ${v}.`,``],skill:'anal'};})(),
-   (()=>{const v=ri(40,90),t=ri(2,5),sd=v*t;return{text:`Dráha: s = v · t.\ns = ${sd} km, t = ${t} h. Urči rychlost v. (km/h)`,ans:String(v),hints:[`v = s / t = ${sd} ÷ ${t}.`,``],skill:'anal'};})(),
+   (()=>{const a=ri(3,12),b=ri(3,12),o=2*(a+b);return{text:`Obvod obdélníku: o = 2(a+b).\no = ${o} cm, a = ${a} cm. Urči b. (cm)`,ans:String(b),hints:[`b = o/2 − a = ${o/2} − ${a}.`,`Výsledek: ${b}`],skill:'anal'};})(),
+   (()=>{const a=ri(3,12),v=ri(3,12),S=a*v;return{text:`Obsah obdélníku: S = a · v.\nS = ${S} cm², a = ${a} cm. Urči v. (cm)`,ans:String(v),hints:[`v = S / a = ${S} ÷ ${a}.`,`Výsledek: ${v}`],skill:'anal'};})(),
+   (()=>{const v=ri(40,90),t=ri(2,5),sd=v*t;return{text:`Dráha: s = v · t.\ns = ${sd} km, v = ${v} km/h. Urči čas t. (h)`,ans:String(t),hints:[`t = s / v = ${sd} ÷ ${v}.`,`Výsledek: ${t}`],skill:'anal'};})(),
+   (()=>{const v=ri(40,90),t=ri(2,5),sd=v*t;return{text:`Dráha: s = v · t.\ns = ${sd} km, t = ${t} h. Urči rychlost v. (km/h)`,ans:String(v),hints:[`v = s / t = ${sd} ÷ ${t}.`,`Výsledek: ${v}`],skill:'anal'};})(),
    (()=>{const x=ri(12,40),a=ri(5,25),v=x+a;return{text:`Slovní úloha:\nNeznámé číslo zvětšené o ${a} je ${v}. Jaké je?`,ans:String(x),hints:[`x + ${a} = ${v}.`,`x = ${v} − ${a}`],skill:'anal'};})(),
    (()=>{const x=ri(3,12),v=3*x-4;return{text:`Slovní úloha:\nTrojnásobek čísla zmenšený o 4 je ${v}. Jaké je číslo?`,ans:String(x),hints:[`3x − 4 = ${v}.`,`3x = ${v+4}`],skill:'anal'};})()
   ]
@@ -1197,9 +1197,9 @@ const AREAS = [
   tasks:()=>[
    (()=>{const b=ri(2,6),x=b*ri(2,6),a=ri(1,9);return{text:`Vypočítej hodnotu výrazu (x + ${a})/${b}\npro x = ${x-a}.`,ans:String((x)/b),hints:[`Dosaď: (${x-a} + ${a})/${b}.`,`${x} ÷ ${b}`],skill:'anal'};})(),
    (()=>{const x=ri(2,6),a=x*ri(1,4);return{text:`Vypočítej hodnotu výrazu (2x + ${a}) / x\npro x = ${x}.`,ans:String(2+a/x),hints:[`Dosaď x = ${x}: (${2*x} + ${a}) ÷ ${x}.`,`${2*x+a} ÷ ${x}`],skill:'anal'};})(),
-   (()=>{const x=[2,4,5,10][ri(0,3)],k=x*ri(2,6),b=ri(1,9);return{text:`Vypočítej hodnotu výrazu ${k}/x + ${b}\npro x = ${x}.`,ans:String(k/x+b),hints:[`${k} ÷ ${x} = ${k/x}, pak + ${b}.`,``],skill:'anal'};})(),
-   (()=>{const d=ri(2,9),n=d*ri(2,6),g=gcd(n,d);return{text:`Zkrať zlomek na základní tvar:\n${n}/${d} =`,ans:(d/g===1?String(n/g):`${n/g}/${d/g}`),hints:[`Vyděl čitatele i jmenovatele ${g}.`,``],skill:'calc'};})(),
-   (()=>{const x=ri(3,9),a=ri(1,2);return{text:`Vypočítej hodnotu výrazu (x − ${a})·(x + ${a})\npro x = ${x}. (= x² − ${a*a})`,ans:String(x*x-a*a),hints:[`x² − ${a}² = ${x*x} − ${a*a}.`,``],skill:'anal'};})(),
+   (()=>{const x=[2,4,5,10][ri(0,3)],k=x*ri(2,6),b=ri(1,9);return{text:`Vypočítej hodnotu výrazu ${k}/x + ${b}\npro x = ${x}.`,ans:String(k/x+b),hints:[`${k} ÷ ${x} = ${k/x}, pak + ${b}.`,`Výsledek: ${k/x+b}`],skill:'anal'};})(),
+   (()=>{const d=ri(2,9),n=d*ri(2,6),g=gcd(n,d);return{text:`Zkrať zlomek na základní tvar:\n${n}/${d} =`,ans:(d/g===1?String(n/g):`${n/g}/${d/g}`),hints:[`Vyděl čitatele i jmenovatele ${g}.`,`Výsledek: ${d/g===1?String(n/g):n/g+'/'+(d/g)}`],skill:'calc'};})(),
+   (()=>{const x=ri(3,9),a=ri(1,2);return{text:`Vypočítej hodnotu výrazu (x − ${a})·(x + ${a})\npro x = ${x}. (= x² − ${a*a})`,ans:String(x*x-a*a),hints:[`x² − ${a}² = ${x*x} − ${a*a}.`,`Výsledek: ${x*x-a*a}`],skill:'anal'};})(),
    (()=>{const x=ri(3,8),a=x*ri(1,4);return{text:`Vypočítej hodnotu výrazu (x² + ${a}) / x\npro x = ${x}.`,ans:String(x+a/x),hints:[`Dosaď x = ${x}: (${x*x} + ${a}) ÷ ${x}.`,`${x*x+a} ÷ ${x}`],skill:'anal'};})()
   ]
  },
@@ -1233,7 +1233,7 @@ const AREAS = [
   tasks:()=>[
    (()=>{const x=ri(2,12),y=ri(2,12),sm=x+y,df=x-y;return{text:`Vyřeš soustavu, urči x:\nx + y = ${sm}\nx − y = ${df}`,ans:String(x),hints:[`Sečti obě rovnice: 2x = ${sm+df}.`,`x = ${(sm+df)/2}`],skill:'anal'};})(),
    (()=>{const x=ri(2,12),y=ri(2,12),sm=x+y,df=x-y;return{text:`Vyřeš soustavu, urči y:\nx + y = ${sm}\nx − y = ${df}`,ans:String(y),hints:[`Odečti rovnice: 2y = ${sm-df}.`,`y = ${(sm-df)/2}`],skill:'anal'};})(),
-   (()=>{const x=ri(2,9),y=ri(2,9),e1=x+y,e2=2*x+y;return{text:`Vyřeš soustavu, urči x:\nx + y = ${e1}\n2x + y = ${e2}`,ans:String(x),hints:[`Odečti rovnice: x = ${e2-e1}.`,``],skill:'anal'};})(),
+   (()=>{const x=ri(2,9),y=ri(2,9),e1=x+y,e2=2*x+y;return{text:`Vyřeš soustavu, urči x:\nx + y = ${e1}\n2x + y = ${e2}`,ans:String(x),hints:[`Odečti rovnice: x = ${e2-e1}.`,`Výsledek: ${x}`],skill:'anal'};})(),
    (()=>{const x=ri(2,8),y=2*x,sm=x+y;return{text:`Vyřeš soustavu, urči x:\ny = 2x\nx + y = ${sm}`,ans:String(x),hints:[`Dosaď: x + 2x = ${sm}, tedy 3x = ${sm}.`,`x = ${sm/3}`],skill:'anal'};})(),
    (()=>{const x=ri(3,10),y=ri(2,9),sm=x+y,d=x-y;return{text:`Součet dvou čísel je ${sm}, jejich rozdíl je ${d}.\nVětší z čísel?`,ans:String(x),hints:[`Větší = (součet + rozdíl)/2.`,`(${sm} + ${d}) / 2`],skill:'anal'};})(),
    (()=>{const x=ri(3,9),y=ri(2,8),e1=2*x+3*y,e2=x;return{text:`Vyřeš soustavu, urči y:\n2x + 3y = ${e1}\nx = ${e2}`,ans:String(y),hints:[`Dosaď x = ${e2}: ${2*e2} + 3y = ${e1}.`,`3y = ${e1-2*e2}`],skill:'anal'};})()
@@ -1245,7 +1245,7 @@ const AREAS = [
   intro:'Modul míchá data jako chemik roztoky. Spočítej koncentrace a výkon.',
   tc:6,
   tasks:()=>[
-   (()=>{const m=ri(2,8)*50,p=[10,20,25,50][ri(0,3)];return{text:`V roztoku o hmotnosti ${m} g je ${p} % soli.\nKolik gramů soli obsahuje?`,ans:String(m*p/100),hints:[`${p} % z ${m} = ${m}·${p/100}.`,``],skill:'anal'};})(),
+   (()=>{const m=ri(2,8)*50,p=[10,20,25,50][ri(0,3)];return{text:`V roztoku o hmotnosti ${m} g je ${p} % soli.\nKolik gramů soli obsahuje?`,ans:String(m*p/100),hints:[`${p} % z ${m} = ${m}·${p/100}.`,`Výsledek: ${m*p/100}`],skill:'anal'};})(),
    (()=>{const f=[4,5,8,10][ri(0,3)],s=ri(2,9)*10,m=s*f;const p=100/f;return{text:`Roztok má hmotnost ${m} g a obsahuje ${s} g soli.\nKolik procent soli obsahuje?`,ans:cz(p),hints:[`Část ÷ celek × 100.`,`${s} ÷ ${m} × 100 = ${cz(p)}`],skill:'anal'};})(),
    (()=>{const a=ri(2,5),pa=ri(8,15)*10,b=ri(2,5),pb=ri(2,7)*10;const tot=(a*pa+b*pb)/(a+b);return{text:`Smícháme ${a} kg kávy po ${pa} Kč a ${b} kg po ${pb} Kč.\nCena 1 kg směsi? (Kč)`,ans:String(Math.round(tot)),hints:[`(${a}·${pa} + ${b}·${pb}) ÷ ${a+b}.`,`${a*pa+b*pb} ÷ ${a+b}`],skill:'anal'};})(),
    (()=>{const t=[4,5,8,10,20,25][ri(0,5)];const pct=100/t;return{text:`Dělník zvládne celou práci za ${t} hodin.\nKolik procent práce udělá za 1 hodinu?`,ans:cz(pct),hints:[`Za 1 h udělá 1/${t} práce.`,`100 ÷ ${t} = ${cz(pct)}`],skill:'anal'};})(),
@@ -1259,11 +1259,11 @@ const AREAS = [
   intro:'Datové pakety se ženou sítí. Spočítej dráhy, rychlosti a časy.',
   tc:6,
   tasks:()=>[
-   (()=>{const v=ri(5,12)*10,t=ri(2,5);return{text:`Auto jede rychlostí ${v} km/h po dobu ${t} h.\nJakou dráhu ujede? (km)`,ans:String(v*t),hints:[`s = v · t = ${v} · ${t}.`,``],skill:'anal'};})(),
-   (()=>{const v=ri(6,12)*10,t=ri(2,5),s=v*t;return{text:`Vlak ujel ${s} km rychlostí ${v} km/h.\nJak dlouho jel? (h)`,ans:String(t),hints:[`t = s / v = ${s} ÷ ${v}.`,``],skill:'anal'};})(),
-   (()=>{const t=ri(2,5),s=ri(6,15)*10*t/t,v=ri(6,15)*10;const sd=v*t;return{text:`Cyklista ujel ${sd} km za ${t} h.\nJaká byla jeho průměrná rychlost? (km/h)`,ans:String(v),hints:[`v = s / t = ${sd} ÷ ${t}.`,``],skill:'anal'};})(),
+   (()=>{const v=ri(5,12)*10,t=ri(2,5);return{text:`Auto jede rychlostí ${v} km/h po dobu ${t} h.\nJakou dráhu ujede? (km)`,ans:String(v*t),hints:[`s = v · t = ${v} · ${t}.`,`Výsledek: ${v*t}`],skill:'anal'};})(),
+   (()=>{const v=ri(6,12)*10,t=ri(2,5),s=v*t;return{text:`Vlak ujel ${s} km rychlostí ${v} km/h.\nJak dlouho jel? (h)`,ans:String(t),hints:[`t = s / v = ${s} ÷ ${v}.`,`Výsledek: ${t}`],skill:'anal'};})(),
+   (()=>{const t=ri(2,5),s=ri(6,15)*10*t/t,v=ri(6,15)*10;const sd=v*t;return{text:`Cyklista ujel ${sd} km za ${t} h.\nJaká byla jeho průměrná rychlost? (km/h)`,ans:String(v),hints:[`v = s / t = ${sd} ÷ ${t}.`,`Výsledek: ${v}`],skill:'anal'};})(),
    (()=>{const v1=ri(4,7)*10,v2=ri(4,7)*10,d=ri(2,5)*(v1+v2);return{text:`Dvě města jsou ${d} km daleko. Auta vyjedou proti sobě rychlostmi ${v1} a ${v2} km/h.\nZa kolik hodin se potkají?`,ans:String(d/(v1+v2)),hints:[`Sbližují se rychlostí ${v1+v2} km/h.`,`${d} ÷ ${v1+v2}`],skill:'anal'};})(),
-   (()=>{const v=ri(8,12)*10,t=[1.5,2.5,3.5][ri(0,2)],s=v*t;return{text:`Rychlík jede ${v} km/h.\nJak daleko dojede za ${cz(t)} h? (km)`,ans:String(s),hints:[`s = v · t = ${v} · ${cz(t)}.`,``],skill:'anal'};})(),
+   (()=>{const v=ri(8,12)*10,t=[1.5,2.5,3.5][ri(0,2)],s=v*t;return{text:`Rychlík jede ${v} km/h.\nJak daleko dojede za ${cz(t)} h? (km)`,ans:String(s),hints:[`s = v · t = ${v} · ${cz(t)}.`,`Výsledek: ${s}`],skill:'anal'};})(),
    (()=>{const v1=ri(3,5)*10,v2=v1+ri(2,4)*10,t=ri(2,4);const nask=(v2-v1)*t;return{text:`Pomalejší auto jede ${v1} km/h, rychlejší ${v2} km/h, stejným směrem.\nO kolik km je rychlejší vepředu po ${t} h?`,ans:String(nask),hints:[`Náskok roste rychlostí ${v2-v1} km/h.`,`${v2-v1} · ${t}`],skill:'anal'};})()
   ]
  }
@@ -1281,11 +1281,11 @@ const AREAS = [
   intro:'Monitor kreslí přímky podle předpisu y = kx + q. Čti hodnoty z funkce.',
   mc:true, tc:6,
   tasks:()=>[
-   (()=>{const k=ri(2,5),q=ri(-4,6),x=ri(2,6),y=k*x+q;return{svg:svgLineGraph(k,q),text:`y = ${k}x ${q<0?'− '+(-q):'+ '+q}\nVypočítej f(${x}).`,ans:String(y),hints:[`Dosaď x = ${x}: ${k}·${x} ${q<0?'− '+(-q):'+ '+q}.`,``],skill:'geo'};})(),
+   (()=>{const k=ri(2,5),q=ri(-4,6),x=ri(2,6),y=k*x+q;return{svg:svgLineGraph(k,q),text:`y = ${k}x ${q<0?'− '+(-q):'+ '+q}\nVypočítej f(${x}).`,ans:String(y),hints:[`Dosaď x = ${x}: ${k}·${x} ${q<0?'− '+(-q):'+ '+q}.`,`Výsledek: ${y}`],skill:'geo'};})(),
    (()=>{const k=ri(2,5),q=ri(-6,8);return{svg:svgLineGraph(k,q),text:`y = ${k}x ${q<0?'− '+(-q):'+ '+q}\nKde protíná přímka osu y? (hodnota q)`,ans:String(q),hints:[`Osu y protne pro x = 0, takže y = q.`,`q = ${q}`],skill:'geo'};})(),
    (()=>{const k=ri(2,4),x0=ri(1,5),q=-k*x0;return{text:`y = ${k}x ${q<0?'− '+(-q):'+ '+q}\nPro jaké x je y = 0?`,ans:String(x0),hints:[`${k}x ${q<0?'− '+(-q):'+ '+q} = 0.`,`x = ${-q} ÷ ${k}`],skill:'geo'};})(),
-   (()=>{const k=ri(2,6);return{text:`Lineární funkce y = ${k}x.\nKolik je f(1)?`,ans:String(k),hints:[`Dosaď x = 1.`,``],skill:'geo'};})(),
-   (()=>{const k=ri(2,5),q=ri(1,6),x=ri(2,5),y=k*x+q;return{text:`y = ${k}x + ${q}\nVypočítej f(${x}).`,ans:String(y),hints:[`${k}·${x} + ${q}.`,``],skill:'geo'};})(),
+   (()=>{const k=ri(2,6);return{text:`Lineární funkce y = ${k}x.\nKolik je f(1)?`,ans:String(k),hints:[`Dosaď x = 1.`,`Výsledek: ${k}`],skill:'geo'};})(),
+   (()=>{const k=ri(2,5),q=ri(1,6),x=ri(2,5),y=k*x+q;return{text:`y = ${k}x + ${q}\nVypočítej f(${x}).`,ans:String(y),hints:[`${k}·${x} + ${q}.`,`Výsledek: ${y}`],skill:'geo'};})(),
    (()=>{const x1=ri(1,3),y1=ri(2,5),x2=x1+1,k=ri(2,4),y2=y1+k;return{text:`Přímka prochází body [${x1}, ${y1}] a [${x2}, ${y2}].\nJaká je směrnice k? (změna y na 1 krok x)`,ans:String(k),hints:[`k = (${y2} − ${y1}) / (${x2} − ${x1}).`,`= ${k}`],skill:'geo'};})()
   ]
  },
@@ -1295,12 +1295,12 @@ const AREAS = [
   intro:'Modul potřebuje vědět, jak se funkce chová. Rozhoduj ANO / NE i počítej.',
   tc:6,
   tasks:()=>[
-   (()=>{const k=ri(2,6),q=ri(-5,5);return{text:`Je funkce y = ${k}x ${q<0?'− '+(-q):'+ '+q} rostoucí?\nNapiš ANO / NE.`,ans:'ANO',hints:[`Rostoucí ⇔ k > 0. Tady k = ${k}.`,``],skill:'anal'};})(),
-   (()=>{const k=ri(2,6),q=ri(-5,5);return{text:`Je funkce y = −${k}x ${q<0?'− '+(-q):'+ '+q} rostoucí?\nNapiš ANO / NE.`,ans:'NE',hints:[`k = −${k} < 0, takže je klesající.`,``],skill:'anal'};})(),
-   (()=>{const k=ri(2,5),q=ri(2,8);return{text:`y = ${k}x + ${q}\nV jakém bodě protíná osu y? (napiš jen y-ovou souřadnici)`,ans:String(q),hints:[`Pro x = 0 je y = q.`,``],skill:'anal'};})(),
+   (()=>{const k=ri(2,6),q=ri(-5,5);return{text:`Je funkce y = ${k}x ${q<0?'− '+(-q):'+ '+q} rostoucí?\nNapiš ANO / NE.`,ans:'ANO',hints:[`Rostoucí ⇔ k > 0. Tady k = ${k}.`,`Výsledek: ANO`],skill:'anal'};})(),
+   (()=>{const k=ri(2,6),q=ri(-5,5);return{text:`Je funkce y = −${k}x ${q<0?'− '+(-q):'+ '+q} rostoucí?\nNapiš ANO / NE.`,ans:'NE',hints:[`k = −${k} < 0, takže je klesající.`,`Výsledek: NE`],skill:'anal'};})(),
+   (()=>{const k=ri(2,5),q=ri(2,8);return{text:`y = ${k}x + ${q}\nV jakém bodě protíná osu y? (napiš jen y-ovou souřadnici)`,ans:String(q),hints:[`Pro x = 0 je y = q.`,`Výsledek: ${q}`],skill:'anal'};})(),
    (()=>{const k=ri(2,4),x0=ri(2,5),q=-k*x0;return{text:`y = ${k}x ${q<0?'− '+(-q):'+ '+q}\nV jakém bodě protíná osu x? (napiš jen x-ovou souřadnici)`,ans:String(x0),hints:[`Polož y = 0.`,`x = ${-q} ÷ ${k}`],skill:'anal'};})(),
-   (()=>{const q=ri(2,8);return{text:`Je funkce y = ${q} (konstantní) rostoucí?\nNapiš ANO / NE.`,ans:'NE',hints:[`Konstantní funkce není rostoucí ani klesající (k = 0).`,``],skill:'anal'};})(),
-   (()=>{const k=ri(2,4),q=ri(1,5),x=ri(2,5),y=k*x+q;return{text:`Prochází graf funkce y = ${k}x + ${q} bodem [${x}, ${y}]?\nNapiš ANO / NE.`,ans:'ANO',hints:[`Dosaď x = ${x}: ${k}·${x} + ${q} = ${y}. Sedí?`,``],skill:'anal'};})()
+   (()=>{const q=ri(2,8);return{text:`Je funkce y = ${q} (konstantní) rostoucí?\nNapiš ANO / NE.`,ans:'NE',hints:[`Konstantní funkce není rostoucí ani klesající (k = 0).`,`Výsledek: NE`],skill:'anal'};})(),
+   (()=>{const k=ri(2,4),q=ri(1,5),x=ri(2,5),y=k*x+q;return{text:`Prochází graf funkce y = ${k}x + ${q} bodem [${x}, ${y}]?\nNapiš ANO / NE.`,ans:'ANO',hints:[`Dosaď x = ${x}: ${k}·${x} + ${q} = ${y}. Sedí?`,`Výsledek: ANO`],skill:'anal'};})()
   ]
  },
  {
@@ -1309,12 +1309,12 @@ const AREAS = [
   intro:'Nepřímá úměra: čím větší x, tím menší y. Spočítej hodnoty na hyperbole.',
   tc:6,
   tasks:()=>[
-   (()=>{const x=[2,3,4,6][ri(0,3)],k=x*ri(2,8),y=k/x;return{text:`y = ${k}/x\nVypočítej f(${x}).`,ans:String(y),hints:[`Dosaď: ${k} ÷ ${x}.`,``],skill:'geo'};})(),
-   (()=>{const y=[2,3,4,5][ri(0,3)],k=y*ri(2,8),x=k/y;return{text:`y = ${k}/x\nPro jaké x je y = ${y}?`,ans:String(x),hints:[`${k}/x = ${y}, tedy x = ${k} ÷ ${y}.`,``],skill:'geo'};})(),
+   (()=>{const x=[2,3,4,6][ri(0,3)],k=x*ri(2,8),y=k/x;return{text:`y = ${k}/x\nVypočítej f(${x}).`,ans:String(y),hints:[`Dosaď: ${k} ÷ ${x}.`,`Výsledek: ${y}`],skill:'geo'};})(),
+   (()=>{const y=[2,3,4,5][ri(0,3)],k=y*ri(2,8),x=k/y;return{text:`y = ${k}/x\nPro jaké x je y = ${y}?`,ans:String(x),hints:[`${k}/x = ${y}, tedy x = ${k} ÷ ${y}.`,`Výsledek: ${x}`],skill:'geo'};})(),
    (()=>{return{text:`Pro jaké x není funkce y = 12/x definována?\nx ≠`,ans:'0',hints:[`Jmenovatel nesmí být nula.`,`x = 0`],skill:'geo'};})(),
-   (()=>{const x=ri(2,6),y=ri(2,8),k=x*y;return{text:`Lomená funkce y = k/x prochází bodem [${x}, ${y}].\nUrči koeficient k.`,ans:String(k),hints:[`k = x · y = ${x} · ${y}.`,``],skill:'geo'};})(),
-   (()=>{const x=[2,4,5,10][ri(0,3)],k=x*ri(3,9),y=k/x;return{text:`Nepřímá úměrnost: y = ${k}/x.\nVypočítej hodnotu pro x = ${x}.`,ans:String(y),hints:[`${k} ÷ ${x}.`,``],skill:'geo'};})(),
-   (()=>{const k=[12,24,36,48][ri(0,3)],x=[2,3,4,6][ri(0,3)],y=k/x;return{text:`y = ${k}/x\nVyplň tabulku: pro x = ${x} je y = ?`,ans:String(y),hints:[`${k} ÷ ${x}.`,``],skill:'geo'};})()
+   (()=>{const x=ri(2,6),y=ri(2,8),k=x*y;return{text:`Lomená funkce y = k/x prochází bodem [${x}, ${y}].\nUrči koeficient k.`,ans:String(k),hints:[`k = x · y = ${x} · ${y}.`,`Výsledek: ${k}`],skill:'geo'};})(),
+   (()=>{const x=[2,4,5,10][ri(0,3)],k=x*ri(3,9),y=k/x;return{text:`Nepřímá úměrnost: y = ${k}/x.\nVypočítej hodnotu pro x = ${x}.`,ans:String(y),hints:[`${k} ÷ ${x}.`,`Výsledek: ${y}`],skill:'geo'};})(),
+   (()=>{const k=[12,24,36,48][ri(0,3)],x=[2,3,4,6][ri(0,3)],y=k/x;return{text:`y = ${k}/x\nVyplň tabulku: pro x = ${x} je y = ?`,ans:String(y),hints:[`${k} ÷ ${x}.`,`Výsledek: ${y}`],skill:'geo'};})()
   ]
  }
  ]
@@ -1331,11 +1331,11 @@ const AREAS = [
   intro:'Systém zvětšuje a zmenšuje obrazce. Pracuj s koeficientem podobnosti a měřítkem.',
   tc:6,
   tasks:()=>[
-   (()=>{const a=ri(3,9),k=ri(2,4);return{svg:svgSimilar(k),text:`Trojúhelníky jsou podobné s koeficientem k = ${k}.\nStraně ${a} cm odpovídá strana? (cm)`,ans:String(a*k),hints:[`Vynásob koeficientem: ${a} · ${k}.`,``],skill:'geo'};})(),
-   (()=>{const k=ri(2,4),orig=ri(4,9)*k;return{text:`Obrazec zmenšíme koeficientem k = 1/${k}.\nStrana ${orig} cm bude mít? (cm)`,ans:String(orig/k),hints:[`Vyděl ${k}: ${orig} ÷ ${k}.`,``],skill:'geo'};})(),
-   (()=>{const a=ri(2,6),k=ri(2,4),b=a*k;return{text:`Strana originálu je ${a} cm, odpovídající strana obrazu ${b} cm.\nJaký je koeficient podobnosti k?`,ans:String(k),hints:[`k = obraz / originál = ${b} ÷ ${a}.`,``],skill:'geo'};})(),
+   (()=>{const a=ri(3,9),k=ri(2,4);return{svg:svgSimilar(k),text:`Trojúhelníky jsou podobné s koeficientem k = ${k}.\nStraně ${a} cm odpovídá strana? (cm)`,ans:String(a*k),hints:[`Vynásob koeficientem: ${a} · ${k}.`,`Výsledek: ${a*k}`],skill:'geo'};})(),
+   (()=>{const k=ri(2,4),orig=ri(4,9)*k;return{text:`Obrazec zmenšíme koeficientem k = 1/${k}.\nStrana ${orig} cm bude mít? (cm)`,ans:String(orig/k),hints:[`Vyděl ${k}: ${orig} ÷ ${k}.`,`Výsledek: ${orig/k}`],skill:'geo'};})(),
+   (()=>{const a=ri(2,6),k=ri(2,4),b=a*k;return{text:`Strana originálu je ${a} cm, odpovídající strana obrazu ${b} cm.\nJaký je koeficient podobnosti k?`,ans:String(k),hints:[`k = obraz / originál = ${b} ÷ ${a}.`,`Výsledek: ${k}`],skill:'geo'};})(),
    (()=>{const real=ri(2,9),mer=1000,onmap=real;return{text:`Mapa v měřítku 1 : ${mer}. Úsek na mapě měří ${onmap} cm.\nKolik metrů je to ve skutečnosti?`,ans:String(onmap*mer/100),hints:[`${onmap} cm · ${mer} = ${onmap*mer} cm = ? m.`,`${onmap*mer} ÷ 100`],skill:'geo'};})(),
-   (()=>{const o=ri(3,8)*3,k=ri(2,4);return{text:`Dva podobné obrazce, k = ${k}. Obvod originálu je ${o} cm.\nObvod obrazu? (cm)`,ans:String(o*k),hints:[`Obvod se mění stejně jako strany: × ${k}.`,``],skill:'geo'};})(),
+   (()=>{const o=ri(3,8)*3,k=ri(2,4);return{text:`Dva podobné obrazce, k = ${k}. Obvod originálu je ${o} cm.\nObvod obrazu? (cm)`,ans:String(o*k),hints:[`Obvod se mění stejně jako strany: × ${k}.`,`Výsledek: ${o*k}`],skill:'geo'};})(),
    (()=>{const v1=ri(2,6),v2=ri(7,15);return{text:`Strom vrhá stín ${v2} m, tyč vysoká ${v1} m vrhá stín ${v1} m (slunce 45°).\nJak vysoký je strom? (m)`,ans:String(v2),hints:[`Při stejném úhlu je výška = délka stínu.`,`= ${v2} m`],skill:'geo'};})()
   ]
  },
@@ -1345,11 +1345,11 @@ const AREAS = [
   intro:'Trezor je trojrozměrný. Počítej objemy a povrchy, π = 3,14. Zaokrouhli na celé.',
   tc:6,
   tasks:()=>[
-   (()=>{const r=ri(2,6),v=ri(5,12),V=Math.round(3.14*r*r*v);return{svg:svgCylinder(r,v),text:`Válec: r = ${r} cm, v = ${v} cm.\nObjem V? (cm³, π = 3,14)`,ans:String(V),hints:[`V = π·r²·v = 3,14 · ${r*r} · ${v}.`,``],skill:'geo'};})(),
-   (()=>{const r=ri(2,6),v=ri(4,10),S=Math.round(2*3.14*r*(r+v));return{svg:svgCylinder(r,v),text:`Válec: r = ${r} cm, v = ${v} cm.\nPovrch S? (cm², π = 3,14)`,ans:String(S),hints:[`S = 2πr(r+v) = 2·3,14·${r}·${r+v}.`,``],skill:'geo'};})(),
-   (()=>{const r=ri(2,5),V=Math.round(4/3*3.14*r*r*r);return{svg:svgSphere(r),text:`Koule o poloměru r = ${r} cm.\nObjem V? (cm³, π = 3,14)`,ans:String(V),hints:[`V = 4/3·π·r³ = 4/3·3,14·${r*r*r}.`,``],skill:'geo'};})(),
-   (()=>{const r=ri(2,6),S=Math.round(4*3.14*r*r);return{svg:svgSphere(r),text:`Koule o poloměru r = ${r} cm.\nPovrch S? (cm², π = 3,14)`,ans:String(S),hints:[`S = 4·π·r² = 4·3,14·${r*r}.`,``],skill:'geo'};})(),
-   (()=>{const r=ri(2,6),v=ri(4,9),V=Math.round(1/3*3.14*r*r*v);return{svg:svgCone(r,v),text:`Kužel: r = ${r} cm, v = ${v} cm.\nObjem V? (cm³, π = 3,14)`,ans:String(V),hints:[`V = 1/3·π·r²·v = 1/3·3,14·${r*r}·${v}.`,``],skill:'geo'};})(),
+   (()=>{const r=ri(2,6),v=ri(5,12),V=Math.round(3.14*r*r*v);return{svg:svgCylinder(r,v),text:`Válec: r = ${r} cm, v = ${v} cm.\nObjem V? (cm³, π = 3,14)`,ans:String(V),hints:[`V = π·r²·v = 3,14 · ${r*r} · ${v}.`,`Výsledek: ${V}`],skill:'geo'};})(),
+   (()=>{const r=ri(2,6),v=ri(4,10),S=Math.round(2*3.14*r*(r+v));return{svg:svgCylinder(r,v),text:`Válec: r = ${r} cm, v = ${v} cm.\nPovrch S? (cm², π = 3,14)`,ans:String(S),hints:[`S = 2πr(r+v) = 2·3,14·${r}·${r+v}.`,`Výsledek: ${S}`],skill:'geo'};})(),
+   (()=>{const r=ri(2,5),V=Math.round(4/3*3.14*r*r*r);return{svg:svgSphere(r),text:`Koule o poloměru r = ${r} cm.\nObjem V? (cm³, π = 3,14)`,ans:String(V),hints:[`V = 4/3·π·r³ = 4/3·3,14·${r*r*r}.`,`Výsledek: ${V}`],skill:'geo'};})(),
+   (()=>{const r=ri(2,6),S=Math.round(4*3.14*r*r);return{svg:svgSphere(r),text:`Koule o poloměru r = ${r} cm.\nPovrch S? (cm², π = 3,14)`,ans:String(S),hints:[`S = 4·π·r² = 4·3,14·${r*r}.`,`Výsledek: ${S}`],skill:'geo'};})(),
+   (()=>{const r=ri(2,6),v=ri(4,9),V=Math.round(1/3*3.14*r*r*v);return{svg:svgCone(r,v),text:`Kužel: r = ${r} cm, v = ${v} cm.\nObjem V? (cm³, π = 3,14)`,ans:String(V),hints:[`V = 1/3·π·r²·v = 1/3·3,14·${r*r}·${v}.`,`Výsledek: ${V}`],skill:'geo'};})(),
    (()=>{const a=ri(3,8),b=ri(3,8),c=ri(3,8),V=a*b*c;return{svg:svgCuboid(a,b,c),text:`Kvádr ${a} × ${b} × ${c} cm.\nObjem? (cm³)`,ans:String(V),hints:[`V = a·b·c.`,`${a} · ${b} · ${c}`],skill:'geo'};})()
   ]
  },
@@ -1359,11 +1359,11 @@ const AREAS = [
   intro:'V srdci sítě tě čeká Správce systému — umělá inteligence, která ovládá celou matematiku 9. ročníku. Poraz ji a osvobodíš data!',
   tc:6,
   tasks:()=>[
-   (()=>{const a=ri(6,13);return{text:`Vypočítej:\n${a}² =`,ans:String(a*a),hints:[`${a} × ${a}.`,``],skill:'calc'};})(),
+   (()=>{const a=ri(6,13);return{text:`Vypočítej:\n${a}² =`,ans:String(a*a),hints:[`${a} × ${a}.`,`Výsledek: ${a*a}`],skill:'calc'};})(),
    (()=>{const a=ri(2,8),x=ri(2,12),b=ri(2,15),c=a*x+b;return{text:`Vyřeš rovnici:\n${a}x + ${b} = ${c}`,ans:String(x),hints:[`Odečti ${b}, vyděl ${a}.`,`x = ${c-b} ÷ ${a}`],skill:'anal'};})(),
-   (()=>{const z=ri(2,8)*100,p=[10,20,25,50][ri(0,3)];return{text:`Vypočítej:\n${p} % z ${z} =`,ans:String(z*p/100),hints:[`1 % = ${z/100}, pak × ${p}.`,``],skill:'anal'};})(),
+   (()=>{const z=ri(2,8)*100,p=[10,20,25,50][ri(0,3)];return{text:`Vypočítej:\n${p} % z ${z} =`,ans:String(z*p/100),hints:[`1 % = ${z/100}, pak × ${p}.`,`Výsledek: ${z*p/100}`],skill:'anal'};})(),
    (()=>{const t=[[3,4,5],[6,8,10],[5,12,13]][ri(0,2)];return{svg:svgTriangle('pravo',{v:['C','A','B']}),text:`Pravoúhlý trojúhelník, odvěsny ${t[0]} a ${t[1]} cm.\nPřepona c? (cm)`,ans:String(t[2]),hints:[`c² = ${t[0]*t[0]} + ${t[1]*t[1]}.`,`c = √${t[2]*t[2]}`],skill:'geo'};})(),
-   (()=>{const r=ri(2,5),v=ri(5,10),V=Math.round(3.14*r*r*v);return{svg:svgCylinder(r,v),text:`Válec r = ${r} cm, v = ${v} cm.\nObjem? (cm³, π = 3,14)`,ans:String(V),hints:[`V = 3,14 · ${r*r} · ${v}.`,``],skill:'geo'};})(),
+   (()=>{const r=ri(2,5),v=ri(5,10),V=Math.round(3.14*r*r*v);return{svg:svgCylinder(r,v),text:`Válec r = ${r} cm, v = ${v} cm.\nObjem? (cm³, π = 3,14)`,ans:String(V),hints:[`V = 3,14 · ${r*r} · ${v}.`,`Výsledek: ${V}`],skill:'geo'};})(),
    (()=>{const x=ri(2,10),y=ri(2,10),sm=x+y,df=x-y;return{text:`Vyřeš soustavu, urči x:\nx + y = ${sm}\nx − y = ${df}`,ans:String(x),hints:[`Sečti rovnice: 2x = ${sm+df}.`,`x = ${(sm+df)/2}`],skill:'anal'};})()
   ]
  }

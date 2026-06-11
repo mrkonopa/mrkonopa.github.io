@@ -867,11 +867,11 @@ const AREAS = [
  mc:true, tc:6,
  tasks:()=>[
  (()=>{const a=ri(2,9),b=ri(1,9),v=a+b/10;return{text:`Zapiš jako desetinné číslo:\n${a} celých a ${b} desetin =`,ans:String(v),hints:[`Desetiny jsou první místo za čárkou.`,`${a},${b}`],skill:'calc'};})(),
- (()=>{const v=ri(11,98)/10;return{text:`Vynásob:\n${cz(v)} × 10 =`,ans:String(Math.round(v*100)/10),hints:[`× 10 = posuň čárku o 1 doprava.`,``],skill:'calc'};})(),
- (()=>{const v=ri(15,98)/10;return{text:`Vyděl:\n${cz(Math.round(v*100)/10)} ÷ 10 =`,ans:String(v),hints:[`÷ 10 = posuň čárku o 1 doleva.`,``],skill:'calc'};})(),
- (()=>{const v=ri(105,995)/100;const r=Math.round(v*10)/10;return{text:`Zaokrouhli na desetiny:\n${cz(v)} ≈`,ans:String(r),hints:[`Rozhoduje místo setin (druhé za čárkou).`,``],skill:'calc'};})(),
- (()=>{const a=ri(20,79)/10,b=a+ri(2,30)/10;return{text:`Které číslo je větší?\n${cz(a)}  nebo  ${cz(b)}\n(napiš to větší)`,ans:String(b),hints:[`Porovnej nejdřív celé části, pak desetiny.`,``],skill:'calc'};})(),
- (()=>{const v=ri(105,985)/100;const r=Math.round(v);return{text:`Zaokrouhli na celé číslo:\n${cz(v)} ≈`,ans:String(r),hints:[`Rozhoduje místo desetin.`,``],skill:'calc'};})()
+ (()=>{const v=ri(11,98)/10;return{text:`Vynásob:\n${cz(v)} × 10 =`,ans:String(Math.round(v*100)/10),hints:[`× 10 = posuň čárku o 1 doprava.`,`Výsledek: ${Math.round(v*100)/10}`],skill:'calc'};})(),
+ (()=>{const v=ri(15,98)/10;return{text:`Vyděl:\n${cz(Math.round(v*100)/10)} ÷ 10 =`,ans:String(v),hints:[`÷ 10 = posuň čárku o 1 doleva.`,`Výsledek: ${v}`],skill:'calc'};})(),
+ (()=>{const v=ri(105,995)/100;const r=Math.round(v*10)/10;return{text:`Zaokrouhli na desetiny:\n${cz(v)} ≈`,ans:String(r),hints:[`Rozhoduje místo setin (druhé za čárkou).`,`Výsledek: ${r}`],skill:'calc'};})(),
+ (()=>{const a=ri(20,79)/10,b=a+ri(2,30)/10;return{text:`Které číslo je větší?\n${cz(a)}  nebo  ${cz(b)}\n(napiš to větší)`,ans:String(b),hints:[`Porovnej nejdřív celé části, pak desetiny.`,`Výsledek: ${b}`],skill:'calc'};})(),
+ (()=>{const v=ri(105,985)/100;const r=Math.round(v);return{text:`Zaokrouhli na celé číslo:\n${cz(v)} ≈`,ans:String(r),hints:[`Rozhoduje místo desetin.`,`Výsledek: ${r}`],skill:'calc'};})()
  ]
  },
  {
@@ -881,11 +881,11 @@ const AREAS = [
  tc:6,
  tasks:()=>[
  (()=>{const a=ri(11,89)/10,b=ri(11,89)/10;const ans=Math.round((a+b)*10)/10;return{text:`Vypočítej:\n${cz(a)} + ${cz(b)} =`,ans:String(ans),hints:[`Zarovnej desetinné čárky pod sebe.`,`Sečti po sloupcích.`],skill:'calc'};})(),
- (()=>{const a=ri(50,98)/10,b=ri(11,Math.round(a*10)-5)/10;const ans=Math.round((a-b)*10)/10;return{text:`Vypočítej:\n${cz(a)} - ${cz(b)} =`,ans:String(ans),hints:[`Zarovnej čárky a odečti.`,``],skill:'calc'};})(),
+ (()=>{const a=ri(50,98)/10,b=ri(11,Math.round(a*10)-5)/10;const ans=Math.round((a-b)*10)/10;return{text:`Vypočítej:\n${cz(a)} - ${cz(b)} =`,ans:String(ans),hints:[`Zarovnej čárky a odečti.`,`Výsledek: ${ans}`],skill:'calc'};})(),
  (()=>{const a=ri(11,49)/10,b=ri(2,9);const ans=Math.round(a*b*10)/10;return{text:`Vypočítej:\n${cz(a)} × ${b} =`,ans:String(ans),hints:[`Násob jako celá čísla, pak umísti čárku.`,`Výsledek má 1 desetinné místo.`],skill:'calc'};})(),
- (()=>{const b=ri(2,8),q=ri(11,49)/10;const a=Math.round(q*b*10)/10;return{text:`Vypočítej:\n${cz(a)} ÷ ${b} =`,ans:String(q),hints:[`Děl jako obvykle, čárku piš nad čárkou.`,``],skill:'calc'};})(),
- (()=>{const a=ri(2,9),b=ri(11,89)/10;const ans=Math.round((a+b)*10)/10;return{text:`Vypočítej:\n${a} + ${cz(b)} =`,ans:String(ans),hints:[`Celé číslo = ${a},0.`,``],skill:'calc'};})(),
- (()=>{const a=ri(15,45)/10,b=ri(15,45)/10;const ans=Math.round(a*b*100)/100;return{text:`Vypočítej:\n${cz(a)} × ${cz(b)} =`,ans:String(ans),hints:[`Násob bez čárek, pak součet desetinných míst = 2.`,``],skill:'calc'};})()
+ (()=>{const b=ri(2,8),q=ri(11,49)/10;const a=Math.round(q*b*10)/10;return{text:`Vypočítej:\n${cz(a)} ÷ ${b} =`,ans:String(q),hints:[`Děl jako obvykle, čárku piš nad čárkou.`,`Výsledek: ${q}`],skill:'calc'};})(),
+ (()=>{const a=ri(2,9),b=ri(11,89)/10;const ans=Math.round((a+b)*10)/10;return{text:`Vypočítej:\n${a} + ${cz(b)} =`,ans:String(ans),hints:[`Celé číslo = ${a},0.`,`Výsledek: ${ans}`],skill:'calc'};})(),
+ (()=>{const a=ri(15,45)/10,b=ri(15,45)/10;const ans=Math.round(a*b*100)/100;return{text:`Vypočítej:\n${cz(a)} × ${cz(b)} =`,ans:String(ans),hints:[`Násob bez čárek, pak součet desetinných míst = 2.`,`Výsledek: ${ans}`],skill:'calc'};})()
  ]
  },
  {
@@ -946,10 +946,10 @@ const AREAS = [
  tasks:()=>[
  (()=>{const a=ri(2,6)*ri(2,4),b=ri(2,6)*ri(2,4);return{text:`Najdi NSD (největší společný dělitel):\nNSD(${a}, ${b})`,ans:String(gcd(a,b)),hints:[`Hledej největší číslo, kterým vydělíš obě.`,`Dělitelé společní pro ${a} i ${b}.`],skill:'anal'};})(),
  (()=>{const a=ri(2,6),b=ri(2,6);const l=a*b/gcd(a,b);return{text:`Najdi NSN (nejmenší společný násobek):\nNSN(${a}, ${b})`,ans:String(l),hints:[`Hledej nejmenší číslo dělitelné oběma.`,`Násobky ${a}: ${a},${2*a},${3*a}... který je i násobek ${b}?`],skill:'anal'};})(),
- (()=>{const a=ri(8,16),b=ri(8,16);return{text:`NSD(${a}, ${b}) = ?`,ans:String(gcd(a,b)),hints:[`Vypiš dělitele obou čísel a najdi největší společný.`,``],skill:'anal'};})(),
+ (()=>{const a=ri(8,16),b=ri(8,16);return{text:`NSD(${a}, ${b}) = ?`,ans:String(gcd(a,b)),hints:[`Vypiš dělitele obou čísel a najdi největší společný.`,`Výsledek: ${gcd(a,b)}`],skill:'anal'};})(),
  (()=>{const a=ri(3,8),b=ri(3,8);const l=a*b/gcd(a,b);return{text:`Dvě světla blikají — jedno každých ${a} s, druhé každých ${b} s.\nZa kolik sekund bliknou poprvé společně?`,ans:String(l),hints:[`To je nejmenší společný násobek (NSN).`,`NSN(${a}, ${b})`],skill:'anal'};})(),
  (()=>{const g=ri(3,8),x=ri(2,5),y=ri(2,5);const a=g*x,b=g*y;return{text:`Kytice: ${a} růží a ${b} tulipánů rozdělíš do stejných svazků.\nKolik je nejvíc svazků? (NSD)`,ans:String(gcd(a,b)),hints:[`Hledáš největší společný dělitel počtů.`,`NSD(${a}, ${b})`],skill:'anal'};})(),
- (()=>{const a=ri(4,9),b=ri(4,9);const l=a*b/gcd(a,b);return{text:`NSN(${a}, ${b}) = ?`,ans:String(l),hints:[`Nejmenší číslo, které je násobkem obou.`,``],skill:'anal'};})()
+ (()=>{const a=ri(4,9),b=ri(4,9);const l=a*b/gcd(a,b);return{text:`NSN(${a}, ${b}) = ?`,ans:String(l),hints:[`Nejmenší číslo, které je násobkem obou.`,`Výsledek: ${l}`],skill:'anal'};})()
  ]
  }
  ]
@@ -968,8 +968,8 @@ const AREAS = [
  tasks:()=>[
  (()=>{const deg=[30,45,60,75][ri(0,3)];return{svg:svgAngle(deg,{label:deg+'°'}),text:`Kolik stupňů chybí úhlu do pravého úhlu (90°)?`,ans:String(90-deg),hints:[`Pravý úhel má 90°.`,`90 - ${deg}`],skill:'geo'};})(),
  (()=>{const deg=ri(2,8)*10;return{svg:svgAngle(deg,{label:deg+'°'}),text:`Doplň úhel do přímého úhlu (180°).\nKolik stupňů chybí?`,ans:String(180-deg),hints:[`Přímý úhel má 180°.`,`180 - ${deg}`],skill:'geo'};})(),
- (()=>{const deg=ri(10,80);return{svg:svgAngle(deg,{label:'?'}),text:`Úhel na obrázku je menší než 90°.\nJaký je to druh úhlu?\n(ostrý / pravý / tupý)`,ans:'ostrý',hints:[`Menší než 90° = ostrý.`,``],skill:'geo'};})(),
- (()=>{const deg=ri(100,160);return{svg:svgAngle(deg,{label:'?'}),text:`Úhel na obrázku je větší než 90°, ale menší než 180°.\nJaký je to druh úhlu?\n(ostrý / pravý / tupý)`,ans:'tupý',hints:[`Mezi 90° a 180° = tupý.`,``],skill:'geo'};})(),
+ (()=>{const deg=ri(10,80);return{svg:svgAngle(deg,{label:'?'}),text:`Úhel na obrázku je menší než 90°.\nJaký je to druh úhlu?\n(ostrý / pravý / tupý)`,ans:'ostrý',hints:[`Menší než 90° = ostrý.`,`Výsledek: ostrý`],skill:'geo'};})(),
+ (()=>{const deg=ri(100,160);return{svg:svgAngle(deg,{label:'?'}),text:`Úhel na obrázku je větší než 90°, ale menší než 180°.\nJaký je to druh úhlu?\n(ostrý / pravý / tupý)`,ans:'tupý',hints:[`Mezi 90° a 180° = tupý.`,`Výsledek: tupý`],skill:'geo'};})(),
  (()=>{const deg=ri(3,8)*10;return{svg:svgAngle(deg,{label:deg+'°'}),text:`Polovina tohoto úhlu (osa úhlu ho dělí na dvě části).\nKolik stupňů má jedna část?`,ans:String(deg/2),hints:[`Osa úhlu dělí úhel na dvě stejné poloviny.`,`${deg} ÷ 2`],skill:'geo'};})(),
  (()=>{const a=ri(2,8)*10,b=ri(2,8)*10;return{text:`Sečti dva úhly:\n${a}° + ${b}° =\n(napiš ve stupních)`,ans:String(a+b),hints:[`Úhly sčítáš jako čísla.`,`${a} + ${b}`],skill:'geo'};})()
  ]
@@ -983,7 +983,7 @@ const AREAS = [
  (()=>{const a=ri(3,8)*10;return{svg:svgCross(a,{label:'α'}),text:`Úhel α = ${a}°.\nJaký je k němu vedlejší úhel? (°)`,ans:String(180-a),hints:[`Vedlejší úhly se doplňují do 180°.`,`180 - ${a}`],skill:'geo'};})(),
  (()=>{const a=ri(3,8)*10;return{svg:svgCross(a,{label:'α'}),text:`Úhel α = ${a}°.\nJaký je k němu vrcholový úhel? (°)`,ans:String(a),hints:[`Vrcholové úhly jsou shodné (stejně velké).`,`= α`],skill:'geo'};})(),
  (()=>{const a=ri(20,70);return{text:`Vedlejší úhel má ${180-a}°.\nKolik stupňů má původní úhel?`,ans:String(a),hints:[`Doplň do 180°.`,`180 - ${180-a}`],skill:'geo'};})(),
- (()=>{const a=ri(30,80);return{svg:svgCross(a,{label:'α'}),text:`Vrcholový úhel k α má ${a}°.\nKolik stupňů má α?`,ans:String(a),hints:[`Vrcholové úhly jsou stejné.`,``],skill:'geo'};})(),
+ (()=>{const a=ri(30,80);return{svg:svgCross(a,{label:'α'}),text:`Vrcholový úhel k α má ${a}°.\nKolik stupňů má α?`,ans:String(a),hints:[`Vrcholové úhly jsou stejné.`,`Výsledek: ${a}`],skill:'geo'};})(),
  (()=>{const a=ri(2,7)*10;return{text:`Dva vedlejší úhly. Jeden má ${a}°.\nO kolik stupňů je druhý větší než první?`,ans:String((180-a)-a),hints:[`Druhý = 180 − ${a} = ${180-a}.`,`${180-a} - ${a}`],skill:'geo'};})(),
  (()=>{const a=ri(40,80);return{text:`Úhel a jeho vedlejší úhel jsou stejně velké.\nKolik stupňů má každý z nich?`,ans:'90',hints:[`Když jsou stejné a dají 180°...`,`180 ÷ 2`],skill:'geo'};})()
  ]
@@ -1017,10 +1017,10 @@ const AREAS = [
  tc:6,
  tasks:()=>[
  (()=>{return{text:`Kolik os souměrnosti má čtverec?`,ans:'4',hints:[`Dvě úhlopříčky a dvě středem stran.`,`2 + 2`],skill:'geo'};})(),
- (()=>{return{text:`Kolik os souměrnosti má obdélník\n(který není čtverec)?`,ans:'2',hints:[`Osy procházejí středy protějších stran.`,``],skill:'geo'};})(),
- (()=>{return{text:`Kolik os souměrnosti má rovnostranný trojúhelník?`,ans:'3',hints:[`Z každého vrcholu jedna.`,``],skill:'geo'};})(),
- (()=>{return{text:`Kolik os souměrnosti má kosočtverec?`,ans:'2',hints:[`Obě úhlopříčky jsou osy souměrnosti.`,``],skill:'geo'};})(),
- (()=>{return{text:`Kolik os souměrnosti má rovnoramenný trojúhelník\n(který není rovnostranný)?`,ans:'1',hints:[`Jen jedna — osa základny.`,``],skill:'geo'};})(),
+ (()=>{return{text:`Kolik os souměrnosti má obdélník\n(který není čtverec)?`,ans:'2',hints:[`Osy procházejí středy protějších stran.`,`Výsledek: 2`],skill:'geo'};})(),
+ (()=>{return{text:`Kolik os souměrnosti má rovnostranný trojúhelník?`,ans:'3',hints:[`Z každého vrcholu jedna.`,`Výsledek: 3`],skill:'geo'};})(),
+ (()=>{return{text:`Kolik os souměrnosti má kosočtverec?`,ans:'2',hints:[`Obě úhlopříčky jsou osy souměrnosti.`,`Výsledek: 2`],skill:'geo'};})(),
+ (()=>{return{text:`Kolik os souměrnosti má rovnoramenný trojúhelník\n(který není rovnostranný)?`,ans:'1',hints:[`Jen jedna — osa základny.`,`Výsledek: 1`],skill:'geo'};})(),
  (()=>{return{text:`Kolik os souměrnosti má pravidelný šestiúhelník?`,ans:'6',hints:[`Tři vrcholové a tři přes středy stran.`,`3 + 3`],skill:'geo'};})()
  ]
  },
@@ -1033,9 +1033,9 @@ const AREAS = [
  (()=>{const x=ri(2,9),y=ri(2,9);return{svg:svgMirror('flag'),text:`Bod A [${x}, ${y}] zrcadlíme podle osy y (svislá osa, přímka x = 0).\nJaká je x-ová souřadnice obrazu?`,ans:String(-x),hints:[`Osa y obrátí znaménko x-ové souřadnice.`,`x → -x`],skill:'geo'};})(),
  (()=>{const x=ri(2,9),y=ri(2,9);return{text:`Bod B [${x}, ${y}] zrcadlíme podle osy x (vodorovná osa, přímka y = 0).\nJaká je y-ová souřadnice obrazu?`,ans:String(-y),hints:[`Osa x obrátí znaménko y-ové souřadnice.`,`y → -y`],skill:'geo'};})(),
  (()=>{const x=ri(2,9),y=ri(2,9);return{text:`Bod C [${x}, ${y}] zrcadlíme podle osy y.\nJaká je y-ová souřadnice obrazu?\n(zůstává stejná)`,ans:String(y),hints:[`Souměrnost podle osy y mění jen x.`,`y se nemění`],skill:'geo'};})(),
- (()=>{const d=ri(2,8);return{text:`Bod leží ${d} cm od osy souměrnosti.\nJak daleko je jeho obraz od osy? (cm)`,ans:String(d),hints:[`Obraz je stejně daleko na druhé straně.`,``],skill:'geo'};})(),
+ (()=>{const d=ri(2,8);return{text:`Bod leží ${d} cm od osy souměrnosti.\nJak daleko je jeho obraz od osy? (cm)`,ans:String(d),hints:[`Obraz je stejně daleko na druhé straně.`,`Výsledek: ${d}`],skill:'geo'};})(),
  (()=>{const d=ri(2,8);return{text:`Bod a jeho obraz jsou v osové souměrnosti.\nBod je ${d} cm od osy.\nJak daleko je bod od svého obrazu? (cm)`,ans:String(2*d),hints:[`Obě vzdálenosti od osy se sčítají.`,`${d} + ${d}`],skill:'geo'};})(),
- (()=>{const x=ri(2,9);return{text:`Bod D [${x}, 0] leží na ose x.\nKde leží jeho obraz v souměrnosti podle osy x?\nNapiš x-ovou souřadnici obrazu.`,ans:String(x),hints:[`Body na ose se nezobrazí jinam — samy na sebe.`,``],skill:'geo'};})()
+ (()=>{const x=ri(2,9);return{text:`Bod D [${x}, 0] leží na ose x.\nKde leží jeho obraz v souměrnosti podle osy x?\nNapiš x-ovou souřadnici obrazu.`,ans:String(x),hints:[`Body na ose se nezobrazí jinam — samy na sebe.`,`Výsledek: ${x}`],skill:'geo'};})()
  ]
  },
  {
@@ -1044,12 +1044,12 @@ const AREAS = [
  intro:'Temná strana měsíce skrývá shodné útvary. Shodné útvary se dokonale překryjí — mají vše stejné.',
  tc:6,
  tasks:()=>[
- (()=>{const a=ri(3,9);return{text:`Dva shodné čtverce. Jeden má stranu ${a} cm.\nJak dlouhá je strana druhého? (cm)`,ans:String(a),hints:[`Shodné útvary mají stejné rozměry.`,``],skill:'geo'};})(),
+ (()=>{const a=ri(3,9);return{text:`Dva shodné čtverce. Jeden má stranu ${a} cm.\nJak dlouhá je strana druhého? (cm)`,ans:String(a),hints:[`Shodné útvary mají stejné rozměry.`,`Výsledek: ${a}`],skill:'geo'};})(),
  (()=>{const a=ri(4,9),b=ri(4,9),c=ri(4,9);return{text:`Trojúhelník KLM je shodný s ABC.\nABC má strany ${a}, ${b}, ${c} cm.\nJaký je obvod KLM? (cm)`,ans:String(a+b+c),hints:[`Shodné = stejné strany.`,`${a} + ${b} + ${c}`],skill:'geo'};})(),
  (()=>{const a=ri(3,8),b=ri(3,8);return{text:`Dva shodné obdélníky ${a} × ${b} cm.\nJaký obsah má jeden z nich? (cm²)`,ans:String(a*b),hints:[`S = a × b.`,`${a} × ${b}`],skill:'geo'};})(),
- (()=>{return{text:`Shodné útvary mají stejný obsah.\nMají i stejný obvod?\n(ANO / NE)`,ans:'ANO',hints:[`Shodné = úplně stejné ve všem.`,``],skill:'geo'};})(),
- (()=>{const a=ri(20,70);return{text:`Trojúhelník ABC je shodný s DEF.\nÚhel u vrcholu A má ${a}°.\nKolik stupňů má odpovídající úhel u vrcholu D?`,ans:String(a),hints:[`Shodné = stejné úhly.`,``],skill:'geo'};})(),
- (()=>{return{text:`Kolik stejně dlouhých ramen má rovnoramenný trojúhelník?`,ans:'2',hints:[`Rovnoramenný = dvě ramena stejná.`,``],skill:'geo'};})()
+ (()=>{return{text:`Shodné útvary mají stejný obsah.\nMají i stejný obvod?\n(ANO / NE)`,ans:'ANO',hints:[`Shodné = úplně stejné ve všem.`,`Výsledek: ANO`],skill:'geo'};})(),
+ (()=>{const a=ri(20,70);return{text:`Trojúhelník ABC je shodný s DEF.\nÚhel u vrcholu A má ${a}°.\nKolik stupňů má odpovídající úhel u vrcholu D?`,ans:String(a),hints:[`Shodné = stejné úhly.`,`Výsledek: ${a}`],skill:'geo'};})(),
+ (()=>{return{text:`Kolik stejně dlouhých ramen má rovnoramenný trojúhelník?`,ans:'2',hints:[`Rovnoramenný = dvě ramena stejná.`,`Výsledek: 2`],skill:'geo'};})()
  ]
  }
  ]
@@ -1084,7 +1084,7 @@ const AREAS = [
  (()=>{const a=ri(2,7),b=ri(2,7),c=ri(2,7);return{svg:svgCuboid(a,b,c),text:`Kvádr: a = ${a}, b = ${b}, c = ${c} cm.\nVypočítej povrch S. (cm²)`,ans:String(2*(a*b+a*c+b*c)),hints:[`S = 2 × (ab + ac + bc).`,`2 × (${a*b} + ${a*c} + ${b*c})`],skill:'geo'};})(),
  (()=>{const a=ri(2,9);return{text:`Krychle má povrch ${6*a*a} cm².\nJaký je obsah jedné stěny? (cm²)`,ans:String(a*a),hints:[`Krychle má 6 stejných stěn.`,`${6*a*a} ÷ 6`],skill:'anal'};})(),
  (()=>{const a=ri(2,8);return{text:`Jedna stěna krychle má obsah ${a*a} cm².\nJaký je povrch celé krychle? (cm²)`,ans:String(6*a*a),hints:[`Povrch = 6 × jedna stěna.`,`6 × ${a*a}`],skill:'anal'};})(),
- (()=>{return{text:`Kolik stěn má kvádr?`,ans:'6',hints:[`Stejně jako krychle.`,``],skill:'craft'};})(),
+ (()=>{return{text:`Kolik stěn má kvádr?`,ans:'6',hints:[`Stejně jako krychle.`,`Výsledek: 6`],skill:'craft'};})(),
  (()=>{return{text:`Kolik hran má krychle?`,ans:'12',hints:[`4 dole, 4 nahoře, 4 svislé.`,`4 + 4 + 4`],skill:'craft'};})()
  ]
  },
@@ -1095,11 +1095,11 @@ const AREAS = [
  tc:6,
  tasks:()=>[
  (()=>{const l=ri(2,9);return{text:`Kolik cm³ je ${l} dm³?\n(1 dm³ = 1000 cm³)`,ans:String(l*1000),hints:[`Násob 1000.`,`${l} × 1000`],skill:'anal'};})(),
- (()=>{const l=ri(2,9);return{text:`Kolik litrů je ${l} dm³?\n(1 dm³ = 1 litr)`,ans:String(l),hints:[`Dm³ a litr jsou totéž.`,``],skill:'anal'};})(),
+ (()=>{const l=ri(2,9);return{text:`Kolik litrů je ${l} dm³?\n(1 dm³ = 1 litr)`,ans:String(l),hints:[`Dm³ a litr jsou totéž.`,`Výsledek: ${l}`],skill:'anal'};})(),
  (()=>{const m=ri(2,9)*1000;return{text:`Kolik dm³ je ${m} cm³?\n(1000 cm³ = 1 dm³)`,ans:String(m/1000),hints:[`Vyděl 1000.`,`${m} ÷ 1000`],skill:'anal'};})(),
- (()=>{return{text:`Z kolika čtverců se skládá síť krychle?`,ans:'6',hints:[`Tolik, kolik má krychle stěn.`,``],skill:'craft'};})(),
+ (()=>{return{text:`Z kolika čtverců se skládá síť krychle?`,ans:'6',hints:[`Tolik, kolik má krychle stěn.`,`Výsledek: 6`],skill:'craft'};})(),
  (()=>{const a=ri(2,6);return{text:`Síť krychle se skládá ze 6 čtverců se stranou ${a} cm.\nJaký je celkový obsah sítě? (cm²)`,ans:String(6*a*a),hints:[`To je povrch krychle.`,`6 × ${a} × ${a}`],skill:'craft'};})(),
- (()=>{const l=ri(2,8);return{text:`Nádrž pojme ${l} litrů.\nKolik je to dm³?`,ans:String(l),hints:[`1 litr = 1 dm³.`,``],skill:'anal'};})()
+ (()=>{const l=ri(2,8);return{text:`Nádrž pojme ${l} litrů.\nKolik je to dm³?`,ans:String(l),hints:[`1 litr = 1 dm³.`,`Výsledek: ${l}`],skill:'anal'};})()
  ]
  }
  ]
@@ -1132,8 +1132,8 @@ const AREAS = [
  tasks:()=>[
  (()=>{const a=ri(3,9);return{svg:svgTriangle('rovnostr'),text:`Rovnostranný trojúhelník má stranu ${a} cm.\nJaký je jeho obvod? (cm)`,ans:String(3*a),hints:[`Všechny tři strany jsou stejné.`,`3 × ${a}`],skill:'geo'};})(),
  (()=>{const r=ri(3,8),s=2*r;return{text:`Rameno rovnoramenného trojúhelníku je ${r} cm, základna ${s} cm.\nJaký je obvod? (cm)`,ans:String(r+r+s),hints:[`Dvě stejná ramena + základna.`,`${r} + ${r} + ${s}`],skill:'geo'};})(),
- (()=>{return{text:`Kolik výšek má trojúhelník?`,ans:'3',hints:[`Z každého vrcholu jedna, kolmá na protější stranu.`,``],skill:'craft'};})(),
- (()=>{return{text:`Kolik těžnic má trojúhelník?`,ans:'3',hints:[`Z každého vrcholu do středu protější strany.`,``],skill:'craft'};})(),
+ (()=>{return{text:`Kolik výšek má trojúhelník?`,ans:'3',hints:[`Z každého vrcholu jedna, kolmá na protější stranu.`,`Výsledek: 3`],skill:'craft'};})(),
+ (()=>{return{text:`Kolik těžnic má trojúhelník?`,ans:'3',hints:[`Z každého vrcholu do středu protější strany.`,`Výsledek: 3`],skill:'craft'};})(),
  (()=>{const o=ri(12,30);const s=o/3;if(o%3!==0){return{text:`Rovnostranný trojúhelník má obvod 18 cm.\nJak dlouhá je jedna strana? (cm)`,ans:'6',hints:[`Obvod ÷ 3.`,`18 ÷ 3`],skill:'geo'};}return{text:`Rovnostranný trojúhelník má obvod ${o} cm.\nJak dlouhá je jedna strana? (cm)`,ans:String(s),hints:[`Obvod ÷ 3.`,`${o} ÷ 3`],skill:'geo'};})(),
  (()=>{const a=ri(4,9),b=ri(4,9),c=ri(4,9);return{text:`Trojúhelník má strany ${a}, ${b} a ${c} cm.\nJaký je jeho obvod? (cm)`,ans:String(a+b+c),hints:[`Obvod = součet všech stran.`,`${a} + ${b} + ${c}`],skill:'geo'};})()
  ]
@@ -1144,11 +1144,11 @@ const AREAS = [
  intro:'Před tebou stojí Vládce galaxie! Zná celou matematiku 6. ročníku. Poraz ho a expedice je u konce!',
  tc:6,
  tasks:()=>[
- (()=>{const a=ri(11,49)/10,b=ri(2,6);const ans=Math.round(a*b*10)/10;return{text:`Vypočítej:\n${cz(a)} × ${b} =`,ans:String(ans),hints:[`Násob, pak umísti čárku.`,``],skill:'calc'};})(),
- (()=>{const a=ri(3,8),b=ri(3,8);const l=a*b/gcd(a,b);return{text:`NSN(${a}, ${b}) = ?`,ans:String(l),hints:[`Nejmenší společný násobek.`,``],skill:'anal'};})(),
- (()=>{const a=ri(2,8),b=ri(2,8),c=ri(2,8);return{svg:svgCuboid(a,b,c),text:`Kvádr ${a} × ${b} × ${c} cm.\nVypočítej objem. (cm³)`,ans:String(a*b*c),hints:[`V = a × b × c.`,``],skill:'geo'};})(),
- (()=>{const a=ri(40,80),b=ri(30,70);const c=180-a-b;if(c<15){return{text:`Trojúhelník: α = 55°, β = 65°.\nÚhel γ? (°)`,ans:'60',hints:[`180 − α − β.`,``],skill:'geo'};}return{text:`Trojúhelník: α = ${a}°, β = ${b}°.\nÚhel γ? (°)`,ans:String(c),hints:[`Součet úhlů = 180°.`,``],skill:'geo'};})(),
- (()=>{const a=ri(3,8)*10;return{svg:svgCross(a,{label:'α'}),text:`Úhel α = ${a}°.\nVedlejší úhel? (°)`,ans:String(180-a),hints:[`Doplň do 180°.`,``],skill:'geo'};})(),
+ (()=>{const a=ri(11,49)/10,b=ri(2,6);const ans=Math.round(a*b*10)/10;return{text:`Vypočítej:\n${cz(a)} × ${b} =`,ans:String(ans),hints:[`Násob, pak umísti čárku.`,`Výsledek: ${ans}`],skill:'calc'};})(),
+ (()=>{const a=ri(3,8),b=ri(3,8);const l=a*b/gcd(a,b);return{text:`NSN(${a}, ${b}) = ?`,ans:String(l),hints:[`Nejmenší společný násobek.`,`Výsledek: ${l}`],skill:'anal'};})(),
+ (()=>{const a=ri(2,8),b=ri(2,8),c=ri(2,8);return{svg:svgCuboid(a,b,c),text:`Kvádr ${a} × ${b} × ${c} cm.\nVypočítej objem. (cm³)`,ans:String(a*b*c),hints:[`V = a × b × c.`,`Výsledek: ${a*b*c}`],skill:'geo'};})(),
+ (()=>{const a=ri(40,80),b=ri(30,70);const c=180-a-b;if(c<15){return{text:`Trojúhelník: α = 55°, β = 65°.\nÚhel γ? (°)`,ans:'60',hints:[`180 − α − β.`,`Výsledek: 60`],skill:'geo'};}return{text:`Trojúhelník: α = ${a}°, β = ${b}°.\nÚhel γ? (°)`,ans:String(c),hints:[`Součet úhlů = 180°.`,`Výsledek: ${c}`],skill:'geo'};})(),
+ (()=>{const a=ri(3,8)*10;return{svg:svgCross(a,{label:'α'}),text:`Úhel α = ${a}°.\nVedlejší úhel? (°)`,ans:String(180-a),hints:[`Doplň do 180°.`,`Výsledek: ${180-a}`],skill:'geo'};})(),
  (()=>{const a=ri(2,9);return{svg:svgCuboid(a,a,a),text:`Krychle s hranou ${a} cm.\nVypočítej povrch. (cm²)`,ans:String(6*a*a),hints:[`6 stejných stěn.`,`6 × ${a} × ${a}`],skill:'geo'};})()
  ]
  }

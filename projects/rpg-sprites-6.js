@@ -483,7 +483,7 @@ window.RPGSprites6 = (function () {
     if (m === 'cast')  return HERO_CAST;
     if (m === 'shoot') return HERO_SHOOT;
     if (m === 'hit')   return HERO_HIT;
-    return HERO_IDLE[tick % 2];
+    return HERO_IDLE[rm() ? 0 : tick % 2];
   }
 
   function render(now) {
@@ -594,7 +594,7 @@ window.RPGSprites6 = (function () {
     {
       const bob = rm() ? 0 : Math.sin(performance.now() / 380) * 6;
       const ax = hp.x + 15 * SCALE + 6, ay = hp.y - 8 + bob;
-      drawSprite(COMPANION[tick % 2], PAL_COM, ax, ay, ASCALE, false, false);
+      drawSprite(COMPANION[rm() ? 0 : tick % 2], PAL_COM, ax, ay, ASCALE, false, false);
       if (!rm()) {
         // iontový pohon — modré plamínky
         ctx.fillStyle = (tick % 2) ? '#4dc8ff' : '#1a6a8a';
