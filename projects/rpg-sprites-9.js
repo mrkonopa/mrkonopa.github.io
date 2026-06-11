@@ -132,6 +132,33 @@ window.RPGSprites9 = (function () {
     '.KBB...BBK....'
   ];
 
+  /* ── android parťák (10×10, levituje vedle hrdiny) ── */
+  const PAL_AND = { K:'#0a0c12', G:'#8a97ad', g:'#5a6a85', C:'#19e6e6', W:'#e8ecf5' };
+  const ANDROID = [[
+    '....KC....',
+    '....KK....',
+    '..KKKKKK..',
+    '.KGGGGGGK.',
+    'KGgWCCWgGK',
+    'KGgWCCWgGK',
+    '.KGGGGGGK.',
+    '..KKKKKK..',
+    '..KG..GK..',
+    '...K..K...'
+  ],[
+    '....KC....',
+    '....KK....',
+    '..KKKKKK..',
+    '.KGGGGGGK.',
+    'KGgWWWWgGK',
+    'KGgWCCWgGK',
+    '.KGGGGGGK.',
+    '..KKKKKK..',
+    '..KG..GK..',
+    '...K..K...'
+  ]];
+  const ASCALE = 4;
+
   /* ── bossové: 7 archetypů (oblast 1–7), 18×16, koukají doleva ── */
   // společné znaky: K outline, A akcent (mění se per oblast), a tmavší akcent,
   // M tělo, m tělo stín, W bílá, R červené oko
@@ -400,11 +427,11 @@ window.RPGSprites9 = (function () {
   // stavový automat hrdiny/bosse: 'idle'|'enter'|'slash'|'cast'|'shoot'|'hit'|'charge'|'defeat'|'gone'
   const ST = {
     hero: { mode: 'idle', t: 0 },
-    boss: { mode: 'gone', t: 0, flash: 0 },
+    boss: { mode: 'gone', t: 0, flash: 0, progress: 0 },
     fx: []   // {kind:'orb'|'bolt'|'slasharc'|'boom'|'bossproj'|'spark', x,y,t,...}
   };
   const SCALE = 5;          // 1 sprite px = 5 canvas px (hrdina)
-  const BSCALE = 6;         // boss je větší
+  const BSCALE = 7;         // boss je větší
   const FRAME_MS = 130;     // rychlost přepínání snímků
 
   const rm = () => document.documentElement.classList.contains('reduced-motion');
@@ -500,6 +527,28 @@ window.RPGSprites9 = (function () {
       drawSprite(grid, pal, bx + off, by, bscale, false, b.flash > 0);
       ctx.globalAlpha = 1;
       if (b.flash > 0) b.flash -= 16;
+      // ── poškození bosse (3 stavy: pristine / damaged / critical) ──
+      if (b.progress > 0.45 && b.mode !== 'defeat' && b.mode !== 'gone' && !rm()) {
+        const dmgAlpha = Math.min(1, (b.progress - 0.45) * 3) * alpha;
+        // náhodné jiskry
+        const sparkChance = (b.progress - 0.45) * 0.35;
+        if (Math.random() < sparkChance) {
+          ST.fx.push({ kind: 'spark', x: bx + (3 + Math.random() * 12) * bscale,
+            y: by + (1 + Math.random() * 9) * bscale,
+            vx: (Math.random() - 0.5) * 2.5, vy: -1.5 - Math.random() * 2, t: 0 });
+        }
+        if (b.progress >= 0.75) {
+          // kritické stádium — trhliny + červené linky
+          ctx.globalAlpha = dmgAlpha * 0.55;
+          ctx.fillStyle = '#ff5522';
+          for (let k = 0; k < 3; k++) {
+            const cy = by + (3 + k * 4) * bscale;
+            const cw = (3 + Math.floor(b.t / 200 % 3)) * bscale;
+            ctx.fillRect(bx + (3 + k * 2) * bscale, cy, cw, 2);
+          }
+          ctx.globalAlpha = 1;
+        }
+      }
       // telegraf útoku: blikající ! nad bossem
       if (b.mode === 'charge' && !rm() && Math.floor(b.t / 110) % 2 === 0) {
         ctx.fillStyle = '#ff3355';
@@ -517,6 +566,18 @@ window.RPGSprites9 = (function () {
       hx = hp.x + dash * (bp.x - hp.x - 15 * SCALE);
     }
     drawSprite(heroGrid(), PAL_HERO, hx, hp.y, SCALE, false, h.mode === 'hit');
+    // ── android parťák — levituje vedle hrdiny ──
+    {
+      const bob = rm() ? 0 : Math.sin(performance.now() / 380) * 6;
+      const ax = hp.x + 15 * SCALE + 6, ay = hp.y - 8 + bob;
+      drawSprite(ANDROID[tick % 2], PAL_AND, ax, ay, ASCALE, false, false);
+      if (!rm()) {  // tryskový plamínek pod tělem
+        ctx.fillStyle = (tick % 2) ? '#19e6e6' : '#0e8a8a';
+        ctx.fillRect(ax + 3 * ASCALE, ay + 10 * ASCALE, ASCALE, ASCALE);
+        ctx.fillRect(ax + 6 * ASCALE, ay + 10 * ASCALE, ASCALE, ASCALE);
+      }
+      ST._androidPos = { x: ax + 5 * ASCALE, y: ay + 5 * ASCALE };
+    }
     // ── efekty ──
     for (let i = ST.fx.length - 1; i >= 0; i--) {
       const f = ST.fx[i];
@@ -545,6 +606,77 @@ window.RPGSprites9 = (function () {
           ST.hero.mode = 'hit'; ST.hero.t = 0;
           setTimeout(() => { if (ST.hero.mode === 'hit') { ST.hero.mode = 'idle'; ST.hero.t = 0; } }, 420);
         }
+      } else if (f.kind === 'fireball') {
+        const p = Math.min(1, f.t / 480);
+        const x = f.x0 + (f.x1 - f.x0) * p;
+        const y = f.y0 + (f.y1 - f.y0) * p - Math.sin(p * Math.PI) * 30;
+        ctx.fillStyle = '#ff7733';
+        ctx.fillRect(x - 8, y - 8, 16, 16);
+        ctx.fillStyle = '#ffd24a';
+        ctx.fillRect(x - 4, y - 4, 8, 8);
+        ctx.fillStyle = 'rgba(255,119,51,.45)';   // ohon
+        ctx.fillRect(x - 18 - 6 * Math.random(), y - 5, 12, 10);
+        if (p >= 1) { ST.fx.splice(i, 1); impact(f, '255,119,51'); }
+      } else if (f.kind === 'lightning') {
+        const p = Math.min(1, f.t / 320);
+        if (f.t < 60 && !f.hitDone) { f.hitDone = 1; impact(f, '244,208,63'); }
+        if (Math.floor(f.t / 60) % 2 === 0) {       // blikání blesku
+          ctx.strokeStyle = '#fff7c0'; ctx.lineWidth = 4;
+          ctx.beginPath();
+          let yy = 0, xx = f.x1;
+          ctx.moveTo(xx, yy);
+          while (yy < f.y1) { yy += 22; xx = f.x1 + (Math.random() * 24 - 12); ctx.lineTo(xx, Math.min(yy, f.y1)); }
+          ctx.stroke();
+          ctx.strokeStyle = 'rgba(244,208,63,.5)'; ctx.lineWidth = 9; ctx.stroke();
+        }
+        if (p >= 1) ST.fx.splice(i, 1);
+      } else if (f.kind === 'freeze') {
+        const p = Math.min(1, f.t / 620);
+        if (!f.hitDone && f.t > 80) { f.hitDone = 1; impact(f, '140,220,255'); }
+        for (let k = 0; k < 6; k++) {               // ledové krystaly okolo bosse
+          const ang = k / 6 * Math.PI * 2 + 0.5;
+          const d = 18 + p * 26;
+          const sx = f.x1 + Math.cos(ang) * d, sy = f.y1 + Math.sin(ang) * d;
+          ctx.fillStyle = 'rgba(170,230,255,' + (1 - p) + ')';
+          ctx.fillRect(sx - 3, sy - 8, 6, 16);
+          ctx.fillStyle = 'rgba(255,255,255,' + (0.8 - p * 0.8) + ')';
+          ctx.fillRect(sx - 1, sy - 5, 3, 9);
+        }
+        if (p >= 1) ST.fx.splice(i, 1);
+      } else if (f.kind === 'swamp') {
+        const p = Math.min(1, f.t / 680);
+        if (!f.hitDone && f.t > 250) { f.hitDone = 1; impact(f, '90,180,70'); }
+        ctx.fillStyle = 'rgba(70,140,50,' + (0.55 - p * 0.5) + ')';   // kaluž
+        ctx.fillRect(f.x1 - 56, f.gy - 8, 112, 12);
+        for (let k = 0; k < 5; k++) {               // bubliny stoupají
+          const ph = (p * 1.4 + k * 0.21) % 1;
+          const bx2 = f.x1 - 40 + k * 19;
+          ctx.fillStyle = 'rgba(120,210,90,' + (0.9 - ph) + ')';
+          const r2 = 4 + k % 3 * 2;
+          ctx.fillRect(bx2 - r2 / 2, f.gy - 6 - ph * 52, r2, r2);
+        }
+        if (p >= 1) ST.fx.splice(i, 1);
+      } else if (f.kind === 'poison') {
+        const p = Math.min(1, f.t / 680);
+        if (!f.hitDone && f.t > 200) { f.hitDone = 1; impact(f, '150,255,90'); }
+        for (let k = 0; k < 4; k++) {               // jedovatý mrak
+          const ang = k * 1.7 + p * 2;
+          const cx2 = f.x1 + Math.cos(ang) * 22, cy2 = f.y1 - 10 + Math.sin(ang) * 14 - p * 18;
+          ctx.fillStyle = 'rgba(120,220,60,' + (0.5 - p * 0.45) + ')';
+          ctx.fillRect(cx2 - 11, cy2 - 8, 22, 16);
+          ctx.fillStyle = 'rgba(190,255,120,' + (0.35 - p * 0.3) + ')';
+          ctx.fillRect(cx2 - 5, cy2 - 4, 10, 8);
+        }
+        if (p >= 1) ST.fx.splice(i, 1);
+      } else if (f.kind === 'spit') {
+        const p = Math.min(1, f.t / 420);
+        const x = f.x0 + (f.x1 - f.x0) * p;
+        const y = f.y0 + (f.y1 - f.y0) * p - Math.sin(p * Math.PI) * 48;
+        ctx.fillStyle = '#8de84a';
+        ctx.fillRect(x - 4, y - 4, 8, 8);
+        ctx.fillStyle = 'rgba(141,232,74,.45)';
+        ctx.fillRect(x - 7, y - 7, 14, 14);
+        if (p >= 1) { ST.fx.splice(i, 1); impact(f, '141,232,74'); }
       } else if (f.kind === 'slasharc') {
         const p = Math.min(1, f.t / 240);
         ctx.strokeStyle = 'rgba(232,236,245,' + (1 - p) + ')';
@@ -562,13 +694,22 @@ window.RPGSprites9 = (function () {
           ctx.fillRect(f.x + Math.cos(ang) * d - 3, f.y + Math.sin(ang) * d - 3, 6, 6);
         }
         if (p >= 1) ST.fx.splice(i, 1);
+      } else if (f.kind === 'spark') {
+        f.x += f.vx; f.y += f.vy; f.vy += 0.1;
+        const p = Math.min(1, f.t / 480);
+        ctx.fillStyle = 'rgba(255,190,60,' + (1 - p) + ')';
+        ctx.fillRect(f.x - 2, f.y - 2, 4, 4);
+        ctx.fillStyle = 'rgba(255,255,180,' + (0.6 - p * 0.6) + ')';
+        ctx.fillRect(f.x - 1, f.y - 1, 2, 2);
+        if (p >= 1 || f.y > 210) ST.fx.splice(i, 1);
       }
     }
   }
 
-  function impact(f) {
+  function impact(f, rgb) {
     ST.boss.flash = 130; ST.boss.t = 0;
-    ST.fx.push({ kind: 'boom', x: f.x1, y: f.y1, t: 0, rgb: f.kind === 'orb' ? '25,230,230' : '244,208,63' });
+    ST.fx.push({ kind: 'boom', x: f.x1, y: f.y1, t: 0,
+      rgb: rgb || (f.kind === 'orb' ? '25,230,230' : '244,208,63') });
   }
 
   function loop(now) {
@@ -585,33 +726,56 @@ window.RPGSprites9 = (function () {
     curArea = Math.max(1, Math.min(7, areaId | 0));
     resize();
     ST.boss.mode = rm() ? 'idle' : 'enter';
-    ST.boss.t = 0; ST.boss.flash = 0;
+    ST.boss.t = 0; ST.boss.flash = 0; ST.boss.progress = 0;
     ST.hero.mode = 'idle'; ST.hero.t = 0;
     ST.fx.length = 0;
   }
 
-  const ATTACKS = ['slash', 'cast', 'shoot'];
+  function setProgress(ratio) {
+    ST.boss.progress = Math.max(0, Math.min(1, ratio || 0));
+  }
+
+  const ATTACKS = ['slash', 'orb', 'shoot', 'fireball', 'lightning', 'freeze', 'swamp', 'poison'];
   let lastAtk = '';
-  function heroAttack() {
+  function heroAttack(isCrit, force) {
     if (!active()) return;
     // náhodný útok, ale ne 2× stejný po sobě
-    let kind = ATTACKS[Math.floor(Math.random() * ATTACKS.length)];
-    if (kind === lastAtk) kind = ATTACKS[(ATTACKS.indexOf(kind) + 1) % ATTACKS.length];
+    let kind = force || ATTACKS[Math.floor(Math.random() * ATTACKS.length)];
+    if (!force && kind === lastAtk) kind = ATTACKS[(ATTACKS.indexOf(kind) + 1) % ATTACKS.length];
     lastAtk = kind;
     const hp = heroPos(), bp = bossPos();
     const bcx = bp.x + 9 * BSCALE, bcy = bp.y + 8 * BSCALE;
+    const gy = 200 - 12;                       // úroveň země
     if (rm()) { ST.boss.flash = 130; ST.boss.t = 0; return; }
-    ST.hero.mode = kind === 'cast' ? 'cast' : kind === 'shoot' ? 'shoot' : 'slash';
+    ST.hero.mode = kind === 'slash' ? 'slash' : kind === 'shoot' ? 'shoot' : 'cast';
     ST.hero.t = 0;
+    const hx0 = hp.x + 13 * SCALE, hyOrb = hp.y + 2 * SCALE, hyArm = hp.y + 8 * SCALE;
     if (kind === 'slash') {
       setTimeout(() => { ST.fx.push({ kind: 'slasharc', x: bcx - 20, y: bcy, t: 0 }); ST.boss.flash = 130; ST.boss.t = 0; ST.fx.push({ kind: 'boom', x: bcx, y: bcy, t: 0, rgb: '232,236,245' }); }, 260);
-      setTimeout(() => { if (ST.hero.mode === 'slash') { ST.hero.mode = 'idle'; ST.hero.t = 0; } }, 540);
-    } else if (kind === 'cast') {
-      ST.fx.push({ kind: 'orb', x0: hp.x + 13 * SCALE, y0: hp.y + 2 * SCALE, x1: bcx, y1: bcy, t: 0 });
-      setTimeout(() => { if (ST.hero.mode === 'cast') { ST.hero.mode = 'idle'; ST.hero.t = 0; } }, 460);
-    } else {
-      ST.fx.push({ kind: 'bolt', x0: hp.x + 13 * SCALE, y0: hp.y + 8 * SCALE, x1: bcx, y1: bcy, t: 0 });
-      setTimeout(() => { if (ST.hero.mode === 'shoot') { ST.hero.mode = 'idle'; ST.hero.t = 0; } }, 320);
+    } else if (kind === 'orb') {
+      ST.fx.push({ kind: 'orb', x0: hx0, y0: hyOrb, x1: bcx, y1: bcy, t: 0 });
+    } else if (kind === 'shoot') {
+      ST.fx.push({ kind: 'bolt', x0: hx0, y0: hyArm, x1: bcx, y1: bcy, t: 0 });
+    } else if (kind === 'fireball') {
+      ST.fx.push({ kind: 'fireball', x0: hx0, y0: hyOrb, x1: bcx, y1: bcy, t: 0 });
+    } else if (kind === 'lightning') {
+      setTimeout(() => ST.fx.push({ kind: 'lightning', x1: bcx, y1: bcy, t: 0 }), 200);
+    } else if (kind === 'freeze') {
+      setTimeout(() => ST.fx.push({ kind: 'freeze', x1: bcx, y1: bcy, t: 0 }), 200);
+    } else if (kind === 'swamp') {
+      setTimeout(() => ST.fx.push({ kind: 'swamp', x1: bcx, y1: bcy, gy: gy, t: 0 }), 200);
+    } else if (kind === 'poison') {
+      setTimeout(() => ST.fx.push({ kind: 'poison', x1: bcx, y1: bcy, t: 0 }), 200);
+    }
+    const dur = kind === 'slash' ? 540 : kind === 'shoot' ? 320 : 500;
+    const myMode = ST.hero.mode;
+    setTimeout(() => { if (ST.hero.mode === myMode) { ST.hero.mode = 'idle'; ST.hero.t = 0; } }, dur);
+    // android parťák se občas přidá (plivne po bossovi)
+    if (Math.random() < 0.35) {
+      setTimeout(() => {
+        const a = ST._androidPos; if (!a || !active()) return;
+        ST.fx.push({ kind: 'spit', x0: a.x, y0: a.y, x1: bcx, y1: bcy - 10, t: 0 });
+      }, 650);
     }
   }
 
@@ -636,5 +800,5 @@ window.RPGSprites9 = (function () {
 
   window.addEventListener('resize', resize);
 
-  return { attach, detach, active, spawn, heroAttack, bossAttack, defeat };
+  return { attach, detach, active, spawn, heroAttack, bossAttack, defeat, setProgress };
 })();
