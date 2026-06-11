@@ -160,7 +160,7 @@ window.RPGSprites7 = (function () {
   /* ── bossové: 7 oblastí, egyptská/chrámová témata ── */
   const BOSS_PALS = {
     1:{A:'#e8c060',a:'#806820',M:'#5c3a10',m:'#3d2808'},   // strážce karavany — zlatá
-    2:{A:'#c8a830',a:'#705e18',M:'#8a7a40',m:'#5a4e28'},   // had hieroglyfů — pískový
+    2:{A:'#e0c050',a:'#8a7020',M:'#a89858',m:'#706438'},   // had hieroglyfů — pískový
     3:{A:'#88ddff',a:'#3a7a9f',M:'#2a3a5c',m:'#1a2840'},   // ledový strážce — modrá
     4:{A:'#d4a820',a:'#8a6810',M:'#5c3a10',m:'#3d2808'},   // strážce vah — bronz
     5:{A:'#c0c8d8',a:'#6a7888',M:'#3a4050',m:'#282a38'},   // strážce zrcadla — stříbro

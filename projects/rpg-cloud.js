@@ -457,16 +457,19 @@ window.RPGCloud = (function () {
   }
 
   // ── Fáze 6b — týdenní snímky chybovosti (snap_events) ───────────────
+  // Vrací true jen když upload reálně proběhl — hra podle toho nastavuje
+  // S.snapsMigrated (nepřihlášený žák nesmí o historické snímky přijít).
   async function pushErrsSnap(game, snaps) {
-    if (!client || !user) return;
-    if (!Array.isArray(snaps) || snaps.length === 0) return;
+    if (!client || !user) return false;
+    if (!Array.isArray(snaps) || snaps.length === 0) return false;
     const rows = snaps
       .filter(s => s && s.t && typeof s.errs === 'object')
       .map(s => ({ user_id: user.id, game, snapped_at: s.t, errs: s.errs || {} }));
-    if (!rows.length) return;
+    if (!rows.length) return false;
     const { error } = await client.from('snap_events')
       .upsert(rows, { onConflict: 'user_id,game,snapped_at', ignoreDuplicates: true });
-    if (error) console.warn('[RPGCloud] pushErrsSnap:', error.message);
+    if (error) { console.warn('[RPGCloud] pushErrsSnap:', error.message); return false; }
+    return true;
   }
 
   async function getErrsSnaps(game) {

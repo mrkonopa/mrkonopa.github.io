@@ -160,12 +160,12 @@ window.RPGSprites6 = (function () {
   /* ── bossové: 7 oblastí (1–7), vesmírná témata ── */
   const BOSS_PALS = {
     1:{A:'#4dc8ff',a:'#1a6a8a',M:'#2a3a5c',m:'#1a2a42'},   // palubní robot — cyan
-    2:{A:'#ff8833',a:'#994422',M:'#4a2a1a',m:'#321a10'},   // měřicí dron — orange
-    3:{A:'#cc66ff',a:'#662288',M:'#3a1a5c',m:'#281040'},   // navigační AI — purple
+    2:{A:'#ff8833',a:'#994422',M:'#7a4a2a',m:'#54321c'},   // měřicí dron — orange
+    3:{A:'#cc66ff',a:'#662288',M:'#6a3a9a',m:'#4a286e'},   // navigační AI — purple
     4:{A:'#88ccff',a:'#3a6a9f',M:'#2a3a66',m:'#1a2a46'},   // oblačný strážce — light blue
-    5:{A:'#ff66aa',a:'#882244',M:'#5c1a3a',m:'#3d1027'},   // mlhovinný strážce — pink
+    5:{A:'#ff66aa',a:'#882244',M:'#a03060',m:'#702045'},   // mlhovinný strážce — pink
     6:{A:'#ffd040',a:'#997a10',M:'#4a3a10',m:'#322a0a'},   // kometární mistr — gold
-    7:{A:'#aa80ff',a:'#5522aa',M:'#564080',m:'#382a58'}    // vládce galaxie — violet
+    7:{A:'#bb94ff',a:'#6a3ac0',M:'#6e54a8',m:'#4c3a7a'}    // vládce galaxie — violet
   };
   const COMMON = { K:'#0a0c12', W:'#e8ecf5', R:'#ff3355' };
 

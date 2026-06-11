@@ -159,13 +159,13 @@ window.RPGSprites8 = (function () {
 
   /* ── bossové: 7 oblastí, akademická/fantasy témata ── */
   const BOSS_PALS = {
-    1:{A:'#6688ff',a:'#2244aa',M:'#1a2a66',m:'#0a1840'},   // strážce čísel — modrá
-    2:{A:'#cc44ee',a:'#662288',M:'#3a0a50',m:'#280838'},   // čaroděj procent — fialová
+    1:{A:'#7a98ff',a:'#3355cc',M:'#3a52a8',m:'#263878'},   // strážce čísel — modrá
+    2:{A:'#cc44ee',a:'#7a2aa0',M:'#5c2a80',m:'#3e1c58'},   // čaroděj procent — fialová
     3:{A:'#88cc44',a:'#3a6618',M:'#4a7a20',m:'#325512'},   // krokodýl algebry — bažinná zelená
     4:{A:'#44eecc',a:'#118866',M:'#2a6a5c',m:'#1a4840'},   // alchymista výrazů — teal
     5:{A:'#44aaee',a:'#1166aa',M:'#4a7aa0',m:'#335570'},   // chobotnice kruhu — jezerní modrá
     6:{A:'#ffaa22',a:'#aa5510',M:'#4a2808',m:'#321808'},   // mistr rozkladu — jantar
-    7:{A:'#aa88ff',a:'#5533aa',M:'#280a60',m:'#1a0840'}    // arcimág — arcanová fialová
+    7:{A:'#bb99ff',a:'#6a44cc',M:'#503498',m:'#382468'}    // arcimág — arcanová fialová
   };
   const COMMON = { K:'#0a0c12', W:'#e8ecf5', R:'#ff3355' };
 

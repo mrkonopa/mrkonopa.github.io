@@ -1437,7 +1437,7 @@ function startGame(){
  saveS();touchStreak();applyMotionPref();applyCosmetics();go('map');
 }
 function snapErrs(){if(!Array.isArray(S.errsSnap))S.errsSnap=[];const t=new Date().toISOString().slice(0,10);const last=S.errsSnap[S.errsSnap.length-1];if(last&&(new Date(t)-new Date(last.t))/864e5<7)return;const c={};for(const k in(S.errs||{}))if(S.errs[k]>0)c[k]=S.errs[k];S.errsSnap.push({t,errs:c});if(S.errsSnap.length>12)S.errsSnap=S.errsSnap.slice(-12);saveS();if(typeof RPGCloud!=='undefined'&&RPGCloud.pushErrsSnap)RPGCloud.pushErrsSnap(SAVE_KEY,S.errsSnap);}
-function continueGame(){if(loadS()){snapErrs();if(!S.snapsMigrated&&S.errsSnap.length>0&&typeof RPGCloud!=='undefined'&&RPGCloud.pushErrsSnap){RPGCloud.pushErrsSnap(SAVE_KEY,S.errsSnap).then(()=>{S.snapsMigrated=true;saveS();});}touchStreak();applyMotionPref();applyCosmetics();go('map');}}
+function continueGame(){if(loadS()){snapErrs();if(!S.snapsMigrated&&S.errsSnap.length>0&&typeof RPGCloud!=='undefined'&&RPGCloud.pushErrsSnap){RPGCloud.pushErrsSnap(SAVE_KEY,S.errsSnap).then(ok=>{if(ok){S.snapsMigrated=true;saveS();}});}touchStreak();applyMotionPref();applyCosmetics();go('map');}}
 
 // ══════════════════════════════════════════
 // MAP
