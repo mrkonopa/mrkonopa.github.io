@@ -622,7 +622,7 @@ html[data-theme="violet"]{--gold:#b06cff;--panel:#100a20;--panel2:#18103a;--blue
  <span class="bt-monster" id="bt-mon">👾</span>
  <div id="dmg-spark" class="dmg-spark">-10 HP!</div>
  <div class="bt-mname" id="bt-mname">???</div>
- <div class="bar-out bar-hp" style="margin-top:10px;height:12px;border-color:var(--red)">
+ <div class="bar-out bar-hp" style="margin-top:10px;height:12px;border-color:var(--red);position:relative;z-index:5">
  <div class="bar-in" id="bt-hpbar" style="width:100%"></div>
  </div>
  </div>
@@ -1655,6 +1655,9 @@ function launchBattle(aid,mid){
   setTimeout(()=>{mon.classList.remove('enter');mon.classList.add(Math.random()<.5?'idle':'idle-2');},1070);
  }
  renderTask();
+ {const inpEl=document.getElementById('bt-ans');const atkEl=document.getElementById('attack-btn');
+  if(inpEl)inpEl.disabled=true;if(atkEl)atkEl.disabled=true;
+  setTimeout(()=>{if(!BT.bossDefeated){if(inpEl)inpEl.disabled=false;if(atkEl)atkEl.disabled=false;if(inpEl&&!BT.mcMode&&!isYN(BT.curTask))inpEl.focus();}},700);}
  go('battle');
 }
 
