@@ -263,5 +263,61 @@ test('cssFor vrací aktivní cssKey pro kategorii', () => {
   assert.strictEqual(W.cssFor('theme'), '');
 });
 
+/* ════════ CLOUD SYNC — mergeRemote (sdílení napříč zařízeními) ════════ */
+test('mergeRemote: kredity = vyšší z obou (žák nikdy neztratí)', () => {
+  W.earn(40);                                   // lokál (škola) = 40
+  W.mergeRemote({ credits: 120, cosmetics: { owned: [], active: {} } }); // cloud (doma) = 120
+  assert.strictEqual(W.getCredits(), 120);
+  W.mergeRemote({ credits: 10, cosmetics: { owned: [], active: {} } });  // nižší cloud nesnižuje
+  assert.strictEqual(W.getCredits(), 120);
+});
+
+test('mergeRemote: sjednotí vlastněnou kosmetiku z obou zařízení', () => {
+  W.earn(500); W.buy('border-silver');          // škola koupila stříbrný rám
+  W.mergeRemote({ credits: 0, cosmetics: { owned: ['border-gold', 'badge-cyan'], active: {} } });
+  assert.ok(W.owns('border-silver'), 'lokální nákup zůstává');
+  assert.ok(W.owns('border-gold'), 'domácí nákup se přidá');
+  assert.ok(W.owns('badge-cyan'));
+});
+
+test('mergeRemote: převezme vzdálenou aktivní kosmetiku, pokud ji teď vlastníme', () => {
+  W.mergeRemote({ credits: 0, cosmetics: { owned: ['border-gold'], active: { border: 'border-gold' } } });
+  assert.strictEqual(W.activeId('border'), 'border-gold');
+});
+
+test('mergeRemote: NEpřevezme aktivní kosmetiku, kterou nevlastníme (anti-cheat)', () => {
+  // remote tvrdí active border-holo, ale owned ho neobsahuje → _sanitize ho zahodí, nepřevezme se
+  W.mergeRemote({ credits: 0, cosmetics: { owned: [], active: { border: 'border-holo' } } });
+  assert.strictEqual(W.activeId('border'), null);
+  assert.ok(!W.owns('border-holo'));
+});
+
+test('mergeRemote: ignoruje nevalidní/neúplný vstup bez crashe', () => {
+  W.earn(30);
+  assert.strictEqual(W.mergeRemote(null).credits, 30);
+  assert.strictEqual(W.mergeRemote('x').credits, 30);
+  assert.strictEqual(W.mergeRemote({}).credits, 30);   // chybějící cosmetics → _sanitize doplní
+  assert.strictEqual(W.getCredits(), 30);
+});
+
+test('mergeRemote: reducedMotion zůstává lokální (nesynchronizuje se)', () => {
+  W.setReducedMotion(false);                    // lokál vypnuto
+  W.mergeRemote({ credits: 0, settings: { reducedMotion: true }, cosmetics: { owned: [], active: {} } });
+  assert.strictEqual(W.getReducedMotion(), false, 'vzdálené reducedMotion nepřepíše lokální');
+});
+
+test('mergeRemote: migrated/absorbed se sjednotí (zabrání dvojí migraci)', () => {
+  W.migrateFrom('RPG_MAT_6', { credits: 20 });  // lokálně migrováno 6
+  W.mergeRemote({ credits: 0, migrated: ['RPG_MAT_7'], absorbed: { RPG_MAT_8: 50 }, cosmetics: { owned: [], active: {} } });
+  // po sloučení už migrateFrom pro 6 ani 7 znovu nepřičte
+  const before = W.getCredits();
+  assert.strictEqual(W.migrateFrom('RPG_MAT_7', { credits: 999 }), false, '7 už je v migrated → nepřičte');
+  assert.strictEqual(W.getCredits(), before);
+});
+
+test('pushCloud bez RPGCloud nespadne (graceful)', () => {
+  assert.doesNotThrow(() => W.pushCloud());
+});
+
 console.log(`\n${passed + failed} testů: ${passed} prošlo, ${failed} selhalo`);
 if (failed > 0) process.exit(1);

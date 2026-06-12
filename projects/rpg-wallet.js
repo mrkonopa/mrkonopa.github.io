@@ -46,6 +46,9 @@ window.RPGWallet = (function () {
   const FREE  = SHOP_ITEMS.filter(i => i.price === 0).map(i => i.id);
   const byId  = id => SHOP_ITEMS.find(i => i.id === id);
 
+  const CLOUD_GAME = '_wallet';   // řádek v tabulce `saves` (game='_wallet') ⇒ sync přes Google účet, bez nového SQL
+  let _suppressCloud = false;     // při slučování z cloudu neposílej hned zpět (zabrání smyčce)
+
   const listeners = [];
   function emit() { const w = get(); listeners.forEach(f => { try { f(w); } catch (e) {} }); }
 
@@ -98,6 +101,9 @@ window.RPGWallet = (function () {
   function put(w) {
     w = _sanitize(w);
     try { localStorage.setItem(KEY, JSON.stringify(w)); } catch (e) {}
+    // cloud: po každé změně pošli peněženku na Google účet (debounced v RPGCloud.push;
+    // bez přihlášení/náhledu se push sám přeskočí ⇒ čistě lokální chování zůstává)
+    if (!_suppressCloud) { try { if (typeof window !== 'undefined' && window.RPGCloud && RPGCloud.push) RPGCloud.push(CLOUD_GAME, w); } catch (e) {} }
     emit();
     return w;
   }
@@ -198,15 +204,47 @@ window.RPGWallet = (function () {
     return changed;
   }
 
+  /* ════════ CLOUD SYNC (sdílení napříč zařízeními přes Google účet) ════════
+     Peněženka se ukládá jako řádek v tabulce `saves` s game='_wallet'. Po
+     přihlášení RPGCloud stáhne vzdálenou peněženku a zavolá mergeRemote(),
+     pak pushne sloučený stav zpět ⇒ co koupíš doma, máš i ve škole.
+     Sloučení je „kid-friendly": nikdy neztratí kredity ani kosmetiku. */
+  function mergeRemote(remote) {
+    if (!remote || typeof remote !== 'object' || Array.isArray(remote)) return get();
+    const local = get();
+    let r;
+    try { r = _sanitize(JSON.parse(JSON.stringify(remote))); } catch (e) { return local; }
+    // kredity: vyšší z obou (žák nikdy nepřijde o nasbírané)
+    local.credits = Math.max(Math.floor(local.credits), Math.floor(r.credits));
+    // vlastněná kosmetika: sjednocení
+    local.cosmetics.owned = [...new Set([...local.cosmetics.owned, ...r.cosmetics.owned])];
+    // aktivní kosmetika: převezmi vzdálenou volbu, pokud ji teď vlastníme
+    ['border', 'badge', 'theme', 'victory'].forEach(cat => {
+      const rid = r.cosmetics.active[cat], it = byId(rid);
+      if (it && it.cat === cat && (it.price === 0 || local.cosmetics.owned.includes(rid))) local.cosmetics.active[cat] = rid;
+    });
+    // reducedMotion necháváme LOKÁLNÍ (komfort daného zařízení, nesynchronizuje se)
+    // migrated/absorbed: sjednoť/max, ať se per-game migrace nezapočítá dvakrát
+    local.migrated = [...new Set([...(local.migrated || []), ...(r.migrated || [])])];
+    const ab = {}, keys = new Set([...Object.keys(local.absorbed || {}), ...Object.keys(r.absorbed || {})]);
+    keys.forEach(k => { ab[k] = Math.max(Math.floor((local.absorbed || {})[k] || 0), Math.floor((r.absorbed || {})[k] || 0)); });
+    local.absorbed = ab;
+    _suppressCloud = true; put(local); _suppressCloud = false;  // ulož bez okamžitého pushe (push řeší pushCloud)
+    return get();
+  }
+  function pushCloud() {
+    try { if (typeof window !== 'undefined' && window.RPGCloud && RPGCloud.push) RPGCloud.push(CLOUD_GAME, get()); } catch (e) {}
+  }
+
   // ── Živé aktualizace (i napříč záložkami) ──
   function onChange(fn) { if (typeof fn === 'function') listeners.push(fn); }
   try { window.addEventListener('storage', e => { if (e.key === KEY) emit(); }); } catch (e) {}
 
   return {
-    KEY, items, itemById, get,
+    KEY, CLOUD_GAME, items, itemById, get,
     getCredits, earn,
     buy, activate, owns, activeId, isActive, cssFor,
     getReducedMotion, setReducedMotion,
-    migrateFrom, absorbGame, onChange
+    migrateFrom, absorbGame, mergeRemote, pushCloud, onChange
   };
 })();
