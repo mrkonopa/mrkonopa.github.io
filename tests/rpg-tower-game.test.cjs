@@ -1,8 +1,9 @@
 /* ══════════════════════════════════════════════════════════════════
-   Test FÁZE 11: věž legend — herní obrazovka (rpg-mat-9.html, Playwright)
+   Test FÁZE 11: věž legend — herní obrazovka (rpg-mat-6/7/8/9.html, Playwright)
    Ověřuje: bránu (practice / login / eligible), výstup (správně → patro+1,
    3× špatně → konec), časomíru, rekord v S.tower, zápis přes towerSubmit,
    žebříček+síň slávy, XSS odolnost jmen, reduced-motion (canvas statický).
+   Běží přes VŠECHNY 4 ročníky (věž portovaná z 9. do 6./7./8.).
    ══════════════════════════════════════════════════════════════════ */
 const http = require('http'); const fs = require('fs'); const path = require('path');
 const { chromium } = require('playwright');
@@ -15,12 +16,13 @@ function serve(){return new Promise(res=>{const s=http.createServer((q,r)=>{let 
 
 const SEED = {name:'TEST',xp:0,level:1,attrs:{calc:0,geo:0,anal:0,craft:0},done:{},inv:[]};
 
-async function newGame(browser, base){
+async function newGame(browser, base, N){
+  const KEY='RPG_MAT_'+N;
   const ctx=await browser.newContext({viewport:{width:480,height:900}});
   const page=await ctx.newPage();
   page.on('pageerror',e=>{fail++;console.log('  ❌ JS chyba: '+e.message);});
-  await page.addInitScript((seed)=>{localStorage.setItem('RPG_MAT_9',JSON.stringify(seed));},SEED);
-  await page.goto(`${base}/projects/rpg-mat-9.html`,{waitUntil:'load'});
+  await page.addInitScript(({key,seed})=>{localStorage.setItem(key,JSON.stringify(seed));},{key:KEY,seed:SEED});
+  await page.goto(`${base}/projects/rpg-mat-${N}.html`,{waitUntil:'load'});
   await page.evaluate(()=>continueGame());
   return {ctx,page};
 }
@@ -42,13 +44,13 @@ async function answerCurrent(page, correct){
   },correct);
 }
 
-(async()=>{
-  const srv=await serve(); const base=`http://127.0.0.1:${srv.address().port}`;
-  const browser=await chromium.launch({executablePath:EXEC});
+async function runForGame(browser, base, N){
+  const KEY='RPG_MAT_'+N;
+  console.log(`\n╔══════ ${N}. ROČNÍK (${KEY}) ══════╗`);
 
   console.log('\n── practice režim (bez cloudu) ──');
   {
-    const {ctx,page}=await newGame(browser,base);
+    const {ctx,page}=await newGame(browser,base,N);
     await page.evaluate(()=>go('tower'));
     await page.waitForTimeout(250);
     ok(await page.evaluate(()=>document.getElementById('s-tower').classList.contains('active')),'obrazovka věže se otevře z mapy');
@@ -94,7 +96,7 @@ async function answerCurrent(page, correct){
 
   console.log('\n── cloud režim: brána + zápis ──');
   {
-    const {ctx,page}=await newGame(browser,base);
+    const {ctx,page}=await newGame(browser,base,N);
     // nepřihlášený
     await page.evaluate(()=>{
       window.__rpc={submits:[]};
@@ -150,14 +152,14 @@ async function answerCurrent(page, correct){
     await page.evaluate(()=>twGiveUp());
     await page.waitForTimeout(400);
     const sub=await page.evaluate(()=>({subs:window.__rpc.submits,cloud:document.getElementById('tw-end-cloud').textContent}));
-    ok(sub.subs.length===1&&sub.subs[0].g==='RPG_MAT_9'&&sub.subs[0].f===2,'konec → towerSubmit(RPG_MAT_9, 2)');
+    ok(sub.subs.length===1&&sub.subs[0].g===KEY&&sub.subs[0].f===2,`konec → towerSubmit(${KEY}, 2)`);
     ok(/Zapsáno/.test(sub.cloud)&&/7\. patro/.test(sub.cloud),'hlášení ukazuje rekord sezóny ze serveru');
     await ctx.close();
   }
 
   console.log('\n── časomíra + reduced-motion ──');
   {
-    const {ctx,page}=await newGame(browser,base);
+    const {ctx,page}=await newGame(browser,base,N);
     await page.evaluate(()=>{go('tower');twStart();});
     await page.waitForTimeout(150);
     // timeout sebere život
@@ -188,6 +190,13 @@ async function answerCurrent(page, correct){
     ok(await page.evaluate(()=>!TWA.on&&!TW.on&&document.getElementById('s-map').classList.contains('active')),'twExit: zpět na mapu, animace i běh zastaveny');
     await ctx.close();
   }
+}
+
+(async()=>{
+  const srv=await serve(); const base=`http://127.0.0.1:${srv.address().port}`;
+  const browser=await chromium.launch({executablePath:EXEC});
+
+  for(const N of [6,7,8,9]) await runForGame(browser, base, N);
 
   await browser.close(); srv.close();
   console.log(`\n══════════════════════════════════════════`);

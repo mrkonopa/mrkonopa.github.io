@@ -841,6 +841,20 @@ window.RPGSprites8 = (function () {
   }
 
   window.addEventListener('resize', resize);
+  function drawHeroOn(c2, x, y, scale, frame, flipX) {
+    const grid = HERO_IDLE[frame ? 1 : 0];
+    for (let r = 0; r < grid.length; r++) {
+      const row = grid[r];
+      for (let c = 0; c < row.length; c++) {
+        const ch = row[c];
+        if (ch === '.') continue;
+        c2.fillStyle = PAL_HERO[ch] || COMMON[ch] || '#f0f';
+        const px = flipX ? x + (row.length - 1 - c) * scale : x + c * scale;
+        c2.fillRect(px, y + r * scale, scale, scale);
+      }
+    }
+  }
 
-  return { attach, detach, active, spawn, heroAttack, bossAttack, defeat, setProgress, setHeroHp };
+
+  return { attach, detach, active, spawn, heroAttack, bossAttack, defeat, setProgress, setHeroHp, drawHeroOn };
 })();
