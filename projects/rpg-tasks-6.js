@@ -346,7 +346,7 @@ function gen_6_2(){
   const e=ri(2,6),se=6*e*e;
   tasks.push({text:`Krychle má povrch ${se} cm². Jaká je délka hrany?`,ans:e,hints:['a = √(S/6).',`= ${e} cm`],skill:'geo'});
   const f=ri(2,7);
-  tasks.push({text:`Kolik stěn má krychle?`,ans:6,hints:['Krychle = 6 čtvercových stěn.','6'],skill:'geo'});
+  tasks.push({text:`Kolik stěn má krychle?`,ans:6,hints:['Vezmi si kostku a počítej stěny po dvojicích — protilehlé.',''],skill:'geo'});
   const g=ri(2,6);
   tasks.push({text:`Obsah jedné stěny krychle s hranou ${g} cm?`,ans:g*g,hints:['Stěna je čtverec a².',`= ${g*g} cm²`],skill:'geo'});
   const h=ri(3,7),i=ri(2,6);
@@ -363,10 +363,10 @@ function gen_6_3(){
   tasks.push({text:`Kolik ml je ${b} litrů? (1 l = 1000 ml)`,ans:b*1000,hints:['1 l = 1000 ml.',`= ${b*1000} ml`],skill:'calc'});
   const c=ri(2,9);
   tasks.push({text:`Kolik cm³ je ${c} litrů? (1 l = 1000 cm³)`,ans:c*1000,hints:['1 l = 1000 cm³.',`= ${c*1000} cm³`],skill:'calc'});
-  tasks.push({text:`Kolik stěn má síť krychle?`,ans:6,hints:['Síť krychle = 6 čtverců.','6'],skill:'geo'});
+  tasks.push({text:`Kolik stěn má síť krychle?`,ans:6,hints:['Síť má tolik čtverců, kolik má krychle stěn — spočítej je na kostce.',''],skill:'geo'});
   const d=ri(2,8)*1000;
   tasks.push({text:`Kolik m³ je ${d} litrů? (1000 l = 1 m³)`,ans:d/1000,hints:['Děl 1000.',`= ${d/1000} m³`],skill:'calc'});
-  tasks.push({text:`Kolik hran má krychle?`,ans:12,hints:['Krychle má 12 hran.','12'],skill:'geo'});
+  tasks.push({text:`Kolik hran má krychle?`,ans:12,hints:['Počítej hrany po skupinách: dolní podstava, horní podstava, svislé.',''],skill:'geo'});
   return tasks;
 }
 

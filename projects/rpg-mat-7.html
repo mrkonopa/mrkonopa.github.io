@@ -572,7 +572,7 @@ html[data-theme="violet"]{--gold:#b06cff;--panel:#100a20;--panel2:#18103a;--blue
  <div id="tr-hint-box" class="hint-box"></div>
  <div id="tr-fb" class="feedback"></div>
  <div style="display:flex;gap:8px;flex-wrap:wrap">
- <button class="btn sm b" id="tr-hint-btn" onclick="trHint()">💡 NÁPOVĚDA 1/2</button>
+ <button class="btn sm b" id="tr-hint-btn" onclick="trHint()">💡 NÁPOVĚDA</button>
  <button class="btn sm g" id="tr-next-btn" style="display:none" onclick="trNext()">DALŠÍ ÚKOL →</button>
  </div>
  </div>
@@ -651,7 +651,7 @@ html[data-theme="violet"]{--gold:#b06cff;--panel:#100a20;--panel2:#18103a;--blue
   <textarea id="bt-explain-txt" rows="2" style="width:100%;box-sizing:border-box;background:#0a0a0f;color:#d0d0e0;border:1px solid var(--green);border-radius:4px;padding:6px;font-family:var(--vt);font-size:18px;resize:vertical" placeholder="Napsal jsem…"></textarea>
  </div>
  <div style="display:flex;gap:8px;flex-wrap:wrap">
- <button class="btn sm b" id="hint-btn" onclick="showHint()">💡 NÁPOVĚDA 1/2</button>
+ <button class="btn sm b" id="hint-btn" onclick="showHint()">💡 NÁPOVĚDA</button>
  <button class="btn sm g" id="next-btn" style="display:none" onclick="nextTask()">DÁLE →</button>
  </div>
  <div class="fail-overlay" id="fail-overlay">
@@ -1624,7 +1624,7 @@ const ITEM_DEFS={
 function launchBattle(aid,mid){
  const ar=AREAS.find(a=>a.id===aid);
  const m=ar.missions.find(x=>x.id===mid);
- BT.aid=aid;BT.mid=mid;BT.combo=0;BT.missionHinted=false;
+ BT.aid=aid;BT.mid=mid;BT.combo=0;BT.missionHinted=false;BT.bossDefeated=false;
  BT.hp=MAX_PLAYER_HP;BT.maxHp=MAX_PLAYER_HP;
  BT.phase=1;BT.items=[];BT.timerFrozen=false;
  if(BT.freezeTimeout){clearTimeout(BT.freezeTimeout);BT.freezeTimeout=null;}
@@ -1801,7 +1801,7 @@ function renderTask(){
  document.getElementById('bt-fb').className='feedback';
  document.getElementById('hint-box').textContent='';
  document.getElementById('hint-box').classList.remove('show');
- document.getElementById('hint-btn').textContent='💡 NÁPOVĚDA 1/2';
+ document.getElementById('hint-btn').textContent='💡 NÁPOVĚDA';
  document.getElementById('hint-btn').disabled=false;
  document.getElementById('next-btn').style.display='none';
  document.getElementById('bt-explain').style.display='none';
@@ -1832,6 +1832,7 @@ function renderMC(t){
  const correct=String(t.ans);
  const cn=parseFloat(correct.replace(',','.'));
  const opts=new Set([correct]);
+ if(!isNaN(cn)&&cn!==0){const opp=String(-cn);if(opp!==correct)opts.add(opp);}
  let tries=0;
  while(opts.size<4 && tries<30){
  tries++;
@@ -1858,6 +1859,7 @@ function renderMC(t){
 }
 
 function submitMC(opt,btn){
+ if(BT.bossDefeated)return;
  stopTimer();
  const t=BT.curTask;
  const ok=checkAns(opt,t.ans);
@@ -2090,6 +2092,7 @@ function useItem(type){
 }
 
 function submitAnswer(){
+ if(BT.bossDefeated)return;
  const t=BT.curTask;
  const inp=document.getElementById('bt-ans').value;
  if(!inp.trim())return;
@@ -2127,22 +2130,19 @@ function submitAnswer(){
 }
 
 function showHint(){
+ // jediná nápověda: jen postup, nikdy výsledek
  const t=BT.curTask;
- const maxHints=Math.min(2,t.hints.length); // only 2 levels
- if(BT.hl>=maxHints)return;
+ if(BT.hl>0)return;
  BT.missionHinted=true;
  const hb=document.getElementById('hint-box');
- const colors=['var(--green)','var(--gold)'];
- hb.style.borderColor=colors[BT.hl];
- hb.style.color=BT.hl===1?'#ffd966':'#7fe87f';
- hb.style.background=BT.hl===1?'#1a1500':'#0f1a0f';
- const hintText=(t.hints[BT.hl]&&t.hints[BT.hl].trim())?t.hints[BT.hl]:('Výsledek: '+t.ans);
- hb.textContent='💡 Nápověda '+(BT.hl+1)+'/2:\n'+hintText;
+ hb.style.borderColor='var(--green)';
+ hb.style.color='#7fe87f';
+ hb.style.background='#0f1a0f';
+ const hintText=(t.hints&&t.hints[0]&&String(t.hints[0]).trim())?t.hints[0]:'Rozděl si příklad na menší kroky a postupuj po jednom.';
+ hb.textContent='💡 Nápověda:\n'+hintText;
  hb.classList.add('show');
- BT.hl++;
- const btn=document.getElementById('hint-btn');
- if(BT.hl>=maxHints){btn.disabled=true;btn.textContent='💡 NÁPOVĚDA 2/2';}
- else btn.textContent='💡 NÁPOVĚDA '+(BT.hl+1)+'/2';
+ BT.hl=1;
+ document.getElementById('hint-btn').disabled=true;
 }
 
 function nextTask(){
@@ -2164,6 +2164,11 @@ function checkMissionComplete(){
  const m=ar.missions.find(x=>x.id===BT.mid);
  const allDn=BT.tasks.every((_,i)=>S.done[`${m.id}-${i}`]);
  if(allDn){
+ BT.bossDefeated=true;
+ const ans=document.getElementById('bt-ans');if(ans)ans.disabled=true;
+ const hintBtn=document.getElementById('hint-btn');if(hintBtn)hintBtn.disabled=true;
+ document.querySelectorAll('#mc-grid .mc-btn').forEach(b=>b.disabled=true);
+ document.querySelectorAll('#yn-row button').forEach(b=>b.disabled=true);
  if(!S.creditsClaimed)S.creditsClaimed={};
  if(!S.creditsClaimed[BT.mid]){S.creditsClaimed[BT.mid]=true;earnCredits(15);}
  // boss poražen — vítězná sekvence (synchro s defeat animací)
@@ -2333,7 +2338,7 @@ function trRender(){
  const hb=document.getElementById('tr-hint-box');hb.textContent='';hb.classList.remove('show');
  document.getElementById('tr-next-btn').style.display='none';
  const hbtn=document.getElementById('tr-hint-btn');
- hbtn.textContent='💡 NÁPOVĚDA 1/2';hbtn.disabled=false;
+ hbtn.textContent='💡 NÁPOVĚDA';hbtn.disabled=false;
  if(TR.m.mc){
   document.getElementById('tr-input-row').style.display='none';
   document.getElementById('tr-yn-row').style.display='none';
@@ -2353,7 +2358,9 @@ function trRenderMC(t){
  const grid=document.getElementById('tr-mc');
  grid.style.display='grid';
  const correct=t.ans,cn=parseFloat(String(correct).replace(',','.'));
- const opts=new Set([correct]);let tries=0;
+ const opts=new Set([correct]);
+ if(!isNaN(cn)&&cn!==0){const opp=String(-cn);if(opp!==String(correct))opts.add(opp);}
+ let tries=0;
  while(opts.size<4 && tries<30){tries++;let alt;
   if(!isNaN(cn)){const delta=ri(-5,5)||ri(1,3);let v=Math.round((cn+delta)*100)/100;if(Number.isInteger(cn)&&Math.abs(cn)<200)v=cn+delta;alt=String(v);}
   else alt=correct==='ANO'?'NE':'ANO';
@@ -2464,19 +2471,18 @@ function trWrong(given){
 }
 
 function trHint(){
- const t=TR.task;const maxH=Math.min(2,t.hints.length);
- if(TR.hl>=maxH)return;
+ // jediná nápověda: jen postup, nikdy výsledek
+ const t=TR.task;
+ if(TR.hl>0)return;
  const hb=document.getElementById('tr-hint-box');
- hb.style.borderColor=TR.hl===1?'var(--gold)':'var(--green)';
- hb.style.color=TR.hl===1?'#ffd966':'#7fe87f';
- hb.style.background=TR.hl===1?'#1a1500':'#0f1a0f';
- const trHintText=(t.hints[TR.hl]&&t.hints[TR.hl].trim())?t.hints[TR.hl]:('Výsledek: '+t.ans);
- hb.textContent='💡 Nápověda '+(TR.hl+1)+'/2:\n'+trHintText;
+ hb.style.borderColor='var(--green)';
+ hb.style.color='#7fe87f';
+ hb.style.background='#0f1a0f';
+ const trHintText=(t.hints&&t.hints[0]&&String(t.hints[0]).trim())?t.hints[0]:'Rozděl si příklad na menší kroky a postupuj po jednom.';
+ hb.textContent='💡 Nápověda:\n'+trHintText;
  hb.classList.add('show');
- TR.hl++;
- const btn=document.getElementById('tr-hint-btn');
- btn.textContent='💡 NÁPOVĚDA '+Math.min(TR.hl+1,2)+'/2';
- if(TR.hl>=maxH){btn.disabled=true;btn.textContent='💡 NÁPOVĚDA 2/2';}
+ TR.hl=1;
+ document.getElementById('tr-hint-btn').disabled=true;
 }
 
 function trNext(){trDraw();}

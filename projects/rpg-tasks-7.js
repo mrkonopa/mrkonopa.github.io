@@ -102,7 +102,7 @@ function gen_2_1(){
   // numerická MC
   const h=ri(2,9),i=ri(3,12);
   const g3=gcd(h,i);
-  tasks.push({text:`Výsledek krácení ${h}/${i} na základní tvar: čitatel?`,ans:h/g3,hints:['NSD('+h+','+i+') = '+g3,''+h/g3+'/'+i/g3],skill:'calc'});
+  tasks.push({text:`Výsledek krácení ${h}/${i} na základní tvar: čitatel?`,ans:h/g3,hints:['Najdi NSD čitatele a jmenovatele a oběma jím vyděl.',''+h/g3+'/'+i/g3],skill:'calc'});
   const m=ri(3,8),n=ri(3,8);
   tasks.push({text:`Rozšiř ${m}/${n} číslem 3. Nový čitatel?`,ans:m*3,hints:['Čitatel × 3.',''+m+' × 3 = '+m*3],skill:'calc'});
   return tasks;
@@ -173,7 +173,7 @@ function gen_2_3(){
   const r=ri(2,4),s=ri(2,6),t=ri(2,5);
   const topR=(r*s+1)*t,gR=gcd(topR,s);
   const ansR=gR===s?String(topR/gR):`${topR/gR}/${s/gR}`;
-  tasks.push({text:`${r} celých ${1}/${s} × ${t} = ? (smíšené číslo: výsledek jako čitatel po zkrácení)`,ans:topR/gR,hints:['Přepočti smíšené na zlomek: '+r+'·'+s+'+1 = '+(r*s+1)+'/'+s,'('+topR+'/'+gR+')/'+s/gR],skill:'calc'});
+  tasks.push({text:`${r} celých ${1}/${s} × ${t} = ? (smíšené číslo: výsledek jako čitatel po zkrácení)`,ans:topR/gR,hints:['Smíšené číslo převeď na zlomek: celá část × jmenovatel + čitatel.','('+topR+'/'+gR+')/'+s/gR],skill:'calc'});
   return tasks;
 }
 
@@ -252,7 +252,7 @@ function gen_4_1(){
   tasks.push({text:`Rozděl ${sum} v poměru ${m} : ${n}. Kolik je první díl?`,ans:part,hints:['1 díl = celek / (m+n).','1 díl = '+sum+'/'+(m+n)+' = '+r2(sum/(m+n))+' → '+part],skill:'anal'});
   // poměr délek
   const x=ri(6,20),y=ri(3,x-2);const g=gcd(x,y);
-  tasks.push({text:`Úsečky mají délky ${x} cm a ${y} cm. Jaký je první člen jejich poměru v základním tvaru?`,ans:x/g,hints:['Vyděl oběma NSD('+x+','+y+') = '+g+'.',x+'/'+g+' : '+y+'/'+g+' → '+(x/g)+':'+(y/g)],skill:'anal'});
+  tasks.push({text:`Úsečky mají délky ${x} cm a ${y} cm. Jaký je první člen jejich poměru v základním tvaru?`,ans:x/g,hints:['Najdi NSD obou délek a vyděl jím oba členy.',x+'/'+g+' : '+y+'/'+g+' → '+(x/g)+':'+(y/g)],skill:'anal'});
   // poměr z dílů
   const c=ri(3,8),d=ri(3,8),total2=ri(20,60);
   const cpart=Math.round(total2*c/(c+d));
