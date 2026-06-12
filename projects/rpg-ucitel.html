@@ -490,7 +490,7 @@ function openGodMode(file,sid){
 /* ── data ── */
 async function loadData(){
  document.getElementById('tbl-wrap').innerHTML='<div class="empty">Načítám data…</div>';
- ROWS=await RPGCloud.listAllSaves();
+ ROWS=(await RPGCloud.listAllSaves()).filter(r=>r.game!=='_wallet'); // peněženka není postava
  await loadClasses();
  // Načti snímky chybovosti ze snap_events (fáze 6b)
  if(RPGCloud.getErrsSnaps){

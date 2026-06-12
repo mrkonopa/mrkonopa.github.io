@@ -142,7 +142,7 @@ body::before{
 .ms-name{font-family:var(--px);font-weight:700;font-size:16px;line-height:1.1;color:var(--text)}
 .ms-sub{font-family:var(--vt);font-size:18px;color:var(--muted);margin-top:2px;line-height:1}
 /* ── BATTLE ── */
-.bt-top{background:linear-gradient(180deg,#0a0e1a 0%,#0f1730 50%,#1a1f35 100%);border:3px solid var(--gold);padding:24px 18px 16px;text-align:center;margin-bottom:10px;overflow:hidden;position:relative;min-height:240px}
+.bt-top{background:linear-gradient(180deg,#0a0e1a 0%,#0f1730 50%,#1a1f35 100%);border:3px solid var(--gold);padding:24px 18px 40px;text-align:center;margin-bottom:10px;overflow:hidden;position:relative;min-height:240px}
 .bt-top.phase2{background:linear-gradient(180deg,#1a0a0e 0%,#2a0f1a 50%,#1a1525 100%);border-color:var(--red);box-shadow:0 0 20px #e74c3c44 inset;animation:phase-flash .8s steps(8)}
 @keyframes phase-flash{0%{filter:brightness(3)}100%{filter:brightness(1)}}
 .bt-top::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 80% at center 70%,#5dade233 0%,transparent 70%);pointer-events:none;animation:arena-pulse 3s steps(20) infinite}
@@ -560,7 +560,7 @@ html[data-theme="violet"]{--gold:#b06cff;--panel:#100a20;--panel2:#18103a;--blue
  <span class="bt-monster" id="bt-mon">👾</span>
  <div id="dmg-spark" class="dmg-spark">-10 HP!</div>
  <div class="bt-mname" id="bt-mname">???</div>
- <div class="bar-out bar-boss" style="margin-top:10px;height:12px;border-color:#19e6e6;position:relative;z-index:5">
+ <div class="bar-out bar-boss" style="position:absolute;left:0;right:0;bottom:0;height:30px;border:none;border-top:2px solid #19e6e6;border-radius:0;background:repeating-linear-gradient(90deg,#16242e 0 8px,#0d161f 8px 16px);z-index:5">
  <div class="bar-in" id="bt-hpbar" style="width:100%;background:repeating-linear-gradient(90deg,#19e6e6 0 8px,#0a8a8a 8px 16px)"></div>
  </div>
  </div>
