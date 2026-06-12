@@ -150,8 +150,9 @@ async function run(){
       const teachersTabShown=await pg.evaluate(()=>!document.getElementById('tab-teachers').classList.contains('hidden'));
       ok('Záložka "Správa učitelů" viditelná superadminovi', teachersTabShown);
       await pg.waitForFunction(()=>document.querySelectorAll('.tbl tbody tr').length>0,{timeout:6000}).catch(()=>{});
-      const hasDelete=await pg.evaluate(()=>!!document.querySelector('.tbl .mini.red'));
-      ok('Superadmin vidí mazací tlačítka', hasDelete);
+      // mazací tlačítka jsou v rozbalených řádcích postav → rozbal prvního žáka
+      const hasDelete=await pg.evaluate(()=>{toggleUserRow(0);return !!document.querySelector('.tbl .mini.red');});
+      ok('Superadmin vidí mazací tlačítka (v rozbaleném řádku)', hasDelete);
       // přepni na tab učitelů
       await pg.evaluate(()=>document.getElementById('tab-teachers').click());
       await pg.waitForTimeout(800);
@@ -348,7 +349,8 @@ async function run(){
       await pg.waitForFunction(()=>document.querySelectorAll('.tbl tbody tr').length>0,{timeout:6000}).catch(()=>{});
 
       // superadmin vidí zaškrtávací sloupec
-      const hasChecks=await pg.evaluate(()=>document.querySelectorAll('.sel-row').length);
+      // checkboxy: hlavička žáka má .sel-user (3 žáci), .sel-row až po rozbalení
+      const hasChecks=await pg.evaluate(()=>document.querySelectorAll('.sel-user').length);
       ok('Superadmin vidí zaškrtávací sloupec', hasChecks===3, 'checkboxů: '+hasChecks);
 
       // bulk bar je skrytý dokud nic není vybráno
@@ -420,7 +422,7 @@ async function run(){
         roles:[{email:'ucitel@husovaliberec.cz',role:'teacher'}], saves:bulkSaves });
       await pg2.goto(`${BASE}/projects/rpg-ucitel.html`,{waitUntil:'domcontentloaded'});
       await pg2.waitForFunction(()=>document.querySelectorAll('.tbl tbody tr').length>0,{timeout:6000}).catch(()=>{});
-      const teacherChecks=await pg2.evaluate(()=>document.querySelectorAll('.sel-row').length);
+      const teacherChecks=await pg2.evaluate(()=>document.querySelectorAll('.sel-row,.sel-user').length);
       ok('Učitel (ne admin) nevidí zaškrtávací sloupec', teacherChecks===0, 'checkboxů: '+teacherChecks);
       await ctx2.close();
     }
