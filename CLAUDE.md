@@ -138,7 +138,7 @@ git push
 - ~~Sdílená peněženka + globální profil~~ ✅ — viz sekce výše (PR #69).
 - ~~Věž legend pro 6./7./8.~~ ✅ — **HOTOVO ve všech 4 ročnících** (port z 9., `tools/port-tower.cjs`, `RPGSpritesN.drawHeroOn`, tematická barva oken). Test `rpg-tower-game.test.cjs` běží 108× (27×4).
 - ~~Živý souboj (Quizizz/Kahoot-style)~~ ✅ — **HOTOVO** (`rpg-battle-ui.js` = `RPGBattle`, banky `rpg-battle-6/7/8/9.js`, SQL `rpg-cloud-setup-phase7.sql`: `battles`/`battle_players`/`battle_invites`). Tlačítko „⚔️ ŽIVÝ SOUBOJ" na mapě ve všech hrách (`openBattle()`).
-- **`errsSnap` → SQL migrace** — TODO fáze 6+, viz poznámka v sekci Diagnostika výše (klientská verze funguje, SQL je jen „nice to have").
+- ~~`errsSnap` → SQL migrace~~ ✅ — **HOTOVO (fáze 6b):** tabulka `snap_events` (`rpg-cloud-setup-phase6b.sql`), `RPGCloud.pushErrsSnap/listErrsSnaps`, hry pushují při `snapErrs()` + jednorázová migrace přes `S.snapsMigrated`, konzole preferuje SQL snímky (`SNAP_DATA`) s fallbackem na save JSON. Test: `tests/rpg-snap.test.cjs` (13).
 - **Wallet cross-device sync** — kredity slučovány `max()` (kid-friendly, nikdy neztratí vlastněnou kosmetiku); okrajový případ „obě zařízení offline vydělají" ztratí pár kreditů — přijatelné pro čistě kosmetickou měnu.
 - ~~Přijímačky PDF~~ ✅ — všech 45 PDF existuje, žádný chybějící odkaz.
 - ~~Únikovky hinty~~ ✅ — všech 20 L3 hintů sedí přesně na kódy zámků (procenta i tělesa).
