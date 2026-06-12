@@ -1370,7 +1370,7 @@ const AREAS = [
    (()=>{const k=ri(2,5),q=ri(2,8);return{text:`y = ${k}x + ${q}\nV jakém bodě protíná osu y? (napiš jen y-ovou souřadnici)`,ans:String(q),hints:[`Pro x = 0 je y = q.`,`Výsledek: ${q}`],skill:'anal'};})(),
    (()=>{const k=ri(2,4),x0=ri(2,5),q=-k*x0;return{text:`y = ${k}x ${q<0?'− '+(-q):'+ '+q}\nV jakém bodě protíná osu x? (napiš jen x-ovou souřadnici)`,ans:String(x0),hints:[`Polož y = 0.`,`x = ${-q} ÷ ${k}`],skill:'anal'};})(),
    (()=>{const q=ri(2,8);return{text:`Je funkce y = ${q} (konstantní) rostoucí?\nNapiš ANO / NE.`,ans:'NE',hints:[`Konstantní funkce není rostoucí ani klesající (k = 0).`,`Výsledek: NE`],skill:'anal'};})(),
-   (()=>{const k=ri(2,4),q=ri(1,5),x=ri(2,5),y=k*x+q;return{text:`Prochází graf funkce y = ${k}x + ${q} bodem [${x}, ${y}]?\nNapiš ANO / NE.`,ans:'ANO',hints:[`Dosaď x = ${x} do předpisu a porovnej, jestli vyjde ${y}.`,``],skill:'anal'};})()
+   (()=>{const k=ri(2,4),q=ri(1,5),x=ri(2,5),y=k*x+q;return{text:`Prochází graf funkce y = ${k}x + ${q} bodem [${x}, ${y}]?\nNapiš ANO / NE.`,ans:'ANO',hints:[`Dosaď x = ${x} do předpisu a porovnej, jestli vyjde ${y}.`],skill:'anal'};})()
   ]
  },
  {
