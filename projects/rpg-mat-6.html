@@ -1655,6 +1655,9 @@ function launchBattle(aid,mid){
   setTimeout(()=>{mon.classList.remove('enter');mon.classList.add(Math.random()<.5?'idle':'idle-2');},1070);
  }
  renderTask();
+ {const inpEl=document.getElementById('bt-ans');const atkEl=document.getElementById('attack-btn');
+  if(inpEl)inpEl.disabled=true;if(atkEl)atkEl.disabled=true;
+  setTimeout(()=>{if(!BT.bossDefeated){if(inpEl)inpEl.disabled=false;if(atkEl)atkEl.disabled=false;if(inpEl&&!BT.mcMode&&!isYN(BT.curTask))inpEl.focus();}},700);}
  go('battle');
 }
 
