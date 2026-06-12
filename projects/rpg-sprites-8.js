@@ -164,7 +164,7 @@ window.RPGSprites8 = (function () {
     3:{A:'#88cc44',a:'#3a6618',M:'#4a7a20',m:'#325512'},   // krokodýl algebry — bažinná zelená
     4:{A:'#44eecc',a:'#118866',M:'#2a6a5c',m:'#1a4840'},   // alchymista výrazů — teal
     5:{A:'#44aaee',a:'#1166aa',M:'#4a7aa0',m:'#335570'},   // chobotnice kruhu — jezerní modrá
-    6:{A:'#ffaa22',a:'#aa5510',M:'#4a2808',m:'#321808'},   // mistr rozkladu — jantar
+    6:{A:'#ffaa22',a:'#aa5510',M:'#6e3e0e',m:'#321808'},   // mistr rozkladu — jantar
     7:{A:'#bb99ff',a:'#6a44cc',M:'#503498',m:'#382468'}    // arcimág — arcanová fialová
   };
   const COMMON = { K:'#0a0c12', W:'#e8ecf5', R:'#ff3355' };
@@ -841,6 +841,20 @@ window.RPGSprites8 = (function () {
   }
 
   window.addEventListener('resize', resize);
+  function drawHeroOn(c2, x, y, scale, frame, flipX) {
+    const grid = HERO_IDLE[frame ? 1 : 0];
+    for (let r = 0; r < grid.length; r++) {
+      const row = grid[r];
+      for (let c = 0; c < row.length; c++) {
+        const ch = row[c];
+        if (ch === '.') continue;
+        c2.fillStyle = PAL_HERO[ch] || COMMON[ch] || '#f0f';
+        const px = flipX ? x + (row.length - 1 - c) * scale : x + c * scale;
+        c2.fillRect(px, y + r * scale, scale, scale);
+      }
+    }
+  }
 
-  return { attach, detach, active, spawn, heroAttack, bossAttack, defeat, setProgress, setHeroHp };
+
+  return { attach, detach, active, spawn, heroAttack, bossAttack, defeat, setProgress, setHeroHp, drawHeroOn };
 })();
