@@ -43,7 +43,7 @@ window.RPG_TASK_EXTRA_9 = {
   (()=>{const z=ri(2,8)*100,p=[10,25,50][ri(0,2)];const after=z*(1+p/100);return{text:`Po zdražení o ${p} % stojí zboží ${after} Kč.\nPůvodní cena? (Kč)`,ans:String(z),hints:[`${after} ÷ ${cz(1+p/100)}.`,``],skill:'anal'};})()
  ],
  '1-3': () => [
-  (()=>{const a=ri(5,20),b=ri(3,15);return{text:`Vypočítej:\n${a} + (-${b}) =`,ans:String(a-b),hints:[`Plus a minus dává minus.`,`${a} − ${b}`],skill:'calc'};})(),
+  (()=>{const a=ri(5,20),b=ri(3,15);return{text:`Vypočítej:\n${a} + (-${b}) =`,ans:String(a-b),hints:[`Přičíst záporné číslo znamená odečíst ho.`,`${a} − ${b}`],skill:'calc'};})(),
   (()=>{const a=ri(4,15),b=ri(4,15);return{text:`Vypočítej:\n(-${a}) − (-${b}) =`,ans:String(-a+b),hints:[`− (−${b}) = + ${b}.`,`−${a} + ${b}`],skill:'calc'};})(),
   (()=>{const a=ri(2,9),b=ri(2,9);return{text:`Vypočítej:\n(-${a}) × (-${b}) =`,ans:String(a*b),hints:[`− × − = +.`,``],skill:'calc'};})(),
   (()=>{const b=ri(2,6),q=ri(2,9),a=b*q;return{text:`Vypočítej:\n(-${a}) ÷ (-${b}) =`,ans:String(q),hints:[`− ÷ − = +.`,``],skill:'calc'};})(),
@@ -76,7 +76,7 @@ window.RPG_TASK_EXTRA_9 = {
   (()=>{const a=ri(2,4);return{text:`Vypočítej:\n(-${a})⁴ =`,ans:String(a**4),hints:[`Sudý exponent → výsledek kladný.`,``],skill:'anal'};})(),
   (()=>{const a=ri(2,4),b=ri(2,3);return{text:`Zapiš číslem:\n(${a} · ${b})² =`,ans:String((a*b)**2),hints:[`(${a*b})².`,``],skill:'anal'};})(),
   (()=>{const a=ri(2,4),m=ri(2,3),n=ri(2,3);return{text:`Zapiš číslem:\n(${a}^${m})^${n} =`,ans:String(a**(m*n)),hints:[`Exponenty se násobí: ${a}^${m*n}.`,``],skill:'anal'};})(),
-  (()=>{const a=ri(2,4),b=ri(2,4);return{text:`Zapiš číslem:\n${a}² · ${b}² =`,ans:String(a**2*b**2),hints:[`= (${a*b})² = ${(a*b)**2}.`,``],skill:'anal'};})(),
+  (()=>{const a=ri(2,4),b=ri(2,4);return{text:`Zapiš číslem:\n${a}² · ${b}² =`,ans:String(a**2*b**2),hints:[`a² · b² = (a·b)² — umocni součin ${a}·${b}.`,``],skill:'anal'};})(),
   (()=>{const a=ri(2,4);return{text:`Zapiš číslem:\n${a}^3 · ${a}^0 =`,ans:String(a**3),hints:[`${a}^0 = 1, takže ${a}^3.`,``],skill:'anal'};})(),
   (()=>{const a=ri(2,4),n=ri(2,3);return{text:`Zapiš číslem:\n(-${a})^${n*2} =`,ans:String(a**(n*2)),hints:[`Sudý exponent → kladné: ${a}^${n*2}.`,``],skill:'anal'};})()
  ],
@@ -114,7 +114,7 @@ window.RPG_TASK_EXTRA_9 = {
   (()=>{const x=ri(2,6),a=ri(2,4),bb=ri(2,3),e=ri(1,5);return{text:`Vyřeš rovnici:\n${a}(${bb}x − ${e}) = ${a*(bb*x-e)}`,ans:String(x),hints:[`${a*bb}x − ${a*e}.`,``],skill:'anal'};})(),
   (()=>{const x=ri(3,9),a=ri(2,5);return{text:`Vyřeš rovnici:\n5x − ${a} = 3x + ${2*x-a}`,ans:String(x),hints:[`2x = ${2*x}.`,``],skill:'anal'};})(),
   (()=>{const a=ri(2,5),q=ri(3,8),x=a*q;return{text:`Vyřeš rovnici:\nx / ${a} = ${q}`,ans:String(x),hints:[`x = ${q} × ${a}.`,``],skill:'anal'};})(),
-  (()=>{const a=ri(2,5),q=ri(2,6),c=ri(1,4),x=a*q;return{text:`Vyřeš rovnici:\nx / ${a} + ${c} = ${q+c}`,ans:String(x),hints:[`x/${a} = ${q}, x = ${x}.`,``],skill:'anal'};})(),
+  (()=>{const a=ri(2,5),q=ri(2,6),c=ri(1,4),x=a*q;return{text:`Vyřeš rovnici:\nx / ${a} + ${c} = ${q+c}`,ans:String(x),hints:[`Nejdřív odečti ${c} z obou stran, pak vynásob ${a}.`,``],skill:'anal'};})(),
   (()=>{const x=ri(3,9),b=ri(2,4),a=b+ri(1,2);return{text:`Vyřeš rovnici:\n${a}x − ${b}x = ${(a-b)*x}`,ans:String(x),hints:[`${a-b}x = ${(a-b)*x}.`,``],skill:'anal'};})(),
   (()=>{const x=ri(2,7),a=ri(2,5),b=ri(1,4);return{text:`Vyřeš rovnici:\n2(x + ${a}) + ${b} = ${2*(x+a)+b}`,ans:String(x),hints:[`2x + ${2*a+b} = ${2*(x+a)+b}.`,``],skill:'anal'};})()
  ],
@@ -128,7 +128,7 @@ window.RPG_TASK_EXTRA_9 = {
   (()=>{const x=ri(5,20),y=x+ri(2,8);return{text:`Dvě čísla, větší o ${y-x}. Součet ${x+y}.\nMenší číslo?`,ans:String(x),hints:[`x + (x + ${y-x}) = ${x+y}.`,``],skill:'anal'};})(),
   (()=>{const a=ri(2,6),b=ri(3,9);return{text:`Trojnásobek čísla zvýšený o ${b} je ${3*a+b}.\nJaké číslo?`,ans:String(a),hints:[`3x + ${b} = ${3*a+b}.`,``],skill:'anal'};})(),
   (()=>{const v=ri(50,120),t=ri(2,4);return{text:`Auto jede ${v} km/h.\nZa ${t} hodiny ujede kolik km?`,ans:String(v*t),hints:[`s = v · t = ${v} · ${t}.`,``],skill:'anal'};})(),
-  (()=>{const x=ri(5,15)*2;return{text:`Polovina čísla je ${x/2}.\nJaké číslo?`,ans:String(x),hints:[`x/2 = ${x/2}, x = ${x}.`,``],skill:'anal'};})()
+  (()=>{const x=ri(5,15)*2;return{text:`Polovina čísla je ${x/2}.\nJaké číslo?`,ans:String(x),hints:[`Polovina vznikla dělením dvěma — vrať to násobením dvěma.`,``],skill:'anal'};})()
  ],
 
  // ───────── OBLAST 4 — SEKTOR LOMENÉHO KÓDU ─────────
@@ -174,7 +174,7 @@ window.RPG_TASK_EXTRA_9 = {
   (()=>{const x=ri(2,12),y=ri(2,12);return{text:`Vyřeš soustavu, urči x:\nx + y = ${x+y}\nx − y = ${x-y}`,ans:String(x),hints:[`Sečti rovnice: 2x = ${2*x}.`,``],skill:'anal'};})(),
   (()=>{const x=ri(2,12),y=ri(2,12);return{text:`Vyřeš soustavu, urči y:\nx + y = ${x+y}\nx − y = ${x-y}`,ans:String(y),hints:[`Odečti rovnice: 2y = ${2*y}.`,``],skill:'anal'};})(),
   (()=>{const x=ri(2,8),y=2*x;return{text:`Vyřeš soustavu, urči x:\ny = 2x\nx + y = ${3*x}`,ans:String(x),hints:[`3x = ${3*x}.`,``],skill:'anal'};})(),
-  (()=>{const x=ri(2,9),y=ri(2,9);return{text:`Vyřeš soustavu, urči x:\nx + y = ${x+y}\n2x + y = ${2*x+y}`,ans:String(x),hints:[`Odečti rovnice: x = ${x}.`,``],skill:'anal'};})(),
+  (()=>{const x=ri(2,9),y=ri(2,9);return{text:`Vyřeš soustavu, urči x:\nx + y = ${x+y}\n2x + y = ${2*x+y}`,ans:String(x),hints:[`Odečti první rovnici od druhé — y se vyruší.`,``],skill:'anal'};})(),
   (()=>{const a=ri(6,14),b=ri(2,a-2);return{text:`Součet dvou čísel je ${a+b}, rozdíl ${a-b}.\nVětší z čísel?`,ans:String(a),hints:[`(součet + rozdíl) / 2.`,``],skill:'anal'};})(),
   (()=>{const x=ri(3,9),y=ri(2,8);return{text:`Vyřeš soustavu, urči y:\nx = ${x}\n2x + 3y = ${2*x+3*y}`,ans:String(y),hints:[`3y = ${3*y}.`,``],skill:'anal'};})(),
   (()=>{const x=ri(2,8),y=ri(2,8),a=ri(2,4);return{text:`Vyřeš soustavu, urči y:\n${a}x + y = ${a*x+y}\nx = ${x}`,ans:String(y),hints:[`${a*x} + y = ${a*x+y}.`,``],skill:'anal'};})(),

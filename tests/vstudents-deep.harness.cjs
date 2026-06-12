@@ -90,7 +90,8 @@ async function answerWrong(page){
           pool.forEach((t, i) => {
             if (!t || typeof t.text !== 'string' || !t.text.trim()) bad.push(`${m.id}[${i}]: chybí text`);
             if (t && (t.ans === undefined || t.ans === null || String(t.ans) === 'NaN' || String(t.ans) === 'undefined')) bad.push(`${m.id}[${i}]: vadná odpověď (${t && t.ans})`);
-            if (t && !m.mc && (!Array.isArray(t.hints) || t.hints.length < 1 || t.hints.some(h => !h || !String(h).trim()))) bad.push(`${m.id}[${i}]: chybí/prázdné hints`);
+            if (t && !m.mc && (!Array.isArray(t.hints) || !t.hints[0] || !String(t.hints[0]).trim())) bad.push(`${m.id}[${i}]: chybí/prázdný hints[0]`);
+            if (t && !m.mc && Array.isArray(t.hints) && /Výsledek:/.test(String(t.hints[0] || ''))) bad.push(`${m.id}[${i}]: hints[0] prozrazuje výsledek`);
           });
         }
         return bad.slice(0, 8);
@@ -128,14 +129,15 @@ async function answerWrong(page){
       const isMc = await page.evaluate(() => BT.mcMode);
       if (!isMc) {
         const h = await page.evaluate(async () => {
-          const out = [];
-          showHint(); out.push(document.getElementById('hint-box').textContent.trim());
-          const lbl1 = document.getElementById('hint-btn').textContent;
-          showHint(); out.push(document.getElementById('hint-box').textContent.trim());
-          return { out, lbl1 };
+          showHint();
+          const txt = document.getElementById('hint-box').textContent.trim();
+          const disabled = document.getElementById('hint-btn').disabled;
+          const ans = String(BT.curTask.ans);
+          return { txt, disabled, ans };
         });
-        ok(h.out[0].length > 0 && h.out[1].length > 0, `g${g} nápovědy 1+2 neprázdné`);
-        ok(/2\s*\/\s*2/.test(h.lbl1), `g${g} label nápovědy se mění (${h.lbl1})`);
+        ok(h.txt.length > 0, `g${g} nápověda neprázdná`);
+        ok(h.disabled, `g${g} po nápovědě je tlačítko vypnuté (jediná nápověda)`);
+        ok(!h.txt.includes('Výsledek: ' + h.ans), `g${g} nápověda neprozrazuje výsledek`);
       }
       const w0 = await page.evaluate(() => parseFloat(document.getElementById('bt-hpbar').style.width));
       const tot = await page.evaluate(() => BT.tasks.length);

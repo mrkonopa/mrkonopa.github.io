@@ -223,7 +223,7 @@ window.RPG_TASK_EXTRA_8 = {
   (()=>{const r=ri(2,6);return{text:`Kružnice o poloměru ${r}.\nJaký je její průměr?`,ans:String(2*r),hints:[`d = 2r.`,``],skill:'geo'};})(),
   (()=>{return{text:`Osa úsečky AB prochází středem AB.\nPlatí to?\n(ANO/NE)`,ans:'ANO',hints:[`Osa úsečky prochází středem a je na ni kolmá.`,``],skill:'geo'};})(),
   (()=>{return{text:`Kružnice opisná trojúhelníku prochází\nvšemi vrcholy. Platí to?\n(ANO/NE)`,ans:'ANO',hints:[`Kružnice opisná = ta, která prochází všemi třemi vrcholy.`,``],skill:'geo'};})(),
-  (()=>{return{text:`Kolik bodů má osa úsečky AB společných\ns úsečkou AB?`,ans:'1',hints:[`Osa přechází středem úsečky — právě 1 bod.`,``],skill:'geo'};})(),
+  (()=>{return{text:`Kolik bodů má osa úsečky AB společných\ns úsečkou AB?`,ans:'1',hints:[`Rozmysli si, kudy přesně osa úsečky prochází.`,``],skill:'geo'};})(),
   (()=>{const r=ri(3,8);return{text:`Bod leží uvnitř kružnice o poloměru ${r},\nje jeho vzdálenost od středu větší než ${r}?\n(ANO/NE)`,ans:'NE',hints:[`Uvnitř = vzdálenost < poloměr.`,``],skill:'geo'};})()
  ],
  '6-2': () => [   // Thaletova kružnice
