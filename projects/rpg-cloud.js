@@ -54,12 +54,13 @@ window.RPGCloud = (function () {
         alert('Přihlas se prosím školním účtem @' + CONFIG.ALLOWED_DOMAIN + '.');
       }
       role = null;
-      if (user) await fetchRole();
+      if (user) { await fetchRole(); syncWallet(); }
       client.auth.onAuthStateChange(async (_event, s) => {
         const nu = s ? s.user : null;
         if (nu && !emailOK(nu)) { client.auth.signOut(); return; }
+        const wasOut = !user;
         user = nu;
-        if (user) await fetchRole(); else role = null;
+        if (user) { await fetchRole(); if (wasOut) syncWallet(); } else role = null;
         emit();
       });
       emit();
@@ -86,6 +87,18 @@ window.RPGCloud = (function () {
         .select('data').eq('user_id', user.id).eq('game', game).maybeSingle();
       return data ? data.data : null;
     } catch (e) { console.warn('[RPGCloud] pull selhal:', e); return null; }
+  }
+
+  /* Sdílená peněženka přes Google účet: stáhni vzdálenou (game='_wallet'),
+     slij ji s lokální (mergeRemote nikdy neztratí kredity/kosmetiku) a pošli
+     sloučený stav zpět. Graceful: bez RPGWallet/přihlášení nic nedělá. */
+  async function syncWallet() {
+    if (!client || !user || previewActive || !window.RPGWallet) return;
+    try {
+      const remote = await pull('_wallet');
+      if (remote) window.RPGWallet.mergeRemote(remote);
+      window.RPGWallet.pushCloud();
+    } catch (e) { console.warn('[RPGCloud] syncWallet selhal:', e); }
   }
 
   function push(game, obj) {
@@ -992,7 +1005,7 @@ window.RPGCloud = (function () {
   }
 
   return { CONFIG, configured, init, login, logout, currentUser, getError,
-           pull, push, onChange, attachGame, attachHub,
+           pull, push, syncWallet, onChange, attachGame, attachHub,
            // Fáze 2 — role a učitelská konzole
            getRole, isStaff, isAdmin, fetchRole, requireStaff,
            listAllSaves, pullSaveFor, updateSaveFor, deleteSaveFor,
