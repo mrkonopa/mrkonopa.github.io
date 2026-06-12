@@ -179,7 +179,7 @@ body::before{
  100%{transform:translateY(80px) scale(.2) rotate(180deg);opacity:0;filter:brightness(.3) saturate(0)}
 }
 /* damage spark */
-.dmg-spark{position:absolute;left:50%;top:25%;font-family:var(--px);font-weight:700;font-size:36px;color:var(--gold);text-shadow:4px 4px 0 #7a2a00,3px 3px 0 #000;pointer-events:none;opacity:0;z-index:5}
+.dmg-spark{position:absolute;left:70%;top:22%;font-family:var(--px);font-weight:700;font-size:36px;color:var(--gold);text-shadow:4px 4px 0 #7a2a00,3px 3px 0 #000;pointer-events:none;opacity:0;z-index:5}
 .dmg-spark.show{animation:spark 1s steps(10) forwards}
 @keyframes spark{
  0% {transform:translate(-50%,20px) scale(.2) rotate(-12deg);opacity:0}
@@ -622,7 +622,7 @@ html[data-theme="violet"]{--gold:#b06cff;--panel:#100a20;--panel2:#18103a;--blue
  <span class="bt-monster" id="bt-mon">👾</span>
  <div id="dmg-spark" class="dmg-spark">-10 HP!</div>
  <div class="bt-mname" id="bt-mname">???</div>
- <div class="bar-out bar-hp" style="margin-top:10px;height:12px;border-color:var(--red);position:relative;z-index:5">
+ <div class="bar-out bar-hp" style="margin-top:10px;height:16px;border-color:var(--red);background:#2a0e0e;position:relative;z-index:5">
  <div class="bar-in" id="bt-hpbar" style="width:100%"></div>
  </div>
  </div>
@@ -1300,7 +1300,7 @@ function awardXp(amount,isCrit){
  // floating "+N XP" near the monster
  const top=document.getElementById('bt-top');
  if(top){const r=top.getBoundingClientRect();
- floatText('+'+amount+' XP',r.left+r.width/2,r.top+r.height*0.32,isCrit?'#ff5577':'#5dff8f');}
+ floatText('+'+amount+' XP',r.left+r.width*0.18,r.top+r.height*0.55,isCrit?'#ff5577':'#5dff8f');}
  if(after>before){S.level=after;setTimeout(()=>levelUpBurst(after),650);}
  if(isCrit){if(!S.stats)S.stats={};S.stats.crits=(S.stats.crits||0)+1;}
  evalAch({crit:isCrit});
