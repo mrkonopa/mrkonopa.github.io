@@ -116,6 +116,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--px);min-height:100
    <button class="tab on" data-tab="overview">PŘEHLED ŽÁKŮ</button>
    <button class="tab" data-tab="classes">TŘÍDY</button>
    <button class="tab" data-tab="diag">DIAGNOSTIKA</button>
+   <button class="tab" data-tab="tower">VĚŽ LEGEND</button>
    <button class="tab" data-tab="explain">VYSVĚTLENÍ</button>
    <button class="tab" data-tab="feedback">ZPĚTNÁ VAZBA</button>
    <button class="tab" data-tab="preview">NÁHLED HER</button>
@@ -214,6 +215,29 @@ body{background:var(--bg);color:var(--text);font-family:var(--px);min-height:100
     <button class="mini" onclick="loadData().then(renderDiag)">↻ Obnovit</button>
    </div>
    <div id="diag-wrap"><div class="empty">Načítám…</div></div>
+  </div>
+
+  <!-- VĚŽ LEGEND -->
+  <div id="t-tower" class="hidden">
+   <p style="color:var(--muted);margin-bottom:14px;line-height:1.6">
+    <b style="color:var(--gold)">🗼 Věž legend</b> — soutěžní výstup: žebříček aktuální sezóny (školního roku) a trvalá síň slávy.
+    Na konci školního roku klikni na <b>Uzavřít sezónu</b> — top 10 se natrvalo zapíše do síně slávy.
+    Uzavření jde spustit i opakovaně (přepíše zápis stejné sezóny aktuálním stavem).</p>
+   <div class="controls">
+    <select id="tower-game" onchange="renderTower()"></select>
+    <button class="mini" onclick="renderTower()">↻ Obnovit</button>
+    <button class="mini red" id="tower-close-btn" onclick="closeSeasonUI()">🏛 Uzavřít sezónu (zapsat top 10)</button>
+   </div>
+   <div style="display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start">
+    <div style="flex:1;min-width:280px">
+     <h4>Žebříček sezóny</h4>
+     <div id="tower-board-wrap"><div class="empty">Načítám…</div></div>
+    </div>
+    <div style="flex:1;min-width:280px">
+     <h4>🏛 Síň slávy</h4>
+     <div id="tower-hall-wrap"><div class="empty">Načítám…</div></div>
+    </div>
+   </div>
   </div>
 
   <!-- VYSVĚTLENÍ POSTUPU -->
@@ -1302,6 +1326,52 @@ async function deleteFeedbackUI(i){
 }
 
 /* ── taby ── */
+/* ── VĚŽ LEGEND (Fáze 11) ── */
+function towerGameSel(){
+ const sel=document.getElementById('tower-game');
+ if(!sel.options.length){
+  GAMES.forEach(g=>{const o=document.createElement('option');o.value=g.key;o.textContent=g.emoji+' '+g.nm+' ('+g.gr+')';sel.appendChild(o);});
+  sel.value='RPG_MAT_9';
+ }
+ return sel.value;
+}
+async function renderTower(){
+ const game=towerGameSel();
+ const bw=document.getElementById('tower-board-wrap'),hw=document.getElementById('tower-hall-wrap');
+ bw.innerHTML='<div class="empty">Načítám…</div>';hw.innerHTML='<div class="empty">Načítám…</div>';
+ let board=[],hall=[];
+ try{[board,hall]=await Promise.all([RPGCloud.towerBoard(game),RPGCloud.towerHall(game)]);}
+ catch(e){bw.innerHTML='<div class="empty">Chyba při načítání.</div>';hw.innerHTML='';return;}
+ const medal=i=>i===0?'🥇':i===1?'🥈':i===2?'🥉':(i+1)+'.';
+ if(!board.length)bw.innerHTML='<div class="empty">V této sezóně zatím nikdo nelezl.</div>';
+ else bw.innerHTML=board.map((r,i)=>
+  '<div style="display:flex;align-items:center;gap:10px;background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:8px 12px;margin-bottom:6px'+(i<10?';border-color:var(--gold)':'')+'">'+
+  '<span style="min-width:30px;text-align:center">'+medal(i)+'</span>'+
+  '<span style="flex:1;font-weight:600">'+esc(r.display_name)+'</span>'+
+  '<span style="color:var(--gold)">'+(r.best_floor|0)+'. patro</span></div>').join('')+
+  '<p style="color:var(--muted);font-size:12px;margin-top:6px">Zlatý rámeček = aktuální top 10 (zapíše se při uzavření sezóny).</p>';
+ if(!hall.length)hw.innerHTML='<div class="empty">Síň slávy je zatím prázdná — naplní se uzavřením první sezóny.</div>';
+ else{
+  let html='',season=null;
+  hall.forEach(r=>{
+   if(r.season!==season){season=r.season;html+='<h4 style="margin:10px 0 6px;color:var(--muted);font-size:12px">ŠKOLNÍ ROK '+esc(season)+'</h4>';}
+   html+='<div style="display:flex;gap:10px;padding:4px 12px;font-size:14px">'+
+    '<span style="min-width:30px;text-align:center;color:var(--gold)">'+(r.rank|0)+'.</span>'+
+    '<span style="flex:1">'+esc(r.display_name)+'</span>'+
+    '<span style="color:var(--muted)">'+(r.best_floor|0)+'. patro</span></div>';
+  });
+  hw.innerHTML=html;
+ }
+}
+async function closeSeasonUI(){
+ const game=towerGameSel();
+ const g=GAMES.find(x=>x.key===game)||{nm:game};
+ if(!confirm('Uzavřít sezónu věže legend pro: '+g.nm+'?\n\nTop 10 aktuální sezóny se natrvalo zapíše do síně slávy. Dřívější zápis téže sezóny se přepíše aktuálním stavem.'))return;
+ const r=await RPGCloud.towerCloseSeason(game);
+ if(r.ok){toast('Sezóna uzavřena — do síně slávy zapsáno '+r.count+' jmen');renderTower();}
+ else toast('Chyba: '+r.error,1);
+}
+
 document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));
  t.classList.add('on');
@@ -1310,12 +1380,14 @@ document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
  document.getElementById('t-classes').classList.toggle('hidden',tab!=='classes');
  document.getElementById('t-preview').classList.toggle('hidden',tab!=='preview');
  document.getElementById('t-diag').classList.toggle('hidden',tab!=='diag');
+ document.getElementById('t-tower').classList.toggle('hidden',tab!=='tower');
  document.getElementById('t-explain').classList.toggle('hidden',tab!=='explain');
  document.getElementById('t-feedback').classList.toggle('hidden',tab!=='feedback');
  document.getElementById('t-teachers').classList.toggle('hidden',tab!=='teachers');
  if(tab==='classes'){renderClasses();renderBroadcasts();}
  if(tab==='teachers')loadTeachers();
  if(tab==='diag')renderDiag();
+ if(tab==='tower')renderTower();
  if(tab==='explain')initExplainTab();
  if(tab==='feedback')loadFeedback();
 });
