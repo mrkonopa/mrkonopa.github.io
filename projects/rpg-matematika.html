@@ -201,6 +201,7 @@ body::before{
    <button class="shop-tab" onclick="setShopCat('badge',this)">🏷 Jméno</button>
    <button class="shop-tab" onclick="setShopCat('theme',this)">🎨 Téma</button>
    <button class="shop-tab" onclick="setShopCat('victory',this)">🎉 Vítězství</button>
+   <button class="shop-tab" onclick="setShopCat('powerup',this)">⚡ Powerupy</button>
   </div>
   <div class="shop-grid" id="shop-grid"></div>
  </div>
@@ -348,7 +349,16 @@ function renderShop(){
  if(!grid) return;
  const items=RPGWallet.items().filter(i=>i.cat===_shopCat);
  const w=RPGWallet.get();
+ // max level across games (for powerup gating)
+ let _maxLv=1;
+ if(_shopCat==='powerup'){GAMES.forEach(g=>{const s=load(g.key);if(s&&(s.level||1)>_maxLv)_maxLv=s.level|0;});}
  grid.innerHTML=items.map(it=>{
+  if(it.cat==='powerup'){
+   const isOwned=w.cosmetics.owned.includes(it.id);
+   const levelOk=!it.minLevel||_maxLv>=it.minLevel;
+   const can=w.credits>=it.price&&levelOk;
+   return `<div class="sc${isOwned?' active':''}"><div class="ic">${it.ic}</div><div class="nm">${esc(it.name)}</div><div style="font-size:10px;opacity:.7;margin:1px 0">${it.desc||''}</div><div class="pr">${it.price} kr · LV ${it.minLevel}</div>${isOwned?'<div class="act">✓ AKTIVNÍ</div>':!levelOk?`<button disabled>🔒 LV ${it.minLevel}</button>`:`<button class="${can?'buy':''}" ${can?'':'disabled'} onclick="buyItem('${esc(it.id)}')">${can?'🛒 Koupit':'🔒'} ${it.price} kr</button>`}</div>`;
+  }
   const isActive=w.cosmetics.active[it.cat]===it.id;
   const isOwned=w.cosmetics.owned.includes(it.id);
   const cls='sc'+(isActive?' active':isOwned?' owned':'');

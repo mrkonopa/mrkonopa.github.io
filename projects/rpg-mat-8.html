@@ -585,6 +585,7 @@ html[data-theme="violet"]{--gold:#b06cff;--panel:#100a20;--panel2:#18103a;--blue
   <button class="shop-tab" onclick="setShopCat('badge',this)">🏷 Jméno</button>
   <button class="shop-tab" onclick="setShopCat('theme',this)">🎨 Téma</button>
   <button class="shop-tab" onclick="setShopCat('victory',this)">🎉 Vítězství</button>
+  <button class="shop-tab" onclick="setShopCat('powerup',this)">⚡ Powerupy</button>
  </div>
  <div class="shop-grid" id="shop-grid"></div>
 </div>
@@ -1479,6 +1480,13 @@ const SHOP_ITEMS=[
  {id:'victory-default',cat:'victory',name:'Výchozí',   ic:'⚡',price:0,   cssKey:''},
  {id:'victory-cyber',  cat:'victory',name:'Cyber výbuch',ic:'🔥',price:100, cssKey:'vc-cyber'},
  {id:'victory-neon',   cat:'victory',name:'Neon záření', ic:'💚',price:140, cssKey:'vc-neon'},
+ // ── powerupy (gameplay, one-time) ──
+ {id:'pu-ghost-heart',  cat:'powerup',name:'Železná vůle',    ic:'🫀',price:350,minLevel:3,desc:'+1 prázdné srdce na start každého boje.'},
+ {id:'pu-time-bonus',   cat:'powerup',name:'Přesýpací hodiny',ic:'⏳',price:300,minLevel:3,desc:'+5 sekund na každý příklad.'},
+ {id:'pu-freeze-dbl',   cat:'powerup',name:'Permafrost',      ic:'🧊',price:450,minLevel:4,desc:'Zmrznutí trvá 30 s místo 15 s.'},
+ {id:'pu-full-heart',   cat:'powerup',name:'Druhá krev',      ic:'💗',price:600,minLevel:5,desc:'+1 plné srdce na start každého boje.'},
+ {id:'pu-xp-crit',      cat:'powerup',name:'Adrenalin',       ic:'⚡',price:450,minLevel:5,desc:'+1 XP navíc za každý kritický zásah.'},
+ {id:'pu-second-chance',cat:'powerup',name:'Druhá šance',     ic:'🛡️',price:700,minLevel:6,desc:'1× za boj: místo porážky přežiješ s 1 ❤️.'},
 ];
 let _shopCat='border';
 function setShopCat(cat,btn){_shopCat=cat;document.querySelectorAll('.shop-tab').forEach(b=>b.classList.remove('on'));if(btn)btn.classList.add('on');renderShop();}
@@ -1529,6 +1537,21 @@ function renderShop(){
  const items=SHOP_ITEMS.filter(i=>i.cat===_shopCat);
  grid.innerHTML=items.map(item=>{
   const owned=(typeof RPGWallet!=='undefined')?RPGWallet.owns(item.id)||(item.price===0):(S.cosmetics&&S.cosmetics.owned&&S.cosmetics.owned.includes(item.id))||item.price===0;
+  if(item.cat==='powerup'){
+   const levelOk=!item.minLevel||S.level>=item.minLevel;
+   const canBuy=!owned&&bal>=item.price&&levelOk;
+   return `<div class="shop-card${owned?' active':''}">
+    <div class="shop-ic">${item.ic}</div>
+    <div class="shop-nm">${item.name}</div>
+    <div style="font-size:10px;opacity:.7;margin:2px 0">${item.desc||''}</div>
+    <div class="shop-pr">${item.price} kr · LV ${item.minLevel}</div>
+    <div style="margin-top:6px">
+    ${owned?`<span style="color:var(--gold);font-family:var(--px);font-size:11px">✓ AKTIVNÍ</span>`
+     :!levelOk?`<span style="font-family:var(--px);font-size:11px;opacity:.5">🔒 LV ${item.minLevel}</span>`
+     :`<button class="btn sm" onclick="buyItem('${item.id}')" ${canBuy?'':'disabled'}>KOUPIT ${item.price} kr</button>`}
+    </div>
+   </div>`;
+  }
   const active=(typeof RPGWallet!=='undefined')?RPGWallet.isActive(item.id):(S.cosmetics&&S.cosmetics.active&&S.cosmetics.active[item.cat]===item.id);
   const canBuy=!owned&&bal>=item.price;
   return `<div class="shop-card${active?' active':owned?' owned':''}">
@@ -1574,6 +1597,7 @@ function calcLevel(){S.level=Math.floor(S.xp/100)+1;}
 
 // ── JUICE: XP award + level-up + floaties + vignette ──
 function awardXp(amount,isCrit){
+ if(isCrit&&typeof RPGWallet!=='undefined'&&RPGWallet.hasPowerup('pu-xp-crit'))amount++;
  const before=Math.floor(S.xp/100)+1;
  S.xp+=amount;
  const after=Math.floor(S.xp/100)+1;
@@ -1909,6 +1933,11 @@ function launchBattle(aid,mid){
  const m=ar.missions.find(x=>x.id===mid);
  BT.aid=aid;BT.mid=mid;BT.combo=0;BT.missionHinted=false;BT.bossDefeated=false;
  BT.hp=MAX_PLAYER_HP;BT.maxHp=MAX_PLAYER_HP;
+ const _puW=typeof RPGWallet!=='undefined'?RPGWallet:null;
+ if(_puW&&_puW.hasPowerup('pu-ghost-heart'))BT.maxHp++;
+ if(_puW&&_puW.hasPowerup('pu-full-heart')){BT.maxHp++;BT.hp++;}
+ BT.secondChance=!!(_puW&&_puW.hasPowerup('pu-second-chance'));
+ BT.usedSecondChance=false;
  BT.phase=1;BT.items=[];BT.timerFrozen=false;
  if(BT.freezeTimeout){clearTimeout(BT.freezeTimeout);BT.freezeTimeout=null;}
  BT.mcMode=!!m.mc;
@@ -1990,7 +2019,12 @@ function damagePlayer(){
  BT.hp--;
  setTimeout(updatePlayerHp,360);
  if(BT.hp<=0){
- setTimeout(missionFailed,800);
+  if(BT.secondChance&&!BT.usedSecondChance){
+   BT.usedSecondChance=true;BT.hp=1;
+   floatText('⚡ Druhá šance!',window.innerWidth/2-70,window.innerHeight*0.38,'#ffcc00');
+   return;
+  }
+  setTimeout(missionFailed,800);
  }
 }
 
@@ -2008,7 +2042,8 @@ function missionFailed(){
 
 function startTimer(){
  stopTimer();
- BT.timeLeft=TIME_PER_TASK;BT.timeMax=TIME_PER_TASK;
+ const _tExtra=(typeof RPGWallet!=='undefined'&&RPGWallet.hasPowerup('pu-time-bonus'))?5:0;
+ BT.timeLeft=TIME_PER_TASK+_tExtra;BT.timeMax=TIME_PER_TASK+_tExtra;
  document.getElementById('timer-wrap').style.display='block';
  updateTimerUi();
  BT.timer=setInterval(()=>{
@@ -2359,12 +2394,13 @@ function useItem(type){
  BT.timerFrozen=true;
  const bar=document.getElementById('timer-bar');
  bar.classList.remove('warn','danger');bar.classList.add('frozen');
- fb.textContent='❄️ ČAS ZMRAŽEN NA 15 S!';fb.className='feedback ok';
+ const _fMs=(typeof RPGWallet!=='undefined'&&RPGWallet.hasPowerup('pu-freeze-dbl'))?30000:15000;
+ fb.textContent='❄️ ČAS ZMRAŽEN NA '+(_fMs/1000)+' S!';fb.className='feedback ok';
  if(BT.freezeTimeout)clearTimeout(BT.freezeTimeout);
  BT.freezeTimeout=setTimeout(()=>{
  BT.timerFrozen=false;BT.freezeTimeout=null;
  document.getElementById('timer-bar').classList.remove('frozen');
- },15000);
+ },_fMs);
  }else if(type==='skip'){
  stopTimer();
  S.done[`${BT.mid}-${BT.idx}`]=true;saveS();
