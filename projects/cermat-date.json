@@ -1,0 +1,11 @@
+{
+  "next": {
+    "date": "2027-04-13",
+    "label": "1. termín 2027",
+    "round": 1,
+    "year": 2027
+  },
+  "source": "manual",
+  "updated": "2026-06-13",
+  "note": "Automaticky aktualizováno GitHub Action (.github/workflows/update-cermat.yml). Manuálně uprav pole next.date (YYYY-MM-DD) pokud automatika selže."
+}
