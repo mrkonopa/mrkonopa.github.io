@@ -1452,8 +1452,16 @@ const ATTR_META = {
 // STATE
 // ══════════════════════════════════════════
 const SAVE_KEY = 'RPG_MAT_9';
-// ── Datum přijímaček (1. kolo) — uprav dle aktuálního CERMAT harmonogramu ──
-const CERMAT_DATE = new Date('2027-04-13T08:00:00');
+// Datum přijímaček (1. kolo) — načítá se z /projects/cermat-date.json (auto GH Action)
+let CERMAT_DATE = new Date('2027-04-13T08:00:00');
+(function fetchCermatDate(){
+  fetch('/projects/cermat-date.json').then(r=>r.ok?r.json():null).then(d=>{
+    if(d&&d.next&&d.next.date){
+      const nd=new Date(d.next.date+'T08:00:00');
+      if(!isNaN(nd.getTime())){CERMAT_DATE=nd;updateCermatChip();}
+    }
+  }).catch(()=>{});
+})();
 let S = {name:'HRDINA',xp:0,level:1,attrs:{calc:0,geo:0,anal:0,craft:0},done:{},inv:[],mastery:{},xpClaimed:{},teacherUnlocked:[],ach:{},stats:{crits:0,trainCorrect:0,bestCombo:0},streak:{count:0,last:''},errs:{},credits:0,cosmetics:{owned:['theme-default','victory-default'],active:{border:null,badge:null,theme:'theme-default',victory:'victory-default'}},creditsClaimed:{}};
 let GODMODE=false;
 
