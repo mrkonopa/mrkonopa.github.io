@@ -40,6 +40,13 @@ window.RPGWallet = (function () {
     { id: 'victory-default', cat: 'victory', name: 'Výchozí',      ic: '⚡', price: 0,   cssKey: '' },
     { id: 'victory-cyber',   cat: 'victory', name: 'Cyber výbuch', ic: '🔥', price: 100, cssKey: 'vc-cyber' },
     { id: 'victory-neon',    cat: 'victory', name: 'Neon záření',  ic: '💚', price: 140, cssKey: 'vc-neon' },
+    // ── powerupy (gameplay, one-time purchase) ──
+    { id: 'pu-ghost-heart',   cat: 'powerup', name: 'Železná vůle',    ic: '🫀', price: 350, minLevel: 3, desc: '+1 prázdné srdce na start každého boje.' },
+    { id: 'pu-time-bonus',    cat: 'powerup', name: 'Přesýpací hodiny',ic: '⏳', price: 300, minLevel: 3, desc: '+5 sekund na každý příklad.' },
+    { id: 'pu-freeze-dbl',    cat: 'powerup', name: 'Permafrost',      ic: '🧊', price: 450, minLevel: 4, desc: 'Zmrznutí trvá 30 s místo 15 s.' },
+    { id: 'pu-full-heart',    cat: 'powerup', name: 'Druhá krev',      ic: '💗', price: 600, minLevel: 5, desc: '+1 plné srdce na start každého boje.' },
+    { id: 'pu-xp-crit',       cat: 'powerup', name: 'Adrenalin',       ic: '⚡', price: 450, minLevel: 5, desc: '+1 XP navíc za každý kritický zásah.' },
+    { id: 'pu-second-chance',  cat: 'powerup', name: 'Druhá šance',    ic: '🛡️', price: 700, minLevel: 6, desc: '1× za boj: místo porážky přežiješ s 1 ❤️.' },
   ];
 
   const VALID = new Set(SHOP_ITEMS.map(i => i.id));
@@ -124,6 +131,14 @@ window.RPGWallet = (function () {
     const it = byId(id);
     if (!it) return { ok: false, reason: 'unknown' };
     const w = get();
+    if (it.cat === 'powerup') {
+      if (w.cosmetics.owned.includes(id)) return { ok: true, reason: 'already-owned' };
+      if (w.credits < it.price) return { ok: false, reason: 'insufficient', need: it.price, have: w.credits };
+      w.credits = Math.floor(w.credits) - it.price;
+      w.cosmetics.owned = [...new Set([...w.cosmetics.owned, id])];
+      put(w);
+      return { ok: true, reason: 'bought' };
+    }
     if (it.price === 0 || w.cosmetics.owned.includes(id)) {  // zdarma / už vlastním → jen aktivuj
       w.cosmetics.active[it.cat] = id;
       put(w);
@@ -136,6 +151,7 @@ window.RPGWallet = (function () {
     put(w);
     return { ok: true, reason: 'bought' };
   }
+  function hasPowerup(id) { return get().cosmetics.owned.includes(id); }
   function activate(id) {
     const it = byId(id);
     if (!it) return { ok: false, reason: 'unknown' };
@@ -243,7 +259,7 @@ window.RPGWallet = (function () {
   return {
     KEY, CLOUD_GAME, items, itemById, get,
     getCredits, earn,
-    buy, activate, owns, activeId, isActive, cssFor,
+    buy, activate, owns, activeId, isActive, cssFor, hasPowerup,
     getReducedMotion, setReducedMotion,
     migrateFrom, absorbGame, mergeRemote, pushCloud, onChange
   };
