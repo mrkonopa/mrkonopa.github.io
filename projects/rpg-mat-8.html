@@ -270,6 +270,8 @@ body::before{
 .player-hp .heart.lost{opacity:.18;filter:saturate(0)}
 .player-hp .heart.flash{animation:heart-flash .35s steps(4)}
 @keyframes heart-flash{0%,100%{transform:scale(1)}50%{transform:scale(1.6) rotate(15deg);filter:brightness(2)}}
+.bt-powerups{display:flex;gap:5px;justify-content:center;min-height:18px;margin-bottom:4px;font-size:15px;flex-wrap:wrap;opacity:.85}
+.feedback.mini-banner{background:rgba(25,230,230,.12);border:1px solid var(--green);font-size:13px;padding:8px;animation:none}
 /* multiple choice buttons */
 .mc-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:10px}
 .mc-btn{font-family:var(--px);font-weight:700;font-size:18px;background:var(--panel2);padding:18px 10px;cursor:pointer;text-align:center;letter-spacing:.5px;position:relative;transition:transform .1s;animation:mc-in .35s ease-out backwards}
@@ -698,6 +700,7 @@ html[data-theme="violet"]{--gold:#b06cff;--panel:#100a20;--panel2:#18103a;--blue
  </div>
  <div id="proj" class="proj"></div>
  <div class="player-hp" id="player-hp"></div>
+ <div class="bt-powerups" id="bt-powerups"></div>
  <div class="item-pickup" id="item-pickup"></div>
  <div class="items-bar" id="items-bar"><div class="empty">— žádné předměty —</div></div>
  <div class="timer-wrap" id="timer-wrap" style="display:none">
@@ -722,6 +725,7 @@ html[data-theme="violet"]{--gold:#b06cff;--panel:#100a20;--panel2:#18103a;--blue
  </div>
  <div style="display:flex;gap:8px;flex-wrap:wrap">
  <button class="btn sm b" id="hint-btn" onclick="showHint()">💡 NÁPOVĚDA</button>
+ <button class="btn sm r" id="bt-mini-hint" style="display:none" onclick="useMiniHint()">💡 −1 ❤️</button>
  <button class="btn sm g" id="next-btn" style="display:none" onclick="nextTask()">DÁLE →</button>
  </div>
  <div class="fail-overlay" id="fail-overlay">
@@ -2003,6 +2007,14 @@ function updatePlayerHp(){
  }
 el.innerHTML=h;
  if(window.RPGSprites8&&RPGSprites8.setHeroHp)RPGSprites8.setHeroHp(BT.hp/BT.maxHp);
+ const puEl=document.getElementById('bt-powerups');
+ if(puEl&&typeof RPGWallet!=='undefined'){
+  const ics={'pu-ghost-heart':'🫀','pu-time-bonus':'⏳','pu-freeze-dbl':'🧊','pu-full-heart':'💗','pu-xp-crit':'⚡','pu-second-chance':'🛡️'};
+  puEl.innerHTML=Object.keys(ics).filter(id=>RPGWallet.hasPowerup(id)).map(id=>{
+   const nm=(SHOP_ITEMS.find(x=>x.id===id)||{}).name||id;
+   return `<span title="${nm}">${ics[id]}</span>`;
+  }).join('');
+ }
 }
 
 function flashHeart(idx){
@@ -2092,6 +2104,8 @@ function onTimeOut(){
 function renderTask(){
  const mt=miniForIdx(BT.idx);
  if(mt){renderBattleMini(mt);return;}
+ BT.miniStarting=false;
+ const mhBtn=document.getElementById('bt-mini-hint');if(mhBtn)mhBtn.style.display='none';
  const t=BT.tasks[BT.idx];
  BT.curTask=t;BT.hl=0;
  BT.timerFrozen=false;
@@ -2193,16 +2207,30 @@ function renderBattleMini(mt){
  const onDone=m=>battleMiniDone(m);
  if(mt.type==='order')RPGTaskTypes.renderOrder(probEl,mt.data,onDone,{onMistake,desc:mt.desc});
  else RPGTaskTypes.renderMatch(probEl,mt.data,onDone,{onMistake});
- startTimer();
+ const mhBtn=document.getElementById('bt-mini-hint');if(mhBtn){mhBtn.style.display='none';mhBtn.disabled=false;}
+ BT.miniHintUsed=false;BT.miniStarting=true;
+ const fb=document.getElementById('bt-fb');
+ fb.className='feedback mini-banner';
+ fb.textContent=mt.type==='order'?'↕ ŘAZENÍ — seřaď od '+(mt.desc?'největšího':'nejmenšího')+' (chyba = -1 ❤️)':'🔗 SPOJOVAČKA — spoj správné dvojice (chyba = -1 ❤️)';
+ setTimeout(()=>{
+  if(!BT.miniStarting)return;
+  BT.miniStarting=false;
+  fb.className='feedback';fb.textContent='';
+  if(mhBtn&&!BT.miniHintUsed&&BT.hp>1){mhBtn.style.display='';}
+  startTimer();
+ },1500);
 }
 function battleMiniMistake(){
  if(BT.bossDefeated||BT.hp<=0)return;
+ BT.miniStarting=false;
  BT.combo=0;updateCombo();
  monsterAttack();damagePlayer();
 }
 function battleMiniDone(mistakes){
  if(BT.bossDefeated||BT.hp<=0)return;
+ BT.miniStarting=false;
  stopTimer();
+ const mhBtn=document.getElementById('bt-mini-hint');if(mhBtn)mhBtn.style.display='none';
  const isCrit=mistakes===0&&BT.combo>=3;
  if(mistakes===0)BT.combo++;else BT.combo=0;
  updateCombo();
@@ -2220,6 +2248,23 @@ function battleMiniDone(mistakes){
  document.getElementById('next-btn').focus();
  damageMonster(xpGain,isCrit);
  checkMissionComplete();
+}
+
+function useMiniHint(){
+ const mt=BT.mini&&BT.mini[BT.idx];
+ if(!mt||BT.miniHintUsed||BT.hp<=1)return;
+ BT.miniHintUsed=true;
+ const mhBtn=document.getElementById('bt-mini-hint');if(mhBtn)mhBtn.disabled=true;
+ damagePlayer();
+ if(mt.type==='order'){
+  const doneCount=document.querySelectorAll('#bt-prob .tto-chip.done').length;
+  const sorted=[...mt.data].sort((a,b)=>mt.desc?(b.v-a.v):(a.v-b.v));
+  const nextLabel=sorted[doneCount]&&sorted[doneCount].label;
+  if(nextLabel){const chip=[...document.querySelectorAll('#bt-prob .tto-chip')].find(c=>!c.classList.contains('done')&&c.textContent===nextLabel);if(chip)setTimeout(()=>chip.click(),250);}
+ } else {
+  const qBtn=[...document.querySelectorAll('#bt-prob .ttm-q:not(.done)')][0];
+  if(qBtn){qBtn.click();const ans=qBtn.dataset.a;const aBtn=[...document.querySelectorAll('#bt-prob .ttm-a:not(.done)')].find(b=>b.textContent===ans);if(aBtn)setTimeout(()=>aBtn.click(),250);}
+ }
 }
 
 function renderMC(t){
@@ -3016,11 +3061,13 @@ function renderTrainPicker(){
   sec.className='panel';
   sec.style.marginTop='12px';
   let html=`<div style="font-family:var(--px);font-weight:700;font-size:14px;color:var(--gold);margin-bottom:8px">${ar.icon} ${ar.name.replace(/\n/g,' ')}</div>`;
-  ar.missions.forEach(m=>{
+  ar.missions.slice().sort((a,b)=>(S.errs&&S.errs[b.id]||0)-(S.errs&&S.errs[a.id]||0)).forEach(m=>{
    const ms=masteryOf(m.id);
    const pct=Math.min(100,Math.round((ms.score|0)/MASTERY_GOAL*100))|0;
+   const errs=S.errs&&S.errs[m.id]||0;
+   const rec=errs>=2?`<span style="color:#e74c3c;font-size:11px;margin-left:6px">🔥 ${errs} chyb</span>`:'';
    html+=`<button class="ms-item avail" style="width:100%;text-align:left;border:none;cursor:pointer" onclick="startTrain('${m.id}')">
-     <div style="flex:1"><div class="ms-name">${ms.mastered?'🏅 ':''}${m.name}</div>
+     <div style="flex:1"><div class="ms-name">${ms.mastered?'🏅 ':''}${m.name}${rec}</div>
      <div class="ms-sub">${m.sub} · ${ms.mastered?'mistrovství splněno':(ms.score|0)+' / '+MASTERY_GOAL}</div>
      <div class="bar-out bar-xp" style="margin-top:6px;height:6px"><div class="bar-in" style="width:${pct}%"></div></div></div>
      <div style="font-size:16px;margin-left:8px">${ms.mastered?'🏅':'🎯'}</div></button>`;
