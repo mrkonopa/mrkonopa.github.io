@@ -1938,6 +1938,7 @@ function launchBattle(aid,mid){
  if(_puW&&_puW.hasPowerup('pu-full-heart')){BT.maxHp++;BT.hp++;}
  BT.secondChance=!!(_puW&&_puW.hasPowerup('pu-second-chance'));
  BT.usedSecondChance=false;
+ BT.mini={};BT.curLimit=0;
  BT.phase=1;BT.items=[];BT.timerFrozen=false;
  if(BT.freezeTimeout){clearTimeout(BT.freezeTimeout);BT.freezeTimeout=null;}
  BT.mcMode=!!m.mc;
@@ -2042,8 +2043,8 @@ function missionFailed(){
 
 function startTimer(){
  stopTimer();
- const _tExtra=(typeof RPGWallet!=='undefined'&&RPGWallet.hasPowerup('pu-time-bonus'))?5:0;
- BT.timeLeft=TIME_PER_TASK+_tExtra;BT.timeMax=TIME_PER_TASK+_tExtra;
+ if(!BT.curLimit){const _tExtra=(typeof RPGWallet!=='undefined'&&RPGWallet.hasPowerup('pu-time-bonus'))?5:0;BT.curLimit=TIME_PER_TASK+_tExtra;}
+ BT.timeLeft=BT.curLimit;BT.timeMax=BT.curLimit;
  document.getElementById('timer-wrap').style.display='block';
  updateTimerUi();
  BT.timer=setInterval(()=>{
@@ -2089,11 +2090,15 @@ function onTimeOut(){
 }
 
 function renderTask(){
+ const mt=miniForIdx(BT.idx);
+ if(mt){renderBattleMini(mt);return;}
  const t=BT.tasks[BT.idx];
  BT.curTask=t;BT.hl=0;
  BT.timerFrozen=false;
  if(BT.freezeTimeout){clearTimeout(BT.freezeTimeout);BT.freezeTimeout=null;}
  document.getElementById('timer-bar').classList.remove('frozen');
+ const _tExtra=(typeof RPGWallet!=='undefined'&&RPGWallet.hasPowerup('pu-time-bonus'))?5:0;
+ BT.curLimit=TIME_PER_TASK+_tExtra;
  const tot=BT.tasks.length;
  document.getElementById('bt-num').textContent=BT.idx+1;
  document.getElementById('bt-tot').textContent=tot;
@@ -2141,6 +2146,80 @@ function renderTask(){
  if(!yn)document.getElementById('bt-ans').focus();
  }
  startTimer();
+}
+
+// ── Vynucené minigame v boji (spojovačka / řazení) ──
+function battlePool(){
+ const ar=AREAS.find(a=>a.id===BT.aid);if(!ar)return [];
+ const m=ar.missions.find(x=>x.id===BT.mid);if(!m)return [];
+ let pool=m.tasks();
+ const ex=window.RPG_TASK_EXTRA_8;
+ if(ex&&typeof ex[BT.mid]==='function'){try{pool=pool.concat(ex[BT.mid]());}catch(e){}}
+ return pool;
+}
+function miniForIdx(idx){
+ if(!BT.mini)BT.mini={};
+ if(BT.mini[idx]!==undefined)return BT.mini[idx];
+ let res=null;
+ if(!BT.mcMode&&window.RPGTaskTypes&&Math.random()<0.34){
+  if(Math.random()<0.5){const items=RPGTaskTypes.pickOrderItems(battlePool(),4);if(items)res={type:'order',data:items,desc:Math.random()<0.5};}
+  else{const pairs=RPGTaskTypes.pickPairs(battlePool(),4);if(pairs)res={type:'match',data:pairs};}
+ }
+ BT.mini[idx]=res;
+ return res;
+}
+function renderBattleMini(mt){
+ BT.curTask={ans:'',skill:null,hints:[],text:''};BT.hl=0;
+ BT.timerFrozen=false;
+ if(BT.freezeTimeout){clearTimeout(BT.freezeTimeout);BT.freezeTimeout=null;}
+ document.getElementById('timer-bar').classList.remove('frozen');
+ document.getElementById('bt-num').textContent=BT.idx+1;
+ document.getElementById('bt-tot').textContent=BT.tasks.length;
+ updateBossHpBar();
+ document.getElementById('bt-input-row').style.display='none';
+ document.getElementById('yn-row').style.display='none';
+ document.getElementById('mc-grid').style.display='none';
+ document.getElementById('hint-btn').style.display='none';
+ document.getElementById('next-btn').style.display='none';
+ document.getElementById('bt-explain').style.display='none';
+ document.getElementById('bt-fb').className='feedback';
+ document.getElementById('bt-fb').textContent='';
+ const hb=document.getElementById('hint-box');hb.textContent='';hb.classList.remove('show');
+ const probEl=document.getElementById('bt-prob');
+ const n=mt.data.length;
+ const _tExtra=(typeof RPGWallet!=='undefined'&&RPGWallet.hasPowerup('pu-time-bonus'))?5:0;
+ BT.curLimit=(mt.type==='match'?22:18)+n*8+_tExtra;
+ const onMistake=()=>battleMiniMistake();
+ const onDone=m=>battleMiniDone(m);
+ if(mt.type==='order')RPGTaskTypes.renderOrder(probEl,mt.data,onDone,{onMistake,desc:mt.desc});
+ else RPGTaskTypes.renderMatch(probEl,mt.data,onDone,{onMistake});
+ startTimer();
+}
+function battleMiniMistake(){
+ if(BT.bossDefeated||BT.hp<=0)return;
+ BT.combo=0;updateCombo();
+ monsterAttack();damagePlayer();
+}
+function battleMiniDone(mistakes){
+ if(BT.bossDefeated||BT.hp<=0)return;
+ stopTimer();
+ const isCrit=mistakes===0&&BT.combo>=3;
+ if(mistakes===0)BT.combo++;else BT.combo=0;
+ updateCombo();
+ const xpKey=`${BT.mid}-${BT.idx}`;
+ const firstTime=!S.xpClaimed[xpKey];
+ const xpGain=firstTime?Math.max(3,10-mistakes*2)*(isCrit?2:1):0;
+ const fb=document.getElementById('bt-fb');
+ fb.className='feedback ok';
+ fb.textContent=firstTime?((mistakes===0?'✓✓ BEZ CHYBY! +':'✓ HOTOVO! +')+xpGain+' XP'):'✓ HOTOVO! (mise už splněna — bez XP)';
+ if(firstTime){awardXp(xpGain,isCrit);S.xpClaimed[xpKey]=true;earnCredits(mistakes===0?7:5);tryDropItem();}
+ S.done[`${BT.mid}-${BT.idx}`]=true;saveS();
+ if(!S.stats)S.stats={};if(BT.combo>(S.stats.bestCombo||0))S.stats.bestCombo=BT.combo;
+ evalAch({correct:true,combo:BT.combo});
+ document.getElementById('next-btn').style.display='inline-block';
+ document.getElementById('next-btn').focus();
+ damageMonster(xpGain,isCrit);
+ checkMissionComplete();
 }
 
 function renderMC(t){
@@ -3049,9 +3128,9 @@ function trStartOrder(){
  if(!window.RPGTaskTypes||!TR.m)return;
  const items=RPGTaskTypes.pickOrderItems(trPool(),5);
  const fb=document.getElementById('tr-fb');
- if(!items){fb.className='feedback err';fb.textContent='Pro toto téma se řazení nedá sestavit.';return;}
+ if(!items){fb.className='feedback err';fb.textContent='Pro toto téma se řazení nedá sestavit (zadání jsou moc dlouhá).';return;}
  trSpecialBegin();
- RPGTaskTypes.renderOrder(document.getElementById('tr-prob'),items,trSpecialDone);
+ RPGTaskTypes.renderOrder(document.getElementById('tr-prob'),items,trSpecialDone,{desc:Math.random()<0.5});
 }
 function trStartPexeso(){
  if(!window.RPGTaskTypes||!TR.m)return;
