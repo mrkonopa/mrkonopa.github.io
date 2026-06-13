@@ -18,6 +18,35 @@ function serve(){return new Promise(res=>{const s=http.createServer((q,r)=>{let 
 const SEED = {name:'TEST',xp:0,level:1,attrs:{calc:0,geo:0,anal:0,craft:0},done:{},inv:[]};
 
 async function answerCorrect(page){
+ const handled=await page.evaluate(async()=>{
+  const mt=window.BT&&BT.mini&&BT.mini[BT.idx];
+  if(!mt)return false;
+  const t0=Date.now();
+  while(typeof BT!=='undefined'&&BT.miniStarting&&Date.now()-t0<3500)
+   await new Promise(r=>setTimeout(r,80));
+  if(mt.type==='order'){
+   const sorted=[...mt.data].sort((a,b)=>mt.desc?(b.v-a.v):(a.v-b.v));
+   for(const d of sorted){
+    const chip=[...document.querySelectorAll('#bt-prob .tto-chip')].find(c=>!c.classList.contains('done')&&c.textContent===d.label);
+    if(chip)chip.click();
+    await new Promise(r=>setTimeout(r,80));
+   }
+  }else{
+   const qs=[...document.querySelectorAll('#bt-prob .ttm-q')];
+   for(const q of qs){
+    if(q.classList.contains('done'))continue;
+    q.click();
+    await new Promise(r=>setTimeout(r,80));
+    const ans=q.dataset.a;
+    const a=[...document.querySelectorAll('#bt-prob .ttm-a:not(.done)')].find(b=>b.textContent===ans);
+    if(a)a.click();
+    await new Promise(r=>setTimeout(r,100));
+   }
+  }
+  await new Promise(r=>setTimeout(r,250));
+  return true;
+ });
+ if(handled)return;
  await page.evaluate(()=>{
   const t=BT.curTask, a=String(t.ans);
   if(BT.mcMode){
@@ -73,10 +102,12 @@ async function answerCorrect(page){
   {
    const tot=await page.evaluate(()=>BT.tasks.length);
    for(let i=0;i<tot;i++){
-    await answerCorrect(page); await page.waitForTimeout(350);
+    await answerCorrect(page);
+    await page.waitForFunction(()=>document.getElementById('next-btn').style.display!=='none'||BT.bossDefeated,{timeout:5000}).catch(()=>{});
     const more=await page.evaluate(()=>document.getElementById('next-btn').style.display!=='none'&&!BT.tasks.every((_,j)=>S.done[`${BT.mid}-${j}`]));
     if(more){await page.evaluate(()=>nextTask());await page.waitForTimeout(300);}
    }
+   await page.waitForTimeout(400);
    const st=await page.evaluate(()=>({
     defeated:BT.bossDefeated===true,
     ansDis:document.getElementById('bt-ans').disabled,
