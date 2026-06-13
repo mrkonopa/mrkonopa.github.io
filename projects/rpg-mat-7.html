@@ -499,10 +499,79 @@ html[data-theme="violet"]{--gold:#b06cff;--panel:#100a20;--panel2:#18103a;--blue
   <button class="btn sm gold" style="flex:0 0 auto" onclick="go('shop')">🛍️ OBCHOD</button>
   <button class="btn" style="flex:none" onclick="openBattle()">⚔️ ŽIVÝ SOUBOJ</button>
   <button class="btn b" style="flex:1" onclick="go('train')">🎯 TRÉNINK — procvičuj libovolné téma bez boje</button>
+  <button class="btn" style="flex:none" onclick="go('tower')">🗼 VĚŽ LEGEND</button>
  </div></div>
 </div>
 
 <!-- ══════════════ OBCHOD ══════════════ -->
+<div id="s-tower" class="screen">
+<div class="wrap">
+ <div class="topnav">
+ <button class="btn sm" onclick="twExit()">← MAPA</button>
+ <span style="font-family:var(--px);font-weight:700;font-size:14px;color:var(--gold)">🗼 VĚŽ LEGEND</span>
+ <span style="min-width:60px"></span>
+ </div>
+ <div class="panel" style="padding:0;overflow:hidden;background:#05060c">
+  <canvas id="tw-canvas" style="display:block;width:100%;height:230px;image-rendering:pixelated"></canvas>
+ </div>
+
+ <!-- brána (vstup / pravidla / žebříček / síň slávy) -->
+ <div id="tw-gate">
+ <div class="panel" style="padding:12px 14px;text-align:center">
+  <div style="font-family:var(--vt);font-size:21px;color:var(--muted);line-height:1.35">Každé patro = jeden příklad, těžší a těžší.<br>Máš <span style="color:var(--red,#ff3355)">3 ❤</span> a na každé patro časový limit.<br><span style="color:var(--gold)">Kam vystoupáš, tam se zapíšeš.</span> Bez nápověd!</div>
+  <div id="tw-gate-status" style="font-family:var(--px);font-size:12px;color:var(--muted);margin-top:10px"></div>
+  <div id="tw-gate-actions" style="margin-top:12px"></div>
+ </div>
+ <div class="panel" id="tw-board" style="display:none;padding:12px 14px"></div>
+ <div class="panel" id="tw-hall" style="display:none;padding:12px 14px"></div>
+ </div>
+
+ <!-- výstup (běžící pokus) -->
+ <div id="tw-play" style="display:none">
+ <div class="panel" style="padding:10px 14px;margin-bottom:12px">
+ <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;font-family:var(--px);font-size:13px">
+  <span style="color:var(--gold);font-weight:700">PATRO <span id="tw-floor">1</span></span>
+  <span id="tw-lives" style="letter-spacing:2px">❤️❤️❤️</span>
+  <span style="color:var(--muted)">REKORD <b style="color:var(--text)" id="tw-best">0</b></span>
+ </div>
+ <div class="timer-wrap" style="display:block;margin-top:8px">
+  <div class="timer-lbl"><span class="l">⏱ ČAS</span><span class="v"><span id="tw-timer-v">30</span> s</span></div>
+  <div class="bar-timer"><div class="bar-timer-in" id="tw-timer-bar" style="width:100%"></div></div>
+ </div>
+ </div>
+ <div class="bt-problem" id="tw-prob">...</div>
+ <div class="bt-row" id="tw-input-row">
+ <input id="tw-ans" class="bt-input" type="text" placeholder="?" autocomplete="off">
+ <button class="btn" onclick="twSubmit()" style="white-space:nowrap">VÝŠ ⬆</button>
+ </div>
+ <div class="bt-row" id="tw-yn-row" style="display:none">
+ <button class="btn g" style="flex:1" onclick="twAnswerYN('ANO')">✓ ANO</button>
+ <button class="btn r" style="flex:1" onclick="twAnswerYN('NE')">✗ NE</button>
+ </div>
+ <div class="mc-grid" id="tw-mc" style="display:none"></div>
+ <div id="tw-fb" class="feedback"></div>
+ <div style="display:flex;gap:8px;flex-wrap:wrap">
+ <button class="btn sm g" id="tw-next-btn" style="display:none" onclick="twNext()">DÁLE ⬆</button>
+ <button class="btn sm r" onclick="twGiveUp()">🏳 VZDÁT VÝSTUP</button>
+ </div>
+ </div>
+
+ <!-- konec pokusu -->
+ <div id="tw-end" style="display:none">
+ <div class="panel" style="padding:16px;text-align:center">
+  <div style="font-size:40px">🗼</div>
+  <div style="font-family:var(--px);font-weight:700;font-size:16px;color:var(--gold);margin-top:6px" id="tw-end-title">VÝSTUP SKONČIL</div>
+  <div style="font-family:var(--vt);font-size:22px;color:var(--text);margin-top:8px" id="tw-end-msg"></div>
+  <div id="tw-end-cloud" style="font-family:var(--px);font-size:12px;color:var(--muted);margin-top:8px"></div>
+  <div style="display:flex;gap:8px;justify-content:center;margin-top:14px;flex-wrap:wrap">
+  <button class="btn b" onclick="twStart()">▶ ZNOVU OD 1. PATRA</button>
+  <button class="btn sm" onclick="renderTowerGate()">← VĚŽ</button>
+  </div>
+ </div>
+ </div>
+</div>
+</div>
+
 <div id="s-shop" class="screen">
 <div class="wrap">
  <div class="topnav">
@@ -510,7 +579,7 @@ html[data-theme="violet"]{--gold:#b06cff;--panel:#100a20;--panel2:#18103a;--blue
   <span style="font-family:var(--px);font-size:14px;color:var(--gold)">🛍️ OBCHOD</span>
   <span class="credits-chip">💰 <span id="shop-bal">0</span> kr</span>
  </div>
- <p style="font-size:13px;color:var(--muted);margin-bottom:12px;line-height:1.6">Kredity získáváš za správné odpovědi v boji a za splnění misí. Kosmetika nemá vliv na hratelnost.</p>
+ <p style="font-size:13px;color:var(--muted);margin-bottom:12px;line-height:1.6">Kredity získáváš za správné odpovědi v boji a za splnění misí. Kosmetika nemá vliv na hratelnost.<br>💡 Kredity i koupená kosmetika jsou <b style="color:var(--gold)">společné pro všechny ročníky</b> — co koupíš tady, nosíš všude. <a href="rpg-matematika.html" style="color:var(--blue,#5dade2)">Globální profil a obchod ↗</a></p>
  <div class="shop-tabs">
   <button class="shop-tab on" onclick="setShopCat('border',this)">🖼 Rám</button>
   <button class="shop-tab" onclick="setShopCat('badge',this)">🏷 Jméno</button>
@@ -1438,6 +1507,7 @@ function go(name){
  if(name==='profile')renderProfile();
  if(name==='shop')renderShop();
  if(name==='train')renderTrainPicker();
+ if(name==='tower')renderTowerGate();else twAnimStop();
 }
 
 // ══════════════════════════════════════════
@@ -2184,6 +2254,309 @@ function checkMissionComplete(){
  setTimeout(()=>showModal(ar.art.ic,'OBLAST SPLNĚNA!',`Získal jsi artefakt:\n${ar.art.nm.replace(/\n/g,' ')}!\n\n+${Object.entries(ar.attrGain).map(([k,v])=>v+' '+ATTR_META[k].ic).join(' ')}`),1700);
  }
  }
+}
+
+// ══════════════════════════════════════════
+// VĚŽ LEGEND (Fáze 11) — soutěžní výstup, těžší a těžší příklady
+// ══════════════════════════════════════════
+let TW={on:false,floor:1,lives:3,m:null,task:null,timer:null,t0:0,cloudMode:false,practice:false};
+const TW_FH=46; // výška patra na canvasu (px)
+const twEsc=s=>String(s==null?'':s).replace(/[<>&"']/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;',"'":'&#39;'}[c]));
+const twRM=()=>document.documentElement.classList.contains('reduced-motion');
+
+function twMids(){return AREAS.flatMap(a=>a.missions.map(m=>m.id));}
+function twMissionFor(floor){
+ const mids=twMids();
+ // patro 1–21 = mise vzestupně; výš už náhodně z posledních dvou oblastí
+ const idx=floor<=mids.length?floor-1:mids.length-6+Math.floor(Math.random()*6);
+ const mid=mids[idx];
+ const ar=AREAS.find(a=>a.missions.some(m=>m.id===mid));
+ return ar.missions.find(m=>m.id===mid);
+}
+function twLimit(){return Math.max(12,40-Math.floor((TW.floor-1)*1.2));}
+
+// ── brána ──
+async function renderTowerGate(){
+ twStopRun();
+ document.getElementById('tw-play').style.display='none';
+ document.getElementById('tw-end').style.display='none';
+ document.getElementById('tw-gate').style.display='block';
+ if(!S.tower)S.tower={best:0};
+ twAnimStart();
+ const st=document.getElementById('tw-gate-status'),act=document.getElementById('tw-gate-actions');
+ document.getElementById('tw-board').style.display='none';
+ document.getElementById('tw-hall').style.display='none';
+ const cloud=typeof RPGCloud!=='undefined'&&RPGCloud.configured&&RPGCloud.configured();
+ TW.cloudMode=false;TW.practice=false;
+ if(!cloud){
+  TW.practice=true;
+  st.textContent='Cloud není dostupný — lezeš nanečisto, rekord se uloží jen v tomhle prohlížeči.';
+  act.innerHTML='<button class="btn b" onclick="twStart()">▶ VSTOUPIT DO VĚŽE</button>';
+  return;
+ }
+ if(!RPGCloud.currentUser()){
+  st.textContent='Do věže smí jen přihlášený žák 7. ročníku.';
+  act.innerHTML='<button class="btn b" onclick="var b=document.getElementById(\'cloud-btn\');if(b)b.click();">🔑 PŘIHLÁSIT SE</button>';
+  return;
+ }
+ st.textContent='Ověřuji vstup do věže…';act.innerHTML='';
+ const ok=await RPGCloud.towerEligible(SAVE_KEY);
+ if(!document.getElementById('s-tower').classList.contains('active'))return;
+ if(!ok){
+  st.innerHTML='⛔ Věž 7. ročníku je zamčená.<br>Vstup má jen žák, kterého učitel zařadil do třídy 7. ročníku.';
+  return;
+ }
+ TW.cloudMode=true;
+ st.innerHTML='Vstup povolen. Tvůj rekord: <b style="color:var(--gold)">'+(S.tower.best|0)+'. patro</b>';
+ act.innerHTML='<button class="btn b" onclick="twStart()">▶ VSTOUPIT DO VĚŽE</button>';
+ twRenderBoard();twRenderHall();
+}
+
+async function twRenderBoard(){
+ const el=document.getElementById('tw-board');
+ const rows=await RPGCloud.towerBoard(SAVE_KEY);
+ if(!rows||!rows.length){el.style.display='none';return;}
+ const medal=i=>i===0?'🥇':i===1?'🥈':i===2?'🥉':(i+1)+'.';
+ el.innerHTML='<div style="font-family:var(--px);font-weight:700;font-size:12px;color:var(--gold);margin-bottom:8px;letter-spacing:1px">— 🗼 ŽEBŘÍČEK SEZÓNY —</div>'+
+  rows.map((r,i)=>'<div style="display:flex;align-items:center;gap:8px;padding:5px 8px;border-radius:5px;font-family:var(--px);font-size:13px;margin:3px 0;'+
+   (r.is_me?'background:rgba(244,208,63,.12);border:1px solid var(--gold)':'background:rgba(255,255,255,.03)')+'">'+
+   '<span style="min-width:26px;text-align:center">'+medal(i)+'</span>'+
+   '<span style="flex:1;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:'+(r.is_me?'var(--gold)':'var(--text)')+'">'+twEsc(r.display_name)+(r.is_me?' (ty)':'')+'</span>'+
+   '<span style="color:var(--blue,#19e6e6);min-width:70px;text-align:right">'+(r.best_floor|0)+'. patro</span></div>').join('');
+ el.style.display='block';
+}
+
+async function twRenderHall(){
+ const el=document.getElementById('tw-hall');
+ const rows=await RPGCloud.towerHall(SAVE_KEY);
+ if(!rows||!rows.length){el.style.display='none';return;}
+ let html='<div style="font-family:var(--px);font-weight:700;font-size:12px;color:var(--gold);margin-bottom:8px;letter-spacing:1px">— 🏛 SÍŇ SLÁVY —</div>';
+ let season=null;
+ rows.forEach(r=>{
+  if(r.season!==season){season=r.season;html+='<div style="font-family:var(--px);font-size:11px;color:var(--muted);margin:8px 0 4px">ŠKOLNÍ ROK '+twEsc(season)+'</div>';}
+  html+='<div style="display:flex;gap:8px;padding:3px 8px;font-family:var(--px);font-size:13px">'+
+   '<span style="min-width:26px;text-align:center;color:var(--gold)">'+(r.rank|0)+'.</span>'+
+   '<span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+twEsc(r.display_name)+'</span>'+
+   '<span style="color:var(--muted)">'+(r.best_floor|0)+'. patro</span></div>';
+ });
+ el.innerHTML=html;el.style.display='block';
+}
+
+// ── běh pokusu ──
+function twStart(){
+ if(!S.tower)S.tower={best:0};
+ TW.on=true;TW.floor=1;TW.lives=3;
+ TWA.scroll=0;
+ document.getElementById('tw-gate').style.display='none';
+ document.getElementById('tw-end').style.display='none';
+ document.getElementById('tw-play').style.display='block';
+ twAnimStart();
+ twStats();
+ twDrawTask();
+}
+function twStopRun(){TW.on=false;twStopTimer();}
+function twExit(){twStopRun();go('map');}
+function twGiveUp(){if(TW.on)twEndRun();}
+
+function twDrawTask(){
+ TW.m=twMissionFor(TW.floor);
+ let pool=TW.m.tasks();
+ const ex=window.RPG_TASK_EXTRA_7;
+ if(ex&&typeof ex[TW.m.id]==='function'){try{pool=pool.concat(ex[TW.m.id]());}catch(e){}}
+ TW.task=pool[Math.floor(Math.random()*pool.length)];
+ twRenderTask();
+ twStartTimer();
+}
+
+function twRenderTask(){
+ const t=TW.task;
+ const probEl=document.getElementById('tw-prob');
+ if(t.svg){probEl.innerHTML='<div class="prob-svg">'+t.svg+'</div><div class="prob-txt"></div>';probEl.querySelector('.prob-txt').textContent=t.text;}
+ else probEl.textContent=t.text;
+ probEl.classList.remove('pop');void probEl.offsetWidth;probEl.classList.add('pop');
+ const fb=document.getElementById('tw-fb');fb.className='feedback';fb.textContent='';
+ document.getElementById('tw-next-btn').style.display='none';
+ if(TW.m.mc){
+  document.getElementById('tw-input-row').style.display='none';
+  document.getElementById('tw-yn-row').style.display='none';
+  twRenderMC(t);
+ }else{
+  const yn=isYN(t);
+  document.getElementById('tw-input-row').style.display=yn?'none':'flex';
+  document.getElementById('tw-yn-row').style.display=yn?'flex':'none';
+  document.getElementById('tw-mc').style.display='none';
+  const inp=document.getElementById('tw-ans');inp.value='';inp.disabled=false;if(!yn)inp.focus();
+ }
+}
+
+function twRenderMC(t){
+ const grid=document.getElementById('tw-mc');
+ grid.style.display='grid';
+ const correct=t.ans,cn=parseFloat(String(correct).replace(',','.'));
+ const opts=new Set([correct]);
+ if(!isNaN(cn)&&cn!==0){const opp=String(-cn);if(opp!==String(correct))opts.add(opp);}
+ let tries=0;
+ while(opts.size<4&&tries<30){tries++;let alt;
+  if(!isNaN(cn)){const delta=ri(-5,5)||ri(1,3);let v=Math.round((cn+delta)*100)/100;if(Number.isInteger(cn)&&Math.abs(cn)<200)v=cn+delta;alt=String(v);}
+  else alt=correct==='ANO'?'NE':'ANO';
+  if(alt!==correct)opts.add(alt);
+ }
+ const arr=[...opts].sort(()=>Math.random()-.5);
+ grid.innerHTML='';
+ arr.forEach((opt,i)=>{const b=document.createElement('button');b.className='mc-btn c'+i;b.innerHTML='<span class="mc-key">'+'ABCD'[i]+'</span>'+twEsc(opt);b.onclick=()=>twPickMC(opt,b);grid.appendChild(b);});
+}
+
+function twPickMC(opt,btn){
+ if(!TW.on)return;
+ twStopTimer();
+ document.querySelectorAll('#tw-mc .mc-btn').forEach(b=>b.disabled=true);
+ if(checkAns(opt,TW.task.ans)){btn.classList.add('right');twCorrect();}
+ else{btn.classList.add('wrong');twWrong(opt,false);}
+}
+function twSubmit(){
+ if(!TW.on)return;
+ const inp=document.getElementById('tw-ans');const v=inp.value;
+ if(!v.trim())return;
+ twStopTimer();inp.disabled=true;
+ if(checkAns(v,TW.task.ans))twCorrect();else twWrong(v,false);
+}
+function twAnswerYN(v){
+ if(!TW.on)return;
+ twStopTimer();
+ if(checkAns(v,TW.task.ans))twCorrect();else twWrong(v,false);
+}
+
+function twCorrect(){
+ const fb=document.getElementById('tw-fb');
+ fb.className='feedback ok';fb.textContent='⬆ SPRÁVNĚ! Stoupáš do '+(TW.floor+1)+'. patra…';
+ TW.floor++;
+ twClimbAnim();
+ twStats();
+ setTimeout(()=>{if(TW.on)twDrawTask();},twRM()?250:900);
+}
+
+function twWrong(given,timeout){
+ TW.lives--;
+ if(!S.errs)S.errs={};if(TW.m){S.errs[TW.m.id]=(S.errs[TW.m.id]||0)+1;saveS();}
+ const fb=document.getElementById('tw-fb');
+ fb.className='feedback err';
+ fb.textContent=(timeout?'⏱ ČAS VYPRŠEL!':'✗ Špatně.')+' Správně: '+TW.task.ans+(TW.lives>0?' — ztrácíš ❤':'');
+ const inp=document.getElementById('tw-ans');inp.disabled=true;
+ twStats();
+ if(TW.lives<=0){setTimeout(twEndRun,900);return;}
+ const nb=document.getElementById('tw-next-btn');nb.style.display='inline-block';nb.focus();
+}
+function twNext(){if(TW.on)twDrawTask();}
+
+function twStats(){
+ document.getElementById('tw-floor').textContent=TW.floor;
+ document.getElementById('tw-best').textContent=(S.tower&&S.tower.best)|0;
+ document.getElementById('tw-lives').textContent='❤️'.repeat(TW.lives)+'🖤'.repeat(3-TW.lives);
+}
+
+// ── časomíra patra ──
+function twStartTimer(){
+ twStopTimer();
+ TW.t0=Date.now();
+ const lim=twLimit();
+ document.getElementById('tw-timer-v').textContent=lim;
+ document.getElementById('tw-timer-bar').style.width='100%';
+ TW.timer=setInterval(()=>{
+  const left=lim-(Date.now()-TW.t0)/1000;
+  document.getElementById('tw-timer-v').textContent=Math.max(0,Math.ceil(left));
+  document.getElementById('tw-timer-bar').style.width=Math.max(0,left/lim*100)+'%';
+  if(left<=0){twStopTimer();twWrong(null,true);}
+ },100);
+}
+function twStopTimer(){if(TW.timer){clearInterval(TW.timer);TW.timer=null;}}
+
+// ── konec pokusu ──
+async function twEndRun(){
+ TW.on=false;twStopTimer();
+ const climbed=TW.floor-1;
+ document.getElementById('tw-play').style.display='none';
+ document.getElementById('tw-end').style.display='block';
+ if(!S.tower)S.tower={best:0};
+ const isPB=climbed>(S.tower.best|0);
+ if(isPB)S.tower.best=climbed;
+ document.getElementById('tw-end-title').textContent=isPB?'🏆 NOVÝ REKORD!':'VÝSTUP SKONČIL';
+ document.getElementById('tw-end-msg').textContent=climbed===0
+  ?'Tentokrát ani patro. Věž čeká na další pokus!'
+  :'Vystoupal jsi do '+climbed+'. patra'+(isPB?' — tvůj nejlepší výkon!':'.');
+ const xp=Math.min(40,climbed*2);
+ if(xp>0)awardXp(xp,false);
+ saveS();
+ const ce=document.getElementById('tw-end-cloud');
+ if(TW.cloudMode){
+  ce.textContent='Zapisuji do žebříčku…';
+  const r=await RPGCloud.towerSubmit(SAVE_KEY,climbed);
+  ce.textContent=r.ok
+   ?'🗼 Zapsáno. Rekord sezóny: '+(r.best|0)+'. patro.'+(xp>0?' (+'+xp+' XP)':'')
+   :'Zápis do žebříčku se nepovedl — rekord zůstává v prohlížeči.';
+ }else{
+  ce.textContent=(TW.practice?'Lezeš nanečisto — bez zápisu do žebříčku.':'')+(xp>0?' +'+xp+' XP':'');
+ }
+}
+
+// ── canvas: rotující točitá věž s okny + hrdina stoupá ──
+const TWA={on:false,rot:0,scroll:0,climbT:0,frame:0,tick:0,last:0};
+function twAnimStart(){if(TWA.on)return;TWA.on=true;TWA.last=performance.now();requestAnimationFrame(twLoop);}
+function twAnimStop(){TWA.on=false;}
+function twClimbAnim(){if(twRM())TWA.scroll+=TW_FH;else TWA.climbT=800;}
+function twLoop(now){
+ if(!TWA.on)return;
+ const dt=Math.min(50,now-TWA.last);TWA.last=now;
+ if(!twRM()){
+  TWA.rot+=dt*0.00022*(TWA.climbT>0?7:1);          // věž se pomalu točí, při výstupu rychleji
+  if(TWA.climbT>0){TWA.scroll+=dt/800*TW_FH;TWA.climbT=Math.max(0,TWA.climbT-dt);}
+  TWA.tick+=dt;
+  if(TWA.tick>(TWA.climbT>0?130:520)){TWA.tick=0;TWA.frame^=1;}
+ }
+ twDrawCanvas();
+ requestAnimationFrame(twLoop);
+}
+function twDrawCanvas(){
+ const cv=document.getElementById('tw-canvas');if(!cv)return;
+ const w=cv.clientWidth||600;
+ if(cv.width!==w)cv.width=w;
+ if(cv.height!==230)cv.height=230;
+ const x=cv.getContext('2d');
+ // nebe + hvězdy (deterministické)
+ x.fillStyle='#05060c';x.fillRect(0,0,w,230);
+ x.fillStyle='#1f2c52';
+ for(let i=0;i<46;i++)x.fillRect((i*97)%w,(i*53)%230,2,2);
+ // věž (válec)
+ const cx=Math.round(w/2),R=72;
+ x.fillStyle='#10162a';x.fillRect(cx-R,0,2*R,230);
+ x.fillStyle='#0a0e1c';x.fillRect(cx-R,0,9,230);x.fillRect(cx+R-9,0,9,230);
+ x.fillStyle='#171f3a';x.fillRect(cx-R+9,0,7,230);x.fillRect(cx+R-16,0,7,230);
+ // patra (posouvají se dolů při výstupu)
+ const off=((TWA.scroll%TW_FH)+TW_FH)%TW_FH;
+ const baseBand=Math.floor(TWA.scroll/TW_FH);
+ for(let row=-1;row<6;row++){
+  const y=row*TW_FH+off;
+  x.fillStyle='#1d2748';x.fillRect(cx-R,Math.round(y),2*R,3);
+  // 4 okna na obvodu patra; každé patro fázově pootočené → spirála
+  const band=baseBand-row;
+  for(let j=0;j<4;j++){
+   const a=TWA.rot+band*0.85+j*Math.PI/2;
+   const cs=Math.cos(a);
+   if(cs<=0.18)continue;                 // okno je na odvrácené straně
+   const wx=cx+Math.sin(a)*R*0.74;
+   const ww=Math.max(3,Math.round(9*cs)),wh=17;
+   x.fillStyle='rgba(232,192,96,'+(0.25+0.6*cs).toFixed(2)+')';
+   x.fillRect(Math.round(wx-ww/2),Math.round(y+14),ww,wh);
+   x.fillStyle='rgba(232,192,96,'+(0.10*cs).toFixed(2)+')';
+   x.fillRect(Math.round(wx-ww/2)-2,Math.round(y+12),ww+4,wh+4);
+  }
+ }
+ // římsa s hrdinou (vpravo u věže)
+ const hx=cx+R+6,hy=128;
+ x.fillStyle='#1d2748';x.fillRect(hx-4,hy+48,52,5);
+ if(window.RPGSprites7&&RPGSprites7.drawHeroOn)RPGSprites7.drawHeroOn(x,hx,hy,3,twRM()?0:TWA.frame,true);
+ // popisek patra na zdi
+ x.fillStyle='#f4d03f';x.font='700 20px "Roboto Mono",monospace';x.textAlign='center';
+ x.fillText(TW.on?'PATRO '+TW.floor:'VĚŽ LEGEND',cx,42);
 }
 
 // ══════════════════════════════════════════
