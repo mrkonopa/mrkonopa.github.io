@@ -154,6 +154,7 @@ body::before{
    <div class="s"><div class="v" id="tot-xp">0</div><div class="l">XP celkem</div></div>
    <div class="s"><div class="v" id="tot-tasks">0</div><div class="l">úkolů hotovo</div></div>
    <div class="s"><div class="v" id="tot-arts">0</div><div class="l">artefaktů</div></div>
+   <div class="s" id="tot-tower-wrap" style="display:none"><div class="v" id="tot-tower">0</div><div class="l">🗼 nejvyšší patro</div></div>
   </div>
  </div>
 
@@ -200,6 +201,7 @@ body::before{
    <button class="shop-tab" onclick="setShopCat('badge',this)">🏷 Jméno</button>
    <button class="shop-tab" onclick="setShopCat('theme',this)">🎨 Téma</button>
    <button class="shop-tab" onclick="setShopCat('victory',this)">🎉 Vítězství</button>
+   <button class="shop-tab" onclick="setShopCat('powerup',this)">⚡ Powerupy</button>
   </div>
   <div class="shop-grid" id="shop-grid"></div>
  </div>
@@ -275,7 +277,7 @@ function esc(s){return String(s).replace(/[<>&"']/g,c=>({'<':'&lt;','>':'&gt;','
 function render(){
  const grid=document.getElementById('grid');
  grid.innerHTML='';
- let started=0,totXp=0,totTasks=0,totArts=0;
+ let started=0,totXp=0,totTasks=0,totArts=0,bestTower=0;
  GAMES.forEach(g=>{
   const S=load(g.key);
   let body,btns;
@@ -286,13 +288,15 @@ function render(){
    const done=S.done?Object.keys(S.done).length:0;
    const arts=Array.isArray(S.inv)?S.inv.length:0;
    totXp+=xp; totTasks+=done; totArts+=arts;
+   if(S.tower&&(S.tower.best|0)>bestTower)bestTower=S.tower.best|0;
    const pct=Math.min(100,Math.round(done/TOTAL_TASKS*100));
    const attrHtml=ATTR.map(([k,ic])=>`<span class="a">${ic} <b>${((S.attrs&&S.attrs[k])||0)|0}</b></span>`).join('');
    body=`<div class="charline"><span class="cn">👤 ${esc(S.name||'HRDINA')}</span><span class="lv">LV ${lv} · ${xp} XP</span></div>
    <div class="attrs">${attrHtml}</div>
    <div class="prog"><div class="pl"><span>POKROK</span><span>${done} / ${TOTAL_TASKS} úkolů · ${pct}%</span></div>
    <div class="bar"><i data-w="${pct}"></i></div></div>
-   <div class="arts">🎒 artefaktů: <b style="color:#fff">${arts}</b></div>`;
+   <div class="arts">🎒 artefaktů: <b style="color:#fff">${arts}</b></div>
+   ${(S.tower&&(S.tower.best|0)>0)?`<div class="arts">🗼 Věž legend: <b style="color:#fff">${S.tower.best|0}. patro</b></div>`:''}`;
    btns=`<a class="btn" href="./${g.file}">▶ POKRAČOVAT</a><a class="btn ghost" href="#" onclick="resetOne('${g.key}');return false;" title="vymazat tuto postavu">🗑</a>`;
   }else{
    body=`<div class="empty">— zatím nehráno —</div>`;
@@ -313,6 +317,8 @@ function render(){
  document.getElementById('tot-xp').textContent=totXp.toLocaleString('cs-CZ');
  document.getElementById('tot-tasks').textContent=totTasks;
  document.getElementById('tot-arts').textContent=totArts;
+ document.getElementById('tot-tower-wrap').style.display=bestTower>0?'':'none';
+ document.getElementById('tot-tower').textContent=bestTower>0?(bestTower+'.'):'0';
  // animate bars
  requestAnimationFrame(()=>document.querySelectorAll('.bar > i').forEach(i=>i.style.width=i.dataset.w+'%'));
  renderGlobalProfile();
@@ -343,7 +349,16 @@ function renderShop(){
  if(!grid) return;
  const items=RPGWallet.items().filter(i=>i.cat===_shopCat);
  const w=RPGWallet.get();
+ // max level across games (for powerup gating)
+ let _maxLv=1;
+ if(_shopCat==='powerup'){GAMES.forEach(g=>{const s=load(g.key);if(s&&(s.level||1)>_maxLv)_maxLv=s.level|0;});}
  grid.innerHTML=items.map(it=>{
+  if(it.cat==='powerup'){
+   const isOwned=w.cosmetics.owned.includes(it.id);
+   const levelOk=!it.minLevel||_maxLv>=it.minLevel;
+   const can=w.credits>=it.price&&levelOk;
+   return `<div class="sc${isOwned?' active':''}"><div class="ic">${it.ic}</div><div class="nm">${esc(it.name)}</div><div style="font-size:10px;opacity:.7;margin:1px 0">${it.desc||''}</div><div class="pr">${it.price} kr · LV ${it.minLevel}</div>${isOwned?'<div class="act">✓ AKTIVNÍ</div>':!levelOk?`<button disabled>🔒 LV ${it.minLevel}</button>`:`<button class="${can?'buy':''}" ${can?'':'disabled'} onclick="buyItem('${esc(it.id)}')">${can?'🛒 Koupit':'🔒'} ${it.price} kr</button>`}</div>`;
+  }
   const isActive=w.cosmetics.active[it.cat]===it.id;
   const isOwned=w.cosmetics.owned.includes(it.id);
   const cls='sc'+(isActive?' active':isOwned?' owned':'');

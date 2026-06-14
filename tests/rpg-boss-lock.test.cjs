@@ -18,17 +18,57 @@ function serve(){return new Promise(res=>{const s=http.createServer((q,r)=>{let 
 const SEED = {name:'TEST',xp:0,level:1,attrs:{calc:0,geo:0,anal:0,craft:0},done:{},inv:[]};
 
 async function answerCorrect(page){
+ const handled=await page.evaluate(async()=>{
+  const chips=[...document.querySelectorAll('#bt-prob .tto-chip:not(.done)')];
+  if(chips.length>0){
+   const mt=window.BT&&BT.mini&&BT.mini[BT.idx];
+   if(!mt||!mt.data){
+    if(typeof battleMiniDone==='function'&&!BT.bossDefeated&&BT.hp>0){BT.miniStarting=false;battleMiniDone(0);}
+    return true;
+   }
+   const sorted=[...mt.data].sort((a,b)=>mt.desc?(b.v-a.v):(a.v-b.v));
+   for(const d of sorted){
+    let chip=null;const t1=Date.now();
+    while(!chip&&Date.now()-t1<500){
+     chip=[...document.querySelectorAll('#bt-prob .tto-chip:not(.done)')]
+       .find(c=>c.textContent.trim()===d.label.trim());
+     if(!chip)await new Promise(r=>setTimeout(r,50));
+    }
+    if(chip)chip.click();
+    await new Promise(r=>setTimeout(r,100));
+   }
+   await new Promise(r=>setTimeout(r,300));
+   return true;
+  }
+  const qBtns=[...document.querySelectorAll('#bt-prob .ttm-q:not(.done)')];
+  if(qBtns.length>0){
+   for(const q of qBtns){
+    q.click();await new Promise(r=>setTimeout(r,80));
+    const ans=q.dataset.a;
+    const a=[...document.querySelectorAll('#bt-prob .ttm-a:not(.done)')]
+      .find(b=>b.textContent.trim()===String(ans).trim());
+    if(a)a.click();
+    await new Promise(r=>setTimeout(r,120));
+   }
+   await new Promise(r=>setTimeout(r,300));
+   return true;
+  }
+  return false;
+ });
+ if(handled)return;
  await page.evaluate(()=>{
-  const t=BT.curTask, a=String(t.ans);
+  const t=BT.curTask;
+  if(!t||t.ans==null)return;
+  const a=String(t.ans);if(!a.trim())return;
   if(BT.mcMode){
    const btns=[...document.querySelectorAll('#mc-grid .mc-btn')];
    const target=btns.find(b=>b.textContent.replace(/^[A-D]/,'')===a);
-   if(target)target.click(); else submitMC(a,btns[0]);
+   if(target)target.click();else if(btns[0])submitMC(a,btns[0]);
   }else if(/^(ANO|NE)$/i.test(a.trim())){
    answerYN(a.toUpperCase());
   }else{
-   document.getElementById('bt-ans').disabled=false;
-   document.getElementById('bt-ans').value=a; submitAnswer();
+   const inp=document.getElementById('bt-ans');
+   if(inp){inp.disabled=false;inp.value=a;submitAnswer();}
   }
  });
 }
@@ -72,11 +112,21 @@ async function answerCorrect(page){
   // ── 2) porážka bosse → vstup trvale zamčený ──
   {
    const tot=await page.evaluate(()=>BT.tasks.length);
-   for(let i=0;i<tot;i++){
-    await answerCorrect(page); await page.waitForTimeout(350);
-    const more=await page.evaluate(()=>document.getElementById('next-btn').style.display!=='none'&&!BT.tasks.every((_,j)=>S.done[`${BT.mid}-${j}`]));
-    if(more){await page.evaluate(()=>nextTask());await page.waitForTimeout(300);}
+   let maxIter=tot*6;
+   while(maxIter-->0){
+    const st0=await page.evaluate(()=>({done:Object.keys(S.done).length,defeated:BT.bossDefeated}));
+    if(st0.defeated)break;
+    await answerCorrect(page);
+    await page.waitForFunction(()=>document.getElementById('next-btn').style.display!=='none'||BT.bossDefeated,{timeout:6000}).catch(()=>{});
+    const st=await page.evaluate(()=>({
+     defeated:BT.bossDefeated,done:Object.keys(S.done).length,
+     nextShown:document.getElementById('next-btn').style.display!=='none'
+    }));
+    if(st.defeated)break;
+    if(st.nextShown){await page.evaluate(()=>nextTask());await page.waitForTimeout(350);}
+    else if(st.done===st0.done){await page.waitForTimeout(500);}
    }
+   await page.waitForTimeout(400);
    const st=await page.evaluate(()=>({
     defeated:BT.bossDefeated===true,
     ansDis:document.getElementById('bt-ans').disabled,

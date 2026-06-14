@@ -73,8 +73,9 @@ window.RPGTaskTypes = (function () {
     return null;
   }
 
-  function renderMatch(el, pairs, onDone) {
+  function renderMatch(el, pairs, onDone, opts) {
     injectCss();
+    opts = opts || {};
     let sel = null, solved = 0, mistakes = 0;
     el.innerHTML = '<div class="ttm-head">🔗 SPOJOVAČKA — spoj úlohu se správným výsledkem</div>' +
       '<div class="ttm-cols"><div class="ttm-col" data-ttm="l"></div><div class="ttm-col" data-ttm="r"></div></div>';
@@ -100,6 +101,7 @@ window.RPGTaskTypes = (function () {
           if (solved === pairs.length && typeof onDone === 'function') onDone(mistakes);
         } else {
           mistakes++;
+          if (opts.onMistake) opts.onMistake();
           b.classList.add('bad'); setTimeout(() => b.classList.remove('bad'), 400);
         }
       };
@@ -108,26 +110,34 @@ window.RPGTaskTypes = (function () {
   }
 
   /* ── ŘAZENÍ ──
-     Z poolu vybere n úloh s UNIKÁTNÍMI číselnými výsledky.
-     Vrací [{v,label}] nebo null (potřebuje aspoň 4 různé hodnoty). */
+     Z poolu vybere n úloh s UNIKÁTNÍMI číselnými výsledky. Chip ukazuje
+     ZADÁNÍ úlohy (ne hotový výsledek), takže žák musí každý příklad spočítat,
+     aby je seřadil. Vrací [{v,label,ans}] nebo null (≥4 různé hodnoty se
+     samostatným krátkým zadáním). */
   function pickOrderItems(pool, n) {
     n = n || 5;
     const seen = new Set(), vals = [];
     for (const t of shuffle(pool || [])) {
-      if (!t || t.ans == null) continue;
+      if (!t || t.ans == null || t.svg) continue;
       const v = parseFloat(String(t.ans).replace(',', '.'));
       if (!isFinite(v) || seen.has(v)) continue;
-      seen.add(v); vals.push({ v, label: String(t.ans) });
+      const q = String(t.text || '').replace(/\s+/g, ' ').trim();
+      if (q.length < 2 || q.length > 42) continue;   // chip musí být krátký
+      seen.add(v); vals.push({ v, label: q, ans: String(t.ans) });
       if (vals.length === n) break;
     }
     return vals.length >= 4 ? vals : null;
   }
 
-  function renderOrder(el, items, onDone) {
+  /* opts: { onMistake, desc }  — desc=true seřadí od největšího. */
+  function renderOrder(el, items, onDone, opts) {
     injectCss();
+    opts = opts || {};
+    const desc = !!opts.desc;
     let want = 0, mistakes = 0;
-    const sorted = items.slice().sort((a, b) => a.v - b.v);
-    el.innerHTML = '<div class="ttm-head">↕ ŘAZENÍ — klikej na čísla od NEJMENŠÍHO po největší</div>' +
+    const sorted = items.slice().sort((a, b) => desc ? b.v - a.v : a.v - b.v);
+    el.innerHTML = '<div class="ttm-head">↕ ŘAZENÍ — spočítej a klikej na úlohy podle výsledku ' +
+      (desc ? 'od NEJVĚTŠÍHO' : 'od NEJMENŠÍHO') + '</div>' +
       '<div class="tto-row" data-ttm="row"></div>';
     const row = el.querySelector('[data-ttm="row"]');
     shuffle(items).forEach(it => {
@@ -137,11 +147,13 @@ window.RPGTaskTypes = (function () {
         if (b.classList.contains('done')) return;
         if (it.v === sorted[want].v) {
           b.classList.add('done');
-          b.innerHTML = '<span class="tto-n">' + (want + 1) + '.</span>' + esc(it.label);
+          b.innerHTML = '<span class="tto-n">' + (want + 1) + '.</span>' + esc(it.label) +
+            ' <span class="tto-n">= ' + esc(it.ans) + '</span>';
           want++;
           if (want === items.length && typeof onDone === 'function') onDone(mistakes);
         } else {
           mistakes++;
+          if (opts.onMistake) opts.onMistake();
           b.classList.add('bad'); setTimeout(() => b.classList.remove('bad'), 400);
         }
       };

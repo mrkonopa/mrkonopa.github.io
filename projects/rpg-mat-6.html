@@ -270,6 +270,8 @@ body::before{
 .player-hp .heart.lost{opacity:.18;filter:saturate(0)}
 .player-hp .heart.flash{animation:heart-flash .35s steps(4)}
 @keyframes heart-flash{0%,100%{transform:scale(1)}50%{transform:scale(1.6) rotate(15deg);filter:brightness(2)}}
+.bt-powerups{display:flex;gap:5px;justify-content:center;min-height:18px;margin-bottom:4px;font-size:15px;flex-wrap:wrap;opacity:.85}
+.feedback.mini-banner{background:rgba(25,230,230,.12);border:1px solid var(--green);font-size:13px;padding:8px;animation:none}
 /* multiple choice buttons */
 .mc-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:10px}
 .mc-btn{font-family:var(--px);font-weight:700;font-size:18px;background:var(--panel2);padding:18px 10px;cursor:pointer;text-align:center;letter-spacing:.5px;position:relative;transition:transform .1s;animation:mc-in .35s ease-out backwards}
@@ -584,6 +586,7 @@ html[data-theme="violet"]{--gold:#b06cff;--panel:#100a20;--panel2:#18103a;--blue
   <button class="shop-tab" onclick="setShopCat('badge',this)">🏷 Jméno</button>
   <button class="shop-tab" onclick="setShopCat('theme',this)">🎨 Téma</button>
   <button class="shop-tab" onclick="setShopCat('victory',this)">🎉 Vítězství</button>
+  <button class="shop-tab" onclick="setShopCat('powerup',this)">⚡ Powerupy</button>
  </div>
  <div class="shop-grid" id="shop-grid"></div>
 </div>
@@ -697,6 +700,7 @@ html[data-theme="violet"]{--gold:#b06cff;--panel:#100a20;--panel2:#18103a;--blue
  </div>
  <div id="proj" class="proj"></div>
  <div class="player-hp" id="player-hp"></div>
+ <div class="bt-powerups" id="bt-powerups"></div>
  <div class="item-pickup" id="item-pickup"></div>
  <div class="items-bar" id="items-bar"><div class="empty">— žádné předměty —</div></div>
  <div class="timer-wrap" id="timer-wrap" style="display:none">
@@ -721,6 +725,7 @@ html[data-theme="violet"]{--gold:#b06cff;--panel:#100a20;--panel2:#18103a;--blue
  </div>
  <div style="display:flex;gap:8px;flex-wrap:wrap">
  <button class="btn sm b" id="hint-btn" onclick="showHint()">💡 NÁPOVĚDA</button>
+ <button class="btn sm r" id="bt-mini-hint" style="display:none" onclick="useMiniHint()">💡 −1 ❤️</button>
  <button class="btn sm g" id="next-btn" style="display:none" onclick="nextTask()">DÁLE →</button>
  </div>
  <div class="fail-overlay" id="fail-overlay">
@@ -1251,6 +1256,13 @@ const SHOP_ITEMS=[
  {id:'victory-default',cat:'victory',name:'Výchozí',    ic:'⚡',price:0,   cssKey:''},
  {id:'victory-cyber',  cat:'victory',name:'Cyber výbuch',ic:'🔥',price:100, cssKey:'vc-cyber'},
  {id:'victory-neon',   cat:'victory',name:'Neon záření', ic:'💚',price:140, cssKey:'vc-neon'},
+ // ── powerupy (gameplay, one-time) ──
+ {id:'pu-ghost-heart',  cat:'powerup',name:'Železná vůle',    ic:'🫀',price:350,minLevel:3,desc:'+1 prázdné srdce na start každého boje.'},
+ {id:'pu-time-bonus',   cat:'powerup',name:'Přesýpací hodiny',ic:'⏳',price:300,minLevel:3,desc:'+5 sekund na každý příklad.'},
+ {id:'pu-freeze-dbl',   cat:'powerup',name:'Permafrost',      ic:'🧊',price:450,minLevel:4,desc:'Zmrznutí trvá 30 s místo 15 s.'},
+ {id:'pu-full-heart',   cat:'powerup',name:'Druhá krev',      ic:'💗',price:600,minLevel:5,desc:'+1 plné srdce na start každého boje.'},
+ {id:'pu-xp-crit',      cat:'powerup',name:'Adrenalin',       ic:'⚡',price:450,minLevel:5,desc:'+1 XP navíc za každý kritický zásah.'},
+ {id:'pu-second-chance',cat:'powerup',name:'Druhá šance',     ic:'🛡️',price:700,minLevel:6,desc:'1× za boj: místo porážky přežiješ s 1 ❤️.'},
 ];
 let _shopCat='border';
 function setShopCat(cat,btn){_shopCat=cat;document.querySelectorAll('.shop-tab').forEach(b=>b.classList.remove('on'));if(btn)btn.classList.add('on');renderShop();}
@@ -1301,6 +1313,21 @@ function renderShop(){
  const items=SHOP_ITEMS.filter(i=>i.cat===_shopCat);
  grid.innerHTML=items.map(item=>{
   const owned=(typeof RPGWallet!=='undefined')?RPGWallet.owns(item.id)||(item.price===0):(S.cosmetics&&S.cosmetics.owned&&S.cosmetics.owned.includes(item.id))||item.price===0;
+  if(item.cat==='powerup'){
+   const levelOk=!item.minLevel||S.level>=item.minLevel;
+   const canBuy=!owned&&bal>=item.price&&levelOk;
+   return `<div class="shop-card${owned?' active':''}">
+    <div class="shop-ic">${item.ic}</div>
+    <div class="shop-nm">${item.name}</div>
+    <div style="font-size:10px;opacity:.7;margin:2px 0">${item.desc||''}</div>
+    <div class="shop-pr">${item.price} kr · LV ${item.minLevel}</div>
+    <div style="margin-top:6px">
+    ${owned?`<span style="color:var(--gold);font-family:var(--px);font-size:11px">✓ AKTIVNÍ</span>`
+     :!levelOk?`<span style="font-family:var(--px);font-size:11px;opacity:.5">🔒 LV ${item.minLevel}</span>`
+     :`<button class="btn sm" onclick="buyItem('${item.id}')" ${canBuy?'':'disabled'}>KOUPIT ${item.price} kr</button>`}
+    </div>
+   </div>`;
+  }
   const active=(typeof RPGWallet!=='undefined')?RPGWallet.isActive(item.id):(S.cosmetics&&S.cosmetics.active&&S.cosmetics.active[item.cat]===item.id);
   const canBuy=!owned&&bal>=item.price;
   return `<div class="shop-card${active?' active':owned?' owned':''}">
@@ -1351,6 +1378,7 @@ function calcLevel(){S.level=Math.floor(S.xp/100)+1;}
 
 // ── JUICE: XP award + level-up + floaties + vignette ──
 function awardXp(amount,isCrit){
+ if(isCrit&&typeof RPGWallet!=='undefined'&&RPGWallet.hasPowerup('pu-xp-crit'))amount++;
  const before=Math.floor(S.xp/100)+1;
  S.xp+=amount;
  const after=Math.floor(S.xp/100)+1;
@@ -1684,6 +1712,12 @@ function launchBattle(aid,mid){
  const m=ar.missions.find(x=>x.id===mid);
  BT.aid=aid;BT.mid=mid;BT.combo=0;BT.missionHinted=false;BT.bossDefeated=false;
  BT.hp=MAX_PLAYER_HP;BT.maxHp=MAX_PLAYER_HP;
+ const _puW=typeof RPGWallet!=='undefined'?RPGWallet:null;
+ if(_puW&&_puW.hasPowerup('pu-ghost-heart'))BT.maxHp++;
+ if(_puW&&_puW.hasPowerup('pu-full-heart')){BT.maxHp++;BT.hp++;}
+ BT.secondChance=!!(_puW&&_puW.hasPowerup('pu-second-chance'));
+ BT.usedSecondChance=false;
+ BT.mini={};BT.curLimit=0;
  BT.phase=1;BT.items=[];BT.timerFrozen=false;
  if(BT.freezeTimeout){clearTimeout(BT.freezeTimeout);BT.freezeTimeout=null;}
  BT.mcMode=!!m.mc;
@@ -1747,6 +1781,14 @@ function updatePlayerHp(){
  }
 el.innerHTML=h;
  if(window.RPGSprites6&&RPGSprites6.setHeroHp)RPGSprites6.setHeroHp(BT.hp/BT.maxHp);
+ const puEl=document.getElementById('bt-powerups');
+ if(puEl&&typeof RPGWallet!=='undefined'){
+  const ics={'pu-ghost-heart':'🫀','pu-time-bonus':'⏳','pu-freeze-dbl':'🧊','pu-full-heart':'💗','pu-xp-crit':'⚡','pu-second-chance':'🛡️'};
+  puEl.innerHTML=Object.keys(ics).filter(id=>RPGWallet.hasPowerup(id)).map(id=>{
+   const nm=(SHOP_ITEMS.find(x=>x.id===id)||{}).name||id;
+   return `<span title="${nm}">${ics[id]}</span>`;
+  }).join('');
+ }
 }
 
 function flashHeart(idx){
@@ -1764,7 +1806,12 @@ function damagePlayer(){
  BT.hp--;
  setTimeout(updatePlayerHp,360);
  if(BT.hp<=0){
- setTimeout(missionFailed,800);
+  if(BT.secondChance&&!BT.usedSecondChance){
+   BT.usedSecondChance=true;BT.hp=1;
+   floatText('⚡ Druhá šance!',window.innerWidth/2-70,window.innerHeight*0.38,'#ffcc00');
+   return;
+  }
+  setTimeout(missionFailed,800);
  }
 }
 
@@ -1782,7 +1829,8 @@ function missionFailed(){
 
 function startTimer(){
  stopTimer();
- BT.timeLeft=TIME_PER_TASK;BT.timeMax=TIME_PER_TASK;
+ if(!BT.curLimit){const _tExtra=(typeof RPGWallet!=='undefined'&&RPGWallet.hasPowerup('pu-time-bonus'))?5:0;BT.curLimit=TIME_PER_TASK+_tExtra;}
+ BT.timeLeft=BT.curLimit;BT.timeMax=BT.curLimit;
  document.getElementById('timer-wrap').style.display='block';
  updateTimerUi();
  BT.timer=setInterval(()=>{
@@ -1828,11 +1876,17 @@ function onTimeOut(){
 }
 
 function renderTask(){
+ const mt=miniForIdx(BT.idx);
+ if(mt){renderBattleMini(mt);return;}
+ BT.miniStarting=false;
+ const mhBtn=document.getElementById('bt-mini-hint');if(mhBtn)mhBtn.style.display='none';
  const t=BT.tasks[BT.idx];
  BT.curTask=t;BT.hl=0;
  BT.timerFrozen=false;
  if(BT.freezeTimeout){clearTimeout(BT.freezeTimeout);BT.freezeTimeout=null;}
  document.getElementById('timer-bar').classList.remove('frozen');
+ const _tExtra=(typeof RPGWallet!=='undefined'&&RPGWallet.hasPowerup('pu-time-bonus'))?5:0;
+ BT.curLimit=TIME_PER_TASK+_tExtra;
  const tot=BT.tasks.length;
  document.getElementById('bt-num').textContent=BT.idx+1;
  document.getElementById('bt-tot').textContent=tot;
@@ -1884,6 +1938,111 @@ function renderTask(){
  if(!yn)document.getElementById('bt-ans').focus();
  }
  startTimer();
+}
+
+// ── Vynucené minigame v boji (spojovačka / řazení) ──
+function battlePool(){
+ const ar=AREAS.find(a=>a.id===BT.aid);if(!ar)return [];
+ const m=ar.missions.find(x=>x.id===BT.mid);if(!m)return [];
+ let pool=m.tasks();
+ const ex=window.RPG_TASK_EXTRA_6;
+ if(ex&&typeof ex[BT.mid]==='function'){try{pool=pool.concat(ex[BT.mid]());}catch(e){}}
+ return pool;
+}
+function miniForIdx(idx){
+ if(!BT.mini)BT.mini={};
+ if(BT.mini[idx]!==undefined)return BT.mini[idx];
+ let res=null;
+ if(!BT.mcMode&&window.RPGTaskTypes&&Math.random()<0.34){
+  if(Math.random()<0.5){const items=RPGTaskTypes.pickOrderItems(battlePool(),4);if(items)res={type:'order',data:items,desc:Math.random()<0.5};}
+  else{const pairs=RPGTaskTypes.pickPairs(battlePool(),4);if(pairs)res={type:'match',data:pairs};}
+ }
+ BT.mini[idx]=res;
+ return res;
+}
+function renderBattleMini(mt){
+ BT.curTask={ans:'',skill:null,hints:[],text:''};BT.hl=0;
+ BT.timerFrozen=false;
+ if(BT.freezeTimeout){clearTimeout(BT.freezeTimeout);BT.freezeTimeout=null;}
+ document.getElementById('timer-bar').classList.remove('frozen');
+ document.getElementById('bt-num').textContent=BT.idx+1;
+ document.getElementById('bt-tot').textContent=BT.tasks.length;
+ updateBossHpBar();
+ document.getElementById('bt-input-row').style.display='none';
+ document.getElementById('yn-row').style.display='none';
+ document.getElementById('mc-grid').style.display='none';
+ document.getElementById('hint-btn').style.display='none';
+ document.getElementById('next-btn').style.display='none';
+ document.getElementById('bt-explain').style.display='none';
+ document.getElementById('bt-fb').className='feedback';
+ document.getElementById('bt-fb').textContent='';
+ const hb=document.getElementById('hint-box');hb.textContent='';hb.classList.remove('show');
+ const probEl=document.getElementById('bt-prob');
+ const n=mt.data.length;
+ const _tExtra=(typeof RPGWallet!=='undefined'&&RPGWallet.hasPowerup('pu-time-bonus'))?5:0;
+ BT.curLimit=(mt.type==='match'?22:18)+n*8+_tExtra;
+ const onMistake=()=>battleMiniMistake();
+ const onDone=m=>battleMiniDone(m);
+ if(mt.type==='order')RPGTaskTypes.renderOrder(probEl,mt.data,onDone,{onMistake,desc:mt.desc});
+ else RPGTaskTypes.renderMatch(probEl,mt.data,onDone,{onMistake});
+ const mhBtn=document.getElementById('bt-mini-hint');if(mhBtn){mhBtn.style.display='none';mhBtn.disabled=false;}
+ BT.miniHintUsed=false;BT.miniStarting=true;
+ const fb=document.getElementById('bt-fb');
+ fb.className='feedback mini-banner';
+ fb.textContent=mt.type==='order'?'↕ ŘAZENÍ — seřaď od '+(mt.desc?'největšího':'nejmenšího')+' (chyba = -1 ❤️)':'🔗 SPOJOVAČKA — spoj správné dvojice (chyba = -1 ❤️)';
+ setTimeout(()=>{
+  if(!BT.miniStarting)return;
+  BT.miniStarting=false;
+  fb.className='feedback';fb.textContent='';
+  if(mhBtn&&!BT.miniHintUsed&&BT.hp>1){mhBtn.style.display='';}
+  startTimer();
+ },1500);
+}
+function battleMiniMistake(){
+ if(BT.bossDefeated||BT.hp<=0)return;
+ BT.miniStarting=false;
+ BT.combo=0;updateCombo();
+ monsterAttack();damagePlayer();
+}
+function battleMiniDone(mistakes){
+ if(BT.bossDefeated||BT.hp<=0)return;
+ BT.miniStarting=false;
+ stopTimer();
+ const mhBtn=document.getElementById('bt-mini-hint');if(mhBtn)mhBtn.style.display='none';
+ const isCrit=mistakes===0&&BT.combo>=3;
+ if(mistakes===0)BT.combo++;else BT.combo=0;
+ updateCombo();
+ const xpKey=`${BT.mid}-${BT.idx}`;
+ const firstTime=!S.xpClaimed[xpKey];
+ const xpGain=firstTime?Math.max(3,10-mistakes*2)*(isCrit?2:1):0;
+ const fb=document.getElementById('bt-fb');
+ fb.className='feedback ok';
+ fb.textContent=firstTime?((mistakes===0?'✓✓ BEZ CHYBY! +':'✓ HOTOVO! +')+xpGain+' XP'):'✓ HOTOVO! (mise už splněna — bez XP)';
+ if(firstTime){awardXp(xpGain,isCrit);S.xpClaimed[xpKey]=true;earnCredits(mistakes===0?7:5);tryDropItem();}
+ S.done[`${BT.mid}-${BT.idx}`]=true;saveS();
+ if(!S.stats)S.stats={};if(BT.combo>(S.stats.bestCombo||0))S.stats.bestCombo=BT.combo;
+ evalAch({correct:true,combo:BT.combo});
+ document.getElementById('next-btn').style.display='inline-block';
+ document.getElementById('next-btn').focus();
+ damageMonster(xpGain,isCrit);
+ checkMissionComplete();
+}
+
+function useMiniHint(){
+ const mt=BT.mini&&BT.mini[BT.idx];
+ if(!mt||BT.miniHintUsed||BT.hp<=1)return;
+ BT.miniHintUsed=true;
+ const mhBtn=document.getElementById('bt-mini-hint');if(mhBtn)mhBtn.disabled=true;
+ damagePlayer();
+ if(mt.type==='order'){
+  const doneCount=document.querySelectorAll('#bt-prob .tto-chip.done').length;
+  const sorted=[...mt.data].sort((a,b)=>mt.desc?(b.v-a.v):(a.v-b.v));
+  const nextLabel=sorted[doneCount]&&sorted[doneCount].label;
+  if(nextLabel){const chip=[...document.querySelectorAll('#bt-prob .tto-chip')].find(c=>!c.classList.contains('done')&&c.textContent===nextLabel);if(chip)setTimeout(()=>chip.click(),250);}
+ } else {
+  const qBtn=[...document.querySelectorAll('#bt-prob .ttm-q:not(.done)')][0];
+  if(qBtn){qBtn.click();const ans=qBtn.dataset.a;const aBtn=[...document.querySelectorAll('#bt-prob .ttm-a:not(.done)')].find(b=>b.textContent===ans);if(aBtn)setTimeout(()=>aBtn.click(),250);}
+ }
 }
 
 function renderMC(t){
@@ -2137,12 +2296,13 @@ function useItem(type){
  BT.timerFrozen=true;
  const bar=document.getElementById('timer-bar');
  bar.classList.remove('warn','danger');bar.classList.add('frozen');
- fb.textContent='❄️ ČAS ZMRAŽEN NA 15 S!';fb.className='feedback ok';
+ const _fMs=(typeof RPGWallet!=='undefined'&&RPGWallet.hasPowerup('pu-freeze-dbl'))?30000:15000;
+ fb.textContent='❄️ ČAS ZMRAŽEN NA '+(_fMs/1000)+' S!';fb.className='feedback ok';
  if(BT.freezeTimeout)clearTimeout(BT.freezeTimeout);
  BT.freezeTimeout=setTimeout(()=>{
  BT.timerFrozen=false;BT.freezeTimeout=null;
  document.getElementById('timer-bar').classList.remove('frozen');
- },15000);
+ },_fMs);
  }else if(type==='skip'){
  stopTimer();
  S.done[`${BT.mid}-${BT.idx}`]=true;saveS();
@@ -2660,11 +2820,13 @@ function renderTrainPicker(){
   sec.className='panel';
   sec.style.marginTop='12px';
   let html=`<div style="font-family:var(--px);font-weight:700;font-size:14px;color:var(--gold);margin-bottom:8px">${ar.icon} ${ar.name.replace(/\n/g,' ')}</div>`;
-  ar.missions.forEach(m=>{
+  ar.missions.slice().sort((a,b)=>(S.errs&&S.errs[b.id]||0)-(S.errs&&S.errs[a.id]||0)).forEach(m=>{
    const ms=masteryOf(m.id);
    const pct=Math.min(100,Math.round((ms.score|0)/MASTERY_GOAL*100))|0;
+   const errs=S.errs&&S.errs[m.id]||0;
+   const rec=errs>=2?`<span style="color:#e74c3c;font-size:11px;margin-left:6px">🔥 ${errs} chyb</span>`:'';
    html+=`<button class="ms-item avail" style="width:100%;text-align:left;border:none;cursor:pointer" onclick="startTrain('${m.id}')">
-     <div style="flex:1"><div class="ms-name">${ms.mastered?'🏅 ':''}${m.name}</div>
+     <div style="flex:1"><div class="ms-name">${ms.mastered?'🏅 ':''}${m.name}${rec}</div>
      <div class="ms-sub">${m.sub} · ${ms.mastered?'mistrovství splněno':(ms.score|0)+' / '+MASTERY_GOAL}</div>
      <div class="bar-out bar-xp" style="margin-top:6px;height:6px"><div class="bar-in" style="width:${pct}%"></div></div></div>
      <div style="font-size:16px;margin-left:8px">${ms.mastered?'🏅':'🎯'}</div></button>`;
@@ -2771,9 +2933,9 @@ function trStartOrder(){
  if(!window.RPGTaskTypes||!TR.m)return;
  const items=RPGTaskTypes.pickOrderItems(trPool(),5);
  const fb=document.getElementById('tr-fb');
- if(!items){fb.className='feedback err';fb.textContent='Pro toto téma se řazení nedá sestavit.';return;}
+ if(!items){fb.className='feedback err';fb.textContent='Pro toto téma se řazení nedá sestavit (zadání jsou moc dlouhá).';return;}
  trSpecialBegin();
- RPGTaskTypes.renderOrder(document.getElementById('tr-prob'),items,trSpecialDone);
+ RPGTaskTypes.renderOrder(document.getElementById('tr-prob'),items,trSpecialDone,{desc:Math.random()<0.5});
 }
 function trStartPexeso(){
  if(!window.RPGTaskTypes||!TR.m)return;
