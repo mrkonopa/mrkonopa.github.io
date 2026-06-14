@@ -141,4 +141,9 @@ async function run() {
   console.log(`Updated cermat-date.json → ${found.date}`);
 }
 
-run().catch(e => { console.error(e); process.exit(0); }); // exit 0 to never block CI
+// Run only when invoked directly (so tests can require + unit-test parseDate).
+if (require.main === module) {
+  run().catch(e => { console.error(e); process.exit(0); }); // exit 0 to never block CI
+}
+
+module.exports = { parseDate };
