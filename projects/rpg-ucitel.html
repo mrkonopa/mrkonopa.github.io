@@ -133,11 +133,11 @@ body{background:var(--bg);color:var(--text);font-family:var(--px);min-height:100
     <div class="s"><div class="v" id="st-mastery" style="color:var(--gold)">0</div><div class="l">🏅 mistrovství (celkem)</div></div>
    </div>
    <div class="controls">
-    <input id="search" placeholder="🔍 hledat jméno nebo e-mail…" oninput="renderTable()">
-    <select id="fgame" onchange="renderTable()">
+    <input id="search" aria-label="Hledat žáka podle jména nebo e-mailu" placeholder="🔍 hledat jméno nebo e-mail…" oninput="renderTable()">
+    <select id="fgame" aria-label="Filtr podle hry" onchange="renderTable()">
      <option value="">Všechny hry</option>
     </select>
-    <select id="fclass" onchange="renderTable()">
+    <select id="fclass" aria-label="Filtr podle třídy" onchange="renderTable()">
      <option value="">Všechny třídy</option>
     </select>
     <button class="mini" onclick="exportCSV()">⬇ Export CSV</button>
@@ -146,10 +146,10 @@ body{background:var(--bg);color:var(--text);font-family:var(--px);min-height:100
    <div id="bulk-bar" class="bulk-bar hidden">
     <b style="color:var(--gold)"><span id="bulk-count">0</span> vybráno</b>
     <span style="color:var(--muted);font-size:12px">🔓</span>
-    <select id="bulk-mid"><option value="">— mise k odemčení —</option></select>
+    <select id="bulk-mid" aria-label="Mise k hromadnému odemčení"><option value="">— mise k odemčení —</option></select>
     <button class="mini gold" onclick="bulkUnlock()">Odemknout vybraným</button>
     <span style="color:var(--muted);font-size:12px">⭐</span>
-    <input type="number" id="bulk-xp" placeholder="±XP" value="50">
+    <input type="number" id="bulk-xp" aria-label="XP k hromadnému přidání" placeholder="±XP" value="50">
     <button class="mini gold" onclick="bulkAwardXp()">Přidat XP vybraným</button>
     <button class="mini red" onclick="bulkDelete()">🗑 Smazat vybrané</button>
     <button class="mini" onclick="clearSel()">✕ Zrušit výběr</button>
@@ -163,15 +163,15 @@ body{background:var(--bg);color:var(--text);font-family:var(--px);min-height:100
     Rozděl žáky do <b style="color:var(--gold)">tříd</b> (klidně napříč ročníky) a v přehledu pak filtruj
     celou třídu najednou — odměny, odemykání i export pak řešíš hromadně. Žáka přiřadíš ručně ze seznamu.</p>
    <div class="controls">
-    <input id="new-section" placeholder="označení, např. B" style="max-width:140px">
-    <select id="new-grade">
+    <input id="new-section" aria-label="Označení třídy (např. B)" placeholder="označení, např. B" style="max-width:140px">
+    <select id="new-grade" aria-label="Ročník třídy">
      <option value="">ročník teď…</option>
      <option value="6">6. ročník</option>
      <option value="7">7. ročník</option>
      <option value="8">8. ročník</option>
      <option value="9">9. ročník</option>
     </select>
-    <input id="new-class" placeholder="nebo vlastní název (Doučování…)" style="flex:1">
+    <input id="new-class" aria-label="Vlastní název třídy" placeholder="nebo vlastní název (Doučování…)" style="flex:1">
     <button class="mini gold" onclick="createClassUI()">+ Založit třídu</button>
    </div>
    <p style="color:var(--muted);font-size:12px;margin:-6px 0 12px;line-height:1.5">
@@ -210,8 +210,8 @@ body{background:var(--bg);color:var(--text);font-family:var(--px);min-height:100
     počítá se z boje <b>i tréninku</b>. Čím <span style="color:#ff6b6b">červenější</span>, tím těžší — dobré téma na společné probrání.
     Řádek <b>„nově +X chyb"</b> ukazuje <b>trend</b>: kolik chyb v misi přibylo za poslední týdenní období oproti minulému (🔽 zlepšení, 🔺 zhoršení). Naplní se po pár týdnech hraní.</p>
    <div class="controls">
-    <select id="diag-game" onchange="renderDiag()"></select>
-    <select id="diag-class" onchange="renderDiag()"></select>
+    <select id="diag-game" aria-label="Diagnostika: filtr podle hry" onchange="renderDiag()"></select>
+    <select id="diag-class" aria-label="Diagnostika: filtr podle třídy" onchange="renderDiag()"></select>
     <button class="mini" onclick="loadData().then(renderDiag)">↻ Obnovit</button>
    </div>
    <div id="diag-wrap"><div class="empty">Načítám…</div></div>
@@ -224,7 +224,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--px);min-height:100
     Na konci školního roku klikni na <b>Uzavřít sezónu</b> — top 10 se natrvalo zapíše do síně slávy.
     Uzavření jde spustit i opakovaně (přepíše zápis stejné sezóny aktuálním stavem).</p>
    <div class="controls">
-    <select id="tower-game" onchange="renderTower()"></select>
+    <select id="tower-game" aria-label="Věž legend: filtr podle hry" onchange="renderTower()"></select>
     <button class="mini" onclick="renderTower()">↻ Obnovit</button>
     <button class="mini red" id="tower-close-btn" onclick="closeSeasonUI()">🏛 Uzavřít sezónu (zapsat top 10)</button>
    </div>
@@ -245,17 +245,17 @@ body{background:var(--bg);color:var(--text);font-family:var(--px);min-height:100
    <p style="color:var(--muted);margin-bottom:14px;line-height:1.6">
     Žáci mohou po správné odpovědi v boji napsat <b style="color:var(--gold)">jednou větou jak na to přišli</b>. Zde vidíš jejich vzkazy ze všech ročníků. Slouží jako formativní zpětná vazba: kde žáci přemýšlejí správně a kde jen tipují.</p>
    <div class="controls">
-    <select id="expl-game" onchange="onExplGameChange()">
+    <select id="expl-game" aria-label="Vysvětlení: filtr podle ročníku" onchange="onExplGameChange()">
      <option value="">— Všechny ročníky —</option>
      <option value="RPG_MAT_6">🚀 Vesmírná expedice (6. ročník)</option>
      <option value="RPG_MAT_7">⛏️ Ztracený chrám (7. ročník)</option>
      <option value="RPG_MAT_8">🎓 Matematická akademie (8. ročník)</option>
      <option value="RPG_MAT_9" selected>💻 NULL_BYTE (9. ročník)</option>
     </select>
-    <select id="expl-class" onchange="renderExplain()">
+    <select id="expl-class" aria-label="Vysvětlení: filtr podle třídy" onchange="renderExplain()">
      <option value="">Všechny třídy</option>
     </select>
-    <select id="expl-mid" onchange="renderExplain()">
+    <select id="expl-mid" aria-label="Vysvětlení: filtr podle mise" onchange="renderExplain()">
      <option value="">Všechny mise</option>
     </select>
     <button class="mini" onclick="loadExplain()">↻ Načíst</button>
@@ -269,8 +269,8 @@ body{background:var(--bg);color:var(--text);font-family:var(--px);min-height:100
     Přidej kolegu jeho <b>školním e-mailem</b> — roli získá, jakmile se poprvé přihlásí přes Google.
     <b>Učitel</b> vidí přehled a náhledy; <b>superadmin</b> navíc maže/upravuje postavy a spravuje učitele.</p>
    <div class="controls">
-    <input id="new-email" class="" placeholder="jmeno@husovaliberec.cz" style="flex:1">
-    <select id="new-role">
+    <input id="new-email" aria-label="E-mail nového učitele" class="" placeholder="jmeno@husovaliberec.cz" style="flex:1">
+    <select id="new-role" aria-label="Role nového učitele">
      <option value="teacher">učitel</option>
      <option value="superadmin">superadmin</option>
     </select>
@@ -912,7 +912,9 @@ function exportCSV(){
  const head=['email','full_name','postava','hra','rocnik','level','xp','splneno','celkem','procenta','mistrovstvi_21','posledni_aktivita'];
  const lines=[head.join(',')];
  rows.forEach(r=>{const g=gMeta(r.game),d=r.data||{};
-  const cell=v=>'"'+String(v==null?'':v).replace(/"/g,'""')+'"';
+  // CSV: uvozovkuj + zdvoj uvozovky; navíc chraň proti formula-injection v Excelu/Sheets
+  // (žák ovládá své jméno → '=', '+', '-', '@', TAB, CR na začátku se prefixuje apostrofem)
+  const cell=v=>{let s=String(v==null?'':v);if(/^[=+\-@\t\r]/.test(s))s="'"+s;return '"'+s.replace(/"/g,'""')+'"';};
   const mc=MISSIONS_BY_GAME[r.game]?masteryCount(d):'';
   lines.push([cell(r.email),cell(r.full_name),cell(d.name),cell(g.nm),cell(g.gr),
    d.level||1,d.xp||0,doneCount(d),TOTAL_TASKS,pct(d),mc,cell(fmtDate(r.updated_at))].join(','));
