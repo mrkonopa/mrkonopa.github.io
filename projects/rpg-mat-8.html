@@ -422,6 +422,7 @@ html[data-theme="violet"]{--gold:#b06cff;--panel:#100a20;--panel2:#18103a;--blue
 .reduced-motion .victory-banner.go{animation:none!important;opacity:1!important;transform:translate(-50%,-50%)!important}
 .reduced-motion .gold-drop.go,.reduced-motion .particle.go{display:none!important}
 .reduced-motion .hit-flash.go,.reduced-motion .bt-input.player-hit,.reduced-motion .bt-monster.charge{animation:none!important}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}.float-txt{display:none!important}#hit-vignette{display:none!important}#levelup.show .lvl-bg,#levelup.show .lvl-ring,#levelup.show .lvl-txt,#levelup.show .lvl-sub{animation:none!important;opacity:1!important;transform:none!important}.victory-banner.go{animation:none!important;opacity:1!important;transform:translate(-50%,-50%)!important}.gold-drop.go,.particle.go{display:none!important}.hit-flash.go,.bt-input.player-hit,.bt-monster.charge{animation:none!important}}
 /* ── INTRO ── */
 .blink{animation:blink 1s steps(1) infinite}
 @keyframes blink{0%,49%{opacity:1}50%,100%{opacity:0}}
