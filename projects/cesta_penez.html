@@ -589,7 +589,7 @@ input.answer.wrong { border-color: var(--red); background: var(--red-light); ani
   <div class="intro-card code-input-card" style="margin-bottom: 18px;">
     <h3 id="hub-code-title">🔑 Mám kód odjinud</h3>
     <div class="code-input-row">
-      <input type="text" id="code-input-hub" placeholder="třeba: brigada11500" autocomplete="off" autocapitalize="off" spellcheck="false">
+      <input type="text" id="code-input-hub" aria-label="Kód kapitoly pro odemčení" placeholder="třeba: brigada11500" autocomplete="off" autocapitalize="off" spellcheck="false">
       <button class="btn-check" id="code-apply-hub">Použít</button>
     </div>
     <div class="code-feedback" id="code-feedback-hub"></div>
@@ -736,7 +736,7 @@ function buildIntro() {
       <h3>&#x1F511; ${i18n('Mám kód odjinud', 'I have a code from elsewhere')}</h3>
       <p>${i18n('Hraješ na jiném počítači, než předtím? Zadej kód, který jsi dostal po skončení kapitoly. Posuneš se rovnou k té další.', 'Playing on a different computer? Enter the code you received at the end of a chapter. You\'ll jump straight to the next one.')}</p>
       <div class="code-input-row">
-        <input type="text" id="code-input-intro" placeholder="${i18n('třeba: brigada11500', 'e.g.: brigada11500')}" autocomplete="off" autocapitalize="off" spellcheck="false">
+        <input type="text" id="code-input-intro" aria-label="Kód kapitoly pro odemčení" placeholder="${i18n('třeba: brigada11500', 'e.g.: brigada11500')}" autocomplete="off" autocapitalize="off" spellcheck="false">
         <button class="btn-check" id="code-apply-intro">${i18n('Použít', 'Apply')}</button>
       </div>
       <div class="code-feedback" id="code-feedback-intro"></div>
