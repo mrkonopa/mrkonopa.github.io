@@ -662,6 +662,24 @@ window.RPGCloud = (function () {
       return { ok: true, count: data };
     } catch (e) { return { ok: false, error: String(e) }; }
   }
+  // Fáze 12 — žebříček sezóny pro učitele (vč. user_id pro mazání). Jen STAFF.
+  async function towerBoardAdmin(game) {
+    if (!client || !isStaff()) return [];
+    try {
+      const { data, error } = await client.rpc('tower_board_admin', { p_game: game });
+      if (error) throw error;
+      return data || [];
+    } catch (e) { console.warn('[RPGCloud] towerBoardAdmin:', e); return []; }
+  }
+  // Fáze 12 — smazání žáka z žebříčku věže (aktuální sezóna). Jen STAFF.
+  async function towerDeleteRun(userId, game) {
+    if (!client || !isStaff()) return { ok: false, error: 'Nemáš oprávnění.' };
+    try {
+      const { data, error } = await client.rpc('tower_delete_run', { p_user_id: userId, p_game: game });
+      if (error) return { ok: false, error: error.message };
+      return { ok: true, count: data };
+    } catch (e) { return { ok: false, error: String(e) }; }
+  }
 
   // centrální vykreslení žebříčku do prvku v mapě (žádné per-game edity).
   // Bez cloudu/preview → skryje. Bez přihlášení → teaser. Přihlášen → reálná data.
@@ -836,6 +854,14 @@ window.RPGCloud = (function () {
   /* napojení pro jednotlivou hru: lišta + stažení postavy po přihlášení.
      Učitelský náhled přes URL: ?preview=1 (hraní nanečisto) nebo
      ?su=<user_id>&game=<KEY> (read-only pohled na postavu žáka). */
+  // Spustí callback hned, když už DOM proběhl, jinak počká na DOMContentLoaded.
+  // Nutné, protože hry teď volají attachGame z 'load' listeneru (defer) =>
+  // DOMContentLoaded už mezitím proběhl a klasický listener by se nespustil.
+  function onDomReady(cb) {
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', cb);
+    else cb();
+  }
+
   function attachGame(saveKey, onLoaded) {
     const params  = new URLSearchParams(location.search);
     const preview = params.get('preview') === '1';
@@ -843,7 +869,7 @@ window.RPGCloud = (function () {
 
     if (preview || suId) { previewActive = true; sandboxStorage(saveKey); }
 
-    document.addEventListener('DOMContentLoaded', async () => {
+    onDomReady(async () => {
       // ── Učitelský pohled na postavu žáka (read-only) ──
       if (suId) {
         const okStaff = await requireStaff();
@@ -985,7 +1011,7 @@ window.RPGCloud = (function () {
 
   /* napojení pro hub: lišta + stažení všech postav a překreslení */
   function attachHub(games, rerender, mountSel) {
-    document.addEventListener('DOMContentLoaded', () => {
+    onDomReady(() => {
       const host = (mountSel && document.querySelector(mountSel)) || document.body;
       const after = document.getElementById('cloud-mount');
       const bar = makeBar('max-width:100%');
@@ -1028,5 +1054,7 @@ window.RPGCloud = (function () {
            advanceBattle, setBattleStatus, listActiveBattles,
            inviteBattleEmail, myBattleInvites, pollBattle,
            // Fáze 11 — věž legend
-           towerEligible, towerSubmit, towerBoard, towerHall, towerCloseSeason };
+           towerEligible, towerSubmit, towerBoard, towerHall, towerCloseSeason,
+           // Fáze 12 — věž legend: nástroje pro učitele
+           towerBoardAdmin, towerDeleteRun };
 })();
