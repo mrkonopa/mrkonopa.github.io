@@ -38,3 +38,9 @@ create policy "expl_read_staff" on explanations
   for select using (
     (select my_role()) in ('teacher', 'superadmin')
   );
+
+-- učitel/superadmin může mazat záznamy
+create policy "expl_delete_staff" on explanations
+  for delete using (
+    (select my_role()) in ('teacher', 'superadmin')
+  );
