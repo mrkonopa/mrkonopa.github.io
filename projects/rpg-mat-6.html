@@ -2462,6 +2462,15 @@ async function renderTowerGate(){
   act.innerHTML='<button class="btn b" onclick="var b=document.getElementById(\'cloud-btn\');if(b)b.click();">🔑 PŘIHLÁSIT SE</button>';
   return;
  }
+ // Učitel/superadmin smí vstoupit do KAŽDÉ věže jako náhled — postup se
+ // NEzapočítává (TW.practice ⇒ žádný zápis; server tower_submit ho stejně odmítne).
+ if(RPGCloud.isStaff&&RPGCloud.isStaff()){
+  TW.practice=true;
+  st.innerHTML='👁 <b>Učitelský náhled</b> — věž si můžeš vyzkoušet, ale postup se NEzapočítává do žebříčku ani síně slávy.';
+  act.innerHTML='<button class="btn b" onclick="twStart()">▶ VSTOUPIT (náhled)</button>';
+  twRenderBoard();twRenderHall();
+  return;
+ }
  st.textContent='Ověřuji vstup do věže…';act.innerHTML='';
  const ok=await RPGCloud.towerEligible(SAVE_KEY);
  if(!document.getElementById('s-tower').classList.contains('active'))return;
