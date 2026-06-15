@@ -1508,12 +1508,12 @@ const SHOP_ITEMS=[
  {id:'victory-cyber',  cat:'victory',name:'Cyber výbuch',ic:'🔥',price:100, cssKey:'vc-cyber'},
  {id:'victory-neon',   cat:'victory',name:'Neon záření', ic:'💚',price:140, cssKey:'vc-neon'},
  // ── powerupy (gameplay, one-time) ──
- {id:'pu-ghost-heart',  cat:'powerup',name:'Železná vůle',    ic:'🫀',price:350,minLevel:3,desc:'+1 prázdné srdce na start každého boje.'},
- {id:'pu-time-bonus',   cat:'powerup',name:'Přesýpací hodiny',ic:'⏳',price:300,minLevel:3,desc:'+5 sekund na každý příklad.'},
- {id:'pu-freeze-dbl',   cat:'powerup',name:'Permafrost',      ic:'🧊',price:450,minLevel:4,desc:'Zmrznutí trvá 30 s místo 15 s.'},
- {id:'pu-full-heart',   cat:'powerup',name:'Druhá krev',      ic:'💗',price:600,minLevel:5,desc:'+1 plné srdce na start každého boje.'},
- {id:'pu-xp-crit',      cat:'powerup',name:'Adrenalin',       ic:'⚡',price:450,minLevel:5,desc:'+1 XP navíc za každý kritický zásah.'},
- {id:'pu-second-chance',cat:'powerup',name:'Druhá šance',     ic:'🛡️',price:700,minLevel:6,desc:'1× za boj: místo porážky přežiješ s 1 ❤️.'},
+ {id:'pu-ghost-heart',  cat:'powerup',name:'Železná vůle',    ic:'🫀',price:550,minLevel:5,desc:'+1 prázdné srdce na start každého boje.'},
+ {id:'pu-time-bonus',   cat:'powerup',name:'Přesýpací hodiny',ic:'⏳',price:500,minLevel:4,desc:'+5 sekund na každý příklad.'},
+ {id:'pu-freeze-dbl',   cat:'powerup',name:'Permafrost',      ic:'🧊',price:700,minLevel:6,desc:'Zmrznutí trvá 30 s místo 15 s.'},
+ {id:'pu-full-heart',   cat:'powerup',name:'Druhá krev',      ic:'💗',price:1000,minLevel:8,desc:'+1 plné srdce na start každého boje.'},
+ {id:'pu-xp-crit',      cat:'powerup',name:'Adrenalin',       ic:'⚡',price:750,minLevel:7,desc:'+1 XP navíc za každý kritický zásah.'},
+ {id:'pu-second-chance',cat:'powerup',name:'Druhá šance',     ic:'🛡️',price:1300,minLevel:10,desc:'1× za boj: místo porážky přežiješ s 1 ❤️.'},
 ];
 let _shopCat='border';
 function setShopCat(cat,btn){_shopCat=cat;document.querySelectorAll('.shop-tab').forEach(b=>b.classList.remove('on'));if(btn)btn.classList.add('on');renderShop();}

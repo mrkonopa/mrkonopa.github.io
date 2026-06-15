@@ -265,11 +265,11 @@ body{background:var(--bg);color:var(--text);font-family:var(--px);min-height:100
     Žáci mohou po správné odpovědi v boji napsat <b style="color:var(--gold)">jednou větou jak na to přišli</b>. Zde vidíš jejich vzkazy ze všech ročníků. Slouží jako formativní zpětná vazba: kde žáci přemýšlejí správně a kde jen tipují.</p>
    <div class="controls">
     <select id="expl-game" aria-label="Vysvětlení: filtr podle ročníku" onchange="onExplGameChange()">
-     <option value="">— Všechny ročníky —</option>
+     <option value="" selected>— Všechny ročníky —</option>
      <option value="RPG_MAT_6">🚀 Vesmírná expedice (6. ročník)</option>
      <option value="RPG_MAT_7">⛏️ Ztracený chrám (7. ročník)</option>
      <option value="RPG_MAT_8">🎓 Matematická akademie (8. ročník)</option>
-     <option value="RPG_MAT_9" selected>💻 NULL_BYTE (9. ročník)</option>
+     <option value="RPG_MAT_9">💻 NULL_BYTE (9. ročník)</option>
     </select>
     <select id="expl-class" aria-label="Vysvětlení: filtr podle třídy" onchange="renderExplain()">
      <option value="">Všechny třídy</option>
@@ -354,15 +354,10 @@ const MISSIONS_9=[
 ];
 const MISSIONS_BY_GAME={RPG_MAT_6:MISSIONS_6,RPG_MAT_7:MISSIONS_7,RPG_MAT_8:MISSIONS_8,RPG_MAT_9:MISSIONS_9};
 function missionsFor(gameKey){return MISSIONS_BY_GAME[gameKey]||[];}
-const ARTIFACTS_BY_GAME={
- RPG_MAT_6:[{id:'starmap',nm:'Hvězdná mapa 🗺️'},{id:'crystal',nm:'Desetinný krystal 💎'},{id:'core',nm:'Jádro asteroidu ⚙️'},{id:'protractor',nm:'Hvězdný úhloměr 📐'},{id:'mirror',nm:'Zrcadlový úlomek 🪞'},{id:'cube',nm:'Energetická kostka 🧊'},{id:'medal',nm:'Galaktický odznak 🏅'}],
- RPG_MAT_7:[{id:'mapscrap',nm:'Útržek staré mapy 🗺️'},{id:'papyrus',nm:'Papyrový svitek 📜'},{id:'lapis',nm:'Lazuritový amulet 🔷'},{id:'weight',nm:'Zlaté závaží ⚖️'},{id:'ring',nm:'Faraonův prsten 💍'},{id:'mirror',nm:'Zrcadlo bohyně 🪞'},{id:'crown',nm:'Faraonova koruna 👑'}],
- RPG_MAT_8:[{id:'map',nm:'Mapa sedmi krajin 🗺️'},{id:'sword',nm:'Pythagorův meč ⚔️'},{id:'wand',nm:'Algebraická hůl 🪄'},{id:'shield',nm:'Výrazový štít 🛡️'},{id:'ring',nm:'Kruhový prsten 💍'},{id:'compass',nm:'Rýsovací kompas 🧭'},{id:'crown',nm:'Diplom arcimága 👑'}],
- RPG_MAT_9:[{id:'acckey',nm:'Přístupový klíč 🔑'},{id:'core',nm:'Energetické jádro 🔋'},{id:'decmod',nm:'Dešifrovací modul 💾'},{id:'frag',nm:'Fragment kódu 🧩'},{id:'netkey',nm:'Síťový klíč 🛰️'},{id:'vizchip',nm:'Vizualizační čip 📊'},{id:'root',nm:'Root přístup 👁️'}]
-};
 const ATTR=[['calc','🔢 Výpočty'],['geo','📐 Geometrie'],['anal','🧠 Analýza'],['craft','⚡ Instinkt']];
 const gMeta=k=>GAMES.find(g=>g.key===k)||{emoji:'❓',nm:k,gr:'',accent:'#888'};
 let ROWS=[];   // všechny postavy
+let STAFF_EMAILS=new Set(); // e-maily učitelů/superadminů (lowercase) — nepatří mezi žáky
 let SNAP_DATA={}; // game → [{user_id,snapped_at,errs}]
 let CLASSES=[];       // [{id,name,…}]
 let MEMBERSHIPS=[];   // [{class_id,user_id}]
@@ -374,6 +369,7 @@ function membersOfClass(cid){const s=new Set();MEMBERSHIPS.forEach(m=>{if(m.clas
 function studentsDistinct(){
  const map=new Map();
  ROWS.forEach(r=>{
+  if(r.email&&STAFF_EMAILS.has(r.email.toLowerCase()))return; // učitelé/superadmini nejsou žáci
   const cur=map.get(r.user_id)||{user_id:r.user_id,name:'',email:r.email||'',games:[]};
   if(r.full_name&&!cur.name)cur.name=r.full_name;
   if((r.data&&r.data.name)&&!cur.name)cur.name=r.data.name;
@@ -510,6 +506,9 @@ function openGodMode(file,sid){
 async function loadData(){
  document.getElementById('tbl-wrap').innerHTML='<div class="empty">Načítám data…</div>';
  ROWS=(await RPGCloud.listAllSaves()).filter(r=>r.game!=='_wallet'); // peněženka není postava
+ // Načti role, ať z přehledu/tříd vyřadíme učitelské účty (testovací postavy učitelů)
+ try{const roles=await RPGCloud.listRoles();STAFF_EMAILS=new Set((roles||[]).map(t=>(t.email||'').toLowerCase()));}
+ catch(e){STAFF_EMAILS=new Set();}
  await loadClasses();
  // Načti snímky chybovosti ze snap_events (fáze 6b)
  if(RPGCloud.getErrsSnaps){
@@ -833,7 +832,6 @@ function openDetail(i){
    '<h4>Odměny a úpravy (superadmin)</h4>'+
    '<div class="actrow"><input type="number" id="adj-xp" placeholder="±XP" value="100"><button class="mini gold" onclick="giveXP('+i+')">Přidat XP</button>'+
      '<span style="font-size:11px;color:var(--muted)">level se dopočítá z XP</span></div>'+
-   (()=>{const arts=ARTIFACTS_BY_GAME[r.game]||[];const opts='<option value="">— vybrat artefakt —</option>'+arts.map(a=>'<option value="'+esc(a.id)+'"'+(inv.includes(a.id)?' disabled':'')+'>'+esc(a.id)+' – '+esc(a.nm)+'</option>').join('');return '<div class="actrow"><select id="adj-item" style="font-family:inherit;font-size:13px;padding:7px 9px;border-radius:5px;border:1px solid var(--line);background:var(--panel2);color:var(--text);flex:1">'+opts+'</select><button class="mini gold" onclick="giveItem('+i+')">+ Artefakt</button></div>';})()+
    '<div class="actrow"><button class="mini red" onclick="delChar('+i+')">🗑 Smazat celou postavu</button></div>';
  }
  document.getElementById('modal').innerHTML=
@@ -902,19 +900,6 @@ async function giveXP(i){
  d.level=Math.floor(d.xp/100)+1;
  const res=await RPGCloud.updateSaveFor(r.user_id,r.game,d);
  if(res.ok){r.data=d;toast((delta>=0?'+':'')+delta+' XP přidáno');renderStats();renderTable();openDetail(i);}
- else toast('Chyba: '+res.error,1);
-}
-async function giveItem(i){
- const r=window.__filtered[i];if(!r)return;
- const sel=document.getElementById('adj-item');
- const artId=sel&&sel.value;
- if(!artId){toast('Vyber artefakt.',1);return;}
- const d=Object.assign({},r.data||{});
- d.inv=Array.isArray(d.inv)?d.inv.slice():[];
- if(d.inv.includes(artId)){toast('Žák tento artefakt už má.',1);return;}
- d.inv.push(artId);
- const res=await RPGCloud.updateSaveFor(r.user_id,r.game,d);
- if(res.ok){r.data=d;toast('Artefakt přidán');openDetail(i);}
  else toast('Chyba: '+res.error,1);
 }
 async function delChar(i){
@@ -1366,17 +1351,18 @@ function renderLeaderboardTab(){
  const cid=document.getElementById('lb-class').value||'';
  const mem=cid?membersOfClass(cid):null;
  let rows=(ROWS||[]).filter(r=>r.game===game&&(!mem||mem.has(r.user_id)))
-  .map(r=>{const d=r.data||{};return {name:r.name||r.full_name||'Hráč',xp:(d.xp||0)|0,lvl:(d.level||1)|0,at:r.updated_at};})
+  .map(r=>{const d=r.data||{};return {name:(r.name||d.name||r.full_name||'Hráč'),real:r.full_name||'',xp:(d.xp||0)|0,lvl:(d.level||1)|0,at:r.updated_at};})
   .sort((a,b)=>b.xp-a.xp||a.name.localeCompare(b.name,'cs'));
  if(!rows.length){wrap.innerHTML='<div class="empty">V tomto ročníku zatím nikdo nehrál'+(cid?' (v této třídě)':'')+'.</div>';return;}
  const medal=i=>i===0?'🥇':i===1?'🥈':i===2?'🥉':(i+1)+'.';
  wrap.innerHTML=rows.map((r,i)=>
   '<div style="display:flex;align-items:center;gap:10px;background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:8px 12px;margin-bottom:6px'+(i<3?';border-color:var(--gold)':'')+'">'+
   '<span style="min-width:30px;text-align:center">'+medal(i)+'</span>'+
-  '<span style="flex:1;font-weight:600">'+onlineDot(r.at)+esc(r.name)+'</span>'+
+  '<span style="flex:1;min-width:0"><span style="font-weight:600">'+onlineDot(r.at)+esc(r.name)+'</span>'+
+  (r.real&&r.real!==r.name?'<span style="color:var(--muted);font-size:11px;margin-left:6px">('+esc(r.real)+')</span>':'')+'</span>'+
   '<span style="color:var(--muted);font-size:12px;min-width:54px;text-align:right">Lvl '+r.lvl+'</span>'+
   '<span style="color:var(--gold);min-width:80px;text-align:right">'+r.xp+' XP</span></div>').join('')+
-  '<p style="color:var(--muted);font-size:12px;margin-top:8px">Celkem '+rows.length+' žáků. 🟢/🟡 = nedávno online.</p>';
+  '<p style="color:var(--muted);font-size:12px;margin-top:8px">Celkem '+rows.length+' žáků. 🟢/🟡 = nedávno online. Skutečné jméno (v závorce) vidíš jen ty — žáci ve hře jen herní přezdívky.</p>';
 }
 
 /* ── VĚŽ LEGEND (Fáze 11) ── */
