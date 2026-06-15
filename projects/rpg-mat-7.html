@@ -723,7 +723,7 @@ html[data-theme="violet"]{--gold:#b06cff;--panel:#100a20;--panel2:#18103a;--blue
  <div class="bt-problem" id="bt-prob">...</div>
  <div class="bt-row" id="bt-input-row">
  <input id="bt-ans" aria-label="Odpověď" class="bt-input" type="text" placeholder="?" autocomplete="off">
- <button class="btn" onclick="submitAnswer()" style="white-space:nowrap">ÚTOK ⚔</button>
+ <button id="attack-btn" class="btn" onclick="submitAnswer()" style="white-space:nowrap">ÚTOK ⚔</button>
  </div>
  <div class="bt-row" id="yn-row" style="display:none">
  <button class="btn g" style="flex:1" onclick="answerYN('ANO')">✓ ANO</button>
@@ -1956,6 +1956,7 @@ function renderTask(){
  const yn=isYN(t);
  document.getElementById('bt-input-row').style.display=yn?'none':'flex';
  document.getElementById('yn-row').style.display=yn?'flex':'none';
+ document.querySelectorAll('#yn-row button').forEach(b=>b.disabled=false);
  document.getElementById('hint-btn').style.display='inline-block';
  document.getElementById('mc-grid').style.display='none';
  document.getElementById('bt-ans').value='';
@@ -2358,6 +2359,7 @@ function submitAnswer(){
  saveS();
  document.getElementById('bt-ans').disabled=true;
  document.getElementById('hint-btn').disabled=true;
+ document.getElementById('attack-btn').disabled=true;
  document.getElementById('next-btn').style.display='inline-block';
  if(!BT.mcMode)document.getElementById('bt-explain').style.display='block';
  damageMonster(xpGain,isCrit);

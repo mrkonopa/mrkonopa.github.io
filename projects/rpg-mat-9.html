@@ -2109,6 +2109,7 @@ function renderTask(){
  const yn=isYN(t);
  document.getElementById('bt-input-row').style.display=yn?'none':'flex';
  document.getElementById('yn-row').style.display=yn?'flex':'none';
+ document.querySelectorAll('#yn-row button').forEach(b=>b.disabled=false);
  document.getElementById('hint-btn').style.display='inline-block';
  document.getElementById('mc-grid').style.display='none';
  document.getElementById('bt-ans').value='';
