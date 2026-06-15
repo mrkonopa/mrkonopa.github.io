@@ -842,9 +842,9 @@ html[data-theme="violet"]{--gold:#b06cff;--panel:#100a20;--panel2:#18103a;--blue
 </div>
 
 <!-- rozšiřující banka úloh (nepovinná; bez ní hra běží na základním poolu) -->
-<script src="./rpg-tasks-9.js"></script>
-<script src="./rpg-sprites-9.js"></script>
-<script src="./rpg-learn-9.js"></script>
+<script defer src="./rpg-tasks-9.js"></script>
+<script defer src="./rpg-sprites-9.js"></script>
+<script defer src="./rpg-learn-9.js"></script>
 <script>
 // ══════════════════════════════════════════
 // HELPERS
@@ -3244,13 +3244,13 @@ window.addEventListener('load',()=>{
  }
 });
 </script>
-<script src="./rpg-wallet.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="./rpg-cloud.js"></script>
-<script src="./rpg-battle-9.js"></script>
-<script src="./rpg-shared.js"></script>
-<script src="./rpg-tasktypes.js"></script>
-<script src="./rpg-battle-ui.js"></script>
-<script>RPGCloud.attachGame(SAVE_KEY);</script>
+<script defer src="./rpg-wallet.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script defer src="./rpg-cloud.js"></script>
+<script defer src="./rpg-battle-9.js"></script>
+<script defer src="./rpg-shared.js"></script>
+<script defer src="./rpg-tasktypes.js"></script>
+<script defer src="./rpg-battle-ui.js"></script>
+<script>window.addEventListener('load',function(){if(window.RPGCloud&&RPGCloud.attachGame)RPGCloud.attachGame(SAVE_KEY);});</script>
 </body>
 </html>
