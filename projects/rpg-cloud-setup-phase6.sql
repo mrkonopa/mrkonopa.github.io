@@ -26,20 +26,24 @@ create index if not exists explanations_created   on explanations(created_at des
 alter table explanations enable row level security;
 
 -- žák může vkládat vlastní záznamy
+drop policy if exists "expl_insert_own" on explanations;
 create policy "expl_insert_own" on explanations
   for insert with check (auth.uid() = user_id);
 
 -- žák může číst vlastní záznamy
+drop policy if exists "expl_read_own" on explanations;
 create policy "expl_read_own" on explanations
   for select using (auth.uid() = user_id);
 
 -- učitel/superadmin čte vše (my_role() je SECURITY DEFINER z fáze 2)
+drop policy if exists "expl_read_staff" on explanations;
 create policy "expl_read_staff" on explanations
   for select using (
     (select my_role()) in ('teacher', 'superadmin')
   );
 
 -- učitel/superadmin může mazat záznamy
+drop policy if exists "expl_delete_staff" on explanations;
 create policy "expl_delete_staff" on explanations
   for delete using (
     (select my_role()) in ('teacher', 'superadmin')
