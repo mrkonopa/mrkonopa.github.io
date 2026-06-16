@@ -19,15 +19,18 @@ CREATE TABLE IF NOT EXISTS public.feedback (
 ALTER TABLE public.feedback ENABLE ROW LEVEL SECURITY;
 
 -- přihlášený žák smí vložit vlastní záznam
+DROP POLICY IF EXISTS "feedback_insert" ON public.feedback;
 CREATE POLICY "feedback_insert" ON public.feedback
   FOR INSERT TO authenticated
   WITH CHECK (auth.uid() = user_id);
 
 -- učitel/superadmin čte všechny
+DROP POLICY IF EXISTS "feedback_staff_select" ON public.feedback;
 CREATE POLICY "feedback_staff_select" ON public.feedback
   FOR SELECT USING (public.my_role() IN ('teacher', 'superadmin'));
 
 -- učitel/superadmin maže
+DROP POLICY IF EXISTS "feedback_staff_delete" ON public.feedback;
 CREATE POLICY "feedback_staff_delete" ON public.feedback
   FOR DELETE USING (public.my_role() IN ('teacher', 'superadmin'));
 
