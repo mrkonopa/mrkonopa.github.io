@@ -14,18 +14,22 @@ create table if not exists snap_events (
 alter table snap_events enable row level security;
 
 -- žák: vkládá jen své vlastní řádky
+drop policy if exists "snap_insert_own" on snap_events;
 create policy "snap_insert_own" on snap_events for insert to authenticated
   with check (auth.uid() = user_id);
 
 -- žák: čte jen své vlastní (pro ladění, nepovinné)
+drop policy if exists "snap_select_own" on snap_events;
 create policy "snap_select_own" on snap_events for select to authenticated
   using (auth.uid() = user_id);
 
 -- učitel/superadmin: čte vše
+drop policy if exists "snap_select_staff" on snap_events;
 create policy "snap_select_staff" on snap_events for select to authenticated
   using (my_role() in ('teacher', 'superadmin'));
 
 -- superadmin: může smazat záznamy (pro úklid)
+drop policy if exists "snap_delete_admin" on snap_events;
 create policy "snap_delete_admin" on snap_events for delete to authenticated
   using (my_role() = 'superadmin');
 

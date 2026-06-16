@@ -615,7 +615,7 @@ function renderTable(){
   const avgPct=(Math.round(u.rows.reduce((s,x)=>s+pct(x.r.data||{}),0)/u.rows.length))|0;
   // souhrn místo všech ročníkových chipů: emoji her + počet (detail je po rozbalení)
   const gameEmojis=u.rows.map(x=>gMeta(x.r.game).emoji).join('');
-  const chips='<span class="tag" style="background:var(--panel2);font-size:11px;white-space:nowrap" title="'+esc(u.rows.map(x=>gMeta(x.r.game).gr).join(', '))+'">'+gameEmojis+' · '+u.rows.length+' '+(u.rows.length===1?'hra':'hry')+'</span>';
+  const chips='<span class="tag" style="background:var(--line);color:var(--text);font-size:11px;white-space:nowrap" title="'+esc(u.rows.map(x=>gMeta(x.r.game).gr).join(', '))+'">'+gameEmojis+' · '+u.rows.length+' '+(u.rows.length===1?'hra':'hry')+'</span>';
   const allSel=u.rows.every(x=>SEL.has(selKey(x.r)));
   const someSel=!allSel&&u.rows.some(x=>SEL.has(selKey(x.r)));
   const selAttr=allSel?' checked':someSel?' data-indeterminate="1"':'';
