@@ -1043,7 +1043,7 @@ const AREAS = [
    (()=>{const a=ri(2,12),b=ri(2,9);return{text:`Vypočítej:\n(-${a}) × (-${b}) =`,ans:String(a*b),hints:[`Mínus × mínus = plus.`,`${a} × ${b}`],skill:'calc'};})(),
    (()=>{const b=ri(2,9),q=ri(2,9),a=b*q;return{text:`Vypočítej:\n(-${a}) ÷ ${b} =`,ans:String(-q),hints:[`Různá znaménka → výsledek záporný.`,`-(${a} ÷ ${b})`],skill:'calc'};})(),
    (()=>{const b=ri(2,9),q=ri(2,9),a=b*q;return{text:`Vypočítej:\n(-${a}) ÷ (-${b}) =`,ans:String(q),hints:[`Stejná znaménka → výsledek kladný.`,`${a} ÷ ${b}`],skill:'calc'};})(),
-   (()=>{const a=ri(2,9);return{text:`Vypočítej druhou mocninu záporného čísla:\n(-${a})² =`,ans:String(a*a),hints:[`(-${a}) × (-${a}). Mínus × mínus = plus.`,`${a} × ${a}`],skill:'calc'};})(),
+   (()=>{const a=ri(2,9),b=ri(2,6);return{text:`Vypočítej:\n${a} × (-${b}) + ${a} =`,ans:String(-a*b+a),hints:[`Nejdřív násobení: ${a}×(-${b})=${-a*b}, pak přičti ${a}.`,`${-a*b}+${a} = ${-a*b+a}`],skill:'calc'};})(),
    (()=>{const dluh=ri(3,8),mes=ri(3,6);return{text:`Každý měsíc se zadlužíš o ${dluh} Kč (tedy -${dluh}).\nJaký je stav po ${mes} ${skl(mes,'měsíci','měsících','měsících')}? (Kč)`,ans:String(-dluh*mes),hints:[`${mes} × (-${dluh}).`,`-(${mes} × ${dluh})`],skill:'anal'};})()
   ]
  },

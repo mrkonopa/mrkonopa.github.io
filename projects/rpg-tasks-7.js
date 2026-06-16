@@ -32,6 +32,10 @@ function gen_1_1(){
   tasks.push({text:`Vypočítej zpaměti: ${i} × ${j} − ${j} = ?`,ans:i*j-j,hints:[`Vytknout ${j}: ${j}·(${i}−1).`,`${j}·${i-1} = ${i*j-j}`],skill:'calc'});
   const k=ri(20,50),l=ri(5,10);
   tasks.push({text:`Vypočítej zpaměti: ${k} + ${l} × ${l} = ?`,ans:k+l*l,hints:[`Nejdřív ${l}×${l} = ${l*l}, pak přičti.`,`${k} + ${l*l} = ${k+l*l}`],skill:'calc'});
+  { const a=ri(120,480),b=ri(110,360); tasks.push({text:`Vypočítej: ${a} + ${b} = ?`,ans:a+b,hints:['Sčítej po řádech (jednotky, desítky, stovky).',`${a}+${b} = ${a+b}`],skill:'calc'}); }
+  { const a=ri(13,29),b=ri(13,29); tasks.push({text:`Vypočítej: ${a} × ${b} = ?`,ans:a*b,hints:[`Rozlož ${b} na desítky a jednotky.`,`${a}×${b} = ${a*b}`],skill:'calc'}); }
+  { const g=ri(4,9),h=g*ri(11,30); tasks.push({text:`Vypočítej: ${h} ÷ ${g} = ?`,ans:h/g,hints:[`Kolikrát se ${g} vejde do ${h}?`,`${h}÷${g} = ${h/g}`],skill:'calc'}); }
+  { const a=ri(2,9),b=ri(2,9),c=ri(2,9); tasks.push({text:`Vypočítej: ${a} × ${b} + ${c} = ?`,ans:a*b+c,hints:['Nejdřív násobení, pak sčítání.',`${a*b}+${c} = ${a*b+c}`],skill:'calc'}); }
   return tasks;
 }
 
@@ -51,6 +55,10 @@ function gen_1_2(){
   const k=ri(15,60)/10, l=ri(10,30)/10;
   const res56=r1(k+l);
   tasks.push({text:`Nakoupil jsem 2 věci za ${cz(k)} Kč a ${cz(l)} Kč. Kolik jsem zaplatil celkem?`,ans:res56,hints:['Sečti obě ceny.','Výsledek = '+res56+' Kč'],skill:'calc'});
+  { const a=ri(20,80)/10,b=ri(10,40)/10; tasks.push({text:`${cz(a)} + ${cz(b)} = ?`,ans:r1(a+b),hints:['Zarovnej desetinné čárky pod sebe.',`= ${r1(a+b)}`],skill:'calc'}); }
+  { const a=ri(50,99)/10,b=ri(10,40)/10; tasks.push({text:`${cz(a)} − ${cz(b)} = ?`,ans:r1(a-b),hints:['Zarovnej desetinné čárky pod sebe.',`= ${r1(a-b)}`],skill:'calc'}); }
+  { const a=ri(2,9),b=ri(11,29)/10; tasks.push({text:`${a} × ${cz(b)} = ?`,ans:r2(a*b),hints:['Násob jako celá čísla a doplň čárku.',`= ${r2(a*b)}`],skill:'calc'}); }
+  { const a=ri(10,99)/100; tasks.push({text:`Zaokrouhli ${cz(a)} na desetiny.`,ans:r1(a),hints:['Rozhodují setiny.',`≈ ${r1(a)}`],skill:'calc'}); }
   return tasks;
 }
 
@@ -75,6 +83,10 @@ function gen_1_3(){
   // obvod trojúhelníku
   const i=ri(5,12),j=ri(4,11),k=ri(3,i+j-1);
   tasks.push({text:`Trojúhelník má strany ${i} cm, ${j} cm a ${k} cm. Jaký je jeho obvod?`,ans:i+j+k,hints:['Obvod trojúhelníku = součet všech tří stran.',`${i}+${j}+${k} = ${i+j+k} cm`],skill:'geo'});
+  { const a=ri(4,14),b=ri(2,a-1); tasks.push({text:`Obdélník ${a} × ${b} cm. Jaký je obvod?`,ans:2*(a+b),hints:['o = 2·(a+b).',`= ${2*(a+b)} cm`],skill:'geo'}); }
+  { const a=ri(3,12); tasks.push({text:`Čtverec se stranou ${a} cm. Jaký je obsah?`,ans:a*a,hints:['S = a².',`= ${a*a} cm²`],skill:'geo'}); }
+  { const a=ri(4,12),h=ri(3,10); tasks.push({text:`Pravoúhlý trojúhelník s odvěsnami ${a} a ${h} cm. Obsah?`,ans:r1(a*h/2),hints:['S = (a·v)/2.',`= ${r1(a*h/2)} cm²`],skill:'geo'}); }
+  { const a=ri(5,12),b=ri(4,11),c=ri(3,a+b-1); tasks.push({text:`Trojúhelník ${a}, ${b}, ${c} cm. Obvod?`,ans:a+b+c,hints:['Součet všech tří stran.',`= ${a+b+c} cm`],skill:'geo'}); }
   return tasks;
 }
 
@@ -105,6 +117,10 @@ function gen_2_1(){
   tasks.push({text:`Výsledek krácení ${h}/${i} na základní tvar: čitatel?`,ans:h/g3,hints:['Najdi NSD čitatele a jmenovatele a oběma jím vyděl.',''+h/g3+'/'+i/g3],skill:'calc'});
   const m=ri(3,8),n=ri(3,8);
   tasks.push({text:`Rozšiř ${m}/${n} číslem 3. Nový čitatel?`,ans:m*3,hints:['Čitatel × 3.',''+m+' × 3 = '+m*3],skill:'calc'});
+  { const a=ri(2,6),b=ri(2,5),k=ri(2,4); tasks.push({text:`Zkrať ${a*k}/${b*k} na základní tvar. Jaký je čitatel?`,ans:a,hints:['Vyděl oba členy jejich NSD.',`= ${a}`],skill:'calc'}); }
+  { const c=ri(2,7),d=ri(2,6),k=ri(2,5); tasks.push({text:`Rozšiř ${c}/${d} číslem ${k}. Nový čitatel?`,ans:c*k,hints:['Čitatel × rozšiřující číslo.',`${c}×${k} = ${c*k}`],skill:'calc'}); }
+  { const c=ri(2,7),d=ri(2,6),k=ri(2,5); tasks.push({text:`Rozšiř ${c}/${d} číslem ${k}. Nový jmenovatel?`,ans:d*k,hints:['Jmenovatel × rozšiřující číslo.',`${d}×${k} = ${d*k}`],skill:'calc'}); }
+  { const a=ri(2,6),k=ri(2,5); tasks.push({text:`Zkrať ${a*k}/${k} na celé číslo.`,ans:a,hints:[`Vyděl oba členy ${k}.`,`= ${a}`],skill:'calc'}); }
   return tasks;
 }
 
