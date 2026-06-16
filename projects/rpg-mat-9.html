@@ -2169,7 +2169,7 @@ function renderBattleMini(mt){
  const probEl=document.getElementById('bt-prob');
  const n=mt.data.length;
  const _tExtra=(typeof RPGWallet!=='undefined'&&RPGWallet.hasPowerup('pu-time-bonus'))?5:0;
- BT.curLimit=(mt.type==='match'?22:18)+n*8+_tExtra;   // minigame má víc kroků → víc času
+ BT.curLimit=(mt.type==='match'?22+n*8:(18+n*8)*3)+_tExtra;   // řazení = spočítat každý příklad + seřadit → 3× času
  const onMistake=()=>battleMiniMistake();
  const onDone=m=>battleMiniDone(m);
  if(mt.type==='order')RPGTaskTypes.renderOrder(probEl,mt.data,onDone,{onMistake,desc:mt.desc});
