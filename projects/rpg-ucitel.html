@@ -93,6 +93,11 @@ body{background:var(--bg);color:var(--text);font-family:var(--px);min-height:100
 .bulk-bar select,.bulk-bar input{font-family:inherit;font-size:12px;padding:6px 8px;border-radius:4px;
  border:1px solid var(--line);background:var(--panel);color:var(--text)}
 .bulk-bar input{width:80px}
+/* headings (outside modal) */
+h4{font-family:var(--px);font-size:12px;font-weight:700;color:var(--accent);letter-spacing:1px;text-transform:uppercase;margin:14px 0 8px}
+/* section intro info box */
+.info-box{background:var(--panel);border-left:3px solid var(--accent);border-radius:0 8px 8px 0;padding:10px 14px;margin-bottom:14px;font-size:13px;color:var(--muted);line-height:1.6}
+.info-box b{color:var(--text)}
 </style>
 </head>
 <body>
@@ -208,11 +213,9 @@ body{background:var(--bg);color:var(--text);font-family:var(--px);min-height:100
 
   <!-- DIAGNOSTIKA -->
   <div id="t-diag" class="hidden">
-   <p style="color:var(--muted);margin-bottom:14px;line-height:1.6">
-    Kde žáci <b style="color:var(--gold)">nejvíc chybují</b>. Pro každou misi vidíš, kolik žáků ji
-    dokončilo a <b>průměrný počet chyb</b> (špatná odpověď nebo vypršený čas) na žáka, který ji zkoušel —
-    počítá se z boje <b>i tréninku</b>. Čím <span style="color:#ff6b6b">červenější</span>, tím těžší — dobré téma na společné probrání.
-    Řádek <b>„nově +X chyb"</b> ukazuje <b>trend</b>: kolik chyb v misi přibylo za poslední týdenní období oproti minulému (🔽 zlepšení, 🔺 zhoršení). Naplní se po pár týdnech hraní.</p>
+   <div class="info-box">Kde žáci <b>nejvíc chybují</b>. Pro každou misi: kolik žáků ji dokončilo a
+    <b>průměrný počet chyb</b> (špatná odpověď nebo vypršený čas) na žáka — z boje <b>i tréninku</b>.
+    Čím <span style="color:#ff6b6b">červenější</span>, tím těžší. Řádek <b>„nově +X chyb"</b> = trend za poslední týden (🔽 zlepšení, 🔺 zhoršení).</div>
    <div class="controls">
     <select id="diag-game" aria-label="Diagnostika: filtr podle hry" onchange="renderDiag()"></select>
     <select id="diag-class" aria-label="Diagnostika: filtr podle třídy" onchange="renderDiag()"></select>
@@ -223,10 +226,8 @@ body{background:var(--bg);color:var(--text);font-family:var(--px);min-height:100
 
   <!-- ŽEBŘÍČKY (XP) — viditelné pro učitele i bez vlastní třídy (#103) -->
   <div id="t-leaderboard" class="hidden">
-   <p style="color:var(--muted);margin-bottom:14px;line-height:1.6">
-    <b style="color:var(--gold)">🏆 Žebříček XP</b> — pořadí žáků podle zkušeností v daném ročníku.
-    Žáci ve hře vidí jen spolužáky ze své třídy; tady jako učitel vidíš celý ročník
-    i bez vlastní třídy. Volitelně filtruj na konkrétní třídu.</p>
+   <div class="info-box"><b>🏆 Žebříček XP</b> — pořadí žáků podle zkušeností v daném ročníku.
+    Žáci ve hře vidí jen spolužáky ze své třídy; tady vidíš celý ročník i bez vlastní třídy. Filtruj na třídu dle potřeby.</div>
    <div class="controls">
     <select id="lb-game" aria-label="Žebříček: filtr podle ročníku" onchange="renderLeaderboardTab()"></select>
     <select id="lb-class" aria-label="Žebříček: filtr podle třídy" onchange="renderLeaderboardTab()">
@@ -239,10 +240,8 @@ body{background:var(--bg);color:var(--text);font-family:var(--px);min-height:100
 
   <!-- VĚŽ LEGEND -->
   <div id="t-tower" class="hidden">
-   <p style="color:var(--muted);margin-bottom:14px;line-height:1.6">
-    <b style="color:var(--gold)">🗼 Věž legend</b> — soutěžní výstup: žebříček aktuální sezóny (školního roku) a trvalá síň slávy.
-    Na konci školního roku klikni na <b>Uzavřít sezónu</b> — top 10 se natrvalo zapíše do síně slávy.
-    Uzavření jde spustit i opakovaně (přepíše zápis stejné sezóny aktuálním stavem).</p>
+   <div class="info-box"><b>🗼 Věž legend</b> — soutěžní výstup: žebříček aktuální sezóny a trvalá síň slávy.
+    Na konci školního roku klikni <b>Uzavřít sezónu</b> — top 10 se natrvalo zapíše. Jde spustit opakovaně (přepíše zápis téže sezóny).</div>
    <div class="controls">
     <select id="tower-game" aria-label="Věž legend: filtr podle hry" onchange="renderTower()"></select>
     <button class="mini" onclick="renderTower()">↻ Obnovit</button>
@@ -355,6 +354,12 @@ const MISSIONS_9=[
 ];
 const MISSIONS_BY_GAME={RPG_MAT_6:MISSIONS_6,RPG_MAT_7:MISSIONS_7,RPG_MAT_8:MISSIONS_8,RPG_MAT_9:MISSIONS_9};
 function missionsFor(gameKey){return MISSIONS_BY_GAME[gameKey]||[];}
+const AREA_NAMES={
+ RPG_MAT_6:['🛰️ Odletová stanice','🪐 Planeta desetin','☄️ Pole dělitelnosti','📐 Mlhovina úhlů','🌗 Zrcadlový měsíc','🧊 Krychlová stanice','🌌 Trojúhelníková galaxie'],
+ RPG_MAT_7:['🏜️ Vstupní brána','📜 Síň zlomků','🧊 Podzemní mrazírna','⚖️ Vážnice poměrů','💰 Zlatá pokladnice','🔮 Zrcadlová svatyně','🔺 Velká pyramida'],
+ RPG_MAT_8:['🏔️ Údolí opakování','⛰️ Hora Pythagorova','🌿 Bažiny rovnic','🏰 Věže algebry','🌊 Jezero kružnic','🔧 Dílna konstr.','🏛️ Citadela arcimága'],
+ RPG_MAT_9:['🔓 Vstupní terminál','⚡ Mocninový reaktor','🧮 Rovnicový procesor','🧬 Sektor lomeného kódu','🔗 Síťový uzel','📈 Grafový monitor','🏛️ Jádro systému'],
+};
 const ATTR=[['calc','🔢 Výpočty'],['geo','📐 Geometrie'],['anal','🧠 Analýza'],['craft','⚡ Instinkt']];
 const gMeta=k=>GAMES.find(g=>g.key===k)||{emoji:'❓',nm:k,gr:'',accent:'#888'};
 let ROWS=[];   // všechny postavy
@@ -1200,8 +1205,8 @@ function renderDiag(){
    });
    const avg=reached?totErr/reached:0;
    const hue=(Math.max(0,120-Math.min(120,avg*30)))|0; // 0 chyb→zelená, ~4 chyby→červená, |0 kills taint
-   const bg=reached?'hsl('+hue+',65%,20%)':'#161b2e';
-   const bd=reached?'hsl('+hue+',65%,42%)':'#2a3450';
+   const bg=reached?'hsl('+hue+',55%,18%)':'#161b2e';
+   const bd=reached?'hsl('+hue+',70%,48%)':'#2a3450';
    let trendHtml='';
    if(hasTrend){
     let ar='',tcol='var(--muted)';
@@ -1214,7 +1219,9 @@ function renderDiag(){
     (reached?('✅ '+(completed|0)+'/'+(reached|0)+' dokončilo · ⌀ '+esc(avg.toFixed(1))+' chyb'):'zatím nikdo nezkoušel')+
     '</div>'+trendHtml+'</div>';
   });
-  html+='<div style="margin-bottom:14px"><div style="font-weight:700;color:var(--gold);font-size:13px;margin-bottom:7px">Oblast '+area+'</div>'+
+  const aname=(AREA_NAMES[game]||[])[area-1]||('Oblast '+area);
+  html+='<div style="margin-bottom:18px">'+
+   '<div style="font-weight:700;color:var(--gold);font-size:13px;margin-bottom:7px;padding-bottom:5px;border-bottom:1px solid var(--line)">Oblast '+area+' — '+aname+'</div>'+
    '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px">'+cells+'</div></div>';
  }
  wrap.innerHTML=html;
