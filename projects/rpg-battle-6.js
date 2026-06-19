@@ -119,6 +119,72 @@
                value: x + y, distractors: [x * y, x + y + 1, Math.abs(x - y)] };
     },
 
+    // 13) NSD (největší společný dělitel)
+    function (r) {
+      const coprime = [[2,3],[3,4],[3,5],[4,5],[5,6],[2,7],[3,7],[4,7],[5,8]];
+      const [p, q] = pick(r, coprime);
+      const g = ri(r, 2, 7);
+      const a = g * p, b = g * q;
+      return { topic: 'NSD', text: `Největší společný dělitel čísel ${a} a ${b} je…`, value: g,
+               distractors: [g * 2, p, q] };
+    },
+
+    // 14) NSN (nejmenší společný násobek)
+    function (r) {
+      const opts = [[2,3,6],[2,4,4],[3,4,12],[3,6,6],[4,6,12],[2,5,10],[3,5,15],[4,5,20],[6,9,18]];
+      const [a, b, v] = pick(r, opts);
+      return { topic: 'NSN', text: `Nejmenší společný násobek čísel ${a} a ${b} je…`, value: v,
+               distractors: [a * b, a + b, v + b] };
+    },
+
+    // 15) objem krychle (a³)
+    function (r) {
+      const a = ri(r, 2, 7);
+      const v = a * a * a;
+      return { topic: 'objem', text: `Krychle se hranou ${a} cm. Objem? (cm³)`, value: v,
+               distractors: [6 * a * a, a * a, v + a] };
+    },
+
+    // 16) průměr tří čísel
+    function (r) {
+      const avg = ri(r, 4, 12), d1 = ri(r, 1, 3), d2 = ri(r, 1, 3);
+      const nums = [avg - d1, avg + d2, avg + d1 - d2];
+      return { topic: 'průměr', text: `Průměr čísel ${nums.join(', ')} je…`, value: avg,
+               distractors: [avg + 1, avg - 1, nums[0] + nums[1]] };
+    },
+
+    // 17) rychlost × čas = vzdálenost
+    function (r) {
+      const speed = pick(r, [40, 50, 60, 80, 100]), t = ri(r, 1, 4);
+      const v = speed * t;
+      return { topic: 'rychlost', text: `Auto jede rychlostí ${speed} km/h po dobu ${t} h. Vzdálenost? (km)`,
+               value: v, distractors: [speed + t, v + speed, v - t] };
+    },
+
+    // 18) jednotky (km → m)
+    function (r) {
+      const km = ri(r, 1, 9);
+      return { topic: 'jednotky', text: `${km} km = ??? m`, value: km * 1000,
+               distractors: [km * 100, km * 10000, km * 1000 + 10] };
+    },
+
+    // 19) zlomek z čísla (1/n)
+    function (r) {
+      const den = pick(r, [2, 4, 5, 10]);
+      const base = ri(r, 2, 10) * den;
+      const v = base / den;
+      return { topic: 'zlomky', text: `Kolik je 1/${den} z čísla ${base}?`, value: v,
+               distractors: [base * den, v + 1, base - v] };
+    },
+
+    // 20) povrch krychle (6a²)
+    function (r) {
+      const a = ri(r, 2, 7);
+      const v = 6 * a * a;
+      return { topic: 'povrch', text: `Krychle se hranou ${a} cm. Povrch? (cm²)`, value: v,
+               distractors: [4 * a * a, a * a * a, v + a * a] };
+    },
+
   ];
 
   function assemble(r, raw, id) {
@@ -165,7 +231,7 @@
     return out;
   }
 
-  const API = { game: 'RPG_MAT_6', topicCount: GEN.length, build };
+  const API = { game: 'RPG_MAT_6', topicCount: GEN.length, build }; // 20 generators
   if (typeof module !== 'undefined' && module.exports) module.exports = API;
   else window.RPG_BATTLE_6 = API;
 })();
