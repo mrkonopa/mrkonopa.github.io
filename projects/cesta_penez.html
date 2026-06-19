@@ -567,6 +567,8 @@ input.answer.wrong { border-color: var(--red); background: var(--red-light); ani
   transition:border-color .15s,box-shadow .15s}
 .lang-btn.active{border-color:var(--blue);box-shadow:0 0 0 2px rgba(26,115,200,.25)}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+/* mobil: dotykové plochy nav/jazyk na ≥44px */
+@media(pointer:coarse){.lang-btn{min-width:44px;min-height:44px;display:inline-flex;align-items:center;justify-content:center}.tp-back,.tp-home{display:inline-flex;align-items:center;min-height:44px}}
 </style>
 </head>
 <body>

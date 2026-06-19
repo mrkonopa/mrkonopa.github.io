@@ -117,6 +117,8 @@ table.tt tr:nth-child(even) td{background:#fafaf5}
 #lang-bar{position:fixed;bottom:16px;right:16px;z-index:200;display:flex;gap:6px;background:rgba(255,255,255,.92);border-radius:50px;padding:5px 8px;box-shadow:0 2px 12px rgba(0,0,0,.12);backdrop-filter:blur(6px)}
 .lang-btn{background:none;border:2px solid transparent;border-radius:50px;font-size:1.35rem;cursor:pointer;padding:3px 7px;line-height:1;transition:border-color .15s,box-shadow .15s}
 .lang-btn.active{border-color:var(--blue);box-shadow:0 0 0 2px rgba(26,115,200,.25)}
+/* mobil: dotykové plochy nav/jazyk na ≥44px */
+@media(pointer:coarse){.lang-btn{min-width:44px;min-height:44px;display:inline-flex;align-items:center;justify-content:center}.tp-back,.tp-home{display:inline-flex;align-items:center;min-height:44px}}
 </style>
 </head>
 <body>
