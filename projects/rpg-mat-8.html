@@ -520,6 +520,7 @@ html[data-theme="violet"]{--gold:#b06cff;--panel:#100a20;--panel2:#18103a;--blue
  <div class="bar-out bar-xp"><div class="bar-in" id="map-xpbar" style="width:0%"></div></div>
  </div>
  <div class="panel" id="map-leaderboard" style="display:none;padding:12px 14px"></div>
+ <div class="panel" id="map-recommend" style="display:none;padding:12px 14px;margin-top:12px"></div>
  <div style="display:flex;gap:8px;margin-top:12px">
   <button class="btn sm gold" style="flex:0 0 auto" onclick="go('shop')">🛍️ OBCHOD</button>
   <button class="btn" style="flex:none" onclick="openBattle()">⚔️ ŽIVÝ SOUBOJ</button>
@@ -1813,6 +1814,28 @@ function openBattle(){
   evalAch({battleResult:r});
  }});
 }
+// Doporučené procvičování: mise s nejvíc chybami, kterou žák ještě nezvládl
+function recommendedMission(){
+ let best=null,bestErr=1;
+ AREAS.forEach(ar=>ar.missions.forEach(m=>{
+  const e=(S.errs&&S.errs[m.id])||0;
+  if(e>=2 && !masteryOf(m.id).mastered && e>bestErr){bestErr=e;best={mid:m.id,name:m.name};}
+ }));
+ return best;
+}
+function goPractice(mid){go('train');startTrain(mid);}
+function renderRecommend(){
+ const rp=document.getElementById('map-recommend');if(!rp)return;
+ const rec=recommendedMission();
+ if(!rec){rp.style.display='none';return;}
+ rp.style.display='block';
+ rp.innerHTML='<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">'+
+  '<div style="font-family:var(--px);font-size:13px;color:var(--text);line-height:1.45">'+
+  '<span style="color:var(--gold);font-weight:700">📚 Doporučený trénink</span><br>'+
+  '<span style="color:var(--muted)">Tohle ti zatím dělá potíže:</span> <b>'+rec.name+'</b></div>'+
+  '<button class="btn b sm" style="flex:none" onclick="goPractice(\''+rec.mid+'\')">🎯 Procvičit</button></div>';
+}
+
 function renderMap(){
  calcLevel();
  document.getElementById('map-name').textContent=S.name;
@@ -1825,6 +1848,7 @@ function renderMap(){
  const sc=(S.streak&&S.streak.count)||0,sch=document.getElementById('map-streak');
  if(sch){if(sc>=2){sch.style.display='inline-flex';document.getElementById('map-streak-n').textContent=sc;}else sch.style.display='none';}
  if(window.RPGCloud&&RPGCloud.renderLeaderboardInto)RPGCloud.renderLeaderboardInto('map-leaderboard',SAVE_KEY);
+ renderRecommend();
  const g=document.getElementById('map-grid');
  g.innerHTML='';
  // unikátní barevný nádech krajiny pro každou oblast
