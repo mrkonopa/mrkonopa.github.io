@@ -168,9 +168,8 @@ h4{font-family:var(--px);font-size:12px;font-weight:700;color:var(--accent);lett
 
   <!-- TŘÍDY -->
   <div id="t-classes" class="hidden">
-   <p style="color:var(--muted);margin-bottom:14px;line-height:1.6">
-    Rozděl žáky do <b style="color:var(--gold)">tříd</b> (klidně napříč ročníky) a v přehledu pak filtruj
-    celou třídu najednou — odměny, odemykání i export pak řešíš hromadně. Žáka přiřadíš ručně ze seznamu.</p>
+   <div class="info-box">Rozděl žáky do <b>tříd</b> (klidně napříč ročníky) a v přehledu pak filtruj
+    celou třídu najednou — odměny, odemykání i export pak řešíš hromadně. Žáka přiřadíš ručně ze seznamu.</div>
    <div class="controls">
     <input id="new-section" aria-label="Označení třídy (např. B)" placeholder="označení, např. B" style="max-width:140px">
     <select id="new-grade" aria-label="Ročník třídy">
@@ -183,20 +182,17 @@ h4{font-family:var(--px);font-size:12px;font-weight:700;color:var(--accent);lett
     <input id="new-class" aria-label="Vlastní název třídy" placeholder="nebo vlastní název (Doučování…)" style="flex:1">
     <button class="mini gold" onclick="createClassUI()">+ Založit třídu</button>
    </div>
-   <p style="color:var(--muted);font-size:12px;margin:-6px 0 12px;line-height:1.5">
-    💡 Zadej <b>označení</b> + <b>ročník teď</b> a třída se každé <b>1. září</b> sama posune
-    (6.B → 7.B → …). Nebo nech ročník prázdný a použij jen vlastní název.</p>
+   <p style="color:var(--muted);font-size:12px;margin:-4px 0 12px;line-height:1.5">
+    💡 Zadej <b>označení</b> + <b>ročník teď</b> a třída se každé <b>1. září</b> sama posune (6.B → 7.B → …). Nebo nech ročník prázdný a použij vlastní název.</p>
    <div id="classes-wrap"><div class="empty">Načítám…</div></div>
 
-   <h4 style="margin-top:24px">📨 Odeslané vzkazy <span style="font-size:11px;color:var(--muted);font-weight:400">(přečteno / smazáno žáky)</span></h4>
+   <h4>📨 Odeslané vzkazy <span style="font-size:11px;color:var(--muted);font-weight:400;text-transform:none;letter-spacing:0">(přečteno / smazáno žáky)</span></h4>
    <div id="broadcasts-wrap"><div class="empty" style="padding:8px">Načítám…</div></div>
   </div>
 
   <!-- ZPĚTNÁ VAZBA -->
   <div id="t-feedback" class="hidden">
-   <p style="color:var(--muted);margin-bottom:14px;line-height:1.6">
-    Nápady a návrhy, které hráči napsali z <b style="color:var(--gold)">hlavní stránky RPG Matematika</b>.
-    Žáci musí být přihlášeni školním účtem, aby zprávu odeslali.</p>
+   <div class="info-box">Nápady a návrhy od hráčů z <b>hlavní stránky RPG Matematika</b>. Žáci musí být přihlášeni školním účtem.</div>
    <div class="controls">
     <button class="mini" onclick="loadFeedback()">↻ Načíst</button>
    </div>
@@ -205,9 +201,7 @@ h4{font-family:var(--px);font-size:12px;font-weight:700;color:var(--accent);lett
 
   <!-- NÁHLED HER -->
   <div id="t-preview" class="hidden">
-   <p style="color:var(--muted);margin-bottom:14px;line-height:1.6">
-    Spusť libovolnou hru v <b style="color:var(--gold)">náhledovém režimu</b> — hraješ nanečisto,
-    nic se neukládá. Ideální pro kontrolu úkolů nebo ukázku ve třídě.</p>
+   <div class="info-box">Spusť libovolnou hru v <b>náhledovém režimu</b> — hraješ nanečisto, nic se neukládá. Ideální pro ukázku ve třídě nebo kontrolu úkolů.</div>
    <div id="preview-cards" class="stats" style="flex-direction:column;gap:10px"></div>
   </div>
 
@@ -261,8 +255,7 @@ h4{font-family:var(--px);font-size:12px;font-weight:700;color:var(--accent);lett
 
   <!-- VYSVĚTLENÍ POSTUPU -->
   <div id="t-explain" class="hidden">
-   <p style="color:var(--muted);margin-bottom:14px;line-height:1.6">
-    Žáci mohou po správné odpovědi v boji napsat <b style="color:var(--gold)">jednou větou jak na to přišli</b>. Zde vidíš jejich vzkazy ze všech ročníků. Slouží jako formativní zpětná vazba: kde žáci přemýšlejí správně a kde jen tipují.</p>
+   <div class="info-box">Žáci mohou po správné odpovědi napsat <b>jednou větou jak na to přišli</b>. Formativní zpětná vazba: kde přemýšlejí správně a kde jen tipují.</div>
    <div class="controls">
     <select id="expl-game" aria-label="Vysvětlení: filtr podle ročníku" onchange="onExplGameChange()">
      <option value="" selected>— Všechny ročníky —</option>
@@ -284,9 +277,8 @@ h4{font-family:var(--px);font-size:12px;font-weight:700;color:var(--accent);lett
 
   <!-- UČITELÉ -->
   <div id="t-teachers" class="hidden">
-   <p style="color:var(--muted);margin-bottom:14px;line-height:1.6">
-    Přidej kolegu jeho <b>školním e-mailem</b> — roli získá, jakmile se poprvé přihlásí přes Google.
-    <b>Učitel</b> vidí přehled a náhledy; <b>superadmin</b> navíc maže/upravuje postavy a spravuje učitele.</p>
+   <div class="info-box">Přidej kolegu jeho <b>školním e-mailem</b> — roli získá při prvním přihlášení přes Google.
+    <b>Učitel</b> vidí přehled a náhledy; <b>superadmin</b> navíc maže/upravuje postavy a spravuje učitele.</div>
    <div class="controls">
     <input id="new-email" aria-label="E-mail nového učitele" class="" placeholder="jmeno@husovaliberec.cz" style="flex:1">
     <select id="new-role" aria-label="Role nového učitele">
