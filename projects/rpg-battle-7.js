@@ -109,6 +109,83 @@
                value: v, distractors: [v + 0.1, v + b, v - a] };
     },
 
+    // 11) zlomky s různými jmenovateli (1/a + 1/b)
+    function (r) {
+      const pairs = [[2,3],[2,5],[3,4],[3,5],[4,5],[2,7],[3,7]];
+      const [a, b] = pick(r, pairs);
+      const numN = a + b, denN = a * b;
+      const g = gcd(numN, denN);
+      const rn = numN / g, rd = denN / g;
+      const ans = rd === 1 ? S(rn) : `${rn}/${rd}`;
+      return { topic: 'zlomky', text: `Vypočítej: 1/${a} + 1/${b}  (jako zlomek)`,
+               value: ans, distractors: [`2/${a + b}`, `${a + b}/${a * b + 1}`, `1/${a + b}`] };
+    },
+
+    // 12) základ z procent (p % z ? = v)
+    function (r) {
+      const p = pick(r, [10, 20, 25, 50]);
+      const base = ri(r, 2, 20) * 20;
+      const v = Math.round(base * p / 100);
+      return { topic: 'procenta', text: `${p} % z čísla je ${v}. Celé číslo je…`, value: base,
+               distractors: [v * 2, base + v, v + 10] };
+    },
+
+    // 13) obsah rovnoběžníku
+    function (r) {
+      const z = ri(r, 4, 14), h = ri(r, 2, 8);
+      const v = z * h;
+      return { topic: 'rovnoběžník', text: `Rovnoběžník: základna ${z} cm, výška ${h} cm. Obsah? (cm²)`,
+               value: v, distractors: [2 * (z + h), v + z, z + h] };
+    },
+
+    // 14) objem kvádru
+    function (r) {
+      const a = ri(r, 2, 6), b = ri(r, 2, 6), c = ri(r, 2, 5);
+      const v = a * b * c;
+      return { topic: 'objem', text: `Kvádr: ${a} cm × ${b} cm × ${c} cm. Objem? (cm³)`,
+               value: v, distractors: [2 * (a * b + b * c + a * c), a + b + c, a * b * (c + 1)] };
+    },
+
+    // 15) měřítko mapy
+    function (r) {
+      const scale = pick(r, [1000, 2000, 5000, 10000]);
+      const map_cm = ri(r, 2, 8);
+      const v = map_cm * scale / 100;
+      return { topic: 'měřítko', text: `Měřítko 1 : ${scale}. Na mapě ${map_cm} cm. Vzdálenost ve skutečnosti? (m)`,
+               value: v, distractors: [v * 10, v / 10, v + scale / 100] };
+    },
+
+    // 16) absolutní hodnota
+    function (r) {
+      const a = -ri(r, 2, 12);
+      const v = -a;
+      if (r() < 0.5) {
+        return { topic: 'absolutní hodnota', text: `Vypočítej: |${a}|`, value: v,
+                 distractors: [a, v + 1, v - 1] };
+      }
+      const b = ri(r, 2, 8);
+      return { topic: 'absolutní hodnota', text: `Vypočítej: |${a}| + ${b}`, value: v + b,
+               distractors: [a + b, v + b + 1, v + b - 1] };
+    },
+
+    // 17) medián tří čísel
+    function (r) {
+      const a = ri(r, 2, 7), d = ri(r, 2, 5);
+      const sorted = [a, a + d, a + 2 * d];
+      const v = sorted[1];
+      const shuffled = [sorted[1], sorted[2], sorted[0]];
+      return { topic: 'statistika', text: `Medián čísel: ${shuffled.join(', ')}`, value: v,
+               distractors: [sorted[0], sorted[2], v + 1] };
+    },
+
+    // 18) dosazení do výrazu
+    function (r) {
+      const a = ri(r, 2, 5), b = ri(r, 1, 6), x = ri(r, 2, 7);
+      const v = a * x + b;
+      return { topic: 'výrazy', text: `Hodnota výrazu ${a}x + ${b} pro x = ${x}?`, value: v,
+               distractors: [a * x - b, a * (x + b), v + a] };
+    },
+
   ];
 
   function assemble(r, raw, id) {
