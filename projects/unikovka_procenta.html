@@ -216,6 +216,8 @@ table.tt tr:nth-child(even) td{background:#fafaf5}
 .lang-btn:hover{border-color:var(--blue);box-shadow:0 2px 8px rgba(26,115,200,.2)}
 .lang-btn.active{border-color:var(--blue);box-shadow:0 0 0 2px rgba(26,115,200,.25)}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}.chest{animation:none!important}.confetti-piece{display:none!important}}
+/* mobil: dotykové plochy nav/jazyk na ≥44px */
+@media(pointer:coarse){.lang-btn{min-width:44px;min-height:44px;display:inline-flex;align-items:center;justify-content:center}.tp-back,.tp-home{display:inline-flex;align-items:center;min-height:44px}}
 </style>
 </head>
 <body>
