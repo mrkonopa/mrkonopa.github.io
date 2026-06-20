@@ -123,6 +123,76 @@
                value: v, distractors: [hours1, v + 2, workers1 * hours1 / workers2 + 1] };
     },
 
+    // 11) obvod kruhu (2πr)
+    function (r) {
+      const rad = ri(r, 2, 8);
+      const v = Math.round(2 * 3.14 * rad * 10) / 10;
+      const area = Math.round(3.14 * rad * rad * 10) / 10;
+      return { topic: 'kruh', text: `Kruh: poloměr ${rad} cm. Obvod (π ≈ 3,14)? (cm)`, value: v,
+               distractors: [area, Math.round(3.14 * rad * 10) / 10, v + rad] };
+    },
+
+    // 12) obsah kruhu (πr²)
+    function (r) {
+      const rad = ri(r, 2, 7);
+      const area = Math.round(3.14 * rad * rad * 10) / 10;
+      const circ = Math.round(2 * 3.14 * rad * 10) / 10;
+      return { topic: 'kruh', text: `Kruh: poloměr ${rad} cm. Obsah (π ≈ 3,14)? (cm²)`, value: area,
+               distractors: [circ, Math.round(3.14 * (rad + 1) * (rad + 1) * 10) / 10, area + rad] };
+    },
+
+    // 13) Pythagorova věta — odvěsna
+    function (r) {
+      const trips = [[3, 4, 5], [6, 8, 10], [5, 12, 13], [8, 15, 17], [9, 12, 15]];
+      const [a, b, c] = pick(r, trips);
+      if (r() < 0.5) {
+        return { topic: 'Pythagoras', text: `Pravoúhlý trojúhelník: přepona ${c} cm, odvěsna ${a} cm. Druhá odvěsna? (cm)`,
+                 value: b, distractors: [c - a, a + b, b + 1] };
+      }
+      return { topic: 'Pythagoras', text: `Pravoúhlý trojúhelník: přepona ${c} cm, odvěsna ${b} cm. Druhá odvěsna? (cm)`,
+               value: a, distractors: [c - b, a + b, a + 1] };
+    },
+
+    // 14) rovnice se závorkou 3(x+b)=c
+    function (r) {
+      const x = ri(r, 1, 8), a = ri(r, 2, 5), b = ri(r, 1, 6);
+      const rhs = a * (x + b);
+      return { topic: 'rovnice', text: `Vyřeš: ${a}(x + ${b}) = ${rhs}`, value: x,
+               distractors: [(rhs / a) | 0, x + a, x * a] };
+    },
+
+    // 15) pravidla mocnin — součin (a^m · a^n = a^?)
+    function (r) {
+      const base = pick(r, [2, 3, 5]), m = ri(r, 2, 5), n = ri(r, 2, 5);
+      const v = m + n;
+      return { topic: 'mocniny', text: `Zjednodušte: ${base}^${m} · ${base}^${n} = ${base}^?`, value: v,
+               distractors: [m * n, v + 1, v - 1] };
+    },
+
+    // 16) dosazení do výrazu
+    function (r) {
+      const a = ri(r, 2, 5), b = ri(r, 1, 6), x = ri(r, 2, 7);
+      const v = a * x + b;
+      return { topic: 'výrazy', text: `Hodnota výrazu ${a}a + ${b} pro a = ${x}?`, value: v,
+               distractors: [a * x - b, a * (x + b), v + a] };
+    },
+
+    // 17) objem válce (πr²h)
+    function (r) {
+      const rad = ri(r, 2, 5), h = ri(r, 3, 8);
+      const v = Math.round(3.14 * rad * rad * h * 10) / 10;
+      return { topic: 'válec', text: `Válec: poloměr ${rad} cm, výška ${h} cm. Objem (π ≈ 3,14)? (cm³)`,
+               value: v, distractors: [Math.round(3.14 * rad * rad * 10) / 10, v + h, Math.round(3.14 * (rad + 1) * (rad + 1) * h * 10) / 10] };
+    },
+
+    // 18) povrch kvádru 2(ab+bc+ac)
+    function (r) {
+      const a = ri(r, 2, 5), b = ri(r, 2, 5), c = ri(r, 2, 5);
+      const v = 2 * (a * b + b * c + a * c);
+      return { topic: 'povrch', text: `Kvádr: ${a} cm × ${b} cm × ${c} cm. Povrch? (cm²)`,
+               value: v, distractors: [a * b * c, 6 * a * b, v + a * b] };
+    },
+
   ];
 
   function assemble(r, raw, id) {

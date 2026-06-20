@@ -137,6 +137,79 @@
                value: dec, distractors: [wrong[0], wrong[1], wrong[2]] };
     },
 
+    // 13) soustava rovnic — sčítací metoda
+    function (r) {
+      const y = ri(r, 1, 8), x = y + ri(r, 1, 5);
+      const s = x + y, d = x - y;
+      return { topic: 'soustava', text: `Soustava rovnic:\nx + y = ${s}\nx − y = ${d}\nKolik je x?`,
+               value: x, distractors: [y, s, d] };
+    },
+
+    // 14) vyjádření proměnné ze vzorce P = 2(a + b)
+    function (r) {
+      const a = ri(r, 3, 8), b = ri(r, 3, 8);
+      const P = 2 * (a + b);
+      return { topic: 'vzorce', text: `P = 2(a + b). P = ${P}, a = ${a}. Kolik je b?`, value: b,
+               distractors: [P - a, P / 2, b + a] };
+    },
+
+    // 15) funkce — pro jaké x je f(x) = k
+    function (r) {
+      const a = ri(r, 2, 5), b = ri(r, -6, 6), x = ri(r, -4, 6);
+      const k = a * x + b;
+      const sign = b >= 0 ? `+ ${b}` : `− ${-b}`;
+      return { topic: 'funkce', text: `f(x) = ${a}x ${sign}. Pro jaké x platí f(x) = ${k}?`, value: x,
+               distractors: [x + 1, x - 1, k - b] };
+    },
+
+    // 16) vědecký zápis → celé číslo
+    function (r) {
+      const mant = ri(r, 1, 9), exp = pick(r, [3, 4, 5]);
+      const v = mant * Math.pow(10, exp);
+      return { topic: 'věd. zápis', text: `Zapiš jako celé číslo: ${mant} · 10^${exp}`, value: v,
+               distractors: [mant * Math.pow(10, exp - 1), mant * Math.pow(10, exp + 1), mant + exp] };
+    },
+
+    // 17) medián pěti čísel
+    function (r) {
+      const a = ri(r, 1, 6), d = ri(r, 2, 4);
+      const sorted = [a, a + d, a + 2 * d, a + 3 * d, a + 4 * d];
+      const v = sorted[2];
+      const shuffled = [sorted[1], sorted[4], sorted[0], sorted[3], sorted[2]];
+      return { topic: 'statistika', text: `Medián souboru: ${shuffled.join(', ')}`, value: v,
+               distractors: [sorted[1], sorted[3], sorted[4]] };
+    },
+
+    // 18) pravděpodobnost (jednoduchá)
+    function (r) {
+      const cases = [
+        [4, 1, '1/4'], [4, 3, '3/4'], [5, 1, '1/5'], [5, 2, '2/5'],
+        [5, 3, '3/5'], [5, 4, '4/5'], [6, 1, '1/6'], [6, 5, '5/6'],
+        [10, 1, '1/10'], [10, 3, '3/10'], [10, 7, '7/10'], [10, 9, '9/10'],
+      ];
+      const [total, fav, ans] = pick(r, cases);
+      const wrongs = cases.filter(c => c[2] !== ans);
+      return { topic: 'pravděpodobnost', text: `Z ${total} kuliček je ${fav} červených. P(červená) = ?`,
+               value: ans, distractors: [wrongs[0][2], wrongs[Math.floor(wrongs.length / 2)][2], wrongs[wrongs.length - 1][2]] };
+    },
+
+    // 19) geometrická posloupnost — 5. člen
+    function (r) {
+      const start = ri(r, 1, 4), ratio = ri(r, 2, 3);
+      const seq = [start, start * ratio, start * ratio * ratio, start * ratio ** 3];
+      const v = seq[3] * ratio;
+      return { topic: 'posloupnost', text: `Geometrická posloupnost: ${seq.join(', ')}, …\n5. člen?`,
+               value: v, distractors: [seq[3] + ratio, v * ratio, seq[3] + seq[3] - seq[2]] };
+    },
+
+    // 20) procenta — navýšení (zdražení)
+    function (r) {
+      const price = ri(r, 2, 15) * 100, p = pick(r, [5, 10, 15, 20, 25]);
+      const v = Math.round(price * (100 + p) / 100);
+      return { topic: 'procenta', text: `Cena ${price} Kč se zvýší o ${p} %. Nová cena?`,
+               value: v, distractors: [Math.round(price * p / 100), price + p, v - Math.round(price * p / 100)] };
+    },
+
   ];
 
   // ── složení jedné MC otázky (deterministické) ──
