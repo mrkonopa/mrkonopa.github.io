@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Únikovka: Lineární funkce</title>
+<meta name="description" content="Interaktivní únikovka z matematiky – lineární funkce f(x)=ax+b, směrnice, průsečíky, přímá úměrnost.">
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --gold-dark:#c89a10; --blue:#1a73c8; --blue-light:#e8f1fb;
+  --green:#1e9e5a; --green-light:#e6f7ef; --red:#d63c2f;
+  --purple:#7c3aad; --purple-light:#f3eefa;
+  --teal:#0f8a72; --teal-light:#e4f5f1;
+  --orange:#d4620a; --orange-light:#fdf0e5;
+  --pink:#b5286e; --pink-light:#fce8f2;
+  --indigo:#3730a3; --indigo-light:#eef2ff;
+  --rose:#9f1239; --rose-light:#fff1f2;
+  --cyan:#0e7490; --cyan-light:#ecfeff;
+  --bg:#eff6ff; --card:#fff; --text:#1a1a2e; --muted:#6b7280;
+  --shadow:0 4px 24px rgba(0,0,0,.09); --radius:16px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Lexend',sans-serif;background:var(--bg);background-image:radial-gradient(circle at 8% 15%,rgba(26,115,200,.12) 0%,transparent 38%),radial-gradient(circle at 92% 82%,rgba(55,48,163,.09) 0%,transparent 38%);min-height:100vh;color:var(--text)}
+.screen{display:none;min-height:100vh;padding:24px 16px 48px;max-width:680px;margin:0 auto}
+.screen.active{display:flex;flex-direction:column;align-items:center}
+#intro{justify-content:center;text-align:center;gap:18px}
+#intro-content{display:flex;flex-direction:column;align-items:center;gap:18px;width:100%}
+.chest{font-size:88px;animation:float 3s ease-in-out infinite;display:inline-block;filter:drop-shadow(0 8px 16px rgba(0,0,0,.15))}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
+.title-main{font-size:2.5rem;color:var(--blue);line-height:1.1;font-weight:800}
+.title-sub{font-size:1.45rem;color:var(--indigo);font-weight:700}
+.intro-card{background:var(--card);border-radius:var(--radius);padding:22px 26px;box-shadow:var(--shadow);border-left:6px solid var(--blue);text-align:left;width:100%}
+.intro-card p{font-size:.97rem;line-height:1.75}
+.intro-card p+p{margin-top:10px}
+.intro-card b{color:var(--blue)}
+.rules{background:var(--card);border-radius:var(--radius);padding:18px 22px;box-shadow:var(--shadow);width:100%;border-left:6px solid var(--gold-dark)}
+.rules h3{color:var(--gold-dark);font-size:1.05rem;margin-bottom:10px;font-weight:700}
+.rules ul{list-style:none;display:flex;flex-direction:column;gap:8px}
+.rules li{display:flex;align-items:flex-start;gap:10px;font-size:.95rem;line-height:1.55}
+.btn-primary{background:linear-gradient(135deg,var(--blue),#1558a8);color:#fff;font-family:'Lexend',sans-serif;font-size:1.2rem;font-weight:700;border:none;border-radius:50px;padding:15px 46px;cursor:pointer;box-shadow:0 6px 20px rgba(26,115,200,.32);transition:transform .15s,box-shadow .15s;letter-spacing:.01em}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(26,115,200,.38)}
+.progress-wrap{width:100%;margin-top:10px;margin-bottom:18px}
+.progress-label{display:flex;justify-content:space-between;font-size:.82rem;font-weight:700;color:var(--muted);margin-bottom:5px}
+.progress-bar{background:#ddd8c6;border-radius:20px;height:9px;overflow:hidden}
+.progress-fill{height:100%;border-radius:20px;background:linear-gradient(90deg,var(--blue),var(--indigo));transition:width .5s ease}
+.stars-wrap{display:flex;gap:3px}
+.star{font-size:1rem;opacity:.22;transition:opacity .3s,transform .3s}
+.star.lit{opacity:1;transform:scale(1.12)}
+#game{justify-content:flex-start;gap:0}
+.lock-header{width:100%;display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.lock-icon-big{font-size:2.2rem}
+.lock-title{font-size:1.4rem;font-weight:700}
+.lock-badge{margin-left:auto;background:var(--blue);color:#fff;border-radius:50px;padding:3px 13px;font-size:.82rem;font-weight:700;white-space:nowrap}
+.task-card{background:var(--card);border-radius:var(--radius);padding:22px 22px 18px;box-shadow:var(--shadow);width:100%;margin-bottom:22px;position:relative;overflow:hidden}
+.task-card::before{content:'';position:absolute;top:0;left:0;width:5px;height:100%;border-radius:3px 0 0 3px}
+.task-card.blue::before{background:var(--blue)}.task-card.green::before{background:var(--green)}.task-card.purple::before{background:var(--purple)}.task-card.teal::before{background:var(--teal)}.task-card.orange::before{background:var(--orange)}.task-card.pink::before{background:var(--pink)}.task-card.indigo::before{background:var(--indigo)}.task-card.rose::before{background:var(--rose)}.task-card.cyan::before{background:var(--cyan)}.task-card.gold::before{background:var(--gold-dark)}
+.task-card h3{font-size:1.02rem;margin-bottom:11px;font-weight:700}
+.task-card.blue h3{color:var(--blue)}.task-card.green h3{color:var(--green)}.task-card.purple h3{color:var(--purple)}.task-card.teal h3{color:var(--teal)}.task-card.orange h3{color:var(--orange)}.task-card.pink h3{color:var(--pink)}.task-card.indigo h3{color:var(--indigo)}.task-card.rose h3{color:var(--rose)}.task-card.cyan h3{color:var(--cyan)}.task-card.gold h3{color:var(--gold-dark)}
+.task-card p{font-size:.95rem;line-height:1.75}.task-card p+p{margin-top:8px}.task-card ul,.task-card ol{margin:6px 0 6px 1.2em;font-size:.95rem;line-height:1.7}
+table.tt{width:100%;border-collapse:collapse;margin:10px 0;font-size:.9rem}
+table.tt th{padding:7px 9px;text-align:center;font-weight:700}
+table.tt td{border:1px solid #e0dbd0;padding:7px 9px;text-align:center}
+table.tt tr:nth-child(even) td{background:#fafaf5}
+.blue table.tt th{background:var(--blue-light);color:var(--blue)}.green table.tt th{background:var(--green-light);color:var(--green)}.purple table.tt th{background:var(--purple-light);color:var(--purple)}.teal table.tt th{background:var(--teal-light);color:var(--teal)}.orange table.tt th{background:var(--orange-light);color:var(--orange)}.pink table.tt th{background:var(--pink-light);color:var(--pink)}.indigo table.tt th{background:var(--indigo-light);color:var(--indigo)}.rose table.tt th{background:var(--rose-light);color:var(--rose)}.cyan table.tt th{background:var(--cyan-light);color:var(--cyan)}.gold table.tt th{background:#fef9ec;color:var(--gold-dark)}
+.hint-box{margin-top:11px;background:#fef9ec;border:1.5px dashed var(--gold-dark);border-radius:10px;padding:9px 13px;font-size:.88rem;color:#7a5200;display:none}
+.hint-box.show{display:block}
+.hint-btn{background:none;border:1.5px solid var(--gold-dark);color:var(--gold-dark);border-radius:20px;padding:4px 12px;font-size:.8rem;font-weight:700;cursor:pointer;margin-top:9px;font-family:'Lexend',sans-serif;transition:background .15s}
+.hint-btn:hover{background:#fef9ec}
+.tag{display:inline-block;border-radius:20px;padding:2px 10px;font-size:.78rem;font-weight:700;margin-bottom:7px}
+.tag.blue{background:var(--blue-light);color:var(--blue)}.tag.green{background:var(--green-light);color:var(--green)}.tag.purple{background:var(--purple-light);color:var(--purple)}.tag.teal{background:var(--teal-light);color:var(--teal)}.tag.orange{background:var(--orange-light);color:var(--orange)}.tag.pink{background:var(--pink-light);color:var(--pink)}.tag.indigo{background:var(--indigo-light);color:var(--indigo)}.tag.rose{background:var(--rose-light);color:var(--rose)}.tag.cyan{background:var(--cyan-light);color:var(--cyan)}.tag.gold{background:#fef9ec;color:var(--gold-dark)}
+.code-wrap{background:var(--card);border-radius:var(--radius);padding:20px 22px;box-shadow:var(--shadow);width:100%;margin-top:10px;margin-bottom:18px}
+.code-wrap label{display:block;font-size:.98rem;color:var(--muted);margin-bottom:11px;font-weight:700}
+.code-row{display:flex;gap:10px;align-items:center}
+.code-hint-bar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:12px}
+.code-hint-btn{background:none;border:1.5px dashed var(--gold-dark);color:var(--gold-dark);padding:5px 14px;border-radius:20px;font-family:'Lexend',sans-serif;font-weight:600;font-size:.82rem;cursor:pointer;transition:all .15s}
+.code-hint-btn:hover:not([disabled]){background:#fef9ec}
+.code-hint-btn[disabled]{opacity:.5;cursor:not-allowed;border-style:solid;border-color:#e0dbd0;color:var(--muted)}
+.code-hint-counter{font-size:.76rem;color:var(--muted)}
+.code-hint-counter .dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#e0dbd0;margin:0 1px}
+.code-hint-counter .dot.shown{background:var(--gold-dark)}
+.code-hint-counter .dot.shown.warn{background:var(--orange)}
+.code-hint-box{margin-top:10px;background:#fef9ec;border-left:3px solid var(--gold-dark);padding:10px 14px;border-radius:8px;font-size:.9rem;display:none;color:#7a5200}
+.code-hint-box.show{display:block}
+.code-hint-box .h-label{font-size:.7rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gold-dark);display:block;margin-bottom:4px}
+.code-hint-box[data-level="3"]{background:var(--orange-light);border-left-color:var(--orange);color:#8b3f08}
+.code-hint-box[data-level="3"] .h-label{color:var(--orange)}
+.code-input{flex:1;font-family:'Lexend',sans-serif;font-size:1.5rem;text-align:center;letter-spacing:.12em;border:3px solid #ccc8bb;border-radius:12px;padding:11px 14px;outline:none;transition:border-color .2s;background:#fafaf6;color:var(--text)}
+.code-input:focus{border-color:var(--blue);background:#fff}
+.code-input.error{border-color:var(--red);animation:shake .32s}
+.code-input.success{border-color:var(--blue);background:var(--blue-light)}
+@keyframes shake{0%,100%{transform:translateX(0)}30%{transform:translateX(-5px)}70%{transform:translateX(5px)}}
+.btn-check{background:linear-gradient(135deg,var(--blue),#1558a8);color:#fff;font-family:'Lexend',sans-serif;font-size:.95rem;font-weight:700;border:none;border-radius:12px;padding:13px 20px;cursor:pointer;box-shadow:0 4px 14px rgba(26,115,200,.28);transition:transform .15s;white-space:nowrap}
+.btn-check:hover{transform:translateY(-1px)}
+.feedback{margin-top:9px;font-weight:700;font-size:.92rem;min-height:20px}
+.feedback.ok{color:var(--blue)}.feedback.err{color:var(--red)}
+.unlock-anim{display:none;flex-direction:column;align-items:center;gap:6px;padding:18px;animation:popIn .4s cubic-bezier(.175,.885,.32,1.275)}
+.unlock-anim.show{display:flex}
+@keyframes popIn{from{transform:scale(.5);opacity:0}to{transform:scale(1);opacity:1}}
+.unlock-anim .big-icon{font-size:3.2rem}
+.unlock-anim p{font-size:1.05rem;color:var(--blue);text-align:center;font-weight:700}
+#finish{justify-content:center;text-align:center;gap:20px}
+.final-chest{font-size:96px;animation:bounce .6s cubic-bezier(.175,.885,.32,1.275)}
+@keyframes bounce{from{transform:scale(0)}to{transform:scale(1)}}
+.final-title{font-size:2.1rem;color:var(--gold-dark);font-weight:800}
+.final-sub{font-size:.97rem;color:var(--muted);line-height:1.75;max-width:420px}
+.summary-card{background:var(--card);border-radius:var(--radius);padding:18px 22px;box-shadow:var(--shadow);width:100%;text-align:left}
+.summary-card h3{color:var(--blue);font-size:1.05rem;margin-bottom:12px;font-weight:700}
+.summary-row{display:flex;align-items:flex-start;gap:11px;padding:9px 0;border-bottom:1px solid #f0ece0;font-size:.93rem;line-height:1.6}
+.summary-row:last-child{border-bottom:none}
+.s-icon{font-size:1.2rem;flex-shrink:0;margin-top:1px}
+.confetti-wrap{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:999}
+.confetti-piece{position:absolute;animation:fall linear forwards}
+@keyframes fall{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+.top-bar{max-width:680px;margin:0 auto;padding:16px 20px 0;display:flex;justify-content:space-between;gap:18px;font-size:.82rem;color:var(--muted)}
+.top-bar a{color:var(--muted);text-decoration:none}
+.top-bar a:hover{color:var(--blue)}
+.top-bar .crumb{color:var(--text);font-weight:500}
+#lang-bar{position:fixed;bottom:16px;right:16px;z-index:200;display:flex;gap:6px;background:rgba(255,255,255,.92);border-radius:50px;padding:5px 8px;box-shadow:0 2px 12px rgba(0,0,0,.12);backdrop-filter:blur(6px)}
+.lang-btn{background:none;border:2px solid transparent;border-radius:50px;font-size:1.35rem;cursor:pointer;padding:3px 7px;line-height:1;transition:border-color .15s,box-shadow .15s}
+.lang-btn.active{border-color:var(--blue);box-shadow:0 0 0 2px rgba(26,115,200,.25)}
+@media(pointer:coarse){.lang-btn{min-width:44px;min-height:44px;display:inline-flex;align-items:center;justify-content:center}.tp-back,.tp-home{display:inline-flex;align-items:center;min-height:44px}}
+</style>
+</head>
+<body>
+<div class="top-bar">
+  <a href="./" class="tp-back">← zpět na projekty</a>
+  <span class="crumb">/projects/unikovka_linearni_funkce</span>
+  <a href="/" class="tp-home">domů</a>
+</div>
+<div id="lang-bar">
+  <button class="lang-btn" data-lang="cs" onclick="setLang('cs')">&#x1F1E8;&#x1F1FF;</button>
+  <button class="lang-btn" data-lang="en" onclick="setLang('en')">&#x1F1EC;&#x1F1E7;</button>
+</div>
+<div id="intro" class="screen active"><div id="intro-content"></div></div>
+<div id="game" class="screen">
+  <div class="progress-wrap" style="width:100%">
+    <div class="progress-label"><span id="prog-label"></span><span class="stars-wrap" id="stars-wrap"></span></div>
+    <div class="progress-bar"><div class="progress-fill" id="prog-fill" style="width:0%"></div></div>
+  </div>
+  <div id="step-container" style="width:100%"></div>
+</div>
+<div id="finish" class="screen">
+  <div class="confetti-wrap" id="confetti"></div>
+  <div id="finish-content"></div>
+</div>
+<script>
+const LANG_KEY = 'unikovka_linearni_funkce_lang';
+let lang = localStorage.getItem(LANG_KEY) || 'cs';
+const i18n = (cs, en) => lang === 'en' ? en : cs;
+
+function setLang(l) {
+  lang = l;
+  try { localStorage.setItem(LANG_KEY, l); } catch(e) {}
+  document.querySelectorAll('.lang-btn').forEach(b => b.classList.toggle('active', b.dataset.lang === l));
+  document.querySelectorAll('.tp-back').forEach(el => el.textContent = i18n('← zpět na projekty','← back to projects'));
+  document.querySelectorAll('.tp-home').forEach(el => el.textContent = i18n('domů','home'));
+  const activeId = document.querySelector('.screen.active')?.id;
+  if (activeId === 'intro') buildIntro();
+  else if (activeId === 'game') render(cur);
+  else if (activeId === 'finish') buildFinish();
+}
+
+function buildIntro() {
+  document.getElementById('intro-content').innerHTML = `
+    <div class="chest">📈</div>
+    <div class="title-main">${i18n('Únikovka z matiky','Math Escape Room')}</div>
+    <div class="title-sub">📈 ${i18n('LINEÁRNÍ FUNKCE','LINEAR FUNCTIONS')} 📈</div>
+    <div class="intro-card">
+      <p>${i18n('Tajná laboratoř je uzamčena <b>10 kódovými zámky</b>. Každý zámek skrývá tajnou hodnotu lineární funkce.','A secret lab is locked with <b>10 code locks</b>. Each lock hides a secret value of a linear function.')}</p>
+      <p>${i18n('Tvůj úkol: dosadit správně do předpisu funkce <b>f(x) = ax + b</b>, nalézt průsečíky, směrnici nebo průsečík dvou přímek.','Your task: correctly substitute into <b>f(x) = ax + b</b>, find intercepts, slope, or the intersection of two lines.')}</p>
+      <p>${i18n('Deset zamčených dveří. Deset výpočtů. Jedna správná cesta ven. 🧮','Ten locked doors. Ten calculations. One correct way out. 🧮')}</p>
+    </div>
+    <div class="rules">
+      <h3>📋 ${i18n('Pravidla','Rules')}</h3>
+      <ul>
+        <li><span>✏️</span> ${i18n('Výpočty piš do sešitu – každý krok celý.','Write your calculations in your notebook – every step.')}</li>
+        <li><span>🚫</span> ${i18n('Bez kalkulačky, bez opisování.','No calculator, no copying.')}</li>
+        <li><span>💡</span> ${i18n('Nevíš? Zkus nápovědu – ale nejdřív se zamysli!','Stuck? Try the hint – but think first!')}</li>
+        <li><span>🔢</span> ${i18n('Kód zadej jako celé číslo (záporné číslo piš se znaménkem −).','Enter the code as a whole number (negative numbers include the − sign).')}</li>
+      </ul>
+    </div>
+    <button class="btn-primary" id="btn-start">🔓 ${i18n('Spustit experiment!','Launch the experiment!')}</button>
+  `;
+  document.getElementById('btn-start').addEventListener('click', startGame);
+}
+
+function buildFinish() {
+  document.getElementById('finish-content').innerHTML = `
+    <div class="final-chest">🏆</div>
+    <div class="final-title">${i18n('Laboratoř odemčena!','Lab unlocked!')}</div>
+    <p class="final-sub">${i18n('Zvládl(a) jsi všech 10 zámků. Lineární funkce pro tebe nemají tajemství!','You cracked all 10 locks. Linear functions hold no more secrets for you!')}</p>
+    <div class="summary-card">
+      <h3>📖 ${i18n('Co jsi dnes zvládl(a)','What you mastered today')}</h3>
+      <div class="summary-row"><span class="s-icon">📈</span><span>${i18n('Lineární funkce: f(x) = ax + b. Koeficient a = směrnice (sklon), b = průsečík s osou y.','Linear function: f(x) = ax + b. Coefficient a = slope, b = y-intercept.')}</span></div>
+      <div class="summary-row"><span class="s-icon">➡️</span><span>${i18n('Průsečík s osou y: nastav x = 0 → f(0) = b.','Y-intercept: set x = 0 → f(0) = b.')}</span></div>
+      <div class="summary-row"><span class="s-icon">⬆️</span><span>${i18n('Průsečík s osou x: nastav f(x) = 0, vyřeš rovnici ax + b = 0 → x = −b/a.','X-intercept: set f(x) = 0, solve ax + b = 0 → x = −b/a.')}</span></div>
+      <div class="summary-row"><span class="s-icon">📐</span><span>${i18n('Směrnice ze dvou bodů: a = (y₂ − y₁) / (x₂ − x₁).','Slope from two points: a = (y₂ − y₁) / (x₂ − x₁).')}</span></div>
+      <div class="summary-row"><span class="s-icon">🔗</span><span>${i18n('Přímá úměrnost: f(x) = kx prochází počátkem (0, 0).','Direct proportionality: f(x) = kx passes through the origin (0, 0).')}</span></div>
+      <div class="summary-row"><span class="s-icon">⚡</span><span>${i18n('Průsečík dvou přímek: f(x) = g(x) → vyřeš rovnici.','Intersection of two lines: f(x) = g(x) → solve the equation.')}</span></div>
+    </div>
+    <button class="btn-primary" id="btn-restart">🔄 ${i18n('Hrát znovu','Play again')}</button>
+  `;
+  document.getElementById('btn-restart').addEventListener('click', () => location.reload());
+}
+
+const STEPS = [
+{id:1,color:'blue',icon:'📈',code:'17',
+ title:'Zámek 1 – Hodnota funkce',title_en:'Lock 1 – Function value',
+ tag:'f(x) = ax + b',tag_en:'f(x) = ax + b',tagClass:'blue',
+ tasks:[
+  {title:'🧩 Co je lineární funkce?',title_en:'🧩 What is a linear function?',
+   body:`<p>Lineární funkce má tvar <b>f(x) = ax + b</b>, kde:</p>
+<ul><li><b>a</b> = směrnice (sklon přímky) — číslo, které „násobíme x"</li><li><b>b</b> = absolutní člen = průsečík s osou y (kde přímka kříží osu y)</li></ul>
+<p>Grafem lineární funkce je vždy <b>přímka</b>.</p>
+<p>Hodnotu funkce v bodě x₀ zjistíme <b>dosazením</b>: x nahradíme konkrétním číslem.</p>
+<table class="tt"><tr><th>Funkce</th><th>x</th><th>f(x) = ?</th></tr>
+<tr><td>f(x) = 2x + 1</td><td>3</td><td>2·3 + 1 = <b>7</b></td></tr>
+<tr><td>f(x) = 5x − 4</td><td>2</td><td>5·2 − 4 = <b>6</b></td></tr>
+<tr><td>f(x) = 4x − 3</td><td>5</td><td>4·5 − 3 = <b>?</b></td></tr></table>`,
+   body_en:`<p>A linear function has the form <b>f(x) = ax + b</b>, where:</p>
+<ul><li><b>a</b> = slope — the number multiplying x</li><li><b>b</b> = y-intercept — where the line crosses the y-axis</li></ul>
+<p>The graph of any linear function is a straight <b>line</b>.</p>
+<p>To find the function value at x₀, <b>substitute</b>: replace x with the specific number.</p>
+<table class="tt"><tr><th>Function</th><th>x</th><th>f(x) = ?</th></tr>
+<tr><td>f(x) = 2x + 1</td><td>3</td><td>2·3 + 1 = <b>7</b></td></tr>
+<tr><td>f(x) = 5x − 4</td><td>2</td><td>5·2 − 4 = <b>6</b></td></tr>
+<tr><td>f(x) = 4x − 3</td><td>5</td><td>4·5 − 3 = <b>?</b></td></tr></table>`,
+   hint:'💡 Dosaď x = 5: 4 · 5 = 20. 20 − 3 = ?',
+   hint_en:'💡 Substitute x = 5: 4 · 5 = 20. 20 − 3 = ?'},
+  {title:'🔢 Kód zámku',title_en:'🔢 Lock code',
+   body:'<p>Vypočítej hodnotu funkce <b>f(x) = 4x − 3</b> pro <b>x = 5</b>.</p><p>Kód = f(5).</p>',
+   body_en:'<p>Calculate the value of <b>f(x) = 4x − 3</b> for <b>x = 5</b>.</p><p>Code = f(5).</p>',
+   hint:'💡 f(5) = 4·5 − 3 = 20 − 3 = ?',hint_en:'💡 f(5) = 4·5 − 3 = 20 − 3 = ?'}],
+ successMsg:'🔓 Správně! f(5) = 4·5 − 3 = 17. Zámek 1 otevřen!',
+ successMsg_en:'🔓 Correct! f(5) = 4·5 − 3 = 17. Lock 1 opened!'},
+
+{id:2,color:'green',icon:'⬆️',code:'8',
+ title:'Zámek 2 – Průsečík s osou y',title_en:'Lock 2 – Y-intercept',
+ tag:'f(0) = b',tag_en:'f(0) = b',tagClass:'green',
+ tasks:[
+  {title:'🧩 Kde přímka kříží osu y?',title_en:'🧩 Where does the line cross the y-axis?',
+   body:`<p>Průsečík s osou y nastane, když <b>x = 0</b>.</p>
+<p>Dosadíme: f(0) = a·0 + b = <b>b</b></p>
+<p>Průsečík s osou y je tedy vždy bod <b>(0, b)</b> — absolutní člen nám ho dá přímo!</p>
+<table class="tt"><tr><th>Funkce f(x)</th><th>Průsečík s osou y</th></tr>
+<tr><td>3x + 5</td><td>(0, 5)</td></tr>
+<tr><td>−2x + 9</td><td>(0, 9)</td></tr>
+<tr><td>7x − 4</td><td>(0, −4)</td></tr>
+<tr><td>6x + 8</td><td>(0, <b>?</b>)</td></tr></table>`,
+   body_en:`<p>The y-intercept occurs when <b>x = 0</b>.</p>
+<p>Substitute: f(0) = a·0 + b = <b>b</b></p>
+<p>The y-intercept is always the point <b>(0, b)</b> — the constant term gives it directly!</p>
+<table class="tt"><tr><th>Function f(x)</th><th>Y-intercept</th></tr>
+<tr><td>3x + 5</td><td>(0, 5)</td></tr>
+<tr><td>−2x + 9</td><td>(0, 9)</td></tr>
+<tr><td>7x − 4</td><td>(0, −4)</td></tr>
+<tr><td>6x + 8</td><td>(0, <b>?</b>)</td></tr></table>`,
+   hint:'💡 Průsečík s osou y = absolutní člen b. V f(x) = 6x + 8 je b = ?',
+   hint_en:'💡 Y-intercept = constant term b. In f(x) = 6x + 8, b = ?'},
+  {title:'🔢 Kód zámku',title_en:'🔢 Lock code',
+   body:'<p>Funkce <b>f(x) = 6x + 8</b>. Jaká je y-souřadnice průsečíku s osou y?</p><p>Kód = y-souřadnice průsečíku s osou y.</p>',
+   body_en:'<p>Function <b>f(x) = 6x + 8</b>. What is the y-coordinate of the y-intercept?</p><p>Code = y-coordinate of y-intercept.</p>',
+   hint:'💡 Dosaď x = 0: f(0) = 6·0 + 8 = ?',hint_en:'💡 Substitute x = 0: f(0) = 6·0 + 8 = ?'}],
+ successMsg:'🔓 Přesně! f(0) = 0 + 8 = 8. Zámek 2 otevřen!',
+ successMsg_en:'🔓 Exactly! f(0) = 0 + 8 = 8. Lock 2 opened!'},
+
+{id:3,color:'purple',icon:'➡️',code:'5',
+ title:'Zámek 3 – Průsečík s osou x',title_en:'Lock 3 – X-intercept',
+ tag:'f(x) = 0 → x = −b/a',tag_en:'f(x) = 0 → x = −b/a',tagClass:'purple',
+ tasks:[
+  {title:'🧩 Kde přímka kříží osu x?',title_en:'🧩 Where does the line cross the x-axis?',
+   body:`<p>Průsečík s osou x nastane, když <b>f(x) = 0</b>.</p>
+<p>Řešíme rovnici: <b>ax + b = 0</b></p>
+<p>Z toho: <b>x = −b/a</b></p>
+<p>Průsečík s osou x je bod <b>(−b/a, 0)</b>.</p>
+<table class="tt"><tr><th>Funkce f(x)</th><th>Rovnice</th><th>Průsečík s osou x</th></tr>
+<tr><td>2x − 6</td><td>2x − 6 = 0</td><td>x = 3</td></tr>
+<tr><td>4x + 8</td><td>4x + 8 = 0</td><td>x = −2</td></tr>
+<tr><td>3x − 15</td><td>3x − 15 = 0</td><td>x = <b>?</b></td></tr></table>`,
+   body_en:`<p>The x-intercept occurs when <b>f(x) = 0</b>.</p>
+<p>Solve the equation: <b>ax + b = 0</b></p>
+<p>Therefore: <b>x = −b/a</b></p>
+<p>The x-intercept is the point <b>(−b/a, 0)</b>.</p>
+<table class="tt"><tr><th>Function f(x)</th><th>Equation</th><th>X-intercept</th></tr>
+<tr><td>2x − 6</td><td>2x − 6 = 0</td><td>x = 3</td></tr>
+<tr><td>4x + 8</td><td>4x + 8 = 0</td><td>x = −2</td></tr>
+<tr><td>3x − 15</td><td>3x − 15 = 0</td><td>x = <b>?</b></td></tr></table>`,
+   hint:'💡 3x − 15 = 0 → 3x = 15 → x = ?',
+   hint_en:'💡 3x − 15 = 0 → 3x = 15 → x = ?'},
+  {title:'🔢 Kód zámku',title_en:'🔢 Lock code',
+   body:'<p>Funkce <b>f(x) = 3x − 15</b>. Jaká je x-souřadnice průsečíku s osou x?</p><p>Kód = x-souřadnice průsečíku s osou x.</p>',
+   body_en:'<p>Function <b>f(x) = 3x − 15</b>. What is the x-coordinate of the x-intercept?</p><p>Code = x-coordinate of x-intercept.</p>',
+   hint:'💡 f(x) = 0: 3x = 15. x = 15 ÷ 3 = ?',hint_en:'💡 f(x) = 0: 3x = 15. x = 15 ÷ 3 = ?'}],
+ successMsg:'🔓 Výborně! 3x = 15 → x = 5. Zámek 3 otevřen!',
+ successMsg_en:'🔓 Excellent! 3x = 15 → x = 5. Lock 3 opened!'},
+
+{id:4,color:'teal',icon:'📐',code:'3',
+ title:'Zámek 4 – Směrnice',title_en:'Lock 4 – Slope',
+ tag:'a = (y₂ − y₁) / (x₂ − x₁)',tag_en:'a = (y₂ − y₁) / (x₂ − x₁)',tagClass:'teal',
+ tasks:[
+  {title:'🧩 Jak zjistit směrnici?',title_en:'🧩 How to find the slope?',
+   body:`<p><b>Směrnice a</b> udává, o kolik se hodnota funkce změní, zvýší-li se x o 1.</p>
+<ul><li><b>a &gt; 0</b>: funkce je rostoucí (přímka stoupá)</li><li><b>a &lt; 0</b>: funkce je klesající (přímka klesá)</li><li><b>a = 0</b>: konstantní funkce (vodorovná přímka)</li></ul>
+<p>Ze dvou bodů [x₁, y₁] a [x₂, y₂] na přímce:</p>
+<p style="text-align:center"><b>a = (y₂ − y₁) / (x₂ − x₁)</b></p>
+<table class="tt"><tr><th>Body</th><th>Výpočet a</th><th>Směrnice</th></tr>
+<tr><td>[0,1] a [2,7]</td><td>(7−1)/(2−0) = 6/2</td><td>3</td></tr>
+<tr><td>[1,5] a [4,14]</td><td>(14−5)/(4−1) = 9/3</td><td>3</td></tr>
+<tr><td>[0,6] a [3,15]</td><td>(15−6)/(3−0) = 9/3</td><td><b>?</b></td></tr></table>`,
+   body_en:`<p><b>Slope a</b> tells us how much the function value changes when x increases by 1.</p>
+<ul><li><b>a &gt; 0</b>: function is increasing (line goes up)</li><li><b>a &lt; 0</b>: function is decreasing (line goes down)</li><li><b>a = 0</b>: constant function (horizontal line)</li></ul>
+<p>From two points [x₁, y₁] and [x₂, y₂] on the line:</p>
+<p style="text-align:center"><b>a = (y₂ − y₁) / (x₂ − x₁)</b></p>
+<table class="tt"><tr><th>Points</th><th>Calculation</th><th>Slope</th></tr>
+<tr><td>[0,1] and [2,7]</td><td>(7−1)/(2−0) = 6/2</td><td>3</td></tr>
+<tr><td>[1,5] and [4,14]</td><td>(14−5)/(4−1) = 9/3</td><td>3</td></tr>
+<tr><td>[0,6] and [3,15]</td><td>(15−6)/(3−0) = 9/3</td><td><b>?</b></td></tr></table>`,
+   hint:'💡 a = (y₂ − y₁) / (x₂ − x₁) = (15 − 6) / (3 − 0) = 9 / 3 = ?',
+   hint_en:'💡 a = (y₂ − y₁) / (x₂ − x₁) = (15 − 6) / (3 − 0) = 9 / 3 = ?'},
+  {title:'🔢 Kód zámku',title_en:'🔢 Lock code',
+   body:'<p>Přímka prochází body <b>A[0, 6]</b> a <b>B[3, 15]</b>. Jaká je její <b>směrnice a</b>?</p><p>Kód = směrnice.</p>',
+   body_en:'<p>A line passes through <b>A[0, 6]</b> and <b>B[3, 15]</b>. What is the <b>slope a</b>?</p><p>Code = slope.</p>',
+   hint:'💡 (15 − 6) / (3 − 0) = 9 / 3 = ?',hint_en:'💡 (15 − 6) / (3 − 0) = 9 / 3 = ?'}],
+ successMsg:'🔓 Přesně! Směrnice a = (15−6)/(3−0) = 9/3 = 3. Zámek 4 otevřen!',
+ successMsg_en:'🔓 Exactly! Slope a = (15−6)/(3−0) = 9/3 = 3. Lock 4 opened!'},
+
+{id:5,color:'orange',icon:'⬇️',code:'15',
+ title:'Zámek 5 – Záporné x',title_en:'Lock 5 – Negative x',
+ tag:'Dosazení záporného čísla',tag_en:'Substituting negative x',tagClass:'orange',
+ tasks:[
+  {title:'🧩 Záporné hodnoty x',title_en:'🧩 Negative x values',
+   body:`<p>Lineární funkce je definována pro <b>všechna reálná čísla</b>, tedy i záporná x.</p>
+<p>Při dosazování záporného čísla pozor na znaménka!</p>
+<p>Příklady:</p>
+<table class="tt"><tr><th>Funkce f(x)</th><th>x</th><th>Výpočet</th><th>f(x)</th></tr>
+<tr><td>3x + 20</td><td>−2</td><td>3·(−2) + 20 = −6 + 20</td><td>14</td></tr>
+<tr><td>6x + 30</td><td>−3</td><td>6·(−3) + 30 = −18 + 30</td><td>12</td></tr>
+<tr><td>7x + 50</td><td>−5</td><td>7·(−5) + 50 = −35 + 50</td><td><b>?</b></td></tr></table>
+<p>Klíč: nejdřív vynásob, teprve pak přičti nebo odečti absolutní člen.</p>`,
+   body_en:`<p>Linear functions are defined for <b>all real numbers</b>, including negative x.</p>
+<p>Be careful with signs when substituting negative numbers!</p>
+<table class="tt"><tr><th>Function f(x)</th><th>x</th><th>Calculation</th><th>f(x)</th></tr>
+<tr><td>3x + 20</td><td>−2</td><td>3·(−2) + 20 = −6 + 20</td><td>14</td></tr>
+<tr><td>6x + 30</td><td>−3</td><td>6·(−3) + 30 = −18 + 30</td><td>12</td></tr>
+<tr><td>7x + 50</td><td>−5</td><td>7·(−5) + 50 = −35 + 50</td><td><b>?</b></td></tr></table>
+<p>Key: multiply first, then add or subtract the constant.</p>`,
+   hint:'💡 7 · (−5) = −35. Pak: −35 + 50 = ?',
+   hint_en:'💡 7 · (−5) = −35. Then: −35 + 50 = ?'},
+  {title:'🔢 Kód zámku',title_en:'🔢 Lock code',
+   body:'<p>Vypočítej hodnotu funkce <b>f(x) = 7x + 50</b> pro <b>x = −5</b>.</p><p>Kód = f(−5).</p>',
+   body_en:'<p>Calculate the value of <b>f(x) = 7x + 50</b> for <b>x = −5</b>.</p><p>Code = f(−5).</p>',
+   hint:'💡 f(−5) = 7·(−5) + 50 = −35 + 50 = ?',hint_en:'💡 f(−5) = 7·(−5) + 50 = −35 + 50 = ?'}],
+ successMsg:'🔓 Skvěle! f(−5) = −35 + 50 = 15. Zámek 5 otevřen!',
+ successMsg_en:'🔓 Great! f(−5) = −35 + 50 = 15. Lock 5 opened!'},
+
+{id:6,color:'pink',icon:'❓',code:'13',
+ title:'Zámek 6 – Zpětný výpočet (pro jaké x)',title_en:'Lock 6 – Inverse (find x)',
+ tag:'f(x) = k → x = ?',tag_en:'f(x) = k → x = ?',tagClass:'pink',
+ tasks:[
+  {title:'🧩 Pro jaké x je f(x) = k?',title_en:'🧩 For which x is f(x) = k?',
+   body:`<p>Víme výstup funkce (hodnotu f(x)) a hledáme vstup (x).</p>
+<p>Postup: <b>ax + b = k</b> → vyřešíme lineární rovnici pro x.</p>
+<p>Příklady:</p>
+<table class="tt"><tr><th>Funkce</th><th>f(x) = k</th><th>Rovnice</th><th>x = ?</th></tr>
+<tr><td>3x + 1</td><td>f(x) = 10</td><td>3x + 1 = 10<br>3x = 9</td><td>3</td></tr>
+<tr><td>5x − 5</td><td>f(x) = 20</td><td>5x − 5 = 20<br>5x = 25</td><td>5</td></tr>
+<tr><td>2x + 14</td><td>f(x) = 40</td><td>2x + 14 = 40<br>2x = 26</td><td><b>?</b></td></tr></table>`,
+   body_en:`<p>We know the output of the function (the value f(x)) and want the input (x).</p>
+<p>Approach: <b>ax + b = k</b> → solve the linear equation for x.</p>
+<table class="tt"><tr><th>Function</th><th>f(x) = k</th><th>Equation</th><th>x = ?</th></tr>
+<tr><td>3x + 1</td><td>f(x) = 10</td><td>3x + 1 = 10<br>3x = 9</td><td>3</td></tr>
+<tr><td>5x − 5</td><td>f(x) = 20</td><td>5x − 5 = 20<br>5x = 25</td><td>5</td></tr>
+<tr><td>2x + 14</td><td>f(x) = 40</td><td>2x + 14 = 40<br>2x = 26</td><td><b>?</b></td></tr></table>`,
+   hint:'💡 2x + 14 = 40 → odečti 14 z obou stran: 2x = 26 → x = ?',
+   hint_en:'💡 2x + 14 = 40 → subtract 14 from both sides: 2x = 26 → x = ?'},
+  {title:'🔢 Kód zámku',title_en:'🔢 Lock code',
+   body:'<p>Funkce <b>f(x) = 2x + 14</b>. Pro jaké <b>x</b> platí <b>f(x) = 40</b>?</p><p>Kód = hodnota x.</p>',
+   body_en:'<p>Function <b>f(x) = 2x + 14</b>. For which <b>x</b> is <b>f(x) = 40</b>?</p><p>Code = the value of x.</p>',
+   hint:'💡 2x = 40 − 14 = 26. x = 26 ÷ 2 = ?',hint_en:'💡 2x = 40 − 14 = 26. x = 26 ÷ 2 = ?'}],
+ successMsg:'🔓 Správně! 2x = 26 → x = 13. Zámek 6 otevřen!',
+ successMsg_en:'🔓 Correct! 2x = 26 → x = 13. Lock 6 opened!'},
+
+{id:7,color:'indigo',icon:'🔗',code:'7',
+ title:'Zámek 7 – Přímá úměrnost',title_en:'Lock 7 – Direct proportionality',
+ tag:'y = k·x (přímka skrz počátek)',tag_en:'y = k·x (line through origin)',tagClass:'indigo',
+ tasks:[
+  {title:'🧩 Speciální případ: přímá úměrnost',title_en:'🧩 Special case: direct proportionality',
+   body:`<p>Přímá úměrnost je lineární funkce <b>y = k·x</b>, kde absolutní člen b = 0.</p>
+<p>Grafem je přímka <b>procházející počátkem</b> [0, 0].</p>
+<p><b>k</b> = koeficient přímé úměrnosti (= směrnice přímky).</p>
+<p>Pokud (x₀, y₀) leží na grafu: <b>k = y₀ / x₀</b></p>
+<table class="tt"><tr><th>Bod na přímce</th><th>Výpočet k</th><th>Předpis funkce</th></tr>
+<tr><td>(3, 12)</td><td>k = 12/3 = 4</td><td>y = 4x</td></tr>
+<tr><td>(5, 20)</td><td>k = 20/5 = 4</td><td>y = 4x</td></tr>
+<tr><td>(9, 63)</td><td>k = 63/9 = ?</td><td>y = ?·x</td></tr></table>`,
+   body_en:`<p>Direct proportionality is a linear function <b>y = k·x</b>, where constant b = 0.</p>
+<p>Its graph is a line <b>passing through the origin</b> [0, 0].</p>
+<p><b>k</b> = proportionality constant (= slope).</p>
+<p>If (x₀, y₀) lies on the graph: <b>k = y₀ / x₀</b></p>
+<table class="tt"><tr><th>Point on line</th><th>Calculation</th><th>Function</th></tr>
+<tr><td>(3, 12)</td><td>k = 12/3 = 4</td><td>y = 4x</td></tr>
+<tr><td>(5, 20)</td><td>k = 20/5 = 4</td><td>y = 4x</td></tr>
+<tr><td>(9, 63)</td><td>k = 63/9 = ?</td><td>y = ?·x</td></tr></table>`,
+   hint:'💡 k = y/x = 63/9. Kolik je 63 ÷ 9?',
+   hint_en:'💡 k = y/x = 63/9. What is 63 ÷ 9?'},
+  {title:'🔢 Kód zámku',title_en:'🔢 Lock code',
+   body:'<p>Funkce <b>y = k·x</b> prochází bodem <b>(9, 63)</b>. Jaký je koeficient <b>k</b>?</p><p>Kód = koeficient k.</p>',
+   body_en:'<p>Function <b>y = k·x</b> passes through the point <b>(9, 63)</b>. What is the coefficient <b>k</b>?</p><p>Code = coefficient k.</p>',
+   hint:'💡 k = 63 ÷ 9 = ?',hint_en:'💡 k = 63 ÷ 9 = ?'}],
+ successMsg:'🔓 Přesně! k = 63 ÷ 9 = 7. Funkce je y = 7x. Zámek 7 otevřen!',
+ successMsg_en:'🔓 Exactly! k = 63 ÷ 9 = 7. The function is y = 7x. Lock 7 opened!'},
+
+{id:8,color:'rose',icon:'⚡',code:'4',
+ title:'Zámek 8 – Průsečík dvou přímek',title_en:'Lock 8 – Intersection of two lines',
+ tag:'f(x) = g(x)',tag_en:'f(x) = g(x)',tagClass:'rose',
+ tasks:[
+  {title:'🧩 Kde se dvě přímky protínají?',title_en:'🧩 Where do two lines intersect?',
+   body:`<p>Dvě různé lineární funkce se protínají v bodě, kde jsou jejich hodnoty <b>stejné</b>.</p>
+<p>Postup: <b>f(x) = g(x)</b> → vyřeš rovnici → dostaneš x-souřadnici průsečíku.</p>
+<p>Y-souřadnici dostaneš dosazením do jedné z funkcí.</p>
+<p>Příklady:</p>
+<table class="tt"><tr><th>f(x)</th><th>g(x)</th><th>Rovnice</th><th>x průsečíku</th></tr>
+<tr><td>x + 4</td><td>3x</td><td>x+4 = 3x → 4 = 2x</td><td>2</td></tr>
+<tr><td>2x + 6</td><td>4x − 2</td><td>2x+6 = 4x−2 → 8 = 2x</td><td>4</td></tr>
+<tr><td>5x − 10</td><td>2x + 2</td><td>5x−10 = 2x+2 → 3x = 12</td><td><b>?</b></td></tr></table>`,
+   body_en:`<p>Two different linear functions intersect where their values are <b>equal</b>.</p>
+<p>Approach: <b>f(x) = g(x)</b> → solve the equation → get the x-coordinate of intersection.</p>
+<p>The y-coordinate: substitute x back into either function.</p>
+<table class="tt"><tr><th>f(x)</th><th>g(x)</th><th>Equation</th><th>x at intersection</th></tr>
+<tr><td>x + 4</td><td>3x</td><td>x+4 = 3x → 4 = 2x</td><td>2</td></tr>
+<tr><td>2x + 6</td><td>4x − 2</td><td>2x+6 = 4x−2 → 8 = 2x</td><td>4</td></tr>
+<tr><td>5x − 10</td><td>2x + 2</td><td>5x−10 = 2x+2 → 3x = 12</td><td><b>?</b></td></tr></table>`,
+   hint:'💡 5x − 10 = 2x + 2 → přesuň 2x doleva: 3x − 10 = 2 → 3x = 12 → x = ?',
+   hint_en:'💡 5x − 10 = 2x + 2 → move 2x to the left: 3x − 10 = 2 → 3x = 12 → x = ?'},
+  {title:'🔢 Kód zámku',title_en:'🔢 Lock code',
+   body:'<p>Přímky <b>f(x) = 5x − 10</b> a <b>g(x) = 2x + 2</b>. Jaká je <b>x-souřadnice</b> jejich průsečíku?</p><p>Kód = x-souřadnice průsečíku.</p>',
+   body_en:'<p>Lines <b>f(x) = 5x − 10</b> and <b>g(x) = 2x + 2</b>. What is the <b>x-coordinate</b> of their intersection?</p><p>Code = x-coordinate of intersection.</p>',
+   hint:'💡 3x = 12. x = 12 ÷ 3 = ?',hint_en:'💡 3x = 12. x = 12 ÷ 3 = ?'}],
+ successMsg:'🔓 Správně! 3x = 12 → x = 4. Průsečík je v bodě [4, 10]. Zámek 8 otevřen!',
+ successMsg_en:'🔓 Correct! 3x = 12 → x = 4. Intersection is at [4, 10]. Lock 8 opened!'},
+
+{id:9,color:'cyan',icon:'🚴',code:'24',
+ title:'Zámek 9 – Lineární funkce v praxi',title_en:'Lock 9 – Linear functions in real life',
+ tag:'Vzdálenost = rychlost × čas',tag_en:'Distance = speed × time',tagClass:'cyan',
+ tasks:[
+  {title:'🧩 Lineární funkce kolem nás',title_en:'🧩 Linear functions around us',
+   body:`<p>Lineární funkce popisuje mnoho situací z reálného života.</p>
+<p>Příklady:</p>
+<ul>
+<li><b>Rovnoměrný pohyb:</b> d = v · t (vzdálenost = rychlost × čas)</li>
+<li><b>Cena za telefonní volání:</b> cena = základní poplatek + cena za minutu × minuty</li>
+<li><b>Teplota:</b> T = počáteční teplota + změna za hodinu × hodiny</li>
+</ul>
+<table class="tt"><tr><th>Situace</th><th>Funkce</th><th>t = 3</th></tr>
+<tr><td>Auto, 60 km/h</td><td>d = 60t</td><td>d = 180 km</td></tr>
+<tr><td>Kolo, 8 km/h</td><td>d = 8t</td><td>d = <b>?</b> km</td></tr></table>`,
+   body_en:`<p>Linear functions describe many real-life situations.</p>
+<ul>
+<li><b>Uniform motion:</b> d = v · t (distance = speed × time)</li>
+<li><b>Phone call cost:</b> cost = flat fee + cost per minute × minutes</li>
+<li><b>Temperature:</b> T = initial temperature + change per hour × hours</li>
+</ul>
+<table class="tt"><tr><th>Situation</th><th>Function</th><th>t = 3</th></tr>
+<tr><td>Car at 60 km/h</td><td>d = 60t</td><td>d = 180 km</td></tr>
+<tr><td>Bicycle at 8 km/h</td><td>d = 8t</td><td>d = <b>?</b> km</td></tr></table>`,
+   hint:'💡 d = 8 · t = 8 · 3 = ?',
+   hint_en:'💡 d = 8 · t = 8 · 3 = ?'},
+  {title:'🔢 Kód zámku',title_en:'🔢 Lock code',
+   body:'<p>Cyklista jede konstantní rychlostí <b>8 km/h</b>. Za <b>3 hodiny</b> urazí kolik kilometrů?</p><p>Kód = vzdálenost v km.</p>',
+   body_en:'<p>A cyclist rides at constant speed <b>8 km/h</b>. How many kilometres does he travel in <b>3 hours</b>?</p><p>Code = distance in km.</p>',
+   hint:'💡 d = v · t = 8 · 3 = ?',hint_en:'💡 d = v · t = 8 · 3 = ?'}],
+ successMsg:'🔓 Výborně! d = 8 · 3 = 24 km. Zámek 9 otevřen!',
+ successMsg_en:'🔓 Excellent! d = 8 · 3 = 24 km. Lock 9 opened!'},
+
+{id:10,color:'gold',icon:'🏆',code:'20',
+ title:'Zámek 10 – Finální výzva!',title_en:'Lock 10 – Final challenge!',
+ tag:'Průsečík přímek — y-souřadnice',tag_en:'Intersection — y-coordinate',tagClass:'gold',
+ tasks:[
+  {title:'🏆 Komplexní úloha: průsečík a y-souřadnice',title_en:'🏆 Complex task: intersection and y-coordinate',
+   body:`<p>Kombinuješ dvě dovednosti najednou:</p>
+<ol>
+<li>Najdi x-souřadnici průsečíku (vyřeš f(x) = g(x)).</li>
+<li>Dosaď x zpět do libovolné z funkcí → dostaneš y-souřadnici průsečíku.</li>
+</ol>
+<p>Příklad: f(x) = 2x + 4, g(x) = 4x − 6.</p>
+<ul>
+<li>2x + 4 = 4x − 6 → 10 = 2x → x = 5</li>
+<li>f(5) = 2·5 + 4 = 14</li>
+<li>Průsečík: <b>[5, 14]</b></li>
+</ul>
+<p>Teď to zkus sám(a) na nových přímkách!</p>`,
+   body_en:`<p>You combine two skills at once:</p>
+<ol>
+<li>Find the x-coordinate of intersection (solve f(x) = g(x)).</li>
+<li>Substitute x back into either function → get y-coordinate of intersection.</li>
+</ol>
+<p>Example: f(x) = 2x + 4, g(x) = 4x − 6.</p>
+<ul>
+<li>2x + 4 = 4x − 6 → 10 = 2x → x = 5</li>
+<li>f(5) = 2·5 + 4 = 14</li>
+<li>Intersection: <b>[5, 14]</b></li>
+</ul>
+<p>Now try it yourself with new lines!</p>`,
+   hint:'💡 Krok 1: rovnice 3x + 2 = −2x + 32. Přesuň −2x: 5x + 2 = 32 → 5x = 30 → x = 6.',
+   hint_en:'💡 Step 1: equation 3x + 2 = −2x + 32. Move −2x: 5x + 2 = 32 → 5x = 30 → x = 6.'},
+  {title:'🔢 Finální kód',title_en:'🔢 Final code',
+   body:'<p>Přímky <b>f(x) = 3x + 2</b> a <b>g(x) = −2x + 32</b> se protínají v bodě [x, y]. Jaká je <b>y-souřadnice</b> průsečíku?</p><p>Kód = y-souřadnice průsečíku.</p>',
+   body_en:'<p>Lines <b>f(x) = 3x + 2</b> and <b>g(x) = −2x + 32</b> intersect at [x, y]. What is the <b>y-coordinate</b> of the intersection?</p><p>Code = y-coordinate of intersection.</p>',
+   hint:'💡 x = 6. Dosaď do f(x): f(6) = 3·6 + 2 = 18 + 2 = ?',
+   hint_en:'💡 x = 6. Substitute into f(x): f(6) = 3·6 + 2 = 18 + 2 = ?'}],
+ successMsg:'🏆 BRAVO! x = 6, y = 3·6 + 2 = 20. Průsečík [6, 20]. Všechny zámky odemčeny!',
+ successMsg_en:'🏆 BRAVO! x = 6, y = 3·6 + 2 = 20. Intersection [6, 20]. All locks opened!'}
+];
+
+const CODE_HINTS_CS = {
+  1:['Dosaď x = 5 do předpisu funkce f(x) = 4x − 3.','4 · 5 = 20. Pak 20 − 3 = ?','f(5) = <b>17</b>.'],
+  2:['Průsečík s osou y zjistíme dosazením x = 0.','f(0) = 6·0 + 8 = 0 + 8 = ?','Průsečík s osou y je (0, <b>8</b>).'],
+  3:['Průsečík s osou x: vyřeš rovnici f(x) = 0, tj. 3x − 15 = 0.','3x = 15. x = 15 ÷ 3 = ?','x-souřadnice průsečíku s osou x = <b>5</b>.'],
+  4:['Směrnice = (změna y) / (změna x) = (y₂ − y₁) / (x₂ − x₁).','(15 − 6) / (3 − 0) = 9 / 3 = ?','Směrnice a = <b>3</b>.'],
+  5:['Záporné x: při dosazení dej číslo do závorky: 7·(−5).','7·(−5) = −35. Pak: −35 + 50 = ?','f(−5) = <b>15</b>.'],
+  6:['f(x) = 40 → 2x + 14 = 40. Odečti 14 z obou stran.','2x = 40 − 14 = 26. x = 26 ÷ 2 = ?','x = <b>13</b>.'],
+  7:['Koeficient přímé úměrnosti: k = y/x = 63/9.','63 ÷ 9 = ?','k = <b>7</b>. Funkce je y = 7x.'],
+  8:['f(x) = g(x): 5x − 10 = 2x + 2. Přesuň 2x doleva: 3x − 10 = 2.','3x = 2 + 10 = 12. x = 12 ÷ 3 = ?','x-souřadnice průsečíku = <b>4</b>.'],
+  9:['Vzdálenost = rychlost × čas. d = 8 km/h × 3 h.','8 × 3 = ?','d = <b>24</b> km.'],
+  10:['f(x) = g(x): 3x + 2 = −2x + 32. Přesuň −2x: 5x + 2 = 32 → 5x = 30 → x = 6.','y-souřadnice: f(6) = 3·6 + 2 = 18 + 2 = ?','y-souřadnice průsečíku = <b>20</b>. Průsečík je [6, 20].'],
+};
+const CODE_HINTS_EN = {
+  1:['Substitute x = 5 into f(x) = 4x − 3.','4 · 5 = 20. Then 20 − 3 = ?','f(5) = <b>17</b>.'],
+  2:['Y-intercept: substitute x = 0.','f(0) = 6·0 + 8 = 0 + 8 = ?','Y-intercept is (0, <b>8</b>).'],
+  3:['X-intercept: solve f(x) = 0, i.e. 3x − 15 = 0.','3x = 15. x = 15 ÷ 3 = ?','X-coordinate of x-intercept = <b>5</b>.'],
+  4:['Slope = (change in y) / (change in x) = (y₂ − y₁) / (x₂ − x₁).','(15 − 6) / (3 − 0) = 9 / 3 = ?','Slope a = <b>3</b>.'],
+  5:['Negative x: put the number in brackets: 7·(−5).','7·(−5) = −35. Then: −35 + 50 = ?','f(−5) = <b>15</b>.'],
+  6:['f(x) = 40 → 2x + 14 = 40. Subtract 14 from both sides.','2x = 40 − 14 = 26. x = 26 ÷ 2 = ?','x = <b>13</b>.'],
+  7:['Proportionality constant: k = y/x = 63/9.','63 ÷ 9 = ?','k = <b>7</b>. Function is y = 7x.'],
+  8:['f(x) = g(x): 5x − 10 = 2x + 2. Move 2x left: 3x − 10 = 2.','3x = 2 + 10 = 12. x = 12 ÷ 3 = ?','X-coordinate of intersection = <b>4</b>.'],
+  9:['Distance = speed × time. d = 8 km/h × 3 h.','8 × 3 = ?','d = <b>24</b> km.'],
+  10:['f(x) = g(x): 3x + 2 = −2x + 32. Move −2x: 5x + 2 = 32 → 5x = 30 → x = 6.','Y-coordinate: f(6) = 3·6 + 2 = 18 + 2 = ?','Y-coordinate of intersection = <b>20</b>. Intersection is [6, 20].'],
+};
+
+let codeHintLevel = 0;
+function advanceCodeHint() {
+  if (codeHintLevel >= 3) return;
+  codeHintLevel++;
+  const CODE_HINTS = lang === 'en' ? CODE_HINTS_EN : CODE_HINTS_CS;
+  const hints = CODE_HINTS[STEPS[cur].id] || [i18n('Přečti si pozorně postup nahoře.','Read the instructions above carefully.'),i18n('Postupně spočítej, co se ptají.','Work through the calculation step by step.'),i18n('Výsledek vyplyne z výpočtu.','The answer follows from the calculation.')];
+  const box = document.getElementById('ch-box');
+  const btn = document.getElementById('ch-btn');
+  const counter = document.getElementById('ch-counter');
+  if (!box||!btn) return;
+  box.classList.add('show'); box.dataset.level = codeHintLevel;
+  const labels = i18n(['Nasměrování','Vzorec / postup','Výsledek'],['Direction','Formula / steps','Result']);
+  box.innerHTML = `<span class="h-label">${i18n('Nápověda','Hint')} ${codeHintLevel}/3 — ${labels[codeHintLevel-1]}</span>${hints[codeHintLevel-1]}`;
+  if (counter) counter.querySelectorAll('.dot').forEach((d,i)=>{d.classList.toggle('shown',i<codeHintLevel);if(i===2&&codeHintLevel===3)d.classList.add('warn');});
+  if (codeHintLevel<3){btn.textContent=`💡 ${i18n('Další nápověda','Next hint')} ${codeHintLevel+1}/3`;}
+  else{btn.disabled=true;btn.textContent=`💡 ${i18n('Všechny nápovědy ukázány','All hints shown')}`;}
+}
+
+let cur = 0;
+let att = new Array(STEPS.length).fill(0);
+
+function startGame() {
+  document.getElementById('intro').classList.remove('active');
+  document.getElementById('game').classList.add('active');
+  document.getElementById('stars-wrap').innerHTML = STEPS.map((_,i)=>`<span class="star" id="s${i}">⭐</span>`).join('');
+  render(0);
+}
+
+function render(idx) {
+  cur=idx; codeHintLevel=0;
+  const s=STEPS[idx];
+  document.getElementById('prog-label').textContent=i18n(`Zámek ${idx+1} z ${STEPS.length}`,`Lock ${idx+1} of ${STEPS.length}`);
+  document.getElementById('prog-fill').style.width=`${(idx/STEPS.length)*100}%`;
+  for(let i=0;i<STEPS.length;i++){const el=document.getElementById(`s${i}`);if(el)el.classList.toggle('lit',i<idx);}
+  const colorMap={blue:'--blue',green:'--green',purple:'--purple',teal:'--teal',orange:'--orange',pink:'--pink',indigo:'--indigo',rose:'--rose',cyan:'--cyan',gold:'--gold-dark'};
+  const cv=colorMap[s.color]||'--blue';
+  const tasksHTML=s.tasks.map(t=>`
+    <div class="task-card ${s.color}">
+      <span class="tag ${s.tagClass}">${i18n(s.tag,s.tag_en)}</span>
+      <h3>${i18n(t.title,t.title_en)}</h3>
+      ${i18n(t.body,t.body_en)}
+      <button class="hint-btn" onclick="toggleHint(this)">${i18n('💡 Potřebuji nápovědu','💡 I need a hint')}</button>
+      <div class="hint-box">${i18n(t.hint,t.hint_en)}</div>
+    </div>`).join('');
+  document.getElementById('step-container').innerHTML=`
+    <div class="lock-header">
+      <span class="lock-icon-big">${s.icon}</span>
+      <span class="lock-title" style="color:var(${cv})">${i18n(s.title,s.title_en)}</span>
+      <span class="lock-badge">${idx+1}/${STEPS.length}</span>
+    </div>
+    ${tasksHTML}
+    <div class="code-wrap">
+      <label>🔐 ${i18n(`Zadej kód zámku ${idx+1}:`,`Enter lock code ${idx+1}:`)}</label>
+      <div class="code-row">
+        <input type="number" class="code-input" id="ci" placeholder="???" onkeydown="if(event.key==='Enter') chk()">
+        <button class="btn-check" onclick="chk()">${i18n('Odemknout 🔓','Unlock 🔓')}</button>
+      </div>
+      <div class="code-hint-bar">
+        <button class="code-hint-btn" id="ch-btn" onclick="advanceCodeHint()">💡 ${i18n('Nápověda ke kódu 1/3','Code hint 1/3')}</button>
+        <span class="code-hint-counter" id="ch-counter"><span class="dot"></span><span class="dot"></span><span class="dot"></span></span>
+      </div>
+      <div class="code-hint-box" id="ch-box" data-level="0"></div>
+      <div class="feedback" id="fb"></div>
+    </div>
+    <div class="unlock-anim" id="ua">
+      <div class="big-icon">🔓✨</div>
+      <p>${i18n(s.successMsg,s.successMsg_en)}</p>
+    </div>`;
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function toggleHint(btn) {
+  const h=btn.nextElementSibling; h.classList.toggle('show');
+  btn.textContent=h.classList.contains('show')?i18n('🙈 Skrýt nápovědu','🙈 Hide hint'):i18n('💡 Potřebuji nápovědu','💡 I need a hint');
+}
+
+function chk() {
+  const inp=document.getElementById('ci'); const fb=document.getElementById('fb'); att[cur]++;
+  if(inp.value.trim()===STEPS[cur].code){
+    inp.classList.remove('error');inp.classList.add('success');fb.textContent='';
+    document.getElementById('ua').classList.add('show');
+    setTimeout(()=>{if(cur<STEPS.length-1)render(cur+1);else finish();},1900);
+  } else {
+    inp.classList.add('error');inp.classList.remove('success');
+    setTimeout(()=>inp.classList.remove('error'),380);
+    const msgs=i18n(['Hmm, to není ono. Zkontroluj postup!','Zkus to znovu – možná jiný výpočet?','Nevzdávej se! Přečti si nápovědu.','Ještě jednou, jsi blízko!'],['Hmm, not quite. Check your working!','Try again – maybe a different approach?',"Don't give up! Read the hint.",'One more time, you\'re close!']);
+    fb.className='feedback err'; fb.textContent=msgs[Math.min(att[cur]-1,msgs.length-1)];
+  }
+}
+
+function finish() {
+  document.getElementById('game').classList.remove('active');
+  document.getElementById('finish').classList.add('active');
+  buildFinish();
+  const wrap=document.getElementById('confetti');
+  const cols=['#1a73c8','#3730a3','#0f8a72','#f5c842','#e74c3c','#7c3aad','#0e7490','#d4620a'];
+  for(let i=0;i<90;i++){
+    const el=document.createElement('div');el.className='confetti-piece';
+    const sz=6+Math.random()*9;
+    el.style.cssText=`left:${Math.random()*100}%;top:-12px;background:${cols[Math.floor(Math.random()*cols.length)]};width:${sz}px;height:${sz}px;border-radius:${Math.random()>.5?'50%':'3px'};animation:fall ${1.5+Math.random()*2.5}s ${Math.random()*1.5}s linear forwards;`;
+    wrap.appendChild(el);
+  }
+}
+
+document.querySelectorAll('.lang-btn').forEach(b=>b.classList.toggle('active',b.dataset.lang===lang));
+document.querySelectorAll('.tp-back').forEach(el=>el.textContent=i18n('← zpět na projekty','← back to projects'));
+document.querySelectorAll('.tp-home').forEach(el=>el.textContent=i18n('domů','home'));
+buildIntro();
+</script>
+</body>
+</html>
