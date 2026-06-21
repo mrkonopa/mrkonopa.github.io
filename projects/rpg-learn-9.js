@@ -279,14 +279,14 @@ window.RPG_LEARN_9 = {
   ],
   examples: [
     {
-      q: 'Zjednodušš: x³ · x⁵',
+      q: 'Zjednoduš: x³ · x⁵',
       s: [
         'Stejný základ x, exponenty sečti.',
         'x³ · x⁵ = x³⁺⁵ = <b>x⁸</b>'
       ]
     },
     {
-      q: 'Zjednodušš: (y²)⁶ ÷ y⁸',
+      q: 'Zjednoduš: (y²)⁶ ÷ y⁸',
       s: [
         '(y²)⁶ = y¹²',
         'y¹² ÷ y⁸ = y¹²⁻⁸ = <b>y⁴</b>'
