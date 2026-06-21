@@ -93,6 +93,7 @@ window.RPG_LEARN_6 = {
  examples: [
   { q: 'Za 6 rohlíků zaplatíš 24 Kč. Kolik stojí 10 rohlíků?', s: ['1 rohlík: 24 ÷ 6 = 4 Kč', '10 rohlíků: 10 · 4 = <b>40 Kč</b>'] },
   { q: 'Vlak jede 2 hodiny průměrnou rychlostí 85 km/h. Jakou vzdálenost ujede?', s: ['Vztah: s = v · t', 's = 85 · 2 = <b>170 km</b>'] },
+  { q: 'Maminka koupila 3 kg jablek po 28 Kč a 2 kg hrušek po 35 Kč. Kolik zaplatila?', s: ['Jablka: 3 · 28 = 84 Kč', 'Hrušky: 2 · 35 = 70 Kč', 'Celkem: 84 + 70 = <b>154 Kč</b>'] },
  ],
  video: null,
 },
@@ -234,6 +235,7 @@ window.RPG_LEARN_6 = {
  examples: [
   { q: 'Rozlož 84 na prvočinitele', s: ['84 ÷ 2 = 42', '42 ÷ 2 = 21', '21 ÷ 3 = 7 (prvočíslo)', '84 = <b>2² · 3 · 7</b>'] },
   { q: 'Je 97 prvočíslo?', s: ['Zkoušíme dělitele 2, 3, 5, 7 (až do √97 ≈ 9,8)', '97 není dělitelné žádným z nich → <b>ANO, 97 je prvočíslo</b>'] },
+  { q: 'Kolik dělitelů má číslo 18?', s: ['Dvojice dělitelů: 1·18, 2·9, 3·6', 'Dělitelé jsou 1, 2, 3, 6, 9, 18 → <b>6 dělitelů</b>'] },
  ],
  video: { id: 'O280lRBZxI8', title: 'Rozklad čísla na součin prvočísel' },
 },
@@ -365,6 +367,7 @@ window.RPG_LEARN_6 = {
  examples: [
   { q: 'Kolik os souměrnosti má čtverec?', s: ['2 úhlopříčky + 2 středové přímky = <b>4</b>'] },
   { q: 'Kolik os souměrnosti má obdélník (ne čtverec)?', s: ['Pouze 2 středové přímky (ne úhlopříčky!) → <b>2</b>'] },
+  { q: 'Kolik os souměrnosti má rovnostranný trojúhelník?', s: ['Každá osa jde z vrcholu na střed protější strany', '3 vrcholy → <b>3 osy</b>'] },
  ],
  video: { id: 'Yp5u-LyQUXQ', title: 'Osová souměrnost' },
 },
@@ -467,6 +470,7 @@ window.RPG_LEARN_6 = {
  examples: [
   { q: 'Krychle s hranou 5 cm. Povrch?', s: ['S = 6 · 5² = 6 · 25 = <b>150 cm²</b>'] },
   { q: 'Kvádr 4 × 3 × 2 cm. Povrch?', s: ['S = 2·(4·3 + 3·2 + 4·2) = 2·(12+6+8) = 2·26 = <b>52 cm²</b>'] },
+  { q: 'Kolik dlaždic 1 dm² je potřeba na obklad krychle s hranou 3 dm?', s: ['Povrch krychle: S = 6 · 3² = 54 dm²', 'Jedna dlaždice = 1 dm² → <b>54 dlaždic</b>'] },
  ],
  video: { id: 'v6JBK87_3Nk', title: 'Objem a povrch kvádru' },
 },
@@ -520,6 +524,7 @@ window.RPG_LEARN_6 = {
  examples: [
   { q: 'V trojúhelníku je α = 70°, β = 60°. Kolik je γ?', s: ['γ = 180° − 70° − 60° = <b>50°</b>'] },
   { q: 'Pravoúhlý trojúhelník má jeden ostrý úhel 35°. Druhý ostrý úhel?', s: ['180° − 90° − 35° = <b>55°</b>'] },
+  { q: 'Vnitřní úhly jsou v poměru 1 : 2 : 3. Urči je.', s: ['1 díl + 2 díly + 3 díly = 6 dílů = 180°', '1 díl = 30° → úhly <b>30°, 60°, 90°</b>'] },
  ],
  video: { id: 'PyAQUUIJuvQ', title: 'Součet úhlů v trojúhelníku' }
 },
@@ -550,6 +555,7 @@ window.RPG_LEARN_6 = {
  examples: [
   { q: 'Lze sestrojit trojúhelník se stranami 3, 4, 8 cm?', s: ['3 + 4 = 7, ale 7 < 8', '<b>NE</b> — trojúhelníková nerovnost nesplněna'] },
   { q: 'Lze sestrojit trojúhelník 5, 6, 9 cm?', s: ['5 + 6 = 11 > 9 ✓ ; 5 + 9 = 14 > 6 ✓ ; 6 + 9 = 15 > 5 ✓', '<b>ANO</b>'] },
+  { q: 'Strany jsou 7 a 10 cm. V jakém rozmezí může být třetí strana?', s: ['Musí platit: 10 − 7 < c < 10 + 7', 'Tedy <b>3 cm < c < 17 cm</b>'] },
  ],
  video: { id: 'RbkRs2cS8dk', title: 'Trojúhelníky — CERMAT 2023' }
 },
@@ -573,6 +579,7 @@ window.RPG_LEARN_6 = {
  examples: [
   { q: 'Rozcvička: 3 + 4 × 2 − (6 − 4)', s: ['Závorka: 6−4 = 2', 'Násobení: 4·2 = 8', '3 + 8 − 2 = <b>9</b>'] },
   { q: 'Kvádr 3 × 4 × 5 cm. Objem i povrch?', s: ['V = 3·4·5 = <b>60 cm³</b>', 'S = 2·(3·4 + 4·5 + 3·5) = 2·(12+20+15) = 2·47 = <b>94 cm²</b>'] },
+  { q: 'Akvárium 5 × 3 × 4 dm naplníme do 3/4. Kolik litrů vody?', s: ['Objem akvária: V = 5·3·4 = 60 dm³ = 60 l', '3/4 z 60 = <b>45 litrů</b>'] },
  ],
  video: { id: 'rBi6FeeDgM4', title: 'CERMAT 2023 — přijímací zkoušky' }
 },

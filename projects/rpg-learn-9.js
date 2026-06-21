@@ -686,6 +686,14 @@ window.RPG_LEARN_9 = {
         'Vynásob (x−3): 1 = 2 − (x−3) = 5 − x',
         'x = 4 &nbsp;|&nbsp; 4 ≠ 3 ✓ &nbsp;→&nbsp; <b>x = 4</b>'
       ]
+    },
+    {
+      q: 'Řeš: x/(x−1) = 1',
+      s: [
+        'Podmínka: x ≠ 1',
+        'Vynásob (x−1): x = x − 1 → 0 = −1, což neplatí',
+        'Rovnice <b>nemá řešení</b>.'
+      ]
     }
   ],
   video: { id: 'SIVaNSiq2ZY', title: 'Rovnice se zlomky' }
@@ -736,6 +744,14 @@ window.RPG_LEARN_9 = {
         'Do 1.: 6 + 3y = 12 → y = 2',
         'Řešení: <b>x = 3, y = 2</b>'
       ]
+    },
+    {
+      q: 'Slovní úloha: 2 sešity a 3 tužky stojí 84 Kč, 1 sešit a 2 tužky stojí 46 Kč. Kolik stojí jeden sešit?',
+      s: [
+        'Označ sešit s, tužku t: 2s + 3t = 84 a s + 2t = 46',
+        'Z 2.: s = 46 − 2t, dosaď: 2(46−2t) + 3t = 84 → 92 − t = 84 → t = 8',
+        's = 46 − 16 = <b>30 Kč</b>'
+      ]
     }
   ],
   video: { id: '1FqALSmZYFQ', title: 'Soustava rovnic — metoda sčítací' }
@@ -784,6 +800,14 @@ window.RPG_LEARN_9 = {
       s: [
         't/6 + t/10 = 1 &nbsp;|&nbsp; Vynásob 30: 5t + 3t = 30',
         '8t = 30 → t = 30/8 = <b>3,75 hodiny = 3 h 45 min</b>'
+      ]
+    },
+    {
+      q: 'Kolik litrů vody přidat k 4 l šťávy s 60 % cukru, aby vznikla směs s 40 % cukru?',
+      s: [
+        'Cukr se přidáním vody nemění: 0,6 · 4 = 2,4 l cukru',
+        'Po přidání x litrů: 2,4 / (4 + x) = 0,4',
+        '2,4 = 0,4·(4+x) → 2,4 = 1,6 + 0,4x → 0,8 = 0,4x → x = <b>2 litry</b>'
       ]
     }
   ],
@@ -892,6 +916,13 @@ window.RPG_LEARN_9 = {
       s: [
         'k = (y₂ − y₁) / (x₂ − x₁) = (11 − 5) / (4 − 2) = 6 / 2 = <b>3</b>'
       ]
+    },
+    {
+      q: 'Patří bod [3; 7] na přímku y = 2x + 1?',
+      s: [
+        'Dosaď x = 3: y = 2 · 3 + 1 = 7',
+        'Vyšlo 7, což sedí se zadanou souřadnicí → bod <b>na přímce leží</b>.'
+      ]
     }
   ],
   video: { id: 'Ft4bVyLP9Gc', title: 'Graf lineární funkce' }
@@ -997,6 +1028,13 @@ window.RPG_LEARN_9 = {
       s: [
         'k = v · t = 80 · 3 = 240 km (konstanta = vzdálenost)',
         't = 240 / 120 = <b>2 hodiny</b>'
+      ]
+    },
+    {
+      q: '6 dělníků postaví zeď za 8 dní. Za kolik dní ji postaví 4 dělníci?',
+      s: [
+        'Méně dělníků → delší čas (nepřímá úměra): k = 6 · 8 = 48',
+        't = 48 / 4 = <b>12 dní</b>'
       ]
     }
   ],
@@ -1105,6 +1143,13 @@ window.RPG_LEARN_9 = {
         'V = ⅓ · π · r² · v = ⅓ · π · 16 · 3',
         'V = 16π ≈ <b>50,3 cm³</b>'
       ]
+    },
+    {
+      q: 'Válec: r = 5 cm, v = 10 cm. Vypočítej objem.',
+      s: [
+        'V = π · r² · v = π · 25 · 10',
+        'V = 250π ≈ <b>785,4 cm³</b>'
+      ]
     }
   ],
   video: { id: 'GG9WF955El4', title: 'Objem a povrch válce' }
@@ -1149,6 +1194,21 @@ window.RPG_LEARN_9 = {
         'Objem koule = objem válce',
         '(4/3)π · 6³ = π · r² · 8',
         '(4/3) · 216 = 8r² → 288 = 8r² → r² = 36 → r = <b>6 cm</b>'
+      ]
+    },
+    {
+      q: 'Cena výrobku vzrostla o 20 %, pak klesla o 20 %. Je výsledná cena stejná jako původní?',
+      s: [
+        'Vezmi 100 Kč: po růstu 120 Kč, po poklesu 120 · 0,8 = 96 Kč',
+        'Výsledek <b>96 Kč ≠ 100 Kč</b> — procenta se počítají z jiného základu, cena klesla o 4 %.'
+      ]
+    },
+    {
+      q: 'Zjednoduš: (x² − 9) / (x + 3) a urči podmínku.',
+      s: [
+        'Podmínka: x + 3 ≠ 0 → <b>x ≠ −3</b>',
+        'Čitatel rozlož: x² − 9 = (x − 3)(x + 3)',
+        'Krácení (x+3): výsledek <b>x − 3</b>'
       ]
     }
   ],
