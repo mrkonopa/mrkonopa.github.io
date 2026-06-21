@@ -1210,6 +1210,14 @@ window.RPG_LEARN_9 = {
         'Čitatel rozlož: x² − 9 = (x − 3)(x + 3)',
         'Krácení (x+3): výsledek <b>x − 3</b>'
       ]
+    },
+    {
+      q: 'V kleci jsou bažanti a králíci, celkem 12 hlav a 34 nohou. Kolik je králíků?',
+      s: [
+        'Bažant má 2 nohy, králík 4. Soustava: b + k = 12, 2b + 4k = 34.',
+        'Z první rovnice b = 12 − k, dosadíme: 2(12 − k) + 4k = 34 → 24 + 2k = 34 → 2k = 10',
+        'k = <b>5 králíků</b> (a 7 bažantů). Zkouška: 7·2 + 5·4 = 14 + 20 = 34 ✓'
+      ]
     }
   ],
   video: { id: 'FO-xAjpo3b0', title: 'CERMAT 2025 — přijímací zkoušky' }
