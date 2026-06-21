@@ -126,6 +126,7 @@ h4{font-family:var(--px);font-size:12px;font-weight:700;color:var(--accent);lett
    <button class="tab" data-tab="diag">DIAGNOSTIKA</button>
    <button class="tab" data-tab="leaderboard">🏆 ŽEBŘÍČKY</button>
    <button class="tab" data-tab="tower">VĚŽ LEGEND</button>
+   <button class="tab" data-tab="battles">⚔️ SOUBOJE</button>
    <button class="tab" data-tab="explain">VYSVĚTLENÍ</button>
    <button class="tab" data-tab="feedback">ZPĚTNÁ VAZBA</button>
    <button class="tab" data-tab="preview">NÁHLED HER</button>
@@ -251,6 +252,17 @@ h4{font-family:var(--px);font-size:12px;font-weight:700;color:var(--accent);lett
      <div id="tower-hall-wrap"><div class="empty">Načítám…</div></div>
     </div>
    </div>
+  </div>
+
+  <!-- ŽIVÉ SOUBOJE -->
+  <div id="t-battles" class="hidden">
+   <div class="info-box"><b>⚔️ Živé souboje</b> — trvalý souhrn napříč všemi odehranými místnostmi (přežije úklid).
+    Kolik soubojů žák dohrál, kolik měl správně/špatně, kolikrát vyhrál a průměrné umístění.</div>
+   <div class="controls">
+    <select id="bt-game" aria-label="Souboje: filtr podle ročníku" onchange="renderBattles()"></select>
+    <button class="mini" onclick="renderBattles()">↻ Obnovit</button>
+   </div>
+   <div id="bt-wrap"><div class="empty">Načítám…</div></div>
   </div>
 
   <!-- VYSVĚTLENÍ POSTUPU -->
@@ -1462,6 +1474,62 @@ async function deleteTowerRunUI(i){
  else toast('Chyba: '+r.error,1);
 }
 
+/* ── ŽIVÉ SOUBOJE: trvalé statistiky (Fáze 13) ── */
+let BT_SORT={col:'played',dir:1};
+function initBattlesTab(){
+ const sel=document.getElementById('bt-game');
+ if(!sel.options.length){
+  const all=document.createElement('option');all.value='';all.textContent='— Všechny ročníky —';sel.appendChild(all);
+  GAMES.forEach(g=>{const o=document.createElement('option');o.value=g.key;o.textContent=g.emoji+' '+g.nm+' ('+g.gr+')';sel.appendChild(o);});
+ }
+ renderBattles();
+}
+function btSort(col){if(BT_SORT.col===col)BT_SORT.dir*=-1;else{BT_SORT.col=col;BT_SORT.dir=1;}renderBattles();}
+async function renderBattles(){
+ const game=document.getElementById('bt-game').value||'';
+ const wrap=document.getElementById('bt-wrap');
+ wrap.innerHTML='<div class="empty">Načítám…</div>';
+ let stats=[];
+ try{stats=await RPGCloud.battleStatsAll(game||null);}
+ catch(e){wrap.innerHTML='<div class="empty">Chyba při načítání. Nasazené SQL fáze 13?</div>';return;}
+ if(!stats||!stats.length){wrap.innerHTML='<div class="empty">Zatím žádné dohrané souboje'+(game?' v tomto ročníku':'')+'.</div>';return;}
+ // user_id → skutečné jméno/e-mail z načtených save (ROWS)
+ const info=new Map();
+ ROWS.forEach(r=>{if(!info.has(r.user_id))info.set(r.user_id,{name:r.full_name||'',email:r.email||''});});
+ const rows=stats.map(s=>{
+  const i=info.get(s.user_id)||{};
+  const tot=(s.correct|0)+(s.wrong|0);
+  return {name:i.name||'—',email:i.email||'',played:s.played|0,correct:s.correct|0,
+   wrong:s.wrong|0,wins:s.wins|0,acc:tot?Math.round(100*s.correct/tot):0,
+   avg:s.avg_rank!=null?Number(s.avg_rank):null};
+ });
+ rows.sort((a,b)=>{const c=BT_SORT.col;let va=a[c],vb=b[c];
+  if(c==='name'){return BT_SORT.dir*String(va).localeCompare(String(vb),'cs');}
+  if(va==null)va=999;if(vb==null)vb=999;return BT_SORT.dir*(vb-va);});
+ const ico=c=>BT_SORT.col===c?(BT_SORT.dir===1?' ▼':' ▲'):'';
+ const th=(c,lbl,al)=>'<th style="cursor:pointer;user-select:none;text-align:'+(al||'right')+'" onclick="btSort(\''+c+'\')">'+lbl+ico(c)+'</th>';
+ // barva úspěšnosti: zeleně→červeně
+ const accCol=p=>'hsl('+Math.round(p*1.2)+',60%,55%)';
+ let html='<table class="tbl"><thead><tr>'+
+  th('name','Žák','left')+th('played','Odehráno')+th('correct','Správně')+
+  th('wrong','Špatně')+th('acc','Úspěšnost')+th('wins','Výhry')+th('avg','⌀ umístění')+
+  '</tr></thead><tbody>';
+ rows.forEach(r=>{
+  html+='<tr>'+
+   '<td><div class="nm" style="font-weight:700">'+esc(r.name)+'</div>'+(r.email?'<div class="em">'+esc(r.email)+'</div>':'')+'</td>'+
+   '<td style="text-align:right;font-weight:700">'+r.played+'</td>'+
+   '<td style="text-align:right;color:#4ade80">'+r.correct+'</td>'+
+   '<td style="text-align:right;color:var(--red,#ff6b6b)">'+r.wrong+'</td>'+
+   '<td style="text-align:right;font-weight:700;color:'+accCol(r.acc)+'">'+r.acc+'%</td>'+
+   '<td style="text-align:right">'+(r.wins?'🥇 '+r.wins:'<span style="color:var(--muted)">0</span>')+'</td>'+
+   '<td style="text-align:right;color:var(--muted)">'+(r.avg!=null?r.avg.toFixed(1)+'.':'—')+'</td>'+
+   '</tr>';
+ });
+ html+='</tbody></table><p style="color:var(--muted);font-size:12px;margin-top:8px">'+
+  rows.length+' žáků · trvalá historie napříč všemi místnostmi. „Špatně" = otázky bez správné odpovědi (vč. nestihnutých). ⌀ umístění: nižší = lepší (1. = vítěz).</p>';
+ wrap.innerHTML=html;
+}
+
 document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));
  t.classList.add('on');
@@ -1472,6 +1540,7 @@ document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
  document.getElementById('t-diag').classList.toggle('hidden',tab!=='diag');
  document.getElementById('t-leaderboard').classList.toggle('hidden',tab!=='leaderboard');
  document.getElementById('t-tower').classList.toggle('hidden',tab!=='tower');
+ document.getElementById('t-battles').classList.toggle('hidden',tab!=='battles');
  document.getElementById('t-explain').classList.toggle('hidden',tab!=='explain');
  document.getElementById('t-feedback').classList.toggle('hidden',tab!=='feedback');
  document.getElementById('t-teachers').classList.toggle('hidden',tab!=='teachers');
@@ -1480,6 +1549,7 @@ document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
  if(tab==='diag')renderDiag();
  if(tab==='leaderboard')initLeaderboardTab();
  if(tab==='tower')renderTower();
+ if(tab==='battles')initBattlesTab();
  if(tab==='explain')initExplainTab();
  if(tab==='feedback')loadFeedback();
 });
