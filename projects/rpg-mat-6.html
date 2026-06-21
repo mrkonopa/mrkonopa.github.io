@@ -1114,7 +1114,7 @@ const AREAS = [
  intro:'Zrcadlový dvojník odráží vše kolem. Spočítej osy souměrnosti útvarů.',
  tc:6,
  tasks:()=>[
- (()=>{return{text:`Kolik os souměrnosti má čtverec?`,ans:'4',hints:[`Dvě úhlopříčky a dvě středem stran.`,`2 + 2`],skill:'geo'};})(),
+ (()=>{return{text:`Kolik os souměrnosti má čtverec?`,ans:'4',hints:[`Dvě úhlopříčky a dvě spojnice středů protějších stran.`,`2 + 2`],skill:'geo'};})(),
  (()=>{return{text:`Kolik os souměrnosti má obdélník\n(který není čtverec)?`,ans:'2',hints:[`Osy procházejí středy protějších stran.`,`Výsledek: 2`],skill:'geo'};})(),
  (()=>{return{text:`Kolik os souměrnosti má rovnostranný trojúhelník?`,ans:'3',hints:[`Z každého vrcholu jedna.`,`Výsledek: 3`],skill:'geo'};})(),
  (()=>{return{text:`Kolik os souměrnosti má kosočtverec?`,ans:'2',hints:[`Obě úhlopříčky jsou osy souměrnosti.`,`Výsledek: 2`],skill:'geo'};})(),
@@ -1197,7 +1197,7 @@ const AREAS = [
  (()=>{const m=ri(2,9)*1000;return{text:`Kolik dm³ je ${m} cm³?\n(1000 cm³ = 1 dm³)`,ans:String(m/1000),hints:[`Vyděl 1000.`,`${m} ÷ 1000`],skill:'anal'};})(),
  (()=>{return{text:`Z kolika čtverců se skládá síť krychle?`,ans:'6',hints:[`Tolik, kolik má krychle stěn.`,`Výsledek: 6`],skill:'craft'};})(),
  (()=>{const a=ri(2,6);return{text:`Síť krychle se skládá ze 6 čtverců se stranou ${a} cm.\nJaký je celkový obsah sítě? (cm²)`,ans:String(6*a*a),hints:[`To je povrch krychle.`,`6 × ${a} × ${a}`],skill:'craft'};})(),
- (()=>{const l=ri(2,8);return{text:`Nádrž pojme ${l} litrů.\nKolik je to dm³?`,ans:String(l),hints:[`1 litr = 1 dm³.`,`Výsledek: ${l}`],skill:'anal'};})()
+ (()=>{const l=ri(2,8);return{text:`Nádrž pojme ${l} ${skl(l,'litr','litry','litrů')}.\nKolik je to dm³?`,ans:String(l),hints:[`1 litr = 1 dm³.`,`Výsledek: ${l}`],skill:'anal'};})()
  ]
  }
  ]

@@ -188,9 +188,9 @@ window.RPG_TASK_EXTRA_9 = {
   (()=>{const t=ri(4,10);return{text:`Práci zvládne dělník za ${t} h.\nKolik % udělá za 1 h?`,ans:String(Math.round(100/t)),hints:[`100 ÷ ${t}.`],skill:'anal'};})(),
   (()=>{const a=ri(2,5),pa=ri(8,15)*10,b=ri(2,5),pb=ri(2,7)*10;const tot=Math.round((a*pa+b*pb)/(a+b));return{text:`${a} kg po ${pa} Kč a ${b} kg po ${pb} Kč.\nCena 1 kg směsi? (Kč)`,ans:String(tot),hints:[`(${a*pa} + ${b*pb}) ÷ ${a+b}.`],skill:'anal'};})(),
   (()=>{const t=ri(2,5)*2,h=t/2;return{text:`Zakázka za ${t} h.\nKolik % hotovo za ${h} h?`,ans:String(Math.round(h/t*100)),hints:[`${h} ÷ ${t} × 100.`],skill:'anal'};})(),
-  (()=>{const n=ri(2,6),one=ri(3,8);return{text:`Jeden dělník udělá ${one} dílů za hodinu.\nKolik dílů ${n} dělníků za hodinu?`,ans:String(n*one),hints:[`${n} × ${one}.`],skill:'anal'};})(),
+  (()=>{const n=ri(2,6),one=ri(3,8);return{text:`Jeden dělník udělá ${one} ${skl(one,'díl','díly','dílů')} za hodinu.\nKolik dílů ${n} ${skl(n,'dělník','dělníci','dělníků')} za hodinu?`,ans:String(n*one),hints:[`${n} × ${one}.`],skill:'anal'};})(),
   (()=>{const m=ri(2,8)*100,p=[10,20,30][ri(0,2)];return{text:`Roztok ${m} g obsahuje ${p} % cukru.\nKolik g vody?`,ans:String(m-m*p/100),hints:[`Voda = ${100-p} % z ${m}.`],skill:'anal'};})(),
-  (()=>{const n=ri(3,6),t=ri(4,8);return{text:`${n} dělníci udělají práci za ${t} dní.\nKolik dní 1 dělník?`,ans:String(n*t),hints:[`${n} × ${t}.`],skill:'anal'};})(),
+  (()=>{const n=ri(3,6),t=ri(4,8);return{text:`${n} ${skl(n,'dělník udělá','dělníci udělají','dělníků udělá')} práci za ${t} ${skl(t,'den','dny','dní')}.\nKolik dní 1 dělník?`,ans:String(n*t),hints:[`${n} × ${t}.`],skill:'anal'};})(),
   (()=>{const m=ri(3,8)*50,p=[10,20,50][ri(0,2)];return{text:`Zdraží o ${p} %. Původní cena ${m} Kč.\nNová cena? (Kč)`,ans:String(m*(1+p/100)),hints:[`${m} + ${m*p/100} Kč.`],skill:'anal'};})(),
   (()=>{const s1=ri(2,4)*100,p1=20,s2=ri(2,4)*100,p2=40;const pOut=Math.round((s1*p1+s2*p2)/(s1+s2));return{text:`Smíchám ${s1} g (${p1}% soli) a ${s2} g (${p2}% soli).\nVýsledná koncentrace? (%)`,ans:String(pOut),hints:[`(${s1*p1/100}+${s2*p2/100}) ÷ ${s1+s2} × 100.`],skill:'anal'};})()
  ],

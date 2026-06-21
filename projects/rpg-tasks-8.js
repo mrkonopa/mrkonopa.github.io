@@ -134,7 +134,7 @@ window.RPG_TASK_EXTRA_8 = {
   (()=>{const a=ri(5,12),b=ri(3,10);return{text:`Obvod obdélníku je ${2*(a+b)} cm, jedna strana ${a} cm.\nDruhá strana? (cm)`,ans:String(b),hints:[`o = 2(a+b), b = o/2 − a.`,`${a+b} − ${a}`],skill:'anal'};})(),
   (()=>{const v=ri(6,12)*5,t=ri(2,4);return{text:`Auto ujelo ${v*t} km za ${t} h.\nPrůměrná rychlost? (km/h)`,ans:String(v),hints:[`v = dráha ÷ čas.`,`${v*t} ÷ ${t}`],skill:'anal'};})(),
   (()=>{const x=ri(4,12),n=ri(3,5);return{text:`Součet ${n} po sobě jdoucích čísel je ${n*x+(n*(n-1)/2)}.\nNejmenší číslo?`,ans:String(x),hints:[`${n} čísel: x, x+1, …, x+${n-1}.`,`${n}x + ${n*(n-1)/2} = ${n*x+(n*(n-1)/2)}`],skill:'anal'};})(),
-  (()=>{const ks=ri(4,9),a=ri(10,30)*2;return{text:`${ks} jablek stálo ${ks*a} Kč.\nKolik stojí ${ks+ri(1,4)} jablek?`,ans:String((ks+ri(1,4))*a),hints:[`Cena za 1 jablko = ${ks*a} ÷ ${ks}.`],skill:'anal'};})()
+  (()=>{const ks=ri(4,9),a=ri(10,30)*2,more=ks+ri(1,4);return{text:`${ks} ${skl(ks,'jablko stálo','jablka stála','jablek stálo')} ${ks*a} Kč.\nKolik stojí ${more} ${skl(more,'jablko','jablka','jablek')}?`,ans:String(more*a),hints:[`Cena za 1 jablko = ${ks*a} ÷ ${ks}.`],skill:'anal'};})()
  ],
 
  // ───────── OBLAST 4 — VÝRAZY ─────────
@@ -196,7 +196,7 @@ window.RPG_TASK_EXTRA_8 = {
   (()=>{const d=ri(4,12),h=ri(5,15);const r=d/2;return{text:`Válec: průměr ${d}, výška ${h}.\nObjem? (π = 3,14)`,ans:r2(PI*r*r*h),hints:[`r = ${r}, V = πr²h.`],skill:'geo'};})(),
   (()=>{const r=ri(2,6),h=ri(4,10);return{text:`Obsah jedné podstavy válce (r = ${r}).\nS = (π = 3,14)`,ans:r2(PI*r*r),hints:[`Podstava = kruh, πr².`],skill:'geo'};})(),
   (()=>{const r=ri(2,5),h=ri(5,12);return{text:`Konzerva: poloměr dna ${r} cm, výška ${h} cm.\nObjem? (cm³, π = 3,14)`,ans:r2(PI*r*r*h),hints:[`V = πr²h.`],skill:'geo'};})(),
-  (()=>{const r=ri(2,5),h=ri(4,8),n=ri(2,4);return{text:`${n} válcových nádob: r = ${r} cm, v = ${h} cm.\nCelkový objem? (cm³, π = 3,14)`,ans:r2(n*PI*r*r*h),hints:[`${n} × πr²h.`],skill:'geo'};})(),
+  (()=>{const r=ri(2,5),h=ri(4,8),n=ri(2,4);return{text:`${n} ${skl(n,'válcová nádoba','válcové nádoby','válcových nádob')}: r = ${r} cm, v = ${h} cm.\nCelkový objem? (cm³, π = 3,14)`,ans:r2(n*PI*r*r*h),hints:[`${n} × πr²h.`],skill:'geo'};})(),
   (()=>{const r=ri(2,5),h=ri(6,12);return{text:`Válec: r = ${r} dm, výška ${h} dm.\nObjem v litrech? (1 dm³ = 1 l, π = 3,14)`,ans:r2(PI*r*r*h),hints:[`V = πr²h dm³ = l.`],skill:'geo'};})(),
   (()=>{const r=ri(3,7),h=ri(5,10);return{text:`Válcová nádrž: průměr ${2*r} m, hloubka ${h} m.\nObjem vody? (m³, π = 3,14)`,ans:r2(PI*r*r*h),hints:[`r = ${r}, V = πr²h.`],skill:'geo'};})()
  ],
