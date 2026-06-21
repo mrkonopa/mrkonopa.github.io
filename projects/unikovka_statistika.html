@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Únikovka: Statistika a data</title>
+<meta name="description" content="Interaktivní únikovka z matematiky – statistika, průměr, medián, modus, četnosti a zpracování dat.">
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --gold-dark:#c89a10; --blue:#1a73c8; --blue-light:#e8f1fb;
+  --green:#1e9e5a; --green-light:#e6f7ef; --red:#d63c2f;
+  --purple:#7c3aad; --purple-light:#f3eefa;
+  --teal:#0f8a72; --teal-light:#e4f5f1;
+  --orange:#d4620a; --orange-light:#fdf0e5;
+  --pink:#b5286e; --pink-light:#fce8f2;
+  --indigo:#3730a3; --indigo-light:#eef2ff;
+  --rose:#9f1239; --rose-light:#fff1f2;
+  --cyan:#0e7490; --cyan-light:#ecfeff;
+  --bg:#f5f0fb; --card:#fff; --text:#1a1a2e; --muted:#6b7280;
+  --shadow:0 4px 24px rgba(0,0,0,.09); --radius:16px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Lexend',sans-serif;background:var(--bg);background-image:radial-gradient(circle at 8% 15%,rgba(124,58,173,.11) 0%,transparent 38%),radial-gradient(circle at 92% 82%,rgba(55,48,163,.09) 0%,transparent 38%);min-height:100vh;color:var(--text)}
+.screen{display:none;min-height:100vh;padding:24px 16px 48px;max-width:680px;margin:0 auto}
+.screen.active{display:flex;flex-direction:column;align-items:center}
+#intro{justify-content:center;text-align:center;gap:18px}
+#intro-content{display:flex;flex-direction:column;align-items:center;gap:18px;width:100%}
+.chest{font-size:88px;animation:float 3s ease-in-out infinite;display:inline-block;filter:drop-shadow(0 8px 16px rgba(0,0,0,.15))}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
+.title-main{font-size:2.5rem;color:var(--purple);line-height:1.1;font-weight:800}
+.title-sub{font-size:1.45rem;color:var(--indigo);font-weight:700}
+.intro-card{background:var(--card);border-radius:var(--radius);padding:22px 26px;box-shadow:var(--shadow);border-left:6px solid var(--purple);text-align:left;width:100%}
+.intro-card p{font-size:.97rem;line-height:1.75}
+.intro-card p+p{margin-top:10px}
+.intro-card b{color:var(--purple)}
+.rules{background:var(--card);border-radius:var(--radius);padding:18px 22px;box-shadow:var(--shadow);width:100%;border-left:6px solid var(--gold-dark)}
+.rules h3{color:var(--gold-dark);font-size:1.05rem;margin-bottom:10px;font-weight:700}
+.rules ul{list-style:none;display:flex;flex-direction:column;gap:8px}
+.rules li{display:flex;align-items:flex-start;gap:10px;font-size:.95rem;line-height:1.55}
+.btn-primary{background:linear-gradient(135deg,var(--purple),#5b21b6);color:#fff;font-family:'Lexend',sans-serif;font-size:1.2rem;font-weight:700;border:none;border-radius:50px;padding:15px 46px;cursor:pointer;box-shadow:0 6px 20px rgba(124,58,173,.32);transition:transform .15s,box-shadow .15s;letter-spacing:.01em}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(124,58,173,.38)}
+.progress-wrap{width:100%;margin-top:10px;margin-bottom:18px}
+.progress-label{display:flex;justify-content:space-between;font-size:.82rem;font-weight:700;color:var(--muted);margin-bottom:5px}
+.progress-bar{background:#ddd8c6;border-radius:20px;height:9px;overflow:hidden}
+.progress-fill{height:100%;border-radius:20px;background:linear-gradient(90deg,var(--purple),var(--indigo));transition:width .5s ease}
+.stars-wrap{display:flex;gap:3px}
+.star{font-size:1rem;opacity:.22;transition:opacity .3s,transform .3s}
+.star.lit{opacity:1;transform:scale(1.12)}
+#game{justify-content:flex-start;gap:0}
+.lock-header{width:100%;display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.lock-icon-big{font-size:2.2rem}
+.lock-title{font-size:1.4rem;font-weight:700}
+.lock-badge{margin-left:auto;background:var(--purple);color:#fff;border-radius:50px;padding:3px 13px;font-size:.82rem;font-weight:700;white-space:nowrap}
+.task-card{background:var(--card);border-radius:var(--radius);padding:22px 22px 18px;box-shadow:var(--shadow);width:100%;margin-bottom:22px;position:relative;overflow:hidden}
+.task-card::before{content:'';position:absolute;top:0;left:0;width:5px;height:100%;border-radius:3px 0 0 3px}
+.task-card.blue::before{background:var(--blue)}.task-card.green::before{background:var(--green)}.task-card.purple::before{background:var(--purple)}.task-card.teal::before{background:var(--teal)}.task-card.orange::before{background:var(--orange)}.task-card.pink::before{background:var(--pink)}.task-card.indigo::before{background:var(--indigo)}.task-card.rose::before{background:var(--rose)}.task-card.cyan::before{background:var(--cyan)}.task-card.gold::before{background:var(--gold-dark)}
+.task-card h3{font-size:1.02rem;margin-bottom:11px;font-weight:700}
+.task-card.blue h3{color:var(--blue)}.task-card.green h3{color:var(--green)}.task-card.purple h3{color:var(--purple)}.task-card.teal h3{color:var(--teal)}.task-card.orange h3{color:var(--orange)}.task-card.pink h3{color:var(--pink)}.task-card.indigo h3{color:var(--indigo)}.task-card.rose h3{color:var(--rose)}.task-card.cyan h3{color:var(--cyan)}.task-card.gold h3{color:var(--gold-dark)}
+.task-card p{font-size:.95rem;line-height:1.75}.task-card p+p{margin-top:8px}.task-card ul,.task-card ol{margin:6px 0 6px 1.2em;font-size:.95rem;line-height:1.7}
+table.tt{width:100%;border-collapse:collapse;margin:10px 0;font-size:.9rem}
+table.tt th{padding:7px 9px;text-align:center;font-weight:700}
+table.tt td{border:1px solid #e0dbd0;padding:7px 9px;text-align:center}
+table.tt tr:nth-child(even) td{background:#fafaf5}
+.blue table.tt th{background:var(--blue-light);color:var(--blue)}.green table.tt th{background:var(--green-light);color:var(--green)}.purple table.tt th{background:var(--purple-light);color:var(--purple)}.teal table.tt th{background:var(--teal-light);color:var(--teal)}.orange table.tt th{background:var(--orange-light);color:var(--orange)}.pink table.tt th{background:var(--pink-light);color:var(--pink)}.indigo table.tt th{background:var(--indigo-light);color:var(--indigo)}.rose table.tt th{background:var(--rose-light);color:var(--rose)}.cyan table.tt th{background:var(--cyan-light);color:var(--cyan)}.gold table.tt th{background:#fef9ec;color:var(--gold-dark)}
+.hint-box{margin-top:11px;background:#fef9ec;border:1.5px dashed var(--gold-dark);border-radius:10px;padding:9px 13px;font-size:.88rem;color:#7a5200;display:none}
+.hint-box.show{display:block}
+.hint-btn{background:none;border:1.5px solid var(--gold-dark);color:var(--gold-dark);border-radius:20px;padding:4px 12px;font-size:.8rem;font-weight:700;cursor:pointer;margin-top:9px;font-family:'Lexend',sans-serif;transition:background .15s}
+.hint-btn:hover{background:#fef9ec}
+.tag{display:inline-block;border-radius:20px;padding:2px 10px;font-size:.78rem;font-weight:700;margin-bottom:7px}
+.tag.blue{background:var(--blue-light);color:var(--blue)}.tag.green{background:var(--green-light);color:var(--green)}.tag.purple{background:var(--purple-light);color:var(--purple)}.tag.teal{background:var(--teal-light);color:var(--teal)}.tag.orange{background:var(--orange-light);color:var(--orange)}.tag.pink{background:var(--pink-light);color:var(--pink)}.tag.indigo{background:var(--indigo-light);color:var(--indigo)}.tag.rose{background:var(--rose-light);color:var(--rose)}.tag.cyan{background:var(--cyan-light);color:var(--cyan)}.tag.gold{background:#fef9ec;color:var(--gold-dark)}
+.code-wrap{background:var(--card);border-radius:var(--radius);padding:20px 22px;box-shadow:var(--shadow);width:100%;margin-top:10px;margin-bottom:18px}
+.code-wrap label{display:block;font-size:.98rem;color:var(--muted);margin-bottom:11px;font-weight:700}
+.code-row{display:flex;gap:10px;align-items:center}
+.code-hint-bar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:12px}
+.code-hint-btn{background:none;border:1.5px dashed var(--gold-dark);color:var(--gold-dark);padding:5px 14px;border-radius:20px;font-family:'Lexend',sans-serif;font-weight:600;font-size:.82rem;cursor:pointer;transition:all .15s}
+.code-hint-btn:hover:not([disabled]){background:#fef9ec}
+.code-hint-btn[disabled]{opacity:.5;cursor:not-allowed;border-style:solid;border-color:#e0dbd0;color:var(--muted)}
+.code-hint-counter{font-size:.76rem;color:var(--muted)}
+.code-hint-counter .dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#e0dbd0;margin:0 1px}
+.code-hint-counter .dot.shown{background:var(--gold-dark)}
+.code-hint-counter .dot.shown.warn{background:var(--orange)}
+.code-hint-box{margin-top:10px;background:#fef9ec;border-left:3px solid var(--gold-dark);padding:10px 14px;border-radius:8px;font-size:.9rem;display:none;color:#7a5200}
+.code-hint-box.show{display:block}
+.code-hint-box .h-label{font-size:.7rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gold-dark);display:block;margin-bottom:4px}
+.code-hint-box[data-level="3"]{background:var(--orange-light);border-left-color:var(--orange);color:#8b3f08}
+.code-hint-box[data-level="3"] .h-label{color:var(--orange)}
+.code-input{flex:1;font-family:'Lexend',sans-serif;font-size:1.5rem;text-align:center;letter-spacing:.12em;border:3px solid #ccc8bb;border-radius:12px;padding:11px 14px;outline:none;transition:border-color .2s;background:#fafaf6;color:var(--text)}
+.code-input:focus{border-color:var(--purple);background:#fff}
+.code-input.error{border-color:var(--red);animation:shake .32s}
+.code-input.success{border-color:var(--purple);background:var(--purple-light)}
+@keyframes shake{0%,100%{transform:translateX(0)}30%{transform:translateX(-5px)}70%{transform:translateX(5px)}}
+.btn-check{background:linear-gradient(135deg,var(--purple),#5b21b6);color:#fff;font-family:'Lexend',sans-serif;font-size:.95rem;font-weight:700;border:none;border-radius:12px;padding:13px 20px;cursor:pointer;box-shadow:0 4px 14px rgba(124,58,173,.28);transition:transform .15s;white-space:nowrap}
+.btn-check:hover{transform:translateY(-1px)}
+.feedback{margin-top:9px;font-weight:700;font-size:.92rem;min-height:20px}
+.feedback.ok{color:var(--purple)}.feedback.err{color:var(--red)}
+.unlock-anim{display:none;flex-direction:column;align-items:center;gap:6px;padding:18px;animation:popIn .4s cubic-bezier(.175,.885,.32,1.275)}
+.unlock-anim.show{display:flex}
+@keyframes popIn{from{transform:scale(.5);opacity:0}to{transform:scale(1);opacity:1}}
+.unlock-anim .big-icon{font-size:3.2rem}
+.unlock-anim p{font-size:1.05rem;color:var(--purple);text-align:center;font-weight:700}
+#finish{justify-content:center;text-align:center;gap:20px}
+.final-chest{font-size:96px;animation:bounce .6s cubic-bezier(.175,.885,.32,1.275)}
+@keyframes bounce{from{transform:scale(0)}to{transform:scale(1)}}
+.final-title{font-size:2.1rem;color:var(--gold-dark);font-weight:800}
+.final-sub{font-size:.97rem;color:var(--muted);line-height:1.75;max-width:420px}
+.summary-card{background:var(--card);border-radius:var(--radius);padding:18px 22px;box-shadow:var(--shadow);width:100%;text-align:left}
+.summary-card h3{color:var(--purple);font-size:1.05rem;margin-bottom:12px;font-weight:700}
+.summary-row{display:flex;align-items:flex-start;gap:11px;padding:9px 0;border-bottom:1px solid #f0ece0;font-size:.93rem;line-height:1.6}
+.summary-row:last-child{border-bottom:none}
+.s-icon{font-size:1.2rem;flex-shrink:0;margin-top:1px}
+.confetti-wrap{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:999}
+.confetti-piece{position:absolute;animation:fall linear forwards}
+@keyframes fall{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+.top-bar{max-width:680px;margin:0 auto;padding:16px 20px 0;display:flex;justify-content:space-between;gap:18px;font-size:.82rem;color:var(--muted)}
+.top-bar a{color:var(--muted);text-decoration:none}
+.top-bar a:hover{color:var(--purple)}
+.top-bar .crumb{color:var(--text);font-weight:500}
+#lang-bar{position:fixed;bottom:16px;right:16px;z-index:200;display:flex;gap:6px;background:rgba(255,255,255,.92);border-radius:50px;padding:5px 8px;box-shadow:0 2px 12px rgba(0,0,0,.12);backdrop-filter:blur(6px)}
+.lang-btn{background:none;border:2px solid transparent;border-radius:50px;font-size:1.35rem;cursor:pointer;padding:3px 7px;line-height:1;transition:border-color .15s,box-shadow .15s}
+.lang-btn.active{border-color:var(--purple);box-shadow:0 0 0 2px rgba(124,58,173,.25)}
+@media(pointer:coarse){.lang-btn{min-width:44px;min-height:44px;display:inline-flex;align-items:center;justify-content:center}.tp-back,.tp-home{display:inline-flex;align-items:center;min-height:44px}}
+</style>
+</head>
+<body>
+<div class="top-bar">
+  <a href="./" class="tp-back">← zpět na projekty</a>
+  <span class="crumb">/projects/unikovka_statistika</span>
+  <a href="/" class="tp-home">domů</a>
+</div>
+<div id="lang-bar">
+  <button class="lang-btn" data-lang="cs" onclick="setLang('cs')">&#x1F1E8;&#x1F1FF;</button>
+  <button class="lang-btn" data-lang="en" onclick="setLang('en')">&#x1F1EC;&#x1F1E7;</button>
+</div>
+<div id="intro" class="screen active"><div id="intro-content"></div></div>
+<div id="game" class="screen">
+  <div class="progress-wrap" style="width:100%">
+    <div class="progress-label"><span id="prog-label"></span><span class="stars-wrap" id="stars-wrap"></span></div>
+    <div class="progress-bar"><div class="progress-fill" id="prog-fill" style="width:0%"></div></div>
+  </div>
+  <div id="step-container" style="width:100%"></div>
+</div>
+<div id="finish" class="screen">
+  <div class="confetti-wrap" id="confetti"></div>
+  <div id="finish-content"></div>
+</div>
+<script>
+const LANG_KEY = 'unikovka_statistika_lang';
+let lang = localStorage.getItem(LANG_KEY) || 'cs';
+const i18n = (cs, en) => lang === 'en' ? en : cs;
+
+function setLang(l) {
+  lang = l;
+  try { localStorage.setItem(LANG_KEY, l); } catch(e) {}
+  document.querySelectorAll('.lang-btn').forEach(b => b.classList.toggle('active', b.dataset.lang === l));
+  document.querySelectorAll('.tp-back').forEach(el => el.textContent = i18n('← zpět na projekty','← back to projects'));
+  document.querySelectorAll('.tp-home').forEach(el => el.textContent = i18n('domů','home'));
+  const activeId = document.querySelector('.screen.active')?.id;
+  if (activeId === 'intro') buildIntro();
+  else if (activeId === 'game') render(cur);
+  else if (activeId === 'finish') buildFinish();
+}
+
+function buildIntro() {
+  document.getElementById('intro-content').innerHTML = `
+    <div class="chest">📊</div>
+    <div class="title-main">${i18n('Únikovka z matiky','Math Escape Room')}</div>
+    <div class="title-sub">📊 ${i18n('STATISTIKA A DATA','STATISTICS & DATA')} 📊</div>
+    <div class="intro-card">
+      <p>${i18n('V Databanku došlo k nehodě – všechna statistická data jsou rozptýlena po <b>10 trezorech</b>.','A data breach has scrambled all statistics across <b>10 vaults</b>.')}</p>
+      <p>${i18n('Jako <b>datový detektiv</b> musíš analyzovat každý soubor dat, vypočítat správnou statistiku a zadat kód k odemčení trezoru.','As a <b>data detective</b>, analyse each dataset, calculate the correct statistic, and enter the code to unlock each vault.')}</p>
+      <p>${i18n('Procvičíš četnost, průměr, medián, modus i relativní četnosti – vše <b>vlastní hlavou</b> 🧠','You\'ll practise frequency, mean, median, mode and relative frequencies – all with your <b>own mind</b> 🧠')}</p>
+    </div>
+    <div class="rules">
+      <h3>📋 ${i18n('Pravidla','Rules')}</h3>
+      <ul>
+        <li><span>✏️</span> ${i18n('Výpočty piš do sešitu – každý krok celý.','Write your calculations in your notebook – every step.')}</li>
+        <li><span>🚫</span> ${i18n('Bez kalkulačky, bez opisování.','No calculator, no copying.')}</li>
+        <li><span>💡</span> ${i18n('Nevíš? Zkus nápovědu – ale nejdřív se zamysli!','Stuck? Try the hint – but think first!')}</li>
+        <li><span>🔢</span> ${i18n('Kód zadej jako celé číslo (bez procent, bez mezer).','Enter the code as a whole number (no % sign, no spaces).')}</li>
+      </ul>
+    </div>
+    <button class="btn-primary" id="btn-start">🔓 ${i18n('Začít detektivní případ!','Start the detective case!')}</button>
+  `;
+  document.getElementById('btn-start').addEventListener('click', startGame);
+}
+
+function buildFinish() {
+  document.getElementById('finish-content').innerHTML = `
+    <div class="final-chest">🏆</div>
+    <div class="final-title">${i18n('Případ uzavřen!','Case closed!')}</div>
+    <p class="final-sub">${i18n('Zvládl(a) jsi všech 10 trezorů. Data pro tebe nemají tajemství – jsi hotový/á datový detektiv!','You cracked all 10 vaults. Data holds no more secrets for you – you\'re a certified data detective!')}</p>
+    <div class="summary-card">
+      <h3>📖 ${i18n('Co jsi dnes zvládl(a)','What you mastered today')}</h3>
+      <div class="summary-row"><span class="s-icon">📊</span><span>${i18n('Četnost = kolikrát se hodnota v souboru dat vyskytuje.','Frequency = how many times a value appears in the dataset.')}</span></div>
+      <div class="summary-row"><span class="s-icon">➗</span><span>${i18n('Průměr (aritmetický) = součet všech hodnot ÷ počet hodnot.','Mean (arithmetic) = sum of all values ÷ number of values.')}</span></div>
+      <div class="summary-row"><span class="s-icon">🎯</span><span>${i18n('Medián = prostřední hodnota seřazeného souboru (lichý počet), nebo průměr dvou prostředních (sudý počet).','Median = middle value of a sorted dataset (odd count), or average of two middle values (even count).')}</span></div>
+      <div class="summary-row"><span class="s-icon">🏆</span><span>${i18n('Modus = nejčetnější hodnota (ta, která se opakuje nejčastěji).','Mode = the most frequent value (the one that repeats most often).')}</span></div>
+      <div class="summary-row"><span class="s-icon">↔️</span><span>${i18n('Rozsah (rozpětí) = největší hodnota − nejmenší hodnota.','Range = maximum value − minimum value.')}</span></div>
+      <div class="summary-row"><span class="s-icon">%</span><span>${i18n('Relativní četnost = (absolutní četnost ÷ celkový počet) × 100 %','Relative frequency = (count ÷ total) × 100 %')}</span></div>
+    </div>
+    <button class="btn-primary" id="btn-restart">🔄 ${i18n('Hrát znovu','Play again')}</button>
+  `;
+  document.getElementById('btn-restart').addEventListener('click', () => location.reload());
+}
+
+const STEPS = [
+{id:1,color:'purple',icon:'📋',code:'6',
+ title:'Trezor 1 – Četnost',title_en:'Vault 1 – Frequency',
+ tag:'Absolutní četnost',tag_en:'Absolute frequency',tagClass:'purple',
+ tasks:[
+  {title:'🧩 Co je absolutní četnost?',title_en:'🧩 What is absolute frequency?',
+   body:`<p><b>Absolutní četnost</b> (označení <b>n</b>) udává, kolikrát se daná hodnota v souboru dat vyskytuje.</p>
+<p>Příklad – výsledky losování: 2, 4, 2, 6, 2, 4, 3, 2, 5, 4</p>
+<table class="tt"><tr><th>Hodnota</th><th>Četnost</th></tr>
+<tr><td>2</td><td>4</td></tr>
+<tr><td>3</td><td>1</td></tr>
+<tr><td>4</td><td>3</td></tr>
+<tr><td>5</td><td>1</td></tr>
+<tr><td>6</td><td>1</td></tr></table>
+<p>Součet všech četností = celkový počet hodnot = 10.</p>`,
+   body_en:`<p><b>Absolute frequency</b> (symbol <b>n</b>) tells how many times a given value appears in the dataset.</p>
+<p>Example – lottery results: 2, 4, 2, 6, 2, 4, 3, 2, 5, 4</p>
+<table class="tt"><tr><th>Value</th><th>Frequency</th></tr>
+<tr><td>2</td><td>4</td></tr>
+<tr><td>3</td><td>1</td></tr>
+<tr><td>4</td><td>3</td></tr>
+<tr><td>5</td><td>1</td></tr>
+<tr><td>6</td><td>1</td></tr></table>
+<p>Sum of all frequencies = total number of values = 10.</p>`,
+   hint:'💡 Procházej seznam a ke každému výskytu čísla 6 si udělej čárku do sešitu.',
+   hint_en:'💡 Go through the list and make a tally mark for each occurrence of 6.'},
+  {title:'🔢 Kód trezoru',title_en:'🔢 Vault code',
+   body:`<p>Přijatá SMS zpráva obsahuje tato čísla (šifrovaný klíč):</p>
+<p style="font-size:1.05rem;font-weight:700;letter-spacing:.05em;text-align:center;margin:14px 0">3, 6, 8, 6, 5, 6, 9, 6, 4, 6, 7, 6, 2, 8, 5</p>
+<p>Kolikrát se v tomto souboru vyskytuje číslo <b>6</b>?</p>
+<p>Kód = četnost čísla 6.</p>`,
+   body_en:`<p>An encrypted SMS contains these numbers (cipher key):</p>
+<p style="font-size:1.05rem;font-weight:700;letter-spacing:.05em;text-align:center;margin:14px 0">3, 6, 8, 6, 5, 6, 9, 6, 4, 6, 7, 6, 2, 8, 5</p>
+<p>How many times does the number <b>6</b> appear?</p>
+<p>Code = frequency of number 6.</p>`,
+   hint:'💡 Projdi seznam zleva doprava a pokaždé, kdy narazíš na 6, zvyš počítadlo o 1.',
+   hint_en:'💡 Go left to right and each time you see a 6, add 1 to your counter.'}],
+ successMsg:'🔓 Správně! Číslo 6 se v souboru vyskytuje 6×. Trezor 1 otevřen!',
+ successMsg_en:'🔓 Correct! The number 6 appears 6 times. Vault 1 opened!'},
+
+{id:2,color:'blue',icon:'➗',code:'13',
+ title:'Trezor 2 – Průměr',title_en:'Vault 2 – Mean',
+ tag:'Aritmetický průměr',tag_en:'Arithmetic mean',tagClass:'blue',
+ tasks:[
+  {title:'🧩 Jak vypočítat průměr?',title_en:'🧩 How to calculate the mean?',
+   body:`<p><b>Aritmetický průměr</b> (průměr, označení <b>x̄</b>) se počítá:</p>
+<p style="text-align:center"><b>x̄ = součet všech hodnot ÷ počet hodnot</b></p>
+<p>Příklady:</p>
+<table class="tt"><tr><th>Soubor dat</th><th>Součet</th><th>Počet</th><th>Průměr</th></tr>
+<tr><td>4, 8, 6</td><td>18</td><td>3</td><td>6</td></tr>
+<tr><td>10, 12, 8, 6</td><td>36</td><td>4</td><td>9</td></tr>
+<tr><td>5, 7, 9, 11, 13</td><td>45</td><td>5</td><td>9</td></tr></table>
+<p>Průměr nemusí být přímo v souboru! Říká nám, jaká by byla „typická" hodnota, kdyby byly všechny stejné.</p>`,
+   body_en:`<p><b>Arithmetic mean</b> (symbol <b>x̄</b>) is calculated:</p>
+<p style="text-align:center"><b>x̄ = sum of all values ÷ number of values</b></p>
+<p>Examples:</p>
+<table class="tt"><tr><th>Dataset</th><th>Sum</th><th>Count</th><th>Mean</th></tr>
+<tr><td>4, 8, 6</td><td>18</td><td>3</td><td>6</td></tr>
+<tr><td>10, 12, 8, 6</td><td>36</td><td>4</td><td>9</td></tr>
+<tr><td>5, 7, 9, 11, 13</td><td>45</td><td>5</td><td>9</td></tr></table>
+<p>The mean doesn't have to appear in the dataset – it tells us the "typical" value if all were equal.</p>`,
+   hint:'💡 Sečti všech 5 hodnot a výsledek dělíme 5.',
+   hint_en:'💡 Add all 5 values and divide the sum by 5.'},
+  {title:'🔢 Kód trezoru',title_en:'🔢 Vault code',
+   body:`<p>Žák dostal v pěti pololetních testech tyto body:</p>
+<p style="font-size:1.05rem;font-weight:700;text-align:center;margin:14px 0">10,&nbsp;&nbsp;15,&nbsp;&nbsp;8,&nbsp;&nbsp;17,&nbsp;&nbsp;15</p>
+<p>Jaký je <b>průměrný</b> počet bodů?</p>
+<p>Kód = průměr (celé číslo).</p>`,
+   body_en:`<p>A student scored these points in five semester tests:</p>
+<p style="font-size:1.05rem;font-weight:700;text-align:center;margin:14px 0">10,&nbsp;&nbsp;15,&nbsp;&nbsp;8,&nbsp;&nbsp;17,&nbsp;&nbsp;15</p>
+<p>What is the <b>mean</b> score?</p>
+<p>Code = mean (whole number).</p>`,
+   hint:'💡 Součet: 10 + 15 + 8 + 17 + 15 = 65. Průměr = 65 ÷ 5 = ?',
+   hint_en:'💡 Sum: 10 + 15 + 8 + 17 + 15 = 65. Mean = 65 ÷ 5 = ?'}],
+ successMsg:'🔓 Přesně! (10+15+8+17+15) ÷ 5 = 65 ÷ 5 = 13. Trezor 2 otevřen!',
+ successMsg_en:'🔓 Exactly! (10+15+8+17+15) ÷ 5 = 65 ÷ 5 = 13. Vault 2 opened!'},
+
+{id:3,color:'green',icon:'🎯',code:'9',
+ title:'Trezor 3 – Medián',title_en:'Vault 3 – Median',
+ tag:'Medián = prostřední hodnota',tag_en:'Median = middle value',tagClass:'green',
+ tasks:[
+  {title:'🧩 Jak najít medián?',title_en:'🧩 How to find the median?',
+   body:`<p><b>Medián</b> je prostřední hodnota <b>seřazeného</b> souboru dat.</p>
+<p><b>Postup:</b></p>
+<ol><li>Seřaď hodnoty od nejmenší po největší.</li><li>Najdi prostřední hodnotu.</li></ol>
+<ul>
+<li><b>Lichý počet hodnot:</b> medián = střední hodnota.</li>
+<li><b>Sudý počet hodnot:</b> medián = průměr dvou prostředních hodnot.</li>
+</ul>
+<table class="tt"><tr><th>Soubor (seřazený)</th><th>Medián</th></tr>
+<tr><td>2, 5, <b>7</b>, 9, 12</td><td>7 (3. z 5)</td></tr>
+<tr><td>3, 6, <b>8, 11</b>, 14, 18</td><td>(8+11)÷2 = 9,5</td></tr></table>
+<p>Medián je odolnější vůči extrémním hodnotám než průměr!</p>`,
+   body_en:`<p><b>Median</b> is the middle value of a <b>sorted</b> dataset.</p>
+<p><b>Steps:</b></p>
+<ol><li>Sort the values from smallest to largest.</li><li>Find the middle value.</li></ol>
+<ul>
+<li><b>Odd count:</b> median = the middle value.</li>
+<li><b>Even count:</b> median = average of the two middle values.</li>
+</ul>
+<table class="tt"><tr><th>Dataset (sorted)</th><th>Median</th></tr>
+<tr><td>2, 5, <b>7</b>, 9, 12</td><td>7 (3rd of 5)</td></tr>
+<tr><td>3, 6, <b>8, 11</b>, 14, 18</td><td>(8+11)÷2 = 9.5</td></tr></table>
+<p>The median is more robust against outliers than the mean!</p>`,
+   hint:'💡 Nejdřív seřaď 9 teplot od nejmenší po největší. Medián = 5. číslo.',
+   hint_en:'💡 First sort all 9 temperatures from smallest to largest. Median = the 5th number.'},
+  {title:'🔢 Kód trezoru',title_en:'🔢 Vault code',
+   body:`<p>Teplotní čidlo zaznamenalo tyto teploty (°C) v průběhu dne:</p>
+<p style="font-size:1.05rem;font-weight:700;text-align:center;margin:14px 0">5,&nbsp;&nbsp;13,&nbsp;&nbsp;9,&nbsp;&nbsp;2,&nbsp;&nbsp;11,&nbsp;&nbsp;7,&nbsp;&nbsp;9,&nbsp;&nbsp;14,&nbsp;&nbsp;4</p>
+<p>Jaký je <b>medián</b> naměřených teplot?</p>
+<p>Kód = medián (celé číslo).</p>`,
+   body_en:`<p>A temperature sensor recorded these values (°C) throughout the day:</p>
+<p style="font-size:1.05rem;font-weight:700;text-align:center;margin:14px 0">5,&nbsp;&nbsp;13,&nbsp;&nbsp;9,&nbsp;&nbsp;2,&nbsp;&nbsp;11,&nbsp;&nbsp;7,&nbsp;&nbsp;9,&nbsp;&nbsp;14,&nbsp;&nbsp;4</p>
+<p>What is the <b>median</b> temperature?</p>
+<p>Code = median (whole number).</p>`,
+   hint:'💡 Seřazeno: 2, 4, 5, 7, 9, 9, 11, 13, 14. Prostřední (5. z 9) = ?',
+   hint_en:'💡 Sorted: 2, 4, 5, 7, 9, 9, 11, 13, 14. Middle (5th of 9) = ?'}],
+ successMsg:'🔓 Výborně! Seřazeno: 2,4,5,7,<b>9</b>,9,11,13,14 → medián = 9. Trezor 3 otevřen!',
+ successMsg_en:'🔓 Excellent! Sorted: 2,4,5,7,<b>9</b>,9,11,13,14 → median = 9. Vault 3 opened!'},
+
+{id:4,color:'teal',icon:'🏆',code:'7',
+ title:'Trezor 4 – Modus',title_en:'Vault 4 – Mode',
+ tag:'Modus = nejčetnější hodnota',tag_en:'Mode = most frequent value',tagClass:'teal',
+ tasks:[
+  {title:'🧩 Co je modus?',title_en:'🧩 What is the mode?',
+   body:`<p><b>Modus</b> (označení <b>Mo</b> nebo <b>x̂</b>) je hodnota, která se v souboru dat vyskytuje <b>nejčastěji</b> (s největší četností).</p>
+<p>Soubor může mít:</p>
+<ul>
+<li><b>jeden modus</b> – jedna hodnota se opakuje nejčastěji</li>
+<li><b>více modů</b> – více hodnot se opakuje stejně nejčastěji</li>
+<li><b>žádný modus</b> – každá hodnota se opakuje stejně (1×)</li>
+</ul>
+<table class="tt"><tr><th>Soubor dat</th><th>Modus</th></tr>
+<tr><td>3, 5, 5, 7, 5, 8</td><td>5 (vyskytuje se 3×)</td></tr>
+<tr><td>2, 4, 4, 6, 6, 8</td><td>4 a 6 (bimodální)</td></tr>
+<tr><td>1, 2, 3, 4, 5</td><td>žádný</td></tr></table>`,
+   body_en:`<p><b>Mode</b> (symbol <b>Mo</b> or <b>x̂</b>) is the value that appears <b>most often</b> in a dataset.</p>
+<p>A dataset can have:</p>
+<ul>
+<li><b>one mode</b> – one value repeats most</li>
+<li><b>multiple modes</b> – several values tie for most frequent</li>
+<li><b>no mode</b> – every value appears equally often (once)</li>
+</ul>
+<table class="tt"><tr><th>Dataset</th><th>Mode</th></tr>
+<tr><td>3, 5, 5, 7, 5, 8</td><td>5 (appears 3×)</td></tr>
+<tr><td>2, 4, 4, 6, 6, 8</td><td>4 and 6 (bimodal)</td></tr>
+<tr><td>1, 2, 3, 4, 5</td><td>none</td></tr></table>`,
+   hint:'💡 Spočítej, kolikrát se opakuje každé číslo. Které číslo má nejvíc výskytů?',
+   hint_en:'💡 Count how many times each number appears. Which number appears most?'},
+  {title:'🔢 Kód trezoru',title_en:'🔢 Vault code',
+   body:`<p>Detektiv zaznamenal počty chyb v kódovaných zprávách:</p>
+<p style="font-size:1.05rem;font-weight:700;text-align:center;margin:14px 0">3,&nbsp;&nbsp;7,&nbsp;&nbsp;7,&nbsp;&nbsp;5,&nbsp;&nbsp;4,&nbsp;&nbsp;7,&nbsp;&nbsp;2,&nbsp;&nbsp;6,&nbsp;&nbsp;7,&nbsp;&nbsp;5,&nbsp;&nbsp;3,&nbsp;&nbsp;7</p>
+<p>Jaká je <b>nejčetnější</b> hodnota (modus) tohoto souboru?</p>
+<p>Kód = modus.</p>`,
+   body_en:`<p>A detective logged error counts in coded messages:</p>
+<p style="font-size:1.05rem;font-weight:700;text-align:center;margin:14px 0">3,&nbsp;&nbsp;7,&nbsp;&nbsp;7,&nbsp;&nbsp;5,&nbsp;&nbsp;4,&nbsp;&nbsp;7,&nbsp;&nbsp;2,&nbsp;&nbsp;6,&nbsp;&nbsp;7,&nbsp;&nbsp;5,&nbsp;&nbsp;3,&nbsp;&nbsp;7</p>
+<p>What is the <b>most frequent</b> value (mode) of this dataset?</p>
+<p>Code = mode.</p>`,
+   hint:'💡 Číslo 7 se vyskytuje: 7, 7, 7, 7, 7 — spočítej přesně.',
+   hint_en:'💡 Number 7 appears: 7, 7, 7, 7, 7 — count carefully.'}],
+ successMsg:'🔓 Skvěle! Číslo 7 se opakuje 5× – to je modus. Trezor 4 otevřen!',
+ successMsg_en:'🔓 Great! Number 7 repeats 5 times – that\'s the mode. Vault 4 opened!'},
+
+{id:5,color:'orange',icon:'↔️',code:'24',
+ title:'Trezor 5 – Rozsah (rozpětí)',title_en:'Vault 5 – Range',
+ tag:'Rozsah = max − min',tag_en:'Range = max − min',tagClass:'orange',
+ tasks:[
+  {title:'🧩 Co je rozsah souboru?',title_en:'🧩 What is the range?',
+   body:`<p><b>Rozsah</b> (rozpětí, označení <b>R</b>) popisuje, jak jsou data rozptýlena.</p>
+<p style="text-align:center"><b>R = největší hodnota − nejmenší hodnota</b></p>
+<p>Čím větší rozsah, tím více jsou data rozptýlena.</p>
+<table class="tt"><tr><th>Soubor dat</th><th>Max</th><th>Min</th><th>Rozsah</th></tr>
+<tr><td>3, 7, 5, 9, 2</td><td>9</td><td>2</td><td>7</td></tr>
+<tr><td>10, 12, 15, 11, 14</td><td>15</td><td>10</td><td>5</td></tr>
+<tr><td>4, 25, 8, 30, 11</td><td>30</td><td>4</td><td><b>?</b></td></tr></table>
+<p>Pozor: rozsah bere v úvahu pouze dvě hodnoty (maximum a minimum), nevypovídá o ostatních hodnotách.</p>`,
+   body_en:`<p><b>Range</b> (symbol <b>R</b>) describes how spread out the data are.</p>
+<p style="text-align:center"><b>R = maximum value − minimum value</b></p>
+<p>The larger the range, the more spread out the data.</p>
+<table class="tt"><tr><th>Dataset</th><th>Max</th><th>Min</th><th>Range</th></tr>
+<tr><td>3, 7, 5, 9, 2</td><td>9</td><td>2</td><td>7</td></tr>
+<tr><td>10, 12, 15, 11, 14</td><td>15</td><td>10</td><td>5</td></tr>
+<tr><td>4, 25, 8, 30, 11</td><td>30</td><td>4</td><td><b>?</b></td></tr></table>
+<p>Note: the range only uses two values (max and min) – it says nothing about the others.</p>`,
+   hint:'💡 Najdi největší a nejmenší číslo, pak je odečti.',
+   hint_en:'💡 Find the largest and smallest number, then subtract.'},
+  {title:'🔢 Kód trezoru',title_en:'🔢 Vault code',
+   body:`<p>Záznamy délky skoků do dálky na atletickém závodě (v cm):</p>
+<p style="font-size:1.05rem;font-weight:700;text-align:center;margin:14px 0">14,&nbsp;&nbsp;6,&nbsp;&nbsp;22,&nbsp;&nbsp;30,&nbsp;&nbsp;8,&nbsp;&nbsp;19,&nbsp;&nbsp;11,&nbsp;&nbsp;25</p>
+<p>Jaký je <b>rozsah</b> tohoto souboru dat?</p>
+<p>Kód = rozsah (celé číslo).</p>`,
+   body_en:`<p>Long jump distances recorded at an athletics meet (in cm):</p>
+<p style="font-size:1.05rem;font-weight:700;text-align:center;margin:14px 0">14,&nbsp;&nbsp;6,&nbsp;&nbsp;22,&nbsp;&nbsp;30,&nbsp;&nbsp;8,&nbsp;&nbsp;19,&nbsp;&nbsp;11,&nbsp;&nbsp;25</p>
+<p>What is the <b>range</b> of this dataset?</p>
+<p>Code = range (whole number).</p>`,
+   hint:'💡 Největší = 30, nejmenší = 6. Rozsah = 30 − 6 = ?',
+   hint_en:'💡 Max = 30, min = 6. Range = 30 − 6 = ?'}],
+ successMsg:'🔓 Přesně! Rozsah = 30 − 6 = 24 cm. Trezor 5 otevřen!',
+ successMsg_en:'🔓 Exactly! Range = 30 − 6 = 24 cm. Vault 5 opened!'},
+
+{id:6,color:'pink',icon:'📉',code:'4',
+ title:'Trezor 6 – Průměr z tabulky četností',title_en:'Vault 6 – Mean from frequency table',
+ tag:'Vážený průměr',tag_en:'Weighted mean',tagClass:'pink',
+ tasks:[
+  {title:'🧩 Průměr z tabulky četností',title_en:'🧩 Mean from a frequency table',
+   body:`<p>Pokud máme data v tabulce četností, průměr vypočítáme takto:</p>
+<p style="text-align:center"><b>x̄ = (Σ hodnota × četnost) ÷ celkový počet</b></p>
+<p>Příklad – hodnocení produktu (1–5 hvězdiček):</p>
+<table class="tt"><tr><th>Hvězdičky</th><th>Počet recenzí</th><th>Hodnota × četnost</th></tr>
+<tr><td>1</td><td>2</td><td>1 × 2 = 2</td></tr>
+<tr><td>2</td><td>5</td><td>2 × 5 = 10</td></tr>
+<tr><td>3</td><td>8</td><td>3 × 8 = 24</td></tr>
+<tr><td>4</td><td>5</td><td>4 × 5 = 20</td></tr>
+<tr><td><b>Celkem</b></td><td><b>20</b></td><td><b>56</b></td></tr></table>
+<p>Průměr = 56 ÷ 20 = 2,8 hvězdičky.</p>`,
+   body_en:`<p>When data is in a frequency table, calculate the mean:</p>
+<p style="text-align:center"><b>x̄ = (Σ value × frequency) ÷ total count</b></p>
+<p>Example – product ratings (1–5 stars):</p>
+<table class="tt"><tr><th>Stars</th><th>Reviews</th><th>Value × frequency</th></tr>
+<tr><td>1</td><td>2</td><td>1 × 2 = 2</td></tr>
+<tr><td>2</td><td>5</td><td>2 × 5 = 10</td></tr>
+<tr><td>3</td><td>8</td><td>3 × 8 = 24</td></tr>
+<tr><td>4</td><td>5</td><td>4 × 5 = 20</td></tr>
+<tr><td><b>Total</b></td><td><b>20</b></td><td><b>56</b></td></tr></table>
+<p>Mean = 56 ÷ 20 = 2.8 stars.</p>`,
+   hint:'💡 Vynásob každé hodnocení jeho četností. Sečti výsledky. Vydel celkovým počtem recenzí.',
+   hint_en:'💡 Multiply each rating by its frequency. Sum the results. Divide by the total number of reviews.'},
+  {title:'🔢 Kód trezoru',title_en:'🔢 Vault code',
+   body:`<p>Zákazníci hodnotili šifrovanou aplikaci na škále 3–5 hvězdiček:</p>
+<table class="tt"><tr><th>Hodnocení ⭐</th><th>Počet recenzí</th></tr>
+<tr><td>3</td><td>4</td></tr>
+<tr><td>4</td><td>2</td></tr>
+<tr><td>5</td><td>4</td></tr></table>
+<p>Jaký je <b>průměrný</b> počet hvězdiček (zaokrouhleno na celé číslo)?</p>
+<p>Kód = průměrné hodnocení.</p>`,
+   body_en:`<p>Customers rated an encrypted app on a 3–5 star scale:</p>
+<table class="tt"><tr><th>Rating ⭐</th><th>Reviews</th></tr>
+<tr><td>3</td><td>4</td></tr>
+<tr><td>4</td><td>2</td></tr>
+<tr><td>5</td><td>4</td></tr></table>
+<p>What is the <b>mean</b> rating (rounded to whole number)?</p>
+<p>Code = mean rating.</p>`,
+   hint:'💡 (3×4 + 4×2 + 5×4) ÷ (4+2+4) = (12 + 8 + 20) ÷ 10 = ?',
+   hint_en:'💡 (3×4 + 4×2 + 5×4) ÷ (4+2+4) = (12 + 8 + 20) ÷ 10 = ?'}],
+ successMsg:'🔓 Správně! 40 ÷ 10 = 4 hvězdičky. Trezor 6 otevřen!',
+ successMsg_en:'🔓 Correct! 40 ÷ 10 = 4 stars. Vault 6 opened!'},
+
+{id:7,color:'indigo',icon:'❓',code:'14',
+ title:'Trezor 7 – Chybějící hodnota',title_en:'Vault 7 – Missing value',
+ tag:'Zpětný výpočet průměru',tag_en:'Reverse mean calculation',tagClass:'indigo',
+ tasks:[
+  {title:'🧩 Jak najít chybějící hodnotu?',title_en:'🧩 How to find a missing value?',
+   body:`<p>Víme-li cílový průměr a všechny ostatní hodnoty, chybějící hodnotu zjistíme:</p>
+<ol>
+<li>Celkový součet = cílový průměr × počet hodnot</li>
+<li>Chybějící hodnota = celkový součet − součet ostatních hodnot</li>
+</ol>
+<p>Příklad: 4 hodnoty jsou 5, 9, 7, 3 a cílový průměr = 8. Jaká je 5. hodnota?</p>
+<ul>
+<li>Celkový součet = 8 × 5 = 40</li>
+<li>Součet 4 hodnot = 5 + 9 + 7 + 3 = 24</li>
+<li>Chybějící = 40 − 24 = <b>16</b></li>
+</ul>
+<p>Ověření: (5 + 9 + 7 + 3 + 16) ÷ 5 = 40 ÷ 5 = 8 ✓</p>`,
+   body_en:`<p>If we know the target mean and all other values, find the missing one:</p>
+<ol>
+<li>Total sum = target mean × number of values</li>
+<li>Missing value = total sum − sum of known values</li>
+</ol>
+<p>Example: 4 values are 5, 9, 7, 3 and target mean = 8. What is the 5th value?</p>
+<ul>
+<li>Total sum = 8 × 5 = 40</li>
+<li>Sum of 4 values = 5 + 9 + 7 + 3 = 24</li>
+<li>Missing = 40 − 24 = <b>16</b></li>
+</ul>
+<p>Verify: (5 + 9 + 7 + 3 + 16) ÷ 5 = 40 ÷ 5 = 8 ✓</p>`,
+   hint:'💡 Jaký musí být celkový součet 5 hodnot, aby byl průměr 10?',
+   hint_en:'💡 What must the total sum of 5 values be for the mean to equal 10?'},
+  {title:'🔢 Kód trezoru',title_en:'🔢 Vault code',
+   body:`<p>Čtyři členové detektivního týmu dostali za úkol tyto bodové hodnoty:</p>
+<p style="font-size:1.05rem;font-weight:700;text-align:center;margin:14px 0">8,&nbsp;&nbsp;11,&nbsp;&nbsp;7,&nbsp;&nbsp;10</p>
+<p>Pátý člen byl nemocný. Aby byl <b>průměr celého týmu 10 bodů</b>, kolik bodů musí pátý člen dostat?</p>
+<p>Kód = počet bodů pátého člena.</p>`,
+   body_en:`<p>Four members of the detective team received these scores:</p>
+<p style="font-size:1.05rem;font-weight:700;text-align:center;margin:14px 0">8,&nbsp;&nbsp;11,&nbsp;&nbsp;7,&nbsp;&nbsp;10</p>
+<p>The fifth member was absent. For the <b>team mean to be 10 points</b>, what score must the fifth member get?</p>
+<p>Code = fifth member's score.</p>`,
+   hint:'💡 Celkový součet = 10 × 5 = 50. Dosavadní součet = 8+11+7+10 = 36. Chybí: 50 − 36 = ?',
+   hint_en:'💡 Total sum = 10 × 5 = 50. Known sum = 8+11+7+10 = 36. Missing: 50 − 36 = ?'}],
+ successMsg:'🔓 Výborně! 50 − 36 = 14 bodů. Trezor 7 otevřen!',
+ successMsg_en:'🔓 Excellent! 50 − 36 = 14 points. Vault 7 opened!'},
+
+{id:8,color:'rose',icon:'%',code:'40',
+ title:'Trezor 8 – Relativní četnost',title_en:'Vault 8 – Relative frequency',
+ tag:'Relativní četnost (%)',tag_en:'Relative frequency (%)',tagClass:'rose',
+ tasks:[
+  {title:'🧩 Absolutní vs. relativní četnost',title_en:'🧩 Absolute vs. relative frequency',
+   body:`<p><b>Absolutní četnost</b> říká, <em>kolikrát</em> se hodnota vyskytuje (konkrétní číslo).</p>
+<p><b>Relativní četnost</b> říká, <em>jak velká část</em> celku daná hodnota tvoří (v procentech).</p>
+<p style="text-align:center"><b>relativní četnost (%) = (absolutní četnost ÷ celkový počet) × 100</b></p>
+<p>Příklad – průzkum dopravy (30 žáků):</p>
+<table class="tt"><tr><th>Doprava</th><th>Počet žáků</th><th>Relativní četnost</th></tr>
+<tr><td>Pěšky</td><td>9</td><td>(9÷30)×100 = 30 %</td></tr>
+<tr><td>Autobusem</td><td>12</td><td>(12÷30)×100 = 40 %</td></tr>
+<tr><td>Autem</td><td>9</td><td>(9÷30)×100 = 30 %</td></tr>
+<tr><td><b>Celkem</b></td><td><b>30</b></td><td><b>100 %</b></td></tr></table>`,
+   body_en:`<p><b>Absolute frequency</b> says <em>how many times</em> a value appears (concrete number).</p>
+<p><b>Relative frequency</b> says <em>what fraction</em> of the whole a value represents (as a percentage).</p>
+<p style="text-align:center"><b>relative frequency (%) = (absolute frequency ÷ total) × 100</b></p>
+<p>Example – transport survey (30 students):</p>
+<table class="tt"><tr><th>Transport</th><th>Students</th><th>Relative frequency</th></tr>
+<tr><td>Walking</td><td>9</td><td>(9÷30)×100 = 30 %</td></tr>
+<tr><td>Bus</td><td>12</td><td>(12÷30)×100 = 40 %</td></tr>
+<tr><td>Car</td><td>9</td><td>(9÷30)×100 = 30 %</td></tr>
+<tr><td><b>Total</b></td><td><b>30</b></td><td><b>100 %</b></td></tr></table>`,
+   hint:'💡 Relativní četnost (%) = (počet autobusem ÷ celkový počet) × 100.',
+   hint_en:'💡 Relative frequency (%) = (bus count ÷ total count) × 100.'},
+  {title:'🔢 Kód trezoru',title_en:'🔢 Vault code',
+   body:`<p>V průzkumu odpovídalo <b>25 žáků</b>. Z toho <b>10 žáků</b> dochází do školy autobusem.</p>
+<p>Kolik <b>procent</b> žáků jezdí do školy autobusem?</p>
+<p>Kód = relativní četnost v procentech (celé číslo, bez znaku %).</p>`,
+   body_en:`<p>A survey had <b>25 students</b>. Of these, <b>10 students</b> travel to school by bus.</p>
+<p>What <b>percentage</b> of students travel by bus?</p>
+<p>Code = relative frequency as a whole number (no % sign).</p>`,
+   hint:'💡 (10 ÷ 25) × 100 = 0,4 × 100 = ?',
+   hint_en:'💡 (10 ÷ 25) × 100 = 0.4 × 100 = ?'}],
+ successMsg:'🔓 Správně! (10÷25)×100 = 40 %. Trezor 8 otevřen!',
+ successMsg_en:'🔓 Correct! (10÷25)×100 = 40 %. Vault 8 opened!'},
+
+{id:9,color:'cyan',icon:'⚖️',code:'3',
+ title:'Trezor 9 – Porovnání průměrů',title_en:'Vault 9 – Comparing means',
+ tag:'Porovnání dvou skupin',tag_en:'Comparing two groups',tagClass:'cyan',
+ tasks:[
+  {title:'🧩 Srovnání průměrů dvou skupin',title_en:'🧩 Comparing the means of two groups',
+   body:`<p>Chceme-li porovnat dvě skupiny, vypočítáme průměr každé skupiny <b>zvlášť</b> a pak je porovnáme.</p>
+<p>Důležité: průměr závisí na <b>počtu hodnot</b> i na jejich <b>součtu</b>.</p>
+<p>Příklad – průměrná výška dvou tříd:</p>
+<table class="tt"><tr><th>Třída</th><th>Výšky (cm)</th><th>Součet</th><th>Počet</th><th>Průměr</th></tr>
+<tr><td>A</td><td>160, 155, 170, 165</td><td>650</td><td>4</td><td>162,5 cm</td></tr>
+<tr><td>B</td><td>158, 163, 170, 167, 162</td><td>820</td><td>5</td><td>164 cm</td></tr></table>
+<p>Třída B má o 1,5 cm vyšší průměr. Rozdíl průměrů = 164 − 162,5 = <b>1,5 cm</b>.</p>`,
+   body_en:`<p>To compare two groups, calculate each group's mean <b>separately</b>, then compare.</p>
+<p>Important: the mean depends on both the <b>sum</b> and the <b>count</b> of values.</p>
+<p>Example – average height of two classes:</p>
+<table class="tt"><tr><th>Class</th><th>Heights (cm)</th><th>Sum</th><th>Count</th><th>Mean</th></tr>
+<tr><td>A</td><td>160, 155, 170, 165</td><td>650</td><td>4</td><td>162.5 cm</td></tr>
+<tr><td>B</td><td>158, 163, 170, 167, 162</td><td>820</td><td>5</td><td>164 cm</td></tr></table>
+<p>Class B has 1.5 cm higher mean. Difference = 164 − 162.5 = <b>1.5 cm</b>.</p>`,
+   hint:'💡 Vypočítej průměr třídy A, pak průměr třídy B. Poté spočítej rozdíl (větší − menší).',
+   hint_en:'💡 Calculate mean of Class A, then mean of Class B. Then subtract (larger − smaller).'},
+  {title:'🔢 Kód trezoru',title_en:'🔢 Vault code',
+   body:`<p>Dvě skupiny detektivů soutěžily v rozluštění kódů. Každá skupina měla 5 členů.</p>
+<table class="tt"><tr><th>Skupina A – body</th><th>Skupina B – body</th></tr>
+<tr><td>4, 6, 8, 5, 7</td><td>8, 9, 7, 11, 10</td></tr></table>
+<p>O kolik bodů se <b>liší průměry</b> obou skupin? (větší průměr − menší průměr)</p>
+<p>Kód = rozdíl průměrů (celé číslo).</p>`,
+   body_en:`<p>Two detective teams competed in a code-breaking challenge. Each team had 5 members.</p>
+<table class="tt"><tr><th>Team A – scores</th><th>Team B – scores</th></tr>
+<tr><td>4, 6, 8, 5, 7</td><td>8, 9, 7, 11, 10</td></tr></table>
+<p>By how many points do the <b>means differ</b>? (larger mean − smaller mean)</p>
+<p>Code = difference of means (whole number).</p>`,
+   hint:'💡 Skupina A: (4+6+8+5+7) ÷ 5 = 30 ÷ 5 = 6. Skupina B: (8+9+7+11+10) ÷ 5 = 45 ÷ 5 = ?',
+   hint_en:'💡 Team A: (4+6+8+5+7) ÷ 5 = 30 ÷ 5 = 6. Team B: (8+9+7+11+10) ÷ 5 = 45 ÷ 5 = ?'}],
+ successMsg:'🔓 Přesně! Průměr A = 6, průměr B = 9. Rozdíl = 9 − 6 = 3. Trezor 9 otevřen!',
+ successMsg_en:'🔓 Exactly! Mean A = 6, mean B = 9. Difference = 9 − 6 = 3. Vault 9 opened!'},
+
+{id:10,color:'gold',icon:'🏆',code:'12',
+ title:'Trezor 10 – Finální výzva!',title_en:'Vault 10 – Final challenge!',
+ tag:'Vážený průměr skupin',tag_en:'Weighted group mean',tagClass:'gold',
+ tasks:[
+  {title:'🏆 Průměrovat průměry je chyba!',title_en:'🏆 Averaging averages is wrong!',
+   body:`<p>Pozor na časté chyby! Když máme dvě skupiny s <b>různým počtem členů</b>, nemůžeme průměrovat jejich průměry.</p>
+<p>Příklad chyby: Třída A (5 žáků) má průměr 80 bodů, třída B (1 žák) má průměr 100 bodů.<br>
+<b>Špatně:</b> (80 + 100) ÷ 2 = 90 bodů.<br>
+<b>Správně:</b> (5×80 + 1×100) ÷ (5+1) = 500/6 ≈ 83,3 bodů.</p>
+<p>Správný postup (vážený průměr):</p>
+<ol>
+<li>Celkový součet = skupina A: (počet × průměr) + skupina B: (počet × průměr)</li>
+<li>Celkový průměr = celkový součet ÷ celkový počet</li>
+</ol>`,
+   body_en:`<p>Watch out for common mistakes! When two groups have <b>different sizes</b>, you can't simply average their means.</p>
+<p>Example of the error: Class A (5 students) has mean 80 pts, Class B (1 student) mean 100 pts.<br>
+<b>Wrong:</b> (80 + 100) ÷ 2 = 90 pts.<br>
+<b>Correct:</b> (5×80 + 1×100) ÷ (5+1) = 500/6 ≈ 83.3 pts.</p>
+<p>Correct approach (weighted mean):</p>
+<ol>
+<li>Total sum = Group A: (count × mean) + Group B: (count × mean)</li>
+<li>Overall mean = total sum ÷ total count</li>
+</ol>`,
+   hint:'💡 Skupina A: 4 žáci × průměr 15 bodů = ? Skupina B: 6 žáků × průměr 10 bodů = ?',
+   hint_en:'💡 Group A: 4 students × mean 15 pts = ? Group B: 6 students × mean 10 pts = ?'},
+  {title:'🔢 Finální kód',title_en:'🔢 Final code',
+   body:`<p>Detektivní akademie má dvě skupiny žáků:</p>
+<table class="tt"><tr><th>Skupina</th><th>Počet žáků</th><th>Průměr bodů</th></tr>
+<tr><td>A (pokročilí)</td><td>4</td><td>15</td></tr>
+<tr><td>B (začátečníci)</td><td>6</td><td>10</td></tr></table>
+<p>Jaký je <b>celkový průměr</b> všech 10 žáků?</p>
+<p>Kód = celkový průměr (celé číslo).</p>`,
+   body_en:`<p>The detective academy has two groups of students:</p>
+<table class="tt"><tr><th>Group</th><th>Students</th><th>Mean score</th></tr>
+<tr><td>A (advanced)</td><td>4</td><td>15</td></tr>
+<tr><td>B (beginners)</td><td>6</td><td>10</td></tr></table>
+<p>What is the <b>overall mean</b> of all 10 students?</p>
+<p>Code = overall mean (whole number).</p>`,
+   hint:'💡 Celkový součet = 4×15 + 6×10 = 60 + 60 = 120. Celkový průměr = 120 ÷ 10 = ?',
+   hint_en:'💡 Total sum = 4×15 + 6×10 = 60 + 60 = 120. Overall mean = 120 ÷ 10 = ?'}],
+ successMsg:'🏆 BRAVO! Vážený průměr = 120 ÷ 10 = 12 bodů. Zvládl(a) jsi všechny trezory!',
+ successMsg_en:'🏆 BRAVO! Weighted mean = 120 ÷ 10 = 12 points. You cracked all the vaults!'}
+];
+
+const CODE_HINTS_CS = {
+  1:['Procházej seznam zleva doprava. Pokaždé, když narazíš na číslo 6, přidej 1.','V souboru: 3, <b>6</b>, 8, <b>6</b>, 5, <b>6</b>, 9, <b>6</b>, 4, <b>6</b>, 7, <b>6</b>, 2, 8, 5. Počítej tučné hodnoty.','Číslo 6 se vyskytuje <b>6</b>×.'],
+  2:['Sečti všech 5 hodnot: 10 + 15 + 8 + 17 + 15.','Součet = 65. Průměr = 65 ÷ 5 = ?','Průměr = <b>13</b> bodů.'],
+  3:['Seřaď všech 9 teplot od nejmenšího po největší.','Seřazeno: 2, 4, 5, 7, 9, 9, 11, 13, 14. Prostřední (5. z 9) je…','Medián = <b>9</b> °C.'],
+  4:['Spočítej, kolikrát se každá hodnota opakuje. Číslo 7 se opakuje: jednou za …','Číslo 7 najdeš na pozicích 2, 3, 6, 9, 12 v souboru. Celkem = ?','Modus = <b>7</b> (vyskytuje se 5×, víc než jakákoli jiná hodnota).'],
+  5:['Najdi největší a nejmenší číslo v souboru dat.','Největší = 30, nejmenší = 6. Rozsah = 30 − 6 = ?','Rozsah = <b>24</b> cm.'],
+  6:['Vynásob každé hodnocení jeho četností a sečti: (3×4) + (4×2) + (5×4).','12 + 8 + 20 = 40. Celkový počet = 4+2+4 = 10. Průměr = 40 ÷ 10 = ?','Průměr = <b>4</b> hvězdičky.'],
+  7:['Cílový průměr = 10, počet hodnot = 5. Celkový součet musí být: 10 × 5 = ?','Celkový součet = 50. Dosavadní součet = 8+11+7+10 = 36. Chybí: 50 − 36 = ?','Pátý člen musí dostat <b>14</b> bodů.'],
+  8:['Relativní četnost (%) = (počet žáků autobusem ÷ celkový počet) × 100.','(10 ÷ 25) × 100 = 0,4 × 100 = ?','Relativní četnost = <b>40</b> %.'],
+  9:['Skupina A: sečti 4+6+8+5+7 a dělíme 5. Skupina B: sečti 8+9+7+11+10 a dělíme 5.','Průměr A = 30÷5 = 6. Průměr B = 45÷5 = 9. Rozdíl = ?','Rozdíl průměrů = 9 − 6 = <b>3</b> body.'],
+  10:['Nelze průměrovat průměry! Skupina A: 4 žáci × 15 bodů = ? Skupina B: 6 žáků × 10 bodů = ?','Celkový součet = 60 + 60 = 120. Celkový počet = 10. Průměr = 120 ÷ 10 = ?','Celkový průměr = <b>12</b> bodů.'],
+};
+const CODE_HINTS_EN = {
+  1:['Go through the list left to right and count every time you see the number 6.','In the list: 3, <b>6</b>, 8, <b>6</b>, 5, <b>6</b>, 9, <b>6</b>, 4, <b>6</b>, 7, <b>6</b>, 2, 8, 5. Count the bold values.','The number 6 appears <b>6</b> times.'],
+  2:['Add all 5 values: 10 + 15 + 8 + 17 + 15.','Sum = 65. Mean = 65 ÷ 5 = ?','Mean = <b>13</b> points.'],
+  3:['Sort all 9 temperatures from smallest to largest.','Sorted: 2, 4, 5, 7, 9, 9, 11, 13, 14. Middle (5th of 9) is…','Median = <b>9</b> °C.'],
+  4:['Count how many times each value repeats. Number 7 appears at positions…','Number 7 is at positions 2, 3, 6, 9, 12 in the list. Total = ?','Mode = <b>7</b> (appears 5 times, more than any other value).'],
+  5:['Find the largest and smallest number in the dataset.','Max = 30, min = 6. Range = 30 − 6 = ?','Range = <b>24</b> cm.'],
+  6:['Multiply each rating by its frequency and sum: (3×4) + (4×2) + (5×4).','12 + 8 + 20 = 40. Total count = 4+2+4 = 10. Mean = 40 ÷ 10 = ?','Mean = <b>4</b> stars.'],
+  7:['Target mean = 10, number of values = 5. Total sum must be: 10 × 5 = ?','Total sum = 50. Known sum = 8+11+7+10 = 36. Missing: 50 − 36 = ?','The fifth member must score <b>14</b> points.'],
+  8:['Relative frequency (%) = (bus students ÷ total students) × 100.','(10 ÷ 25) × 100 = 0.4 × 100 = ?','Relative frequency = <b>40</b> %.'],
+  9:['Team A: add 4+6+8+5+7 and divide by 5. Team B: add 8+9+7+11+10 and divide by 5.','Mean A = 30÷5 = 6. Mean B = 45÷5 = 9. Difference = ?','Difference of means = 9 − 6 = <b>3</b> points.'],
+  10:['Cannot average the averages! Group A: 4 students × 15 pts = ? Group B: 6 students × 10 pts = ?','Total sum = 60 + 60 = 120. Total count = 10. Mean = 120 ÷ 10 = ?','Overall mean = <b>12</b> points.'],
+};
+
+let codeHintLevel = 0;
+function advanceCodeHint() {
+  if (codeHintLevel >= 3) return;
+  codeHintLevel++;
+  const CODE_HINTS = lang === 'en' ? CODE_HINTS_EN : CODE_HINTS_CS;
+  const hints = CODE_HINTS[STEPS[cur].id] || [i18n('Přečti si pozorně postup nahoře.','Read the instructions above carefully.'),i18n('Postupně spočítej, co se ptají.','Work through the calculation step by step.'),i18n('Výsledek vyplyne z výpočtu.','The answer follows from the calculation.')];
+  const box = document.getElementById('ch-box');
+  const btn = document.getElementById('ch-btn');
+  const counter = document.getElementById('ch-counter');
+  if (!box||!btn) return;
+  box.classList.add('show'); box.dataset.level = codeHintLevel;
+  const labels = i18n(['Nasměrování','Vzorec / postup','Výsledek'],['Direction','Formula / steps','Result']);
+  box.innerHTML = `<span class="h-label">${i18n('Nápověda','Hint')} ${codeHintLevel}/3 — ${labels[codeHintLevel-1]}</span>${hints[codeHintLevel-1]}`;
+  if (counter) counter.querySelectorAll('.dot').forEach((d,i)=>{d.classList.toggle('shown',i<codeHintLevel);if(i===2&&codeHintLevel===3)d.classList.add('warn');});
+  if (codeHintLevel<3){btn.textContent=`💡 ${i18n('Další nápověda','Next hint')} ${codeHintLevel+1}/3`;}
+  else{btn.disabled=true;btn.textContent=`💡 ${i18n('Všechny nápovědy ukázány','All hints shown')}`;}
+}
+
+let cur = 0;
+let att = new Array(STEPS.length).fill(0);
+
+function startGame() {
+  document.getElementById('intro').classList.remove('active');
+  document.getElementById('game').classList.add('active');
+  document.getElementById('stars-wrap').innerHTML = STEPS.map((_,i)=>`<span class="star" id="s${i}">⭐</span>`).join('');
+  render(0);
+}
+
+function render(idx) {
+  cur=idx; codeHintLevel=0;
+  const s=STEPS[idx];
+  document.getElementById('prog-label').textContent=i18n(`Trezor ${idx+1} z ${STEPS.length}`,`Vault ${idx+1} of ${STEPS.length}`);
+  document.getElementById('prog-fill').style.width=`${(idx/STEPS.length)*100}%`;
+  for(let i=0;i<STEPS.length;i++){const el=document.getElementById(`s${i}`);if(el)el.classList.toggle('lit',i<idx);}
+  const colorMap={blue:'--blue',green:'--green',purple:'--purple',teal:'--teal',orange:'--orange',pink:'--pink',indigo:'--indigo',rose:'--rose',cyan:'--cyan',gold:'--gold-dark'};
+  const cv=colorMap[s.color]||'--purple';
+  const tasksHTML=s.tasks.map(t=>`
+    <div class="task-card ${s.color}">
+      <span class="tag ${s.tagClass}">${i18n(s.tag,s.tag_en)}</span>
+      <h3>${i18n(t.title,t.title_en)}</h3>
+      ${i18n(t.body,t.body_en)}
+      <button class="hint-btn" onclick="toggleHint(this)">${i18n('💡 Potřebuji nápovědu','💡 I need a hint')}</button>
+      <div class="hint-box">${i18n(t.hint,t.hint_en)}</div>
+    </div>`).join('');
+  document.getElementById('step-container').innerHTML=`
+    <div class="lock-header">
+      <span class="lock-icon-big">${s.icon}</span>
+      <span class="lock-title" style="color:var(${cv})">${i18n(s.title,s.title_en)}</span>
+      <span class="lock-badge">${idx+1}/${STEPS.length}</span>
+    </div>
+    ${tasksHTML}
+    <div class="code-wrap">
+      <label>🔐 ${i18n(`Zadej kód trezoru ${idx+1}:`,`Enter vault code ${idx+1}:`)}</label>
+      <div class="code-row">
+        <input type="number" class="code-input" id="ci" placeholder="???" onkeydown="if(event.key==='Enter') chk()">
+        <button class="btn-check" onclick="chk()">${i18n('Odemknout 🔓','Unlock 🔓')}</button>
+      </div>
+      <div class="code-hint-bar">
+        <button class="code-hint-btn" id="ch-btn" onclick="advanceCodeHint()">💡 ${i18n('Nápověda ke kódu 1/3','Code hint 1/3')}</button>
+        <span class="code-hint-counter" id="ch-counter"><span class="dot"></span><span class="dot"></span><span class="dot"></span></span>
+      </div>
+      <div class="code-hint-box" id="ch-box" data-level="0"></div>
+      <div class="feedback" id="fb"></div>
+    </div>
+    <div class="unlock-anim" id="ua">
+      <div class="big-icon">🔓✨</div>
+      <p>${i18n(s.successMsg,s.successMsg_en)}</p>
+    </div>`;
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function toggleHint(btn) {
+  const h=btn.nextElementSibling; h.classList.toggle('show');
+  btn.textContent=h.classList.contains('show')?i18n('🙈 Skrýt nápovědu','🙈 Hide hint'):i18n('💡 Potřebuji nápovědu','💡 I need a hint');
+}
+
+function chk() {
+  const inp=document.getElementById('ci'); const fb=document.getElementById('fb'); att[cur]++;
+  if(inp.value.trim()===STEPS[cur].code){
+    inp.classList.remove('error');inp.classList.add('success');fb.textContent='';
+    document.getElementById('ua').classList.add('show');
+    setTimeout(()=>{if(cur<STEPS.length-1)render(cur+1);else finish();},1900);
+  } else {
+    inp.classList.add('error');inp.classList.remove('success');
+    setTimeout(()=>inp.classList.remove('error'),380);
+    const msgs=i18n(['Hmm, to není ono. Zkontroluj postup!','Zkus to znovu – možná jiný výpočet?','Nevzdávej se! Přečti si nápovědu.','Ještě jednou, jsi blízko!'],['Hmm, not quite. Check your working!','Try again – maybe a different approach?',"Don't give up! Read the hint.",'One more time, you\'re close!']);
+    fb.className='feedback err'; fb.textContent=msgs[Math.min(att[cur]-1,msgs.length-1)];
+  }
+}
+
+function finish() {
+  document.getElementById('game').classList.remove('active');
+  document.getElementById('finish').classList.add('active');
+  buildFinish();
+  const wrap=document.getElementById('confetti');
+  const cols=['#7c3aad','#3730a3','#1a73c8','#f5c842','#e74c3c','#0f8a72','#b5286e','#0e7490'];
+  for(let i=0;i<90;i++){
+    const el=document.createElement('div');el.className='confetti-piece';
+    const sz=6+Math.random()*9;
+    el.style.cssText=`left:${Math.random()*100}%;top:-12px;background:${cols[Math.floor(Math.random()*cols.length)]};width:${sz}px;height:${sz}px;border-radius:${Math.random()>.5?'50%':'3px'};animation:fall ${1.5+Math.random()*2.5}s ${Math.random()*1.5}s linear forwards;`;
+    wrap.appendChild(el);
+  }
+}
+
+document.querySelectorAll('.lang-btn').forEach(b=>b.classList.toggle('active',b.dataset.lang===lang));
+document.querySelectorAll('.tp-back').forEach(el=>el.textContent=i18n('← zpět na projekty','← back to projects'));
+document.querySelectorAll('.tp-home').forEach(el=>el.textContent=i18n('domů','home'));
+buildIntro();
+</script>
+</body>
+</html>
