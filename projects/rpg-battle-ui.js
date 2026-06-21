@@ -135,7 +135,14 @@
       '#rpgb-conf i{position:absolute;top:-12px;width:9px;height:14px;border-radius:2px;animation:rpgb-fall linear forwards}' +
       '@keyframes rpgb-fall{to{transform:translateY(105vh) rotate(720deg);opacity:.4}}' +
       // ── lobby hráč: jemný nástup ──
-      '.rpgb-ply{animation:rpgb-in .25s ease}@keyframes rpgb-in{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}';
+      '.rpgb-ply{animation:rpgb-in .25s ease}@keyframes rpgb-in{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}' +
+      // ── pozvánky ──
+      '.rpgb-invbox{border:1px dashed var(--gold,#19e6e6);border-radius:10px;padding:10px;margin:0 0 14px;background:rgba(25,230,230,.06)}' +
+      '.rpgb-invh{font-size:12px;color:var(--gold,#19e6e6);text-align:center;margin-bottom:4px;letter-spacing:.5px}' +
+      '.rpgb-btn.invite{width:100%;display:block;margin:6px 0 0;text-align:center}' +
+      '.rpgb-invrow{display:flex;gap:8px;margin-top:10px}' +
+      '.rpgb-in.sm{font-size:13px;letter-spacing:0;text-transform:none;text-align:left;padding:10px;flex:1;width:auto}' +
+      '.rpgb-invmsg{font-size:12px;text-align:center;min-height:16px;margin-top:6px;color:var(--muted,#8895b5)}';
     document.head.appendChild(css);
   }
 
@@ -199,10 +206,38 @@
     var teacher = c && c.isStaff && c.isStaff();
     var inner = '<div class="rpgb-h">⚔️ ŽIVÝ SOUBOJ</div>' +
       '<div class="rpgb-sub">Rychlé matematické klání ve třídě — kdo nasbírá nejvíc bodů?</div>' +
+      '<div id="rpgb-invites"></div>' +
       '<button class="rpgb-btn go" onclick="RPGBattle._host()">🎮 Založit souboj</button>' +
       '<button class="rpgb-btn" onclick="RPGBattle._joinUI()">🔑 Připojit se kódem</button>';
     if (teacher) inner += '<button class="rpgb-btn sm" style="display:block;width:100%;margin-top:14px" onclick="RPGBattle._active()">👁️ Běžící souboje (učitel)</button>';
     shell(inner);
+    loadInvites();
+  }
+
+  // Načte pozvánky přihlášeného žáka a vloží je nad tlačítka (graceful, async).
+  function loadInvites() {
+    var c = cloud(); if (!c || !c.myBattleInvites) return;
+    c.myBattleInvites().then(function (list) {
+      var box = document.getElementById('rpgb-invites'); if (!box) return;
+      var mine = (list || []).filter(function (iv) { return iv.game === GAME && iv.status === 'lobby'; });
+      if (!mine.length) { box.innerHTML = ''; return; }
+      box.innerHTML = '<div class="rpgb-invbox"><div class="rpgb-invh">📨 Máš pozvánku do souboje</div>' +
+        mine.map(function (iv) {
+          return '<button class="rpgb-btn sm invite" onclick="RPGBattle._joinCode(\'' + esc(iv.code) + '\')">' +
+            '▶️ ' + esc(iv.host_name || 'Spolužák') + ' · kód ' + esc(iv.code) + '</button>';
+        }).join('') + '</div>';
+    }).catch(function () {});
+  }
+
+  // Připojení přímo daným kódem (z pozvánky), bez ručního zadávání.
+  function joinCode(code) {
+    var c = cloud(); if (!c) return;
+    shell('<div class="rpgb-sub">Připojuji…</div>');
+    c.joinBattle(code, NAME).then(function (b) {
+      if (!b || !b.id) { renderMenu(); return; }
+      B = { id: b.id, code: b.code, role: 'player', teamMode: !!(b.team_mode), questions: null, lastQi: -2, picked: -1, locked: false };
+      startPoll();
+    }).catch(function () { renderMenu(); });
   }
 
   // ════════════ HOST: režim + výběr počtu otázek ════════════
@@ -346,11 +381,36 @@
       '<div class="rpgb-code">' + esc(B.code) + '</div>' + plyHtml;
     if (B.role === 'host') {
       inner += '<button id="rpgb-startbtn" class="rpgb-btn go" style="margin-top:16px"' + (players.length < 1 ? ' disabled' : '') +
-        ' onclick="RPGBattle._start()">▶️ Spustit souboj</button>';
+        ' onclick="RPGBattle._start()">▶️ Spustit souboj</button>' +
+        '<div class="rpgb-invrow">' +
+        '<input class="rpgb-in sm" id="rpgb-invmail" type="email" autocomplete="off" spellcheck="false" placeholder="spolužák@husovaliberec.cz" oninput="RPGBattle._invDraft(this.value)">' +
+        '<button class="rpgb-btn sm" onclick="RPGBattle._invite()">📨 Pozvat</button></div>' +
+        '<div id="rpgb-invmsg" class="rpgb-invmsg"></div>';
     }
     inner += '<button class="rpgb-btn sm red" style="display:block;width:100%" onclick="RPGBattle._leave()">' +
       (B.role === 'host' ? '✕ Zrušit místnost' : '← Odejít') + '</button>';
     shell(inner);
+    if (B.role === 'host') {
+      var im = document.getElementById('rpgb-invmail');
+      if (im && B._invDraft) im.value = B._invDraft;   // přežij re-render při příchodu hráče
+    }
+  }
+
+  function invDraft(v) { if (B) B._invDraft = v; }
+
+  // Host pozve spolužáka e-mailem (backend RPC invite_battle_email).
+  function invite() {
+    var c = cloud(); if (!c || !B || !c.inviteBattleEmail) return;
+    var el = document.getElementById('rpgb-invmail');
+    var msg = document.getElementById('rpgb-invmsg');
+    var email = (el && el.value || '').trim().toLowerCase();
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { if (el) el.style.borderColor = '#ff6b6b'; return; }
+    if (el) el.style.borderColor = '';
+    if (msg) { msg.textContent = 'Posílám…'; msg.style.color = ''; }
+    c.inviteBattleEmail(B.id, email).then(function (ok) {
+      if (msg) { msg.textContent = ok ? '✓ Pozvánka odeslána: ' + email : '✗ Pozvánku se nepodařilo odeslat'; msg.style.color = ok ? '#4ade80' : '#ff6b6b'; }
+      if (ok && el) { el.value = ''; B._invDraft = ''; }
+    });
   }
 
   function startBattle() {
@@ -598,6 +658,7 @@
     _menu: renderMenu, _host: hostUI, _mode: setMode, _create: createRoom,
     _joinUI: joinUI, _join: joinRoom, _start: startBattle,
     _pick: pick, _next: nextQuestion, _leave: leave,
-    _active: activeUI, _kill: kill, _rematch: rematch
+    _active: activeUI, _kill: kill, _rematch: rematch,
+    _joinCode: joinCode, _invite: invite, _invDraft: invDraft
   };
 })();
