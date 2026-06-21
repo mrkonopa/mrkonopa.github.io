@@ -846,8 +846,10 @@ function openDetail(i){
  if(admin){
   admHtml=
    '<h4>Odměny a úpravy (superadmin)</h4>'+
-   '<div class="actrow"><input type="number" id="adj-xp" placeholder="±XP" value="100"><button class="mini gold" onclick="giveXP('+i+')">Přidat XP</button>'+
+   '<div class="actrow"><input type="number" id="adj-xp" placeholder="±XP" value="100"><button class="mini gold" onclick="giveXP('+i+')">⭐ Přidat XP</button>'+
      '<span style="font-size:11px;color:var(--muted)">level se dopočítá z XP</span></div>'+
+   '<div class="actrow"><input type="number" id="adj-cr" placeholder="±kredity" value="50"><button class="mini gold" onclick="giveCredits('+i+')">💰 Přidat kredity</button>'+
+     '<span style="font-size:11px;color:var(--muted)">peněženka žáka (musí mít alespoň 1 přihlášení)</span></div>'+
    '<div class="actrow"><button class="mini red" onclick="delChar('+i+')">🗑 Smazat celou postavu</button></div>';
  }
  document.getElementById('modal').innerHTML=
@@ -916,6 +918,18 @@ async function giveXP(i){
  d.level=Math.floor(d.xp/100)+1;
  const res=await RPGCloud.updateSaveFor(r.user_id,r.game,d);
  if(res.ok){r.data=d;toast((delta>=0?'+':'')+delta+' XP přidáno');renderStats();renderTable();openDetail(i);}
+ else toast('Chyba: '+res.error,1);
+}
+async function giveCredits(i){
+ const r=window.__filtered[i];if(!r)return;
+ const delta=parseInt(document.getElementById('adj-cr').value,10);
+ if(isNaN(delta)){toast('Zadej číslo.',1);return;}
+ const w=await RPGCloud.pullSaveFor(r.user_id,'_wallet');
+ if(!w){toast('Žák nemá peněženku — musí se alespoň jednou přihlásit do hry.',1);return;}
+ const d=Object.assign({},w);
+ d.credits=Math.max(0,(d.credits||0)+delta);
+ const res=await RPGCloud.updateSaveFor(r.user_id,'_wallet',d);
+ if(res.ok){toast((delta>=0?'+':'')+delta+' kreditů přidáno');}
  else toast('Chyba: '+res.error,1);
 }
 async function delChar(i){
