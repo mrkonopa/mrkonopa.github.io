@@ -535,14 +535,26 @@ window.RPGCloud = (function () {
   // ════════════ Fáze 7 — živý souboj (Kahoot-style) ════════════
   // Tenké wrappery nad SECURITY DEFINER RPC funkcemi (viz phase7.sql).
   // Vše graceful: bez clienta/přihlášení vrací null/[]/false.
-  async function createBattle(game, qcount, hostName) {
+  async function createBattle(game, qcount, hostName, teamMode) {
     if (!client || !user) return { error: 'Nejsi přihlášen.' };
     try {
-      const { data, error } = await client.rpc('create_battle',
-        { p_game: game, p_qcount: qcount, p_host_name: hostName });
+      // Fáze 14: týmový režim přes create_battle_tm; jinak původní create_battle.
+      const fn = teamMode ? 'create_battle_tm' : 'create_battle';
+      const args = teamMode
+        ? { p_game: game, p_qcount: qcount, p_host_name: hostName, p_team_mode: true }
+        : { p_game: game, p_qcount: qcount, p_host_name: hostName };
+      const { data, error } = await client.rpc(fn, args);
       if (error) return { error: error.message || String(error) };
       return data;
     } catch (e) { console.warn('[RPGCloud] createBattle:', e); return { error: String(e) }; }
+  }
+  /* Fáze 14: rychlá odveta — reset stejné místnosti zpět do lobby. */
+  async function rematchBattle(battleId) {
+    if (!client || !user) return null;
+    try {
+      const { data, error } = await client.rpc('rematch_battle', { p_battle: battleId });
+      if (error) throw error; return data;
+    } catch (e) { console.warn('[RPGCloud] rematchBattle:', e); return null; }
   }
   async function joinBattle(code, name) {
     if (!client || !user) return { error: 'Nejsi přihlášen.' };
@@ -1078,6 +1090,8 @@ window.RPGCloud = (function () {
            createBattle, joinBattle, battleState, submitBattleAnswer,
            advanceBattle, setBattleStatus, listActiveBattles,
            inviteBattleEmail, myBattleInvites, pollBattle,
+           // Fáze 14 — týmový režim + odveta
+           rematchBattle,
            // Fáze 13 — trvalá historie soubojů
            recordBattleResult, battleStatsAll, battleStatsMe,
            // Fáze 11 — věž legend

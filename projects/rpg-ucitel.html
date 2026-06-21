@@ -1510,7 +1510,18 @@ async function renderBattles(){
  const th=(c,lbl,al)=>'<th style="cursor:pointer;user-select:none;text-align:'+(al||'right')+'" onclick="btSort(\''+c+'\')">'+lbl+ico(c)+'</th>';
  // barva úspěšnosti: zeleně→červeně
  const accCol=p=>'hsl('+Math.round(p*1.2)+',60%,55%)';
- let html='<table class="tbl"><thead><tr>'+
+ // žebříček nejaktivnějších: top 3 podle počtu odehraných (remíza → víc výher)
+ const top=rows.slice().sort((a,b)=>b.played-a.played||b.wins-a.wins).slice(0,3).filter(r=>r.played>0);
+ let html='';
+ if(top.length){
+  const med=['🥇','🥈','🥉'];
+  html+='<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px">'+top.map((r,i)=>
+   '<div style="flex:1;min-width:150px;background:var(--panel2);border:1px solid '+(i===0?'var(--gold)':'var(--line)')+';border-radius:10px;padding:10px 14px">'+
+   '<div style="font-size:20px">'+med[i]+'</div>'+
+   '<div style="font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+esc(r.name)+'</div>'+
+   '<div style="font-size:12px;color:var(--muted)">'+r.played+'× souboj · 🥇 '+r.wins+' · '+r.acc+' %</div></div>').join('')+'</div>';
+ }
+ html+='<table class="tbl"><thead><tr>'+
   th('name','Žák','left')+th('played','Odehráno')+th('correct','Správně')+
   th('wrong','Špatně')+th('acc','Úspěšnost')+th('wins','Výhry')+th('avg','⌀ umístění')+
   '</tr></thead><tbody>';
