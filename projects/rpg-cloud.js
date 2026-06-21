@@ -602,6 +602,31 @@ window.RPGCloud = (function () {
       if (error) throw error; return data || [];
     } catch (e) { return []; }
   }
+  /* Fáze 13: trvalá historie soubojů. Hráč po skončení zapíše svůj výsledek
+     (server si čísla dopočítá z battle_players → nelze podvrhnout). */
+  async function recordBattleResult(battleId) {
+    if (!client || !user) return false;
+    try {
+      const { error } = await client.rpc('record_battle_result', { p_battle: battleId });
+      return !error;
+    } catch (e) { return false; }
+  }
+  /* Učitel: agregace soubojových statistik per žák (volitelně 1 ročník). */
+  async function battleStatsAll(game) {
+    if (!client || !user) return [];
+    try {
+      const { data, error } = await client.rpc('battle_stats_all', { p_game: game || null });
+      if (error) throw error; return data || [];
+    } catch (e) { return []; }
+  }
+  /* Žák: vlastní soubojový souhrn. */
+  async function battleStatsMe(game) {
+    if (!client || !user) return null;
+    try {
+      const { data, error } = await client.rpc('battle_stats_me', { p_game: game || null });
+      if (error) throw error; return (data && data[0]) || null;
+    } catch (e) { return null; }
+  }
   /* Polling: zavolá cb(state) hned a pak každých intervalMs (default 1200).
      Vrací stop() funkci. Klient tím drží živý stav bez websocketů. */
   function pollBattle(battleId, cb, intervalMs) {
@@ -1053,6 +1078,8 @@ window.RPGCloud = (function () {
            createBattle, joinBattle, battleState, submitBattleAnswer,
            advanceBattle, setBattleStatus, listActiveBattles,
            inviteBattleEmail, myBattleInvites, pollBattle,
+           // Fáze 13 — trvalá historie soubojů
+           recordBattleResult, battleStatsAll, battleStatsMe,
            // Fáze 11 — věž legend
            towerEligible, towerSubmit, towerBoard, towerHall, towerCloseSeason,
            // Fáze 12 — věž legend: nástroje pro učitele
