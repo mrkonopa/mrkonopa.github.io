@@ -810,6 +810,10 @@ html[data-theme="violet"]{--gold:#b06cff;--panel:#100a20;--panel2:#18103a;--blue
  </div>
  </div>
  <div class="panel" id="pr-allgames"></div>
+ <div class="panel" id="pr-battle" style="display:none">
+  <div style="font-family:var(--px);font-weight:700;font-size:12px;color:var(--muted);margin-bottom:10px;letter-spacing:1px">— ŽIVÉ SOUBOJE —</div>
+  <div id="pr-battle-inner"></div>
+ </div>
 </div>
 </div>
 
@@ -1558,7 +1562,7 @@ function startGame(){
  S.name=v||'HRDINA';
  saveS();touchStreak();applyMotionPref();applyCosmetics();go('map');
 }
-function snapErrs(){if(!Array.isArray(S.errsSnap))S.errsSnap=[];const t=new Date().toISOString().slice(0,10);const last=S.errsSnap[S.errsSnap.length-1];if(last&&(new Date(t)-new Date(last.t))/864e5<7)return;const c={};for(const k in(S.errs||{}))if(S.errs[k]>0)c[k]=S.errs[k];S.errsSnap.push({t,errs:c});if(S.errsSnap.length>12)S.errsSnap=S.errsSnap.slice(-12);saveS();if(typeof RPGCloud!=='undefined'&&RPGCloud.pushErrsSnap)RPGCloud.pushErrsSnap(SAVE_KEY,S.errsSnap);}
+function snapErrs(){if(!Array.isArray(S.errsSnap))S.errsSnap=[];const t=new Date().toISOString().slice(0,10);const last=S.errsSnap[S.errsSnap.length-1];if(last&&(new Date(t)-new Date(last.t))/864e5<7)return;const c={};for(const k in(S.errs||{}))if(S.errs[k]>0)c[k]=S.errs[k];S.errsSnap.push({t,errs:c,xp:S.xp||0});if(S.errsSnap.length>12)S.errsSnap=S.errsSnap.slice(-12);saveS();if(typeof RPGCloud!=='undefined'&&RPGCloud.pushErrsSnap)RPGCloud.pushErrsSnap(SAVE_KEY,S.errsSnap);}
 function continueGame(){if(loadS()){snapErrs();if(!S.snapsMigrated&&S.errsSnap.length>0&&typeof RPGCloud!=='undefined'&&RPGCloud.pushErrsSnap){RPGCloud.pushErrsSnap(SAVE_KEY,S.errsSnap).then(ok=>{if(ok){S.snapsMigrated=true;saveS();}});}touchStreak();applyMotionPref();applyCosmetics();go('map');}}
 
 // ══════════════════════════════════════════
@@ -2789,13 +2793,62 @@ function renderCrossGames(){
  html+='<a href="rpg-matematika.html" style="display:block;margin-top:10px;color:var(--blue);font-size:12px;font-family:var(--px);text-align:center">🌐 Velitelské centrum – přehled a obchod pro všechny hry</a>';
  el.innerHTML=html;
 }
+function svgAttrRadar(attrs){
+ const CX=90,CY=88,R=60;
+ // 3 osy: calc=top (-90°), anal=bottom-right (30°), geo=bottom-left (150°)
+ const axes=[['calc',-90],['anal',30],['geo',150]];
+ const rad=d=>d*Math.PI/180;
+ const pt=(pct,deg)=>[CX+R*(pct/100)*Math.cos(rad(deg)),CY+R*(pct/100)*Math.sin(rad(deg))];
+ // mřížka — tři úrovně (25,50,75,100%)
+ const grid=[25,50,75,100].map(p=>{
+  const ps=axes.map(([,d])=>pt(p,d));
+  return `<polygon points="${ps.map(x=>x.join(',')).join(' ')}" fill="none" stroke="rgba(255,255,255,.1)" stroke-width="${p===100?1.5:.7}"/>`;
+ }).join('');
+ // osy
+ const lines=axes.map(([,d])=>`<line x1="${CX}" y1="${CY}" x2="${pt(100,d)[0]}" y2="${pt(100,d)[1]}" stroke="rgba(255,255,255,.18)" stroke-width=".8"/>`).join('');
+ // data polygon
+ const dp=axes.map(([k,d])=>pt(Math.min(100,(attrs[k]||0)|0),d));
+ const poly=`<polygon points="${dp.map(x=>x.join(',')).join(' ')}" fill="var(--blue,#5dc8f0)" fill-opacity=".22" stroke="var(--blue,#5dc8f0)" stroke-width="2"/>`;
+ // vrcholy
+ const dots=dp.map(([x,y])=>`<circle cx="${x}" cy="${y}" r="3.5" fill="var(--blue,#5dc8f0)"/>`).join('');
+ // popisky (tématické ikony z ATTR_META)
+ const lbls=axes.map(([k,d])=>{
+  const [lx,ly]=pt(120,d);const m=ATTR_META[k]||{};
+  return `<text x="${lx}" y="${ly+4}" text-anchor="middle" dominant-baseline="middle" font-size="14" fill="var(--muted,#8895b5)">${m.ic||k}</text>`;
+ }).join('');
+ // hodnoty vedle vrcholů
+ const vals=axes.map(([k,d])=>{
+  const v=(attrs[k]||0)|0;const [vx,vy]=pt(Math.min(100,v)+18,d);
+  return `<text x="${vx}" y="${vy+4}" text-anchor="middle" dominant-baseline="middle" font-size="11" font-weight="700" fill="var(--blue,#5dc8f0)">${v}</text>`;
+ }).join('');
+ return `<svg viewBox="0 0 180 176" style="width:180px;height:176px;display:block;margin:0 auto 4px">${grid}${lines}${poly}${dots}${lbls}${vals}</svg>`;
+}
+async function updateBattleStats(){
+ const p=document.getElementById('pr-battle');
+ const inner=document.getElementById('pr-battle-inner');
+ if(!p||!inner)return;
+ if(typeof RPGCloud==='undefined'||!RPGCloud.currentUser||!RPGCloud.currentUser()||typeof RPGCloud.battleStatsMe!=='function'){p.style.display='none';return;}
+ try{
+  const st=await RPGCloud.battleStatsMe(SAVE_KEY);
+  if(!st||!st.played){p.style.display='none';return;}
+  const tot=(st.correct||0)+(st.wrong||0);
+  const acc=tot?Math.round(100*st.correct/tot):0;
+  p.style.display='';
+  inner.innerHTML=`<div style="display:flex;gap:16px;flex-wrap:wrap;font-family:var(--read,'Lexend',sans-serif);font-size:14px">
+   <span>⚔️ <b>${st.played}</b> soubojů</span>
+   <span>🥇 <b>${st.wins||0}</b> výher</span>
+   <span>✓ <b>${acc}%</b> správně</span>
+   <span style="color:var(--muted)">⌀ ${st.avg_rank?Number(st.avg_rank).toFixed(1):'-'}. místo</span>
+  </div>`;
+ }catch(e){p.style.display='none';}
+}
 function renderProfile(){
  calcLevel();
  document.getElementById('pr-name').textContent=S.name;
  document.getElementById('pr-lv').textContent=S.level;
  document.getElementById('pr-xp').textContent=S.xp;
  const el=document.getElementById('pr-attrs');
- el.innerHTML='';
+ el.innerHTML=svgAttrRadar(S.attrs);
  Object.entries(ATTR_META).forEach(([k,m])=>{
  const v=(S.attrs[k]||0)|0,pct=Math.min(100,v)|0;
  const row=document.createElement('div');
@@ -2805,6 +2858,7 @@ function renderProfile(){
  <div class="attr-vl">${v}</div>`;
  el.appendChild(row);
  });
+ updateBattleStats();
  const inv=document.getElementById('pr-inv');
  inv.innerHTML='';
  AREAS.forEach(ar=>{
