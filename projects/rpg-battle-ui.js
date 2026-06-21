@@ -333,6 +333,12 @@
   // ════════════ VÝSLEDKY ════════════
   function renderResults(st) {
     stopPoll();
+    // Trvalá historie (Fáze 13): každý hráč zapíše vlastní výsledek (jednou).
+    var c0 = cloud();
+    if (c0 && c0.recordBattleResult && B && B.id && !B.recorded) {
+      B.recorded = true;
+      try { c0.recordBattleResult(B.id); } catch (e) {}
+    }
     var players = (st.players || []).slice().sort(function (a, b) { return b.score - a.score; });
     var medal = function (i) { return i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : (i + 1) + '.'; };
     var inner = '<div class="rpgb-h">🏁 Konec souboje</div>' +
