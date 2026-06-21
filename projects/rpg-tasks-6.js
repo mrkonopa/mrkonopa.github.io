@@ -64,7 +64,7 @@ function gen_1_3(){
   tasks.push({text:`V krabici je ${a} ${skl(a,'sáček','sáčky','sáčků')}, v každém ${b} bonbónů. Kolik bonbónů je celkem?`,ans:a*b,hints:['Počet sáčků × bonbonů v sáčku.',`${a}·${b} = ${a*b}`],skill:'anal'});
   const c=ri(50,200),d=ri(3,9);
   const rem=c%d;
-  tasks.push({text:`Rozdělíme ${c} kuliček mezi ${d} dětí rovnoměrně. Kolik kuliček zbude?`,ans:rem,hints:['Spočítej zbytek po dělení '+c+' ÷ '+d+'.',`zbytek = ${rem}`],skill:'anal'});
+  tasks.push({text:`Rozdělíme ${c} kuliček mezi ${d} ${skl(d,'dítě','děti','dětí')} rovnoměrně. Kolik kuliček zbude?`,ans:rem,hints:['Spočítej zbytek po dělení '+c+' ÷ '+d+'.',`zbytek = ${rem}`],skill:'anal'});
   const e=ri(2,6),f=ri(20,60);
   tasks.push({text:`Auto ujede za hodinu ${f} km. Kolik km ujede za ${e} ${skl(e,'hodinu','hodiny','hodin')}?`,ans:e*f,hints:['Vzdálenost = rychlost × čas.',`${e}·${f} = ${e*f} km`],skill:'anal'});
   const g=ri(100,500),h=ri(20,80);
@@ -428,9 +428,9 @@ function gen_6_3(){
   const a=ri(2,9);
   tasks.push({text:`Kolik litrů je ${a} m³? (1 m³ = 1000 l)`,ans:a*1000,hints:['1 m³ = 1000 litrů.',`= ${a*1000} l`],skill:'calc'});
   const b=ri(2,9);
-  tasks.push({text:`Kolik ml je ${b} litrů? (1 l = 1000 ml)`,ans:b*1000,hints:['1 l = 1000 ml.',`= ${b*1000} ml`],skill:'calc'});
+  tasks.push({text:`Kolik ml je ${b} ${skl(b,'litr','litry','litrů')}? (1 l = 1000 ml)`,ans:b*1000,hints:['1 l = 1000 ml.',`= ${b*1000} ml`],skill:'calc'});
   const c=ri(2,9);
-  tasks.push({text:`Kolik cm³ je ${c} litrů? (1 l = 1000 cm³)`,ans:c*1000,hints:['1 l = 1000 cm³.',`= ${c*1000} cm³`],skill:'calc'});
+  tasks.push({text:`Kolik cm³ je ${c} ${skl(c,'litr','litry','litrů')}? (1 l = 1000 cm³)`,ans:c*1000,hints:['1 l = 1000 cm³.',`= ${c*1000} cm³`],skill:'calc'});
   tasks.push({text:`Kolik stěn má síť krychle?`,ans:6,hints:['Síť má tolik čtverců, kolik má krychle stěn — spočítej je na kostce.',''],skill:'geo'});
   const d=ri(2,8)*1000;
   tasks.push({text:`Kolik m³ je ${d} litrů? (1000 l = 1 m³)`,ans:d/1000,hints:['Děl 1000.',`= ${d/1000} m³`],skill:'calc'});

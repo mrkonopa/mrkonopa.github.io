@@ -1119,7 +1119,7 @@ const AREAS = [
  text:`Dvě čísla se liší o ${diff}.\nJejich součet je ${tot}.\nJaké je větší číslo?`,ans:String(big),
  hints:[`Označ menší číslo x. Větší = x + ${diff}.\nRovnice: x + (x + ${diff}) = ${tot}.`,`2x = ${tot-diff}, x = ${(tot-diff)/2}, větší = ?`],skill:'anal'};})(),
  (()=>{const v=ri(3,8)*10,t=ri(1,5);return{
- text:`Auto jede rychlostí ${v} km/h\npo dobu ${t} hodin.\nJakou vzdálenost urazí? (km)`,ans:String(v*t),
+ text:`Auto jede rychlostí ${v} km/h\npo dobu ${t} ${skl(t,'hodiny','hodin','hodin')}.\nJakou vzdálenost urazí? (km)`,ans:String(v*t),
  hints:[`Vzdálenost = rychlost × čas.`,`s = ${v} × ${t} = ?`],skill:'anal'};})(),
  (()=>{const parts=ri(2,5),each=ri(4,16)*10,total=parts*each;return{
  text:`${total} Kč si rozdělí ${parts} ${skl(parts,'kamarád','kamarádi','kamarádů')}\nrovným dílem.\nKolik Kč dostane každý?`,ans:String(each),

@@ -1009,7 +1009,7 @@ const AREAS = [
    (()=>{const a=ri(1,4),b=ri(2,6),c=ri(2,5);const num=a,den=b*c,g=gcd(num,den);const an=num/g,ad=den/g;const ans=ad===1?String(an):`${an}/${ad}`;return{text:`Vypočítej (zkrať):\n${a}/${b} ÷ ${c} =`,ans,hints:[`Dělení = násobení převrácenou hodnotou (× 1/${c}).`,`${a}/(${b}×${c})`],skill:'calc'};})(),
    (()=>{const a=ri(1,4),b=ri(2,5),c=ri(1,4),d=ri(2,5);const num=a*d,den=b*c,g=gcd(num,den);const an=num/g,ad=den/g;const ans=ad===1?String(an):`${an}/${ad}`;return{text:`Vypočítej (zkrať):\n${a}/${b} ÷ ${c}/${d} =`,ans,hints:[`Děleno zlomkem = násob převráceným: × ${d}/${c}.`,`(${a}×${d})/(${b}×${c})`],skill:'calc'};})(),
    (()=>{const b=ri(2,5),k=ri(2,4),a=ri(1,b-1>=1?b-1:1);const ans=`${a*k}/${b}`;const g=gcd(a*k,b);const sans=b/g===1?String(a*k/g):`${a*k/g}/${b/g}`;return{text:`Vypočítej (zkrať):\n${a}/${b} × ${k} =`,ans:sans,hints:[`Násob jen čitatel.`,`(${a}×${k})/${b}`],skill:'calc'};})(),
-   (()=>{const den=ri(3,6),a=ri(1,den-1);const pizza=den;const eaten=a;return{text:`Pizza má ${den} dílů. Každý kamarád snědl 1 díl a bylo jich ${a}.\nJakou částí pizzy to je? (zlomek)`,ans:`${eaten}/${pizza}`,hints:[`Snědené díly / všechny díly.`,`${a}/${den}`],skill:'anal'};})()
+   (()=>{const den=ri(3,6),a=ri(1,den-1);const pizza=den;const eaten=a;return{text:`Pizza má ${den} ${skl(den,'díl','díly','dílů')}. Každý kamarád snědl 1 díl a bylo jich ${a}.\nJakou částí pizzy to je? (zlomek)`,ans:`${eaten}/${pizza}`,hints:[`Snědené díly / všechny díly.`,`${a}/${den}`],skill:'anal'};})()
   ]
  }
  ]
@@ -1080,7 +1080,7 @@ const AREAS = [
    (()=>{const g=ri(2,6),a=ri(1,5),b=ri(1,5);return{text:`Zkrať poměr a napiš DRUHÝ člen:\n${a*g} : ${b*g}`,ans:String(b),hints:[`Vyděl oba členy společným dělitelem ${g}.`,`${b*g} ÷ ${g}`],skill:'calc'};})(),
    (()=>{const a=ri(2,6),b=ri(2,6);return{text:`Jaký je převrácený poměr k ${a} : ${b}?\nNapiš jeho PRVNÍ člen.`,ans:String(b),hints:[`Převrácený poměr má členy prohozené.`,`${b} : ${a}`],skill:'anal'};})(),
    (()=>{const a=ri(2,5),b=ri(2,5),cel=ri(2,5);const sum=a+b;const dil=cel;return{text:`Poměr ${a} : ${b}, jeden díl = ${dil}.\nJaká je celková hodnota? (součet obou částí)`,ans:String(sum*dil),hints:[`Počet dílů = ${a}+${b}=${sum}. Vynásob hodnotou dílu.`,`${sum} × ${dil}`],skill:'anal'};})(),
-   (()=>{const dil=ri(3,9),a=ri(2,5);return{text:`Poměr je ${a} : 1 a jeden díl má hodnotu ${dil}.\nKolik je první část?`,ans:String(a*dil),hints:[`První část = ${a} díly.`,`${a} × ${dil}`],skill:'anal'};})(),
+   (()=>{const dil=ri(3,9),a=ri(2,5);return{text:`Poměr je ${a} : 1 a jeden díl má hodnotu ${dil}.\nJak velká je první část?`,ans:String(a*dil),hints:[`První část = ${a} ${skl(a,'díl','díly','dílů')}.`,`${a} × ${dil}`],skill:'anal'};})(),
    (()=>{const a=ri(2,6),b=ri(2,6);const g=gcd(a,b);return{text:`Je poměr ${a} : ${b} v základním tvaru?\n(napiš společného dělitele obou členů)`,ans:String(g),hints:[`NSD(${a}, ${b}). Je-li 1, poměr je základní.`,`Výsledek: ${g}`],skill:'anal'};})()
   ]
  },
@@ -1180,7 +1180,7 @@ const AREAS = [
    (()=>{const x=ri(2,9),y=ri(2,9);return{svg:svgMirror('flag'),text:`Bod A [${x}, ${y}] zrcadlíme podle osy x (vodorovná osa, y = 0).\nJaká je y-ová souřadnice obrazu A'?`,ans:String(-y),hints:[`Osa x obrátí znaménko y-ové souřadnice.`,`y → -y`],skill:'geo'};})(),
    (()=>{const x=ri(2,9),y=ri(2,9);return{text:`Bod A [${x}, ${y}] zrcadlíme podle osy y.\nObraz má souřadnice [?, ${y}]. Napiš chybějící x.`,ans:String(-x),hints:[`y zůstává, x mění znaménko.`,`Výsledek: ${-x}`],skill:'geo'};})(),
    (()=>{const d=ri(2,9);return{svg:svgMirror('L'),text:`Bod leží ${d} cm od osy souměrnosti.\nJak daleko od osy leží jeho obraz? (cm)`,ans:String(d),hints:[`Obraz je stejně daleko jako vzor — souměrně.`,`Výsledek: ${d}`],skill:'geo'};})(),
-   (()=>{return{svg:svgMirror('flag'),text:`Kolik os souměrnosti má čtverec?`,ans:'4',hints:[`Dvě úhlopříčky a dvě středem stran.`,`Výsledek: 4`],skill:'craft'};})(),
+   (()=>{return{svg:svgMirror('flag'),text:`Kolik os souměrnosti má čtverec?`,ans:'4',hints:[`Dvě úhlopříčky a dvě spojnice středů protějších stran.`,`Výsledek: 4`],skill:'craft'};})(),
    (()=>{return{text:`Kolik os souměrnosti má rovnostranný trojúhelník?`,ans:'3',hints:[`Z každého vrcholu jedna.`,`Výsledek: 3`],skill:'craft'};})()
   ]
  },

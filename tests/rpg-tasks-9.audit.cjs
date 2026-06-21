@@ -10,6 +10,7 @@ const path = require('path');
 global.ri = (a,b)=>Math.floor(Math.random()*(b-a+1))+a;
 global.gcd = function gcd(a,b){return b?gcd(b,a%b):Math.abs(a);};
 global.cz = n=>String(n).replace('.',',');
+global.skl = (n,one,few,many)=>n===1?one:(n>=2&&n<=4?few:many);
 global.svgTriangle=()=>'<svg></svg>';
 global.svgLineGraph=()=>'<svg></svg>';
 global.svgCylinder=()=>'<svg></svg>';
