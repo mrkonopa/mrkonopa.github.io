@@ -325,7 +325,7 @@ window.RPG_LEARN_8 = {
   { h: 'Rovnice se zlomky',
     p: [
       'Zbav se jmenovatelů: vynásob obě strany <b>NSN všech jmenovatelů</b>.',
-      'Příklad: x/3 + 1 = 5/6 → nastob 6: 2x + 6 = 5 → 2x = −1 → x = −1/2',
+      'Příklad: x/3 + 1 = 5/6 → násob 6: 2x + 6 = 5 → 2x = −1 → x = −1/2',
     ] },
   { h: 'Speciální případy',
     p: [
@@ -349,7 +349,7 @@ window.RPG_LEARN_8 = {
   { q: 'Vyřeš: 2(x + 3) = 3(x − 1)',
     s: ['2x + 6 = 3x − 3', '6 + 3 = 3x − 2x', 'x = <b>9</b>'] },
   { q: 'Vyřeš: x/2 − x/3 = 1',
-    s: ['NSN(2,3) = 6; nastob 6: 3x − 2x = 6', 'x = <b>6</b>'] },
+    s: ['NSN(2,3) = 6; násob 6: 3x − 2x = 6', 'x = <b>6</b>'] },
   { q: 'Vyřeš: 4(x − 2) = 2(x + 1)',
     s: ['4x − 8 = 2x + 2', '4x − 2x = 2 + 8 → 2x = 10', 'x = <b>5</b>'] },
  ],
@@ -811,7 +811,7 @@ window.RPG_LEARN_8 = {
  examples: [
   { q: 'Koberec stojí 1 440 Kč po slevě 10 %. Původní cena?',
     s: ['1 440 Kč = 90 % původní ceny', 'základ = 1 440 / 0,9 = <b>1 600 Kč</b>'] },
-  { q: 'Zeď je 2,4 m vysoká. Žebřík 3 m je opřen o zeď. Jak daleko stojí od zdě?',
+  { q: 'Zeď je 2,4 m vysoká. Žebřík 3 m je opřen o zeď. Jak daleko stojí od zdi?',
     s: ['b = √(3² − 2,4²) = √(9 − 5,76) = √3,24 = <b>1,8 m</b>'] },
   { q: 'V obchodě je sleva 30 %. Kolik zaplatíš za zboží s původní cenou 250 Kč?',
     s: ['Platíš 70 % původní ceny: 250 · 0,70', '= <b>175 Kč</b>'] },
