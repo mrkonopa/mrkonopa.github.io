@@ -84,6 +84,8 @@ async function finishMission(page, aid, mid, tc) {
     ok('po startu má hráč denní sérii ≥1', await page.evaluate(() => (S.streak&&S.streak.count)>=1));
 
     // dohraj celou 1. oblast (3 mise) → boot, area1, flawless možné
+    // RPGTaskTypes = null: zakáže mini-úkoly (seřazování/matching), které harness neobsluhuje
+    await page.evaluate(() => { window.RPGTaskTypes = null; });
     const a1 = await page.evaluate(() => AREAS.find(a=>a.id===1).missions.map(m=>({id:m.id,tc:m.tc})));
     for (const m of a1) await finishMission(page, 1, m.id, m.tc);
 
