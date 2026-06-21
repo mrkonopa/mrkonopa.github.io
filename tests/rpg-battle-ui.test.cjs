@@ -37,16 +37,18 @@ function harness() {
     window.RPGWallet = { getReducedMotion:()=>true };   // skip odpočtu/konfet pro rychlost
     window.RPG_BATTLE_9 = { build:function(seed,count){
       var a=[]; for(var i=0;i<count;i++) a.push({text:'Otázka '+(i+1)+'?',choices:['Alfa','Beta','Gama','Delta'],correct:0}); return a; } };
+    window.__rematch=0;
     window.RPGCloud = {
       currentUser:()=>({id:'u-me'}),
       isStaff:()=>false,
-      createBattle:(g,c,n)=>Promise.resolve({id:'b1',code:'WXYZ'}),
+      createBattle:(g,c,n,tm)=>Promise.resolve({id:'b1',code:'WXYZ',team_mode:!!tm}),
       joinBattle:(c,n)=>Promise.resolve({id:'b1',code:'WXYZ'}),
       pollBattle:(id,cb,iv)=>{ window.__cb=cb; return ()=>{}; },
       submitBattleAnswer:function(){ window.__lastSubmit=[].slice.call(arguments); },
       advanceBattle:()=>{}, setBattleStatus:()=>{},
       listActiveBattles:()=>Promise.resolve([]),
-      recordBattleResult:(id)=>{ window.__rec++; return Promise.resolve(true); }
+      recordBattleResult:(id)=>{ window.__rec++; return Promise.resolve(true); },
+      rematchBattle:(id)=>{ window.__rematch++; return Promise.resolve({id:'b1',code:'WXYZ'}); }
     };
   </script>
   <script src="${BASE}/projects/rpg-battle-ui.js"></script>
@@ -123,6 +125,33 @@ async function run() {
       players:[P(1200,1,0)],me:'u-me'});
     await page.waitForTimeout(150);
     ok('opakovaný „finished" nezapíše výsledek dvakrát', await page.evaluate(()=>window.__rec)===1);
+
+    // ── ODVETA (host) ──
+    ok('výsledky mají tlačítko Odveta', await page.evaluate(()=>/Odveta/.test(document.body.textContent)));
+    await page.evaluate(()=>RPGBattle._rematch());
+    await page.waitForFunction(()=>window.__rematch===1,{timeout:2000});
+    ok('Odveta volá rematchBattle', true);
+    // poll po odvetě vrátí lobby → klient sám spadne do čekárny
+    await feed({battle:{status:'lobby',code:'WXYZ',q_seed:99,q_count:5,q_index:-1},
+      players:[{user_id:'u-me',display_name:'Me'},{user_id:'u-op',display_name:'Soupeř'}],me:'u-me'});
+    await page.waitForFunction(()=>/Čekárna/.test(document.body.textContent),{timeout:3000});
+    ok('po odvetě zpět v čekárně (stejná místnost)', true);
+
+    // ── TÝMOVÝ REŽIM ──
+    await page.evaluate(()=>{ RPGBattle.open({game:'RPG_MAT_9', name:'Me', autoAction:'host'}); RPGBattle._mode(1); });
+    await page.evaluate(()=>RPGBattle._create(5));
+    await page.waitForFunction(()=>!!window.__cb,{timeout:3000});
+    const T=(id,nm,score,team)=>({user_id:id,display_name:nm,score:score,correct_count:0,last_qi:-1,team:team});
+    await feed({battle:{status:'lobby',code:'WXYZ',q_seed:7,q_count:5,q_index:-1,team_mode:true},
+      players:[T('u-me','Me',0,0),T('u-op','Soupeř',0,1)],teams:{'0':0,'1':0},me:'u-me'});
+    await page.waitForFunction(()=>/Modří/.test(document.body.textContent),{timeout:3000});
+    ok('týmové lobby: Modří vs. Červení', await page.evaluate(()=>/Modří/.test(document.body.textContent)&&/Červení/.test(document.body.textContent)));
+
+    // konec týmového souboje → banner vítězného týmu
+    await feed({battle:{status:'finished',q_seed:7,q_count:5,q_index:5,team_mode:true},
+      players:[T('u-me','Me',1500,0),T('u-op','Soupeř',300,1)],teams:{'0':1500,'1':300},me:'u-me'});
+    await page.waitForFunction(()=>/Vyhráli modří/.test(document.body.textContent),{timeout:3000});
+    ok('týmové výsledky: banner „Vyhráli modří!"', await page.evaluate(()=>/Vyhráli modří/.test(document.body.textContent)&&/1500 : 300/.test(document.body.textContent)));
 
     ok('žádné JS chyby', errors.length===0, errors.join(' | '));
   } finally {

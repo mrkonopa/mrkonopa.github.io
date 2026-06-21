@@ -205,9 +205,16 @@
     shell(inner);
   }
 
-  // ════════════ HOST: výběr počtu otázek ════════════
+  // ════════════ HOST: režim + výběr počtu otázek ════════════
+  var HTEAM = false;                 // zvolený režim hosta: false = sólo, true = týmy
+  function setMode(team) { HTEAM = !!team; hostUI(); }
   function hostUI() {
     shell('<div class="rpgb-h">🎮 Nový souboj</div>' +
+      '<div class="rpgb-sub">Režim klání:</div>' +
+      '<div style="display:flex;gap:8px;margin:6px 0 14px">' +
+      '<button class="rpgb-btn sm' + (HTEAM ? '' : ' go') + '" style="flex:1;margin:0" onclick="RPGBattle._mode(0)">🙋 Každý sám</button>' +
+      '<button class="rpgb-btn sm' + (HTEAM ? ' go' : '') + '" style="flex:1;margin:0" onclick="RPGBattle._mode(1)">🛡️ Týmy (modří vs. červení)</button>' +
+      '</div>' +
       '<div class="rpgb-sub">Kolik otázek? Všichni dostanou stejné.</div>' +
       '<div style="text-align:center;margin:10px 0">' +
       [5, 10, 15, 20].map(function (n) {
@@ -219,7 +226,7 @@
   function createRoom(count) {
     var c = cloud(); if (!c) return;
     shell('<div class="rpgb-sub">Zakládám místnost…</div>');
-    c.createBattle(GAME, count, NAME).then(function (b) {
+    c.createBattle(GAME, count, NAME, HTEAM).then(function (b) {
       if (!b || !b.id) {
         var errMsg = (b && b.error) ? esc(b.error) : 'Zkus to znovu nebo obnov stránku.';
         shell('<div class="rpgb-h">❌ Chyba</div>' +
@@ -227,7 +234,7 @@
           '<button class="rpgb-btn sm" style="display:block;width:100%" onclick="RPGBattle._menu()">← zpět</button>');
         return;
       }
-      B = { id: b.id, code: b.code, role: 'host', questions: null, lastQi: -2, picked: -1, locked: false };
+      B = { id: b.id, code: b.code, role: 'host', questions: null, lastQi: -2, picked: -1, locked: false, teamMode: !!b.team_mode };
       startPoll();
     }).catch(function (err) {
       shell('<div class="rpgb-h">❌ Chyba</div>' +
@@ -273,6 +280,12 @@
     if (!B || !st || !st.battle) return;
     B.state = st;
     var bt = st.battle;
+    if (typeof bt.team_mode !== 'undefined') B.teamMode = !!bt.team_mode;
+    // odveta: místnost se vrátila do lobby → vyrob novou sadu otázek a vynuluj klientské příznaky kola
+    if (bt.status === 'lobby' && B.lastQi !== -2) {
+      B.questions = null; B.lastQi = -2; B.didCountdown = false;
+      B.recorded = false; B.celebrated = false; B.resultSent = false; B.rankPrev = null; B.lastLobbyKey = null;
+    }
     if (!B.questions && bt.q_seed != null) B.questions = BANK.build(Number(bt.q_seed), bt.q_count);
     if (bt.status === 'lobby') renderLobby(st);
     else if (bt.status === 'finished') renderResults(st);
@@ -308,13 +321,29 @@
       return;
     }
     B.lastLobbyKey = pKey;
+    var plyHtml;
+    if (B.teamMode) {
+      // dvě kolonky: modří (0) vs. červení (1)
+      var t0 = players.filter(function (p) { return p.team === 0; });
+      var t1 = players.filter(function (p) { return p.team === 1; });
+      var col = function (arr, color, name) {
+        return '<div style="flex:1;min-width:0"><div style="font-weight:700;font-size:13px;color:' + color + ';margin-bottom:4px">' + name + ' (' + arr.length + ')</div>' +
+          arr.map(function (p) {
+            return '<div class="rpgb-ply' + (p.user_id === st.me ? ' me' : '') + '" style="border-left:3px solid ' + color + '">' + esc(p.display_name) + (p.user_id === st.me ? ' (ty)' : '') + '</div>';
+          }).join('') + '</div>';
+      };
+      plyHtml = '<div class="rpgb-row"><span>HRÁČI</span><span id="rpgb-plycount">' + players.length + '</span></div>' +
+        '<div style="display:flex;gap:10px">' + col(t0, '#3b82f6', '🔵 Modří') + col(t1, '#e8475f', '🔴 Červení') + '</div>';
+    } else {
+      plyHtml = '<div class="rpgb-row"><span>HRÁČI</span><span id="rpgb-plycount">' + players.length + '</span></div>' +
+        players.map(function (p) {
+          return '<div class="rpgb-ply' + (p.user_id === st.me ? ' me' : '') + '">👤 ' + esc(p.display_name) + (p.user_id === st.me ? ' (ty)' : '') + '</div>';
+        }).join('');
+    }
     var inner = '<div class="rpgb-h">⏳ Čekárna</div>' +
-      '<div class="rpgb-sub">' + (B.role === 'host' ? 'Nadiktuj kód spolužákům. Až se sejdou, spusť.' : 'Čekej, až host spustí souboj.') + '</div>' +
-      '<div class="rpgb-code">' + esc(B.code) + '</div>' +
-      '<div class="rpgb-row"><span>HRÁČI</span><span id="rpgb-plycount">' + players.length + '</span></div>' +
-      players.map(function (p) {
-        return '<div class="rpgb-ply' + (p.user_id === st.me ? ' me' : '') + '">👤 ' + esc(p.display_name) + (p.user_id === st.me ? ' (ty)' : '') + '</div>';
-      }).join('');
+      '<div class="rpgb-sub">' + (B.role === 'host' ? 'Nadiktuj kód spolužákům. Až se sejdou, spusť.' : 'Čekej, až host spustí souboj.') +
+      (B.teamMode ? ' <b style="color:var(--gold,#19e6e6)">Týmový režim</b> — nováčci se přidají do menšího týmu.' : '') + '</div>' +
+      '<div class="rpgb-code">' + esc(B.code) + '</div>' + plyHtml;
     if (B.role === 'host') {
       inner += '<button id="rpgb-startbtn" class="rpgb-btn go" style="margin-top:16px"' + (players.length < 1 ? ' disabled' : '') +
         ' onclick="RPGBattle._start()">▶️ Spustit souboj</button>';
@@ -378,6 +407,18 @@
     if (B.locked) renderStandings(st);
   }
 
+  // týmové skóre (jen v týmovém režimu) — modří vs. červení s poměrovým pruhem
+  function teamScoreBar(st) {
+    if (!B.teamMode || !st.teams) return '';
+    var s0 = Number(st.teams['0'] || 0), s1 = Number(st.teams['1'] || 0), sum = s0 + s1;
+    var p0 = sum ? Math.round(100 * s0 / sum) : 50;
+    return '<div style="margin:2px 0 10px">' +
+      '<div style="display:flex;justify-content:space-between;font-size:13px;font-weight:700;margin-bottom:3px">' +
+      '<span style="color:#3b82f6">🔵 ' + s0 + '</span><span style="color:#e8475f">' + s1 + ' 🔴</span></div>' +
+      '<div style="height:10px;border-radius:5px;overflow:hidden;display:flex;background:#e8475f">' +
+      '<i style="display:block;height:100%;width:' + p0 + '%;background:#3b82f6"></i></div></div>';
+  }
+
   // průběžný žebříček (top 5 + já), animovaný posun pořadí přes CSS transition
   function renderStandings(st) {
     var el = document.getElementById('rpgb-stand'); if (!el) return;
@@ -386,7 +427,7 @@
     var show = ranked.slice(0, 5);
     if (meIdx >= 5) show.push(ranked[meIdx]);   // přilep „mě", když jsem mimo top 5
     var medal = function (i) { return i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : (i + 1) + '.'; };
-    el.innerHTML = '<div class="rpgb-row" style="margin-bottom:2px"><span>PRŮBĚŽNÉ POŘADÍ</span><span></span></div>' +
+    el.innerHTML = teamScoreBar(st) + '<div class="rpgb-row" style="margin-bottom:2px"><span>PRŮBĚŽNÉ POŘADÍ</span><span></span></div>' +
       show.map(function (p) {
         var i = ranked.indexOf(p);
         var up = B.rankPrev && B.rankPrev[p.user_id] != null && B.rankPrev[p.user_id] > i;
@@ -448,7 +489,8 @@
 
   // ════════════ VÝSLEDKY ════════════
   function renderResults(st) {
-    stopPoll();
+    // Pozn.: polling NEzastavujeme — host může spustit odvetu a ostatní
+    // klienti tak sami spadnou zpět do lobby (rematch_battle resetuje místnost).
     // Trvalá historie (Fáze 13): každý hráč zapíše vlastní výsledek (jednou).
     var c0 = cloud();
     if (c0 && c0.recordBattleResult && B && B.id && !B.recorded) {
@@ -457,23 +499,40 @@
     }
     var players = (st.players || []).slice().sort(function (a, b) { return b.score - a.score; });
     var medal = function (i) { return i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : (i + 1) + '.'; };
+    // týmový vítěz (banner nahoře)
+    var teamBanner = '';
+    if (B.teamMode && st.teams) {
+      var s0 = Number(st.teams['0'] || 0), s1 = Number(st.teams['1'] || 0);
+      var win = s0 === s1 ? 'remíza' : (s0 > s1 ? '🔵 Vyhráli modří!' : '🔴 Vyhráli červení!');
+      teamBanner = '<div style="text-align:center;font-weight:700;font-size:17px;margin:4px 0 8px;color:' +
+        (s0 === s1 ? 'var(--gold,#19e6e6)' : (s0 > s1 ? '#3b82f6' : '#e8475f')) + '">' + win +
+        ' <span style="color:var(--muted,#8895b5);font-size:13px">(' + s0 + ' : ' + s1 + ')</span></div>';
+    }
     var inner = '<div class="rpgb-h">🏁 Konec souboje</div>' +
-      '<div class="rpgb-sub">Výsledková listina</div>' +
+      '<div class="rpgb-sub">Výsledková listina</div>' + teamBanner +
       players.map(function (p, i) {
-        return '<div class="rpgb-ply' + (p.user_id === st.me ? ' me' : '') + '">' +
+        var tc = p.team === 0 ? '#3b82f6' : p.team === 1 ? '#e8475f' : '';
+        return '<div class="rpgb-ply' + (p.user_id === st.me ? ' me' : '') + '"' + (tc ? ' style="border-left:3px solid ' + tc + '"' : '') + '>' +
           '<span style="min-width:30px">' + medal(i) + '</span>' +
           '<span style="flex:1;font-weight:700">' + esc(p.display_name) + (p.user_id === st.me ? ' (ty)' : '') + '</span>' +
           '<span style="color:var(--muted,#8895b5);font-size:12px">' + (p.correct_count || 0) + '✓</span>' +
           '<span style="color:var(--gold,#19e6e6);min-width:64px;text-align:right">' + (p.score || 0) + '</span></div>';
-      }).join('') +
-      '<button class="rpgb-btn go" style="margin-top:16px" onclick="RPGBattle._menu()">⚔️ Nový souboj</button>' +
-      '<button class="rpgb-btn sm" style="display:block;width:100%" onclick="RPGBattle.close()">Zavřít</button>';
+      }).join('');
+    if (B.role === 'host') {
+      inner += '<button class="rpgb-btn go" style="margin-top:16px" onclick="RPGBattle._rematch()">🔁 Odveta (stejní hráči)</button>' +
+        '<button class="rpgb-btn sm" style="display:block;width:100%" onclick="RPGBattle._menu()">⚔️ Nový souboj</button>';
+    } else {
+      inner += '<div class="rpgb-sub" style="margin-top:14px">Host může spustit odvetu — počkej, nebo se vrať do menu.</div>' +
+        '<button class="rpgb-btn sm" style="display:block;width:100%" onclick="RPGBattle._menu()">⚔️ Nový souboj</button>';
+    }
+    inner += '<button class="rpgb-btn sm" style="display:block;width:100%" onclick="RPGBattle.close()">Zavřít</button>';
     shell(inner);
-    // konfety, když jsem skončil na bedně (1.–3.)
+    // konfety, když jsem skončil na bedně (1.–3.) — jen jednou
     var myRank = players.findIndex(function (p) { return p.user_id === st.me; });
-    if (myRank >= 0 && myRank < 3) confetti();
-    // Odměny: zavolej hru zpět s výsledky (XP/kredity/odznaky řeší hra, ne UI)
-    if (B && typeof onResult === 'function') {
+    if (!B.celebrated && myRank >= 0 && myRank < 3) { B.celebrated = true; confetti(); }
+    // Odměny: zavolej hru zpět s výsledky (jednou; XP/kredity/odznaky řeší hra)
+    if (B && !B.resultSent && typeof onResult === 'function') {
+      B.resultSent = true;
       var me = st.me;
       var myRow = (st.players || []).find(function (p) { return p.user_id === me; });
       var rank = players.findIndex(function (p) { return p.user_id === me; }) + 1;
@@ -510,6 +569,17 @@
     c.setBattleStatus(id, 'finished').then(function () { activeUI(); });
   }
 
+  // ════════════ ODVETA (host) ════════════
+  function rematch() {
+    var c = cloud(); if (!c || !B || !c.rematchBattle) return;
+    // reset klientského stavu — poll pak ukáže lobby (i ostatním hráčům)
+    B.recorded = false; B.didCountdown = false; B.lastQi = -2;
+    B.celebrated = false; B.resultSent = false; B.rankPrev = null;
+    B.lastLobbyKey = null; B.questions = null;
+    if (!B.stop) startPoll();       // pojistka, kdyby polling neběžel
+    c.rematchBattle(B.id);
+  }
+
   function leave() {
     var c = cloud();
     if (B && B.role === 'host' && c) c.setBattleStatus(B.id, 'finished');
@@ -525,9 +595,9 @@
 
   window.RPGBattle = {
     open: open, close: close,
-    _menu: renderMenu, _host: hostUI, _create: createRoom,
+    _menu: renderMenu, _host: hostUI, _mode: setMode, _create: createRoom,
     _joinUI: joinUI, _join: joinRoom, _start: startBattle,
     _pick: pick, _next: nextQuestion, _leave: leave,
-    _active: activeUI, _kill: kill
+    _active: activeUI, _kill: kill, _rematch: rematch
   };
 })();
