@@ -137,6 +137,7 @@ window.RPG_LEARN_7 = {
  examples: [
   { q: 'Zkrať 24/36 na základní tvar', s: ['NSD(24, 36) = 12', '24/36 = (24÷12)/(36÷12) = <b>2/3</b>'] },
   { q: 'Rozšiř 3/4 na jmenovatel 20', s: ['4 × 5 = 20 → rozšiřujeme 5×', '3/4 = (3×5)/(4×5) = <b>15/20</b>'] },
+  { q: 'Jsou zlomky 6/10 a 9/15 stejné?', s: ['6/10 = 3/5 (krátíme 2×)', '9/15 = 3/5 (krátíme 3×)', 'Oba mají základní tvar 3/5 → <b>ANO, jsou si rovny</b>'] },
  ],
  video: { id: 'A05HhHZwfoQ', title: 'Krácení zlomků' },
 },
@@ -169,6 +170,7 @@ window.RPG_LEARN_7 = {
  examples: [
   { q: 'Spočítej: 3/4 + 2/6', s: ['NSN(4, 6) = 12', '3/4 = 9/12, &ensp; 2/6 = 4/12', '9/12 + 4/12 = 13/12 = <b>1&nbsp;1/12</b>'] },
   { q: 'Spočítej: 2&nbsp;1/3 − 5/6', s: ['2&nbsp;1/3 = 7/3', 'NSN(3, 6) = 6 → 7/3 = 14/6', '14/6 − 5/6 = 9/6 = 3/2 = <b>1&nbsp;1/2</b>'] },
+  { q: 'Snědl jsi 1/3 a 1/4 dortu. Kolik zbývá?', s: ['Snědeno: 1/3 + 1/4 = 4/12 + 3/12 = 7/12', 'Zbývá: 1 − 7/12 = <b>5/12 dortu</b>'] },
  ],
  video: { id: 'fhe7WsRPDa0', title: 'Sčítání a odčítání zlomků' },
 },
@@ -291,6 +293,7 @@ window.RPG_LEARN_7 = {
  examples: [
   { q: 'Porovnej: −3/5 a −1/2', s: ['NSN(5, 2) = 10', '−3/5 = −6/10, &ensp; −1/2 = −5/10', 'Protože −6 &lt; −5, platí <b>−3/5 &lt; −1/2</b>'] },
   { q: 'Spočítej: (−2/3) × (−9/4)', s: ['(−) × (−) = (+)', '(2×9)/(3×4) = 18/12 = <b>3/2 = 1,5</b>'] },
+  { q: 'Je číslo √9 racionální?', s: ['√9 = 3, a 3 = 3/1', 'Lze zapsat jako zlomek → <b>ANO, je racionální</b>'] },
  ],
  video: { id: 'ME5pLObMogw', title: 'Racionální čísla — zlomky' }
 },
@@ -324,6 +327,7 @@ window.RPG_LEARN_7 = {
  examples: [
   { q: 'Zjednoduš poměr 36 : 48', s: ['NSD(36, 48) = 12', '36 : 48 = <b>3 : 4</b>'] },
   { q: 'Rozděl 180 cm v poměru 2 : 3 : 4', s: ['Celkem: 2+3+4 = 9 dílů', '1 díl = 180 ÷ 9 = 20 cm', 'Části: <b>40 cm, 60 cm, 80 cm</b>', 'Kontrola: 40+60+80 = 180 ✓'] },
+  { q: 'Beton se míchá v poměru cement : písek = 1 : 4. Kolik kg písku na 60 kg směsi?', s: ['Celkem 1+4 = 5 dílů, 1 díl = 60 ÷ 5 = 12 kg', 'Písek = 4 díly = 4 · 12 = <b>48 kg</b>'] },
  ],
  video: { id: 'YeptEbvYohc', title: 'Poměr – slovní úlohy' },
 },
@@ -351,6 +355,7 @@ window.RPG_LEARN_7 = {
  examples: [
   { q: 'Za 3 hodiny ujede vlak 210 km. Kolik ujede za 5 hodin?', s: ['1 hod → 210 ÷ 3 = 70 km', '5 hod → 70 × 5 = <b>350 km</b>'] },
   { q: '4 sešity stojí 52 Kč. Kolik stojí 7 sešitů?', s: ['1 sešit → 52 ÷ 4 = 13 Kč', '7 sešitů → 13 × 7 = <b>91 Kč</b>'] },
+  { q: 'Na 5 dní vystačí 15 kg krmení. Na kolik dní vystačí 24 kg (stejná spotřeba)?', s: ['1 den → 15 ÷ 5 = 3 kg', '24 ÷ 3 = <b>8 dní</b>'] },
  ],
  video: { id: 'Rm7OylsDDts', title: 'Trojčlenka — přímá a nepřímá úměrnost' }
 },
@@ -383,6 +388,7 @@ window.RPG_LEARN_7 = {
  examples: [
   { q: 'Na mapě 1 : 20 000 měříme 6,5 cm. Jak dlouhá je cesta?', s: ['d = 6,5 × 20 000 = 130 000 cm = <b>1,3 km</b>'] },
   { q: '6 dělníků postaví zeď za 4 dny. Za kolik dní to zvládnou 3 dělníci?', s: ['6 × 4 = 24 dní práce celkem', '3 dělníci → 24 ÷ 3 = <b>8 dní</b>'] },
+  { q: 'Na plánu 1 : 1 000 má pozemek plochu 5 cm². Jaká je skutečná plocha?', s: ['Plocha: ×M² → 5 × 1 000² = 5 000 000 cm²', '5 000 000 cm² = <b>500 m²</b>'] },
  ],
  video: { id: 'xGATRuT_yGA', title: 'Nepřímá úměrnost' }
 },
@@ -416,6 +422,7 @@ window.RPG_LEARN_7 = {
  examples: [
   { q: 'Kolik je 25 % z 360?', s: ['z = 360 × 25/100 = 360 × 0,25 = <b>90</b>'] },
   { q: 'DPH (21 %) z ceny 1 200 Kč?', s: ['z = 1 200 × 0,21 = <b>252 Kč</b>'] },
+  { q: 'Kolik je 8 % z 350 Kč? (přes 1 %)', s: ['1 % z 350 = 3,50 Kč', '8 % = 8 × 3,50 = <b>28 Kč</b>'] },
  ],
  video: { id: 'GFkEBrieSuA', title: 'Výpočet procentové části' },
 },
@@ -445,6 +452,7 @@ window.RPG_LEARN_7 = {
  examples: [
   { q: 'Ze 150 žáků dostalo jedničku 45. Kolik procent?', s: ['p = 45/150 × 100 = 0,3 × 100 = <b>30 %</b>'] },
   { q: '48 Kč je 16 % z jaké ceny?', s: ['C = 48 × 100 / 16 = 4 800 / 16 = <b>300 Kč</b>'] },
+  { q: 'Cena vzrostla z 200 Kč na 250 Kč. O kolik procent?', s: ['Změna z = 250 − 200 = 50 Kč, základ C = 200 (původní!)', 'p = 50/200 × 100 = <b>25 %</b>'] },
  ],
  video: { id: 'nLaeLsK824g', title: 'Výpočet počtu procent' },
 },
@@ -474,6 +482,7 @@ window.RPG_LEARN_7 = {
  examples: [
   { q: 'Kniha 250 Kč, sleva 12 %. Kolik stojí?', s: ['250 × (1 − 0,12) = 250 × 0,88 = <b>220 Kč</b>'] },
   { q: 'Po zdražení o 25 % stojí výrobek 500 Kč. Kolik stál původně?', s: ['500 = C × 1,25', 'C = 500 / 1,25 = <b>400 Kč</b>'] },
+  { q: 'Zboží zdraží o 10 %, pak zlevní o 10 %. Cena byla 1 000 Kč. Kolik stojí teď?', s: ['Po zdražení: 1 000 × 1,10 = 1 100 Kč', 'Po slevě: 1 100 × 0,90 = <b>990 Kč</b> (méně než původně!)'] },
  ],
  video: { id: 'XG7dmH-wMJI', title: 'Procenta – procvičování' },
 },
@@ -506,6 +515,7 @@ window.RPG_LEARN_7 = {
  examples: [
   { q: 'Bod A[2, 1] zobrazíme přes osu y. Najdi A\'.', s: ['Přes osu y: x → −x', 'A\'[<b>−2, 1</b>]'] },
   { q: 'Bod B[5, 3] zobrazíme přes osu x. Najdi B\'.', s: ['Přes osu x: y → −y', 'B\'[<b>5, −3</b>]'] },
+  { q: 'Kolik os souměrnosti má rovnoramenný (ne rovnostranný) trojúhelník?', s: ['Jen osa procházející vrcholem mezi shodnými rameny', '→ <b>1 osa</b>'] },
  ],
  video: null,
 },
@@ -537,6 +547,7 @@ window.RPG_LEARN_7 = {
  examples: [
   { q: 'A[3, 5] zobrazíme přes O[0, 0]. Najdi A\'.', s: ['A\' = (−3, −5)'] },
   { q: 'B[1, 2] zobrazíme přes S[3, 4]. Najdi B\'.', s: ['x\' = 2×3 − 1 = 5, &ensp; y\' = 2×4 − 2 = 6', 'B\'[<b>5, 6</b>]'] },
+  { q: 'Má písmeno N střed souměrnosti?', s: ['Otoč N o 180° kolem středu — vypadá stejně', '→ <b>ANO, je středově souměrné</b>'] },
  ],
  video: { id: 'XCEX14hh_t0', title: 'Středová souměrnost' },
 },
@@ -568,6 +579,7 @@ window.RPG_LEARN_7 = {
  examples: [
   { q: '△ABC: a=5, b=7, c=9; △DEF: d=5, e=7, f=9. Jsou shodné?', s: ['Shodují se všechny tři strany → <b>věta sss</b>', '△ABC ≅ △DEF ✓'] },
   { q: 'AB = DE, AC = DF, úhel A = úhel D. Která věta?', s: ['Dvě strany a úhel jimi sevřený → <b>věta sus</b>'] },
+  { q: 'Stačí ke shodnosti shoda všech tří úhlů (uuu)?', s: ['Stejné úhly mají i podobné trojúhelníky různé velikosti', '→ <b>NE</b>, uuu zaručuje jen podobnost, ne shodnost'] },
  ],
  video: { id: 'ycpR3sbBwbA', title: 'Konstrukce trojúhelníku — věta USU' }
 },
@@ -599,6 +611,7 @@ window.RPG_LEARN_7 = {
  examples: [
   { q: 'Rovnoběžník: základna 8 cm, výška 5 cm. Obsah?', s: ['S = 8 × 5 = <b>40 cm²</b>'] },
   { q: 'Lichoběžník: základny 6 cm a 10 cm, výška 4 cm. Obsah?', s: ['S = (6 + 10)/2 × 4 = 8 × 4 = <b>32 cm²</b>'] },
+  { q: 'Trojúhelník má obsah 24 cm² a základnu 8 cm. Jaká je výška na tuto základnu?', s: ['S = a · v / 2 → 24 = 8 · v / 2 = 4v', 'v = 24 / 4 = <b>6 cm</b>'] },
  ],
  video: { id: 'X5Xc16Z8GXc', title: 'Obsah lichoběžníku' },
 },
@@ -629,6 +642,7 @@ window.RPG_LEARN_7 = {
  examples: [
   { q: 'Kvádr: a = 5 cm, b = 4 cm, c = 3 cm. Objem a povrch?', s: ['V = 5 × 4 × 3 = <b>60 cm³</b>', 'S = 2(5×4 + 4×3 + 5×3) = 2(20+12+15) = 2×47 = <b>94 cm²</b>'] },
   { q: 'Hranol s pravoúhlou trojúh. podstavou (odvěsny 3 a 4 cm) a výškou 10 cm. Objem?', s: ['S<sub>p</sub> = (3 × 4)/2 = 6 cm²', 'V = 6 × 10 = <b>60 cm³</b>'] },
+  { q: 'Bazén 5 × 3 × 2 m. Kolik litrů vody se do něj vejde?', s: ['V = 5 × 3 × 2 = 30 m³', '1 m³ = 1 000 l → <b>30 000 litrů</b>'] },
  ],
  video: { id: 'LUgKaMWPels', title: 'Objem a povrch hranolu' },
 },
