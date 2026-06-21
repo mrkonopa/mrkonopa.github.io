@@ -27,6 +27,39 @@
   function cloud() { return (typeof RPGCloud !== 'undefined') ? RPGCloud : null; }
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) {
     return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]; }); }
+  function reducedMotion() {
+    try { if (typeof RPGWallet !== 'undefined' && RPGWallet.getReducedMotion) return !!RPGWallet.getReducedMotion(); } catch (e) {}
+    try { return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) { return false; }
+  }
+  var SHAPES = ['▲', '◆', '●', '■'];
+
+  // 3-2-1 odpočet před první otázkou (přeskočí se při reduced-motion)
+  function countdown(done) {
+    if (reducedMotion()) { done(); return; }
+    var ov = document.createElement('div'); ov.id = 'rpgb-cd';
+    document.body.appendChild(ov); var n = 3;
+    function step() {
+      ov.innerHTML = '<b>' + n + '</b>';
+      if (n-- <= 1) { setTimeout(function () { ov.remove(); done(); }, 850); }
+      else setTimeout(step, 850);
+    }
+    step();
+  }
+
+  // konfety pro výsledkovou obrazovku
+  function confetti() {
+    if (reducedMotion()) return;
+    var old = document.getElementById('rpgb-conf'); if (old) old.remove();
+    var box = document.createElement('div'); box.id = 'rpgb-conf';
+    var cols = ['#e8475f', '#3b82f6', '#eab308', '#22c55e', '#19e6e6'];
+    var html = '';
+    for (var i = 0; i < 70; i++) {
+      html += '<i style="left:' + (Math.random() * 100).toFixed(1) + '%;background:' + cols[i % cols.length] +
+        ';animation-duration:' + (2 + Math.random() * 1.8).toFixed(2) + 's;animation-delay:' + (Math.random() * 0.6).toFixed(2) + 's"></i>';
+    }
+    box.innerHTML = html; document.body.appendChild(box);
+    setTimeout(function () { box.remove(); }, 4200);
+  }
 
   // ── jednorázové vložení stylů ──
   function injectCss() {
@@ -72,7 +105,37 @@
       'transform-origin:left center;transform:scaleX(1);transition:transform .25s linear}' +
       '.rpgb-row{display:flex;justify-content:space-between;align-items:center;font-size:13px;color:var(--muted,#8895b5);margin-bottom:8px}' +
       '.rpgb-hdr{display:flex;justify-content:flex-end;margin:0 -4px 4px}' +
-      '.rpgb-x{font-size:22px;color:var(--muted,#8895b5);cursor:pointer;background:none;border:none;padding:2px 6px;line-height:1}';
+      '.rpgb-x{font-size:22px;color:var(--muted,#8895b5);cursor:pointer;background:none;border:none;padding:2px 6px;line-height:1}' +
+      // ── Kahoot dlaždice: 4 barvy + tvary ──
+      '.rpgb-ch{display:flex;align-items:center;gap:10px}' +
+      '.rpgb-sh{font-size:18px;line-height:1;flex:0 0 auto;opacity:.9}' +
+      '.rpgb-ch.k0{border-color:#e8475f;background:rgba(232,71,95,.14)}.rpgb-ch.k0:hover:not(:disabled){border-color:#ff6b81;background:rgba(232,71,95,.24)}' +
+      '.rpgb-ch.k1{border-color:#3b82f6;background:rgba(59,130,246,.14)}.rpgb-ch.k1:hover:not(:disabled){border-color:#60a5fa;background:rgba(59,130,246,.24)}' +
+      '.rpgb-ch.k2{border-color:#eab308;background:rgba(234,179,8,.14)}.rpgb-ch.k2:hover:not(:disabled){border-color:#facc15;background:rgba(234,179,8,.24)}' +
+      '.rpgb-ch.k3{border-color:#22c55e;background:rgba(34,197,94,.14)}.rpgb-ch.k3:hover:not(:disabled){border-color:#4ade80;background:rgba(34,197,94,.24)}' +
+      // ok/bad přebijí barvu dlaždice
+      '.rpgb-ch.ok{border-color:#4ade80!important;background:rgba(74,222,128,.22)!important;color:#4ade80}' +
+      '.rpgb-ch.bad{border-color:#ff6b6b!important;background:rgba(255,107,107,.22)!important;color:#ff6b6b}' +
+      // ── mezikolo: žebříček ──
+      '.rpgb-stand{margin:10px 0 4px}' +
+      '.rpgb-st{display:flex;align-items:center;gap:9px;padding:7px 11px;border-radius:8px;background:rgba(255,255,255,.04);' +
+      'margin:5px 0;font-size:14px;transition:transform .35s ease,background .25s;border:1px solid transparent}' +
+      '.rpgb-st.me{border-color:var(--gold,#19e6e6);background:rgba(25,230,230,.12)}' +
+      '.rpgb-st .rk{min-width:26px;text-align:center;font-weight:700}' +
+      '.rpgb-st .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600}' +
+      '.rpgb-st .sc{color:var(--gold,#19e6e6);min-width:62px;text-align:right;font-weight:700}' +
+      '.rpgb-st .dl{font-size:12px;min-width:34px;text-align:right}' +
+      // ── odpočet 3-2-1 ──
+      '#rpgb-cd{position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;background:rgba(5,8,16,.92)}' +
+      '#rpgb-cd b{font-family:var(--px,"Roboto Mono",monospace);font-size:120px;font-weight:700;color:var(--gold,#19e6e6);' +
+      'text-shadow:0 0 30px rgba(25,230,230,.6);animation:rpgb-pop .9s ease}' +
+      '@keyframes rpgb-pop{0%{transform:scale(.3);opacity:0}40%{transform:scale(1.1);opacity:1}100%{transform:scale(1);opacity:.85}}' +
+      // ── konfety ──
+      '#rpgb-conf{position:fixed;inset:0;z-index:10001;pointer-events:none;overflow:hidden}' +
+      '#rpgb-conf i{position:absolute;top:-12px;width:9px;height:14px;border-radius:2px;animation:rpgb-fall linear forwards}' +
+      '@keyframes rpgb-fall{to{transform:translateY(105vh) rotate(720deg);opacity:.4}}' +
+      // ── lobby hráč: jemný nástup ──
+      '.rpgb-ply{animation:rpgb-in .25s ease}@keyframes rpgb-in{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}';
     document.head.appendChild(css);
   }
 
@@ -213,7 +276,22 @@
     if (!B.questions && bt.q_seed != null) B.questions = BANK.build(Number(bt.q_seed), bt.q_count);
     if (bt.status === 'lobby') renderLobby(st);
     else if (bt.status === 'finished') renderResults(st);
-    else renderQuestion(st);   // active / paused
+    else {
+      // start souboje: 3-2-1 odpočet jednou před první otázkou
+      if (bt.q_index === 0 && !B.didCountdown) {
+        B.didCountdown = true;
+        snapCorrect(st);                       // výchozí snímek pro přehled odpovědí
+        countdown(function () { if (B && B.state) renderQuestion(B.state); });
+        return;
+      }
+      renderQuestion(st);   // active / paused
+    }
+  }
+
+  // snímek dosažených správných odpovědí na začátku otázky (host přehled)
+  function snapCorrect(st) {
+    B.snap = {};
+    (st.players || []).forEach(function (p) { B.snap[p.user_id] = p.correct_count || 0; });
   }
 
   // ════════════ LOBBY ════════════
@@ -259,6 +337,7 @@
     }
     // plný re-render jen při změně otázky (jinak by se ztratil výběr)
     if (qi !== B.lastQi) {
+      if (qi !== 0) snapCorrect(st);    // nová otázka → nový snímek pro přehled (q0 už máme z odpočtu)
       B.lastQi = qi; B.picked = -1; B.locked = (bt.status === 'paused');
       var q = B.questions[qi];
       var inner = '<div class="rpgb-row"><span>OTÁZKA ' + (qi + 1) + ' / ' + bt.q_count + '</span>' +
@@ -267,9 +346,11 @@
         '<div class="rpgb-q">' + esc(q.text) + '</div>' +
         '<div id="rpgb-choices">' +
         q.choices.map(function (ch, i) {
-          return '<button class="rpgb-ch" id="rpgb-c' + i + '" onclick="RPGBattle._pick(' + i + ')">' + esc(ch) + '</button>';
+          return '<button class="rpgb-ch k' + (i % 4) + '" id="rpgb-c' + i + '" onclick="RPGBattle._pick(' + i + ')">' +
+            '<span class="rpgb-sh">' + SHAPES[i % 4] + '</span><span>' + esc(ch) + '</span></button>';
         }).join('') + '</div>' +
-        '<div id="rpgb-fb" style="text-align:center;font-weight:700;min-height:22px;margin-top:6px"></div>';
+        '<div id="rpgb-fb" style="text-align:center;font-weight:700;min-height:22px;margin-top:6px"></div>' +
+        '<div id="rpgb-stand" class="rpgb-stand"></div>';
       if (B.role === 'host') {
         inner += '<div style="display:flex;gap:8px;margin-top:12px">' +
           '<button class="rpgb-btn go sm" style="flex:1" onclick="RPGBattle._next()">' +
@@ -280,10 +361,44 @@
       B.deadline = (bt.q_started_at ? new Date(bt.q_started_at).getTime() : Date.now()) + QSEC * 1000;
       tickStart();
     }
-    // lehká aktualizace: kolik odpovědělo
-    var answered = (st.players || []).filter(function (p) { return p.last_qi >= qi; }).length;
+    // lehká aktualizace přehledu odpovědí (host vidí správně/špatně živě)
+    var pls = st.players || [];
+    var answered = pls.filter(function (p) { return p.last_qi >= qi; });
     var ansEl = document.getElementById('rpgb-ans');
-    if (ansEl) ansEl.textContent = '✓ ' + answered + '/' + (st.players || []).length;
+    if (ansEl) {
+      if (B.role === 'host' && B.snap) {
+        var corr = answered.filter(function (p) { return (p.correct_count || 0) > (B.snap[p.user_id] || 0); }).length;
+        ansEl.innerHTML = '<span style="color:#4ade80">✓' + corr + '</span> ' +
+          '<span style="color:#ff6b6b">✗' + (answered.length - corr) + '</span> · ' + answered.length + '/' + pls.length;
+      } else {
+        ansEl.textContent = '✓ ' + answered.length + '/' + pls.length;
+      }
+    }
+    // mezikolo: jakmile jsem odpověděl/vypršel čas, ukaž živý žebříček
+    if (B.locked) renderStandings(st);
+  }
+
+  // průběžný žebříček (top 5 + já), animovaný posun pořadí přes CSS transition
+  function renderStandings(st) {
+    var el = document.getElementById('rpgb-stand'); if (!el) return;
+    var ranked = (st.players || []).slice().sort(function (a, b) { return (b.score || 0) - (a.score || 0); });
+    var meIdx = ranked.findIndex(function (p) { return p.user_id === st.me; });
+    var show = ranked.slice(0, 5);
+    if (meIdx >= 5) show.push(ranked[meIdx]);   // přilep „mě", když jsem mimo top 5
+    var medal = function (i) { return i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : (i + 1) + '.'; };
+    el.innerHTML = '<div class="rpgb-row" style="margin-bottom:2px"><span>PRŮBĚŽNÉ POŘADÍ</span><span></span></div>' +
+      show.map(function (p) {
+        var i = ranked.indexOf(p);
+        var up = B.rankPrev && B.rankPrev[p.user_id] != null && B.rankPrev[p.user_id] > i;
+        var dn = B.rankPrev && B.rankPrev[p.user_id] != null && B.rankPrev[p.user_id] < i;
+        return '<div class="rpgb-st' + (p.user_id === st.me ? ' me' : '') + '">' +
+          '<span class="rk">' + medal(i) + '</span>' +
+          '<span class="nm">' + esc(p.display_name) + (p.user_id === st.me ? ' (ty)' : '') + '</span>' +
+          '<span class="dl">' + (up ? '<span style="color:#4ade80">▲</span>' : dn ? '<span style="color:#ff6b6b">▼</span>' : '') + '</span>' +
+          '<span class="sc">' + (p.score || 0) + '</span></div>';
+      }).join('');
+    // zapamatuj pořadí pro příští šipky
+    B.rankPrev = {}; ranked.forEach(function (p, i) { B.rankPrev[p.user_id] = i; });
   }
 
   function tickStart() {
@@ -311,6 +426,7 @@
     lockChoices(true);
     var fb = document.getElementById('rpgb-fb');
     if (fb) { fb.textContent = correct ? '✓ Správně! +' + pts : '✗ Špatně'; fb.style.color = correct ? '#4ade80' : '#ff6b6b'; }
+    if (B.state) renderStandings(B.state);
   }
 
   // odhalí správnou (zeleně) a případně chybný výběr (červeně)
@@ -353,6 +469,9 @@
       '<button class="rpgb-btn go" style="margin-top:16px" onclick="RPGBattle._menu()">⚔️ Nový souboj</button>' +
       '<button class="rpgb-btn sm" style="display:block;width:100%" onclick="RPGBattle.close()">Zavřít</button>';
     shell(inner);
+    // konfety, když jsem skončil na bedně (1.–3.)
+    var myRank = players.findIndex(function (p) { return p.user_id === st.me; });
+    if (myRank >= 0 && myRank < 3) confetti();
     // Odměny: zavolej hru zpět s výsledky (XP/kredity/odznaky řeší hra, ne UI)
     if (B && typeof onResult === 'function') {
       var me = st.me;
