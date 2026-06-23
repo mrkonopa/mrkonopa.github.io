@@ -41,11 +41,11 @@ window.RPGWallet = (function () {
     { id: 'victory-cyber',   cat: 'victory', name: 'Cyber výbuch', ic: '🔥', price: 100, cssKey: 'vc-cyber' },
     { id: 'victory-neon',    cat: 'victory', name: 'Neon záření',  ic: '💚', price: 140, cssKey: 'vc-neon' },
     // ── skiny hrdiny (palette swap) ──
-    { id: 'skin-gold',    cat: 'skin', name: 'Zlatý rytíř',   ic: '🥇', price: 200, skinKey: 'skin-gold' },
-    { id: 'skin-red',     cat: 'skin', name: 'Rudý bojovník',  ic: '🔴', price: 150, skinKey: 'skin-red' },
-    { id: 'skin-emerald', cat: 'skin', name: 'Smaragdový lovec',ic:'💚', price: 150, skinKey: 'skin-emerald' },
-    { id: 'skin-ghost',   cat: 'skin', name: 'Duch neoneonu',  ic: '👻', price: 250, skinKey: 'skin-ghost' },
-    { id: 'skin-stealth', cat: 'skin', name: 'Stínový agent',  ic: '🥷', price: 180, skinKey: 'skin-stealth' },
+    { id: 'skin-gold',    cat: 'skin', name: 'Zlatý rytíř',    ic: '🥇', price: 18000, skinKey: 'skin-gold' },
+    { id: 'skin-red',     cat: 'skin', name: 'Rudý bojovník',   ic: '🔴', price:  3000, skinKey: 'skin-red' },
+    { id: 'skin-emerald', cat: 'skin', name: 'Smaragdový lovec',ic: '💚', price:  3500, skinKey: 'skin-emerald' },
+    { id: 'skin-ghost',   cat: 'skin', name: 'Duch neoneonu',   ic: '👻', price: 10000, skinKey: 'skin-ghost' },
+    { id: 'skin-stealth', cat: 'skin', name: 'Stínový agent',   ic: '🥷', price:  6000, skinKey: 'skin-stealth' },
     // ── powerupy (gameplay, one-time purchase) ──
     { id: 'pu-ghost-heart',   cat: 'powerup', name: 'Železná vůle',    ic: '🫀', price: 550, minLevel: 5, desc: '+1 prázdné srdce na start každého boje.' },
     { id: 'pu-time-bonus',    cat: 'powerup', name: 'Přesýpací hodiny',ic: '⏳', price: 500, minLevel: 4, desc: '+5 sekund na každý příklad.' },
