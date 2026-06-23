@@ -21,6 +21,16 @@ window.RPGSprites8 = (function () {
     K:'#0a0c12', J:'#4a5ec8', j:'#2a3a8a', C:'#b8c0ff', c:'#7878e0',
     G:'#8a92c0', B:'#23232e', W:'#e8ecf5', Y:'#f4d03f'
   };
+  const HERO_SKINS = {
+    'skin-gold':    { J:'#caa12a', j:'#8a6a12', C:'#fff0b0', c:'#c9a227', G:'#8a7a3a' },
+    'skin-red':     { J:'#a51d2e', j:'#5e1019', C:'#ff6b6b', c:'#a02020', G:'#7a3a44' },
+    'skin-emerald': { J:'#108a55', j:'#0a4d31', C:'#39ff9e', c:'#1a8a5a', G:'#3a7a5a' },
+    'skin-ghost':   { J:'#4a3a78', j:'#241d3f', C:'#c08aff', c:'#7a4fd0', G:'#6a5a85' },
+    'skin-stealth': { J:'#2c2c34', j:'#161619', C:'#9fb0c8', c:'#5a6a85', G:'#40454f' }
+  };
+  let activeSkin = null;
+  function setSkin(key) { activeSkin = HERO_SKINS[key] ? key : null; }
+  function heroPal() { return activeSkin ? Object.assign({}, PAL_HERO, HERO_SKINS[activeSkin]) : PAL_HERO; }
 
   /* ── hrdina (14×16, kouká doprava) — student magie v rouchu ── */
   const HERO_IDLE = [[
@@ -569,7 +579,7 @@ window.RPGSprites8 = (function () {
       hy += 3;
       if (!rm() && h.mode === 'idle') hx += Math.sin(performance.now() / 70) * 2;
     }
-    drawSprite(heroGrid(), PAL_HERO, hx, hy, SCALE, false, h.mode === 'hit');
+    drawSprite(heroGrid(), heroPal(), hx, hy, SCALE, false, h.mode === 'hit');
     if (hpf <= 0.67 && h.mode !== 'hit') {
       const bad = hpf <= 0.34;
       ctx.globalAlpha = 0.75;
@@ -848,7 +858,7 @@ window.RPGSprites8 = (function () {
       for (let c = 0; c < row.length; c++) {
         const ch = row[c];
         if (ch === '.') continue;
-        c2.fillStyle = PAL_HERO[ch] || COMMON[ch] || '#f0f';
+        c2.fillStyle = heroPal()[ch] || COMMON[ch] || '#f0f';
         const px = flipX ? x + (row.length - 1 - c) * scale : x + c * scale;
         c2.fillRect(px, y + r * scale, scale, scale);
       }
@@ -856,5 +866,5 @@ window.RPGSprites8 = (function () {
   }
 
 
-  return { attach, detach, active, spawn, heroAttack, bossAttack, defeat, setProgress, setHeroHp, drawHeroOn };
+  return { attach, detach, active, spawn, heroAttack, bossAttack, defeat, setProgress, setHeroHp, drawHeroOn, setSkin, skins: () => Object.keys(HERO_SKINS) };
 })();
