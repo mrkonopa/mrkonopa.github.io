@@ -438,7 +438,7 @@
       B.lastQi = qi; B.picked = -1; B.locked = (bt.status === 'paused');
       var q = B.questions[qi];
       var inner = '<div class="rpgb-row"><span>OTÁZKA ' + (qi + 1) + ' / ' + bt.q_count + '</span>' +
-        '<span id="rpgb-ans">·</span></div>' +
+        '<span><span id="rpgb-myscore" style="color:var(--gold,#19e6e6);font-weight:700;margin-right:10px"></span><span id="rpgb-ans">·</span></span></div>' +
         '<div class="rpgb-bar"><i id="rpgb-time" style="transform:scaleX(1)"></i></div>' +
         '<div class="rpgb-q">' + esc(q.text) + '</div>' +
         '<div id="rpgb-choices">' +
@@ -461,6 +461,10 @@
     // lehká aktualizace přehledu odpovědí (host vidí správně/špatně živě)
     var pls = st.players || [];
     var answered = pls.filter(function (p) { return p.last_qi >= qi; });
+    // moje průběžné (celkové) skóre — vždy viditelné, nereaguje na otázku
+    var meRow = pls.filter(function (p) { return p.user_id === st.me; })[0];
+    var msEl = document.getElementById('rpgb-myscore');
+    if (msEl) msEl.textContent = meRow ? '⭐ ' + (meRow.score || 0) : '';
     var ansEl = document.getElementById('rpgb-ans');
     if (ansEl) {
       if (B.role === 'host' && B.snap) {
