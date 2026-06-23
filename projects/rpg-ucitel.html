@@ -46,7 +46,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--px);min-height:100
 .controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
 .controls input,.controls select{font-family:inherit;font-size:13px;padding:8px 10px;border-radius:5px;
  border:1px solid var(--line);background:var(--panel2);color:var(--text)}
-.controls input{flex:1;min-width:160px}
+.controls input:not([type=checkbox]){flex:1;min-width:160px}
 .controls .sp{flex:1}
 .mini{font-family:inherit;font-size:12px;font-weight:700;padding:8px 12px;border-radius:5px;cursor:pointer;
  border:1px solid var(--accent);background:none;color:var(--accent)}
