@@ -219,7 +219,7 @@ window.RPGCloud = (function () {
     if (!client || !isStaff()) return [];
     try {
       const { data, error } = await client.from('classes')
-        .select('id,name,section,cohort_start_year,created_by,created_at').order('name', { ascending: true });
+        .select('id,name,section,cohort_start_year,created_by,created_at,archived').order('name', { ascending: true });
       if (error) throw error;
       return data || [];
     } catch (e) { console.warn('[RPGCloud] listClasses selhal:', e); return []; }
@@ -254,6 +254,7 @@ window.RPGCloud = (function () {
     if (meta.cohort_start_year !== undefined)
       patch.cohort_start_year = (meta.cohort_start_year === '' || meta.cohort_start_year == null)
         ? null : (parseInt(meta.cohort_start_year, 10) || null);
+    if (meta.archived !== undefined) patch.archived = !!meta.archived;
     if (!Object.keys(patch).length) return { ok: true };
     try {
       const { error } = await client.from('classes').update(patch).eq('id', id);
@@ -1067,6 +1068,38 @@ window.RPGCloud = (function () {
     });
   }
 
+  // ── Fáze 15 — audit log akcí učitelů/superadminů ──
+  // logAction: zapíše akci (server hlídá actor=auth.uid() a staff roli).
+  // Graceful: bez clienta/staff/RPC tiše nic — logování nikdy neshodí akci.
+  async function logAction(action, opts) {
+    if (!client || !isStaff()) return;
+    opts = opts || {};
+    try {
+      await client.rpc('log_action', {
+        p_action: String(action || '?'),
+        p_target: opts.target || null,
+        p_target_email: opts.targetEmail || null,
+        p_game: opts.game || null,
+        p_detail: opts.detail || {}
+      });
+    } catch (e) { /* logování nesmí shodit akci */ }
+  }
+  // listAuditLog: čte jen superadmin (server i klient hlídají).
+  async function listAuditLog(opts) {
+    if (!client || !isAdmin()) return [];
+    opts = opts || {};
+    try {
+      const { data, error } = await client.rpc('audit_log_list', {
+        p_limit: opts.limit || 200,
+        p_before: opts.before || null,
+        p_actor: opts.actor || null,
+        p_target: opts.target || null
+      });
+      if (error) throw error;
+      return data || [];
+    } catch (e) { console.warn('[RPGCloud] listAuditLog selhal:', e); return []; }
+  }
+
   return { CONFIG, configured, init, login, logout, currentUser, getError,
            pull, push, syncWallet, onChange, attachGame, attachHub,
            // Fáze 2 — role a učitelská konzole
@@ -1097,5 +1130,7 @@ window.RPGCloud = (function () {
            // Fáze 11 — věž legend
            towerEligible, towerSubmit, towerBoard, towerHall, towerCloseSeason,
            // Fáze 12 — věž legend: nástroje pro učitele
-           towerBoardAdmin, towerDeleteRun };
+           towerBoardAdmin, towerDeleteRun,
+           // Fáze 15 — audit log
+           logAction, listAuditLog };
 })();
