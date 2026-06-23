@@ -778,6 +778,7 @@ html[data-theme="violet"]{--gold:#b06cff;--panel:#100a20;--panel2:#18103a;--blue
   <button class="btn sm shop-tab" onclick="shopCat('badge')">🏷️ Jméno</button>
   <button class="btn sm shop-tab" onclick="shopCat('theme')">🎨 Téma mapy</button>
   <button class="btn sm shop-tab" onclick="shopCat('victory')">🎯 Výhra efekt</button>
+  <button class="btn sm shop-tab" onclick="shopCat('skin')">🥷 Skin hrdiny</button>
   <button class="btn sm shop-tab" onclick="shopCat('powerup')">⚡ Powerupy</button>
  </div>
  <div class="shop-grid" id="shop-content"></div>
@@ -962,13 +963,15 @@ function applyCosmetics(){
  }
  const th=SHOP_ITEMS.find(i=>i.id===cos.active?.theme&&i.cat==='theme');
  document.documentElement.dataset.theme=th?.cssKey||'';
+ const spMod=window.RPGSprites9||window.RPGSprites8||window.RPGSprites7||window.RPGSprites6;
+ if(spMod&&typeof spMod.setSkin==='function')spMod.setSkin(cos.active?.skin||null);
 }
 
 let _shopCat='border';
 function shopCat(cat){
  _shopCat=cat;
  document.querySelectorAll('.shop-tab').forEach(b=>b.classList.toggle('active-tab',b.textContent.includes(
-  {border:'Rámy',badge:'Jméno',theme:'Téma',victory:'Výhra',powerup:'Powerupy'}[cat]
+  {border:'Rámy',badge:'Jméno',theme:'Téma',victory:'Výhra',skin:'Skin',powerup:'Powerupy'}[cat]
  )));
  renderShop();
 }
