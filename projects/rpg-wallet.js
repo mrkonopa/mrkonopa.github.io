@@ -40,6 +40,12 @@ window.RPGWallet = (function () {
     { id: 'victory-default', cat: 'victory', name: 'Výchozí',      ic: '⚡', price: 0,   cssKey: '' },
     { id: 'victory-cyber',   cat: 'victory', name: 'Cyber výbuch', ic: '🔥', price: 100, cssKey: 'vc-cyber' },
     { id: 'victory-neon',    cat: 'victory', name: 'Neon záření',  ic: '💚', price: 140, cssKey: 'vc-neon' },
+    // ── skiny hrdiny (palette swap) ──
+    { id: 'skin-gold',    cat: 'skin', name: 'Zlatý rytíř',   ic: '🥇', price: 200, skinKey: 'skin-gold' },
+    { id: 'skin-red',     cat: 'skin', name: 'Rudý bojovník',  ic: '🔴', price: 150, skinKey: 'skin-red' },
+    { id: 'skin-emerald', cat: 'skin', name: 'Smaragdový lovec',ic:'💚', price: 150, skinKey: 'skin-emerald' },
+    { id: 'skin-ghost',   cat: 'skin', name: 'Duch neoneonu',  ic: '👻', price: 250, skinKey: 'skin-ghost' },
+    { id: 'skin-stealth', cat: 'skin', name: 'Stínový agent',  ic: '🥷', price: 180, skinKey: 'skin-stealth' },
     // ── powerupy (gameplay, one-time purchase) ──
     { id: 'pu-ghost-heart',   cat: 'powerup', name: 'Železná vůle',    ic: '🫀', price: 550, minLevel: 5, desc: '+1 prázdné srdce na start každého boje.' },
     { id: 'pu-time-bonus',    cat: 'powerup', name: 'Přesýpací hodiny',ic: '⏳', price: 500, minLevel: 4, desc: '+5 sekund na každý příklad.' },
@@ -64,7 +70,7 @@ window.RPGWallet = (function () {
       credits: 0,
       cosmetics: {
         owned: FREE.slice(),
-        active: { border: null, badge: null, theme: DEFAULT_THEME, victory: DEFAULT_VICTORY }
+        active: { border: null, badge: null, theme: DEFAULT_THEME, victory: DEFAULT_VICTORY, skin: null }
       },
       settings: { reducedMotion: false },
       migrated: [],
@@ -85,9 +91,10 @@ window.RPGWallet = (function () {
     w.cosmetics.owned = owned;
     if (!w.cosmetics.active || typeof w.cosmetics.active !== 'object' || Array.isArray(w.cosmetics.active)) w.cosmetics.active = {};
     const A = w.cosmetics.active;
-    ['border', 'badge', 'theme', 'victory'].forEach(cat => {
+    ['border', 'badge', 'theme', 'victory', 'skin'].forEach(cat => {
       const id = A[cat], it = byId(id);
       const fallback = cat === 'theme' ? DEFAULT_THEME : cat === 'victory' ? DEFAULT_VICTORY : null;
+      if (!id) { A[cat] = fallback; return; }
       if (!it || it.cat !== cat) { A[cat] = fallback; return; }
       if (it.price > 0 && !owned.includes(id)) A[cat] = fallback;  // aktivní jen co vlastním
     });
@@ -235,7 +242,7 @@ window.RPGWallet = (function () {
     // vlastněná kosmetika: sjednocení
     local.cosmetics.owned = [...new Set([...local.cosmetics.owned, ...r.cosmetics.owned])];
     // aktivní kosmetika: převezmi vzdálenou volbu, pokud ji teď vlastníme
-    ['border', 'badge', 'theme', 'victory'].forEach(cat => {
+    ['border', 'badge', 'theme', 'victory', 'skin'].forEach(cat => {
       const rid = r.cosmetics.active[cat], it = byId(rid);
       if (it && it.cat === cat && (it.price === 0 || local.cosmetics.owned.includes(rid))) local.cosmetics.active[cat] = rid;
     });

@@ -611,6 +611,7 @@ html[data-theme="violet"]{--gold:#b06cff;--panel:#100a20;--panel2:#18103a;--blue
   <button class="shop-tab" onclick="setShopCat('badge',this)">🏷 Jméno</button>
   <button class="shop-tab" onclick="setShopCat('theme',this)">🎨 Téma</button>
   <button class="shop-tab" onclick="setShopCat('victory',this)">🎉 Vítězství</button>
+  <button class="shop-tab" onclick="setShopCat('skin',this)">🥷 Skin</button>
   <button class="shop-tab" onclick="setShopCat('powerup',this)">⚡ Powerupy</button>
  </div>
  <div class="shop-grid" id="shop-grid"></div>
@@ -1560,6 +1561,8 @@ function applyCosmetics(){
  if(bg){nm&&nm.classList.add(bg.cssKey);mnm&&mnm.classList.add(bg.cssKey);}
  const th=SHOP_ITEMS.find(i=>i.id===cos.active?.theme&&i.cat==='theme');
  document.documentElement.dataset.theme=th&&th.cssKey?th.cssKey:'';
+ const spMod=window.RPGSprites9||window.RPGSprites8||window.RPGSprites7||window.RPGSprites6;
+ if(spMod&&typeof spMod.setSkin==='function')spMod.setSkin(cos.active?.skin||null);
  _updateCreditsUI();
  renderShop();
 }
