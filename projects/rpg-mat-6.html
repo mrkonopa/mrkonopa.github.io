@@ -1521,6 +1521,15 @@ function evalAch(ev){
 }
 let _achQ=[],_achBusy=false;
 function achToast(a){_achQ.push(a);if(!_achBusy)_achNext();}
+// nudge na Věž legend po dokončení mise (jednou za session)
+let _towerHintShown=false;
+function suggestTower(){
+ if(document.getElementById('tower-suggest'))return;
+ const t=document.createElement('div');t.className='ach-toast';t.id='tower-suggest';
+ t.innerHTML=`<div class="ach-toast-ic">🗼</div><div style="flex:1"><div class="ach-toast-h">NOVÁ VÝZVA</div><div class="ach-toast-n">Vyzkoušej Věž legend!</div></div><button class="btn sm" style="flex:none;margin-left:6px" onclick="this.closest('.ach-toast').remove();go('tower')">Do věže →</button>`;
+ document.body.appendChild(t);void t.offsetWidth;t.classList.add('show');
+ setTimeout(()=>{const e=document.getElementById('tower-suggest');if(!e)return;e.classList.remove('show');setTimeout(()=>e.remove(),360);},6500);
+}
 function _achNext(){
  if(!_achQ.length){_achBusy=false;return;}
  _achBusy=true;const a=_achQ.shift();
@@ -2445,6 +2454,7 @@ function checkMissionComplete(){
  document.querySelectorAll('#yn-row button').forEach(b=>b.disabled=true);
  if(!S.creditsClaimed)S.creditsClaimed={};
  if(!S.creditsClaimed[BT.mid]){S.creditsClaimed[BT.mid]=true;earnCredits(15);}
+ if(!_towerHintShown&&!isAreaDone(ar)){_towerHintShown=true;setTimeout(suggestTower,2400);}
  // boss poražen — vítězná sekvence (synchro s defeat animací)
  setTimeout(victoryBurst,650);
  evalAch({flawlessMission:!BT.missionHinted,wonAtOneHp:BT.hp===1});

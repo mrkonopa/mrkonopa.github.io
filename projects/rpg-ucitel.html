@@ -131,6 +131,7 @@ h4{font-family:var(--px);font-size:12px;font-weight:700;color:var(--accent);lett
    <button class="tab" data-tab="feedback">ZPĚTNÁ VAZBA</button>
    <button class="tab" data-tab="preview">NÁHLED HER</button>
    <button class="tab hidden" id="tab-teachers" data-tab="teachers">SPRÁVA UČITELŮ</button>
+   <button class="tab hidden" id="tab-audit" data-tab="audit">📜 AKTIVITA</button>
   </div>
 
   <!-- PŘEHLED -->
@@ -150,6 +151,7 @@ h4{font-family:var(--px);font-size:12px;font-weight:700;color:var(--accent);lett
     <select id="fclass" aria-label="Filtr podle třídy" onchange="renderTable()">
      <option value="">Všechny třídy</option>
     </select>
+    <label style="display:flex;align-items:center;gap:5px;font-size:12px;color:var(--muted);white-space:nowrap"><input type="checkbox" id="hide-staff" checked onchange="renderTable()"> Skrýt učitele</label>
     <button class="mini" onclick="exportCSV()">⬇ Export CSV</button>
     <button class="mini" onclick="loadData()">↻ Obnovit</button>
    </div>
@@ -302,6 +304,15 @@ h4{font-family:var(--px);font-size:12px;font-weight:700;color:var(--accent);lett
    <div id="teachers-wrap"><div class="empty">Načítám…</div></div>
   </div>
 
+  <div id="t-audit" class="hidden">
+   <div class="info-box">📜 <b>Aktivita učitelů</b> — co kdy který učitel/superadmin udělal: XP, kredity, odemčení, mazání, vzkazy, role, třídy, archiv. Vidí jen superadmin.</div>
+   <div class="controls">
+    <input id="audit-search" aria-label="Filtr aktivity" placeholder="🔍 filtruj podle e-mailu, akce…" oninput="renderAuditList()">
+    <button class="mini" onclick="loadAudit()">↻ Obnovit</button>
+   </div>
+   <div id="audit-wrap"><div class="empty">Načítám…</div></div>
+  </div>
+
   <div class="note" id="role-note"></div>
  </div>
 </div>
@@ -369,7 +380,8 @@ const gMeta=k=>GAMES.find(g=>g.key===k)||{emoji:'❓',nm:k,gr:'',accent:'#888'};
 let ROWS=[];   // všechny postavy
 let STAFF_EMAILS=new Set(); // e-maily učitelů/superadminů (lowercase) — nepatří mezi žáky
 let SNAP_DATA={}; // game → [{user_id,snapped_at,errs}]
-let CLASSES=[];       // [{id,name,…}]
+let CLASSES=[];       // [{id,name,…,archived}]
+function activeClasses(){return (CLASSES||[]).filter(c=>!c.archived);}
 let MEMBERSHIPS=[];   // [{class_id,user_id}]
 // user_id → Set(class_id)
 function classesOfUser(uid){const s=new Set();MEMBERSHIPS.forEach(m=>{if(m.user_id===uid)s.add(m.class_id);});return s;}
@@ -469,6 +481,7 @@ function paintGate(){
  gate.classList.add('hidden');con.classList.remove('hidden');
  const admin=RPGCloud.isAdmin();
  document.getElementById('tab-teachers').classList.toggle('hidden',!admin);
+ document.getElementById('tab-audit').classList.toggle('hidden',!admin);
  document.getElementById('role-note').innerHTML=
   'Přihlášen jako <b style="color:#fff">'+esc(u.email||'')+'</b> · role <b style="color:var(--accent)">'+esc(RPGCloud.getRole())+'</b>'+
   (admin?' — máš plná práva (mazání, úpravy, správa učitelů).':' — vidíš přehled a náhledy. Mazat/upravovat smí superadmin.');
@@ -539,7 +552,7 @@ function fillClassFilter(){
  const sel=document.getElementById('fclass');if(!sel)return;
  const cur=sel.value;
  sel.innerHTML='<option value="">Všechny třídy</option>'+
-  CLASSES.map(c=>'<option value="'+c.id+'">🏫 '+esc(classLabel(c))+'</option>').join('');
+  activeClasses().map(c=>'<option value="'+c.id+'">🏫 '+esc(classLabel(c))+'</option>').join('');
  sel.value=cur;
 }
 function renderStats(){
@@ -558,8 +571,10 @@ function filtered(){
  const fg=document.getElementById('fgame').value;
  const fc=document.getElementById('fclass')?document.getElementById('fclass').value:'';
  const members=fc?membersOfClass(fc):null;
+ const hideStaff=document.getElementById('hide-staff')?document.getElementById('hide-staff').checked:true;
  return ROWS.filter(r=>{
   if(fg&&r.game!==fg)return false;
+  if(hideStaff&&r.email&&STAFF_EMAILS.has(r.email.toLowerCase()))return false;
   if(members&&!members.has(r.user_id))return false;
   if(q){const hay=((r.full_name||'')+' '+(r.email||'')+' '+((r.data&&r.data.name)||'')).toLowerCase();if(!hay.includes(q))return false;}
   return true;
@@ -728,6 +743,7 @@ async function bulkUnlock(){
   if(res.ok){r.data=d;okN++;}else errN++;
  }
  toast('🔓 '+mid+' odemčeno '+okN+'×'+(errN?' ('+errN+' chyb)':''),errN>0);
+ RPGCloud.logAction('bulk_unlock',{game:[...games][0],detail:{mid:mid,count:okN}});
  renderTable();
 }
 async function bulkAwardXp(){
@@ -743,6 +759,7 @@ async function bulkAwardXp(){
   if(res.ok){r.data=d;okN++;}else errN++;
  }
  toast((delta>=0?'+':'')+delta+' XP přidáno '+okN+'×'+(errN?' ('+errN+' chyb)':''),errN>0);
+ RPGCloud.logAction('bulk_xp',{game:rows[0]&&rows[0].game,detail:{delta:delta,count:okN}});
  renderStats();renderTable();
 }
 async function bulkDelete(){
@@ -755,6 +772,7 @@ async function bulkDelete(){
  }
  SEL.clear();
  toast('🗑 smazáno '+okN+' postav'+(errN?' ('+errN+' chyb)':''),errN>0);
+ RPGCloud.logAction('bulk_del',{detail:{count:okN}});
  await loadData();
 }
 
@@ -789,7 +807,7 @@ async function grantUnlock(i){
  if(d.teacherUnlocked.includes(mid)){toast('Mise je už odemčená.',1);return;}
  d.teacherUnlocked.push(mid);
  const res=await RPGCloud.updateSaveFor(r.user_id,r.game,d);
- if(res.ok){r.data=d;toast('Mise '+mid+' odemčena 🔓');openDetail(i);}
+ if(res.ok){r.data=d;toast('Mise '+mid+' odemčena 🔓');RPGCloud.logAction('unlock',{target:r.user_id,targetEmail:r.email,game:r.game,detail:{mid:mid}});openDetail(i);}
  else toast('Chyba: '+res.error,1);
 }
 async function revokeUnlock(i,mid){
@@ -797,7 +815,7 @@ async function revokeUnlock(i,mid){
  const d=Object.assign({},r.data||{});
  d.teacherUnlocked=(Array.isArray(d.teacherUnlocked)?d.teacherUnlocked:[]).filter(x=>x!==mid);
  const res=await RPGCloud.updateSaveFor(r.user_id,r.game,d);
- if(res.ok){r.data=d;toast('Odemčení '+mid+' zrušeno');openDetail(i);}
+ if(res.ok){r.data=d;toast('Odemčení '+mid+' zrušeno');RPGCloud.logAction('unlock',{target:r.user_id,targetEmail:r.email,game:r.game,detail:{mid:mid,revoke:true}});openDetail(i);}
  else toast('Chyba: '+res.error,1);
 }
 
@@ -846,9 +864,9 @@ function openDetail(i){
  if(admin){
   admHtml=
    '<h4>Odměny a úpravy (superadmin)</h4>'+
-   '<div class="actrow"><input type="number" id="adj-xp" placeholder="±XP" value="100"><button class="mini gold" onclick="giveXP('+i+')">⭐ Přidat XP</button>'+
+   '<div class="actrow"><input type="number" id="adj-xp" placeholder="XP" value="100"><button class="mini gold" onclick="giveXP('+i+',1)">⭐ Přidat</button><button class="mini red" onclick="giveXP('+i+',-1)">➖ Odebrat</button>'+
      '<span style="font-size:11px;color:var(--muted)">level se dopočítá z XP</span></div>'+
-   '<div class="actrow"><input type="number" id="adj-cr" placeholder="±kredity" value="50"><button class="mini gold" onclick="giveCredits('+i+')">💰 Přidat kredity</button>'+
+   '<div class="actrow"><input type="number" id="adj-cr" placeholder="kredity" value="50"><button class="mini gold" onclick="giveCredits('+i+',1)">💰 Přidat</button><button class="mini red" onclick="giveCredits('+i+',-1)">➖ Odebrat</button>'+
      '<span style="font-size:11px;color:var(--muted)">peněženka žáka (musí mít alespoň 1 přihlášení)</span></div>'+
    '<div class="actrow"><button class="mini red" onclick="delChar('+i+')">🗑 Smazat celou postavu</button></div>';
  }
@@ -898,45 +916,47 @@ async function addNoteUI(i){
  const body=document.getElementById('note-body').value.trim();
  if(!body){toast('Napiš text poznámky.',1);return;}
  const res=await RPGCloud.addNote(r.user_id,body);
- if(res.ok){document.getElementById('note-body').value='';toast('Poznámka přidána');loadNotes(r.user_id);}
+ if(res.ok){document.getElementById('note-body').value='';toast('Poznámka přidána');RPGCloud.logAction('note',{target:r.user_id,targetEmail:r.email,detail:{text:body}});loadNotes(r.user_id);}
  else toast('Chyba: '+res.error,1);
 }
 async function delNoteUI(noteId,uid){
  const res=await RPGCloud.deleteNote(noteId);
- if(res.ok){toast('Poznámka smazána');loadNotes(uid);}
+ if(res.ok){toast('Poznámka smazána');RPGCloud.logAction('note',{target:uid,detail:{del:true}});loadNotes(uid);}
  else toast('Chyba: '+res.error,1);
 }
 function closeModal(){document.getElementById('ovl').classList.remove('show');}
 document.getElementById('ovl').addEventListener('click',e=>{if(e.target.id==='ovl')closeModal();});
 
-async function giveXP(i){
+async function giveXP(i,sign){
  const r=window.__filtered[i];if(!r)return;
- const delta=parseInt(document.getElementById('adj-xp').value,10);
+ let delta=parseInt(document.getElementById('adj-xp').value,10);
  if(isNaN(delta)){toast('Zadej číslo.',1);return;}
+ delta=Math.abs(delta)*(sign||1);
  const d=Object.assign({},r.data||{});
  d.xp=Math.max(0,(d.xp||0)+delta);
  d.level=Math.floor(d.xp/100)+1;
  const res=await RPGCloud.updateSaveFor(r.user_id,r.game,d);
- if(res.ok){r.data=d;toast((delta>=0?'+':'')+delta+' XP přidáno');renderStats();renderTable();openDetail(i);}
+ if(res.ok){r.data=d;toast((delta>=0?'+':'')+delta+' XP');RPGCloud.logAction('give_xp',{target:r.user_id,targetEmail:r.email,game:r.game,detail:{delta:delta}});renderStats();renderTable();openDetail(i);}
  else toast('Chyba: '+res.error,1);
 }
-async function giveCredits(i){
+async function giveCredits(i,sign){
  const r=window.__filtered[i];if(!r)return;
- const delta=parseInt(document.getElementById('adj-cr').value,10);
+ let delta=parseInt(document.getElementById('adj-cr').value,10);
  if(isNaN(delta)){toast('Zadej číslo.',1);return;}
+ delta=Math.abs(delta)*(sign||1);
  const w=await RPGCloud.pullSaveFor(r.user_id,'_wallet');
  if(!w){toast('Žák nemá peněženku — musí se alespoň jednou přihlásit do hry.',1);return;}
  const d=Object.assign({},w);
  d.credits=Math.max(0,(d.credits||0)+delta);
  const res=await RPGCloud.updateSaveFor(r.user_id,'_wallet',d);
- if(res.ok){toast((delta>=0?'+':'')+delta+' kreditů přidáno');}
+ if(res.ok){toast((delta>=0?'+':'')+delta+' kreditů');RPGCloud.logAction('give_credits',{target:r.user_id,targetEmail:r.email,game:r.game,detail:{delta:delta}});}
  else toast('Chyba: '+res.error,1);
 }
 async function delChar(i){
  const r=window.__filtered?window.__filtered[i]:null;if(!r)return;
  if(!confirm('Smazat postavu „'+((r.data&&r.data.name)||'')+'" žáka '+(r.email||'')+'?\nTohle nejde vrátit.'))return;
  const res=await RPGCloud.deleteSaveFor(r.user_id,r.game);
- if(res.ok){toast('Postava smazána');closeModal();loadData();}
+ if(res.ok){toast('Postava smazána');RPGCloud.logAction('del_char',{target:r.user_id,targetEmail:r.email,game:r.game,detail:{name:(r.data&&r.data.name)||''}});closeModal();loadData();}
  else toast('Chyba: '+res.error,1);
 }
 
@@ -972,17 +992,52 @@ async function loadTeachers(){
  });
  html+='</tbody></table>';w.innerHTML=html;
 }
+
+/* ── audit log (superadmin) ── */
+const AUDIT_ACTIONS={give_xp:'⭐ XP',give_credits:'💰 Kredity',del_char:'🗑 Smazání postavy',class_xp:'⭐ XP třídě',unlock:'🔓 Odemčení mise',class_unlock:'🔓 Odemčení (třída)',note:'📨 Vzkaz',broadcast:'📨 Hromadný vzkaz',role_add:'👤 Role přidána',role_del:'👤 Role odebrána',class_create:'🏫 Třída vytvořena',class_rename:'🏫 Třída přejmenována',class_del:'🏫 Třída smazána',class_meta:'🏫 Třída upravena',class_add:'➕ Žák do třídy',class_remove:'➖ Žák z třídy',archive:'📦 Archivace třídy',unarchive:'📦 Obnova třídy',bulk_xp:'⭐ Hromadné XP',bulk_unlock:'🔓 Hromadné odemčení',bulk_del:'🗑 Hromadné smazání',tower_close:'🗼 Uzávěrka věže'};
+function auditLabel(a){return AUDIT_ACTIONS[a]||a;}
+let AUDIT_ROWS=[];
+async function loadAudit(){
+ const w=document.getElementById('audit-wrap');if(w)w.innerHTML='<div class="empty">Načítám…</div>';
+ AUDIT_ROWS=await RPGCloud.listAuditLog({limit:300});
+ renderAuditList();
+}
+function fmtDetail(d){
+ if(!d||typeof d!=='object')return '';
+ const p=[];
+ if(d.delta!=null)p.push((d.delta>=0?'+':'')+d.delta);
+ if(d.mid)p.push('mise '+d.mid);
+ if(d.count!=null)p.push(d.count+'×');
+ if(d.name)p.push('„'+d.name+'"');
+ if(d.role)p.push('→ '+d.role);
+ if(d.text)p.push('„'+String(d.text).slice(0,70)+'"');
+ return p.join(' · ');
+}
+function renderAuditList(){
+ const w=document.getElementById('audit-wrap');if(!w)return;
+ const q=(document.getElementById('audit-search')?document.getElementById('audit-search').value:'').trim().toLowerCase();
+ let rows=AUDIT_ROWS||[];
+ if(q)rows=rows.filter(r=>((r.actor_email||'')+' '+auditLabel(r.action)+' '+(r.action||'')+' '+(r.target_email||'')+' '+JSON.stringify(r.detail||{})).toLowerCase().includes(q));
+ if(!rows.length){w.innerHTML='<div class="empty">— žádná aktivita —</div>';return;}
+ w.innerHTML='<table class="tbl"><thead><tr><th>Kdy</th><th>Učitel</th><th>Akce</th><th>Žák</th><th>Detail</th></tr></thead><tbody>'+
+  rows.map(r=>'<tr><td class="em" style="white-space:nowrap">'+esc(new Date(r.created_at).toLocaleString('cs-CZ'))+'</td>'+
+   '<td>'+esc(r.actor_email||'—')+'</td>'+
+   '<td>'+esc(auditLabel(r.action))+(r.game?' <span class="em">'+esc(String(r.game).replace('RPG_MAT_','g'))+'</span>':'')+'</td>'+
+   '<td>'+esc(r.target_email||'—')+'</td>'+
+   '<td style="font-size:12px">'+esc(fmtDetail(r.detail))+'</td></tr>').join('')+
+  '</tbody></table>';
+}
 async function addTeacher(){
  const email=document.getElementById('new-email').value.trim();
  const role=document.getElementById('new-role').value;
  const res=await RPGCloud.upsertRole(email,role);
- if(res.ok){toast('Učitel přidán');document.getElementById('new-email').value='';loadTeachers();}
+ if(res.ok){toast('Učitel přidán');RPGCloud.logAction('role_add',{targetEmail:email,detail:{role:role}});document.getElementById('new-email').value='';loadTeachers();}
  else toast('Chyba: '+res.error,1);
 }
 async function delTeacher(email){
  if(!confirm('Odebrat roli '+email+'?'))return;
  const res=await RPGCloud.deleteRole(email);
- if(res.ok){toast('Role odebrána');loadTeachers();}
+ if(res.ok){toast('Role odebrána');RPGCloud.logAction('role_del',{targetEmail:email});loadTeachers();}
  else toast('Chyba: '+res.error,1);
 }
 
@@ -1001,6 +1056,7 @@ async function createClassUI(){
  const res=await RPGCloud.createClass(name,meta);
  if(res.ok){
   toast('Třída založena');
+  RPGCloud.logAction('class_create',{detail:{name:name}});
   document.getElementById('new-class').value='';
   document.getElementById('new-section').value='';
   document.getElementById('new-grade').value='';
@@ -1022,7 +1078,7 @@ async function editCohortUI(id){
   if(sec!=null)meta.section=sec;
  }
  const res=await RPGCloud.updateClassMeta(id,meta);
- if(res.ok){toast('Kohorta upravena');await loadClasses();renderClasses();renderTable();}
+ if(res.ok){toast('Kohorta upravena');RPGCloud.logAction('class_meta',{detail:{class:id}});await loadClasses();renderClasses();renderTable();}
  else toast('Chyba: '+res.error,1);
 }
 async function renameClassUI(id){
@@ -1030,21 +1086,21 @@ async function renameClassUI(id){
  const name=prompt('Nový název třídy:',c?c.name:'');
  if(name==null)return;
  const res=await RPGCloud.renameClass(id,name);
- if(res.ok){toast('Přejmenováno');await loadClasses();renderClasses();}
+ if(res.ok){toast('Přejmenováno');RPGCloud.logAction('class_rename',{detail:{class:id,name:name}});await loadClasses();renderClasses();}
  else toast('Chyba: '+res.error,1);
 }
 async function deleteClassUI(id){
  const c=CLASSES.find(x=>x.id===id);
  if(!confirm('Smazat třídu „'+(c?c.name:'')+'"? Žáci zůstanou, jen se zruší zařazení.'))return;
  const res=await RPGCloud.deleteClass(id);
- if(res.ok){toast('Třída smazána');await loadClasses();renderClasses();renderTable();}
+ if(res.ok){toast('Třída smazána');RPGCloud.logAction('class_del',{detail:{class:id,name:(c?c.name:'')}});await loadClasses();renderClasses();renderTable();}
  else toast('Chyba: '+res.error,1);
 }
 let OPEN_CLASS=null; // id rozbalené třídy (správa žáků)
 function toggleRoster(id){OPEN_CLASS=OPEN_CLASS===id?null:id;renderClasses();}
 async function toggleMember(classId,uid,on){
  const res=on?await RPGCloud.addToClass(classId,uid):await RPGCloud.removeFromClass(classId,uid);
- if(res.ok){await loadClasses();renderClasses();renderTable();}
+ if(res.ok){RPGCloud.logAction(on?'class_add':'class_remove',{target:uid,detail:{class:classId}});await loadClasses();renderClasses();renderTable();}
  else toast('Chyba: '+res.error,1);
 }
 // postavy žáků dané třídy (napříč hrami)
@@ -1056,6 +1112,7 @@ async function classAwardXp(cid){
  let okN=0,errN=0;
  for(const r of rows){const d=Object.assign({},r.data||{});d.xp=Math.max(0,(d.xp||0)+delta);d.level=Math.floor(d.xp/100)+1;const res=await RPGCloud.updateSaveFor(r.user_id,r.game,d);if(res.ok){r.data=d;okN++;}else errN++;}
  toast((delta>=0?'+':'')+delta+' XP · '+okN+' postav'+(errN?' ('+errN+' chyb)':''),errN>0);
+ RPGCloud.logAction('class_xp',{game:rows[0]&&rows[0].game,detail:{delta:delta,count:okN,class:cid}});
  renderStats();renderTable();
 }
 async function classUnlock(cid){
@@ -1067,6 +1124,7 @@ async function classUnlock(cid){
  let okN=0,errN=0;
  for(const r of rows){const d=Object.assign({},r.data||{});d.teacherUnlocked=Array.isArray(d.teacherUnlocked)?d.teacherUnlocked.slice():[];if(!d.teacherUnlocked.includes(mid))d.teacherUnlocked.push(mid);const res=await RPGCloud.updateSaveFor(r.user_id,r.game,d);if(res.ok){r.data=d;okN++;}else errN++;}
  toast('🔓 '+mid+' odemčeno '+okN+'×'+(errN?' ('+errN+' chyb)':''),errN>0);
+ RPGCloud.logAction('class_unlock',{game:gameKey,detail:{mid:mid,count:okN,class:cid}});
  renderTable();
 }
 async function classDeleteChars(cid){
@@ -1084,6 +1142,7 @@ async function classNote(cid){
  let okN=0,errN=0;
  for(const uid of mem){const res=await RPGCloud.addNote(uid,body,batch);if(res&&!res.error)okN++;else errN++;}
  toast('📨 vzkaz odeslán '+okN+' žákům'+(errN?' ('+errN+' chyb)':''),errN>0);
+ RPGCloud.logAction('broadcast',{detail:{class:cid,count:okN,text:body}});
  if(inp)inp.value='';
  if(typeof renderBroadcasts==='function')renderBroadcasts();
 }
@@ -1128,7 +1187,7 @@ function renderClasses(){
  const students=studentsDistinct();
  const admin=RPGCloud.isAdmin();
  let html='';
- CLASSES.forEach(c=>{
+ activeClasses().forEach(c=>{
   const mem=membersOfClass(c.id);
   const open=OPEN_CLASS===c.id;
   const grade=gradeOfCohort(c.cohort_start_year);
@@ -1145,6 +1204,7 @@ function renderClasses(){
      '<button class="mini gold" onclick="toggleRoster(\''+esc(c.id)+'\')">'+(open?'▲ hotovo':'👥 spravovat žáky')+'</button>'+
      '<button class="mini" onclick="editCohortUI(\''+esc(c.id)+'\')" title="ročník / automatický posun">📈</button>'+
      '<button class="mini" onclick="renameClassUI(\''+esc(c.id)+'\')" title="přejmenovat">✎</button>'+
+     '<button class="mini" onclick="archiveClassUI(\''+esc(c.id)+'\',true)" title="archivovat">📦</button>'+
      '<button class="mini red" onclick="deleteClassUI(\''+esc(c.id)+'\')">🗑</button>'+
     '</div>'+
    '</div>';
@@ -1185,7 +1245,29 @@ function renderClasses(){
   }
   html+='</div>';
  });
+ const arch=(CLASSES||[]).filter(c=>c.archived);
+ if(arch.length){
+  html+='<div style="margin-top:18px;border-top:1px solid var(--line);padding-top:12px"><div style="color:var(--muted);font-size:13px;font-weight:700;margin-bottom:8px">📦 Archiv ('+arch.length+')</div>';
+  arch.forEach(c=>{
+   const mem=membersOfClass(c.id);
+   html+='<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:var(--panel);border:1px dashed var(--line);border-radius:8px;padding:8px 14px;margin-bottom:6px;opacity:.85">'+
+    '<span style="font-size:16px">📦</span><b style="color:var(--muted)">'+esc(classLabel(c))+'</b>'+
+    '<span class="tag" style="background:var(--line)">'+mem.size+' žáků</span>'+
+    '<div style="margin-left:auto;display:flex;gap:6px">'+
+     '<button class="mini gold" onclick="archiveClassUI(\''+esc(c.id)+'\',false)">♻ Obnovit</button>'+
+     (admin?'<button class="mini red" onclick="deleteClassUI(\''+esc(c.id)+'\')">🗑</button>':'')+
+    '</div></div>';
+  });
+  html+='</div>';
+ }
  w.innerHTML=html;
+}
+async function archiveClassUI(id,on){
+ const c=CLASSES.find(x=>x.id===id);
+ if(on&&!confirm('Archivovat třídu „'+(c?classLabel(c):'')+'"?\nŽáci a jejich postavy zůstanou, třída jen zmizí z aktivních seznamů a filtrů. Kdykoli ji obnovíš.'))return;
+ const res=await RPGCloud.updateClassMeta(id,{archived:on});
+ if(res.ok){toast(on?'Třída archivována 📦':'Třída obnovena ♻');RPGCloud.logAction(on?'archive':'unarchive',{detail:{class:id,name:(c?c.name:'')}});await loadClasses();renderClasses();renderTable();}
+ else toast('Chyba: '+res.error,1);
 }
 
 /* ── diagnostika: heatmapa chybovosti misí ── */
@@ -1194,7 +1276,7 @@ function renderDiag(){
  if(sel.options.length===0){GAMES.forEach(g=>{const o=document.createElement('option');o.value=g.key;o.textContent=g.emoji+' '+g.gr;sel.appendChild(o);});}
  const game=sel.value||GAMES[0].key;sel.value=game;
  const csel=document.getElementById('diag-class');
- if(csel){const cur=csel.value;csel.innerHTML='<option value="">Všechny třídy</option>'+CLASSES.map(c=>'<option value="'+c.id+'">🏫 '+esc(classLabel(c))+'</option>').join('');csel.value=cur;}
+ if(csel){const cur=csel.value;csel.innerHTML='<option value="">Všechny třídy</option>'+activeClasses().map(c=>'<option value="'+c.id+'">🏫 '+esc(classLabel(c))+'</option>').join('');csel.value=cur;}
  const fc=csel?csel.value:'';const members=fc?membersOfClass(fc):null;
  const rows=ROWS.filter(r=>r.game===game&&(!members||members.has(r.user_id)));
  const miss=missionsFor(game);
@@ -1282,7 +1364,7 @@ function initExplainTab(){
   // populate class filter
   const cs=document.getElementById('expl-class');
   cs.innerHTML='<option value="">Všechny třídy</option>';
-  (CLASSES||[]).forEach(c=>{const o=document.createElement('option');o.value=c.id;o.textContent=classLabel(c);cs.appendChild(o);});
+  activeClasses().forEach(c=>{const o=document.createElement('option');o.value=c.id;o.textContent=classLabel(c);cs.appendChild(o);});
   // populate mission filter dle zvoleného ročníku
   fillExplMissions();
   explInited=true;
@@ -1400,7 +1482,7 @@ function initLeaderboardTab(){
   GAMES.forEach(g=>{const o=document.createElement('option');o.value=g.key;o.textContent=g.emoji+' '+g.nm+' ('+g.gr+')';gs.appendChild(o);});
   gs.value='RPG_MAT_9';
   const cs=document.getElementById('lb-class');cs.innerHTML='<option value="">Celý ročník</option>';
-  (CLASSES||[]).forEach(c=>{const o=document.createElement('option');o.value=c.id;o.textContent=classLabel(c);cs.appendChild(o);});
+  activeClasses().forEach(c=>{const o=document.createElement('option');o.value=c.id;o.textContent=classLabel(c);cs.appendChild(o);});
   lbInited=true;
  }
  renderLeaderboardTab();
@@ -1476,7 +1558,7 @@ async function closeSeasonUI(){
  const g=GAMES.find(x=>x.key===game)||{nm:game};
  if(!confirm('Uzavřít sezónu věže legend pro: '+g.nm+'?\n\nTop 10 aktuální sezóny se natrvalo zapíše do síně slávy. Dřívější zápis téže sezóny se přepíše aktuálním stavem.'))return;
  const r=await RPGCloud.towerCloseSeason(game);
- if(r.ok){toast('Sezóna uzavřena — do síně slávy zapsáno '+r.count+' jmen');renderTower();}
+ if(r.ok){toast('Sezóna uzavřena — do síně slávy zapsáno '+r.count+' jmen');RPGCloud.logAction('tower_close',{game:game,detail:{count:r.count}});renderTower();}
  else toast('Chyba: '+r.error,1);
 }
 async function deleteTowerRunUI(i){
@@ -1569,8 +1651,10 @@ document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
  document.getElementById('t-explain').classList.toggle('hidden',tab!=='explain');
  document.getElementById('t-feedback').classList.toggle('hidden',tab!=='feedback');
  document.getElementById('t-teachers').classList.toggle('hidden',tab!=='teachers');
+ document.getElementById('t-audit').classList.toggle('hidden',tab!=='audit');
  if(tab==='classes'){renderClasses();renderBroadcasts();}
  if(tab==='teachers')loadTeachers();
+ if(tab==='audit')loadAudit();
  if(tab==='diag')renderDiag();
  if(tab==='leaderboard')initLeaderboardTab();
  if(tab==='tower')renderTower();
