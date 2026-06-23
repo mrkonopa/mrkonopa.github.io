@@ -69,7 +69,7 @@ window.RPG_LEARN_6 = {
   { q: 'Čtverec se stranou 6 cm. Obvod a obsah?', s: ['o = 4 · 6 = <b>24 cm</b>', 'S = 6² = <b>36 cm²</b>'] },
   { q: 'Převeď 3,5 dm² na cm²', s: ['1 dm² = 100 cm²', '3,5 · 100 = <b>350 cm²</b>'] },
  ],
- video: null,
+ video: { id: 'GcR_xKAu5kQ', title: 'Obvod a obsah čtverce a obdélníku' },
 },
 
 '1-3': {
@@ -392,7 +392,7 @@ window.RPG_LEARN_6 = {
   { q: 'Obraz bodu [−2 ; 5] podle osy x', s: ['Změní se znaménko y', 'Výsledek: <b>[−2 ; −5]</b>'] },
   { q: 'Obraz bodu [−3 ; −4] podle osy y', s: ['−(−3) = +3', 'Výsledek: <b>[3 ; −4]</b>'] },
  ],
- video: null,
+ video: { id: 'Yp5u-LyQUXQ', title: 'Osová souměrnost' },
 },
 
 '5-3': {

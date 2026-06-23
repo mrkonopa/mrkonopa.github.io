@@ -106,7 +106,7 @@ window.RPG_LEARN_7 = {
   { q: 'Trojúhelník má základnu 12 cm a výšku na ni 7 cm. Obsah?', s: ['S = (12 × 7) / 2 = 84 / 2 = <b>42 cm²</b>'] },
   { q: 'Převeď: 2,5 m² = ? cm²', s: ['1 m² = 10 000 cm²', '2,5 × 10 000 = <b>25 000 cm²</b>'] },
  ],
- video: null,
+ video: { id: 'GcR_xKAu5kQ', title: 'Obvod a obsah čtverce a obdélníku' },
 },
 
 /* ─── Oblast 2: SÍŇ ZLOMKŮ ───────────────────────────────────── */
@@ -517,7 +517,7 @@ window.RPG_LEARN_7 = {
   { q: 'Bod B[5, 3] zobrazíme přes osu x. Najdi B\'.', s: ['Přes osu x: y → −y', 'B\'[<b>5, −3</b>]'] },
   { q: 'Kolik os souměrnosti má rovnoramenný (ne rovnostranný) trojúhelník?', s: ['Jen osa procházející vrcholem mezi shodnými rameny', '→ <b>1 osa</b>'] },
  ],
- video: null,
+ video: { id: 'Yp5u-LyQUXQ', title: 'Osová souměrnost' },
 },
 
 '6-2': {
