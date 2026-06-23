@@ -36,113 +36,161 @@ window.RPGSprites9 = (function () {
   function setSkin(key) { activeSkin = HERO_SKINS[key] ? key : null; }
   function heroPal() { return activeSkin ? Object.assign({}, PAL_HERO, HERO_SKINS[activeSkin]) : PAL_HERO; }
 
-  /* ── hrdina (14×16, kouká doprava) ── */
+  /* ── hrdina (18×24, kybernetický rytíř — kouká doprava) ── */
   const HERO_IDLE = [[
-    '....KKKKK.....',
-    '...KJJJJJK....',
-    '..KJJJJJJJK...',
-    '..KJCCCCCJK...',
-    '..KJcccccJK...',
-    '...KJJJJJK....',
-    '..KGJJJJJGK...',
-    '.KJJJJJJJJJK..',
-    '.KJjJJJJJjJK..',
-    '.KJjJJJJJjJK..',
-    '..KjJJJJJjK...',
-    '...KjJJJjK....',
-    '...KBJ.JBK....',
-    '...KB...BK....',
-    '...KB...BK....',
-    '..KBB...BBK...'
+    '......KK..........',
+    '.....KYYK.........',
+    '....KKJJKK...KWK..',
+    '....KJJJJK...KWK..',
+    '...KJJWJJjK..KWK..',
+    '...KJJJJJJK..KWK..',
+    '...KKcKKcKK..KWK..',
+    '...KJCJJCJK..KWK..',
+    '...KJJJJJJK..KWK..',
+    '....KJJJJK...KWK..',
+    '...KGGGGGGK..KWK..',
+    '.KGGKJJJJKGGGKWK..',
+    'KGGGJWJJjJGGYYYYK.',
+    'KGGJjJWJjJJGGKWK..',
+    'KKGJjJJJJjJGKKKK..',
+    '.KKJjJWJjJjKK.....',
+    '..KJjJYYYYjJK.....',
+    '..KjJJJJJJjK......',
+    '..KJjJKKKjJK......',
+    '..KGJjK.KjGK......',
+    '..KGJjK.KjGK......',
+    '..KKJjK.KjKK......',
+    '..KBBBK.KBBBK.....',
+    '.KBBBBK.KBBBBK....'
   ],[
-    '..............',
-    '....KKKKK.....',
-    '...KJJJJJK....',
-    '..KJJJJJJJK...',
-    '..KJCCCCCJK...',
-    '..KJcccccJK...',
-    '...KJJJJJK....',
-    '..KGJJJJJGK...',
-    '.KJJJJJJJJJK..',
-    '.KJjJJJJJjJK..',
-    '..KjJJJJJjK...',
-    '...KjJJJjK....',
-    '...KBJ.JBK....',
-    '...KB...BK....',
-    '...KB...BK....',
-    '..KBB...BBK...'
+    '..................',
+    '......KK..........',
+    '.....KYYK.........',
+    '....KKJJKK...KWK..',
+    '....KJJJJK...KWK..',
+    '...KJJWJJjK..KWK..',
+    '...KJJJJJJK..KWK..',
+    '...KKcKKcKK..KWK..',
+    '...KJCJJCJK..KWK..',
+    '...KJJJJJJK..KWK..',
+    '....KJJJJK...KWK..',
+    '...KGGGGGGK..KWK..',
+    '.KGGKJJJJKGGGKWK..',
+    'KGGGJWJJjJGGYYYYK.',
+    'KGGJjJWJjJJGGKWK..',
+    'KKGJjJJJJjJGKKKK..',
+    '.KKJjJWJjJjKK.....',
+    '..KJjJYYYYjJK.....',
+    '..KjJJJJJJjK......',
+    '..KJjJKKKjJK......',
+    '..KGJjK.KjGK......',
+    '..KGJjK.KjGK......',
+    '..KKJjK.KjKK......',
+    '..KBBBK.KBBBK.....'
   ]];
   const HERO_SLASH = [
-    '....KKKKK.....',
-    '...KJJJJJK....',
-    '..KJJJJJJJK...',
-    '..KJCCCCCJK...',
-    '..KJcccccJK...',
-    '...KJJJJJK....',
-    '..KGJJJJJGKWW.',
-    '.KJJJJJJJJKWW.',
-    '.KJjJJJJJJKW..',
-    '.KJjJJJJJjK...',
-    '..KjJJJJJjK...',
-    '...KjJJJjK....',
-    '...KBJ.JBK....',
-    '...KB...BK....',
-    '...KB...BK....',
-    '..KBB...BBK...'
+    '......KK..........',
+    '.....KYYK.........',
+    '....KKJJKK........',
+    '....KJJJJK........',
+    '...KJJWJJjK.......',
+    '...KJJJJJJK.......',
+    '...KKcKKcKK.......',
+    '...KJCJJCJK.......',
+    '...KJJJJJJK.......',
+    '....KJJJJK........',
+    '...KGGGGGGK.......',
+    '.KGGKJJJJKGGKKKK..',
+    'KGGGJWJJjJGGYWWWWK',
+    'KGGJjJWJjJJGGKKKK.',
+    'KKGJjJJJJjJGK.....',
+    '.KKJjJWJjJjKK.....',
+    '..KJjJYYYYjJK.....',
+    '..KjJJJJJJjK......',
+    '..KJjJKKKjJK......',
+    '..KGJjK.KjGK......',
+    '..KGJjK.KjGK......',
+    '..KKJjK.KjKK......',
+    '..KBBBK.KBBBK.....',
+    '.KBBBBK.KBBBBK....'
   ];
   const HERO_CAST = [
-    '....KKKKK..C..',
-    '...KJJJJJK.CC.',
-    '..KJJJJJJJKC..',
-    '..KJCCCCCJK...',
-    '..KJcccccJKK..',
-    '...KJJJJJKJK..',
-    '..KGJJJJJGJK..',
-    '.KJJJJJJJJJK..',
-    '.KJjJJJJJjK...',
-    '.KJjJJJJJjK...',
-    '..KjJJJJJjK...',
-    '...KjJJJjK....',
-    '...KBJ.JBK....',
-    '...KB...BK....',
-    '...KB...BK....',
-    '..KBB...BBK...'
+    'C.....KK..........',
+    'CC...KYYK.........',
+    '.CC.KKJJKK...KWK..',
+    'KCK.KJJJJK...KWK..',
+    'KCKKJJWJJjK..KWK..',
+    '.KKKJJJJJJK..KWK..',
+    '...KKcKKcKK..KWK..',
+    '...KJCJJCJK..KWK..',
+    '...KJJJJJJK..KWK..',
+    '....KJJJJK...KWK..',
+    '...KGGGGGGK..KWK..',
+    '.KGGKJJJJKGGGKWK..',
+    'KGGGJWJJjJGGYYYYK.',
+    'KGGJjJWJjJJGGKWK..',
+    'KKGJjJJJJjJGKKKK..',
+    '.KKJjJWJjJjKK.....',
+    '..KJjJYYYYjJK.....',
+    '..KjJJJJJJjK......',
+    '..KJjJKKKjJK......',
+    '..KGJjK.KjGK......',
+    '..KGJjK.KjGK......',
+    '..KKJjK.KjKK......',
+    '..KBBBK.KBBBK.....',
+    '.KBBBBK.KBBBBK....'
   ];
   const HERO_SHOOT = [
-    '....KKKKK.....',
-    '...KJJJJJK....',
-    '..KJJJJJJJK...',
-    '..KJCCCCCJK...',
-    '..KJcccccJK...',
-    '...KJJJJJK....',
-    '..KGJJJJJGKKK.',
-    '.KJJJJJJJJGGK.',
-    '.KJjJJJJJJKKK.',
-    '.KJjJJJJJjK...',
-    '..KjJJJJJjK...',
-    '...KjJJJjK....',
-    '...KBJ.JBK....',
-    '...KB...BK....',
-    '...KB...BK....',
-    '..KBB...BBK...'
+    '......KK..........',
+    '.....KYYK.........',
+    '....KKJJKK........',
+    '....KJJJJK........',
+    '...KJJWJJjK.......',
+    '...KJJJJJJK.......',
+    '...KKcKKcKK.......',
+    '...KJCJJCJK.......',
+    '...KJJJJJJK.......',
+    '....KJJJJK........',
+    '...KGGGGGGK.......',
+    '.KGGKJJJJKGGKKKKK.',
+    'KGGGJWJJjJGGGGGWWW',
+    'KGGJjJWJjJJGGKKKKK',
+    'KKGJjJJJJjJGK.....',
+    '.KKJjJWJjJjKK.....',
+    '..KJjJYYYYjJK.....',
+    '..KjJJJJJJjK......',
+    '..KJjJKKKjJK......',
+    '..KGJjK.KjGK......',
+    '..KGJjK.KjGK......',
+    '..KKJjK.KjKK......',
+    '..KBBBK.KBBBK.....',
+    '.KBBBBK.KBBBBK....'
   ];
   const HERO_HIT = [
-    '....KKKKK.....',
-    '...KJJJJJK....',
-    '..KJJJJJJJK...',
-    '..KJWWWWWJK...',
-    '..KJWWWWWJK...',
-    '...KJJJJJK....',
-    '.KGJJJJJGK....',
-    'KJJJJJJJJJK...',
-    'KJjJJJJJjJK...',
-    'KJjJJJJJjJK...',
-    '.KjJJJJJjK....',
-    '..KjJJJjK.....',
-    '..KBJ.JBK.....',
-    '..KB...BK.....',
-    '..KB...BK.....',
-    '.KBB...BBK....'
+    '......KK..........',
+    '.....KJJK.........',
+    '....KKJJKK...KJK..',
+    '....KJJJJK...KJK..',
+    '...KJJJJJjK..KJK..',
+    '...KJJJJJJK..KJK..',
+    '...KKcKKcKK..KJK..',
+    '...KJCJJCJK..KJK..',
+    '...KJJJJJJK..KJK..',
+    '....KJJJJK...KJK..',
+    '...KGGGGGGK..KJK..',
+    '.KGGKJJJJKGGGKJK..',
+    'KGGGJJJJjJGGJJJJK.',
+    'KGGJjJJJjJJGGKJK..',
+    'KKGJjJJJJjJGKKKK..',
+    '.KKJjJJJjJjKK.....',
+    '..KJjJJJJJjJK.....',
+    '..KjJJJJJJjK......',
+    '..KJjJKKKjJK......',
+    '..KGJjK.KjGK......',
+    '..KGJjK.KjGK......',
+    '..KKJjK.KjKK......',
+    '..KBBBK.KBBBK.....',
+    '.KBBBBK.KBBBBK....'
   ];
 
   /* ── android parťák (10×10, levituje vedle hrdiny) ── */
@@ -492,7 +540,7 @@ window.RPGSprites9 = (function () {
   }
 
   /* pozice: hrdina vlevo dole, boss vpravo */
-  function heroPos() { return { x: Math.round(cv.width * 0.12), y: 200 - 16 * SCALE - 14 }; }
+  function heroPos() { return { x: Math.round(cv.width * 0.12), y: 200 - 24 * SCALE - 14 }; }
   function bossPos() { return { x: Math.round(cv.width * 0.58), y: 200 - 16 * BSCALE - 14 }; }
 
   function heroGrid() {
@@ -587,7 +635,7 @@ window.RPGSprites9 = (function () {
     if (h.mode === 'slash' && !rm()) {
       const p = Math.min(1, h.t / 520);               // výpad k bossovi a zpět
       const dash = p < 0.5 ? p * 2 : (1 - p) * 2;
-      hx = hp.x + dash * (bp.x - hp.x - 15 * SCALE);
+      hx = hp.x + dash * (bp.x - hp.x - 16 * SCALE);
     }
     // ── vizuální stav hrdiny podle HP (zrcadlí poškozování bosse) ──
     // plné HP: nic | 2/3: šrámy + pot | 1/3: třes, shrbení, supění
@@ -602,26 +650,26 @@ window.RPGSprites9 = (function () {
       const bad = hpf <= 0.34;
       ctx.globalAlpha = 0.75;
       ctx.fillStyle = '#ff3355';
-      ctx.fillRect(hx + 4 * SCALE, hy + 8 * SCALE, 2 * SCALE, 2);
-      ctx.fillRect(hx + 7 * SCALE, hy + 10 * SCALE, 2 * SCALE, 2);
+      ctx.fillRect(hx + 4 * SCALE, hy + 13 * SCALE, 2 * SCALE, 2);
+      ctx.fillRect(hx + 7 * SCALE, hy + 15 * SCALE, 2 * SCALE, 2);
       if (bad) {
-        ctx.fillRect(hx + 5 * SCALE, hy + 4 * SCALE, 2 * SCALE, 2);
-        ctx.fillRect(hx + 8 * SCALE, hy + 12 * SCALE, 2 * SCALE, 2);
+        ctx.fillRect(hx + 5 * SCALE, hy + 8 * SCALE, 2 * SCALE, 2);
+        ctx.fillRect(hx + 8 * SCALE, hy + 16 * SCALE, 2 * SCALE, 2);
       }
       ctx.globalAlpha = 1;
       if (!rm() && Math.random() < (bad ? 0.09 : 0.035)) {
-        ST.fx.push({ kind: 'sweat', x: hx + (4 + Math.random() * 6) * SCALE, y: hy + 2 * SCALE,
+        ST.fx.push({ kind: 'sweat', x: hx + (4 + Math.random() * 5) * SCALE, y: hy + 6 * SCALE,
           vx: (Math.random() - 0.5) * 0.8, vy: 1.1 + Math.random(), t: 0 });
       }
       if (bad && !rm() && Math.random() < 0.06) {
-        ST.fx.push({ kind: 'smoke', x: hx + 11 * SCALE, y: hy + 4 * SCALE,
+        ST.fx.push({ kind: 'smoke', x: hx + 11 * SCALE, y: hy + 11 * SCALE,
           vx: 0.5 + Math.random() * 0.5, vy: -0.4 - Math.random() * 0.4, t: 0 });
       }
     }
     // ── android parťák — levituje vedle hrdiny ──
     {
       const bob = rm() ? 0 : Math.sin(performance.now() / 380) * 6;
-      const ax = hp.x + 15 * SCALE + 6, ay = hp.y - 8 + bob;
+      const ax = hp.x + 18 * SCALE + 6, ay = hp.y + 6 * SCALE + bob;
       drawSprite(ANDROID[rm() ? 0 : tick % 2], PAL_AND, ax, ay, ASCALE, false, false);
       if (!rm()) {  // tryskový plamínek pod tělem
         ctx.fillStyle = (tick % 2) ? '#19e6e6' : '#0e8a8a';
@@ -821,7 +869,7 @@ window.RPGSprites9 = (function () {
     if (rm()) { ST.boss.flash = 130; ST.boss.t = 0; return; }
     ST.hero.mode = kind === 'slash' ? 'slash' : kind === 'shoot' ? 'shoot' : 'cast';
     ST.hero.t = 0;
-    const hx0 = hp.x + 13 * SCALE, hyOrb = hp.y + 2 * SCALE, hyArm = hp.y + 8 * SCALE;
+    const hx0 = hp.x + 14 * SCALE, hyOrb = hp.y + 6 * SCALE, hyArm = hp.y + 12 * SCALE;
     if (kind === 'slash') {
       setTimeout(() => { ST.fx.push({ kind: 'slasharc', x: bcx - 20, y: bcy, t: 0 }); ST.boss.flash = 130; ST.boss.t = 0; ST.fx.push({ kind: 'boom', x: bcx, y: bcy, t: 0, rgb: '232,236,245' }); }, 260);
     } else if (kind === 'orb') {
@@ -857,7 +905,7 @@ window.RPGSprites9 = (function () {
     if (rm()) { ST.hero.mode = 'hit'; setTimeout(() => { ST.hero.mode = 'idle'; }, 300); return; }
     ST.boss.mode = 'charge'; ST.boss.t = 0;
     setTimeout(() => {
-      ST.fx.push({ kind: 'bossproj', x0: bp.x + 4 * BSCALE, y0: bp.y + 8 * BSCALE, x1: hp.x + 7 * SCALE, y1: hp.y + 8 * SCALE, t: 0 });
+      ST.fx.push({ kind: 'bossproj', x0: bp.x + 4 * BSCALE, y0: bp.y + 8 * BSCALE, x1: hp.x + 6 * SCALE, y1: hp.y + 13 * SCALE, t: 0 });
     }, 520);
   }
 
