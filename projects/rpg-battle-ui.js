@@ -19,6 +19,7 @@
   'use strict';
 
   var QSEC = 25;                 // sekund na otázku
+  var COUNTDOWN_MS = 3000;       // délka odpočtu 3-2-1 (sdílená kotva startu)
   var NAME = 'HRDINA', GAME = 'RPG_MAT_9', BANK = null;
   var B = null;                  // aktuální stav souboje
   var root = null, timer = null;
@@ -33,17 +34,23 @@
   }
   var SHAPES = ['▲', '◆', '●', '■'];
 
-  // 3-2-1 odpočet před první otázkou (přeskočí se při reduced-motion)
-  function countdown(done) {
-    if (reducedMotion()) { done(); return; }
+  // 3-2-1 odpočet zarovnaný na sdílený čas startu (target = wall-clock ms).
+  // Všichni klienti skončí odpočet ve stejný okamžik → časomíra pak startuje na plných QSEC.
+  function countdownTo(target, done) {
     var ov = document.createElement('div'); ov.id = 'rpgb-cd';
-    document.body.appendChild(ov); var n = 3;
-    function step() {
-      ov.innerHTML = '<b>' + n + '</b>';
-      if (n-- <= 1) { setTimeout(function () { ov.remove(); done(); }, 850); }
-      else setTimeout(step, 850);
-    }
-    step();
+    var b = document.createElement('b'); ov.appendChild(b);
+    document.body.appendChild(ov);
+    var shown = null;
+    (function tick() {
+      var left = target - Date.now();
+      if (left <= 0) { ov.remove(); done(); return; }
+      var n = Math.ceil(left / 1000);
+      if (n !== shown) {
+        shown = n; b.textContent = n;
+        if (!reducedMotion()) { b.style.animation = 'none'; void b.offsetWidth; b.style.animation = ''; }
+      }
+      setTimeout(tick, 90);
+    })();
   }
 
   // konfety pro výsledkovou obrazovku
@@ -325,11 +332,12 @@
     if (bt.status === 'lobby') renderLobby(st);
     else if (bt.status === 'finished') renderResults(st);
     else {
-      // start souboje: 3-2-1 odpočet jednou před první otázkou
+      // start souboje: 3-2-1 odpočet zarovnaný na q_started_at (synchronní napříč hráči)
       if (bt.q_index === 0 && !B.didCountdown) {
         B.didCountdown = true;
         snapCorrect(st);                       // výchozí snímek pro přehled odpovědí
-        countdown(function () { if (B && B.state) renderQuestion(B.state); });
+        var t0 = (bt.q_started_at ? new Date(bt.q_started_at).getTime() : Date.now()) + COUNTDOWN_MS;
+        countdownTo(t0, function () { if (B && B.state) renderQuestion(B.state); });
         return;
       }
       renderQuestion(st);   // active / paused
@@ -447,7 +455,7 @@
           '<button class="rpgb-btn sm red" onclick="RPGBattle._leave()">■</button></div>';
       }
       shell(inner);
-      B.deadline = (bt.q_started_at ? new Date(bt.q_started_at).getTime() : Date.now()) + QSEC * 1000;
+      B.deadline = (bt.q_started_at ? new Date(bt.q_started_at).getTime() : Date.now()) + (qi === 0 ? COUNTDOWN_MS : 0) + QSEC * 1000;
       tickStart();
     }
     // lehká aktualizace přehledu odpovědí (host vidí správně/špatně živě)
