@@ -298,7 +298,7 @@ body::before{
 @keyframes fail-skull{0%,100%{transform:scale(1) rotate(-4deg)}50%{transform:scale(1.1) rotate(4deg)}}
 .fail-overlay .ti{font-family:var(--px);font-weight:700;font-size:26px;color:var(--red);text-shadow:3px 3px 0 #000,0 0 16px #e74c3c;margin-bottom:8px;letter-spacing:2px;position:relative;z-index:1;animation:fail-ti .5s steps(4)}
 @keyframes fail-ti{0%{transform:scale(2);opacity:0}100%{transform:scale(1);opacity:1}}
-.fail-overlay .sb{font-family:var(--vt);font-size:21px;color:var(--text);margin-bottom:14px;position:relative;z-index:1}
+.fail-overlay .sb{font-family:var(--read);font-size:17px;color:var(--text);margin-bottom:14px;position:relative;z-index:1}
 .fail-overlay .btn{position:relative;z-index:1}
 /* combo badge */
 .combo{position:absolute;right:14px;top:12px;font-family:var(--px);font-weight:700;font-size:14px;color:var(--gold);text-shadow:2px 2px 0 #000;z-index:6;opacity:0;transition:opacity .25s,font-size .25s}
@@ -346,7 +346,7 @@ body::before{
 .bt-input:focus{animation:input-pulse 1.4s ease-in-out infinite}
 @keyframes input-pulse{0%,100%{opacity:.8}50%{opacity:1}}
 .bt-input:disabled{opacity:.5;animation:none}
-.hint-box{font-family:var(--vt);font-size:21px;padding:12px;background:#0f1a0f;border:2px solid var(--green);color:#7fe87f;margin-bottom:10px;display:none;white-space:pre-wrap;line-height:1.4}
+.hint-box{font-family:var(--read);font-size:17px;padding:12px;background:#0f1a0f;border:2px solid var(--green);color:#7fe87f;margin-bottom:10px;display:none;white-space:pre-wrap;line-height:1.4}
 .hint-box.show{display:block;animation:hint-slide .35s ease-out}
 .credits-chip{display:inline-flex;align-items:center;gap:5px;font-family:var(--px);font-size:13px;color:#f4d03f;background:#1a1500;border:2px solid #7a5c00;padding:2px 9px;border-radius:2px}
 #pr-avatar{display:inline-block;font-size:48px;line-height:1}
@@ -746,7 +746,7 @@ html[data-theme="violet"]{--gold:#b06cff;--panel:#100a20;--panel2:#18103a;--blue
  <div id="bt-fb" class="feedback"></div>
  <div id="bt-explain" style="display:none;margin:8px 0">
   <label style="font-size:13px;color:var(--green);opacity:.85;display:block;margin-bottom:4px">✍ Jak jsi na to přišel? <span style="opacity:.6">(volitelně, 1–2 věty)</span></label>
-  <textarea id="bt-explain-txt" rows="2" aria-label="Jak jsi na to přišel?" style="width:100%;box-sizing:border-box;background:#0a0a0f;color:#d0d0e0;border:1px solid var(--green);border-radius:4px;padding:6px;font-family:var(--vt);font-size:18px;resize:vertical" placeholder="Napsal jsem…"></textarea>
+  <textarea id="bt-explain-txt" rows="2" aria-label="Jak jsi na to přišel?" style="width:100%;box-sizing:border-box;background:#0a0a0f;color:#d0d0e0;border:1px solid var(--green);border-radius:4px;padding:6px;font-family:var(--read);font-size:15px;resize:vertical" placeholder="Napsal jsem…"></textarea>
  </div>
  <div style="display:flex;gap:8px;flex-wrap:wrap">
  <button class="btn sm b" id="hint-btn" onclick="showHint()">💡 NÁPOVĚDA</button>
@@ -823,7 +823,7 @@ html[data-theme="violet"]{--gold:#b06cff;--panel:#100a20;--panel2:#18103a;--blue
 <div class="modal-box">
  <div id="modal-ic" style="font-size:56px;margin-bottom:10px">🎉</div>
  <div id="modal-title" style="font-family:var(--px);font-weight:700;font-size:17px;color:var(--gold);margin-bottom:12px;line-height:1.3;letter-spacing:.5px"></div>
- <div id="modal-txt" style="font-family:var(--vt);font-size:22px;color:var(--text);margin-bottom:16px;line-height:1.4;white-space:pre-wrap"></div>
+ <div id="modal-txt" style="font-family:var(--read);font-size:16px;color:var(--text);margin-bottom:16px;line-height:1.4;white-space:pre-wrap"></div>
  <button class="btn full" onclick="closeModal()">▶ POKRAČOVAT</button>
 </div>
 </div>
