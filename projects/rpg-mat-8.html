@@ -897,8 +897,8 @@ const AREAS = [
  text:`Vypočítej:\n(-${a}) × (-${b}) =`,ans:String(ans),
  hints:[`Záporné × záporné = ?`,`Mínus krát mínus dává plus. Spočítej ${a} × ${b}.`],skill:'calc'};})(),
  (()=>{const b=ri(2,12),k=ri(2,9),a=-b*k,ans=a/b;return{
- text:`Vypočítej:\n(${a}) ÷ ${b} =`,ans:String(ans),
- hints:[`Záporné ÷ kladné = záporné.`,`|${a}| ÷ ${b} = ${Math.abs(ans)}.`],skill:'calc'};})(),
+ text:`Vypočítej:\n(${a}) : ${b} =`,ans:String(ans),
+ hints:[`Záporné : kladné = záporné.`,`|${a}| : ${b} = ${Math.abs(ans)}.`],skill:'calc'};})(),
  (()=>{const a=ri(-15,-3),b=ri(-9,-2),c=ri(2,12),ans=a-b+c;return{
  text:`Vypočítej:\n(${a}) - (${b}) + ${c} =`,ans:String(ans),
  hints:[`Nejdřív si přepiš odečítání záporného na sčítání: ${a} + ${Math.abs(b)} + ${c}.`,`Postupuj zleva doprava: ${a + Math.abs(b)} + ${c}.`],skill:'calc'};})()
@@ -941,7 +941,7 @@ const AREAS = [
  hints:[`${p} % znamená ${p}/100, tedy ${p} setin celku.`,`Spočítej ${z} × ${p} a vyděl 100.`],skill:'anal'};})(),
  (()=>{const c=ri(4,20)*10,v=ri(1,c/10)*10;const ans=Math.round(v/c*100);return{
  text:`Kolika procenty je ${v} z ${c}?\n(celé číslo)`,ans:String(ans),
- hints:[`Procento = část ÷ celek × 100.`,`Spočítej ${v} ÷ ${c} × 100.`],skill:'anal'};})(),
+ hints:[`Procento = část : celek × 100.`,`Spočítej ${v} : ${c} × 100.`],skill:'anal'};})(),
  (()=>{const p=ri(1,4)*10,z=ri(10,40)*10;const sleva=Math.round(z*p/100),ans=z-sleva;return{
  text:`Zboží stojí ${z} Kč a je zlevněno o ${p} %.\nKolik stojí teď?`,ans:String(ans),
  hints:[`Nejdřív spočítej slevu — ${p} % z ${z} Kč.`,`Sleva je ${sleva} Kč. Odečti ji od původní ceny.`],skill:'anal'};})(),
@@ -950,10 +950,10 @@ const AREAS = [
  hints:[`Spočítej zvýšení — ${p} % z ${z} Kč.`,`Zvýšení je ${navic} Kč. Přičti k původní ceně.`],skill:'anal'};})(),
  (()=>{const p=ri(2,5)*5,z=ri(8,30)*100;const ans=Math.round(z*p/100);return{
  text:`Na účtu máš ${z} Kč s úrokem ${p} % ročně.\nKolik si připíšeš za rok? (Kč)`,ans:String(ans),
- hints:[`Úrok = ${p} % z částky na účtu.`,`${z} × ${p} ÷ 100 = ?`],skill:'anal'};})(),
+ hints:[`Úrok = ${p} % z částky na účtu.`,`${z} × ${p} : 100 = ?`],skill:'anal'};})(),
  (()=>{const cases=[[20,25,5],[24,25,6],[28,25,7],[30,20,6],[25,20,5],[20,50,10],[30,10,3]];const[tot,p,v]=cases[Math.floor(Math.random()*cases.length)];return{
  text:`${v} žáků ve třídě dostalo jedničku.\nTo je ${p} % třídy.\nKolik žáků je celkem ve třídě?`,ans:String(tot),
- hints:[`Když ${p} % = ${v} žáků, kolik je 100 %?`,`Použij úměru: ${v} ÷ ${p} × 100.`],skill:'anal'};})()
+ hints:[`Když ${p} % = ${v} žáků, kolik je 100 %?`,`Použij úměru: ${v} : ${p} × 100.`],skill:'anal'};})()
  ]
  }
  ]
@@ -1067,9 +1067,9 @@ const AREAS = [
  hints:[`Přičti ${a} k oběma stranám.`,`x = ${b} + ${a} = ?`],skill:'calc'};})(),
  (()=>{const a=ri(2,9),x=ri(2,12);const b=a*x;return{
  text:`Vyřeš rovnici:\n${a}x = ${b}`,ans:String(x),
- hints:[`Vyděl obě strany číslem ${a}.`,`x = ${b} ÷ ${a} = ?`],skill:'calc'};})(),
+ hints:[`Vyděl obě strany číslem ${a}.`,`x = ${b} : ${a} = ?`],skill:'calc'};})(),
  (()=>{const a=ri(2,8),b=ri(2,10);const ans=a*b;return{
- text:`Vyřeš rovnici:\nx ÷ ${a} = ${b}`,ans:String(ans),
+ text:`Vyřeš rovnici:\nx : ${a} = ${b}`,ans:String(ans),
  hints:[`Vynásob obě strany číslem ${a}.`,`x = ${b} × ${a} = ?`],skill:'calc'};})(),
  (()=>{const b=ri(2,8),x=ri(2,10);const a=b+x;return{
  text:`Vyřeš rovnici:\n${a} - x = ${b}`,ans:String(x),
@@ -1128,7 +1128,7 @@ const AREAS = [
  hints:[`Vzdálenost = rychlost × čas.`,`s = ${v} × ${t} = ?`],skill:'anal'};})(),
  (()=>{const parts=ri(2,5),each=ri(4,16)*10,total=parts*each;return{
  text:`${total} Kč si rozdělí ${parts} ${skl(parts,'kamarád','kamarádi','kamarádů')}\nrovným dílem.\nKolik Kč dostane každý?`,ans:String(each),
- hints:[`Vydel celkovou částku počtem kamarádů.`,`${total} ÷ ${parts} = ?`],skill:'anal'};})()
+ hints:[`Vydel celkovou částku počtem kamarádů.`,`${total} : ${parts} = ?`],skill:'anal'};})()
  ]
  }
  ]
@@ -1202,10 +1202,10 @@ const AREAS = [
  hints:[`Hledáš číslo, které dělí ${a*b} i ${a*c}.`,`NSD(${a*b}, ${a*c}) = ?`],skill:'anal'};})(),
  (()=>{const a=ri(2,5),b=ri(2,6),c=ri(2,6);return{
  text:`Vytkni a z výrazu:\n${a} × ${b} + ${a} × ${c} = ${a} × (b+c)\nb+c = ?`,ans:String(b+c),
- hints:[`Po vytyknutí ${a} dostaneš ${a} × (? + ?).`,`${a*b}÷${a} = ${b}, ${a*c}÷${a} = ${c}.`],skill:'anal'};})(),
+ hints:[`Po vytyknutí ${a} dostaneš ${a} × (? + ?).`,`${a*b}:${a} = ${b}, ${a*c}:${a} = ${c}.`],skill:'anal'};})(),
  (()=>{const k=ri(2,7),a=ri(1,6),b=ri(1,6);return{
  text:`${k}x + ${k*a} = ${k} × (x + a)\na = ?`,ans:String(a),
- hints:[`${k*a} ÷ ${k} = ?`,`Druhý člen po vytyknutí ${k} je: ${k*a}÷${k}.`],skill:'anal'};})(),
+ hints:[`${k*a} : ${k} = ?`,`Druhý člen po vytyknutí ${k} je: ${k*a}:${k}.`],skill:'anal'};})(),
  (()=>{const a=ri(2,5),b=ri(2,7),x=ri(2,8);return{
  text:`Vypočítej hodnotu (vytkni ${a}):\n${a*b} + ${a} × ${x}`,ans:String(a*(b+x)),
  hints:[`Vytkni ${a}: ${a} × (${b} + ${x}).`,`${a} × ${b+x} = ?`],skill:'anal'};})(),
@@ -1214,7 +1214,7 @@ const AREAS = [
  hints:[`Rozlož obě čísla na prvočinitele nebo použij Euklidův algoritmus.`,`${b} = ${g} × ${b/g}, ${c} = ${g} × ${c/g}. Největší společný dělitel je?`],skill:'anal'};})(),
  (()=>{const a=ri(2,6),b=ri(2,7),c=ri(2,7);return{
  text:`Vytkni největší společný faktor z:\n${a*b} + ${a*c}\n= ${a} × (? + ?) → b + c = ?`,ans:String(b+c),
- hints:[`Vytkni ${a}: ${a*b} ÷ ${a} = ${b}, ${a*c} ÷ ${a} = ${c}.`,`V závorce bude ${b} + ${c}.`],skill:'anal'};})()
+ hints:[`Vytkni ${a}: ${a*b} : ${a} = ${b}, ${a*c} : ${a} = ${c}.`,`V závorce bude ${b} + ${c}.`],skill:'anal'};})()
  ]
  }
  ]
@@ -1245,10 +1245,10 @@ const AREAS = [
  hints:[`Průměr = 2r, tedy r = ${r}. Vzorec: O = 2πr = πd.`,`O = 3,14 × ${d} = ?`],skill:'geo'};})(),
  (()=>{const r=ri(3,10);const o=2*3.14*r;const ans=(o/2/3.14).toFixed(1);return{
  text:`Obvod kružnice je ${o.toFixed(2)} cm.\nVypočítej poloměr r. (π = 3,14, 1 des. místo)`,ans,
- hints:[`Z O = 2πr plyne r = O ÷ (2π).`,`r = ${o.toFixed(2)} ÷ (2 × 3,14) = ${o.toFixed(2)} ÷ 6,28.`],skill:'geo'};})(),
+ hints:[`Z O = 2πr plyne r = O : (2π).`,`r = ${o.toFixed(2)} : (2 × 3,14) = ${o.toFixed(2)} : 6,28.`],skill:'geo'};})(),
  (()=>{const d=ri(2,8)*2;const r=d/2;const ans=(3.14*r*r).toFixed(2);return{
  text:`Kruh má průměr d = ${d} cm.\nVypočítej obsah kruhu. (π = 3,14)`,ans,
- hints:[`Nejdřív poloměr: r = d ÷ 2 = ${r}. Pak S = πr².`,`S = 3,14 × ${r}² = 3,14 × ${r*r} = ?`],skill:'geo'};})(),
+ hints:[`Nejdřív poloměr: r = d : 2 = ${r}. Pak S = πr².`,`S = 3,14 × ${r}² = 3,14 × ${r*r} = ?`],skill:'geo'};})(),
  (()=>{const r=ri(3,9);const ans=(3.14*r*r).toFixed(2);return{
  text:`Pizzeria prodává pizza s poloměrem ${r} cm.\nJaký je obsah pizzy? cm² (π = 3,14)`,ans,
  hints:[`Pizza = kruh s r = ${r} cm. S = πr².`,`S = 3,14 × ${r*r} = ?`],skill:'geo'};})()
@@ -1305,7 +1305,7 @@ const AREAS = [
  hints:[`Objem = πr²h.`,`V ≈ 3,14 × ${r*r} × ${h} = ?`],skill:'craft'};})(),
  (()=>{const o=ri(5,14)*2;const r=(o/(2*3.14)).toFixed(1);return{
  text:`Obvod kolečka je ${o} cm.\nJaký je jeho poloměr? (1 des. místo, π = 3,14)`,ans:r,
- hints:[`Z O = 2πr: r = O ÷ (2π).`,`r = ${o} ÷ 6,28 = ?`],skill:'geo'};})()
+ hints:[`Z O = 2πr: r = O : (2π).`,`r = ${o} : 6,28 = ?`],skill:'geo'};})()
  ]
  }
  ]
@@ -1324,7 +1324,7 @@ const AREAS = [
  tasks:()=>[
  (()=>{const r=ri(3,10);return{
  text:`Osa úsečky AB délky ${r*2} cm je kolmá přímka\nprocházející středem. Jak daleko je střed\nod každého krajního bodu? (cm)`,ans:String(r),
- hints:[`Střed úsečky = polovina délky.`,`${r*2} ÷ 2 = ?`],skill:'geo'};})(),
+ hints:[`Střed úsečky = polovina délky.`,`${r*2} : 2 = ?`],skill:'geo'};})(),
  (()=>{const a=ri(30,70),b=ri(10,a-5);return{
  text:`Trojúhelník ABC: α = ${a}°, β = ${b}°.\nJaký je úhel γ? (°)`,ans:String(180-a-b),
  hints:[`Součet vnitřních úhlů trojúhelníku = 180°.`,`γ = 180° - ${a}° - ${b}° = ?`],skill:'geo'};})(),
@@ -1351,7 +1351,7 @@ const AREAS = [
  (()=>{const ab=ri(6,20);return{
  svg:svgThales(`AB = ${ab}`),
  text:`Úsečka AB je průměr kružnice.\nAB = ${ab} cm.\nJaký je poloměr Thaletovy kružnice? (cm)`,ans:String(ab/2),
- hints:[`Thaletova kružnice má střed ve středu AB.`,`r = AB ÷ 2 = ${ab} ÷ 2 = ?`],skill:'geo'};})(),
+ hints:[`Thaletova kružnice má střed ve středu AB.`,`r = AB : 2 = ${ab} : 2 = ?`],skill:'geo'};})(),
  (()=>{const a=ri(3,8),b=ri(3,10);const c=Math.sqrt(a*a+b*b).toFixed(2);return{
  svg:svgThales('AB = ?'),
  text:`Bod C leží na Thaletově kružnici nad AB.\nCa = ${a} cm, Cb = ${b} cm.\nUrči délku průměru AB. (2 des. místa)`,ans:c,
@@ -1361,7 +1361,7 @@ const AREAS = [
  hints:[`Pythagorova věta: c² = a² + b².`,`c = √(${a}²+${b}²) = √${a*a+b*b}.`],skill:'geo'};})(),
  (()=>{const a=ri(3,10),b=ri(3,10);const c2=a*a+b*b;const c=Math.sqrt(c2);const r=(c/2).toFixed(2);return{
  text:`Pravoúhlý trojúhelník: odvěsny ${a} a ${b} cm.\nJaký je poloměr opsané kružnice? (2 des. místa)`,ans:r,
- hints:[`U pravoúhlého trojúhelníku je přepona průměr opsané kružnice.`,`přepona c = √(${a}²+${b}²) = √${c2}, r = c ÷ 2.`],skill:'geo'};})(),
+ hints:[`U pravoúhlého trojúhelníku je přepona průměr opsané kružnice.`,`přepona c = √(${a}²+${b}²) = √${c2}, r = c : 2.`],skill:'geo'};})(),
  (()=>{const sides=[3,4,5,5,12,13,8,15,17,7,24,25];const i=ri(0,3)*3;const a=sides[i],b=sides[i+1],c=sides[i+2];return{
  text:`Trojúhelník se stranami ${a}, ${b}, ${c} cm.\nJe to pravoúhlý trojúhelník?\n(ANO / NE)`,ans:'ANO',
  hints:[`Ověř Pythagorovu větu pro největší stranu jako přeponu.`,`${a}² + ${b}² = ${a*a+b*b}, ${c}² = ${c*c}. Souhlasí?`],skill:'geo'};})(),
@@ -1390,7 +1390,7 @@ const AREAS = [
  hints:[`Souměrnost podle osy x: [x, y] → [x, -y].`,`y-souřadnice: -${y} = ?`],skill:'craft'};})(),
  (()=>{const ns=[4,5,6,8,9,10];const n=ns[ri(0,ns.length-1)];const ext=360/n;return{
  text:`Pravidelný ${n}-úhelník má ____° rotační souměrnost.\n(nejmenší úhel otočení, celé číslo)`,ans:String(ext),
- hints:[`Pravidelný n-úhelník se zobrazí sám na sebe otočením o 360°/n.`,`360 ÷ ${n} = ?`],skill:'craft'};})(),
+ hints:[`Pravidelný n-úhelník se zobrazí sám na sebe otočením o 360°/n.`,`360 : ${n} = ?`],skill:'craft'};})(),
  (()=>{const a=ri(2,8);return{
  text:`Střed úsečky PQ leží v bodě M.\nPM = ${a} cm.\nJaká je délka celé úsečky PQ? (cm)`,ans:String(2*a),
  hints:[`Střed rozděluje úsečku na dvě stejné části.`,`PQ = 2 × PM = 2 × ${a} = ?`],skill:'craft'};})()
@@ -1421,13 +1421,13 @@ const AREAS = [
  hints:[`V = πr²h.`,`V ≈ 3,14 × ${r*r} × ${h} = ?`],skill:'geo'};})(),
  (()=>{const aa=ri(3,8),cc=ri(1,aa-1),xx=ri(2,7),bb=ri(1,8),dd=(aa-cc)*xx+bb;return{
  text:`Vyřeš rovnici:\n${aa}x + ${bb} = ${cc}x + ${dd}`,ans:String(xx),
- hints:[`Přesuň x: ${aa-cc}x = ${dd-bb}.`,`x = ${dd-bb} ÷ ${aa-cc} = ?`],skill:'anal'};})(),
+ hints:[`Přesuň x: ${aa-cc}x = ${dd-bb}.`,`x = ${dd-bb} : ${aa-cc} = ?`],skill:'anal'};})(),
  (()=>{const a=ri(4,10),b=ri(1,a-1);return{
  text:`Vypočítej (součin součtu a rozdílu):\n(${a} + ${b})(${a} - ${b})`,ans:String(a*a-b*b),
  hints:[`Vzorec: (a+b)(a-b) = a²-b².`,`${a}²-${b}² = ${a*a}-${b*b}.`],skill:'calc'};})(),
  (()=>{const parts=ri(2,5),each=ri(3,12)*100,total=parts*each;return{
  text:`${parts} ${skl(parts,'kamarád','kamarádi','kamarádů')} si rozdělí výhru ${total} Kč\nrovným dílem.\nKolik Kč dostane každý?`,ans:String(each),
- hints:[`Vydel výhru počtem kamarádů.`,`${total} ÷ ${parts} = ?`],skill:'anal'};})()
+ hints:[`Vydel výhru počtem kamarádů.`,`${total} : ${parts} = ?`],skill:'anal'};})()
  ]
  },
  {
@@ -1444,13 +1444,13 @@ const AREAS = [
  hints:[`Celkem potřebují ${total}, mají ${a+b}.`,`${total} - ${a+b} = ?`],skill:'anal'};})(),
  (()=>{const a=ri(2,8),b=ri(2,8),k=ri(2,6);const ans=(a+b)*k;return{
  text:`Obvod obdélníku je ${ans} cm.\nJedna strana je ${a*k} cm.\nJaká je druhá strana? (cm)`,ans:String(b*k),
- hints:[`O = 2(a+b), tedy a+b = O÷2 = ${ans/2}.`,`Druhá strana = ${ans/2} - ${a*k} = ?`],skill:'geo'};})(),
+ hints:[`O = 2(a+b), tedy a+b = O:2 = ${ans/2}.`,`Druhá strana = ${ans/2} - ${a*k} = ?`],skill:'geo'};})(),
  (()=>{const p=ri(10,40),tot=ri(20,60)*10;const ans=Math.round(tot*p/100);return{
  text:`Ve třídě je ${tot} žáků.\n${p} % z nich je chlapci.\nKolik chlapců je ve třídě?`,ans:String(ans),
- hints:[`${p} % z ${tot} = ${tot} × ${p}÷100.`,`= ?`],skill:'anal'};})(),
+ hints:[`${p} % z ${tot} = ${tot} × ${p}:100.`,`= ?`],skill:'anal'};})(),
  (()=>{const r=ri(4,10);const o=Math.round(2*3.14*r);return{
  text:`Obvod kružnice je ${o} cm. (π = 3,14)\nJaký je poloměr? (cm, celé číslo)`,ans:String(r),
- hints:[`r = O ÷ (2π) = ${o} ÷ 6,28.`,`Výsledek zaokrouhli na celé číslo.`],skill:'geo'};})(),
+ hints:[`r = O : (2π) = ${o} : 6,28.`,`Výsledek zaokrouhli na celé číslo.`],skill:'geo'};})(),
  (()=>{const a=ri(3,12),b=ri(3,12);const c2=a*a+b*b;const c=Math.sqrt(c2).toFixed(2);return{
  text:`Úhlopříčka obdélníku ${a} × ${b} cm.\nJak je dlouhá? (cm, 2 des. místa)`,ans:c,
  hints:[`Úhlopříčka = přepona pravoúhlého trojúhelníku.`,`d = √(${a}²+${b}²) = √${c2}.`],skill:'geo'};})()
@@ -1476,7 +1476,7 @@ const AREAS = [
  hints:[`Po první slevě: ${z} × ${(100-p1)/100} = ${Math.round(z*(1-p1/100))} Kč.`,`Z té pak ${p2} %: × ${(100-p2)/100}.`],skill:'anal'};})(),
  (()=>{const sets=[[20,25],[20,50],[24,25],[30,20],[25,20],[30,10]];const[tot,p]=sets[Math.floor(Math.random()*sets.length)];const ans=tot*p/100;const a=ri(2,Math.floor(tot/3)),b=ri(2,Math.floor(tot/3)),c=tot-a-b;return{
  text:`Třída: ${a} výborných, ${b} chvalitebných, ${c} ostatních.\n${p} % celé třídy pojede na výlet.\nKolik žáků pojede?`,ans:String(ans),
- hints:[`Celkem žáků: ${a}+${b}+${c} = ${tot}.`,`${p} % z ${tot} = ${tot} × ${p} ÷ 100 = ?`],skill:'anal'};})(),
+ hints:[`Celkem žáků: ${a}+${b}+${c} = ${tot}.`,`${p} % z ${tot} = ${tot} × ${p} : 100 = ?`],skill:'anal'};})(),
  (()=>{const c=ri(10,17),a=ri(3,c-3);const b2=c*c-a*a;const b=Math.sqrt(b2).toFixed(2);return{
  text:`Pravoúhlý trojúhelník:\npřepona c = ${c} cm, odvěsna a = ${a} cm.\nOdvěsna b = ? (2 des. místa)`,ans:b,
  hints:[`b² = c² - a².`,`b = √(${c}²-${a}²) = √${b2}.`],skill:'geo'};})()
