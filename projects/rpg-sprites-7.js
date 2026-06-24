@@ -191,28 +191,36 @@ window.RPGSprites7 = (function () {
 
   /* ── zlatý skarabeus (parťák, 10×10) ── */
   const PAL_COM = { K:'#0a0c12', G:'#c8a040', g:'#806820', S:'#e8d090', T:'#40a8c0' };
-  const COMPANION = [[
-    '.....K....',
-    '....KGK...',
-    '...KGGgK..',
-    '..KGgGGGK.',
-    '.KGGgGGGGK',
-    '.KGGgGGGGK',
-    '..KGGGGgK.',
-    '.KGK.KGK..',
-    'KGK...KGK.',
-    '.K.....K..'
+      const COMPANION = [[
+    '.....KGGK.....',
+    '...KKGGGGKK...',
+    '..KGGGggGGGK..',
+    '.KGGGgGGgGGGK.',
+    '.KGTGgGGgGTGK.',
+    'KGGGGggggGGGGK',
+    'KGGgGGGGGGgGGK',
+    '.KGGGggggGGGK.',
+    '..KGGGggGGGK..',
+    '...KKGggGKK...',
+    '..KGK.KK.KGK..',
+    '.KGK......KGK.',
+    'KGK........KGK',
+    '.K..........K.'
   ],[
-    '.....K....',
-    '....KgK...',
-    '...KGGgK..',
-    '..KGGGGgK.',
-    '.KGGgGGGGK',
-    '.KGGGGGGgK',
-    '..KGgGGGK.',
-    '.KGK.KGK..',
-    'KgK...KgK.',
-    '.K.....K..'
+    '.....KGGK.....',
+    '...KKGGGGKK...',
+    '..KGGGggGGGK..',
+    '.KGGGgGGgGGGK.',
+    '.KGTGgGGgGTGK.',
+    'KGGggGGGGggGGK',
+    'KGGgGGGGGGgGGK',
+    '.KGGGggggGGGK.',
+    '..KGGGggGGGK..',
+    '...KKGggGKK...',
+    '..KGK.KK.KGK..',
+    'KGK........KGK',
+    '.KGK......KGK.',
+    '.K..........K.'
   ]];
 
   /* ── bossové: 7 oblastí, egyptská/chrámová témata ── */
@@ -228,147 +236,212 @@ window.RPGSprites7 = (function () {
   const COMMON = { K:'#0a0c12', W:'#e8ecf5', R:'#ff3355' };
 
   const BOSS_SPRITES = {
-    1: [[ // strážce karavany — kamenná socha Anubise
-      '....KKK....KKK....',
-      '...KMMK....KMMK...',
-      '...KMMKKKKKKMMK...',
-      '...KMMMMMMMMMMK...',
-      '....KMMMMMMMMK....',
-      '....KMKWAKWAKK....',
-      '....KMMMMMMMMK....',
-      '.....KMMmmMMK.....',
-      '....KKAAAAAAKK....',
-      '...KMMAaAAaAMMK...',
-      '...KMMMAAAAMMMK...',
-      '...KMMMMMMMMMMK...',
-      '...KMMKMMMMKMMK...',
-      '...KmmKMmmMKmmK...',
-      '....KKKMMMMKKK....',
-      '......KKKKKK......'
+    1: [[ // strážce karavany — kamenná socha Anubise (18×24 hi-res)
+      '...KK......KK.....',
+      '..KMMK....KMMK....',
+      '..KMMKKKKKKMMK....',
+      '..KMMMMMMMMMMK....',
+      '..KMMMMMMMMMMK....',
+      '..KMMWAKKAWMMK....',
+      '..KMMMMMMMMMMK....',
+      '...KMMmmMMK.......',
+      '...KMMMMMMK.......',
+      '..KKAAAAAAAAKK....',
+      '..KMMAaAAaAMMK....',
+      '..KMMMAAAAMMMK....',
+      '..KMMMMMMMMMMK....',
+      '..KMMMMMMMMMMK....',
+      '..KMmMMMMMMmMK....',
+      '..KMMMMMMMMMMK....',
+      '..KMMKMMMMKMMK....',
+      '..KMMKMMMMKMMK....',
+      '..KmmKMmmMKmmK....',
+      '..KKKKMMMMKKKK....',
+      '.....KKKKKK.......',
+      '..................',
+      '..................',
+      '..................'
     ],[
-      '....KKK....KKK....',
-      '...KMMK....KMMK...',
-      '...KMMKKKKKKMMK...',
-      '...KMMMMMMMMMMK...',
-      '....KMMMMMMMMK....',
-      '....KMKAWKAWKK....',
-      '....KMMMMMMMMK....',
-      '.....KMMmmMMK.....',
-      '....KKAAAAAAKK....',
-      '...KMMAAaAAaMMK...',
-      '...KMMMAAAAMMMK...',
-      '...KMMMMMMMMMMK...',
-      '...KMMKMMMMKMMK...',
-      '...KmmKMmmMKmmK...',
-      '....KKKMMMMKKK....',
-      '......KKKKKK......'
+      '...KK......KK.....',
+      '..KMMK....KMMK....',
+      '..KMMKKKKKKMMK....',
+      '..KMMMMMMMMMMK....',
+      '..KMMMMMMMMMMK....',
+      '..KMMAWKKWAMMK....',
+      '..KMMMMMMMMMMK....',
+      '...KMMmmMMK.......',
+      '...KMMMMMMK.......',
+      '..KKAAAAAAAAKK....',
+      '..KMMAaAAaAMMK....',
+      '..KMMMAAAAMMMK....',
+      '..KMMMMMMMMMMK....',
+      '..KMMMMMMMMMMK....',
+      '..KMmMMMMMMmMK....',
+      '..KMMMMMMMMMMK....',
+      '..KMMKMMMMKMMK....',
+      '..KMMKMMMMKMMK....',
+      '..KmmKMmmMKmmK....',
+      '..KKKKMMMMKKKK....',
+      '.....KKKKKK.......',
+      '..................',
+      '..................',
+      '..................'
     ]],
-    2: [[ // had hieroglyfů — vztyčená kobra
-      '......KKKKK.......',
-      '.....KMMMMMK......',
-      '....KMMMMMMMK.....',
-      '...KMMWKMMWKMK....',
-      '...KMMKKMMKKMK....',
+    2: [[ // had hieroglyfů — vztyčená kobra (18×24 hi-res)
+      '......KKKK........',
+      '.....KMMMMK.......',
+      '....KMMMMMMK......',
+      '...KMMWAKKAWMMK...',
       '...KMMMMMMMMMK....',
-      '....KMMRRMMK......',
+      '..KMMAAAAAAAAMMK..',
+      '..KMAaAAAAAAaAMMK.',
+      '..KMMAAAAAAAAMMK..',
+      '...KMMMMMMMMMMK...',
+      '....KMMMMMMMK.....',
       '.....KMMMMK.......',
       '.....KAMMAK.......',
-      '.....KMAMMK.......',
-      '.....KMMAMK.......',
-      '....KMMMAMMK......',
-      '...KMMAMMMMMK.....',
-      '..KMMMMMAMMMMK....',
-      '.KMmMMMMMMAMmMK...',
-      '..KKKKKKKKKKKK....'
+      '......KMMAK.......',
+      '......KAMMK.......',
+      '.....KMMAMMK......',
+      '....KMMAMMMMK.....',
+      '...KMMMMMAMMMK....',
+      '..KMmMMMMMMAMmMK..',
+      '..KKKKKKKKKKKKKK..',
+      '..................',
+      '..................',
+      '..................',
+      '..................',
+      '..................'
     ],[
-      '......KKKKK.......',
-      '.....KMMMMMK......',
-      '....KMMMMMMMK.....',
-      '...KMKWMMKWMMK....',
-      '...KMKKMMKKMMK....',
+      '......KKKK........',
+      '.....KMMMMK.......',
+      '....KMMMMMMK......',
+      '...KMMWAKKAWMMK...',
       '...KMMMMMMMMMK....',
-      '....KMMRRMMK......',
+      '..KMMAAAAAAAAMMK..',
+      '..KMAAaAAAAaAAMMK.',
+      '..KMMAAAAAAAAMMK..',
+      '...KMMMMMMMMMMK...',
+      '....KMMMMMMMK.....',
       '.....KMMMMK.......',
       '.....KAMMAK.......',
-      '.....KMMAMK.......',
-      '.....KAMMMK.......',
-      '....KMMAMMMK......',
-      '...KMMMMMAMMK.....',
-      '..KMMAMMMMMMMK....',
-      '.KMmMMMMAMMMmMK...',
-      '..KKKKKKKKKKKK....'
+      '......KMMAK.......',
+      '......KAMMK.......',
+      '.....KMMAMMK......',
+      '....KMMAMMMMK.....',
+      '...KMMMMMAMMMK....',
+      '..KMmMMMAMMMMMmMK.',
+      '..KKKKKKKKKKKKKK..',
+      '..................',
+      '..................',
+      '..................',
+      '..................',
+      '..................'
     ]],
-    3: [[ // ledový strážce — krystalický golem
+    3: [[ // ledový strážce — krystalický golem (18×24 hi-res)
+      '..................',
+      '..................',
       '........KK........',
       '.......KAAK.......',
       '......KAAAAK......',
       '.....KAAAAAAK.....',
-      '....KAAWKAWKAK....',
-      '....KAAKKAKKAK....',
+      '....KAAWKKWAAK....',
+      '....KAAKKKKAAK....',
       '....KAAAAAAAAK....',
       '...KKAAaaaaAAKK...',
       '..KAKAaAAAAaAKAK..',
       '.KAAKAAAAAAAAKAAK.',
       '.KaAKAaAAAAaAKAaK.',
       '..KKKAAAAAAAAKKK..',
-      '.....KAaAAaAK.....',
+      '....KAaAAAAaAK....',
+      '....KAAAAAAAAK....',
       '....KAAK..KAAK....',
       '....KaAK..KAaK....',
-      '...KKKKK..KKKKK...'
+      '...KKKKK..KKKKK...',
+      '..................',
+      '..................',
+      '..................',
+      '..................',
+      '..................'
     ],[
+      '..................',
+      '..................',
       '........KK........',
       '.......KAAK.......',
       '......KAAAAK......',
       '.....KAAAAAAK.....',
-      '....KAKWAKWAAK....',
-      '....KAKKAKKAAK....',
+      '....KAWAKKAAWK....',
+      '....KAAKKKKAAK....',
       '....KAAAAAAAAK....',
       '...KKAAaaaaAAKK...',
       '..KAKAAaAAaAAKAK..',
       '.KAAKAAAAAAAAKAAK.',
       '.KaAKAAaAAaAAKAaK.',
       '..KKKAAAAAAAAKKK..',
-      '.....KAAaAaAK.....',
+      '....KAaAAAAaAK....',
+      '....KAAAAAAAAK....',
       '....KAAK..KAAK....',
       '....KaAK..KAaK....',
-      '...KKKKK..KKKKK...'
+      '...KKKKK..KKKKK...',
+      '..................',
+      '..................',
+      '..................',
+      '..................',
+      '..................'
     ]],
-    4: [[ // strážce vah — oživlé zlaté váhy
+    4: [[ // strážce vah — oživlé zlaté váhy (18×24 hi-res)
       '........KK........',
       '.......KAAK.......',
       '....KKKKAAKKKK....',
       '..KKAAAAAAAAAAKK..',
-      '.KAK....AA....KAK.',
       '.KAK...KAAK...KAK.',
-      'KAAAK..KAAK..KAAAK',
-      'KAWAK..KAAK..KAWAK',
-      'KAAAK..KAAK..KAAAK',
-      '.KKK...KAAK...KKK.',
-      '.......KAAK.......',
+      '.KAK..KAAAAK..KAK.',
+      'KAWAK.KAAAAK.KAWAK',
+      'KAAAK.KAAAAK.KAAAK',
+      '.KKK..KAAAAK..KKK.',
       '......KAAAAK......',
-      '.....KAAaaAAK.....',
-      '....KAAAAAAAAK....',
+      '......KAAAAK......',
+      '.....KAAAAAAK.....',
+      '....KAAaAAaAAK....',
       '...KMMMMMMMMMMK...',
-      '...KKKKKKKKKKKK...'
+      '..KMMMMMMMMMMMMK..',
+      '..KMmMMMMMMMMmMK..',
+      '..KMMMMMMMMMMMMK..',
+      '..KKKKKKKKKKKKKK..',
+      '...KMK......KMK...',
+      '...KKK......KKK...',
+      '..................',
+      '..................',
+      '..................',
+      '..................'
     ],[
       '........KK........',
       '.......KAAK.......',
       '....KKKKAAKKKK....',
       '..KKAAAAAAAAAAKK..',
-      '.KAK....AA....KAK.',
-      'KAAK...KAAK...KAAK',
-      'KAWAK..KAAK..KAWAK',
-      'KAAAK..KAAK..KAAAK',
-      '.KKK...KAAK...KKK.',
-      '.......KAAK.......',
-      '.......KAAK.......',
+      '.KAK...KAAK...KAK.',
+      '.KAK...KAAK...KAK.',
+      'KAAK..KAAAAK..KAAK',
+      'KAAAK.KAAAAK.KAAAK',
+      '.KKK..KAAAAK..KKK.',
       '......KAAAAK......',
-      '.....KAaAAaAK.....',
-      '....KAAAAAAAAK....',
+      '......KAAAAK......',
+      '.....KAAAAAAK.....',
+      '....KAAAaaAAAK....',
       '...KMMMMMMMMMMK...',
-      '...KKKKKKKKKKKK...'
+      '..KMMMMMMMMMMMMK..',
+      '..KMmMMMMMMMMmMK..',
+      '..KMMMMMMMMMMMMK..',
+      '..KKKKKKKKKKKKKK..',
+      '...KMK......KMK...',
+      '...KKK......KKK...',
+      '..................',
+      '..................',
+      '..................',
+      '..................'
     ]],
-    5: [[ // pokladník faraona — žijící truhla s pokladem
+    5: [[ // pokladník faraona — žijící truhla (18×24 hi-res)
+      '..................',
       '..................',
       '...KKKKKKKKKKKK...',
       '..KMMMMMMMMMMMMK..',
@@ -384,30 +457,45 @@ window.RPGSprites7 = (function () {
       '.KMMMAAaAAaAAMMMK.',
       '.KmMMMMMMMMMMMMmK.',
       '..KKKKKKKKKKKKKK..',
+      '..KMK........KMK..',
+      '..KKK........KKK..',
+      '..................',
+      '..................',
+      '..................',
+      '..................',
+      '..................',
       '..................'
     ],[
+      '..................',
       '..................',
       '...KKKKKKKKKKKK...',
       '..KMMMMMMMMMMMMK..',
       '.KMMAAAAAAAAAAMMK.',
-      '.KMAAAaAAAAaAAAMK.',
+      '.KMAAaAAAAAAaAAMK.',
       '.KMMAAAAAAAAAAMMK.',
       '.KKKKKKKKKKKKKKKK.',
-      '.KMWWKAAAAAAKWWMK.',
-      '.KMAWKAAaaAAKWAMK.',
+      '.KMAWKAAAAAAKWAMK.',
+      '.KMWWKAAaaAAKWWMK.',
       '.KMMMKAAAAAAKMMMK.',
       '.KMAAAAKKKKAAAAMK.',
       '.KMMAAAAAAAAAAMMK.',
-      '.KMMMAaAAAAaAMMMK.',
+      '.KMMMAAaAAaAAMMMK.',
       '.KmMMMMMMMMMMMMmK.',
       '..KKKKKKKKKKKKKK..',
+      '..KMK........KMK..',
+      '..KKK........KKK..',
+      '..................',
+      '..................',
+      '..................',
+      '..................',
+      '..................',
       '..................'
     ]],
-    6: [[ // kněz shodnosti — prastará mumie
+    6: [[ // kněz shodnosti — prastará mumie (18×24 hi-res)
       '......KKKKKK......',
       '.....KMMMMMMK.....',
       '....KMMmMMmMMK....',
-      '....KMKWKKWKMK....',
+      '....KMRWKKWRMK....',
       '....KMKKKKKKMK....',
       '....KMMmKKmMMK....',
       '.....KMMMMMMK.....',
@@ -416,15 +504,23 @@ window.RPGSprites7 = (function () {
       '..KMmMKmMMmKMmMK..',
       '..KMMMKMMMMKMMMK..',
       '..KmMKKMmmMKKMmK..',
+      '..KMMMKMMMMKMMMK..',
       '...KKK.KMMK.KKK...',
       '.......KMmMK......',
       '.......KMMMK......',
-      '......KKKKKK......'
+      '......KKKKKK......',
+      '..................',
+      '..................',
+      '..................',
+      '..................',
+      '..................',
+      '..................',
+      '..................'
     ],[
       '......KKKKKK......',
       '.....KMMMMMMK.....',
       '....KMMmMMmMMK....',
-      '....KMKKWKWKMK....',
+      '....KMWRKKRWMK....',
       '....KMKKKKKKMK....',
       '....KMMmKKmMMK....',
       '.....KMMMMMMK.....',
@@ -433,12 +529,20 @@ window.RPGSprites7 = (function () {
       '..KMmMKMmmMKMmMK..',
       '..KMMMKMMMMKMMMK..',
       '..KmMKKmMMmKKMmK..',
+      '..KMMMKMMMMKMMMK..',
       '...KKK.KMMK.KKK...',
-      '.......KMMmK......',
+      '.......KMmMK......',
       '.......KMMMK......',
-      '......KKKKKK......'
+      '......KKKKKK......',
+      '..................',
+      '..................',
+      '..................',
+      '..................',
+      '..................',
+      '..................',
+      '..................'
     ]],
-    7: [[ // strážce pyramidy — zlatý sarkofág faraona
+    7: [[ // strážce pyramidy — zlatý sarkofág faraona (18×24 hi-res)
       '.....KKKKKKKK.....',
       '....KAAAAAAAAK....',
       '...KAAMMMMMMAAK...',
@@ -451,15 +555,23 @@ window.RPGSprites7 = (function () {
       '..KAKAAAAAAAAKAK..',
       '..KAKAAaAAaAAKAK..',
       '..KAKAAAAAAAAKAK..',
+      '..KAKAAaAAaAAKAK..',
       '...KAAaAAAAaAAK...',
       '...KAAAAAAAAAAK...',
       '....KAAAAAAAAK....',
-      '.....KKKKKKKK.....'
+      '....KMMMMMMMMK....',
+      '...KKKKKKKKKKKK...',
+      '..................',
+      '..................',
+      '..................',
+      '..................',
+      '..................',
+      '..................'
     ],[
       '.....KKKKKKKK.....',
       '....KAAAAAAAAK....',
       '...KAAMMMMMMAAK...',
-      '...KAMKKWKWKMAK...',
+      '...KAMKKWWKKMAK...',
       '...KAMKKKKKKMAK...',
       '...KAAMMmmMMAAK...',
       '...KAAAMMMMAAAK...',
@@ -468,12 +580,20 @@ window.RPGSprites7 = (function () {
       '..KAKAAAAAAAAKAK..',
       '..KAKAaAAAAaAKAK..',
       '..KAKAAAAAAAAKAK..',
-      '...KAAAaAAaAAAK...',
+      '..KAKAAaAAaAAKAK..',
+      '...KAAaAAAAaAAK...',
       '...KAAAAAAAAAAK...',
       '....KAAAAAAAAK....',
-      '.....KKKKKKKK.....'
+      '....KMMMMMMMMK....',
+      '...KKKKKKKKKKKK...',
+      '..................',
+      '..................',
+      '..................',
+      '..................',
+      '..................',
+      '..................'
     ]]
-  };;
+  };
 
   /* ── engine ── */
   let cv = null, ctx = null, raf = 0, lastT = 0, tick = 0;
@@ -533,7 +653,12 @@ window.RPGSprites7 = (function () {
   }
 
   function heroPos() { return { x: Math.round(cv.width * 0.12), y: 200 - 24 * SCALE - 14 }; }
-  function bossPos() { return { x: Math.round(cv.width * 0.58), y: 200 - 16 * BSCALE - 14 }; }
+  function bossPos() {
+    const fr = BOSS_SPRITES[curArea] || BOSS_SPRITES[1];
+    const rows = fr[0].length;
+    const sc = rows >= 20 ? 5 : BSCALE;
+    return { x: Math.round(cv.width * 0.58), y: 186 - rows * sc, sc };
+  }
 
   function heroGrid() {
     const m = ST.hero.mode;
@@ -551,15 +676,15 @@ window.RPGSprites7 = (function () {
     const pal = Object.assign({}, COMMON, BOSS_PALS[curArea] || BOSS_PALS[1]);
     const b = ST.boss;
     if (b.mode !== 'gone') {
-      let by = bp.y, bx = bp.x, alpha = 1, bscale = BSCALE;
+      let by = bp.y, bx = bp.x, alpha = 1, bscale = bp.sc;
       if (b.mode === 'enter' && !rm()) {
         const p = Math.min(1, b.t / 900);
         if (p < 0.55) {
           by = bp.y - (1 - p / 0.55) * 130;
           alpha = (Math.floor(b.t / 70) % 3 === 0) ? 0.25 : 0.9;
-          bscale = BSCALE * (0.4 + 0.6 * (p / 0.55));
+          bscale = bp.sc * (0.4 + 0.6 * (p / 0.55));
         } else if (p < 0.75) {
-          bscale = BSCALE; by = bp.y + 4;
+          bscale = bp.sc; by = bp.y + 4;
         }
         if (p >= 1) { b.mode = 'idle'; b.t = 0; }
       } else if (b.mode === 'enter') { b.mode = 'idle'; }
@@ -574,6 +699,12 @@ window.RPGSprites7 = (function () {
       }
       const frames = BOSS_SPRITES[curArea] || BOSS_SPRITES[1];
       const grid = frames[rm() ? 0 : tick % frames.length];
+      // idle pohyb: vznášející se bossové (≥3 prázdné spodní řádky) levitují, stojící lehce „dýchají“
+      if (b.mode === "idle" && !rm()) {
+        let eb = 0; for (let r = grid.length - 1; r >= 0 && /^\.+$/.test(grid[r]); r--) eb++;
+        if (eb >= 3) by += Math.sin(performance.now() / 480) * 4;
+        else bx += Math.sin(performance.now() / 620) * 1.5;
+      }
       ctx.globalAlpha = alpha;
       const off = (b.flash > 0 && !rm()) ? (b.t % 2 ? 2 : -2) : 0;
       drawSprite(grid, pal, bx + off, by, bscale, false, b.flash > 0);
@@ -656,9 +787,9 @@ window.RPGSprites7 = (function () {
       if (!rm()) {
         // zlaté jiskry pod skarabeem
         ctx.fillStyle = (tick % 2) ? '#e8c060' : '#a07820';
-        ctx.fillRect(ax + 4 * ASCALE, ay + 9 * ASCALE, ASCALE, ASCALE);
+        ctx.fillRect(ax + 5 * ASCALE, ay + 13 * ASCALE, ASCALE, ASCALE);
       }
-      ST._androidPos = { x: ax + 5 * ASCALE, y: ay + 5 * ASCALE };
+      ST._androidPos = { x: ax + 7 * ASCALE, y: ay + 7 * ASCALE };
     }
     // efekty
     for (let i = ST.fx.length - 1; i >= 0; i--) {
