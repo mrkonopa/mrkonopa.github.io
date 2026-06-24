@@ -23,14 +23,14 @@ function gen_1_1(){
   const e=ri(12,40),f=ri(11,30);
   tasks.push({text:`Vypočítej: ${e} × ${f} = ?`,ans:e*f,hints:[`Rozlož ${f} na desítky a jednotky.`,`${e}×${f} = ${e*f}`],skill:'calc'});
   const g=ri(3,9),h=g*ri(10,30);
-  tasks.push({text:`Vypočítej: ${h} ÷ ${g} = ?`,ans:h/g,hints:['Kolikrát se '+g+' vejde do '+h+'?',`${h}÷${g} = ${h/g}`],skill:'calc'});
+  tasks.push({text:`Vypočítej: ${h} : ${g} = ?`,ans:h/g,hints:['Kolikrát se '+g+' vejde do '+h+'?',`${h}:${g} = ${h/g}`],skill:'calc'});
   const i=ri(100,900);
   tasks.push({text:`Zaokrouhli ${i} na stovky.`,ans:Math.round(i/100)*100,hints:['Podívej se na číslici desítek.',`≈ ${Math.round(i/100)*100}`],skill:'calc'});
   const j=ri(2,9),k=ri(2,9),l=ri(2,9);
   tasks.push({text:`Vypočítej: ${j} × ${k} + ${l} = ?`,ans:j*k+l,hints:['Nejdřív násobení, pak sčítání.',`${j*k}+${l} = ${j*k+l}`],skill:'calc'});
   { const a=ri(300,900),b=ri(50,250),c=ri(20,90); tasks.push({text:`Vypočítej: ${a} − ${b} − ${c} = ?`,ans:a-b-c,hints:['Odečítej postupně zleva doprava.',`${a}−${b} = ${a-b}, pak −${c}`],skill:'calc'}); }
   { const a=ri(13,29),b=ri(13,29); tasks.push({text:`Vypočítej: ${a} × ${b} = ?`,ans:a*b,hints:[`Rozlož ${b} na desítky a jednotky.`,`${a}×${b} = ${a*b}`],skill:'calc'}); }
-  { const g=ri(4,9),h=g*ri(12,40); tasks.push({text:`Vypočítej: ${h} ÷ ${g} = ?`,ans:h/g,hints:[`Kolikrát se ${g} vejde do ${h}?`,`${h}÷${g} = ${h/g}`],skill:'calc'}); }
+  { const g=ri(4,9),h=g*ri(12,40); tasks.push({text:`Vypočítej: ${h} : ${g} = ?`,ans:h/g,hints:[`Kolikrát se ${g} vejde do ${h}?`,`${h}:${g} = ${h/g}`],skill:'calc'}); }
   { const a=ri(2,9),b=ri(2,9),c=ri(2,12); tasks.push({text:`Vypočítej: ${a} × ${b} − ${c} = ?`,ans:a*b-c,hints:['Nejdřív násobení, pak odčítání.',`${a*b}−${c} = ${a*b-c}`],skill:'calc'}); }
   return tasks;
 }
@@ -64,7 +64,7 @@ function gen_1_3(){
   tasks.push({text:`V krabici je ${a} ${skl(a,'sáček','sáčky','sáčků')}, v každém ${b} bonbónů. Kolik bonbónů je celkem?`,ans:a*b,hints:['Počet sáčků × bonbonů v sáčku.',`${a}·${b} = ${a*b}`],skill:'anal'});
   const c=ri(50,200),d=ri(3,9);
   const rem=c%d;
-  tasks.push({text:`Rozdělíme ${c} kuliček mezi ${d} ${skl(d,'dítě','děti','dětí')} rovnoměrně. Kolik kuliček zbude?`,ans:rem,hints:['Spočítej zbytek po dělení '+c+' ÷ '+d+'.',`zbytek = ${rem}`],skill:'anal'});
+  tasks.push({text:`Rozdělíme ${c} kuliček mezi ${d} ${skl(d,'dítě','děti','dětí')} rovnoměrně. Kolik kuliček zbude?`,ans:rem,hints:['Spočítej zbytek po dělení '+c+' : '+d+'.',`zbytek = ${rem}`],skill:'anal'});
   const e=ri(2,6),f=ri(20,60);
   tasks.push({text:`Auto ujede za hodinu ${f} km. Kolik km ujede za ${e} ${skl(e,'hodinu','hodiny','hodin')}?`,ans:e*f,hints:['Vzdálenost = rychlost × čas.',`${e}·${f} = ${e*f} km`],skill:'anal'});
   const g=ri(100,500),h=ri(20,80);
@@ -106,7 +106,7 @@ function gen_2_1(){
   return tasks;
 }
 
-// 2-2 Počítání s desetinnými (+ − × ÷)
+// 2-2 Počítání s desetinnými (+ − × :)
 function gen_2_2(){
   const tasks=[];
   const a=ri(100,500)/10,b=ri(50,300)/10;
@@ -116,14 +116,14 @@ function gen_2_2(){
   const e=ri(11,49)/10,f=ri(2,6);
   tasks.push({text:`${cz(e)} × ${f} = ?`,ans:r1(e*f),hints:['Násob jako celá, pak doplň čárku.',`= ${r1(e*f)}`],skill:'calc'});
   const g=ri(2,5),h=ri(10,40)/10;
-  tasks.push({text:`${cz(h*g)} ÷ ${g} = ?`,ans:r1(h),hints:['Děl jako celá čísla, hlídej čárku.',`= ${r1(h)}`],skill:'calc'});
+  tasks.push({text:`${cz(h*g)} : ${g} = ?`,ans:r1(h),hints:['Děl jako celá čísla, hlídej čárku.',`= ${r1(h)}`],skill:'calc'});
   const i=ri(10,30)/10,j=ri(10,30)/10;
   tasks.push({text:`${cz(i)} × ${cz(j)} = ?`,ans:r2(i*j),hints:['Spočítej '+Math.round(i*10)+'×'+Math.round(j*10)+' a poděl 100.',`= ${r2(i*j)}`],skill:'calc'});
   const k=ri(20,80)/10,l=ri(20,80)/10;
   tasks.push({text:`Kolik zaplatím za 2 položky: ${cz(k)} Kč a ${cz(l)} Kč?`,ans:r1(k+l),hints:['Sečti obě ceny.',`= ${r1(k+l)} Kč`],skill:'calc'});
   { const a=ri(100,500)/10,b=ri(50,250)/10; tasks.push({text:`${cz(a)} + ${cz(b)} = ?`,ans:r1(a+b),hints:['Zarovnej čárky pod sebe.',`= ${r1(a+b)}`],skill:'calc'}); }
   { const a=ri(30,49)/10,b=ri(2,6); tasks.push({text:`${cz(a)} × ${b} = ?`,ans:r1(a*b),hints:['Násob jako celá čísla, pak doplň čárku.',`= ${r1(a*b)}`],skill:'calc'}); }
-  { const b=ri(2,5),h=ri(10,40)/10; tasks.push({text:`${r1(h*b)} ÷ ${b} = ?`,ans:r1(h),hints:['Děl jako celá čísla, hlídej čárku.',`= ${r1(h)}`],skill:'calc'}); }
+  { const b=ri(2,5),h=ri(10,40)/10; tasks.push({text:`${r1(h*b)} : ${b} = ?`,ans:r1(h),hints:['Děl jako celá čísla, hlídej čárku.',`= ${r1(h)}`],skill:'calc'}); }
   { const a=ri(100,990)/100; tasks.push({text:`Zaokrouhli ${cz(a)} na desetiny.`,ans:r1(a),hints:['Rozhodují setiny.',`≈ ${r1(a)}`],skill:'calc'}); }
   return tasks;
 }

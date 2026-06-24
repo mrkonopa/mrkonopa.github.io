@@ -21,7 +21,7 @@ window.RPG_TASK_EXTRA_9 = {
  '1-1': () => [
   (()=>{const a=ri(120,460),b=ri(120,460),c=ri(50,200);return{text:`Vypočítej:\n${a} + ${b} + ${c} =`,ans:String(a+b+c),hints:[`Sčítej postupně.`,`${a+b} + ${c}`],skill:'calc'};})(),
   (()=>{const a=ri(11,30),b=ri(3,9);return{text:`Vypočítej:\n${a} × ${b} =`,ans:String(a*b),hints:[`Rozlož na desítky a jednotky.`],skill:'calc'};})(),
-  (()=>{const b=ri(6,12),q=ri(4,12),a=b*q;return{text:`Vypočítej:\n${a} ÷ ${b} =`,ans:String(q),hints:[`${b} × ? = ${a}.`],skill:'calc'};})(),
+  (()=>{const b=ri(6,12),q=ri(4,12),a=b*q;return{text:`Vypočítej:\n${a} : ${b} =`,ans:String(q),hints:[`${b} × ? = ${a}.`],skill:'calc'};})(),
   (()=>{const a=ri(11,29);return{text:`Vypočítej:\n${a}² =`,ans:String(a*a),hints:[`${a} × ${a}.`],skill:'calc'};})(),
   (()=>{const a=ri(2,9),b=ri(2,9),c=ri(2,9);return{text:`Vypočítej (závorka první):\n(${a} + ${b}) × ${c} =`,ans:String((a+b)*c),hints:[`${a+b} × ${c}.`],skill:'calc'};})(),
   (()=>{const a=ri(1000,9000);const r=Math.round(a/1000)*1000;return{text:`Zaokrouhli na tisíce:\n${a} ≈`,ans:String(r),hints:[`Rozhoduje číslice stovek (${Math.floor(a/100)%10}).`],skill:'calc'};})(),
@@ -33,20 +33,20 @@ window.RPG_TASK_EXTRA_9 = {
  '1-2': () => [
   (()=>{const z=ri(2,9)*200,p=[5,10,20,50][ri(0,3)];return{text:`Vypočítej:\n${p} % z ${z} =`,ans:String(z*p/100),hints:[`1 % = ${z/100}.`,`${z/100} × ${p}`],skill:'anal'};})(),
   (()=>{const z=ri(2,9)*100,p=[10,20,25][ri(0,2)];return{text:`Cena ${z} Kč klesne o ${p} %.\nNová cena? (Kč)`,ans:String(z-z*p/100),hints:[`Sleva ${z*p/100} Kč.`],skill:'anal'};})(),
-  (()=>{const cel=ri(4,10)*25,cast=cel*[20,40,60][ri(0,2)]/100;return{text:`Kolik % je ${cast} z ${cel}?`,ans:String(Math.round(cast/cel*100)),hints:[`${cast} ÷ ${cel} × 100.`],skill:'anal'};})(),
+  (()=>{const cel=ri(4,10)*25,cast=cel*[20,40,60][ri(0,2)]/100;return{text:`Kolik % je ${cast} z ${cel}?`,ans:String(Math.round(cast/cel*100)),hints:[`${cast} : ${cel} × 100.`],skill:'anal'};})(),
   (()=>{const y=ri(2,9)*1000,pm=[2,4,5,8][ri(0,3)];return{text:`Vypočítej:\n${pm} ‰ z ${y} =`,ans:String(y*pm/1000),hints:[`1 ‰ = ${y/1000}.`],skill:'anal'};})(),
-  (()=>{const p=[10,20,25,50][ri(0,3)],cel=ri(3,9)*40,cast=cel*p/100;return{text:`${cast} je ${p} % z nějakého čísla.\nJaké to je?`,ans:String(cel),hints:[`Celek = ${cast} ÷ ${p} × 100.`],skill:'anal'};})(),
+  (()=>{const p=[10,20,25,50][ri(0,3)],cel=ri(3,9)*40,cast=cel*p/100;return{text:`${cast} je ${p} % z nějakého čísla.\nJaké to je?`,ans:String(cel),hints:[`Celek = ${cast} : ${p} × 100.`],skill:'anal'};})(),
   (()=>{const z=ri(3,9)*100,p=[10,20,50][ri(0,2)];return{text:`Plat ${z} Kč vzroste o ${p} %.\nNový plat? (Kč)`,ans:String(z+z*p/100),hints:[`+ ${z*p/100} Kč.`],skill:'anal'};})(),
   (()=>{const z=ri(2,8)*100,dph=21;return{text:`Cena bez DPH: ${z} Kč.\nCena s DPH 21 %? (Kč, zaokrouhli)`,ans:String(Math.round(z*1.21)),hints:[`${z} × 1,21.`],skill:'anal'};})(),
   (()=>{const z=ri(3,8)*100,p=[10,20,50][ri(0,2)];return{text:`Cena po ${p}% slevě z ${z} Kč? (Kč)`,ans:String(z-z*p/100),hints:[`Sleva = ${z*p/100} Kč.`],skill:'anal'};})(),
-  (()=>{const a=ri(2,5)*10,b=ri(2,5)*10;return{text:`Kolik % je ${a} z ${a+b}?`,ans:String(Math.round(a/(a+b)*100)),hints:[`${a} ÷ ${a+b} × 100.`],skill:'anal'};})(),
-  (()=>{const z=ri(2,8)*100,p=[10,25,50][ri(0,2)];const after=z*(1+p/100);return{text:`Po zdražení o ${p} % stojí zboží ${after} Kč.\nPůvodní cena? (Kč)`,ans:String(z),hints:[`${after} ÷ ${cz(1+p/100)}.`],skill:'anal'};})()
+  (()=>{const a=ri(2,5)*10,b=ri(2,5)*10;return{text:`Kolik % je ${a} z ${a+b}?`,ans:String(Math.round(a/(a+b)*100)),hints:[`${a} : ${a+b} × 100.`],skill:'anal'};})(),
+  (()=>{const z=ri(2,8)*100,p=[10,25,50][ri(0,2)];const after=z*(1+p/100);return{text:`Po zdražení o ${p} % stojí zboží ${after} Kč.\nPůvodní cena? (Kč)`,ans:String(z),hints:[`${after} : ${cz(1+p/100)}.`],skill:'anal'};})()
  ],
  '1-3': () => [
   (()=>{const a=ri(5,20),b=ri(3,15);return{text:`Vypočítej:\n${a} + (-${b}) =`,ans:String(a-b),hints:[`Přičíst záporné číslo znamená odečíst ho.`,`${a} − ${b}`],skill:'calc'};})(),
   (()=>{const a=ri(4,15),b=ri(4,15);return{text:`Vypočítej:\n(-${a}) − (-${b}) =`,ans:String(-a+b),hints:[`− (−${b}) = + ${b}.`,`−${a} + ${b}`],skill:'calc'};})(),
   (()=>{const a=ri(2,9),b=ri(2,9);return{text:`Vypočítej:\n(-${a}) × (-${b}) =`,ans:String(a*b),hints:[`− × − = +.`],skill:'calc'};})(),
-  (()=>{const b=ri(2,6),q=ri(2,9),a=b*q;return{text:`Vypočítej:\n(-${a}) ÷ (-${b}) =`,ans:String(q),hints:[`− ÷ − = +.`],skill:'calc'};})(),
+  (()=>{const b=ri(2,6),q=ri(2,9),a=b*q;return{text:`Vypočítej:\n(-${a}) : (-${b}) =`,ans:String(q),hints:[`− : − = +.`],skill:'calc'};})(),
   (()=>{const a=ri(3,9);return{text:`Vypočítej:\n−${a}² =`,ans:String(-a*a),hints:[`Umocní se jen ${a}, mínus zůstává: −(${a*a}).`],skill:'calc'};})(),
   (()=>{const a=ri(3,10),b=ri(3,10),c=ri(2,8);return{text:`Vypočítej:\n(-${a}) + ${b} − ${c} =`,ans:String(-a+b-c),hints:[`Postupuj zleva doprava.`],skill:'calc'};})(),
   (()=>{const a=ri(2,4);return{text:`Vypočítej:\n(-${a})³ =`,ans:String(-(a**3)),hints:[`Lichá mocnina záporného → záporné.`],skill:'calc'};})(),
@@ -97,7 +97,7 @@ window.RPG_TASK_EXTRA_9 = {
  '3-1': () => [
   (()=>{const x=ri(2,20),a=ri(2,20);return{text:`Vyřeš rovnici:\nx + ${a} = ${x+a}`,ans:String(x),hints:[`x = ${x+a} − ${a}.`],skill:'calc'};})(),
   (()=>{const x=ri(5,25),a=ri(2,15);return{text:`Vyřeš rovnici:\nx − ${a} = ${x-a}`,ans:String(x),hints:[`x = ${x-a} + ${a}.`],skill:'calc'};})(),
-  (()=>{const a=ri(2,9),x=ri(2,12);return{text:`Vyřeš rovnici:\n${a}x = ${a*x}`,ans:String(x),hints:[`x = ${a*x} ÷ ${a}.`],skill:'calc'};})(),
+  (()=>{const a=ri(2,9),x=ri(2,12);return{text:`Vyřeš rovnici:\n${a}x = ${a*x}`,ans:String(x),hints:[`x = ${a*x} : ${a}.`],skill:'calc'};})(),
   (()=>{const a=ri(2,7),v=ri(2,9);return{text:`Vyřeš rovnici:\nx / ${a} = ${v}`,ans:String(v*a),hints:[`x = ${v} × ${a}.`],skill:'calc'};})(),
   (()=>{const a=ri(2,8),x=ri(2,12),b=ri(2,15);return{text:`Vyřeš rovnici:\n${a}x + ${b} = ${a*x+b}`,ans:String(x),hints:[`Odečti ${b}, vyděl ${a}.`],skill:'calc'};})(),
   (()=>{const a=ri(2,8),x=ri(3,14),b=ri(2,15);return{text:`Vyřeš rovnici:\n${a}x − ${b} = ${a*x-b}`,ans:String(x),hints:[`Přičti ${b}, vyděl ${a}.`],skill:'calc'};})(),
@@ -120,7 +120,7 @@ window.RPG_TASK_EXTRA_9 = {
  ],
  '3-3': () => [
   (()=>{const a=ri(3,12),b=ri(3,12);return{text:`o = 2(a+b).\no = ${2*(a+b)} cm, b = ${b} cm. Urči a. (cm)`,ans:String(a),hints:[`a = o/2 − b = ${(a+b)} − ${b}.`],skill:'anal'};})(),
-  (()=>{const a=ri(3,12),v=ri(3,12);return{text:`S = a · v.\nS = ${a*v} cm², v = ${v} cm. Urči a. (cm)`,ans:String(a),hints:[`a = S / v = ${a*v} ÷ ${v}.`],skill:'anal'};})(),
+  (()=>{const a=ri(3,12),v=ri(3,12);return{text:`S = a · v.\nS = ${a*v} cm², v = ${v} cm. Urči a. (cm)`,ans:String(a),hints:[`a = S / v = ${a*v} : ${v}.`],skill:'anal'};})(),
   (()=>{const vv=ri(40,90),t=ri(2,5);return{text:`s = v · t.\ns = ${vv*t} km, v = ${vv} km/h. Urči t. (h)`,ans:String(t),hints:[`t = s / v.`],skill:'anal'};})(),
   (()=>{const x=ri(10,40),a=ri(5,25);return{text:`Slovní úloha:\nČíslo zmenšené o ${a} je ${x-a}. Jaké je?`,ans:String(x),hints:[`x − ${a} = ${x-a}.`],skill:'anal'};})(),
   (()=>{const x=ri(3,12);return{text:`Slovní úloha:\nDvojnásobek čísla zvětšený o 5 je ${2*x+5}. Číslo?`,ans:String(x),hints:[`2x + 5 = ${2*x+5}.`],skill:'anal'};})(),
@@ -145,15 +145,15 @@ window.RPG_TASK_EXTRA_9 = {
   (()=>{const a=ri(1,6),b=ri(1,6);return{text:`Pro jaké x není (x+${a})/(x−${b}) definováno?\nx ≠`,ans:String(b),hints:[`Jmenovatel: x − ${b} = 0.`],skill:'anal'};})()
  ],
  '4-2': () => [
-  (()=>{const x=ri(2,6),a=x*ri(1,4);return{text:`Vypočítej hodnotu (3x + ${a}) / x\npro x = ${x}.`,ans:String(3+a/x),hints:[`(${3*x} + ${a}) ÷ ${x}.`],skill:'anal'};})(),
+  (()=>{const x=ri(2,6),a=x*ri(1,4);return{text:`Vypočítej hodnotu (3x + ${a}) / x\npro x = ${x}.`,ans:String(3+a/x),hints:[`(${3*x} + ${a}) : ${x}.`],skill:'anal'};})(),
   (()=>{const d=ri(2,9),n=d*ri(2,6),g=gcd(n,d);return{text:`Zkrať na základní tvar:\n${n}/${d} =`,ans:(d/g===1?String(n/g):`${n/g}/${d/g}`),hints:[`Vyděl čitatele i jmenovatele ${g}.`],skill:'calc'};})(),
   (()=>{const x=ri(3,9),a=ri(1,3);return{text:`Vypočítej hodnotu (x − ${a})(x + ${a})\npro x = ${x}.`,ans:String(x*x-a*a),hints:[`x² − ${a*a} = ${x*x} − ${a*a}.`],skill:'anal'};})(),
-  (()=>{const x=ri(2,6),a=x*ri(1,5);return{text:`Vypočítej hodnotu (x² + ${a}) / x\npro x = ${x}.`,ans:String(x+a/x),hints:[`(${x*x} + ${a}) ÷ ${x}.`],skill:'anal'};})(),
-  (()=>{const x=[2,4,5,10][ri(0,3)],k=x*ri(2,6),b=ri(1,9);return{text:`Vypočítej hodnotu ${k}/x + ${b}\npro x = ${x}.`,ans:String(k/x+b),hints:[`${k} ÷ ${x} = ${k/x}, + ${b}.`],skill:'anal'};})(),
-  (()=>{const b=ri(2,6),x=b*ri(2,6),a=ri(1,9);return{text:`Vypočítej hodnotu (x + ${a})/${b}\npro x = ${x-a}.`,ans:String(x/b),hints:[`(${x-a} + ${a}) ÷ ${b}.`],skill:'anal'};})(),
-  (()=>{const x=ri(2,6),a=ri(2,5),c=ri(1,4)*x;return{text:`Vypočítej hodnotu (${a}x + ${c}) / x\npro x = ${x}.`,ans:String(a+c/x),hints:[`(${a*x+c}) ÷ ${x}.`],skill:'anal'};})(),
-  (()=>{const x=ri(2,6),k=ri(2,8)*x;return{text:`Vypočítej hodnotu ${k}/x\npro x = ${x}.`,ans:String(k/x),hints:[`${k} ÷ ${x}.`],skill:'anal'};})(),
-  (()=>{const x=ri(3,8),n=ri(1,x-1);return{text:`Vypočítej hodnotu (x² − ${n*x}) / x\npro x = ${x}.`,ans:String(x-n),hints:[`(${x*x} − ${n*x}) ÷ ${x} = ${x-n}.`],skill:'anal'};})(),
+  (()=>{const x=ri(2,6),a=x*ri(1,5);return{text:`Vypočítej hodnotu (x² + ${a}) / x\npro x = ${x}.`,ans:String(x+a/x),hints:[`(${x*x} + ${a}) : ${x}.`],skill:'anal'};})(),
+  (()=>{const x=[2,4,5,10][ri(0,3)],k=x*ri(2,6),b=ri(1,9);return{text:`Vypočítej hodnotu ${k}/x + ${b}\npro x = ${x}.`,ans:String(k/x+b),hints:[`${k} : ${x} = ${k/x}, + ${b}.`],skill:'anal'};})(),
+  (()=>{const b=ri(2,6),x=b*ri(2,6),a=ri(1,9);return{text:`Vypočítej hodnotu (x + ${a})/${b}\npro x = ${x-a}.`,ans:String(x/b),hints:[`(${x-a} + ${a}) : ${b}.`],skill:'anal'};})(),
+  (()=>{const x=ri(2,6),a=ri(2,5),c=ri(1,4)*x;return{text:`Vypočítej hodnotu (${a}x + ${c}) / x\npro x = ${x}.`,ans:String(a+c/x),hints:[`(${a*x+c}) : ${x}.`],skill:'anal'};})(),
+  (()=>{const x=ri(2,6),k=ri(2,8)*x;return{text:`Vypočítej hodnotu ${k}/x\npro x = ${x}.`,ans:String(k/x),hints:[`${k} : ${x}.`],skill:'anal'};})(),
+  (()=>{const x=ri(3,8),n=ri(1,x-1);return{text:`Vypočítej hodnotu (x² − ${n*x}) / x\npro x = ${x}.`,ans:String(x-n),hints:[`(${x*x} − ${n*x}) : ${x} = ${x-n}.`],skill:'anal'};})(),
   (()=>{const x=ri(2,8),a=ri(2,6);return{text:`Vypočítej hodnotu ${a}/x + 1\npro x = ${a}.`,ans:'2',hints:[`${a}/${a} + 1 = 1 + 1.`],skill:'anal'};})()
  ],
  '4-3': () => [
@@ -162,7 +162,7 @@ window.RPG_TASK_EXTRA_9 = {
   (()=>{const x=[2,3,4,5,6,7][ri(0,5)];return{text:`Vyřeš rovnici (kladné x):\n${x*x} / x = x`,ans:String(x),hints:[`${x*x} = x².`],skill:'anal'};})(),
   (()=>{const x=ri(2,8),r=ri(2,5),c=r*x;return{text:`Vyřeš rovnici:\n${c} / x = ${r}`,ans:String(x),hints:[`${c} = ${r}x.`],skill:'anal'};})(),
   (()=>{const x=ri(2,6),s=x*ri(2,5),a=ri(1,s-1),b=s-a;return{text:`Vyřeš rovnici:\n${a}/x + ${b}/x = ${s/x}`,ans:String(x),hints:[`${s}/x = ${s/x}.`],skill:'anal'};})(),
-  (()=>{const x=ri(2,8),a=ri(2,6),c=a*x;return{text:`Vyřeš rovnici:\nx = ${c} / ${a}`,ans:String(x),hints:[`${c} ÷ ${a}.`],skill:'anal'};})(),
+  (()=>{const x=ri(2,8),a=ri(2,6),c=a*x;return{text:`Vyřeš rovnici:\nx = ${c} / ${a}`,ans:String(x),hints:[`${c} : ${a}.`],skill:'anal'};})(),
   (()=>{const x=ri(2,6),a=x*ri(2,5),b=ri(2,6);return{text:`Vyřeš rovnici:\n${a}/x + ${b} = ${a/x+b}`,ans:String(x),hints:[`${a}/x = ${a/x}.`],skill:'anal'};})(),
   (()=>{const x=ri(2,6),a=x*ri(2,4),b=ri(1,4);return{text:`Vyřeš rovnici:\n${a}/x − ${b} = ${a/x-b}`,ans:String(x),hints:[`${a}/x = ${a/x}.`],skill:'anal'};})(),
   (()=>{const x=ri(2,6),a=x*ri(1,4),b=x*ri(1,4);return{text:`Vyřeš rovnici:\n${a}/x + ${b}/x = ${(a+b)/x}`,ans:String(x),hints:[`${a+b}/x = ${(a+b)/x}.`],skill:'anal'};})(),
@@ -180,19 +180,19 @@ window.RPG_TASK_EXTRA_9 = {
   (()=>{const x=ri(2,8),y=ri(2,8),a=ri(2,4);return{text:`Vyřeš soustavu, urči y:\n${a}x + y = ${a*x+y}\nx = ${x}`,ans:String(y),hints:[`${a*x} + y = ${a*x+y}.`],skill:'anal'};})(),
   (()=>{const x=ri(2,8),y=ri(2,8);return{text:`Vyřeš soustavu, urči x:\n2x + 3y = ${2*x+3*y}\ny = ${y}`,ans:String(x),hints:[`2x = ${2*x+3*y} − ${3*y}.`],skill:'anal'};})(),
   (()=>{const x=ri(2,6),y=ri(2,6);return{text:`Vyřeš soustavu, urči x + y:\nx − y = ${x-y}\nx + y = ${x+y}`,ans:String(x+y),hints:[`Součet obou rovnic.`],skill:'anal'};})(),
-  (()=>{const s=ri(5,14)*2,d=ri(1,s/2-1)*2;const x=(s+d)/2,y=(s-d)/2;return{text:`Dvě čísla: součet ${s}, rozdíl ${d}.\nMenší číslo?`,ans:String(y),hints:[`(${s} − ${d}) ÷ 2.`],skill:'anal'};})()
+  (()=>{const s=ri(5,14)*2,d=ri(1,s/2-1)*2;const x=(s+d)/2,y=(s-d)/2;return{text:`Dvě čísla: součet ${s}, rozdíl ${d}.\nMenší číslo?`,ans:String(y),hints:[`(${s} − ${d}) : 2.`],skill:'anal'};})()
  ],
  '5-2': () => [
   (()=>{const m=ri(2,8)*50,p=[10,20,25,50][ri(0,3)];return{text:`Roztok ${m} g obsahuje ${p} % soli.\nKolik g soli?`,ans:String(m*p/100),hints:[`${p} % z ${m}.`],skill:'anal'};})(),
-  (()=>{const s=ri(2,9)*10,m=s*ri(4,8);return{text:`Roztok ${m} g, v něm ${s} g soli.\nKolik %?`,ans:String(Math.round(s/m*100)),hints:[`${s} ÷ ${m} × 100.`],skill:'anal'};})(),
-  (()=>{const t=ri(4,10);return{text:`Práci zvládne dělník za ${t} h.\nKolik % udělá za 1 h?`,ans:String(Math.round(100/t)),hints:[`100 ÷ ${t}.`],skill:'anal'};})(),
-  (()=>{const a=ri(2,5),pa=ri(8,15)*10,b=ri(2,5),pb=ri(2,7)*10;const tot=Math.round((a*pa+b*pb)/(a+b));return{text:`${a} kg po ${pa} Kč a ${b} kg po ${pb} Kč.\nCena 1 kg směsi? (Kč)`,ans:String(tot),hints:[`(${a*pa} + ${b*pb}) ÷ ${a+b}.`],skill:'anal'};})(),
-  (()=>{const t=ri(2,5)*2,h=t/2;return{text:`Zakázka za ${t} h.\nKolik % hotovo za ${h} h?`,ans:String(Math.round(h/t*100)),hints:[`${h} ÷ ${t} × 100.`],skill:'anal'};})(),
+  (()=>{const s=ri(2,9)*10,m=s*ri(4,8);return{text:`Roztok ${m} g, v něm ${s} g soli.\nKolik %?`,ans:String(Math.round(s/m*100)),hints:[`${s} : ${m} × 100.`],skill:'anal'};})(),
+  (()=>{const t=ri(4,10);return{text:`Práci zvládne dělník za ${t} h.\nKolik % udělá za 1 h?`,ans:String(Math.round(100/t)),hints:[`100 : ${t}.`],skill:'anal'};})(),
+  (()=>{const a=ri(2,5),pa=ri(8,15)*10,b=ri(2,5),pb=ri(2,7)*10;const tot=Math.round((a*pa+b*pb)/(a+b));return{text:`${a} kg po ${pa} Kč a ${b} kg po ${pb} Kč.\nCena 1 kg směsi? (Kč)`,ans:String(tot),hints:[`(${a*pa} + ${b*pb}) : ${a+b}.`],skill:'anal'};})(),
+  (()=>{const t=ri(2,5)*2,h=t/2;return{text:`Zakázka za ${t} h.\nKolik % hotovo za ${h} h?`,ans:String(Math.round(h/t*100)),hints:[`${h} : ${t} × 100.`],skill:'anal'};})(),
   (()=>{const n=ri(2,6),one=ri(3,8);return{text:`Jeden dělník udělá ${one} ${skl(one,'díl','díly','dílů')} za hodinu.\nKolik dílů ${n} ${skl(n,'dělník','dělníci','dělníků')} za hodinu?`,ans:String(n*one),hints:[`${n} × ${one}.`],skill:'anal'};})(),
   (()=>{const m=ri(2,8)*100,p=[10,20,30][ri(0,2)];return{text:`Roztok ${m} g obsahuje ${p} % cukru.\nKolik g vody?`,ans:String(m-m*p/100),hints:[`Voda = ${100-p} % z ${m}.`],skill:'anal'};})(),
   (()=>{const n=ri(3,6),t=ri(4,8);return{text:`${n} ${skl(n,'dělník udělá','dělníci udělají','dělníků udělá')} práci za ${t} ${skl(t,'den','dny','dní')}.\nKolik dní 1 dělník?`,ans:String(n*t),hints:[`${n} × ${t}.`],skill:'anal'};})(),
   (()=>{const m=ri(3,8)*50,p=[10,20,50][ri(0,2)];return{text:`Zdraží o ${p} %. Původní cena ${m} Kč.\nNová cena? (Kč)`,ans:String(m*(1+p/100)),hints:[`${m} + ${m*p/100} Kč.`],skill:'anal'};})(),
-  (()=>{const s1=ri(2,4)*100,p1=20,s2=ri(2,4)*100,p2=40;const pOut=Math.round((s1*p1+s2*p2)/(s1+s2));return{text:`Smíchám ${s1} g (${p1}% soli) a ${s2} g (${p2}% soli).\nVýsledná koncentrace? (%)`,ans:String(pOut),hints:[`(${s1*p1/100}+${s2*p2/100}) ÷ ${s1+s2} × 100.`],skill:'anal'};})()
+  (()=>{const s1=ri(2,4)*100,p1=20,s2=ri(2,4)*100,p2=40;const pOut=Math.round((s1*p1+s2*p2)/(s1+s2));return{text:`Smíchám ${s1} g (${p1}% soli) a ${s2} g (${p2}% soli).\nVýsledná koncentrace? (%)`,ans:String(pOut),hints:[`(${s1*p1/100}+${s2*p2/100}) : ${s1+s2} × 100.`],skill:'anal'};})()
  ],
  '5-3': () => [
   (()=>{const v=ri(5,12)*10,t=ri(2,5);return{text:`Rychlost ${v} km/h, čas ${t} h.\nDráha? (km)`,ans:String(v*t),hints:[`s = v · t.`],skill:'anal'};})(),
@@ -202,8 +202,8 @@ window.RPG_TASK_EXTRA_9 = {
   (()=>{const v1=ri(3,5)*10,v2=v1+ri(2,4)*10,t=ri(2,4);return{text:`${v1} a ${v2} km/h stejným směrem.\nNáskok rychlejšího po ${t} h? (km)`,ans:String((v2-v1)*t),hints:[`(${v2}−${v1}) · ${t}.`],skill:'anal'};})(),
   (()=>{const v=ri(8,12)*10,t=[1.5,2.5][ri(0,1)];return{text:`Rychlost ${v} km/h.\nDráha za ${cz(t)} h? (km)`,ans:String(v*t),hints:[`${v} · ${cz(t)}.`],skill:'anal'};})(),
   (()=>{const v1=ri(4,8)*10,v2=ri(4,8)*10,t=ri(1,3);return{text:`Dva vlaky jedou vstříc, ${v1} a ${v2} km/h.\nZa ${t} h ujedou dohromady? (km)`,ans:String((v1+v2)*t),hints:[`${v1+v2} km/h × ${t} h.`],skill:'anal'};})(),
-  (()=>{const v=ri(6,12)*10,d=ri(2,6)*v;return{text:`Dráha ${d} km, rychlost ${v} km/h.\nČas? (h)`,ans:String(d/v),hints:[`t = ${d} ÷ ${v}.`],skill:'anal'};})(),
-  (()=>{const v=ri(6,12)*10,t=ri(2,5);return{text:`Ujel ${v*t} km za ${t} h.\nPrůměrná rychlost? (km/h)`,ans:String(v),hints:[`v = ${v*t} ÷ ${t}.`],skill:'anal'};})(),
+  (()=>{const v=ri(6,12)*10,d=ri(2,6)*v;return{text:`Dráha ${d} km, rychlost ${v} km/h.\nČas? (h)`,ans:String(d/v),hints:[`t = ${d} : ${v}.`],skill:'anal'};})(),
+  (()=>{const v=ri(6,12)*10,t=ri(2,5);return{text:`Ujel ${v*t} km za ${t} h.\nPrůměrná rychlost? (km/h)`,ans:String(v),hints:[`v = ${v*t} : ${t}.`],skill:'anal'};})(),
   (()=>{const v1=ri(4,8)*10,v2=v1+ri(2,4)*10,t=ri(1,3);return{text:`Začnou zároveň, rychlosti ${v1} a ${v2} km/h.\nO kolik km je jeden před druhým po ${t} h?`,ans:String((v2-v1)*t),hints:[`(${v2} − ${v1}) × ${t}.`],skill:'anal'};})()
  ],
 
@@ -211,7 +211,7 @@ window.RPG_TASK_EXTRA_9 = {
  '6-1': () => [
   (()=>{const k=ri(2,5),q=ri(1,6),x=ri(2,5);return{svg:svgLineGraph(k,q),text:`y = ${k}x + ${q}\nVypočítej f(${x}).`,ans:String(k*x+q),hints:[`${k}·${x} + ${q}.`],skill:'geo'};})(),
   (()=>{const k=ri(2,5),q=ri(2,8);return{svg:svgLineGraph(k,q),text:`y = ${k}x + ${q}\nKde protíná osu y? (y)`,ans:String(q),hints:[`x = 0 → y = q.`],skill:'geo'};})(),
-  (()=>{const k=ri(2,4),x0=ri(1,5),q=-k*x0;return{text:`y = ${k}x ${q<0?'− '+(-q):'+ '+q}\nPro jaké x je y = 0?`,ans:String(x0),hints:[`x = ${-q} ÷ ${k}.`],skill:'geo'};})(),
+  (()=>{const k=ri(2,4),x0=ri(1,5),q=-k*x0;return{text:`y = ${k}x ${q<0?'− '+(-q):'+ '+q}\nPro jaké x je y = 0?`,ans:String(x0),hints:[`x = ${-q} : ${k}.`],skill:'geo'};})(),
   (()=>{const k=ri(2,6);return{text:`y = ${k}x\nVypočítej f(2).`,ans:String(2*k),hints:[`${k} · 2.`],skill:'geo'};})(),
   (()=>{const k=ri(2,4);return{text:`Přímka prochází body [0, 0] a [1, ${k}].\nSměrnice k?`,ans:String(k),hints:[`Změna y na 1 krok x.`],skill:'geo'};})(),
   (()=>{const k=ri(2,5),q=ri(1,7),x=ri(2,6);return{text:`y = ${k}x + ${q}\nVypočítej f(${x}).`,ans:String(k*x+q),hints:[`${k}·${x} + ${q}.`],skill:'geo'};})(),
@@ -233,29 +233,29 @@ window.RPG_TASK_EXTRA_9 = {
   (()=>{const k=ri(2,4),x0=ri(2,5),q=-k*x0;return{text:`Protíná y = ${k}x ${q<0?'− '+(-q):'+ '+q} osu x v bodě x = ${x0}?\nANO / NE`,ans:'ANO',hints:[`y = 0: ${k}x = ${-q}, x = ${x0}.`],skill:'anal'};})()
  ],
  '6-3': () => [
-  (()=>{const x=[2,3,4,6][ri(0,3)],k=x*ri(2,8);return{text:`y = ${k}/x\nVypočítej f(${x}).`,ans:String(k/x),hints:[`${k} ÷ ${x}.`],skill:'geo'};})(),
-  (()=>{const y=[2,3,4,5][ri(0,3)],k=y*ri(2,8);return{text:`y = ${k}/x\nPro jaké x je y = ${y}?`,ans:String(k/y),hints:[`x = ${k} ÷ ${y}.`],skill:'geo'};})(),
+  (()=>{const x=[2,3,4,6][ri(0,3)],k=x*ri(2,8);return{text:`y = ${k}/x\nVypočítej f(${x}).`,ans:String(k/x),hints:[`${k} : ${x}.`],skill:'geo'};})(),
+  (()=>{const y=[2,3,4,5][ri(0,3)],k=y*ri(2,8);return{text:`y = ${k}/x\nPro jaké x je y = ${y}?`,ans:String(k/y),hints:[`x = ${k} : ${y}.`],skill:'geo'};})(),
   (()=>{const x=ri(2,6),y=ri(2,8);return{text:`y = k/x prochází bodem [${x}, ${y}].\nUrči k.`,ans:String(x*y),hints:[`k = x · y.`],skill:'geo'};})(),
   (()=>{return{text:`Pro jaké x není y = 20/x definována?\nx ≠`,ans:'0',hints:[`Jmenovatel nesmí být 0.`],skill:'geo'};})(),
-  (()=>{const k=[12,24,36,48][ri(0,3)],x=[2,3,4,6][ri(0,3)];return{text:`y = ${k}/x\nPro x = ${x} je y = ?`,ans:String(k/x),hints:[`${k} ÷ ${x}.`],skill:'geo'};})(),
-  (()=>{const x=[2,4,5,10][ri(0,3)],k=x*ri(3,9);return{text:`y = ${k}/x\nVypočítej f(${x}).`,ans:String(k/x),hints:[`${k} ÷ ${x}.`],skill:'geo'};})(),
-  (()=>{const k=ri(2,8)*6,x=[2,3,6][ri(0,2)];return{text:`y = ${k}/x\nUrči y pro x = ${x}.`,ans:String(k/x),hints:[`${k} ÷ ${x}.`],skill:'geo'};})(),
+  (()=>{const k=[12,24,36,48][ri(0,3)],x=[2,3,4,6][ri(0,3)];return{text:`y = ${k}/x\nPro x = ${x} je y = ?`,ans:String(k/x),hints:[`${k} : ${x}.`],skill:'geo'};})(),
+  (()=>{const x=[2,4,5,10][ri(0,3)],k=x*ri(3,9);return{text:`y = ${k}/x\nVypočítej f(${x}).`,ans:String(k/x),hints:[`${k} : ${x}.`],skill:'geo'};})(),
+  (()=>{const k=ri(2,8)*6,x=[2,3,6][ri(0,2)];return{text:`y = ${k}/x\nUrči y pro x = ${x}.`,ans:String(k/x),hints:[`${k} : ${x}.`],skill:'geo'};})(),
   (()=>{const y=ri(2,8),x=ri(2,6);return{text:`Hyperbola y = k/x prochází bodem [${x}, ${y}].\nUrči k.`,ans:String(x*y),hints:[`k = x · y = ${x} · ${y}.`],skill:'geo'};})(),
-  (()=>{const k=ri(2,6)*4,x=[2,4][ri(0,1)];return{text:`y = ${k}/x\nUrči y pro x = ${x}.`,ans:String(k/x),hints:[`${k} ÷ ${x}.`],skill:'geo'};})(),
+  (()=>{const k=ri(2,6)*4,x=[2,4][ri(0,1)];return{text:`y = ${k}/x\nUrči y pro x = ${x}.`,ans:String(k/x),hints:[`${k} : ${x}.`],skill:'geo'};})(),
   (()=>{return{text:`Je funkce y = 12/x rostoucí pro x > 0?\nANO / NE`,ans:'NE',hints:[`Hyperbola pro x > 0 klesá.`],skill:'geo'};})()
  ],
 
  // ───────── OBLAST 7 — JÁDRO SYSTÉMU ─────────
  '7-1': () => [
   (()=>{const a=ri(3,9),k=ri(2,4);return{svg:svgSimilar(k),text:`Podobné trojúhelníky, k = ${k}.\nStraně ${a} cm odpovídá? (cm)`,ans:String(a*k),hints:[`${a} · ${k}.`],skill:'geo'};})(),
-  (()=>{const k=ri(2,4),orig=ri(4,9)*k;return{text:`Zmenšení k = 1/${k}.\nStrana ${orig} cm → ? (cm)`,ans:String(orig/k),hints:[`${orig} ÷ ${k}.`],skill:'geo'};})(),
-  (()=>{const a=ri(2,6),k=ri(2,4);return{text:`Originál ${a} cm, obraz ${a*k} cm.\nKoeficient k?`,ans:String(k),hints:[`${a*k} ÷ ${a}.`],skill:'geo'};})(),
+  (()=>{const k=ri(2,4),orig=ri(4,9)*k;return{text:`Zmenšení k = 1/${k}.\nStrana ${orig} cm → ? (cm)`,ans:String(orig/k),hints:[`${orig} : ${k}.`],skill:'geo'};})(),
+  (()=>{const a=ri(2,6),k=ri(2,4);return{text:`Originál ${a} cm, obraz ${a*k} cm.\nKoeficient k?`,ans:String(k),hints:[`${a*k} : ${a}.`],skill:'geo'};})(),
   (()=>{const onmap=ri(2,9),mer=500;return{text:`Mapa 1 : ${mer}. Úsek na mapě ${onmap} cm.\nKolik m ve skutečnosti?`,ans:String(onmap*mer/100),hints:[`${onmap} × ${mer} cm → m.`],skill:'geo'};})(),
   (()=>{const o=ri(3,8)*3,k=ri(2,4);return{text:`Podobné, k = ${k}. Obvod originálu ${o} cm.\nObvod obrazu? (cm)`,ans:String(o*k),hints:[`× ${k}.`],skill:'geo'};})(),
   (()=>{const onmap=ri(2,8),mer=2000;return{text:`Mapa 1 : ${mer}. Na mapě ${onmap} cm.\nKolik m ve skutečnosti?`,ans:String(onmap*mer/100),hints:[`${onmap} × ${mer} cm → m.`],skill:'geo'};})(),
   (()=>{const a=ri(5,20),k=ri(2,4);return{text:`Podobné tvary, k = ${k}.\nObvod originálu ${a} cm → obvod obrazu? (cm)`,ans:String(a*k),hints:[`Obvod × k.`],skill:'geo'};})(),
-  (()=>{const onmap=ri(3,9),mer=[200,500,1000][ri(0,2)];return{text:`Mapa 1 : ${mer}. Na mapě ${onmap} cm.\nSkutečná vzdálenost? (m)`,ans:String(onmap*mer/100),hints:[`${onmap} × ${mer} ÷ 100.`],skill:'geo'};})(),
-  (()=>{const orig=ri(4,12),k=ri(2,4);return{text:`Originál ${orig} cm, obraz ${orig*k} cm.\nJe to zvětšení k = ${k}?\nANO / NE`,ans:'ANO',hints:[`${orig*k} ÷ ${orig} = ${k}.`],skill:'geo'};})(),
+  (()=>{const onmap=ri(3,9),mer=[200,500,1000][ri(0,2)];return{text:`Mapa 1 : ${mer}. Na mapě ${onmap} cm.\nSkutečná vzdálenost? (m)`,ans:String(onmap*mer/100),hints:[`${onmap} × ${mer} : 100.`],skill:'geo'};})(),
+  (()=>{const orig=ri(4,12),k=ri(2,4);return{text:`Originál ${orig} cm, obraz ${orig*k} cm.\nJe to zvětšení k = ${k}?\nANO / NE`,ans:'ANO',hints:[`${orig*k} : ${orig} = ${k}.`],skill:'geo'};})(),
   (()=>{const k=ri(2,3),a=ri(3,10),b=ri(3,10);return{text:`Obdélník ${a} × ${b} cm zvětšen k = ${k}.\nObsah obrazu? (cm²)`,ans:String(a*k*b*k),hints:[`(${a*k}) × (${b*k}).`],skill:'geo'};})()
  ],
  '7-2': () => [
