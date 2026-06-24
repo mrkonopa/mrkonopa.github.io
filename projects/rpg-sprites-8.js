@@ -192,27 +192,35 @@ window.RPGSprites8 = (function () {
   /* ── sova — akademická průvodkyně (10×10) ── */
   const PAL_COM = { K:'#0a0c12', B:'#8a6a40', b:'#5a4428', W:'#e8ecf5', Y:'#f4d03f', y:'#c8a020', k:'#3a2c18', G:'#c8b090' };
   const COMPANION = [[
-    '..KKKKKKK.',
-    '.KBBBBBbK.',
-    '.KBKWWKbK.',
-    '.KBKWWKbK.',
-    '.KBKyyKBK.',
-    '.KBBBBBbK.',
-    '..KKBKKKK.',
-    '.KB.B.BK..',
-    'KBKbbbKBK.',
-    '.KKBBBkKK.'
+    '..KKKKKKKKK...',
+    '.KBBBBBBBBbK..',
+    '.KBWWWWWWBbK..',
+    '.KBWYYYYWBbK..',
+    '.KBWYyyYWBbK..',
+    '.KBWYYYYWBbK..',
+    '.KBWWWWWWBbK..',
+    '.KBBBBBBBBbK..',
+    '.KBWWWWWWBbK..',
+    '.KBWYYYYWBbK..',
+    '.KBBBBBBBBbK..',
+    '..KbbbbbbbK...',
+    '..KK.....KK...',
+    '...K.....K....'
   ],[
-    '..KKKKKKK.',
-    '.KBBBBBbK.',
-    '.KBKbBKbK.',
-    '.KBKBbKbK.',
-    '.KBKyYKBK.',
-    '.KBBBBBbK.',
-    '..KKBKKKK.',
-    '.KB.B.BK..',
-    'KBKBbbKBK.',
-    '.KKBBBkKK.'
+    '..KKKKKKKKK...',
+    '.KBBBBBBBBbK..',
+    '.KBWWWWWWBbK..',
+    '.KBWWYYWWBbK..',
+    '.KBWWyyWWBbK..',
+    '.KBWWYYWWBbK..',
+    '.KBWWWWWWBbK..',
+    '.KBBBBBBBBbK..',
+    '.KBWWWWWWBbK..',
+    '.KBWYYYYWBbK..',
+    '.KBBBBBBBBbK..',
+    '..KBBBBBBBbK..',
+    '...K.....K....',
+    '..KK.....KK...'
   ]];
 
   /* ── bossové: 7 oblastí, akademická/fantasy témata ── */
@@ -228,7 +236,9 @@ window.RPGSprites8 = (function () {
   const COMMON = { K:'#0a0c12', W:'#e8ecf5', R:'#ff3355' };
 
   const BOSS_SPRITES = {
-    1: [[ // strážce čísel — runový kamenný golem
+    1: [[ // runový kamenný golem (18×24 hi-res)
+      '..................',
+      '..................',
       '.....KKKKKKKK.....',
       '....KMMMMMMMMK....',
       '...KMMKWKKWKMMK...',
@@ -241,11 +251,19 @@ window.RPGSprites8 = (function () {
       '.KMMKMAMaAMAMKMMK.',
       '.KmMKMMAAAAMMKMmK.',
       '.KKKKMMMMMMMMKKKK.',
+      '....KMMMMMMMMK....',
+      '....KMmMMMMmMK....',
+      '....KMMMMMMMMK....',
       '....KMMK..KMMK....',
       '....KMmK..KmMK....',
       '...KMMMK..KMMMK...',
-      '...KKKKK..KKKKK...'
+      '...KKKKK..KKKKK...',
+      '..................',
+      '..................',
+      '..................'
     ],[
+      '..................',
+      '..................',
       '.....KKKKKKKK.....',
       '....KMMMMMMMMK....',
       '...KMMKKWKWKMMK...',
@@ -258,12 +276,18 @@ window.RPGSprites8 = (function () {
       '.KMMKMAMAaMAMKMMK.',
       '.KmMKMMAAAAMMKMmK.',
       '.KKKKMMMMMMMMKKKK.',
-      '....KMmK..KMMK....',
-      '....KMMK..KmMK....',
+      '....KMMMMMMMMK....',
+      '....KMmMMMMmMK....',
+      '....KMMMMMMMMK....',
+      '....KMMK..KMMK....',
+      '....KMmK..KmMK....',
       '...KMMMK..KMMMK...',
-      '...KKKKK..KKKKK...'
+      '...KKKKK..KKKKK...',
+      '..................',
+      '..................',
+      '..................'
     ]],
-    2: [[ // čaroděj geometrie — horský mág s trojúhelníkovým kloboukem
+    2: [[ // čaroděj geometrie — horský mág (18×24 hi-res)
       '........KAK.......',
       '.......KAAAK......',
       '......KAAaAAK.....',
@@ -278,8 +302,16 @@ window.RPGSprites8 = (function () {
       '.KMAAKMAMMAMKAAMK.',
       '.KMAAKMMAAMMKAAMK.',
       '..KKKKMMMMMMKKKK..',
+      '....KMMMMMMMMK....',
+      '....KmMMMMMmMK....',
+      '....KMMMMMMMMK....',
       '.....KMMKKMMK.....',
-      '....KKKKKKKKKK....'
+      '.....KmMKKMmK.....',
+      '....KKKKKKKKKK....',
+      '..................',
+      '..................',
+      '..................',
+      '..................'
     ],[
       '........KAK.......',
       '.......KAAAK......',
@@ -295,10 +327,20 @@ window.RPGSprites8 = (function () {
       '.KMAAKMMAAMMKAAMK.',
       '.KMAAKMAMMAMKAAMK.',
       '..KKKKMMMMMMKKKK..',
+      '....KMMMMMMMMK....',
+      '....KmMMMMMmMK....',
+      '....KMMMMMMMMK....',
       '.....KMMKKMMK.....',
-      '....KKKKKKKKKK....'
+      '.....KmMKKMmK.....',
+      '....KKKKKKKKKK....',
+      '..................',
+      '..................',
+      '..................',
+      '..................'
     ]],
-    3: [[ // krokodýl algebry — bažinný ještěr
+    3: [[ // krokodýl algebry — bažinný ještěr (18×24 hi-res)
+      '..................',
+      '..................',
       '..................',
       '..KKK.............',
       '.KMWKKKKKK........',
@@ -314,8 +356,16 @@ window.RPGSprites8 = (function () {
       '..KMMKKMMMMKKMMK..',
       '..KMmK.KMMK.KmMK..',
       '..KKKK.KKKK.KKKK..',
+      '..................',
+      '..................',
+      '..................',
+      '..................',
+      '..................',
+      '..................',
       '..................'
     ],[
+      '..................',
+      '..................',
       '..................',
       '..KKK.............',
       '.KMWKKKKKK........',
@@ -323,7 +373,7 @@ window.RPGSprites8 = (function () {
       'KMKKMMMMMMMMMMMMK.',
       'KMMMMMMMMMMMMMMMMK',
       '.KKWKWKWKWKMMMMMK.',
-      '..KKKKKKKKMMMMMK..',
+      '..KKKKKKKMMMMMMK..',
       '.KKWKWKWKMMMMMMK..',
       'KMMMMMMMMMMMMMMK..',
       'KMmMMMMMMMMMMMMMK.',
@@ -331,9 +381,16 @@ window.RPGSprites8 = (function () {
       '..KMMKKMMMMKKMMK..',
       '..KMmK.KMMK.KmMK..',
       '..KKKK.KKKK.KKKK..',
+      '..................',
+      '..................',
+      '..................',
+      '..................',
+      '..................',
+      '..................',
       '..................'
     ]],
-    4: [[ // alchymista výrazů — věžní mág s baňkou
+    4: [[ // alchymista výrazů — věžní mág s baňkou (18×24 hi-res)
+      '..................',
       '.......KKKK.......',
       '......KMMMMK......',
       '.....KMMMMMMK.....',
@@ -349,8 +406,16 @@ window.RPGSprites8 = (function () {
       '.KAAAKMMMMMMK.....',
       '..KKK.KMMMMK......',
       '......KMMMMMK.....',
-      '.....KKKKKKKK.....'
+      '.....KKKKKKKK.....',
+      '..................',
+      '..................',
+      '..................',
+      '..................',
+      '..................',
+      '..................',
+      '..................'
     ],[
+      '..................',
       '.......KKKK.......',
       '......KMMMMK......',
       '.....KMMMMMMK.....',
@@ -366,9 +431,17 @@ window.RPGSprites8 = (function () {
       '.KAaAKMMMMMMK.....',
       '..KKK.KMMMMK......',
       '......KMMMMMK.....',
-      '.....KKKKKKKK.....'
+      '.....KKKKKKKK.....',
+      '..................',
+      '..................',
+      '..................',
+      '..................',
+      '..................',
+      '..................',
+      '..................'
     ]],
-    5: [[ // chobotnice kruhu — jezerní hlavonožec
+    5: [[ // chobotnice kruhu — jezerní hlavonožec (18×24 hi-res)
+      '..................',
       '......KKKKKK......',
       '....KKMMMMMMKK....',
       '...KMMMMMMMMMMK...',
@@ -384,8 +457,16 @@ window.RPGSprites8 = (function () {
       '.KMK.KMKmmKMK.KMK.',
       '..K..KmK..KmK..K..',
       '......K....K......',
+      '..................',
+      '..................',
+      '..................',
+      '..................',
+      '..................',
+      '..................',
+      '..................',
       '..................'
     ],[
+      '..................',
       '......KKKKKK......',
       '....KKMMMMMMKK....',
       '...KMMMMMMMMMMK...',
@@ -397,13 +478,21 @@ window.RPGSprites8 = (function () {
       '..KMKMKMKKMKMKMK..',
       '.KMKMKMKMMKMKMKMK.',
       '.KmKMKMKMMKMKMKmK.',
-      '.KMKmKMKMMKMKmKMK.',
-      '..K.KMKKmmKKMK.K..',
-      '....KmK....KmK....',
-      '.....K......K.....',
+      '.KmKMKmKMMKmKMKmK.',
+      '.KMK.KMKmmKMK.KMK.',
+      '..K..KmK..KmK..K..',
+      '......K....K......',
+      '..................',
+      '..................',
+      '..................',
+      '..................',
+      '..................',
+      '..................',
+      '..................',
       '..................'
     ]],
-    6: [[ // rýsovač záhad — mechanické kružítko
+    6: [[ // rýsovač záhad — mechanické kružítko (18×24 hi-res)
+      '..................',
       '........KK........',
       '.......KAAK.......',
       '......KAAAAK......',
@@ -419,8 +508,16 @@ window.RPGSprites8 = (function () {
       '..KMAK......KAMK..',
       '..KMMK......KMMK..',
       '.KMmMK......KMmMK.',
-      '.KKKKK......KKKKK.'
+      '.KKKKK......KKKKK.',
+      '..................',
+      '..................',
+      '..................',
+      '..................',
+      '..................',
+      '..................',
+      '..................'
     ],[
+      '..................',
       '........KK........',
       '.......KAAK.......',
       '......KAAAAK......',
@@ -429,16 +526,24 @@ window.RPGSprites8 = (function () {
       '......KAAAAK......',
       '.....KAAKKAAK.....',
       '.....KAK..KAK.....',
-      '....KAAK..KAAK....',
       '...KAK......KAK...',
       '...KAAK....KAAK...',
       '..KAK........KAK..',
+      '...KAK......KAK...',
       '..KMAK......KAMK..',
-      '.KMMK........KMMK.',
+      '..KMMK......KMMK..',
       '.KMmMK......KMmMK.',
-      '.KKKKK......KKKKK.'
+      '.KKKKK......KKKKK.',
+      '..................',
+      '..................',
+      '..................',
+      '..................',
+      '..................',
+      '..................',
+      '..................'
     ]],
-    7: [[ // arcimág — levitující mistr s hůlkou
+    7: [[ // arcimág — levitující mistr s hůlkou (18×24 hi-res)
+      '..................',
       '.....KKKKKKK......',
       '....KAAAAAAAK.....',
       '...KAAaAAAaAAK....',
@@ -454,8 +559,16 @@ window.RPGSprites8 = (function () {
       '.....KMMMMK...KAK.',
       '....KAAAAAAK..KAK.',
       '...KAAaAAaAAK.KaK.',
-      '....KKKKKKKK...K..'
+      '....KKKKKKKK...K..',
+      '..................',
+      '..................',
+      '..................',
+      '..................',
+      '..................',
+      '..................',
+      '..................'
     ],[
+      '..................',
       '.....KKKKKKK......',
       '....KAAAAAAAK.....',
       '...KAAAaAaAAAK....',
@@ -471,9 +584,16 @@ window.RPGSprites8 = (function () {
       '.....KMMMMK...KAK.',
       '....KAAAAAAK..KAK.',
       '...KAAAaAaAAK.KaK.',
-      '....KKKKKKKK...K..'
+      '....KKKKKKKK...K..',
+      '..................',
+      '..................',
+      '..................',
+      '..................',
+      '..................',
+      '..................',
+      '..................'
     ]]
-  };;
+  };
 
   /* ── engine ── */
   let cv = null, ctx = null, raf = 0, lastT = 0, tick = 0;
@@ -533,7 +653,12 @@ window.RPGSprites8 = (function () {
   }
 
   function heroPos() { return { x: Math.round(cv.width * 0.12), y: 200 - 24 * SCALE - 14 }; }
-  function bossPos() { return { x: Math.round(cv.width * 0.58), y: 200 - 16 * BSCALE - 14 }; }
+  function bossPos() {
+    const fr = BOSS_SPRITES[curArea] || BOSS_SPRITES[1];
+    const rows = fr[0].length;
+    const sc = rows >= 20 ? 5 : BSCALE;
+    return { x: Math.round(cv.width * 0.58), y: 186 - rows * sc, sc };
+  }
 
   function heroGrid() {
     const m = ST.hero.mode;
@@ -551,15 +676,15 @@ window.RPGSprites8 = (function () {
     const pal = Object.assign({}, COMMON, BOSS_PALS[curArea] || BOSS_PALS[1]);
     const b = ST.boss;
     if (b.mode !== 'gone') {
-      let by = bp.y, bx = bp.x, alpha = 1, bscale = BSCALE;
+      let by = bp.y, bx = bp.x, alpha = 1, bscale = bp.sc;
       if (b.mode === 'enter' && !rm()) {
         const p = Math.min(1, b.t / 900);
         if (p < 0.55) {
           by = bp.y - (1 - p / 0.55) * 130;
           alpha = (Math.floor(b.t / 70) % 3 === 0) ? 0.25 : 0.9;
-          bscale = BSCALE * (0.4 + 0.6 * (p / 0.55));
+          bscale = bp.sc * (0.4 + 0.6 * (p / 0.55));
         } else if (p < 0.75) {
-          bscale = BSCALE; by = bp.y + 4;
+          bscale = bp.sc; by = bp.y + 4;
         }
         if (p >= 1) { b.mode = 'idle'; b.t = 0; }
       } else if (b.mode === 'enter') { b.mode = 'idle'; }
@@ -574,6 +699,12 @@ window.RPGSprites8 = (function () {
       }
       const frames = BOSS_SPRITES[curArea] || BOSS_SPRITES[1];
       const grid = frames[rm() ? 0 : tick % frames.length];
+      // idle pohyb: vznášející se bossové (≥3 prázdné spodní řádky) levitují, stojící lehce „dýchají“
+      if (b.mode === "idle" && !rm()) {
+        let eb = 0; for (let r = grid.length - 1; r >= 0 && /^\.+$/.test(grid[r]); r--) eb++;
+        if (eb >= 3) by += Math.sin(performance.now() / 480) * 4;
+        else bx += Math.sin(performance.now() / 620) * 1.5;
+      }
       ctx.globalAlpha = alpha;
       const off = (b.flash > 0 && !rm()) ? (b.t % 2 ? 2 : -2) : 0;
       drawSprite(grid, pal, bx + off, by, bscale, false, b.flash > 0);
@@ -656,10 +787,10 @@ window.RPGSprites8 = (function () {
       if (!rm()) {
         // magické jiskřičky pod sovou
         ctx.fillStyle = (tick % 2) ? '#aa88ff' : '#5533aa';
-        ctx.fillRect(ax + 3 * ASCALE, ay + 9 * ASCALE, ASCALE, ASCALE);
-        ctx.fillRect(ax + 6 * ASCALE, ay + 9 * ASCALE, ASCALE, ASCALE);
+        ctx.fillRect(ax + 3 * ASCALE, ay + 13 * ASCALE, ASCALE, ASCALE);
+        ctx.fillRect(ax + 6 * ASCALE, ay + 13 * ASCALE, ASCALE, ASCALE);
       }
-      ST._androidPos = { x: ax + 5 * ASCALE, y: ay + 5 * ASCALE };
+      ST._androidPos = { x: ax + 7 * ASCALE, y: ay + 7 * ASCALE };
     }
     // efekty
     for (let i = ST.fx.length - 1; i >= 0; i--) {

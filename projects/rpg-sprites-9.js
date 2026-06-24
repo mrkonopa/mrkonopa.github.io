@@ -195,28 +195,36 @@ window.RPGSprites9 = (function () {
 
   /* ── android parťák (10×10, levituje vedle hrdiny) ── */
   const PAL_AND = { K:'#0a0c12', G:'#8a97ad', g:'#5a6a85', C:'#19e6e6', W:'#e8ecf5' };
-  const ANDROID = [[
-    '....KC....',
-    '....KK....',
-    '..KKKKKK..',
-    '.KGGGGGGK.',
-    'KGgWCCWgGK',
-    'KGgWCCWgGK',
-    '.KGGGGGGK.',
-    '..KKKKKK..',
-    '..KG..GK..',
-    '...K..K...'
+    const ANDROID = [[
+    '......KC......',
+    '......KK......',
+    '....KKKKKK....',
+    '...KGGGGGGK...',
+    '..KGgWCCWgGK..',
+    '..KGgWCCWgGK..',
+    '..KGgCCCCgGK..',
+    '..KGgWCCWgGK..',
+    '..KGgWCCWgGK..',
+    '...KGGGGGGK...',
+    '....KKKKKK....',
+    '....KG..GK....',
+    '.....K..K.....',
+    '......KK......'
   ],[
-    '....KC....',
-    '....KK....',
-    '..KKKKKK..',
-    '.KGGGGGGK.',
-    'KGgWWWWgGK',
-    'KGgWCCWgGK',
-    '.KGGGGGGK.',
-    '..KKKKKK..',
-    '..KG..GK..',
-    '...K..K...'
+    '......KC......',
+    '......KK......',
+    '....KKKKKK....',
+    '...KGGGGGGK...',
+    '..KGgWWWWgGK..',
+    '..KGgWCCWgGK..',
+    '..KGgCCCCgGK..',
+    '..KGgWCCWgGK..',
+    '..KGgWCCWgGK..',
+    '...KGGGGGGK...',
+    '....KKKKKK....',
+    '....KG..GK....',
+    '.....K..K.....',
+    '......KK......'
   ]];
   const ASCALE = 4;
 
@@ -235,24 +243,7 @@ window.RPGSprites9 = (function () {
   const COMMON = { K:'#0a0c12', W:'#e8ecf5', R:'#ff3355' };
 
   const BOSS_SPRITES = {
-    1: [[ // strážní bot — hranatý robot, 2 idle snímky
-      '...KKKKKKKKKK.....',
-      '..KMMMMMMMMMMK....',
-      '..KMKKKKKKKKMK....',
-      '..KMKAAKKAAKMK....',
-      '..KMKAAKKAAKMK....',
-      '..KMKKKKKKKKMK....',
-      '..KmMMMMMMMMmK....',
-      '...KKKMMMMKKK.....',
-      '..KAAKMmmMKAAK....',
-      '.KMMMKMmmMKMMMK...',
-      '.KmmmKMMMMKmmmK...',
-      '.KKKKKMMMMKKKKK...',
-      '....KMMKKMMK......',
-      '....KMMK.KMMK.....',
-      '....KmmK.KmmK.....',
-      '...KKKKK.KKKKK....'
-    ],[
+    1: [[ // strážní bot — hranatý robot (18×24 hi-res)
       '..................',
       '...KKKKKKKKKK.....',
       '..KMMMMMMMMMMK....',
@@ -266,11 +257,45 @@ window.RPGSprites9 = (function () {
       '.KMMMKMmmMKMMMK...',
       '.KmmmKMMMMKmmmK...',
       '.KKKKKMMMMKKKKK...',
+      '....KMMMMMMMMK....',
+      '....KmMMMMMmMK....',
+      '....KMMMMMMMMK....',
       '....KMMKKMMK......',
       '....KMMK.KMMK.....',
-      '...KKKKK.KKKKK....'
+      '....KmmK.KmmK.....',
+      '...KKKKK.KKKKK....',
+      '..................',
+      '..................',
+      '..................',
+      '..................'
+    ],[
+      '..................',
+      '..................',
+      '...KKKKKKKKKK.....',
+      '..KMMMMMMMMMMK....',
+      '..KMKKKKKKKKMK....',
+      '..KMKAAKKAAKMK....',
+      '..KMKAAKKAAKMK....',
+      '..KMKKKKKKKKMK....',
+      '..KmMMMMMMMMmK....',
+      '...KKKMMMMKKK.....',
+      '..KAAKMmmMKAAK....',
+      '.KMMMKMmmMKMMMK...',
+      '.KmmmKMMMMKmmmK...',
+      '.KKKKKMMMMKKKKK...',
+      '....KMMMMMMMMK....',
+      '....KmMMMMMmMK....',
+      '....KMMMMMMMMK....',
+      '....KMMKKMMK......',
+      '....KMMK.KMMK.....',
+      '....KmmK.KmmK.....',
+      '...KKKKK.KKKKK....',
+      '..................',
+      '..................',
+      '..................'
     ]],
-    2: [[ // reaktorové jádro — pulzující orb s prstenci
+    2: [[ // reaktorové jádro — pulzující orb (18×24 hi-res)
+      '..................',
       '......KKKKKK......',
       '....KKAAAAAAKK....',
       '...KAAaaaaaaAAK...',
@@ -286,8 +311,16 @@ window.RPGSprites9 = (function () {
       '...KAAaaaaaaAAK...',
       '....KKAAAAAAKK....',
       '......KKKKKK......',
+      '..................',
+      '..................',
+      '..................',
+      '..................',
+      '..................',
+      '..................',
+      '..................',
       '..................'
     ],[
+      '..................',
       '......KKKKKK......',
       '....KKAAAAAAKK....',
       '...KAAaaaaaaAAK...',
@@ -303,9 +336,17 @@ window.RPGSprites9 = (function () {
       '...KAAaaaaaaAAK...',
       '....KKAAAAAAKK....',
       '......KKKKKK......',
+      '..................',
+      '..................',
+      '..................',
+      '..................',
+      '..................',
+      '..................',
+      '..................',
       '..................'
     ]],
-    3: [[ // procesorový golem — čip s nohama
+    3: [[ // procesorový golem — čip s nohama (18×24 hi-res)
+      '..................',
       '..KK..........KK..',
       '..KAK........KAK..',
       '...KAK......KAK...',
@@ -321,8 +362,16 @@ window.RPGSprites9 = (function () {
       '...KAK......KAK...',
       '..KAK........KAK..',
       '..KK..........KK..',
+      '..................',
+      '..................',
+      '..................',
+      '..................',
+      '..................',
+      '..................',
+      '..................',
       '..................'
     ],[
+      '..................',
       '..KK..........KK..',
       '...KAK......KAK...',
       '..KAK........KAK..',
@@ -338,9 +387,17 @@ window.RPGSprites9 = (function () {
       '..KAK........KAK..',
       '...KAK......KAK...',
       '..KK..........KK..',
+      '..................',
+      '..................',
+      '..................',
+      '..................',
+      '..................',
+      '..................',
+      '..................',
       '..................'
     ]],
-    4: [[ // glitch wraith — roztrhaný duch
+    4: [[ // glitch wraith — roztrhaný duch (18×24 hi-res)
+      '..................',
       '.....KKKKKKK......',
       '...KKMMMMMMMKK....',
       '..KMMMMMMMMMMMK...',
@@ -356,8 +413,16 @@ window.RPGSprites9 = (function () {
       '...K..KAK.K..K....',
       '......K.K.A.......',
       '....A.....K.......',
+      '..................',
+      '..................',
+      '..................',
+      '..................',
+      '..................',
+      '..................',
+      '..................',
       '..................'
     ],[
+      '..................',
       '.....KKKKKKK......',
       '...KKMMMMMMMKK....',
       '..KMMMMMMMMMMMK...',
@@ -373,9 +438,17 @@ window.RPGSprites9 = (function () {
       '....K.A...KA......',
       '...A....K....K....',
       '......K....A......',
+      '..................',
+      '..................',
+      '..................',
+      '..................',
+      '..................',
+      '..................',
+      '..................',
       '..................'
     ]],
-    5: [[ // síťový pavouk — spider bot
+    5: [[ // síťový pavouk — spider bot (18×24 hi-res)
+      '..................',
       '.KK.....KK.....KK.',
       '..KK...KAK....KK..',
       '...KK..KAK...KK...',
@@ -391,8 +464,16 @@ window.RPGSprites9 = (function () {
       '.KK...KKKKK...KK..',
       'KK...KK...KK...KK.',
       'K....K.....K....K.',
+      '..................',
+      '..................',
+      '..................',
+      '..................',
+      '..................',
+      '..................',
+      '..................',
       '..................'
     ],[
+      '..................',
       '.KK.....KK.....KK.',
       '..KK...KAK....KK..',
       '...KK..KAK...KK...',
@@ -408,9 +489,16 @@ window.RPGSprites9 = (function () {
       '..KK..KKKKK..KK...',
       '.KK..KK...KK..KK..',
       '.K...K.....K...K..',
+      '..................',
+      '..................',
+      '..................',
+      '..................',
+      '..................',
+      '..................',
+      '..................',
       '..................'
     ]],
-    6: [[ // monitor — CRT hlava s anténou
+    6: [[ // monitor — CRT hlava s anténou (18×24 hi-res)
       '........KAK.......',
       '........KAK.......',
       '....KKKKKKKKKK....',
@@ -425,8 +513,16 @@ window.RPGSprites9 = (function () {
       '..KKMMMMMMMMMMKK..',
       '....KKKKKKKKKK....',
       '.....KMK..KMK.....',
+      '.....KMK..KMK.....',
       '.....KmK..KmK.....',
-      '....KKKK..KKKK....'
+      '....KKKK..KKKK....',
+      '..................',
+      '..................',
+      '..................',
+      '..................',
+      '..................',
+      '..................',
+      '..................'
     ],[
       '........KAK.......',
       '........KAK.......',
@@ -442,10 +538,19 @@ window.RPGSprites9 = (function () {
       '..KKMMMMMMMMMMKK..',
       '....KKKKKKKKKK....',
       '.....KMK..KMK.....',
+      '.....KMK..KMK.....',
       '.....KmK..KmK.....',
-      '....KKKK..KKKK....'
+      '....KKKK..KKKK....',
+      '..................',
+      '..................',
+      '..................',
+      '..................',
+      '..................',
+      '..................',
+      '..................'
     ]],
-    7: [[ // jádro systému — velké oko v mech. schránce
+    7: [[ // jádro systému — velké oko v mech. schránce (18×24 hi-res)
+      '..................',
       '....KKKKKKKKKK....',
       '..KKMMMMMMMMMMKK..',
       '.KMMMKKKKKKKKMMMK.',
@@ -461,8 +566,16 @@ window.RPGSprites9 = (function () {
       '.KMKKAAAAAAAAKKMK.',
       '.KMMMKKKKKKKKMMMK.',
       '..KKMMMMMMMMMMKK..',
-      '....KKKKKKKKKK....'
+      '....KKKKKKKKKK....',
+      '..................',
+      '..................',
+      '..................',
+      '..................',
+      '..................',
+      '..................',
+      '..................'
     ],[
+      '..................',
       '....KKKKKKKKKK....',
       '..KKMMMMMMMMMMKK..',
       '.KMMMKKKKKKKKMMMK.',
@@ -478,7 +591,14 @@ window.RPGSprites9 = (function () {
       '.KMKKAAAAAAAAKKMK.',
       '.KMMMKKKKKKKKMMMK.',
       '..KKMMMMMMMMMMKK..',
-      '....KKKKKKKKKK....'
+      '....KKKKKKKKKK....',
+      '..................',
+      '..................',
+      '..................',
+      '..................',
+      '..................',
+      '..................',
+      '..................'
     ]]
   };
 
@@ -541,7 +661,12 @@ window.RPGSprites9 = (function () {
 
   /* pozice: hrdina vlevo dole, boss vpravo */
   function heroPos() { return { x: Math.round(cv.width * 0.12), y: 200 - 24 * SCALE - 14 }; }
-  function bossPos() { return { x: Math.round(cv.width * 0.58), y: 200 - 16 * BSCALE - 14 }; }
+  function bossPos() {
+    const fr = BOSS_SPRITES[curArea] || BOSS_SPRITES[1];
+    const rows = fr[0].length;
+    const sc = rows >= 20 ? 5 : BSCALE;
+    return { x: Math.round(cv.width * 0.58), y: 186 - rows * sc, sc };
+  }
 
   function heroGrid() {
     const m = ST.hero.mode;
@@ -560,15 +685,15 @@ window.RPGSprites9 = (function () {
     // ── boss ──
     const b = ST.boss;
     if (b.mode !== 'gone') {
-      let by = bp.y, bx = bp.x, alpha = 1, bscale = BSCALE;
+      let by = bp.y, bx = bp.x, alpha = 1, bscale = bp.sc;
       if (b.mode === 'enter' && !rm()) {
         const p = Math.min(1, b.t / 900);            // 0→1 průběh vstupu
         if (p < 0.55) {                               // pád shora + blikání
           by = bp.y - (1 - p / 0.55) * 130;
           alpha = (Math.floor(b.t / 70) % 3 === 0) ? 0.25 : 0.9;
-          bscale = BSCALE * (0.4 + 0.6 * (p / 0.55));
+          bscale = bp.sc * (0.4 + 0.6 * (p / 0.55));
         } else if (p < 0.75) {                        // dopad — squash
-          bscale = BSCALE; by = bp.y + 4;
+          bscale = bp.sc; by = bp.y + 4;
         }
         if (p >= 1) { b.mode = 'idle'; b.t = 0; }
       } else if (b.mode === 'enter') { b.mode = 'idle'; }
@@ -583,6 +708,12 @@ window.RPGSprites9 = (function () {
       }
       const frames = BOSS_SPRITES[curArea] || BOSS_SPRITES[1];
       const grid = frames[rm() ? 0 : tick % frames.length];
+      // idle pohyb: vznášející se bossové (≥3 prázdné spodní řádky) levitují, stojící lehce „dýchají“
+      if (b.mode === "idle" && !rm()) {
+        let eb = 0; for (let r = grid.length - 1; r >= 0 && /^\.+$/.test(grid[r]); r--) eb++;
+        if (eb >= 3) by += Math.sin(performance.now() / 480) * 4;
+        else bx += Math.sin(performance.now() / 620) * 1.5;
+      }
       ctx.globalAlpha = alpha;
       const off = (b.flash > 0 && !rm()) ? (b.t % 2 ? 2 : -2) : 0;
       drawSprite(grid, pal, bx + off, by, bscale, false, b.flash > 0);
@@ -673,10 +804,10 @@ window.RPGSprites9 = (function () {
       drawSprite(ANDROID[rm() ? 0 : tick % 2], PAL_AND, ax, ay, ASCALE, false, false);
       if (!rm()) {  // tryskový plamínek pod tělem
         ctx.fillStyle = (tick % 2) ? '#19e6e6' : '#0e8a8a';
-        ctx.fillRect(ax + 3 * ASCALE, ay + 10 * ASCALE, ASCALE, ASCALE);
-        ctx.fillRect(ax + 6 * ASCALE, ay + 10 * ASCALE, ASCALE, ASCALE);
+        ctx.fillRect(ax + 4 * ASCALE, ay + 13 * ASCALE, ASCALE, ASCALE);
+        ctx.fillRect(ax + 9 * ASCALE, ay + 13 * ASCALE, ASCALE, ASCALE);
       }
-      ST._androidPos = { x: ax + 5 * ASCALE, y: ay + 5 * ASCALE };
+      ST._androidPos = { x: ax + 7 * ASCALE, y: ay + 7 * ASCALE };
     }
     // ── efekty ──
     for (let i = ST.fx.length - 1; i >= 0; i--) {
