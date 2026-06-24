@@ -659,6 +659,73 @@ window.RPGSprites9 = (function () {
     }
   }
 
+  // ── deterministický seedovaný RNG → stabilní rozložení pozadí pro danou oblast ──
+  function srnd(seed) {
+    let s = (seed * 2654435761) >>> 0;
+    return function () { s = (s * 1664525 + 1013904223) >>> 0; return s / 4294967296; };
+  }
+
+  // ── cyberpunk: neonová perspektivní mřížka + věže + datový déšť (per oblast) ──
+  const G9_TH = {
+    1: '#3fd6e0', 2: '#ff5a8a', 3: '#5affc0', 4: '#c06aff',
+    5: '#ffb03a', 6: '#4a8aff', 7: '#3fe06a'
+  };
+  function drawBackdrop(now) {
+    const W = cv.width, H = cv.height, animOK = !rm();
+    const neon = G9_TH[curArea] || G9_TH[1];
+    const nr = parseInt(neon.slice(1, 3), 16), ng = parseInt(neon.slice(3, 5), 16), nb = parseInt(neon.slice(5, 7), 16);
+    const RGBA = a => 'rgba(' + nr + ',' + ng + ',' + nb + ',' + a + ')';
+    const rnd = srnd(curArea * 173 + 11);
+    const horizon = Math.round(H * 0.46);
+    // datové tečky nad horizontem
+    for (let i = 0; i < 24; i++) {
+      const x = Math.floor(rnd() * W), y = Math.floor(rnd() * (horizon - 6));
+      ctx.globalAlpha = animOK ? 0.22 + 0.3 * Math.abs(Math.sin(now / 500 + i * 1.1)) : 0.4;
+      ctx.fillStyle = rnd() < 0.5 ? RGBA(1) : '#6a7a98'; ctx.fillRect(x, y, 1, 1);
+    }
+    ctx.globalAlpha = 1;
+    // vzdálená silueta věží s neonovými okny
+    let tx = 8;
+    while (tx < W) {
+      const tw = 14 + Math.floor(rnd() * 22), thh = 18 + Math.floor(rnd() * 48);
+      ctx.globalAlpha = 0.85; ctx.fillStyle = '#0d1019'; ctx.fillRect(tx, horizon - thh, tw, thh);
+      for (let wy = horizon - thh + 4; wy < horizon - 4; wy += 6)
+        for (let wx = tx + 3; wx < tx + tw - 2; wx += 5)
+          if (rnd() < 0.45) { ctx.globalAlpha = 0.4 + rnd() * 0.4; ctx.fillStyle = RGBA(1); ctx.fillRect(wx, wy, 2, 2); }
+      tx += tw + 5 + Math.floor(rnd() * 10);
+    }
+    ctx.globalAlpha = 1;
+    // zářící horizont
+    ctx.globalAlpha = 0.7; ctx.fillStyle = RGBA(1); ctx.fillRect(0, horizon - 1, W, 1);
+    ctx.globalAlpha = 0.12; ctx.fillStyle = neon; ctx.fillRect(0, horizon, W, 4);
+    ctx.globalAlpha = 1;
+    // perspektivní mřížka pod horizontem
+    const vpx = Math.round(W * 0.5);
+    ctx.strokeStyle = RGBA(0.32); ctx.lineWidth = 1;
+    for (let gx = -6; gx <= 6; gx++) {
+      const fx = W / 2 + gx * (W / 9);
+      ctx.beginPath(); ctx.moveTo(vpx, horizon); ctx.lineTo(fx, H); ctx.stroke();
+    }
+    const scroll = animOK ? (now / 1400) % 1 : 0;
+    for (let r = 0; r < 8; r++) {
+      const t = (r + scroll) / 8;
+      const y = horizon + t * t * (H - horizon);
+      ctx.globalAlpha = 0.08 + 0.3 * t;
+      ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+    }
+    ctx.globalAlpha = 1;
+    // datový déšť (svislé pruhy nad horizontem)
+    if (animOK) {
+      for (let i = 0; i < 9; i++) {
+        const x = Math.floor((i / 9) * W) + Math.floor(rnd() * 8);
+        const speed = 36 + rnd() * 60;
+        const yy = ((now / 1000 * speed) + rnd() * H) % (horizon + 18);
+        for (let k = 0; k < 5; k++) { ctx.globalAlpha = 0.5 - k * 0.1; ctx.fillStyle = RGBA(1); ctx.fillRect(x, yy - k * 5, 1, 3); }
+      }
+      ctx.globalAlpha = 1;
+    }
+  }
+
   /* pozice: hrdina vlevo dole, boss vpravo */
   function heroPos() { return { x: Math.round(cv.width * 0.12), y: 200 - 24 * SCALE - 14 }; }
   function bossPos() {
@@ -680,6 +747,7 @@ window.RPGSprites9 = (function () {
   function render(now) {
     if (!ctx) return;
     ctx.clearRect(0, 0, cv.width, cv.height);
+    drawBackdrop(now);
     const hp = heroPos(), bp = bossPos();
     const pal = Object.assign({}, COMMON, BOSS_PALS[curArea] || BOSS_PALS[1]);
     // ── boss ──
@@ -946,6 +1014,19 @@ window.RPGSprites9 = (function () {
         ctx.fillStyle = 'rgba(80,65,55,' + (0.45 - p * 0.44) + ')';
         ctx.fillRect(f.x - s / 2, f.y - s / 2, s, s);
         if (p >= 1 || f.y < -10) ST.fx.splice(i, 1);
+      } else if (f.kind === 'shock') {
+        const p = Math.min(1, f.t / 420);
+        ctx.strokeStyle = 'rgba(' + f.rgb + ',' + (0.9 - p * 0.9) + ')';
+        ctx.lineWidth = 4 - p * 3;
+        ctx.beginPath(); ctx.arc(f.x, f.y, 8 + p * 58, 0, Math.PI * 2); ctx.stroke();
+        if (p >= 1) ST.fx.splice(i, 1);
+      } else if (f.kind === 'debris') {
+        f.x += f.vx; f.y += f.vy; f.vy += 0.18; f.vx *= 0.99;
+        const p = Math.min(1, f.t / 760);
+        ctx.fillStyle = 'rgba(' + f.rgb + ',' + (1 - p) + ')';
+        const s = f.s || 4;
+        ctx.fillRect(f.x - s / 2, f.y - s / 2, s, s);
+        if (p >= 1 || f.y > 212) ST.fx.splice(i, 1);
       }
     }
   }
@@ -995,7 +1076,7 @@ window.RPGSprites9 = (function () {
     if (!force && kind === lastAtk) kind = ATTACKS[(ATTACKS.indexOf(kind) + 1) % ATTACKS.length];
     lastAtk = kind;
     const hp = heroPos(), bp = bossPos();
-    const bcx = bp.x + 9 * BSCALE, bcy = bp.y + 8 * BSCALE;
+    const bcx = bp.x + 9 * bp.sc, bcy = bp.y + 9 * bp.sc;
     const gy = 200 - 12;                       // úroveň země
     if (rm()) { ST.boss.flash = 130; ST.boss.t = 0; return; }
     ST.hero.mode = kind === 'slash' ? 'slash' : kind === 'shoot' ? 'shoot' : 'cast';
@@ -1036,7 +1117,7 @@ window.RPGSprites9 = (function () {
     if (rm()) { ST.hero.mode = 'hit'; setTimeout(() => { ST.hero.mode = 'idle'; }, 300); return; }
     ST.boss.mode = 'charge'; ST.boss.t = 0;
     setTimeout(() => {
-      ST.fx.push({ kind: 'bossproj', x0: bp.x + 4 * BSCALE, y0: bp.y + 8 * BSCALE, x1: hp.x + 6 * SCALE, y1: hp.y + 13 * SCALE, t: 0 });
+      ST.fx.push({ kind: 'bossproj', x0: bp.x + 5 * bp.sc, y0: bp.y + 9 * bp.sc, x1: hp.x + 6 * SCALE, y1: hp.y + 13 * SCALE, t: 0 });
     }, 520);
   }
 
@@ -1045,8 +1126,20 @@ window.RPGSprites9 = (function () {
     const bp = bossPos();
     ST.boss.mode = 'defeat'; ST.boss.t = 0;
     const pal = BOSS_PALS[curArea] || BOSS_PALS[1];
-    const rgb = parseInt(pal.A.slice(1), 16);
-    ST.fx.push({ kind: 'boom', x: bp.x + 9 * BSCALE, y: bp.y + 8 * BSCALE, t: 0, rgb: ((rgb >> 16) & 255) + ',' + ((rgb >> 8) & 255) + ',' + (rgb & 255) });
+    const n = parseInt(pal.A.slice(1), 16);
+    const rgb = ((n >> 16) & 255) + ',' + ((n >> 8) & 255) + ',' + (n & 255);
+    const cx = bp.x + 9 * bp.sc, cy = bp.y + 9 * bp.sc;
+    ST.fx.push({ kind: 'boom', x: cx, y: cy, t: 0, rgb });
+    if (rm()) return;
+    ST.fx.push({ kind: 'shock', x: cx, y: cy, t: 0, rgb });
+    for (let k = 0; k < 18; k++) {
+      const a = Math.random() * Math.PI * 2, sp = 1.5 + Math.random() * 3.4;
+      ST.fx.push({ kind: 'debris', x: cx, y: cy, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - 1.4,
+        s: 3 + Math.floor(Math.random() * 3), rgb, t: 0 });
+    }
+    for (let k = 0; k < 7; k++)
+      ST.fx.push({ kind: 'smoke', x: cx + (Math.random() - 0.5) * 34, y: cy + (Math.random() - 0.5) * 22,
+        vx: (Math.random() - 0.5) * 1.3, vy: -0.6 - Math.random() * 0.9, t: 0 });
   }
 
   window.addEventListener('resize', resize);

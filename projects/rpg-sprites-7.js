@@ -652,6 +652,68 @@ window.RPGSprites7 = (function () {
     }
   }
 
+  // ── deterministický seedovaný RNG → stabilní rozložení pozadí pro danou oblast ──
+  function srnd(seed) {
+    let s = (seed * 2654435761) >>> 0;
+    return function () { s = (s * 1664525 + 1013904223) >>> 0; return s / 4294967296; };
+  }
+  function pxDisc(cx, cy, r, step, color) {
+    ctx.fillStyle = color;
+    const rr = r * r;
+    for (let y = -r; y <= r; y += step)
+      for (let x = -r; x <= r; x += step)
+        if (x * x + y * y <= rr) ctx.fillRect(Math.round(cx + x), Math.round(cy + y), step, step);
+  }
+
+  // ── chrámové / pouštní pozadí (slunce + pyramidy + sloupy, per oblast) ──
+  const G7_TH = {
+    1: { sun: '#e8a23a', pyr: '#43321c' }, // úsvit
+    2: { sun: '#e0c050', pyr: '#4a3a1e' }, // zlatá
+    3: { sun: '#bfe0f0', pyr: '#33414e' }, // ledová oblast — chladnější
+    4: { sun: '#f0d060', pyr: '#46361c' },
+    5: { sun: '#e8b040', pyr: '#3e2e16' },
+    6: { sun: '#d8c068', pyr: '#403420' },
+    7: { sun: '#f0c040', pyr: '#46351a' }
+  };
+  function drawBackdrop(now) {
+    const W = cv.width, H = cv.height, animOK = !rm();
+    const th = G7_TH[curArea] || G7_TH[1];
+    const rnd = srnd(curArea * 131 + 7);
+    const fy = H - 30;
+    // noční hvězdy
+    for (let i = 0; i < 22; i++) {
+      const x = Math.floor(rnd() * W), y = Math.floor(rnd() * (fy - 50));
+      ctx.globalAlpha = animOK ? 0.28 + 0.3 * Math.abs(Math.sin(now / 700 + i * 1.3)) : 0.4;
+      ctx.fillStyle = '#f0e0b0'; ctx.fillRect(x, y, 1, 1);
+    }
+    ctx.globalAlpha = 1;
+    // slunce / měsíc vlevo nahoře
+    const scx = Math.round(W * 0.30), scy = 40, sr = 17;
+    ctx.globalAlpha = 0.25; pxDisc(scx, scy, sr + 6, 3, th.sun);
+    ctx.globalAlpha = 0.85; pxDisc(scx, scy, sr, 3, th.sun);
+    ctx.globalAlpha = 1;
+    // pyramidy na horizontu
+    function pyr(px, w, col) {
+      ctx.fillStyle = col;
+      for (let yy = 0; yy < w / 2; yy++) { const ww = w - yy * 2; ctx.fillRect(Math.round(px - ww / 2), fy - yy * 2, ww, 2); }
+    }
+    ctx.globalAlpha = 0.55;
+    pyr(Math.round(W * 0.54), 52, th.pyr);
+    pyr(Math.round(W * 0.70), 40, th.pyr);
+    pyr(Math.round(W * 0.84), 30, th.pyr);
+    pyr(Math.round(W * 0.20), 38, th.pyr);
+    ctx.globalAlpha = 1;
+    // rámující chrámové sloupy
+    function pillar(px) {
+      ctx.globalAlpha = 0.55; ctx.fillStyle = '#2c2418';
+      ctx.fillRect(px, 26, 16, fy - 26);
+      ctx.fillStyle = '#3a3020'; ctx.fillRect(px - 3, 22, 22, 6); ctx.fillRect(px - 3, fy - 6, 22, 6);
+      ctx.fillStyle = '#1f190f'; for (let yy = 32; yy < fy - 8; yy += 9) ctx.fillRect(px + 4, yy, 2, 5);
+      ctx.globalAlpha = 1;
+    }
+    pillar(4); pillar(W - 20);
+  }
+
   function heroPos() { return { x: Math.round(cv.width * 0.12), y: 200 - 24 * SCALE - 14 }; }
   function bossPos() {
     const fr = BOSS_SPRITES[curArea] || BOSS_SPRITES[1];
@@ -672,6 +734,7 @@ window.RPGSprites7 = (function () {
   function render(now) {
     if (!ctx) return;
     ctx.clearRect(0, 0, cv.width, cv.height);
+    drawBackdrop(now);
     const hp = heroPos(), bp = bossPos();
     const pal = Object.assign({}, COMMON, BOSS_PALS[curArea] || BOSS_PALS[1]);
     const b = ST.boss;
@@ -928,6 +991,19 @@ window.RPGSprites7 = (function () {
         ctx.fillStyle = 'rgba(80,65,55,' + (0.45 - p * 0.44) + ')';
         ctx.fillRect(f.x - s / 2, f.y - s / 2, s, s);
         if (p >= 1 || f.y < -10) ST.fx.splice(i, 1);
+      } else if (f.kind === 'shock') {
+        const p = Math.min(1, f.t / 420);
+        ctx.strokeStyle = 'rgba(' + f.rgb + ',' + (0.9 - p * 0.9) + ')';
+        ctx.lineWidth = 4 - p * 3;
+        ctx.beginPath(); ctx.arc(f.x, f.y, 8 + p * 58, 0, Math.PI * 2); ctx.stroke();
+        if (p >= 1) ST.fx.splice(i, 1);
+      } else if (f.kind === 'debris') {
+        f.x += f.vx; f.y += f.vy; f.vy += 0.18; f.vx *= 0.99;
+        const p = Math.min(1, f.t / 760);
+        ctx.fillStyle = 'rgba(' + f.rgb + ',' + (1 - p) + ')';
+        const s = f.s || 4;
+        ctx.fillRect(f.x - s / 2, f.y - s / 2, s, s);
+        if (p >= 1 || f.y > 212) ST.fx.splice(i, 1);
       }
     }
   }
@@ -975,7 +1051,7 @@ window.RPGSprites7 = (function () {
     if (!force && kind === lastAtk) kind = ATTACKS[(ATTACKS.indexOf(kind) + 1) % ATTACKS.length];
     lastAtk = kind;
     const hp = heroPos(), bp = bossPos();
-    const bcx = bp.x + 9 * BSCALE, bcy = bp.y + 8 * BSCALE;
+    const bcx = bp.x + 9 * bp.sc, bcy = bp.y + 9 * bp.sc;
     const gy = 200 - 12;
     if (rm()) { ST.boss.flash = 130; ST.boss.t = 0; return; }
     ST.hero.mode = kind === 'slash' ? 'slash' : kind === 'shoot' ? 'shoot' : 'cast';
@@ -1015,7 +1091,7 @@ window.RPGSprites7 = (function () {
     if (rm()) { ST.hero.mode = 'hit'; setTimeout(() => { ST.hero.mode = 'idle'; }, 300); return; }
     ST.boss.mode = 'charge'; ST.boss.t = 0;
     setTimeout(() => {
-      ST.fx.push({ kind: 'bossproj', x0: bp.x + 4 * BSCALE, y0: bp.y + 8 * BSCALE, x1: hp.x + 6 * SCALE, y1: hp.y + 13 * SCALE, t: 0 });
+      ST.fx.push({ kind: 'bossproj', x0: bp.x + 5 * bp.sc, y0: bp.y + 9 * bp.sc, x1: hp.x + 6 * SCALE, y1: hp.y + 13 * SCALE, t: 0 });
     }, 520);
   }
 
@@ -1024,8 +1100,20 @@ window.RPGSprites7 = (function () {
     const bp = bossPos();
     ST.boss.mode = 'defeat'; ST.boss.t = 0;
     const pal = BOSS_PALS[curArea] || BOSS_PALS[1];
-    const rgb = parseInt(pal.A.slice(1), 16);
-    ST.fx.push({ kind: 'boom', x: bp.x + 9 * BSCALE, y: bp.y + 8 * BSCALE, t: 0, rgb: ((rgb >> 16) & 255) + ',' + ((rgb >> 8) & 255) + ',' + (rgb & 255) });
+    const n = parseInt(pal.A.slice(1), 16);
+    const rgb = ((n >> 16) & 255) + ',' + ((n >> 8) & 255) + ',' + (n & 255);
+    const cx = bp.x + 9 * bp.sc, cy = bp.y + 9 * bp.sc;
+    ST.fx.push({ kind: 'boom', x: cx, y: cy, t: 0, rgb });
+    if (rm()) return;
+    ST.fx.push({ kind: 'shock', x: cx, y: cy, t: 0, rgb });
+    for (let k = 0; k < 18; k++) {
+      const a = Math.random() * Math.PI * 2, sp = 1.5 + Math.random() * 3.4;
+      ST.fx.push({ kind: 'debris', x: cx, y: cy, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - 1.4,
+        s: 3 + Math.floor(Math.random() * 3), rgb, t: 0 });
+    }
+    for (let k = 0; k < 7; k++)
+      ST.fx.push({ kind: 'smoke', x: cx + (Math.random() - 0.5) * 34, y: cy + (Math.random() - 0.5) * 22,
+        vx: (Math.random() - 0.5) * 1.3, vy: -0.6 - Math.random() * 0.9, t: 0 });
   }
 
   window.addEventListener('resize', resize);
