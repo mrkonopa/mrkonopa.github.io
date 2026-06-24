@@ -997,14 +997,14 @@ window.RPGSprites8 = (function () {
         ctx.fillRect(f.x - s / 2, f.y - s / 2, s, s);
         if (p >= 1 || f.y < -10) ST.fx.splice(i, 1);
       } else if (f.kind === 'shock') {
-        const p = Math.min(1, f.t / 420);
+        const p = Math.min(1, f.t / 260);
         ctx.strokeStyle = 'rgba(' + f.rgb + ',' + (0.9 - p * 0.9) + ')';
         ctx.lineWidth = 4 - p * 3;
         ctx.beginPath(); ctx.arc(f.x, f.y, 8 + p * 58, 0, Math.PI * 2); ctx.stroke();
         if (p >= 1) ST.fx.splice(i, 1);
       } else if (f.kind === 'debris') {
         f.x += f.vx; f.y += f.vy; f.vy += 0.18; f.vx *= 0.99;
-        const p = Math.min(1, f.t / 760);
+        const p = Math.min(1, f.t / 380);
         ctx.fillStyle = 'rgba(' + f.rgb + ',' + (1 - p) + ')';
         const s = f.s || 4;
         ctx.fillRect(f.x - s / 2, f.y - s / 2, s, s);
