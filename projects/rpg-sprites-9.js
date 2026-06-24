@@ -708,6 +708,12 @@ window.RPGSprites9 = (function () {
       }
       const frames = BOSS_SPRITES[curArea] || BOSS_SPRITES[1];
       const grid = frames[rm() ? 0 : tick % frames.length];
+      // idle pohyb: vznášející se bossové (≥3 prázdné spodní řádky) levitují, stojící lehce „dýchají“
+      if (b.mode === "idle" && !rm()) {
+        let eb = 0; for (let r = grid.length - 1; r >= 0 && /^\.+$/.test(grid[r]); r--) eb++;
+        if (eb >= 3) by += Math.sin(performance.now() / 480) * 4;
+        else bx += Math.sin(performance.now() / 620) * 1.5;
+      }
       ctx.globalAlpha = alpha;
       const off = (b.flash > 0 && !rm()) ? (b.t % 2 ? 2 : -2) : 0;
       drawSprite(grid, pal, bx + off, by, bscale, false, b.flash > 0);
