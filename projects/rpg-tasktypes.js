@@ -33,11 +33,11 @@ window.RPGTaskTypes = (function () {
       'color:var(--gold,#f4d03f);letter-spacing:1px;margin-bottom:10px;text-align:center}' +
       '.ttm-cols{display:flex;gap:10px;align-items:stretch}' +
       '.ttm-col{flex:1;display:flex;flex-direction:column;gap:8px;min-width:0}' +
-      '.ttm-q,.ttm-a{font-family:var(--vt,monospace);font-size:17px;line-height:1.35;' +
+      '.ttm-q,.ttm-a{font-family:var(--px,monospace);font-size:16px;line-height:1.35;' +
       'text-align:left;padding:9px 10px;border-radius:8px;cursor:pointer;' +
       'border:2px solid var(--line,#2a3450);background:rgba(255,255,255,.04);' +
       'color:var(--text,#e8eaf6);transition:.12s;word-break:break-word}' +
-      '.ttm-a{text-align:center;font-weight:700;font-size:19px}' +
+      '.ttm-a{text-align:center;font-weight:700;font-size:18px}' +
       '.ttm-q.sel{border-color:var(--blue,#5dc8f0);background:rgba(93,200,240,.14)}' +
       '.ttm-q.done,.ttm-a.done{border-color:#4ade80;background:rgba(74,222,128,.14);' +
       'color:#4ade80;cursor:default;opacity:.8}' +
@@ -45,7 +45,7 @@ window.RPGTaskTypes = (function () {
       'animation:ttmshake .35s}' +
       '@keyframes ttmshake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}' +
       '.tto-row{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}' +
-      '.tto-chip{font-family:var(--vt,monospace);font-size:21px;font-weight:700;' +
+      '.tto-chip{font-family:var(--px,monospace);font-size:18px;font-weight:700;' +
       'padding:11px 16px;border-radius:9px;cursor:pointer;' +
       'border:2px solid var(--line,#2a3450);background:rgba(255,255,255,.04);' +
       'color:var(--text,#e8eaf6);transition:.12s}' +
@@ -172,7 +172,7 @@ window.RPGTaskTypes = (function () {
       css.textContent =
         '.ttp-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}' +
         '@media(max-width:480px){.ttp-grid{grid-template-columns:repeat(2,1fr)}}' +
-        '.ttp-card{font-family:var(--vt,monospace);font-size:16px;line-height:1.3;min-height:74px;' +
+        '.ttp-card{font-family:var(--px,monospace);font-size:14px;line-height:1.3;min-height:74px;' +
         'padding:8px;border-radius:9px;cursor:pointer;border:2px solid var(--line,#2a3450);' +
         'background:rgba(255,255,255,.05);color:transparent;transition:.15s;word-break:break-word;' +
         'display:flex;align-items:center;justify-content:center;text-align:center;position:relative}' +
