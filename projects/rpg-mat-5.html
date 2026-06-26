@@ -3,12 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>RPG Matematika 4 — Pirátská plavba</title>
+<title>RPG Matematika 5 — Dračí říše</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&family=VT323&family=Lexend:wght@300;400;600&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#0a1628;--panel:#102040;--panel2:#182e48;--line:#243550;--gold:#f0c040;--blue:#4ab0e0;--red:#cc3333;--green:#3ecc66;--purple:#9966cc;--text:#e8e0cc;--muted:#889aaa;--px:'Roboto Mono','VT323',monospace;--vt:'VT323',monospace;--read:'Lexend','Inter','Segoe UI',system-ui,-apple-system,Arial,sans-serif}
+:root{--bg:#1a0c0e;--panel:#2c1418;--panel2:#3a1c20;--line:#4e262a;--gold:#f0c040;--blue:#4ab0e0;--red:#cc3333;--green:#3ecc66;--purple:#9966cc;--text:#f0e0d4;--muted:#b08a82;--px:'Roboto Mono','VT323',monospace;--vt:'VT323',monospace;--read:'Lexend','Inter','Segoe UI',system-ui,-apple-system,Arial,sans-serif}
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--bg);color:var(--text);font-family:var(--px);font-weight:700;min-height:100vh;overflow-x:hidden}
 .screen{display:none}.screen.active{display:block}
@@ -70,7 +70,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--px);font-weight:70
 .ex-s{font-family:var(--read);font-size:14px;color:var(--text);line-height:1.7}
 .learn-video{display:inline-flex;align-items:center;gap:8px;font-family:var(--px);font-size:13px;color:var(--red);text-decoration:none;border:2px solid var(--red);padding:8px 14px;background:var(--panel)}
 /* ── BATTLE TOP ── */
-.bt-top{position:relative;overflow:hidden;background:linear-gradient(180deg,#071525 0%,#0d2535 60%,#0c3040 100%);border:2px solid var(--line);min-height:200px;padding:18px 18px 36px;display:flex;flex-direction:column;align-items:center;justify-content:center;margin-bottom:12px}
+.bt-top{position:relative;overflow:hidden;background:linear-gradient(180deg,#2a1010 0%,#3a1410 60%,#1e0e10 100%);border:2px solid var(--line);min-height:200px;padding:18px 18px 36px;display:flex;flex-direction:column;align-items:center;justify-content:center;margin-bottom:12px}
 .bt-top.phase2{background:linear-gradient(180deg,#200808 0%,#300f10 60%,#1a1820 100%)!important}
 .bt-monster{font-size:100px;display:inline-block;animation:boss-idle 1.4s steps(2) infinite;filter:drop-shadow(0 6px 0 #0008)}
 .bt-monster.enter{animation:boss-enter .6s steps(4) forwards}
@@ -284,20 +284,20 @@ html[data-theme="violet"]{--gold:#b06cff;--panel:#100a20;--panel2:#18103a;--blue
 </style>
 </head>
 <body>
-<h1 style="position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0">RPG Matematika 4 — Pirátská plavba</h1>
+<h1 style="position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0">RPG Matematika 5 — Dračí říše</h1>
 
 <!-- INTRO -->
 <div id="s-intro" class="screen active">
 <div class="wrap">
  <div style="text-align:center;padding:28px 0 20px">
- <div class="intro-sword">⚓</div>
- <div class="intro-title">PIRÁTSKÁ<br>PLAVBA</div>
- <div style="font-family:var(--vt);font-size:24px;color:var(--blue)">Matematika 4. ročník · ZŠ Husova Liberec</div>
+ <div class="intro-sword">🐉</div>
+ <div class="intro-title">DRAČÍ<br>ŘÍŠE</div>
+ <div style="font-family:var(--vt);font-size:24px;color:var(--blue)">Matematika 5. ročník · ZŠ Husova Liberec</div>
  </div>
  <div class="panel">
- <div style="font-family:var(--vt);font-size:22px;color:var(--muted);margin-bottom:10px">Zadej své jméno, pirátě:</div>
+ <div style="font-family:var(--vt);font-size:22px;color:var(--muted);margin-bottom:10px">Zadej své jméno, drakobijče:</div>
  <input id="ni" aria-label="Jméno hrdiny" class="ni-input" type="text" placeholder="JMÉNO" maxlength="14" autocomplete="off">
- <button class="btn full" onclick="startGame()">▶ VYPLOUT NA MOŘE</button>
+ <button class="btn full" onclick="startGame()">▶ VSTOUPIT DO DRAČÍ ŘÍŠE</button>
  </div>
  <div id="continue-panel" class="panel b" style="display:none">
  <div style="font-family:var(--px);font-weight:700;font-size:14px;color:var(--blue);margin-bottom:10px">POKRAČOVAT VE HŘE</div>
@@ -314,12 +314,12 @@ html[data-theme="violet"]{--gold:#b06cff;--panel:#100a20;--panel2:#18103a;--blue
 <div id="s-map" class="screen">
 <div class="wrap">
  <div class="topnav">
- <span style="display:flex;align-items:center;gap:10px"><a href="rpg-matematika.html" class="btn sm" style="text-decoration:none" title="Zpět na RPG Matematika HUB">← HUB</a><span class="hl" id="map-name">PIRÁT</span></span>
+ <span style="display:flex;align-items:center;gap:10px"><a href="rpg-matematika.html" class="btn sm" style="text-decoration:none" title="Zpět na RPG Matematika HUB">← HUB</a><span class="hl" id="map-name">DRAKOBIJEC</span></span>
  <span>LV <span class="hl" id="map-lv">1</span> &nbsp; · &nbsp; XP <span class="hl" id="map-xp">0</span></span>
  <button class="btn sm" onclick="go('profile')">👤 PROFIL</button>
  </div>
  <div class="panel" style="padding:10px 14px;display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap">
- <div style="font-family:var(--px);font-weight:400;font-size:13px;color:var(--muted);letter-spacing:1px">⚓ &nbsp;PIRÁTSKÁ PLAVBA&nbsp; · &nbsp;ROČNÍK IV.&nbsp; ⚓</div>
+ <div style="font-family:var(--px);font-weight:400;font-size:13px;color:var(--muted);letter-spacing:1px">🐉 &nbsp;DRAČÍ ŘÍŠE&nbsp; · &nbsp;ROČNÍK V.&nbsp; 🐉</div>
  <span class="streak-chip" id="map-streak" style="display:none"><span class="sf">🔥</span> <span id="map-streak-n">0</span> dní v řadě</span>
  <span class="credits-chip" id="map-credits-chip">💰 <span id="map-credits">0</span> kr</span>
  </div>
@@ -512,9 +512,9 @@ html[data-theme="violet"]{--gold:#b06cff;--panel:#100a20;--panel2:#18103a;--blue
  </div>
  <div class="panel">
  <div style="display:flex;gap:14px;align-items:center;margin-bottom:14px">
- <div id="pr-avatar">🏴‍☠️</div>
+ <div id="pr-avatar">🐉</div>
  <div>
- <div id="pr-name" style="font-family:var(--px);font-weight:700;font-size:20px;color:var(--gold);letter-spacing:1px">PIRÁT</div>
+ <div id="pr-name" style="font-family:var(--px);font-weight:700;font-size:20px;color:var(--gold);letter-spacing:1px">DRAKOBIJEC</div>
  <div style="font-family:var(--px);font-weight:400;font-size:13px;color:var(--muted);margin-top:4px">ÚROVEŇ <span id="pr-lv">1</span></div>
  <div style="font-family:var(--px);font-weight:400;font-size:13px;color:var(--blue);margin-top:2px">XP: <span id="pr-xp">0</span></div>
  <div style="font-family:var(--px);font-weight:400;font-size:13px;color:#f4d03f;margin-top:2px">💰 <span id="pr-credits">0</span> kr &nbsp;<button class="btn sm" style="font-size:11px;padding:2px 8px" onclick="go('shop')">🛍️ OBCHOD</button></div>
@@ -584,158 +584,158 @@ const r2=(n,d=2)=>Math.round(n*Math.pow(10,d))/Math.pow(10,d);
 // AREAS
 const AREAS=[
 {
- id:1,icon:'🌊',name:'PŘÍSTAV\nPIRÁTŮ',
- desc:'Zahřívací kolo — čísla do 10 000, porovnávání a zaokrouhlování.',
- art:{id:'compass',ic:'🧭',nm:'Pirátský\nkompas'},
+ id:1,icon:'🐲',name:'DRAČÍ\nHNÍZDO',
+ desc:'Zahřívací kolo — velká čísla do milionu, porovnávání a zaokrouhlování.',
+ art:{id:'egg',ic:'🥚',nm:'Dračí\nvejce'},
  attrGain:{calc:12,anal:8},
  missions:[
- {id:'1-1',name:'Čísla do 10 000',sub:'rychlovka · výběr ze 4',
-  mon:'🦀',mname:'KRAB STRÁŽCE',
-  intro:'Krab blokuje vstup do přístavu. Prokáž, že znáš čísla do 10 000, a vpustí tě dál.',
+ {id:'1-1',name:'Čísla do milionu',sub:'rychlovka · výběr ze 4',
+  mon:'🐲',mname:'MLÁDĚ DRAKA',
+  intro:'Dračí mládě hlídá vejce a pustí dál jen toho, kdo zná velká čísla. Odpověz rychle!',
   mc:true,tc:6,tasks:()=>[]},
- {id:'1-2',name:'Porovnávání čísel',sub:'ANO / NE',
-  mon:'🐚',mname:'LASTURY MOŘE',
-  intro:'Lastury moře porovnávají vše, co připluje. Odpověz správně — ANO nebo NE.',
+ {id:'1-2',name:'Porovnávání velkých čísel',sub:'ANO / NE',
+  mon:'🦎',mname:'JEŠTĚR STRÁŽCE',
+  intro:'Ještěr strážce porovnává každé číslo. Odpověz správně — ANO nebo NE.',
   mc:true,tc:6,tasks:()=>[]},
- {id:'1-3',name:'Zaokrouhlování',sub:'na desítky, stovky, tisíce',
-  mon:'🌊',mname:'VLNA PŘÍBOJE',
-  intro:'Vlna příboje zaokrouhlí každého, kdo neví, jak zaokrouhlovat. Ukaž, že ty to zvládneš.',
+ {id:'1-3',name:'Zaokrouhlování',sub:'na tisíce, desetitisíce, statisíce',
+  mon:'🪨',mname:'SKALNÍ GOLEM',
+  intro:'Skalní golem zaokrouhlí každého, kdo neumí počítat. Ukaž, že to zvládáš.',
   tc:6,tasks:()=>[]}
  ]
 },
 {
- id:2,icon:'⚓',name:'ZÁTOKA\nVÝPOČTŮ',
- desc:'Sčítání a odčítání do 10 000. Sloupec, odčítání s výpůjčkou, slovní úlohy.',
- art:{id:'anchor',ic:'⚓',nm:'Zlatá\nkotva'},
+ id:2,icon:'🔥',name:'OHNIVÁ\nSLUJ',
+ desc:'Písemné násobení — víceciferné × jednociferné i dvojciferné.',
+ art:{id:'flame',ic:'🔥',nm:'Věčný\nplamen'},
  attrGain:{calc:18,anal:6},
  missions:[
- {id:'2-1',name:'Sčítání do 10 000',sub:'písemné sčítání',
-  mon:'🐙',mname:'MINI CHOBOTNICE',
-  intro:'Mini chobotnice má příliš mnoho chapadel na sčítání. Ukáž jí, jak se to dělá správně.',
+ {id:'2-1',name:'Násobení × jednociferným',sub:'písemné násobení',
+  mon:'🔥',mname:'OHNIVÁ JEŠTĚRKA',
+  intro:'Ohnivá ještěrka plápolá při každém součinu. Spočítej správně a uhasíš plamen.',
   tc:6,tasks:()=>[]},
- {id:'2-2',name:'Odčítání do 10 000',sub:'odčítání s výpůjčkou',
-  mon:'🦈',mname:'ŽRALOUČEK',
-  intro:'Žralouček nakousl naše zásoby. Spočítej, kolik nám ještě zbývá.',
+ {id:'2-2',name:'Násobení dvojciferným',sub:'dva řádky a součet',
+  mon:'🐊',mname:'LÁVOVÝ KROKODÝL',
+  intro:'Lávový krokodýl násobí ohonem. Ukaž mu písemné násobení dvojciferným číslem.',
   tc:6,tasks:()=>[]},
- {id:'2-3',name:'Slovní úlohy +/−',sub:'příběhové úlohy',
-  mon:'🪸',mname:'KORÁLOVÝ DUCH',
-  intro:'Korálový duch skrývá záhady hlubokého moře. Přečti pozorně a počítej.',
+ {id:'2-3',name:'Slovní úlohy násobení',sub:'příběhové úlohy',
+  mon:'👹',mname:'OHNIVÝ SKŘET',
+  intro:'Ohnivý skřet skrývá hádanky v dýmu. Přečti pozorně a počítej.',
   tc:6,tasks:()=>[]}
  ]
 },
 {
- id:3,icon:'⚔️',name:'BITVA\nVLAJEK',
- desc:'Násobení — násobilka, krát 10 a 100, násobení dvojciferného jednociferným.',
- art:{id:'sword',ic:'⚔️',nm:'Pirátský\nmeč'},
+ id:3,icon:'⚔️',name:'DRAČÍ\nKOVÁRNA',
+ desc:'Písemné dělení — jednociferným dělitelem i se zbytkem.',
+ art:{id:'hammer',ic:'🔨',nm:'Kovářské\nkladivo'},
  attrGain:{calc:16,anal:8},
  missions:[
- {id:'3-1',name:'Násobilka 1–10',sub:'rychlovka · výběr ze 4',
-  mon:'🏴‍☠️',mname:'PIRÁTSKÝ KAPITÁN',
-  intro:'Pirátský kapitán zná svou násobilku. Dokážeš to taky? Odpověz rychle!',
+ {id:'3-1',name:'Dělení jednociferným',sub:'rychlovka · výběr ze 4',
+  mon:'⚒️',mname:'KOVÁŘSKÝ GOLEM',
+  intro:'Kovářský golem buší do kovadliny. Vydělíš správně, a otevře ti bránu kovárny.',
   mc:true,tc:6,tasks:()=>[]},
- {id:'3-2',name:'Násobení ×10 a ×100',sub:'přesuny číslic',
-  mon:'💣',mname:'LODNÍ DĚLOSTŘELEC',
-  intro:'Dělostřelec střílí přesně. Při násobení ×10 a ×100 přidáváme nuly.',
+ {id:'3-2',name:'Dělení se zbytkem',sub:'zbytek po dělení',
+  mon:'🦂',mname:'OHNIVÝ ŠKORPION',
+  intro:'Škorpion rozděluje kořist. Kolik zbyde? Spočítej zbytek po dělení!',
   tc:6,tasks:()=>[]},
- {id:'3-3',name:'Násobení dvojciferného',sub:'dvojciferné × jednociferné',
-  mon:'🔮',mname:'MOŘSKÝ MÁG',
-  intro:'Mořský mág skrývá tajemství násobení. Rozlož číslo a počítej po řádech.',
+ {id:'3-3',name:'Slovní úlohy dělení',sub:'příběhové úlohy',
+  mon:'🐗',mname:'LÁVOVÝ KANEC',
+  intro:'Lávový kanec rozděluje poklad rovným dílem. Zjisti, kolik dostane každý.',
   tc:6,tasks:()=>[]}
  ]
 },
 {
- id:4,icon:'🪙',name:'ZLATÝ\nPOKLAD',
- desc:'Dělení bez zbytku, dělení se zbytkem a slovní úlohy s dělením.',
- art:{id:'chest',ic:'🎁',nm:'Pokladní\ntruhla'},
+ id:4,icon:'💎',name:'KRYSTALOVÁ\nJESKYNĚ',
+ desc:'Zlomky — část celku, zlomek z čísla, sčítání a odčítání zlomků.',
+ art:{id:'crystal',ic:'💎',nm:'Dračí\nkrystal'},
+ attrGain:{anal:14,calc:8},
+ missions:[
+ {id:'4-1',name:'Zlomek z čísla',sub:'rychlovka · výběr ze 4',
+  mon:'🔮',mname:'KRYSTALOVÝ WYRM',
+  intro:'Krystalový wyrm rozdělí svůj poklad na díly. Spočítej zlomek z čísla a získáš podíl.',
+  mc:true,tc:6,tasks:()=>[]},
+ {id:'4-2',name:'Sčítání a odčítání zlomků',sub:'stejný jmenovatel',
+  mon:'🕷️',mname:'KŘIŠŤÁLOVÝ PAVOUK',
+  intro:'Pavouk tká síť ze zlomků. Sečti čitatele se stejným jmenovatelem a protrhneš ji.',
+  tc:6,tasks:()=>[]},
+ {id:'4-3',name:'Slovní úlohy se zlomky',sub:'část z celku',
+  mon:'👁️',mname:'VŠEVIDOUCÍ OKO',
+  intro:'Vševidoucí oko hlídá jeskyni. Najdi část z celku a zavřeš ho.',
+  tc:6,tasks:()=>[]}
+ ]
+},
+{
+ id:5,icon:'🌋',name:'LÁVOVÁ\nPROPAST',
+ desc:'Desetinná čísla — čtení, porovnávání, sčítání, odčítání, ×÷ 10 a 100.',
+ art:{id:'obsidian',ic:'🟥',nm:'Obsidiánový\nštít'},
  attrGain:{calc:16,anal:8},
  missions:[
- {id:'4-1',name:'Dělení bez zbytku',sub:'rychlovka · výběr ze 4',
-  mon:'💀',mname:'KOSTLIVEC PIRÁT',
-  intro:'Kostlivec střeží poklad a bude sdílet jen s tím, kdo ovládá dělení.',
+ {id:'5-1',name:'Porovnávání desetinných',sub:'ANO / NE',
+  mon:'🌋',mname:'LÁVOVÁ BESTIE',
+  intro:'Lávová bestie porovnává desetinná čísla. Odpověz správně — ANO nebo NE.',
   mc:true,tc:6,tasks:()=>[]},
- {id:'4-2',name:'Dělení se zbytkem',sub:'zbytek po dělení',
-  mon:'🗡️',mname:'KAPITÁN S HÁKEM',
-  intro:'Kapitán s hákem rozděluje kořist. Kolik zbyde? Počítej zbytek!',
+ {id:'5-2',name:'Sčítání a odčítání desetinných',sub:'čárka pod čárku',
+  mon:'🐉',mname:'ŽHAVÝ DRAK',
+  intro:'Žhavý drak chrlí desetinná čísla. Sčítej a odčítej s čárkou pod čárkou.',
   tc:6,tasks:()=>[]},
- {id:'4-3',name:'Slovní úlohy dělení',sub:'příběhové úlohy',
-  mon:'🎲',mname:'HAZARDNÍ DUCH',
-  intro:'Hazardní duch rozdá kostky rovnoměrně. Zjisti, kolik dostane každý pirát.',
+ {id:'5-3',name:'Násobení a dělení 10, 100',sub:'posun desetinné čárky',
+  mon:'☄️',mname:'OHNIVÁ KOMETA',
+  intro:'Ohnivá kometa posouvá desetinnou čárku. Násob a děl 10 i 100 bez chyby.',
   tc:6,tasks:()=>[]}
  ]
 },
 {
- id:5,icon:'🗺️',name:'MOŘSKÁ\nMAPA',
- desc:'Obvod a obsah obdélníku a čtverce. Souřadnice a čtvercová síť.',
- art:{id:'map',ic:'🗺️',nm:'Pokladní\nmapa'},
- attrGain:{geo:18,calc:6},
+ id:6,icon:'🏔️',name:'DRAČÍ\nŠTÍT',
+ desc:'Obvod a obsah, převody jednotek a aritmetický průměr.',
+ art:{id:'shield',ic:'🛡️',nm:'Dračí\nštít'},
+ attrGain:{geo:16,anal:10},
  missions:[
- {id:'5-1',name:'Obvod obdélníku a čtverce',sub:'O = 2×(a+b), O = 4×a',
-  mon:'🐠',mname:'OHNIVÁ RYBKA',
-  intro:'Ohnivá rybka obepluje každý ostrůvek. Změř obvod, kudy musí proplout.',
+ {id:'6-1',name:'Obvod a obsah',sub:'obdélník a čtverec',
+  mon:'🦅',mname:'SKALNÍ ORLOSUP',
+  intro:'Orlosup měří svá hnízda. Spočítej obvod a obsah a získáš jeho přízeň.',
   tc:6,tasks:()=>[]},
- {id:'5-2',name:'Obsah obdélníku a čtverce',sub:'S = a×b, S = a²',
-  mon:'🐡',mname:'NAFUKOVAČ',
-  intro:'Nafukovač zabírá místo na palubě. Spočítej obsah jeho prostoru.',
+ {id:'6-2',name:'Převody jednotek',sub:'délka, hmotnost, objem, čas',
+  mon:'🧊',mname:'LEDOVÝ DRAK',
+  intro:'Ledový drak zamrazil míry. Převeď jednotky správně a roztaješ led.',
   tc:6,tasks:()=>[]},
- {id:'5-3',name:'Souřadnice a síť',sub:'čtvercová síť, body',
-  mon:'🧭',mname:'NAVIGAČNÍ DUCH',
-  intro:'Navigační duch čte mapu souřadnic. Nauč se číst [x, y] a najdi poklad.',
+ {id:'6-3',name:'Aritmetický průměr',sub:'součet ÷ počet',
+  mon:'⚖️',mname:'STRÁŽCE ROVNOVÁHY',
+  intro:'Strážce rovnováhy hledá průměr. Sečti hodnoty a vyděl počtem.',
   tc:6,tasks:()=>[]}
  ]
 },
 {
- id:6,icon:'🧭',name:'NÁMOŘNÍ\nNAVIGACE',
- desc:'Délkové jednotky, hmotnost a čas, peníze a míry ve slovních úlohách.',
- art:{id:'sextant',ic:'🔭',nm:'Námořní\nsextant'},
- attrGain:{anal:14,calc:10},
- missions:[
- {id:'6-1',name:'Délkové jednotky',sub:'km, m, dm, cm, mm',
-  mon:'🌪️',mname:'VÍROVÝ STROJ',
-  intro:'Vírový stroj mění jednotky délky. Převeď správně a zastavíš ho!',
-  tc:6,tasks:()=>[]},
- {id:'6-2',name:'Hmotnost a čas',sub:'kg, g, hod, min, s',
-  mon:'⏱️',mname:'ČASOVÝ ČARODĚJ',
-  intro:'Časový čaroděj zamotal čas i váhu. Převeď správně a osvoboď pirátskou posádku.',
-  tc:6,tasks:()=>[]},
- {id:'6-3',name:'Peníze a míry',sub:'Kč, slovní úlohy',
-  mon:'💰',mname:'ZLATÝ DUCH',
-  intro:'Zlatý duch střeží kasu pirátů. Spočítej správně a peníze jsou tvoje.',
-  tc:6,tasks:()=>[]}
- ]
-},
-{
- id:7,icon:'🐙',name:'KRAKÉNŮV\nDUEL',
- desc:'Velká čísla (do 1 000 000), operace s nimi a finální opakování všeho.',
- art:{id:'kraken',ic:'🐙',nm:'Krakénovo\nzuby'},
+ id:7,icon:'🐉',name:'SOUBOJ\nS DRAKEM',
+ desc:'Finále — velká čísla, písemné operace a opakování celého ročníku.',
+ art:{id:'crown',ic:'👑',nm:'Dračí\nkoruna'},
  attrGain:{calc:14,anal:10},
  missions:[
- {id:'7-1',name:'Čísla do 1 000 000',sub:'rychlovka · výběr ze 4',
-  mon:'🦑',mname:'KRAKÉN',
-  intro:'Krakén vyplavil obrovská čísla z hlubiny. Přečti je, porovnej a zapsej správně!',
+ {id:'7-1',name:'Velká čísla',sub:'rychlovka · výběr ze 4',
+  mon:'🔥',mname:'DRAČÍ STRÁŽ',
+  intro:'Dračí stráž testuje rychlost. Sčítej, odčítej a zaokrouhluj velká čísla — rychle!',
   mc:true,tc:6,tasks:()=>[]},
- {id:'7-2',name:'Operace s velkými čísly',sub:'sčítání, odčítání, násobení',
-  mon:'🌊',mname:'BOUŘKA KRAKEN',
-  intro:'Bouřka Kraken zamíchala čísla. Počítej pečlivě — velká čísla si žádají velkou pozornost.',
+ {id:'7-2',name:'Operace s čísly',sub:'×, ÷, desetinná, zlomky',
+  mon:'🐲',mname:'STARODÁVNÝ DRAK',
+  intro:'Starodávný drak zkouší všechny operace. Počítej pečlivě — písemně i zpaměti.',
   tc:6,tasks:()=>[]},
  {id:'7-3',name:'Finální duel',sub:'opakování všech témat',
-  mon:'👑',mname:'MOŘSKÝ VLÁDCE',
-  intro:'Mořský vládce tě vyzkouší ze všeho. Připrav se na mix — od čísel po peníze.',
+  mon:'🐉',mname:'DRAČÍ KRÁL',
+  intro:'Mocný Dračí král tě vyzkouší ze všeho. Připrav se na velký mix od čísel po geometrii.',
   tc:6,tasks:()=>[]}
  ]
 }
 ];
 
 // SAVE
-const SAVE_KEY='RPG_MAT_4';
-let S={name:'PIRÁT',xp:0,level:1,attrs:{calc:0,geo:0,anal:0,craft:0},done:{},inv:[],mastery:{},xpClaimed:{},teacherUnlocked:[],ach:{},stats:{crits:0,trainCorrect:0,bestCombo:0},streak:{count:0,last:''},errs:{},credits:0,cosmetics:{owned:['theme-default','victory-default'],active:{border:null,badge:null,theme:'theme-default',victory:'victory-default'}},creditsClaimed:{}};
+const SAVE_KEY='RPG_MAT_5';
+let S={name:'DRAKOBIJEC',xp:0,level:1,attrs:{calc:0,geo:0,anal:0,craft:0},done:{},inv:[],mastery:{},xpClaimed:{},teacherUnlocked:[],ach:{},stats:{crits:0,trainCorrect:0,bestCombo:0},streak:{count:0,last:''},errs:{},credits:0,cosmetics:{owned:['theme-default','victory-default'],active:{border:null,badge:null,theme:'theme-default',victory:'victory-default'}},creditsClaimed:{}};
 let GODMODE=false;
 
 function saveS(){localStorage.setItem(SAVE_KEY,JSON.stringify(S));if(window.RPGCloud&&RPGCloud.push)RPGCloud.push(SAVE_KEY,S);}
 function loadS(){
  const r=localStorage.getItem(SAVE_KEY);if(!r)return false;
  try{S=JSON.parse(r);}catch(e){return false;}
- if(!S||typeof S!=='object'){S={name:'PIRÁT',xp:0,level:1,attrs:{calc:0,geo:0,anal:0,craft:0},done:{},inv:[]};return false;}
- if(typeof S.name!=='string')S.name='PIRÁT';
+ if(!S||typeof S!=='object'){S={name:'DRAKOBIJEC',xp:0,level:1,attrs:{calc:0,geo:0,anal:0,craft:0},done:{},inv:[]};return false;}
+ if(typeof S.name!=='string')S.name='DRAKOBIJEC';
  if(typeof S.xp!=='number'||!isFinite(S.xp))S.xp=0;
  if(typeof S.level!=='number'||!isFinite(S.level))S.level=1;
  if(!S.attrs||typeof S.attrs!=='object')S.attrs={calc:0,geo:0,anal:0,craft:0};
@@ -768,15 +768,15 @@ function calcLevel(){S.level=Math.floor(S.xp/100)+1;}
 
 // ACHIEVEMENTS
 const ACH=[
- {id:'boot',   ic:'⚓', nm:'První plavba',      desc:'Vyřeš první úkol'},
- {id:'crit',   ic:'⚡', nm:'Dělová salva',      desc:'10× kritický zásah'},
- {id:'combo5', ic:'🔥', nm:'Řetězová palba',    desc:'Combo 5 v jednom boji'},
- {id:'flawless',ic:'🧠',nm:'Čistá navigace',    desc:'Mise bez nápovědy'},
- {id:'flash',  ic:'⏱️', nm:'Rychlý střel',      desc:'Správně s 30+ s na čase'},
+ {id:'boot',   ic:'🥚', nm:'První jiskra',      desc:'Vyřeš první úkol'},
+ {id:'crit',   ic:'⚡', nm:'Dračí blesk',       desc:'10× kritický zásah'},
+ {id:'combo5', ic:'🔥', nm:'Ohnivý dech',       desc:'Combo 5 v jednom boji'},
+ {id:'flawless',ic:'🧠',nm:'Mistr taktiky',     desc:'Mise bez nápovědy'},
+ {id:'flash',  ic:'⏱️', nm:'Bleskový tah',      desc:'Správně s 30+ s na čase'},
  {id:'survivor',ic:'💀',nm:'Z posledních sil',  desc:'Vyhraj boj s 1 životem'},
- {id:'area1',  ic:'🔑', nm:'Pirátský klíč',     desc:'Splň první oblast'},
+ {id:'area1',  ic:'🔑', nm:'Dračí klíč',        desc:'Splň první oblast'},
  {id:'half',   ic:'🌗', nm:'Půlka mapy',        desc:'Splň 4 oblasti'},
- {id:'root',   ic:'👑', nm:'Mořský kapitán',    desc:'Splň všech 7 oblastí'},
+ {id:'root',   ic:'👑', nm:'Pán draků',         desc:'Splň všech 7 oblastí'},
  {id:'lv5',    ic:'📈', nm:'Level 5',           desc:'Dosáhni úrovně 5'},
  {id:'lv10',   ic:'🚀', nm:'Level 10',          desc:'Dosáhni úrovně 10'},
  {id:'master1',ic:'🏅', nm:'Mistr tématu',      desc:'1 mistrovství v tréninku'},
@@ -839,7 +839,7 @@ function touchStreak(){
 
 // SCREEN ROUTER
 function go(name){
- if(name!=='battle'&&window.RPGSprites4&&RPGSprites4.active())RPGSprites4.detach();
+ if(name!=='battle'&&window.RPGSprites5&&RPGSprites5.active())RPGSprites5.detach();
  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
  document.getElementById('s-'+name).classList.add('active');
  window.scrollTo(0,0);
@@ -852,7 +852,7 @@ function go(name){
 // INTRO
 function startGame(){
  const v=document.getElementById('ni').value.trim().toUpperCase().slice(0,14);
- S.name=v||'PIRÁT';saveS();touchStreak();applyMotionPref();applyCosmetics();go('map');
+ S.name=v||'DRAKOBIJEC';saveS();touchStreak();applyMotionPref();applyCosmetics();go('map');
 }
 function snapErrs(){if(!Array.isArray(S.errsSnap))S.errsSnap=[];const t=new Date().toISOString().slice(0,10);const last=S.errsSnap[S.errsSnap.length-1];if(last&&(new Date(t)-new Date(last.t))/864e5<7)return;const c={};for(const k in(S.errs||{}))if(S.errs[k]>0)c[k]=S.errs[k];S.errsSnap.push({t,errs:c,xp:S.xp||0});if(S.errsSnap.length>12)S.errsSnap=S.errsSnap.slice(-12);saveS();if(typeof RPGCloud!=='undefined'&&RPGCloud.pushErrsSnap)RPGCloud.pushErrsSnap(SAVE_KEY,S.errsSnap);}
 function continueGame(){if(loadS()){snapErrs();if(!S.snapsMigrated&&S.errsSnap&&S.errsSnap.length>0&&typeof RPGCloud!=='undefined'&&RPGCloud.pushErrsSnap){RPGCloud.pushErrsSnap(SAVE_KEY,S.errsSnap).then(ok=>{if(ok){S.snapsMigrated=true;saveS();}});}touchStreak();applyMotionPref();applyCosmetics();go('map');}}
@@ -864,7 +864,7 @@ function countDone(mid,tc){let n=0;for(let i=0;i<tc;i++)if(S.done[`${mid}-${i}`]
 
 function openBattle(){
  if(!window.RPGBattle){alert('Živý souboj se nenačetl. Zkus obnovit stránku.');return;}
- RPGBattle.open({game:SAVE_KEY,name:S.name||'PIRÁT',bank:window.RPG_BATTLE_4,onResult:function(r){
+ RPGBattle.open({game:SAVE_KEY,name:S.name||'DRAKOBIJEC',bank:window.RPG_BATTLE_5,onResult:function(r){
   awardXp((r.rank===1?80:r.rank===2?50:r.rank===3?30:20)+Math.min(r.correct*3,30),false);
   earnCredits(r.rank===1?25:r.rank===2?15:r.rank===3?10:5);
   evalAch({battleResult:r});
@@ -941,7 +941,7 @@ function openArea(aid){
   const avail=teacherUnlk||mi===0||countDone(ar.missions[mi-1].id,ar.missions[mi-1].tc)===ar.missions[mi-1].tc;
   const stars=allDn?'⭐⭐⭐':dn>0?'⭐'.repeat(Math.ceil(dn/tot*3))+'☆'.repeat(3-Math.ceil(dn/tot*3)):'☆☆☆';
   const it=document.createElement('div');it.className='ms-item '+(allDn?'done':avail?'avail':'locked');
-  const hasLearn=window.RPG_LEARN_4&&window.RPG_LEARN_4[m.id];
+  const hasLearn=window.RPG_LEARN_5&&window.RPG_LEARN_5[m.id];
   it.innerHTML=`<div class="ms-num" style="color:${allDn?'var(--green)':avail?'var(--blue)':'var(--muted)'}">${allDn?'✓':String(mi+1).padStart(2,'0')}</div>
    <div style="flex:1"><div class="ms-name">${masteryOf(m.id).mastered?'🏅 ':''}${(!allDn&&teacherUnlk&&!GODMODE)?'🔓 ':''}${m.name}</div><div class="ms-sub">${m.sub} · ${dn}/${tot}</div></div>
    ${hasLearn?`<button class="learn-btn" onclick="startLearn('${m.id}');event.stopPropagation()">📖 Teorie</button>`:''}
@@ -957,7 +957,7 @@ let LEARN_MID=null;
 function startLearn(mid){LEARN_MID=mid;const ar=AREAS.find(a=>a.missions.some(m=>m.id===mid));const m=ar?ar.missions.find(x=>x.id===mid):null;renderLearn(mid,m);go('learn');}
 function launchLearnBattle(){if(!LEARN_MID)return;const ar=AREAS.find(a=>a.missions.some(m=>m.id===LEARN_MID));if(ar)launchBattle(ar.id,LEARN_MID);}
 function renderLearn(mid,m){
- const L=window.RPG_LEARN_4&&window.RPG_LEARN_4[mid];
+ const L=window.RPG_LEARN_5&&window.RPG_LEARN_5[mid];
  const el=document.getElementById('learn-content');
  if(!L){el.innerHTML='<div style="font-family:var(--vt);font-size:20px;color:var(--muted);padding:20px">Teorie pro tuto misi není dostupná.</div>';return;}
  let html=`<div class="panel b" style="margin-bottom:14px">
@@ -1000,7 +1000,7 @@ function launchBattle(aid,mid){
  document.getElementById('fail-overlay').classList.remove('show');
  updateCombo();updatePlayerHp();renderItems();
  let pool=m.tasks();
- const ex=window.RPG_TASK_EXTRA_4;
+ const ex=window.RPG_TASK_EXTRA_5;
  if(ex&&typeof ex[m.id]==='function'){try{pool=pool.concat(ex[m.id]());}catch(e){}}
  BT.tasks=shuffleArr(pool).slice(0,m.tc);
  BT.idx=0;
@@ -1010,8 +1010,8 @@ function launchBattle(aid,mid){
  const mon=document.getElementById('bt-mon');mon.textContent=m.mon;mon.style.filter='';mon.style.fontSize='';
  document.getElementById('bt-mname').textContent=m.mname;
  updateBossHpBar();
- if(window.RPGSprites4){
-  RPGSprites4.attach(top);RPGSprites4.spawn(aid,BT._bossStartDamage);
+ if(window.RPGSprites5){
+  RPGSprites5.attach(top);RPGSprites5.spawn(aid,BT._bossStartDamage);
   setTimeout(()=>{top.classList.add('shake');setTimeout(()=>top.classList.remove('shake'),400);},560);
  }else{
   mon.className='bt-monster';void mon.offsetWidth;mon.classList.add('enter');
@@ -1031,7 +1031,7 @@ function updatePlayerHp(){
  const el=document.getElementById('player-hp');let h='';
  for(let i=0;i<BT.maxHp;i++)h+=`<span class="heart${i<BT.hp?'':' lost'}" data-i="${i}">❤️</span>`;
  el.innerHTML=h;
- if(window.RPGSprites4&&RPGSprites4.setHeroHp)RPGSprites4.setHeroHp(BT.hp/BT.maxHp);
+ if(window.RPGSprites5&&RPGSprites5.setHeroHp)RPGSprites5.setHeroHp(BT.hp/BT.maxHp);
  const puEl=document.getElementById('bt-powerups');
  if(puEl&&typeof RPGWallet!=='undefined'){
   const ics={'pu-ghost-heart':'🫀','pu-time-bonus':'⏳','pu-freeze-dbl':'🧊','pu-full-heart':'💗','pu-xp-crit':'⚡','pu-second-chance':'🛡️'};
@@ -1120,7 +1120,7 @@ function renderTask(){
 function battlePool(){
  const ar=AREAS.find(a=>a.id===BT.aid);if(!ar)return[];
  const m=ar.missions.find(x=>x.id===BT.mid);if(!m)return[];
- let pool=m.tasks();const ex=window.RPG_TASK_EXTRA_4;
+ let pool=m.tasks();const ex=window.RPG_TASK_EXTRA_5;
  if(ex&&typeof ex[BT.mid]==='function'){try{pool=pool.concat(ex[BT.mid]());}catch(e){}}
  return pool;
 }
@@ -1173,16 +1173,16 @@ function useMiniHint(){if(BT.hp<=1)return;BT.hp--;updatePlayerHp();BT.miniHintUs
 function monsterAttack(){
  const mon=document.getElementById('bt-mon');if(!mon)return;
  mon.classList.remove('idle','idle-2','charge');void mon.offsetWidth;mon.classList.add('charge');
- setTimeout(()=>{mon.classList.remove('charge');if(window.RPGSprites4&&RPGSprites4.active())RPGSprites4.bossAttack();},500);
+ setTimeout(()=>{mon.classList.remove('charge');if(window.RPGSprites5&&RPGSprites5.active())RPGSprites5.bossAttack();},500);
  const top=document.getElementById('bt-top');if(top){top.classList.remove('shake');void top.offsetWidth;top.classList.add('shake');setTimeout(()=>top.classList.remove('shake'),400);}
 }
-function heroAttackFX(){if(window.RPGSprites4&&RPGSprites4.active()){RPGSprites4.heroAttack();}else{const proj=document.getElementById('proj');proj.textContent='⚔️';void proj.offsetWidth;proj.className='proj fire';proj.style.setProperty('--tx','0px');proj.style.setProperty('--ty','-120px');proj.style.left='50%';proj.style.top='40%';}}
+function heroAttackFX(){if(window.RPGSprites5&&RPGSprites5.active()){RPGSprites5.heroAttack();}else{const proj=document.getElementById('proj');proj.textContent='⚔️';void proj.offsetWidth;proj.className='proj fire';proj.style.setProperty('--tx','0px');proj.style.setProperty('--ty','-120px');proj.style.left='50%';proj.style.top='40%';}}
 function damageMonster(xp,isCrit){
  const spark=document.getElementById('dmg-spark');spark.textContent=isCrit?'KRITICKÝ ZÁSAH!':'−'+xp+' HP!';spark.classList.remove('go');void spark.offsetWidth;spark.classList.add('go');
  const mon=document.getElementById('bt-mon');if(mon){mon.classList.remove('hit');void mon.offsetWidth;mon.classList.add('hit');setTimeout(()=>mon.classList.remove('hit'),300);}
  heroAttackFX();
- if(window.RPGSprites4&&RPGSprites4.active())RPGSprites4.heroAttack();
- if(BT.bossDefeated){const m=document.getElementById('bt-mon');if(m){m.classList.remove('hit');void m.offsetWidth;m.classList.add('defeat');setTimeout(()=>{if(window.RPGSprites4&&RPGSprites4.active()){RPGSprites4.defeat();}},200);}}
+ if(window.RPGSprites5&&RPGSprites5.active())RPGSprites5.heroAttack();
+ if(BT.bossDefeated){const m=document.getElementById('bt-mon');if(m){m.classList.remove('hit');void m.offsetWidth;m.classList.add('defeat');setTimeout(()=>{if(window.RPGSprites5&&RPGSprites5.active()){RPGSprites5.defeat();}},200);}}
 }
 function updateBossHpBar(){
  const total=BT.tasks.length;if(!total)return 100;
@@ -1265,7 +1265,7 @@ function showHint(){
 function nextTask(){
  const explTxt=(document.getElementById('bt-explain-txt').value||'').trim();
  if(explTxt&&typeof RPGCloud!=='undefined'&&RPGCloud.saveExplanation){
-  const t=BT.curTask;RPGCloud.saveExplanation('RPG_MAT_4',BT.mid,BT.idx,t?t.text:'',t?t.ans:'',explTxt);
+  const t=BT.curTask;RPGCloud.saveExplanation('RPG_MAT_5',BT.mid,BT.idx,t?t.text:'',t?t.ans:'',explTxt);
  }
  let nxt=-1;for(let i=BT.idx+1;i<BT.tasks.length;i++){if(!S.done[`${BT.mid}-${i}`]){nxt=i;break;}}
  if(nxt>=0){BT.idx=nxt;renderTask();}else openArea(BT.aid);
@@ -1353,7 +1353,7 @@ function applyCosmetics(){
  if(bg){nm&&nm.classList.add(bg.cssKey);mnm&&mnm.classList.add(bg.cssKey);}
  const th=typeof SHOP_ITEMS!=='undefined'?SHOP_ITEMS.find(i=>i.id===cos.active?.theme&&i.cat==='theme'):null;
  document.documentElement.dataset.theme=th&&th.cssKey?th.cssKey:'';
- const spMod=window.RPGSprites4;if(spMod&&typeof spMod.setSkin==='function')spMod.setSkin(cos.active?.skin||null);
+ const spMod=window.RPGSprites5;if(spMod&&typeof spMod.setSkin==='function')spMod.setSkin(cos.active?.skin||null);
  _updateCreditsUI();renderShop();
 }
 
@@ -1404,7 +1404,7 @@ function renderTrainPicker(){
   const hdr=document.createElement('div');hdr.style.cssText='font-family:var(--px);font-size:12px;color:var(--muted);letter-spacing:1px;padding:10px 0 4px;';hdr.textContent=ar.name.replace(/\n/g,' ');list.appendChild(hdr);
   ar.missions.forEach(m=>{
    const ms=masteryOf(m.id);const it=document.createElement('div');it.className='train-item'+(ms.mastered?' mastered':'');
-   const hasLearn=window.RPG_LEARN_4&&window.RPG_LEARN_4[m.id];
+   const hasLearn=window.RPG_LEARN_5&&window.RPG_LEARN_5[m.id];
    it.innerHTML=`<div class="t-nm">${ms.mastered?'🏅 ':''}${m.name}</div><div class="t-prog" style="font-size:11px;color:var(--muted)">${ms.score}/${MASTERY_GOAL}</div>${hasLearn?`<button class="learn-btn" onclick="startLearn('${m.id}');event.stopPropagation()">📖</button>`:''}`;
    it.onclick=()=>startTrain(m.id);list.appendChild(it);
   });
@@ -1412,7 +1412,7 @@ function renderTrainPicker(){
 }
 function startTrain(mid){
  const ar=AREAS.find(a=>a.missions.some(m=>m.id===mid));const m=ar?ar.missions.find(x=>x.id===mid):null;if(!m)return;
- let pool=m.tasks();const ex=window.RPG_TASK_EXTRA_4;if(ex&&typeof ex[mid]==='function'){try{pool=pool.concat(ex[mid]());}catch(e){}}
+ let pool=m.tasks();const ex=window.RPG_TASK_EXTRA_5;if(ex&&typeof ex[mid]==='function'){try{pool=pool.concat(ex[mid]());}catch(e){}}
  if(!pool.length){alert('Pro toto téma nejsou dostupné úlohy.');return;}
  TR={mid,m,pool:shuffleArr([...pool]),correct:0,total:0,streak:0,hl:0};
  document.getElementById('train-picker').style.display='none';
@@ -1422,7 +1422,7 @@ function startTrain(mid){
  trDraw();
 }
 function trDraw(){
- if(!TR.pool.length){const ar=AREAS.find(a=>a.missions.some(m=>m.id===TR.mid));const m=ar?ar.missions.find(x=>x.id===TR.mid):null;let pool=(m?m.tasks():[]);const ex=window.RPG_TASK_EXTRA_4;if(ex&&typeof ex[TR.mid]==='function'){try{pool=pool.concat(ex[TR.mid]());}catch(e){}}TR.pool=shuffleArr([...pool]);}
+ if(!TR.pool.length){const ar=AREAS.find(a=>a.missions.some(m=>m.id===TR.mid));const m=ar?ar.missions.find(x=>x.id===TR.mid):null;let pool=(m?m.tasks():[]);const ex=window.RPG_TASK_EXTRA_5;if(ex&&typeof ex[TR.mid]==='function'){try{pool=pool.concat(ex[TR.mid]());}catch(e){}}TR.pool=shuffleArr([...pool]);}
  TR.task=TR.pool.pop();TR.hl=0;trRender();trStats();
 }
 function trRender(){
@@ -1595,13 +1595,13 @@ window.addEventListener('load',()=>{
  }
 });
 </script>
-<script defer src="./rpg-sprites-4.js"></script>
-<script defer src="./rpg-tasks-4.js"></script>
-<script defer src="./rpg-learn-4.js"></script>
+<script defer src="./rpg-sprites-5.js"></script>
+<script defer src="./rpg-tasks-5.js"></script>
+<script defer src="./rpg-learn-5.js"></script>
 <script defer src="./rpg-wallet.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script defer src="./rpg-cloud.js"></script>
-<script defer src="./rpg-battle-4.js"></script>
+<script defer src="./rpg-battle-5.js"></script>
 <script defer src="./rpg-shared.js"></script>
 <script defer src="./rpg-tasktypes.js"></script>
 <script defer src="./rpg-battle-ui.js"></script>
