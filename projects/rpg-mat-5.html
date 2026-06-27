@@ -967,8 +967,9 @@ function renderLearn(mid,m){
  (L.sections||[]).forEach(s=>{html+=`<div class="learn-section"><h3>${esc2(s.h||s.title||'')}</h3>`;(Array.isArray(s.p)?s.p:[s.p||s.body||'']).forEach(p=>{html+=`<p>${esc2(p).replace(/\n/g,'<br>')}</p>`;});html+='</div>';});
  if(L.formulas&&L.formulas.length){html+='<div class="learn-formula">';L.formulas.forEach(f=>{html+=esc2(f)+'<br>';});html+='</div>';}
  (L.examples||[]).forEach(ex=>{html+=`<div class="learn-example"><div class="ex-q">📝 ${esc2(ex.q)}</div><div class="ex-s">`;(Array.isArray(ex.s)?ex.s:[ex.s||ex.a||'']).forEach(step=>{html+=esc2(step).replace(/\n/g,'<br>')+'<br>';});html+='</div></div>';});
- if(L.video){const vurl=L.video.url||('https://www.youtube.com/watch?v='+L.video.id);html+=`<div style="margin-top:16px"><a class="learn-video" href="${esc2(vurl)}" target="_blank" rel="noopener">▶ VIDEO: ${esc2(L.video.title)}</a></div>`;}
- el.innerHTML=html;document.getElementById('learn-battle-btn').onclick=launchLearnBattle;
+ el.innerHTML=html;
+ if(L.video){const vurl=L.video.url||('https://www.youtube.com/watch?v='+L.video.id);const wrap=document.createElement('div');wrap.style.marginTop='16px';const a=document.createElement('a');a.className='learn-video';a.href=vurl;a.target='_blank';a.rel='noopener';a.textContent='▶ VIDEO: '+(L.video.title||'');wrap.appendChild(a);el.appendChild(wrap);}
+ document.getElementById('learn-battle-btn').onclick=launchLearnBattle;
 }
 function esc2(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 
