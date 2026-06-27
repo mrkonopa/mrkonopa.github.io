@@ -1421,7 +1421,7 @@ function renderTrainPicker(){
   ar.missions.forEach(m=>{
    const ms=masteryOf(m.id);const it=document.createElement('div');it.className='train-item'+(ms.mastered?' mastered':'');
    const hasLearn=window.RPG_LEARN_3&&window.RPG_LEARN_3[m.id];
-   it.innerHTML=`<div class="t-nm">${ms.mastered?'🏅 ':''}${m.name}</div><div class="t-prog" style="font-size:11px;color:var(--muted)">${ms.score}/${MASTERY_GOAL}</div>${hasLearn?`<button class="learn-btn" onclick="startLearn('${m.id}');event.stopPropagation()">📖</button>`:''}`;
+   it.innerHTML=`<div class="t-nm">${ms.mastered?'🏅 ':''}${m.name}</div><div class="t-prog" style="font-size:11px;color:var(--muted)">${ms.score|0}/${MASTERY_GOAL}</div>${hasLearn?`<button class="learn-btn" onclick="startLearn('${m.id}');event.stopPropagation()">📖</button>`:''}`;
    it.onclick=()=>startTrain(m.id);list.appendChild(it);
   });
  });
@@ -1538,7 +1538,7 @@ function renderProfile(){
  const rmEl=document.getElementById('pr-rm');if(rmEl)rmEl.checked=rmActive();
  const av=document.getElementById('pr-avatar');if(av){const cos=_activeCosmetics()||S.cosmetics;if(typeof SHOP_ITEMS!=='undefined'){const b=SHOP_ITEMS.find(i=>i.id===cos.active?.border&&i.cat==='border');if(b)av.className=b.cssKey;}}
  const attrsEl=document.getElementById('pr-attrs');
- attrsEl.innerHTML=Object.entries(ATTR_META).map(([k,v])=>`<div class="attr-row"><div class="attr-ic">${v.ic}</div><div class="attr-nm">${v.nm}</div><div class="attr-vl">${S.attrs[k]||0}</div></div>`).join('');
+ attrsEl.innerHTML=Object.entries(ATTR_META).map(([k,v])=>`<div class="attr-row"><div class="attr-ic">${v.ic}</div><div class="attr-nm">${v.nm}</div><div class="attr-vl">${(S.attrs[k]||0)|0}</div></div>`).join('');
  const inv=document.getElementById('pr-inv');
  const allArts=AREAS.map(ar=>({id:ar.art.id,ic:ar.art.ic,nm:ar.art.nm}));
  inv.innerHTML=allArts.map(a=>`<div class="inv-slot${S.inv.includes(a.id)?' have':''}"><div class="ic">${a.ic}</div><div class="nm">${a.nm}</div></div>`).join('');
