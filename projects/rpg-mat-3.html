@@ -1221,13 +1221,10 @@ function mcDistractors(ans){
 }
 function renderMC(t){
  const grid=document.getElementById('mc-grid');
- if(!Array.isArray(t.mc_opts)||t.mc_opts.length<2){
-  const ans=t.ans;const wrong=mcDistractors(ans);
-  const opts=shuffleArr([String(ans),...wrong]);
-  grid.innerHTML=opts.map((o,i)=>`<button class="mc-btn c${i}" onclick="pickMC(this,'${o.replace(/'/g,"\\'")}','${String(ans).replace(/'/g,"\\'")}')">${o}</button>`).join('');
- }else{
-  grid.innerHTML=t.mc_opts.map((o,i)=>`<button class="mc-btn c${i}" onclick="pickMC(this,'${String(o).replace(/'/g,"\\'")}','${String(t.ans).replace(/'/g,"\\'")}')">${o}</button>`).join('');
- }
+ const ans=String(t.ans);
+ const opts=(Array.isArray(t.mc_opts)&&t.mc_opts.length>=2)?t.mc_opts.map(String):shuffleArr([ans,...mcDistractors(ans)]);
+ grid.innerHTML='';
+ opts.forEach((o,i)=>{const b=document.createElement('button');b.className='mc-btn c'+i;b.textContent=o;b.onclick=()=>pickMC(b,o,ans);grid.appendChild(b);});
  grid.style.display='grid';
 }
 function pickMC(btn,chosen,correct){
@@ -1462,9 +1459,9 @@ function trRender(){
 }
 function trRenderMC(t){
  const grid=document.getElementById('tr-mc');const ans=String(t.ans);
- const wrong=mcDistractors(ans);
- const opts=shuffleArr([ans,...wrong]);
- grid.innerHTML=opts.map((o,i)=>`<button class="mc-btn c${i}" onclick="trPickMC(this,'${o.replace(/'/g,"\\'")}','${ans.replace(/'/g,"\\'")}' )">${o}</button>`).join('');
+ const opts=shuffleArr([ans,...mcDistractors(ans)]);
+ grid.innerHTML='';
+ opts.forEach((o,i)=>{const b=document.createElement('button');b.className='mc-btn c'+i;b.textContent=o;b.onclick=()=>trPickMC(b,o,ans);grid.appendChild(b);});
  grid.style.display='grid';
 }
 function trPickMC(btn,chosen,correct){
