@@ -921,7 +921,7 @@ function renderMap(){
 // AREA
 let curArea=null;
 function openArea(aid){
- const ar=AREAS.find(a=>a.id===aid);curArea=ar;
+ const ar=AREAS.find(a=>a.id===aid);if(!ar)return;curArea=ar;
  document.getElementById('area-title-sm').textContent=ar.name.replace(/\n/g,' ');
  const hd=document.getElementById('area-head');
  const artHave=S.inv.includes(ar.art.id);
@@ -983,8 +983,8 @@ const ITEM_TYPES=['hp','freeze','skip'];
 const ITEM_DEFS={hp:{ic:'🧪',lb:'LEKTVAR',desc:'Obnoví 1 život'},freeze:{ic:'❄️',lb:'ZMRZLINA',desc:'Zmrazí čas na 15 s'},skip:{ic:'💨',lb:'PŘESKOČ',desc:'Přeskočí úkol bez penalizace'}};
 
 function launchBattle(aid,mid){
- const ar=AREAS.find(a=>a.id===aid);
- const m=ar.missions.find(x=>x.id===mid);
+ const ar=AREAS.find(a=>a.id===aid);if(!ar)return;
+ const m=ar.missions.find(x=>x.id===mid);if(!m)return;
  BT.aid=aid;BT.mid=mid;BT.combo=0;BT.missionHinted=false;BT.bossDefeated=false;
  BT.hp=MAX_PLAYER_HP;BT.maxHp=MAX_PLAYER_HP;
  const _puW=typeof RPGWallet!=='undefined'?RPGWallet:null;
@@ -1203,7 +1203,7 @@ function updateCombo(){
 // nebyly odpovědi triviálně odlišitelné), jinak ANO/NE/MOŽNÁ.
 function mcDistractors(ans){
  const s=String(ans).trim();const base=parseInt(s,10);const wrong=[];
- if(String(base)===s){
+ if(s!==''&&s!=='NaN'&&String(base)===s){
   const mag=Math.abs(base);let step=1;
   if(base%1000===0&&mag>=1000)step=1000;
   else if(base%100===0&&mag>=100)step=100;
@@ -1215,7 +1215,8 @@ function mcDistractors(ans){
   for(let i=0;i<offs.length&&wrong.length<3;i++){const v=base+offs[i]*step;if(v!==base&&v>=0&&!wrong.includes(v))wrong.push(v);}
   for(let k=5;k<60&&wrong.length<3;k++){const v=base+k*step;if(v!==base&&!wrong.includes(v))wrong.push(v);}
  }else{
-  ['ANO','NE','MOŽNÁ'].forEach(x=>{if(x!==s&&wrong.length<3)wrong.push(x);});
+  ['ANO','NE','MOŽNÁ','NEVÍM','0','1'].forEach(x=>{if(x!==s&&!wrong.includes(x)&&wrong.length<3)wrong.push(x);});
+  for(let n=2;wrong.length<3;n++){const c='?'+n;if(c!==s&&!wrong.includes(c))wrong.push(c);}
  }
  return wrong.slice(0,3).map(String);
 }
