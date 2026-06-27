@@ -67,7 +67,7 @@ async function answerWrong(page){
   const base = `http://127.0.0.1:${srv.address().port}`;
   const browser = await chromium.launch({ executablePath: EXEC });
 
-  for (const g of [6, 7, 8, 9]) {
+  for (const g of [3, 4, 5, 6, 7, 8, 9]) {
     console.log(`\n━━ rpg-mat-${g} ━━`);
     const ctx = await browser.newContext({ viewport: { width: 480, height: 800 } });
     const page = await ctx.newPage();
