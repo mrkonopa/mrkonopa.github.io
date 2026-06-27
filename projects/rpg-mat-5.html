@@ -976,7 +976,7 @@ function esc2(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;')
 // BATTLE STATE
 let BT={tasks:[],idx:0,hl:0,curTask:null,aid:null,mid:null,combo:0,hp:3,maxHp:3,timer:null,timeLeft:30,timeMax:30,mcMode:false,phase:1,items:[],timerFrozen:false,freezeTimeout:null};
 const MAX_PLAYER_HP=3;
-const TIME_PER_TASK=40;
+const TIME_PER_TASK=50;
 const ITEM_DROP_CHANCE=0.28;
 const MAX_ITEMS=3;
 const ITEM_TYPES=['hp','freeze','skip'];
@@ -1606,8 +1606,9 @@ function checkMissionComplete(){
 window.addEventListener('load',()=>{
  if(localStorage.getItem(SAVE_KEY))document.getElementById('continue-panel').style.display='block';
  const _p=new URLSearchParams(location.search);
- if(_p.get('preview')==='1'&&_p.get('mid')){
-  GODMODE=true;const _mid=_p.get('mid');const _aid=parseInt(_mid.split('-')[0]);
+ const _mid=_p.get('mid')||'';
+ if(_p.get('preview')==='1'&&/^\d{1,2}-\d{1,2}$/.test(_mid)){
+  GODMODE=true;const _aid=parseInt(_mid.split('-')[0]);
   document.getElementById('ni').value='NÁHLED';startGame();launchBattle(_aid,_mid);
  }
 });

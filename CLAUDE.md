@@ -143,6 +143,8 @@ git push
 - **Wallet cross-device sync** — kredity slučovány `max()` (kid-friendly, nikdy neztratí vlastněnou kosmetiku); okrajový případ „obě zařízení offline vydělají" ztratí pár kreditů — přijatelné pro čistě kosmetickou měnu.
 - ~~Přijímačky PDF~~ ✅ — všech 45 PDF existuje, žádný chybějící odkaz.
 - ~~Únikovky hinty~~ ✅ — všech 20 L3 hintů sedí přesně na kódy zámků (procenta i tělesa).
+- **1. stupeň (3./4./5. ročník)** — nové hry `rpg-mat-3/4/5.html` (Kouzelný les 🌳 / Pirátská plavba 🏴‍☠️ / Dračí říše 🐉), každá s `rpg-sprites/tasks/learn/battle-N.js`. HUB má přepínač 1./2. stupeň (`RPG_HUB_STUPEN`). BEZ Věže legend. Časový limit úloh delší než u 2. stupně: `TIME_PER_TASK` = 60/55/50 s (3/4/5) vs 40 s u 6.–9. (menší děti). Deep harness pokrývá [3,4,5,6,7,8,9] = 113 testů. Vše v PR #139 (větev `claude/rpg-grade4-pilot`).
+- **TODO — videa Matýskova matematika (1. stupeň):** v `rpg-learn-3/4/5.js` má každá z 63 misí `video:{url,title}` mířící zatím jen na úroveň **dílu/sekce** webu (geometrie → `/geometrie-N/`, ostatní → `/N-rocnik-1-dil/` nebo `/2-dil/`, 3. roč. → `/vyukova-videa/`). **Vojta na začátku příštího školního roku (~září 2026) dodá přesné přiřazení mise → strana učebnice** → potom přepsat `url` na konkrétní stránkové video `…/N-rocnik-M-dil/video/str-XX/`. **Připomenout Vojtovi.**
 
 ## Cesta peněz — finished structure (reference)
 - 8 chapters (Akty), narrative: brigáda → plat → inflace → půjčka → hypotéka → lichva → kyberpodvody → certifikát
