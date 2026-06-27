@@ -110,12 +110,12 @@
                distractors: [base * den, v + 1, base - v] };
     },
 
-    // 12) průměr tří čísel
+    // 12) doplň chybějící sčítanec
     function (r) {
-      const avg = ri(r, 4, 12), d1 = ri(r, 1, 3), d2 = ri(r, 1, 3);
-      const nums = [avg - d1, avg + d2, avg + d1 - d2];
-      return { topic: 'průměr', text: `Průměr čísel ${nums.join(', ')} je…`, value: avg,
-               distractors: [avg + 1, avg - 1, nums[0] + nums[1]] };
+      const a = ri(r, 120, 680), v = ri(r, 40, 300);
+      const sum = a + v;
+      return { topic: 'sčítání', text: `Doplň chybějící číslo: ${a} + ? = ${sum}`, value: v,
+               distractors: [v + 10, v - 10, sum - a + 1] };
     },
 
     // 13) čísla do 1 000 000 — čtení/psaní
@@ -139,12 +139,12 @@
                value: a * a, distractors: [4 * a, a * a + a, (a + 1) * (a + 1)] };
     },
 
-    // 16) rychlost × čas = vzdálenost
+    // 16) násobení — slovní úloha (bedny)
     function (r) {
-      const speed = pick(r, [20, 30, 40, 50, 60]), t = ri(r, 1, 4);
-      const v = speed * t;
-      return { topic: 'rychlost', text: `Loď pluje rychlostí ${speed} km/h po dobu ${t} h. Vzdálenost? (km)`,
-               value: v, distractors: [speed + t, v + speed, v - t] };
+      const perBox = pick(r, [20, 30, 40, 50, 60]), t = ri(r, 2, 5);
+      const v = perBox * t;
+      return { topic: 'slovní úloha', text: `V ${t} bednách je po ${perBox} mincích. Kolik mincí je celkem?`,
+               value: v, distractors: [perBox + t, v + perBox, v - perBox] };
     },
 
     // 17) jednotky hmotnosti (kg → g)
@@ -170,13 +170,12 @@
                distractors: [(a + b) * c, a * b + c, v + 1] };
     },
 
-    // 20) porovnávání zlomků (jednoduchých)
+    // 20) zaokrouhlování na tisíce
     function (r) {
-      const opts = [['1/2','1/4',1],['3/4','1/2',1],['1/3','1/4',1],['2/3','1/2',1],['1/2','2/3',2],['1/4','1/3',2]];
-      const [fa, fb, which] = pick(r, opts);
-      const labels = [fa, fb];
-      return { topic: 'zlomky', text: `Které je větší? ${fa}  nebo  ${fb}`, value: labels[which - 1],
-               distractors: [labels[2 - which], fa === fb ? '=' : labels[0]] };
+      const n = ri(r, 12300, 98700);
+      const v = Math.round(n / 1000) * 1000;
+      return { topic: 'zaokrouhlování', text: `Zaokrouhli na tisíce: ${n} ≈`, value: v,
+               distractors: [v + 1000, v - 1000, Math.round(n / 100) * 100] };
     },
 
   ];

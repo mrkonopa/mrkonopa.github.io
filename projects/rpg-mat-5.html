@@ -964,10 +964,10 @@ function renderLearn(mid,m){
   <div style="font-family:var(--px);font-weight:700;font-size:17px;color:var(--blue);letter-spacing:.5px">${esc2(m?m.name:mid)}</div>
   <div style="font-family:var(--vt);font-size:18px;color:var(--muted);margin-top:4px">${esc2(m?m.sub:'')}</div></div>`;
  if(L.intro)html+=`<div class="learn-intro">${esc2(L.intro)}</div>`;
- (L.sections||[]).forEach(s=>{html+=`<div class="learn-section"><h3>${esc2(s.h)}</h3>`;(Array.isArray(s.p)?s.p:[s.p]).forEach(p=>{html+=`<p>${p}</p>`;});html+='</div>';});
- if(L.formulas&&L.formulas.length){html+='<div class="learn-formula">';L.formulas.forEach(f=>{html+=f+'<br>';});html+='</div>';}
- (L.examples||[]).forEach(ex=>{html+=`<div class="learn-example"><div class="ex-q">📝 ${esc2(ex.q)}</div><div class="ex-s">`;(Array.isArray(ex.s)?ex.s:[ex.s]).forEach(step=>{html+=step+'<br>';});html+='</div></div>';});
- if(L.video){html+=`<div style="margin-top:16px"><a class="learn-video" href="https://www.youtube.com/watch?v=${L.video.id}" target="_blank" rel="noopener">▶ VIDEO: ${esc2(L.video.title)}</a></div>`;}
+ (L.sections||[]).forEach(s=>{html+=`<div class="learn-section"><h3>${esc2(s.h||s.title||'')}</h3>`;(Array.isArray(s.p)?s.p:[s.p||s.body||'']).forEach(p=>{html+=`<p>${esc2(p).replace(/\n/g,'<br>')}</p>`;});html+='</div>';});
+ if(L.formulas&&L.formulas.length){html+='<div class="learn-formula">';L.formulas.forEach(f=>{html+=esc2(f)+'<br>';});html+='</div>';}
+ (L.examples||[]).forEach(ex=>{html+=`<div class="learn-example"><div class="ex-q">📝 ${esc2(ex.q)}</div><div class="ex-s">`;(Array.isArray(ex.s)?ex.s:[ex.s||ex.a||'']).forEach(step=>{html+=esc2(step).replace(/\n/g,'<br>')+'<br>';});html+='</div></div>';});
+ if(L.video){const vurl=L.video.url||('https://www.youtube.com/watch?v='+L.video.id);html+=`<div style="margin-top:16px"><a class="learn-video" href="${esc2(vurl)}" target="_blank" rel="noopener">▶ VIDEO: ${esc2(L.video.title)}</a></div>`;}
  el.innerHTML=html;document.getElementById('learn-battle-btn').onclick=launchLearnBattle;
 }
 function esc2(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
@@ -1198,13 +1198,31 @@ function updateCombo(){
  if(c>=5)el.classList.add('hot');if(c>=10)el.classList.add('fire');
 }
 
+// MC distractory: pro celá čísla škáluje krok podle velikosti/zaokrouhlení (aby u velkých čísel
+// nebyly odpovědi triviálně odlišitelné), jinak ANO/NE/MOŽNÁ.
+function mcDistractors(ans){
+ const s=String(ans).trim();const base=parseInt(s,10);const wrong=[];
+ if(String(base)===s){
+  const mag=Math.abs(base);let step=1;
+  if(base%1000===0&&mag>=1000)step=1000;
+  else if(base%100===0&&mag>=100)step=100;
+  else if(mag>=100000)step=1000;
+  else if(mag>=10000)step=100;
+  else if(mag>=1000)step=10;
+  else if(base%10===0&&mag>=10)step=10;
+  const offs=[-1,1,-2,2,3,-3,4,-4];
+  for(let i=0;i<offs.length&&wrong.length<3;i++){const v=base+offs[i]*step;if(v!==base&&v>=0&&!wrong.includes(v))wrong.push(v);}
+  for(let k=5;k<60&&wrong.length<3;k++){const v=base+k*step;if(v!==base&&!wrong.includes(v))wrong.push(v);}
+ }else{
+  ['ANO','NE','MOŽNÁ'].forEach(x=>{if(x!==s&&wrong.length<3)wrong.push(x);});
+ }
+ return wrong.slice(0,3).map(String);
+}
 function renderMC(t){
  const grid=document.getElementById('mc-grid');
  if(!Array.isArray(t.mc_opts)||t.mc_opts.length<2){
-  const ans=t.ans;const wrong=[];const base=parseInt(ans);
-  if(!isNaN(base)){while(wrong.length<3){const v=base+ri(-5,5);if(v!==base&&!wrong.includes(v))wrong.push(v);}
-  }else{wrong.push(...['ANO','NE','MOŽNÁ'].filter(x=>x!==String(ans)).slice(0,3));}
-  const opts=shuffleArr([String(ans),...wrong.slice(0,3).map(String)]);
+  const ans=t.ans;const wrong=mcDistractors(ans);
+  const opts=shuffleArr([String(ans),...wrong]);
   grid.innerHTML=opts.map((o,i)=>`<button class="mc-btn c${i}" onclick="pickMC(this,'${o.replace(/'/g,"\\'")}','${String(ans).replace(/'/g,"\\'")}')">${o}</button>`).join('');
  }else{
   grid.innerHTML=t.mc_opts.map((o,i)=>`<button class="mc-btn c${i}" onclick="pickMC(this,'${String(o).replace(/'/g,"\\'")}','${String(t.ans).replace(/'/g,"\\'")}')">${o}</button>`).join('');
@@ -1443,10 +1461,8 @@ function trRender(){
 }
 function trRenderMC(t){
  const grid=document.getElementById('tr-mc');const ans=String(t.ans);
- const wrong=[];const base=parseInt(ans);
- if(!isNaN(base)){while(wrong.length<3){const v=base+ri(-5,5);if(v!==base&&!wrong.includes(v))wrong.push(v);}
- }else wrong.push('ANO','NE').filter(x=>x!==ans).slice(0,3);
- const opts=shuffleArr([ans,...wrong.slice(0,3).map(String)]);
+ const wrong=mcDistractors(ans);
+ const opts=shuffleArr([ans,...wrong]);
  grid.innerHTML=opts.map((o,i)=>`<button class="mc-btn c${i}" onclick="trPickMC(this,'${o.replace(/'/g,"\\'")}','${ans.replace(/'/g,"\\'")}' )">${o}</button>`).join('');
  grid.style.display='grid';
 }

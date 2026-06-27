@@ -14,7 +14,7 @@ window.RPG_LEARN_5 = {
       { q: 'Jakou cifru má 472 935 na místě tisíců?', a: '2' },
       { q: 'Zapiš číslem: 230 tisíc', a: '230 000' },
     ],
-    video: null
+    video: { url: 'https://www.matyskova-matematika.cz/5-rocnik-1-dil/', title: 'Velká čísla do milionu – Matýskova matematika' }
   },
   '1-2': {
     intro: 'Porovnávání velkých čísel.',
@@ -25,7 +25,7 @@ window.RPG_LEARN_5 = {
     examples: [
       { q: 'Porovnej: 198 000 a 201 000', a: '198 000 < 201 000' },
     ],
-    video: null
+    video: { url: 'https://www.matyskova-matematika.cz/5-rocnik-1-dil/', title: 'Porovnávání velkých čísel – Matýskova matematika' }
   },
   '1-3': {
     intro: 'Zaokrouhlování velkých čísel.',
@@ -37,7 +37,7 @@ window.RPG_LEARN_5 = {
       { q: 'Zaokrouhli 456 789 na tisíce.', a: '457 000 (stovky 7 ≥ 5 → nahoru)' },
       { q: 'Zaokrouhli 234 500 na desetitisíce.', a: '230 000 (tisíce 4 < 5 → dolů)' },
     ],
-    video: null
+    video: { url: 'https://www.matyskova-matematika.cz/5-rocnik-1-dil/', title: 'Zaokrouhlování velkých čísel – Matýskova matematika' }
   },
   '2-1': {
     intro: 'Písemné násobení víceciferného čísla jednociferným.',
@@ -48,7 +48,7 @@ window.RPG_LEARN_5 = {
     examples: [
       { q: '258 × 4 = ?', a: '1 032' },
     ],
-    video: null
+    video: { url: 'https://www.matyskova-matematika.cz/5-rocnik-1-dil/', title: 'Písemné násobení jednociferným – Matýskova matematika' }
   },
   '2-2': {
     intro: 'Písemné násobení dvojciferným číslem.',
@@ -59,7 +59,7 @@ window.RPG_LEARN_5 = {
     examples: [
       { q: '64 × 25 = ?', a: '1 600' },
     ],
-    video: null
+    video: { url: 'https://www.matyskova-matematika.cz/5-rocnik-1-dil/', title: 'Písemné násobení dvojciferným – Matýskova matematika' }
   },
   '2-3': {
     intro: 'Slovní úlohy s násobením.',
@@ -70,7 +70,7 @@ window.RPG_LEARN_5 = {
     examples: [
       { q: 'Rytíř ujede 180 km za den. Kolik za 6 dní?', a: '180 × 6 = 1 080 km' },
     ],
-    video: null
+    video: { url: 'https://www.matyskova-matematika.cz/5-rocnik-1-dil/', title: 'Slovní úlohy s násobením – Matýskova matematika' }
   },
   '3-1': {
     intro: 'Písemné dělení jednociferným číslem (beze zbytku).',
@@ -81,7 +81,7 @@ window.RPG_LEARN_5 = {
     examples: [
       { q: '742 ÷ 7 = ?', a: '106' },
     ],
-    video: null
+    video: { url: 'https://www.matyskova-matematika.cz/5-rocnik-2-dil/', title: 'Písemné dělení jednociferným – Matýskova matematika' }
   },
   '3-2': {
     intro: 'Dělení se zbytkem.',
@@ -92,7 +92,7 @@ window.RPG_LEARN_5 = {
     examples: [
       { q: '523 ÷ 4 = ?', a: '130 zbytek 3' },
     ],
-    video: null
+    video: { url: 'https://www.matyskova-matematika.cz/5-rocnik-2-dil/', title: 'Dělení se zbytkem – Matýskova matematika' }
   },
   '3-3': {
     intro: 'Slovní úlohy s dělením.',
@@ -103,7 +103,7 @@ window.RPG_LEARN_5 = {
     examples: [
       { q: '480 zlatých rozdělíme mezi 6 rytířů. Kolik každý?', a: '480 ÷ 6 = 80 zlatých' },
     ],
-    video: null
+    video: { url: 'https://www.matyskova-matematika.cz/5-rocnik-2-dil/', title: 'Slovní úlohy s dělením – Matýskova matematika' }
   },
   '4-1': {
     intro: 'Zlomky — část celku.',
@@ -115,7 +115,7 @@ window.RPG_LEARN_5 = {
     examples: [
       { q: 'Kolik je 2/5 z 30?', a: '30 ÷ 5 × 2 = 12' },
     ],
-    video: null
+    video: { url: 'https://www.matyskova-matematika.cz/5-rocnik-2-dil/', title: 'Zlomky – část celku – Matýskova matematika' }
   },
   '4-2': {
     intro: 'Sčítání a odčítání zlomků se stejným jmenovatelem.',
@@ -126,7 +126,7 @@ window.RPG_LEARN_5 = {
     examples: [
       { q: '3/10 + 4/10 = ?', a: '7/10' },
     ],
-    video: null
+    video: { url: 'https://www.matyskova-matematika.cz/5-rocnik-2-dil/', title: 'Sčítání a odčítání zlomků – Matýskova matematika' }
   },
   '4-3': {
     intro: 'Slovní úlohy se zlomky.',
@@ -137,7 +137,7 @@ window.RPG_LEARN_5 = {
     examples: [
       { q: 'Třída má 28 žáků, 3/4 jsou přítomni. Kolik?', a: '28 ÷ 4 × 3 = 21 žáků' },
     ],
-    video: null
+    video: { url: 'https://www.matyskova-matematika.cz/5-rocnik-2-dil/', title: 'Slovní úlohy se zlomky – Matýskova matematika' }
   },
   '5-1': {
     intro: 'Desetinná čísla — čtení a porovnávání.',
@@ -149,7 +149,7 @@ window.RPG_LEARN_5 = {
     examples: [
       { q: 'Co je větší: 2,7 nebo 2,65?', a: '2,7 (= 2,70 > 2,65)' },
     ],
-    video: null
+    video: { url: 'https://www.matyskova-matematika.cz/5-rocnik-2-dil/', title: 'Desetinná čísla – čtení a porovnávání – Matýskova matematika' }
   },
   '5-2': {
     intro: 'Sčítání a odčítání desetinných čísel.',
@@ -160,7 +160,7 @@ window.RPG_LEARN_5 = {
     examples: [
       { q: '4,6 + 3,8 = ?', a: '8,4' },
     ],
-    video: null
+    video: { url: 'https://www.matyskova-matematika.cz/5-rocnik-2-dil/', title: 'Sčítání a odčítání desetinných čísel – Matýskova matematika' }
   },
   '5-3': {
     intro: 'Násobení a dělení desetinných čísel 10 a 100.',
@@ -172,7 +172,7 @@ window.RPG_LEARN_5 = {
       { q: '2,3 × 100 = ?', a: '230' },
       { q: '560 ÷ 100 = ?', a: '5,6' },
     ],
-    video: null
+    video: { url: 'https://www.matyskova-matematika.cz/5-rocnik-2-dil/', title: 'Násobení a dělení desetinných 10 a 100 – Matýskova matematika' }
   },
   '6-1': {
     intro: 'Obvod a obsah obdélníku a čtverce.',
@@ -184,7 +184,7 @@ window.RPG_LEARN_5 = {
     examples: [
       { q: 'Obdélník 8 × 5 cm. Obsah?', a: 'S = 8 × 5 = 40 cm²' },
     ],
-    video: null
+    video: { url: 'https://www.matyskova-matematika.cz/geometrie-5/', title: 'Obvod a obsah – Matýskova matematika' }
   },
   '6-2': {
     intro: 'Převody jednotek — délka, hmotnost, objem, čas.',
@@ -197,7 +197,7 @@ window.RPG_LEARN_5 = {
       { q: '5 km = ? m', a: '5 000 m' },
       { q: '3 t = ? kg', a: '3 000 kg' },
     ],
-    video: null
+    video: { url: 'https://www.matyskova-matematika.cz/5-rocnik-2-dil/', title: 'Převody jednotek – Matýskova matematika' }
   },
   '6-3': {
     intro: 'Aritmetický průměr.',
@@ -208,7 +208,7 @@ window.RPG_LEARN_5 = {
     examples: [
       { q: 'Průměr čísel 12, 8, 10?', a: '(12 + 8 + 10) ÷ 3 = 30 ÷ 3 = 10' },
     ],
-    video: null
+    video: { url: 'https://www.matyskova-matematika.cz/5-rocnik-2-dil/', title: 'Aritmetický průměr – Matýskova matematika' }
   },
   '7-1': {
     intro: 'Souboj s drakem — velká čísla a operace.',
@@ -219,7 +219,7 @@ window.RPG_LEARN_5 = {
     examples: [
       { q: '345 000 + 278 000 = ?', a: '623 000' },
     ],
-    video: null
+    video: { url: 'https://www.matyskova-matematika.cz/5-rocnik-2-dil/', title: 'Velká čísla – opakování – Matýskova matematika' }
   },
   '7-2': {
     intro: 'Souboj s drakem — písemné operace.',
@@ -230,7 +230,7 @@ window.RPG_LEARN_5 = {
     examples: [
       { q: '348 × 7 = ?', a: '2 436' },
     ],
-    video: null
+    video: { url: 'https://www.matyskova-matematika.cz/5-rocnik-2-dil/', title: 'Písemné operace – opakování – Matýskova matematika' }
   },
   '7-3': {
     intro: 'Finální duel — přehled celého 5. ročníku.',
@@ -241,6 +241,6 @@ window.RPG_LEARN_5 = {
     examples: [
       { q: 'Obsah obdélníku 12 × 9 cm?', a: 'S = 12 × 9 = 108 cm²' },
     ],
-    video: null
+    video: { url: 'https://www.matyskova-matematika.cz/5-rocnik-2-dil/', title: 'Velké opakování 5. ročníku – Matýskova matematika' }
   }
 };

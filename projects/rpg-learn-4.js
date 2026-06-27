@@ -14,7 +14,7 @@ window.RPG_LEARN_4 = {
       { q: 'Jaká cifra je na místě stovek v čísle 3 618?', a: '6' },
       { q: 'Kolik tisíců je v čísle 7 042?', a: '7 tisíců' },
     ],
-    video: null
+    video: { url: 'https://www.matyskova-matematika.cz/4-rocnik-1-dil/', title: 'Čísla do 10 000 – Matýskova matematika' }
   },
   '1-2': {
     intro: 'Porovnávání čísel do 10 000 — znaky <, >, =.',
@@ -25,7 +25,7 @@ window.RPG_LEARN_4 = {
     examples: [
       { q: 'Porovnej: 6 789 a 6 798', a: '6 789 < 6 798 (desítky: 8 < 9)' },
     ],
-    video: null
+    video: { url: 'https://www.matyskova-matematika.cz/4-rocnik-1-dil/', title: 'Porovnávání čísel do 10 000 – Matýskova matematika' }
   },
   '1-3': {
     intro: 'Zaokrouhlování čísel — na desítky, stovky, tisíce.',
@@ -38,7 +38,7 @@ window.RPG_LEARN_4 = {
       { q: 'Zaokrouhli 4 680 na stovky.', a: '4 700 (desítky: 8 ≥ 5 → nahoru)' },
       { q: 'Zaokrouhli 7 349 na tisíce.', a: '7 000 (stovky: 3 < 5 → dolů)' },
     ],
-    video: null
+    video: { url: 'https://www.matyskova-matematika.cz/4-rocnik-1-dil/', title: 'Zaokrouhlování – Matýskova matematika' }
   },
   '2-1': {
     intro: 'Sčítání čísel do 10 000 — postup pod sebou.',
@@ -49,7 +49,7 @@ window.RPG_LEARN_4 = {
     examples: [
       { q: '3 567 + 2 489 = ?', a: '6 056' },
     ],
-    video: null
+    video: { url: 'https://www.matyskova-matematika.cz/4-rocnik-1-dil/', title: 'Písemné sčítání – Matýskova matematika' }
   },
   '2-2': {
     intro: 'Odčítání čísel do 10 000 — postup pod sebou.',
@@ -60,7 +60,7 @@ window.RPG_LEARN_4 = {
     examples: [
       { q: '8 000 − 3 456 = ?', a: '4 544' },
     ],
-    video: null
+    video: { url: 'https://www.matyskova-matematika.cz/4-rocnik-1-dil/', title: 'Písemné odčítání – Matýskova matematika' }
   },
   '2-3': {
     intro: 'Slovní úlohy se sčítáním a odčítáním — postup řešení.',
@@ -71,7 +71,7 @@ window.RPG_LEARN_4 = {
     examples: [
       { q: 'Loď naložila 2 400 kg nákladu a ještě 850 kg. Celkem?', a: '2 400 + 850 = 3 250 kg' },
     ],
-    video: null
+    video: { url: 'https://www.matyskova-matematika.cz/4-rocnik-1-dil/', title: 'Slovní úlohy – sčítání a odčítání – Matýskova matematika' }
   },
   '3-1': {
     intro: 'Násobilka 1–10 — opakování a procvičení.',
@@ -83,7 +83,7 @@ window.RPG_LEARN_4 = {
       { q: '7 × 8 = ?', a: '56' },
       { q: '9 × 6 = ?', a: '54' },
     ],
-    video: null
+    video: { url: 'https://www.matyskova-matematika.cz/4-rocnik-1-dil/', title: 'Násobilka – Matýskova matematika' }
   },
   '3-2': {
     intro: 'Násobení desítkami a stovkami — zkrácený postup.',
@@ -96,7 +96,7 @@ window.RPG_LEARN_4 = {
       { q: '7 × 300 = ?', a: '2 100' },
       { q: '5 × 80 = ?', a: '400' },
     ],
-    video: null
+    video: { url: 'https://www.matyskova-matematika.cz/4-rocnik-1-dil/', title: 'Násobení 10 a 100 – Matýskova matematika' }
   },
   '3-3': {
     intro: 'Násobení dvojciferného čísla jednociferným — rozklad.',
@@ -107,7 +107,7 @@ window.RPG_LEARN_4 = {
     examples: [
       { q: '47 × 5 = ?', a: '(40 + 7) × 5 = 200 + 35 = 235' },
     ],
-    video: null
+    video: { url: 'https://www.matyskova-matematika.cz/4-rocnik-1-dil/', title: 'Násobení dvojciferného jednociferným – Matýskova matematika' }
   },
   '4-1': {
     intro: 'Dělení bez zbytku — opak násobení.',
@@ -118,7 +118,7 @@ window.RPG_LEARN_4 = {
     examples: [
       { q: '72 ÷ 9 = ?', a: '8 (protože 9 × 8 = 72)' },
     ],
-    video: null
+    video: { url: 'https://www.matyskova-matematika.cz/4-rocnik-1-dil/', title: 'Dělení beze zbytku – Matýskova matematika' }
   },
   '4-2': {
     intro: 'Dělení se zbytkem — co nevyjde přesně.',
@@ -129,7 +129,7 @@ window.RPG_LEARN_4 = {
     examples: [
       { q: '29 ÷ 6 = ? zbytek ?', a: '4 zbytek 5 (6×4=24, 29−24=5)' },
     ],
-    video: null
+    video: { url: 'https://www.matyskova-matematika.cz/4-rocnik-1-dil/', title: 'Dělení se zbytkem – Matýskova matematika' }
   },
   '4-3': {
     intro: 'Slovní úlohy s dělením — rovné dělení a rozdělování.',
@@ -140,7 +140,7 @@ window.RPG_LEARN_4 = {
     examples: [
       { q: '42 sušenek rozdělíme do 6 pytlíků rovnoměrně. Kolik v každém?', a: '42 ÷ 6 = 7 sušenek' },
     ],
-    video: null
+    video: { url: 'https://www.matyskova-matematika.cz/4-rocnik-1-dil/', title: 'Slovní úlohy s dělením – Matýskova matematika' }
   },
   '5-1': {
     intro: 'Obvod obdélníku a čtverce — délka všech stran.',
@@ -152,7 +152,7 @@ window.RPG_LEARN_4 = {
       { q: 'Obdélník: a = 8 cm, b = 5 cm. Obvod?', a: 'O = 2 × (8 + 5) = 2 × 13 = 26 cm' },
       { q: 'Čtverec: a = 7 cm. Obvod?', a: 'O = 4 × 7 = 28 cm' },
     ],
-    video: null
+    video: { url: 'https://www.matyskova-matematika.cz/geometrie-4/', title: 'Obvod obdélníku a čtverce – Matýskova matematika' }
   },
   '5-2': {
     intro: 'Obsah obdélníku a čtverce — pokrytí plochou.',
@@ -164,7 +164,7 @@ window.RPG_LEARN_4 = {
       { q: 'Obdélník: 6 cm × 4 cm. Obsah?', a: 'S = 6 × 4 = 24 cm²' },
       { q: 'Čtverec: strana 9 cm. Obsah?', a: 'S = 9 × 9 = 81 cm²' },
     ],
-    video: null
+    video: { url: 'https://www.matyskova-matematika.cz/geometrie-4/', title: 'Obsah obdélníku a čtverce – Matýskova matematika' }
   },
   '5-3': {
     intro: 'Souřadnice bodů a souřadnicová síť.',
@@ -176,7 +176,7 @@ window.RPG_LEARN_4 = {
     examples: [
       { q: 'Kolik os souměrnosti má obdélník (ne čtverec)?', a: '2 osy (vodorovná a svislá středová osa)' },
     ],
-    video: null
+    video: { url: 'https://www.matyskova-matematika.cz/geometrie-4/', title: 'Souřadnice a osy souměrnosti – Matýskova matematika' }
   },
   '6-1': {
     intro: 'Jednotky délky — km, m, dm, cm, mm.',
@@ -189,7 +189,7 @@ window.RPG_LEARN_4 = {
       { q: '5 km = ? m', a: '5 000 m' },
       { q: '30 cm = ? dm', a: '3 dm' },
     ],
-    video: null
+    video: { url: 'https://www.matyskova-matematika.cz/4-rocnik-2-dil/', title: 'Jednotky délky – Matýskova matematika' }
   },
   '6-2': {
     intro: 'Jednotky hmotnosti a času.',
@@ -202,7 +202,7 @@ window.RPG_LEARN_4 = {
       { q: '3 kg = ? g', a: '3 000 g' },
       { q: '2 h 30 min = ? min', a: '150 min' },
     ],
-    video: null
+    video: { url: 'https://www.matyskova-matematika.cz/4-rocnik-2-dil/', title: 'Jednotky hmotnosti a času – Matýskova matematika' }
   },
   '6-3': {
     intro: 'Peníze a slovní úlohy s mírami.',
@@ -213,7 +213,7 @@ window.RPG_LEARN_4 = {
     examples: [
       { q: 'Knížka stojí 149 Kč, pero 35 Kč. Zaplatíme celkem?', a: '149 + 35 = 184 Kč' },
     ],
-    video: null
+    video: { url: 'https://www.matyskova-matematika.cz/4-rocnik-2-dil/', title: 'Počítání s penězi – Matýskova matematika' }
   },
   '7-1': {
     intro: 'Čísla do 1 000 000 — milion.',
@@ -225,7 +225,7 @@ window.RPG_LEARN_4 = {
     examples: [
       { q: 'Jak zapíšeme: dvě stě třicet tisíc šest set deset?', a: '230 610' },
     ],
-    video: null
+    video: { url: 'https://www.matyskova-matematika.cz/4-rocnik-2-dil/', title: 'Čísla do milionu – Matýskova matematika' }
   },
   '7-2': {
     intro: 'Sčítání a odčítání čísel do 1 000 000.',
@@ -236,7 +236,7 @@ window.RPG_LEARN_4 = {
     examples: [
       { q: '345 000 + 78 500 = ?', a: '423 500' },
     ],
-    video: null
+    video: { url: 'https://www.matyskova-matematika.cz/4-rocnik-2-dil/', title: 'Sčítání a odčítání do milionu – Matýskova matematika' }
   },
   '7-3': {
     intro: 'Finální přehled — velká čísla, zaokrouhlování, operace.',
@@ -247,6 +247,6 @@ window.RPG_LEARN_4 = {
     examples: [
       { q: 'Zaokrouhli 456 789 na tisíce.', a: '457 000 (stovky: 7 ≥ 5 → nahoru)' },
     ],
-    video: null
+    video: { url: 'https://www.matyskova-matematika.cz/4-rocnik-2-dil/', title: 'Velké opakování 4. ročníku – Matýskova matematika' }
   }
 };

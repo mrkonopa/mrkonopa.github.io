@@ -248,7 +248,8 @@
   function gen_5_1() {
     const tasks = [];
     for (let i = 0; i < 10; i++) {
-      const a = r2(ri(10, 99) / 10), b = r2(ri(10, 99) / 10);
+      const a = r2(ri(10, 99) / 10); let b = r2(ri(10, 99) / 10);
+      while (b === a) b = r2(ri(10, 99) / 10);
       const op = ['<', '>'][ri(0, 1)];
       const correct = op === '<' ? a < b : a > b;
       tasks.push({

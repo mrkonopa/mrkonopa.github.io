@@ -252,7 +252,7 @@ tisíce: ${tis}, stovky: ${sto}, desítky: ${des}, jedničky: ?`,
   function gen_4_2() {
     const tasks = [];
     for (let i = 0; i < 10; i++) {
-      const d = ri(2, 9), q = ri(2, 9), r = ri(0, d - 1);
+      const d = ri(3, 9), q = ri(2, 9), r = ri(1, d - 1);
       const n = d * q + r;
       tasks.push({
         text: `${n} ÷ ${d} = ? (zbytek)`,
@@ -511,8 +511,8 @@ tisíce: ${tis}, stovky: ${sto}, desítky: ${des}, jedničky: ?`,
         const a = b + ri(10000, 300000);
         tasks.push({ text: `${a} − ${b} = ?`, ans: a - b, hints: [`Odečítej po řádech.`, `= ${a - b}`], skill: 'calc' });
       } else {
-        const a = ri(2, 9), b = ri(10000, 99999);
-        tasks.push({ text: `${a} × ${b} = ?`, ans: a * b, hints: [`Násobíš každou cifru zvlášť.`, `= ${a * b}`], skill: 'calc' });
+        const a = ri(2, 9), b = ri(100, 999);
+        tasks.push({ text: `${a} × ${b} = ?`, ans: a * b, hints: [`Rozlož ${b} na stovky, desítky a jednotky a násob každou část.`, `= ${a * b}`], skill: 'calc' });
       }
     }
     return tasks;

@@ -423,7 +423,7 @@
       },
       () => {
         const a = ri(2, 5), b = ri(2, 5);
-        return { text: `Máš ${a} mince po 10 Kč a ${b} mince po 5 Kč. Kolik máš celkem korun?`, ans: a * 10 + b * 5, h1: `${a}×10 + ${b}×5 = ${a * 10} + ${b * 5}`, h2: `= ${a * 10 + b * 5} Kč` };
+        return { text: `Máš ${a} ${skl(a, 'minci', 'mince', 'mincí')} po 10 Kč a ${b} ${skl(b, 'minci', 'mince', 'mincí')} po 5 Kč. Kolik máš celkem korun?`, ans: a * 10 + b * 5, h1: `${a}×10 + ${b}×5 = ${a * 10} + ${b * 5}`, h2: `= ${a * 10 + b * 5} Kč` };
       }
     ];
     for (let i = 0; i < 10; i++) {
