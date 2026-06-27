@@ -10,7 +10,7 @@
 <meta property="og:locale" content="cs_CZ">
 <meta property="og:url" content="https://mrkonopa.github.io/projects/rpg-matematika.html">
 <meta property="og:title" content="RPG Matematika — rozcestník (6.–9. třída)">
-<meta property="og:description" content="Pixelová RPG hra na procvičování matematiky pro 6.–9. ročník: postava, XP, mise, trénink, žebříček.">
+<meta property="og:description" content="Pixelová RPG hra na procvičování matematiky pro 3.–9. ročník: postava, XP, mise, trénink, žebříček.">
 <meta property="og:image" content="https://mrkonopa.github.io/og-default.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
@@ -141,6 +141,11 @@ body::before{
 .reduced-motion *,.reduced-motion *::before,.reduced-motion *::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
 /* mobil: dotykové plochy tlačítek na ≥44px */
 @media(pointer:coarse){.btn,.gp-btn,.fb-send{display:inline-flex;align-items:center;justify-content:center;min-height:44px}}
+.stupen-switch{display:flex;gap:8px;justify-content:center;margin:20px 0 4px;flex-wrap:wrap}
+.ss-btn{font-family:inherit;font-weight:700;font-size:13px;letter-spacing:.5px;padding:11px 20px;border-radius:9px;cursor:pointer;border:2px solid var(--line);background:var(--panel);color:var(--muted);transition:all .15s}
+.ss-btn.on{border-color:#19e6e6;color:#19e6e6;background:#0d1a1a;box-shadow:0 0 12px #19e6e633}
+.ss-btn:hover{border-color:#19e6e6;color:#fff}
+@media(pointer:coarse){.ss-btn{min-height:44px}}
 </style>
 </head>
 <body>
@@ -162,7 +167,7 @@ body::before{
  <div id="cloud-mount"></div>
 
  <div class="student">
-  <div class="who"><span id="who-where">Postavy uložené na <b>tomto zařízení</b></span> · <span id="started">0</span>/4 her rozehráno</div>
+  <div class="who"><span id="who-where">Postavy uložené na <b>tomto zařízení</b></span> · <span id="started">0</span>/<span id="games-total">7</span> her rozehráno</div>
   <div class="stat-strip">
    <div class="s"><div class="v" id="tot-xp">0</div><div class="l">XP celkem</div></div>
    <div class="s"><div class="v" id="tot-tasks">0</div><div class="l">úkolů hotovo</div></div>
@@ -220,6 +225,10 @@ body::before{
   <div class="shop-grid" id="shop-grid"></div>
  </div>
 
+ <div class="stupen-switch">
+  <button class="ss-btn" id="st-1" onclick="setStupen(1)">🌳 1. stupeň · 3.–5. ročník</button>
+  <button class="ss-btn" id="st-2" onclick="setStupen(2)">💻 2. stupeň · 6.–9. ročník</button>
+ </div>
  <div class="grid" id="grid"></div>
 
  <div class="note">
@@ -250,7 +259,12 @@ body::before{
    <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#19e6e6,#5dc8f0)"></div>
    <div style="font-weight:700;font-size:16px;color:#19e6e6;letter-spacing:2px;margin-bottom:6px">⚔️ ŽIVÝ SOUBOJ</div>
    <div style="font-size:13px;color:var(--muted);margin-bottom:14px">Vyber ročníky, z nichž budou otázky. Pak založ nebo se připoj.</div>
-   <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:16px">
+   <div class="hb-grade-group" data-st="1" style="display:none;gap:16px;flex-wrap:wrap;margin-bottom:16px">
+    <label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-size:14px;color:var(--text)"><input type="checkbox" class="hb-grade" value="3" style="width:16px;height:16px;accent-color:#6fc24a"> 🌳 3. roč.</label>
+    <label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-size:14px;color:var(--text)"><input type="checkbox" class="hb-grade" value="4" style="width:16px;height:16px;accent-color:#4ab0e0"> 🏴‍☠️ 4. roč.</label>
+    <label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-size:14px;color:var(--text)"><input type="checkbox" class="hb-grade" value="5" style="width:16px;height:16px;accent-color:#e0584a" checked> 🐉 5. roč.</label>
+   </div>
+   <div class="hb-grade-group" data-st="2" style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:16px">
     <label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-size:14px;color:var(--text)"><input type="checkbox" class="hb-grade" value="6" style="width:16px;height:16px;accent-color:#5dc8f0"> 🚀 6. roč.</label>
     <label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-size:14px;color:var(--text)"><input type="checkbox" class="hb-grade" value="7" style="width:16px;height:16px;accent-color:#f2c14e"> ⛏️ 7. roč.</label>
     <label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-size:14px;color:var(--text)"><input type="checkbox" class="hb-grade" value="8" style="width:16px;height:16px;accent-color:#f4d03f"> 🎓 8. roč.</label>
@@ -265,12 +279,23 @@ body::before{
 </div>
 
 <script>
+let _stupen=(function(){try{const v=localStorage.getItem('RPG_HUB_STUPEN');return v==='1'?1:2;}catch(e){return 2;}})();
 const GAMES=[
- {key:'RPG_MAT_6',file:'rpg-mat-6.html',emoji:'🚀',nm:'VESMÍRNÁ EXPEDICE',gr:'6. ročník',accent:'#5dc8f0',gbg:'#141038'},
- {key:'RPG_MAT_7',file:'rpg-mat-7.html',emoji:'⛏️',nm:'ZTRACENÝ CHRÁM',gr:'7. ročník',accent:'#f2c14e',gbg:'#17110a'},
- {key:'RPG_MAT_8',file:'rpg-mat-8.html',emoji:'🎓',nm:'MATEMATICKÁ AKADEMIE',gr:'8. ročník',accent:'#f4d03f',gbg:'#0d1117'},
- {key:'RPG_MAT_9',file:'rpg-mat-9.html',emoji:'💻',nm:'NULL_BYTE',gr:'9. ročník',accent:'#19e6e6',gbg:'#080b14'},
+ {key:'RPG_MAT_3',file:'rpg-mat-3.html',emoji:'🌳',nm:'KOUZELNÝ LES',gr:'3. ročník',accent:'#6fc24a',gbg:'#0c1a0f',st:1},
+ {key:'RPG_MAT_4',file:'rpg-mat-4.html',emoji:'🏴‍☠️',nm:'PIRÁTSKÁ PLAVBA',gr:'4. ročník',accent:'#4ab0e0',gbg:'#0a1628',st:1},
+ {key:'RPG_MAT_5',file:'rpg-mat-5.html',emoji:'🐉',nm:'DRAČÍ ŘÍŠE',gr:'5. ročník',accent:'#e0584a',gbg:'#1a0c0e',st:1},
+ {key:'RPG_MAT_6',file:'rpg-mat-6.html',emoji:'🚀',nm:'VESMÍRNÁ EXPEDICE',gr:'6. ročník',accent:'#5dc8f0',gbg:'#141038',st:2},
+ {key:'RPG_MAT_7',file:'rpg-mat-7.html',emoji:'⛏️',nm:'ZTRACENÝ CHRÁM',gr:'7. ročník',accent:'#f2c14e',gbg:'#17110a',st:2},
+ {key:'RPG_MAT_8',file:'rpg-mat-8.html',emoji:'🎓',nm:'MATEMATICKÁ AKADEMIE',gr:'8. ročník',accent:'#f4d03f',gbg:'#0d1117',st:2},
+ {key:'RPG_MAT_9',file:'rpg-mat-9.html',emoji:'💻',nm:'NULL_BYTE',gr:'9. ročník',accent:'#19e6e6',gbg:'#080b14',st:2},
 ];
+function setStupen(n){
+ _stupen=n; try{localStorage.setItem('RPG_HUB_STUPEN',String(n));}catch(e){}
+ const b1=document.getElementById('st-1'),b2=document.getElementById('st-2');
+ if(b1)b1.classList.toggle('on',n===1); if(b2)b2.classList.toggle('on',n===2);
+ document.querySelectorAll('.hb-grade-group').forEach(el=>{el.style.display=(el.dataset.st===String(n))?'flex':'none';});
+ render();
+}
 const TOTAL_TASKS=126; // 7 oblastí × 3 mise × 6 úkolů
 const ATTR=[['calc','🔢','Výpočty'],['geo','📐','Geometrie'],['anal','🧠','Analýza'],['craft','⚡','Zručnost']];
 // odznaky (zrcadlo ACH z her — jen ikona+název pro souhrn napříč hrami)
@@ -316,6 +341,7 @@ function render(){
    body=`<div class="empty">— zatím nehráno —</div>`;
    btns=`<a class="btn" href="./${g.file}">▶ ZAČÍT HRÁT</a>`;
   }
+  if(g.st!==_stupen)return; // jen hry vybraného stupně se zobrazí jako karty
   const div=document.createElement('div');
   div.className='card';
   div.style.setProperty('--accent',g.accent);
@@ -328,6 +354,8 @@ function render(){
   grid.appendChild(div);
  });
  document.getElementById('started').textContent=started;
+ const _gt=document.getElementById('games-total');if(_gt)_gt.textContent=GAMES.length;
+ const _b1=document.getElementById('st-1'),_b2=document.getElementById('st-2');if(_b1)_b1.classList.toggle('on',_stupen===1);if(_b2)_b2.classList.toggle('on',_stupen===2);
  document.getElementById('tot-xp').textContent=totXp.toLocaleString('cs-CZ');
  document.getElementById('tot-tasks').textContent=totTasks;
  document.getElementById('tot-arts').textContent=totArts;
@@ -518,6 +546,9 @@ RPGCloud.onChange(u=>{
   refreshLeaderboards();
 });
 </script>
+<script src="./rpg-battle-3.js"></script>
+<script src="./rpg-battle-4.js"></script>
+<script src="./rpg-battle-5.js"></script>
 <script src="./rpg-battle-6.js"></script>
 <script src="./rpg-battle-7.js"></script>
 <script src="./rpg-battle-8.js"></script>
@@ -527,7 +558,7 @@ RPGCloud.onChange(u=>{
 if(window.RPGBattle) document.getElementById('hub-battle').style.display='';
 function openHubBattle(role){
   if(!window.RPGBattle){alert('Živý souboj se nenačetl. Zkus obnovit stránku.');return;}
-  const grades=Array.from(document.querySelectorAll('.hb-grade:checked')).map(el=>el.value);
+  const grades=Array.from(document.querySelectorAll('.hb-grade:checked')).filter(el=>{const grp=el.closest('.hb-grade-group');return !grp||grp.style.display!=='none';}).map(el=>el.value);
   if(!grades.length){alert('Vyber aspoň jeden ročník.');return;}
   const banks=grades.map(g=>window['RPG_BATTLE_'+g]).filter(Boolean);
   if(!banks.length){alert('Banka otázek se nenačetla. Zkus obnovit stránku.');return;}
@@ -557,5 +588,6 @@ async function submitFeedback(){
  }
 }
 </script>
+<script>window.addEventListener('load',function(){try{setStupen(_stupen);}catch(e){}});</script>
 </body>
 </html>

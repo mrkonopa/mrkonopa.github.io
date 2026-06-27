@@ -1,0 +1,1625 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>RPG Matematika 4 — Pirátská plavba</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&family=VT323&family=Lexend:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a1628;--panel:#102040;--panel2:#182e48;--line:#243550;--gold:#f0c040;--blue:#4ab0e0;--red:#cc3333;--green:#3ecc66;--purple:#9966cc;--text:#e8e0cc;--muted:#889aaa;--px:'Roboto Mono','VT323',monospace;--vt:'VT323',monospace;--read:'Lexend','Inter','Segoe UI',system-ui,-apple-system,Arial,sans-serif}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:var(--px);font-weight:700;min-height:100vh;overflow-x:hidden}
+.screen{display:none}.screen.active{display:block}
+.wrap{max-width:640px;margin:0 auto;padding:14px}
+.panel{background:var(--panel);border:2px solid var(--line);padding:14px;margin-bottom:12px}
+.panel.b{border-color:var(--blue)}
+.hl{color:var(--gold)}
+.btn{font-family:var(--px);font-weight:700;font-size:13px;background:var(--panel);color:var(--gold);border:3px solid var(--gold);padding:10px 16px;cursor:pointer;box-shadow:4px 4px 0 #7a5c00;letter-spacing:.5px;display:inline-block;text-align:center}
+.btn:hover:not(:disabled){transform:translate(-1px,-1px);box-shadow:5px 5px 0 #7a5c00}
+.btn:active:not(:disabled){transform:translate(2px,2px);box-shadow:2px 2px 0 #7a5c00}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none!important}
+.btn.sm{font-size:11px;padding:6px 12px;box-shadow:3px 3px 0 #7a5c00}
+.btn.sm:hover:not(:disabled){box-shadow:4px 4px 0 #7a5c00}
+.btn.full{width:100%;display:block}
+.btn.g{background:var(--panel);color:var(--green);border-color:var(--green);box-shadow:4px 4px 0 #1a6632}
+.btn.g:hover:not(:disabled){box-shadow:5px 5px 0 #1a6632}
+.btn.b{background:var(--panel);color:var(--blue);border-color:var(--blue);box-shadow:4px 4px 0 #1a4060}
+.btn.b:hover:not(:disabled){box-shadow:5px 5px 0 #1a4060}
+.btn.r{background:var(--panel);color:var(--red);border-color:var(--red);box-shadow:4px 4px 0 #661111}
+.btn.r:hover:not(:disabled){box-shadow:5px 5px 0 #661111}
+.btn.gold{background:var(--gold);color:#000;border-color:var(--gold);box-shadow:4px 4px 0 #7a5c00}
+.btn.gold:hover:not(:disabled){box-shadow:5px 5px 0 #7a5c00}
+.topnav{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px;padding-bottom:10px;border-bottom:2px solid var(--line)}
+.bar-out{height:14px;background:var(--panel2);border:2px solid var(--line);overflow:hidden;border-radius:2px}
+.bar-in{height:100%;background:var(--gold);transition:width .5s}
+.bar-hp .bar-in{background:var(--red)}
+.bar-xp .bar-in{background:var(--blue)}
+/* ── MAP ── */
+.map-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px}
+.map-node{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--panel);border:4px solid transparent;padding:18px 10px;cursor:not-allowed;transition:transform .15s,box-shadow .15s,border-color .15s;min-height:110px;box-shadow:4px 4px 0 #000a;overflow:hidden}
+.map-node::before{content:'';position:absolute;inset:0;background:var(--tint,#333);opacity:.18;pointer-events:none}
+.map-node .ni{font-size:32px;margin-bottom:6px;display:block}
+.map-node .nn{font-family:var(--vt);font-size:18px;color:var(--text);text-align:center;white-space:pre-line;line-height:1.1;margin-bottom:4px}
+.map-node .ns{font-size:10px;color:var(--muted);letter-spacing:.8px}
+.map-node.done{border-color:var(--green);box-shadow:4px 4px 0 #1a6632}
+.map-node.done .ns{color:var(--green)}
+.map-node.active{border-color:var(--gold);cursor:pointer;animation:node-pulse 2s ease-in-out infinite}
+@keyframes node-pulse{0%,100%{box-shadow:4px 4px 0 #7a5c00}50%{box-shadow:4px 4px 0 #7a5c00,0 0 18px #f0c04055}}
+.map-node.active:hover{transform:translate(-2px,-2px);box-shadow:6px 6px 0 #7a5c00}
+.map-node.locked{opacity:.55}
+/* ── MISSION LIST ── */
+.ms-item{display:flex;align-items:center;gap:12px;background:var(--panel);border:2px solid var(--line);padding:12px 14px;margin-bottom:8px;cursor:not-allowed;transition:transform .12s,border-color .12s}
+.ms-item.avail{cursor:pointer;border-color:var(--blue)}
+.ms-item.avail:hover{transform:translateX(4px);border-color:var(--gold)}
+.ms-item.done{border-color:var(--green)}
+.ms-num{font-family:var(--vt);font-size:22px;min-width:32px;text-align:center}
+.ms-name{font-family:var(--px);font-weight:700;font-size:14px;color:var(--text);margin-bottom:2px}
+.ms-sub{font-family:var(--px);font-weight:400;font-size:11px;color:var(--muted)}
+.learn-btn{font-family:var(--px);font-size:11px;background:var(--panel2);color:var(--blue);border:2px solid var(--blue);padding:5px 10px;cursor:pointer;white-space:nowrap;margin-right:4px}
+.learn-btn:hover{background:var(--blue);color:#000}
+/* ── LEARN ── */
+.learn-intro{font-family:var(--read);font-size:16px;line-height:1.65;color:var(--text);background:var(--panel);border-left:4px solid var(--blue);padding:12px 14px;margin-bottom:14px}
+.learn-section{background:var(--panel);border:2px solid var(--line);padding:12px 14px;margin-bottom:10px}
+.learn-section h3{font-family:var(--px);font-size:14px;color:var(--gold);margin-bottom:8px;letter-spacing:.5px}
+.learn-section p{font-family:var(--read);font-size:15px;line-height:1.6;color:var(--text);margin-bottom:6px}
+.learn-formula{background:var(--panel2);border:2px solid var(--gold);padding:12px 16px;margin-bottom:10px;font-family:var(--px);font-size:15px;color:var(--gold);line-height:2}
+.learn-example{background:var(--panel);border:2px solid var(--green);padding:10px 14px;margin-bottom:8px}
+.ex-q{font-family:var(--px);font-size:13px;color:var(--blue);margin-bottom:4px}
+.ex-s{font-family:var(--read);font-size:14px;color:var(--text);line-height:1.7}
+.learn-video{display:inline-flex;align-items:center;gap:8px;font-family:var(--px);font-size:13px;color:var(--red);text-decoration:none;border:2px solid var(--red);padding:8px 14px;background:var(--panel)}
+/* ── BATTLE TOP ── */
+.bt-top{position:relative;overflow:hidden;background:linear-gradient(180deg,#071525 0%,#0d2535 60%,#0c3040 100%);border:2px solid var(--line);min-height:200px;padding:18px 18px 36px;display:flex;flex-direction:column;align-items:center;justify-content:center;margin-bottom:12px}
+.bt-top.phase2{background:linear-gradient(180deg,#200808 0%,#300f10 60%,#1a1820 100%)!important}
+.bt-monster{font-size:100px;display:inline-block;animation:boss-idle 1.4s steps(2) infinite;filter:drop-shadow(0 6px 0 #0008)}
+.bt-monster.enter{animation:boss-enter .6s steps(4) forwards}
+.bt-monster.idle{animation:boss-idle 1.4s steps(2) infinite}
+.bt-monster.idle-2{animation:boss-idle-2 1.8s steps(3) infinite}
+@keyframes boss-idle{0%{transform:translateY(0) scale(1)}50%{transform:translateY(-6px) scale(1.03)}}
+@keyframes boss-idle-2{0%{transform:rotate(-3deg)}50%{transform:rotate(3deg)}100%{transform:rotate(-3deg)}}
+@keyframes boss-enter{0%{transform:scale(0) rotate(-20deg);opacity:0}70%{transform:scale(1.15) rotate(5deg);opacity:1}100%{transform:scale(1) rotate(0);opacity:1}}
+.bt-monster.hit{animation:boss-hit .3s steps(3)}
+@keyframes boss-hit{0%{filter:drop-shadow(0 0 0 #f00) brightness(3)}50%{transform:translateX(8px)}100%{filter:none;transform:none}}
+.bt-monster.defeat{animation:boss-defeat .7s steps(4) forwards}
+@keyframes boss-defeat{0%{transform:scale(1) rotate(0)}40%{transform:scale(1.3) rotate(-15deg);opacity:1}100%{transform:scale(0) rotate(30deg);opacity:0}}
+.bt-monster.charge{animation:boss-charge .5s steps(4) infinite}
+@keyframes boss-charge{0%{transform:scale(1) skewX(0)}25%{transform:scale(.93) skewX(-4deg)}75%{transform:scale(1.06) skewX(2deg)}100%{transform:scale(1) skewX(0)}}
+.hit-flash{position:absolute;inset:0;pointer-events:none;background:#f00;opacity:0;z-index:10}
+.hit-flash.go{animation:flash-hit .15s ease-out forwards}
+@keyframes flash-hit{0%{opacity:.35}100%{opacity:0}}
+.bt-mname{font-family:var(--vt);font-size:20px;color:var(--muted);letter-spacing:2px;margin-top:4px;z-index:2}
+.dmg-spark{position:absolute;top:30%;left:50%;transform:translate(-50%,-50%);font-family:var(--px);font-size:22px;color:var(--red);font-weight:700;opacity:0;pointer-events:none;z-index:20}
+.dmg-spark.go{animation:spark .45s ease-out forwards}
+@keyframes spark{0%{opacity:1;transform:translate(-50%,-60%) scale(.8)}60%{transform:translate(-50%,-80%) scale(1.15)}100%{opacity:0;transform:translate(-50%,-110%) scale(1)}}
+/* ── TIMER ── */
+.timer-wrap{margin-bottom:10px}
+.timer-lbl{display:flex;justify-content:space-between;font-family:var(--px);font-size:12px;color:var(--muted);margin-bottom:4px}
+.timer-lbl .v{color:var(--gold)}
+.bar-timer{height:8px;background:var(--panel2);border:2px solid var(--line);overflow:hidden}
+.bar-timer-in{height:100%;background:var(--blue);transition:width .9s linear}
+.bar-timer-in.warn{background:#ffaa00}
+.bar-timer-in.danger{background:var(--red);animation:timer-danger .5s steps(2) infinite}
+@keyframes timer-danger{0%,100%{opacity:1}50%{opacity:.45}}
+.bar-timer-in.frozen{background:repeating-linear-gradient(90deg,#4ab0e0 0 8px,#1a4060 8px 16px);animation:frozen-pulse .7s steps(4) infinite}
+@keyframes frozen-pulse{0%,100%{opacity:1}50%{opacity:.45}}
+/* ── HP HEARTS ── */
+.player-hp{font-size:28px;text-align:center;margin-bottom:8px;letter-spacing:4px}
+.heart.lost{filter:grayscale(1);opacity:.35}
+.heart.flash{animation:heart-flash .36s steps(3)}
+@keyframes heart-flash{0%,100%{filter:grayscale(1) brightness(.4)}50%{filter:none brightness(2)}}
+/* ── FAIL OVERLAY ── */
+.fail-overlay{display:none;position:absolute;inset:0;z-index:50;background:#000d;align-items:center;justify-content:center;flex-direction:column;text-align:center;padding:20px;gap:8px}
+.fail-overlay.show{display:flex}
+.fail-overlay .ic{font-size:48px}
+.fail-overlay .ti{font-family:var(--px);font-weight:700;font-size:22px;color:var(--red)}
+.fail-overlay .sb{font-family:var(--vt);font-size:18px;color:var(--muted);line-height:1.4;margin:4px 0 10px}
+/* ── POWER-UPS ── */
+.bt-powerups{text-align:center;font-size:16px;min-height:20px;margin-bottom:2px}
+/* ── MC BUTTONS ── */
+.mc-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.mc-btn{font-family:var(--px);font-weight:700;font-size:18px;padding:18px 10px;border:3px solid transparent;cursor:pointer;transition:transform .1s;background:var(--panel2);color:var(--text)}
+.mc-btn.c0{border-color:var(--gold);color:var(--gold)}
+.mc-btn.c1{border-color:var(--blue);color:var(--blue)}
+.mc-btn.c2{border-color:var(--green);color:var(--green)}
+.mc-btn.c3{border-color:var(--purple);color:var(--purple)}
+.mc-btn:hover:not(:disabled){transform:scale(1.04)}
+.mc-btn.right{background:var(--green);color:#000;border-color:var(--green);animation:mc-right .4s ease}
+@keyframes mc-right{0%{transform:scale(.95)}60%{transform:scale(1.1)}100%{transform:scale(1)}}
+.mc-btn.wrong{background:var(--red);color:#fff;border-color:var(--red);animation:shake .15s steps(2) 3}
+/* ── COMBO ── */
+.combo{position:absolute;top:8px;right:12px;font-family:var(--px);font-size:15px;color:var(--gold);opacity:0;transition:opacity .3s;z-index:5;text-shadow:2px 2px 0 #000}
+.combo.show{opacity:1}
+.combo .x{font-size:10px;color:var(--blue);margin-right:3px}
+.combo.bump{animation:combo-bump .3s steps(4)}
+@keyframes combo-bump{0%,100%{transform:scale(1)}50%{transform:scale(1.35);color:#fff;text-shadow:0 0 8px var(--gold),2px 2px 0 #000}}
+.combo.hot{font-size:18px;animation:combo-hot .6s steps(6) infinite}
+@keyframes combo-hot{0%,100%{color:#ff9933;text-shadow:0 0 10px #ff9933,2px 2px 0 #000}50%{color:#ffd966;text-shadow:0 0 16px #ffcc33,2px 2px 0 #000}}
+.combo.fire{font-size:22px;animation:combo-fire .35s steps(7) infinite}
+@keyframes combo-fire{0%{color:#ff3355;text-shadow:0 0 14px #ff3355,2px 2px 0 #000}33%{color:#ffaa00;text-shadow:0 0 18px #ffaa00,2px 2px 0 #000}66%{color:#ffee44;text-shadow:0 0 20px #fff,2px 2px 0 #000}100%{color:#ff66aa;text-shadow:0 0 16px #ff66aa,2px 2px 0 #000}}
+/* ── ITEMS ── */
+.items-bar{display:flex;gap:8px;justify-content:center;align-items:center;min-height:54px;margin-bottom:8px}
+.items-bar .empty{font-family:var(--px);font-weight:400;font-size:10px;color:var(--muted);letter-spacing:.5px}
+.item-btn{font-family:var(--px);font-weight:700;font-size:11px;background:var(--panel2);color:var(--purple);border:3px solid var(--purple);padding:8px 10px;cursor:pointer;box-shadow:3px 3px 0 #5a2a8a;display:flex;flex-direction:column;align-items:center;gap:2px;min-width:66px;line-height:1.1}
+.item-btn:hover:not(:disabled){transform:translate(-1px,-1px);box-shadow:4px 4px 0 #5a2a8a;border-color:#c084fc;color:#c084fc}
+.item-btn:active:not(:disabled){transform:translate(2px,2px);box-shadow:1px 1px 0 #5a2a8a}
+.item-btn:disabled{opacity:.35;cursor:not-allowed;transform:none!important}
+.item-btn .ib-ic{font-size:22px}
+.item-btn .ib-lb{font-size:9px;letter-spacing:.4px;opacity:.9}
+.item-btn.new{animation:item-pop .5s ease-out}
+@keyframes item-pop{0%{transform:scale(0) rotate(-180deg);opacity:0}60%{transform:scale(1.25) rotate(10deg);box-shadow:0 0 24px #c084fc}100%{transform:scale(1) rotate(0)}}
+.item-pickup{text-align:center;font-family:var(--px);font-weight:700;font-size:11px;color:var(--purple);min-height:18px;margin-bottom:4px;letter-spacing:.4px;transition:opacity .4s}
+/* ── PROBLEM ── */
+.bt-problem{font-family:var(--px);font-weight:700;font-size:24px;line-height:1.6;font-variant-ligatures:none;background:linear-gradient(180deg,#091520 0%,#0f2230 100%);border:3px solid var(--blue);padding:20px 16px;margin-bottom:10px;white-space:pre-wrap;text-align:center;color:#fff;box-shadow:0 0 20px #4ab0e033,inset 0 0 26px #4ab0e014,4px 4px 0 #1a4060;text-shadow:0 2px 0 #000a;letter-spacing:.3px;position:relative}
+.bt-problem::before{content:'';position:absolute;inset:3px;border:1px solid #4ab0e033;pointer-events:none}
+.prob-svg{display:flex;justify-content:center;margin-bottom:10px}
+.prob-svg svg{max-width:260px;width:100%;height:auto}
+.prob-txt{white-space:pre-wrap}
+.bt-problem.pop{animation:prob-pop .35s ease-out}
+@keyframes prob-pop{0%{transform:scale(.93);opacity:.3}60%{transform:scale(1.02)}100%{transform:scale(1);opacity:1}}
+.bt-row{display:flex;gap:8px;margin-bottom:10px}
+.bt-input{flex:1;font-family:var(--px);font-weight:700;font-size:20px;background:var(--panel2);color:var(--gold);border:3px solid var(--gold);padding:12px;outline:none;text-align:center;transition:box-shadow .2s}
+.bt-input:focus{animation:input-pulse 1.4s ease-in-out infinite}
+@keyframes input-pulse{0%,100%{opacity:.8}50%{opacity:1}}
+.bt-input:disabled{opacity:.5;animation:none}
+.hint-box{font-family:var(--read);font-size:17px;padding:12px;background:#0a1a0a;border:2px solid var(--green);color:#7fe87f;margin-bottom:10px;display:none;white-space:pre-wrap;line-height:1.4}
+.hint-box.show{display:block;animation:hint-slide .35s ease-out}
+@keyframes hint-slide{0%{opacity:0;transform:translateY(-10px);max-height:0}100%{opacity:1;transform:translateY(0);max-height:300px}}
+.credits-chip{display:inline-flex;align-items:center;gap:5px;font-family:var(--px);font-size:13px;color:#f4d03f;background:#1a1500;border:2px solid #7a5c00;padding:2px 9px;border-radius:2px}
+/* ── PROFILE ── */
+#pr-avatar{display:inline-block;font-size:48px;line-height:1}
+#pr-avatar.av-silver{filter:drop-shadow(0 0 7px silver)}
+#pr-avatar.av-cyan{filter:drop-shadow(0 0 9px #4d9fff) drop-shadow(0 0 3px #4d9fff)}
+#pr-avatar.av-gold{filter:drop-shadow(0 0 9px #f4d03f) drop-shadow(0 0 3px #f4d03f)}
+#pr-avatar.av-holo{animation:holo-border 2.5s linear infinite}
+@keyframes holo-border{0%{filter:drop-shadow(0 0 8px #f4d03f)}25%{filter:drop-shadow(0 0 8px #4d9fff)}50%{filter:drop-shadow(0 0 8px #ff6090)}75%{filter:drop-shadow(0 0 8px #39ff9e)}100%{filter:drop-shadow(0 0 8px #f4d03f)}}
+.nm-cyan{color:#4d9fff!important}.nm-gold{color:#f4d03f!important}.nm-green{color:#39ff9e!important}.nm-purple{color:#b06cff!important}
+html[data-theme="matrix"]{--gold:#39ff9e;--panel:#0a1a0f;--panel2:#0f2215;--blue:#39e6b0}
+html[data-theme="blood"]{--gold:#ff6090;--panel:#1a0808;--panel2:#220f0f;--blue:#ff3d7f}
+html[data-theme="violet"]{--gold:#b06cff;--panel:#100a20;--panel2:#18103a;--blue:#c590ff}
+.victory-banner.vc-cyber{text-shadow:3px 3px 0 #ff3d7f,0 0 22px #ff3d7f,0 0 44px #ff3d7f}
+.victory-banner.vc-neon{text-shadow:0 0 20px #39ff9e,0 0 40px #39ff9e,0 0 80px #39ff9e}
+.shop-tabs{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
+.shop-tab{font-family:var(--px);font-size:12px;background:var(--panel2);color:var(--muted);border:1px solid #2a3450;padding:5px 10px;cursor:pointer;border-radius:2px}
+.shop-tab.on{background:var(--gold);color:#000}
+.shop-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px}
+.shop-card{background:var(--panel2);border:1px solid #2a3450;padding:10px;text-align:center;border-radius:3px}
+.shop-card.owned{border-color:var(--green)}
+.shop-card.active{border-color:var(--gold);background:#1a1500}
+.shop-ic{font-size:28px;margin-bottom:4px}
+.shop-nm{font-family:var(--px);font-size:11px;color:var(--text);margin-bottom:6px}
+.shop-pr{font-family:var(--px);font-size:11px;color:var(--muted)}
+.float-txt{position:fixed;font-family:var(--px);font-size:20px;color:#f4d03f;pointer-events:none;animation:float-up .9s ease-out forwards;z-index:9999}
+@keyframes float-up{0%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(-60px)}}
+.feedback{font-family:var(--px);font-weight:700;font-size:16px;text-align:center;padding:10px;margin-bottom:10px;display:none}
+.feedback.ok{color:var(--green);display:block}
+.feedback.err{color:var(--red);display:block;animation:shake .15s steps(2) 3}
+@keyframes shake{0%{transform:translateX(0)}50%{transform:translateX(6px)}100%{transform:translateX(0)}}
+.task-ctr{font-family:var(--px);font-weight:400;font-size:13px;color:var(--muted);text-align:center}
+.task-ctr span{color:var(--gold)}
+.attr-row{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.attr-ic{font-size:22px;min-width:30px}
+.attr-nm{font-family:var(--px);font-weight:400;font-size:13px;min-width:170px;color:var(--text)}
+.attr-vl{font-family:var(--px);font-weight:700;font-size:15px;color:var(--gold);min-width:36px;text-align:right}
+.inv-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-top:10px}
+.inv-slot{background:var(--panel2);border:2px solid #2a2a2a;padding:10px 6px;text-align:center;min-height:80px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px}
+.inv-slot.have{border-color:var(--gold)}
+.inv-slot .ic{font-size:26px}
+.inv-slot .nm{font-family:var(--px);font-weight:400;font-size:10px;color:var(--muted);line-height:1.2;text-align:center;white-space:pre-line}
+.ach-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:10px}
+.ach-slot{background:var(--panel2);border:2px solid #2a2a2a;padding:10px 6px;text-align:center;min-height:96px;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:3px;opacity:.55}
+.ach-slot.have{border-color:var(--gold);opacity:1;box-shadow:0 0 10px #4ab0e033}
+.ach-slot .ach-ic{font-size:24px;filter:grayscale(1)}
+.ach-slot.have .ach-ic{filter:none}
+.ach-slot .ach-nm{font-family:var(--px);font-weight:700;font-size:10px;color:var(--text);line-height:1.15}
+.ach-slot.have .ach-nm{color:var(--gold)}
+.ach-slot .ach-desc{font-family:var(--px);font-weight:400;font-size:9px;color:var(--muted);line-height:1.2}
+.ach-toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,140%);z-index:130;display:flex;align-items:center;gap:12px;background:var(--panel);border:3px solid var(--gold);box-shadow:4px 4px 0 #7a5c00,0 0 18px #4ab0e055;padding:11px 18px 11px 13px;transition:transform .34s cubic-bezier(.2,1.4,.4,1);max-width:90vw}
+.ach-toast.show{transform:translate(-50%,0)}
+.ach-toast-ic{font-size:34px;line-height:1;animation:ach-pop .5s ease}
+@keyframes ach-pop{0%{transform:scale(0) rotate(-30deg)}70%{transform:scale(1.3) rotate(10deg)}100%{transform:scale(1)}}
+.ach-toast-h{font-family:var(--px);font-weight:400;font-size:10px;color:var(--muted);letter-spacing:2px}
+.ach-toast-n{font-family:var(--px);font-weight:700;font-size:15px;color:var(--gold)}
+.streak-chip{display:inline-flex;align-items:center;gap:5px;font-family:var(--px);font-weight:700;font-size:12px;color:#ffae3d;background:#1c1206;border:2px solid #ffae3d;padding:3px 9px;letter-spacing:.5px}
+.streak-chip .sf{animation:streak-flicker 1.4s ease-in-out infinite}
+@keyframes streak-flicker{0%,100%{transform:scale(1);filter:drop-shadow(0 0 2px #ffae3d)}50%{transform:scale(1.18);filter:drop-shadow(0 0 7px #ff7733)}}
+.reduced-motion *,.reduced-motion *::before,.reduced-motion *::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+.reduced-motion .float-txt{display:none!important}
+.reduced-motion #hit-vignette{display:none!important}
+.reduced-motion #levelup.show .lvl-bg,.reduced-motion #levelup.show .lvl-ring,.reduced-motion #levelup.show .lvl-txt,.reduced-motion #levelup.show .lvl-sub{animation:none!important;opacity:1!important;transform:none!important}
+.reduced-motion .victory-banner.go{animation:none!important;opacity:1!important;transform:translate(-50%,-50%)!important}
+.reduced-motion .gold-drop.go,.reduced-motion .particle.go{display:none!important}
+.reduced-motion .hit-flash.go,.reduced-motion .bt-input.player-hit,.reduced-motion .bt-monster.charge{animation:none!important}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}.float-txt{display:none!important}#hit-vignette{display:none!important}#levelup.show .lvl-bg,#levelup.show .lvl-ring,#levelup.show .lvl-txt,#levelup.show .lvl-sub{animation:none!important;opacity:1!important;transform:none!important}.victory-banner.go{animation:none!important;opacity:1!important;transform:translate(-50%,-50%)!important}.gold-drop.go,.particle.go{display:none!important}.hit-flash.go,.bt-input.player-hit,.bt-monster.charge{animation:none!important}}
+.blink{animation:blink 1s steps(1) infinite}
+@keyframes blink{0%,49%{opacity:1}50%,100%{opacity:0}}
+.ni-input{font-family:var(--px);font-weight:700;font-size:20px;background:var(--panel2);color:var(--gold);border:3px solid var(--gold);padding:13px 16px;width:100%;outline:none;text-align:center;margin-bottom:14px;letter-spacing:1px}
+.modal{display:none;position:fixed;inset:0;z-index:100;background:#000a;align-items:center;justify-content:center;padding:16px}
+.modal.show{display:flex}
+.modal-box{background:var(--panel);border:4px solid var(--gold);box-shadow:6px 6px 0 #7a5c00;padding:24px;max-width:420px;width:100%;text-align:center}
+::-webkit-scrollbar{width:8px;background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--panel2);border:2px solid var(--gold)}
+.intro-sword{font-size:64px;margin-bottom:12px;display:inline-block;animation:sword-float 3s ease-in-out infinite;filter:drop-shadow(0 0 16px #f0c04088)}
+@keyframes sword-float{0%,100%{transform:translateY(0) rotate(-8deg)}50%{transform:translateY(-12px) rotate(8deg)}}
+.intro-title{font-family:var(--px);font-weight:700;font-size:34px;color:var(--gold);text-shadow:4px 4px 0 #7a5c00;line-height:1.1;margin-bottom:10px;animation:title-glow 2.5s ease-in-out infinite}
+@keyframes title-glow{0%,100%{text-shadow:4px 4px 0 #7a5c00,0 0 8px #f0c04044}50%{text-shadow:4px 4px 0 #7a5c00,0 0 22px #f0c040aa}}
+/* ── LEVELUP / VICTORY ── */
+#levelup{position:fixed;inset:0;z-index:120;display:flex;align-items:center;justify-content:center;flex-direction:column;pointer-events:none;opacity:0}
+#levelup.show{animation:lvl-fade 1.7s ease-out forwards}
+@keyframes lvl-fade{0%{opacity:0}15%{opacity:1}80%{opacity:1}100%{opacity:0}}
+.lvl-ring{position:absolute;width:220px;height:220px;border:6px solid var(--gold);border-radius:50%;animation:lvl-ring 1.7s ease-out forwards}
+@keyframes lvl-ring{0%{transform:scale(.3);opacity:1}100%{transform:scale(2.2);opacity:0}}
+.lvl-txt{font-family:var(--px);font-weight:700;font-size:36px;color:var(--gold);text-shadow:4px 4px 0 #7a5c00,0 0 30px #f0c040;animation:lvl-txt 1.7s ease-out forwards}
+@keyframes lvl-txt{0%{transform:scale(.5);opacity:0}25%{transform:scale(1.2);opacity:1}80%{opacity:1}100%{opacity:0}}
+.lvl-sub{font-family:var(--vt);font-size:22px;color:var(--muted);margin-top:8px;animation:lvl-txt 1.7s ease-out forwards}
+.victory-banner{position:fixed;top:50%;left:50%;transform:translate(-50%,-60%);z-index:115;font-family:var(--px);font-weight:700;font-size:30px;color:var(--gold);text-shadow:4px 4px 0 #7a5c00,0 0 24px #f0c040;white-space:nowrap;pointer-events:none;opacity:0}
+.victory-banner.go{animation:vic-pop 1.5s ease-out forwards}
+@keyframes vic-pop{0%{transform:translate(-50%,-60%) scale(.3);opacity:0}20%{transform:translate(-50%,-50%) scale(1.15);opacity:1}80%{opacity:1}100%{opacity:0;transform:translate(-50%,-40%)}}
+.gold-drop{position:fixed;top:-30px;font-size:20px;pointer-events:none;opacity:0}
+.gold-drop.go{animation:gold-fall var(--dur,1.8s) ease-in forwards;animation-delay:var(--delay,0s)}
+@keyframes gold-fall{0%{opacity:1;transform:translateY(0) rotate(0)}100%{opacity:.2;transform:translateY(110vh) rotate(360deg)}}
+.particle{position:fixed;width:10px;height:10px;border-radius:50%;pointer-events:none;opacity:0}
+.particle.go{animation:particle-burst .8s ease-out forwards}
+@keyframes particle-burst{0%{opacity:1;transform:translate(0,0)}100%{opacity:0;transform:translate(var(--dx,50px),var(--dy,50px))}}
+#hit-vignette{position:fixed;inset:0;z-index:99;pointer-events:none;background:radial-gradient(ellipse at center,transparent 55%,#cc000088 100%);opacity:0}
+#hit-vignette.go{animation:vignette-flash .5s ease-out forwards}
+@keyframes vignette-flash{0%{opacity:1}100%{opacity:0}}
+/* ── PROJ / HP BAR / SHAKE ── */
+.proj{position:fixed;pointer-events:none;z-index:50;font-size:24px;opacity:0}
+.proj.fire{animation:proj-fire .55s ease-in forwards}
+@keyframes proj-fire{0%{opacity:1;transform:translate(0,0) scale(1)}80%{opacity:1}100%{opacity:0;transform:translate(var(--tx,0px),var(--ty,-120px)) scale(.5)}}
+@keyframes player-hit-anim{0%,100%{filter:none}30%{filter:brightness(3) invert(1)}60%{filter:brightness(2) sepia(1) hue-rotate(300deg)}}
+.bt-input.player-hit{animation:player-hit-anim .4s steps(3)}
+@keyframes top-shake{0%,100%{transform:none}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}
+.bt-top.shake{animation:top-shake .4s steps(5)}
+/* ── TRAIN / MASTERY ── */
+.train-item{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--panel);border:2px solid var(--line);margin-bottom:6px;cursor:pointer;transition:border-color .12s}
+.train-item:hover{border-color:var(--gold)}
+.train-item .t-nm{font-family:var(--px);font-size:13px;color:var(--text);flex:1}
+.train-item .t-prog{font-family:var(--px);font-size:11px;color:var(--muted)}
+.train-item.mastered{border-color:var(--gold)}
+.train-item.mastered .t-nm{color:var(--gold)}
+@media(max-width:480px){.map-grid{grid-template-columns:repeat(2,1fr)}.inv-grid{grid-template-columns:repeat(3,1fr)}.ach-grid{grid-template-columns:repeat(2,1fr)}.bt-problem{font-size:18px}.mc-btn{font-size:16px;padding:16px 8px}.attr-nm{min-width:140px;font-size:11px}}
+@media(max-height:750px){.bt-top{min-height:140px;padding:8px 18px 30px}.bt-monster{font-size:70px}.player-hp{font-size:22px;margin-bottom:6px}.items-bar{min-height:36px;margin-bottom:4px}.bt-problem{padding:12px;margin-bottom:6px;font-size:20px}.bt-row{margin-bottom:6px}.bt-input{padding:8px;font-size:17px}.topnav{margin-bottom:6px;padding-bottom:6px}}
+</style>
+</head>
+<body>
+<h1 style="position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0">RPG Matematika 4 — Pirátská plavba</h1>
+
+<!-- INTRO -->
+<div id="s-intro" class="screen active">
+<div class="wrap">
+ <div style="text-align:center;padding:28px 0 20px">
+ <div class="intro-sword">⚓</div>
+ <div class="intro-title">PIRÁTSKÁ<br>PLAVBA</div>
+ <div style="font-family:var(--vt);font-size:24px;color:var(--blue)">Matematika 4. ročník · ZŠ Husova Liberec</div>
+ </div>
+ <div class="panel">
+ <div style="font-family:var(--vt);font-size:22px;color:var(--muted);margin-bottom:10px">Zadej své jméno, pirátě:</div>
+ <input id="ni" aria-label="Jméno hrdiny" class="ni-input" type="text" placeholder="JMÉNO" maxlength="14" autocomplete="off">
+ <button class="btn full" onclick="startGame()">▶ VYPLOUT NA MOŘE</button>
+ </div>
+ <div id="continue-panel" class="panel b" style="display:none">
+ <div style="font-family:var(--px);font-weight:700;font-size:14px;color:var(--blue);margin-bottom:10px">POKRAČOVAT VE HŘE</div>
+ <button class="btn b full" style="margin-bottom:8px" onclick="continueGame()">▶ NAČÍST ULOŽENOU HRU</button>
+ <button id="go-fresh-btn" class="btn sm" onclick="document.getElementById('continue-panel').style.display='none'">nebo začít znovu</button>
+ </div>
+ <div style="text-align:center;font-family:var(--px);font-weight:400;font-size:13px;color:var(--muted);margin-top:8px">
+ STISKNI ENTER PRO START <span class="blink">▌</span>
+ </div>
+</div>
+</div>
+
+<!-- MAP -->
+<div id="s-map" class="screen">
+<div class="wrap">
+ <div class="topnav">
+ <span style="display:flex;align-items:center;gap:10px"><a href="rpg-matematika.html" class="btn sm" style="text-decoration:none" title="Zpět na RPG Matematika HUB">← HUB</a><span class="hl" id="map-name">PIRÁT</span></span>
+ <span>LV <span class="hl" id="map-lv">1</span> &nbsp; · &nbsp; XP <span class="hl" id="map-xp">0</span></span>
+ <button class="btn sm" onclick="go('profile')">👤 PROFIL</button>
+ </div>
+ <div class="panel" style="padding:10px 14px;display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap">
+ <div style="font-family:var(--px);font-weight:400;font-size:13px;color:var(--muted);letter-spacing:1px">⚓ &nbsp;PIRÁTSKÁ PLAVBA&nbsp; · &nbsp;ROČNÍK IV.&nbsp; ⚓</div>
+ <span class="streak-chip" id="map-streak" style="display:none"><span class="sf">🔥</span> <span id="map-streak-n">0</span> dní v řadě</span>
+ <span class="credits-chip" id="map-credits-chip">💰 <span id="map-credits">0</span> kr</span>
+ </div>
+ <div class="map-grid" id="map-grid"></div>
+ <div class="panel" style="padding:10px 14px">
+ <div style="display:flex;justify-content:space-between;font-family:var(--px);font-weight:400;font-size:13px;margin-bottom:6px">
+ <span style="color:var(--muted)">ZKUŠENOSTI</span>
+ <span style="color:var(--gold)"><span id="map-xp2">0</span> / <span id="map-xpmax">100</span></span>
+ </div>
+ <div class="bar-out bar-xp"><div class="bar-in" id="map-xpbar" style="width:0%"></div></div>
+ </div>
+ <div class="panel" id="map-leaderboard" style="display:none;padding:12px 14px"></div>
+ <div class="panel" id="map-recommend" style="display:none;padding:12px 14px;margin-top:12px"></div>
+ <div style="display:flex;gap:8px;margin-top:12px">
+  <button class="btn sm gold" style="flex:0 0 auto" onclick="go('shop')">🛍️ OBCHOD</button>
+  <button class="btn" style="flex:none" onclick="openBattle()">⚔️ ŽIVÝ SOUBOJ</button>
+  <button class="btn b" style="flex:1" onclick="go('train')">🎯 TRÉNINK — procvičuj libovolné téma bez boje</button>
+ </div>
+</div>
+</div>
+
+<!-- SHOP -->
+<div id="s-shop" class="screen">
+<div class="wrap">
+ <div class="topnav">
+  <button class="btn sm" onclick="go('map')">← MAPA</button>
+  <span style="font-family:var(--px);font-size:14px;color:var(--gold)">🛍️ OBCHOD</span>
+  <span class="credits-chip">💰 <span id="shop-bal">0</span> kr</span>
+ </div>
+ <p style="font-size:13px;color:var(--muted);margin-bottom:12px;line-height:1.6">Kredity získáváš za správné odpovědi v boji a za splnění misí. Kosmetika nemá vliv na hratelnost.<br>💡 Kredity i koupená kosmetika jsou <b style="color:var(--gold)">společné pro všechny ročníky</b> — co koupíš tady, nosíš všude. <a href="rpg-matematika.html" style="color:var(--blue)">Globální profil a obchod ↗</a></p>
+ <div class="shop-tabs">
+  <button class="shop-tab on" onclick="setShopCat('border',this)">🖼 Rám</button>
+  <button class="shop-tab" onclick="setShopCat('badge',this)">🏷 Jméno</button>
+  <button class="shop-tab" onclick="setShopCat('theme',this)">🎨 Téma</button>
+  <button class="shop-tab" onclick="setShopCat('victory',this)">🎉 Vítězství</button>
+  <button class="shop-tab" onclick="setShopCat('skin',this)">🥷 Skin</button>
+  <button class="shop-tab" onclick="setShopCat('powerup',this)">⚡ Powerupy</button>
+ </div>
+ <div class="shop-grid" id="shop-grid"></div>
+</div>
+</div>
+
+<!-- TRÉNINK -->
+<div id="s-train" class="screen">
+<div class="wrap">
+ <div class="topnav">
+ <button class="btn sm" onclick="go('map')">← MAPA</button>
+ <span style="font-family:var(--px);font-weight:700;font-size:14px;color:var(--gold)">🎯 TRÉNINK</span>
+ <span style="min-width:60px"></span>
+ </div>
+ <div id="train-picker">
+ <div class="panel" style="text-align:center;padding:12px 14px">
+ <div style="font-family:var(--vt);font-size:21px;color:var(--muted);line-height:1.3">Procvičuj bez boje, časomíry a životů.<br>Úloh je nekonečně — trénuj, dokud téma nezvládneš na <span style="color:var(--gold)">🏅 mistrovství</span>.</div>
+ </div>
+ <div id="train-list"></div>
+ </div>
+ <div id="train-play" style="display:none">
+ <div class="panel" style="padding:10px 14px;margin-bottom:12px">
+ <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap">
+  <div style="font-family:var(--px);font-weight:700;font-size:13px;color:var(--gold)" id="tr-title">TÉMA</div>
+  <button class="btn sm r" onclick="trEnd()">✕ KONEC</button>
+ </div>
+ <div style="display:flex;gap:18px;margin-top:8px;font-family:var(--px);font-size:12px;color:var(--muted)">
+  <span>✓ Správně <b style="color:var(--green)" id="tr-correct">0</b></span>
+  <span>Celkem <b style="color:var(--text)" id="tr-total">0</b></span>
+  <span>🔥 Série <b style="color:var(--gold)" id="tr-streak">0</b></span>
+ </div>
+ <div style="margin-top:8px">
+  <div style="display:flex;justify-content:space-between;font-family:var(--px);font-size:11px;margin-bottom:4px">
+  <span style="color:var(--muted)">CESTA K MISTROVSTVÍ</span>
+  <span style="color:var(--gold)"><span id="tr-mscore">0</span> / <span id="tr-msgoal">15</span></span>
+  </div>
+  <div class="bar-out bar-xp"><div class="bar-in" id="tr-msbar" style="width:0%"></div></div>
+ </div>
+ </div>
+ <div class="bt-problem" id="tr-prob">...</div>
+ <div class="bt-row" id="tr-input-row">
+ <input id="tr-ans" aria-label="Odpověď v tréninku" class="bt-input" type="text" placeholder="?" autocomplete="off">
+ <button class="btn" onclick="trSubmit()" style="white-space:nowrap">OVĚŘIT ✓</button>
+ </div>
+ <div class="bt-row" id="tr-yn-row" style="display:none">
+ <button class="btn g" style="flex:1" onclick="trAnswerYN('ANO')">✓ ANO</button>
+ <button class="btn r" style="flex:1" onclick="trAnswerYN('NE')">✗ NE</button>
+ </div>
+ <div class="mc-grid" id="tr-mc" style="display:none"></div>
+ <div id="tr-hint-box" class="hint-box"></div>
+ <div id="tr-fb" class="feedback"></div>
+ <div style="display:flex;gap:8px;flex-wrap:wrap">
+ <button class="btn sm b" id="tr-hint-btn" onclick="trHint()">💡 NÁPOVĚDA</button>
+ <button class="btn sm g" id="tr-next-btn" style="display:none" onclick="trNext()">DALŠÍ ÚKOL →</button>
+ </div>
+ </div>
+</div>
+</div>
+
+<!-- TEORIE -->
+<div id="s-learn" class="screen">
+<div class="wrap">
+ <div class="topnav">
+ <button class="btn sm" id="learn-back-btn" onclick="go('area')">← ZPĚT</button>
+ <span style="font-family:var(--px);font-weight:700;font-size:14px;color:var(--blue)">📖 TEORIE</span>
+ <span style="min-width:60px"></span>
+ </div>
+ <div id="learn-content"></div>
+ <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:18px">
+  <button class="btn b" id="learn-battle-btn" onclick="launchLearnBattle()">⚔️ BOJOVAT NYNÍ</button>
+  <button class="btn sm" onclick="go('train')">🎯 TRÉNOVAT</button>
+ </div>
+</div>
+</div>
+
+<!-- OBLAST -->
+<div id="s-area" class="screen">
+<div class="wrap">
+ <div class="topnav">
+ <button class="btn sm" onclick="go('map')">← MAPA</button>
+ <span class="hl" id="area-title-sm" style="font-family:var(--px);font-weight:700;font-size:13px;text-align:center;flex:1"></span>
+ <button class="btn sm" onclick="go('profile')">👤</button>
+ </div>
+ <div class="panel" id="area-head"></div>
+ <div id="mission-list"></div>
+</div>
+</div>
+
+<!-- BATTLE -->
+<div id="s-battle" class="screen">
+<div class="wrap">
+ <div class="topnav">
+ <button class="btn sm r" onclick="exitBattle()">✕ ÚTĚK</button>
+ <div class="task-ctr">ÚKOL <span id="bt-num">1</span> / <span id="bt-tot">3</span></div>
+ <span style="min-width:60px"></span>
+ </div>
+ <div class="bt-top" id="bt-top">
+ <div class="hit-flash" id="hit-flash"></div>
+ <div class="combo" id="combo"><span class="x">×</span><span id="combo-n">2</span> COMBO!</div>
+ <span class="bt-monster" id="bt-mon">👾</span>
+ <div id="dmg-spark" class="dmg-spark">-10 HP!</div>
+ <div class="bt-mname" id="bt-mname">???</div>
+ <div class="bar-out bar-hp" style="position:absolute;left:0;right:0;bottom:0;height:30px;border:none;border-top:2px solid var(--red);border-radius:0;background:repeating-linear-gradient(90deg,#2a2030 0 8px,#1a1525 8px 16px);z-index:5">
+ <div class="bar-in" id="bt-hpbar" style="width:100%"></div>
+ </div>
+ </div>
+ <div id="proj" class="proj"></div>
+ <div class="player-hp" id="player-hp"></div>
+ <div class="bt-powerups" id="bt-powerups"></div>
+ <div class="item-pickup" id="item-pickup"></div>
+ <div class="items-bar" id="items-bar"><div class="empty">— žádné předměty —</div></div>
+ <div class="timer-wrap" id="timer-wrap" style="display:none">
+ <div class="timer-lbl"><span class="l">⏱ ČAS</span><span class="v"><span id="timer-v">30</span> s</span></div>
+ <div class="bar-timer"><div class="bar-timer-in" id="timer-bar" style="width:100%"></div></div>
+ </div>
+ <div class="bt-problem" id="bt-prob">...</div>
+ <div class="bt-row" id="bt-input-row">
+ <input id="bt-ans" aria-label="Odpověď" class="bt-input" type="text" placeholder="?" autocomplete="off">
+ <button id="attack-btn" class="btn" onclick="submitAnswer()" style="white-space:nowrap">ÚTOK ⚔</button>
+ </div>
+ <div class="bt-row" id="yn-row" style="display:none">
+ <button class="btn g" style="flex:1" onclick="answerYN('ANO')">✓ ANO</button>
+ <button class="btn r" style="flex:1" onclick="answerYN('NE')">✗ NE</button>
+ </div>
+ <div class="mc-grid" id="mc-grid" style="display:none"></div>
+ <div id="hint-box" class="hint-box"></div>
+ <div id="bt-fb" class="feedback"></div>
+ <div id="bt-explain" style="display:none;margin:8px 0">
+  <label style="font-size:13px;color:var(--green);opacity:.85;display:block;margin-bottom:4px">✍ Jak jsi na to přišel? <span style="opacity:.6">(volitelně, 1–2 věty)</span></label>
+  <textarea id="bt-explain-txt" rows="2" aria-label="Jak jsi na to přišel?" style="width:100%;box-sizing:border-box;background:#0a0a0f;color:#d0d0e0;border:1px solid var(--green);border-radius:4px;padding:6px;font-family:var(--read);font-size:15px;resize:vertical" placeholder="Napsal jsem…"></textarea>
+ </div>
+ <div style="display:flex;gap:8px;flex-wrap:wrap">
+ <button class="btn sm b" id="hint-btn" onclick="showHint()">💡 NÁPOVĚDA</button>
+ <button class="btn sm r" id="bt-mini-hint" style="display:none" onclick="useMiniHint()">💡 −1 ❤️</button>
+ <button class="btn sm g" id="next-btn" style="display:none" onclick="nextTask()">DÁLE →</button>
+ </div>
+ <div class="fail-overlay" id="fail-overlay">
+ <div class="ic">💀</div>
+ <div class="ti">PORAŽEN</div>
+ <div class="sb" id="fail-msg">Hrdina padl v boji. Mise musí být zopakována.</div>
+ <button class="btn r" onclick="retryMission()">▶ ZKUSIT ZNOVU</button>
+ <button class="btn sm" style="margin-top:10px" onclick="openArea(BT.aid)">← MAPA OBLASTI</button>
+ </div>
+</div>
+</div>
+
+<!-- PROFILE -->
+<div id="s-profile" class="screen">
+<div class="wrap">
+ <div class="topnav">
+ <button class="btn sm" onclick="go('map')">← MAPA</button>
+ <span style="font-family:var(--px);font-weight:700;font-size:14px;color:var(--gold)">PROFIL HRDINY</span>
+ <span style="min-width:60px"></span>
+ </div>
+ <div class="panel">
+ <div style="display:flex;gap:14px;align-items:center;margin-bottom:14px">
+ <div id="pr-avatar">🏴‍☠️</div>
+ <div>
+ <div id="pr-name" style="font-family:var(--px);font-weight:700;font-size:20px;color:var(--gold);letter-spacing:1px">PIRÁT</div>
+ <div style="font-family:var(--px);font-weight:400;font-size:13px;color:var(--muted);margin-top:4px">ÚROVEŇ <span id="pr-lv">1</span></div>
+ <div style="font-family:var(--px);font-weight:400;font-size:13px;color:var(--blue);margin-top:2px">XP: <span id="pr-xp">0</span></div>
+ <div style="font-family:var(--px);font-weight:400;font-size:13px;color:#f4d03f;margin-top:2px">💰 <span id="pr-credits">0</span> kr &nbsp;<button class="btn sm" style="font-size:11px;padding:2px 8px" onclick="go('shop')">🛍️ OBCHOD</button></div>
+ </div>
+ </div>
+ <div style="font-family:var(--px);font-weight:700;font-size:12px;color:var(--muted);margin-bottom:10px;letter-spacing:1px">— ATRIBUTY —</div>
+ <div id="pr-attrs"></div>
+ </div>
+ <div class="panel">
+ <div style="font-family:var(--px);font-weight:700;font-size:12px;color:var(--muted);margin-bottom:10px;letter-spacing:1px">— INVENTÁŘ ARTEFAKTŮ —</div>
+ <div class="inv-grid" id="pr-inv"></div>
+ </div>
+ <div class="panel">
+ <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+ <div style="font-family:var(--px);font-weight:700;font-size:12px;color:var(--muted);letter-spacing:1px">— ODZNAKY —</div>
+ <div style="font-family:var(--px);font-weight:700;font-size:12px;color:var(--gold)"><span id="pr-ach-n">0</span> / <span id="pr-ach-t">0</span></div>
+ </div>
+ <div class="ach-grid" id="pr-ach"></div>
+ </div>
+ <div class="panel">
+ <div style="font-family:var(--px);font-weight:700;font-size:12px;color:var(--muted);margin-bottom:12px;letter-spacing:1px">— NASTAVENÍ ⚙️ —</div>
+ <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-family:var(--read);font-size:14px;color:var(--text)">
+  <input type="checkbox" id="pr-rm" onchange="toggleReducedMotion(this.checked)" style="width:18px;height:18px;cursor:pointer;accent-color:var(--blue)">
+  <span>Vypnout vizuální efekty<br><span style="font-size:12px;color:var(--muted)">Skryje blikání, floaty (+XP), animace výhry a poškození.</span></span>
+ </label>
+ </div>
+ <div class="panel">
+ <div style="font-family:var(--px);font-weight:700;font-size:12px;color:var(--muted);margin-bottom:10px;letter-spacing:1px">— ZÁLOHA POSTUPU —</div>
+ <button class="btn sm b" onclick="exportCode()">📋 ZKOPÍROVAT KÓD</button>
+ <div id="code-out" style="display:none;margin-top:10px">
+ <div id="code-txt" style="font-family:var(--px);font-weight:400;font-size:11px;word-break:break-all;background:var(--bg);border:2px solid var(--muted);padding:10px;color:var(--blue);margin-bottom:8px;line-height:1.6"></div>
+ <button class="btn sm" onclick="importPrompt()">NAČÍST KÓD</button>
+ </div>
+ </div>
+ <div class="panel" id="pr-allgames"></div>
+</div>
+</div>
+
+<!-- REWARD MODAL -->
+<div id="modal" class="modal">
+<div class="modal-box">
+ <div id="modal-ic" style="font-size:56px;margin-bottom:10px">🎉</div>
+ <div id="modal-title" style="font-family:var(--px);font-weight:700;font-size:17px;color:var(--gold);margin-bottom:12px;line-height:1.3;letter-spacing:.5px"></div>
+ <div id="modal-txt" style="font-family:var(--read);font-size:16px;color:var(--text);margin-bottom:16px;line-height:1.4;white-space:pre-wrap"></div>
+ <button class="btn full" onclick="closeModal()">▶ POKRAČOVAT</button>
+</div>
+</div>
+
+<!-- GLOBAL FX -->
+<div id="hit-vignette"></div>
+<div id="levelup">
+ <div class="lvl-ring"></div>
+ <div class="lvl-txt" id="lvl-txt">⬆ LEVEL 2</div>
+ <div class="lvl-sub">NOVÁ ÚROVEŇ HRDINY!</div>
+</div>
+
+<script>
+// HELPERS
+const ri=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
+function gcd(a,b){return b?gcd(b,a%b):Math.abs(a);}
+function shuffleArr(a){const r=[...a];for(let i=r.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[r[i],r[j]]=[r[j],r[i]];}return r;}
+function countDiv(n){let c=0;for(let i=1;i<=n;i++)if(n%i===0)c++;return c;}
+const skl=(n,one,few,many)=>n===1?one:(n>=2&&n<=4?few:many);
+const cz=n=>String(n).replace('.',',');
+const r2=(n,d=2)=>Math.round(n*Math.pow(10,d))/Math.pow(10,d);
+
+// AREAS
+const AREAS=[
+{
+ id:1,icon:'🌊',name:'PŘÍSTAV\nPIRÁTŮ',
+ desc:'Zahřívací kolo — čísla do 10 000, porovnávání a zaokrouhlování.',
+ art:{id:'compass',ic:'🧭',nm:'Pirátský\nkompas'},
+ attrGain:{calc:12,anal:8},
+ missions:[
+ {id:'1-1',name:'Čísla do 10 000',sub:'rychlovka · výběr ze 4',
+  mon:'🦀',mname:'KRAB STRÁŽCE',
+  intro:'Krab blokuje vstup do přístavu. Prokáž, že znáš čísla do 10 000, a vpustí tě dál.',
+  mc:true,tc:6,tasks:()=>[]},
+ {id:'1-2',name:'Porovnávání čísel',sub:'ANO / NE',
+  mon:'🐚',mname:'LASTURY MOŘE',
+  intro:'Lastury moře porovnávají vše, co připluje. Odpověz správně — ANO nebo NE.',
+  mc:true,tc:6,tasks:()=>[]},
+ {id:'1-3',name:'Zaokrouhlování',sub:'na desítky, stovky, tisíce',
+  mon:'🌊',mname:'VLNA PŘÍBOJE',
+  intro:'Vlna příboje zaokrouhlí každého, kdo neví, jak zaokrouhlovat. Ukaž, že ty to zvládneš.',
+  tc:6,tasks:()=>[]}
+ ]
+},
+{
+ id:2,icon:'⚓',name:'ZÁTOKA\nVÝPOČTŮ',
+ desc:'Sčítání a odčítání do 10 000. Sloupec, odčítání s výpůjčkou, slovní úlohy.',
+ art:{id:'anchor',ic:'⚓',nm:'Zlatá\nkotva'},
+ attrGain:{calc:18,anal:6},
+ missions:[
+ {id:'2-1',name:'Sčítání do 10 000',sub:'písemné sčítání',
+  mon:'🐙',mname:'MINI CHOBOTNICE',
+  intro:'Mini chobotnice má příliš mnoho chapadel na sčítání. Ukáž jí, jak se to dělá správně.',
+  tc:6,tasks:()=>[]},
+ {id:'2-2',name:'Odčítání do 10 000',sub:'odčítání s výpůjčkou',
+  mon:'🦈',mname:'ŽRALOUČEK',
+  intro:'Žralouček nakousl naše zásoby. Spočítej, kolik nám ještě zbývá.',
+  tc:6,tasks:()=>[]},
+ {id:'2-3',name:'Slovní úlohy +/−',sub:'příběhové úlohy',
+  mon:'🪸',mname:'KORÁLOVÝ DUCH',
+  intro:'Korálový duch skrývá záhady hlubokého moře. Přečti pozorně a počítej.',
+  tc:6,tasks:()=>[]}
+ ]
+},
+{
+ id:3,icon:'⚔️',name:'BITVA\nVLAJEK',
+ desc:'Násobení — násobilka, krát 10 a 100, násobení dvojciferného jednociferným.',
+ art:{id:'sword',ic:'⚔️',nm:'Pirátský\nmeč'},
+ attrGain:{calc:16,anal:8},
+ missions:[
+ {id:'3-1',name:'Násobilka 1–10',sub:'rychlovka · výběr ze 4',
+  mon:'🏴‍☠️',mname:'PIRÁTSKÝ KAPITÁN',
+  intro:'Pirátský kapitán zná svou násobilku. Dokážeš to taky? Odpověz rychle!',
+  mc:true,tc:6,tasks:()=>[]},
+ {id:'3-2',name:'Násobení ×10 a ×100',sub:'přesuny číslic',
+  mon:'💣',mname:'LODNÍ DĚLOSTŘELEC',
+  intro:'Dělostřelec střílí přesně. Při násobení ×10 a ×100 přidáváme nuly.',
+  tc:6,tasks:()=>[]},
+ {id:'3-3',name:'Násobení dvojciferného',sub:'dvojciferné × jednociferné',
+  mon:'🔮',mname:'MOŘSKÝ MÁG',
+  intro:'Mořský mág skrývá tajemství násobení. Rozlož číslo a počítej po řádech.',
+  tc:6,tasks:()=>[]}
+ ]
+},
+{
+ id:4,icon:'🪙',name:'ZLATÝ\nPOKLAD',
+ desc:'Dělení bez zbytku, dělení se zbytkem a slovní úlohy s dělením.',
+ art:{id:'chest',ic:'🎁',nm:'Pokladní\ntruhla'},
+ attrGain:{calc:16,anal:8},
+ missions:[
+ {id:'4-1',name:'Dělení bez zbytku',sub:'rychlovka · výběr ze 4',
+  mon:'💀',mname:'KOSTLIVEC PIRÁT',
+  intro:'Kostlivec střeží poklad a bude sdílet jen s tím, kdo ovládá dělení.',
+  mc:true,tc:6,tasks:()=>[]},
+ {id:'4-2',name:'Dělení se zbytkem',sub:'zbytek po dělení',
+  mon:'🗡️',mname:'KAPITÁN S HÁKEM',
+  intro:'Kapitán s hákem rozděluje kořist. Kolik zbyde? Počítej zbytek!',
+  tc:6,tasks:()=>[]},
+ {id:'4-3',name:'Slovní úlohy dělení',sub:'příběhové úlohy',
+  mon:'🎲',mname:'HAZARDNÍ DUCH',
+  intro:'Hazardní duch rozdá kostky rovnoměrně. Zjisti, kolik dostane každý pirát.',
+  tc:6,tasks:()=>[]}
+ ]
+},
+{
+ id:5,icon:'🗺️',name:'MOŘSKÁ\nMAPA',
+ desc:'Obvod a obsah obdélníku a čtverce. Souřadnice a čtvercová síť.',
+ art:{id:'map',ic:'🗺️',nm:'Pokladní\nmapa'},
+ attrGain:{geo:18,calc:6},
+ missions:[
+ {id:'5-1',name:'Obvod obdélníku a čtverce',sub:'O = 2×(a+b), O = 4×a',
+  mon:'🐠',mname:'OHNIVÁ RYBKA',
+  intro:'Ohnivá rybka obepluje každý ostrůvek. Změř obvod, kudy musí proplout.',
+  tc:6,tasks:()=>[]},
+ {id:'5-2',name:'Obsah obdélníku a čtverce',sub:'S = a×b, S = a²',
+  mon:'🐡',mname:'NAFUKOVAČ',
+  intro:'Nafukovač zabírá místo na palubě. Spočítej obsah jeho prostoru.',
+  tc:6,tasks:()=>[]},
+ {id:'5-3',name:'Souřadnice a síť',sub:'čtvercová síť, body',
+  mon:'🧭',mname:'NAVIGAČNÍ DUCH',
+  intro:'Navigační duch čte mapu souřadnic. Nauč se číst [x, y] a najdi poklad.',
+  tc:6,tasks:()=>[]}
+ ]
+},
+{
+ id:6,icon:'🧭',name:'NÁMOŘNÍ\nNAVIGACE',
+ desc:'Délkové jednotky, hmotnost a čas, peníze a míry ve slovních úlohách.',
+ art:{id:'sextant',ic:'🔭',nm:'Námořní\nsextant'},
+ attrGain:{anal:14,calc:10},
+ missions:[
+ {id:'6-1',name:'Délkové jednotky',sub:'km, m, dm, cm, mm',
+  mon:'🌪️',mname:'VÍROVÝ STROJ',
+  intro:'Vírový stroj mění jednotky délky. Převeď správně a zastavíš ho!',
+  tc:6,tasks:()=>[]},
+ {id:'6-2',name:'Hmotnost a čas',sub:'kg, g, hod, min, s',
+  mon:'⏱️',mname:'ČASOVÝ ČARODĚJ',
+  intro:'Časový čaroděj zamotal čas i váhu. Převeď správně a osvoboď pirátskou posádku.',
+  tc:6,tasks:()=>[]},
+ {id:'6-3',name:'Peníze a míry',sub:'Kč, slovní úlohy',
+  mon:'💰',mname:'ZLATÝ DUCH',
+  intro:'Zlatý duch střeží kasu pirátů. Spočítej správně a peníze jsou tvoje.',
+  tc:6,tasks:()=>[]}
+ ]
+},
+{
+ id:7,icon:'🐙',name:'KRAKÉNŮV\nDUEL',
+ desc:'Velká čísla (do 1 000 000), operace s nimi a finální opakování všeho.',
+ art:{id:'kraken',ic:'🐙',nm:'Krakénovo\nzuby'},
+ attrGain:{calc:14,anal:10},
+ missions:[
+ {id:'7-1',name:'Čísla do 1 000 000',sub:'rychlovka · výběr ze 4',
+  mon:'🦑',mname:'KRAKÉN',
+  intro:'Krakén vyplavil obrovská čísla z hlubiny. Přečti je, porovnej a zapiš správně!',
+  mc:true,tc:6,tasks:()=>[]},
+ {id:'7-2',name:'Operace s velkými čísly',sub:'sčítání, odčítání, násobení',
+  mon:'🌊',mname:'BOUŘKA KRAKEN',
+  intro:'Bouřka Kraken zamíchala čísla. Počítej pečlivě — velká čísla si žádají velkou pozornost.',
+  tc:6,tasks:()=>[]},
+ {id:'7-3',name:'Finální duel',sub:'opakování všech témat',
+  mon:'👑',mname:'MOŘSKÝ VLÁDCE',
+  intro:'Mořský vládce tě vyzkouší ze všeho. Připrav se na mix — od čísel po peníze.',
+  tc:6,tasks:()=>[]}
+ ]
+}
+];
+
+// SAVE
+const SAVE_KEY='RPG_MAT_4';
+let S={name:'PIRÁT',xp:0,level:1,attrs:{calc:0,geo:0,anal:0,craft:0},done:{},inv:[],mastery:{},xpClaimed:{},teacherUnlocked:[],ach:{},stats:{crits:0,trainCorrect:0,bestCombo:0},streak:{count:0,last:''},errs:{},credits:0,cosmetics:{owned:['theme-default','victory-default'],active:{border:null,badge:null,theme:'theme-default',victory:'victory-default'}},creditsClaimed:{}};
+let GODMODE=false;
+
+function saveS(){localStorage.setItem(SAVE_KEY,JSON.stringify(S));if(window.RPGCloud&&RPGCloud.push)RPGCloud.push(SAVE_KEY,S);}
+function loadS(){
+ const r=localStorage.getItem(SAVE_KEY);if(!r)return false;
+ try{S=JSON.parse(r);}catch(e){return false;}
+ if(!S||typeof S!=='object'){S={name:'PIRÁT',xp:0,level:1,attrs:{calc:0,geo:0,anal:0,craft:0},done:{},inv:[]};return false;}
+ if(typeof S.name!=='string')S.name='PIRÁT';
+ if(typeof S.xp!=='number'||!isFinite(S.xp))S.xp=0;
+ if(typeof S.level!=='number'||!isFinite(S.level))S.level=1;
+ if(!S.attrs||typeof S.attrs!=='object')S.attrs={calc:0,geo:0,anal:0,craft:0};
+ if(!S.done||typeof S.done!=='object')S.done={};
+ if(!Array.isArray(S.inv))S.inv=[];
+ if(!S.mastery||typeof S.mastery!=='object')S.mastery={};
+ if(!S.xpClaimed||typeof S.xpClaimed!=='object')S.xpClaimed={};
+ if(!Array.isArray(S.teacherUnlocked))S.teacherUnlocked=[];
+ if(!S.ach||typeof S.ach!=='object')S.ach={};
+ if(!S.stats||typeof S.stats!=='object')S.stats={crits:0,trainCorrect:0,bestCombo:0};
+ if(!S.streak||typeof S.streak!=='object')S.streak={count:0,last:''};
+ if(!S.errs||typeof S.errs!=='object')S.errs={};
+ if(!Array.isArray(S.errsSnap))S.errsSnap=[];
+ if(typeof S.snapsMigrated!=='boolean')S.snapsMigrated=false;
+ if(!S.settings||typeof S.settings!=='object')S.settings={reducedMotion:false};
+ if(typeof S.credits!=='number'||!isFinite(S.credits)||S.credits<0)S.credits=0;
+ S.credits=Math.floor(S.credits);
+ if(!S.cosmetics||typeof S.cosmetics!=='object')S.cosmetics={owned:['theme-default','victory-default'],active:{border:null,badge:null,theme:'theme-default',victory:'victory-default'}};
+ if(!Array.isArray(S.cosmetics.owned))S.cosmetics.owned=['theme-default','victory-default'];
+ if(!S.cosmetics.active||typeof S.cosmetics.active!=='object')S.cosmetics.active={border:null,badge:null,theme:'theme-default',victory:'victory-default'};
+ if(!S.creditsClaimed||typeof S.creditsClaimed!=='object')S.creditsClaimed={};
+ sanitizeCosmetics();
+ if(typeof RPGWallet!=='undefined')RPGWallet.migrateFrom(SAVE_KEY,S);
+ return true;
+}
+function rmActive(){return((typeof RPGWallet!=='undefined')&&RPGWallet.getReducedMotion())||(S.settings&&S.settings.reducedMotion)||false;}
+function applyMotionPref(){document.documentElement.classList.toggle('reduced-motion',rmActive());}
+function toggleReducedMotion(on){if(!S.settings)S.settings={reducedMotion:false};S.settings.reducedMotion=on;if(typeof RPGWallet!=='undefined')RPGWallet.setReducedMotion(on);applyMotionPref();saveS();}
+function calcLevel(){S.level=Math.floor(S.xp/100)+1;}
+
+// ACHIEVEMENTS
+const ACH=[
+ {id:'boot',   ic:'⚓', nm:'První plavba',      desc:'Vyřeš první úkol'},
+ {id:'crit',   ic:'⚡', nm:'Dělová salva',      desc:'10× kritický zásah'},
+ {id:'combo5', ic:'🔥', nm:'Řetězová palba',    desc:'Combo 5 v jednom boji'},
+ {id:'flawless',ic:'🧠',nm:'Čistá navigace',    desc:'Mise bez nápovědy'},
+ {id:'flash',  ic:'⏱️', nm:'Rychlý střel',      desc:'Správně s 30+ s na čase'},
+ {id:'survivor',ic:'💀',nm:'Z posledních sil',  desc:'Vyhraj boj s 1 životem'},
+ {id:'area1',  ic:'🔑', nm:'Pirátský klíč',     desc:'Splň první oblast'},
+ {id:'half',   ic:'🌗', nm:'Půlka mapy',        desc:'Splň 4 oblasti'},
+ {id:'root',   ic:'👑', nm:'Mořský kapitán',    desc:'Splň všech 7 oblastí'},
+ {id:'lv5',    ic:'📈', nm:'Level 5',           desc:'Dosáhni úrovně 5'},
+ {id:'lv10',   ic:'🚀', nm:'Level 10',          desc:'Dosáhni úrovně 10'},
+ {id:'master1',ic:'🏅', nm:'Mistr tématu',      desc:'1 mistrovství v tréninku'},
+ {id:'train50',ic:'🎯', nm:'Trenér',            desc:'50 správných v tréninku'},
+ {id:'streak3',     ic:'📅', nm:'Návyk',             desc:'Hraj 3 dny v řadě'},
+ {id:'streak7',     ic:'🗓️', nm:'Týden disciplíny',  desc:'Hraj 7 dní v řadě'},
+ {id:'battle1',     ic:'⚔️', nm:'První klání',        desc:'Zúčastni se živého souboje'},
+ {id:'battlewin',   ic:'🏆', nm:'Bojovník',            desc:'Vyhraj živý souboj (1. místo)'},
+ {id:'battleflawless',ic:'💎',nm:'Bezchybný',         desc:'Všechny otázky správně v živém souboji'},
+];
+function unlockAch(id){
+ if(S.ach&&S.ach[id])return;
+ const a=ACH.find(x=>x.id===id);if(!a)return;
+ if(!S.ach)S.ach={};
+ S.ach[id]=new Date().toISOString().slice(0,10);
+ saveS();achToast(a);
+}
+function evalAch(ev){
+ ev=ev||{};
+ const doneAreas=AREAS.filter(isAreaDone).length;
+ const masteredCount=Object.values(S.mastery||{}).filter(m=>m&&m.mastered).length;
+ const st=S.stats||{};
+ if(Object.keys(S.done||{}).length>=1)unlockAch('boot');
+ if((st.crits||0)>=10)unlockAch('crit');
+ if(ev.combo>=5)unlockAch('combo5');
+ if(ev.flawlessMission)unlockAch('flawless');
+ if(ev.correct&&ev.timeLeft>=30)unlockAch('flash');
+ if(ev.wonAtOneHp)unlockAch('survivor');
+ if(doneAreas>=1)unlockAch('area1');
+ if(doneAreas>=4)unlockAch('half');
+ if(doneAreas>=7)unlockAch('root');
+ if(S.level>=5)unlockAch('lv5');
+ if(S.level>=10)unlockAch('lv10');
+ if(masteredCount>=1)unlockAch('master1');
+ if((st.trainCorrect||0)>=50)unlockAch('train50');
+ if((S.streak&&S.streak.count||0)>=3)unlockAch('streak3');
+ if((S.streak&&S.streak.count||0)>=7)unlockAch('streak7');
+ const br=ev.battleResult;
+ if(br){unlockAch('battle1');if(br.rank===1)unlockAch('battlewin');if(br.correct>=br.q_count&&br.q_count>0)unlockAch('battleflawless');}
+}
+let _achQ=[],_achBusy=false;
+function achToast(a){_achQ.push(a);if(!_achBusy)_achNext();}
+function _achNext(){
+ if(!_achQ.length){_achBusy=false;return;}
+ _achBusy=true;const a=_achQ.shift();
+ const t=document.createElement('div');t.className='ach-toast';
+ t.innerHTML=`<div class="ach-toast-ic">${a.ic}</div><div><div class="ach-toast-h">ODZNAK ODEMČEN</div><div class="ach-toast-n">${a.nm}</div></div>`;
+ document.body.appendChild(t);void t.offsetWidth;t.classList.add('show');
+ setTimeout(()=>{t.classList.remove('show');setTimeout(()=>{t.remove();_achNext();},360);},2200);
+}
+function touchStreak(){
+ if(!S.streak)S.streak={count:0,last:''};
+ const today=new Date().toISOString().slice(0,10);
+ if(S.streak.last===today){evalAch({});return;}
+ const y=new Date(Date.now()-864e5).toISOString().slice(0,10);
+ S.streak.count=(S.streak.last===y)?(S.streak.count||0)+1:1;
+ S.streak.last=today;saveS();evalAch({});
+ const sc=S.streak.count;earnCredits(sc>=7?20:sc>=3?10:5);
+}
+
+// SCREEN ROUTER
+function go(name){
+ if(name!=='battle'&&window.RPGSprites4&&RPGSprites4.active())RPGSprites4.detach();
+ document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+ document.getElementById('s-'+name).classList.add('active');
+ window.scrollTo(0,0);
+ if(name==='map')renderMap();
+ if(name==='profile')renderProfile();
+ if(name==='shop')renderShop();
+ if(name==='train')renderTrainPicker();
+}
+
+// INTRO
+function startGame(){
+ const v=document.getElementById('ni').value.trim().toUpperCase().slice(0,14);
+ S.name=v||'PIRÁT';saveS();touchStreak();applyMotionPref();applyCosmetics();go('map');
+}
+function snapErrs(){if(!Array.isArray(S.errsSnap))S.errsSnap=[];const t=new Date().toISOString().slice(0,10);const last=S.errsSnap[S.errsSnap.length-1];if(last&&(new Date(t)-new Date(last.t))/864e5<7)return;const c={};for(const k in(S.errs||{}))if(S.errs[k]>0)c[k]=S.errs[k];S.errsSnap.push({t,errs:c,xp:S.xp||0});if(S.errsSnap.length>12)S.errsSnap=S.errsSnap.slice(-12);saveS();if(typeof RPGCloud!=='undefined'&&RPGCloud.pushErrsSnap)RPGCloud.pushErrsSnap(SAVE_KEY,S.errsSnap);}
+function continueGame(){if(loadS()){snapErrs();if(!S.snapsMigrated&&S.errsSnap&&S.errsSnap.length>0&&typeof RPGCloud!=='undefined'&&RPGCloud.pushErrsSnap){RPGCloud.pushErrsSnap(SAVE_KEY,S.errsSnap).then(ok=>{if(ok){S.snapsMigrated=true;saveS();}});}touchStreak();applyMotionPref();applyCosmetics();go('map');}}
+
+// MAP
+function isAreaUnlocked(ar){if(GODMODE)return true;if(ar.id===1)return true;if(ar.locked)return false;if(S.teacherUnlocked&&ar.missions.some(m=>S.teacherUnlocked.includes(m.id)))return true;const prev=AREAS.find(a=>a.id===ar.id-1);return prev?isAreaDone(prev):true;}
+function isAreaDone(ar){if(!ar.missions.length)return false;return ar.missions.every(m=>m.tc===countDone(m.id,m.tc));}
+function countDone(mid,tc){let n=0;for(let i=0;i<tc;i++)if(S.done[`${mid}-${i}`])n++;return n;}
+
+function openBattle(){
+ if(!window.RPGBattle){alert('Živý souboj se nenačetl. Zkus obnovit stránku.');return;}
+ RPGBattle.open({game:SAVE_KEY,name:S.name||'PIRÁT',bank:window.RPG_BATTLE_4,onResult:function(r){
+  awardXp((r.rank===1?80:r.rank===2?50:r.rank===3?30:20)+Math.min(r.correct*3,30),false);
+  earnCredits(r.rank===1?25:r.rank===2?15:r.rank===3?10:5);
+  evalAch({battleResult:r});
+ }});
+}
+
+function recommendedMission(){
+ let best=null,bestErr=1;
+ AREAS.forEach(ar=>ar.missions.forEach(m=>{
+  const e=(S.errs&&S.errs[m.id])||0;
+  if(e>=2&&!masteryOf(m.id).mastered&&e>bestErr){bestErr=e;best={mid:m.id,name:m.name};}
+ }));
+ return best;
+}
+function goPractice(mid){go('train');startTrain(mid);}
+function renderRecommend(){
+ const rp=document.getElementById('map-recommend');if(!rp)return;
+ const rec=recommendedMission();
+ if(!rec){rp.style.display='none';return;}
+ rp.style.display='block';
+ rp.innerHTML='<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">'+
+  '<div style="font-family:var(--px);font-size:13px;color:var(--text);line-height:1.45">'+
+  '<span style="color:var(--gold);font-weight:700">📚 Doporučený trénink</span><br>'+
+  '<span style="color:var(--muted)">Tohle ti zatím dělá potíže:</span> <b>'+rec.name+'</b></div>'+
+  '<button class="btn b sm" style="flex:none" onclick="goPractice(\''+rec.mid+'\')">🎯 Procvičit</button></div>';
+}
+
+function renderMap(){
+ calcLevel();
+ document.getElementById('map-name').textContent=S.name;
+ document.getElementById('map-lv').textContent=S.level;
+ document.getElementById('map-xp').textContent=S.xp;
+ document.getElementById('map-xp2').textContent=S.xp;
+ document.getElementById('map-xpmax').textContent=S.level*100;
+ document.getElementById('map-xpbar').style.width=Math.min(100,(S.xp%100))+'%';
+ const sc=(S.streak&&S.streak.count)||0,sch=document.getElementById('map-streak');
+ if(sch){if(sc>=2){sch.style.display='inline-flex';document.getElementById('map-streak-n').textContent=sc;}else sch.style.display='none';}
+ if(window.RPGCloud&&RPGCloud.renderLeaderboardInto)RPGCloud.renderLeaderboardInto('map-leaderboard',SAVE_KEY);
+ renderRecommend();
+ const g=document.getElementById('map-grid');g.innerHTML='';
+ const TINT={1:'#1a4a5a',2:'#2a4a3a',3:'#5a2a2a',4:'#5a4a1a',5:'#1a3a5a',6:'#3a4a2a',7:'#3a1a4a'};
+ AREAS.forEach((ar,i)=>{
+  const unl=isAreaUnlocked(ar),done=isAreaDone(ar);
+  const nd=document.createElement('div');
+  nd.className='map-node '+(done?'done':unl?'active':'locked');
+  nd.style.setProperty('--tint',TINT[ar.id]||'#333');
+  nd.style.animationDelay=(i*0.05)+'s';
+  nd.innerHTML=`<span class="ni">${ar.icon}</span><div class="nn">${ar.name}</div><div class="ns">${done?'✓ SPLNĚNO':unl?'▶ VSTUP':'🔒 ZAMČENO'}</div>`;
+  if(unl)nd.onclick=()=>openArea(ar.id);
+  g.appendChild(nd);
+ });
+}
+
+// AREA
+let curArea=null;
+function openArea(aid){
+ const ar=AREAS.find(a=>a.id===aid);curArea=ar;
+ document.getElementById('area-title-sm').textContent=ar.name.replace(/\n/g,' ');
+ const hd=document.getElementById('area-head');
+ const artHave=S.inv.includes(ar.art.id);
+ hd.innerHTML=`<div style="display:flex;gap:14px;align-items:center"><div style="font-size:42px">${ar.icon}</div><div>
+  <div style="font-family:var(--px);font-weight:700;font-size:17px;color:var(--gold);letter-spacing:.5px">${ar.name.replace(/\n/g,' ')}</div>
+  <div style="font-family:var(--vt);font-size:21px;color:var(--muted);margin-top:4px;line-height:1.3">${ar.desc}</div>
+ </div></div>
+ <div style="margin-top:12px;display:flex;align-items:center;gap:10px;padding-top:10px;border-top:2px solid var(--panel2)">
+  <div style="font-size:26px">${ar.art.ic}</div>
+  <div style="font-family:var(--px);font-weight:400;font-size:12px;color:var(--muted);line-height:1.3">Artefakt oblasti:<br><span style="color:var(--gold);font-weight:700">${ar.art.nm.replace(/\n/g,' ')}</span></div>
+  ${artHave?'<div style="margin-left:auto;font-family:var(--px);font-weight:700;font-size:13px;color:var(--gold)">✓ ZÍSKÁNO</div>':''}
+ </div>`;
+ const ml=document.getElementById('mission-list');ml.innerHTML='';
+ ar.missions.forEach((m,mi)=>{
+  const dn=countDone(m.id,m.tc),tot=m.tc,allDn=dn===tot;
+  const teacherUnlk=GODMODE||(S.teacherUnlocked&&S.teacherUnlocked.includes(m.id));
+  const avail=teacherUnlk||mi===0||countDone(ar.missions[mi-1].id,ar.missions[mi-1].tc)===ar.missions[mi-1].tc;
+  const stars=allDn?'⭐⭐⭐':dn>0?'⭐'.repeat(Math.ceil(dn/tot*3))+'☆'.repeat(3-Math.ceil(dn/tot*3)):'☆☆☆';
+  const it=document.createElement('div');it.className='ms-item '+(allDn?'done':avail?'avail':'locked');
+  const hasLearn=window.RPG_LEARN_4&&window.RPG_LEARN_4[m.id];
+  it.innerHTML=`<div class="ms-num" style="color:${allDn?'var(--green)':avail?'var(--blue)':'var(--muted)'}">${allDn?'✓':String(mi+1).padStart(2,'0')}</div>
+   <div style="flex:1"><div class="ms-name">${masteryOf(m.id).mastered?'🏅 ':''}${(!allDn&&teacherUnlk&&!GODMODE)?'🔓 ':''}${m.name}</div><div class="ms-sub">${m.sub} · ${dn}/${tot}</div></div>
+   ${hasLearn?`<button class="learn-btn" onclick="startLearn('${m.id}');event.stopPropagation()">📖 Teorie</button>`:''}
+   <div style="font-size:14px">${stars}</div>`;
+  if(avail)it.onclick=()=>launchBattle(ar.id,m.id);
+  ml.appendChild(it);
+ });
+ go('area');
+}
+
+// TEORIE
+let LEARN_MID=null;
+function startLearn(mid){LEARN_MID=mid;const ar=AREAS.find(a=>a.missions.some(m=>m.id===mid));const m=ar?ar.missions.find(x=>x.id===mid):null;renderLearn(mid,m);go('learn');}
+function launchLearnBattle(){if(!LEARN_MID)return;const ar=AREAS.find(a=>a.missions.some(m=>m.id===LEARN_MID));if(ar)launchBattle(ar.id,LEARN_MID);}
+function renderLearn(mid,m){
+ const L=window.RPG_LEARN_4&&window.RPG_LEARN_4[mid];
+ const el=document.getElementById('learn-content');
+ if(!L){el.innerHTML='<div style="font-family:var(--vt);font-size:20px;color:var(--muted);padding:20px">Teorie pro tuto misi není dostupná.</div>';return;}
+ let html=`<div class="panel b" style="margin-bottom:14px">
+  <div style="font-family:var(--px);font-weight:700;font-size:17px;color:var(--blue);letter-spacing:.5px">${esc2(m?m.name:mid)}</div>
+  <div style="font-family:var(--vt);font-size:18px;color:var(--muted);margin-top:4px">${esc2(m?m.sub:'')}</div></div>`;
+ if(L.intro)html+=`<div class="learn-intro">${esc2(L.intro)}</div>`;
+ (L.sections||[]).forEach(s=>{html+=`<div class="learn-section"><h3>${esc2(s.h||s.title||'')}</h3>`;(Array.isArray(s.p)?s.p:[s.p||s.body||'']).forEach(p=>{html+=`<p>${esc2(p).replace(/\n/g,'<br>')}</p>`;});html+='</div>';});
+ if(L.formulas&&L.formulas.length){html+='<div class="learn-formula">';L.formulas.forEach(f=>{html+=esc2(f)+'<br>';});html+='</div>';}
+ (L.examples||[]).forEach(ex=>{html+=`<div class="learn-example"><div class="ex-q">📝 ${esc2(ex.q)}</div><div class="ex-s">`;(Array.isArray(ex.s)?ex.s:[ex.s||ex.a||'']).forEach(step=>{html+=esc2(step).replace(/\n/g,'<br>')+'<br>';});html+='</div></div>';});
+ el.innerHTML=html;
+ if(L.video){const vurl=L.video.url||('https://www.youtube.com/watch?v='+L.video.id);const wrap=document.createElement('div');wrap.style.marginTop='16px';const a=document.createElement('a');a.className='learn-video';a.href=vurl;a.target='_blank';a.rel='noopener';a.textContent='▶ VIDEO: '+(L.video.title||'');wrap.appendChild(a);el.appendChild(wrap);}
+ document.getElementById('learn-battle-btn').onclick=launchLearnBattle;
+}
+function esc2(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+// BATTLE STATE
+let BT={tasks:[],idx:0,hl:0,curTask:null,aid:null,mid:null,combo:0,hp:3,maxHp:3,timer:null,timeLeft:30,timeMax:30,mcMode:false,phase:1,items:[],timerFrozen:false,freezeTimeout:null};
+const MAX_PLAYER_HP=3;
+const TIME_PER_TASK=55;
+const ITEM_DROP_CHANCE=0.28;
+const MAX_ITEMS=3;
+const ITEM_TYPES=['hp','freeze','skip'];
+const ITEM_DEFS={hp:{ic:'🧪',lb:'LEKTVAR',desc:'Obnoví 1 život'},freeze:{ic:'❄️',lb:'ZMRZLINA',desc:'Zmrazí čas na 15 s'},skip:{ic:'💨',lb:'PŘESKOČ',desc:'Přeskočí úkol bez penalizace'}};
+
+function launchBattle(aid,mid){
+ const ar=AREAS.find(a=>a.id===aid);
+ const m=ar.missions.find(x=>x.id===mid);
+ BT.aid=aid;BT.mid=mid;BT.combo=0;BT.missionHinted=false;BT.bossDefeated=false;
+ BT.hp=MAX_PLAYER_HP;BT.maxHp=MAX_PLAYER_HP;
+ const _puW=typeof RPGWallet!=='undefined'?RPGWallet:null;
+ if(_puW&&_puW.hasPowerup('pu-ghost-heart'))BT.maxHp++;
+ if(_puW&&_puW.hasPowerup('pu-full-heart')){BT.maxHp++;BT.hp++;}
+ BT.secondChance=!!(_puW&&_puW.hasPowerup('pu-second-chance'));BT.usedSecondChance=false;
+ BT.mini={};BT.curLimit=0;BT.phase=1;BT.items=[];BT.timerFrozen=false;
+ if(BT.freezeTimeout){clearTimeout(BT.freezeTimeout);BT.freezeTimeout=null;}
+ BT.mcMode=!!m.mc;BT._bid=(BT._bid||0)+1;
+ const _mIdx=ar.missions.findIndex(x=>x.id===mid);
+ BT._bossStartDamage=Math.max(0,_mIdx/ar.missions.length);
+ const top=document.getElementById('bt-top');
+ top.classList.remove('phase2');
+ document.getElementById('fail-overlay').classList.remove('show');
+ updateCombo();updatePlayerHp();renderItems();
+ let pool=m.tasks();
+ const ex=window.RPG_TASK_EXTRA_4;
+ if(ex&&typeof ex[m.id]==='function'){try{pool=pool.concat(ex[m.id]());}catch(e){}}
+ BT.tasks=shuffleArr(pool).slice(0,m.tc);
+ BT.idx=0;
+ const _doneSoFar=BT.tasks.filter((_,i)=>S.done[`${mid}-${i}`]).length;
+ BT._doneBattle=(_doneSoFar>=BT.tasks.length)?0:_doneSoFar;
+ for(let i=0;i<BT.tasks.length;i++){if(!S.done[`${mid}-${i}`]){BT.idx=i;break;}}
+ const mon=document.getElementById('bt-mon');mon.textContent=m.mon;mon.style.filter='';mon.style.fontSize='';
+ document.getElementById('bt-mname').textContent=m.mname;
+ updateBossHpBar();
+ if(window.RPGSprites4){
+  RPGSprites4.attach(top);RPGSprites4.spawn(aid,BT._bossStartDamage);
+  setTimeout(()=>{top.classList.add('shake');setTimeout(()=>top.classList.remove('shake'),400);},560);
+ }else{
+  mon.className='bt-monster';void mon.offsetWidth;mon.classList.add('enter');
+  setTimeout(()=>{top.classList.add('shake');spawnParticles();setTimeout(()=>top.classList.remove('shake'),400);},610);
+  setTimeout(()=>{mon.classList.remove('enter');mon.classList.add(Math.random()<.5?'idle':'idle-2');},1070);
+ }
+ renderTask();
+ {const inpEl=document.getElementById('bt-ans');const atkEl=document.getElementById('attack-btn');
+  if(inpEl)inpEl.disabled=true;if(atkEl)atkEl.disabled=true;
+  setTimeout(()=>{if(!BT.bossDefeated){if(inpEl)inpEl.disabled=false;if(atkEl)atkEl.disabled=false;if(inpEl&&!BT.mcMode&&!isYN(BT.curTask))inpEl.focus();}},700);}
+ go('battle');
+}
+
+function retryMission(){const m=AREAS.find(a=>a.id===BT.aid).missions.find(x=>x.id===BT.mid);for(let i=0;i<m.tc;i++)delete S.done[`${BT.mid}-${i}`];saveS();launchBattle(BT.aid,BT.mid);}
+
+function updatePlayerHp(){
+ const el=document.getElementById('player-hp');let h='';
+ for(let i=0;i<BT.maxHp;i++)h+=`<span class="heart${i<BT.hp?'':' lost'}" data-i="${i}">❤️</span>`;
+ el.innerHTML=h;
+ if(window.RPGSprites4&&RPGSprites4.setHeroHp)RPGSprites4.setHeroHp(BT.hp/BT.maxHp);
+ const puEl=document.getElementById('bt-powerups');
+ if(puEl&&typeof RPGWallet!=='undefined'){
+  const ics={'pu-ghost-heart':'🫀','pu-time-bonus':'⏳','pu-freeze-dbl':'🧊','pu-full-heart':'💗','pu-xp-crit':'⚡','pu-second-chance':'🛡️'};
+  puEl.innerHTML=Object.keys(ics).filter(id=>RPGWallet.hasPowerup(id)).map(id=>`<span title="${(SHOP_ITEMS.find(x=>x.id===id)||{}).name||id}">${ics[id]}</span>`).join('');
+ }
+}
+function flashHeart(idx){const h=document.querySelector(`.heart[data-i="${idx}"]`);if(!h)return;h.classList.add('flash');setTimeout(()=>h.classList.remove('flash'),360);}
+
+function damagePlayer(){
+ if(!S.errs)S.errs={};if(BT&&BT.mid){S.errs[BT.mid]=(S.errs[BT.mid]||0)+1;saveS();}
+ if(BT.hp<=0)return;
+ hitVignette();flashHeart(BT.hp-1);BT.hp--;setTimeout(updatePlayerHp,360);
+ if(BT.hp<=0){
+  if(BT.secondChance&&!BT.usedSecondChance){BT.usedSecondChance=true;BT.hp=1;floatText('⚡ Druhá šance!',window.innerWidth/2-70,window.innerHeight*0.38,'#ffcc00');return;}
+  setTimeout(missionFailed,800);
+ }
+}
+function missionFailed(){
+ stopTimer();
+ const msgs=['Hrdina padl v boji. Mise musí být zopakována.','Tvá síla byla nedostatečná. Nabuď odvahu a zkus to znovu!','Boss byl silnější. Vrať se s odhodláním a vyzkoušej znovu.'];
+ document.getElementById('fail-msg').textContent=msgs[ri(0,msgs.length-1)];
+ document.getElementById('fail-overlay').classList.add('show');
+}
+
+function startTimer(){
+ stopTimer();
+ if(!BT.curLimit){const _tEx=(typeof RPGWallet!=='undefined'&&RPGWallet.hasPowerup('pu-time-bonus'))?5:0;BT.curLimit=TIME_PER_TASK+_tEx;}
+ BT.timeLeft=BT.curLimit;BT.timeMax=BT.curLimit;
+ document.getElementById('timer-wrap').style.display='block';updateTimerUi();
+ BT.timer=setInterval(()=>{if(BT.timerFrozen)return;BT.timeLeft--;updateTimerUi();if(BT.timeLeft<=0){stopTimer();onTimeOut();}},1000);
+}
+function stopTimer(){if(BT.timer){clearInterval(BT.timer);BT.timer=null;}}
+function updateTimerUi(){
+ document.getElementById('timer-v').textContent=BT.timeLeft;
+ const pct=Math.max(0,BT.timeLeft/BT.timeMax*100);
+ const bar=document.getElementById('timer-bar');bar.style.width=pct+'%';
+ bar.classList.toggle('warn',BT.timeLeft<=10&&BT.timeLeft>5);bar.classList.toggle('danger',BT.timeLeft<=5);
+}
+function onTimeOut(){
+ if(BT.hp<=0)return;
+ const fb=document.getElementById('bt-fb');fb.textContent='⏱ ČAS VYPRŠEL!';fb.className='feedback err';
+ monsterAttack();damagePlayer();
+ setTimeout(()=>{
+  if(BT.hp>0){
+   const inp=document.getElementById('bt-ans');if(inp){inp.disabled=false;inp.value='';inp.focus();}
+   document.querySelectorAll('#mc-grid .mc-btn').forEach(b=>{b.disabled=false;b.classList.remove('right','wrong');});
+   fb.className='feedback';startTimer();
+  }
+ },1300);
+}
+
+function renderTask(){
+ const mt=miniForIdx(BT.idx);if(mt){renderBattleMini(mt);return;}
+ BT.miniStarting=false;
+ const mhBtn=document.getElementById('bt-mini-hint');if(mhBtn)mhBtn.style.display='none';
+ const t=BT.tasks[BT.idx];BT.curTask=t;BT.hl=0;BT.timerFrozen=false;
+ if(BT.freezeTimeout){clearTimeout(BT.freezeTimeout);BT.freezeTimeout=null;}
+ document.getElementById('timer-bar').classList.remove('frozen');
+ const _tEx=(typeof RPGWallet!=='undefined'&&RPGWallet.hasPowerup('pu-time-bonus'))?5:0;
+ BT.curLimit=TIME_PER_TASK+_tEx;
+ document.getElementById('bt-num').textContent=BT.idx+1;document.getElementById('bt-tot').textContent=BT.tasks.length;
+ const _hpPct=updateBossHpBar();
+ if(_hpPct<=55&&BT.phase===1){BT.phase=2;const top=document.getElementById('bt-top');top.classList.add('phase2');const fb=document.getElementById('bt-fb');fb.textContent='🔥 BOSS JE V ZUŘIVOSTI! 🔥';fb.className='feedback err';const mon=document.getElementById('bt-mon');mon.style.filter='drop-shadow(0 6px 0 #0008) drop-shadow(0 0 14px #e74c3c)';mon.style.fontSize='132px';hitVignette();}
+ const probEl=document.getElementById('bt-prob');
+ if(t.svg){probEl.innerHTML=`<div class="prob-svg">${t.svg}</div><div class="prob-txt"></div>`;probEl.querySelector('.prob-txt').textContent=t.text;}
+ else probEl.textContent=t.text;
+ probEl.classList.remove('pop');void probEl.offsetWidth;probEl.classList.add('pop');
+ document.getElementById('bt-fb').className='feedback';
+ document.getElementById('hint-box').textContent='';document.getElementById('hint-box').classList.remove('show');
+ document.getElementById('hint-btn').textContent='💡 NÁPOVĚDA';document.getElementById('hint-btn').disabled=false;
+ document.getElementById('next-btn').style.display='none';
+ document.getElementById('bt-explain').style.display='none';document.getElementById('bt-explain-txt').value='';
+ if(BT.mcMode){
+  document.getElementById('bt-input-row').style.display='none';document.getElementById('yn-row').style.display='none';document.getElementById('hint-btn').style.display='none';renderMC(t);
+ }else{
+  const yn=isYN(t);
+  document.getElementById('bt-input-row').style.display=yn?'none':'flex';document.getElementById('yn-row').style.display=yn?'flex':'none';
+  document.querySelectorAll('#yn-row button').forEach(b=>b.disabled=false);
+  document.getElementById('hint-btn').style.display='inline-block';document.getElementById('mc-grid').style.display='none';
+  document.getElementById('bt-ans').value='';document.getElementById('bt-ans').disabled=false;
+  if(!yn)document.getElementById('bt-ans').focus();
+ }
+ startTimer();
+}
+
+function battlePool(){
+ const ar=AREAS.find(a=>a.id===BT.aid);if(!ar)return[];
+ const m=ar.missions.find(x=>x.id===BT.mid);if(!m)return[];
+ let pool=m.tasks();const ex=window.RPG_TASK_EXTRA_4;
+ if(ex&&typeof ex[BT.mid]==='function'){try{pool=pool.concat(ex[BT.mid]());}catch(e){}}
+ return pool;
+}
+function miniForIdx(idx){
+ if(!BT.mini)BT.mini={};if(BT.mini[idx]!==undefined)return BT.mini[idx];
+ let res=null;
+ if(!BT.mcMode&&window.RPGTaskTypes&&Math.random()<0.34){
+  if(Math.random()<0.5){const items=RPGTaskTypes.pickOrderItems(battlePool(),4);if(items)res={type:'order',data:items,desc:Math.random()<0.5};}
+  else{const pairs=RPGTaskTypes.pickPairs(battlePool(),4);if(pairs)res={type:'match',data:pairs};}
+ }
+ BT.mini[idx]=res;return res;
+}
+function renderBattleMini(mt){
+ BT.curTask={ans:'',skill:null,hints:[],text:''};BT.hl=0;BT.timerFrozen=false;
+ if(BT.freezeTimeout){clearTimeout(BT.freezeTimeout);BT.freezeTimeout=null;}
+ document.getElementById('timer-bar').classList.remove('frozen');
+ document.getElementById('bt-num').textContent=BT.idx+1;document.getElementById('bt-tot').textContent=BT.tasks.length;
+ updateBossHpBar();
+ ['bt-input-row','yn-row','mc-grid','hint-btn','next-btn','bt-explain'].forEach(id=>document.getElementById(id).style.display='none');
+ document.getElementById('bt-fb').className='feedback';document.getElementById('bt-fb').textContent='';
+ const hb=document.getElementById('hint-box');hb.textContent='';hb.classList.remove('show');
+ const probEl=document.getElementById('bt-prob');
+ const _tEx=(typeof RPGWallet!=='undefined'&&RPGWallet.hasPowerup('pu-time-bonus'))?5:0;
+ BT.curLimit=(mt.type==='match'?22+mt.data.length*8:(18+mt.data.length*8)*3)+_tEx;
+ const onMistake=()=>battleMiniMistake();const onDone=mk=>battleMiniDone(mk);
+ if(mt.type==='order')RPGTaskTypes.renderOrder(probEl,mt.data,onDone,{onMistake,desc:mt.desc});
+ else RPGTaskTypes.renderMatch(probEl,mt.data,onDone,{onMistake});
+ const mhBtn=document.getElementById('bt-mini-hint');if(mhBtn){mhBtn.style.display='none';mhBtn.disabled=false;}
+ BT.miniHintUsed=false;BT.miniStarting=true;
+ const fb=document.getElementById('bt-fb');
+ fb.className='feedback mini-banner';
+ fb.textContent=mt.type==='order'?'↕ ŘAZENÍ — seřaď od '+(mt.desc?'největšího':'nejmenšího')+' (chyba = -1 ❤️)':'🔗 SPOJOVAČKA — spoj správné dvojice (chyba = -1 ❤️)';
+ setTimeout(()=>{if(!BT.miniStarting)return;BT.miniStarting=false;fb.className='feedback';fb.textContent='';if(mhBtn&&!BT.miniHintUsed&&BT.hp>1)mhBtn.style.display='';startTimer();},1500);
+}
+function battleMiniMistake(){if(BT.bossDefeated||BT.hp<=0)return;BT.miniStarting=false;BT.combo=0;updateCombo();monsterAttack();damagePlayer();}
+function battleMiniDone(mistakes){
+ if(BT.bossDefeated||BT.hp<=0)return;BT.miniStarting=false;stopTimer();
+ const mhBtn=document.getElementById('bt-mini-hint');if(mhBtn)mhBtn.style.display='none';
+ const isCrit=mistakes===0&&BT.combo>=3;
+ if(mistakes===0)BT.combo++;else BT.combo=0;updateCombo();
+ const xpKey=`${BT.mid}-${BT.idx}`;
+ if(!S.xpClaimed)S.xpClaimed={};
+ const xpGain=(!S.xpClaimed[xpKey])?7:2;S.xpClaimed[xpKey]=true;
+ S.done[xpKey]=true;saveS();awardXp(xpGain,isCrit);if(typeof RPGWallet!=='undefined')RPGWallet.earn(isCrit?7:5,SAVE_KEY);
+ damageMonster(xpGain,isCrit);updateCombo();if(!S.stats)S.stats={};if(BT.combo>(S.stats.bestCombo||0))S.stats.bestCombo=BT.combo;
+ evalAch({correct:true,combo:BT.combo,timeLeft:0});checkMissionComplete();
+}
+function useMiniHint(){if(BT.hp<=1)return;BT.hp--;updatePlayerHp();BT.miniHintUsed=true;const mhBtn=document.getElementById('bt-mini-hint');if(mhBtn)mhBtn.style.display='none';}
+
+function monsterAttack(){
+ const mon=document.getElementById('bt-mon');if(!mon)return;
+ mon.classList.remove('idle','idle-2','charge');void mon.offsetWidth;mon.classList.add('charge');
+ setTimeout(()=>{mon.classList.remove('charge');if(window.RPGSprites4&&RPGSprites4.active())RPGSprites4.bossAttack();},500);
+ const top=document.getElementById('bt-top');if(top){top.classList.remove('shake');void top.offsetWidth;top.classList.add('shake');setTimeout(()=>top.classList.remove('shake'),400);}
+}
+function heroAttackFX(){if(window.RPGSprites4&&RPGSprites4.active()){RPGSprites4.heroAttack();}else{const proj=document.getElementById('proj');proj.textContent='⚔️';void proj.offsetWidth;proj.className='proj fire';proj.style.setProperty('--tx','0px');proj.style.setProperty('--ty','-120px');proj.style.left='50%';proj.style.top='40%';}}
+function damageMonster(xp,isCrit){
+ const spark=document.getElementById('dmg-spark');spark.textContent=isCrit?'KRITICKÝ ZÁSAH!':'−'+xp+' HP!';spark.classList.remove('go');void spark.offsetWidth;spark.classList.add('go');
+ const mon=document.getElementById('bt-mon');if(mon){mon.classList.remove('hit');void mon.offsetWidth;mon.classList.add('hit');setTimeout(()=>mon.classList.remove('hit'),300);}
+ heroAttackFX();
+ if(window.RPGSprites4&&RPGSprites4.active())RPGSprites4.heroAttack();
+ if(BT.bossDefeated){const m=document.getElementById('bt-mon');if(m){m.classList.remove('hit');void m.offsetWidth;m.classList.add('defeat');setTimeout(()=>{if(window.RPGSprites4&&RPGSprites4.active()){RPGSprites4.defeat();}},200);}}
+}
+function updateBossHpBar(){
+ const total=BT.tasks.length;if(!total)return 100;
+ const done=BT.tasks.filter((_,i)=>S.done[`${BT.mid}-${i}`]).length;
+ const startDmg=BT._bossStartDamage||0;const pct=Math.max(0,100-(done/total)*(100-startDmg*100)-startDmg*100);
+ document.getElementById('bt-hpbar').style.width=pct+'%';return pct;
+}
+function updateCombo(){
+ const c=BT.combo,el=document.getElementById('combo'),n=document.getElementById('combo-n');
+ if(!el||!n)return;n.textContent=c;
+ el.classList.remove('show','bump','hot','fire');
+ if(c>=2){el.classList.add('show');void el.offsetWidth;el.classList.add('bump');}
+ if(c>=5)el.classList.add('hot');if(c>=10)el.classList.add('fire');
+}
+
+// MC distractory: pro celá čísla škáluje krok podle velikosti/zaokrouhlení (aby u velkých čísel
+// nebyly odpovědi triviálně odlišitelné), jinak ANO/NE/MOŽNÁ.
+function mcDistractors(ans){
+ const s=String(ans).trim();const base=parseInt(s,10);const wrong=[];
+ if(String(base)===s){
+  const mag=Math.abs(base);let step=1;
+  if(base%1000===0&&mag>=1000)step=1000;
+  else if(base%100===0&&mag>=100)step=100;
+  else if(mag>=100000)step=1000;
+  else if(mag>=10000)step=100;
+  else if(mag>=1000)step=10;
+  else if(base%10===0&&mag>=10)step=10;
+  const offs=[-1,1,-2,2,3,-3,4,-4];
+  for(let i=0;i<offs.length&&wrong.length<3;i++){const v=base+offs[i]*step;if(v!==base&&v>=0&&!wrong.includes(v))wrong.push(v);}
+  for(let k=5;k<60&&wrong.length<3;k++){const v=base+k*step;if(v!==base&&!wrong.includes(v))wrong.push(v);}
+ }else{
+  ['ANO','NE','MOŽNÁ'].forEach(x=>{if(x!==s&&wrong.length<3)wrong.push(x);});
+ }
+ return wrong.slice(0,3).map(String);
+}
+function renderMC(t){
+ const grid=document.getElementById('mc-grid');
+ const ans=String(t.ans);
+ const opts=(Array.isArray(t.mc_opts)&&t.mc_opts.length>=2)?t.mc_opts.map(String):shuffleArr([ans,...mcDistractors(ans)]);
+ grid.innerHTML='';
+ opts.forEach((o,i)=>{const b=document.createElement('button');b.className='mc-btn c'+i;b.textContent=o;b.onclick=()=>pickMC(b,o,ans);grid.appendChild(b);});
+ grid.style.display='grid';
+}
+function pickMC(btn,chosen,correct){
+ const ok=checkAns(chosen,correct);
+ btn.classList.add(ok?'right':'wrong');
+ stopTimer();
+ const xpKey=`${BT.mid}-${BT.idx}`;if(!S.xpClaimed)S.xpClaimed={};
+ const fb=document.getElementById('bt-fb');
+ if(ok){
+  document.querySelectorAll('#mc-grid .mc-btn').forEach(b=>b.disabled=true);
+  BT.combo++;updateCombo();
+  const isCrit=BT.combo>=3;const xpGain=(!S.xpClaimed[xpKey])?7:2;S.xpClaimed[xpKey]=true;S.done[xpKey]=true;BT._doneBattle++;saveS();
+  awardXp(xpGain,isCrit);if(typeof RPGWallet!=='undefined')RPGWallet.earn(isCrit?7:5,SAVE_KEY);
+  fb.textContent='✓ SPRÁVNĚ!';fb.className='feedback ok';
+  if(!S.stats)S.stats={};if(BT.combo>(S.stats.bestCombo||0))S.stats.bestCombo=BT.combo;
+  damageMonster(xpGain,isCrit);evalAch({correct:true,combo:BT.combo,timeLeft:BT.timeLeft});checkMissionComplete();
+  document.getElementById('next-btn').style.display='inline-block';
+ }else{
+  btn.disabled=true;
+  if(!S.errs)S.errs={};S.errs[BT.mid]=(S.errs[BT.mid]||0)+1;saveS();
+  BT.combo=0;updateCombo();fb.textContent=`✗ Zkus jiný!`;fb.className='feedback err';monsterAttack();damagePlayer();
+ }
+}
+
+function submitAnswer(){
+ const inp=document.getElementById('bt-ans');const raw=inp.value.trim();if(!raw)return;
+ const t=BT.curTask;const ok=checkAns(raw,String(t.ans));stopTimer();
+ inp.disabled=true;document.getElementById('attack-btn').disabled=true;
+ const fb=document.getElementById('bt-fb');
+ const xpKey=`${BT.mid}-${BT.idx}`;if(!S.xpClaimed)S.xpClaimed={};
+ if(ok){
+  BT.combo++;updateCombo();const isCrit=BT.combo>=3;
+  const xpGain=(!S.xpClaimed[xpKey])?7:2;S.xpClaimed[xpKey]=true;S.done[xpKey]=true;BT._doneBattle++;saveS();
+  awardXp(xpGain,isCrit);if(typeof RPGWallet!=='undefined')RPGWallet.earn(isCrit?7:5,SAVE_KEY);
+  fb.textContent='✓ SPRÁVNĚ!';fb.className='feedback ok';
+  document.getElementById('next-btn').style.display='inline-block';
+  if(!BT.mcMode)document.getElementById('bt-explain').style.display='block';
+  damageMonster(xpGain,isCrit);updateCombo();
+  if(!S.stats)S.stats={};if(BT.combo>(S.stats.bestCombo||0))S.stats.bestCombo=BT.combo;
+  evalAch({correct:true,combo:BT.combo,timeLeft:BT.timeLeft});checkMissionComplete();
+ }else{
+  BT.combo=0;updateCombo();fb.textContent='✗ ŠPATNĚ — "'+raw+'" není správně.';fb.className='feedback err';
+  monsterAttack();damagePlayer();
+ }
+}
+
+function showHint(){
+ const t=BT.curTask;if(BT.hl>0)return;BT.missionHinted=true;
+ const hb=document.getElementById('hint-box');hb.style.borderColor='var(--green)';hb.style.color='#7fe87f';hb.style.background='#0a1a0a';
+ hb.textContent='💡 Nápověda:\n'+((t.hints&&t.hints[0]&&String(t.hints[0]).trim())?t.hints[0]:'Rozděl si příklad na menší kroky a postupuj po jednom.');
+ hb.classList.add('show');BT.hl=1;document.getElementById('hint-btn').disabled=true;
+}
+
+function nextTask(){
+ const explTxt=(document.getElementById('bt-explain-txt').value||'').trim();
+ if(explTxt&&typeof RPGCloud!=='undefined'&&RPGCloud.saveExplanation){
+  const t=BT.curTask;RPGCloud.saveExplanation('RPG_MAT_4',BT.mid,BT.idx,t?t.text:'',t?t.ans:'',explTxt);
+ }
+ let nxt=-1;for(let i=BT.idx+1;i<BT.tasks.length;i++){if(!S.done[`${BT.mid}-${i}`]){nxt=i;break;}}
+ if(nxt>=0){BT.idx=nxt;renderTask();}else openArea(BT.aid);
+}
+
+function exitBattle(){stopTimer();if(BT.freezeTimeout){clearTimeout(BT.freezeTimeout);BT.freezeTimeout=null;}const m=document.getElementById('bt-mon');if(m)m.style.filter='';openArea(BT.aid);}
+
+// VFX
+function awardXp(amount,isCrit){
+ if(isCrit&&typeof RPGWallet!=='undefined'&&RPGWallet.hasPowerup('pu-xp-crit'))amount++;
+ const before=Math.floor(S.xp/100)+1;S.xp+=amount;const after=Math.floor(S.xp/100)+1;
+ const top=document.getElementById('bt-top');
+ if(top&&!rmActive()){const r=top.getBoundingClientRect();floatText('+'+amount+' XP',r.left+r.width*0.18,r.top+r.height*0.55,isCrit?'#ff5577':'#5dff8f');}
+ if(after>before){S.level=after;setTimeout(()=>levelUpBurst(after),650);}
+ if(isCrit){if(!S.stats)S.stats={};S.stats.crits=(S.stats.crits||0)+1;}
+ evalAch({crit:isCrit});
+}
+function floatText(txt,x,y,color){
+ if(rmActive())return;
+ const el=document.createElement('div');el.className='float-txt';el.textContent=txt;el.style.left=x+'px';el.style.top=y+'px';el.style.color=color||'#5dff8f';
+ document.body.appendChild(el);void el.offsetWidth;el.classList.add('go');setTimeout(()=>el.remove(),1150);
+}
+function levelUpBurst(lvl){
+ const lu=document.getElementById('levelup');document.getElementById('lvl-txt').textContent='⬆ LEVEL '+lvl;
+ lu.classList.remove('show');void lu.offsetWidth;lu.classList.add('show');
+ if(!rmActive()){for(let i=0;i<18;i++){const p=document.createElement('div');p.className='particle go';p.style.position='fixed';p.style.left='50%';p.style.top='50%';p.style.zIndex='111';const ang=(i/18)*Math.PI*2,dist=120+Math.random()*120;p.style.setProperty('--dx',(Math.cos(ang)*dist).toFixed(0)+'px');p.style.setProperty('--dy',(Math.sin(ang)*dist).toFixed(0)+'px');p.style.background=['#f0c040','#fff','#ffd966'][i%3];document.body.appendChild(p);setTimeout(()=>p.remove(),900);}}
+ setTimeout(()=>lu.classList.remove('show'),1700);
+}
+function victoryBurst(){
+ const b=document.createElement('div');b.className='victory-banner';b.textContent='⚓ VÍTĚZSTVÍ! ⚓';
+ document.body.appendChild(b);void b.offsetWidth;b.classList.add('go');setTimeout(()=>b.remove(),1500);
+ if(!rmActive()){const coins=['🪙','✨','⭐','💰'];for(let i=0;i<22;i++){const d=document.createElement('div');d.className='gold-drop';d.textContent=coins[i%coins.length];d.style.left=(Math.random()*100)+'vw';const dur=(1.4+Math.random()*1.2);d.style.animationDuration=dur+'s';d.style.animationDelay=(Math.random()*0.4)+'s';document.body.appendChild(d);void d.offsetWidth;d.classList.add('go');setTimeout(()=>d.remove(),(dur+0.5)*1000);}}
+}
+function hitVignette(){const v=document.getElementById('hit-vignette');v.classList.remove('go');void v.offsetWidth;v.classList.add('go');}
+function spawnParticles(){if(rmActive())return;for(let i=0;i<12;i++){const p=document.createElement('div');p.className='particle go';p.style.position='fixed';p.style.left='50%';p.style.top='30%';p.style.zIndex='111';const ang=(i/12)*Math.PI*2;p.style.setProperty('--dx',(Math.cos(ang)*80).toFixed(0)+'px');p.style.setProperty('--dy',(Math.sin(ang)*80).toFixed(0)+'px');p.style.background='#f0c040';document.body.appendChild(p);setTimeout(()=>p.remove(),900);}}
+
+// ITEMS
+function renderItems(){
+ const bar=document.getElementById('items-bar');if(!bar)return;
+ if(!BT.items||!BT.items.length){bar.innerHTML='<div class="empty">— žádné předměty —</div>';return;}
+ bar.innerHTML=BT.items.map((it,i)=>`<button class="item-btn" onclick="useItem(${i})" title="${ITEM_DEFS[it].desc}"><span class="ib-ic">${ITEM_DEFS[it].ic}</span><span class="ib-lb">${ITEM_DEFS[it].lb}</span></button>`).join('');
+}
+function tryDropItem(){
+ if(BT.items.length>=MAX_ITEMS||Math.random()>ITEM_DROP_CHANCE)return;
+ const type=ITEM_TYPES[ri(0,ITEM_TYPES.length-1)];BT.items.push(type);renderItems();
+ const bar=document.getElementById('items-bar');const btn=bar.lastElementChild;if(btn)btn.classList.add('new');
+ const pu=document.getElementById('item-pickup');if(pu){pu.textContent='✨ Získal jsi: '+ITEM_DEFS[type].lb+'!';setTimeout(()=>{pu.textContent='';},2000);}
+}
+function useItem(i){
+ const type=BT.items[i];BT.items.splice(i,1);
+ if(type==='hp'&&BT.hp<BT.maxHp){BT.hp++;updatePlayerHp();floatText('❤️ +1',window.innerWidth/2-30,window.innerHeight*0.6,'#ff6666');}
+ else if(type==='freeze'&&BT.timer){BT.timerFrozen=true;document.getElementById('timer-bar').classList.add('frozen');if(BT.freezeTimeout)clearTimeout(BT.freezeTimeout);BT.freezeTimeout=setTimeout(()=>{BT.timerFrozen=false;document.getElementById('timer-bar').classList.remove('frozen');BT.freezeTimeout=null;},15000);floatText('❄️ Zmrazeno!',window.innerWidth/2-50,window.innerHeight*0.6,'#4ab0e0');}
+ else if(type==='skip'){S.done[`${BT.mid}-${BT.idx}`]=true;saveS();floatText('💨 Přeskočeno',window.innerWidth/2-60,window.innerHeight*0.6,'#aaa');let nxt=-1;for(let j=BT.idx+1;j<BT.tasks.length;j++){if(!S.done[`${BT.mid}-${j}`]){nxt=j;break;}}if(nxt>=0){BT.idx=nxt;renderTask();}else openArea(BT.aid);return;}
+ renderItems();
+}
+
+// CREDITS / WALLET
+function earnCredits(n){
+ if(typeof RPGWallet!=='undefined'){RPGWallet.earn(n,SAVE_KEY);_updateCreditsUI();return;}
+ S.credits=Math.floor((S.credits||0)+n);saveS();_updateCreditsUI();
+}
+function _walletBal(){return(typeof RPGWallet!=='undefined')?RPGWallet.getCredits():(S.credits||0);}
+function _updateCreditsUI(){
+ const bal=_walletBal();
+ const cEl=document.getElementById('map-credits');if(cEl)cEl.textContent=bal;
+ const sEl=document.getElementById('shop-bal');if(sEl)sEl.textContent=bal;
+ const pEl=document.getElementById('pr-credits');if(pEl)pEl.textContent=bal;
+}
+function sanitizeCosmetics(){
+ if(!S.cosmetics||!Array.isArray(S.cosmetics.owned))S.cosmetics={owned:['theme-default','victory-default'],active:{border:null,badge:null,theme:'theme-default',victory:'victory-default'}};
+ const owned=S.cosmetics.owned;const a=S.cosmetics.active||{};
+ ['border','badge','theme','victory','skin'].forEach(cat=>{
+  const id=a[cat];if(!id)return;const item=typeof SHOP_ITEMS!=='undefined'?SHOP_ITEMS.find(i=>i.id===id):null;
+  if(!item){a[cat]=cat==='theme'?'theme-default':cat==='victory'?'victory-default':null;return;}
+  if(item.price>0&&!owned.includes(id))a[cat]=cat==='theme'?'theme-default':cat==='victory'?'victory-default':null;
+ });
+}
+function _activeCosmetics(){return(typeof RPGWallet!=='undefined')?RPGWallet.get().cosmetics:S.cosmetics;}
+function applyCosmetics(){
+ const cos=_activeCosmetics()||S.cosmetics;if(!cos)return;
+ const av=document.getElementById('pr-avatar');if(av){av.className='';const b=typeof SHOP_ITEMS!=='undefined'?SHOP_ITEMS.find(i=>i.id===cos.active?.border&&i.cat==='border'):null;if(b)av.classList.add(b.cssKey);}
+ const nm=document.getElementById('pr-name');const mnm=document.getElementById('map-name');
+ ['nm-cyan','nm-gold','nm-green','nm-purple'].forEach(c=>{nm&&nm.classList.remove(c);mnm&&mnm.classList.remove(c);});
+ const bg=typeof SHOP_ITEMS!=='undefined'?SHOP_ITEMS.find(i=>i.id===cos.active?.badge&&i.cat==='badge'):null;
+ if(bg){nm&&nm.classList.add(bg.cssKey);mnm&&mnm.classList.add(bg.cssKey);}
+ const th=typeof SHOP_ITEMS!=='undefined'?SHOP_ITEMS.find(i=>i.id===cos.active?.theme&&i.cat==='theme'):null;
+ document.documentElement.dataset.theme=th&&th.cssKey?th.cssKey:'';
+ const spMod=window.RPGSprites4;if(spMod&&typeof spMod.setSkin==='function')spMod.setSkin(cos.active?.skin||null);
+ _updateCreditsUI();renderShop();
+}
+
+// MODALS
+function showModal(ic,title,txt){const m=document.getElementById('modal');document.getElementById('modal-ic').textContent=ic;document.getElementById('modal-title').textContent=title;document.getElementById('modal-txt').textContent=txt;m.classList.add('show');}
+function closeModal(){document.getElementById('modal').classList.remove('show');}
+
+// SHOP
+let _shopCat='border';
+function setShopCat(cat,btn){_shopCat=cat;document.querySelectorAll('.shop-tab').forEach(b=>b.classList.remove('on'));if(btn)btn.classList.add('on');renderShop();}
+function renderShop(){
+ const grid=document.getElementById('shop-grid');if(!grid)return;
+ const bal=_walletBal();
+ if(typeof SHOP_ITEMS==='undefined'){grid.innerHTML='<div style="color:var(--muted);font-size:13px">Obchod se načítá…</div>';return;}
+ const items=SHOP_ITEMS.filter(i=>i.cat===_shopCat);
+ grid.innerHTML=items.map(item=>{
+  const owned=(typeof RPGWallet!=='undefined')?RPGWallet.owns(item.id)||(item.price===0):(S.cosmetics&&S.cosmetics.owned&&S.cosmetics.owned.includes(item.id))||item.price===0;
+  if(item.cat==='powerup'){const levelOk=!item.minLevel||S.level>=item.minLevel;const canBuy=!owned&&bal>=item.price&&levelOk;return `<div class="shop-card${owned?' active':''}"><div class="shop-ic">${item.ic}</div><div class="shop-nm">${item.name}</div><div style="font-size:10px;opacity:.7;margin:2px 0">${item.desc||''}</div><div class="shop-pr">${item.price} kr · LV ${item.minLevel}</div><div style="margin-top:6px">${owned?`<span style="color:var(--gold);font-family:var(--px);font-size:11px">✓ AKTIVNÍ</span>`:!levelOk?`<span style="font-family:var(--px);font-size:11px;opacity:.5">🔒 LV ${item.minLevel}</span>`:`<button class="btn sm" onclick="buyItem('${item.id}')" ${canBuy?'':'disabled'}>KOUPIT ${item.price} kr</button>`}</div></div>`;}
+  const active=(typeof RPGWallet!=='undefined')?RPGWallet.isActive(item.id):(S.cosmetics&&S.cosmetics.active&&S.cosmetics.active[item.cat]===item.id);
+  const canBuy=!owned&&bal>=item.price;
+  return `<div class="shop-card${active?' active':owned?' owned':''}"><div class="shop-ic">${item.ic}</div><div class="shop-nm">${item.name}</div><div class="shop-pr">${item.price===0?'ZDARMA':item.price+' kr'}</div><div style="margin-top:6px">${active?`<span style="color:var(--gold);font-family:var(--px);font-size:11px">✓ AKTIVNÍ</span>`:owned?`<button class="btn sm g" onclick="activateItem('${item.id}')">AKTIVOVAT</button>`:`<button class="btn sm" onclick="buyItem('${item.id}')" ${canBuy?'':'disabled'}>KOUPIT ${item.price} kr</button>`}</div></div>`;
+ }).join('');
+}
+function buyItem(id){
+ if(typeof RPGWallet!=='undefined'){const r=RPGWallet.buy(id);if(!r.ok){alert('Nedostatek kreditů!');return;}applyCosmetics();return;}
+ const item=typeof SHOP_ITEMS!=='undefined'?SHOP_ITEMS.find(i=>i.id===id):null;if(!item)return;
+ if(!S.cosmetics||!Array.isArray(S.cosmetics.owned))sanitizeCosmetics();
+ if(item.price===0||S.cosmetics.owned.includes(id)){activateItem(id);return;}
+ if(S.credits<item.price){alert('Nedostatek kreditů!');return;}
+ S.credits=Math.floor(S.credits)-item.price;S.cosmetics.owned=[...new Set([...S.cosmetics.owned,id])];saveS();activateItem(id);
+}
+function activateItem(id){
+ if(typeof RPGWallet!=='undefined'){RPGWallet.activate(id);applyCosmetics();renderShop();return;}
+ const item=typeof SHOP_ITEMS!=='undefined'?SHOP_ITEMS.find(i=>i.id===id):null;if(!item)return;
+ if(!S.cosmetics||!Array.isArray(S.cosmetics.owned))sanitizeCosmetics();
+ S.cosmetics.active[item.cat]=id;saveS();applyCosmetics();renderShop();
+}
+
+// TRAIN + MASTERY
+const MASTERY_GOAL=15;
+function masteryOf(mid){if(!S.mastery)S.mastery={};const m=S.mastery[mid]||{score:0,mastered:false};return m;}
+let TR={mid:null,m:null,task:null,pool:[],correct:0,total:0,streak:0,hl:0};
+function renderTrainPicker(){
+ document.getElementById('train-picker').style.display='block';
+ document.getElementById('train-play').style.display='none';
+ const list=document.getElementById('train-list');list.innerHTML='';
+ AREAS.forEach(ar=>{
+  const hdr=document.createElement('div');hdr.style.cssText='font-family:var(--px);font-size:12px;color:var(--muted);letter-spacing:1px;padding:10px 0 4px;';hdr.textContent=ar.name.replace(/\n/g,' ');list.appendChild(hdr);
+  ar.missions.forEach(m=>{
+   const ms=masteryOf(m.id);const it=document.createElement('div');it.className='train-item'+(ms.mastered?' mastered':'');
+   const hasLearn=window.RPG_LEARN_4&&window.RPG_LEARN_4[m.id];
+   it.innerHTML=`<div class="t-nm">${ms.mastered?'🏅 ':''}${m.name}</div><div class="t-prog" style="font-size:11px;color:var(--muted)">${ms.score|0}/${MASTERY_GOAL}</div>${hasLearn?`<button class="learn-btn" onclick="startLearn('${m.id}');event.stopPropagation()">📖</button>`:''}`;
+   it.onclick=()=>startTrain(m.id);list.appendChild(it);
+  });
+ });
+}
+function startTrain(mid){
+ const ar=AREAS.find(a=>a.missions.some(m=>m.id===mid));const m=ar?ar.missions.find(x=>x.id===mid):null;if(!m)return;
+ let pool=m.tasks();const ex=window.RPG_TASK_EXTRA_4;if(ex&&typeof ex[mid]==='function'){try{pool=pool.concat(ex[mid]());}catch(e){}}
+ if(!pool.length){alert('Pro toto téma nejsou dostupné úlohy.');return;}
+ TR={mid,m,pool:shuffleArr([...pool]),correct:0,total:0,streak:0,hl:0};
+ document.getElementById('train-picker').style.display='none';
+ document.getElementById('train-play').style.display='block';
+ document.getElementById('tr-title').textContent=m.name;
+ document.getElementById('tr-msgoal').textContent=MASTERY_GOAL;
+ trDraw();
+}
+function trDraw(){
+ if(!TR.pool.length){const ar=AREAS.find(a=>a.missions.some(m=>m.id===TR.mid));const m=ar?ar.missions.find(x=>x.id===TR.mid):null;let pool=(m?m.tasks():[]);const ex=window.RPG_TASK_EXTRA_4;if(ex&&typeof ex[TR.mid]==='function'){try{pool=pool.concat(ex[TR.mid]());}catch(e){}}TR.pool=shuffleArr([...pool]);}
+ TR.task=TR.pool.pop();TR.hl=0;trRender();trStats();
+}
+function trRender(){
+ const t=TR.task;if(!t)return;
+ document.getElementById('tr-hint-box').textContent='';document.getElementById('tr-hint-box').classList.remove('show');
+ document.getElementById('tr-fb').className='feedback';
+ document.getElementById('tr-next-btn').style.display='none';
+ document.getElementById('tr-hint-btn').disabled=false;document.getElementById('tr-hint-btn').textContent='💡 NÁPOVĚDA';
+ const prob=document.getElementById('tr-prob');prob.textContent=t.text;prob.classList.remove('pop');void prob.offsetWidth;prob.classList.add('pop');
+ if(t.mc||isYN(t)){
+  document.getElementById('tr-input-row').style.display='none';
+  if(isYN(t)){document.getElementById('tr-yn-row').style.display='flex';document.querySelectorAll('#tr-yn-row button').forEach(b=>b.disabled=false);document.getElementById('tr-mc').style.display='none';}
+  else{document.getElementById('tr-yn-row').style.display='none';trRenderMC(t);}
+ }else{
+  document.getElementById('tr-input-row').style.display='flex';document.getElementById('tr-yn-row').style.display='none';document.getElementById('tr-mc').style.display='none';
+  const inp=document.getElementById('tr-ans');inp.value='';inp.disabled=false;inp.focus();
+ }
+}
+function trRenderMC(t){
+ const grid=document.getElementById('tr-mc');const ans=String(t.ans);
+ const opts=shuffleArr([ans,...mcDistractors(ans)]);
+ grid.innerHTML='';
+ opts.forEach((o,i)=>{const b=document.createElement('button');b.className='mc-btn c'+i;b.textContent=o;b.onclick=()=>trPickMC(b,o,ans);grid.appendChild(b);});
+ grid.style.display='grid';
+}
+function trPickMC(btn,chosen,correct){
+ document.querySelectorAll('#tr-mc .mc-btn').forEach(b=>b.disabled=true);
+ const ok=checkAns(chosen,correct.trim());
+ btn.classList.add(ok?'right':'wrong');
+ if(!ok){const rb=Array.from(document.querySelectorAll('#tr-mc .mc-btn')).find(b=>checkAns(b.textContent.trim(),correct.trim()));if(rb)rb.classList.add('right');trWrong();}
+ else trCorrect();
+}
+function trAnswerYN(yn){document.querySelectorAll('#tr-yn-row button').forEach(b=>b.disabled=true);const ok=checkAns(yn,TR.task.ans);if(ok)trCorrect();else trWrong();}
+function trSubmit(){
+ const inp=document.getElementById('tr-ans');const raw=inp.value.trim();if(!raw)return;
+ inp.disabled=true;const ok=checkAns(raw,String(TR.task.ans));
+ if(ok)trCorrect();else trWrong();
+}
+function trCorrect(){
+ TR.correct++;TR.total++;TR.streak++;
+ if(!S.stats)S.stats={};S.stats.trainCorrect=(S.stats.trainCorrect||0)+1;
+ const ms=masteryOf(TR.mid);ms.score=Math.min(ms.score+1,MASTERY_GOAL+5);if(ms.score>=MASTERY_GOAL&&!ms.mastered){ms.mastered=true;floatText('🏅 MISTROVSTVÍ!',window.innerWidth/2-70,window.innerHeight*0.4,'#f0c040');}
+ if(!S.mastery)S.mastery={};S.mastery[TR.mid]=ms;
+ earnCredits(ms.mastered?30:1);evalAch({correct:true,combo:TR.streak});saveS();
+ const fb=document.getElementById('tr-fb');fb.textContent='✓ SPRÁVNĚ!';fb.className='feedback ok';
+ trStats();document.getElementById('tr-next-btn').style.display='inline-block';
+}
+function trWrong(){
+ TR.total++;TR.streak=0;
+ const ms=masteryOf(TR.mid);ms.score=Math.max(0,ms.score-1);if(!S.mastery)S.mastery={};S.mastery[TR.mid]=ms;
+ if(!S.errs)S.errs={};S.errs[TR.mid]=(S.errs[TR.mid]||0)+1;saveS();
+ const fb=document.getElementById('tr-fb');const t=TR.task;
+ fb.textContent=`✗ Správně: ${t.ans}`;fb.className='feedback err';
+ trStats();document.getElementById('tr-next-btn').style.display='inline-block';
+}
+function trHint(){
+ const t=TR.task;if(TR.hl>=2)return;const hb=document.getElementById('tr-hint-box');
+ const hints=t.hints||[];
+ if(TR.hl===0){hb.textContent='💡 Nápověda 1/2:\n'+((hints[0]&&String(hints[0]).trim())?hints[0]:'Zkus to krok po kroku.');hb.style.borderColor='var(--green)';hb.style.color='#7fe87f';hb.style.background='#0a1a0a';}
+ else{hb.textContent='💡 Nápověda 2/2:\n'+((hints[1]&&String(hints[1]).trim())?hints[1]:'Výsledek: '+t.ans);hb.style.borderColor='#ff8800';hb.style.color='#ffaa44';hb.style.background='#1a0e00';}
+ hb.classList.add('show');TR.hl++;if(TR.hl>=2)document.getElementById('tr-hint-btn').disabled=true;
+}
+function trStats(){
+ document.getElementById('tr-correct').textContent=TR.correct;document.getElementById('tr-total').textContent=TR.total;document.getElementById('tr-streak').textContent=TR.streak;
+ const ms=masteryOf(TR.mid);document.getElementById('tr-mscore').textContent=ms.score;
+ document.getElementById('tr-msbar').style.width=Math.min(100,Math.round(ms.score/MASTERY_GOAL*100))+'%';
+}
+function trNext(){trDraw();}
+function trEnd(){renderTrainPicker();}
+
+// PROFILE
+const ATTR_META={calc:{ic:'⚙️',nm:'Výpočty — aritmetika a algebra'},geo:{ic:'📐',nm:'Geometrie — plochy a tělesa'},anal:{ic:'🧩',nm:'Analýza — logika a slovní úlohy'},craft:{ic:'🛠️',nm:'Řemeslo — tvorba a aplikace'}};
+const ALL_GAMES=[
+ {key:'RPG_MAT_3',ic:'🌳',nm:'3. ročník – Kouzelný les'},
+ {key:'RPG_MAT_4',ic:'🏴‍☠️',nm:'4. ročník – Pirátská plavba'},
+ {key:'RPG_MAT_5',ic:'🐉',nm:'5. ročník – Dračí říše'},
+];
+function renderCrossGames(){
+ const el=document.getElementById('pr-allgames');if(!el)return;
+ let html='<div style="font-family:var(--px);font-weight:700;font-size:12px;color:var(--muted);margin-bottom:10px;letter-spacing:1px">— PŘEHLED HER 1. STUPNĚ —</div>';
+ ALL_GAMES.forEach(g=>{
+  let s=null;try{s=JSON.parse(localStorage.getItem(g.key));}catch{}
+  const cur=g.key===SAVE_KEY;
+  html+='<div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--line)'+(cur?';font-weight:700':'')+'">' +
+   '<span style="font-size:16px">'+g.ic+'</span>'+
+   '<span style="flex:1;font-size:12px;color:'+(cur?'#fff':'var(--muted)')+'">'+g.nm+(cur?' ◀':'')+'</span>'+
+   (s?'<span style="font-size:12px;color:var(--gold)">LV '+((s.level||1)|0)+' · '+((s.xp||0)|0)+' XP</span>':'<span style="font-size:11px;color:var(--muted)">—</span>')+
+  '</div>';
+ });
+ html+='<a href="rpg-matematika.html" style="display:block;margin-top:10px;color:var(--blue);font-size:12px;font-family:var(--px);text-align:center">🌐 RPG Matematika HUB — přehled a obchod</a>';
+ el.innerHTML=html;
+}
+function renderProfile(){
+ calcLevel();
+ document.getElementById('pr-name').textContent=S.name;
+ document.getElementById('pr-lv').textContent=S.level;document.getElementById('pr-xp').textContent=S.xp;
+ const rmEl=document.getElementById('pr-rm');if(rmEl)rmEl.checked=rmActive();
+ const av=document.getElementById('pr-avatar');if(av){const cos=_activeCosmetics()||S.cosmetics;if(typeof SHOP_ITEMS!=='undefined'){const b=SHOP_ITEMS.find(i=>i.id===cos.active?.border&&i.cat==='border');if(b)av.className=b.cssKey;}}
+ const attrsEl=document.getElementById('pr-attrs');
+ attrsEl.innerHTML=Object.entries(ATTR_META).map(([k,v])=>`<div class="attr-row"><div class="attr-ic">${v.ic}</div><div class="attr-nm">${v.nm}</div><div class="attr-vl">${(S.attrs[k]||0)|0}</div></div>`).join('');
+ const inv=document.getElementById('pr-inv');
+ const allArts=AREAS.map(ar=>({id:ar.art.id,ic:ar.art.ic,nm:ar.art.nm}));
+ inv.innerHTML=allArts.map(a=>`<div class="inv-slot${S.inv.includes(a.id)?' have':''}"><div class="ic">${a.ic}</div><div class="nm">${a.nm}</div></div>`).join('');
+ const achEl=document.getElementById('pr-ach');
+ const earned=Object.keys(S.ach||{}).length;
+ document.getElementById('pr-ach-n').textContent=earned;document.getElementById('pr-ach-t').textContent=ACH.length;
+ achEl.innerHTML=ACH.map(a=>`<div class="ach-slot${(S.ach&&S.ach[a.id])?' have':''}"><div class="ach-ic">${a.ic}</div><div class="ach-nm">${a.nm}</div><div class="ach-desc">${a.desc}</div></div>`).join('');
+ _updateCreditsUI();renderCrossGames();updateBattleStats();
+}
+async function updateBattleStats(){
+ const p=document.getElementById('pr-battle');if(!p)return;p.style.display='none';
+}
+
+// EXPORT / IMPORT
+function exportCode(){
+ const code=btoa(unescape(encodeURIComponent(JSON.stringify(S))));
+ document.getElementById('code-out').style.display='block';
+ document.getElementById('code-txt').textContent=code;
+ try{navigator.clipboard.writeText(code);}catch{}
+}
+function importPrompt(){
+ const code=prompt('Vlož uložený kód:');if(!code)return;
+ try{const parsed=JSON.parse(decodeURIComponent(escape(atob(code.trim()))));if(parsed&&typeof parsed==='object'){Object.assign(S,parsed);saveS();renderProfile();alert('Kód načten!');}}catch{alert('Kód je neplatný.');}
+}
+
+// KEYBOARD
+document.addEventListener('keydown',e=>{
+ if(e.key!=='Enter')return;
+ const active=document.querySelector('.screen.active');if(!active)return;
+ if(active.id==='s-intro'){startGame();return;}
+ if(active.id==='s-battle'){const nxt=document.getElementById('next-btn');if(nxt.style.display!=='none')nextTask();else submitAnswer();}
+ if(active.id==='s-train'){const nxt=document.getElementById('tr-next-btn');if(nxt.style.display!=='none')trNext();else if(!TR.m||!TR.m.mc)trSubmit();}
+ if(active.id==='s-learn'){launchLearnBattle();}
+});
+
+// answerYN is in rpg-shared.js; define fallback
+function isYN(t){return t&&(String(t.ans)==='ANO'||String(t.ans)==='NE');}
+function answerYN(yn){document.querySelectorAll('#yn-row button').forEach(b=>b.disabled=true);const t=BT.curTask;const ok=checkAns(yn,String(t.ans));stopTimer();const xpKey=`${BT.mid}-${BT.idx}`;if(!S.xpClaimed)S.xpClaimed={};const fb=document.getElementById('bt-fb');if(ok){BT.combo++;updateCombo();const isCrit=BT.combo>=3;const xpGain=(!S.xpClaimed[xpKey])?7:2;S.xpClaimed[xpKey]=true;S.done[xpKey]=true;saveS();awardXp(xpGain,isCrit);if(typeof RPGWallet!=='undefined')RPGWallet.earn(isCrit?7:5,SAVE_KEY);fb.textContent='✓ SPRÁVNĚ!';fb.className='feedback ok';document.getElementById('next-btn').style.display='inline-block';damageMonster(xpGain,isCrit);updateCombo();evalAch({correct:true,combo:BT.combo,timeLeft:BT.timeLeft});checkMissionComplete();}else{BT.combo=0;updateCombo();if(!S.errs)S.errs={};S.errs[BT.mid]=(S.errs[BT.mid]||0)+1;saveS();fb.textContent='✗ Správně: '+t.ans;fb.className='feedback err';monsterAttack();damagePlayer();}}
+function checkAns(a,b){if(typeof a==='undefined'||typeof b==='undefined')return false;const na=String(a).trim().replace(',','.');const nb=String(b).trim().replace(',','.');const fa=parseFloat(na),fb=parseFloat(nb);if(!isNaN(fa)&&!isNaN(fb))return Math.abs(fa-fb)<0.001;return na.toUpperCase()===nb.toUpperCase();}
+
+function checkMissionComplete(){
+ const ar=AREAS.find(a=>a.id===BT.aid);const m=ar.missions.find(x=>x.id===BT.mid);
+ if(!BT.tasks.every((_,i)=>S.done[`${m.id}-${i}`]))return;
+ BT.bossDefeated=true;
+ const ans=document.getElementById('bt-ans');if(ans)ans.disabled=true;
+ const hintBtn=document.getElementById('hint-btn');if(hintBtn)hintBtn.disabled=true;
+ document.querySelectorAll('#mc-grid .mc-btn').forEach(b=>b.disabled=true);
+ document.querySelectorAll('#yn-row button').forEach(b=>b.disabled=true);
+ if(!S.creditsClaimed)S.creditsClaimed={};
+ if(!S.creditsClaimed[BT.mid]){S.creditsClaimed[BT.mid]=true;earnCredits(15);}
+ setTimeout(victoryBurst,650);
+ evalAch({flawlessMission:!BT.missionHinted,wonAtOneHp:BT.hp===1});
+ if(isAreaDone(ar)&&!S.inv.includes(ar.art.id)){
+  S.inv.push(ar.art.id);
+  Object.entries(ar.attrGain).forEach(([k,v])=>{if(S.attrs[k]!==undefined)S.attrs[k]+=v;});
+  saveS();
+  setTimeout(()=>showModal(ar.art.ic,'OBLAST SPLNĚNA!',`Získal jsi artefakt:\n${ar.art.nm.replace(/\n/g,' ')}!\n\n+${Object.entries(ar.attrGain).map(([k,v])=>v+' '+ATTR_META[k].ic).join(' ')}`),1700);
+ }
+}
+
+// BOOT
+window.addEventListener('load',()=>{
+ if(localStorage.getItem(SAVE_KEY))document.getElementById('continue-panel').style.display='block';
+ const _p=new URLSearchParams(location.search);
+ const _mid=_p.get('mid')||'';
+ if(_p.get('preview')==='1'&&/^\d{1,2}-\d{1,2}$/.test(_mid)){
+  GODMODE=true;const _aid=parseInt(_mid.split('-')[0]);
+  document.getElementById('ni').value='NÁHLED';startGame();launchBattle(_aid,_mid);
+ }
+});
+</script>
+<script defer src="./rpg-sprites-4.js"></script>
+<script defer src="./rpg-tasks-4.js"></script>
+<script defer src="./rpg-learn-4.js"></script>
+<script defer src="./rpg-wallet.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script defer src="./rpg-cloud.js"></script>
+<script defer src="./rpg-battle-4.js"></script>
+<script defer src="./rpg-shared.js"></script>
+<script defer src="./rpg-tasktypes.js"></script>
+<script defer src="./rpg-battle-ui.js"></script>
+<script>window.addEventListener('load',function(){if(window.RPGCloud&&RPGCloud.attachGame)RPGCloud.attachGame(SAVE_KEY);});</script>
+</body>
+</html>
