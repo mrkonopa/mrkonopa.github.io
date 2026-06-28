@@ -209,7 +209,7 @@
       },
       () => {
         const a = ri(2, 8), b = ri(2, 9);
-        return { text: `Veverka má ${a} ${skl(a, 'skrýš', 'skrýše', 'skrýší')} a v každé ${b} oříšků. Kolik oříšků má celkem?`, ans: a * b, h1: `${a} × ${b}`, h2: `= ${a * b}` };
+        return { text: `Veverka má ${a} ${skl(a, 'skrýš', 'skrýše', 'skrýší')} a v každé ${b} ${skl(b, 'oříšek', 'oříšky', 'oříšků')}. Kolik oříšků má celkem?`, ans: a * b, h1: `${a} × ${b}`, h2: `= ${a * b}` };
       },
       () => {
         const a = ri(2, 6), b = ri(10, 50);
@@ -272,7 +272,7 @@
       },
       () => {
         const cols = ri(3, 8), rows = ri(2, 6);
-        return { text: `${rows * cols} stromků je vysázeno v ${rows} ${skl(rows, 'řadě', 'řadách', 'řadách')} stejně. Kolik stromků je v jedné řadě?`, ans: cols, h1: `${rows * cols} : ${rows}`, h2: `= ${cols}` };
+        return { text: `${rows * cols} stromků je vysázeno ${rows < 5 ? 've' : 'v'} ${rows} ${skl(rows, 'řadě', 'řadách', 'řadách')} stejně. Kolik stromků je v jedné řadě?`, ans: cols, h1: `${rows * cols} : ${rows}`, h2: `= ${cols}` };
       }
     ];
     for (let i = 0; i < 10; i++) {

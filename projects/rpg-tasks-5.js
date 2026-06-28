@@ -123,7 +123,7 @@
   function gen_2_3() {
     const tasks = [];
     const themes = [
-      () => { const a = ri(120, 480), b = ri(4, 9); return { text: `Drak střeží ${a} zlatých v ${b} ${skl(b, 'jeskyni', 'jeskyních', 'jeskyních')}. Kolik zlatých střeží celkem?`, ans: a * b, h1: `${a} × ${b}`, h2: `= ${a * b}` }; },
+      () => { const a = ri(120, 480), b = ri(4, 9); return { text: `Drak střeží ${a} zlatých ${b < 5 ? 've' : 'v'} ${b} ${skl(b, 'jeskyni', 'jeskyních', 'jeskyních')}. Kolik zlatých střeží celkem?`, ans: a * b, h1: `${a} × ${b}`, h2: `= ${a * b}` }; },
       () => { const a = ri(15, 60), b = ri(12, 30); return { text: `Jedna dračí šupina váží ${a} g. Kolik váží ${b} ${skl(b, 'šupina', 'šupiny', 'šupin')}?`, ans: a * b, h1: `${a} × ${b}`, h2: `= ${a * b} g` }; },
       () => { const a = ri(125, 350), b = ri(6, 9); return { text: `Rytíř ujede ${a} km za den. Kolik ujede za ${b} ${skl(b, 'den', 'dny', 'dní')}?`, ans: a * b, h1: `${a} × ${b}`, h2: `= ${a * b} km` }; }
     ];
