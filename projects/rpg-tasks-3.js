@@ -23,19 +23,33 @@
       const sto = Math.floor(n / 100);
       const des = Math.floor((n % 100) / 10);
       const jed = n % 10;
-      const typ = ri(0, 1);
+      const typ = ri(0, 3);
       if (typ === 0) {
         tasks.push({
-          text: `Číslo ${n} má stovky: ${sto}, desítky: ${des}. Kolik má jedniček?`,
+          text: `Kolik jednotek má číslo ${n}?`,
           ans: jed,
-          hints: [`Jedničky jsou poslední cifra čísla ${n}.`, `= ${jed}`],
+          hints: [`Jednotky jsou poslední (pravá) cifra čísla ${n}.`, `= ${jed}`],
+          skill: 'calc', mc: true
+        });
+      } else if (typ === 1) {
+        tasks.push({
+          text: `Kolik desítek má číslo ${n}?`,
+          ans: des,
+          hints: [`Desítky jsou prostřední cifra trojciferného čísla.`, `= ${des}`],
+          skill: 'calc', mc: true
+        });
+      } else if (typ === 2) {
+        tasks.push({
+          text: `Kolik stovek má číslo ${n}?`,
+          ans: sto,
+          hints: [`Stovky jsou první (levá) cifra trojciferného čísla.`, `= ${sto}`],
           skill: 'calc', mc: true
         });
       } else {
         tasks.push({
-          text: `Kolik stovek má číslo ${n}?`,
-          ans: sto,
-          hints: [`Stovky jsou první cifra trojciferného čísla.`, `= ${sto}`],
+          text: `Číslo má stovky: ${sto}, desítky: ${des}, jednotky: ${jed}. Jaké je to číslo?`,
+          ans: n,
+          hints: [`${sto} × 100 + ${des} × 10 + ${jed}`, `= ${n}`],
           skill: 'calc', mc: true
         });
       }
@@ -74,7 +88,7 @@
         tasks.push({
           text: `Zaokrouhli ${n} na desítky.`,
           ans: rounded,
-          hints: [`Podívej se na cifru jedniček: ${n % 10}. 0–4 dolů, 5–9 nahoru.`, `= ${rounded}`],
+          hints: [`Podívej se na cifru jednotek: ${n % 10}. 0–4 dolů, 5–9 nahoru.`, `= ${rounded}`],
           skill: 'calc'
         });
       } else {
@@ -105,7 +119,7 @@
         tasks.push({
           text: `${a} + ${b} = ?`,
           ans: a + b,
-          hints: [`Sečti nejdřív stovky, pak desítky a jedničky.`, `= ${a + b}`],
+          hints: [`Sečti nejdřív stovky, pak desítky a jednotky.`, `= ${a + b}`],
           skill: 'calc'
         });
       } else {
@@ -495,7 +509,7 @@
       } else if (typ === 3) {
         const n = ri(15, 980);
         const rounded = Math.round(n / 10) * 10;
-        tasks.push({ text: `Zaokrouhli ${n} na desítky.`, ans: rounded, hints: [`Jedničky: ${n % 10}.`, `= ${rounded}`], skill: 'calc' });
+        tasks.push({ text: `Zaokrouhli ${n} na desítky.`, ans: rounded, hints: [`Jednotky: ${n % 10}.`, `= ${rounded}`], skill: 'calc' });
       } else {
         const a = ri(2, 12), b = ri(2, 12), c = ri(2, 12);
         tasks.push({ text: `Obvod trojúhelníku se stranami ${a}, ${b}, ${c} cm?`, ans: a + b + c, hints: [`${a} + ${b} + ${c}.`, `= ${a + b + c} cm`], skill: 'geo' });

@@ -29,7 +29,7 @@
         tasks.push({
           text: `Jak zapíšeme číslem: ${tis} tisíc?`,
           ans: n,
-          hints: [`Tisíce: ${tis}, pak tři nuly (stovky, desítky, jedničky).`, `= ${n}`],
+          hints: [`Tisíce: ${tis}, pak tři nuly (stovky, desítky, jednotky).`, `= ${n}`],
           skill: 'calc', mc: true
         });
       } else {

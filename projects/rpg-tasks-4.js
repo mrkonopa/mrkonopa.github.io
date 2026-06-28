@@ -19,19 +19,22 @@
   // 1-1 Čtení a zápis čísel (MC — číselná)
   function gen_1_1() {
     const tasks = [];
+    const RAD = [
+      ['jednotek', x => x % 10, 'Jednotky jsou poslední (pravá) cifra.'],
+      ['desítek', x => Math.floor(x / 10) % 10, 'Desítky jsou druhá cifra zprava.'],
+      ['stovek', x => Math.floor(x / 100) % 10, 'Stovky jsou třetí cifra zprava.'],
+      ['tisíců', x => Math.floor(x / 1000) % 10, 'Tisíce jsou první (levá) cifra čtyřciferného čísla.'],
+    ];
     for (let i = 0; i < 10; i++) {
       const n = ri(1000, 9999);
-      const tis = Math.floor(n / 1000);
-      const sto = Math.floor((n % 1000) / 100);
-      const des = Math.floor((n % 100) / 10);
-      const jed = n % 10;
-      tasks.push({
-        text: `Kolik tisíců, stovek, desítek a jedniček má číslo ${n}?
-tisíce: ${tis}, stovky: ${sto}, desítky: ${des}, jedničky: ?`,
-        ans: jed,
-        hints: [`Jedničky jsou poslední cifra čísla ${n}.`, `= ${jed}`],
-        skill: 'calc', mc: true
-      });
+      const typ = ri(0, 4);
+      if (typ < 4) {
+        const [name, fn, hint] = RAD[typ];
+        tasks.push({ text: `Kolik ${name} má číslo ${n}?`, ans: fn(n), hints: [hint, `= ${fn(n)}`], skill: 'calc', mc: true });
+      } else {
+        const tis = Math.floor(n / 1000), sto = Math.floor((n % 1000) / 100), des = Math.floor((n % 100) / 10), jed = n % 10;
+        tasks.push({ text: `Číslo má tisíce: ${tis}, stovky: ${sto}, desítky: ${des}, jednotky: ${jed}. Jaké je to číslo?`, ans: n, hints: [`${tis}×1000 + ${sto}×100 + ${des}×10 + ${jed}`, `= ${n}`], skill: 'calc', mc: true });
+      }
     }
     return tasks;
   }
@@ -82,7 +85,7 @@ tisíce: ${tis}, stovky: ${sto}, desítky: ${des}, jedničky: ?`,
         tasks.push({
           text: `Zaokrouhli ${n} na desítky.`,
           ans: rounded,
-          hints: [`Podívej se na cifru jedniček: ${n % 10}.`, `= ${rounded}`],
+          hints: [`Podívej se na cifru jednotek: ${n % 10}.`, `= ${rounded}`],
           skill: 'calc'
         });
       } else {
@@ -454,7 +457,7 @@ tisíce: ${tis}, stovky: ${sto}, desítky: ${des}, jedničky: ?`,
       tasks.push({
         text: `Jak zapíšeme číslem: ${tis} tisíc?`,
         ans: n,
-        hints: [`Tisíce: ${tis}, stovky: 0, desítky: 0, jedničky: 0.`, `= ${n}`],
+        hints: [`Tisíce: ${tis}, stovky: 0, desítky: 0, jednotky: 0.`, `= ${n}`],
         skill: 'calc', mc: true
       });
     }

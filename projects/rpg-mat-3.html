@@ -1167,6 +1167,7 @@ function battleMiniDone(mistakes){
  if(!S.xpClaimed)S.xpClaimed={};
  const xpGain=(!S.xpClaimed[xpKey])?7:2;S.xpClaimed[xpKey]=true;
  S.done[xpKey]=true;saveS();awardXp(xpGain,isCrit);if(typeof RPGWallet!=='undefined')RPGWallet.earn(isCrit?7:5,SAVE_KEY);
+ document.getElementById('next-btn').style.display='inline-block';document.getElementById('next-btn').focus();
  damageMonster(xpGain,isCrit);updateCombo();if(!S.stats)S.stats={};if(BT.combo>(S.stats.bestCombo||0))S.stats.bestCombo=BT.combo;
  evalAch({correct:true,combo:BT.combo,timeLeft:0});checkMissionComplete();
 }
@@ -1180,6 +1181,7 @@ function monsterAttack(){
 }
 function heroAttackFX(){if(window.RPGSprites3&&RPGSprites3.active()){RPGSprites3.heroAttack();}else{const proj=document.getElementById('proj');proj.textContent='⚔️';void proj.offsetWidth;proj.className='proj fire';proj.style.setProperty('--tx','0px');proj.style.setProperty('--ty','-120px');proj.style.left='50%';proj.style.top='40%';}}
 function damageMonster(xp,isCrit){
+ updateBossHpBar();
  const spark=document.getElementById('dmg-spark');spark.textContent=isCrit?'KRITICKÝ ZÁSAH!':'−'+xp+' HP!';spark.classList.remove('go');void spark.offsetWidth;spark.classList.add('go');
  const mon=document.getElementById('bt-mon');if(mon){mon.classList.remove('hit');void mon.offsetWidth;mon.classList.add('hit');setTimeout(()=>mon.classList.remove('hit'),300);}
  heroAttackFX();
