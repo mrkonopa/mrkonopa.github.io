@@ -1003,6 +1003,7 @@ function launchBattle(aid,mid){
  let pool=m.tasks();
  const ex=window.RPG_TASK_EXTRA_4;
  if(ex&&typeof ex[m.id]==='function'){try{pool=pool.concat(ex[m.id]());}catch(e){}}
+ if(!pool.length){alert('⚠️ Úkoly se nepodařilo načíst. Obnov prosím stránku (Ctrl+Shift+R) a zkus to znovu.');return;}
  BT.tasks=shuffleArr(pool).slice(0,m.tc);
  BT.idx=0;
  const _doneSoFar=BT.tasks.filter((_,i)=>S.done[`${mid}-${i}`]).length;
@@ -1609,6 +1610,13 @@ window.addEventListener('load',()=>{
   GODMODE=true;const _aid=parseInt(_mid.split('-')[0]);
   document.getElementById('ni').value='NÁHLED';startGame();launchBattle(_aid,_mid);
  }
+ // SELF-HEAL: když se ročníkový skript nenačetl (např. cached 404 v prohlížeči),
+ // načti ho znovu s cache-bustingem — jinak by mise neměla úlohy a nešla otevřít.
+ setTimeout(()=>{
+  [['RPGSprites4','rpg-sprites-4.js'],['RPG_TASK_EXTRA_4','rpg-tasks-4.js'],['RPG_LEARN_4','rpg-learn-4.js'],['RPG_BATTLE_4','rpg-battle-4.js']].forEach(([g,f])=>{
+   if(typeof window[g]==='undefined'){var s=document.createElement('script');s.src='./'+f+'?cb='+Date.now();document.head.appendChild(s);}
+  });
+ },1000);
 });
 </script>
 <script defer src="./rpg-sprites-4.js"></script>
