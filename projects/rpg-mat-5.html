@@ -1037,7 +1037,7 @@ function updatePlayerHp(){
  const puEl=document.getElementById('bt-powerups');
  if(puEl&&typeof RPGWallet!=='undefined'){
   const ics={'pu-ghost-heart':'🫀','pu-time-bonus':'⏳','pu-freeze-dbl':'🧊','pu-full-heart':'💗','pu-xp-crit':'⚡','pu-second-chance':'🛡️'};
-  puEl.innerHTML=Object.keys(ics).filter(id=>RPGWallet.hasPowerup(id)).map(id=>`<span title="${(SHOP_ITEMS.find(x=>x.id===id)||{}).name||id}">${ics[id]}</span>`).join('');
+  puEl.innerHTML=Object.keys(ics).filter(id=>RPGWallet.hasPowerup(id)).map(id=>`<span title="${(RPGWallet.itemById(id)||{}).name||id}">${ics[id]}</span>`).join('');
  }
 }
 function flashHeart(idx){const h=document.querySelector(`.heart[data-i="${idx}"]`);if(!h)return;h.classList.add('flash');setTimeout(()=>h.classList.remove('flash'),360);}
@@ -1604,6 +1604,7 @@ function checkMissionComplete(){
 // BOOT
 window.addEventListener('load',()=>{
  if(localStorage.getItem(SAVE_KEY))document.getElementById('continue-panel').style.display='block';
+ if(typeof RPGWallet!=='undefined'&&RPGWallet.items&&typeof SHOP_ITEMS==='undefined')window.SHOP_ITEMS=RPGWallet.items();
  const _p=new URLSearchParams(location.search);
  const _mid=_p.get('mid')||'';
  if(_p.get('preview')==='1'&&/^\d{1,2}-\d{1,2}$/.test(_mid)){
