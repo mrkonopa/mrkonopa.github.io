@@ -20,6 +20,7 @@
   const cz = v => String(v).replace('.', ',');
   const r1 = n => Math.round(n * 10) / 10;
   const S = v => String(v).replace('.', ',');
+  const skl = (n, one, few, many) => { const a = Math.abs(n); return a === 1 ? one : a >= 2 && a <= 4 ? few : many; };
 
   const GEN = [
 
@@ -169,7 +170,7 @@
     // 20) slovní úloha — násobení
     function (r) {
       const a = ri(r, 120, 350), b = ri(r, 4, 8);
-      return { topic: 'slovní úloha', text: `Rytíř ujede ${a} km za den. Kolik za ${b} dní? (km)`,
+      return { topic: 'slovní úloha', text: `Rytíř ujede ${a} km za den. Kolik za ${b} ${skl(b, 'den', 'dny', 'dní')}? (km)`,
                value: a * b, distractors: [a + b, a * b + a, a * (b - 1)] };
     },
 

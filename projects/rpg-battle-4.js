@@ -18,6 +18,7 @@
   const ri = (r, lo, hi) => lo + Math.floor(r() * (hi - lo + 1));
   const pick = (r, arr) => arr[Math.floor(r() * arr.length)];
   const S = v => String(v);
+  const skl = (n, one, few, many) => { const a = Math.abs(n); return a === 1 ? one : a >= 2 && a <= 4 ? few : many; };
 
   const GEN = [
 
@@ -85,7 +86,7 @@
     function (r) {
       const cena = ri(r, 3, 19) * 10, ks = ri(r, 2, 6);
       const v = cena * ks;
-      return { topic: 'slovní úloha', text: `Jeden poklad stojí ${cena} Kč. Kolik zaplatíš za ${ks} pokladů?`,
+      return { topic: 'slovní úloha', text: `Jeden poklad stojí ${cena} Kč. Kolik zaplatíš za ${ks} ${skl(ks, 'poklad', 'poklady', 'pokladů')}?`,
                value: v, distractors: [cena + ks, v + cena, v - cena] };
     },
 
@@ -128,7 +129,7 @@
     // 14) slovní úloha — sdílení rovným dílem
     function (r) {
       const b = ri(r, 3, 8), q = ri(r, 4, 15);
-      return { topic: 'slovní úloha', text: `${b * q} zlatých mincí si rozdělí rovným dílem ${b} pirátů. Každý dostane…`,
+      return { topic: 'slovní úloha', text: `${b * q} zlatých mincí si rozdělí rovným dílem ${b} ${skl(b, 'pirát', 'piráti', 'pirátů')}. Každý dostane…`,
                value: q, distractors: [q + 1, q - 1, b * q - q] };
     },
 
@@ -143,7 +144,7 @@
     function (r) {
       const perBox = pick(r, [20, 30, 40, 50, 60]), t = ri(r, 2, 5);
       const v = perBox * t;
-      return { topic: 'slovní úloha', text: `V ${t} bednách je po ${perBox} mincích. Kolik mincí je celkem?`,
+      return { topic: 'slovní úloha', text: `${t < 5 ? 'Ve' : 'V'} ${t} bednách je po ${perBox} mincích. Kolik mincí je celkem?`,
                value: v, distractors: [perBox + t, v + perBox, v - perBox] };
     },
 

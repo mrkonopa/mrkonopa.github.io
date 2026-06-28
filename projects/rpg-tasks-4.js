@@ -270,7 +270,7 @@ tisíce: ${tis}, stovky: ${sto}, desítky: ${des}, jedničky: ?`,
     const themes = [
       () => {
         const d = ri(3, 8), total = d * ri(4, 12);
-        return { text: `${total} zlatých mincí rozdělíme rovně mezi ${d} pirátů. Kolik zlatých dostane každý?`, ans: total / d, h1: `Dělíme ${total} : ${d}.`, h2: `= ${total / d}` };
+        return { text: `${total} zlatých mincí rozdělíme rovně mezi ${d} ${skl(d, 'piráta', 'piráty', 'pirátů')}. Kolik zlatých dostane každý?`, ans: total / d, h1: `Dělíme ${total} : ${d}.`, h2: `= ${total / d}` };
       },
       () => {
         const d = ri(3, 9), n = d * ri(3, 10);
@@ -278,7 +278,7 @@ tisíce: ${tis}, stovky: ${sto}, desítky: ${des}, jedničky: ?`,
       },
       () => {
         const rows = ri(3, 8), cols = ri(3, 8);
-        return { text: `${rows * cols} pokladů je uloženo v ${rows} ${skl(rows, 'řadě', 'řadách', 'řadách')} stejně. Kolik je pokladů v každé řadě?`, ans: cols, h1: `${rows * cols} : ${rows}`, h2: `= ${cols}` };
+        return { text: `${rows * cols} pokladů je uloženo ${rows < 5 ? 've' : 'v'} ${rows} ${skl(rows, 'řadě', 'řadách', 'řadách')} stejně. Kolik je pokladů v každé řadě?`, ans: cols, h1: `${rows * cols} : ${rows}`, h2: `= ${cols}` };
       }
     ];
     for (let i = 0; i < 10; i++) {
