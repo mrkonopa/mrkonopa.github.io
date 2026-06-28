@@ -50,15 +50,28 @@
   function gen_1_2() {
     const tasks = [];
     for (let i = 0; i < 10; i++) {
-      const a = ri(10000, 999999), b = ri(10000, 999999);
-      const op = ['<', '>'][ri(0, 1)];
-      const correct = op === '<' ? a < b : a > b;
-      tasks.push({
-        text: `Je pravda, že ${a} ${op} ${b}?`,
-        ans: correct ? 'ANO' : 'NE',
-        hints: [`Porovnej od nejvyššího řádu — kdo má víc statisíců/desetitisíců.`, correct ? 'ANO' : 'NE'],
-        skill: 'anal', mc: true
-      });
+      const typ = ri(0, 1);
+      if (typ === 0) {
+        const a = ri(10000, 999999), b = ri(10000, 999999);
+        const op = ['<', '>'][ri(0, 1)];
+        const correct = op === '<' ? a < b : a > b;
+        tasks.push({
+          text: `Je pravda, že ${a} ${op} ${b}?`,
+          ans: correct ? 'ANO' : 'NE',
+          hints: [`Porovnej od nejvyššího řádu — kdo má víc statisíců/desetitisíců.`, correct ? 'ANO' : 'NE'],
+          skill: 'anal', mc: true
+        });
+      } else {
+        let a = ri(10000, 999999), b = ri(10000, 999999);
+        while (b === a) b = ri(10000, 999999);
+        const bigger = Math.max(a, b);
+        tasks.push({
+          text: `Které číslo je větší: ${a}, nebo ${b}?`,
+          ans: bigger,
+          hints: [`Porovnávej od nejvyššího řádu doleva.`, `= ${bigger}`],
+          skill: 'anal', mc: true
+        });
+      }
     }
     return tasks;
   }
@@ -94,12 +107,14 @@
     const tasks = [];
     for (let i = 0; i < 10; i++) {
       const a = ri(112, 989), b = ri(3, 9);
-      tasks.push({
-        text: `${a} × ${b} = ?`,
-        ans: a * b,
-        hints: [`Násob každou cifru zprava, přenosy přičítej do vyššího řádu.`, `= ${a * b}`],
-        skill: 'calc'
-      });
+      const typ = ri(0, 2);
+      if (typ === 0) {
+        tasks.push({ text: `${a} × ${b} = ?`, ans: a * b, hints: [`Násob každou cifru zprava, přenosy přičítej do vyššího řádu.`, `= ${a * b}`], skill: 'calc' });
+      } else if (typ === 1) {
+        tasks.push({ text: `${a} × ? = ${a * b}`, ans: b, hints: [`Kolikrát vzít ${a}, abys dostal ${a * b}? Spočítej ${a * b} ÷ ${a}.`, `= ${b}`], skill: 'calc' });
+      } else {
+        tasks.push({ text: `Kolik je ${b}krát ${a}?`, ans: a * b, hints: [`${b}krát ${a} je ${a} × ${b}.`, `= ${a * b}`], skill: 'calc' });
+      }
     }
     return tasks;
   }
@@ -107,14 +122,21 @@
   // 2-2 Násobení dvojciferným
   function gen_2_2() {
     const tasks = [];
+    const themes = [
+      () => { const a = ri(12, 45), b = ri(12, 40); return { text: `Rytíř posbíral ${a} mincí v každé z ${b} truhel. Kolik mincí má celkem?`, ans: a * b, h1: `${a} × ${b}`, h2: `= ${a * b}` }; },
+      () => { const a = ri(15, 60), b = ri(12, 30); return { text: `Jedna dračí šupina váží ${a} g. Kolik váží ${b} šupin?`, ans: a * b, h1: `${a} × ${b}`, h2: `= ${a * b} g` }; },
+    ];
     for (let i = 0; i < 10; i++) {
       const a = ri(23, 98), b = ri(12, 49);
-      tasks.push({
-        text: `${a} × ${b} = ?`,
-        ans: a * b,
-        hints: [`${a} × ${b % 10} a ${a} × ${Math.floor(b / 10)}0, pak sečti.`, `= ${a * b}`],
-        skill: 'calc'
-      });
+      const typ = ri(0, 2);
+      if (typ === 0) {
+        tasks.push({ text: `${a} × ${b} = ?`, ans: a * b, hints: [`${a} × ${b % 10} a ${a} × ${Math.floor(b / 10)}0, pak sečti.`, `= ${a * b}`], skill: 'calc' });
+      } else if (typ === 1) {
+        tasks.push({ text: `Kolik je ${a}krát ${b}?`, ans: a * b, hints: [`${a}krát ${b} je ${a} × ${b}.`, `= ${a * b}`], skill: 'calc' });
+      } else {
+        const t = themes[ri(0, themes.length - 1)]();
+        tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'calc' });
+      }
     }
     return tasks;
   }
@@ -141,12 +163,14 @@
     for (let i = 0; i < 10; i++) {
       const b = ri(3, 9), q = ri(23, 142);
       const n = b * q;
-      tasks.push({
-        text: `${n} ÷ ${b} = ?`,
-        ans: q,
-        hints: [`Děl postupně zleva: kolikrát se ${b} vejde do prvních cifer.`, `= ${q}`],
-        skill: 'calc', mc: true
-      });
+      const typ = ri(0, 2);
+      if (typ === 0) {
+        tasks.push({ text: `${n} ÷ ${b} = ?`, ans: q, hints: [`Děl postupně zleva: kolikrát se ${b} vejde do prvních cifer.`, `= ${q}`], skill: 'calc', mc: true });
+      } else if (typ === 1) {
+        tasks.push({ text: `Kolikrát se ${b} vejde do ${n}?`, ans: q, hints: [`To je ${n} ÷ ${b}.`, `= ${q}`], skill: 'calc', mc: true });
+      } else {
+        tasks.push({ text: `? ÷ ${b} = ${q}`, ans: n, hints: [`Hledáš číslo, které po dělení ${b} dá ${q}. Spočítej ${b} × ${q}.`, `= ${n}`], skill: 'calc', mc: true });
+      }
     }
     return tasks;
   }
@@ -157,12 +181,11 @@
     for (let i = 0; i < 10; i++) {
       const b = ri(3, 9), q = ri(20, 130), r = ri(1, b - 1);
       const n = b * q + r;
-      tasks.push({
-        text: `${n} ÷ ${b} = ? (napiš jen zbytek)`,
-        ans: r,
-        hints: [`Největší násobek ${b}: ${b} × ${q} = ${b * q}. Zbytek = ${n} − ${b * q}.`, `zbytek = ${r}`],
-        skill: 'calc'
-      });
+      if (ri(0, 1) === 0) {
+        tasks.push({ text: `${n} ÷ ${b} = ? (napiš jen zbytek)`, ans: r, hints: [`Největší násobek ${b}: ${b} × ${q} = ${b * q}. Zbytek = ${n} − ${b * q}.`, `zbytek = ${r}`], skill: 'calc' });
+      } else {
+        tasks.push({ text: `${n} ÷ ${b} = ? (napiš jen celý podíl, bez zbytku)`, ans: q, hints: [`${b} × ${q} = ${b * q} se ještě vejde, ${b} × ${q + 1} už ne.`, `podíl = ${q}`], skill: 'calc' });
+      }
     }
     return tasks;
   }
@@ -186,17 +209,17 @@
   // 4-1 Zlomek z čísla (MC — číselná)
   function gen_4_1() {
     const tasks = [];
+    const DTIN = { 2: 'polovina', 3: 'třetina', 4: 'čtvrtina', 5: 'pětina', 6: 'šestina', 8: 'osmina', 10: 'desetina' };
     for (let i = 0; i < 10; i++) {
       const den = [2, 3, 4, 5, 6, 8, 10][ri(0, 6)];
       const mult = ri(2, 9);
       const whole = den * mult;
-      const num = ri(1, den - 1);
-      tasks.push({
-        text: `Kolik je ${num}/${den} z čísla ${whole}?`,
-        ans: (whole / den) * num,
-        hints: [`Nejdřív ${whole} ÷ ${den} = ${whole / den}, pak × ${num}.`, `= ${(whole / den) * num}`],
-        skill: 'calc', mc: true
-      });
+      if (ri(0, 1) === 0) {
+        const num = ri(1, den - 1);
+        tasks.push({ text: `Kolik je ${num}/${den} z čísla ${whole}?`, ans: (whole / den) * num, hints: [`Nejdřív ${whole} ÷ ${den} = ${whole / den}, pak × ${num}.`, `= ${(whole / den) * num}`], skill: 'calc', mc: true });
+      } else {
+        tasks.push({ text: `Kolik je ${DTIN[den]} z čísla ${whole}?`, ans: whole / den, hints: [`${DTIN[den]} znamená ÷ ${den}: ${whole} ÷ ${den}.`, `= ${whole / den}`], skill: 'calc', mc: true });
+      }
     }
     return tasks;
   }

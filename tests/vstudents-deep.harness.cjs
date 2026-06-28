@@ -3,7 +3,7 @@
    Kontroluje funkčnost, která se historicky rozbíjí při změnách kódu:
    - boss HP bar (viditelný, klesá po správné odpovědi)
    - srdíčka hráče (ubývají po chybě) + setHeroHp hook do enginu
-   - prohra (3 chyby → fail overlay) i výhra (mise dokončena)
+   - prohra (BT.maxHp chyb → fail overlay) i výhra (mise dokončena)
    - nápovědy v boji: 2 úrovně, neprázdné, label tlačítka se mění
    - úplnost úloh: každá úloha v poolu má text+ans, ne-MC mají hints
    - reduced-motion: canvas se ZASTAVÍ (hrdina, boss, parťák, particles)
@@ -48,9 +48,18 @@ async function answerWrong(page){
   return page.evaluate(async () => {
     const t = BT.curTask;
     if (BT.mcMode) {
+      // U MC mise špatná odpověď zablokuje jen ten knoflík a zůstane na téže úloze;
+      // jedna úloha má jen 3 špatné možnosti. Když dojdou, postup správně na další úlohu.
       const btns = [...document.querySelectorAll('#mc-grid .mc-btn')];
       const bad = btns.find(b => !b.disabled && (b.dataset.v ?? b.textContent.replace(/^[A-D]\s*/,'').trim()) !== String(t.ans));
-      if (bad) bad.click();
+      if (bad) { bad.click(); }
+      else {
+        const good = btns.find(b => (b.dataset.v ?? b.textContent.replace(/^[A-D]\s*/,'').trim()) === String(t.ans));
+        if (good) good.click();
+        await new Promise(r => setTimeout(r, 300));
+        const nb = document.getElementById('next-btn');
+        if (nb && nb.style.display !== 'none') nextTask();
+      }
     } else if (t.ans === 'ANO' || t.ans === 'NE') {
       answerYN(t.ans === 'ANO' ? 'NE' : 'ANO');
     } else {
@@ -106,11 +115,29 @@ async function answerWrong(page){
     {
       const hb = await page.evaluate(() => { const el = document.getElementById('bt-hpbar'); const r = el.getBoundingClientRect(); return { w: el.style.width, vis: r.width > 0 && r.height > 0 }; });
       ok(hb.vis, `g${g} boss HP bar je viditelný v boji`);
+      const maxHp = await page.evaluate(() => BT.maxHp);
       const hearts0 = await page.evaluate(() => document.querySelectorAll('#player-hp .heart:not(.lost)').length);
-      ok(hearts0 === 3, `g${g} start boje: 3 srdíčka (je ${hearts0})`);
-      for (let i = 0; i < 3; i++) { await answerWrong(page); await sleep(800); }
+      ok(hearts0 === maxHp, `g${g} start boje: ${maxHp} srdíček (je ${hearts0})`);
+      // Každou špatnou odpověď podáme až když je vstup připravený (jinak se klik spolkne během animace).
+      for (let i = 0; i < maxHp * 2 + 6; i++) {
+        const lost = await page.evaluate(() => {
+          const el = document.getElementById('fail-overlay');
+          return !!(el && getComputedStyle(el).display !== 'none' && el.classList.contains('show'));
+        });
+        if (lost) break;
+        // počkej, až jde zase odpovídat
+        await page.waitForFunction(() => {
+          if (BT.mcMode) return [...document.querySelectorAll('#mc-grid .mc-btn')].some(b => !b.disabled);
+          if (BT.curTask && (BT.curTask.ans === 'ANO' || BT.curTask.ans === 'NE')) return [...document.querySelectorAll('#yn-row button')].some(b => !b.disabled);
+          const inp = document.getElementById('bt-ans'); return inp && !inp.disabled;
+        }, { timeout: 4000 }).catch(() => {});
+        const before = await page.evaluate(() => document.querySelectorAll('#player-hp .heart:not(.lost)').length);
+        await answerWrong(page);
+        await page.waitForFunction(b => document.querySelectorAll('#player-hp .heart:not(.lost)').length < b, before, { timeout: 4000 }).catch(() => {});
+        await sleep(250);
+      }
       const hearts1 = await page.evaluate(() => document.querySelectorAll('#player-hp .heart:not(.lost)').length);
-      ok(hearts1 === 0, `g${g} po 3 chybách: 0 srdíček (je ${hearts1})`);
+      ok(hearts1 === 0, `g${g} po ${maxHp} chybách: 0 srdíček (je ${hearts1})`);
       await sleep(1100);
       const failVis = await page.evaluate(() => { const el = document.getElementById('fail-overlay'); return el && getComputedStyle(el).display !== 'none' && el.classList.contains('show'); });
       ok(failVis, `g${g} prohra: fail overlay se ukázal`);
