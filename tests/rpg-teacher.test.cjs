@@ -82,6 +82,8 @@ async function run(){
     const ctx=await browser.newContext();
     await ctx.route('**jsdelivr**', r=>r.abort());
     await ctx.route('**supabase.co/**', r=>r.abort());
+    await ctx.route('**fonts.googleapis.com**', r=>r.abort());
+    await ctx.route('**fonts.gstatic.com**', r=>r.abort());
     const pg=await ctx.newPage();
     pg.on('dialog', d=>d.dismiss());
     await pg.addInitScript(mockScript(scenario));

@@ -97,7 +97,7 @@ async function run() {
     ok('záložka Diagnostika se otevře', true);
 
     const opts = await page.evaluate(()=>document.getElementById('diag-game').options.length);
-    ok('výběr ročníku je naplněn (4 hry)', opts===4, 'options='+opts);
+    ok('výběr ročníku je naplněn (7 her: 1.+2. stupeň)', opts===7, 'options='+opts);
 
     // vyber 9. ročník
     await page.evaluate(()=>{ const s=document.getElementById('diag-game'); s.value='RPG_MAT_9'; renderDiag(); });
