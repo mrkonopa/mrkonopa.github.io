@@ -4,10 +4,10 @@
 */
 window.RPG_LEARN_3 = {
   '1-1': {
-    intro: 'Čísla do 1000 — stovky, desítky a jedničky.',
+    intro: 'Čísla do 1000 — stovky, desítky a jednotky.',
     sections: [
-      { title: 'Trojciferná čísla', body: 'Čísla od 100 do 999 mají tři číslice. Zleva: stovky, desítky, jedničky. Např. 472 = 4 stovky + 7 desítek + 2 jedničky.' },
-      { title: 'Rozklad čísla', body: 'Každé číslo umíme rozložit na řády. 305 = 3 stovky + 0 desítek + 5 jedniček = 300 + 0 + 5.' },
+      { title: 'Trojciferná čísla', body: 'Čísla od 100 do 999 mají tři číslice. Zleva: stovky, desítky, jednotky. Např. 472 = 4 stovky + 7 desítek + 2 jednotky.' },
+      { title: 'Rozklad čísla', body: 'Každé číslo umíme rozložit na řády. 305 = 3 stovky + 0 desítek + 5 jednotek = 300 + 0 + 5.' },
     ],
     formulas: ['472 = 400 + 70 + 2'],
     examples: [
@@ -19,7 +19,7 @@ window.RPG_LEARN_3 = {
   '1-2': {
     intro: 'Porovnávání čísel do 1000 — znaky <, >, =.',
     sections: [
-      { title: 'Jak porovnat dvě čísla', body: 'Porovnáváme od nejvyššího řádu. Nejdřív stovky — kdo má víc stovek, má větší číslo. Jsou-li stovky stejné, porovnáme desítky a pak jedničky.' },
+      { title: 'Jak porovnat dvě čísla', body: 'Porovnáváme od nejvyššího řádu. Nejdřív stovky — kdo má víc stovek, má větší číslo. Jsou-li stovky stejné, porovnáme desítky a pak jednotky.' },
     ],
     formulas: ['345 < 412 (3 stovky < 4 stovky)', '560 > 540 (desítky: 6 > 4)'],
     examples: [
@@ -31,11 +31,11 @@ window.RPG_LEARN_3 = {
     intro: 'Zaokrouhlování — na desítky a stovky.',
     sections: [
       { title: 'Pravidlo zaokrouhlování', body: 'Podíváme se na číslici vpravo od místa, na které zaokrouhlujeme. Je-li 0–4, zaokrouhlíme dolů. Je-li 5–9, zaokrouhlíme nahoru.' },
-      { title: 'Příklady', body: '347 na desítky: jedničky jsou 7 → nahoru → 350. Na stovky: desítky jsou 4 → dolů → 300.' },
+      { title: 'Příklady', body: '347 na desítky: jednotky jsou 7 → nahoru → 350. Na stovky: desítky jsou 4 → dolů → 300.' },
     ],
-    formulas: ['Na desítky: dívám se na jedničky', 'Na stovky: dívám se na desítky'],
+    formulas: ['Na desítky: dívám se na jednotky', 'Na stovky: dívám se na desítky'],
     examples: [
-      { q: 'Zaokrouhli 468 na desítky.', a: '470 (jedničky: 8 ≥ 5 → nahoru)' },
+      { q: 'Zaokrouhli 468 na desítky.', a: '470 (jednotky: 8 ≥ 5 → nahoru)' },
       { q: 'Zaokrouhli 349 na stovky.', a: '300 (desítky: 4 < 5 → dolů)' },
     ],
     video: { url: 'https://www.matyskova-matematika.cz/vyukova-videa/', title: 'Zaokrouhlování na desítky a stovky – Matýskova matematika' }
@@ -43,7 +43,7 @@ window.RPG_LEARN_3 = {
   '2-1': {
     intro: 'Sčítání čísel do 1000.',
     sections: [
-      { title: 'Sčítání po řádech', body: 'Sčítáme stejné řády: stovky ke stovkám, desítky k desítkám, jedničky k jedničkám. Přesáhne-li součet 9, přeneseme jedničku do vyššího řádu.' },
+      { title: 'Sčítání po řádech', body: 'Sčítáme stejné řády: stovky ke stovkám, desítky k desítkám, jednotky k jednotkám. Přesáhne-li součet 9, přeneseme jednotku do vyššího řádu.' },
     ],
     formulas: ['245 + 137 = 382', '320 + 450 = 770'],
     examples: [
