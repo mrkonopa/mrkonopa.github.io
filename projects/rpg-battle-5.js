@@ -174,6 +174,64 @@
                value: a * b, distractors: [a + b, a * b + a, a * (b - 1)] };
     },
 
+    // 21) zaokrouhlení desetinného na celé číslo
+    function (r) {
+      const whole = ri(r, 2, 49), dec = ri(r, 1, 9), n = r1(whole + dec / 10);
+      const v = Math.round(n);
+      return { topic: 'desetinná', text: `Zaokrouhli ${cz(n)} na celé číslo`, value: v,
+               distractors: [v + 1, v - 1, v + 2] };
+    },
+
+    // 22) doplň činitel
+    function (r) {
+      const a = ri(r, 3, 9), b = ri(r, 4, 12);
+      return { topic: 'doplňování', text: `Doplň: ${a} × ? = ${a * b}`, value: b,
+               distractors: [b + 1, b - 1, a] };
+    },
+
+    // 23) následník velkého čísla
+    function (r) {
+      const n = ri(r, 10000, 999998);
+      return { topic: 'číselná řada', text: `Které číslo je hned za číslem ${n}?`, value: n + 1,
+               distractors: [n - 1, n, n + 2] };
+    },
+
+    // 24) polovina a dvojnásobek
+    function (r) {
+      if (r() < 0.5) { const h = ri(r, 12, 480), n = h * 2;
+        return { topic: 'polovina', text: `Kolik je polovina z čísla ${n}?`, value: h, distractors: [h + 1, h - 1, n] }; }
+      const n = ri(r, 12, 480);
+      return { topic: 'dvojnásobek', text: `Kolik je dvojnásobek čísla ${n}?`, value: n * 2, distractors: [n, n * 2 + 1, n + 2] };
+    },
+
+    // 25) jednotky — m → cm
+    function (r) {
+      const n = ri(r, 2, 9);
+      return { topic: 'jednotky', text: `${n} m = ??? cm`, value: n * 100,
+               distractors: [n * 10, n * 1000, n * 100 + 10] };
+    },
+
+    // 26) jednotky — h → min
+    function (r) {
+      const n = ri(r, 2, 9);
+      return { topic: 'jednotky', text: `${n} h = ??? min`, value: n * 60,
+               distractors: [n * 6, n * 100, n * 60 + 10] };
+    },
+
+    // 27) slovní úloha — kolikrát víc
+    function (r) {
+      const k = ri(r, 2, 9), small = ri(r, 6, 40), big = small * k;
+      return { topic: 'slovní úloha', text: `Drak má ${big} mincí, skřítek ${small}. Kolikrát víc má drak?`,
+               value: k, distractors: [k + 1, k - 1, big - small] };
+    },
+
+    // 28) aritmetický průměr dvou čísel
+    function (r) {
+      const avg = ri(r, 10, 50), d = ri(r, 1, 8), a = avg - d, b = avg + d;
+      return { topic: 'průměr', text: `Aritmetický průměr čísel ${a} a ${b}?`, value: avg,
+               distractors: [avg + 1, avg - 1, a + b] };
+    },
+
   ];
 
   function assemble(r, raw, id) {
@@ -220,7 +278,7 @@
     return out;
   }
 
-  const API = { game: 'RPG_MAT_5', topicCount: GEN.length, build }; // 20 generators
+  const API = { game: 'RPG_MAT_5', topicCount: GEN.length, build }; // 28 generators
   if (typeof module !== 'undefined' && module.exports) module.exports = API;
   else window.RPG_BATTLE_5 = API;
 })();
