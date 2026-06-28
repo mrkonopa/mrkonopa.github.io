@@ -179,6 +179,65 @@
                distractors: [v + 1000, v - 1000, Math.round(n / 100) * 100] };
     },
 
+    // 21) písemné násobení dvojciferného × jednociferným
+    function (r) {
+      const a = ri(r, 13, 89), b = ri(r, 3, 9);
+      return { topic: 'násobení', text: `Vypočítej: ${a} × ${b}`, value: a * b,
+               distractors: [a * b + b, a * b - a, (a + 1) * b] };
+    },
+
+    // 22) dělení se zbytkem
+    function (r) {
+      const d = ri(r, 3, 9), q = ri(r, 4, 12), rem = ri(r, 1, d - 1);
+      const n = d * q + rem;
+      return { topic: 'zbytek', text: `${n} ÷ ${d} — jaký je zbytek?`, value: rem,
+               distractors: [rem + 1, d, rem - 1 < 1 ? rem + 2 : rem - 1] };
+    },
+
+    // 23) zaokrouhlování na desítky
+    function (r) {
+      const n = ri(r, 130, 8870);
+      const v = Math.round(n / 10) * 10;
+      return { topic: 'zaokrouhlování', text: `Zaokrouhli na desítky: ${n} ≈`, value: v,
+               distractors: [v + 10, v - 10, Math.round(n / 100) * 100] };
+    },
+
+    // 24) polovina a dvojnásobek
+    function (r) {
+      if (r() < 0.5) { const h = ri(r, 12, 240), n = h * 2;
+        return { topic: 'polovina', text: `Kolik je polovina z čísla ${n}?`, value: h, distractors: [h + 1, h - 1, n] }; }
+      const n = ri(r, 12, 240);
+      return { topic: 'dvojnásobek', text: `Kolik je dvojnásobek čísla ${n}?`, value: n * 2, distractors: [n, n * 2 + 1, n + 2] };
+    },
+
+    // 25) následník velkého čísla
+    function (r) {
+      const n = ri(r, 1000, 99998);
+      return { topic: 'číselná řada', text: `Které číslo je hned za číslem ${n}?`, value: n + 1,
+               distractors: [n - 1, n, n + 2] };
+    },
+
+    // 26) jednotky — t → kg
+    function (r) {
+      const n = ri(r, 2, 9);
+      return { topic: 'jednotky', text: `${n} t = ??? kg`, value: n * 1000,
+               distractors: [n * 100, n * 10, n * 1000 + 100] };
+    },
+
+    // 27) doplň činitel
+    function (r) {
+      const a = ri(r, 3, 9), b = ri(r, 3, 9);
+      return { topic: 'doplňování', text: `Doplň: ${a} × ? = ${a * b}`, value: b,
+               distractors: [b + 1, b - 1, a] };
+    },
+
+    // 28) slovní úloha — o kolik víc
+    function (r) {
+      const less = ri(r, 200, 2000), more = less + ri(r, 50, 1500);
+      return { topic: 'slovní úloha', text: `Modrá loď má ${more} zlatých, červená ${less}. O kolik víc má modrá?`,
+               value: more - less, distractors: [more + less, more - less + 10, more - less - 1] };
+    },
+
   ];
 
   function assemble(r, raw, id) {
@@ -225,7 +284,7 @@
     return out;
   }
 
-  const API = { game: 'RPG_MAT_4', topicCount: GEN.length, build }; // 20 generators
+  const API = { game: 'RPG_MAT_4', topicCount: GEN.length, build }; // 28 generators
   if (typeof module !== 'undefined' && module.exports) module.exports = API;
   else window.RPG_BATTLE_4 = API;
 })();
