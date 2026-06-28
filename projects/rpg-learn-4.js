@@ -4,10 +4,10 @@
 */
 window.RPG_LEARN_4 = {
   '1-1': {
-    intro: 'Čísla do 10 000 — číslice tisíců, stovek, desítek a jedniček.',
+    intro: 'Čísla do 10 000 — číslice tisíců, stovek, desítek a jednotek.',
     sections: [
       { title: 'Číselná řada do 10 000', body: 'Čísla od 1 000 do 10 000 se skládají ze čtyř číslic. Největší čtyřciferné číslo je 9 999, největší číslo do 10 000 je 10 000.' },
-      { title: 'Rozklad čísla', body: 'Každé číslo můžeme rozložit: tisíce + stovky + desítky + jedničky. Např. 4 725 = 4 tisíce + 7 stovek + 2 desítky + 5 jedniček.' },
+      { title: 'Rozklad čísla', body: 'Každé číslo můžeme rozložit: tisíce + stovky + desítky + jednotky. Např. 4 725 = 4 tisíce + 7 stovek + 2 desítky + 5 jednotek.' },
     ],
     formulas: ['4 725 = 4 000 + 700 + 20 + 5'],
     examples: [
@@ -19,7 +19,7 @@ window.RPG_LEARN_4 = {
   '1-2': {
     intro: 'Porovnávání čísel do 10 000 — znaky <, >, =.',
     sections: [
-      { title: 'Jak porovnat dvě čísla', body: 'Porovnáváme vždy od nejvyššího řádu. Nejprve tisíce — kdo má více tisíců, má větší číslo. Jsou-li tisíce stejné, porovnáme stovky, pak desítky, pak jedničky.' },
+      { title: 'Jak porovnat dvě čísla', body: 'Porovnáváme vždy od nejvyššího řádu. Nejprve tisíce — kdo má více tisíců, má větší číslo. Jsou-li tisíce stejné, porovnáme stovky, pak desítky, pak jednotky.' },
     ],
     formulas: ['3 456 < 4 123 (3 tisíce < 4 tisíce)', '5 200 > 5 180 (stovky: 2 > 1)'],
     examples: [
@@ -43,7 +43,7 @@ window.RPG_LEARN_4 = {
   '2-1': {
     intro: 'Sčítání čísel do 10 000 — postup pod sebou.',
     sections: [
-      { title: 'Sčítání pod sebou', body: 'Čísla zapíšeme pod sebe, jedničky pod jedničky, desítky pod desítky atd. Sčítáme zprava. Přesáhne-li součet 9, zapíšeme jedničku přenosu do vyššího řádu.' },
+      { title: 'Sčítání pod sebou', body: 'Čísla zapíšeme pod sebe, jednotky pod jednotky, desítky pod desítky atd. Sčítáme zprava. Přesáhne-li součet 9, zapíšeme jednotku přenosu do vyššího řádu.' },
     ],
     formulas: ['2 456 + 1 738 = 4 194'],
     examples: [
@@ -101,7 +101,7 @@ window.RPG_LEARN_4 = {
   '3-3': {
     intro: 'Násobení dvojciferného čísla jednociferným — rozklad.',
     sections: [
-      { title: 'Rozklad na desítky a jedničky', body: 'Dvoumístné číslo rozložíme na desítky a jedničky: 34 = 30 + 4. Pak násobíme každou část zvlášť a výsledky sečteme.' },
+      { title: 'Rozklad na desítky a jednotky', body: 'Dvoumístné číslo rozložíme na desítky a jednotky: 34 = 30 + 4. Pak násobíme každou část zvlášť a výsledky sečteme.' },
     ],
     formulas: ['34 × 6 = (30 + 4) × 6 = 30 × 6 + 4 × 6 = 180 + 24 = 204'],
     examples: [

@@ -6,7 +6,7 @@ window.RPG_LEARN_5 = {
   '1-1': {
     intro: 'Velká čísla do milionu — řády a zápis.',
     sections: [
-      { title: 'Řády velkých čísel', body: 'Zprava: jedničky, desítky, stovky, tisíce, desetitisíce, statisíce, miliony. 1 000 000 = milion = 1000 tisíc.' },
+      { title: 'Řády velkých čísel', body: 'Zprava: jednotky, desítky, stovky, tisíce, desetitisíce, statisíce, miliony. 1 000 000 = milion = 1000 tisíc.' },
       { title: 'Zápis velkých čísel', body: 'Píšeme s mezerou po každých třech cifrách zprava: 345 678 čteme tři sta čtyřicet pět tisíc šest set sedmdesát osm.' },
     ],
     formulas: ['1 000 000 = 1000 tisíc = milion'],
