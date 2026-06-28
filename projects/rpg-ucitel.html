@@ -317,6 +317,9 @@ h4{font-family:var(--px);font-size:12px;font-weight:700;color:var(--accent);lett
    <div class="controls">
     <select id="expl-game" aria-label="Vysvětlení: filtr podle ročníku" onchange="onExplGameChange()">
      <option value="" selected>— Všechny ročníky —</option>
+     <option value="RPG_MAT_3">🌳 Kouzelný les (3. ročník)</option>
+     <option value="RPG_MAT_4">🏴‍☠️ Pirátská plavba (4. ročník)</option>
+     <option value="RPG_MAT_5">🐉 Dračí říše (5. ročník)</option>
      <option value="RPG_MAT_6">🚀 Vesmírná expedice (6. ročník)</option>
      <option value="RPG_MAT_7">⛏️ Ztracený chrám (7. ročník)</option>
      <option value="RPG_MAT_8">🎓 Matematická akademie (8. ročník)</option>
@@ -369,12 +372,42 @@ h4{font-family:var(--px);font-size:12px;font-weight:700;color:var(--accent);lett
 
 <script>
 const GAMES=[
+ {key:'RPG_MAT_3',file:'rpg-mat-3.html',emoji:'🌳',nm:'Kouzelný les',gr:'3. ročník',accent:'#6fc24a'},
+ {key:'RPG_MAT_4',file:'rpg-mat-4.html',emoji:'🏴‍☠️',nm:'Pirátská plavba',gr:'4. ročník',accent:'#4ab0e0'},
+ {key:'RPG_MAT_5',file:'rpg-mat-5.html',emoji:'🐉',nm:'Dračí říše',gr:'5. ročník',accent:'#e0584a'},
  {key:'RPG_MAT_6',file:'rpg-mat-6.html',emoji:'🚀',nm:'Vesmírná expedice',gr:'6. ročník',accent:'#5dc8f0'},
  {key:'RPG_MAT_7',file:'rpg-mat-7.html',emoji:'⛏️',nm:'Ztracený chrám',gr:'7. ročník',accent:'#f2c14e'},
  {key:'RPG_MAT_8',file:'rpg-mat-8.html',emoji:'🎓',nm:'Matematická akademie',gr:'8. ročník',accent:'#f4d03f'},
  {key:'RPG_MAT_9',file:'rpg-mat-9.html',emoji:'💻',nm:'NULL_BYTE',gr:'9. ročník',accent:'#19e6e6'},
 ];
 const TOTAL_TASKS=126;
+const MISSIONS_3=[
+ {id:'1-1',name:'Čísla do 1000'},{id:'1-2',name:'Porovnávání čísel'},{id:'1-3',name:'Zaokrouhlování'},
+ {id:'2-1',name:'Sčítání do 1000'},{id:'2-2',name:'Odčítání do 1000'},{id:'2-3',name:'Slovní úlohy +/−'},
+ {id:'3-1',name:'Malá násobilka'},{id:'3-2',name:'Násobení 10 a 100'},{id:'3-3',name:'Slovní úlohy násobení'},
+ {id:'4-1',name:'Dělení bez zbytku'},{id:'4-2',name:'Dělení se zbytkem'},{id:'4-3',name:'Slovní úlohy dělení'},
+ {id:'5-1',name:'Obvod trojúhelníku'},{id:'5-2',name:'Obvod čtverce a obdélníku'},{id:'5-3',name:'Úsečky a osy'},
+ {id:'6-1',name:'Jednotky délky'},{id:'6-2',name:'Hmotnost a čas'},{id:'6-3',name:'Peníze'},
+ {id:'7-1',name:'Počítání do 1000'},{id:'7-2',name:'Násobení a dělení 10, 100'},{id:'7-3',name:'Finální duel'},
+];
+const MISSIONS_4=[
+ {id:'1-1',name:'Čísla do 10 000'},{id:'1-2',name:'Porovnávání čísel'},{id:'1-3',name:'Zaokrouhlování'},
+ {id:'2-1',name:'Sčítání do 10 000'},{id:'2-2',name:'Odčítání do 10 000'},{id:'2-3',name:'Slovní úlohy +/−'},
+ {id:'3-1',name:'Násobilka 1–10'},{id:'3-2',name:'Násobení ×10 a ×100'},{id:'3-3',name:'Násobení dvojciferného'},
+ {id:'4-1',name:'Dělení bez zbytku'},{id:'4-2',name:'Dělení se zbytkem'},{id:'4-3',name:'Slovní úlohy dělení'},
+ {id:'5-1',name:'Obvod obdélníku a čtverce'},{id:'5-2',name:'Obsah obdélníku a čtverce'},{id:'5-3',name:'Souřadnice a síť'},
+ {id:'6-1',name:'Délkové jednotky'},{id:'6-2',name:'Hmotnost a čas'},{id:'6-3',name:'Peníze a míry'},
+ {id:'7-1',name:'Čísla do 1 000 000'},{id:'7-2',name:'Operace s velkými čísly'},{id:'7-3',name:'Finální duel'},
+];
+const MISSIONS_5=[
+ {id:'1-1',name:'Čísla do milionu'},{id:'1-2',name:'Porovnávání velkých čísel'},{id:'1-3',name:'Zaokrouhlování'},
+ {id:'2-1',name:'Násobení × jednociferným'},{id:'2-2',name:'Násobení dvojciferným'},{id:'2-3',name:'Slovní úlohy násobení'},
+ {id:'3-1',name:'Dělení jednociferným'},{id:'3-2',name:'Dělení se zbytkem'},{id:'3-3',name:'Slovní úlohy dělení'},
+ {id:'4-1',name:'Zlomek z čísla'},{id:'4-2',name:'Sčítání a odčítání zlomků'},{id:'4-3',name:'Slovní úlohy se zlomky'},
+ {id:'5-1',name:'Porovnávání desetinných'},{id:'5-2',name:'Sčítání a odčítání desetinných'},{id:'5-3',name:'Násobení a dělení 10, 100'},
+ {id:'6-1',name:'Obvod a obsah'},{id:'6-2',name:'Převody jednotek'},{id:'6-3',name:'Aritmetický průměr'},
+ {id:'7-1',name:'Velká čísla'},{id:'7-2',name:'Operace s čísly'},{id:'7-3',name:'Finální duel'},
+];
 const MISSIONS_6=[
  {id:'1-1',name:'Přirozená čísla'},{id:'1-2',name:'Obvod a obsah'},{id:'1-3',name:'Logika a slovní úlohy'},
  {id:'2-1',name:'Desetinná čísla'},{id:'2-2',name:'Počítání s desetinnými'},{id:'2-3',name:'Zlomky a průměr'},
@@ -411,9 +444,12 @@ const MISSIONS_9=[
  {id:'6-1',name:'Lineární funkce'},{id:'6-2',name:'Vlastnosti funkcí'},{id:'6-3',name:'Lomená funkce'},
  {id:'7-1',name:'Podobnost a měřítko'},{id:'7-2',name:'Objem a povrch těles'},{id:'7-3',name:'FINÁLNÍ PRŮLOM'},
 ];
-const MISSIONS_BY_GAME={RPG_MAT_6:MISSIONS_6,RPG_MAT_7:MISSIONS_7,RPG_MAT_8:MISSIONS_8,RPG_MAT_9:MISSIONS_9};
+const MISSIONS_BY_GAME={RPG_MAT_3:MISSIONS_3,RPG_MAT_4:MISSIONS_4,RPG_MAT_5:MISSIONS_5,RPG_MAT_6:MISSIONS_6,RPG_MAT_7:MISSIONS_7,RPG_MAT_8:MISSIONS_8,RPG_MAT_9:MISSIONS_9};
 function missionsFor(gameKey){return MISSIONS_BY_GAME[gameKey]||[];}
 const AREA_NAMES={
+ RPG_MAT_3:['🌲 Palouk čísel','🍄 Houbová mýtina','🦊 Liščí doupě','🌰 Veverčí skrýš','🌳 Starý dub','🦉 Soví věž','🐺 Vlčí soutěska'],
+ RPG_MAT_4:['🌊 Přístav pirátů','⚓ Zátoka výpočtů','⚔️ Bitva vlajek','🪙 Zlatý poklad','🗺️ Mořská mapa','🧭 Námořní navigace','🐙 Krakénův duel'],
+ RPG_MAT_5:['🐲 Dračí hnízdo','🔥 Ohnivá sluj','⚔️ Dračí kovárna','💎 Krystalová jeskyně','🌋 Lávová propast','🏔️ Dračí štít','🐉 Souboj s drakem'],
  RPG_MAT_6:['🛰️ Odletová stanice','🪐 Planeta desetin','☄️ Pole dělitelnosti','📐 Mlhovina úhlů','🌗 Zrcadlový měsíc','🧊 Krychlová stanice','🌌 Trojúhelníková galaxie'],
  RPG_MAT_7:['🏜️ Vstupní brána','📜 Síň zlomků','🧊 Podzemní mrazírna','⚖️ Vážnice poměrů','💰 Zlatá pokladnice','🔮 Zrcadlová svatyně','🔺 Velká pyramida'],
  RPG_MAT_8:['🏔️ Údolí opakování','⛰️ Hora Pythagorova','🌿 Bažiny rovnic','🏰 Věže algebry','🌊 Jezero kružnic','🔧 Dílna konstr.','🏛️ Citadela arcimága'],
@@ -1555,7 +1591,8 @@ function renderLeaderboardTab(){
 function towerGameSel(){
  const sel=document.getElementById('tower-game');
  if(!sel.options.length){
-  GAMES.forEach(g=>{const o=document.createElement('option');o.value=g.key;o.textContent=g.emoji+' '+g.nm+' ('+g.gr+')';sel.appendChild(o);});
+  // Věž legend mají jen 2. stupeň (6.–9.); 1. stupeň (3.–5.) ji nemá
+  GAMES.filter(g=>g.key>='RPG_MAT_6').forEach(g=>{const o=document.createElement('option');o.value=g.key;o.textContent=g.emoji+' '+g.nm+' ('+g.gr+')';sel.appendChild(o);});
   sel.value='RPG_MAT_9';
  }
  return sel.value;
