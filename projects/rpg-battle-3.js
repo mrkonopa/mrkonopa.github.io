@@ -18,6 +18,7 @@
   const ri = (r, lo, hi) => lo + Math.floor(r() * (hi - lo + 1));
   const pick = (r, arr) => arr[Math.floor(r() * arr.length)];
   const S = v => String(v);
+  const skl = (n, one, few, many) => { const a = Math.abs(n); return a === 1 ? one : a >= 2 && a <= 4 ? few : many; };
 
   const GEN = [
 
@@ -166,6 +167,62 @@
                value: v, distractors: [smaller, smaller - 10, bigger + 100] };
     },
 
+    // 21) násobení desítkami
+    function (r) {
+      const a = ri(r, 2, 9), b = ri(r, 2, 9);
+      return { topic: 'násobení', text: `Vypočítej: ${a} × ${b * 10}`, value: a * b * 10,
+               distractors: [a * b, a * b * 100, a * b * 10 + a] };
+    },
+
+    // 22) dělení 100
+    function (r) {
+      const a = ri(r, 2, 9);
+      return { topic: 'dělení 100', text: `Vypočítej: ${a * 100} ÷ 100`, value: a,
+               distractors: [a * 10, a + 1, a - 1] };
+    },
+
+    // 23) následník čísla
+    function (r) {
+      const n = ri(r, 100, 998);
+      return { topic: 'číselná řada', text: `Které číslo je hned za číslem ${n}?`, value: n + 1,
+               distractors: [n - 1, n, n + 2] };
+    },
+
+    // 24) polovina čísla
+    function (r) {
+      const half = ri(r, 6, 60), n = half * 2;
+      return { topic: 'polovina', text: `Kolik je polovina z čísla ${n}?`, value: half,
+               distractors: [half + 1, half - 1, n] };
+    },
+
+    // 25) dvojnásobek čísla
+    function (r) {
+      const n = ri(r, 5, 80);
+      return { topic: 'dvojnásobek', text: `Kolik je dvojnásobek čísla ${n}?`, value: n * 2,
+               distractors: [n, n * 2 + 1, n + 2] };
+    },
+
+    // 26) doplň chybějící sčítanec
+    function (r) {
+      const a = ri(r, 100, 500), v = ri(r, 20, 200);
+      return { topic: 'doplňování', text: `Doplň chybějící číslo: ${a} + ? = ${a + v}`, value: v,
+               distractors: [v + 10, v - 10, a] };
+    },
+
+    // 27) slovní úloha — dělení rovně
+    function (r) {
+      const d = ri(r, 2, 8), q = ri(r, 2, 9), n = d * q;
+      return { topic: 'slovní úloha', text: `${n} oříšků rozdělíme rovně mezi ${d} ${skl(d, 'veverku', 'veverky', 'veverek')}. Kolik dostane každá?`,
+               value: q, distractors: [q + 1, q - 1, n] };
+    },
+
+    // 28) slovní úloha — o kolik víc
+    function (r) {
+      const b = ri(r, 30, 200), a = b + ri(r, 10, 150);
+      return { topic: 'slovní úloha', text: `Skřítek nasbíral ${a} žaludů, víla ${b}. O kolik víc má skřítek?`,
+               value: a - b, distractors: [a + b, a - b + 10, a - b - 1] };
+    },
+
   ];
 
   function assemble(r, raw, id) {
@@ -212,7 +269,7 @@
     return out;
   }
 
-  const API = { game: 'RPG_MAT_3', topicCount: GEN.length, build }; // 20 generators
+  const API = { game: 'RPG_MAT_3', topicCount: GEN.length, build }; // 28 generators
   if (typeof module !== 'undefined' && module.exports) module.exports = API;
   else window.RPG_BATTLE_3 = API;
 })();
