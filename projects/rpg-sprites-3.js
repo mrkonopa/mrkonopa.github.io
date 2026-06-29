@@ -190,38 +190,38 @@ window.RPGSprites3 = (function () {
     '..KKKKK..KKKKK....'
   ];
 
-  /* ── lesní ptáček (parťák, 14×14) — hnědé tělo, oranžová bříška ── */
-  const PAL_COM = { K:'#0a0c12', S:'#9a6a2e', s:'#5e3f18', C:'#e07820', c:'#a8520f', Y:'#ffd040', k:'#aa8800' };
+  /* ── sova (parťák, 14×14) — lesní společník druida 🦉 ── */
+  const PAL_COM = { K:'#0a0c12', S:'#8a5a2e', s:'#5e3f18', C:'#e8c878', Y:'#ffb030', W:'#f4f0e0' };
   const COMPANION = [[
-    '......KYK.....',
-    '....KKYYYKK...',
-    '...KSSSSSSSK..',
-    '..KSSSSSSSSSK.',
-    '.KSSKCCCCKSSK.',
-    '.KSKCCWWCCKSK.',
-    '.KSKCCCCCCKSK.',
-    '.KSSKCCCCKSSK.',
-    '..KSSSSSSSSSK.',
-    '...KSSSSSSSK..',
-    '...KKssssKK...',
-    '.....KssK.....',
-    '....KsssK.....',
-    '.....KKK......'
+    '..K......K....',
+    '..KSK..KSK....',
+    '...KSSSSSSK...',
+    '..KSSSSSSSSK..',
+    '..KWWKSSKWWK..',
+    '..KWKKSSKKWK..',
+    '..KSSKYYKSSK..',
+    '..KSCCCCCCSK..',
+    '..KSCCCCCCSK..',
+    '..KSSCCCCSSK..',
+    '..KSSSSSSSSK..',
+    '...KsKKKKsK...',
+    '...KK....KK...',
+    '..............'
   ],[
-    '......KkK.....',
-    '....KKYYYKK...',
-    '...KSSSSSSSK..',
-    '..KSSSSSSSSSK.',
-    '.KSSKCCCCKSSK.',
-    '.KSKCCCWWCKSK.',
-    '.KSKCCCCCCKSK.',
-    '.KSSKCCCCKSSK.',
-    '..KSSSSSSSSSK.',
-    '...KSSSSSSSK..',
-    '...KKssssKK...',
-    '.....KssK.....',
-    '.....KsssK....',
-    '......KKK.....'
+    '..K......K....',
+    '..KSK..KSK....',
+    '...KSSSSSSK...',
+    '..KSSSSSSSSK..',
+    '..KWWKSSKWWK..',
+    '..KWKKSSKKWK..',
+    '..KSSKYYKSSK..',
+    '.KSSCCCCCCSSK.',
+    '.KSSCCCCCCSSK.',
+    '..KSSCCCCSSK..',
+    '..KSSSSSSSSK..',
+    '...KsKKKKsK...',
+    '...KK....KK...',
+    '..............'
   ]];
 
   /* ── bossové: 7 oblastí, lesní/kouzelná témata ── */

@@ -191,38 +191,38 @@ window.RPGSprites5 = (function () {
     '..................'
   ];
 
-  /* ── papoušek (parťák, 14×14) ── */
-  const PAL_COM = { K:'#0a0c12', S:'#c84028', s:'#7e2614', C:'#ffaa60', c:'#c87030', Y:'#ffd040', k:'#aa8800' };
+  /* ── dráče (parťák, 14×14) — mládě draka 🐉 ── */
+  const PAL_COM = { K:'#0a0c12', S:'#c0392b', s:'#7e1d12', C:'#ffcf3a', Y:'#e8c24a', W:'#f4f0e0', R:'#ff5a4a' };
   const COMPANION = [[
-    '......KYK.....',
-    '....KKYYYKK...',
-    '...KSSSSSSSK..',
-    '..KSSSSSSSSSK.',
-    '.KSSKCCCCKSSK.',
-    '.KSKCCWWCCKSK.',
-    '.KSKCCCCCCKSK.',
-    '.KSSKCCCCKSSK.',
-    '..KSSSSSSSSSK.',
-    '...KSSSSSSSK..',
-    '...KKssssKK...',
-    '.....KssK.....',
-    '....KsssK.....',
-    '.....KKK......'
+    '..Y......Y....',
+    '..YK....KY....',
+    '...KSSSSSSK...',
+    '..KSWRSSRWSK..',
+    '..KSSSKKSSSK..',
+    '.KsKSSYYSSKsK.',
+    'KssKSSSSSSKssK',
+    '.KsKSSSSSSKsK.',
+    '..KSCCCCCCSK..',
+    '..KSCCCCCCSK..',
+    '...KSSSSSSK...',
+    '...KKKKKK.Y...',
+    '....KsK..YY...',
+    '...KsK...Y....'
   ],[
-    '......KkK.....',
-    '....KKYYYKK...',
-    '...KSSSSSSSK..',
-    '..KSSSSSSSSSK.',
-    '.KSSKCCCCKSSK.',
-    '.KSKCCCWWCKSK.',
-    '.KSKCCCCCCKSK.',
-    '.KSSKCCCCKSSK.',
-    '..KSSSSSSSSSK.',
-    '...KSSSSSSSK..',
-    '...KKssssKK...',
-    '.....KssK.....',
-    '.....KsssK....',
-    '......KKK.....'
+    '..Y......Y....',
+    '..YK....KY....',
+    '...KSSSSSSK...',
+    '..KSWRSSRWSK..',
+    '..KSSSKKSSSK..',
+    'KKsKSSYYSSKsKK',
+    '.KsKSSSSSSKsK.',
+    '..KSSSSSSSSK..',
+    '..KSCCCCCCSK..',
+    '..KSCCCCCCSK..',
+    '...KSSSSSSK...',
+    '...KKKKKK.Y...',
+    '...KsK...YY...',
+    '..KsK....Y....'
   ]];
 
   /* ── bossové: 7 oblastí, pirátská/mořská témata ── */
