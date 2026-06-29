@@ -43,11 +43,12 @@ body::before{
 .topnav a{color:var(--muted);text-decoration:none;border:1px solid var(--line);padding:7px 12px;border-radius:4px;transition:.15s}
 .topnav a:hover{color:var(--text);border-color:var(--muted)}
 .head{text-align:center;padding:8px 0 18px}
-.head .glyph{font-size:48px;display:inline-block;animation:float 3s ease-in-out infinite}
-@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+.head .glyph{font-size:48px;display:inline-block;animation:float 3s ease-in-out infinite;will-change:transform;backface-visibility:hidden;transform:translateZ(0)}
+@keyframes float{0%,100%{transform:translate3d(0,0,0)}50%{transform:translate3d(0,-7px,0)}}
 .head h1{font-weight:700;font-size:30px;letter-spacing:3px;margin:6px 0 4px;
  background:linear-gradient(90deg,#5dc8f0,#f4d03f,#19e6e6);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
 .head .sub{font-family:var(--vt);font-size:22px;color:var(--muted);letter-spacing:1px}
+.head .wip{display:inline-block;margin:0 0 6px;font-family:var(--vt);font-size:16px;letter-spacing:1px;color:#f6c343;border:1px solid #6a541a;background:#241c07;padding:2px 12px;border-radius:999px}
 /* student bar */
 .student{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:14px 16px;margin:18px 0;display:flex;flex-wrap:wrap;gap:14px;align-items:center;justify-content:space-between}
 .student .who{font-size:14px;color:var(--muted)}
@@ -161,6 +162,7 @@ body::before{
  <div class="head">
   <div class="glyph">🎮</div>
   <h1>RPG MATEMATIKA</h1>
+  <div class="wip">🚧 ve výstavbě</div>
   <div class="sub">Velitelské centrum · ZŠ Husova Liberec</div>
  </div>
 
@@ -226,8 +228,8 @@ body::before{
  </div>
 
  <div class="stupen-switch">
-  <button class="ss-btn" id="st-1" onclick="setStupen(1)">🌳 1. stupeň · 3.–5. ročník</button>
-  <button class="ss-btn" id="st-2" onclick="setStupen(2)">💻 2. stupeň · 6.–9. ročník</button>
+  <button class="ss-btn" id="st-1" onclick="setStupen(1)">🌳 1. stupeň · 3.– 5. ročník</button>
+  <button class="ss-btn" id="st-2" onclick="setStupen(2)">💻 2. stupeň · 6.– 9. ročník</button>
  </div>
  <div class="grid" id="grid"></div>
 
