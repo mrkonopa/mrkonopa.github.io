@@ -56,7 +56,7 @@ function makeEnv(file) {
   return { win, topEl, magenta, getRaf: () => rafCb };
 }
 
-for (const n of [6, 7, 8, 9]) {
+for (const n of [3, 4, 5, 6, 7, 8, 9]) {
   const file = `projects/rpg-sprites-${n}.js`;
   const { win, topEl, magenta, getRaf } = makeEnv(file);
   const API = win['RPGSprites' + n];
@@ -78,4 +78,4 @@ for (const n of [6, 7, 8, 9]) {
 }
 
 if (failures.length) { console.error('\nFAIL:\n' + failures.join('\n')); process.exit(1); }
-console.log('\nVšechny 4 sprite sady čisté — žádný #f0f fallback.');
+console.log('\nVšech 7 sprite sad čisté — žádný #f0f fallback.');
