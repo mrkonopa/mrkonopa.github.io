@@ -113,7 +113,7 @@
       } else if (typ === 1) {
         tasks.push({ text: `${a} × ? = ${a * b}`, ans: b, hints: [`Kolikrát vzít ${a}, abys dostal ${a * b}? Spočítej ${a * b} ÷ ${a}.`, `= ${b}`], skill: 'calc' });
       } else {
-        tasks.push({ text: `Kolik je ${b}krát ${a}?`, ans: a * b, hints: [`${b}krát ${a} je ${a} × ${b}.`, `= ${a * b}`], skill: 'calc' });
+        tasks.push({ text: `Kolik je ${b} krát ${a}?`, ans: a * b, hints: [`${b} krát ${a} je ${a} × ${b}.`, `= ${a * b}`], skill: 'calc' });
       }
     }
     return tasks;
@@ -132,7 +132,7 @@
       if (typ === 0) {
         tasks.push({ text: `${a} × ${b} = ?`, ans: a * b, hints: [`${a} × ${b % 10} a ${a} × ${Math.floor(b / 10)}0, pak sečti.`, `= ${a * b}`], skill: 'calc' });
       } else if (typ === 1) {
-        tasks.push({ text: `Kolik je ${a}krát ${b}?`, ans: a * b, hints: [`${a}krát ${b} je ${a} × ${b}.`, `= ${a * b}`], skill: 'calc' });
+        tasks.push({ text: `Kolik je ${a} krát ${b}?`, ans: a * b, hints: [`${a} krát ${b} je ${a} × ${b}.`, `= ${a * b}`], skill: 'calc' });
       } else {
         const t = themes[ri(0, themes.length - 1)]();
         tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'calc' });
