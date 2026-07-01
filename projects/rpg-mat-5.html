@@ -2,6 +2,7 @@
 <html lang="cs">
 <head>
 <meta charset="UTF-8">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>RPG Matematika 5 — Dračí říše</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -64,7 +65,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--px);font-weight:70
 .learn-section{background:var(--panel);border:2px solid var(--line);padding:12px 14px;margin-bottom:10px}
 .learn-section h3{font-family:var(--px);font-size:14px;color:var(--gold);margin-bottom:8px;letter-spacing:.5px}
 .learn-section p{font-family:var(--read);font-size:15px;line-height:1.6;color:var(--text);margin-bottom:6px}
-.learn-formula{background:var(--panel2);border:2px solid var(--gold);padding:12px 16px;margin-bottom:10px;font-family:var(--px);font-size:15px;color:var(--gold);line-height:2}
+.learn-formula{background:var(--panel2);border:2px solid var(--gold);padding:12px 16px;margin-bottom:10px;font-family:var(--read);font-weight:600;font-size:16px;color:var(--gold);line-height:2}
 .learn-example{background:var(--panel);border:2px solid var(--green);padding:10px 14px;margin-bottom:8px}
 .ex-q{font-family:var(--px);font-size:13px;color:var(--blue);margin-bottom:4px}
 .ex-s{font-family:var(--read);font-size:14px;color:var(--text);line-height:1.7}
@@ -962,8 +963,8 @@ function renderLearn(mid,m){
  const el=document.getElementById('learn-content');
  if(!L){el.innerHTML='<div style="font-family:var(--vt);font-size:20px;color:var(--muted);padding:20px">Teorie pro tuto misi není dostupná.</div>';return;}
  let html=`<div class="panel b" style="margin-bottom:14px">
-  <div style="font-family:var(--px);font-weight:700;font-size:17px;color:var(--blue);letter-spacing:.5px">${esc2(m?m.name:mid)}</div>
-  <div style="font-family:var(--vt);font-size:18px;color:var(--muted);margin-top:4px">${esc2(m?m.sub:'')}</div></div>`;
+  <div style="font-family:var(--read);font-weight:700;font-size:17px;color:var(--blue);letter-spacing:.3px">${esc2(m?m.name:mid)}</div>
+  <div style="font-family:var(--read);font-size:16px;color:var(--muted);margin-top:4px">${esc2(m?m.sub:'')}</div></div>`;
  if(L.intro)html+=`<div class="learn-intro">${esc2(L.intro)}</div>`;
  (L.sections||[]).forEach(s=>{html+=`<div class="learn-section"><h3>${esc2(s.h||s.title||'')}</h3>`;(Array.isArray(s.p)?s.p:[s.p||s.body||'']).forEach(p=>{html+=`<p>${esc2(p).replace(/\n/g,'<br>')}</p>`;});html+='</div>';});
  if(L.formulas&&L.formulas.length){html+='<div class="learn-formula">';L.formulas.forEach(f=>{html+=esc2(f)+'<br>';});html+='</div>';}
