@@ -28,8 +28,8 @@ const ok=(n,c,d='')=>{if(c){console.log('  ✅ '+n);pass++;}else{console.log('  
     await pg.setContent('<!doctype html><meta charset=utf-8><body>');
     await pg.addScriptTag({url:base+'/projects/rpg-badwords.js'});
     const R=async(name)=>pg.evaluate(n=>RPGBadWords.contains(n),name);
-    for(const bad of ['FUCK NIGGERS','fuck niggers','F U C K','N1GG3R','FUUUCK','kok0t','PÍČA','čurák','ZMRD','HITLER','nazi','FAGGOT','retard','SEX','pí.ča']) ok('blokuje: '+bad, await R(bad)===true);
-    for(const good of ['ADÉLA','MATĚJ','SHEILA','JANUSZ','PATRIK','DENISA','ANNA','ŠTĚPÁN','KRISTÝNA','VOJTA','FRANTIŠEK','PRŮZKUMNÍK','DRAKOBIJEC']) ok('pustí: '+good, await R(good)===false);
+    for(const bad of ['FUCK NIGGERS','fuck niggers','F U C K','N1GG3R','FUUUCK','kok0t','PÍČA','čurák','ZMRD','HITLER','nazi','FAGGOT','retard','SEX','pí.ča','shithead','MOTHERFUCKER','asshole','pussy','wanker','KUNDA','jebat','buzerant','cigán','ass','cum','fag','dick','cock','pedophile','rapist','coon','spic','do piče','skurvysyn','čokl','teploš']) ok('blokuje: '+bad, await R(bad)===true);
+    for(const good of ['ADÉLA','MATĚJ','SHEILA','JANUSZ','PATRIK','DENISA','ANNA','ŠTĚPÁN','KRISTÝNA','VOJTA','FRANTIŠEK','PRŮZKUMNÍK','DRAKOBIJEC','BENEDIKT','DICKENS','PICASSO','ASSUNTA','MASSIMO','CASSANDRA','VANESSA','SCARLETT','KATARÍNA','ĽUBOMÍR','HORATIO','TITUS','ANGELA','POOJA','ISABELLA']) ok('pustí: '+good, await R(good)===false);
     await pg.context().close();
   }
 
