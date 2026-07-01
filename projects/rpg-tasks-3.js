@@ -352,25 +352,25 @@
     return tasks;
   }
 
-  // 5-2 Obvod čtverce a obdélníku
+  // 5-2 Obvod čtverce a obdélníku — jako SOUČET stran (3. roč., bez vzorců)
   function gen_5_2() {
     const tasks = [];
     for (let i = 0; i < 10; i++) {
       const typ = ri(0, 1);
       if (typ === 0) {
-        const a = ri(2, 15);
+        const a = ri(2, 12);
         tasks.push({
-          text: `Čtverec má stranu ${a} cm. Jaký je jeho obvod?`,
+          text: `Čtverec má 4 stejné strany po ${a} cm. Jaký je jeho obvod?`,
           ans: 4 * a,
-          hints: [`Obvod čtverce = 4 × strana = 4 × ${a}.`, `= ${4 * a} cm`],
+          hints: [`Sečti všechny 4 strany: ${a} + ${a} + ${a} + ${a}.`, `= ${4 * a} cm`],
           skill: 'geo'
         });
       } else {
-        const a = ri(2, 14), b = ri(2, 14);
+        const a = ri(3, 12); let b = ri(2, 11); if (b >= a) b = a - 1;  // obdélník: různé strany
         tasks.push({
-          text: `Obdélník má strany ${a} cm a ${b} cm. Jaký je jeho obvod?`,
+          text: `Obdélník má dvě strany po ${a} cm a dvě strany po ${b} cm. Jaký je jeho obvod?`,
           ans: 2 * (a + b),
-          hints: [`Obvod obdélníku = 2 × (a + b) = 2 × (${a} + ${b}).`, `= ${2 * (a + b)} cm`],
+          hints: [`Sečti všechny 4 strany: ${a} + ${b} + ${a} + ${b}.`, `= ${2 * (a + b)} cm`],
           skill: 'geo'
         });
       }
@@ -378,15 +378,16 @@
     return tasks;
   }
 
-  // 5-3 Úsečky a délky
+  // 5-3 Úsečky, lomená čára a poznávání rovinných obrazců (3. ročník)
   function gen_5_3() {
+    const SHAPES = [['čtverec', 4], ['obdélník', 4], ['trojúhelník', 3]];
     const tasks = [];
     for (let i = 0; i < 10; i++) {
-      const typ = ri(0, 2);
+      const typ = ri(0, 3);
       if (typ === 0) {
         const a = ri(2, 9), b = ri(2, 9);
         tasks.push({
-          text: `Úsečka AB měří ${a} cm, úsečka BC měří ${b} cm. Jak dlouhá je úsečka AC (A−B−C v jedné přímce)?`,
+          text: `Body A, B, C leží za sebou v jedné řadě. Úsečka AB měří ${a} cm, úsečka BC měří ${b} cm. Jak dlouhá je úsečka AC?`,
           ans: a + b,
           hints: [`Sečti obě části: ${a} + ${b}.`, `= ${a + b} cm`],
           skill: 'geo'
@@ -396,14 +397,23 @@
         tasks.push({
           text: `Lomená čára má ${n} stejné úseky po ${a} cm. Jaká je její celková délka?`,
           ans: a * n,
-          hints: [`${n} × ${a}.`, `= ${a * n} cm`],
+          hints: [`Sečti všechny úseky: ${n} × ${a}.`, `= ${a * n} cm`],
+          skill: 'geo'
+        });
+      } else if (typ === 2) {
+        const [nm, sides] = SHAPES[ri(0, SHAPES.length - 1)];
+        tasks.push({
+          text: `Kolik stran má ${nm}?`,
+          ans: sides,
+          hints: [`Spočítej strany po obvodu obrazce.`, `= ${sides}`],
           skill: 'geo'
         });
       } else {
+        const [nm, corners] = SHAPES[ri(0, SHAPES.length - 1)];
         tasks.push({
-          text: `Kolik os souměrnosti má čtverec?`,
-          ans: 4,
-          hints: ['Čtverec: 2 úhlopříčky + 2 středové osy.', '= 4'],
+          text: `Kolik vrcholů (rohů) má ${nm}?`,
+          ans: corners,
+          hints: [`Vrchol je roh obrazce — spočítej je.`, `= ${corners}`],
           skill: 'geo'
         });
       }
