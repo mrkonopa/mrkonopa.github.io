@@ -543,7 +543,7 @@ html[data-theme="violet"]{--gold:#b06cff;--panel:#100a20;--panel2:#18103a;--blue
  <!-- brána (vstup / pravidla / žebříček / síň slávy) -->
  <div id="tw-gate">
  <div class="panel" style="padding:12px 14px;text-align:center">
-  <div style="font-family:var(--vt);font-size:21px;color:var(--muted);line-height:1.35">Každé patro = jeden příklad, těžší a těžší.<br>Máš <span style="color:var(--red,#ff3355)">3 ❤</span> a na každé patro časový limit.<br><span style="color:var(--gold)">Kam vystoupáš, tam se zapíšeš.</span> Bez nápověd!</div>
+  <div id="tw-rules" style="font-family:var(--vt);font-size:21px;color:var(--muted);line-height:1.35">Každé patro = jeden příklad, těžší a těžší.<br>Máš <span style="color:var(--red,#ff3355)">3 ❤</span> a na každé patro časový limit.<br><span style="color:var(--gold)">Kam vystoupáš, tam se zapíšeš.</span> Bez nápověd!</div>
   <div id="tw-gate-status" style="font-family:var(--px);font-size:12px;color:var(--muted);margin-top:10px"></div>
   <div id="tw-gate-actions" style="margin-top:12px"></div>
  </div>
@@ -2502,6 +2502,19 @@ async function renderTowerGate(){
  document.getElementById('tw-hall').style.display='none';
  const cloud=typeof RPGCloud!=='undefined'&&RPGCloud.configured&&RPGCloud.configured();
  TW.cloudMode=false;TW.practice=false;
+ const rules=document.getElementById('tw-rules');if(rules)rules.style.display='';
+ // ── Letní prázdniny: věž je zavřená pro všechny, probíhá úklid ──
+ if(twHoliday().on){
+  TW.holiday=true;
+  if(rules)rules.style.display='none';
+  st.innerHTML='🧹 <b>Věž legend má prázdniny.</b><br>Po náročném roce ve věži probíhá velký úklid. '
+   +'Věž se znovu otevře <b style="color:var(--gold)">1. září</b> — čistá a resetnutá pro nový ročník. '
+   +'Síň slávy zůstává navždy 👑';
+  act.innerHTML='';
+  if(cloud&&RPGCloud.currentUser())twRenderHall();
+  return;
+ }
+ TW.holiday=false;
  if(!cloud){
   TW.practice=true;
   st.textContent='Cloud není dostupný — lezeš nanečisto, rekord se uloží jen v tomhle prohlížeči.';
@@ -2567,6 +2580,7 @@ async function twRenderHall(){
 
 // ── běh pokusu ──
 function twStart(){
+ if(twHoliday().on){renderTowerGate();return;}   // o prázdninách nelze vstoupit
  if(!S.tower)S.tower={best:0};
  TW.on=true;TW.floor=1;TW.lives=3;
  TWA.scroll=0;
@@ -2738,6 +2752,22 @@ function twLoop(now){
  twDrawCanvas();
  requestAnimationFrame(twLoop);
 }
+// ── letní prázdniny věže: červenec + srpen (0=leden … 6=červenec, 7=srpen) ──
+function twHoliday(){
+ const d=window.__TW_TESTNOW?new Date(window.__TW_TESTNOW):new Date();
+ const m=d.getMonth();
+ return {on:(m===6||m===7)};
+}
+// uklízečka (16×24, 2 snímky zametání) — kreslí se na římsu místo hrdiny
+const TW_CLEANER_PAL={K:'#0a0c12',C:'#f3c89a',c:'#cf9a68',H:'#d94f45',h:'#a02e26',D:'#4a7fb5',d:'#2f5580',W:'#eef1f6',G:'#9a6a34',Y:'#e6c24e',B:'#2e2e38'};
+const TW_CLEANER=[
+ ['.....KKKKK......','....KHHHHHK.....','...KHHHHHHHK....','...KHCCCCCHK....','...KCCKCKCCK....','...KCCCCCCCK....','...KCCcccCCK....','....KKCCCKK.....','...KWDDDDDWK....','..KWDDDDDDDWKG..','..KCDDDDDDDCKG..','..KCWDDDDDWCKG..','...KWWWWWWWKGY..','...KWWWWWWWGYYY.','...KWWWWWWKGYYYY','...KDDDDDDK.YYY.','...KDDDDDDK.....','...KDDKDDK......','...KDDKDDK......','...KBBKBBK......','..KBBKKBBK......','..KKK..KKK......','................','................'],
+ ['.....KKKKK......','....KHHHHHK.....','...KHHHHHHHK....','...KHCCCCCHK....','...KCCKCKCCK....','...KCCCCCCCK....','...KCCcccCCK....','....KKCCCKK.....','...KWDDDDDWK....','..KWDDDDDDDWK...','..KCDDDDDDDCKG..','..KCWDDDDDWCKGG.','...KWWWWWWWKGGY.','...KWWWWWWWKYYYY','...KWWWWWWKYYYY.','...KDDDDDDKYY...','...KDDDDDDK.....','...KDDKDDK......','...KDDKDDK......','...KBBKBBK......','..KBBKKBBK......','..KKK..KKK......','................','................']
+];
+function twDrawCleaner(x,px,py,sc,frame){
+ const g=TW_CLEANER[frame?1:0],s=Math.ceil(sc);
+ for(let r=0;r<g.length;r++)for(let c=0;c<g[r].length;c++){const ch=g[r][c];if(ch==='.')continue;x.fillStyle=TW_CLEANER_PAL[ch]||'#f0f';x.fillRect(Math.round(px+c*sc),Math.round(py+r*sc),s,s);}
+}
 function twDrawCanvas(){
  const cv=document.getElementById('tw-canvas');if(!cv)return;
  const w=cv.clientWidth||600;
@@ -2750,6 +2780,7 @@ function twDrawCanvas(){
  for(let i=0;i<46;i++)x.fillRect((i*97)%w,(i*53)%230,2,2);
  // věž (válec)
  const cx=Math.round(w/2),R=72;
+ const winA=TW.holiday?0.35:1;   // o prázdninách zhasnutá okna (nikdo doma)
  x.fillStyle='#10162a';x.fillRect(cx-R,0,2*R,230);
  x.fillStyle='#0a0e1c';x.fillRect(cx-R,0,9,230);x.fillRect(cx+R-9,0,9,230);
  x.fillStyle='#171f3a';x.fillRect(cx-R+9,0,7,230);x.fillRect(cx+R-16,0,7,230);
@@ -2767,19 +2798,24 @@ function twDrawCanvas(){
    if(cs<=0.18)continue;                 // okno je na odvrácené straně
    const wx=cx+Math.sin(a)*R*0.74;
    const ww=Math.max(3,Math.round(9*cs)),wh=17;
-   x.fillStyle='rgba(77,200,255,'+(0.25+0.6*cs).toFixed(2)+')';
+   x.fillStyle='rgba(77,200,255,'+((0.25+0.6*cs)*winA).toFixed(2)+')';
    x.fillRect(Math.round(wx-ww/2),Math.round(y+14),ww,wh);
-   x.fillStyle='rgba(77,200,255,'+(0.10*cs).toFixed(2)+')';
+   x.fillStyle='rgba(77,200,255,'+((0.10*cs)*winA).toFixed(2)+')';
    x.fillRect(Math.round(wx-ww/2)-2,Math.round(y+12),ww+4,wh+4);
   }
  }
  // římsa s hrdinou (vpravo u věže)
  const hx=cx+R+6,hy=104;
  x.fillStyle='#1d2748';x.fillRect(hx-4,hy+72,56,5);
- if(window.RPGSprites6&&RPGSprites6.drawHeroOn)RPGSprites6.drawHeroOn(x,hx,hy,3,twRM()?0:TWA.frame,true);
+ if(TW.holiday){
+  twDrawCleaner(x,hx+2,hy+6,3,twRM()?0:TWA.frame);
+  if(!twRM()){for(let i=0;i<5;i++){const t=((TWA.tick||0)/520+i/5)%1;x.globalAlpha=+(0.5*(1-t)).toFixed(2);x.fillStyle=i%2?'#e6c24e':'#cfe0ff';x.fillRect(hx-4+i*13,Math.round(hy+66-t*40),3,3);}x.globalAlpha=1;}
+ }else if(window.RPGSprites6&&RPGSprites6.drawHeroOn){
+  RPGSprites6.drawHeroOn(x,hx,hy,3,twRM()?0:TWA.frame,true);
+ }
  // popisek patra na zdi
  x.fillStyle='#f4d03f';x.font='700 20px "Roboto Mono",monospace';x.textAlign='center';
- x.fillText(TW.on?'PATRO '+TW.floor:'VĚŽ LEGEND',cx,42);
+ x.fillText(TW.holiday?'🧹 ÚKLID':(TW.on?'PATRO '+TW.floor:'VĚŽ LEGEND'),cx,42);
 }
 
 // ══════════════════════════════════════════
