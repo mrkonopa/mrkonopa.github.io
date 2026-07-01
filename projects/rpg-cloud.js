@@ -56,12 +56,19 @@ window.RPGCloud = (function () {
       role = null;
       if (user) { await fetchRole(); syncWallet(); }
       client.auth.onAuthStateChange(async (_event, s) => {
+        // INITIAL_SESSION už pokryl getSession()+emit() níže → přeskočit. Jinak by se
+        // celý onChange (včetně continueGame → renderMap) spustil DVAKRÁT hned po načtení
+        // stránky a mapa by se viditelně „načetla dvakrát" (animace nájezdu se zopakuje).
+        if (_event === 'INITIAL_SESSION') return;
         const nu = s ? s.user : null;
         if (nu && !emailOK(nu)) { client.auth.signOut(); return; }
+        const prevId = user ? user.id : null;
         const wasOut = !user;
         user = nu;
         if (user) { await fetchRole(); if (wasOut) syncWallet(); } else role = null;
-        emit();
+        // emit jen při skutečné změně přihlášeného uživatele (ne při TOKEN_REFRESHED),
+        // ať se mapa zbytečně nepřekresluje každou hodinu při obnově tokenu.
+        if ((user ? user.id : null) !== prevId) emit();
       });
       emit();
       return true;

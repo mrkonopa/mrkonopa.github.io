@@ -1583,6 +1583,7 @@ function go(name){
 // ══════════════════════════════════════════
 function startGame(){
  const v=document.getElementById('ni').value.trim().toUpperCase().slice(0,14);
+ if(v&&typeof RPGBadWords!=='undefined'&&RPGBadWords.contains(v)){alert('Toto jméno není povolené. Zvol prosím jiné. 🙂');const _ni=document.getElementById('ni');if(_ni)_ni.focus();return;}
  S.name=v||'HRDINA';
  saveS();touchStreak();applyMotionPref();applyCosmetics();go('map');
 }
@@ -3236,6 +3237,7 @@ window.addEventListener('load',()=>{
 <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script defer src="./rpg-cloud.js"></script>
 <script defer src="./rpg-battle-7.js"></script>
+<script defer src="./rpg-badwords.js"></script>
 <script defer src="./rpg-shared.js"></script>
 <script defer src="./rpg-tasktypes.js"></script>
 <script defer src="./rpg-battle-ui.js"></script>
