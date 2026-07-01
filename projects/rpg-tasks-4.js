@@ -186,7 +186,7 @@
       } else if (typ === 1) {
         tasks.push({ text: `${a} × ? = ${a * b}`, ans: b, hints: [`Jaké číslo dá s ${a} dohromady ${a * b}? Zkus ${a * b} ÷ ${a}.`, `= ${b}`], skill: 'calc', mc: true });
       } else {
-        tasks.push({ text: `Kolik je ${a}krát ${b}?`, ans: a * b, hints: [`${a}krát ${b} je totéž co ${a} × ${b}.`, `= ${a * b}`], skill: 'calc', mc: true });
+        tasks.push({ text: `Kolik je ${a} krát ${b}?`, ans: a * b, hints: [`${a} krát ${b} je totéž co ${a} × ${b}.`, `= ${a * b}`], skill: 'calc', mc: true });
       }
     }
     return tasks;
@@ -227,7 +227,7 @@
       if (typ === 0) {
         tasks.push({ text: `${a} × ${b} = ?`, ans: a * b, hints: [`Rozlož: ${Math.floor(a / 10) * 10} × ${b} + ${a % 10} × ${b}.`, `= ${a * b}`], skill: 'calc' });
       } else if (typ === 1) {
-        tasks.push({ text: `Kolik je ${b}krát ${a}?`, ans: a * b, hints: [`${b}krát ${a} je ${a} × ${b}. Rozlož ${a} na desítky a jednotky.`, `= ${a * b}`], skill: 'calc' });
+        tasks.push({ text: `Kolik je ${b} krát ${a}?`, ans: a * b, hints: [`${b} krát ${a} je ${a} × ${b}. Rozlož ${a} na desítky a jednotky.`, `= ${a * b}`], skill: 'calc' });
       } else {
         tasks.push({ text: `${a} × ? = ${a * b}`, ans: b, hints: [`Hledáš, kolikrát vzít ${a}, abys dostal ${a * b}. Zkus ${a * b} ÷ ${a}.`, `= ${b}`], skill: 'calc' });
       }
