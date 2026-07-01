@@ -18,6 +18,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&family=VT323&display=swap" rel="stylesheet">
+<script src="./rpg-badwords.js"></script>
 <script src="./rpg-wallet.js"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -493,9 +494,8 @@ function maybeShowEditBtn(){
 
 if(HUB_HAS_WALLET) RPGWallet.onChange(()=>{ renderGlobalProfile(); renderShop(); });
 
-// Zakázaná slova (základní filtr)
-const BAD_WORDS=['kurva','kokot','pica','suka','prdel','hovno','debil','blbec','idiot','cretin','bastard','asshole','fuck','shit','cunt','dick','bitch','nigger','faggot'];
-function containsBad(str){const lo=str.toLowerCase();return BAD_WORDS.some(w=>lo.includes(w));}
+// Zakázaná slova — sdílený filtr projects/rpg-badwords.js (RPGBadWords)
+function containsBad(str){return typeof RPGBadWords!=='undefined'&&RPGBadWords.contains(str);}
 
 function startHeroRename(){
   const nameEl=document.getElementById('gp-name');
