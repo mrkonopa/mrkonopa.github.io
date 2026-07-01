@@ -1256,10 +1256,10 @@ function pickMC(btn,chosen,correct){
 function submitAnswer(){
  const inp=document.getElementById('bt-ans');const raw=inp.value.trim();if(!raw)return;
  const t=BT.curTask;const ok=checkAns(raw,String(t.ans));stopTimer();
- inp.disabled=true;document.getElementById('attack-btn').disabled=true;
  const fb=document.getElementById('bt-fb');
  const xpKey=`${BT.mid}-${BT.idx}`;if(!S.xpClaimed)S.xpClaimed={};
  if(ok){
+  inp.disabled=true;document.getElementById('attack-btn').disabled=true;
   BT.combo++;updateCombo();const isCrit=BT.combo>=3;
   const xpGain=(!S.xpClaimed[xpKey])?7:2;S.xpClaimed[xpKey]=true;S.done[xpKey]=true;BT._doneBattle++;saveS();
   awardXp(xpGain,isCrit);if(typeof RPGWallet!=='undefined')RPGWallet.earn(isCrit?7:5,SAVE_KEY);
@@ -1272,6 +1272,7 @@ function submitAnswer(){
  }else{
   BT.combo=0;updateCombo();fb.textContent='✗ ŠPATNĚ — "'+raw+'" není správně.';fb.className='feedback err';
   monsterAttack();damagePlayer();
+  inp.value='';if(!isYN(t))inp.focus();
  }
 }
 
