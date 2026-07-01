@@ -157,29 +157,31 @@ window.RPG_LEARN_3 = {
     video: { url: 'https://www.matyskova-matematika.cz/geometrie-3/', title: 'Obvod trojúhelníku – Matýskova matematika' }
   },
   '5-2': {
-    intro: 'Obvod čtverce a obdélníku.',
+    intro: 'Obvod čtverce a obdélníku — sečti délky všech stran.',
     sections: [
-      { title: 'Čtverec', body: 'Čtverec má 4 stejné strany. Obvod = 4 × strana.' },
-      { title: 'Obdélník', body: 'Obdélník má dvě dvojice stejných stran (a a b). Obvod = 2 × (a + b).' },
+      { title: 'Čtverec', body: 'Čtverec má 4 stejné strany. Obvod spočítáš tak, že sečteš všechny 4 strany (strana + strana + strana + strana).' },
+      { title: 'Obdélník', body: 'Obdélník má čtyři strany — dvě delší a dvě kratší. Obvod je součet všech čtyř stran.' },
     ],
-    formulas: ['Obvod čtverce: O = 4 × a', 'Obvod obdélníku: O = 2 × (a + b)'],
+    formulas: ['Obvod = sečti délky všech stran obrazce'],
     examples: [
-      { q: 'Čtverec se stranou 6 cm. Obvod?', a: 'O = 4 × 6 = 24 cm' },
-      { q: 'Obdélník 8 cm a 5 cm. Obvod?', a: 'O = 2 × (8 + 5) = 26 cm' },
+      { q: 'Čtverec má 4 strany po 6 cm. Obvod?', a: '6 + 6 + 6 + 6 = 24 cm' },
+      { q: 'Obdélník má 2 strany po 8 cm a 2 po 5 cm. Obvod?', a: '8 + 5 + 8 + 5 = 26 cm' },
     ],
     video: { url: 'https://www.matyskova-matematika.cz/geometrie-3/', title: 'Obvod čtverce a obdélníku – Matýskova matematika' }
   },
   '5-3': {
-    intro: 'Úsečky, lomené čáry a osy souměrnosti.',
+    intro: 'Úsečky, lomené čáry a rovinné obrazce.',
     sections: [
       { title: 'Úsečka', body: 'Úsečka je rovná čára mezi dvěma body. Označujeme ji dvěma písmeny, např. úsečka AB. Měříme ji pravítkem v cm a mm.' },
-      { title: 'Osa souměrnosti', body: 'Osa souměrnosti je přímka, podle které tvar přeložíme tak, aby se obě poloviny kryly. Čtverec má 4 osy, obdélník 2.' },
+      { title: 'Lomená čára', body: 'Lomená čára je několik úseček spojených za sebou. Její délku spočítáš součtem délek všech úseků.' },
+      { title: 'Rovinné obrazce', body: 'Trojúhelník má 3 strany a 3 vrcholy (rohy). Čtverec a obdélník mají 4 strany a 4 vrcholy.' },
     ],
-    formulas: ['Úsečka AB — od bodu A do bodu B'],
+    formulas: ['Úsečka AB — od bodu A do bodu B', 'Trojúhelník: 3 strany · Čtverec a obdélník: 4 strany'],
     examples: [
       { q: 'Body A−B−C leží v přímce. AB = 4 cm, BC = 3 cm. Kolik měří AC?', a: 'AC = 4 + 3 = 7 cm' },
+      { q: 'Kolik stran má obdélník?', a: '4 strany (a 4 vrcholy)' },
     ],
-    video: { url: 'https://www.matyskova-matematika.cz/geometrie-3/', title: 'Úsečky a osy souměrnosti – Matýskova matematika' }
+    video: { url: 'https://www.matyskova-matematika.cz/geometrie-3/', title: 'Úsečky a rovinné obrazce – Matýskova matematika' }
   },
   '6-1': {
     intro: 'Jednotky délky — mm, cm, dm, m.',
