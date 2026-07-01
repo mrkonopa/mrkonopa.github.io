@@ -279,21 +279,22 @@
       const d = ri(2, 9), q = ri(2, 9), r = ri(1, d - 1);
       const n = d * q + r;
       if (ri(0, 1) === 0) {
-        tasks.push({ text: `${n} ÷ ${d} = ? (napiš jen zbytek)`, ans: r, hints: [`Největší násobek: ${d} × ${q} = ${d * q}. Zbytek = ${n} − ${d * q}.`, `zbytek = ${r}`], skill: 'calc' });
+        tasks.push({ text: `Rozděl ${n} do skupin po ${d}. Kolik zbyde?`, ans: r, hints: [`Největší násobek: ${d} × ${q} = ${d * q}. Zbyde ${n} − ${d * q}.`, `zbyde ${r}`], skill: 'calc' });
       } else {
-        tasks.push({ text: `Kolik celých skupin po ${d} se vejde do ${n}? (napiš jen podíl)`, ans: q, hints: [`${d} × ${q} = ${d * q} se ještě vejde, ${d} × ${q + 1} už ne.`, `= ${q}`], skill: 'calc' });
+        tasks.push({ text: `Rozděl ${n} do skupin po ${d}. Kolik celých skupin vznikne?`, ans: q, hints: [`${d} × ${q} = ${d * q} se ještě vejde, ${d} × ${q + 1} už ne.`, `= ${q}`], skill: 'calc' });
       }
     }
     return tasks;
   }
 
-  // 4-3 Slovní úlohy dělení
+  // 4-3 Slovní úlohy dělení — mix: beze zbytku i se zbytkem (jako 4-1 a 4-2)
   function gen_4_3() {
     const tasks = [];
     const themes = [
+      // — beze zbytku (vyjde celek) —
       () => {
         const d = ri(2, 7), total = d * ri(3, 9);
-        return { text: `${total} oříšků rozdělíme rovně mezi ${d} ${skl(d, 'veverku', 'veverky', 'veverek')}. Kolik dostane každá?`, ans: total / d, h1: `${total} : ${d}`, h2: `= ${total / d}` };
+        return { text: `${total} oříšků rozdělíme rovným dílem mezi ${d} ${skl(d, 'veverku', 'veverky', 'veverek')}. Kolik dostane každá?`, ans: total / d, h1: `${total} : ${d}`, h2: `= ${total / d}` };
       },
       () => {
         const d = ri(2, 8), n = d * ri(3, 9);
@@ -302,6 +303,16 @@
       () => {
         const cols = ri(3, 8), rows = ri(2, 6);
         return { text: `${rows * cols} stromků je vysázeno ${rows < 5 ? 've' : 'v'} ${rows} ${skl(rows, 'řadě', 'řadách', 'řadách')} stejně. Kolik stromků je v jedné řadě?`, ans: cols, h1: `${rows * cols} : ${rows}`, h2: `= ${cols}` };
+      },
+      // — se zbytkem: kolik zbyde —
+      () => {
+        const d = ri(3, 6), q = ri(3, 8), r = ri(1, d - 1), n = d * q + r;
+        return { text: `Jezevec našel ${n} žaludů a rozděluje je rovným dílem mezi ${d} ${skl(d, 'jezevce', 'jezevce', 'jezevců')}. Kolik žaludů mu zbyde?`, ans: r, h1: `${d} × ${q} = ${d * q}, zbyde ${n} − ${d * q}.`, h2: `zbyde ${r}` };
+      },
+      // — se zbytkem: kolik plných skupin —
+      () => {
+        const d = ri(3, 6), q = ri(3, 8), r = ri(1, d - 1), n = d * q + r;
+        return { text: `Máš ${n} jablek a dáváš je do pytlíků po ${d}. Kolik pytlíků úplně naplníš?`, ans: q, h1: `${d} × ${q} = ${d * q} se vejde, ${d} × ${q + 1} už ne.`, h2: `= ${q}` };
       }
     ];
     for (let i = 0; i < 10; i++) {

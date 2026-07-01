@@ -263,9 +263,9 @@
       const d = ri(3, 9), q = ri(2, 9), r = ri(1, d - 1);
       const n = d * q + r;
       if (ri(0, 1) === 0) {
-        tasks.push({ text: `${n} ÷ ${d} = ? (zbytek)`, ans: r, hints: [`${d} × ${q} = ${d * q}. Zbytek = ${n} − ${d * q}.`, `= ${r}`], skill: 'calc' });
+        tasks.push({ text: `Rozděl ${n} do skupin po ${d}. Kolik zbyde?`, ans: r, hints: [`${d} × ${q} = ${d * q}. Zbyde ${n} − ${d * q}.`, `zbyde ${r}`], skill: 'calc' });
       } else {
-        tasks.push({ text: `Kolik celých skupin po ${d} je v ${n}? (podíl)`, ans: q, hints: [`${d} × ${q} = ${d * q} se vejde, ${d} × ${q + 1} už ne.`, `= ${q}`], skill: 'calc' });
+        tasks.push({ text: `Rozděl ${n} do skupin po ${d}. Kolik celých skupin vznikne?`, ans: q, hints: [`${d} × ${q} = ${d * q} se vejde, ${d} × ${q + 1} už ne.`, `= ${q}`], skill: 'calc' });
       }
     }
     return tasks;
