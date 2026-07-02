@@ -41,18 +41,24 @@ const isEnvNoise = t => /Failed to load resource|ERR_CERT_AUTHORITY_INVALID|net:
 // invarianty čteme přímo ze stavu hry; vrací pole porušení (string[])
 const INVARIANTS = () => {
   const bad = [];
-  const c = S.credits;
+  // efektivní stav: peněženka, když je (zdroj pravdy od PR #69), jinak legacy S
+  const st = (typeof RPGWallet !== 'undefined') ? RPGWallet.get() : { credits: S.credits, cosmetics: S.cosmetics };
+  const c = st.credits;
   if (typeof c !== 'number' || !isFinite(c)) bad.push('credits not finite number: ' + JSON.stringify(c));
   if (c < 0) bad.push('credits negative: ' + c);
   if (Math.floor(c) !== c) bad.push('credits not integer: ' + c);
-  const cos = S.cosmetics;
+  // legacy mirror nesmí být rozbitý ani při aktivní peněžence
+  if (typeof S.credits !== 'number' || !isFinite(S.credits) || S.credits < 0) bad.push('legacy S.credits broken: ' + JSON.stringify(S.credits));
+  const cos = st.cosmetics;
   if (!cos || typeof cos !== 'object') { bad.push('cosmetics missing'); return bad; }
+  // katalog: peněženka (nové položky žijí jen tam), jinak lokální fallback hry
+  const CAT = (typeof RPGWallet !== 'undefined' && RPGWallet.itemsAll) ? RPGWallet.itemsAll() : SHOP_ITEMS;
   if (!Array.isArray(cos.owned)) bad.push('owned not array');
   else {
     const seen = new Set();
     for (const id of cos.owned) { if (seen.has(id)) bad.push('owned duplicate: ' + id); seen.add(id); }
     // každá owned položka musí existovat v katalogu
-    for (const id of cos.owned) if (!SHOP_ITEMS.find(i => i.id === id)) bad.push('owned unknown id: ' + id);
+    for (const id of cos.owned) if (!CAT.find(i => i.id === id)) bad.push('owned unknown id: ' + id);
   }
   if (!cos.active || typeof cos.active !== 'object') bad.push('active missing');
   else {
@@ -60,7 +66,7 @@ const INVARIANTS = () => {
     for (const cat of Object.keys(cos.active)) {
       const id = cos.active[cat];
       if (!id) continue;
-      const item = SHOP_ITEMS.find(i => i.id === id);
+      const item = CAT.find(i => i.id === id);
       if (!item) { bad.push('active unknown id: ' + id); continue; }
       if (item.price > 0 && !cos.owned.includes(id)) bad.push('CHEAT: active paid item not owned: ' + id);
     }
@@ -71,6 +77,29 @@ const INVARIANTS = () => {
 async function runStudent(browser, base, idx) {
   const errors = [];
   const ctx = await browser.newContext();
+  // Blokuj externí zdroje (Google Fonts, jsdelivr Supabase CDN) — jinak
+  // `waitUntil:'load'` čeká na zablokované CDN ~12 s/stránku a test vytimeoutuje.
+  await ctx.route('**/*', r => r.request().url().startsWith('http://127.0.0.1') ? r.continue() : r.abort());
+  // Od PR #69 je zdrojem pravdy pro kredity/kosmetiku GLOBÁLNÍ peněženka
+  // (RPGWallet, localStorage RPG_HUB_WALLET); legacy S.credits je jen fallback
+  // bez modulu. Útoky i asserty proto míří na EFEKTIVNÍ ekonomiku přes __eco.
+  await ctx.addInitScript(() => {
+    window.__eco = {
+      hasW: () => typeof RPGWallet !== 'undefined',
+      credits: () => window.__eco.hasW() ? RPGWallet.getCredits() : S.credits,
+      owned:   () => window.__eco.hasW() ? RPGWallet.get().cosmetics.owned  : S.cosmetics.owned,
+      active:  () => window.__eco.hasW() ? RPGWallet.get().cosmetics.active : S.cosmetics.active,
+      setCredits: (n) => {
+        if (window.__eco.hasW()) { let w; try { w = JSON.parse(localStorage.getItem('RPG_HUB_WALLET')) || {}; } catch (e) { w = {}; } w.credits = n; localStorage.setItem('RPG_HUB_WALLET', JSON.stringify(w)); }
+        else { S.credits = n; saveS(); }
+      },
+      resetCosmetics: () => {
+        const fresh = { owned: ['theme-default', 'victory-default'], active: { border: null, badge: null, theme: 'theme-default', victory: 'victory-default', skin: null } };
+        if (window.__eco.hasW()) { let w; try { w = JSON.parse(localStorage.getItem('RPG_HUB_WALLET')) || {}; } catch (e) { w = {}; } w.cosmetics = fresh; localStorage.setItem('RPG_HUB_WALLET', JSON.stringify(w)); }
+        else { S.cosmetics = fresh; saveS(); }
+      }
+    };
+  });
   const page = await ctx.newPage();
   page.on('dialog', d => d.dismiss().catch(()=>{}));
   page.on('console', m => { if (m.type() === 'error' && !isEnvNoise(m.text())) errors.push(`[console] ${m.text()}`); });
@@ -92,30 +121,43 @@ async function runStudent(browser, base, idx) {
     await page.waitForFunction(() => document.querySelector('#s-map')?.classList.contains('active'), { timeout: 8000 });
 
     // ── LEGIT: dokonči numerickou misi 1-2, vydělej kredity (MC je flaky na klikání) ──
-    const before = await page.evaluate(() => S.credits);
+    const before = await page.evaluate(() => __eco.credits());
     await page.evaluate(() => { try { launchBattle(1, '1-2'); } catch(e){} });
     await page.waitForFunction(() => document.querySelector('#s-battle')?.classList.contains('active'), { timeout: 6000 }).catch(()=>{});
+    // Vypni náhodné minihry (34 % šance/úkol) — test měří EKONOMIKU, ne minihry;
+    // žák, který si vylosoval minihru na idx 0, by jinak nevydělal nic.
+    await page.evaluate(() => { try { BT.mini = Object.fromEntries(Array.from({ length: 20 }, (_, i) => [i, null])); renderTask(); } catch(e){} });
     for (let step = 0; step < 12; step++) {
-      const st = await page.evaluate(() => {
+      // Počkej, až jde zase odpovídat. Rychlé submit/next během animace
+      // (chatty styl s page.fill + víc evaluate/krok) destabilizuje headless
+      // render a po pár správných odpovědích zavře kontext. Stabilní vzor je
+      // jako ve vstudents-deep: čekej na ready + celá odpověď v JEDNOM evaluate.
+      await page.waitForFunction(() => {
+        if (!document.querySelector('#s-battle')?.classList.contains('active')) return true;
+        if (BT.mcMode) return [...document.querySelectorAll('#mc-grid .mc-btn')].some(b => !b.disabled);
+        const inp = document.getElementById('bt-ans'); return inp && !inp.disabled;
+      }, { timeout: 4000 }).catch(()=>{});
+      const st = await page.evaluate(async () => {
         if (!document.querySelector('#s-battle')?.classList.contains('active')) return { done:true };
-        const t = BT.tasks[BT.idx]; if (!t) return { done:true };
-        const mc = document.querySelector('#mc-grid');
-        const isMC = mc && getComputedStyle(mc).display !== 'none';
-        return { done:false, ans:String(t.ans), isMC };
-      });
+        const t = BT.curTask || BT.tasks[BT.idx]; if (!t) return { done:true };
+        if (BT.mcMode) {
+          const btns = [...document.querySelectorAll('#mc-grid .mc-btn')];
+          const ok = btns.find(b => (b.dataset.v ?? b.textContent.replace(/^[A-D]\s*/,'').trim()) === String(t.ans));
+          (ok || btns[0]).click();
+        } else {
+          const el = document.getElementById('bt-ans'); el.disabled = false; el.value = String(t.ans);
+          submitAnswer();
+        }
+        await new Promise(r => setTimeout(r, 260));
+        const n = document.getElementById('next-btn');
+        if (n && n.style.display !== 'none') nextTask();
+        return { done:false };
+      }).catch(()=>({ done:true }));
       if (st.done) break;
-      if (st.isMC) {
-        await page.evaluate((ans) => { const mc=document.querySelector('#mc-grid'); const btns=Array.from(mc.querySelectorAll('button,div')).filter(b=>b.textContent.trim()!==''); (btns.find(b=>b.textContent.trim()===ans)||btns[0]).click(); }, st.ans);
-      } else {
-        await page.fill('#bt-ans', st.ans).catch(()=>{});
-        await page.evaluate(() => { try{ submitAnswer(); }catch(e){} });
-      }
-      await sleep(15);
-      await page.evaluate(() => { const n=document.querySelector('#next-btn'); if(n && n.style.display!=='none'){ try{ nextTask(); }catch(e){} } });
-      await sleep(15);
+      await sleep(120);
     }
     await page.evaluate(() => { try{ if(document.querySelector('#s-battle')?.classList.contains('active')) exitBattle(); }catch(e){} });
-    const after = await page.evaluate(() => S.credits);
+    const after = await page.evaluate(() => __eco.credits());
     did.earned = after - before;
     if (did.earned <= 0) errors.push('[earn] dokončení mise nepřineslo kredity (před ' + before + ' po ' + after + ')');
     await checkInv('po-vydělání');
@@ -125,37 +167,37 @@ async function runStudent(browser, base, idx) {
     await sleep(20);
 
     // A) koupit nejdražší položku bez dost kreditů → nesmí projít
-    await page.evaluate(() => { S.credits = 5; saveS(); buyItem('border-holo'); });
+    await page.evaluate(() => { __eco.setCredits(5); buyItem('border-holo'); });
     did.attacks++;
-    const a = await page.evaluate(() => ({ owned: S.cosmetics.owned.includes('border-holo'), credits: S.credits }));
+    const a = await page.evaluate(() => ({ owned: __eco.owned().includes('border-holo'), credits: __eco.credits() }));
     if (a.owned) errors.push('[A] koupil border-holo (220) za 5 kr!');
     if (a.credits !== 5) errors.push('[A] kredity se změnily při neúspěšném nákupu: ' + a.credits);
     await checkInv('A');
 
     // B) aktivovat nevlastněnou placenou položku z konzole → nesmí se aktivovat
-    await page.evaluate(() => { S.credits = 0; S.cosmetics.owned = ['theme-default','victory-default']; S.cosmetics.active = {border:null,badge:null,theme:'theme-default',victory:'victory-default'}; saveS(); activateItem('border-gold'); });
+    await page.evaluate(() => { __eco.setCredits(0); __eco.resetCosmetics(); activateItem('border-gold'); });
     did.attacks++;
-    const b = await page.evaluate(() => S.cosmetics.active.border);
+    const b = await page.evaluate(() => __eco.active().border);
     if (b === 'border-gold') errors.push('[B] CHEAT: aktivoval border-gold bez vlastnictví');
     await checkInv('B');
 
     // C) dvojí nákup téže položky → účtováno jen jednou, žádný duplikát
-    await page.evaluate(() => { S.credits = 100; S.cosmetics.owned = ['theme-default','victory-default']; saveS(); buyItem('badge-cyan'); buyItem('badge-cyan'); buyItem('badge-cyan'); });
+    await page.evaluate(() => { __eco.setCredits(100); __eco.resetCosmetics(); buyItem('badge-cyan'); buyItem('badge-cyan'); buyItem('badge-cyan'); });
     did.attacks++;
-    const c = await page.evaluate(() => ({ credits: S.credits, count: S.cosmetics.owned.filter(x=>x==='badge-cyan').length }));
+    const c = await page.evaluate(() => ({ credits: __eco.credits(), count: __eco.owned().filter(x=>x==='badge-cyan').length }));
     if (c.count !== 1) errors.push('[C] duplikát badge-cyan v owned: ' + c.count + '×');
     if (c.credits !== 40) errors.push('[C] dvojí účtování — zbylo ' + c.credits + ' (mělo 40 po 1× 60)');
     await checkInv('C');
 
     // D) buyItem / activateItem s nesmyslným ID → nespadne, beze změny
-    await page.evaluate(() => { const cr=S.credits; buyItem('nonsense-xyz'); activateItem('also-fake'); buyItem(null); activateItem(undefined); buyItem(12345); window.__crD = (S.credits===cr); });
+    await page.evaluate(() => { const cr=__eco.credits(); buyItem('nonsense-xyz'); activateItem('also-fake'); buyItem(null); activateItem(undefined); buyItem(12345); window.__crD = (__eco.credits()===cr); });
     did.attacks++;
     const d = await page.evaluate(() => window.__crD);
     if (!d) errors.push('[D] nesmyslné ID změnilo kredity');
     await checkInv('D');
 
     // E) earnCredits se zápornými / NaN / nesmysly → ignorováno
-    await page.evaluate(() => { const cr=S.credits; earnCredits(-1000); earnCredits(NaN); earnCredits('500'); earnCredits(undefined); window.__crE = S.credits; window.__crE0 = cr; });
+    await page.evaluate(() => { const cr=__eco.credits(); earnCredits(-1000); earnCredits(NaN); earnCredits('500'); earnCredits(undefined); window.__crE = __eco.credits(); window.__crE0 = cr; });
     did.attacks++;
     const e = await page.evaluate(() => ({ now: window.__crE, was: window.__crE0 }));
     if (e.now < e.was) errors.push('[E] earnCredits se zápornou hodnotou ubralo kredity: ' + e.was + '→' + e.now);
@@ -171,7 +213,8 @@ async function runStudent(browser, base, idx) {
       'totally not json {{{',
     ];
     const corrupt = corruptions[idx % corruptions.length];
-    await page.evaluate((raw) => { localStorage.setItem('RPG_MAT_9', raw); }, corrupt);
+    // garbage do per-game save I do globální peněženky — obě vrstvy musí přežít
+    await page.evaluate((raw) => { localStorage.setItem('RPG_MAT_9', raw); localStorage.setItem('RPG_HUB_WALLET', raw); }, corrupt);
     await page.reload({ waitUntil: 'load' });
     await page.waitForSelector('#ni', { timeout: 8000 }).catch(()=>{});
     const loaded = await page.evaluate(() => { try { const ok = loadS(); return { ok, credits: S.credits, owned: Array.isArray(S.cosmetics?.owned), activeBorder: S.cosmetics?.active?.border }; } catch(err) { return { err: err.message }; } });
@@ -202,11 +245,11 @@ async function runStudent(browser, base, idx) {
 
     // H) spam: rychle kup a aktivuj vše, co jde, s velkým balíkem
     await page.evaluate(() => {
-      S.credits = 100000; saveS();
+      __eco.setCredits(100000);
       (typeof SHOP_ITEMS!=='undefined') && SHOP_ITEMS.forEach(it => { try { buyItem(it.id); activateItem(it.id); } catch(e){} });
     });
     did.attacks++;
-    const h = await page.evaluate(() => ({ credits: S.credits, owned: S.cosmetics.owned.length }));
+    const h = await page.evaluate(() => ({ credits: __eco.credits(), owned: __eco.owned().length }));
     if (h.credits < 0) errors.push('[H] kredity záporné po hromadném nákupu: ' + h.credits);
     await checkInv('H-spam');
 

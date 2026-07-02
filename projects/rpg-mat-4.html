@@ -358,6 +358,8 @@ html[data-theme="violet"]{--gold:#b06cff;--panel:#100a20;--panel2:#18103a;--blue
   <button class="shop-tab" onclick="setShopCat('victory',this)">🎉 Vítězství</button>
   <button class="shop-tab" onclick="setShopCat('skin',this)">🥷 Skin</button>
   <button class="shop-tab" onclick="setShopCat('powerup',this)">⚡ Powerupy</button>
+  <button class="shop-tab" onclick="setShopCat('title',this)">📜 Tituly</button>
+  <button class="shop-tab" onclick="setShopCat('pet',this)">🐾 Mazlíčci</button>
  </div>
  <div class="shop-grid" id="shop-grid"></div>
 </div>
@@ -534,6 +536,10 @@ html[data-theme="violet"]{--gold:#b06cff;--panel:#100a20;--panel2:#18103a;--blue
  <div style="font-family:var(--px);font-weight:700;font-size:12px;color:var(--gold)"><span id="pr-ach-n">0</span> / <span id="pr-ach-t">0</span></div>
  </div>
  <div class="ach-grid" id="pr-ach"></div>
+ </div>
+ <div class="panel">
+ <div style="font-family:var(--px);font-weight:700;font-size:12px;color:var(--muted);letter-spacing:1px;margin-bottom:10px">— ŽIVOTNÍ ÚSPĚCHY (všechny ročníky) —</div>
+ <div id="pr-gach"></div>
  </div>
  <div class="panel">
  <div style="font-family:var(--px);font-weight:700;font-size:12px;color:var(--muted);margin-bottom:12px;letter-spacing:1px">— NASTAVENÍ ⚙️ —</div>
@@ -835,6 +841,7 @@ function touchStreak(){
  const y=new Date(Date.now()-864e5).toISOString().slice(0,10);
  S.streak.count=(S.streak.last===y)?(S.streak.count||0)+1:1;
  S.streak.last=today;saveS();evalAch({});
+ wMax('streakMax',S.streak.count);
  const sc=S.streak.count;earnCredits(sc>=7?20:sc>=3?10:5);
 }
 
@@ -1047,6 +1054,13 @@ function flashHeart(idx){const h=document.querySelector(`.heart[data-i="${idx}"]
 function damagePlayer(){
  if(!S.errs)S.errs={};if(BT&&BT.mid){S.errs[BT.mid]=(S.errs[BT.mid]||0)+1;saveS();}
  if(BT.hp<=0)return;
+ // Štít nováčka: první chyba v boji nezraní (chyba se ale počítá do diagnostiky)
+ if(!BT.shieldUsed&&typeof RPGWallet!=='undefined'&&RPGWallet.hasPowerup&&RPGWallet.hasPowerup('pu-novice-shield')){
+  BT.shieldUsed=true;
+  floatText('⛨ Štít nováčka!',window.innerWidth/2-80,window.innerHeight*0.38,'#7fd8ff');
+  return;
+ }
+ BT.tookDamage=true;
  hitVignette();flashHeart(BT.hp-1);BT.hp--;setTimeout(updatePlayerHp,360);
  if(BT.hp<=0){
   if(BT.secondChance&&!BT.usedSecondChance){BT.usedSecondChance=true;BT.hp=1;floatText('⚡ Druhá šance!',window.innerWidth/2-70,window.innerHeight*0.38,'#ffcc00');return;}
@@ -1063,15 +1077,19 @@ function missionFailed(){
 function startTimer(){
  stopTimer();
  if(!BT.curLimit){const _tEx=(typeof RPGWallet!=='undefined'&&RPGWallet.hasPowerup('pu-time-bonus'))?5:0;BT.curLimit=TIME_PER_TASK+_tEx;}
+ if(typeof RPGWallet!=='undefined'&&RPGWallet.hasPowerup&&RPGWallet.hasPowerup('pu-calm-mind'))BT.curLimit=Math.round(BT.curLimit*1.2);
  BT.timeLeft=BT.curLimit;BT.timeMax=BT.curLimit;
- document.getElementById('timer-wrap').style.display='block';updateTimerUi();
+ document.getElementById('timer-wrap').style.display='block';BT.noTimer=wPerk('notimer');updateTimerUi();
+ if(BT.noTimer)return;
  BT.timer=setInterval(()=>{if(BT.timerFrozen)return;BT.timeLeft--;updateTimerUi();if(BT.timeLeft<=0){stopTimer();onTimeOut();}},1000);
 }
 function stopTimer(){if(BT.timer){clearInterval(BT.timer);BT.timer=null;}}
 function updateTimerUi(){
+ const bar=document.getElementById('timer-bar');
+ if(BT.noTimer){document.getElementById('timer-v').textContent='∞';bar.style.width='100%';bar.classList.remove('warn','danger');return;}
  document.getElementById('timer-v').textContent=BT.timeLeft;
  const pct=Math.max(0,BT.timeLeft/BT.timeMax*100);
- const bar=document.getElementById('timer-bar');bar.style.width=pct+'%';
+ bar.style.width=pct+'%';
  bar.classList.toggle('warn',BT.timeLeft<=10&&BT.timeLeft>5);bar.classList.toggle('danger',BT.timeLeft<=5);
 }
 function onTimeOut(){
@@ -1168,10 +1186,10 @@ function battleMiniDone(mistakes){
  const xpKey=`${BT.mid}-${BT.idx}`;
  if(!S.xpClaimed)S.xpClaimed={};
  const xpGain=(!S.xpClaimed[xpKey])?7:2;S.xpClaimed[xpKey]=true;
- S.done[xpKey]=true;saveS();awardXp(xpGain,isCrit);if(typeof RPGWallet!=='undefined')RPGWallet.earn(isCrit?7:5,SAVE_KEY);
+ S.done[xpKey]=true;saveS();awardXp(xpGain,isCrit);if(typeof RPGWallet!=='undefined')RPGWallet.earn(isCrit?7+wCritBonus():5,SAVE_KEY);
  document.getElementById('next-btn').style.display='inline-block';document.getElementById('next-btn').focus();
  damageMonster(xpGain,isCrit);updateCombo();if(!S.stats)S.stats={};if(BT.combo>(S.stats.bestCombo||0))S.stats.bestCombo=BT.combo;
- evalAch({correct:true,combo:BT.combo,timeLeft:0});checkMissionComplete();
+ evalAch({correct:true,combo:BT.combo,timeLeft:0});wBump('tasks');if(isCrit)wBump('crits');checkMissionComplete();
 }
 function useMiniHint(){if(BT.hp<=1)return;BT.hp--;updatePlayerHp();BT.miniHintUsed=true;const mhBtn=document.getElementById('bt-mini-hint');if(mhBtn)mhBtn.style.display='none';}
 
@@ -1243,10 +1261,10 @@ function pickMC(btn,chosen,correct){
   document.querySelectorAll('#mc-grid .mc-btn').forEach(b=>b.disabled=true);
   BT.combo++;updateCombo();
   const isCrit=BT.combo>=3;const xpGain=(!S.xpClaimed[xpKey])?7:2;S.xpClaimed[xpKey]=true;S.done[xpKey]=true;BT._doneBattle++;saveS();
-  awardXp(xpGain,isCrit);if(typeof RPGWallet!=='undefined')RPGWallet.earn(isCrit?7:5,SAVE_KEY);
+  awardXp(xpGain,isCrit);if(typeof RPGWallet!=='undefined')RPGWallet.earn(isCrit?7+wCritBonus():5,SAVE_KEY);
   fb.textContent='✓ SPRÁVNĚ!';fb.className='feedback ok';
   if(!S.stats)S.stats={};if(BT.combo>(S.stats.bestCombo||0))S.stats.bestCombo=BT.combo;
-  damageMonster(xpGain,isCrit);evalAch({correct:true,combo:BT.combo,timeLeft:BT.timeLeft});checkMissionComplete();
+  damageMonster(xpGain,isCrit);evalAch({correct:true,combo:BT.combo,timeLeft:BT.timeLeft});wBump('tasks');if(isCrit)wBump('crits');checkMissionComplete();
   document.getElementById('next-btn').style.display='inline-block';
  }else{
   btn.disabled=true;
@@ -1264,13 +1282,13 @@ function submitAnswer(){
   inp.disabled=true;document.getElementById('attack-btn').disabled=true;
   BT.combo++;updateCombo();const isCrit=BT.combo>=3;
   const xpGain=(!S.xpClaimed[xpKey])?7:2;S.xpClaimed[xpKey]=true;S.done[xpKey]=true;BT._doneBattle++;saveS();
-  awardXp(xpGain,isCrit);if(typeof RPGWallet!=='undefined')RPGWallet.earn(isCrit?7:5,SAVE_KEY);
+  awardXp(xpGain,isCrit);if(typeof RPGWallet!=='undefined')RPGWallet.earn(isCrit?7+wCritBonus():5,SAVE_KEY);
   fb.textContent='✓ SPRÁVNĚ!';fb.className='feedback ok';
   document.getElementById('next-btn').style.display='inline-block';
   if(!BT.mcMode)document.getElementById('bt-explain').style.display='block';
   damageMonster(xpGain,isCrit);updateCombo();
   if(!S.stats)S.stats={};if(BT.combo>(S.stats.bestCombo||0))S.stats.bestCombo=BT.combo;
-  evalAch({correct:true,combo:BT.combo,timeLeft:BT.timeLeft});checkMissionComplete();
+  evalAch({correct:true,combo:BT.combo,timeLeft:BT.timeLeft});wBump('tasks');if(isCrit)wBump('crits');checkMissionComplete();
  }else{
   BT.combo=0;updateCombo();fb.textContent='✗ ŠPATNĚ — "'+raw+'" není správně.';fb.className='feedback err';
   monsterAttack();damagePlayer();
@@ -1319,6 +1337,7 @@ function levelUpBurst(lvl){
 }
 function victoryBurst(){
  const b=document.createElement('div');b.className='victory-banner';b.textContent='⚓ VÍTĚZSTVÍ! ⚓';
+ {const v=wCatalog().find(i=>i.id===_activeCosmetics()?.active?.victory&&i.cat==='victory');if(v&&v.cssKey)b.classList.add(v.cssKey);}
  document.body.appendChild(b);void b.offsetWidth;b.classList.add('go');setTimeout(()=>b.remove(),1500);
  if(!rmActive()){const coins=['🪙','✨','⭐','💰'];for(let i=0;i<22;i++){const d=document.createElement('div');d.className='gold-drop';d.textContent=coins[i%coins.length];d.style.left=(Math.random()*100)+'vw';const dur=(1.4+Math.random()*1.2);d.style.animationDuration=dur+'s';d.style.animationDelay=(Math.random()*0.4)+'s';document.body.appendChild(d);void d.offsetWidth;d.classList.add('go');setTimeout(()=>d.remove(),(dur+0.5)*1000);}}
 }
@@ -1367,16 +1386,24 @@ function sanitizeCosmetics(){
  });
 }
 function _activeCosmetics(){return(typeof RPGWallet!=='undefined')?RPGWallet.get().cosmetics:S.cosmetics;}
+/* ── Peněženka: pomocníci pro perky a životní countery (graceful bez modulu) ── */
+function wPerk(p){return typeof RPGWallet!=='undefined'&&RPGWallet.hasPerk&&RPGWallet.hasPerk(p);}
+function wBump(k,n){if(typeof RPGWallet!=='undefined'&&RPGWallet.bumpLife)RPGWallet.bumpLife(k,n).forEach(achToast);}
+function wMax(k,v){if(typeof RPGWallet!=='undefined'&&RPGWallet.setLifeMax)RPGWallet.setLifeMax(k,v).forEach(achToast);}
+function wCritBonus(){return wPerk('critcredit')?2:0;}
+function wCatalog(){return(typeof RPGWallet!=='undefined'&&RPGWallet.itemsAll)?RPGWallet.itemsAll():SHOP_ITEMS;}
+function trGuard(){TR.guardJust=false;if(TR.streak>0&&!TR.guardUsed&&typeof RPGWallet!=='undefined'&&RPGWallet.hasPowerup&&RPGWallet.hasPowerup('pu-study-guide')){TR.guardUsed=true;TR.guardJust=true;return true;}return false;}
 function applyCosmetics(){
  const cos=_activeCosmetics()||S.cosmetics;if(!cos)return;
- const av=document.getElementById('pr-avatar');if(av){av.className='';const b=typeof SHOP_ITEMS!=='undefined'?SHOP_ITEMS.find(i=>i.id===cos.active?.border&&i.cat==='border'):null;if(b)av.classList.add(b.cssKey);}
+ const av=document.getElementById('pr-avatar');if(av){av.className='';const b=wCatalog().find(i=>i.id===cos.active?.border&&i.cat==='border');if(b)av.classList.add(b.cssKey);}
  const nm=document.getElementById('pr-name');const mnm=document.getElementById('map-name');
  ['nm-cyan','nm-gold','nm-green','nm-purple'].forEach(c=>{nm&&nm.classList.remove(c);mnm&&mnm.classList.remove(c);});
- const bg=typeof SHOP_ITEMS!=='undefined'?SHOP_ITEMS.find(i=>i.id===cos.active?.badge&&i.cat==='badge'):null;
+ const bg=wCatalog().find(i=>i.id===cos.active?.badge&&i.cat==='badge');
  if(bg){nm&&nm.classList.add(bg.cssKey);mnm&&mnm.classList.add(bg.cssKey);}
- const th=typeof SHOP_ITEMS!=='undefined'?SHOP_ITEMS.find(i=>i.id===cos.active?.theme&&i.cat==='theme'):null;
+ const th=wCatalog().find(i=>i.id===cos.active?.theme&&i.cat==='theme');
  document.documentElement.dataset.theme=th&&th.cssKey?th.cssKey:'';
  const spMod=window.RPGSprites4;if(spMod&&typeof spMod.setSkin==='function')spMod.setSkin(cos.active?.skin||null);
+ if(typeof RPGWallet!=='undefined'&&RPGWallet.renderTitlePet)RPGWallet.renderTitlePet({nameEl:document.getElementById('pr-name'),mapNameEl:document.getElementById('map-name'),avatarEl:document.getElementById('pr-avatar')});
  _updateCreditsUI();renderShop();
 }
 
@@ -1391,7 +1418,7 @@ function renderShop(){
  const grid=document.getElementById('shop-grid');if(!grid)return;
  const bal=_walletBal();
  if(typeof SHOP_ITEMS==='undefined'){grid.innerHTML='<div style="color:var(--muted);font-size:13px">Obchod se načítá…</div>';return;}
- const items=SHOP_ITEMS.filter(i=>i.cat===_shopCat);
+ const items=((typeof RPGWallet!=='undefined'&&RPGWallet.items)?RPGWallet.items():SHOP_ITEMS).filter(i=>i.cat===_shopCat);
  grid.innerHTML=items.map(item=>{
   const owned=(typeof RPGWallet!=='undefined')?RPGWallet.owns(item.id)||(item.price===0):(S.cosmetics&&S.cosmetics.owned&&S.cosmetics.owned.includes(item.id))||item.price===0;
   if(item.cat==='powerup'){const levelOk=!item.minLevel||S.level>=item.minLevel;const canBuy=!owned&&bal>=item.price&&levelOk;return `<div class="shop-card${owned?' active':''}"><div class="shop-ic">${item.ic}</div><div class="shop-nm">${item.name}</div><div style="font-size:10px;opacity:.7;margin:2px 0">${item.desc||''}</div><div class="shop-pr">${item.price} kr · LV ${item.minLevel}</div><div style="margin-top:6px">${owned?`<span style="color:var(--gold);font-family:var(--px);font-size:11px">✓ AKTIVNÍ</span>`:!levelOk?`<span style="font-family:var(--px);font-size:11px;opacity:.5">🔒 LV ${item.minLevel}</span>`:`<button class="btn sm" onclick="buyItem('${item.id}')" ${canBuy?'':'disabled'}>KOUPIT ${item.price} kr</button>`}</div></div>`;}
@@ -1487,18 +1514,18 @@ function trSubmit(){
 function trCorrect(){
  TR.correct++;TR.total++;TR.streak++;
  if(!S.stats)S.stats={};S.stats.trainCorrect=(S.stats.trainCorrect||0)+1;
- const ms=masteryOf(TR.mid);ms.score=Math.min(ms.score+1,MASTERY_GOAL+5);if(ms.score>=MASTERY_GOAL&&!ms.mastered){ms.mastered=true;floatText('🏅 MISTROVSTVÍ!',window.innerWidth/2-70,window.innerHeight*0.4,'#f0c040');}
+ const ms=masteryOf(TR.mid);ms.score=Math.min(ms.score+1,MASTERY_GOAL+5);if(ms.score>=MASTERY_GOAL&&!ms.mastered){ms.mastered=true;wBump('mastered');floatText('🏅 MISTROVSTVÍ!',window.innerWidth/2-70,window.innerHeight*0.4,'#f0c040');}
  if(!S.mastery)S.mastery={};S.mastery[TR.mid]=ms;
- earnCredits(ms.mastered?30:1);evalAch({correct:true,combo:TR.streak});saveS();
+ earnCredits(ms.mastered?30:1);wBump('tasks');evalAch({correct:true,combo:TR.streak});saveS();
  const fb=document.getElementById('tr-fb');fb.textContent='✓ SPRÁVNĚ!';fb.className='feedback ok';
  trStats();document.getElementById('tr-next-btn').style.display='inline-block';
 }
 function trWrong(){
- TR.total++;TR.streak=0;
+ TR.total++;if(!trGuard())TR.streak=0;
  const ms=masteryOf(TR.mid);ms.score=Math.max(0,ms.score-1);if(!S.mastery)S.mastery={};S.mastery[TR.mid]=ms;
  if(!S.errs)S.errs={};S.errs[TR.mid]=(S.errs[TR.mid]||0)+1;saveS();
  const fb=document.getElementById('tr-fb');const t=TR.task;
- fb.textContent=`✗ Správně: ${t.ans}`;fb.className='feedback err';
+ fb.textContent=(TR.guardJust?'🔁 Studijní rádce tě podržel — série zůstává! ':'✗ ')+'Správně: '+t.ans;fb.className='feedback err';
  trStats();document.getElementById('tr-next-btn').style.display='inline-block';
 }
 function trHint(){
@@ -1543,7 +1570,8 @@ function renderProfile(){
  document.getElementById('pr-name').textContent=S.name;
  document.getElementById('pr-lv').textContent=S.level;document.getElementById('pr-xp').textContent=S.xp;
  const rmEl=document.getElementById('pr-rm');if(rmEl)rmEl.checked=rmActive();
- const av=document.getElementById('pr-avatar');if(av){const cos=_activeCosmetics()||S.cosmetics;if(typeof SHOP_ITEMS!=='undefined'){const b=SHOP_ITEMS.find(i=>i.id===cos.active?.border&&i.cat==='border');if(b)av.className=b.cssKey;}}
+ if(typeof RPGWallet!=='undefined'&&RPGWallet.renderGachInto)RPGWallet.renderGachInto(document.getElementById('pr-gach'));
+ const av=document.getElementById('pr-avatar');if(av){const cos=_activeCosmetics()||S.cosmetics;{const b=wCatalog().find(i=>i.id===cos.active?.border&&i.cat==='border');av.className=(b&&b.cssKey)||'';}}
  const attrsEl=document.getElementById('pr-attrs');
  attrsEl.innerHTML=Object.entries(ATTR_META).map(([k,v])=>`<div class="attr-row"><div class="attr-ic">${v.ic}</div><div class="attr-nm">${v.nm}</div><div class="attr-vl">${(S.attrs[k]||0)|0}</div></div>`).join('');
  const inv=document.getElementById('pr-inv');
@@ -1583,7 +1611,7 @@ document.addEventListener('keydown',e=>{
 
 // answerYN is in rpg-shared.js; define fallback
 function isYN(t){return t&&(String(t.ans)==='ANO'||String(t.ans)==='NE');}
-function answerYN(yn){document.querySelectorAll('#yn-row button').forEach(b=>b.disabled=true);const t=BT.curTask;const ok=checkAns(yn,String(t.ans));stopTimer();const xpKey=`${BT.mid}-${BT.idx}`;if(!S.xpClaimed)S.xpClaimed={};const fb=document.getElementById('bt-fb');if(ok){BT.combo++;updateCombo();const isCrit=BT.combo>=3;const xpGain=(!S.xpClaimed[xpKey])?7:2;S.xpClaimed[xpKey]=true;S.done[xpKey]=true;saveS();awardXp(xpGain,isCrit);if(typeof RPGWallet!=='undefined')RPGWallet.earn(isCrit?7:5,SAVE_KEY);fb.textContent='✓ SPRÁVNĚ!';fb.className='feedback ok';document.getElementById('next-btn').style.display='inline-block';damageMonster(xpGain,isCrit);updateCombo();evalAch({correct:true,combo:BT.combo,timeLeft:BT.timeLeft});checkMissionComplete();}else{BT.combo=0;updateCombo();if(!S.errs)S.errs={};S.errs[BT.mid]=(S.errs[BT.mid]||0)+1;saveS();fb.textContent='✗ Správně: '+t.ans;fb.className='feedback err';monsterAttack();damagePlayer();}}
+function answerYN(yn){document.querySelectorAll('#yn-row button').forEach(b=>b.disabled=true);const t=BT.curTask;const ok=checkAns(yn,String(t.ans));stopTimer();const xpKey=`${BT.mid}-${BT.idx}`;if(!S.xpClaimed)S.xpClaimed={};const fb=document.getElementById('bt-fb');if(ok){BT.combo++;updateCombo();const isCrit=BT.combo>=3;const xpGain=(!S.xpClaimed[xpKey])?7:2;S.xpClaimed[xpKey]=true;S.done[xpKey]=true;saveS();awardXp(xpGain,isCrit);if(typeof RPGWallet!=='undefined')RPGWallet.earn(isCrit?7+wCritBonus():5,SAVE_KEY);fb.textContent='✓ SPRÁVNĚ!';fb.className='feedback ok';document.getElementById('next-btn').style.display='inline-block';damageMonster(xpGain,isCrit);updateCombo();evalAch({correct:true,combo:BT.combo,timeLeft:BT.timeLeft});wBump('tasks');if(isCrit)wBump('crits');checkMissionComplete();}else{BT.combo=0;updateCombo();if(!S.errs)S.errs={};S.errs[BT.mid]=(S.errs[BT.mid]||0)+1;saveS();fb.textContent='✗ Správně: '+t.ans;fb.className='feedback err';monsterAttack();damagePlayer();}}
 function checkAns(a,b){if(typeof a==='undefined'||typeof b==='undefined')return false;const na=String(a).trim().replace(',','.');const nb=String(b).trim().replace(',','.');const fa=parseFloat(na),fb=parseFloat(nb);if(!isNaN(fa)&&!isNaN(fb))return Math.abs(fa-fb)<0.001;return na.toUpperCase()===nb.toUpperCase();}
 
 function checkMissionComplete(){
@@ -1598,6 +1626,7 @@ function checkMissionComplete(){
  if(!S.creditsClaimed[BT.mid]){S.creditsClaimed[BT.mid]=true;earnCredits(15);}
  setTimeout(victoryBurst,650);
  evalAch({flawlessMission:!BT.missionHinted,wonAtOneHp:BT.hp===1});
+ if(!BT.tookDamage)wBump('flawless');
  if(isAreaDone(ar)&&!S.inv.includes(ar.art.id)){
   S.inv.push(ar.art.id);
   Object.entries(ar.attrGain).forEach(([k,v])=>{if(S.attrs[k]!==undefined)S.attrs[k]+=v;});

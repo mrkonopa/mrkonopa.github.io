@@ -612,6 +612,8 @@ html[data-theme="violet"]{--gold:#b06cff;--panel:#100a20;--panel2:#18103a;--blue
   <button class="shop-tab" onclick="setShopCat('victory',this)">🎉 Vítězství</button>
   <button class="shop-tab" onclick="setShopCat('skin',this)">🥷 Skin</button>
   <button class="shop-tab" onclick="setShopCat('powerup',this)">⚡ Powerupy</button>
+  <button class="shop-tab" onclick="setShopCat('title',this)">📜 Tituly</button>
+  <button class="shop-tab" onclick="setShopCat('pet',this)">🐾 Mazlíčci</button>
  </div>
  <div class="shop-grid" id="shop-grid"></div>
 </div>
@@ -794,6 +796,10 @@ html[data-theme="violet"]{--gold:#b06cff;--panel:#100a20;--panel2:#18103a;--blue
  <div style="font-family:var(--px);font-weight:700;font-size:12px;color:var(--gold)"><span id="pr-ach-n">0</span> / <span id="pr-ach-t">0</span></div>
  </div>
  <div class="ach-grid" id="pr-ach"></div>
+ </div>
+ <div class="panel">
+ <div style="font-family:var(--px);font-weight:700;font-size:12px;color:var(--muted);letter-spacing:1px;margin-bottom:10px">— ŽIVOTNÍ ÚSPĚCHY (všechny ročníky) —</div>
+ <div id="pr-gach"></div>
  </div>
  <div class="panel">
  <div style="font-family:var(--px);font-weight:700;font-size:12px;color:var(--muted);margin-bottom:12px;letter-spacing:1px">— NASTAVENÍ ⚙️ —</div>
@@ -1322,26 +1328,34 @@ function sanitizeCosmetics(){
  });
 }
 function _activeCosmetics(){return(typeof RPGWallet!=='undefined')?RPGWallet.get().cosmetics:S.cosmetics;}
+/* ── Peněženka: pomocníci pro perky a životní countery (graceful bez modulu) ── */
+function wPerk(p){return typeof RPGWallet!=='undefined'&&RPGWallet.hasPerk&&RPGWallet.hasPerk(p);}
+function wBump(k,n){if(typeof RPGWallet!=='undefined'&&RPGWallet.bumpLife)RPGWallet.bumpLife(k,n).forEach(achToast);}
+function wMax(k,v){if(typeof RPGWallet!=='undefined'&&RPGWallet.setLifeMax)RPGWallet.setLifeMax(k,v).forEach(achToast);}
+function wCritBonus(){return wPerk('critcredit')?2:0;}
+function wCatalog(){return(typeof RPGWallet!=='undefined'&&RPGWallet.itemsAll)?RPGWallet.itemsAll():SHOP_ITEMS;}
+function trGuard(){TR.guardJust=false;if(TR.streak>0&&!TR.guardUsed&&typeof RPGWallet!=='undefined'&&RPGWallet.hasPowerup&&RPGWallet.hasPowerup('pu-study-guide')){TR.guardUsed=true;TR.guardJust=true;return true;}return false;}
 function applyCosmetics(){
  const cos=_activeCosmetics()||S.cosmetics;
  if(!cos)return;
  const av=document.getElementById('pr-avatar');
- if(av){av.className='';const b=SHOP_ITEMS.find(i=>i.id===cos.active?.border&&i.cat==='border');if(b)av.classList.add(b.cssKey);}
+ if(av){av.className='';const b=wCatalog().find(i=>i.id===cos.active?.border&&i.cat==='border');if(b)av.classList.add(b.cssKey);}
  const nm=document.getElementById('pr-name');const mnm=document.getElementById('map-name');
- ['nm-cyan','nm-gold','nm-green','nm-purple'].forEach(c=>{nm&&nm.classList.remove(c);mnm&&mnm.classList.remove(c);});
- const bg=SHOP_ITEMS.find(i=>i.id===cos.active?.badge&&i.cat==='badge');
+ [nm,mnm].forEach(el=>{if(!el)return;[...el.classList].filter(c=>c.startsWith('nm-')).forEach(c=>el.classList.remove(c));});
+ const bg=wCatalog().find(i=>i.id===cos.active?.badge&&i.cat==='badge');
  if(bg){nm&&nm.classList.add(bg.cssKey);mnm&&mnm.classList.add(bg.cssKey);}
- const th=SHOP_ITEMS.find(i=>i.id===cos.active?.theme&&i.cat==='theme');
+ const th=wCatalog().find(i=>i.id===cos.active?.theme&&i.cat==='theme');
  document.documentElement.dataset.theme=th&&th.cssKey?th.cssKey:'';
  const spMod=window.RPGSprites9||window.RPGSprites8||window.RPGSprites7||window.RPGSprites6;
  if(spMod&&typeof spMod.setSkin==='function')spMod.setSkin(cos.active?.skin||null);
+ if(typeof RPGWallet!=='undefined'&&RPGWallet.renderTitlePet)RPGWallet.renderTitlePet({nameEl:document.getElementById('pr-name'),mapNameEl:document.getElementById('map-name'),avatarEl:document.getElementById('pr-avatar')});
  _updateCreditsUI();
  renderShop();
 }
 function renderShop(){
  const grid=document.getElementById('shop-grid');if(!grid)return;
  const bal=_walletBal();
- const items=SHOP_ITEMS.filter(i=>i.cat===_shopCat);
+ const items=((typeof RPGWallet!=='undefined'&&RPGWallet.items)?RPGWallet.items():SHOP_ITEMS).filter(i=>i.cat===_shopCat);
  grid.innerHTML=items.map(item=>{
   const owned=(typeof RPGWallet!=='undefined')?RPGWallet.owns(item.id)||(item.price===0):(S.cosmetics&&S.cosmetics.owned&&S.cosmetics.owned.includes(item.id))||item.price===0;
   if(item.cat==='powerup'){
@@ -1450,6 +1464,7 @@ function levelUpBurst(lvl){
 function victoryBurst(){
  const b=document.createElement('div');
  b.className='victory-banner';b.textContent='⚔ VÍTĚZSTVÍ! ⚔';
+ {const v=wCatalog().find(i=>i.id===_activeCosmetics()?.active?.victory&&i.cat==='victory');if(v&&v.cssKey)b.classList.add(v.cssKey);}
  document.body.appendChild(b);void b.offsetWidth;b.classList.add('go');
  setTimeout(()=>b.remove(),1500);
  // golden coin rain
@@ -1548,6 +1563,7 @@ function touchStreak(){
  const y=new Date(Date.now()-864e5).toISOString().slice(0,10);
  S.streak.count=(S.streak.last===y)?(S.streak.count||0)+1:1;
  S.streak.last=today;saveS();evalAch({});
+ wMax('streakMax',S.streak.count);
  const sc=S.streak.count;earnCredits(sc>=7?20:sc>=3?10:5);
 }
 
@@ -1865,6 +1881,13 @@ function flashHeart(idx){
 function damagePlayer(){
  if(!S.errs)S.errs={};if(BT&&BT.mid){S.errs[BT.mid]=(S.errs[BT.mid]||0)+1;saveS();}
  if(BT.hp<=0)return;
+ // Štít nováčka: první chyba v boji nezraní (chyba se ale počítá do diagnostiky)
+ if(!BT.shieldUsed&&typeof RPGWallet!=='undefined'&&RPGWallet.hasPowerup&&RPGWallet.hasPowerup('pu-novice-shield')){
+  BT.shieldUsed=true;
+  floatText('⛨ Štít nováčka!',window.innerWidth/2-80,window.innerHeight*0.38,'#7fd8ff');
+  return;
+ }
+ BT.tookDamage=true;
  hitVignette();
  flashHeart(BT.hp-1);
  BT.hp--;
@@ -1894,9 +1917,14 @@ function missionFailed(){
 function startTimer(){
  stopTimer();
  if(!BT.curLimit){const _tExtra=(typeof RPGWallet!=='undefined'&&RPGWallet.hasPowerup('pu-time-bonus'))?5:0;BT.curLimit=TIME_PER_TASK+_tExtra;}
+ if(typeof RPGWallet!=='undefined'&&RPGWallet.hasPowerup&&RPGWallet.hasPowerup('pu-calm-mind'))BT.curLimit=Math.round(BT.curLimit*1.2);
  BT.timeLeft=BT.curLimit;BT.timeMax=BT.curLimit;
  document.getElementById('timer-wrap').style.display='block';
+ // Pán času (životní úspěch): čas se v normálním boji neodpočítává.
+ // Věž legend má vlastní časomíru (twStartTimer) — té se perk netýká.
+ BT.noTimer=wPerk('notimer');
  updateTimerUi();
+ if(BT.noTimer)return;
  BT.timer=setInterval(()=>{
  if(BT.timerFrozen)return;
  BT.timeLeft--;
@@ -1911,9 +1939,14 @@ function startTimer(){
 function stopTimer(){if(BT.timer){clearInterval(BT.timer);BT.timer=null;}}
 
 function updateTimerUi(){
+ const bar=document.getElementById('timer-bar');
+ if(BT.noTimer){
+  document.getElementById('timer-v').textContent='∞';
+  bar.style.width='100%';bar.classList.remove('warn','danger');
+  return;
+ }
  document.getElementById('timer-v').textContent=BT.timeLeft;
  const pct=Math.max(0,BT.timeLeft/BT.timeMax*100);
- const bar=document.getElementById('timer-bar');
  bar.style.width=pct+'%';
  bar.classList.toggle('warn',BT.timeLeft<=10&&BT.timeLeft>5);
  bar.classList.toggle('danger',BT.timeLeft<=5);
@@ -2083,10 +2116,11 @@ function battleMiniDone(mistakes){
  const fb=document.getElementById('bt-fb');
  fb.className='feedback ok';
  fb.textContent=firstTime?((mistakes===0?'✓✓ BEZ CHYBY! +':'✓ HOTOVO! +')+xpGain+' XP'):'✓ HOTOVO! (mise už splněna — bez XP)';
- if(firstTime){awardXp(xpGain,isCrit);S.xpClaimed[xpKey]=true;earnCredits(mistakes===0?7:5);tryDropItem();}
+ if(firstTime){awardXp(xpGain,isCrit);S.xpClaimed[xpKey]=true;earnCredits(mistakes===0?7+(isCrit?wCritBonus():0):5);tryDropItem();}
  S.done[`${BT.mid}-${BT.idx}`]=true;saveS();
  if(!S.stats)S.stats={};if(BT.combo>(S.stats.bestCombo||0))S.stats.bestCombo=BT.combo;
  evalAch({correct:true,combo:BT.combo});
+ wBump('tasks');if(isCrit)wBump('crits');
  document.getElementById('next-btn').style.display='inline-block';
  document.getElementById('next-btn').focus();
  damageMonster(xpGain,isCrit);
@@ -2159,7 +2193,7 @@ function submitMC(opt,btn){
  const fb=document.getElementById('bt-fb');
  fb.textContent=firstTime?((isCrit?'✓✓ KRITICKÝ ZÁSAH! +':'✓ SPRÁVNĚ! +')+xpGain+' XP'):'✓ SPRÁVNĚ! (mise už splněna — bez XP)';
  fb.className='feedback ok';
- if(firstTime){awardXp(xpGain,isCrit);if(t.skill&&S.attrs[t.skill]!==undefined)S.attrs[t.skill]+=3;S.xpClaimed[xpKey]=true;earnCredits(isCrit?7:5);tryDropItem();}
+ if(firstTime){awardXp(xpGain,isCrit);if(t.skill&&S.attrs[t.skill]!==undefined)S.attrs[t.skill]+=3;S.xpClaimed[xpKey]=true;earnCredits(isCrit?7+wCritBonus():5);tryDropItem();}
  S.done[`${BT.mid}-${BT.idx}`]=true;
  saveS();
  document.getElementById('next-btn').style.display='inline-block';
@@ -2167,6 +2201,7 @@ function submitMC(opt,btn){
  updateCombo();
  if(!S.stats)S.stats={};if(BT.combo>(S.stats.bestCombo||0))S.stats.bestCombo=BT.combo;
  evalAch({correct:true,combo:BT.combo,timeLeft:BT.timeLeft});
+ wBump('tasks');if(isCrit)wBump('crits');
  checkMissionComplete();
  }else{
  btn.classList.add('wrong');
@@ -2393,7 +2428,7 @@ function submitAnswer(){
  const xpGain=firstTime?Math.max(3,10-BT.hl*3)*(isCrit?2:1):0;
  fb.textContent=firstTime?((isCrit?'✓✓ KRITICKÝ ZÁSAH! +':'✓ SPRÁVNĚ! +')+xpGain+' XP'):'✓ SPRÁVNĚ! (mise už splněna — bez XP)';
  fb.className='feedback ok';
- if(firstTime){awardXp(xpGain,isCrit);if(t.skill&&S.attrs[t.skill]!==undefined)S.attrs[t.skill]+=3;S.xpClaimed[xpKey]=true;earnCredits(isCrit?7:5);tryDropItem();}
+ if(firstTime){awardXp(xpGain,isCrit);if(t.skill&&S.attrs[t.skill]!==undefined)S.attrs[t.skill]+=3;S.xpClaimed[xpKey]=true;earnCredits(isCrit?7+wCritBonus():5);tryDropItem();}
  S.done[`${BT.mid}-${BT.idx}`]=true;
  saveS();
  document.getElementById('bt-ans').disabled=true;
@@ -2405,6 +2440,7 @@ function submitAnswer(){
  updateCombo();
  if(!S.stats)S.stats={};if(BT.combo>(S.stats.bestCombo||0))S.stats.bestCombo=BT.combo;
  evalAch({correct:true,combo:BT.combo,timeLeft:BT.timeLeft});
+ wBump('tasks');if(isCrit)wBump('crits');
  checkMissionComplete();
  }else{
  BT.combo=0;
@@ -2462,6 +2498,7 @@ function checkMissionComplete(){
  // boss poražen — vítězná sekvence (synchro s defeat animací)
  setTimeout(victoryBurst,650);
  evalAch({flawlessMission:!BT.missionHinted,wonAtOneHp:BT.hp===1});
+ if(!BT.tookDamage)wBump('flawless');
  if(isAreaDone(ar)&&!S.inv.includes(ar.art.id)){
  S.inv.push(ar.art.id);
  Object.entries(ar.attrGain).forEach(([k,v])=>{if(S.attrs[k]!==undefined)S.attrs[k]+=v;});
@@ -2668,6 +2705,7 @@ function twCorrect(){
  const fb=document.getElementById('tw-fb');
  fb.className='feedback ok';fb.textContent='⬆ SPRÁVNĚ! Stoupáš do '+(TW.floor+1)+'. patra…';
  TW.floor++;
+ wBump('tasks');wMax('towerFloor',TW.floor);
  twClimbAnim();
  twStats();
  setTimeout(()=>{if(TW.on)twDrawTask();},twRM()?250:900);
@@ -2934,6 +2972,7 @@ function renderProfile(){
  document.getElementById('pr-ach-t').textContent=ACH.length;
  }
  const rm=document.getElementById('pr-rm');if(rm)rm.checked=rmActive();
+ if(typeof RPGWallet!=='undefined'&&RPGWallet.renderGachInto)RPGWallet.renderGachInto(document.getElementById('pr-gach'));
  renderCrossGames();
 }
 
@@ -3121,7 +3160,7 @@ function trSpecialBegin(){
 function trSpecialDone(mistakes){
  if(mistakes===0){trCorrect();}
  else{
-  TR.total++;TR.streak=0;trStats();
+  TR.total++;if(!trGuard())TR.streak=0;trStats();
   const fb=document.getElementById('tr-fb');fb.className='feedback err';
   fb.textContent='Hotovo — ale s '+mistakes+' '+skl(mistakes,'chybou','chybami','chybami')+'. Bod za mistrovství jen bez chyb!';
  }
@@ -3133,6 +3172,7 @@ function trCorrect(){
  const wasMastered=m.mastered;
  m.score=(m.score||0)+1;
  if(m.score>=MASTERY_GOAL)m.mastered=true;
+ wBump('tasks');if(!wasMastered&&m.mastered)wBump('mastered');
  if(TR.task.skill&&S.attrs[TR.task.skill]!==undefined)S.attrs[TR.task.skill]+=1;
  S.xp+=3;
  if(!S.stats)S.stats={};S.stats.trainCorrect=(S.stats.trainCorrect||0)+1;
@@ -3150,11 +3190,17 @@ function trCorrect(){
 }
 
 function trWrong(given){
- TR.total++;TR.streak=0;
+ TR.total++;
  if(!S.errs)S.errs={};if(TR.mid){S.errs[TR.mid]=(S.errs[TR.mid]||0)+1;saveS();}
  const fb=document.getElementById('tr-fb');
  fb.className='feedback err';
- fb.textContent='✗ Není to ono. Správně: '+TR.task.ans;
+ // Studijní rádce: jedna chyba za trénink nezlomí sérii (chyba se počítá)
+ if(trGuard()){
+  fb.textContent='🔁 Studijní rádce tě podržel — série zůstává! Správně: '+TR.task.ans;
+ }else{
+  TR.streak=0;
+  fb.textContent='✗ Není to ono. Správně: '+TR.task.ans;
+ }
  document.getElementById('tr-hint-btn').disabled=true;
  document.getElementById('tr-next-btn').style.display='inline-block';
  document.getElementById('tr-next-btn').focus();
