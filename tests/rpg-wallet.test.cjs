@@ -194,7 +194,7 @@ test('migrace: ignoruje nevalidní owned ID', () => {
 });
 
 test('spam buy vše s velkým rozpočtem → kredity nikdy záporné', () => {
-  W.earn(100000);
+  W.earn(500000);
   W.items().forEach(it => W.buy(it.id));
   assert.ok(W.getCredits() >= 0, 'kredity nezáporné');
   // vlastním všechno
