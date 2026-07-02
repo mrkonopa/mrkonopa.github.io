@@ -89,6 +89,9 @@ async function openNonMCBattle() {
   });
   if (!result) return false;
   await page.waitForFunction(() => document.querySelector('#s-battle')?.classList.contains('active'), { timeout: 5000 }).catch(() => {});
+  // Vypni náhodné minihry (34 % šance/úkol) — při minihře je curTask.ans=''
+  // („No answer found") a tlačítko ÚTOK skryté (click visel 30 s) → flaky.
+  await page.evaluate(() => { try { BT.mini = Object.fromEntries(Array.from({ length: 20 }, (_, i) => [i, null])); renderTask(); } catch (e) {} });
   // počkej na vykreslenou úlohu s odpovědí — fixní sleep byl flaky (curTask
   // se plní v drawTask; pod zátěží 300 ms nestačilo → „No answer found")
   await page.waitForFunction(() => !!(window.BT && BT.curTask && String(BT.curTask.ans ?? '').length), { timeout: 5000 }).catch(() => {});
