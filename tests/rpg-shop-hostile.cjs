@@ -51,12 +51,14 @@ const INVARIANTS = () => {
   if (typeof S.credits !== 'number' || !isFinite(S.credits) || S.credits < 0) bad.push('legacy S.credits broken: ' + JSON.stringify(S.credits));
   const cos = st.cosmetics;
   if (!cos || typeof cos !== 'object') { bad.push('cosmetics missing'); return bad; }
+  // katalog: peněženka (nové položky žijí jen tam), jinak lokální fallback hry
+  const CAT = (typeof RPGWallet !== 'undefined' && RPGWallet.itemsAll) ? RPGWallet.itemsAll() : SHOP_ITEMS;
   if (!Array.isArray(cos.owned)) bad.push('owned not array');
   else {
     const seen = new Set();
     for (const id of cos.owned) { if (seen.has(id)) bad.push('owned duplicate: ' + id); seen.add(id); }
     // každá owned položka musí existovat v katalogu
-    for (const id of cos.owned) if (!SHOP_ITEMS.find(i => i.id === id)) bad.push('owned unknown id: ' + id);
+    for (const id of cos.owned) if (!CAT.find(i => i.id === id)) bad.push('owned unknown id: ' + id);
   }
   if (!cos.active || typeof cos.active !== 'object') bad.push('active missing');
   else {
@@ -64,7 +66,7 @@ const INVARIANTS = () => {
     for (const cat of Object.keys(cos.active)) {
       const id = cos.active[cat];
       if (!id) continue;
-      const item = SHOP_ITEMS.find(i => i.id === id);
+      const item = CAT.find(i => i.id === id);
       if (!item) { bad.push('active unknown id: ' + id); continue; }
       if (item.price > 0 && !cos.owned.includes(id)) bad.push('CHEAT: active paid item not owned: ' + id);
     }

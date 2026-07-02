@@ -181,7 +181,7 @@ window.RPGWallet = (function () {
     });
     // životní countery + úspěchy
     if (!w.life || typeof w.life !== 'object' || Array.isArray(w.life)) w.life = {};
-    LIFE_KEYS.forEach(k => { const v = w.life[k]; w.life[k] = (typeof v === 'number' && isFinite(v) && v > 0) ? Math.floor(v) : 0; });
+    const L = {}; LIFE_KEYS.forEach(k => { const v = w.life[k]; L[k] = (typeof v === 'number' && isFinite(v) && v > 0) ? Math.floor(v) : 0; }); w.life = L;
     if (!w.gach || typeof w.gach !== 'object' || Array.isArray(w.gach)) w.gach = {};
     const G = {}; GACH.forEach(g => { if (typeof w.gach[g.id] === 'string') G[g.id] = w.gach[g.id]; }); w.gach = G;
     // nastavení

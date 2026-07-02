@@ -204,6 +204,8 @@ body::before{
   </div>
   <div class="gp-attrs" id="gp-attrs"></div>
   <div class="ach-grid" id="gp-ach"></div>
+  <div style="font-family:var(--px);font-size:11px;color:var(--muted);letter-spacing:1px;margin-top:14px">— ŽIVOTNÍ ÚSPĚCHY (napříč všemi ročníky) —</div>
+  <div id="gp-gach"></div>
   <div class="gp-actions">
    <button class="gp-btn" id="gp-shop-btn" onclick="toggleShop()">🛍️ SDÍLENÝ OBCHOD</button>
    <label class="gp-vfx" title="Vypne blikání, otřesy a částice ve všech 4 hrách">
@@ -224,6 +226,8 @@ body::before{
    <button class="shop-tab" onclick="setShopCat('victory',this)">🎉 Vítězství</button>
    <button class="shop-tab" onclick="setShopCat('skin',this)">🥷 Skin hrdiny</button>
    <button class="shop-tab" onclick="setShopCat('powerup',this)">⚡ Powerupy</button>
+   <button class="shop-tab" onclick="setShopCat('title',this)">📜 Tituly</button>
+   <button class="shop-tab" onclick="setShopCat('pet',this)">🐾 Mazlíčci</button>
   </div>
   <div class="shop-grid" id="shop-grid"></div>
  </div>
@@ -469,6 +473,8 @@ function renderGlobalProfile(){
  nameEl.className='gp-name';
  const badgeCss=RPGWallet.cssFor('badge');
  if(badgeCss) nameEl.classList.add(badgeCss);
+ // titul pod jménem + mazlíček u avatara (centrálně z peněženky)
+ if(RPGWallet.renderTitlePet)RPGWallet.renderTitlePet({nameEl:nameEl,avatarEl:av});
  // souhrn atributů přes všechny hry
  const tot={};
  ATTR.forEach(([k])=>{ tot[k]=0; });
@@ -480,6 +486,8 @@ function renderGlobalProfile(){
  const allAch={};
  GAMES.forEach(g=>{ const S=load(g.key); if(S&&S.ach) Object.assign(allAch,S.ach); });
  document.getElementById('gp-ach').innerHTML=ACH.map(a=>`<div class="ab${allAch[a.id]?' on':''}" title="${esc(a.nm)}">${a.ic}</div>`).join('');
+ // životní úspěchy s pokrokem
+ if(RPGWallet.renderGachInto)RPGWallet.renderGachInto(document.getElementById('gp-gach'));
  // VFX přepínač
  const vfxCheck=document.getElementById('gp-vfx');
  if(vfxCheck) vfxCheck.checked=w.settings.reducedMotion;
