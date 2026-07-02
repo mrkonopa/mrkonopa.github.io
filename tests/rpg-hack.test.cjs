@@ -295,12 +295,15 @@ async function checkXss(page, label) {
   const srv = await serve();
   const base = `http://127.0.0.1:${srv.address().port}`;
   const browser = await chromium.launch({ executablePath: EXEC, headless: true, args:['--no-sandbox'] });
+  // Blokuj externí zdroje (Google Fonts, jsdelivr CDN) — jinak `load`/reload
+  // čeká na zablokované CDN ~12 s/stránku a ~36 loadů v XSS smyčce vytimeoutuje.
+  const newCtx = async (b) => { const c = await b.newContext(); await c.route('**/*', r => r.request().url().startsWith('http://127.0.0.1') ? r.continue() : r.abort()); return c; };
 
   for (const [payloadKey, payload] of Object.entries(XSS_PAYLOADS)) {
 
     // E-hub: XSS v S.name (zobrazuje se v hub kartách)
     {
-      const ctx = await browser.newContext();
+      const ctx = await newCtx(browser);
       const page = await ctx.newPage();
       page.on('pageerror', e => { if (!isEnvNoise(e.message)) console.error('[pageerror]', e.message); });
       await page.goto(`${base}/projects/rpg-matematika.html`, { waitUntil: 'domcontentloaded' });
@@ -315,7 +318,7 @@ async function checkXss(page, label) {
 
     // E-hub-inv: XSS v S.inv (artefakty)
     {
-      const ctx = await browser.newContext();
+      const ctx = await newCtx(browser);
       const page = await ctx.newPage();
       page.on('pageerror', e => { if (!isEnvNoise(e.message)) console.error('[pageerror]', e.message); });
       await page.goto(`${base}/projects/rpg-matematika.html`, { waitUntil: 'domcontentloaded' });
@@ -330,7 +333,7 @@ async function checkXss(page, label) {
 
     // E-wallet-active: XSS jako active cosmetic ID ve sdílené peněžence
     {
-      const ctx = await browser.newContext();
+      const ctx = await newCtx(browser);
       const page = await ctx.newPage();
       page.on('pageerror', e => { if (!isEnvNoise(e.message)) console.error('[pageerror]', e.message); });
       await page.goto(`${base}/projects/rpg-matematika.html`, { waitUntil: 'domcontentloaded' });
@@ -346,7 +349,7 @@ async function checkXss(page, label) {
 
   // E-teacher: XSS v teacherUnlocked (dříve kritická zranitelnost, nyní opravena)
   {
-    const ctx = await browser.newContext();
+    const ctx = await newCtx(browser);
     const page = await ctx.newPage();
     const consoleErrors = [];
     page.on('pageerror', e => { if (!isEnvNoise(e.message)) consoleErrors.push(e.message); });
@@ -361,7 +364,7 @@ async function checkXss(page, label) {
 
   // E-game9: XSS v S.name přímo ve hře (hra escapuje v renderTask/profil)
   for (const [payloadKey, payload] of Object.entries(XSS_PAYLOADS).slice(0,3)) {
-    const ctx = await browser.newContext();
+    const ctx = await newCtx(browser);
     const page = await ctx.newPage();
     page.on('pageerror', e => { if (!isEnvNoise(e.message)) console.error('[pageerror-game]', e.message); });
     await page.goto(`${base}/projects/rpg-mat-9.html`, { waitUntil: 'domcontentloaded' });
