@@ -86,7 +86,9 @@ async function openNonMCBattle() {
   });
   if (!result) return false;
   await page.waitForFunction(() => document.querySelector('#s-battle')?.classList.contains('active'), { timeout: 5000 }).catch(() => {});
-  await sleep(300);
+  // počkej na vykreslenou úlohu s odpovědí — fixní sleep byl flaky (curTask
+  // se plní v drawTask; pod zátěží 300 ms nestačilo → „No answer found")
+  await page.waitForFunction(() => !!(window.BT && BT.curTask && String(BT.curTask.ans ?? '').length), { timeout: 5000 }).catch(() => {});
   return await page.evaluate(() => !!(BT && BT.curTask && !BT.mcMode));
 }
 
@@ -102,7 +104,7 @@ async function openMCBattle() {
   });
   if (!result) return false;
   await page.waitForFunction(() => document.querySelector('#s-battle')?.classList.contains('active'), { timeout: 5000 }).catch(() => {});
-  await sleep(300);
+  await page.waitForFunction(() => !!(window.BT && BT.curTask && String(BT.curTask.ans ?? '').length), { timeout: 5000 }).catch(() => {});
   return await page.evaluate(() => !!(BT && BT.curTask && BT.mcMode));
 }
 
@@ -128,9 +130,10 @@ async function openMCBattle() {
       if (!found) { console.log('    (skipped — no text-input battle found)'); return; }
       const ans = await page.evaluate(() => BT?.curTask?.ans || '');
       assert.ok(ans, 'No answer found');
+      await page.waitForFunction(() => { const i = document.getElementById('bt-ans'); return i && !i.disabled; }, { timeout: 4000 }).catch(() => {});
       await page.fill('#bt-ans', ans);
       await page.click('button:has-text("ÚTOK")');
-      await sleep(300);
+      await page.waitForFunction(() => document.getElementById('bt-explain').style.display !== 'none', { timeout: 4000 }).catch(() => {});
       const display = await page.evaluate(() => document.getElementById('bt-explain').style.display);
       assert.notStrictEqual(display, 'none', 'bt-explain should be visible after correct answer');
     });
@@ -160,7 +163,9 @@ async function openMCBattle() {
       const nextVisible = await page.isVisible('#next-btn');
       if (nextVisible) {
         await page.click('#next-btn');
-        await sleep(400);
+        // čekej na skutečné překreslení další úlohy — fixní sleep(400) pod
+        // zátěží nestačil a textarea ještě nebyla vyčištěná
+        await page.waitForFunction(() => document.getElementById('bt-explain').style.display === 'none', { timeout: 4000 }).catch(() => {});
         const val = await page.evaluate(() => document.getElementById('bt-explain-txt').value);
         assert.strictEqual(val, '', 'textarea should be empty after next task');
         const display = await page.evaluate(() => document.getElementById('bt-explain').style.display);

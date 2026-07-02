@@ -34,6 +34,9 @@ async function gameStaffPreview(browser, base, N){
   const ctx=await browser.newContext({viewport:{width:480,height:900}});
   const page=await ctx.newPage();
   page.on('pageerror',e=>{fail++;console.log('  ❌ JS chyba g'+N+': '+e.message);});
+  // Pin data mimo letní prázdniny (červenec/srpen) — jinak je věž zavřená
+  // (Fáze 17) a náhled/vstup nejde otevřít. Stejně jako rpg-tower-game.test.
+  await page.addInitScript(()=>{window.__TW_TESTNOW='2026-05-15T10:00:00';});
   await page.addInitScript(({key,seed})=>{localStorage.setItem(key,JSON.stringify(seed));},{key:KEY,seed:SEED});
   await page.goto(`${base}/projects/rpg-mat-${N}.html`,{waitUntil:'load'});
   await page.evaluate(()=>continueGame());

@@ -71,6 +71,9 @@ const INVARIANTS = () => {
 async function runStudent(browser, base, idx) {
   const errors = [];
   const ctx = await browser.newContext();
+  // Blokuj externí zdroje (Google Fonts, jsdelivr Supabase CDN) — jinak
+  // `waitUntil:'load'` čeká na zablokované CDN ~12 s/stránku a test vytimeoutuje.
+  await ctx.route('**/*', r => r.request().url().startsWith('http://127.0.0.1') ? r.continue() : r.abort());
   const page = await ctx.newPage();
   page.on('dialog', d => d.dismiss().catch(()=>{}));
   page.on('console', m => { if (m.type() === 'error' && !isEnvNoise(m.text())) errors.push(`[console] ${m.text()}`); });
@@ -96,23 +99,33 @@ async function runStudent(browser, base, idx) {
     await page.evaluate(() => { try { launchBattle(1, '1-2'); } catch(e){} });
     await page.waitForFunction(() => document.querySelector('#s-battle')?.classList.contains('active'), { timeout: 6000 }).catch(()=>{});
     for (let step = 0; step < 12; step++) {
-      const st = await page.evaluate(() => {
+      // Počkej, až jde zase odpovídat. Rychlé submit/next během animace
+      // (chatty styl s page.fill + víc evaluate/krok) destabilizuje headless
+      // render a po pár správných odpovědích zavře kontext. Stabilní vzor je
+      // jako ve vstudents-deep: čekej na ready + celá odpověď v JEDNOM evaluate.
+      await page.waitForFunction(() => {
+        if (!document.querySelector('#s-battle')?.classList.contains('active')) return true;
+        if (BT.mcMode) return [...document.querySelectorAll('#mc-grid .mc-btn')].some(b => !b.disabled);
+        const inp = document.getElementById('bt-ans'); return inp && !inp.disabled;
+      }, { timeout: 4000 }).catch(()=>{});
+      const st = await page.evaluate(async () => {
         if (!document.querySelector('#s-battle')?.classList.contains('active')) return { done:true };
-        const t = BT.tasks[BT.idx]; if (!t) return { done:true };
-        const mc = document.querySelector('#mc-grid');
-        const isMC = mc && getComputedStyle(mc).display !== 'none';
-        return { done:false, ans:String(t.ans), isMC };
-      });
+        const t = BT.curTask || BT.tasks[BT.idx]; if (!t) return { done:true };
+        if (BT.mcMode) {
+          const btns = [...document.querySelectorAll('#mc-grid .mc-btn')];
+          const ok = btns.find(b => (b.dataset.v ?? b.textContent.replace(/^[A-D]\s*/,'').trim()) === String(t.ans));
+          (ok || btns[0]).click();
+        } else {
+          const el = document.getElementById('bt-ans'); el.disabled = false; el.value = String(t.ans);
+          submitAnswer();
+        }
+        await new Promise(r => setTimeout(r, 260));
+        const n = document.getElementById('next-btn');
+        if (n && n.style.display !== 'none') nextTask();
+        return { done:false };
+      }).catch(()=>({ done:true }));
       if (st.done) break;
-      if (st.isMC) {
-        await page.evaluate((ans) => { const mc=document.querySelector('#mc-grid'); const btns=Array.from(mc.querySelectorAll('button,div')).filter(b=>b.textContent.trim()!==''); (btns.find(b=>b.textContent.trim()===ans)||btns[0]).click(); }, st.ans);
-      } else {
-        await page.fill('#bt-ans', st.ans).catch(()=>{});
-        await page.evaluate(() => { try{ submitAnswer(); }catch(e){} });
-      }
-      await sleep(15);
-      await page.evaluate(() => { const n=document.querySelector('#next-btn'); if(n && n.style.display!=='none'){ try{ nextTask(); }catch(e){} } });
-      await sleep(15);
+      await sleep(120);
     }
     await page.evaluate(() => { try{ if(document.querySelector('#s-battle')?.classList.contains('active')) exitBattle(); }catch(e){} });
     const after = await page.evaluate(() => S.credits);
