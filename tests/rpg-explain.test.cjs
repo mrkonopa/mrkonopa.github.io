@@ -63,6 +63,9 @@ async function test(name, fn) {
 async function freshPage() {
   if (page) await page.close().catch(() => {});
   page = await browser.newPage();
+  // Blokuj externí zdroje (Google Fonts, jsdelivr CDN) — jinak `load` čeká
+  // ~12 s/stránku na zablokované CDN a 6× freshPage() test vytimeoutuje.
+  await page.route('**/*', r => r.request().url().startsWith('http://127.0.0.1') ? r.continue() : r.abort());
   page.on('pageerror', e => { if (!String(e).includes('ERR_CERT') && !String(e).includes('supabase') && !String(e).includes('jsdelivr')) console.error('[page error]', e); });
   await page.addInitScript(MOCK_CLOUD);
   await page.goto(`${base}/projects/rpg-mat-9.html`, { waitUntil: 'load' });
