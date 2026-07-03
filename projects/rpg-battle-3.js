@@ -32,7 +32,7 @@
     // 2) dělení bez zbytku
     function (r) {
       const b = ri(r, 2, 10), q = ri(r, 2, 10);
-      return { topic: 'dělení', text: `Vypočítej: ${b * q} ÷ ${b}`, value: q,
+      return { topic: 'dělení', text: `Vypočítej: ${b * q} : ${b}`, value: q,
                distractors: [q + 1, q - 1, q + 2] };
     },
 
@@ -83,7 +83,7 @@
     // 9) dělení 10
     function (r) {
       const a = ri(r, 2, 9) * 10;
-      return { topic: 'dělení 10', text: `Vypočítej: ${a} ÷ 10`, value: a / 10,
+      return { topic: 'dělení 10', text: `Vypočítej: ${a} : 10`, value: a / 10,
                distractors: [a / 10 + 1, a, a / 10 - 1] };
     },
 
@@ -140,7 +140,7 @@
     function (r) {
       const d = ri(r, 3, 8), q = ri(r, 2, 7), rem = ri(r, 1, d - 1);
       const n = d * q + rem;
-      return { topic: 'zbytek', text: `${n} ÷ ${d} — jaký je zbytek?`, value: rem,
+      return { topic: 'zbytek', text: `${n} : ${d} — jaký je zbytek?`, value: rem,
                distractors: [rem + 1, rem - 1 < 0 ? rem + 2 : rem - 1, d] };
     },
 
@@ -177,7 +177,7 @@
     // 22) dělení 100
     function (r) {
       const a = ri(r, 2, 9);
-      return { topic: 'dělení 100', text: `Vypočítej: ${a * 100} ÷ 100`, value: a,
+      return { topic: 'dělení 100', text: `Vypočítej: ${a * 100} : 100`, value: a,
                distractors: [a * 10, a + 1, a - 1] };
     },
 

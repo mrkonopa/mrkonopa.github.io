@@ -55,7 +55,7 @@
     // 5) dělení jednociferným
     function (r) {
       const b = ri(r, 3, 9), q = ri(r, 23, 130);
-      return { topic: 'dělení', text: `Vypočítej: ${b * q} ÷ ${b}`, value: q,
+      return { topic: 'dělení', text: `Vypočítej: ${b * q} : ${b}`, value: q,
                distractors: [q + 1, q - 1, q + 10] };
     },
 
@@ -112,7 +112,7 @@
     function (r) {
       const a = ri(r, 120, 980);
       const v = Math.round(a) / 100;
-      return { topic: 'desetinná', text: `Vypočítej: ${a} ÷ 100`, value: v,
+      return { topic: 'desetinná', text: `Vypočítej: ${a} : 100`, value: v,
                distractors: [r1(a / 10), a, Math.round((v + 0.1) * 100) / 100] };
     },
 
@@ -163,7 +163,7 @@
     function (r) {
       const d = ri(r, 4, 9), q = ri(r, 12, 60), rem = ri(r, 1, d - 1);
       const n = d * q + rem;
-      return { topic: 'zbytek', text: `${n} ÷ ${d} — jaký je zbytek?`, value: rem,
+      return { topic: 'zbytek', text: `${n} : ${d} — jaký je zbytek?`, value: rem,
                distractors: [rem + 1, d, rem - 1 < 0 ? rem + 2 : rem - 1] };
     },
 

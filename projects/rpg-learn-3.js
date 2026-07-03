@@ -14,7 +14,7 @@ window.RPG_LEARN_3 = {
       { q: 'Kolik stovek má číslo 638?', a: '6 stovek' },
       { q: 'Jaká cifra je na místě desítek v čísle 472?', a: '7 (prostřední cifra)' },
     ],
-    video: { url: 'https://www.matyskova-matematika.cz/vyukova-videa/', title: 'Čísla do 1000 – Matýskova matematika' }
+    video: null
   },
   '1-2': {
     intro: 'Porovnávání čísel do 1000 — znaky <, >, =.',
@@ -25,7 +25,7 @@ window.RPG_LEARN_3 = {
     examples: [
       { q: 'Porovnej: 678 a 687', a: '678 < 687 (desítky: 7 < 8)' },
     ],
-    video: { url: 'https://www.matyskova-matematika.cz/vyukova-videa/', title: 'Porovnávání čísel do 1000 – Matýskova matematika' }
+    video: null
   },
   '1-3': {
     intro: 'Zaokrouhlování — na desítky a stovky.',
@@ -38,7 +38,7 @@ window.RPG_LEARN_3 = {
       { q: 'Zaokrouhli 468 na desítky.', a: '470 (jednotky: 8 ≥ 5 → nahoru)' },
       { q: 'Zaokrouhli 349 na stovky.', a: '300 (desítky: 4 < 5 → dolů)' },
     ],
-    video: { url: 'https://www.matyskova-matematika.cz/vyukova-videa/', title: 'Zaokrouhlování na desítky a stovky – Matýskova matematika' }
+    video: null
   },
   '2-1': {
     intro: 'Sčítání čísel do 1000.',
@@ -49,7 +49,7 @@ window.RPG_LEARN_3 = {
     examples: [
       { q: '356 + 228 = ?', a: '584' },
     ],
-    video: { url: 'https://www.matyskova-matematika.cz/vyukova-videa/', title: 'Sčítání do 1000 – Matýskova matematika' }
+    video: null
   },
   '2-2': {
     intro: 'Odčítání čísel do 1000.',
@@ -60,7 +60,7 @@ window.RPG_LEARN_3 = {
     examples: [
       { q: '700 − 365 = ?', a: '335' },
     ],
-    video: { url: 'https://www.matyskova-matematika.cz/vyukova-videa/', title: 'Odčítání do 1000 – Matýskova matematika' }
+    video: null
   },
   '2-3': {
     intro: 'Slovní úlohy se sčítáním a odčítáním.',
@@ -71,7 +71,7 @@ window.RPG_LEARN_3 = {
     examples: [
       { q: 'Skřítek měl 240 žaludů a našel dalších 130. Kolik má celkem?', a: '240 + 130 = 370 žaludů' },
     ],
-    video: { url: 'https://www.matyskova-matematika.cz/vyukova-videa/', title: 'Slovní úlohy – sčítání a odčítání – Matýskova matematika' }
+    video: null
   },
   '3-1': {
     intro: 'Malá násobilka 1–10 — základ celé matematiky.',
@@ -84,7 +84,7 @@ window.RPG_LEARN_3 = {
       { q: '7 × 8 = ?', a: '56' },
       { q: '6 × 9 = ?', a: '54' },
     ],
-    video: { url: 'https://www.matyskova-matematika.cz/vyukova-videa/', title: 'Malá násobilka – Matýskova matematika' }
+    video: null
   },
   '3-2': {
     intro: 'Násobení 10, 100 a desítkami.',
@@ -97,7 +97,7 @@ window.RPG_LEARN_3 = {
       { q: '8 × 10 = ?', a: '80' },
       { q: '5 × 100 = ?', a: '500' },
     ],
-    video: { url: 'https://www.matyskova-matematika.cz/vyukova-videa/', title: 'Násobení 10 a 100 – Matýskova matematika' }
+    video: null
   },
   '3-3': {
     intro: 'Slovní úlohy s násobením.',
@@ -108,30 +108,30 @@ window.RPG_LEARN_3 = {
     examples: [
       { q: 'Na 4 větvích sedí po 7 ptácích. Kolik ptáků?', a: '4 × 7 = 28 ptáků' },
     ],
-    video: { url: 'https://www.matyskova-matematika.cz/vyukova-videa/', title: 'Slovní úlohy s násobením – Matýskova matematika' }
+    video: null
   },
   '4-1': {
     intro: 'Dělení bez zbytku — opak násobení.',
     sections: [
-      { title: 'Dělení jako opak násobení', body: 'Dělení je opak násobení. 56 ÷ 7 = ? → ptáme se: 7 × ? = 56 → 7 × 8 = 56 → výsledek je 8.' },
+      { title: 'Dělení jako opak násobení', body: 'Dělení je opak násobení. 56 : 7 = ? → ptáme se: 7 × ? = 56 → 7 × 8 = 56 → výsledek je 8.' },
     ],
-    formulas: ['a ÷ b = c  ⟺  b × c = a'],
+    formulas: ['a : b = c  ⟺  b × c = a'],
     examples: [
-      { q: '72 ÷ 9 = ?', a: '8 (protože 9 × 8 = 72)' },
-      { q: '40 ÷ 5 = ?', a: '8' },
+      { q: '72 : 9 = ?', a: '8 (protože 9 × 8 = 72)' },
+      { q: '40 : 5 = ?', a: '8' },
     ],
-    video: { url: 'https://www.matyskova-matematika.cz/vyukova-videa/', title: 'Dělení beze zbytku – Matýskova matematika' }
+    video: null
   },
   '4-2': {
     intro: 'Dělení se zbytkem — co nevyjde přesně.',
     sections: [
       { title: 'Zbytek po dělení', body: 'Ne vždy dělení vyjde přesně. Zbytek je to, co zbyde. Platí: dělenec = dělitel × podíl + zbytek. Zbytek je vždy menší než dělitel!' },
     ],
-    formulas: ['a = b × q + zbytek  (zbytek < b)', '23 ÷ 4 = 5 zbytek 3  (4×5=20, 23−20=3)'],
+    formulas: ['a = b × q + zbytek  (zbytek < b)', '23 : 4 = 5 zbytek 3  (4×5=20, 23−20=3)'],
     examples: [
-      { q: '29 ÷ 6 = ?', a: '4 zbytek 5 (6×4=24, 29−24=5)' },
+      { q: '29 : 6 = ?', a: '4 zbytek 5 (6×4=24, 29−24=5)' },
     ],
-    video: { url: 'https://www.matyskova-matematika.cz/vyukova-videa/', title: 'Dělení se zbytkem – Matýskova matematika' }
+    video: null
   },
   '4-3': {
     intro: 'Slovní úlohy s dělením — rovné rozdělování.',
@@ -140,9 +140,9 @@ window.RPG_LEARN_3 = {
     ],
     formulas: [],
     examples: [
-      { q: '24 oříšků rozdělíme rovně mezi 4 veverky. Kolik každá?', a: '24 ÷ 4 = 6 oříšků' },
+      { q: '24 oříšků rozdělíme rovně mezi 4 veverky. Kolik každá?', a: '24 : 4 = 6 oříšků' },
     ],
-    video: { url: 'https://www.matyskova-matematika.cz/vyukova-videa/', title: 'Slovní úlohy s dělením – Matýskova matematika' }
+    video: null
   },
   '5-1': {
     intro: 'Obvod trojúhelníku — součet všech stran.',
@@ -154,7 +154,7 @@ window.RPG_LEARN_3 = {
     examples: [
       { q: 'Trojúhelník 5, 6, 7 cm. Obvod?', a: 'O = 5 + 6 + 7 = 18 cm' },
     ],
-    video: { url: 'https://www.matyskova-matematika.cz/geometrie-3/', title: 'Obvod trojúhelníku – Matýskova matematika' }
+    video: null
   },
   '5-2': {
     intro: 'Obvod čtverce a obdélníku — sečti délky všech stran.',
@@ -167,7 +167,7 @@ window.RPG_LEARN_3 = {
       { q: 'Čtverec má 4 strany po 6 cm. Obvod?', a: '6 + 6 + 6 + 6 = 24 cm' },
       { q: 'Obdélník má 2 strany po 8 cm a 2 po 5 cm. Obvod?', a: '8 + 5 + 8 + 5 = 26 cm' },
     ],
-    video: { url: 'https://www.matyskova-matematika.cz/geometrie-3/', title: 'Obvod čtverce a obdélníku – Matýskova matematika' }
+    video: null
   },
   '5-3': {
     intro: 'Úsečky, lomené čáry a rovinné obrazce.',
@@ -181,7 +181,7 @@ window.RPG_LEARN_3 = {
       { q: 'Body A−B−C leží v přímce. AB = 4 cm, BC = 3 cm. Kolik měří AC?', a: 'AC = 4 + 3 = 7 cm' },
       { q: 'Kolik stran má obdélník?', a: '4 strany (a 4 vrcholy)' },
     ],
-    video: { url: 'https://www.matyskova-matematika.cz/geometrie-3/', title: 'Úsečky a rovinné obrazce – Matýskova matematika' }
+    video: null
   },
   '6-1': {
     intro: 'Jednotky délky — mm, cm, dm, m.',
@@ -194,7 +194,7 @@ window.RPG_LEARN_3 = {
       { q: '3 dm = ? cm', a: '30 cm' },
       { q: '50 mm = ? cm', a: '5 cm' },
     ],
-    video: { url: 'https://www.matyskova-matematika.cz/vyukova-videa/', title: 'Jednotky délky – Matýskova matematika' }
+    video: null
   },
   '6-2': {
     intro: 'Jednotky hmotnosti a času.',
@@ -207,7 +207,7 @@ window.RPG_LEARN_3 = {
       { q: '2 kg = ? g', a: '2000 g' },
       { q: '3 h = ? min', a: '180 min' },
     ],
-    video: { url: 'https://www.matyskova-matematika.cz/vyukova-videa/', title: 'Jednotky hmotnosti a času – Matýskova matematika' }
+    video: null
   },
   '6-3': {
     intro: 'Peníze — počítání s korunami.',
@@ -218,30 +218,30 @@ window.RPG_LEARN_3 = {
     examples: [
       { q: 'Perníček stojí 25 Kč. Kolik za 3 perníčky?', a: '3 × 25 = 75 Kč' },
     ],
-    video: { url: 'https://www.matyskova-matematika.cz/vyukova-videa/', title: 'Počítání s penězi – Matýskova matematika' }
+    video: null
   },
   '7-1': {
     intro: 'Velké opakování — počítání do 1000.',
     sections: [
       { title: 'Co umíme', body: 'Sčítáme a odčítáme do 1000, násobíme a dělíme z malé násobilky. V této oblasti si vše procvičíme dohromady.' },
     ],
-    formulas: ['+, −, ×, ÷ — vše do 1000'],
+    formulas: ['+, −, ×, : — vše do 1000'],
     examples: [
       { q: '320 + 150 = ?', a: '470' },
     ],
-    video: { url: 'https://www.matyskova-matematika.cz/vyukova-videa/', title: 'Opakování – počítání do 1000 – Matýskova matematika' }
+    video: null
   },
   '7-2': {
     intro: 'Násobení a dělení 10 a 100.',
     sections: [
       { title: 'Rychlé počítání s nulami', body: 'Násobíš 10 → přidáš nulu. Násobíš 100 → přidáš dvě nuly. Dělíš 10 → ubereš nulu. Dělíš 100 → ubereš dvě nuly.' },
     ],
-    formulas: ['n × 100 → +00', 'n ÷ 10 → −0'],
+    formulas: ['n × 100 → +00', 'n : 10 → −0'],
     examples: [
       { q: '7 × 100 = ?', a: '700' },
-      { q: '600 ÷ 100 = ?', a: '6' },
+      { q: '600 : 100 = ?', a: '6' },
     ],
-    video: { url: 'https://www.matyskova-matematika.cz/vyukova-videa/', title: 'Násobení a dělení 10 a 100 – Matýskova matematika' }
+    video: null
   },
   '7-3': {
     intro: 'Finální duel — mix všeho z 3. ročníku.',
@@ -252,6 +252,6 @@ window.RPG_LEARN_3 = {
     examples: [
       { q: 'Obvod trojúhelníku 6, 8, 10 cm?', a: 'O = 6 + 8 + 10 = 24 cm' },
     ],
-    video: { url: 'https://www.matyskova-matematika.cz/vyukova-videa/', title: 'Velké opakování 3. ročníku – Matýskova matematika' }
+    video: null
   }
 };

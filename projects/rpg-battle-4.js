@@ -46,7 +46,7 @@
     // 4) dělení bez zbytku
     function (r) {
       const b = ri(r, 3, 9), q = ri(r, 3, 12);
-      return { topic: 'dělení', text: `Vypočítej: ${b * q} ÷ ${b}`, value: q,
+      return { topic: 'dělení', text: `Vypočítej: ${b * q} : ${b}`, value: q,
                distractors: [q + 1, q - 1, q + 2] };
     },
 
@@ -190,7 +190,7 @@
     function (r) {
       const d = ri(r, 3, 9), q = ri(r, 4, 12), rem = ri(r, 1, d - 1);
       const n = d * q + rem;
-      return { topic: 'zbytek', text: `${n} ÷ ${d} — jaký je zbytek?`, value: rem,
+      return { topic: 'zbytek', text: `${n} : ${d} — jaký je zbytek?`, value: rem,
                distractors: [rem + 1, d, rem - 1 < 1 ? rem + 2 : rem - 1] };
     },
 
