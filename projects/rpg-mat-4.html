@@ -67,6 +67,12 @@ body{background:var(--bg);color:var(--text);font-family:var(--px);font-weight:70
 .learn-section p{font-family:var(--read);font-size:15px;line-height:1.6;color:var(--text);margin-bottom:6px}
 .learn-formula{background:var(--panel2);border:2px solid var(--gold);padding:12px 16px;margin-bottom:10px;font-family:var(--read);font-weight:600;font-size:16px;color:var(--gold);line-height:2}
 .learn-example{background:var(--panel);border:2px solid var(--green);padding:10px 14px;margin-bottom:8px}
+.learn-mistakes{background:var(--panel);border-left:4px solid #e05555;padding:12px 16px;margin:10px 0;border-radius:0 6px 6px 0}
+.learn-mistakes h3{font-family:var(--read);font-size:15px;margin:0 0 8px;color:#e05555}
+.learn-mistakes .mi{margin-bottom:10px}
+.learn-mistakes .mi-w{font-family:var(--read);font-size:15px;color:#e05555;text-decoration:line-through;text-decoration-thickness:1px}
+.learn-mistakes .mi-r{font-family:var(--read);font-size:15px;color:var(--green,#3fa34d);font-weight:600}
+.learn-mistakes .mi-why{font-family:var(--read);font-size:13px;color:var(--muted);margin-top:2px}
 .ex-q{font-family:var(--px);font-size:13px;color:var(--blue);margin-bottom:4px}
 .ex-s{font-family:var(--read);font-size:14px;color:var(--text);line-height:1.7}
 .learn-video{display:inline-flex;align-items:center;gap:8px;font-family:var(--px);font-size:13px;color:var(--red);text-decoration:none;border:2px solid var(--red);padding:8px 14px;background:var(--panel)}
@@ -976,6 +982,7 @@ function renderLearn(mid,m){
  (L.sections||[]).forEach(s=>{html+=`<div class="learn-section"><h3>${esc2(s.h||s.title||'')}</h3>`;(Array.isArray(s.p)?s.p:[s.p||s.body||'']).forEach(p=>{html+=`<p>${esc2(p).replace(/\n/g,'<br>')}</p>`;});html+='</div>';});
  if(L.formulas&&L.formulas.length){html+='<div class="learn-formula">';L.formulas.forEach(f=>{html+=esc2(f)+'<br>';});html+='</div>';}
  (L.examples||[]).forEach(ex=>{html+=`<div class="learn-example"><div class="ex-q">📝 ${esc2(ex.q)}</div><div class="ex-s">`;(Array.isArray(ex.s)?ex.s:[ex.s||ex.a||'']).forEach(step=>{html+=esc2(step).replace(/\n/g,'<br>')+'<br>';});html+='</div></div>';});
+ if(L.mistakes&&L.mistakes.length){html+='<div class="learn-mistakes"><h3>⚠️ Časté chyby</h3>';L.mistakes.forEach(mi=>{html+=`<div class="mi"><div class="mi-w">✗ ${esc2(mi.wrong)}</div><div class="mi-r">✓ ${esc2(mi.right)}</div>`+(mi.why?`<div class="mi-why">${esc2(mi.why)}</div>`:'')+'</div>';});html+='</div>';}
  el.innerHTML=html;
  if(L.video){const vurl=L.video.url||('https://www.youtube.com/watch?v='+L.video.id);const wrap=document.createElement('div');wrap.style.marginTop='16px';const a=document.createElement('a');a.className='learn-video';a.href=vurl;a.target='_blank';a.rel='noopener';a.textContent='▶ VIDEO: '+(L.video.title||'');wrap.appendChild(a);el.appendChild(wrap);}
  document.getElementById('learn-battle-btn').onclick=launchLearnBattle;
