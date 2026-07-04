@@ -133,40 +133,43 @@ window.RPG_TASK_EXTRA_9 = {
 
  // ───────── OBLAST 4 — SEKTOR LOMENÉHO KÓDU ─────────
  '4-1': () => [
-  (()=>{const a=ri(2,9);return{text:`Pro jaké x není 8/(x − ${a}) definováno?\nx ≠`,ans:String(a),hints:[`x − ${a} = 0.`],skill:'anal'};})(),
-  (()=>{const a=ri(2,9);return{text:`Pro jaké x není 5/(x + ${a}) definováno?\nx ≠`,ans:String(-a),hints:[`x + ${a} = 0.`],skill:'anal'};})(),
-  (()=>{const k=ri(1,6),a=2*k;return{text:`Pro jaké x není 6/(2x − ${a}) definováno?\nx ≠`,ans:String(k),hints:[`2x = ${a}.`],skill:'anal'};})(),
-  (()=>{const k=ri(1,5),a=5*k;return{text:`Pro jaké x není 2/(5x − ${a}) definováno?\nx ≠`,ans:String(k),hints:[`5x = ${a}.`],skill:'anal'};})(),
-  (()=>{const a=ri(2,8);return{text:`Pro jaké x není (x−3)/(x − ${a}) definováno?\nx ≠`,ans:String(a),hints:[`Rozhoduje jmenovatel.`],skill:'anal'};})(),
-  (()=>{return{text:`Pro jaké x není 10/x definováno?\nx ≠`,ans:'0',hints:[`Jmenovatel je x.`],skill:'anal'};})(),
-  (()=>{const b=ri(2,8);return{text:`Pro jaké x není (3x)/(x + ${b}) definováno?\nx ≠`,ans:String(-b),hints:[`x + ${b} = 0.`],skill:'anal'};})(),
-  (()=>{const c=ri(2,6);return{text:`Pro jaké x není ${c}/(${c}x) definováno?\nx ≠`,ans:'0',hints:[`${c}x = 0 → x = 0.`],skill:'anal'};})(),
-  (()=>{const k=ri(2,5),a=k*ri(2,4);return{text:`Pro jaké x není 3/(${k}x − ${a}) definováno?\nx ≠`,ans:String(a/k),hints:[`${k}x = ${a}.`],skill:'anal'};})(),
-  (()=>{const a=ri(1,6),b=ri(1,6);return{text:`Pro jaké x není (x+${a})/(x−${b}) definováno?\nx ≠`,ans:String(b),hints:[`Jmenovatel: x − ${b} = 0.`],skill:'anal'};})()
+  (()=>{const a=ri(2,9);return{text:`Pro jaké x není zlomek 8/(x − ${a}) definován?\nx ≠`,ans:String(a),hints:[`Jmenovatel nesmí být nula: x − ${a} = 0.`],skill:'anal'};})(),
+  (()=>{const a=ri(2,9);return{text:`Jakou hodnotu x musíš vyloučit z definičního oboru výrazu 5/(x + ${a})?\nx ≠`,ans:String(-a),hints:[`Polož jmenovatel roven nule: x + ${a} = 0.`],skill:'anal'};})(),
+  (()=>{const k=ri(1,6),a=2*k;return{text:`Pro kterou hodnotu x je jmenovatel výrazu 6/(2x − ${a}) roven nule?\nx =`,ans:String(k),hints:[`Vyřeš 2x − ${a} = 0.`],skill:'anal'};})(),
+  (()=>{const k=ri(1,5),a=5*k;return{text:`Doplň podmínku smyslu výrazu 2/(5x − ${a}):\nx ≠`,ans:String(k),hints:[`5x = ${a}.`],skill:'anal'};})(),
+  (()=>{const a=ri(2,8);return{text:`Který kořen jmenovatele je nutné vyloučit u výrazu (x−3)/(x − ${a})?\nx ≠`,ans:String(a),hints:[`Rozhoduje pouze jmenovatel x − ${a}.`],skill:'anal'};})(),
+  (()=>{return{text:`Pro jaké x nemá výraz 10/x smysl?\nx ≠`,ans:'0',hints:[`Nulou nelze dělit; jmenovatel je x.`],skill:'anal'};})(),
+  (()=>{const b=ri(2,8);return{text:`Kdy je výraz (3x)/(x + ${b}) nedefinovaný?\nx ≠`,ans:String(-b),hints:[`Jmenovatel x + ${b} = 0.`],skill:'anal'};})(),
+  (()=>{const c=ri(2,6);return{text:`Urči hodnotu x, pro kterou nelze počítat ${c}/(${c}x):\nx ≠`,ans:'0',hints:[`${c}x = 0 nastane pro x = 0.`],skill:'anal'};})(),
+  (()=>{const k=ri(2,5),a=k*ri(2,4);return{text:`Najdi vyloučenou hodnotu proměnné ve výrazu 3/(${k}x − ${a}):\nx ≠`,ans:String(a/k),hints:[`Řeš ${k}x = ${a}.`],skill:'anal'};})(),
+  (()=>{const a=ri(1,6),b=ri(1,6);return{text:`Zlomek (x+${a})/(x−${b}) — pro kterou hodnotu x ztrácí smysl?\nx ≠`,ans:String(b),hints:[`Jmenovatel x − ${b} = 0.`],skill:'anal'};})(),
+  (()=>{const a=ri(2,7);return{text:`Kolik čísel je nutné vyloučit z definičního oboru výrazu 4/(x − ${a})?`,ans:'1',hints:[`Jmenovatel má právě jeden kořen.`],skill:'anal'};})()
  ],
  '4-2': () => [
-  (()=>{const x=ri(2,6),a=x*ri(1,4);return{text:`Vypočítej hodnotu (3x + ${a}) / x\npro x = ${x}.`,ans:String(3+a/x),hints:[`(${3*x} + ${a}) : ${x}.`],skill:'anal'};})(),
-  (()=>{const d=ri(2,9),n=d*ri(2,6),g=gcd(n,d);return{text:`Zkrať na základní tvar:\n${n}/${d} =`,ans:(d/g===1?String(n/g):`${n/g}/${d/g}`),hints:[`Vyděl čitatele i jmenovatele ${g}.`],skill:'calc'};})(),
-  (()=>{const x=ri(3,9),a=ri(1,3);return{text:`Vypočítej hodnotu (x − ${a})(x + ${a})\npro x = ${x}.`,ans:String(x*x-a*a),hints:[`x² − ${a*a} = ${x*x} − ${a*a}.`],skill:'anal'};})(),
-  (()=>{const x=ri(2,6),a=x*ri(1,5);return{text:`Vypočítej hodnotu (x² + ${a}) / x\npro x = ${x}.`,ans:String(x+a/x),hints:[`(${x*x} + ${a}) : ${x}.`],skill:'anal'};})(),
-  (()=>{const x=[2,4,5,10][ri(0,3)],k=x*ri(2,6),b=ri(1,9);return{text:`Vypočítej hodnotu ${k}/x + ${b}\npro x = ${x}.`,ans:String(k/x+b),hints:[`${k} : ${x} = ${k/x}, + ${b}.`],skill:'anal'};})(),
-  (()=>{const b=ri(2,6),x=b*ri(2,6),a=ri(1,9);return{text:`Vypočítej hodnotu (x + ${a})/${b}\npro x = ${x-a}.`,ans:String(x/b),hints:[`(${x-a} + ${a}) : ${b}.`],skill:'anal'};})(),
-  (()=>{const x=ri(2,6),a=ri(2,5),c=ri(1,4)*x;return{text:`Vypočítej hodnotu (${a}x + ${c}) / x\npro x = ${x}.`,ans:String(a+c/x),hints:[`(${a*x+c}) : ${x}.`],skill:'anal'};})(),
-  (()=>{const x=ri(2,6),k=ri(2,8)*x;return{text:`Vypočítej hodnotu ${k}/x\npro x = ${x}.`,ans:String(k/x),hints:[`${k} : ${x}.`],skill:'anal'};})(),
-  (()=>{const x=ri(3,8),n=ri(1,x-1);return{text:`Vypočítej hodnotu (x² − ${n*x}) / x\npro x = ${x}.`,ans:String(x-n),hints:[`(${x*x} − ${n*x}) : ${x} = ${x-n}.`],skill:'anal'};})(),
-  (()=>{const x=ri(2,8),a=ri(2,6);return{text:`Vypočítej hodnotu ${a}/x + 1\npro x = ${a}.`,ans:'2',hints:[`${a}/${a} + 1 = 1 + 1.`],skill:'anal'};})()
+  (()=>{const x=ri(2,6),a=x*ri(1,4);return{text:`Dosaď x = ${x} do výrazu (3x + ${a}) / x a vypočítej.`,ans:String(3+a/x),hints:[`(${3*x} + ${a}) : ${x}.`],skill:'anal'};})(),
+  (()=>{const d=ri(2,9),n=d*ri(2,6),g=gcd(n,d);return{text:`Zkrať lomený výraz na základní tvar:\n${n}/${d} =`,ans:(d/g===1?String(n/g):`${n/g}/${d/g}`),hints:[`Vyděl čitatele i jmenovatele číslem ${g}.`],skill:'calc'};})(),
+  (()=>{const x=ri(3,9),a=ri(1,3);return{text:`Roznásob a vyčísli (x − ${a})(x + ${a}) pro x = ${x}.`,ans:String(x*x-a*a),hints:[`Použij vzorec a² − b²: ${x*x} − ${a*a}.`],skill:'anal'};})(),
+  (()=>{const x=ri(2,6),a=x*ri(1,5);return{text:`Jakou hodnotu má výraz (x² + ${a}) / x při x = ${x}?`,ans:String(x+a/x),hints:[`(${x*x} + ${a}) : ${x}.`],skill:'anal'};})(),
+  (()=>{const x=[2,4,5,10][ri(0,3)],k=x*ri(2,6),b=ri(1,9);return{text:`Kolik vyjde ${k}/x + ${b}, když je x = ${x}?`,ans:String(k/x+b),hints:[`${k} : ${x} = ${k/x}, pak + ${b}.`],skill:'anal'};})(),
+  (()=>{const b=ri(2,6),x=b*ri(2,6),a=ri(1,9);return{text:`Urči hodnotu zlomku (x + ${a})/${b} pro x = ${x-a}.`,ans:String(x/b),hints:[`(${x-a} + ${a}) : ${b}.`],skill:'anal'};})(),
+  (()=>{const x=ri(2,6),a=ri(2,5),c=ri(1,4)*x;return{text:`Zkrať lomený výraz (${a}x + ${c}) / x a dosaď x = ${x}.`,ans:String(a+c/x),hints:[`Vyjde ${a} + ${c}/x = ${a} + ${c/x}.`],skill:'anal'};})(),
+  (()=>{const x=ri(2,6),k=ri(2,8)*x;return{text:`Vyčísli ${k}/x pro x = ${x}.`,ans:String(k/x),hints:[`${k} : ${x}.`],skill:'anal'};})(),
+  (()=>{const x=ri(3,8),n=ri(1,x-1);return{text:`Zkrať a vyčísli (x² − ${n*x}) / x pro x = ${x}. Výsledek?`,ans:String(x-n),hints:[`Vytkni x: x − ${n} = ${x} − ${n}.`],skill:'anal'};})(),
+  (()=>{const x=ri(2,8),a=ri(2,6);return{text:`Kolik je ${a}/x + 1, dosadíš-li x = ${a}?`,ans:'2',hints:[`${a}/${a} = 1, tedy 1 + 1.`],skill:'anal'};})(),
+  (()=>{const x=ri(2,6),a=ri(2,5);const val=a*x;return{text:`Sečti dva stejné zlomky: ${a}·x / x pro x = ${x}. Jaká je hodnota?`,ans:String(a),hints:[`${a}·x / x = ${a} (x se zkrátí).`],skill:'anal'};})()
  ],
  '4-3': () => [
-  (()=>{const x=ri(2,9),b=ri(2,6),a=b*x;return{text:`Vyřeš rovnici:\n${a} / x = ${b}`,ans:String(x),hints:[`${a} = ${b}x.`],skill:'anal'};})(),
-  (()=>{const x=ri(2,8),q=ri(3,6),a=x*q,b=ri(1,q-1);return{text:`Vyřeš rovnici:\n${a} / x − ${b} = ${q-b}`,ans:String(x),hints:[`${a}/x = ${q}.`],skill:'anal'};})(),
-  (()=>{const x=[2,3,4,5,6,7][ri(0,5)];return{text:`Vyřeš rovnici (kladné x):\n${x*x} / x = x`,ans:String(x),hints:[`${x*x} = x².`],skill:'anal'};})(),
-  (()=>{const x=ri(2,8),r=ri(2,5),c=r*x;return{text:`Vyřeš rovnici:\n${c} / x = ${r}`,ans:String(x),hints:[`${c} = ${r}x.`],skill:'anal'};})(),
-  (()=>{const x=ri(2,6),s=x*ri(2,5),a=ri(1,s-1),b=s-a;return{text:`Vyřeš rovnici:\n${a}/x + ${b}/x = ${s/x}`,ans:String(x),hints:[`${s}/x = ${s/x}.`],skill:'anal'};})(),
-  (()=>{const x=ri(2,8),a=ri(2,6),c=a*x;return{text:`Vyřeš rovnici:\nx = ${c} / ${a}`,ans:String(x),hints:[`${c} : ${a}.`],skill:'anal'};})(),
-  (()=>{const x=ri(2,6),a=x*ri(2,5),b=ri(2,6);return{text:`Vyřeš rovnici:\n${a}/x + ${b} = ${a/x+b}`,ans:String(x),hints:[`${a}/x = ${a/x}.`],skill:'anal'};})(),
-  (()=>{const x=ri(2,6),a=x*ri(2,4),b=ri(1,4);return{text:`Vyřeš rovnici:\n${a}/x − ${b} = ${a/x-b}`,ans:String(x),hints:[`${a}/x = ${a/x}.`],skill:'anal'};})(),
-  (()=>{const x=ri(2,6),a=x*ri(1,4),b=x*ri(1,4);return{text:`Vyřeš rovnici:\n${a}/x + ${b}/x = ${(a+b)/x}`,ans:String(x),hints:[`${a+b}/x = ${(a+b)/x}.`],skill:'anal'};})(),
-  (()=>{const x=ri(2,6),a=x*ri(2,4);return{text:`Vyřeš rovnici:\n2 · (${a}/x) = ${2*a/x}`,ans:String(x),hints:[`${a}/x = ${a/x}.`],skill:'anal'};})()
+  (()=>{const x=ri(2,9),b=ri(2,6),a=b*x;return{text:`Vyřeš rovnici s neznámou ve jmenovateli:\n${a} / x = ${b}`,ans:String(x),hints:[`Vynásob obě strany x: ${a} = ${b}x.`],skill:'anal'};})(),
+  (()=>{const x=ri(2,8),q=ri(3,6),a=x*q,b=ri(1,q-1);return{text:`Najdi neznámou x:\n${a} / x − ${b} = ${q-b}`,ans:String(x),hints:[`Nejdřív osamostatni zlomek: ${a}/x = ${q}.`],skill:'anal'};})(),
+  (()=>{const x=[2,3,4,5,6,7][ri(0,5)];return{text:`Urči kladné x z rovnice:\n${x*x} / x = x`,ans:String(x),hints:[`${x*x} = x², hledáš odmocninu.`],skill:'anal'};})(),
+  (()=>{const x=ri(2,8),r=ri(2,5),c=r*x;return{text:`Kolik je x, platí-li ${c} / x = ${r}?`,ans:String(x),hints:[`${c} = ${r}·x, vyděl.`],skill:'anal'};})(),
+  (()=>{const x=ri(2,6),s=x*ri(2,5),a=ri(1,s-1),b=s-a;return{text:`Sečti zlomky a dořeš rovnici:\n${a}/x + ${b}/x = ${s/x}`,ans:String(x),hints:[`Vlevo je ${s}/x = ${s/x}.`],skill:'anal'};})(),
+  (()=>{const x=ri(2,8),a=ri(2,6),c=a*x;return{text:`Vypočítej x přímo:\nx = ${c} / ${a}`,ans:String(x),hints:[`${c} : ${a}.`],skill:'anal'};})(),
+  (()=>{const x=ri(2,6),a=x*ri(2,5),b=ri(2,6);return{text:`Osamostatni zlomek a najdi x:\n${a}/x + ${b} = ${a/x+b}`,ans:String(x),hints:[`${a}/x = ${a/x}.`],skill:'anal'};})(),
+  (()=>{const x=ri(2,6),a=x*ri(2,4),b=ri(1,4);return{text:`Vyřeš rovnici:\n${a}/x − ${b} = ${a/x-b}`,ans:String(x),hints:[`Přičti ${b}: ${a}/x = ${a/x}.`],skill:'anal'};})(),
+  (()=>{const x=ri(2,6),a=x*ri(1,4),b=x*ri(1,4);return{text:`Zkrať součet zlomků a urči x:\n${a}/x + ${b}/x = ${(a+b)/x}`,ans:String(x),hints:[`${a+b}/x = ${(a+b)/x}.`],skill:'anal'};})(),
+  (()=>{const x=ri(2,6),a=x*ri(2,4);return{text:`Zbav se dvojnásobku a dořeš:\n2 · (${a}/x) = ${2*a/x}`,ans:String(x),hints:[`${a}/x = ${a/x}.`],skill:'anal'};})(),
+  (()=>{const x=ri(2,7),a=x*ri(2,4);return{text:`Jednu vyloučenou hodnotu má rovnice ${a}/x = ${a/x}. Jaké je řešení x?`,ans:String(x),hints:[`${a} : ${a/x} = x.`],skill:'anal'};})()
  ],
 
  // ───────── OBLAST 5 — SÍŤOVÝ UZEL ─────────
