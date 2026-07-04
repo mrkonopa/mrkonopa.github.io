@@ -11,6 +11,11 @@ window.RPG_LEARN_6 = {
 /* ─── Oblast 1: ODLETOVÁ STANICE ──────────────────────────────── */
 
 '1-1': {
+ mistakes: [
+  {wrong:'3 + 4 × 5 = 35', right:'3 + 4 × 5 = 23', why:'Násobení má přednost před sčítáním — nejdřív 4 × 5 = 20, teprve pak 3 + 20 = 23. Zleva doprava se počítá jen na stejné úrovni.'},
+  {wrong:'−3 je přirozené číslo', right:'−3 je celé (Z) a racionální (Q), ale ne přirozené (N)', why:'Přirozená čísla jsou jen 1, 2, 3, … (v ČR i 0). Záporná čísla patří až do oboru celých čísel Z.'},
+  {wrong:'6 481 na stovky ≈ 6 400', right:'6 500', why:'O zaokrouhlení rozhoduje číslice hned za řádem — tady desítky (8), ne jednotky. 8 ≥ 5 → nahoru.'},
+ ],
  intro: '🛰️ Palubní robot blokuje vstup do lodi: „Prokáž znalost číselných oborů a pořadí operací — nebo tě nepustím na palubu." Zopakuj si základy vesmírné matematiky!',
  sections: [
   { h: 'Co jsou přirozená čísla a číselné obory',
@@ -21,16 +26,16 @@ window.RPG_LEARN_6 = {
     p: ['V desítkové soustavě má každá číslice svou místní hodnotu: v čísle 4 273 je 4 tisíce, 2 stovky, 7 desítek, 3 jednotky.',
         'Velká čísla zapisujeme po trojicích s mezerou: <b>1 250 000</b> = jeden milion dvě stě padesát tisíc.'] },
   { h: 'Pořadí operací',
-    p: ['Nejdřív závorky <b>( )</b>, pak násobení a dělení <b>× ÷</b>, nakonec sčítání a odčítání <b>+ −</b>. Na stejné úrovni počítáme zleva doprava.',
+    p: ['Nejdřív závorky <b>( )</b>, pak násobení a dělení <b>× :</b>, nakonec sčítání a odčítání <b>+ −</b>. Na stejné úrovni počítáme zleva doprava.',
         '<span style="color:#ff5555">⚠️ Pozor:</span> <b>3 + 4 × 5 = 23</b>, NE 35! (4 × 5 se počítá dřív.) Se závorkou: (3 + 4) × 5 = 35.',
-        '<svg width="240" height="48" style="display:block;margin:8px auto 0" viewBox="0 0 240 48"><rect x="2" y="8" width="236" height="32" rx="6" fill="#161b22" stroke="#4a9eff" stroke-width="1.5"/><text x="12" y="29" font-size="14" fill="#ffcc00" font-family="monospace" font-weight="bold">( )  →  × ÷  →  + −</text></svg>'] },
+        '<svg width="240" height="48" style="display:block;margin:8px auto 0" viewBox="0 0 240 48"><rect x="2" y="8" width="236" height="32" rx="6" fill="#161b22" stroke="#4a9eff" stroke-width="1.5"/><text x="12" y="29" font-size="14" fill="#ffcc00" font-family="monospace" font-weight="bold">( )  →  × :  →  + −</text></svg>'] },
   { h: 'Zaokrouhlování',
     p: ['Díváme se na číslici <i>za</i> řádem, na který zaokrouhlujeme: <b>0–4 dolů</b>, <b>5–9 nahoru</b>.',
         'Příklady: 2 847 na stovky = <b>2 800</b>; na tisíce = <b>3 000</b>.<br>3,742 na desetiny = <b>3,7</b>; na setiny = <b>3,74</b>.',
         '<svg width="260" height="54" style="display:block;margin:8px auto 0" viewBox="0 0 260 54"><line x1="10" y1="36" x2="250" y2="36" stroke="#4a9eff" stroke-width="2"/><line x1="10" y1="30" x2="10" y2="42" stroke="#4a9eff" stroke-width="2"/><line x1="250" y1="30" x2="250" y2="42" stroke="#4a9eff" stroke-width="2"/><text x="7" y="52" font-size="11" fill="#c9d1d9" font-family="monospace">0</text><text x="58" y="52" font-size="11" fill="#c9d1d9" font-family="monospace">2</text><text x="108" y="52" font-size="11" fill="#c9d1d9" font-family="monospace">4</text><text x="157" y="52" font-size="11" fill="#c9d1d9" font-family="monospace">6</text><text x="207" y="52" font-size="11" fill="#c9d1d9" font-family="monospace">8</text><text x="243" y="52" font-size="11" fill="#c9d1d9" font-family="monospace">10</text><line x1="58" y1="30" x2="58" y2="42" stroke="#c9d1d9" stroke-width="1"/><line x1="108" y1="30" x2="108" y2="42" stroke="#c9d1d9" stroke-width="1"/><line x1="157" y1="30" x2="157" y2="42" stroke="#c9d1d9" stroke-width="1"/><line x1="207" y1="30" x2="207" y2="42" stroke="#c9d1d9" stroke-width="1"/><circle cx="135" cy="36" r="5" fill="#ffcc00"/><text x="130" y="22" font-size="10" fill="#ffcc00" font-family="monospace">5,2</text></svg>'] },
  ],
  formulas: [
-  '<b>Pořadí:</b> ( ) → × ÷ → + −',
+  '<b>Pořadí:</b> ( ) → × : → + −',
   '<b>Zaokrouhlení:</b> 0–4 dolů, 5–9 nahoru',
   '<b>N ⊂ Z ⊂ Q</b> (každé přirozené je i celé a racionální)',
  ],
@@ -43,6 +48,11 @@ window.RPG_LEARN_6 = {
 },
 
 '1-2': {
+ mistakes: [
+  {wrong:'Obvod obdélníku 8×5 cm = 40 cm', right:'obvod = 2·(8+5) = 26 cm; 40 cm² je obsah', why:'Obvod (délka plotu, v cm) a obsah (plocha, v cm²) se pletou. Součin a·b dává obsah, ne obvod.'},
+  {wrong:'1 m² = 10 dm²', right:'1 m² = 100 dm²', why:'Mezi sousedními plošnými jednotkami je 100×, ne 10× — čtverec o straně 1 m = 10 dm má obsah 10·10 = 100 dm².'},
+  {wrong:'Obsah čtverce se stranou 6 = 4·6 = 24', right:'S = 6² = 36 cm²', why:'4·a je obvod čtverce; obsah je a·a = a². Záměna vzorce obvodu a obsahu.'},
+ ],
  intro: '📏 Měřicí dron skenuje stěny stanice. „Spočítej mi obvody a obsahy, nebo neotevřu hangárové dveře!" Ukáž, co umíš.',
  sections: [
   { h: 'Obvod obdélníku a čtverce',
@@ -54,7 +64,7 @@ window.RPG_LEARN_6 = {
         'U obdélníku: délka × šířka. U čtverce: strana × strana = strana².'] },
   { h: 'Jednotky obsahu — převody',
     p: ['Mezi sousedními plošnými jednotkami je vždy <b>100×</b> (ne 10×!).',
-        '<table style="border-collapse:collapse;font-size:12px;color:#c9d1d9;margin:4px 0"><tr><th style="border:1px solid #4a9eff;padding:3px 8px;color:#ffcc00">mm²</th><th style="border:1px solid #4a9eff;padding:3px 8px;color:#ffcc00">cm²</th><th style="border:1px solid #4a9eff;padding:3px 8px;color:#ffcc00">dm²</th><th style="border:1px solid #4a9eff;padding:3px 8px;color:#ffcc00">m²</th></tr><tr><td style="border:1px solid #4a9eff;padding:3px 8px;text-align:center">1</td><td style="border:1px solid #4a9eff;padding:3px 8px;text-align:center">÷ 100</td><td style="border:1px solid #4a9eff;padding:3px 8px;text-align:center">÷ 10 000</td><td style="border:1px solid #4a9eff;padding:3px 8px;text-align:center">÷ 1 000 000</td></tr></table>',
+        '<table style="border-collapse:collapse;font-size:12px;color:#c9d1d9;margin:4px 0"><tr><th style="border:1px solid #4a9eff;padding:3px 8px;color:#ffcc00">mm²</th><th style="border:1px solid #4a9eff;padding:3px 8px;color:#ffcc00">cm²</th><th style="border:1px solid #4a9eff;padding:3px 8px;color:#ffcc00">dm²</th><th style="border:1px solid #4a9eff;padding:3px 8px;color:#ffcc00">m²</th></tr><tr><td style="border:1px solid #4a9eff;padding:3px 8px;text-align:center">1</td><td style="border:1px solid #4a9eff;padding:3px 8px;text-align:center">: 100</td><td style="border:1px solid #4a9eff;padding:3px 8px;text-align:center">: 10 000</td><td style="border:1px solid #4a9eff;padding:3px 8px;text-align:center">: 1 000 000</td></tr></table>',
         '<span style="color:#ff5555">⚠️ Nejčastější chyba:</span> záměna <b>obvodu</b> (délka, cm) a <b>obsahu</b> (plocha, cm²) — jsou to úplně různé věci s různými jednotkami!'] },
  ],
  formulas: [
@@ -73,6 +83,11 @@ window.RPG_LEARN_6 = {
 },
 
 '1-3': {
+ mistakes: [
+  {wrong:'2 h a 30 min počítám jako „2,30 h"', right:'2 h 30 min = 2,5 h', why:'30 minut je půl hodiny = 0,5 h, ne 0,30 h. Před výpočtem převeď na stejnou jednotku.'},
+  {wrong:'6 rohlíků stojí 24 Kč, tak 10 rohlíků = 24·10', right:'1 rohlík 24 : 6 = 4 Kč, 10 rohlíků = 40 Kč', why:'Nejdřív cena za jeden kus (dělení), pak násobení. Přeskočení kroku „na jeden kus" je častá chyba.'},
+  {wrong:'Napíšu jen výsledek „40" bez jednotky a odpovědi', right:'10 rohlíků stojí 40 Kč.', why:'Slovní úloha vyžaduje odpověď celou větou s jednotkou — jinak není jasné, co číslo znamená.'},
+ ],
  intro: '🧭 Navigační AI vydává staniční hádanky. „Logické uvažování je základ každé expedice," říká. Ukaž, jak řešíš slovní úlohy.',
  sections: [
   { h: '5 kroků k řešení slovní úlohy',
@@ -80,18 +95,18 @@ window.RPG_LEARN_6 = {
         'Vždy si zkontroluj, zda výsledek dává smysl (řád, znaménko, jednotka).'] },
   { h: 'Tip: nakresli si diagram',
     p: ['Složité úlohy o drahách, skupinách nebo sdílení je mnohem snazší vyřešit s obrázkem nebo tabulkou.',
-        'U úloh „na jeden kus": když 5 sešitů stojí 75 Kč, jeden stojí 75 ÷ 5 = 15 Kč.'] },
+        'U úloh „na jeden kus": když 5 sešitů stojí 75 Kč, jeden stojí 75 : 5 = 15 Kč.'] },
   { h: 'Úsudek a převody jednotek',
     p: ['Hlídej jednotky: minuty vs. hodiny, Kč vs. haléře, kg vs. g. Vždy převeď na stejnou jednotku před výpočtem.',
         'U logických hádanek vyzkoušej možnosti a vyřaď ty, co odporují zadání.'] },
  ],
  formulas: [
-  '<b>Cena za 1 kus:</b> celková cena ÷ počet kusů',
+  '<b>Cena za 1 kus:</b> celková cena : počet kusů',
   '<b>Kontrola:</b> dosaď výsledek zpět do zadání',
   '<b>5 kroků:</b> přečti → vypiš → vztah → spočítej → odpověz',
  ],
  examples: [
-  { q: 'Za 6 rohlíků zaplatíš 24 Kč. Kolik stojí 10 rohlíků?', s: ['1 rohlík: 24 ÷ 6 = 4 Kč', '10 rohlíků: 10 · 4 = <b>40 Kč</b>'] },
+  { q: 'Za 6 rohlíků zaplatíš 24 Kč. Kolik stojí 10 rohlíků?', s: ['1 rohlík: 24 : 6 = 4 Kč', '10 rohlíků: 10 · 4 = <b>40 Kč</b>'] },
   { q: 'Vlak jede 2 hodiny průměrnou rychlostí 85 km/h. Jakou vzdálenost ujede?', s: ['Vztah: s = v · t', 's = 85 · 2 = <b>170 km</b>'] },
   { q: 'Maminka koupila 3 kg jablek po 28 Kč a 2 kg hrušek po 35 Kč. Kolik zaplatila?', s: ['Jablka: 3 · 28 = 84 Kč', 'Hrušky: 2 · 35 = 70 Kč', 'Celkem: 84 + 70 = <b>154 Kč</b>'] },
  ],
@@ -101,6 +116,11 @@ window.RPG_LEARN_6 = {
 /* ─── Oblast 2: PLANETA DESETIN ───────────────────────────────── */
 
 '2-1': {
+ mistakes: [
+  {wrong:'3,45 > 3,5 (má víc číslic)', right:'3,5 > 3,45', why:'Počet číslic za čárkou nerozhoduje. Doplň nuly: 3,50 vs 3,45 → 50 setin > 45 setin.'},
+  {wrong:'2,845 čtu jako „dvě celé, osm, čtyři, pět"', right:'dvě celé osm set čtyřicet pět tisícin', why:'Číslice za čárkou tvoří jedno číslo (tisíciny), nečtou se po jedné jako samostatné číslice.'},
+  {wrong:'0,7 = 0,07', right:'0,7 = 0,70 ≠ 0,07', why:'Nula hned za čárkou hodnotu desetkrát zmenší (0,07 = sedm setin). Nula na konci hodnotu nemění.'},
+ ],
  intro: '🛸 Oblačný strážce váží náklad na desetiny gramu. „Bez znalosti desetinných čísel tě nepustím na planetu!" Ovládni jejich místní hodnotu.',
  sections: [
   { h: 'Co je desetinné číslo?',
@@ -117,7 +137,7 @@ window.RPG_LEARN_6 = {
         '<svg width="260" height="52" style="display:block;margin:8px auto 0" viewBox="0 0 260 52"><line x1="10" y1="30" x2="250" y2="30" stroke="#4a9eff" stroke-width="2"/><line x1="10" y1="22" x2="10" y2="38" stroke="#4a9eff" stroke-width="2"/><line x1="250" y1="22" x2="250" y2="38" stroke="#4a9eff" stroke-width="2"/><line x1="130" y1="22" x2="130" y2="38" stroke="#4a9eff" stroke-width="2"/><text x="6" y="48" font-size="12" fill="#c9d1d9" font-family="monospace">3</text><text x="246" y="48" font-size="12" fill="#c9d1d9" font-family="monospace">4</text><line x1="172" y1="24" x2="172" y2="36" stroke="#ffcc00" stroke-width="2"/><circle cx="172" cy="30" r="5" fill="#ffcc00"/><text x="162" y="16" font-size="12" fill="#ffcc00" font-family="monospace">3,7</text><text x="115" y="48" font-size="11" fill="#c9d1d9" font-family="monospace">3,5</text></svg>'] },
  ],
  formulas: [
-  '<b>Řády za čárkou:</b> desetiny (÷10), setiny (÷100), tisíciny (÷1000)',
+  '<b>Řády za čárkou:</b> desetiny (:10), setiny (:100), tisíciny (:1000)',
   '<b>Porovnání:</b> doplň nuly na stejný počet míst',
  ],
  examples: [
@@ -129,6 +149,11 @@ window.RPG_LEARN_6 = {
 },
 
 '2-2': {
+ mistakes: [
+  {wrong:'2,3 × 1,4 = 32,2', right:'23 × 14 = 322 → 2 des. místa → 3,22', why:'Počet desetinných míst výsledku = součet desetinných míst činitelů (1+1 = 2), ne opsat čárku z jednoho čísla.'},
+  {wrong:'3,7 + 2,45 sečtu jako „37 + 245"', right:'zarovnat čárky: 3,70 + 2,45 = 6,15', why:'Sčítají se řády pod sebou — čárka pod čárku, ne zarovnat čísla doprava.'},
+  {wrong:'6 : 0,2 = 3 (menší než 6)', right:'6 : 0,2 = 30', why:'Dělení číslem menším než 1 dává větší výsledek. „Kolikrát se 0,2 vejde do 6?" → 30×.'},
+ ],
  intro: '🌟 Jiskřící mlhovina tě prověří ze všech operací s desetinnými čísly. Sčítej, odčítej, násob i děl — hvězdná loď to potřebuje!',
  sections: [
   { h: 'Sčítání a odčítání',
@@ -138,28 +163,33 @@ window.RPG_LEARN_6 = {
     p: ['Počítej nejdřív <b>bez čárek</b>. Potom umísti čárku: počet desetinných míst výsledku = <b>součet</b> desetinných míst obou čísel.',
         '2,3 × 1,4 → 23 × 14 = 322 → 2 des. místa → <b>3,22</b><br>0,5 × 0,4 → 5 × 4 = 20 → 2 des. místa → <b>0,20 = 0,2</b>'] },
   { h: 'Násobení a dělení mocninami 10',
-    p: ['× 10 → čárka o 1 doprava (3,7 → 37). ÷ 10 → čárka o 1 doleva (3,7 → 0,37).',
-        'Každá nula navíc = jeden posun: × 100 = 2 posuny, ÷ 1000 = 3 posuny doleva.'] },
+    p: ['× 10 → čárka o 1 doprava (3,7 → 37). : 10 → čárka o 1 doleva (3,7 → 0,37).',
+        'Každá nula navíc = jeden posun: × 100 = 2 posuny, : 1000 = 3 posuny doleva.'] },
   { h: 'Dělení desetinným číslem',
     p: ['Dělíš-li desetinným číslem: <b>posuň čárku u dělitele i dělence</b> stejně, dokud dělíš celým číslem.',
-        '4,5 ÷ 0,3 → × 10 obě → 45 ÷ 3 = <b>15</b><br>0,6 ÷ 0,02 → × 100 obě → 60 ÷ 2 = <b>30</b>',
-        '<span style="color:#ff5555">⚠️ Dělení desetinným číslem:</span> výsledek může být <b>větší</b> než dělenec! Příklad: 6 ÷ 0,2 = 30. Ptáme se: „Kolikrát se 0,2 vejde do 6?" — odpověď je 30×. Výsledek JE větší než 6!'] },
+        '4,5 : 0,3 → × 10 obě → 45 : 3 = <b>15</b><br>0,6 : 0,02 → × 100 obě → 60 : 2 = <b>30</b>',
+        '<span style="color:#ff5555">⚠️ Dělení desetinným číslem:</span> výsledek může být <b>větší</b> než dělenec! Příklad: 6 : 0,2 = 30. Ptáme se: „Kolikrát se 0,2 vejde do 6?" — odpověď je 30×. Výsledek JE větší než 6!'] },
  ],
  formulas: [
-  '<b>× 10:</b> čárka o 1 doprava · <b>÷ 10:</b> čárka o 1 doleva',
+  '<b>× 10:</b> čárka o 1 doprava · <b>: 10:</b> čárka o 1 doleva',
   '<b>Násobení:</b> des. místa výsledku = součet des. míst činitelů',
   '<b>Dělení des. číslem:</b> rozšiř dělitele i dělence ×10ⁿ',
  ],
  examples: [
   { q: 'Spočítej: 5,08 + 3,7', s: ['5,08 + 3,70 = <b>8,78</b>'] },
   { q: 'Spočítej: 2,4 × 3,5', s: ['24 × 35 = 840 → 2 des. místa → <b>8,40</b>'] },
-  { q: 'Spočítej: 9,6 ÷ 0,4', s: ['×10 obě: 96 ÷ 4 = <b>24</b>'] },
-  { q: 'Spočítej: 6 ÷ 0,2', s: ['×10 obě: 60 ÷ 2 = <b>30</b> (výsledek větší než 6 — to je správně!)'] },
+  { q: 'Spočítej: 9,6 : 0,4', s: ['×10 obě: 96 : 4 = <b>24</b>'] },
+  { q: 'Spočítej: 6 : 0,2', s: ['×10 obě: 60 : 2 = <b>30</b> (výsledek větší než 6 — to je správně!)'] },
  ],
  video: { id: 'w9C9H7EOiGM', title: 'Sčítání a odčítání desetinných čísel' },
 },
 
 '2-3': {
+ mistakes: [
+  {wrong:'Zkrácení 15/25: 15−5 / 25−5 = 10/20', right:'15:5 / 25:5 = 3/5', why:'Zkracuje se dělením čitatele i jmenovatele stejným číslem, ne odčítáním.'},
+  {wrong:'Průměr čísel 4, 6, 8: (4+6+8) : 2 = 9', right:'(4+6+8) : 3 = 6', why:'Dělí se počtem hodnot (3), ne dvěma. Průměr = součet : počet čísel.'},
+  {wrong:'Rozšíření 2/5 na osminy: 8/5', right:'2·4 / 5·4 = 8/20', why:'Rozšiřuje se čitatel i jmenovatel stejným číslem — když se změní jen čitatel, změní se hodnota zlomku.'},
+ ],
  intro: '💫 Prstencový duch dělí prstence na stejné díly. „Zlomky a průměry jsou jazyk vesmíru," říká. Nauč se je!',
  sections: [
   { h: 'Co je zlomek — čitatel a jmenovatel',
@@ -169,21 +199,21 @@ window.RPG_LEARN_6 = {
         'Na číselné ose leží 3/4 mezi 0 a 1, blíže k 1.'] },
   { h: 'Zkracování a rozšiřování zlomků',
     p: ['<b>Zkracování:</b> vydělíme čitatele i jmenovatele jejich NSD. Výsledný zlomek je „nejmenší" (základní) tvar.',
-        '12/18 → NSD(12,18) = 6 → 12÷6 / 18÷6 = <b>2/3</b>',
+        '12/18 → NSD(12,18) = 6 → 12:6 / 18:6 = <b>2/3</b>',
         '<b>Rozšiřování:</b> vynásobíme čitatele i jmenovatele stejným číslem (zachovává hodnotu).<br>2/3 × (4/4) = 8/12'] },
   { h: 'Aritmetický průměr',
-    p: ['Průměr = <b>součet všech hodnot ÷ jejich počet</b>. Říká nám „typickou" hodnotu souboru.',
-        'Příklad: výsledky testů 70, 85, 90, 75 bodů → průměr = (70+85+90+75) ÷ 4 = 320 ÷ 4 = <b>80 bodů</b>.',
+    p: ['Průměr = <b>součet všech hodnot : jejich počet</b>. Říká nám „typickou" hodnotu souboru.',
+        'Příklad: výsledky testů 70, 85, 90, 75 bodů → průměr = (70+85+90+75) : 4 = 320 : 4 = <b>80 bodů</b>.',
         '<span style="color:#ff5555">⚠️ Pozor:</span> průměr ≠ nejčastější hodnota (modus) ≠ střední hodnota (medián)!'] },
  ],
  formulas: [
-  '<b>Zkracování:</b> a/b = (a÷NSD) / (b÷NSD)',
+  '<b>Zkracování:</b> a/b = (a:NSD) / (b:NSD)',
   '<b>Rozšiřování:</b> a/b = (a·k) / (b·k)',
-  '<b>Průměr:</b> (součet hodnot) ÷ (počet hodnot)',
+  '<b>Průměr:</b> (součet hodnot) : (počet hodnot)',
  ],
  examples: [
-  { q: 'Zkrať zlomek 15/25', s: ['NSD(15,25) = 5', '15÷5 / 25÷5 = <b>3/5</b>'] },
-  { q: 'Průměr čísel 4, 6, 6, 8', s: ['Součet: 4+6+6+8 = 24', 'Počet: 4', '24 ÷ 4 = <b>6</b>'] },
+  { q: 'Zkrať zlomek 15/25', s: ['NSD(15,25) = 5', '15:5 / 25:5 = <b>3/5</b>'] },
+  { q: 'Průměr čísel 4, 6, 6, 8', s: ['Součet: 4+6+6+8 = 24', 'Počet: 4', '24 : 4 = <b>6</b>'] },
   { q: 'Rozšiř 2/5 tak, aby jmenovatel byl 20', s: ['5 × 4 = 20, takže k = 4', '2·4 / 5·4 = <b>8/20</b>'] },
  ],
  video: { id: '4_MuthDfVJQ', title: 'Aritmetický průměr' }
@@ -192,29 +222,39 @@ window.RPG_LEARN_6 = {
 /* ─── Oblast 3: POLE DĚLITELNOSTI ─────────────────────────────── */
 
 '3-1': {
+ mistakes: [
+  {wrong:'Dělitelé čísla 12 jsou 24, 36, 48…', right:'dělitelé 12 jsou 1, 2, 3, 4, 6, 12; 24, 36 jsou násobky', why:'Dělitel se do čísla vejde beze zbytku (je menší/rovný), násobek je číslo krát celé číslo (větší). Záměna dělitel × násobek.'},
+  {wrong:'324 je dělitelné 6, protože je sudé', right:'6 = dělitelné 2 A ZÁROVEŇ 3; 324: sudé ✓ a 3+2+4=9 ✓', why:'Dělitelnost 6 vyžaduje splnit obě podmínky (2 i 3) najednou, nestačí jen jedna.'},
+  {wrong:'Dělitelnost 4 poznám z poslední číslice', right:'rozhoduje poslední DVOJČÍSLÍ (524 → 24 : 4 = 6)', why:'Znak dělitelnosti 4 se týká posledního dvojčíslí, ne jen jedné číslice jako u 2 nebo 5.'},
+ ],
  intro: '🪨 Kamenný kolos blokuje cestu. „Dokážeš rozpoznat dělitelnost bez počítání?" burácí. Rozděl ho znalostí znaků dělitelnosti!',
  sections: [
   { h: 'Co je dělitelnost',
     p: ['Číslo <i>a</i> je <b>dělitelné</b> číslem <i>b</i>, když po dělení nezbyde zbytek. Pak je <i>a</i> násobek <i>b</i>.',
         'Znaky dělitelnosti ti umožní poznat dělitelnost okamžitě, bez počítání.'] },
   { h: 'Přehledová tabulka znaků dělitelnosti',
-    p: ['<table style="border-collapse:collapse;font-size:12px;color:#c9d1d9;margin:4px 0;width:100%"><tr><th style="border:1px solid #4a9eff;padding:3px 6px;color:#ffcc00;text-align:left">Dělitel</th><th style="border:1px solid #4a9eff;padding:3px 6px;color:#ffcc00;text-align:left">Znak dělitelnosti</th><th style="border:1px solid #4a9eff;padding:3px 6px;color:#ffcc00;text-align:left">Příklad</th></tr><tr><td style="border:1px solid #4a9eff;padding:3px 6px"><b>2</b></td><td style="border:1px solid #4a9eff;padding:3px 6px">poslední číslice je sudá (0,2,4,6,8)</td><td style="border:1px solid #4a9eff;padding:3px 6px">138 ✓, 137 ✗</td></tr><tr><td style="border:1px solid #4a9eff;padding:3px 6px"><b>3</b></td><td style="border:1px solid #4a9eff;padding:3px 6px">ciferný součet dělitelný 3</td><td style="border:1px solid #4a9eff;padding:3px 6px">123: 1+2+3=6 ✓</td></tr><tr><td style="border:1px solid #4a9eff;padding:3px 6px"><b>4</b></td><td style="border:1px solid #4a9eff;padding:3px 6px">poslední dvojčíslí dělitelné 4</td><td style="border:1px solid #4a9eff;padding:3px 6px">524: 24÷4=6 ✓</td></tr><tr><td style="border:1px solid #4a9eff;padding:3px 6px"><b>5</b></td><td style="border:1px solid #4a9eff;padding:3px 6px">poslední číslice 0 nebo 5</td><td style="border:1px solid #4a9eff;padding:3px 6px">135 ✓, 137 ✗</td></tr><tr><td style="border:1px solid #4a9eff;padding:3px 6px"><b>6</b></td><td style="border:1px solid #4a9eff;padding:3px 6px">dělitelné 2 <i>a zároveň</i> 3</td><td style="border:1px solid #4a9eff;padding:3px 6px">138: sudé ✓, 1+3+8=12 ✓</td></tr><tr><td style="border:1px solid #4a9eff;padding:3px 6px"><b>8</b></td><td style="border:1px solid #4a9eff;padding:3px 6px">poslední trojčíslí dělitelné 8</td><td style="border:1px solid #4a9eff;padding:3px 6px">1 016: 016÷8=2 ✓</td></tr><tr><td style="border:1px solid #4a9eff;padding:3px 6px"><b>9</b></td><td style="border:1px solid #4a9eff;padding:3px 6px">ciferný součet dělitelný 9</td><td style="border:1px solid #4a9eff;padding:3px 6px">729: 7+2+9=18 ✓</td></tr><tr><td style="border:1px solid #4a9eff;padding:3px 6px"><b>10</b></td><td style="border:1px solid #4a9eff;padding:3px 6px">poslední číslice 0</td><td style="border:1px solid #4a9eff;padding:3px 6px">450 ✓, 451 ✗</td></tr></table>',
+    p: ['<table style="border-collapse:collapse;font-size:12px;color:#c9d1d9;margin:4px 0;width:100%"><tr><th style="border:1px solid #4a9eff;padding:3px 6px;color:#ffcc00;text-align:left">Dělitel</th><th style="border:1px solid #4a9eff;padding:3px 6px;color:#ffcc00;text-align:left">Znak dělitelnosti</th><th style="border:1px solid #4a9eff;padding:3px 6px;color:#ffcc00;text-align:left">Příklad</th></tr><tr><td style="border:1px solid #4a9eff;padding:3px 6px"><b>2</b></td><td style="border:1px solid #4a9eff;padding:3px 6px">poslední číslice je sudá (0,2,4,6,8)</td><td style="border:1px solid #4a9eff;padding:3px 6px">138 ✓, 137 ✗</td></tr><tr><td style="border:1px solid #4a9eff;padding:3px 6px"><b>3</b></td><td style="border:1px solid #4a9eff;padding:3px 6px">ciferný součet dělitelný 3</td><td style="border:1px solid #4a9eff;padding:3px 6px">123: 1+2+3=6 ✓</td></tr><tr><td style="border:1px solid #4a9eff;padding:3px 6px"><b>4</b></td><td style="border:1px solid #4a9eff;padding:3px 6px">poslední dvojčíslí dělitelné 4</td><td style="border:1px solid #4a9eff;padding:3px 6px">524: 24:4=6 ✓</td></tr><tr><td style="border:1px solid #4a9eff;padding:3px 6px"><b>5</b></td><td style="border:1px solid #4a9eff;padding:3px 6px">poslední číslice 0 nebo 5</td><td style="border:1px solid #4a9eff;padding:3px 6px">135 ✓, 137 ✗</td></tr><tr><td style="border:1px solid #4a9eff;padding:3px 6px"><b>6</b></td><td style="border:1px solid #4a9eff;padding:3px 6px">dělitelné 2 <i>a zároveň</i> 3</td><td style="border:1px solid #4a9eff;padding:3px 6px">138: sudé ✓, 1+3+8=12 ✓</td></tr><tr><td style="border:1px solid #4a9eff;padding:3px 6px"><b>8</b></td><td style="border:1px solid #4a9eff;padding:3px 6px">poslední trojčíslí dělitelné 8</td><td style="border:1px solid #4a9eff;padding:3px 6px">1 016: 016:8=2 ✓</td></tr><tr><td style="border:1px solid #4a9eff;padding:3px 6px"><b>9</b></td><td style="border:1px solid #4a9eff;padding:3px 6px">ciferný součet dělitelný 9</td><td style="border:1px solid #4a9eff;padding:3px 6px">729: 7+2+9=18 ✓</td></tr><tr><td style="border:1px solid #4a9eff;padding:3px 6px"><b>10</b></td><td style="border:1px solid #4a9eff;padding:3px 6px">poslední číslice 0</td><td style="border:1px solid #4a9eff;padding:3px 6px">450 ✓, 451 ✗</td></tr></table>',
         '<span style="color:#ff5555">⚠️ Dělitelnost 6</span> = dělitelnost <b>2 A 3 zároveň</b>. Nestačí jen jedno z nich!'] },
  ],
  formulas: [
   '<b>2:</b> sudá poslední číslice · <b>5:</b> 0 nebo 5 · <b>10:</b> 0',
-  '<b>3, 9:</b> ciferný součet ÷ 3 resp. ÷ 9',
-  '<b>4:</b> poslední dvojčíslí ÷ 4 · <b>6:</b> dělitelné 2 i 3',
+  '<b>3, 9:</b> ciferný součet : 3 resp. : 9',
+  '<b>4:</b> poslední dvojčíslí : 4 · <b>6:</b> dělitelné 2 i 3',
  ],
  examples: [
   { q: 'Je 738 dělitelné 3?', s: ['Ciferný součet: 7+3+8 = 18', '18 je dělitelné 3 → <b>ANO</b>'] },
-  { q: 'Je 524 dělitelné 4?', s: ['Poslední dvojčíslí: 24', '24 ÷ 4 = 6 → <b>ANO</b>'] },
-  { q: 'Je 324 dělitelné 6?', s: ['Dělitelné 2? 324 → sudá číslice 4 → ANO', 'Dělitelné 3? 3+2+4=9, 9÷3=3 → ANO', 'Dělitelné 2 i 3 → <b>ANO, dělitelné 6</b>'] },
+  { q: 'Je 524 dělitelné 4?', s: ['Poslední dvojčíslí: 24', '24 : 4 = 6 → <b>ANO</b>'] },
+  { q: 'Je 324 dělitelné 6?', s: ['Dělitelné 2? 324 → sudá číslice 4 → ANO', 'Dělitelné 3? 3+2+4=9, 9:3=3 → ANO', 'Dělitelné 2 i 3 → <b>ANO, dělitelné 6</b>'] },
  ],
  video: { id: 'xSaL1AtoUAk', title: 'Pravidla dělitelnosti' },
 },
 
 '3-2': {
+ mistakes: [
+  {wrong:'1 je prvočíslo', right:'1 není prvočíslo (má jen jednoho dělitele)', why:'Prvočíslo musí mít přesně dva různé dělitele (1 a samo sebe). Číslo 1 má jen jednoho.'},
+  {wrong:'51 je prvočíslo', right:'51 = 3 · 17, tedy složené', why:'Vypadá „prvočíselně", ale 5+1 = 6 je dělitelné 3 → 51 je dělitelné 3. Vždy ověř znaky dělitelnosti.'},
+  {wrong:'Rozklad 60 = 2 · 3 · 5', right:'60 = 2² · 3 · 5', why:'Zapomenutá druhá dvojka. 2 · 3 · 5 = 30, ne 60 — vždy zkontroluj součin zpět.'},
+ ],
  intro: '⚙️ Ozubený automat se zasekl. „Rozlož mě na prvočísla a opravíš mě!" volá. Prvočísla jsou stavební kameny všech čísel.',
  sections: [
   { h: 'Prvočísla a čísla složená',
@@ -233,7 +273,7 @@ window.RPG_LEARN_6 = {
   '<b>Rozklad:</b> každé číslo = součin prvočísel (jednoznačný)',
  ],
  examples: [
-  { q: 'Rozlož 84 na prvočinitele', s: ['84 ÷ 2 = 42', '42 ÷ 2 = 21', '21 ÷ 3 = 7 (prvočíslo)', '84 = <b>2² · 3 · 7</b>'] },
+  { q: 'Rozlož 84 na prvočinitele', s: ['84 : 2 = 42', '42 : 2 = 21', '21 : 3 = 7 (prvočíslo)', '84 = <b>2² · 3 · 7</b>'] },
   { q: 'Je 97 prvočíslo?', s: ['Zkoušíme dělitele 2, 3, 5, 7 (až do √97 ≈ 9,8)', '97 není dělitelné žádným z nich → <b>ANO, 97 je prvočíslo</b>'] },
   { q: 'Kolik dělitelů má číslo 18?', s: ['Dvojice dělitelů: 1·18, 2·9, 3·6', 'Dělitelé jsou 1, 2, 3, 6, 9, 18 → <b>6 dělitelů</b>'] },
  ],
@@ -241,6 +281,11 @@ window.RPG_LEARN_6 = {
 },
 
 '3-3': {
+ mistakes: [
+  {wrong:'NSN(12, 18) = 12 · 18 = 216', right:'NSN = 36', why:'Součin obou čísel je společný násobek, ale ne NEJmenší. NSN bere každé prvočíslo v nejvyšší mocnině: 2²·3² = 36.'},
+  {wrong:'Zaměním NSD a NSN', right:'NSD je menší (dělitel obou), NSN větší (násobek obou)', why:'Platí NSD ≤ obě čísla ≤ NSN. NSD(12,18)=6, NSN(12,18)=36 — když výsledek nepasuje do tohoto pořadí, je prohozený.'},
+  {wrong:'NSD(12, 18) = 2 · 3 · 3 = 18', right:'NSD = 2 · 3 = 6', why:'NSD bere společné prvočinitele v NEJNIŽŠÍ mocnině. 18 nemá dvě dvojky, druhou trojku brát nelze.'},
+ ],
  intro: '🛰️ Orbitální sonda synchronizuje dva tryskové motory. „Najdi jejich společný dělitel a násobek — jinak se srazíme!" Zachraň sondu!',
  sections: [
   { h: 'Největší společný dělitel (NSD)',
@@ -270,6 +315,11 @@ window.RPG_LEARN_6 = {
 /* ─── Oblast 4: MLHOVINA ÚHLŮ ─────────────────────────────────── */
 
 '4-1': {
+ mistakes: [
+  {wrong:'Úhel 40° čtu na úhloměru jako 140°', right:'40°', why:'Úhloměr má dvě stupnice (0→180 a 180→0). Čti tu, která začíná nulou na rameni, od kterého měříš.'},
+  {wrong:'Úhel 90° je tupý', right:'přesně 90° je pravý; tupý je 90°–180°', why:'Hranice 90° patří pravému úhlu. Tupý je až NAD 90°, ostrý POD 90°.'},
+  {wrong:'Střed úhloměru dám na rameno úhlu', right:'střed patří na VRCHOL úhlu', why:'Když střed není přesně na vrcholu, odečet je posunutý a velikost vyjde špatně.'},
+ ],
  intro: '🌌 Mlhovinný strážce měří úhly mezi hvězdami. „Pojmenuj každý druh úhlu přesně — nebo mlhovinou neprojdeš!" Ukaž, co víš.',
  sections: [
   { h: 'Co je úhel',
@@ -296,6 +346,11 @@ window.RPG_LEARN_6 = {
 },
 
 '4-2': {
+ mistakes: [
+  {wrong:'Vedlejší úhel k 53° = 53°', right:'180° − 53° = 127°', why:'Shodné jsou vrcholové úhly. Vedlejší mají součet 180°, dopočítávají se odečtením.'},
+  {wrong:'Vrcholový úhel k 110° = 180° − 110° = 70°', right:'110°', why:'Vrcholové úhly leží proti sobě a jsou vždy shodné. Odčítání od 180° platí pro vedlejší, ne vrcholové.'},
+  {wrong:'Vedlejší úhel = 90° − α', right:'180° − α', why:'Doplněk do 90° je pojem u pravého úhlu; vedlejší úhly se doplňují do přímého úhlu 180°.'},
+ ],
  intro: '✨ Dvojhvězda vrhá překřížené paprsky. „Popiš mi všechny čtyři úhly, nebo tě paprsky pohltí!" Pochop vedlejší a vrcholové úhly.',
  sections: [
   { h: 'Vedlejší úhly',
@@ -319,6 +374,11 @@ window.RPG_LEARN_6 = {
 },
 
 '4-3': {
+ mistakes: [
+  {wrong:'45,5° = 45°5′', right:'45,5° = 45°30′', why:'Desetiny stupně nejsou minuty. 0,5° = 0,5 · 60 = 30 minut, ne 5 minut.'},
+  {wrong:'45°30′ + 28°45′ = 73°75′', right:'74°15′', why:'Když minut vyjde 60 a víc, převádí se: 75′ = 1°15′. Zapomenutý přenos do stupňů.'},
+  {wrong:'50°10′ − 23°35′ = 27°25′ (odečtu 35−10)', right:'26°35′', why:'Nejde odečíst 35′ od 10′, musíš si půjčit 1° = 60′: 49°70′ − 23°35′ = 26°35′.'},
+ ],
  intro: '🌠 Kometární mistr počítá dobu letu ve stupních a minutách. „Sčítej a převáděj přesně — nebo kometa mine cíl!" Ovládni sexagesimální soustavu.',
  sections: [
   { h: 'Stupně a minuty (sexagesimální soustava)',
@@ -348,6 +408,11 @@ window.RPG_LEARN_6 = {
 /* ─── Oblast 5: ZRCADLOVÝ MĚSÍC ───────────────────────────────── */
 
 '5-1': {
+ mistakes: [
+  {wrong:'Obraz bodu jen posunu na druhou stranu různě daleko', right:'obraz je ve stejné vzdálenosti od osy jako vzor', why:'Osová souměrnost zachovává vzdálenost od osy — bod i obraz jsou od osy stejně daleko na společné kolmici.'},
+  {wrong:'Čtverec má 2 osy souměrnosti', right:'čtverec má 4 osy', why:'Kromě dvou středových přímek má čtverec i dvě úhlopříčky jako osy — celkem 4.'},
+  {wrong:'Obdélník (ne čtverec) má 4 osy', right:'obdélník má jen 2 osy', why:'Úhlopříčky obdélníku nejsou osy souměrnosti (nepřekryjí ho). Osami jsou jen dvě středové přímky.'},
+ ],
  intro: '🌓 Zrcadlový dvojník tě napodobuje každým pohybem. „Ukáži ti osu souměrnosti — dokážeš najít obraz?" Osová souměrnost je základem vesmírné navigace.',
  sections: [
   { h: 'Co je osová souměrnost',
@@ -373,6 +438,11 @@ window.RPG_LEARN_6 = {
 },
 
 '5-2': {
+ mistakes: [
+  {wrong:'Podle osy y: [3 ; 2] → [3 ; −2]', right:'[−3 ; 2]', why:'Osa y je svislá, zrcadlí doleva/doprava → mění se znaménko x. Znaménko y se mění až při souměrnosti podle osy x.'},
+  {wrong:'Podle osy x měním obě souřadnice', right:'mění se jen y: [x ; y] → [x ; −y]', why:'Souměrnost podle jedné osy mění vždy jen jednu souřadnici. Obě se mění až při středové souměrnosti.'},
+  {wrong:'Zaměním osy x a y při zrcadlení', right:'osa y ↔ znaménko x; osa x ↔ znaménko y', why:'Osa určuje, která souřadnice zůstane. Podle svislé osy y se mění vodorovná souřadnice x.'},
+ ],
  intro: '🪞 Stříbrná hladina planety odráží souřadnice jako dokonalé zrcadlo. „Urči přesný obraz v souřadnicovém systému!" Souřadnice a osy čekají.',
  sections: [
   { h: 'Obraz bodu v souřadnicovém systému',
@@ -396,6 +466,11 @@ window.RPG_LEARN_6 = {
 },
 
 '5-3': {
+ mistakes: [
+  {wrong:'Zvětšení 2× zachová shodnost', right:'zvětšení mění velikost → jde o podobnost, ne shodnost', why:'Shodné útvary mají stejný tvar I velikost. Zvětšení/zmenšení velikost mění, proto shodnost nezachovává.'},
+  {wrong:'Útvary se stejnými úhly jsou shodné', right:'musí mít stejné úhly I stejně dlouhé strany', why:'Stejné úhly mají i podobné (různě velké) útvary. Ke shodnosti je nutná i shoda délek stran.'},
+  {wrong:'Obraz v osové souměrnosti není shodný s originálem', right:'je shodný', why:'Osová souměrnost, posunutí i otočení zachovávají vzdálenosti a úhly — obraz je vždy shodný s předlohou.'},
+ ],
  intro: '🌑 Temná strana Zrcadlového měsíce skrývá shodné útvary. „Poznej, kdy jsou útvary shodné — pak otevřu bránu!" Shodnost je základem geometrie.',
  sections: [
   { h: 'Co je shodnost (kongruence)',
@@ -426,6 +501,11 @@ window.RPG_LEARN_6 = {
 /* ─── Oblast 6: KRYCHLOVÁ STANICE ─────────────────────────────── */
 
 '6-1': {
+ mistakes: [
+  {wrong:'1 dm³ = 100 cm³', right:'1 dm³ = 1000 cm³', why:'Mezi sousedními objemovými jednotkami je 1000× (10·10·10), ne 100× jako u plochy.'},
+  {wrong:'Objem krychle s hranou 3 = 3 · 3 = 9', right:'V = 3³ = 27 cm³', why:'Objem je součin TŘÍ rozměrů (a·a·a), ne dvou. a² je obsah stěny, ne objem.'},
+  {wrong:'Zadaný objem počítám jako povrch', right:'objem = a·b·c (kolik se vejde dovnitř)', why:'Objem (cm³) a povrch (cm²) se pletou. Objem plní vnitřek, povrch je obal.'},
+ ],
  intro: '📦 Nákladní robot musí naplnit krychlové kontejnery. „Spočítej mi objem přesně — jinak kontejnery explodují přetlakem!" Ovládni objem těles.',
  sections: [
   { h: 'Co je objem',
@@ -453,6 +533,11 @@ window.RPG_LEARN_6 = {
 },
 
 '6-2': {
+ mistakes: [
+  {wrong:'Povrch krychle = a² (jedna stěna)', right:'S = 6 · a² (šest stěn)', why:'Krychle má 6 stejných čtvercových stěn, jejich obsahy se sčítají.'},
+  {wrong:'Povrch kvádru = a·b + b·c + a·c', right:'S = 2·(a·b + b·c + a·c)', why:'Každá z těch tří stěn je na tělese dvakrát (protilehlé páry) → celý součet krát 2.'},
+  {wrong:'Povrch počítám jako objem (a·b·c)', right:'povrch se sčítá z obsahů stěn (cm²), objem je a·b·c (cm³)', why:'Záměna povrchu a objemu — hlídej jednotku: povrch cm², objem cm³.'},
+ ],
  intro: '🛠️ Svářecí dron potřebuje pokrýt tělesa přesnou vrstvou plátů. „Vypočítej povrch — plýtvání materiálem zruší misi!" Povrch krychle a kvádru.',
  sections: [
   { h: 'Co je povrch',
@@ -476,13 +561,18 @@ window.RPG_LEARN_6 = {
 },
 
 '6-3': {
+ mistakes: [
+  {wrong:'1 litr = 1 cm³', right:'1 litr = 1 dm³; 1 ml = 1 cm³', why:'Litr odpovídá krychli o hraně 1 dm. 1 cm³ je jen mililitr — tisíckrát méně.'},
+  {wrong:'2,5 dm³ = 250 cm³ (× 100)', right:'2,5 · 1000 = 2 500 cm³', why:'Objemové jednotky se převádějí ×1000, ne ×100 (to je plocha).'},
+  {wrong:'Síť krychle má 4 čtverce', right:'6 čtverců (jako 6 stěn)', why:'Krychle má 6 stěn, takže i síť má 6 čtverců (existuje 11 různých platných sítí).'},
+ ],
  intro: '🔧 Servisní jednotka kontroluje zásoby paliva v litrech a mililitrech. „Bez znalosti převodů nestartujeme!" Ovládni jednotky objemu a sítě těles.',
  sections: [
   { h: 'Jednotky objemu a jejich vztah k litrům',
     p: ['Klíčové vztahy: <b>1 l = 1 dm³</b> a <b>1 ml = 1 cm³</b> — tohle musíš znát nazpaměť!',
         '<table style="border-collapse:collapse;font-size:12px;color:#c9d1d9;margin:4px 0"><tr><th style="border:1px solid #4a9eff;padding:3px 8px;color:#ffcc00">Objem</th><th style="border:1px solid #4a9eff;padding:3px 8px;color:#ffcc00">Kapalina</th></tr><tr><td style="border:1px solid #4a9eff;padding:3px 8px">1 cm³</td><td style="border:1px solid #4a9eff;padding:3px 8px">1 ml</td></tr><tr><td style="border:1px solid #4a9eff;padding:3px 8px">1 dm³</td><td style="border:1px solid #4a9eff;padding:3px 8px">1 litr (l)</td></tr><tr><td style="border:1px solid #4a9eff;padding:3px 8px">1 m³</td><td style="border:1px solid #4a9eff;padding:3px 8px">1 000 l</td></tr></table>'] },
   { h: 'Převody — řešené příklady',
-    p: ['3,5 dm³ → cm³: × 1000 → <b>3 500 cm³</b><br>750 ml → dm³: ÷ 1000 → <b>0,75 dm³</b> = 0,75 l<br>2 m³ → dm³: × 1000 → <b>2 000 dm³</b> = 2 000 l'] },
+    p: ['3,5 dm³ → cm³: × 1000 → <b>3 500 cm³</b><br>750 ml → dm³: : 1000 → <b>0,75 dm³</b> = 0,75 l<br>2 m³ → dm³: × 1000 → <b>2 000 dm³</b> = 2 000 l'] },
   { h: 'Síť tělesa',
     p: ['<b>Síť</b> je těleso „rozložené" do roviny — všechny stěny vedle sebe tak, aby šly složit zpět.',
         'Krychle: síť ze <b>6 čtverců</b> (existuje 11 různých platných sítí). Kvádr: síť ze <b>6 obdélníků</b> (3 páry).',
@@ -503,6 +593,11 @@ window.RPG_LEARN_6 = {
 /* ─── Oblast 7: TROJÚHELNÍKOVÁ GALAXIE ────────────────────────── */
 
 '7-1': {
+ mistakes: [
+  {wrong:'Součet úhlů v trojúhelníku = 360°', right:'180°', why:'360° je součet úhlů čtyřúhelníku (nebo plný úhel). Trojúhelník má vždy 180°.'},
+  {wrong:'γ = 180° − α (zapomenu β)', right:'γ = 180° − α − β', why:'Odečítají se OBA známé úhly. Třetí úhel je to, co ze 180° zbude po odečtení prvních dvou.'},
+  {wrong:'Úhly v poměru 1:2:3 jsou 1°, 2°, 3°', right:'díl = 180° : 6 = 30° → 30°, 60°, 90°', why:'Poměr udává počet dílů (1+2+3 = 6 dílů), které se dělí do 180°, ne rovnou stupně.'},
+ ],
  intro: '🔺 Trojhvězda září ve tvaru trojúhelníku. „Součet jeho úhlů je zákon vesmíru — dokaž, že ho znáš!" Pochop součet úhlů trojúhelníku.',
  sections: [
   { h: 'Součet vnitřních úhlů trojúhelníku',
@@ -530,6 +625,11 @@ window.RPG_LEARN_6 = {
 },
 
 '7-2': {
+ mistakes: [
+  {wrong:'Trojúhelník se stranami 3, 4, 8 cm lze sestrojit', right:'nelze: 3 + 4 = 7 < 8', why:'Trojúhelníková nerovnost: součet dvou kratších stran musí být VĚTŠÍ než nejdelší strana. Tady není.'},
+  {wrong:'Těžiště leží v polovině těžnice', right:'ve 2/3 délky od vrcholu (1/3 od strany)', why:'Těžiště dělí těžnici v poměru 2:1, ne 1:1. Blíž je ke straně, ne k vrcholu.'},
+  {wrong:'Výška je jakákoli čára z vrcholu', right:'výška je KOLMÁ na protilehlou stranu', why:'Bez pravého úhlu k protější straně to není výška (mohla by to být třeba těžnice).'},
+ ],
  intro: '⭐ Hvězdný geometr zkoumá vlastnosti trojúhelníků pod lupou. „Nerovnost, výšky, těžiště, kružnice — bez toho galaxii neotevřu!" Ponor se hluboko.',
  sections: [
   { h: 'Trojúhelníková nerovnost',
@@ -561,10 +661,15 @@ window.RPG_LEARN_6 = {
 },
 
 '7-3': {
+ mistakes: [
+  {wrong:'3 + 4 × 2 − (6 − 4) = 12', right:'= 9', why:'Nejdřív závorka (2) a násobení (8): 3 + 8 − 2 = 9. Počítání zleva bez ohledu na přednost operací dá 12.'},
+  {wrong:'Objem a povrch mají stejnou jednotku', right:'objem cm³, povrch cm²', why:'Ve finálních úlohách se pletou — vždy zkontroluj, zda výsledek odpovídá jednotce v otázce.'},
+  {wrong:'3/4 z 60 = 60 : 3 · 4 = 80', right:'60 : 4 · 3 = 45', why:'Zlomek 3/4: děl jmenovatelem (4), násob čitatelem (3). Prohození čísel dá špatný výsledek.'},
+ ],
  intro: '👾 Vládce Trojúhelníkové galaxie — finální boss celé expedice! „Prověřím tě ze všech sedmi oblastí. Jen nejlepší vesmírní matematici projdou!" Jsi připraven?',
  sections: [
   { h: 'Přehled klíčových vzorců — 6. ročník',
-    p: ['<table style="border-collapse:collapse;font-size:11px;color:#c9d1d9;margin:4px 0;width:100%"><tr><th style="border:1px solid #4a9eff;padding:3px 6px;color:#ffcc00;text-align:left">Téma</th><th style="border:1px solid #4a9eff;padding:3px 6px;color:#ffcc00;text-align:left">Vzorec / pravidlo</th></tr><tr><td style="border:1px solid #4a9eff;padding:2px 6px">Pořadí operací</td><td style="border:1px solid #4a9eff;padding:2px 6px">( ) → × ÷ → + −</td></tr><tr><td style="border:1px solid #4a9eff;padding:2px 6px">Obvod obdélníku</td><td style="border:1px solid #4a9eff;padding:2px 6px">o = 2(a+b)</td></tr><tr><td style="border:1px solid #4a9eff;padding:2px 6px">Obsah obdélníku</td><td style="border:1px solid #4a9eff;padding:2px 6px">S = a · b</td></tr><tr><td style="border:1px solid #4a9eff;padding:2px 6px">Objem kvádru</td><td style="border:1px solid #4a9eff;padding:2px 6px">V = a · b · c</td></tr><tr><td style="border:1px solid #4a9eff;padding:2px 6px">Povrch krychle</td><td style="border:1px solid #4a9eff;padding:2px 6px">S = 6a²</td></tr><tr><td style="border:1px solid #4a9eff;padding:2px 6px">Povrch kvádru</td><td style="border:1px solid #4a9eff;padding:2px 6px">S = 2(ab+bc+ac)</td></tr><tr><td style="border:1px solid #4a9eff;padding:2px 6px">Úhly v trojúhelníku</td><td style="border:1px solid #4a9eff;padding:2px 6px">α + β + γ = 180°</td></tr><tr><td style="border:1px solid #4a9eff;padding:2px 6px">Vedlejší úhly</td><td style="border:1px solid #4a9eff;padding:2px 6px">α + β = 180°</td></tr><tr><td style="border:1px solid #4a9eff;padding:2px 6px">1 l = </td><td style="border:1px solid #4a9eff;padding:2px 6px">1 dm³ ; 1 ml = 1 cm³</td></tr></table>'] },
+    p: ['<table style="border-collapse:collapse;font-size:11px;color:#c9d1d9;margin:4px 0;width:100%"><tr><th style="border:1px solid #4a9eff;padding:3px 6px;color:#ffcc00;text-align:left">Téma</th><th style="border:1px solid #4a9eff;padding:3px 6px;color:#ffcc00;text-align:left">Vzorec / pravidlo</th></tr><tr><td style="border:1px solid #4a9eff;padding:2px 6px">Pořadí operací</td><td style="border:1px solid #4a9eff;padding:2px 6px">( ) → × : → + −</td></tr><tr><td style="border:1px solid #4a9eff;padding:2px 6px">Obvod obdélníku</td><td style="border:1px solid #4a9eff;padding:2px 6px">o = 2(a+b)</td></tr><tr><td style="border:1px solid #4a9eff;padding:2px 6px">Obsah obdélníku</td><td style="border:1px solid #4a9eff;padding:2px 6px">S = a · b</td></tr><tr><td style="border:1px solid #4a9eff;padding:2px 6px">Objem kvádru</td><td style="border:1px solid #4a9eff;padding:2px 6px">V = a · b · c</td></tr><tr><td style="border:1px solid #4a9eff;padding:2px 6px">Povrch krychle</td><td style="border:1px solid #4a9eff;padding:2px 6px">S = 6a²</td></tr><tr><td style="border:1px solid #4a9eff;padding:2px 6px">Povrch kvádru</td><td style="border:1px solid #4a9eff;padding:2px 6px">S = 2(ab+bc+ac)</td></tr><tr><td style="border:1px solid #4a9eff;padding:2px 6px">Úhly v trojúhelníku</td><td style="border:1px solid #4a9eff;padding:2px 6px">α + β + γ = 180°</td></tr><tr><td style="border:1px solid #4a9eff;padding:2px 6px">Vedlejší úhly</td><td style="border:1px solid #4a9eff;padding:2px 6px">α + β = 180°</td></tr><tr><td style="border:1px solid #4a9eff;padding:2px 6px">1 l = </td><td style="border:1px solid #4a9eff;padding:2px 6px">1 dm³ ; 1 ml = 1 cm³</td></tr></table>'] },
   { h: 'Tipy pro přijímací zkoušky (CERMAT styl)',
     p: ['<b>Čti pozorně:</b> každé slovo v zadání je důležité. Co se ptají — objem? Povrch? Obvod?<br><b>Hlídej jednotky:</b> nezaměňuj cm a cm², cm² a cm³.<br><b>Nakresli si obrázek</b> — geometrie bez náčrtku = zbytečné chyby.<br><b>Výsledek odhadni:</b> je to v reálném řádu? 500 cm³ kostka ledu dává smysl, 500 m³ ne.',
         '<b>Kontroluj pořadí operací</b> — v testu bývá chyták se závorkami.<br><b>Zaokrouhlování</b> — vždy zkontroluj, na kolik desetinných míst je výsledek požadován.'] },
@@ -572,7 +677,7 @@ window.RPG_LEARN_6 = {
     p: ['Projdi si: 1-1 → 1-2 → 2-1 → 2-2 → 3-1 → 3-2 → 3-3 → 4-1 → 4-2 → 5-1 → 6-1 → 6-2 → 7-1 → 7-2.<br>Kde si nejsi jistý/á, klikni na „📖 Teorie" a zopakuj si.'] },
  ],
  formulas: [
-  '<b>Pořadí operací:</b> ( ) → × ÷ → + −',
+  '<b>Pořadí operací:</b> ( ) → × : → + −',
   '<b>Úhly v △:</b> 180° · <b>Vedlejší:</b> 180° · <b>Vrcholové:</b> shodné',
   '<b>Objem:</b> ×1000 · <b>Plocha:</b> ×100 · <b>Délka:</b> ×10',
  ],
