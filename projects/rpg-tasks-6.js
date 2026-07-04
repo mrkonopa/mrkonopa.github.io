@@ -174,31 +174,25 @@ function gen_3_1(){
 
 // 3-2 Prvočísla a dělitelé (MC — numerické nebo ANO/NE)
 function gen_3_2(){
-  const tasks=[];
   const primes=[2,3,5,7,11,13,17,19,23,29,31,37,41,43,47];
-  const p=primes[ri(0,primes.length-1)];
-  tasks.push({text:`Je číslo ${p} prvočíslo?`,ans:'ANO',hints:['Prvočíslo má právě 2 dělitele: 1 a sebe.','ANO'],skill:'anal'});
-  const comp=ri(2,9)*ri(2,9);
-  const isPrime=primes.includes(comp);
-  tasks.push({text:`Je číslo ${comp} prvočíslo?`,ans:isPrime?'ANO':'NE',hints:['Má více než 2 dělitele?',isPrime?'ANO':'NE — je složené'],skill:'anal'});
-  // počet dělitelů malého čísla
-  const n=ri(6,24);
-  let cnt=0;for(let i=1;i<=n;i++)if(n%i===0)cnt++;
-  tasks.push({text:`Kolik dělitelů má číslo ${n}?`,ans:cnt,hints:['Vypiš všechna čísla, kterými ${n} beze zbytku dělíš.',`${n} má ${cnt} dělitelů`],skill:'anal'});
-  // nejmenší prvočinitel
-  const m=ri(2,6)*ri(2,6);
-  let sf=2;while(m%sf!==0)sf++;
-  tasks.push({text:`Jaký je nejmenší prvočíselný dělitel čísla ${m}?`,ans:sf,hints:['Zkus postupně 2, 3, 5, …',`= ${sf}`],skill:'anal'});
-  // je dělitelem?
-  const big=ri(3,9),mult=big*ri(2,6);
-  tasks.push({text:`Je číslo ${big} dělitelem čísla ${mult}?`,ans:'ANO',hints:['Vydělí ${big} číslo ${mult} beze zbytku?','ANO'],skill:'anal'});
-  // další prvočíslo
-  const q=primes[ri(0,9)];
-  tasks.push({text:`Je číslo ${q+1} prvočíslo?`,ans:primes.includes(q+1)?'ANO':'NE',hints:['Zkontroluj dělitele.',primes.includes(q+1)?'ANO':'NE'],skill:'anal'});
-  { const pr=[2,3,5,7,11,13,17,19,23]; const p2=pr[ri(0,pr.length-1)]; tasks.push({text:`Je číslo ${p2} prvočíslo?`,ans:'ANO',hints:['Prvočíslo má právě 2 dělitele: 1 a sebe.','ANO'],skill:'anal'}); }
-  { const n=ri(8,30); let cnt=0; for(let i2=1;i2<=n;i2++)if(n%i2===0)cnt++; tasks.push({text:`Kolik dělitelů má číslo ${n}?`,ans:cnt,hints:['Vypiš všechna čísla, kterými ho beze zbytku vydělíš.',`${n} má ${cnt} dělitelů`],skill:'anal'}); }
-  { const m=ri(2,6)*ri(2,6); let sf=2; while(m%sf!==0)sf++; tasks.push({text:`Jaký je nejmenší prvočíselný dělitel čísla ${m}?`,ans:sf,hints:['Zkus postupně 2, 3, 5, …',`= ${sf}`],skill:'anal'}); }
-  { const a=ri(4,12); tasks.push({text:`Je číslo ${a*a} druhá mocnina nějakého čísla? (ANO/NE)`,ans:'ANO',hints:[`${a}² = ${a*a}.`,'ANO'],skill:'anal'}); }
+  const isP=n=>{if(n<2)return false;for(let i=2;i*i<=n;i++)if(n%i===0)return false;return true;};
+  const divc=n=>{let c=0;for(let i=1;i<=n;i++)if(n%i===0)c++;return c;};
+  const T=[
+    ()=>{const p=primes[ri(0,9)];return{text:`Je číslo ${p} prvočíslo?`,ans:'ANO',h1:'Prvočíslo má právě dva dělitele: 1 a samo sebe.',h2:'ANO'};},
+    ()=>{const c=ri(2,9)*ri(2,9);const ok=isP(c);return{text:`Je číslo ${c} prvočíslo?`,ans:ok?'ANO':'NE',h1:'Má víc než dva dělitele → není prvočíslo.',h2:ok?'ANO':'NE — je složené'};},
+    ()=>{const n=ri(6,30);return{text:`Kolik dělitelů má číslo ${n}?`,ans:divc(n),h1:`Vypiš všechna čísla, kterými ${n} vydělíš beze zbytku.`,h2:`${n} má ${divc(n)} dělitelů`};},
+    ()=>{const m=ri(2,6)*ri(2,6);let sf=2;while(m%sf!==0)sf++;return{text:`Jaký je nejmenší prvočíselný dělitel čísla ${m}?`,ans:sf,h1:'Zkoušej postupně 2, 3, 5, 7…',h2:`= ${sf}`};},
+    ()=>{const b=ri(3,9),mult=b*ri(2,6);return{text:`Je číslo ${b} dělitelem čísla ${mult}?`,ans:mult%b===0?'ANO':'NE',h1:`Vejde se ${b} do ${mult} beze zbytku?`,h2:'ANO'};},
+    ()=>{const c=ri(2,9)*ri(2,9);const ok=!isP(c);return{text:`Je číslo ${c} složené (má víc než dva dělitele)?`,ans:ok?'ANO':'NE',h1:'Složené číslo lze rozložit na součin menších činitelů.',h2:ok?'ANO':'NE'};},
+    ()=>{const a=ri(4,12);return{text:`Je číslo ${a*a} druhou mocninou nějakého čísla?`,ans:'ANO',h1:`Existuje číslo, které umocněné na druhou dá ${a*a}?`,h2:`ANO (${a}² = ${a*a})`};},
+    ()=>{const lim=[10,20,30,50][ri(0,3)];const cnt=primes.filter(x=>x<lim).length;return{text:`Kolik prvočísel je menších než ${lim}?`,ans:cnt,h1:'Vyjmenuj prvočísla od 2 nahoru a počítej.',h2:`= ${cnt}`};},
+    ()=>{const m=[12,18,20,24,30,36,45][ri(0,6)];let big=1;for(const p of primes)if(m%p===0)big=p;return{text:`Jaký je NEJVĚTŠÍ prvočíselný dělitel čísla ${m}?`,ans:big,h1:'Rozlož číslo na prvočinitele a vezmi největší.',h2:`= ${big}`};},
+    ()=>{const p=primes[ri(2,9)];let np=p+1;while(!isP(np))np++;return{text:`Které nejmenší prvočíslo je větší než ${p}?`,ans:np,h1:'Hledej první prvočíslo nad daným číslem.',h2:`= ${np}`};},
+    ()=>{const b=ri(3,9),q=ri(2,6);const ok=ri(0,1)===0;const a=ok?b*q:b*q+ri(1,b-1);return{text:`Je číslo ${a} násobkem čísla ${b}?`,ans:a%b===0?'ANO':'NE',h1:`Je ${a} v řadě násobků čísla ${b}?`,h2:a%b===0?'ANO':'NE'};},
+    ()=>{const n=[6,8,10,12,15][ri(0,4)];return{text:`Kolik dělitelů má číslo ${n} KROMĚ 1 a sebe sama?`,ans:divc(n)-2,h1:'Spočítej všechny dělitele a dva odečti.',h2:`= ${divc(n)-2}`};},
+  ];
+  const tasks=[];
+  for(let i=0;i<13;i++){const t=T[i%T.length]();tasks.push({text:t.text,ans:t.ans,hints:[t.h1,t.h2],skill:'anal'});}
   return tasks;
 }
 
@@ -233,21 +227,23 @@ function gen_3_3(){
 
 // 4-1 Druhy a velikosti úhlů (ostrý/pravý/tupý) — non-MC, ANO/NE + numerické
 function gen_4_1(){
+  const druh=a=>a<90?'ostrý':a===90?'pravý':a<180?'tupý':a===180?'přímý':'plný';
+  const T=[
+    ()=>{const a=ri(10,80);return{text:`Úhel má velikost ${a}°. Je to ostrý úhel? (ostrý < 90°)`,ans:'ANO',h1:'Ostrý úhel je menší než 90°.',h2:'ANO'};},
+    ()=>{const a=ri(95,170);return{text:`Úhel má velikost ${a}°. Je to tupý úhel? (tupý 90°–180°)`,ans:'ANO',h1:'Tupý úhel je mezi 90° a 180°.',h2:'ANO'};},
+    ()=>{const a=ri(10,80);return{text:`Je úhel ${a}° tupý?`,ans:'NE',h1:`${a}° je menší než 90°, je tedy ostrý.`,h2:'NE — je ostrý'};},
+    ()=>{return{text:`Kolik stupňů má pravý úhel?`,ans:90,h1:'Pravý úhel je čtvrtina otáčky.',h2:'90°'};},
+    ()=>{return{text:`Kolik stupňů má přímý úhel?`,ans:180,h1:'Přímý úhel je polovina otáčky.',h2:'180°'};},
+    ()=>{const c=ri(10,80);return{text:`Kolik stupňů chybí úhlu ${c}° do pravého úhlu?`,ans:90-c,h1:'Pravý úhel má 90°.',h2:`90 − ${c} = ${90-c}°`};},
+    ()=>{const a=ri(10,150);return{text:`Kolik stupňů chybí úhlu ${a}° do přímého úhlu (180°)?`,ans:180-a,h1:'Přímý úhel má 180°.',h2:`180 − ${a} = ${180-a}°`};},
+    ()=>{return{text:`Kolik stupňů má plný úhel (celá otáčka)?`,ans:360,h1:'Celá otáčka kolem bodu.',h2:'360°'};},
+    ()=>{const a=ri(10,80);const ok=a===90;return{text:`Je úhel ${a}° pravý (přesně 90°)?`,ans:ok?'ANO':'NE',h1:'Pravý úhel má přesně 90°.',h2:ok?'ANO':'NE'};},
+    ()=>{const a=[ri(10,80),90,ri(95,175),180][ri(0,3)];return{text:`Úhel má ${a}°. Napiš jeho druh číslem: 1=ostrý, 2=pravý, 3=tupý, 4=přímý.`,ans:a<90?1:a===90?2:a<180?3:4,h1:'Porovnej velikost s 90° a 180°.',h2:`${druh(a)} → ${a<90?1:a===90?2:a<180?3:4}`};},
+    ()=>{const a=ri(100,170);return{text:`O kolik stupňů je úhel ${a}° větší než pravý úhel?`,ans:a-90,h1:'Odečti 90°.',h2:`${a} − 90 = ${a-90}°`};},
+    ()=>{const a=ri(10,80);const b=ri(10,80);return{text:`Dva ostré úhly ${a}° a ${b}° dej dohromady. Je jejich součet stále ostrý (< 90°)?`,ans:(a+b)<90?'ANO':'NE',h1:`Sečti: ${a} + ${b} = ${a+b}. Je to méně než 90?`,h2:(a+b)<90?'ANO':'NE'};},
+  ];
   const tasks=[];
-  const a=ri(10,80);
-  tasks.push({text:`Úhel má velikost ${a}°. Je to ostrý úhel? (ostrý < 90°)`,ans:'ANO',hints:['Ostrý úhel je menší než 90°.','ANO'],skill:'geo'});
-  const b=ri(100,170);
-  tasks.push({text:`Úhel má velikost ${b}°. Je to tupý úhel? (tupý 90°–180°)`,ans:'ANO',hints:['Tupý úhel je mezi 90° a 180°.','ANO'],skill:'geo'});
-  tasks.push({text:`Kolik stupňů má pravý úhel?`,ans:90,hints:['Čtvrtina otáčky.','90°'],skill:'geo'});
-  tasks.push({text:`Kolik stupňů má přímý úhel?`,ans:180,hints:['Polovina otáčky.','180°'],skill:'geo'});
-  const c=ri(10,80);
-  tasks.push({text:`Úhel ${c}° doplň do pravého úhlu. Kolik stupňů chybí?`,ans:90-c,hints:['Pravý úhel = 90°.',`90−${c} = ${90-c}°`],skill:'geo'});
-  const d=ri(95,150);
-  tasks.push({text:`Je úhel ${d}° ostrý? (ostrý < 90°)`,ans:'NE',hints:['${d}° je větší než 90°.','NE — je tupý'],skill:'geo'});
-  { const a=ri(10,80); tasks.push({text:`Je úhel ${a}° ostrý? (ostrý < 90°)`,ans:'ANO',hints:['Ostrý úhel je menší než 90°.','ANO'],skill:'geo'}); }
-  { const a=ri(100,170); tasks.push({text:`Je úhel ${a}° tupý? (tupý 90°–180°)`,ans:'ANO',hints:['Tupý úhel je mezi 90° a 180°.','ANO'],skill:'geo'}); }
-  { const a=ri(10,80); tasks.push({text:`Doplň úhel ${a}° do přímého úhlu (180°). Kolik stupňů chybí?`,ans:180-a,hints:['180 − daný úhel.',`= ${180-a}°`],skill:'geo'}); }
-  { tasks.push({text:`Kolik stupňů má plný úhel (celá otáčka)?`,ans:360,hints:['Celá otáčka kolem bodu.','360°'],skill:'geo'}); }
+  for(let i=0;i<13;i++){const t=T[i%T.length]();tasks.push({text:t.text,ans:t.ans,hints:[t.h1,t.h2],skill:'geo'});}
   return tasks;
 }
 
@@ -275,24 +271,22 @@ function gen_4_2(){
 
 // 4-3 Úhly ve stupních a minutách
 function gen_4_3(){
+  const T=[
+    ()=>{const a=ri(10,40),b=ri(10,25),c=ri(10,40),d=ri(10,25);let mm=b+d;if(mm>=60)mm-=60;return{text:`Sečti úhly ${a}°${b}′ + ${c}°${d}′. Kolik MINUT bude ve výsledku?`,ans:mm,h1:'Sečti minuty; nad 60 přenes jeden stupeň.',h2:`minuty = ${mm}′`};},
+    ()=>{const e=ri(40,80),f=ri(30,55),g=ri(10,30),h=ri(10,f-5);return{text:`Odečti úhly ${e}°${f}′ − ${g}°${h}′. Kolik STUPŇŮ bude ve výsledku?`,ans:e-g,h1:'Odečti stupně a minuty zvlášť.',h2:`stupně = ${e-g}°`};},
+    ()=>{const deg=ri(2,6);return{text:`Kolik minut má ${deg}°? (1° = 60′)`,ans:deg*60,h1:'Jeden stupeň má 60 minut.',h2:`${deg} · 60 = ${deg*60}′`};},
+    ()=>{const m=ri(2,9)*60;return{text:`Kolik celých stupňů je ${m}′? (60′ = 1°)`,ans:m/60,h1:'Vyděl počet minut šedesáti.',h2:`${m} : 60 = ${m/60}°`};},
+    ()=>{const i=ri(20,70);return{text:`Kolik stupňů chybí úhlu ${i}° do 90°?`,ans:90-i,h1:'Odečti od pravého úhlu.',h2:`90 − ${i} = ${90-i}°`};},
+    ()=>{const j=ri(100,160);return{text:`Kolik stupňů chybí úhlu ${j}° do 180°?`,ans:180-j,h1:'Odečti od přímého úhlu.',h2:`180 − ${j} = ${180-j}°`};},
+    ()=>{const deg=ri(1,3),min=ri(10,50);return{text:`Kolik minut celkem je ${deg}°${min}′? (1° = 60′)`,ans:deg*60+min,h1:`Převeď stupně na minuty (${deg}·60) a přičti ${min}.`,h2:`= ${deg*60+min}′`};},
+    ()=>{const half=ri(2,5)*2;return{text:`Kolik minut je polovina úhlu ${half}°? (výsledek v minutách)`,ans:half/2*60,h1:`Polovina je ${half/2}°, to je ${half/2}·60 minut.`,h2:`= ${half/2*60}′`};},
+    ()=>{const a=ri(20,40),b=ri(30,55),c=ri(20,40),d=ri(30,55);const totM=b+d;const carry=totM>=60?1:0;const outM=totM-carry*60;return{text:`Sečti ${a}°${b}′ + ${c}°${d}′. Kolik STUPŇŮ bude ve výsledku? (pozor na přenos z minut)`,ans:a+c+carry,h1:`Minuty: ${b}+${d}=${totM}${carry?' → přenos 1° do stupňů':''}.`,h2:`= ${a+c+carry}°`};},
+    ()=>{const m=ri(70,290);return{text:`${m}′ je kolik celých stupňů? (60′ = 1°, napiš jen celé stupně)`,ans:Math.floor(m/60),h1:'Kolikrát se 60 vejde do počtu minut?',h2:`= ${Math.floor(m/60)}°`};},
+    ()=>{const a=ri(10,80);const ok=(90-a)>0;return{text:`Existuje k úhlu ${a}° doplněk do 90° (kladný)?`,ans:a<90?'ANO':'NE',h1:'Doplněk do 90° existuje jen pro ostré úhly.',h2:a<90?'ANO':'NE'};},
+    ()=>{const deg=ri(2,5);return{text:`Kolik SEKUND má ${deg}′? (1′ = 60″)`,ans:deg*60,h1:'Jedna minuta má 60 vteřin.',h2:`${deg} · 60 = ${deg*60}″`};},
+  ];
   const tasks=[];
-  const a=ri(10,40),b=ri(10,29),c=ri(10,40),d=ri(10,29);
-  let mm=b+d,carry=0;if(mm>=60){mm-=60;carry=1;}
-  tasks.push({text:`Sečti úhly: ${a}°${b}' + ${c}°${d}'. Kolik minut bude ve výsledku?`,ans:mm,hints:['Sečti minuty; nad 60 přenes do stupňů.',`minuty výsledku = ${mm}'`],skill:'calc'});
-  const e=ri(40,80),f=ri(30,59),g=ri(10,30),h=ri(10,f-5);
-  tasks.push({text:`Odečti: ${e}°${f}' − ${g}°${h}'. Kolik stupňů bude ve výsledku?`,ans:e-g,hints:['Odečti stupně a minuty zvlášť.',`stupně = ${e-g}°`],skill:'calc'});
-  const deg=ri(2,5);
-  tasks.push({text:`Kolik minut má ${deg}°? (1° = 60')`,ans:deg*60,hints:['1° = 60 minut.',`${deg}·60 = ${deg*60}'`],skill:'calc'});
-  const mins=ri(2,9)*60;
-  tasks.push({text:`Kolik celých stupňů je ${mins}'? (60' = 1°)`,ans:mins/60,hints:['Děl 60.',`${mins}/60 = ${mins/60}°`],skill:'calc'});
-  const i=ri(20,70);
-  tasks.push({text:`Doplněk úhlu ${i}° do 90°? (kolik chybí)`,ans:90-i,hints:['90 − daný úhel.',`= ${90-i}°`],skill:'calc'});
-  const j=ri(100,160);
-  tasks.push({text:`Doplněk úhlu ${j}° do 180°?`,ans:180-j,hints:['180 − daný úhel.',`= ${180-j}°`],skill:'calc'});
-  { const d2=ri(2,6); tasks.push({text:`Kolik minut má ${d2}°? (1° = 60′)`,ans:d2*60,hints:['1° = 60 minut.',`${d2}·60 = ${d2*60}′`],skill:'calc'}); }
-  { const m=ri(2,9)*60; tasks.push({text:`Kolik celých stupňů je ${m}′? (60′ = 1°)`,ans:m/60,hints:['Děl 60.',`${m}/60 = ${m/60}°`],skill:'calc'}); }
-  { const a=ri(20,70); tasks.push({text:`Doplněk úhlu ${a}° do 90°? (kolik chybí)`,ans:90-a,hints:['90 − daný úhel.',`= ${90-a}°`],skill:'calc'}); }
-  { const a=ri(10,40),b=ri(10,29),c=ri(10,40),e2=ri(10,29); let mm=b+e2; if(mm>=60)mm-=60; tasks.push({text:`Sečti úhly: ${a}°${b}′ + ${c}°${e2}′. Kolik minut bude ve výsledku?`,ans:mm,hints:['Sečti minuty; nad 60 přenes do stupňů.',`minuty = ${mm}′`],skill:'calc'}); }
+  for(let i=0;i<13;i++){const t=T[i%T.length]();tasks.push({text:t.text,ans:t.ans,hints:[t.h1,t.h2],skill:'calc'});}
   return tasks;
 }
 
@@ -300,19 +294,25 @@ function gen_4_3(){
 // OBLAST 5 — ZRCADLOVÝ MĚSÍC
 // ══════════════════════════════════════════════════════════
 
-// 5-1 Osová souměrnost (počet os)
+// 5-1 Osová souměrnost (počet os) — variace ÚTVAREM a formulací
 function gen_5_1(){
+  // [název, počet os]
+  const UTV=[['čtverec',4],['obdélník (ne čtverec)',2],['rovnostranný trojúhelník',3],['rovnoramenný trojúhelník (ne rovnostranný)',1],['kosočtverec',2],['pravidelný pětiúhelník',5],['pravidelný šestiúhelník',6],['kruh (napiš 0, pokud jich má nekonečně mnoho)',0]];
+  const PISM=[['A',1],['H',2],['X',2],['O',2],['T',1],['M',1],['E',1],['N',0],['S',0],['Z',0],['I',2],['B',1]];
+  const T=[
+    ()=>{const u=UTV[ri(0,6)];return{text:`Kolik os souměrnosti má ${u[0]}?`,ans:u[1],h1:'Osa přeloží útvar přesně sám na sebe.',h2:`${u[1]} ${u[1]===1?'osa':(u[1]>=2&&u[1]<=4?'osy':'os')}`};},
+    ()=>{const p=PISM[ri(0,PISM.length-1)];return{text:`Kolik os souměrnosti má tiskací písmeno „${p[0]}"?`,ans:p[1],h1:'Zkus písmeno přeložit svisle i vodorovně.',h2:`${p[1]}`};},
+    ()=>{const u=[['čtverec',4],['obdélník',2],['rovnostranný trojúhelník',3]][ri(0,2)];const claim=[2,3,4][ri(0,2)];const ok=claim===u[1];return{text:`Má ${u[0]} přesně ${claim} osy souměrnosti?`,ans:ok?'ANO':'NE',h1:'Spočítej osy útvaru a porovnej.',h2:ok?'ANO':'NE'};},
+    ()=>{const n=ri(5,10);return{text:`Kolik os souměrnosti má pravidelný ${n}úhelník?`,ans:n,h1:'Pravidelný n-úhelník má právě n os.',h2:`${n} os`};},
+    ()=>{return{text:`Má kruh konečný počet os souměrnosti? (ANO/NE)`,ans:'NE',h1:'Každá přímka procházející středem je osou.',h2:'NE — nekonečně mnoho'};},
+    ()=>{const u=[['rovnoběžník (ne kosočtverec/obdélník)',0],['různostranný trojúhelník',0]][ri(0,1)];return{text:`Kolik os souměrnosti má ${u[0]}?`,ans:0,h1:'Nemá žádnou osu, kterou by se přeložil sám na sebe.',h2:'0 os'};},
+    ()=>{const u=[['čtverec',4],['pravidelný šestiúhelník',6],['pravidelný pětiúhelník',5]][ri(0,2)];return{text:`Osy souměrnosti útvaru ${u[0]} — je jich víc než 3?`,ans:u[1]>3?'ANO':'NE',h1:'Spočítej všechny osy.',h2:u[1]>3?'ANO':'NE'};},
+    ()=>{return{text:`Má úsečka střed souměrnosti i osu souměrnosti? Kolik OS souměrnosti má úsečka?`,ans:2,h1:'Osa procházející středem kolmo + osa v přímce úsečky.',h2:'2 osy'};},
+    ()=>{const u=[['rovnostranný trojúhelník',3],['čtverec',4]][ri(0,1)];return{text:`Je počet os souměrnosti útvaru ${u[0]} stejný jako počet jeho vrcholů?`,ans:'ANO',h1:'Porovnej počet os a počet vrcholů.',h2:'ANO'};},
+    ()=>{const u=[['obdélník (ne čtverec)',2],['kosočtverec',2]][ri(0,1)];return{text:`Kolik os souměrnosti má ${u[0]}? (má je vedené jinak než čtverec)`,ans:2,h1:'Obdélník přes středy stran, kosočtverec po úhlopříčkách.',h2:'2 osy'};},
+  ];
   const tasks=[];
-  tasks.push({text:`Kolik os souměrnosti má čtverec?`,ans:4,hints:['2 přes středy stran + 2 úhlopříčky.','4 osy'],skill:'geo'});
-  tasks.push({text:`Kolik os souměrnosti má obdélník (ne čtverec)?`,ans:2,hints:['Osy přes středy protilehlých stran.','2 osy'],skill:'geo'});
-  tasks.push({text:`Kolik os souměrnosti má rovnostranný trojúhelník?`,ans:3,hints:['Každá osa: vrchol → střed protilehlé strany.','3 osy'],skill:'geo'});
-  tasks.push({text:`Kolik os souměrnosti má rovnoramenný trojúhelník (ne rovnostranný)?`,ans:1,hints:['Jen jedna osa přes vrchol a střed základny.','1 osa'],skill:'geo'});
-  tasks.push({text:`Má kosočtverec osovou souměrnost? (ANO/NE)`,ans:'ANO',hints:['Osy = úhlopříčky kosočtverce.','ANO — 2 osy'],skill:'geo'});
-  tasks.push({text:`Kolik os souměrnosti má pravidelný pětiúhelník?`,ans:5,hints:['Pravidelný n-úhelník má n os.','5 os'],skill:'geo'});
-  { tasks.push({text:`Kolik os souměrnosti má čtverec?`,ans:4,hints:['2 přes středy stran + 2 úhlopříčky.','4 osy'],skill:'geo'}); }
-  { tasks.push({text:`Kolik os souměrnosti má obdélník (ne čtverec)?`,ans:2,hints:['Přes středy protilehlých stran.','2 osy'],skill:'geo'}); }
-  { tasks.push({text:`Má rovnostranný trojúhelník 3 osy souměrnosti? (ANO/NE)`,ans:'ANO',hints:['Z každého vrcholu jedna osa.','ANO'],skill:'geo'}); }
-  { const n=[6,7,8][ri(0,2)]; tasks.push({text:`Kolik os souměrnosti má pravidelný ${n}úhelník?`,ans:n,hints:['Pravidelný n-úhelník má n os.',`${n} os`],skill:'geo'}); }
+  for(let i=0;i<13;i++){const t=T[i%T.length]();tasks.push({text:t.text,ans:t.ans,hints:[t.h1,t.h2],skill:'geo'});}
   return tasks;
 }
 
