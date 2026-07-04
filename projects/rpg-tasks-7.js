@@ -42,24 +42,22 @@ function gen_1_1(){
 
 // 1-2 Desetinná čísla (+−×:)
 function gen_1_2(){
+  const T=[
+    ()=>{const a=ri(11,50)/10,b=ri(5,30)/10;return{text:`Sečti desetinná čísla ${cz(a)} + ${cz(b)} = ?`,ans:r1(a+b),h1:'Napiš čísla pod sebe, desetinnou čárku pod čárku.',h2:`= ${r1(a+b)}`};},
+    ()=>{const c=ri(30,80)/10,d=ri(5,25)/10;return{text:`Odečti desetinná čísla ${cz(c)} − ${cz(d)} = ?`,ans:r1(c-d),h1:'Zarovnej desetinné čárky pod sebe a odečítej.',h2:`= ${r1(c-d)}`};},
+    ()=>{const e=ri(2,9),f=ri(11,49)/10;return{text:`Vynásob ${e} × ${cz(f)} = ?`,ans:r2(e*f),h1:`Násob jako celá čísla (${e} × ${Math.round(f*10)}), pak doplň jedno desetinné místo.`,h2:`= ${r2(e*f)}`};},
+    ()=>{const h=ri(2,5),g=Math.round(ri(11,49)/10*h*10)/10;return{text:`Vyděl ${cz(g)} : ${h} = ?`,ans:r2(g/h),h1:'Děl jako celá čísla a čárku napiš nad čárku dělence.',h2:`= ${r2(g/h)}`};},
+    ()=>{const i=ri(11,30)/10,j=ri(11,30)/10;return{text:`Vynásob dvě desetinná čísla ${cz(i)} × ${cz(j)} = ?`,ans:r2(i*j),h1:`Spočítej ${Math.round(i*10)} × ${Math.round(j*10)} a vyděl 100 (dvě desetinná místa).`,h2:`= ${r2(i*j)}`};},
+    ()=>{const k=ri(15,60)/10,l=ri(10,30)/10;return{text:`Nakoupil jsi dvě věci za ${cz(k)} Kč a ${cz(l)} Kč. Kolik jsi zaplatil celkem?`,ans:r1(k+l),h1:'Sečti obě ceny.',h2:`= ${r1(k+l)} Kč`};},
+    ()=>{const a=ri(10,99)/100;return{text:`Zaokrouhli číslo ${cz(a)} na desetiny.`,ans:r1(a),h1:'Rozhoduje číslice setin (druhá za čárkou).',h2:`≈ ${r1(a)}`};},
+    ()=>{const a=ri(50,90)/10,b=ri(11,40)/10;return{text:`O kolik je číslo ${cz(a)} větší než ${cz(b)}?`,ans:r1(a-b),h1:'Rozdíl zjistíš odčítáním.',h2:`= ${r1(a-b)}`};},
+    ()=>{const a=ri(21,60)/10;return{text:`Jaká je polovina čísla ${cz(a)}?`,ans:r2(a/2),h1:'Vyděl dvěma.',h2:`= ${r2(a/2)}`};},
+    ()=>{const a=ri(11,49)/10;return{text:`Vynásob číslo ${cz(a)} deseti.`,ans:r1(a*10),h1:'Posuň desetinnou čárku o jedno místo doprava.',h2:`= ${r1(a*10)}`};},
+    ()=>{const a=ri(20,50)/10,b=ri(10,25)/10,c=ri(10,25)/10;return{text:`Sečti tři desetinná čísla ${cz(a)} + ${cz(b)} + ${cz(c)} = ?`,ans:r1(a+b+c),h1:'Sčítej postupně, čárky pod sebe.',h2:`= ${r1(a+b+c)}`};},
+    ()=>{const a=ri(30,90)/10;const ok=ri(0,1)===0;const tvrz=ok?r1(a*2):r1(a*2+0.1);const spravne=tvrz===r1(a*2);return{text:`Je dvojnásobek čísla ${cz(a)} roven ${cz(tvrz)}?`,ans:spravne?'ANO':'NE',h1:'Spočítej 2 × dané číslo.',h2:spravne?'ANO':'NE'};},
+  ];
   const tasks=[];
-  const a=ri(10,50)/10, b=ri(5,30)/10;
-  tasks.push({text:`${cz(a)} + ${cz(b)} = ?`,ans:r1(a+b),hints:['Zarovnej desetinné čárky pod sebe.','Sečti jako celá čísla, přidej čárku.'],skill:'calc'});
-  const c=ri(30,80)/10, d=ri(5,c*10-5)/10;
-  tasks.push({text:`${cz(c)} − ${cz(d)} = ?`,ans:r1(c-d),hints:['Zarovnej desetinné čárky pod sebe.','Odečti jako celá čísla.'],skill:'calc'});
-  const e=ri(2,9), f=ri(11,49)/10;
-  tasks.push({text:`${e} × ${cz(f)} = ?`,ans:r2(e*f),hints:[`Přepočti: ${e} × ${Math.round(f*10)} desetin.`,`Výsledek = ${r2(e*f)}`],skill:'calc'});
-  const g=ri(11,49)/10, h=ri(2,5);
-  tasks.push({text:`${cz(g)} : ${h} = ?`,ans:r2(g/h),hints:[`Dělíme ${Math.round(g*10)} desetin číslem ${h}.`,`Výsledek = ${r2(g/h)}`],skill:'calc'});
-  const i=ri(10,30)/10, j=ri(10,30)/10;
-  tasks.push({text:`${cz(i)} × ${cz(j)} = ?`,ans:r2(i*j),hints:[`Počítej: ${Math.round(i*10)} × ${Math.round(j*10)} = ${Math.round(i*10)*Math.round(j*10)}, poděl 100.`,`Výsledek = ${r2(i*j)}`],skill:'calc'});
-  const k=ri(15,60)/10, l=ri(10,30)/10;
-  const res56=r1(k+l);
-  tasks.push({text:`Nakoupil jsem 2 věci za ${cz(k)} Kč a ${cz(l)} Kč. Kolik jsem zaplatil celkem?`,ans:res56,hints:['Sečti obě ceny.','Výsledek = '+res56+' Kč'],skill:'calc'});
-  { const a=ri(20,80)/10,b=ri(10,40)/10; tasks.push({text:`${cz(a)} + ${cz(b)} = ?`,ans:r1(a+b),hints:['Zarovnej desetinné čárky pod sebe.',`= ${r1(a+b)}`],skill:'calc'}); }
-  { const a=ri(50,99)/10,b=ri(10,40)/10; tasks.push({text:`${cz(a)} − ${cz(b)} = ?`,ans:r1(a-b),hints:['Zarovnej desetinné čárky pod sebe.',`= ${r1(a-b)}`],skill:'calc'}); }
-  { const a=ri(2,9),b=ri(11,29)/10; tasks.push({text:`${a} × ${cz(b)} = ?`,ans:r2(a*b),hints:['Násob jako celá čísla a doplň čárku.',`= ${r2(a*b)}`],skill:'calc'}); }
-  { const a=ri(10,99)/100; tasks.push({text:`Zaokrouhli ${cz(a)} na desetiny.`,ans:r1(a),hints:['Rozhodují setiny.',`≈ ${r1(a)}`],skill:'calc'}); }
+  for(let i=0;i<13;i++){const t=T[i%T.length]();tasks.push({text:t.text,ans:t.ans,hints:[t.h1,t.h2],skill:'calc'});}
   return tasks;
 }
 
@@ -321,23 +319,21 @@ function gen_4_3(){
 
 // 5-1 Procentová část (MC — numerické)
 function gen_5_1(){
+  const T=[
+    ()=>{const a=[10,20,25,50][ri(0,3)],b=ri(2,9)*100;return{text:`Kolik je ${a} % z čísla ${b}?`,ans:Math.round(a/100*b),h1:'Procentová část = základ × počet procent : 100.',h2:`${b} · ${a} : 100 = ${Math.round(a/100*b)}`};},
+    ()=>{const e=[5,10,20,25][ri(0,3)],f=ri(4,20)*50;return{text:`Zboží stojí ${f} Kč. Kolik Kč je ${e} % z této ceny?`,ans:Math.round(e/100*f),h1:'Vynásob cenu procenty a vyděl stem.',h2:`= ${Math.round(e/100*f)} Kč`};},
+    ()=>{const g=[10,20,25,40,50][ri(0,4)],h=ri(3,8)*100;return{text:`Cena ${h} Kč se sníží o slevu ${g} %. O kolik Kč se cena sníží?`,ans:Math.round(g/100*h),h1:'Sleva v korunách = základ × procenta : 100.',h2:`= ${Math.round(g/100*h)} Kč`};},
+    ()=>{const g=[10,20,25][ri(0,2)],h=ri(3,8)*100;return{text:`Cena ${h} Kč se sníží o ${g} %. Kolik Kč bude NOVÁ cena?`,ans:Math.round(h*(1-g/100)),h1:'Nová cena = základ − sleva.',h2:`= ${Math.round(h*(1-g/100))} Kč`};},
+    ()=>{const p=[10,20,50][ri(0,2)],z=ri(3,9)*100;return{text:`O ${p} % se zvýší mzda ${z} Kč. Kolik Kč činí zvýšení?`,ans:Math.round(p/100*z),h1:'Zvýšení = základ × procenta : 100.',h2:`= ${Math.round(p/100*z)} Kč`};},
+    ()=>{const b=ri(2,9)*100;return{text:`Kolik je polovina (50 %) z čísla ${b}?`,ans:b/2,h1:'50 % znamená polovinu.',h2:`= ${b/2}`};},
+    ()=>{const b=ri(2,9)*100;return{text:`Kolik je čtvrtina (25 %) z čísla ${b}?`,ans:b/4,h1:'25 % znamená jednu čtvrtinu — vyděl čtyřmi.',h2:`= ${b/4}`};},
+    ()=>{const b=ri(2,9)*100;return{text:`Kolik je desetina (10 %) z čísla ${b}?`,ans:b/10,h1:'10 % získáš vydělením deseti.',h2:`= ${b/10}`};},
+    ()=>{const i=[20,40,60,80][ri(0,3)],j=ri(4,12)*50;return{text:`Test má ${j} bodů. Kolik bodů je ${i} % z maxima?`,ans:Math.round(i/100*j),h1:'Body = maximum × procenta : 100.',h2:`= ${Math.round(i/100*j)}`};},
+    ()=>{const p=[10,20,25][ri(0,2)],cel=ri(3,8)*40;const ok=ri(0,1)===0;const tvrz=ok?Math.round(p/100*cel):Math.round(p/100*cel)+cel/10;const spravne=tvrz===Math.round(p/100*cel);return{text:`Je ${p} % z čísla ${cel} rovno ${tvrz}?`,ans:spravne?'ANO':'NE',h1:'Spočítej procentovou část a porovnej.',h2:spravne?'ANO':'NE'};},
+    ()=>{const cel=ri(2,9)*100;return{text:`Kolik jsou tři čtvrtiny (75 %) z čísla ${cel}?`,ans:cel/4*3,h1:'75 % = tři čtvrtiny; spočítej čtvrtinu a vynásob třemi.',h2:`= ${cel/4*3}`};},
+  ];
   const tasks=[];
-  const a=[10,20,25,50][ri(0,3)],b=ri(2,9)*100;
-  tasks.push({text:`${a} % z ${b} = ?`,ans:Math.round(a/100*b),hints:['Procentová část = základ × p/100.',''+a+'/100·'+b+' = '+Math.round(a/100*b)],skill:'calc'});
-  const c=ri(1,9)*10,d=ri(1,9)*100;
-  tasks.push({text:`Kolik je ${c} % z ${d}?`,ans:Math.round(c/100*d),hints:['= '+d+' × '+c+'/100','= '+Math.round(c/100*d)],skill:'calc'});
-  const e=ri(5,40),f=ri(4,20)*50;
-  tasks.push({text:`${e} % z ${f} Kč = ? Kč`,ans:Math.round(e/100*f),hints:['= '+f+' × '+e+'/100','= '+Math.round(e/100*f)+' Kč'],skill:'calc'});
-  const g=ri(10,40),h=ri(3,8)*100;
-  tasks.push({text:`Cena zboží je ${h} Kč, sleva ${g} %. O kolik Kč zlevní?`,ans:Math.round(g/100*h),hints:['Sleva = základ × p/100.',''+g+'/100·'+h+' = '+Math.round(g/100*h)+' Kč'],skill:'calc'});
-  const i=ri(5,30),j=ri(4,12)*100;
-  tasks.push({text:`Žák má ${j} bodů z maxima, ve škole je to ${i} %. Kolik bodů je ${i} % z ${j}?`,ans:Math.round(i/100*j),hints:['Část = základ × p/100.',''+Math.round(i/100*j)],skill:'calc'});
-  const k=ri(1,4)*25,l=ri(3,8)*40;
-  tasks.push({text:`${k} % z ${l} = ?`,ans:Math.round(k/100*l),hints:['= '+l+' × '+k+'/100','= '+Math.round(k/100*l)],skill:'calc'});
-  { const a=[5,10,15,20,25][ri(0,4)],b=ri(3,10)*40; tasks.push({text:`${a} % z ${b} = ?`,ans:Math.round(a/100*b),hints:['část = základ × p/100',`= ${Math.round(a/100*b)}`],skill:'calc'}); }
-  { const a=ri(1,9)*10,b=ri(2,8)*50; tasks.push({text:`Kolik je ${a} % z ${b}?`,ans:Math.round(a/100*b),hints:['= '+b+' × '+a+'/100','= '+Math.round(a/100*b)],skill:'calc'}); }
-  { const a=ri(5,20),b=ri(4,10)*100; tasks.push({text:`${a} % z ${b} bodů = ?`,ans:Math.round(a/100*b),hints:['Část = základ × p/100.','= '+Math.round(a/100*b)],skill:'calc'}); }
-  { const a=ri(10,30),b=ri(3,9)*100; tasks.push({text:`Sleva ${a} % z ceny ${b} Kč. O kolik Kč?`,ans:Math.round(a/100*b),hints:['Sleva = základ × p/100.','= '+Math.round(a/100*b)+' Kč'],skill:'calc'}); }
+  for(let i=0;i<13;i++){const t=T[i%T.length]();tasks.push({text:t.text,ans:t.ans,hints:[t.h1,t.h2],skill:'calc'});}
   return tasks;
 }
 
@@ -371,7 +367,7 @@ function gen_5_2(){
 function gen_5_3(){
   const tasks=[];
   const a=ri(2,5)*10,b=ri(3,9)*100,pA=ri(2,5)*5;
-  tasks.push({text:`Obchod zdraží zboží o ${pA} %. Původní cena byla ${b} Kč. Nová cena?`,ans:Math.round(b*(1+pA/100)),hints:['Nová cena = ${b} × (1+${pA}/100).','= '+Math.round(b*(1+pA/100))+' Kč'],skill:'anal'});
+  tasks.push({text:`Obchod zdraží zboží o ${pA} %. Původní cena byla ${b} Kč. Nová cena?`,ans:Math.round(b*(1+pA/100)),hints:[`Nová cena = základ × (1 + ${pA}/100).`,'= '+Math.round(b*(1+pA/100))+' Kč'],skill:'anal'});
   const c=ri(2,5)*5,d=ri(4,10)*200;
   tasks.push({text:`Cena se snížila o ${c} % a nyní je ${Math.round(d*(1-c/100))} Kč. Jaká byla původní cena?`,ans:d,hints:['Současná cena = základ × (1−'+c+'/100).','základ = '+Math.round(d*(1-c/100))+'/('+1-c/100+') = '+d+' Kč'],skill:'anal'});
   const e=ri(2,6)*5,f=ri(3,9)*100;
@@ -429,18 +425,23 @@ function gen_6_2(){
 
 // 6-3 Shodnost trojúhelníků (věty sss, sus, usu)
 function gen_6_3(){
+  const troj=()=>{const s=new Set();while(s.size<3)s.add(ri(3,12));return [...s].sort((x,y)=>x-y);};
+  const T=[
+    ()=>{const s=troj();return{text:`Dva trojúhelníky mají strany ${s[0]}, ${s[1]}, ${s[2]} cm a ${s[0]}, ${s[1]}, ${s[2]} cm. Jsou shodné?`,ans:'ANO',h1:'Věta sss: shodují se ve všech třech stranách.',h2:'ANO'};},
+    ()=>{const s=troj();return{text:`První trojúhelník má strany ${s[0]}, ${s[1]}, ${s[2]} cm, druhý ${s[0]}, ${s[1]}, ${s[2]+1} cm. Jsou shodné?`,ans:'NE',h1:'Věta sss selhává — jedna strana se liší.',h2:'NE'};},
+    ()=>{return{text:`Stačí ke shodnosti dvou trojúhelníků shoda ve dvou stranách a úhlu, který svírají (věta sus)?`,ans:'ANO',h1:'Věta sus (strana-úhel-strana) shodnost zaručuje.',h2:'ANO'};},
+    ()=>{return{text:`Jsou dva trojúhelníky se shodnými třemi úhly (uuu) nutně shodné?`,ans:'NE',h1:'Stejné úhly dávají jen podobnost, ne shodnost (mohou mít různou velikost).',h2:'NE — jsou jen podobné'};},
+    ()=>{const a=ri(3,8),b=ri(40,70),c=ri(30,180-b-10);return{text:`Trojúhelník má stranu a = ${a} cm a k ní přiléhající úhly β = ${b}° a γ = ${c}°. Je tím určen jednoznačně (věta usu)?`,ans:'ANO',h1:'Věta usu (úhel-strana-úhel) určuje trojúhelník jednoznačně.',h2:'ANO'};},
+    ()=>{return{text:`Jsou všechny rovnostranné trojúhelníky navzájem shodné?`,ans:'NE',h1:'Mají stejné úhly (60°), ale mohou mít různě dlouhé strany.',h2:'NE'};},
+    ()=>{return{text:`Kolik shodných stran potřebuje věta sss ke shodnosti trojúhelníků?`,ans:3,h1:'sss = strana-strana-strana.',h2:'3'};},
+    ()=>{return{text:`Jsou dva pravoúhlé trojúhelníky s přeponou 10 cm a jednou odvěsnou 6 cm nutně shodné?`,ans:'ANO',h1:'Druhá odvěsna dopočtena Pythagorem (8 cm) → jsou určeny jednoznačně.',h2:'ANO'};},
+    ()=>{const s=troj();const shodne=ri(0,1)===0;const s2=shodne?[...s]:[s[0],s[1],s[2]+ri(1,3)];return{text:`Trojúhelník T1 má strany ${s[0]}, ${s[1]}, ${s[2]} cm, T2 má ${s2[0]}, ${s2[1]}, ${s2[2]} cm. Jsou shodné?`,ans:shodne?'ANO':'NE',h1:'Porovnej všechny tři odpovídající strany.',h2:shodne?'ANO':'NE'};},
+    ()=>{return{text:`Zachovává shodné zobrazení (např. osová souměrnost) tvar i velikost trojúhelníku?`,ans:'ANO',h1:'Shodné zobrazení nemění délky ani úhly.',h2:'ANO'};},
+    ()=>{const b=ri(40,80),c=ri(40,80);const a=180-b-c;return{text:`Trojúhelník má úhly ${b}° a ${c}°. Jaký je jeho třetí úhel? (potřebný pro větu usu)`,ans:a,h1:'Součet úhlů v trojúhelníku je 180°.',h2:`180 − ${b} − ${c} = ${a}°`};},
+    ()=>{return{text:`Určuje shoda jen ve dvou stranách (bez úhlu) shodnost trojúhelníků?`,ans:'NE',h1:'Dvě strany bez úhlu mezi nimi trojúhelník jednoznačně neurčí.',h2:'NE'};},
+  ];
   const tasks=[];
-  tasks.push({text:'Trojúhelníky mají strany 3, 4, 5 a 3, 4, 5 cm. Jsou shodné?',ans:'ANO',hints:['Věta sss: všechny tři strany jsou stejné.','ANO.'],skill:'geo'});
-  tasks.push({text:'Trojúhelníky mají strany 3, 4, 5 a 3, 4, 6 cm. Jsou shodné?',ans:'NE',hints:['Věta sss: třetí strany se liší.','NE.'],skill:'geo'});
-  tasks.push({text:'Věta SUS: která dvě data stačí spolu s ohraničující stranou?',ans:'ANO',hints:['Dvě strany a sevřený úhel (sus = strana-úhel-strana).','ANO — věta sus platí.'],skill:'geo'});
-  tasks.push({text:'Jsou trojúhelníky, které mají stejné tři úhly (uuu), nutně shodné?',ans:'NE',hints:['Stejné úhly garantují podobnost, nikoliv shodnost.','NE — mohou být jen podobné.'],skill:'geo'});
-  const a=ri(3,8),b=ri(40,70),c=180-b-ri(30,b-10);
-  tasks.push({text:`Trojúhelník ABC: a = ${a} cm, úhel β = ${b}°, úhel γ = ${c}°. Použij větu usu — jsou takto určeny dva trojúhelníky shodné?`,ans:'ANO',hints:['Věta usu: úhel-strana-úhel určuje trojúhelník jednoznačně.','ANO.'],skill:'geo'});
-  tasks.push({text:'Věta SSS říká, že dva trojúhelníky jsou shodné, mají-li …?',ans:'ANO',hints:['… shodné délky všech tří stran.','ANO.'],skill:'geo'});
-  tasks.push({text:'Jsou všechny rovnostranné trojúhelníky shodné?',ans:'NE',hints:['Shodnost vyžaduje i stejnou velikost, ne jen stejné úhly.','NE — mohou mít různě dlouhé strany.'],skill:'geo'});
-  tasks.push({text:'Věta SUS: stačí znát dvě strany a jejich sevřený úhel. Platí to?',ans:'ANO',hints:['Věta sus (SAS) zaručuje shodnost.','ANO.'],skill:'geo'});
-  tasks.push({text:'Trojúhelníky mají strany 5, 7, 9 a 5, 7, 9 cm. Jsou shodné?',ans:'ANO',hints:['Věta sss: všechny tři strany stejné.','ANO.'],skill:'geo'});
-  tasks.push({text:'Jsou dva pravoúhlé trojúhelníky s přeponou 10 cm a odvěsnou 6 cm nutně shodné?',ans:'ANO',hints:['Přepona a jedna odvěsna určují trojúhelník jednoznačně (Pythagorova trojice).','ANO.'],skill:'geo'});
+  for(let i=0;i<13;i++){const t=T[i%T.length]();tasks.push({text:t.text,ans:t.ans,hints:[t.h1,t.h2],skill:'geo'});}
   return tasks;
 }
 
