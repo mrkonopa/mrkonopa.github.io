@@ -164,68 +164,64 @@ function gen_2_3(){
 
 // 3-1 Sčítání a odčítání celých čísel (MC — numerické)
 function gen_3_1(){
+  const T=[
+    ()=>{const a=ri(3,15),b=ri(3,12);return{text:`(−${a}) + (−${b}) = ?`,ans:-(a+b),h1:'Dvě záporná čísla: sečti jejich velikosti a výsledek je záporný.',h2:`= −${a+b}`};},
+    ()=>{const e=ri(5,20),f=ri(3,12);return{text:`(−${e}) + ${f} = ?`,ans:f-e,h1:'Různá znaménka: odečti menší velikost od větší, znaménko podle většího.',h2:`${f} − ${e} = ${f-e}`};},
+    ()=>{const g=ri(5,20),h=ri(3,12);return{text:`${g} − (−${h}) = ?`,ans:g+h,h1:'Odečíst záporné číslo znamená přičíst kladné.',h2:`${g} + ${h} = ${g+h}`};},
+    ()=>{const i=ri(3,10),j=ri(3,15);return{text:`(−${i}) − ${j} = ?`,ans:-(i+j),h1:'Od záporného ještě odčítáš → jdeš dál do záporu.',h2:`= −${i+j}`};},
+    ()=>{const a=ri(3,10),b=ri(3,10);return{text:`(−${a}) − (−${b}) = ?`,ans:b-a,h1:'Odečíst záporné = přičíst kladné: −a + b.',h2:`−${a} + ${b} = ${b-a}`};},
+    ()=>{const a=ri(-15,-3),b=ri(-15,-3);const cel=a+b;return{text:`Vypočítej ${a} + (${b}) = ?`,ans:cel,h1:'Dvě záporná čísla se sčítají do většího záporu.',h2:`= ${cel}`};},
+    ()=>{const start=ri(-8,-2),step=ri(3,12);return{text:`Teploměr ukazuje ${start} °C a oteplí se o ${step} °C. Kolik °C ukáže?`,ans:start+step,h1:'Oteplení = přičti ke stávající teplotě.',h2:`${start} + ${step} = ${start+step} °C`};},
+    ()=>{const start=ri(2,8),drop=ri(5,15);return{text:`Teploměr ukazuje ${start} °C a ochladí se o ${drop} °C. Kolik °C ukáže?`,ans:start-drop,h1:'Ochlazení = odečti od stávající teploty (může jít pod nulu).',h2:`${start} − ${drop} = ${start-drop} °C`};},
+    ()=>{const a=ri(3,12),b=ri(3,12);return{text:`Jaká je absolutní hodnota výrazu |−${a} − ${b}|?`,ans:a+b,h1:'Nejdřív spočítej vnitřek (−a − b), pak vezmi jeho vzdálenost od nuly.',h2:`|−${a+b}| = ${a+b}`};},
+    ()=>{const a=ri(4,15),b=ri(4,15),c=ri(4,15);return{text:`(−${a}) + ${b} − ${c} = ?`,ans:-a+b-c,h1:'Počítej postupně zleva doprava.',h2:`= ${-a+b-c}`};},
+    ()=>{const a=ri(3,12);return{text:`Jaké číslo musíš přičíst k −${a}, abys dostal nulu?`,ans:a,h1:'Hledáš opačné číslo (stejná velikost, opačné znaménko).',h2:`= ${a}`};},
+    ()=>{const a=ri(-12,-3);return{text:`Jaké je číslo opačné k číslu ${a}?`,ans:-a,h1:'Opačné číslo má stejnou velikost, ale opačné znaménko.',h2:`= ${-a}`};},
+  ];
   const tasks=[];
-  const a=ri(3,15),b=ri(3,12);
-  tasks.push({text:`(−${a}) + (−${b}) = ?`,ans:-(a+b),hints:['Záporné + záporné = záporné součtu.','= −'+(a+b)],skill:'calc'});
-  const c=ri(5,20),d=ri(3,c-2);
-  tasks.push({text:`${c} − ${d} = ?`,ans:c-d,hints:['Klasické odčítání.',`${c}−${d} = ${c-d}`],skill:'calc'});
-  const e=ri(5,20),f=ri(3,12);
-  tasks.push({text:`(−${e}) + ${f} = ?`,ans:f-e,hints:['Záporné + kladné: odečti menší od většího, znaménko většího.',`${f}−${e} = ${f-e}`],skill:'calc'});
-  const g=ri(5,20),h=ri(3,12);
-  tasks.push({text:`${g} − (−${h}) = ?`,ans:g+h,hints:['Odečíst záporné = přičíst kladné.',`${g}+${h} = ${g+h}`],skill:'calc'});
-  const i=ri(3,10),j=ri(3,15);
-  tasks.push({text:`(−${i}) − ${j} = ?`,ans:-(i+j),hints:['Záporné − kladné = záporné jejich součtu.','= −'+(i+j)],skill:'calc'});
-  const k=ri(3,15),l=ri(k+1,k+10);
-  tasks.push({text:`(−${l}) + ${k} = ?`,ans:k-l,hints:['Absolutní hodnota záporného je větší.',`${k}−${l} = ${k-l}`],skill:'calc'});
-  { const a=ri(3,12),b=ri(3,12); tasks.push({text:`(−${a}) + (−${b}) = ?`,ans:-(a+b),hints:['Záporné + záporné = záporné součtu.',`= −${a+b}`],skill:'calc'}); }
-  { const a=ri(10,30),b=ri(3,a-2); tasks.push({text:`${a} − (−${b}) = ?`,ans:a+b,hints:['Odečíst záporné = přičíst kladné.',`${a}+${b} = ${a+b}`],skill:'calc'}); }
-  { const a=ri(3,10),b=ri(3,10); tasks.push({text:`(−${a}) − (−${b}) = ?`,ans:b-a,hints:['Odečíst záporné = přičíst kladné.',`−${a}+${b} = ${b-a}`],skill:'calc'}); }
-  { const a=ri(5,15),b=ri(3,a-1); tasks.push({text:`(−${a}) + ${b} = ?`,ans:b-a,hints:['Záporné větší hodnoty → výsledek záporný.',`${b}−${a} = ${b-a}`],skill:'calc'}); }
+  for(let i=0;i<13;i++){const t=T[i%T.length]();tasks.push({text:t.text,ans:t.ans,hints:[t.h1,t.h2],skill:'calc'});}
   return tasks;
 }
 
 // 3-2 Násobení a dělení celých čísel (pravidla znamének)
 function gen_3_2(){
+  const T=[
+    ()=>{const a=ri(2,9),b=ri(2,9);return{text:`(−${a}) × ${b} = ?`,ans:-(a*b),h1:'Záporné krát kladné dává záporné.',h2:`= −${a*b}`};},
+    ()=>{const c=ri(2,9),d=ri(2,9);return{text:`(−${c}) × (−${d}) = ?`,ans:c*d,h1:'Záporné krát záporné dává kladné.',h2:`= ${c*d}`};},
+    ()=>{const e=ri(2,9),f=ri(2,9);return{text:`${e} × (−${f}) = ?`,ans:-(e*f),h1:'Kladné krát záporné dává záporné.',h2:`= −${e*f}`};},
+    ()=>{const g=ri(2,8),h=g*ri(2,9);return{text:`(−${h}) : ${g} = ?`,ans:-(h/g),h1:'Záporné děleno kladným dává záporné.',h2:`= −${h/g}`};},
+    ()=>{const i=ri(2,8),j=i*ri(2,9);return{text:`(−${j}) : (−${i}) = ?`,ans:j/i,h1:'Záporné děleno záporným dává kladné.',h2:`= ${j/i}`};},
+    ()=>{const k=ri(2,6),l=ri(2,6),m=ri(2,6);return{text:`(−${k}) × ${l} × (−${m}) = ?`,ans:k*l*m,h1:'Sudý počet záporných činitelů (2) → výsledek kladný.',h2:`= ${k*l*m}`};},
+    ()=>{const a=ri(2,6),b=ri(2,6),c=ri(2,6);return{text:`(−${a}) × (−${b}) × (−${c}) = ?`,ans:-(a*b*c),h1:'Lichý počet záporných činitelů (3) → výsledek záporný.',h2:`= −${a*b*c}`};},
+    ()=>{const a=ri(2,9),b=ri(2,9);const neg=ri(0,1)===0;const res=neg?-(a*b):a*b;return{text:`Bude součin ${neg?'(−'+a+')':a} × ${b} kladný?`,ans:res>0?'ANO':'NE',h1:'Rozhodni podle počtu záporných činitelů.',h2:res>0?'ANO':'NE'};},
+    ()=>{const a=ri(2,8),n=a*ri(2,6);return{text:`Doplň chybějící činitel: (−${a}) × ? = −${n}`,ans:n/a,h1:'Aby vyšlo záporné z jednoho záporného, druhý musí být kladný.',h2:`= ${n/a}`};},
+    ()=>{const base=ri(2,7);return{text:`Vypočítej druhou mocninu záporného čísla: (−${base})² = ?`,ans:base*base,h1:'Umocnění na druhou = číslo krát samo sebe; záporné × záporné = kladné.',h2:`= ${base*base}`};},
+    ()=>{const a=ri(2,6),b=ri(2,6);return{text:`Kolik je −${a} × 0 × ${b}?`,ans:0,h1:'Jakýkoli součin obsahující nulu je nula.',h2:'= 0'};},
+    ()=>{const q=ri(2,9),d=ri(2,8);return{text:`Podíl (−${q*d}) : (−${d}) — je jeho výsledek kladný?`,ans:'ANO',h1:'Záporné děleno záporným dává kladné.',h2:'ANO'};},
+  ];
   const tasks=[];
-  const a=ri(2,9),b=ri(2,9);
-  tasks.push({text:`(−${a}) × ${b} = ?`,ans:-(a*b),hints:['Záporné × kladné = záporné.','= −'+(a*b)],skill:'calc'});
-  const c=ri(2,9),d=ri(2,9);
-  tasks.push({text:`(−${c}) × (−${d}) = ?`,ans:c*d,hints:['Záporné × záporné = kladné.','= '+(c*d)],skill:'calc'});
-  const e=ri(2,9),f=ri(2,9);
-  tasks.push({text:`${e} × (−${f}) = ?`,ans:-(e*f),hints:['Kladné × záporné = záporné.','= −'+(e*f)],skill:'calc'});
-  const g=ri(2,8),h=g*ri(2,9);
-  tasks.push({text:`(−${h}) : ${g} = ?`,ans:-(h/g),hints:['Záporné : kladné = záporné.','= −'+(h/g)],skill:'calc'});
-  const i=ri(2,8),j=i*ri(2,9);
-  tasks.push({text:`(−${j}) : (−${i}) = ?`,ans:j/i,hints:['Záporné : záporné = kladné.','= '+(j/i)],skill:'calc'});
-  const k=ri(2,6),l=ri(2,6),m=ri(2,6);
-  tasks.push({text:`(−${k}) × ${l} × (−${m}) = ?`,ans:k*l*m,hints:['Dvě záporná čísla → výsledek kladný.','= '+(k*l*m)],skill:'calc'});
-  { const a=ri(2,9),b=ri(2,9); tasks.push({text:`${a} × (−${b}) = ?`,ans:-(a*b),hints:['Kladné × záporné = záporné.','= −'+(a*b)],skill:'calc'}); }
-  { const a=ri(2,9),b=ri(2,9); tasks.push({text:`(−${a}) × (−${b}) = ?`,ans:a*b,hints:['Záporné × záporné = kladné.','= '+(a*b)],skill:'calc'}); }
-  { const a=ri(2,8),b=a*ri(2,9); tasks.push({text:`${b} : (−${a}) = ?`,ans:-(b/a),hints:['Kladné : záporné = záporné.','= −'+(b/a)],skill:'calc'}); }
-  { const a=ri(2,6),b=ri(2,6),c=ri(2,6); tasks.push({text:`(−${a}) × (−${b}) × (−${c}) = ?`,ans:-(a*b*c),hints:['Tři záporná čísla → výsledek záporný.','= −'+(a*b*c)],skill:'calc'}); }
+  for(let i=0;i<13;i++){const t=T[i%T.length]();tasks.push({text:t.text,ans:t.ans,hints:[t.h1,t.h2],skill:'calc'});}
   return tasks;
 }
 
 // 3-3 Racionální čísla (záporné zlomky a desetinná)
 function gen_3_3(){
+  const asFrac=(num,den)=>{const g=gcd(Math.abs(num),den);if(num===0)return '0';const s=num<0?'-':'';return g===den?String(num/g):`${s}${Math.abs(num)/g}/${den/g}`;};
+  const T=[
+    ()=>{const a=ri(2,5),b=ri(3,8);return{text:`Převeď záporný zlomek na desetinné číslo: −${a}/${b} ≈ ? (na 2 desetinná místa)`,ans:r2(-a/b),h1:`Vyděl ${a} : ${b} a doplň záporné znaménko.`,h2:`≈ ${r2(-a/b)}`};},
+    ()=>{const d=ri(3,8),c=ri(1,d-1),e=ri(1,d-1);const num=e-c;return{text:`Sečti zlomky se stejným jmenovatelem: (−${c}/${d}) + ${e}/${d} = ?`,ans:asFrac(num,d),h1:'Jmenovatel opiš, sečti čitatele (pozor na znaménka).',h2:`(${e} − ${c})/${d} = ${asFrac(num,d)}`};},
+    ()=>{const f=ri(2,5),g=ri(3,8);return{text:`Kolik je absolutní hodnota |−${f}/${g}|? (zapiš jako zlomek)`,ans:`${f}/${g}`,h1:'Absolutní hodnota je vzdálenost od nuly — vždy kladná.',h2:`${f}/${g}`};},
+    ()=>{const h=ri(15,35)/10,i=ri(5,14)/10;return{text:`Sečti desetinná čísla: (−${cz(h)}) + ${cz(i)} = ?`,ans:r1(i-h),h1:'Různá znaménka: odečti menší velikost od větší.',h2:`= ${r1(i-h)}`};},
+    ()=>{const j=ri(2,6),k=ri(3,9);return{text:`(−${j*k}) : (−${j}) = ?`,ans:k,h1:'Záporné děleno záporným dává kladné.',h2:`= ${k}`};},
+    ()=>{const n=ri(3,8),m=ri(1,n-1),o=ri(1,n-1);const num=o-m;return{text:`Odečti záporný zlomek: −${m}/${n} − (−${o}/${n}) = ?`,ans:asFrac(num,n),h1:'Odečíst záporné = přičíst kladné: −m/n + o/n.',h2:`(${o} − ${m})/${n} = ${asFrac(num,n)}`};},
+    ()=>{const a=ri(2,5),b=ri(3,9),c=ri(2,5);return{text:`Vynásob záporný zlomek celým číslem: (−${a}/${b}) × ${c} = ?`,ans:asFrac(-a*c,b),h1:'Záporný zlomek krát kladné číslo = záporné; násob jen čitatel.',h2:`−${a*c}/${b}, pak zkrať`};},
+    ()=>{const a=ri(3,8),b=ri(3,8);const gt=(-a/b)<(-b/a);return{text:`Je −${a}/${b} menší než −${b}/${a}? (menší = více vlevo na číselné ose)`,ans:gt?'ANO':'NE',h1:'U záporných čísel je menší to, které je „zápornější".',h2:gt?'ANO':'NE'};},
+    ()=>{const cel=ri(-5,-1);return{text:`Které racionální číslo leží přesně uprostřed mezi ${cel} a ${cel+1}? (desetinné)`,ans:r1(cel+0.5),h1:'Střed = průměr obou čísel.',h2:`= ${cz(cel+0.5)}`};},
+    ()=>{const a=ri(2,6)/10;const b=ri(2,6)/10;const bigger=Math.max(a,b);return{text:`Které číslo je větší: −${cz(a)}, nebo −${cz(b)}?${a===b?' (jsou stejná — napiš −'+cz(a)+')':''}`,ans:-Math.min(a,b),h1:'Ze dvou záporných je větší to blíž nule (menší velikost).',h2:`= ${cz(-Math.min(a,b))}`};},
+    ()=>{const a=ri(2,5),b=ri(3,8);return{text:`Jaké číslo je opačné k −${a}/${b}? (zapiš jako zlomek)`,ans:`${a}/${b}`,h1:'Opačné číslo má opačné znaménko.',h2:`${a}/${b}`};},
+  ];
   const tasks=[];
-  const a=ri(2,5),b=ri(3,8);
-  tasks.push({text:`Převeď na desetinné číslo: −${a}/${b} ≈ ? (na 2 desetinná místa)`,ans:r2(-a/b),hints:['Vyděl '+a+' / '+b+' a přidej znaménko.',r2(-a/b)],skill:'calc'});
-  const c=ri(1,4),d=ri(3,8),e=ri(1,3);
-  tasks.push({text:`(−${c}/${d}) + ${e}/${d} = ?`,ans:(e-c)===0?'0':(e>c?`${e-c}/${d}`:`-${c-e}/${d}`),hints:['Stejný jmenovatel: přičti čitatele.','('+e+'−'+c+')/'+d+' = '+(e-c)+'/'+d],skill:'calc'});
-  const f=ri(2,5),g=ri(3,8);
-  tasks.push({text:`Kolik je |−${f}/${g}|? (absolutní hodnota, výsledek jako zlomek)`,ans:`${f}/${g}`,hints:['Absolutní hodnota = vzdálenost od nuly = vždy kladná.','|−'+f+'/'+g+'| = '+f+'/'+g],skill:'calc'});
-  const h=ri(10,30)/10, i=ri(5,15)/10;
-  tasks.push({text:`(−${cz(h)}) + ${cz(i)} = ?`,ans:r1(i-h),hints:['Záporné + kladné: odečti menší od většího.','= '+r1(i-h)],skill:'calc'});
-  const j=ri(2,6), k=ri(3,9);
-  const jk=j*k;
-  tasks.push({text:`(−${jk}) : (−${j}) = ?`,ans:k,hints:['Záporné : záporné = kladné.','= '+k],skill:'calc'});
-  const m=ri(1,5),n=ri(3,8),o=ri(1,m-1)||1;
-  tasks.push({text:`−${m}/${n} − (−${o}/${n}) = ?`,ans:(o-m)===0?'0':`${o-m}/${n}`,hints:['Odečíst záporné = přičíst kladné.','−'+m+'/'+n+' + '+o+'/'+n+' = '+(o-m)+'/'+n],skill:'calc'});
-  { const a=ri(2,5),b=ri(3,9),c=ri(2,5);const top=a*c,g=gcd(top,b);const ans=g===b?String(-top/g):`-${top/g}/${b/g}`;tasks.push({text:`(−${a}/${b}) × ${c} = ?`,ans,hints:['Záporný zlomek × kladné = záporné.',`−${a*c}/${b} zkrať.`],skill:'calc'}); }
-  { const h=ri(10,40)/10,i=ri(5,h*10-4)/10; tasks.push({text:`(−${cz(h)}) + ${cz(i)} = ?`,ans:r1(i-h),hints:['Záporné + kladné: odečti menší od většího.',`= ${r1(i-h)}`],skill:'calc'}); }
-  { const a=ri(2,6),b=ri(3,9); tasks.push({text:`|−${a}/${b}| = ?`,ans:`${a}/${b}`,hints:['Absolutní hodnota = vždy kladná.',`${a}/${b}`],skill:'calc'}); }
-  { const a=ri(3,8),b=ri(3,8);const gt=(-a/b)<(-b/a);tasks.push({text:`Je −${a}/${b} < −${b}/${a}?`,ans:gt?'ANO':'NE',hints:['Porovnej záporné zlomky (menší = více vlevo na číselné ose).',gt?'ANO':'NE'],skill:'calc'}); }
+  for(let i=0;i<13;i++){const t=T[i%T.length]();tasks.push({text:t.text,ans:t.ans,hints:[t.h1,t.h2],skill:'calc'});}
   return tasks;
 }
 
