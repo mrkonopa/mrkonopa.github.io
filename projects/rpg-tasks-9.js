@@ -212,40 +212,43 @@ window.RPG_TASK_EXTRA_9 = {
 
  // ───────── OBLAST 6 — GRAFOVÝ MONITOR ─────────
  '6-1': () => [
-  (()=>{const k=ri(2,5),q=ri(1,6),x=ri(2,5);return{svg:svgLineGraph(k,q),text:`y = ${k}x + ${q}\nVypočítej f(${x}).`,ans:String(k*x+q),hints:[`${k}·${x} + ${q}.`],skill:'geo'};})(),
-  (()=>{const k=ri(2,5),q=ri(2,8);return{svg:svgLineGraph(k,q),text:`y = ${k}x + ${q}\nKde protíná osu y? (y)`,ans:String(q),hints:[`x = 0 → y = q.`],skill:'geo'};})(),
-  (()=>{const k=ri(2,4),x0=ri(1,5),q=-k*x0;return{text:`y = ${k}x ${q<0?'− '+(-q):'+ '+q}\nPro jaké x je y = 0?`,ans:String(x0),hints:[`x = ${-q} : ${k}.`],skill:'geo'};})(),
-  (()=>{const k=ri(2,6);return{text:`y = ${k}x\nVypočítej f(2).`,ans:String(2*k),hints:[`${k} · 2.`],skill:'geo'};})(),
-  (()=>{const k=ri(2,4);return{text:`Přímka prochází body [0, 0] a [1, ${k}].\nSměrnice k?`,ans:String(k),hints:[`Změna y na 1 krok x.`],skill:'geo'};})(),
-  (()=>{const k=ri(2,5),q=ri(1,7),x=ri(2,6);return{text:`y = ${k}x + ${q}\nVypočítej f(${x}).`,ans:String(k*x+q),hints:[`${k}·${x} + ${q}.`],skill:'geo'};})(),
-  (()=>{const k=ri(2,5),q=ri(2,10),x=ri(2,5);return{text:`y = −${k}x + ${q}\nVypočítej f(${x}).`,ans:String(-k*x+q),hints:[`−${k}·${x} + ${q}.`],skill:'geo'};})(),
-  (()=>{const k=ri(2,5),q=ri(2,10);return{text:`y = ${k}x − ${q}\nKde protíná osu y? (y-souřadnice)`,ans:String(-q),hints:[`x = 0 → y = −${q}.`],skill:'geo'};})(),
-  (()=>{const k=ri(2,6),x=ri(2,5);return{text:`y = ${k}x\nVypočítej f(${x}).`,ans:String(k*x),hints:[`${k} × ${x}.`],skill:'geo'};})(),
-  (()=>{const k=ri(2,4),x0=ri(2,5);return{text:`y = ${k}x − ${k*x0}\nPro jaké x je y = 0?`,ans:String(x0),hints:[`${k}x = ${k*x0} → x = ${x0}.`],skill:'geo'};})()
+  (()=>{const k=ri(2,5),q=ri(1,6),x=ri(2,5);return{svg:svgLineGraph(k,q),text:`Funkce y = ${k}x + ${q}. Vypočítej funkční hodnotu f(${x}).`,ans:String(k*x+q),hints:[`Dosaď x = ${x}: ${k}·${x} + ${q}.`],skill:'geo'};})(),
+  (()=>{const k=ri(2,5),q=ri(2,8);return{svg:svgLineGraph(k,q),text:`V jakém bodě protíná přímka y = ${k}x + ${q} osu y? (napiš y-ovou souřadnici)`,ans:String(q),hints:[`Průsečík s osou y nastává pro x = 0.`],skill:'geo'};})(),
+  (()=>{const k=ri(2,4),x0=ri(1,5),q=-k*x0;return{text:`Ve kterém bodě protíná přímka y = ${k}x ${q<0?'− '+(-q):'+ '+q} osu x? (napiš x)`,ans:String(x0),hints:[`Polož y = 0 a vyřeš pro x.`],skill:'geo'};})(),
+  (()=>{const k=ri(2,6);return{text:`Přímá úměrnost y = ${k}x. Jaká je hodnota y pro x = 2?`,ans:String(2*k),hints:[`${k} · 2.`],skill:'geo'};})(),
+  (()=>{const k=ri(2,4);return{text:`Přímka prochází počátkem [0, 0] a bodem [1, ${k}]. Jaká je její směrnice k?`,ans:String(k),hints:[`Směrnice = přírůstek y na jeden krok x.`],skill:'geo'};})(),
+  (()=>{const k=ri(2,5),q=ri(1,7),x=ri(2,6);return{text:`Jakou hodnotu má lineární funkce y = ${k}x + ${q} v bodě x = ${x}?`,ans:String(k*x+q),hints:[`${k}·${x} + ${q}.`],skill:'geo'};})(),
+  (()=>{const k=ri(2,5),q=ri(2,10),x=ri(2,5);return{text:`Klesající přímka y = −${k}x + ${q}. Urči f(${x}).`,ans:String(-k*x+q),hints:[`−${k}·${x} + ${q}.`],skill:'geo'};})(),
+  (()=>{const k=ri(2,5),q=ri(2,10);return{text:`Jaká je y-ová souřadnice průsečíku přímky y = ${k}x − ${q} s osou y?`,ans:String(-q),hints:[`Dosaď x = 0.`],skill:'geo'};})(),
+  (()=>{const k=ri(2,6),x=ri(2,5);return{text:`Kolik je y, když y = ${k}x a x = ${x}?`,ans:String(k*x),hints:[`${k} × ${x}.`],skill:'geo'};})(),
+  (()=>{const k=ri(2,4),x0=ri(2,5);return{text:`Urči nulový bod (kde y = 0) funkce y = ${k}x − ${k*x0}.`,ans:String(x0),hints:[`${k}x = ${k*x0} → x = ${x0}.`],skill:'geo'};})(),
+  (()=>{const k=ri(2,4),x1=ri(1,4),x2=x1+1;const dy=k;return{text:`O kolik vzroste y funkce y = ${k}x, když se x zvětší o 1?`,ans:String(dy),hints:[`Přírůstek y je roven směrnici k = ${k}.`],skill:'geo'};})()
  ],
  '6-2': () => [
-  (()=>{const k=ri(2,6);return{text:`Je funkce y = ${k}x rostoucí?\nANO / NE`,ans:'ANO',hints:[`Rostoucí ⇔ k > 0.`],skill:'anal'};})(),
-  (()=>{const k=ri(2,6);return{text:`Je funkce y = −${k}x + 3 rostoucí?\nANO / NE`,ans:'NE',hints:[`k = −${k} < 0 → klesající.`],skill:'anal'};})(),
-  (()=>{const q=ri(2,8);return{text:`Je funkce y = ${q} (konstantní) rostoucí?\nANO / NE`,ans:'NE',hints:[`k = 0.`],skill:'anal'};})(),
-  (()=>{const k=ri(2,5),q=ri(2,8);return{text:`y = ${k}x + ${q}\nPrůsečík s osou y? (jen y)`,ans:String(q),hints:[`x = 0.`],skill:'anal'};})(),
-  (()=>{const k=ri(2,4),x0=ri(2,5),q=-k*x0;return{text:`y = ${k}x ${q<0?'− '+(-q):'+ '+q}\nPrůsečík s osou x? (jen x)`,ans:String(x0),hints:[`y = 0.`],skill:'anal'};})(),
-  (()=>{const k=ri(2,4),q=ri(1,5),x=ri(2,5);return{text:`Prochází y = ${k}x + ${q} bodem [${x}, ${k*x+q}]?\nANO / NE`,ans:'ANO',hints:[`Dosaď x = ${x}.`],skill:'anal'};})(),
-  (()=>{const k=ri(2,5);return{text:`Je funkce y = ${k}x − 3 klesající?\nANO / NE`,ans:'NE',hints:[`k = ${k} > 0 → rostoucí.`],skill:'anal'};})(),
-  (()=>{const k=ri(2,5),q=ri(2,9);return{text:`Je funkce y = −${k}x + ${q} klesající?\nANO / NE`,ans:'ANO',hints:[`k = −${k} < 0 → klesající.`],skill:'anal'};})(),
-  (()=>{const k=ri(2,5),q=ri(2,8),x=ri(2,6);return{text:`Prochází y = ${k}x + ${q} bodem [${x}, ${k*x+q+1}]?\nANO / NE`,ans:'NE',hints:[`f(${x}) = ${k*x+q} ≠ ${k*x+q+1}.`],skill:'anal'};})(),
-  (()=>{const k=ri(2,4),x0=ri(2,5),q=-k*x0;return{text:`Protíná y = ${k}x ${q<0?'− '+(-q):'+ '+q} osu x v bodě x = ${x0}?\nANO / NE`,ans:'ANO',hints:[`y = 0: ${k}x = ${-q}, x = ${x0}.`],skill:'anal'};})()
+  (()=>{const k=ri(2,6);return{text:`Je lineární funkce y = ${k}x rostoucí?\nANO / NE`,ans:'ANO',hints:[`Funkce je rostoucí právě když je směrnice k kladná.`],skill:'anal'};})(),
+  (()=>{const k=ri(2,6);return{text:`Klesá funkce y = −${k}x + 3 se zvětšujícím se x?\nANO / NE`,ans:'ANO',hints:[`Záporná směrnice (k = −${k}) → klesající.`],skill:'anal'};})(),
+  (()=>{const q=ri(2,8);return{text:`Mění konstantní funkce y = ${q} svou hodnotu? Je rostoucí?\nANO / NE`,ans:'NE',hints:[`Směrnice k = 0, hodnota je stále stejná.`],skill:'anal'};})(),
+  (()=>{const k=ri(2,5),q=ri(2,8);return{text:`Urči y-ovou souřadnici průsečíku grafu y = ${k}x + ${q} s osou y.`,ans:String(q),hints:[`Dosaď x = 0.`],skill:'anal'};})(),
+  (()=>{const k=ri(2,4),x0=ri(2,5),q=-k*x0;return{text:`V jakém bodě x protíná graf y = ${k}x ${q<0?'− '+(-q):'+ '+q} osu x?`,ans:String(x0),hints:[`Polož y = 0.`],skill:'anal'};})(),
+  (()=>{const k=ri(2,4),q=ri(1,5),x=ri(2,5);return{text:`Leží bod [${x}, ${k*x+q}] na přímce y = ${k}x + ${q}?\nANO / NE`,ans:'ANO',hints:[`Dosaď x = ${x} a porovnej y.`],skill:'anal'};})(),
+  (()=>{const k=ri(2,5);return{text:`Je funkce y = ${k}x − 3 klesající?\nANO / NE`,ans:'NE',hints:[`Kladná směrnice k = ${k} → funkce roste.`],skill:'anal'};})(),
+  (()=>{const k=ri(2,5),q=ri(2,9);return{text:`Určuje záporná směrnice u y = −${k}x + ${q} klesající funkci?\nANO / NE`,ans:'ANO',hints:[`k = −${k} < 0.`],skill:'anal'};})(),
+  (()=>{const k=ri(2,5),q=ri(2,8),x=ri(2,6);return{text:`Prochází graf y = ${k}x + ${q} bodem [${x}, ${k*x+q+1}]?\nANO / NE`,ans:'NE',hints:[`f(${x}) = ${k*x+q}, ne ${k*x+q+1}.`],skill:'anal'};})(),
+  (()=>{const k=ri(2,4),x0=ri(2,5),q=-k*x0;return{text:`Je x = ${x0} nulový bod funkce y = ${k}x ${q<0?'− '+(-q):'+ '+q}?\nANO / NE`,ans:'ANO',hints:[`Dosaď x = ${x0} a ověř, že y = 0.`],skill:'anal'};})(),
+  (()=>{const k=ri(2,5),q=ri(2,8);return{text:`Kolik má lineární funkce y = ${k}x + ${q} průsečíků s osou x?`,ans:'1',hints:[`Nekonstantní přímka protíná osu x právě jednou.`],skill:'anal'};})()
  ],
  '6-3': () => [
-  (()=>{const x=[2,3,4,6][ri(0,3)],k=x*ri(2,8);return{text:`y = ${k}/x\nVypočítej f(${x}).`,ans:String(k/x),hints:[`${k} : ${x}.`],skill:'geo'};})(),
-  (()=>{const y=[2,3,4,5][ri(0,3)],k=y*ri(2,8);return{text:`y = ${k}/x\nPro jaké x je y = ${y}?`,ans:String(k/y),hints:[`x = ${k} : ${y}.`],skill:'geo'};})(),
-  (()=>{const x=ri(2,6),y=ri(2,8);return{text:`y = k/x prochází bodem [${x}, ${y}].\nUrči k.`,ans:String(x*y),hints:[`k = x · y.`],skill:'geo'};})(),
-  (()=>{return{text:`Pro jaké x není y = 20/x definována?\nx ≠`,ans:'0',hints:[`Jmenovatel nesmí být 0.`],skill:'geo'};})(),
-  (()=>{const k=[12,24,36,48][ri(0,3)],x=[2,3,4,6][ri(0,3)];return{text:`y = ${k}/x\nPro x = ${x} je y = ?`,ans:String(k/x),hints:[`${k} : ${x}.`],skill:'geo'};})(),
-  (()=>{const x=[2,4,5,10][ri(0,3)],k=x*ri(3,9);return{text:`y = ${k}/x\nVypočítej f(${x}).`,ans:String(k/x),hints:[`${k} : ${x}.`],skill:'geo'};})(),
-  (()=>{const k=ri(2,8)*6,x=[2,3,6][ri(0,2)];return{text:`y = ${k}/x\nUrči y pro x = ${x}.`,ans:String(k/x),hints:[`${k} : ${x}.`],skill:'geo'};})(),
-  (()=>{const y=ri(2,8),x=ri(2,6);return{text:`Hyperbola y = k/x prochází bodem [${x}, ${y}].\nUrči k.`,ans:String(x*y),hints:[`k = x · y = ${x} · ${y}.`],skill:'geo'};})(),
-  (()=>{const k=ri(2,6)*4,x=[2,4][ri(0,1)];return{text:`y = ${k}/x\nUrči y pro x = ${x}.`,ans:String(k/x),hints:[`${k} : ${x}.`],skill:'geo'};})(),
-  (()=>{return{text:`Je funkce y = 12/x rostoucí pro x > 0?\nANO / NE`,ans:'NE',hints:[`Hyperbola pro x > 0 klesá.`],skill:'geo'};})()
+  (()=>{const x=[2,3,4,6][ri(0,3)],k=x*ri(2,8);return{text:`Nepřímá úměrnost y = ${k}/x. Vypočítej funkční hodnotu f(${x}).`,ans:String(k/x),hints:[`Dosaď: ${k} : ${x}.`],skill:'geo'};})(),
+  (()=>{const y=[2,3,4,5][ri(0,3)],k=y*ri(2,8);return{text:`Pro kterou hodnotu x nabývá funkce y = ${k}/x hodnoty ${y}?`,ans:String(k/y),hints:[`Z rovnice ${y} = ${k}/x plyne x = ${k} : ${y}.`],skill:'geo'};})(),
+  (()=>{const x=ri(2,6),y=ri(2,8);return{text:`Graf funkce y = k/x prochází bodem [${x}, ${y}]. Urči konstantu k.`,ans:String(x*y),hints:[`Konstanta k = x · y.`],skill:'geo'};})(),
+  (()=>{return{text:`Pro jakou hodnotu x není funkce y = 20/x definovaná?\nx ≠`,ans:'0',hints:[`Jmenovatel x nesmí být nula.`],skill:'geo'};})(),
+  (()=>{const k=[12,24,36,48][ri(0,3)],x=[2,3,4,6][ri(0,3)];return{text:`Jakou hodnotu y přiřadí funkce y = ${k}/x číslu x = ${x}?`,ans:String(k/x),hints:[`${k} : ${x}.`],skill:'geo'};})(),
+  (()=>{const x=[2,4,5,10][ri(0,3)],k=x*ri(3,9);return{text:`Kolik je f(${x}) u funkce y = ${k}/x?`,ans:String(k/x),hints:[`${k} : ${x}.`],skill:'geo'};})(),
+  (()=>{const k=ri(2,8)*6,x=[2,3,6][ri(0,2)];return{text:`Urči y pro x = ${x}, je-li y = ${k}/x.`,ans:String(k/x),hints:[`${k} : ${x}.`],skill:'geo'};})(),
+  (()=>{const y=ri(2,8),x=ri(2,6);return{text:`Hyperbola y = k/x prochází bodem [${x}, ${y}]. Jaká je hodnota konstanty k?`,ans:String(x*y),hints:[`k = x · y = ${x} · ${y}.`],skill:'geo'};})(),
+  (()=>{const k=ri(2,6)*4,x=[2,4][ri(0,1)];return{text:`Dosaď x = ${x} do funkce y = ${k}/x a urči y.`,ans:String(k/x),hints:[`${k} : ${x}.`],skill:'geo'};})(),
+  (()=>{return{text:`Klesá hyperbola y = 12/x na intervalu x > 0?\nANO / NE`,ans:'ANO',hints:[`Pro rostoucí kladné x hodnota y klesá.`],skill:'geo'};})(),
+  (()=>{const k=[12,18,24][ri(0,2)],x1=2,x2=[3,4,6][ri(0,2)];return{text:`U funkce y = ${k}/x: je funkční hodnota v bodě x = ${x2} menší než v bodě x = ${x1}?\nANO / NE`,ans:'ANO',hints:[`Větší x → menší y (nepřímá úměrnost).`],skill:'geo'};})()
  ],
 
  // ───────── OBLAST 7 — JÁDRO SYSTÉMU ─────────
