@@ -84,77 +84,66 @@ function gen_1_3(){
 // OBLAST 2 — PLANETA DESETIN
 // ══════════════════════════════════════════════════════════
 
-// 2-1 Desetinná čísla (MC — numerické)
+// 2-1 Desetinná čísla (MC — jen numerické nebo ANO/NE)
 function gen_2_1(){
+  const T=[
+    ()=>{const a=ri(11,98)/10;return{text:`Zaokrouhli ${cz(a)} na celé číslo.`,ans:Math.round(a),h1:'Rozhoduje číslice desetin (5 a víc nahoru).',h2:`≈ ${Math.round(a)}`};},
+    ()=>{const a=ri(11,98)/10;return{text:`Kolik celých jednotek je v čísle ${cz(a)}?`,ans:Math.floor(a),h1:'Celá část je číslo před desetinnou čárkou.',h2:`= ${Math.floor(a)}`};},
+    ()=>{const a=ri(11,98)/10;const d=Math.round((a-Math.floor(a))*10);return{text:`Kolik desetin je za čárkou v čísle ${cz(a)}?`,ans:d,h1:'Desetiny jsou první číslice hned za čárkou.',h2:`= ${d}`};},
+    ()=>{const a=ri(11,98)/10;return{text:`Vynásob číslo ${cz(a)} deseti. Kolik to je?`,ans:Math.round(a*10),h1:'Násobení deseti posune čárku o jedno místo doprava.',h2:`= ${Math.round(a*10)}`};},
+    ()=>{const n=ri(11,98);return{text:`Vyděl číslo ${n*10} deseti (${n*10} : 10). Kolik to je?`,ans:n,h1:'Dělení deseti posune čárku o jedno místo doleva.',h2:`= ${n}`};},
+    ()=>{const a=ri(11,98)/10;const b=ri(0,1)?Math.floor(a):Math.ceil(a)+ri(0,2);const ok=a>b;return{text:`Je číslo ${cz(a)} větší než ${b}?`,ans:ok?'ANO':'NE',h1:'Porovnej nejdřív celou část, pak desetiny.',h2:ok?'ANO':'NE'};},
+    ()=>{const a=Math.round(ri(101,989))/100;return{text:`Kolik setin je za čárkou v čísle ${cz(a)}? (obě číslice za čárkou jako počet setin)`,ans:Math.round((a-Math.floor(a))*100),h1:'Setiny jsou dvě číslice za čárkou čtené jako celek.',h2:`= ${Math.round((a-Math.floor(a))*100)}`};},
+    ()=>{const a=ri(11,98)/10;return{text:`Na které celé číslo zaokrouhlíš ${cz(a)}?`,ans:Math.round(a),h1:'Podívej se na desetiny.',h2:`≈ ${Math.round(a)}`};},
+    ()=>{const w=ri(1,8);const a=w+0.5;return{text:`Zaokrouhlí se číslo ${cz(a)} na celé číslo ${w+1}? (polovina nahoru)`,ans:'ANO',h1:'Číslo končící ,5 se zaokrouhluje nahoru.',h2:'ANO'};},
+    ()=>{const a=ri(11,98)/10;const same=ri(0,1)===0;const b=same?a:Math.round((a+(ri(0,1)?0.1:-0.1))*10)/10;const ok=Math.abs(a-b)<1e-9;return{text:`Mají čísla ${cz(a)} a ${cz(b)} stejnou hodnotu?`,ans:ok?'ANO':'NE',h1:'Porovnej celé části i desetiny.',h2:ok?'ANO':'NE'};},
+    ()=>{const a=ri(2,9);return{text:`Vynásob číslo ${cz(a+0.5)} deseti. Kolik to je?`,ans:a*10+5,h1:'Posuň čárku o jedno místo doprava.',h2:`= ${a*10+5}`};},
+    ()=>{const n=ri(120,980);return{text:`Vyděl číslo ${n} stem (${n} : 100) — kolik CELÝCH jednotek vyjde?`,ans:Math.floor(n/100),h1:'Celá část podílu — čárku posuň o dvě místa doleva.',h2:`= ${Math.floor(n/100)}`};},
+  ];
   const tasks=[];
-  const a=ri(10,90)/10;
-  tasks.push({text:`Zaokrouhli ${cz(a)} na celé číslo.`,ans:Math.round(a),hints:['Podívej se na desetiny.',`≈ ${Math.round(a)}`],skill:'calc'});
-  const b=ri(100,990)/100;
-  tasks.push({text:`Zaokrouhli ${cz(b)} na desetiny.`,ans:r1(b),hints:['Podívej se na setiny.',`≈ ${r1(b)}`],skill:'calc'});
-  const c=ri(10,50)/10,d=ri(10,40)/10;
-  tasks.push({text:`${cz(c)} + ${cz(d)} = ?`,ans:r1(c+d),hints:['Zarovnej desetinné čárky.',`= ${r1(c+d)}`],skill:'calc'});
-  const e=ri(2,9),f=ri(11,29)/10;
-  tasks.push({text:`${e} × ${cz(f)} = ?`,ans:r1(e*f),hints:['Násob jako celá čísla a doplň čárku.',`= ${r1(e*f)}`],skill:'calc'});
-  const g=ri(50,90)/10,h=ri(10,40)/10;
-  tasks.push({text:`${cz(g)} − ${cz(h)} = ?`,ans:r1(g-h),hints:['Zarovnej desetinné čárky.',`= ${r1(g-h)}`],skill:'calc'});
-  const i=ri(10,50);
-  tasks.push({text:`Kolik je ${i} desetin jako desetinné číslo?`,ans:r1(i/10),hints:['Děl 10.',`${i}/10 = ${r1(i/10)}`],skill:'calc'});
-  { const a=ri(20,90)/10; tasks.push({text:`Zaokrouhli ${cz(a)} na celé číslo.`,ans:Math.round(a),hints:['Rozhodují desetiny.',`≈ ${Math.round(a)}`],skill:'calc'}); }
-  { const a=ri(20,80)/10,b=ri(10,40)/10; tasks.push({text:`${cz(a)} + ${cz(b)} = ?`,ans:r1(a+b),hints:['Zarovnej desetinné čárky pod sebe.',`= ${r1(a+b)}`],skill:'calc'}); }
-  { const a=ri(2,9),b=ri(11,29)/10; tasks.push({text:`${a} × ${cz(b)} = ?`,ans:r1(a*b),hints:['Násob jako celá čísla a doplň čárku.',`= ${r1(a*b)}`],skill:'calc'}); }
-  { const a=ri(50,99)/10,b=ri(10,40)/10; tasks.push({text:`${cz(a)} − ${cz(b)} = ?`,ans:r1(a-b),hints:['Zarovnej desetinné čárky pod sebe.',`= ${r1(a-b)}`],skill:'calc'}); }
+  for(let i=0;i<13;i++){const t=T[i%T.length]();tasks.push({text:t.text,ans:t.ans,hints:[t.h1,t.h2],skill:'calc'});}
   return tasks;
 }
 
 // 2-2 Počítání s desetinnými (+ − × :)
 function gen_2_2(){
+  const T=[
+    ()=>{const a=ri(100,500)/10,b=ri(50,300)/10;return{text:`Sečti: ${cz(a)} + ${cz(b)} = ?`,ans:r1(a+b),h1:'Napiš čísla pod sebe, desetinnou čárku pod čárku.',h2:`= ${r1(a+b)}`};},
+    ()=>{const c=ri(300,600)/10,d=ri(50,250)/10;return{text:`Odečti: ${cz(c)} − ${cz(d)} = ?`,ans:r1(c-d),h1:'Zarovnej desetinné čárky pod sebe a odečítej.',h2:`= ${r1(c-d)}`};},
+    ()=>{const e=ri(11,49)/10,f=ri(2,6);return{text:`Vynásob: ${cz(e)} × ${f} = ?`,ans:r1(e*f),h1:'Násob jako celá čísla, pak doplň čárku (jedno místo).',h2:`= ${r1(e*f)}`};},
+    ()=>{const g=ri(2,5),h=ri(10,40)/10;return{text:`Vyděl: ${cz(r1(h*g))} : ${g} = ?`,ans:r1(h),h1:'Děl jako celá čísla a čárku napiš nad čárku dělence.',h2:`= ${r1(h)}`};},
+    ()=>{const i=ri(11,29)/10,j=ri(11,29)/10;return{text:`Vynásob dvě desetinná: ${cz(i)} × ${cz(j)} = ?`,ans:r2(i*j),h1:`Spočítej ${Math.round(i*10)}×${Math.round(j*10)} a vyděl 100 (dvě desetinná místa).`,h2:`= ${r2(i*j)}`};},
+    ()=>{const k=ri(20,80)/10,l=ri(20,80)/10;return{text:`Kolik zaplatíš za dvě položky ${cz(k)} Kč a ${cz(l)} Kč?`,ans:r1(k+l),h1:'Sečti obě ceny.',h2:`= ${r1(k+l)} Kč`};},
+    ()=>{const a=ri(50,95)/10,b=ri(11,40)/10;const v=r1(a-b);return{text:`O kolik je ${cz(a)} větší než ${cz(b)}?`,ans:v,h1:'Rozdíl zjistíš odčítáním.',h2:`= ${v}`};},
+    ()=>{const a=ri(20,80)/10,b=ri(11,40)/10;return{text:`Doplň chybějící sčítanec: ${cz(a)} + ? = ${cz(r1(a+b))}`,ans:r1(b),h1:'Odečti známý sčítanec od součtu.',h2:`= ${r1(b)}`};},
+    ()=>{const a=ri(11,49)/10;return{text:`Kolik je trojnásobek čísla ${cz(a)}?`,ans:r1(a*3),h1:'Vynásob třemi.',h2:`= ${r1(a*3)}`};},
+    ()=>{const a=ri(21,60)/10;const half=r1(a/2);return{text:`Jaká je polovina čísla ${cz(a)}?`,ans:half,h1:'Vyděl dvěma.',h2:`= ${half}`};},
+    ()=>{const a=ri(20,50)/10,b=ri(10,30)/10,c=ri(10,30)/10;return{text:`Sečti tři čísla: ${cz(a)} + ${cz(b)} + ${cz(c)} = ?`,ans:r1(a+b+c),h1:'Sčítej postupně, čárky pod sebe.',h2:`= ${r1(a+b+c)}`};},
+    ()=>{const a=ri(30,90)/10;const ok=ri(0,1)===0;const tvrz=ok?r1(a*2):r1(a*2+0.1);const spravne=tvrz===r1(a*2);return{text:`Je dvojnásobek čísla ${cz(a)} roven ${tvrz}?`,ans:spravne?'ANO':'NE',h1:'Spočítej 2 × dané číslo.',h2:spravne?'ANO':'NE'};},
+  ];
   const tasks=[];
-  const a=ri(100,500)/10,b=ri(50,300)/10;
-  tasks.push({text:`${cz(a)} + ${cz(b)} = ?`,ans:r1(a+b),hints:['Zarovnej čárky pod sebe.',`= ${r1(a+b)}`],skill:'calc'});
-  const c=ri(200,600)/10,d=ri(50,c*10-50)/10;
-  tasks.push({text:`${cz(c)} − ${cz(d)} = ?`,ans:r1(c-d),hints:['Zarovnej čárky pod sebe.',`= ${r1(c-d)}`],skill:'calc'});
-  const e=ri(11,49)/10,f=ri(2,6);
-  tasks.push({text:`${cz(e)} × ${f} = ?`,ans:r1(e*f),hints:['Násob jako celá, pak doplň čárku.',`= ${r1(e*f)}`],skill:'calc'});
-  const g=ri(2,5),h=ri(10,40)/10;
-  tasks.push({text:`${cz(h*g)} : ${g} = ?`,ans:r1(h),hints:['Děl jako celá čísla, hlídej čárku.',`= ${r1(h)}`],skill:'calc'});
-  const i=ri(10,30)/10,j=ri(10,30)/10;
-  tasks.push({text:`${cz(i)} × ${cz(j)} = ?`,ans:r2(i*j),hints:['Spočítej '+Math.round(i*10)+'×'+Math.round(j*10)+' a poděl 100.',`= ${r2(i*j)}`],skill:'calc'});
-  const k=ri(20,80)/10,l=ri(20,80)/10;
-  tasks.push({text:`Kolik zaplatím za 2 položky: ${cz(k)} Kč a ${cz(l)} Kč?`,ans:r1(k+l),hints:['Sečti obě ceny.',`= ${r1(k+l)} Kč`],skill:'calc'});
-  { const a=ri(100,500)/10,b=ri(50,250)/10; tasks.push({text:`${cz(a)} + ${cz(b)} = ?`,ans:r1(a+b),hints:['Zarovnej čárky pod sebe.',`= ${r1(a+b)}`],skill:'calc'}); }
-  { const a=ri(30,49)/10,b=ri(2,6); tasks.push({text:`${cz(a)} × ${b} = ?`,ans:r1(a*b),hints:['Násob jako celá čísla, pak doplň čárku.',`= ${r1(a*b)}`],skill:'calc'}); }
-  { const b=ri(2,5),h=ri(10,40)/10; tasks.push({text:`${r1(h*b)} : ${b} = ?`,ans:r1(h),hints:['Děl jako celá čísla, hlídej čárku.',`= ${r1(h)}`],skill:'calc'}); }
-  { const a=ri(100,990)/100; tasks.push({text:`Zaokrouhli ${cz(a)} na desetiny.`,ans:r1(a),hints:['Rozhodují setiny.',`≈ ${r1(a)}`],skill:'calc'}); }
+  for(let i=0;i<13;i++){const t=T[i%T.length]();tasks.push({text:t.text,ans:t.ans,hints:[t.h1,t.h2],skill:'calc'});}
   return tasks;
 }
 
 // 2-3 Zlomky a průměr
 function gen_2_3(){
+  const T=[
+    ()=>{const d=ri(4,9),a=ri(1,d-2),b=ri(1,d-a-1)||1;const num=a+b,g=gcd(num,d);return{text:`Sečti zlomky se stejným jmenovatelem: ${a}/${d} + ${b}/${d} = ?`,ans:g===d?String(num/g):`${num/g}/${d/g}`,h1:'Jmenovatel opiš, sčítej jen čitatele.',h2:`${a}+${b} = ${num}, tedy ${num}/${d}`};},
+    ()=>{const e=ri(5,9),c=ri(2,e-1),f=ri(1,c-1)||1;const numD=c-f,gD=gcd(numD,e);return{text:`Odečti zlomky: ${c}/${e} − ${f}/${e} = ?`,ans:numD===0?'0':(gD===e?String(numD/gD):`${numD/gD}/${e/gD}`),h1:'Jmenovatel opiš, odečti čitatele.',h2:`${c}−${f} = ${numD}, tedy ${numD}/${e}`};},
+    ()=>{const x=ri(2,9)*2,y=ri(2,9)*2;return{text:`Jaký je aritmetický průměr čísel ${x} a ${y}?`,ans:(x+y)/2,h1:'Sečti obě čísla a vyděl dvěma.',h2:`(${x}+${y}) : 2 = ${(x+y)/2}`};},
+    ()=>{const p=ri(2,9),q=ri(2,9),rr=3*ri(3,9)-p-q;return{text:`Jaký je průměr tří čísel ${p}, ${q} a ${rr}?`,ans:(p+q+rr)/3,h1:'Sečti všechna tři a vyděl třemi.',h2:`(${p}+${q}+${rr}) : 3 = ${(p+q+rr)/3}`};},
+    ()=>{const dd=ri(2,5),nn=dd*ri(3,8);return{text:`Kolik je 1/${dd} z čísla ${nn}?`,ans:nn/dd,h1:`Vyděl číslo jmenovatelem: ${nn} : ${dd}.`,h2:`= ${nn/dd}`};},
+    ()=>{const dd=ri(3,6),nn=dd*ri(3,8),k=ri(2,dd-1);return{text:`Kolik je ${k}/${dd} z čísla ${nn}?`,ans:nn/dd*k,h1:`Nejdřív ${nn} : ${dd} = ${nn/dd}, pak × ${k}.`,h2:`= ${nn/dd*k}`};},
+    ()=>{const z1=ri(1,3),z2=ri(1,3),z3=ri(1,4),z4=ri(1,4);return{text:`Žák má známky ${z1}, ${z2}, ${z3}, ${z4}. Jaký je jejich průměr? (na 2 desetinná místa)`,ans:r2((z1+z2+z3+z4)/4),h1:'Sečti všechny čtyři známky a vyděl čtyřmi.',h2:`= ${r2((z1+z2+z3+z4)/4)}`};},
+    ()=>{const d=ri(4,9),a=ri(1,d-1);return{text:`Kolik ${d}tin chybí zlomku ${a}/${d} do celku ${d}/${d}? (napiš jen čitatel)`,ans:d-a,h1:`Celek je ${d}/${d}, odečti ${a}.`,h2:`= ${d-a}`};},
+    ()=>{const avg=ri(4,12),x=avg-ri(1,3),y=2*avg-x;return{text:`Průměr dvou čísel je ${avg}, první je ${x}. Jaké je druhé číslo?`,ans:y,h1:`Součet obou = ${avg} × 2 = ${avg*2}, odečti první.`,h2:`= ${y}`};},
+    ()=>{const d=ri(4,9),a=ri(1,d-1),b=ri(1,d-1);const va=a,vb=b;return{text:`Který zlomek je větší: ${a}/${d}, nebo ${b}/${d}? Napiš jeho čitatel.${a===b?' (jsou stejné — napiš '+a+')':''}`,ans:Math.max(a,b),h1:'Při stejném jmenovateli rozhoduje čitatel.',h2:`= ${Math.max(a,b)}`};},
+    ()=>{const parts=ri(3,5),cel=parts*ri(4,9),cast=cel/parts*(parts-1);return{text:`Pizza má ${parts} stejných dílů, snědli ${parts-1} z nich. Kolik ${parts}tin zbylo? (napiš jen čitatel)`,ans:1,h1:`Z ${parts} dílů zbývá ${parts}−${parts-1}.`,h2:`= 1`};},
+    ()=>{const d=ri(4,8),a=ri(1,d-2),b=ri(1,d-a-1)||1;const num=a+b;const ok=num===d;return{text:`Dají zlomky ${a}/${d} + ${b}/${d} dohromady přesně jeden celek?`,ans:ok?'ANO':'NE',h1:`Celek je ${d}/${d}. Je ${a}+${b} rovno ${d}?`,h2:ok?'ANO':'NE'};},
+  ];
   const tasks=[];
-  const d=ri(4,9),a=ri(1,d-2),b=ri(1,d-a-1)||1;
-  const num=a+b,g=gcd(num,d);
-  const ans1=g===d?String(num/g):`${num/g}/${d/g}`;
-  tasks.push({text:`${a}/${d} + ${b}/${d} = ?`,ans:ans1,hints:['Stejný jmenovatel: sčítej čitatele.',`${a}+${b} = ${num}, tedy ${num}/${d}`],skill:'calc'});
-  const e=ri(5,9),c=ri(2,e-1),f=ri(1,c-1)||1;
-  const numD=c-f,gD=gcd(numD,e);
-  const ans2=numD===0?'0':(gD===e?String(numD/gD):`${numD/gD}/${e/gD}`);
-  tasks.push({text:`${c}/${e} − ${f}/${e} = ?`,ans:ans2,hints:['Stejný jmenovatel: odečti čitatele.',`${c}−${f} = ${numD}, tedy ${numD}/${e}`],skill:'calc'});
-  // průměr dvou čísel
-  const x=ri(2,9)*2,y=ri(2,9)*2;
-  tasks.push({text:`Jaký je aritmetický průměr čísel ${x} a ${y}?`,ans:(x+y)/2,hints:['Součet / počet.',`(${x}+${y})/2 = ${(x+y)/2}`],skill:'anal'});
-  // průměr tří čísel
-  const p=ri(2,9),q=ri(2,9),rr=3*ri(3,9)-p-q;
-  tasks.push({text:`Jaký je průměr čísel ${p}, ${q} a ${rr}?`,ans:(p+q+rr)/3,hints:['Součet všech / 3.',`(${p}+${q}+${rr})/3 = ${(p+q+rr)/3}`],skill:'anal'});
-  // zlomek z čísla
-  const dd=ri(2,5),nn=dd*ri(3,8);
-  tasks.push({text:`Kolik je ${1}/${dd} z čísla ${nn}?`,ans:nn/dd,hints:['Děl číslo jmenovatelem.',`${nn}/${dd} = ${nn/dd}`],skill:'calc'});
-  // průměr známek
-  const z1=ri(1,3),z2=ri(1,3),z3=ri(1,3),z4=ri(1,3);
-  tasks.push({text:`Žák má známky ${z1}, ${z2}, ${z3}, ${z4}. Jaký je jejich průměr? (na 2 desetinná místa)`,ans:r2((z1+z2+z3+z4)/4),hints:['Součet / 4.',`= ${r2((z1+z2+z3+z4)/4)}`],skill:'anal'});
-  { const d=ri(4,9),a=ri(1,d-1),b=ri(1,d-1),num=a+b,g=gcd(num,d); tasks.push({text:`${a}/${d} + ${b}/${d} = ?`,ans:(d/g===1?String(num/g):`${num/g}/${d/g}`),hints:['Stejný jmenovatel: sčítej čitatele.',`${a}+${b} = ${num}, tedy ${num}/${d}`],skill:'calc'}); }
-  { const x=ri(2,9)*2,y=ri(2,9)*2; tasks.push({text:`Jaký je aritmetický průměr čísel ${x} a ${y}?`,ans:(x+y)/2,hints:['Součet / 2.',`(${x}+${y})/2 = ${(x+y)/2}`],skill:'anal'}); }
-  { const p=ri(2,9),q=ri(2,9); let rr=ri(2,9); while((p+q+rr)%3!==0)rr++; tasks.push({text:`Jaký je průměr čísel ${p}, ${q} a ${rr}?`,ans:(p+q+rr)/3,hints:['Součet všech / 3.',`(${p}+${q}+${rr})/3 = ${(p+q+rr)/3}`],skill:'anal'}); }
-  { const dd=ri(2,5),nn=dd*ri(3,8); tasks.push({text:`Kolik je 1/${dd} z čísla ${nn}?`,ans:nn/dd,hints:['Děl číslo jmenovatelem.',`${nn}/${dd} = ${nn/dd}`],skill:'calc'}); }
+  for(let i=0;i<13;i++){const t=T[i%T.length]();tasks.push({text:t.text,ans:t.ans,hints:[t.h1,t.h2],skill:i%3===2?'anal':'calc'});}
   return tasks;
 }
 
