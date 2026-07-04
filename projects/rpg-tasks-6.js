@@ -345,19 +345,22 @@ function gen_5_2(){
 
 // 5-3 Shodnost útvarů
 function gen_5_3(){
+  const T=[
+    ()=>{const a=ri(3,9);return{text:`Dva čtverce mají oba stranu ${a} cm. Jsou shodné?`,ans:'ANO',h1:'Stejný tvar i rozměry → shodné útvary.',h2:'ANO'};},
+    ()=>{const a=ri(3,6),b=a+ri(1,4);return{text:`Čtverec se stranou ${a} cm a čtverec se stranou ${b} cm — jsou shodné?`,ans:'NE',h1:'Mají různě dlouhé strany.',h2:'NE'};},
+    ()=>{const a=ri(3,9);return{text:`Útvar má obvod ${a*4} cm a je shodný s jiným. Jaký obvod má ten druhý?`,ans:a*4,h1:'Shodné útvary mají stejný obvod.',h2:`= ${a*4} cm`};},
+    ()=>{const b=ri(3,8);return{text:`Dva shodné obdélníky. První má obsah ${b*5} cm². Jaký obsah má druhý?`,ans:b*5,h1:'Shodné útvary mají stejný obsah.',h2:`= ${b*5} cm²`};},
+    ()=>{return{text:`Zachovává osová souměrnost rozměry (délky stran) útvaru?`,ans:'ANO',h1:'Souměrnost je shodné zobrazení — nic nezvětšuje.',h2:'ANO'};},
+    ()=>{const s=[[3,4,5],[5,5,6],[6,8,10],[7,7,4]][ri(0,3)];return{text:`Dva trojúhelníky mají oba strany ${s[0]}, ${s[1]}, ${s[2]} cm. Jsou shodné?`,ans:'ANO',h1:'Shodují se ve třech stranách (věta sss).',h2:'ANO'};},
+    ()=>{const a=ri(4,9),b=ri(4,9);const ok=a===b;return{text:`Obdélník ${a}×${b} cm a obdélník ${b}×${a} cm — jsou shodné?`,ans:'ANO',h1:'Otočený obdélník má stejné rozměry.',h2:'ANO'};},
+    ()=>{const kr=ri(2,6);return{text:`Kruh o poloměru ${kr} cm a kruh o poloměru ${kr} cm. Jsou shodné?`,ans:'ANO',h1:'Stejný poloměr → shodné kruhy.',h2:'ANO'};},
+    ()=>{const a=ri(3,6),b=ri(7,10);return{text:`Úsečka ${a} cm a úsečka ${b} cm. Jsou shodné?`,ans:'NE',h1:'Shodné úsečky mají stejnou délku.',h2:'NE'};},
+    ()=>{const a=ri(30,80);return{text:`Dva úhly mají oba ${a}°. Jsou shodné?`,ans:'ANO',h1:'Shodné úhly mají stejnou velikost.',h2:'ANO'};},
+    ()=>{const a=ri(3,8);return{text:`Shodné čtverce. Obvod prvního je ${4*a} cm. Jak dlouhá je strana druhého? (cm)`,ans:a,h1:'Shodné → stejná strana; strana = obvod : 4.',h2:`= ${a} cm`};},
+    ()=>{return{text:`Mění shodné zobrazení obsah útvaru?`,ans:'NE',h1:'Shodnost zachovává všechny rozměry i obsah.',h2:'NE'};},
+  ];
   const tasks=[];
-  tasks.push({text:`Dva čtverce mají stranu 5 cm. Jsou shodné? (ANO/NE)`,ans:'ANO',hints:['Stejný tvar i rozměry → shodné.','ANO'],skill:'geo'});
-  tasks.push({text:`Čtverec se stranou 4 cm a čtverec se stranou 6 cm. Jsou shodné?`,ans:'NE',hints:['Mají různé rozměry.','NE'],skill:'geo'});
-  const a=ri(3,9);
-  tasks.push({text:`Útvar má obvod ${a*4} cm a je shodný s jiným. Jaký obvod má ten druhý útvar?`,ans:a*4,hints:['Shodné útvary mají stejný obvod.',`= ${a*4} cm`],skill:'geo'});
-  const b=ri(3,8);
-  tasks.push({text:`Shodné obdélníky. První má obsah ${b*5} cm². Jaký obsah má druhý?`,ans:b*5,hints:['Shodné útvary mají stejný obsah.',`= ${b*5} cm²`],skill:'geo'});
-  tasks.push({text:`Zachovává osová souměrnost rozměry útvaru? (ANO/NE)`,ans:'ANO',hints:['Souměrnost je shodné zobrazení.','ANO'],skill:'geo'});
-  tasks.push({text:`Dva trojúhelníky mají strany 3, 4, 5 cm. Jsou shodné? (ANO/NE)`,ans:'ANO',hints:['Stejné tři strany (věta sss).','ANO'],skill:'geo'});
-  { const a=ri(3,9); tasks.push({text:`Dva čtverce mají stranu ${a} cm. Jsou shodné? (ANO/NE)`,ans:'ANO',hints:['Stejný tvar i rozměry → shodné.','ANO'],skill:'geo'}); }
-  { const a=ri(3,6),b=a+ri(1,4); tasks.push({text:`Čtverec se stranou ${a} cm a čtverec se stranou ${b} cm. Jsou shodné? (ANO/NE)`,ans:'NE',hints:['Mají různé rozměry.','NE'],skill:'geo'}); }
-  { const a=ri(3,9); tasks.push({text:`Útvar je shodný s jiným o obvodu ${a*4} cm. Jaký obvod má ten první? (cm)`,ans:a*4,hints:['Shodné útvary mají stejný obvod.',`= ${a*4} cm`],skill:'geo'}); }
-  { tasks.push({text:`Zachovává shodné zobrazení (souměrnost) obsah útvaru? (ANO/NE)`,ans:'ANO',hints:['Ano, rozměry se nemění.','ANO'],skill:'geo'}); }
+  for(let i=0;i<13;i++){const t=T[i%T.length]();tasks.push({text:t.text,ans:t.ans,hints:[t.h1,t.h2],skill:'geo'});}
   return tasks;
 }
 
@@ -435,65 +438,61 @@ function gen_6_3(){
 
 // 7-1 Úhly v trojúhelníku (součet 180°)
 function gen_7_1(){
+  const T=[
+    ()=>{const a=ri(30,80),b=ri(30,80);return{text:`Trojúhelník má úhly ${a}° a ${b}°. Jaký je třetí úhel?`,ans:180-a-b,h1:'Součet vnitřních úhlů trojúhelníku je 180°.',h2:`180 − ${a} − ${b} = ${180-a-b}°`};},
+    ()=>{const c=ri(40,70);return{text:`V rovnoramenném trojúhelníku jsou úhly při základně ${c}°. Jaký je úhel při hlavním vrcholu?`,ans:180-2*c,h1:'Odečti od 180° dva stejné úhly při základně.',h2:`180 − 2·${c} = ${180-2*c}°`};},
+    ()=>{return{text:`Kolik stupňů má každý úhel v rovnostranném trojúhelníku?`,ans:60,h1:'Tři stejné úhly se dělí o 180°.',h2:'180 : 3 = 60°'};},
+    ()=>{const d=ri(30,80);return{text:`Pravoúhlý trojúhelník má jeden ostrý úhel ${d}°. Jaký je druhý ostrý úhel?`,ans:90-d,h1:'Oba ostré úhly dají dohromady 90°.',h2:`90 − ${d} = ${90-d}°`};},
+    ()=>{const e=ri(50,120);return{text:`Dva úhly trojúhelníku dají dohromady ${e}°. Jaký je třetí úhel?`,ans:180-e,h1:'Od 180° odečti součet dvou známých.',h2:`180 − ${e} = ${180-e}°`};},
+    ()=>{const f=ri(20,60);return{text:`Jaký je vnější úhel trojúhelníku u vrcholu, kde je vnitřní úhel ${f}°?`,ans:180-f,h1:'Vnější a vnitřní úhel u vrcholu jsou vedlejší (180°).',h2:`180 − ${f} = ${180-f}°`};},
+    ()=>{const a=ri(40,80),b=ri(40,80);const ok=(a+b)<180;return{text:`Mohou být v trojúhelníku dva úhly ${a}° a ${b}° současně?`,ans:ok?'ANO':'NE',h1:`Jejich součet musí být menší než 180°: ${a}+${b}=${a+b}.`,h2:ok?'ANO':'NE'};},
+    ()=>{const v=ri(20,100);return{text:`Rovnoramenný trojúhelník má úhel při hlavním vrcholu ${v}°. Jaký je jeden úhel při základně?`,ans:(180-v)/2,h1:'Zbytek do 180° se rovným dílem rozdělí mezi dva úhly při základně.',h2:`(180 − ${v}) : 2 = ${(180-v)/2}°`};},
+    ()=>{const a=ri(30,70),b=ri(30,70);const third=180-a-b;return{text:`Trojúhelník má úhly ${a}°, ${b}° a ${third}°. Je pravoúhlý (má úhel 90°)?`,ans:(a===90||b===90||third===90)?'ANO':'NE',h1:'Je některý z úhlů přesně 90°?',h2:(a===90||b===90||third===90)?'ANO':'NE'};},
+    ()=>{const a=ri(50,120);const b=ri(20,Math.min(60,179-a));const third=180-a-b;const nej=Math.max(a,b,third);return{text:`Trojúhelník má úhly ${a}°, ${b}° a ${third}°. Jaký je jeho NEJVĚTŠÍ úhel?`,ans:nej,h1:'Porovnej všechny tři úhly.',h2:`= ${nej}°`};},
+    ()=>{return{text:`Může mít trojúhelník dva pravé úhly (2× 90°)?`,ans:'NE',h1:'Dva pravé úhly by daly 180° a na třetí by nezbylo nic.',h2:'NE'};},
+  ];
   const tasks=[];
-  const a=ri(30,80),b=ri(30,80);
-  tasks.push({text:`Trojúhelník má úhly ${a}° a ${b}°. Jaký je třetí úhel?`,ans:180-a-b,hints:['Součet úhlů v trojúhelníku = 180°.',`180−${a}−${b} = ${180-a-b}°`],skill:'geo'});
-  const c=ri(40,70);
-  tasks.push({text:`V rovnoramenném trojúhelníku jsou úhly při základně ${c}°. Jaký je vrcholový úhel?`,ans:180-2*c,hints:['180 − 2·úhel při základně.',`= ${180-2*c}°`],skill:'geo'});
-  tasks.push({text:`Kolik stupňů má každý úhel v rovnostranném trojúhelníku?`,ans:60,hints:['180 / 3.','60°'],skill:'geo'});
-  const d=ri(30,80);
-  tasks.push({text:`Pravoúhlý trojúhelník má jeden ostrý úhel ${d}°. Jaký je druhý ostrý úhel?`,ans:90-d,hints:['Dva ostré úhly dají 90°.',`90−${d} = ${90-d}°`],skill:'geo'});
-  const e=ri(50,120);
-  tasks.push({text:`Dva úhly trojúhelníku dají dohromady ${e}°. Jaký je třetí úhel?`,ans:180-e,hints:['180 − součet dvou.',`= ${180-e}°`],skill:'geo'});
-  const f=ri(20,60);
-  tasks.push({text:`Vnější úhel trojúhelníku k vnitřnímu úhlu ${f}°? (vnější = 180 − vnitřní)`,ans:180-f,hints:['Vnější a vnitřní úhel jsou vedlejší.',`= ${180-f}°`],skill:'geo'});
-  { const a=ri(30,80),b=ri(30,80); tasks.push({text:`Trojúhelník má úhly ${a}° a ${b}°. Jaký je třetí úhel?`,ans:180-a-b,hints:['Součet úhlů v trojúhelníku = 180°.',`180−${a}−${b} = ${180-a-b}°`],skill:'geo'}); }
-  { const c=ri(40,70); tasks.push({text:`Rovnoramenný trojúhelník: úhly při základně ${c}°. Vrcholový úhel?`,ans:180-2*c,hints:['180 − 2·úhel při základně.',`= ${180-2*c}°`],skill:'geo'}); }
-  { const d=ri(30,80); tasks.push({text:`Pravoúhlý trojúhelník, jeden ostrý úhel ${d}°. Druhý ostrý úhel?`,ans:90-d,hints:['Dva ostré úhly dají dohromady 90°.',`90−${d} = ${90-d}°`],skill:'geo'}); }
-  { tasks.push({text:`Kolik stupňů má každý úhel rovnostranného trojúhelníku?`,ans:60,hints:['180 / 3.','60°'],skill:'geo'}); }
+  for(let i=0;i<13;i++){const t=T[i%T.length]();tasks.push({text:t.text,ans:t.ans,hints:[t.h1,t.h2],skill:'geo'});}
   return tasks;
 }
 
 // 7-2 Vlastnosti trojúhelníku
 function gen_7_2(){
+  const T=[
+    ()=>{const a=ri(5,12),b=ri(4,11),c=ri(3,a+b-1);return{text:`Trojúhelník má strany ${a}, ${b}, ${c} cm. Jaký je jeho obvod?`,ans:a+b+c,h1:'Obvod je součet všech tří stran.',h2:`${a}+${b}+${c} = ${a+b+c} cm`};},
+    ()=>{const d=ri(4,12),h=ri(3,10);return{text:`Trojúhelník má základnu ${d} cm a výšku ${h} cm. Jaký je jeho obsah?`,ans:r1(d*h/2),h1:'S = (základna × výška) : 2.',h2:`(${d}·${h}) : 2 = ${r1(d*h/2)} cm²`};},
+    ()=>{return{text:`Kolik výšek má trojúhelník?`,ans:3,h1:'Z každého vrcholu vede jedna výška.',h2:'3'};},
+    ()=>{const e=ri(3,7),f=ri(3,7);const ok=ri(0,1)===0;const g=ok?ri(Math.max(2,Math.abs(e-f)+1),e+f-1):e+f+ri(1,3);const real=(e+f>g&&e+g>f&&f+g>e);return{text:`Mohou úsečky ${e} cm, ${f} cm a ${g} cm být stranami trojúhelníku?`,ans:real?'ANO':'NE',h1:`Součet dvou kratších musí být větší než nejdelší.`,h2:real?'ANO':'NE'};},
+    ()=>{const ram=ri(4,9),zakl=ri(2,2*ram-1);const o=2*ram+zakl;return{text:`Rovnoramenný trojúhelník má ramena po ${ram} cm a základnu ${zakl} cm. Jaký je jeho obvod?`,ans:o,h1:'Obvod = dvě ramena + základna.',h2:`2·${ram} + ${zakl} = ${o} cm`};},
+    ()=>{return{text:`Kolik vrcholů má trojúhelník?`,ans:3,h1:'„Troj" napovídá počet.',h2:'3'};},
+    ()=>{const o=ri(4,10)*3;return{text:`Rovnostranný trojúhelník má obvod ${o} cm. Jak dlouhá je jedna strana?`,ans:o/3,h1:'Všechny tři strany jsou stejné; strana = obvod : 3.',h2:`${o} : 3 = ${o/3} cm`};},
+    ()=>{const zaklad=ri(2,9)*2,vyska=ri(3,10);const S=zaklad*vyska/2;return{text:`Trojúhelník má obsah ${S} cm² a základnu ${zaklad} cm. Jaká je jeho výška?`,ans:vyska,h1:'Ze vzorce S = (z·v):2 vyjádři výšku: v = 2·S : z.',h2:`2·${S} : ${zaklad} = ${vyska} cm`};},
+    ()=>{const a=ri(4,9),b=ri(4,9),c=ri(Math.max(2,Math.abs(a-b)+1),a+b-1);const rovnoram=(a===b||b===c||a===c);return{text:`Má trojúhelník se stranami ${a}, ${b}, ${c} cm alespoň dvě stejně dlouhé strany (je rovnoramenný)?`,ans:rovnoram?'ANO':'NE',h1:'Porovnej délky stran, hledej dvojici stejných.',h2:rovnoram?'ANO':'NE'};},
+    ()=>{const a=ri(5,12),b=ri(4,11),c=ri(3,a+b-1);const nej=Math.max(a,b,c);return{text:`Trojúhelník má strany ${a}, ${b}, ${c} cm. Jak dlouhá je jeho NEJDELŠÍ strana?`,ans:nej,h1:'Porovnej tři délky.',h2:`= ${nej} cm`};},
+  ];
   const tasks=[];
-  const a=ri(5,12),b=ri(4,11),c=ri(3,a+b-1);
-  tasks.push({text:`Trojúhelník má strany ${a}, ${b}, ${c} cm. Jaký je jeho obvod?`,ans:a+b+c,hints:['Obvod = součet stran.',`= ${a+b+c} cm`],skill:'geo'});
-  const d=ri(4,12),h=ri(3,10);
-  tasks.push({text:`Trojúhelník má základnu ${d} cm a výšku ${h} cm. Jaký je jeho obsah?`,ans:r1(d*h/2),hints:['S = (a·v)/2.',`= ${r1(d*h/2)} cm²`],skill:'geo'});
-  tasks.push({text:`Kolik výšek má trojúhelník?`,ans:3,hints:['Z každého vrcholu jedna.','3'],skill:'geo'});
-  // trojúhelníková nerovnost
-  const e=ri(3,6),f=ri(3,6),g=e+f+ri(1,3);
-  tasks.push({text:`Mohou strany ${e}, ${f}, ${g} cm tvořit trojúhelník? (součet dvou kratších > nejdelší)`,ans:'NE',hints:['${e}+${f} musí být > ${g}.',`${e}+${f}=${e+f} ≤ ${g} → NE`],skill:'geo'});
-  const h2=ri(4,7),i2=ri(4,7),j2=ri(2,h2+i2-1);
-  tasks.push({text:`Mohou strany ${h2}, ${i2}, ${j2} cm tvořit trojúhelník?`,ans:(h2+i2>j2&&h2+j2>i2&&i2+j2>h2)?'ANO':'NE',hints:['Součet libovolných dvou > třetí.',(h2+i2>j2&&h2+j2>i2&&i2+j2>h2)?'ANO':'NE'],skill:'geo'});
-  tasks.push({text:`Kolik vrcholů má trojúhelník?`,ans:3,hints:['Troj = tři.','3'],skill:'geo'});
-  { const a=ri(5,12),b=ri(4,11),c=ri(3,a+b-1); tasks.push({text:`Trojúhelník se stranami ${a}, ${b}, ${c} cm. Jaký je obvod?`,ans:a+b+c,hints:['Obvod = součet stran.',`= ${a+b+c} cm`],skill:'geo'}); }
-  { const d=ri(4,12),h=ri(2,10); tasks.push({text:`Trojúhelník: základna ${d} cm, výška ${h} cm. Obsah?`,ans:r1(d*h/2),hints:['S = (a·v)/2.',`= ${r1(d*h/2)} cm²`],skill:'geo'}); }
-  { const e=ri(3,6),f=ri(3,6),g=e+f+ri(1,3); tasks.push({text:`Mohou strany ${e}, ${f}, ${g} cm tvořit trojúhelník?`,ans:'NE',hints:[`${e}+${f} = ${e+f} ≤ ${g}.`,'NE'],skill:'geo'}); }
-  { const a=ri(3,7),b=ri(3,7),c=ri(Math.max(2,Math.abs(a-b)+1),a+b-1); tasks.push({text:`Mohou strany ${a}, ${b}, ${c} cm tvořit trojúhelník?`,ans:'ANO',hints:['Součet libovolných dvou > třetí.','ANO'],skill:'geo'}); }
+  for(let i=0;i<13;i++){const t=T[i%T.length]();tasks.push({text:t.text,ans:t.ans,hints:[t.h1,t.h2],skill:'geo'});}
   return tasks;
 }
 
 // 7-3 Finální duel — mix všech témat
 function gen_7_3(){
+  const T=[
+    ()=>{const a=ri(30,80),b=ri(30,80);return{text:`Trojúhelník má úhly ${a}° a ${b}°. Jaký je třetí úhel?`,ans:180-a-b,h1:'Součet vnitřních úhlů je 180°.',h2:`180 − ${a} − ${b} = ${180-a-b}°`};},
+    ()=>{const a=ri(2,8),b=ri(2,8),c=ri(2,6);return{text:`Kvádr ${a} × ${b} × ${c} cm. Jaký je jeho objem?`,ans:a*b*c,h1:'Objem kvádru V = a · b · c.',h2:`= ${a*b*c} cm³`};},
+    ()=>{const f=ri(11,50)/10,g=ri(11,40)/10;return{text:`Sečti desetinná čísla ${cz(f)} + ${cz(g)} = ?`,ans:r1(f+g),h1:'Zarovnej desetinné čárky pod sebe.',h2:`= ${r1(f+g)}`};},
+    ()=>{const a=ri(2,6)*ri(2,5),b=ri(2,6)*ri(2,5);return{text:`Najdi největší společný dělitel: NSD(${a}, ${b}) = ?`,ans:gcd(a,b),h1:'Rozlož obě čísla na prvočinitele a vezmi společné.',h2:`= ${gcd(a,b)}`};},
+    ()=>{const j=ri(20,160);return{text:`Jaký je vedlejší úhel k úhlu ${j}°?`,ans:180-j,h1:'Vedlejší úhly dají dohromady 180°.',h2:`180 − ${j} = ${180-j}°`};},
+    ()=>{const k=ri(3,12);return{text:`Čtverec má stranu ${k} cm. Jaký je jeho obsah?`,ans:k*k,h1:'Obsah čtverce S = a².',h2:`${k}² = ${k*k} cm²`};},
+    ()=>{const e=ri(2,9);return{text:`Krychle má hranu ${e} cm. Jaký je její objem?`,ans:e*e*e,h1:'Objem krychle V = a³.',h2:`${e}³ = ${e*e*e} cm³`};},
+    ()=>{const a=ri(10,90);const ok=a%3===0;return{text:`Je číslo ${a} dělitelné třemi?`,ans:ok?'ANO':'NE',h1:'Sečti číslice a ověř dělitelnost tří.',h2:ok?'ANO':'NE'};},
+    ()=>{const a=ri(11,49)/10,f=ri(2,6);return{text:`Vynásob ${cz(a)} × ${f} = ?`,ans:r1(a*f),h1:'Násob jako celá čísla a doplň desetinnou čárku.',h2:`= ${r1(a*f)}`};},
+    ()=>{const zaklad=ri(4,12),vyska=ri(2,8);const S=zaklad*vyska/2;return{text:`Trojúhelník má základnu ${zaklad} cm a výšku ${vyska} cm. Jaký je obsah?`,ans:r1(S),h1:'S = (základna · výška) : 2.',h2:`= ${r1(S)} cm²`};},
+    ()=>{const a=ri(3,10),b=ri(3,10);return{text:`Obdélník ${a} × ${b} cm — jaký má obvod?`,ans:2*(a+b),h1:'Obvod obdélníku O = 2 · (a + b).',h2:`= ${2*(a+b)} cm`};},
+    ()=>{const d=[2,3,4,5][ri(0,3)],n=d*ri(3,8);return{text:`Kolik je 1/${d} z čísla ${n}?`,ans:n/d,h1:`Vyděl číslo jmenovatelem: ${n} : ${d}.`,h2:`= ${n/d}`};},
+  ];
   const tasks=[];
-  const a=ri(30,80),b=ri(30,80);
-  tasks.push({text:`Trojúhelník: úhly ${a}° a ${b}°. Třetí úhel?`,ans:180-a-b,hints:['Součet = 180°.',`= ${180-a-b}°`],skill:'geo'});
-  const c=ri(2,8),d=ri(2,8),e=ri(2,6);
-  tasks.push({text:`Kvádr ${c} × ${d} × ${e} cm. Objem?`,ans:c*d*e,hints:['V = a·b·c.',`= ${c*d*e} cm³`],skill:'geo'});
-  const f=ri(10,50)/10,g=ri(10,40)/10;
-  tasks.push({text:`${cz(f)} + ${cz(g)} = ?`,ans:r1(f+g),hints:['Zarovnej čárky.',`= ${r1(f+g)}`],skill:'calc'});
-  const h=ri(2,6)*ri(2,5),i=ri(2,6)*ri(2,5);
-  tasks.push({text:`NSD(${h}, ${i}) = ?`,ans:gcd(h,i),hints:['Společní prvočinitelé.',`= ${gcd(h,i)}`],skill:'anal'});
-  const j=ri(20,160);
-  tasks.push({text:`Vedlejší úhel k ${j}°?`,ans:180-j,hints:['180 − úhel.',`= ${180-j}°`],skill:'geo'});
-  const k=ri(3,10);
-  tasks.push({text:`Čtverec se stranou ${k} cm. Obsah?`,ans:k*k,hints:['S = a².',`= ${k*k} cm²`],skill:'geo'});
-  { const a=ri(30,80),b=ri(30,80); tasks.push({text:`Trojúhelník: úhly ${a}° a ${b}°. Třetí úhel?`,ans:180-a-b,hints:['Součet = 180°.',`= ${180-a-b}°`],skill:'geo'}); }
-  { const a=ri(2,8),b=ri(2,8),c=ri(2,6); tasks.push({text:`Kvádr ${a} × ${b} × ${c} cm. Objem?`,ans:a*b*c,hints:['V = a·b·c.',`= ${a*b*c} cm³`],skill:'geo'}); }
-  { const a=ri(2,6)*ri(2,5),b=ri(2,6)*ri(2,5); tasks.push({text:`NSD(${a}, ${b}) = ?`,ans:gcd(a,b),hints:['Společní prvočinitelé.',`= ${gcd(a,b)}`],skill:'anal'}); }
-  { const a=ri(20,160); tasks.push({text:`Vedlejší úhel k ${a}°?`,ans:180-a,hints:['180 − úhel.',`= ${180-a}°`],skill:'geo'}); }
+  for(let i=0;i<13;i++){const t=T[i%T.length]();tasks.push({text:t.text,ans:t.ans,hints:[t.h1,t.h2],skill:i%3===1?'calc':'geo'});}
   return tasks;
 }
 
