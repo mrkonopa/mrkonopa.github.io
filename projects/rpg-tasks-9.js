@@ -40,7 +40,9 @@ window.RPG_TASK_EXTRA_9 = {
   (()=>{const z=ri(2,8)*100,dph=21;return{text:`Cena bez DPH: ${z} Kč.\nCena s DPH 21 %? (Kč, zaokrouhli)`,ans:String(Math.round(z*1.21)),hints:[`${z} × 1,21.`],skill:'anal'};})(),
   (()=>{const z=ri(3,8)*100,p=[10,20,50][ri(0,2)];return{text:`Cena po ${p}% slevě z ${z} Kč? (Kč)`,ans:String(z-z*p/100),hints:[`Sleva = ${z*p/100} Kč.`],skill:'anal'};})(),
   (()=>{const a=ri(2,5)*10,b=ri(2,5)*10;return{text:`Kolik % je ${a} z ${a+b}?`,ans:String(Math.round(a/(a+b)*100)),hints:[`${a} : ${a+b} × 100.`],skill:'anal'};})(),
-  (()=>{const z=ri(2,8)*100,p=[10,25,50][ri(0,2)];const after=z*(1+p/100);return{text:`Po zdražení o ${p} % stojí zboží ${after} Kč.\nPůvodní cena? (Kč)`,ans:String(z),hints:[`${after} : ${cz(1+p/100)}.`],skill:'anal'};})()
+  (()=>{const z=ri(2,8)*100,p=[10,25,50][ri(0,2)];const after=z*(1+p/100);return{text:`Po zdražení o ${p} % stojí zboží ${after} Kč.\nPůvodní cena? (Kč)`,ans:String(z),hints:[`${after} : ${cz(1+p/100)}.`],skill:'anal'};})(),
+  (()=>{const z=ri(3,9)*100,p=[10,20,25][ri(0,2)];return{text:`O kolik korun se změní cena ${z} Kč při slevě ${p} %?`,ans:String(z*p/100),hints:[`Změna = ${z} × ${p} : 100.`],skill:'anal'};})(),
+  (()=>{const cel=ri(4,9)*20,cast=cel/4;return{text:`Kolik procent celku tvoří jeho čtvrtina (${cast} z ${cel})?`,ans:'25',hints:[`Čtvrtina je vždy 25 %.`],skill:'anal'};})()
  ],
  '1-3': () => [
   (()=>{const a=ri(5,20),b=ri(3,15);return{text:`Vypočítej:\n${a} + (-${b}) =`,ans:String(a-b),hints:[`Přičíst záporné číslo znamená odečíst ho.`,`${a} − ${b}`],skill:'calc'};})(),
@@ -57,16 +59,18 @@ window.RPG_TASK_EXTRA_9 = {
 
  // ───────── OBLAST 2 — MOCNINOVÝ REAKTOR ─────────
  '2-1': () => [
-  (()=>{const a=ri(11,20);return{text:`Vypočítej:\n${a}² =`,ans:String(a*a),hints:[`${a} × ${a}.`],skill:'calc'};})(),
-  (()=>{const a=ri(2,5);return{text:`Vypočítej:\n${a}⁴ =`,ans:String(a**4),hints:[`${a}² = ${a*a}, pak na druhou.`],skill:'calc'};})(),
-  (()=>{const a=ri(2,12);return{text:`Vypočítej:\n√${a*a} =`,ans:String(a),hints:[`Které číslo na druhou dá ${a*a}?`],skill:'calc'};})(),
-  (()=>{const n=ri(3,6);return{text:`Vypočítej:\n3^${n} =`,ans:String(3**n),hints:[`Násob trojku ${n}×.`],skill:'calc'};})(),
-  (()=>{const a=ri(2,4);return{text:`Vypočítej:\n∛${a**3} =`,ans:String(a),hints:[`Které číslo na třetí dá ${a**3}?`],skill:'calc'};})(),
-  (()=>{const n=ri(5,9);return{text:`Vypočítej:\n2^${n} =`,ans:String(2**n),hints:[`Dvojka ${n}×.`],skill:'calc'};})(),
-  (()=>{const a=ri(2,4);return{text:`Vypočítej:\n(-${a})³ =`,ans:String(-(a**3)),hints:[`Lichý exponent zachová znaménko.`],skill:'calc'};})(),
-  (()=>{const a=ri(2,9);return{text:`Vypočítej:\n${a}^0 =`,ans:'1',hints:[`Cokoliv na nultou = 1 (a ≠ 0).`],skill:'calc'};})(),
-  (()=>{const a=ri(3,6);return{text:`Vypočítej:\n${a}^3 =`,ans:String(a**3),hints:[`${a} × ${a} × ${a}.`],skill:'calc'};})(),
-  (()=>{const a=ri(2,9);return{text:`Vypočítej:\n√${a*a} =`,ans:String(a),hints:[`Které číslo × sebe = ${a*a}?`],skill:'calc'};})()
+  (()=>{const a=ri(11,20);return{text:`Vypočítej druhou mocninu:\n${a}² =`,ans:String(a*a),hints:[`${a} × ${a}.`],skill:'calc'};})(),
+  (()=>{const a=ri(2,5);return{text:`Kolik je ${a} umocněno na čtvrtou (${a}⁴)?`,ans:String(a**4),hints:[`${a}² = ${a*a}, pak výsledek na druhou.`],skill:'calc'};})(),
+  (()=>{const a=ri(2,12);return{text:`Urči druhou odmocninu:\n√${a*a} =`,ans:String(a),hints:[`Které číslo umocněné na druhou dá ${a*a}?`],skill:'calc'};})(),
+  (()=>{const n=ri(3,6);return{text:`Kolik je mocnina trojky 3^${n}?`,ans:String(3**n),hints:[`Vynásob trojku ${n}krát za sebou.`],skill:'calc'};})(),
+  (()=>{const a=ri(2,4);return{text:`Vypočítej třetí odmocninu:\n∛${a**3} =`,ans:String(a),hints:[`Které číslo na třetí dá ${a**3}?`],skill:'calc'};})(),
+  (()=>{const n=ri(5,9);return{text:`Kolik je mocnina dvojky 2^${n}?`,ans:String(2**n),hints:[`Dvojka vynásobená ${n}krát.`],skill:'calc'};})(),
+  (()=>{const a=ri(2,4);return{text:`Urči hodnotu mocniny se záporným základem:\n(-${a})³ =`,ans:String(-(a**3)),hints:[`Lichý exponent zachová záporné znaménko.`],skill:'calc'};})(),
+  (()=>{const a=ri(2,9);return{text:`Čemu se rovná ${a} na nultou (${a}^0)?`,ans:'1',hints:[`Každé nenulové číslo na nultou je 1.`],skill:'calc'};})(),
+  (()=>{const a=ri(3,6);return{text:`Vypočítej třetí mocninu (krychli) čísla ${a}:\n${a}³ =`,ans:String(a**3),hints:[`${a} × ${a} × ${a}.`],skill:'calc'};})(),
+  (()=>{const a=ri(2,5);return{text:`Umocni záporné číslo na sudý exponent:\n(-${a})⁴ =`,ans:String(a**4),hints:[`Sudý exponent → výsledek kladný.`],skill:'calc'};})(),
+  (()=>{const a=ri(2,4),b=ri(2,4);return{text:`Vypočítej součin mocnin:\n${a}² · ${b}² =`,ans:String(a*a*b*b),hints:[`${a*a} × ${b*b}.`],skill:'calc'};})(),
+  (()=>{const a=ri(2,10);return{text:`Které přirozené číslo má druhou mocninu rovnou ${a*a}?`,ans:String(a),hints:[`Odmocni ${a*a}.`],skill:'calc'};})()
  ],
  '2-2': () => [
   (()=>{const z=ri(2,3),m=ri(2,4),n=ri(2,3);return{text:`Zapiš číslem:\n${z}^${m} · ${z}^${n} =`,ans:String(z**(m+n)),hints:[`Exponenty se sčítají: ${z}^${m+n}.`],skill:'anal'};})(),
@@ -78,7 +82,9 @@ window.RPG_TASK_EXTRA_9 = {
   (()=>{const a=ri(2,4),m=ri(2,3),n=ri(2,3);return{text:`Zapiš číslem:\n(${a}^${m})^${n} =`,ans:String(a**(m*n)),hints:[`Exponenty se násobí: ${a}^${m*n}.`],skill:'anal'};})(),
   (()=>{const a=ri(2,4),b=ri(2,4);return{text:`Zapiš číslem:\n${a}² · ${b}² =`,ans:String(a**2*b**2),hints:[`a² · b² = (a·b)² — umocni součin ${a}·${b}.`],skill:'anal'};})(),
   (()=>{const a=ri(2,4);return{text:`Zapiš číslem:\n${a}^3 · ${a}^0 =`,ans:String(a**3),hints:[`${a}^0 = 1, takže ${a}^3.`],skill:'anal'};})(),
-  (()=>{const a=ri(2,4),n=ri(2,3);return{text:`Zapiš číslem:\n(-${a})^${n*2} =`,ans:String(a**(n*2)),hints:[`Sudý exponent → kladné: ${a}^${n*2}.`],skill:'anal'};})()
+  (()=>{const a=ri(2,4),n=ri(2,3);return{text:`Zapiš číslem:\n(-${a})^${n*2} =`,ans:String(a**(n*2)),hints:[`Sudý exponent → kladné: ${a}^${n*2}.`],skill:'anal'};})(),
+  (()=>{const z=ri(2,4),m=ri(3,5),n=ri(1,2);return{text:`Zjednoduš na jednu mocninu a vyčísli:\n${z}^${m} : ${z}^${n} =`,ans:String(z**(m-n)),hints:[`Při dělení mocnin se stejným základem exponenty odečteš: ${z}^${m-n}.`],skill:'anal'};})(),
+  (()=>{const a=ri(2,3);return{text:`Kolik je převrácená hodnota, tedy ${a}^(−1)? Zapiš jako zlomek 1/${a}.`,ans:`1/${a}`,hints:[`Záporný exponent −1 dává převrácenou hodnotu.`],skill:'anal'};})()
  ],
  '2-3': () => [
   (()=>{const a=ri(2,9),n=ri(2,4),v=a*(10**n);return{text:`Vyjádři jako běžné číslo:\n${a}·10^${n} =`,ans:String(v),hints:[`Posuň čárku o ${n} míst doprava.`],skill:'anal'};})(),
@@ -104,7 +110,9 @@ window.RPG_TASK_EXTRA_9 = {
   (()=>{const x=ri(2,10);return{text:`Vyřeš rovnici:\n3x + 2 = ${3*x+2}`,ans:String(x),hints:[`3x = ${3*x}.`],skill:'calc'};})(),
   (()=>{const x=ri(2,9);return{text:`Vyřeš rovnici:\n4x − 5 = ${4*x-5}`,ans:String(x),hints:[`4x = ${4*x}.`],skill:'calc'};})(),
   (()=>{const v=ri(3,12),a=ri(3,7);return{text:`Vyřeš rovnici:\nx / ${a} = ${v}`,ans:String(v*a),hints:[`x = ${v} × ${a}.`],skill:'calc'};})(),
-  (()=>{const x=ri(5,20);return{text:`Vyřeš rovnici:\nx − 7 = ${x-7}`,ans:String(x),hints:[`x = ${x-7} + 7.`],skill:'calc'};})()
+  (()=>{const x=ri(5,20);return{text:`Vyřeš rovnici:\nx − 7 = ${x-7}`,ans:String(x),hints:[`x = ${x-7} + 7.`],skill:'calc'};})(),
+  (()=>{const a=ri(2,9),x=ri(2,12);return{text:`Jaké číslo x splňuje podmínku, že jeho ${a}násobek je ${a*x}?`,ans:String(x),hints:[`${a}x = ${a*x} → x = ${a*x} : ${a}.`],skill:'calc'};})(),
+  (()=>{const x=ri(3,15),a=ri(2,10);return{text:`Mysli si číslo. Když k němu přičteš ${a}, dostaneš ${x+a}. Které číslo to je?`,ans:String(x),hints:[`x + ${a} = ${x+a}, tedy x = ${x+a} − ${a}.`],skill:'calc'};})()
  ],
  '3-2': () => [
   (()=>{const a=ri(2,6),x=ri(2,9),b=ri(1,8);return{text:`Vyřeš rovnici:\n${a}(x + ${b}) = ${a*(x+b)}`,ans:String(x),hints:[`Roznásob: ${a}x + ${a*b}.`],skill:'anal'};})(),
@@ -207,7 +215,9 @@ window.RPG_TASK_EXTRA_9 = {
   (()=>{const v1=ri(4,8)*10,v2=ri(4,8)*10,t=ri(1,3);return{text:`Dva vlaky jedou vstříc, ${v1} a ${v2} km/h.\nZa ${t} h ujedou dohromady? (km)`,ans:String((v1+v2)*t),hints:[`${v1+v2} km/h × ${t} h.`],skill:'anal'};})(),
   (()=>{const v=ri(6,12)*10,d=ri(2,6)*v;return{text:`Dráha ${d} km, rychlost ${v} km/h.\nČas? (h)`,ans:String(d/v),hints:[`t = ${d} : ${v}.`],skill:'anal'};})(),
   (()=>{const v=ri(6,12)*10,t=ri(2,5);return{text:`Ujel ${v*t} km za ${t} h.\nPrůměrná rychlost? (km/h)`,ans:String(v),hints:[`v = ${v*t} : ${t}.`],skill:'anal'};})(),
-  (()=>{const v1=ri(4,8)*10,v2=v1+ri(2,4)*10,t=ri(1,3);return{text:`Začnou zároveň, rychlosti ${v1} a ${v2} km/h.\nO kolik km je jeden před druhým po ${t} h?`,ans:String((v2-v1)*t),hints:[`(${v2} − ${v1}) × ${t}.`],skill:'anal'};})()
+  (()=>{const v1=ri(4,8)*10,v2=v1+ri(2,4)*10,t=ri(1,3);return{text:`Začnou zároveň, rychlosti ${v1} a ${v2} km/h.\nO kolik km je jeden před druhým po ${t} h?`,ans:String((v2-v1)*t),hints:[`(${v2} − ${v1}) × ${t}.`],skill:'anal'};})(),
+  (()=>{const v=ri(6,12)*10,t=ri(2,4);return{text:`Cyklista jede stálou rychlostí ${v} km/h. Za jak dlouho ujede ${v*t} km? (h)`,ans:String(t),hints:[`Čas = dráha : rychlost = ${v*t} : ${v}.`],skill:'anal'};})(),
+  (()=>{const v=ri(5,10)*10,t=ri(2,5),navic=v*ri(1,2);return{text:`Auto ujede za ${t} h ${v*t} km. O kolik km víc by ujelo, kdyby jelo o ${navic} km/h rychleji?`,ans:String(navic*t),hints:[`Vyšší rychlost o ${navic} km/h × ${t} h.`],skill:'anal'};})()
  ],
 
  // ───────── OBLAST 6 — GRAFOVÝ MONITOR ─────────
@@ -274,7 +284,9 @@ window.RPG_TASK_EXTRA_9 = {
   (()=>{const r=ri(2,5),v=ri(3,8);return{svg:svgCylinder(r,v),text:`Válec: r = ${r} dm, v = ${v} dm.\nObjem v litrech? (1 dm³ = 1 l)`,ans:String(Math.round(3.14*r*r*v)),hints:[`V = π·r²·v = 3,14·${r*r}·${v}.`],skill:'geo'};})(),
   (()=>{const r=ri(2,5);return{svg:svgSphere(r),text:`Koule r = ${r} cm.\nJe povrch ${Math.round(4*3.14*r*r)} cm²?\nANO / NE`,ans:'ANO',hints:[`S = 4πr² = 4·3,14·${r*r}.`],skill:'geo'};})(),
   (()=>{const a=ri(2,6),b=ri(2,6),c=ri(2,6);return{svg:svgCuboid(a,b,c),text:`Kvádr ${a}×${b}×${c} cm.\nPovrch? (cm²)`,ans:String(2*(a*b+b*c+a*c)),hints:[`2(ab+bc+ac).`],skill:'geo'};})(),
-  (()=>{const r=ri(2,5),v=ri(3,8);return{svg:svgCone(r,v),text:`Kužel: r = ${r} cm, v = ${v} cm.\nObjem? (cm³, π = 3,14)`,ans:String(Math.round(1/3*3.14*r*r*v)),hints:[`V = 1/3·π·r²·v.`],skill:'geo'};})()
+  (()=>{const r=ri(2,5),v=ri(3,8);return{svg:svgCone(r,v),text:`Kužel: r = ${r} cm, v = ${v} cm.\nObjem? (cm³, π = 3,14)`,ans:String(Math.round(1/3*3.14*r*r*v)),hints:[`V = 1/3·π·r²·v.`],skill:'geo'};})(),
+  (()=>{const a=ri(3,8);return{svg:svgCuboid(a,a,a),text:`Krychle s hranou ${a} cm.\nObjem? (cm³)`,ans:String(a*a*a),hints:[`V = a³ = ${a}³.`],skill:'geo'};})(),
+  (()=>{const r=ri(2,6);return{svg:svgCylinder(r,r),text:`Podstava válce má poloměr ${r} cm.\nJaký je obsah kruhové podstavy? (cm², π = 3,14)`,ans:String(Math.round(3.14*r*r)),hints:[`S = π·r² = 3,14 · ${r*r}.`],skill:'geo'};})()
  ],
  '7-3': () => [
   (()=>{const a=ri(6,13);return{text:`Vypočítej:\n${a}² =`,ans:String(a*a),hints:[`${a} × ${a}.`],skill:'calc'};})(),
