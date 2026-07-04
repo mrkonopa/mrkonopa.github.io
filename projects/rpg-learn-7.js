@@ -10,6 +10,11 @@ window.RPG_LEARN_7 = {
 /* ─── Oblast 1: VSTUPNÍ BRÁNA ─────────────────────────────────── */
 
 '1-1': {
+ mistakes: [
+  {wrong:'47 × 98 mi vyšlo 460 a beru to', right:'47 × 98 = 4 606', why:'Odhad 50 × 100 = 5 000 ukazuje řád tisíců. 460 je 10× menší — takový rozdíl od odhadu znamená chybu (posunutý řád).'},
+  {wrong:'8 × 7 = 8 × 5 + 2 = 42', right:'8 × 5 + 8 × 2 = 40 + 16 = 56', why:'Při rozkladu se OBĚ části násobí osmi (distributivnost), druhá se jen nepřičte.'},
+  {wrong:'360 : 8 mezikrokem 360 : 4 : 2 = 40', right:'360 : 4 = 90, pak 90 : 2 = 45', why:'Postupné dělení jde krok po kroku zleva; sloučení kroků dá špatný mezivýsledek.'},
+ ],
  intro: '⛏️ Strážce karavany tě testuje u brány chrámu: „Kdo neumí počítat zpaměti, dovnitř nevejde." Zopakuj si mentální triky a projdi branou!',
  sections: [
   { h: 'Proč počítat zpaměti?',
@@ -22,8 +27,8 @@ window.RPG_LEARN_7 = {
         '<b>Doplňování do 100:</b> 63 + ? = 100. Postup: 63 → 70 (+7) → 100 (+30) → dohromady 37.'] },
   { h: 'Násobení a dělení zpaměti',
     p: ['<b>Rozklad násobence:</b> 8 × 7 = 8 × 5 + 8 × 2 = 40 + 16 = <b>56</b>.',
-        '<b>Násobení číslem 25:</b> 36 × 25 = 36 × 100 ÷ 4 = 3 600 ÷ 4 = <b>900</b>.',
-        '<b>Rozklad dělení:</b> 360 ÷ 8 = 360 ÷ 4 ÷ 2 = 90 ÷ 2 = <b>45</b>.'] },
+        '<b>Násobení číslem 25:</b> 36 × 25 = 36 × 100 : 4 = 3 600 : 4 = <b>900</b>.',
+        '<b>Rozklad dělení:</b> 360 : 8 = 360 : 4 : 2 = 90 : 2 = <b>45</b>.'] },
   { h: 'Odhadování — záchranná síť',
     p: ['Před každým výpočtem si polož otázku: <i>„Jaký řád by měl mít výsledek?"</i>',
         '47 × 98 ≈ 50 × 100 = 5 000. Přesný výsledek je 4 606 — odhad potvrdil, že jsme ve správném řádu.',
@@ -44,6 +49,11 @@ window.RPG_LEARN_7 = {
 },
 
 '1-2': {
+ mistakes: [
+  {wrong:'2,3 × 1,4 = 32,2', right:'23 × 14 = 322 → 2 des. místa → 3,22', why:'Počet desetinných míst výsledku je součet des. míst činitelů (1+1 = 2), ne opsat čárku z jednoho čísla.'},
+  {wrong:'9,6 : 0,4 = 2,4 (musí být menší)', right:'96 : 4 = 24', why:'Dělením číslem menším než 1 výsledek ROSTE. Odstraň čárku: 9,6 : 0,4 = 96 : 4 = 24.'},
+  {wrong:'3,7 + 2,45 = 6,82 (zarovnám zprava)', right:'3,70 + 2,45 = 6,15', why:'Zarovnává se čárka pod čárku, ne poslední číslice. Doplň nulu: 3,70.'},
+ ],
  intro: '🏺 Hlíněný džbán skrývá záhadu: kolik vody v něm přesně je? Musíš pracovat s desetinnými čísly — a dávat pozor na čárku!',
  sections: [
   { h: 'Co je desetinné číslo?',
@@ -60,24 +70,29 @@ window.RPG_LEARN_7 = {
         'Násobení mocninami 10: 3,7 × 10 = 37; 3,7 × 100 = 370; 3,7 × 0,01 = 0,037 (čárku posouváme vlevo).'] },
   { h: 'Dělení — zbav se desetinné čárky ve jmenovateli',
     p: ['<b>Trik:</b> vynásob oba členy stejnou mocninou 10, aby byl dělitel celé číslo.',
-        '4,5 ÷ 0,3 = 45 ÷ 3 = <b>15</b>. &emsp; 8,4 ÷ 1,2 = 84 ÷ 12 = <b>7</b>.',
-        '<span style="color:#ff5555">⚠️ Pozor:</span> 9,6 ÷ 0,4 = 96 ÷ 4 = <b>30</b>. Výsledek je <i>větší</i> než 9,6 — dělíme číslem menším než 1, takže výsledek roste!'] },
+        '4,5 : 0,3 = 45 : 3 = <b>15</b>. &emsp; 8,4 : 1,2 = 84 : 12 = <b>7</b>.',
+        '<span style="color:#ff5555">⚠️ Pozor:</span> 9,6 : 0,4 = 96 : 4 = <b>30</b>. Výsledek je <i>větší</i> než 9,6 — dělíme číslem menším než 1, takže výsledek roste!'] },
  ],
  formulas: [
   '<b>a,bc × 10 = ab,c</b> (posun čárky o 1 vpravo)',
-  '<b>a,bc ÷ 10 = 0,abc</b> (posun čárky o 1 vlevo)',
+  '<b>a,bc : 10 = 0,abc</b> (posun čárky o 1 vlevo)',
   '<b>a,b × c,d:</b> des. míst výsledku = des. míst(a,b) + des. míst(c,d)',
-  '<b>a ÷ 0,b = 10a ÷ b</b> (odstraň čárku násobením 10)',
+  '<b>a : 0,b = 10a : b</b> (odstraň čárku násobením 10)',
  ],
  examples: [
   { q: 'Spočítej: 5,08 + 3,7', s: ['Zarovnej: 5,08 + 3,70', 'Výsledek: <b>8,78</b>'] },
   { q: 'Spočítej: 2,4 × 3,5', s: ['24 × 35 = 840', 'Celkem 2 des. místa → <b>8,40</b>'] },
-  { q: 'Spočítej: 9,6 ÷ 0,4', s: ['Vynásobíme 10: 96 ÷ 4 = <b>24</b>', 'Výsledek je větší než 9,6 — správně!'] },
+  { q: 'Spočítej: 9,6 : 0,4', s: ['Vynásobíme 10: 96 : 4 = <b>24</b>', 'Výsledek je větší než 9,6 — správně!'] },
  ],
  video: { id: '8-H_UX9zCzM', title: 'Zaokrouhlování desetinných čísel' }
 },
 
 '1-3': {
+ mistakes: [
+  {wrong:'1 m² = 100 cm²', right:'1 m² = 10 000 cm²', why:'Při převodu obsahu se koeficient umocňuje: (100 cm)² = 10 000 cm². Nezapomeň na druhou mocninu.'},
+  {wrong:'Obsah trojúhelníku = a · (boční strana) / 2', right:'S = a · v_a / 2, kde v_a je KOLMÁ výška', why:'Do vzorce patří výška kolmá na základnu, ne délka ramene. U tupoúhlého trojúhelníku výška padá i mimo stranu.'},
+  {wrong:'Obvod obdélníku 8×5 = 40 cm', right:'o = 2·(8+5) = 26 cm (40 je obsah)', why:'Součin stran dává obsah (cm²), obvod je součet všech stran.'},
+ ],
  intro: '🧱 Kamenná dlažba chrámu má záhadné rozměry. Vypočítej obvody a obsahy základních obrazců, abys postoupil dál!',
  sections: [
   { h: 'Obvod rovinného obrazce',
@@ -112,6 +127,11 @@ window.RPG_LEARN_7 = {
 /* ─── Oblast 2: SÍŇ ZLOMKŮ ───────────────────────────────────── */
 
 '2-1': {
+ mistakes: [
+  {wrong:'Zkrácení 24/36: 24−12 / 36−12 = 12/24', right:'24:12 / 36:12 = 2/3', why:'Krátí se dělením čitatele i jmenovatele stejným číslem, ne odčítáním.'},
+  {wrong:'Rozšíření 3/4 na dvacetiny: 15/4', right:'3·5 / 4·5 = 15/20', why:'Rozšiřuje se čitatel I jmenovatel stejným číslem. Když se změní jen čitatel, změní se hodnota zlomku.'},
+  {wrong:'6/10 zkrátím jen čitatele na 3/10', right:'6/10 = 3/5 (děl obě čísla dvěma)', why:'Krácení platí pro čitatele i jmenovatele současně, jinak už zlomek neoznačuje stejnou část.'},
+ ],
  intro: '📜 Písař zlomků střeží posvátný svitek. Aby sis ho zasloužil, musíš zlomky zkracovat a rozšiřovat jako pravý matematik!',
  sections: [
   { h: 'Co je zlomek?',
@@ -121,7 +141,7 @@ window.RPG_LEARN_7 = {
   { h: 'Zkracování zlomků',
     p: ['Zlomek krátíme tak, že čitatele i jmenovatele vydělíme stejným číslem &gt; 1. Hodnota zlomku se nemění.',
         '<b>Nejlepší postup:</b> dělíme největším společným dělitelem (NSD) — hned dostaneme základní tvar.',
-        'NSD(12, 18) = 6 → 12/18 = (12÷6)/(18÷6) = <b>2/3</b>. Základní tvar: NSD(čitatel, jmenovatel) = 1.'] },
+        'NSD(12, 18) = 6 → 12/18 = (12:6)/(18:6) = <b>2/3</b>. Základní tvar: NSD(čitatel, jmenovatel) = 1.'] },
   { h: 'Rozšiřování zlomků',
     p: ['Čitatele i jmenovatele <i>vynásobíme</i> stejným číslem ≠ 0. Hodnota zlomku se nemění.',
         '2/5 = (2×3)/(5×3) = <b>6/15</b>. Rozšiřujeme hlavně proto, abychom sladili jmenovatele před sčítáním.'] },
@@ -130,12 +150,12 @@ window.RPG_LEARN_7 = {
         '<b>Eukleidův algoritmus</b> (rychlejší pro velká čísla): NSD(18, 12): 18 = 1×12 + 6; 12 = 2×6 + 0 → NSD = <b>6</b>.'] },
  ],
  formulas: [
-  '<b>Krácení:</b> a/b = (a÷k)/(b÷k), kde k dělí oba; nejlépe k = NSD(a,b)',
+  '<b>Krácení:</b> a/b = (a:k)/(b:k), kde k dělí oba; nejlépe k = NSD(a,b)',
   '<b>Rozšiřování:</b> a/b = (a×k)/(b×k) pro libovolné k ≠ 0',
   '<b>Základní tvar:</b> NSD(čitatel, jmenovatel) = 1',
  ],
  examples: [
-  { q: 'Zkrať 24/36 na základní tvar', s: ['NSD(24, 36) = 12', '24/36 = (24÷12)/(36÷12) = <b>2/3</b>'] },
+  { q: 'Zkrať 24/36 na základní tvar', s: ['NSD(24, 36) = 12', '24/36 = (24:12)/(36:12) = <b>2/3</b>'] },
   { q: 'Rozšiř 3/4 na jmenovatel 20', s: ['4 × 5 = 20 → rozšiřujeme 5×', '3/4 = (3×5)/(4×5) = <b>15/20</b>'] },
   { q: 'Jsou zlomky 6/10 a 9/15 stejné?', s: ['6/10 = 3/5 (krátíme 2×)', '9/15 = 3/5 (krátíme 3×)', 'Oba mají základní tvar 3/5 → <b>ANO, jsou si rovny</b>'] },
  ],
@@ -143,6 +163,11 @@ window.RPG_LEARN_7 = {
 },
 
 '2-2': {
+ mistakes: [
+  {wrong:'1/2 + 1/3 = 2/5', right:'3/6 + 2/6 = 5/6', why:'Jmenovatele se NESČÍTAJÍ. Nejdřív sjednoť jmenovatele (NSN = 6), teprve pak sečti čitatele.'},
+  {wrong:'3/4 + 2/6 = 5/10', right:'9/12 + 4/12 = 13/12', why:'Nelze sčítat čitatele i jmenovatele napříč. Převeď na společný jmenovatel (NSN 12).'},
+  {wrong:'2 1/3 = 2 · 1/3 = 2/3', right:'2 1/3 = (2·3 + 1)/3 = 7/3', why:'Smíšené číslo je celek PLUS zlomek. Na nevlastní zlomek: celek × jmenovatel + čitatel.'},
+ ],
  intro: '🪶 Duch papyru se probouzí! Chce vidět, jak sčítáš a odčítáš zlomky s různými jmenovateli. Nezklam ho!',
  sections: [
   { h: 'Stejné jmenovatele — snadné',
@@ -176,6 +201,11 @@ window.RPG_LEARN_7 = {
 },
 
 '2-3': {
+ mistakes: [
+  {wrong:'3/5 : 2/7 = 6/35', right:'3/5 × 7/2 = 21/10', why:'Dělení zlomkem = násobení PŘEVRÁCENÝM zlomkem. Nesmí se rovnou násobit původní zlomky.'},
+  {wrong:'4 : 1/2 = 2', right:'4 × 2/1 = 8', why:'Dělení číslem menším než 1 dává větší výsledek. „Kolik půlek je ve 4?" → 8.'},
+  {wrong:'Násobení 3/5 × 2/7 prý nejde bez společného jmenovatele', right:'čitatel×čitatel, jmenovatel×jmenovatel = 6/35', why:'Společný jmenovatel je potřeba jen u sčítání a odčítání, u násobení ne.'},
+ ],
  intro: '🐍 Had hieroglyfů se plazí chodbou — zlomky musíš násobit a dělit. Jedovatý zub má, ale pravidla tě ochrání!',
  sections: [
   { h: 'Násobení zlomků',
@@ -188,18 +218,18 @@ window.RPG_LEARN_7 = {
         'Příklady: k 3/4 je 4/3; k 5 (= 5/1) je 1/5; k 2/3 je 3/2.'] },
   { h: 'Dělení zlomků',
     p: ['Dělení zlomkem = násobení převráceným zlomkem.',
-        '<b>a/b ÷ c/d = a/b × d/c</b>.',
-        'Příklad: 3/5 ÷ 2/7 = 3/5 × 7/2 = 21/10 = <b>2&nbsp;1/10</b>.',
-        '<span style="color:#ff5555">⚠️ Dělíme-li zlomkem menším než 1, výsledek je VĚTŠÍ než původní číslo!</span> Např. 4 ÷ 1/2 = 4 × 2 = 8.'] },
+        '<b>a/b : c/d = a/b × d/c</b>.',
+        'Příklad: 3/5 : 2/7 = 3/5 × 7/2 = 21/10 = <b>2&nbsp;1/10</b>.',
+        '<span style="color:#ff5555">⚠️ Dělíme-li zlomkem menším než 1, výsledek je VĚTŠÍ než původní číslo!</span> Např. 4 : 1/2 = 4 × 2 = 8.'] },
  ],
  formulas: [
   '<b>Násobení:</b> a/b × c/d = (a·c)/(b·d)',
-  '<b>Dělení:</b> a/b ÷ c/d = a/b × d/c = (a·d)/(b·c)',
+  '<b>Dělení:</b> a/b : c/d = a/b × d/c = (a·d)/(b·c)',
   '<b>Zlomek z čísla:</b> a/b z n = n × a/b',
  ],
  examples: [
-  { q: 'Spočítej: 4/9 × 3/8', s: ['Krácení křížem: 4 a 8 → ÷4: 1 a 2; 3 a 9 → ÷3: 1 a 3', '1/3 × 1/2 = <b>1/6</b>'] },
-  { q: 'Spočítej: 5/6 ÷ 10/3', s: ['5/6 × 3/10 = 15/60 = <b>1/4</b>'] },
+  { q: 'Spočítej: 4/9 × 3/8', s: ['Krácení křížem: 4 a 8 → :4: 1 a 2; 3 a 9 → :3: 1 a 3', '1/3 × 1/2 = <b>1/6</b>'] },
+  { q: 'Spočítej: 5/6 : 10/3', s: ['5/6 × 3/10 = 15/60 = <b>1/4</b>'] },
   { q: 'Kolik je polovina ze tří čtvrtin?', s: ['1/2 × 3/4 = 3/8'] },
  ],
  video: { id: 'zmNQViemnXk', title: 'Násobení a dělení zlomků' },
@@ -208,6 +238,11 @@ window.RPG_LEARN_7 = {
 /* ─── Oblast 3: PODZEMNÍ MRAZÍRNA ─────────────────────────────── */
 
 '3-1': {
+ mistakes: [
+  {wrong:'−3 − 5 = −2', right:'−3 − 5 = −8', why:'Obě čísla táhnou na ose doleva (−3 a ještě o 5 níž). Znaménka jsou stejná, vzdálenosti se sčítají: −8.'},
+  {wrong:'5 − (−3) = 2', right:'5 − (−3) = 5 + 3 = 8', why:'Odečíst záporné = přičíst kladné. Dvě minus za sebou dají plus.'},
+  {wrong:'(−7) + (+3) = −10', right:'−4', why:'Různá znaménka: od většího |7| odečti menší |3| = 4, znaménko převezme větší (−). Sčítá se jen při stejných znaménkách.'},
+ ],
  intro: '❄️ Ledový strážce chrámových sklepů křičí: „Záporná čísla tě zmrazí, pokud je neovládáš!" Nauč se pohybovat na číselné ose!',
  sections: [
   { h: 'Celá čísla a číselná osa',
@@ -238,6 +273,11 @@ window.RPG_LEARN_7 = {
 },
 
 '3-2': {
+ mistakes: [
+  {wrong:'−3² = 9', right:'−3² = −(3²) = −9; jen (−3)² = 9', why:'Bez závorky umocňuješ jen trojku a minus zůstane před ní. Se závorkou (−3)² se umocňuje i znaménko.'},
+  {wrong:'(−2) × (−5) = −10', right:'+10', why:'Záporné krát záporné je kladné. Sudý počet minusů → kladný výsledek.'},
+  {wrong:'(−2)³ = 8', right:'(−2)³ = −8', why:'Lichá mocnina záporného čísla je záporná (− · − · − = −).'},
+ ],
  intro: '🧊 Krystalový golem tě zasype ledem! Pravidla znamének při násobení a dělení ti ho porazí. Pozor na závorky!',
  sections: [
   { h: 'Pravidla znamének — tabulka',
@@ -245,8 +285,8 @@ window.RPG_LEARN_7 = {
         '<b>Rychlé pravidlo:</b> lichý počet záporných čísel → záporný výsledek; sudý počet → kladný.'] },
   { h: 'Dělení — stejná pravidla',
     p: ['Znaménka fungují identicky jako u násobení.',
-        '(−12) ÷ (−3) = <b>+4</b> &ensp; (obě záporná → kladný).',
-        '(−12) ÷ (+3) = <b>−4</b> &ensp; (různá znaménka → záporný).'] },
+        '(−12) : (−3) = <b>+4</b> &ensp; (obě záporná → kladný).',
+        '(−12) : (+3) = <b>−4</b> &ensp; (různá znaménka → záporný).'] },
   { h: 'Mocniny záporných čísel',
     p: ['(−2)² = (−2) × (−2) = <b>+4</b> (sudá mocnina → vždy kladná).',
         '(−2)³ = (−2)×(−2)×(−2) = −8 (lichá mocnina → záporná).',
@@ -260,13 +300,18 @@ window.RPG_LEARN_7 = {
  ],
  examples: [
   { q: 'Spočítej: (−5) × (−8)', s: ['obě záporná → kladný výsledek', '5 × 8 = 40 → <b>+40</b>'] },
-  { q: 'Spočítej: (−36) ÷ (+4)', s: ['různá znaménka → záporný výsledek', '36 ÷ 4 = 9 → <b>−9</b>'] },
+  { q: 'Spočítej: (−36) : (+4)', s: ['různá znaménka → záporný výsledek', '36 : 4 = 9 → <b>−9</b>'] },
   { q: 'Spočítej: (−3)⁴', s: ['sudá mocnina záporného čísla → kladná', '3⁴ = 81 → <b>+81</b>'] },
  ],
  video: { id: 'zxS8ylGtYDU', title: 'Násobení a dělení záporných čísel' },
 },
 
 '3-3': {
+ mistakes: [
+  {wrong:'−3/4 > −1/2 (protože 3 > 1)', right:'−3/4 < −1/2', why:'U záporných čísel je to opačně: čím větší číslo za minusem, tím menší hodnota. −6/10 < −5/10.'},
+  {wrong:'|−5| = −5', right:'|−5| = 5', why:'Absolutní hodnota je vzdálenost od nuly, vždy nezáporná. Minus se „ztratí".'},
+  {wrong:'√2 je racionální', right:'√2 je iracionální (nejde zapsat jako zlomek)', why:'Racionální je jen to, co lze zapsat jako p/q celých čísel. √2 = 1,4142… bez periody, nelze.'},
+ ],
  intro: '🌀 Vír mrazu tě pohlcuje! Zachrání tě racionální čísla — ta, která jdou zapsat jako zlomek. Všechno ostatní je iracionální!',
  sections: [
   { h: 'Co jsou racionální čísla ℚ?',
@@ -301,6 +346,11 @@ window.RPG_LEARN_7 = {
 /* ─── Oblast 4: VÁŽNICE POMĚRŮ ────────────────────────────────── */
 
 '4-1': {
+ mistakes: [
+  {wrong:'240 Kč v poměru 1:2:3 → 240:1, 240:2, 240:3', right:'6 dílů, 1 díl = 240 : 6 = 40 → 40, 80, 120', why:'Nejdřív sečti členy poměru (počet dílů), pak hodnotu jednoho dílu, pak násob. Celek se nedělí přímo členy.'},
+  {wrong:'Zjednodušení 12:18 = 12−6 : 18−6 = 6:12', right:'12:6 : 18:6 = 2:3', why:'Poměr se zjednodušuje dělením všech členů NSD, ne odčítáním.'},
+  {wrong:'Poměr 3:5 zapíšu klidně jako 5:3', right:'pořadí musí odpovídat zadání', why:'3:5 a 5:3 jsou různé poměry. Musíš dodržet, které číslo patří které veličině.'},
+ ],
  intro: '⚖️ Strážce zlatých vah potřebuje znát poměr. Bez znalosti poměrů z vážnice nevyjdeš — a bez kódu se brána neotevře!',
  sections: [
   { h: 'Co je poměr?',
@@ -309,30 +359,35 @@ window.RPG_LEARN_7 = {
         'Úzce souvisí se zlomkem: 3 : 5 odpovídá zlomku 3/5 (ale není to totéž!).'] },
   { h: 'Zjednodušování poměru',
     p: ['Dělíme oba (všechny) členy NSD — stejně jako krácení zlomku.',
-        '12 : 18 = (12÷6) : (18÷6) = <b>2 : 3</b>.',
+        '12 : 18 = (12:6) : (18:6) = <b>2 : 3</b>.',
         'Tři členy: 6 : 9 : 15 → NSD = 3 → <b>2 : 3 : 5</b>.'] },
   { h: 'Dělení celku v poměru',
     p: ['<b>Postup:</b> spočítej celkový počet dílů (= součet členů poměru), urči hodnotu 1 dílu, pak vypočítej každou část.',
-        'Příklad: 240 Kč v poměru 1 : 2 : 3. Celkem 6 dílů. 1 díl = 240 ÷ 6 = 40 Kč.',
+        'Příklad: 240 Kč v poměru 1 : 2 : 3. Celkem 6 dílů. 1 díl = 240 : 6 = 40 Kč.',
         'Části: <b>40 Kč, 80 Kč, 120 Kč</b>. Kontrola: 40+80+120 = 240 ✓'] },
   { h: 'Poměr v praxi',
     p: ['Recept na 4 porce: 300 g mouky. Na 6 porcí? Poměr porcí 4 : 6 = 2 : 3. Mouka: 300 × 3/2 = <b>450 g</b>.',
         'Mapa 1 : 50 000 → 1 cm na mapě = 500 m ve skutečnosti.'] },
  ],
  formulas: [
-  '<b>a : b = (a÷k) : (b÷k)</b>, k = NSD(a, b)',
+  '<b>a : b = (a:k) : (b:k)</b>, k = NSD(a, b)',
   '<b>1 díl</b> při dělení C v poměru a:b = C / (a + b)',
   '<b>Části:</b> a/(a+b) × C &ensp; a &ensp; b/(a+b) × C',
  ],
  examples: [
   { q: 'Zjednoduš poměr 36 : 48', s: ['NSD(36, 48) = 12', '36 : 48 = <b>3 : 4</b>'] },
-  { q: 'Rozděl 180 cm v poměru 2 : 3 : 4', s: ['Celkem: 2+3+4 = 9 dílů', '1 díl = 180 ÷ 9 = 20 cm', 'Části: <b>40 cm, 60 cm, 80 cm</b>', 'Kontrola: 40+60+80 = 180 ✓'] },
-  { q: 'Beton se míchá v poměru cement : písek = 1 : 4. Kolik kg písku na 60 kg směsi?', s: ['Celkem 1+4 = 5 dílů, 1 díl = 60 ÷ 5 = 12 kg', 'Písek = 4 díly = 4 · 12 = <b>48 kg</b>'] },
+  { q: 'Rozděl 180 cm v poměru 2 : 3 : 4', s: ['Celkem: 2+3+4 = 9 dílů', '1 díl = 180 : 9 = 20 cm', 'Části: <b>40 cm, 60 cm, 80 cm</b>', 'Kontrola: 40+60+80 = 180 ✓'] },
+  { q: 'Beton se míchá v poměru cement : písek = 1 : 4. Kolik kg písku na 60 kg směsi?', s: ['Celkem 1+4 = 5 dílů, 1 díl = 60 : 5 = 12 kg', 'Písek = 4 díly = 4 · 12 = <b>48 kg</b>'] },
  ],
  video: { id: 'YeptEbvYohc', title: 'Poměr – slovní úlohy' },
 },
 
 '4-2': {
+ mistakes: [
+  {wrong:'Víc dělníků → víc dní (počítám jako přímou)', right:'víc dělníků → MÉNĚ dní (nepřímá úměrnost)', why:'Vždy si rozmysli směr: „čím víc, tím víc" = přímá, „čím víc, tím míň" = nepřímá.'},
+  {wrong:'4 sešity 52 Kč, 1 sešit = 52 × 4', right:'1 sešit = 52 : 4 = 13 Kč', why:'Na jeden kus se dělí (méně kusů → nižší cena), ne násobí.'},
+  {wrong:'3 kg = 90 Kč, tak 5 kg = 90 + 2 = 92 Kč', right:'1 kg = 30 Kč, 5 kg = 150 Kč', why:'Úměra není přičítání kilogramů ke koruně. Spočítej cenu za jednotku a přenásob.'},
+ ],
  intro: '🐪 Pán karavany potřebuje vědět, za jak dlouho dorazí do oázy. Trojčlenka a přímá úměrnost ho dovedou cíle!',
  sections: [
   { h: 'Přímá úměrnost',
@@ -342,7 +397,7 @@ window.RPG_LEARN_7 = {
   { h: 'Trojčlenka — přímá',
     p: ['Postup: <b>najdi hodnotu pro 1 jednotku, pak přepočítej</b>.',
         '<svg width="260" height="50" style="display:block;margin:8px auto 0" viewBox="0 0 260 50"><rect x="0" y="0" width="260" height="50" rx="4" fill="#161b22" stroke="#4a9eff" stroke-width="1.5"/><text x="10" y="18" fill="#ffcc00" font-size="12" font-family="monospace">položky</text><text x="90" y="18" fill="#c9d1d9" font-size="12" font-family="monospace">3</text><text x="130" y="18" fill="#c9d1d9" font-size="12" font-family="monospace">→</text><text x="150" y="18" fill="#c9d1d9" font-size="12" font-family="monospace">5</text><text x="10" y="38" fill="#ffcc00" font-size="12" font-family="monospace">cena (Kč)</text><text x="90" y="38" fill="#00ff88" font-size="12" font-family="monospace">45</text><text x="130" y="38" fill="#c9d1d9" font-size="12" font-family="monospace">→</text><text x="150" y="38" fill="#4a9eff" font-size="12" font-family="monospace">?</text></svg>',
-        '1 položka = 45 ÷ 3 = 15 Kč. &ensp; 5 položek = 15 × 5 = <b>75 Kč</b>.'] },
+        '1 položka = 45 : 3 = 15 Kč. &ensp; 5 položek = 15 × 5 = <b>75 Kč</b>.'] },
   { h: 'Jak poznat přímou vs. nepřímou úměrnost',
     p: ['<b>Přímá:</b> víc kusů → vyšší cena. „Čím víc, tím víc."',
         '<b>Nepřímá:</b> víc pracovníků → kratší čas. „Čím víc, tím méně."',
@@ -353,14 +408,19 @@ window.RPG_LEARN_7 = {
   '<b>Trojčlenka (přímá):</b> x → y₁; 1 → y₁/x; n → n · (y₁/x)',
  ],
  examples: [
-  { q: 'Za 3 hodiny ujede vlak 210 km. Kolik ujede za 5 hodin?', s: ['1 hod → 210 ÷ 3 = 70 km', '5 hod → 70 × 5 = <b>350 km</b>'] },
-  { q: '4 sešity stojí 52 Kč. Kolik stojí 7 sešitů?', s: ['1 sešit → 52 ÷ 4 = 13 Kč', '7 sešitů → 13 × 7 = <b>91 Kč</b>'] },
-  { q: 'Na 5 dní vystačí 15 kg krmení. Na kolik dní vystačí 24 kg (stejná spotřeba)?', s: ['1 den → 15 ÷ 5 = 3 kg', '24 ÷ 3 = <b>8 dní</b>'] },
+  { q: 'Za 3 hodiny ujede vlak 210 km. Kolik ujede za 5 hodin?', s: ['1 hod → 210 : 3 = 70 km', '5 hod → 70 × 5 = <b>350 km</b>'] },
+  { q: '4 sešity stojí 52 Kč. Kolik stojí 7 sešitů?', s: ['1 sešit → 52 : 4 = 13 Kč', '7 sešitů → 13 × 7 = <b>91 Kč</b>'] },
+  { q: 'Na 5 dní vystačí 15 kg krmení. Na kolik dní vystačí 24 kg (stejná spotřeba)?', s: ['1 den → 15 : 5 = 3 kg', '24 : 3 = <b>8 dní</b>'] },
  ],
  video: { id: 'Rm7OylsDDts', title: 'Trojčlenka — přímá a nepřímá úměrnost' }
 },
 
 '4-3': {
+ mistakes: [
+  {wrong:'4 dělníci za 12 dní → 6 dělníků: 6/4 × 12 = 18 dní', right:'48 dní práce : 6 = 8 dní', why:'Nepřímá úměrnost: víc dělníků = MÉNĚ dní. Spočítej celkovou práci (4×12) a děl počtem dělníků.'},
+  {wrong:'Plocha na mapě 1:1000: 2 cm² → 2 × 1000 = 2000 cm²', right:'2 × 1000² = 2 000 000 cm² = 200 m²', why:'U ploch se měřítko UMOCŇUJE (×M²), u délek jen ×M.'},
+  {wrong:'1 : 5 000 je hrubší než 1 : 100 000', right:'1 : 5 000 je podrobnější', why:'Menší jmenovatel = podrobnější mapa. 1:5 000 ukáže víc detailu než 1:100 000.'},
+ ],
  intro: '🗺️ Kartograf chrámu potřebuje tvou pomoc. Nepřímá úměrnost a měřítko mapy — bez nich se ztratíš v poušti!',
  sections: [
   { h: 'Nepřímá úměrnost',
@@ -370,7 +430,7 @@ window.RPG_LEARN_7 = {
   { h: 'Trojčlenka — nepřímá',
     p: ['Postup: <b>spočítej celkový objem práce (pro 1 jednotku), pak přepočítej opačně</b>.',
         '4 dělníci dokončí práci za 12 dní. Za kolik dní 6 dělníků?',
-        '1 dělník → 4 × 12 = 48 dní. &ensp; 6 dělníků → 48 ÷ 6 = <b>8 dní</b>.'] },
+        '1 dělník → 4 × 12 = 48 dní. &ensp; 6 dělníků → 48 : 6 = <b>8 dní</b>.'] },
   { h: 'Měřítko mapy',
     p: ['Měřítko <b>1 : m</b> říká: 1 jednotka na mapě = m jednotek ve skutečnosti.',
         '1 : 50 000 → 1 cm = 50 000 cm = <b>500 m</b> ve skutečnosti.',
@@ -387,7 +447,7 @@ window.RPG_LEARN_7 = {
  ],
  examples: [
   { q: 'Na mapě 1 : 20 000 měříme 6,5 cm. Jak dlouhá je cesta?', s: ['d = 6,5 × 20 000 = 130 000 cm = <b>1,3 km</b>'] },
-  { q: '6 dělníků postaví zeď za 4 dny. Za kolik dní to zvládnou 3 dělníci?', s: ['6 × 4 = 24 dní práce celkem', '3 dělníci → 24 ÷ 3 = <b>8 dní</b>'] },
+  { q: '6 dělníků postaví zeď za 4 dny. Za kolik dní to zvládnou 3 dělníci?', s: ['6 × 4 = 24 dní práce celkem', '3 dělníci → 24 : 3 = <b>8 dní</b>'] },
   { q: 'Na plánu 1 : 1 000 má pozemek plochu 5 cm². Jaká je skutečná plocha?', s: ['Plocha: ×M² → 5 × 1 000² = 5 000 000 cm²', '5 000 000 cm² = <b>500 m²</b>'] },
  ],
  video: { id: 'xGATRuT_yGA', title: 'Nepřímá úměrnost' }
@@ -396,6 +456,11 @@ window.RPG_LEARN_7 = {
 /* ─── Oblast 5: ZLATÁ POKLADNICE ──────────────────────────────── */
 
 '5-1': {
+ mistakes: [
+  {wrong:'15 % z 240 = 240 × 15 = 3 600', right:'240 × 0,15 = 36', why:'Procento se nejdřív převede na setiny: 15 % = 0,15. Násobení rovnou patnácti dá 100× víc.'},
+  {wrong:'35 % = 3,5', right:'35 % = 0,35', why:'Procento se dělí stem, ne deseti. 35 % = 35/100 = 0,35.'},
+  {wrong:'1 % z 400 = 40', right:'1 % z 400 = 4', why:'1 % je setina — děl základ stem, ne deseti. 400 : 100 = 4.'},
+ ],
  intro: '🪙 Hlídač zlatých mincí střeží pokladnici. Bez pochopení procentové části tě sem nepustí — a bez kódu se trezor neotevře!',
  sections: [
   { h: 'Co je procento?',
@@ -428,6 +493,11 @@ window.RPG_LEARN_7 = {
 },
 
 '5-2': {
+ mistakes: [
+  {wrong:'Cena vzrostla ze 400 na 500, základ je 500', right:'základ je 400 (původní hodnota)', why:'Procentní změna se počítá vždy z PŮVODNÍ hodnoty. p = 100/400 × 100 = 25 %.'},
+  {wrong:'28 ze 40 = 28/40 = 0,7 %', right:'28/40 × 100 = 70 %', why:'Podíl je potřeba ještě vynásobit stem, aby vyšla procenta. 0,7 = 70 %.'},
+  {wrong:'36 Kč je 12 %, základ = 36 × 12', right:'C = 36 × 100 : 12 = 300 Kč', why:'Ze známé části a procent se základ počítá jako z × 100 : p, ne prostým násobením.'},
+ ],
  intro: '⚱️ Strážce urny tě vyzkouší na obrácené úlohy: dokážeš najít základ nebo počet procent?',
  sections: [
   { h: 'Počet procent p',
@@ -458,6 +528,11 @@ window.RPG_LEARN_7 = {
 },
 
 '5-3': {
+ mistakes: [
+  {wrong:'Zdražení o 20 % a pak sleva 20 % → původní cena', right:'1000 × 1,2 × 0,8 = 960 Kč (méně!)', why:'Druhé procento se počítá z JINÉHO (většího) základu, takže se zdražení a sleva nevyruší.'},
+  {wrong:'Po slevě 20 % je 320 Kč, původní = 320 : 0,20', right:'C = 320 : 0,80 = 400 Kč', why:'320 Kč odpovídá 80 % ceny (100 − 20). Dělí se 0,80, ne procentem slevy.'},
+  {wrong:'Sleva 30 % z 600: 600 − 30 = 570 Kč', right:'600 × 0,70 = 420 Kč', why:'30 % je podíl z ceny (0,30 × 600 = 180 Kč), ne 30 korun. Odečti procentní část, ne číslo 30.'},
+ ],
  intro: '👑 Pokladník faraona ti zadá záludné slovní úlohy. Sleva, zdražení, DPH, zpětný výpočet — a brána do pokladnice se otevře!',
  sections: [
   { h: 'Sleva',
@@ -490,6 +565,11 @@ window.RPG_LEARN_7 = {
 /* ─── Oblast 6: ZRCADLOVÁ SVATYNĚ ─────────────────────────────── */
 
 '6-1': {
+ mistakes: [
+  {wrong:'Přes osu y: (3, 2) → (3, −2)', right:'(−3, 2)', why:'Osa y je svislá, zrcadlí doleva/doprava → mění se x. Znaménko y se mění až přes osu x.'},
+  {wrong:'Obraz posunu na druhou stranu osy, jak vyjde', right:'stejná vzdálenost od osy jako vzor, na kolmici', why:'Osová souměrnost zachovává vzdálenost bodu od osy a spojnice bod–obraz je kolmá na osu.'},
+  {wrong:'Obdélník má 4 osy souměrnosti', right:'obdélník má jen 2 osy', why:'Úhlopříčky obdélníku nejsou osy (nepřekryjí ho). Osami jsou jen dvě středové přímky.'},
+ ],
  intro: '🪞 Strážce zrcadel tě vyzve: „Najdi obraz každého bodu přes osu." Kdo neovládá osovou souměrnost, v té místnosti zabloudí!',
  sections: [
   { h: 'Osová souměrnost — co to je?',
@@ -521,6 +601,11 @@ window.RPG_LEARN_7 = {
 },
 
 '6-2': {
+ mistakes: [
+  {wrong:'Přes střed O mění jen jednu souřadnici', right:'(x, y) → (−x, −y) — mění se OBĚ', why:'Středová souměrnost = otočení o 180°, obě souřadnice změní znaménko. Jen jednu mění osová souměrnost.'},
+  {wrong:'Přes S[3,4]: B[1,2] → (3−1, 4−2) = (2, 2)', right:'obraz = 2S − X → (2·3−1, 2·4−2) = (5, 6)', why:'Vzorec je 2S − X, ne S − X. Střed leží uprostřed úsečky bod–obraz, ne v koncovém bodě.'},
+  {wrong:'Osová a středová souměrnost dají stejný obraz', right:'osová zrcadlí, středová otočí o 180°', why:'Osový obraz je zrcadlový (zamění levou/pravou stranu), středový je otočený a nezrcadlí.'},
+ ],
  intro: '🌗 Duch středu říká: „Každý bod má svůj pár přes střed souměrnosti." Pochop středovou souměrnost a projdi dalším portálem!',
  sections: [
   { h: 'Středová souměrnost',
@@ -553,6 +638,11 @@ window.RPG_LEARN_7 = {
 },
 
 '6-3': {
+ mistakes: [
+  {wrong:'Shoda všech tří úhlů (uuu) stačí ke shodnosti', right:'uuu dává jen podobnost, ne shodnost', why:'Stejné úhly mají i zvětšené/zmenšené trojúhelníky. Ke shodnosti je nutná i délka aspoň jedné strany.'},
+  {wrong:'Dvě strany a nepřilehlý úhel (SSU) vždy určí shodnost', right:'obecně ne — existují dva různé trojúhelníky', why:'Věta SSU obecně neplatí; funguje jen výjimka Ssu u pravoúhlých trojúhelníků (přepona + odvěsna).'},
+  {wrong:'V zápisu ABC ≅ DEF nezáleží na pořadí vrcholů', right:'pořadí musí sedět: A↔D, B↔E, C↔F', why:'Zápis říká, které vrcholy si odpovídají. Přeházené pořadí označuje jiné dvojice stran a úhlů.'},
+ ],
  intro: '🔺 Kněz shodnosti tě prověří na věty o shodnosti trojúhelníků. Zvládneš je všechny a otevřeš posvátnou schránu?',
  sections: [
   { h: 'Shodnost trojúhelníků',
@@ -587,6 +677,11 @@ window.RPG_LEARN_7 = {
 /* ─── Oblast 7: VELKÁ PYRAMIDA ─────────────────────────────────── */
 
 '7-1': {
+ mistakes: [
+  {wrong:'Obsah rovnoběžníku = a × (délka boční strany)', right:'S = a · v, kde v je KOLMÁ výška', why:'Do vzorce patří kolmá vzdálenost základen, ne délka šikmého ramene (to je delší).'},
+  {wrong:'Obsah lichoběžníku = (a + c) · v', right:'S = (a + c)/2 · v', why:'Chybí dělení dvěma — bereš PRŮMĚR obou základen, ne jejich součet.'},
+  {wrong:'Obsah trojúhelníku = a · v_a', right:'S = a · v_a / 2', why:'Trojúhelník je půlka rovnoběžníku, proto se dělí dvěma.'},
+ ],
  intro: '🟫 Dlaždič velké pyramidy pokládá různé čtyřúhelníkové dlaždice. Musíš spočítat jejich obsahy — každá má jiný vzorec!',
  sections: [
   { h: 'Čtverec a obdélník',
@@ -617,6 +712,11 @@ window.RPG_LEARN_7 = {
 },
 
 '7-2': {
+ mistakes: [
+  {wrong:'1 m³ = 1 000 cm³', right:'1 m³ = 1 000 000 cm³', why:'Objemové jednotky mají krok 1000, ale mezi m a cm jsou DVA kroky (m → dm → cm): 1000 × 1000.'},
+  {wrong:'Povrch kvádru = a·b + b·c + a·c', right:'S = 2·(a·b + b·c + a·c)', why:'Každá ze tří stěn je na tělese dvakrát (protilehlé páry), proto krát 2.'},
+  {wrong:'Objem a povrch mají stejnou jednotku', right:'objem cm³, povrch cm²', why:'Objem plní vnitřek (třetí mocnina jednotky), povrch je obal (druhá mocnina). Hlídej jednotku v otázce.'},
+ ],
  intro: '📦 Strážce hrobky ohlídá kvádr plný pokladů. Musíš spočítat povrch i objem — jinak tě zamkne uvnitř navždy!',
  sections: [
   { h: 'Co je hranol?',
@@ -648,6 +748,11 @@ window.RPG_LEARN_7 = {
 },
 
 '7-3': {
+ mistakes: [
+  {wrong:'1/2 + 1/3 = 2/5', right:'3/6 + 2/6 = 5/6', why:'Jmenovatele se nesčítají — nejdřív sjednoť na NSN, pak sečti čitatele.'},
+  {wrong:'Po zdražení o 20 % je 360 Kč, původní = 360 : 0,20', right:'C = 360 : 1,20 = 300 Kč', why:'360 Kč odpovídá 120 % původní ceny. Dělí se 1,20, ne procentem změny.'},
+  {wrong:'−3² = 9', right:'−3² = −9; jen (−3)² = 9', why:'Bez závorky se umocňuje jen trojka, minus zůstává vepředu.'},
+ ],
  intro: '🗿 Strážce pyramidy — finální boss! Prověří tě ze všech témat Ztraceného chrámu. Připrav se a osvěž si klíčové vzorce!',
  sections: [
   { h: 'Oblast 1: Čísla a základní geometrie',
@@ -655,13 +760,13 @@ window.RPG_LEARN_7 = {
         '<b>Obsahy:</b> čtverec a², obdélník ab, trojúhelník av/2, rovnoběžník av.',
         '<b>Tip:</b> před výpočtem si vždy odhadni výsledek — zachytíš hrubé chyby.'] },
   { h: 'Oblast 2–3: Zlomky a celá čísla',
-    p: ['<b>Zlomky:</b> krácení (÷ NSD), rozšiřování (× k), sčítání (→ NSN), násobení (čitatel×čitatel, jmenovatel×jmenovatel), dělení (× převrácený).',
+    p: ['<b>Zlomky:</b> krácení (: NSD), rozšiřování (× k), sčítání (→ NSN), násobení (čitatel×čitatel, jmenovatel×jmenovatel), dělení (× převrácený).',
         '<b>Celá čísla:</b> (−)×(−)=(+), (−)×(+)=(−). (−3)² = 9, ale −3² = −9.',
         '<b>Racionální čísla ℚ:</b> vše, co lze zapsat jako p/q (q≠0). Absolutní hodnota |a| = vzdálenost od nuly.'] },
   { h: 'Oblast 4–5: Poměr, trojčlenka, procenta',
-    p: ['<b>Poměr:</b> zjednoduš (÷ NSD), rozděl celek (spočítej 1 díl).',
+    p: ['<b>Poměr:</b> zjednoduš (: NSD), rozděl celek (spočítej 1 díl).',
         '<b>Trojčlenka:</b> přímá (y = kx, urči 1 jednotku), nepřímá (xy = k, urči součin).',
-        '<b>Procenta:</b> z = C·p/100; p = z/C·100; C = z·100/p. Sleva: ×(1−p/100), zdražení: ×(1+p/100), zpětný výpočet: ÷(1−p/100).'] },
+        '<b>Procenta:</b> z = C·p/100; p = z/C·100; C = z·100/p. Sleva: ×(1−p/100), zdražení: ×(1+p/100), zpětný výpočet: :(1−p/100).'] },
   { h: 'Oblast 6–7: Geometrie',
     p: ['<b>Osová souměrnost:</b> osa = osa úsečky XY; přes osu y: (x,y)→(−x,y).',
         '<b>Středová souměrnost:</b> X\' = 2S−X; přes O: (x,y)→(−x,−y).',
@@ -675,7 +780,7 @@ window.RPG_LEARN_7 = {
         '4. Zkontroluj: je výsledek rozumný? (odhad, kontrola zpět)'] },
  ],
  formulas: [
-  '<b>Zlomky:</b> a/b ÷ c/d = a/b × d/c',
+  '<b>Zlomky:</b> a/b : c/d = a/b × d/c',
   '<b>Procenta:</b> z = C × p/100',
   '<b>Trojčlenka přímá:</b> x₁:y₁ = x₂:y₂',
   '<b>Lichoběžník:</b> S = (a+c)/2 × v',
