@@ -97,108 +97,64 @@ function gen_1_3(){
 
 // 2-1 Krácení a rozšiřování (MC — numerické)
 function gen_2_1(){
+  const T=[
+    ()=>{const a=ri(2,6),x=ri(2,4),b=ri(2,5);const top=a*x,bot=b*x;const g=gcd(top,bot);return{text:`Zkrať zlomek ${top}/${bot} na základní tvar. Jaký je jeho ČITATEL?`,ans:top/g,h1:`Vyděl čitatele i jmenovatele jejich největším společným dělitelem (NSD = ${g}).`,h2:`= ${top/g}`};},
+    ()=>{const a=ri(2,6),x=ri(2,4),b=ri(2,5);const top=a*x,bot=b*x;const g=gcd(top,bot);return{text:`Zkrať zlomek ${top}/${bot} na základní tvar. Jaký je jeho JMENOVATEL?`,ans:bot/g,h1:`Vyděl oba členy jejich NSD (${g}).`,h2:`= ${bot/g}`};},
+    ()=>{const a=ri(2,6),k=ri(2,5);return{text:`Zkrať zlomek ${a*k}/${k} na celé číslo.`,ans:a,h1:`Jmenovatel ${k} se ve zlomku zkrátí.`,h2:`= ${a}`};},
+    ()=>{const c=ri(2,7),d=ri(2,6),k=ri(2,5);return{text:`Rozšiř zlomek ${c}/${d} číslem ${k}. Jaký bude nový ČITATEL?`,ans:c*k,h1:'Rozšíření = násobit čitatele i jmenovatele stejným číslem.',h2:`${c} × ${k} = ${c*k}`};},
+    ()=>{const c=ri(2,7),d=ri(2,6),k=ri(2,5);return{text:`Rozšiř zlomek ${c}/${d} číslem ${k}. Jaký bude nový JMENOVATEL?`,ans:d*k,h1:'Jmenovatel vynásob rozšiřujícím číslem.',h2:`${d} × ${k} = ${d*k}`};},
+    ()=>{const e=ri(2,5),f=ri(3,8);return{text:`Je zlomek ${e*2}/${f*2} roven zlomku ${e}/${f}?`,ans:'ANO',h1:`Zkrať levý zlomek dvěma.`,h2:'ANO'};},
+    ()=>{const e=ri(2,5),f=ri(3,8);const k=ri(2,4);return{text:`Je zlomek ${e*k}/${f*k} roven zlomku ${e+1}/${f}?`,ans:'NE',h1:`Zkrácený levý zlomek je ${e}/${f}, ne ${e+1}/${f}.`,h2:'NE'};},
+    ()=>{const d=ri(2,6),k=ri(2,5);return{text:`Na jaké číslo musíš rozšířit jmenovatel zlomku s jmenovatelem ${d}, aby byl ${d*k}?`,ans:k,h1:`Kolikrát se ${d} vejde do ${d*k}?`,h2:`= ${k}`};},
+    ()=>{const a=ri(2,5),k=ri(2,4);const top=a*k;return{text:`Zlomek ${top}/${a*k*2} zkrať na základní tvar. Jaký je čitatel? (obě čísla dělitelná ${a*k})`,ans:1,h1:`Vyděl oba členy NSD.`,h2:`= 1`};},
+    ()=>{const base=ri(2,5),d=ri(3,7);const zaklad=`${base}/${d}`;return{text:`Je zlomek ${base}/${d} v základním (nezkrátitelném) tvaru? (NSD čitatele a jmenovatele = 1)`,ans:gcd(base,d)===1?'ANO':'NE',h1:`Zjisti NSD(${base}, ${d}).`,h2:gcd(base,d)===1?'ANO':'NE'};},
+    ()=>{const a=ri(2,4),b=ri(2,4),k=ri(2,5);return{text:`Zlomek ${a}/${b} rozšiř tak, aby čitatel byl ${a*k}. Jaký bude jmenovatel?`,ans:b*k,h1:`Čitatel se násobil ${k}× (${a}→${a*k}), stejně násob jmenovatel.`,h2:`${b} × ${k} = ${b*k}`};},
+  ];
   const tasks=[];
-  // krácení — výsledek jako celé číslo
-  const a=ri(2,6),b=ri(2,8);
-  tasks.push({text:`Zkrať zlomek na základní tvar: ${a*b}/${b*ri(2,4)} = ?/1\nJaké je čitatel? (Zapište jen číslo čitatele výsledku.)`,ans:a,hints:['Vyděl čitatele i jmenovatele jejich NSD.','NSD('+a*b+','+b*ri(2,4)+')…'],skill:'calc'});
-  // krácení na číselný výsledek
-  const p=ri(2,5),q=ri(3,7);
-  const top=p*q, bot=p*(q+ri(1,3));
-  const g2=gcd(top,bot);
-  tasks.push({text:`Zkrať na základní tvar: ${top}/${bot}. Jaký je čitatel?`,ans:top/g2,hints:['Vyděl čitatele i jmenovatele NSD('+top+','+bot+').','NSD = '+g2+', výsledek: '+(top/g2)+'/'+(bot/g2)],skill:'calc'});
-  // rozšiřování
-  const c=ri(2,7),d=ri(2,6),k=ri(2,5);
-  tasks.push({text:`Rozšiř zlomek na jmenovatele ${d*k}: ${c}/${d} = ${c*k}/${d*k}\nJaké je nové číslo v čitateli?`,ans:c*k,hints:['Čitatel × rozšiřující číslo.',''+c+' × '+k+' = '+c*k],skill:'calc'});
-  // porovnání — ANO/NE
-  const e=ri(2,5),f=ri(3,8);
-  tasks.push({text:`Je zlomek ${e*2}/${f*2} rovno ${e}/${f}?`,ans:'ANO',hints:['Zkrať levý zlomek.','${e*2}/${f*2} zkráceno = ${e}/${f} → ANO'],skill:'calc'});
-  // numerická MC
-  const h=ri(2,9),i=ri(3,12);
-  const g3=gcd(h,i);
-  tasks.push({text:`Výsledek krácení ${h}/${i} na základní tvar: čitatel?`,ans:h/g3,hints:['Najdi NSD čitatele a jmenovatele a oběma jím vyděl.',''+h/g3+'/'+i/g3],skill:'calc'});
-  const m=ri(3,8),n=ri(3,8);
-  tasks.push({text:`Rozšiř ${m}/${n} číslem 3. Nový čitatel?`,ans:m*3,hints:['Čitatel × 3.',''+m+' × 3 = '+m*3],skill:'calc'});
-  { const a=ri(2,6),b=ri(2,5),k=ri(2,4); tasks.push({text:`Zkrať ${a*k}/${b*k} na základní tvar. Jaký je čitatel?`,ans:a,hints:['Vyděl oba členy jejich NSD.',`= ${a}`],skill:'calc'}); }
-  { const c=ri(2,7),d=ri(2,6),k=ri(2,5); tasks.push({text:`Rozšiř ${c}/${d} číslem ${k}. Nový čitatel?`,ans:c*k,hints:['Čitatel × rozšiřující číslo.',`${c}×${k} = ${c*k}`],skill:'calc'}); }
-  { const c=ri(2,7),d=ri(2,6),k=ri(2,5); tasks.push({text:`Rozšiř ${c}/${d} číslem ${k}. Nový jmenovatel?`,ans:d*k,hints:['Jmenovatel × rozšiřující číslo.',`${d}×${k} = ${d*k}`],skill:'calc'}); }
-  { const a=ri(2,6),k=ri(2,5); tasks.push({text:`Zkrať ${a*k}/${k} na celé číslo.`,ans:a,hints:[`Vyděl oba členy ${k}.`,`= ${a}`],skill:'calc'}); }
+  for(let i=0;i<13;i++){const t=T[i%T.length]();tasks.push({text:t.text,ans:t.ans,hints:[t.h1,t.h2],skill:'calc'});}
   return tasks;
 }
 
 // 2-2 Sčítání a odčítání zlomků (různé jmenovatele)
 function gen_2_2(){
+  const lcm=(a,b)=>a/gcd(a,b)*b;
+  const asFrac=(num,den)=>{const g=gcd(Math.abs(num),den);return num===0?'0':(g===den?String(num/g):`${num/g}/${den/g}`);};
+  const T=[
+    ()=>{const a=ri(2,5),b=ri(2,6);const L=lcm(a,b);const p=ri(1,a-1)||1,q=ri(1,b-1)||1;const num=p*(L/a)+q*(L/b);return{text:`Sečti zlomky ${p}/${a} + ${q}/${b} = ?`,ans:asFrac(num,L),h1:`Převeď na společného jmenovatele ${L}.`,h2:`${p*(L/a)}/${L} + ${q*(L/b)}/${L} = ${num}/${L}`};},
+    ()=>{const c=ri(3,8),d=ri(2,c-1);const L=lcm(c,d);const r=ri(2,c-1),s=ri(1,d-1)||1;const num=r*(L/c)-s*(L/d);return{text:`Odečti zlomky ${r}/${c} − ${s}/${d} = ?`,ans:asFrac(num,L),h1:`Společný jmenovatel je ${L}.`,h2:`${r*(L/c)}/${L} − ${s*(L/d)}/${L} = ${num}/${L}`};},
+    ()=>{const w=ri(1,4),v=ri(2,7),u=ri(1,v-1);const num=w*v+u;return{text:`Sečti celé číslo se zlomkem: ${w} + ${u}/${v} = ?`,ans:asFrac(num,v),h1:`Přepočti ${w} jako ${w*v}/${v}.`,h2:`${w*v}/${v} + ${u}/${v} = ${num}/${v}`};},
+    ()=>{const x=ri(2,5),y=ri(3,8),z=ri(1,y-1);const num=x*y-z;return{text:`Odečti zlomek od celého čísla: ${x} − ${z}/${y} = ?`,ans:asFrac(num,y),h1:`Přepočti ${x} jako ${x*y}/${y}.`,h2:`${x*y}/${y} − ${z}/${y} = ${num}/${y}`};},
+    ()=>{const n=ri(3,7),o=ri(2,n-1);const num=1*n+o;return{text:`Přepočti smíšené číslo 1 ${o}/${n} na zlomek. Jaký je jeho ČITATEL?`,ans:num,h1:'Celá část × jmenovatel + čitatel.',h2:`1·${n} + ${o} = ${num}`};},
+    ()=>{const f1n=ri(2,5),f1d=ri(3,8),f2n=ri(2,5),f2d=ri(3,8);const gt=f1n/f1d>f2n/f2d;return{text:`Je zlomek ${f1n}/${f1d} větší než ${f2n}/${f2d}?`,ans:gt?'ANO':'NE',h1:'Převeď na společného jmenovatele nebo porovnej desetinnou hodnotu.',h2:gt?'ANO':'NE'};},
+    ()=>{const a=ri(2,5),b=ri(3,7);const L=lcm(a,b);const num=(L/a)+(L/b);return{text:`Kolik je 1/${a} + 1/${b}? (zapiš jako zlomek)`,ans:asFrac(num,L),h1:`Společný jmenovatel = ${L}.`,h2:`${L/a}/${L} + ${L/b}/${L} = ${num}/${L}`};},
+    ()=>{const d=ri(3,8),a=ri(1,d-1);const num=d-a;return{text:`Kolik chybí zlomku ${a}/${d} do celku (1)? Zapiš jako zlomek.`,ans:asFrac(num,d),h1:`Celek je ${d}/${d}. Odečti ${a}/${d}.`,h2:`${num}/${d}`};},
+    ()=>{const a=ri(2,4),b=2*a;const num=(b/a)+1;return{text:`Sečti zlomky s násobným jmenovatelem: 1/${a} + 1/${b} = ? (${b} je násobek ${a})`,ans:asFrac(num,b),h1:`Stačí rozšířit první zlomek na jmenovatele ${b}.`,h2:`${b/a}/${b} + 1/${b} = ${num}/${b}`};},
+    ()=>{const c=ri(3,7),num1=ri(1,c-1),num2=ri(1,c-num1);const s=num1+num2;const isWhole=s===c;return{text:`Dají zlomky ${num1}/${c} + ${num2}/${c} dohromady jeden celek?`,ans:isWhole?'ANO':'NE',h1:`Celek je ${c}/${c}. Je ${num1}+${num2} rovno ${c}?`,h2:isWhole?'ANO':'NE'};},
+    ()=>{const a=ri(3,6),b=ri(2,a-1);const L=lcm(a,b);const num=(L/b)-(L/a);return{text:`O kolik je zlomek 1/${b} větší než 1/${a}? (zapiš jako zlomek)`,ans:asFrac(num,L),h1:`Společný jmenovatel ${L}; menší jmenovatel = větší zlomek.`,h2:`${L/b}/${L} − ${L/a}/${L} = ${num}/${L}`};},
+  ];
   const tasks=[];
-  function lcm(a,b){return a/gcd(a,b)*b;}
-  // různé jmenovatele — výsledek celé číslo nebo zlomek
-  const a=ri(2,5),b=ri(2,6);const L=lcm(a,b);const p=ri(1,a-1)||1,q=ri(1,b-1)||1;
-  const numSum=p*Math.round(L/a)+q*Math.round(L/b);const gSum=gcd(numSum,L);
-  const ansSum=gSum===L?String(numSum/gSum):`${numSum/gSum}/${L/gSum}`;
-  tasks.push({text:`${p}/${a} + ${q}/${b} = ?`,ans:ansSum,hints:['Převeď na společného jmenovatele '+L+'.',''+p+'·'+(L/a)+'/'+L+' + '+q+'·'+(L/b)+'/'+L+' = '+numSum+'/'+L],skill:'calc'});
-  // odčítání
-  const c=ri(3,8),d=ri(2,c-1);const L2=lcm(c,d);const r=ri(2,c-1),s=ri(1,d-1)||1;
-  const numDif=r*Math.round(L2/c)-s*Math.round(L2/d);const gDif=gcd(Math.abs(numDif),L2);
-  const ansDif=gDif===L2?String(numDif/gDif):`${numDif/gDif}/${L2/gDif}`;
-  tasks.push({text:`${r}/${c} − ${s}/${d} = ?`,ans:ansDif,hints:['Společný jmenovatel je '+L2+'.',''+r+'/'+c+' = '+(r*Math.round(L2/c))+'/'+L2],skill:'calc'});
-  // sčítání s celým číslem
-  const w=ri(1,4),v=ri(2,7),u=ri(1,v-1);
-  const numW=w*v+u;const gW=gcd(numW,v);
-  const ansW=gW===v?String(numW/gW):`${numW/gW}/${v/gW}`;
-  tasks.push({text:`${w} + ${u}/${v} = ?`,ans:ansW,hints:[`Přepočti ${w} jako ${w*v}/${v}.`,''+w*v+'/'+v+' + '+u+'/'+v+' = '+numW+'/'+v],skill:'calc'});
-  // odčítání od celého čísla
-  const x=ri(2,5),y=ri(3,8),z=ri(1,y-1);
-  const numX=x*y-z;const gX=gcd(numX,y);
-  const ansX=gX===y?String(numX/gX):`${numX/gX}/${y/gX}`;
-  tasks.push({text:`${x} − ${z}/${y} = ?`,ans:ansX,hints:[`Přepočti ${x} jako ${x*y}/${y}.`,''+x*y+'/'+y+' − '+z+'/'+y+' = '+numX+'/'+y],skill:'calc'});
-  // smíšené číslo součet
-  const m=ri(2,5),n=ri(3,7),o=ri(2,n-1);
-  const topMix=1*n+o;const gMix=gcd(topMix,n);
-  const ansMix=gMix===n?String(topMix/gMix):`${topMix/gMix}/${n/gMix}`;
-  tasks.push({text:`1${String.fromCharCode(160)}${o}/${n} (smíšené číslo) přepočítáno jako zlomek: čitatel?`,ans:topMix/gMix,hints:['Celá část × jmenovatel + čitatel.',`1·${n}+${o} = ${topMix}, pak zkrať.`],skill:'calc'});
-  // porovnání zlomků
-  const f1n=ri(2,5),f1d=ri(3,8),f2n=ri(2,5),f2d=ri(3,8);
-  const isGt=f1n/f1d>f2n/f2d;
-  tasks.push({text:`Je ${f1n}/${f1d} > ${f2n}/${f2d}?`,ans:isGt?'ANO':'NE',hints:['Přepočti na stejného jmenovatele nebo porovnej desetinnými hodnotami.',''+f1n+'/'+f1d+' ≈ '+r2(f1n/f1d)+', '+f2n+'/'+f2d+' ≈ '+r2(f2n/f2d)],skill:'calc'});
-  { function lcm2(a,b){return a/gcd(a,b)*b;} const a=ri(2,5),b=ri(3,7);const L=lcm2(a,b);const p=ri(1,a-1)||1,q=ri(1,b-1)||1;const num=p*(L/a)+q*(L/b);const g=gcd(num,L);const ans=g===L?String(num/g):`${num/g}/${L/g}`;tasks.push({text:`1/${a} + 1/${b} = ?`,ans,hints:[`Společný jmenovatel = ${L}.`,`${L/a}/${L} + ${L/b}/${L} = ${num}/${L}`],skill:'calc'}); }
-  { const x=ri(2,5),y=ri(3,8),z=ri(1,y-1);const num=x*y-z;const g=gcd(num,y);const ans=g===y?String(num/g):`${num/g}/${y/g}`;tasks.push({text:`${x} − ${z}/${y} = ?`,ans,hints:[`Přepočti ${x} jako ${x*y}/${y}.`,`${x*y}/${y} − ${z}/${y} = ${num}/${y}`],skill:'calc'}); }
-  { const n=ri(2,4),d=ri(3,7),e=ri(1,d-1);const num=(1*d+e)+n*d;const g=gcd(num,d);const ans=g===d?String(num/g):`${num/g}/${d/g}`;tasks.push({text:`${n} + 1${String.fromCharCode(160)}${e}/${d} = ? (smíšené číslo jako zlomek)`,ans,hints:[`Smíšené číslo: 1·${d}+${e} = ${d+e}, celkem ${n*d}+${d+e}.`,`${num}/${d}`],skill:'calc'}); }
-  { function lcm3(a,b){return a/gcd(a,b)*b;} const a=ri(3,7),b=ri(2,a-1);const L=lcm3(a,b);const p=ri(1,a-1)||1,q=ri(1,b-1)||1;const num=p*(L/a)-q*(L/b);const g=gcd(Math.abs(num),L);const ans=num===0?'0':(g===L?String(num/g):`${num/g}/${L/g}`);tasks.push({text:`${p}/${a} − ${q}/${b} = ?`,ans,hints:[`Společný jmenovatel = ${L}.`,`${p*(L/a)}/${L} − ${q*(L/b)}/${L} = ${num}/${L}`],skill:'calc'}); }
+  for(let i=0;i<13;i++){const t=T[i%T.length]();tasks.push({text:t.text,ans:t.ans,hints:[t.h1,t.h2],skill:'calc'});}
   return tasks;
 }
 
 // 2-3 Násobení a dělení zlomků
 function gen_2_3(){
+  const asFrac=(num,den)=>{const g=gcd(Math.abs(num),den);return num===0?'0':(g===den?String(num/g):`${num/g}/${den/g}`);};
+  const T=[
+    ()=>{const a=ri(2,5),b=ri(3,8),c=ri(2,5),d=ri(3,8);return{text:`Vynásob zlomky ${a}/${b} × ${c}/${d} = ?`,ans:asFrac(a*c,b*d),h1:'Čitatel krát čitatel, jmenovatel krát jmenovatel.',h2:`${a*c}/${b*d}, pak zkrať`};},
+    ()=>{const e=ri(2,6),f=ri(3,9),w=ri(2,5);return{text:`Vynásob zlomek celým číslem: ${e}/${f} × ${w} = ?`,ans:asFrac(e*w,f),h1:'Celým číslem násob jen čitatele, jmenovatel opiš.',h2:`${e*w}/${f}, pak zkrať`};},
+    ()=>{const g=ri(2,5),h=ri(3,8),i=ri(2,5),j=ri(3,8);return{text:`Vyděl zlomky ${g}/${h} : ${i}/${j} = ?`,ans:asFrac(g*j,h*i),h1:'Dělení zlomkem = násobení jeho převrácenou hodnotou.',h2:`${g}/${h} × ${j}/${i} = ${g*j}/${h*i}, pak zkrať`};},
+    ()=>{const l=ri(2,5),m=ri(2,6)*l,k=ri(2,l-1)||1;return{text:`Kolik je ${k}/${l} z čísla ${m}?`,ans:(k*m)/l,h1:`Nejdřív ${m} : ${l}, pak výsledek × ${k}.`,h2:`= ${(k*m)/l}`};},
+    ()=>{const p=ri(3,8),q=ri(2,p-1);return{text:`Ze šňůry dlouhé ${p} m odříznu ${q}/${p} její délky. Kolik metrů jsem odřízl?`,ans:q,h1:`${q}/${p} z ${p} m: vyděl ${p} jmenovatelem a vynásob ${q}.`,h2:`= ${q} m`};},
+    ()=>{const a=ri(2,5),b=ri(3,8);return{text:`Vynásob zlomek jeho převrácenou hodnotou: ${a}/${b} × ${b}/${a} = ?`,ans:'1',h1:'Číslo krát jeho převrácená hodnota dává vždy jednu.',h2:'= 1'};},
+    ()=>{const a=ri(2,6),b=ri(3,8),k=ri(2,4);return{text:`Vyděl celé číslo zlomkem: ${k} : ${b}/${a} = ?`,ans:asFrac(k*a,b),h1:'Vynásob číslo převrácenou hodnotou zlomku.',h2:`${k} × ${a}/${b} = ${k*a}/${b}, pak zkrať`};},
+    ()=>{const a=ri(2,5),b=ri(2,a);return{text:`Jaká je převrácená hodnota zlomku ${a}/${b}? (zapiš jako zlomek)`,ans:`${b}/${a}`,h1:'Prohoď čitatele a jmenovatele.',h2:`${b}/${a}`};},
+    ()=>{const a=ri(2,5),b=ri(3,8);return{text:`Umocni zlomek na druhou: (${a}/${b})² = ? (zapiš jako zlomek)`,ans:asFrac(a*a,b*b),h1:'Umocni zvlášť čitatele a zvlášť jmenovatele.',h2:`${a*a}/${b*b}`};},
+    ()=>{const half=ri(2,6),num=ri(1,half-1);const c=ri(2,4);return{text:`Kolikrát je zlomek ${num}/${half} menší po vydělení číslem ${c}? Jaký zlomek vyjde z ${num}/${half} : ${c}?`,ans:asFrac(num,half*c),h1:'Dělení celým číslem = násob jmenovatel tímto číslem.',h2:`${num}/${half*c}`};},
+    ()=>{const a=ri(2,4),b=ri(3,7);const whole=a*b;return{text:`Kolik ${b}tin je v čísle ${a}? (${a} : (1/${b}))`,ans:whole,h1:`Dělení jednou ${b}tinou = násobit ${b}.`,h2:`${a} × ${b} = ${whole}`};},
+  ];
   const tasks=[];
-  // násobení dvou zlomků
-  const a=ri(2,5),b=ri(3,8),c=ri(2,5),d=ri(3,8);
-  const topN=a*c,botN=b*d,gN=gcd(topN,botN);
-  const ansN=gN===botN?String(topN/gN):`${topN/gN}/${botN/gN}`;
-  tasks.push({text:`${a}/${b} × ${c}/${d} = ?`,ans:ansN,hints:['Čitatele × čitatele, jmenovatele × jmenovatele.',`${a*c}/${b*d} zkrať.`],skill:'calc'});
-  // násobení zlomku celým číslem
-  const e=ri(2,6),f=ri(3,9),w=ri(2,5);
-  const topEF=e*w,gEF=gcd(topEF,f);
-  const ansEF=gEF===f?String(topEF/gEF):`${topEF/gEF}/${f/gEF}`;
-  tasks.push({text:`${e}/${f} × ${w} = ?`,ans:ansEF,hints:['Čitatel × celé číslo, jmenovatel zůstane.',`${e*w}/${f} → zkrať.`],skill:'calc'});
-  // dělení zlomkem — převrácení
-  const g=ri(2,5),h=ri(3,8),i=ri(2,5),j=ri(3,8);
-  const topD=g*j,botD=h*i,gD=gcd(topD,botD);
-  const ansD=gD===botD?String(topD/gD):`${topD/gD}/${botD/gD}`;
-  tasks.push({text:`${g}/${h} : ${i}/${j} = ?`,ans:ansD,hints:['Dělení zlomkem = násobení převráceným zlomkem.',`${g}/${h} × ${j}/${i} = ${topD}/${botD} → zkrať.`],skill:'calc'});
-  // zlomek z čísla
-  const k=ri(2,5),l=ri(3,8),m=ri(2,6)*l;
-  const topK=k*m,gK=gcd(topK,l);
-  tasks.push({text:`Kolik je ${k}/${l} z čísla ${m}?`,ans:topK/gK,hints:['${k}/${l} z ${m} = (${k}·${m})/${l}.',`${k*m}/${l} = ${topK/gK}`],skill:'calc'});
-  // slovní úloha
-  const p=ri(3,8),q=ri(2,p-1);
-  tasks.push({text:`Ze šnůry délky ${p} m odříznu ${q}/${p} délky. Jak dlouhá je odříznutá část? (v metrech)`,ans:q,hints:[`${q}/${p} z ${p} = ${q}·${p}/${p}.`,'= '+q+' m'],skill:'calc'});
-  // smíšené číslo × celé číslo
-  const r=ri(2,4),s=ri(2,6),t=ri(2,5);
-  const topR=(r*s+1)*t,gR=gcd(topR,s);
-  const ansR=gR===s?String(topR/gR):`${topR/gR}/${s/gR}`;
-  tasks.push({text:`${r} ${skl(r,'celá','celé','celých')} ${1}/${s} × ${t} = ? (smíšené číslo: výsledek jako čitatel po zkrácení)`,ans:topR/gR,hints:['Smíšené číslo převeď na zlomek: celá část × jmenovatel + čitatel.','('+topR+'/'+gR+')/'+s/gR],skill:'calc'});
-  { const a=ri(2,5),b=ri(3,8);const g=gcd(a,b);const ans=g===b?String(a/g):`${a/g}/${b/g}`;tasks.push({text:`${a}/${b} × ${b}/${a} = ?`,ans:'1',hints:['Číslo × jeho převrácená = 1.','= 1'],skill:'calc'}); }
-  { const a=ri(2,6),b=ri(3,8),k=ri(2,4);const top=a*k,g=gcd(top,b);const ans=g===b?String(top/g):`${top/g}/${b/g}`;tasks.push({text:`${k} : ${b}/${a} = ?`,ans,hints:['Dělení zlomkem = násobení převráceným.',`${k} × ${a}/${b} = ${k*a}/${b}`],skill:'calc'}); }
-  { const a=ri(2,5),b=ri(2,a);const ans=`${b}/${a}`;tasks.push({text:`Jaké je převrácené číslo k ${a}/${b}?`,ans,hints:['Převrácená hodnota: vyměň čitatel a jmenovatel.',`${b}/${a}`],skill:'calc'}); }
-  { const a=ri(2,4),b=ri(3,8),c=ri(2,5),d=ri(3,8);const top=a*c,bot=b*d,g=gcd(top,bot);const ans=g===bot?String(top/g):`${top/g}/${bot/g}`;tasks.push({text:`${a}/${b} × ${c}/${d} = ?`,ans,hints:['Čitatele × čitatele, jmenovatele × jmenovatele.',`${a*c}/${b*d} zkrať.`],skill:'calc'}); }
+  for(let i=0;i<13;i++){const t=T[i%T.length]();tasks.push({text:t.text,ans:t.ans,hints:[t.h1,t.h2],skill:'calc'});}
   return tasks;
 }
 
