@@ -15,23 +15,23 @@ const r2 = n => cz(Math.round(n*100)/100);
 
 // 1-1 Přirozená čísla (MC — jen numerické)
 function gen_1_1(){
+  const T=[
+    ()=>{const a=ri(120,890),b=ri(110,540);return{text:`Vypočítej: ${a} + ${b} = ?`,ans:a+b,h1:'Sčítej po řádech (jednotky, desítky, stovky).',h2:`${a}+${b} = ${a+b}`};},
+    ()=>{const c=ri(400,990),d=ri(110,c-50);return{text:`Vypočítej: ${c} − ${d} = ?`,ans:c-d,h1:'Odečítej po řádech, hlídej výpůjčku.',h2:`${c}−${d} = ${c-d}`};},
+    ()=>{const e=ri(12,40),f=ri(11,30);return{text:`Vypočítej: ${e} × ${f} = ?`,ans:e*f,h1:`Rozlož ${f} na desítky a jednotky.`,h2:`${e}×${f} = ${e*f}`};},
+    ()=>{const g=ri(3,9),h=g*ri(10,30);return{text:`Vypočítej: ${h} : ${g} = ?`,ans:h/g,h1:`Kolikrát se ${g} vejde do ${h}?`,h2:`${h}:${g} = ${h/g}`};},
+    ()=>{const i=ri(150,899);return{text:`Zaokrouhli ${i} na stovky.`,ans:Math.round(i/100)*100,h1:'Rozhoduje číslice desítek.',h2:`≈ ${Math.round(i/100)*100}`};},
+    ()=>{const i=ri(115,985);return{text:`Zaokrouhli ${i} na desítky.`,ans:Math.round(i/10)*10,h1:'Rozhoduje číslice jednotek.',h2:`≈ ${Math.round(i/10)*10}`};},
+    ()=>{const j=ri(3,9),k=ri(3,9),l=ri(5,40);return{text:`Vypočítej: ${j} × ${k} + ${l} = ?`,ans:j*k+l,h1:'Nejdřív násobení, pak sčítání.',h2:`${j*k}+${l} = ${j*k+l}`};},
+    ()=>{const a=ri(3,9),b=ri(3,9),c=ri(2,12);return{text:`Vypočítej: ${a} × ${b} − ${c} = ?`,ans:a*b-c,h1:'Nejdřív násobení, pak odčítání.',h2:`${a*b}−${c} = ${a*b-c}`};},
+    ()=>{const a=ri(300,900),b=ri(50,250),c=ri(20,90);return{text:`Vypočítej: ${a} − ${b} − ${c} = ?`,ans:a-b-c,h1:'Odečítej postupně zleva doprava.',h2:`${a}−${b} = ${a-b}, pak −${c} = ${a-b-c}`};},
+    ()=>{const a=ri(120,600),b=ri(80,380);return{text:`Doplň: ${a} + ? = ${a+b}`,ans:b,h1:`Odečti: ${a+b} − ${a}.`,h2:`= ${b}`};},
+    ()=>{const b=ri(3,9),q=ri(11,40);return{text:`Doplň: ? × ${b} = ${b*q}`,ans:q,h1:`Vyděl: ${b*q} : ${b}.`,h2:`= ${q}`};},
+    ()=>{const s=new Set();while(s.size<3)s.add(ri(120,980));const arr=[...s];return{text:`Které z čísel ${arr[0]}, ${arr[1]}, ${arr[2]} je největší?`,ans:Math.max(...arr),h1:'Porovnej stovky, pak nižší řády.',h2:`= ${Math.max(...arr)}`};},
+    ()=>{const a=ri(200,800);return{text:`Jaký je dvojnásobek čísla ${a}?`,ans:a*2,h1:`2 × ${a}`,h2:`= ${a*2}`};},
+  ];
   const tasks=[];
-  const a=ri(120,890),b=ri(110,540);
-  tasks.push({text:`Vypočítej: ${a} + ${b} = ?`,ans:a+b,hints:['Sčítej po řádech (jednotky, desítky, stovky).',`${a}+${b} = ${a+b}`],skill:'calc'});
-  const c=ri(400,990),d=ri(110,c-50);
-  tasks.push({text:`Vypočítej: ${c} − ${d} = ?`,ans:c-d,hints:['Odečítej po řádech, hlídej výpůjčku.',`${c}−${d} = ${c-d}`],skill:'calc'});
-  const e=ri(12,40),f=ri(11,30);
-  tasks.push({text:`Vypočítej: ${e} × ${f} = ?`,ans:e*f,hints:[`Rozlož ${f} na desítky a jednotky.`,`${e}×${f} = ${e*f}`],skill:'calc'});
-  const g=ri(3,9),h=g*ri(10,30);
-  tasks.push({text:`Vypočítej: ${h} : ${g} = ?`,ans:h/g,hints:['Kolikrát se '+g+' vejde do '+h+'?',`${h}:${g} = ${h/g}`],skill:'calc'});
-  const i=ri(100,900);
-  tasks.push({text:`Zaokrouhli ${i} na stovky.`,ans:Math.round(i/100)*100,hints:['Podívej se na číslici desítek.',`≈ ${Math.round(i/100)*100}`],skill:'calc'});
-  const j=ri(2,9),k=ri(2,9),l=ri(2,9);
-  tasks.push({text:`Vypočítej: ${j} × ${k} + ${l} = ?`,ans:j*k+l,hints:['Nejdřív násobení, pak sčítání.',`${j*k}+${l} = ${j*k+l}`],skill:'calc'});
-  { const a=ri(300,900),b=ri(50,250),c=ri(20,90); tasks.push({text:`Vypočítej: ${a} − ${b} − ${c} = ?`,ans:a-b-c,hints:['Odečítej postupně zleva doprava.',`${a}−${b} = ${a-b}, pak −${c}`],skill:'calc'}); }
-  { const a=ri(13,29),b=ri(13,29); tasks.push({text:`Vypočítej: ${a} × ${b} = ?`,ans:a*b,hints:[`Rozlož ${b} na desítky a jednotky.`,`${a}×${b} = ${a*b}`],skill:'calc'}); }
-  { const g=ri(4,9),h=g*ri(12,40); tasks.push({text:`Vypočítej: ${h} : ${g} = ?`,ans:h/g,hints:[`Kolikrát se ${g} vejde do ${h}?`,`${h}:${g} = ${h/g}`],skill:'calc'}); }
-  { const a=ri(2,9),b=ri(2,9),c=ri(2,12); tasks.push({text:`Vypočítej: ${a} × ${b} − ${c} = ?`,ans:a*b-c,hints:['Nejdřív násobení, pak odčítání.',`${a*b}−${c} = ${a*b-c}`],skill:'calc'}); }
+  for(let i=0;i<13;i++){const t=T[i%T.length]();tasks.push({text:t.text,ans:t.ans,hints:[t.h1,t.h2],skill:'calc'});}
   return tasks;
 }
 
@@ -162,25 +162,24 @@ function gen_2_3(){
 // OBLAST 3 — POLE DĚLITELNOSTI
 // ══════════════════════════════════════════════════════════
 
-// 3-1 Znaky dělitelnosti (2,3,4,5,9,10)
+// 3-1 Znaky dělitelnosti (2,3,4,5,9,10) — šablony se liší SLOVY, ne dělitelem
 function gen_3_1(){
+  const cs = n => String(n).split('').reduce((x,y)=>x+ +y,0);
+  const T=[
+    ()=>{const d=[2,3,4,5,6,9,10][ri(0,6)];const yes=ri(0,1)===0;let a;if(yes)a=ri(11,90)*d;else{a=ri(120,890);while(a%d===0)a++;}const ok=a%d===0;return{text:`Je číslo ${a} dělitelné ${d}?`,ans:ok?'ANO':'NE',h1:'Použij znak dělitelnosti (poslední číslice / ciferný součet).',h2:ok?'ANO':'NE'};},
+    ()=>{const a=ri(50,899);const ok=a%2===0;return{text:`Je číslo ${a} sudé?`,ans:ok?'ANO':'NE',h1:'Sudé číslo končí 0, 2, 4, 6 nebo 8.',h2:ok?'ANO':'NE'};},
+    ()=>{const a=ri(50,899);const ok=a%2===1;return{text:`Je číslo ${a} liché?`,ans:ok?'ANO':'NE',h1:'Liché číslo končí 1, 3, 5, 7 nebo 9.',h2:ok?'ANO':'NE'};},
+    ()=>{const b=ri(3,9),q=ri(11,40),ok=ri(0,1)===0;const a=ok?b*q:b*q+ri(1,b-1);return{text:`Je číslo ${a} násobkem čísla ${b}?`,ans:a%b===0?'ANO':'NE',h1:`Vejde se ${b} do ${a} beze zbytku?`,h2:a%b===0?'ANO':'NE'};},
+    ()=>{const a=ri(100,899);return{text:`Jaký je ciferný součet čísla ${a}?`,ans:cs(a),h1:'Sečti všechny číslice.',h2:`${String(a).split('').join('+')} = ${cs(a)}`};},
+    ()=>{const a=ri(100,899);const near=Math.round(a/10)*10;return{text:`Jaký je nejbližší násobek deseti k číslu ${a}?`,ans:near,h1:'Zaokrouhli na desítky.',h2:`= ${near}`};},
+    ()=>{const b=[3,4,6,7,8,9][ri(0,5)],q=ri(11,40),r=ri(1,b-1);const a=b*q+r;return{text:`Jaký zbytek dává číslo ${a} po dělení ${b}?`,ans:r,h1:`Největší násobek ${b} pod ${a} je ${b*q}.`,h2:`zbytek = ${r}`};},
+    ()=>{const d=[3,4,6][ri(0,2)];const q=ri(20,90);const a=d*q;const next=d*(q+1);return{text:`Jaké je nejbližší VĚTŠÍ číslo než ${a-1}, které je dělitelné ${d}?`,ans:a,h1:`Hledej první násobek ${d} od ${a-1} nahoru.`,h2:`= ${a}`};},
+    ()=>{const a=ri(100,899);const okBoth=a%2===0&&a%3===0;return{text:`Je číslo ${a} dělitelné zároveň dvěma i třemi?`,ans:okBoth?'ANO':'NE',h1:'Musí být sudé A zároveň mít ciferný součet dělitelný 3 (tj. dělitelné 6).',h2:okBoth?'ANO':'NE'};},
+    ()=>{const q=ri(12,40);const a=q*5;return{text:`Kolik pětek je obsaženo v čísle ${a}? (${a} : 5)`,ans:q,h1:`Vyděl ${a} : 5.`,h2:`= ${q}`};},
+    ()=>{const a=ri(100,890);const isPrimeLike=false;const div=[2,3,5][ri(0,2)];const ok=a%div===0;return{text:`Vydělí číslo ${div} beze zbytku číslo ${a}?`,ans:ok?'ANO':'NE',h1:`Použij znak dělitelnosti ${div===2?'dvěma (sudé)':div===3?'třemi (ciferný součet)':'pěti (končí 0/5)'}.`,h2:ok?'ANO':'NE'};},
+  ];
   const tasks=[];
-  const a=ri(10,99)*2;
-  tasks.push({text:`Je číslo ${a} dělitelné 2?`,ans:'ANO',hints:['Sudé číslo končí 0,2,4,6,8.','ANO'],skill:'anal'});
-  const b=ri(10,99)*2+1;
-  tasks.push({text:`Je číslo ${b} dělitelné 2?`,ans:'NE',hints:['Liché číslo není dělitelné 2.','NE'],skill:'anal'});
-  const c=ri(10,99)*5;
-  tasks.push({text:`Je číslo ${c} dělitelné 5?`,ans:'ANO',hints:['Dělitelné 5 končí 0 nebo 5.','ANO'],skill:'anal'});
-  const d=ri(10,33)*3;
-  tasks.push({text:`Je číslo ${d} dělitelné 3?`,ans:'ANO',hints:['Sečti číslice; je-li součet dělitelný 3, je i číslo.','ANO'],skill:'anal'});
-  const e=ri(10,99)*10;
-  tasks.push({text:`Je číslo ${e} dělitelné 10?`,ans:'ANO',hints:['Dělitelné 10 končí na 0.','ANO'],skill:'anal'});
-  const fbase=ri(11,40),f=fbase*9;
-  tasks.push({text:`Je číslo ${f} dělitelné 9?`,ans:'ANO',hints:['Ciferný součet dělitelný 9 → číslo dělitelné 9.','ANO'],skill:'anal'});
-  { const a=ri(10,99)*4; tasks.push({text:`Je číslo ${a} dělitelné 4?`,ans:'ANO',hints:['Dělitelné 4: poslední dvojčíslí dělitelné 4.','ANO'],skill:'anal'}); }
-  { const a=ri(10,99)*2+1; tasks.push({text:`Je číslo ${a} dělitelné 5?`,ans:(a%5===0?'ANO':'NE'),hints:['Dělitelné 5 končí na 0 nebo 5.',(a%5===0?'ANO':'NE')],skill:'anal'}); }
-  { const a=ri(10,30)*3; tasks.push({text:`Je číslo ${a} dělitelné 3?`,ans:'ANO',hints:['Sečti číslice; součet dělitelný 3 → číslo dělitelné 3.','ANO'],skill:'anal'}); }
-  { const a=ri(11,40)*6; tasks.push({text:`Je číslo ${a} dělitelné 6?`,ans:'ANO',hints:['Dělitelné 6 = dělitelné 2 i 3 zároveň.','ANO'],skill:'anal'}); }
+  for(let i=0;i<13;i++){const t=T[i%T.length]();tasks.push({text:t.text,ans:t.ans,hints:[t.h1,t.h2],skill:'anal'});}
   return tasks;
 }
 
@@ -409,8 +408,7 @@ function gen_6_2(){
   tasks.push({text:`Kvádr ${b} × ${c} × ${d} cm. Jaký je jeho povrch?`,ans:2*(b*c+c*d+b*d),hints:['S = 2·(ab+bc+ac).',`= ${2*(b*c+c*d+b*d)} cm²`],skill:'geo'});
   const e=ri(2,6),se=6*e*e;
   tasks.push({text:`Krychle má povrch ${se} cm². Jaká je délka hrany?`,ans:e,hints:['a = √(S/6).',`= ${e} cm`],skill:'geo'});
-  const f=ri(2,7);
-  tasks.push({text:`Kolik stěn má krychle?`,ans:6,hints:['Vezmi si kostku a počítej stěny po dvojicích — protilehlé.',''],skill:'geo'});
+  tasks.push({text:`Kolik stěn má krychle?`,ans:6,hints:['Vezmi si kostku a počítej stěny po dvojicích — protilehlé.','Krychle má 6 stěn.'],skill:'geo'});
   const g=ri(2,6);
   tasks.push({text:`Obsah jedné stěny krychle s hranou ${g} cm?`,ans:g*g,hints:['Stěna je čtverec a².',`= ${g*g} cm²`],skill:'geo'});
   const h=ri(3,7),i=ri(2,6);
@@ -431,10 +429,10 @@ function gen_6_3(){
   tasks.push({text:`Kolik ml je ${b} ${skl(b,'litr','litry','litrů')}? (1 l = 1000 ml)`,ans:b*1000,hints:['1 l = 1000 ml.',`= ${b*1000} ml`],skill:'calc'});
   const c=ri(2,9);
   tasks.push({text:`Kolik cm³ je ${c} ${skl(c,'litr','litry','litrů')}? (1 l = 1000 cm³)`,ans:c*1000,hints:['1 l = 1000 cm³.',`= ${c*1000} cm³`],skill:'calc'});
-  tasks.push({text:`Kolik stěn má síť krychle?`,ans:6,hints:['Síť má tolik čtverců, kolik má krychle stěn — spočítej je na kostce.',''],skill:'geo'});
+  tasks.push({text:`Kolik čtverců má síť krychle?`,ans:6,hints:['Síť má tolik čtverců, kolik má krychle stěn — spočítej je na kostce.','Síť krychle má 6 čtverců.'],skill:'geo'});
   const d=ri(2,8)*1000;
   tasks.push({text:`Kolik m³ je ${d} litrů? (1000 l = 1 m³)`,ans:d/1000,hints:['Děl 1000.',`= ${d/1000} m³`],skill:'calc'});
-  tasks.push({text:`Kolik hran má krychle?`,ans:12,hints:['Počítej hrany po skupinách: dolní podstava, horní podstava, svislé.',''],skill:'geo'});
+  tasks.push({text:`Kolik hran má krychle?`,ans:12,hints:['Počítej hrany po skupinách: dolní podstava, horní podstava, svislé.','4 + 4 + 4 = 12 hran.'],skill:'geo'});
   { const a=ri(2,9); tasks.push({text:`Kolik litrů je ${a} m³? (1 m³ = 1000 l)`,ans:a*1000,hints:['1 m³ = 1000 litrů.',`= ${a*1000} l`],skill:'calc'}); }
   { const a=ri(2,9); tasks.push({text:`Kolik cm³ je ${a} l? (1 l = 1000 cm³)`,ans:a*1000,hints:['1 l = 1000 cm³.',`= ${a*1000} cm³`],skill:'calc'}); }
   { const a=ri(2,8)*1000; tasks.push({text:`Kolik m³ je ${a} l? (1000 l = 1 m³)`,ans:a/1000,hints:['Děl 1000.',`= ${a/1000} m³`],skill:'calc'}); }
