@@ -42,24 +42,22 @@ function gen_1_1(){
 
 // 1-2 Desetinná čísla (+−×:)
 function gen_1_2(){
+  const T=[
+    ()=>{const a=ri(11,50)/10,b=ri(5,30)/10;return{text:`Sečti desetinná čísla ${cz(a)} + ${cz(b)} = ?`,ans:r1(a+b),h1:'Napiš čísla pod sebe, desetinnou čárku pod čárku.',h2:`= ${r1(a+b)}`};},
+    ()=>{const c=ri(30,80)/10,d=ri(5,25)/10;return{text:`Odečti desetinná čísla ${cz(c)} − ${cz(d)} = ?`,ans:r1(c-d),h1:'Zarovnej desetinné čárky pod sebe a odečítej.',h2:`= ${r1(c-d)}`};},
+    ()=>{const e=ri(2,9),f=ri(11,49)/10;return{text:`Vynásob ${e} × ${cz(f)} = ?`,ans:r2(e*f),h1:`Násob jako celá čísla (${e} × ${Math.round(f*10)}), pak doplň jedno desetinné místo.`,h2:`= ${r2(e*f)}`};},
+    ()=>{const h=ri(2,5),g=Math.round(ri(11,49)/10*h*10)/10;return{text:`Vyděl ${cz(g)} : ${h} = ?`,ans:r2(g/h),h1:'Děl jako celá čísla a čárku napiš nad čárku dělence.',h2:`= ${r2(g/h)}`};},
+    ()=>{const i=ri(11,30)/10,j=ri(11,30)/10;return{text:`Vynásob dvě desetinná čísla ${cz(i)} × ${cz(j)} = ?`,ans:r2(i*j),h1:`Spočítej ${Math.round(i*10)} × ${Math.round(j*10)} a vyděl 100 (dvě desetinná místa).`,h2:`= ${r2(i*j)}`};},
+    ()=>{const k=ri(15,60)/10,l=ri(10,30)/10;return{text:`Nakoupil jsi dvě věci za ${cz(k)} Kč a ${cz(l)} Kč. Kolik jsi zaplatil celkem?`,ans:r1(k+l),h1:'Sečti obě ceny.',h2:`= ${r1(k+l)} Kč`};},
+    ()=>{const a=ri(10,99)/100;return{text:`Zaokrouhli číslo ${cz(a)} na desetiny.`,ans:r1(a),h1:'Rozhoduje číslice setin (druhá za čárkou).',h2:`≈ ${r1(a)}`};},
+    ()=>{const a=ri(50,90)/10,b=ri(11,40)/10;return{text:`O kolik je číslo ${cz(a)} větší než ${cz(b)}?`,ans:r1(a-b),h1:'Rozdíl zjistíš odčítáním.',h2:`= ${r1(a-b)}`};},
+    ()=>{const a=ri(21,60)/10;return{text:`Jaká je polovina čísla ${cz(a)}?`,ans:r2(a/2),h1:'Vyděl dvěma.',h2:`= ${r2(a/2)}`};},
+    ()=>{const a=ri(11,49)/10;return{text:`Vynásob číslo ${cz(a)} deseti.`,ans:r1(a*10),h1:'Posuň desetinnou čárku o jedno místo doprava.',h2:`= ${r1(a*10)}`};},
+    ()=>{const a=ri(20,50)/10,b=ri(10,25)/10,c=ri(10,25)/10;return{text:`Sečti tři desetinná čísla ${cz(a)} + ${cz(b)} + ${cz(c)} = ?`,ans:r1(a+b+c),h1:'Sčítej postupně, čárky pod sebe.',h2:`= ${r1(a+b+c)}`};},
+    ()=>{const a=ri(30,90)/10;const ok=ri(0,1)===0;const tvrz=ok?r1(a*2):r1(a*2+0.1);const spravne=tvrz===r1(a*2);return{text:`Je dvojnásobek čísla ${cz(a)} roven ${cz(tvrz)}?`,ans:spravne?'ANO':'NE',h1:'Spočítej 2 × dané číslo.',h2:spravne?'ANO':'NE'};},
+  ];
   const tasks=[];
-  const a=ri(10,50)/10, b=ri(5,30)/10;
-  tasks.push({text:`${cz(a)} + ${cz(b)} = ?`,ans:r1(a+b),hints:['Zarovnej desetinné čárky pod sebe.','Sečti jako celá čísla, přidej čárku.'],skill:'calc'});
-  const c=ri(30,80)/10, d=ri(5,c*10-5)/10;
-  tasks.push({text:`${cz(c)} − ${cz(d)} = ?`,ans:r1(c-d),hints:['Zarovnej desetinné čárky pod sebe.','Odečti jako celá čísla.'],skill:'calc'});
-  const e=ri(2,9), f=ri(11,49)/10;
-  tasks.push({text:`${e} × ${cz(f)} = ?`,ans:r2(e*f),hints:[`Přepočti: ${e} × ${Math.round(f*10)} desetin.`,`Výsledek = ${r2(e*f)}`],skill:'calc'});
-  const g=ri(11,49)/10, h=ri(2,5);
-  tasks.push({text:`${cz(g)} : ${h} = ?`,ans:r2(g/h),hints:[`Dělíme ${Math.round(g*10)} desetin číslem ${h}.`,`Výsledek = ${r2(g/h)}`],skill:'calc'});
-  const i=ri(10,30)/10, j=ri(10,30)/10;
-  tasks.push({text:`${cz(i)} × ${cz(j)} = ?`,ans:r2(i*j),hints:[`Počítej: ${Math.round(i*10)} × ${Math.round(j*10)} = ${Math.round(i*10)*Math.round(j*10)}, poděl 100.`,`Výsledek = ${r2(i*j)}`],skill:'calc'});
-  const k=ri(15,60)/10, l=ri(10,30)/10;
-  const res56=r1(k+l);
-  tasks.push({text:`Nakoupil jsem 2 věci za ${cz(k)} Kč a ${cz(l)} Kč. Kolik jsem zaplatil celkem?`,ans:res56,hints:['Sečti obě ceny.','Výsledek = '+res56+' Kč'],skill:'calc'});
-  { const a=ri(20,80)/10,b=ri(10,40)/10; tasks.push({text:`${cz(a)} + ${cz(b)} = ?`,ans:r1(a+b),hints:['Zarovnej desetinné čárky pod sebe.',`= ${r1(a+b)}`],skill:'calc'}); }
-  { const a=ri(50,99)/10,b=ri(10,40)/10; tasks.push({text:`${cz(a)} − ${cz(b)} = ?`,ans:r1(a-b),hints:['Zarovnej desetinné čárky pod sebe.',`= ${r1(a-b)}`],skill:'calc'}); }
-  { const a=ri(2,9),b=ri(11,29)/10; tasks.push({text:`${a} × ${cz(b)} = ?`,ans:r2(a*b),hints:['Násob jako celá čísla a doplň čárku.',`= ${r2(a*b)}`],skill:'calc'}); }
-  { const a=ri(10,99)/100; tasks.push({text:`Zaokrouhli ${cz(a)} na desetiny.`,ans:r1(a),hints:['Rozhodují setiny.',`≈ ${r1(a)}`],skill:'calc'}); }
+  for(let i=0;i<13;i++){const t=T[i%T.length]();tasks.push({text:t.text,ans:t.ans,hints:[t.h1,t.h2],skill:'calc'});}
   return tasks;
 }
 
@@ -97,108 +95,64 @@ function gen_1_3(){
 
 // 2-1 Krácení a rozšiřování (MC — numerické)
 function gen_2_1(){
+  const T=[
+    ()=>{const a=ri(2,6),x=ri(2,4),b=ri(2,5);const top=a*x,bot=b*x;const g=gcd(top,bot);return{text:`Zkrať zlomek ${top}/${bot} na základní tvar. Jaký je jeho ČITATEL?`,ans:top/g,h1:`Vyděl čitatele i jmenovatele jejich největším společným dělitelem (NSD = ${g}).`,h2:`= ${top/g}`};},
+    ()=>{const a=ri(2,6),x=ri(2,4),b=ri(2,5);const top=a*x,bot=b*x;const g=gcd(top,bot);return{text:`Zkrať zlomek ${top}/${bot} na základní tvar. Jaký je jeho JMENOVATEL?`,ans:bot/g,h1:`Vyděl oba členy jejich NSD (${g}).`,h2:`= ${bot/g}`};},
+    ()=>{const a=ri(2,6),k=ri(2,5);return{text:`Zkrať zlomek ${a*k}/${k} na celé číslo.`,ans:a,h1:`Jmenovatel ${k} se ve zlomku zkrátí.`,h2:`= ${a}`};},
+    ()=>{const c=ri(2,7),d=ri(2,6),k=ri(2,5);return{text:`Rozšiř zlomek ${c}/${d} číslem ${k}. Jaký bude nový ČITATEL?`,ans:c*k,h1:'Rozšíření = násobit čitatele i jmenovatele stejným číslem.',h2:`${c} × ${k} = ${c*k}`};},
+    ()=>{const c=ri(2,7),d=ri(2,6),k=ri(2,5);return{text:`Rozšiř zlomek ${c}/${d} číslem ${k}. Jaký bude nový JMENOVATEL?`,ans:d*k,h1:'Jmenovatel vynásob rozšiřujícím číslem.',h2:`${d} × ${k} = ${d*k}`};},
+    ()=>{const e=ri(2,5),f=ri(3,8);return{text:`Je zlomek ${e*2}/${f*2} roven zlomku ${e}/${f}?`,ans:'ANO',h1:`Zkrať levý zlomek dvěma.`,h2:'ANO'};},
+    ()=>{const e=ri(2,5),f=ri(3,8);const k=ri(2,4);return{text:`Je zlomek ${e*k}/${f*k} roven zlomku ${e+1}/${f}?`,ans:'NE',h1:`Zkrácený levý zlomek je ${e}/${f}, ne ${e+1}/${f}.`,h2:'NE'};},
+    ()=>{const d=ri(2,6),k=ri(2,5);return{text:`Na jaké číslo musíš rozšířit jmenovatel zlomku s jmenovatelem ${d}, aby byl ${d*k}?`,ans:k,h1:`Kolikrát se ${d} vejde do ${d*k}?`,h2:`= ${k}`};},
+    ()=>{const a=ri(2,5),k=ri(2,4);const top=a*k;return{text:`Zlomek ${top}/${a*k*2} zkrať na základní tvar. Jaký je čitatel? (obě čísla dělitelná ${a*k})`,ans:1,h1:`Vyděl oba členy NSD.`,h2:`= 1`};},
+    ()=>{const base=ri(2,5),d=ri(3,7);const zaklad=`${base}/${d}`;return{text:`Je zlomek ${base}/${d} v základním (nezkrátitelném) tvaru? (NSD čitatele a jmenovatele = 1)`,ans:gcd(base,d)===1?'ANO':'NE',h1:`Zjisti NSD(${base}, ${d}).`,h2:gcd(base,d)===1?'ANO':'NE'};},
+    ()=>{const a=ri(2,4),b=ri(2,4),k=ri(2,5);return{text:`Zlomek ${a}/${b} rozšiř tak, aby čitatel byl ${a*k}. Jaký bude jmenovatel?`,ans:b*k,h1:`Čitatel se násobil ${k}× (${a}→${a*k}), stejně násob jmenovatel.`,h2:`${b} × ${k} = ${b*k}`};},
+  ];
   const tasks=[];
-  // krácení — výsledek jako celé číslo
-  const a=ri(2,6),b=ri(2,8);
-  tasks.push({text:`Zkrať zlomek na základní tvar: ${a*b}/${b*ri(2,4)} = ?/1\nJaké je čitatel? (Zapište jen číslo čitatele výsledku.)`,ans:a,hints:['Vyděl čitatele i jmenovatele jejich NSD.','NSD('+a*b+','+b*ri(2,4)+')…'],skill:'calc'});
-  // krácení na číselný výsledek
-  const p=ri(2,5),q=ri(3,7);
-  const top=p*q, bot=p*(q+ri(1,3));
-  const g2=gcd(top,bot);
-  tasks.push({text:`Zkrať na základní tvar: ${top}/${bot}. Jaký je čitatel?`,ans:top/g2,hints:['Vyděl čitatele i jmenovatele NSD('+top+','+bot+').','NSD = '+g2+', výsledek: '+(top/g2)+'/'+(bot/g2)],skill:'calc'});
-  // rozšiřování
-  const c=ri(2,7),d=ri(2,6),k=ri(2,5);
-  tasks.push({text:`Rozšiř zlomek na jmenovatele ${d*k}: ${c}/${d} = ${c*k}/${d*k}\nJaké je nové číslo v čitateli?`,ans:c*k,hints:['Čitatel × rozšiřující číslo.',''+c+' × '+k+' = '+c*k],skill:'calc'});
-  // porovnání — ANO/NE
-  const e=ri(2,5),f=ri(3,8);
-  tasks.push({text:`Je zlomek ${e*2}/${f*2} rovno ${e}/${f}?`,ans:'ANO',hints:['Zkrať levý zlomek.','${e*2}/${f*2} zkráceno = ${e}/${f} → ANO'],skill:'calc'});
-  // numerická MC
-  const h=ri(2,9),i=ri(3,12);
-  const g3=gcd(h,i);
-  tasks.push({text:`Výsledek krácení ${h}/${i} na základní tvar: čitatel?`,ans:h/g3,hints:['Najdi NSD čitatele a jmenovatele a oběma jím vyděl.',''+h/g3+'/'+i/g3],skill:'calc'});
-  const m=ri(3,8),n=ri(3,8);
-  tasks.push({text:`Rozšiř ${m}/${n} číslem 3. Nový čitatel?`,ans:m*3,hints:['Čitatel × 3.',''+m+' × 3 = '+m*3],skill:'calc'});
-  { const a=ri(2,6),b=ri(2,5),k=ri(2,4); tasks.push({text:`Zkrať ${a*k}/${b*k} na základní tvar. Jaký je čitatel?`,ans:a,hints:['Vyděl oba členy jejich NSD.',`= ${a}`],skill:'calc'}); }
-  { const c=ri(2,7),d=ri(2,6),k=ri(2,5); tasks.push({text:`Rozšiř ${c}/${d} číslem ${k}. Nový čitatel?`,ans:c*k,hints:['Čitatel × rozšiřující číslo.',`${c}×${k} = ${c*k}`],skill:'calc'}); }
-  { const c=ri(2,7),d=ri(2,6),k=ri(2,5); tasks.push({text:`Rozšiř ${c}/${d} číslem ${k}. Nový jmenovatel?`,ans:d*k,hints:['Jmenovatel × rozšiřující číslo.',`${d}×${k} = ${d*k}`],skill:'calc'}); }
-  { const a=ri(2,6),k=ri(2,5); tasks.push({text:`Zkrať ${a*k}/${k} na celé číslo.`,ans:a,hints:[`Vyděl oba členy ${k}.`,`= ${a}`],skill:'calc'}); }
+  for(let i=0;i<13;i++){const t=T[i%T.length]();tasks.push({text:t.text,ans:t.ans,hints:[t.h1,t.h2],skill:'calc'});}
   return tasks;
 }
 
 // 2-2 Sčítání a odčítání zlomků (různé jmenovatele)
 function gen_2_2(){
+  const lcm=(a,b)=>a/gcd(a,b)*b;
+  const asFrac=(num,den)=>{const g=gcd(Math.abs(num),den);return num===0?'0':(g===den?String(num/g):`${num/g}/${den/g}`);};
+  const T=[
+    ()=>{const a=ri(2,5),b=ri(2,6);const L=lcm(a,b);const p=ri(1,a-1)||1,q=ri(1,b-1)||1;const num=p*(L/a)+q*(L/b);return{text:`Sečti zlomky ${p}/${a} + ${q}/${b} = ?`,ans:asFrac(num,L),h1:`Převeď na společného jmenovatele ${L}.`,h2:`${p*(L/a)}/${L} + ${q*(L/b)}/${L} = ${num}/${L}`};},
+    ()=>{const c=ri(3,8),d=ri(2,c-1);const L=lcm(c,d);const r=ri(2,c-1),s=ri(1,d-1)||1;const num=r*(L/c)-s*(L/d);return{text:`Odečti zlomky ${r}/${c} − ${s}/${d} = ?`,ans:asFrac(num,L),h1:`Společný jmenovatel je ${L}.`,h2:`${r*(L/c)}/${L} − ${s*(L/d)}/${L} = ${num}/${L}`};},
+    ()=>{const w=ri(1,4),v=ri(2,7),u=ri(1,v-1);const num=w*v+u;return{text:`Sečti celé číslo se zlomkem: ${w} + ${u}/${v} = ?`,ans:asFrac(num,v),h1:`Přepočti ${w} jako ${w*v}/${v}.`,h2:`${w*v}/${v} + ${u}/${v} = ${num}/${v}`};},
+    ()=>{const x=ri(2,5),y=ri(3,8),z=ri(1,y-1);const num=x*y-z;return{text:`Odečti zlomek od celého čísla: ${x} − ${z}/${y} = ?`,ans:asFrac(num,y),h1:`Přepočti ${x} jako ${x*y}/${y}.`,h2:`${x*y}/${y} − ${z}/${y} = ${num}/${y}`};},
+    ()=>{const n=ri(3,7),o=ri(2,n-1);const num=1*n+o;return{text:`Přepočti smíšené číslo 1 ${o}/${n} na zlomek. Jaký je jeho ČITATEL?`,ans:num,h1:'Celá část × jmenovatel + čitatel.',h2:`1·${n} + ${o} = ${num}`};},
+    ()=>{const f1n=ri(2,5),f1d=ri(3,8),f2n=ri(2,5),f2d=ri(3,8);const gt=f1n/f1d>f2n/f2d;return{text:`Je zlomek ${f1n}/${f1d} větší než ${f2n}/${f2d}?`,ans:gt?'ANO':'NE',h1:'Převeď na společného jmenovatele nebo porovnej desetinnou hodnotu.',h2:gt?'ANO':'NE'};},
+    ()=>{const a=ri(2,5),b=ri(3,7);const L=lcm(a,b);const num=(L/a)+(L/b);return{text:`Kolik je 1/${a} + 1/${b}? (zapiš jako zlomek)`,ans:asFrac(num,L),h1:`Společný jmenovatel = ${L}.`,h2:`${L/a}/${L} + ${L/b}/${L} = ${num}/${L}`};},
+    ()=>{const d=ri(3,8),a=ri(1,d-1);const num=d-a;return{text:`Kolik chybí zlomku ${a}/${d} do celku (1)? Zapiš jako zlomek.`,ans:asFrac(num,d),h1:`Celek je ${d}/${d}. Odečti ${a}/${d}.`,h2:`${num}/${d}`};},
+    ()=>{const a=ri(2,4),b=2*a;const num=(b/a)+1;return{text:`Sečti zlomky s násobným jmenovatelem: 1/${a} + 1/${b} = ? (${b} je násobek ${a})`,ans:asFrac(num,b),h1:`Stačí rozšířit první zlomek na jmenovatele ${b}.`,h2:`${b/a}/${b} + 1/${b} = ${num}/${b}`};},
+    ()=>{const c=ri(3,7),num1=ri(1,c-1),num2=ri(1,c-num1);const s=num1+num2;const isWhole=s===c;return{text:`Dají zlomky ${num1}/${c} + ${num2}/${c} dohromady jeden celek?`,ans:isWhole?'ANO':'NE',h1:`Celek je ${c}/${c}. Je ${num1}+${num2} rovno ${c}?`,h2:isWhole?'ANO':'NE'};},
+    ()=>{const a=ri(3,6),b=ri(2,a-1);const L=lcm(a,b);const num=(L/b)-(L/a);return{text:`O kolik je zlomek 1/${b} větší než 1/${a}? (zapiš jako zlomek)`,ans:asFrac(num,L),h1:`Společný jmenovatel ${L}; menší jmenovatel = větší zlomek.`,h2:`${L/b}/${L} − ${L/a}/${L} = ${num}/${L}`};},
+  ];
   const tasks=[];
-  function lcm(a,b){return a/gcd(a,b)*b;}
-  // různé jmenovatele — výsledek celé číslo nebo zlomek
-  const a=ri(2,5),b=ri(2,6);const L=lcm(a,b);const p=ri(1,a-1)||1,q=ri(1,b-1)||1;
-  const numSum=p*Math.round(L/a)+q*Math.round(L/b);const gSum=gcd(numSum,L);
-  const ansSum=gSum===L?String(numSum/gSum):`${numSum/gSum}/${L/gSum}`;
-  tasks.push({text:`${p}/${a} + ${q}/${b} = ?`,ans:ansSum,hints:['Převeď na společného jmenovatele '+L+'.',''+p+'·'+(L/a)+'/'+L+' + '+q+'·'+(L/b)+'/'+L+' = '+numSum+'/'+L],skill:'calc'});
-  // odčítání
-  const c=ri(3,8),d=ri(2,c-1);const L2=lcm(c,d);const r=ri(2,c-1),s=ri(1,d-1)||1;
-  const numDif=r*Math.round(L2/c)-s*Math.round(L2/d);const gDif=gcd(Math.abs(numDif),L2);
-  const ansDif=gDif===L2?String(numDif/gDif):`${numDif/gDif}/${L2/gDif}`;
-  tasks.push({text:`${r}/${c} − ${s}/${d} = ?`,ans:ansDif,hints:['Společný jmenovatel je '+L2+'.',''+r+'/'+c+' = '+(r*Math.round(L2/c))+'/'+L2],skill:'calc'});
-  // sčítání s celým číslem
-  const w=ri(1,4),v=ri(2,7),u=ri(1,v-1);
-  const numW=w*v+u;const gW=gcd(numW,v);
-  const ansW=gW===v?String(numW/gW):`${numW/gW}/${v/gW}`;
-  tasks.push({text:`${w} + ${u}/${v} = ?`,ans:ansW,hints:[`Přepočti ${w} jako ${w*v}/${v}.`,''+w*v+'/'+v+' + '+u+'/'+v+' = '+numW+'/'+v],skill:'calc'});
-  // odčítání od celého čísla
-  const x=ri(2,5),y=ri(3,8),z=ri(1,y-1);
-  const numX=x*y-z;const gX=gcd(numX,y);
-  const ansX=gX===y?String(numX/gX):`${numX/gX}/${y/gX}`;
-  tasks.push({text:`${x} − ${z}/${y} = ?`,ans:ansX,hints:[`Přepočti ${x} jako ${x*y}/${y}.`,''+x*y+'/'+y+' − '+z+'/'+y+' = '+numX+'/'+y],skill:'calc'});
-  // smíšené číslo součet
-  const m=ri(2,5),n=ri(3,7),o=ri(2,n-1);
-  const topMix=1*n+o;const gMix=gcd(topMix,n);
-  const ansMix=gMix===n?String(topMix/gMix):`${topMix/gMix}/${n/gMix}`;
-  tasks.push({text:`1${String.fromCharCode(160)}${o}/${n} (smíšené číslo) přepočítáno jako zlomek: čitatel?`,ans:topMix/gMix,hints:['Celá část × jmenovatel + čitatel.',`1·${n}+${o} = ${topMix}, pak zkrať.`],skill:'calc'});
-  // porovnání zlomků
-  const f1n=ri(2,5),f1d=ri(3,8),f2n=ri(2,5),f2d=ri(3,8);
-  const isGt=f1n/f1d>f2n/f2d;
-  tasks.push({text:`Je ${f1n}/${f1d} > ${f2n}/${f2d}?`,ans:isGt?'ANO':'NE',hints:['Přepočti na stejného jmenovatele nebo porovnej desetinnými hodnotami.',''+f1n+'/'+f1d+' ≈ '+r2(f1n/f1d)+', '+f2n+'/'+f2d+' ≈ '+r2(f2n/f2d)],skill:'calc'});
-  { function lcm2(a,b){return a/gcd(a,b)*b;} const a=ri(2,5),b=ri(3,7);const L=lcm2(a,b);const p=ri(1,a-1)||1,q=ri(1,b-1)||1;const num=p*(L/a)+q*(L/b);const g=gcd(num,L);const ans=g===L?String(num/g):`${num/g}/${L/g}`;tasks.push({text:`1/${a} + 1/${b} = ?`,ans,hints:[`Společný jmenovatel = ${L}.`,`${L/a}/${L} + ${L/b}/${L} = ${num}/${L}`],skill:'calc'}); }
-  { const x=ri(2,5),y=ri(3,8),z=ri(1,y-1);const num=x*y-z;const g=gcd(num,y);const ans=g===y?String(num/g):`${num/g}/${y/g}`;tasks.push({text:`${x} − ${z}/${y} = ?`,ans,hints:[`Přepočti ${x} jako ${x*y}/${y}.`,`${x*y}/${y} − ${z}/${y} = ${num}/${y}`],skill:'calc'}); }
-  { const n=ri(2,4),d=ri(3,7),e=ri(1,d-1);const num=(1*d+e)+n*d;const g=gcd(num,d);const ans=g===d?String(num/g):`${num/g}/${d/g}`;tasks.push({text:`${n} + 1${String.fromCharCode(160)}${e}/${d} = ? (smíšené číslo jako zlomek)`,ans,hints:[`Smíšené číslo: 1·${d}+${e} = ${d+e}, celkem ${n*d}+${d+e}.`,`${num}/${d}`],skill:'calc'}); }
-  { function lcm3(a,b){return a/gcd(a,b)*b;} const a=ri(3,7),b=ri(2,a-1);const L=lcm3(a,b);const p=ri(1,a-1)||1,q=ri(1,b-1)||1;const num=p*(L/a)-q*(L/b);const g=gcd(Math.abs(num),L);const ans=num===0?'0':(g===L?String(num/g):`${num/g}/${L/g}`);tasks.push({text:`${p}/${a} − ${q}/${b} = ?`,ans,hints:[`Společný jmenovatel = ${L}.`,`${p*(L/a)}/${L} − ${q*(L/b)}/${L} = ${num}/${L}`],skill:'calc'}); }
+  for(let i=0;i<13;i++){const t=T[i%T.length]();tasks.push({text:t.text,ans:t.ans,hints:[t.h1,t.h2],skill:'calc'});}
   return tasks;
 }
 
 // 2-3 Násobení a dělení zlomků
 function gen_2_3(){
+  const asFrac=(num,den)=>{const g=gcd(Math.abs(num),den);return num===0?'0':(g===den?String(num/g):`${num/g}/${den/g}`);};
+  const T=[
+    ()=>{const a=ri(2,5),b=ri(3,8),c=ri(2,5),d=ri(3,8);return{text:`Vynásob zlomky ${a}/${b} × ${c}/${d} = ?`,ans:asFrac(a*c,b*d),h1:'Čitatel krát čitatel, jmenovatel krát jmenovatel.',h2:`${a*c}/${b*d}, pak zkrať`};},
+    ()=>{const e=ri(2,6),f=ri(3,9),w=ri(2,5);return{text:`Vynásob zlomek celým číslem: ${e}/${f} × ${w} = ?`,ans:asFrac(e*w,f),h1:'Celým číslem násob jen čitatele, jmenovatel opiš.',h2:`${e*w}/${f}, pak zkrať`};},
+    ()=>{const g=ri(2,5),h=ri(3,8),i=ri(2,5),j=ri(3,8);return{text:`Vyděl zlomky ${g}/${h} : ${i}/${j} = ?`,ans:asFrac(g*j,h*i),h1:'Dělení zlomkem = násobení jeho převrácenou hodnotou.',h2:`${g}/${h} × ${j}/${i} = ${g*j}/${h*i}, pak zkrať`};},
+    ()=>{const l=ri(2,5),m=ri(2,6)*l,k=ri(2,l-1)||1;return{text:`Kolik je ${k}/${l} z čísla ${m}?`,ans:(k*m)/l,h1:`Nejdřív ${m} : ${l}, pak výsledek × ${k}.`,h2:`= ${(k*m)/l}`};},
+    ()=>{const p=ri(3,8),q=ri(2,p-1);return{text:`Ze šňůry dlouhé ${p} m odříznu ${q}/${p} její délky. Kolik metrů jsem odřízl?`,ans:q,h1:`${q}/${p} z ${p} m: vyděl ${p} jmenovatelem a vynásob ${q}.`,h2:`= ${q} m`};},
+    ()=>{const a=ri(2,5),b=ri(3,8);return{text:`Vynásob zlomek jeho převrácenou hodnotou: ${a}/${b} × ${b}/${a} = ?`,ans:'1',h1:'Číslo krát jeho převrácená hodnota dává vždy jednu.',h2:'= 1'};},
+    ()=>{const a=ri(2,6),b=ri(3,8),k=ri(2,4);return{text:`Vyděl celé číslo zlomkem: ${k} : ${b}/${a} = ?`,ans:asFrac(k*a,b),h1:'Vynásob číslo převrácenou hodnotou zlomku.',h2:`${k} × ${a}/${b} = ${k*a}/${b}, pak zkrať`};},
+    ()=>{const a=ri(2,5),b=ri(2,a);return{text:`Jaká je převrácená hodnota zlomku ${a}/${b}? (zapiš jako zlomek)`,ans:`${b}/${a}`,h1:'Prohoď čitatele a jmenovatele.',h2:`${b}/${a}`};},
+    ()=>{const a=ri(2,5),b=ri(3,8);return{text:`Umocni zlomek na druhou: (${a}/${b})² = ? (zapiš jako zlomek)`,ans:asFrac(a*a,b*b),h1:'Umocni zvlášť čitatele a zvlášť jmenovatele.',h2:`${a*a}/${b*b}`};},
+    ()=>{const half=ri(2,6),num=ri(1,half-1);const c=ri(2,4);return{text:`Kolikrát je zlomek ${num}/${half} menší po vydělení číslem ${c}? Jaký zlomek vyjde z ${num}/${half} : ${c}?`,ans:asFrac(num,half*c),h1:'Dělení celým číslem = násob jmenovatel tímto číslem.',h2:`${num}/${half*c}`};},
+    ()=>{const a=ri(2,4),b=ri(3,7);const whole=a*b;return{text:`Kolik ${b}tin je v čísle ${a}? (${a} : (1/${b}))`,ans:whole,h1:`Dělení jednou ${b}tinou = násobit ${b}.`,h2:`${a} × ${b} = ${whole}`};},
+  ];
   const tasks=[];
-  // násobení dvou zlomků
-  const a=ri(2,5),b=ri(3,8),c=ri(2,5),d=ri(3,8);
-  const topN=a*c,botN=b*d,gN=gcd(topN,botN);
-  const ansN=gN===botN?String(topN/gN):`${topN/gN}/${botN/gN}`;
-  tasks.push({text:`${a}/${b} × ${c}/${d} = ?`,ans:ansN,hints:['Čitatele × čitatele, jmenovatele × jmenovatele.',`${a*c}/${b*d} zkrať.`],skill:'calc'});
-  // násobení zlomku celým číslem
-  const e=ri(2,6),f=ri(3,9),w=ri(2,5);
-  const topEF=e*w,gEF=gcd(topEF,f);
-  const ansEF=gEF===f?String(topEF/gEF):`${topEF/gEF}/${f/gEF}`;
-  tasks.push({text:`${e}/${f} × ${w} = ?`,ans:ansEF,hints:['Čitatel × celé číslo, jmenovatel zůstane.',`${e*w}/${f} → zkrať.`],skill:'calc'});
-  // dělení zlomkem — převrácení
-  const g=ri(2,5),h=ri(3,8),i=ri(2,5),j=ri(3,8);
-  const topD=g*j,botD=h*i,gD=gcd(topD,botD);
-  const ansD=gD===botD?String(topD/gD):`${topD/gD}/${botD/gD}`;
-  tasks.push({text:`${g}/${h} : ${i}/${j} = ?`,ans:ansD,hints:['Dělení zlomkem = násobení převráceným zlomkem.',`${g}/${h} × ${j}/${i} = ${topD}/${botD} → zkrať.`],skill:'calc'});
-  // zlomek z čísla
-  const k=ri(2,5),l=ri(3,8),m=ri(2,6)*l;
-  const topK=k*m,gK=gcd(topK,l);
-  tasks.push({text:`Kolik je ${k}/${l} z čísla ${m}?`,ans:topK/gK,hints:['${k}/${l} z ${m} = (${k}·${m})/${l}.',`${k*m}/${l} = ${topK/gK}`],skill:'calc'});
-  // slovní úloha
-  const p=ri(3,8),q=ri(2,p-1);
-  tasks.push({text:`Ze šnůry délky ${p} m odříznu ${q}/${p} délky. Jak dlouhá je odříznutá část? (v metrech)`,ans:q,hints:[`${q}/${p} z ${p} = ${q}·${p}/${p}.`,'= '+q+' m'],skill:'calc'});
-  // smíšené číslo × celé číslo
-  const r=ri(2,4),s=ri(2,6),t=ri(2,5);
-  const topR=(r*s+1)*t,gR=gcd(topR,s);
-  const ansR=gR===s?String(topR/gR):`${topR/gR}/${s/gR}`;
-  tasks.push({text:`${r} ${skl(r,'celá','celé','celých')} ${1}/${s} × ${t} = ? (smíšené číslo: výsledek jako čitatel po zkrácení)`,ans:topR/gR,hints:['Smíšené číslo převeď na zlomek: celá část × jmenovatel + čitatel.','('+topR+'/'+gR+')/'+s/gR],skill:'calc'});
-  { const a=ri(2,5),b=ri(3,8);const g=gcd(a,b);const ans=g===b?String(a/g):`${a/g}/${b/g}`;tasks.push({text:`${a}/${b} × ${b}/${a} = ?`,ans:'1',hints:['Číslo × jeho převrácená = 1.','= 1'],skill:'calc'}); }
-  { const a=ri(2,6),b=ri(3,8),k=ri(2,4);const top=a*k,g=gcd(top,b);const ans=g===b?String(top/g):`${top/g}/${b/g}`;tasks.push({text:`${k} : ${b}/${a} = ?`,ans,hints:['Dělení zlomkem = násobení převráceným.',`${k} × ${a}/${b} = ${k*a}/${b}`],skill:'calc'}); }
-  { const a=ri(2,5),b=ri(2,a);const ans=`${b}/${a}`;tasks.push({text:`Jaké je převrácené číslo k ${a}/${b}?`,ans,hints:['Převrácená hodnota: vyměň čitatel a jmenovatel.',`${b}/${a}`],skill:'calc'}); }
-  { const a=ri(2,4),b=ri(3,8),c=ri(2,5),d=ri(3,8);const top=a*c,bot=b*d,g=gcd(top,bot);const ans=g===bot?String(top/g):`${top/g}/${bot/g}`;tasks.push({text:`${a}/${b} × ${c}/${d} = ?`,ans,hints:['Čitatele × čitatele, jmenovatele × jmenovatele.',`${a*c}/${b*d} zkrať.`],skill:'calc'}); }
+  for(let i=0;i<13;i++){const t=T[i%T.length]();tasks.push({text:t.text,ans:t.ans,hints:[t.h1,t.h2],skill:'calc'});}
   return tasks;
 }
 
@@ -208,68 +162,64 @@ function gen_2_3(){
 
 // 3-1 Sčítání a odčítání celých čísel (MC — numerické)
 function gen_3_1(){
+  const T=[
+    ()=>{const a=ri(3,15),b=ri(3,12);return{text:`(−${a}) + (−${b}) = ?`,ans:-(a+b),h1:'Dvě záporná čísla: sečti jejich velikosti a výsledek je záporný.',h2:`= −${a+b}`};},
+    ()=>{const e=ri(5,20),f=ri(3,12);return{text:`(−${e}) + ${f} = ?`,ans:f-e,h1:'Různá znaménka: odečti menší velikost od větší, znaménko podle většího.',h2:`${f} − ${e} = ${f-e}`};},
+    ()=>{const g=ri(5,20),h=ri(3,12);return{text:`${g} − (−${h}) = ?`,ans:g+h,h1:'Odečíst záporné číslo znamená přičíst kladné.',h2:`${g} + ${h} = ${g+h}`};},
+    ()=>{const i=ri(3,10),j=ri(3,15);return{text:`(−${i}) − ${j} = ?`,ans:-(i+j),h1:'Od záporného ještě odčítáš → jdeš dál do záporu.',h2:`= −${i+j}`};},
+    ()=>{const a=ri(3,10),b=ri(3,10);return{text:`(−${a}) − (−${b}) = ?`,ans:b-a,h1:'Odečíst záporné = přičíst kladné: −a + b.',h2:`−${a} + ${b} = ${b-a}`};},
+    ()=>{const a=ri(-15,-3),b=ri(-15,-3);const cel=a+b;return{text:`Vypočítej ${a} + (${b}) = ?`,ans:cel,h1:'Dvě záporná čísla se sčítají do většího záporu.',h2:`= ${cel}`};},
+    ()=>{const start=ri(-8,-2),step=ri(3,12);return{text:`Teploměr ukazuje ${start} °C a oteplí se o ${step} °C. Kolik °C ukáže?`,ans:start+step,h1:'Oteplení = přičti ke stávající teplotě.',h2:`${start} + ${step} = ${start+step} °C`};},
+    ()=>{const start=ri(2,8),drop=ri(5,15);return{text:`Teploměr ukazuje ${start} °C a ochladí se o ${drop} °C. Kolik °C ukáže?`,ans:start-drop,h1:'Ochlazení = odečti od stávající teploty (může jít pod nulu).',h2:`${start} − ${drop} = ${start-drop} °C`};},
+    ()=>{const a=ri(3,12),b=ri(3,12);return{text:`Jaká je absolutní hodnota výrazu |−${a} − ${b}|?`,ans:a+b,h1:'Nejdřív spočítej vnitřek (−a − b), pak vezmi jeho vzdálenost od nuly.',h2:`|−${a+b}| = ${a+b}`};},
+    ()=>{const a=ri(4,15),b=ri(4,15),c=ri(4,15);return{text:`(−${a}) + ${b} − ${c} = ?`,ans:-a+b-c,h1:'Počítej postupně zleva doprava.',h2:`= ${-a+b-c}`};},
+    ()=>{const a=ri(3,12);return{text:`Jaké číslo musíš přičíst k −${a}, abys dostal nulu?`,ans:a,h1:'Hledáš opačné číslo (stejná velikost, opačné znaménko).',h2:`= ${a}`};},
+    ()=>{const a=ri(-12,-3);return{text:`Jaké je číslo opačné k číslu ${a}?`,ans:-a,h1:'Opačné číslo má stejnou velikost, ale opačné znaménko.',h2:`= ${-a}`};},
+  ];
   const tasks=[];
-  const a=ri(3,15),b=ri(3,12);
-  tasks.push({text:`(−${a}) + (−${b}) = ?`,ans:-(a+b),hints:['Záporné + záporné = záporné součtu.','= −'+(a+b)],skill:'calc'});
-  const c=ri(5,20),d=ri(3,c-2);
-  tasks.push({text:`${c} − ${d} = ?`,ans:c-d,hints:['Klasické odčítání.',`${c}−${d} = ${c-d}`],skill:'calc'});
-  const e=ri(5,20),f=ri(3,12);
-  tasks.push({text:`(−${e}) + ${f} = ?`,ans:f-e,hints:['Záporné + kladné: odečti menší od většího, znaménko většího.',`${f}−${e} = ${f-e}`],skill:'calc'});
-  const g=ri(5,20),h=ri(3,12);
-  tasks.push({text:`${g} − (−${h}) = ?`,ans:g+h,hints:['Odečíst záporné = přičíst kladné.',`${g}+${h} = ${g+h}`],skill:'calc'});
-  const i=ri(3,10),j=ri(3,15);
-  tasks.push({text:`(−${i}) − ${j} = ?`,ans:-(i+j),hints:['Záporné − kladné = záporné jejich součtu.','= −'+(i+j)],skill:'calc'});
-  const k=ri(3,15),l=ri(k+1,k+10);
-  tasks.push({text:`(−${l}) + ${k} = ?`,ans:k-l,hints:['Absolutní hodnota záporného je větší.',`${k}−${l} = ${k-l}`],skill:'calc'});
-  { const a=ri(3,12),b=ri(3,12); tasks.push({text:`(−${a}) + (−${b}) = ?`,ans:-(a+b),hints:['Záporné + záporné = záporné součtu.',`= −${a+b}`],skill:'calc'}); }
-  { const a=ri(10,30),b=ri(3,a-2); tasks.push({text:`${a} − (−${b}) = ?`,ans:a+b,hints:['Odečíst záporné = přičíst kladné.',`${a}+${b} = ${a+b}`],skill:'calc'}); }
-  { const a=ri(3,10),b=ri(3,10); tasks.push({text:`(−${a}) − (−${b}) = ?`,ans:b-a,hints:['Odečíst záporné = přičíst kladné.',`−${a}+${b} = ${b-a}`],skill:'calc'}); }
-  { const a=ri(5,15),b=ri(3,a-1); tasks.push({text:`(−${a}) + ${b} = ?`,ans:b-a,hints:['Záporné větší hodnoty → výsledek záporný.',`${b}−${a} = ${b-a}`],skill:'calc'}); }
+  for(let i=0;i<13;i++){const t=T[i%T.length]();tasks.push({text:t.text,ans:t.ans,hints:[t.h1,t.h2],skill:'calc'});}
   return tasks;
 }
 
 // 3-2 Násobení a dělení celých čísel (pravidla znamének)
 function gen_3_2(){
+  const T=[
+    ()=>{const a=ri(2,9),b=ri(2,9);return{text:`(−${a}) × ${b} = ?`,ans:-(a*b),h1:'Záporné krát kladné dává záporné.',h2:`= −${a*b}`};},
+    ()=>{const c=ri(2,9),d=ri(2,9);return{text:`(−${c}) × (−${d}) = ?`,ans:c*d,h1:'Záporné krát záporné dává kladné.',h2:`= ${c*d}`};},
+    ()=>{const e=ri(2,9),f=ri(2,9);return{text:`${e} × (−${f}) = ?`,ans:-(e*f),h1:'Kladné krát záporné dává záporné.',h2:`= −${e*f}`};},
+    ()=>{const g=ri(2,8),h=g*ri(2,9);return{text:`(−${h}) : ${g} = ?`,ans:-(h/g),h1:'Záporné děleno kladným dává záporné.',h2:`= −${h/g}`};},
+    ()=>{const i=ri(2,8),j=i*ri(2,9);return{text:`(−${j}) : (−${i}) = ?`,ans:j/i,h1:'Záporné děleno záporným dává kladné.',h2:`= ${j/i}`};},
+    ()=>{const k=ri(2,6),l=ri(2,6),m=ri(2,6);return{text:`(−${k}) × ${l} × (−${m}) = ?`,ans:k*l*m,h1:'Sudý počet záporných činitelů (2) → výsledek kladný.',h2:`= ${k*l*m}`};},
+    ()=>{const a=ri(2,6),b=ri(2,6),c=ri(2,6);return{text:`(−${a}) × (−${b}) × (−${c}) = ?`,ans:-(a*b*c),h1:'Lichý počet záporných činitelů (3) → výsledek záporný.',h2:`= −${a*b*c}`};},
+    ()=>{const a=ri(2,9),b=ri(2,9);const neg=ri(0,1)===0;const res=neg?-(a*b):a*b;return{text:`Bude součin ${neg?'(−'+a+')':a} × ${b} kladný?`,ans:res>0?'ANO':'NE',h1:'Rozhodni podle počtu záporných činitelů.',h2:res>0?'ANO':'NE'};},
+    ()=>{const a=ri(2,8),n=a*ri(2,6);return{text:`Doplň chybějící činitel: (−${a}) × ? = −${n}`,ans:n/a,h1:'Aby vyšlo záporné z jednoho záporného, druhý musí být kladný.',h2:`= ${n/a}`};},
+    ()=>{const base=ri(2,7);return{text:`Vypočítej druhou mocninu záporného čísla: (−${base})² = ?`,ans:base*base,h1:'Umocnění na druhou = číslo krát samo sebe; záporné × záporné = kladné.',h2:`= ${base*base}`};},
+    ()=>{const a=ri(2,6),b=ri(2,6);return{text:`Kolik je −${a} × 0 × ${b}?`,ans:0,h1:'Jakýkoli součin obsahující nulu je nula.',h2:'= 0'};},
+    ()=>{const q=ri(2,9),d=ri(2,8);return{text:`Podíl (−${q*d}) : (−${d}) — je jeho výsledek kladný?`,ans:'ANO',h1:'Záporné děleno záporným dává kladné.',h2:'ANO'};},
+  ];
   const tasks=[];
-  const a=ri(2,9),b=ri(2,9);
-  tasks.push({text:`(−${a}) × ${b} = ?`,ans:-(a*b),hints:['Záporné × kladné = záporné.','= −'+(a*b)],skill:'calc'});
-  const c=ri(2,9),d=ri(2,9);
-  tasks.push({text:`(−${c}) × (−${d}) = ?`,ans:c*d,hints:['Záporné × záporné = kladné.','= '+(c*d)],skill:'calc'});
-  const e=ri(2,9),f=ri(2,9);
-  tasks.push({text:`${e} × (−${f}) = ?`,ans:-(e*f),hints:['Kladné × záporné = záporné.','= −'+(e*f)],skill:'calc'});
-  const g=ri(2,8),h=g*ri(2,9);
-  tasks.push({text:`(−${h}) : ${g} = ?`,ans:-(h/g),hints:['Záporné : kladné = záporné.','= −'+(h/g)],skill:'calc'});
-  const i=ri(2,8),j=i*ri(2,9);
-  tasks.push({text:`(−${j}) : (−${i}) = ?`,ans:j/i,hints:['Záporné : záporné = kladné.','= '+(j/i)],skill:'calc'});
-  const k=ri(2,6),l=ri(2,6),m=ri(2,6);
-  tasks.push({text:`(−${k}) × ${l} × (−${m}) = ?`,ans:k*l*m,hints:['Dvě záporná čísla → výsledek kladný.','= '+(k*l*m)],skill:'calc'});
-  { const a=ri(2,9),b=ri(2,9); tasks.push({text:`${a} × (−${b}) = ?`,ans:-(a*b),hints:['Kladné × záporné = záporné.','= −'+(a*b)],skill:'calc'}); }
-  { const a=ri(2,9),b=ri(2,9); tasks.push({text:`(−${a}) × (−${b}) = ?`,ans:a*b,hints:['Záporné × záporné = kladné.','= '+(a*b)],skill:'calc'}); }
-  { const a=ri(2,8),b=a*ri(2,9); tasks.push({text:`${b} : (−${a}) = ?`,ans:-(b/a),hints:['Kladné : záporné = záporné.','= −'+(b/a)],skill:'calc'}); }
-  { const a=ri(2,6),b=ri(2,6),c=ri(2,6); tasks.push({text:`(−${a}) × (−${b}) × (−${c}) = ?`,ans:-(a*b*c),hints:['Tři záporná čísla → výsledek záporný.','= −'+(a*b*c)],skill:'calc'}); }
+  for(let i=0;i<13;i++){const t=T[i%T.length]();tasks.push({text:t.text,ans:t.ans,hints:[t.h1,t.h2],skill:'calc'});}
   return tasks;
 }
 
 // 3-3 Racionální čísla (záporné zlomky a desetinná)
 function gen_3_3(){
+  const asFrac=(num,den)=>{const g=gcd(Math.abs(num),den);if(num===0)return '0';const s=num<0?'-':'';return g===den?String(num/g):`${s}${Math.abs(num)/g}/${den/g}`;};
+  const T=[
+    ()=>{const a=ri(2,5),b=ri(3,8);return{text:`Převeď záporný zlomek na desetinné číslo: −${a}/${b} ≈ ? (na 2 desetinná místa)`,ans:r2(-a/b),h1:`Vyděl ${a} : ${b} a doplň záporné znaménko.`,h2:`≈ ${r2(-a/b)}`};},
+    ()=>{const d=ri(3,8),c=ri(1,d-1),e=ri(1,d-1);const num=e-c;return{text:`Sečti zlomky se stejným jmenovatelem: (−${c}/${d}) + ${e}/${d} = ?`,ans:asFrac(num,d),h1:'Jmenovatel opiš, sečti čitatele (pozor na znaménka).',h2:`(${e} − ${c})/${d} = ${asFrac(num,d)}`};},
+    ()=>{const f=ri(2,5),g=ri(3,8);return{text:`Kolik je absolutní hodnota |−${f}/${g}|? (zapiš jako zlomek)`,ans:`${f}/${g}`,h1:'Absolutní hodnota je vzdálenost od nuly — vždy kladná.',h2:`${f}/${g}`};},
+    ()=>{const h=ri(15,35)/10,i=ri(5,14)/10;return{text:`Sečti desetinná čísla: (−${cz(h)}) + ${cz(i)} = ?`,ans:r1(i-h),h1:'Různá znaménka: odečti menší velikost od větší.',h2:`= ${r1(i-h)}`};},
+    ()=>{const j=ri(2,6),k=ri(3,9);return{text:`(−${j*k}) : (−${j}) = ?`,ans:k,h1:'Záporné děleno záporným dává kladné.',h2:`= ${k}`};},
+    ()=>{const n=ri(3,8),m=ri(1,n-1),o=ri(1,n-1);const num=o-m;return{text:`Odečti záporný zlomek: −${m}/${n} − (−${o}/${n}) = ?`,ans:asFrac(num,n),h1:'Odečíst záporné = přičíst kladné: −m/n + o/n.',h2:`(${o} − ${m})/${n} = ${asFrac(num,n)}`};},
+    ()=>{const a=ri(2,5),b=ri(3,9),c=ri(2,5);return{text:`Vynásob záporný zlomek celým číslem: (−${a}/${b}) × ${c} = ?`,ans:asFrac(-a*c,b),h1:'Záporný zlomek krát kladné číslo = záporné; násob jen čitatel.',h2:`−${a*c}/${b}, pak zkrať`};},
+    ()=>{const a=ri(3,8),b=ri(3,8);const gt=(-a/b)<(-b/a);return{text:`Je −${a}/${b} menší než −${b}/${a}? (menší = více vlevo na číselné ose)`,ans:gt?'ANO':'NE',h1:'U záporných čísel je menší to, které je „zápornější".',h2:gt?'ANO':'NE'};},
+    ()=>{const cel=ri(-5,-1);return{text:`Které racionální číslo leží přesně uprostřed mezi ${cel} a ${cel+1}? (desetinné)`,ans:r1(cel+0.5),h1:'Střed = průměr obou čísel.',h2:`= ${cz(cel+0.5)}`};},
+    ()=>{const a=ri(2,6)/10;const b=ri(2,6)/10;const bigger=Math.max(a,b);return{text:`Které číslo je větší: −${cz(a)}, nebo −${cz(b)}?${a===b?' (jsou stejná — napiš −'+cz(a)+')':''}`,ans:-Math.min(a,b),h1:'Ze dvou záporných je větší to blíž nule (menší velikost).',h2:`= ${cz(-Math.min(a,b))}`};},
+    ()=>{const a=ri(2,5),b=ri(3,8);return{text:`Jaké číslo je opačné k −${a}/${b}? (zapiš jako zlomek)`,ans:`${a}/${b}`,h1:'Opačné číslo má opačné znaménko.',h2:`${a}/${b}`};},
+  ];
   const tasks=[];
-  const a=ri(2,5),b=ri(3,8);
-  tasks.push({text:`Převeď na desetinné číslo: −${a}/${b} ≈ ? (na 2 desetinná místa)`,ans:r2(-a/b),hints:['Vyděl '+a+' / '+b+' a přidej znaménko.',r2(-a/b)],skill:'calc'});
-  const c=ri(1,4),d=ri(3,8),e=ri(1,3);
-  tasks.push({text:`(−${c}/${d}) + ${e}/${d} = ?`,ans:(e-c)===0?'0':(e>c?`${e-c}/${d}`:`-${c-e}/${d}`),hints:['Stejný jmenovatel: přičti čitatele.','('+e+'−'+c+')/'+d+' = '+(e-c)+'/'+d],skill:'calc'});
-  const f=ri(2,5),g=ri(3,8);
-  tasks.push({text:`Kolik je |−${f}/${g}|? (absolutní hodnota, výsledek jako zlomek)`,ans:`${f}/${g}`,hints:['Absolutní hodnota = vzdálenost od nuly = vždy kladná.','|−'+f+'/'+g+'| = '+f+'/'+g],skill:'calc'});
-  const h=ri(10,30)/10, i=ri(5,15)/10;
-  tasks.push({text:`(−${cz(h)}) + ${cz(i)} = ?`,ans:r1(i-h),hints:['Záporné + kladné: odečti menší od většího.','= '+r1(i-h)],skill:'calc'});
-  const j=ri(2,6), k=ri(3,9);
-  const jk=j*k;
-  tasks.push({text:`(−${jk}) : (−${j}) = ?`,ans:k,hints:['Záporné : záporné = kladné.','= '+k],skill:'calc'});
-  const m=ri(1,5),n=ri(3,8),o=ri(1,m-1)||1;
-  tasks.push({text:`−${m}/${n} − (−${o}/${n}) = ?`,ans:(o-m)===0?'0':`${o-m}/${n}`,hints:['Odečíst záporné = přičíst kladné.','−'+m+'/'+n+' + '+o+'/'+n+' = '+(o-m)+'/'+n],skill:'calc'});
-  { const a=ri(2,5),b=ri(3,9),c=ri(2,5);const top=a*c,g=gcd(top,b);const ans=g===b?String(-top/g):`-${top/g}/${b/g}`;tasks.push({text:`(−${a}/${b}) × ${c} = ?`,ans,hints:['Záporný zlomek × kladné = záporné.',`−${a*c}/${b} zkrať.`],skill:'calc'}); }
-  { const h=ri(10,40)/10,i=ri(5,h*10-4)/10; tasks.push({text:`(−${cz(h)}) + ${cz(i)} = ?`,ans:r1(i-h),hints:['Záporné + kladné: odečti menší od většího.',`= ${r1(i-h)}`],skill:'calc'}); }
-  { const a=ri(2,6),b=ri(3,9); tasks.push({text:`|−${a}/${b}| = ?`,ans:`${a}/${b}`,hints:['Absolutní hodnota = vždy kladná.',`${a}/${b}`],skill:'calc'}); }
-  { const a=ri(3,8),b=ri(3,8);const gt=(-a/b)<(-b/a);tasks.push({text:`Je −${a}/${b} < −${b}/${a}?`,ans:gt?'ANO':'NE',hints:['Porovnej záporné zlomky (menší = více vlevo na číselné ose).',gt?'ANO':'NE'],skill:'calc'}); }
+  for(let i=0;i<13;i++){const t=T[i%T.length]();tasks.push({text:t.text,ans:t.ans,hints:[t.h1,t.h2],skill:'calc'});}
   return tasks;
 }
 
@@ -369,23 +319,21 @@ function gen_4_3(){
 
 // 5-1 Procentová část (MC — numerické)
 function gen_5_1(){
+  const T=[
+    ()=>{const a=[10,20,25,50][ri(0,3)],b=ri(2,9)*100;return{text:`Kolik je ${a} % z čísla ${b}?`,ans:Math.round(a/100*b),h1:'Procentová část = základ × počet procent : 100.',h2:`${b} · ${a} : 100 = ${Math.round(a/100*b)}`};},
+    ()=>{const e=[5,10,20,25][ri(0,3)],f=ri(4,20)*50;return{text:`Zboží stojí ${f} Kč. Kolik Kč je ${e} % z této ceny?`,ans:Math.round(e/100*f),h1:'Vynásob cenu procenty a vyděl stem.',h2:`= ${Math.round(e/100*f)} Kč`};},
+    ()=>{const g=[10,20,25,40,50][ri(0,4)],h=ri(3,8)*100;return{text:`Cena ${h} Kč se sníží o slevu ${g} %. O kolik Kč se cena sníží?`,ans:Math.round(g/100*h),h1:'Sleva v korunách = základ × procenta : 100.',h2:`= ${Math.round(g/100*h)} Kč`};},
+    ()=>{const g=[10,20,25][ri(0,2)],h=ri(3,8)*100;return{text:`Cena ${h} Kč se sníží o ${g} %. Kolik Kč bude NOVÁ cena?`,ans:Math.round(h*(1-g/100)),h1:'Nová cena = základ − sleva.',h2:`= ${Math.round(h*(1-g/100))} Kč`};},
+    ()=>{const p=[10,20,50][ri(0,2)],z=ri(3,9)*100;return{text:`O ${p} % se zvýší mzda ${z} Kč. Kolik Kč činí zvýšení?`,ans:Math.round(p/100*z),h1:'Zvýšení = základ × procenta : 100.',h2:`= ${Math.round(p/100*z)} Kč`};},
+    ()=>{const b=ri(2,9)*100;return{text:`Kolik je polovina (50 %) z čísla ${b}?`,ans:b/2,h1:'50 % znamená polovinu.',h2:`= ${b/2}`};},
+    ()=>{const b=ri(2,9)*100;return{text:`Kolik je čtvrtina (25 %) z čísla ${b}?`,ans:b/4,h1:'25 % znamená jednu čtvrtinu — vyděl čtyřmi.',h2:`= ${b/4}`};},
+    ()=>{const b=ri(2,9)*100;return{text:`Kolik je desetina (10 %) z čísla ${b}?`,ans:b/10,h1:'10 % získáš vydělením deseti.',h2:`= ${b/10}`};},
+    ()=>{const i=[20,40,60,80][ri(0,3)],j=ri(4,12)*50;return{text:`Test má ${j} bodů. Kolik bodů je ${i} % z maxima?`,ans:Math.round(i/100*j),h1:'Body = maximum × procenta : 100.',h2:`= ${Math.round(i/100*j)}`};},
+    ()=>{const p=[10,20,25][ri(0,2)],cel=ri(3,8)*40;const ok=ri(0,1)===0;const tvrz=ok?Math.round(p/100*cel):Math.round(p/100*cel)+cel/10;const spravne=tvrz===Math.round(p/100*cel);return{text:`Je ${p} % z čísla ${cel} rovno ${tvrz}?`,ans:spravne?'ANO':'NE',h1:'Spočítej procentovou část a porovnej.',h2:spravne?'ANO':'NE'};},
+    ()=>{const cel=ri(2,9)*100;return{text:`Kolik jsou tři čtvrtiny (75 %) z čísla ${cel}?`,ans:cel/4*3,h1:'75 % = tři čtvrtiny; spočítej čtvrtinu a vynásob třemi.',h2:`= ${cel/4*3}`};},
+  ];
   const tasks=[];
-  const a=[10,20,25,50][ri(0,3)],b=ri(2,9)*100;
-  tasks.push({text:`${a} % z ${b} = ?`,ans:Math.round(a/100*b),hints:['Procentová část = základ × p/100.',''+a+'/100·'+b+' = '+Math.round(a/100*b)],skill:'calc'});
-  const c=ri(1,9)*10,d=ri(1,9)*100;
-  tasks.push({text:`Kolik je ${c} % z ${d}?`,ans:Math.round(c/100*d),hints:['= '+d+' × '+c+'/100','= '+Math.round(c/100*d)],skill:'calc'});
-  const e=ri(5,40),f=ri(4,20)*50;
-  tasks.push({text:`${e} % z ${f} Kč = ? Kč`,ans:Math.round(e/100*f),hints:['= '+f+' × '+e+'/100','= '+Math.round(e/100*f)+' Kč'],skill:'calc'});
-  const g=ri(10,40),h=ri(3,8)*100;
-  tasks.push({text:`Cena zboží je ${h} Kč, sleva ${g} %. O kolik Kč zlevní?`,ans:Math.round(g/100*h),hints:['Sleva = základ × p/100.',''+g+'/100·'+h+' = '+Math.round(g/100*h)+' Kč'],skill:'calc'});
-  const i=ri(5,30),j=ri(4,12)*100;
-  tasks.push({text:`Žák má ${j} bodů z maxima, ve škole je to ${i} %. Kolik bodů je ${i} % z ${j}?`,ans:Math.round(i/100*j),hints:['Část = základ × p/100.',''+Math.round(i/100*j)],skill:'calc'});
-  const k=ri(1,4)*25,l=ri(3,8)*40;
-  tasks.push({text:`${k} % z ${l} = ?`,ans:Math.round(k/100*l),hints:['= '+l+' × '+k+'/100','= '+Math.round(k/100*l)],skill:'calc'});
-  { const a=[5,10,15,20,25][ri(0,4)],b=ri(3,10)*40; tasks.push({text:`${a} % z ${b} = ?`,ans:Math.round(a/100*b),hints:['část = základ × p/100',`= ${Math.round(a/100*b)}`],skill:'calc'}); }
-  { const a=ri(1,9)*10,b=ri(2,8)*50; tasks.push({text:`Kolik je ${a} % z ${b}?`,ans:Math.round(a/100*b),hints:['= '+b+' × '+a+'/100','= '+Math.round(a/100*b)],skill:'calc'}); }
-  { const a=ri(5,20),b=ri(4,10)*100; tasks.push({text:`${a} % z ${b} bodů = ?`,ans:Math.round(a/100*b),hints:['Část = základ × p/100.','= '+Math.round(a/100*b)],skill:'calc'}); }
-  { const a=ri(10,30),b=ri(3,9)*100; tasks.push({text:`Sleva ${a} % z ceny ${b} Kč. O kolik Kč?`,ans:Math.round(a/100*b),hints:['Sleva = základ × p/100.','= '+Math.round(a/100*b)+' Kč'],skill:'calc'}); }
+  for(let i=0;i<13;i++){const t=T[i%T.length]();tasks.push({text:t.text,ans:t.ans,hints:[t.h1,t.h2],skill:'calc'});}
   return tasks;
 }
 
@@ -419,7 +367,7 @@ function gen_5_2(){
 function gen_5_3(){
   const tasks=[];
   const a=ri(2,5)*10,b=ri(3,9)*100,pA=ri(2,5)*5;
-  tasks.push({text:`Obchod zdraží zboží o ${pA} %. Původní cena byla ${b} Kč. Nová cena?`,ans:Math.round(b*(1+pA/100)),hints:['Nová cena = ${b} × (1+${pA}/100).','= '+Math.round(b*(1+pA/100))+' Kč'],skill:'anal'});
+  tasks.push({text:`Obchod zdraží zboží o ${pA} %. Původní cena byla ${b} Kč. Nová cena?`,ans:Math.round(b*(1+pA/100)),hints:[`Nová cena = základ × (1 + ${pA}/100).`,'= '+Math.round(b*(1+pA/100))+' Kč'],skill:'anal'});
   const c=ri(2,5)*5,d=ri(4,10)*200;
   tasks.push({text:`Cena se snížila o ${c} % a nyní je ${Math.round(d*(1-c/100))} Kč. Jaká byla původní cena?`,ans:d,hints:['Současná cena = základ × (1−'+c+'/100).','základ = '+Math.round(d*(1-c/100))+'/('+1-c/100+') = '+d+' Kč'],skill:'anal'});
   const e=ri(2,6)*5,f=ri(3,9)*100;
@@ -477,18 +425,23 @@ function gen_6_2(){
 
 // 6-3 Shodnost trojúhelníků (věty sss, sus, usu)
 function gen_6_3(){
+  const troj=()=>{const s=new Set();while(s.size<3)s.add(ri(3,12));return [...s].sort((x,y)=>x-y);};
+  const T=[
+    ()=>{const s=troj();return{text:`Dva trojúhelníky mají strany ${s[0]}, ${s[1]}, ${s[2]} cm a ${s[0]}, ${s[1]}, ${s[2]} cm. Jsou shodné?`,ans:'ANO',h1:'Věta sss: shodují se ve všech třech stranách.',h2:'ANO'};},
+    ()=>{const s=troj();return{text:`První trojúhelník má strany ${s[0]}, ${s[1]}, ${s[2]} cm, druhý ${s[0]}, ${s[1]}, ${s[2]+1} cm. Jsou shodné?`,ans:'NE',h1:'Věta sss selhává — jedna strana se liší.',h2:'NE'};},
+    ()=>{return{text:`Stačí ke shodnosti dvou trojúhelníků shoda ve dvou stranách a úhlu, který svírají (věta sus)?`,ans:'ANO',h1:'Věta sus (strana-úhel-strana) shodnost zaručuje.',h2:'ANO'};},
+    ()=>{return{text:`Jsou dva trojúhelníky se shodnými třemi úhly (uuu) nutně shodné?`,ans:'NE',h1:'Stejné úhly dávají jen podobnost, ne shodnost (mohou mít různou velikost).',h2:'NE — jsou jen podobné'};},
+    ()=>{const a=ri(3,8),b=ri(40,70),c=ri(30,180-b-10);return{text:`Trojúhelník má stranu a = ${a} cm a k ní přiléhající úhly β = ${b}° a γ = ${c}°. Je tím určen jednoznačně (věta usu)?`,ans:'ANO',h1:'Věta usu (úhel-strana-úhel) určuje trojúhelník jednoznačně.',h2:'ANO'};},
+    ()=>{return{text:`Jsou všechny rovnostranné trojúhelníky navzájem shodné?`,ans:'NE',h1:'Mají stejné úhly (60°), ale mohou mít různě dlouhé strany.',h2:'NE'};},
+    ()=>{return{text:`Kolik shodných stran potřebuje věta sss ke shodnosti trojúhelníků?`,ans:3,h1:'sss = strana-strana-strana.',h2:'3'};},
+    ()=>{return{text:`Jsou dva pravoúhlé trojúhelníky s přeponou 10 cm a jednou odvěsnou 6 cm nutně shodné?`,ans:'ANO',h1:'Druhá odvěsna dopočtena Pythagorem (8 cm) → jsou určeny jednoznačně.',h2:'ANO'};},
+    ()=>{const s=troj();const shodne=ri(0,1)===0;const s2=shodne?[...s]:[s[0],s[1],s[2]+ri(1,3)];return{text:`Trojúhelník T1 má strany ${s[0]}, ${s[1]}, ${s[2]} cm, T2 má ${s2[0]}, ${s2[1]}, ${s2[2]} cm. Jsou shodné?`,ans:shodne?'ANO':'NE',h1:'Porovnej všechny tři odpovídající strany.',h2:shodne?'ANO':'NE'};},
+    ()=>{return{text:`Zachovává shodné zobrazení (např. osová souměrnost) tvar i velikost trojúhelníku?`,ans:'ANO',h1:'Shodné zobrazení nemění délky ani úhly.',h2:'ANO'};},
+    ()=>{const b=ri(40,80),c=ri(40,80);const a=180-b-c;return{text:`Trojúhelník má úhly ${b}° a ${c}°. Jaký je jeho třetí úhel? (potřebný pro větu usu)`,ans:a,h1:'Součet úhlů v trojúhelníku je 180°.',h2:`180 − ${b} − ${c} = ${a}°`};},
+    ()=>{return{text:`Určuje shoda jen ve dvou stranách (bez úhlu) shodnost trojúhelníků?`,ans:'NE',h1:'Dvě strany bez úhlu mezi nimi trojúhelník jednoznačně neurčí.',h2:'NE'};},
+  ];
   const tasks=[];
-  tasks.push({text:'Trojúhelníky mají strany 3, 4, 5 a 3, 4, 5 cm. Jsou shodné?',ans:'ANO',hints:['Věta sss: všechny tři strany jsou stejné.','ANO.'],skill:'geo'});
-  tasks.push({text:'Trojúhelníky mají strany 3, 4, 5 a 3, 4, 6 cm. Jsou shodné?',ans:'NE',hints:['Věta sss: třetí strany se liší.','NE.'],skill:'geo'});
-  tasks.push({text:'Věta SUS: která dvě data stačí spolu s ohraničující stranou?',ans:'ANO',hints:['Dvě strany a sevřený úhel (sus = strana-úhel-strana).','ANO — věta sus platí.'],skill:'geo'});
-  tasks.push({text:'Jsou trojúhelníky, které mají stejné tři úhly (uuu), nutně shodné?',ans:'NE',hints:['Stejné úhly garantují podobnost, nikoliv shodnost.','NE — mohou být jen podobné.'],skill:'geo'});
-  const a=ri(3,8),b=ri(40,70),c=180-b-ri(30,b-10);
-  tasks.push({text:`Trojúhelník ABC: a = ${a} cm, úhel β = ${b}°, úhel γ = ${c}°. Použij větu usu — jsou takto určeny dva trojúhelníky shodné?`,ans:'ANO',hints:['Věta usu: úhel-strana-úhel určuje trojúhelník jednoznačně.','ANO.'],skill:'geo'});
-  tasks.push({text:'Věta SSS říká, že dva trojúhelníky jsou shodné, mají-li …?',ans:'ANO',hints:['… shodné délky všech tří stran.','ANO.'],skill:'geo'});
-  tasks.push({text:'Jsou všechny rovnostranné trojúhelníky shodné?',ans:'NE',hints:['Shodnost vyžaduje i stejnou velikost, ne jen stejné úhly.','NE — mohou mít různě dlouhé strany.'],skill:'geo'});
-  tasks.push({text:'Věta SUS: stačí znát dvě strany a jejich sevřený úhel. Platí to?',ans:'ANO',hints:['Věta sus (SAS) zaručuje shodnost.','ANO.'],skill:'geo'});
-  tasks.push({text:'Trojúhelníky mají strany 5, 7, 9 a 5, 7, 9 cm. Jsou shodné?',ans:'ANO',hints:['Věta sss: všechny tři strany stejné.','ANO.'],skill:'geo'});
-  tasks.push({text:'Jsou dva pravoúhlé trojúhelníky s přeponou 10 cm a odvěsnou 6 cm nutně shodné?',ans:'ANO',hints:['Přepona a jedna odvěsna určují trojúhelník jednoznačně (Pythagorova trojice).','ANO.'],skill:'geo'});
+  for(let i=0;i<13;i++){const t=T[i%T.length]();tasks.push({text:t.text,ans:t.ans,hints:[t.h1,t.h2],skill:'geo'});}
   return tasks;
 }
 
