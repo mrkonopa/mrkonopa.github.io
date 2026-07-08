@@ -8,7 +8,8 @@ const ok = (c, m) => { if (c) { pass++; } else { fail++; console.log('  ❌ ' + 
 
 (async () => {
   const srv = http.createServer((req, res) => {
-    const p = path.join(ROOT, decodeURIComponent(req.url.split('?')[0]));
+    const p = path.normalize(path.join(ROOT, decodeURIComponent(req.url.split('?')[0])));
+    if (!p.startsWith(ROOT + path.sep)) { res.statusCode = 403; res.end(); return; }
     try { res.end(fs.readFileSync(p)); } catch { res.statusCode = 404; res.end(); }
   }).listen(PORT);
   const exe = '/opt/pw-browsers/chromium-1194/chrome-linux/chrome';

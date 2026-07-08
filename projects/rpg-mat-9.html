@@ -3114,12 +3114,12 @@ function renderCermatGate(){
  if(!avail){st.textContent='Test se nepodařilo načíst.';return;}
  if(!S.cermat)S.cermat={attempts:[],best:0};
  if(S.cermat.attempts.length){
-  st.innerHTML='Nejlepší výsledek: <b style="color:var(--gold)">'+S.cermat.best+' / '+RPG_CERMAT_9.maxScore+' bodů</b> ('+S.cermat.attempts.length+'× odevzdáno)';
+  st.innerHTML='Nejlepší výsledek: <b style="color:var(--gold)">'+((S.cermat.best|0))+' / '+RPG_CERMAT_9.maxScore+' bodů</b> ('+(S.cermat.attempts.length|0)+'× odevzdáno)';
   const hist=document.getElementById('cm-history');
   hist.style.display='block';
   const last=S.cermat.attempts.slice(-5).reverse();
   let html='<div style="font-family:var(--px);font-size:12px;color:var(--muted);margin-bottom:6px">POSLEDNÍ POKUSY</div>';
-  last.forEach(a=>{html+=`<div class="cm-review-item">${esc2(a.date)} — ${a.score} / ${a.max} bodů (${Math.round(a.score/a.max*100)} %)</div>`;});
+  last.forEach(a=>{const sc=a.score|0,mx=a.max|0;html+=`<div class="cm-review-item">${esc2(a.date)} — ${sc} / ${mx} bodů (${mx?Math.round(sc/mx*100):0} %)</div>`;});
   hist.innerHTML=html;
  }else{
   st.textContent='Zatím jsi test nezkoušel/a.';
