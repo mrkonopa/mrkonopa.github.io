@@ -17,9 +17,20 @@
      { kind:'mc', points, prompt, options:['A) …',…], ans:'C' } |
      { kind:'match', points, prompts:['…','…','…'], options:['A) …',…], ans:['C','A','E'] }
    }
+
+   ROZŠIŘOVÁNÍ: úloha na pozici N v testu = SLOTS[N-1], což je POLE
+   variant (funkcí genN, genNb, genNc, …). Při startu testu se z každé
+   pozice náhodně vybere jedna varianta — přidáním další funkce do
+   SLOTS[N-1] pole se rozšíří variabilita té pozice, aniž by bylo
+   nutné cokoliv jinde měnit. Nová varianta musí vracet stejný tvar
+   (parts/kind) a STEJNÝ SOUČET points jako ostatní varianty té pozice
+   (jinak celkový test nesedí na 50 bodů — ověří tools/verify-cermat.cjs).
 */
 (function () {
   'use strict';
+  const r1 = n => Math.round(n * 10) / 10;
+  const r2 = n => Math.round(n * 100) / 100;
+  const pick = arr => arr[ri(0, arr.length - 1)];
 
   function gen1() {
     // 1 bod — kolikrát je součet větší než odmocnina součinu
@@ -394,13 +405,24 @@
     return { labels, correctLetter: letters[correctIdx] };
   }
 
-  const GENERATORS = [gen1, gen2, gen3, gen4, gen5, gen6, gen7, gen8, gen9, gen10, gen11, gen12, gen13, gen14, gen15, gen16];
+  /* ── SLOTY 1–16 ─────────────────────────────────────────────────
+     Každá pozice testu je POLE variant (zatím vždy jedna). Pro
+     přidání další varianty do pozice N stačí dopsat další funkci do
+     SLOTS[N-1] se STEJNÝM tvarem návratové hodnoty (points musí sedět
+     na stejné číslo jako ostatní varianty té pozice, jinak se pokazí
+     bodový součet 50). generate() při každém spuštění testu náhodně
+     vybere jednu variantu z každé pozice.
+     ──────────────────────────────────────────────────────────────── */
+  const SLOTS = [
+    [gen1], [gen2], [gen3], [gen4], [gen5], [gen6], [gen7], [gen8],
+    [gen9], [gen10], [gen11], [gen12], [gen13], [gen14], [gen15], [gen16]
+  ];
 
   window.RPG_CERMAT_9 = {
     timeLimitSec: 70 * 60,
     maxScore: 50,
     generate: function () {
-      return GENERATORS.map(fn => fn());
+      return SLOTS.map(variants => pick(variants)());
     }
   };
 })();

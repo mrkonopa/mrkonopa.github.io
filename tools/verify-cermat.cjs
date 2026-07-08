@@ -1,8 +1,8 @@
 global.ri=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
 global.gcd=function gcd(a,b){return b?gcd(b,a%b):Math.abs(a);};
 global.cz=n=>String(n).replace('.',',');
-global.r1=n=>Math.round(n*10)/10;
-global.r2=n=>Math.round(n*100)/100;
+
+
 global.skl=(n,one,few,many)=>n===1?one:(n>=2&&n<=4?few:many);
 ['svgTriangle','svgLineGraph','svgCylinder','svgCone','svgSphere','svgSimilar','svgCuboid'].forEach(f=>global[f]=()=>'<svg></svg>');
 global.window={};
