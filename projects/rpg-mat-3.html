@@ -770,6 +770,7 @@ function loadS(){
  if(!Array.isArray(S.cosmetics.owned))S.cosmetics.owned=['theme-default','victory-default'];
  if(!S.cosmetics.active||typeof S.cosmetics.active!=='object')S.cosmetics.active={border:null,badge:null,theme:'theme-default',victory:'victory-default'};
  if(!S.creditsClaimed||typeof S.creditsClaimed!=='object')S.creditsClaimed={};
+ if(!S.trainErrs||typeof S.trainErrs!=='object')S.trainErrs={};
  sanitizeCosmetics();
  if(typeof RPGWallet!=='undefined')RPGWallet.migrateFrom(SAVE_KEY,S);
  return true;
@@ -1467,11 +1468,24 @@ function renderTrainPicker(){
   });
  });
 }
+// Adaptivní pytlík: index do sloučeného poolu (pořadí je stabilní mezi
+// zatáhnutími, i když jsou čísla v úlohách pokaždé jiná) slouží jako proxy
+// klíč "typ úlohy". S.trainErrs[mid][idx] roste při chybě a klesá při
+// správné odpovědi (trCorrect) -> položky s vyšší chybovostí jsou v pytlíku
+// zastoupené vícekrát (max 5×), takže se losují častěji, ale nikdy úplně
+// nezmizí. Zachovává původní vlastnost "bez opakování, dokud se nevyčerpá".
+function trBuildBag(pool,mid){
+ const errMap=(S.trainErrs&&S.trainErrs[mid])||{};
+ const bag=[];
+ pool.forEach((t,i)=>{const w=1+Math.min(errMap[i]||0,4);for(let k=0;k<w;k++)bag.push({t,idx:i});});
+ return shuffleArr(bag);
+}
+
 function startTrain(mid){
  const ar=AREAS.find(a=>a.missions.some(m=>m.id===mid));const m=ar?ar.missions.find(x=>x.id===mid):null;if(!m)return;
  let pool=m.tasks();const ex=window.RPG_TASK_EXTRA_3;if(ex&&typeof ex[mid]==='function'){try{pool=pool.concat(ex[mid]());}catch(e){}}
  if(!pool.length){alert('Pro toto téma nejsou dostupné úlohy.');return;}
- TR={mid,m,pool:shuffleArr([...pool]),correct:0,total:0,streak:0,hl:0};
+ TR={mid,m,pool:trBuildBag(pool,mid),correct:0,total:0,streak:0,hl:0,curIdx:null};
  document.getElementById('train-picker').style.display='none';
  document.getElementById('train-play').style.display='block';
  document.getElementById('tr-title').textContent=m.name;
@@ -1479,8 +1493,8 @@ function startTrain(mid){
  trDraw();
 }
 function trDraw(){
- if(!TR.pool.length){const ar=AREAS.find(a=>a.missions.some(m=>m.id===TR.mid));const m=ar?ar.missions.find(x=>x.id===TR.mid):null;let pool=(m?m.tasks():[]);const ex=window.RPG_TASK_EXTRA_3;if(ex&&typeof ex[TR.mid]==='function'){try{pool=pool.concat(ex[TR.mid]());}catch(e){}}TR.pool=shuffleArr([...pool]);}
- TR.task=TR.pool.pop();TR.hl=0;trRender();trStats();
+ if(!TR.pool.length){const ar=AREAS.find(a=>a.missions.some(m=>m.id===TR.mid));const m=ar?ar.missions.find(x=>x.id===TR.mid):null;let pool=(m?m.tasks():[]);const ex=window.RPG_TASK_EXTRA_3;if(ex&&typeof ex[TR.mid]==='function'){try{pool=pool.concat(ex[TR.mid]());}catch(e){}}TR.pool=trBuildBag(pool,TR.mid);}
+ const entry=TR.pool.pop();TR.task=entry.t;TR.curIdx=entry.idx;TR.hl=0;trRender();trStats();
 }
 function trRender(){
  const t=TR.task;if(!t)return;
@@ -1520,6 +1534,9 @@ function trSubmit(){
 }
 function trCorrect(){
  TR.correct++;TR.total++;TR.streak++;
+ if(TR.mid&&TR.curIdx!=null&&S.trainErrs&&S.trainErrs[TR.mid]&&S.trainErrs[TR.mid][TR.curIdx]){
+  S.trainErrs[TR.mid][TR.curIdx]=Math.max(0,S.trainErrs[TR.mid][TR.curIdx]-1);
+ }
  if(!S.stats)S.stats={};S.stats.trainCorrect=(S.stats.trainCorrect||0)+1;
  const ms=masteryOf(TR.mid);ms.score=Math.min(ms.score+1,MASTERY_GOAL+5);if(ms.score>=MASTERY_GOAL&&!ms.mastered){ms.mastered=true;wBump('mastered');floatText('🏅 MISTROVSTVÍ!',window.innerWidth/2-70,window.innerHeight*0.4,'#f0c040');}
  if(!S.mastery)S.mastery={};S.mastery[TR.mid]=ms;
@@ -1530,7 +1547,10 @@ function trCorrect(){
 function trWrong(){
  TR.total++;if(!trGuard())TR.streak=0;
  const ms=masteryOf(TR.mid);ms.score=Math.max(0,ms.score-1);if(!S.mastery)S.mastery={};S.mastery[TR.mid]=ms;
- if(!S.errs)S.errs={};S.errs[TR.mid]=(S.errs[TR.mid]||0)+1;saveS();
+ if(!S.errs)S.errs={};S.errs[TR.mid]=(S.errs[TR.mid]||0)+1;
+ if(!S.trainErrs)S.trainErrs={};if(!S.trainErrs[TR.mid])S.trainErrs[TR.mid]={};
+ if(TR.curIdx!=null)S.trainErrs[TR.mid][TR.curIdx]=(S.trainErrs[TR.mid][TR.curIdx]||0)+1;
+ saveS();
  const fb=document.getElementById('tr-fb');const t=TR.task;
  fb.textContent=(TR.guardJust?'🔁 Studijní rádce tě podržel — série zůstává! ':'✗ ')+'Správně: '+t.ans;fb.className='feedback err';
  trStats();document.getElementById('tr-next-btn').style.display='inline-block';

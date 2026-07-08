@@ -1,9 +1,11 @@
-// Adaptivní trénink (g9): ověří, že trWeightedPick zvýhodňuje indexy s chybami
+// Adaptivní trénink: ověří, že trWeightedPick zvýhodňuje indexy s chybami
 // a že trWrong/trCorrect zapisují/odbourávají S.trainErrs správně.
+// Parametrizováno ročníkem: `node rpg-adaptive-train.test.cjs [6|7|8|9]` (default 9).
 const { chromium } = require('playwright');
 const http = require('http'), fs = require('fs'), path = require('path');
 const ROOT = path.join(__dirname, '..');
-const PORT = 18753;
+const GRADE = process.argv[2] || '9';
+const PORT = 18753 + Number(GRADE);
 let pass = 0, fail = 0;
 const ok = (c, m) => { if (c) { pass++; } else { fail++; console.log('  ❌ ' + m); } };
 
@@ -20,7 +22,8 @@ const ok = (c, m) => { if (c) { pass++; } else { fail++; console.log('  ❌ ' + 
   const page = await ctx.newPage();
   const errs = [];
   page.on('pageerror', e => errs.push(e.message));
-  await page.goto(`http://127.0.0.1:${PORT}/projects/rpg-mat-9.html`, { waitUntil: 'domcontentloaded' });
+  console.log(`  (ročník ${GRADE})`);
+  await page.goto(`http://127.0.0.1:${PORT}/projects/rpg-mat-${GRADE}.html`, { waitUntil: 'domcontentloaded' });
   await page.waitForFunction(() => typeof startTrain === 'function' && typeof trWeightedPick === 'function', { timeout: 8000 });
 
   await page.evaluate(() => { localStorage.clear(); const inp = document.getElementById('ni'); if (inp) inp.value = 'TEST'; startGame(); });
@@ -84,6 +87,6 @@ const ok = (c, m) => { if (c) { pass++; } else { fail++; console.log('  ❌ ' + 
   ok(realErrs.length === 0, 'žádné JS chyby: ' + realErrs.join(' | '));
 
   await br.close(); srv.close();
-  console.log(`\n  Adaptivní trénink: ${pass} ✅  /  ${fail} ❌`);
+  console.log(`\n  Adaptivní trénink (g${GRADE}): ${pass} ✅  /  ${fail} ❌`);
   process.exit(fail ? 1 : 0);
 })();
