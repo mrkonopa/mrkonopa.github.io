@@ -1644,7 +1644,7 @@ let S = {name:'HRDINA',xp:0,level:1,attrs:{calc:0,geo:0,anal:0,craft:0},done:{},
 let GODMODE=false;
 
 function saveS(){localStorage.setItem(SAVE_KEY,JSON.stringify(S));if(window.RPGCloud&&RPGCloud.push)RPGCloud.push(SAVE_KEY,S);}
-function loadS(){const r=localStorage.getItem(SAVE_KEY);if(!r)return false;try{S=JSON.parse(r);}catch(e){return false;}if(!S||typeof S!=='object'){S={name:'HRDINA',xp:0,level:1,attrs:{calc:0,geo:0,anal:0,craft:0},done:{},inv:[],mastery:{},xpClaimed:{},teacherUnlocked:[]};return false;}if(typeof S.name!=='string')S.name='HRDINA';if(typeof S.xp!=='number'||!isFinite(S.xp))S.xp=0;if(typeof S.level!=='number'||!isFinite(S.level))S.level=1;if(!S.attrs||typeof S.attrs!=='object')S.attrs={calc:0,geo:0,anal:0,craft:0};if(!S.done||typeof S.done!=='object')S.done={};if(!Array.isArray(S.inv))S.inv=[];if(!S.mastery||typeof S.mastery!=='object')S.mastery={};if(!S.xpClaimed||typeof S.xpClaimed!=='object')S.xpClaimed={};if(!Array.isArray(S.teacherUnlocked))S.teacherUnlocked=[];if(!S.ach||typeof S.ach!=='object')S.ach={};if(!S.stats||typeof S.stats!=='object')S.stats={crits:0,trainCorrect:0,bestCombo:0};if(!S.streak||typeof S.streak!=='object')S.streak={count:0,last:''};if(!S.errs||typeof S.errs!=='object')S.errs={};if(!Array.isArray(S.errsSnap))S.errsSnap=[];if(typeof S.snapsMigrated!=='boolean')S.snapsMigrated=false;if(!S.settings||typeof S.settings!=='object')S.settings={reducedMotion:false};if(typeof S.credits!=='number'||!isFinite(S.credits)||S.credits<0)S.credits=0;S.credits=Math.floor(S.credits);if(!S.cosmetics||typeof S.cosmetics!=='object')S.cosmetics={owned:['theme-default','victory-default'],active:{border:null,badge:null,theme:'theme-default',victory:'victory-default'}};if(!Array.isArray(S.cosmetics.owned))S.cosmetics.owned=['theme-default','victory-default'];if(!S.cosmetics.active||typeof S.cosmetics.active!=='object')S.cosmetics.active={border:null,badge:null,theme:'theme-default',victory:'victory-default'};if(!S.creditsClaimed||typeof S.creditsClaimed!=='object')S.creditsClaimed={};sanitizeCosmetics();if(typeof RPGWallet!=='undefined')RPGWallet.migrateFrom(SAVE_KEY,S);return true;}
+function loadS(){const r=localStorage.getItem(SAVE_KEY);if(!r)return false;try{S=JSON.parse(r);}catch(e){return false;}if(!S||typeof S!=='object'){S={name:'HRDINA',xp:0,level:1,attrs:{calc:0,geo:0,anal:0,craft:0},done:{},inv:[],mastery:{},xpClaimed:{},teacherUnlocked:[]};return false;}if(typeof S.name!=='string')S.name='HRDINA';if(typeof S.xp!=='number'||!isFinite(S.xp))S.xp=0;if(typeof S.level!=='number'||!isFinite(S.level))S.level=1;if(!S.attrs||typeof S.attrs!=='object')S.attrs={calc:0,geo:0,anal:0,craft:0};if(!S.done||typeof S.done!=='object')S.done={};if(!Array.isArray(S.inv))S.inv=[];if(!S.mastery||typeof S.mastery!=='object')S.mastery={};if(!S.xpClaimed||typeof S.xpClaimed!=='object')S.xpClaimed={};if(!Array.isArray(S.teacherUnlocked))S.teacherUnlocked=[];if(!S.ach||typeof S.ach!=='object')S.ach={};if(!S.stats||typeof S.stats!=='object')S.stats={crits:0,trainCorrect:0,bestCombo:0};if(!S.streak||typeof S.streak!=='object')S.streak={count:0,last:''};if(!S.errs||typeof S.errs!=='object')S.errs={};if(!Array.isArray(S.errsSnap))S.errsSnap=[];if(typeof S.snapsMigrated!=='boolean')S.snapsMigrated=false;if(!S.settings||typeof S.settings!=='object')S.settings={reducedMotion:false};if(typeof S.credits!=='number'||!isFinite(S.credits)||S.credits<0)S.credits=0;S.credits=Math.floor(S.credits);if(!S.cosmetics||typeof S.cosmetics!=='object')S.cosmetics={owned:['theme-default','victory-default'],active:{border:null,badge:null,theme:'theme-default',victory:'victory-default'}};if(!Array.isArray(S.cosmetics.owned))S.cosmetics.owned=['theme-default','victory-default'];if(!S.cosmetics.active||typeof S.cosmetics.active!=='object')S.cosmetics.active={border:null,badge:null,theme:'theme-default',victory:'victory-default'};if(!S.creditsClaimed||typeof S.creditsClaimed!=='object')S.creditsClaimed={};if(!S.trainErrs||typeof S.trainErrs!=='object')S.trainErrs={};sanitizeCosmetics();if(typeof RPGWallet!=='undefined')RPGWallet.migrateFrom(SAVE_KEY,S);return true;}
 function rmActive(){return((typeof RPGWallet!=='undefined')&&RPGWallet.getReducedMotion())||(S.settings&&S.settings.reducedMotion)||false;}
 function applyMotionPref(){document.documentElement.classList.toggle('reduced-motion',rmActive());}
 function toggleReducedMotion(on){if(!S.settings||typeof S.settings!=='object')S.settings={reducedMotion:false};S.settings.reducedMotion=on;if(typeof RPGWallet!=='undefined')RPGWallet.setReducedMotion(on);applyMotionPref();saveS();}
@@ -3248,7 +3248,7 @@ document.addEventListener('keydown',e=>{
 // TRÉNINK (nekonečné procvičování + mistrovství)
 // ══════════════════════════════════════════
 const MASTERY_GOAL=15;
-let TR={mid:null,m:null,task:null,hl:0,correct:0,total:0,streak:0};
+let TR={mid:null,m:null,task:null,hl:0,correct:0,total:0,streak:0,curIdx:null};
 
 function masteryOf(mid){const x=S.mastery&&S.mastery[mid];return x?{score:x.score||0,mastered:!!x.mastered}:{score:0,mastered:false};}
 
@@ -3290,11 +3290,25 @@ function startTrain(mid){
  trDraw();
 }
 
+// Adaptivní výběr: index do sloučeného poolu (pořadí je stabilní mezi
+// zatáhnutími, i když jsou čísla v úlohách pokaždé jiná) slouží jako
+// proxy klíč "typ úlohy". S.trainErrs[mid][idx] roste při chybě a klesá
+// při správné odpovědi (trCorrect) -> pool se přirozeně přizpůsobuje
+// tomu, kde žák aktuálně chybuje, bez nutnosti trvalých ID šablon.
+function trWeightedPick(pool){
+ const errMap=(S.trainErrs&&S.trainErrs[TR.mid])||{};
+ const weights=pool.map((_,i)=>1+Math.min(errMap[i]||0,4));
+ const totalW=weights.reduce((a,b)=>a+b,0);
+ let r=Math.random()*totalW;
+ for(let i=0;i<weights.length;i++){r-=weights[i];if(r<=0)return i;}
+ return pool.length-1;
+}
+
 function trDraw(){
- let pool=TR.m.tasks();
- const ex=window.RPG_TASK_EXTRA_8;
- if(ex && typeof ex[TR.mid]==='function'){try{pool=pool.concat(ex[TR.mid]());}catch(e){}}
- TR.task=pool[Math.floor(Math.random()*pool.length)];
+ const pool=trPool();
+ const idx=trWeightedPick(pool);
+ TR.task=pool[idx];
+ TR.curIdx=idx;
  TR.hl=0;
  trRender();
 }
@@ -3390,7 +3404,7 @@ function trStartPexeso(){
  RPGTaskTypes.renderPexeso(document.getElementById('tr-prob'),pairs,m=>trSpecialDone(Math.max(0,m-2)));
 }
 function trSpecialBegin(){
- TR.task={ans:'',skill:null,hints:[]};
+ TR.task={ans:'',skill:null,hints:[]};TR.curIdx=null;
  document.getElementById('tr-input-row').style.display='none';
  document.getElementById('tr-yn-row').style.display='none';
  document.getElementById('tr-mc').style.display='none';
@@ -3410,6 +3424,9 @@ function trSpecialDone(mistakes){
 }
 function trCorrect(){
  TR.correct++;TR.total++;TR.streak++;
+ if(TR.mid&&TR.curIdx!=null&&S.trainErrs&&S.trainErrs[TR.mid]&&S.trainErrs[TR.mid][TR.curIdx]){
+  S.trainErrs[TR.mid][TR.curIdx]=Math.max(0,S.trainErrs[TR.mid][TR.curIdx]-1);
+ }
  const m=S.mastery[TR.mid]||(S.mastery[TR.mid]={score:0,mastered:false});
  const wasMastered=m.mastered;
  m.score=(m.score||0)+1;
@@ -3433,7 +3450,10 @@ function trCorrect(){
 
 function trWrong(given){
  TR.total++;
- if(!S.errs)S.errs={};if(TR.mid){S.errs[TR.mid]=(S.errs[TR.mid]||0)+1;saveS();}
+ if(!S.errs)S.errs={};if(TR.mid){S.errs[TR.mid]=(S.errs[TR.mid]||0)+1;
+  if(!S.trainErrs)S.trainErrs={};if(!S.trainErrs[TR.mid])S.trainErrs[TR.mid]={};
+  if(TR.curIdx!=null)S.trainErrs[TR.mid][TR.curIdx]=(S.trainErrs[TR.mid][TR.curIdx]||0)+1;
+  saveS();}
  const fb=document.getElementById('tr-fb');
  fb.className='feedback err';
  // Studijní rádce: jedna chyba za trénink nezlomí sérii (chyba se počítá)
