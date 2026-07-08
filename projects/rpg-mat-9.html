@@ -379,9 +379,20 @@ body::before{
 .cm-mc-opt input{margin-right:6px}
 .cm-match-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:6px 0;border-top:1px solid #ffffff14}
 .cm-match-row select{font-family:var(--px);font-size:13px;background:var(--panel2);color:var(--gold);border:2px solid var(--gold);padding:4px}
-.cm-review-item{padding:6px 0;border-top:1px solid #ffffff14;font-family:var(--read);font-size:14px}
-.cm-review-item.ok{color:var(--green)}
-.cm-review-item.bad{color:var(--red,#ff3355)}
+.cm-review-item{padding:0;border-top:1px solid #ffffff14;font-family:var(--read);font-size:14px}
+.cm-review-item summary{padding:6px 0;cursor:pointer;list-style:none;display:flex;align-items:center;gap:6px;user-select:none}
+.cm-review-item summary::-webkit-details-marker{display:none}
+.cm-review-item summary::before{content:'▸';color:var(--muted);transition:transform .15s;font-size:11px}
+.cm-review-item[open] summary::before{transform:rotate(90deg)}
+.cm-review-item.ok summary{color:var(--green)}
+.cm-review-item.bad summary{color:var(--red,#ff3355)}
+.cm-review-body{padding:2px 4px 12px 18px}
+.cm-review-sub{margin-bottom:10px;padding-bottom:8px;border-bottom:1px dashed #ffffff14}
+.cm-review-sub:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0}
+.cm-review-q{color:#fff;margin-bottom:4px;line-height:1.4}
+.cm-review-given{color:var(--red,#ff3355);font-size:13px;margin-bottom:2px}
+.cm-review-correct{color:var(--green);font-size:13px;margin-bottom:4px}
+.cm-review-sol{color:var(--muted);font-size:13px;line-height:1.5;background:#0a0a0f88;padding:6px 8px;border-left:2px solid var(--gold)}
 .bt-input{flex:1;font-family:var(--px);font-weight:700;font-size:20px;background:var(--panel2);color:var(--gold);border:3px solid var(--gold);padding:12px;outline:none;text-align:center;transition:box-shadow .2s}
 .bt-input:focus{animation:input-pulse 1.4s ease-in-out infinite}
 @keyframes input-pulse{0%,100%{opacity:.8}50%{opacity:1}}
@@ -3234,33 +3245,40 @@ function cmSubmit(auto){
  CM.tasks.forEach(t=>{
   if(t.kind==='tfgrid'){
    let earned=0;
-   t.statements.forEach((s,i)=>{
+   const items=t.statements.map((s,i)=>{
     const sel=document.querySelector(`input[name="cm-tf-${t.no}-${i}"]:checked`);
-    const ok=sel&&sel.value===s.ans;
+    const given=sel?sel.value:null;
+    const ok=given===s.ans;
     if(ok)earned++;
+    return {prompt:s.text,given,correct:s.ans,ok,sol:s.sol};
    });
    score+=earned;
-   review.push({no:t.no,title:t.title,earned,max:t.points});
+   review.push({no:t.no,title:t.title,earned,max:t.points,items});
   }else if(t.kind==='mc'){
    const sel=document.querySelector(`input[name="cm-mc-${t.no}"]:checked`);
-   const ok=sel&&sel.value===t.ans;
+   const given=sel?sel.value:null;
+   const ok=given===t.ans;
    const earned=ok?t.points:0;
    score+=earned;
-   review.push({no:t.no,title:t.title,earned,max:t.points});
+   review.push({no:t.no,title:t.title,earned,max:t.points,items:[{prompt:t.prompt,given,correct:t.ans,ok,sol:t.sol}]});
   }else if(t.kind==='match'){
    let earned=0;const per=t.points/t.prompts.length;
-   t.prompts.forEach((p,i)=>{
+   const items=t.prompts.map((p,i)=>{
     const sel=document.getElementById(`cm-match-${t.no}-${i}`);
-    if(sel&&sel.value===t.ans[i])earned+=per;
+    const given=sel&&sel.value?sel.value:null;
+    const ok=given===t.ans[i];
+    if(ok)earned+=per;
+    return {prompt:p,given,correct:t.ans[i],ok,sol:(t.sol&&t.sol[i])||''};
    });
    earned=Math.round(earned);
    score+=earned;
-   review.push({no:t.no,title:t.title,earned,max:t.points});
+   review.push({no:t.no,title:t.title,earned,max:t.points,items});
   }else{
    let earned=0;
-   (t.parts||[]).forEach((p,i)=>{
+   const items=(t.parts||[]).map((p,i)=>{
     const inp=document.getElementById(`cm-p-${t.no}-${i}`);
     const v=inp?inp.value:'';
+    const given=v.trim()||null;
     const ok=v.trim()!==''&&checkAns(v,p.ans);
     if(ok)earned+=p.points;
     if(p.showExplain){
@@ -3270,9 +3288,10 @@ function cmSubmit(auto){
       RPGCloud.saveExplanation('RPG_MAT_9','cermat-'+t.no+'.'+(p.key||i),0,p.prompt,p.ans,exTxt);
      }
     }
+    return {prompt:p.prompt,given,correct:String(p.ans),ok,sol:p.sol};
    });
    score+=earned;
-   review.push({no:t.no,title:t.title,earned,max:t.points});
+   review.push({no:t.no,title:t.title,earned,max:t.points,items});
   }
  });
  if(!S.cermat)S.cermat={attempts:[],best:0};
@@ -3293,10 +3312,15 @@ function cmShowResults(score,review,auto){
  const pct=Math.round(score/max*100);
  document.getElementById('cm-end-score').textContent=score+' / '+max+' bodů'+(auto?' (čas vypršel)':'');
  document.getElementById('cm-end-pct').textContent=pct+' %';
- let html='<div style="font-family:var(--px);font-size:12px;color:var(--muted);margin-bottom:6px">ROZBOR PO ÚLOHÁCH</div>';
+ let html='<div style="font-family:var(--px);font-size:12px;color:var(--muted);margin-bottom:6px">ROZBOR PO ÚLOHÁCH — klikni na úlohu pro vyřešený postup</div>';
  review.sort((a,b)=>a.no-b.no).forEach(r=>{
   const cls=r.earned>=r.max?'ok':(r.earned>0?'':'bad');
-  html+=`<div class="cm-review-item ${cls}">Úloha ${r.no}${r.title?' — '+esc2(r.title):''}: ${r.earned} / ${r.max} b</div>`;
+  const openAttr=r.earned<r.max?' open':'';
+  const body=(r.items||[]).map(it=>{
+   const givenLine=it.ok?'':`<div class="cm-review-given">Tvoje odpověď: ${it.given!=null?esc2(String(it.given)):'(nevyplněno)'}</div>`;
+   return `<div class="cm-review-sub"><div class="cm-review-q">${esc2(it.prompt)}</div>${givenLine}<div class="cm-review-correct">Správně: ${esc2(String(it.correct))}</div>${it.sol?`<div class="cm-review-sol">${esc2(it.sol)}</div>`:''}</div>`;
+  }).join('');
+  html+=`<details class="cm-review-item ${cls}"${openAttr}><summary>Úloha ${r.no}${r.title?' — '+esc2(r.title):''}: ${r.earned} / ${r.max} b</summary><div class="cm-review-body">${body}</div></details>`;
  });
  document.getElementById('cm-end-detail').innerHTML=html;
  window.scrollTo(0,0);
