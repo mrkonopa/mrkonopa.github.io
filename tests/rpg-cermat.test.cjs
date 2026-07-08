@@ -68,6 +68,10 @@ const ok = (c, m) => { if (c) { pass++; } else { fail++; console.log('  ❌ ' + 
   ok(await page.evaluate(() => S.cermat.attempts.length === 1 && S.cermat.best === 50), 'výsledek uložen do S.cermat, best=50');
   const reviewItems = await page.evaluate(() => document.querySelectorAll('#cm-end-detail .cm-review-item').length);
   ok(reviewItems === 16, `rozbor má 16 řádků (je ${reviewItems})`);
+  const openCountCorrect = await page.evaluate(() => document.querySelectorAll('#cm-end-detail details.cm-review-item[open]').length);
+  ok(openCountCorrect === 0, `žádná úloha není auto-rozbalená, když je vše správně (je ${openCountCorrect})`);
+  const solCountCorrect = await page.evaluate(() => document.querySelectorAll('#cm-end-detail .cm-review-sol').length);
+  ok(solCountCorrect === 32, `vyřešený postup (sol) se vykreslí pro všech 32 podúloh (je ${solCountCorrect})`);
 
   // druhý pokus: vše ŠPATNĚ → 0 bodů, best zůstane 50
   await page.evaluate(() => { go('cermat'); cmStart(); });
@@ -85,6 +89,25 @@ const ok = (c, m) => { if (c) { pass++; } else { fail++; console.log('  ❌ ' + 
   const score2 = await page.evaluate(() => document.getElementById('cm-end-score').textContent);
   ok(/^0 \//.test(score2), `špatné odpovědi = 0 bodů (je "${score2}")`);
   ok(await page.evaluate(() => S.cermat.best === 50), 'best zůstal 50 po horším pokusu');
+  const openCountWrong = await page.evaluate(() => document.querySelectorAll('#cm-end-detail details.cm-review-item[open]').length);
+  ok(openCountWrong === 16, `všechny úlohy jsou auto-rozbalené, když je vše špatně (je ${openCountWrong})`);
+
+  // XSS: škodlivý vstup v textovém poli odpovědi se v rozboru nesmí vykonat, musí být escapovaný
+  await page.evaluate(() => { go('cermat'); cmStart(); });
+  await page.waitForTimeout(200);
+  await page.evaluate(() => {
+    const t = CM.tasks.find(t => !t.kind && t.parts && t.parts.length);
+    const inp = t ? document.getElementById(`cm-p-${t.no}-0`) : null;
+    if (inp) inp.value = '<img src=x onerror="window.__xss=1">';
+    window.confirm = () => true; cmSubmit(false);
+  });
+  await page.waitForTimeout(200);
+  ok(await page.evaluate(() => window.__xss !== 1), 'škodlivý vstup v odpovědi se nespustí');
+  const givenHtml = await page.evaluate(() => {
+    const el = [...document.querySelectorAll('#cm-end-detail .cm-review-given')].find(e => e.textContent.includes('img'));
+    return el ? el.innerHTML : null;
+  });
+  ok(!!givenHtml && givenHtml.includes('&lt;img'), `payload je v review escapovaný (${givenHtml})`);
 
   // časomíra vypršení → auto-submit
   await page.evaluate(() => { go('cermat'); cmStart(); CM.timeLeft = 1; window.confirm = () => true; });

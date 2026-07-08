@@ -11,12 +11,15 @@
    task = {
      no, points, title, intro?, svg?,
      parts: [
-       { key, points, prompt, ans, showExplain? }   // 'open' — text/number, checkAns()
+       { key, points, prompt, ans, showExplain?, sol }   // 'open' — text/number, checkAns()
      ] |
-     { kind:'tfgrid', points, statements:[{text,ans:'A'|'N'}] } |
-     { kind:'mc', points, prompt, options:['A) …',…], ans:'C' } |
-     { kind:'match', points, prompts:['…','…','…'], options:['A) …',…], ans:['C','A','E'] }
+     { kind:'tfgrid', points, statements:[{text,ans:'A'|'N',sol}] } |
+     { kind:'mc', points, prompt, options:['A) …',…], ans:'C', sol } |
+     { kind:'match', points, prompts:['…','…','…'], options:['A) …',…], ans:['C','A','E'], sol:['…','…','…'] }
    }
+   sol = vyřešený postup (krok → vzorec → dosazení), zobrazí se na
+   výsledkové obrazovce po odevzdání testu — rozklikávací panel u každé
+   úlohy, u špatně zodpovězených částí automaticky rozbalený.
 
    ROZŠIŘOVÁNÍ: úloha na pozici N v testu = SLOTS[N-1], což je POLE
    variant (funkcí genN, genNb, genNc, …). Při startu testu se z každé
@@ -41,7 +44,8 @@
       no: 1, points: 1, title: 'Číselný výraz',
       parts: [{ key: '', points: 1,
         prompt: `Vypočítejte, kolikrát je součet čísel ${a} a ${b} větší než druhá odmocnina ze součinu čísel ${a} a ${b}.`,
-        ans: String(Number.isInteger(ans) ? ans : r2(ans)) }]
+        ans: String(Number.isInteger(ans) ? ans : r2(ans)),
+        sol: `Nejdřív sečti čísla: ${a} + ${b} = ${a + b}. Pak je vynásob a výsledek odmocni: √(${a} · ${b}) = √${a * b} ≈ ${r2(sqrtProd)}. Nakonec součet vyděl odmocninou: ${a + b} : ${r2(sqrtProd)} ≈ ${Number.isInteger(ans) ? ans : r2(ans)}.` }]
     };
   }
 
@@ -61,10 +65,12 @@
       parts: [
         { key: '2.1', points: 1, showExplain: false,
           prompt: `Vypočítejte a výsledek zapište zlomkem v základním tvaru: (−${a}) · (1/${b} − 1/${c}) =`,
-          ans: ans1 },
+          ans: ans1,
+          sol: `Nejdřív uprav závorku na společného jmenovatele: 1/${b} − 1/${c} = (${c} − ${b})/(${b}·${c}) = ${c - b}/${b * c}. Pak vynásob číslem −${a}: (−${a}) · ${c - b}/${b * c} = ${num1}/${den1}. Zkrať zlomek jejich NSD (${g1}) na výsledný tvar ${ans1}.` },
         { key: '2.2', points: 2, showExplain: true,
           prompt: `Vypočítejte: (${d}² − ${e}²) : ${f} =`,
-          ans: String(ans2) }
+          ans: String(ans2),
+          sol: `Umocni obě čísla na druhou: ${d}² = ${d * d}, ${e}² = ${e * e}. Odečti je: ${d * d} − ${e * e} = ${num2}. Nakonec vyděl číslem ${f}: ${num2} : ${f} = ${ans2}.` }
       ]
     };
   }
@@ -90,13 +96,16 @@
       parts: [
         { key: '3.1', points: 1,
           prompt: `Do rámečků doplňte čísla, aby platila rovnost: (x + ?)² = x² + ${mid}x + ? — napište DRUHÉ (poslední) doplněné číslo.`,
-          ans: String(last) },
+          ans: String(last),
+          sol: `Použij vzorec (x + a)² = x² + 2ax + a². Protože 2a = ${mid}, je a = ${a}. Druhé doplněné číslo je a² = ${a}² = ${last}.` },
         { key: '3.2', points: 1, showExplain: true,
           prompt: `Upravte na co nejjednodušší tvar bez závorek a napište koeficient u x: ${c} − (x + ${d})·(−x) + (${e} − x)·(x + ${f})`,
-          ans: String(coefX) },
+          ans: String(coefX),
+          sol: `Roznásob obě závorky: −(x + ${d})·(−x) = x² + ${d}x, a (${e} − x)·(x + ${f}) = ${e}x + ${e * f} − x² − ${f}x. Sečti všechny členy: ${c} + x² + ${d}x + ${e}x + ${e * f} − x² − ${f}x. Členy x² se vyruší, zbyde (${d} + ${e} − ${f})x + (${c} + ${e * f}) = ${simplified}. Koeficient u x je tedy ${coefX}.` },
         { key: '3.3', points: 2, showExplain: true,
           prompt: `Upravte výraz x·(x − ${2 * k}) + ${k}² a rozložte na součin pomocí vzorce. Napište, čemu se rovná (x − ?) v rozkladu (x − ?)².`,
-          ans: String(k) }
+          ans: String(k),
+          sol: `Roznásob: x·(x − ${2 * k}) = x² − ${2 * k}x. Přičti ${k}² = ${k * k}: x² − ${2 * k}x + ${k * k}. To odpovídá vzorci a² − 2ab + b² = (a−b)² s a=x, b=${k} (protože 2ab = 2·x·${k} = ${2 * k}x). Výraz se tedy rozloží na (x − ${k})².` }
       ]
     };
   }
@@ -120,10 +129,12 @@
       parts: [
         { key: '4.1', points: 2, showExplain: true,
           prompt: `Vyřešte rovnici a napište kořen x: ${p}·(${a4} − x) = ${q}·(x − ${b4})`,
-          ans: String(Number.isInteger(x2) ? x2 : r2(x2)) },
+          ans: String(Number.isInteger(x2) ? x2 : r2(x2)),
+          sol: `Roznásob závorky: ${p}·${a4} − ${p}x = ${q}x − ${q}·${b4}, tedy ${p * a4} − ${p}x = ${q}x − ${q * b4}. Převeď členy s x na jednu stranu a čísla na druhou: ${p * a4} + ${q * b4} = ${q}x + ${p}x, čili ${p * a4 + q * b4} = ${p + q}x. Vyděl: x = ${p * a4 + q * b4} : ${p + q} = ${Number.isInteger(x2) ? x2 : r2(x2)}.` },
         { key: '4.2', points: 2, showExplain: true,
           prompt: `Vyřešte rovnici a napište kořen y: y − (y + ${m4})·${cz(c4)} = ${cz(n4)}y + ${cz(o4)}`,
-          ans: String(y1) }
+          ans: String(y1),
+          sol: `Nejdřív roznásob závorku: (y + ${m4})·${cz(c4)} = ${cz(c4)}y + ${cz(r2(c4 * m4))}. Rovnice se změní na tvar (číslo)·y = (číslo) — všechny členy s y dej na jednu stranu, čísla na druhou, a vyděl koeficientem u y. Vyjde y = ${y1}.` }
       ]
     };
   }
@@ -148,10 +159,12 @@
       parts: [
         { key: '5.1', points: 2,
           prompt: `Délka domu a je rovna polovině strany pozemku (a = ${a5} m). Určete šířku domu b (v m, zaokrouhlete na celé metry).`,
-          ans: String(b5) },
+          ans: String(b5),
+          sol: `Obsah pozemku je c² = ${c5}² = ${cel} m². Obsah domu je pětina z toho: ${cel} : 5 = ${domObsah} m². Šířku domu spočítáš jako obsah : délka: ${domObsah} : ${a5} = ${b5} m (zaokrouhleno na celé metry).` },
         { key: '5.2', points: 2,
           prompt: `Rybníček má rozlohu ${pRybnik} % celkové rozlohy pozemku. Vypočítejte v m² rozlohu volné části pozemku (bez domu a rybníčku). Použijte obsah domu = ${domObsah} m² a obsah rybníčku = ${rybnik} m².`,
-          ans: String(volna) }
+          ans: String(volna),
+          sol: `Volná část = celková rozloha − dům − rybníček: ${cel} − ${domObsah} − ${rybnik} = ${volna} m².` }
       ]
     };
   }
@@ -172,10 +185,12 @@
       parts: [
         { key: '6.1', points: 1,
           prompt: `Při dešti stoupla hladina vody v sudu o ${mm1} mm. Kolik litrů vody přibylo (zaokrouhlete na 1 des. místo)?`,
-          ans: String(litry1exact) },
+          ans: String(litry1exact),
+          sol: `Převeď mm na cm: ${mm1} mm = ${mm1 / 10} cm. Objem přibylé vody = obsah dna × výška: ${S6} cm² × ${mm1 / 10} cm = ${r2(S6 * (mm1 / 10))} cm³. Převeď na litry (1 l = 1000 cm³): ${r2(S6 * (mm1 / 10))} : 1000 ≈ ${litry1exact} l.` },
         { key: '6.2', points: 1,
           prompt: `Při lijáku přibyly v sudu ${litry2} litry vody. O kolik mm stoupla hladina (zaokrouhlete na celé mm)?`,
-          ans: String(Math.round(litry2 * 1000 / S6 * 10)) }
+          ans: String(Math.round(litry2 * 1000 / S6 * 10)),
+          sol: `Převeď litry na cm³: ${litry2} l = ${litry2 * 1000} cm³. Výšku vypočítáš jako objem : obsah dna: ${litry2 * 1000} : ${S6} ≈ ${r2(litry2 * 1000 / S6)} cm. Převeď na mm (×10): ≈ ${Math.round(litry2 * 1000 / S6 * 10)} mm.` }
       ]
     };
   }
@@ -193,9 +208,12 @@
       })(),
       intro: `Přímky p, q jsou rovnoběžné a protíná je příčka. Jeden z úhlů na přímce p má velikost ${given}°.`,
       parts: [
-        { key: '7.1', points: 1, prompt: `Vypočítejte velikost úhlu α (souhlasný úhel na přímce q).`, ans: String(alpha) },
-        { key: '7.2', points: 1, prompt: `Vypočítejte velikost úhlu β (vedlejší úhel k α).`, ans: String(beta) },
-        { key: '7.3', points: 1, prompt: `Vypočítejte velikost úhlu γ (vrcholový úhel k danému úhlu ${given}° na přímce p).`, ans: String(gamma) }
+        { key: '7.1', points: 1, prompt: `Vypočítejte velikost úhlu α (souhlasný úhel na přímce q).`, ans: String(alpha),
+          sol: `Souhlasné úhly na rovnoběžkách jsou stejně velké, proto α = ${given}°.` },
+        { key: '7.2', points: 1, prompt: `Vypočítejte velikost úhlu β (vedlejší úhel k α).`, ans: String(beta),
+          sol: `Vedlejší úhly dávají dohromady 180°, proto β = 180° − ${given}° = ${beta}°.` },
+        { key: '7.3', points: 1, prompt: `Vypočítejte velikost úhlu γ (vrcholový úhel k danému úhlu ${given}° na přímce p).`, ans: String(gamma),
+          sol: `Vrcholové úhly jsou shodné (stejně velké), proto γ = ${given}°.` }
       ]
     };
   }
@@ -217,9 +235,12 @@
       no: 8, points: 4, title: 'Záhon',
       intro: `Záhon má tvar čtyřúhelníku: tři strany jsou stejně dlouhé (${aStr} m), čtvrtá strana měří ${bStr} m. Po obvodu je ve stejných rozestupech ${rozestupCm} cm vysázeno celkem ${pocetRostlin} rostlin, po jedné i v každém rohu.`,
       parts: [
-        { key: '8.1', points: 2, prompt: `Vypočítejte v metrech obvod záhonu.`, ans: String(obvodM) },
-        { key: '8.2', points: 1, prompt: `O kolik se liší počet rostlin na nejdelší straně (${bStr} m) od počtu rostlin na jedné z kratších stran (${aStr} m)?`, ans: String(Math.abs(rozdilRostlin)) },
-        { key: '8.3', points: 1, prompt: `Rostliny se po obvodu pravidelně střídají ve skupinkách po ${skupinaVelikost}. Kolik celkem skupinek je po obvodu (${pocetRostlin} rostlin)?`, ans: String(Math.round(pocetRostlin / skupinaVelikost)) }
+        { key: '8.1', points: 2, prompt: `Vypočítejte v metrech obvod záhonu.`, ans: String(obvodM),
+          sol: `Tři strany po ${aStr} m: 3 × ${aStr} = ${3 * aStr} m. Přičti čtvrtou stranu ${bStr} m: ${3 * aStr} + ${bStr} = ${obvodM} m.` },
+        { key: '8.2', points: 1, prompt: `O kolik se liší počet rostlin na nejdelší straně (${bStr} m) od počtu rostlin na jedné z kratších stran (${aStr} m)?`, ans: String(Math.abs(rozdilRostlin)),
+          sol: `Na straně ${bStr} m je ${Math.round(bStr * 100 / rozestupCm)} rostlin (${bStr * 100} cm : ${rozestupCm} cm), na straně ${aStr} m je ${Math.round(aStr * 100 / rozestupCm)} rostlin (${aStr * 100} cm : ${rozestupCm} cm). Rozdíl: ${Math.round(bStr * 100 / rozestupCm)} − ${Math.round(aStr * 100 / rozestupCm)} = ${Math.abs(rozdilRostlin)}.` },
+        { key: '8.3', points: 1, prompt: `Rostliny se po obvodu pravidelně střídají ve skupinkách po ${skupinaVelikost}. Kolik celkem skupinek je po obvodu (${pocetRostlin} rostlin)?`, ans: String(Math.round(pocetRostlin / skupinaVelikost)),
+          sol: `Počet skupinek = počet rostlin : velikost skupinky: ${pocetRostlin} : ${skupinaVelikost} ≈ ${Math.round(pocetRostlin / skupinaVelikost)}.` }
       ]
     };
   }
@@ -237,7 +258,8 @@
       parts: [
         { key: '9.1', points: 4, showExplain: true,
           prompt: `Vypočítejte délku žebříku (v m). Uveďte celý postup.`,
-          ans: String(c9) }
+          ans: String(c9),
+          sol: `Žebřík, zeď a zem tvoří pravoúhlý trojúhelník s pravým úhlem u paty zdi. Přepona (žebřík) c se počítá z odvěsen a = ${a9} m a b = ${b9} m Pythagorovou větou: c² = a² + b² = ${a9}² + ${b9}² = ${a9 * a9} + ${b9 * b9} = ${a9 * a9 + b9 * b9}. Odmocni: c = √${a9 * a9 + b9 * b9} = ${c9} m.` }
       ]
     };
   }
@@ -252,7 +274,8 @@
       parts: [
         { key: '10', points: 2,
           prompt: `Dva podobné trojúhelníky mají koeficient podobnosti k = ${k10}. Strana menšího trojúhelníku měří ${orig} cm. Jak dlouhá je odpovídající strana většího trojúhelníku (v cm)?`,
-          ans: String(orig * k10) }
+          ans: String(orig * k10),
+          sol: `U podobných trojúhelníků platí, že odpovídající strany se liší koeficientem podobnosti k. Stranu většího trojúhelníku spočítáš jako: ${orig} × ${k10} = ${orig * k10} cm.` }
       ]
     };
   }
@@ -262,16 +285,19 @@
     const a11 = ri(2, 4), b11 = ri(3, 6), c11 = ri(2, 5);
     const soucetHran = 4 * (a11 + b11 + c11);
     const tvrzeniSoucet = soucetHran + (ri(0, 1) ? 0 : ri(2, 8));
-    const st1 = { text: `Součet délek všech hran kvádru s hranami ${a11} cm, ${b11} cm a ${c11} cm je ${tvrzeniSoucet} cm.`, ans: tvrzeniSoucet === soucetHran ? 'A' : 'N' };
+    const st1 = { text: `Součet délek všech hran kvádru s hranami ${a11} cm, ${b11} cm a ${c11} cm je ${tvrzeniSoucet} cm.`, ans: tvrzeniSoucet === soucetHran ? 'A' : 'N',
+      sol: `Kvádr má 12 hran (4 od každého rozměru). Součet všech hran = 4·(a+b+c) = 4·(${a11}+${b11}+${c11}) = ${soucetHran} cm. Tvrzení uvádí ${tvrzeniSoucet} cm, což je ${tvrzeniSoucet === soucetHran ? 'stejné číslo — tvrzení je PRAVDIVÉ (A).' : 'jiné číslo — tvrzení je NEPRAVDIVÉ (N).'}` };
     const povrch1 = 2 * (a11 * b11 + b11 * c11 + a11 * c11);
     const a11b = a11 + 1;
     const povrch2 = 2 * (a11b * b11 + b11 * c11 + a11b * c11);
     const rozdilTvrzeny = ri(0, 1) ? (povrch2 - povrch1) : (povrch2 - povrch1) + ri(2, 6);
-    const st2 = { text: `Kvádr s hranami ${a11b} cm, ${b11} cm, ${c11} cm má o ${rozdilTvrzeny} cm² větší povrch než kvádr s hranami ${a11} cm, ${b11} cm, ${c11} cm.`, ans: rozdilTvrzeny === (povrch2 - povrch1) ? 'A' : 'N' };
+    const st2 = { text: `Kvádr s hranami ${a11b} cm, ${b11} cm, ${c11} cm má o ${rozdilTvrzeny} cm² větší povrch než kvádr s hranami ${a11} cm, ${b11} cm, ${c11} cm.`, ans: rozdilTvrzeny === (povrch2 - povrch1) ? 'A' : 'N',
+      sol: `Povrch kvádru = 2·(a·b + b·c + a·c). Kvádr ${a11}×${b11}×${c11}: povrch = 2·(${a11}·${b11} + ${b11}·${c11} + ${a11}·${c11}) = ${povrch1} cm². Kvádr ${a11b}×${b11}×${c11}: povrch = 2·(${a11b}·${b11} + ${b11}·${c11} + ${a11b}·${c11}) = ${povrch2} cm². Skutečný rozdíl je ${povrch2 - povrch1} cm², tvrzení uvádí ${rozdilTvrzeny} cm², takže je ${rozdilTvrzeny === (povrch2 - povrch1) ? 'PRAVDIVÉ (A).' : 'NEPRAVDIVÉ (N).'}` };
     const objem1 = a11 * b11 * c11;
     const objem2 = a11b * b11 * c11;
     const st3ok = objem2 > objem1;
-    const st3 = { text: `Kvádr s hranami ${a11b} cm, ${b11} cm, ${c11} cm má větší objem než kvádr s hranami ${a11} cm, ${b11} cm, ${c11} cm.`, ans: 'A' };
+    const st3 = { text: `Kvádr s hranami ${a11b} cm, ${b11} cm, ${c11} cm má větší objem než kvádr s hranami ${a11} cm, ${b11} cm, ${c11} cm.`, ans: 'A',
+      sol: `Objem kvádru = a·b·c. Kvádr ${a11}×${b11}×${c11}: ${a11}·${b11}·${c11} = ${objem1} cm³. Kvádr ${a11b}×${b11}×${c11}: ${a11b}·${b11}·${c11} = ${objem2} cm³. Protože ${a11b} > ${a11} a ostatní hrany jsou stejné, je i objem větší (${objem2} > ${objem1}) — tvrzení je PRAVDIVÉ (A).` };
     return {
       no: 11, points: 3, title: 'Kvádry',
       kind: 'tfgrid',
@@ -294,7 +320,8 @@
       kind: 'mc',
       prompt: `Bazén má délku ${delka} m a šířku ${sirka} m. V zóně pro neplavce (polovina délky) je všude hloubka ${h1} m. V zóně pro plavce dno plynule klesá z ${h1} m na ${h2} m. Jaký je objem bazénu?`,
       options: shuffled.labels,
-      ans: shuffled.correctLetter
+      ans: shuffled.correctLetter,
+      sol: `Bazén rozděl na dvě poloviny po délce ${zonaNepl} m. Neplavecká část má všude hloubku ${h1} m: objem = ${zonaNepl} × ${sirka} × ${h1} = ${zonaNepl * sirka * h1} m³. Plavecká část má šikmé dno od ${h1} m do ${h2} m, průměrná hloubka je (${h1}+${h2}):2 = ${(h1 + h2) / 2} m: objem = ${zonaNepl} × ${sirka} × ${(h1 + h2) / 2} = ${zonaNepl * sirka * (h1 + h2) / 2} m³. Celkový objem = ${zonaNepl * sirka * h1} + ${zonaNepl * sirka * (h1 + h2) / 2} = ${correct} m³ → odpověď ${shuffled.correctLetter}.`
     };
   }
 
@@ -313,7 +340,8 @@
       kind: 'mc',
       prompt: `Tábor měl dva termíny se stejným počtem míst. Celkem přišlo ${celkem} přihlášek. V prvním termínu počet přihlášek překročil počet míst o ${p1} %, ve druhém o ${p2} %. Kolik přihlášek muselo být kvůli nedostatku míst odmítnuto?`,
       options: shuffled.labels,
-      ans: shuffled.correctLetter
+      ans: shuffled.correctLetter,
+      sol: `V prvním termínu přišlo ${prihl1} přihlášek (${mista} + ${p1} % = ${mista} × 1,2 = ${prihl1}), ve druhém ${prihl2} přihlášek (${mista} × 1,3 = ${prihl2}). Celkem ${prihl1} + ${prihl2} = ${celkem} přihlášek na ${2 * mista} míst (2 × ${mista}). Odmítnuto bylo ${celkem} − ${2 * mista} = ${odmitnuto} přihlášek → odpověď ${shuffled.correctLetter}.`
     };
   }
 
@@ -331,7 +359,8 @@
       kind: 'mc',
       prompt: `Test psalo ${n14} žáků, každý dostal známku 1 nebo 2. Aritmetický průměr známek byl ${cz(prumer)}. Kolik žáků dostalo jedničku?`,
       options: shuffled.labels,
-      ans: shuffled.correctLetter
+      ans: shuffled.correctLetter,
+      sol: `Součet všech známek = průměr × počet žáků: ${cz(prumer)} × ${n14} = ${soucetZnamek}. Když j žáků má jedničku a zbylých ${n14}−j žáků má dvojku, součet = 1·j + 2·(${n14}−j) = ${2 * n14} − j. Z rovnice ${2 * n14} − j = ${soucetZnamek} vyjde j = ${2 * n14} − ${soucetZnamek} = ${pocetJednicek} → odpověď ${shuffled.correctLetter}.`
     };
   }
 
@@ -360,7 +389,12 @@
         `Třída má ${t3.celek} žáků, ${t3.cast} z nich jezdí do školy autobusem. Kolik procent žáků jezdí autobusem?`
       ],
       options: labels,
-      ans: ansLetters
+      ans: ansLetters,
+      sol: [
+        `Podíl pracovníků na home office: ${t1.cast} : ${t1.celek} ≈ ${r2(t1.cast / t1.celek)}. Vynásob 100, abys dostal procenta: ≈ ${t1.pct} %.`,
+        `Podíl vadných výrobků: ${t2.cast} : ${t2.celek} ≈ ${r2(t2.cast / t2.celek)}. Vynásob 100: ≈ ${t2.pct} %.`,
+        `Podíl žáků jedoucích autobusem: ${t3.cast} : ${t3.celek} ≈ ${r2(t3.cast / t3.celek)}. Vynásob 100: ≈ ${t3.pct} %.`
+      ]
     };
   }
 
@@ -387,9 +421,12 @@
       no: 16, points: 4, title: 'Rámečky',
       intro: `Vytváříme čtvercové obrazce: bílý čtverec obklopený rámem ze shodných destiček o rozměrech ${destickaA} cm × ${destickaB} cm.`,
       parts: [
-        { key: '16.1', points: 2, prompt: `Bílý čtverec uvnitř má stranu ${w1} cm. Jaká je délka strany CELÉHO obrazce (v cm)?`, ans: String(d1.celk) },
-        { key: '16.2', points: 1, prompt: `Pro obrazec s bílým čtvercem o straně ${w1} cm je v rámu ${d1.pocet} destiček. Pro obrazec s bílým čtvercem o straně ${w2} cm je v rámu ${d2.pocet} destiček. O kolik destiček se liší?`, ans: String(rozdilPocet) },
-        { key: '16.3', points: 1, prompt: `Jaká je délka strany celého obrazce, má-li bílý čtverec stranu ${w3} cm (v cm)?`, ans: String(d3.celk) }
+        { key: '16.1', points: 2, prompt: `Bílý čtverec uvnitř má stranu ${w1} cm. Jaká je délka strany CELÉHO obrazce (v cm)?`, ans: String(d1.celk),
+          sol: `Celková strana obrazce = strana bílého čtverce + 2× šířka destičky (destička lemuje obě strany): ${w1} + 2 × ${destickaA} = ${w1} + ${2 * destickaA} = ${d1.celk} cm.` },
+        { key: '16.2', points: 1, prompt: `Pro obrazec s bílým čtvercem o straně ${w1} cm je v rámu ${d1.pocet} destiček. Pro obrazec s bílým čtvercem o straně ${w2} cm je v rámu ${d2.pocet} destiček. O kolik destiček se liší?`, ans: String(rozdilPocet),
+          sol: `Do rámu s větším čtvercem (${w2} cm) se vejde ${d2.pocet} destiček, do rámu s menším čtvercem (${w1} cm) jen ${d1.pocet}. Rozdíl: ${d2.pocet} − ${d1.pocet} = ${rozdilPocet} destiček.` },
+        { key: '16.3', points: 1, prompt: `Jaká je délka strany celého obrazce, má-li bílý čtverec stranu ${w3} cm (v cm)?`, ans: String(d3.celk),
+          sol: `Stejně jako v 16.1: strana obrazce = strana bílého čtverce + 2× šířka destičky: ${w3} + 2 × ${destickaA} = ${w3} + ${2 * destickaA} = ${d3.celk} cm.` }
       ]
     };
   }
