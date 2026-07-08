@@ -118,6 +118,14 @@ body::before{
 .gp-btn.on{background:#f4d03f;color:#0a0d16;border-color:#f4d03f}
 .gp-vfx{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--muted);margin-left:auto;cursor:pointer;user-select:none}
 .gp-vfx input{width:16px;height:16px;accent-color:#19e6e6;cursor:pointer}
+.gp-gach-fold{margin-top:14px;border-top:1px solid var(--line);padding-top:10px}
+.gp-gach-fold summary{font-family:var(--px);font-size:12px;color:var(--text);letter-spacing:1px;cursor:pointer;list-style:none;display:flex;align-items:center;gap:6px;padding:4px 0;user-select:none}
+.gp-gach-fold summary::-webkit-details-marker{display:none}
+.gp-gach-fold summary::before{content:'▸';color:var(--muted);transition:transform .15s;font-size:11px}
+.gp-gach-fold[open] summary::before{transform:rotate(90deg)}
+.gp-gach-fold summary:hover{color:#f4d03f}
+.gp-gach-hint{font-size:10px;color:var(--muted);font-weight:400;letter-spacing:0}
+.gp-gach-fold #gp-gach{margin-top:10px}
 .ach-grid{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
 .ach-grid .ab{font-size:20px;width:34px;height:34px;display:flex;align-items:center;justify-content:center;background:var(--panel2);border:1px solid var(--line);border-radius:7px;filter:grayscale(1) opacity(.35)}
 .ach-grid .ab.on{filter:none;border-color:#f4d03f;box-shadow:0 0 8px #f4d03f55}
@@ -191,8 +199,8 @@ body::before{
      </div>
      <div id="gp-rename" style="display:none;margin-top:4px">
       <input id="gp-rename-in" aria-label="Nové jméno postavy" maxlength="14" style="width:120px;background:#111;border:1px solid #555;color:#fff;padding:3px 6px;border-radius:4px;font-size:14px;text-transform:uppercase">
-      <button onclick="saveHeroRename()" style="background:var(--accent);border:none;color:#000;padding:3px 10px;border-radius:4px;cursor:pointer;font-size:12px;font-weight:700;margin-left:4px">OK</button>
-      <button onclick="cancelHeroRename()" style="background:#333;border:none;color:#aaa;padding:3px 8px;border-radius:4px;cursor:pointer;font-size:12px;margin-left:2px">✕</button>
+      <button onclick="saveHeroRename()" style="background:#f4d03f;border:none;color:#0a0d16;padding:3px 10px;border-radius:4px;cursor:pointer;font-size:12px;font-weight:700;margin-left:4px">OK</button>
+      <button onclick="cancelHeroRename()" style="background:#2a3350;border:1px solid #4a5578;color:#e6ecf7;padding:3px 8px;border-radius:4px;cursor:pointer;font-size:12px;margin-left:2px">✕</button>
      </div>
      <div class="gp-sub">Tvůj společný profil pro všechny hry</div>
     </div>
@@ -204,8 +212,10 @@ body::before{
   </div>
   <div class="gp-attrs" id="gp-attrs"></div>
   <div class="ach-grid" id="gp-ach"></div>
-  <div style="font-family:var(--px);font-size:11px;color:var(--muted);letter-spacing:1px;margin-top:14px">— ŽIVOTNÍ ÚSPĚCHY (napříč všemi ročníky) —</div>
-  <div id="gp-gach"></div>
+  <details class="gp-gach-fold">
+   <summary>🏆 ŽIVOTNÍ ÚSPĚCHY <span class="gp-gach-hint">(napříč všemi ročníky — klikni pro zobrazení)</span></summary>
+   <div id="gp-gach"></div>
+  </details>
   <div class="gp-actions">
    <button class="gp-btn" id="gp-shop-btn" onclick="toggleShop()">🛍️ SDÍLENÝ OBCHOD</button>
    <label class="gp-vfx" title="Vypne blikání, otřesy a částice ve všech 4 hrách">
