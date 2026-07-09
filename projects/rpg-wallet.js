@@ -452,7 +452,9 @@ html[data-theme="leto"]{--gold:#ffd166;--panel:#062033;--panel2:#0a2e4a;--blue:#
 .rw-gach-fill{height:100%;background:var(--gold,#f4d03f)}
 .rw-gach-pct{font-size:10px;opacity:.7;flex:none;min-width:64px;text-align:right}
 #rw-sponka-bubble::after{content:'';position:absolute;left:16px;bottom:-9px;width:0;height:0;border:9px solid transparent;border-top-color:#c9a95a;border-bottom:0}
-#rw-sponka-bubble::before{content:'';position:absolute;left:17.5px;bottom:-6.5px;width:0;height:0;border:7.5px solid transparent;border-top-color:#f4ecd8;border-bottom:0;z-index:1}`;
+#rw-sponka-bubble::before{content:'';position:absolute;left:17.5px;bottom:-6.5px;width:0;height:0;border:7.5px solid transparent;border-top-color:#f4ecd8;border-bottom:0;z-index:1}
+#rw-sponka{position:fixed;z-index:9997;left:14px;bottom:14px}
+@media(min-width:900px){#rw-sponka{left:max(14px,calc(50% - 400px));top:50%;bottom:auto;transform:translateY(-50%)}}`;
     (document.head || document.documentElement).appendChild(st);
   }
   try { _injectCss(); } catch (e) {}
@@ -672,7 +674,9 @@ html[data-theme="leto"]{--gold:#ffd166;--panel:#062033;--panel2:#0a2e4a;--blue:#
     if (typeof document === 'undefined' || !_spEligible() || document.getElementById('rw-sponka')) return;
     const wrap = document.createElement('div');
     wrap.id = 'rw-sponka';
-    wrap.style.cssText = 'position:fixed;left:14px;bottom:14px;z-index:9997;display:flex;flex-direction:column;align-items:flex-start;pointer-events:none';
+    // Poloha řešena CSS třídou v _injectCss (media query) — inline jen layout,
+    // aby ji mohl přebít @media pro širokou obrazovku (u herního sloupce).
+    wrap.style.cssText = 'display:flex;flex-direction:column;align-items:flex-start;pointer-events:none';
     const bubble = document.createElement('div');
     bubble.id = 'rw-sponka-bubble';
     bubble.style.cssText = 'display:none;position:relative;max-width:220px;background:#f4ecd8;color:#2a2010;border:2px solid #c9a95a;border-radius:10px;padding:8px 10px;font-family:inherit;font-size:13px;line-height:1.35;margin-bottom:10px;box-shadow:0 4px 12px rgba(0,0,0,.35);pointer-events:auto;cursor:pointer';
