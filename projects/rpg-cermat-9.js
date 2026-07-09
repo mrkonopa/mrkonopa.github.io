@@ -35,6 +35,55 @@
   const r2 = n => Math.round(n * 100) / 100;
   const pick = arr => arr[ri(0, arr.length - 1)];
 
+  /* ── Vlastní SVG pro CERMAT úlohy (čitelné popisky, žádné překryvy) ── */
+  // Sud (rotační válec) s hladinou vody a popiskem obsahu dna POD obrazcem.
+  function svgSud(baseArea) {
+    const cx = 125, topY = 34, botY = 128, rx = 55, ry = 15;
+    return `<svg viewBox="0 0 250 172">`
+      + `<path d="M ${cx - rx} ${topY} L ${cx - rx} ${botY} A ${rx} ${ry} 0 0 0 ${cx + rx} ${botY} L ${cx + rx} ${topY}" fill="#12233a" stroke="#19e6e6" stroke-width="2.5"/>`
+      + `<path d="M ${cx - rx} 74 L ${cx - rx} ${botY} A ${rx} ${ry} 0 0 0 ${cx + rx} ${botY} L ${cx + rx} 74 A ${rx} ${ry} 0 0 1 ${cx - rx} 74 Z" fill="#0e4a6e" opacity="0.55"/>`
+      + `<ellipse cx="${cx}" cy="74" rx="${rx}" ry="${ry}" fill="#1a5a80" stroke="#4cc9f0" stroke-width="1.5"/>`
+      + `<ellipse cx="${cx}" cy="${botY}" rx="${rx}" ry="${ry}" fill="none" stroke="#19e6e6" stroke-width="2.5" stroke-dasharray="5 4"/>`
+      + `<ellipse cx="${cx}" cy="${topY}" rx="${rx}" ry="${ry}" fill="#1b2742" stroke="#19e6e6" stroke-width="2.5"/>`
+      + `<text x="${cx}" y="165" fill="#39ff9e" font-size="14" font-family="monospace" text-anchor="middle">obsah dna S = ${baseArea} cm²</text>`
+      + `</svg>`;
+  }
+  // Dvě rovnoběžky (p, q) s příčkou a VYZNAČENÝMI úhly (oblouk + popisek uvnitř).
+  // Zadaný úhel a jemu rovné (α souhlasný, γ vrcholový) jsou modré; β (vedlejší) růžové.
+  function svgAngles(given) {
+    const A = { x: 172, y: 52 }, B = { x: 120, y: 134 }; // průsečíky příčky s p (nahoře) a q (dole)
+    const len = Math.hypot(B.x - A.x, B.y - A.y);
+    const dTx = (B.x - A.x) / len, dTy = (B.y - A.y) / len; // příčka směrem dolů (k B)
+    const dUx = -dTx, dUy = -dTy;                            // příčka směrem nahoru
+    const R = 20, LR = 34;
+    // oblouk mezi dvěma jednotkovými směry ve vrcholu V
+    function arc(V, ax, ay, bx, by, color) {
+      const p1x = V.x + ax * R, p1y = V.y + ay * R, p2x = V.x + bx * R, p2y = V.y + by * R;
+      const cross = ax * by - ay * bx, sweep = cross < 0 ? 1 : 0;
+      return `<path d="M ${r1(p1x)} ${r1(p1y)} A ${R} ${R} 0 0 ${sweep} ${r1(p2x)} ${r1(p2y)}" fill="none" stroke="${color}" stroke-width="2.5"/>`;
+    }
+    function lbl(V, ax, ay, bx, by, text, color) {
+      let mx = ax + bx, my = ay + by; const ml = Math.hypot(mx, my) || 1; mx /= ml; my /= ml;
+      return `<text x="${r1(V.x + mx * LR)}" y="${r1(V.y + my * LR + 4)}" fill="${color}" font-size="13" font-family="monospace" text-anchor="middle">${text}</text>`;
+    }
+    const C = '#4cc9f0', P = '#ff5c8a';
+    return `<svg viewBox="0 0 260 180">`
+      + `<line x1="15" y1="52" x2="245" y2="52" stroke="#19e6e6" stroke-width="2"/>`
+      + `<line x1="15" y1="134" x2="245" y2="134" stroke="#19e6e6" stroke-width="2"/>`
+      + `<line x1="${A.x + dUx * 44}" y1="${A.y + dUy * 44}" x2="${B.x + dTx * 40}" y2="${B.y + dTy * 40}" stroke="#ff3d7f" stroke-width="2"/>`
+      + `<text x="248" y="49" fill="#39ff9e" font-size="13" font-family="monospace">p</text>`
+      + `<text x="248" y="131" fill="#39ff9e" font-size="13" font-family="monospace">q</text>`
+      // zadaný úhel u A (mezi p vpravo a příčkou nahoru) — modrý
+      + arc(A, 1, 0, dUx, dUy, C) + lbl(A, 1, 0, dUx, dUy, given + '°', C)
+      // γ vrcholový k zadanému u A (mezi p vlevo a příčkou dolů) — modrý
+      + arc(A, -1, 0, dTx, dTy, C) + lbl(A, -1, 0, dTx, dTy, 'γ', C)
+      // α souhlasný u B (mezi q vpravo a příčkou nahoru) — modrý
+      + arc(B, 1, 0, dUx, dUy, C) + lbl(B, 1, 0, dUx, dUy, 'α', C)
+      // β vedlejší k α u B (mezi q vlevo a příčkou nahoru) — růžový
+      + arc(B, -1, 0, dUx, dUy, P) + lbl(B, -1, 0, dUx, dUy, 'β', P)
+      + `</svg>`;
+  }
+
   function gen1() {
     // 1 bod — kolikrát je součet větší než odmocnina součinu
     const a = ri(2, 9) * 4, b = ri(2, 9) * 4;
@@ -180,7 +229,7 @@
     const mm2 = r1(litry2 * 1000 / S6 * 10);
     return {
       no: 6, points: 2, title: 'Sud',
-      svg: svgCylinder(r6 > 20 ? 4 : 3, 6),
+      svg: svgSud(S6),
       intro: `Zahradní sud má tvar rotačního válce. Dno sudu má obsah ${S6} cm².`,
       parts: [
         { key: '6.1', points: 1,
@@ -203,10 +252,8 @@
     const gamma = given;          // vrcholový k alpha
     return {
       no: 7, points: 3, title: 'Úhly na rovnoběžkách',
-      svg: (function () {
-        return `<svg viewBox="0 0 250 140"><line x1="20" y1="40" x2="230" y2="40" stroke="#19e6e6" stroke-width="2"/><line x1="20" y1="100" x2="230" y2="100" stroke="#19e6e6" stroke-width="2"/><line x1="60" y1="15" x2="180" y2="125" stroke="#ff3d7f" stroke-width="2"/><text x="235" y="43" fill="#39ff9e" font-size="12" font-family="monospace">p</text><text x="235" y="103" fill="#39ff9e" font-size="12" font-family="monospace">q</text><text x="95" y="55" fill="#fff" font-size="13" font-family="monospace">${given}°</text><text x="150" y="95" fill="#fff" font-size="13" font-family="monospace">α</text><text x="190" y="90" fill="#fff" font-size="13" font-family="monospace">β</text><text x="95" y="30" fill="#fff" font-size="13" font-family="monospace">γ</text></svg>`;
-      })(),
-      intro: `Přímky p, q jsou rovnoběžné a protíná je příčka. Jeden z úhlů na přímce p má velikost ${given}°.`,
+      svg: svgAngles(given),
+      intro: `Přímky p, q jsou rovnoběžné a protíná je příčka. Vyznačený úhel na přímce p má velikost ${given}°.`,
       parts: [
         { key: '7.1', points: 1, prompt: `Vypočítejte velikost úhlu α (souhlasný úhel na přímce q).`, ans: String(alpha),
           sol: `Souhlasné úhly na rovnoběžkách jsou stejně velké, proto α = ${given}°.` },
@@ -431,6 +478,95 @@
     };
   }
 
+  /* ═══ DRUHÉ VARIANTY POZIC (stejný tvar a stejný součet bodů) ═══
+     Přidáním funkce do SLOTS[N-1] se zvýší variabilita té pozice — při
+     každém spuštění testu se náhodně vybere jedna. */
+
+  function gen1b() {
+    // 1 bod — o kolik je součin větší než součet
+    const a = ri(4, 9), b = ri(4, 9);
+    const ans = a * b - (a + b);
+    return {
+      no: 1, points: 1, title: 'Číselný výraz',
+      parts: [{ key: '', points: 1,
+        prompt: `Vypočítejte, o kolik je součin čísel ${a} a ${b} větší než jejich součet.`,
+        ans: String(ans),
+        sol: `Součin: ${a} · ${b} = ${a * b}. Součet: ${a} + ${b} = ${a + b}. Rozdíl: ${a * b} − ${a + b} = ${ans}.` }]
+    };
+  }
+
+  function gen4b() {
+    // 4 body — dvě lineární rovnice (2+2), s postupem
+    const x1 = ri(2, 9);
+    const a = ri(3, 6), c = ri(2, a - 1), b = ri(1, 9);
+    const d = (a - c) * x1 + b; // a*x1+b = c*x1+d
+    const x2 = ri(2, 9), k = ri(2, 5), n = ri(3, 8);
+    const mm = n * k - x2; // (x2+mm)/k = n
+    return {
+      no: 4, points: 4, title: 'Rovnice',
+      parts: [
+        { key: '4.1', points: 2, showExplain: true,
+          prompt: `Vyřešte rovnici a napište kořen x: ${a}x + ${b} = ${c}x + ${d}`,
+          ans: String(x1),
+          sol: `Převeď členy s x na jednu stranu, čísla na druhou: ${a}x − ${c}x = ${d} − ${b}, tedy ${a - c}x = ${d - b}. Vyděl: x = ${d - b} : ${a - c} = ${x1}.` },
+        { key: '4.2', points: 2, showExplain: true,
+          prompt: `Vyřešte rovnici a napište kořen x: (x + ${mm}) : ${k} = ${n}`,
+          ans: String(x2),
+          sol: `Vynásob obě strany číslem ${k}: x + ${mm} = ${n} · ${k} = ${n * k}. Odečti ${mm}: x = ${n * k} − ${mm} = ${x2}.` }
+      ]
+    };
+  }
+
+  function gen7b() {
+    // 3 body — úhly v trojúhelníku (součet 180°) + vnější úhel
+    const al = ri(30, 70), be = ri(30, Math.min(90, 155 - al));
+    const ga = 180 - al - be;
+    const vnejsiC = al + be; // vnější úhel u C = 180 - γ = α + β
+    const maxIn = Math.max(al, be, ga);
+    return {
+      no: 7, points: 3, title: 'Úhly v trojúhelníku',
+      svg: svgTriangle('obecny', { v: ['A', 'B', 'C'] }),
+      intro: `V trojúhelníku ABC platí α = ${al}° (u vrcholu A) a β = ${be}° (u vrcholu B).`,
+      parts: [
+        { key: '7.1', points: 1, prompt: `Vypočítejte velikost vnitřního úhlu γ (u vrcholu C).`, ans: String(ga),
+          sol: `Součet vnitřních úhlů trojúhelníku je 180°: γ = 180° − α − β = 180° − ${al}° − ${be}° = ${ga}°.` },
+        { key: '7.2', points: 1, prompt: `Vypočítejte velikost vnějšího úhlu u vrcholu C.`, ans: String(vnejsiC),
+          sol: `Vnější úhel se rovná součtu dvou vnitřních úhlů při zbylých vrcholech: α + β = ${al}° + ${be}° = ${vnejsiC}° (nebo 180° − γ = ${vnejsiC}°).` },
+        { key: '7.3', points: 1, prompt: `Který vnitřní úhel trojúhelníku je největší? Napište jeho velikost ve stupních.`, ans: String(maxIn),
+          sol: `Porovnej α = ${al}°, β = ${be}°, γ = ${ga}°. Největší je ${maxIn}°.` }
+      ]
+    };
+  }
+
+  function gen12b() {
+    // 2 body — MC A-E, objem kvádru (bazén tvaru kvádru)
+    const delka = ri(2, 4) * 5, sirka = ri(2, 3) * 4, hloubka = ri(1, 2) + 1;
+    const V = delka * sirka * hloubka;
+    const opts = [V - sirka * hloubka, V - delka, V, V + delka, 'jiný objem'];
+    const shuffled = shuffleOpts(opts, V);
+    return {
+      no: 12, points: 2, title: 'Bazén', kind: 'mc',
+      prompt: `Bazén má tvar kvádru: délka ${delka} m, šířka ${sirka} m a všude stejná hloubka ${hloubka} m. Jaký je jeho objem?`,
+      options: shuffled.labels, ans: shuffled.correctLetter,
+      sol: `Objem kvádru = délka × šířka × hloubka: ${delka} × ${sirka} × ${hloubka} = ${V} m³ → odpověď ${shuffled.correctLetter}.`
+    };
+  }
+
+  function gen13b() {
+    // 2 body — MC A-E, procenta (zdražení a následná sleva)
+    const cena = ri(4, 9) * 100, p1 = [10, 20, 25][ri(0, 2)], p2 = [10, 20][ri(0, 1)];
+    const po1 = cena * (1 + p1 / 100);
+    const fin = Math.round(po1 * (1 - p2 / 100));
+    const opts = [fin - 20, fin - 10, fin, fin + 10, 'jiná cena'];
+    const shuffled = shuffleOpts(opts, fin);
+    return {
+      no: 13, points: 2, title: 'Cena zboží', kind: 'mc',
+      prompt: `Zboží stálo ${cena} Kč. Nejdřív zdražilo o ${p1} %, potom z nové ceny zlevnilo o ${p2} %. Kolik stojí nyní?`,
+      options: shuffled.labels, ans: shuffled.correctLetter,
+      sol: `Po zdražení o ${p1} %: ${cena} × ${1 + p1 / 100} = ${po1} Kč. Po zlevnění o ${p2} % z této ceny: ${po1} × ${1 - p2 / 100} = ${fin} Kč → odpověď ${shuffled.correctLetter}. (Pozor: procenta se počítají vždy z aktuální ceny, ne z původní.)`
+    };
+  }
+
   function shuffleOpts(rawOpts, correctVal) {
     const letters = ['A', 'B', 'C', 'D', 'E'];
     const arr = rawOpts.map(v => typeof v === 'string' ? v : String(v));
@@ -451,8 +587,8 @@
      vybere jednu variantu z každé pozice.
      ──────────────────────────────────────────────────────────────── */
   const SLOTS = [
-    [gen1], [gen2], [gen3], [gen4], [gen5], [gen6], [gen7], [gen8],
-    [gen9], [gen10], [gen11], [gen12], [gen13], [gen14], [gen15], [gen16]
+    [gen1, gen1b], [gen2], [gen3], [gen4, gen4b], [gen5], [gen6], [gen7, gen7b], [gen8],
+    [gen9], [gen10], [gen11], [gen12, gen12b], [gen13, gen13b], [gen14], [gen15], [gen16]
   ];
 
   window.RPG_CERMAT_9 = {
