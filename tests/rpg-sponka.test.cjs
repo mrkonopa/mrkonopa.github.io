@@ -1,6 +1,7 @@
 // Sponka (plovoucí pixel-art společník) — pilot na RPG_MAT_9.
-// Ověří: bez mazlíčka nic, s aktivním mazlíčkem se objeví, toggle vypne/zapne,
-// nálada (struggle/good) v boji a tréninku, auto-nápověda při HP=1, žádné JS chyby.
+// Ověří: bez mazlíčka nic, s aktivním i jen VLASTNĚNÝM mazlíčkem se objeví,
+// toggle vypne/zapne, nálada (struggle/good) v boji a tréninku,
+// auto-nápověda při HP=1, klik na sponku, žádné JS chyby.
 const { chromium } = require('playwright');
 const http = require('http'), fs = require('fs'), path = require('path');
 const ROOT = path.join(__dirname, '..');
@@ -34,6 +35,16 @@ const ok = (c, m) => { if (c) { pass++; } else { fail++; console.log('  ❌ ' + 
   await page.waitForTimeout(200);
   ok(await page.evaluate(() => !!document.getElementById('rw-sponka')), 'po koupi+aktivaci mazlíčka se sponka objeví');
   ok(await page.evaluate(() => document.getElementById('rw-sponka-canvas').width === 56), 'canvas se vykreslí');
+
+  // VLASTNĚNÝ, ale NEAKTIVNÍ pet stále zobrazí sponku (owning ⇒ přístup)
+  await page.evaluate(() => { const w = RPGWallet.get(); w.cosmetics.active.pet = null; localStorage.setItem(RPGWallet.KEY, JSON.stringify(w)); });
+  await page.evaluate(() => { RPGWallet.earn(1); }); // vyvolá emit → _spSync
+  await page.waitForTimeout(200);
+  ok(await page.evaluate(() => RPGWallet.activeId('pet') === null && RPGWallet.owns('pet-sova')), 'stav: pet vlastněný ale ne aktivní');
+  ok(await page.evaluate(() => !!document.getElementById('rw-sponka')), 'vlastněný (i neaktivní) mazlíček → sponka se zobrazí');
+  // reaktivace, ať zbytek testu běží s aktivním petem
+  await page.evaluate(() => RPGWallet.activate('pet-sova'));
+  await page.waitForTimeout(100);
 
   // toggle vypne/zapne
   await page.evaluate(() => RPGWallet.setSponkaEnabled(false));

@@ -544,26 +544,25 @@ html[data-theme="leto"]{--gold:#ffd166;--panel:#062033;--panel2:#0a2e4a;--blue:#
   let _spEl = null, _spCanvas = null, _spBubble = null, _spLastShown = 0, _spDismissCount = 0, _spRaf = null, _spPollId = null;
   let _spMood = null, _spPulseStart = 0, _spPulseFrom = 1, _spPulseDur = 0;
 
-  /* ?sponka=1 nebo ?sponka=drak v URL vynutí zobrazení bez nutnosti mazlíčka
-     vlastnit/aktivovat — jen pro rychlé ověření/testování, nic neukládá. */
-  function _spDebugPetId() {
+  /* Mazlíček pro sponku: přednostně AKTIVNÍ pet, ale stačí JAKÝKOLI
+     VLASTNĚNÝ (koupený) — „jakmile mám mazlíčka, mám k ní přístup".
+     Kdo mazlíčka nevlastní, nevidí nic (owned obsahuje jen free položky). */
+  function _spPetId() {
     try {
-      if (typeof window === 'undefined' || !window.location) return null;
-      const q = new URLSearchParams(window.location.search).get('sponka');
-      if (!q) return null;
-      if (SPONKA_SPR[q]) return q;
-      if (SPONKA_SPR['pet-' + q]) return 'pet-' + q;
-      return Object.keys(SPONKA_SPR)[0];
-    } catch (e) { return null; }
+      const active = activeId('pet');
+      if (active && SPONKA_SPR[active]) return active;
+      const owned = get().cosmetics.owned || [];
+      for (let i = 0; i < owned.length; i++) { if (SPONKA_SPR[owned[i]]) return owned[i]; }
+    } catch (e) {}
+    return null;
   }
   function _spEligible() {
     try {
       if (typeof SAVE_KEY === 'undefined' || !SPONKA_PILOT_GAMES.includes(SAVE_KEY)) return false;
-      if (_spDebugPetId()) return true;
-      return getSponkaEnabled() && !!SPONKA_SPR[activeId('pet')];
+      return getSponkaEnabled() && !!_spPetId();
     } catch (e) { return false; }
   }
-  function _spSprite() { const id = _spDebugPetId() || activeId('pet'); return SPONKA_SPR[id] || null; }
+  function _spSprite() { const id = _spPetId(); return SPONKA_SPR[id] || null; }
   function _spPulse(fromScale, durMs) { _spPulseStart = (typeof performance !== 'undefined' ? performance.now() : Date.now()); _spPulseFrom = fromScale; _spPulseDur = durMs; }
 
   function _spDraw(t) {
