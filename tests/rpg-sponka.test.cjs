@@ -43,6 +43,14 @@ const ok = (c, m) => { if (c) { pass++; } else { fail++; console.log('  ❌ ' + 
   await page.waitForTimeout(100);
   ok(await page.evaluate(() => !!document.getElementById('rw-sponka')), 'zapnutí v nastavení sponku znovu ukáže');
 
+  // klik na sponku: okamžitá chat bublina (bez cooldownu), druhý klik ji zavře
+  await page.evaluate(() => { document.getElementById('rw-sponka-bubble').style.display = 'none'; document.getElementById('rw-sponka-canvas').click(); });
+  await page.waitForTimeout(150);
+  ok(await page.evaluate(() => document.getElementById('rw-sponka-bubble').style.display === 'block'), 'klik na sponku okamžitě ukáže bublinu (obchází cooldown)');
+  await page.evaluate(() => document.getElementById('rw-sponka-canvas').click());
+  await page.waitForTimeout(100);
+  ok(await page.evaluate(() => document.getElementById('rw-sponka-bubble').style.display === 'none'), 'druhý klik na sponku bublinu zavře');
+
   // trénink: streak>=5 → nálada 'good'
   await page.evaluate(() => go('train'));
   await page.evaluate(() => startTrain('1-1'));
