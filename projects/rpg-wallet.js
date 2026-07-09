@@ -151,7 +151,7 @@ window.RPGWallet = (function () {
         owned: FREE.slice(),
         active: { border: null, badge: null, theme: DEFAULT_THEME, victory: DEFAULT_VICTORY, skin: null, title: null, pet: null }
       },
-      settings: { reducedMotion: false },
+      settings: { reducedMotion: false, sponkaEnabled: true },
       life: {},        // životní countery (tasks/crits/…) — doplní _sanitize
       gach: {},        // odemčené životní úspěchy { id: 'YYYY-MM-DD' }
       migrated: [],
@@ -187,6 +187,7 @@ window.RPGWallet = (function () {
     // nastavení
     if (!w.settings || typeof w.settings !== 'object') w.settings = {};
     w.settings.reducedMotion = !!w.settings.reducedMotion;
+    w.settings.sponkaEnabled = w.settings.sponkaEnabled !== false;
     if (!Array.isArray(w.migrated)) w.migrated = [];
     if (!w.absorbed || typeof w.absorbed !== 'object' || Array.isArray(w.absorbed)) w.absorbed = {};
     w.v = 1;
@@ -312,6 +313,8 @@ window.RPGWallet = (function () {
   // ── Globální nastavení (VFX) ──
   function getReducedMotion() { return get().settings.reducedMotion; }
   function setReducedMotion(b) { const w = get(); w.settings.reducedMotion = !!b; put(w); return w.settings.reducedMotion; }
+  function getSponkaEnabled() { return get().settings.sponkaEnabled !== false; }
+  function setSponkaEnabled(b) { const w = get(); w.settings.sponkaEnabled = !!b; put(w); return w.settings.sponkaEnabled; }
 
   // ── Katalog ──
   /* items() vrací, co má obchod UKÁZAT: exkluzivní (ach) položky až po
@@ -447,7 +450,9 @@ html[data-theme="leto"]{--gold:#ffd166;--panel:#062033;--panel2:#0a2e4a;--blue:#
 .rw-gach-desc{font-size:11px;opacity:.8}
 .rw-gach-bar{height:5px;background:#00000055;border-radius:3px;overflow:hidden;margin-top:4px}
 .rw-gach-fill{height:100%;background:var(--gold,#f4d03f)}
-.rw-gach-pct{font-size:10px;opacity:.7;flex:none;min-width:64px;text-align:right}`;
+.rw-gach-pct{font-size:10px;opacity:.7;flex:none;min-width:64px;text-align:right}
+#rw-sponka-bubble::after{content:'';position:absolute;left:16px;bottom:-9px;width:0;height:0;border:9px solid transparent;border-top-color:#c9a95a;border-bottom:0}
+#rw-sponka-bubble::before{content:'';position:absolute;left:17.5px;bottom:-6.5px;width:0;height:0;border:7.5px solid transparent;border-top-color:#f4ecd8;border-bottom:0;z-index:1}`;
     (document.head || document.documentElement).appendChild(st);
   }
   try { _injectCss(); } catch (e) {}
@@ -495,6 +500,200 @@ html[data-theme="leto"]{--gold:#ffd166;--panel:#062033;--panel2:#0a2e4a;--blue:#
     }).join('') + '</div>';
   }
 
+  /* ════════ SPONKA — plovoucí pixel-art společník (pilot: RPG_MAT_9) ════════
+     Když má žák aktivního mazlíčka (cat:'pet'), ukáže se jako malý sprite
+     dole vlevo na VŠECH obrazovkách hry (mapa/boj/trénink/věž/cermat) —
+     jediná injektáž tady v peněžence, žádné per-obrazovkové zásahy.
+     Poll-based (žádné hooky do enginu): každé 4 s přečte S/TR/BT globály
+     dané hry a podle nálady ukáže bublinu. Respektuje reduced-motion
+     (bez bobu) a settings.sponkaEnabled (výchozí zapnuto, jde vypnout
+     v profilu). Pilot jen na SAVE_KEY v SPONKA_PILOT_GAMES — až se ověří,
+     rozšířit na zbylé ročníky. */
+  const SPONKA_PILOT_GAMES = ['RPG_MAT_9'];
+  /* blinkChar: barva, kterou se při mrknutí nahradí VŠECHNY výskyty 'Y'
+     (zornička/oko) v gridu — jediné místo úpravy, žádné duplicitní grify. */
+  const SPONKA_SPR = {
+    'pet-sova': { pal: { K: '#0a0c12', B: '#8a5a2e', b: '#5e3d1c', W: '#e8ecf5', Y: '#f4d03f' }, blinkChar: 'b', grid: [
+      '.K.....K.', 'KBBBBBBBK', 'BWWKKKWWB', 'BWYKKKYWB', 'BbBBBBBbB', '.BBWWWBB.', '.BB...BB.', '..K...K..'
+    ] },
+    'pet-kocka': { pal: { K: '#000000', B: '#1c1c26', Y: '#f4d03f' }, blinkChar: 'B', grid: [
+      'K.......K', '.KKK.KKK.', '.BBBBBBB.', 'BBYBBBYBB', 'BBBBBBBBB', '.BBBBBBB.', '..B...B..', '.......B.'
+    ] },
+    'pet-robot': { pal: { K: '#0a0c12', W: '#c9d3e0', Y: '#19e6e6' }, blinkChar: 'K', grid: [
+      '....K....', '...KYK...', 'KKKKKKKKK', 'KWWWWWWWK', 'KWWKYKWWK', 'KWWWWWWWK', 'KKK.K.KKK', '.KK...KK.'
+    ] },
+    'pet-drak': { pal: { K: '#0a0c12', B: '#2fae66', g: '#1c6b42', Y: '#f4d03f' }, blinkChar: 'g', grid: [
+      '.K.....K.', 'KBBBBBBBK', 'BBYBBBYBB', 'gBBBBBBBg', 'BBBBBBBBB', '.BBBBBBB.', '..BB.BB..', '.......g.'
+    ] },
+    'pet-jednorozec': { pal: { K: '#0a0c12', W: '#f0f0f8', m: '#ff8fc7', Y: '#7fb8ff', H: '#f4d03f' }, blinkChar: 'W', grid: [
+      '....H....', '.mWWWWWm.', 'KWWWWWWWK', 'WWYWWWYWW', 'KWWWWWWWK', '.KWWWWWK.', '..KW.WK..'
+    ] },
+    'pet-fenix': { pal: { K: '#0a0c12', R: '#ff5a3a', O: '#ffb03a', Y: '#f4d03f' }, blinkChar: 'R', grid: [
+      '..K...K..', 'ORRRRRRRO', 'RRYRRRYRR', 'ORRRRRRRO', 'RRRRRRRRR', '.RRRRRRR.', '..O...O..'
+    ] },
+    'pet-zlaty-drak': { pal: { K: '#0a0c12', B: '#d4a72c', g: '#8a6a12', Y: '#ff5a3a', W: '#fff6d0' }, blinkChar: 'g', grid: [
+      '.K.....K.', 'KBBBBBBBK', 'BBYBBBYBB', 'gBBBWBBBg', 'BBBBBBBBB', '.BBBBBBB.', '..BB.BB..', '.......g.'
+    ] }
+  };
+  const SPONKA_LINES = {
+    good: ['Ty jsi dnes v pohodě! 🔥', 'Tak takhle se to dělá!', 'Paráda, jede ti to!', 'Ještě takhle dál a jsem hrdý/á! ✨', 'Wow, to bylo rychlé!'],
+    struggle: ['Zkus to po krocích 🤔', 'V klidu, na to přijdeš.', 'Nadechni se a zkus to znovu.', 'Chvilka na rozmyšlenou nikdy neuškodí.'],
+    chat: ['Ahoj! 👋', 'Jsem tu, kdybys mě potřeboval/a.', 'Skvělý den na počítání!', 'Hop hop, pokračujeme? 🎯', 'Klikni na mě, kdykoliv chceš!']
+  };
+  const SPONKA_COOLDOWN_MS = 100000;
+  let _spEl = null, _spCanvas = null, _spBubble = null, _spLastShown = 0, _spDismissCount = 0, _spRaf = null, _spPollId = null;
+  let _spMood = null, _spPulseStart = 0, _spPulseFrom = 1, _spPulseDur = 0;
+
+  function _spEligible() {
+    try {
+      return typeof SAVE_KEY !== 'undefined' && SPONKA_PILOT_GAMES.includes(SAVE_KEY) &&
+        getSponkaEnabled() && !!SPONKA_SPR[activeId('pet')];
+    } catch (e) { return false; }
+  }
+  function _spSprite() { const id = activeId('pet'); return SPONKA_SPR[id] || null; }
+  function _spPulse(fromScale, durMs) { _spPulseStart = (typeof performance !== 'undefined' ? performance.now() : Date.now()); _spPulseFrom = fromScale; _spPulseDur = durMs; }
+
+  function _spDraw(t) {
+    if (!_spCanvas) return;
+    const spr = _spSprite();
+    if (!spr) return;
+    const ctx = _spCanvas.getContext('2d');
+    const scale = 4, gh = spr.grid.length, gw = spr.grid[0].length;
+    const cx = _spCanvas.width / 2, cy = _spCanvas.height / 2;
+    ctx.clearRect(0, 0, _spCanvas.width, _spCanvas.height);
+    const rm = document.documentElement.classList.contains('reduced-motion');
+    const bob = rm ? 0 : Math.round(Math.sin(t / 450) * (_spMood === 'struggle' ? 1 : 2));
+    let pulseScale = 1;
+    if (!rm && _spPulseStart) {
+      const el = t - _spPulseStart;
+      if (el >= 0 && el < _spPulseDur) { const p = el / _spPulseDur; pulseScale = _spPulseFrom + (1 - _spPulseFrom) * (1 - Math.pow(1 - p, 3)); }
+      else if (el >= _spPulseDur) _spPulseStart = 0;
+    }
+    ctx.save();
+    ctx.translate(cx, cy + bob);
+    ctx.scale(pulseScale, pulseScale);
+    ctx.translate(-cx, -cy);
+    const ox = Math.round((_spCanvas.width - gw * scale) / 2);
+    const oy = Math.round((_spCanvas.height - gh * scale) / 2);
+    const blinking = !rm && ((t % 3400) > 3250);
+    for (let r = 0; r < gh; r++) {
+      let row = spr.grid[r];
+      if (blinking) row = row.split('').map(ch => ch === 'Y' ? spr.blinkChar : ch).join('');
+      for (let c = 0; c < row.length; c++) {
+        const ch = row[c];
+        if (ch === '.') continue;
+        ctx.fillStyle = spr.pal[ch] || '#f0f';
+        ctx.fillRect(ox + c * scale, oy + r * scale, scale, scale);
+      }
+    }
+    if (!rm && _spMood === 'good') {
+      ctx.fillStyle = '#f4d03f';
+      const spark = Math.round(Math.sin(t / 200) * 2);
+      ctx.fillRect(ox - 6, oy - 6 + spark, 4, 4);
+      ctx.fillRect(ox + gw * scale + 2, oy - 2 - spark, 4, 4);
+    } else if (!rm && _spMood === 'struggle') {
+      const rise = (t / 22) % 18;
+      ctx.globalAlpha = Math.max(0, 1 - rise / 18);
+      ctx.fillStyle = '#9fb0c8';
+      ctx.beginPath(); ctx.arc(ox + gw * scale + 4, oy - rise, 2, 0, Math.PI * 2); ctx.fill();
+      ctx.globalAlpha = 1;
+    }
+    ctx.restore();
+  }
+  function _spLoop(t) { _spDraw(t || 0); _spRaf = requestAnimationFrame(_spLoop); }
+
+  function _spShowBubble(text, mood) {
+    if (!_spBubble) return;
+    _spBubble.textContent = text;
+    _spBubble.style.display = 'block';
+    _spMood = mood || null;
+    _spPulse(1.18, 240);
+    clearTimeout(_spBubble._hideT);
+    _spBubble._hideT = setTimeout(() => { _spBubble.style.display = 'none'; _spMood = null; }, 6000);
+  }
+  function _spDismiss() {
+    if (!_spBubble) return;
+    clearTimeout(_spBubble._hideT);
+    _spBubble.style.display = 'none';
+    _spMood = null;
+    _spDismissCount++;
+  }
+  function _spOnClick() {
+    if (!_spBubble) return;
+    if (_spBubble.style.display === 'block') { _spDismiss(); return; }
+    const pool = SPONKA_LINES.chat;
+    _spBubble.textContent = pool[Math.floor(Math.random() * pool.length)];
+    _spBubble.style.display = 'block';
+    _spMood = null;
+    _spPulse(1.2, 220);
+    clearTimeout(_spBubble._hideT);
+    _spBubble._hideT = setTimeout(() => { _spBubble.style.display = 'none'; }, 5000);
+  }
+
+  function _spCheckTriggers() {
+    if (!_spBubble || _spBubble.style.display === 'block') return;
+    const cooldown = (typeof window !== 'undefined' && typeof window.__SPONKA_COOLDOWN_MS === 'number') ? window.__SPONKA_COOLDOWN_MS : SPONKA_COOLDOWN_MS;
+    if (Date.now() - _spLastShown < cooldown) return;
+    if (_spDismissCount >= 3) return;
+    try {
+      const activeScr = document.querySelector('.screen.active');
+      const scr = activeScr ? activeScr.id : '';
+      let mood = null, hintNow = false;
+      if (scr === 's-battle' && typeof BT !== 'undefined' && BT && BT.curTask) {
+        if (BT.hp === 1 && BT.hl === 0) { mood = 'struggle'; hintNow = true; }
+        else if (BT.combo >= 3) mood = 'good';
+      } else if (scr === 's-train' && typeof TR !== 'undefined' && TR && TR.task) {
+        if (TR.streak >= 5) mood = 'good';
+        else if (TR.total >= 3 && TR.correct === 0) mood = 'struggle';
+      } else if (scr === 's-map' && typeof S !== 'undefined' && S && S.streak && S.streak.count >= 3) {
+        mood = 'good';
+      }
+      if (!mood) return;
+      const pool = SPONKA_LINES[mood];
+      _spShowBubble(pool[Math.floor(Math.random() * pool.length)], mood);
+      _spLastShown = Date.now();
+      if (hintNow && typeof showHint === 'function') { try { showHint(); } catch (e2) {} }
+    } catch (e) {}
+  }
+
+  function _spMount() {
+    if (typeof document === 'undefined' || !_spEligible() || document.getElementById('rw-sponka')) return;
+    const wrap = document.createElement('div');
+    wrap.id = 'rw-sponka';
+    wrap.style.cssText = 'position:fixed;left:14px;bottom:14px;z-index:9997;display:flex;flex-direction:column;align-items:flex-start;pointer-events:none';
+    const bubble = document.createElement('div');
+    bubble.id = 'rw-sponka-bubble';
+    bubble.style.cssText = 'display:none;position:relative;max-width:220px;background:#f4ecd8;color:#2a2010;border:2px solid #c9a95a;border-radius:10px;padding:8px 10px;font-family:inherit;font-size:13px;line-height:1.35;margin-bottom:10px;box-shadow:0 4px 12px rgba(0,0,0,.35);pointer-events:auto;cursor:pointer';
+    bubble.onclick = _spDismiss;
+    const canvas = document.createElement('canvas');
+    canvas.id = 'rw-sponka-canvas';
+    canvas.width = 56; canvas.height = 56;
+    canvas.style.cssText = 'image-rendering:pixelated;filter:drop-shadow(0 3px 4px rgba(0,0,0,.4));pointer-events:auto;cursor:pointer';
+    canvas.onclick = _spOnClick;
+    wrap.appendChild(bubble); wrap.appendChild(canvas);
+    document.body.appendChild(wrap);
+    _spEl = wrap; _spCanvas = canvas; _spBubble = bubble;
+    _spMood = null; _spDismissCount = 0;
+    _spPulse(0.2, 380);
+    _spLoop(0);
+    _spPollId = setInterval(_spCheckTriggers, 4000);
+  }
+  function _spUnmount() {
+    if (_spRaf) cancelAnimationFrame(_spRaf);
+    if (_spPollId) clearInterval(_spPollId);
+    _spRaf = null; _spPollId = null;
+    if (_spEl && _spEl.parentNode) _spEl.parentNode.removeChild(_spEl);
+    _spEl = _spCanvas = _spBubble = null;
+  }
+  function _spSync() { if (_spEligible()) _spMount(); else _spUnmount(); }
+  onChange(_spSync);
+  try {
+    if (typeof document !== 'undefined') {
+      if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', _spSync);
+      else _spSync();
+    }
+  } catch (e) {}
+
   // ── Živé aktualizace (i napříč záložkami) ──
   function onChange(fn) { if (typeof fn === 'function') listeners.push(fn); }
   try { window.addEventListener('storage', e => { if (e.key === KEY) emit(); }); } catch (e) {}
@@ -504,6 +703,7 @@ html[data-theme="leto"]{--gold:#ffd166;--panel:#062033;--panel2:#0a2e4a;--blue:#
     getCredits, earn,
     buy, activate, owns, activeId, isActive, cssFor, hasPowerup,
     getReducedMotion, setReducedMotion,
+    getSponkaEnabled, setSponkaEnabled,
     bumpLife, setLifeMax, hasPerk, lifeStats, gachList, seasonOpen,
     renderTitlePet, renderGachInto,
     migrateFrom, absorbGame, mergeRemote, pushCloud, onChange
