@@ -3,3 +3,4 @@ Allow: /
 Disallow: /projects/rpg-ucitel.html
 
 Sitemap: https://mrkonopa.github.io/sitemap.xml
+Sitemap: https://mrkonopa.github.io/sitemap/sitemap.xml
