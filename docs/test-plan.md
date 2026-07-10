@@ -62,6 +62,6 @@ Opravit potvrzené nálezy → znovu automatické verifikátory + `rpg-cermat.te
 - [x] Pilot CERMAT — automatická vrstva (`tools/cermat-audit-dump.cjs`, linty 0)
 - [x] Pilot CERMAT — LLM audit + ověření (3 agenti + ruční dopočet)
 - [x] Pilot CERMAT — opravy + re-verify (viz `docs/audit-cermat-2026-07.md`: 3 kritické, 6 major, 6 minor opraveno; verify-cermat 500 OK, test 19/19)
-- [ ] Sponka
+- [x] Sponka — hlášky zkontrolovány, bez oprav (gramaticky správné, genderově ošetřené, vhodný tón)
 - [ ] Banky 3–9
 - [ ] Teorie 3–9

@@ -369,9 +369,9 @@ function gen_5_3(){
   const a=ri(2,5)*10,b=ri(3,9)*100,pA=ri(2,5)*5;
   tasks.push({text:`Obchod zdraží zboží o ${pA} %. Původní cena byla ${b} Kč. Nová cena?`,ans:Math.round(b*(1+pA/100)),hints:[`Nová cena = základ × (1 + ${pA}/100).`,'= '+Math.round(b*(1+pA/100))+' Kč'],skill:'anal'});
   const c=ri(2,5)*5,d=ri(4,10)*200;
-  tasks.push({text:`Cena se snížila o ${c} % a nyní je ${Math.round(d*(1-c/100))} Kč. Jaká byla původní cena?`,ans:d,hints:['Současná cena = základ × (1−'+c+'/100).','základ = '+Math.round(d*(1-c/100))+'/('+1-c/100+') = '+d+' Kč'],skill:'anal'});
+  tasks.push({text:`Cena se snížila o ${c} % a nyní je ${Math.round(d*(1-c/100))} Kč. Jaká byla původní cena?`,ans:d,hints:['Současná cena = základ × (1−'+c+'/100).','základ = '+Math.round(d*(1-c/100))+' : '+cz(1-c/100)+' = '+d+' Kč'],skill:'anal'});
   const e=ri(2,6)*5,f=ri(3,9)*100;
-  tasks.push({text:`Třída má ${f} žáků, ${e} % jsou dívky. Kolik je dívek?`,ans:Math.round(f*e/100),hints:['Počet dívek = ${f}×${e}/100.',String(Math.round(f*e/100))],skill:'anal'});
+  tasks.push({text:`Třída má ${f} žáků, ${e} % jsou dívky. Kolik je dívek?`,ans:Math.round(f*e/100),hints:['Počet dívek = '+f+' × '+e+' : 100.',String(Math.round(f*e/100))],skill:'anal'});
   const g=ri(15,35)*4,h=ri(2,4)*5;
   tasks.push({text:`Ze zásoby ${g} litrů vody bylo použito ${h} %. Kolik litrů zbývá?`,ans:Math.round(g*(1-h/100)),hints:['Zbývá = základ × (1−p/100).',String(Math.round(g*(1-h/100)))+' l'],skill:'anal'});
   const i=ri(30,60),j=ri(30,60);
