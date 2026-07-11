@@ -188,7 +188,7 @@ window.RPG_LEARN_6 = {
  mistakes: [
   {wrong:'Zkrácení 15/25: 15−5 / 25−5 = 10/20', right:'15:5 / 25:5 = 3/5', why:'Zkracuje se dělením čitatele i jmenovatele stejným číslem, ne odčítáním.'},
   {wrong:'Průměr čísel 4, 6, 8: (4+6+8) : 2 = 9', right:'(4+6+8) : 3 = 6', why:'Dělí se počtem hodnot (3), ne dvěma. Průměr = součet : počet čísel.'},
-  {wrong:'Rozšíření 2/5 na osminy: 8/5', right:'2·4 / 5·4 = 8/20', why:'Rozšiřuje se čitatel i jmenovatel stejným číslem — když se změní jen čitatel, změní se hodnota zlomku.'},
+  {wrong:'Rozšíření 2/5 číslem 4 (jen čitatel): 8/5', right:'2·4 / 5·4 = 8/20', why:'Rozšiřuje se čitatel i jmenovatel stejným číslem — když se změní jen čitatel, změní se hodnota zlomku.'},
  ],
  intro: '💫 Prstencový duch dělí prstence na stejné díly. „Zlomky a průměry jsou jazyk vesmíru," říká. Nauč se je!',
  sections: [
@@ -482,7 +482,7 @@ window.RPG_LEARN_6 = {
         '<b>Osová souměrnost</b>: překlopení podle osy.',
         'Všechna tato zobrazení shodnost <b>zachovávají</b>. Zvětšení/zmenšení shodnost <b>NEzachovává</b> — to je <i>podobnost</i>.'] },
   { h: 'Jak ověřit shodnost',
-    p: ['U trojúhelníků stačí ověřit: SSS (tři strany), SAS (dvě strany a úhel mezi nimi), ASA (dva úhly a strana mezi nimi), nebo SSA v pravém △.',
+    p: ['U trojúhelníků stačí ověřit: sss (tři strany), sus (dvě strany a úhel mezi nimi), usu (dva úhly a strana mezi nimi), nebo Ssu (dvě strany a úhel proti té delší) v pravoúhlém △.',
         'Obecně: zkus položit jeden útvar na druhý (nebo jeho obraz v souměrnosti) — pokud se přesně překryjí, jsou shodné.'] },
  ],
  formulas: [
@@ -641,7 +641,7 @@ window.RPG_LEARN_6 = {
         'Všechny tři výšky se protínají v jednom bodě — <b>ortocentru</b>.',
         '<svg width="240" height="140" style="display:block;margin:8px auto 0" viewBox="0 0 240 140"><polygon points="60,120 200,120 110,15" fill="none" stroke="#4a9eff" stroke-width="2.5"/><line x1="110" y1="15" x2="110" y2="120" stroke="#ffcc00" stroke-width="1.5" stroke-dasharray="5,3"/><rect x="104" y="114" width="12" height="12" fill="none" stroke="#ffcc00" stroke-width="1.5"/><text x="48" y="115" font-size="12" fill="#4a9eff" font-family="monospace">A</text><text x="202" y="115" font-size="12" fill="#4a9eff" font-family="monospace">B</text><text x="107" y="12" font-size="12" fill="#4a9eff" font-family="monospace">C</text><text x="114" y="75" font-size="11" fill="#ffcc00" font-family="monospace">v_c</text><text x="100" y="137" font-size="10" fill="#c9d1d9" font-family="monospace">výška z C na stranu c</text></svg>'] },
   { h: 'Těžiště a těžnice',
-    p: ['<b>Těžnice</b> spojuje vrchol s středem protilehlé strany. Každý trojúhelník má tři těžnice.',
+    p: ['<b>Těžnice</b> spojuje vrchol se středem protilehlé strany. Každý trojúhelník má tři těžnice.',
         'Všechny těžnice se protínají v <b>těžišti</b>, které leží ve <b>2/3 délky</b> těžnice od vrcholu.'] },
   { h: 'Kružnice vepsaná a opsaná',
     p: ['<b>Kružnice opsaná</b>: prochází všemi třemi vrcholy (střed = průsečík os stran).',

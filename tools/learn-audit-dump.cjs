@@ -7,7 +7,12 @@ global.window = {};
 new Function(fs.readFileSync(`${__dirname}/../projects/rpg-learn-${G}.js`, 'utf8'))();
 const L = global.window['RPG_LEARN_' + G];
 if (!L) { console.log('modul nenalezen'); process.exit(2); }
-const strip = s => String(s == null ? '' : s).replace(/<\/?b>/g, '*').replace(/<[^>]+>/g, '');
+function strip(s) {
+  s = String(s == null ? '' : s).replace(/<\/?b>/g, '*');
+  let prev;                              // opakuj, dokud nezůstanou žádné značky (odolá vnoření <s<b>cript>)
+  do { prev = s; s = s.replace(/<[^>]*>/g, ''); } while (s !== prev);
+  return s;
+}
 const out = [`TEORIE ROČNÍK ${G} — ${Object.keys(L).length} misí`];
 for (const mid of Object.keys(L)) {
   const m = L[mid];

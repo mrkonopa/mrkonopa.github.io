@@ -584,7 +584,7 @@ window.RPG_LEARN_8 = {
     p: [
       '<b>Obvod kružnice:</b> o = 2πr = πd',
       '<b>Obsah kruhu:</b> S = πr²',
-      'π ≈ 3,14 nebo přesněji 22/7. Ve výpočtech bez instrukce použi 3,14.',
+      'π ≈ 3,14 nebo přesněji 22/7. Ve výpočtech bez instrukce použij 3,14.',
       '<svg width="180" height="160" style="display:block;margin:8px auto 0" viewBox="0 0 180 160"><circle cx="90" cy="80" r="55" fill="none" stroke="#4a9eff" stroke-width="2.5"/><circle cx="90" cy="80" r="3" fill="#ffcc00"/><line x1="90" y1="80" x2="145" y2="80" stroke="#ffcc00" stroke-width="2"/><text x="112" y="73" font-size="13" fill="#ffcc00" font-weight="bold">r</text><line x1="35" y1="80" x2="145" y2="80" stroke="#00ff88" stroke-width="1.5" stroke-dasharray="5,3"/><text x="80" y="103" font-size="12" fill="#00ff88">d = 2r</text><line x1="90" y1="25" x2="130" y2="55" stroke="#ff5555" stroke-width="1.5" stroke-dasharray="4,3"/><text x="120" y="40" font-size="11" fill="#ff5555">tětiva</text></svg>',
     ] },
   { h: 'Záměna vzorců — nejčastější chyba',
@@ -662,12 +662,12 @@ window.RPG_LEARN_8 = {
     p: [
       '<b>Obvod</b> = délka okraje (plot, obruba…)',
       '<b>Obsah</b> = velikost plochy (tráva, nátěr…)',
-      '<b>Objem</b> = kolik se vejde dovnitř (voda, píl, vzduch…)',
+      '<b>Objem</b> = kolik se vejde dovnitř (voda, písek, vzduch…)',
     ] },
   { h: 'Mezikruží (annulus)',
     p: [
       'Mezikruží = plocha mezi dvěma soustřednými kružnicemi. S = π(R² − r²) = π(R − r)(R + r)',
-      'Příklad: běžecká dráha šíře 2 m, vnitřní poloměr 50 m → S = π(52² − 50²) = π·4·102 = 408π ≈ 1 281 m²',
+      'Příklad: běžecká dráha šíře 2 m, vnitřní poloměr 50 m → S = π(52² − 50²) = π·2·102 = 204π ≈ 641 m²',
     ] },
   { h: 'Převody jednotek objemu',
     p: [
@@ -852,7 +852,7 @@ window.RPG_LEARN_8 = {
     ] },
   { h: 'Strategie při kombinovaných úlohách',
     p: [
-      '<b>1.</b> Načrtni obrázek u geometrie. <b>2.</b> Zaveď neznámou pro hledanou veličinu. <b>3.</b> Napiš rovnici / vzorec. <b>4.</b> Proveď zkouška nebo ověření. <b>5.</b> Odpověz celou větou s jednotkami.',
+      '<b>1.</b> Načrtni obrázek u geometrie. <b>2.</b> Zaveď neznámou pro hledanou veličinu. <b>3.</b> Napiš rovnici / vzorec. <b>4.</b> Proveď zkoušku nebo ověření. <b>5.</b> Odpověz celou větou s jednotkami.',
     ] },
  ],
  formulas: [
@@ -901,7 +901,7 @@ window.RPG_LEARN_8 = {
     ] },
   { h: 'Správa času',
     p: [
-      'Přijímačky mají zpravidla 40 úloh / 70 minut → průměrně 1,75 min na úlohu. Jednoduché zvládni za minutu, složitější si nech na konec.',
+      'Přijímačky mají zpravidla 16 úloh / 70 minut → průměrně přes 4 min na úlohu. Jednoduché zvládni za minutu, složitější si nech na konec.',
     ] },
  ],
  formulas: [

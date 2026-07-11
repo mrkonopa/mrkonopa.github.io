@@ -159,7 +159,7 @@ window.RPG_LEARN_9 = {
       h: 'Sčítání a odčítání záporných čísel',
       p: [
         'Odčítání záporného čísla = přičítání kladného: <b>a − (−b) = a + b</b>.<br>Příklad: 5 − (−3) = 5 + 3 = 8.',
-        'Sčítání stejně znamínkových: sečti absolutní hodnoty, zachovej znaménko.<br>Sčítání různě znamínkových: odečti absolutní hodnoty, výsledek má znaménko většího.'
+        'Sčítání stejně znaménkových: sečti absolutní hodnoty, zachovej znaménko.<br>Sčítání různě znaménkových: odečti absolutní hodnoty, výsledek má znaménko čísla s větší absolutní hodnotou.'
       ]
     },
     {
@@ -408,7 +408,7 @@ window.RPG_LEARN_9 = {
     {
       h: 'Postup řešení',
       p: [
-        '1. Přesuň členy s x na <b>levou stranu</b> (odečti od obou stran).<br>2. Přesuň <b>čísla na pravou stranu</b>.<br>3. Vydělte koeficientem u x.',
+        '1. Přesuň členy s x na <b>levou stranu</b> (odečti od obou stran).<br>2. Přesuň <b>čísla na pravou stranu</b>.<br>3. Vyděl koeficientem u x.',
         '⚠️ Nikdy nesmíme <b>dělit nulou</b>! Pokud je koeficient u x roven 0, rovnice je buď splněna pro všechna x, nebo pro žádné.'
       ]
     },
@@ -472,7 +472,7 @@ window.RPG_LEARN_9 = {
     {
       h: 'Neznámá na obou stranách',
       p: [
-        '1. Roznásob závorky.<br>2. Přesuň všechny členy s x na jednu stranu (odečti od obou stran).<br>3. Přesuň čísla na druhou stranu.<br>4. Vydělte koeficientem.',
+        '1. Roznásob závorky.<br>2. Přesuň všechny členy s x na jednu stranu (odečti od obou stran).<br>3. Přesuň čísla na druhou stranu.<br>4. Vyděl koeficientem.',
         '⚠️ Vždy proveď <b>zkoušku</b> dosazením do původní rovnice!'
       ]
     },
@@ -1259,7 +1259,7 @@ window.RPG_LEARN_9 = {
   mistakes: [
    {wrong:'U slovní úlohy nenapíšu závěrečnou odpověď', right:'Vždy napiš odpověď včetně jednotky', why:'CERMAT strhává body za chybějící nebo špatnou jednotku.'},
    {wrong:'Zaokrouhlím mezivýsledek a počítám s ním dál', right:'Zaokrouhluj až úplně nakonec', why:'Zaokrouhlování mezivýsledků kumuluje chybu.'},
-   {wrong:'Řeším úlohy popořadě a na těžké mi nezbude čas', right:'Nejdřív jisté úlohy, těžké nech nakonec', why:'Každá úloha má váhu — sbírej jistý body dřív.'},
+   {wrong:'Řeším úlohy popořadě a na těžké mi nezbude čas', right:'Nejdřív jisté úlohy, těžké nech nakonec', why:'Každá úloha má váhu — sbírej jisté body dřív.'},
   ],
   intro: 'Finální mise — přehled všeho a přijímačkové tipy.',
   sections: [
