@@ -50,6 +50,20 @@ body::before{
  background:linear-gradient(90deg,#5dc8f0,#f4d03f,#19e6e6);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
 .head .sub{font-family:var(--vt);font-size:22px;color:var(--muted);letter-spacing:1px}
 .head .wip{display:inline-block;margin:0 0 6px;font-family:var(--vt);font-size:16px;letter-spacing:1px;color:#f6c343;border:1px solid #6a541a;background:#241c07;padding:2px 12px;border-radius:999px}
+/* ── staveniště: výstražné pruhy (ploty) po stranách + majáky ── */
+.constr-side{position:fixed;top:0;bottom:0;width:16px;z-index:0;background:repeating-linear-gradient(45deg,#f6c343 0 12px,#171208 12px 24px);opacity:.55;pointer-events:none}
+.constr-side.l{left:0}.constr-side.r{right:0}
+@media(max-width:1072px){.constr-side{display:none}}
+.constr-zone{position:relative;border:2px dashed #6a541a;border-radius:12px;background:#1a140755;padding:16px 18px;margin:10px auto 4px;max-width:560px;overflow:hidden}
+.constr-zone::before,.constr-zone::after{content:'';position:absolute;left:0;right:0;height:7px;background:repeating-linear-gradient(45deg,#f6c343 0 11px,#171208 11px 22px)}
+.constr-zone::before{top:0}.constr-zone::after{bottom:0}
+.constr-head{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:8px}
+.constr-head .ct{font-family:var(--vt);font-size:19px;letter-spacing:1px;color:#ffd06a}
+.beacon{width:12px;height:12px;border-radius:50%;background:#ff8c1a;box-shadow:0 0 8px 2px #ff8c1a;animation:beacon 1.1s ease-in-out infinite;flex:none}
+.beacon.d{animation-delay:.55s}
+@keyframes beacon{0%,100%{opacity:.25;box-shadow:0 0 4px 1px #ff8c1a}50%{opacity:1;box-shadow:0 0 13px 4px #ffb04d}}
+.constr-msg{font-size:13.5px;color:#f6d68a;line-height:1.5;text-align:center}
+.constr-msg a{color:#19e6e6;font-weight:700;text-decoration:none;border-bottom:1px dashed #19e6e6;cursor:pointer}
 /* student bar */
 .student{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:14px 16px;margin:18px 0;display:flex;flex-wrap:wrap;gap:14px;align-items:center;justify-content:space-between}
 .student .who{font-size:14px;color:var(--muted)}
@@ -159,6 +173,8 @@ body::before{
 </style>
 </head>
 <body>
+<div class="constr-side l" aria-hidden="true"></div>
+<div class="constr-side r" aria-hidden="true"></div>
 <div class="wrap">
  <div class="topnav">
   <a href="./">← zpět na projekty</a>
@@ -173,6 +189,20 @@ body::before{
   <h1>RPG MATEMATIKA</h1>
   <div class="wip">🚧 ve výstavbě</div>
   <div class="sub">Velitelské centrum · ZŠ Husova Liberec</div>
+ </div>
+
+ <div class="constr-zone">
+  <div class="constr-head">
+   <span class="beacon" aria-hidden="true"></span>
+   <span class="ct">🚧 STAVENIŠTĚ 🚧</span>
+   <span class="beacon d" aria-hidden="true"></span>
+  </div>
+  <div class="constr-msg">
+   Stránka i hry se pořád stavějí. <b style="color:#ffd06a">Našel/la jsi v příkladech — nebo kdekoliv jinde — chybu?</b>
+   Napiš mi ji prosím <b style="color:#ffd06a">hned</b> dole do pole
+   <a onclick="var f=document.getElementById('hub-feedback');if(f){f.scrollIntoView({behavior:'smooth',block:'center'});}var t=document.getElementById('fb-body');if(t)setTimeout(function(){t.focus();},400);return false;">💬&nbsp;Zpětná vazba</a>.
+   Každý vzkaz čtu a rychle opravím — moc mi to pomůže. 🙏
+  </div>
  </div>
 
  <div id="cloud-mount"></div>
