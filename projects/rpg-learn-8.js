@@ -12,6 +12,11 @@ window.RPG_LEARN_8 = {
 /* ─── Oblast 1: BRÁNA AKADEMIE ────────────────────────────────── */
 
 '1-1': {
+ mistakes: [
+  {wrong:'−3 − 5 = −2', right:'−3 − 5 = −8', why:'Obě čísla míří na ose doleva, znaménka jsou stejná → vzdálenosti se sčítají. Výsledek je −8.'},
+  {wrong:'−3² = 9', right:'−3² = −9; jen (−3)² = 9', why:'Bez závorky se umocňuje jen trojka a minus zůstane vepředu. Závorka (−3)² umocní i znaménko.'},
+  {wrong:'|−5| = −5', right:'|−5| = 5', why:'Absolutní hodnota je vzdálenost od nuly, vždy nezáporná. Minus se „ztratí".'},
+ ],
  intro: '🏛️ Strážce brány Akademie tě nepustí dál, dokud neovládneš celá čísla a jejich tajemství. Proveď ho čísly záporných hodnot!',
  sections: [
   { h: 'Celá čísla a číselná osa',
@@ -29,7 +34,7 @@ window.RPG_LEARN_8 = {
   { h: 'Násobení a dělení celých čísel',
     p: [
       'Pravidlo znamének: <b>stejná → kladné</b>, <b>různá → záporné</b>.',
-      '(−4) · (−3) = <b>+12</b> &nbsp;|&nbsp; (−4) · 3 = <b>−12</b> &nbsp;|&nbsp; (−20) ÷ (−4) = <b>+5</b>',
+      '(−4) · (−3) = <b>+12</b> &nbsp;|&nbsp; (−4) · 3 = <b>−12</b> &nbsp;|&nbsp; (−20) : (−4) = <b>+5</b>',
     ] },
   { h: 'Závorky a mocniny — POZOR!',
     p: [
@@ -62,6 +67,11 @@ window.RPG_LEARN_8 = {
 },
 
 '1-2': {
+ mistakes: [
+  {wrong:'1/3 + 1/4 = 2/7', right:'4/12 + 3/12 = 7/12', why:'Jmenovatele se NESČÍTAJÍ. Sjednoť je (NSN = 12), pak sečti jen čitatele.'},
+  {wrong:'3/4 : 2/5 = 6/20', right:'3/4 × 5/2 = 15/8', why:'Dělení zlomkem = násobení převráceným zlomkem. Nesmí se rovnou násobit.'},
+  {wrong:'0,6 = 6/10 a nekrátím', right:'0,6 = 6/10 = 3/5', why:'Zlomek z desetinného čísla vždy zkrať na základní tvar.'},
+ ],
  intro: '📚 Mlžný archivář Akademie ti ukazuje svitky racionálních čísel. Zlomky a desetinná čísla jsou základem každého výpočtu.',
  sections: [
   { h: 'Racionální čísla',
@@ -73,7 +83,7 @@ window.RPG_LEARN_8 = {
     p: [
       '<b>Sčítání a odčítání:</b> nejdříve převeď na <b>společný jmenovatel</b> (nejmenší společný násobek jmenovatelů), pak sčítej/odčítej pouze čitatele.',
       '<b>Násobení:</b> čitatel × čitatel, jmenovatel × jmenovatel — zjednodušuj zkracováním před výpočtem.',
-      '<b>Dělení:</b> násob <b>převrácenou hodnotou</b> (obrať druhý zlomek): <sup>a</sup>/<sub>b</sub> ÷ <sup>c</sup>/<sub>d</sub> = <sup>a</sup>/<sub>b</sub> · <sup>d</sup>/<sub>c</sub>',
+      '<b>Dělení:</b> násob <b>převrácenou hodnotou</b> (obrať druhý zlomek): <sup>a</sup>/<sub>b</sub> : <sup>c</sup>/<sub>d</sub> = <sup>a</sup>/<sub>b</sub> · <sup>d</sup>/<sub>c</sub>',
     ] },
   { h: 'Převody zlomek ↔ desetinné číslo',
     p: [
@@ -89,20 +99,25 @@ window.RPG_LEARN_8 = {
  formulas: [
   '<b>a/b + c/b = (a+c)/b</b> &nbsp;(stejný jmenovatel)',
   '<b>a/b · c/d = (a·c)/(b·d)</b>',
-  '<b>a/b ÷ c/d = a/b · d/c</b>',
+  '<b>a/b : c/d = a/b · d/c</b>',
  ],
  examples: [
   { q: 'Spočítej: 2/3 + 1/6',
     s: ['NSN(3, 6) = 6', '2/3 = 4/6', '4/6 + 1/6 = <b>5/6</b>'] },
   { q: 'Spočítej: 3/4 · 8/9',
-    s: ['Zkrátíme: 3 a 9 → dělíme 3; 4 a 8 → dělíme 4', '(3÷3)/1 · (8÷4)/(9÷3) = 1/1 · 2/3 = <b>2/3</b>'] },
+    s: ['Zkrátíme: 3 a 9 → dělíme 3; 4 a 8 → dělíme 4', '(3:3)/1 · (8:4)/(9:3) = 1/1 · 2/3 = <b>2/3</b>'] },
   { q: 'Převeď 5/8 na desetinné číslo',
-    s: ['5 ÷ 8 = 0,625', 'Výsledek: <b>0,625</b> (konečné)'] },
+    s: ['5 : 8 = 0,625', 'Výsledek: <b>0,625</b> (konečné)'] },
  ],
  video: { id: 'ME5pLObMogw', title: 'Racionální čísla — zlomky' }
 },
 
 '1-3': {
+ mistakes: [
+  {wrong:'Zdražilo o 10 % na 550 Kč, původní = 550 − 55 = 495 Kč', right:'C = 550 : 1,1 = 500 Kč', why:'Procenta počítáš ze špatného základu. 550 Kč je 110 % původní ceny → dělíš 1,1.'},
+  {wrong:'Zdražit o 20 % a pak zlevnit o 20 % = původní cena', right:'1000 × 1,2 × 0,8 = 960 Kč', why:'Druhé procento se počítá z jiné (vyšší) hodnoty, takže se změny nevyruší.'},
+  {wrong:'20 % z 500 = 500 × 20 = 10 000', right:'500 × 0,20 = 100', why:'Procento nejdřív převeď na setiny: 20 % = 0,20. Násobení dvaceti dá 100× víc.'},
+ ],
  intro: '⚗️ Alchymista Akademie počítá poměry vzácných lektvarů. Zvládni všechny typy procentových úloh a zdražování!',
  sections: [
   { h: 'Základní pojmy',
@@ -131,7 +146,7 @@ window.RPG_LEARN_8 = {
     p: [
       '<span style="color:#ff5555">⚠️</span> Zboží zdražilo o 10 %, nová cena je 550 Kč. Původní cena?',
       '<b>ŠPATNĚ:</b> 550 − 10 % ze 550 = 550 − 55 = 495 Kč (počítáme % ze špatného základu!)',
-      '<b>SPRÁVNĚ:</b> 550 ÷ 1,1 = <b>500 Kč</b> (základ je původní cena = 100 %)',
+      '<b>SPRÁVNĚ:</b> 550 : 1,1 = <b>500 Kč</b> (základ je původní cena = 100 %)',
     ] },
  ],
  formulas: [
@@ -155,6 +170,11 @@ window.RPG_LEARN_8 = {
 /* ─── Oblast 2: HORA PYTHAGOROVA ──────────────────────────────── */
 
 '2-1': {
+ mistakes: [
+  {wrong:'2³ = 6', right:'2³ = 2 · 2 · 2 = 8', why:'Mocnina není násobení základu exponentem. 2³ znamená tři dvojky vynásobené mezi sebou, ne 2 × 3.'},
+  {wrong:'a² · a³ = a⁶', right:'a² · a³ = a⁵', why:'Při násobení mocnin stejného základu se exponenty SČÍTAJÍ (2+3 = 5), ne násobí.'},
+  {wrong:'−4² = 16', right:'−4² = −16; jen (−4)² = 16', why:'Bez závorky se umocňuje jen čtyřka, minus zůstane před ní.'},
+ ],
  intro: '⛰️ Na úpatí Pythagorovy hory tě zkouší duch čísel: ovládáš mocniny a odmocniny? Bez nich na horu nevstoupíš.',
  sections: [
   { h: 'Mocniny — základní pojmy',
@@ -197,6 +217,11 @@ window.RPG_LEARN_8 = {
 },
 
 '2-2': {
+ mistakes: [
+  {wrong:'√(a² + b²) = a + b', right:'√(a² + b²) nelze rozdělit na a + b', why:'Odmocninu součtu nejde roztrhnout. √(3²+4²) = √25 = 5, ne 3+4 = 7.'},
+  {wrong:'c² = a² + b², a beru c = c² (zapomenu odmocnit)', right:'c = √(a² + b²)', why:'Pythagoras dá nejdřív c² (obsah čtverce). Délku přepony získáš až odmocněním.'},
+  {wrong:'Přepona je jedna z kratších stran u pravého úhlu', right:'přepona je nejdelší, leží naproti pravému úhlu', why:'Odvěsny svírají pravý úhel; přepona je vždy naproti němu a je nejdelší.'},
+ ],
  intro: '🧗 Na úbočí hory potřebuješ přesně změřit délku lana od základny k vrcholu. Pythagoras ti pomůže vypočítat přeponu!',
  sections: [
   { h: 'Pythagorova věta — znění',
@@ -237,6 +262,11 @@ window.RPG_LEARN_8 = {
 },
 
 '2-3': {
+ mistakes: [
+  {wrong:'Odvěsna a = √(c² + b²)', right:'a = √(c² − b²)', why:'Od čtverce přepony se ODEČÍTÁ. c je nejdelší strana, c² je největší číslo.'},
+  {wrong:'√(c² − b²) = c − b', right:'nejdřív odečti čtverce, pak odmocni', why:'Odmocninu rozdílu nejde roztrhnout. √(13²−5²) = √144 = 12, ne 13−5 = 8.'},
+  {wrong:'Přeponu dosadím jako odvěsnu do a² + b²', right:'přepona patří samostatně jako c', why:'Přepona (naproti pravému úhlu) se do součtu odvěsen neplete — je to výsledné c.'},
+ ],
  intro: '🪨 Řetízkový most se zhroutil — znáš délku lana (přeponu) a vzdálenost k jednomu pilíři. Dopočítej výšku druhého!',
  sections: [
   { h: 'Výpočet odvěsny',
@@ -277,6 +307,11 @@ window.RPG_LEARN_8 = {
 /* ─── Oblast 3: BAŽINY ROVNIC ─────────────────────────────────── */
 
 '3-1': {
+ mistakes: [
+  {wrong:'3x − 4 = 11 → 3x = 11 − 4 = 7', right:'3x = 11 + 4 = 15 → x = 5', why:'Při přesunu členu přes rovnítko se MĚNÍ znaménko: −4 vlevo → +4 vpravo.'},
+  {wrong:'2x = 10 → x = 10 (dělím jen levou stranu)', right:'x = 10 : 2 = 5', why:'Dělit dvěma musíš OBĚ strany rovnice, aby zůstala v rovnováze.'},
+  {wrong:'7 − 2x = 1 → 2x = 1 − 7 = −6, x = −6', right:'−2x = −6 → x = 3', why:'U členu −2x zůstává znaménko minus u koeficientu; dělíš −2, ne 2.'},
+ ],
  intro: '🌿 Bahno rovnicových bažin tě stahuje dolů. Jen správně sestavená a vyřešená rovnice ti ukáže pevnou cestu ven.',
  sections: [
   { h: 'Co je lineární rovnice',
@@ -305,16 +340,21 @@ window.RPG_LEARN_8 = {
  ],
  examples: [
   { q: 'Vyřeš: 3x − 4 = 11',
-    s: ['3x = 11 + 4 = 15', 'x = 15 ÷ 3 = <b>5</b>', 'Zkouška: 3·5−4 = 15−4 = 11 ✓'] },
+    s: ['3x = 11 + 4 = 15', 'x = 15 : 3 = <b>5</b>', 'Zkouška: 3·5−4 = 15−4 = 11 ✓'] },
   { q: 'Vyřeš: 5x − 2 = 2x + 7',
     s: ['5x − 2x = 7 + 2', '3x = 9', 'x = <b>3</b>'] },
   { q: 'Vyřeš: 7 − 2x = 1',
-    s: ['−2x = 1 − 7 = −6', 'x = −6 ÷ (−2) = <b>3</b>', 'Zkouška: 7 − 2·3 = 1 ✓'] },
+    s: ['−2x = 1 − 7 = −6', 'x = −6 : (−2) = <b>3</b>', 'Zkouška: 7 − 2·3 = 1 ✓'] },
  ],
  video: { id: 'q2saJQdkF34', title: 'Rovnice' }
 },
 
 '3-2': {
+ mistakes: [
+  {wrong:'2(3x − 1) = 6x − 1', right:'2·3x − 2·1 = 6x − 2', why:'Číslem před závorkou se násobí KAŽDÝ člen uvnitř, ne jen první.'},
+  {wrong:'3(2x+1) − (x − 4) = 6x+3 − x − 4', right:'6x + 3 − x + 4', why:'Minus před závorkou obrací znaménka VŠECH členů: −(x−4) = −x + 4.'},
+  {wrong:'x/3 + 1 = 5/6 → násobím 6 jen zlomky', right:'násob 6 KAŽDÝ člen: 2x + 6 = 5', why:'Společným jmenovatelem se násobí celá rovnice včetně čísla 1 (→ 6).'},
+ ],
  intro: '🐸 Strážce bažin zadává rovnice se závorkami a zlomky. Ovládni je a projdeš bez mokrých bot.',
  sections: [
   { h: 'Rovnice se závorkami',
@@ -357,6 +397,11 @@ window.RPG_LEARN_8 = {
 },
 
 '3-3': {
+ mistakes: [
+  {wrong:'Napíšu jen x = 15', right:'Odpověď: Hledané číslo je 15.', why:'Slovní úloha vyžaduje odpověď celou větou a s jednotkou, ne holé x.'},
+  {wrong:'Součet je 45, jedno 2× větší → x = 45', right:'x + 2x = 45 → x = 15', why:'Rovnici sestav podle podmínky. „Součet" znamená x + 2x, ne rovnou x = 45.'},
+  {wrong:'x = 15 a končím (zapomenu druhé číslo)', right:'druhé číslo 2·15 = 30', why:'Úloha se ptá na obě čísla — po nalezení x dopočítej i zbylé veličiny.'},
+ ],
  intro: '🗺️ Ztracený průzkumník Akademie popisuje svůj problém slovy. Přelož ho do rovnice a zachraň ho!',
  sections: [
   { h: 'Pět kroků pro slovní úlohu',
@@ -396,6 +441,11 @@ window.RPG_LEARN_8 = {
 /* ─── Oblast 4: VĚŽE ALGEBRY ──────────────────────────────────── */
 
 '4-1': {
+ mistakes: [
+  {wrong:'Pro x = −2: 2x² = 2·−2² = −8', right:'2·(−2)² = 2·4 = 8', why:'Zápornou hodnotu při dosazení dej do závorky, jinak umocníš jen dvojku a ztratíš znaménko.'},
+  {wrong:'2a + 3b = 5ab', right:'2a + 3b nelze zjednodušit', why:'Sčítat lze jen podobné členy (stejná proměnná). Různé proměnné zůstanou odděleně.'},
+  {wrong:'3x² + 2x² = 5x⁴', right:'3x² + 2x² = 5x²', why:'Sčítají se koeficienty, mocnina proměnné zůstává stejná (x², ne x⁴).'},
+ ],
  intro: '🏰 Strážce Věží algebry ti předloží výraz a hodnotu proměnné. Dosaď, vypočítej a postoupíš do vyšších pater!',
  sections: [
   { h: 'Algebraický výraz',
@@ -431,6 +481,11 @@ window.RPG_LEARN_8 = {
 },
 
 '4-2': {
+ mistakes: [
+  {wrong:'(a + b)² = a² + b²', right:'(a + b)² = a² + 2ab + b²', why:'Zapomenutý prostřední člen 2ab. Kontrola: (3+4)² = 49, ale 3²+4² = 25.'},
+  {wrong:'(2x − 5)² = 2x² − 25', right:'(2x)² − 2·2x·5 + 5² = 4x² − 20x + 25', why:'Umocňuje se celý člen 2x (→ 4x²) a nesmí chybět prostřední 2ab.'},
+  {wrong:'(a − b)² = a² + 2ab + b²', right:'(a − b)² = a² − 2ab + b²', why:'U rozdílu je prostřední člen záporný (−2ab).'},
+ ],
  intro: '✨ V čarodějnické věži se skrývají tři magické vzorce pro druhou mocninu. Ovládni je a algebraické kouzlo bude tvoje!',
  sections: [
   { h: 'Tři algebraické vzorce',
@@ -468,6 +523,11 @@ window.RPG_LEARN_8 = {
 },
 
 '4-3': {
+ mistakes: [
+  {wrong:'6x² − 9x = 3(2x² − 3x)', right:'3x(2x − 3)', why:'Vytýká se i společná proměnná x, ne jen číslo. Zkontroluj roznásobením.'},
+  {wrong:'x² − 4x vytknu na x²(1 − 4)', right:'x(x − 4)', why:'Vytýkej nejnižší společnou mocninu (x¹), ne x². Uvnitř zůstane x − 4.'},
+  {wrong:'5a − 5 = 5(a)', right:'5(a − 1)', why:'Po vytknutí musí ve druhém členu zůstat 1 (5 = 5·1), ne nic.'},
+ ],
  intro: '🔮 Mistr algebry z Věže se nenechá oklamat složitými výrazy. Vytkni společného činitele a zjednodušíš každé kouzlo!',
  sections: [
   { h: 'Vytýkání — princip',
@@ -508,6 +568,11 @@ window.RPG_LEARN_8 = {
 /* ─── Oblast 5: JEZERO KRUŽNIC ────────────────────────────────── */
 
 '5-1': {
+ mistakes: [
+  {wrong:'Obsah kruhu S = 2πr', right:'S = πr² (obvod je 2πr)', why:'Obvod je čára (r jednou), obsah je plocha (r na druhou). Nezaměňuj vzorce.'},
+  {wrong:'Do vzorců dosadím průměr místo poloměru', right:'r je poloměr = polovina průměru', why:'Když znáš průměr d, poloměr je r = d : 2. Záměna d a r zdvojnásobí výsledek.'},
+  {wrong:'Obvod pro r = 7: o = 2 · 7 = 14', right:'o = 2πr = 2 · 3,14 · 7 = 43,96', why:'Nezapomeň na π. Bez něj vyjde jen dvojnásobek poloměru, ne obvod.'},
+ ],
  intro: '🌊 Hladina Akademického jezera tvoří dokonalý kruh. Spočítej jeho obvod i obsah a získáš klíč k vodnímu chrámu.',
  sections: [
   { h: 'Kružnice vs. kruh',
@@ -519,7 +584,7 @@ window.RPG_LEARN_8 = {
     p: [
       '<b>Obvod kružnice:</b> o = 2πr = πd',
       '<b>Obsah kruhu:</b> S = πr²',
-      'π ≈ 3,14 nebo přesněji 22/7. Ve výpočtech bez instrukce použi 3,14.',
+      'π ≈ 3,14 nebo přesněji 22/7. Ve výpočtech bez instrukce použij 3,14.',
       '<svg width="180" height="160" style="display:block;margin:8px auto 0" viewBox="0 0 180 160"><circle cx="90" cy="80" r="55" fill="none" stroke="#4a9eff" stroke-width="2.5"/><circle cx="90" cy="80" r="3" fill="#ffcc00"/><line x1="90" y1="80" x2="145" y2="80" stroke="#ffcc00" stroke-width="2"/><text x="112" y="73" font-size="13" fill="#ffcc00" font-weight="bold">r</text><line x1="35" y1="80" x2="145" y2="80" stroke="#00ff88" stroke-width="1.5" stroke-dasharray="5,3"/><text x="80" y="103" font-size="12" fill="#00ff88">d = 2r</text><line x1="90" y1="25" x2="130" y2="55" stroke="#ff5555" stroke-width="1.5" stroke-dasharray="4,3"/><text x="120" y="40" font-size="11" fill="#ff5555">tětiva</text></svg>',
     ] },
   { h: 'Záměna vzorců — nejčastější chyba',
@@ -545,6 +610,11 @@ window.RPG_LEARN_8 = {
 },
 
 '5-2': {
+ mistakes: [
+  {wrong:'Povrch válce = plášť = 2πrv', right:'S = 2πr² + 2πrv (plášť + 2 podstavy)', why:'Plášť je jen boční stěna. Celý povrch přidává i dvě kruhové podstavy 2πr².'},
+  {wrong:'Objem válce V = πr · v', right:'V = πr² · v', why:'Objem = obsah podstavy (πr²) × výška. Poloměr je na druhou, ne jednou.'},
+  {wrong:'Plášť rozvinu na obdélník se stranou r', right:'strana pláště = obvod podstavy 2πr', why:'Rozvinutý plášť má šířku rovnou obvodu kruhu (2πr), ne poloměru.'},
+ ],
  intro: '🛢️ Ze dna jezera vyčnívá válcová věž. Aby ses dostal dovnitř, musíš spočítat, kolik materiálu tvoří její povrch a objem!',
  sections: [
   { h: 'Popis válce',
@@ -581,18 +651,23 @@ window.RPG_LEARN_8 = {
 },
 
 '5-3': {
+ mistakes: [
+  {wrong:'Mezikruží S = π(R − r)²', right:'S = π(R² − r²)', why:'Odečítají se OBSAHY (R² a r²), ne poloměry. (R−r)² dá jiné, menší číslo.'},
+  {wrong:'0,6 m³ = 6 litrů', right:'0,6 m³ = 600 litrů (1 m³ = 1000 l)', why:'1 m³ = 1000 dm³ = 1000 litrů. Hlídej převod jednotek objemu.'},
+  {wrong:'Na zalití trávníku počítám obvod', right:'plocha trávníku = obsah πr²', why:'Obvod je jen délka okraje. Kolik trávy zaleješ určuje obsah, ne obvod.'},
+ ],
  intro: '🎣 Akademický rybář potřebuje tvou pomoc s kruhovým jezerem i sudovým zásobníkem. Reálné slovní úlohy tě čekají!',
  sections: [
   { h: 'Rozlišení obvod / obsah / objem',
     p: [
       '<b>Obvod</b> = délka okraje (plot, obruba…)',
       '<b>Obsah</b> = velikost plochy (tráva, nátěr…)',
-      '<b>Objem</b> = kolik se vejde dovnitř (voda, píl, vzduch…)',
+      '<b>Objem</b> = kolik se vejde dovnitř (voda, písek, vzduch…)',
     ] },
   { h: 'Mezikruží (annulus)',
     p: [
       'Mezikruží = plocha mezi dvěma soustřednými kružnicemi. S = π(R² − r²) = π(R − r)(R + r)',
-      'Příklad: běžecká dráha šíře 2 m, vnitřní poloměr 50 m → S = π(52² − 50²) = π·4·102 = 408π ≈ 1 281 m²',
+      'Příklad: běžecká dráha šíře 2 m, vnitřní poloměr 50 m → S = π(52² − 50²) = π·2·102 = 204π ≈ 641 m²',
     ] },
   { h: 'Převody jednotek objemu',
     p: [
@@ -625,6 +700,11 @@ window.RPG_LEARN_8 = {
 /* ─── Oblast 6: DÍLNA KONSTRUKCÍ ──────────────────────────────── */
 
 '6-1': {
+ mistakes: [
+  {wrong:'Osa úsečky a osa úhlu je totéž', right:'osa úsečky = stejná vzdálenost od 2 BODŮ; osa úhlu = od 2 RAMEN', why:'Osa úsečky je kolmá na úsečku a půlí ji; osa úhlu půlí úhel a prochází vrcholem. Různé množiny.'},
+  {wrong:'Kružnice je vyplněný kruh', right:'kružnice = jen čára (okraj), kruh = plocha', why:'Množina bodů ve vzdálenosti r od středu je jen čára — kružnice, ne vyplněný disk.'},
+  {wrong:'Osa úsečky nemusí procházet středem', right:'prochází přesně středem a je kolmá', why:'Jen body u středu jsou stejně daleko od A i B; osa proto vede středem kolmo na AB.'},
+ ],
  intro: '🔧 V Citadelové dílně se rýsuje kompasem a pravítkem. Pochop množiny bodů — základ každé geometrické konstrukce.',
  sections: [
   { h: 'Co je množina bodů dané vlastnosti',
@@ -662,6 +742,11 @@ window.RPG_LEARN_8 = {
 },
 
 '6-2': {
+ mistakes: [
+  {wrong:'Thaletova kružnice má poloměr rovný přeponě', right:'přepona = PRŮMĚR; poloměr = přepona : 2', why:'Přepona je průměr Thaletovy kružnice. Poloměr je tedy její polovina.'},
+  {wrong:'Každý úhel vepsaný do kružnice je 90°', right:'jen úhel nad PRŮMĚREM je 90° (Thales)', why:'Thaletova věta platí jen pro vrchol na kružnici nad průměrem, ne pro libovolnou tětivu.'},
+  {wrong:'Střed Thaletovy kružnice je vrchol pravého úhlu', right:'střed je uprostřed přepony AB', why:'Střed leží ve středu průměru (přepony), ne v bodě P s pravým úhlem.'},
+ ],
  intro: '⚙️ Mistr konstruktér Akademie tě učí Thaletovu kružnici. Kdo ji ovládne, může sestrojit pravý úhel kdekoliv!',
  sections: [
   { h: 'Thaletova věta',
@@ -692,12 +777,17 @@ window.RPG_LEARN_8 = {
   { q: 'Narýsuj pravoúhlý trojúhelník s přeponou 6 cm. Popiš postup.',
     s: ['Narýsuj AB = 6 cm', 'Střed S = střed AB; kružnice se středem S a r = 3 cm', 'Vyber P na kružnici (ne A, B) → trojúhelník APB je pravoúhlý u P'] },
   { q: 'Přepona pravoúhlého trojúhelníku je 10 cm. Jaký poloměr má Thaletova kružnice?',
-    s: ['Thaletova kružnice má průměr roven přeponě = 10 cm', 'r = 10 ÷ 2 = <b>5 cm</b>'] },
+    s: ['Thaletova kružnice má průměr roven přeponě = 10 cm', 'r = 10 : 2 = <b>5 cm</b>'] },
  ],
  video: { id: '1rYON5bw8_w', title: 'Množiny bodů dané vlastnosti 2 — Thaletova kružnice' }
 },
 
 '6-3': {
+ mistakes: [
+  {wrong:'Podle osy x: (2, 5) → (−2, 5)', right:'(2, −5)', why:'Osa x je vodorovná, zrcadlí nahoru/dolů → mění se y. Znaménko x mění osa y.'},
+  {wrong:'Čtverec má 2 osy souměrnosti', right:'čtverec má 4 osy', why:'Kromě dvou spojnic středů stran má čtverec i dvě úhlopříčky jako osy.'},
+  {wrong:'Osa úsečky je rovnoběžná s úsečkou', right:'osa je KOLMÁ na úsečku', why:'Osa úsečky svírá s úsečkou pravý úhel a prochází jejím středem.'},
+ ],
  intro: '📐 Závěrečná zkouška dílny: osy a souměrnosti v praktických konstrukcích. Bez nich nelze postavit ani bránu Citadely!',
  sections: [
   { h: 'Osa úsečky',
@@ -739,6 +829,11 @@ window.RPG_LEARN_8 = {
 /* ─── Oblast 7: CITADELA ARCIMÁGA ─────────────────────────────── */
 
 '7-1': {
+ mistakes: [
+  {wrong:'x+y=20, x−y=6, sečtu na 2x = 14', right:'2x = 26 → x = 13', why:'Sčítáš levé i pravé strany: (x+y)+(x−y) = 20+6 = 26. Pozor na sečtení pravých stran.'},
+  {wrong:'Přepona z odvěsen 8 a 15: c = 8 + 15 = 23', right:'c = √(8² + 15²) = √289 = 17', why:'Přepona se počítá Pythagorovou větou, ne prostým součtem odvěsen.'},
+  {wrong:'Obvod kruhu 31,4 → obsah = 31,4', right:'z obvodu urči r = 5, pak S = πr² = 78,5', why:'Obvod a obsah jsou různé veličiny. Nejdřív z obvodu poloměr, pak obsah.'},
+ ],
  intro: '🏛️ Velká brána Citadely arcimága! Projít smíš jen tehdy, zvládneš-li úlohy kombinující všechna témata 8. ročníku.',
  sections: [
   { h: 'Co jsi za rok zvládl',
@@ -757,7 +852,7 @@ window.RPG_LEARN_8 = {
     ] },
   { h: 'Strategie při kombinovaných úlohách',
     p: [
-      '<b>1.</b> Načrtni obrázek u geometrie. <b>2.</b> Zaveď neznámou pro hledanou veličinu. <b>3.</b> Napiš rovnici / vzorec. <b>4.</b> Proveď zkouška nebo ověření. <b>5.</b> Odpověz celou větou s jednotkami.',
+      '<b>1.</b> Načrtni obrázek u geometrie. <b>2.</b> Zaveď neznámou pro hledanou veličinu. <b>3.</b> Napiš rovnici / vzorec. <b>4.</b> Proveď zkoušku nebo ověření. <b>5.</b> Odpověz celou větou s jednotkami.',
     ] },
  ],
  formulas: [
@@ -776,6 +871,11 @@ window.RPG_LEARN_8 = {
 },
 
 '7-2': {
+ mistakes: [
+  {wrong:'Sleva 10 %, cena 1 440 → původní = 1 440 + 144 = 1 584', right:'1 440 : 0,9 = 1 600 Kč', why:'1 440 Kč je 90 % původní ceny → dělíš 0,9, ne přičítáš 10 % z výsledné ceny.'},
+  {wrong:'(a + b)² = a² + b²', right:'a² + 2ab + b²', why:'Klasický chyták CERMATu — nezapomeň na prostřední člen 2ab.'},
+  {wrong:'Obvod kruhu se počítá jako πr²', right:'obvod o = 2πr; πr² je obsah', why:'r je u obvodu jednou (čára), u obsahu na druhou (plocha).'},
+ ],
  intro: '📜 Přijímačkový trénink v Archivu Akademie — úlohy ve stylu CERMAT. Kdo tu obstojí, obstojí i u přijímaček.',
  sections: [
   { h: 'Co CERMAT testuje',
@@ -801,7 +901,7 @@ window.RPG_LEARN_8 = {
     ] },
   { h: 'Správa času',
     p: [
-      'Přijímačky mají zpravidla 40 úloh / 70 minut → průměrně 1,75 min na úlohu. Jednoduché zvládni za minutu, složitější si nech na konec.',
+      'Přijímačky mají zpravidla 16 úloh / 70 minut → průměrně přes 4 min na úlohu. Jednoduché zvládni za minutu, složitější si nech na konec.',
     ] },
  ],
  formulas: [
@@ -820,6 +920,11 @@ window.RPG_LEARN_8 = {
 },
 
 '7-3': {
+ mistakes: [
+  {wrong:'6x − 12 = 2x + 14 → 6x + 2x = 14 + 12', right:'6x − 2x = 14 + 12 → 4x = 26', why:'Při přesunu 2x přes rovnítko se mění znaménko na −2x. Členy se stejným znaménkem se nesčítají dohromady.'},
+  {wrong:'(x+4)² − (x−4)² = 0 (jsou skoro stejné)', right:'= 16x', why:'Rozepiš oba čtverce: (x²+8x+16) − (x²−8x+16) = 16x. Prostřední členy se odečtou na +16x.'},
+  {wrong:'V = πr²v = 1,57 m³ = 1,57 litru', right:'1,57 m³ = 1570 litrů', why:'1 m³ = 1000 litrů. Objem v m³ převáděj na litry násobením tisícem.'},
+ ],
  intro: '🔥 FINÁLNÍ DUEL S ARCIMÁGEM! Toto je vrchol celého roku. Dokaž, že ovládáš 8. ročník matematiky — a připrav se na 9. ročník!',
  sections: [
   { h: 'Zvládl jsi to!',

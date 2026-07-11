@@ -5,6 +5,11 @@
 window.RPG_LEARN_9 = {
 
 '1-1': {
+  mistakes: [
+   {wrong:'12 : 4 · 3 = 12 : 12 = 1', right:'12 : 4 · 3 = 3 · 3 = 9', why:'Násobení a dělení mají stejnou úroveň — počítají se zleva doprava, ne dělení jako první.'},
+   {wrong:'−3² = 9', right:'−3² = −9; jen (−3)² = 9', why:'Bez závorky se umocní jen trojka a minus zůstane vepředu.'},
+   {wrong:'√2 je racionální číslo', right:'√2 je iracionální', why:'Má nekonečný neperiodický desetinný rozvoj (1,41421…).'},
+  ],
   intro: 'Pořadí operací a obory čísel — základ každého výpočtu.',
   sections: [
     {
@@ -19,7 +24,7 @@ window.RPG_LEARN_9 = {
       h: 'Pořadí operací',
       p: [
         '1. <b>Závorky</b> — vypočítej obsah závorek jako první.<br>2. <b>Mocniny a odmocniny</b>.<br>3. <b>Násobení a dělení</b> — zleva doprava.<br>4. <b>Sčítání a odčítání</b> — zleva doprava.',
-        '⚠️ Operace stejné úrovně (např. × a ÷) se vyhodnocují <b>zleva doprava</b>: 12 ÷ 4 × 3 = 3 × 3 = 9, <b>ne</b> 12 ÷ 12 = 1!'
+        '⚠️ Operace stejné úrovně (např. × a :) se vyhodnocují <b>zleva doprava</b>: 12 : 4 × 3 = 3 × 3 = 9, <b>ne</b> 12 : 12 = 1!'
       ]
     },
     {
@@ -32,7 +37,7 @@ window.RPG_LEARN_9 = {
     }
   ],
   formulas: [
-    'Pořadí: závorky → mocniny → × ÷ → + −',
+    'Pořadí: závorky → mocniny → × : → + −',
     '(−a)<sup>2n</sup> = a<sup>2n</sup> &gt; 0 (sudá mocnina → kladné)',
     '(−a)<sup>2n+1</sup> = −a<sup>2n+1</sup> (lichá mocnina → záporné)'
   ],
@@ -65,6 +70,11 @@ window.RPG_LEARN_9 = {
 },
 
 '1-2': {
+  mistakes: [
+   {wrong:'20 % z 300 = 300 : 20 = 15', right:'20 % z 300 = 300 · 20 : 100 = 60', why:'Jedno procento je SETINA základu, násobíš procenty a dělíš stem.'},
+   {wrong:'100 Kč +20 % a pak −20 % = zpět 100 Kč', right:'100 → 120 → 96 Kč', why:'Druhé procento se počítá z nového (jiného) základu, ne z původního.'},
+   {wrong:'5 ‰ z 2000 = 100', right:'5 ‰ z 2000 = 2000 · 5 : 1000 = 10', why:'Promile je TISÍCINA, ne setina.'},
+  ],
   intro: 'Procenta a promile — základ finanční gramotnosti.',
   sections: [
     {
@@ -94,7 +104,7 @@ window.RPG_LEARN_9 = {
       p: [
         'Víme výsledek <i>po</i> procentní změně, hledáme původní hodnotu.',
         'Zboží stojí po slevě 20 % cenu 640 Kč. Jaká byla původní cena?',
-        'Původní = 640 ÷ (1 − 20/100) = 640 ÷ 0,8 = <b>800 Kč</b>.'
+        'Původní = 640 : (1 − 20/100) = 640 : 0,8 = <b>800 Kč</b>.'
       ]
     }
   ],
@@ -115,7 +125,7 @@ window.RPG_LEARN_9 = {
       q: 'Tričko stojí 360 Kč po slevě 25 %. Jaká byla původní cena?',
       s: [
         'Po slevě 25 % zaplatíš 75 % původní ceny.',
-        'Původní = 360 ÷ 0,75 = <b>480 Kč</b>'
+        'Původní = 360 : 0,75 = <b>480 Kč</b>'
       ]
     },
     {
@@ -131,6 +141,11 @@ window.RPG_LEARN_9 = {
 },
 
 '1-3': {
+  mistakes: [
+   {wrong:'|−5| = −5', right:'|−5| = 5', why:'Absolutní hodnota je vzdálenost od nuly — nikdy není záporná.'},
+   {wrong:'−3 − 5 = −2', right:'−3 − 5 = −8', why:'Obě čísla míří doleva, znaménka jsou stejná → vzdálenosti se sčítají.'},
+   {wrong:'−7 > −3', right:'−7 < −3', why:'Čím dál vlevo na ose, tím MENŠÍ číslo.'},
+  ],
   intro: 'Záporná čísla a absolutní hodnota — orientace na číselné ose.',
   sections: [
     {
@@ -144,7 +159,7 @@ window.RPG_LEARN_9 = {
       h: 'Sčítání a odčítání záporných čísel',
       p: [
         'Odčítání záporného čísla = přičítání kladného: <b>a − (−b) = a + b</b>.<br>Příklad: 5 − (−3) = 5 + 3 = 8.',
-        'Sčítání stejně znamínkových: sečti absolutní hodnoty, zachovej znaménko.<br>Sčítání různě znamínkových: odečti absolutní hodnoty, výsledek má znaménko většího.'
+        'Sčítání stejně znaménkových: sečti absolutní hodnoty, zachovej znaménko.<br>Sčítání různě znaménkových: odečti absolutní hodnoty, výsledek má znaménko čísla s větší absolutní hodnotou.'
       ]
     },
     {
@@ -188,6 +203,11 @@ window.RPG_LEARN_9 = {
 },
 
 '2-1': {
+  mistakes: [
+   {wrong:'2³ = 6', right:'2³ = 8', why:'Mocnina je opakované násobení (2·2·2), ne 2·3.'},
+   {wrong:'(−2)⁴ = −16', right:'(−2)⁴ = 16', why:'Sudá mocnina záporného čísla je kladná.'},
+   {wrong:'5⁰ = 0', right:'5⁰ = 1', why:'Každé nenulové číslo na nultou je 1.'},
+  ],
   intro: 'Mocniny a odmocniny — základ každého výpočtu v reaktoru.',
   sections: [
     {
@@ -244,13 +264,18 @@ window.RPG_LEARN_9 = {
 },
 
 '2-2': {
+  mistakes: [
+   {wrong:'a² · a³ = a⁶', right:'a² · a³ = a⁵', why:'Při násobení mocnin se stejným základem se exponenty SČÍTAJÍ.'},
+   {wrong:'(a²)³ = a⁵', right:'(a²)³ = a⁶', why:'Mocnina mocniny — exponenty se NÁSOBÍ.'},
+   {wrong:'a⁵ : a² = a^(5:2)', right:'a⁵ : a² = a³', why:'Při dělení mocnin se exponenty ODČÍTAJÍ.'},
+  ],
   intro: 'Pravidla pro práci s mocninami — zkratky výpočtů.',
   sections: [
     {
       h: 'Stejný základ — násobení, dělení, mocnina mocniny',
       p: [
         '<b>Násobení:</b> aᵐ · aⁿ = aᵐ⁺ⁿ &nbsp;→&nbsp; 3² · 3⁴ = 3⁶ = 729',
-        '<b>Dělení:</b> aᵐ ÷ aⁿ = aᵐ⁻ⁿ &nbsp;→&nbsp; 5⁷ ÷ 5³ = 5⁴ = 625',
+        '<b>Dělení:</b> aᵐ : aⁿ = aᵐ⁻ⁿ &nbsp;→&nbsp; 5⁷ : 5³ = 5⁴ = 625',
         '<b>Mocnina mocniny:</b> (aᵐ)ⁿ = aᵐⁿ &nbsp;→&nbsp; (2³)⁴ = 2¹² = 4 096'
       ]
     },
@@ -272,7 +297,7 @@ window.RPG_LEARN_9 = {
   ],
   formulas: [
     'aᵐ · aⁿ = aᵐ⁺ⁿ',
-    'aᵐ ÷ aⁿ = aᵐ⁻ⁿ &nbsp;(a ≠ 0)',
+    'aᵐ : aⁿ = aᵐ⁻ⁿ &nbsp;(a ≠ 0)',
     '(aᵐ)ⁿ = aᵐ·ⁿ',
     '(a·b)ⁿ = aⁿ·bⁿ',
     'a⁻ⁿ = 1/aⁿ &nbsp;(a ≠ 0)'
@@ -286,10 +311,10 @@ window.RPG_LEARN_9 = {
       ]
     },
     {
-      q: 'Zjednoduš: (y²)⁶ ÷ y⁸',
+      q: 'Zjednoduš: (y²)⁶ : y⁸',
       s: [
         '(y²)⁶ = y¹²',
-        'y¹² ÷ y⁸ = y¹²⁻⁸ = <b>y⁴</b>'
+        'y¹² : y⁸ = y¹²⁻⁸ = <b>y⁴</b>'
       ]
     },
     {
@@ -303,6 +328,11 @@ window.RPG_LEARN_9 = {
 },
 
 '2-3': {
+  mistakes: [
+   {wrong:'V pravoúhlém trojúhelníku c² = a² − b²', right:'c² = a² + b² (c je přepona proti pravému úhlu γ)', why:'Přepona je nejdelší strana, druhé mocniny odvěsen se sčítají.'},
+   {wrong:'Odvěsna a = √(c² + b²)', right:'Odvěsna a = √(c² − b²)', why:'Od druhé mocniny přepony se odečítá, protože odvěsna je kratší.'},
+   {wrong:'√(a² + b²) = a + b', right:'√(a² + b²) nelze rozdělit', why:'Odmocnina součtu se NEROVNÁ součtu odmocnin.'},
+  ],
   intro: 'Vědecký zápis a Pythagorova věta — dva mocné nástroje.',
   sections: [
     {
@@ -361,6 +391,11 @@ window.RPG_LEARN_9 = {
 },
 
 '3-1': {
+  mistakes: [
+   {wrong:'x + 5 = 12 → x = 12 + 5 = 17', right:'x = 12 − 5 = 7', why:'Člen přechází přes rovnítko s OPAČNÝM znaménkem.'},
+   {wrong:'3x = 12 → x = 12 · 3', right:'x = 12 : 3 = 4', why:'Koeficientem u x se dělí, ne násobí.'},
+   {wrong:'x : 4 = 3 → x = 3 : 4', right:'x = 3 · 4 = 12', why:'Opačná operace k dělení je násobení.'},
+  ],
   intro: 'Lineární rovnice — jádro algebry.',
   sections: [
     {
@@ -373,7 +408,7 @@ window.RPG_LEARN_9 = {
     {
       h: 'Postup řešení',
       p: [
-        '1. Přesuň členy s x na <b>levou stranu</b> (odečti od obou stran).<br>2. Přesuň <b>čísla na pravou stranu</b>.<br>3. Vydělte koeficientem u x.',
+        '1. Přesuň členy s x na <b>levou stranu</b> (odečti od obou stran).<br>2. Přesuň <b>čísla na pravou stranu</b>.<br>3. Vyděl koeficientem u x.',
         '⚠️ Nikdy nesmíme <b>dělit nulou</b>! Pokud je koeficient u x roven 0, rovnice je buď splněna pro všechna x, nebo pro žádné.'
       ]
     },
@@ -394,7 +429,7 @@ window.RPG_LEARN_9 = {
       q: 'Řeš: 3x − 7 = 14',
       s: [
         '3x = 14 + 7 = 21',
-        'x = 21 ÷ 3 = <b>7</b>',
+        'x = 21 : 3 = <b>7</b>',
         'Zkouška: 3 · 7 − 7 = 21 − 7 = 14 ✓'
       ]
     },
@@ -419,6 +454,11 @@ window.RPG_LEARN_9 = {
 },
 
 '3-2': {
+  mistakes: [
+   {wrong:'3(x + 2) = 3x + 2', right:'3(x + 2) = 3x + 6', why:'Číslo před závorkou násobí KAŽDÝ člen uvnitř.'},
+   {wrong:'5x = 2x + 9 → 5x + 2x = 9', right:'5x − 2x = 9, tedy 3x = 9', why:'Člen 2x přechází na druhou stranu se změnou znaménka (odečteš).'},
+   {wrong:'−(x − 4) = −x − 4', right:'−(x − 4) = −x + 4', why:'Mínus před závorkou obrací znaménka VŠECH členů.'},
+  ],
   intro: 'Závorky a neznámá na obou stranách — pokročilá rovnicová technika.',
   sections: [
     {
@@ -432,7 +472,7 @@ window.RPG_LEARN_9 = {
     {
       h: 'Neznámá na obou stranách',
       p: [
-        '1. Roznásob závorky.<br>2. Přesuň všechny členy s x na jednu stranu (odečti od obou stran).<br>3. Přesuň čísla na druhou stranu.<br>4. Vydělte koeficientem.',
+        '1. Roznásob závorky.<br>2. Přesuň všechny členy s x na jednu stranu (odečti od obou stran).<br>3. Přesuň čísla na druhou stranu.<br>4. Vyděl koeficientem.',
         '⚠️ Vždy proveď <b>zkoušku</b> dosazením do původní rovnice!'
       ]
     },
@@ -478,6 +518,11 @@ window.RPG_LEARN_9 = {
 },
 
 '3-3': {
+  mistakes: [
+   {wrong:'S = a · v → v = S · a', right:'v = S : a', why:'Ze součinu vyjádříš neznámou dělením.'},
+   {wrong:'o = 2(a + b) → a = o : 2 · b', right:'a = o : 2 − b', why:'Nejdřív děl obvod dvěma, pak odečti druhou stranu b.'},
+   {wrong:'„o 5 větší“ znamená · 5', right:'„o 5 větší“ znamená + 5', why:'„O“ znamená sčítání/odčítání, „krát“ znamená násobení.'},
+  ],
   intro: 'Vyjádření ze vzorce a slovní úlohy — algebra v praxi.',
   sections: [
     {
@@ -536,6 +581,11 @@ window.RPG_LEARN_9 = {
 },
 
 '4-1': {
+  mistakes: [
+   {wrong:'5/(x − 3) má smysl pro všechna x', right:'Platí podmínka x ≠ 3', why:'Jmenovatel nesmí být nula: x − 3 = 0 dává x = 3.'},
+   {wrong:'Podmínka je čitatel ≠ 0', right:'Podmínka je JMENOVATEL ≠ 0', why:'Čitatel může být nula, dělit nulou ale nelze.'},
+   {wrong:'3/x je definováno i pro x = 0', right:'x ≠ 0', why:'Dělení nulou není definováno.'},
+  ],
   intro: 'Podmínky lomeného výrazu — hlídej jmenovatel!',
   sections: [
     {
@@ -592,6 +642,11 @@ window.RPG_LEARN_9 = {
 },
 
 '4-2': {
+  mistakes: [
+   {wrong:'(x + 3)/(x + 5) zkrátím x → 3/5', right:'Nelze krátit — x je sčítanec', why:'Krátit lze jen společné ČINITELE, ne jednotlivé sčítance.'},
+   {wrong:'(3x)/6 = x/6', right:'(3x)/6 = x/2', why:'Zkrátíš trojku se šestkou (obojí děl 3).'},
+   {wrong:'V (x + 3 + y) krátím (x + 3)', right:'Nelze', why:'(x + 3) není činitelem celého čitatele, jen jeho částí.'},
+  ],
   intro: 'Hodnota a krácení lomených výrazů — rozklady jsou klíč.',
   sections: [
     {
@@ -650,6 +705,11 @@ window.RPG_LEARN_9 = {
 },
 
 '4-3': {
+  mistakes: [
+   {wrong:'12/x = 4 → x = 12 · 4', right:'x = 12 : 4 = 3', why:'Z rovnosti 12 = 4x plyne x = 12 : 4.'},
+   {wrong:'Vyřeším a vynechám podmínku', right:'Vždy uveď podmínku x ≠ 0 a ověř kořen', why:'Kořen shodný s vyloučenou hodnotou neplatí.'},
+   {wrong:'Násobím jmenovatelem jen jednu stranu', right:'Násobíš OBĚ strany rovnice', why:'Ekvivalentní úprava musí zasáhnout celou rovnici.'},
+  ],
   intro: 'Rovnice s neznámou ve jmenovateli — podmínky jsou nutnost.',
   sections: [
     {
@@ -700,6 +760,11 @@ window.RPG_LEARN_9 = {
 },
 
 '5-1': {
+  mistakes: [
+   {wrong:'Sečtu rovnice (5x + y) + (3x − y) = 8x + 2y', right:'Vyjde 8x (y se vyruší)', why:'+y a −y dají dohromady nulu — to je smysl sčítací metody.'},
+   {wrong:'Při odčítání změním znaménko jen prvního členu', right:'Změň znaménko VŠECH členů odčítané rovnice', why:'−(3x − y) = −3x + y.'},
+   {wrong:'Najdu x a skončím', right:'Dosaď x zpět a dopočítej y', why:'Řešením soustavy je DVOJICE [x, y].'},
+  ],
   intro: 'Soustava dvou rovnic — dvě podmínky, jedna odpověď.',
   sections: [
     {
@@ -758,6 +823,11 @@ window.RPG_LEARN_9 = {
 },
 
 '5-2': {
+  mistakes: [
+   {wrong:'Koncentrace směsi = průměr obou procent', right:'Vážený průměr: (m₁·p₁ + m₂·p₂) : (m₁ + m₂)', why:'Rozhoduje množství každé složky, ne jen procenta.'},
+   {wrong:'2 dělníci za 6 h → 1 dělník za 3 h', right:'1 dělník za 12 h', why:'Méně dělníků → DELŠÍ čas (nepřímá úměra).'},
+   {wrong:'20% roztok = vždy 20 g soli', right:'20 % ze skutečné hmotnosti roztoku', why:'Procento se počítá z dané hmotnosti, ne paušálně.'},
+  ],
   intro: 'Soustavy v praxi — směsi a spolupráce.',
   sections: [
     {
@@ -815,6 +885,11 @@ window.RPG_LEARN_9 = {
 },
 
 '5-3': {
+  mistakes: [
+   {wrong:'t = v · s', right:'t = s : v', why:'Čas je dráha dělená rychlostí.'},
+   {wrong:'Jedou proti sobě → rychlosti odečtu', right:'Sbližovací rychlost = SOUČET rychlostí', why:'Vzdálenost mezi nimi ubývá součtem obou rychlostí.'},
+   {wrong:'Jedou stejným směrem → rychlosti sečtu', right:'Náskok roste ROZDÍLEM rychlostí', why:'Rychlejší se vzdaluje rozdílem rychlostí.'},
+  ],
   intro: 'Pohybové úlohy — dráha, rychlost, čas.',
   sections: [
     {
@@ -873,6 +948,11 @@ window.RPG_LEARN_9 = {
 },
 
 '6-1': {
+  mistakes: [
+   {wrong:'f(x) = 3x + 2, tedy f(4) = 3 + 2·4', right:'f(4) = 3·4 + 2 = 14', why:'Dosaď za KAŽDÉ x hodnotu 4.'},
+   {wrong:'Průsečík s osou y hledám dosazením y = 0', right:'Osu y: dosaď x = 0', why:'Na ose y je x = 0, vyjde y = q.'},
+   {wrong:'Směrnice k je číslo q', right:'k je koeficient u x, q je posun', why:'V zápisu y = kx + q je k směrnice.'},
+  ],
   intro: 'Lineární funkce y = kx + q — základ analytické geometrie.',
   sections: [
     {
@@ -929,6 +1009,11 @@ window.RPG_LEARN_9 = {
 },
 
 '6-2': {
+  mistakes: [
+   {wrong:'y = −2x + 5 je rostoucí', right:'Je KLESAJÍCÍ', why:'Záporná směrnice (k < 0) → funkce klesá.'},
+   {wrong:'Konstantní funkce y = 3 je rostoucí', right:'Není rostoucí ani klesající', why:'Směrnice k = 0, hodnota se nemění.'},
+   {wrong:'Průsečík s osou x hledám dosazením x = 0', right:'Osu x: dosaď y = 0', why:'Na ose x je y = 0.'},
+  ],
   intro: 'Vlastnosti lineárních funkcí a průsečíky přímek.',
   sections: [
     {
@@ -988,6 +1073,11 @@ window.RPG_LEARN_9 = {
 },
 
 '6-3': {
+  mistakes: [
+   {wrong:'y = 12/x je přímá úměrnost', right:'Je NEPŘÍMÁ úměrnost', why:'Konstantní je součin x·y = k, ne podíl.'},
+   {wrong:'y = k/x je definováno i pro x = 0', right:'x ≠ 0', why:'Dělení nulou není definováno.'},
+   {wrong:'Větší x → větší y', right:'Větší x → MENŠÍ y', why:'U nepřímé úměrnosti hodnota klesá.'},
+  ],
   intro: 'Nepřímá úměra y = k/x — hyperbola v síti.',
   sections: [
     {
@@ -1042,6 +1132,11 @@ window.RPG_LEARN_9 = {
 },
 
 '7-1': {
+  mistakes: [
+   {wrong:'Koeficient podobnosti = rozdíl odpovídajících stran', right:'k = PODÍL odpovídajících stran (a′ : a)', why:'Podobnost mění velikost násobením, ne přičítáním.'},
+   {wrong:'Obsahy podobných útvarů jsou v poměru k', right:'V poměru k²', why:'Obsah roste s DRUHOU mocninou koeficientu.'},
+   {wrong:'Měřítko 1 : 500, úsek 3 cm = 3·500 = 1500 m', right:'1500 cm = 15 m', why:'Skutečnou délku v cm ještě převeď na metry (: 100).'},
+  ],
   intro: 'Podobnost trojúhelníků a měřítko — zachování tvaru.',
   sections: [
     {
@@ -1099,6 +1194,11 @@ window.RPG_LEARN_9 = {
 },
 
 '7-2': {
+  mistakes: [
+   {wrong:'Objem kužele = π·r²·v', right:'V = 1/3 · π·r²·v', why:'Kužel má TŘETINU objemu válce se stejnou podstavou a výškou.'},
+   {wrong:'Povrch válce = 2πr·v (jen plášť)', right:'S = 2πr² + 2πrv', why:'K plášti musíš přičíst dvě kruhové podstavy.'},
+   {wrong:'Zaměním poloměr r a průměr d', right:'r = d : 2', why:'Poloměr je polovina průměru — hlídej, co je v zadání.'},
+  ],
   intro: 'Objem a povrch rotačních těles — válec, kužel, koule.',
   sections: [
     {
@@ -1156,6 +1256,11 @@ window.RPG_LEARN_9 = {
 },
 
 '7-3': {
+  mistakes: [
+   {wrong:'U slovní úlohy nenapíšu závěrečnou odpověď', right:'Vždy napiš odpověď včetně jednotky', why:'CERMAT strhává body za chybějící nebo špatnou jednotku.'},
+   {wrong:'Zaokrouhlím mezivýsledek a počítám s ním dál', right:'Zaokrouhluj až úplně nakonec', why:'Zaokrouhlování mezivýsledků kumuluje chybu.'},
+   {wrong:'Řeším úlohy popořadě a na těžké mi nezbude čas', right:'Nejdřív jisté úlohy, těžké nech nakonec', why:'Každá úloha má váhu — sbírej jisté body dřív.'},
+  ],
   intro: 'Finální mise — přehled všeho a přijímačkové tipy.',
   sections: [
     {
