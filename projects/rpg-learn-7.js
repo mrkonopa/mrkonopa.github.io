@@ -13,7 +13,7 @@ window.RPG_LEARN_7 = {
  mistakes: [
   {wrong:'47 × 98 mi vyšlo 460 a beru to', right:'47 × 98 = 4 606', why:'Odhad 50 × 100 = 5 000 ukazuje řád tisíců. 460 je 10× menší — takový rozdíl od odhadu znamená chybu (posunutý řád).'},
   {wrong:'8 × 7 = 8 × 5 + 2 = 42', right:'8 × 5 + 8 × 2 = 40 + 16 = 56', why:'Při rozkladu se OBĚ části násobí osmi (distributivnost), druhá se jen nepřičte.'},
-  {wrong:'360 : 8 mezikrokem 360 : 4 : 2 = 40', right:'360 : 4 = 90, pak 90 : 2 = 45', why:'Postupné dělení jde krok po kroku zleva; sloučení kroků dá špatný mezivýsledek.'},
+  {wrong:'360 : 8 přes 360 : 4 : 2 = 40', right:'360 : 4 = 90, pak 90 : 2 = 45', why:'Rozklad 360 : 4 : 2 je správná metoda, jen pozor na aritmetiku: 360 : 4 = 90 (ne 20), potom 90 : 2 = 45.'},
  ],
  intro: '⛏️ Strážce karavany tě testuje u brány chrámu: „Kdo neumí počítat zpaměti, dovnitř nevejde." Zopakuj si mentální triky a projdi branou!',
  sections: [
@@ -71,7 +71,7 @@ window.RPG_LEARN_7 = {
   { h: 'Dělení — zbav se desetinné čárky ve jmenovateli',
     p: ['<b>Trik:</b> vynásob oba členy stejnou mocninou 10, aby byl dělitel celé číslo.',
         '4,5 : 0,3 = 45 : 3 = <b>15</b>. &emsp; 8,4 : 1,2 = 84 : 12 = <b>7</b>.',
-        '<span style="color:#ff5555">⚠️ Pozor:</span> 9,6 : 0,4 = 96 : 4 = <b>30</b>. Výsledek je <i>větší</i> než 9,6 — dělíme číslem menším než 1, takže výsledek roste!'] },
+        '<span style="color:#ff5555">⚠️ Pozor:</span> 9,6 : 0,4 = 96 : 4 = <b>24</b>. Výsledek je <i>větší</i> než 9,6 — dělíme číslem menším než 1, takže výsledek roste!'] },
  ],
  formulas: [
   '<b>a,bc × 10 = ab,c</b> (posun čárky o 1 vpravo)',
@@ -388,7 +388,7 @@ window.RPG_LEARN_7 = {
   {wrong:'4 sešity 52 Kč, 1 sešit = 52 × 4', right:'1 sešit = 52 : 4 = 13 Kč', why:'Na jeden kus se dělí (méně kusů → nižší cena), ne násobí.'},
   {wrong:'3 kg = 90 Kč, tak 5 kg = 90 + 2 = 92 Kč', right:'1 kg = 30 Kč, 5 kg = 150 Kč', why:'Úměra není přičítání kilogramů ke koruně. Spočítej cenu za jednotku a přenásob.'},
  ],
- intro: '🐪 Pán karavany potřebuje vědět, za jak dlouho dorazí do oázy. Trojčlenka a přímá úměrnost ho dovedou cíle!',
+ intro: '🐪 Pán karavany potřebuje vědět, za jak dlouho dorazí do oázy. Trojčlenka a přímá úměrnost ho dovedou k cíli!',
  sections: [
   { h: 'Přímá úměrnost',
     p: ['Dvě veličiny jsou <b>přímo úměrné</b>, pokud se jejich poměr nemění: y/x = k (konstanta úměrnosti).',
@@ -655,7 +655,7 @@ window.RPG_LEARN_7 = {
         '<b>Věta usu (= ASA):</b> jedna strana a dva přilehlé úhly.',
         '<b>Věta Ssu (přepona + odvěsna):</b> platí pro pravoúhlé trojúhelníky (přepona + 1 odvěsna).'] },
   { h: 'Pozor: SSU obecně neplatí',
-    p: ['Dvě strany a <i>nepřilehlý</i> úhel (SSU / AAS) obecně <b>nestačí</b> ke shodnosti — existují dva různé trojúhelníky splňující tyto podmínky.',
+    p: ['Dvě strany a <i>nepřilehlý</i> úhel (SSU) obecně <b>nestačí</b> ke shodnosti — existují dva různé trojúhelníky splňující tyto podmínky.',
         'Výjimka: pro pravoúhlé trojúhelníky věta Ssu funguje.'] },
   { h: 'Jak zapsat shodnost',
     p: ['Pořadí vrcholů v zápisu △ABC ≅ △DEF musí odpovídat: A↔D, B↔E, C↔F.',
@@ -663,7 +663,7 @@ window.RPG_LEARN_7 = {
  ],
  formulas: [
   '<b>Věta sss:</b> a=a\', b=b\', c=c\'',
-  '<b>Věta sus:</b> a=a\', included angle stejný, c=c\'',
+  '<b>Věta sus:</b> a=a\', úhel jimi sevřený stejný, c=c\'',
   '<b>Věta usu:</b> a=a\', α=α\', β=β\'',
  ],
  examples: [

@@ -129,7 +129,7 @@ function gen_2_2(){
 // 2-3 Zlomky a průměr
 function gen_2_3(){
   const T=[
-    ()=>{const d=ri(4,9),a=ri(1,d-2),b=ri(1,d-a-1)||1;const num=a+b,g=gcd(num,d);return{text:`Sečti zlomky se stejným jmenovatelem: ${a}/${d} + ${b}/${d} = ?`,ans:g===d?String(num/g):`${num/g}/${d/g}`,h1:'Jmenovatel opiš, sčítej jen čitatele.',h2:`${a}+${b} = ${num}, tedy ${num}/${d}`};},
+    ()=>{const d=ri(4,9),a=ri(1,d-2),b=ri(1,d-a-1)||1;const num=a+b,g=gcd(num,d);const red=g===d?String(num/g):`${num/g}/${d/g}`;return{text:`Sečti zlomky se stejným jmenovatelem: ${a}/${d} + ${b}/${d} = ?`,ans:red,h1:'Jmenovatel opiš, sčítej jen čitatele.',h2:`${a}+${b} = ${num}, tedy ${num}/${d}${g>1?' = '+red:''}`};},
     ()=>{const e=ri(5,9),c=ri(2,e-1),f=ri(1,c-1)||1;const numD=c-f,gD=gcd(numD,e);return{text:`Odečti zlomky: ${c}/${e} − ${f}/${e} = ?`,ans:numD===0?'0':(gD===e?String(numD/gD):`${numD/gD}/${e/gD}`),h1:'Jmenovatel opiš, odečti čitatele.',h2:`${c}−${f} = ${numD}, tedy ${numD}/${e}`};},
     ()=>{const x=ri(2,9)*2,y=ri(2,9)*2;return{text:`Jaký je aritmetický průměr čísel ${x} a ${y}?`,ans:(x+y)/2,h1:'Sečti obě čísla a vyděl dvěma.',h2:`(${x}+${y}) : 2 = ${(x+y)/2}`};},
     ()=>{const p=ri(2,9),q=ri(2,9),rr=3*ri(3,9)-p-q;return{text:`Jaký je průměr tří čísel ${p}, ${q} a ${rr}?`,ans:(p+q+rr)/3,h1:'Sečti všechna tři a vyděl třemi.',h2:`(${p}+${q}+${rr}) : 3 = ${(p+q+rr)/3}`};},
@@ -138,7 +138,7 @@ function gen_2_3(){
     ()=>{const z1=ri(1,3),z2=ri(1,3),z3=ri(1,4),z4=ri(1,4);return{text:`Žák má známky ${z1}, ${z2}, ${z3}, ${z4}. Jaký je jejich průměr? (na 2 desetinná místa)`,ans:r2((z1+z2+z3+z4)/4),h1:'Sečti všechny čtyři známky a vyděl čtyřmi.',h2:`= ${r2((z1+z2+z3+z4)/4)}`};},
     ()=>{const d=ri(4,9),a=ri(1,d-1);return{text:`Kolik ${d}tin chybí zlomku ${a}/${d} do celku ${d}/${d}? (napiš jen čitatel)`,ans:d-a,h1:`Celek je ${d}/${d}, odečti ${a}.`,h2:`= ${d-a}`};},
     ()=>{const avg=ri(4,12),x=avg-ri(1,3),y=2*avg-x;return{text:`Průměr dvou čísel je ${avg}, první je ${x}. Jaké je druhé číslo?`,ans:y,h1:`Součet obou = ${avg} × 2 = ${avg*2}, odečti první.`,h2:`= ${y}`};},
-    ()=>{const d=ri(4,9),a=ri(1,d-1),b=ri(1,d-1);const va=a,vb=b;return{text:`Který zlomek je větší: ${a}/${d}, nebo ${b}/${d}? Napiš jeho čitatel.${a===b?' (jsou stejné — napiš '+a+')':''}`,ans:Math.max(a,b),h1:'Při stejném jmenovateli rozhoduje čitatel.',h2:`= ${Math.max(a,b)}`};},
+    ()=>{const d=ri(4,9),a=ri(1,d-1);let b=ri(1,d-1);while(b===a)b=ri(1,d-1);return{text:`Který zlomek je větší: ${a}/${d}, nebo ${b}/${d}? Napiš jeho čitatel.`,ans:Math.max(a,b),h1:'Při stejném jmenovateli rozhoduje čitatel.',h2:`= ${Math.max(a,b)}`};},
     ()=>{const parts=ri(3,5),cel=parts*ri(4,9),cast=cel/parts*(parts-1);return{text:`Pizza má ${parts} stejných dílů, snědli ${parts-1} z nich. Kolik ${parts}tin zbylo? (napiš jen čitatel)`,ans:1,h1:`Z ${parts} dílů zbývá ${parts}−${parts-1}.`,h2:`= 1`};},
     ()=>{const d=ri(4,8),a=ri(1,d-2),b=ri(1,d-a-1)||1;const num=a+b;const ok=num===d;return{text:`Dají zlomky ${a}/${d} + ${b}/${d} dohromady přesně jeden celek?`,ans:ok?'ANO':'NE',h1:`Celek je ${d}/${d}. Je ${a}+${b} rovno ${d}?`,h2:ok?'ANO':'NE'};},
   ];
@@ -180,7 +180,7 @@ function gen_3_2(){
   const T=[
     ()=>{const p=primes[ri(0,9)];return{text:`Je číslo ${p} prvočíslo?`,ans:'ANO',h1:'Prvočíslo má právě dva dělitele: 1 a samo sebe.',h2:'ANO'};},
     ()=>{const c=ri(2,9)*ri(2,9);const ok=isP(c);return{text:`Je číslo ${c} prvočíslo?`,ans:ok?'ANO':'NE',h1:'Má víc než dva dělitele → není prvočíslo.',h2:ok?'ANO':'NE — je složené'};},
-    ()=>{const n=ri(6,30);return{text:`Kolik dělitelů má číslo ${n}?`,ans:divc(n),h1:`Vypiš všechna čísla, kterými ${n} vydělíš beze zbytku.`,h2:`${n} má ${divc(n)} dělitelů`};},
+    ()=>{const n=ri(6,30);return{text:`Kolik dělitelů má číslo ${n}?`,ans:divc(n),h1:`Vypiš všechna čísla, kterými ${n} vydělíš beze zbytku.`,h2:`${n} má ${divc(n)} ${skl(divc(n),'dělitele','dělitele','dělitelů')}`};},
     ()=>{const m=ri(2,6)*ri(2,6);let sf=2;while(m%sf!==0)sf++;return{text:`Jaký je nejmenší prvočíselný dělitel čísla ${m}?`,ans:sf,h1:'Zkoušej postupně 2, 3, 5, 7…',h2:`= ${sf}`};},
     ()=>{const b=ri(3,9),mult=b*ri(2,6);return{text:`Je číslo ${b} dělitelem čísla ${mult}?`,ans:mult%b===0?'ANO':'NE',h1:`Vejde se ${b} do ${mult} beze zbytku?`,h2:'ANO'};},
     ()=>{const c=ri(2,9)*ri(2,9);const ok=!isP(c);return{text:`Je číslo ${c} složené (má víc než dva dělitele)?`,ans:ok?'ANO':'NE',h1:'Složené číslo lze rozložit na součin menších činitelů.',h2:ok?'ANO':'NE'};},
@@ -212,8 +212,8 @@ function gen_3_3(){
   const primesS=[2,3,5,7,11];const x=primesS[ri(0,4)],y=primesS[ri(0,4)];
   if(x!==y){tasks.push({text:`NSD(${x}, ${y}) dvou různých prvočísel = ?`,ans:1,hints:['Různá prvočísla nemají společný dělitel kromě 1.','= 1'],skill:'anal'});}
   else{tasks.push({text:`NSD(${x}, ${x*2}) = ?`,ans:x,hints:['Menší dělí větší.',`= ${x}`],skill:'anal'});}
-  const i=ri(2,5),j=ri(2,5);
-  tasks.push({text:`NSN(${i}, ${j}) když jsou nesoudělné: jen vynásob. Výsledek?`,ans:gcd(i,j)===1?i*j:lcm(i,j),hints:['Nesoudělná čísla: NSN = součin.',`= ${gcd(i,j)===1?i*j:lcm(i,j)}`],skill:'anal'});
+  const copP=[[2,3],[3,4],[2,5],[3,5],[4,5],[2,7],[3,7],[5,6]];const[i,j]=copP[ri(0,copP.length-1)];
+  tasks.push({text:`Čísla ${i} a ${j} jsou nesoudělná. Jejich nejmenší společný násobek NSN(${i}, ${j}) = ?`,ans:i*j,hints:['Nesoudělná čísla: NSN = jejich součin.',`${i}·${j} = ${i*j}`],skill:'anal'});
   { const a=ri(2,6)*ri(2,5),b=ri(2,6)*ri(2,5); tasks.push({text:`Najdi NSD(${a}, ${b}).`,ans:gcd(a,b),hints:['Rozlož na prvočinitele a vyber společné.',`NSD = ${gcd(a,b)}`],skill:'anal'}); }
   { const a=ri(2,8),b=ri(2,8),L=a/gcd(a,b)*b; tasks.push({text:`Najdi NSN(${a}, ${b}).`,ans:L,hints:['NSN = a·b / NSD.',`NSN = ${L}`],skill:'anal'}); }
   { const e2=ri(3,9),f2=e2*ri(2,4); tasks.push({text:`NSD(${e2}, ${f2}) = ? (${f2} je násobek ${e2})`,ans:e2,hints:['Když menší dělí větší, NSD = menší.',`= ${e2}`],skill:'anal'}); }
@@ -321,10 +321,10 @@ function gen_5_2(){
   const tasks=[];
   // osa = osa y → x se mění na -x
   const x=ri(1,8),y=ri(1,8);
-  tasks.push({text:`Bod A [${x}, ${y}] zobraz v osové souměrnosti podle osy y. Jaká je x-souřadnice obrazu?`,ans:-x,hints:['Podle osy y se mění znaménko x.',`x' = −${x} = ${-x}`],skill:'geo'});
+  tasks.push({text:`Bod A [${x}, ${y}] zobraz v osové souměrnosti podle osy y. Jaká je x-souřadnice obrazu?`,ans:-x,hints:['Podle osy y se mění znaménko x.',`x' = ${-x}`],skill:'geo'});
   // osa = osa x → y se mění na -y
   const x2=ri(1,8),y2=ri(1,8);
-  tasks.push({text:`Bod B [${x2}, ${y2}] zobraz podle osy x. Jaká je y-souřadnice obrazu?`,ans:-y2,hints:['Podle osy x se mění znaménko y.',`y' = −${y2} = ${-y2}`],skill:'geo'});
+  tasks.push({text:`Bod B [${x2}, ${y2}] zobraz podle osy x. Jaká je y-souřadnice obrazu?`,ans:-y2,hints:['Podle osy x se mění znaménko y.',`y' = ${-y2}`],skill:'geo'});
   // vzdálenost od osy se zachová
   const d=ri(2,9);
   tasks.push({text:`Bod je ${d} cm od osy souměrnosti. Jak daleko je jeho obraz od osy?`,ans:d,hints:['Obraz je ve stejné vzdálenosti jako vzor.',`= ${d} cm`],skill:'geo'});

@@ -277,7 +277,7 @@ window.RPG_LEARN_5 = {
     ],
     mistakes: [
       { wrong: '5 km = 500 m', right: '5 000 m', why: '1 km = 1000 m (tři nuly), ne 100 m. 5 × 1000 = 5 000.' },
-      { wrong: '1 m = 10 cm', right: '1 m = 100 cm', why: 'Metr má 100 cm. Deset má cm na milimetry (1 cm = 10 mm).' },
+      { wrong: '1 m = 10 cm', right: '1 m = 100 cm', why: 'Metr má 100 cm. Deset platí až u převodu centimetrů na milimetry (1 cm = 10 mm).' },
     ],
     video: null
   },

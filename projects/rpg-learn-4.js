@@ -247,7 +247,7 @@ window.RPG_LEARN_4 = {
     video: null
   },
   '5-3': {
-    intro: 'Souřadnice bodů a souřadnicová síť.',
+    intro: 'Souřadnice bodů, souřadnicová síť a osy souměrnosti.',
     sections: [
       { title: 'Souřadnicová síť', body: 'V síti určujeme polohu bodu dvojicí čísel (x, y). První číslo je vzdálenost od svislé osy (vpravo), druhé od vodorovné osy (nahoru). Píšeme do závorky: bod A(3, 4).' },
       { title: 'Osy souměrnosti', body: 'Osa souměrnosti je přímka, která dělí tvar na dvě stejné (zrcadlové) části. Obdélník má 2 osy, čtverec má 4 osy souměrnosti.' },
@@ -323,7 +323,7 @@ window.RPG_LEARN_4 = {
       { title: 'Od tisíce k milionu', body: '1 000 = tisíc\n10 000 = deset tisíc\n100 000 = sto tisíc\n1 000 000 = jeden milion = 1 000 tisíc.' },
       { title: 'Zápis velkých čísel', body: 'Velká čísla píšeme s mezerou po každých třech cifrách zprava: 345 678 (tři sta čtyřicet pět tisíc šest set sedmdesát osm).' },
     ],
-    formulas: ['1 000 000 = 10³ × 10³ = milion'],
+    formulas: ['1 000 000 = 1 000 × 1 000 = milion'],
     examples: [
       { q: 'Jak zapíšeme: dvě stě třicet tisíc šest set deset?', a: '230 610' },
       { q: 'Kolik tisíců je v čísle 405 000?', a: '405 tisíc' },

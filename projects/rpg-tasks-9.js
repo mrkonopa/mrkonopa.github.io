@@ -39,8 +39,8 @@ window.RPG_TASK_EXTRA_9 = {
   (()=>{const z=ri(3,9)*100,p=[10,20,50][ri(0,2)];return{text:`Plat ${z} Kč vzroste o ${p} %.\nNový plat? (Kč)`,ans:String(z+z*p/100),hints:[`+ ${z*p/100} Kč.`],skill:'anal'};})(),
   (()=>{const z=ri(2,8)*100,dph=21;return{text:`Cena bez DPH: ${z} Kč.\nCena s DPH 21 %? (Kč, zaokrouhli)`,ans:String(Math.round(z*1.21)),hints:[`${z} × 1,21.`],skill:'anal'};})(),
   (()=>{const z=ri(3,8)*100,p=[10,20,50][ri(0,2)];return{text:`Cena po ${p}% slevě z ${z} Kč? (Kč)`,ans:String(z-z*p/100),hints:[`Sleva = ${z*p/100} Kč.`],skill:'anal'};})(),
-  (()=>{const a=ri(2,5)*10,b=ri(2,5)*10;return{text:`Kolik % je ${a} z ${a+b}?`,ans:String(Math.round(a/(a+b)*100)),hints:[`${a} : ${a+b} × 100.`],skill:'anal'};})(),
-  (()=>{const z=ri(2,8)*100,p=[10,25,50][ri(0,2)];const after=z*(1+p/100);return{text:`Po zdražení o ${p} % stojí zboží ${after} Kč.\nPůvodní cena? (Kč)`,ans:String(z),hints:[`${after} : ${cz(1+p/100)}.`],skill:'anal'};})(),
+  (()=>{const a=ri(2,5)*10,b=ri(2,5)*10;return{text:`Kolik % je ${a} z ${a+b}? (zaokrouhli na celá %)`,ans:String(Math.round(a/(a+b)*100)),hints:[`${a} : ${a+b} × 100.`],skill:'anal'};})(),
+  (()=>{const z=ri(2,8)*100,p=[10,25,50][ri(0,2)];const after=Math.round(z*(1+p/100));return{text:`Po zdražení o ${p} % stojí zboží ${after} Kč.\nPůvodní cena? (Kč)`,ans:String(z),hints:[`${after} : ${cz(1+p/100)}.`],skill:'anal'};})(),
   (()=>{const z=ri(3,9)*100,p=[10,20,25][ri(0,2)];return{text:`O kolik korun se změní cena ${z} Kč při slevě ${p} %?`,ans:String(z*p/100),hints:[`Změna = ${z} × ${p} : 100.`],skill:'anal'};})(),
   (()=>{const cel=ri(4,9)*20,cast=cel/4;return{text:`Kolik procent celku tvoří jeho čtvrtina (${cast} z ${cel})?`,ans:'25',hints:[`Čtvrtina je vždy 25 %.`],skill:'anal'};})()
  ],
@@ -87,16 +87,16 @@ window.RPG_TASK_EXTRA_9 = {
   (()=>{const a=ri(2,3);return{text:`Kolik je převrácená hodnota, tedy ${a}^(−1)? Zapiš jako zlomek 1/${a}.`,ans:`1/${a}`,hints:[`Záporný exponent −1 dává převrácenou hodnotu.`],skill:'anal'};})()
  ],
  '2-3': () => [
-  (()=>{const a=ri(2,9),n=ri(2,4),v=a*(10**n);return{text:`Vyjádři jako běžné číslo:\n${a}·10^${n} =`,ans:String(v),hints:[`Posuň čárku o ${n} míst doprava.`],skill:'anal'};})(),
+  (()=>{const a=ri(2,9),n=ri(2,4),v=a*(10**n);return{text:`Vyjádři jako běžné číslo:\n${a}·10^${n} =`,ans:String(v),hints:[`Posuň čárku o ${n} ${skl(n,'místo','místa','míst')} doprava.`],skill:'anal'};})(),
   (()=>{const a=ri(2,9),n=ri(3,6),v=a*(10**n);return{text:`${v.toLocaleString('cs-CZ')} = ${a}·10ⁿ.\nJaké je n?`,ans:String(n),hints:[`Počet posunů čárky.`],skill:'anal'};})(),
   (()=>{const t=[[3,4,5],[6,8,10],[5,12,13],[9,12,15],[8,15,17]][ri(0,4)];return{svg:svgTriangle('pravo',{v:['C','A','B']}),text:`Pravoúhlý trojúhelník, odvěsny ${t[0]} a ${t[1]} cm.\nPřepona c? (cm)`,ans:String(t[2]),hints:[`c² = ${t[0]*t[0]} + ${t[1]*t[1]}.`,`c = √${t[2]*t[2]}`],skill:'geo'};})(),
   (()=>{const t=[[3,4,5],[6,8,10],[5,12,13],[8,15,17]][ri(0,3)];return{svg:svgTriangle('pravo',{v:['C','A','B']}),text:`Pravoúhlý trojúhelník: přepona ${t[2]} cm, odvěsna ${t[1]} cm.\nDruhá odvěsna? (cm)`,ans:String(t[0]),hints:[`a² = ${t[2]*t[2]} − ${t[1]*t[1]}.`],skill:'geo'};})(),
   (()=>{const a=ri(2,9);return{text:`Vypočítej:\n√(${a}²·10⁶) =`,ans:String(a*1000),hints:[`√10⁶ = 1000, √(${a}²) = ${a}.`],skill:'anal'};})(),
   (()=>{const a=ri(2,9),n=ri(2,4);return{text:`Číslo 0,${'0'.repeat(n-1)}${a} zapiš jako ${a}·10ⁿ.\nn = ? (záporné)`,ans:String(-n),hints:[`Malá čísla → záporný exponent.`],skill:'anal'};})(),
   (()=>{const t=[[3,4,5],[5,12,13],[8,15,17]][ri(0,2)],k=ri(2,3);return{svg:svgTriangle('pravo',{v:['C','A','B']}),text:`Pravoúhlý trojúhelník, odvěsny ${t[0]*k} a ${t[1]*k} cm.\nPřepona? (cm)`,ans:String(t[2]*k),hints:[`c² = ${(t[0]*k)**2} + ${(t[1]*k)**2}.`,`c = ${t[2]*k}`],skill:'geo'};})(),
-  (()=>{const a=ri(1,9),n=ri(2,4);return{text:`Zapiš číslem:\n${a} · 10^${n} =`,ans:String(a*10**n),hints:[`Posuň čárku o ${n} míst doprava.`],skill:'anal'};})(),
+  (()=>{const a=ri(1,9),n=ri(2,4);return{text:`Zapiš číslem:\n${a} · 10^${n} =`,ans:String(a*10**n),hints:[`Posuň čárku o ${n} ${skl(n,'místo','místa','míst')} doprava.`],skill:'anal'};})(),
   (()=>{const a=ri(1,9),n=ri(3,5);return{text:`${a*10**n} = ${a} · 10^n.\nJaké je n?`,ans:String(n),hints:[`Počet nul za číslem ${a}.`],skill:'anal'};})(),
-  (()=>{const a=ri(2,9),n=ri(1,3);return{text:`Zapiš číslem:\n${a} · 10^${n}`,ans:String(a*10**n),hints:[`Posuň čárku o ${n} míst doprava.`],skill:'anal'};})()
+  (()=>{const a=ri(2,9),n=ri(1,3);return{text:`Zapiš číslem:\n${a} · 10^${n}`,ans:String(a*10**n),hints:[`Posuň čárku o ${n} ${skl(n,'místo','místa','míst')} doprava.`],skill:'anal'};})()
  ],
 
  // ───────── OBLAST 3 — ROVNICOVÝ PROCESOR ─────────
@@ -117,7 +117,7 @@ window.RPG_TASK_EXTRA_9 = {
  '3-2': () => [
   (()=>{const a=ri(2,6),x=ri(2,9),b=ri(1,8);return{text:`Vyřeš rovnici:\n${a}(x + ${b}) = ${a*(x+b)}`,ans:String(x),hints:[`Roznásob: ${a}x + ${a*b}.`],skill:'anal'};})(),
   (()=>{const a=ri(2,5),x=ri(2,9),b=ri(1,6);return{text:`Vyřeš rovnici:\n${a}(x − ${b}) = ${a*(x-b)}`,ans:String(x),hints:[`Roznásob: ${a}x − ${a*b}.`],skill:'anal'};})(),
-  (()=>{const x=ri(2,9),a=ri(3,6),d=ri(1,2),b=ri(2,8),cR=(a-d)*x;return{text:`Vyřeš rovnici:\n${a}x + ${b} = ${d}x + ${cR+b}`,ans:String(x),hints:[`x doleva: ${a-d}x = ${cR}.`],skill:'anal'};})(),
+  (()=>{const x=ri(2,9),a=ri(3,6),d=ri(1,2),b=ri(2,8),cR=(a-d)*x;return{text:`Vyřeš rovnici:\n${a}x + ${b} = ${d===1?'':d}x + ${cR+b}`,ans:String(x),hints:[`x doleva: ${a-d===1?'':a-d}x = ${cR}.`],skill:'anal'};})(),
   (()=>{const x=ri(2,8),a=ri(2,7);return{text:`Vyřeš rovnici:\n2(x + ${a}) = ${2*(x+a)}`,ans:String(x),hints:[`x + ${a} = ${x+a}.`],skill:'anal'};})(),
   (()=>{const x=ri(2,6),a=ri(2,4),bb=ri(2,3),e=ri(1,5);return{text:`Vyřeš rovnici:\n${a}(${bb}x − ${e}) = ${a*(bb*x-e)}`,ans:String(x),hints:[`${a*bb}x − ${a*e}.`],skill:'anal'};})(),
   (()=>{const x=ri(3,9),a=ri(2,5);return{text:`Vyřeš rovnici:\n5x − ${a} = 3x + ${2*x-a}`,ans:String(x),hints:[`2x = ${2*x}.`],skill:'anal'};})(),
@@ -162,7 +162,7 @@ window.RPG_TASK_EXTRA_9 = {
   (()=>{const b=ri(2,6),x=b*ri(2,6),a=ri(1,9);return{text:`Urči hodnotu zlomku (x + ${a})/${b} pro x = ${x-a}.`,ans:String(x/b),hints:[`(${x-a} + ${a}) : ${b}.`],skill:'anal'};})(),
   (()=>{const x=ri(2,6),a=ri(2,5),c=ri(1,4)*x;return{text:`Zkrať lomený výraz (${a}x + ${c}) / x a dosaď x = ${x}.`,ans:String(a+c/x),hints:[`Vyjde ${a} + ${c}/x = ${a} + ${c/x}.`],skill:'anal'};})(),
   (()=>{const x=ri(2,6),k=ri(2,8)*x;return{text:`Vyčísli ${k}/x pro x = ${x}.`,ans:String(k/x),hints:[`${k} : ${x}.`],skill:'anal'};})(),
-  (()=>{const x=ri(3,8),n=ri(1,x-1);return{text:`Zkrať a vyčísli (x² − ${n*x}) / x pro x = ${x}. Výsledek?`,ans:String(x-n),hints:[`Vytkni x: x − ${n} = ${x} − ${n}.`],skill:'anal'};})(),
+  (()=>{const x=ri(3,8),n=ri(1,x-1);return{text:`Zkrať a vyčísli (x² − ${n===1?'':n}x) / x pro x = ${x}. Výsledek?`,ans:String(x-n),hints:[`Vytkni x: x·(x − ${n}) / x = x − ${n} = ${x} − ${n}.`],skill:'anal'};})(),
   (()=>{const x=ri(2,8),a=ri(2,6);return{text:`Kolik je ${a}/x + 1, dosadíš-li x = ${a}?`,ans:'2',hints:[`${a}/${a} = 1, tedy 1 + 1.`],skill:'anal'};})(),
   (()=>{const x=ri(2,6),a=ri(2,5);const val=a*x;return{text:`Sečti dva stejné zlomky: ${a}·x / x pro x = ${x}. Jaká je hodnota?`,ans:String(a),hints:[`${a}·x / x = ${a} (x se zkrátí).`],skill:'anal'};})()
  ],
@@ -195,15 +195,15 @@ window.RPG_TASK_EXTRA_9 = {
  ],
  '5-2': () => [
   (()=>{const m=ri(2,8)*50,p=[10,20,25,50][ri(0,3)];return{text:`Roztok ${m} g obsahuje ${p} % soli.\nKolik g soli?`,ans:String(m*p/100),hints:[`${p} % z ${m}.`],skill:'anal'};})(),
-  (()=>{const s=ri(2,9)*10,m=s*ri(4,8);return{text:`Roztok ${m} g, v něm ${s} g soli.\nKolik %?`,ans:String(Math.round(s/m*100)),hints:[`${s} : ${m} × 100.`],skill:'anal'};})(),
-  (()=>{const t=ri(4,10);return{text:`Práci zvládne dělník za ${t} h.\nKolik % udělá za 1 h?`,ans:String(Math.round(100/t)),hints:[`100 : ${t}.`],skill:'anal'};})(),
+  (()=>{const s=ri(2,9)*10,m=s*ri(4,8);return{text:`Roztok ${m} g, v něm ${s} g soli.\nKolik %? (zaokrouhli na celá %)`,ans:String(Math.round(s/m*100)),hints:[`${s} : ${m} × 100.`],skill:'anal'};})(),
+  (()=>{const t=ri(4,10);return{text:`Práci zvládne dělník za ${t} h.\nKolik % udělá za 1 h? (zaokrouhli na celá %)`,ans:String(Math.round(100/t)),hints:[`100 : ${t}.`],skill:'anal'};})(),
   (()=>{const a=ri(2,5),pa=ri(8,15)*10,b=ri(2,5),pb=ri(2,7)*10;const tot=Math.round((a*pa+b*pb)/(a+b));return{text:`${a} kg po ${pa} Kč a ${b} kg po ${pb} Kč.\nCena 1 kg směsi? (Kč)`,ans:String(tot),hints:[`(${a*pa} + ${b*pb}) : ${a+b}.`],skill:'anal'};})(),
   (()=>{const t=ri(2,5)*2,h=t/2;return{text:`Zakázka za ${t} h.\nKolik % hotovo za ${h} h?`,ans:String(Math.round(h/t*100)),hints:[`${h} : ${t} × 100.`],skill:'anal'};})(),
   (()=>{const n=ri(2,6),one=ri(3,8);return{text:`Jeden dělník udělá ${one} ${skl(one,'díl','díly','dílů')} za hodinu.\nKolik dílů ${n} ${skl(n,'dělník','dělníci','dělníků')} za hodinu?`,ans:String(n*one),hints:[`${n} × ${one}.`],skill:'anal'};})(),
   (()=>{const m=ri(2,8)*100,p=[10,20,30][ri(0,2)];return{text:`Roztok ${m} g obsahuje ${p} % cukru.\nKolik g vody?`,ans:String(m-m*p/100),hints:[`Voda = ${100-p} % z ${m}.`],skill:'anal'};})(),
   (()=>{const n=ri(3,6),t=ri(4,8);return{text:`${n} ${skl(n,'dělník udělá','dělníci udělají','dělníků udělá')} práci za ${t} ${skl(t,'den','dny','dní')}.\nKolik dní 1 dělník?`,ans:String(n*t),hints:[`${n} × ${t}.`],skill:'anal'};})(),
-  (()=>{const m=ri(3,8)*50,p=[10,20,50][ri(0,2)];return{text:`Zdraží o ${p} %. Původní cena ${m} Kč.\nNová cena? (Kč)`,ans:String(m*(1+p/100)),hints:[`${m} + ${m*p/100} Kč.`],skill:'anal'};})(),
-  (()=>{const s1=ri(2,4)*100,p1=20,s2=ri(2,4)*100,p2=40;const pOut=Math.round((s1*p1+s2*p2)/(s1+s2));return{text:`Smíchám ${s1} g (${p1}% soli) a ${s2} g (${p2}% soli).\nVýsledná koncentrace? (%)`,ans:String(pOut),hints:[`(${s1*p1/100}+${s2*p2/100}) : ${s1+s2} × 100.`],skill:'anal'};})()
+  (()=>{const m=ri(3,8)*50,p=[10,20,50][ri(0,2)];return{text:`Zdraží o ${p} %. Původní cena ${m} Kč.\nNová cena? (Kč)`,ans:String(Math.round(m*(1+p/100))),hints:[`${m} + ${m*p/100} Kč.`],skill:'anal'};})(),
+  (()=>{const s1=ri(2,4)*100,p1=20,s2=ri(2,4)*100,p2=40;const pOut=Math.round((s1*p1+s2*p2)/(s1+s2));return{text:`Smíchám ${s1} g (${p1}% soli) a ${s2} g (${p2}% soli).\nVýsledná koncentrace? (%, zaokrouhli na celá)`,ans:String(pOut),hints:[`(${s1*p1/100}+${s2*p2/100}) : ${s1+s2} × 100.`],skill:'anal'};})()
  ],
  '5-3': () => [
   (()=>{const v=ri(5,12)*10,t=ri(2,5);return{text:`Rychlost ${v} km/h, čas ${t} h.\nDráha? (km)`,ans:String(v*t),hints:[`s = v · t.`],skill:'anal'};})(),
