@@ -11,6 +11,12 @@
     const a = Math.abs(n);
     return a === 1 ? one : a >= 2 && a <= 4 ? few : many;
   }
+  // tři strany PLATNÉHO trojúhelníku (trojúhelníková nerovnost: každá strana < součet zbylých)
+  function triSides(mn, mx) {
+    let a = ri(mn, mx), b = ri(mn, mx); if (a > b) { const t = a; a = b; b = t; }
+    const c = ri(b - a + 1, a + b - 1);
+    return [a, b, c];
+  }
   // číslo 100–999 slovy (pro úlohy „zapiš číslem")
   const _J = ['', 'jedna', 'dva', 'tři', 'čtyři', 'pět', 'šest', 'sedm', 'osm', 'devět'];
   const _S = ['', 'sto', 'dvě stě', 'tři sta', 'čtyři sta', 'pět set', 'šest set', 'sedm set', 'osm set', 'devět set'];
@@ -186,7 +192,7 @@
       () => { const a = ri(2, 10), b = ri(2, 10); return { text: `Kolikrát je třeba vzít číslo ${b}, aby vyšlo ${a * b}?`, ans: a, h1: `Hledáš ${a * b} : ${b}.`, h2: `= ${a}` }; },
       () => { const a = ri(2, 10), b = ri(2, 10); const ok = ri(0, 1) === 0; const tvrz = ok ? a * b : a * b + pick([-b, b, -a, a]); const spravne = tvrz === a * b; return { text: `Platí ${a} × ${b} = ${tvrz}?`, ans: spravne ? 'ANO' : 'NE', h1: `Vybav si řadu násobků čísla ${Math.min(a, b)}.`, h2: spravne ? 'ANO' : 'NE' }; },
       () => { const a = ri(2, 9), k = ri(2, 8); return { text: `V řadě násobků čísla ${a} je číslo ${a * k}. Které číslo v řadě následuje hned po něm?`, ans: a * (k + 1), h1: `Další násobek = přičti ${a}.`, h2: `= ${a * (k + 1)}` }; },
-      () => { const n = ri(2, 9); return { text: `Kolik nohou má ${n} ${skl(n, 'pavouk', 'pavouci', 'pavouků')}? (Pavouk má 8 nohou.)`, ans: n * 8, h1: `${n} × 8`, h2: `= ${n * 8}` }; },
+      () => { const n = ri(2, 9); return { text: `Kolik nohou ${n < 5 ? 'mají' : 'má'} ${n} ${skl(n, 'pavouk', 'pavouci', 'pavouků')}? (Pavouk má 8 nohou.)`, ans: n * 8, h1: `${n} × 8`, h2: `= ${n * 8}` }; },
       () => { const a = ri(6, 45); return { text: `Jaký je dvojnásobek čísla ${a}?`, ans: a * 2, h1: `Dvojnásobek = 2 × ${a}.`, h2: `= ${a * 2}` }; },
       () => { const a = ri(4, 30); return { text: `Jaký je trojnásobek čísla ${a}?`, ans: a * 3, h1: `Trojnásobek = 3 × ${a}.`, h2: `= ${a * 3}` }; },
       () => { const a = ri(2, 5), b = ri(2, 5), c = ri(2, 4); return { text: `${a} × ${b} × ${c} = ?`, ans: a * b * c, h1: `Vynásob nejdřív ${a} × ${b} = ${a * b}, pak × ${c}.`, h2: `= ${a * b * c}` }; },
@@ -207,8 +213,8 @@
       () => { const a = ri(2, 9), b = ri(2, 9) * 10; return { text: `${a} × ${b} = ?`, ans: a * b, h1: `Spočítej ${a} × ${b / 10} = ${a * (b / 10)} a přidej nulu.`, h2: `= ${a * b}` }; },
       () => { const a = ri(3, 90); return { text: `Jaký je desetinásobek čísla ${a}?`, ans: a * 10, h1: `Desetinásobek = ${a} × 10.`, h2: `= ${a * 10}` }; },
       () => { const a = ri(2, 9); return { text: `Jaký je stonásobek čísla ${a}?`, ans: a * 100, h1: `Stonásobek = ${a} × 100.`, h2: `= ${a * 100}` }; },
-      () => { const a = ri(2, 9); return { text: `Kolik je ${a} ${skl(a, 'desítka', 'desítky', 'desítek')}?`, ans: a * 10, h1: `${a} desítek = ${a} × 10.`, h2: `= ${a * 10}` }; },
-      () => { const a = ri(2, 9); return { text: `Zapiš číslem: ${a} ${skl(a, 'stovka', 'stovky', 'stovek')}.`, ans: a * 100, h1: `${a} stovek = ${a} × 100.`, h2: `= ${a * 100}` }; },
+      () => { const a = ri(2, 9); return { text: `Kolik je ${a} ${skl(a, 'desítka', 'desítky', 'desítek')}?`, ans: a * 10, h1: `${a} ${skl(a, 'desítka', 'desítky', 'desítek')} = ${a} × 10.`, h2: `= ${a * 10}` }; },
+      () => { const a = ri(2, 9); return { text: `Zapiš číslem: ${a} ${skl(a, 'stovka', 'stovky', 'stovek')}.`, ans: a * 100, h1: `${a} ${skl(a, 'stovka', 'stovky', 'stovek')} = ${a} × 100.`, h2: `= ${a * 100}` }; },
       () => { const a = ri(3, 9); return { text: `Skřítek má ${a} ${skl(a, 'měšec', 'měšce', 'měšců')} a v každém přesně 10 zlaťáků. Kolik zlaťáků má celkem?`, ans: a * 10, h1: `${a} × 10`, h2: `= ${a * 10} zlaťáků` }; },
       () => { const a = ri(2, 9); const ok = ri(0, 1) === 0; const tvrz = ok ? a * 10 : a * 100; const spravne = tvrz === a * 10; return { text: `Je pravda, že ${a} × 10 = ${tvrz}?`, ans: spravne ? 'ANO' : 'NE', h1: `Při násobení deseti přibude jen JEDNA nula.`, h2: spravne ? 'ANO' : 'NE' }; },
       () => { const a = ri(2, 9); return { text: `Doplň: ${a} × ? = ${a * 100}`, ans: 100, h1: `Kolika musíš vynásobit ${a}, aby přibyly dvě nuly?`, h2: `= 100` }; },
@@ -229,7 +235,7 @@
       () => { const a = ri(2, 6), b = ri(10, 50); return { text: `Jeden košík lesních jahod stojí ${b} Kč. Kolik zaplatíš za ${a} ${skl(a, 'košík', 'košíky', 'košíků')}?`, ans: a * b, h1: `${a} × ${b}`, h2: `= ${a * b} Kč` }; },
       () => { const r = ri(2, 6), s = ri(3, 9); return { text: `Trpaslíci vysadili ${r} ${skl(r, 'řadu', 'řady', 'řad')} stromků, v každé řadě ${s} ${skl(s, 'stromek', 'stromky', 'stromků')}. Kolik stromků vysadili?`, ans: r * s, h1: `${r} × ${s}`, h2: `= ${r * s}` }; },
       () => { const r = ri(2, 5), s = ri(4, 8); return { text: `Na plechu je ${r} ${skl(r, 'řada', 'řady', 'řad')} perníčků po ${s} ${skl(s, 'kusu', 'kusech', 'kusech')}. Kolik perníčků se peče?`, ans: r * s, h1: `${r} × ${s}`, h2: `= ${r * s}` }; },
-      () => { const n = ri(3, 9); return { text: `Kolik nohou mají ${n} ${skl(n, 'žába', 'žáby', 'žab')}? (Žába má 4 nohy.)`, ans: n * 4, h1: `${n} × 4`, h2: `= ${n * 4}` }; },
+      () => { const n = ri(3, 9); return { text: `Kolik nohou ${n < 5 ? 'mají' : 'má'} ${n} ${skl(n, 'žába', 'žáby', 'žab')}? (Žába má 4 nohy.)`, ans: n * 4, h1: `${n} × 4`, h2: `= ${n * 4}` }; },
       () => { const t = ri(2, 8); return { text: `Skřítek spí v pařezu už ${t} ${skl(t, 'týden', 'týdny', 'týdnů')}. Kolik je to dní? (Týden má 7 dní.)`, ans: t * 7, h1: `${t} × 7`, h2: `= ${t * 7} dní` }; },
       () => { const n = ri(3, 9); return { text: `Víla našla ${n} ${skl(n, 'trojlístek', 'trojlístky', 'trojlístků')}. Kolik lístků mají dohromady?`, ans: n * 3, h1: `Každý trojlístek má 3 lístky: ${n} × 3.`, h2: `= ${n * 3}` }; },
       () => { const n = ri(2, 8), b = ri(4, 9); return { text: `V každém z ${n} ${skl(n, 'sáčku', 'sáčků', 'sáčků')} je ${b} ${skl(b, 'bonbon', 'bonbony', 'bonbonů')} z lesního medu. Kolik bonbonů je ve všech sáčcích?`, ans: n * b, h1: `${n} × ${b}`, h2: `= ${n * b}` }; },
@@ -323,14 +329,14 @@
   function gen_5_1() {
     const tasks = [];
     const T = [
-      () => { const a = ri(2, 12), b = ri(2, 12), c = ri(2, 12); return { text: `Trojúhelník má strany ${a} cm, ${b} cm a ${c} cm. Jaký je jeho obvod?`, ans: a + b + c, h1: `Obvod = součet všech tří stran: ${a} + ${b} + ${c}.`, h2: `= ${a + b + c} cm` }; },
+      () => { const [a, b, c] = triSides(2, 12); return { text: `Trojúhelník má strany ${a} cm, ${b} cm a ${c} cm. Jaký je jeho obvod?`, ans: a + b + c, h1: `Obvod = součet všech tří stran: ${a} + ${b} + ${c}.`, h2: `= ${a + b + c} cm` }; },
       () => { const a = ri(3, 15); return { text: `Rovnostranný trojúhelník má stranu ${a} cm. Jaký je jeho obvod?`, ans: 3 * a, h1: `Rovnostranný = tři stejné strany: ${a} + ${a} + ${a}.`, h2: `= ${3 * a} cm` }; },
-      () => { const r = ri(3, 12), z = ri(2, 10); return { text: `Rovnoramenný trojúhelník má dvě ramena po ${r} cm a základnu ${z} cm. Jaký je jeho obvod?`, ans: 2 * r + z, h1: `Sečti obě ramena a základnu: ${r} + ${r} + ${z}.`, h2: `= ${2 * r + z} cm` }; },
-      () => { const a = ri(3, 10), b = ri(3, 10), o = a + b + ri(3, 10); return { text: `Obvod trojúhelníku je ${o} cm. Dvě strany měří ${a} cm a ${b} cm. Kolik měří třetí strana?`, ans: o - a - b, h1: `Od obvodu odečti známé strany: ${o} − ${a} − ${b}.`, h2: `= ${o - a - b} cm` }; },
-      () => { const a = ri(2, 8), c = ri(2, 10); return { text: `Jedna strana trojúhelníku měří ${a} cm, druhá je dvakrát delší a třetí měří ${c} cm. Jaký je obvod?`, ans: a + 2 * a + c, h1: `Druhá strana: 2 × ${a} = ${2 * a}. Sečti všechny tři.`, h2: `= ${a + 2 * a + c} cm` }; },
-      () => { const a = ri(2, 9), b = ri(2, 9), c = ri(2, 9); return { text: `Vílí záhon má tvar trojúhelníku se stranami ${a} m, ${b} m a ${c} m. Kolik metrů plotu je potřeba na jeho oplocení?`, ans: a + b + c, h1: `Plot vede po obvodu: sečti strany.`, h2: `= ${a + b + c} m` }; },
+      () => { const r = ri(3, 12), z = ri(2, 2 * r - 1); return { text: `Rovnoramenný trojúhelník má dvě ramena po ${r} cm a základnu ${z} cm. Jaký je jeho obvod?`, ans: 2 * r + z, h1: `Sečti obě ramena a základnu: ${r} + ${r} + ${z}.`, h2: `= ${2 * r + z} cm` }; },
+      () => { const [a, b, c] = triSides(3, 10); const o = a + b + c; return { text: `Obvod trojúhelníku je ${o} cm. Dvě strany měří ${a} cm a ${b} cm. Kolik měří třetí strana?`, ans: c, h1: `Od obvodu odečti známé strany: ${o} − ${a} − ${b}.`, h2: `= ${c} cm` }; },
+      () => { const a = ri(3, 8), c = ri(a + 1, 3 * a - 1); return { text: `Jedna strana trojúhelníku měří ${a} cm, druhá je dvakrát delší a třetí měří ${c} cm. Jaký je obvod?`, ans: a + 2 * a + c, h1: `Druhá strana: 2 × ${a} = ${2 * a}. Sečti všechny tři.`, h2: `= ${a + 2 * a + c} cm` }; },
+      () => { const [a, b, c] = triSides(2, 9); return { text: `Vílí záhon má tvar trojúhelníku se stranami ${a} m, ${b} m a ${c} m. Kolik metrů plotu je potřeba na jeho oplocení?`, ans: a + b + c, h1: `Plot vede po obvodu: sečti strany.`, h2: `= ${a + b + c} m` }; },
       () => { const a = ri(20, 90), b = ri(20, 90), c = ri(20, 90); return { text: `Trojúhelníková stezka má úseky ${a} m, ${b} m a ${c} m. Jak dlouhá je celá stezka?`, ans: a + b + c, h1: `Celá stezka = součet úseků.`, h2: `= ${a + b + c} m` }; },
-      () => { const a = ri(10, 40), b = ri(10, 40), c = ri(10, 40); return { text: `Trojúhelník má strany ${a} mm, ${b} mm a ${c} mm. Jaký je jeho obvod v milimetrech?`, ans: a + b + c, h1: `Stejný postup jako s centimetry: sečti strany.`, h2: `= ${a + b + c} mm` }; },
+      () => { const [a, b, c] = triSides(10, 40); return { text: `Trojúhelník má strany ${a} mm, ${b} mm a ${c} mm. Jaký je jeho obvod v milimetrech?`, ans: a + b + c, h1: `Stejný postup jako s centimetry: sečti strany.`, h2: `= ${a + b + c} mm` }; },
       () => { const a = ri(3, 12); const o = 3 * a; const ok = ri(0, 1) === 0; const tvrz = ok ? o : o + pick([-3, 3, -a, a]); const spravne = tvrz === o; return { text: `Skřítek tvrdí, že rovnostranný trojúhelník se stranou ${a} cm má obvod ${tvrz} cm. Má pravdu?`, ans: spravne ? 'ANO' : 'NE', h1: `Spočítej ${a} + ${a} + ${a} a porovnej.`, h2: spravne ? 'ANO' : 'NE' }; },
       () => { const o = ri(4, 12) * 3; return { text: `Rovnostranný trojúhelník má obvod ${o} cm. Kolik měří jedna jeho strana?`, ans: o / 3, h1: `Tři stejné strany: ${o} : 3.`, h2: `= ${o / 3} cm` }; },
     ];
@@ -403,7 +409,7 @@
       () => { const n = ri(1, 9); return { text: `Kolik cm je ${n} m? (1 m = 100 cm)`, ans: n * 100, h1: '1 m = 100 cm — násob stem.', h2: `= ${n * 100} cm` }; },
       () => { const n = ri(2, 9) * 100; return { text: `Kolik m je ${n} cm?`, ans: n / 100, h1: 'Děl stem (100 cm = 1 m).', h2: `= ${n / 100} m` }; },
       () => { const m = ri(1, 5), cm = ri(10, 90); return { text: `Liščí nora je hluboká ${m} m a ${cm} cm. Kolik je to celkem centimetrů?`, ans: m * 100 + cm, h1: `${m} m = ${m * 100} cm, přičti ${cm} cm.`, h2: `= ${m * 100 + cm} cm` }; },
-      () => { const dm = ri(2, 9), cm = dm * 10 + pick([-5, 5]); const ok = dm * 10 > cm; return { text: `Co je delší: ${dm} dm, nebo ${cm} cm?`, ans: ok ? dm * 10 : cm, h1: `Převeď na stejné jednotky: ${dm} dm = ${dm * 10} cm. Odpověz počtem cm.`, h2: `= ${ok ? dm * 10 : cm} cm` }; },
+      () => { const dm = ri(2, 9), cm = dm * 10 + pick([-5, 5]); const ok = dm * 10 > cm; return { text: `Co je delší — ${dm} dm, nebo ${cm} cm? Napiš délku té delší v cm.`, ans: ok ? dm * 10 : cm, h1: `Převeď na stejné jednotky: ${dm} dm = ${dm * 10} cm.`, h2: `= ${ok ? dm * 10 : cm} cm` }; },
       () => { const n = ri(2, 9); const ok = ri(0, 1) === 0; const tvrz = ok ? n * 10 : n * 100; const spravne = tvrz === n * 10; return { text: `Je pravda, že ${n} dm = ${tvrz} cm?`, ans: spravne ? 'ANO' : 'NE', h1: `1 dm = 10 cm.`, h2: spravne ? 'ANO' : 'NE' }; },
     ];
     for (let i = 0; i < 12; i++) {
@@ -518,7 +524,7 @@
       () => { const a = ri(150, 700), b = ri(50, 250); return { text: `${a} + ${b} = ?`, ans: a + b, h1: `Po řádech: stovky, desítky, jednotky.`, h2: `= ${a + b}`, skill: 'calc' }; },
       () => { const b = ri(50, 300), a = b + ri(100, 500); return { text: `${a} − ${b} = ?`, ans: a - b, h1: `Odečti po skupinách.`, h2: `= ${a - b}`, skill: 'calc' }; },
       () => { const n = ri(15, 980); const r = Math.round(n / 10) * 10; return { text: `Zaokrouhli ${n} na desítky.`, ans: r, h1: `Jednotky: ${n % 10}.`, h2: `= ${r}`, skill: 'calc' }; },
-      () => { const a = ri(2, 12), b = ri(2, 12), c = ri(2, 12); return { text: `Jaký obvod má trojúhelník se stranami ${a} cm, ${b} cm a ${c} cm?`, ans: a + b + c, h1: `Sečti strany: ${a} + ${b} + ${c}.`, h2: `= ${a + b + c} cm`, skill: 'geo' }; },
+      () => { const [a, b, c] = triSides(2, 12); return { text: `Jaký obvod má trojúhelník se stranami ${a} cm, ${b} cm a ${c} cm?`, ans: a + b + c, h1: `Sečti strany: ${a} + ${b} + ${c}.`, h2: `= ${a + b + c} cm`, skill: 'geo' }; },
       () => { const a = ri(2, 12); return { text: `Jaký obvod má čtverec se stranou ${a} cm?`, ans: 4 * a, h1: `Čtyři stejné strany: ${a} + ${a} + ${a} + ${a}.`, h2: `= ${4 * a} cm`, skill: 'geo' }; },
       () => { const d = ri(2, 9), q = ri(2, 9), r = ri(1, d - 1); const n = d * q + r; return { text: `Jaký zbytek má dělení ${n} : ${d}?`, ans: r, h1: `${d} × ${q} = ${d * q}, zbytek ${n} − ${d * q}.`, h2: `zbytek ${r}`, skill: 'calc' }; },
       () => { const n = ri(1, 8); return { text: `Kolik minut je ${n} ${skl(n, 'hodina', 'hodiny', 'hodin')}?`, ans: n * 60, h1: `1 h = 60 min.`, h2: `= ${n * 60} min`, skill: 'calc' }; },

@@ -63,5 +63,5 @@ Opravit potvrzené nálezy → znovu automatické verifikátory + `rpg-cermat.te
 - [x] Pilot CERMAT — LLM audit + ověření (3 agenti + ruční dopočet)
 - [x] Pilot CERMAT — opravy + re-verify (viz `docs/audit-cermat-2026-07.md`: 3 kritické, 6 major, 6 minor opraveno; verify-cermat 500 OK, test 19/19)
 - [x] Sponka — hlášky zkontrolovány, bez oprav (gramaticky správné, genderově ošetřené, vhodný tón)
-- [ ] Banky 3–9
+- [x] Banky 3–9 — audit hotový, nálezy opraveny (viz `docs/audit-banks-2026-07.md`): kritické (7-3, 4-1, 8/2-2, 8/3-1, 8/6-2, 9/1-2, 6/3-3), major (nesouhlas číslovek/sloves 1. stupně, trojúhelníková nerovnost g3, záporná %, měřítko…), minor
 - [ ] Teorie 3–9

@@ -39,12 +39,30 @@ označí správného žáka za chybu.
 **Minor:** „1x" místo „x" v rovnici; hint „Vytkni x" u (x²−5)/x zavádějící → zobrazit `n·x`; tiché zaokrouhlení % (mise 1-2, 5-2) → „(zaokrouhli)". Float ans na řádku 205 → `Math.round`.
 **False positive:** „cyklista 100 km/h" — v misi 5-3 žádný cyklista není (aktér je „Auto/Rychlost", 100 km/h reálné). Zamítnuto.
 
+## Ročník 6 (rpg-tasks-6.js)
+**Kritické:** mise 3-3 „NSN(2,2), když jsou nesoudělná" — 2 a 2 nesoudělná nejsou a „jen vynásob" dá 4, ale odpověď 2 → protiřečí si. Nahrazeno pevnou tabulkou nesoudělných dvojic.
+**Major:** mise 2-3 „3/8 + 1/8" odpověď 1/2, ale hint „4/8" → hint teď ukáže i zkrácení.
+**Minor:** skloňování „N dělitelů" → skl; zdvojené znaménko „x' = −4 = -4"; degenerovaný „2/6 nebo 2/6" (zajištěno a≠b).
+**Poznámka (neopraveno, jen diagnostika):** nekonzistentní skill-tagy (průměr [anal] vs [calc]; aritmetika označená [geo] v boss-misi 7-3) — ovlivní jen učitelskou heatmapu, ne správnost.
+
+## Ročník 5 (rpg-tasks-5.js) — 0 matematických chyb
+**Major:** mise 4-1 „Drak spí **pětinau** dne" (nominativ+u) → akuzativ „pětinu".
+**Minor:** „N dukátů" u 2–4 → skl; „6 dukátu" u celého čísla → „dukátů"; čitelnost seznamu desetinných „2,3, 3,3, 6,7" → oddělovač „;" a „a"; degenerovaný „4/5 nebo 4/5" (a≠b).
+
+## Ročník 4 (rpg-tasks-4.js) — 0 matematických chyb
+**Major:** shoda číslovky+slovesa: „3 salv" → „3 salvy"; „se vejde 4 pirátů" → „vejdou se 4 piráti"; „3 ryb" → „vejdou se 3 ryby".
+
+## Ročník 3 (rpg-tasks-3.js)
+**Major (M):** trojúhelníkové generátory losovaly strany nezávisle → vznikaly neexistující trojúhelníky (3+8=11, 7+2<12). Přidán pomocník `triSides()` (trojúhelníková nerovnost) a použit v obvodových úlohách; rovnoramenný má základnu < 2·rameno; „dvakrát delší" má třetí stranu v platném rozsahu.
+**Major (Č):** shoda slovesa „má 2 pavouci" → „mají"; „mají 9 žab" → „má".
+**Minor:** hint „N stovek/desítek" → skl; „Co je delší?" doplněno „Napiš délku té delší v cm".
+
 ## Ověření
-- `node --check` všech 3 souborů OK.
+- `node --check` všech 7 souborů OK.
 - `tools/bank-audit-dump.cjs` — linty 0, žádné floaty/tečky v zobrazeném textu.
-- `tools/verify-bank.cjs 7/8/9` — 0 problémů.
-- `tests/vstudents-deep.harness.cjs 7 8 9` — bez regresí.
+- `tools/verify-bank.cjs 3–9` — 0 problémů.
+- `tests/vstudents-deep.harness.cjs` — všech 7 ročníků bez regresí.
 
 ## Zbývá (nižší priorita)
-- Pár čistě stylistických formulací (mise 7/2-3 „kolikrát menší", mise 7/1-2 popisek „desetinná čísla" u celých), pestrost mise 8/2-1 = 8 (pre-existující, ne z auditu).
-- Ročníky **6, 5, 4, 3** — audit ještě neproběhl (další dávka).
+- Čistě stylistické formulace (7/2-3 „kolikrát menší", 7/1-2 popisek „desetinná čísla"); nekonzistentní skill-tagy v 6. ročníku (diagnostika, ne správnost); pestrost mise 8/2-1 = 8 (pre-existující).
+- **Teorie** `rpg-learn-3…9.js` — audit ještě neproběhl (další fáze).

@@ -204,7 +204,7 @@
       () => { const n = ri(2, 8); return { text: `Každý pirátský soudek ukrývá 100 mincí. Kolik mincí je v ${n} ${skl(n, 'soudku', 'soudcích', 'soudcích')}?`, ans: n * 100, h1: `${n} × 100`, h2: `= ${n * 100}` }; },
       () => { const a = ri(2, 9), b = ri(2, 9) * 10; const ok = ri(0, 1) === 0; const tvrz = ok ? a * b : a * b * 10; const spravne = tvrz === a * b; return { text: `Platí ${a} × ${b} = ${tvrz}?`, ans: spravne ? 'ANO' : 'NE', h1: `Spočítej ${a} × ${b / 10} a přidej jednu nulu.`, h2: spravne ? 'ANO' : 'NE' }; },
       () => { const a = ri(20, 90) * 10; return { text: `Kouzelný kompas všechno zdesetinásobí. Co ukáže, když do něj vložíš číslo ${a / 10}?`, ans: a, h1: `${a / 10} × 10`, h2: `= ${a}` }; },
-      () => { const b = ri(2, 9), n = ri(2, 9); return { text: `Děla vypálila ${n} salv po ${b * 10} koulích. Kolik koulí vyletělo celkem?`, ans: n * b * 10, h1: `${n} × ${b * 10}: spočítej ${n} × ${b} a přidej nulu.`, h2: `= ${n * b * 10}` }; },
+      () => { const b = ri(2, 9), n = ri(2, 9); return { text: `Děla vypálila ${n} ${skl(n, 'salvu', 'salvy', 'salv')} po ${b * 10} koulích. Kolik koulí vyletělo celkem?`, ans: n * b * 10, h1: `${n} × ${b * 10}: spočítej ${n} × ${b} a přidej nulu.`, h2: `= ${n * b * 10}` }; },
     ];
     for (let i = 0; i < 12; i++) {
       const t = T[i % T.length]();
@@ -271,7 +271,7 @@
       () => { const { d, q, r, n } = nz(); return { text: `Jaký zbytek má dělení ${n} : ${d}?`, ans: r, h1: `${d} × ${q} = ${d * q}, zbytek ${n} − ${d * q}.`, h2: `zbytek ${r}` }; },
       () => { const q = ri(2, 8), r = ri(1, 6), n = q * 7 + r; return { text: `Plavba trvá ${n} dní. Kolik je to CELÝCH týdnů?`, ans: q, h1: `Kolikrát se 7 vejde do ${n}?`, h2: `= ${q}` }; },
       () => { const q = ri(2, 8), r = ri(1, 6), n = q * 7 + r; return { text: `${n} dní je ${q} ${skl(q, 'týden', 'týdny', 'týdnů')} a kolik dní navíc?`, ans: r, h1: `${q} × 7 = ${q * 7}, zbývá ${n} − ${q * 7}.`, h2: `= ${r}` }; },
-      () => { const { d, q, n } = nz(); return { text: `Do záchranného člunu se vejde ${d} pirátů. Kolik člunů ÚPLNĚ zaplní ${n} pirátů?`, ans: q, h1: `${d} × ${q} = ${d * q} se vejde, víc ne.`, h2: `= ${q}` }; },
+      () => { const { d, q, n } = nz(); return { text: `Do záchranného člunu se ${d < 5 ? 'vejdou' : 'vejde'} ${d} ${skl(d, 'pirát', 'piráti', 'pirátů')}. Kolik člunů ÚPLNĚ zaplní ${n} pirátů?`, ans: q, h1: `${d} × ${q} = ${d * q} se vejde, víc ne.`, h2: `= ${q}` }; },
       () => { const d = ri(3, 9), n = ri(20, 80); const deli = n % d === 0; return { text: `Dá se ${n} rozdělit číslem ${d} beze zbytku?`, ans: deli ? 'ANO' : 'NE', h1: `Je ${n} v řadě násobků čísla ${d}?`, h2: deli ? 'ANO' : 'NE' }; },
       () => { const { d, q, n } = nz(); return { text: `Jaký je největší násobek čísla ${d} menší než ${n}?`, ans: d * q, h1: `Projdi násobky ${d} a najdi poslední pod ${n}.`, h2: `= ${d * q}` }; },
       () => { const { d, r, n } = nz(); return { text: `Kuchař skládá ${n} sucharů do beden po ${d}. Kolik sucharů mu CHYBÍ do další plné bedny?`, ans: d - r, h1: `Zbyde ${r}, do plné bedny chybí ${d} − ${r}.`, h2: `= ${d - r}` }; },
@@ -295,7 +295,7 @@
       () => { const cena = ri(4, 9), penize = cena * ri(4, 12); return { text: `Jedna zlatá rybka stojí ${cena} dublonů. Kolik rybek koupíš za ${penize} dublonů?`, ans: penize / cena, h1: `${penize} : ${cena}`, h2: `= ${penize / cena}` }; },
       () => { const d = ri(3, 8), q = ri(3, 10); return { text: `${d * q} děl je rozmístěno rovným dílem na ${d} ${skl(d, 'palubu', 'paluby', 'palub')}. Kolik děl je na jedné palubě?`, ans: q, h1: `${d * q} : ${d}`, h2: `= ${q}` }; },
       () => { const d = ri(3, 6), q = ri(3, 9), r = ri(1, d - 1), n = d * q + r; return { text: `Papoušek rozdává ${n} oříšků do misek po ${d}. Kolik oříšků mu zbyde?`, ans: r, h1: `${d} × ${q} = ${d * q}, zbyde ${n} − ${d * q}.`, h2: `zbyde ${r}` }; },
-      () => { const d = ri(3, 6), q = ri(3, 9), r = ri(1, d - 1), n = d * q + r; return { text: `Do jedné sítě se vejde ${d} ryb. Kolik sítí úplně naplníš s ${n} rybami?`, ans: q, h1: `${d} × ${q} = ${d * q} se vejde.`, h2: `= ${q}` }; },
+      () => { const d = ri(3, 6), q = ri(3, 9), r = ri(1, d - 1), n = d * q + r; return { text: `Do jedné sítě se ${d < 5 ? 'vejdou' : 'vejde'} ${d} ${skl(d, 'ryba', 'ryby', 'ryb')}. Kolik sítí úplně naplníš s ${n} rybami?`, ans: q, h1: `${d} × ${q} = ${d * q} se vejde.`, h2: `= ${q}` }; },
       () => { const d = ri(2, 5), q = ri(4, 12); return { text: `Hlídka trvá ${d} ${skl(d, 'hodinu', 'hodiny', 'hodin')}. Kolik hlídek se vystřídá za ${d * q} hodin?`, ans: q, h1: `${d * q} : ${d}`, h2: `= ${q}` }; },
       () => { const d = ri(4, 9), total = d * ri(10, 25); return { text: `${total} kg zásob se rozdělí rovným dílem do ${d} beden. Kolik kg bude v jedné bedně?`, ans: total / d, h1: `${total} : ${d}`, h2: `= ${total / d} kg` }; },
     ];
