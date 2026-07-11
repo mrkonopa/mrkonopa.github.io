@@ -65,7 +65,7 @@ window.RPG_LEARN_3 = {
     ],
     mistakes: [
       { wrong: '356 + 228 = 574', right: '356 + 228 = 584', why: 'Žák zapomněl přenést desítku. Z 6 + 8 = 14 se přenáší 1 do desítek.' },
-      { wrong: '245 + 30 = 275, ale zapíše 2450 + 30', right: 'Sčítej stejné řády pod sebe: jednotky k jednotkám', why: 'Když je jedno číslo kratší, žáci ho špatně zarovnají. Zarovnávej zprava (podle jednotek).' },
+      { wrong: 'Zarovná zleva: 245 a 30 → počítá 2450 + 30', right: 'Zarovnej zprava (jednotky pod jednotky): 245 + 30 = 275', why: 'Když je jedno číslo kratší, zarovnej ho zprava podle jednotek, ne zleva.' },
     ],
     video: null
   },
@@ -109,7 +109,7 @@ window.RPG_LEARN_3 = {
     ],
     formulas: ['a × b = b × a', '4 × 3 = 3 + 3 + 3 + 3 = 12'],
     examples: [
-      { q: '7 × 8 = ?', s: ['Vzpomenu si na násobilku sedmi.', '7 × 8 znamená osmkrát sedm.', 'Výsledek: 56.'] },
+      { q: '7 × 8 = ?', s: ['Vzpomenu si na násobilku sedmi.', '7 × 8 znamená sedmkrát osm.', 'Výsledek: 56.'] },
       { q: 'Kolik je 4 × 3 pomocí sčítání?', s: ['4 × 3 znamená sečíst čtyřikrát trojku.', '3 + 3 + 3 + 3 = 12.', 'Výsledek: 12.'] },
     ],
     mistakes: [
