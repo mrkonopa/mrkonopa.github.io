@@ -813,6 +813,10 @@ html[data-theme="violet"]{--gold:#b06cff;--panel:#100a20;--panel2:#18103a;--blue
   <input type="checkbox" id="pr-rm" onchange="toggleReducedMotion(this.checked)" style="width:18px;height:18px;cursor:pointer;accent-color:var(--blue)">
   <span>Vypnout vizuální efekty<br><span style="font-size:12px;color:var(--muted)">Skryje blikání, floaty (+XP), animace výhry a poškození. Hodí se při citlivosti na pohyb.</span></span>
  </label>
+ <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-family:var(--read);font-size:14px;color:var(--text);margin-top:12px">
+  <input type="checkbox" id="pr-sponka" onchange="toggleSponka(this.checked)" style="width:18px;height:18px;cursor:pointer;accent-color:var(--blue)">
+  <span>Společník (sponka)<br><span style="font-size:12px;color:var(--muted)">Aktivní mazlíček tě bude sledovat po obrazovce a občas povzbudí nebo pomůže s nápovědou.</span></span>
+ </label>
  </div>
  <div class="panel">
  <div style="font-family:var(--px);font-weight:700;font-size:12px;color:var(--muted);margin-bottom:10px;letter-spacing:1px">— ZÁLOHA POSTUPU —</div>
@@ -1425,6 +1429,7 @@ function loadS(){const r=localStorage.getItem(SAVE_KEY);if(!r)return false;try{S
 function rmActive(){return((typeof RPGWallet!=='undefined')&&RPGWallet.getReducedMotion())||(S.settings&&S.settings.reducedMotion)||false;}
 function applyMotionPref(){document.documentElement.classList.toggle('reduced-motion',rmActive());}
 function toggleReducedMotion(on){if(!S.settings||typeof S.settings!=='object')S.settings={reducedMotion:false};S.settings.reducedMotion=on;if(typeof RPGWallet!=='undefined')RPGWallet.setReducedMotion(on);applyMotionPref();saveS();}
+function toggleSponka(on){if(typeof RPGWallet!=='undefined')RPGWallet.setSponkaEnabled(on);}
 function calcLevel(){S.level=Math.floor(S.xp/100)+1;}
 
 // ── JUICE: XP award + level-up + floaties + vignette ──
@@ -2979,6 +2984,7 @@ function renderProfile(){
  document.getElementById('pr-ach-t').textContent=ACH.length;
  }
  const rm=document.getElementById('pr-rm');if(rm)rm.checked=rmActive();
+ const spk=document.getElementById('pr-sponka');if(spk)spk.checked=(typeof RPGWallet!=='undefined')?RPGWallet.getSponkaEnabled():true;
  if(typeof RPGWallet!=='undefined'&&RPGWallet.renderGachInto)RPGWallet.renderGachInto(document.getElementById('pr-gach'));
  renderCrossGames();
 }

@@ -509,9 +509,9 @@ html[data-theme="leto"]{--gold:#ffd166;--panel:#062033;--panel2:#0a2e4a;--blue:#
      Poll-based (žádné hooky do enginu): každé 4 s přečte S/TR/BT globály
      dané hry a podle nálady ukáže bublinu. Respektuje reduced-motion
      (bez bobu) a settings.sponkaEnabled (výchozí zapnuto, jde vypnout
-     v profilu). Pilot jen na SAVE_KEY v SPONKA_PILOT_GAMES — až se ověří,
-     rozšířit na zbylé ročníky. */
-  const SPONKA_PILOT_GAMES = ['RPG_MAT_9'];
+     v profilu). Běží ve VŠECH ročnících 3.–9. (SPONKA_ENABLED_GAMES) —
+     engine (BT/TR/showHint/screens) je kompatibilní napříč všemi hrami. */
+  const SPONKA_ENABLED_GAMES = ['RPG_MAT_3', 'RPG_MAT_4', 'RPG_MAT_5', 'RPG_MAT_6', 'RPG_MAT_7', 'RPG_MAT_8', 'RPG_MAT_9'];
   /* blinkChar: barva, kterou se při mrknutí nahradí VŠECHNY výskyty 'Y'
      (zornička/oko) v gridu — jediné místo úpravy, žádné duplicitní grify. */
   const SPONKA_SPR = {
@@ -560,7 +560,7 @@ html[data-theme="leto"]{--gold:#ffd166;--panel:#062033;--panel2:#0a2e4a;--blue:#
   }
   function _spEligible() {
     try {
-      if (typeof SAVE_KEY === 'undefined' || !SPONKA_PILOT_GAMES.includes(SAVE_KEY)) return false;
+      if (typeof SAVE_KEY === 'undefined' || !SPONKA_ENABLED_GAMES.includes(SAVE_KEY)) return false;
       return getSponkaEnabled() && !!_spPetId();
     } catch (e) { return false; }
   }
