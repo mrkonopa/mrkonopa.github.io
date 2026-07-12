@@ -87,10 +87,11 @@ const ok = (c, m) => { if (c) { pass++; } else { fail++; console.log('  ❌ ' + 
     launchBattle(ar.id, m.id);
   });
   await page.waitForFunction(() => typeof BT !== 'undefined' && BT.curTask, { timeout: 5000 });
-  await page.evaluate(() => { BT.hp = 1; BT.hl = 0; });
+  await page.evaluate(() => { BT.hp = 1; BT.hl = 0; BT.missionHinted = false; });
   await page.waitForTimeout(4300);
-  ok(await page.evaluate(() => BT.hl === 1), 'HP=1 v boji automaticky spustí showHint() (BT.hl=1)');
-  ok(await page.evaluate(() => document.getElementById('hint-box').classList.contains('show')), 'nápovědový box se zobrazí');
+  // sponka pošeptá nápovědu ve SVÉ bublině — nesahá na herní stav (BT.hl/missionHinted zůstávají)
+  ok(await page.evaluate(() => { const b = document.getElementById('rw-sponka-bubble'); return b.style.display === 'block' && b.textContent.includes('💡'); }), 'HP=1: sponka ukáže nápovědu ve své bublině (💡)');
+  ok(await page.evaluate(() => BT.hl === 0 && BT.missionHinted === false), 'auto-nápověda NEsahá na herní stav (BT.hl=0, missionHinted=false — odznak „bez nápovědy" zůstává)');
 
   const realErrs = errs.filter(e => !/ERR_|CERT_|Failed to fetch|supabase|jsdelivr/i.test(e));
   ok(realErrs.length === 0, 'žádné JS chyby: ' + realErrs.join(' | '));

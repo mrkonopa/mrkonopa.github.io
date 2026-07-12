@@ -545,6 +545,8 @@ html[data-theme="leto"]{--gold:#ffd166;--panel:#062033;--panel2:#0a2e4a;--blue:#
   const SPONKA_COOLDOWN_MS = 100000;
   let _spEl = null, _spCanvas = null, _spBubble = null, _spLastShown = 0, _spDismissCount = 0, _spRaf = null, _spPollId = null;
   let _spMood = null, _spPulseStart = 0, _spPulseFrom = 1, _spPulseDur = 0;
+  let _spHintedTask = null, _spFrame = 0;   // _spHintedTask: hint jen 1× na úkol; _spFrame: throttle kontroly obrazovky
+  const SPONKA_HIDE_SCREENS = ['s-cermat', 's-tower'];   // vážné časované režimy — sponka se schová
 
   /* Mazlíček pro sponku: přednostně AKTIVNÍ pet, ale stačí JAKÝKOLI
      VLASTNĚNÝ (koupený) — „jakmile mám mazlíčka, mám k ní přístup".
@@ -614,7 +616,18 @@ html[data-theme="leto"]{--gold:#ffd166;--panel:#062033;--panel2:#0a2e4a;--blue:#
     }
     ctx.restore();
   }
-  function _spLoop(t) { _spDraw(t || 0); _spRaf = requestAnimationFrame(_spLoop); }
+  // schová sponku na vážných časovaných obrazovkách (CERMAT test, Věž legend)
+  function _spUpdateVisibility() {
+    if (!_spEl) return;
+    let scr = '';
+    try { const a = document.querySelector('.screen.active'); scr = a ? a.id : ''; } catch (e) {}
+    _spEl.style.visibility = SPONKA_HIDE_SCREENS.indexOf(scr) !== -1 ? 'hidden' : 'visible';
+  }
+  function _spLoop(t) {
+    _spDraw(t || 0);
+    if ((_spFrame++ % 12) === 0) _spUpdateVisibility();   // ~5×/s stačí na plynulé schování
+    _spRaf = requestAnimationFrame(_spLoop);
+  }
 
   function _spShowBubble(text, mood) {
     if (!_spBubble) return;
@@ -652,10 +665,17 @@ html[data-theme="leto"]{--gold:#ffd166;--panel:#062033;--panel2:#0a2e4a;--blue:#
     try {
       const activeScr = document.querySelector('.screen.active');
       const scr = activeScr ? activeScr.id : '';
-      let mood = null, hintNow = false;
+      if (SPONKA_HIDE_SCREENS.indexOf(scr) !== -1) return;   // na vážných časovaných obrazovkách mlč
+      let mood = null, hintText = null;
       if (scr === 's-battle' && typeof BT !== 'undefined' && BT && BT.curTask) {
-        if (BT.hp === 1 && BT.hl === 0) { mood = 'struggle'; hintNow = true; }
-        else if (BT.combo >= 3) mood = 'good';
+        // při HP=1 pošeptá NÁPOVĚDU jen ve své bublině — nesahá na herní stav (žádné
+        // BT.hl/missionHinted, tedy nepřipraví žáka o odznak „bez nápovědy"). Max 1× na úkol.
+        if (BT.hp === 1 && BT.curTask !== _spHintedTask) {
+          mood = 'struggle';
+          const h = BT.curTask.hints;
+          hintText = (h && h[0] && String(h[0]).trim()) ? String(h[0]).replace(/\n/g, ' ') : null;
+          _spHintedTask = BT.curTask;
+        } else if (BT.combo >= 3) mood = 'good';
       } else if (scr === 's-train' && typeof TR !== 'undefined' && TR && TR.task) {
         if (TR.streak >= 5) mood = 'good';
         else if (TR.total >= 3 && TR.correct === 0) mood = 'struggle';
@@ -663,10 +683,9 @@ html[data-theme="leto"]{--gold:#ffd166;--panel:#062033;--panel2:#0a2e4a;--blue:#
         mood = 'good';
       }
       if (!mood) return;
-      const pool = SPONKA_LINES[mood];
-      _spShowBubble(pool[Math.floor(Math.random() * pool.length)], mood);
+      const line = SPONKA_LINES[mood][Math.floor(Math.random() * SPONKA_LINES[mood].length)];
+      _spShowBubble(hintText ? line + ' 💡 ' + hintText : line, mood);
       _spLastShown = Date.now();
-      if (hintNow && typeof showHint === 'function') { try { showHint(); } catch (e2) {} }
     } catch (e) {}
   }
 
@@ -689,7 +708,7 @@ html[data-theme="leto"]{--gold:#ffd166;--panel:#062033;--panel2:#0a2e4a;--blue:#
     wrap.appendChild(bubble); wrap.appendChild(canvas);
     document.body.appendChild(wrap);
     _spEl = wrap; _spCanvas = canvas; _spBubble = bubble;
-    _spMood = null; _spDismissCount = 0;
+    _spMood = null; _spDismissCount = 0; _spHintedTask = null; _spFrame = 0;
     _spPulse(0.2, 380);
     _spLoop(0);
     _spPollId = setInterval(_spCheckTriggers, 4000);
