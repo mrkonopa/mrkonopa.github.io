@@ -540,7 +540,8 @@ html[data-theme="leto"]{--gold:#ffd166;--panel:#062033;--panel2:#0a2e4a;--blue:#
   const SPONKA_LINES = {
     good: ['Ty jsi dnes v pohodě! 🔥', 'Tak takhle se to dělá!', 'Paráda, jede ti to!', 'Ještě takhle dál a jsem hrdý/á! ✨', 'Wow, to bylo rychlé!'],
     struggle: ['Zkus to po krocích 🤔', 'V klidu, na to přijdeš.', 'Nadechni se a zkus to znovu.', 'Chvilka na rozmyšlenou nikdy neuškodí.'],
-    chat: ['Ahoj! 👋', 'Jsem tu, kdybys mě potřeboval/a.', 'Skvělý den na počítání!', 'Hop hop, pokračujeme? 🎯', 'Klikni na mě, kdykoliv chceš!']
+    chat: ['Ahoj! 👋', 'Jsem tu, kdybys mě potřeboval/a.', 'Skvělý den na počítání!', 'Hop hop, pokračujeme? 🎯', 'Klikni na mě, kdykoliv chceš!'],
+    revive: ['Nějaké téma by chtělo oživit! 🔁 Mrkni na mapu.', 'Čeká na tebe hvězda! ⭐ Zkus „Dnes k oživení".', 'Opakování dělá mistra — jedno téma na tebe čeká! 🔁']
   };
   const SPONKA_COOLDOWN_MS = 100000;
   let _spEl = null, _spCanvas = null, _spBubble = null, _spLastShown = 0, _spDismissCount = 0, _spRaf = null, _spPollId = null;
@@ -679,6 +680,8 @@ html[data-theme="leto"]{--gold:#ffd166;--panel:#062033;--panel2:#0a2e4a;--blue:#
       } else if (scr === 's-train' && typeof TR !== 'undefined' && TR && TR.task) {
         if (TR.streak >= 5) mood = 'good';
         else if (TR.total >= 3 && TR.correct === 0) mood = 'struggle';
+      } else if (scr === 's-map' && typeof dueRevives === 'function' && dueRevives().length) {
+        mood = 'revive';
       } else if (scr === 's-map' && typeof S !== 'undefined' && S && S.streak && S.streak.count >= 3) {
         mood = 'good';
       }
