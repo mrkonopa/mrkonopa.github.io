@@ -49,7 +49,20 @@ body::before{
 .head h1{font-weight:700;font-size:30px;letter-spacing:3px;margin:6px 0 4px;
  background:linear-gradient(90deg,#5dc8f0,#f4d03f,#19e6e6);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
 .head .sub{font-family:var(--vt);font-size:22px;color:var(--muted);letter-spacing:1px}
-.head .wip{display:inline-block;margin:0 0 6px;font-family:var(--vt);font-size:16px;letter-spacing:1px;color:#f6c343;border:1px solid #6a541a;background:#241c07;padding:2px 12px;border-radius:999px}
+/* ── staveniště: výstražné pruhy (ploty) po stranách + majáky ── */
+.constr-side{position:fixed;top:0;bottom:0;width:16px;z-index:0;background:repeating-linear-gradient(45deg,#f6c343 0 12px,#171208 12px 24px);opacity:.55;pointer-events:none}
+.constr-side.l{left:0}.constr-side.r{right:0}
+@media(max-width:1072px){.constr-side{display:none}}
+.constr-zone{position:relative;border:2px dashed #6a541a;border-radius:12px;background:#1a140755;padding:16px 18px;margin:10px auto 4px;max-width:560px;overflow:hidden}
+.constr-zone::before,.constr-zone::after{content:'';position:absolute;left:0;right:0;height:7px;background:repeating-linear-gradient(45deg,#f6c343 0 11px,#171208 11px 22px)}
+.constr-zone::before{top:0}.constr-zone::after{bottom:0}
+.constr-head{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:8px}
+.constr-head .ct{font-family:var(--vt);font-size:19px;letter-spacing:1px;color:#ffd06a}
+.beacon{width:12px;height:12px;border-radius:50%;background:#ff8c1a;box-shadow:0 0 8px 2px #ff8c1a;animation:beacon 1.1s ease-in-out infinite;flex:none}
+.beacon.d{animation-delay:.55s}
+@keyframes beacon{0%,100%{opacity:.25;box-shadow:0 0 4px 1px #ff8c1a}50%{opacity:1;box-shadow:0 0 13px 4px #ffb04d}}
+.constr-msg{font-size:13.5px;color:#f6d68a;line-height:1.5;text-align:center}
+.constr-msg a{color:#19e6e6;font-weight:700;text-decoration:none;border-bottom:1px dashed #19e6e6;cursor:pointer}
 /* student bar */
 .student{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:14px 16px;margin:18px 0;display:flex;flex-wrap:wrap;gap:14px;align-items:center;justify-content:space-between}
 .student .who{font-size:14px;color:var(--muted)}
@@ -118,6 +131,14 @@ body::before{
 .gp-btn.on{background:#f4d03f;color:#0a0d16;border-color:#f4d03f}
 .gp-vfx{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--muted);margin-left:auto;cursor:pointer;user-select:none}
 .gp-vfx input{width:16px;height:16px;accent-color:#19e6e6;cursor:pointer}
+.gp-gach-fold{margin-top:14px;border-top:1px solid var(--line);padding-top:10px}
+.gp-gach-fold summary{font-family:var(--px);font-size:12px;color:var(--text);letter-spacing:1px;cursor:pointer;list-style:none;display:flex;align-items:center;gap:6px;padding:4px 0;user-select:none}
+.gp-gach-fold summary::-webkit-details-marker{display:none}
+.gp-gach-fold summary::before{content:'▸';color:var(--muted);transition:transform .15s;font-size:11px}
+.gp-gach-fold[open] summary::before{transform:rotate(90deg)}
+.gp-gach-fold summary:hover{color:#f4d03f}
+.gp-gach-hint{font-size:10px;color:var(--muted);font-weight:400;letter-spacing:0}
+.gp-gach-fold #gp-gach{margin-top:10px}
 .ach-grid{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
 .ach-grid .ab{font-size:20px;width:34px;height:34px;display:flex;align-items:center;justify-content:center;background:var(--panel2);border:1px solid var(--line);border-radius:7px;filter:grayscale(1) opacity(.35)}
 .ach-grid .ab.on{filter:none;border-color:#f4d03f;box-shadow:0 0 8px #f4d03f55}
@@ -151,6 +172,8 @@ body::before{
 </style>
 </head>
 <body>
+<div class="constr-side l" aria-hidden="true"></div>
+<div class="constr-side r" aria-hidden="true"></div>
 <div class="wrap">
  <div class="topnav">
   <a href="./">← zpět na projekty</a>
@@ -163,8 +186,21 @@ body::before{
  <div class="head">
   <div class="glyph">🎮</div>
   <h1>RPG MATEMATIKA</h1>
-  <div class="wip">🚧 ve výstavbě</div>
   <div class="sub">Velitelské centrum · ZŠ Husova Liberec</div>
+ </div>
+
+ <div class="constr-zone">
+  <div class="constr-head">
+   <span class="beacon" aria-hidden="true"></span>
+   <span class="ct">🚧 STAVENIŠTĚ 🚧</span>
+   <span class="beacon d" aria-hidden="true"></span>
+  </div>
+  <div class="constr-msg">
+   Stránka i hry se pořád stavějí. <b style="color:#ffd06a">Našel/la jsi v příkladech — nebo kdekoliv jinde — chybu?</b>
+   Napiš mi ji prosím <b style="color:#ffd06a">hned</b> dole do pole
+   <a onclick="var f=document.getElementById('hub-feedback');if(f){f.scrollIntoView({behavior:'smooth',block:'center'});}var t=document.getElementById('fb-body');if(t)setTimeout(function(){t.focus();},400);return false;">💬&nbsp;Zpětná vazba</a>.
+   Každý vzkaz čtu a rychle opravím — moc mi to pomůže. 🙏
+  </div>
  </div>
 
  <div id="cloud-mount"></div>
@@ -191,8 +227,8 @@ body::before{
      </div>
      <div id="gp-rename" style="display:none;margin-top:4px">
       <input id="gp-rename-in" aria-label="Nové jméno postavy" maxlength="14" style="width:120px;background:#111;border:1px solid #555;color:#fff;padding:3px 6px;border-radius:4px;font-size:14px;text-transform:uppercase">
-      <button onclick="saveHeroRename()" style="background:var(--accent);border:none;color:#000;padding:3px 10px;border-radius:4px;cursor:pointer;font-size:12px;font-weight:700;margin-left:4px">OK</button>
-      <button onclick="cancelHeroRename()" style="background:#333;border:none;color:#aaa;padding:3px 8px;border-radius:4px;cursor:pointer;font-size:12px;margin-left:2px">✕</button>
+      <button onclick="saveHeroRename()" style="background:#f4d03f;border:none;color:#0a0d16;padding:3px 10px;border-radius:4px;cursor:pointer;font-size:12px;font-weight:700;margin-left:4px">OK</button>
+      <button onclick="cancelHeroRename()" style="background:#2a3350;border:1px solid #4a5578;color:#e6ecf7;padding:3px 8px;border-radius:4px;cursor:pointer;font-size:12px;margin-left:2px">✕</button>
      </div>
      <div class="gp-sub">Tvůj společný profil pro všechny hry</div>
     </div>
@@ -204,6 +240,10 @@ body::before{
   </div>
   <div class="gp-attrs" id="gp-attrs"></div>
   <div class="ach-grid" id="gp-ach"></div>
+  <details class="gp-gach-fold">
+   <summary>🏆 ŽIVOTNÍ ÚSPĚCHY <span class="gp-gach-hint">(napříč všemi ročníky — klikni pro zobrazení)</span></summary>
+   <div id="gp-gach"></div>
+  </details>
   <div class="gp-actions">
    <button class="gp-btn" id="gp-shop-btn" onclick="toggleShop()">🛍️ SDÍLENÝ OBCHOD</button>
    <label class="gp-vfx" title="Vypne blikání, otřesy a částice ve všech 4 hrách">
@@ -224,6 +264,8 @@ body::before{
    <button class="shop-tab" onclick="setShopCat('victory',this)">🎉 Vítězství</button>
    <button class="shop-tab" onclick="setShopCat('skin',this)">🥷 Skin hrdiny</button>
    <button class="shop-tab" onclick="setShopCat('powerup',this)">⚡ Powerupy</button>
+   <button class="shop-tab" onclick="setShopCat('title',this)">📜 Tituly</button>
+   <button class="shop-tab" onclick="setShopCat('pet',this)">🐾 Mazlíčci</button>
   </div>
   <div class="shop-grid" id="shop-grid"></div>
  </div>
@@ -469,6 +511,8 @@ function renderGlobalProfile(){
  nameEl.className='gp-name';
  const badgeCss=RPGWallet.cssFor('badge');
  if(badgeCss) nameEl.classList.add(badgeCss);
+ // titul pod jménem + mazlíček u avatara (centrálně z peněženky)
+ if(RPGWallet.renderTitlePet)RPGWallet.renderTitlePet({nameEl:nameEl,avatarEl:av});
  // souhrn atributů přes všechny hry
  const tot={};
  ATTR.forEach(([k])=>{ tot[k]=0; });
@@ -480,6 +524,8 @@ function renderGlobalProfile(){
  const allAch={};
  GAMES.forEach(g=>{ const S=load(g.key); if(S&&S.ach) Object.assign(allAch,S.ach); });
  document.getElementById('gp-ach').innerHTML=ACH.map(a=>`<div class="ab${allAch[a.id]?' on':''}" title="${esc(a.nm)}">${a.ic}</div>`).join('');
+ // životní úspěchy s pokrokem
+ if(RPGWallet.renderGachInto)RPGWallet.renderGachInto(document.getElementById('gp-gach'));
  // VFX přepínač
  const vfxCheck=document.getElementById('gp-vfx');
  if(vfxCheck) vfxCheck.checked=w.settings.reducedMotion;
