@@ -907,8 +907,12 @@ function buildMasteryHtml(d,gameKey){
  const unmastered=missionsFor(gameKey).filter(m=>!(d.mastery&&d.mastery[m.id]&&d.mastery[m.id].mastered));
  let pills='';
  mastered.forEach(m=>{
-  const score=((d.mastery[m.id]&&d.mastery[m.id].score)||0)|0;
-  pills+='<span title="skóre: '+score+'" style="display:inline-block;font-size:11px;font-weight:700;padding:3px 8px;border-radius:20px;margin:2px;background:var(--gold);color:#06101e">🏅 '+esc(m.id)+' '+esc(m.name)+'</span>';
+  const rec=d.mastery[m.id]||{};
+  const score=(rec.score||0)|0;
+  const st=Math.max(0,Math.min(3,(rec.stars||0)|0)); // hvězdy opakování (spaced repetition)
+  const lastOk=(typeof rec.lastOk==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(rec.lastOk))?rec.lastOk:'—';
+  const starTxt=st?' '+'⭐'.repeat(st):'';
+  pills+='<span title="skóre: '+score+' · hvězdy: '+st+'/3 · poslední oživení: '+lastOk+'" style="display:inline-block;font-size:11px;font-weight:700;padding:3px 8px;border-radius:20px;margin:2px;background:var(--gold);color:#06101e">🏅 '+esc(m.id)+' '+esc(m.name)+starTxt+'</span>';
  });
  unmastered.forEach(m=>{
   const score=((d.mastery&&d.mastery[m.id]&&d.mastery[m.id].score)||0)|0;
