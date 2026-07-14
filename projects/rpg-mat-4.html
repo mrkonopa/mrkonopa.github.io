@@ -340,6 +340,7 @@ html[data-theme="violet"]{--gold:#b06cff;--panel:#100a20;--panel2:#18103a;--blue
  </div>
  <div class="panel" id="map-leaderboard" style="display:none;padding:12px 14px"></div>
  <div class="panel" id="map-recommend" style="display:none;padding:12px 14px;margin-top:12px"></div>
+ <div class="panel" id="map-revive" style="display:none;padding:12px 14px;margin-top:12px"></div>
  <div style="display:flex;gap:8px;margin-top:12px">
   <button class="btn sm gold" style="flex:0 0 auto" onclick="go('shop')">🛍️ OBCHOD</button>
   <button class="btn" style="flex:none" onclick="openBattle()">⚔️ ŽIVÝ SOUBOJ</button>
@@ -398,7 +399,7 @@ html[data-theme="violet"]{--gold:#b06cff;--panel:#100a20;--panel2:#18103a;--blue
  </div>
  <div style="margin-top:8px">
   <div style="display:flex;justify-content:space-between;font-family:var(--px);font-size:11px;margin-bottom:4px">
-  <span style="color:var(--muted)">CESTA K MISTROVSTVÍ</span>
+  <span style="color:var(--muted)">CESTA K MISTROVSTVÍ <span id="tr-revive-chip" style="display:none;color:#ffd06a;margin-left:8px"></span></span>
   <span style="color:var(--gold)"><span id="tr-mscore">0</span> / <span id="tr-msgoal">15</span></span>
   </div>
   <div class="bar-out bar-xp"><div class="bar-in" id="tr-msbar" style="width:0%"></div></div>
@@ -775,6 +776,7 @@ function loadS(){
  if(!S.cosmetics.active||typeof S.cosmetics.active!=='object')S.cosmetics.active={border:null,badge:null,theme:'theme-default',victory:'victory-default'};
  if(!S.creditsClaimed||typeof S.creditsClaimed!=='object')S.creditsClaimed={};
  if(!S.trainErrs||typeof S.trainErrs!=='object')S.trainErrs={};
+ sanitizeMastery();
  sanitizeCosmetics();
  if(typeof RPGWallet!=='undefined')RPGWallet.migrateFrom(SAVE_KEY,S);
  return true;
@@ -805,6 +807,7 @@ const ACH=[
  {id:'battle1',     ic:'⚔️', nm:'První klání',        desc:'Zúčastni se živého souboje'},
  {id:'battlewin',   ic:'🏆', nm:'Bojovník',            desc:'Vyhraj živý souboj (1. místo)'},
  {id:'battleflawless',ic:'💎',nm:'Bezchybný',         desc:'Všechny otázky správně v živém souboji'},
+ {id:'star1',ic:'⭐',nm:'Oživovatel',              desc:'Získej první hvězdu opakování'},
 ];
 function unlockAch(id){
  if(S.ach&&S.ach[id])return;
@@ -833,6 +836,7 @@ function evalAch(ev){
  if((st.trainCorrect||0)>=50)unlockAch('train50');
  if((S.streak&&S.streak.count||0)>=3)unlockAch('streak3');
  if((S.streak&&S.streak.count||0)>=7)unlockAch('streak7');
+ if(Object.values(S.mastery||{}).some(m=>m&&(m.stars|0)>=1))unlockAch('star1');
  const br=ev.battleResult;
  if(br){unlockAch('battle1');if(br.rank===1)unlockAch('battlewin');if(br.correct>=br.q_count&&br.q_count>0)unlockAch('battleflawless');}
 }
@@ -901,6 +905,29 @@ function recommendedMission(){
  return best;
 }
 function goPractice(mid){go('train');startTrain(mid);}
+function dueRevives(){
+ const out=[];
+ AREAS.forEach(ar=>ar.missions.forEach(m=>{
+  const rv=reviveState(m.id);
+  if(rv.due)out.push({mid:m.id,name:m.name,icon:ar.icon||'',stars:rv.stars,daysSince:rv.daysSince,over:rv.daysSince-rv.nextGap});
+ }));
+ out.sort((a,b)=>b.over-a.over);
+ return out.slice(0,REVIVE_PANEL_MAX);
+}
+function renderRevive(){
+ const rp=document.getElementById('map-revive');if(!rp)return;
+ const due=dueRevives();
+ if(!due.length){rp.style.display='none';return;}
+ rp.style.display='block';
+ rp.innerHTML='<div style="font-family:var(--px);font-size:13px;color:var(--gold);font-weight:700;margin-bottom:2px">🔁 Dnes k oživení</div>'+
+  '<div style="font-family:var(--px);font-size:11px;color:var(--muted);margin-bottom:8px">Co umíš, si udržíš jen opakováním. Oživ téma ('+REVIVE_GOAL+' správných) a získej hvězdu!</div>'+
+  due.map(d=>{
+   const stars='⭐'.repeat(d.stars)+'☆'.repeat(3-d.stars);
+   return '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:5px 0;border-top:1px solid #ffffff12">'+
+    '<div style="font-family:var(--px);font-size:12px;color:var(--text)">'+d.icon+' <b>'+d.name+'</b> <span style="color:#ffd06a">'+stars+'</span> <span style="color:var(--muted)">· naposledy před '+d.daysSince+' '+(d.daysSince===1?'dnem':'dny')+'</span></div>'+
+    '<button class="btn b sm" style="flex:none" onclick="goPractice(\''+d.mid+'\')">⭐ Oživit</button></div>';
+  }).join('');
+}
 function renderRecommend(){
  const rp=document.getElementById('map-recommend');if(!rp)return;
  const rec=recommendedMission();
@@ -925,6 +952,7 @@ function renderMap(){
  if(sch){if(sc>=2){sch.style.display='inline-flex';document.getElementById('map-streak-n').textContent=sc;}else sch.style.display='none';}
  if(window.RPGCloud&&RPGCloud.renderLeaderboardInto)RPGCloud.renderLeaderboardInto('map-leaderboard',SAVE_KEY);
  renderRecommend();
+ renderRevive();
  const g=document.getElementById('map-grid');g.innerHTML='';
  const TINT={1:'#1a4a5a',2:'#2a4a3a',3:'#5a2a2a',4:'#5a4a1a',5:'#1a3a5a',6:'#3a4a2a',7:'#3a1a4a'};
  AREAS.forEach((ar,i)=>{
@@ -1026,7 +1054,11 @@ function launchBattle(aid,mid){
  const ex=window.RPG_TASK_EXTRA_4;
  if(ex&&typeof ex[m.id]==='function'){try{pool=pool.concat(ex[m.id]());}catch(e){}}
  if(!pool.length){alert('⚠️ Úkoly se nepodařilo načíst. Obnov prosím stránku (Ctrl+Shift+R) a zkus to znovu.');return;}
- BT.tasks=shuffleArr(pool).slice(0,m.tc);
+ BT.pool=pool;
+ BT.srcIdx=shuffleArr(pool.map((_,i)=>i)).slice(0,m.tc);
+ BT.tasks=BT.srcIdx.map(i=>pool[i]);
+ BT.adapt={errRow:0,okRow:0,mode:0};
+ BT._rendered=-1;
  BT.idx=0;
  const _doneSoFar=BT.tasks.filter((_,i)=>S.done[`${mid}-${i}`]).length;
  BT._doneBattle=(_doneSoFar>=BT.tasks.length)?0:_doneSoFar;
@@ -1108,7 +1140,7 @@ function updateTimerUi(){
 function onTimeOut(){
  if(BT.hp<=0)return;
  const fb=document.getElementById('bt-fb');fb.textContent='⏱ ČAS VYPRŠEL!';fb.className='feedback err';
- monsterAttack();damagePlayer();
+ monsterAttack();damagePlayer();adaptOnAnswer(false);
  setTimeout(()=>{
   if(BT.hp>0){
    const inp=document.getElementById('bt-ans');if(inp){inp.disabled=false;inp.value='';inp.focus();}
@@ -1118,15 +1150,44 @@ function onTimeOut(){
  },1300);
 }
 
+// ══ TICHÁ ADAPTIVNÍ OBTÍŽNOST BOJE (ZPD) ══
+function adaptScore(pi){
+ const errs=((S.trainErrs&&S.trainErrs[BT.mid])||{})[pi]||0;
+ return pi/Math.max(1,BT.pool.length)+Math.min(errs,4)/4;
+}
+function adaptOnAnswer(ok){
+ const a=BT.adapt;if(!a)return;
+ if(ok){a.okRow++;a.errRow=0;}else{a.errRow++;a.okRow=0;}
+ a.mode=a.errRow>=2?-1:(a.okRow>=3?1:0);
+}
+function adaptPick(easier){
+ if(!BT.pool||BT.pool.length<=BT.tasks.length+2)return null;
+ const usedPending=new Set(BT.srcIdx.filter((_,i)=>!S.done[`${BT.mid}-${i}`]));
+ const cand=BT.pool.map((_,i)=>i).filter(i=>!usedPending.has(i));
+ if(!cand.length)return null;
+ cand.sort((x,y)=>adaptScore(x)-adaptScore(y));
+ const third=Math.max(1,Math.floor(cand.length/3));
+ const seg=easier?cand.slice(0,third):cand.slice(-third);
+ return seg[ri(0,seg.length-1)];
+}
+function adaptMaybeSwap(idx){
+ const a=BT.adapt;
+ if(!a||a.mode===0||BT._rendered===idx||S.done[`${BT.mid}-${idx}`])return;
+ const pi=adaptPick(a.mode<0);
+ if(pi!=null){BT.srcIdx[idx]=pi;BT.tasks[idx]=BT.pool[pi];}
+}
 function renderTask(){
  const mt=miniForIdx(BT.idx);if(mt){renderBattleMini(mt);return;}
  BT.miniStarting=false;
  const mhBtn=document.getElementById('bt-mini-hint');if(mhBtn)mhBtn.style.display='none';
+ adaptMaybeSwap(BT.idx);
+ BT._rendered=BT.idx;
  const t=BT.tasks[BT.idx];BT.curTask=t;BT.hl=0;BT.timerFrozen=false;
  if(BT.freezeTimeout){clearTimeout(BT.freezeTimeout);BT.freezeTimeout=null;}
  document.getElementById('timer-bar').classList.remove('frozen');
  const _tEx=(typeof RPGWallet!=='undefined'&&RPGWallet.hasPowerup('pu-time-bonus'))?5:0;
  BT.curLimit=TIME_PER_TASK+_tEx;
+ if(BT.adapt&&BT.adapt.mode<0)BT.curLimit=Math.round(BT.curLimit*1.2);
  document.getElementById('bt-num').textContent=BT.idx+1;document.getElementById('bt-tot').textContent=BT.tasks.length;
  const _hpPct=updateBossHpBar();
  if(_hpPct<=55&&BT.phase===1){BT.phase=2;const top=document.getElementById('bt-top');top.classList.add('phase2');const fb=document.getElementById('bt-fb');fb.textContent='🔥 BOSS JE V ZUŘIVOSTI! 🔥';fb.className='feedback err';const mon=document.getElementById('bt-mon');mon.style.filter='drop-shadow(0 6px 0 #0008) drop-shadow(0 0 14px #e74c3c)';mon.style.fontSize='132px';hitVignette();}
@@ -1198,7 +1259,7 @@ function battleMiniDone(mistakes){
  if(mistakes===0)BT.combo++;else BT.combo=0;updateCombo();
  const xpKey=`${BT.mid}-${BT.idx}`;
  if(!S.xpClaimed)S.xpClaimed={};
- const xpGain=(!S.xpClaimed[xpKey])?7:2;S.xpClaimed[xpKey]=true;
+ const _first=!S.xpClaimed[xpKey];const xpGain=(_first?7:2)+((_first&&BT.adapt&&BT.adapt.mode>0)?2:0);S.xpClaimed[xpKey]=true;
  S.done[xpKey]=true;saveS();awardXp(xpGain,isCrit);if(typeof RPGWallet!=='undefined')RPGWallet.earn(isCrit?7+wCritBonus():5,SAVE_KEY);
  document.getElementById('next-btn').style.display='inline-block';document.getElementById('next-btn').focus();
  damageMonster(xpGain,isCrit);updateCombo();if(!S.stats)S.stats={};if(BT.combo>(S.stats.bestCombo||0))S.stats.bestCombo=BT.combo;
@@ -1273,16 +1334,16 @@ function pickMC(btn,chosen,correct){
  if(ok){
   document.querySelectorAll('#mc-grid .mc-btn').forEach(b=>b.disabled=true);
   BT.combo++;updateCombo();
-  const isCrit=BT.combo>=3;const xpGain=(!S.xpClaimed[xpKey])?7:2;S.xpClaimed[xpKey]=true;S.done[xpKey]=true;BT._doneBattle++;saveS();
+  const isCrit=BT.combo>=3;const _first=!S.xpClaimed[xpKey];const xpGain=(_first?7:2)+((_first&&BT.adapt&&BT.adapt.mode>0)?2:0);S.xpClaimed[xpKey]=true;S.done[xpKey]=true;BT._doneBattle++;saveS();
   awardXp(xpGain,isCrit);if(typeof RPGWallet!=='undefined')RPGWallet.earn(isCrit?7+wCritBonus():5,SAVE_KEY);
   fb.textContent='✓ SPRÁVNĚ!';fb.className='feedback ok';
   if(!S.stats)S.stats={};if(BT.combo>(S.stats.bestCombo||0))S.stats.bestCombo=BT.combo;
-  damageMonster(xpGain,isCrit);evalAch({correct:true,combo:BT.combo,timeLeft:BT.timeLeft});wBump('tasks');if(isCrit)wBump('crits');checkMissionComplete();
+  damageMonster(xpGain,isCrit);evalAch({correct:true,combo:BT.combo,timeLeft:BT.timeLeft});wBump('tasks');if(isCrit)wBump('crits');adaptOnAnswer(true);checkMissionComplete();
   document.getElementById('next-btn').style.display='inline-block';
  }else{
   btn.disabled=true;
   if(!S.errs)S.errs={};S.errs[BT.mid]=(S.errs[BT.mid]||0)+1;saveS();
-  BT.combo=0;updateCombo();fb.textContent=`✗ Zkus jiný!`;fb.className='feedback err';monsterAttack();damagePlayer();
+  BT.combo=0;updateCombo();fb.textContent=`✗ Zkus jiný!`;fb.className='feedback err';monsterAttack();damagePlayer();adaptOnAnswer(false);
  }
 }
 
@@ -1294,17 +1355,17 @@ function submitAnswer(){
  if(ok){
   inp.disabled=true;document.getElementById('attack-btn').disabled=true;
   BT.combo++;updateCombo();const isCrit=BT.combo>=3;
-  const xpGain=(!S.xpClaimed[xpKey])?7:2;S.xpClaimed[xpKey]=true;S.done[xpKey]=true;BT._doneBattle++;saveS();
+  const _first=!S.xpClaimed[xpKey];const xpGain=(_first?7:2)+((_first&&BT.adapt&&BT.adapt.mode>0)?2:0);S.xpClaimed[xpKey]=true;S.done[xpKey]=true;BT._doneBattle++;saveS();
   awardXp(xpGain,isCrit);if(typeof RPGWallet!=='undefined')RPGWallet.earn(isCrit?7+wCritBonus():5,SAVE_KEY);
   fb.textContent='✓ SPRÁVNĚ!';fb.className='feedback ok';
   document.getElementById('next-btn').style.display='inline-block';
   if(!BT.mcMode)document.getElementById('bt-explain').style.display='block';
   damageMonster(xpGain,isCrit);updateCombo();
   if(!S.stats)S.stats={};if(BT.combo>(S.stats.bestCombo||0))S.stats.bestCombo=BT.combo;
-  evalAch({correct:true,combo:BT.combo,timeLeft:BT.timeLeft});wBump('tasks');if(isCrit)wBump('crits');checkMissionComplete();
+  evalAch({correct:true,combo:BT.combo,timeLeft:BT.timeLeft});wBump('tasks');if(isCrit)wBump('crits');adaptOnAnswer(true);checkMissionComplete();
  }else{
   BT.combo=0;updateCombo();fb.textContent='✗ ŠPATNĚ — "'+raw+'" není správně.';fb.className='feedback err';
-  monsterAttack();damagePlayer();
+  monsterAttack();damagePlayer();adaptOnAnswer(false);
   inp.value='';if(!isYN(t))inp.focus();
  }
 }
@@ -1443,7 +1504,7 @@ function renderShop(){
 function buyItem(id){
  if(typeof RPGWallet!=='undefined'){const r=RPGWallet.buy(id);if(!r.ok){alert('Nedostatek kreditů!');return;}applyCosmetics();return;}
  const item=typeof SHOP_ITEMS!=='undefined'?SHOP_ITEMS.find(i=>i.id===id):null;if(!item)return;
- if(!S.cosmetics||!Array.isArray(S.cosmetics.owned))sanitizeCosmetics();
+ sanitizeMastery();if(!S.cosmetics||!Array.isArray(S.cosmetics.owned))sanitizeCosmetics();
  if(item.price===0||S.cosmetics.owned.includes(id)){activateItem(id);return;}
  if(S.credits<item.price){alert('Nedostatek kreditů!');return;}
  S.credits=Math.floor(S.credits)-item.price;S.cosmetics.owned=[...new Set([...S.cosmetics.owned,id])];saveS();activateItem(id);
@@ -1451,13 +1512,63 @@ function buyItem(id){
 function activateItem(id){
  if(typeof RPGWallet!=='undefined'){RPGWallet.activate(id);applyCosmetics();renderShop();return;}
  const item=typeof SHOP_ITEMS!=='undefined'?SHOP_ITEMS.find(i=>i.id===id):null;if(!item)return;
- if(!S.cosmetics||!Array.isArray(S.cosmetics.owned))sanitizeCosmetics();
+ sanitizeMastery();if(!S.cosmetics||!Array.isArray(S.cosmetics.owned))sanitizeCosmetics();
  S.cosmetics.active[item.cat]=id;saveS();applyCosmetics();renderShop();
 }
 
 // TRAIN + MASTERY
 const MASTERY_GOAL=15;
 function masteryOf(mid){if(!S.mastery)S.mastery={};const m=S.mastery[mid]||{score:0,mastered:false};return m;}
+
+// ══ HVĚZDNÉ OPAKOVÁNÍ (spaced repetition) ══
+// Mistrovství 🏅 zůstává navždy; hvězdy ⭐ se získávají ZOPAKOVÁNÍM tématu
+// s časovým odstupem (3/7/21 dní od posledního oživení). lastOk se posouvá
+// JEN při zisku hvězdy — denní trénink o hvězdu nepřipraví.
+const REVIVE_GAPS=[3,7,21];
+const REVIVE_CREDITS=[10,20,40];
+const REVIVE_GOAL=5;
+const REVIVE_PANEL_MAX=3;
+function todayStr(){return new Date().toISOString().slice(0,10);}
+function daysSinceStr(d){const t=Date.parse(d);if(!isFinite(t))return 0;return Math.floor((Date.now()-t)/864e5);}
+function sanitizeMastery(){
+ if(!S.mastery||typeof S.mastery!=='object'){S.mastery={};return;}
+ for(const mid of Object.keys(S.mastery)){
+  let m=S.mastery[mid];
+  if(!m||typeof m!=='object'){m=S.mastery[mid]={score:0,mastered:false};}
+  m.score=(typeof m.score==='number'&&isFinite(m.score)&&m.score>0)?Math.floor(m.score):0;
+  m.mastered=!!m.mastered;
+  m.stars=(typeof m.stars==='number'&&isFinite(m.stars))?Math.max(0,Math.min(3,Math.floor(m.stars))):0;
+  if(!m.mastered){m.stars=0;m.lastOk='';m.starHist=[];continue;}
+  if(typeof m.lastOk!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(m.lastOk)||!isFinite(Date.parse(m.lastOk)))m.lastOk=todayStr();
+  if(m.lastOk>todayStr())m.lastOk=todayStr();
+  m.starHist=Array.isArray(m.starHist)?m.starHist.filter(d=>typeof d==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(d)).slice(0,3):[];
+ }
+}
+function reviveState(mid){
+ const m=S.mastery&&S.mastery[mid];
+ if(!m||!m.mastered)return{stars:0,due:false,daysSince:0,nextGap:REVIVE_GAPS[0]};
+ const st=Math.max(0,Math.min(3,m.stars|0));
+ const ds=m.lastOk?daysSinceStr(m.lastOk):0;
+ const gap=st<3?REVIVE_GAPS[st]:Infinity;
+ return{stars:st,due:st<3&&ds>=gap,daysSince:ds,nextGap:gap};
+}
+function awardStar(mid){
+ const m=S.mastery&&S.mastery[mid];if(!m||!m.mastered)return 0;
+ const st=Math.max(0,Math.min(3,m.stars|0));if(st>=3)return 0;
+ m.stars=st+1;m.lastOk=todayStr();
+ if(!Array.isArray(m.starHist))m.starHist=[];
+ m.starHist.push(m.lastOk);
+ saveS();
+ earnCredits(REVIVE_CREDITS[m.stars-1]);
+ evalAch({});
+ return m.stars;
+}
+function trReviveChip(){
+ const el=document.getElementById('tr-revive-chip');if(!el)return;
+ if(TR.revive&&!TR.revive.earned){el.style.display='inline-block';el.textContent='🔁 Oživení: '+TR.revive.count+'/'+REVIVE_GOAL;}
+ else el.style.display='none';
+}
+
 let TR={mid:null,m:null,task:null,pool:[],correct:0,total:0,streak:0,hl:0};
 function renderTrainPicker(){
  document.getElementById('train-picker').style.display='block';
@@ -1468,7 +1579,7 @@ function renderTrainPicker(){
   ar.missions.forEach(m=>{
    const ms=masteryOf(m.id);const it=document.createElement('div');it.className='train-item'+(ms.mastered?' mastered':'');
    const hasLearn=window.RPG_LEARN_4&&window.RPG_LEARN_4[m.id];
-   it.innerHTML=`<div class="t-nm">${ms.mastered?'🏅 ':''}${m.name}</div><div class="t-prog" style="font-size:11px;color:var(--muted)">${ms.score|0}/${MASTERY_GOAL}</div>${hasLearn?`<button class="learn-btn" onclick="startLearn('${m.id}');event.stopPropagation()">📖</button>`:''}`;
+   const rv=reviveState(m.id);const starTxt=ms.mastered&&rv.stars>0?' <span style="color:#ffd06a">'+'⭐'.repeat(rv.stars)+'</span>':'';const dueChip=rv.due?' <span style="color:#ffd06a;font-size:10px">🔁 k oživení</span>':'';const gapTxt=!ms.mastered?`${ms.score|0}/${MASTERY_GOAL}`:(rv.stars>=3?'⭐⭐⭐ navždy tvoje':(rv.due?'dnes k oživení!':'další hvězda za '+Math.max(1,rv.nextGap-rv.daysSince)+' '+(Math.max(1,rv.nextGap-rv.daysSince)===1?'den':(Math.max(1,rv.nextGap-rv.daysSince)<=4?'dny':'dní'))));it.innerHTML=`<div class="t-nm">${ms.mastered?'🏅':''}${starTxt}${dueChip} ${m.name}</div><div class="t-prog" style="font-size:11px;color:var(--muted)">${gapTxt}</div>${hasLearn?`<button class="learn-btn" onclick="startLearn('${m.id}');event.stopPropagation()">📖</button>`:''}`;
    it.onclick=()=>startTrain(m.id);list.appendChild(it);
   });
  });
@@ -1490,11 +1601,12 @@ function startTrain(mid){
  const ar=AREAS.find(a=>a.missions.some(m=>m.id===mid));const m=ar?ar.missions.find(x=>x.id===mid):null;if(!m)return;
  let pool=m.tasks();const ex=window.RPG_TASK_EXTRA_4;if(ex&&typeof ex[mid]==='function'){try{pool=pool.concat(ex[mid]());}catch(e){}}
  if(!pool.length){alert('Pro toto téma nejsou dostupné úlohy.');return;}
- TR={mid,m,pool:trBuildBag(pool,mid),correct:0,total:0,streak:0,hl:0,curIdx:null};
+ TR={mid,m,pool:trBuildBag(pool,mid),correct:0,total:0,streak:0,hl:0,curIdx:null,revive:reviveState(mid).due?{count:0,earned:false}:null};
  document.getElementById('train-picker').style.display='none';
  document.getElementById('train-play').style.display='block';
  document.getElementById('tr-title').textContent=m.name;
  document.getElementById('tr-msgoal').textContent=MASTERY_GOAL;
+ trReviveChip();
  trDraw();
 }
 function trDraw(){
@@ -1543,10 +1655,20 @@ function trCorrect(){
   S.trainErrs[TR.mid][TR.curIdx]=Math.max(0,S.trainErrs[TR.mid][TR.curIdx]-1);
  }
  if(!S.stats)S.stats={};S.stats.trainCorrect=(S.stats.trainCorrect||0)+1;
- const ms=masteryOf(TR.mid);ms.score=Math.min(ms.score+1,MASTERY_GOAL+5);if(ms.score>=MASTERY_GOAL&&!ms.mastered){ms.mastered=true;wBump('mastered');floatText('🏅 MISTROVSTVÍ!',window.innerWidth/2-70,window.innerHeight*0.4,'#f0c040');}
+ const ms=masteryOf(TR.mid);const wasM=!!ms.mastered;ms.score=Math.min(ms.score+1,MASTERY_GOAL+5);if(ms.score>=MASTERY_GOAL&&!ms.mastered){ms.mastered=true;wBump('mastered');floatText('🏅 MISTROVSTVÍ!',window.innerWidth/2-70,window.innerHeight*0.4,'#f0c040');}
  if(!S.mastery)S.mastery={};S.mastery[TR.mid]=ms;
- earnCredits(ms.mastered?30:1);wBump('tasks');evalAch({correct:true,combo:TR.streak});saveS();
+ earnCredits((!wasM&&ms.mastered)?30:(ms.mastered?0:1));wBump('tasks');evalAch({correct:true,combo:TR.streak});saveS();
  const fb=document.getElementById('tr-fb');fb.textContent='✓ SPRÁVNĚ!';fb.className='feedback ok';
+ if(TR.revive&&!TR.revive.earned){
+  TR.revive.count++;
+  if(TR.revive.count>=REVIVE_GOAL){
+   TR.revive.earned=true;
+   const st=awardStar(TR.mid);
+   if(st===3)fb.textContent='🌟 TŘETÍ HVĚZDA! Tohle téma už jen tak nezapomeneš · +'+REVIVE_CREDITS[2]+' kr';
+   else if(st>0)fb.textContent='⭐ TÉMA OŽIVENO! Hvězda '+st+'/3 · +'+REVIVE_CREDITS[st-1]+' kr';
+  }
+  trReviveChip();
+ }
  trStats();document.getElementById('tr-next-btn').style.display='inline-block';
 }
 function trWrong(){
@@ -1644,7 +1766,7 @@ document.addEventListener('keydown',e=>{
 
 // answerYN is in rpg-shared.js; define fallback
 function isYN(t){return t&&(String(t.ans)==='ANO'||String(t.ans)==='NE');}
-function answerYN(yn){document.querySelectorAll('#yn-row button').forEach(b=>b.disabled=true);const t=BT.curTask;const ok=checkAns(yn,String(t.ans));stopTimer();const xpKey=`${BT.mid}-${BT.idx}`;if(!S.xpClaimed)S.xpClaimed={};const fb=document.getElementById('bt-fb');if(ok){BT.combo++;updateCombo();const isCrit=BT.combo>=3;const xpGain=(!S.xpClaimed[xpKey])?7:2;S.xpClaimed[xpKey]=true;S.done[xpKey]=true;saveS();awardXp(xpGain,isCrit);if(typeof RPGWallet!=='undefined')RPGWallet.earn(isCrit?7+wCritBonus():5,SAVE_KEY);fb.textContent='✓ SPRÁVNĚ!';fb.className='feedback ok';document.getElementById('next-btn').style.display='inline-block';damageMonster(xpGain,isCrit);updateCombo();evalAch({correct:true,combo:BT.combo,timeLeft:BT.timeLeft});wBump('tasks');if(isCrit)wBump('crits');checkMissionComplete();}else{BT.combo=0;updateCombo();if(!S.errs)S.errs={};S.errs[BT.mid]=(S.errs[BT.mid]||0)+1;saveS();fb.textContent='✗ Správně: '+t.ans;fb.className='feedback err';monsterAttack();damagePlayer();}}
+function answerYN(yn){document.querySelectorAll('#yn-row button').forEach(b=>b.disabled=true);const t=BT.curTask;const ok=checkAns(yn,String(t.ans));stopTimer();const xpKey=`${BT.mid}-${BT.idx}`;if(!S.xpClaimed)S.xpClaimed={};const fb=document.getElementById('bt-fb');if(ok){BT.combo++;updateCombo();const isCrit=BT.combo>=3;const _first=!S.xpClaimed[xpKey];const xpGain=(_first?7:2)+((_first&&BT.adapt&&BT.adapt.mode>0)?2:0);S.xpClaimed[xpKey]=true;S.done[xpKey]=true;saveS();awardXp(xpGain,isCrit);if(typeof RPGWallet!=='undefined')RPGWallet.earn(isCrit?7+wCritBonus():5,SAVE_KEY);fb.textContent='✓ SPRÁVNĚ!';fb.className='feedback ok';document.getElementById('next-btn').style.display='inline-block';damageMonster(xpGain,isCrit);updateCombo();evalAch({correct:true,combo:BT.combo,timeLeft:BT.timeLeft});wBump('tasks');if(isCrit)wBump('crits');adaptOnAnswer(true);checkMissionComplete();}else{BT.combo=0;updateCombo();if(!S.errs)S.errs={};S.errs[BT.mid]=(S.errs[BT.mid]||0)+1;saveS();fb.textContent='✗ Správně: '+t.ans;fb.className='feedback err';monsterAttack();damagePlayer();adaptOnAnswer(false);}}
 function checkAns(a,b){if(typeof a==='undefined'||typeof b==='undefined')return false;const na=String(a).trim().replace(',','.');const nb=String(b).trim().replace(',','.');const fa=parseFloat(na),fb=parseFloat(nb);if(!isNaN(fa)&&!isNaN(fb))return Math.abs(fa-fb)<0.001;return na.toUpperCase()===nb.toUpperCase();}
 
 function checkMissionComplete(){
