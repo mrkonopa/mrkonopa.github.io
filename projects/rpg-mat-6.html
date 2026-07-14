@@ -526,6 +526,7 @@ html[data-theme="violet"]{--gold:#b06cff;--panel:#100a20;--panel2:#18103a;--blue
  </div>
  <div class="panel" id="map-leaderboard" style="display:none;padding:12px 14px"></div>
  <div class="panel" id="map-recommend" style="display:none;padding:12px 14px;margin-top:12px"></div>
+ <div class="panel" id="map-revive" style="display:none;padding:12px 14px;margin-top:12px"></div>
  <div style="display:flex;gap:8px;margin-top:12px">
   <button class="btn sm gold" style="flex:0 0 auto" onclick="go('shop')">🛍️ OBCHOD</button>
   <button class="btn" style="flex:none" onclick="openBattle()">⚔️ ŽIVÝ SOUBOJ</button>
@@ -652,7 +653,7 @@ html[data-theme="violet"]{--gold:#b06cff;--panel:#100a20;--panel2:#18103a;--blue
  </div>
  <div style="margin-top:8px">
   <div style="display:flex;justify-content:space-between;font-family:var(--px);font-size:11px;margin-bottom:4px">
-  <span style="color:var(--muted)">CESTA K MISTROVSTVÍ</span>
+  <span style="color:var(--muted)">CESTA K MISTROVSTVÍ <span id="tr-revive-chip" style="display:none;color:#ffd06a;margin-left:8px"></span></span>
   <span style="color:var(--gold)"><span id="tr-mscore">0</span> / <span id="tr-msgoal">15</span></span>
   </div>
   <div class="bar-out bar-xp"><div class="bar-in" id="tr-msbar" style="width:0%"></div></div>
@@ -1425,7 +1426,7 @@ let S = {name:'HRDINA',xp:0,level:1,attrs:{calc:0,geo:0,anal:0,craft:0},done:{},
 let GODMODE=false;
 
 function saveS(){localStorage.setItem(SAVE_KEY,JSON.stringify(S));if(window.RPGCloud&&RPGCloud.push)RPGCloud.push(SAVE_KEY,S);}
-function loadS(){const r=localStorage.getItem(SAVE_KEY);if(!r)return false;try{S=JSON.parse(r);}catch(e){return false;}if(!S||typeof S!=='object'){S={name:'HRDINA',xp:0,level:1,attrs:{calc:0,geo:0,anal:0,craft:0},done:{},inv:[],mastery:{},xpClaimed:{},teacherUnlocked:[]};return false;}if(typeof S.name!=='string')S.name='HRDINA';if(typeof S.xp!=='number'||!isFinite(S.xp))S.xp=0;if(typeof S.level!=='number'||!isFinite(S.level))S.level=1;if(!S.attrs||typeof S.attrs!=='object')S.attrs={calc:0,geo:0,anal:0,craft:0};if(!S.done||typeof S.done!=='object')S.done={};if(!Array.isArray(S.inv))S.inv=[];if(!S.mastery||typeof S.mastery!=='object')S.mastery={};if(!S.xpClaimed||typeof S.xpClaimed!=='object')S.xpClaimed={};if(!Array.isArray(S.teacherUnlocked))S.teacherUnlocked=[];if(!S.ach||typeof S.ach!=='object')S.ach={};if(!S.stats||typeof S.stats!=='object')S.stats={crits:0,trainCorrect:0,bestCombo:0};if(!S.streak||typeof S.streak!=='object')S.streak={count:0,last:''};if(!S.errs||typeof S.errs!=='object')S.errs={};if(!Array.isArray(S.errsSnap))S.errsSnap=[];if(typeof S.snapsMigrated!=='boolean')S.snapsMigrated=false;if(!S.settings||typeof S.settings!=='object')S.settings={reducedMotion:false};if(typeof S.credits!=='number'||!isFinite(S.credits)||S.credits<0)S.credits=0;S.credits=Math.floor(S.credits);if(!S.cosmetics||typeof S.cosmetics!=='object')S.cosmetics={owned:['theme-default','victory-default'],active:{border:null,badge:null,theme:'theme-default',victory:'victory-default'}};if(!Array.isArray(S.cosmetics.owned))S.cosmetics.owned=['theme-default','victory-default'];if(!S.cosmetics.active||typeof S.cosmetics.active!=='object')S.cosmetics.active={border:null,badge:null,theme:'theme-default',victory:'victory-default'};if(!S.creditsClaimed||typeof S.creditsClaimed!=='object')S.creditsClaimed={};if(!S.trainErrs||typeof S.trainErrs!=='object')S.trainErrs={};sanitizeCosmetics();if(typeof RPGWallet!=='undefined')RPGWallet.migrateFrom(SAVE_KEY,S);return true;}
+function loadS(){const r=localStorage.getItem(SAVE_KEY);if(!r)return false;try{S=JSON.parse(r);}catch(e){return false;}if(!S||typeof S!=='object'){S={name:'HRDINA',xp:0,level:1,attrs:{calc:0,geo:0,anal:0,craft:0},done:{},inv:[],mastery:{},xpClaimed:{},teacherUnlocked:[]};return false;}if(typeof S.name!=='string')S.name='HRDINA';if(typeof S.xp!=='number'||!isFinite(S.xp))S.xp=0;if(typeof S.level!=='number'||!isFinite(S.level))S.level=1;if(!S.attrs||typeof S.attrs!=='object')S.attrs={calc:0,geo:0,anal:0,craft:0};if(!S.done||typeof S.done!=='object')S.done={};if(!Array.isArray(S.inv))S.inv=[];if(!S.mastery||typeof S.mastery!=='object')S.mastery={};if(!S.xpClaimed||typeof S.xpClaimed!=='object')S.xpClaimed={};if(!Array.isArray(S.teacherUnlocked))S.teacherUnlocked=[];if(!S.ach||typeof S.ach!=='object')S.ach={};if(!S.stats||typeof S.stats!=='object')S.stats={crits:0,trainCorrect:0,bestCombo:0};if(!S.streak||typeof S.streak!=='object')S.streak={count:0,last:''};if(!S.errs||typeof S.errs!=='object')S.errs={};if(!Array.isArray(S.errsSnap))S.errsSnap=[];if(typeof S.snapsMigrated!=='boolean')S.snapsMigrated=false;if(!S.settings||typeof S.settings!=='object')S.settings={reducedMotion:false};if(typeof S.credits!=='number'||!isFinite(S.credits)||S.credits<0)S.credits=0;S.credits=Math.floor(S.credits);if(!S.cosmetics||typeof S.cosmetics!=='object')S.cosmetics={owned:['theme-default','victory-default'],active:{border:null,badge:null,theme:'theme-default',victory:'victory-default'}};if(!Array.isArray(S.cosmetics.owned))S.cosmetics.owned=['theme-default','victory-default'];if(!S.cosmetics.active||typeof S.cosmetics.active!=='object')S.cosmetics.active={border:null,badge:null,theme:'theme-default',victory:'victory-default'};if(!S.creditsClaimed||typeof S.creditsClaimed!=='object')S.creditsClaimed={};if(!S.trainErrs||typeof S.trainErrs!=='object')S.trainErrs={};sanitizeMastery();sanitizeCosmetics();if(typeof RPGWallet!=='undefined')RPGWallet.migrateFrom(SAVE_KEY,S);return true;}
 function rmActive(){return((typeof RPGWallet!=='undefined')&&RPGWallet.getReducedMotion())||(S.settings&&S.settings.reducedMotion)||false;}
 function applyMotionPref(){document.documentElement.classList.toggle('reduced-motion',rmActive());}
 function toggleReducedMotion(on){if(!S.settings||typeof S.settings!=='object')S.settings={reducedMotion:false};S.settings.reducedMotion=on;if(typeof RPGWallet!=='undefined')RPGWallet.setReducedMotion(on);applyMotionPref();saveS();}
@@ -1517,6 +1518,7 @@ const ACH=[
  {id:'battle1',     ic:'⚔️', nm:'První klání',       desc:'Zúčastni se živého souboje'},
  {id:'battlewin',   ic:'🏆', nm:'Bojovník',           desc:'Vyhraj živý souboj (1. místo)'},
  {id:'battleflawless',ic:'💎',nm:'Bezchybný',        desc:'Všechny otázky správně v živém souboji'},
+ {id:'star1',     ic:'⭐', nm:'Oživovatel',         desc:'Získej první hvězdu opakování'},
 ];
 function unlockAch(id){
  if(S.ach&&S.ach[id])return;
@@ -1545,6 +1547,7 @@ function evalAch(ev){
  if((st.trainCorrect||0)>=50)unlockAch('train50');
  if((S.streak&&S.streak.count||0)>=3)unlockAch('streak3');
  if((S.streak&&S.streak.count||0)>=7)unlockAch('streak7');
+ if(Object.values(S.mastery||{}).some(m=>m&&(m.stars|0)>=1))unlockAch('star1');
  const br=ev.battleResult;
  if(br){unlockAch('battle1');if(br.rank===1)unlockAch('battlewin');if(br.correct>=br.q_count&&br.q_count>0)unlockAch('battleflawless');}
 }
@@ -1643,6 +1646,30 @@ function recommendedMission(){
  return best;
 }
 function goPractice(mid){go('train');startTrain(mid);}
+// témata „k oživení" — mastered, jimž vypršel interval hvězdy; seřazeno dle přetažení
+function dueRevives(){
+ const out=[];
+ AREAS.forEach(ar=>ar.missions.forEach(m=>{
+  const rv=reviveState(m.id);
+  if(rv.due)out.push({mid:m.id,name:m.name,icon:ar.icon,stars:rv.stars,daysSince:rv.daysSince,over:rv.daysSince-rv.nextGap});
+ }));
+ out.sort((a,b)=>b.over-a.over);
+ return out.slice(0,REVIVE_PANEL_MAX);
+}
+function renderRevive(){
+ const rp=document.getElementById('map-revive');if(!rp)return;
+ const due=dueRevives();
+ if(!due.length){rp.style.display='none';return;}
+ rp.style.display='block';
+ rp.innerHTML='<div style="font-family:var(--px);font-size:13px;color:var(--gold);font-weight:700;margin-bottom:2px">🔁 Dnes k oživení</div>'+
+  '<div style="font-family:var(--px);font-size:11px;color:var(--muted);margin-bottom:8px">Co umíš, si udržíš jen opakováním. Oživ téma ('+REVIVE_GOAL+' správných) a získej hvězdu!</div>'+
+  due.map(d=>{
+   const stars='⭐'.repeat(d.stars)+'☆'.repeat(3-d.stars);
+   return '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:5px 0;border-top:1px solid #ffffff12">'+
+    '<div style="font-family:var(--px);font-size:12px;color:var(--text)">'+d.icon+' <b>'+d.name+'</b> <span style="color:#ffd06a">'+stars+'</span> <span style="color:var(--muted)">· naposledy před '+d.daysSince+' '+skl(d.daysSince,'dnem','dny','dny')+'</span></div>'+
+    '<button class="btn b sm" style="flex:none" onclick="goPractice(\''+d.mid+'\')">⭐ Oživit</button></div>';
+  }).join('');
+}
 function renderRecommend(){
  const rp=document.getElementById('map-recommend');if(!rp)return;
  const rec=recommendedMission();
@@ -1668,6 +1695,7 @@ function renderMap(){
  if(sch){if(sc>=2){sch.style.display='inline-flex';document.getElementById('map-streak-n').textContent=sc;}else sch.style.display='none';}
  if(window.RPGCloud&&RPGCloud.renderLeaderboardInto)RPGCloud.renderLeaderboardInto('map-leaderboard',SAVE_KEY);
  renderRecommend();
+ renderRevive();
  const g=document.getElementById('map-grid');
  g.innerHTML='';
  // unikátní barevný nádech krajiny pro každou oblast
@@ -1827,7 +1855,11 @@ function launchBattle(aid,mid){
  let pool=m.tasks();
  const ex=window.RPG_TASK_EXTRA_6;
  if(ex && typeof ex[m.id]==='function'){try{pool=pool.concat(ex[m.id]());}catch(e){}}
- BT.tasks=shuffleArr(pool).slice(0,m.tc);
+ BT.pool=pool;
+ BT.srcIdx=shuffleArr(pool.map((_,i)=>i)).slice(0,m.tc);
+ BT.tasks=BT.srcIdx.map(i=>pool[i]);
+ BT.adapt={errRow:0,okRow:0,mode:0};
+ BT._rendered=-1;
  BT.idx=0;
  const _doneSoFar=BT.tasks.filter((_,i)=>S.done[`${mid}-${i}`]).length;
  BT._doneBattle=(_doneSoFar>=BT.tasks.length)?0:_doneSoFar;
@@ -1971,6 +2003,7 @@ function onTimeOut(){
  fb.className='feedback err';
  monsterAttack();
  damagePlayer();
+ adaptOnAnswer(false);
  // hide hint/next, let player retry on this task
  setTimeout(()=>{
  if(BT.hp>0){
@@ -1984,11 +2017,42 @@ function onTimeOut(){
  },1300);
 }
 
+// ══ TICHÁ ADAPTIVNÍ OBTÍŽNOST BOJE (ZPD) ══
+// Bez UI a bez persistence: 2 chyby v řadě → další úloha z lehčí části poolu
+// + delší čas; 3 správné v řadě → těžší úloha (+2 XP). S.done klíče indexují
+// POZICI (0..tc-1), takže výměna obsahu dosud nesplněné pozice je save-bezpečná.
+function adaptScore(pi){
+ const errs=((S.trainErrs&&S.trainErrs[BT.mid])||{})[pi]||0;
+ return pi/Math.max(1,BT.pool.length)+Math.min(errs,4)/4;
+}
+function adaptOnAnswer(ok){
+ const a=BT.adapt;if(!a)return;
+ if(ok){a.okRow++;a.errRow=0;}else{a.errRow++;a.okRow=0;}
+ a.mode=a.errRow>=2?-1:(a.okRow>=3?1:0);
+}
+function adaptPick(easier){
+ if(!BT.pool||BT.pool.length<=BT.tasks.length+2)return null;
+ const usedPending=new Set(BT.srcIdx.filter((_,i)=>!S.done[`${BT.mid}-${i}`]));
+ const cand=BT.pool.map((_,i)=>i).filter(i=>!usedPending.has(i));
+ if(!cand.length)return null;
+ cand.sort((x,y)=>adaptScore(x)-adaptScore(y));
+ const third=Math.max(1,Math.floor(cand.length/3));
+ const seg=easier?cand.slice(0,third):cand.slice(-third);
+ return seg[ri(0,seg.length-1)];
+}
+function adaptMaybeSwap(idx){
+ const a=BT.adapt;
+ if(!a||a.mode===0||BT._rendered===idx||S.done[`${BT.mid}-${idx}`])return;
+ const pi=adaptPick(a.mode<0);
+ if(pi!=null){BT.srcIdx[idx]=pi;BT.tasks[idx]=BT.pool[pi];}
+}
 function renderTask(){
  const mt=miniForIdx(BT.idx);
  if(mt){renderBattleMini(mt);return;}
  BT.miniStarting=false;
  const mhBtn=document.getElementById('bt-mini-hint');if(mhBtn)mhBtn.style.display='none';
+ adaptMaybeSwap(BT.idx);
+ BT._rendered=BT.idx;
  const t=BT.tasks[BT.idx];
  BT.curTask=t;BT.hl=0;
  BT.timerFrozen=false;
@@ -1996,6 +2060,7 @@ function renderTask(){
  document.getElementById('timer-bar').classList.remove('frozen');
  const _tExtra=(typeof RPGWallet!=='undefined'&&RPGWallet.hasPowerup('pu-time-bonus'))?5:0;
  BT.curLimit=TIME_PER_TASK+_tExtra;
+ if(BT.adapt&&BT.adapt.mode<0)BT.curLimit=Math.round(BT.curLimit*1.2);
  const tot=BT.tasks.length;
  document.getElementById('bt-num').textContent=BT.idx+1;
  document.getElementById('bt-tot').textContent=tot;
@@ -2201,7 +2266,7 @@ function submitMC(opt,btn){
  const isCrit=BT.combo>=3 && BT.hl===0;
  const xpKey=`${BT.mid}-${BT.idx}`;
  const firstTime=!S.xpClaimed[xpKey];
- const xpGain=firstTime?Math.max(3,10-BT.hl*3)*(isCrit?2:1):0;
+ const xpGain=firstTime?(Math.max(3,10-BT.hl*3)*(isCrit?2:1)+(BT.adapt&&BT.adapt.mode>0?2:0)):0;
  const fb=document.getElementById('bt-fb');
  fb.textContent=firstTime?((isCrit?'✓✓ KRITICKÝ ZÁSAH! +':'✓ SPRÁVNĚ! +')+xpGain+' XP'):'✓ SPRÁVNĚ! (mise už splněna — bez XP)';
  fb.className='feedback ok';
@@ -2214,6 +2279,7 @@ function submitMC(opt,btn){
  if(!S.stats)S.stats={};if(BT.combo>(S.stats.bestCombo||0))S.stats.bestCombo=BT.combo;
  evalAch({correct:true,combo:BT.combo,timeLeft:BT.timeLeft});
  wBump('tasks');if(isCrit)wBump('crits');
+ adaptOnAnswer(true);
  checkMissionComplete();
  }else{
  btn.classList.add('wrong');
@@ -2222,6 +2288,7 @@ function submitMC(opt,btn){
  updateCombo();
  monsterAttack();
  damagePlayer();
+ adaptOnAnswer(false);
  // timer keeps running; student picks another option
  }
 }
@@ -2437,7 +2504,7 @@ function submitAnswer(){
  const isCrit=BT.combo>=3 && BT.hl===0;
  const xpKey=`${BT.mid}-${BT.idx}`;
  const firstTime=!S.xpClaimed[xpKey];
- const xpGain=firstTime?Math.max(3,10-BT.hl*3)*(isCrit?2:1):0;
+ const xpGain=firstTime?(Math.max(3,10-BT.hl*3)*(isCrit?2:1)+(BT.adapt&&BT.adapt.mode>0?2:0)):0;
  fb.textContent=firstTime?((isCrit?'✓✓ KRITICKÝ ZÁSAH! +':'✓ SPRÁVNĚ! +')+xpGain+' XP'):'✓ SPRÁVNĚ! (mise už splněna — bez XP)';
  fb.className='feedback ok';
  if(firstTime){awardXp(xpGain,isCrit);if(t.skill&&S.attrs[t.skill]!==undefined)S.attrs[t.skill]+=3;S.xpClaimed[xpKey]=true;earnCredits(isCrit?7+wCritBonus():5);tryDropItem();}
@@ -2453,6 +2520,7 @@ function submitAnswer(){
  if(!S.stats)S.stats={};if(BT.combo>(S.stats.bestCombo||0))S.stats.bestCombo=BT.combo;
  evalAch({correct:true,combo:BT.combo,timeLeft:BT.timeLeft});
  wBump('tasks');if(isCrit)wBump('crits');
+ adaptOnAnswer(true);
  checkMissionComplete();
  }else{
  BT.combo=0;
@@ -2461,6 +2529,7 @@ function submitAnswer(){
  fb.className='feedback err';
  monsterAttack();
  damagePlayer();
+ adaptOnAnswer(false);
  }
 }
 
@@ -2998,7 +3067,7 @@ function exportCode(){
 function importPrompt(){
  const c=prompt('Vlož zálohovací kód:');
  if(!c)return;
- try{S=JSON.parse(decodeURIComponent(escape(atob(c))));if(!S.mastery)S.mastery={};if(!S.teacherUnlocked)S.teacherUnlocked=[];if(!S.ach)S.ach={};if(!S.stats)S.stats={crits:0,trainCorrect:0,bestCombo:0};if(!S.streak)S.streak={count:0,last:''};if(!S.errs)S.errs={};if(!Array.isArray(S.errsSnap))S.errsSnap=[];if(typeof S.credits!=='number'||!isFinite(S.credits)||S.credits<0)S.credits=0;S.credits=Math.floor(S.credits);if(!S.cosmetics||typeof S.cosmetics!=='object')S.cosmetics={owned:['theme-default','victory-default'],active:{border:null,badge:null,theme:'theme-default',victory:'victory-default'}};if(!S.creditsClaimed||typeof S.creditsClaimed!=='object')S.creditsClaimed={};sanitizeCosmetics();saveS();applyCosmetics();renderProfile();alert('Načteno!');}
+ try{S=JSON.parse(decodeURIComponent(escape(atob(c))));if(!S.mastery)S.mastery={};if(!S.teacherUnlocked)S.teacherUnlocked=[];if(!S.ach)S.ach={};if(!S.stats)S.stats={crits:0,trainCorrect:0,bestCombo:0};if(!S.streak)S.streak={count:0,last:''};if(!S.errs)S.errs={};if(!Array.isArray(S.errsSnap))S.errsSnap=[];if(typeof S.credits!=='number'||!isFinite(S.credits)||S.credits<0)S.credits=0;S.credits=Math.floor(S.credits);if(!S.cosmetics||typeof S.cosmetics!=='object')S.cosmetics={owned:['theme-default','victory-default'],active:{border:null,badge:null,theme:'theme-default',victory:'victory-default'}};if(!S.creditsClaimed||typeof S.creditsClaimed!=='object')S.creditsClaimed={};sanitizeMastery();sanitizeCosmetics();saveS();applyCosmetics();renderProfile();alert('Načteno!');}
  catch(e){alert('Chybný kód.');}
 }
 
@@ -3020,9 +3089,53 @@ function closeModal(){document.getElementById('modal').classList.remove('show');
 // TRÉNINK (nekonečné procvičování + mistrovství)
 // ══════════════════════════════════════════
 const MASTERY_GOAL=15;
-let TR={mid:null,m:null,task:null,hl:0,correct:0,total:0,streak:0,curIdx:null};
+let TR={mid:null,m:null,task:null,hl:0,correct:0,total:0,streak:0,curIdx:null,revive:null};
 
 function masteryOf(mid){const x=S.mastery&&S.mastery[mid];return x?{score:x.score||0,mastered:!!x.mastered}:{score:0,mastered:false};}
+
+// ══ HVĚZDNÉ OPAKOVÁNÍ (spaced repetition) ══
+// Mistrovství 🏅 zůstává navždy; hvězdy ⭐ se získávají ZOPAKOVÁNÍM tématu
+// s časovým odstupem (3/7/21 dní od posledního oživení). lastOk se posouvá
+// JEN při zisku hvězdy — denní trénink o hvězdu nepřipraví.
+const REVIVE_GAPS=[3,7,21];      // dní od lastOk pro ⭐/⭐⭐/⭐⭐⭐
+const REVIVE_CREDITS=[10,20,40]; // kredity za 1./2./3. hvězdu
+const REVIVE_GOAL=5;             // správných v jednom sezení = oživení
+const REVIVE_PANEL_MAX=3;
+function todayStr(){return new Date().toISOString().slice(0,10);}
+function daysSinceStr(d){const t=Date.parse(d);if(!isFinite(t))return 0;return Math.floor((Date.now()-t)/864e5);}
+function sanitizeMastery(){
+ if(!S.mastery||typeof S.mastery!=='object'){S.mastery={};return;}
+ for(const mid of Object.keys(S.mastery)){
+  let m=S.mastery[mid];
+  if(!m||typeof m!=='object'){m=S.mastery[mid]={score:0,mastered:false};}
+  m.score=(typeof m.score==='number'&&isFinite(m.score)&&m.score>0)?Math.floor(m.score):0;
+  m.mastered=!!m.mastered;
+  m.stars=(typeof m.stars==='number'&&isFinite(m.stars))?Math.max(0,Math.min(3,Math.floor(m.stars))):0;
+  if(!m.mastered){m.stars=0;m.lastOk='';m.starHist=[];continue;}
+  if(typeof m.lastOk!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(m.lastOk)||!isFinite(Date.parse(m.lastOk)))m.lastOk=todayStr();
+  if(m.lastOk>todayStr())m.lastOk=todayStr();
+  m.starHist=Array.isArray(m.starHist)?m.starHist.filter(d=>typeof d==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(d)).slice(0,3):[];
+ }
+}
+function reviveState(mid){
+ const m=S.mastery&&S.mastery[mid];
+ if(!m||!m.mastered)return{stars:0,due:false,daysSince:0,nextGap:REVIVE_GAPS[0]};
+ const st=Math.max(0,Math.min(3,m.stars|0));
+ const ds=m.lastOk?daysSinceStr(m.lastOk):0;
+ const gap=st<3?REVIVE_GAPS[st]:Infinity;
+ return{stars:st,due:st<3&&ds>=gap,daysSince:ds,nextGap:gap};
+}
+function awardStar(mid){
+ const m=S.mastery&&S.mastery[mid];if(!m||!m.mastered)return 0;
+ const st=Math.max(0,Math.min(3,m.stars|0));if(st>=3)return 0;
+ m.stars=st+1;m.lastOk=todayStr();
+ if(!Array.isArray(m.starHist))m.starHist=[];
+ m.starHist.push(m.lastOk);
+ saveS();
+ earnCredits(REVIVE_CREDITS[m.stars-1]);
+ evalAch({});
+ return m.stars;
+}
 
 function renderTrainPicker(){
  document.getElementById('train-play').style.display='none';
@@ -3036,12 +3149,20 @@ function renderTrainPicker(){
   let html=`<div style="font-family:var(--px);font-weight:700;font-size:14px;color:var(--gold);margin-bottom:8px">${ar.icon} ${ar.name.replace(/\n/g,' ')}</div>`;
   ar.missions.slice().sort((a,b)=>(S.errs&&S.errs[b.id]||0)-(S.errs&&S.errs[a.id]||0)).forEach(m=>{
    const ms=masteryOf(m.id);
+   const rv=reviveState(m.id);
    const pct=Math.min(100,Math.round((ms.score|0)/MASTERY_GOAL*100))|0;
    const errs=S.errs&&S.errs[m.id]||0;
    const rec=errs>=2?`<span style="color:#e74c3c;font-size:11px;margin-left:6px">🔥 ${errs} chyb</span>`:'';
+   const starTxt=ms.mastered&&rv.stars>0?'<span style="color:#ffd06a">'+'⭐'.repeat(rv.stars)+'</span> ':'';
+   const dueChip=rv.due?`<span style="color:#ffd06a;font-size:11px;margin-left:6px">🔁 k oživení</span>`:'';
+   let sub;
+   if(!ms.mastered)sub=(ms.score|0)+' / '+MASTERY_GOAL;
+   else if(rv.stars>=3)sub='mistrovství splněno · ⭐⭐⭐ navždy tvoje';
+   else if(rv.due)sub='mistrovství splněno · dnes k oživení!';
+   else sub='mistrovství splněno · další hvězda za '+Math.max(1,rv.nextGap-rv.daysSince)+' '+skl(Math.max(1,rv.nextGap-rv.daysSince),'den','dny','dní');
    html+=`<button class="ms-item avail" style="width:100%;text-align:left;border:none;cursor:pointer" onclick="startTrain('${m.id}')">
-     <div style="flex:1"><div class="ms-name">${ms.mastered?'🏅 ':''}${m.name}${rec}</div>
-     <div class="ms-sub">${m.sub} · ${ms.mastered?'mistrovství splněno':(ms.score|0)+' / '+MASTERY_GOAL}</div>
+     <div style="flex:1"><div class="ms-name">${ms.mastered?'🏅 ':''}${starTxt}${m.name}${rec}${dueChip}</div>
+     <div class="ms-sub">${m.sub} · ${sub}</div>
      <div class="bar-out bar-xp" style="margin-top:6px;height:6px"><div class="bar-in" style="width:${pct}%"></div></div></div>
      <div style="font-size:16px;margin-left:8px">${ms.mastered?'🏅':'🎯'}</div></button>`;
   });
@@ -3054,12 +3175,20 @@ function startTrain(mid){
  const ar=AREAS.find(a=>a.missions.some(m=>m.id===mid));
  TR.m=ar.missions.find(m=>m.id===mid);
  TR.mid=mid;TR.correct=0;TR.total=0;TR.streak=0;
+ TR.revive=reviveState(mid).due?{count:0,earned:false}:null;
  document.getElementById('train-picker').style.display='none';
  document.getElementById('train-play').style.display='block';
  document.getElementById('tr-title').textContent=ar.icon+' '+TR.m.name;
  document.getElementById('tr-msgoal').textContent=MASTERY_GOAL;
+ trReviveChip();
  trStats();
  trDraw();
+}
+// chip „Oživení: X/5" u počítadla — jen když běží oživovací sezení
+function trReviveChip(){
+ const el=document.getElementById('tr-revive-chip');if(!el)return;
+ if(TR.revive&&!TR.revive.earned){el.style.display='inline-block';el.textContent='🔁 Oživení: '+TR.revive.count+'/'+REVIVE_GOAL;}
+ else el.style.display='none';
 }
 
 // Adaptivní výběr: index do sloučeného poolu (pořadí je stabilní mezi
@@ -3213,6 +3342,17 @@ function trCorrect(){
  if(!wasMastered&&m.mastered){earnCredits(30);fb.textContent='🏅 MISTROVSTVÍ SPLNĚNO! +3 XP +30 kr';}
  else if(!wasMastered){earnCredits(1);fb.textContent='✓ SPRÁVNĚ! +3 XP +1 kr';}
  else{fb.textContent='✓ SPRÁVNĚ! +3 XP';}
+ // hvězdné opakování: běží-li oživovací sezení, počítej správné odpovědi
+ if(TR.revive&&!TR.revive.earned){
+  TR.revive.count++;
+  if(TR.revive.count>=REVIVE_GOAL){
+   TR.revive.earned=true;
+   const st=awardStar(TR.mid);
+   if(st===3)fb.textContent='🌟 TŘETÍ HVĚZDA! Tohle téma už jen tak nezapomeneš · +'+REVIVE_CREDITS[2]+' kr';
+   else if(st>0)fb.textContent='⭐ TÉMA OŽIVENO! Hvězda '+st+'/3 · +'+REVIVE_CREDITS[st-1]+' kr';
+  }
+  trReviveChip();
+ }
  document.getElementById('tr-hint-btn').disabled=true;
  document.getElementById('tr-next-btn').style.display='inline-block';
  document.getElementById('tr-next-btn').focus();

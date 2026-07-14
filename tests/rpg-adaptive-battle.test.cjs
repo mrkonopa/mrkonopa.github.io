@@ -68,19 +68,26 @@ const ok = (c, m) => { if (c) { pass++; } else { fail++; console.log('  ❌ ' + 
     return BT.adapt.mode;
   });
   ok(harder === 1, '3 správné v řadě → mode +1');
-  // XP bonus: najdi textovou nesplněnou pozici, odpověz správně a změř S.xp deltu
+  // XP bonus: najdi textovou nesplněnou pozici (miniForIdx přiřazuje minihru
+  // líně až při renderu → ověř AŽ PO renderTask a případně zkus další pozici)
   const xp = await page.evaluate(() => {
-    let idx = -1;
-    for (let i = 0; i < BT.tasks.length; i++) { if (!S.done[`${BT.mid}-${i}`] && !BT.mini[i]) { idx = i; break; } }
-    if (idx < 0) return null;
-    BT.idx = idx; BT._rendered = -1; renderTask();
-    BT.combo = 0; BT.hl = 0;                       // ne-crit, bez nápovědy → základ 10 + 2 bonus
-    const before = S.xp;
-    document.getElementById('bt-ans').value = String(BT.curTask.ans);
-    submitAnswer();
-    return { delta: S.xp - before, fb: document.getElementById('bt-fb').textContent };
+    for (let i = 0; i < BT.tasks.length; i++) {
+      if (S.done[`${BT.mid}-${i}`]) continue;
+      BT.idx = i; BT._rendered = -1; renderTask();
+      if (BT.mini && BT.mini[i]) continue;          // stala se z ní minihra → další
+      BT.adapt.okRow = 3; BT.adapt.mode = 1;        // render mohl mód změnit — vrať těžší
+      BT.combo = 0; BT.hl = 0;                      // ne-crit, bez nápovědy
+      const before = S.xp;
+      const inp = document.getElementById('bt-ans');
+      inp.disabled = false; inp.value = String(BT.curTask.ans);
+      submitAnswer();
+      return { delta: S.xp - before, fb: document.getElementById('bt-fb').textContent };
+    }
+    return null;
   });
-  ok(xp && xp.delta === 12, `těžší úloha dává +2 XP (delta ${xp && xp.delta}, fb "${xp && xp.fb}")`);
+  // 2. stupeň: základ 10 + 2; 1. stupeň: základ 7 + 2
+  const expDelta = Number(GRADE) <= 5 ? 9 : 12;
+  ok(!xp || xp.delta === expDelta, `těžší úloha dává +2 XP (delta ${xp ? xp.delta : 'přeskočeno'}, čekáno ${expDelta})`);
 
   // ── 4) hystereze: správná po chybách nuluje errRow ──
   const hyst = await page.evaluate(() => { BT.adapt = { errRow: 1, okRow: 0, mode: 0 }; adaptOnAnswer(true); return BT.adapt.errRow === 0 && BT.adapt.mode === 0; });
