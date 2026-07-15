@@ -211,3 +211,42 @@ const RPGFindError = (function () {
   }
   return { open, _build: build };
 })();
+
+/* ══════════════════════════════════════════════════════════════════
+   RPGKeys — ovládání klávesnicí pro výběrové úlohy (centrálně, 0 per-game).
+   • MC: klávesy 1–4 nebo A–D vyberou volbu (popisky A–D už jsou vidět).
+   • ANO/NE: A/Y = ANO, N = NE (i 1/2).
+   Bezpečné: když je fokus v <input>/<textarea> (žák píše číselnou odpověď),
+   handler nic nedělá — psaní číslic zůstává psaním. Reaguje jen na VIDITELNOU
+   mc-mřížku / ANO-NE řádek v AKTIVNÍ obrazovce (boj/trénink/věž mají stejné
+   id konvence). Enter (odeslat/další) řeší dál per-game handler.
+   ══════════════════════════════════════════════════════════════════ */
+(function () {
+  function firstVisible(list) { for (const el of list) if (el && el.offsetParent !== null) return el; return null; }
+  document.addEventListener('keydown', e => {
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
+    const ae = document.activeElement;
+    if (ae && (ae.tagName === 'INPUT' || ae.tagName === 'TEXTAREA' || ae.isContentEditable)) return;
+    const active = document.querySelector('.screen.active');
+    if (!active) return;
+    const k = e.key, lk = k.toLowerCase();
+    // ── výběr z možností (MC) ──
+    const grid = firstVisible(active.querySelectorAll('.mc-grid'));
+    if (grid) {
+      const btns = [...grid.querySelectorAll('.mc-btn')].filter(b => !b.disabled);
+      let i = -1;
+      if (/^[1-4]$/.test(k)) i = (+k) - 1;
+      else if (/^[a-d]$/.test(lk)) i = 'abcd'.indexOf(lk);
+      if (i >= 0 && i < btns.length) { e.preventDefault(); btns[i].click(); return; }
+    }
+    // ── ANO / NE ──
+    const yn = firstVisible(active.querySelectorAll('[id$="yn-row"]'));
+    if (yn) {
+      const btns = [...yn.querySelectorAll('button')].filter(b => !b.disabled);
+      let i = -1;
+      if (lk === 'a' || lk === 'y' || k === '1') i = 0;       // ANO = první
+      else if (lk === 'n' || k === '2') i = 1;                // NE = druhé
+      if (i >= 0 && i < btns.length) { e.preventDefault(); btns[i].click(); return; }
+    }
+  });
+})();
