@@ -1324,12 +1324,12 @@ const AREAS = [
   intro:'Reaktor běží na mocninách energie. Spočítej je dřív, než přetíží síť.',
   mc:true, tc:6,
   tasks:()=>[
-   (()=>{const a=ri(2,15);return{text:`Vypočítej:\n${a}² =`,ans:String(a*a),hints:[`${a}² = ${a} × ${a}.`,`Výsledek: ${a*a}`],skill:'calc'};})(),
-   (()=>{const a=ri(2,7);return{text:`Vypočítej:\n${a}³ =`,ans:String(a*a*a),hints:[`${a}³ = ${a} × ${a} × ${a}.`,`${a*a} × ${a}`],skill:'calc'};})(),
+   (()=>{const a=ri(2,15);return{text:`Vypočítej:\n${a}² =`,ans:String(a*a),distractors:(a>2?[String(a*2)]:[]),hints:[`${a}² = ${a} × ${a}.`,`Výsledek: ${a*a}`],skill:'calc'};})(),
+   (()=>{const a=ri(2,7);return{text:`Vypočítej:\n${a}³ =`,ans:String(a*a*a),distractors:[String(a*3)],hints:[`${a}³ = ${a} × ${a} × ${a}.`,`${a*a} × ${a}`],skill:'calc'};})(),
    (()=>{const a=ri(2,15);return{text:`Vypočítej:\n√${a*a} =`,ans:String(a),hints:[`Které číslo na druhou dá ${a*a}?`,`Výsledek: ${a}`],skill:'calc'};})(),
    (()=>{const a=ri(2,6);return{text:`Vypočítej:\n∛${a*a*a} =`,ans:String(a),hints:[`Které číslo na třetí dá ${a*a*a}?`,`Výsledek: ${a}`],skill:'calc'};})(),
-   (()=>{const n=ri(2,7);return{text:`Vypočítej:\n2^${n} =`,ans:String(2**n),hints:[`Násob dvojku ${n}×.`,`Výsledek: ${2**n}`],skill:'calc'};})(),
-   (()=>{const n=ri(2,5);return{text:`Vypočítej:\n10^${n} =`,ans:String(10**n),hints:[`Jednička a ${n} nul.`,`Výsledek: ${10**n}`],skill:'calc'};})()
+   (()=>{const n=ri(2,7);return{text:`Vypočítej:\n2^${n} =`,ans:String(2**n),distractors:(n>2?[String(2*n)]:[]),hints:[`Násob dvojku ${n}×.`,`Výsledek: ${2**n}`],skill:'calc'};})(),
+   (()=>{const n=ri(2,5);return{text:`Vypočítej:\n10^${n} =`,ans:String(10**n),distractors:[String(10*n)],hints:[`Jednička a ${n} nul.`,`Výsledek: ${10**n}`],skill:'calc'};})()
   ]
  },
  {
@@ -1374,8 +1374,8 @@ const AREAS = [
   intro:'Heslo k modulu je řešení rovnice. Najdi neznámou x.',
   mc:true, tc:6,
   tasks:()=>[
-   (()=>{const x=ri(2,18),a=ri(2,20),b=x+a;return{text:`Vyřeš rovnici:\nx + ${a} = ${b}`,ans:String(x),hints:[`Odečti ${a} od obou stran.`,`x = ${b} − ${a}`],skill:'calc'};})(),
-   (()=>{const x=ri(5,25),a=ri(2,15),b=x-a;return{text:`Vyřeš rovnici:\nx − ${a} = ${b}`,ans:String(x),hints:[`Přičti ${a} k oběma stranám.`,`x = ${b} + ${a}`],skill:'calc'};})(),
+   (()=>{const x=ri(2,18),a=ri(2,20),b=x+a;return{text:`Vyřeš rovnici:\nx + ${a} = ${b}`,ans:String(x),distractors:[String(b+a)],hints:[`Odečti ${a} od obou stran.`,`x = ${b} − ${a}`],skill:'calc'};})(),
+   (()=>{const x=ri(5,25),a=ri(2,15),b=x-a;return{text:`Vyřeš rovnici:\nx − ${a} = ${b}`,ans:String(x),distractors:[String(b-a)],hints:[`Přičti ${a} k oběma stranám.`,`x = ${b} + ${a}`],skill:'calc'};})(),
    (()=>{const a=ri(2,9),x=ri(2,12),b=a*x;return{text:`Vyřeš rovnici:\n${a}x = ${b}`,ans:String(x),hints:[`Vyděl obě strany ${a}.`,`x = ${b} : ${a}`],skill:'calc'};})(),
    (()=>{const a=ri(2,7),x=ri(2,9),v=x*a;return{text:`Vyřeš rovnici:\nx / ${a} = ${x}`,ans:String(v),hints:[`Vynásob obě strany ${a}.`,`x = ${x} × ${a}`],skill:'calc'};})(),
    (()=>{const a=ri(2,8),x=ri(2,12),b=ri(2,15),c=a*x+b;return{text:`Vyřeš rovnici:\n${a}x + ${b} = ${c}`,ans:String(x),hints:[`Nejdřív odečti ${b}, pak vyděl ${a}.`,`x = ${c-b} : ${a}`],skill:'calc'};})(),
@@ -1424,12 +1424,12 @@ const AREAS = [
   intro:'Dělení nulou shodí celý systém. Najdi zakázanou hodnotu x.',
   mc:true, tc:6,
   tasks:()=>[
-   (()=>{const a=ri(2,9);return{text:`Pro jaké x není výraz 5/(x − ${a}) definován?\nx ≠`,ans:String(a),hints:[`Jmenovatel nesmí být 0: x − ${a} = 0.`,`x = ${a}`],skill:'anal'};})(),
-   (()=>{const a=ri(2,9);return{text:`Pro jaké x není výraz 3/(x + ${a}) definován?\nx ≠`,ans:String(-a),hints:[`x + ${a} = 0.`,`x = −${a}`],skill:'anal'};})(),
+   (()=>{const a=ri(2,9);return{text:`Pro jaké x není výraz 5/(x − ${a}) definován?\nx ≠`,ans:String(a),distractors:[String(-a)],hints:[`Jmenovatel nesmí být 0: x − ${a} = 0.`,`x = ${a}`],skill:'anal'};})(),
+   (()=>{const a=ri(2,9);return{text:`Pro jaké x není výraz 3/(x + ${a}) definován?\nx ≠`,ans:String(-a),distractors:[String(a)],hints:[`x + ${a} = 0.`,`x = −${a}`],skill:'anal'};})(),
    (()=>{return{text:`Pro jaké x není výraz 7/x definován?\nx ≠`,ans:'0',hints:[`Jmenovatel je samotné x.`,`x = 0`],skill:'anal'};})(),
-   (()=>{const k=ri(1,6),a=2*k;return{text:`Pro jaké x není výraz 4/(2x − ${a}) definován?\nx ≠`,ans:String(k),hints:[`2x − ${a} = 0, tedy 2x = ${a}.`,`x = ${k}`],skill:'anal'};})(),
-   (()=>{const k=ri(1,5),a=3*k;return{text:`Pro jaké x není výraz 9/(3x − ${a}) definován?\nx ≠`,ans:String(k),hints:[`3x = ${a}.`,`x = ${k}`],skill:'anal'};})(),
-   (()=>{const a=ri(2,8);return{text:`Pro jaké x není výraz (x+1)/(x − ${a}) definován?\nx ≠`,ans:String(a),hints:[`Rozhoduje jen jmenovatel: x − ${a} = 0.`,`x = ${a}`],skill:'anal'};})()
+   (()=>{const k=ri(1,6),a=2*k;return{text:`Pro jaké x není výraz 4/(2x − ${a}) definován?\nx ≠`,ans:String(k),distractors:[String(a)],hints:[`2x − ${a} = 0, tedy 2x = ${a}.`,`x = ${k}`],skill:'anal'};})(),
+   (()=>{const k=ri(1,5),a=3*k;return{text:`Pro jaké x není výraz 9/(3x − ${a}) definován?\nx ≠`,ans:String(k),distractors:[String(a)],hints:[`3x = ${a}.`,`x = ${k}`],skill:'anal'};})(),
+   (()=>{const a=ri(2,8);return{text:`Pro jaké x není výraz (x+1)/(x − ${a}) definován?\nx ≠`,ans:String(a),distractors:[String(-a)],hints:[`Rozhoduje jen jmenovatel: x − ${a} = 0.`,`x = ${a}`],skill:'anal'};})()
   ]
  },
  {
@@ -1524,11 +1524,11 @@ const AREAS = [
   intro:'Monitor kreslí přímky podle předpisu y = kx + q. Čti hodnoty z funkce.',
   mc:true, tc:6,
   tasks:()=>[
-   (()=>{const k=ri(2,5),q=ri(-4,6),x=ri(2,6),y=k*x+q;return{svg:svgLineGraph(k,q),text:`y = ${k}x ${q<0?'− '+(-q):'+ '+q}\nVypočítej f(${x}).`,ans:String(y),hints:[`Dosaď x = ${x}: ${k}·${x} ${q<0?'− '+(-q):'+ '+q}.`,`Výsledek: ${y}`],skill:'geo'};})(),
-   (()=>{const k=ri(2,5),q=ri(-6,8);return{svg:svgLineGraph(k,q),text:`y = ${k}x ${q<0?'− '+(-q):'+ '+q}\nKde protíná přímka osu y? (hodnota q)`,ans:String(q),hints:[`Osu y protne pro x = 0, takže y = q.`,`q = ${q}`],skill:'geo'};})(),
+   (()=>{const k=ri(2,5),q=ri(-4,6),x=ri(2,6),y=k*x+q;return{svg:svgLineGraph(k,q),text:`y = ${k}x ${q<0?'− '+(-q):'+ '+q}\nVypočítej f(${x}).`,ans:String(y),distractors:(k*x!==y?[String(k*x)]:[]),hints:[`Dosaď x = ${x}: ${k}·${x} ${q<0?'− '+(-q):'+ '+q}.`,`Výsledek: ${y}`],skill:'geo'};})(),
+   (()=>{const k=ri(2,5),q=ri(-6,8);return{svg:svgLineGraph(k,q),text:`y = ${k}x ${q<0?'− '+(-q):'+ '+q}\nKde protíná přímka osu y? (hodnota q)`,ans:String(q),distractors:(k!==q?[String(k)]:[]),hints:[`Osu y protne pro x = 0, takže y = q.`,`q = ${q}`],skill:'geo'};})(),
    (()=>{const k=ri(2,4),x0=ri(1,5),q=-k*x0;return{text:`y = ${k}x ${q<0?'− '+(-q):'+ '+q}\nPro jaké x je y = 0?`,ans:String(x0),hints:[`${k}x ${q<0?'− '+(-q):'+ '+q} = 0.`,`x = ${-q} : ${k}`],skill:'geo'};})(),
    (()=>{const k=ri(2,6);return{text:`Lineární funkce y = ${k}x.\nKolik je f(1)?`,ans:String(k),hints:[`Dosaď x = 1.`,`Výsledek: ${k}`],skill:'geo'};})(),
-   (()=>{const k=ri(2,5),q=ri(1,6),x=ri(2,5),y=k*x+q;return{text:`y = ${k}x + ${q}\nVypočítej f(${x}).`,ans:String(y),hints:[`${k}·${x} + ${q}.`,`Výsledek: ${y}`],skill:'geo'};})(),
+   (()=>{const k=ri(2,5),q=ri(1,6),x=ri(2,5),y=k*x+q;return{text:`y = ${k}x + ${q}\nVypočítej f(${x}).`,ans:String(y),distractors:[String(k*x)],hints:[`${k}·${x} + ${q}.`,`Výsledek: ${y}`],skill:'geo'};})(),
    (()=>{const x1=ri(1,3),y1=ri(2,5),x2=x1+1,k=ri(2,4),y2=y1+k;return{text:`Přímka prochází body [${x1}, ${y1}] a [${x2}, ${y2}].\nJaká je směrnice k? (změna y na 1 krok x)`,ans:String(k),hints:[`k = (${y2} − ${y1}) / (${x2} − ${x1}).`,`= ${k}`],skill:'geo'};})()
   ]
  },
@@ -2491,6 +2491,7 @@ function renderMC(t){
  const correct=t.ans;
  const cn=parseFloat(correct.replace(',','.'));
  const opts=new Set([correct]);
+ if(Array.isArray(t.distractors))t.distractors.forEach(d=>{const s=String(d);if(s!==correct&&opts.size<4)opts.add(s);});
  // always include opposite-sign distractor so sign errors are testable
  if(!isNaN(cn)&&cn!==0){const opp=String(-cn);if(opp!==correct)opts.add(opp);}
  let tries=0;
@@ -3007,6 +3008,7 @@ function trRenderMC(t){
  grid.style.display='grid';
  const correct=t.ans,cn=parseFloat(String(correct).replace(',','.'));
  const opts=new Set([correct]);
+ if(Array.isArray(t.distractors))t.distractors.forEach(d=>{const s=String(d);if(s!==correct&&opts.size<4)opts.add(s);});
  if(!isNaN(cn)&&cn!==0){const opp=String(-cn);if(opp!==correct)opts.add(opp);}
  let tries=0;
  while(opts.size<4 && tries<30){tries++;let alt;
@@ -3526,6 +3528,7 @@ function twRenderMC(t){
  grid.style.display='grid';
  const correct=t.ans,cn=parseFloat(String(correct).replace(',','.'));
  const opts=new Set([correct]);
+ if(Array.isArray(t.distractors))t.distractors.forEach(d=>{const s=String(d);if(s!==correct&&opts.size<4)opts.add(s);});
  if(!isNaN(cn)&&cn!==0){const opp=String(-cn);if(opp!==String(correct))opts.add(opp);}
  let tries=0;
  while(opts.size<4&&tries<30){tries++;let alt;

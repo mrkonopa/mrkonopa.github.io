@@ -1326,10 +1326,11 @@ function mcDistractors(ans){
  }
  return wrong.slice(0,3).map(String);
 }
+function _mcWrong(t,ans){const a=String(ans),out=[];if(Array.isArray(t.distractors))t.distractors.forEach(d=>{const s=String(d);if(s!==a&&!out.includes(s)&&out.length<3)out.push(s);});mcDistractors(a).forEach(s=>{if(s!==a&&!out.includes(s)&&out.length<3)out.push(s);});return out;}
 function renderMC(t){
  const grid=document.getElementById('mc-grid');
  const ans=String(t.ans);
- const opts=(Array.isArray(t.mc_opts)&&t.mc_opts.length>=2)?t.mc_opts.map(String):shuffleArr([ans,...mcDistractors(ans)]);
+ const opts=(Array.isArray(t.mc_opts)&&t.mc_opts.length>=2)?t.mc_opts.map(String):shuffleArr([ans,..._mcWrong(t,ans)]);
  grid.innerHTML='';
  opts.forEach((o,i)=>{const b=document.createElement('button');b.className='mc-btn c'+i;b.textContent=o;b.dataset.v=o;b.onclick=()=>pickMC(b,o,ans);grid.appendChild(b);});
  grid.style.display='grid';
@@ -1643,7 +1644,7 @@ function trRender(){
 }
 function trRenderMC(t){
  const grid=document.getElementById('tr-mc');const ans=String(t.ans);
- const opts=shuffleArr([ans,...mcDistractors(ans)]);
+ const opts=shuffleArr([ans,..._mcWrong(t,ans)]);
  grid.innerHTML='';
  opts.forEach((o,i)=>{const b=document.createElement('button');b.className='mc-btn c'+i;b.textContent=o;b.dataset.v=o;b.onclick=()=>trPickMC(b,o,ans);grid.appendChild(b);});
  grid.style.display='grid';
