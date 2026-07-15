@@ -250,3 +250,76 @@ const RPGFindError = (function () {
     }
   });
 })();
+
+/* ══════════════════════════════════════════════════════════════════
+   RPGTutorial — jednorázový mini-tutoriál při PRVNÍM boji (onboarding).
+   Centrálně; hra volá RPGTutorial.maybe(S, saveFn, pauseFn, resumeFn) na
+   konci launchBattle. Zobrazí se jen novému žákovi (žádný splněný úkol) a
+   jen jednou (S.tutorialDone). Vysvětlí ❤️ životy / časomíru+nápovědu /
+   combo-crit / kredity. Přeskočitelný, ovládá se i klávesnicí.
+   ══════════════════════════════════════════════════════════════════ */
+const RPGTutorial = (function () {
+  const STEPS = [
+    { ic: '❤️', t: 'Tvoje životy', b: 'Tohle jsou tvoje životy. Za špatnou odpověď o jeden přijdeš — když dojdou, mise se prostě zopakuje. Žádný stres.' },
+    { ic: '⏱️', t: 'Časomíra a nápověda', b: 'Nahoře běží čas. Nespěchej zbytečně — v klidu spočítej. Když si nevíš rady, klikni na 💡 nápovědu.' },
+    { ic: '🔥', t: 'Kritický zásah', b: 'Odpověz 3× správně po sobě (bez nápovědy) a další zásah bude KRITICKÝ — dvojnásobek XP!' },
+    { ic: '🛍️', t: 'Kredity a obchod', b: 'Za správné odpovědi sbíráš kredity. V obchodě si za ně koupíš vychytávky a vzhledy postavy. Hodně štěstí!' }
+  ];
+  let root = null, idx = 0, done = null;
+  function ensure() {
+    if (root) return;
+    root = document.createElement('div');
+    root.id = 'tutorial-overlay';
+    root.style.cssText = 'position:fixed;inset:0;z-index:9500;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.85);padding:16px';
+    root.innerHTML =
+      '<div style="max-width:440px;width:100%;background:var(--panel,#0f1626);border:2px solid var(--gold,#ffcc55);border-radius:12px;padding:22px 20px;box-shadow:0 12px 48px #000b;text-align:center">' +
+      '<div id="tut-ic" style="font-size:44px;line-height:1;margin-bottom:10px"></div>' +
+      '<div id="tut-t" style="font-family:var(--px);font-weight:700;font-size:16px;color:var(--gold,#ffcc55);margin-bottom:10px"></div>' +
+      '<div id="tut-b" style="font-family:var(--read),sans-serif;font-size:14.5px;line-height:1.55;color:var(--text,#dde);margin-bottom:8px"></div>' +
+      '<div id="tut-dots" style="margin:12px 0;letter-spacing:4px;color:var(--muted,#889)"></div>' +
+      '<div style="display:flex;gap:10px;justify-content:center">' +
+      '<button class="btn sm" id="tut-skip">Přeskočit</button>' +
+      '<button class="btn b" id="tut-next" style="flex:1">DÁL →</button></div></div>';
+    document.body.appendChild(root);
+    root.querySelector('#tut-skip').addEventListener('click', finish);
+    root.querySelector('#tut-next').addEventListener('click', next);
+    document.addEventListener('keydown', onKey);
+  }
+  function onKey(e) {
+    if (!root || root.style.display === 'none') return;
+    if (e.key === 'Escape') { e.preventDefault(); finish(); }
+    else if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); next(); }
+  }
+  function draw() {
+    const s = STEPS[idx];
+    root.querySelector('#tut-ic').textContent = s.ic;
+    root.querySelector('#tut-t').textContent = s.t;
+    root.querySelector('#tut-b').textContent = s.b;
+    root.querySelector('#tut-dots').textContent = STEPS.map((_, i) => i === idx ? '●' : '○').join(' ');
+    root.querySelector('#tut-next').textContent = idx === STEPS.length - 1 ? 'ZAČÍT! ⚔️' : 'DÁL →';
+  }
+  function next() { if (idx < STEPS.length - 1) { idx++; draw(); } else finish(); }
+  function finish() {
+    if (root) root.style.display = 'none';
+    const cb = done; done = null;
+    if (typeof cb === 'function') cb();
+  }
+  function show(onDone) { ensure(); idx = 0; done = onDone; root.style.display = 'flex'; draw(); }
+  function maybe(S, saveFn, pauseFn, resumeFn) {
+    if (!S || S.tutorialDone) return;
+    // veterán (už má splněný nějaký úkol) → tutoriál nezobrazovat, jen označit
+    if (S.done && Object.keys(S.done).length > 0) { S.tutorialDone = true; if (typeof saveFn === 'function') saveFn(); return; }
+    if (typeof pauseFn === 'function') pauseFn();
+    show(function () { S.tutorialDone = true; if (typeof saveFn === 'function') saveFn(); if (typeof resumeFn === 'function') resumeFn(); });
+  }
+  return { maybe, show, _steps: STEPS };
+})();
+
+/* Dotykové cíle ≥44 px (WCAG) pro bojové ovládání — jen na dotykových
+   zařízeních (pointer:coarse), takže desktop layout zůstává beze změny.
+   Injektováno centrálně, žádné per-game CSS edity. */
+(function () {
+  const st = document.createElement('style');
+  st.textContent = '@media(pointer:coarse){.mc-btn,.bt-row .btn,.bt-row .bt-input,[id$="yn-row"] .btn,[id$="yn-row"] button{min-height:44px}}';
+  (document.head || document.documentElement).appendChild(st);
+})();
