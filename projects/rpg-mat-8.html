@@ -2463,6 +2463,7 @@ function renderMC(t){
  const correct=t.ans;
  const cn=parseFloat(correct.replace(',','.'));
  const opts=new Set([correct]);
+ if(Array.isArray(t.distractors))t.distractors.forEach(d=>{const s=String(d);if(s!==correct&&opts.size<4)opts.add(s);});
  if(!isNaN(cn)&&cn!==0){const opp=String(-cn);if(opp!==correct)opts.add(opp);}
  let tries=0;
  while(opts.size<4 && tries<30){
@@ -2989,6 +2990,7 @@ function twRenderMC(t){
  grid.style.display='grid';
  const correct=t.ans,cn=parseFloat(String(correct).replace(',','.'));
  const opts=new Set([correct]);
+ if(Array.isArray(t.distractors))t.distractors.forEach(d=>{const s=String(d);if(s!==correct&&opts.size<4)opts.add(s);});
  if(!isNaN(cn)&&cn!==0){const opp=String(-cn);if(opp!==String(correct))opts.add(opp);}
  let tries=0;
  while(opts.size<4&&tries<30){tries++;let alt;
@@ -3498,6 +3500,7 @@ function trRenderMC(t){
  grid.style.display='grid';
  const correct=t.ans,cn=parseFloat(String(correct).replace(',','.'));
  const opts=new Set([correct]);
+ if(Array.isArray(t.distractors))t.distractors.forEach(d=>{const s=String(d);if(s!==correct&&opts.size<4)opts.add(s);});
  if(!isNaN(cn)&&cn!==0){const opp=String(-cn);if(opp!==String(correct))opts.add(opp);}
  let tries=0;
  while(opts.size<4 && tries<30){tries++;let alt;
