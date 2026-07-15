@@ -99,3 +99,115 @@ function shakeBattle() {
   el.classList.remove('shaking'); void el.offsetWidth; el.classList.add('shaking');
   setTimeout(() => el.classList.remove('shaking'), 200);
 }
+
+/* ══════════════════════════════════════════════════════════════════
+   RPGFindError — „Najdi chybu" (erroneous examples).
+   Výzkumně silný efekt: žák POROVNÁ správný a chybný postup a určí, který
+   je správně, pak si přečte PROČ je ten druhý špatně. Data bereme z už
+   načtené teorie (RPG_LEARN_X[mid].mistakes = [{wrong,right,why}]) — nic
+   se nevymýšlí, žádná změna save formátu. Centrálně pro všech 7 her; hry
+   volají jen RPGFindError.open(window.RPG_LEARN_X) z tlačítka na mapě.
+   Overlay používá existující .btn třídy a CSS proměnné každé hry.
+   ══════════════════════════════════════════════════════════════════ */
+const RPGFindError = (function () {
+  let pool = [], idx = 0, okCnt = 0, total = 0, earned = 0, root = null, answered = false, curCorrect = 'a';
+  const EARN_CAP = 10;                       // strop kreditů za sezení (anti-farming)
+  function esc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;'); }
+  function shuffle(a) { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); const t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+  function build(L) {
+    const p = [];
+    if (L && typeof L === 'object') for (const mid in L) {
+      const ms = L[mid] && L[mid].mistakes;
+      if (Array.isArray(ms)) ms.forEach(m => { if (m && m.wrong && m.right) p.push({ wrong: String(m.wrong), right: String(m.right), why: String(m.why || '') }); });
+    }
+    return shuffle(p);
+  }
+  function ensureRoot() {
+    if (root) return;
+    root = document.createElement('div');
+    root.id = 'find-error-overlay';
+    root.style.cssText = 'position:fixed;inset:0;z-index:9000;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.82);padding:16px;overflow-auto';
+    root.innerHTML =
+      '<div style="max-width:560px;width:100%;background:var(--panel,#0f1626);border:2px solid var(--muted,#5d6e94);border-radius:10px;padding:20px 18px;box-shadow:0 10px 40px #000a">' +
+      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">' +
+      '<span style="font-family:var(--px);font-weight:700;font-size:15px;color:var(--gold,#ffcc55)">🔍 NAJDI CHYBU</span>' +
+      '<span id="fe-score" style="font-family:var(--px);font-weight:700;font-size:12px;color:var(--muted,#889)"></span></div>' +
+      '<div style="font-family:var(--read),sans-serif;font-size:13px;color:var(--muted,#889);margin-bottom:14px">Který zápis je <b>správně</b>? Porovnej oba postupy.</div>' +
+      '<div id="fe-opts" style="display:flex;flex-direction:column;gap:10px"></div>' +
+      '<div id="fe-reveal" style="display:none;margin-top:14px"></div>' +
+      '<div style="display:flex;gap:10px;margin-top:18px;flex-wrap:wrap">' +
+      '<button class="btn b" id="fe-next" style="flex:1;display:none">DALŠÍ →</button>' +
+      '<button class="btn sm" id="fe-close">KONEC</button></div></div>';
+    document.body.appendChild(root);
+    root.addEventListener('click', e => { if (e.target === root) close(); });
+    root.querySelector('#fe-close').addEventListener('click', close);
+    root.querySelector('#fe-next').addEventListener('click', next);
+    document.addEventListener('keydown', onKey);
+  }
+  function onKey(e) {
+    if (!root || root.style.display === 'none') return;
+    if (e.key === 'Escape') { close(); return; }
+    if (!answered && (e.key === '1' || e.key === '2')) { pick(e.key === '1' ? 'a' : 'b'); }
+    else if (answered && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); next(); }
+  }
+  function card() {
+    answered = false;
+    const it = pool[idx % pool.length];
+    // náhodně přiřaď správný/chybný zápis do A/B (bez formátového tellu)
+    const rightIsA = Math.random() < 0.5;
+    curCorrect = rightIsA ? 'a' : 'b';
+    const a = rightIsA ? it.right : it.wrong, b = rightIsA ? it.wrong : it.right;
+    const opts = root.querySelector('#fe-opts');
+    opts.innerHTML =
+      btn('a', '1', a) + btn('b', '2', b);
+    opts.querySelectorAll('button').forEach(x => x.addEventListener('click', () => pick(x.dataset.k)));
+    root.querySelector('#fe-reveal').style.display = 'none';
+    root.querySelector('#fe-next').style.display = 'none';
+    root.querySelector('#fe-score').textContent = 'Správně ' + okCnt + ' / ' + total;
+    root._cur = it;
+  }
+  function btn(k, n, txt) {
+    return '<button class="btn" data-k="' + k + '" style="text-align:left;justify-content:flex-start;white-space:normal;line-height:1.4;padding:12px 14px">' +
+      '<span style="opacity:.6;font-family:var(--px);margin-right:8px">' + n + '</span>' + esc(txt) + '</button>';
+  }
+  function pick(k) {
+    if (answered) return;
+    answered = true; total++;
+    const it = root._cur, good = k === curCorrect;
+    const opts = root.querySelectorAll('#fe-opts button');
+    opts.forEach(x => {
+      x.disabled = true;
+      if (x.dataset.k === curCorrect) x.style.cssText += ';border-color:var(--green,#39ff9e)!important;color:var(--green,#39ff9e)!important';
+      else if (x.dataset.k === k) x.style.cssText += ';border-color:var(--red,#ff3d7f)!important;color:var(--red,#ff3d7f)!important';
+    });
+    if (good) {
+      okCnt++;
+      if (typeof RPGSound !== 'undefined') RPGSound.play('ok');
+      if (earned < EARN_CAP && typeof RPGWallet !== 'undefined') { RPGWallet.earn(1); earned++; }
+    } else if (typeof RPGSound !== 'undefined') RPGSound.play('bad');
+    const rev = root.querySelector('#fe-reveal');
+    rev.innerHTML =
+      '<div class="feedback ' + (good ? 'ok' : 'err') + '" style="margin-bottom:10px">' + (good ? '✓ Správně!' : '✗ Chyba — správně je zvýrazněný zápis.') + '</div>' +
+      '<div style="font-family:var(--read),sans-serif;font-size:13.5px;line-height:1.5;color:var(--text,#dde);background:var(--bg,#0b0f18);border:1px solid var(--muted,#5d6e94);border-radius:8px;padding:12px 14px">' +
+      '<div style="color:var(--red,#ff3d7f)">❌ ' + esc(it.wrong) + '</div>' +
+      '<div style="color:var(--green,#39ff9e);margin:4px 0">✅ ' + esc(it.right) + '</div>' +
+      (it.why ? '<div style="color:var(--muted,#889);margin-top:8px">💡 ' + esc(it.why) + '</div>' : '') + '</div>';
+    rev.style.display = 'block';
+    root.querySelector('#fe-score').textContent = 'Správně ' + okCnt + ' / ' + total;
+    root.querySelector('#fe-next').style.display = 'inline-block';
+  }
+  function next() { idx++; card(); }
+  function close() {
+    if (root) root.style.display = 'none';
+    if (typeof window.renderMap === 'function') { try { window.renderMap(); } catch (e) {} }
+  }
+  function open(L) {
+    pool = build(L);
+    if (!pool.length) return;
+    idx = 0; okCnt = 0; total = 0; earned = 0;
+    ensureRoot();
+    root.style.display = 'flex';
+    card();
+  }
+  return { open, _build: build };
+})();
