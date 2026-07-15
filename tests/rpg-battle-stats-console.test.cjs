@@ -95,7 +95,7 @@ async function run() {
     ok('záložka Souboje se otevře', true);
 
     const opts = await page.evaluate(()=>document.getElementById('bt-game').options.length);
-    ok('výběr ročníku: 1 „vše" + 4 hry', opts===5, 'options='+opts);
+    ok('výběr ročníku: 1 „vše" + 7 her (1.+2. stupeň)', opts===8, 'options='+opts);
     ok('výchozí = všechny ročníky (prázdná hodnota)', await page.evaluate(()=>document.getElementById('bt-game').value)==='');
 
     await page.waitForFunction(()=>/Odehráno/.test(document.getElementById('bt-wrap').textContent),{timeout:4000});
