@@ -204,7 +204,8 @@ const RPGFindError = (function () {
   function open(L) {
     pool = build(L);
     if (!pool.length) return;
-    idx = 0; okCnt = 0; total = 0; earned = 0;
+    idx = 0; okCnt = 0; total = 0;   // POZOR: `earned` se NEresetuje — strop platí
+    // per načtení stránky, jinak by šel obejít zavřením+znovuotevřením (anti-farming)
     ensureRoot();
     root.style.display = 'flex';
     card();

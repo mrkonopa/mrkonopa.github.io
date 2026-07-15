@@ -75,6 +75,9 @@ async function run() {
         // >14 dní, jméno bez full_name je XSS payload → musí být escapované
         { user_id:'z5', game:'RPG_MAT_9', name:'x', email:'z5@husovaliberec.cz', full_name:'', updated_at:daysAgoISO(30),
           data:{ name:'<img src=x onerror=window.__xss=1>', xp:0, level:1, done:{}, errs:{} } },
+        // HOSTILE: prototype-pollution klíč v errs, neexistující mise, obří jméno
+        { user_id:'z6', game:'RPG_MAT_9', name:'h', email:'z6@husovaliberec.cz', full_name:'', updated_at:nowISO(),
+          data:{ name:'Z'.repeat(5000), xp:0, level:1, done:{}, errs:{ '__proto__':9, 'nope-99':7, 'constructor':3 } } },
       ],
       classes: [], class_members: [],
     };
@@ -94,7 +97,7 @@ async function run() {
 
     ok('karta Key Insights je viditelná', true);
     ok('má nadpis KLÍČOVÉ POZNATKY', /KLÍČOVÉ POZNATKY/.test(txt));
-    ok('aktivita: 3 z 5 hrálo tento týden', /hrálo\s*3\s*z\s*5/.test(txt.replace(/\s+/g,' ')), txt.slice(0,120));
+    ok('aktivita: 4 z 6 hrálo tento týden', /hrálo\s*4\s*z\s*6/.test(txt.replace(/\s+/g,' ')), txt.slice(0,120));
     ok('dlouho nehráli jsou vyjmenovaní (Žák 4)', /Přes 14 dní nehráli/.test(txt) && /Žák 4/.test(txt));
     ok('nejvíc chyb = mise 3-1 (10× u 1 žáka)', /Nejvíc chyb/.test(txt) && /Základní rovnice/.test(txt) && /10× u 1 žáka/.test(txt), txt);
     ok('nejvíc mistrovství: Žák 1 (1)', /Nejvíc mistrovství/.test(txt) && /Žák 1/.test(txt), txt);
@@ -107,6 +110,11 @@ async function run() {
     const xss = await page.evaluate(()=>window.__xss);
     ok('XSS ze jména žáka se NEspustí', xss===0);
     ok('jméno-payload je escapované v innerHTML', /&lt;img/.test(html) && !/<img src=x/.test(html));
+
+    // HOSTILE: prototype pollution přes errs klíče + obří jméno nesmí shodit render
+    const pollute = await page.evaluate(()=>({ poll: ({}).polluted!==undefined || (Object.prototype.polluted!==undefined), rendered: !document.getElementById('insights').classList.contains('hidden') }));
+    ok('prototype pollution přes errs klíče (__proto__/constructor) NEprojde', !pollute.poll);
+    ok('hostilní save (obří jméno, divné mise) render nezhodí', pollute.rendered);
 
     ok('žádné JS chyby na stránce', errors.length===0, errors.slice(0,3).join(' | '));
     await ctx.close();
