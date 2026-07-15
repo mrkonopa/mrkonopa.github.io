@@ -151,7 +151,7 @@ window.RPGWallet = (function () {
         owned: FREE.slice(),
         active: { border: null, badge: null, theme: DEFAULT_THEME, victory: DEFAULT_VICTORY, skin: null, title: null, pet: null }
       },
-      settings: { reducedMotion: false, sponkaEnabled: true },
+      settings: { reducedMotion: false, sponkaEnabled: true, soundOn: false },
       life: {},        // životní countery (tasks/crits/…) — doplní _sanitize
       gach: {},        // odemčené životní úspěchy { id: 'YYYY-MM-DD' }
       migrated: [],
@@ -188,6 +188,7 @@ window.RPGWallet = (function () {
     if (!w.settings || typeof w.settings !== 'object') w.settings = {};
     w.settings.reducedMotion = !!w.settings.reducedMotion;
     w.settings.sponkaEnabled = w.settings.sponkaEnabled !== false;
+    w.settings.soundOn = !!w.settings.soundOn;   // výchozí VYPNUTO (školní prostředí)
     if (!Array.isArray(w.migrated)) w.migrated = [];
     if (!w.absorbed || typeof w.absorbed !== 'object' || Array.isArray(w.absorbed)) w.absorbed = {};
     w.v = 1;
@@ -315,6 +316,8 @@ window.RPGWallet = (function () {
   function setReducedMotion(b) { const w = get(); w.settings.reducedMotion = !!b; put(w); return w.settings.reducedMotion; }
   function getSponkaEnabled() { return get().settings.sponkaEnabled !== false; }
   function setSponkaEnabled(b) { const w = get(); w.settings.sponkaEnabled = !!b; put(w); return w.settings.sponkaEnabled; }
+  function getSoundOn() { return !!get().settings.soundOn; }
+  function setSoundOn(b) { const w = get(); w.settings.soundOn = !!b; put(w); return w.settings.soundOn; }
 
   // ── Katalog ──
   /* items() vrací, co má obchod UKÁZAT: exkluzivní (ach) položky až po
@@ -742,6 +745,7 @@ html[data-theme="leto"]{--gold:#ffd166;--panel:#062033;--panel2:#0a2e4a;--blue:#
     buy, activate, owns, activeId, isActive, cssFor, hasPowerup,
     getReducedMotion, setReducedMotion,
     getSponkaEnabled, setSponkaEnabled,
+    getSoundOn, setSoundOn,
     bumpLife, setLifeMax, hasPerk, lifeStats, gachList, seasonOpen,
     renderTitlePet, renderGachInto,
     migrateFrom, absorbGame, mergeRemote, pushCloud, onChange

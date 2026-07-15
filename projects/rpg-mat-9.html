@@ -437,6 +437,8 @@ body::before{
 .streak-chip .sf{animation:streak-flicker 1.4s ease-in-out infinite}
 @keyframes streak-flicker{0%,100%{transform:scale(1);filter:drop-shadow(0 0 2px #ffae3d)}50%{transform:scale(1.18);filter:drop-shadow(0 0 7px #ff7733)}}
 /* ── REDUCED MOTION (přístupnost) ── */
+@keyframes shake{0%,100%{transform:translate(0,0)}20%{transform:translate(-4px,2px)}40%{transform:translate(4px,-2px)}60%{transform:translate(-3px,-2px)}80%{transform:translate(3px,2px)}}
+.shaking{animation:shake .16s ease-in-out}
 .reduced-motion *,.reduced-motion *::before,.reduced-motion *::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
 .reduced-motion .float-txt{display:none!important}
 .reduced-motion #hit-vignette{display:none!important}
@@ -920,6 +922,10 @@ html[data-theme="violet"]{--gold:#b06cff;--panel:#100a20;--panel2:#18103a;--blue
   <input type="checkbox" id="pr-sponka" onchange="toggleSponka(this.checked)" style="width:18px;height:18px;cursor:pointer;accent-color:var(--blue)">
   <span>Společník (sponka)<br><span style="font-size:12px;color:var(--muted)">Aktivní mazlíček tě bude sledovat po obrazovce a občas povzbudí nebo pomůže s nápovědou.</span></span>
  </label>
+ <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-family:var(--read);font-size:14px;color:var(--text);margin-top:12px">
+  <input type="checkbox" id="pr-sound" onchange="toggleSound(this.checked)" style="width:18px;height:18px;cursor:pointer;accent-color:var(--blue)">
+  <span>Zvuky 🔊<br><span style="font-size:12px;color:var(--muted)">Krátké zvuky za správnou/špatnou odpověď, kritický zásah, minci a level-up. Výchozí vypnuto.</span></span>
+ </label>
  </div>
  <div class="panel">
  <div style="font-family:var(--px);font-weight:700;font-size:12px;color:var(--muted);margin-bottom:10px;letter-spacing:1px">— ZÁLOHA POSTUPU —</div>
@@ -1011,6 +1017,7 @@ function earnCredits(n){
  n=Number(n);
  if(!isFinite(n)||n<=0)return;
  n=Math.floor(n);
+ if(n>=10&&typeof RPGSound!=='undefined')RPGSound.play('coin');
  if(typeof RPGWallet!=='undefined'){RPGWallet.earn(n);}
  else{if(typeof S.credits!=='number'||!isFinite(S.credits)||S.credits<0)S.credits=0;S.credits=Math.floor(S.credits)+n;saveS();}
  const el=document.createElement('div');
@@ -1635,6 +1642,7 @@ function loadS(){const r=localStorage.getItem(SAVE_KEY);if(!r)return false;try{S
 function rmActive(){return((typeof RPGWallet!=='undefined')&&RPGWallet.getReducedMotion())||(S.settings&&S.settings.reducedMotion)||false;}
 function applyMotionPref(){document.documentElement.classList.toggle('reduced-motion',rmActive());}
 function toggleReducedMotion(on){if(!S.settings||typeof S.settings!=='object')S.settings={reducedMotion:false};S.settings.reducedMotion=on;if(typeof RPGWallet!=='undefined')RPGWallet.setReducedMotion(on);applyMotionPref();saveS();}
+function toggleSound(on){if(typeof RPGWallet!=='undefined')RPGWallet.setSoundOn(on);if(on&&typeof RPGSound!=='undefined')RPGSound.play('ok');}
 function toggleSponka(on){if(typeof RPGWallet!=='undefined')RPGWallet.setSponkaEnabled(on);}
 function calcLevel(){S.level=Math.floor(S.xp/100)+1;}
 
@@ -1661,6 +1669,7 @@ function floatText(txt,x,y,color){
  setTimeout(()=>el.remove(),1150);
 }
 function levelUpBurst(lvl){
+ if(typeof RPGSound!=='undefined')RPGSound.play('level');
  const lu=document.getElementById('levelup');
  document.getElementById('lvl-txt').textContent='⬆ LEVEL '+lvl;
  lu.classList.remove('show');void lu.offsetWidth;lu.classList.add('show');
@@ -1679,6 +1688,7 @@ function levelUpBurst(lvl){
  setTimeout(()=>lu.classList.remove('show'),1700);
 }
 function victoryBurst(){
+ if(typeof RPGSound!=='undefined')RPGSound.play('boss');
  const b=document.createElement('div');
  b.className='victory-banner';b.textContent='⚔ VÍTĚZSTVÍ! ⚔';
  {const v=wCatalog().find(i=>i.id===_activeCosmetics()?.active?.victory&&i.cat==='victory');if(v&&v.cssKey)b.classList.add(v.cssKey);}
@@ -2194,6 +2204,7 @@ function damagePlayer(){
  }
  BT.tookDamage=true;
  hitVignette();
+ if(typeof shakeBattle==='function')shakeBattle();
  flashHeart(BT.hp-1);
  BT.hp--;
  setTimeout(updatePlayerHp,360);
@@ -2262,6 +2273,7 @@ function onTimeOut(){
  const fb=document.getElementById('bt-fb');
  fb.textContent='⏱ ČAS VYPRŠEL!';
  fb.className='feedback err';
+ if(typeof RPGSound!=='undefined')RPGSound.play('bad');
  monsterAttack();
  damagePlayer();
  adaptOnAnswer(false);
@@ -2521,6 +2533,7 @@ function submitMC(opt,btn){
  const fb=document.getElementById('bt-fb');
  fb.textContent=firstTime?((isCrit?'✓✓ KRITICKÝ ZÁSAH! +':'✓ SPRÁVNĚ! +')+xpGain+' XP'):'✓ SPRÁVNĚ! (mise už splněna — bez XP)';
  fb.className='feedback ok';
+ if(typeof RPGSound!=='undefined')RPGSound.play(isCrit?'crit':'ok');
  if(firstTime){awardXp(xpGain,isCrit);if(t.skill&&S.attrs[t.skill]!==undefined)S.attrs[t.skill]+=3;S.xpClaimed[xpKey]=true;earnCredits(isCrit?7+wCritBonus():5);tryDropItem();}
  S.done[`${BT.mid}-${BT.idx}`]=true;
  saveS();
@@ -2537,6 +2550,7 @@ function submitMC(opt,btn){
  btn.disabled=true;
  BT.combo=0;
  updateCombo();
+ if(typeof RPGSound!=='undefined')RPGSound.play('bad');
  monsterAttack();
  damagePlayer();
  adaptOnAnswer(false);
@@ -2744,6 +2758,7 @@ function submitAnswer(){
  const xpGain=firstTime?(Math.max(3,10-BT.hl*3)*(isCrit?2:1)+(BT.adapt&&BT.adapt.mode>0?2:0)):0;
  fb.textContent=firstTime?((isCrit?'✓✓ KRITICKÝ ZÁSAH! +':'✓ SPRÁVNĚ! +')+xpGain+' XP'):'✓ SPRÁVNĚ! (mise už splněna — bez XP)';
  fb.className='feedback ok';
+ if(typeof RPGSound!=='undefined')RPGSound.play(isCrit?'crit':'ok');
  if(firstTime){awardXp(xpGain,isCrit);if(t.skill&&S.attrs[t.skill]!==undefined)S.attrs[t.skill]+=3;S.xpClaimed[xpKey]=true;earnCredits(isCrit?7+wCritBonus():5);tryDropItem();}
  S.done[`${BT.mid}-${BT.idx}`]=true;
  saveS();
@@ -2764,6 +2779,7 @@ function submitAnswer(){
  updateCombo();
  fb.textContent='✗ ŠPATNĚ — "'+inp+'" není správně.';
  fb.className='feedback err';
+ if(typeof RPGSound!=='undefined')RPGSound.play('bad');
  monsterAttack();
  damagePlayer();
  adaptOnAnswer(false);
@@ -3808,6 +3824,7 @@ function renderProfile(){
  }
  const rm=document.getElementById('pr-rm');if(rm)rm.checked=rmActive();
  const spk=document.getElementById('pr-sponka');if(spk)spk.checked=(typeof RPGWallet!=='undefined')?RPGWallet.getSponkaEnabled():true;
+ const snd=document.getElementById('pr-sound');if(snd)snd.checked=(typeof RPGWallet!=='undefined')?RPGWallet.getSoundOn():false;
  if(typeof RPGWallet!=='undefined'&&RPGWallet.renderGachInto)RPGWallet.renderGachInto(document.getElementById('pr-gach'));
  renderCrossGames();
 }
