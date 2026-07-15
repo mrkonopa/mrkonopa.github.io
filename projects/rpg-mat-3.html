@@ -1087,6 +1087,7 @@ function launchBattle(aid,mid){
   if(inpEl)inpEl.disabled=true;if(atkEl)atkEl.disabled=true;
   setTimeout(()=>{if(!BT.bossDefeated){if(inpEl)inpEl.disabled=false;if(atkEl)atkEl.disabled=false;if(inpEl&&!BT.mcMode&&!isYN(BT.curTask))inpEl.focus();}},700);}
  go('battle');
+ if(typeof RPGTutorial!=='undefined')RPGTutorial.maybe(S,saveS,stopTimer,startTimer);
 }
 
 function retryMission(){const m=AREAS.find(a=>a.id===BT.aid).missions.find(x=>x.id===BT.mid);for(let i=0;i<m.tc;i++)delete S.done[`${BT.mid}-${i}`];saveS();launchBattle(BT.aid,BT.mid);}
