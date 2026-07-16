@@ -63,6 +63,8 @@ const ok=(c,m)=>{if(c){pass++;console.log('  ✓ '+m);}else{fail++;console.log('
   // přepni na 1-2 (text input)
   await page.evaluate(()=>{go('map');launchBattle(1,'1-2');});
   await page.waitForFunction(()=>document.querySelector('#s-battle')?.classList.contains('active'));
+  // launchBattle zamkne ÚTOK na ~700 ms (boss-entry animace) → počkej na odemčení
+  await page.waitForFunction(()=>!document.getElementById('attack-btn').disabled,{timeout:2500}).catch(()=>{});
   ok(await page.evaluate(()=>!document.getElementById('attack-btn').disabled),'ÚTOK je na startu enabled');
   await page.evaluate(()=>{document.getElementById('bt-ans').value=BT.curTask.ans;submitAnswer();});
   await page.waitForFunction(()=>document.getElementById('next-btn').style.display!=='none');
