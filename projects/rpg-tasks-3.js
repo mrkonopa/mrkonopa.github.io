@@ -51,7 +51,7 @@
       () => { const n = ri(100, 999); const even = n % 2 === 0; return { text: `Je číslo ${n} sudé?`, ans: even ? 'ANO' : 'NE', h1: `Rozhoduje poslední cifra: 0, 2, 4, 6, 8 = sudé.`, h2: even ? 'ANO' : 'NE' }; },
       () => { const n = ri(101, 989); const next = Math.ceil((n + 1) / 10) * 10; return { text: `Jaká celá desítka následuje hned po čísle ${n}?`, ans: next, h1: `Hledáš nejbližší vyšší číslo končící nulou.`, h2: `= ${next}` }; },
     ];
-    for (let i = 0; i < 12; i++) {
+    for (let i = 0; i < T.length; i++) {
       const t = T[i % T.length]();
       tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'calc', mc: true, distractors: t.distractors });
     }
@@ -75,7 +75,7 @@
       () => { const b = ri(100, 800), a = b + ri(10, 150); return { text: `O kolik je ${a} větší než ${b}?`, ans: a - b, h1: `Rozdíl zjistíš odčítáním: ${a} − ${b}.`, h2: `= ${a - b}`, distractors: [String(a + b)] }; }, // miskoncepce: sečte místo odečtení
       () => { const n = ri(100, 999); const ok = n >= 500; return { text: `Je číslo ${n} aspoň 500?`, ans: ok ? 'ANO' : 'NE', h1: `„Aspoň 500" znamená 500 nebo víc.`, h2: ok ? 'ANO' : 'NE' }; },
     ];
-    for (let i = 0; i < 12; i++) {
+    for (let i = 0; i < T.length; i++) {
       const t = T[i % T.length]();
       tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'anal', mc: true, distractors: t.distractors });
     }
@@ -97,7 +97,7 @@
       () => { const n = ri(105, 985); const dolni = Math.floor(n / 100) * 100; return { text: `Mezi kterými dvěma celými stovkami leží číslo ${n}? Napiš tu MENŠÍ.`, ans: dolni, h1: `Škrtni desítky a jednotky — zbudou celé stovky pod číslem.`, h2: `= ${dolni}` }; },
       () => { const n = ri(11, 990); const nahoru = n % 10 >= 5; return { text: `Zaokrouhlí se číslo ${n} na desítky NAHORU?`, ans: nahoru ? 'ANO' : 'NE', h1: `Nahoru jde 5, 6, 7, 8, 9 na místě jednotek. Tady je ${n % 10}.`, h2: nahoru ? 'ANO' : 'NE' }; },
     ];
-    for (let i = 0; i < 12; i++) {
+    for (let i = 0; i < T.length; i++) {
       const t = T[i % T.length]();
       tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'calc' });
     }
@@ -124,7 +124,7 @@
       () => { const s = new Set(); while (s.size < 3) s.add(ri(100, 480)); const [x, y, z] = [...s]; const max = Math.max(x, y, z), min = Math.min(x, y, z); return { text: `Z čísel ${x}, ${y}, ${z} sečti největší a nejmenší.`, ans: max + min, h1: `Největší je ${max}, nejmenší ${min}.`, h2: `${max} + ${min} = ${max + min}` }; },
       () => { const a = ri(20, 70) * 10, b = ri(5, Math.floor((1000 - a * 1) / 10) - a / 10 > 0 ? Math.floor((1000 - a) / 10) : 5) * 10; return { text: `${a} + ${b} = ?`, ans: a + b, h1: `Sčítáš celé desítky — sečti desítky a přidej nulu.`, h2: `= ${a + b}` }; },
     ];
-    for (let i = 0; i < 12; i++) {
+    for (let i = 0; i < T.length; i++) {
       const t = T[i % T.length]();
       tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'calc' });
     }
@@ -147,7 +147,7 @@
       () => { const b = ri(2, 9) * 10; const a = ri(b + 100, 990); return { text: `Kouzelný stroj od každého čísla odečítá ${b}. Co vypadne, když do něj vložíš ${a}?`, ans: a - b, h1: `${a} − ${b}`, h2: `= ${a - b}` }; },
       () => { const s = new Set(); while (s.size < 3) s.add(ri(100, 900)); const arr = [...s]; const max = Math.max(...arr), min = Math.min(...arr); return { text: `Z čísel ${arr[0]}, ${arr[1]}, ${arr[2]} odečti nejmenší od největšího.`, ans: max - min, h1: `Největší je ${max}, nejmenší ${min}.`, h2: `${max} − ${min} = ${max - min}` }; },
     ];
-    for (let i = 0; i < 12; i++) {
+    for (let i = 0; i < T.length; i++) {
       const t = T[i % T.length]();
       tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'calc' });
     }
@@ -170,7 +170,7 @@
       () => { const a = ri(120, 400), b = ri(120, 400), c = ri(50, 190); return { text: `Veverka má ve třech skrýších ${a}, ${b} a ${c} oříšků. Kolik oříšků má celkem?`, ans: a + b + c, h1: 'Sečti všechny tři skrýše.', h2: `${a} + ${b} + ${c} = ${a + b + c}` }; },
       () => { const navlekla = ri(200, 600), ztratila = ri(50, 180); return { text: `Víla navlékla na náhrdelník ${navlekla} korálků z rosy, ale ${ztratila} se jich skutálelo. Kolik korálků na náhrdelníku zůstalo?`, ans: navlekla - ztratila, h1: 'Odečti ztracené korálky.', h2: `${navlekla} − ${ztratila} = ${navlekla - ztratila}` }; },
     ];
-    for (let i = 0; i < 12; i++) {
+    for (let i = 0; i < T.length; i++) {
       const t = T[i % T.length]();
       tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'calc' });
     }
@@ -197,7 +197,7 @@
       () => { const a = ri(4, 30); return { text: `Jaký je trojnásobek čísla ${a}?`, ans: a * 3, h1: `Trojnásobek = 3 × ${a}.`, h2: `= ${a * 3}`, distractors: (a + 3 !== a * 3 ? [String(a + 3)] : []) }; }, // miskoncepce: přičte 3 místo × 3
       () => { const a = ri(2, 5), b = ri(2, 5), c = ri(2, 4); return { text: `${a} × ${b} × ${c} = ?`, ans: a * b * c, h1: `Vynásob nejdřív ${a} × ${b} = ${a * b}, pak × ${c}.`, h2: `= ${a * b * c}` }; },
     ];
-    for (let i = 0; i < 12; i++) {
+    for (let i = 0; i < T.length; i++) {
       const t = T[i % T.length]();
       tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'calc', mc: true, distractors: t.distractors });
     }
@@ -219,7 +219,7 @@
       () => { const a = ri(2, 9); const ok = ri(0, 1) === 0; const tvrz = ok ? a * 10 : a * 100; const spravne = tvrz === a * 10; return { text: `Je pravda, že ${a} × 10 = ${tvrz}?`, ans: spravne ? 'ANO' : 'NE', h1: `Při násobení deseti přibude jen JEDNA nula.`, h2: spravne ? 'ANO' : 'NE' }; },
       () => { const a = ri(2, 9); return { text: `Doplň: ${a} × ? = ${a * 100}`, ans: 100, h1: `Kolika musíš vynásobit ${a}, aby přibyly dvě nuly?`, h2: `= 100` }; },
     ];
-    for (let i = 0; i < 12; i++) {
+    for (let i = 0; i < T.length; i++) {
       const t = T[i % T.length]();
       tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'calc' });
     }
@@ -241,7 +241,7 @@
       () => { const n = ri(2, 8), b = ri(4, 9); return { text: `V každém z ${n} ${skl(n, 'sáčku', 'sáčků', 'sáčků')} je ${b} ${skl(b, 'bonbon', 'bonbony', 'bonbonů')} z lesního medu. Kolik bonbonů je ve všech sáčcích?`, ans: n * b, h1: `${n} × ${b}`, h2: `= ${n * b}` }; },
       () => { const d = ri(2, 9), n = ri(2, 9); return { text: `Světluška rozsvítí každou noc ${d} ${skl(d, 'lucerničku', 'lucerničky', 'lucerniček')}. Kolik lucerniček rozsvítí za ${n} ${skl(n, 'noc', 'noci', 'nocí')}?`, ans: d * n, h1: `${d} × ${n}`, h2: `= ${d * n}` }; },
     ];
-    for (let i = 0; i < 12; i++) {
+    for (let i = 0; i < T.length; i++) {
       const t = T[i % T.length]();
       tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'calc' });
     }
@@ -267,7 +267,7 @@
       () => { const k = ri(2, 9), a = ri(2, 9); return { text: `Kolikrát je číslo ${a} menší než číslo ${a * k}?`, ans: k, h1: `Vydělte: ${a * k} : ${a}.`, h2: `= ${k}` }; },
       () => { const d = ri(2, 8), q = ri(2, 9); return { text: `${d * q} lesních plodů rozdělíme spravedlivě na ${d} ${skl(d, 'hromádku', 'hromádky', 'hromádek')}. Po kolika plodech?`, ans: q, h1: `${d * q} : ${d}`, h2: `= ${q}` }; },
     ];
-    for (let i = 0; i < 12; i++) {
+    for (let i = 0; i < T.length; i++) {
       const t = T[i % T.length]();
       tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'calc', mc: true, distractors: t.distractors });
     }
@@ -290,7 +290,7 @@
       () => { const { d, r, n } = nz(); return { text: `Jezevec dává ${n} žaludů do pytlíků po ${d}. Kolik žaludů mu CHYBÍ do dalšího plného pytlíku?`, ans: d - r, h1: `Zbyde mu ${r} — do plného pytlíku chybí ${d} − ${r}.`, h2: `= ${d - r}` }; },
       () => { const { d, q, r, n } = nz(); return { text: `${n} zlaťáků rozdělíme po ${d}. Doplň: ${n} = ${d} × ? + ${r}`, ans: q, h1: `Kolikrát se ${d} vejde do ${n - r}?`, h2: `= ${q}` }; },
     ];
-    for (let i = 0; i < 12; i++) {
+    for (let i = 0; i < T.length; i++) {
       const t = T[i % T.length]();
       tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'calc' });
     }
@@ -314,7 +314,7 @@
       () => { const d = ri(2, 4), q = ri(3, 8), r = ri(1, d - 1), n = d * q + r; return { text: `Na lavičku se vejdou ${d} ${skl(d, 'skřítek', 'skřítci', 'skřítků')}. Kolik laviček je PLNĚ obsazených, když se posadí ${n} ${skl(n, 'skřítek', 'skřítci', 'skřítků')}?`, ans: q, h1: `${n} : ${d} je ${q}, zbytek ${r}.`, h2: `= ${q}` }; },
       () => { const d = ri(3, 6), q = ri(2, 7), r = ri(1, d - 1), n = d * q + r; return { text: `Víla svazuje kytice po ${d} ${skl(d, 'květině', 'květinách', 'květinách')}. Má ${n} ${skl(n, 'květinu', 'květiny', 'květin')}. Kolik květin jí zbyde mimo kytice?`, ans: r, h1: `Celé kytice: ${q} (${d} × ${q} = ${d * q}). Zbytek: ${n} − ${d * q}.`, h2: `= ${r}` }; },
     ];
-    for (let i = 0; i < 12; i++) {
+    for (let i = 0; i < T.length; i++) {
       const t = T[i % T.length]();
       tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'calc' });
     }
@@ -340,7 +340,7 @@
       () => { const a = ri(3, 12); const o = 3 * a; const ok = ri(0, 1) === 0; const tvrz = ok ? o : o + pick([-3, 3, -a, a]); const spravne = tvrz === o; return { text: `Skřítek tvrdí, že rovnostranný trojúhelník se stranou ${a} cm má obvod ${tvrz} cm. Má pravdu?`, ans: spravne ? 'ANO' : 'NE', h1: `Spočítej ${a} + ${a} + ${a} a porovnej.`, h2: spravne ? 'ANO' : 'NE' }; },
       () => { const o = ri(4, 12) * 3; return { text: `Rovnostranný trojúhelník má obvod ${o} cm. Kolik měří jedna jeho strana?`, ans: o / 3, h1: `Tři stejné strany: ${o} : 3.`, h2: `= ${o / 3} cm` }; },
     ];
-    for (let i = 0; i < 12; i++) {
+    for (let i = 0; i < T.length; i++) {
       const t = T[i % T.length]();
       tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'geo' });
     }
@@ -363,7 +363,7 @@
       () => { const a = ri(2, 9); return { text: `Mechový čtvereček má stranu ${a} cm. Mravenec ho obejde přesně jednou dokola. Kolik cm ujde?`, ans: 4 * a, h1: `Cesta dokola = obvod.`, h2: `= ${4 * a} cm` }; },
       () => { const [a, b] = obd(); return { text: `Broučí hřiště je obdélník se stranami ${a} m a ${b} m. Brouk ho oběhne jednou dokola. Kolik metrů uběhne?`, ans: 2 * (a + b), h1: `Jedno kolečko = obvod: sečti všechny strany.`, h2: `= ${2 * (a + b)} m` }; },
     ];
-    for (let i = 0; i < 12; i++) {
+    for (let i = 0; i < T.length; i++) {
       const t = T[i % T.length]();
       tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'geo' });
     }
@@ -386,7 +386,7 @@
       () => { const b = ri(2, 8), a = b + ri(1, 6); return { text: `Úsečka KL měří ${a} cm, úsečka MN měří ${b} cm. O kolik cm je KL delší?`, ans: a - b, h1: `Porovnání délek = odčítání: ${a} − ${b}.`, h2: `= ${a - b} cm` }; },
       () => { const n = ri(2, 5); return { text: `Lomená čára se skládá z ${n} ${skl(n, 'úseku', 'úseků', 'úseků')}. Kolik má vrcholů (počítej i oba konce)?`, ans: n + 1, h1: `Každý úsek přidá jeden vrchol navíc: úseky + 1.`, h2: `= ${n + 1}` }; },
     ];
-    for (let i = 0; i < 12; i++) {
+    for (let i = 0; i < T.length; i++) {
       const t = T[i % T.length]();
       tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'geo' });
     }
@@ -412,7 +412,7 @@
       () => { const dm = ri(2, 9), cm = dm * 10 + pick([-5, 5]); const ok = dm * 10 > cm; return { text: `Co je delší — ${dm} dm, nebo ${cm} cm? Napiš délku té delší v cm.`, ans: ok ? dm * 10 : cm, h1: `Převeď na stejné jednotky: ${dm} dm = ${dm * 10} cm.`, h2: `= ${ok ? dm * 10 : cm} cm` }; },
       () => { const n = ri(2, 9); const ok = ri(0, 1) === 0; const tvrz = ok ? n * 10 : n * 100; const spravne = tvrz === n * 10; return { text: `Je pravda, že ${n} dm = ${tvrz} cm?`, ans: spravne ? 'ANO' : 'NE', h1: `1 dm = 10 cm.`, h2: spravne ? 'ANO' : 'NE' }; },
     ];
-    for (let i = 0; i < 12; i++) {
+    for (let i = 0; i < T.length; i++) {
       const t = T[i % T.length]();
       tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'calc' });
     }
@@ -434,7 +434,7 @@
       () => { const t = ri(2, 8); return { text: `Kolik dní je ${t} ${skl(t, 'týden', 'týdny', 'týdnů')}? (1 týden = 7 dní)`, ans: t * 7, h1: '1 týden = 7 dní.', h2: `= ${t * 7} dní` }; },
       () => { const g = ri(1100, 1900); const ok = g > 1000; return { text: `Medvídě váží ${g} g. Váží víc než 1 kg?`, ans: ok ? 'ANO' : 'NE', h1: `1 kg = 1000 g — porovnej.`, h2: ok ? 'ANO' : 'NE' }; },
     ];
-    for (let i = 0; i < 12; i++) {
+    for (let i = 0; i < T.length; i++) {
       const t = T[i % T.length]();
       tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'calc' });
     }
@@ -457,7 +457,7 @@
       () => { const ma = ri(50, 250), cena = ri(40, 260); const ok = ma >= cena; return { text: `Máš ${ma} Kč. Stačí ti to na košík borůvek za ${cena} Kč?`, ans: ok ? 'ANO' : 'NE', h1: `Porovnej, co máš, s cenou.`, h2: ok ? 'ANO' : 'NE' }; },
       () => { const tydny = ri(2, 6), castka = ri(10, 50); return { text: `Trpaslík si každý týden ušetří ${castka} Kč. Kolik našetří za ${tydny} ${skl(tydny, 'týden', 'týdny', 'týdnů')}?`, ans: tydny * castka, h1: `${tydny} × ${castka}`, h2: `= ${tydny * castka} Kč` }; },
     ];
-    for (let i = 0; i < 12; i++) {
+    for (let i = 0; i < T.length; i++) {
       const t = T[i % T.length]();
       tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'calc' });
     }
@@ -483,7 +483,7 @@
       () => { let a = ri(100, 999), b = ri(100, 999); while (b === a) b = ri(100, 999); return { text: `Které číslo je větší: ${a}, nebo ${b}?`, ans: Math.max(a, b), h1: `Porovnej stovky.`, h2: `= ${Math.max(a, b)}` }; },
       () => { const q = ri(5, 45); return { text: `Jaká je polovina čísla ${q * 2}?`, ans: q, h1: `${q * 2} : 2`, h2: `= ${q}` }; },
     ];
-    for (let i = 0; i < 12; i++) {
+    for (let i = 0; i < T.length; i++) {
       const t = T[i % T.length]();
       tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'calc', mc: true, distractors: t.distractors });
     }
@@ -508,7 +508,7 @@
       () => { const a = ri(2, 9) * 10; return { text: `${a} světlušek se rozdělí do 10 stejných rojů. Kolik jich bude v jednom roji?`, ans: a / 10, h1: `${a} : 10`, h2: `= ${a / 10}` }; },
       () => { const a = ri(2, 9); return { text: `Kolik desetikorun potřebuješ na zaplacení ${a * 10} Kč?`, ans: a, h1: `${a * 10} : 10`, h2: `= ${a}` }; },
     ];
-    for (let i = 0; i < 13; i++) {
+    for (let i = 0; i < T.length; i++) {
       const t = T[i % T.length]();
       tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'calc' });
     }
@@ -532,7 +532,7 @@
       () => { const a = ri(100, 700); return { text: `Kolik chybí číslu ${a} do 1000?`, ans: 1000 - a, h1: `Doplň do celé stovky, pak do tisíce.`, h2: `= ${1000 - a}`, skill: 'calc' }; },
       () => { const a = ri(2, 9); return { text: `Jaká je polovina čísla ${a * 2}?`, ans: a, h1: `${a * 2} : 2`, h2: `= ${a}`, skill: 'calc' }; },
     ];
-    for (let i = 0; i < 12; i++) {
+    for (let i = 0; i < T.length; i++) {
       const t = T[i % T.length]();
       tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: t.skill });
     }
