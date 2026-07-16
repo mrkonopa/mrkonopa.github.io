@@ -52,7 +52,7 @@
     'twogirlsonecup','undressing','upskirt','urethraplay','urophilia','vagina','venusmound','viagra','vibrator','violetwand',
     'vorarephilia','voyeur','voyeurweb','voyuer','vyjeb','vyjebany','vymrd','vymrdat','vypicenec','wank',
     'wanker','wetback','wetdream','whitepower','whore','worldsex','wrappingmen','wrinkledstarfish','yellowshowers','zidak',
-    'zkurvit','zkurvy','zkurvysyn','zmrd','zoophilia'
+    'zkurvit','zkurvy','zkurvysyn','zmrd','zoophilia','magor','konopa','konopka','konopí'
   ];
   var EXACT = new Set([
     'anal','anus','arse','ass','bbw','bdsm','boner','boob','boobs','busty',
