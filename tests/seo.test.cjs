@@ -22,6 +22,33 @@ const PAGES = ['/index.html','/404.html','/projects/index.html','/projects/priji
  for(const a of ['/favicon.svg','/og-default.png','/sitemap.xml','/robots.txt']){
   const p=await browser.newPage(); const r=await p.goto(base+a); ok(r.status()===200,'statický soubor '+a+' → '+r.status()); await p.close();
  }
+
+ // ── sitemap struktura (regrese proti „Google nelze načíst": byte-perfektní,
+ //    žádný BOM, korektní deklarace s mezerami, well-formed, <loc> existují) ──
+ {
+  const raw = fs.readFileSync(path.join(ROOT,'sitemap.xml'));
+  ok(!(raw[0]===0xEF&&raw[1]===0xBB&&raw[2]===0xBF), 'sitemap.xml nemá UTF-8 BOM');
+  const txt = raw.toString('utf8');
+  ok(/^<\?xml version="1\.0" encoding="UTF-8"\?>/.test(txt), 'sitemap.xml má korektní XML deklaraci (s mezerami)');
+  ok(/<urlset\s+xmlns="http:\/\/www\.sitemaps\.org\/schemas\/sitemap\/0\.9">/.test(txt), 'sitemap.xml má korektní <urlset xmlns>');
+  ok(!/\r/.test(txt), 'sitemap.xml nemá CRLF');
+  ok(/<\/urlset>\s*$/.test(txt), 'sitemap.xml je korektně ukončený </urlset>');
+  const locs = [...txt.matchAll(/<loc>([^<]+)<\/loc>/g)].map(m=>m[1]);
+  ok(locs.length>0, 'sitemap.xml má <loc> položky ('+locs.length+')');
+  const missing = locs.filter(u=>{
+   const rel = u.replace('https://mrkonopa.github.io/','');
+   const fp = rel===''?'index.html':(rel.endsWith('/')?rel+'index.html':rel);
+   return !fs.existsSync(path.join(ROOT,fp));
+  });
+  ok(missing.length===0, 'všechny <loc> URL existují jako soubory'+(missing.length?(' [chybí: '+missing[0]+']'):''));
+  // servírovaný Content-Type musí být XML (jinak to Google odmítne číst)
+  const p=await browser.newPage(); const r=await p.goto(base+'/sitemap.xml'); const ct=(r.headers()['content-type']||'');
+  ok(/xml/.test(ct), 'sitemap.xml se servíruje jako XML (Content-Type: '+ct+')'); await p.close();
+  // robots.txt odkazuje na kanonickou sitemapu a NEblokuje ji
+  const rob = fs.readFileSync(path.join(ROOT,'robots.txt'),'utf8');
+  ok(/Sitemap:\s*https:\/\/mrkonopa\.github\.io\/sitemap\.xml/.test(rob), 'robots.txt odkazuje na /sitemap.xml');
+  ok(!/Disallow:\s*\/sitemap\.xml/.test(rob), 'robots.txt neblokuje sitemap');
+ }
  for(const u of PAGES){
   const ctx=await browser.newContext(); const p=await ctx.newPage(); const errs=[]; p.on('pageerror',e=>errs.push(e.message));
   await p.goto(base+u,{waitUntil:'load'}); await p.waitForTimeout(250);

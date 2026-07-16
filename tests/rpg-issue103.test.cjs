@@ -34,6 +34,9 @@ async function gameStaffPreview(browser, base, N){
   const ctx=await browser.newContext({viewport:{width:480,height:900}});
   const page=await ctx.newPage();
   page.on('pageerror',e=>{fail++;console.log('  ❌ JS chyba g'+N+': '+e.message);});
+  // Pin data mimo letní prázdniny (červenec/srpen) — jinak je věž zavřená
+  // (Fáze 17) a náhled/vstup nejde otevřít. Stejně jako rpg-tower-game.test.
+  await page.addInitScript(()=>{window.__TW_TESTNOW='2026-05-15T10:00:00';});
   await page.addInitScript(({key,seed})=>{localStorage.setItem(key,JSON.stringify(seed));},{key:KEY,seed:SEED});
   await page.goto(`${base}/projects/rpg-mat-${N}.html`,{waitUntil:'load'});
   await page.evaluate(()=>continueGame());
@@ -135,6 +138,10 @@ async function runConsole(browser, base){
   // (3) VĚŽ LEGEND — mazání žáka z žebříčku
   await page.click('.tab[data-tab="tower"]');
   await page.waitForFunction(()=>!document.getElementById('t-tower').classList.contains('hidden'),{timeout:4000});
+  // #174: výchozí je „Všechny ročníky" (read-only přehled bez mazání) → pro
+  // správu (🗑) vyber konkrétní ročník
+  await page.selectOption('#tower-game','RPG_MAT_9');
+  await page.evaluate(()=>renderTower());
   await page.waitForFunction(()=>/patro/.test(document.getElementById('tower-board-wrap').textContent),{timeout:4000});
   const hasDel=await page.evaluate(()=>document.querySelectorAll('#tower-board-wrap button').length);
   ok(hasDel>=2,'žebříček věže (admin): u každého řádku je 🗑 tlačítko ('+hasDel+')');
