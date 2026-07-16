@@ -959,7 +959,7 @@ const AREAS = [
    (()=>{const a=ri(550,990),b=ri(120,520);return{text:`Vypočítej:\n${a} - ${b} =`,ans:String(a-b),hints:[`Odečítej pod sebou, pozor na výpůjčky.`,`${a} - ${b}`],skill:'calc'};})(),
    (()=>{const a=ri(13,49),b=ri(4,9);return{text:`Vypočítej:\n${a} × ${b} =`,ans:String(a*b),hints:[`Násob po řádech a sečti.`,`${a} × ${b}`],skill:'calc'};})(),
    (()=>{const b=ri(3,9),q=ri(13,40),a=b*q;return{text:`Vypočítej:\n${a} : ${b} =`,ans:String(q),hints:[`Kolikrát se ${b} vejde do ${a}?`,`${a} : ${b}`],skill:'calc'};})(),
-   (()=>{const a=ri(2,9),b=ri(2,9),c=ri(2,9);return{text:`Vypočítej (pozor na závorku):\n${a} × (${b} + ${c}) =`,ans:String(a*(b+c)),hints:[`Nejdřív spočítej závorku.`,`${a} × ${b+c}`],skill:'calc'};})(),
+   (()=>{const a=ri(2,9),b=ri(2,9),c=ri(2,9);return{text:`Vypočítej (pozor na závorku):\n${a} × (${b} + ${c}) =`,ans:String(a*(b+c)),distractors:[String(a*b+c)],hints:[`Nejdřív spočítej závorku.`,`${a} × ${b+c}`],skill:'calc'};})(),
    (()=>{const a=ri(1234,8765);const r=Math.round(a/100)*100;return{text:`Zaokrouhli na stovky:\n${a} ≈`,ans:String(r),hints:[`Rozhoduje číslice desítek (${Math.floor(a/10)%10}).`,`${(a%100)>=50?'Nahoru.':'Dolů.'}`],skill:'calc'};})()
   ]
  },
@@ -1005,12 +1005,12 @@ const AREAS = [
   intro:'Starý písař zapisuje zlomky na papyrus. Pomoz mu je zkrátit na základní tvar.',
   mc:true, tc:6,
   tasks:()=>[
-   (()=>{const g=ri(2,6),a=ri(1,4),b=ri(a+1,7);return{text:`Zkrať zlomek a napiš nový ČITATEL:\n${a*g}/${b*g}`,ans:String(a),hints:[`Vyděl čitatele i jmenovatele číslem ${g}.`,`${a*g} : ${g}`],skill:'calc'};})(),
-   (()=>{const g=ri(2,6),a=ri(1,4),b=ri(a+1,7);return{text:`Zkrať zlomek a napiš nový JMENOVATEL:\n${a*g}/${b*g}`,ans:String(b),hints:[`Vyděl obě čísla jejich společným dělitelem ${g}.`,`${b*g} : ${g}`],skill:'calc'};})(),
-   (()=>{const a=ri(1,5),b=ri(a+1,8),k=ri(2,5);return{text:`Rozšiř zlomek ${k}× a napiš nový ČITATEL:\n${a}/${b}`,ans:String(a*k),hints:[`Násob čitatele i jmenovatele ${k}.`,`${a} × ${k}`],skill:'calc'};})(),
+   (()=>{const g=ri(2,6),a=ri(1,4),b=ri(a+1,7);return{text:`Zkrať zlomek a napiš nový ČITATEL:\n${a*g}/${b*g}`,ans:String(a),distractors:(a*g-g!==a?[String(a*g-g)]:[]),hints:[`Vyděl čitatele i jmenovatele číslem ${g}.`,`${a*g} : ${g}`],skill:'calc'};})(),
+   (()=>{const g=ri(2,6),a=ri(1,4),b=ri(a+1,7);return{text:`Zkrať zlomek a napiš nový JMENOVATEL:\n${a*g}/${b*g}`,ans:String(b),distractors:(b*g-g!==b?[String(b*g-g)]:[]),hints:[`Vyděl obě čísla jejich společným dělitelem ${g}.`,`${b*g} : ${g}`],skill:'calc'};})(),
+   (()=>{const a=ri(1,5),b=ri(a+1,8),k=ri(2,5);return{text:`Rozšiř zlomek ${k}× a napiš nový ČITATEL:\n${a}/${b}`,ans:String(a*k),distractors:(a+k!==a*k?[String(a+k)]:[]),hints:[`Násob čitatele i jmenovatele ${k}.`,`${a} × ${k}`],skill:'calc'};})(),
    (()=>{const a=ri(1,5),b=ri(a+1,8);const g=gcd(a,b);return{text:`Je zlomek ${a}/${b} v základním tvaru?\n(napiš jeho největšího společného dělitele čitatele a jmenovatele)`,ans:String(g),hints:[`NSD(${a}, ${b}). Je-li 1, zlomek už zkrátit nejde.`,`Výsledek: ${g}`],skill:'anal'};})(),
    (()=>{const d=ri(3,9),num=ri(d+1,d*3);const w=Math.floor(num/d);return{text:`Kolikrát se celek vejde do zlomku ${num}/${d}?\n(celá část smíšeného čísla)`,ans:String(w),hints:[`Kolikrát se ${d} vejde do ${num}?`,`${num} : ${d} (celá část)`],skill:'calc'};})(),
-   (()=>{const w=ri(2,5),d=ri(3,7),num=ri(1,d-1);const imp=w*d+num;return{text:`Převeď na nepravý zlomek a napiš ČITATEL:\n${w} a ${num}/${d}`,ans:String(imp),hints:[`Celé × jmenovatel + čitatel.`,`${w} × ${d} + ${num}`],skill:'calc'};})()
+   (()=>{const w=ri(2,5),d=ri(3,7),num=ri(1,d-1);const imp=w*d+num;return{text:`Převeď na nepravý zlomek a napiš ČITATEL:\n${w} a ${num}/${d}`,ans:String(imp),distractors:[String(w*d)],hints:[`Celé × jmenovatel + čitatel.`,`${w} × ${d} + ${num}`],skill:'calc'};})()
   ]
  },
  {
@@ -1055,10 +1055,10 @@ const AREAS = [
   intro:'V mrazivé komoře klesá teplota pod nulu. Ledový strážce zkouší, jak počítáš se zápornými čísly.',
   mc:true, tc:6,
   tasks:()=>[
-   (()=>{const a=ri(2,18),b=ri(2,18);return{text:`Vypočítej:\n(-${a}) + (-${b}) =`,ans:String(-a-b),hints:[`Dvě záporná čísla — sčítej a výsledek je záporný.`,`-(${a} + ${b})`],skill:'calc'};})(),
-   (()=>{const a=ri(2,15),b=ri(2,20);return{text:`Vypočítej:\n${a} - ${b} =`,ans:String(a-b),hints:[`Když odečteš víc, výsledek je záporný.`,`${a} - ${b}`],skill:'calc'};})(),
-   (()=>{const a=ri(2,15),b=ri(2,15);return{text:`Vypočítej:\n(-${a}) + ${b} =`,ans:String(-a+b),hints:[`Sčítáš čísla s různým znaménkem — odečti menší od většího.`,`${b} - ${a}`],skill:'calc'};})(),
-   (()=>{const a=ri(2,15),b=ri(2,15);return{text:`Vypočítej (odčítání záporného):\n${a} - (-${b}) =`,ans:String(a+b),hints:[`Mínus mínus = plus. Stává se z toho ${a} + ${b}.`,`${a} + ${b}`],skill:'calc'};})(),
+   (()=>{const a=ri(2,18),b=ri(2,18);return{text:`Vypočítej:\n(-${a}) + (-${b}) =`,ans:String(-a-b),distractors:[String(a+b)],hints:[`Dvě záporná čísla — sčítej a výsledek je záporný.`,`-(${a} + ${b})`],skill:'calc'};})(),
+   (()=>{const a=ri(2,15),b=ri(2,20);return{text:`Vypočítej:\n${a} - ${b} =`,ans:String(a-b),distractors:(a!==b?[String(b-a)]:[]),hints:[`Když odečteš víc, výsledek je záporný.`,`${a} - ${b}`],skill:'calc'};})(),
+   (()=>{const a=ri(2,15),b=ri(2,15);return{text:`Vypočítej:\n(-${a}) + ${b} =`,ans:String(-a+b),distractors:(a!==b?[String(a-b)]:[]),hints:[`Sčítáš čísla s různým znaménkem — odečti menší od většího.`,`${b} - ${a}`],skill:'calc'};})(),
+   (()=>{const a=ri(2,15),b=ri(2,15);return{text:`Vypočítej (odčítání záporného):\n${a} - (-${b}) =`,ans:String(a+b),distractors:[String(a-b)],hints:[`Mínus mínus = plus. Stává se z toho ${a} + ${b}.`,`${a} + ${b}`],skill:'calc'};})(),
    (()=>{const rano=-ri(3,12),zmena=ri(5,20);return{text:`Ráno bylo ${rano} °C, do poledne se oteplilo o ${zmena} °C.\nKolik °C je v poledne?`,ans:String(rano+zmena),hints:[`Oteplení = přičítáš.`,`${rano} + ${zmena}`],skill:'anal'};})(),
    (()=>{const a=ri(-9,9),b=ri(-9,9);return{text:`Vypočítej:\n${a<0?`(${a})`:a} + ${b<0?`(${b})`:b} =`,ans:String(a+b),hints:[`Pozor na znaménka.`,`Výsledek: ${a+b}`],skill:'calc'};})()
   ]
@@ -1105,11 +1105,11 @@ const AREAS = [
   intro:'Strážce vah rozděluje poklady ve správném poměru. Ukaž, že poměrům rozumíš.',
   mc:true, tc:6,
   tasks:()=>[
-   (()=>{const g=ri(2,6),a=ri(1,5),b=ri(1,5);return{text:`Zkrať poměr a napiš PRVNÍ člen:\n${a*g} : ${b*g}`,ans:String(a),hints:[`Vyděl oba členy číslem ${g}.`,`${a*g} : ${g}`],skill:'calc'};})(),
-   (()=>{const g=ri(2,6),a=ri(1,5),b=ri(1,5);return{text:`Zkrať poměr a napiš DRUHÝ člen:\n${a*g} : ${b*g}`,ans:String(b),hints:[`Vyděl oba členy společným dělitelem ${g}.`,`${b*g} : ${g}`],skill:'calc'};})(),
-   (()=>{const a=ri(2,6),b=ri(2,6);return{text:`Jaký je převrácený poměr k ${a} : ${b}?\nNapiš jeho PRVNÍ člen.`,ans:String(b),hints:[`Převrácený poměr má členy prohozené.`,`${b} : ${a}`],skill:'anal'};})(),
+   (()=>{const g=ri(2,6),a=ri(1,5),b=ri(1,5);return{text:`Zkrať poměr a napiš PRVNÍ člen:\n${a*g} : ${b*g}`,ans:String(a),distractors:(a*g-g!==a?[String(a*g-g)]:[]),hints:[`Vyděl oba členy číslem ${g}.`,`${a*g} : ${g}`],skill:'calc'};})(),
+   (()=>{const g=ri(2,6),a=ri(1,5),b=ri(1,5);return{text:`Zkrať poměr a napiš DRUHÝ člen:\n${a*g} : ${b*g}`,ans:String(b),distractors:(b*g-g!==b?[String(b*g-g)]:[]),hints:[`Vyděl oba členy společným dělitelem ${g}.`,`${b*g} : ${g}`],skill:'calc'};})(),
+   (()=>{const a=ri(2,6),b=ri(2,6);return{text:`Jaký je převrácený poměr k ${a} : ${b}?\nNapiš jeho PRVNÍ člen.`,ans:String(b),distractors:(a!==b?[String(a)]:[]),hints:[`Převrácený poměr má členy prohozené.`,`${b} : ${a}`],skill:'anal'};})(),
    (()=>{const a=ri(2,5),b=ri(2,5),cel=ri(2,5);const sum=a+b;const dil=cel;return{text:`Poměr ${a} : ${b}, jeden díl = ${dil}.\nJaká je celková hodnota? (součet obou částí)`,ans:String(sum*dil),hints:[`Počet dílů = ${a}+${b}=${sum}. Vynásob hodnotou dílu.`,`${sum} × ${dil}`],skill:'anal'};})(),
-   (()=>{const dil=ri(3,9),a=ri(2,5);return{text:`Poměr je ${a} : 1 a jeden díl má hodnotu ${dil}.\nJak velká je první část?`,ans:String(a*dil),hints:[`První část = ${a} ${skl(a,'díl','díly','dílů')}.`,`${a} × ${dil}`],skill:'anal'};})(),
+   (()=>{const dil=ri(3,9),a=ri(2,5);return{text:`Poměr je ${a} : 1 a jeden díl má hodnotu ${dil}.\nJak velká je první část?`,ans:String(a*dil),distractors:[String(dil)],hints:[`První část = ${a} ${skl(a,'díl','díly','dílů')}.`,`${a} × ${dil}`],skill:'anal'};})(),
    (()=>{const a=ri(2,6),b=ri(2,6);const g=gcd(a,b);return{text:`Je poměr ${a} : ${b} v základním tvaru?\n(napiš společného dělitele obou členů)`,ans:String(g),hints:[`NSD(${a}, ${b}). Je-li 1, poměr je základní.`,`Výsledek: ${g}`],skill:'anal'};})()
   ]
  },
@@ -1155,12 +1155,12 @@ const AREAS = [
   intro:'Hromady zlatých mincí čekají na rozdělení. Hlídač zkouší, jestli umíš počítat procenta.',
   mc:true, tc:6,
   tasks:()=>[
-   (()=>{const z=ri(2,9)*100,p=[10,20,25,50][ri(0,3)];return{text:`Vypočítej:\n${p} % z ${z} =`,ans:String(z*p/100),hints:[`1 % = ${z}/100 = ${z/100}. Pak × ${p}.`,`${z} : 100 × ${p}`],skill:'calc'};})(),
+   (()=>{const z=ri(2,9)*100,p=[10,20,25,50][ri(0,3)];return{text:`Vypočítej:\n${p} % z ${z} =`,ans:String(z*p/100),distractors:(z*p/100!==z/p?[String(z/p)]:[]),hints:[`1 % = ${z}/100 = ${z/100}. Pak × ${p}.`,`${z} : 100 × ${p}`],skill:'calc'};})(),
    (()=>{const z=ri(2,9)*10,p=[10,20,30,40,50][ri(0,4)];return{text:`Vypočítej:\n${p} % z ${z} =`,ans:String(z*p/100),hints:[`1 % = ${z/100}.`,`${z/100} × ${p}`],skill:'calc'};})(),
-   (()=>{const z=ri(2,9)*100;return{text:`Kolik je 1 % z ${z}?`,ans:String(z/100),hints:[`1 % = celek : 100.`,`${z} : 100`],skill:'calc'};})(),
+   (()=>{const z=ri(2,9)*100;return{text:`Kolik je 1 % z ${z}?`,ans:String(z/100),distractors:[String(z/10)],hints:[`1 % = celek : 100.`,`${z} : 100`],skill:'calc'};})(),
    (()=>{const z=ri(2,8)*100;return{text:`Kolik je 100 % z ${z}?`,ans:String(z),hints:[`100 % = celek.`,`Výsledek: ${z}`],skill:'anal'};})(),
    (()=>{const z=ri(2,8)*200;return{text:`Kolik je 50 % z ${z}?`,ans:String(z/2),hints:[`50 % = polovina.`,`${z} : 2`],skill:'calc'};})(),
-   (()=>{const z=ri(2,6)*100;return{text:`Kolik je 75 % z ${z}?`,ans:String(z*3/4),hints:[`75 % = tři čtvrtiny.`,`${z} : 4 × 3`],skill:'calc'};})()
+   (()=>{const z=ri(2,6)*100;return{text:`Kolik je 75 % z ${z}?`,ans:String(z*3/4),distractors:[String(z/4)],hints:[`75 % = tři čtvrtiny.`,`${z} : 4 × 3`],skill:'calc'};})()
   ]
  },
  {
