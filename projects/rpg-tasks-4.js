@@ -41,7 +41,7 @@
     ];
     for (let i = 0; i < 12; i++) {
       const t = T[i % T.length]();
-      tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'calc', mc: true });
+      tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'calc', mc: true, distractors: t.distractors });
     }
     return tasks;
   }
@@ -65,7 +65,7 @@
     ];
     for (let i = 0; i < 12; i++) {
       const t = T[i % T.length]();
-      tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'anal', mc: true });
+      tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'anal', mc: true, distractors: t.distractors });
     }
     return tasks;
   }
@@ -185,7 +185,7 @@
     ];
     for (let i = 0; i < 12; i++) {
       const t = T[i % T.length]();
-      tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'calc', mc: true });
+      tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'calc', mc: true, distractors: t.distractors });
     }
     return tasks;
   }
@@ -256,7 +256,7 @@
     ];
     for (let i = 0; i < 12; i++) {
       const t = T[i % T.length]();
-      tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'calc', mc: true });
+      tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'calc', mc: true, distractors: t.distractors });
     }
     return tasks;
   }
@@ -470,7 +470,7 @@
     ];
     for (let i = 0; i < 12; i++) {
       const t = T[i % T.length]();
-      tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'calc', mc: true });
+      tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'calc', mc: true, distractors: t.distractors });
     }
     return tasks;
   }

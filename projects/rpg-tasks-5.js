@@ -23,20 +23,20 @@
   function gen_1_1() {
     const tasks = [];
     const T = [
-      () => { const tis = ri(12, 980); return { text: `Jak zapíšeme číslem: ${tis} tisíc?`, ans: tis * 1000, h1: `Za počet tisíců připiš tři nuly.`, h2: `= ${tis * 1000}` }; },
-      () => { const n = ri(100000, 999999); const dtis = Math.floor(n / 10000) % 10; return { text: `Jakou cifru má číslo ${n} na místě desetitisíců?`, ans: dtis, h1: `Řády zprava: J, D, S, tisíce, desetitisíce (5. cifra zprava).`, h2: `= ${dtis}` }; },
-      () => { const n = ri(100000, 999999); const st = Math.floor(n / 100000); return { text: `Jakou cifru má číslo ${n} na místě statisíců?`, ans: st, h1: `Statisíce jsou šestá cifra zprava (první zleva).`, h2: `= ${st}` }; },
+      () => { const tis = ri(12, 980); return { text: `Jak zapíšeme číslem: ${tis} tisíc?`, ans: tis * 1000, h1: `Za počet tisíců připiš tři nuly.`, h2: `= ${tis * 1000}`, d: (tis * 100 !== tis * 1000 ? [String(tis * 100)] : []) }; }, // miskoncepce: připíše jen dvě nuly (stovky místo tisíců)
+      () => { const n = ri(100000, 999999); const dtis = Math.floor(n / 10000) % 10; const tis = Math.floor(n / 1000) % 10; return { text: `Jakou cifru má číslo ${n} na místě desetitisíců?`, ans: dtis, h1: `Řády zprava: J, D, S, tisíce, desetitisíce (5. cifra zprava).`, h2: `= ${dtis}`, d: (tis !== dtis ? [String(tis)] : []) }; }, // miskoncepce: přečte cifru tisíců místo desetitisíců
+      () => { const n = ri(100000, 999999); const st = Math.floor(n / 100000); const dtis = Math.floor(n / 10000) % 10; return { text: `Jakou cifru má číslo ${n} na místě statisíců?`, ans: st, h1: `Statisíce jsou šestá cifra zprava (první zleva).`, h2: `= ${st}`, d: (dtis !== st ? [String(dtis)] : []) }; }, // miskoncepce: přečte cifru desetitisíců místo statisíců
       () => { const n = ri(100001, 999998); return { text: `Jaké číslo je o 1 menší než ${n}?`, ans: n - 1, h1: `Odečti jedničku.`, h2: `= ${n - 1}` }; },
       () => { const n = ri(100001, 999998); return { text: `Jaké číslo následuje hned po ${n}?`, ans: n + 1, h1: `Přičti jedničku.`, h2: `= ${n + 1}` }; },
-      () => { const st = ri(1, 9), tis = ri(1, 9), j = ri(1, 9); const n = st * 100000 + tis * 1000 + j; return { text: `Dračí písař zapsal: ${st} statisíců, ${tis} ${skl(tis, 'tisíc', 'tisíce', 'tisíců')} a ${j} ${skl(j, 'jednotka', 'jednotky', 'jednotek')}. Jaké je to číslo?`, ans: n, h1: `Pozor na nuly na prázdných řádech: ${st}0${tis} 00${j}.`, h2: `= ${n}` }; },
-      () => { const m = ri(1, 9); return { text: `Kolik je ${m} ${skl(m, 'milion', 'miliony', 'milionů')}? (zapiš číslem)`, ans: m * 1000000, h1: `Milion má šest nul.`, h2: `= ${m * 1000000}` }; },
-      () => { const n = ri(10, 99); return { text: `Zapiš číslem: ${n} tisíc a 40.`, ans: n * 1000 + 40, h1: `${n} tisíc = ${n * 1000}, přičti 40.`, h2: `= ${n * 1000 + 40}` }; },
+      () => { const st = ri(1, 9), tis = ri(1, 9), j = ri(1, 9); const n = st * 100000 + tis * 1000 + j; const bezNul = st * 100 + tis * 10 + j; return { text: `Dračí písař zapsal: ${st} statisíců, ${tis} ${skl(tis, 'tisíc', 'tisíce', 'tisíců')} a ${j} ${skl(j, 'jednotka', 'jednotky', 'jednotek')}. Jaké je to číslo?`, ans: n, h1: `Pozor na nuly na prázdných řádech: ${st}0${tis} 00${j}.`, h2: `= ${n}`, d: (bezNul !== n ? [String(bezNul)] : []) }; }, // miskoncepce: slepí cifry bez nul na prázdných řádech
+      () => { const m = ri(1, 9); return { text: `Kolik je ${m} ${skl(m, 'milion', 'miliony', 'milionů')}? (zapiš číslem)`, ans: m * 1000000, h1: `Milion má šest nul.`, h2: `= ${m * 1000000}`, d: (m * 100000 !== m * 1000000 ? [String(m * 100000)] : []) }; }, // miskoncepce: jen pět nul (statisíce místo milionu)
+      () => { const n = ri(10, 99); return { text: `Zapiš číslem: ${n} tisíc a 40.`, ans: n * 1000 + 40, h1: `${n} tisíc = ${n * 1000}, přičti 40.`, h2: `= ${n * 1000 + 40}`, d: (n * 100 + 40 !== n * 1000 + 40 ? [String(n * 100 + 40)] : []) }; }, // miskoncepce: „tisíc" jako dvě nuly
       () => { const pul = pick([['půl milionu', 500000], ['čtvrt milionu', 250000], ['tři čtvrtě milionu', 750000]]); return { text: `Kolik je ${pul[0]}?`, ans: pul[1], h1: `Milion = 1 000 000, rozděl ho.`, h2: `= ${pul[1]}` }; },
-      () => { const n = ri(12, 98) * 10000; return { text: `Kolik desetitisíců má číslo ${n}?`, ans: n / 10000, h1: `Odděl poslední čtyři nuly.`, h2: `= ${n / 10000}` }; },
+      () => { const n = ri(12, 98) * 10000; return { text: `Kolik desetitisíců má číslo ${n}?`, ans: n / 10000, h1: `Odděl poslední čtyři nuly.`, h2: `= ${n / 10000}`, d: (n / 1000 !== n / 10000 ? [String(n / 1000)] : []) }; }, // miskoncepce: oddělí jen tři nuly (počítá tisíce)
     ];
     for (let i = 0; i < 12; i++) {
       const t = T[i % T.length]();
-      tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'calc', mc: true });
+      tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'calc', mc: true, distractors: t.d || [] });
     }
     return tasks;
   }

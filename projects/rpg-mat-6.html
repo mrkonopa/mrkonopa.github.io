@@ -945,10 +945,10 @@ const AREAS = [
  tasks:()=>[
  (()=>{const a=ri(120,460),b=ri(120,460);return{text:`Vypočítej:\n${a} + ${b} =`,ans:String(a+b),hints:[`Sčítej po řádech (jednotky, desítky, stovky).`,`${a} + ${b}`],skill:'calc'};})(),
  (()=>{const a=ri(550,950),b=ri(120,480);return{text:`Vypočítej:\n${a} - ${b} =`,ans:String(a-b),hints:[`Odečítej pod sebou, pozor na výpůjčky.`,`${a} - ${b}`],skill:'calc'};})(),
- (()=>{const a=ri(13,39),b=ri(3,9);return{text:`Vypočítej:\n${a} × ${b} =`,ans:String(a*b),hints:[`Násob po řádech a sečti.`,`${a} × ${b}`],skill:'calc'};})(),
+ (()=>{const a=ri(13,39),b=ri(3,9);return{text:`Vypočítej:\n${a} × ${b} =`,ans:String(a*b),distractors:(a*b!==a+b?[String(a+b)]:[]),hints:[`Násob po řádech a sečti.`,`${a} × ${b}`],skill:'calc'};})(),
  (()=>{const b=ri(3,8),q=ri(12,40),a=b*q;return{text:`Vypočítej:\n${a} : ${b} =`,ans:String(q),hints:[`Kolikrát se ${b} vejde do ${a}?`,`${a} : ${b}`],skill:'calc'};})(),
- (()=>{const a=ri(123,887);const r=Math.round(a/10)*10;return{text:`Zaokrouhli na desítky:\n${a} ≈`,ans:String(r),hints:[`Rozhoduje číslice jednotek (${a%10}).`,`${a%10>=5?'Zaokrouhli nahoru.':'Zaokrouhli dolů.'}`],skill:'calc'};})(),
- (()=>{const a=ri(2,9),b=ri(2,9),c=ri(2,9);return{text:`Vypočítej (pozor na závorku):\n${a} × (${b} + ${c}) =`,ans:String(a*(b+c)),hints:[`Nejdřív spočítej závorku.`,`${a} × ${b+c}`],skill:'calc'};})()
+ (()=>{const a=ri(123,887);const r=Math.round(a/10)*10;return{text:`Zaokrouhli na desítky:\n${a} ≈`,ans:String(r),distractors:(a%10!==0?[String(a%10>=5?Math.floor(a/10)*10:Math.ceil(a/10)*10)]:[]),hints:[`Rozhoduje číslice jednotek (${a%10}).`,`${a%10>=5?'Zaokrouhli nahoru.':'Zaokrouhli dolů.'}`],skill:'calc'};})(),
+ (()=>{const a=ri(2,9),b=ri(2,9),c=ri(2,9);return{text:`Vypočítej (pozor na závorku):\n${a} × (${b} + ${c}) =`,ans:String(a*(b+c)),distractors:(a*b+c!==a*(b+c)?[String(a*b+c)]:[]),hints:[`Nejdřív spočítej závorku.`,`${a} × ${b+c}`],skill:'calc'};})()
  ]
  },
  {
@@ -996,9 +996,9 @@ const AREAS = [
  (()=>{const a=ri(2,9),b=ri(1,9),v=a+b/10;return{text:`Zapiš jako desetinné číslo:\n${a} celých a ${b} desetin =`,ans:String(v),hints:[`Desetiny jsou první místo za čárkou.`,`${a},${b}`],skill:'calc'};})(),
  (()=>{const v=ri(11,98)/10;return{text:`Vynásob:\n${cz(v)} × 10 =`,ans:String(Math.round(v*100)/10),hints:[`× 10 = posuň čárku o 1 doprava.`,`Výsledek: ${Math.round(v*100)/10}`],skill:'calc'};})(),
  (()=>{const v=ri(15,98)/10;return{text:`Vyděl:\n${cz(Math.round(v*100)/10)} : 10 =`,ans:String(v),hints:[`: 10 = posuň čárku o 1 doleva.`,`Výsledek: ${v}`],skill:'calc'};})(),
- (()=>{const v=ri(105,995)/100;const r=Math.round(v*10)/10;return{text:`Zaokrouhli na desetiny:\n${cz(v)} ≈`,ans:String(r),hints:[`Rozhoduje místo setin (druhé za čárkou).`,`Výsledek: ${r}`],skill:'calc'};})(),
+ (()=>{const v=ri(105,995)/100;const r=Math.round(v*10)/10;const x=Math.round(v*100);return{text:`Zaokrouhli na desetiny:\n${cz(v)} ≈`,ans:String(r),distractors:(x%10!==0?[String((x%10>=5?Math.floor(x/10):Math.ceil(x/10))/10)]:[]),hints:[`Rozhoduje místo setin (druhé za čárkou).`,`Výsledek: ${r}`],skill:'calc'};})(),
  (()=>{const a=ri(20,79)/10,b=a+ri(2,30)/10;return{text:`Které číslo je větší?\n${cz(a)}  nebo  ${cz(b)}\n(napiš to větší)`,ans:String(b),hints:[`Porovnej nejdřív celé části, pak desetiny.`,`Výsledek: ${b}`],skill:'calc'};})(),
- (()=>{const v=ri(105,985)/100;const r=Math.round(v);return{text:`Zaokrouhli na celé číslo:\n${cz(v)} ≈`,ans:String(r),hints:[`Rozhoduje místo desetin.`,`Výsledek: ${r}`],skill:'calc'};})()
+ (()=>{const v=ri(105,985)/100;const r=Math.round(v);const h=Math.round(v*100)%100;return{text:`Zaokrouhli na celé číslo:\n${cz(v)} ≈`,ans:String(r),distractors:(h!==0?[String(h>=50?Math.floor(v):Math.ceil(v))]:[]),hints:[`Rozhoduje místo desetin.`,`Výsledek: ${r}`],skill:'calc'};})()
  ]
  },
  {

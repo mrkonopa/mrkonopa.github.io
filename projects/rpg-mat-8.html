@@ -909,16 +909,16 @@ const AREAS = [
  mc:true, tc:6,
  tasks:()=>[
  (()=>{const a=ri(-15,-2),b=ri(2,12),ans=a+b;return{
- text:`Vypočítej:\n(${a}) + ${b} =`,ans:String(ans),
+ text:`Vypočítej:\n(${a}) + ${b} =`,ans:String(ans),distractors:[String(-a+b)],
  hints:[`Sčítáš záporné a kladné číslo. Najdi, které má větší absolutní hodnotu.`,`|${a}| = ${Math.abs(a)}, druhé číslo: ${b}. Větší absolutní hodnotou je ${Math.abs(a)>b?'záporné':'kladné'}, takže výsledek bude ${Math.abs(a)>b?'záporný':'kladný'}.`],skill:'calc'};})(),
  (()=>{const a=ri(-12,-2),b=ri(-9,-1),ans=a-b;return{
- text:`Vypočítej:\n(${a}) - (${b}) =`,ans:String(ans),
+ text:`Vypočítej:\n(${a}) - (${b}) =`,ans:String(ans),distractors:[String(a+b)],
  hints:[`Odečítání záporného čísla = přičtení jeho absolutní hodnoty.`,`${a} - (${b}) přepiš jako ${a} + ${Math.abs(b)}.`],skill:'calc'};})(),
  (()=>{const a=ri(-7,-2),b=ri(2,8),ans=a*b;return{
- text:`Vypočítej:\n(${a}) × ${b} =`,ans:String(ans),
+ text:`Vypočítej:\n(${a}) × ${b} =`,ans:String(ans),distractors:[String(-ans)],
  hints:[`Záporné × kladné = záporné.`,`Spočítej |${a}| × ${b} = ${Math.abs(ans)} a doplň znaménko.`],skill:'calc'};})(),
  (()=>{const a=ri(2,9),b=ri(2,9),ans=(-a)*(-b);return{
- text:`Vypočítej:\n(-${a}) × (-${b}) =`,ans:String(ans),
+ text:`Vypočítej:\n(-${a}) × (-${b}) =`,ans:String(ans),distractors:[String(-ans)],
  hints:[`Záporné × záporné = ?`,`Mínus krát mínus dává plus. Spočítej ${a} × ${b}.`],skill:'calc'};})(),
  (()=>{const b=ri(2,12),k=ri(2,9),a=-b*k,ans=a/b;return{
  text:`Vypočítej:\n(${a}) : ${b} =`,ans:String(ans),
@@ -995,16 +995,16 @@ const AREAS = [
  mc:true, tc:6,
  tasks:()=>[
  (()=>{const a=ri(2,15),ans=a*a;return{
- text:`Vypočítej:\n${a}² =`,ans:String(ans),
+ text:`Vypočítej:\n${a}² =`,ans:String(ans),distractors:(a>2?[String(a*2)]:[]),
  hints:[`a² znamená a × a (druhá mocnina = číslo krát samo sebe).`,`Vynásob ${a} krát ${a}.`],skill:'calc'};})(),
  (()=>{const a=ri(2,8),ans=a*a*a;return{
- text:`Vypočítej:\n${a}³ =`,ans:String(ans),
+ text:`Vypočítej:\n${a}³ =`,ans:String(ans),distractors:[String(a*3)],
  hints:[`a³ znamená a × a × a (třetí mocnina = krychle).`,`Nejdřív ${a} × ${a} = ${a*a}. Potom vynásob ještě jednou ${a}.`],skill:'calc'};})(),
  (()=>{const a=ri(2,13),ans=a;return{
  text:`Vypočítej:\n√${a*a} =`,ans:String(ans),
  hints:[`Druhá odmocnina hledá číslo, které vynásobeno samo sebou dá zadané.`,`Najdi ? takové, že ? × ? = ${a*a}.`],skill:'calc'};})(),
  (()=>{const a=ri(2,9),ans=a*a;return{
- text:`Vypočítej:\n(-${a})² =`,ans:String(ans),
+ text:`Vypočítej:\n(-${a})² =`,ans:String(ans),distractors:[String(-ans)],
  hints:[`Mínus krát mínus = plus. Záporné číslo na druhou je vždy kladné.`,`(-${a}) × (-${a}) = ?`],skill:'calc'};})(),
  (()=>{const a=ri(2,7),ans=a;return{
  text:`Vypočítej třetí odmocninu:\n³√${a*a*a} =`,ans:String(ans),
@@ -1084,10 +1084,10 @@ const AREAS = [
  mc:true, tc:6,
  tasks:()=>[
  (()=>{const a=ri(3,15),b=ri(a+1,25);const ans=b-a;return{
- text:`Vyřeš rovnici:\nx + ${a} = ${b}`,ans:String(ans),
+ text:`Vyřeš rovnici:\nx + ${a} = ${b}`,ans:String(ans),distractors:[String(b+a)],
  hints:[`Chceš x samo — odečti ${a} z obou stran.`,`x = ${b} - ${a} = ?`],skill:'calc'};})(),
  (()=>{const a=ri(3,12),b=ri(5,18);const ans=a+b;return{
- text:`Vyřeš rovnici:\nx - ${a} = ${b}`,ans:String(ans),
+ text:`Vyřeš rovnici:\nx - ${a} = ${b}`,ans:String(ans),distractors:(b-a!==a+b?[String(b-a)]:[]),
  hints:[`Přičti ${a} k oběma stranám.`,`x = ${b} + ${a} = ?`],skill:'calc'};})(),
  (()=>{const a=ri(2,9),x=ri(2,12);const b=a*x;return{
  text:`Vyřeš rovnici:\n${a}x = ${b}`,ans:String(x),
@@ -1176,7 +1176,7 @@ const AREAS = [
  text:`Vypočítej pro x = ${k}:\n${a}x - ${b}`,ans:String(a*k-b),
  hints:[`Dosaď: ${a} × ${k} - ${b}.`,`${a*k} - ${b} = ?`],skill:'calc'};})(),
  (()=>{const a=ri(1,5),k=ri(2,7);return{
- text:`Vypočítej pro x = ${k}:\nx² + ${a}x`,ans:String(k*k+a*k),
+ text:`Vypočítej pro x = ${k}:\nx² + ${a}x`,ans:String(k*k+a*k),distractors:(k>2?[String(2*k+a*k)]:[]),
  hints:[`Dosaď: ${k}² + ${a} × ${k}.`,`${k*k} + ${a*k} = ?`],skill:'calc'};})(),
  (()=>{const a=ri(1,4),b=ri(1,10),k=ri(2,5);return{
  text:`Vypočítej pro x = ${k}:\n${a}x² - ${b}`,ans:String(a*k*k-b),
@@ -1487,7 +1487,7 @@ const AREAS = [
  mc:true, tc:6,
  tasks:()=>[
  (()=>{const a=ri(5,12),b=ri(3,8);const ans=(a+b)*(a+b);return{
- text:`Vypočítej bez kalkulačky:\n(${a} + ${b})²`,ans:String(ans),
+ text:`Vypočítej bez kalkulačky:\n(${a} + ${b})²`,ans:String(ans),distractors:[String(a*a+b*b)],
  hints:[`(a+b)² = a²+2ab+b².`,`${a*a} + ${2*a*b} + ${b*b} = ?`],skill:'calc'};})(),
  (()=>{const r=ri(4,9),h=ri(4,10);const v=Math.round(3.14*r*r*h);return{
  text:`Válcová nádrž: r = ${r} m, h = ${h} m.\nKolik m³ vody pojme? (π = 3,14)`,ans:String(v),
