@@ -262,6 +262,7 @@ const RPGFindError = (function () {
 const RPGTutorial = (function () {
   const STEPS = [
     { ic: '❤️', t: 'Tvoje životy', b: 'Tohle jsou tvoje životy. Za špatnou odpověď o jeden přijdeš — když dojdou, mise se prostě zopakuje. Žádný stres.' },
+    { ic: '⌨️', t: 'Jak odpovídat', b: 'Napiš výsledek a zmáčkni Enter — nebo klikni myší. U výběru ze 4 možností stiskni číslo 1–4 nebo písmeno A–D. U otázek ANO/NE stiskni A nebo N. Na tabletu prostě klikej.' },
     { ic: '⏱️', t: 'Časomíra a nápověda', b: 'Nahoře běží čas. Nespěchej zbytečně — v klidu spočítej. Když si nevíš rady, klikni na 💡 nápovědu.' },
     { ic: '🔥', t: 'Kritický zásah', b: 'Odpověz 3× správně po sobě (bez nápovědy) a další zásah bude KRITICKÝ — dvojnásobek XP!' },
     { ic: '🛍️', t: 'Kredity a obchod', b: 'Za správné odpovědi sbíráš kredity. V obchodě si za ně koupíš vychytávky a vzhledy postavy. Hodně štěstí!' }
