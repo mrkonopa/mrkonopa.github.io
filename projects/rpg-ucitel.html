@@ -1120,15 +1120,18 @@ async function loadAudit(){
  AUDIT_ROWS=await RPGCloud.listAuditLog({limit:300});
  renderAuditList();
 }
+// Vrací UŽ ESCAPOVANÝ HTML fragment (safe-by-default): user-controlled pole
+// (mid, name, role, text) jdou přes esc() uvnitř, statické oddělovače jsou
+// bezpečné literály. Konzument tedy NESMÍ výsledek znovu obalovat esc().
 function fmtDetail(d){
  if(!d||typeof d!=='object')return '';
  const p=[];
- if(d.delta!=null)p.push((d.delta>=0?'+':'')+d.delta);
- if(d.mid)p.push('mise '+d.mid);
- if(d.count!=null)p.push(d.count+'×');
- if(d.name)p.push('„'+d.name+'"');
- if(d.role)p.push('→ '+d.role);
- if(d.text)p.push('„'+String(d.text).slice(0,70)+'"');
+ if(d.delta!=null)p.push((d.delta>=0?'+':'')+(d.delta|0));
+ if(d.mid)p.push('mise '+esc(d.mid));
+ if(d.count!=null)p.push((d.count|0)+'×');
+ if(d.name)p.push('„'+esc(d.name)+'"');
+ if(d.role)p.push('→ '+esc(d.role));
+ if(d.text)p.push('„'+esc(String(d.text).slice(0,70))+'"');
  return p.join(' · ');
 }
 function renderAuditList(){
@@ -1142,7 +1145,7 @@ function renderAuditList(){
    '<td>'+esc(r.actor_email||'—')+'</td>'+
    '<td>'+esc(auditLabel(r.action))+(r.game?' <span class="em">'+esc(String(r.game).replace('RPG_MAT_','g'))+'</span>':'')+'</td>'+
    '<td>'+esc(r.target_email||'—')+'</td>'+
-   '<td style="font-size:12px">'+esc(fmtDetail(r.detail))+'</td></tr>').join('')+
+   '<td style="font-size:12px">'+fmtDetail(r.detail)+'</td></tr>').join('')+
   '</tbody></table>';
 }
 async function addTeacher(){
