@@ -92,10 +92,17 @@ async function run() {
     ok('záložka Věž legend se otevře', true);
 
     const opts = await page.evaluate(()=>document.getElementById('tower-game').options.length);
-    ok('výběr ročníku je naplněn (4 hry)', opts===4, 'options='+opts);
-    ok('výchozí ročník = 9.', await page.evaluate(()=>document.getElementById('tower-game').value)==='RPG_MAT_9');
+    ok('výběr ročníku je naplněn (1 souhrn + 4 hry)', opts===5, 'options='+opts);
+    ok('výchozí = souhrn všech ročníků (prázdná hodnota)', await page.evaluate(()=>document.getElementById('tower-game').value)==='');
 
-    await page.waitForFunction(()=>/patro/.test(document.getElementById('tower-board-wrap').textContent),{timeout:4000});
+    // souhrn všech ročníků: přehled má nadpisy ročníků a uzavření sezóny je skryté
+    await page.waitForFunction(()=>/patro|nikdo/.test(document.getElementById('tower-board-wrap').textContent),{timeout:4000});
+    const allView = await page.evaluate(()=>({txt:document.getElementById('tower-board-wrap').textContent, closeHidden:document.getElementById('tower-close-btn').style.display==='none'}));
+    ok('souhrn ukazuje více ročníků + skrývá Uzavřít sezónu', /Neo/.test(allView.txt)&&allView.closeHidden, allView.txt.slice(0,100));
+
+    // vyber konkrétní ročník (9.) → správa a single žebříček
+    await page.evaluate(()=>{ const s=document.getElementById('tower-game'); s.value='RPG_MAT_9'; renderTower(); });
+    await page.waitForFunction(()=>/patro/.test(document.getElementById('tower-board-wrap').textContent)&&/top 10/.test(document.getElementById('tower-board-wrap').textContent),{timeout:4000});
     const board = await page.evaluate(()=>document.getElementById('tower-board-wrap').textContent);
     ok('žebříček: 1. místo Neo 23. patro', /🥇/.test(board)&&/Neo/.test(board)&&/23\. patro/.test(board), board.slice(0,120));
     ok('žebříček: 3 řádky + popisek top 10', /Trinity/.test(board)&&/top 10/.test(board));
