@@ -41,11 +41,11 @@ const ok = (c, m) => { if (c) { pass++; } else { fail++; console.log('  ❌ ' + 
   const t2 = await page.evaluate(() => ({ visible: document.getElementById('tutorial-overlay').style.display === 'flex', timerPaused: typeof BT !== 'undefined' && !BT.timer, steps: RPGTutorial._steps.length, dotDone: !S.tutorialDone }));
   ok(t2.visible, 'nový žák: tutoriál se zobrazí při 1. boji');
   ok(t2.timerPaused, 'časomíra je během tutoriálu pauznutá');
-  ok(t2.steps === 4 && t2.dotDone, 'tutoriál má 4 kroky, tutorialDone zatím false');
+  ok(t2.steps === 5 && t2.dotDone, 'tutoriál má 5 kroků (vč. „Jak odpovídat"), tutorialDone zatím false');
 
   // ── 3) Enter/klik posouvá kroky, poslední dokončí → tutorialDone + timer běží ──
   const finish = await page.evaluate(() => {
-    for (let i = 0; i < 4; i++) document.getElementById('tut-next').click();
+    for (let i = 0; i < 5; i++) document.getElementById('tut-next').click();
     return { hidden: document.getElementById('tutorial-overlay').style.display === 'none', done: !!S.tutorialDone, timerBack: !!BT.timer };
   });
   ok(finish.hidden, 'projitím kroků se tutoriál zavře');
