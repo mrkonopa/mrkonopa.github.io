@@ -12,6 +12,15 @@
     const a = Math.abs(n);
     return a === 1 ? one : a >= 2 && a <= 4 ? few : many;
   }
+  // FRAMING pool — obalí početní výraz (odpověď se NEMĚNÍ). Např. "12 + 3".
+  function frame(expr) {
+    return pick([
+      `Vypočítej: ${expr} = ?`,
+      `Spočítej: ${expr} = ?`,
+      `Urči, kolik je ${expr}.`,
+      `Kolik je ${expr}?`,
+    ]);
+  }
 
   // ══════════════════════════════════════════════════════════════
   // OBLAST 1 — ČÍSLA DO 10 000
@@ -101,7 +110,7 @@
     const pair = () => { let a = ri(1000, 8000), b = ri(100, 2000); if (a + b > 10000) a -= 1000; return [a, b]; };
     const tasks = [];
     const T = [
-      () => { const [a, b] = pair(); return { text: `${a} + ${b} = ?`, ans: a + b, h1: `Sčítej po řádech: tisíce, stovky, desítky, jednotky.`, h2: `= ${a + b}` }; },
+      () => { const [a, b] = pair(); return { text: frame(`${a} + ${b}`), ans: a + b, h1: `Sčítej po řádech: tisíce, stovky, desítky, jednotky.`, h2: `= ${a + b}` }; },
       () => { const [a, b] = pair(); return { text: `${a} + ? = ${a + b}`, ans: b, h1: `Co přičteš k ${a}, abys dostal ${a + b}? Spočítej ${a + b} − ${a}.`, h2: `= ${b}` }; },
       () => { const [a, b] = pair(); return { text: `? + ${b} = ${a + b}`, ans: a, h1: `Hledaný sčítanec: ${a + b} − ${b}.`, h2: `= ${a}` }; },
       () => { const [a, b] = pair(); return { text: `Kolik chybí číslu ${a} do ${a + b}?`, ans: b, h1: `Zjistíš to odčítáním: ${a + b} − ${a}.`, h2: `= ${b}` }; },

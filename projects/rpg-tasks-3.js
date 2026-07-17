@@ -11,6 +11,8 @@
     const a = Math.abs(n);
     return a === 1 ? one : a >= 2 && a <= 4 ? few : many;
   }
+  // FRAMING-POOL: uvození drilovací úlohy „= ?" (nemění odpověď). Např. FR()+': '+a+' × '+b+' = ?'
+  const FR = () => pick(['Vypočítej', 'Spočítej', 'Urči', 'Kolik je']);
   // tři strany PLATNÉHO trojúhelníku (trojúhelníková nerovnost: každá strana < součet zbylých)
   function triSides(mn, mx) {
     let a = ri(mn, mx), b = ri(mn, mx); if (a > b) { const t = a; a = b; b = t; }
@@ -112,17 +114,17 @@
   function gen_2_1() {
     const tasks = [];
     const T = [
-      () => { const a = ri(100, 700), b = ri(50, 290); return { text: `${a} + ${b} = ?`, ans: a + b, h1: `Sečti nejdřív stovky, pak desítky a jednotky.`, h2: `= ${a + b}` }; },
+      () => { const a = ri(100, 700), b = ri(50, 290); return { text: `${FR()}: ${a} + ${b} = ?`, ans: a + b, h1: `Sečti nejdřív stovky, pak desítky a jednotky.`, h2: `= ${a + b}` }; },
       () => { const b = ri(100, 500), c = b + ri(100, 450); return { text: `Doplň: ? + ${b} = ${c}`, ans: c - b, h1: `Hledaný sčítanec zjistíš odčítáním: ${c} − ${b}.`, h2: `= ${c - b}` }; },
       () => { const a = ri(100, 500), c = a + ri(100, 450); return { text: `Doplň: ${a} + ? = ${c}`, ans: c - a, h1: `Kolik chybí od ${a} do ${c}? Spočítej ${c} − ${a}.`, h2: `= ${c - a}` }; },
       () => { const a = ri(150, 950); return { text: `Kolik chybí číslu ${a} do 1000?`, ans: 1000 - a, h1: `Doplň nejdřív do celé stovky, pak stovky do tisíce.`, h2: `= ${1000 - a}` }; },
       () => { const a = ri(100, 800), b = ri(20, 190); return { text: `Jaké číslo je o ${b} větší než ${a}?`, ans: a + b, h1: `„O ${b} větší" znamená přičíst: ${a} + ${b}.`, h2: `= ${a + b}` }; },
       () => { const a = ri(100, 700), b = ri(30, 250); return { text: `Zvětši číslo ${a} o ${b}.`, ans: a + b, h1: `Zvětšit o = přičíst.`, h2: `= ${a + b}` }; },
-      () => { const a = ri(100, 400), b = ri(100, 300), c = ri(50, 250); return { text: `${a} + ${b} + ${c} = ?`, ans: a + b + c, h1: `Sečti nejdřív dvě čísla, pak přičti třetí.`, h2: `= ${a + b + c}` }; },
+      () => { const a = ri(100, 400), b = ri(100, 300), c = ri(50, 250); return { text: `${FR()}: ${a} + ${b} + ${c} = ?`, ans: a + b + c, h1: `Sečti nejdřív dvě čísla, pak přičti třetí.`, h2: `= ${a + b + c}` }; },
       () => { const a = ri(150, 800), b = ri(30, 190); const ok = ri(0, 1) === 0; const tvrz = ok ? a + b : a + b + pick([-10, 10, -100, 100]); const spravne = tvrz === a + b; return { text: `Je pravda, že ${a} + ${b} = ${tvrz}?`, ans: spravne ? 'ANO' : 'NE', h1: `Spočítej si součet sám a porovnej.`, h2: spravne ? 'ANO' : 'NE' }; },
       () => { const b = ri(2, 9) * 10; const a = ri(100, 900 - b); return { text: `Kouzelný stroj ke každému číslu přičítá ${b}. Co vypadne, když do něj vložíš ${a}?`, ans: a + b, h1: `${a} + ${b}`, h2: `= ${a + b}` }; },
       () => { const s = new Set(); while (s.size < 3) s.add(ri(100, 480)); const [x, y, z] = [...s]; const max = Math.max(x, y, z), min = Math.min(x, y, z); return { text: `Z čísel ${x}, ${y}, ${z} sečti největší a nejmenší.`, ans: max + min, h1: `Největší je ${max}, nejmenší ${min}.`, h2: `${max} + ${min} = ${max + min}` }; },
-      () => { const a = ri(20, 70) * 10, b = ri(5, Math.floor((1000 - a * 1) / 10) - a / 10 > 0 ? Math.floor((1000 - a) / 10) : 5) * 10; return { text: `${a} + ${b} = ?`, ans: a + b, h1: `Sčítáš celé desítky — sečti desítky a přidej nulu.`, h2: `= ${a + b}` }; },
+      () => { const a = ri(20, 70) * 10, b = ri(5, Math.floor((1000 - a * 1) / 10) - a / 10 > 0 ? Math.floor((1000 - a) / 10) : 5) * 10; return { text: `${FR()}: ${a} + ${b} = ?`, ans: a + b, h1: `Sčítáš celé desítky — sečti desítky a přidej nulu.`, h2: `= ${a + b}` }; },
     ];
     for (let i = 0; i < T.length; i++) {
       const t = T[i % T.length]();
@@ -135,14 +137,14 @@
   function gen_2_2() {
     const tasks = [];
     const T = [
-      () => { const b = ri(50, 400), a = b + ri(50, 550); return { text: `${a} − ${b} = ?`, ans: a - b, h1: `Odečítej po skupinách: nejdřív stovky, pak zbytek.`, h2: `= ${a - b}` }; },
+      () => { const b = ri(50, 400), a = b + ri(50, 550); return { text: `${FR()}: ${a} − ${b} = ?`, ans: a - b, h1: `Odečítej po skupinách: nejdřív stovky, pak zbytek.`, h2: `= ${a - b}` }; },
       () => { const b = ri(50, 400), a = b + ri(50, 550); return { text: `${a} − ? = ${a - b}`, ans: b, h1: `Co odečteš od ${a}, abys dostal ${a - b}? Spočítej ${a} − ${a - b}.`, h2: `= ${b}` }; },
       () => { const b = ri(50, 400), d = ri(50, 500); return { text: `? − ${b} = ${d}`, ans: b + d, h1: `Hledané číslo je o ${b} větší než výsledek: ${d} + ${b}.`, h2: `= ${b + d}` }; },
       () => { const b = ri(50, 400), a = b + ri(50, 550); return { text: `O kolik je ${a} více než ${b}?`, ans: a - b, h1: `Rozdíl zjistíš odčítáním: ${a} − ${b}.`, h2: `= ${a - b}` }; },
       () => { const b = ri(50, 400), a = b + ri(50, 550); return { text: `O kolik je ${b} méně než ${a}?`, ans: a - b, h1: `Ptáme se na stejný rozdíl: ${a} − ${b}.`, h2: `= ${a - b}` }; },
       () => { const a = ri(300, 990), b = ri(50, 250); return { text: `Zmenši číslo ${a} o ${b}.`, ans: a - b, h1: `Zmenšit o = odečíst.`, h2: `= ${a - b}` }; },
       () => { const a = ri(120, 980); const cil = Math.ceil(a / 100) * 100 === a ? a + 100 : Math.ceil(a / 100) * 100; return { text: `Kolik chybí od čísla ${a} do nejbližší vyšší celé stovky?`, ans: cil - a, h1: `Nejbližší vyšší stovka je ${cil}.`, h2: `= ${cil - a}` }; },
-      () => { const a = ri(500, 990), b = ri(50, 200), c = ri(50, 200); return { text: `${a} − ${b} − ${c} = ?`, ans: a - b - c, h1: `Odečti postupně: nejdřív ${b}, pak ${c}.`, h2: `= ${a - b - c}` }; },
+      () => { const a = ri(500, 990), b = ri(50, 200), c = ri(50, 200); return { text: `${FR()}: ${a} − ${b} − ${c} = ?`, ans: a - b - c, h1: `Odečti postupně: nejdřív ${b}, pak ${c}.`, h2: `= ${a - b - c}` }; },
       () => { const b = ri(100, 400), a = b + ri(100, 500); const ok = ri(0, 1) === 0; const tvrz = ok ? a - b : a - b + pick([-10, 10, -100, 100]); const spravne = tvrz === a - b; return { text: `Je pravda, že ${a} − ${b} = ${tvrz}?`, ans: spravne ? 'ANO' : 'NE', h1: `Spočítej rozdíl a porovnej.`, h2: spravne ? 'ANO' : 'NE' }; },
       () => { const b = ri(2, 9) * 10; const a = ri(b + 100, 990); return { text: `Kouzelný stroj od každého čísla odečítá ${b}. Co vypadne, když do něj vložíš ${a}?`, ans: a - b, h1: `${a} − ${b}`, h2: `= ${a - b}` }; },
       () => { const s = new Set(); while (s.size < 3) s.add(ri(100, 900)); const arr = [...s]; const max = Math.max(...arr), min = Math.min(...arr); return { text: `Z čísel ${arr[0]}, ${arr[1]}, ${arr[2]} odečti nejmenší od největšího.`, ans: max - min, h1: `Největší je ${max}, nejmenší ${min}.`, h2: `${max} − ${min} = ${max - min}` }; },
@@ -185,7 +187,7 @@
   function gen_3_1() {
     const tasks = [];
     const T = [
-      () => { const a = ri(2, 10), b = ri(2, 10); return { text: `${a} × ${b} = ?`, ans: a * b, h1: `${a} × ${b}: přičítej ${b} celkem ${a}krát.`, h2: `= ${a * b}`, distractors: (a + b !== a * b ? [String(a + b)] : []) }; }, // miskoncepce: sečte místo vynásobení
+      () => { const a = ri(2, 10), b = ri(2, 10); return { text: `${FR()}: ${a} × ${b} = ?`, ans: a * b, h1: `${a} × ${b}: přičítej ${b} celkem ${a}krát.`, h2: `= ${a * b}`, distractors: (a + b !== a * b ? [String(a + b)] : []) }; }, // miskoncepce: sečte místo vynásobení
       () => { const a = ri(2, 10), b = ri(2, 10); return { text: `${a} × ? = ${a * b}`, ans: b, h1: `Jaké číslo dá s ${a} dohromady ${a * b}? Zkus ${a * b} : ${a}.`, h2: `= ${b}` }; },
       () => { const a = ri(2, 10), b = ri(2, 10); return { text: `? × ${b} = ${a * b}`, ans: a, h1: `Kolikrát musíš vzít ${b}, abys dostal ${a * b}?`, h2: `= ${a}` }; },
       () => { const a = ri(2, 10), b = ri(2, 10); return { text: `Kolik je ${a}krát ${b}?`, ans: a * b, h1: `${a}krát ${b} je totéž co ${a} × ${b}.`, h2: `= ${a * b}`, distractors: (a + b !== a * b ? [String(a + b)] : []) }; }, // miskoncepce: sečte místo vynásobení
@@ -195,7 +197,7 @@
       () => { const n = ri(2, 9); return { text: `Kolik nohou ${n < 5 ? 'mají' : 'má'} ${n} ${skl(n, 'pavouk', 'pavouci', 'pavouků')}? (Pavouk má 8 nohou.)`, ans: n * 8, h1: `${n} × 8`, h2: `= ${n * 8}`, distractors: (n + 8 !== n * 8 ? [String(n + 8)] : []) }; }, // miskoncepce: přičte 8 místo násobení
       () => { const a = ri(6, 45); return { text: `Jaký je dvojnásobek čísla ${a}?`, ans: a * 2, h1: `Dvojnásobek = 2 × ${a}.`, h2: `= ${a * 2}`, distractors: (a + 2 !== a * 2 ? [String(a + 2)] : []) }; }, // miskoncepce: přičte 2 místo × 2
       () => { const a = ri(4, 30); return { text: `Jaký je trojnásobek čísla ${a}?`, ans: a * 3, h1: `Trojnásobek = 3 × ${a}.`, h2: `= ${a * 3}`, distractors: (a + 3 !== a * 3 ? [String(a + 3)] : []) }; }, // miskoncepce: přičte 3 místo × 3
-      () => { const a = ri(2, 5), b = ri(2, 5), c = ri(2, 4); return { text: `${a} × ${b} × ${c} = ?`, ans: a * b * c, h1: `Vynásob nejdřív ${a} × ${b} = ${a * b}, pak × ${c}.`, h2: `= ${a * b * c}` }; },
+      () => { const a = ri(2, 5), b = ri(2, 5), c = ri(2, 4); return { text: `${FR()}: ${a} × ${b} × ${c} = ?`, ans: a * b * c, h1: `Vynásob nejdřív ${a} × ${b} = ${a * b}, pak × ${c}.`, h2: `= ${a * b * c}` }; },
     ];
     for (let i = 0; i < T.length; i++) {
       const t = T[i % T.length]();

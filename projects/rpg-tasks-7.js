@@ -8,6 +8,10 @@ const skl = (n,one,few,many)=>n===1?one:(n>=2&&n<=4?few:many);
 const cz = n => String(n).replace('.',',');
 const r1 = n => cz(Math.round(n*10)/10);
 const r2 = n => cz(Math.round(n*100)/100);
+const pick = a => a[Math.floor(Math.random()*a.length)];
+// FRAMING POOL — mění jen sloveso výzvy, ne odpověď (bezpečné i pro MC)
+const askCalc = e => pick([`Vypočítej ${e} = ?`,`Spočítej ${e} = ?`,`Urči hodnotu výrazu ${e}.`,`Kolik je ${e}?`]);
+const fq = e => pick(['Vypočítej','Spočítej','Urči hodnotu'])+`: ${e}`;
 
 // ══════════════════════════════════════════════════════════
 // OBLAST 1 — VSTUPNÍ BRÁNA

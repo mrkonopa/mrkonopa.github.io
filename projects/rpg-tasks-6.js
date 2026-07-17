@@ -8,6 +8,12 @@ const skl = (n,one,few,many)=>n===1?one:(n>=2&&n<=4?few:many);
 const cz = n => String(n).replace('.',',');
 const r1 = n => cz(Math.round(n*10)/10);
 const r2 = n => cz(Math.round(n*100)/100);
+const pick = arr => arr[Math.floor(Math.random()*arr.length)];
+// framing pool pro drily — mění SLOVESO, ne odpověď
+const FRAME = ['Vypočítej','Spočítej','Urči','Kolik je'];
+const ask = expr => { const f=pick(FRAME); return f==='Kolik je' ? `Kolik je ${expr}?` : `${f}: ${expr} = ?`; };
+// „je 1 raketa / jsou 3 rakety / je 5 raket" — sloveso podle počtu (nominativ)
+const jsou = n => n===1?'je':(n>=2&&n<=4?'jsou':'je');
 
 // ══════════════════════════════════════════════════════════
 // OBLAST 1 — ODLETOVÁ STANICE

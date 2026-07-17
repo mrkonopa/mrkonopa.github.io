@@ -10,6 +10,7 @@
   const r2 = n => Math.round(n * 100) / 100;
   const cz = n => String(n).replace('.', ',');
   const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+  const FR = () => pick(['Vypočítej', 'Spočítej', 'Urči', 'Kolik je']); // framing-pool pro dril (nemění odpověď)
   function skl(n, one, few, many) {
     const a = Math.abs(n);
     return a === 1 ? one : a >= 2 && a <= 4 ? few : many;
