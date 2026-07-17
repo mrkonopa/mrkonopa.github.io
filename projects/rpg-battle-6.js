@@ -16,6 +16,7 @@
     };
   }
   const ri = (r, lo, hi) => lo + Math.floor(r() * (hi - lo + 1));
+  const skl = (n,one,few,many)=>n===1?one:(n>=2&&n<=4?few:many);  // shoda čísla a jména (1 / 2-4 / 5+)
   const pick = (r, arr) => arr[Math.floor(r() * arr.length)];
   const S = v => String(v);
 
@@ -92,7 +93,7 @@
     function (r) {
       const cena = ri(r, 3, 19) * 10, ks = ri(r, 2, 6);
       const v = cena * ks;
-      return { topic: 'slovní úloha', text: `Jeden sešit stojí ${cena} Kč. Kolik zaplatíš za ${ks} sešitů?`,
+      return { topic: 'slovní úloha', text: `Jeden sešit stojí ${cena} Kč. Kolik zaplatíš za ${ks} ${skl(ks,'sešit','sešity','sešitů')}?`,
                value: v, distractors: [cena + ks, v + cena, v - cena] };
     },
 

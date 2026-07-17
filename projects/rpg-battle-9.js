@@ -23,7 +23,8 @@
       return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
     };
   }
-  const ri = (r, lo, hi) => lo + Math.floor(r() * (hi - lo + 1));   // celé [lo,hi]
+  const ri = (r, lo, hi) => lo + Math.floor(r() * (hi - lo + 1));
+  const skl = (n,one,few,many)=>n===1?one:(n>=2&&n<=4?few:many);  // shoda čísla a jména (1 / 2-4 / 5+)   // celé [lo,hi]
   const pick = (r, arr) => arr[Math.floor(r() * arr.length)];
   const S = v => String(v);
 
@@ -189,7 +190,7 @@
       ];
       const [total, fav, ans] = pick(r, cases);
       const wrongs = cases.filter(c => c[2] !== ans);
-      return { topic: 'pravděpodobnost', text: `Z ${total} kuliček je ${fav} červených. P(červená) = ?`,
+      return { topic: 'pravděpodobnost', text: `Z ${total} kuliček ${skl(fav,'je','jsou','je')} ${fav} ${skl(fav,'červená','červené','červených')}. P(červená) = ?`,
                value: ans, distractors: [wrongs[0][2], wrongs[Math.floor(wrongs.length / 2)][2], wrongs[wrongs.length - 1][2]] };
     },
 

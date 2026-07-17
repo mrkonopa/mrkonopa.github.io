@@ -159,7 +159,7 @@
     function (r) {
       const h = ri(r, 1, 4), m = ri(r, 10, 55);
       const total = h * 60 + m;
-      return { topic: 'čas', text: `Kolik minut je ${h} hodiny a ${m} minut?`, value: total,
+      return { topic: 'čas', text: `Kolik minut je ${h} ${skl(h, 'hodina', 'hodiny', 'hodin')} a ${m} minut?`, value: total,
                distractors: [total + 10, total - 10, h * 60] };
     },
 

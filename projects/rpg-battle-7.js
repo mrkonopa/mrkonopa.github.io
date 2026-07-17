@@ -15,6 +15,7 @@
     };
   }
   const ri = (r, lo, hi) => lo + Math.floor(r() * (hi - lo + 1));
+  const skl = (n,one,few,many)=>n===1?one:(n>=2&&n<=4?few:many);  // shoda čísla a jména (1 / 2-4 / 5+)
   const pick = (r, arr) => arr[Math.floor(r() * arr.length)];
   const S = v => String(v);
   function gcd(a, b) { a = Math.abs(a); b = Math.abs(b); while (b) { const t = b; b = a % b; a = t; } return a; }
@@ -42,7 +43,7 @@
       const unit = ri(r, 3, 9), q1 = ri(r, 2, 5), q2 = q1 * ri(r, 2, 4);
       const v = unit * q2;
       return { topic: 'přímá úměra',
-               text: `${q1} ${q1 === 1 ? 'kus' : 'kusy'} stojí ${unit * q1} Kč. Kolik stojí ${q2} kusů?`,
+               text: `${q1} ${skl(q1,'kus','kusy','kusů')} stojí ${unit * q1} Kč. Kolik stojí ${q2} ${skl(q2,'kus','kusy','kusů')}?`,
                value: v, distractors: [unit * q1 + q2, v + unit, v - unit] };
     },
 

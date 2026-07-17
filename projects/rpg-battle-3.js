@@ -154,7 +154,7 @@
     // 19) slovní úloha — peníze
     function (r) {
       const price = ri(r, 8, 40), ks = ri(r, 2, 6);
-      return { topic: 'peníze', text: `Perníček stojí ${price} Kč. Kolik za ${ks} kusů? (Kč)`,
+      return { topic: 'peníze', text: `Perníček stojí ${price} Kč. Kolik za ${ks} ${skl(ks, 'kus', 'kusy', 'kusů')}? (Kč)`,
                value: price * ks, distractors: [price + ks, price * ks + price, price * ks - ks] };
     },
 

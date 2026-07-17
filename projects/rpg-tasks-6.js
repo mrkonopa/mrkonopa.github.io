@@ -139,7 +139,7 @@ function gen_2_3(){
     ()=>{const d=ri(4,9),a=ri(1,d-1);return{text:`Kolik ${d}tin chybí zlomku ${a}/${d} do celku ${d}/${d}? (napiš jen čitatel)`,ans:d-a,h1:`Celek je ${d}/${d}, odečti ${a}.`,h2:`= ${d-a}`};},
     ()=>{const avg=ri(4,12),x=avg-ri(1,3),y=2*avg-x;return{text:`Průměr dvou čísel je ${avg}, první je ${x}. Jaké je druhé číslo?`,ans:y,h1:`Součet obou = ${avg} × 2 = ${avg*2}, odečti první.`,h2:`= ${y}`};},
     ()=>{const d=ri(4,9),a=ri(1,d-1);let b=ri(1,d-1);while(b===a)b=ri(1,d-1);return{text:`Který zlomek je větší: ${a}/${d}, nebo ${b}/${d}? Napiš jeho čitatel.`,ans:Math.max(a,b),h1:'Při stejném jmenovateli rozhoduje čitatel.',h2:`= ${Math.max(a,b)}`};},
-    ()=>{const parts=ri(3,5),cel=parts*ri(4,9),cast=cel/parts*(parts-1);return{text:`Pizza má ${parts} stejných dílů, snědli ${parts-1} z nich. Kolik ${parts}tin zbylo? (napiš jen čitatel)`,ans:1,h1:`Z ${parts} dílů zbývá ${parts}−${parts-1}.`,h2:`= 1`};},
+    ()=>{const parts=ri(3,5),cel=parts*ri(4,9),cast=cel/parts*(parts-1);return{text:`Pizza má ${parts} ${skl(parts,'stejný díl','stejné díly','stejných dílů')}, snědli ${parts-1} z nich. Kolik ${parts}tin zbylo? (napiš jen čitatel)`,ans:1,h1:`Z ${parts} dílů zbývá ${parts}−${parts-1}.`,h2:`= 1`};},
     ()=>{const d=ri(4,8),a=ri(1,d-2),b=ri(1,d-a-1)||1;const num=a+b;const ok=num===d;return{text:`Dají zlomky ${a}/${d} + ${b}/${d} dohromady přesně jeden celek?`,ans:ok?'ANO':'NE',h1:`Celek je ${d}/${d}. Je ${a}+${b} rovno ${d}?`,h2:ok?'ANO':'NE'};},
   ];
   const tasks=[];

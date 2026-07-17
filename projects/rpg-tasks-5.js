@@ -209,7 +209,7 @@
       () => { const b = ri(4, 8), q = ri(40, 120); return { text: `${b * q} zlatých rozdělíme rovným dílem mezi ${b} rytířů. Kolik dostane každý?`, ans: q, h1: `${b * q} : ${b}`, h2: `= ${q}` }; },
       () => { const b = ri(3, 7), q = ri(30, 90); return { text: `Dračice snesla ${b * q} vajec do ${b} hnízd stejně. Kolik vajec je v jednom hnízdě?`, ans: q, h1: `${b * q} : ${b}`, h2: `= ${q}` }; },
       () => { const per = ri(6, 12), groups = ri(8, 20); return { text: `${per * groups} kusů zlata uložíme po ${per} do truhel. Kolik truhel potřebujeme?`, ans: groups, h1: `${per * groups} : ${per}`, h2: `= ${groups}` }; },
-      () => { const b = ri(3, 8), q = ri(25, 90); return { text: `Hradní kuchař upekl ${b * q} koláčů pro ${b} stolů. Kolik koláčů dostane každý stůl?`, ans: q, h1: `${b * q} : ${b}`, h2: `= ${q}` }; },
+      () => { const b = ri(3, 8), q = ri(25, 90); return { text: `Hradní kuchař upekl ${b * q} koláčů pro ${b} ${skl(b,'stůl','stoly','stolů')}. Kolik koláčů dostane každý stůl?`, ans: q, h1: `${b * q} : ${b}`, h2: `= ${q}` }; },
       () => { const cena = ri(6, 12), penize = cena * ri(15, 60); return { text: `Jeden šíp stojí ${cena} dukátů. Kolik šípů koupí lučištník za ${penize} dukátů?`, ans: penize / cena, h1: `${penize} : ${cena}`, h2: `= ${penize / cena}` }; },
       () => { const b = ri(4, 9), q = ri(20, 80); return { text: `Karavana urazila ${b * q} km za ${b} dní, každý den stejně. Kolik km ušla za den?`, ans: q, h1: `${b * q} : ${b}`, h2: `= ${q} km` }; },
       () => { const delka = ri(5, 9), q = ri(12, 40); return { text: `Řetěz dlouhý ${delka * q} m rozsekáme na kusy po ${delka} m. Kolik kusů vznikne?`, ans: q, h1: `${delka * q} : ${delka}`, h2: `= ${q}` }; },

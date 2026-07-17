@@ -15,6 +15,7 @@
     };
   }
   const ri = (r, lo, hi) => lo + Math.floor(r() * (hi - lo + 1));
+  const skl = (n,one,few,many)=>n===1?one:(n>=2&&n<=4?few:many);  // shoda čísla a jména (1 / 2-4 / 5+)
   const pick = (r, arr) => arr[Math.floor(r() * arr.length)];
   const S = v => String(v);
 
@@ -112,14 +113,14 @@
         const unit = ri(r, 2, 8), q1 = ri(r, 2, 5), q2 = q1 * ri(r, 2, 3);
         const v = unit * q2;
         return { topic: 'přímá úměra',
-                 text: `${q1} pracovníků udělá díl za ${unit} hodin.\nKolik hodin udělají stejný díl ${q2} pracovníci?`,
+                 text: `${q1} ${skl(q1,'pracovník','pracovníci','pracovníků')} ${skl(q1,'udělá','udělají','udělá')} díl za ${unit} ${skl(unit,'hodinu','hodiny','hodin')}.\nKolik hodin ${skl(q2,'udělá','udělají','udělá')} stejný díl ${q2} ${skl(q2,'pracovník','pracovníci','pracovníků')}?`,
                  value: unit, distractors: [unit * q2 / q1, unit + q2, unit * 2] };
       }
       // nepřímá — x pracovníků, víc pracovníků = míň hodin
       const workers1 = ri(r, 2, 5), hours1 = ri(r, 4, 12), workers2 = workers1 * ri(r, 2, 3);
       const v = Math.round(workers1 * hours1 / workers2);
       return { topic: 'nepřímá úměra',
-               text: `${workers1} pracovníci postaví zeď za ${hours1} hodin.\nKolik hodin to bude trvat ${workers2} pracovníkům?`,
+               text: `${workers1} ${skl(workers1,'pracovník','pracovníci','pracovníků')} postaví zeď za ${hours1} ${skl(hours1,'hodinu','hodiny','hodin')}.\nKolik hodin to bude trvat ${workers2} pracovníkům?`,
                value: v, distractors: [hours1, v + 2, workers1 * hours1 / workers2 + 1] };
     },
 
