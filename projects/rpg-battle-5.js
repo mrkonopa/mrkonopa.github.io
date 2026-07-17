@@ -21,41 +21,43 @@
   const r1 = n => Math.round(n * 10) / 10;
   const S = v => String(v).replace('.', ',');
   const skl = (n, one, few, many) => { const a = Math.abs(n); return a === 1 ? one : a >= 2 && a <= 4 ? few : many; };
+  // FRAMING pool — seedované (nemění value ani distraktory, jen slovní obal drilu).
+  const FR = r => pick(r, ['Vypočítej', 'Spočítej', 'Urči', 'Kolik je']);
 
   const GEN = [
 
     // 1) sčítání velkých čísel
     function (r) {
       const a = ri(r, 12000, 480000), b = ri(r, 12000, 480000);
-      return { topic: 'sčítání', text: `Vypočítej: ${a} + ${b}`, value: a + b,
+      return { topic: 'sčítání', text: `${FR(r)}: ${a} + ${b}`, value: a + b,
                distractors: [a + b + 1000, a + b - 100, a + b + 10] };
     },
 
     // 2) odčítání velkých čísel
     function (r) {
       const b = ri(r, 20000, 300000), a = b + ri(r, 20000, 400000);
-      return { topic: 'odčítání', text: `Vypočítej: ${a} − ${b}`, value: a - b,
+      return { topic: 'odčítání', text: `${FR(r)}: ${a} − ${b}`, value: a - b,
                distractors: [a - b + 1000, a + b, a - b - 100] };
     },
 
     // 3) písemné násobení × jednociferné
     function (r) {
       const a = ri(r, 113, 879), b = ri(r, 3, 9);
-      return { topic: 'násobení', text: `Vypočítej: ${a} × ${b}`, value: a * b,
+      return { topic: 'násobení', text: `${FR(r)}: ${a} × ${b}`, value: a * b,
                distractors: [a * b + b, a * b - a, (a + 1) * b] };
     },
 
     // 4) násobení dvojciferným
     function (r) {
       const a = ri(r, 23, 89), b = ri(r, 12, 39);
-      return { topic: 'násobení', text: `Vypočítej: ${a} × ${b}`, value: a * b,
+      return { topic: 'násobení', text: `${FR(r)}: ${a} × ${b}`, value: a * b,
                distractors: [a * b + a, a * b - b, a * (b + 1)] };
     },
 
     // 5) dělení jednociferným
     function (r) {
       const b = ri(r, 3, 9), q = ri(r, 23, 130);
-      return { topic: 'dělení', text: `Vypočítej: ${b * q} ÷ ${b}`, value: q,
+      return { topic: 'dělení', text: `${FR(r)}: ${b * q} : ${b}`, value: q,
                distractors: [q + 1, q - 1, q + 10] };
     },
 
@@ -88,7 +90,7 @@
     function (r) {
       const a = r1(ri(r, 15, 95) / 10), b = r1(ri(r, 11, 89) / 10);
       const v = r1(a + b);
-      return { topic: 'desetinná', text: `Vypočítej: ${cz(a)} + ${cz(b)}`, value: v,
+      return { topic: 'desetinná', text: `${FR(r)}: ${cz(a)} + ${cz(b)}`, value: v,
                distractors: [r1(v + 0.1), r1(v - 0.1), r1(v + 1)] };
     },
 
@@ -96,7 +98,7 @@
     function (r) {
       const a = r1(ri(r, 30, 98) / 10), b = r1(ri(r, 11, 28) / 10);
       const v = r1(a - b);
-      return { topic: 'desetinná', text: `Vypočítej: ${cz(a)} − ${cz(b)}`, value: v,
+      return { topic: 'desetinná', text: `${FR(r)}: ${cz(a)} − ${cz(b)}`, value: v,
                distractors: [r1(v + 0.1), r1(v - 0.1), r1(v + 1)] };
     },
 
@@ -104,7 +106,7 @@
     function (r) {
       const a = r1(ri(r, 11, 98) / 10);
       const v = r1(a * 10);
-      return { topic: 'desetinná', text: `Vypočítej: ${cz(a)} × 10`, value: v,
+      return { topic: 'desetinná', text: `${FR(r)}: ${cz(a)} × 10`, value: v,
                distractors: [r1(a * 100), r1(a + 10), r1(v + 1)] };
     },
 
@@ -112,7 +114,7 @@
     function (r) {
       const a = ri(r, 120, 980);
       const v = Math.round(a) / 100;
-      return { topic: 'desetinná', text: `Vypočítej: ${a} ÷ 100`, value: v,
+      return { topic: 'desetinná', text: `${FR(r)}: ${a} : 100`, value: v,
                distractors: [r1(a / 10), a, Math.round((v + 0.1) * 100) / 100] };
     },
 
@@ -163,7 +165,7 @@
     function (r) {
       const d = ri(r, 4, 9), q = ri(r, 12, 60), rem = ri(r, 1, d - 1);
       const n = d * q + rem;
-      return { topic: 'zbytek', text: `${n} ÷ ${d} — jaký je zbytek?`, value: rem,
+      return { topic: 'zbytek', text: `${n} : ${d} — jaký je zbytek?`, value: rem,
                distractors: [rem + 1, d, rem - 1 < 0 ? rem + 2 : rem - 1] };
     },
 
