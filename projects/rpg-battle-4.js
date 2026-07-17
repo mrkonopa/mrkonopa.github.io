@@ -19,34 +19,36 @@
   const pick = (r, arr) => arr[Math.floor(r() * arr.length)];
   const S = v => String(v);
   const skl = (n, one, few, many) => { const a = Math.abs(n); return a === 1 ? one : a >= 2 && a <= 4 ? few : many; };
+  // FRAMING pool — seedované (nemění value ani distraktory, jen slovní obal).
+  const FR = r => pick(r, ['Vypočítej', 'Spočítej', 'Urči', 'Kolik je']);
 
   const GEN = [
 
     // 1) sčítání čtyřciferných čísel
     function (r) {
       const a = ri(r, 1100, 6000), b = ri(r, 1000, 3000);
-      return { topic: 'sčítání', text: `Vypočítej: ${a} + ${b}`, value: a + b,
+      return { topic: 'sčítání', text: `${FR(r)}: ${a} + ${b}`, value: a + b,
                distractors: [a + b + 10, a + b - 1, a + b + 100] };
     },
 
     // 2) odčítání čtyřciferných čísel
     function (r) {
       const b = ri(r, 1000, 4000), a = b + ri(r, 500, 4000);
-      return { topic: 'odčítání', text: `Vypočítej: ${a} − ${b}`, value: a - b,
+      return { topic: 'odčítání', text: `${FR(r)}: ${a} − ${b}`, value: a - b,
                distractors: [a - b + 10, a + b, a - b - 1] };
     },
 
     // 3) násobilka (3–9)
     function (r) {
       const a = ri(r, 3, 9), b = ri(r, 3, 9);
-      return { topic: 'násobilka', text: `Vypočítej: ${a} × ${b}`, value: a * b,
+      return { topic: 'násobilka', text: `${FR(r)}: ${a} × ${b}`, value: a * b,
                distractors: [a * b + b, a * b - a, (a + 1) * b] };
     },
 
     // 4) dělení bez zbytku
     function (r) {
       const b = ri(r, 3, 9), q = ri(r, 3, 12);
-      return { topic: 'dělení', text: `Vypočítej: ${b * q} ÷ ${b}`, value: q,
+      return { topic: 'dělení', text: `${FR(r)}: ${b * q} : ${b}`, value: q,
                distractors: [q + 1, q - 1, q + 2] };
     },
 
@@ -78,7 +80,7 @@
     function (r) {
       const a = ri(r, 2, 8), b = ri(r, 2, 8), c = ri(r, 2, 8);
       const v = a * (b + c);
-      return { topic: 'závorky', text: `Vypočítej: ${a} × (${b} + ${c})`, value: v,
+      return { topic: 'závorky', text: `${FR(r)}: ${a} × (${b} + ${c})`, value: v,
                distractors: [a * b + c, a + b + c, a * b * c] };
     },
 
@@ -122,7 +124,7 @@
     // 13) čísla do 1 000 000 — čtení/psaní
     function (r) {
       const a = ri(r, 10000, 200000), b = ri(r, 10000, 200000);
-      return { topic: 'velká čísla', text: `Vypočítej: ${a} + ${b}`, value: a + b,
+      return { topic: 'velká čísla', text: `${FR(r)}: ${a} + ${b}`, value: a + b,
                distractors: [a + b + 1000, a + b - 100, a + b + 10] };
     },
 
@@ -159,7 +161,7 @@
     function (r) {
       const h = ri(r, 1, 4), m = ri(r, 10, 55);
       const total = h * 60 + m;
-      return { topic: 'čas', text: `Kolik minut je ${h} hodiny a ${m} minut?`, value: total,
+      return { topic: 'čas', text: `Kolik minut je ${h} ${skl(h, 'hodina', 'hodiny', 'hodin')} a ${m} minut?`, value: total,
                distractors: [total + 10, total - 10, h * 60] };
     },
 
@@ -167,7 +169,7 @@
     function (r) {
       const a = ri(r, 2, 9), b = ri(r, 2, 9), c = ri(r, 2, 9);
       const v = a + b * c;
-      return { topic: 'pořadí operací', text: `Vypočítej: ${a} + ${b} × ${c}`, value: v,
+      return { topic: 'pořadí operací', text: `${FR(r)}: ${a} + ${b} × ${c}`, value: v,
                distractors: [(a + b) * c, a * b + c, v + 1] };
     },
 
@@ -182,7 +184,7 @@
     // 21) písemné násobení dvojciferného × jednociferným
     function (r) {
       const a = ri(r, 13, 89), b = ri(r, 3, 9);
-      return { topic: 'násobení', text: `Vypočítej: ${a} × ${b}`, value: a * b,
+      return { topic: 'násobení', text: `${FR(r)}: ${a} × ${b}`, value: a * b,
                distractors: [a * b + b, a * b - a, (a + 1) * b] };
     },
 
@@ -190,7 +192,7 @@
     function (r) {
       const d = ri(r, 3, 9), q = ri(r, 4, 12), rem = ri(r, 1, d - 1);
       const n = d * q + rem;
-      return { topic: 'zbytek', text: `${n} ÷ ${d} — jaký je zbytek?`, value: rem,
+      return { topic: 'zbytek', text: `${n} : ${d} — jaký je zbytek?`, value: rem,
                distractors: [rem + 1, d, rem - 1 < 1 ? rem + 2 : rem - 1] };
     },
 
