@@ -125,7 +125,7 @@ window.RPG_TASK_EXTRA_9 = {
   (()=>{const x=ri(5,20);return{text:`${window._fe()}:\nx − 7 = ${x-7}`,ans:String(x),hints:[`x = ${x-7} + 7.`],skill:'calc'};})(),
   (()=>{const a=ri(2,9),x=ri(2,12);return{text:`Jaké číslo x splňuje podmínku, že jeho ${a}násobek je ${a*x}?`,ans:String(x),hints:[`${a}x = ${a*x} → x = ${a*x} : ${a}.`],skill:'calc'};})(),
   (()=>{const x=ri(3,15),a=ri(2,10);return{text:`Mysli si číslo. Když k němu přičteš ${a}, dostaneš ${x+a}. Které číslo to je?`,ans:String(x),hints:[`x + ${a} = ${x+a}, tedy x = ${x+a} − ${a}.`],skill:'calc'};})(),
-  (()=>{const a=ri(2,8),q=ri(3,9),x=a*q;return{text:`Rozdělíš x paketů rovnoměrně do ${a} uzlů, na každý uzel připadne ${q} ${skl(q,'paket','pakety','paketů')}.\nKolik je x?`,ans:String(x),hints:[`x = ${a} × ${q}.`,`Výsledek: ${x}`],skill:'calc'};})()
+  (()=>{const a=ri(2,8),q=ri(3,9),x=a*q;return{text:`Rozdělíš x paketů rovnoměrně do ${a} uzlů, na každý uzel ${skl(q,'připadne','připadnou','připadne')} ${q} ${skl(q,'paket','pakety','paketů')}.\nKolik je x?`,ans:String(x),hints:[`x = ${a} × ${q}.`,`Výsledek: ${x}`],skill:'calc'};})()
  ],
  '3-2': () => [
   (()=>{const a=ri(2,6),x=ri(2,9),b=ri(1,8);return{text:`${window._fe()}:\n${a}(x + ${b}) = ${a*(x+b)}`,ans:String(x),hints:[`Roznásob: ${a}x + ${a*b}.`],skill:'anal'};})(),

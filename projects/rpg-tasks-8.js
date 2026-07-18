@@ -138,7 +138,7 @@ window.RPG_TASK_EXTRA_8 = {
  '3-3': () => [   // Slovní úlohy
   (()=>{const x=ri(3,15),a=ri(2,5),b=ri(2,12);const P=[`Myslím si číslo. Když ho vynásobím ${a} a přičtu ${b}, dostanu ${a*x+b}.`,`Student akademie si myslí číslo, ${a}× ho zvětší a přidá ${b} — vyjde ${a*x+b}.`,`Zadané číslo vynásobíme ${a} a zvětšíme o ${b}; výsledek je ${a*x+b}.`];return{text:`${P[ri(0,P.length-1)]}\nJaké je to číslo?`,ans:String(x),hints:[`Rovnice: ${a}x + ${b} = ${a*x+b}.`],skill:'anal'};})(),
   (()=>{const syn=ri(8,14),roz=ri(20,30);return{text:`Otci je o ${roz} let více než synovi (${syn} let).\nKolik let je otci?`,ans:String(syn+roz),hints:[`${syn} + ${roz}.`],skill:'anal'};})(),
-  (()=>{const cena=ri(3,9)*10,ks=ri(3,8);return{text:`${ks} stejných sešitů stálo ${cena*ks} Kč.\nKolik stál jeden? (Kč)`,ans:String(cena),hints:[`Celek : počet.`,`${cena*ks} : ${ks}`],skill:'anal'};})(),
+  (()=>{const cena=ri(3,9)*10,ks=ri(3,8);return{text:`${ks} ${skl(ks,'stejný sešit','stejné sešity','stejných sešitů')} ${skl(ks,'stál','stály','stálo')} ${cena*ks} Kč.\nKolik stál jeden? (Kč)`,ans:String(cena),hints:[`Celek : počet.`,`${cena*ks} : ${ks}`],skill:'anal'};})(),
   (()=>{const cel=ri(4,9)*10,prvni=ri(10,cel-10);return{text:`Lano ${cel} m rozdělíme na dva kusy.\nJeden má ${prvni} m. Druhý? (m)`,ans:String(cel-prvni),hints:[`${cel} - ${prvni}.`],skill:'anal'};})(),
   (()=>{const x=ri(3,10)*2;return{text:`Číslo zvětšené o svou polovinu je ${x*3/2}.\nJaké je číslo?`,ans:String(x),hints:[`x + x/2 = 1,5x.`,`1,5x = ${x*3/2}`],skill:'anal'};})(),
   (()=>{const aut=ri(8,15),kol=aut+ri(3,9);return{text:`Na parkovišti je ${aut} aut a ${kol} kol.\nO kolik víc je kol než aut?`,ans:String(kol-aut),hints:[`${kol} - ${aut}.`],skill:'anal'};})(),

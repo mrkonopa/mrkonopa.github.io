@@ -94,7 +94,7 @@ function gen_1_3(){
   const m=ri(5,12);
   tasks.push({text:`Počet asteroidů v roji zvětšíme o 7 a dostaneme ${m+7}. Kolik jich bylo původně?`,ans:m,hints:['Odečti 7.',`${m+7}−7 = ${m}`],skill:'anal'});
   { const a=ri(3,8),b=ri(12,40); tasks.push({text:`${a} ${skl(a,'bedna obsahuje','bedny obsahují','beden obsahuje')} ${b} součástek. Kolik součástek je celkem?`,ans:a*b,hints:['Počet beden × součástek v bedně.',`${a}·${b} = ${a*b}`],skill:'anal'}); }
-  { const c=ri(50,200),d=ri(3,8); tasks.push({text:`Rozdělíme ${c*d} kreditů mezi ${d} ${sp(d,'kosmonaut')} rovným dílem. Kolik dostane každý?`,ans:c,hints:['Děl celkovou částku počtem lidí.',`${c*d}/${d} = ${c}`],skill:'anal'}); }
+  { const c=ri(50,200),d=ri(3,8); tasks.push({text:`Rozdělíme ${c*d} kreditů mezi ${d} ${skl(d,'kosmonauta','kosmonauty','kosmonautů')} rovným dílem. Kolik dostane každý?`,ans:c,hints:['Děl celkovou částku počtem lidí.',`${c*d}/${d} = ${c}`],skill:'anal'}); }
   { const e=ri(3,9),f=ri(15,40); tasks.push({text:`Satelit obletí planetu za hodinu ${f}×. Kolikrát ji oběhne za ${e} ${skl(e,'hodinu','hodiny','hodin')}?`,ans:e*f,hints:['Počet oběhů = rychlost × čas.',`${e}·${f} = ${e*f}`],skill:'anal'}); }
   { const g=ri(8,20); tasks.push({text:`Počet meteorů zmenšíme o 9 a zbude ${g}. Kolik jich bylo původně?`,ans:g+9,hints:['Přičti 9 zpět.',`${g}+9 = ${g+9}`],skill:'anal'}); }
   return tasks;
