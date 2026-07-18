@@ -15,7 +15,9 @@
     };
   }
   const ri = (r, lo, hi) => lo + Math.floor(r() * (hi - lo + 1));
+  const skl = (n,one,few,many)=>n===1?one:(n>=2&&n<=4?few:many);  // shoda čísla a jména (1 / 2-4 / 5+)
   const pick = (r, arr) => arr[Math.floor(r() * arr.length)];
+  const FR = r => pick(r, ['Vypočítej', 'Spočítej', 'Urči', 'Vyčísli']);  // framing-pool (rozmanitost zadání)
   const S = v => String(v);
 
   const GEN = [
@@ -23,13 +25,14 @@
     // 1) záporná čísla — součin
     function (r) {
       const a = ri(r, 2, 9), b = ri(r, 2, 9);
+      const f = FR(r);
       if (r() < 0.5) {
         const v = -a * b;
-        return { topic: 'záporná čísla', text: `Vypočítej: (−${a}) × ${b}`, value: v,
+        return { topic: 'záporná čísla', text: `${f}: (−${a}) × ${b}`, value: v,
                  distractors: [a * b, -a - b, v + a] };
       }
       const v = a * b;
-      return { topic: 'záporná čísla', text: `Vypočítej: (−${a}) × (−${b})`, value: v,
+      return { topic: 'záporná čísla', text: `${f}: (−${a}) × (−${b})`, value: v,
                distractors: [-v, a + b, v + 1] };
     },
 
@@ -52,20 +55,21 @@
 
     // 4) mocniny (2. a 3.)
     function (r) {
+      const f = FR(r);
       if (r() < 0.6) {
         const a = ri(r, 2, 13);
-        return { topic: 'mocniny', text: `Vypočítej: ${a}²`, value: a * a,
+        return { topic: 'mocniny', text: `${f}: ${a}²`, value: a * a,
                  distractors: [a * 2, a * a + a, a * a - a] };
       }
       const b = ri(r, 2, 7);
-      return { topic: 'mocniny', text: `Vypočítej: ${b}³`, value: b * b * b,
+      return { topic: 'mocniny', text: `${f}: ${b}³`, value: b * b * b,
                distractors: [b * b, b * 3, b * b * b + b] };
     },
 
     // 5) odmocniny (z úplného čtverce)
     function (r) {
       const a = ri(r, 2, 15);
-      return { topic: 'odmocniny', text: `Vypočítej: √${a * a}`, value: a,
+      return { topic: 'odmocniny', text: `${FR(r)}: √${a * a}`, value: a,
                distractors: [a + 1, a - 1, Math.round(a * a / 2)] };
     },
 
@@ -112,14 +116,14 @@
         const unit = ri(r, 2, 8), q1 = ri(r, 2, 5), q2 = q1 * ri(r, 2, 3);
         const v = unit * q2;
         return { topic: 'přímá úměra',
-                 text: `${q1} pracovníků udělá díl za ${unit} hodin.\nKolik hodin udělají stejný díl ${q2} pracovníci?`,
+                 text: `${q1} ${skl(q1,'pracovník','pracovníci','pracovníků')} ${skl(q1,'udělá','udělají','udělá')} díl za ${unit} ${skl(unit,'hodinu','hodiny','hodin')}.\nKolik hodin ${skl(q2,'udělá','udělají','udělá')} stejný díl ${q2} ${skl(q2,'pracovník','pracovníci','pracovníků')}?`,
                  value: unit, distractors: [unit * q2 / q1, unit + q2, unit * 2] };
       }
       // nepřímá — x pracovníků, víc pracovníků = míň hodin
       const workers1 = ri(r, 2, 5), hours1 = ri(r, 4, 12), workers2 = workers1 * ri(r, 2, 3);
       const v = Math.round(workers1 * hours1 / workers2);
       return { topic: 'nepřímá úměra',
-               text: `${workers1} pracovníci postaví zeď za ${hours1} hodin.\nKolik hodin to bude trvat ${workers2} pracovníkům?`,
+               text: `${workers1} ${skl(workers1,'pracovník','pracovníci','pracovníků')} postaví zeď za ${hours1} ${skl(hours1,'hodinu','hodiny','hodin')}.\nKolik hodin to bude trvat ${workers2} pracovníkům?`,
                value: v, distractors: [hours1, v + 2, workers1 * hours1 / workers2 + 1] };
     },
 
