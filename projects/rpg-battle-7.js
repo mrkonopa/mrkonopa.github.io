@@ -15,8 +15,11 @@
     };
   }
   const ri = (r, lo, hi) => lo + Math.floor(r() * (hi - lo + 1));
+  const skl = (n,one,few,many)=>n===1?one:(n>=2&&n<=4?few:many);  // shoda čísla a jména (1 / 2-4 / 5+)
   const pick = (r, arr) => arr[Math.floor(r() * arr.length)];
   const S = v => String(v);
+  // FRAMING POOL — mění jen sloveso výzvy, ne hodnotu/distraktory (MC-safe, deterministické)
+  const FR = r => pick(r, ['Vypočítej', 'Spočítej', 'Urči hodnotu výrazu', 'Kolik je']);
   function gcd(a, b) { a = Math.abs(a); b = Math.abs(b); while (b) { const t = b; b = a % b; a = t; } return a; }
 
   const GEN = [
@@ -42,7 +45,7 @@
       const unit = ri(r, 3, 9), q1 = ri(r, 2, 5), q2 = q1 * ri(r, 2, 4);
       const v = unit * q2;
       return { topic: 'přímá úměra',
-               text: `${q1} ${q1 === 1 ? 'kus' : 'kusy'} stojí ${unit * q1} Kč. Kolik stojí ${q2} kusů?`,
+               text: `${q1} ${skl(q1,'kus','kusy','kusů')} stojí ${unit * q1} Kč. Kolik stojí ${q2} ${skl(q2,'kus','kusy','kusů')}?`,
                value: v, distractors: [unit * q1 + q2, v + unit, v - unit] };
     },
 
@@ -67,7 +70,7 @@
     function (r) {
       const a = -ri(r, 2, 12), b = ri(r, 2, 12);
       const v = a + b;
-      return { topic: 'záporná čísla', text: `Vypočítej: (${a}) + ${b}`, value: v,
+      return { topic: 'záporná čísla', text: `${FR(r)}: (${a}) + ${b}`, value: v,
                distractors: [Math.abs(a + b), -(a + b), v + 1] };
     },
 
@@ -75,7 +78,7 @@
     function (r) {
       const a = ri(r, -10, 5), b = ri(r, 2, 10);
       const v = a - b;
-      return { topic: 'záporná čísla', text: `Vypočítej: (${a}) − ${b}`, value: v,
+      return { topic: 'záporná čísla', text: `${FR(r)}: (${a}) − ${b}`, value: v,
                distractors: [a + b, -(a - b), v + 2] };
     },
 
@@ -105,7 +108,7 @@
       const a = Math.round(ri(r, 11, 49)) / 10, b = ri(r, 2, 9);
       const v = Math.round(a * b * 10) / 10;
       return { topic: 'desetinná čísla',
-               text: `Vypočítej: ${a.toString().replace('.', ',')} × ${b}`,
+               text: `${FR(r)}: ${a.toString().replace('.', ',')} × ${b}`,
                value: v, distractors: [v + 0.1, v + b, v - a] };
     },
 
@@ -160,11 +163,11 @@
       const a = -ri(r, 2, 12);
       const v = -a;
       if (r() < 0.5) {
-        return { topic: 'absolutní hodnota', text: `Vypočítej: |${a}|`, value: v,
+        return { topic: 'absolutní hodnota', text: `${FR(r)}: |${a}|`, value: v,
                  distractors: [a, v + 1, v - 1] };
       }
       const b = ri(r, 2, 8);
-      return { topic: 'absolutní hodnota', text: `Vypočítej: |${a}| + ${b}`, value: v + b,
+      return { topic: 'absolutní hodnota', text: `${FR(r)}: |${a}| + ${b}`, value: v + b,
                distractors: [a + b, v + b + 1, v + b - 1] };
     },
 

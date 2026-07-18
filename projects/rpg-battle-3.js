@@ -19,34 +19,36 @@
   const pick = (r, arr) => arr[Math.floor(r() * arr.length)];
   const S = v => String(v);
   const skl = (n, one, few, many) => { const a = Math.abs(n); return a === 1 ? one : a >= 2 && a <= 4 ? few : many; };
+  // FRAMING-POOL: uvození drilu (deterministické přes seedovaný r, nemění hodnotu ani distraktory)
+  const FR = r => pick(r, ['Vypočítej', 'Spočítej', 'Urči', 'Kolik je']);
 
   const GEN = [
 
     // 1) malá násobilka
     function (r) {
       const a = ri(r, 2, 10), b = ri(r, 2, 10);
-      return { topic: 'násobilka', text: `Vypočítej: ${a} × ${b}`, value: a * b,
+      return { topic: 'násobilka', text: `${FR(r)}: ${a} × ${b}`, value: a * b,
                distractors: [a * b + b, a * b - a, (a + 1) * b] };
     },
 
     // 2) dělení bez zbytku
     function (r) {
       const b = ri(r, 2, 10), q = ri(r, 2, 10);
-      return { topic: 'dělení', text: `Vypočítej: ${b * q} : ${b}`, value: q,
+      return { topic: 'dělení', text: `${FR(r)}: ${b * q} : ${b}`, value: q,
                distractors: [q + 1, q - 1, q + 2] };
     },
 
     // 3) sčítání do 1000
     function (r) {
       const a = ri(r, 120, 600), b = ri(r, 80, 350);
-      return { topic: 'sčítání', text: `Vypočítej: ${a} + ${b}`, value: a + b,
+      return { topic: 'sčítání', text: `${FR(r)}: ${a} + ${b}`, value: a + b,
                distractors: [a + b + 10, a + b - 1, a + b + 100] };
     },
 
     // 4) odčítání do 1000
     function (r) {
       const b = ri(r, 80, 350), a = b + ri(r, 60, 450);
-      return { topic: 'odčítání', text: `Vypočítej: ${a} − ${b}`, value: a - b,
+      return { topic: 'odčítání', text: `${FR(r)}: ${a} − ${b}`, value: a - b,
                distractors: [a - b + 10, a + b, a - b - 1] };
     },
 
@@ -147,14 +149,14 @@
     // 18) slovní úloha — násobení
     function (r) {
       const a = ri(r, 2, 8), b = ri(r, 2, 9);
-      return { topic: 'slovní úloha', text: `Na ${a} větvích sedí po ${b} ptácích. Kolik ptáků celkem?`,
+      return { topic: 'slovní úloha', text: pick(r, [`Na ${a} větvích sedí po ${b} ptácích. Kolik ptáků celkem?`, `Na každé z ${a} větví sedí ${b} ptáků. Kolik ptáků je na stromě?`]),
                value: a * b, distractors: [a + b, a * b + a, a * b - b] };
     },
 
     // 19) slovní úloha — peníze
     function (r) {
       const price = ri(r, 8, 40), ks = ri(r, 2, 6);
-      return { topic: 'peníze', text: `Perníček stojí ${price} Kč. Kolik za ${ks} kusů? (Kč)`,
+      return { topic: 'peníze', text: `Perníček stojí ${price} Kč. Kolik za ${ks} ${skl(ks, 'kus', 'kusy', 'kusů')}? (Kč)`,
                value: price * ks, distractors: [price + ks, price * ks + price, price * ks - ks] };
     },
 
@@ -170,7 +172,7 @@
     // 21) násobení desítkami
     function (r) {
       const a = ri(r, 2, 9), b = ri(r, 2, 9);
-      return { topic: 'násobení', text: `Vypočítej: ${a} × ${b * 10}`, value: a * b * 10,
+      return { topic: 'násobení', text: `${FR(r)}: ${a} × ${b * 10}`, value: a * b * 10,
                distractors: [a * b, a * b * 100, a * b * 10 + a] };
     },
 
@@ -219,7 +221,7 @@
     // 28) slovní úloha — o kolik víc
     function (r) {
       const b = ri(r, 30, 200), a = b + ri(r, 10, 150);
-      return { topic: 'slovní úloha', text: `Skřítek nasbíral ${a} žaludů, víla ${b}. O kolik víc má skřítek?`,
+      return { topic: 'slovní úloha', text: pick(r, [`Skřítek nasbíral ${a} žaludů, víla ${b}. O kolik víc má skřítek?`, `Skřítek má ${a} žaludů a víla ${b} žaludů. O kolik víc žaludů má skřítek?`]),
                value: a - b, distractors: [a + b, a - b + 10, a - b - 1] };
     },
 

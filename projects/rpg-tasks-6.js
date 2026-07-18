@@ -8,6 +8,22 @@ const skl = (n,one,few,many)=>n===1?one:(n>=2&&n<=4?few:many);
 const cz = n => String(n).replace('.',',');
 const r1 = n => cz(Math.round(n*10)/10);
 const r2 = n => cz(Math.round(n*100)/100);
+const pick = arr => arr[Math.floor(Math.random()*arr.length)];
+// framing pool pro drily — mění SLOVESO, ne odpověď
+const FRAME = ['Vypočítej','Spočítej','Urči','Kolik je'];
+const ask = expr => { const f=pick(FRAME); return f==='Kolik je' ? `Kolik je ${expr}?` : `${f}: ${expr} = ?`; };
+// „je 1 raketa / jsou 3 rakety / je 5 raket" — sloveso podle počtu (nominativ)
+const jsou = n => n===1?'je':(n>=2&&n<=4?'jsou':'je');
+// vesmírná paleta — správné tvary (1 / 2-4 / 5+) přes skl; POZOR: jen pro nominativ/akuzativ,
+// pádová rekce (z/na/od + pevný množný) se NEobaluje.
+const SPACE = {
+  raketa:['raketa','rakety','raket'], planeta:['planeta','planety','planet'],
+  asteroid:['asteroid','asteroidy','asteroidů'], modul:['modul','moduly','modulů'],
+  satelit:['satelit','satelity','satelitů'], sonda:['sonda','sondy','sond'],
+  hvezda:['hvězda','hvězdy','hvězd'], kosmonaut:['kosmonaut','kosmonauti','kosmonautů'],
+  meteor:['meteor','meteory','meteorů']
+};
+const sp = (n,key)=>{const f=SPACE[key];return skl(n,f[0],f[1],f[2]);};
 
 // ══════════════════════════════════════════════════════════
 // OBLAST 1 — ODLETOVÁ STANICE
@@ -16,19 +32,21 @@ const r2 = n => cz(Math.round(n*100)/100);
 // 1-1 Přirozená čísla (MC — jen numerické)
 function gen_1_1(){
   const T=[
-    ()=>{const a=ri(120,890),b=ri(110,540);return{text:`Vypočítej: ${a} + ${b} = ?`,ans:a+b,h1:'Sčítej po řádech (jednotky, desítky, stovky).',h2:`${a}+${b} = ${a+b}`};},
-    ()=>{const c=ri(400,990),d=ri(110,c-50);return{text:`Vypočítej: ${c} − ${d} = ?`,ans:c-d,h1:'Odečítej po řádech, hlídej výpůjčku.',h2:`${c}−${d} = ${c-d}`};},
-    ()=>{const e=ri(12,40),f=ri(11,30);return{text:`Vypočítej: ${e} × ${f} = ?`,ans:e*f,h1:`Rozlož ${f} na desítky a jednotky.`,h2:`${e}×${f} = ${e*f}`};},
-    ()=>{const g=ri(3,9),h=g*ri(10,30);return{text:`Vypočítej: ${h} : ${g} = ?`,ans:h/g,h1:`Kolikrát se ${g} vejde do ${h}?`,h2:`${h}:${g} = ${h/g}`};},
+    ()=>{const a=ri(120,890),b=ri(110,540);return{text:ask(`${a} + ${b}`),ans:a+b,h1:'Sčítej po řádech (jednotky, desítky, stovky).',h2:`${a}+${b} = ${a+b}`};},
+    ()=>{const c=ri(400,990),d=ri(110,c-50);return{text:ask(`${c} − ${d}`),ans:c-d,h1:'Odečítej po řádech, hlídej výpůjčku.',h2:`${c}−${d} = ${c-d}`};},
+    ()=>{const e=ri(12,40),f=ri(11,30);return{text:ask(`${e} × ${f}`),ans:e*f,h1:`Rozlož ${f} na desítky a jednotky.`,h2:`${e}×${f} = ${e*f}`};},
+    ()=>{const g=ri(3,9),h=g*ri(10,30);return{text:ask(`${h} : ${g}`),ans:h/g,h1:`Kolikrát se ${g} vejde do ${h}?`,h2:`${h}:${g} = ${h/g}`};},
     ()=>{const i=ri(150,899);return{text:`Zaokrouhli ${i} na stovky.`,ans:Math.round(i/100)*100,h1:'Rozhoduje číslice desítek.',h2:`≈ ${Math.round(i/100)*100}`};},
     ()=>{const i=ri(115,985);return{text:`Zaokrouhli ${i} na desítky.`,ans:Math.round(i/10)*10,h1:'Rozhoduje číslice jednotek.',h2:`≈ ${Math.round(i/10)*10}`};},
-    ()=>{const j=ri(3,9),k=ri(3,9),l=ri(5,40);return{text:`Vypočítej: ${j} × ${k} + ${l} = ?`,ans:j*k+l,h1:'Nejdřív násobení, pak sčítání.',h2:`${j*k}+${l} = ${j*k+l}`};},
-    ()=>{const a=ri(3,9),b=ri(3,9),c=ri(2,12);return{text:`Vypočítej: ${a} × ${b} − ${c} = ?`,ans:a*b-c,h1:'Nejdřív násobení, pak odčítání.',h2:`${a*b}−${c} = ${a*b-c}`};},
-    ()=>{const a=ri(300,900),b=ri(50,250),c=ri(20,90);return{text:`Vypočítej: ${a} − ${b} − ${c} = ?`,ans:a-b-c,h1:'Odečítej postupně zleva doprava.',h2:`${a}−${b} = ${a-b}, pak −${c} = ${a-b-c}`};},
+    ()=>{const j=ri(3,9),k=ri(3,9),l=ri(5,40);return{text:ask(`${j} × ${k} + ${l}`),ans:j*k+l,h1:'Nejdřív násobení, pak sčítání.',h2:`${j*k}+${l} = ${j*k+l}`};},
+    ()=>{const a=ri(3,9),b=ri(3,9),c=ri(2,12);return{text:ask(`${a} × ${b} − ${c}`),ans:a*b-c,h1:'Nejdřív násobení, pak odčítání.',h2:`${a*b}−${c} = ${a*b-c}`};},
+    ()=>{const a=ri(300,900),b=ri(50,250),c=ri(20,90);return{text:ask(`${a} − ${b} − ${c}`),ans:a-b-c,h1:'Odečítej postupně zleva doprava.',h2:`${a}−${b} = ${a-b}, pak −${c} = ${a-b-c}`};},
     ()=>{const a=ri(120,600),b=ri(80,380);return{text:`Doplň: ${a} + ? = ${a+b}`,ans:b,h1:`Odečti: ${a+b} − ${a}.`,h2:`= ${b}`};},
     ()=>{const b=ri(3,9),q=ri(11,40);return{text:`Doplň: ? × ${b} = ${b*q}`,ans:q,h1:`Vyděl: ${b*q} : ${b}.`,h2:`= ${q}`};},
     ()=>{const s=new Set();while(s.size<3)s.add(ri(120,980));const arr=[...s];return{text:`Které z čísel ${arr[0]}, ${arr[1]}, ${arr[2]} je největší?`,ans:Math.max(...arr),h1:'Porovnej stovky, pak nižší řády.',h2:`= ${Math.max(...arr)}`};},
     ()=>{const a=ri(200,800);return{text:`Jaký je dvojnásobek čísla ${a}?`,ans:a*2,h1:`2 × ${a}`,h2:`= ${a*2}`};},
+    ()=>{const a=ri(120,400),b=ri(80,300);return{text:`Ve flotile ${jsou(a)} ${sp(a,'raketa')} a připojí se dalších ${b}. Kolik ${sp(a+b,'raketa')} je pak ve flotile?`,ans:a+b,h1:'Přičti nově příchozí rakety.',h2:`${a}+${b} = ${a+b}`};},
+    ()=>{const s=ri(5,9),m=ri(11,30);return{text:`${s} ${sp(s,'sonda')} pošle každá ${m} snímků. Kolik snímků dorazí celkem?`,ans:s*m,h1:'Počet sond × snímků na sondu.',h2:`${s}·${m} = ${s*m}`};},
   ];
   const tasks=[];
   for(let i=0;i<13;i++){const t=T[i%T.length]();tasks.push({text:t.text,ans:t.ans,hints:[t.h1,t.h2],skill:'calc'});}
@@ -54,6 +72,8 @@ function gen_1_2(){
   { const a=ri(4,12); tasks.push({text:`Čtverec se stranou ${a} cm. Jaký je jeho obvod?`,ans:4*a,hints:['o = 4·a.',`4·${a} = ${4*a} cm`],skill:'geo'}); }
   { const a=ri(6,14),o=4*a; tasks.push({text:`Čtverec má obvod ${o} cm. Jak dlouhá je strana?`,ans:a,hints:['a = o/4.',`${o}/4 = ${a} cm`],skill:'geo'}); }
   { const a=ri(3,10),b=ri(2,8); tasks.push({text:`Kolik dlaždic 1 × 1 cm pokryje podlahu ${a} × ${b} cm?`,ans:a*b,hints:['Počet dlaždic = obsah podlahy.',`${a}·${b} = ${a*b}`],skill:'geo'}); }
+  { const a=ri(4,12),b=ri(3,9); tasks.push({text:`Solární panel rakety má tvar obdélníku ${a} × ${b} dm. Jaký je jeho obsah? (dm²)`,ans:a*b,hints:['S = a·b.',`${a}·${b} = ${a*b} dm²`],skill:'geo'}); }
+  { const a=ri(3,10); tasks.push({text:`Okno vesmírného modulu je čtverec se stranou ${a} dm. Jaký je jeho obvod? (dm)`,ans:4*a,hints:['o = 4·a.',`4·${a} = ${4*a} dm`],skill:'geo'}); }
   return tasks;
 }
 
@@ -61,22 +81,22 @@ function gen_1_2(){
 function gen_1_3(){
   const tasks=[];
   const a=ri(3,9),b=ri(10,30);
-  tasks.push({text:`V krabici je ${a} ${skl(a,'sáček','sáčky','sáčků')}, v každém ${b} bonbónů. Kolik bonbónů je celkem?`,ans:a*b,hints:['Počet sáčků × bonbonů v sáčku.',`${a}·${b} = ${a*b}`],skill:'anal'});
+  tasks.push({text:`Flotila má ${a} ${sp(a,'raketa')}, každá veze ${b} zásobovacích beden. Kolik beden je celkem?`,ans:a*b,hints:['Počet raket × beden v raketě.',`${a}·${b} = ${a*b}`],skill:'anal'});
   const c=ri(50,200),d=ri(3,9);
   const rem=c%d;
-  tasks.push({text:`Rozdělíme ${c} kuliček mezi ${d} ${skl(d,'dítě','děti','dětí')} rovnoměrně. Kolik kuliček zbude?`,ans:rem,hints:['Spočítej zbytek po dělení '+c+' : '+d+'.',`zbytek = ${rem}`],skill:'anal'});
+  tasks.push({text:`Rozdělíme ${c} vzorků hornin rovnoměrně mezi ${d} ${sp(d,'sonda')}. Kolik vzorků zbude?`,ans:rem,hints:['Spočítej zbytek po dělení '+c+' : '+d+'.',`zbytek = ${rem}`],skill:'anal'});
   const e=ri(2,6),f=ri(20,60);
-  tasks.push({text:`Auto ujede za hodinu ${f} km. Kolik km ujede za ${e} ${skl(e,'hodinu','hodiny','hodin')}?`,ans:e*f,hints:['Vzdálenost = rychlost × čas.',`${e}·${f} = ${e*f} km`],skill:'anal'});
+  tasks.push({text:`Raketa uletí za hodinu ${f} tisíc km. Kolik tisíc km uletí za ${e} ${skl(e,'hodinu','hodiny','hodin')}?`,ans:e*f,hints:['Vzdálenost = rychlost × čas.',`${e}·${f} = ${e*f} tisíc km`],skill:'anal'});
   const g=ri(100,500),h=ri(20,80);
-  tasks.push({text:`Máš ${g} Kč a utratíš ${h} Kč. Kolik ti zbude?`,ans:g-h,hints:['Odečti utracenou částku.',`${g}−${h} = ${g-h} Kč`],skill:'anal'});
+  tasks.push({text:`Modul má ${g} litrů kyslíku a spotřebuje ${h} litrů. Kolik litrů zbude?`,ans:g-h,hints:['Odečti spotřebovaný kyslík.',`${g}−${h} = ${g-h} l`],skill:'anal'});
   const k=ri(2,5),l=ri(3,8);
-  tasks.push({text:`Pavouk má 8 nohou. Kolik nohou má ${k*l} pavouků?`,ans:8*k*l,hints:['Počet pavouků × 8.',`${k*l}·8 = ${8*k*l}`],skill:'anal'});
+  tasks.push({text:`Jedna sonda má 4 solární panely. Kolik panelů má ${k*l} ${sp(k*l,'sonda')}?`,ans:4*k*l,hints:['Počet sond × 4.',`${k*l}·4 = ${4*k*l}`],skill:'anal'});
   const m=ri(5,12);
-  tasks.push({text:`Číslo zvětšíme o 7 a dostaneme ${m+7}. Jaké bylo původní číslo?`,ans:m,hints:['Odečti 7.',`${m+7}−7 = ${m}`],skill:'anal'});
-  { const a=ri(3,8),b=ri(12,40); tasks.push({text:`${a} ${skl(a,'bedna obsahuje','bedny obsahují','beden obsahuje')} ${b} kusů. Kolik kusů je celkem?`,ans:a*b,hints:['Počet beden × kusů v bedně.',`${a}·${b} = ${a*b}`],skill:'anal'}); }
-  { const c=ri(50,200),d=ri(3,8); tasks.push({text:`Rozdělíme ${c*d} Kč mezi ${d} ${skl(d,'kamaráda','kamarády','kamarádů')} rovným dílem. Kolik dostane každý? (Kč)`,ans:c,hints:['Děl celkovou částku počtem lidí.',`${c*d}/${d} = ${c} Kč`],skill:'anal'}); }
-  { const e=ri(3,9),f=ri(15,40); tasks.push({text:`Loď pluje ${f} km/h. Kolik km uplave za ${e} ${skl(e,'hodinu','hodiny','hodin')}?`,ans:e*f,hints:['Dráha = rychlost × čas.',`${e}·${f} = ${e*f} km`],skill:'anal'}); }
-  { const g=ri(8,20); tasks.push({text:`Číslo zmenšíme o 9 a dostaneme ${g}. Jaké bylo původní číslo?`,ans:g+9,hints:['Přičti 9 zpět.',`${g}+9 = ${g+9}`],skill:'anal'}); }
+  tasks.push({text:`Počet asteroidů v roji zvětšíme o 7 a dostaneme ${m+7}. Kolik jich bylo původně?`,ans:m,hints:['Odečti 7.',`${m+7}−7 = ${m}`],skill:'anal'});
+  { const a=ri(3,8),b=ri(12,40); tasks.push({text:`${a} ${skl(a,'bedna obsahuje','bedny obsahují','beden obsahuje')} ${b} součástek. Kolik součástek je celkem?`,ans:a*b,hints:['Počet beden × součástek v bedně.',`${a}·${b} = ${a*b}`],skill:'anal'}); }
+  { const c=ri(50,200),d=ri(3,8); tasks.push({text:`Rozdělíme ${c*d} kreditů mezi ${d} ${skl(d,'kosmonauta','kosmonauty','kosmonautů')} rovným dílem. Kolik dostane každý?`,ans:c,hints:['Děl celkovou částku počtem lidí.',`${c*d}/${d} = ${c}`],skill:'anal'}); }
+  { const e=ri(3,9),f=ri(15,40); tasks.push({text:`Satelit obletí planetu za hodinu ${f}×. Kolikrát ji oběhne za ${e} ${skl(e,'hodinu','hodiny','hodin')}?`,ans:e*f,hints:['Počet oběhů = rychlost × čas.',`${e}·${f} = ${e*f}`],skill:'anal'}); }
+  { const g=ri(8,20); tasks.push({text:`Počet meteorů zmenšíme o 9 a zbude ${g}. Kolik jich bylo původně?`,ans:g+9,hints:['Přičti 9 zpět.',`${g}+9 = ${g+9}`],skill:'anal'}); }
   return tasks;
 }
 
@@ -113,7 +133,7 @@ function gen_2_2(){
     ()=>{const e=ri(11,49)/10,f=ri(2,6);return{text:`Vynásob: ${cz(e)} × ${f} = ?`,ans:r1(e*f),h1:'Násob jako celá čísla, pak doplň čárku (jedno místo).',h2:`= ${r1(e*f)}`};},
     ()=>{const g=ri(2,5),h=ri(10,40)/10;return{text:`Vyděl: ${cz(r1(h*g))} : ${g} = ?`,ans:r1(h),h1:'Děl jako celá čísla a čárku napiš nad čárku dělence.',h2:`= ${r1(h)}`};},
     ()=>{const i=ri(11,29)/10,j=ri(11,29)/10;return{text:`Vynásob dvě desetinná: ${cz(i)} × ${cz(j)} = ?`,ans:r2(i*j),h1:`Spočítej ${Math.round(i*10)}×${Math.round(j*10)} a vyděl 100 (dvě desetinná místa).`,h2:`= ${r2(i*j)}`};},
-    ()=>{const k=ri(20,80)/10,l=ri(20,80)/10;return{text:`Kolik zaplatíš za dvě položky ${cz(k)} Kč a ${cz(l)} Kč?`,ans:r1(k+l),h1:'Sečti obě ceny.',h2:`= ${r1(k+l)} Kč`};},
+    ()=>{const k=ri(20,80)/10,l=ri(20,80)/10;return{text:`Dvě náhradní součástky pro modul stojí ${cz(k)} a ${cz(l)} kreditů. Kolik dají dohromady?`,ans:r1(k+l),h1:'Sečti obě ceny.',h2:`= ${r1(k+l)} kreditů`};},
     ()=>{const a=ri(50,95)/10,b=ri(11,40)/10;const v=r1(a-b);return{text:`O kolik je ${cz(a)} větší než ${cz(b)}?`,ans:v,h1:'Rozdíl zjistíš odčítáním.',h2:`= ${v}`};},
     ()=>{const a=ri(20,80)/10,b=ri(11,40)/10;return{text:`Doplň chybějící sčítanec: ${cz(a)} + ? = ${cz(r1(a+b))}`,ans:r1(b),h1:'Odečti známý sčítanec od součtu.',h2:`= ${r1(b)}`};},
     ()=>{const a=ri(11,49)/10;return{text:`Kolik je trojnásobek čísla ${cz(a)}?`,ans:r1(a*3),h1:'Vynásob třemi.',h2:`= ${r1(a*3)}`};},
@@ -135,11 +155,11 @@ function gen_2_3(){
     ()=>{const p=ri(2,9),q=ri(2,9),rr=3*ri(3,9)-p-q;return{text:`Jaký je průměr tří čísel ${p}, ${q} a ${rr}?`,ans:(p+q+rr)/3,h1:'Sečti všechna tři a vyděl třemi.',h2:`(${p}+${q}+${rr}) : 3 = ${(p+q+rr)/3}`};},
     ()=>{const dd=ri(2,5),nn=dd*ri(3,8);return{text:`Kolik je 1/${dd} z čísla ${nn}?`,ans:nn/dd,h1:`Vyděl číslo jmenovatelem: ${nn} : ${dd}.`,h2:`= ${nn/dd}`};},
     ()=>{const dd=ri(3,6),nn=dd*ri(3,8),k=ri(2,dd-1);return{text:`Kolik je ${k}/${dd} z čísla ${nn}?`,ans:nn/dd*k,h1:`Nejdřív ${nn} : ${dd} = ${nn/dd}, pak × ${k}.`,h2:`= ${nn/dd*k}`};},
-    ()=>{const z1=ri(1,3),z2=ri(1,3),z3=ri(1,4),z4=ri(1,4);return{text:`Žák má známky ${z1}, ${z2}, ${z3}, ${z4}. Jaký je jejich průměr? (na 2 desetinná místa)`,ans:r2((z1+z2+z3+z4)/4),h1:'Sečti všechny čtyři známky a vyděl čtyřmi.',h2:`= ${r2((z1+z2+z3+z4)/4)}`};},
+    ()=>{const z1=ri(1,3),z2=ri(1,3),z3=ri(1,4),z4=ri(1,4);return{text:`Sonda poslala 4 měření síly signálu: ${z1}, ${z2}, ${z3}, ${z4}. Jaký je jejich průměr? (na 2 desetinná místa)`,ans:r2((z1+z2+z3+z4)/4),h1:'Sečti všechna čtyři měření a vyděl čtyřmi.',h2:`= ${r2((z1+z2+z3+z4)/4)}`};},
     ()=>{const d=ri(4,9),a=ri(1,d-1);return{text:`Kolik ${d}tin chybí zlomku ${a}/${d} do celku ${d}/${d}? (napiš jen čitatel)`,ans:d-a,h1:`Celek je ${d}/${d}, odečti ${a}.`,h2:`= ${d-a}`};},
     ()=>{const avg=ri(4,12),x=avg-ri(1,3),y=2*avg-x;return{text:`Průměr dvou čísel je ${avg}, první je ${x}. Jaké je druhé číslo?`,ans:y,h1:`Součet obou = ${avg} × 2 = ${avg*2}, odečti první.`,h2:`= ${y}`};},
     ()=>{const d=ri(4,9),a=ri(1,d-1);let b=ri(1,d-1);while(b===a)b=ri(1,d-1);return{text:`Který zlomek je větší: ${a}/${d}, nebo ${b}/${d}? Napiš jeho čitatel.`,ans:Math.max(a,b),h1:'Při stejném jmenovateli rozhoduje čitatel.',h2:`= ${Math.max(a,b)}`};},
-    ()=>{const parts=ri(3,5),cel=parts*ri(4,9),cast=cel/parts*(parts-1);return{text:`Pizza má ${parts} stejných dílů, snědli ${parts-1} z nich. Kolik ${parts}tin zbylo? (napiš jen čitatel)`,ans:1,h1:`Z ${parts} dílů zbývá ${parts}−${parts-1}.`,h2:`= 1`};},
+    ()=>{const parts=ri(3,5);return{text:`Zásobník paliva má ${parts} ${skl(parts,'stejný díl','stejné díly','stejných dílů')}, spotřebovali ${parts-1} z nich. Kolik ${parts}tin zbylo? (napiš jen čitatel)`,ans:1,h1:`Z ${parts} dílů zbývá ${parts}−${parts-1}.`,h2:`= 1`};},
     ()=>{const d=ri(4,8),a=ri(1,d-2),b=ri(1,d-a-1)||1;const num=a+b;const ok=num===d;return{text:`Dají zlomky ${a}/${d} + ${b}/${d} dohromady přesně jeden celek?`,ans:ok?'ANO':'NE',h1:`Celek je ${d}/${d}. Je ${a}+${b} rovno ${d}?`,h2:ok?'ANO':'NE'};},
   ];
   const tasks=[];
@@ -166,6 +186,7 @@ function gen_3_1(){
     ()=>{const a=ri(100,899);const okBoth=a%2===0&&a%3===0;return{text:`Je číslo ${a} dělitelné zároveň dvěma i třemi?`,ans:okBoth?'ANO':'NE',h1:'Musí být sudé A zároveň mít ciferný součet dělitelný 3 (tj. dělitelné 6).',h2:okBoth?'ANO':'NE'};},
     ()=>{const q=ri(12,40);const a=q*5;return{text:`Kolik pětek je obsaženo v čísle ${a}? (${a} : 5)`,ans:q,h1:`Vyděl ${a} : 5.`,h2:`= ${q}`};},
     ()=>{const a=ri(100,890);const isPrimeLike=false;const div=[2,3,5][ri(0,2)];const ok=a%div===0;return{text:`Vydělí číslo ${div} beze zbytku číslo ${a}?`,ans:ok?'ANO':'NE',h1:`Použij znak dělitelnosti ${div===2?'dvěma (sudé)':div===3?'třemi (ciferný součet)':'pěti (končí 0/5)'}.`,h2:ok?'ANO':'NE'};},
+    ()=>{const d=[3,4,5,6][ri(0,3)];const ok=ri(0,1)===0;const a=ok?d*ri(20,90):d*ri(20,90)+ri(1,d-1);return{text:`Náklad ${a} kontejnerů chceme rozdělit rovným dílem mezi ${d} ${sp(d,'raketa')}. Vyjde to beze zbytku?`,ans:a%d===0?'ANO':'NE',h1:`Je ${a} dělitelné ${d}?`,h2:a%d===0?'ANO':'NE'};},
   ];
   const tasks=[];
   for(let i=0;i<13;i++){const t=T[i%T.length]();tasks.push({text:t.text,ans:t.ans,hints:[t.h1,t.h2],skill:'anal'});}
@@ -218,6 +239,7 @@ function gen_3_3(){
   { const a=ri(2,8),b=ri(2,8),L=a/gcd(a,b)*b; tasks.push({text:`Najdi NSN(${a}, ${b}).`,ans:L,hints:['NSN = a·b / NSD.',`NSN = ${L}`],skill:'anal'}); }
   { const e2=ri(3,9),f2=e2*ri(2,4); tasks.push({text:`NSD(${e2}, ${f2}) = ? (${f2} je násobek ${e2})`,ans:e2,hints:['Když menší dělí větší, NSD = menší.',`= ${e2}`],skill:'anal'}); }
   { const p=[2,3,5,7][ri(0,3)],q=[11,13,17][ri(0,2)]; tasks.push({text:`NSN dvou nesoudělných čísel ${p} a ${q}?`,ans:p*q,hints:['Nesoudělná čísla: NSN = jejich součin.',`${p}·${q} = ${p*q}`],skill:'anal'}); }
+  { const x=[2,3,4,5,6][ri(0,4)],y=[2,3,4,5,6][ri(0,4)],L=x/gcd(x,y)*y; tasks.push({text:`Dvě sondy vysílají signál: první každých ${x} s, druhá každých ${y} s. Po kolika sekundách zazní společně? (NSN)`,ans:L,hints:['Hledáš nejmenší společný násobek obou period.',`NSN(${x}, ${y}) = ${L} s`],skill:'anal'}); }
   return tasks;
 }
 
@@ -241,6 +263,7 @@ function gen_4_1(){
     ()=>{const a=[ri(10,80),90,ri(95,175),180][ri(0,3)];return{text:`Úhel má ${a}°. Napiš jeho druh číslem: 1=ostrý, 2=pravý, 3=tupý, 4=přímý.`,ans:a<90?1:a===90?2:a<180?3:4,h1:'Porovnej velikost s 90° a 180°.',h2:`${druh(a)} → ${a<90?1:a===90?2:a<180?3:4}`};},
     ()=>{const a=ri(100,170);return{text:`O kolik stupňů je úhel ${a}° větší než pravý úhel?`,ans:a-90,h1:'Odečti 90°.',h2:`${a} − 90 = ${a-90}°`};},
     ()=>{const a=ri(10,80);const b=ri(10,80);return{text:`Dva ostré úhly ${a}° a ${b}° dej dohromady. Je jejich součet stále ostrý (< 90°)?`,ans:(a+b)<90?'ANO':'NE',h1:`Sečti: ${a} + ${b} = ${a+b}. Je to méně než 90?`,h2:(a+b)<90?'ANO':'NE'};},
+    ()=>{const a=ri(20,70);return{text:`Anténa satelitu svírá se svislicí úhel ${a}°. O kolik stupňů ji musíš otočit do pravého úhlu (90°)?`,ans:90-a,h1:'Odečti od pravého úhlu.',h2:`90 − ${a} = ${90-a}°`};},
   ];
   const tasks=[];
   for(let i=0;i<13;i++){const t=T[i%T.length]();tasks.push({text:t.text,ans:t.ans,hints:[t.h1,t.h2],skill:'geo'});}
@@ -266,6 +289,7 @@ function gen_4_2(){
   { const a=ri(20,160); tasks.push({text:`Vrcholový úhel k úhlu ${a}°?`,ans:a,hints:['Vrcholové úhly jsou shodné.',`= ${a}°`],skill:'geo'}); }
   { const a=ri(30,80); tasks.push({text:`Jeden ze dvou vedlejších úhlů je ${a}°. Druhý?`,ans:180-a,hints:['Součet vedlejších = 180°.',`= ${180-a}°`],skill:'geo'}); }
   { const a=ri(40,140); tasks.push({text:`Jsou vrcholové úhly vždy shodné? (ANO/NE)`,ans:'ANO',hints:['Ano, mají stejnou velikost.','ANO'],skill:'geo'}); }
+  { const a=ri(30,150); tasks.push({text:`Kurz rakety a jeho vedlejší úhel svírají přímku. Kurz je ${a}°. Kolik má vedlejší úhel?`,ans:180-a,hints:['Vedlejší úhly: součet = 180°.',`180 − ${a} = ${180-a}°`],skill:'geo'}); }
   return tasks;
 }
 
@@ -340,6 +364,7 @@ function gen_5_2(){
   { const y=ri(1,8); tasks.push({text:`Bod [0, ${y}] zobraz podle osy x. Jaká je y-souřadnice obrazu?`,ans:-y,hints:['Podle osy x se mění znaménko y.',`y' = ${-y}`],skill:'geo'}); }
   { const x=ri(1,8),y=ri(1,8); tasks.push({text:`Bod [${x}, ${y}] zobraz podle osy x. Jaká je x-souřadnice obrazu?`,ans:x,hints:['Podle osy x se x nemění.',`x' = ${x}`],skill:'geo'}); }
   { const d=ri(2,9); tasks.push({text:`Vzor je ${d} cm od osy souměrnosti. Jak daleko je obraz od osy? (cm)`,ans:d,hints:['Obraz je ve stejné vzdálenosti jako vzor.',`= ${d} cm`],skill:'geo'}); }
+  { const x=ri(1,8),y=ri(1,8); tasks.push({text:`Na hvězdné mapě je planeta v bodě [${x}, ${y}]. Zrcadlíš ji podle osy y. Jaká je x-souřadnice obrazu?`,ans:-x,hints:['Podle osy y se mění znaménko x.',`x' = ${-x}`],skill:'geo'}); }
   return tasks;
 }
 
@@ -381,9 +406,9 @@ function gen_6_1(){
   const h=vol/(f*g);
   tasks.push({text:`Kvádr má objem ${vol} cm³, podstava ${f} × ${g} cm. Jaká je výška?`,ans:h,hints:['v = V/(a·b).',`= ${h} cm`],skill:'geo'});
   const i=ri(3,8);
-  tasks.push({text:`Bazén tvaru krychle má hranu ${i} m. Kolik m³ vody se vejde?`,ans:i*i*i,hints:['V = a³.',`= ${i*i*i} m³`],skill:'geo'});
+  tasks.push({text:`Palivová nádrž tvaru krychle má hranu ${i} m. Kolik m³ paliva se vejde?`,ans:i*i*i,hints:['V = a³.',`= ${i*i*i} m³`],skill:'geo'});
   const j=ri(2,6),k=ri(2,6),l=ri(2,6);
-  tasks.push({text:`Krabice ${j} × ${k} × ${l} cm. Objem?`,ans:j*k*l,hints:['V = a·b·c.',`= ${j*k*l} cm³`],skill:'geo'});
+  tasks.push({text:`Nákladní modul tvaru kvádru ${j} × ${k} × ${l} m. Jaký je jeho objem? (m³)`,ans:j*k*l,hints:['V = a·b·c.',`= ${j*k*l} m³`],skill:'geo'});
   { const a=ri(3,10),b=ri(2,8),c=ri(2,6); tasks.push({text:`Kvádr ${a} × ${b} × ${c} cm. Jaký je objem?`,ans:a*b*c,hints:['V = a·b·c.',`= ${a*b*c} cm³`],skill:'geo'}); }
   { const a=ri(2,9); tasks.push({text:`Krychle má hranu ${a} cm. Jaký je objem?`,ans:a*a*a,hints:['V = a³.',`${a}³ = ${a*a*a} cm³`],skill:'geo'}); }
   { const a=ri(2,5); tasks.push({text:`Krychle má objem ${a*a*a} cm³. Jak dlouhá je hrana? (cm)`,ans:a,hints:['a = ∛V.',`∛${a*a*a} = ${a} cm`],skill:'geo'}); }
@@ -409,6 +434,7 @@ function gen_6_2(){
   { const a=ri(3,8),b=ri(2,7),c=ri(2,6); tasks.push({text:`Kvádr ${a} × ${b} × ${c} cm. Jaký je povrch?`,ans:2*(a*b+b*c+a*c),hints:['S = 2(ab+bc+ac).',`= ${2*(a*b+b*c+a*c)} cm²`],skill:'geo'}); }
   { const a=ri(2,6); tasks.push({text:`Obsah jedné stěny krychle s hranou ${a} cm? (cm²)`,ans:a*a,hints:['Stěna je čtverec a².',`= ${a*a} cm²`],skill:'geo'}); }
   { tasks.push({text:`Kolik stěn má kvádr?`,ans:6,hints:['Stejně jako krychle — protilehlé po dvojicích.','6'],skill:'geo'}); }
+  { const a=ri(2,6); tasks.push({text:`Modul tvaru krychle s hranou ${a} m se má polepit ochranným štítem. Kolik m² štítu je potřeba na celý povrch?`,ans:6*a*a,hints:['S = 6·a².',`6·${a}² = ${6*a*a} m²`],skill:'geo'}); }
   return tasks;
 }
 
@@ -416,7 +442,7 @@ function gen_6_2(){
 function gen_6_3(){
   const tasks=[];
   const a=ri(2,9);
-  tasks.push({text:`Kolik litrů je ${a} m³? (1 m³ = 1000 l)`,ans:a*1000,hints:['1 m³ = 1000 litrů.',`= ${a*1000} l`],skill:'calc'});
+  tasks.push({text:`Nádrž modulu pojme ${a} m³ vody. Kolik je to litrů? (1 m³ = 1000 l)`,ans:a*1000,hints:['1 m³ = 1000 litrů.',`= ${a*1000} l`],skill:'calc'});
   const b=ri(2,9);
   tasks.push({text:`Kolik ml je ${b} ${skl(b,'litr','litry','litrů')}? (1 l = 1000 ml)`,ans:b*1000,hints:['1 l = 1000 ml.',`= ${b*1000} ml`],skill:'calc'});
   const c=ri(2,9);
@@ -450,6 +476,7 @@ function gen_7_1(){
     ()=>{const a=ri(30,70),b=ri(30,70);const third=180-a-b;return{text:`Trojúhelník má úhly ${a}°, ${b}° a ${third}°. Je pravoúhlý (má úhel 90°)?`,ans:(a===90||b===90||third===90)?'ANO':'NE',h1:'Je některý z úhlů přesně 90°?',h2:(a===90||b===90||third===90)?'ANO':'NE'};},
     ()=>{const a=ri(50,120);const b=ri(20,Math.min(60,179-a));const third=180-a-b;const nej=Math.max(a,b,third);return{text:`Trojúhelník má úhly ${a}°, ${b}° a ${third}°. Jaký je jeho NEJVĚTŠÍ úhel?`,ans:nej,h1:'Porovnej všechny tři úhly.',h2:`= ${nej}°`};},
     ()=>{return{text:`Může mít trojúhelník dva pravé úhly (2× 90°)?`,ans:'NE',h1:'Dva pravé úhly by daly 180° a na třetí by nezbylo nic.',h2:'NE'};},
+    ()=>{const a=ri(30,80),b=ri(30,80);return{text:`Tři lodě letí v trojúhelníkové formaci. U dvou z nich svírají spojnice úhly ${a}° a ${b}°. Jaký je úhel u třetí lodi?`,ans:180-a-b,h1:'Součet vnitřních úhlů trojúhelníku je 180°.',h2:`180 − ${a} − ${b} = ${180-a-b}°`};},
   ];
   const tasks=[];
   for(let i=0;i<13;i++){const t=T[i%T.length]();tasks.push({text:t.text,ans:t.ans,hints:[t.h1,t.h2],skill:'geo'});}
@@ -460,7 +487,7 @@ function gen_7_1(){
 function gen_7_2(){
   const T=[
     ()=>{const a=ri(5,12),b=ri(4,11),c=ri(3,a+b-1);return{text:`Trojúhelník má strany ${a}, ${b}, ${c} cm. Jaký je jeho obvod?`,ans:a+b+c,h1:'Obvod je součet všech tří stran.',h2:`${a}+${b}+${c} = ${a+b+c} cm`};},
-    ()=>{const d=ri(4,12),h=ri(3,10);return{text:`Trojúhelník má základnu ${d} cm a výšku ${h} cm. Jaký je jeho obsah?`,ans:r1(d*h/2),h1:'S = (základna × výška) : 2.',h2:`(${d}·${h}) : 2 = ${r1(d*h/2)} cm²`};},
+    ()=>{const d=ri(4,12),h=ri(3,10);return{text:`Trojúhelníkový solární panel má základnu ${d} dm a výšku ${h} dm. Jaký je jeho obsah? (dm²)`,ans:r1(d*h/2),h1:'S = (základna × výška) : 2.',h2:`(${d}·${h}) : 2 = ${r1(d*h/2)} dm²`};},
     ()=>{return{text:`Kolik výšek má trojúhelník?`,ans:3,h1:'Z každého vrcholu vede jedna výška.',h2:'3'};},
     ()=>{const e=ri(3,7),f=ri(3,7);const ok=ri(0,1)===0;const g=ok?ri(Math.max(2,Math.abs(e-f)+1),e+f-1):e+f+ri(1,3);const real=(e+f>g&&e+g>f&&f+g>e);return{text:`Mohou úsečky ${e} cm, ${f} cm a ${g} cm být stranami trojúhelníku?`,ans:real?'ANO':'NE',h1:`Součet dvou kratších musí být větší než nejdelší.`,h2:real?'ANO':'NE'};},
     ()=>{const ram=ri(4,9),zakl=ri(2,2*ram-1);const o=2*ram+zakl;return{text:`Rovnoramenný trojúhelník má ramena po ${ram} cm a základnu ${zakl} cm. Jaký je jeho obvod?`,ans:o,h1:'Obvod = dvě ramena + základna.',h2:`2·${ram} + ${zakl} = ${o} cm`};},

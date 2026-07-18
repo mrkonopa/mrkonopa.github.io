@@ -10,6 +10,7 @@
   const r2 = n => Math.round(n * 100) / 100;
   const cz = n => String(n).replace('.', ',');
   const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+  const FR = () => pick(['Vypočítej', 'Spočítej', 'Urči', 'Kolik je']); // framing-pool pro dril (nemění odpověď)
   function skl(n, one, few, many) {
     const a = Math.abs(n);
     return a === 1 ? one : a >= 2 && a <= 4 ? few : many;
@@ -76,8 +77,9 @@
       () => { const r = ri(2, 98) * 10000; return { text: `Jaké NEJVĚTŠÍ číslo se zaokrouhlí na desetitisíce na ${r}?`, ans: r + 4999, h1: `Poslední, co ještě jde dolů, končí 4999.`, h2: `= ${r + 4999}` }; },
       () => { const r = ri(2, 98) * 10000; return { text: `Jaké NEJMENŠÍ číslo se zaokrouhlí na desetitisíce na ${r}?`, ans: r - 5000, h1: `Od pěti tisíc pod hranicí se zaokrouhluje nahoru.`, h2: `= ${r - 5000}` }; },
       () => { const n = ri(105000, 985000); const dolni = Math.floor(n / 100000) * 100000; return { text: `Mezi kterými dvěma celými statisíci leží ${n}? Napiš ten MENŠÍ.`, ans: dolni, h1: `Nech jen cifru statisíců, zbytek nuly.`, h2: `= ${dolni}` }; },
-      () => { const n = ri(120000, 970000); const v = Math.round(n / 1000) * 1000; return { text: `V dračí pokladnici je ${n} dukátů. Kolik je to zhruba — po zaokrouhlení na tisíce?`, ans: v, h1: `Zaokrouhli na tisíce.`, h2: `= ${v}` }; },
+      () => { const n = ri(120000, 970000); const v = Math.round(n / 1000) * 1000; return { text: pick([`V dračí pokladnici je ${n} dukátů. Kolik je to zhruba — po zaokrouhlení na tisíce?`, `Poklad má ${n} dukátů. Zaokrouhli tento počet na tisíce.`, `Písař napočítal ${n} dukátů. Kolik je to přibližně, zaokrouhleno na tisíce?`]), ans: v, h1: `Zaokrouhli na tisíce.`, h2: `= ${v}` }; },
       () => { const n = ri(12000, 980000); const nahoru = Math.floor((n % 10000) / 1000) >= 5; return { text: `Zaokrouhlí se ${n} na desetitisíce NAHORU?`, ans: nahoru ? 'ANO' : 'NE', h1: `Cifra tisíců je ${Math.floor((n % 10000) / 1000)} — nahoru jde 5–9.`, h2: nahoru ? 'ANO' : 'NE' }; },
+      () => { const n = ri(210000, 940000); const v = Math.round(n / 10000) * 10000; return { text: pick([`Drak spočítal ${n} drahokamů. Zaokrouhli jejich počet na desetitisíce.`, `Ve věži je ${n} drahokamů. Kolik je to zhruba — po zaokrouhlení na desetitisíce?`]), ans: v, h1: `Rozhoduje cifra tisíců: ${Math.floor((n % 10000) / 1000)}.`, h2: `= ${v}` }; },
     ];
     for (let i = 0; i < T.length; i++) {
       const t = T[i % T.length]();
@@ -94,16 +96,17 @@
   function gen_2_1() {
     const tasks = [];
     const T = [
-      () => { const a = ri(112, 989), b = ri(3, 9); return { text: `${a} × ${b} = ?`, ans: a * b, h1: `Násob každou cifru zprava, přenosy přičítej do vyššího řádu.`, h2: `= ${a * b}` }; },
+      () => { const a = ri(112, 989), b = ri(3, 9); return { text: `${FR()}: ${a} × ${b} = ?`, ans: a * b, h1: `Násob každou cifru zprava, přenosy přičítej do vyššího řádu.`, h2: `= ${a * b}` }; },
       () => { const a = ri(112, 989), b = ri(3, 9); return { text: `${a} × ? = ${a * b}`, ans: b, h1: `Kolikrát vzít ${a}, aby vyšlo ${a * b}? Zkus ${a * b} : ${a}.`, h2: `= ${b}` }; },
       () => { const a = ri(112, 989), b = ri(3, 9); return { text: `Kolik je ${b}krát ${a}?`, ans: a * b, h1: `${b}krát ${a} = ${a} × ${b}.`, h2: `= ${a * b}` }; },
       () => { const a = ri(1112, 4989), b = ri(2, 5); return { text: `Vypočítej písemně: ${a} × ${b}`, ans: a * b, h1: `Násob po cifrách zprava, s přenosy.`, h2: `= ${a * b}` }; },
       () => { const a = ri(112, 989), b = ri(3, 9); const ok = ri(0, 1) === 0; const tvrz = ok ? a * b : a * b + pick([-10, 10, -100, 100]); const spravne = tvrz === a * b; return { text: `Je pravda, že ${a} × ${b} = ${tvrz}?`, ans: spravne ? 'ANO' : 'NE', h1: `Přepočítej písemně nebo odhadem: ${Math.round(a / 100) * 100} × ${b} ≈ ${Math.round(a / 100) * 100 * b}.`, h2: spravne ? 'ANO' : 'NE' }; },
       () => { const a = ri(120, 480); return { text: `Jaký je trojnásobek čísla ${a}?`, ans: a * 3, h1: `3 × ${a}`, h2: `= ${a * 3}` }; },
       () => { const a = ri(112, 989), b = ri(3, 9); return { text: `Zvětši číslo ${a} ${b}krát.`, ans: a * b, h1: `Zvětšit ${b}krát = násobit: ${a} × ${b}.`, h2: `= ${a * b}` }; },
-      () => { const den = ri(115, 350), dnu = ri(4, 9); return { text: `Drak sní ${den} kg masa denně. Kolik kg spořádá za ${dnu} dní?`, ans: den * dnu, h1: `${den} × ${dnu}`, h2: `= ${den * dnu} kg` }; },
-      () => { const a = ri(125, 450), b = ri(3, 8); return { text: `V jedné dračí sluji je ${a} drahokamů. Kolik drahokamů je v ${b} slujích?`, ans: a * b, h1: `${a} × ${b}`, h2: `= ${a * b}` }; },
+      () => { const den = ri(115, 350), dnu = ri(4, 9); return { text: pick([`Drak sní ${den} kg masa denně. Kolik kg spořádá za ${dnu} ${skl(dnu, 'den', 'dny', 'dní')}?`, `Drak spořádá každý den ${den} kg masa. Kolik kg to je za ${dnu} ${skl(dnu, 'den', 'dny', 'dní')}?`]), ans: den * dnu, h1: `${den} × ${dnu}`, h2: `= ${den * dnu} kg` }; },
+      () => { const a = ri(125, 450), b = ri(3, 8); return { text: pick([`V jedné dračí sluji je ${a} drahokamů. Kolik drahokamů je v ${b} slujích?`, `Každá z ${b} slují ukrývá ${a} drahokamů. Kolik drahokamů je ve všech?`, `Drak schoval do každé z ${b} slují ${a} drahokamů. Kolik drahokamů schoval celkem?`]), ans: a * b, h1: `${a} × ${b}`, h2: `= ${a * b}` }; },
       () => { const a = ri(112, 500), b = ri(3, 9); return { text: `Doplň: ? × ${b} = ${a * b}`, ans: a, h1: `Hledaný činitel: ${a * b} : ${b}.`, h2: `= ${a}` }; },
+      () => { const cena = ri(115, 260), poc = ri(3, 8); return { text: pick([`Jeden dračí meč stojí ${cena} dukátů. Kolik dukátů dá rytíř za ${poc} ${skl(poc, 'meč', 'meče', 'mečů')}?`, `Kovář prodává meč za ${cena} dukátů. Kolik zaplatí družina za ${poc} ${skl(poc, 'meč', 'meče', 'mečů')}?`]), ans: cena * poc, h1: `${cena} × ${poc}`, h2: `= ${cena * poc} dukátů` }; },
     ];
     for (let i = 0; i < T.length; i++) {
       const t = T[i % T.length]();
@@ -116,16 +119,17 @@
   function gen_2_2() {
     const tasks = [];
     const T = [
-      () => { const a = ri(23, 98), b = ri(12, 49); return { text: `${a} × ${b} = ?`, ans: a * b, h1: `${a} × ${b % 10} a ${a} × ${Math.floor(b / 10)}0, pak sečti.`, h2: `= ${a * b}` }; },
+      () => { const a = ri(23, 98), b = ri(12, 49); return { text: `${FR()}: ${a} × ${b} = ?`, ans: a * b, h1: `${a} × ${b % 10} a ${a} × ${Math.floor(b / 10)}0, pak sečti.`, h2: `= ${a * b}` }; },
       () => { const a = ri(23, 98), b = ri(12, 49); return { text: `Kolik je ${a}krát ${b}?`, ans: a * b, h1: `${a}krát ${b} = ${a} × ${b}.`, h2: `= ${a * b}` }; },
       () => { const a = ri(112, 480), b = ri(12, 29); return { text: `Vypočítej písemně: ${a} × ${b}`, ans: a * b, h1: `Rozlož: ${a} × ${Math.floor(b / 10) * 10} + ${a} × ${b % 10}.`, h2: `= ${a * b}` }; },
-      () => { const a = ri(12, 45), b = ri(12, 40); return { text: `Rytíř posbíral ${a} mincí v každé z ${b} truhel. Kolik mincí má celkem?`, ans: a * b, h1: `${a} × ${b}`, h2: `= ${a * b}` }; },
+      () => { const a = ri(12, 45), b = ri(12, 40); return { text: pick([`Rytíř posbíral ${a} mincí v každé z ${b} truhel. Kolik mincí má celkem?`, `V každé z ${b} truhel je ${a} mincí. Kolik mincí je ve všech truhlách?`, `Drak střeží ${b} truhel po ${a} mincích. Kolik mincí střeží dohromady?`]), ans: a * b, h1: `${a} × ${b}`, h2: `= ${a * b}` }; },
       () => { const a = ri(15, 60), b = ri(12, 30); return { text: `Jedna dračí šupina váží ${a} g. Kolik váží ${b} šupin?`, ans: a * b, h1: `${a} × ${b}`, h2: `= ${a * b} g` }; },
       () => { const a = ri(23, 90), b = ri(12, 40); const ok = ri(0, 1) === 0; const tvrz = ok ? a * b : a * b + pick([-a, a, -10, 10]); const spravne = tvrz === a * b; return { text: `Platí ${a} × ${b} = ${tvrz}?`, ans: spravne ? 'ANO' : 'NE', h1: `Odhad: ${Math.round(a / 10) * 10} × ${Math.round(b / 10) * 10} = ${Math.round(a / 10) * 10 * Math.round(b / 10) * 10}.`, h2: spravne ? 'ANO' : 'NE' }; },
       () => { const a = ri(20, 60); return { text: `Kolik je ${a} × 11?`, ans: a * 11, h1: `${a} × 11 = ${a} × 10 + ${a}.`, h2: `= ${a * 11}` }; },
-      () => { const radku = ri(12, 35), mist = ri(14, 40); return { text: `V dračí aréně je ${radku} řad po ${mist} místech. Kolik diváků se vejde?`, ans: radku * mist, h1: `${radku} × ${mist}`, h2: `= ${radku * mist}` }; },
+      () => { const radku = ri(12, 35), mist = ri(14, 40); return { text: pick([`V dračí aréně je ${radku} řad po ${mist} místech. Kolik diváků se vejde?`, `Tribuna arény má ${radku} řad a v každé ${mist} míst. Kolik diváků se sem vejde?`]), ans: radku * mist, h1: `${radku} × ${mist}`, h2: `= ${radku * mist}` }; },
       () => { const a = ri(25, 95), b = ri(12, 45); return { text: `Doplň: ${a} × ? = ${a * b}`, ans: b, h1: `Hledaný činitel: ${a * b} : ${a}.`, h2: `= ${b}` }; },
-      () => { const tyden = ri(15, 55), tydnu = ri(12, 30); return { text: `Kovář vyrobí ${tyden} podkov týdně. Kolik podkov vyrobí za ${tydnu} týdnů?`, ans: tyden * tydnu, h1: `${tyden} × ${tydnu}`, h2: `= ${tyden * tydnu}` }; },
+      () => { const tyden = ri(15, 55), tydnu = ri(12, 30); return { text: pick([`Kovář vyrobí ${tyden} podkov týdně. Kolik podkov vyrobí za ${tydnu} týdnů?`, `Za týden ukove kovář ${tyden} podkov. Kolik jich ukove za ${tydnu} týdnů?`]), ans: tyden * tydnu, h1: `${tyden} × ${tydnu}`, h2: `= ${tyden * tydnu}` }; },
+      () => { const a = ri(15, 45), b = ri(12, 28); return { text: pick([`Do každé z ${b} komnat postavili ${a} soch draků. Kolik soch je v hradu celkem?`, `Hrad má ${b} komnat a v každé ${a} soch draků. Kolik soch to je dohromady?`]), ans: a * b, h1: `${a} × ${b}`, h2: `= ${a * b}` }; },
     ];
     for (let i = 0; i < T.length; i++) {
       const t = T[i % T.length]();
@@ -140,13 +144,13 @@
     const T = [
       () => { const a = ri(120, 480), b = ri(4, 9); return { text: `Drak střeží ${a} zlatých ${b < 5 ? 've' : 'v'} ${b} ${skl(b, 'jeskyni', 'jeskyních', 'jeskyních')}. Kolik zlatých střeží celkem?`, ans: a * b, h1: `${a} × ${b}`, h2: `= ${a * b}` }; },
       () => { const a = ri(15, 60), b = ri(12, 30); return { text: `Jedna dračí šupina váží ${a} g. Kolik váží ${b} šupin?`, ans: a * b, h1: `${a} × ${b}`, h2: `= ${a * b} g` }; },
-      () => { const a = ri(125, 350), b = ri(6, 9); return { text: `Rytíř ujede ${a} km za den. Kolik ujede za ${b} dní?`, ans: a * b, h1: `${a} × ${b}`, h2: `= ${a * b} km` }; },
+      () => { const a = ri(125, 350), b = ri(6, 9); return { text: pick([`Rytíř ujede ${a} km za den. Kolik ujede za ${b} dní?`, `Posel urazí denně ${a} km. Kolik km urazí za ${b} dní?`, `Družina zvládne za den ${a} km. Kolik km ujede za ${b} dní jízdy?`]), ans: a * b, h1: `${a} × ${b}`, h2: `= ${a * b} km` }; },
       () => { const cena = ri(120, 450), kusu = ri(3, 8); return { text: `Kouzelný lektvar stojí ${cena} dukátů. Kolik zaplatí čaroděj za ${kusu} ${skl(kusu, 'lektvar', 'lektvary', 'lektvarů')}?`, ans: cena * kusu, h1: `${cena} × ${kusu}`, h2: `= ${cena * kusu} dukátů` }; },
       () => { const a = ri(140, 400), b = ri(3, 7); return { text: `Věž má ${a} schodů. Strážný ji za den vyjde ${b}krát. Kolik schodů za den vyšlape?`, ans: a * b, h1: `${a} × ${b}`, h2: `= ${a * b}` }; },
-      () => { const beden = ri(12, 35), v_bedne = ri(15, 48); return { text: `Do hradu přivezli ${beden} beden po ${v_bedne} jablkách. Kolik jablek přivezli?`, ans: beden * v_bedne, h1: `${beden} × ${v_bedne}`, h2: `= ${beden * v_bedne}` }; },
+      () => { const beden = ri(12, 35), v_bedne = ri(15, 48); return { text: pick([`Do hradu přivezli ${beden} beden po ${v_bedne} jablkách. Kolik jablek přivezli?`, `Na hrad dovezli ${beden} beden a v každé bylo ${v_bedne} jablek. Kolik jablek to bylo?`]), ans: beden * v_bedne, h1: `${beden} × ${v_bedne}`, h2: `= ${beden * v_bedne}` }; },
       () => { const a = ri(150, 450), b = ri(3, 6); return { text: `Dračice snesla ${a} vajec. Její sestra ${b}krát víc. Kolik vajec snesla sestra?`, ans: a * b, h1: `„${b}krát víc" = násob: ${a} × ${b}.`, h2: `= ${a * b}` }; },
       () => { const den = ri(12, 30), hodin = ri(14, 24); return { text: `Kovadlina zvoní ${den} úderů za hodinu. Kolik úderů zazní za ${hodin} hodin?`, ans: den * hodin, h1: `${den} × ${hodin}`, h2: `= ${den * hodin}` }; },
-      () => { const a = ri(115, 320), b = ri(4, 9), navic = ri(50, 200); return { text: `Drak spálil ${b} vesnic po ${a} chalupách a ještě ${navic} chalup samostatně. Kolik chalup spálil celkem?`, ans: a * b + navic, h1: `${b} × ${a} = ${a * b}, přičti ${navic}.`, h2: `= ${a * b + navic}` }; },
+      () => { const a = ri(115, 320), b = ri(4, 9), navic = ri(50, 200); return { text: `Drak spálil ${b} ${skl(b, 'vesnici', 'vesnice', 'vesnic')} po ${a} chalupách a ještě ${navic} chalup samostatně. Kolik chalup spálil celkem?`, ans: a * b + navic, h1: `${b} × ${a} = ${a * b}, přičti ${navic}.`, h2: `= ${a * b + navic}` }; },
       () => { const kroku = ri(115, 380), b = ri(3, 8); return { text: `Jedna otočka dračího křídla urazí ${kroku} m. Kolik metrů urazí ${b} otoček?`, ans: kroku * b, h1: `${kroku} × ${b}`, h2: `= ${kroku * b} m` }; },
     ];
     for (let i = 0; i < T.length; i++) { const t = T[i % T.length](); tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'calc' }); }
@@ -161,7 +165,7 @@
   function gen_3_1() {
     const tasks = [];
     const T = [
-      () => { const b = ri(3, 9), q = ri(23, 142); return { text: `${b * q} : ${b} = ?`, ans: q, h1: `Děl postupně zleva: kolikrát se ${b} vejde do prvních cifer.`, h2: `= ${q}` }; },
+      () => { const b = ri(3, 9), q = ri(23, 142); return { text: `${FR()}: ${b * q} : ${b} = ?`, ans: q, h1: `Děl postupně zleva: kolikrát se ${b} vejde do prvních cifer.`, h2: `= ${q}` }; },
       () => { const b = ri(3, 9), q = ri(23, 142); return { text: `Kolikrát se ${b} vejde do ${b * q}?`, ans: q, h1: `To je ${b * q} : ${b}.`, h2: `= ${q}` }; },
       () => { const b = ri(3, 9), q = ri(23, 142); return { text: `? : ${b} = ${q}`, ans: b * q, h1: `Hledané číslo: ${b} × ${q}.`, h2: `= ${b * q}` }; },
       () => { const b = ri(3, 9), q = ri(23, 120); return { text: `${b * q} : ? = ${q}`, ans: b, h1: `Čím dělit ${b * q}, aby vyšlo ${q}? Zkus ${b * q} : ${q}.`, h2: `= ${b}` }; },
@@ -189,11 +193,12 @@
       () => { const { b, q, r, n } = nz(); return { text: `Doplň: ${n} = ${b} × ? + ${r}`, ans: q, h1: `Kolikrát se ${b} vejde do ${n - r}?`, h2: `= ${q}` }; },
       () => { const { b, q, n } = nz(); return { text: `Jaký je největší násobek čísla ${b}, který je menší než ${n}?`, ans: b * q, h1: `Vyděl ${n} : ${b} a podíl vynásob zpět.`, h2: `= ${b * q}` }; },
       () => { const b = ri(3, 9), n = ri(50, 900); const deli = n % b === 0; return { text: `Je číslo ${n} dělitelné číslem ${b} beze zbytku?`, ans: deli ? 'ANO' : 'NE', h1: `Vyděl a sleduj, jestli zbyde nula.`, h2: deli ? 'ANO' : 'NE' }; },
-      () => { const { b, r, n } = nz(); return { text: `Rytířů je ${n} a stoly jsou po ${b}. Kolik rytířů zůstane u nezaplněného stolu?`, ans: r, h1: `Zbytek po dělení ${n} : ${b}.`, h2: `= ${r}` }; },
+      () => { const { b, r, n } = nz(); return { text: pick([`Rytířů je ${n} a stoly jsou po ${b}. Kolik rytířů zůstane u nezaplněného stolu?`, `Do hodovní síně přišlo ${n} rytířů a ke stolu se jich vejde ${b}. Kolik rytířů zbyde u posledního, neúplného stolu?`]), ans: r, h1: `Zbytek po dělení ${n} : ${b}.`, h2: `= ${r}` }; },
       () => { const { b, q, n } = nz(); return { text: `Do jedné klece se vejde ${b} ${skl(b, 'drak', 'draci', 'draků')}. Kolik klecí ÚPLNĚ zaplní ${n} draků?`, ans: q, h1: `Celé klece = celý podíl ${n} : ${b}.`, h2: `= ${q}` }; },
       () => { const { b, q, n } = nz(); return { text: `Kolik klecí po ${b} dracích je potřeba pro VŠECH ${n} draků?`, ans: q + 1, h1: `${q} plných klecí + 1 pro zbytek.`, h2: `= ${q + 1}` }; },
       () => { const { b, r, n } = nz(); return { text: `Kolik dukátů chybí číslu ${n}, aby bylo dělitelné ${b} beze zbytku (směrem nahoru)?`, ans: b - r, h1: `Zbytek je ${r}, chybí ${b} − ${r}.`, h2: `= ${b - r}` }; },
-      () => { const q2 = ri(15, 60), r2x = ri(1, 6), n = q2 * 7 + r2x; return { text: `Obléhání trvá ${n} dní. Kolik je to CELÝCH týdnů?`, ans: q2, h1: `Kolikrát se 7 vejde do ${n}?`, h2: `= ${q2}` }; },
+      () => { const q2 = ri(15, 60), r2x = ri(1, 6), n = q2 * 7 + r2x; return { text: pick([`Obléhání trvá ${n} dní. Kolik je to CELÝCH týdnů?`, `Dračí spánek trval ${n} dní. Kolik CELÝCH týdnů drak prospal?`]), ans: q2, h1: `Kolikrát se 7 vejde do ${n}?`, h2: `= ${q2}` }; },
+      () => { const { b, q, r, n } = nz(); return { text: pick([`${n} drahokamů se ukládá do měšců po ${b}. Kolik drahokamů zbyde na poslední, neúplný měšec?`, `Čaroděj třídí ${n} drahokamů do hromádek po ${b}. Kolik drahokamů mu zbyde stranou?`]), ans: r, h1: `Zbytek po dělení ${n} : ${b}.`, h2: `= ${r}` }; },
     ];
     for (let i = 0; i < T.length; i++) {
       const t = T[i % T.length]();
@@ -206,15 +211,15 @@
   function gen_3_3() {
     const tasks = [];
     const T = [
-      () => { const b = ri(4, 8), q = ri(40, 120); return { text: `${b * q} zlatých rozdělíme rovným dílem mezi ${b} rytířů. Kolik dostane každý?`, ans: q, h1: `${b * q} : ${b}`, h2: `= ${q}` }; },
+      () => { const b = ri(4, 8), q = ri(40, 120); return { text: pick([`${b * q} zlatých rozdělíme rovným dílem ${b} rytířům. Kolik dostane každý?`, `Král rozdělil ${b * q} zlatých ${b} rytířům stejným dílem. Kolik připadne na jednoho?`, `${b * q} zlatých se má rovným dílem rozdělit mezi ${b} ${skl(b, 'rytíře', 'rytíře', 'rytířů')}. Kolik dostane každý?`]), ans: q, h1: `${b * q} : ${b}`, h2: `= ${q}` }; },
       () => { const b = ri(3, 7), q = ri(30, 90); return { text: `Dračice snesla ${b * q} vajec do ${b} hnízd stejně. Kolik vajec je v jednom hnízdě?`, ans: q, h1: `${b * q} : ${b}`, h2: `= ${q}` }; },
       () => { const per = ri(6, 12), groups = ri(8, 20); return { text: `${per * groups} kusů zlata uložíme po ${per} do truhel. Kolik truhel potřebujeme?`, ans: groups, h1: `${per * groups} : ${per}`, h2: `= ${groups}` }; },
-      () => { const b = ri(3, 8), q = ri(25, 90); return { text: `Hradní kuchař upekl ${b * q} koláčů pro ${b} stolů. Kolik koláčů dostane každý stůl?`, ans: q, h1: `${b * q} : ${b}`, h2: `= ${q}` }; },
+      () => { const b = ri(3, 8), q = ri(25, 90); return { text: `Hradní kuchař upekl ${b * q} koláčů pro ${b} ${skl(b,'stůl','stoly','stolů')}. Kolik koláčů dostane každý stůl?`, ans: q, h1: `${b * q} : ${b}`, h2: `= ${q}` }; },
       () => { const cena = ri(6, 12), penize = cena * ri(15, 60); return { text: `Jeden šíp stojí ${cena} dukátů. Kolik šípů koupí lučištník za ${penize} dukátů?`, ans: penize / cena, h1: `${penize} : ${cena}`, h2: `= ${penize / cena}` }; },
-      () => { const b = ri(4, 9), q = ri(20, 80); return { text: `Karavana urazila ${b * q} km za ${b} dní, každý den stejně. Kolik km ušla za den?`, ans: q, h1: `${b * q} : ${b}`, h2: `= ${q} km` }; },
+      () => { const b = ri(4, 9), q = ri(20, 80); return { text: pick([`Karavana urazila ${b * q} km za ${b} ${skl(b, 'den', 'dny', 'dní')}, každý den stejně. Kolik km ušla za den?`, `Poutníci ušli ${b * q} km za ${b} ${skl(b, 'den', 'dny', 'dní')} a každý den stejně. Kolik km zvládli denně?`]), ans: q, h1: `${b * q} : ${b}`, h2: `= ${q} km` }; },
       () => { const delka = ri(5, 9), q = ri(12, 40); return { text: `Řetěz dlouhý ${delka * q} m rozsekáme na kusy po ${delka} m. Kolik kusů vznikne?`, ans: q, h1: `${delka * q} : ${delka}`, h2: `= ${q}` }; },
-      () => { const b = ri(3, 7), q = ri(30, 90), r = ri(1, b - 1); const n = b * q + r; return { text: `${n} drahokamů se dělí rovným dílem mezi ${b} čarodějů. Kolik drahokamů zbyde?`, ans: r, h1: `${b} × ${q} = ${b * q}, zbytek ${n} − ${b * q}.`, h2: `zbyde ${r}` }; },
-      () => { const lidi = ri(3, 8), celkem = lidi * ri(40, 150); return { text: `${celkem} dukátů žoldu se dělí rovným dílem mezi ${lidi} strážných. Kolik dostane jeden?`, ans: celkem / lidi, h1: `${celkem} : ${lidi}`, h2: `= ${celkem / lidi}` }; },
+      () => { const b = ri(3, 7), q = ri(30, 90), r = ri(1, b - 1); const n = b * q + r; return { text: `${n} drahokamů se dělí rovným dílem mezi ${b} ${skl(b, 'čaroděje', 'čaroděje', 'čarodějů')}. Kolik drahokamů zbyde?`, ans: r, h1: `${b} × ${q} = ${b * q}, zbytek ${n} − ${b * q}.`, h2: `zbyde ${r}` }; },
+      () => { const lidi = ri(3, 8), celkem = lidi * ri(40, 150); return { text: `${celkem} dukátů žoldu se dělí rovným dílem mezi ${lidi} ${skl(lidi, 'strážného', 'strážné', 'strážných')}. Kolik dostane jeden?`, ans: celkem / lidi, h1: `${celkem} : ${lidi}`, h2: `= ${celkem / lidi}` }; },
       () => { const q = ri(30, 120), b = ri(3, 8); return { text: `Král rozdal ${b * q} bochníků chleba. Každá rodina dostala ${b} bochníků. Kolik rodin obdaroval?`, ans: q, h1: `${b * q} : ${b}`, h2: `= ${q}` }; },
     ];
     for (let i = 0; i < T.length; i++) { const t = T[i % T.length](); tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'calc' }); }
@@ -259,8 +264,8 @@
       () => { const den = pick(DENS), a = ri(1, den - 2); return { text: `${a}/${den} + ?/${den} = ${den}/${den} (celek). Jaký čitatel chybí?`, ans: den - a, h1: `${den} − ${a}`, h2: `= ${den - a}` }; },
       () => { const den = pick(DENS), a = ri(1, den - 2), b = ri(1, den - 1 - a); return { text: `Doplň čitatele: ${a}/${den} + ?/${den} = ${a + b}/${den}`, ans: b, h1: `${a + b} − ${a}`, h2: `= ${b}` }; },
       () => { const den = pick([6, 8, 10]), a = ri(1, den / 2 - 1), b = ri(1, den / 2 - 1); const ok = a + b === den / 2; const tvrz = ok ? 'polovinu' : 'polovinu'; const spravne = a + b === den / 2; return { text: `Dají ${a}/${den} + ${b}/${den} dohromady přesně polovinu?`, ans: spravne ? 'ANO' : 'NE', h1: `Polovina = ${den / 2}/${den}. Součet čitatelů: ${a + b}.`, h2: spravne ? 'ANO' : 'NE' }; },
-      () => { const den = pick(DENS), a = ri(2, den - 1), b = ri(1, a - 1); return { text: `Drak snědl ${a}/${den} stáda, vlk ${b}/${den}. Rozdíl je ?/${den}\n(napiš jen čitatele rozdílu)`, ans: a - b, h1: `${a} − ${b}`, h2: `= ${a - b}` }; },
-      () => { const den = pick(DENS); const a = ri(1, den - 2), b = ri(1, den - 1 - a); return { text: `Kouzelník vypil ${a}/${den} lektvaru ráno a ${b}/${den} večer. Celkem vypil ?/${den}\n(napiš jen čitatele)`, ans: a + b, h1: `Sečti čitatele: ${a} + ${b}.`, h2: `= ${a + b}` }; },
+      () => { const den = pick(DENS), a = ri(2, den - 1), b = ri(1, a - 1); return { text: pick([`Drak snědl ${a}/${den} stáda, vlk ${b}/${den}. Rozdíl je ?/${den}\n(napiš jen čitatele rozdílu)`, `Drak spořádal ${a}/${den} pokladu a čaroděj ${b}/${den}. O kolik ${den}-tin snědl drak víc? (napiš jen čitatele)`]), ans: a - b, h1: `${a} − ${b}`, h2: `= ${a - b}` }; },
+      () => { const den = pick(DENS); const a = ri(1, den - 2), b = ri(1, den - 1 - a); return { text: pick([`Kouzelník vypil ${a}/${den} lektvaru ráno a ${b}/${den} večer. Celkem vypil ?/${den}\n(napiš jen čitatele)`, `Čaroděj upil ${a}/${den} lektvaru a pak ještě ${b}/${den}. Kolik ${den}-tin vypil celkem? (napiš jen čitatele)`]), ans: a + b, h1: `Sečti čitatele: ${a} + ${b}.`, h2: `= ${a + b}` }; },
       () => { const den = pick(DENS), a = ri(1, den - 1); const ok = ri(0, 1) === 0; const tvrz = ok ? den - a : den - a + pick([-1, 1]); const spravne = tvrz === den - a; return { text: `Platí ${a}/${den} + ${tvrz}/${den} = 1 (celek)?`, ans: spravne ? 'ANO' : 'NE', h1: `Celek je ${den}/${den}: ${a} + ${tvrz} = ${a + tvrz}.`, h2: spravne ? 'ANO' : 'NE' }; },
       () => { const den = pick([5, 6, 8, 10]); const c = ri(3, den + 3); const a = ri(1, c - 2), b = c - a; return { text: `${a}/${den} + ${b}/${den} + ?/${den} = ${c + 2}/${den} — jaký čitatel chybí?`, ans: 2, h1: `${c + 2} − ${a} − ${b}`, h2: `= 2` }; },
       () => { const den = pick(DENS), a = ri(1, den - 1); let b = ri(1, den - 1); while (b === a) b = ri(1, den - 1); return { text: `Který zlomek je větší: ${a}/${den}, nebo ${b}/${den}? Napiš jeho čitatele.`, ans: Math.max(a, b), h1: `Při stejném jmenovateli rozhoduje čitatel.`, h2: `= ${Math.max(a, b)}` }; },
@@ -278,9 +283,9 @@
     const T = [
       () => { const den = pick([2, 3, 4, 5]), whole = den * ri(4, 9), num = ri(1, den - 1); return { text: `Ve třídě je ${whole} žáků. ${num}/${den} z nich jsou dívky. Kolik je dívek?`, ans: (whole / den) * num, h1: `${whole} : ${den} × ${num}`, h2: `= ${(whole / den) * num}` }; },
       () => { const den = pick([4, 5, 6]), whole = den * ri(3, 8); return { text: `Drak měl ${whole} mincí. Utratil 1/${den} z nich. Kolik mincí utratil?`, ans: whole / den, h1: `${whole} : ${den}`, h2: `= ${whole / den}` }; },
-      () => { const den = pick([2, 4, 5, 10]), whole = den * ri(4, 9), num = ri(1, den - 1); return { text: `Cesta měří ${whole} km. Rytíř ujel ${num}/${den} cesty. Kolik km ujel?`, ans: (whole / den) * num, h1: `${whole} : ${den} × ${num}`, h2: `= ${(whole / den) * num} km` }; },
+      () => { const den = pick([2, 4, 5, 10]), whole = den * ri(4, 9), num = ri(1, den - 1); return { text: pick([`Cesta měří ${whole} km. Rytíř ujel ${num}/${den} cesty. Kolik km ujel?`, `K dračí sluji je to ${whole} km. Rytíř má za sebou ${num}/${den} cesty. Kolik km už ujel?`, `Výprava měří ${whole} km. Družina prošla ${num}/${den} cesty. Kolik km ušla?`]), ans: (whole / den) * num, h1: `${whole} : ${den} × ${num}`, h2: `= ${(whole / den) * num} km` }; },
       () => { const den = pick([3, 4, 5]), whole = den * ri(4, 10), num = ri(1, den - 1); const ujedeno = (whole / den) * num; return { text: `Výprava má před sebou ${whole} km. Už ušla ${num}/${den}. Kolik km jí ZBÝVÁ?`, ans: whole - ujedeno, h1: `Ušla ${ujedeno} km, zbývá ${whole} − ${ujedeno}.`, h2: `= ${whole - ujedeno} km` }; },
-      () => { const den = pick([2, 3, 4]), cast = ri(5, 20); return { text: `1/${den} dračího pokladu je ${cast} rubínů. Kolik rubínů má celý poklad?`, ans: cast * den, h1: `Celek = ${cast} × ${den}.`, h2: `= ${cast * den}` }; },
+      () => { const den = pick([2, 3, 4]), cast = ri(5, 20); return { text: pick([`1/${den} dračího pokladu je ${cast} rubínů. Kolik rubínů má celý poklad?`, `Jedna ${den === 2 ? 'polovina' : den === 3 ? 'třetina' : 'čtvrtina'} pokladu je ${cast} rubínů. Kolik rubínů je v celém pokladu?`]), ans: cast * den, h1: `Celek = ${cast} × ${den}.`, h2: `= ${cast * den}` }; },
       () => { const den = pick([4, 5, 8]), whole = den * ri(3, 8); return { text: `Kuchař rozkrájel ${whole} jablek. Do koláče dal 1/${den}. Kolik jablek dal do koláče?`, ans: whole / den, h1: `${whole} : ${den}`, h2: `= ${whole / den}` }; },
       () => { const whole = ri(3, 10) * 4; return { text: `Rytíř prospal čtvrtinu z ${whole} hodin výpravy. Kolik hodin spal?`, ans: whole / 4, h1: `${whole} : 4`, h2: `= ${whole / 4} h` }; },
       () => { const den = pick([2, 3, 5]), whole = den * ri(6, 15), num = ri(1, den - 1); return { text: `Hradní studna pojme ${whole} věder vody. Je naplněná z ${num}/${den}. Kolik věder je ve studni?`, ans: (whole / den) * num, h1: `${whole} : ${den} × ${num}`, h2: `= ${(whole / den) * num}` }; },
@@ -323,16 +328,17 @@
     const par = () => [r1(ri(15, 95) / 10), r1(ri(11, 89) / 10)];
     const tasks = [];
     const T = [
-      () => { const [a, b] = par(); const v = r1(a + b); return { text: `${cz(a)} + ${cz(b)} = ?`, ans: v, h1: `Sčítej pod sebou, desetinnou čárku pod čárku.`, h2: `= ${cz(v)}` }; },
-      () => { const [a, b] = par(); const big = Math.max(a, b), small = Math.min(a, b); const v = r1(big - small); return { text: `${cz(big)} − ${cz(small)} = ?`, ans: v, h1: `Odečítej pod sebou, čárku pod čárku.`, h2: `= ${cz(v)}` }; },
+      () => { const [a, b] = par(); const v = r1(a + b); return { text: `${FR()}: ${cz(a)} + ${cz(b)} = ?`, ans: v, h1: `Sčítej pod sebou, desetinnou čárku pod čárku.`, h2: `= ${cz(v)}` }; },
+      () => { const [a, b] = par(); const big = Math.max(a, b), small = Math.min(a, b); const v = r1(big - small); return { text: `${FR()}: ${cz(big)} − ${cz(small)} = ?`, ans: v, h1: `Odečítej pod sebou, čárku pod čárku.`, h2: `= ${cz(v)}` }; },
       () => { const [a, b] = par(); const v = r1(a + b); return { text: `${cz(a)} + ? = ${cz(v)}`, ans: b, h1: `Chybějící sčítanec: ${cz(v)} − ${cz(a)}.`, h2: `= ${cz(b)}` }; },
       () => { const a = r1(ri(15, 85) / 10); const v = r1(10 - a); return { text: `Kolik chybí číslu ${cz(a)} do 10?`, ans: v, h1: `10 − ${cz(a)}`, h2: `= ${cz(v)}` }; },
       () => { const [a, b] = par(); const v = r1(a + b); return { text: `Zvětši číslo ${cz(a)} o ${cz(b)}.`, ans: v, h1: `Zvětšit o = přičíst.`, h2: `= ${cz(v)}` }; },
       () => { const a = r1(ri(40, 95) / 10), b = r1(ri(11, 35) / 10); const v = r1(a - b); return { text: `Zmenši číslo ${cz(a)} o ${cz(b)}.`, ans: v, h1: `Zmenšit o = odečíst.`, h2: `= ${cz(v)}` }; },
-      () => { const a = r1(ri(12, 40) / 10), b = r1(ri(12, 40) / 10), c = r1(ri(12, 40) / 10); const v = r1(a + b + c); return { text: `${cz(a)} + ${cz(b)} + ${cz(c)} = ?`, ans: v, h1: `Sečti postupně, čárky pod sebe.`, h2: `= ${cz(v)}` }; },
+      () => { const a = r1(ri(12, 40) / 10), b = r1(ri(12, 40) / 10), c = r1(ri(12, 40) / 10); const v = r1(a + b + c); return { text: `${FR()}: ${cz(a)} + ${cz(b)} + ${cz(c)} = ?`, ans: v, h1: `Sečti postupně, čárky pod sebe.`, h2: `= ${cz(v)}` }; },
       () => { const [a, b] = par(); const v = r1(a + b); const ok = ri(0, 1) === 0; const tvrz = ok ? v : r1(v + pick([-0.1, 0.1, -1, 1])); const spravne = tvrz === v; return { text: `Je pravda, že ${cz(a)} + ${cz(b)} = ${cz(tvrz)}?`, ans: spravne ? 'ANO' : 'NE', h1: `Sečti pod sebou, čárka pod čárku.`, h2: spravne ? 'ANO' : 'NE' }; },
-      () => { const a = r1(ri(15, 60) / 10), b = r1(ri(15, 60) / 10); const v = r1(a + b); return { text: `Lektvar vznikne smícháním ${cz(a)} l vody a ${cz(b)} l dračí krve. Kolik litrů lektvaru vznikne?`, ans: v, h1: `${cz(a)} + ${cz(b)}`, h2: `= ${cz(v)} l` }; },
-      () => { const a = r1(ri(45, 95) / 10), b = r1(ri(11, 40) / 10); const v = r1(a - b); return { text: `Dračí ocas měřil ${cz(a)} m. V bitvě se zkrátil o ${cz(b)} m. Kolik měří teď?`, ans: v, h1: `${cz(a)} − ${cz(b)}`, h2: `= ${cz(v)} m` }; },
+      () => { const a = r1(ri(15, 60) / 10), b = r1(ri(15, 60) / 10); const v = r1(a + b); return { text: pick([`Lektvar vznikne smícháním ${cz(a)} l vody a ${cz(b)} l dračí krve. Kolik litrů lektvaru vznikne?`, `Čaroděj slil ${cz(a)} l vody a ${cz(b)} l dračí krve. Kolik litrů lektvaru má?`]), ans: v, h1: `${cz(a)} + ${cz(b)}`, h2: `= ${cz(v)} l` }; },
+      () => { const a = r1(ri(45, 95) / 10), b = r1(ri(11, 40) / 10); const v = r1(a - b); return { text: pick([`Dračí ocas měřil ${cz(a)} m. V bitvě se zkrátil o ${cz(b)} m. Kolik měří teď?`, `Dračí ocas byl dlouhý ${cz(a)} m. O ${cz(b)} m ho usekl rytíř. Kolik metrů z ocasu zbylo?`]), ans: v, h1: `${cz(a)} − ${cz(b)}`, h2: `= ${cz(v)} m` }; },
+      () => { const a = r1(ri(20, 70) / 10), b = r1(ri(15, 55) / 10); const v = r1(a + b); return { text: pick([`Rytíř urazil první den ${cz(a)} km a druhý den ${cz(b)} km. Kolik km ušel celkem?`, `Družina zvládla ráno ${cz(a)} km a odpoledne ${cz(b)} km. Kolik km to je dohromady?`]), ans: v, h1: `${cz(a)} + ${cz(b)}`, h2: `= ${cz(v)} km` }; },
     ];
     for (let i = 0; i < T.length; i++) {
       const t = T[i % T.length]();
@@ -345,14 +351,14 @@
   function gen_5_3() {
     const tasks = [];
     const T = [
-      () => { const a = r1(ri(11, 98) / 10); return { text: `${cz(a)} × 10 = ?`, ans: r1(a * 10), h1: `Posuň čárku o jedno místo doprava.`, h2: `= ${cz(r1(a * 10))}` }; },
+      () => { const a = r1(ri(11, 98) / 10); return { text: `${FR()}: ${cz(a)} × 10 = ?`, ans: r1(a * 10), h1: `Posuň čárku o jedno místo doprava.`, h2: `= ${cz(r1(a * 10))}` }; },
       () => { const a = r2(ri(110, 980) / 100); return { text: `Vynásob stovkou: ${cz(a)} × 100`, ans: r2(a * 100), h1: `Posuň čárku o dvě místa doprava.`, h2: `= ${cz(r2(a * 100))}` }; },
-      () => { const a = ri(2, 9) * 10 + ri(0, 9); return { text: `${a} : 10 = ?`, ans: r1(a / 10), h1: `Posuň čárku o jedno místo doleva.`, h2: `= ${cz(r1(a / 10))}` }; },
+      () => { const a = ri(2, 9) * 10 + ri(0, 9); return { text: `${FR()}: ${a} : 10 = ?`, ans: r1(a / 10), h1: `Posuň čárku o jedno místo doleva.`, h2: `= ${cz(r1(a / 10))}` }; },
       () => { const a = ri(120, 990); return { text: `Vyděl stovkou: ${a} : 100`, ans: r2(a / 100), h1: `Posuň čárku o dvě místa doleva.`, h2: `= ${cz(r2(a / 100))}` }; },
       () => { const a = r2(ri(101, 989) / 100); return { text: `Jaký je desetinásobek čísla ${cz(a)}?`, ans: r1(a * 10), h1: `${cz(a)} × 10 — čárka o jedno doprava.`, h2: `= ${cz(r1(a * 10))}` }; },
       () => { const a = r1(ri(11, 98) / 10); const v = r1(a * 10); const ok = ri(0, 1) === 0; const tvrz = ok ? v : r1(v * 10); const spravne = tvrz === v; return { text: `Platí ${cz(a)} × 10 = ${cz(tvrz)}?`, ans: spravne ? 'ANO' : 'NE', h1: `Čárka se posouvá o JEDNO místo.`, h2: spravne ? 'ANO' : 'NE' }; },
-      () => { const cena = r1(ri(15, 95) / 10); return { text: `Jeden metr lana stojí ${cz(cena)} ${Number.isInteger(cena) ? skl(cena, 'dukát', 'dukáty', 'dukátů') : 'dukátu'}. Kolik stojí 10 metrů?`, ans: r1(cena * 10), h1: `${cz(cena)} × 10`, h2: `= ${cz(r1(cena * 10))}` }; },
-      () => { const vaha = ri(12, 95); return { text: `100 stejných šupin váží ${vaha * 10} g. Kolik váží jedna? (napiš desetinné číslo)`, ans: r1(vaha / 10), h1: `${vaha * 10} : 100 — čárka o dvě doleva.`, h2: `= ${cz(r1(vaha / 10))} g` }; },
+      () => { const cena = r1(ri(15, 95) / 10); return { text: pick([`Jeden metr lana stojí ${cz(cena)} ${Number.isInteger(cena) ? skl(cena, 'dukát', 'dukáty', 'dukátů') : 'dukátu'}. Kolik stojí 10 metrů?`, `Metr provazu má cenu ${cz(cena)} ${Number.isInteger(cena) ? skl(cena, 'dukát', 'dukáty', 'dukátů') : 'dukátu'}. Kolik zaplatíš za 10 metrů?`]), ans: r1(cena * 10), h1: `${cz(cena)} × 10`, h2: `= ${cz(r1(cena * 10))}` }; },
+      () => { const vaha = ri(12, 95); return { text: pick([`100 stejných šupin váží ${vaha * 10} g. Kolik váží jedna? (napiš desetinné číslo)`, `Sto dračích šupin má hmotnost ${vaha * 10} g. Kolik gramů váží jedna šupina? (napiš desetinné číslo)`]), ans: r1(vaha / 10), h1: `${vaha * 10} : 100 — čárka o dvě doleva.`, h2: `= ${cz(r1(vaha / 10))} g` }; },
       () => { const a = r1(ri(12, 90) / 10); return { text: `Doplň: ${cz(a)} × ? = ${cz(r1(a * 100))}`, ans: 100, h1: `Čárka se posunula o dvě místa doprava.`, h2: `= 100` }; },
       () => { const a = ri(3, 9); return { text: `Vyděl jednociferné číslo: ${a} : 10 = ? (napiš desetinné číslo)`, ans: r1(a / 10), h1: `${a} = ${a},0 — posuň čárku doleva.`, h2: `= ${cz(r1(a / 10))}` }; },
     ];
@@ -380,8 +386,8 @@
       () => { const a = ri(4, 15), S = a * ri(4, 15); return { text: `Obdélníková síň má obsah ${S} m² a šířku ${a} m. Jak je dlouhá?`, ans: S / a, h1: `Délka = obsah : šířka = ${S} : ${a}.`, h2: `= ${S / a} m` }; },
       () => { const [a, b] = obd(); const o = 2 * (a + b); return { text: `Obdélníková zahrada má obvod ${o} m a jednu stranu ${a} m. Jaká je druhá strana?`, ans: b, h1: `Půl obvodu = ${o / 2} = a + b.`, h2: `= ${b} m` }; },
       () => { const a = ri(3, 12); const ok = ri(0, 1) === 0; const tvrz = ok ? a * a : 4 * a; const spravne = tvrz === a * a; return { text: `Má čtverec se stranou ${a} cm obsah ${tvrz} cm²?`, ans: spravne ? 'ANO' : 'NE', h1: `Obsah = ${a} × ${a}, nezaměň s obvodem.`, h2: spravne ? 'ANO' : 'NE' }; },
-      () => { const [a, b] = obd(); return { text: `Dračí zahrada ${a} m × ${b} m se má oplotit dokola. Kolik metrů plotu je potřeba?`, ans: 2 * (a + b), h1: `Plot = obvod.`, h2: `= ${2 * (a + b)} m` }; },
-      () => { const [a, b] = obd(); return { text: `Kolik dlaždic 1 × 1 m pokryje podlahu síně ${a} m × ${b} m?`, ans: a * b, h1: `Počet dlaždic = obsah.`, h2: `= ${a * b}` }; },
+      () => { const [a, b] = obd(); return { text: pick([`Dračí zahrada ${a} m × ${b} m se má oplotit dokola. Kolik metrů plotu je potřeba?`, `Kolem obdélníkového výběhu ${a} m × ${b} m se staví hradba. Kolik metrů hradby je potřeba?`]), ans: 2 * (a + b), h1: `Plot = obvod.`, h2: `= ${2 * (a + b)} m` }; },
+      () => { const [a, b] = obd(); return { text: pick([`Kolik dlaždic 1 × 1 m pokryje podlahu síně ${a} m × ${b} m?`, `Podlaha trůnního sálu je ${a} m × ${b} m. Kolik dlaždic 1 × 1 m ji pokryje?`]), ans: a * b, h1: `Počet dlaždic = obsah.`, h2: `= ${a * b}` }; },
     ];
     for (let i = 0; i < T.length; i++) {
       const t = T[i % T.length]();
@@ -402,8 +408,8 @@
       () => { const n = ri(2, 6); return { text: `Kolik minut je ${n} ${skl(n, 'hodina', 'hodiny', 'hodin')}?`, ans: n * 60, h1: '1 h = 60 min.', h2: `= ${n * 60} min` }; },
       () => { const n = ri(2, 9) * 1000; return { text: `Kolik km je ${n} m?`, ans: n / 1000, h1: 'Děl tisícem.', h2: `= ${n / 1000} km` }; },
       () => { const n = ri(2, 9) * 1000; return { text: `Kolik litrů je ${n} ml?`, ans: n / 1000, h1: 'Děl tisícem.', h2: `= ${n / 1000} l` }; },
-      () => { const km = ri(2, 8), m = ri(100, 900); return { text: `Dračí let měřil ${km} km a ${m} m. Kolik je to metrů celkem?`, ans: km * 1000 + m, h1: `${km} km = ${km * 1000} m, přičti ${m}.`, h2: `= ${km * 1000 + m} m` }; },
-      () => { const kg = ri(2, 9), g = ri(100, 900); return { text: `Poklad váží ${kg} kg ${g} g. Kolik gramů to je?`, ans: kg * 1000 + g, h1: `${kg} kg = ${kg * 1000} g.`, h2: `= ${kg * 1000 + g} g` }; },
+      () => { const km = ri(2, 8), m = ri(100, 900); return { text: pick([`Dračí let měřil ${km} km a ${m} m. Kolik je to metrů celkem?`, `Drak přeletěl ${km} km a ${m} m. Kolik metrů urazil dohromady?`]), ans: km * 1000 + m, h1: `${km} km = ${km * 1000} m, přičti ${m}.`, h2: `= ${km * 1000 + m} m` }; },
+      () => { const kg = ri(2, 9), g = ri(100, 900); return { text: pick([`Poklad váží ${kg} kg ${g} g. Kolik gramů to je?`, `Truhla s dukáty váží ${kg} kg a ${g} g. Kolik je to gramů celkem?`]), ans: kg * 1000 + g, h1: `${kg} kg = ${kg * 1000} g.`, h2: `= ${kg * 1000 + g} g` }; },
       () => { const n = ri(2, 5); const ok = ri(0, 1) === 0; const tvrz = ok ? n * 1000 : n * 100; const spravne = tvrz === n * 1000; return { text: `Platí ${n} t = ${tvrz} kg?`, ans: spravne ? 'ANO' : 'NE', h1: `1 t = 1000 kg.`, h2: spravne ? 'ANO' : 'NE' }; },
       () => { const min = ri(2, 6) * 60; return { text: `Kolik hodin je ${min} minut?`, ans: min / 60, h1: `Děl šedesáti.`, h2: `= ${min / 60} h` }; },
     ];
@@ -427,8 +433,8 @@
     const tasks = [];
     const T = [
       () => { const cnt = ri(2, 4), avg = ri(8, 30); const nums = mkNums(cnt, avg); return { text: `Jaký je aritmetický průměr čísel ${nums.join(', ')}?`, ans: avg, h1: `Sečti všechna čísla (${nums.reduce((x, y) => x + y, 0)}) a vyděl počtem (${cnt}).`, h2: `= ${avg}` }; },
-      () => { const avg = ri(10, 40); const nums = mkNums(3, avg); return { text: `Rytíř skolil za tři dny ${nums[0]}, ${nums[1]} a ${nums[2]} nestvůr. Kolik jich skolil PRŮMĚRNĚ za den?`, ans: avg, h1: `Součet : 3 = ${nums.reduce((x, y) => x + y, 0)} : 3.`, h2: `= ${avg}` }; },
-      () => { const avg = ri(8, 25); const nums = mkNums(2, avg); return { text: `Dvě dračata váží ${nums[0]} kg a ${nums[1]} kg. Jaká je jejich průměrná váha?`, ans: avg, h1: `(${nums[0]} + ${nums[1]}) : 2`, h2: `= ${avg} kg` }; },
+      () => { const avg = ri(10, 40); const nums = mkNums(3, avg); return { text: pick([`Rytíř skolil za tři dny ${nums[0]}, ${nums[1]} a ${nums[2]} nestvůr. Kolik jich skolil PRŮMĚRNĚ za den?`, `Za tři dny ulovil drak ${nums[0]}, ${nums[1]} a ${nums[2]} ovcí. Kolik ovcí ulovil PRŮMĚRNĚ za den?`]), ans: avg, h1: `Součet : 3 = ${nums.reduce((x, y) => x + y, 0)} : 3.`, h2: `= ${avg}` }; },
+      () => { const avg = ri(8, 25); const nums = mkNums(2, avg); return { text: pick([`Dvě dračata váží ${nums[0]} kg a ${nums[1]} kg. Jaká je jejich průměrná váha?`, `Dvě mláďata draka mají ${nums[0]} kg a ${nums[1]} kg. Kolik váží průměrně?`]), ans: avg, h1: `(${nums[0]} + ${nums[1]}) : 2`, h2: `= ${avg} kg` }; },
       () => { const avg = ri(10, 30), cnt = 3; return { text: `Průměr tří čísel je ${avg}. Jaký je jejich součet?`, ans: avg * cnt, h1: `Součet = průměr × počet = ${avg} × 3.`, h2: `= ${avg * cnt}` }; },
       () => { const a = ri(8, 25), b = a + ri(2, 8); const avg2 = (a + b) / 2; const cele = Number.isInteger(avg2); return cele ? { text: `Jaký je průměr čísel ${a} a ${b}?`, ans: avg2, h1: `(${a} + ${b}) : 2`, h2: `= ${avg2}` } : { text: `Jaký je průměr čísel ${a} a ${b + 1}?`, ans: (a + b + 1) / 2, h1: `(${a} + ${b + 1}) : 2`, h2: `= ${(a + b + 1) / 2}` }; },
       () => { const avg = ri(10, 30); const nums = mkNums(4, avg); return { text: `Čtyři lučištníci zasáhli ${nums.join(', ')} terčů. Kolik terčů zasáhl průměrný střelec?`, ans: avg, h1: `Součet : 4.`, h2: `= ${avg}` }; },
@@ -452,15 +458,15 @@
   function gen_7_1() {
     const tasks = [];
     const T = [
-      () => { const a = ri(120000, 480000), b = ri(120000, 480000); return { text: `${a} + ${b} = ?`, ans: a + b, h1: `Sčítej po řádech pod sebou.`, h2: `= ${a + b}` }; },
-      () => { const b = ri(50000, 300000), a = b + ri(50000, 400000); return { text: `${a} − ${b} = ?`, ans: a - b, h1: `Odečítej po řádech.`, h2: `= ${a - b}` }; },
+      () => { const a = ri(120000, 480000), b = ri(120000, 480000); return { text: `${FR()}: ${a} + ${b} = ?`, ans: a + b, h1: `Sčítej po řádech pod sebou.`, h2: `= ${a + b}` }; },
+      () => { const b = ri(50000, 300000), a = b + ri(50000, 400000); return { text: `${FR()}: ${a} − ${b} = ?`, ans: a - b, h1: `Odečítej po řádech.`, h2: `= ${a - b}` }; },
       () => { const n = ri(120000, 950000); const v = Math.round(n / 1000) * 1000; return { text: `Zaokrouhli ${n} na tisíce.`, ans: v, h1: `Cifra stovek rozhoduje.`, h2: `= ${v}` }; },
       () => { const n = ri(120000, 950000); const v = Math.round(n / 100000) * 100000; return { text: `Zaokrouhli ${n} na statisíce.`, ans: v, h1: `Cifra desetitisíců rozhoduje.`, h2: `= ${v}` }; },
-      () => { const a = ri(2, 9); return { text: `${a} × 100 000 = ?`, ans: a * 100000, h1: `Přidej pět nul.`, h2: `= ${a * 100000}` }; },
+      () => { const a = ri(2, 9); return { text: `${FR()}: ${a} × 100 000 = ?`, ans: a * 100000, h1: `Přidej pět nul.`, h2: `= ${a * 100000}` }; },
       () => { let a = ri(100000, 999999), b = ri(100000, 999999); while (a === b) b = ri(100000, 999999); return { text: `Které číslo je větší: ${a}, nebo ${b}?`, ans: Math.max(a, b), h1: `Porovnej zleva po řádech.`, h2: `= ${Math.max(a, b)}` }; },
       () => { const tis = ri(100, 980); return { text: `Zapiš číslem: ${tis} tisíc.`, ans: tis * 1000, h1: `Připiš tři nuly.`, h2: `= ${tis * 1000}` }; },
       () => { const b = ri(100000, 400000), a = b + ri(50000, 300000); return { text: `O kolik je ${a} větší než ${b}?`, ans: a - b, h1: `Rozdíl: ${a} − ${b}.`, h2: `= ${a - b}` }; },
-      () => { const n = ri(2, 9) * 100000; return { text: `${n} : 1000 = ?`, ans: n / 1000, h1: `Škrtni tři nuly.`, h2: `= ${n / 1000}` }; },
+      () => { const n = ri(2, 9) * 100000; return { text: `${FR()}: ${n} : 1000 = ?`, ans: n / 1000, h1: `Škrtni tři nuly.`, h2: `= ${n / 1000}` }; },
       () => { const a = ri(120, 480) * 1000, dar = ri(20, 90) * 1000; return { text: `Dračí poklad má ${a} dukátů. Drak daroval ${dar}. Kolik mu zbylo?`, ans: a - dar, h1: `${a} − ${dar}`, h2: `= ${a - dar}` }; },
     ];
     for (let i = 0; i < T.length; i++) {
@@ -474,16 +480,17 @@
   function gen_7_2() {
     const tasks = [];
     const T = [
-      () => { const a = ri(115, 870), b = ri(3, 9); return { text: `${a} × ${b} = ?`, ans: a * b, h1: `Písemné násobení po cifrách.`, h2: `= ${a * b}` }; },
-      () => { const b = ri(3, 9), q = ri(30, 130); return { text: `${b * q} : ${b} = ?`, ans: q, h1: `Písemné dělení zleva.`, h2: `= ${q}` }; },
-      () => { const a = r1(ri(15, 95) / 10), b = r1(ri(11, 89) / 10); return { text: `${cz(a)} + ${cz(b)} = ?`, ans: r1(a + b), h1: `Desetinná čárka pod čárku.`, h2: `= ${cz(r1(a + b))}` }; },
+      () => { const a = ri(115, 870), b = ri(3, 9); return { text: `${FR()}: ${a} × ${b} = ?`, ans: a * b, h1: `Písemné násobení po cifrách.`, h2: `= ${a * b}` }; },
+      () => { const b = ri(3, 9), q = ri(30, 130); return { text: `${FR()}: ${b * q} : ${b} = ?`, ans: q, h1: `Písemné dělení zleva.`, h2: `= ${q}` }; },
+      () => { const a = r1(ri(15, 95) / 10), b = r1(ri(11, 89) / 10); return { text: `${FR()}: ${cz(a)} + ${cz(b)} = ?`, ans: r1(a + b), h1: `Desetinná čárka pod čárku.`, h2: `= ${cz(r1(a + b))}` }; },
       () => { const den = pick([2, 4, 5, 10]), whole = den * ri(3, 9); return { text: `Kolik je 1/${den} z ${whole}?`, ans: whole / den, h1: `${whole} : ${den}`, h2: `= ${whole / den}` }; },
       () => { const a = ri(23, 85), b = ri(12, 45); return { text: `Násobení dvojciferným: ${a} × ${b}`, ans: a * b, h1: `Rozlož: ${a} × ${Math.floor(b / 10) * 10} + ${a} × ${b % 10}.`, h2: `= ${a * b}` }; },
       () => { const b = ri(3, 8), q = ri(25, 110), r = ri(1, b - 1); const n = b * q + r; return { text: `${n} : ${b} — jaký je zbytek?`, ans: r, h1: `${b} × ${q} = ${b * q}.`, h2: `zbytek ${r}` }; },
-      () => { const a = r1(ri(45, 95) / 10), b = r1(ri(11, 40) / 10); return { text: `${cz(a)} − ${cz(b)} = ?`, ans: r1(a - b), h1: `Odečítej pod sebou, čárka pod čárku.`, h2: `= ${cz(r1(a - b))}` }; },
+      () => { const a = r1(ri(45, 95) / 10), b = r1(ri(11, 40) / 10); return { text: `${FR()}: ${cz(a)} − ${cz(b)} = ?`, ans: r1(a - b), h1: `Odečítej pod sebou, čárka pod čárku.`, h2: `= ${cz(r1(a - b))}` }; },
       () => { const a = r1(ri(11, 95) / 10); return { text: `Vynásob deseti: ${cz(a)} × 10`, ans: r1(a * 10), h1: `Čárka o jedno doprava.`, h2: `= ${cz(r1(a * 10))}` }; },
       () => { const a = ri(1120, 4980), b = ri(2, 4); return { text: `Vypočítej písemně: ${a} × ${b}`, ans: a * b, h1: `Po cifrách zprava, s přenosy.`, h2: `= ${a * b}` }; },
       () => { const den = pick([3, 4, 5]), whole = den * ri(4, 12), num = ri(2, den - 1); return { text: `Zlomek z čísla: kolik je ${num}/${den} z ${whole}?`, ans: (whole / den) * num, h1: `${whole} : ${den} × ${num}`, h2: `= ${(whole / den) * num}` }; },
+      () => { const a = ri(120, 380), b = ri(3, 8); return { text: pick([`Drak střeží v každé z ${b} komnat ${a} dukátů. Kolik dukátů střeží celkem?`, `V každé z ${b} věží je ukryto ${a} dukátů. Kolik dukátů je ve všech věžích?`]), ans: a * b, h1: `${a} × ${b}`, h2: `= ${a * b} dukátů` }; },
     ];
     for (let i = 0; i < T.length; i++) {
       const t = T[i % T.length]();
@@ -496,17 +503,17 @@
   function gen_7_3() {
     const tasks = [];
     const T = [
-      () => { const a = ri(112, 980), b = ri(12, 39); return { text: `${a} × ${b} = ?`, ans: a * b, h1: `Násobení dvojciferným: rozlož ${b} na desítky a jednotky.`, h2: `= ${a * b}`, sk: 'calc' }; },
-      () => { const b = ri(3, 9), q = ri(40, 140); return { text: `${b * q} : ${b} = ?`, ans: q, h1: `Písemné dělení zleva.`, h2: `= ${q}`, sk: 'calc' }; },
-      () => { const a = r1(ri(20, 95) / 10), b = r1(ri(11, 89) / 10); const big = Math.max(a, b), small = Math.min(a, b); return { text: `${cz(big)} − ${cz(small)} = ?`, ans: r1(big - small), h1: `Desetinné odčítání, čárka pod čárku.`, h2: `= ${cz(r1(big - small))}`, sk: 'calc' }; },
+      () => { const a = ri(112, 980), b = ri(12, 39); return { text: `${FR()}: ${a} × ${b} = ?`, ans: a * b, h1: `Násobení dvojciferným: rozlož ${b} na desítky a jednotky.`, h2: `= ${a * b}`, sk: 'calc' }; },
+      () => { const b = ri(3, 9), q = ri(40, 140); return { text: `${FR()}: ${b * q} : ${b} = ?`, ans: q, h1: `Písemné dělení zleva.`, h2: `= ${q}`, sk: 'calc' }; },
+      () => { const a = r1(ri(20, 95) / 10), b = r1(ri(11, 89) / 10); const big = Math.max(a, b), small = Math.min(a, b); return { text: `${FR()}: ${cz(big)} − ${cz(small)} = ?`, ans: r1(big - small), h1: `Desetinné odčítání, čárka pod čárku.`, h2: `= ${cz(r1(big - small))}`, sk: 'calc' }; },
       () => { const a = ri(4, 16), b = ri(3, 14); return { text: `Obsah obdélníku ${a} cm × ${b} cm? (cm²)`, ans: a * b, h1: `S = a × b.`, h2: `= ${a * b} cm²`, sk: 'geo' }; },
       () => { const avg = ri(6, 24); const n1 = avg + ri(-2, 2), n2 = avg + ri(-2, 2), n3 = avg * 3 - n1 - n2; return { text: `Aritmetický průměr čísel ${n1}, ${n2}, ${n3}?`, ans: avg, h1: `Součet : 3.`, h2: `= ${avg}`, sk: 'anal' }; },
       () => { const n = ri(120000, 950000); const v = Math.round(n / 10000) * 10000; return { text: `Zaokrouhli ${n} na desetitisíce.`, ans: v, h1: `Cifra tisíců rozhoduje.`, h2: `= ${v}`, sk: 'calc' }; },
       () => { const den = pick([2, 3, 4, 5]), whole = den * ri(4, 10), num = ri(1, den - 1); return { text: `Kolik je ${num}/${den} z ${whole}?`, ans: (whole / den) * num, h1: `${whole} : ${den} × ${num}`, h2: `= ${(whole / den) * num}`, sk: 'calc' }; },
-      () => { const a = r1(ri(11, 90) / 10); return { text: `${cz(a)} × 100 = ?`, ans: r1(a * 100), h1: `Čárka o dvě místa doprava.`, h2: `= ${cz(r1(a * 100))}`, sk: 'calc' }; },
-      () => { const b = ri(4, 8), q = ri(30, 90), r = ri(1, b - 1); const n = b * q + r; return { text: `Drak hlídá ${n} vajec v hnízdech po ${b}. Kolik vajec zbyde mimo plná hnízda?`, ans: r, h1: `Zbytek po dělení ${n} : ${b}.`, h2: `= ${r}`, sk: 'calc' }; },
+      () => { const a = r1(ri(11, 90) / 10); return { text: `${FR()}: ${cz(a)} × 100 = ?`, ans: r1(a * 100), h1: `Čárka o dvě místa doprava.`, h2: `= ${cz(r1(a * 100))}`, sk: 'calc' }; },
+      () => { const b = ri(4, 8), q = ri(30, 90), r = ri(1, b - 1); const n = b * q + r; return { text: pick([`Drak hlídá ${n} vajec v hnízdech po ${b}. Kolik vajec zbyde mimo plná hnízda?`, `Dračice snesla ${n} vajec a do hnízda se jich vejde ${b}. Kolik vajec zbyde na poslední, neúplné hnízdo?`]), ans: r, h1: `Zbytek po dělení ${n} : ${b}.`, h2: `= ${r}`, sk: 'calc' }; },
       () => { const a = ri(3, 15); return { text: `Čtverec se stranou ${a} cm — jaký má obvod?`, ans: 4 * a, h1: `O = 4 × a.`, h2: `= ${4 * a} cm`, sk: 'geo' }; },
-      () => { const a = ri(120000, 480000), b = ri(120000, 480000); return { text: `${a} + ${b} = ?`, ans: a + b, h1: `Sčítej po řádech.`, h2: `= ${a + b}`, sk: 'calc' }; },
+      () => { const a = ri(120000, 480000), b = ri(120000, 480000); return { text: `${FR()}: ${a} + ${b} = ?`, ans: a + b, h1: `Sčítej po řádech.`, h2: `= ${a + b}`, sk: 'calc' }; },
       () => { const km = ri(2, 8), m = ri(100, 900); return { text: `Dračí let: ${km} km ${m} m. Kolik metrů celkem?`, ans: km * 1000 + m, h1: `${km} × 1000 + ${m}`, h2: `= ${km * 1000 + m} m`, sk: 'calc' }; },
     ];
     for (let i = 0; i < T.length; i++) {

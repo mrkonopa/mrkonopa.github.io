@@ -16,36 +16,40 @@
     };
   }
   const ri = (r, lo, hi) => lo + Math.floor(r() * (hi - lo + 1));
+  const skl = (n,one,few,many)=>n===1?one:(n>=2&&n<=4?few:many);  // shoda čísla a jména (1 / 2-4 / 5+)
   const pick = (r, arr) => arr[Math.floor(r() * arr.length)];
   const S = v => String(v);
+  // framing pool — mění SLOVESO, ne odpověď (seedované přes r)
+  const FR = r => pick(r, ['Vypočítej', 'Spočítej', 'Urči', 'Kolik je']);
+  const fr = (r, expr) => { const f = FR(r); return f === 'Kolik je' ? `Kolik je ${expr}?` : `${f}: ${expr}`; };
 
   const GEN = [
 
     // 1) sčítání tříciferných čísel
     function (r) {
       const a = ri(r, 120, 650), b = ri(r, 120, 350);
-      return { topic: 'sčítání', text: `Vypočítej: ${a} + ${b}`, value: a + b,
+      return { topic: 'sčítání', text: fr(r, `${a} + ${b}`), value: a + b,
                distractors: [a + b + 10, a + b - 1, a + b + 1] };
     },
 
     // 2) odčítání tříciferných čísel
     function (r) {
       const b = ri(r, 100, 400), a = b + ri(r, 50, 400);
-      return { topic: 'odčítání', text: `Vypočítej: ${a} − ${b}`, value: a - b,
+      return { topic: 'odčítání', text: fr(r, `${a} − ${b}`), value: a - b,
                distractors: [a - b + 10, a + b, a - b - 1] };
     },
 
     // 3) násobení
     function (r) {
       const a = ri(r, 12, 39), b = ri(r, 3, 9);
-      return { topic: 'násobení', text: `Vypočítej: ${a} × ${b}`, value: a * b,
+      return { topic: 'násobení', text: fr(r, `${a} × ${b}`), value: a * b,
                distractors: [a * b + b, a * b - a, (a + 1) * b] };
     },
 
     // 4) dělení (bezzbytkové)
     function (r) {
       const b = ri(r, 3, 9), q = ri(r, 12, 40);
-      return { topic: 'dělení', text: `Vypočítej: ${b * q} ÷ ${b}`, value: q,
+      return { topic: 'dělení', text: fr(r, `${b * q} ÷ ${b}`), value: q,
                distractors: [q + 1, q - 1, q + 2] };
     },
 
@@ -92,7 +96,7 @@
     function (r) {
       const cena = ri(r, 3, 19) * 10, ks = ri(r, 2, 6);
       const v = cena * ks;
-      return { topic: 'slovní úloha', text: `Jeden sešit stojí ${cena} Kč. Kolik zaplatíš za ${ks} sešitů?`,
+      return { topic: 'slovní úloha', text: `Jeden satelit stojí ${cena} kreditů. Kolik zaplatíš za ${ks} ${skl(ks,'satelit','satelity','satelitů')}?`,
                value: v, distractors: [cena + ks, v + cena, v - cena] };
     },
 
@@ -157,7 +161,7 @@
     function (r) {
       const speed = pick(r, [40, 50, 60, 80, 100]), t = ri(r, 1, 4);
       const v = speed * t;
-      return { topic: 'rychlost', text: `Auto jede rychlostí ${speed} km/h po dobu ${t} h. Vzdálenost? (km)`,
+      return { topic: 'rychlost', text: `Raketa letí rychlostí ${speed} tisíc km/h po dobu ${t} h. Jakou dráhu uletí? (tisíc km)`,
                value: v, distractors: [speed + t, v + speed, v - t] };
     },
 
