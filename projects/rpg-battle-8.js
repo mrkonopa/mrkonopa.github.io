@@ -17,6 +17,7 @@
   const ri = (r, lo, hi) => lo + Math.floor(r() * (hi - lo + 1));
   const skl = (n,one,few,many)=>n===1?one:(n>=2&&n<=4?few:many);  // shoda čísla a jména (1 / 2-4 / 5+)
   const pick = (r, arr) => arr[Math.floor(r() * arr.length)];
+  const FR = r => pick(r, ['Vypočítej', 'Spočítej', 'Urči', 'Vyčísli']);  // framing-pool (rozmanitost zadání)
   const S = v => String(v);
 
   const GEN = [
@@ -24,13 +25,14 @@
     // 1) záporná čísla — součin
     function (r) {
       const a = ri(r, 2, 9), b = ri(r, 2, 9);
+      const f = FR(r);
       if (r() < 0.5) {
         const v = -a * b;
-        return { topic: 'záporná čísla', text: `Vypočítej: (−${a}) × ${b}`, value: v,
+        return { topic: 'záporná čísla', text: `${f}: (−${a}) × ${b}`, value: v,
                  distractors: [a * b, -a - b, v + a] };
       }
       const v = a * b;
-      return { topic: 'záporná čísla', text: `Vypočítej: (−${a}) × (−${b})`, value: v,
+      return { topic: 'záporná čísla', text: `${f}: (−${a}) × (−${b})`, value: v,
                distractors: [-v, a + b, v + 1] };
     },
 
@@ -53,20 +55,21 @@
 
     // 4) mocniny (2. a 3.)
     function (r) {
+      const f = FR(r);
       if (r() < 0.6) {
         const a = ri(r, 2, 13);
-        return { topic: 'mocniny', text: `Vypočítej: ${a}²`, value: a * a,
+        return { topic: 'mocniny', text: `${f}: ${a}²`, value: a * a,
                  distractors: [a * 2, a * a + a, a * a - a] };
       }
       const b = ri(r, 2, 7);
-      return { topic: 'mocniny', text: `Vypočítej: ${b}³`, value: b * b * b,
+      return { topic: 'mocniny', text: `${f}: ${b}³`, value: b * b * b,
                distractors: [b * b, b * 3, b * b * b + b] };
     },
 
     // 5) odmocniny (z úplného čtverce)
     function (r) {
       const a = ri(r, 2, 15);
-      return { topic: 'odmocniny', text: `Vypočítej: √${a * a}`, value: a,
+      return { topic: 'odmocniny', text: `${FR(r)}: √${a * a}`, value: a,
                distractors: [a + 1, a - 1, Math.round(a * a / 2)] };
     },
 
