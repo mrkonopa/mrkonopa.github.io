@@ -27,6 +27,9 @@
   const skl = (n,one,few,many)=>n===1?one:(n>=2&&n<=4?few:many);  // shoda čísla a jména (1 / 2-4 / 5+)   // celé [lo,hi]
   const pick = (r, arr) => arr[Math.floor(r() * arr.length)];
   const S = v => String(v);
+  // FRAMING-POOL: uvození drilu (deterministické přes seedovaný r, nemění hodnotu ani distraktory)
+  const FR = r => pick(r, ['Vypočítej', 'Spočítej', 'Urči', 'Kolik je']);
+  const fr = (r, expr) => { const f = FR(r); return f === 'Kolik je' ? `Kolik je ${expr}?` : `${f}: ${expr}`; };
 
   // ── generátory: každý vrací {topic, text, value, distractors:[3]} ──
   // value i distractors jsou čísla nebo řetězce; assemble() z nich složí MC.
@@ -55,18 +58,18 @@
       const a = ri(r, 2, 13);
       if (r() < 0.5) {
         const v = a * a;
-        return { topic: 'mocniny', text: `Vypočítej ${a}²`, value: v,
+        return { topic: 'mocniny', text: fr(r, `${a}²`), value: v,
                  distractors: [a * 2, v + a, v - a] };
       }
       const b = ri(r, 2, 7), v = b * b * b;
-      return { topic: 'mocniny', text: `Vypočítej ${b}³`, value: v,
+      return { topic: 'mocniny', text: fr(r, `${b}³`), value: v,
                distractors: [b * b, b * 3, v + b] };
     },
 
     // 4) druhá odmocnina (z úplného čtverce)
     function (r) {
       const a = ri(r, 2, 15), v = a * a;
-      return { topic: 'odmocniny', text: `Vypočítej √${v}`, value: a,
+      return { topic: 'odmocniny', text: fr(r, `√${v}`), value: a,
                distractors: [a + 1, a - 1, Math.round(v / 2)] };
     },
 
@@ -82,7 +85,7 @@
     function (r) {
       const a = ri(r, 2, 9), b = ri(r, 2, 9), c = ri(r, 2, 9);
       const v = a + b * c;
-      return { topic: 'operace', text: `Vypočítej: ${a} + ${b} · ${c}`, value: v,
+      return { topic: 'operace', text: fr(r, `${a} + ${b} · ${c}`), value: v,
                distractors: [(a + b) * c, a + b + c, v + b] };
     },
 
@@ -90,7 +93,7 @@
     function (r) {
       const a = ri(r, -12, -2), b = ri(r, 2, 12);
       const v = a - b;
-      return { topic: 'záporná', text: `Vypočítej: (${a}) − ${b}`, value: v,
+      return { topic: 'záporná', text: fr(r, `(${a}) − ${b}`), value: v,
                distractors: [a + b, -(a - b), v + 2] };
     },
 
