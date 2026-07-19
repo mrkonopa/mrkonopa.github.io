@@ -1063,7 +1063,7 @@ function launchBattle(aid,mid){
  if(ex&&typeof ex[m.id]==='function'){try{pool=pool.concat(ex[m.id]());}catch(e){}}
  if(!pool.length){alert('⚠️ Úkoly se nepodařilo načíst. Obnov prosím stránku (Ctrl+Shift+R) a zkus to znovu.');return;}
  BT.pool=pool;
- BT.srcIdx=shuffleArr(pool.map((_,i)=>i)).slice(0,m.tc);
+ BT.srcIdx=(()=>{const order=shuffleArr(pool.map((_,i)=>i));const seen=new Set(),out=[];for(const i of order){const tx=String(pool[i]&&pool[i].text);if(seen.has(tx))continue;seen.add(tx);out.push(i);if(out.length>=m.tc)break;}if(out.length<m.tc)for(const i of order){if(out.indexOf(i)<0){out.push(i);if(out.length>=m.tc)break;}}return out;})();
  BT.tasks=BT.srcIdx.map(i=>pool[i]);
  BT.adapt={errRow:0,okRow:0,mode:0};
  BT._rendered=-1;
@@ -1640,7 +1640,7 @@ function startTrain(mid){
 }
 function trDraw(){
  if(!TR.pool.length){const ar=AREAS.find(a=>a.missions.some(m=>m.id===TR.mid));const m=ar?ar.missions.find(x=>x.id===TR.mid):null;let pool=(m?m.tasks():[]);const ex=window.RPG_TASK_EXTRA_3;if(ex&&typeof ex[TR.mid]==='function'){try{pool=pool.concat(ex[TR.mid]());}catch(e){}}TR.pool=trBuildBag(pool,TR.mid);}
- const entry=TR.pool.pop();TR.task=entry.t;TR.curIdx=entry.idx;TR.hl=0;trRender();trStats();
+ let entry=TR.pool.pop();if(entry){const _ar=AREAS.find(a=>a.missions.some(m=>m.id===TR.mid));const _m=_ar?_ar.missions.find(x=>x.id===TR.mid):null;let _fp=_m?_m.tasks():[];const _ex=window.RPG_TASK_EXTRA_3;if(_ex&&typeof _ex[TR.mid]==='function'){try{_fp=_fp.concat(_ex[TR.mid]());}catch(e){}}if(_fp[entry.idx])entry={t:_fp[entry.idx],idx:entry.idx};}if(entry&&TR._lastText&&String(entry.t.text)===TR._lastText){for(let k=TR.pool.length-1;k>=0;k--){if(String(TR.pool[k].t.text)!==TR._lastText){const _tmp=TR.pool[k];TR.pool[k]=entry;entry=_tmp;break;}}}TR._lastText=entry&&entry.t?String(entry.t.text):undefined;TR.task=entry.t;TR.curIdx=entry.idx;TR.hl=0;trRender();trStats();
 }
 function trRender(){
  const t=TR.task;if(!t)return;

@@ -1867,7 +1867,7 @@ function launchBattle(aid,mid){
  const ex=window.RPG_TASK_EXTRA_6;
  if(ex && typeof ex[m.id]==='function'){try{pool=pool.concat(ex[m.id]());}catch(e){}}
  BT.pool=pool;
- BT.srcIdx=shuffleArr(pool.map((_,i)=>i)).slice(0,m.tc);
+ BT.srcIdx=(()=>{const order=shuffleArr(pool.map((_,i)=>i));const seen=new Set(),out=[];for(const i of order){const tx=String(pool[i]&&pool[i].text);if(seen.has(tx))continue;seen.add(tx);out.push(i);if(out.length>=m.tc)break;}if(out.length<m.tc)for(const i of order){if(out.indexOf(i)<0){out.push(i);if(out.length>=m.tc)break;}}return out;})();
  BT.tasks=BT.srcIdx.map(i=>pool[i]);
  BT.adapt={errRow:0,okRow:0,mode:0};
  BT._rendered=-1;
@@ -2738,7 +2738,7 @@ function twDrawTask(){
  let pool=TW.m.tasks();
  const ex=window.RPG_TASK_EXTRA_6;
  if(ex&&typeof ex[TW.m.id]==='function'){try{pool=pool.concat(ex[TW.m.id]());}catch(e){}}
- TW.task=pool[Math.floor(Math.random()*pool.length)];
+ {let _ti=Math.floor(Math.random()*pool.length);if(pool.length>1&&TW._lastText){let _g=0;while(_g++<8&&String(pool[_ti].text)===TW._lastText)_ti=Math.floor(Math.random()*pool.length);}TW._lastText=String(pool[_ti].text);TW.task=pool[_ti];}
  twRenderTask();
  twStartTimer();
 }
@@ -3228,7 +3228,9 @@ function trWeightedPick(pool){
 
 function trDraw(){
  const pool=trPool();
- const idx=trWeightedPick(pool);
+ let idx=trWeightedPick(pool);
+ if(pool.length>1&&TR._lastText){let _g=0;while(_g++<8&&String(pool[idx].text)===TR._lastText)idx=trWeightedPick(pool);}
+ TR._lastText=String(pool[idx].text);
  TR.task=pool[idx];
  TR.curIdx=idx;
  TR.hl=0;
