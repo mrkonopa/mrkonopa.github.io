@@ -43,15 +43,19 @@ async function run() {
       // statický text stránky
       const bodyTxt = await pg.evaluate(() => document.body ? document.body.innerText : '');
       scan(bodyTxt, g + '(static)'); gen++;
-      // generovaný text: procenta (genX) + cesta (ACTS)
-      const generated = await pg.evaluate(() => {
+      // generovaný text: procenta (genX, globální funkce) + cesta (ACTS = bare const, NE window.ACTS)
+      const res = await pg.evaluate(() => {
         const out = []; const walk = o => { if (!o) return; if (typeof o === 'string') { out.push(o); return; } if (Array.isArray(o)) return o.forEach(walk); if (typeof o === 'object') for (const k in o) walk(o[k]); };
         const gens = ['genPart','genBase','genPercent','genIncrease','genDecrease','genCompound','genComparison','genRatio'];
         for (const name of gens) { const fn = window[name]; if (typeof fn !== 'function') continue; for (let d = 0; d < 3; d++) for (let r = 0; r < 120; r++) { try { walk(fn(d)); } catch (e) {} } }
-        if (Array.isArray(window.ACTS)) { for (const act of window.ACTS) { for (let r = 0; r < 40; r++) { try { const c = act.setup ? act.setup() : {}; (act.scenes || []).forEach(sc => { try { walk(sc.build ? sc.build(c) : sc); } catch (e) {} }); } catch (e) {} } } }
-        return out;
+        let actsCount = 0, scenes = 0;
+        const A = (typeof ACTS !== 'undefined' && Array.isArray(ACTS)) ? ACTS : null;   // ACTS je const, ne window.ACTS
+        if (A) { actsCount = A.length; for (const act of A) { for (let r = 0; r < 40; r++) { let c; try { c = act.setup ? act.setup() : {}; } catch (e) { continue; } (act.scenes || []).forEach(sc => { scenes++; try { walk(sc.build ? sc.build(c) : sc); } catch (e) {} }); } } }
+        return { out, actsCount, scenes };
       });
-      generated.forEach(t => { gen++; scan(t, g + '(gen)'); });
+      res.out.forEach(t => { gen++; scan(t, g + '(gen)'); });
+      if (g === 'cesta_penez.html') ok(res.actsCount >= 6 && res.scenes > 100, 'cesta: všechny akty proexercisovány (' + res.actsCount + ' aktů, ' + res.scenes + ' scén)');
+      if (g === 'procenta_priklady.html') ok(res.out.length > 1000, 'procenta: generátory proexercisovány (' + res.out.length + ' řetězců)');
       ok(perr.length === 0, 'načteno bez JS chyby: ' + g + (perr.length ? ' — ' + perr.slice(0, 1).join() : ''));
     } catch (e) { ok(false, 'běh ' + g + ' — ' + e.message); }
     finally { await pg.close(); }
