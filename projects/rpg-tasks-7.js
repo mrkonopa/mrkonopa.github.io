@@ -293,7 +293,7 @@ function gen_4_2(){
   tasks.push({text:`${a} kg cukru stojí ${a*b} Kč. Kolik stojí ${c} kg?`,ans:c*b,hints:['Přímá úměrnost: cena roste s množstvím.','1 kg = '+b+' Kč → '+c+' kg = '+(c*b)+' Kč'],skill:'anal'});
   // nepřímá úměrnost — d·eDni = f·xDni ⇒ oba časy celé (eDni=f·k, xDni=d·k)
   const d=ri(2,5),f=ri(2,6),kNep=ri(2,6),eDni=f*kNep,xDni=d*kNep;
-  tasks.push({text:`${d} ${skl(d,'dělník','dělníci','dělníků')} postaví plot za ${eDni} dní. Za kolik dní to zvládne ${f} ${skl(f,'dělník','dělníci','dělníků')}? (nepřímá úměrnost)`,ans:xDni,hints:['Nepřímá: součin dělníci × dny je stálý.',d+'·'+eDni+' = '+f+'·x → x = '+xDni+' dní'],skill:'anal'});
+  tasks.push({text:`${d} ${skl(d,'dělník','dělníci','dělníků')} postaví plot za ${eDni} ${skl(eDni,'den','dny','dní')}. Za kolik dní to zvládne ${f} ${skl(f,'dělník','dělníci','dělníků')}? (nepřímá úměrnost)`,ans:xDni,hints:['Nepřímá: součin dělníci × dny je stálý.',d+'·'+eDni+' = '+f+'·x → x = '+xDni+' '+skl(xDni,'den','dny','dní')],skill:'anal'});
   // přímá — vzdálenost/čas
   const g=ri(3,8),h=ri(5,15)*10,i=ri(2,5);
   tasks.push({text:`Jezdec jede ${g} ${skl(g,'hodinu','hodiny','hodin')} rychlostí ${h} km/h. Jakou vzdálenost ujede za ${i} ${skl(i,'hodinu','hodiny','hodin')} stejnou rychlostí?`,ans:i*h,hints:['Vzdálenost = rychlost × čas.',''+i+'·'+h+' = '+(i*h)+' km'],skill:'anal'});
@@ -311,7 +311,7 @@ function gen_4_2(){
   { const g=ri(4,10),h=ri(3,8),i=ri(2,5); tasks.push({text:`Auto ujede za ${g} h vzdálenost ${g*h} km. Za ${i} h ujede?`,ans:i*h,hints:['Přímá: v = '+(g*h/g)+' km/h.',''+i+'×'+h+' = '+i*h+' km'],skill:'anal'}); }
   { const m=ri(3,7),n=ri(10,30),o=m*ri(2,4); tasks.push({text:`Na ${m} ${skl(m,'čtverec','čtverce','čtverců')} spotřebuju ${n} g lepidla. Na ${o} ${skl(o,'čtverec','čtverce','čtverců')}?`,ans:Math.round(n*o/m),hints:['Přímá: 1 čtverec = '+(n/m).toFixed(1)+' g.',''+o+'×'+n/m+' = '+Math.round(n*o/m)+' g'],skill:'anal'}); }
   { const a=ri(2,5),per=ri(3,8),b=a*per;let c=ri(2,8);if(c===a)c=c%8+2; tasks.push({text:`${a} ${skl(a,'pochodeň','pochodně','pochodní')} osvětlí ${b} m chodby. Kolik metrů osvětlí ${c} ${skl(c,'pochodeň','pochodně','pochodní')}?`,ans:c*per,hints:['Přímá úměrnost: 1 pochodeň = '+per+' m.',c+' × '+per+' = '+(c*per)+' m'],skill:'anal'}); }
-  { const d=ri(2,5),f=ri(2,6),k=ri(2,6),eDni=f*k,xDni=d*k; tasks.push({text:`${d} ${skl(d,'dělník','dělníci','dělníků')} přenese kamenné bloky za ${eDni} dní. Za kolik dní to zvládne ${f} ${skl(f,'dělník','dělníci','dělníků')}? (nepřímá úměrnost)`,ans:xDni,hints:['Nepřímá: dělníci × dny je stálý součin.',d+'·'+eDni+' = '+f+'·x → x = '+xDni+' dní'],skill:'anal'}); }
+  { const d=ri(2,5),f=ri(2,6),k=ri(2,6),eDni=f*k,xDni=d*k; tasks.push({text:`${d} ${skl(d,'dělník','dělníci','dělníků')} přenese kamenné bloky za ${eDni} ${skl(eDni,'den','dny','dní')}. Za kolik dní to zvládne ${f} ${skl(f,'dělník','dělníci','dělníků')}? (nepřímá úměrnost)`,ans:xDni,hints:['Nepřímá: dělníci × dny je stálý součin.',d+'·'+eDni+' = '+f+'·x → x = '+xDni+' '+skl(xDni,'den','dny','dní')],skill:'anal'}); }
   return tasks;
 }
 
