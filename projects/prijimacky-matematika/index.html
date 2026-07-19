@@ -252,26 +252,47 @@
     footer a { color: var(--muted); display: inline-block; padding: 4px 0; }
     footer a:hover { color: var(--blue); }
 
-    /* CERMAT COUNTDOWN CHIP */
+    /* CERMAT COUNTDOWN — velká karta na střed, klikací */
     .cermat-banner {
-      max-width: 920px; margin: 16px auto 0;
-      padding: 0 24px;
+      display: flex; justify-content: center;
+      margin: 22px auto 4px;
+      padding: 0 16px;
     }
     .cermat-countdown {
-      display: inline-flex; align-items: center; gap: 10px;
-      padding: 10px 18px;
-      border-radius: 12px;
+      display: flex; flex-direction: column; align-items: center; gap: 12px;
+      width: 100%; max-width: 560px;
+      padding: 22px 26px;
+      border-radius: 18px;
       font-family: var(--sans);
-      font-size: .9rem; font-weight: 600;
       border: 2px solid;
-      transition: opacity .2s;
+      text-decoration: none;
+      transition: transform .12s ease, box-shadow .12s ease;
     }
-    .cermat-countdown.cc-far  { color:#1a6eab; background:#e8f1fb; border-color:#a8c8ef; }
+    .cermat-countdown:hover { transform: translateY(-2px); box-shadow: 0 8px 22px rgba(0,0,0,.10); }
+    .cermat-countdown.cc-far  { color:#1a6eab; background:#eef5fc; border-color:#a8c8ef; }
     .cermat-countdown.cc-soon { color:#b02020; background:#fdecea; border-color:#e88; }
     .cermat-countdown.cc-gone { display: none; }
-    .cermat-countdown .cc-ico { font-size: 1.1em; }
-    .cermat-countdown .cc-txt b { font-weight: 700; }
-    .cermat-countdown .cc-days { font-size: 1.05em; }
+    .cermat-countdown .cc-head { font-size: 1rem; font-weight: 700; letter-spacing:.2px; opacity:.9; }
+    .cermat-countdown .cc-clock { display: flex; align-items: flex-start; gap: 6px; }
+    .cermat-countdown .cc-seg { display: flex; flex-direction: column; align-items: center; min-width: 72px; }
+    .cermat-countdown .cc-seg b {
+      font-size: 3rem; line-height: 1; font-weight: 800;
+      font-variant-numeric: tabular-nums; font-feature-settings: "tnum" 1;
+    }
+    .cermat-countdown .cc-seg i {
+      margin-top: 6px; font-style: normal; font-size: .72rem; font-weight: 700;
+      letter-spacing: 1px; text-transform: uppercase; opacity: .72;
+    }
+    .cermat-countdown .cc-sep { font-size: 2.2rem; font-weight: 800; line-height: 1; opacity: .35; padding-top: 2px; }
+    .cermat-countdown .cc-foot { font-size: .85rem; font-weight: 600; opacity: .85; }
+    @media (max-width: 480px) {
+      .cermat-countdown { padding: 18px 14px; }
+      .cermat-countdown .cc-seg { min-width: 0; flex: 1; }
+      .cermat-countdown .cc-seg b { font-size: 2.1rem; }
+      .cermat-countdown .cc-seg i { font-size: .62rem; letter-spacing: .5px; }
+      .cermat-countdown .cc-sep { font-size: 1.5rem; }
+      .cermat-countdown .cc-clock { gap: 2px; }
+    }
 
     @media (max-width: 560px) {
       .year-header { flex-direction: column; align-items: flex-start; gap: 4px; }
@@ -314,10 +335,21 @@
   </div>
 
   <div class="cermat-banner">
-    <div class="cermat-countdown cc-far" id="cermat-chip" style="display:none">
-      <span class="cc-ico">📅</span>
-      <span class="cc-txt"><span id="cermat-label">1. termín</span> — <span class="cc-days" id="cermat-days"></span></span>
-    </div>
+    <a class="cermat-countdown cc-far" id="cermat-chip"
+       href="https://prijimacky.cermat.cz/" target="_blank" rel="noopener"
+       title="Otevřít oficiální termíny přijímaček na webu CERMAT" style="display:none">
+      <span class="cc-head">⏳ Do přijímaček zbývá</span>
+      <span class="cc-clock" aria-live="off">
+        <span class="cc-seg"><b id="cc-d">0</b><i>dny</i></span>
+        <span class="cc-sep">:</span>
+        <span class="cc-seg"><b id="cc-h">00</b><i>hodiny</i></span>
+        <span class="cc-sep">:</span>
+        <span class="cc-seg"><b id="cc-m">00</b><i>minuty</i></span>
+        <span class="cc-sep">:</span>
+        <span class="cc-seg"><b id="cc-s">00</b><i>sekundy</i></span>
+      </span>
+      <span class="cc-foot"><span id="cermat-label">1. termín</span> · 📅 zobrazit termíny na webu CERMAT →</span>
+    </a>
   </div>
 
   <main>
@@ -569,28 +601,27 @@
 
   function renderChip(){
     var chip = document.getElementById('cermat-chip');
-    var daysEl = document.getElementById('cermat-days');
-    var labelEl = document.getElementById('cermat-label');
     if(!chip) return;
     var diff = cermatDate.getTime() - Date.now();
     if(diff <= 0){chip.style.display='none';return;}
     var days = Math.floor(diff / 864e5);
-    var hrs = Math.floor((diff % 864e5) / 36e5);
+    var hrs  = Math.floor((diff % 864e5) / 36e5);
     var mins = Math.floor((diff % 36e5) / 6e4);
-    var txt = days > 0
-      ? 'za <b>'+days+'&nbsp;dní</b> ('+hrs+':'+pad(mins)+')'
-      : 'za <b>'+hrs+':'+pad(mins)+'</b>';
-    daysEl.innerHTML = txt;
-    labelEl.textContent = cermatLabel;
+    var secs = Math.floor((diff % 6e4) / 1e3);
+    document.getElementById('cc-d').textContent = days;
+    document.getElementById('cc-h').textContent = pad(hrs);
+    document.getElementById('cc-m').textContent = pad(mins);
+    document.getElementById('cc-s').textContent = pad(secs);
+    document.getElementById('cermat-label').textContent = cermatLabel;
     chip.className = 'cermat-countdown ' + (days < 14 ? 'cc-soon' : 'cc-far');
-    chip.style.display = 'inline-flex';
+    chip.style.display = 'flex';
   }
 
   function init(date, label){
     cermatDate = date;
     cermatLabel = label || cermatLabel;
     renderChip();
-    setInterval(renderChip, 60000);
+    setInterval(renderChip, 1000);
   }
 
   // Try to load from JSON (same-origin, no CORS issues)
