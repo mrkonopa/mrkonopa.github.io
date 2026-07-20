@@ -31,16 +31,16 @@ window.RPG_TASK_EXTRA_8 = {
 
  // ───────── OBLAST 1 — ÚDOLÍ OPAKOVÁNÍ ─────────
  '1-1': () => [   // Celá čísla (MC, jen numerické/ANO-NE)
-  (()=>{const a=ri(8,40),b=ri(8,40);return{text:`${rp(FC)}:\n(-${a}) + (-${b}) =`,ans:String(-a-b),hints:[`Obě čísla záporná → sečti a dej minus.`,`-(${a}+${b})`],skill:'calc'};})(),
-  (()=>{const a=ri(10,40),b=ri(10,40);return{text:`${rp(FC)}:\n(-${a}) - (-${b}) =`,ans:String(-a+b),hints:[`- (-${b}) = + ${b}.`,`-${a} + ${b}`],skill:'calc'};})(),
-  (()=>{const a=ri(3,12),b=ri(3,9);return{text:`${rp(FC)}:\n(-${a}) × ${b} =`,ans:String(-a*b),hints:[`Mínus × plus = mínus.`],skill:'calc'};})(),
-  (()=>{const b=ri(3,9),q=ri(3,9),a=b*q;return{text:`${rp(FC)}:\n(-${a}) : (-${b}) =`,ans:String(q),hints:[`Mínus : mínus = plus.`,`${a} : ${b}`],skill:'calc'};})(),
-  (()=>{const a=ri(5,20);return{text:`Vypočítej absolutní hodnotu:\n|-${a}| =`,ans:String(a),hints:[`Absolutní hodnota je vždy nezáporná.`],skill:'calc'};})(),
-  (()=>{const a=ri(10,30),b=ri(31,60);return{text:`${rp(FC)}:\n${a} - ${b} =`,ans:String(a-b),hints:[`Menší minus větší → výsledek záporný.`,`-(${b}-${a})`],skill:'calc'};})(),
-  (()=>{const a=ri(2,8);return{text:`${rp(FC)}:\n(-${a})² =`,ans:String(a*a),hints:[`Záporné číslo na sudou mocninu → kladné: ${a}×${a}.`],skill:'calc'};})(),
-  (()=>{const a=ri(2,7),b=ri(2,6),c=ri(2,9);return{text:`${rp(FC)}:\n${a} × (-${b}) + ${c} =`,ans:String(-a*b+c),hints:[`Nejdřív součin, pak přičti ${c}.`,`-${a*b} + ${c}`],skill:'calc'};})(),
-  (()=>{const a=ri(5,25),b=ri(30,60);return{text:`${rp(FC)}:\n(-${a}) + ${b} =`,ans:String(-a+b),hints:[`Kladné číslo je větší, odečti: ${b} − ${a}.`],skill:'calc'};})(),
-  (()=>{const a=ri(2,9),b=ri(2,6);return{text:`${rp(FC)}:\n(-${a})³ =`,ans:String(-(a**3)),hints:[`Záporné číslo na liché mocninu → záporné: -(${a**3}).`],skill:'calc'};})()
+  (()=>{const a=ri(8,40),b=ri(8,40);return{text:`${rp(FC)}:\n(-${a}) + (-${b}) =`,ans:String(-a-b),distractors:[String(-a+b)],hints:[`Obě čísla záporná → sečti a dej minus.`,`-(${a}+${b})`],skill:'calc'};})(),
+  (()=>{const a=ri(10,40),b=ri(10,40);return{text:`${rp(FC)}:\n(-${a}) - (-${b}) =`,ans:String(-a+b),distractors:[String(-a-b)],hints:[`- (-${b}) = + ${b}.`,`-${a} + ${b}`],skill:'calc'};})(),
+  (()=>{const a=ri(3,12),b=ri(3,9);return{text:`${rp(FC)}:\n(-${a}) × ${b} =`,ans:String(-a*b),distractors:[String(a*b)],hints:[`Mínus × plus = mínus.`],skill:'calc'};})(),
+  (()=>{const b=ri(3,9),q=ri(3,9),a=b*q;return{text:`${rp(FC)}:\n(-${a}) : (-${b}) =`,ans:String(q),distractors:[String(-q)],hints:[`Mínus : mínus = plus.`,`${a} : ${b}`],skill:'calc'};})(),
+  (()=>{const a=ri(5,20);return{text:`Vypočítej absolutní hodnotu:\n|-${a}| =`,ans:String(a),distractors:[String(-a)],hints:[`Absolutní hodnota je vždy nezáporná.`],skill:'calc'};})(),
+  (()=>{const a=ri(10,30),b=ri(31,60);return{text:`${rp(FC)}:\n${a} - ${b} =`,ans:String(a-b),distractors:[String(b-a)],hints:[`Menší minus větší → výsledek záporný.`,`-(${b}-${a})`],skill:'calc'};})(),
+  (()=>{const a=ri(2,8);return{text:`${rp(FC)}:\n(-${a})² =`,ans:String(a*a),distractors:[String(-a*a)],hints:[`Záporné číslo na sudou mocninu → kladné: ${a}×${a}.`],skill:'calc'};})(),
+  (()=>{const a=ri(2,7),b=ri(2,6),c=ri(2,9);return{text:`${rp(FC)}:\n${a} × (-${b}) + ${c} =`,ans:String(-a*b+c),distractors:[String(a*b+c)],hints:[`Nejdřív součin, pak přičti ${c}.`,`-${a*b} + ${c}`],skill:'calc'};})(),
+  (()=>{const a=ri(5,25),b=ri(30,60);return{text:`${rp(FC)}:\n(-${a}) + ${b} =`,ans:String(-a+b),distractors:[String(-(a+b))],hints:[`Kladné číslo je větší, odečti: ${b} − ${a}.`],skill:'calc'};})(),
+  (()=>{const a=ri(2,9),b=ri(2,6);return{text:`${rp(FC)}:\n(-${a})³ =`,ans:String(-(a**3)),distractors:[String(a**3)],hints:[`Záporné číslo na liché mocninu → záporné: -(${a**3}).`],skill:'calc'};})()
  ],
  '1-2': () => [   // Zlomky a desetinná čísla
   (()=>{const b=ri(2,7),d=ri(2,7);const num=b+d,den=b*d,g=gcd(num,den);const ans=den/g===1?String(num/g):`${num/g}/${den/g}`;return{text:`${rp(FC)} (zjednodušený zlomek):\n1/${b} + 1/${d} =`,ans,hints:[`Vynásob jmenovatele: ${b}·${d} = ${den}.`,g===1?`Sečti čitatele: (${d}+${b})/${den}.`:`(${d}+${b})/${den}, pak zkrať.`],skill:'calc'};})(),
