@@ -372,7 +372,7 @@
     const OSY = [['čtverec', 4], ['obdélník (ne čtverec)', 2], ['rovnostranný trojúhelník', 3]];
     const tasks = [];
     const T = [
-      () => { const a = ri(2, 10), b = ri(2, 10); return { text: `Kolik čtverečků pokryje obdélník ${a} × ${b} ve čtvercové síti?`, ans: a * b, h1: `${a} řad po ${b} čtverečcích.`, h2: `= ${a * b}` }; },
+      () => { const a = ri(2, 10), b = ri(2, 10); return { text: `Kolik čtverečků pokryje obdélník ${a} × ${b} ve čtvercové síti?`, ans: a * b, h1: `${a} ${skl(a, 'řada', 'řady', 'řad')} po ${b} čtverečcích.`, h2: `= ${a * b}` }; },
       () => { const a = ri(2, 10), b = ri(2, 10); return { text: `Zahrada tvaru obdélníku má strany ${a} m a ${b} m. Kolik metrů plotu je potřeba na ohrazení?`, ans: 2 * (a + b), h1: `Plot = obvod = 2 × (${a} + ${b}).`, h2: `= ${2 * (a + b)} m` }; },
       () => { const [nm, n] = OSY[ri(0, 2)]; return { text: `Kolik os souměrnosti má ${nm}?`, ans: n, h1: `Osa souměrnosti přeloží obrazec přesně na sebe.`, h2: `= ${n}` }; },
       () => { const a = ri(2, 6); return { text: `Ve čtvercové síti je čtverec ${a} × ${a}. Kolik čtverečků zabírá?`, ans: a * a, h1: `${a} × ${a}`, h2: `= ${a * a}` }; },

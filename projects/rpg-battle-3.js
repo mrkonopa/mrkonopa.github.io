@@ -214,7 +214,7 @@
     // 27) slovní úloha — dělení rovně
     function (r) {
       const d = ri(r, 2, 8), q = ri(r, 2, 9), n = d * q;
-      return { topic: 'slovní úloha', text: `${n} oříšků rozdělíme rovně mezi ${d} ${skl(d, 'veverku', 'veverky', 'veverek')}. Kolik dostane každá?`,
+      return { topic: 'slovní úloha', text: `${n} ${skl(n, 'oříšek', 'oříšky', 'oříšků')} rozdělíme rovně mezi ${d} ${skl(d, 'veverku', 'veverky', 'veverek')}. Kolik dostane každá?`,
                value: q, distractors: [q + 1, q - 1, n] };
     },
 

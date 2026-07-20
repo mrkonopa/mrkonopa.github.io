@@ -133,7 +133,7 @@ function gen_2_2(){
     ()=>{const e=ri(11,49)/10,f=ri(2,6);return{text:`Vynásob: ${cz(e)} × ${f} = ?`,ans:r1(e*f),h1:'Násob jako celá čísla, pak doplň čárku (jedno místo).',h2:`= ${r1(e*f)}`};},
     ()=>{const g=ri(2,5),h=ri(10,40)/10;return{text:`Vyděl: ${cz(r1(h*g))} : ${g} = ?`,ans:r1(h),h1:'Děl jako celá čísla a čárku napiš nad čárku dělence.',h2:`= ${r1(h)}`};},
     ()=>{const i=ri(11,29)/10,j=ri(11,29)/10;return{text:`Vynásob dvě desetinná: ${cz(i)} × ${cz(j)} = ?`,ans:r2(i*j),h1:`Spočítej ${Math.round(i*10)}×${Math.round(j*10)} a vyděl 100 (dvě desetinná místa).`,h2:`= ${r2(i*j)}`};},
-    ()=>{const k=ri(20,80)/10,l=ri(20,80)/10;return{text:`Dvě náhradní součástky pro modul stojí ${cz(k)} a ${cz(l)} kreditů. Kolik dají dohromady?`,ans:r1(k+l),h1:'Sečti obě ceny.',h2:`= ${r1(k+l)} kreditů`};},
+    ()=>{const ki=ri(2,7),kd=ri(1,9),li=ri(2,7),ld=ri(1,9),sum=(ki*10+kd+li*10+ld)/10;return{text:`Dvě náhradní součástky pro modul stojí ${ki},${kd} a ${li},${ld} kreditů. Kolik dají dohromady?`,ans:sum,h1:'Sečti obě ceny.',h2:`= ${cz(sum)} kreditů`};},
     ()=>{const a=ri(50,95)/10,b=ri(11,40)/10;const v=r1(a-b);return{text:`O kolik je ${cz(a)} větší než ${cz(b)}?`,ans:v,h1:'Rozdíl zjistíš odčítáním.',h2:`= ${v}`};},
     ()=>{const a=ri(20,80)/10,b=ri(11,40)/10;return{text:`Doplň chybějící sčítanec: ${cz(a)} + ? = ${cz(r1(a+b))}`,ans:r1(b),h1:'Odečti známý sčítanec od součtu.',h2:`= ${r1(b)}`};},
     ()=>{const a=ri(11,49)/10;return{text:`Kolik je trojnásobek čísla ${cz(a)}?`,ans:r1(a*3),h1:'Vynásob třemi.',h2:`= ${r1(a*3)}`};},
