@@ -31,16 +31,16 @@ window.RPG_TASK_EXTRA_8 = {
 
  // ───────── OBLAST 1 — ÚDOLÍ OPAKOVÁNÍ ─────────
  '1-1': () => [   // Celá čísla (MC, jen numerické/ANO-NE)
-  (()=>{const a=ri(8,40),b=ri(8,40);return{text:`${rp(FC)}:\n(-${a}) + (-${b}) =`,ans:String(-a-b),hints:[`Obě čísla záporná → sečti a dej minus.`,`-(${a}+${b})`],skill:'calc'};})(),
-  (()=>{const a=ri(10,40),b=ri(10,40);return{text:`${rp(FC)}:\n(-${a}) - (-${b}) =`,ans:String(-a+b),hints:[`- (-${b}) = + ${b}.`,`-${a} + ${b}`],skill:'calc'};})(),
-  (()=>{const a=ri(3,12),b=ri(3,9);return{text:`${rp(FC)}:\n(-${a}) × ${b} =`,ans:String(-a*b),hints:[`Mínus × plus = mínus.`],skill:'calc'};})(),
-  (()=>{const b=ri(3,9),q=ri(3,9),a=b*q;return{text:`${rp(FC)}:\n(-${a}) : (-${b}) =`,ans:String(q),hints:[`Mínus : mínus = plus.`,`${a} : ${b}`],skill:'calc'};})(),
-  (()=>{const a=ri(5,20);return{text:`Vypočítej absolutní hodnotu:\n|-${a}| =`,ans:String(a),hints:[`Absolutní hodnota je vždy nezáporná.`],skill:'calc'};})(),
-  (()=>{const a=ri(10,30),b=ri(31,60);return{text:`${rp(FC)}:\n${a} - ${b} =`,ans:String(a-b),hints:[`Menší minus větší → výsledek záporný.`,`-(${b}-${a})`],skill:'calc'};})(),
-  (()=>{const a=ri(2,8);return{text:`${rp(FC)}:\n(-${a})² =`,ans:String(a*a),hints:[`Záporné číslo na sudou mocninu → kladné: ${a}×${a}.`],skill:'calc'};})(),
-  (()=>{const a=ri(2,7),b=ri(2,6),c=ri(2,9);return{text:`${rp(FC)}:\n${a} × (-${b}) + ${c} =`,ans:String(-a*b+c),hints:[`Nejdřív součin, pak přičti ${c}.`,`-${a*b} + ${c}`],skill:'calc'};})(),
-  (()=>{const a=ri(5,25),b=ri(30,60);return{text:`${rp(FC)}:\n(-${a}) + ${b} =`,ans:String(-a+b),hints:[`Kladné číslo je větší, odečti: ${b} − ${a}.`],skill:'calc'};})(),
-  (()=>{const a=ri(2,9),b=ri(2,6);return{text:`${rp(FC)}:\n(-${a})³ =`,ans:String(-(a**3)),hints:[`Záporné číslo na liché mocninu → záporné: -(${a**3}).`],skill:'calc'};})()
+  (()=>{const a=ri(8,40),b=ri(8,40);return{text:`${rp(FC)}:\n(-${a}) + (-${b}) =`,ans:String(-a-b),distractors:[String(-a+b)],hints:[`Obě čísla záporná → sečti a dej minus.`,`-(${a}+${b})`],skill:'calc'};})(),
+  (()=>{const a=ri(10,40),b=ri(10,40);return{text:`${rp(FC)}:\n(-${a}) - (-${b}) =`,ans:String(-a+b),distractors:[String(-a-b)],hints:[`- (-${b}) = + ${b}.`,`-${a} + ${b}`],skill:'calc'};})(),
+  (()=>{const a=ri(3,12),b=ri(3,9);return{text:`${rp(FC)}:\n(-${a}) × ${b} =`,ans:String(-a*b),distractors:[String(a*b)],hints:[`Mínus × plus = mínus.`],skill:'calc'};})(),
+  (()=>{const b=ri(3,9),q=ri(3,9),a=b*q;return{text:`${rp(FC)}:\n(-${a}) : (-${b}) =`,ans:String(q),distractors:[String(-q)],hints:[`Mínus : mínus = plus.`,`${a} : ${b}`],skill:'calc'};})(),
+  (()=>{const a=ri(5,20);return{text:`Vypočítej absolutní hodnotu:\n|-${a}| =`,ans:String(a),distractors:[String(-a)],hints:[`Absolutní hodnota je vždy nezáporná.`],skill:'calc'};})(),
+  (()=>{const a=ri(10,30),b=ri(31,60);return{text:`${rp(FC)}:\n${a} - ${b} =`,ans:String(a-b),distractors:[String(b-a)],hints:[`Menší minus větší → výsledek záporný.`,`-(${b}-${a})`],skill:'calc'};})(),
+  (()=>{const a=ri(2,8);return{text:`${rp(FC)}:\n(-${a})² =`,ans:String(a*a),distractors:[String(-a*a)],hints:[`Záporné číslo na sudou mocninu → kladné: ${a}×${a}.`],skill:'calc'};})(),
+  (()=>{const a=ri(2,7),b=ri(2,6),c=ri(2,9);return{text:`${rp(FC)}:\n${a} × (-${b}) + ${c} =`,ans:String(-a*b+c),distractors:[String(a*b+c)],hints:[`Nejdřív součin, pak přičti ${c}.`,`-${a*b} + ${c}`],skill:'calc'};})(),
+  (()=>{const a=ri(5,25),b=ri(30,60);return{text:`${rp(FC)}:\n(-${a}) + ${b} =`,ans:String(-a+b),distractors:[String(-(a+b))],hints:[`Kladné číslo je větší, odečti: ${b} − ${a}.`],skill:'calc'};})(),
+  (()=>{const a=ri(2,9),b=ri(2,6);return{text:`${rp(FC)}:\n(-${a})³ =`,ans:String(-(a**3)),distractors:[String(a**3)],hints:[`Záporné číslo na liché mocninu → záporné: -(${a**3}).`],skill:'calc'};})()
  ],
  '1-2': () => [   // Zlomky a desetinná čísla
   (()=>{const b=ri(2,7),d=ri(2,7);const num=b+d,den=b*d,g=gcd(num,den);const ans=den/g===1?String(num/g):`${num/g}/${den/g}`;return{text:`${rp(FC)} (zjednodušený zlomek):\n1/${b} + 1/${d} =`,ans,hints:[`Vynásob jmenovatele: ${b}·${d} = ${den}.`,g===1?`Sečti čitatele: (${d}+${b})/${den}.`:`(${d}+${b})/${den}, pak zkrať.`],skill:'calc'};})(),
@@ -71,16 +71,16 @@ window.RPG_TASK_EXTRA_8 = {
 
  // ───────── OBLAST 2 — PYTHAGORAS ─────────
  '2-1': () => [   // Mocniny a odmocniny (MC)
-  (()=>{const a=ri(11,25);return{text:`${rp(FC)}:\n${a}² =`,ans:String(a*a),hints:[`${a} × ${a}.`],skill:'calc'};})(),
-  (()=>{const a=ri(2,9);return{text:`${rp(FC)}:\n${a}³ =`,ans:String(a**3),hints:[`${a} × ${a} × ${a}.`],skill:'calc'};})(),
-  (()=>{const a=ri(4,15);return{text:`${rp(FC)}:\n√${a*a} =`,ans:String(a),hints:[`Hledej číslo, které na druhou dá ${a*a}.`],skill:'calc'};})(),
-  (()=>{const n=ri(3,8);return{text:`${rp(FC)}:\n2^${n} =`,ans:String(2**n),hints:[`Násob dvojku ${n}×.`],skill:'calc'};})(),
-  (()=>{const a=ri(3,8),b=ri(2,5);return{text:`${rp(FC)}:\n${a}² + ${b}² =`,ans:String(a*a+b*b),hints:[`${a*a} + ${b*b}.`],skill:'calc'};})(),
-  (()=>{const a=ri(10,20);return{text:`${rp(FC)}:\n√${a*a} + ${a} =`,ans:String(2*a),hints:[`√${a*a} = ${a}.`],skill:'calc'};})(),
-  (()=>{const n=ri(2,6);return{text:`${rp(FC)}:\n10^${n} =`,ans:String(10**n),hints:[`1 s ${n} nulami.`],skill:'calc'};})(),
-  (()=>{const a=ri(3,9);return{text:`${rp(FC)}:\n(-${a})² =`,ans:String(a*a),hints:[`Záporné na druhou → kladné.`],skill:'calc'};})(),
-  (()=>{const a=ri(5,12);return{text:`${rp(FC)}:\n${a}² - ${a} =`,ans:String(a*a-a),hints:[`${a*a} - ${a}.`],skill:'calc'};})(),
-  (()=>{const a=ri(2,6);return{text:`${rp(FC)}:\n√${a*a*4} =`,ans:String(2*a),hints:[`√(4·${a*a}) = 2·${a}.`],skill:'calc'};})()
+  (()=>{const a=ri(11,25);return{text:`${rp(FC)}:\n${a}² =`,ans:String(a*a),distractors:[String(a*2)],hints:[`${a} × ${a}.`],skill:'calc'};})(),
+  (()=>{const a=ri(2,9);return{text:`${rp(FC)}:\n${a}³ =`,ans:String(a**3),distractors:[String(a*3)],hints:[`${a} × ${a} × ${a}.`],skill:'calc'};})(),
+  (()=>{const a=ri(4,15);return{text:`${rp(FC)}:\n√${a*a} =`,ans:String(a),distractors:[String(a*a)],hints:[`Hledej číslo, které na druhou dá ${a*a}.`],skill:'calc'};})(),
+  (()=>{const n=ri(3,8);return{text:`${rp(FC)}:\n2^${n} =`,ans:String(2**n),distractors:[String(2*n)],hints:[`Násob dvojku ${n}×.`],skill:'calc'};})(),
+  (()=>{const a=ri(3,8),b=ri(2,5);return{text:`${rp(FC)}:\n${a}² + ${b}² =`,ans:String(a*a+b*b),distractors:[String((a+b)**2)],hints:[`${a*a} + ${b*b}.`],skill:'calc'};})(),
+  (()=>{const a=ri(10,20);return{text:`${rp(FC)}:\n√${a*a} + ${a} =`,ans:String(2*a),distractors:[String(a*a+a)],hints:[`√${a*a} = ${a}.`],skill:'calc'};})(),
+  (()=>{const n=ri(2,6);return{text:`${rp(FC)}:\n10^${n} =`,ans:String(10**n),distractors:[String(10*n)],hints:[`1 s ${n} nulami.`],skill:'calc'};})(),
+  (()=>{const a=ri(3,9);return{text:`${rp(FC)}:\n(-${a})² =`,ans:String(a*a),distractors:[String(-a*a)],hints:[`Záporné na druhou → kladné.`],skill:'calc'};})(),
+  (()=>{const a=ri(5,12);return{text:`${rp(FC)}:\n${a}² - ${a} =`,ans:String(a*a-a),distractors:[String(a)],hints:[`${a*a} - ${a}.`],skill:'calc'};})(),
+  (()=>{const a=ri(2,6);return{text:`${rp(FC)}:\n√${a*a*4} =`,ans:String(2*a),distractors:[String(a)],hints:[`√(4·${a*a}) = 2·${a}.`],skill:'calc'};})()
  ],
  '2-2': () => [   // Pythagoras — přepona
   (()=>{const t=PYT[ri(0,PYT.length-1)];return{text:`Pravoúhlý trojúhelník: a = ${t[0]}, b = ${t[1]}.\nPřepona c? (celé číslo)`,ans:String(t[2]),hints:[`c² = a² + b².`,`${t[0]}² + ${t[1]}² = ${t[2]*t[2]}, odmocni.`],skill:'geo'};})(),
@@ -111,16 +111,16 @@ window.RPG_TASK_EXTRA_8 = {
 
  // ───────── OBLAST 3 — ROVNICE ─────────
  '3-1': () => [   // Jednoduché rovnice (MC)
-  (()=>{const x=ri(2,20),a=ri(2,15);return{text:`${rp(FE)}:\nx + ${a} = ${x+a}\nx = ?`,ans:String(x),hints:[`Odečti ${a}.`],skill:'anal'};})(),
-  (()=>{const x=ri(5,25),a=ri(2,15);return{text:`${rp(FE)}:\nx - ${a} = ${x-a}\nx = ?`,ans:String(x),hints:[`Přičti ${a}.`],skill:'anal'};})(),
-  (()=>{const x=ri(2,12),a=ri(2,9);return{text:`${rp(FE)}:\n${a}·x = ${a*x}\nx = ?`,ans:String(x),hints:[`Vyděl ${a}.`],skill:'anal'};})(),
-  (()=>{const x=ri(2,12),a=ri(2,8);return{text:`${rp(FE)}:\nx / ${a} = ${x}\nx = ?`,ans:String(x*a),hints:[`Vynásob ${a}.`],skill:'anal'};})(),
-  (()=>{const x=ri(2,15),a=ri(16,30);return{text:`${rp(FE)}:\n${a} - x = ${a-x}\nx = ?`,ans:String(x),hints:[`x = ${a} - ${a-x}.`],skill:'anal'};})(),
-  (()=>{const x=ri(2,10),a=ri(2,6),b=ri(1,9);return{text:`${rp(FE)}:\n${a}·x + ${b} = ${a*x+b}\nx = ?`,ans:String(x),hints:[`Odečti ${b}, pak vyděl ${a}.`],skill:'anal'};})(),
-  (()=>{const x=ri(3,15),a=ri(2,5);return{text:`${rp(FE)}:\n${a}·x - ${a} = ${a*x-a}\nx = ?`,ans:String(x),hints:[`Přičti ${a}: ${a}x = ${a*x}.`,`Vyděl ${a}.`],skill:'anal'};})(),
-  (()=>{const x=ri(10,30),a=ri(3,8);return{text:`${rp(FE)}:\n${x} = ${a}·x - ${a*x-x}\nx = ?`,ans:String(x),hints:[`Dej ${a}x na stranu s x.`],skill:'anal'};})(),
-  (()=>{const x=ri(2,10),k=ri(2,5);return{text:`${rp(FE)}:\nx² = ${x*x}\nx = ? (kladná hodnota)`,ans:String(x),hints:[`x = √${x*x}.`],skill:'anal'};})(),
-  (()=>{const d=ri(2,4),x=d*ri(2,8);return{text:`${rp(FE)}:\nx / ${d} = ${x/d}\nx = ?`,ans:String(x),hints:[`x = ${x/d} × ${d}.`],skill:'anal'};})()
+  (()=>{const x=ri(2,20),a=ri(2,15);return{text:`${rp(FE)}:\nx + ${a} = ${x+a}\nx = ?`,ans:String(x),distractors:[String(x+2*a)],hints:[`Odečti ${a}.`],skill:'anal'};})(),
+  (()=>{const x=ri(5,25),a=ri(2,15);return{text:`${rp(FE)}:\nx - ${a} = ${x-a}\nx = ?`,ans:String(x),distractors:[String(x-2*a)],hints:[`Přičti ${a}.`],skill:'anal'};})(),
+  (()=>{const x=ri(2,12),a=ri(2,9);return{text:`${rp(FE)}:\n${a}·x = ${a*x}\nx = ?`,ans:String(x),distractors:(a*x-a!==x?[String(a*x-a)]:[]),hints:[`Vyděl ${a}.`],skill:'anal'};})(),
+  (()=>{const x=ri(2,12),a=ri(2,8);return{text:`${rp(FE)}:\nx / ${a} = ${x}\nx = ?`,ans:String(x*a),distractors:[String(x)],hints:[`Vynásob ${a}.`],skill:'anal'};})(),
+  (()=>{const x=ri(2,15),a=ri(16,30);return{text:`${rp(FE)}:\n${a} - x = ${a-x}\nx = ?`,ans:String(x),distractors:(a-x!==x?[String(a-x)]:[]),hints:[`x = ${a} - ${a-x}.`],skill:'anal'};})(),
+  (()=>{const x=ri(2,10),a=ri(2,6),b=ri(1,9);return{text:`${rp(FE)}:\n${a}·x + ${b} = ${a*x+b}\nx = ?`,ans:String(x),distractors:[String(a*x)],hints:[`Odečti ${b}, pak vyděl ${a}.`],skill:'anal'};})(),
+  (()=>{const x=ri(3,15),a=ri(2,5);return{text:`${rp(FE)}:\n${a}·x - ${a} = ${a*x-a}\nx = ?`,ans:String(x),distractors:[String(a*x)],hints:[`Přičti ${a}: ${a}x = ${a*x}.`,`Vyděl ${a}.`],skill:'anal'};})(),
+  (()=>{const x=ri(10,30),a=ri(3,8);return{text:`${rp(FE)}:\n${x} = ${a}·x - ${a*x-x}\nx = ?`,ans:String(x),distractors:[String(a*x-x)],hints:[`Dej ${a}x na stranu s x.`],skill:'anal'};})(),
+  (()=>{const x=ri(2,10),k=ri(2,5);return{text:`${rp(FE)}:\nx² = ${x*x}\nx = ? (kladná hodnota)`,ans:String(x),distractors:[String(x*x)],hints:[`x = √${x*x}.`],skill:'anal'};})(),
+  (()=>{const d=ri(2,4),x=d*ri(2,8);return{text:`${rp(FE)}:\nx / ${d} = ${x/d}\nx = ?`,ans:String(x),distractors:[String(x/d)],hints:[`x = ${x/d} × ${d}.`],skill:'anal'};})()
  ],
  '3-2': () => [   // Dvojkrokové rovnice
   (()=>{const x=ri(2,12),a=ri(2,8),b=ri(2,15);return{text:`${rp(FE)}:\n${a}·x + ${b} = ${a*x+b}\nx = ?`,ans:String(x),hints:[`Odečti ${b}: ${a}x = ${a*x}.`,`Vyděl ${a}.`],skill:'anal'};})(),
@@ -152,16 +152,16 @@ window.RPG_TASK_EXTRA_8 = {
 
  // ───────── OBLAST 4 — VÝRAZY ─────────
  '4-1': () => [   // Dosazování (MC)
-  (()=>{const x=ri(2,9),a=ri(2,6),b=ri(1,9);return{text:`${rp(['Dosaď','Vyčísli pro'])} x = ${x}:\n${a}x + ${b} =`,ans:String(a*x+b),hints:[`${a}·${x} + ${b}.`],skill:'calc'};})(),
-  (()=>{const x=ri(2,8);return{text:`${rp(['Dosaď','Vyčísli pro'])} x = ${x}:\nx² - x =`,ans:String(x*x-x),hints:[`${x*x} - ${x}.`],skill:'calc'};})(),
-  (()=>{const x=ri(3,9),a=ri(2,5);return{text:`${rp(['Dosaď','Vyčísli pro'])} x = ${x}:\n${a}(x - 2) =`,ans:String(a*(x-2)),hints:[`${a}·(${x}-2).`],skill:'calc'};})(),
-  (()=>{const x=ri(2,6),y=ri(2,6),a=ri(2,4),b=ri(2,4);return{text:`${rp(['Dosaď','Vyčísli pro'])} x = ${x}, y = ${y}:\n${a}x + ${b}y =`,ans:String(a*x+b*y),hints:[`${a}·${x} + ${b}·${y}.`],skill:'calc'};})(),
-  (()=>{const x=ri(2,5),y=ri(2,5);return{text:`${rp(['Dosaď','Vyčísli pro'])} x = ${x}, y = ${y}:\nx² + y² =`,ans:String(x*x+y*y),hints:[`${x*x} + ${y*y}.`],skill:'calc'};})(),
-  (()=>{const x=ri(3,8),a=ri(2,5);return{text:`${rp(['Dosaď','Vyčísli pro'])} x = ${x}:\nx² - ${a}x =`,ans:String(x*x-a*x),hints:[`${x*x} - ${a}·${x}.`],skill:'calc'};})(),
-  (()=>{const x=ri(2,7),a=ri(2,5),b=ri(1,6);return{text:`${rp(['Dosaď','Vyčísli pro'])} x = ${x}:\n(${a}x + ${b})² =`,ans:String((a*x+b)**2),hints:[`${a*x+b} na druhou.`,`${a*x+b}² = ${(a*x+b)**2}`],skill:'calc'};})(),
-  (()=>{const x=ri(2,8),y=ri(2,6);return{text:`${rp(['Dosaď','Vyčísli pro'])} x = ${x}, y = ${y}:\n(x + y)² =`,ans:String((x+y)**2),hints:[`${x+y} na druhou.`],skill:'calc'};})(),
-  (()=>{const a=ri(2,6),b=ri(2,6),x=ri(1,5);return{text:`${rp(['Dosaď','Vyčísli pro'])} x = ${x}:\n${a}x² + ${b} =`,ans:String(a*x*x+b),hints:[`${a}·${x*x} + ${b}.`],skill:'calc'};})(),
-  (()=>{const x=ri(3,7);return{text:`${rp(['Dosaď','Vyčísli pro'])} x = ${x}:\n(x - 1)(x + 1) =`,ans:String(x*x-1),hints:[`a² - b² = x² - 1.`],skill:'calc'};})()
+  (()=>{const x=ri(2,9),a=ri(2,6),b=ri(1,9);return{text:`${rp(['Dosaď','Vyčísli pro'])} x = ${x}:\n${a}x + ${b} =`,ans:String(a*x+b),distractors:[String(a*(x+b))],hints:[`${a}·${x} + ${b}.`],skill:'calc'};})(),
+  (()=>{const x=ri(2,8);return{text:`${rp(['Dosaď','Vyčísli pro'])} x = ${x}:\nx² - x =`,ans:String(x*x-x),distractors:(x*x-x!==x?[String(x)]:[]),hints:[`${x*x} - ${x}.`],skill:'calc'};})(),
+  (()=>{const x=ri(3,9),a=ri(2,5);return{text:`${rp(['Dosaď','Vyčísli pro'])} x = ${x}:\n${a}(x - 2) =`,ans:String(a*(x-2)),distractors:[String(a*x-2)],hints:[`${a}·(${x}-2).`],skill:'calc'};})(),
+  (()=>{const x=ri(2,6),y=ri(2,6),a=ri(2,4),b=ri(2,4);return{text:`${rp(['Dosaď','Vyčísli pro'])} x = ${x}, y = ${y}:\n${a}x + ${b}y =`,ans:String(a*x+b*y),distractors:(a*y+b*x!==a*x+b*y?[String(a*y+b*x)]:[]),hints:[`${a}·${x} + ${b}·${y}.`],skill:'calc'};})(),
+  (()=>{const x=ri(2,5),y=ri(2,5);return{text:`${rp(['Dosaď','Vyčísli pro'])} x = ${x}, y = ${y}:\nx² + y² =`,ans:String(x*x+y*y),distractors:[String((x+y)**2)],hints:[`${x*x} + ${y*y}.`],skill:'calc'};})(),
+  (()=>{const x=ri(3,8),a=ri(2,5);return{text:`${rp(['Dosaď','Vyčísli pro'])} x = ${x}:\nx² - ${a}x =`,ans:String(x*x-a*x),distractors:[String(x*x+a*x)],hints:[`${x*x} - ${a}·${x}.`],skill:'calc'};})(),
+  (()=>{const x=ri(2,7),a=ri(2,5),b=ri(1,6);return{text:`${rp(['Dosaď','Vyčísli pro'])} x = ${x}:\n(${a}x + ${b})² =`,ans:String((a*x+b)**2),distractors:[String((a*x)**2+b*b)],hints:[`${a*x+b} na druhou.`,`${a*x+b}² = ${(a*x+b)**2}`],skill:'calc'};})(),
+  (()=>{const x=ri(2,8),y=ri(2,6);return{text:`${rp(['Dosaď','Vyčísli pro'])} x = ${x}, y = ${y}:\n(x + y)² =`,ans:String((x+y)**2),distractors:[String(x*x+y*y)],hints:[`${x+y} na druhou.`],skill:'calc'};})(),
+  (()=>{const a=ri(2,6),b=ri(2,6),x=ri(1,5);return{text:`${rp(['Dosaď','Vyčísli pro'])} x = ${x}:\n${a}x² + ${b} =`,ans:String(a*x*x+b),distractors:(( a*x)**2+b!==a*x*x+b?[String((a*x)**2+b)]:[]),hints:[`${a}·${x*x} + ${b}.`],skill:'calc'};})(),
+  (()=>{const x=ri(3,7);return{text:`${rp(['Dosaď','Vyčísli pro'])} x = ${x}:\n(x - 1)(x + 1) =`,ans:String(x*x-1),distractors:[String(x*x+1)],hints:[`a² - b² = x² - 1.`],skill:'calc'};})()
  ],
  '4-2': () => [   // Závorky a vzorce
   (()=>{const a=ri(2,9),b=ri(2,9);return{text:`${rp(FC)} pomocí vzorce (a+b)²:\n(${a} + ${b})² =`,ans:String((a+b)**2),hints:[`a² + 2ab + b².`,`${a*a} + ${2*a*b} + ${b*b}`],skill:'calc'};})(),
@@ -190,16 +190,16 @@ window.RPG_TASK_EXTRA_8 = {
 
  // ───────── OBLAST 5 — KRUH A VÁLEC ─────────
  '5-1': () => [   // Obvod a obsah kruhu (MC, π=3,14)
-  (()=>{const r=ri(2,10);return{text:`Kruh o poloměru r = ${r}.\nObvod? (π = 3,14)`,ans:r2(2*PI*r),hints:[`o = 2πr.`,`2 × 3,14 × ${r}`],skill:'geo'};})(),
-  (()=>{const r=ri(2,9);return{text:`Kruh o poloměru r = ${r}.\nObsah? (π = 3,14)`,ans:r2(PI*r*r),hints:[`S = πr².`,`3,14 × ${r}²`],skill:'geo'};})(),
-  (()=>{const d=ri(4,16);return{text:`Kruh o průměru d = ${d}.\nObvod? (π = 3,14)`,ans:r2(PI*d),hints:[`o = πd.`,`3,14 × ${d}`],skill:'geo'};})(),
-  (()=>{const d=ri(4,12);const r=d/2;return{text:`Kruh o průměru d = ${d}.\nObsah? (π = 3,14)`,ans:r2(PI*r*r),hints:[`r = ${r}, S = πr².`,`3,14 × ${r}²`],skill:'geo'};})(),
-  (()=>{const r=ri(3,8);return{text:`Polovina kruhu o poloměru ${r}.\nObsah půlkruhu? (π = 3,14)`,ans:r2(PI*r*r/2),hints:[`Půlka z πr².`],skill:'geo'};})(),
-  (()=>{const r=ri(2,7);return{text:`Kruh o poloměru ${r}.\nObvod : 2 = (π = 3,14)`,ans:r2(PI*r),hints:[`2πr : 2 = πr.`],skill:'geo'};})(),
-  (()=>{const r=ri(3,8);return{text:`Čtvrtina kruhu o poloměru ${r}.\nObsah čtvrtiny? (π = 3,14)`,ans:r2(PI*r*r/4),hints:[`¼ z πr².`,`3,14 × ${r*r} : 4`],skill:'geo'};})(),
-  (()=>{const d=ri(6,14);return{text:`Průměr kola d = ${d} cm.\nObvod (π = 3,14)?`,ans:r2(PI*d),hints:[`o = πd.`,`3,14 × ${d}`],skill:'geo'};})(),
-  (()=>{const r=ri(2,6);return{text:`Obsah kruhu = ${r2(PI*r*r)} cm².\nJaký je poloměr? (π = 3,14)`,ans:String(r),hints:[`S = πr², r = √(S/π).`,`r = √(${r2(PI*r*r)} : 3,14) = ${r}`],skill:'geo'};})(),
-  (()=>{const r=ri(3,7);return{text:`Tři čtvrtiny kruhu o poloměru ${r}.\nObsah? (π = 3,14)`,ans:r2(3*PI*r*r/4),hints:[`¾ × πr².`,`3 × ${r2(PI*r*r/4)}`],skill:'geo'};})()
+  (()=>{const r=ri(2,10);return{text:`Kruh o poloměru r = ${r}.\nObvod? (π = 3,14)`,ans:r2(2*PI*r),distractors:(r!==2?[r2(PI*r*r)]:[]),hints:[`o = 2πr.`,`2 × 3,14 × ${r}`],skill:'geo'};})(),
+  (()=>{const r=ri(2,9);return{text:`Kruh o poloměru r = ${r}.\nObsah? (π = 3,14)`,ans:r2(PI*r*r),distractors:(r!==2?[r2(2*PI*r)]:[]),hints:[`S = πr².`,`3,14 × ${r}²`],skill:'geo'};})(),
+  (()=>{const d=ri(4,16);return{text:`Kruh o průměru d = ${d}.\nObvod? (π = 3,14)`,ans:r2(PI*d),distractors:[r2(2*PI*d)],hints:[`o = πd.`,`3,14 × ${d}`],skill:'geo'};})(),
+  (()=>{const d=ri(4,12);const r=d/2;return{text:`Kruh o průměru d = ${d}.\nObsah? (π = 3,14)`,ans:r2(PI*r*r),distractors:[r2(PI*d*d)],hints:[`r = ${r}, S = πr².`,`3,14 × ${r}²`],skill:'geo'};})(),
+  (()=>{const r=ri(3,8);return{text:`Polovina kruhu o poloměru ${r}.\nObsah půlkruhu? (π = 3,14)`,ans:r2(PI*r*r/2),distractors:[r2(PI*r*r)],hints:[`Půlka z πr².`],skill:'geo'};})(),
+  (()=>{const r=ri(2,7);return{text:`Kruh o poloměru ${r}.\nObvod : 2 = (π = 3,14)`,ans:r2(PI*r),distractors:[r2(2*PI*r)],hints:[`2πr : 2 = πr.`],skill:'geo'};})(),
+  (()=>{const r=ri(3,8);return{text:`Čtvrtina kruhu o poloměru ${r}.\nObsah čtvrtiny? (π = 3,14)`,ans:r2(PI*r*r/4),distractors:[r2(PI*r*r)],hints:[`¼ z πr².`,`3,14 × ${r*r} : 4`],skill:'geo'};})(),
+  (()=>{const d=ri(6,14);return{text:`Průměr kola d = ${d} cm.\nObvod (π = 3,14)?`,ans:r2(PI*d),distractors:[r2(2*PI*d)],hints:[`o = πd.`,`3,14 × ${d}`],skill:'geo'};})(),
+  (()=>{const r=ri(2,6);return{text:`Obsah kruhu = ${r2(PI*r*r)} cm².\nJaký je poloměr? (π = 3,14)`,ans:String(r),distractors:[String(2*r)],hints:[`S = πr², r = √(S/π).`,`r = √(${r2(PI*r*r)} : 3,14) = ${r}`],skill:'geo'};})(),
+  (()=>{const r=ri(3,7);return{text:`Tři čtvrtiny kruhu o poloměru ${r}.\nObsah? (π = 3,14)`,ans:r2(3*PI*r*r/4),distractors:[r2(PI*r*r)],hints:[`¾ × πr².`,`3 × ${r2(PI*r*r/4)}`],skill:'geo'};})()
  ],
  '5-2': () => [   // Válec
   (()=>{const r=ri(2,7),h=ri(3,12);const P=[`Válec: poloměr ${r}, výška ${h}.`,`Válcová nádoba má poloměr ${r} a výšku ${h}.`,`Rotační válec: r = ${r}, v = ${h}.`];return{text:`${P[ri(0,P.length-1)]}\nObjem? (π = 3,14)`,ans:r2(PI*r*r*h),hints:[`V = πr²h.`,`3,14 × ${r}² × ${h}`],skill:'geo'};})(),
@@ -232,12 +232,12 @@ window.RPG_TASK_EXTRA_8 = {
   (()=>{return{text:`Množina bodů stejně vzdálených od dvou bodů\nje osa úsečky. Platí to?\n(ANO/NE)`,ans:'ANO',hints:[`Osa úsečky = množina bodů ve stejné vzdálenosti.`],skill:'geo'};})(),
   (()=>{const r=ri(3,9);return{text:`Bod je vzdálen ${r} cm od středu.\nLeží na kružnici s poloměrem ${r} cm?\n(ANO/NE)`,ans:'ANO',hints:[`Kružnice = body v dané vzdálenosti od středu.`],skill:'geo'};})(),
   (()=>{const r=ri(3,8),d=r+ri(1,4);return{text:`Kružnice má poloměr ${r}. Bod je ${d} cm od středu.\nLeží na kružnici?\n(ANO/NE)`,ans:'NE',hints:[`${d} ≠ ${r}, tedy mimo kružnici.`],skill:'geo'};})(),
-  (()=>{return{text:`Množina bodů dané vzdálenosti od přímky\njsou dvě rovnoběžky. Kolik rovnoběžek?`,ans:'2',hints:[`Na každé straně přímky jedna.`],skill:'geo'};})(),
-  (()=>{return{text:`Osa úhlu rozděluje úhel na kolik stejných částí?`,ans:'2',hints:[`Osa = symetrála úhlu.`],skill:'geo'};})(),
-  (()=>{const r=ri(2,6);return{text:`Kružnice o poloměru ${r}.\nJaký je její průměr?`,ans:String(2*r),hints:[`d = 2r.`],skill:'geo'};})(),
+  (()=>{return{text:`Množina bodů dané vzdálenosti od přímky\njsou dvě rovnoběžky. Kolik rovnoběžek?`,ans:'2',distractors:['1'],hints:[`Na každé straně přímky jedna.`],skill:'geo'};})(),
+  (()=>{return{text:`Osa úhlu rozděluje úhel na kolik stejných částí?`,ans:'2',distractors:['4'],hints:[`Osa = symetrála úhlu.`],skill:'geo'};})(),
+  (()=>{const r=ri(2,6);return{text:`Kružnice o poloměru ${r}.\nJaký je její průměr?`,ans:String(2*r),distractors:[String(r)],hints:[`d = 2r.`],skill:'geo'};})(),
   (()=>{return{text:`Osa úsečky AB prochází středem AB.\nPlatí to?\n(ANO/NE)`,ans:'ANO',hints:[`Osa úsečky prochází středem a je na ni kolmá.`],skill:'geo'};})(),
   (()=>{return{text:`Kružnice opisná trojúhelníku prochází\nvšemi vrcholy. Platí to?\n(ANO/NE)`,ans:'ANO',hints:[`Kružnice opisná = ta, která prochází všemi třemi vrcholy.`],skill:'geo'};})(),
-  (()=>{return{text:`Kolik bodů má osa úsečky AB společných\ns úsečkou AB?`,ans:'1',hints:[`Rozmysli si, kudy přesně osa úsečky prochází.`],skill:'geo'};})(),
+  (()=>{return{text:`Kolik bodů má osa úsečky AB společných\ns úsečkou AB?`,ans:'1',distractors:['2'],hints:[`Rozmysli si, kudy přesně osa úsečky prochází.`],skill:'geo'};})(),
   (()=>{const r=ri(3,8);return{text:`Bod leží uvnitř kružnice o poloměru ${r},\nje jeho vzdálenost od středu větší než ${r}?\n(ANO/NE)`,ans:'NE',hints:[`Uvnitř = vzdálenost < poloměr.`],skill:'geo'};})()
  ],
  '6-2': () => [   // Thaletova kružnice
@@ -295,16 +295,16 @@ window.RPG_TASK_EXTRA_8 = {
   (()=>{const st=ri(3,8),c=ri(3,9)*10;return{text:`Na kurz ${skl(st,'se přihlásil','se přihlásili','se přihlásilo')} ${st} ${skl(st,'student','studenti','studentů')}, každý zaplatil ${c} Kč.\nKolik Kč se vybralo?`,ans:String(st*c),hints:[`${st} × ${c}.`],skill:'anal'};})()
  ],
  '7-3': () => [   // Finální duel (MC, jen numerické)
-  (()=>{const t=PYT[ri(0,PYT.length-1)];return{text:`Přepona ${t[2]}, odvěsna ${t[0]}.\nDruhá odvěsna?`,ans:String(t[1]),hints:[`b² = c² - a².`],skill:'geo'};})(),
-  (()=>{const r=ri(2,8);return{text:`Objem válce r = ${r}, výška ${r}? (π = 3,14)`,ans:r2(PI*r*r*r),hints:[`πr²·r.`],skill:'geo'};})(),
-  (()=>{const x=ri(3,10),a=ri(2,5),b=ri(2,5);return{text:`${a}(x + ${b}) = ${a*(x+b)}, x = ?`,ans:String(x),hints:[`Vyděl ${a}, odečti ${b}.`],skill:'anal'};})(),
-  (()=>{const a=ri(6,12),b=ri(2,a-1);return{text:`${rp(FC)}:\n(${a} - ${b})² =`,ans:String((a-b)**2),hints:[`a² - 2ab + b².`],skill:'calc'};})(),
-  (()=>{const z=ri(3,9)*100,p=ri(2,5)*10;return{text:`Cena ${z} Kč vzrostla o ${p} %. Nová cena? (Kč)`,ans:String(z+Math.round(z*p/100)),hints:[`+ ${p} % z ${z}.`],skill:'anal'};})(),
-  (()=>{const a=ri(13,20);return{text:`${rp(FC)}:\n√${a*a} =`,ans:String(a),hints:[`Odmocnina z ${a*a}.`],skill:'calc'};})(),
-  (()=>{const r=ri(3,7);return{text:`Obsah kruhu r = ${r}? (π = 3,14)`,ans:r2(PI*r*r),hints:[`πr² = 3,14 × ${r*r}.`],skill:'geo'};})(),
-  (()=>{const x=ri(2,10),a=ri(2,5);return{text:`${rp(['Dosaď','Vyčísli pro'])} x = ${x}: ${a}x + ${a} =`,ans:String(a*x+a),hints:[`${a}·${x} + ${a}.`],skill:'calc'};})(),
-  (()=>{const a=ri(2,8);return{text:`${rp(FC)}:\n${a}² + ${a} =`,ans:String(a*a+a),hints:[`${a*a} + ${a}.`],skill:'calc'};})(),
-  (()=>{const t=PYT[ri(0,PYT.length-1)];return{text:`Odvěsny ${t[0]} a ${t[1]}. Přepona?`,ans:String(t[2]),hints:[`c² = ${t[0]*t[0]} + ${t[1]*t[1]}.`],skill:'geo'};})()
+  (()=>{const t=PYT[ri(0,PYT.length-1)];return{text:`Přepona ${t[2]}, odvěsna ${t[0]}.\nDruhá odvěsna?`,ans:String(t[1]),distractors:[String(t[2]-t[0])],hints:[`b² = c² - a².`],skill:'geo'};})(),
+  (()=>{const r=ri(2,8);return{text:`Objem válce r = ${r}, výška ${r}? (π = 3,14)`,ans:r2(PI*r*r*r),distractors:[r2(PI*r*r)],hints:[`πr²·r.`],skill:'geo'};})(),
+  (()=>{const x=ri(3,10),a=ri(2,5),b=ri(2,5);return{text:`${a}(x + ${b}) = ${a*(x+b)}, x = ?`,ans:String(x),distractors:[String(x+b)],hints:[`Vyděl ${a}, odečti ${b}.`],skill:'anal'};})(),
+  (()=>{const a=ri(6,12),b=ri(2,a-1);return{text:`${rp(FC)}:\n(${a} - ${b})² =`,ans:String((a-b)**2),distractors:[String(a*a-b*b)],hints:[`a² - 2ab + b².`],skill:'calc'};})(),
+  (()=>{const z=ri(3,9)*100,p=ri(2,5)*10;return{text:`Cena ${z} Kč vzrostla o ${p} %. Nová cena? (Kč)`,ans:String(z+Math.round(z*p/100)),distractors:[String(Math.round(z*p/100))],hints:[`+ ${p} % z ${z}.`],skill:'anal'};})(),
+  (()=>{const a=ri(13,20);return{text:`${rp(FC)}:\n√${a*a} =`,ans:String(a),distractors:[String(a*a)],hints:[`Odmocnina z ${a*a}.`],skill:'calc'};})(),
+  (()=>{const r=ri(3,7);return{text:`Obsah kruhu r = ${r}? (π = 3,14)`,ans:r2(PI*r*r),distractors:[r2(2*PI*r)],hints:[`πr² = 3,14 × ${r*r}.`],skill:'geo'};})(),
+  (()=>{const x=ri(2,10),a=ri(2,5);return{text:`${rp(['Dosaď','Vyčísli pro'])} x = ${x}: ${a}x + ${a} =`,ans:String(a*x+a),distractors:[String(a*x)],hints:[`${a}·${x} + ${a}.`],skill:'calc'};})(),
+  (()=>{const a=ri(2,8);return{text:`${rp(FC)}:\n${a}² + ${a} =`,ans:String(a*a+a),distractors:(a*a+a!==3*a?[String(3*a)]:[]),hints:[`${a*a} + ${a}.`],skill:'calc'};})(),
+  (()=>{const t=PYT[ri(0,PYT.length-1)];return{text:`Odvěsny ${t[0]} a ${t[1]}. Přepona?`,ans:String(t[2]),distractors:[String(t[0]+t[1])],hints:[`c² = ${t[0]*t[0]} + ${t[1]*t[1]}.`],skill:'geo'};})()
  ]
 };
 })();

@@ -27,12 +27,12 @@
       () => { const tis = ri(12, 980); return { text: `Jak zapíšeme číslem: ${tis} tisíc?`, ans: tis * 1000, h1: `Za počet tisíců připiš tři nuly.`, h2: `= ${tis * 1000}`, d: (tis * 100 !== tis * 1000 ? [String(tis * 100)] : []) }; }, // miskoncepce: připíše jen dvě nuly (stovky místo tisíců)
       () => { const n = ri(100000, 999999); const dtis = Math.floor(n / 10000) % 10; const tis = Math.floor(n / 1000) % 10; return { text: `Jakou cifru má číslo ${n} na místě desetitisíců?`, ans: dtis, h1: `Řády zprava: J, D, S, tisíce, desetitisíce (5. cifra zprava).`, h2: `= ${dtis}`, d: (tis !== dtis ? [String(tis)] : []) }; }, // miskoncepce: přečte cifru tisíců místo desetitisíců
       () => { const n = ri(100000, 999999); const st = Math.floor(n / 100000); const dtis = Math.floor(n / 10000) % 10; return { text: `Jakou cifru má číslo ${n} na místě statisíců?`, ans: st, h1: `Statisíce jsou šestá cifra zprava (první zleva).`, h2: `= ${st}`, d: (dtis !== st ? [String(dtis)] : []) }; }, // miskoncepce: přečte cifru desetitisíců místo statisíců
-      () => { const n = ri(100001, 999998); return { text: `Jaké číslo je o 1 menší než ${n}?`, ans: n - 1, h1: `Odečti jedničku.`, h2: `= ${n - 1}` }; },
-      () => { const n = ri(100001, 999998); return { text: `Jaké číslo následuje hned po ${n}?`, ans: n + 1, h1: `Přičti jedničku.`, h2: `= ${n + 1}` }; },
+      () => { const n = ri(100001, 999998); return { text: `Jaké číslo je o 1 menší než ${n}?`, ans: n - 1, h1: `Odečti jedničku.`, h2: `= ${n - 1}`, d: [String(n + 1)] }; }, // miskoncepce: přičte místo odečte
+      () => { const n = ri(100001, 999998); return { text: `Jaké číslo následuje hned po ${n}?`, ans: n + 1, h1: `Přičti jedničku.`, h2: `= ${n + 1}`, d: [String(n - 1)] }; }, // miskoncepce: odečte místo přičte
       () => { const st = ri(1, 9), tis = ri(1, 9), j = ri(1, 9); const n = st * 100000 + tis * 1000 + j; const bezNul = st * 100 + tis * 10 + j; return { text: `Dračí písař zapsal: ${st} statisíců, ${tis} ${skl(tis, 'tisíc', 'tisíce', 'tisíců')} a ${j} ${skl(j, 'jednotka', 'jednotky', 'jednotek')}. Jaké je to číslo?`, ans: n, h1: `Pozor na nuly na prázdných řádech: ${st}0${tis} 00${j}.`, h2: `= ${n}`, d: (bezNul !== n ? [String(bezNul)] : []) }; }, // miskoncepce: slepí cifry bez nul na prázdných řádech
       () => { const m = ri(1, 9); return { text: `Kolik je ${m} ${skl(m, 'milion', 'miliony', 'milionů')}? (zapiš číslem)`, ans: m * 1000000, h1: `Milion má šest nul.`, h2: `= ${m * 1000000}`, d: (m * 100000 !== m * 1000000 ? [String(m * 100000)] : []) }; }, // miskoncepce: jen pět nul (statisíce místo milionu)
       () => { const n = ri(10, 99); return { text: `Zapiš číslem: ${n} tisíc a 40.`, ans: n * 1000 + 40, h1: `${n} tisíc = ${n * 1000}, přičti 40.`, h2: `= ${n * 1000 + 40}`, d: (n * 100 + 40 !== n * 1000 + 40 ? [String(n * 100 + 40)] : []) }; }, // miskoncepce: „tisíc" jako dvě nuly
-      () => { const pul = pick([['půl milionu', 500000], ['čtvrt milionu', 250000], ['tři čtvrtě milionu', 750000]]); return { text: `Kolik je ${pul[0]}?`, ans: pul[1], h1: `Milion = 1 000 000, rozděl ho.`, h2: `= ${pul[1]}` }; },
+      () => { const pul = pick([['půl milionu', 500000], ['čtvrt milionu', 250000], ['tři čtvrtě milionu', 750000]]); return { text: `Kolik je ${pul[0]}?`, ans: pul[1], h1: `Milion = 1 000 000, rozděl ho.`, h2: `= ${pul[1]}`, d: [String(pul[1] / 10)] }; }, // miskoncepce: řád vedle (o jednu nulu míň)
       () => { const n = ri(12, 98) * 10000; return { text: `Kolik desetitisíců má číslo ${n}?`, ans: n / 10000, h1: `Odděl poslední čtyři nuly.`, h2: `= ${n / 10000}`, d: (n / 1000 !== n / 10000 ? [String(n / 1000)] : []) }; }, // miskoncepce: oddělí jen tři nuly (počítá tisíce)
     ];
     for (let i = 0; i < T.length; i++) {
@@ -48,19 +48,19 @@
     const tasks = [];
     const T = [
       () => { const [a, b] = dva(); const op = pick(['<', '>']); const ok = op === '<' ? a < b : a > b; return { text: `Je pravda, že ${a} ${op} ${b}?`, ans: ok ? 'ANO' : 'NE', h1: `Porovnej od nejvyššího řádu.`, h2: ok ? 'ANO' : 'NE' }; },
-      () => { const [a, b] = dva(); return { text: `Které číslo je větší: ${a}, nebo ${b}?`, ans: Math.max(a, b), h1: `Porovnávej od nejvyššího řádu doleva.`, h2: `= ${Math.max(a, b)}` }; },
-      () => { const [a, b] = dva(); return { text: `Které číslo je menší: ${a}, nebo ${b}?`, ans: Math.min(a, b), h1: `Kratší zápis, nebo menší nejvyšší řád.`, h2: `= ${Math.min(a, b)}` }; },
-      () => { const s = new Set(); while (s.size < 3) s.add(ri(10000, 999999)); const arr = [...s]; return { text: `Které z čísel ${arr[0]}, ${arr[1]}, ${arr[2]} je největší?`, ans: Math.max(...arr), h1: `Nejdřív porovnej počty cifer, pak zleva.`, h2: `= ${Math.max(...arr)}` }; },
-      () => { const s = new Set(); while (s.size < 3) s.add(ri(10000, 999999)); const arr = [...s]; return { text: `Které z čísel ${arr[0]}, ${arr[1]}, ${arr[2]} je nejmenší?`, ans: Math.min(...arr), h1: `Hledej nejmenší nejvyšší řád.`, h2: `= ${Math.min(...arr)}` }; },
-      () => { const b = ri(10000, 800000), a = b + ri(1000, 90000); return { text: `O kolik je ${a} větší než ${b}?`, ans: a - b, h1: `Rozdíl: ${a} − ${b}.`, h2: `= ${a - b}` }; },
+      () => { const [a, b] = dva(); return { text: `Které číslo je větší: ${a}, nebo ${b}?`, ans: Math.max(a, b), h1: `Porovnávej od nejvyššího řádu doleva.`, h2: `= ${Math.max(a, b)}`, d: [String(Math.min(a, b))] }; }, // miskoncepce: vybere menší číslo
+      () => { const [a, b] = dva(); return { text: `Které číslo je menší: ${a}, nebo ${b}?`, ans: Math.min(a, b), h1: `Kratší zápis, nebo menší nejvyšší řád.`, h2: `= ${Math.min(a, b)}`, d: [String(Math.max(a, b))] }; }, // miskoncepce: vybere větší číslo
+      () => { const s = new Set(); while (s.size < 3) s.add(ri(10000, 999999)); const arr = [...s]; return { text: `Které z čísel ${arr[0]}, ${arr[1]}, ${arr[2]} je největší?`, ans: Math.max(...arr), h1: `Nejdřív porovnej počty cifer, pak zleva.`, h2: `= ${Math.max(...arr)}`, d: [String(Math.min(...arr))] }; }, // miskoncepce: vybere nejmenší
+      () => { const s = new Set(); while (s.size < 3) s.add(ri(10000, 999999)); const arr = [...s]; return { text: `Které z čísel ${arr[0]}, ${arr[1]}, ${arr[2]} je nejmenší?`, ans: Math.min(...arr), h1: `Hledej nejmenší nejvyšší řád.`, h2: `= ${Math.min(...arr)}`, d: [String(Math.max(...arr))] }; }, // miskoncepce: vybere největší
+      () => { const b = ri(10000, 800000), a = b + ri(1000, 90000); return { text: `O kolik je ${a} větší než ${b}?`, ans: a - b, h1: `Rozdíl: ${a} − ${b}.`, h2: `= ${a - b}`, d: [String(a + b)] }; }, // miskoncepce: sečte místo odečte
       () => { const lo = ri(100000, 700000), hi = lo + ri(20000, 150000); const inside = ri(0, 1) === 0; const x = inside ? ri(lo + 1, hi - 1) : (ri(0, 1) ? ri(10000, lo - 1) : ri(hi + 1, 999999)); const ok = x > lo && x < hi; return { text: `Leží číslo ${x} mezi čísly ${lo} a ${hi}?`, ans: ok ? 'ANO' : 'NE', h1: `Musí být větší než ${lo} a menší než ${hi}.`, h2: ok ? 'ANO' : 'NE' }; },
       () => { const a = ri(100, 999); const big = a * 1000, small = a * 100; const ok = ri(0, 1) === 0; return ok ? { text: `Je ${big} desetkrát větší než ${small}?`, ans: 'ANO', h1: `${small} × 10 = ${small * 10}.`, h2: 'ANO' } : { text: `Je ${small} desetkrát větší než ${big}?`, ans: 'NE', h1: `${small} je naopak desetkrát MENŠÍ.`, h2: 'NE' }; },
       () => { const [a, b] = dva(); const ok = a > b; return { text: `Zlatý drak střeží ${a} dukátů, stříbrný ${b}. Střeží zlatý drak víc?`, ans: ok ? 'ANO' : 'NE', h1: `Porovnej obě čísla.`, h2: ok ? 'ANO' : 'NE' }; },
-      () => { const [a, b] = dva(); const blizsi = Math.abs(a - 500000) < Math.abs(b - 500000) ? a : b; return { text: `Které číslo je blíž k 500 000: ${a}, nebo ${b}?`, ans: blizsi, h1: `Porovnej vzdálenosti od půl milionu.`, h2: `= ${blizsi}` }; },
+      () => { const [a, b] = dva(); const blizsi = Math.abs(a - 500000) < Math.abs(b - 500000) ? a : b; return { text: `Které číslo je blíž k 500 000: ${a}, nebo ${b}?`, ans: blizsi, h1: `Porovnej vzdálenosti od půl milionu.`, h2: `= ${blizsi}`, d: [String(a === blizsi ? b : a)] }; }, // miskoncepce: vybere to vzdálenější
     ];
     for (let i = 0; i < T.length; i++) {
       const t = T[i % T.length]();
-      tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'anal', mc: true });
+      tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'anal', mc: true, distractors: t.d || [] });
     }
     return tasks;
   }
@@ -165,20 +165,20 @@
   function gen_3_1() {
     const tasks = [];
     const T = [
-      () => { const b = ri(3, 9), q = ri(23, 142); return { text: `${FR()}: ${b * q} : ${b} = ?`, ans: q, h1: `Děl postupně zleva: kolikrát se ${b} vejde do prvních cifer.`, h2: `= ${q}` }; },
-      () => { const b = ri(3, 9), q = ri(23, 142); return { text: `Kolikrát se ${b} vejde do ${b * q}?`, ans: q, h1: `To je ${b * q} : ${b}.`, h2: `= ${q}` }; },
-      () => { const b = ri(3, 9), q = ri(23, 142); return { text: `? : ${b} = ${q}`, ans: b * q, h1: `Hledané číslo: ${b} × ${q}.`, h2: `= ${b * q}` }; },
-      () => { const b = ri(3, 9), q = ri(23, 120); return { text: `${b * q} : ? = ${q}`, ans: b, h1: `Čím dělit ${b * q}, aby vyšlo ${q}? Zkus ${b * q} : ${q}.`, h2: `= ${b}` }; },
-      () => { const q = ri(56, 480); return { text: `Jaká je polovina čísla ${q * 2}?`, ans: q, h1: `${q * 2} : 2`, h2: `= ${q}` }; },
-      () => { const q = ri(26, 240); return { text: `Jaká je čtvrtina čísla ${q * 4}?`, ans: q, h1: `${q * 4} : 4`, h2: `= ${q}` }; },
+      () => { const b = ri(3, 9), q = ri(23, 142); return { text: `${FR()}: ${b * q} : ${b} = ?`, ans: q, h1: `Děl postupně zleva: kolikrát se ${b} vejde do prvních cifer.`, h2: `= ${q}`, d: [String(q * 10)] }; }, // miskoncepce: chyba o řád v podílu (nula navíc)
+      () => { const b = ri(3, 9), q = ri(23, 142); return { text: `Kolikrát se ${b} vejde do ${b * q}?`, ans: q, h1: `To je ${b * q} : ${b}.`, h2: `= ${q}`, d: [String(q * 10)] }; }, // miskoncepce: chyba o řád v podílu
+      () => { const b = ri(3, 9), q = ri(23, 142); return { text: `? : ${b} = ${q}`, ans: b * q, h1: `Hledané číslo: ${b} × ${q}.`, h2: `= ${b * q}`, d: [String(b + q)] }; }, // miskoncepce: sečte místo vynásobí
+      () => { const b = ri(3, 9), q = ri(23, 120); return { text: `${b * q} : ? = ${q}`, ans: b, h1: `Čím dělit ${b * q}, aby vyšlo ${q}? Zkus ${b * q} : ${q}.`, h2: `= ${b}`, d: [String(q)] }; }, // miskoncepce: zamění dělitele a podíl
+      () => { const q = ri(56, 480); return { text: `Jaká je polovina čísla ${q * 2}?`, ans: q, h1: `${q * 2} : 2`, h2: `= ${q}`, d: [String(q * 2)] }; }, // miskoncepce: zapomene vydělit dvěma
+      () => { const q = ri(26, 240); return { text: `Jaká je čtvrtina čísla ${q * 4}?`, ans: q, h1: `${q * 4} : 4`, h2: `= ${q}`, d: [String(q * 2)] }; }, // miskoncepce: udělá polovinu místo čtvrtiny
       () => { const b = ri(3, 9), q = ri(23, 130); const ok = ri(0, 1) === 0; const tvrz = ok ? q : q + pick([-1, 1, 10]); const spravne = tvrz === q; return { text: `Platí ${b * q} : ${b} = ${tvrz}?`, ans: spravne ? 'ANO' : 'NE', h1: `Zkouška: ${b} × ${tvrz} = ${b * tvrz}.`, h2: spravne ? 'ANO' : 'NE' }; },
-      () => { const k = ri(3, 9), a = ri(25, 120); return { text: `Kolikrát je číslo ${a} menší než ${a * k}?`, ans: k, h1: `${a * k} : ${a}`, h2: `= ${k}` }; },
-      () => { const b = ri(3, 8), q = ri(30, 120); return { text: `Zmenši číslo ${b * q} ${b}krát.`, ans: q, h1: `Zmenšit ${b}krát = dělit: ${b * q} : ${b}.`, h2: `= ${q}` }; },
-      () => { const q = ri(25, 95) * 10; return { text: `Vyděl desítkou: ${q} : 10`, ans: q / 10, h1: `Dělení deseti → škrtni nulu.`, h2: `= ${q / 10}` }; },
+      () => { const k = ri(3, 9), a = ri(25, 120); return { text: `Kolikrát je číslo ${a} menší než ${a * k}?`, ans: k, h1: `${a * k} : ${a}`, h2: `= ${k}`, d: [String(a * (k - 1))] }; }, // miskoncepce: „kolikrát" zamění za „o kolik" (rozdíl místo podílu)
+      () => { const b = ri(3, 8), q = ri(30, 120); return { text: `Zmenši číslo ${b * q} ${b}krát.`, ans: q, h1: `Zmenšit ${b}krát = dělit: ${b * q} : ${b}.`, h2: `= ${q}`, d: [String(b * q - b)] }; }, // miskoncepce: „zmenši ×krát" zamění za „zmenši o" (odečte)
+      () => { const q = ri(25, 95) * 10; return { text: `Vyděl desítkou: ${q} : 10`, ans: q / 10, h1: `Dělení deseti → škrtni nulu.`, h2: `= ${q / 10}`, d: [String(q * 10)] }; }, // miskoncepce: záměna : 10 za × 10
     ];
     for (let i = 0; i < T.length; i++) {
       const t = T[i % T.length]();
-      tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'calc', mc: true });
+      tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'calc', mc: true, distractors: t.d || [] });
     }
     return tasks;
   }
@@ -236,20 +236,20 @@
     const DTIN = { 2: 'polovina', 3: 'třetina', 4: 'čtvrtina', 5: 'pětina', 6: 'šestina', 8: 'osmina', 10: 'desetina' };
     const DENS = [2, 3, 4, 5, 6, 8, 10];
     const T = [
-      () => { const den = pick(DENS), whole = den * ri(2, 9), num = ri(1, den - 1); return { text: `Kolik je ${num}/${den} z čísla ${whole}?`, ans: (whole / den) * num, h1: `Nejdřív ${whole} : ${den} = ${whole / den}, pak × ${num}.`, h2: `= ${(whole / den) * num}` }; },
-      () => { const den = pick(DENS), whole = den * ri(2, 9); return { text: `Kolik je ${DTIN[den]} z čísla ${whole}?`, ans: whole / den, h1: `${DTIN[den]} znamená : ${den}.`, h2: `= ${whole / den}` }; },
-      () => { const den = pick([2, 4, 5, 10]), whole = den * ri(10, 60); return { text: `Drak spí ${DTIN[den].slice(0, -1)}u dne. Kolik hodin spí, když den má 24 hodin?`, ans: den === 2 ? 12 : den === 4 ? 6 : den === 5 ? Math.round(24 / 5 * 10) / 10 : 2.4, h1: `24 : ${den}`, h2: `= ${cz(Math.round(24 / den * 10) / 10)} h` }; },
-      () => { const den = pick([2, 3, 4, 5]), cast = ri(3, 12); return { text: `Jedna ${DTIN[den]} pokladu je ${cast} ${skl(cast, 'dukát', 'dukáty', 'dukátů')}. Kolik dukátů má CELÝ poklad?`, ans: cast * den, h1: `Celek = část × ${den}.`, h2: `= ${cast * den}` }; },
-      () => { const den = pick([4, 5, 6, 8]), num = ri(1, den - 1); return { text: `Kolik ${den === 4 ? 'čtvrtin' : den === 5 ? 'pětin' : den === 6 ? 'šestin' : 'osmin'} chybí zlomku ${num}/${den} do celku?`, ans: den - num, h1: `Celek = ${den}/${den}.`, h2: `= ${den - num}` }; },
-      () => { const den = pick(DENS), whole = den * ri(2, 9), num = ri(1, den - 1); const cast = (whole / den) * num; return { text: `Rytíř snědl ${num}/${den} z ${whole} koláčů. Kolik koláčů mu ZBYLO?`, ans: whole - cast, h1: `Snědl ${cast}, zbylo ${whole} − ${cast}.`, h2: `= ${whole - cast}` }; },
+      () => { const den = pick(DENS), whole = den * ri(2, 9), num = ri(1, den - 1); return { text: `Kolik je ${num}/${den} z čísla ${whole}?`, ans: (whole / den) * num, h1: `Nejdřív ${whole} : ${den} = ${whole / den}, pak × ${num}.`, h2: `= ${(whole / den) * num}`, d: [String(whole * num)] }; }, // miskoncepce: vynásobí čitatelem, ale zapomene vydělit jmenovatelem
+      () => { const den = pick(DENS), whole = den * ri(2, 9); return { text: `Kolik je ${DTIN[den]} z čísla ${whole}?`, ans: whole / den, h1: `${DTIN[den]} znamená : ${den}.`, h2: `= ${whole / den}`, d: [String(whole * den)] }; }, // miskoncepce: násobí místo dělí
+      () => { const den = pick([2, 4, 5, 10]), whole = den * ri(10, 60); return { text: `Drak spí ${DTIN[den].slice(0, -1)}u dne. Kolik hodin spí, když den má 24 hodin?`, ans: den === 2 ? 12 : den === 4 ? 6 : den === 5 ? Math.round(24 / 5 * 10) / 10 : 2.4, h1: `24 : ${den}`, h2: `= ${cz(Math.round(24 / den * 10) / 10)} h`, d: [String(24 * den)] }; }, // miskoncepce: násobí 24 jmenovatelem místo dělení
+      () => { const den = pick([2, 3, 4, 5]), cast = ri(3, 12); return { text: `Jedna ${DTIN[den]} pokladu je ${cast} ${skl(cast, 'dukát', 'dukáty', 'dukátů')}. Kolik dukátů má CELÝ poklad?`, ans: cast * den, h1: `Celek = část × ${den}.`, h2: `= ${cast * den}`, d: [String(cast)] }; }, // miskoncepce: napíše část jako celek (nezvětší)
+      () => { const den = pick([4, 5, 6, 8]), num = ri(1, den - 1); return { text: `Kolik ${den === 4 ? 'čtvrtin' : den === 5 ? 'pětin' : den === 6 ? 'šestin' : 'osmin'} chybí zlomku ${num}/${den} do celku?`, ans: den - num, h1: `Celek = ${den}/${den}.`, h2: `= ${den - num}`, d: [String(den)] }; }, // miskoncepce: napíše celý jmenovatel místo doplňku
+      () => { const den = pick(DENS), whole = den * ri(2, 9), num = ri(1, den - 1); const cast = (whole / den) * num; return { text: `Rytíř snědl ${num}/${den} z ${whole} koláčů. Kolik koláčů mu ZBYLO?`, ans: whole - cast, h1: `Snědl ${cast}, zbylo ${whole} − ${cast}.`, h2: `= ${whole - cast}`, d: (cast !== whole - cast ? [String(cast)] : []) }; }, // miskoncepce: spočítá snědené místo zbylých
       () => { const a = ri(1, 5), b = ri(1, 5); const den = pick([6, 8, 10, 12]); const ok = a === b; return ok ? { text: `Platí ${a}/${den} = ${b}/${den}?`, ans: 'ANO', h1: `Stejný jmenovatel i čitatel.`, h2: 'ANO' } : { text: `Je ${Math.max(a, b)}/${den} větší než ${Math.min(a, b)}/${den}?`, ans: 'ANO', h1: `Při stejném jmenovateli rozhoduje čitatel.`, h2: 'ANO' }; },
       () => { const den = pick([3, 4, 5]), whole = den * ri(4, 12); const ok = ri(0, 1) === 0; const tvrz = ok ? whole / den : whole / den + pick([-2, 2, den]); const spravne = tvrz === whole / den; return { text: `Čaroděj tvrdí: 1/${den} z ${whole} je ${tvrz}. Má pravdu?`, ans: spravne ? 'ANO' : 'NE', h1: `${whole} : ${den} = ${whole / den}.`, h2: spravne ? 'ANO' : 'NE' }; },
-      () => { const half = ri(6, 40) * 2; return { text: `Polovina dračího hejna má ${half / 2} draků. Kolik draků má celé hejno?`, ans: half, h1: `Celek = polovina × 2.`, h2: `= ${half}` }; },
-      () => { const den = pick([2, 4]), km = den * ri(5, 30); return { text: `Cesta k jeskyni měří ${km} km. Rytíř ušel ${den === 2 ? 'polovinu' : 'čtvrtinu'}. Kolik km ušel?`, ans: km / den, h1: `${km} : ${den}`, h2: `= ${km / den} km` }; },
+      () => { const half = ri(6, 40) * 2; return { text: `Polovina dračího hejna má ${half / 2} draků. Kolik draků má celé hejno?`, ans: half, h1: `Celek = polovina × 2.`, h2: `= ${half}`, d: [String(half / 2)] }; }, // miskoncepce: napíše polovinu místo celku (nezdvojnásobí)
+      () => { const den = pick([2, 4]), km = den * ri(5, 30); return { text: `Cesta k jeskyni měří ${km} km. Rytíř ušel ${den === 2 ? 'polovinu' : 'čtvrtinu'}. Kolik km ušel?`, ans: km / den, h1: `${km} : ${den}`, h2: `= ${km / den} km`, d: [String(km * den)] }; }, // miskoncepce: násobí místo dělí
     ];
     for (let i = 0; i < T.length; i++) {
       const t = T[i % T.length]();
-      tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'calc', mc: true });
+      tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'calc', mc: true, distractors: t.d || [] });
     }
     return tasks;
   }
@@ -458,20 +458,20 @@
   function gen_7_1() {
     const tasks = [];
     const T = [
-      () => { const a = ri(120000, 480000), b = ri(120000, 480000); return { text: `${FR()}: ${a} + ${b} = ?`, ans: a + b, h1: `Sčítej po řádech pod sebou.`, h2: `= ${a + b}` }; },
-      () => { const b = ri(50000, 300000), a = b + ri(50000, 400000); return { text: `${FR()}: ${a} − ${b} = ?`, ans: a - b, h1: `Odečítej po řádech.`, h2: `= ${a - b}` }; },
-      () => { const n = ri(120000, 950000); const v = Math.round(n / 1000) * 1000; return { text: `Zaokrouhli ${n} na tisíce.`, ans: v, h1: `Cifra stovek rozhoduje.`, h2: `= ${v}` }; },
-      () => { const n = ri(120000, 950000); const v = Math.round(n / 100000) * 100000; return { text: `Zaokrouhli ${n} na statisíce.`, ans: v, h1: `Cifra desetitisíců rozhoduje.`, h2: `= ${v}` }; },
-      () => { const a = ri(2, 9); return { text: `${FR()}: ${a} × 100 000 = ?`, ans: a * 100000, h1: `Přidej pět nul.`, h2: `= ${a * 100000}` }; },
-      () => { let a = ri(100000, 999999), b = ri(100000, 999999); while (a === b) b = ri(100000, 999999); return { text: `Které číslo je větší: ${a}, nebo ${b}?`, ans: Math.max(a, b), h1: `Porovnej zleva po řádech.`, h2: `= ${Math.max(a, b)}` }; },
-      () => { const tis = ri(100, 980); return { text: `Zapiš číslem: ${tis} tisíc.`, ans: tis * 1000, h1: `Připiš tři nuly.`, h2: `= ${tis * 1000}` }; },
-      () => { const b = ri(100000, 400000), a = b + ri(50000, 300000); return { text: `O kolik je ${a} větší než ${b}?`, ans: a - b, h1: `Rozdíl: ${a} − ${b}.`, h2: `= ${a - b}` }; },
-      () => { const n = ri(2, 9) * 100000; return { text: `${FR()}: ${n} : 1000 = ?`, ans: n / 1000, h1: `Škrtni tři nuly.`, h2: `= ${n / 1000}` }; },
-      () => { const a = ri(120, 480) * 1000, dar = ri(20, 90) * 1000; return { text: `Dračí poklad má ${a} dukátů. Drak daroval ${dar}. Kolik mu zbylo?`, ans: a - dar, h1: `${a} − ${dar}`, h2: `= ${a - dar}` }; },
+      () => { const a = ri(120000, 480000), b = ri(120000, 480000); return { text: `${FR()}: ${a} + ${b} = ?`, ans: a + b, h1: `Sčítej po řádech pod sebou.`, h2: `= ${a + b}`, d: [String(Math.abs(a - b))] }; }, // miskoncepce: odečte místo sečte
+      () => { const b = ri(50000, 300000), a = b + ri(50000, 400000); return { text: `${FR()}: ${a} − ${b} = ?`, ans: a - b, h1: `Odečítej po řádech.`, h2: `= ${a - b}`, d: [String(a + b)] }; }, // miskoncepce: sečte místo odečte
+      () => { const n = ri(120000, 950000); const v = Math.round(n / 1000) * 1000; const v2 = Math.round(n / 10000) * 10000; return { text: `Zaokrouhli ${n} na tisíce.`, ans: v, h1: `Cifra stovek rozhoduje.`, h2: `= ${v}`, d: (v2 !== v ? [String(v2)] : []) }; }, // miskoncepce: zaokrouhlí na desetitisíce
+      () => { const n = ri(120000, 950000); const v = Math.round(n / 100000) * 100000; const v2 = Math.round(n / 10000) * 10000; return { text: `Zaokrouhli ${n} na statisíce.`, ans: v, h1: `Cifra desetitisíců rozhoduje.`, h2: `= ${v}`, d: (v2 !== v ? [String(v2)] : []) }; }, // miskoncepce: zaokrouhlí na desetitisíce
+      () => { const a = ri(2, 9); return { text: `${FR()}: ${a} × 100 000 = ?`, ans: a * 100000, h1: `Přidej pět nul.`, h2: `= ${a * 100000}`, d: [String(a * 10000)] }; }, // miskoncepce: přidá jen čtyři nuly (řád vedle)
+      () => { let a = ri(100000, 999999), b = ri(100000, 999999); while (a === b) b = ri(100000, 999999); return { text: `Které číslo je větší: ${a}, nebo ${b}?`, ans: Math.max(a, b), h1: `Porovnej zleva po řádech.`, h2: `= ${Math.max(a, b)}`, d: [String(Math.min(a, b))] }; }, // miskoncepce: vybere menší číslo
+      () => { const tis = ri(100, 980); return { text: `Zapiš číslem: ${tis} tisíc.`, ans: tis * 1000, h1: `Připiš tři nuly.`, h2: `= ${tis * 1000}`, d: [String(tis * 100)] }; }, // miskoncepce: připíše jen dvě nuly (stovky)
+      () => { const b = ri(100000, 400000), a = b + ri(50000, 300000); return { text: `O kolik je ${a} větší než ${b}?`, ans: a - b, h1: `Rozdíl: ${a} − ${b}.`, h2: `= ${a - b}`, d: [String(a + b)] }; }, // miskoncepce: sečte místo odečte
+      () => { const n = ri(2, 9) * 100000; return { text: `${FR()}: ${n} : 1000 = ?`, ans: n / 1000, h1: `Škrtni tři nuly.`, h2: `= ${n / 1000}`, d: [String(n / 100)] }; }, // miskoncepce: škrtne jen dvě nuly (řád vedle)
+      () => { const a = ri(120, 480) * 1000, dar = ri(20, 90) * 1000; return { text: `Dračí poklad má ${a} dukátů. Drak daroval ${dar}. Kolik mu zbylo?`, ans: a - dar, h1: `${a} − ${dar}`, h2: `= ${a - dar}`, d: [String(a + dar)] }; }, // miskoncepce: přičte místo odečte
     ];
     for (let i = 0; i < T.length; i++) {
       const t = T[i % T.length]();
-      tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'calc', mc: true });
+      tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'calc', mc: true, distractors: t.d || [] });
     }
     return tasks;
   }
