@@ -1203,6 +1203,30 @@ function svgTriangle(kind,opt={}){
  let extra=opt.extra||'';
  return `<svg viewBox="0 0 250 165"><polygon points="${pts}" fill="#16203a" stroke="#19e6e6" stroke-width="3"/>${kind==='pravo'?`<rect x="55" y="120" width="15" height="15" fill="none" stroke="#ff3d7f" stroke-width="2"/>`:''}${txt}${extra}</svg>`;
 }
+// Pravoúhlý trojúhelník V MĚŘÍTKU (pro slovní úlohy s Pythagorem).
+// Pravý úhel u C (dole vlevo, γ). Vodorovná odvěsna C→B = strana a, svislá C→A = strana b, přepona A→B = c.
+// aLen/bLen = skutečné délky odvěsen (kreslí se proporčně). Popisky přes opt.la/lb/lc (řetězce; '' = skrýt).
+function svgRightTri(aLen,bLen,opt={}){
+ const Cx=58,Cy=140,mx=aLen>=bLen; // uniformní měřítko: obě odvěsny se vejdou
+ const s=Math.min(150/Math.max(aLen,1),100/Math.max(bLen,1));
+ const Bx=+(Cx+aLen*s).toFixed(1), By=Cy;
+ const Ax=Cx, Ay=+(Cy-bLen*s).toFixed(1);
+ const msz=13;
+ const la=opt.la!==undefined?opt.la:'a', lb=opt.lb!==undefined?opt.lb:'b', lc=opt.lc!==undefined?opt.lc:'c';
+ const vl=opt.v||['A','B','C']; // A(nahoře vlevo), B(dole vpravo), C(dole vlevo=pravý úhel)
+ let t='';
+ // strana a — dolní hrana C→B (pod ní)
+ if(la) t+=`<text x="${((Cx+Bx)/2).toFixed(1)}" y="${Cy+18}" fill="#ff3d7f" font-size="14" font-family="monospace" text-anchor="middle">${la}</text>`;
+ // strana b — levá hrana C→A (vlevo od ní)
+ if(lb) t+=`<text x="${Cx-9}" y="${((Cy+Ay)/2+5).toFixed(1)}" fill="#ff3d7f" font-size="14" font-family="monospace" text-anchor="end">${lb}</text>`;
+ // strana c — přepona A→B (vpravo nahoře od středu)
+ if(lc) t+=`<text x="${((Ax+Bx)/2+8).toFixed(1)}" y="${((Ay+By)/2-4).toFixed(1)}" fill="#39ff9e" font-size="14" font-family="monospace" text-anchor="start">${lc}</text>`;
+ // vrcholy
+ t+=`<text x="${Ax-11}" y="${Ay+4}" fill="#fff" font-size="13" font-family="monospace" text-anchor="middle">${vl[0]}</text>`;
+ t+=`<text x="${Bx+11}" y="${By+14}" fill="#fff" font-size="13" font-family="monospace" text-anchor="middle">${vl[1]}</text>`;
+ t+=`<text x="${Cx-11}" y="${Cy+14}" fill="#fff" font-size="13" font-family="monospace" text-anchor="middle">${vl[2]}</text>`;
+ return `<svg viewBox="0 0 250 165"><polygon points="${Cx},${Cy} ${Bx},${By} ${Ax},${Ay}" fill="#16203a" stroke="#19e6e6" stroke-width="3"/><rect x="${Cx}" y="${Cy-msz}" width="${msz}" height="${msz}" fill="none" stroke="#ff3d7f" stroke-width="2"/>${t}</svg>`;
+}
 // Útvar s osou souměrnosti (svislá čárkovaná osa). Pro osovou souměrnost.
 function svgMirror(shape){
  const axis=`<line x1="125" y1="15" x2="125" y2="150" stroke="#ff3d7f" stroke-width="2" stroke-dasharray="6 5"/>`;
