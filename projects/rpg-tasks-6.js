@@ -32,24 +32,24 @@ const sp = (n,key)=>{const f=SPACE[key];return skl(n,f[0],f[1],f[2]);};
 // 1-1 Přirozená čísla (MC — jen numerické)
 function gen_1_1(){
   const T=[
-    ()=>{const a=ri(120,890),b=ri(110,540);return{text:ask(`${a} + ${b}`),ans:a+b,h1:'Sčítej po řádech (jednotky, desítky, stovky).',h2:`${a}+${b} = ${a+b}`};},
-    ()=>{const c=ri(400,990),d=ri(110,c-50);return{text:ask(`${c} − ${d}`),ans:c-d,h1:'Odečítej po řádech, hlídej výpůjčku.',h2:`${c}−${d} = ${c-d}`};},
-    ()=>{const e=ri(12,40),f=ri(11,30);return{text:ask(`${e} × ${f}`),ans:e*f,h1:`Rozlož ${f} na desítky a jednotky.`,h2:`${e}×${f} = ${e*f}`};},
-    ()=>{const g=ri(3,9),h=g*ri(10,30);return{text:ask(`${h} : ${g}`),ans:h/g,h1:`Kolikrát se ${g} vejde do ${h}?`,h2:`${h}:${g} = ${h/g}`};},
-    ()=>{const i=ri(150,899);return{text:`Zaokrouhli ${i} na stovky.`,ans:Math.round(i/100)*100,h1:'Rozhoduje číslice desítek.',h2:`≈ ${Math.round(i/100)*100}`};},
-    ()=>{const i=ri(115,985);return{text:`Zaokrouhli ${i} na desítky.`,ans:Math.round(i/10)*10,h1:'Rozhoduje číslice jednotek.',h2:`≈ ${Math.round(i/10)*10}`};},
-    ()=>{const j=ri(3,9),k=ri(3,9),l=ri(5,40);return{text:ask(`${j} × ${k} + ${l}`),ans:j*k+l,h1:'Nejdřív násobení, pak sčítání.',h2:`${j*k}+${l} = ${j*k+l}`};},
-    ()=>{const a=ri(3,9),b=ri(3,9),c=ri(2,12);return{text:ask(`${a} × ${b} − ${c}`),ans:a*b-c,h1:'Nejdřív násobení, pak odčítání.',h2:`${a*b}−${c} = ${a*b-c}`};},
-    ()=>{const a=ri(300,900),b=ri(50,250),c=ri(20,90);return{text:ask(`${a} − ${b} − ${c}`),ans:a-b-c,h1:'Odečítej postupně zleva doprava.',h2:`${a}−${b} = ${a-b}, pak −${c} = ${a-b-c}`};},
-    ()=>{const a=ri(120,600),b=ri(80,380);return{text:`Doplň: ${a} + ? = ${a+b}`,ans:b,h1:`Odečti: ${a+b} − ${a}.`,h2:`= ${b}`};},
-    ()=>{const b=ri(3,9),q=ri(11,40);return{text:`Doplň: ? × ${b} = ${b*q}`,ans:q,h1:`Vyděl: ${b*q} : ${b}.`,h2:`= ${q}`};},
-    ()=>{const s=new Set();while(s.size<3)s.add(ri(120,980));const arr=[...s];return{text:`Které z čísel ${arr[0]}, ${arr[1]}, ${arr[2]} je největší?`,ans:Math.max(...arr),h1:'Porovnej stovky, pak nižší řády.',h2:`= ${Math.max(...arr)}`};},
-    ()=>{const a=ri(200,800);return{text:`Jaký je dvojnásobek čísla ${a}?`,ans:a*2,h1:`2 × ${a}`,h2:`= ${a*2}`};},
-    ()=>{const a=ri(120,400),b=ri(80,300);return{text:`Ve flotile ${jsou(a)} ${sp(a,'raketa')} a připojí se dalších ${b}. Kolik ${sp(a+b,'raketa')} je pak ve flotile?`,ans:a+b,h1:'Přičti nově příchozí rakety.',h2:`${a}+${b} = ${a+b}`};},
-    ()=>{const s=ri(5,9),m=ri(11,30);return{text:`${s} ${sp(s,'sonda')} pošle každá ${m} snímků. Kolik snímků dorazí celkem?`,ans:s*m,h1:'Počet sond × snímků na sondu.',h2:`${s}·${m} = ${s*m}`};},
+    ()=>{const a=ri(120,890),b=ri(110,540);return{text:ask(`${a} + ${b}`),ans:a+b,dis:[String(a+b-10)],h1:'Sčítej po řádech (jednotky, desítky, stovky).',h2:`${a}+${b} = ${a+b}`};},
+    ()=>{const c=ri(400,990),d=ri(110,c-50);return{text:ask(`${c} − ${d}`),ans:c-d,dis:[String(c-d-10)],h1:'Odečítej po řádech, hlídej výpůjčku.',h2:`${c}−${d} = ${c-d}`};},
+    ()=>{const e=ri(12,40),f=ri(11,30);return{text:ask(`${e} × ${f}`),ans:e*f,dis:[String(e*f-e)],h1:`Rozlož ${f} na desítky a jednotky.`,h2:`${e}×${f} = ${e*f}`};},
+    ()=>{const g=ri(3,9),h=g*ri(10,30);return{text:ask(`${h} : ${g}`),ans:h/g,dis:[String(h/g+1)],h1:`Kolikrát se ${g} vejde do ${h}?`,h2:`${h}:${g} = ${h/g}`};},
+    ()=>{const i=ri(150,899);return{text:`Zaokrouhli ${i} na stovky.`,ans:Math.round(i/100)*100,dis:(Math.floor(i/100)*100!==Math.round(i/100)*100?[String(Math.floor(i/100)*100)]:[]),h1:'Rozhoduje číslice desítek.',h2:`≈ ${Math.round(i/100)*100}`};},
+    ()=>{const i=ri(115,985);return{text:`Zaokrouhli ${i} na desítky.`,ans:Math.round(i/10)*10,dis:(Math.floor(i/10)*10!==Math.round(i/10)*10?[String(Math.floor(i/10)*10)]:[]),h1:'Rozhoduje číslice jednotek.',h2:`≈ ${Math.round(i/10)*10}`};},
+    ()=>{const j=ri(3,9),k=ri(3,9),l=ri(5,40);return{text:ask(`${j} × ${k} + ${l}`),ans:j*k+l,dis:[String(j*(k+l))],h1:'Nejdřív násobení, pak sčítání.',h2:`${j*k}+${l} = ${j*k+l}`};},
+    ()=>{const a=ri(3,9),b=ri(3,9),c=ri(2,12);return{text:ask(`${a} × ${b} − ${c}`),ans:a*b-c,dis:[String(a*(b-c))],h1:'Nejdřív násobení, pak odčítání.',h2:`${a*b}−${c} = ${a*b-c}`};},
+    ()=>{const a=ri(300,900),b=ri(50,250),c=ri(20,90);return{text:ask(`${a} − ${b} − ${c}`),ans:a-b-c,dis:[String(a-b+c)],h1:'Odečítej postupně zleva doprava.',h2:`${a}−${b} = ${a-b}, pak −${c} = ${a-b-c}`};},
+    ()=>{const a=ri(120,600),b=ri(80,380);return{text:`Doplň: ${a} + ? = ${a+b}`,ans:b,dis:[String(a+b)],h1:`Odečti: ${a+b} − ${a}.`,h2:`= ${b}`};},
+    ()=>{const b=ri(3,9),q=ri(11,40);return{text:`Doplň: ? × ${b} = ${b*q}`,ans:q,dis:[String(b*q)],h1:`Vyděl: ${b*q} : ${b}.`,h2:`= ${q}`};},
+    ()=>{const s=new Set();while(s.size<3)s.add(ri(120,980));const arr=[...s];return{text:`Které z čísel ${arr[0]}, ${arr[1]}, ${arr[2]} je největší?`,ans:Math.max(...arr),dis:[String(Math.min(...arr))],h1:'Porovnej stovky, pak nižší řády.',h2:`= ${Math.max(...arr)}`};},
+    ()=>{const a=ri(200,800);return{text:`Jaký je dvojnásobek čísla ${a}?`,ans:a*2,dis:[String(Math.round(a/2))],h1:`2 × ${a}`,h2:`= ${a*2}`};},
+    ()=>{const a=ri(120,400),b=ri(80,300);return{text:`Ve flotile ${jsou(a)} ${sp(a,'raketa')} a připojí se dalších ${b}. Kolik ${sp(a+b,'raketa')} je pak ve flotile?`,ans:a+b,dis:(a-b>0?[String(a-b)]:[]),h1:'Přičti nově příchozí rakety.',h2:`${a}+${b} = ${a+b}`};},
+    ()=>{const s=ri(5,9),m=ri(11,30);return{text:`${s} ${sp(s,'sonda')} pošle každá ${m} snímků. Kolik snímků dorazí celkem?`,ans:s*m,dis:[String(s+m)],h1:'Počet sond × snímků na sondu.',h2:`${s}·${m} = ${s*m}`};},
   ];
   const tasks=[];
-  for(let i=0;i<13;i++){const t=T[i%T.length]();tasks.push({text:t.text,ans:t.ans,hints:[t.h1,t.h2],skill:'calc'});}
+  for(let i=0;i<13;i++){const t=T[i%T.length]();tasks.push({text:t.text,ans:t.ans,hints:[t.h1,t.h2],distractors:t.dis,skill:'calc'});}
   return tasks;
 }
 
@@ -107,21 +107,21 @@ function gen_1_3(){
 // 2-1 Desetinná čísla (MC — jen numerické nebo ANO/NE)
 function gen_2_1(){
   const T=[
-    ()=>{const a=ri(11,98)/10;return{text:`Zaokrouhli ${cz(a)} na celé číslo.`,ans:Math.round(a),h1:'Rozhoduje číslice desetin (5 a víc nahoru).',h2:`≈ ${Math.round(a)}`};},
-    ()=>{const a=ri(11,98)/10;return{text:`Kolik celých jednotek je v čísle ${cz(a)}?`,ans:Math.floor(a),h1:'Celá část je číslo před desetinnou čárkou.',h2:`= ${Math.floor(a)}`};},
-    ()=>{const a=ri(11,98)/10;const d=Math.round((a-Math.floor(a))*10);return{text:`Kolik desetin je za čárkou v čísle ${cz(a)}?`,ans:d,h1:'Desetiny jsou první číslice hned za čárkou.',h2:`= ${d}`};},
-    ()=>{const a=ri(11,98)/10;return{text:`Vynásob číslo ${cz(a)} deseti. Kolik to je?`,ans:Math.round(a*10),h1:'Násobení deseti posune čárku o jedno místo doprava.',h2:`= ${Math.round(a*10)}`};},
-    ()=>{const n=ri(11,98);return{text:`Vyděl číslo ${n*10} deseti (${n*10} : 10). Kolik to je?`,ans:n,h1:'Dělení deseti posune čárku o jedno místo doleva.',h2:`= ${n}`};},
+    ()=>{const a=ri(11,98)/10;return{text:`Zaokrouhli ${cz(a)} na celé číslo.`,ans:Math.round(a),dis:(Math.floor(a)!==Math.round(a)?[String(Math.floor(a))]:[]),h1:'Rozhoduje číslice desetin (5 a víc nahoru).',h2:`≈ ${Math.round(a)}`};},
+    ()=>{const a=ri(11,98)/10;return{text:`Kolik celých jednotek je v čísle ${cz(a)}?`,ans:Math.floor(a),dis:(Math.round(a)!==Math.floor(a)?[String(Math.round(a))]:[]),h1:'Celá část je číslo před desetinnou čárkou.',h2:`= ${Math.floor(a)}`};},
+    ()=>{const a=ri(11,98)/10;const d=Math.round((a-Math.floor(a))*10);return{text:`Kolik desetin je za čárkou v čísle ${cz(a)}?`,ans:d,dis:(Math.floor(a)!==d?[String(Math.floor(a))]:[]),h1:'Desetiny jsou první číslice hned za čárkou.',h2:`= ${d}`};},
+    ()=>{const a=ri(11,98)/10;return{text:`Vynásob číslo ${cz(a)} deseti. Kolik to je?`,ans:Math.round(a*10),dis:[String(Math.round(a*100))],h1:'Násobení deseti posune čárku o jedno místo doprava.',h2:`= ${Math.round(a*10)}`};},
+    ()=>{const n=ri(11,98);return{text:`Vyděl číslo ${n*10} deseti (${n*10} : 10). Kolik to je?`,ans:n,dis:[String(n*10)],h1:'Dělení deseti posune čárku o jedno místo doleva.',h2:`= ${n}`};},
     ()=>{const a=ri(11,98)/10;const b=ri(0,1)?Math.floor(a):Math.ceil(a)+ri(0,2);const ok=a>b;return{text:`Je číslo ${cz(a)} větší než ${b}?`,ans:ok?'ANO':'NE',h1:'Porovnej nejdřív celou část, pak desetiny.',h2:ok?'ANO':'NE'};},
-    ()=>{const a=Math.round(ri(101,989))/100;return{text:`Kolik setin je za čárkou v čísle ${cz(a)}? (obě číslice za čárkou jako počet setin)`,ans:Math.round((a-Math.floor(a))*100),h1:'Setiny jsou dvě číslice za čárkou čtené jako celek.',h2:`= ${Math.round((a-Math.floor(a))*100)}`};},
-    ()=>{const a=ri(11,98)/10;return{text:`Na které celé číslo zaokrouhlíš ${cz(a)}?`,ans:Math.round(a),h1:'Podívej se na desetiny.',h2:`≈ ${Math.round(a)}`};},
+    ()=>{const a=Math.round(ri(101,989))/100;return{text:`Kolik setin je za čárkou v čísle ${cz(a)}? (obě číslice za čárkou jako počet setin)`,ans:Math.round((a-Math.floor(a))*100),dis:(Math.round((a-Math.floor(a))*10)!==Math.round((a-Math.floor(a))*100)?[String(Math.round((a-Math.floor(a))*10))]:[]),h1:'Setiny jsou dvě číslice za čárkou čtené jako celek.',h2:`= ${Math.round((a-Math.floor(a))*100)}`};},
+    ()=>{const a=ri(11,98)/10;return{text:`Na které celé číslo zaokrouhlíš ${cz(a)}?`,ans:Math.round(a),dis:(Math.floor(a)!==Math.round(a)?[String(Math.floor(a))]:[]),h1:'Podívej se na desetiny.',h2:`≈ ${Math.round(a)}`};},
     ()=>{const w=ri(1,8);const a=w+0.5;return{text:`Zaokrouhlí se číslo ${cz(a)} na celé číslo ${w+1}? (polovina nahoru)`,ans:'ANO',h1:'Číslo končící ,5 se zaokrouhluje nahoru.',h2:'ANO'};},
     ()=>{const a=ri(11,98)/10;const same=ri(0,1)===0;const b=same?a:Math.round((a+(ri(0,1)?0.1:-0.1))*10)/10;const ok=Math.abs(a-b)<1e-9;return{text:`Mají čísla ${cz(a)} a ${cz(b)} stejnou hodnotu?`,ans:ok?'ANO':'NE',h1:'Porovnej celé části i desetiny.',h2:ok?'ANO':'NE'};},
-    ()=>{const a=ri(2,9);return{text:`Vynásob číslo ${cz(a+0.5)} deseti. Kolik to je?`,ans:a*10+5,h1:'Posuň čárku o jedno místo doprava.',h2:`= ${a*10+5}`};},
-    ()=>{const n=ri(120,980);return{text:`Vyděl číslo ${n} stem (${n} : 100) — kolik CELÝCH jednotek vyjde?`,ans:Math.floor(n/100),h1:'Celá část podílu — čárku posuň o dvě místa doleva.',h2:`= ${Math.floor(n/100)}`};},
+    ()=>{const a=ri(2,9);return{text:`Vynásob číslo ${cz(a+0.5)} deseti. Kolik to je?`,ans:a*10+5,dis:[String(a*10)],h1:'Posuň čárku o jedno místo doprava.',h2:`= ${a*10+5}`};},
+    ()=>{const n=ri(120,980);return{text:`Vyděl číslo ${n} stem (${n} : 100) — kolik CELÝCH jednotek vyjde?`,ans:Math.floor(n/100),dis:(Math.floor(n/10)!==Math.floor(n/100)?[String(Math.floor(n/10))]:[]),h1:'Celá část podílu — čárku posuň o dvě místa doleva.',h2:`= ${Math.floor(n/100)}`};},
   ];
   const tasks=[];
-  for(let i=0;i<13;i++){const t=T[i%T.length]();tasks.push({text:t.text,ans:t.ans,hints:[t.h1,t.h2],skill:'calc'});}
+  for(let i=0;i<13;i++){const t=T[i%T.length]();tasks.push({text:t.text,ans:t.ans,hints:[t.h1,t.h2],distractors:t.dis,skill:'calc'});}
   return tasks;
 }
 
@@ -201,19 +201,19 @@ function gen_3_2(){
   const T=[
     ()=>{const p=primes[ri(0,9)];return{text:`Je číslo ${p} prvočíslo?`,ans:'ANO',h1:'Prvočíslo má právě dva dělitele: 1 a samo sebe.',h2:'ANO'};},
     ()=>{const c=ri(2,9)*ri(2,9);const ok=isP(c);return{text:`Je číslo ${c} prvočíslo?`,ans:ok?'ANO':'NE',h1:'Má víc než dva dělitele → není prvočíslo.',h2:ok?'ANO':'NE — je složené'};},
-    ()=>{const n=ri(6,30);return{text:`Kolik dělitelů má číslo ${n}?`,ans:divc(n),h1:`Vypiš všechna čísla, kterými ${n} vydělíš beze zbytku.`,h2:`${n} má ${divc(n)} ${skl(divc(n),'dělitele','dělitele','dělitelů')}`};},
-    ()=>{const m=ri(2,6)*ri(2,6);let sf=2;while(m%sf!==0)sf++;return{text:`Jaký je nejmenší prvočíselný dělitel čísla ${m}?`,ans:sf,h1:'Zkoušej postupně 2, 3, 5, 7…',h2:`= ${sf}`};},
+    ()=>{const n=ri(6,30);return{text:`Kolik dělitelů má číslo ${n}?`,ans:divc(n),dis:[String(divc(n)-2)],h1:`Vypiš všechna čísla, kterými ${n} vydělíš beze zbytku.`,h2:`${n} má ${divc(n)} ${skl(divc(n),'dělitele','dělitele','dělitelů')}`};},
+    ()=>{const m=ri(2,6)*ri(2,6);let sf=2;while(m%sf!==0)sf++;return{text:`Jaký je nejmenší prvočíselný dělitel čísla ${m}?`,ans:sf,dis:[String(1)],h1:'Zkoušej postupně 2, 3, 5, 7…',h2:`= ${sf}`};},
     ()=>{const b=ri(3,9),mult=b*ri(2,6);return{text:`Je číslo ${b} dělitelem čísla ${mult}?`,ans:mult%b===0?'ANO':'NE',h1:`Vejde se ${b} do ${mult} beze zbytku?`,h2:'ANO'};},
     ()=>{const c=ri(2,9)*ri(2,9);const ok=!isP(c);return{text:`Je číslo ${c} složené (má víc než dva dělitele)?`,ans:ok?'ANO':'NE',h1:'Složené číslo lze rozložit na součin menších činitelů.',h2:ok?'ANO':'NE'};},
     ()=>{const a=ri(4,12);return{text:`Je číslo ${a*a} druhou mocninou nějakého čísla?`,ans:'ANO',h1:`Existuje číslo, které umocněné na druhou dá ${a*a}?`,h2:`ANO (${a}² = ${a*a})`};},
-    ()=>{const lim=[10,20,30,50][ri(0,3)];const cnt=primes.filter(x=>x<lim).length;return{text:`Kolik prvočísel je menších než ${lim}?`,ans:cnt,h1:'Vyjmenuj prvočísla od 2 nahoru a počítej.',h2:`= ${cnt}`};},
-    ()=>{const m=[12,18,20,24,30,36,45][ri(0,6)];let big=1;for(const p of primes)if(m%p===0)big=p;return{text:`Jaký je NEJVĚTŠÍ prvočíselný dělitel čísla ${m}?`,ans:big,h1:'Rozlož číslo na prvočinitele a vezmi největší.',h2:`= ${big}`};},
-    ()=>{const p=primes[ri(2,9)];let np=p+1;while(!isP(np))np++;return{text:`Které nejmenší prvočíslo je větší než ${p}?`,ans:np,h1:'Hledej první prvočíslo nad daným číslem.',h2:`= ${np}`};},
+    ()=>{const lim=[10,20,30,50][ri(0,3)];const cnt=primes.filter(x=>x<lim).length;return{text:`Kolik prvočísel je menších než ${lim}?`,ans:cnt,dis:[String(cnt+1)],h1:'Vyjmenuj prvočísla od 2 nahoru a počítej.',h2:`= ${cnt}`};},
+    ()=>{const m=[12,18,20,24,30,36,45][ri(0,6)];let big=1;for(const p of primes)if(m%p===0)big=p;return{text:`Jaký je NEJVĚTŠÍ prvočíselný dělitel čísla ${m}?`,ans:big,dis:(m!==big?[String(m)]:[]),h1:'Rozlož číslo na prvočinitele a vezmi největší.',h2:`= ${big}`};},
+    ()=>{const p=primes[ri(2,9)];let np=p+1;while(!isP(np))np++;return{text:`Které nejmenší prvočíslo je větší než ${p}?`,ans:np,dis:(np!==p+1?[String(p+1)]:[]),h1:'Hledej první prvočíslo nad daným číslem.',h2:`= ${np}`};},
     ()=>{const b=ri(3,9),q=ri(2,6);const ok=ri(0,1)===0;const a=ok?b*q:b*q+ri(1,b-1);return{text:`Je číslo ${a} násobkem čísla ${b}?`,ans:a%b===0?'ANO':'NE',h1:`Je ${a} v řadě násobků čísla ${b}?`,h2:a%b===0?'ANO':'NE'};},
-    ()=>{const n=[6,8,10,12,15][ri(0,4)];return{text:`Kolik dělitelů má číslo ${n} KROMĚ 1 a sebe sama?`,ans:divc(n)-2,h1:'Spočítej všechny dělitele a dva odečti.',h2:`= ${divc(n)-2}`};},
+    ()=>{const n=[6,8,10,12,15][ri(0,4)];return{text:`Kolik dělitelů má číslo ${n} KROMĚ 1 a sebe sama?`,ans:divc(n)-2,dis:[String(divc(n))],h1:'Spočítej všechny dělitele a dva odečti.',h2:`= ${divc(n)-2}`};},
   ];
   const tasks=[];
-  for(let i=0;i<13;i++){const t=T[i%T.length]();tasks.push({text:t.text,ans:t.ans,hints:[t.h1,t.h2],skill:'anal'});}
+  for(let i=0;i<13;i++){const t=T[i%T.length]();tasks.push({text:t.text,ans:t.ans,hints:[t.h1,t.h2],distractors:t.dis,skill:'anal'});}
   return tasks;
 }
 
