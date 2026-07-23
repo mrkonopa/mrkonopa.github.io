@@ -895,9 +895,9 @@ function svgCross(deg,opt={}){
 }
 // Kvádr / krychle v kosé projekci. Popisky a,b,c (šířka, výška, hloubka).
 function svgCuboid(a,b,c){
- const x=40,y=120,w=120,h=80,d=38,dd=30;
+ const x=54,y=118,w=104,h=72,d=30,dd=24;
  const f=`${x},${y} ${x+w},${y} ${x+w},${y-h} ${x},${y-h}`;
- return `<svg viewBox="0 0 250 160"><polygon points="${x},${y-h} ${x+d},${y-h-dd} ${x+w+d},${y-h-dd} ${x+w},${y-h}" fill="#2b2566" stroke="#5dc8f0" stroke-width="2"/><polygon points="${x+w},${y} ${x+w+d},${y-dd} ${x+w+d},${y-h-dd} ${x+w},${y-h}" fill="#241f5a" stroke="#5dc8f0" stroke-width="2"/><polygon points="${f}" fill="#322a72" stroke="#5dc8f0" stroke-width="2.5"/><text x="${x+w/2}" y="${y+18}" fill="#ffd84d" font-size="15" font-family="monospace" text-anchor="middle">${a}</text><text x="${x-12}" y="${y-h/2+5}" fill="#ffd84d" font-size="15" font-family="monospace" text-anchor="middle">${b}</text><text x="${x+w+d+6}" y="${y-h-dd/2+2}" fill="#43e88a" font-size="14" font-family="monospace">${c}</text></svg>`;
+ return `<svg viewBox="0 0 250 160"><polygon points="${x},${y-h} ${x+d},${y-h-dd} ${x+w+d},${y-h-dd} ${x+w},${y-h}" fill="#2b2566" stroke="#5dc8f0" stroke-width="2"/><polygon points="${x+w},${y} ${x+w+d},${y-dd} ${x+w+d},${y-h-dd} ${x+w},${y-h}" fill="#241f5a" stroke="#5dc8f0" stroke-width="2"/><polygon points="${f}" fill="#322a72" stroke="#5dc8f0" stroke-width="2.5"/><text x="${x+w/2}" y="${y+18}" fill="#ffd84d" font-size="14" font-family="monospace" text-anchor="middle">${a}</text><text x="${x-8}" y="${y-h/2+5}" fill="#ffd84d" font-size="14" font-family="monospace" text-anchor="end">${b}</text><text x="${x+w+d+5}" y="${y-h/2+5}" fill="#43e88a" font-size="14" font-family="monospace" text-anchor="start">${c}</text></svg>`;
 }
 // Trojúhelník daného typu s popisky úhlů/stran. kind: 'rovnostr'|'rovnoram'|'pravo'|'obecny'
 function svgTriangle(kind,opt={}){

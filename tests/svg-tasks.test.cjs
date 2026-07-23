@@ -45,6 +45,45 @@ function parsePoly(svg){ // vrátí [C,B,A] jako {x,y}
 }
 function intsIn(re, text){ const m = text.match(re); return m ? m.slice(1).map(Number) : null; }
 
+// ── parser popisků <text> a čar <line> pro kontrolu rozmístění (přetečení / překryv) ──
+function parseTexts(svg){
+  const out = [];
+  const re = /<text\b([^>]*)>([^<]*)<\/text>/g; let m;
+  while ((m = re.exec(svg))) {
+    const at = m[1], content = m[2];
+    const x = parseFloat((at.match(/\bx="([-\d.]+)"/)||[])[1] || '0');
+    const y = parseFloat((at.match(/\by="([-\d.]+)"/)||[])[1] || '0');
+    const fs = parseFloat((at.match(/font-size="([-\d.]+)"/)||[])[1] || '14');
+    const anchor = (at.match(/text-anchor="(\w+)"/)||[])[1] || 'start';
+    const rot = /rotate\(-90/.test(at);
+    const w = content.length * fs * 0.62; // aproximace šířky monospace
+    let box;
+    if (rot) { // svislý text čtený zdola nahoru: šířka→výška
+      box = { x0:x - fs*0.6, x1:x + fs*0.6, y0:y - w, y1:y + fs*0.3 };
+    } else {
+      let x0 = x;
+      if (anchor === 'middle') x0 = x - w/2; else if (anchor === 'end') x0 = x - w;
+      box = { x0, x1:x0 + w, y0:y - fs, y1:y + fs*0.3 };
+    }
+    out.push({ ...box, content });
+  }
+  return out;
+}
+function parseDashedVLines(svg){ // svislé čárkované čáry (výška) → {x, y0, y1}
+  const out = [];
+  const re = /<line\b([^>]*)\/>/g; let m;
+  while ((m = re.exec(svg))) {
+    const at = m[1];
+    if (!/stroke-dasharray/.test(at)) continue;
+    const x1 = parseFloat((at.match(/\bx1="([-\d.]+)"/)||[])[1]);
+    const x2 = parseFloat((at.match(/\bx2="([-\d.]+)"/)||[])[1]);
+    const y1 = parseFloat((at.match(/\by1="([-\d.]+)"/)||[])[1]);
+    const y2 = parseFloat((at.match(/\by2="([-\d.]+)"/)||[])[1]);
+    if (Math.abs(x1 - x2) < 1) out.push({ x:x1, y0:Math.min(y1,y2), y1:Math.max(y1,y2) });
+  }
+  return out;
+}
+
 // definice rozpoznávaných NOVÝCH úloh: matcher + přepočet + očekávané odvěsny pro geometrii.
 // grades = ročníky, kde se rodina má objevit (kontrola pokrytí). legs = scaled pravoúhlý trojúhelník.
 const RULES = [
@@ -129,6 +168,20 @@ const EXPECT = RULES.filter(r => r.grades.includes(GRADE));
     ok(!bad, 'svg/text obsahuje undefined/NaN: ' + t.text.slice(0,40));
     ok(/^<svg[ >]/.test(t.svg.trim()) && t.svg.includes('</svg>'), 'svg není validní obal: ' + t.text.slice(0,40));
     ok(/^-?\d+$/.test(t.ans) || t.ans === 'ANO' || t.ans === 'NE', 'ans není číslo/ANO/NE: ' + t.ans + ' (' + t.text.slice(0,30) + ')');
+
+    // ── ROZMÍSTĚNÍ popisků: nesmí přetéct viewBox ani překrýt čárkovanou výškovou čáru ──
+    const vb = (t.svg.match(/viewBox="0 0 ([\d.]+) ([\d.]+)"/)||[]);
+    const vbW = parseFloat(vb[1]||'250'), vbH = parseFloat(vb[2]||'160');
+    const texts = parseTexts(t.svg), dlines = parseDashedVLines(t.svg);
+    for (const b of texts) {
+      ok(b.x0 >= -1 && b.x1 <= vbW+1 && b.y0 >= -1 && b.y1 <= vbH+1,
+        `popisek "${b.content}" přetéká viewBox ${vbW}×${vbH} → [${b.x0.toFixed(0)},${b.x1.toFixed(0)}]×[${b.y0.toFixed(0)},${b.y1.toFixed(0)}] · ${t.text.slice(0,28)}`);
+      for (const L of dlines) {
+        const hitX = b.x0 < L.x - 1 && b.x1 > L.x + 1;   // text horizontálně přesahuje čáru
+        const hitY = b.y0 < L.y1 && b.y1 > L.y0;          // a svisle se překrývá
+        ok(!(hitX && hitY), `popisek "${b.content}" překrývá výškovou čáru x=${L.x} · ${t.text.slice(0,28)}`);
+      }
+    }
 
     // ── 2) + 3) NOVÉ úlohy (jen pravidla tohoto ročníku) ──
     for (const rule of EXPECT) {
