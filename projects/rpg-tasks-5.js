@@ -388,10 +388,11 @@
       () => { const a = ri(3, 12); const ok = ri(0, 1) === 0; const tvrz = ok ? a * a : 4 * a; const spravne = tvrz === a * a; return { text: `Má čtverec se stranou ${a} cm obsah ${tvrz} cm²?`, ans: spravne ? 'ANO' : 'NE', h1: `Obsah = ${a} × ${a}, nezaměň s obvodem.`, h2: spravne ? 'ANO' : 'NE' }; },
       () => { const [a, b] = obd(); return { text: pick([`Dračí zahrada ${a} m × ${b} m se má oplotit dokola. Kolik metrů plotu je potřeba?`, `Kolem obdélníkového výběhu ${a} m × ${b} m se staví hradba. Kolik metrů hradby je potřeba?`]), ans: 2 * (a + b), h1: `Plot = obvod.`, h2: `= ${2 * (a + b)} m` }; },
       () => { const [a, b] = obd(); return { text: pick([`Kolik dlaždic 1 × 1 m pokryje podlahu síně ${a} m × ${b} m?`, `Podlaha trůnního sálu je ${a} m × ${b} m. Kolik dlaždic 1 × 1 m ji pokryje?`]), ans: a * b, h1: `Počet dlaždic = obsah.`, h2: `= ${a * b}` }; },
+      () => { const [a, b] = obd(); return { svg: svgRect(a, b, { lw: `${a} m`, lh: `${b} m` }), text: `Dračí pole tvaru obdélníku ${a} m × ${b} m.\nJaký je jeho obsah? (m²)`, ans: a * b, h1: `S = a × b = ${a} × ${b}.`, h2: `= ${a * b} m²` }; },
     ];
     for (let i = 0; i < T.length; i++) {
       const t = T[i % T.length]();
-      tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'geo' });
+      tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'geo', svg: t.svg });
     }
     return tasks;
   }

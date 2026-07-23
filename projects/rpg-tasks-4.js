@@ -336,10 +336,11 @@
       () => { const a = ri(4, 12), [c, d] = obd(); const oC = 4 * a, oO = 2 * (c + d); return { text: `Čtverec má stranu ${a} cm, obdélník strany ${c} cm a ${d} cm. O kolik cm se liší jejich obvody?`, ans: Math.abs(oC - oO), h1: `Obvody: ${oC} cm a ${oO} cm.`, h2: `= ${Math.abs(oC - oO)} cm` }; },
       () => { const a = ri(2, 8); return { text: `Jedna strana obdélníku měří ${a} cm, druhá je dvakrát delší. Jaký je obvod?`, ans: 2 * (a + 2 * a), h1: `Druhá strana: ${2 * a} cm. O = 2 × (${a} + ${2 * a}).`, h2: `= ${2 * (a + 2 * a)} cm` }; },
       () => { const [a, b] = obd(); return { text: `Krab obejde obdélníkovou palubu ${a} m × ${b} m přesně jednou dokola. Kolik metrů ujde?`, ans: 2 * (a + b), h1: `Cesta dokola = obvod.`, h2: `= ${2 * (a + b)} m` }; },
+      () => { const [a, b] = obd(); return { svg: svgRect(a, b, { lw: `${a} cm`, lh: `${b} cm` }), text: `Pirátská vlajka má tvar obdélníku ${a} cm × ${b} cm.\nJaký je její obsah? (cm²)`, ans: a * b, h1: `S = a × b = ${a} × ${b}.`, h2: `= ${a * b} cm²` }; },
     ];
     for (let i = 0; i < T.length; i++) {
       const t = T[i % T.length]();
-      tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'geo' });
+      tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'geo', svg: t.svg });
     }
     return tasks;
   }

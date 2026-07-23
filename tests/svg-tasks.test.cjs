@@ -126,6 +126,13 @@ const RULES = [
     math:t=>{ const p=intsIn(/(\d+) × (\d+) × (\d+) cm/,t.text); if(!p)return 'nenašel čísla'; const [a,b,c]=p; return (Number(t.ans)===2*(a*b+b*c+a*c))?null:`povrch ≠ ${t.ans}`; } },
   { id:'g6krychle', grades:['6'], test:t=>/Kostka tvaru krychle/.test(t.text),
     math:t=>{ const p=intsIn(/hranu (\d+) cm/,t.text); if(!p)return 'nenašel čísla'; const [a]=p; return (Number(t.ans)===a*a*a)?null:`${a}³≠${t.ans}`; } },
+  // ── 1. stupeň (g3/4/5): obdélník v měřítku ──
+  { id:'g3zahon', grades:['3'], test:t=>/Lesní záhon tvaru obdélníku/.test(t.text),
+    math:t=>{ const p=intsIn(/obdélníku (\d+) cm × (\d+) cm/,t.text); if(!p)return 'nenašel čísla'; const [a,b]=p; return (Number(t.ans)===2*(a+b))?null:`obvod 2·(${a}+${b})≠${t.ans}`; } },
+  { id:'g4vlajka', grades:['4'], test:t=>/Pirátská vlajka/.test(t.text),
+    math:t=>{ const p=intsIn(/obdélníku (\d+) cm × (\d+) cm/,t.text); if(!p)return 'nenašel čísla'; const [a,b]=p; return (Number(t.ans)===a*b)?null:`${a}·${b}≠${t.ans}`; } },
+  { id:'g5pole', grades:['5'], test:t=>/Dračí pole tvaru obdélníku/.test(t.text),
+    math:t=>{ const p=intsIn(/obdélníku (\d+) m × (\d+) m/,t.text); if(!p)return 'nenašel čísla'; const [a,b]=p; return (Number(t.ans)===a*b)?null:`${a}·${b}≠${t.ans}`; } },
 ];
 const EXPECT = RULES.filter(r => r.grades.includes(GRADE));
 
