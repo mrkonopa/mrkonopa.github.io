@@ -63,7 +63,9 @@ window.RPG_TASK_EXTRA_9 = {
   (()=>{const a=ri(3,15);return{text:`${window._fc()}:\n|−${a}| =`,ans:String(a),hints:[`Absolutní hodnota → kladné číslo.`],skill:'calc'};})(),
   (()=>{const a=ri(2,5),b=ri(2,5),c=ri(2,5);return{text:`${window._fc()}:\n(-${a}) × (-${b}) × (-${c}) =`,ans:String(-a*b*c),hints:[`Tři záporná → záporné.`],skill:'calc'};})(),
   (()=>{const a=ri(2,6),b=ri(2,6),c=ri(2,8);return{text:`${window._fc()}:\n(-${a}) × ${b} + ${c} =`,ans:String(-a*b+c),hints:[`-${a*b} + ${c}.`],skill:'calc'};})(),
-  (()=>{const a=ri(2,9),b=ri(4,14);return{text:`Napětí na jádru bylo ${a} V a kleslo o ${b} V.\nJaké je teď? (může vyjít i záporné)`,ans:String(a-b),hints:[`${a} − ${b}.`,`Výsledek: ${a-b}`],skill:'calc'};})()
+  (()=>{const a=ri(2,9),b=ri(4,14);return{text:`Napětí na jádru bylo ${a} V a kleslo o ${b} V.\nJaké je teď? (může vyjít i záporné)`,ans:String(a-b),hints:[`${a} − ${b}.`,`Výsledek: ${a-b}`],skill:'calc'};})(),
+  (()=>{const a=ri(2,9),b=ri(4,14),res=-a+b,lo=Math.min(-a,res,0)-1,hi=Math.max(-a,res,0)+1;return{svg:svgNumLine(lo,hi,{point:-a,arrow:{from:-a,to:res},arrowLabel:`+${b}`}),text:`Teploměr ráno ukazoval −${a} °C.\nPřes den se oteplilo o ${b} °C.\nKolik °C ukazuje teď?`,ans:String(res),hints:[`Od −${a} postup o ${b} doprava (k plusu).`,`−${a} + ${b} = ${res}`],skill:'calc'};})(),
+  (()=>{const a=ri(4,12),b=ri(2,a),res=-a+b,lo=Math.min(-a,0)-1,hi=Math.max(res,0)+1;return{svg:svgNumLine(lo,hi,{point:-a,arrow:{from:-a,to:res},arrowLabel:`+${b}`}),text:`Ponorka byla v hloubce ${a} m (tj. −${a} m).\nVynořila se o ${b} m.\nJaká je teď její hloubka? (m, záporné = pod hladinou)`,ans:String(res),hints:[`Od −${a} postup o ${b} k hladině.`,`−${a} + ${b} = ${res}`],skill:'calc'};})()
  ],
 
  // ───────── OBLAST 2 — MOCNINOVÝ REAKTOR ─────────

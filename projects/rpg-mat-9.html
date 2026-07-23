@@ -1278,6 +1278,26 @@ function svgSphere(r){
 function svgSimilar(k){
  return `<svg viewBox="0 0 250 160"><polygon points="30,120 90,120 30,75" fill="#16203a" stroke="#19e6e6" stroke-width="2.5"/><polygon points="130,135 240,135 130,55" fill="#16203a" stroke="#39ff9e" stroke-width="2.5"/><text x="60" y="138" fill="#5d6e94" font-size="12" font-family="monospace" text-anchor="middle">orig.</text><text x="185" y="152" fill="#5d6e94" font-size="12" font-family="monospace" text-anchor="middle">obraz</text><text x="125" y="22" fill="#ff3d7f" font-size="15" font-family="monospace" text-anchor="middle">k = ${k}</text></svg>`;
 }
+// Číselná osa (min..max) s ticky. opt.point = zvýrazněný bod, opt.arrow={from,to} = pohyb, opt.arrowLabel.
+// Self-describing (data-nl*) pro test pozicní věrnosti: tick = data-nltick, bod = data-nlval.
+function svgNumLine(min,max,opt={}){
+ const x0=25,x1=225,ay=52,rng=(max-min)||1;
+ const px=v=>+(x0+(v-min)/rng*(x1-x0)).toFixed(1);
+ const step=rng<=12?1:(rng<=24?2:5);
+ let ticks='';
+ for(let v=Math.ceil(min/step)*step; v<=max; v+=step){
+  const X=px(v),zero=v===0;
+  ticks+=`<line x1="${X}" y1="${ay-4}" x2="${X}" y2="${ay+4}" stroke="${zero?'#fff':'#5d6e94'}" stroke-width="${zero?2.5:1.5}"/><text data-nltick="${v}" x="${X}" y="${ay+18}" fill="${zero?'#fff':'#8a9bc4'}" font-size="12" font-family="monospace" text-anchor="middle">${v}</text>`;
+ }
+ let extra='';
+ if(opt.arrow){const A=px(opt.arrow.from),B=px(opt.arrow.to),mid=((A+B)/2).toFixed(1);
+  extra+=`<path d="M ${A} ${ay-6} Q ${mid} ${ay-26} ${B} ${ay-6}" fill="none" stroke="#39ff9e" stroke-width="2"/><polygon points="${B},${ay-2} ${(B-5).toFixed(1)},${ay-11} ${(B+5).toFixed(1)},${ay-11}" fill="#39ff9e"/>`;
+  if(opt.arrowLabel) extra+=`<text x="${mid}" y="${ay-29}" fill="#39ff9e" font-size="13" font-family="monospace" text-anchor="middle">${opt.arrowLabel}</text>`;
+ }
+ let pt='';
+ if(opt.point!==undefined){const X=px(opt.point);pt+=`<circle cx="${X}" cy="${ay}" r="5" fill="#ff3d7f" data-nlval="${opt.point}"/>`;}
+ return `<svg viewBox="0 0 250 92" data-nlmin="${min}" data-nlmax="${max}" data-nlx0="${x0}" data-nlx1="${x1}"><line x1="${x0-4}" y1="${ay}" x2="${x1+4}" y2="${ay}" stroke="#5d6e94" stroke-width="2"/>${ticks}${extra}${pt}</svg>`;
+}
 
 // checkAns → přesunuto do sdíleného projects/rpg-shared.js
 // isYN/answerYN/trAnswerYN → rpg-shared.js
