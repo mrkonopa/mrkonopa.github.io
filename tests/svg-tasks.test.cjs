@@ -83,6 +83,19 @@ function parseDashedVLines(svg){ // svislé čárkované čáry (výška) → {x
   }
   return out;
 }
+function parseStrokedCircles(svg){ // obrysové kružnice (mají stroke, r≥10) → {cx,cy,r}; středový bod r=3 ignorován
+  const out = [];
+  const re = /<circle\b([^>]*?)\/?>/g; let m;
+  while ((m = re.exec(svg))) {
+    const at = m[1];
+    if (!/\bstroke="/.test(at)) continue;
+    const cx = parseFloat((at.match(/\bcx="([-\d.]+)"/)||[])[1]);
+    const cy = parseFloat((at.match(/\bcy="([-\d.]+)"/)||[])[1]);
+    const r = parseFloat((at.match(/\br="([-\d.]+)"/)||[])[1]);
+    if (r >= 10) out.push({ cx, cy, r });
+  }
+  return out;
+}
 
 // definice rozpoznávaných NOVÝCH úloh: matcher + přepočet + očekávané odvěsny pro geometrii.
 // grades = ročníky, kde se rodina má objevit (kontrola pokrytí). legs = scaled pravoúhlý trojúhelník.
@@ -112,6 +125,14 @@ const RULES = [
     legs:t=>{ const p=intsIn(/dlouhý (\d+) m[\s\S]*pata (\d+) m od zdi/,t.text); const [zeb,dist]=p; return {a:dist,b:Number(t.ans)}; } },
   { id:'g8sud', grades:['8'], test:t=>/Sud tvaru válce/.test(t.text),
     math:t=>{ const p=intsIn(/poloměr (\d+) dm a výšku (\d+) dm/,t.text); if(!p)return 'nenašel čísla'; const [r,v]=p; return (Number(t.ans)===Math.round(3.14*r*r*v))?null:`objem ≠ ${t.ans}`; } },
+  { id:'g8terc', grades:['8'], test:t=>/Kruhový terč/.test(t.text),
+    math:t=>{ const p=intsIn(/poloměr (\d+) cm/,t.text); if(!p)return 'nenašel čísla'; const [r]=p; return (Number(t.ans)===Math.round(3.14*r*r))?null:`obsah ≠ ${t.ans}`; } },
+  { id:'g8bazenkruh', grades:['8'], test:t=>/Kruhový bazén má průměr/.test(t.text),
+    math:t=>{ const p=intsIn(/průměr (\d+) m/,t.text); if(!p)return 'nenašel čísla'; const [d]=p; return (Number(t.ans)===Math.round(3.14*d))?null:`obvod ≠ ${t.ans}`; } },
+  { id:'g8kolo', grades:['8'], test:t=>/Kruhové kolo má poloměr/.test(t.text),
+    math:t=>{ const p=intsIn(/poloměr (\d+) cm/,t.text); if(!p)return 'nenašel čísla'; const [r]=p; return (Number(t.ans)===Math.round(2*3.14*r))?null:`obvod ≠ ${t.ans}`; } },
+  { id:'g8talir', grades:['8'], test:t=>/Kruhový talíř má průměr/.test(t.text),
+    math:t=>{ const p=intsIn(/průměr (\d+) cm/,t.text); if(!p)return 'nenašel čísla'; const [d]=p; const r=d/2; return (Number(t.ans)===Math.round(3.14*r*r))?null:`obsah ≠ ${t.ans}`; } },
   // ── g7 (obsahy čtyřúhelníků + objem kvádru) ──
   { id:'g7pozemek', grades:['7'], test:t=>/Pozemek tvaru rovnoběžníku/.test(t.text),
     math:t=>{ const p=intsIn(/stranu (\d+) m a výšku (\d+) m/,t.text); if(!p)return 'nenašel čísla'; const [a,v]=p; return (Number(t.ans)===a*v)?null:`${a}·${v}≠${t.ans}`; } },
@@ -179,7 +200,7 @@ const EXPECT = RULES.filter(r => r.grades.includes(GRADE));
     // ── ROZMÍSTĚNÍ popisků: nesmí přetéct viewBox ani překrýt čárkovanou výškovou čáru ──
     const vb = (t.svg.match(/viewBox="0 0 ([\d.]+) ([\d.]+)"/)||[]);
     const vbW = parseFloat(vb[1]||'250'), vbH = parseFloat(vb[2]||'160');
-    const texts = parseTexts(t.svg), dlines = parseDashedVLines(t.svg);
+    const texts = parseTexts(t.svg), dlines = parseDashedVLines(t.svg), circles = parseStrokedCircles(t.svg);
     for (const b of texts) {
       ok(b.x0 >= -1 && b.x1 <= vbW+1 && b.y0 >= -1 && b.y1 <= vbH+1,
         `popisek "${b.content}" přetéká viewBox ${vbW}×${vbH} → [${b.x0.toFixed(0)},${b.x1.toFixed(0)}]×[${b.y0.toFixed(0)},${b.y1.toFixed(0)}] · ${t.text.slice(0,28)}`);
@@ -187,6 +208,13 @@ const EXPECT = RULES.filter(r => r.grades.includes(GRADE));
         const hitX = b.x0 < L.x - 1 && b.x1 > L.x + 1;   // text horizontálně přesahuje čáru
         const hitY = b.y0 < L.y1 && b.y1 > L.y0;          // a svisle se překrývá
         ok(!(hitX && hitY), `popisek "${b.content}" překrývá výškovou čáru x=${L.x} · ${t.text.slice(0,28)}`);
+      }
+      // popisek nesmí KŘÍŽIT obrys kružnice: buď celý uvnitř (rohy < r−2), nebo celý venku (> r+2)
+      for (const C of circles) {
+        const corners = [[b.x0,b.y0],[b.x1,b.y0],[b.x0,b.y1],[b.x1,b.y1]];
+        const dists = corners.map(([x,y]) => Math.hypot(x-C.cx, y-C.cy));
+        const anyIn = dists.some(d => d < C.r-2), anyOut = dists.some(d => d > C.r+2);
+        ok(!(anyIn && anyOut), `popisek "${b.content}" kříží obrys kružnice (cx=${C.cx},cy=${C.cy},r=${C.r}) · ${t.text.slice(0,28)}`);
       }
     }
 

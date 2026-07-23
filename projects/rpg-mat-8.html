@@ -897,7 +897,7 @@ function svgRightTri(a,b,opt){
 // Kruh s poloměrem r NEBO průměrem d (předej jen jeden popisek).
 function svgCircleR(lbl={}){
  const hasD=!!lbl.d;
- return `<svg viewBox="0 0 250 160"><circle cx="125" cy="80" r="58" fill="#101a2e" stroke="#5dade2" stroke-width="3"/><circle cx="125" cy="80" r="3" fill="#e74c3c"/>${hasD?`<line x1="67" y1="80" x2="183" y2="80" stroke="#f4d03f" stroke-width="2"/><text x="125" y="70" fill="#f4d03f" font-size="14" font-family="monospace" text-anchor="middle">${lbl.d}</text>`:`<line x1="125" y1="80" x2="183" y2="80" stroke="#f4d03f" stroke-width="2"/><text x="154" y="70" fill="#f4d03f" font-size="14" font-family="monospace" text-anchor="middle">${lbl.r}</text>`}</svg>`;
+ return `<svg viewBox="0 0 250 160"><circle cx="125" cy="80" r="58" fill="#101a2e" stroke="#5dade2" stroke-width="3"/><circle cx="125" cy="80" r="3" fill="#e74c3c"/>${hasD?`<line x1="67" y1="80" x2="183" y2="80" stroke="#f4d03f" stroke-width="2"/><text x="125" y="70" fill="#f4d03f" font-size="14" font-family="monospace" text-anchor="middle">${lbl.d}</text>`:`<line x1="125" y1="80" x2="183" y2="80" stroke="#f4d03f" stroke-width="2"/><text x="125" y="70" fill="#f4d03f" font-size="14" font-family="monospace" text-anchor="middle">${lbl.r}</text>`}</svg>`;
 }
 // Válec: r poloměr podstavy, v výška (popisky se předávají hotové).
 function svgCyl(rl,vl){

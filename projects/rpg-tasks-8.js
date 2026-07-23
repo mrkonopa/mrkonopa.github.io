@@ -227,7 +227,11 @@ window.RPG_TASK_EXTRA_8 = {
   (()=>{const r=ri(2,5),h=ri(10,20);return{text:`Silo (válec): r = ${r} m, výška ${h} m.\nObjem obilí? (m³, π = 3,14)`,ans:r2(PI*r*r*h),hints:[`V = πr²h.`],skill:'geo'};})(),
   (()=>{const r=ri(10,20),n=ri(5,12);return{text:`Kolo: r = ${r} cm, ujede ${n} otáček.\nDráha v metrech? (π = 3,14)`,ans:r2(n*2*PI*r/100),hints:[`${n} × 2πr cm → m.`],skill:'geo'};})(),
   (()=>{const r=ri(3,7);return{text:`Fontána: kruhová plocha r = ${r} m, hloubka 1 m.\nObjem vody v litrech? (1 m³ = 1000 l, π = 3,14)`,ans:r2(PI*r*r*1000),hints:[`V = πr² × 1 m³ × 1000.`],skill:'geo'};})(),
-  (()=>{const r=ri(2,6);return{text:`Do kruhové učebny pořídili kulatý koberec o poloměru ${r} m.\nKolik m² koberce to je? (π = 3,14)`,ans:r2(PI*r*r),hints:[`S = πr².`,`3,14 × ${r}²`],skill:'geo'};})()
+  (()=>{const r=ri(2,6);return{text:`Do kruhové učebny pořídili kulatý koberec o poloměru ${r} m.\nKolik m² koberce to je? (π = 3,14)`,ans:r2(PI*r*r),hints:[`S = πr².`,`3,14 × ${r}²`],skill:'geo'};})(),
+  (()=>{const r=ri(3,9),S=Math.round(3.14*r*r);return{svg:svgCircleR({r:`r = ${r} cm`}),text:`Kruhový terč má poloměr ${r} cm.\nJaký je jeho obsah? (cm², π = 3,14, zaokrouhli na celé)`,ans:String(S),hints:[`S = π · r² = 3,14 · ${r}².`,`Výsledek: ${S} cm²`],skill:'geo'};})(),
+  (()=>{const d=ri(6,16),O=Math.round(3.14*d);return{svg:svgCircleR({d:`d = ${d} m`}),text:`Kruhový bazén má průměr ${d} m.\nKolik metrů obruby je na jeho obvod? (π = 3,14, zaokrouhli na celé)`,ans:String(O),hints:[`o = π · d = 3,14 · ${d}.`,`Výsledek: ${O} m`],skill:'geo'};})(),
+  (()=>{const r=ri(3,9),O=Math.round(2*3.14*r);return{svg:svgCircleR({r:`r = ${r} cm`}),text:`Kruhové kolo má poloměr ${r} cm.\nJak dlouhý je jeho obvod? (cm, π = 3,14, zaokrouhli na celé)`,ans:String(O),hints:[`o = 2 · π · r = 2 · 3,14 · ${r}.`,`Výsledek: ${O} cm`],skill:'geo'};})(),
+  (()=>{const r=ri(2,7),d=2*r,S=Math.round(3.14*r*r);return{svg:svgCircleR({d:`d = ${d} cm`}),text:`Kruhový talíř má průměr ${d} cm.\nJaký je jeho obsah? (cm², π = 3,14, zaokrouhli na celé)`,ans:String(S),hints:[`Poloměr r = ${d} : 2 = ${r}. S = π · r².`,`Výsledek: ${S} cm²`],skill:'geo'};})()
  ],
 
  // ───────── OBLAST 6 — KONSTRUKCE ─────────
