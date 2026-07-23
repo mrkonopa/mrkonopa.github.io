@@ -9,6 +9,7 @@ const path = require('path');
 // stub globální helpery (stejné chování jako ve hře)
 global.ri = (a,b)=>Math.floor(Math.random()*(b-a+1))+a;
 global.gcd = function gcd(a,b){return b?gcd(b,a%b):Math.abs(a);};
+global.svgCuboid = ()=>'<svg></svg>';
 global.window = {};
 
 const code = fs.readFileSync(path.join(__dirname,'..','projects','rpg-tasks-6.js'),'utf8');

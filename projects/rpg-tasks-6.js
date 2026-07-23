@@ -413,6 +413,9 @@ function gen_6_1(){
   { const a=ri(2,9); tasks.push({text:`Krychle má hranu ${a} cm. Jaký je objem?`,ans:a*a*a,hints:['V = a³.',`${a}³ = ${a*a*a} cm³`],skill:'geo'}); }
   { const a=ri(2,5); tasks.push({text:`Krychle má objem ${a*a*a} cm³. Jak dlouhá je hrana? (cm)`,ans:a,hints:['a = ∛V.',`∛${a*a*a} = ${a} cm`],skill:'geo'}); }
   { const a=ri(2,8),b=ri(2,8),h=ri(2,5); tasks.push({text:`Kvádr: podstava ${a} × ${b} cm, výška ${h} cm. Objem?`,ans:a*b*h,hints:['V = S·v = a·b·v.',`= ${a*b*h} cm³`],skill:'geo'}); }
+  // SVG slovní úlohy s diagramem
+  { const a=ri(3,6),b=ri(2,5),c=ri(2,4); tasks.push({svg:svgCuboid(`${a} dm`,`${b} dm`,`${c} dm`),text:`Nádrž tvaru kvádru má rozměry ${a} × ${b} × ${c} dm.\nKolik litrů vody pojme? (1 dm³ = 1 l)`,ans:a*b*c,hints:['V = a · b · c.',`${a} · ${b} · ${c} = ${a*b*c} l`],skill:'geo'}); }
+  { const a=ri(2,6); tasks.push({svg:svgCuboid(`${a} cm`,`${a} cm`,`${a} cm`),text:`Kostka tvaru krychle má hranu ${a} cm.\nJaký je její objem? (cm³)`,ans:a*a*a,hints:['V = a³.',`${a}³ = ${a*a*a} cm³`],skill:'geo'}); }
   return tasks;
 }
 
@@ -435,6 +438,8 @@ function gen_6_2(){
   { const a=ri(2,6); tasks.push({text:`Obsah jedné stěny krychle s hranou ${a} cm? (cm²)`,ans:a*a,hints:['Stěna je čtverec a².',`= ${a*a} cm²`],skill:'geo'}); }
   { tasks.push({text:`Kolik stěn má kvádr?`,ans:6,hints:['Stejně jako krychle — protilehlé po dvojicích.','6'],skill:'geo'}); }
   { const a=ri(2,6); tasks.push({text:`Modul tvaru krychle s hranou ${a} m se má polepit ochranným štítem. Kolik m² štítu je potřeba na celý povrch?`,ans:6*a*a,hints:['S = 6·a².',`6·${a}² = ${6*a*a} m²`],skill:'geo'}); }
+  // SVG slovní úloha s diagramem
+  { const a=ri(3,7),b=ri(2,6),c=ri(2,5); tasks.push({svg:svgCuboid(`${a} cm`,`${b} cm`,`${c} cm`),text:`Krabice tvaru kvádru má rozměry ${a} × ${b} × ${c} cm.\nKolik cm² kartonu je potřeba na celý povrch?`,ans:2*(a*b+b*c+a*c),hints:['S = 2 · (a·b + b·c + a·c).',`= ${2*(a*b+b*c+a*c)} cm²`],skill:'geo'}); }
   return tasks;
 }
 

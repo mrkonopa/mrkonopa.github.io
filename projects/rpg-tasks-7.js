@@ -101,6 +101,10 @@ function gen_1_3(){
   // thematické
   { const a=ri(4,12),b=ri(3,a); tasks.push({text:`Obětní oltář má obdélníkovou desku ${a} m × ${b} m. Kolik metrů zdobené šňůry potřebuješ na její obvod?`,ans:2*(a+b),hints:['o = 2·(a + b).',`2·(${a}+${b}) = ${2*(a+b)} m`],skill:'geo'}); }
   { const a=ri(3,10); tasks.push({text:`Podlaha svatyně je čtverec o straně ${a} m. Kolik ${skl(a*a,'dlaždice','dlaždice','dlaždic')} o rozměru 1 m² ji pokryje?`,ans:a*a,hints:['S = a² a jedna dlaždice = 1 m².',`${a}² = ${a*a} dlaždic`],skill:'geo'}); }
+  // SVG slovní úlohy s diagramem
+  { const a=ri(4,12),v=ri(3,9); tasks.push({svg:svgParallelogram(a,v),text:`Pozemek tvaru rovnoběžníku má stranu ${a} m a výšku ${v} m.\nJaký je jeho obsah? (m²)`,ans:a*v,hints:['S = a · v (strana × výška).',`${a} · ${v} = ${a*v} m²`],skill:'geo'}); }
+  { const a=ri(9,15),c=ri(3,a-3),v=2*ri(2,4); tasks.push({svg:svgTrapezoid(a,c,v),text:`Průřez hráze má tvar lichoběžníku se základnami ${a} m a ${c} m při výšce ${v} m.\nJaký je obsah průřezu? (m²)`,ans:(a+c)*v/2,hints:['S = (a + c) · v / 2.',`(${a} + ${c}) · ${v} / 2 = ${(a+c)*v/2} m²`],skill:'geo'}); }
+  { const a=ri(3,7),b=ri(2,6),c=ri(2,5); tasks.push({svg:svgCuboid(`${a} dm`,`${b} dm`,`${c} dm`),text:`Bedna tvaru kvádru má rozměry ${a} × ${b} × ${c} dm.\nJaký je její objem? (dm³)`,ans:a*b*c,hints:['V = a · b · c.',`${a} · ${b} · ${c} = ${a*b*c} dm³`],skill:'geo'}); }
   return tasks;
 }
 

@@ -606,6 +606,16 @@ const skl=(n,one,few,many)=>n===1?one:(n>=2&&n<=4?few:many);
 const cz=n=>String(n).replace('.',',');
 const r2=(n,d=2)=>Math.round(n*Math.pow(10,d))/Math.pow(10,d);
 
+// Obdélník / čtverec V MĚŘÍTKU (pro slovní úlohy 1. stupně). Popisky stran opt.lw (dole) / opt.lh (vlevo).
+function svgRect(w,h,opt={}){
+ const x=60,yb=128,s=Math.min(140/Math.max(w,1),92/Math.max(h,1));
+ const W=+(w*s).toFixed(1),H=+(h*s).toFixed(1),yt=+(yb-H).toFixed(1);
+ let t='';
+ if(opt.lw) t+=`<text x="${(x+W/2).toFixed(1)}" y="${yb+18}" fill="#ffe066" font-size="14" font-family="monospace" text-anchor="middle">${opt.lw}</text>`;
+ if(opt.lh) t+=`<text x="${x-8}" y="${(yb-H/2+4).toFixed(1)}" fill="#ffe066" font-size="14" font-family="monospace" text-anchor="end">${opt.lh}</text>`;
+ return `<svg viewBox="0 0 250 160"><rect x="${x}" y="${yt}" width="${W}" height="${H}" fill="none" stroke="#6fcf6f" stroke-width="3"/>${t}</svg>`;
+}
+
 // AREAS
 const AREAS=[
 {

@@ -1184,9 +1184,9 @@ function svgCross(deg,opt={}){
 }
 // Kvádr / krychle v kosé projekci. Popisky a,b,c (šířka, výška, hloubka).
 function svgCuboid(a,b,c){
- const x=40,y=120,w=120,h=80,d=38,dd=30;
+ const x=54,y=118,w=104,h=72,d=30,dd=24;
  const f=`${x},${y} ${x+w},${y} ${x+w},${y-h} ${x},${y-h}`;
- return `<svg viewBox="0 0 250 160"><polygon points="${x},${y-h} ${x+d},${y-h-dd} ${x+w+d},${y-h-dd} ${x+w},${y-h}" fill="#16203a" stroke="#19e6e6" stroke-width="2"/><polygon points="${x+w},${y} ${x+w+d},${y-dd} ${x+w+d},${y-h-dd} ${x+w},${y-h}" fill="#101a30" stroke="#19e6e6" stroke-width="2"/><polygon points="${f}" fill="#1b2742" stroke="#19e6e6" stroke-width="2.5"/><text x="${x+w/2}" y="${y+18}" fill="#ff3d7f" font-size="15" font-family="monospace" text-anchor="middle">${a}</text><text x="${x-12}" y="${y-h/2+5}" fill="#ff3d7f" font-size="15" font-family="monospace" text-anchor="middle">${b}</text><text x="${x+w+d+6}" y="${y-h-dd/2+2}" fill="#39ff9e" font-size="14" font-family="monospace">${c}</text></svg>`;
+ return `<svg viewBox="0 0 250 160"><polygon points="${x},${y-h} ${x+d},${y-h-dd} ${x+w+d},${y-h-dd} ${x+w},${y-h}" fill="#16203a" stroke="#19e6e6" stroke-width="2"/><polygon points="${x+w},${y} ${x+w+d},${y-dd} ${x+w+d},${y-h-dd} ${x+w},${y-h}" fill="#101a30" stroke="#19e6e6" stroke-width="2"/><polygon points="${f}" fill="#1b2742" stroke="#19e6e6" stroke-width="2.5"/><text x="${x+w/2}" y="${y+18}" fill="#ff3d7f" font-size="14" font-family="monospace" text-anchor="middle">${a}</text><text x="${x-8}" y="${y-h/2+5}" fill="#ff3d7f" font-size="14" font-family="monospace" text-anchor="end">${b}</text><text x="${x+w+d+5}" y="${y-h/2+5}" fill="#39ff9e" font-size="14" font-family="monospace" text-anchor="start">${c}</text></svg>`;
 }
 // Trojúhelník daného typu s popisky úhlů/stran. kind: 'rovnostr'|'rovnoram'|'pravo'|'obecny'
 function svgTriangle(kind,opt={}){
@@ -1203,6 +1203,30 @@ function svgTriangle(kind,opt={}){
  let extra=opt.extra||'';
  return `<svg viewBox="0 0 250 165"><polygon points="${pts}" fill="#16203a" stroke="#19e6e6" stroke-width="3"/>${kind==='pravo'?`<rect x="55" y="120" width="15" height="15" fill="none" stroke="#ff3d7f" stroke-width="2"/>`:''}${txt}${extra}</svg>`;
 }
+// Pravoúhlý trojúhelník V MĚŘÍTKU (pro slovní úlohy s Pythagorem).
+// Pravý úhel u C (dole vlevo, γ). Vodorovná odvěsna C→B = strana a, svislá C→A = strana b, přepona A→B = c.
+// aLen/bLen = skutečné délky odvěsen (kreslí se proporčně). Popisky přes opt.la/lb/lc (řetězce; '' = skrýt).
+function svgRightTri(aLen,bLen,opt={}){
+ const Cx=58,Cy=140,mx=aLen>=bLen; // uniformní měřítko: obě odvěsny se vejdou
+ const s=Math.min(150/Math.max(aLen,1),100/Math.max(bLen,1));
+ const Bx=+(Cx+aLen*s).toFixed(1), By=Cy;
+ const Ax=Cx, Ay=+(Cy-bLen*s).toFixed(1);
+ const msz=13;
+ const la=opt.la!==undefined?opt.la:'a', lb=opt.lb!==undefined?opt.lb:'b', lc=opt.lc!==undefined?opt.lc:'c';
+ const vl=opt.v||['A','B','C']; // A(nahoře vlevo), B(dole vpravo), C(dole vlevo=pravý úhel)
+ let t='';
+ // strana a — dolní hrana C→B (pod ní)
+ if(la) t+=`<text x="${((Cx+Bx)/2).toFixed(1)}" y="${Cy+18}" fill="#ff3d7f" font-size="14" font-family="monospace" text-anchor="middle">${la}</text>`;
+ // strana b — levá hrana C→A (vlevo od ní)
+ if(lb) t+=`<text x="${Cx-9}" y="${((Cy+Ay)/2+5).toFixed(1)}" fill="#ff3d7f" font-size="14" font-family="monospace" text-anchor="end">${lb}</text>`;
+ // strana c — přepona A→B (vpravo nahoře od středu)
+ if(lc) t+=`<text x="${((Ax+Bx)/2+8).toFixed(1)}" y="${((Ay+By)/2-4).toFixed(1)}" fill="#39ff9e" font-size="14" font-family="monospace" text-anchor="start">${lc}</text>`;
+ // vrcholy
+ t+=`<text x="${Ax-11}" y="${Ay+4}" fill="#fff" font-size="13" font-family="monospace" text-anchor="middle">${vl[0]}</text>`;
+ t+=`<text x="${Bx+11}" y="${By+14}" fill="#fff" font-size="13" font-family="monospace" text-anchor="middle">${vl[1]}</text>`;
+ t+=`<text x="${Cx-11}" y="${Cy+14}" fill="#fff" font-size="13" font-family="monospace" text-anchor="middle">${vl[2]}</text>`;
+ return `<svg viewBox="0 0 250 165"><polygon points="${Cx},${Cy} ${Bx},${By} ${Ax},${Ay}" fill="#16203a" stroke="#19e6e6" stroke-width="3"/><rect x="${Cx}" y="${Cy-msz}" width="${msz}" height="${msz}" fill="none" stroke="#ff3d7f" stroke-width="2"/>${t}</svg>`;
+}
 // Útvar s osou souměrnosti (svislá čárkovaná osa). Pro osovou souměrnost.
 function svgMirror(shape){
  const axis=`<line x1="125" y1="15" x2="125" y2="150" stroke="#ff3d7f" stroke-width="2" stroke-dasharray="6 5"/>`;
@@ -1218,11 +1242,11 @@ function svgPointSym(){
 }
 // Rovnoběžník se stranou a (dole) a výškou v.
 function svgParallelogram(a,v){
- return `<svg viewBox="0 0 250 160"><polygon points="55,125 185,125 215,45 85,45" fill="#16203a" stroke="#19e6e6" stroke-width="2.5"/><line x1="85" y1="125" x2="85" y2="45" stroke="#ff3d7f" stroke-width="2" stroke-dasharray="5 4"/><rect x="85" y="113" width="12" height="12" fill="none" stroke="#ff3d7f" stroke-width="1.5"/><text x="120" y="142" fill="#ff3d7f" font-size="14" font-family="monospace" text-anchor="middle">a = ${a}</text><text x="68" y="88" fill="#ff3d7f" font-size="14" font-family="monospace" text-anchor="middle">v = ${v}</text></svg>`;
+ return `<svg viewBox="0 0 250 160"><polygon points="55,125 185,125 215,45 85,45" fill="#16203a" stroke="#19e6e6" stroke-width="2.5"/><line x1="115" y1="125" x2="115" y2="45" stroke="#ff3d7f" stroke-width="2" stroke-dasharray="5 4"/><rect x="115" y="113" width="12" height="12" fill="none" stroke="#ff3d7f" stroke-width="1.5"/><text x="120" y="142" fill="#ff3d7f" font-size="14" font-family="monospace" text-anchor="middle">a = ${a}</text><text x="121" y="90" fill="#ff3d7f" font-size="13" font-family="monospace" text-anchor="start">v = ${v}</text></svg>`;
 }
 // Lichoběžník: a (dolní základna), c (horní základna), v (výška).
 function svgTrapezoid(a,c,v){
- return `<svg viewBox="0 0 250 160"><polygon points="40,125 210,125 165,45 85,45" fill="#16203a" stroke="#19e6e6" stroke-width="2.5"/><line x1="85" y1="125" x2="85" y2="45" stroke="#ff3d7f" stroke-width="2" stroke-dasharray="5 4"/><rect x="85" y="113" width="12" height="12" fill="none" stroke="#ff3d7f" stroke-width="1.5"/><text x="125" y="142" fill="#ff3d7f" font-size="13" font-family="monospace" text-anchor="middle">a = ${a}</text><text x="125" y="38" fill="#39ff9e" font-size="13" font-family="monospace" text-anchor="middle">c = ${c}</text><text x="68" y="88" fill="#ff3d7f" font-size="13" font-family="monospace" text-anchor="middle">v = ${v}</text></svg>`;
+ return `<svg viewBox="0 0 250 160"><polygon points="40,125 210,125 165,45 85,45" fill="#16203a" stroke="#19e6e6" stroke-width="2.5"/><line x1="110" y1="125" x2="110" y2="45" stroke="#ff3d7f" stroke-width="2" stroke-dasharray="5 4"/><rect x="110" y="113" width="12" height="12" fill="none" stroke="#ff3d7f" stroke-width="1.5"/><text x="125" y="142" fill="#ff3d7f" font-size="13" font-family="monospace" text-anchor="middle">a = ${a}</text><text x="125" y="38" fill="#39ff9e" font-size="13" font-family="monospace" text-anchor="middle">c = ${c}</text><text x="116" y="90" fill="#ff3d7f" font-size="13" font-family="monospace" text-anchor="start">v = ${v}</text></svg>`;
 }
 
 // Graf lineární funkce y = kx + q (osy + přímka).

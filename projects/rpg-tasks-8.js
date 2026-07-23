@@ -93,7 +93,8 @@ window.RPG_TASK_EXTRA_8 = {
   (()=>{const a=ri(3,8),b=ri(3,8);const c=Math.sqrt(a*a+b*b);return{text:`Záchranář plave ${a} m na sever a ${b} m na východ.\nJak daleko je od startu? (2 des. místa)`,ans:r2(c),hints:[`Vzdálenost = přepona.`,`√(${a}²+${b}²)`],skill:'geo'};})(),
   (()=>{const t=PYT[ri(0,PYT.length-1)],k=ri(2,3);return{text:`Odvěsny ${t[0]*k} a ${t[1]*k}.\nPřepona? (celé číslo)`,ans:String(t[2]*k),hints:[`Pythagorejská trojice × ${k}.`],skill:'geo'};})(),
   (()=>{const a=ri(4,8),b=ri(3,7);const c=Math.sqrt(a*a+b*b);return{text:`Střecha: sklon ${a} m výšky, délka ${b} m.\nDélka krokve? (2 des. místa)`,ans:r2(c),hints:[`Krokev = přepona.`,`√(${a}²+${b}²)`],skill:'geo'};})(),
-  (()=>{const uc=ri(2,6),a=ri(5,9),b=ri(4,8);const c=Math.sqrt(a*a+b*b);return{text:`V patře akademie ${skl(uc,'je','jsou','je')} ${uc} ${skl(uc,'učebna','učebny','učeben')}, každá obdélníková ${a} × ${b} m.\nJak dlouhá je úhlopříčka jedné učebny? (2 des. místa)`,ans:r2(c),hints:[`Úhlopříčka = přepona pravoúhlého trojúhelníku.`,`√(${a}² + ${b}²)`],skill:'geo'};})()
+  (()=>{const uc=ri(2,6),a=ri(5,9),b=ri(4,8);const c=Math.sqrt(a*a+b*b);return{text:`V patře akademie ${skl(uc,'je','jsou','je')} ${uc} ${skl(uc,'učebna','učebny','učeben')}, každá obdélníková ${a} × ${b} m.\nJak dlouhá je úhlopříčka jedné učebny? (2 des. místa)`,ans:r2(c),hints:[`Úhlopříčka = přepona pravoúhlého trojúhelníku.`,`√(${a}² + ${b}²)`],skill:'geo'};})(),
+  (()=>{const t=PYT[ri(0,PYT.length-1)],sir=t[0],vys=t[1],u=t[2];return{svg:svgRightTri(sir,vys,{la:`${sir} cm`,lb:`${vys} cm`,lc:'? cm',v:['A','B','C']}),text:`Obrazovka má šířku ${sir} cm a výšku ${vys} cm.\nJak dlouhá je úhlopříčka? (cm)`,ans:String(u),hints:[`u² = ${sir}² + ${vys}² = ${sir*sir+vys*vys}.`,`u = √${sir*sir+vys*vys} = ${u}`],skill:'geo'};})()
  ],
  '2-3': () => [   // Pythagoras — odvěsna
   (()=>{const t=PYT[ri(0,PYT.length-1)];return{text:`Přepona c = ${t[2]}, odvěsna a = ${t[0]}.\nDruhá odvěsna b? (celé číslo)`,ans:String(t[1]),hints:[`b² = c² - a².`,`${t[2]*t[2]} - ${t[0]*t[0]} = ${t[1]*t[1]}`],skill:'geo'};})(),
@@ -106,7 +107,8 @@ window.RPG_TASK_EXTRA_8 = {
   (()=>{const d=ri(20,30),x=ri(8,d-5);const h=Math.sqrt(d*d-x*x);return{text:`Letadlo letí ${d} km, vodorovně ${x} km.\nVýška? (2 des. místa, km)`,ans:r2(h),hints:[`výška² = ${d}² - ${x}².`],skill:'geo'};})(),
   (()=>{const c=ri(10,15),b=ri(6,c-2);const a=Math.sqrt(c*c-b*b);return{text:`Obdélník: úhlopříčka ${c} cm, jedna strana ${b} cm.\nDruhá strana? (2 des. místa)`,ans:r2(a),hints:[`a² = ${c}² - ${b}².`],skill:'geo'};})(),
   (()=>{const c=ri(8,14),a=ri(3,c-3);const b=Math.sqrt(c*c-a*a);return{text:`Trojúhelník s přeponou ${c} a odvěsnou ${a}.\nDruhá odvěsna? (2 des. místa)`,ans:r2(b),hints:[`b = √(${c*c}-${a*a}).`],skill:'geo'};})(),
-  (()=>{const zb=ri(2,6),c=ri(8,13),a=ri(3,c-2);const b=Math.sqrt(c*c-a*a);return{text:`Ve skladu akademie stojí ${zb} ${skl(zb,'žebřík','žebříky','žebříků')}. Nejdelší (${c} m) opřeme o zeď, pata ${a} m od zdi.\nDo jaké výšky dosáhne? (2 des. místa)`,ans:r2(b),hints:[`Výška² = žebřík² − odstup².`,`√(${c}² − ${a}²)`],skill:'geo'};})()
+  (()=>{const zb=ri(2,6),c=ri(8,13),a=ri(3,c-2);const b=Math.sqrt(c*c-a*a);return{text:`Ve skladu akademie stojí ${zb} ${skl(zb,'žebřík','žebříky','žebříků')}. Nejdelší (${c} m) opřeme o zeď, pata ${a} m od zdi.\nDo jaké výšky dosáhne? (2 des. místa)`,ans:r2(b),hints:[`Výška² = žebřík² − odstup².`,`√(${c}² − ${a}²)`],skill:'geo'};})(),
+  (()=>{const t=PYT[ri(0,PYT.length-1)],dist=t[0],vys=t[1],zeb=t[2];return{svg:svgRightTri(dist,vys,{la:`${dist} m`,lb:'? m',lc:`${zeb} m`,v:['A','B','C']}),text:`Žebřík dlouhý ${zeb} m je opřený o zeď, pata ${dist} m od zdi.\nDo jaké výšky dosáhne? (m)`,ans:String(vys),hints:[`v² = ${zeb}² − ${dist}² = ${zeb*zeb-dist*dist}.`,`v = √${zeb*zeb-dist*dist} = ${vys}`],skill:'geo'};})()
  ],
 
  // ───────── OBLAST 3 — ROVNICE ─────────
@@ -211,7 +213,8 @@ window.RPG_TASK_EXTRA_8 = {
   (()=>{const r=ri(2,5),h=ri(5,12);return{text:`Konzerva: poloměr dna ${r} cm, výška ${h} cm.\nObjem? (cm³, π = 3,14)`,ans:r2(PI*r*r*h),hints:[`V = πr²h.`],skill:'geo'};})(),
   (()=>{const r=ri(2,5),h=ri(4,8),n=ri(2,4);return{text:`${n} ${skl(n,'válcová nádoba','válcové nádoby','válcových nádob')}: r = ${r} cm, v = ${h} cm.\nCelkový objem? (cm³, π = 3,14)`,ans:r2(n*PI*r*r*h),hints:[`${n} × πr²h.`],skill:'geo'};})(),
   (()=>{const r=ri(2,5),h=ri(6,12);return{text:`Válec: r = ${r} dm, výška ${h} dm.\nObjem v litrech? (1 dm³ = 1 l, π = 3,14)`,ans:r2(PI*r*r*h),hints:[`V = πr²h dm³ = l.`],skill:'geo'};})(),
-  (()=>{const r=ri(3,7),h=ri(5,10);return{text:`Válcová nádrž: průměr ${2*r} m, hloubka ${h} m.\nObjem vody? (m³, π = 3,14)`,ans:r2(PI*r*r*h),hints:[`r = ${r}, V = πr²h.`],skill:'geo'};})()
+  (()=>{const r=ri(3,7),h=ri(5,10);return{text:`Válcová nádrž: průměr ${2*r} m, hloubka ${h} m.\nObjem vody? (m³, π = 3,14)`,ans:r2(PI*r*r*h),hints:[`r = ${r}, V = πr²h.`],skill:'geo'};})(),
+  (()=>{const r=ri(2,5),v=ri(4,9),V=Math.round(3.14*r*r*v);return{svg:svgCyl(`r = ${r} dm`,`v = ${v} dm`),text:`Sud tvaru válce má poloměr ${r} dm a výšku ${v} dm.\nKolik litrů pojme? (π = 3,14; 1 dm³ = 1 l)`,ans:String(V),hints:[`V = π · r² · v = 3,14 · ${r*r} · ${v}.`,`Výsledek: ${V} l`],skill:'geo'};})()
  ],
  '5-3': () => [   // Kružnice — slovní úlohy
   (()=>{const r=ri(20,40);const o=2*PI*r;const P=[`Kolo o poloměru ${r} cm se otočí jednou.`,`Cyklista popojede o jednu otáčku kola (poloměr ${r} cm).`,`Kolo s poloměrem ${r} cm udělá jednu otáčku.`];return{text:`${P[ri(0,P.length-1)]}\nUjetá dráha? (cm, π = 3,14)`,ans:r2(o),hints:[`Dráha = obvod = 2πr.`],skill:'geo'};})(),

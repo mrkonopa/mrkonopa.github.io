@@ -368,10 +368,11 @@
       () => { const a = ri(4, 12); const [c, d] = obd(); const oC = 4 * a, oO = 2 * (c + d); const rozdil = Math.abs(oC - oO); return { text: `Čtverec má strany po ${a} cm, obdélník strany ${c} cm a ${d} cm. O kolik cm se liší jejich obvody?`, ans: rozdil, h1: `Obvod čtverce: ${oC} cm. Obvod obdélníku: ${oO} cm. Odečti menší od většího.`, h2: `= ${rozdil} cm` }; },
       () => { const a = ri(2, 9); return { text: `Mechový čtvereček má stranu ${a} cm. Mravenec ho obejde přesně jednou dokola. Kolik cm ujde?`, ans: 4 * a, h1: `Cesta dokola = obvod.`, h2: `= ${4 * a} cm` }; },
       () => { const [a, b] = obd(); return { text: `Broučí hřiště je obdélník se stranami ${a} m a ${b} m. Brouk ho oběhne jednou dokola. Kolik metrů uběhne?`, ans: 2 * (a + b), h1: `Jedno kolečko = obvod: sečti všechny strany.`, h2: `= ${2 * (a + b)} m` }; },
+      () => { const [a, b] = obd(); return { svg: svgRect(a, b, { lw: `${a} cm`, lh: `${b} cm` }), text: `Lesní záhon tvaru obdélníku ${a} cm × ${b} cm chceš obejít dokola.\nKolik cm je jeho obvod?`, ans: 2 * (a + b), h1: `Obvod = sečti všechny 4 strany: ${a} + ${b} + ${a} + ${b}.`, h2: `= ${2 * (a + b)} cm` }; },
     ];
     for (let i = 0; i < T.length; i++) {
       const t = T[i % T.length]();
-      tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'geo' });
+      tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'geo', svg: t.svg });
     }
     return tasks;
   }
