@@ -872,10 +872,27 @@ const skl = (n,one,few,many) => n===1?one : (n>=2&&n<=4?few:many);
 
 // checkAns → přesunuto do sdíleného projects/rpg-shared.js
 // ── SVG diagramy (geometrie 8. ročníku) ──
-// Pravoúhlý trojúhelník s popisky stran: lbl={a,b,c} (např. {a:'a = 6', c:'c = ?'}).
+// Pravoúhlý trojúhelník s popisky stran. Dva režimy:
+//  • LEGACY: svgRightTri({a,b,c}) → pevný tvar (zpětná kompatibilita se základním poolem).
+//  • V MĚŘÍTKU: svgRightTri(aLen,bLen,{la,lb,lc}) → odvěsny proporčně k číslům (pro slovní úlohy).
 // Pravý úhel je u vrcholu C vlevo dole (česká konvence: c = přepona naproti C).
-function svgRightTri(lbl={}){
- return `<svg viewBox="0 0 250 165"><polygon points="55,135 55,35 195,135" fill="#101a2e" stroke="#5dade2" stroke-width="3"/><rect x="55" y="120" width="15" height="15" fill="none" stroke="#e74c3c" stroke-width="2"/>${lbl.b?`<text x="40" y="88" fill="#f4d03f" font-size="14" font-family="monospace" text-anchor="middle" transform="rotate(-90 40 88)">${lbl.b}</text>`:''}${lbl.a?`<text x="125" y="152" fill="#f4d03f" font-size="14" font-family="monospace" text-anchor="middle">${lbl.a}</text>`:''}${lbl.c?`<text x="138" y="75" fill="#2ecc71" font-size="14" font-family="monospace" text-anchor="middle">${lbl.c}</text>`:''}</svg>`;
+function svgRightTri(a,b,opt){
+ if(typeof a==='object'||a===undefined){ const lbl=a||{};
+  return `<svg viewBox="0 0 250 165"><polygon points="55,135 55,35 195,135" fill="#101a2e" stroke="#5dade2" stroke-width="3"/><rect x="55" y="120" width="15" height="15" fill="none" stroke="#e74c3c" stroke-width="2"/>${lbl.b?`<text x="40" y="88" fill="#f4d03f" font-size="14" font-family="monospace" text-anchor="middle" transform="rotate(-90 40 88)">${lbl.b}</text>`:''}${lbl.a?`<text x="125" y="152" fill="#f4d03f" font-size="14" font-family="monospace" text-anchor="middle">${lbl.a}</text>`:''}${lbl.c?`<text x="138" y="75" fill="#2ecc71" font-size="14" font-family="monospace" text-anchor="middle">${lbl.c}</text>`:''}</svg>`;
+ }
+ opt=opt||{};
+ const Cx=58,Cy=140,s=Math.min(150/Math.max(a,1),100/Math.max(b,1));
+ const Bx=+(Cx+a*s).toFixed(1), By=Cy, Ax=Cx, Ay=+(Cy-b*s).toFixed(1), msz=13;
+ const la=opt.la!==undefined?opt.la:'a', lb=opt.lb!==undefined?opt.lb:'b', lc=opt.lc!==undefined?opt.lc:'c';
+ const vl=opt.v||['A','B','C'];
+ let t='';
+ if(la) t+=`<text x="${((Cx+Bx)/2).toFixed(1)}" y="${Cy+18}" fill="#f4d03f" font-size="14" font-family="monospace" text-anchor="middle">${la}</text>`;
+ if(lb) t+=`<text x="${Cx-9}" y="${((Cy+Ay)/2+5).toFixed(1)}" fill="#f4d03f" font-size="14" font-family="monospace" text-anchor="end">${lb}</text>`;
+ if(lc) t+=`<text x="${((Ax+Bx)/2+8).toFixed(1)}" y="${((Ay+By)/2-4).toFixed(1)}" fill="#2ecc71" font-size="14" font-family="monospace" text-anchor="start">${lc}</text>`;
+ t+=`<text x="${Ax-11}" y="${Ay+4}" fill="#fff" font-size="13" font-family="monospace" text-anchor="middle">${vl[0]}</text>`;
+ t+=`<text x="${Bx+11}" y="${By+14}" fill="#fff" font-size="13" font-family="monospace" text-anchor="middle">${vl[1]}</text>`;
+ t+=`<text x="${Cx-11}" y="${Cy+14}" fill="#fff" font-size="13" font-family="monospace" text-anchor="middle">${vl[2]}</text>`;
+ return `<svg viewBox="0 0 250 165"><polygon points="${Cx},${Cy} ${Bx},${By} ${Ax},${Ay}" fill="#101a2e" stroke="#5dade2" stroke-width="3"/><rect x="${Cx}" y="${Cy-msz}" width="${msz}" height="${msz}" fill="none" stroke="#e74c3c" stroke-width="2"/>${t}</svg>`;
 }
 // Kruh s poloměrem r NEBO průměrem d (předej jen jeden popisek).
 function svgCircleR(lbl={}){
