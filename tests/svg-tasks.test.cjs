@@ -1,0 +1,293 @@
+/* Verifikace SVG slovních úloh (rpg-mat-9.html + rpg-tasks-9.js).
+   Pro KAŽDOU SVG úlohu ověří:
+     1) STRUKTURA — svg se naparsuje, žádné NaN/undefined/ERR, ans je platné číslo.
+     2) GEOMETRIE (pravoúhlý trojúhelník v měřítku) — pravý úhel opravdu u C
+        (B ve výšce C, A přesně nad C), poměr odvěsen v obrázku ODPOVÍDÁ číslům
+        v zadání, značka pravého úhlu je u C, popisky stran přítomné.
+     3) MATIKA — nezávislý přepočet odpovědi z čísel v zadání (Pythagoras, objemy, povrchy).
+   Screenshoty reprezentativních úloh → /tmp/svgtasks/*.png (pro vizuální kontrolu).
+   Spusť: NODE_PATH=/opt/node22/lib/node_modules node tests/svg-tasks.test.cjs */
+const http = require('http');
+const fs = require('fs');
+const path = require('path');
+const { chromium } = require('playwright');
+
+const GRADE = process.argv[2] || '9';
+const ROOT = path.join(__dirname, '..');
+const EXEC = '/opt/pw-browsers/chromium-1194/chrome-linux/chrome';
+const OUT = '/tmp/svgtasks/g' + GRADE;
+const MIME = {'.html':'text/html','.js':'text/javascript','.css':'text/css','.json':'application/json','.png':'image/png','.jpg':'image/jpeg'};
+
+let pass = 0, fail = 0;
+const ok = (cond, msg) => { if (cond) { pass++; } else { fail++; console.log('  ❌ ' + msg); } };
+
+function serve() {
+  return new Promise(res => {
+    const srv = http.createServer((req, rep) => {
+      let u = decodeURIComponent(req.url.split('?')[0]);
+      if (u.endsWith('/')) u += 'index.html';
+      const fp = path.normalize(path.join(ROOT, u));
+      if (!fp.startsWith(ROOT + path.sep) || !fs.existsSync(fp) || fs.statSync(fp).isDirectory()) { rep.writeHead(404); return rep.end('nf'); }
+      rep.writeHead(200, {'Content-Type': MIME[path.extname(fp)] || 'application/octet-stream'});
+      fs.createReadStream(fp).pipe(rep);
+    });
+    srv.listen(0, () => res(srv));
+  });
+}
+
+// ── nezávislé matematické verifikátory (podle rozpoznaného zadání) ──
+function parsePoly(svg){ // vrátí [C,B,A] jako {x,y}
+  const m = svg.match(/<polygon points="([\d.,\s-]+)"/);
+  if (!m) return null;
+  const nums = m[1].trim().split(/\s+/).map(p => p.split(',').map(Number));
+  if (nums.length < 3) return null;
+  return { C:{x:nums[0][0],y:nums[0][1]}, B:{x:nums[1][0],y:nums[1][1]}, A:{x:nums[2][0],y:nums[2][1]} };
+}
+function intsIn(re, text){ const m = text.match(re); return m ? m.slice(1).map(Number) : null; }
+
+// ── parser popisků <text> a čar <line> pro kontrolu rozmístění (přetečení / překryv) ──
+function parseTexts(svg){
+  const out = [];
+  const re = /<text\b([^>]*)>([^<]*)<\/text>/g; let m;
+  while ((m = re.exec(svg))) {
+    const at = m[1], content = m[2];
+    const x = parseFloat((at.match(/\bx="([-\d.]+)"/)||[])[1] || '0');
+    const y = parseFloat((at.match(/\by="([-\d.]+)"/)||[])[1] || '0');
+    const fs = parseFloat((at.match(/font-size="([-\d.]+)"/)||[])[1] || '14');
+    const anchor = (at.match(/text-anchor="(\w+)"/)||[])[1] || 'start';
+    const rot = /rotate\(-90/.test(at);
+    const w = content.length * fs * 0.62; // aproximace šířky monospace
+    let box;
+    if (rot) { // svislý text čtený zdola nahoru: šířka→výška
+      box = { x0:x - fs*0.6, x1:x + fs*0.6, y0:y - w, y1:y + fs*0.3 };
+    } else {
+      let x0 = x;
+      if (anchor === 'middle') x0 = x - w/2; else if (anchor === 'end') x0 = x - w;
+      box = { x0, x1:x0 + w, y0:y - fs, y1:y + fs*0.3 };
+    }
+    out.push({ ...box, content });
+  }
+  return out;
+}
+function parseDashedVLines(svg){ // svislé čárkované čáry (výška) → {x, y0, y1}
+  const out = [];
+  const re = /<line\b([^>]*)\/>/g; let m;
+  while ((m = re.exec(svg))) {
+    const at = m[1];
+    if (!/stroke-dasharray/.test(at)) continue;
+    const x1 = parseFloat((at.match(/\bx1="([-\d.]+)"/)||[])[1]);
+    const x2 = parseFloat((at.match(/\bx2="([-\d.]+)"/)||[])[1]);
+    const y1 = parseFloat((at.match(/\by1="([-\d.]+)"/)||[])[1]);
+    const y2 = parseFloat((at.match(/\by2="([-\d.]+)"/)||[])[1]);
+    if (Math.abs(x1 - x2) < 1) out.push({ x:x1, y0:Math.min(y1,y2), y1:Math.max(y1,y2) });
+  }
+  return out;
+}
+function parseStrokedCircles(svg){ // obrysové kružnice (mají stroke, r≥10) → {cx,cy,r}; středový bod r=3 ignorován
+  const out = [];
+  const re = /<circle\b([^>]*?)\/?>/g; let m;
+  while ((m = re.exec(svg))) {
+    const at = m[1];
+    if (!/\bstroke="/.test(at)) continue;
+    const cx = parseFloat((at.match(/\bcx="([-\d.]+)"/)||[])[1]);
+    const cy = parseFloat((at.match(/\bcy="([-\d.]+)"/)||[])[1]);
+    const r = parseFloat((at.match(/\br="([-\d.]+)"/)||[])[1]);
+    if (r >= 10) out.push({ cx, cy, r });
+  }
+  return out;
+}
+// Číselná osa: ověření pozicní věrnosti (tick/bod na pixelu ∝ hodnotě). Vrací pole problémů (prázdné = OK).
+function checkNumLine(svg){
+  const root = svg.match(/data-nlmin="([-\d.]+)" data-nlmax="([-\d.]+)" data-nlx0="([-\d.]+)" data-nlx1="([-\d.]+)"/);
+  if (!root) return [];
+  const min = +root[1], max = +root[2], x0 = +root[3], x1 = +root[4];
+  const px = v => x0 + (v - min) / ((max - min) || 1) * (x1 - x0);
+  const errs = [];
+  // ticky: <text data-nltick="V" x="X" ...>
+  const tre = /<text\b[^>]*\bdata-nltick="([-\d.]+)"[^>]*\bx="([-\d.]+)"/g; let m;
+  while ((m = tre.exec(svg))) { const v = +m[1], x = +m[2]; if (Math.abs(x - px(v)) > 2) errs.push(`tick ${v}: x=${x} ≠ px=${px(v).toFixed(1)}`); }
+  // body: <circle ... data-nlval="V" ... cx="X"> (pořadí atributů libovolné)
+  const cre = /<circle\b([^>]*)\/?>/g;
+  while ((m = cre.exec(svg))) { const at = m[1]; const dv = at.match(/data-nlval="([-\d.]+)"/); if (!dv) continue; const v = +dv[1]; const cx = parseFloat((at.match(/\bcx="([-\d.]+)"/)||[])[1]); if (Math.abs(cx - px(v)) > 2) errs.push(`bod ${v}: cx=${cx} ≠ px=${px(v).toFixed(1)}`); }
+  return errs;
+}
+
+// definice rozpoznávaných NOVÝCH úloh: matcher + přepočet + očekávané odvěsny pro geometrii.
+// grades = ročníky, kde se rodina má objevit (kontrola pokrytí). legs = scaled pravoúhlý trojúhelník.
+const RULES = [
+  // ── g9 ──
+  { id:'zebrik', grades:['9'], test:t=>/Žebřík dlouhý/.test(t.text),
+    math:t=>{ const p=intsIn(/dlouhý (\d+) m[\s\S]*pata je (\d+) m/,t.text); if(!p)return 'nenašel čísla'; const [zeb,dist]=p; const ans=Number(t.ans); return (dist*dist+ans*ans===zeb*zeb)?null:`${dist}²+${ans}²≠${zeb}²`; },
+    legs:t=>{ const p=intsIn(/dlouhý (\d+) m[\s\S]*pata je (\d+) m/,t.text); const [zeb,dist]=p; return {a:dist,b:Number(t.ans)}; } },
+  { id:'monitor', grades:['9'], test:t=>/Monitor má šířku/.test(t.text),
+    math:t=>{ const p=intsIn(/šířku (\d+) dm a výšku (\d+) dm/,t.text); if(!p)return 'nenašel čísla'; const [sir,vys]=p; const ans=Number(t.ans); return (sir*sir+vys*vys===ans*ans)?null:`${sir}²+${vys}²≠${ans}²`; },
+    legs:t=>{ const p=intsIn(/šířku (\d+) dm a výšku (\d+) dm/,t.text); const [sir,vys]=p; return {a:sir,b:vys}; } },
+  { id:'pozemek', grades:['9'], test:t=>/Pozemek tvaru pravoúhlého/.test(t.text),
+    math:t=>{ const p=intsIn(/odvěsny (\d+) m a (\d+) m/,t.text); if(!p)return 'nenašel čísla'; const [a,b]=p; const c=Math.hypot(a,b); if(!Number.isInteger(c))return `přepona ${c} není celé`; return (Number(t.ans)===a+b+c)?null:`obvod ${a}+${b}+${c}≠${t.ans}`; },
+    legs:t=>{ const p=intsIn(/odvěsny (\d+) m a (\d+) m/,t.text); const [a,b]=p; return {a,b}; } },
+  { id:'akvarium', grades:['9'], test:t=>/Akvárium tvaru kvádru/.test(t.text),
+    math:t=>{ const p=intsIn(/rozměry (\d+) × (\d+) × (\d+) dm/,t.text); if(!p)return 'nenašel čísla'; const [a,b,c]=p; return (Number(t.ans)===a*b*c)?null:`${a}·${b}·${c}≠${t.ans}`; } },
+  { id:'plechovka', grades:['9'], test:t=>/Plechovka tvaru válce/.test(t.text),
+    math:t=>{ const p=intsIn(/poloměr (\d+) cm a výšku (\d+) cm/,t.text); if(!p)return 'nenašel čísla'; const [r,v]=p; return (Number(t.ans)===Math.round(2*3.14*r*(r+v)))?null:`povrch ≠ ${t.ans}`; } },
+  { id:'zasobnik', grades:['9'], test:t=>/Zásobník tvaru válce/.test(t.text),
+    math:t=>{ const p=intsIn(/poloměr podstavy (\d+) dm a výšku (\d+) dm/,t.text); if(!p)return 'nenašel čísla'; const [r,v]=p; return (Number(t.ans)===Math.round(3.14*r*r*v))?null:`objem ≠ ${t.ans}`; } },
+  { id:'g9teplomer', grades:['9'], test:t=>/Teploměr ráno ukazoval/.test(t.text),
+    math:t=>{ const p=intsIn(/ukazoval\D*(\d+) °C[\s\S]*oteplilo o (\d+) °C/,t.text); if(!p)return 'nenašel čísla'; const [a,b]=p; return (Number(t.ans)===-a+b)?null:`−${a}+${b}≠${t.ans}`; } },
+  { id:'g9ponorka', grades:['9'], test:t=>/Ponorka byla v hloubce/.test(t.text),
+    math:t=>{ const p=intsIn(/hloubce (\d+) m[\s\S]*Vynořila se o (\d+) m/,t.text); if(!p)return 'nenašel čísla'; const [a,b]=p; return (Number(t.ans)===-a+b)?null:`−${a}+${b}≠${t.ans}`; } },
+  { id:'g9linegraph', grades:['9'], test:t=>/data-lgk=/.test(t.svg),
+    math:t=>{ const km=t.svg.match(/data-lgk="(-?\d+)"/); if(!km)return 'chybí data-lgk'; const k=Number(km[1]);
+      const lm=t.svg.match(/<line data-lgline="1" x1="([\d.-]+)" y1="([\d.-]+)" x2="([\d.-]+)" y2="([\d.-]+)"/);
+      if(!lm)return 'chybí funkční přímka'; const Y1=+lm[2], Y2=+lm[4]; // X1<X2 (osa zleva doprava); Y roste dolů
+      if(k>0 && !(Y2<Y1)) return `k=${k}>0, ale přímka na obrazovce nestoupá`;
+      if(k<0 && !(Y2>Y1)) return `k=${k}<0, ale přímka na obrazovce neklesá`;
+      const em=t.text.match(/y = (−|-)?(\d+)x/); if(em){ const es=em[1]?-1:1; if(Math.sign(k)!==es) return `rovnice koef ${es>0?'+':'−'}, ale graf k=${k}`; }
+      return null; } },
+  // ── g8 (Pythagoras se scaled diagramem + válec) ──
+  { id:'g8obrazovka', grades:['8'], test:t=>/Obrazovka má šířku/.test(t.text),
+    math:t=>{ const p=intsIn(/šířku (\d+) cm a výšku (\d+) cm/,t.text); if(!p)return 'nenašel čísla'; const [sir,vys]=p; const ans=Number(t.ans); return (sir*sir+vys*vys===ans*ans)?null:`${sir}²+${vys}²≠${ans}²`; },
+    legs:t=>{ const p=intsIn(/šířku (\d+) cm a výšku (\d+) cm/,t.text); const [sir,vys]=p; return {a:sir,b:vys}; } },
+  { id:'g8zebrik', grades:['8'], test:t=>/Žebřík dlouhý/.test(t.text),
+    math:t=>{ const p=intsIn(/dlouhý (\d+) m[\s\S]*pata (\d+) m od zdi/,t.text); if(!p)return 'nenašel čísla'; const [zeb,dist]=p; const ans=Number(t.ans); return (dist*dist+ans*ans===zeb*zeb)?null:`${dist}²+${ans}²≠${zeb}²`; },
+    legs:t=>{ const p=intsIn(/dlouhý (\d+) m[\s\S]*pata (\d+) m od zdi/,t.text); const [zeb,dist]=p; return {a:dist,b:Number(t.ans)}; } },
+  { id:'g8sud', grades:['8'], test:t=>/Sud tvaru válce/.test(t.text),
+    math:t=>{ const p=intsIn(/poloměr (\d+) dm a výšku (\d+) dm/,t.text); if(!p)return 'nenašel čísla'; const [r,v]=p; return (Number(t.ans)===Math.round(3.14*r*r*v))?null:`objem ≠ ${t.ans}`; } },
+  { id:'g8terc', grades:['8'], test:t=>/Kruhový terč/.test(t.text),
+    math:t=>{ const p=intsIn(/poloměr (\d+) cm/,t.text); if(!p)return 'nenašel čísla'; const [r]=p; return (Number(t.ans)===Math.round(3.14*r*r))?null:`obsah ≠ ${t.ans}`; } },
+  { id:'g8bazenkruh', grades:['8'], test:t=>/Kruhový bazén má průměr/.test(t.text),
+    math:t=>{ const p=intsIn(/průměr (\d+) m/,t.text); if(!p)return 'nenašel čísla'; const [d]=p; return (Number(t.ans)===Math.round(3.14*d))?null:`obvod ≠ ${t.ans}`; } },
+  { id:'g8kolo', grades:['8'], test:t=>/Kruhové kolo má poloměr/.test(t.text),
+    math:t=>{ const p=intsIn(/poloměr (\d+) cm/,t.text); if(!p)return 'nenašel čísla'; const [r]=p; return (Number(t.ans)===Math.round(2*3.14*r))?null:`obvod ≠ ${t.ans}`; } },
+  { id:'g8talir', grades:['8'], test:t=>/Kruhový talíř má průměr/.test(t.text),
+    math:t=>{ const p=intsIn(/průměr (\d+) cm/,t.text); if(!p)return 'nenašel čísla'; const [d]=p; const r=d/2; return (Number(t.ans)===Math.round(3.14*r*r))?null:`obsah ≠ ${t.ans}`; } },
+  // ── g7 (obsahy čtyřúhelníků + objem kvádru) ──
+  { id:'g7pozemek', grades:['7'], test:t=>/Pozemek tvaru rovnoběžníku/.test(t.text),
+    math:t=>{ const p=intsIn(/stranu (\d+) m a výšku (\d+) m/,t.text); if(!p)return 'nenašel čísla'; const [a,v]=p; return (Number(t.ans)===a*v)?null:`${a}·${v}≠${t.ans}`; } },
+  { id:'g7hraz', grades:['7'], test:t=>/Průřez hráze/.test(t.text),
+    math:t=>{ const p=intsIn(/základnami (\d+) m a (\d+) m při výšce (\d+) m/,t.text); if(!p)return 'nenašel čísla'; const [a,c,v]=p; return (Number(t.ans)===(a+c)*v/2)?null:`(${a}+${c})·${v}/2≠${t.ans}`; } },
+  { id:'g7bedna', grades:['7'], test:t=>/Bedna tvaru kvádru/.test(t.text),
+    math:t=>{ const p=intsIn(/(\d+) × (\d+) × (\d+) dm/,t.text); if(!p)return 'nenašel čísla'; const [a,b,c]=p; return (Number(t.ans)===a*b*c)?null:`${a}·${b}·${c}≠${t.ans}`; } },
+  // ── g6 (objem/povrch kvádru a krychle) ──
+  { id:'g6bazenek', grades:['6'], test:t=>/Nádrž tvaru kvádru/.test(t.text),
+    math:t=>{ const p=intsIn(/(\d+) × (\d+) × (\d+) dm/,t.text); if(!p)return 'nenašel čísla'; const [a,b,c]=p; return (Number(t.ans)===a*b*c)?null:`${a}·${b}·${c}≠${t.ans}`; } },
+  { id:'g6krabice', grades:['6'], test:t=>/Krabice tvaru kvádru/.test(t.text),
+    math:t=>{ const p=intsIn(/(\d+) × (\d+) × (\d+) cm/,t.text); if(!p)return 'nenašel čísla'; const [a,b,c]=p; return (Number(t.ans)===2*(a*b+b*c+a*c))?null:`povrch ≠ ${t.ans}`; } },
+  { id:'g6krychle', grades:['6'], test:t=>/Kostka tvaru krychle/.test(t.text),
+    math:t=>{ const p=intsIn(/hranu (\d+) cm/,t.text); if(!p)return 'nenašel čísla'; const [a]=p; return (Number(t.ans)===a*a*a)?null:`${a}³≠${t.ans}`; } },
+  // ── 1. stupeň (g3/4/5): obdélník v měřítku ──
+  { id:'g3zahon', grades:['3'], test:t=>/Lesní záhon tvaru obdélníku/.test(t.text),
+    math:t=>{ const p=intsIn(/obdélníku (\d+) cm × (\d+) cm/,t.text); if(!p)return 'nenašel čísla'; const [a,b]=p; return (Number(t.ans)===2*(a+b))?null:`obvod 2·(${a}+${b})≠${t.ans}`; } },
+  { id:'g4vlajka', grades:['4'], test:t=>/Pirátská vlajka/.test(t.text),
+    math:t=>{ const p=intsIn(/obdélníku (\d+) cm × (\d+) cm/,t.text); if(!p)return 'nenašel čísla'; const [a,b]=p; return (Number(t.ans)===a*b)?null:`${a}·${b}≠${t.ans}`; } },
+  { id:'g5pole', grades:['5'], test:t=>/Dračí pole tvaru obdélníku/.test(t.text),
+    math:t=>{ const p=intsIn(/obdélníku (\d+) m × (\d+) m/,t.text); if(!p)return 'nenašel čísla'; const [a,b]=p; return (Number(t.ans)===a*b)?null:`${a}·${b}≠${t.ans}`; } },
+];
+const EXPECT = RULES.filter(r => r.grades.includes(GRADE));
+
+(async () => {
+  fs.mkdirSync(OUT, { recursive: true });
+  const srv = await serve();
+  const base = `http://127.0.0.1:${srv.address().port}`;
+  const browser = await chromium.launch({ executablePath: EXEC });
+  const ctx = await browser.newContext({ viewport: { width: 300, height: 220 } });
+  const page = await ctx.newPage();
+  await ctx.route('**/*', r => r.request().url().startsWith('http://127.0.0.1') ? r.continue() : r.abort());
+  await page.goto(`${base}/projects/rpg-mat-${GRADE}.html`, { waitUntil: 'domcontentloaded' });
+  await page.waitForFunction((g) => !!window['RPG_TASK_EXTRA_' + g], GRADE, { timeout: 10000 });
+
+  // Nasbírej mnoho generací VŠECH SVG úloh (auto-discovery všech misí banky)
+  const tasks = await page.evaluate((g) => {
+    const out = [];
+    const bank = window['RPG_TASK_EXTRA_' + g];
+    for (const mid of Object.keys(bank)) {
+      const gen = bank[mid];
+      if (typeof gen !== 'function') continue;
+      for (let i = 0; i < 80; i++) {
+        let arr; try { arr = gen(); } catch (e) { out.push({err:'gen '+mid+': '+e.message}); continue; }
+        for (const t of arr) if (t && t.svg) out.push({ svg:t.svg, text:t.text||'', ans:String(t.ans) });
+      }
+    }
+    return out;
+  }, GRADE);
+
+  console.log(`[g${GRADE}] Nasbíráno ${tasks.length} SVG generací.`);
+
+  // ── 1) STRUKTURA (všechny) ──
+  let svgCount = 0;
+  const seenFamilies = {};
+  const sampleForShot = {};
+  for (const t of tasks) {
+    if (t.err) { ok(false, 'generátor spadl: ' + t.err); continue; }
+    svgCount++;
+    const bad = /undefined|NaN|ERR:/.test(t.svg) || /undefined|NaN/.test(t.text);
+    ok(!bad, 'svg/text obsahuje undefined/NaN: ' + t.text.slice(0,40));
+    ok(/^<svg[ >]/.test(t.svg.trim()) && t.svg.includes('</svg>'), 'svg není validní obal: ' + t.text.slice(0,40));
+    ok(/^-?\d+$/.test(t.ans) || t.ans === 'ANO' || t.ans === 'NE', 'ans není číslo/ANO/NE: ' + t.ans + ' (' + t.text.slice(0,30) + ')');
+
+    // ── ROZMÍSTĚNÍ popisků: nesmí přetéct viewBox ani překrýt čárkovanou výškovou čáru ──
+    const vb = (t.svg.match(/viewBox="0 0 ([\d.]+) ([\d.]+)"/)||[]);
+    const vbW = parseFloat(vb[1]||'250'), vbH = parseFloat(vb[2]||'160');
+    const texts = parseTexts(t.svg), dlines = parseDashedVLines(t.svg), circles = parseStrokedCircles(t.svg);
+    for (const b of texts) {
+      ok(b.x0 >= -1 && b.x1 <= vbW+1 && b.y0 >= -1 && b.y1 <= vbH+1,
+        `popisek "${b.content}" přetéká viewBox ${vbW}×${vbH} → [${b.x0.toFixed(0)},${b.x1.toFixed(0)}]×[${b.y0.toFixed(0)},${b.y1.toFixed(0)}] · ${t.text.slice(0,28)}`);
+      for (const L of dlines) {
+        const hitX = b.x0 < L.x - 1 && b.x1 > L.x + 1;   // text horizontálně přesahuje čáru
+        const hitY = b.y0 < L.y1 && b.y1 > L.y0;          // a svisle se překrývá
+        ok(!(hitX && hitY), `popisek "${b.content}" překrývá výškovou čáru x=${L.x} · ${t.text.slice(0,28)}`);
+      }
+      // popisek nesmí KŘÍŽIT obrys kružnice: buď celý uvnitř (rohy < r−2), nebo celý venku (> r+2)
+      for (const C of circles) {
+        const corners = [[b.x0,b.y0],[b.x1,b.y0],[b.x0,b.y1],[b.x1,b.y1]];
+        const dists = corners.map(([x,y]) => Math.hypot(x-C.cx, y-C.cy));
+        const anyIn = dists.some(d => d < C.r-2), anyOut = dists.some(d => d > C.r+2);
+        ok(!(anyIn && anyOut), `popisek "${b.content}" kříží obrys kružnice (cx=${C.cx},cy=${C.cy},r=${C.r}) · ${t.text.slice(0,28)}`);
+      }
+    }
+    // ČÍSELNÁ OSA: pozicní věrnost (tick/bod sedí na pixelu odpovídajícím hodnotě)
+    for (const e of checkNumLine(t.svg)) ok(false, `číselná osa: ${e} · ${t.text.replace(/\n/g,' ').slice(0,40)}`);
+
+    // ── 2) + 3) NOVÉ úlohy (jen pravidla tohoto ročníku) ──
+    for (const rule of EXPECT) {
+      if (!rule.test(t)) continue;
+      seenFamilies[rule.id] = (seenFamilies[rule.id]||0) + 1;
+      if (!sampleForShot[rule.id]) sampleForShot[rule.id] = t;
+      // MATIKA
+      const merr = rule.math(t);
+      ok(merr === null, `[${rule.id}] matika: ${merr} · ${t.text.replace(/\n/g,' ').slice(0,60)}`);
+      // GEOMETRIE (jen pravoúhlé trojúhelníky se scaled helperem)
+      if (rule.legs) {
+        const poly = parsePoly(t.svg);
+        ok(!!poly, `[${rule.id}] polygon se nenaparsoval`);
+        if (poly) {
+          const { C, B, A } = poly;
+          ok(Math.abs(B.y - C.y) < 0.6, `[${rule.id}] B není ve výšce C (dolní odvěsna není vodorovná)`);
+          ok(Math.abs(A.x - C.x) < 0.6, `[${rule.id}] A není přesně nad C (levá odvěsna není svislá)`);
+          const { a, b } = rule.legs(t); // a=vodorovná, b=svislá
+          const hpx = Math.abs(B.x - C.x), vpx = Math.abs(C.y - A.y);
+          // poměr nakreslených odvěsen musí odpovídat poměru čísel (fidelita měřítka)
+          const relErr = Math.abs((hpx / vpx) - (a / b)) / (a / b);
+          ok(relErr < 0.03, `[${rule.id}] poměr odvěsen v obrázku (${(hpx/vpx).toFixed(2)}) ≠ poměr čísel (${(a/b).toFixed(2)})`);
+          // značka pravého úhlu u C
+          ok(t.svg.includes(`<rect x="${C.x}" y="${C.y-13}"`), `[${rule.id}] chybí značka pravého úhlu u C`);
+        }
+      }
+    }
+  }
+
+  // ── screenshoty reprezentativních vzorků každé nové rodiny ──
+  for (const [id, t] of Object.entries(sampleForShot)) {
+    await page.setContent(`<!doctype html><body style="margin:0;background:#0a0e1a;display:flex;flex-direction:column;align-items:center;justify-content:center;height:220px"><div style="width:250px">${t.svg}</div><div style="color:#8fa;font:11px monospace;white-space:pre;text-align:center;margin-top:4px">${t.text.replace(/</g,'&lt;')}\nodpověď: ${t.ans}</div></body>`);
+    await page.screenshot({ path: path.join(OUT, id + '.png') });
+  }
+
+  // každá nová rodina TOHOTO ročníku se musí objevit
+  for (const rule of EXPECT) ok((seenFamilies[rule.id]||0) > 0, `[g${GRADE}] nová rodina "${rule.id}" se ani jednou nevygenerovala`);
+
+  await browser.close();
+  srv.close();
+  console.log(`\nSVG úloh strukturně: ${svgCount} · nové rodiny:`, seenFamilies);
+  console.log(`Screenshoty → ${OUT}`);
+  console.log(`\n${pass} ✅ / ${fail} ❌`);
+  process.exit(fail ? 1 : 0);
+})();
