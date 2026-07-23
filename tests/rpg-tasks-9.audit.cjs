@@ -19,6 +19,7 @@ global.svgSphere=()=>'<svg></svg>';
 global.svgSimilar=()=>'<svg></svg>';
 global.svgCuboid=()=>'<svg></svg>';
 global.svgRightTri=()=>'<svg></svg>';
+global.svgNumLine=()=>'<svg></svg>';
 global.window = {};
 
 const code = fs.readFileSync(path.join(__dirname,'..','projects','rpg-tasks-9.js'),'utf8');

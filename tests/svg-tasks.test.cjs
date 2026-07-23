@@ -96,6 +96,21 @@ function parseStrokedCircles(svg){ // obrysové kružnice (mají stroke, r≥10)
   }
   return out;
 }
+// Číselná osa: ověření pozicní věrnosti (tick/bod na pixelu ∝ hodnotě). Vrací pole problémů (prázdné = OK).
+function checkNumLine(svg){
+  const root = svg.match(/data-nlmin="([-\d.]+)" data-nlmax="([-\d.]+)" data-nlx0="([-\d.]+)" data-nlx1="([-\d.]+)"/);
+  if (!root) return [];
+  const min = +root[1], max = +root[2], x0 = +root[3], x1 = +root[4];
+  const px = v => x0 + (v - min) / ((max - min) || 1) * (x1 - x0);
+  const errs = [];
+  // ticky: <text data-nltick="V" x="X" ...>
+  const tre = /<text\b[^>]*\bdata-nltick="([-\d.]+)"[^>]*\bx="([-\d.]+)"/g; let m;
+  while ((m = tre.exec(svg))) { const v = +m[1], x = +m[2]; if (Math.abs(x - px(v)) > 2) errs.push(`tick ${v}: x=${x} ≠ px=${px(v).toFixed(1)}`); }
+  // body: <circle ... data-nlval="V" ... cx="X"> (pořadí atributů libovolné)
+  const cre = /<circle\b([^>]*)\/?>/g;
+  while ((m = cre.exec(svg))) { const at = m[1]; const dv = at.match(/data-nlval="([-\d.]+)"/); if (!dv) continue; const v = +dv[1]; const cx = parseFloat((at.match(/\bcx="([-\d.]+)"/)||[])[1]); if (Math.abs(cx - px(v)) > 2) errs.push(`bod ${v}: cx=${cx} ≠ px=${px(v).toFixed(1)}`); }
+  return errs;
+}
 
 // definice rozpoznávaných NOVÝCH úloh: matcher + přepočet + očekávané odvěsny pro geometrii.
 // grades = ročníky, kde se rodina má objevit (kontrola pokrytí). legs = scaled pravoúhlý trojúhelník.
@@ -116,6 +131,10 @@ const RULES = [
     math:t=>{ const p=intsIn(/poloměr (\d+) cm a výšku (\d+) cm/,t.text); if(!p)return 'nenašel čísla'; const [r,v]=p; return (Number(t.ans)===Math.round(2*3.14*r*(r+v)))?null:`povrch ≠ ${t.ans}`; } },
   { id:'zasobnik', grades:['9'], test:t=>/Zásobník tvaru válce/.test(t.text),
     math:t=>{ const p=intsIn(/poloměr podstavy (\d+) dm a výšku (\d+) dm/,t.text); if(!p)return 'nenašel čísla'; const [r,v]=p; return (Number(t.ans)===Math.round(3.14*r*r*v))?null:`objem ≠ ${t.ans}`; } },
+  { id:'g9teplomer', grades:['9'], test:t=>/Teploměr ráno ukazoval/.test(t.text),
+    math:t=>{ const p=intsIn(/ukazoval\D*(\d+) °C[\s\S]*oteplilo o (\d+) °C/,t.text); if(!p)return 'nenašel čísla'; const [a,b]=p; return (Number(t.ans)===-a+b)?null:`−${a}+${b}≠${t.ans}`; } },
+  { id:'g9ponorka', grades:['9'], test:t=>/Ponorka byla v hloubce/.test(t.text),
+    math:t=>{ const p=intsIn(/hloubce (\d+) m[\s\S]*Vynořila se o (\d+) m/,t.text); if(!p)return 'nenašel čísla'; const [a,b]=p; return (Number(t.ans)===-a+b)?null:`−${a}+${b}≠${t.ans}`; } },
   // ── g8 (Pythagoras se scaled diagramem + válec) ──
   { id:'g8obrazovka', grades:['8'], test:t=>/Obrazovka má šířku/.test(t.text),
     math:t=>{ const p=intsIn(/šířku (\d+) cm a výšku (\d+) cm/,t.text); if(!p)return 'nenašel čísla'; const [sir,vys]=p; const ans=Number(t.ans); return (sir*sir+vys*vys===ans*ans)?null:`${sir}²+${vys}²≠${ans}²`; },
@@ -217,6 +236,8 @@ const EXPECT = RULES.filter(r => r.grades.includes(GRADE));
         ok(!(anyIn && anyOut), `popisek "${b.content}" kříží obrys kružnice (cx=${C.cx},cy=${C.cy},r=${C.r}) · ${t.text.slice(0,28)}`);
       }
     }
+    // ČÍSELNÁ OSA: pozicní věrnost (tick/bod sedí na pixelu odpovídajícím hodnotě)
+    for (const e of checkNumLine(t.svg)) ok(false, `číselná osa: ${e} · ${t.text.replace(/\n/g,' ').slice(0,40)}`);
 
     // ── 2) + 3) NOVÉ úlohy (jen pravidla tohoto ročníku) ──
     for (const rule of EXPECT) {
