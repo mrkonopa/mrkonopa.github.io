@@ -135,6 +135,14 @@ const RULES = [
     math:t=>{ const p=intsIn(/ukazoval\D*(\d+) °C[\s\S]*oteplilo o (\d+) °C/,t.text); if(!p)return 'nenašel čísla'; const [a,b]=p; return (Number(t.ans)===-a+b)?null:`−${a}+${b}≠${t.ans}`; } },
   { id:'g9ponorka', grades:['9'], test:t=>/Ponorka byla v hloubce/.test(t.text),
     math:t=>{ const p=intsIn(/hloubce (\d+) m[\s\S]*Vynořila se o (\d+) m/,t.text); if(!p)return 'nenašel čísla'; const [a,b]=p; return (Number(t.ans)===-a+b)?null:`−${a}+${b}≠${t.ans}`; } },
+  { id:'g9linegraph', grades:['9'], test:t=>/data-lgk=/.test(t.svg),
+    math:t=>{ const km=t.svg.match(/data-lgk="(-?\d+)"/); if(!km)return 'chybí data-lgk'; const k=Number(km[1]);
+      const lm=t.svg.match(/<line data-lgline="1" x1="([\d.-]+)" y1="([\d.-]+)" x2="([\d.-]+)" y2="([\d.-]+)"/);
+      if(!lm)return 'chybí funkční přímka'; const Y1=+lm[2], Y2=+lm[4]; // X1<X2 (osa zleva doprava); Y roste dolů
+      if(k>0 && !(Y2<Y1)) return `k=${k}>0, ale přímka na obrazovce nestoupá`;
+      if(k<0 && !(Y2>Y1)) return `k=${k}<0, ale přímka na obrazovce neklesá`;
+      const em=t.text.match(/y = (−|-)?(\d+)x/); if(em){ const es=em[1]?-1:1; if(Math.sign(k)!==es) return `rovnice koef ${es>0?'+':'−'}, ale graf k=${k}`; }
+      return null; } },
   // ── g8 (Pythagoras se scaled diagramem + válec) ──
   { id:'g8obrazovka', grades:['8'], test:t=>/Obrazovka má šířku/.test(t.text),
     math:t=>{ const p=intsIn(/šířku (\d+) cm a výšku (\d+) cm/,t.text); if(!p)return 'nenašel čísla'; const [sir,vys]=p; const ans=Number(t.ans); return (sir*sir+vys*vys===ans*ans)?null:`${sir}²+${vys}²≠${ans}²`; },

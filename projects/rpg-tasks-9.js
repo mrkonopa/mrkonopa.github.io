@@ -250,16 +250,16 @@ window.RPG_TASK_EXTRA_9 = {
  '6-1': () => [
   (()=>{const k=ri(2,5),q=ri(1,6),x=ri(2,5);return{svg:svgLineGraph(k,q),text:`Funkce y = ${k}x + ${q}. Vypočítej funkční hodnotu f(${x}).`,ans:String(k*x+q),hints:[`Dosaď x = ${x}: ${k}·${x} + ${q}.`],skill:'geo'};})(),
   (()=>{const k=ri(2,5),q=ri(2,8);return{svg:svgLineGraph(k,q),text:`V jakém bodě protíná přímka y = ${k}x + ${q} osu y? (napiš y-ovou souřadnici)`,ans:String(q),hints:[`Průsečík s osou y nastává pro x = 0.`],skill:'geo'};})(),
-  (()=>{const k=ri(2,4),x0=ri(1,5),q=-k*x0;return{text:`Ve kterém bodě protíná přímka y = ${k}x ${q<0?'− '+(-q):'+ '+q} osu x? (napiš x)`,ans:String(x0),hints:[`Polož y = 0 a vyřeš pro x.`],skill:'geo'};})(),
-  (()=>{const k=ri(2,6);return{text:`Přímá úměrnost y = ${k}x. Jaká je hodnota y pro x = 2?`,ans:String(2*k),hints:[`${k} · 2.`],skill:'geo'};})(),
-  (()=>{const k=ri(2,4);return{text:`Přímka prochází počátkem [0, 0] a bodem [1, ${k}]. Jaká je její směrnice k?`,ans:String(k),hints:[`Směrnice = přírůstek y na jeden krok x.`],skill:'geo'};})(),
-  (()=>{const k=ri(2,5),q=ri(1,7),x=ri(2,6);return{text:`Jakou hodnotu má lineární funkce y = ${k}x + ${q} v bodě x = ${x}?`,ans:String(k*x+q),hints:[`${k}·${x} + ${q}.`],skill:'geo'};})(),
-  (()=>{const k=ri(2,5),q=ri(2,10),x=ri(2,5);return{text:`Klesající přímka y = −${k}x + ${q}. Urči f(${x}).`,ans:String(-k*x+q),hints:[`−${k}·${x} + ${q}.`],skill:'geo'};})(),
-  (()=>{const k=ri(2,5),q=ri(2,10);return{text:`Jaká je y-ová souřadnice průsečíku přímky y = ${k}x − ${q} s osou y?`,ans:String(-q),hints:[`Dosaď x = 0.`],skill:'geo'};})(),
-  (()=>{const k=ri(2,6),x=ri(2,5);return{text:`Kolik je y, když y = ${k}x a x = ${x}?`,ans:String(k*x),hints:[`${k} × ${x}.`],skill:'geo'};})(),
-  (()=>{const k=ri(2,4),x0=ri(2,5);return{text:`Urči nulový bod (kde y = 0) funkce y = ${k}x − ${k*x0}.`,ans:String(x0),hints:[`${k}x = ${k*x0} → x = ${x0}.`],skill:'geo'};})(),
-  (()=>{const k=ri(2,4),x1=ri(1,4),x2=x1+1;const dy=k;return{text:`O kolik vzroste y funkce y = ${k}x, když se x zvětší o 1?`,ans:String(dy),hints:[`Přírůstek y je roven směrnici k = ${k}.`],skill:'geo'};})(),
-  (()=>{const k=ri(2,6),x=ri(2,5);return{text:`Zátěž serveru roste podle y = ${k}x, kde x je počet připojených uzlů.\nJaká je zátěž y pro x = ${x}?`,ans:String(k*x),hints:[`Dosaď x = ${x}: ${k} × ${x}.`,`Výsledek: ${k*x}`],skill:'geo'};})()
+  (()=>{const k=ri(2,4),x0=ri(1,5),q=-k*x0;return{svg:svgLineGraph(k,q),text:`Ve kterém bodě protíná přímka y = ${k}x ${q<0?'− '+(-q):'+ '+q} osu x? (napiš x)`,ans:String(x0),hints:[`Polož y = 0 a vyřeš pro x.`],skill:'geo'};})(),
+  (()=>{const k=ri(2,6);return{svg:svgLineGraph(k,0),text:`Přímá úměrnost y = ${k}x. Jaká je hodnota y pro x = 2?`,ans:String(2*k),hints:[`${k} · 2.`],skill:'geo'};})(),
+  (()=>{const k=ri(2,4);return{svg:svgLineGraph(k,0),text:`Přímka prochází počátkem [0, 0] a bodem [1, ${k}]. Jaká je její směrnice k?`,ans:String(k),hints:[`Směrnice = přírůstek y na jeden krok x.`],skill:'geo'};})(),
+  (()=>{const k=ri(2,5),q=ri(1,7),x=ri(2,6);return{svg:svgLineGraph(k,q),text:`Jakou hodnotu má lineární funkce y = ${k}x + ${q} v bodě x = ${x}?`,ans:String(k*x+q),hints:[`${k}·${x} + ${q}.`],skill:'geo'};})(),
+  (()=>{const k=ri(2,5),q=ri(2,10),x=ri(2,5);return{svg:svgLineGraph(-k,q),text:`Klesající přímka y = −${k}x + ${q}. Urči f(${x}).`,ans:String(-k*x+q),hints:[`−${k}·${x} + ${q}.`],skill:'geo'};})(),
+  (()=>{const k=ri(2,5),q=ri(2,10);return{svg:svgLineGraph(k,-q),text:`Jaká je y-ová souřadnice průsečíku přímky y = ${k}x − ${q} s osou y?`,ans:String(-q),hints:[`Dosaď x = 0.`],skill:'geo'};})(),
+  (()=>{const k=ri(2,6),x=ri(2,5);return{svg:svgLineGraph(k,0),text:`Kolik je y, když y = ${k}x a x = ${x}?`,ans:String(k*x),hints:[`${k} × ${x}.`],skill:'geo'};})(),
+  (()=>{const k=ri(2,4),x0=ri(2,5);return{svg:svgLineGraph(k,-k*x0),text:`Urči nulový bod (kde y = 0) funkce y = ${k}x − ${k*x0}.`,ans:String(x0),hints:[`${k}x = ${k*x0} → x = ${x0}.`],skill:'geo'};})(),
+  (()=>{const k=ri(2,4),x1=ri(1,4),x2=x1+1;const dy=k;return{svg:svgLineGraph(k,0),text:`O kolik vzroste y funkce y = ${k}x, když se x zvětší o 1?`,ans:String(dy),hints:[`Přírůstek y je roven směrnici k = ${k}.`],skill:'geo'};})(),
+  (()=>{const k=ri(2,6),x=ri(2,5);return{svg:svgLineGraph(k,0),text:`Zátěž serveru roste podle y = ${k}x, kde x je počet připojených uzlů.\nJaká je zátěž y pro x = ${x}?`,ans:String(k*x),hints:[`Dosaď x = ${x}: ${k} × ${x}.`,`Výsledek: ${k*x}`],skill:'geo'};})()
  ],
  '6-2': () => [
   (()=>{const k=ri(2,6);return{text:`Je lineární funkce y = ${k}x rostoucí?\nANO / NE`,ans:'ANO',hints:[`Funkce je rostoucí právě když je směrnice k kladná.`],skill:'anal'};})(),
