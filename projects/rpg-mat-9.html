@@ -1255,7 +1255,7 @@ function svgLineGraph(k,q){
  const Y=x=>oy-(k*x+q)*u;
  const cl=v=>Math.max(8,Math.min(152,v));
  let x1=-9,x2=9,X1=ox+x1*u,X2=ox+x2*u,Y1=Y(x1),Y2=Y(x2);
- return `<svg viewBox="0 0 250 160"><line x1="10" y1="${oy}" x2="240" y2="${oy}" stroke="#2a3a5e" stroke-width="1.5"/><line x1="${ox}" y1="6" x2="${ox}" y2="154" stroke="#2a3a5e" stroke-width="1.5"/><line x1="${X1.toFixed(1)}" y1="${cl(Y1).toFixed(1)}" x2="${X2.toFixed(1)}" y2="${cl(Y2).toFixed(1)}" stroke="#19e6e6" stroke-width="3"/><circle cx="${ox}" cy="${cl(Y(0)).toFixed(1)}" r="3.5" fill="#ff3d7f"/><text x="232" y="${oy-6}" fill="#5d6e94" font-size="12" font-family="monospace">x</text><text x="${ox+5}" y="14" fill="#5d6e94" font-size="12" font-family="monospace">y</text></svg>`;
+ return `<svg viewBox="0 0 250 160" data-lgk="${k}"><line x1="10" y1="${oy}" x2="240" y2="${oy}" stroke="#2a3a5e" stroke-width="1.5"/><line x1="${ox}" y1="6" x2="${ox}" y2="154" stroke="#2a3a5e" stroke-width="1.5"/><line data-lgline="1" x1="${X1.toFixed(1)}" y1="${cl(Y1).toFixed(1)}" x2="${X2.toFixed(1)}" y2="${cl(Y2).toFixed(1)}" stroke="#19e6e6" stroke-width="3"/><circle cx="${ox}" cy="${cl(Y(0)).toFixed(1)}" r="3.5" fill="#ff3d7f"/><text x="232" y="${oy-6}" fill="#5d6e94" font-size="12" font-family="monospace">x</text><text x="${ox+5}" y="14" fill="#5d6e94" font-size="12" font-family="monospace">y</text></svg>`;
 }
 // Válec: r poloměr podstavy, v výška.
 function svgCylinder(r,v){
