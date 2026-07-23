@@ -10,6 +10,9 @@ const path = require('path');
 global.ri = (a,b)=>Math.floor(Math.random()*(b-a+1))+a;
 global.gcd = function gcd(a,b){return b?gcd(b,a%b):Math.abs(a);};
 global.skl = (n,one,few,many)=>n===1?one:(n>=2&&n<=4?few:many);
+global.svgRightTri = ()=>'<svg></svg>';
+global.svgCyl = ()=>'<svg></svg>';
+global.svgCircleR = ()=>'<svg></svg>';
 global.window = {};
 
 const code = fs.readFileSync(path.join(__dirname,'..','projects','rpg-tasks-8.js'),'utf8');
