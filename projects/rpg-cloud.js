@@ -896,6 +896,48 @@ window.RPGCloud = (function () {
     });
   }
 
+  /* plovoucí widget „Úkoly od učitele" (Fáze 20) — úkoly zadané třídě žáka.
+     Game-agnostic (volá se z attachGame). Filtruje na hru dané karty (saveKey). */
+  async function refreshAssignmentsWidget(saveKey) {
+    if (previewActive || !user) return;
+    let items = [];
+    try { items = await pullMyAssignments(); } catch (e) { return; }
+    items = (items || []).filter(a => a.game === saveKey);
+    let btn = document.getElementById('rpg-asg-btn');
+    if (!items.length) { if (btn) btn.remove(); const p = document.getElementById('rpg-asg-panel'); if (p) p.remove(); return; }
+    const mname = mid => { try { const A = window.AREAS; if (Array.isArray(A)) for (const ar of A) for (const m of (ar.missions || [])) if (m.id === mid) return m.name; } catch (e) {} return 'Mise ' + mid; };
+    if (!btn) {
+      btn = document.createElement('button');
+      btn.id = 'rpg-asg-btn';
+      btn.style.cssText = 'position:fixed;left:14px;bottom:14px;z-index:9998;background:#ffb020;color:#06101e;border:none;border-radius:22px;padding:10px 16px;font-family:inherit;font-weight:700;font-size:14px;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.4)';
+      btn.onclick = () => { const p = document.getElementById('rpg-asg-panel'); if (p) p.style.display = (p.style.display === 'none') ? 'block' : 'none'; };
+      document.body.appendChild(btn);
+    }
+    btn.textContent = '📋 Úkoly (' + items.length + ')';
+    let panel = document.getElementById('rpg-asg-panel');
+    if (!panel) {
+      panel = document.createElement('div');
+      panel.id = 'rpg-asg-panel';
+      panel.style.cssText = 'position:fixed;left:14px;bottom:62px;z-index:9998;width:min(340px,90vw);max-height:60vh;overflow:auto;background:#161b2e;color:#e8eaf6;border:1px solid #2b3350;border-radius:12px;padding:12px 14px;box-shadow:0 8px 28px rgba(0,0,0,.5);display:none;font-family:inherit';
+      document.body.appendChild(panel);
+    }
+    const today = new Date().toISOString().slice(0, 10);
+    panel.innerHTML = '<div style="font-weight:700;color:#ffb020;margin-bottom:8px;font-size:14px">📋 Úkoly od učitele</div>' +
+      items.map(a => {
+        const due = a.due_date ? ('do ' + new Date(a.due_date).toLocaleDateString('cs-CZ')) : 'bez termínu';
+        const overdue = a.due_date && a.due_date < today;
+        return '<div style="background:#1f2740;border-radius:8px;padding:8px 10px;margin:6px 0' + (overdue ? ';border-left:3px solid #ff6b6b' : '') + '">' +
+          '<div style="font-size:14px;line-height:1.4">' + esc(mname(a.mission_id)) + '</div>' +
+          '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:5px">' +
+          '<span style="font-size:11px;color:' + (overdue ? '#ff9b9b' : '#8896a6') + '">📅 ' + esc(due) + ' · ' + esc(a.class_name || '') + '</span>' +
+          '<button class="rpg-asg-go" data-mid="' + esc(a.mission_id) + '" style="background:#3399cc;border:none;color:#fff;border-radius:6px;padding:4px 10px;font-size:12px;cursor:pointer">🎯 Procvičit</button>' +
+          '</div></div>';
+      }).join('');
+    panel.querySelectorAll('.rpg-asg-go').forEach(b => {
+      b.onclick = () => { const mid = b.getAttribute('data-mid'); if (typeof window.goPractice === 'function') { window.goPractice(mid); const p = document.getElementById('rpg-asg-panel'); if (p) p.style.display = 'none'; } };
+    });
+  }
+
   /* napojení pro jednotlivou hru: lišta + stažení postavy po přihlášení.
      Učitelský náhled přes URL: ?preview=1 (hraní nanečisto) nebo
      ?su=<user_id>&game=<KEY> (read-only pohled na postavu žáka). */
@@ -943,6 +985,7 @@ window.RPGCloud = (function () {
         paint();
         if (u) {
           refreshNotesWidget();
+          refreshAssignmentsWidget(saveKey);
           // žebříček na mapě (pokud hra má prvek #map-leaderboard a renderMap)
           if (typeof window.renderMap === 'function') { try { window.renderMap(); } catch (e) {} }
           const cloud = await pull(saveKey);
@@ -1107,6 +1150,52 @@ window.RPGCloud = (function () {
     } catch (e) { console.warn('[RPGCloud] listAuditLog selhal:', e); return []; }
   }
 
+  // ── Fáze 20 — úkoly s termínem (učitel zadá třídě misi do termínu) ──
+  async function listAssignments() {
+    if (!client || !isStaff()) return [];
+    try {
+      const { data, error } = await client.rpc('list_assignments');
+      if (error) throw error;
+      return data || [];
+    } catch (e) { console.warn('[RPGCloud] listAssignments selhal:', e); return []; }
+  }
+  async function createAssignment(classId, game, missionId, dueDate) {
+    if (!client || !isStaff()) return { ok: false, error: 'Nemáš oprávnění.' };
+    if (!classId || !game || !missionId) return { ok: false, error: 'Vyber třídu, hru i misi.' };
+    try {
+      const { data, error } = await client.rpc('create_assignment', {
+        p_class_id: classId, p_game: game, p_mission_id: missionId, p_due_date: dueDate || null });
+      if (error) throw error;
+      logAction('assignment_create', { game, detail: { class_id: classId, mission_id: missionId, due_date: dueDate || null } });
+      return { ok: true, id: data };
+    } catch (e) { return { ok: false, error: e.message }; }
+  }
+  async function deleteAssignment(id) {
+    if (!client || !isStaff()) return { ok: false, error: 'Nemáš oprávnění.' };
+    try {
+      const { error } = await client.rpc('delete_assignment', { p_id: id });
+      if (error) throw error;
+      logAction('assignment_delete', { target: id });
+      return { ok: true };
+    } catch (e) { return { ok: false, error: e.message }; }
+  }
+  async function assignmentProgress(id) {
+    if (!client || !isStaff()) return [];
+    try {
+      const { data, error } = await client.rpc('assignment_progress', { p_id: id });
+      if (error) throw error;
+      return data || [];
+    } catch (e) { console.warn('[RPGCloud] assignmentProgress selhal:', e); return []; }
+  }
+  async function pullMyAssignments() {
+    if (!client || !user) return [];
+    try {
+      const { data, error } = await client.rpc('my_assignments');
+      if (error) throw error;
+      return data || [];
+    } catch (e) { return []; }
+  }
+
   return { CONFIG, configured, init, login, logout, currentUser, getError,
            pull, push, syncWallet, onChange, attachGame, attachHub,
            // Fáze 2 — role a učitelská konzole
@@ -1139,5 +1228,7 @@ window.RPGCloud = (function () {
            // Fáze 12 — věž legend: nástroje pro učitele
            towerBoardAdmin, towerDeleteRun,
            // Fáze 15 — audit log
-           logAction, listAuditLog };
+           logAction, listAuditLog,
+           // Fáze 20 — úkoly s termínem
+           listAssignments, createAssignment, deleteAssignment, assignmentProgress, pullMyAssignments };
 })();

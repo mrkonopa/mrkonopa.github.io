@@ -167,6 +167,7 @@ h4{font-family:var(--px);font-size:12px;font-weight:700;color:var(--accent);lett
   <div class="tabs">
    <button class="tab on" data-tab="overview">PŘEHLED ŽÁKŮ</button>
    <button class="tab" data-tab="classes">TŘÍDY</button>
+   <button class="tab" data-tab="assignments">📋 ÚKOLY</button>
    <button class="tab" data-tab="diag">DIAGNOSTIKA</button>
    <button class="tab" data-tab="leaderboard">🏆 ŽEBŘÍČKY</button>
    <button class="tab" data-tab="tower">VĚŽ LEGEND</button>
@@ -236,6 +237,20 @@ h4{font-family:var(--px);font-size:12px;font-weight:700;color:var(--accent);lett
 
    <h4>📨 Odeslané vzkazy <span style="font-size:11px;color:var(--muted);font-weight:400;text-transform:none;letter-spacing:0">(přečteno / smazáno žáky)</span></h4>
    <div id="broadcasts-wrap"><div class="empty" style="padding:8px">Načítám…</div></div>
+  </div>
+
+  <!-- ÚKOLY -->
+  <div id="t-assignments" class="hidden">
+   <div class="info-box">Zadej třídě <b>úkol s termínem</b> („procvič misi X do pátku"). Žák ho uvidí ve hře
+    a může rovnou procvičovat. Splnění = <b>mistrovství mise</b> (žák získá 🏅 v tréninku).</div>
+   <div class="controls">
+    <select id="asg-class" aria-label="Třída"><option value="">— třída —</option></select>
+    <select id="asg-game" aria-label="Hra"><option value="">— hra —</option></select>
+    <select id="asg-mid" aria-label="Mise"><option value="">— mise —</option></select>
+    <input id="asg-due" type="date" aria-label="Termín" style="max-width:170px">
+    <button class="mini gold" onclick="createAssignmentUI()">+ Zadat úkol</button>
+   </div>
+   <div id="assignments-wrap"><div class="empty">Načítám…</div></div>
   </div>
 
   <!-- ZPĚTNÁ VAZBA -->
@@ -1391,6 +1406,68 @@ async function archiveClassUI(id,on){
  else toast('Chyba: '+res.error,1);
 }
 
+/* ── ÚKOLY s termínem (Fáze 20) ── */
+let ASSIGNMENTS=[];
+async function renderAssignments(){
+ if(!CLASSES.length)await loadClasses();
+ const cs=document.getElementById('asg-class');
+ if(cs)cs.innerHTML='<option value="">— třída —</option>'+activeClasses().map(c=>'<option value="'+esc(c.id)+'">'+esc(classLabel(c))+'</option>').join('');
+ const gs=document.getElementById('asg-game');
+ if(gs&&!gs.dataset.filled){gs.innerHTML='<option value="">— hra —</option>'+GAMES.map(g=>'<option value="'+g.key+'">'+g.emoji+' '+esc(g.nm)+'</option>').join('');gs.dataset.filled='1';gs.onchange=fillAsgMissions;}
+ fillAsgMissions();
+ ASSIGNMENTS=await RPGCloud.listAssignments();
+ const w=document.getElementById('assignments-wrap');
+ if(!ASSIGNMENTS.length){w.innerHTML='<div class="empty">— zatím žádné úkoly. Zadej první výše. —</div>';return;}
+ const today=new Date().toISOString().slice(0,10);
+ w.innerHTML=ASSIGNMENTS.map(a=>{
+  const g=GAMES.find(x=>x.key===a.game);
+  const mm=missionsFor(a.game).find(m=>m.id===a.mission_id);
+  const due=a.due_date?('📅 do '+new Date(a.due_date).toLocaleDateString('cs-CZ')):'📅 bez termínu';
+  const overdue=a.due_date&&a.due_date<today;
+  return '<div style="background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:12px 16px;margin-bottom:10px">'+
+   '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">'+
+    '<span style="font-size:18px">'+(g?g.emoji:'📋')+'</span>'+
+    '<b style="color:#fff">'+esc(a.class_name)+'</b>'+
+    '<span class="tag" style="background:var(--accent)">'+esc(a.mission_id)+' '+esc(mm?mm.name:a.mission_id)+'</span>'+
+    '<span class="tag" style="background:'+(overdue?'#a5433a':'#3a6ea5')+'">'+due+'</span>'+
+    '<div style="margin-left:auto;display:flex;gap:6px">'+
+     '<button class="mini gold" onclick="toggleAsgProgress(\''+esc(a.id)+'\')">📊 Kdo splnil</button>'+
+     '<button class="mini red" onclick="deleteAssignmentUI(\''+esc(a.id)+'\')">🗑</button>'+
+    '</div>'+
+   '</div>'+
+   '<div id="asg-prog-'+esc(a.id)+'" class="hidden" style="margin-top:10px"></div>'+
+   '</div>';
+ }).join('');
+}
+function fillAsgMissions(){
+ const gs=document.getElementById('asg-game'),ms=document.getElementById('asg-mid');
+ if(!gs||!ms)return;
+ const game=gs.value;
+ ms.innerHTML='<option value="">— mise —</option>'+(game?missionsFor(game).map(m=>'<option value="'+m.id+'">'+esc(m.id)+' '+esc(m.name)+'</option>').join(''):'');
+}
+async function createAssignmentUI(){
+ const cid=document.getElementById('asg-class').value,game=document.getElementById('asg-game').value,mid=document.getElementById('asg-mid').value,due=document.getElementById('asg-due').value||null;
+ if(!cid||!game||!mid){toast('Vyber třídu, hru i misi.',1);return;}
+ const r=await RPGCloud.createAssignment(cid,game,mid,due);
+ if(r.ok){toast('Úkol zadán ✅');document.getElementById('asg-mid').value='';document.getElementById('asg-due').value='';renderAssignments();}
+ else toast('Nepovedlo se: '+(r.error||'?'),1);
+}
+async function deleteAssignmentUI(id){
+ if(!confirm('Smazat úkol?'))return;
+ const r=await RPGCloud.deleteAssignment(id);
+ if(r.ok){toast('Úkol smazán');renderAssignments();}else toast('Nepovedlo se: '+(r.error||'?'),1);
+}
+async function toggleAsgProgress(id){
+ const el=document.getElementById('asg-prog-'+id);if(!el)return;
+ if(!el.classList.contains('hidden')){el.classList.add('hidden');return;}
+ el.classList.remove('hidden');el.innerHTML='<div class="empty" style="padding:6px">Načítám…</div>';
+ const rows=await RPGCloud.assignmentProgress(id);
+ if(!rows.length){el.innerHTML='<div class="empty" style="padding:6px">— ve třídě zatím nikdo s postavou —</div>';return;}
+ const done=rows.filter(r=>r.mastered).length;
+ el.innerHTML='<div style="font-size:12px;color:var(--muted);margin-bottom:6px">Splnilo <b>'+done+'</b> / '+rows.length+'</div>'+
+  rows.map(r=>'<div style="display:flex;justify-content:space-between;padding:4px 8px;border-radius:5px;background:'+(r.mastered?'#183a2a':'#3a2320')+';margin:3px 0"><span>'+esc(r.display_name)+'</span><span>'+(r.mastered?'✅ splnil':'⏳ nesplnil')+'</span></div>').join('');
+}
+
 /* ── diagnostika: heatmapa chybovosti misí ── */
 function renderDiag(){
  const sel=document.getElementById('diag-game');if(!sel)return;
@@ -1792,6 +1869,7 @@ document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
  const tab=t.dataset.tab;
  document.getElementById('t-overview').classList.toggle('hidden',tab!=='overview');
  document.getElementById('t-classes').classList.toggle('hidden',tab!=='classes');
+ document.getElementById('t-assignments').classList.toggle('hidden',tab!=='assignments');
  document.getElementById('t-preview').classList.toggle('hidden',tab!=='preview');
  document.getElementById('t-diag').classList.toggle('hidden',tab!=='diag');
  document.getElementById('t-leaderboard').classList.toggle('hidden',tab!=='leaderboard');
@@ -1802,6 +1880,7 @@ document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
  document.getElementById('t-teachers').classList.toggle('hidden',tab!=='teachers');
  document.getElementById('t-audit').classList.toggle('hidden',tab!=='audit');
  if(tab==='classes'){renderClasses();renderBroadcasts();}
+ if(tab==='assignments')renderAssignments();
  if(tab==='teachers')loadTeachers();
  if(tab==='audit')loadAudit();
  if(tab==='diag')renderDiag();
