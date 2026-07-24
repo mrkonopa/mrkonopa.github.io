@@ -1107,6 +1107,52 @@ window.RPGCloud = (function () {
     } catch (e) { console.warn('[RPGCloud] listAuditLog selhal:', e); return []; }
   }
 
+  // ── Fáze 20 — úkoly s termínem (učitel zadá třídě misi do termínu) ──
+  async function listAssignments() {
+    if (!client || !isStaff()) return [];
+    try {
+      const { data, error } = await client.rpc('list_assignments');
+      if (error) throw error;
+      return data || [];
+    } catch (e) { console.warn('[RPGCloud] listAssignments selhal:', e); return []; }
+  }
+  async function createAssignment(classId, game, missionId, dueDate) {
+    if (!client || !isStaff()) return { ok: false, error: 'Nemáš oprávnění.' };
+    if (!classId || !game || !missionId) return { ok: false, error: 'Vyber třídu, hru i misi.' };
+    try {
+      const { data, error } = await client.rpc('create_assignment', {
+        p_class_id: classId, p_game: game, p_mission_id: missionId, p_due_date: dueDate || null });
+      if (error) throw error;
+      logAction('assignment_create', { game, detail: { class_id: classId, mission_id: missionId, due_date: dueDate || null } });
+      return { ok: true, id: data };
+    } catch (e) { return { ok: false, error: e.message }; }
+  }
+  async function deleteAssignment(id) {
+    if (!client || !isStaff()) return { ok: false, error: 'Nemáš oprávnění.' };
+    try {
+      const { error } = await client.rpc('delete_assignment', { p_id: id });
+      if (error) throw error;
+      logAction('assignment_delete', { target: id });
+      return { ok: true };
+    } catch (e) { return { ok: false, error: e.message }; }
+  }
+  async function assignmentProgress(id) {
+    if (!client || !isStaff()) return [];
+    try {
+      const { data, error } = await client.rpc('assignment_progress', { p_id: id });
+      if (error) throw error;
+      return data || [];
+    } catch (e) { console.warn('[RPGCloud] assignmentProgress selhal:', e); return []; }
+  }
+  async function pullMyAssignments() {
+    if (!client || !user) return [];
+    try {
+      const { data, error } = await client.rpc('my_assignments');
+      if (error) throw error;
+      return data || [];
+    } catch (e) { return []; }
+  }
+
   return { CONFIG, configured, init, login, logout, currentUser, getError,
            pull, push, syncWallet, onChange, attachGame, attachHub,
            // Fáze 2 — role a učitelská konzole
@@ -1139,5 +1185,7 @@ window.RPGCloud = (function () {
            // Fáze 12 — věž legend: nástroje pro učitele
            towerBoardAdmin, towerDeleteRun,
            // Fáze 15 — audit log
-           logAction, listAuditLog };
+           logAction, listAuditLog,
+           // Fáze 20 — úkoly s termínem
+           listAssignments, createAssignment, deleteAssignment, assignmentProgress, pullMyAssignments };
 })();
