@@ -140,7 +140,39 @@ async function run() {
     await page.waitForFunction(()=>/žádné úkoly/.test(document.getElementById('assignments-wrap').textContent), {timeout:4000});
     ok('úkol smazán (seznam prázdný)', true);
 
-    ok('žádné JS chyby', errors.length===0, errors.join(' | '));
+    ok('žádné JS chyby (konzole)', errors.length===0, errors.join(' | '));
+
+    // ── 2b: in-game widget „Úkoly od učitele" (rpg-mat-9.html) ──
+    const stu='zak@husovaliberec.cz';
+    const gameScenario = {
+      roles: [],
+      session: { user:{ id:'u-zak', email:stu, user_metadata:{full_name:'Žák'} } },
+      mine: [
+        { id:'a-1', game:'RPG_MAT_9', mission_id:'2-3', due_date:'2026-09-05', class_name:'9.B' },
+        { id:'a-2', game:'RPG_MAT_6', mission_id:'1-1', due_date:null, class_name:'6.A' },
+      ],
+    };
+    const gerr=[];
+    const gctx = await browser.newContext();
+    await gctx.route('**/*', r=>r.request().url().includes('localhost:'+PORT)?r.continue():r.abort());
+    const gp = await gctx.newPage();
+    gp.on('pageerror', e=>gerr.push(e.message));
+    await gp.addInitScript(mockScript(gameScenario));
+    await gp.goto(`${BASE}/projects/rpg-mat-9.html`, { waitUntil:'domcontentloaded' });
+    await gp.waitForSelector('#rpg-asg-btn', { timeout:9000 });
+    ok('widget Úkoly se ve hře objeví po přihlášení', true);
+    // filtruje na hru (RPG_MAT_9) — jen 1 z 2 úkolů
+    const btnTxt = await gp.evaluate(()=>document.getElementById('rpg-asg-btn').textContent);
+    ok('widget filtruje na hru (1 úkol pro g9)', /\(1\)/.test(btnTxt), btnTxt);
+    await gp.evaluate(()=>{ window.goPractice = (mid)=>{ window.__practiced=mid; }; });
+    await gp.click('#rpg-asg-btn');
+    const ptxt = await gp.evaluate(()=>document.getElementById('rpg-asg-panel').textContent);
+    ok('panel ukáže misi + termín + třídu + Procvičit', /2-3/.test(ptxt) && /Procvičit/.test(ptxt) && /9\.B/.test(ptxt), ptxt.slice(0,90));
+    await gp.click('.rpg-asg-go');
+    const practiced = await gp.evaluate(()=>window.__practiced);
+    ok('„Procvičit" volá goPractice(mid)', practiced==='2-3', 'practiced='+practiced);
+    ok('žádné JS chyby (hra)', gerr.length===0, gerr.slice(0,3).join(' | '));
+    await gctx.close();
   } catch (e) {
     ok('běh testu bez výjimky', false, e.message);
   } finally {
