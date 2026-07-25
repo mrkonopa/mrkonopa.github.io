@@ -1,0 +1,43 @@
+name: Tests
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  gate:
+    name: Testová brána (Node + Playwright)
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Instalace závislostí
+        run: npm install
+
+      - name: Instalace Chromia (Playwright)
+        run: npx playwright install --with-deps chromium
+
+      - name: Symlink Chromia na cestu, kterou testy očekávají
+        # Testy hardkódují /opt/pw-browsers/chromium-1194/... (sandbox cesta).
+        # Místo přepisování 76 souborů nasměrujeme tu cestu na nainstalovaný binárku.
+        run: |
+          BIN=$(node -e "console.log(require('playwright').chromium.executablePath())")
+          echo "Chromium: $BIN"
+          sudo mkdir -p /opt/pw-browsers/chromium-1194/chrome-linux
+          sudo ln -sf "$BIN" /opt/pw-browsers/chromium-1194/chrome-linux/chrome
+          ls -l /opt/pw-browsers/chromium-1194/chrome-linux/chrome
+
+      - name: Blackhole externích CDN (mock Supabase platí jako v sandboxu)
+        # Testy injektují mock Supabase a spoléhají, že CDN je NEdostupné (v sandboxu
+        # blokované). Na CI je jsdelivr dostupné → načte se reálný supabase-js, přepíše
+        # mock → konzolové testy visí. Nasměrujeme CDN/fonty na 127.0.0.1 (fast-fail).
+        run: |
+          echo "127.0.0.1 cdn.jsdelivr.net fonts.googleapis.com fonts.gstatic.com www.youtube.com youtube.com" | sudo tee -a /etc/hosts
+
+      - name: Spustit bránu (sekvenčně)
+        run: node tests/run-ci.cjs
