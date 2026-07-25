@@ -33,6 +33,18 @@
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
   <meta name="description" content="Sbírka jednotných přijímacích testů z matematiky pro 4leté obory SŠ — k procvičování a ke stažení v PDF.">
+  <meta name="author" content="Vojtěch Konopa">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    "name": "Vojtěch Konopa",
+    "url": "https://mrkonopa.github.io/",
+    "jobTitle": "Učitel matematiky",
+    "worksFor": { "@type": "EducationalOrganization", "name": "ZŠ Husova, Liberec" },
+    "sameAs": ["https://github.com/mrkonopa"]
+  }
+  </script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -333,6 +345,49 @@
       k vytištění. Všechny soubory se otevřou v novém okně.
     </p>
   </div>
+
+  <style>
+    .hub-grid { max-width:920px; margin:22px auto 0; padding:0 24px;
+      display:grid; gap:16px; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); }
+    .hub-card { background:var(--card); border:1px solid var(--border); border-radius:var(--radius);
+      box-shadow:var(--shadow); padding:20px; display:flex; flex-direction:column; gap:7px;
+      color:inherit; transition:border-color .12s, box-shadow .12s, transform .12s; }
+    a.hub-card:hover { border-color:var(--blue); box-shadow:var(--shadow-hover); transform:translateY(-2px); }
+    .hub-card .ic { font-size:28px; }
+    .hub-card h3 { font-size:1.15rem; font-weight:700; color:var(--text); }
+    .hub-card p { font-size:.88rem; font-weight:300; color:var(--muted); line-height:1.5; }
+    .hub-card .go { margin-top:auto; font-weight:700; font-size:.88rem; color:var(--blue); }
+    .hub-card.soon { opacity:.72; }
+    .hub-card.soon .badge { margin-top:auto; align-self:flex-start; font-size:.68rem; font-weight:700;
+      letter-spacing:.06em; text-transform:uppercase; color:var(--gold); background:var(--gold-light);
+      padding:3px 10px; border-radius:20px; }
+  </style>
+  <section class="hub-grid" aria-label="Trenažér přijímaček">
+    <a class="hub-card" href="test.html">
+      <span class="ic">📝</span>
+      <h3>Test nanečisto</h3>
+      <p>Celý test na čas — 16 úloh, 50 bodů, 70 minut. Okamžité vyhodnocení a vyřešený postup.</p>
+      <span class="go">Spustit test →</span>
+    </a>
+    <a class="hub-card" href="procvicovani.html">
+      <span class="ic">🎯</span>
+      <h3>Procvičování</h3>
+      <p>Trénuj po tématech — úlohy ve znění přijímaček a vyřešený postup u každé.</p>
+      <span class="go">Vybrat okruh →</span>
+    </a>
+    <a class="hub-card" href="diagnostika.html">
+      <span class="ic">🧭</span>
+      <h3>Diagnostika</h3>
+      <p>Krátký test najde, kde ztrácíš body. Mapa slabin za pár minut.</p>
+      <span class="go">Spustit diagnostiku →</span>
+    </a>
+    <div class="hub-card soon">
+      <span class="ic">📊</span>
+      <h3>Statistiky</h3>
+      <p>Sleduj svůj pokrok, trend výsledků a připravenost na zkoušku.</p>
+      <span class="badge">Připravujeme</span>
+    </div>
+  </section>
 
   <div class="cermat-banner">
     <a class="cermat-countdown cc-far" id="cermat-chip"
