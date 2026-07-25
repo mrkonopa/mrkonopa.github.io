@@ -7,36 +7,9 @@
 (function () {
   'use strict';
 
-  // Generátor rpg-cermat-9.js spoléhá na globální `ri` (random int [a,b]) — ve hře
-  // je to lexikální const v rpg-mat-9.html, do sdíleného rpg-shared.js ho dát nelze
-  // (kolize). V hubu ho tedy dodáme jako window.ri (guarded). Musí být k dispozici
-  // dřív, než se generátor spustí → proto se prijimacky-core.js načítá PŘED ním.
-  // Malé matematické helpery, které rpg-cermat-9.js sdílí se hrou (rpg-mat-9.html:974–981):
-  // ri (random int), gcd (největší společný dělitel), cz (desetinná čárka), + shuffleArr/
-  // countDiv/skl pro jistotu. Guarded → nekolidují, kdyby je stránka už měla.
-  if (typeof window.ri !== 'function') window.ri = (a, b) => Math.floor(Math.random() * (b - a + 1)) + a;
-  if (typeof window.gcd !== 'function') window.gcd = function gcd(a, b) { return b ? gcd(b, a % b) : Math.abs(a); };
-  if (typeof window.cz !== 'function') window.cz = n => String(n).replace('.', ',');
-  if (typeof window.shuffleArr !== 'function') window.shuffleArr = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1));[a[i], a[j]] = [a[j], a[i]]; } return a; };
-  if (typeof window.countDiv !== 'function') window.countDiv = n => { let c = 0; for (let i = 1; i <= n; i++) if (n % i === 0) c++; return c; };
-  if (typeof window.skl !== 'function') window.skl = (n, one, few, many) => n === 1 ? one : (n >= 2 && n <= 4 ? few : many);
-
-  // SVG helpery, které generátor sdílí se hrou (rpg-mat-9.html): svgTriangle, svgSimilar.
-  // (svgSud/svgAngles jsou interní modulu.) Kopie 1:1 — barvy přebarví themeSvg níže.
-  if (typeof window.svgTriangle !== 'function') window.svgTriangle = function (kind, opt) {
-    opt = opt || {}; let p;
-    if (kind === 'rovnostr') p = [[125, 30], [55, 135], [195, 135]];
-    else if (kind === 'rovnoram') p = [[125, 28], [70, 135], [180, 135]];
-    else if (kind === 'pravo') p = [[55, 135], [55, 35], [195, 135]];
-    else p = [[60, 40], [40, 135], [205, 120]];
-    const pts = p.map(q => q.join(',')).join(' ');
-    const vlabels = (opt.v || ['A', 'B', 'C']); const off = [[0, -10], [-12, 14], [12, 14]]; let txt = '';
-    p.forEach((q, i) => { txt += '<text x="' + (q[0] + off[i][0]) + '" y="' + (q[1] + off[i][1]) + '" fill="#fff" font-size="14" font-family="monospace" text-anchor="middle">' + vlabels[i] + '</text>'; });
-    return '<svg viewBox="0 0 250 165"><polygon points="' + pts + '" fill="#16203a" stroke="#19e6e6" stroke-width="3"/>' + (kind === 'pravo' ? '<rect x="55" y="120" width="15" height="15" fill="none" stroke="#ff3d7f" stroke-width="2"/>' : '') + txt + (opt.extra || '') + '</svg>';
-  };
-  if (typeof window.svgSimilar !== 'function') window.svgSimilar = function (k) {
-    return '<svg viewBox="0 0 250 160"><polygon points="30,120 90,120 30,75" fill="#16203a" stroke="#19e6e6" stroke-width="2.5"/><polygon points="130,135 240,135 130,55" fill="#16203a" stroke="#39ff9e" stroke-width="2.5"/><text x="60" y="138" fill="#5d6e94" font-size="12" font-family="monospace" text-anchor="middle">orig.</text><text x="185" y="152" fill="#5d6e94" font-size="12" font-family="monospace" text-anchor="middle">obraz</text><text x="125" y="22" fill="#ff3d7f" font-size="15" font-family="monospace" text-anchor="middle">k = ' + k + '</text></svg>';
-  };
+  // Herní helpery (ri/gcd/cz/shuffleArr/countDiv/skl) i celá knihovna SVG diagramů
+  // (svgTriangle/svgSimilar/…) teď žijí ve sdíleném ../rpg-svg-9.js, který se načítá
+  // PŘED tímto souborem i před rpg-cermat-9.js. Netřeba je tu duplikovat.
 
   // Přebarvení generovaných SVG z tmavé RPG palety na světlou akademickou.
   // Delší kódy barev první (ať #ffffff nepřebije #fff jen zčásti).

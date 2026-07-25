@@ -66,9 +66,11 @@
 </main>
 
 <!-- Sdílený engine (vizuálně neutrální) + glue.
-     Pořadí: rpg-shared.js (checkAns) → prijimacky-core.js (definuje window.ri + PZ)
-     → rpg-cermat-9.js (generátor, spoléhá na ri). -->
+     Pořadí: rpg-shared.js (checkAns) → rpg-svg-9.js (ri/gcd/cz + SVG helpery,
+     sdílené se hrou) → prijimacky-core.js (PZ glue + themeSvg) → rpg-cermat-9.js
+     (generátor, spoléhá na ri/svg z rpg-svg-9.js). -->
 <script src="../rpg-shared.js"></script>
+<script src="../rpg-svg-9.js"></script>
 <script src="prijimacky-core.js"></script>
 <script src="../rpg-cermat-9.js"></script>
 <script>
