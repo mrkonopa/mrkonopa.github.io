@@ -602,6 +602,10 @@
     maxScore: 50,
     generate: function () {
       return SLOTS.map(variants => pick(variants)());
-    }
+    },
+    // Vystaveno pro přijímačkový hub (procvičování po tématech): 16 pozic testu,
+    // každá = pole variant. genSlot(i) vygeneruje úlohu z pozice i (0-indexováno).
+    slotCount: function () { return SLOTS.length; },
+    genSlot: function (i) { return pick(SLOTS[i])(); }
   };
 })();

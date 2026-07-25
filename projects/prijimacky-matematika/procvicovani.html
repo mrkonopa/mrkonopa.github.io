@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Procvičování po tématech — Přijímačky z matematiky · Vojtěch Konopa</title>
+<meta name="description" content="Procvičuj přijímačky z matematiky po tématech: číselné výrazy, zlomky, procenta, rovnice, geometrie, tělesa i data. U každé úlohy vyřešený postup." />
+<meta name="author" content="Vojtěch Konopa" />
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="prijimacky.css">
+<style>
+  .topic-list { display:grid; gap:12px; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); }
+  .topic-card { background:var(--card); border:1px solid var(--border); border-left:4px solid var(--blue);
+    border-radius:12px; box-shadow:var(--shadow); padding:16px 18px; text-align:left; cursor:pointer;
+    font-family:var(--sans); transition:border-color .12s, box-shadow .12s, transform .12s; }
+  .topic-card:hover { border-color:var(--blue); box-shadow:var(--shadow-hover); transform:translateY(-2px); }
+  .topic-card .tn { font-size:1.05rem; font-weight:700; color:var(--text); }
+  .topic-card .to { font-size:.78rem; color:var(--muted); margin-top:2px; }
+  .topic-card .tp { font-size:.78rem; color:var(--teal); font-weight:600; margin-top:8px; }
+  .pr-counter { display:flex; gap:16px; align-items:center; font-weight:700; color:var(--muted); font-size:.9rem; }
+  .pr-counter b { color:var(--green); }
+  .pr-feedback { margin-top:12px; font-weight:700; }
+  .pr-feedback.ok { color:var(--green); }
+  .pr-feedback.bad { color:var(--red); }
+  .pr-sol { margin-top:10px; background:var(--gold-light); border-left:3px solid var(--gold);
+    border-radius:0 8px 8px 0; padding:10px 12px; font-size:.95rem; line-height:1.55; color:var(--text); }
+  .pr-sol .lbl { font-size:.78rem; font-weight:700; color:var(--gold); letter-spacing:.04em; display:block; margin-bottom:4px; }
+  .yn-row { display:flex; gap:10px; }
+  .yn-row .pz-btn { flex:1; justify-content:center; }
+</style>
+</head>
+<body>
+<div class="top-bar">
+  <a href="./"><span class="crumb">← Přijímačky z matematiky</span></a>
+  <a href="/">mrkonopa.github.io</a>
+</div>
+
+<header class="title-block">
+  <span class="eyebrow">Procvičování</span>
+  <h1 class="title">Trénuj <span class="accent">po tématech</span></h1>
+  <p class="lede">Vyber okruh a procvičuj úlohy ve znění jednotné přijímací zkoušky. U každé úlohy hned uvidíš vyřešený postup.</p>
+</header>
+
+<main>
+  <!-- VÝBĚR OKRUHU -->
+  <div id="pr-pick">
+    <div class="topic-list" id="pr-topics"></div>
+  </div>
+
+  <!-- PROCVIČOVÁNÍ -->
+  <div id="pr-run" style="display:none">
+    <div class="cm-panel" style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px">
+      <div><span style="font-weight:800" id="pr-title"></span></div>
+      <div class="pr-counter"><span>Správně: <b id="pr-ok">0</b> / <span id="pr-total">0</span></span>
+        <button class="pz-btn ghost sm" onclick="prExit()">← Okruhy</button></div>
+    </div>
+    <div class="cm-task">
+      <div class="cm-intro" id="pr-intro" style="display:none"></div>
+      <div class="cm-svg" id="pr-svg" style="display:none"></div>
+      <div class="cm-part-prompt" id="pr-prompt"></div>
+      <div id="pr-answer"></div>
+      <div class="pr-feedback" id="pr-fb" style="display:none"></div>
+      <div class="pr-sol" id="pr-sol" style="display:none"></div>
+      <div style="margin-top:14px" id="pr-nextwrap" style="display:none">
+        <button class="pz-btn primary" id="pr-next" onclick="prNext()" style="display:none">Další úloha →</button>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script src="../rpg-shared.js"></script>
+<script src="../rpg-svg-9.js"></script>
+<script src="prijimacky-core.js"></script>
+<script src="../rpg-cermat-9.js"></script>
+<script src="prijimacky-topics.js"></script>
+<script>
+const PROG_KEY = 'PZ_PRACTICE_PROGRESS';
+let PR = { topic:null, item:null, ok:0, total:0, answered:false };
+
+function loadProg(){ return PZ.store.get(PROG_KEY, {}); }
+function bumpProg(topicId, correct){
+  const p = loadProg(); const t = p[topicId] || { ok:0, total:0 };
+  t.total++; if(correct) t.ok++; p[topicId] = t; PZ.store.set(PROG_KEY, p);
+}
+
+function renderTopics(){
+  const prog = loadProg();
+  document.getElementById('pr-topics').innerHTML = PZ_TOPICS.list.map(t=>{
+    const p = prog[t.id]; const done = p ? (p.ok+' správně z '+p.total) : 'nezačato';
+    return '<div class="topic-card" onclick="prStart(\''+t.id+'\')"><div class="tn">'+PZ.esc(t.name)+'</div>'+
+      '<div class="to">'+PZ.esc(t.oblast)+'</div><div class="tp">'+PZ.esc(done)+'</div></div>';
+  }).join('');
+}
+
+function prStart(id){
+  const topic = PZ_TOPICS.list.find(x=>x.id===id); if(!topic) return;
+  PR.topic = topic; PR.ok = 0; PR.total = 0;
+  document.getElementById('pr-pick').style.display='none';
+  document.getElementById('pr-run').style.display='block';
+  document.getElementById('pr-title').textContent = topic.name;
+  updateCounter();
+  prNext();
+  window.scrollTo(0,0);
+}
+function prExit(){ PR.topic=null; renderTopics(); document.getElementById('pr-run').style.display='none';
+  document.getElementById('pr-pick').style.display='block'; window.scrollTo(0,0); }
+function updateCounter(){ document.getElementById('pr-ok').textContent=PR.ok; document.getElementById('pr-total').textContent=PR.total; }
+
+function prNext(){
+  let it=null, guard=0;
+  do { it = PZ_TOPICS.item(PR.topic.id); guard++; } while((!it || !it.prompt) && guard<8);
+  if(!it){ document.getElementById('pr-prompt').textContent='Úlohu se nepodařilo načíst.'; return; }
+  PR.item = it; PR.answered = false;
+  // intro + svg
+  const introEl=document.getElementById('pr-intro');
+  if(it.intro){ introEl.textContent=it.intro; introEl.style.display='block'; } else introEl.style.display='none';
+  const svgEl=document.getElementById('pr-svg');
+  if(it.svg){ svgEl.innerHTML=PZ.themeSvg(it.svg); svgEl.style.display='block'; } else svgEl.style.display='none';
+  document.getElementById('pr-prompt').textContent = it.prompt;
+  // odpověď dle typu
+  const ans=document.getElementById('pr-answer');
+  if(it.type==='mc'){
+    ans.innerHTML = it.options.map(o=>'<label class="cm-mc-opt"><input type="radio" name="pr-mc" value="'+o.charAt(0)+'"> '+PZ.esc(o)+'</label>').join('')+
+      '<div style="margin-top:12px"><button class="pz-btn primary" onclick="prSubmit()">Zkontrolovat</button></div>';
+  } else if(it.type==='yn'){
+    ans.innerHTML = '<div class="yn-row"><button class="pz-btn" onclick="prSubmitYN(\'A\')">ANO</button><button class="pz-btn" onclick="prSubmitYN(\'N\')">NE</button></div>';
+  } else {
+    ans.innerHTML = '<input type="text" id="pr-input" inputmode="'+PZ.inputMode(it.ans)+'" autocomplete="off" placeholder="výsledek" '+
+      'onkeydown="if(event.key===\'Enter\')prSubmit()"><div style="margin-top:12px"><button class="pz-btn primary" onclick="prSubmit()">Zkontrolovat</button></div>';
+    setTimeout(()=>{ const i=document.getElementById('pr-input'); if(i)i.focus(); },30);
+  }
+  document.getElementById('pr-fb').style.display='none';
+  document.getElementById('pr-sol').style.display='none';
+  document.getElementById('pr-next').style.display='none';
+}
+
+function prSubmitYN(v){ if(PR.answered) return; grade(v===PR.item.ans, v); }
+function prSubmit(){
+  if(PR.answered) return;
+  const it=PR.item; let given=null, correct=false;
+  if(it.type==='mc'){ const s=document.querySelector('input[name="pr-mc"]:checked'); if(!s)return; given=s.value; correct=given===it.ans; }
+  else { const inp=document.getElementById('pr-input'); const v=inp?inp.value:''; if(!v.trim())return; given=v; correct=PZ.check(v, it.ans); }
+  grade(correct, given);
+}
+function grade(correct){
+  PR.answered = true; PR.total++; if(correct) PR.ok++;
+  bumpProg(PR.topic.id, correct); updateCounter();
+  // zamkni vstupy
+  document.querySelectorAll('#pr-answer input, #pr-answer button').forEach(e=>e.disabled=true);
+  const fb=document.getElementById('pr-fb');
+  fb.className='pr-feedback '+(correct?'ok':'bad');
+  fb.textContent = correct ? '✓ Správně!' : '✗ Špatně. Správná odpověď: '+PR.item.ans;
+  fb.style.display='block';
+  if(PR.item.sol){ const sol=document.getElementById('pr-sol');
+    sol.innerHTML='<span class="lbl">VYŘEŠENÝ POSTUP</span>'+PZ.esc(PR.item.sol); sol.style.display='block'; }
+  const nb=document.getElementById('pr-next'); nb.style.display='inline-flex'; setTimeout(()=>nb.focus(),30);
+}
+
+renderTopics();
+</script>
+</body>
+</html>
