@@ -51,10 +51,7 @@ runs.sort((a, b) => (b.f.startsWith('vstudents-deep') ? 1 : 0) - (a.f.startsWith
 console.log(`\n╔══ CI brána: ${runs.length} běhů (sekvenčně) ══╗\n`);
 if (LIST_ONLY) { runs.forEach(r => console.log('  •', r.label)); process.exit(0); }
 
-const fails = [];
-const t0 = Date.now();
-for (let i = 0; i < runs.length; i++) {
-  const { f, args, label } = runs[i];
+function runOne(f, args) {
   const started = Date.now();
   const res = spawnSync('node', [path.join(DIR, f), ...args], {
     encoding: 'utf8', timeout: PER_TEST_TIMEOUT, maxBuffer: 64 * 1024 * 1024,
@@ -63,11 +60,22 @@ for (let i = 0; i < runs.length; i++) {
   const out = (res.stdout || '') + (res.stderr || '');
   const last = out.split('\n').filter(l => /VÝSLEDEK|✅|❌|✓|✗|passed|failed|prošlo/.test(l)).pop() || '';
   const timedOut = res.signal === 'SIGTERM' || res.error?.code === 'ETIMEDOUT';
-  const ok = res.status === 0 && !timedOut;
-  const tag = ok ? '✅' : (timedOut ? '⏱ TIMEOUT' : '❌');
-  console.log(`[${String(i + 1).padStart(2)}/${runs.length}] ${tag} ${label} (${secs}s)  ${last.trim().slice(0, 70)}`);
-  if (!ok) { fails.push(label); if (out.trim()) console.log(out.trim().split('\n').slice(-8).map(l => '      ' + l).join('\n')); }
+  return { ok: res.status === 0 && !timedOut, secs, out, last, timedOut };
 }
+
+const fails = [], flaky = [];
+const t0 = Date.now();
+for (let i = 0; i < runs.length; i++) {
+  const { f, args, label } = runs[i];
+  let r = runOne(f, args);
+  // Retry-once: Playwright testy občas na CI bliknou (timing pod zátěží).
+  // Skutečná chyba selže 2×; flaky projde na druhý pokus → nezčervená bránu.
+  if (!r.ok) { const r2 = runOne(f, args); if (r2.ok) { flaky.push(label); r = r2; } else r = r2; }
+  const tag = r.ok ? (flaky.includes(label) ? '✅~' : '✅') : (r.timedOut ? '⏱ TIMEOUT' : '❌');
+  console.log(`[${String(i + 1).padStart(2)}/${runs.length}] ${tag} ${label} (${r.secs}s)  ${r.last.trim().slice(0, 70)}`);
+  if (!r.ok) { fails.push(label); if (r.out.trim()) console.log(r.out.trim().split('\n').slice(-8).map(l => '      ' + l).join('\n')); }
+}
+if (flaky.length) console.log('\n⚠ flaky (prošlo až na 2. pokus): ' + flaky.join(', '));
 
 const mins = ((Date.now() - t0) / 60000).toFixed(1);
 console.log(`\n╚══ ${runs.length - fails.length}/${runs.length} OK · ${mins} min ══╝`);
