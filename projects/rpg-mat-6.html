@@ -2122,7 +2122,7 @@ function renderTask(){
  document.querySelectorAll('#yn-row button').forEach(b=>b.disabled=false);
  document.getElementById('hint-btn').style.display='inline-block';
  document.getElementById('mc-grid').style.display='none';
- document.getElementById('bt-ans').value='';
+ const _bi=document.getElementById('bt-ans');_bi.value='';_bi.inputMode=/^\d+$/.test(String(BT.curTask.ans))?'numeric':/^\d+[.,]\d+$/.test(String(BT.curTask.ans))?'decimal':'text';
  document.getElementById('bt-ans').disabled=false;
  if(!yn)document.getElementById('bt-ans').focus();
  }
@@ -2760,7 +2760,7 @@ function twRenderTask(){
   document.getElementById('tw-input-row').style.display=yn?'none':'flex';
   document.getElementById('tw-yn-row').style.display=yn?'flex':'none';
   document.getElementById('tw-mc').style.display='none';
-  const inp=document.getElementById('tw-ans');inp.value='';inp.disabled=false;if(!yn)inp.focus();
+  const inp=document.getElementById('tw-ans');inp.value='';inp.disabled=false;if(!yn)inp.focus();inp.inputMode=/^\d+$/.test(String(TW.task.ans))?'numeric':/^\d+[.,]\d+$/.test(String(TW.task.ans))?'decimal':'text';
  }
 }
 
@@ -3281,7 +3281,7 @@ function trRender(){
   document.getElementById('tr-yn-row').style.display=yn?'flex':'none';
   hbtn.style.display='inline-block';
   document.getElementById('tr-mc').style.display='none';
-  const inp=document.getElementById('tr-ans');inp.value='';inp.disabled=false;if(!yn)inp.focus();
+  const inp=document.getElementById('tr-ans');inp.value='';inp.disabled=false;if(!yn)inp.focus();inp.inputMode=/^\d+$/.test(String(TR.task.ans))?'numeric':/^\d+[.,]\d+$/.test(String(TR.task.ans))?'decimal':'text';
  }
 }
 
