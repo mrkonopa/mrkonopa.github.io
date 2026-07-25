@@ -36,8 +36,8 @@ const ok=(c,m)=>{ if(c){pass++;console.log('  ✅ '+m);} else {fail++;console.lo
   console.log('── Přijímačky: procvičování po tématech ──');
 
   const nTopics=await page.evaluate(()=>PZ_TOPICS.list.length);
-  ok(nTopics===9,'9 okruhů ('+nTopics+')');
-  ok(await page.evaluate(()=>document.querySelectorAll('.topic-card').length===9),'9 karet okruhů');
+  ok(nTopics>=10,'okruhů ≥ 10 ('+nTopics+')');
+  ok(await page.evaluate(()=>document.querySelectorAll('.topic-card').length===PZ_TOPICS.list.length),'karta pro každý okruh ('+nTopics+')');
 
   // VALIDITA: každý okruh generuje smysluplné položky (prompt + odpověď)
   const report=await page.evaluate(()=>{

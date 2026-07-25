@@ -37,7 +37,7 @@ const ok=(c,m)=>{ if(c){pass++;console.log('  ✅ '+m);} else {fail++;console.lo
   await page.click('button.pz-btn.primary:has-text("Začít")');
   await page.waitForFunction(()=>document.getElementById('dg-run').style.display!=='none',{timeout:5000});
   const n=await page.evaluate(()=>DG.seq.length);
-  ok(n===9,'9 úloh napříč tématy ('+n+')');
+  ok(n===await page.evaluate(()=>PZ_TOPICS.list.length),'úloha z každého okruhu ('+n+')');
 
   // odpověz všechny správně, kromě 5. (index 4) schválně špatně
   for(let q=0;q<n;q++){
@@ -52,12 +52,12 @@ const ok=(c,m)=>{ if(c){pass++;console.log('  ✅ '+m);} else {fail++;console.lo
   }
 
   await page.waitForFunction(()=>document.getElementById('dg-end').style.display!=='none',{timeout:5000});
-  ok(await page.evaluate(()=>/8 \/ 9 správně/.test(document.getElementById('dg-score').textContent)),'skóre 8/9 (jedna schválně špatně)');
-  ok(await page.evaluate(()=>document.querySelectorAll('#dg-map .dg-map-row').length===9),'mapa: 9 řádků po tématech');
+  ok(await page.evaluate(n=>document.getElementById('dg-score').textContent.includes((n-1)+' / '+n+' správně'),n),'skóre '+(n-1)+'/'+n+' (jedna schválně špatně)');
+  ok(await page.evaluate(n=>document.querySelectorAll('#dg-map .dg-map-row').length===n,n),'mapa: '+n+' řádků po tématech');
   ok(await page.evaluate(()=>document.querySelectorAll('#dg-map .dg-dot.bad').length===1),'právě 1 téma červené');
   ok(await page.evaluate(()=>{const a=document.querySelector('#dg-map a');return a&&/procvicovani\.html\?okruh=/.test(a.getAttribute('href'));}),'„Procvičit" prolinkuje na okruh');
   ok(await page.evaluate(()=>/Doporučení/.test(document.getElementById('dg-reco-wrap').textContent)),'doporučení na slabé téma');
-  ok(await page.evaluate(()=>{ try{const d=JSON.parse(localStorage.getItem('PZ_DIAG_LAST'));return d.ok===8&&d.topics.length===9;}catch(e){return false;} }),'diagnostika uložena do localStorage');
+  ok(await page.evaluate(n=>{ try{const d=JSON.parse(localStorage.getItem('PZ_DIAG_LAST'));return d.ok===(n-1)&&d.topics.length===n;}catch(e){return false;} },n),'diagnostika uložena do localStorage');
 
   ok(errs.length===0,'žádné JS chyby'+(errs.length?(' ['+errs[0]+']'):''));
 
