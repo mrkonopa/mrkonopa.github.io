@@ -1,0 +1,177 @@
+/* ─────────────────────────────────────────────────────────────────────────
+   PŘIJÍMAČKY HUB — sdílený světlý design (Lexend, akademický, čitelný).
+   Vizuálně navazuje na archiv PDF (index.html). Používají: index/test/
+   procvicovani/diagnostika/statistiky.html. Žádný tmavý RPG styl.
+   ───────────────────────────────────────────────────────────────────────── */
+:root {
+  --blue:#1a73c8; --blue-light:#e8f1fb; --blue-dark:#1250a0;
+  --teal:#0f8a72; --teal-light:#e4f5f1;
+  --gold:#c89a10; --gold-light:#fef9ec;
+  --green:#1e9e5a; --green-light:#e6f7ef;
+  --red:#d63c2f; --red-light:#fdeceb;
+  --bg:#f5f0e6; --card:#fff; --text:#1a1a2e; --muted:#6b7280;
+  --border:#e2dccc;
+  --shadow:0 2px 14px rgba(0,0,0,.06);
+  --shadow-hover:0 6px 22px rgba(26,115,200,.16);
+  --radius:14px;
+  --sans:'Lexend','Inter','Segoe UI',system-ui,-apple-system,'Helvetica Neue',Arial,sans-serif;
+  --mono:ui-monospace,'SF Mono',Menlo,Consolas,monospace;
+}
+* { box-sizing:border-box; margin:0; padding:0; }
+html, body {
+  font-family:var(--sans); background:var(--bg);
+  background-image:
+    radial-gradient(circle at 8% 12%,rgba(245,200,66,.10) 0%,transparent 38%),
+    radial-gradient(circle at 92% 88%,rgba(26,115,200,.07) 0%,transparent 38%);
+  color:var(--text); min-height:100vh; line-height:1.6;
+  -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+}
+a { color:var(--blue); text-decoration:none; }
+a:hover, a:focus { color:var(--blue-dark); }
+a:focus-visible { outline:2px solid var(--blue); outline-offset:3px; border-radius:3px; }
+.wrap { max-width:920px; margin:0 auto; padding:0 24px; }
+
+/* TOP BAR / drobečky */
+.top-bar { max-width:920px; margin:0 auto; padding:20px 24px 0;
+  display:flex; justify-content:space-between; gap:18px; font-size:.82rem; color:var(--muted); }
+.top-bar a { color:var(--muted); padding:6px 0; }
+.top-bar a:hover { color:var(--blue); }
+.top-bar .crumb { color:var(--text); font-weight:500; }
+
+/* HLAVIČKA / hero */
+header.title-block { max-width:920px; margin:0 auto; padding:36px 24px 18px; }
+.eyebrow { display:inline-block; font-size:.74rem; font-weight:700;
+  letter-spacing:.14em; text-transform:uppercase; color:var(--blue);
+  background:var(--blue-light); padding:4px 12px; border-radius:20px; margin-bottom:14px; }
+h1.title { font-weight:800; font-size:clamp(28px,5vw,44px); line-height:1.1;
+  letter-spacing:-.02em; color:var(--text); margin-bottom:10px; }
+h1.title .accent { color:var(--blue); }
+p.lede { font-size:1rem; font-weight:300; color:var(--muted); max-width:640px; }
+
+/* HUB KARTY (rozcestník) */
+.hub-grid { max-width:920px; margin:22px auto 0; padding:0 24px;
+  display:grid; gap:16px; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); }
+.hub-card { background:var(--card); border:1px solid var(--border); border-radius:var(--radius);
+  box-shadow:var(--shadow); padding:22px; display:flex; flex-direction:column; gap:8px;
+  transition:border-color .12s, box-shadow .12s, transform .12s; }
+.hub-card:hover { border-color:var(--blue); box-shadow:var(--shadow-hover); transform:translateY(-2px); }
+.hub-card .ic { font-size:30px; }
+.hub-card h3 { font-size:1.2rem; font-weight:700; color:var(--text); }
+.hub-card p { font-size:.9rem; font-weight:300; color:var(--muted); }
+.hub-card .go { margin-top:auto; font-weight:700; font-size:.9rem; color:var(--blue); }
+
+/* TLAČÍTKA */
+.pz-btn { display:inline-flex; align-items:center; gap:7px; cursor:pointer;
+  font-family:var(--sans); font-weight:700; font-size:.95rem;
+  padding:11px 20px; border-radius:10px; border:1px solid var(--border);
+  background:#fafaf2; color:var(--text); transition:all .12s; }
+.pz-btn:hover { border-color:var(--blue); background:var(--blue-light); color:var(--blue-dark); transform:translateY(-1px); }
+.pz-btn.primary { background:var(--blue); border-color:var(--blue); color:#fff; }
+.pz-btn.primary:hover { background:var(--blue-dark); color:#fff; }
+.pz-btn.ghost { background:transparent; }
+.pz-btn.danger { color:var(--red); }
+.pz-btn.danger:hover { background:var(--red-light); border-color:var(--red); color:var(--red); }
+.pz-btn:disabled { opacity:.5; cursor:not-allowed; }
+.pz-btn.sm { padding:7px 13px; font-size:.85rem; }
+
+main { max-width:920px; margin:0 auto; padding:18px 24px 80px; }
+
+/* ── TEST NANEČISTO (port cm-* do světla) ── */
+.cm-panel { background:var(--card); border:1px solid var(--border); border-radius:var(--radius);
+  box-shadow:var(--shadow); padding:20px 22px; }
+.cm-gate-intro { font-size:1.05rem; line-height:1.6; color:var(--text); }
+.cm-gate-intro .hl { color:var(--blue); font-weight:700; }
+.cm-gate-status { font-size:.85rem; color:var(--muted); margin-top:10px; }
+
+/* sticky časomíra */
+.cm-timer { position:sticky; top:0; z-index:5; background:var(--bg); padding:10px 0 8px; }
+.cm-timer-row { display:flex; justify-content:space-between; align-items:baseline;
+  font-weight:700; font-size:.9rem; color:var(--muted); }
+.cm-timer-v { font-size:1.3rem; color:var(--text); font-variant-numeric:tabular-nums; }
+.cm-timer.low .cm-timer-v { color:var(--red); }
+.cm-timer-bar { height:7px; background:var(--border); border-radius:4px; overflow:hidden; margin-top:5px; }
+.cm-timer-bar-in { height:100%; background:var(--blue); transition:width 1s linear; }
+.cm-timer.low .cm-timer-bar-in { background:var(--red); }
+
+/* úloha */
+.cm-task { background:var(--card); border:1px solid var(--border); border-left:4px solid var(--blue);
+  border-radius:12px; box-shadow:var(--shadow); padding:18px 20px; margin-bottom:16px; }
+.cm-task-head { display:flex; justify-content:space-between; align-items:baseline;
+  font-weight:800; font-size:1rem; color:var(--text); margin-bottom:10px; gap:12px; }
+.cm-task-head .pts { font-size:.8rem; font-weight:700; color:var(--blue);
+  background:var(--blue-light); padding:2px 10px; border-radius:20px; white-space:nowrap; }
+.cm-intro { font-size:1rem; color:var(--text); margin-bottom:10px; line-height:1.55; }
+.cm-svg { text-align:center; margin:6px 0 12px; }
+.cm-part { margin-top:14px; }
+.cm-part-label { font-size:.78rem; font-weight:700; letter-spacing:.04em; color:var(--teal); margin-bottom:4px; }
+.cm-part-prompt { font-size:1.02rem; color:var(--text); margin-bottom:8px; line-height:1.5; }
+.cm-part input[type=text] { width:100%; font-family:var(--sans); font-weight:600; font-size:1.05rem;
+  background:#fff; color:var(--text); border:1.5px solid var(--border); border-radius:8px; padding:10px 12px; outline:none; }
+.cm-part input[type=text]:focus { border-color:var(--blue); box-shadow:0 0 0 3px var(--blue-light); }
+.cm-explain { display:block; width:100%; margin-top:8px; background:#fafaf6; color:var(--text);
+  border:1px solid var(--border); border-radius:8px; padding:8px 10px; font-family:var(--sans);
+  font-size:.9rem; resize:vertical; }
+.cm-explain-lbl { font-size:.8rem; color:var(--muted); margin-top:8px; }
+
+/* pravda/nepravda */
+.cm-tf-row { display:flex; justify-content:space-between; align-items:center; gap:10px;
+  padding:10px 0; border-top:1px solid var(--border); }
+.cm-tf-row:first-child { border-top:none; }
+.cm-tf-text { font-size:1rem; color:var(--text); flex:1; line-height:1.45; }
+.cm-tf-opts { display:flex; gap:8px; white-space:nowrap; }
+.cm-tf-opts label { font-size:.9rem; font-weight:700; color:var(--muted); display:flex; align-items:center; gap:4px; cursor:pointer; }
+
+/* výběr A–E */
+.cm-mc-opt { display:flex; align-items:center; gap:8px; font-size:1rem; color:var(--text);
+  padding:9px 6px; border-bottom:1px solid var(--border); cursor:pointer; }
+.cm-mc-opt:last-child { border-bottom:none; }
+.cm-mc-opt:hover { background:var(--blue-light); border-radius:6px; }
+
+/* přiřazování */
+.cm-match-row { display:flex; justify-content:space-between; align-items:center; gap:10px;
+  padding:10px 0; border-top:1px solid var(--border); }
+.cm-match-row:first-child { border-top:none; }
+.cm-match-row select { font-family:var(--sans); font-size:.92rem; background:#fff; color:var(--text);
+  border:1.5px solid var(--border); border-radius:8px; padding:7px 10px; }
+
+/* výsledek + rozbor */
+.cm-end-head { text-align:center; }
+.cm-end-emoji { font-size:44px; }
+.cm-end-title { font-weight:800; font-size:1.2rem; color:var(--blue); margin-top:6px; }
+.cm-end-score { font-size:2rem; font-weight:800; color:var(--text); margin-top:8px; font-variant-numeric:tabular-nums; }
+.cm-end-pct { font-size:1.1rem; color:var(--muted); margin-top:2px; }
+.cm-review-item { border-top:1px solid var(--border); }
+.cm-review-item:first-child { border-top:none; }
+.cm-review-item summary { padding:11px 2px; cursor:pointer; list-style:none; display:flex;
+  align-items:center; gap:8px; user-select:none; font-weight:700; }
+.cm-review-item summary::-webkit-details-marker { display:none; }
+.cm-review-item summary::before { content:'▸'; color:var(--muted); transition:transform .15s; font-size:12px; }
+.cm-review-item[open] summary::before { transform:rotate(90deg); }
+.cm-review-item.ok summary { color:var(--green); }
+.cm-review-item.bad summary { color:var(--red); }
+.cm-review-body { padding:2px 4px 14px 20px; }
+.cm-review-sub { margin-bottom:12px; padding-bottom:10px; border-bottom:1px dashed var(--border); }
+.cm-review-sub:last-child { border-bottom:none; margin-bottom:0; padding-bottom:0; }
+.cm-review-q { color:var(--text); margin-bottom:5px; line-height:1.45; }
+.cm-review-given { color:var(--red); font-size:.9rem; margin-bottom:3px; }
+.cm-review-correct { color:var(--green); font-size:.9rem; font-weight:600; margin-bottom:5px; }
+.cm-review-sol { color:var(--text); font-size:.9rem; line-height:1.55; background:var(--gold-light);
+  padding:8px 10px; border-left:3px solid var(--gold); border-radius:0 6px 6px 0; }
+
+.cm-actions { display:flex; gap:10px; justify-content:center; margin-top:16px; flex-wrap:wrap; }
+.cm-history-title { font-size:.8rem; font-weight:700; color:var(--muted); margin-bottom:8px; letter-spacing:.04em; }
+.cm-history-item { padding:7px 0; border-top:1px solid var(--border); font-size:.92rem; color:var(--text); }
+.cm-history-item:first-child { border-top:none; }
+
+/* ── Matematická typografie (Fáze 2 helpery — teď připraveno) ── */
+.frac { display:inline-flex; flex-direction:column; vertical-align:middle; text-align:center;
+  font-size:.86em; line-height:1.05; margin:0 .12em; }
+.frac .num { border-bottom:1.4px solid currentColor; padding:0 .28em; }
+.frac .den { padding:0 .28em; }
+.sqrt { white-space:nowrap; }
+.sqrt > .rad { border-top:1.4px solid currentColor; padding:0 .18em; }
+
+@media (max-width:560px) {
+  .wrap, header.title-block, .hub-grid, main { padding-left:16px; padding-right:16px; }
+  .cm-task { padding:15px 16px; }
+}
