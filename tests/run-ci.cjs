@@ -15,8 +15,9 @@ const PER_TEST_TIMEOUT = 420000; // 7 min — pokryje i pomalý issue103 (~4 min
 
 // Testy MIMO bránu (nepočítat mezi regrese):
 const SKIP = new Set([
-  'verify-qol.cjs',              // potřebuje ruční dev server na :8765
-  'vstudents-stress.harness.cjs' // 120 žáků — moc těžké na každý PR (pouští se ručně)
+  'verify-qol.cjs',               // potřebuje ruční dev server na :8765
+  'vstudents-stress.harness.cjs', // 120 žáků — moc těžké na každý PR (pouští se ručně)
+  'vstudents.harness.cjs',        // 30 žáků, na CI >7 min → timeout; autoritativní je vstudents-deep
 ]);
 // Testy, co berou ročník jako argument → pusť per-ročník (jinak nepokryjí vše):
 const PARAM = {
