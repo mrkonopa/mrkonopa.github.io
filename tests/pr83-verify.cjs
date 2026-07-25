@@ -33,6 +33,7 @@ const ok=(c,m)=>{if(c){pass++;console.log('  ✓ '+m);}else{fail++;console.log('
   await page.fill('#ni','TesterX');
   await page.evaluate(()=>startGame());
   await page.waitForFunction(()=>document.querySelector('#s-map')?.classList.contains('active'));
+  await page.evaluate(()=>{S.tutorialDone=true;});
 
   // vstup do boje 1-1 (MC mise)
   await page.evaluate(()=>{openArea(1);launchBattle(1,'1-1');});
@@ -63,6 +64,16 @@ const ok=(c,m)=>{if(c){pass++;console.log('  ✓ '+m);}else{fail++;console.log('
   // přepni na 1-2 (text input)
   await page.evaluate(()=>{go('map');launchBattle(1,'1-2');});
   await page.waitForFunction(()=>document.querySelector('#s-battle')?.classList.contains('active'));
+  // Pool 1-2 míchá text/ANO-NE úlohy a ~1/3 kol je minigame (spojovačka/řazení) →
+  // vynuť čisté text-input kolo, jinak submitAnswer nemá kam psát a test visí.
+  await page.evaluate(()=>{
+    let idx=BT.tasks.findIndex(t=>!isYN(t));
+    if(idx<0)idx=0;
+    BT.mini=BT.mini||{};BT.mini[idx]=null;
+    BT.idx=idx;renderTask();
+  });
+  // launchBattle zamkne ÚTOK na ~700 ms (boss-entry animace) → počkej na odemčení
+  await page.waitForFunction(()=>!document.getElementById('attack-btn').disabled,{timeout:2500}).catch(()=>{});
   ok(await page.evaluate(()=>!document.getElementById('attack-btn').disabled),'ÚTOK je na startu enabled');
   await page.evaluate(()=>{document.getElementById('bt-ans').value=BT.curTask.ans;submitAnswer();});
   await page.waitForFunction(()=>document.getElementById('next-btn').style.display!=='none');
