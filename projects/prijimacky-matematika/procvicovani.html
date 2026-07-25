@@ -160,6 +160,9 @@ function grade(correct){
 }
 
 renderTopics();
+// Deep-link z diagnostiky: ?okruh=<id> rovnou spustí daný okruh.
+(function(){ const id=new URLSearchParams(location.search).get('okruh');
+  if(id && PZ_TOPICS.list.some(t=>t.id===id)) prStart(id); })();
 </script>
 </body>
 </html>

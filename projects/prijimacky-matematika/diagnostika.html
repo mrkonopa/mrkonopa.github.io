@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Diagnostika — Přijímačky z matematiky · Vojtěch Konopa</title>
+<meta name="description" content="Krátká diagnostika z matematiky k přijímačkám: jedna úloha z každého tématu najde, kde ztrácíš body, a doporučí, co procvičovat." />
+<meta name="author" content="Vojtěch Konopa" />
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="prijimacky.css">
+<style>
+  .dg-prog { height:7px; background:var(--border); border-radius:4px; overflow:hidden; margin:10px 0 4px; }
+  .dg-prog-in { height:100%; background:var(--blue); transition:width .2s; }
+  .dg-map-row { display:flex; align-items:center; gap:12px; padding:11px 0; border-top:1px solid var(--border); }
+  .dg-map-row:first-child { border-top:none; }
+  .dg-dot { width:22px; height:22px; border-radius:50%; flex:none; display:grid; place-items:center; color:#fff; font-weight:800; font-size:.8rem; }
+  .dg-dot.ok { background:var(--green); }
+  .dg-dot.bad { background:var(--red); }
+  .dg-map-name { flex:1; font-weight:600; }
+  .dg-map-row a { font-weight:700; font-size:.88rem; white-space:nowrap; }
+  .yn-row { display:flex; gap:10px; }
+  .yn-row .pz-btn { flex:1; justify-content:center; }
+  .dg-reco { background:var(--blue-light); border-radius:12px; padding:16px 18px; margin-top:16px; }
+  .dg-reco h3 { font-size:1.05rem; color:var(--blue-dark); margin-bottom:6px; }
+</style>
+</head>
+<body>
+<div class="top-bar">
+  <a href="./"><span class="crumb">← Přijímačky z matematiky</span></a>
+  <a href="/">mrkonopa.github.io</a>
+</div>
+
+<header class="title-block">
+  <span class="eyebrow">Diagnostika</span>
+  <h1 class="title">Zjisti, kde <span class="accent">ztrácíš body</span></h1>
+  <p class="lede">Jedna úloha z každého tématu. Bez nápovědy — výsledek a mapu slabin uvidíš na konci a rovnou dostaneš, co procvičovat.</p>
+</header>
+
+<main>
+  <div id="dg-gate">
+    <div class="cm-panel" style="text-align:center">
+      <div class="cm-gate-intro">Krátká diagnostika napříč tématy — <span class="hl">9 úloh, pár minut.</span><br>
+        Odpovídej podle svého; nejde o známku, jde o mapu slabin.</div>
+      <div style="margin-top:16px"><button class="pz-btn primary" onclick="dgStart()">▶ Začít diagnostiku</button></div>
+    </div>
+  </div>
+
+  <div id="dg-run" style="display:none">
+    <div class="cm-panel" style="margin-bottom:14px">
+      <div style="display:flex;justify-content:space-between;font-weight:700;color:var(--muted);font-size:.9rem">
+        <span id="dg-topicname"></span><span>Úloha <b id="dg-i">1</b> / <span id="dg-n">9</span></span></div>
+      <div class="dg-prog"><div class="dg-prog-in" id="dg-prog" style="width:0"></div></div>
+    </div>
+    <div class="cm-task">
+      <div class="cm-intro" id="dg-intro" style="display:none"></div>
+      <div class="cm-svg" id="dg-svg" style="display:none"></div>
+      <div class="cm-part-prompt" id="dg-prompt"></div>
+      <div id="dg-answer"></div>
+    </div>
+  </div>
+
+  <div id="dg-end" style="display:none">
+    <div class="cm-panel cm-end-head">
+      <div class="cm-end-emoji">🧭</div>
+      <div class="cm-end-title">Mapa slabin</div>
+      <div class="cm-end-score" id="dg-score"></div>
+    </div>
+    <div class="cm-panel" style="margin-top:14px" id="dg-map"></div>
+    <div id="dg-reco-wrap"></div>
+    <div class="cm-actions"><button class="pz-btn ghost" onclick="location.reload()">↻ Znovu</button>
+      <a class="pz-btn" href="./">← Rozcestník</a></div>
+  </div>
+</main>
+
+<script src="../rpg-shared.js"></script>
+<script src="../rpg-svg-9.js"></script>
+<script src="prijimacky-core.js"></script>
+<script src="../rpg-cermat-9.js"></script>
+<script src="prijimacky-topics.js"></script>
+<script>
+const DIAG_KEY = 'PZ_DIAG_LAST';
+let DG = { seq:[], i:0 };
+
+function dgStart(){
+  DG.seq = PZ_TOPICS.list.map(t=>{
+    let it=null, g=0; do { it=PZ_TOPICS.item(t.id); g++; } while((!it||!it.prompt)&&g<8);
+    return { topic:t, item:it, correct:null };
+  }).filter(x=>x.item);
+  DG.i = 0;
+  document.getElementById('dg-gate').style.display='none';
+  document.getElementById('dg-end').style.display='none';
+  document.getElementById('dg-run').style.display='block';
+  document.getElementById('dg-n').textContent = DG.seq.length;
+  dgRender(); window.scrollTo(0,0);
+}
+
+function dgRender(){
+  const cur = DG.seq[DG.i]; const it = cur.item;
+  document.getElementById('dg-topicname').textContent = cur.topic.name;
+  document.getElementById('dg-i').textContent = DG.i+1;
+  document.getElementById('dg-prog').style.width = (DG.i/DG.seq.length*100)+'%';
+  const introEl=document.getElementById('dg-intro');
+  if(it.intro){ introEl.textContent=it.intro; introEl.style.display='block'; } else introEl.style.display='none';
+  const svgEl=document.getElementById('dg-svg');
+  if(it.svg){ svgEl.innerHTML=PZ.themeSvg(it.svg); svgEl.style.display='block'; } else svgEl.style.display='none';
+  document.getElementById('dg-prompt').textContent = it.prompt;
+  const ans=document.getElementById('dg-answer');
+  if(it.type==='mc'){
+    ans.innerHTML = it.options.map(o=>'<label class="cm-mc-opt"><input type="radio" name="dg-mc" value="'+o.charAt(0)+'"> '+PZ.esc(o)+'</label>').join('')+
+      '<div style="margin-top:12px"><button class="pz-btn primary" onclick="dgSubmit()">Další →</button></div>';
+  } else if(it.type==='yn'){
+    ans.innerHTML = '<div class="yn-row"><button class="pz-btn" onclick="dgSubmitYN(\'A\')">ANO</button><button class="pz-btn" onclick="dgSubmitYN(\'N\')">NE</button></div>';
+  } else {
+    ans.innerHTML = '<input type="text" id="dg-input" inputmode="'+PZ.inputMode(it.ans)+'" autocomplete="off" placeholder="výsledek" '+
+      'onkeydown="if(event.key===\'Enter\')dgSubmit()"><div style="margin-top:12px"><button class="pz-btn primary" onclick="dgSubmit()">Další →</button></div>';
+    setTimeout(()=>{ const i=document.getElementById('dg-input'); if(i)i.focus(); },30);
+  }
+}
+
+function dgSubmitYN(v){ DG.seq[DG.i].correct = (v===DG.seq[DG.i].item.ans); dgAdvance(); }
+function dgSubmit(){
+  const cur=DG.seq[DG.i], it=cur.item;
+  if(it.type==='mc'){ const s=document.querySelector('input[name="dg-mc"]:checked'); if(!s)return; cur.correct=(s.value===it.ans); }
+  else { const inp=document.getElementById('dg-input'); const v=inp?inp.value:''; cur.correct=(v.trim()!=='' && PZ.check(v,it.ans)); }
+  dgAdvance();
+}
+function dgAdvance(){ DG.i++; if(DG.i>=DG.seq.length) dgEnd(); else { dgRender(); window.scrollTo(0,0); } }
+
+function dgEnd(){
+  document.getElementById('dg-run').style.display='none';
+  document.getElementById('dg-end').style.display='block';
+  const okN = DG.seq.filter(x=>x.correct).length;
+  document.getElementById('dg-score').textContent = okN+' / '+DG.seq.length+' správně';
+  document.getElementById('dg-map').innerHTML = '<div class="cm-history-title">VÝSLEDEK PO TÉMATECH</div>'+
+    DG.seq.map(x=>'<div class="dg-map-row"><span class="dg-dot '+(x.correct?'ok':'bad')+'">'+(x.correct?'✓':'✗')+'</span>'+
+      '<span class="dg-map-name">'+PZ.esc(x.topic.name)+'</span>'+
+      (x.correct?'':'<a href="procvicovani.html?okruh='+x.topic.id+'">Procvičit →</a>')+'</div>').join('');
+  const weak = DG.seq.filter(x=>!x.correct).map(x=>x.topic);
+  const reco=document.getElementById('dg-reco-wrap');
+  if(weak.length){
+    reco.innerHTML='<div class="dg-reco"><h3>🎯 Doporučení — zaměř se na:</h3><p>'+
+      weak.map(t=>'<a href="procvicovani.html?okruh='+t.id+'">'+PZ.esc(t.name)+'</a>').join(' · ')+'</p></div>';
+  } else {
+    reco.innerHTML='<div class="dg-reco"><h3>🎉 Skvělé!</h3><p>Zvládl/a jsi úlohu z každého tématu. Zkus si celý <a href="test.html">test nanečisto na čas</a>.</p></div>';
+  }
+  PZ.store.set(DIAG_KEY, { date:new Date().toISOString().slice(0,10), ok:okN, n:DG.seq.length,
+    topics:DG.seq.map(x=>({id:x.topic.id, correct:x.correct})) });
+  window.scrollTo(0,0);
+}
+</script>
+</body>
+</html>
