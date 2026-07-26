@@ -889,6 +889,100 @@
     };
   }
 
+  function gen2c() {
+    // 3 body — dělení zlomků (stejný jmenovatel) + rozdíl druhých mocnin vzorcem
+    const b = ri(3, 9), a = ri(2, 8), c = ri(2, 8);
+    const g = gcd(a, c), na = a / g, nc = c / g;
+    const ans1 = nc === 1 ? String(na) : `${na}/${nc}`;
+    const d = ri(5, 12), e = ri(1, d - 1), ans2 = d * d - e * e;
+    return {
+      no: 2, points: 3, title: 'Výrazy se zlomky',
+      parts: [
+        { key: '2.1', points: 1, showExplain: false,
+          prompt: `Vypočítejte a zapište zlomkem v základním tvaru: ${a}/${b} : ${c}/${b} =`,
+          ans: ans1,
+          sol: `Dělení zlomků: ${a}/${b} : ${c}/${b} = ${a}/${b} · ${b}/${c} = ${a}/${c}. ${g === 1 ? `Základní tvar: ${ans1}.` : `Zkrať NSD (${g}): ${ans1}.`}` },
+        { key: '2.2', points: 2, showExplain: true,
+          prompt: `Vypočítejte pomocí vzorce: (${d} + ${e}) · (${d} − ${e}) =`,
+          ans: String(ans2),
+          sol: `Vzorec (a+b)(a−b) = a² − b²: (${d}+${e})(${d}−${e}) = ${d}² − ${e}² = ${d * d} − ${e * e} = ${ans2}.` }
+      ]
+    };
+  }
+
+  function gen3c() {
+    // 4 body — vzorec (x+a)², sčítání členů, rozklad rozdílu čtverců
+    const a = ri(3, 9), p = ri(3, 9), q = ri(2, 8), r = ri(1, Math.min(p, q)), c = ri(3, 10);
+    return {
+      no: 3, points: 4, title: 'Algebraické výrazy',
+      parts: [
+        { key: '3.1', points: 1,
+          prompt: `Ve výrazu (x + ${a})² = x² + ?·x + ${a}² napište číslo místo otazníku (koeficient u x).`,
+          ans: String(2 * a),
+          sol: `Vzorec (x+a)² = x² + 2ax + a². Koeficient u x je 2a = 2·${a} = ${2 * a}.` },
+        { key: '3.2', points: 1, showExplain: true,
+          prompt: `Sečtěte členy a napište koeficient u x: ${p}x + ${q}x − ${r}x`,
+          ans: String(p + q - r),
+          sol: `Sečti koeficienty: ${p} + ${q} − ${r} = ${p + q - r}. Výraz se rovná ${p + q - r}x.` },
+        { key: '3.3', points: 2, showExplain: true,
+          prompt: `Rozložte na součin pomocí vzorce a napište číslo místo otazníku: x² − ${c * c} = (x − ?)·(x + ?)`,
+          ans: String(c),
+          sol: `Vzorec a² − b² = (a−b)(a+b). Protože ${c * c} = ${c}², je x² − ${c * c} = (x − ${c})(x + ${c}).` }
+      ]
+    };
+  }
+
+  function gen7c() {
+    // 3 body — úhly v rovnoramenném trojúhelníku (bez SVG, plně z textu)
+    const beta = ri(30, 75), alpha = 180 - 2 * beta, vnejsi = 180 - beta, soucet = 2 * beta;
+    return {
+      no: 7, points: 3, title: 'Úhly v rovnoramenném trojúhelníku',
+      intro: `Rovnoramenný trojúhelník má oba úhly při základně stejné, každý ${beta}°.`,
+      parts: [
+        { key: '7.1', points: 1, prompt: `Vypočítejte velikost úhlu při hlavním vrcholu (proti základně).`, ans: String(alpha),
+          sol: `Součet vnitřních úhlů trojúhelníku je 180°: úhel u vrcholu = 180° − 2·${beta}° = ${alpha}°.` },
+        { key: '7.2', points: 1, prompt: `Vypočítejte velikost vnějšího úhlu u jednoho z úhlů při základně.`, ans: String(vnejsi),
+          sol: `Vnější úhel = 180° − vnitřní = 180° − ${beta}° = ${vnejsi}°.` },
+        { key: '7.3', points: 1, prompt: `Jaký je součet obou úhlů při základně?`, ans: String(soucet),
+          sol: `Oba úhly při základně jsou ${beta}°, jejich součet = 2 · ${beta}° = ${soucet}°.` }
+      ]
+    };
+  }
+
+  function gen10c() {
+    // 2 body — měřítko modelu (převod na skutečnost)
+    const k = [100, 200, 500, 1000][ri(0, 3)], modelCm = ri(2, 9), realCm = modelCm * k, realM = realCm / 100;
+    return {
+      no: 10, points: 2, title: 'Měřítko modelu',
+      parts: [
+        { key: '10', points: 2,
+          prompt: `Model budovy je v měřítku 1 : ${k}. Na modelu měří budova ${modelCm} cm. Jak vysoká je skutečná budova (v metrech)?`,
+          ans: String(realM),
+          sol: `Měřítko 1 : ${k} znamená, že 1 cm na modelu = ${k} cm ve skutečnosti. Skutečná výška = ${modelCm} · ${k} = ${realCm} cm = ${realM} m.` }
+      ]
+    };
+  }
+
+  function gen11c() {
+    // 3 body — pravda/nepravda o kvádru (objem, povrch, počet prvků)
+    const a = ri(2, 5), b = ri(2, 5), c = ri(2, 5), V = a * b * c, S = 2 * (a * b + b * c + a * c);
+    const t1 = ri(0, 1) ? V : V + ri(1, 5);
+    const st1 = { text: `Kvádr s hranami ${a} cm, ${b} cm, ${c} cm má objem ${t1} cm³.`, ans: t1 === V ? 'A' : 'N',
+      sol: `Objem = a·b·c = ${a}·${b}·${c} = ${V} cm³. Tvrzení uvádí ${t1} cm³ — ${t1 === V ? 'PRAVDA (A).' : 'NEPRAVDA (N).'}` };
+    const t2 = ri(0, 1) ? S : S + 2 * ri(1, 4);
+    const st2 = { text: `Povrch téhož kvádru je ${t2} cm².`, ans: t2 === S ? 'A' : 'N',
+      sol: `Povrch = 2·(ab+bc+ac) = 2·(${a * b}+${b * c}+${a * c}) = ${S} cm². Tvrzení uvádí ${t2} cm² — ${t2 === S ? 'PRAVDA (A).' : 'NEPRAVDA (N).'}` };
+    const opts = [['stěn', 6], ['hran', 12], ['vrcholů', 8]][ri(0, 2)];
+    const claimed = ri(0, 1) ? opts[1] : opts[1] + ri(1, 3);
+    const st3 = { text: `Každý kvádr má ${claimed} ${opts[0]}.`, ans: claimed === opts[1] ? 'A' : 'N',
+      sol: `Kvádr má vždy 6 stěn, 12 hran a 8 vrcholů. Počet — ${opts[0]}: ${opts[1]}. Tvrzení uvádí ${claimed} — ${claimed === opts[1] ? 'PRAVDA (A).' : 'NEPRAVDA (N).'}` };
+    return {
+      no: 11, points: 3, title: 'Tělesa', kind: 'tfgrid',
+      intro: `Rozhodněte o každém z tvrzení (11.1–11.3), zda je pravdivé (A), či nikoli (N).`,
+      statements: [st1, st2, st3]
+    };
+  }
+
   /* ── SLOTY 1–16 ─────────────────────────────────────────────────
      Každá pozice testu je POLE variant (zatím vždy jedna). Pro
      přidání další varianty do pozice N stačí dopsat další funkci do
@@ -898,8 +992,8 @@
      vybere jednu variantu z každé pozice.
      ──────────────────────────────────────────────────────────────── */
   const SLOTS = [
-    [gen1, gen1b, gen1c], [gen2, gen2b], [gen3, gen3b], [gen4, gen4b, gen4c], [gen5, gen5b], [gen6, gen6b], [gen7, gen7b], [gen8, gen8b],
-    [gen9, gen9b], [gen10, gen10b], [gen11, gen11b], [gen12, gen12b, gen12c], [gen13, gen13b, gen13c], [gen14, gen14b, gen14c], [gen15, gen15b], [gen16, gen16b]
+    [gen1, gen1b, gen1c], [gen2, gen2b, gen2c], [gen3, gen3b, gen3c], [gen4, gen4b, gen4c], [gen5, gen5b], [gen6, gen6b], [gen7, gen7b, gen7c], [gen8, gen8b],
+    [gen9, gen9b], [gen10, gen10b, gen10c], [gen11, gen11b, gen11c], [gen12, gen12b, gen12c], [gen13, gen13b, gen13c], [gen14, gen14b, gen14c], [gen15, gen15b], [gen16, gen16b]
   ];
 
   window.RPG_CERMAT_9 = {
