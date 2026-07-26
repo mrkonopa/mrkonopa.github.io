@@ -60,5 +60,101 @@
     return /^\d+$/.test(a) ? 'numeric' : /^\d+[.,]\d+$/.test(a) ? 'decimal' : 'text';
   }
 
-  window.PZ = { esc, check, store, inputMode, themeSvg };
+  /* ════════ CLOUD SYNC POKROKU — Fáze 21 (graceful) ════════
+     Bez RPGCloud / bez přihlášení běží vše lokálně jako dřív. Po přihlášení
+     školním Google účtem se pokrok slévá napříč zařízeními (nikdy neztratí). */
+  const K_ATT = 'PZ_CERMAT_ATTEMPTS', K_PRA = 'PZ_PRACTICE_PROGRESS', K_DIA = 'PZ_DIAG_LAST';
+  const hasCloud = () => (typeof window.RPGCloud !== 'undefined') &&
+    (typeof RPGCloud.configured === 'function') && RPGCloud.configured();
+
+  // Odhad připravenosti (0–100) — STEJNÝ vzorec jako statistiky.html:
+  // průměr z (nejlepší test/50) a (přesnost procvičování).
+  function computeReadiness() {
+    const att = store.get(K_ATT, []), pra = store.get(K_PRA, {});
+    const sig = [];
+    if (Array.isArray(att) && att.length) sig.push(Math.round(Math.max(...att.map(a => a.score | 0)) / 50 * 100));
+    let ok = 0, tot = 0; for (const k in pra) { ok += pra[k].ok | 0; tot += pra[k].total | 0; }
+    if (tot) sig.push(Math.round(ok / tot * 100));
+    return sig.length ? Math.round(sig.reduce((a, b) => a + b, 0) / sig.length) : 0;
+  }
+  const readLocal = () => ({
+    attempts: store.get(K_ATT, []), practice: store.get(K_PRA, {}),
+    diag: store.get(K_DIA, null), readiness: computeReadiness(),
+  });
+
+  // Sloučení lokálního a cloudového pokroku (kid-friendly: nikdy neztratí).
+  function mergeStats(a, b) {
+    a = a || {}; b = b || {};
+    // testy: spoj + dedup (date+score), zachovej pořadí, cap 50
+    const seen = new Set(), attempts = [];
+    for (const x of [].concat(a.attempts || [], b.attempts || [])) {
+      const key = (x && x.date) + '|' + (x && x.score) + '|' + (x && x.max);
+      if (!seen.has(key)) { seen.add(key); attempts.push(x); }
+    }
+    // procvičování: per-téma vezmi vyšší ok i total
+    const practice = {};
+    for (const src of [a.practice || {}, b.practice || {}])
+      for (const t in src) {
+        const cur = practice[t] || { ok: 0, total: 0 };
+        practice[t] = { ok: Math.max(cur.ok, src[t].ok | 0), total: Math.max(cur.total, src[t].total | 0) };
+      }
+    // diagnostika: novější dle date
+    const da = a.diag, db = b.diag;
+    const diag = (!da) ? db : (!db) ? da : (String(db.date) > String(da.date) ? db : da);
+    const out = { attempts: attempts.slice(-50), practice, diag };
+    out.readiness = 0; // dopočítá se po zápisu z lokálu
+    return out;
+  }
+  function writeLocal(m) {
+    if (m.attempts) store.set(K_ATT, m.attempts);
+    if (m.practice) store.set(K_PRA, m.practice);
+    if (m.diag) store.set(K_DIA, m.diag);
+  }
+
+  let pushTimer = null;
+  // Odešle aktuální lokální pokrok do cloudu (debounced). Volají stránky po uložení.
+  function cloudPush() {
+    if (!hasCloud() || !RPGCloud.currentUser || !RPGCloud.currentUser()) return;
+    clearTimeout(pushTimer);
+    pushTimer = setTimeout(() => {
+      const l = readLocal();
+      RPGCloud.pzSaveStats({ attempts: l.attempts, practice: l.practice, diag: l.diag, readiness: l.readiness });
+    }, 800);
+  }
+  // Po přihlášení: stáhni cloud, sloučí s lokálem, zapiš OBĚ strany.
+  async function cloudSync() {
+    if (!hasCloud() || !RPGCloud.currentUser || !RPGCloud.currentUser()) return;
+    const cloud = await RPGCloud.pzGetStats();
+    const merged = mergeStats(readLocal(), cloud || {});
+    writeLocal(merged);
+    merged.readiness = computeReadiness();
+    await RPGCloud.pzSaveStats(merged);
+    if (typeof window.PZ_ON_SYNC === 'function') { try { window.PZ_ON_SYNC(); } catch (e) {} }
+  }
+
+  // Vloží přihlašovací lištu do .top-bar (graceful: bez cloudu nic nevloží).
+  function attachLoginBar() {
+    if (!hasCloud()) return;
+    const bar = document.querySelector('.top-bar');
+    if (!bar || bar.querySelector('#pz-login')) return;
+    const wrap = document.createElement('span');
+    wrap.id = 'pz-login';
+    wrap.style.cssText = 'margin-left:auto;display:inline-flex;align-items:center;gap:10px;font-size:.85rem';
+    bar.appendChild(wrap);
+    const paint = (u) => {
+      if (u) {
+        wrap.innerHTML = '<span style="color:var(--muted)">' + esc(u.email || 'přihlášen') + '</span>' +
+          '<button id="pz-logout" class="pz-authbtn">Odhlásit</button>';
+        wrap.querySelector('#pz-logout').onclick = () => RPGCloud.logout();
+      } else {
+        wrap.innerHTML = '<button id="pz-signin" class="pz-authbtn">🔑 Přihlásit (školní účet)</button>';
+        wrap.querySelector('#pz-signin').onclick = () => RPGCloud.login();
+      }
+    };
+    RPGCloud.onChange((u) => { paint(u); if (u) cloudSync(); });
+    paint(RPGCloud.currentUser ? RPGCloud.currentUser() : null);
+    RPGCloud.init();
+  }
+
+  window.PZ = { esc, check, store, inputMode, themeSvg, attachLoginBar, cloudPush, cloudSync };
 })();

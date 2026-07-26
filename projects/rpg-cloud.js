@@ -423,6 +423,35 @@ window.RPGCloud = (function () {
     } catch (e) { console.warn('[RPGCloud] leaderboard selhal:', e); return []; }
   }
 
+  /* ════════ PŘIJÍMAČKY — Fáze 21: cloud sync pokroku ════════ */
+  // Vrátí uložený pokrok hubu (objekt) nebo {} když nic / offline.
+  async function pzGetStats() {
+    if (!client || !user) return {};
+    try {
+      const { data, error } = await client.rpc('pz_get_stats');
+      if (error) throw error;
+      return data || {};
+    } catch (e) { console.warn('[RPGCloud] pzGetStats selhal:', e); return {}; }
+  }
+  // Uloží pokrok hubu (celý objekt). Vrací true/false.
+  async function pzSaveStats(dataObj) {
+    if (!client || !user || previewActive) return false;
+    try {
+      const { error } = await client.rpc('pz_save_stats', { p_data: dataObj || {} });
+      if (error) throw error;
+      return true;
+    } catch (e) { console.warn('[RPGCloud] pzSaveStats selhal:', e); return false; }
+  }
+  // STAFF: připravenost třídy (jméno + %). Prázdné pole když nemáš práva/offline.
+  async function pzClassReadiness(classId) {
+    if (!client || !user) return [];
+    try {
+      const { data, error } = await client.rpc('pz_class_readiness', { p_class: classId });
+      if (error) throw error;
+      return data || [];
+    } catch (e) { console.warn('[RPGCloud] pzClassReadiness selhal:', e); return []; }
+  }
+
   /* ════════ VYSVĚTLENÍ POSTUPU — Fáze 6 ════════ */
   async function saveExplanation(game, mid, taskIdx, taskText, answer, explanation) {
     if (!client || !user || previewActive) return false;
@@ -1230,5 +1259,7 @@ window.RPGCloud = (function () {
            // Fáze 15 — audit log
            logAction, listAuditLog,
            // Fáze 20 — úkoly s termínem
-           listAssignments, createAssignment, deleteAssignment, assignmentProgress, pullMyAssignments };
+           listAssignments, createAssignment, deleteAssignment, assignmentProgress, pullMyAssignments,
+           // Fáze 21 — přijímačky: cloud sync pokroku
+           pzGetStats, pzSaveStats, pzClassReadiness };
 })();

@@ -81,6 +81,9 @@
 <script src="../rpg-cermat-9.js"></script>
 <script src="prijimacky-gen.js"></script>
 <script src="prijimacky-topics.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script defer src="../rpg-cloud.js"></script>
+<script>document.addEventListener('DOMContentLoaded',function(){if(window.PZ&&PZ.attachLoginBar)PZ.attachLoginBar();});</script>
 <script>
 const DIAG_KEY = 'PZ_DIAG_LAST';
 let DG = { seq:[], i:0 };
@@ -149,6 +152,7 @@ function dgEnd(){
   }
   PZ.store.set(DIAG_KEY, { date:new Date().toISOString().slice(0,10), ok:okN, n:DG.seq.length,
     topics:DG.seq.map(x=>({id:x.topic.id, correct:x.correct})) });
+  if(PZ.cloudPush)PZ.cloudPush();
   window.scrollTo(0,0);
 }
 </script>

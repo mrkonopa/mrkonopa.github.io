@@ -62,6 +62,9 @@
 <script src="../rpg-cermat-9.js"></script>
 <script src="prijimacky-gen.js"></script>
 <script src="prijimacky-topics.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script defer src="../rpg-cloud.js"></script>
+<script>document.addEventListener('DOMContentLoaded',function(){if(window.PZ&&PZ.attachLoginBar)PZ.attachLoginBar();});</script>
 <script>
 function barColor(pct){ return pct>=80?'var(--green)':pct>=50?'var(--blue)':pct>=25?'var(--gold)':'var(--red)'; }
 
@@ -112,6 +115,7 @@ function render(){
                    : 'Všechna témata zvládnutá 🎉 <a href="diagnostika.html">zkusit znovu</a>');
   } else de.innerHTML='<div class="st-empty">Ještě jsi nedělal/a <a href="diagnostika.html">diagnostiku</a>.</div>';
 }
+window.PZ_ON_SYNC = render;  // po cloud syncu (po přihlášení) překresli
 render();
 </script>
 </body>
