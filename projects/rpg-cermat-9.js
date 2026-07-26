@@ -1106,6 +1106,44 @@
     };
   }
 
+  function gen12d() {
+    // 2 body — MC, objem místnosti (kvádr)
+    const a = ri(3, 6), b = ri(3, 6), c = ri(2, 4), V = a * b * c;
+    const sh = shuffleOpts([V - 2, V - 1, V, V + 2, 'jiný objem'], V);
+    return {
+      no: 12, points: 2, title: 'Objem místnosti', kind: 'mc',
+      prompt: `Místnost má tvar kvádru: délka ${a} m, šířka ${b} m, výška ${c} m. Jaký je její objem?`,
+      options: sh.labels, ans: sh.correctLetter,
+      sol: `Objem = délka · šířka · výška = ${a} · ${b} · ${c} = ${V} m³ → odpověď ${sh.correctLetter}.`
+    };
+  }
+
+  function gen13d() {
+    // 2 body — MC, kolik procent ušetříš
+    const puvodni = ri(2, 9) * 100, usetreno = [10, 20, 25, 50][ri(0, 3)], usetrenoKc = puvodni * usetreno / 100;
+    const sh = shuffleOpts([usetreno - 5, usetreno, usetreno + 5, usetreno + 10, 'jiná hodnota'], usetreno);
+    return {
+      no: 13, points: 2, title: 'Úspora v procentech', kind: 'mc',
+      prompt: `Zboží stálo ${puvodni} Kč, teď ho koupíš za ${puvodni - usetrenoKc} Kč. Kolik procent ušetříš?`,
+      options: sh.labels, ans: sh.correctLetter,
+      sol: `Úspora = ${puvodni} − ${puvodni - usetrenoKc} = ${usetrenoKc} Kč. Vztaženo k původní ceně: ${usetrenoKc} : ${puvodni} = ${usetreno} % → odpověď ${sh.correctLetter}.`
+    };
+  }
+
+  function gen14d() {
+    // 2 body — MC, modus
+    const vals = []; while (vals.length < 5) { const v = ri(2, 12); if (!vals.includes(v)) vals.push(v); }
+    const m = vals[0], arr = [m, m, m, vals[1], vals[2], vals[3], vals[4]];
+    for (let i = arr.length - 1; i > 0; i--) { const j = ri(0, i); [arr[i], arr[j]] = [arr[j], arr[i]]; }
+    const sh = shuffleOpts(vals.slice(), m);
+    return {
+      no: 14, points: 2, title: 'Modus', kind: 'mc',
+      prompt: `Určete modus (nejčastější hodnotu) těchto čísel: ${arr.join(', ')}.`,
+      options: sh.labels, ans: sh.correctLetter,
+      sol: `Číslo ${m} se vyskytuje třikrát, ostatní jen jednou. Modus = ${m} → odpověď ${sh.correctLetter}.`
+    };
+  }
+
   /* ── SLOTY 1–16 ─────────────────────────────────────────────────
      Každá pozice testu je POLE variant (zatím vždy jedna). Pro
      přidání další varianty do pozice N stačí dopsat další funkci do
@@ -1116,7 +1154,7 @@
      ──────────────────────────────────────────────────────────────── */
   const SLOTS = [
     [gen1, gen1b, gen1c], [gen2, gen2b, gen2c], [gen3, gen3b, gen3c], [gen4, gen4b, gen4c], [gen5, gen5b, gen5c], [gen6, gen6b, gen6c], [gen7, gen7b, gen7c], [gen8, gen8b, gen8c],
-    [gen9, gen9b, gen9c], [gen10, gen10b, gen10c], [gen11, gen11b, gen11c], [gen12, gen12b, gen12c], [gen13, gen13b, gen13c], [gen14, gen14b, gen14c], [gen15, gen15b, gen15c], [gen16, gen16b, gen16c]
+    [gen9, gen9b, gen9c], [gen10, gen10b, gen10c], [gen11, gen11b, gen11c], [gen12, gen12b, gen12c, gen12d], [gen13, gen13b, gen13c, gen13d], [gen14, gen14b, gen14c, gen14d], [gen15, gen15b, gen15c], [gen16, gen16b, gen16c]
   ];
 
   window.RPG_CERMAT_9 = {
