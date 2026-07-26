@@ -1073,6 +1073,39 @@
     };
   }
 
+  function gen5c() {
+    // 4 body — obdélníková místnost: obsah podlahy + nezakrytá plocha (bez SVG)
+    const L = ri(4, 9), W = ri(3, 8), area = L * W;
+    const a = ri(2, L - 1), b = ri(2, W - 1), koberec = a * b, volna = area - koberec;
+    return {
+      no: 5, points: 4, title: 'Místnost',
+      intro: `Obdélníková místnost má rozměry ${L} m × ${W} m.`,
+      parts: [
+        { key: '5.1', points: 2, prompt: `Jaký obsah má podlaha místnosti (v m²)?`, ans: String(area),
+          sol: `Obsah obdélníku = délka · šířka = ${L} · ${W} = ${area} m².` },
+        { key: '5.2', points: 2, prompt: `Na podlahu položíme obdélníkový koberec ${a} m × ${b} m. Kolik m² podlahy zůstane nezakryto?`, ans: String(volna),
+          sol: `Koberec pokryje ${a} · ${b} = ${koberec} m². Nezakryto zůstane ${area} − ${koberec} = ${volna} m².` }
+      ]
+    };
+  }
+
+  function gen9c() {
+    // 4 body — Pythagoras: výška draka (přepona + odvěsna → druhá odvěsna)
+    const triples = [[3, 4, 5], [6, 8, 10], [5, 12, 13], [8, 15, 17], [9, 12, 15], [12, 16, 20]];
+    const t = triples[ri(0, triples.length - 1)], a = t[0], b = t[1], c = t[2];
+    return {
+      no: 9, points: 4, title: 'Drak na provázku',
+      svg: svgTriangle('pravo', { v: ['C', 'A', 'B'] }),
+      intro: `Drak drží na napnutém provázku dlouhém ${c} m. Drak je přímo nad místem vzdáleným ${a} m od toho, kdo ho pouští (ruku ber u země).`,
+      parts: [
+        { key: '9.1', points: 4, showExplain: true,
+          prompt: `V jaké výšce nad zemí drak letí (v m)? Uveďte celý postup.`,
+          ans: String(b),
+          sol: `Provázek (přepona), vodorovná vzdálenost a výška tvoří pravoúhlý trojúhelník. Pythagorova věta: výška² = provázek² − vzdálenost² = ${c}² − ${a}² = ${c * c} − ${a * a} = ${c * c - a * a}. Odmocni: výška = √${c * c - a * a} = ${b} m.` }
+      ]
+    };
+  }
+
   /* ── SLOTY 1–16 ─────────────────────────────────────────────────
      Každá pozice testu je POLE variant (zatím vždy jedna). Pro
      přidání další varianty do pozice N stačí dopsat další funkci do
@@ -1082,8 +1115,8 @@
      vybere jednu variantu z každé pozice.
      ──────────────────────────────────────────────────────────────── */
   const SLOTS = [
-    [gen1, gen1b, gen1c], [gen2, gen2b, gen2c], [gen3, gen3b, gen3c], [gen4, gen4b, gen4c], [gen5, gen5b], [gen6, gen6b, gen6c], [gen7, gen7b, gen7c], [gen8, gen8b, gen8c],
-    [gen9, gen9b], [gen10, gen10b, gen10c], [gen11, gen11b, gen11c], [gen12, gen12b, gen12c], [gen13, gen13b, gen13c], [gen14, gen14b, gen14c], [gen15, gen15b, gen15c], [gen16, gen16b, gen16c]
+    [gen1, gen1b, gen1c], [gen2, gen2b, gen2c], [gen3, gen3b, gen3c], [gen4, gen4b, gen4c], [gen5, gen5b, gen5c], [gen6, gen6b, gen6c], [gen7, gen7b, gen7c], [gen8, gen8b, gen8c],
+    [gen9, gen9b, gen9c], [gen10, gen10b, gen10c], [gen11, gen11b, gen11c], [gen12, gen12b, gen12c], [gen13, gen13b, gen13c], [gen14, gen14b, gen14c], [gen15, gen15b, gen15c], [gen16, gen16b, gen16c]
   ];
 
   window.RPG_CERMAT_9 = {
