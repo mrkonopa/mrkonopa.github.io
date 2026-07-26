@@ -1039,6 +1039,40 @@
     };
   }
 
+  function gen15c() {
+    // 6 bodů — přiřazování, 3× hledání ZÁKLADU z procenta (p % čísla je X → číslo)
+    function task(used) {
+      let p, celek, cast;
+      do { p = [10, 20, 25, 50][ri(0, 3)]; celek = [100, 200, 300, 400][ri(0, 3)]; cast = p * celek / 100; }
+      while (used.has(celek));
+      used.add(celek); return { p, celek, cast };
+    }
+    const used = new Set();
+    const t1 = task(used), t2 = task(used), t3 = task(used);
+    const answers = [t1.celek, t2.celek, t3.celek];
+    const set = new Set(answers);
+    while (set.size < 6) { set.add([100, 200, 300, 400, 500, 600, 150, 250][ri(0, 7)]); }
+    const optsArr = [...set].sort((a, b) => a - b);
+    const letters = ['A', 'B', 'C', 'D', 'E', 'F'];
+    const labels = optsArr.map((v, i) => `${letters[i]}) ${v}`);
+    const ansLetters = answers.map(v => letters[optsArr.indexOf(v)]);
+    return {
+      no: 15, points: 6, title: 'Procenta — základ', kind: 'match',
+      prompts: [
+        `${t1.p} % nějakého čísla je ${t1.cast}. Jaké je to číslo?`,
+        `${t2.p} % nějakého čísla je ${t2.cast}. Jaké je to číslo?`,
+        `${t3.p} % nějakého čísla je ${t3.cast}. Jaké je to číslo?`
+      ],
+      options: labels,
+      ans: ansLetters,
+      sol: [
+        `1 % je ${t1.cast} : ${t1.p} = ${t1.cast / t1.p}. Celek (100 %) = ${t1.cast / t1.p} · 100 = ${t1.celek}.`,
+        `1 % je ${t2.cast} : ${t2.p} = ${t2.cast / t2.p}. Celek = ${t2.celek}.`,
+        `1 % je ${t3.cast} : ${t3.p} = ${t3.cast / t3.p}. Celek = ${t3.celek}.`
+      ]
+    };
+  }
+
   /* ── SLOTY 1–16 ─────────────────────────────────────────────────
      Každá pozice testu je POLE variant (zatím vždy jedna). Pro
      přidání další varianty do pozice N stačí dopsat další funkci do
@@ -1049,7 +1083,7 @@
      ──────────────────────────────────────────────────────────────── */
   const SLOTS = [
     [gen1, gen1b, gen1c], [gen2, gen2b, gen2c], [gen3, gen3b, gen3c], [gen4, gen4b, gen4c], [gen5, gen5b], [gen6, gen6b, gen6c], [gen7, gen7b, gen7c], [gen8, gen8b, gen8c],
-    [gen9, gen9b], [gen10, gen10b, gen10c], [gen11, gen11b, gen11c], [gen12, gen12b, gen12c], [gen13, gen13b, gen13c], [gen14, gen14b, gen14c], [gen15, gen15b], [gen16, gen16b, gen16c]
+    [gen9, gen9b], [gen10, gen10b, gen10c], [gen11, gen11b, gen11c], [gen12, gen12b, gen12c], [gen13, gen13b, gen13c], [gen14, gen14b, gen14c], [gen15, gen15b, gen15c], [gen16, gen16b, gen16c]
   ];
 
   window.RPG_CERMAT_9 = {
