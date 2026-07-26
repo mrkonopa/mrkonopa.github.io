@@ -235,14 +235,96 @@
     };
   }
 
+  // ── Statistika a data (rozšíření) ──
+  function median5() {
+    const vals = []; while (vals.length < 5) { const v = ri(1, 30); if (!vals.includes(v)) vals.push(v); }
+    const s = [...vals].sort((a, b) => a - b);
+    return {
+      prompt: 'Určete medián (prostřední hodnotu) čísel: ' + vals.join(', ') + '.', type: 'text', ans: String(s[2]),
+      sol: 'Seřaď od nejmenšího: ' + s.join(', ') + '. Medián je prostřední (třetí) hodnota: ' + s[2] + '.',
+      _check: { kind: 'median', vals: vals.slice() }
+    };
+  }
+  function modus() {
+    const m = ri(2, 12), arr = [m, m, m];
+    while (arr.length < 6) { const v = ri(2, 12); if (v !== m && arr.filter(x => x === v).length < 2) arr.push(v); }
+    for (let i = arr.length - 1; i > 0; i--) { const j = ri(0, i); [arr[i], arr[j]] = [arr[j], arr[i]]; }
+    return {
+      prompt: 'Určete modus (nejčastější hodnotu) čísel: ' + arr.join(', ') + '.', type: 'text', ans: String(m),
+      sol: 'Spočítej, které číslo se opakuje nejčastěji — je to ' + m + ' (třikrát). Modus = ' + m + '.',
+      _check: { kind: 'modus', arr: arr.slice() }
+    };
+  }
+  function rozsah() {
+    const vals = []; while (vals.length < 5) { const v = ri(1, 50); if (!vals.includes(v)) vals.push(v); }
+    const mx = Math.max(...vals), mn = Math.min(...vals);
+    return {
+      prompt: 'Určete rozpětí (rozdíl největší a nejmenší hodnoty) čísel: ' + vals.join(', ') + '.', type: 'text', ans: String(mx - mn),
+      sol: 'Největší hodnota je ' + mx + ', nejmenší ' + mn + '. Rozpětí = ' + mx + ' − ' + mn + ' = ' + (mx - mn) + '.',
+      _check: { kind: 'rozsah', vals: vals.slice() }
+    };
+  }
+
+  // ── Slovní úlohy (rozšíření) ──
+  function pohyb() {
+    const v = ri(3, 12) * 5, t = ri(2, 6);
+    return {
+      prompt: 'Auto jede stálou rychlostí ' + v + ' km/h. Jakou dráhu ujede za ' + t + ' hodiny?', type: 'text', ans: String(v * t),
+      sol: 'Dráha = rychlost · čas = ' + v + ' · ' + t + ' = ' + (v * t) + ' km.',
+      _check: { kind: 'draha', v, t }
+    };
+  }
+  function cenaDoprava() {
+    const a = ri(2, 8), p = ri(20, 90), d = ri(30, 150), total = a * p + d;
+    return {
+      prompt: 'Objednali jsme ' + a + ' kusy po ' + p + ' Kč a k tomu dopravu ' + d + ' Kč. Kolik Kč zaplatíme celkem?', type: 'text', ans: String(total),
+      sol: 'Zboží: ' + a + ' · ' + p + ' = ' + (a * p) + ' Kč. Plus doprava ' + d + ' Kč: ' + (a * p) + ' + ' + d + ' = ' + total + ' Kč.',
+      _check: { kind: 'cenaDoprava', a, p, d }
+    };
+  }
+  function zbyvaPenez() {
+    const a = ri(2, 5), p = ri(20, 60), spend = a * p, zbyva = ri(30, 300), M = spend + zbyva;
+    return {
+      prompt: 'Měli jsme ' + M + ' Kč. Koupili jsme ' + a + ' kusy po ' + p + ' Kč. Kolik Kč nám zbylo?', type: 'text', ans: String(zbyva),
+      sol: 'Utratili jsme ' + a + ' · ' + p + ' = ' + spend + ' Kč. Zbylo ' + M + ' − ' + spend + ' = ' + zbyva + ' Kč.',
+      _check: { kind: 'zbyva', M, a, p }
+    };
+  }
+
+  // ── Procenta a finanční matematika (rozšíření) ──
+  function slevaCena() {
+    const X = ri(1, 9) * 100, p = [10, 20, 25, 50][ri(0, 3)], nova = X - X * p / 100;
+    return {
+      prompt: 'Zboží stálo ' + X + ' Kč. Sleva je ' + p + ' %. Kolik Kč stojí po slevě?', type: 'text', ans: String(nova),
+      sol: 'Sleva = ' + p + ' % z ' + X + ' = ' + (X * p / 100) + ' Kč. Nová cena = ' + X + ' − ' + (X * p / 100) + ' = ' + nova + ' Kč.',
+      _check: { kind: 'slevaCena', X, p }
+    };
+  }
+  function navyseniCena() {
+    const X = ri(1, 9) * 100, p = [10, 20, 25, 50][ri(0, 3)], nova = X + X * p / 100;
+    return {
+      prompt: 'Zboží stálo ' + X + ' Kč a zdražilo o ' + p + ' %. Kolik Kč stojí nyní?', type: 'text', ans: String(nova),
+      sol: 'Navýšení = ' + p + ' % z ' + X + ' = ' + (X * p / 100) + ' Kč. Nová cena = ' + X + ' + ' + (X * p / 100) + ' = ' + nova + ' Kč.',
+      _check: { kind: 'navyseniCena', X, p }
+    };
+  }
+  function urok() {
+    const jist = ri(1, 9) * 1000, p = [2, 3, 4, 5][ri(0, 3)], u = jist * p / 100;
+    return {
+      prompt: 'Uložíme ' + jist + ' Kč s ročním úrokem ' + p + ' %. Kolik Kč činí úrok za jeden rok?', type: 'text', ans: String(u),
+      sol: 'Úrok za rok = ' + p + ' % z ' + jist + ' = ' + jist + ' · ' + p + ' : 100 = ' + u + ' Kč.',
+      _check: { kind: 'urok', jist, p }
+    };
+  }
+
   window.PZ_GEN = {
     'vyrazy-mocniny': [mocnina, odmocnina, mocninaVyraz],
     'zlomky': [zlomekCelku, zlomekZbytek, zlomekPocet],
     'vyrazy-promenna': [dosazeniLin, dosazeniKvadrat, dosazeniZavorka],
     'rovnice': [rovniceLin, rovniceZlomek, rovniceSlovni],
-    'procenta': [procCast, procZaklad, procKolik],
-    'slovni': [slovniSoucetRozdil, slovniNakup],
+    'procenta': [procCast, procZaklad, procKolik, slevaCena, navyseniCena, urok],
+    'slovni': [slovniSoucetRozdil, slovniNakup, pohyb, cenaDoprava, zbyvaPenez],
     'pomer': [deleniVPomeru, primaUmernost, neprimaUmernost, meritko],
-    'data': [prumer, prumerPridani],
+    'data': [prumer, prumerPridani, median5, modus, rozsah],
   };
 })();

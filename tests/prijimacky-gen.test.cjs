@@ -39,6 +39,15 @@ function expected(c) {
     case 'procCast': return ((c.p * c.celek) % 100 === 0) ? (c.p * c.celek) / 100 : NaN;
     case 'procZaklad': return ((c.X * 100) % c.p === 0) ? (c.X * 100) / c.p : NaN;
     case 'procKolik': return ((c.X * 100) % c.celek === 0) ? (c.X * 100) / c.celek : NaN;
+    case 'median': { const s = [...c.vals].sort((a, b) => a - b); return s[2]; }
+    case 'modus': { const f = {}; let best = null, bc = 0; c.arr.forEach(v => { f[v] = (f[v] || 0) + 1; if (f[v] > bc) { bc = f[v]; best = v; } }); return best; }
+    case 'rozsah': return Math.max(...c.vals) - Math.min(...c.vals);
+    case 'draha': return c.v * c.t;
+    case 'cenaDoprava': return c.a * c.p + c.d;
+    case 'zbyva': return c.M - c.a * c.p;
+    case 'slevaCena': return c.X * (100 - c.p) / 100;
+    case 'navyseniCena': return c.X * (100 + c.p) / 100;
+    case 'urok': return ((c.jist * c.p) % 100 === 0) ? (c.jist * c.p) / 100 : NaN;
     default: return NaN;
   }
 }
