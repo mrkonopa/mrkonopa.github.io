@@ -23,6 +23,7 @@ const SKIP = new Set([
 const PARAM = {
   'svg-tasks.test.cjs': ['3', '4', '5', '6', '7', '8', '9'],
   'rpg-distractors.test.cjs': ['6', '7', '8', '9'],
+  'rpg-battle-dedup.test.cjs': ['3', '4', '5', '6', '7', '8', '9'],
 };
 // Harnessy/hostile skripty, co nesedí na *.test.cjs / *.audit.cjs vzor:
 const EXTRA = [
