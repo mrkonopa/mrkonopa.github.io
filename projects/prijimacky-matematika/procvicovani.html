@@ -77,6 +77,9 @@
 <script src="../rpg-cermat-9.js"></script>
 <script src="prijimacky-gen.js"></script>
 <script src="prijimacky-topics.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script defer src="../rpg-cloud.js"></script>
+<script>document.addEventListener('DOMContentLoaded',function(){if(window.PZ&&PZ.attachLoginBar)PZ.attachLoginBar();});</script>
 <script>
 const PROG_KEY = 'PZ_PRACTICE_PROGRESS';
 let PR = { topic:null, item:null, ok:0, total:0, answered:false };
@@ -84,7 +87,7 @@ let PR = { topic:null, item:null, ok:0, total:0, answered:false };
 function loadProg(){ return PZ.store.get(PROG_KEY, {}); }
 function bumpProg(topicId, correct){
   const p = loadProg(); const t = p[topicId] || { ok:0, total:0 };
-  t.total++; if(correct) t.ok++; p[topicId] = t; PZ.store.set(PROG_KEY, p);
+  t.total++; if(correct) t.ok++; p[topicId] = t; PZ.store.set(PROG_KEY, p); if(PZ.cloudPush)PZ.cloudPush();
 }
 
 function renderTopics(){

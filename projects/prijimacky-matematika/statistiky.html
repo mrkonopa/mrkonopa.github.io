@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Statistiky — Přijímačky z matematiky · Vojtěch Konopa</title>
+<meta name="description" content="Tvůj pokrok v přípravě na přijímačky z matematiky: trend testů nanečisto, zvládnutí témat a odhad připravenosti." />
+<meta name="author" content="Vojtěch Konopa" />
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="prijimacky.css">
+<style>
+  .st-big { display:grid; gap:16px; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); }
+  .st-stat { background:var(--card); border:1px solid var(--border); border-radius:12px; box-shadow:var(--shadow); padding:18px 20px; text-align:center; }
+  .st-stat .v { font-size:2rem; font-weight:800; color:var(--blue); font-variant-numeric:tabular-nums; }
+  .st-stat .l { font-size:.82rem; color:var(--muted); margin-top:2px; }
+  .st-ready .v { color:var(--green); }
+  .st-sec-title { font-size:.8rem; font-weight:700; color:var(--muted); letter-spacing:.04em; margin:0 0 10px; }
+  .st-bar-row { display:flex; align-items:center; gap:12px; padding:8px 0; }
+  .st-bar-name { flex:0 0 46%; font-size:.92rem; font-weight:500; }
+  .st-bar { flex:1; height:14px; background:var(--border); border-radius:7px; overflow:hidden; }
+  .st-bar-in { height:100%; border-radius:7px; }
+  .st-bar-val { flex:0 0 66px; text-align:right; font-size:.85rem; font-weight:700; color:var(--muted); }
+  .st-attempt { display:flex; align-items:center; gap:12px; padding:7px 0; border-top:1px solid var(--border); }
+  .st-attempt:first-child { border-top:none; }
+  .st-empty { color:var(--muted); font-style:italic; }
+</style>
+</head>
+<body>
+<div class="top-bar">
+  <a href="./"><span class="crumb">← Přijímačky z matematiky</span></a>
+  <a href="/">mrkonopa.github.io</a>
+</div>
+
+<header class="title-block">
+  <span class="eyebrow">Statistiky</span>
+  <h1 class="title">Tvůj <span class="accent">pokrok</span></h1>
+  <p class="lede">Přehled tvé přípravy — testy nanečisto, zvládnutí témat a odhad připravenosti na zkoušku. Data jsou v tomto prohlížeči.</p>
+</header>
+
+<main>
+  <div class="st-big" id="st-big"></div>
+  <div class="cm-panel" style="margin-top:16px">
+    <div class="st-sec-title">TESTY NANEČISTO — poslední pokusy</div>
+    <div id="st-tests"></div>
+  </div>
+  <div class="cm-panel" style="margin-top:16px">
+    <div class="st-sec-title">ZVLÁDNUTÍ TÉMAT (z procvičování)</div>
+    <div id="st-topics"></div>
+  </div>
+  <div class="cm-panel" style="margin-top:16px">
+    <div class="st-sec-title">POSLEDNÍ DIAGNOSTIKA</div>
+    <div id="st-diag"></div>
+  </div>
+</main>
+
+<script src="../rpg-shared.js"></script>
+<script src="../rpg-svg-9.js"></script>
+<script src="prijimacky-core.js"></script>
+<script src="../rpg-cermat-9.js"></script>
+<script src="prijimacky-gen.js"></script>
+<script src="prijimacky-topics.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script defer src="../rpg-cloud.js"></script>
+<script>document.addEventListener('DOMContentLoaded',function(){if(window.PZ&&PZ.attachLoginBar)PZ.attachLoginBar();});</script>
+<script>
+function barColor(pct){ return pct>=80?'var(--green)':pct>=50?'var(--blue)':pct>=25?'var(--gold)':'var(--red)'; }
+
+function render(){
+  const attempts = PZ.store.get('PZ_CERMAT_ATTEMPTS', []);
+  const prog = PZ.store.get('PZ_PRACTICE_PROGRESS', {});
+  const diag = PZ.store.get('PZ_DIAG_LAST', null);
+
+  // velké statistiky
+  const bestTest = attempts.length ? Math.max(...attempts.map(a=>a.score|0)) : null;
+  const testPct = bestTest!=null ? Math.round(bestTest/50*100) : null;
+  let pOk=0,pTot=0; for(const k in prog){ pOk+=prog[k].ok|0; pTot+=prog[k].total|0; }
+  const pracPct = pTot ? Math.round(pOk/pTot*100) : null;
+  // připravenost = průměr dostupných signálů (test best %, přesnost procvičování)
+  const sig=[]; if(testPct!=null)sig.push(testPct); if(pracPct!=null)sig.push(pracPct);
+  const ready = sig.length ? Math.round(sig.reduce((a,b)=>a+b,0)/sig.length) : null;
+
+  document.getElementById('st-big').innerHTML =
+    '<div class="st-stat st-ready"><div class="v">'+(ready!=null?ready+' %':'—')+'</div><div class="l">Odhad připravenosti</div></div>'+
+    '<div class="st-stat"><div class="v">'+(bestTest!=null?bestTest+' / 50':'—')+'</div><div class="l">Nejlepší test nanečisto</div></div>'+
+    '<div class="st-stat"><div class="v">'+pTot+'</div><div class="l">Vyřešených úloh (procvičování)</div></div>'+
+    '<div class="st-stat"><div class="v">'+attempts.length+'</div><div class="l">Odevzdaných testů</div></div>';
+
+  // testy — trend
+  const te=document.getElementById('st-tests');
+  if(attempts.length){
+    te.innerHTML = attempts.slice(-8).reverse().map(a=>{ const sc=a.score|0,mx=a.max|0,pct=mx?Math.round(sc/mx*100):0;
+      return '<div class="st-attempt"><span style="flex:0 0 90px;color:var(--muted);font-size:.85rem">'+PZ.esc(a.date)+'</span>'+
+        '<div class="st-bar"><div class="st-bar-in" style="width:'+pct+'%;background:'+barColor(pct)+'"></div></div>'+
+        '<span class="st-bar-val">'+sc+' / '+mx+'</span></div>'; }).join('');
+  } else te.innerHTML='<div class="st-empty">Zatím žádný test. Zkus <a href="test.html">test nanečisto</a>.</div>';
+
+  // témata — mastery
+  const to=document.getElementById('st-topics');
+  const rows = PZ_TOPICS.list.map(t=>{ const p=prog[t.id]; if(!p||!p.total) return null;
+    const pct=Math.round(p.ok/p.total*100);
+    return '<div class="st-bar-row"><span class="st-bar-name">'+PZ.esc(t.name)+'</span>'+
+      '<div class="st-bar"><div class="st-bar-in" style="width:'+pct+'%;background:'+barColor(pct)+'"></div></div>'+
+      '<span class="st-bar-val">'+p.ok+'/'+p.total+'</span></div>'; }).filter(Boolean);
+  to.innerHTML = rows.length ? rows.join('') : '<div class="st-empty">Zatím jsi neprocvičoval/a. Vyber <a href="procvicovani.html">okruh k procvičování</a>.</div>';
+
+  // diagnostika
+  const de=document.getElementById('st-diag');
+  if(diag && diag.topics){
+    const weak = diag.topics.filter(x=>!x.correct).map(x=>{ const t=PZ_TOPICS.list.find(y=>y.id===x.id); return t?t.name:x.id; });
+    de.innerHTML = '<div style="margin-bottom:8px">'+PZ.esc(diag.date)+' — <b>'+diag.ok+' / '+diag.n+' správně</b></div>'+
+      (weak.length ? 'Slabá témata: '+weak.map(w=>PZ.esc(w)).join(' · ')+' — <a href="diagnostika.html">nová diagnostika</a>'
+                   : 'Všechna témata zvládnutá 🎉 <a href="diagnostika.html">zkusit znovu</a>');
+  } else de.innerHTML='<div class="st-empty">Ještě jsi nedělal/a <a href="diagnostika.html">diagnostiku</a>.</div>';
+}
+window.PZ_ON_SYNC = render;  // po cloud syncu (po přihlášení) překresli
+render();
+</script>
+</body>
+</html>

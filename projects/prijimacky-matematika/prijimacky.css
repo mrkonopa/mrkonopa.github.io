@@ -67,6 +67,10 @@ p.lede { font-size:1rem; font-weight:300; color:var(--muted); max-width:640px; }
   background:#fafaf2; color:var(--text); transition:all .12s; }
 .pz-btn:hover { border-color:var(--blue); background:var(--blue-light); color:var(--blue-dark); transform:translateY(-1px); }
 .pz-btn.primary { background:var(--blue); border-color:var(--blue); color:#fff; }
+.pz-authbtn { cursor:pointer; font-family:var(--sans); font-weight:600; font-size:.8rem;
+  padding:5px 12px; border-radius:8px; border:1px solid var(--border);
+  background:var(--card); color:var(--blue); transition:all .12s; }
+.pz-authbtn:hover { border-color:var(--blue); background:var(--blue-light); }
 .pz-btn.primary:hover { background:var(--blue-dark); color:#fff; }
 .pz-btn.ghost { background:transparent; }
 .pz-btn.danger { color:var(--red); }

@@ -74,6 +74,9 @@
 <script src="../rpg-svg-9.js"></script>
 <script src="prijimacky-core.js"></script>
 <script src="../rpg-cermat-9.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script defer src="../rpg-cloud.js"></script>
+<script>document.addEventListener('DOMContentLoaded',function(){if(window.PZ&&PZ.attachLoginBar)PZ.attachLoginBar();});</script>
 <script>
 const ATTEMPTS_KEY = 'PZ_CERMAT_ATTEMPTS';
 let CM = { on:false, tasks:[], timeLeft:0, timerId:null };
@@ -84,7 +87,7 @@ function saveAttempt(score, max){
   const a = loadAttempts();
   a.push({ date:new Date().toISOString().slice(0,10), score, max });
   if(a.length>20) a.splice(0, a.length-20);
-  PZ.store.set(ATTEMPTS_KEY, a);
+  PZ.store.set(ATTEMPTS_KEY, a); if(PZ.cloudPush)PZ.cloudPush();
 }
 
 function renderGate(){
