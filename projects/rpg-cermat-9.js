@@ -816,6 +816,79 @@
     };
   }
 
+  /* ═══ TŘETÍ VARIANTY vybraných pozic (podle reálných CERMAT předloh) ═══ */
+
+  function gen1c() {
+    // 1 bod — mocnina a násobení (pořadí operací), výsledek kladný
+    const a = ri(5, 9), b = ri(2, 4), c = ri(2, 4), ans = a * a - b * c;
+    return {
+      no: 1, points: 1, title: 'Číselný výraz',
+      parts: [{ key: '', points: 1,
+        prompt: `Vypočítejte: ${a}² − ${b} · ${c} =`,
+        ans: String(ans),
+        sol: `Nejdřív mocnina a násobení: ${a}² = ${a * a} a ${b} · ${c} = ${b * c}. Pak odečti: ${a * a} − ${b * c} = ${ans}.` }]
+    };
+  }
+
+  function gen4c() {
+    // 4 body — rovnice: lineární + rovnice se zlomkem (dělením)
+    const x1 = ri(2, 9), a = ri(2, 6), b = ri(1, 9), c = a * x1 - b;
+    const d = ri(2, 5), x2 = ri(2, 5) * d, e = ri(1, 6), f = x2 / d + e;
+    return {
+      no: 4, points: 4, title: 'Rovnice',
+      parts: [
+        { key: '4.1', points: 2, showExplain: true,
+          prompt: `Vyřešte rovnici a napište kořen x: ${a}x − ${b} = ${c}`,
+          ans: String(x1),
+          sol: `Přičti ${b} k oběma stranám: ${a}x = ${c} + ${b} = ${c + b}. Vyděl ${a}: x = ${c + b} : ${a} = ${x1}.` },
+        { key: '4.2', points: 2, showExplain: true,
+          prompt: `Vyřešte rovnici a napište kořen x: x : ${d} + ${e} = ${f}`,
+          ans: String(x2),
+          sol: `Odečti ${e} od obou stran: x : ${d} = ${f} − ${e} = ${f - e}. Vynásob ${d}: x = ${f - e} · ${d} = ${x2}.` }
+      ]
+    };
+  }
+
+  function gen12c() {
+    // 2 body — MC, počet krychlových kostek v kvádrové krabici
+    const k = [2, 5][ri(0, 1)], a = ri(2, 4) * k, b = ri(2, 4) * k, cc = ri(2, 3) * k;
+    const pocet = (a / k) * (b / k) * (cc / k);
+    const opts = [pocet - 2, pocet - 1, pocet, pocet + 2, 'jiný počet'];
+    const sh = shuffleOpts(opts, pocet);
+    return {
+      no: 12, points: 2, title: 'Kostky v krabici', kind: 'mc',
+      prompt: `Krabice tvaru kvádru má rozměry ${a} cm × ${b} cm × ${cc} cm. Kolik krychlových kostek o hraně ${k} cm se do ní přesně vejde?`,
+      options: sh.labels, ans: sh.correctLetter,
+      sol: `Podél hran se vejde ${a} : ${k} = ${a / k}, ${b} : ${k} = ${b / k} a ${cc} : ${k} = ${cc / k} kostek. Celkem ${a / k} · ${b / k} · ${cc / k} = ${pocet} kostek → odpověď ${sh.correctLetter}. (Kontrola: objem ${a * b * cc} cm³ : ${k}³ = ${a * b * cc} : ${k * k * k} = ${pocet}.)`
+    };
+  }
+
+  function gen13c() {
+    // 2 body — MC, o kolik procent se cena zvýšila
+    const stara = ri(1, 9) * 100, p = [10, 20, 25, 50][ri(0, 3)], nova = stara * (1 + p / 100);
+    const opts = [p - 5, p, p + 5, p + 10, 'jiná hodnota'];
+    const sh = shuffleOpts(opts, p);
+    return {
+      no: 13, points: 2, title: 'Zdražení', kind: 'mc',
+      prompt: `Zboží zdražilo z ${stara} Kč na ${nova} Kč. O kolik procent se cena zvýšila?`,
+      options: sh.labels, ans: sh.correctLetter,
+      sol: `Zdražení v korunách: ${nova} − ${stara} = ${nova - stara} Kč. Vztaženo k PŮVODNÍ ceně: ${nova - stara} : ${stara} = ${cz((nova - stara) / stara)} = ${p} % → odpověď ${sh.correctLetter}.`
+    };
+  }
+
+  function gen14c() {
+    // 2 body — MC, medián pěti čísel
+    const arr = []; while (arr.length < 5) { const v = ri(1, 20); if (!arr.includes(v)) arr.push(v); }
+    const sorted = [...arr].sort((x, y) => x - y), med = sorted[2];
+    const sh = shuffleOpts(sorted.slice(), med);
+    return {
+      no: 14, points: 2, title: 'Medián', kind: 'mc',
+      prompt: `Určete medián (prostřední hodnotu) těchto čísel: ${arr.join(', ')}.`,
+      options: sh.labels, ans: sh.correctLetter,
+      sol: `Seřaď čísla od nejmenšího: ${sorted.join(', ')}. Medián je prostřední (třetí) hodnota: ${med} → odpověď ${sh.correctLetter}.`
+    };
+  }
+
   /* ── SLOTY 1–16 ─────────────────────────────────────────────────
      Každá pozice testu je POLE variant (zatím vždy jedna). Pro
      přidání další varianty do pozice N stačí dopsat další funkci do
@@ -825,8 +898,8 @@
      vybere jednu variantu z každé pozice.
      ──────────────────────────────────────────────────────────────── */
   const SLOTS = [
-    [gen1, gen1b], [gen2, gen2b], [gen3, gen3b], [gen4, gen4b], [gen5, gen5b], [gen6, gen6b], [gen7, gen7b], [gen8, gen8b],
-    [gen9, gen9b], [gen10, gen10b], [gen11, gen11b], [gen12, gen12b], [gen13, gen13b], [gen14, gen14b], [gen15, gen15b], [gen16, gen16b]
+    [gen1, gen1b, gen1c], [gen2, gen2b], [gen3, gen3b], [gen4, gen4b, gen4c], [gen5, gen5b], [gen6, gen6b], [gen7, gen7b], [gen8, gen8b],
+    [gen9, gen9b], [gen10, gen10b], [gen11, gen11b], [gen12, gen12b, gen12c], [gen13, gen13b, gen13c], [gen14, gen14b, gen14c], [gen15, gen15b], [gen16, gen16b]
   ];
 
   window.RPG_CERMAT_9 = {
