@@ -983,6 +983,62 @@
     };
   }
 
+  function gen6c() {
+    // 2 body — nádrže (dělení, čas napouštění; bez π)
+    const konev = ri(3, 8), pocet = ri(4, 12), sud = konev * pocet;
+    const rate = ri(2, 9), min = ri(3, 12), V = rate * min;
+    return {
+      no: 6, points: 2, title: 'Nádrže',
+      parts: [
+        { key: '6.1', points: 1,
+          prompt: `Sud pojme ${sud} litrů. Konev má objem ${konev} litrů. Kolik plných konví je potřeba na naplnění sudu?`,
+          ans: String(pocet),
+          sol: `Počet konví = objem sudu : objem konve = ${sud} : ${konev} = ${pocet}.` },
+        { key: '6.2', points: 1,
+          prompt: `Nádrž o objemu ${V} litrů se napouští rychlostí ${rate} litrů za minutu. Za kolik minut bude plná?`,
+          ans: String(min),
+          sol: `Čas = objem : rychlost = ${V} : ${rate} = ${min} minut.` }
+      ]
+    };
+  }
+
+  function gen8c() {
+    // 4 body — oplocení obdélníkové zahrady (obvod, cena, sloupky)
+    const a = ri(5, 15), b = ri(5, 15), obvod = 2 * (a + b);
+    const cena = ri(50, 150), celkem = obvod * cena;
+    const cand = [2, 3, 4, 5].filter(x => obvod % x === 0), d = cand[ri(0, cand.length - 1)], sloupky = obvod / d;
+    return {
+      no: 8, points: 4, title: 'Oplocení zahrady',
+      intro: `Obdélníková zahrada má rozměry ${a} m × ${b} m a chceme ji celou oplotit.`,
+      parts: [
+        { key: '8.1', points: 2, prompt: `Kolik metrů plotu je potřeba (obvod zahrady)?`, ans: String(obvod),
+          sol: `Obvod obdélníku = 2·(${a} + ${b}) = ${obvod} m.` },
+        { key: '8.2', points: 1, prompt: `Metr plotu stojí ${cena} Kč. Kolik Kč stojí celý plot?`, ans: String(celkem),
+          sol: `${obvod} m · ${cena} Kč = ${celkem} Kč.` },
+        { key: '8.3', points: 1, prompt: `Sloupky jsou rozmístěny po ${d} metrech. Kolik sloupků je po celém obvodu?`, ans: String(sloupky),
+          sol: `Počet sloupků = obvod : rozestup = ${obvod} : ${d} = ${sloupky}.` }
+      ]
+    };
+  }
+
+  function gen16c() {
+    // 4 body — chodník kolem bazénu (vnější rozměry + obsah chodníku)
+    const w = ri(1, 3), a = ri(5, 10), b = ri(3, a - 1);
+    const oa = a + 2 * w, ob = b + 2 * w, chodnik = oa * ob - a * b;
+    return {
+      no: 16, points: 4, title: 'Chodník kolem bazénu',
+      intro: `Obdélníkový bazén ${a} m × ${b} m je ze všech stran obklopen chodníkem širokým ${w} m.`,
+      parts: [
+        { key: '16.1', points: 2, prompt: `Jaká je celková délka obrazce (bazén i s chodníkem) podél delší strany bazénu (v m)?`, ans: String(oa),
+          sol: `Chodník přidá ${w} m na obou koncích: ${a} + 2·${w} = ${oa} m.` },
+        { key: '16.2', points: 1, prompt: `Jaká je celková šířka obrazce (bazén i s chodníkem, v m)?`, ans: String(ob),
+          sol: `${b} + 2·${w} = ${ob} m.` },
+        { key: '16.3', points: 1, prompt: `Jaký obsah má samotný chodník (v m²)?`, ans: String(chodnik),
+          sol: `Obsah celku = ${oa}·${ob} = ${oa * ob} m². Minus bazén ${a}·${b} = ${a * b} m². Chodník = ${oa * ob} − ${a * b} = ${chodnik} m².` }
+      ]
+    };
+  }
+
   /* ── SLOTY 1–16 ─────────────────────────────────────────────────
      Každá pozice testu je POLE variant (zatím vždy jedna). Pro
      přidání další varianty do pozice N stačí dopsat další funkci do
@@ -992,8 +1048,8 @@
      vybere jednu variantu z každé pozice.
      ──────────────────────────────────────────────────────────────── */
   const SLOTS = [
-    [gen1, gen1b, gen1c], [gen2, gen2b, gen2c], [gen3, gen3b, gen3c], [gen4, gen4b, gen4c], [gen5, gen5b], [gen6, gen6b], [gen7, gen7b, gen7c], [gen8, gen8b],
-    [gen9, gen9b], [gen10, gen10b, gen10c], [gen11, gen11b, gen11c], [gen12, gen12b, gen12c], [gen13, gen13b, gen13c], [gen14, gen14b, gen14c], [gen15, gen15b], [gen16, gen16b]
+    [gen1, gen1b, gen1c], [gen2, gen2b, gen2c], [gen3, gen3b, gen3c], [gen4, gen4b, gen4c], [gen5, gen5b], [gen6, gen6b, gen6c], [gen7, gen7b, gen7c], [gen8, gen8b, gen8c],
+    [gen9, gen9b], [gen10, gen10b, gen10c], [gen11, gen11b, gen11c], [gen12, gen12b, gen12c], [gen13, gen13b, gen13c], [gen14, gen14b, gen14c], [gen15, gen15b], [gen16, gen16b, gen16c]
   ];
 
   window.RPG_CERMAT_9 = {
