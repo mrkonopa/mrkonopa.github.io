@@ -69,8 +69,11 @@
 function barColor(pct){ return pct>=80?'var(--green)':pct>=50?'var(--blue)':pct>=25?'var(--gold)':'var(--red)'; }
 
 function render(){
-  const attempts = PZ.store.get('PZ_CERMAT_ATTEMPTS', []);
-  const prog = PZ.store.get('PZ_PRACTICE_PROGRESS', {});
+  // obranné čtení: poškozený localStorage nesmí shodit render
+  const rawA = PZ.store.get('PZ_CERMAT_ATTEMPTS', []);
+  const attempts = Array.isArray(rawA) ? rawA.filter(a=>a&&typeof a==='object') : [];
+  const rawP = PZ.store.get('PZ_PRACTICE_PROGRESS', {});
+  const prog = (rawP && typeof rawP==='object' && !Array.isArray(rawP)) ? rawP : {};
   const diag = PZ.store.get('PZ_DIAG_LAST', null);
 
   // velké statistiky

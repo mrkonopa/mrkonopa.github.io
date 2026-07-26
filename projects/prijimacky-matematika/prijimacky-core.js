@@ -67,15 +67,21 @@
   const hasCloud = () => (typeof window.RPGCloud !== 'undefined') &&
     (typeof RPGCloud.configured === 'function') && RPGCloud.configured();
 
+  // Obranné pomůcky proti podvrženému/poškozenému pokroku (cloud i localStorage):
+  // sync nesmí spadnout ani na {téma: null}, poli místo objektu, nečíselných hodnotách.
+  const isObj = x => !!x && typeof x === 'object' && !Array.isArray(x);
+  const num = x => { const n = Number(x); return Number.isFinite(n) ? n : 0; };
+
   // Odhad připravenosti (0–100) — STEJNÝ vzorec jako statistiky.html:
   // průměr z (nejlepší test/50) a (přesnost procvičování).
   function computeReadiness() {
     const att = store.get(K_ATT, []), pra = store.get(K_PRA, {});
     const sig = [];
-    if (Array.isArray(att) && att.length) sig.push(Math.round(Math.max(...att.map(a => a.score | 0)) / 50 * 100));
-    let ok = 0, tot = 0; for (const k in pra) { ok += pra[k].ok | 0; tot += pra[k].total | 0; }
+    if (Array.isArray(att) && att.length) sig.push(Math.round(Math.max(...att.map(a => num(a && a.score))) / 50 * 100));
+    let ok = 0, tot = 0;
+    if (isObj(pra)) for (const k in pra) { const v = pra[k]; if (isObj(v)) { ok += num(v.ok); tot += num(v.total); } }
     if (tot) sig.push(Math.round(ok / tot * 100));
-    return sig.length ? Math.round(sig.reduce((a, b) => a + b, 0) / sig.length) : 0;
+    return sig.length ? Math.max(0, Math.min(100, Math.round(sig.reduce((a, b) => a + b, 0) / sig.length))) : 0;
   }
   const readLocal = () => ({
     attempts: store.get(K_ATT, []), practice: store.get(K_PRA, {}),
@@ -83,23 +89,32 @@
   });
 
   // Sloučení lokálního a cloudového pokroku (kid-friendly: nikdy neztratí).
+  // Plně obranné: cizí strana (vlastní cloud řádek, ale mohl ho žák podvrhnout
+  // nebo je z jiné verze klienta) může být jakýkoli JSON — nesmí shodit sync.
   function mergeStats(a, b) {
-    a = a || {}; b = b || {};
-    // testy: spoj + dedup (date+score), zachovej pořadí, cap 50
+    a = isObj(a) ? a : {}; b = isObj(b) ? b : {};
+    // testy: jen objektové položky, sanitizované na {date,score,max}, dedup, cap 50
     const seen = new Set(), attempts = [];
-    for (const x of [].concat(a.attempts || [], b.attempts || [])) {
-      const key = (x && x.date) + '|' + (x && x.score) + '|' + (x && x.max);
-      if (!seen.has(key)) { seen.add(key); attempts.push(x); }
+    const rawAtt = [].concat(Array.isArray(a.attempts) ? a.attempts : [], Array.isArray(b.attempts) ? b.attempts : []);
+    for (const x of rawAtt) {
+      if (!isObj(x)) continue;
+      const item = { date: String(x.date == null ? '' : x.date).slice(0, 20), score: num(x.score), max: num(x.max) || 50 };
+      const key = item.date + '|' + item.score + '|' + item.max;
+      if (!seen.has(key)) { seen.add(key); attempts.push(item); }
     }
-    // procvičování: per-téma vezmi vyšší ok i total
+    // procvičování: per-téma vyšší ok i total; jen objektové hodnoty; cap 60 témat (anti-flood)
     const practice = {};
-    for (const src of [a.practice || {}, b.practice || {}])
+    for (const src of [isObj(a.practice) ? a.practice : {}, isObj(b.practice) ? b.practice : {}])
       for (const t in src) {
+        if (!Object.prototype.hasOwnProperty.call(src, t)) continue;
+        if (t === '__proto__' || t === 'constructor' || t === 'prototype') continue;
+        const v = src[t]; if (!isObj(v)) continue;
+        if (!practice[t] && Object.keys(practice).length >= 60) continue;
         const cur = practice[t] || { ok: 0, total: 0 };
-        practice[t] = { ok: Math.max(cur.ok, src[t].ok | 0), total: Math.max(cur.total, src[t].total | 0) };
+        practice[t] = { ok: Math.max(cur.ok, num(v.ok)), total: Math.max(cur.total, num(v.total)) };
       }
-    // diagnostika: novější dle date
-    const da = a.diag, db = b.diag;
+    // diagnostika: novější dle date; jen objekt
+    const da = isObj(a.diag) ? a.diag : null, db = isObj(b.diag) ? b.diag : null;
     const diag = (!da) ? db : (!db) ? da : (String(db.date) > String(da.date) ? db : da);
     const out = { attempts: attempts.slice(-50), practice, diag };
     out.readiness = 0; // dopočítá se po zápisu z lokálu
