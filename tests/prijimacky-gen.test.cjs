@@ -59,6 +59,19 @@ function expected(c) {
     case 'rovniceZavorka': return (c.c % c.a === 0) ? (c.c / c.a - c.b) : NaN;
     case 'rovniceObeStrany': return ((c.d - c.b) % (c.a - c.c) === 0) ? (c.d - c.b) / (c.a - c.c) : NaN;
     case 'pomerDoplnit': return (c.b % c.a === 0) ? c.b * c.c / c.a : NaN;
+    case 'obvodObd': return 2 * (c.a + c.b);
+    case 'obsahObd': return c.a * c.b;
+    case 'obsahCtverec': return c.a * c.a;
+    case 'obvodCtverec': return 4 * c.a;
+    case 'obsahTroj': return (c.a * c.v) % 2 === 0 ? c.a * c.v / 2 : NaN;
+    case 'uhelVedlejsi': return 180 - c.x;
+    case 'pythag': { const r = Math.sqrt(c.a * c.a + c.b * c.b); return Number.isInteger(r) ? r : NaN; }
+    case 'objemKvadr': return c.a * c.b * c.c;
+    case 'povrchKvadr': return 2 * (c.a * c.b + c.b * c.c + c.a * c.c);
+    case 'objemKrychle': return c.a ** 3;
+    case 'povrchKrychle': return 6 * c.a * c.a;
+    case 'hranyKvadr': return 4 * (c.a + c.b + c.c);
+    case 'objemLitr': return (c.a * c.b * c.c) % 1000 === 0 ? c.a * c.b * c.c / 1000 : NaN;
     default: return NaN;
   }
 }

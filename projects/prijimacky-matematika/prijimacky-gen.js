@@ -415,6 +415,85 @@
     };
   }
 
+  // ── Geometrie v rovině ──
+  function obvodObdelnikG() {
+    const a = ri(3, 20), b = ri(3, 20);
+    return {
+      prompt: 'Obdélník má strany ' + a + ' cm a ' + b + ' cm. Jaký je jeho obvod (v cm)?', type: 'text', ans: String(2 * (a + b)),
+      sol: 'Obvod = 2·(a + b) = 2·(' + a + ' + ' + b + ') = ' + (2 * (a + b)) + ' cm.', _check: { kind: 'obvodObd', a, b }
+    };
+  }
+  function obsahObdelnikG() {
+    const a = ri(3, 20), b = ri(3, 20);
+    return {
+      prompt: 'Obdélník má strany ' + a + ' cm a ' + b + ' cm. Jaký je jeho obsah (v cm²)?', type: 'text', ans: String(a * b),
+      sol: 'Obsah = a · b = ' + a + ' · ' + b + ' = ' + (a * b) + ' cm².', _check: { kind: 'obsahObd', a, b }
+    };
+  }
+  function ctverecG() {
+    const a = ri(3, 20);
+    return ri(0, 1)
+      ? { prompt: 'Čtverec má stranu ' + a + ' cm. Jaký je jeho obsah (v cm²)?', type: 'text', ans: String(a * a), sol: 'Obsah = a² = ' + a + '² = ' + (a * a) + ' cm².', _check: { kind: 'obsahCtverec', a } }
+      : { prompt: 'Čtverec má stranu ' + a + ' cm. Jaký je jeho obvod (v cm)?', type: 'text', ans: String(4 * a), sol: 'Obvod = 4·a = 4·' + a + ' = ' + (4 * a) + ' cm.', _check: { kind: 'obvodCtverec', a } };
+  }
+  function obsahTrojuhelnikG() {
+    const a = ri(2, 12) * 2, v = ri(3, 15);
+    return {
+      prompt: 'Trojúhelník má stranu ' + a + ' cm a výšku k této straně ' + v + ' cm. Jaký je jeho obsah (v cm²)?', type: 'text', ans: String(a * v / 2),
+      sol: 'Obsah trojúhelníku = (strana · výška) : 2 = (' + a + ' · ' + v + ') : 2 = ' + (a * v) + ' : 2 = ' + (a * v / 2) + ' cm².', _check: { kind: 'obsahTroj', a, v }
+    };
+  }
+  function uhelVedlejsi() {
+    const x = ri(20, 160);
+    return {
+      prompt: 'Vypočítejte velikost vedlejšího úhlu k úhlu ' + x + '°.', type: 'text', ans: String(180 - x),
+      sol: 'Vedlejší úhly dávají dohromady 180°: 180° − ' + x + '° = ' + (180 - x) + '°.', _check: { kind: 'uhelVedlejsi', x }
+    };
+  }
+  function pythagorasG() {
+    const tr = [[3, 4, 5], [6, 8, 10], [5, 12, 13], [8, 15, 17], [9, 12, 15]][ri(0, 4)];
+    return {
+      prompt: 'Pravoúhlý trojúhelník má odvěsny ' + tr[0] + ' cm a ' + tr[1] + ' cm. Jak dlouhá je přepona (v cm)?', type: 'text', ans: String(tr[2]),
+      sol: 'Pythagorova věta: c² = ' + tr[0] + '² + ' + tr[1] + '² = ' + (tr[0] * tr[0]) + ' + ' + (tr[1] * tr[1]) + ' = ' + (tr[0] * tr[0] + tr[1] * tr[1]) + '. Odmocni: c = ' + tr[2] + ' cm.', _check: { kind: 'pythag', a: tr[0], b: tr[1] }
+    };
+  }
+
+  // ── Tělesa (objem a povrch) ──
+  function objemKvadrT() {
+    const a = ri(2, 10), b = ri(2, 10), c = ri(2, 10);
+    return {
+      prompt: 'Kvádr má hrany ' + a + ' cm, ' + b + ' cm a ' + c + ' cm. Jaký je jeho objem (v cm³)?', type: 'text', ans: String(a * b * c),
+      sol: 'Objem = a · b · c = ' + a + ' · ' + b + ' · ' + c + ' = ' + (a * b * c) + ' cm³.', _check: { kind: 'objemKvadr', a, b, c }
+    };
+  }
+  function povrchKvadrT() {
+    const a = ri(2, 10), b = ri(2, 10), c = ri(2, 10);
+    return {
+      prompt: 'Kvádr má hrany ' + a + ' cm, ' + b + ' cm a ' + c + ' cm. Jaký je jeho povrch (v cm²)?', type: 'text', ans: String(2 * (a * b + b * c + a * c)),
+      sol: 'Povrch = 2·(ab + bc + ac) = 2·(' + (a * b) + ' + ' + (b * c) + ' + ' + (a * c) + ') = ' + (2 * (a * b + b * c + a * c)) + ' cm².', _check: { kind: 'povrchKvadr', a, b, c }
+    };
+  }
+  function krychleT() {
+    const a = ri(2, 12);
+    return ri(0, 1)
+      ? { prompt: 'Krychle má hranu ' + a + ' cm. Jaký je její objem (v cm³)?', type: 'text', ans: String(a * a * a), sol: 'Objem = a³ = ' + a + '³ = ' + (a * a * a) + ' cm³.', _check: { kind: 'objemKrychle', a } }
+      : { prompt: 'Krychle má hranu ' + a + ' cm. Jaký je její povrch (v cm²)?', type: 'text', ans: String(6 * a * a), sol: 'Povrch = 6·a² = 6·' + (a * a) + ' = ' + (6 * a * a) + ' cm².', _check: { kind: 'povrchKrychle', a } };
+  }
+  function hranyKvadrT() {
+    const a = ri(2, 10), b = ri(2, 10), c = ri(2, 10);
+    return {
+      prompt: 'Kvádr má hrany ' + a + ' cm, ' + b + ' cm a ' + c + ' cm. Jaký je součet délek všech jeho hran (v cm)?', type: 'text', ans: String(4 * (a + b + c)),
+      sol: 'Kvádr má 12 hran (4 od každého rozměru): 4·(' + a + ' + ' + b + ' + ' + c + ') = ' + (4 * (a + b + c)) + ' cm.', _check: { kind: 'hranyKvadr', a, b, c }
+    };
+  }
+  function objemKvadrLitr() {
+    const a = ri(1, 5) * 10, b = ri(1, 5) * 10, c = ri(1, 5) * 10;
+    return {
+      prompt: 'Nádrž tvaru kvádru má rozměry ' + a + ' cm × ' + b + ' cm × ' + c + ' cm. Kolik litrů vody se do ní vejde? (1 l = 1000 cm³)', type: 'text', ans: String(a * b * c / 1000),
+      sol: 'Objem = ' + a + ' · ' + b + ' · ' + c + ' = ' + (a * b * c) + ' cm³ = ' + (a * b * c / 1000) + ' l.', _check: { kind: 'objemLitr', a, b, c }
+    };
+  }
+
   window.PZ_GEN = {
     'vyrazy-mocniny': [mocnina, odmocnina, mocninaVyraz, mocnina10, kvadratSouctu, odmocninaSoucin],
     'zlomky': [zlomekCelku, zlomekZbytek, zlomekPocet, smisene, zlomekRozsir, castJeCelek],
@@ -424,5 +503,7 @@
     'slovni': [slovniSoucetRozdil, slovniNakup, pohyb, cenaDoprava, zbyvaPenez],
     'pomer': [deleniVPomeru, primaUmernost, neprimaUmernost, meritko, pomerDoplnit],
     'data': [prumer, prumerPridani, median5, modus, rozsah],
+    'geometrie': [obvodObdelnikG, obsahObdelnikG, ctverecG, obsahTrojuhelnikG, uhelVedlejsi, pythagorasG],
+    'telesa': [objemKvadrT, povrchKvadrT, krychleT, hranyKvadrT, objemKvadrLitr],
   };
 })();
