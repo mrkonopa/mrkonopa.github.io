@@ -23,6 +23,22 @@ function expected(c) {
     case 'meritko': { const r = c.mapCm * c.scale / 100; return Number.isInteger(r) ? r : NaN; }
     case 'prumer': { const s = c.vals.reduce((a, b) => a + b, 0); return (s % c.vals.length === 0) ? s / c.vals.length : NaN; }
     case 'prumerPridani': { const v = (c.n * c.avg + c.nv) / (c.n + 1); return Number.isInteger(v) ? v : NaN; }
+    case 'mocnina': return c.a ** c.n;
+    case 'odmocnina': { const r = Math.sqrt(c.sq); return Number.isInteger(r) ? r : NaN; }
+    case 'mocninaVyraz': return c.a * c.a - c.b * c.c;
+    case 'zlomekCelku': return (c.celek % c.q === 0) ? (c.celek / c.q) * c.p : NaN;
+    case 'zlomekZbytek': return (c.celek % c.q === 0) ? c.celek - (c.celek / c.q) * c.p : NaN;
+    case 'zlomekPocet': return c.N * c.q;
+    case 'dosazeniLin': return c.a * c.v + c.b;
+    case 'dosazeniKvadrat': return c.v * c.v + c.a * c.v;
+    case 'dosazeniZavorka': return c.a * (c.v + c.b) - c.c;
+    case 'rovniceLin': return ((c.c - c.b) % c.a === 0) ? (c.c - c.b) / c.a : NaN;
+    case 'rovniceZlomek': return (c.c - c.b) * c.a;
+    case 'soucetRozdil': return ((c.S + c.D) % 2 === 0) ? (c.S + c.D) / 2 : NaN;
+    case 'nakup': return c.a * c.p + c.b * c.q;
+    case 'procCast': return ((c.p * c.celek) % 100 === 0) ? (c.p * c.celek) / 100 : NaN;
+    case 'procZaklad': return ((c.X * 100) % c.p === 0) ? (c.X * 100) / c.p : NaN;
+    case 'procKolik': return ((c.X * 100) % c.celek === 0) ? (c.X * 100) / c.celek : NaN;
     default: return NaN;
   }
 }

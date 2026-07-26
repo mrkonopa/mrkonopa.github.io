@@ -1073,8 +1073,22 @@ function launchBattle(aid,mid){
  if(ex&&typeof ex[m.id]==='function'){try{pool=pool.concat(ex[m.id]());}catch(e){}}
  if(!pool.length){alert('⚠️ Úkoly se nepodařilo načíst. Obnov prosím stránku (Ctrl+Shift+R) a zkus to znovu.');return;}
  BT.pool=pool;
- BT.srcIdx=(()=>{const order=shuffleArr(pool.map((_,i)=>i));const seen=new Set(),out=[];for(const i of order){const tx=String(pool[i]&&pool[i].text);if(seen.has(tx))continue;seen.add(tx);out.push(i);if(out.length>=m.tc)break;}if(out.length<m.tc)for(const i of order){if(out.indexOf(i)<0){out.push(i);if(out.length>=m.tc)break;}}return out;})();
- BT.tasks=BT.srcIdx.map(i=>pool[i]);
+ // Postav BOHATÝ bank kandidátů (opakuj generátor pro rozmanitost) a vyber tc úloh
+ // přednostně s RŮZNOU odpovědí i textem → v boji se neopakují „stejná čísla"
+ // (dvě různě formulované úlohy padnou na stejný výsledek/čísla). Bank zůstává
+ // větší než výběr, aby fungoval adaptivní swap (adaptPick).
+ BT.srcIdx=(()=>{
+  const regen=()=>{let p=[];try{p=m.tasks()||[];}catch(e){}if(ex&&typeof ex[m.id]==='function'){try{p=p.concat(ex[m.id]()||[]);}catch(e){}}return p;};
+  let bank=pool.filter(t=>t&&t.text!=null),tries=0;
+  while(bank.length<Math.max(m.tc*4,12)&&tries<25){bank=bank.concat(regen().filter(t=>t&&t.text!=null));tries++;}
+  bank=shuffleArr(bank);BT.pool=bank;
+  const out=[],uT=new Set(),uA=new Set();
+  for(let i=0;i<bank.length&&out.length<m.tc;i++){const tx=String(bank[i].text),an=String(bank[i].ans);if(uT.has(tx)||uA.has(an))continue;uT.add(tx);uA.add(an);out.push(i);}
+  if(out.length<m.tc)for(let i=0;i<bank.length&&out.length<m.tc;i++){const tx=String(bank[i].text);if(uT.has(tx))continue;uT.add(tx);out.push(i);}
+  for(let i=0;out.length<m.tc&&bank.length;i++)out.push(i%bank.length);
+  return out;
+ })();
+ BT.tasks=BT.srcIdx.map(i=>BT.pool[i]);
  BT.adapt={errRow:0,okRow:0,mode:0};
  BT._rendered=-1;
  BT.idx=0;
@@ -1183,7 +1197,8 @@ function adaptOnAnswer(ok){
 function adaptPick(easier){
  if(!BT.pool||BT.pool.length<=BT.tasks.length+2)return null;
  const usedPending=new Set(BT.srcIdx.filter((_,i)=>!S.done[`${BT.mid}-${i}`]));
- const cand=BT.pool.map((_,i)=>i).filter(i=>!usedPending.has(i));
+ const _aT=new Set(BT.tasks.map(t=>String(t&&t.text))),_aA=new Set(BT.tasks.map(t=>String(t&&t.ans)));
+ const cand=BT.pool.map((_,i)=>i).filter(i=>!usedPending.has(i)&&!_aT.has(String(BT.pool[i]&&BT.pool[i].text))&&!_aA.has(String(BT.pool[i]&&BT.pool[i].ans)));
  if(!cand.length)return null;
  cand.sort((x,y)=>adaptScore(x)-adaptScore(y));
  const third=Math.max(1,Math.floor(cand.length/3));
