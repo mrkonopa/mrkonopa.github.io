@@ -317,14 +317,112 @@
     };
   }
 
+  // ── Zlomky (rozšíření) ──
+  function smisene() {
+    const cele = ri(1, 5), q = ri(2, 8), p = ri(1, q - 1);
+    return {
+      prompt: 'Kolik zlomků 1/' + q + ' je celkem v ' + cele + ' celcích a ' + p + '/' + q + '?', type: 'text', ans: String(cele * q + p),
+      sol: 'V ' + cele + ' celcích je ' + cele + ' · ' + q + ' = ' + (cele * q) + ' zlomků 1/' + q + '. Přičti ' + p + ': ' + (cele * q) + ' + ' + p + ' = ' + (cele * q + p) + '.',
+      _check: { kind: 'smisene', cele, q, p }
+    };
+  }
+  function zlomekRozsir() {
+    const q = ri(2, 6), p = ri(1, q - 1), k = ri(2, 5), q2 = q * k;
+    return {
+      prompt: 'Doplňte čitatele: ' + p + '/' + q + ' = ?/' + q2 + '.', type: 'text', ans: String(p * k),
+      sol: 'Jmenovatel jsme zvětšili ' + k + '× (z ' + q + ' na ' + q2 + '). Stejně zvětši čitatele: ' + p + ' · ' + k + ' = ' + (p * k) + '.',
+      _check: { kind: 'zlomekRozsir', p, q, q2 }
+    };
+  }
+  function castJeCelek() {
+    const q = ri(2, 6), jednotka = ri(3, 15), celek = jednotka * q;
+    return {
+      prompt: 'Zlomek 1/' + q + ' třídy je ' + jednotka + ' žáků. Kolik žáků má celá třída?', type: 'text', ans: String(celek),
+      sol: 'Celek = ' + q + ' · (jedna ' + q + '-tina) = ' + q + ' · ' + jednotka + ' = ' + celek + ' žáků.',
+      _check: { kind: 'castJeCelek', jednotka, q }
+    };
+  }
+
+  // ── Mocniny a odmocniny (rozšíření) ──
+  function mocnina10() {
+    const n = ri(2, 5), v = 10 ** n, sup = ['', '', '²', '³', '⁴', '⁵'][n];
+    return {
+      prompt: 'Vypočtěte 10' + sup + '.', type: 'text', ans: String(v),
+      sol: '10' + sup + ' = 1 a ' + n + ' nul = ' + v + '.',
+      _check: { kind: 'mocnina10', n }
+    };
+  }
+  function kvadratSouctu() {
+    const a = ri(2, 8), b = ri(2, 8), v = (a + b) ** 2;
+    return {
+      prompt: 'Vypočtěte (' + a + ' + ' + b + ')².', type: 'text', ans: String(v),
+      sol: 'Nejdřív součet v závorce: ' + a + ' + ' + b + ' = ' + (a + b) + '. Pak umocni na druhou: ' + (a + b) + '² = ' + v + '.',
+      _check: { kind: 'kvadratSouctu', a, b }
+    };
+  }
+  function odmocninaSoucin() {
+    const a = ri(2, 9), b = ri(2, 9);
+    return {
+      prompt: 'Vypočtěte √(' + (a * a) + ' · ' + (b * b) + ').', type: 'text', ans: String(a * b),
+      sol: '√(' + (a * a) + ' · ' + (b * b) + ') = √' + (a * a * b * b) + ' = ' + (a * b) + ', protože ' + (a * b) + '² = ' + (a * a * b * b) + '.',
+      _check: { kind: 'odmocninaSoucin', a, b }
+    };
+  }
+
+  // ── Výrazy s proměnnou (rozšíření) ──
+  function dosazeniDve() {
+    const a = ri(2, 6), b = ri(2, 6), v = ri(2, 7), w = ri(2, 7);
+    return {
+      prompt: 'Vypočtěte hodnotu výrazu ' + a + 'x + ' + b + 'y pro x = ' + v + ' a y = ' + w + '.', type: 'text', ans: String(a * v + b * w),
+      sol: 'Dosaď: ' + a + '·' + v + ' + ' + b + '·' + w + ' = ' + (a * v) + ' + ' + (b * w) + ' = ' + (a * v + b * w) + '.',
+      _check: { kind: 'dosazeniDve', a, b, v, w }
+    };
+  }
+  function vyrazSlovni() {
+    const pl = ri(2, 9), mul = ri(2, 5), v = ri(2, 9);
+    return {
+      prompt: 'Číslo x zvětšíme o ' + pl + ' a součet vynásobíme ' + mul + '. Jaká je hodnota výrazu pro x = ' + v + '?', type: 'text', ans: String(mul * (v + pl)),
+      sol: 'Zvětši: ' + v + ' + ' + pl + ' = ' + (v + pl) + '. Vynásob ' + mul + ': ' + mul + ' · ' + (v + pl) + ' = ' + (mul * (v + pl)) + '.',
+      _check: { kind: 'vyrazSlovni', pl, mul, v }
+    };
+  }
+
+  // ── Rovnice (rozšíření) ──
+  function rovniceZavorka() {
+    const a = ri(2, 6), x = ri(2, 9), b = ri(1, 8), c = a * (x + b);
+    return {
+      prompt: 'Vyřešte rovnici a napište kořen x: ' + a + '·(x + ' + b + ') = ' + c + '.', type: 'text', ans: String(x),
+      sol: 'Vyděl ' + a + ': x + ' + b + ' = ' + c + ' : ' + a + ' = ' + (c / a) + '. Odečti ' + b + ': x = ' + (c / a) + ' − ' + b + ' = ' + x + '.',
+      _check: { kind: 'rovniceZavorka', a, b, c }
+    };
+  }
+  function rovniceObeStrany() {
+    const x = ri(2, 9), a = ri(3, 7), c = ri(2, a - 1), b = ri(1, 9), d = (a - c) * x + b;
+    return {
+      prompt: 'Vyřešte rovnici a napište kořen x: ' + a + 'x + ' + b + ' = ' + c + 'x + ' + d + '.', type: 'text', ans: String(x),
+      sol: 'Členy s x vlevo, čísla vpravo: ' + a + 'x − ' + c + 'x = ' + d + ' − ' + b + ', tedy ' + (a - c) + 'x = ' + (d - b) + '. Vyděl: x = ' + (d - b) + ' : ' + (a - c) + ' = ' + x + '.',
+      _check: { kind: 'rovniceObeStrany', a, b, c, d }
+    };
+  }
+
+  // ── Poměr a úměrnost (rozšíření) ──
+  function pomerDoplnit() {
+    const a = ri(2, 6), k = ri(2, 8), b = a * k, c = ri(2, 9);
+    return {
+      prompt: 'Doplňte chybějící člen úměry: ' + a + ' : ' + b + ' = ' + c + ' : ?', type: 'text', ans: String(c * k),
+      sol: 'Z ' + a + ' na ' + b + ' násobíme ' + k + '× (' + b + ' : ' + a + ' = ' + k + '). Stejně ' + c + ' · ' + k + ' = ' + (c * k) + '.',
+      _check: { kind: 'pomerDoplnit', a, b, c }
+    };
+  }
+
   window.PZ_GEN = {
-    'vyrazy-mocniny': [mocnina, odmocnina, mocninaVyraz],
-    'zlomky': [zlomekCelku, zlomekZbytek, zlomekPocet],
-    'vyrazy-promenna': [dosazeniLin, dosazeniKvadrat, dosazeniZavorka],
-    'rovnice': [rovniceLin, rovniceZlomek, rovniceSlovni],
+    'vyrazy-mocniny': [mocnina, odmocnina, mocninaVyraz, mocnina10, kvadratSouctu, odmocninaSoucin],
+    'zlomky': [zlomekCelku, zlomekZbytek, zlomekPocet, smisene, zlomekRozsir, castJeCelek],
+    'vyrazy-promenna': [dosazeniLin, dosazeniKvadrat, dosazeniZavorka, dosazeniDve, vyrazSlovni],
+    'rovnice': [rovniceLin, rovniceZlomek, rovniceSlovni, rovniceZavorka, rovniceObeStrany],
     'procenta': [procCast, procZaklad, procKolik, slevaCena, navyseniCena, urok],
     'slovni': [slovniSoucetRozdil, slovniNakup, pohyb, cenaDoprava, zbyvaPenez],
-    'pomer': [deleniVPomeru, primaUmernost, neprimaUmernost, meritko],
+    'pomer': [deleniVPomeru, primaUmernost, neprimaUmernost, meritko, pomerDoplnit],
     'data': [prumer, prumerPridani, median5, modus, rozsah],
   };
 })();

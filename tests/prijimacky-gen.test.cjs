@@ -48,6 +48,17 @@ function expected(c) {
     case 'slevaCena': return c.X * (100 - c.p) / 100;
     case 'navyseniCena': return c.X * (100 + c.p) / 100;
     case 'urok': return ((c.jist * c.p) % 100 === 0) ? (c.jist * c.p) / 100 : NaN;
+    case 'smisene': return c.cele * c.q + c.p;
+    case 'zlomekRozsir': return (c.q2 % c.q === 0) ? c.p * (c.q2 / c.q) : NaN;
+    case 'castJeCelek': return c.jednotka * c.q;
+    case 'mocnina10': return 10 ** c.n;
+    case 'kvadratSouctu': return (c.a + c.b) ** 2;
+    case 'odmocninaSoucin': return c.a * c.b;
+    case 'dosazeniDve': return c.a * c.v + c.b * c.w;
+    case 'vyrazSlovni': return c.mul * (c.v + c.pl);
+    case 'rovniceZavorka': return (c.c % c.a === 0) ? (c.c / c.a - c.b) : NaN;
+    case 'rovniceObeStrany': return ((c.d - c.b) % (c.a - c.c) === 0) ? (c.d - c.b) / (c.a - c.c) : NaN;
+    case 'pomerDoplnit': return (c.b % c.a === 0) ? c.b * c.c / c.a : NaN;
     default: return NaN;
   }
 }
