@@ -1825,7 +1825,7 @@ function answerYN(yn){document.querySelectorAll('#yn-row button').forEach(b=>b.d
 function checkAns(a,b){if(typeof a==='undefined'||typeof b==='undefined')return false;const na=String(a).trim().replace(',','.');const nb=String(b).trim().replace(',','.');const fa=parseFloat(na),fb=parseFloat(nb);if(!isNaN(fa)&&!isNaN(fb))return Math.abs(fa-fb)<0.001;return na.toUpperCase()===nb.toUpperCase();}
 
 function checkMissionComplete(){
- const ar=AREAS.find(a=>a.id===BT.aid);const m=ar.missions.find(x=>x.id===BT.mid);
+ const ar=AREAS.find(a=>a.id===BT.aid);const m=ar&&ar.missions.find(x=>x.id===BT.mid);if(!m)return;
  if(!BT.tasks.every((_,i)=>S.done[`${m.id}-${i}`]))return;
  BT.bossDefeated=true;
  const ans=document.getElementById('bt-ans');if(ans)ans.disabled=true;

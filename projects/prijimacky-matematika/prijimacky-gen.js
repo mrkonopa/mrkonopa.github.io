@@ -235,14 +235,275 @@
     };
   }
 
+  // ── Statistika a data (rozšíření) ──
+  function median5() {
+    const vals = []; while (vals.length < 5) { const v = ri(1, 30); if (!vals.includes(v)) vals.push(v); }
+    const s = [...vals].sort((a, b) => a - b);
+    return {
+      prompt: 'Určete medián (prostřední hodnotu) čísel: ' + vals.join(', ') + '.', type: 'text', ans: String(s[2]),
+      sol: 'Seřaď od nejmenšího: ' + s.join(', ') + '. Medián je prostřední (třetí) hodnota: ' + s[2] + '.',
+      _check: { kind: 'median', vals: vals.slice() }
+    };
+  }
+  function modus() {
+    const m = ri(2, 12), arr = [m, m, m];
+    while (arr.length < 6) { const v = ri(2, 12); if (v !== m && arr.filter(x => x === v).length < 2) arr.push(v); }
+    for (let i = arr.length - 1; i > 0; i--) { const j = ri(0, i); [arr[i], arr[j]] = [arr[j], arr[i]]; }
+    return {
+      prompt: 'Určete modus (nejčastější hodnotu) čísel: ' + arr.join(', ') + '.', type: 'text', ans: String(m),
+      sol: 'Spočítej, které číslo se opakuje nejčastěji — je to ' + m + ' (třikrát). Modus = ' + m + '.',
+      _check: { kind: 'modus', arr: arr.slice() }
+    };
+  }
+  function rozsah() {
+    const vals = []; while (vals.length < 5) { const v = ri(1, 50); if (!vals.includes(v)) vals.push(v); }
+    const mx = Math.max(...vals), mn = Math.min(...vals);
+    return {
+      prompt: 'Určete rozpětí (rozdíl největší a nejmenší hodnoty) čísel: ' + vals.join(', ') + '.', type: 'text', ans: String(mx - mn),
+      sol: 'Největší hodnota je ' + mx + ', nejmenší ' + mn + '. Rozpětí = ' + mx + ' − ' + mn + ' = ' + (mx - mn) + '.',
+      _check: { kind: 'rozsah', vals: vals.slice() }
+    };
+  }
+
+  // ── Slovní úlohy (rozšíření) ──
+  function pohyb() {
+    const v = ri(3, 12) * 5, t = ri(2, 6);
+    return {
+      prompt: 'Auto jede stálou rychlostí ' + v + ' km/h. Jakou dráhu ujede za ' + t + ' hodiny?', type: 'text', ans: String(v * t),
+      sol: 'Dráha = rychlost · čas = ' + v + ' · ' + t + ' = ' + (v * t) + ' km.',
+      _check: { kind: 'draha', v, t }
+    };
+  }
+  function cenaDoprava() {
+    const a = ri(2, 8), p = ri(20, 90), d = ri(30, 150), total = a * p + d;
+    return {
+      prompt: 'Objednali jsme ' + a + ' kusy po ' + p + ' Kč a k tomu dopravu ' + d + ' Kč. Kolik Kč zaplatíme celkem?', type: 'text', ans: String(total),
+      sol: 'Zboží: ' + a + ' · ' + p + ' = ' + (a * p) + ' Kč. Plus doprava ' + d + ' Kč: ' + (a * p) + ' + ' + d + ' = ' + total + ' Kč.',
+      _check: { kind: 'cenaDoprava', a, p, d }
+    };
+  }
+  function zbyvaPenez() {
+    const a = ri(2, 5), p = ri(20, 60), spend = a * p, zbyva = ri(30, 300), M = spend + zbyva;
+    return {
+      prompt: 'Měli jsme ' + M + ' Kč. Koupili jsme ' + a + ' kusy po ' + p + ' Kč. Kolik Kč nám zbylo?', type: 'text', ans: String(zbyva),
+      sol: 'Utratili jsme ' + a + ' · ' + p + ' = ' + spend + ' Kč. Zbylo ' + M + ' − ' + spend + ' = ' + zbyva + ' Kč.',
+      _check: { kind: 'zbyva', M, a, p }
+    };
+  }
+
+  // ── Procenta a finanční matematika (rozšíření) ──
+  function slevaCena() {
+    const X = ri(1, 9) * 100, p = [10, 20, 25, 50][ri(0, 3)], nova = X - X * p / 100;
+    return {
+      prompt: 'Zboží stálo ' + X + ' Kč. Sleva je ' + p + ' %. Kolik Kč stojí po slevě?', type: 'text', ans: String(nova),
+      sol: 'Sleva = ' + p + ' % z ' + X + ' = ' + (X * p / 100) + ' Kč. Nová cena = ' + X + ' − ' + (X * p / 100) + ' = ' + nova + ' Kč.',
+      _check: { kind: 'slevaCena', X, p }
+    };
+  }
+  function navyseniCena() {
+    const X = ri(1, 9) * 100, p = [10, 20, 25, 50][ri(0, 3)], nova = X + X * p / 100;
+    return {
+      prompt: 'Zboží stálo ' + X + ' Kč a zdražilo o ' + p + ' %. Kolik Kč stojí nyní?', type: 'text', ans: String(nova),
+      sol: 'Navýšení = ' + p + ' % z ' + X + ' = ' + (X * p / 100) + ' Kč. Nová cena = ' + X + ' + ' + (X * p / 100) + ' = ' + nova + ' Kč.',
+      _check: { kind: 'navyseniCena', X, p }
+    };
+  }
+  function urok() {
+    const jist = ri(1, 9) * 1000, p = [2, 3, 4, 5][ri(0, 3)], u = jist * p / 100;
+    return {
+      prompt: 'Uložíme ' + jist + ' Kč s ročním úrokem ' + p + ' %. Kolik Kč činí úrok za jeden rok?', type: 'text', ans: String(u),
+      sol: 'Úrok za rok = ' + p + ' % z ' + jist + ' = ' + jist + ' · ' + p + ' : 100 = ' + u + ' Kč.',
+      _check: { kind: 'urok', jist, p }
+    };
+  }
+
+  // ── Zlomky (rozšíření) ──
+  function smisene() {
+    const cele = ri(1, 5), q = ri(2, 8), p = ri(1, q - 1);
+    return {
+      prompt: 'Kolik zlomků 1/' + q + ' je celkem v ' + cele + ' celcích a ' + p + '/' + q + '?', type: 'text', ans: String(cele * q + p),
+      sol: 'V ' + cele + ' celcích je ' + cele + ' · ' + q + ' = ' + (cele * q) + ' zlomků 1/' + q + '. Přičti ' + p + ': ' + (cele * q) + ' + ' + p + ' = ' + (cele * q + p) + '.',
+      _check: { kind: 'smisene', cele, q, p }
+    };
+  }
+  function zlomekRozsir() {
+    const q = ri(2, 6), p = ri(1, q - 1), k = ri(2, 5), q2 = q * k;
+    return {
+      prompt: 'Doplňte čitatele: ' + p + '/' + q + ' = ?/' + q2 + '.', type: 'text', ans: String(p * k),
+      sol: 'Jmenovatel jsme zvětšili ' + k + '× (z ' + q + ' na ' + q2 + '). Stejně zvětši čitatele: ' + p + ' · ' + k + ' = ' + (p * k) + '.',
+      _check: { kind: 'zlomekRozsir', p, q, q2 }
+    };
+  }
+  function castJeCelek() {
+    const q = ri(2, 6), jednotka = ri(3, 15), celek = jednotka * q;
+    return {
+      prompt: 'Zlomek 1/' + q + ' třídy je ' + jednotka + ' žáků. Kolik žáků má celá třída?', type: 'text', ans: String(celek),
+      sol: 'Celek = ' + q + ' · (jedna ' + q + '-tina) = ' + q + ' · ' + jednotka + ' = ' + celek + ' žáků.',
+      _check: { kind: 'castJeCelek', jednotka, q }
+    };
+  }
+
+  // ── Mocniny a odmocniny (rozšíření) ──
+  function mocnina10() {
+    const n = ri(2, 5), v = 10 ** n, sup = ['', '', '²', '³', '⁴', '⁵'][n];
+    return {
+      prompt: 'Vypočtěte 10' + sup + '.', type: 'text', ans: String(v),
+      sol: '10' + sup + ' = 1 a ' + n + ' nul = ' + v + '.',
+      _check: { kind: 'mocnina10', n }
+    };
+  }
+  function kvadratSouctu() {
+    const a = ri(2, 8), b = ri(2, 8), v = (a + b) ** 2;
+    return {
+      prompt: 'Vypočtěte (' + a + ' + ' + b + ')².', type: 'text', ans: String(v),
+      sol: 'Nejdřív součet v závorce: ' + a + ' + ' + b + ' = ' + (a + b) + '. Pak umocni na druhou: ' + (a + b) + '² = ' + v + '.',
+      _check: { kind: 'kvadratSouctu', a, b }
+    };
+  }
+  function odmocninaSoucin() {
+    const a = ri(2, 9), b = ri(2, 9);
+    return {
+      prompt: 'Vypočtěte √(' + (a * a) + ' · ' + (b * b) + ').', type: 'text', ans: String(a * b),
+      sol: '√(' + (a * a) + ' · ' + (b * b) + ') = √' + (a * a * b * b) + ' = ' + (a * b) + ', protože ' + (a * b) + '² = ' + (a * a * b * b) + '.',
+      _check: { kind: 'odmocninaSoucin', a, b }
+    };
+  }
+
+  // ── Výrazy s proměnnou (rozšíření) ──
+  function dosazeniDve() {
+    const a = ri(2, 6), b = ri(2, 6), v = ri(2, 7), w = ri(2, 7);
+    return {
+      prompt: 'Vypočtěte hodnotu výrazu ' + a + 'x + ' + b + 'y pro x = ' + v + ' a y = ' + w + '.', type: 'text', ans: String(a * v + b * w),
+      sol: 'Dosaď: ' + a + '·' + v + ' + ' + b + '·' + w + ' = ' + (a * v) + ' + ' + (b * w) + ' = ' + (a * v + b * w) + '.',
+      _check: { kind: 'dosazeniDve', a, b, v, w }
+    };
+  }
+  function vyrazSlovni() {
+    const pl = ri(2, 9), mul = ri(2, 5), v = ri(2, 9);
+    return {
+      prompt: 'Číslo x zvětšíme o ' + pl + ' a součet vynásobíme ' + mul + '. Jaká je hodnota výrazu pro x = ' + v + '?', type: 'text', ans: String(mul * (v + pl)),
+      sol: 'Zvětši: ' + v + ' + ' + pl + ' = ' + (v + pl) + '. Vynásob ' + mul + ': ' + mul + ' · ' + (v + pl) + ' = ' + (mul * (v + pl)) + '.',
+      _check: { kind: 'vyrazSlovni', pl, mul, v }
+    };
+  }
+
+  // ── Rovnice (rozšíření) ──
+  function rovniceZavorka() {
+    const a = ri(2, 6), x = ri(2, 9), b = ri(1, 8), c = a * (x + b);
+    return {
+      prompt: 'Vyřešte rovnici a napište kořen x: ' + a + '·(x + ' + b + ') = ' + c + '.', type: 'text', ans: String(x),
+      sol: 'Vyděl ' + a + ': x + ' + b + ' = ' + c + ' : ' + a + ' = ' + (c / a) + '. Odečti ' + b + ': x = ' + (c / a) + ' − ' + b + ' = ' + x + '.',
+      _check: { kind: 'rovniceZavorka', a, b, c }
+    };
+  }
+  function rovniceObeStrany() {
+    const x = ri(2, 9), a = ri(3, 7), c = ri(2, a - 1), b = ri(1, 9), d = (a - c) * x + b;
+    return {
+      prompt: 'Vyřešte rovnici a napište kořen x: ' + a + 'x + ' + b + ' = ' + c + 'x + ' + d + '.', type: 'text', ans: String(x),
+      sol: 'Členy s x vlevo, čísla vpravo: ' + a + 'x − ' + c + 'x = ' + d + ' − ' + b + ', tedy ' + (a - c) + 'x = ' + (d - b) + '. Vyděl: x = ' + (d - b) + ' : ' + (a - c) + ' = ' + x + '.',
+      _check: { kind: 'rovniceObeStrany', a, b, c, d }
+    };
+  }
+
+  // ── Poměr a úměrnost (rozšíření) ──
+  function pomerDoplnit() {
+    const a = ri(2, 6), k = ri(2, 8), b = a * k, c = ri(2, 9);
+    return {
+      prompt: 'Doplňte chybějící člen úměry: ' + a + ' : ' + b + ' = ' + c + ' : ?', type: 'text', ans: String(c * k),
+      sol: 'Z ' + a + ' na ' + b + ' násobíme ' + k + '× (' + b + ' : ' + a + ' = ' + k + '). Stejně ' + c + ' · ' + k + ' = ' + (c * k) + '.',
+      _check: { kind: 'pomerDoplnit', a, b, c }
+    };
+  }
+
+  // ── Geometrie v rovině ──
+  function obvodObdelnikG() {
+    const a = ri(3, 20), b = ri(3, 20);
+    return {
+      prompt: 'Obdélník má strany ' + a + ' cm a ' + b + ' cm. Jaký je jeho obvod (v cm)?', type: 'text', ans: String(2 * (a + b)),
+      sol: 'Obvod = 2·(a + b) = 2·(' + a + ' + ' + b + ') = ' + (2 * (a + b)) + ' cm.', _check: { kind: 'obvodObd', a, b }
+    };
+  }
+  function obsahObdelnikG() {
+    const a = ri(3, 20), b = ri(3, 20);
+    return {
+      prompt: 'Obdélník má strany ' + a + ' cm a ' + b + ' cm. Jaký je jeho obsah (v cm²)?', type: 'text', ans: String(a * b),
+      sol: 'Obsah = a · b = ' + a + ' · ' + b + ' = ' + (a * b) + ' cm².', _check: { kind: 'obsahObd', a, b }
+    };
+  }
+  function ctverecG() {
+    const a = ri(3, 20);
+    return ri(0, 1)
+      ? { prompt: 'Čtverec má stranu ' + a + ' cm. Jaký je jeho obsah (v cm²)?', type: 'text', ans: String(a * a), sol: 'Obsah = a² = ' + a + '² = ' + (a * a) + ' cm².', _check: { kind: 'obsahCtverec', a } }
+      : { prompt: 'Čtverec má stranu ' + a + ' cm. Jaký je jeho obvod (v cm)?', type: 'text', ans: String(4 * a), sol: 'Obvod = 4·a = 4·' + a + ' = ' + (4 * a) + ' cm.', _check: { kind: 'obvodCtverec', a } };
+  }
+  function obsahTrojuhelnikG() {
+    const a = ri(2, 12) * 2, v = ri(3, 15);
+    return {
+      prompt: 'Trojúhelník má stranu ' + a + ' cm a výšku k této straně ' + v + ' cm. Jaký je jeho obsah (v cm²)?', type: 'text', ans: String(a * v / 2),
+      sol: 'Obsah trojúhelníku = (strana · výška) : 2 = (' + a + ' · ' + v + ') : 2 = ' + (a * v) + ' : 2 = ' + (a * v / 2) + ' cm².', _check: { kind: 'obsahTroj', a, v }
+    };
+  }
+  function uhelVedlejsi() {
+    const x = ri(20, 160);
+    return {
+      prompt: 'Vypočítejte velikost vedlejšího úhlu k úhlu ' + x + '°.', type: 'text', ans: String(180 - x),
+      sol: 'Vedlejší úhly dávají dohromady 180°: 180° − ' + x + '° = ' + (180 - x) + '°.', _check: { kind: 'uhelVedlejsi', x }
+    };
+  }
+  function pythagorasG() {
+    const tr = [[3, 4, 5], [6, 8, 10], [5, 12, 13], [8, 15, 17], [9, 12, 15]][ri(0, 4)];
+    return {
+      prompt: 'Pravoúhlý trojúhelník má odvěsny ' + tr[0] + ' cm a ' + tr[1] + ' cm. Jak dlouhá je přepona (v cm)?', type: 'text', ans: String(tr[2]),
+      sol: 'Pythagorova věta: c² = ' + tr[0] + '² + ' + tr[1] + '² = ' + (tr[0] * tr[0]) + ' + ' + (tr[1] * tr[1]) + ' = ' + (tr[0] * tr[0] + tr[1] * tr[1]) + '. Odmocni: c = ' + tr[2] + ' cm.', _check: { kind: 'pythag', a: tr[0], b: tr[1] }
+    };
+  }
+
+  // ── Tělesa (objem a povrch) ──
+  function objemKvadrT() {
+    const a = ri(2, 10), b = ri(2, 10), c = ri(2, 10);
+    return {
+      prompt: 'Kvádr má hrany ' + a + ' cm, ' + b + ' cm a ' + c + ' cm. Jaký je jeho objem (v cm³)?', type: 'text', ans: String(a * b * c),
+      sol: 'Objem = a · b · c = ' + a + ' · ' + b + ' · ' + c + ' = ' + (a * b * c) + ' cm³.', _check: { kind: 'objemKvadr', a, b, c }
+    };
+  }
+  function povrchKvadrT() {
+    const a = ri(2, 10), b = ri(2, 10), c = ri(2, 10);
+    return {
+      prompt: 'Kvádr má hrany ' + a + ' cm, ' + b + ' cm a ' + c + ' cm. Jaký je jeho povrch (v cm²)?', type: 'text', ans: String(2 * (a * b + b * c + a * c)),
+      sol: 'Povrch = 2·(ab + bc + ac) = 2·(' + (a * b) + ' + ' + (b * c) + ' + ' + (a * c) + ') = ' + (2 * (a * b + b * c + a * c)) + ' cm².', _check: { kind: 'povrchKvadr', a, b, c }
+    };
+  }
+  function krychleT() {
+    const a = ri(2, 12);
+    return ri(0, 1)
+      ? { prompt: 'Krychle má hranu ' + a + ' cm. Jaký je její objem (v cm³)?', type: 'text', ans: String(a * a * a), sol: 'Objem = a³ = ' + a + '³ = ' + (a * a * a) + ' cm³.', _check: { kind: 'objemKrychle', a } }
+      : { prompt: 'Krychle má hranu ' + a + ' cm. Jaký je její povrch (v cm²)?', type: 'text', ans: String(6 * a * a), sol: 'Povrch = 6·a² = 6·' + (a * a) + ' = ' + (6 * a * a) + ' cm².', _check: { kind: 'povrchKrychle', a } };
+  }
+  function hranyKvadrT() {
+    const a = ri(2, 10), b = ri(2, 10), c = ri(2, 10);
+    return {
+      prompt: 'Kvádr má hrany ' + a + ' cm, ' + b + ' cm a ' + c + ' cm. Jaký je součet délek všech jeho hran (v cm)?', type: 'text', ans: String(4 * (a + b + c)),
+      sol: 'Kvádr má 12 hran (4 od každého rozměru): 4·(' + a + ' + ' + b + ' + ' + c + ') = ' + (4 * (a + b + c)) + ' cm.', _check: { kind: 'hranyKvadr', a, b, c }
+    };
+  }
+  function objemKvadrLitr() {
+    const a = ri(1, 5) * 10, b = ri(1, 5) * 10, c = ri(1, 5) * 10;
+    return {
+      prompt: 'Nádrž tvaru kvádru má rozměry ' + a + ' cm × ' + b + ' cm × ' + c + ' cm. Kolik litrů vody se do ní vejde? (1 l = 1000 cm³)', type: 'text', ans: String(a * b * c / 1000),
+      sol: 'Objem = ' + a + ' · ' + b + ' · ' + c + ' = ' + (a * b * c) + ' cm³ = ' + (a * b * c / 1000) + ' l.', _check: { kind: 'objemLitr', a, b, c }
+    };
+  }
+
   window.PZ_GEN = {
-    'vyrazy-mocniny': [mocnina, odmocnina, mocninaVyraz],
-    'zlomky': [zlomekCelku, zlomekZbytek, zlomekPocet],
-    'vyrazy-promenna': [dosazeniLin, dosazeniKvadrat, dosazeniZavorka],
-    'rovnice': [rovniceLin, rovniceZlomek, rovniceSlovni],
-    'procenta': [procCast, procZaklad, procKolik],
-    'slovni': [slovniSoucetRozdil, slovniNakup],
-    'pomer': [deleniVPomeru, primaUmernost, neprimaUmernost, meritko],
-    'data': [prumer, prumerPridani],
+    'vyrazy-mocniny': [mocnina, odmocnina, mocninaVyraz, mocnina10, kvadratSouctu, odmocninaSoucin],
+    'zlomky': [zlomekCelku, zlomekZbytek, zlomekPocet, smisene, zlomekRozsir, castJeCelek],
+    'vyrazy-promenna': [dosazeniLin, dosazeniKvadrat, dosazeniZavorka, dosazeniDve, vyrazSlovni],
+    'rovnice': [rovniceLin, rovniceZlomek, rovniceSlovni, rovniceZavorka, rovniceObeStrany],
+    'procenta': [procCast, procZaklad, procKolik, slevaCena, navyseniCena, urok],
+    'slovni': [slovniSoucetRozdil, slovniNakup, pohyb, cenaDoprava, zbyvaPenez],
+    'pomer': [deleniVPomeru, primaUmernost, neprimaUmernost, meritko, pomerDoplnit],
+    'data': [prumer, prumerPridani, median5, modus, rozsah],
+    'geometrie': [obvodObdelnikG, obsahObdelnikG, ctverecG, obsahTrojuhelnikG, uhelVedlejsi, pythagorasG],
+    'telesa': [objemKvadrT, povrchKvadrT, krychleT, hranyKvadrT, objemKvadrLitr],
   };
 })();

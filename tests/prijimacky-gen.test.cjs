@@ -39,6 +39,39 @@ function expected(c) {
     case 'procCast': return ((c.p * c.celek) % 100 === 0) ? (c.p * c.celek) / 100 : NaN;
     case 'procZaklad': return ((c.X * 100) % c.p === 0) ? (c.X * 100) / c.p : NaN;
     case 'procKolik': return ((c.X * 100) % c.celek === 0) ? (c.X * 100) / c.celek : NaN;
+    case 'median': { const s = [...c.vals].sort((a, b) => a - b); return s[2]; }
+    case 'modus': { const f = {}; let best = null, bc = 0; c.arr.forEach(v => { f[v] = (f[v] || 0) + 1; if (f[v] > bc) { bc = f[v]; best = v; } }); return best; }
+    case 'rozsah': return Math.max(...c.vals) - Math.min(...c.vals);
+    case 'draha': return c.v * c.t;
+    case 'cenaDoprava': return c.a * c.p + c.d;
+    case 'zbyva': return c.M - c.a * c.p;
+    case 'slevaCena': return c.X * (100 - c.p) / 100;
+    case 'navyseniCena': return c.X * (100 + c.p) / 100;
+    case 'urok': return ((c.jist * c.p) % 100 === 0) ? (c.jist * c.p) / 100 : NaN;
+    case 'smisene': return c.cele * c.q + c.p;
+    case 'zlomekRozsir': return (c.q2 % c.q === 0) ? c.p * (c.q2 / c.q) : NaN;
+    case 'castJeCelek': return c.jednotka * c.q;
+    case 'mocnina10': return 10 ** c.n;
+    case 'kvadratSouctu': return (c.a + c.b) ** 2;
+    case 'odmocninaSoucin': return c.a * c.b;
+    case 'dosazeniDve': return c.a * c.v + c.b * c.w;
+    case 'vyrazSlovni': return c.mul * (c.v + c.pl);
+    case 'rovniceZavorka': return (c.c % c.a === 0) ? (c.c / c.a - c.b) : NaN;
+    case 'rovniceObeStrany': return ((c.d - c.b) % (c.a - c.c) === 0) ? (c.d - c.b) / (c.a - c.c) : NaN;
+    case 'pomerDoplnit': return (c.b % c.a === 0) ? c.b * c.c / c.a : NaN;
+    case 'obvodObd': return 2 * (c.a + c.b);
+    case 'obsahObd': return c.a * c.b;
+    case 'obsahCtverec': return c.a * c.a;
+    case 'obvodCtverec': return 4 * c.a;
+    case 'obsahTroj': return (c.a * c.v) % 2 === 0 ? c.a * c.v / 2 : NaN;
+    case 'uhelVedlejsi': return 180 - c.x;
+    case 'pythag': { const r = Math.sqrt(c.a * c.a + c.b * c.b); return Number.isInteger(r) ? r : NaN; }
+    case 'objemKvadr': return c.a * c.b * c.c;
+    case 'povrchKvadr': return 2 * (c.a * c.b + c.b * c.c + c.a * c.c);
+    case 'objemKrychle': return c.a ** 3;
+    case 'povrchKrychle': return 6 * c.a * c.a;
+    case 'hranyKvadr': return 4 * (c.a + c.b + c.c);
+    case 'objemLitr': return (c.a * c.b * c.c) % 1000 === 0 ? c.a * c.b * c.c / 1000 : NaN;
     default: return NaN;
   }
 }

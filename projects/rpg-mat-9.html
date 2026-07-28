@@ -2744,7 +2744,8 @@ function exitBattle(){stopTimer();if(BT.freezeTimeout){clearTimeout(BT.freezeTim
 
 function checkMissionComplete(){
  const ar=AREAS.find(a=>a.id===BT.aid);
- const m=ar.missions.find(x=>x.id===BT.mid);
+ const m=ar&&ar.missions.find(x=>x.id===BT.mid);
+ if(!m)return;
  const allDn=BT.tasks.every((_,i)=>S.done[`${m.id}-${i}`]);
  if(allDn){
  BT.bossDefeated=true;

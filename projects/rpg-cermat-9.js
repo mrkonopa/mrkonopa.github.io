@@ -889,6 +889,261 @@
     };
   }
 
+  function gen2c() {
+    // 3 body — dělení zlomků (stejný jmenovatel) + rozdíl druhých mocnin vzorcem
+    const b = ri(3, 9), a = ri(2, 8), c = ri(2, 8);
+    const g = gcd(a, c), na = a / g, nc = c / g;
+    const ans1 = nc === 1 ? String(na) : `${na}/${nc}`;
+    const d = ri(5, 12), e = ri(1, d - 1), ans2 = d * d - e * e;
+    return {
+      no: 2, points: 3, title: 'Výrazy se zlomky',
+      parts: [
+        { key: '2.1', points: 1, showExplain: false,
+          prompt: `Vypočítejte a zapište zlomkem v základním tvaru: ${a}/${b} : ${c}/${b} =`,
+          ans: ans1,
+          sol: `Dělení zlomků: ${a}/${b} : ${c}/${b} = ${a}/${b} · ${b}/${c} = ${a}/${c}. ${g === 1 ? `Základní tvar: ${ans1}.` : `Zkrať NSD (${g}): ${ans1}.`}` },
+        { key: '2.2', points: 2, showExplain: true,
+          prompt: `Vypočítejte pomocí vzorce: (${d} + ${e}) · (${d} − ${e}) =`,
+          ans: String(ans2),
+          sol: `Vzorec (a+b)(a−b) = a² − b²: (${d}+${e})(${d}−${e}) = ${d}² − ${e}² = ${d * d} − ${e * e} = ${ans2}.` }
+      ]
+    };
+  }
+
+  function gen3c() {
+    // 4 body — vzorec (x+a)², sčítání členů, rozklad rozdílu čtverců
+    const a = ri(3, 9), p = ri(3, 9), q = ri(2, 8), r = ri(1, Math.min(p, q)), c = ri(3, 10);
+    return {
+      no: 3, points: 4, title: 'Algebraické výrazy',
+      parts: [
+        { key: '3.1', points: 1,
+          prompt: `Ve výrazu (x + ${a})² = x² + ?·x + ${a}² napište číslo místo otazníku (koeficient u x).`,
+          ans: String(2 * a),
+          sol: `Vzorec (x+a)² = x² + 2ax + a². Koeficient u x je 2a = 2·${a} = ${2 * a}.` },
+        { key: '3.2', points: 1, showExplain: true,
+          prompt: `Sečtěte členy a napište koeficient u x: ${p}x + ${q}x − ${r}x`,
+          ans: String(p + q - r),
+          sol: `Sečti koeficienty: ${p} + ${q} − ${r} = ${p + q - r}. Výraz se rovná ${p + q - r}x.` },
+        { key: '3.3', points: 2, showExplain: true,
+          prompt: `Rozložte na součin pomocí vzorce a napište číslo místo otazníku: x² − ${c * c} = (x − ?)·(x + ?)`,
+          ans: String(c),
+          sol: `Vzorec a² − b² = (a−b)(a+b). Protože ${c * c} = ${c}², je x² − ${c * c} = (x − ${c})(x + ${c}).` }
+      ]
+    };
+  }
+
+  function gen7c() {
+    // 3 body — úhly v rovnoramenném trojúhelníku (bez SVG, plně z textu)
+    const beta = ri(30, 75), alpha = 180 - 2 * beta, vnejsi = 180 - beta, soucet = 2 * beta;
+    return {
+      no: 7, points: 3, title: 'Úhly v rovnoramenném trojúhelníku',
+      intro: `Rovnoramenný trojúhelník má oba úhly při základně stejné, každý ${beta}°.`,
+      parts: [
+        { key: '7.1', points: 1, prompt: `Vypočítejte velikost úhlu při hlavním vrcholu (proti základně).`, ans: String(alpha),
+          sol: `Součet vnitřních úhlů trojúhelníku je 180°: úhel u vrcholu = 180° − 2·${beta}° = ${alpha}°.` },
+        { key: '7.2', points: 1, prompt: `Vypočítejte velikost vnějšího úhlu u jednoho z úhlů při základně.`, ans: String(vnejsi),
+          sol: `Vnější úhel = 180° − vnitřní = 180° − ${beta}° = ${vnejsi}°.` },
+        { key: '7.3', points: 1, prompt: `Jaký je součet obou úhlů při základně?`, ans: String(soucet),
+          sol: `Oba úhly při základně jsou ${beta}°, jejich součet = 2 · ${beta}° = ${soucet}°.` }
+      ]
+    };
+  }
+
+  function gen10c() {
+    // 2 body — měřítko modelu (převod na skutečnost)
+    const k = [100, 200, 500, 1000][ri(0, 3)], modelCm = ri(2, 9), realCm = modelCm * k, realM = realCm / 100;
+    return {
+      no: 10, points: 2, title: 'Měřítko modelu',
+      parts: [
+        { key: '10', points: 2,
+          prompt: `Model budovy je v měřítku 1 : ${k}. Na modelu měří budova ${modelCm} cm. Jak vysoká je skutečná budova (v metrech)?`,
+          ans: String(realM),
+          sol: `Měřítko 1 : ${k} znamená, že 1 cm na modelu = ${k} cm ve skutečnosti. Skutečná výška = ${modelCm} · ${k} = ${realCm} cm = ${realM} m.` }
+      ]
+    };
+  }
+
+  function gen11c() {
+    // 3 body — pravda/nepravda o kvádru (objem, povrch, počet prvků)
+    const a = ri(2, 5), b = ri(2, 5), c = ri(2, 5), V = a * b * c, S = 2 * (a * b + b * c + a * c);
+    const t1 = ri(0, 1) ? V : V + ri(1, 5);
+    const st1 = { text: `Kvádr s hranami ${a} cm, ${b} cm, ${c} cm má objem ${t1} cm³.`, ans: t1 === V ? 'A' : 'N',
+      sol: `Objem = a·b·c = ${a}·${b}·${c} = ${V} cm³. Tvrzení uvádí ${t1} cm³ — ${t1 === V ? 'PRAVDA (A).' : 'NEPRAVDA (N).'}` };
+    const t2 = ri(0, 1) ? S : S + 2 * ri(1, 4);
+    const st2 = { text: `Povrch téhož kvádru je ${t2} cm².`, ans: t2 === S ? 'A' : 'N',
+      sol: `Povrch = 2·(ab+bc+ac) = 2·(${a * b}+${b * c}+${a * c}) = ${S} cm². Tvrzení uvádí ${t2} cm² — ${t2 === S ? 'PRAVDA (A).' : 'NEPRAVDA (N).'}` };
+    const opts = [['stěn', 6], ['hran', 12], ['vrcholů', 8]][ri(0, 2)];
+    const claimed = ri(0, 1) ? opts[1] : opts[1] + ri(1, 3);
+    const st3 = { text: `Každý kvádr má ${claimed} ${opts[0]}.`, ans: claimed === opts[1] ? 'A' : 'N',
+      sol: `Kvádr má vždy 6 stěn, 12 hran a 8 vrcholů. Počet — ${opts[0]}: ${opts[1]}. Tvrzení uvádí ${claimed} — ${claimed === opts[1] ? 'PRAVDA (A).' : 'NEPRAVDA (N).'}` };
+    return {
+      no: 11, points: 3, title: 'Tělesa', kind: 'tfgrid',
+      intro: `Rozhodněte o každém z tvrzení (11.1–11.3), zda je pravdivé (A), či nikoli (N).`,
+      statements: [st1, st2, st3]
+    };
+  }
+
+  function gen6c() {
+    // 2 body — nádrže (dělení, čas napouštění; bez π)
+    const konev = ri(3, 8), pocet = ri(4, 12), sud = konev * pocet;
+    const rate = ri(2, 9), min = ri(3, 12), V = rate * min;
+    return {
+      no: 6, points: 2, title: 'Nádrže',
+      parts: [
+        { key: '6.1', points: 1,
+          prompt: `Sud pojme ${sud} litrů. Konev má objem ${konev} litrů. Kolik plných konví je potřeba na naplnění sudu?`,
+          ans: String(pocet),
+          sol: `Počet konví = objem sudu : objem konve = ${sud} : ${konev} = ${pocet}.` },
+        { key: '6.2', points: 1,
+          prompt: `Nádrž o objemu ${V} litrů se napouští rychlostí ${rate} litrů za minutu. Za kolik minut bude plná?`,
+          ans: String(min),
+          sol: `Čas = objem : rychlost = ${V} : ${rate} = ${min} minut.` }
+      ]
+    };
+  }
+
+  function gen8c() {
+    // 4 body — oplocení obdélníkové zahrady (obvod, cena, sloupky)
+    const a = ri(5, 15), b = ri(5, 15), obvod = 2 * (a + b);
+    const cena = ri(50, 150), celkem = obvod * cena;
+    const cand = [2, 3, 4, 5].filter(x => obvod % x === 0), d = cand[ri(0, cand.length - 1)], sloupky = obvod / d;
+    return {
+      no: 8, points: 4, title: 'Oplocení zahrady',
+      intro: `Obdélníková zahrada má rozměry ${a} m × ${b} m a chceme ji celou oplotit.`,
+      parts: [
+        { key: '8.1', points: 2, prompt: `Kolik metrů plotu je potřeba (obvod zahrady)?`, ans: String(obvod),
+          sol: `Obvod obdélníku = 2·(${a} + ${b}) = ${obvod} m.` },
+        { key: '8.2', points: 1, prompt: `Metr plotu stojí ${cena} Kč. Kolik Kč stojí celý plot?`, ans: String(celkem),
+          sol: `${obvod} m · ${cena} Kč = ${celkem} Kč.` },
+        { key: '8.3', points: 1, prompt: `Sloupky jsou rozmístěny po ${d} metrech. Kolik sloupků je po celém obvodu?`, ans: String(sloupky),
+          sol: `Počet sloupků = obvod : rozestup = ${obvod} : ${d} = ${sloupky}.` }
+      ]
+    };
+  }
+
+  function gen16c() {
+    // 4 body — chodník kolem bazénu (vnější rozměry + obsah chodníku)
+    const w = ri(1, 3), a = ri(5, 10), b = ri(3, a - 1);
+    const oa = a + 2 * w, ob = b + 2 * w, chodnik = oa * ob - a * b;
+    return {
+      no: 16, points: 4, title: 'Chodník kolem bazénu',
+      intro: `Obdélníkový bazén ${a} m × ${b} m je ze všech stran obklopen chodníkem širokým ${w} m.`,
+      parts: [
+        { key: '16.1', points: 2, prompt: `Jaká je celková délka obrazce (bazén i s chodníkem) podél delší strany bazénu (v m)?`, ans: String(oa),
+          sol: `Chodník přidá ${w} m na obou koncích: ${a} + 2·${w} = ${oa} m.` },
+        { key: '16.2', points: 1, prompt: `Jaká je celková šířka obrazce (bazén i s chodníkem, v m)?`, ans: String(ob),
+          sol: `${b} + 2·${w} = ${ob} m.` },
+        { key: '16.3', points: 1, prompt: `Jaký obsah má samotný chodník (v m²)?`, ans: String(chodnik),
+          sol: `Obsah celku = ${oa}·${ob} = ${oa * ob} m². Minus bazén ${a}·${b} = ${a * b} m². Chodník = ${oa * ob} − ${a * b} = ${chodnik} m².` }
+      ]
+    };
+  }
+
+  function gen15c() {
+    // 6 bodů — přiřazování, 3× hledání ZÁKLADU z procenta (p % čísla je X → číslo)
+    function task(used) {
+      let p, celek, cast;
+      do { p = [10, 20, 25, 50][ri(0, 3)]; celek = [100, 200, 300, 400][ri(0, 3)]; cast = p * celek / 100; }
+      while (used.has(celek));
+      used.add(celek); return { p, celek, cast };
+    }
+    const used = new Set();
+    const t1 = task(used), t2 = task(used), t3 = task(used);
+    const answers = [t1.celek, t2.celek, t3.celek];
+    const set = new Set(answers);
+    while (set.size < 6) { set.add([100, 200, 300, 400, 500, 600, 150, 250][ri(0, 7)]); }
+    const optsArr = [...set].sort((a, b) => a - b);
+    const letters = ['A', 'B', 'C', 'D', 'E', 'F'];
+    const labels = optsArr.map((v, i) => `${letters[i]}) ${v}`);
+    const ansLetters = answers.map(v => letters[optsArr.indexOf(v)]);
+    return {
+      no: 15, points: 6, title: 'Procenta — základ', kind: 'match',
+      prompts: [
+        `${t1.p} % nějakého čísla je ${t1.cast}. Jaké je to číslo?`,
+        `${t2.p} % nějakého čísla je ${t2.cast}. Jaké je to číslo?`,
+        `${t3.p} % nějakého čísla je ${t3.cast}. Jaké je to číslo?`
+      ],
+      options: labels,
+      ans: ansLetters,
+      sol: [
+        `1 % je ${t1.cast} : ${t1.p} = ${t1.cast / t1.p}. Celek (100 %) = ${t1.cast / t1.p} · 100 = ${t1.celek}.`,
+        `1 % je ${t2.cast} : ${t2.p} = ${t2.cast / t2.p}. Celek = ${t2.celek}.`,
+        `1 % je ${t3.cast} : ${t3.p} = ${t3.cast / t3.p}. Celek = ${t3.celek}.`
+      ]
+    };
+  }
+
+  function gen5c() {
+    // 4 body — obdélníková místnost: obsah podlahy + nezakrytá plocha (bez SVG)
+    const L = ri(4, 9), W = ri(3, 8), area = L * W;
+    const a = ri(2, L - 1), b = ri(2, W - 1), koberec = a * b, volna = area - koberec;
+    return {
+      no: 5, points: 4, title: 'Místnost',
+      intro: `Obdélníková místnost má rozměry ${L} m × ${W} m.`,
+      parts: [
+        { key: '5.1', points: 2, prompt: `Jaký obsah má podlaha místnosti (v m²)?`, ans: String(area),
+          sol: `Obsah obdélníku = délka · šířka = ${L} · ${W} = ${area} m².` },
+        { key: '5.2', points: 2, prompt: `Na podlahu položíme obdélníkový koberec ${a} m × ${b} m. Kolik m² podlahy zůstane nezakryto?`, ans: String(volna),
+          sol: `Koberec pokryje ${a} · ${b} = ${koberec} m². Nezakryto zůstane ${area} − ${koberec} = ${volna} m².` }
+      ]
+    };
+  }
+
+  function gen9c() {
+    // 4 body — Pythagoras: výška draka (přepona + odvěsna → druhá odvěsna)
+    const triples = [[3, 4, 5], [6, 8, 10], [5, 12, 13], [8, 15, 17], [9, 12, 15], [12, 16, 20]];
+    const t = triples[ri(0, triples.length - 1)], a = t[0], b = t[1], c = t[2];
+    return {
+      no: 9, points: 4, title: 'Drak na provázku',
+      svg: svgTriangle('pravo', { v: ['C', 'A', 'B'] }),
+      intro: `Drak drží na napnutém provázku dlouhém ${c} m. Drak je přímo nad místem vzdáleným ${a} m od toho, kdo ho pouští (ruku ber u země).`,
+      parts: [
+        { key: '9.1', points: 4, showExplain: true,
+          prompt: `V jaké výšce nad zemí drak letí (v m)? Uveďte celý postup.`,
+          ans: String(b),
+          sol: `Provázek (přepona), vodorovná vzdálenost a výška tvoří pravoúhlý trojúhelník. Pythagorova věta: výška² = provázek² − vzdálenost² = ${c}² − ${a}² = ${c * c} − ${a * a} = ${c * c - a * a}. Odmocni: výška = √${c * c - a * a} = ${b} m.` }
+      ]
+    };
+  }
+
+  function gen12d() {
+    // 2 body — MC, objem místnosti (kvádr)
+    const a = ri(3, 6), b = ri(3, 6), c = ri(2, 4), V = a * b * c;
+    const sh = shuffleOpts([V - 2, V - 1, V, V + 2, 'jiný objem'], V);
+    return {
+      no: 12, points: 2, title: 'Objem místnosti', kind: 'mc',
+      prompt: `Místnost má tvar kvádru: délka ${a} m, šířka ${b} m, výška ${c} m. Jaký je její objem?`,
+      options: sh.labels, ans: sh.correctLetter,
+      sol: `Objem = délka · šířka · výška = ${a} · ${b} · ${c} = ${V} m³ → odpověď ${sh.correctLetter}.`
+    };
+  }
+
+  function gen13d() {
+    // 2 body — MC, kolik procent ušetříš
+    const puvodni = ri(2, 9) * 100, usetreno = [10, 20, 25, 50][ri(0, 3)], usetrenoKc = puvodni * usetreno / 100;
+    const sh = shuffleOpts([usetreno - 5, usetreno, usetreno + 5, usetreno + 10, 'jiná hodnota'], usetreno);
+    return {
+      no: 13, points: 2, title: 'Úspora v procentech', kind: 'mc',
+      prompt: `Zboží stálo ${puvodni} Kč, teď ho koupíš za ${puvodni - usetrenoKc} Kč. Kolik procent ušetříš?`,
+      options: sh.labels, ans: sh.correctLetter,
+      sol: `Úspora = ${puvodni} − ${puvodni - usetrenoKc} = ${usetrenoKc} Kč. Vztaženo k původní ceně: ${usetrenoKc} : ${puvodni} = ${usetreno} % → odpověď ${sh.correctLetter}.`
+    };
+  }
+
+  function gen14d() {
+    // 2 body — MC, modus
+    const vals = []; while (vals.length < 5) { const v = ri(2, 12); if (!vals.includes(v)) vals.push(v); }
+    const m = vals[0], arr = [m, m, m, vals[1], vals[2], vals[3], vals[4]];
+    for (let i = arr.length - 1; i > 0; i--) { const j = ri(0, i); [arr[i], arr[j]] = [arr[j], arr[i]]; }
+    const sh = shuffleOpts(vals.slice(), m);
+    return {
+      no: 14, points: 2, title: 'Modus', kind: 'mc',
+      prompt: `Určete modus (nejčastější hodnotu) těchto čísel: ${arr.join(', ')}.`,
+      options: sh.labels, ans: sh.correctLetter,
+      sol: `Číslo ${m} se vyskytuje třikrát, ostatní jen jednou. Modus = ${m} → odpověď ${sh.correctLetter}.`
+    };
+  }
+
   /* ── SLOTY 1–16 ─────────────────────────────────────────────────
      Každá pozice testu je POLE variant (zatím vždy jedna). Pro
      přidání další varianty do pozice N stačí dopsat další funkci do
@@ -898,8 +1153,8 @@
      vybere jednu variantu z každé pozice.
      ──────────────────────────────────────────────────────────────── */
   const SLOTS = [
-    [gen1, gen1b, gen1c], [gen2, gen2b], [gen3, gen3b], [gen4, gen4b, gen4c], [gen5, gen5b], [gen6, gen6b], [gen7, gen7b], [gen8, gen8b],
-    [gen9, gen9b], [gen10, gen10b], [gen11, gen11b], [gen12, gen12b, gen12c], [gen13, gen13b, gen13c], [gen14, gen14b, gen14c], [gen15, gen15b], [gen16, gen16b]
+    [gen1, gen1b, gen1c], [gen2, gen2b, gen2c], [gen3, gen3b, gen3c], [gen4, gen4b, gen4c], [gen5, gen5b, gen5c], [gen6, gen6b, gen6c], [gen7, gen7b, gen7c], [gen8, gen8b, gen8c],
+    [gen9, gen9b, gen9c], [gen10, gen10b, gen10c], [gen11, gen11b, gen11c], [gen12, gen12b, gen12c, gen12d], [gen13, gen13b, gen13c, gen13d], [gen14, gen14b, gen14c, gen14d], [gen15, gen15b, gen15c], [gen16, gen16b, gen16c]
   ];
 
   window.RPG_CERMAT_9 = {
