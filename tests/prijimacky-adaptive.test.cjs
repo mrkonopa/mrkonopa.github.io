@@ -74,6 +74,23 @@ localStorage.setItem('PZ_DIAG_LAST', JSON.stringify({date:'2026-07-27',ok:6,n:10
   // pokrok se uloží s časovou značkou
   ok(await page.evaluate(()=>{ const p=JSON.parse(localStorage.getItem('PZ_PRACTICE_PROGRESS')); return p[PR.topic.id]&&typeof p[PR.topic.id].last==='number'; }) || true, 'pokrok ukládá timestamp (spaced repetition)');
 
+  // ── Fáze B: ZPD série + přilnutí k tématu ──
+  const b = await page.evaluate(()=>{
+    PR.streak=0; PR.stick=null; PR.stickN=0;
+    const t0=PR.topic.id;
+    grade(false); const stuckTo=PR.stick, sW=PR.streak;
+    prNext(); const same=PR.topic.id===t0;
+    grade(true); const rel=PR.stick, sR1=PR.streak;
+    prNext(); grade(true); prNext(); grade(true);
+    return { stuckTo, t0, sW, same, rel, sR1, streakEnd:PR.streak };
+  });
+  ok(b.stuckTo===b.t0, 'po chybě „přilne" k tématu (konsolidace)');
+  ok(b.same, 'další úloha zůstane na stejném slabém tématu');
+  ok(b.sW===0, 'chyba nuluje sérii');
+  ok(b.rel===null && b.sR1>=1, 'po správné se stick uvolní a série roste');
+  ok(b.streakEnd>=3, 'série roste při správných za sebou ('+b.streakEnd+')');
+  ok(await page.evaluate(()=>/série/.test(document.getElementById('pr-streak').textContent)), 'čip 🔥 série se zobrazí');
+
   ok(errs.length===0,'žádné JS chyby'+(errs.length?(' ['+errs[0]+']'):''));
 
   await browser.close(); srv.close();
