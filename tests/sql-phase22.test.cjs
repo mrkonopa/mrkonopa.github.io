@@ -9,7 +9,7 @@
    SKIP (exit 0), když v prostředí není PostgreSQL server — test je tím
    bezpečný i v CI, kde server být nemusí.
    ══════════════════════════════════════════════════════════════════ */
-const { execFileSync, execSync } = require('child_process');
+const { execFileSync } = require('child_process');
 const fs = require('fs'), path = require('path');
 
 const ROOT = path.join(__dirname, '..');
@@ -33,20 +33,33 @@ function findPgBin() {
   }
   return null;
 }
-const sh = (cmd) => execSync(cmd, { encoding:'utf8', stdio:['ignore','pipe','pipe'] });
-// postgres se odmítá spustit jako root → potřebujeme neprivilegovaného uživatele
-function pgUser() {
+// Žádné skládání shellových příkazů — všechno přes execFileSync s polem
+// argumentů (bez shellu). Cesty sem tečou z filesystému (verze PostgreSQL,
+// __dirname), takže interpolace do `sh('…')` by byla injection sink; navíc
+// to hlásí CodeQL. Práva shazujeme přes uid/gid, ne přes `su`.
+const isRoot = () => typeof process.getuid === 'function' && process.getuid() === 0;
+const run = (file, args, opts={}) =>
+  execFileSync(file, args, { encoding:'utf8', stdio:['ignore','pipe','pipe'], ...opts });
+
+// postgres se odmítá spustit jako root → jako root najdi neprivilegovaného
+// uživatele a spouštěj servery pod jeho uid/gid; jinak (CI runner) běž sám sebou.
+function pgIds() {
+  if (!isRoot()) return null;                       // null = běž jako já
   for (const u of ['postgres','pgtest','nobody']) {
-    try { execFileSync('id', [u], { stdio:'ignore' }); return u; } catch (e) {}
+    try {
+      const uid = parseInt(run('id', ['-u', u]).trim(), 10);
+      const gid = parseInt(run('id', ['-g', u]).trim(), 10);
+      if (Number.isFinite(uid) && Number.isFinite(gid)) return { uid, gid };
+    } catch (e) {}
   }
-  return null;
+  return undefined;                                 // undefined = nemáme koho
 }
-const asUser = (u, cmd) => sh(`su -s /bin/bash ${u} -c ${JSON.stringify(cmd)}`);
+const asPg = (ids, file, args) => run(file, args, ids ? { uid: ids.uid, gid: ids.gid } : {});
 // psql vypisuje u `set ...;` i potvrzení „SET" — pro čtení výsledků ho odfiltruj,
 // jinak by ulpělo jako první řádek dat (a testy by měřily hlášku, ne data).
-const psql = (sql) => sh(`psql -h ${SOCK} -U postgres -tAX -v ON_ERROR_STOP=1 -c ${JSON.stringify(sql)}`)
+const psql = (sql) => run('psql', ['-h', SOCK, '-U', 'postgres', '-tAX', '-v', 'ON_ERROR_STOP=1', '-c', sql])
   .split('\n').filter(l => l.trim() !== 'SET').join('\n').trim();
-const psqlFile = (f) => sh(`psql -h ${SOCK} -U postgres -qX -v ON_ERROR_STOP=1 -f ${JSON.stringify(f)}`);
+const psqlFile = (f) => run('psql', ['-h', SOCK, '-U', 'postgres', '-qX', '-v', 'ON_ERROR_STOP=1', '-f', f]);
 
 const STUBS = `
 create role anon; create role authenticated;
@@ -84,20 +97,29 @@ insert into public.prijimacky_stats
    || jsonb_build_object(repeat('X',120), jsonb_build_object('ok',1,'total',1)));
 `;
 
-function stop(u) { try { asUser(u, `${BIN}/pg_ctl -D ${DATA} -m immediate stop`); } catch (e) {} }
+function stop(ids) {
+  try { asPg(ids, path.join(BIN, 'pg_ctl'), ['-D', DATA, '-m', 'immediate', 'stop']); } catch (e) {}
+}
+const rmrf = (p) => { try { fs.rmSync(p, { recursive:true, force:true }); } catch (e) {} };
 
 const BIN = findPgBin();
 (function main(){
   console.log('\n── Fáze 22 SQL: pz_class_topics proti skutečnému PostgreSQL ──\n');
   if (!fs.existsSync(PHASE)) skip('phase22.sql nenalezeno');
   if (!BIN) skip('v prostředí není PostgreSQL server (jen klient nebo nic)');
-  const u = pgUser();
-  if (!u) skip('není neprivilegovaný uživatel pro postgres (běží jako root)');
+  const ids = pgIds();
+  if (ids === undefined) skip('běží jako root a není neprivilegovaný uživatel pro postgres');
 
   try {
-    sh(`rm -rf ${DIR}; mkdir -p ${SOCK} ${DATA}; chown -R ${u} ${DIR}`);
-    asUser(u, `${BIN}/initdb -D ${DATA} -U postgres --auth=trust`);
-    asUser(u, `${BIN}/pg_ctl -D ${DATA} -o '-k ${SOCK} -h ""' -l ${DIR}/pg.log start`);
+    rmrf(DIR);
+    fs.mkdirSync(SOCK, { recursive:true });
+    fs.mkdirSync(DATA, { recursive:true });
+    if (ids) for (const p of [DIR, SOCK, DATA]) fs.chownSync(p, ids.uid, ids.gid);
+    asPg(ids, path.join(BIN, 'initdb'), ['-D', DATA, '-U', 'postgres', '--auth=trust']);
+    // socket jen lokálně: `-c listen_addresses=` (prázdné) je jeden čistý token,
+    // takže nepotřebujeme shellové uvozovkování `-h ""`
+    asPg(ids, path.join(BIN, 'pg_ctl'),
+      ['-D', DATA, '-o', '-k ' + SOCK + ' -c listen_addresses=', '-l', DIR + '/pg.log', 'start']);
   } catch (e) { skip('klastr se nepodařilo nastartovat: '+String(e.message||e).slice(0,120)); }
 
   try {
@@ -109,7 +131,7 @@ const BIN = findPgBin();
     let created = true, err = '';
     try { psqlFile(PHASE); } catch (e) { created = false; err = String(e.stderr||e.message||e).slice(0,200); }
     ok('phase22.sql se spustí bez chyby (syntaxe i závislosti)', created, err);
-    if (!created) { stop(u); return finish(); }
+    if (!created) { stop(ids); return finish(); }
 
     ok('_pz_num() existuje', psql(`select count(*) from pg_proc where proname='_pz_num'`)==='1');
     ok('pz_class_topics() existuje', psql(`select count(*) from pg_proc where proname='pz_class_topics'`)==='1');
@@ -132,7 +154,7 @@ const BIN = findPgBin();
         .split('\n').filter(Boolean);
     } catch (e) { crashed = String(e.stderr||e.message||e).slice(0,200); }
     ok('podvržený JSON NESHODÍ dotaz celé třídě (lekce z fáze 19)', !!rows, crashed);
-    if (!rows) { stop(u); return finish(); }
+    if (!rows) { stop(ids); return finish(); }
 
     const byTopic = {};
     rows.forEach(r=>{ const [t,s,po,pt,to,tt]=r.split('|'); byTopic[t]={students:+s,prac_ok:+po,prac_total:+pt,test_ok:+to,test_total:+tt}; });
@@ -172,8 +194,8 @@ const BIN = findPgBin();
   } catch (e) {
     ok('test proběhl bez neočekávané výjimky', false, String(e.stderr||e.message||e).slice(0,300));
   } finally {
-    stop(u);
-    try { sh(`rm -rf ${DIR}`); } catch (e) {}
+    stop(ids);
+    rmrf(DIR);
   }
   finish();
 })();
