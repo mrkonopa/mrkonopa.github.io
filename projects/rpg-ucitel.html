@@ -167,7 +167,9 @@ h4{font-family:var(--px);font-size:12px;font-weight:700;color:var(--accent);lett
   <div class="tabs">
    <button class="tab on" data-tab="overview">PŘEHLED ŽÁKŮ</button>
    <button class="tab" data-tab="classes">TŘÍDY</button>
+   <button class="tab" data-tab="assignments">📋 ÚKOLY</button>
    <button class="tab" data-tab="diag">DIAGNOSTIKA</button>
+   <button class="tab" data-tab="prijimacky">📝 PŘIJÍMAČKY</button>
    <button class="tab" data-tab="leaderboard">🏆 ŽEBŘÍČKY</button>
    <button class="tab" data-tab="tower">VĚŽ LEGEND</button>
    <button class="tab" data-tab="battles">⚔️ SOUBOJE</button>
@@ -180,6 +182,7 @@ h4{font-family:var(--px);font-size:12px;font-weight:700;color:var(--accent);lett
 
   <!-- PŘEHLED -->
   <div id="t-overview">
+   <div id="insights" class="hidden" style="background:var(--panel);border-left:3px solid var(--gold);border-radius:0 8px 8px 0;padding:12px 16px;margin-bottom:16px"></div>
    <div class="stats">
     <div class="s"><div class="v" id="st-students">0</div><div class="l">žáků</div></div>
     <div class="s"><div class="v" id="st-chars">0</div><div class="l">postav</div></div>
@@ -237,6 +240,20 @@ h4{font-family:var(--px);font-size:12px;font-weight:700;color:var(--accent);lett
    <div id="broadcasts-wrap"><div class="empty" style="padding:8px">Načítám…</div></div>
   </div>
 
+  <!-- ÚKOLY -->
+  <div id="t-assignments" class="hidden">
+   <div class="info-box">Zadej třídě <b>úkol s termínem</b> („procvič misi X do pátku"). Žák ho uvidí ve hře
+    a může rovnou procvičovat. Splnění = <b>mistrovství mise</b> (žák získá 🏅 v tréninku).</div>
+   <div class="controls">
+    <select id="asg-class" aria-label="Třída"><option value="">— třída —</option></select>
+    <select id="asg-game" aria-label="Hra"><option value="">— hra —</option></select>
+    <select id="asg-mid" aria-label="Mise"><option value="">— mise —</option></select>
+    <input id="asg-due" type="date" aria-label="Termín" style="max-width:170px">
+    <button class="mini gold" onclick="createAssignmentUI()">+ Zadat úkol</button>
+   </div>
+   <div id="assignments-wrap"><div class="empty">Načítám…</div></div>
+  </div>
+
   <!-- ZPĚTNÁ VAZBA -->
   <div id="t-feedback" class="hidden">
    <div class="info-box">Nápady a návrhy od hráčů z <b>hlavní stránky RPG Matematika</b>. Žáci musí být přihlášeni školním účtem.</div>
@@ -265,6 +282,25 @@ h4{font-family:var(--px);font-size:12px;font-weight:700;color:var(--accent);lett
    <div id="diag-wrap"><div class="empty">Načítám…</div></div>
   </div>
 
+  <!-- PŘIJÍMAČKY — připravenost třídy (Fáze 21) -->
+  <div id="t-prijimacky" class="hidden">
+   <div class="info-box"><b>📝 Připravenost na přijímačky</b> — odhad z přijímačkového hubu
+    (test nanečisto + procvičování po tématech). Žák se musí přihlásit školním účtem na hubu.
+    Číslo počítá žákův prohlížeč (informativní, ne tvrdá metrika).</div>
+   <div class="controls">
+    <select id="pz-class" aria-label="Přijímačky: výběr třídy"></select>
+    <button class="mini" onclick="renderPrijimacky()">↻ Obnovit</button>
+   </div>
+   <div id="pz-wrap"><div class="empty">Vyber třídu.</div></div>
+   <!-- Fáze 22: kde třída tápe po okruzích (graceful — bez phase22.sql skryté) -->
+   <div id="pz-topics-box" class="hidden" style="margin-top:18px">
+    <div class="info-box"><b>🎯 Kde třída tápe</b> — úspěšnost po okruzích přes celou třídu.
+     📝 = ostrý test nanečisto (časový tlak), 🏃 = klidné procvičování. Nejslabší okruhy nahoře —
+     tam má smysl zacílit výuku.</div>
+    <div id="pz-topics"></div>
+   </div>
+  </div>
+
   <!-- ŽEBŘÍČKY (XP) — viditelné pro učitele i bez vlastní třídy (#103) -->
   <div id="t-leaderboard" class="hidden">
    <div class="info-box"><b>🏆 Žebříček XP</b> — pořadí žáků podle zkušeností v daném ročníku.
@@ -282,6 +318,7 @@ h4{font-family:var(--px);font-size:12px;font-weight:700;color:var(--accent);lett
   <!-- VĚŽ LEGEND -->
   <div id="t-tower" class="hidden">
    <div class="info-box"><b>🗼 Věž legend</b> — soutěžní výstup: žebříček aktuální sezóny a trvalá síň slávy.
+    Výchozí <b>„Všechny ročníky"</b> ukáže přehled napříč 6.–9. (aktuální rok i historii); pro <b>uzavření sezóny</b> nebo mazání vyber konkrétní ročník.
     Na konci školního roku klikni <b>Uzavřít sezónu</b> — top 10 se natrvalo zapíše. Jde spustit opakovaně (přepíše zápis téže sezóny).</div>
    <div class="controls">
     <select id="tower-game" aria-label="Věž legend: filtr podle hry" onchange="renderTower()"></select>
@@ -635,6 +672,37 @@ function fillClassFilter(){
   activeClasses().map(c=>'<option value="'+c.id+'">🏫 '+esc(classLabel(c))+'</option>').join('');
  sel.value=cur;
 }
+/* Key Insights — narativní shrnutí „na co se dnes zaměřit", klientsky z dat
+   (ROWS, mastery, errs, updated_at). Respektuje filtr hry/třídy/skrytí učitelů
+   přes filtered(). Žádné SQL. Jména žáků VŽDY přes esc() (save je jejich). */
+function renderInsights(){
+ const el=document.getElementById('insights');if(!el)return;
+ if(!ROWS.length){el.classList.add('hidden');return;}
+ const rows=filtered();
+ const byUser={};rows.forEach(r=>{(byUser[r.user_id]=byUser[r.user_id]||[]).push(r);});
+ const students=Object.keys(byUser);
+ if(!students.length){el.classList.add('hidden');return;}
+ const nameOf=uid=>esc((byUser[uid][0].full_name)||(byUser[uid][0].data&&byUser[uid][0].data.name)||'žák');
+ const sumErrs=rs=>rs.reduce((s,r)=>s+Object.values((r.data&&r.data.errs)||{}).reduce((a,b)=>a+(b>0?b:0),0),0);
+ // aktivita
+ const active=students.filter(uid=>byUser[uid].some(r=>daysAgo(r.updated_at)<=7));
+ const longGone=students.filter(uid=>byUser[uid].every(r=>daysAgo(r.updated_at)>14));
+ // kde nejvíc tápou: agreguj errs per (game,mise)
+ const errAgg={};
+ rows.forEach(r=>{const e=(r.data&&r.data.errs)||{};for(const mid in e){if(!(e[mid]>0))continue;const k=r.game+'|'+mid;const mm=missionsFor(r.game).find(x=>x.id===mid);(errAgg[k]=errAgg[k]||{sum:0,kids:new Set(),name:(mm&&mm.name)||mid});errAgg[k].sum+=e[mid];errAgg[k].kids.add(r.user_id);}});
+ const topErr=Object.values(errAgg).sort((a,b)=>b.sum-a.sum)[0];
+ // nejvíc mistrovství
+ const topMast=students.map(uid=>({uid,m:byUser[uid].reduce((s,r)=>s+masteryCount(r.data),0)})).sort((a,b)=>b.m-a.m)[0];
+ // možná potřebují pomoc: aktivní, 0 mistrovství, hodně chyb
+ const needHelp=students.filter(uid=>{const rs=byUser[uid];return rs.some(r=>daysAgo(r.updated_at)<=7)&&rs.reduce((s,r)=>s+masteryCount(r.data),0)===0&&sumErrs(rs)>=8;});
+ const L=[];
+ L.push(`<div>📅 Tento týden hrálo <b>${active.length}</b> z <b>${students.length}</b> žáků.`+(longGone.length?` <span style="color:var(--muted)">Přes 14 dní nehráli: ${longGone.slice(0,5).map(nameOf).join(', ')}${longGone.length>5?' +'+(longGone.length-5):''}.</span>`:'')+`</div>`);
+ if(topErr&&topErr.sum>=3)L.push(`<div>⚠️ Nejvíc chyb: <b>${esc(topErr.name)}</b> (${topErr.sum}× u ${topErr.kids.size} ${topErr.kids.size===1?'žáka':'žáků'}) — zvaž společné vysvětlení.</div>`);
+ if(topMast&&topMast.m>0)L.push(`<div>🏅 Nejvíc mistrovství: <b>${nameOf(topMast.uid)}</b> (${topMast.m}).</div>`);
+ if(needHelp.length)L.push(`<div>🆘 Možná potřebují pomoc: <b>${needHelp.slice(0,5).map(nameOf).join(', ')}${needHelp.length>5?' +'+(needHelp.length-5):''}</b> <span style="color:var(--muted)">(hrají, ale hodně chybují a zatím bez mistrovství).</span></div>`);
+ el.innerHTML=`<div style="font-weight:700;color:var(--gold);letter-spacing:.5px;margin-bottom:8px">🔑 KLÍČOVÉ POZNATKY</div><div style="display:flex;flex-direction:column;gap:6px;font-size:13.5px;line-height:1.5;color:var(--text)">${L.join('')}</div>`;
+ el.classList.remove('hidden');
+}
 function renderStats(){
  const students=new Set(ROWS.map(r=>r.user_id)).size;
  const tasks=ROWS.reduce((a,r)=>a+doneCount(r.data),0);
@@ -674,6 +742,7 @@ function toggleSelUser(ui,on){
 }
 function keys_filtered(){return new Set((window.__filtered||[]).map(selKey));}
 function renderTable(){
+ renderInsights();
  const rows=filtered();
  if(!rows.length){document.getElementById('tbl-wrap').innerHTML='<div class="empty">— žádné postavy —</div>';window.__filtered=rows;window.__userList=[];updateBulkBar();return;}
  const admin=RPGCloud.isAdmin();
@@ -907,8 +976,12 @@ function buildMasteryHtml(d,gameKey){
  const unmastered=missionsFor(gameKey).filter(m=>!(d.mastery&&d.mastery[m.id]&&d.mastery[m.id].mastered));
  let pills='';
  mastered.forEach(m=>{
-  const score=((d.mastery[m.id]&&d.mastery[m.id].score)||0)|0;
-  pills+='<span title="skóre: '+score+'" style="display:inline-block;font-size:11px;font-weight:700;padding:3px 8px;border-radius:20px;margin:2px;background:var(--gold);color:#06101e">🏅 '+esc(m.id)+' '+esc(m.name)+'</span>';
+  const rec=d.mastery[m.id]||{};
+  const score=(rec.score||0)|0;
+  const st=Math.max(0,Math.min(3,(rec.stars||0)|0)); // hvězdy opakování (spaced repetition)
+  const lastOk=(typeof rec.lastOk==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(rec.lastOk))?rec.lastOk:'—';
+  const starTxt=st?' '+'⭐'.repeat(st):'';
+  pills+='<span title="skóre: '+score+' · hvězdy: '+st+'/3 · poslední oživení: '+lastOk+'" style="display:inline-block;font-size:11px;font-weight:700;padding:3px 8px;border-radius:20px;margin:2px;background:var(--gold);color:#06101e">🏅 '+esc(m.id)+' '+esc(m.name)+starTxt+'</span>';
  });
  unmastered.forEach(m=>{
   const score=((d.mastery&&d.mastery[m.id]&&d.mastery[m.id].score)||0)|0;
@@ -1082,15 +1155,18 @@ async function loadAudit(){
  AUDIT_ROWS=await RPGCloud.listAuditLog({limit:300});
  renderAuditList();
 }
+// Vrací UŽ ESCAPOVANÝ HTML fragment (safe-by-default): user-controlled pole
+// (mid, name, role, text) jdou přes esc() uvnitř, statické oddělovače jsou
+// bezpečné literály. Konzument tedy NESMÍ výsledek znovu obalovat esc().
 function fmtDetail(d){
  if(!d||typeof d!=='object')return '';
  const p=[];
- if(d.delta!=null)p.push((d.delta>=0?'+':'')+d.delta);
- if(d.mid)p.push('mise '+d.mid);
- if(d.count!=null)p.push(d.count+'×');
- if(d.name)p.push('„'+d.name+'"');
- if(d.role)p.push('→ '+d.role);
- if(d.text)p.push('„'+String(d.text).slice(0,70)+'"');
+ if(d.delta!=null)p.push((d.delta>=0?'+':'')+(d.delta|0));
+ if(d.mid)p.push('mise '+esc(d.mid));
+ if(d.count!=null)p.push((d.count|0)+'×');
+ if(d.name)p.push('„'+esc(d.name)+'"');
+ if(d.role)p.push('→ '+esc(d.role));
+ if(d.text)p.push('„'+esc(String(d.text).slice(0,70))+'"');
  return p.join(' · ');
 }
 function renderAuditList(){
@@ -1104,7 +1180,7 @@ function renderAuditList(){
    '<td>'+esc(r.actor_email||'—')+'</td>'+
    '<td>'+esc(auditLabel(r.action))+(r.game?' <span class="em">'+esc(String(r.game).replace('RPG_MAT_','g'))+'</span>':'')+'</td>'+
    '<td>'+esc(r.target_email||'—')+'</td>'+
-   '<td style="font-size:12px">'+esc(fmtDetail(r.detail))+'</td></tr>').join('')+
+   '<td style="font-size:12px">'+fmtDetail(r.detail)+'</td></tr>').join('')+
   '</tbody></table>';
 }
 async function addTeacher(){
@@ -1350,6 +1426,68 @@ async function archiveClassUI(id,on){
  else toast('Chyba: '+res.error,1);
 }
 
+/* ── ÚKOLY s termínem (Fáze 20) ── */
+let ASSIGNMENTS=[];
+async function renderAssignments(){
+ if(!CLASSES.length)await loadClasses();
+ const cs=document.getElementById('asg-class');
+ if(cs)cs.innerHTML='<option value="">— třída —</option>'+activeClasses().map(c=>'<option value="'+esc(c.id)+'">'+esc(classLabel(c))+'</option>').join('');
+ const gs=document.getElementById('asg-game');
+ if(gs&&!gs.dataset.filled){gs.innerHTML='<option value="">— hra —</option>'+GAMES.map(g=>'<option value="'+g.key+'">'+g.emoji+' '+esc(g.nm)+'</option>').join('');gs.dataset.filled='1';gs.onchange=fillAsgMissions;}
+ fillAsgMissions();
+ ASSIGNMENTS=await RPGCloud.listAssignments();
+ const w=document.getElementById('assignments-wrap');
+ if(!ASSIGNMENTS.length){w.innerHTML='<div class="empty">— zatím žádné úkoly. Zadej první výše. —</div>';return;}
+ const today=new Date().toISOString().slice(0,10);
+ w.innerHTML=ASSIGNMENTS.map(a=>{
+  const g=GAMES.find(x=>x.key===a.game);
+  const mm=missionsFor(a.game).find(m=>m.id===a.mission_id);
+  const due=a.due_date?('📅 do '+new Date(a.due_date).toLocaleDateString('cs-CZ')):'📅 bez termínu';
+  const overdue=a.due_date&&a.due_date<today;
+  return '<div style="background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:12px 16px;margin-bottom:10px">'+
+   '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">'+
+    '<span style="font-size:18px">'+(g?g.emoji:'📋')+'</span>'+
+    '<b style="color:#fff">'+esc(a.class_name)+'</b>'+
+    '<span class="tag" style="background:var(--accent)">'+esc(a.mission_id)+' '+esc(mm?mm.name:a.mission_id)+'</span>'+
+    '<span class="tag" style="background:'+(overdue?'#a5433a':'#3a6ea5')+'">'+due+'</span>'+
+    '<div style="margin-left:auto;display:flex;gap:6px">'+
+     '<button class="mini gold" onclick="toggleAsgProgress(\''+esc(a.id)+'\')">📊 Kdo splnil</button>'+
+     '<button class="mini red" onclick="deleteAssignmentUI(\''+esc(a.id)+'\')">🗑</button>'+
+    '</div>'+
+   '</div>'+
+   '<div id="asg-prog-'+esc(a.id)+'" class="hidden" style="margin-top:10px"></div>'+
+   '</div>';
+ }).join('');
+}
+function fillAsgMissions(){
+ const gs=document.getElementById('asg-game'),ms=document.getElementById('asg-mid');
+ if(!gs||!ms)return;
+ const game=gs.value;
+ ms.innerHTML='<option value="">— mise —</option>'+(game?missionsFor(game).map(m=>'<option value="'+m.id+'">'+esc(m.id)+' '+esc(m.name)+'</option>').join(''):'');
+}
+async function createAssignmentUI(){
+ const cid=document.getElementById('asg-class').value,game=document.getElementById('asg-game').value,mid=document.getElementById('asg-mid').value,due=document.getElementById('asg-due').value||null;
+ if(!cid||!game||!mid){toast('Vyber třídu, hru i misi.',1);return;}
+ const r=await RPGCloud.createAssignment(cid,game,mid,due);
+ if(r.ok){toast('Úkol zadán ✅');document.getElementById('asg-mid').value='';document.getElementById('asg-due').value='';renderAssignments();}
+ else toast('Nepovedlo se: '+(r.error||'?'),1);
+}
+async function deleteAssignmentUI(id){
+ if(!confirm('Smazat úkol?'))return;
+ const r=await RPGCloud.deleteAssignment(id);
+ if(r.ok){toast('Úkol smazán');renderAssignments();}else toast('Nepovedlo se: '+(r.error||'?'),1);
+}
+async function toggleAsgProgress(id){
+ const el=document.getElementById('asg-prog-'+id);if(!el)return;
+ if(!el.classList.contains('hidden')){el.classList.add('hidden');return;}
+ el.classList.remove('hidden');el.innerHTML='<div class="empty" style="padding:6px">Načítám…</div>';
+ const rows=await RPGCloud.assignmentProgress(id);
+ if(!rows.length){el.innerHTML='<div class="empty" style="padding:6px">— ve třídě zatím nikdo s postavou —</div>';return;}
+ const done=rows.filter(r=>r.mastered).length;
+ el.innerHTML='<div style="font-size:12px;color:var(--muted);margin-bottom:6px">Splnilo <b>'+done+'</b> / '+rows.length+'</div>'+
+  rows.map(r=>'<div style="display:flex;justify-content:space-between;padding:4px 8px;border-radius:5px;background:'+(r.mastered?'#183a2a':'#3a2320')+';margin:3px 0"><span>'+esc(r.display_name)+'</span><span>'+(r.mastered?'✅ splnil':'⏳ nesplnil')+'</span></div>').join('');
+}
+
 /* ── diagnostika: heatmapa chybovosti misí ── */
 function renderDiag(){
  const sel=document.getElementById('diag-game');if(!sel)return;
@@ -1587,20 +1725,141 @@ function renderLeaderboardTab(){
   '<p style="color:var(--muted);font-size:12px;margin-top:8px">Celkem '+rows.length+' žáků. 🟢/🟡 = nedávno online. Skutečné jméno (v závorce) vidíš jen ty — žáci ve hře jen herní přezdívky.</p>';
 }
 
+/* ── PŘIJÍMAČKY: připravenost třídy (Fáze 21) ── */
+async function renderPrijimacky(){
+ const csel=document.getElementById('pz-class');
+ if(csel&&!csel.dataset.filled){
+  csel.innerHTML='<option value="">— vyber třídu —</option>'+
+   activeClasses().map(c=>'<option value="'+esc(c.id)+'">🏫 '+esc(classLabel(c))+'</option>').join('');
+  csel.dataset.filled='1'; csel.onchange=renderPrijimacky;
+ }
+ const wrap=document.getElementById('pz-wrap');
+ const cid=csel?csel.value:'';
+ const tbox=document.getElementById('pz-topics-box');
+ if(!cid){wrap.innerHTML='<div class="empty">Vyber třídu — uvidíš připravenost jejích žáků na přijímačky.</div>';
+  if(tbox)tbox.classList.add('hidden'); return;}
+ wrap.innerHTML='<div class="empty">Načítám…</div>';
+ const rows=await RPGCloud.pzClassReadiness(cid);
+ if(!rows||!rows.length){wrap.innerHTML='<div class="empty">Zatím žádná data — žáci se musí přihlásit na přijímačkovém hubu a něco vyřešit.</div>';
+  if(tbox)tbox.classList.add('hidden'); return;}
+ const bar=pct=>{const col=pct>=80?'#2fbf71':pct>=50?'#3b82f6':pct>=25?'#e0a020':'#e5484d';
+  return '<div style="flex:1;height:12px;background:var(--panel2);border-radius:6px;overflow:hidden"><div style="width:'+pct+'%;height:100%;background:'+col+'"></div></div>';};
+ wrap.innerHTML=rows.map(r=>{const pct=(r.readiness|0);
+  return '<div style="display:flex;align-items:center;gap:10px;background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:8px 12px;margin-bottom:6px">'+
+   '<span style="flex:0 0 42%;font-weight:600;min-width:0">'+onlineDot(r.updated_at)+esc(r.display_name)+'</span>'+
+   bar(pct)+
+   '<span style="flex:0 0 44px;text-align:right;font-weight:700">'+pct+' %</span>'+
+   '<span style="flex:0 0 66px;text-align:right;color:var(--muted);font-size:12px">'+(r.attempts|0)+'× test</span></div>';}).join('')+
+  '<p style="color:var(--muted);font-size:12px;margin-top:8px">Připravenost = odhad z nejlepšího testu nanečisto a přesnosti procvičování (počítá se u žáka v prohlížeči). 🟢/🟡 = nedávno aktivní.</p>';
+ renderPzTopics(cid);
+}
+
+/* ── PŘIJÍMAČKY: kde třída tápe po okruzích (Fáze 22) ── */
+// Názvy okruhů (konzole nenačítá prijimacky-topics.js). Jen známá ID se
+// vykreslují — podvržený klíč ze žákova JSONu se zahodí.
+const PZ_TOPIC_NAMES = {
+ 'vyrazy-mocniny':'Číselné výrazy, mocniny a odmocniny',
+ 'zlomky':'Zlomky a desetinná čísla',
+ 'procenta':'Procenta a finanční matematika',
+ 'pomer':'Poměr a úměrnost',
+ 'vyrazy-promenna':'Výrazy s proměnnou',
+ 'rovnice':'Rovnice a soustavy',
+ 'slovni':'Slovní úlohy',
+ 'geometrie':'Geometrie v rovině',
+ 'telesa':'Tělesa (objem a povrch)',
+ 'data':'Tabulky, data a statistika',
+};
+async function renderPzTopics(cid){
+ const box=document.getElementById('pz-topics-box'), wrap=document.getElementById('pz-topics');
+ if(!box||!wrap) return;
+ if(!cid || !RPGCloud.pzClassTopics){ box.classList.add('hidden'); return; }
+ let rows=[];
+ try { rows = await RPGCloud.pzClassTopics(cid) || []; } catch(e) { rows=[]; }
+ // jen známé okruhy, které mají aspoň nějaká data
+ rows = rows.filter(r=>r && PZ_TOPIC_NAMES[r.topic] && ((r.prac_total|0)+(r.test_total|0))>0);
+ if(!rows.length){ box.classList.add('hidden'); return; }   // graceful: bez phase22.sql / bez dat
+ box.classList.remove('hidden');
+ const pct=(ok,tot)=> tot>0 ? Math.round(ok/tot*100) : null;
+ const col=p=>'hsl('+Math.round(p*1.2)+',60%,45%)';         // 0 % červená → 100 % zelená
+ wrap.innerHTML=rows.map(r=>{
+  const pOk=r.prac_ok|0, pTot=r.prac_total|0, tOk=r.test_ok|0, tTot=r.test_total|0;
+  const all=pct(pOk+tOk, pTot+tTot);
+  const pp=pct(pOk,pTot), tp=pct(tOk,tTot);
+  const chip=(icon,v,title)=> v==null ? '' :
+   '<span title="'+esc(title)+'" style="flex:0 0 auto;font-size:12px;font-weight:700;color:'+col(v)+'">'+icon+' '+v+' %</span>';
+  return '<div style="display:flex;align-items:center;gap:10px;background:var(--panel2);border:1px solid var(--line);'+
+    'border-left:4px solid '+col(all)+';border-radius:8px;padding:8px 12px;margin-bottom:6px">'+
+   '<span style="flex:0 0 38%;font-weight:600;min-width:0">'+esc(PZ_TOPIC_NAMES[r.topic])+'</span>'+
+   '<div style="flex:1;height:12px;background:var(--panel);border-radius:6px;overflow:hidden">'+
+    '<div style="width:'+all+'%;height:100%;background:'+col(all)+'"></div></div>'+
+   '<span style="flex:0 0 46px;text-align:right;font-weight:700">'+all+' %</span>'+
+   chip('📝',tp,'ostrý test nanečisto')+chip('🏃',pp,'klidné procvičování')+
+   '<span style="flex:0 0 62px;text-align:right;color:var(--muted);font-size:12px">'+(r.students|0)+' žáků</span>'+
+   '</div>';
+ }).join('')+
+  '<p style="color:var(--muted);font-size:12px;margin-top:8px">Barva = společná úspěšnost okruhu. Rozdíl mezi 📝 a 🏃 ukazuje, co žáci umí v klidu, ale pod časovým tlakem se rozsype.</p>';
+}
+
 /* ── VĚŽ LEGEND (Fáze 11) ── */
+// Věž legend mají jen 2. stupeň (6.–9.); první volba je souhrn všech ročníků.
+function towerGames(){return GAMES.filter(g=>g.key>='RPG_MAT_6');}
 function towerGameSel(){
  const sel=document.getElementById('tower-game');
  if(!sel.options.length){
-  // Věž legend mají jen 2. stupeň (6.–9.); 1. stupeň (3.–5.) ji nemá
-  GAMES.filter(g=>g.key>='RPG_MAT_6').forEach(g=>{const o=document.createElement('option');o.value=g.key;o.textContent=g.emoji+' '+g.nm+' ('+g.gr+')';sel.appendChild(o);});
-  sel.value='RPG_MAT_9';
+  const oa=document.createElement('option');oa.value='';oa.textContent='🏆 Všechny ročníky (6.–9.)';sel.appendChild(oa);
+  towerGames().forEach(g=>{const o=document.createElement('option');o.value=g.key;o.textContent=g.emoji+' '+g.nm+' ('+g.gr+')';sel.appendChild(o);});
+  sel.value='';  // výchozí = souhrn všech ročníků (učitel vidí vše naráz)
  }
  return sel.value;
+}
+const _towMedal=i=>i===0?'🥇':i===1?'🥈':i===2?'🥉':(i+1)+'.';
+function _towBoardHtml(board,canDelete){
+ if(!board.length)return '<div class="empty">V této sezóně zatím nikdo nelezl.</div>';
+ return board.map((r,i)=>
+  '<div style="display:flex;align-items:center;gap:10px;background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:8px 12px;margin-bottom:6px'+(i<10?';border-color:var(--gold)':'')+'">'+
+  '<span style="min-width:30px;text-align:center">'+_towMedal(i)+'</span>'+
+  '<span style="flex:1;font-weight:600">'+esc(r.display_name)+(r.runs?'<span style="color:var(--muted);font-weight:400;font-size:12px"> · '+(r.runs|0)+'× pokus</span>':'')+'</span>'+
+  '<span style="color:var(--gold)">'+(r.best_floor|0)+'. patro</span>'+
+  (canDelete&&r.user_id?'<button class="mini red" title="Smazat žáka z žebříčku věže" onclick="deleteTowerRunUI('+i+')">🗑</button>':'')+
+  '</div>').join('');
+}
+function _towHallHtml(hall){
+ if(!hall.length)return '<div class="empty">Síň slávy je zatím prázdná — naplní se uzavřením první sezóny.</div>';
+ let html='',season=null;
+ hall.forEach(r=>{
+  if(r.season!==season){season=r.season;html+='<h4 style="margin:10px 0 6px;color:var(--muted);font-size:12px">ŠKOLNÍ ROK '+esc(season)+'</h4>';}
+  html+='<div style="display:flex;gap:10px;padding:4px 12px;font-size:14px">'+
+   '<span style="min-width:30px;text-align:center;color:var(--gold)">'+(r.rank|0)+'.</span>'+
+   '<span style="flex:1">'+esc(r.display_name)+'</span>'+
+   '<span style="color:var(--muted)">'+(r.best_floor|0)+'. patro</span></div>';
+ });
+ return html;
 }
 async function renderTower(){
  const game=towerGameSel();
  const bw=document.getElementById('tower-board-wrap'),hw=document.getElementById('tower-hall-wrap');
+ const closeBtn=document.getElementById('tower-close-btn');
  bw.innerHTML='<div class="empty">Načítám…</div>';hw.innerHTML='<div class="empty">Načítám…</div>';
+ // ── Souhrn všech ročníků (read-only přehled) ──
+ if(game===''){
+  if(closeBtn)closeBtn.style.display='none';
+  window.__towerBoard=[];
+  const games=towerGames();
+  let boardHtml='',hallHtml='';
+  try{
+   const data=await Promise.all(games.map(g=>Promise.all([RPGCloud.towerBoard(g.key),RPGCloud.towerHall(g.key)])));
+   games.forEach((g,gi)=>{
+    const hd='<h4 style="margin:14px 0 6px">'+g.emoji+' '+esc(g.nm)+' ('+g.gr+')</h4>';
+    boardHtml+=hd+_towBoardHtml(data[gi][0]||[],false);
+    hallHtml+=hd+_towHallHtml(data[gi][1]||[]);
+   });
+  }catch(e){bw.innerHTML='<div class="empty">Chyba při načítání.</div>';hw.innerHTML='';return;}
+  bw.innerHTML=boardHtml+'<p style="color:var(--muted);font-size:12px;margin-top:6px">Přehled všech ročníků. Pro uzavření sezóny nebo mazání vyber konkrétní ročník výše.</p>';
+  hw.innerHTML=hallHtml;
+  return;
+ }
+ // ── Jeden ročník (správa: uzavření sezóny, mazání) ──
+ if(closeBtn)closeBtn.style.display='';
  let board=[],hall=[],canDelete=false;
  try{
   // Fáze 12: admin žebříček vrací i user_id (pro mazání). Pokud RPC ještě
@@ -1611,28 +1870,9 @@ async function renderTower(){
  }
  catch(e){bw.innerHTML='<div class="empty">Chyba při načítání.</div>';hw.innerHTML='';return;}
  window.__towerBoard=board;
- const medal=i=>i===0?'🥇':i===1?'🥈':i===2?'🥉':(i+1)+'.';
- if(!board.length)bw.innerHTML='<div class="empty">V této sezóně zatím nikdo nelezl.</div>';
- else bw.innerHTML=board.map((r,i)=>
-  '<div style="display:flex;align-items:center;gap:10px;background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:8px 12px;margin-bottom:6px'+(i<10?';border-color:var(--gold)':'')+'">'+
-  '<span style="min-width:30px;text-align:center">'+medal(i)+'</span>'+
-  '<span style="flex:1;font-weight:600">'+esc(r.display_name)+(r.runs?'<span style="color:var(--muted);font-weight:400;font-size:12px"> · '+(r.runs|0)+'× pokus</span>':'')+'</span>'+
-  '<span style="color:var(--gold)">'+(r.best_floor|0)+'. patro</span>'+
-  (canDelete&&r.user_id?'<button class="mini red" title="Smazat žáka z žebříčku věže" onclick="deleteTowerRunUI('+i+')">🗑</button>':'')+
-  '</div>').join('')+
+ bw.innerHTML=_towBoardHtml(board,canDelete)+
   '<p style="color:var(--muted);font-size:12px;margin-top:6px">Zlatý rámeček = aktuální top 10 (zapíše se při uzavření sezóny).'+(canDelete?' 🗑 odebere žáka z žebříčku aktuální sezóny (síň slávy zůstává).':'')+'</p>';
- if(!hall.length)hw.innerHTML='<div class="empty">Síň slávy je zatím prázdná — naplní se uzavřením první sezóny.</div>';
- else{
-  let html='',season=null;
-  hall.forEach(r=>{
-   if(r.season!==season){season=r.season;html+='<h4 style="margin:10px 0 6px;color:var(--muted);font-size:12px">ŠKOLNÍ ROK '+esc(season)+'</h4>';}
-   html+='<div style="display:flex;gap:10px;padding:4px 12px;font-size:14px">'+
-    '<span style="min-width:30px;text-align:center;color:var(--gold)">'+(r.rank|0)+'.</span>'+
-    '<span style="flex:1">'+esc(r.display_name)+'</span>'+
-    '<span style="color:var(--muted)">'+(r.best_floor|0)+'. patro</span></div>';
-  });
-  hw.innerHTML=html;
- }
+ hw.innerHTML=_towHallHtml(hall);
 }
 async function closeSeasonUI(){
  const game=towerGameSel();
@@ -1724,8 +1964,10 @@ document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
  const tab=t.dataset.tab;
  document.getElementById('t-overview').classList.toggle('hidden',tab!=='overview');
  document.getElementById('t-classes').classList.toggle('hidden',tab!=='classes');
+ document.getElementById('t-assignments').classList.toggle('hidden',tab!=='assignments');
  document.getElementById('t-preview').classList.toggle('hidden',tab!=='preview');
  document.getElementById('t-diag').classList.toggle('hidden',tab!=='diag');
+ document.getElementById('t-prijimacky').classList.toggle('hidden',tab!=='prijimacky');
  document.getElementById('t-leaderboard').classList.toggle('hidden',tab!=='leaderboard');
  document.getElementById('t-tower').classList.toggle('hidden',tab!=='tower');
  document.getElementById('t-battles').classList.toggle('hidden',tab!=='battles');
@@ -1734,9 +1976,11 @@ document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
  document.getElementById('t-teachers').classList.toggle('hidden',tab!=='teachers');
  document.getElementById('t-audit').classList.toggle('hidden',tab!=='audit');
  if(tab==='classes'){renderClasses();renderBroadcasts();}
+ if(tab==='assignments')renderAssignments();
  if(tab==='teachers')loadTeachers();
  if(tab==='audit')loadAudit();
  if(tab==='diag')renderDiag();
+ if(tab==='prijimacky')renderPrijimacky();
  if(tab==='leaderboard')initLeaderboardTab();
  if(tab==='tower')renderTower();
  if(tab==='battles')initBattlesTab();
