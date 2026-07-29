@@ -451,6 +451,16 @@ window.RPGCloud = (function () {
       return data || [];
     } catch (e) { console.warn('[RPGCloud] pzClassReadiness selhal:', e); return []; }
   }
+  // Diagnostika okruhů celé třídy (Fáze 22). Graceful: bez spuštěného
+  // phase22.sql RPC neexistuje → prázdné pole → konzole heatmapu skryje.
+  async function pzClassTopics(classId) {
+    if (!client || !user) return [];
+    try {
+      const { data, error } = await client.rpc('pz_class_topics', { p_class: classId });
+      if (error) throw error;
+      return data || [];
+    } catch (e) { console.warn('[RPGCloud] pzClassTopics selhal:', e); return []; }
+  }
 
   /* ════════ VYSVĚTLENÍ POSTUPU — Fáze 6 ════════ */
   async function saveExplanation(game, mid, taskIdx, taskText, answer, explanation) {
@@ -1261,5 +1271,5 @@ window.RPGCloud = (function () {
            // Fáze 20 — úkoly s termínem
            listAssignments, createAssignment, deleteAssignment, assignmentProgress, pullMyAssignments,
            // Fáze 21 — přijímačky: cloud sync pokroku
-           pzGetStats, pzSaveStats, pzClassReadiness };
+           pzGetStats, pzSaveStats, pzClassReadiness, pzClassTopics };
 })();

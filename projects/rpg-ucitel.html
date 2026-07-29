@@ -292,6 +292,13 @@ h4{font-family:var(--px);font-size:12px;font-weight:700;color:var(--accent);lett
     <button class="mini" onclick="renderPrijimacky()">↻ Obnovit</button>
    </div>
    <div id="pz-wrap"><div class="empty">Vyber třídu.</div></div>
+   <!-- Fáze 22: kde třída tápe po okruzích (graceful — bez phase22.sql skryté) -->
+   <div id="pz-topics-box" class="hidden" style="margin-top:18px">
+    <div class="info-box"><b>🎯 Kde třída tápe</b> — úspěšnost po okruzích přes celou třídu.
+     📝 = ostrý test nanečisto (časový tlak), 🏃 = klidné procvičování. Nejslabší okruhy nahoře —
+     tam má smysl zacílit výuku.</div>
+    <div id="pz-topics"></div>
+   </div>
   </div>
 
   <!-- ŽEBŘÍČKY (XP) — viditelné pro učitele i bez vlastní třídy (#103) -->
@@ -1728,10 +1735,13 @@ async function renderPrijimacky(){
  }
  const wrap=document.getElementById('pz-wrap');
  const cid=csel?csel.value:'';
- if(!cid){wrap.innerHTML='<div class="empty">Vyber třídu — uvidíš připravenost jejích žáků na přijímačky.</div>';return;}
+ const tbox=document.getElementById('pz-topics-box');
+ if(!cid){wrap.innerHTML='<div class="empty">Vyber třídu — uvidíš připravenost jejích žáků na přijímačky.</div>';
+  if(tbox)tbox.classList.add('hidden'); return;}
  wrap.innerHTML='<div class="empty">Načítám…</div>';
  const rows=await RPGCloud.pzClassReadiness(cid);
- if(!rows||!rows.length){wrap.innerHTML='<div class="empty">Zatím žádná data — žáci se musí přihlásit na přijímačkovém hubu a něco vyřešit.</div>';return;}
+ if(!rows||!rows.length){wrap.innerHTML='<div class="empty">Zatím žádná data — žáci se musí přihlásit na přijímačkovém hubu a něco vyřešit.</div>';
+  if(tbox)tbox.classList.add('hidden'); return;}
  const bar=pct=>{const col=pct>=80?'#2fbf71':pct>=50?'#3b82f6':pct>=25?'#e0a020':'#e5484d';
   return '<div style="flex:1;height:12px;background:var(--panel2);border-radius:6px;overflow:hidden"><div style="width:'+pct+'%;height:100%;background:'+col+'"></div></div>';};
  wrap.innerHTML=rows.map(r=>{const pct=(r.readiness|0);
@@ -1741,6 +1751,53 @@ async function renderPrijimacky(){
    '<span style="flex:0 0 44px;text-align:right;font-weight:700">'+pct+' %</span>'+
    '<span style="flex:0 0 66px;text-align:right;color:var(--muted);font-size:12px">'+(r.attempts|0)+'× test</span></div>';}).join('')+
   '<p style="color:var(--muted);font-size:12px;margin-top:8px">Připravenost = odhad z nejlepšího testu nanečisto a přesnosti procvičování (počítá se u žáka v prohlížeči). 🟢/🟡 = nedávno aktivní.</p>';
+ renderPzTopics(cid);
+}
+
+/* ── PŘIJÍMAČKY: kde třída tápe po okruzích (Fáze 22) ── */
+// Názvy okruhů (konzole nenačítá prijimacky-topics.js). Jen známá ID se
+// vykreslují — podvržený klíč ze žákova JSONu se zahodí.
+const PZ_TOPIC_NAMES = {
+ 'vyrazy-mocniny':'Číselné výrazy, mocniny a odmocniny',
+ 'zlomky':'Zlomky a desetinná čísla',
+ 'procenta':'Procenta a finanční matematika',
+ 'pomer':'Poměr a úměrnost',
+ 'vyrazy-promenna':'Výrazy s proměnnou',
+ 'rovnice':'Rovnice a soustavy',
+ 'slovni':'Slovní úlohy',
+ 'geometrie':'Geometrie v rovině',
+ 'telesa':'Tělesa (objem a povrch)',
+ 'data':'Tabulky, data a statistika',
+};
+async function renderPzTopics(cid){
+ const box=document.getElementById('pz-topics-box'), wrap=document.getElementById('pz-topics');
+ if(!box||!wrap) return;
+ if(!cid || !RPGCloud.pzClassTopics){ box.classList.add('hidden'); return; }
+ let rows=[];
+ try { rows = await RPGCloud.pzClassTopics(cid) || []; } catch(e) { rows=[]; }
+ // jen známé okruhy, které mají aspoň nějaká data
+ rows = rows.filter(r=>r && PZ_TOPIC_NAMES[r.topic] && ((r.prac_total|0)+(r.test_total|0))>0);
+ if(!rows.length){ box.classList.add('hidden'); return; }   // graceful: bez phase22.sql / bez dat
+ box.classList.remove('hidden');
+ const pct=(ok,tot)=> tot>0 ? Math.round(ok/tot*100) : null;
+ const col=p=>'hsl('+Math.round(p*1.2)+',60%,45%)';         // 0 % červená → 100 % zelená
+ wrap.innerHTML=rows.map(r=>{
+  const pOk=r.prac_ok|0, pTot=r.prac_total|0, tOk=r.test_ok|0, tTot=r.test_total|0;
+  const all=pct(pOk+tOk, pTot+tTot);
+  const pp=pct(pOk,pTot), tp=pct(tOk,tTot);
+  const chip=(icon,v,title)=> v==null ? '' :
+   '<span title="'+esc(title)+'" style="flex:0 0 auto;font-size:12px;font-weight:700;color:'+col(v)+'">'+icon+' '+v+' %</span>';
+  return '<div style="display:flex;align-items:center;gap:10px;background:var(--panel2);border:1px solid var(--line);'+
+    'border-left:4px solid '+col(all)+';border-radius:8px;padding:8px 12px;margin-bottom:6px">'+
+   '<span style="flex:0 0 38%;font-weight:600;min-width:0">'+esc(PZ_TOPIC_NAMES[r.topic])+'</span>'+
+   '<div style="flex:1;height:12px;background:var(--panel);border-radius:6px;overflow:hidden">'+
+    '<div style="width:'+all+'%;height:100%;background:'+col(all)+'"></div></div>'+
+   '<span style="flex:0 0 46px;text-align:right;font-weight:700">'+all+' %</span>'+
+   chip('📝',tp,'ostrý test nanečisto')+chip('🏃',pp,'klidné procvičování')+
+   '<span style="flex:0 0 62px;text-align:right;color:var(--muted);font-size:12px">'+(r.students|0)+' žáků</span>'+
+   '</div>';
+ }).join('')+
+  '<p style="color:var(--muted);font-size:12px;margin-top:8px">Barva = společná úspěšnost okruhu. Rozdíl mezi 📝 a 🏃 ukazuje, co žáci umí v klidu, ale pod časovým tlakem se rozsype.</p>';
 }
 
 /* ── VĚŽ LEGEND (Fáze 11) ── */
