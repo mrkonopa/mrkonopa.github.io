@@ -64,6 +64,7 @@
      Bez RPGCloud / bez přihlášení běží vše lokálně jako dřív. Po přihlášení
      školním Google účtem se pokrok slévá napříč zařízeními (nikdy neztratí). */
   const K_ATT = 'PZ_CERMAT_ATTEMPTS', K_PRA = 'PZ_PRACTICE_PROGRESS', K_DIA = 'PZ_DIAG_LAST';
+  const K_TST = 'PZ_TEST_TOPICS';
   const hasCloud = () => (typeof window.RPGCloud !== 'undefined') &&
     (typeof RPGCloud.configured === 'function') && RPGCloud.configured();
 
@@ -85,8 +86,61 @@
   }
   const readLocal = () => ({
     attempts: store.get(K_ATT, []), practice: store.get(K_PRA, {}),
-    diag: store.get(K_DIA, null), readiness: computeReadiness(),
+    diag: store.get(K_DIA, null), test: store.get(K_TST, {}), readiness: computeReadiness(),
   });
+
+  /* ════════ TEST NANEČISTO → SKLAD SLABIN PO OKRUZÍCH ════════
+     Ostrý test dosud znal přesně, které pozice žák pokazil, ale zahazoval to
+     (ukládalo se jen skóre). Tady se rozbor přeloží přes pozice testu na okruhy
+     a uloží do PZ_TEST_TOPICS — adaptivita i mapa témat pak vědí, co nešlo
+     v ostrých podmínkách (silnější signál než klidné procvičování). */
+  function recordTestTopics(review) {
+    if (!Array.isArray(review) || !window.PZ_TOPICS || !PZ_TOPICS.topicsForSlot) return null;
+    const cur = isObj(store.get(K_TST, {})) ? store.get(K_TST, {}) : {};
+    const now = Date.now();
+    let touched = 0;
+    review.forEach(r => {
+      if (!isObj(r)) return;
+      // pozice úlohy v testu je 1-indexovaná (r.no), slot je 0-indexovaný
+      const ids = PZ_TOPICS.topicsForSlot(num(r.no) - 1);
+      if (!ids.length) return;
+      // granularita po podúlohách (věrnější než jen body); fallback = celá úloha
+      const items = Array.isArray(r.items) ? r.items.filter(isObj) : [];
+      const tot = items.length || 1;
+      const ok = items.length ? items.filter(it => !!it.ok).length : (num(r.earned) >= num(r.max) ? 1 : 0);
+      ids.forEach(id => {
+        if (id === '__proto__' || id === 'constructor' || id === 'prototype') return;
+        if (!cur[id] && Object.keys(cur).length >= 60) return; // anti-flood
+        const p = isObj(cur[id]) ? cur[id] : { ok: 0, total: 0 };
+        cur[id] = { ok: num(p.ok) + ok, total: num(p.total) + tot, last: now };
+        touched++;
+      });
+    });
+    if (!touched) return null;
+    store.set(K_TST, cur);
+    cloudPush();
+    return cur;
+  }
+  // Nejslabší okruhy z JEDNOHO rozboru testu (pro doporučení „co teď procvičovat").
+  function weakTopicsFromReview(review) {
+    if (!Array.isArray(review) || !window.PZ_TOPICS || !PZ_TOPICS.topicsForSlot) return [];
+    const agg = {};
+    review.forEach(r => {
+      if (!isObj(r)) return;
+      const ids = PZ_TOPICS.topicsForSlot(num(r.no) - 1);
+      const items = Array.isArray(r.items) ? r.items.filter(isObj) : [];
+      const tot = items.length || 1;
+      const ok = items.length ? items.filter(it => !!it.ok).length : (num(r.earned) >= num(r.max) ? 1 : 0);
+      ids.forEach(id => {
+        const a = agg[id] || (agg[id] = { id, ok: 0, total: 0 });
+        a.ok += ok; a.total += tot;
+      });
+    });
+    const list = (window.PZ_TOPICS && PZ_TOPICS.list) || [];
+    const nameOf = id => { const t = list.find(x => x.id === id); return t ? t.name : id; };
+    return Object.keys(agg).map(id => ({ id, name: nameOf(id), ok: agg[id].ok, total: agg[id].total, acc: agg[id].ok / agg[id].total }))
+      .filter(x => x.acc < 1).sort((a, b) => a.acc - b.acc);
+  }
 
   // Sloučení lokálního a cloudového pokroku (kid-friendly: nikdy neztratí).
   // Plně obranné: cizí strana (vlastní cloud řádek, ale mohl ho žák podvrhnout
@@ -113,10 +167,21 @@
         const cur = practice[t] || { ok: 0, total: 0 };
         practice[t] = { ok: Math.max(cur.ok, num(v.ok)), total: Math.max(cur.total, num(v.total)) };
       }
+    // testové slabiny po okruzích: stejný kid-friendly max() merge jako procvičování
+    const test = {};
+    for (const src of [isObj(a.test) ? a.test : {}, isObj(b.test) ? b.test : {}])
+      for (const t in src) {
+        if (!Object.prototype.hasOwnProperty.call(src, t)) continue;
+        if (t === '__proto__' || t === 'constructor' || t === 'prototype') continue;
+        const v = src[t]; if (!isObj(v)) continue;
+        if (!test[t] && Object.keys(test).length >= 60) continue;
+        const cur = test[t] || { ok: 0, total: 0, last: 0 };
+        test[t] = { ok: Math.max(cur.ok, num(v.ok)), total: Math.max(cur.total, num(v.total)), last: Math.max(cur.last, num(v.last)) };
+      }
     // diagnostika: novější dle date; jen objekt
     const da = isObj(a.diag) ? a.diag : null, db = isObj(b.diag) ? b.diag : null;
     const diag = (!da) ? db : (!db) ? da : (String(db.date) > String(da.date) ? db : da);
-    const out = { attempts: attempts.slice(-50), practice, diag };
+    const out = { attempts: attempts.slice(-50), practice, diag, test };
     out.readiness = 0; // dopočítá se po zápisu z lokálu
     return out;
   }
@@ -124,6 +189,7 @@
     if (m.attempts) store.set(K_ATT, m.attempts);
     if (m.practice) store.set(K_PRA, m.practice);
     if (m.diag) store.set(K_DIA, m.diag);
+    if (m.test) store.set(K_TST, m.test);
   }
 
   let pushTimer = null;
@@ -133,7 +199,7 @@
     clearTimeout(pushTimer);
     pushTimer = setTimeout(() => {
       const l = readLocal();
-      RPGCloud.pzSaveStats({ attempts: l.attempts, practice: l.practice, diag: l.diag, readiness: l.readiness });
+      RPGCloud.pzSaveStats({ attempts: l.attempts, practice: l.practice, diag: l.diag, test: l.test, readiness: l.readiness });
     }, 800);
   }
   // Po přihlášení: stáhni cloud, sloučí s lokálem, zapiš OBĚ strany.
@@ -180,20 +246,27 @@
     const diag = store.get('PZ_DIAG_LAST', null);
     const diagWrong = new Set();
     if (diag && Array.isArray(diag.topics)) diag.topics.forEach(x => { if (x && !x.correct) diagWrong.add(x.id); });
+    const test = isObj(store.get(K_TST, {})) ? store.get(K_TST, {}) : {};
     const now = Date.now();
     const list = (window.PZ_TOPICS && PZ_TOPICS.list) || [];
     return list.map(t => {
       const p = isObj(prog[t.id]) ? prog[t.id] : null;
       const total = p ? num(p.total) : 0, ok = p ? num(p.ok) : 0;
       const acc = total > 0 ? ok / total : null;
+      const tp = isObj(test[t.id]) ? test[t.id] : null;
+      const ttotal = tp ? num(tp.total) : 0, tok = tp ? num(tp.ok) : 0;
+      const tacc = ttotal > 0 ? tok / ttotal : null;
       let w = 1, why = '';
       if (total === 0) { w += 2.5; why = 'ještě jsi nezkoušel'; }
       else { w += (1 - acc) * 3; if (acc < 0.6) why = 'tady míváš chyby'; }
       if (diagWrong.has(t.id)) { w += 2; why = 'slabina z diagnostiky'; }
+      // ostrý test nanečisto = nejsilnější důkaz (časový tlak, reálné podmínky)
+      if (tacc != null) { w += (1 - tacc) * 3.5; if (tacc < 0.6) why = 'chyby v testu nanečisto'; }
       if (p && p.last) { const days = (now - num(p.last)) / 86400000; w += Math.min(Math.max(days, 0), 10) * 0.25; }
-      if (acc != null && acc >= 0.9 && total >= 10) { w *= 0.25; why = 'zvládnuté 💪'; }
+      // „zvládnuté" nezlevňuj, pokud to v ostrém testu drhne
+      if (acc != null && acc >= 0.9 && total >= 10 && !(tacc != null && tacc < 0.7)) { w *= 0.25; why = 'zvládnuté 💪'; }
       if (!why) why = 'opakování';
-      return { id: t.id, name: t.name, weight: Math.max(0.05, w), acc, total, why };
+      return { id: t.id, name: t.name, weight: Math.max(0.05, w), acc, total, tacc, ttotal, why };
     });
   }
   function pickWeakTopic() {
@@ -228,5 +301,5 @@
     return [l1, l2, l3];
   }
 
-  window.PZ = { esc, check, store, inputMode, themeSvg, attachLoginBar, cloudPush, cloudSync, topicWeights, pickWeakTopic, hintsFor };
+  window.PZ = { esc, check, store, inputMode, themeSvg, attachLoginBar, cloudPush, cloudSync, topicWeights, pickWeakTopic, hintsFor, recordTestTopics, weakTopicsFromReview };
 })();

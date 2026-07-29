@@ -162,6 +162,19 @@ main { max-width:920px; margin:0 auto; padding:18px 24px 80px; }
 .cm-review-sol { color:var(--text); font-size:.9rem; line-height:1.55; background:var(--gold-light);
   padding:8px 10px; border-left:3px solid var(--gold); border-radius:0 6px 6px 0; }
 
+/* doporučení po testu — „co teď procvičovat" (uzavírá smyčku test → procvičování) */
+.cm-next { margin:18px 0 4px; background:var(--blue-light); border:1px solid var(--blue);
+  border-radius:10px; padding:14px 16px; }
+.cm-next-t { font-weight:800; color:var(--blue); margin-bottom:4px; }
+.cm-next-sub { font-size:.88rem; color:var(--muted); margin-bottom:10px; line-height:1.45; }
+.cm-next-list { display:flex; flex-direction:column; gap:7px; }
+.cm-next-row { display:flex; align-items:center; gap:10px; background:var(--card); border:1px solid var(--border);
+  border-radius:8px; padding:9px 11px; text-decoration:none; color:var(--text); transition:border-color .15s, transform .15s; }
+.cm-next-row:hover { border-color:var(--blue); transform:translateX(2px); }
+.cm-next-row .nm { font-weight:600; flex:1; line-height:1.35; }
+.cm-next-row .sc { font-size:.85rem; color:var(--red); font-weight:700; font-variant-numeric:tabular-nums; white-space:nowrap; }
+.cm-next-row .go { font-size:.85rem; color:var(--blue); font-weight:700; white-space:nowrap; }
+
 .cm-actions { display:flex; gap:10px; justify-content:center; margin-top:16px; flex-wrap:wrap; }
 .cm-history-title { font-size:.8rem; font-weight:700; color:var(--muted); margin-bottom:8px; letter-spacing:.04em; }
 .cm-history-item { padding:7px 0; border-top:1px solid var(--border); font-size:.92rem; color:var(--text); }

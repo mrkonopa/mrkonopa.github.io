@@ -74,6 +74,8 @@
 <script src="../rpg-svg-9.js"></script>
 <script src="prijimacky-core.js"></script>
 <script src="../rpg-cermat-9.js"></script>
+<!-- topics.js kvůli mapě pozice testu → okruh (rozbor krmí sklad slabin) -->
+<script src="prijimacky-topics.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script defer src="../rpg-cloud.js"></script>
 <script>document.addEventListener('DOMContentLoaded',function(){if(window.PZ&&PZ.attachLoginBar)PZ.attachLoginBar();});</script>
@@ -188,16 +190,37 @@ function cmSubmit(auto){
     }
   });
   saveAttempt(score, G().maxScore);
+  // ostrý test krmí sklad slabin po okruzích → adaptivní procvičování se z něj učí
+  if (PZ.recordTestTopics) { try { PZ.recordTestTopics(review); } catch(e) {} }
   showResults(score, review, auto);
 }
 
+// „Co teď procvičovat" — okruhy, kde test odhalil chyby, s odkazem do procvičování.
+// Graceful: bez PZ.weakTopicsFromReview nebo při plném počtu bodů se nic nevloží.
+function nextStepsHtml(review){
+  if(!PZ.weakTopicsFromReview) return '';
+  let weak=[];
+  try { weak = PZ.weakTopicsFromReview(review) || []; } catch(e) { return ''; }
+  if(!weak.length) return '';
+  const rows = weak.slice(0,4).map(w=>{
+    const miss = (w.total - w.ok)|0;
+    return '<a class="cm-next-row" href="procvicovani.html?okruh='+encodeURIComponent(w.id)+'">'+
+      '<span class="nm">'+PZ.esc(w.name)+'</span>'+
+      '<span class="sc">'+miss+'/'+(w.total|0)+' chyb</span>'+
+      '<span class="go">Procvičit →</span></a>';
+  }).join('');
+  return '<div class="cm-next"><div class="cm-next-t">🎯 Co teď procvičovat</div>'+
+    '<div class="cm-next-sub">Tyhle okruhy ti v testu nesedly. Adaptivní procvičování je odteď bude nabízet častěji.</div>'+
+    '<div class="cm-next-list">'+rows+'</div></div>';
+}
 function showResults(score, review, auto){
   document.getElementById('cm-play').style.display='none';
   document.getElementById('cm-end').style.display='block';
   const max=G().maxScore, pct=Math.round(score/max*100);
   document.getElementById('cm-end-score').textContent = score+' / '+max+' bodů'+(auto?' (čas vypršel)':'');
   document.getElementById('cm-end-pct').textContent = pct+' %';
-  let html='<div class="cm-history-title">ROZBOR PO ÚLOHÁCH — klikni na úlohu pro vyřešený postup</div>';
+  let html = nextStepsHtml(review);
+  html+='<div class="cm-history-title">ROZBOR PO ÚLOHÁCH — klikni na úlohu pro vyřešený postup</div>';
   review.sort((a,b)=>a.no-b.no).forEach(r=>{
     const cls=r.earned>=r.max?'ok':(r.earned>0?'':'bad');
     const openAttr=r.earned<r.max?' open':'';
