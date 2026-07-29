@@ -205,5 +205,28 @@
     return ws[ws.length - 1].id;
   }
 
-  window.PZ = { esc, check, store, inputMode, themeSvg, attachLoginBar, cloudPush, cloudSync, topicWeights, pickWeakTopic };
+  /* ════════ PROGRESIVNÍ NÁPOVĚDY — L1 nasměrování → L2 vzorec → L3 výsledek ════════
+     Baseline per-okruh (L1+L2). Konkrétní generátor může přebít vlastními
+     item.hint1/hint2 (přesnější). L3 je vždy samotný výsledek. */
+  const TOPIC_HINTS = {
+    'vyrazy-mocniny': ['Spočítej nejdřív mocniny a odmocniny, teprve pak zbytek (pořadí operací).', 'Mocnina = číslo krát sebe (a² = a·a). Odmocnina hledá číslo, které umocněné dá daný výsledek.'],
+    'zlomky': ['U stejného jmenovatele počítej jen s čitateli. „Část z celku" = celek vyděl jmenovatelem.', 'Část = (celek : jmenovatel) × čitatel. Celek zpět = díl × jmenovatel.'],
+    'procenta': ['Převeď procenta na díl: 1 % = celek : 100.', 'Část = procenta × (celek : 100). Základ (celek) = část : procenta × 100.'],
+    'pomer': ['Zjisti koeficient — kolikrát se jedno číslo vejde do druhého.', 'Přímá úměra: víc → víc (násob). Nepřímá (víc dělníků → míň dní): víc → míň (poděl).'],
+    'vyrazy-promenna': ['Za x dosaď dané číslo a spočítej výraz.', 'Dodrž pořadí: nejdřív mocniny a závorky, pak násobení, nakonec sčítání a odčítání.'],
+    'rovnice': ['Dej členy s neznámou na jednu stranu, čísla na druhou.', 'Co je u x přičtené/odečtené, přesuň s opačným znaménkem; pak vyděl číslem u x.'],
+    'slovni': ['Vypiš si, co víš a co hledáš; přelož slova do čísel.', 'Součet a rozdíl → větší = (součet + rozdíl) : 2. Nákup → sečti (počet × cena).'],
+    'geometrie': ['Nakresli si obrázek a napiš vzorec pro obvod nebo obsah.', 'Obdélník: O = 2·(a+b), S = a·b. Trojúhelník: S = (a·v):2. Pravoúhlý: c² = a² + b² (Pythagoras).'],
+    'telesa': ['Napiš vzorec pro objem nebo povrch daného tělesa.', 'Kvádr: V = a·b·c, S = 2·(ab+bc+ac). Krychle: V = a³, S = 6a². Pozor: 1 litr = 1000 cm³.'],
+    'data': ['Rozmysli, jestli jde o průměr, medián, modus nebo rozpětí.', 'Průměr = součet : počet. Medián = prostřední po seřazení. Modus = nejčastější. Rozpětí = max − min.'],
+  };
+  function hintsFor(item, topicId) {
+    const th = TOPIC_HINTS[topicId] || ['Zkus si vzpomenout na postup pro tento typ úlohy.', 'Rozepiš si výpočet krok za krokem.'];
+    const l1 = (item && item.hint1) || th[0];
+    const l2 = (item && item.hint2) || th[1];
+    const l3 = 'Výsledek: ' + (item && item.ans != null ? item.ans : '');
+    return [l1, l2, l3];
+  }
+
+  window.PZ = { esc, check, store, inputMode, themeSvg, attachLoginBar, cloudPush, cloudSync, topicWeights, pickWeakTopic, hintsFor };
 })();

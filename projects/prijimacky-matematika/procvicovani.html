@@ -30,6 +30,13 @@
   .pr-sol .lbl { font-size:.78rem; font-weight:700; color:var(--gold); letter-spacing:.04em; display:block; margin-bottom:4px; }
   .yn-row { display:flex; gap:10px; }
   .yn-row .pz-btn { flex:1; justify-content:center; }
+  .pr-hint { margin-top:8px; background:var(--blue-light); border-left:3px solid var(--blue);
+    border-radius:0 8px 8px 0; padding:8px 12px; font-size:.92rem; line-height:1.5; color:var(--text); }
+  .pr-hint .hl { display:block; font-size:.72rem; font-weight:700; color:var(--blue); letter-spacing:.04em; margin-bottom:2px; }
+  .pr-hint.l2 { border-left-color:var(--teal); }
+  .pr-hint.l2 .hl { color:var(--teal); }
+  .pr-hint.l3 { background:#fff3e0; border-left-color:#e8890c; font-weight:600; }
+  .pr-hint.l3 .hl { color:#e8890c; }
 </style>
 </head>
 <body>
@@ -65,6 +72,10 @@
       <div class="cm-svg" id="pr-svg" style="display:none"></div>
       <div class="cm-part-prompt" id="pr-prompt"></div>
       <div id="pr-answer"></div>
+      <div id="pr-hintwrap" style="margin-top:10px;display:none">
+        <button class="pz-btn ghost sm" id="pr-hint-btn" onclick="prHint()">💡 Nápověda</button>
+        <div id="pr-hints"></div>
+      </div>
       <div class="pr-feedback" id="pr-fb" style="display:none"></div>
       <div class="pr-sol" id="pr-sol" style="display:none"></div>
       <div style="margin-top:14px" id="pr-nextwrap" style="display:none">
@@ -85,7 +96,7 @@
 <script>document.addEventListener('DOMContentLoaded',function(){if(window.PZ&&PZ.attachLoginBar)PZ.attachLoginBar();});</script>
 <script>
 const PROG_KEY = 'PZ_PRACTICE_PROGRESS';
-let PR = { topic:null, item:null, ok:0, total:0, answered:false, adaptive:false, streak:0, stick:null, stickN:0 };
+let PR = { topic:null, item:null, ok:0, total:0, answered:false, adaptive:false, streak:0, stick:null, stickN:0, hintLevel:0, hints:[] };
 
 function loadProg(){ return PZ.store.get(PROG_KEY, {}); }
 function bumpProg(topicId, correct){
@@ -157,9 +168,27 @@ function prNext(){
       'onkeydown="if(event.key===\'Enter\')prSubmit()"><div style="margin-top:12px"><button class="pz-btn primary" onclick="prSubmit()">Zkontrolovat</button></div>';
     setTimeout(()=>{ const i=document.getElementById('pr-input'); if(i)i.focus(); },30);
   }
+  // reset progresivních nápověd
+  PR.hintLevel=0; PR.hints = PZ.hintsFor(PR.item, PR.topic.id);
+  document.getElementById('pr-hints').innerHTML='';
+  const hb=document.getElementById('pr-hint-btn'); hb.disabled=false; hb.textContent='💡 Nápověda';
+  document.getElementById('pr-hintwrap').style.display='block';
   document.getElementById('pr-fb').style.display='none';
   document.getElementById('pr-sol').style.display='none';
   document.getElementById('pr-next').style.display='none';
+}
+function prHint(){
+  if(PR.answered || PR.hintLevel>=3) return;
+  PR.hintLevel++;
+  const labels=['Nasměrování','Postup','Výsledek'];
+  let html='';
+  for(let i=0;i<PR.hintLevel;i++){
+    html += '<div class="pr-hint l'+(i+1)+'"><span class="hl">Nápověda '+(i+1)+'/3 · '+labels[i]+'</span>'+PZ.esc(PR.hints[i]||'')+'</div>';
+  }
+  document.getElementById('pr-hints').innerHTML=html;
+  const hb=document.getElementById('pr-hint-btn');
+  hb.textContent = PR.hintLevel>=3 ? '💡 Nápověda 3/3' : '💡 Další nápověda ('+PR.hintLevel+'/3)';
+  if(PR.hintLevel>=3) hb.disabled=true;
 }
 
 function prSubmitYN(v){ if(PR.answered) return; grade(v===PR.item.ans, v); }
@@ -178,6 +207,7 @@ function grade(correct){
   bumpProg(PR.topic.id, correct); updateCounter();
   // zamkni vstupy
   document.querySelectorAll('#pr-answer input, #pr-answer button').forEach(e=>e.disabled=true);
+  document.getElementById('pr-hint-btn').disabled=true;
   const fb=document.getElementById('pr-fb');
   fb.className='pr-feedback '+(correct?'ok':'bad');
   fb.textContent = correct
