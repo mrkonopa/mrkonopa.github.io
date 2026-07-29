@@ -47,6 +47,8 @@
 <main>
   <!-- VÝBĚR OKRUHU -->
   <div id="pr-pick">
+    <button class="pz-btn primary" id="pr-adaptive-btn" style="width:100%;justify-content:center;padding:15px;margin-bottom:16px;font-size:1.05rem" onclick="prStartAdaptive()">🎯 Trénuj své slabiny <span style="font-weight:500;opacity:.85">(adaptivně)</span></button>
+    <p style="text-align:center;color:var(--muted);font-size:.82rem;margin:-6px 0 18px">Vybírá okruhy podle toho, kde míváš chyby — z diagnostiky i z tvého procvičování.</p>
     <div class="topic-list" id="pr-topics"></div>
   </div>
 
@@ -82,12 +84,12 @@
 <script>document.addEventListener('DOMContentLoaded',function(){if(window.PZ&&PZ.attachLoginBar)PZ.attachLoginBar();});</script>
 <script>
 const PROG_KEY = 'PZ_PRACTICE_PROGRESS';
-let PR = { topic:null, item:null, ok:0, total:0, answered:false };
+let PR = { topic:null, item:null, ok:0, total:0, answered:false, adaptive:false };
 
 function loadProg(){ return PZ.store.get(PROG_KEY, {}); }
 function bumpProg(topicId, correct){
   const p = loadProg(); const t = p[topicId] || { ok:0, total:0 };
-  t.total++; if(correct) t.ok++; p[topicId] = t; PZ.store.set(PROG_KEY, p); if(PZ.cloudPush)PZ.cloudPush();
+  t.total++; if(correct) t.ok++; t.last = Date.now(); p[topicId] = t; PZ.store.set(PROG_KEY, p); if(PZ.cloudPush)PZ.cloudPush();
 }
 
 function renderTopics(){
@@ -101,7 +103,7 @@ function renderTopics(){
 
 function prStart(id){
   const topic = PZ_TOPICS.list.find(x=>x.id===id); if(!topic) return;
-  PR.topic = topic; PR.ok = 0; PR.total = 0;
+  PR.adaptive = false; PR.topic = topic; PR.ok = 0; PR.total = 0;
   document.getElementById('pr-pick').style.display='none';
   document.getElementById('pr-run').style.display='block';
   document.getElementById('pr-title').textContent = topic.name;
@@ -109,11 +111,27 @@ function prStart(id){
   prNext();
   window.scrollTo(0,0);
 }
-function prExit(){ PR.topic=null; renderTopics(); document.getElementById('pr-run').style.display='none';
+function prStartAdaptive(){
+  PR.adaptive = true; PR.topic = null; PR.ok = 0; PR.total = 0;
+  document.getElementById('pr-pick').style.display='none';
+  document.getElementById('pr-run').style.display='block';
+  updateCounter();
+  prNext();
+  window.scrollTo(0,0);
+}
+function prExit(){ PR.adaptive=false; PR.topic=null; renderTopics(); document.getElementById('pr-run').style.display='none';
   document.getElementById('pr-pick').style.display='block'; window.scrollTo(0,0); }
 function updateCounter(){ document.getElementById('pr-ok').textContent=PR.ok; document.getElementById('pr-total').textContent=PR.total; }
 
 function prNext(){
+  // adaptivní režim: každou úlohu vyber okruh podle slabosti
+  if(PR.adaptive){
+    const id = PZ.pickWeakTopic();
+    PR.topic = PZ_TOPICS.list.find(x=>x.id===id) || PZ_TOPICS.list[0];
+    const w = PZ.topicWeights().find(x=>x.id===PR.topic.id);
+    document.getElementById('pr-title').innerHTML = '🎯 '+PZ.esc(PR.topic.name)+
+      ' <span style="color:var(--muted);font-weight:500;font-size:.82rem">· '+PZ.esc(w?w.why:'')+'</span>';
+  }
   let it=null, guard=0;
   do { it = PZ_TOPICS.item(PR.topic.id); guard++; } while((!it || !it.prompt) && guard<8);
   if(!it){ document.getElementById('pr-prompt').textContent='Úlohu se nepodařilo načíst.'; return; }

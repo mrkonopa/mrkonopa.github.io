@@ -171,5 +171,39 @@
     RPGCloud.init();
   }
 
-  window.PZ = { esc, check, store, inputMode, themeSvg, attachLoginBar, cloudPush, cloudSync };
+  /* ════════ ADAPTIVNÍ VÝBĚR TÉMAT — Fáze A personalizace ════════
+     Váha okruhu roste s jeho slabostí: nízká přesnost, chyba v diagnostice,
+     „dávno neprocvičeno" (spaced repetition), nikdy nezkoušeno. Zvládnuté
+     okruhy se deprioritizují. pickWeakTopic() dělá váhovaný náhodný výběr. */
+  function topicWeights() {
+    const prog = store.get('PZ_PRACTICE_PROGRESS', {}) || {};
+    const diag = store.get('PZ_DIAG_LAST', null);
+    const diagWrong = new Set();
+    if (diag && Array.isArray(diag.topics)) diag.topics.forEach(x => { if (x && !x.correct) diagWrong.add(x.id); });
+    const now = Date.now();
+    const list = (window.PZ_TOPICS && PZ_TOPICS.list) || [];
+    return list.map(t => {
+      const p = isObj(prog[t.id]) ? prog[t.id] : null;
+      const total = p ? num(p.total) : 0, ok = p ? num(p.ok) : 0;
+      const acc = total > 0 ? ok / total : null;
+      let w = 1, why = '';
+      if (total === 0) { w += 2.5; why = 'ještě jsi nezkoušel'; }
+      else { w += (1 - acc) * 3; if (acc < 0.6) why = 'tady míváš chyby'; }
+      if (diagWrong.has(t.id)) { w += 2; why = 'slabina z diagnostiky'; }
+      if (p && p.last) { const days = (now - num(p.last)) / 86400000; w += Math.min(Math.max(days, 0), 10) * 0.25; }
+      if (acc != null && acc >= 0.9 && total >= 10) { w *= 0.25; why = 'zvládnuté 💪'; }
+      if (!why) why = 'opakování';
+      return { id: t.id, name: t.name, weight: Math.max(0.05, w), acc, total, why };
+    });
+  }
+  function pickWeakTopic() {
+    const ws = topicWeights(); if (!ws.length) return null;
+    const sum = ws.reduce((a, b) => a + b.weight, 0);
+    if (!(sum > 0)) return ws[0].id;
+    let r = Math.random() * sum;
+    for (const w of ws) { r -= w.weight; if (r <= 0) return w.id; }
+    return ws[ws.length - 1].id;
+  }
+
+  window.PZ = { esc, check, store, inputMode, themeSvg, attachLoginBar, cloudPush, cloudSync, topicWeights, pickWeakTopic };
 })();
