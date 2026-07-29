@@ -47,7 +47,7 @@
     <div id="st-tests"></div>
   </div>
   <div class="cm-panel" style="margin-top:16px">
-    <div class="st-sec-title">ZVLÁDNUTÍ TÉMAT (z procvičování)</div>
+    <div class="st-sec-title">MAPA TÉMAT · nejslabší nahoře</div>
     <div id="st-topics"></div>
   </div>
   <div class="cm-panel" style="margin-top:16px">
@@ -100,14 +100,16 @@ function render(){
         '<span class="st-bar-val">'+sc+' / '+mx+'</span></div>'; }).join('');
   } else te.innerHTML='<div class="st-empty">Zatím žádný test. Zkus <a href="test.html">test nanečisto</a>.</div>';
 
-  // témata — mastery
+  // mapa témat — všechny okruhy, nejslabší nahoře (reuse adaptivních vah)
   const to=document.getElementById('st-topics');
-  const rows = PZ_TOPICS.list.map(t=>{ const p=prog[t.id]; if(!p||!p.total) return null;
-    const pct=Math.round(p.ok/p.total*100);
-    return '<div class="st-bar-row"><span class="st-bar-name">'+PZ.esc(t.name)+'</span>'+
-      '<div class="st-bar"><div class="st-bar-in" style="width:'+pct+'%;background:'+barColor(pct)+'"></div></div>'+
-      '<span class="st-bar-val">'+p.ok+'/'+p.total+'</span></div>'; }).filter(Boolean);
-  to.innerHTML = rows.length ? rows.join('') : '<div class="st-empty">Zatím jsi neprocvičoval/a. Vyber <a href="procvicovani.html">okruh k procvičování</a>.</div>';
+  const tw = (PZ.topicWeights?PZ.topicWeights():[]).slice().sort((a,b)=>b.weight-a.weight);
+  const whyColor = why => /zvládnuté/.test(why)?'var(--green)':(/chyby|diagnostik/.test(why)?'var(--red)':(/nezkoušel/.test(why)?'var(--gold)':'var(--muted)'));
+  to.innerHTML = tw.map(t=>{ const has=t.total>0, pct=has?Math.round(t.acc*100):0;
+    return '<div class="st-bar-row"><span class="st-bar-name">'+PZ.esc(t.name)+
+      ' <span style="font-size:.72rem;color:'+whyColor(t.why)+';font-weight:600">· '+PZ.esc(t.why)+'</span></span>'+
+      '<div class="st-bar">'+(has?'<div class="st-bar-in" style="width:'+pct+'%;background:'+barColor(pct)+'"></div>':'')+'</div>'+
+      '<span class="st-bar-val">'+(has?pct+' %':'—')+'</span></div>'; }).join('')+
+    '<div style="margin-top:12px;text-align:center"><a class="pz-btn primary" href="procvicovani.html" style="display:inline-flex">🎯 Trénuj slabiny</a></div>';
 
   // diagnostika
   const de=document.getElementById('st-diag');

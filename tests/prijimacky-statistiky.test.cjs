@@ -53,7 +53,9 @@ localStorage.setItem('PZ_DIAG_LAST', JSON.stringify({date:'2026-01-03',ok:7,n:10
   ok(big[2]==='18','vyřešených úloh 18 ('+big[2]+')');
   ok(big[3]==='2','odevzdaných testů 2 ('+big[3]+')');
   ok(await page.evaluate(()=>document.querySelectorAll('#st-tests .st-attempt').length===2),'trend: 2 pokusy');
-  ok(await page.evaluate(()=>document.querySelectorAll('#st-topics .st-bar-row').length===2),'mastery: 2 témata');
+  ok(await page.evaluate(()=>document.querySelectorAll('#st-topics .st-bar-row').length===PZ_TOPICS.list.length),'mapa témat: všechny okruhy ('+(await page.evaluate(()=>PZ_TOPICS.list.length))+')');
+  ok(await page.evaluate(()=>{ const names=[...document.querySelectorAll('#st-topics .st-bar-name')].map(e=>e.textContent); const iz=names.findIndex(n=>/Zlomky/.test(n)), ir=names.findIndex(n=>/Rovnice/.test(n)); return iz>=0&&ir>=0&&iz<ir; }),'nejslabší nahoře (Zlomky acc25% výš než Rovnice acc80%)');
+  ok(await page.evaluate(()=>!!document.querySelector('#st-topics a[href="procvicovani.html"]')),'CTA „Trénuj slabiny" v mapě');
   ok(await page.evaluate(()=>/7 \/ 10/.test(document.getElementById('st-diag').textContent)),'diagnostika 7/10');
   ok(await page.evaluate(()=>/Zlomky/i.test(document.getElementById('st-diag').textContent)),'diagnostika ukazuje slabé téma');
   await ctx.close();

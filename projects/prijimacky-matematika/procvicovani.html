@@ -47,6 +47,8 @@
 <main>
   <!-- VÝBĚR OKRUHU -->
   <div id="pr-pick">
+    <button class="pz-btn primary" id="pr-adaptive-btn" style="width:100%;justify-content:center;padding:15px;margin-bottom:16px;font-size:1.05rem" onclick="prStartAdaptive()">🎯 Trénuj své slabiny <span style="font-weight:500;opacity:.85">(adaptivně)</span></button>
+    <p style="text-align:center;color:var(--muted);font-size:.82rem;margin:-6px 0 18px">Vybírá okruhy podle toho, kde míváš chyby — z diagnostiky i z tvého procvičování.</p>
     <div class="topic-list" id="pr-topics"></div>
   </div>
 
@@ -55,6 +57,7 @@
     <div class="cm-panel" style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px">
       <div><span style="font-weight:800" id="pr-title"></span></div>
       <div class="pr-counter"><span>Správně: <b id="pr-ok">0</b> / <span id="pr-total">0</span></span>
+        <span id="pr-streak" style="color:var(--gold);font-weight:700"></span>
         <button class="pz-btn ghost sm" onclick="prExit()">← Okruhy</button></div>
     </div>
     <div class="cm-task">
@@ -82,12 +85,12 @@
 <script>document.addEventListener('DOMContentLoaded',function(){if(window.PZ&&PZ.attachLoginBar)PZ.attachLoginBar();});</script>
 <script>
 const PROG_KEY = 'PZ_PRACTICE_PROGRESS';
-let PR = { topic:null, item:null, ok:0, total:0, answered:false };
+let PR = { topic:null, item:null, ok:0, total:0, answered:false, adaptive:false, streak:0, stick:null, stickN:0 };
 
 function loadProg(){ return PZ.store.get(PROG_KEY, {}); }
 function bumpProg(topicId, correct){
   const p = loadProg(); const t = p[topicId] || { ok:0, total:0 };
-  t.total++; if(correct) t.ok++; p[topicId] = t; PZ.store.set(PROG_KEY, p); if(PZ.cloudPush)PZ.cloudPush();
+  t.total++; if(correct) t.ok++; t.last = Date.now(); p[topicId] = t; PZ.store.set(PROG_KEY, p); if(PZ.cloudPush)PZ.cloudPush();
 }
 
 function renderTopics(){
@@ -101,7 +104,7 @@ function renderTopics(){
 
 function prStart(id){
   const topic = PZ_TOPICS.list.find(x=>x.id===id); if(!topic) return;
-  PR.topic = topic; PR.ok = 0; PR.total = 0;
+  PR.adaptive = false; PR.topic = topic; PR.ok = 0; PR.total = 0; PR.streak = 0; PR.stick = null; PR.stickN = 0;
   document.getElementById('pr-pick').style.display='none';
   document.getElementById('pr-run').style.display='block';
   document.getElementById('pr-title').textContent = topic.name;
@@ -109,11 +112,29 @@ function prStart(id){
   prNext();
   window.scrollTo(0,0);
 }
-function prExit(){ PR.topic=null; renderTopics(); document.getElementById('pr-run').style.display='none';
+function prStartAdaptive(){
+  PR.adaptive = true; PR.topic = null; PR.ok = 0; PR.total = 0; PR.streak = 0; PR.stick = null; PR.stickN = 0;
+  document.getElementById('pr-pick').style.display='none';
+  document.getElementById('pr-run').style.display='block';
+  updateCounter();
+  prNext();
+  window.scrollTo(0,0);
+}
+function prExit(){ PR.adaptive=false; PR.topic=null; renderTopics(); document.getElementById('pr-run').style.display='none';
   document.getElementById('pr-pick').style.display='block'; window.scrollTo(0,0); }
-function updateCounter(){ document.getElementById('pr-ok').textContent=PR.ok; document.getElementById('pr-total').textContent=PR.total; }
+function updateCounter(){ document.getElementById('pr-ok').textContent=PR.ok; document.getElementById('pr-total').textContent=PR.total;
+  const s=document.getElementById('pr-streak'); if(s) s.textContent = PR.streak>=2 ? ('🔥 série '+PR.streak) : ''; }
 
 function prNext(){
+  // adaptivní režim: každou úlohu vyber okruh podle slabosti.
+  // ZPD: když žák u tématu chybuje, „přilni" k němu a nech ho ještě potrénovat.
+  if(PR.adaptive){
+    const id = PR.stick || PZ.pickWeakTopic();
+    PR.topic = PZ_TOPICS.list.find(x=>x.id===id) || PZ_TOPICS.list[0];
+    const w = PZ.topicWeights().find(x=>x.id===PR.topic.id);
+    document.getElementById('pr-title').innerHTML = '🎯 '+PZ.esc(PR.topic.name)+
+      ' <span style="color:var(--muted);font-weight:500;font-size:.82rem">· '+PZ.esc(w?w.why:'')+'</span>';
+  }
   let it=null, guard=0;
   do { it = PZ_TOPICS.item(PR.topic.id); guard++; } while((!it || !it.prompt) && guard<8);
   if(!it){ document.getElementById('pr-prompt').textContent='Úlohu se nepodařilo načíst.'; return; }
@@ -151,12 +172,18 @@ function prSubmit(){
 }
 function grade(correct){
   PR.answered = true; PR.total++; if(correct) PR.ok++;
+  // ZPD: série + přilnutí k tématu při chybě (konsolidace, max 3× za sebou)
+  if(correct){ PR.streak++; PR.stick=null; PR.stickN=0; }
+  else { PR.streak=0; if(PR.adaptive){ PR.stick=PR.topic.id; PR.stickN=(PR.stickN||0)+1; if(PR.stickN>=3){ PR.stick=null; PR.stickN=0; } } }
   bumpProg(PR.topic.id, correct); updateCounter();
   // zamkni vstupy
   document.querySelectorAll('#pr-answer input, #pr-answer button').forEach(e=>e.disabled=true);
   const fb=document.getElementById('pr-fb');
   fb.className='pr-feedback '+(correct?'ok':'bad');
-  fb.textContent = correct ? '✓ Správně!' : '✗ Špatně. Správná odpověď: '+PR.item.ans;
+  fb.textContent = correct
+    ? (PR.streak>=3 ? '🔥 Paráda, série '+PR.streak+'!' : '✓ Správně!')
+    : ((PR.adaptive&&PR.stick) ? '✗ Nevadí — mrkni na postup, dáme ještě jednu z tohoto tématu. Správná odpověď: '+PR.item.ans
+                               : '✗ Špatně. Správná odpověď: '+PR.item.ans);
   fb.style.display='block';
   if(PR.item.sol){ const sol=document.getElementById('pr-sol');
     sol.innerHTML='<span class="lbl">VYŘEŠENÝ POSTUP</span>'+PZ.esc(PR.item.sol); sol.style.display='block'; }
