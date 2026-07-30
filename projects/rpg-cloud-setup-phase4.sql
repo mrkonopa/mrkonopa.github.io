@@ -28,8 +28,15 @@ as $$
     s.user_id,
     -- zobraz jméno postavy; když chybí, jméno z Google; jinak „Hráč"
     coalesce(nullif(s.name, ''), nullif(s.full_name, ''), 'Hráč')      as display_name,
-    coalesce((s.data->>'xp')::int, 0)                                  as xp,
-    coalesce((s.data->>'level')::int, 1)                               as lvl,
+    -- POZOR: `data` píše ŽÁK, takže přímý cast (dřív `(data->>'xp')::int`)
+    -- SPADNE na nečíselném/přetékajícím xp a shodí žebříček CELÉ třídě.
+    -- Castuj jen ryze číselný řetězec a clampni (shodné s fází 19).
+    (least(greatest(
+       case when (s.data->>'xp') ~ '^[0-9]{1,15}$' then (s.data->>'xp')::bigint else 0 end,
+       0), 1000000))::int                                              as xp,
+    (least(greatest(
+       case when (s.data->>'level') ~ '^[0-9]{1,9}$' then (s.data->>'level')::bigint else 1 end,
+       1), 9999))::int                                                 as lvl,
     (s.user_id = auth.uid())                                           as is_me
   from public.saves s
   where s.game = p_game
