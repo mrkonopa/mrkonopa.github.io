@@ -97,7 +97,7 @@ const asStaff = (sql) => `set test.uid='${T}'; set test.role='teacher'; ` + sql;
     // ── 4) brány: role ──
     ok('žák (student) nevidí přehled třídy',
       H.q(`set test.uid='${A}'; set test.role='student'; select count(*) from public.pz_class_readiness('${CLS}')`)==='0');
-    ok('bez role (NULL) nevidí nic',
+    ok('žák bez explicitní role nevidí nic',
       H.q(asUid(A, `select count(*) from public.pz_class_readiness('${CLS}')`))==='0');
     ok('superadmin vidí',
       +H.q(`set test.uid='${T}'; set test.role='superadmin'; select count(*) from public.pz_class_readiness('${CLS}')`)>0);

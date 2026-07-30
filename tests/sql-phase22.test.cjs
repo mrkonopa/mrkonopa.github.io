@@ -112,7 +112,7 @@ const asStaff = (sql) => `set test.role='teacher'; ` + sql;
 
     // ── 5) brány: role a třída ──
     ok('žák (student) nevidí nic', H.q(`set test.role='student'; select count(*) from public.pz_class_topics('${CLASS}')`)==='0');
-    ok('bez role (NULL) nevidí nic', H.q(`select count(*) from public.pz_class_topics('${CLASS}')`)==='0');
+    ok('žák bez explicitní role nevidí nic', H.q(`select count(*) from public.pz_class_topics('${CLASS}')`)==='0');
     ok('superadmin vidí', +H.q(`set test.role='superadmin'; select count(*) from public.pz_class_topics('${CLASS}')`)>0);
     ok('cizí třída nevrátí nic', H.q(asStaff(`select count(*) from public.pz_class_topics('22222222-2222-2222-2222-222222222222')`))==='0');
 

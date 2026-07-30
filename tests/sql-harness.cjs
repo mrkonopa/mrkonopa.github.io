@@ -111,8 +111,12 @@ const AUTH_STUB = `
 create schema if not exists auth;
 create or replace function auth.uid() returns uuid language sql stable as $$
   select nullif(current_setting('test.uid', true), '')::uuid $$;
+-- my_role() zrcadlí OPRAVENOU produkční semantiku (fáze 23): kdo není
+-- v allowlistu, je 'student' — NIKDY NULL. Při NULL totiž vyjde
+-- (NULL not in ('teacher','superadmin')) = NULL, takže strážní IF
+-- neprojde a brána se tiše otevře — tu díru zavírá fáze 23.
 create or replace function public.my_role() returns text language sql stable as $$
-  select current_setting('test.role', true) $$;
+  select coalesce(nullif(current_setting('test.role', true), ''), 'student') $$;
 create role anon;
 create role authenticated;
 `;
