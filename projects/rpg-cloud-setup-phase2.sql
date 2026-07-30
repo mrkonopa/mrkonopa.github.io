@@ -26,9 +26,17 @@ security definer
 stable
 set search_path = public
 as $$
-  select role from public.roles
-  where lower(email) = lower(auth.jwt() ->> 'email')
-  limit 1;
+  -- NIKDY nevracej NULL. Kdo není v allowlistu, je 'student' — stejně jako
+  -- to má klient (fetchRole: data ? data.role : 'student').
+  -- POZOR, tohle je bezpečnostně nosné: strážní podmínky mají tvar
+  --   if (select my_role()) not in ('teacher','superadmin') then raise …
+  -- a `NULL not in (…)` je v SQL NULL (ne TRUE), takže při NULL by se
+  -- `if` NEsplnilo a brána by se tiše otevřela každému přihlášenému.
+  select coalesce(
+    (select role from public.roles
+      where lower(email) = lower(auth.jwt() ->> 'email')
+      limit 1),
+    'student');
 $$;
 
 -- ── 3) RLS na tabulce roles ─────────────────────────────────────────────────
