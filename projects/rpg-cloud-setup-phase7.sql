@@ -249,7 +249,14 @@ grant execute on function public.battle_state(uuid)                    to authen
 grant execute on function public.list_active_battles()                 to authenticated;
 grant execute on function public.invite_battle_email(uuid, text)       to authenticated;
 grant execute on function public.my_battle_invites()                   to authenticated;
-grant execute on function public.cleanup_battles()                     to authenticated;
+-- cleanup_battles ZÁMĚRNĚ negrantujeme: fáze 9 ji odebírá i roli
+-- `authenticated` (údržba se spouští z dashboardu/cronu). Kdyby tu grant
+-- zůstal, opětovné spuštění téhle fáze by utažení z fáze 9 zrušilo.
+-- Uvnitř funkce navíc hlídá staff brána (viz fáze 23).
+
+-- POZOR: tahle fáze sama NEODEBÍRÁ `EXECUTE` roli `public` (a tedy `anon`) —
+-- PostgreSQL ho novým funkcím dává automaticky. Utažení dělá až FÁZE 9,
+-- takže fázi 7 NIKDY nenech nasazenou bez fáze 9.
 
 -- ── Realtime (volitelné zrychlení; klient stejně i polluje) ──────────
 do $$
