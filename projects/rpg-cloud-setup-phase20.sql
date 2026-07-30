@@ -68,6 +68,25 @@ begin
   delete from public.assignments where id = p_id;
 end $$;
 
+-- ── 4b) Bezpečné čtení booleanu ze žákovského JSONu ──────────────────
+-- Definováno i tady (ne jen ve fázi 24), aby byla tahle fáze samostatně
+-- spustitelná. NIKDY nevyhodí výjimku — rozhoduje podle jsonb_typeof,
+-- ne slepým castem (ten shazoval přehled splnění celé třídě).
+create or replace function public._jsonb_true(v jsonb)
+returns boolean
+language sql
+immutable
+set search_path = public
+as $$
+  select case
+    when v is null                   then false
+    when jsonb_typeof(v) = 'boolean' then v::text = 'true'
+    when jsonb_typeof(v) = 'string'  then lower(v #>> '{}') in ('true','t','yes','y','1','on')
+    when jsonb_typeof(v) = 'number'  then (v #>> '{}') <> '0'
+    else false
+  end;
+$$;
+
 -- ── 5) Splnění úkolu (učitel) — kdo z třídy má misi zvládnutou ───────
 -- „splněno" = mastery.mistrovství dané mise v save postavy žáka (Fáze 1).
 create or replace function public.assignment_progress(p_id uuid)
@@ -75,7 +94,10 @@ returns table (display_name text, mastered boolean)
 language sql stable security definer set search_path = public as $$
   select
     coalesce(nullif(s.name, ''), nullif(s.full_name, ''), 'Hráč') as display_name,
-    coalesce((s.data -> 'mastery' -> a.mission_id ->> 'mastered')::boolean, false) as mastered
+    -- POZOR: `mastery` píše ŽÁK. Přímý `::boolean` (dřív tady byl) SPADNE na
+    -- čemkoli, co není platný boolean (např. "lol"), a shodí přehled splnění
+    -- CELÉ třídě. Proto bezpečná extrakce přes _jsonb_true() (viz fáze 24).
+    public._jsonb_true(s.data -> 'mastery' -> a.mission_id -> 'mastered') as mastered
   from public.assignments a
   join public.class_members cm on cm.class_id = a.class_id
   left join public.saves s on s.user_id = cm.user_id and s.game = a.game
