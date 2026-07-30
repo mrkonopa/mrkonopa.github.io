@@ -311,9 +311,12 @@ function gen_4_2(){
   const nasm=ri(2,4),p=nasm*ri(1,3),q=ri(40,80);
   tasks.push({text:`Cesta trvá ${p} ${skl(p,'hodinu','hodiny','hodin')} rychlostí ${q} km/h. Jak dlouho trvá stejná cesta rychlostí ${q*nasm} km/h?`,ans:p/nasm,hints:[`Nepřímá: ${nasm}× vyšší rychlost → ${nasm}× kratší čas.`,p+' : '+nasm+' = '+(p/nasm)+' h'],skill:'anal'});
   { const a=ri(2,5),per=ri(3,8),b=a*per;let c=ri(2,8);if(c===a)c=c%8+2; tasks.push({text:`${a} ${skl(a,'litr','litry','litrů')} barvy ${skl(a,'vymaluje','vymalují','vymaluje')} ${b} m². Kolik m² ${skl(c,'vymaluje','vymalují','vymaluje')} ${c} ${skl(c,'litr','litry','litrů')}?`,ans:c*per,hints:['Přímá úměrnost: více barvy → více plochy.','1 l = '+per+' m², '+c+' l = '+(c*per)+' m²'],skill:'anal'}); }
-  { const d=ri(3,6),e=ri(20,60),f=ri(d+1,d*2); tasks.push({text:`${d} ${skl(d,'kohout','kohouti','kohoutů')} sezobe obilí za ${e} dní. Za kolik dní ${f} ${skl(f,'kohout','kohouti','kohoutů')}? (nepřímá úměrnost)`,ans:Math.round(d*e/f),hints:['Nepřímá: d·e = f·x → x = '+d+'·'+e+'/'+f,'= '+Math.round(d*e/f)+' dní'],skill:'anal'}); }
+  { // konstrukce od výsledku: e=f·k a x=d·k ⇒ d·e = f·x přesně (dřív 72 % úloh
+    // vyšlo necelé a odpověď se zaokrouhlovala, ačkoli zadání znělo přesně)
+    const d=ri(3,6),f=ri(d+1,d*2),k=ri(2,5),e=f*k,x=d*k;
+    tasks.push({text:`${d} ${skl(d,'kohout','kohouti','kohoutů')} sezobe obilí za ${e} ${skl(e,'den','dny','dní')}. Za kolik dní ${f} ${skl(f,'kohout','kohouti','kohoutů')}? (nepřímá úměrnost)`,ans:x,hints:['Nepřímá: počet × dny je stálý součin.',d+'·'+e+' = '+f+'·x → x = '+x+' '+skl(x,'den','dny','dní')],skill:'anal'}); }
   { const g=ri(4,10),h=ri(3,8),i=ri(2,5); tasks.push({text:`Auto ujede za ${g} h vzdálenost ${g*h} km. Za ${i} h ujede?`,ans:i*h,hints:['Přímá: v = '+(g*h/g)+' km/h.',''+i+'×'+h+' = '+i*h+' km'],skill:'anal'}); }
-  { const m=ri(3,7),n=ri(10,30),o=m*ri(2,4); tasks.push({text:`Na ${m} ${skl(m,'čtverec','čtverce','čtverců')} spotřebuju ${n} g lepidla. Na ${o} ${skl(o,'čtverec','čtverce','čtverců')}?`,ans:Math.round(n*o/m),hints:['Přímá: 1 čtverec = '+(n/m).toFixed(1)+' g.',''+o+'×'+n/m+' = '+Math.round(n*o/m)+' g'],skill:'anal'}); }
+  { const m=ri(3,7),per=ri(3,9),n=m*per,o=m*ri(2,4); tasks.push({text:`Na ${m} ${skl(m,'čtverec','čtverce','čtverců')} spotřebuju ${n} g lepidla. Na ${o} ${skl(o,'čtverec','čtverce','čtverců')}?`,ans:per*o,hints:['Přímá: 1 čtverec = '+per+' g.',''+o+'×'+per+' = '+(per*o)+' g'],skill:'anal'}); }
   { const a=ri(2,5),per=ri(3,8),b=a*per;let c=ri(2,8);if(c===a)c=c%8+2; tasks.push({text:`${a} ${skl(a,'pochodeň','pochodně','pochodní')} osvětlí ${b} m chodby. Kolik metrů osvětlí ${c} ${skl(c,'pochodeň','pochodně','pochodní')}?`,ans:c*per,hints:['Přímá úměrnost: 1 pochodeň = '+per+' m.',c+' × '+per+' = '+(c*per)+' m'],skill:'anal'}); }
   { const d=ri(2,5),f=ri(2,6),k=ri(2,6),eDni=f*k,xDni=d*k; tasks.push({text:`${d} ${skl(d,'dělník','dělníci','dělníků')} přenese kamenné bloky za ${eDni} ${skl(eDni,'den','dny','dní')}. Za kolik dní to zvládne ${f} ${skl(f,'dělník','dělníci','dělníků')}? (nepřímá úměrnost)`,ans:xDni,hints:['Nepřímá: dělníci × dny je stálý součin.',d+'·'+eDni+' = '+f+'·x → x = '+xDni+' '+skl(xDni,'den','dny','dní')],skill:'anal'}); }
   return tasks;
@@ -520,7 +523,7 @@ function gen_7_1(){
   tasks.push({text:`Rovnoběžník má obsah ${sf} cm² a základnu ${f} cm. Jaká je výška?`,ans:hf,hints:['h = S/a',`h = ${sf}/${f} = ${hf} cm`],skill:'geo'});
   // lichoběžník z obsahu
   const g=ri(4,10),h2=ri(2,g-1),hg=ri(4,8),sg=(g+h2)*hg/2;
-  tasks.push({text:`Lichoběžník s výškou ${hg} cm má obsah ${sg} cm². Součet základen?`,ans:g+h2,hints:['a+c = 2S/h',`2·${sg}/${hg} = ${g+h2} cm`],skill:'geo'});
+  tasks.push({text:`Lichoběžník s výškou ${hg} cm má obsah ${cz(sg)} cm². Součet základen?`,ans:g+h2,hints:['a+c = 2S/h',`2·${cz(sg)} : ${hg} = ${g+h2} cm`],skill:'geo'});
   // slovní úloha — dlaždice
   const i=ri(20,40),j=ri(15,30);
   tasks.push({text:`Rovnoběžníková dlaždice má základnu ${i} cm a výšku ${j} cm. Kolik dlaždic se vejde na ${i*j*10} cm² podlahy?`,ans:10,hints:['Počet = plocha podlahy / plocha dlaždice.',`${i*j*10}/${i*j} = 10 dlaždic`],skill:'geo'});

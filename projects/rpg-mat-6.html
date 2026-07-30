@@ -997,7 +997,7 @@ const AREAS = [
  (()=>{const v=ri(11,98)/10;return{text:`Vynásob:\n${cz(v)} × 10 =`,ans:String(Math.round(v*100)/10),hints:[`× 10 = posuň čárku o 1 doprava.`,`Výsledek: ${Math.round(v*100)/10}`],skill:'calc'};})(),
  (()=>{const v=ri(15,98)/10;return{text:`Vyděl:\n${cz(Math.round(v*100)/10)} : 10 =`,ans:String(v),hints:[`: 10 = posuň čárku o 1 doleva.`,`Výsledek: ${v}`],skill:'calc'};})(),
  (()=>{const v=ri(105,995)/100;const r=Math.round(v*10)/10;const x=Math.round(v*100);return{text:`Zaokrouhli na desetiny:\n${cz(v)} ≈`,ans:String(r),distractors:(x%10!==0?[String((x%10>=5?Math.floor(x/10):Math.ceil(x/10))/10)]:[]),hints:[`Rozhoduje místo setin (druhé za čárkou).`,`Výsledek: ${r}`],skill:'calc'};})(),
- (()=>{const a=ri(20,79)/10,b=a+ri(2,30)/10;return{text:`Které číslo je větší?\n${cz(a)}  nebo  ${cz(b)}\n(napiš to větší)`,ans:String(b),hints:[`Porovnej nejdřív celé části, pak desetiny.`,`Výsledek: ${b}`],skill:'calc'};})(),
+ (()=>{const ai=ri(20,79),bi=ai+ri(2,30),a=ai/10,b=bi/10;return{text:`Které číslo je větší?\n${cz(a)}  nebo  ${cz(b)}\n(napiš to větší)`,ans:String(b),hints:[`Porovnej nejdřív celé části, pak desetiny.`,`Výsledek: ${cz(b)}`],skill:'calc'};})(),
  (()=>{const v=ri(105,985)/100;const r=Math.round(v);const h=Math.round(v*100)%100;return{text:`Zaokrouhli na celé číslo:\n${cz(v)} ≈`,ans:String(r),distractors:(h!==0?[String(h>=50?Math.floor(v):Math.ceil(v))]:[]),hints:[`Rozhoduje místo desetin.`,`Výsledek: ${r}`],skill:'calc'};})()
  ]
  },

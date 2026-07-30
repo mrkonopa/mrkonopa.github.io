@@ -967,8 +967,8 @@ const AREAS = [
  text:`${['Vypočítej','Spočítej','Urči'][ri(0,2)]} (zjednodušený zlomek):\n${a}/${b} × ${c}/${d} =`,ans,
  hints:[`Zlomky se násobí "po patrech": čitatel × čitatel, jmenovatel × jmenovatel.`,`${a} × ${c}/(${b} × ${d}) = ${num}/${den}. Pak zkrať.`],skill:'calc'};})(),
  (()=>{const a=ri(2,6),k=ri(2,9);const dec=(k/10).toFixed(1);const ans=String(a+k/10);return{
- text:`${['Vypočítej','Spočítej','Urči','Kolik je'][ri(0,3)]}:\n${a} + ${dec} =`,ans,
- hints:[`Sčítáš celé číslo a desetinné. Zarovnej desetinné čárky.`,`${a},0 + ${dec} — sečti po sloupcích.`],skill:'calc'};})()
+ text:`${['Vypočítej','Spočítej','Urči','Kolik je'][ri(0,3)]}:\n${a} + ${dec.replace('.',',')} =`,ans,
+ hints:[`Sčítáš celé číslo a desetinné. Zarovnej desetinné čárky.`,`${a},0 + ${dec.replace('.',',')} — sečti po sloupcích.`],skill:'calc'};})()
  ]
  },
  {
@@ -1285,7 +1285,7 @@ const AREAS = [
  text:`Průměr kruhu d = ${d} cm.\nVypočítej obvod kružnice. (π = 3,14)`,ans,
  hints:[`Průměr = 2r, tedy r = ${r}. Vzorec: O = 2πr = πd.`,`O = 3,14 × ${d} = ?`],skill:'geo'};})(),
  (()=>{const r=ri(3,10);const o=2*3.14*r;const ans=(o/2/3.14).toFixed(1);return{
- text:`Obvod kružnice je ${o.toFixed(2)} cm.\nVypočítej poloměr r. (π = 3,14, 1 des. místo)`,ans,
+ text:`Obvod kružnice je ${o.toFixed(2).replace('.',',')} cm.\nVypočítej poloměr r. (π = 3,14, 1 des. místo)`,ans,
  hints:[`Z O = 2πr plyne r = O : (2π).`,`r = ${o.toFixed(2)} : (2 × 3,14) = ${o.toFixed(2)} : 6,28.`],skill:'geo'};})(),
  (()=>{const d=ri(2,8)*2;const r=d/2;const ans=(3.14*r*r).toFixed(2);return{
  text:`Kruh má průměr d = ${d} cm.\nVypočítej obsah kruhu. (π = 3,14)`,ans,
