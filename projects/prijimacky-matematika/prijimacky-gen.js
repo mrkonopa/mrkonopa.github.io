@@ -12,6 +12,17 @@
   'use strict';
   const cz = window.cz || (n => String(n).replace('.', ','));
 
+  // Zlomek v ZÁKLADNÍM tvaru (p < q, nesoudělné). Bez toho vznikaly zadání
+  // jako „2/4 z počtu", což u přijímačkového stylu vypadá nedbale.
+  function gcd2(a, b) { while (b) { const t = a % b; a = b; b = t; } return a; }
+  function zlomek(qmin, qmax) {
+    for (let i = 0; i < 40; i++) {
+      const q = ri(qmin, qmax), p = ri(1, q - 1);
+      if (gcd2(p, q) === 1) return { p, q };
+    }
+    return { p: 1, q: 2 };
+  }
+
   // ── Poměr a úměrnost ──
   function deleniVPomeru() {
     const a = ri(2, 5), b = ri(2, 6), dil = ri(15, 90);
@@ -115,7 +126,7 @@
 
   // ── Zlomky a desetinná čísla ──
   function zlomekCelku() {
-    const q = ri(2, 8), p = ri(1, q - 1), mult = ri(3, 20), celek = q * mult;
+    const { p, q } = zlomek(2, 8), mult = ri(3, 20), celek = q * mult;
     return {
       prompt: 'Kolik je ' + p + '/' + q + ' z čísla ' + celek + '?', type: 'text', ans: String(p * mult),
       sol: 'Zlomek 1/' + q + ' z ' + celek + ' je ' + celek + ' : ' + q + ' = ' + mult + '. Pak ' + p + '/' + q + ' je ' + p + ' · ' + mult + ' = ' + (p * mult) + '.',
@@ -123,7 +134,7 @@
     };
   }
   function zlomekZbytek() {
-    const q = ri(2, 6), p = ri(1, q - 1), mult = ri(4, 20), celek = q * mult;
+    const { p, q } = zlomek(2, 6), mult = ri(4, 20), celek = q * mult;
     return {
       prompt: 'Ze ' + celek + ' žáků chodí ' + p + '/' + q + ' na kroužek. Kolik žáků na kroužek NEchodí?', type: 'text', ans: String((q - p) * mult),
       sol: 'Zlomek 1/' + q + ' z ' + celek + ' je ' + mult + '. Na kroužek chodí ' + p + '/' + q + ' = ' + (p * mult) + ' žáků, takže nechodí ' + celek + ' − ' + (p * mult) + ' = ' + ((q - p) * mult) + '.',
@@ -319,7 +330,7 @@
 
   // ── Zlomky (rozšíření) ──
   function smisene() {
-    const cele = ri(1, 5), q = ri(2, 8), p = ri(1, q - 1);
+    const cele = ri(1, 5), { p, q } = zlomek(2, 8);
     return {
       prompt: 'Kolik zlomků 1/' + q + ' je celkem v ' + cele + ' celcích a ' + p + '/' + q + '?', type: 'text', ans: String(cele * q + p),
       sol: 'V ' + cele + ' celcích je ' + cele + ' · ' + q + ' = ' + (cele * q) + ' zlomků 1/' + q + '. Přičti ' + p + ': ' + (cele * q) + ' + ' + p + ' = ' + (cele * q + p) + '.',
@@ -327,7 +338,7 @@
     };
   }
   function zlomekRozsir() {
-    const q = ri(2, 6), p = ri(1, q - 1), k = ri(2, 5), q2 = q * k;
+    const { p, q } = zlomek(2, 6), k = ri(2, 5), q2 = q * k;
     return {
       prompt: 'Doplňte čitatele: ' + p + '/' + q + ' = ?/' + q2 + '.', type: 'text', ans: String(p * k),
       sol: 'Jmenovatel jsme zvětšili ' + k + '× (z ' + q + ' na ' + q2 + '). Stejně zvětši čitatele: ' + p + ' · ' + k + ' = ' + (p * k) + '.',
@@ -494,16 +505,300 @@
     };
   }
 
+  /* ════════ ROZŠÍŘENÍ BANKY (Fáze 3c) ════════
+     Adaptivní procvičování posílá žáka do slabého okruhu opakovaně, takže
+     5 generátorů na okruh se rychle „ohraje". Tady je +2 na každý okruh,
+     vždy JINÝ typ úvahy (ne přebarvená stejná úloha). Stejná pravidla:
+     formální tón, celočíselný výsledek zaručený konstrukcí, vyřešený postup
+     a `_check` pro nezávislý přepočet v testu. */
+
+  // ── Výrazy, mocniny a odmocniny ──
+  function poradiOperaci() {
+    const a = ri(2, 9), b = ri(2, 9), c = ri(2, 9), k = ri(2, 9), sq = k * k;
+    const res = a * a + b * c - k;
+    return {
+      prompt: 'Vypočítejte: ' + a + '² + ' + b + ' · ' + c + ' − √' + sq + '.',
+      type: 'text', ans: String(res),
+      sol: a + '² = ' + (a * a) + '; ' + b + ' · ' + c + ' = ' + (b * c) + '; √' + sq + ' = ' + k +
+           '. Celkem ' + (a * a) + ' + ' + (b * c) + ' − ' + k + ' = ' + res + '.',
+      _check: { kind: 'poradiOperaci', a, b, c, sq }
+    };
+  }
+  function rozdilMocnin() {
+    const a = ri(6, 15), b = ri(2, a - 1);
+    return {
+      prompt: 'Vypočítejte hodnotu výrazu ' + a + '² − ' + b + '².',
+      type: 'text', ans: String(a * a - b * b),
+      sol: a + '² = ' + (a * a) + ', ' + b + '² = ' + (b * b) + '. Rozdíl je ' + (a * a) + ' − ' + (b * b) + ' = ' + (a * a - b * b) + '.',
+      _check: { kind: 'rozdilMocnin', a, b }
+    };
+  }
+
+  // ── Zlomky ──
+  function zlomekZCasti() {
+    const f1 = zlomek(2, 5), f2 = zlomek(2, 5);
+    const q = f1.q, p = f1.p, s = f2.q, r = f2.p, base = ri(2, 10);
+    const celek = q * s * base, prvni = celek / q * p, druhy = prvni / s * r;
+    return {
+      prompt: 'Ve skladu je ' + celek + ' kusů. Zmetky tvoří ' + p + '/' + q + ' z tohoto počtu. Z nich lze opravit ' +
+              r + '/' + s + '. Kolik kusů lze opravit?',
+      type: 'text', ans: String(druhy),
+      sol: 'Zmetky: ' + celek + ' : ' + q + ' · ' + p + ' = ' + prvni + ' kusů. Z nich opravitelné: ' +
+           prvni + ' : ' + s + ' · ' + r + ' = ' + druhy + ' kusů.',
+      _check: { kind: 'zlomekZCasti', celek, p, q, r, s }
+    };
+  }
+  function zlomekZbytekDvakrat() {
+    const f1 = zlomek(2, 5), f2 = zlomek(2, 5);
+    const q = f1.q, p = f1.p, s = f2.q, r = f2.p, base = ri(2, 10);
+    const celek = q * s * base, po1 = celek - celek / q * p, po2 = po1 - po1 / s * r;
+    return {
+      prompt: 'V nádrži bylo ' + celek + ' litrů vody. Nejprve odčerpali ' + p + '/' + q +
+              ' obsahu, poté ' + r + '/' + s + ' zbytku. Kolik litrů v nádrži zůstalo?',
+      type: 'text', ans: String(po2),
+      sol: 'První odběr: ' + celek + ' : ' + q + ' · ' + p + ' = ' + (celek / q * p) + ' l, zbývá ' + po1 +
+           ' l. Druhý odběr: ' + po1 + ' : ' + s + ' · ' + r + ' = ' + (po1 / s * r) + ' l, zbývá ' + po2 + ' l.',
+      _check: { kind: 'zlomekZbytekDvakrat', celek, p, q, r, s }
+    };
+  }
+
+  // ── Procenta a finanční matematika ──
+  function dveSlevy() {
+    const opts = [10, 20, 25, 50], p = opts[ri(0, 3)], r = opts[ri(0, 3)], X = ri(1, 5) * 2000;
+    const po1 = X * (100 - p) / 100, po2 = po1 * (100 - r) / 100;
+    return {
+      prompt: 'Zboží za ' + X + ' Kč bylo zlevněno o ' + p + ' %. Následně byla nová cena zlevněna ještě o ' + r +
+              ' %. Kolik Kč stojí zboží po obou slevách?',
+      type: 'text', ans: String(po2),
+      sol: 'Po první slevě: ' + X + ' · ' + (100 - p) + ' : 100 = ' + po1 + ' Kč. Po druhé slevě: ' +
+           po1 + ' · ' + (100 - r) + ' : 100 = ' + po2 + ' Kč. (Slevy se NEsčítají.)',
+      _check: { kind: 'dveSlevy', X, p, r }
+    };
+  }
+  function dph() {
+    const base = ri(2, 40) * 100, dan = base * 21 / 100;
+    return {
+      prompt: 'Cena zboží bez DPH je ' + base + ' Kč. Sazba DPH je 21 %. Kolik Kč stojí zboží včetně DPH?',
+      type: 'text', ans: String(base + dan),
+      sol: 'DPH = ' + base + ' · 21 : 100 = ' + dan + ' Kč. Cena s DPH = ' + base + ' + ' + dan + ' = ' + (base + dan) + ' Kč.',
+      _check: { kind: 'dph', base }
+    };
+  }
+
+  // ── Poměr a úměrnost ──
+  function pomerTri() {
+    const a = ri(1, 6), b = ri(1, 6), c = ri(1, 6), dil = ri(10, 60);
+    const total = dil * (a + b + c), max = Math.max(a, b, c);
+    return {
+      prompt: 'Částku ' + total + ' Kč rozdělte v poměru ' + a + ' : ' + b + ' : ' + c +
+              '. Kolik Kč připadne na největší díl?',
+      type: 'text', ans: String(max * dil),
+      sol: 'Součet dílů: ' + a + ' + ' + b + ' + ' + c + ' = ' + (a + b + c) + '. Jeden díl = ' + total +
+           ' : ' + (a + b + c) + ' = ' + dil + ' Kč. Největší díl = ' + max + ' · ' + dil + ' = ' + (max * dil) + ' Kč.',
+      _check: { kind: 'pomerTri', total, a, b, c }
+    };
+  }
+  function recept() {
+    const per = ri(20, 120), n1 = ri(2, 6), n2 = ri(7, 14), X = per * n1, Y = per * n2;
+    // 2–4 porce, 5+ porcí (bez skloňování by vyšlo „na 2 porcí")
+    const porce = n => (n >= 2 && n <= 4) ? 'porce' : 'porcí';
+    return {
+      prompt: 'Na ' + n1 + ' ' + porce(n1) + ' je potřeba ' + X + ' g mouky. Na kolik porcí vystačí ' + Y + ' g mouky?',
+      type: 'text', ans: String(n2),
+      sol: 'Na jednu porci: ' + X + ' : ' + n1 + ' = ' + per + ' g. Počet porcí: ' + Y + ' : ' + per + ' = ' + n2 + '.',
+      _check: { kind: 'recept', n1, X, Y }
+    };
+  }
+
+  // ── Výrazy s proměnnou ──
+  function dosazeniZlomek() {
+    const c = ri(2, 6), v = ri(2, 12), a = ri(2, 9), t = a * v;
+    const b = (c - t % c) % c + c * ri(1, 5), res = (t + b) / c;
+    return {
+      prompt: 'Určete hodnotu výrazu (' + a + 'x + ' + b + ') : ' + c + ' pro x = ' + v + '.',
+      type: 'text', ans: String(res),
+      sol: 'Dosadíme: (' + a + ' · ' + v + ' + ' + b + ') : ' + c + ' = (' + t + ' + ' + b + ') : ' + c +
+           ' = ' + (t + b) + ' : ' + c + ' = ' + res + '.',
+      _check: { kind: 'dosazeniZlomek', a, b, c, v }
+    };
+  }
+  function obvodVyraz() {
+    const x = ri(3, 15), k = ri(1, 9);
+    return {
+      prompt: 'Obdélník má jednu stranu x cm a druhou o ' + k + ' cm delší. Jaký je jeho obvod v cm pro x = ' + x + '?',
+      type: 'text', ans: String(4 * x + 2 * k),
+      sol: 'Strany jsou ' + x + ' cm a ' + (x + k) + ' cm. Obvod = 2 · (' + x + ' + ' + (x + k) + ') = ' + (4 * x + 2 * k) + ' cm.',
+      _check: { kind: 'obvodVyraz', x, k }
+    };
+  }
+
+  // ── Rovnice ──
+  function rovniceDvojiZavorka() {
+    const x = ri(2, 12), a = ri(3, 9), b = ri(1, 9), t = a * (x + b);
+    const div = [];
+    for (let c = 2; c <= 9; c++) if (c !== a && t % c === 0 && t / c - x >= 1) div.push(c);
+    if (!div.length) return rovnicePodil();
+    const c = div[ri(0, div.length - 1)], d = t / c - x;
+    return {
+      prompt: 'Řešte rovnici ' + a + '(x + ' + b + ') = ' + c + '(x + ' + d + ').',
+      type: 'text', ans: String(x),
+      sol: 'Roznásobíme: ' + a + 'x + ' + (a * b) + ' = ' + c + 'x + ' + (c * d) +
+           '. Členy s x doleva, čísla doprava: ' + (a - c) + 'x = ' + (c * d - a * b) + '. Odtud x = ' + x + '.',
+      _check: { kind: 'rovniceDvojiZavorka', a, b, c, d }
+    };
+  }
+  function rovnicePodil() {
+    // konstrukce od výsledku: x + b = a·k, takže dělení vždy vyjde celé
+    const a = ri(2, 9), k = ri(2, 12), b = ri(1, 12), x = a * k - b;
+    return {
+      prompt: 'Řešte rovnici (x + ' + b + ') : ' + a + ' = ' + k + '.',
+      type: 'text', ans: String(x),
+      sol: 'Obě strany vynásobíme ' + a + ': x + ' + b + ' = ' + a + ' · ' + k + ' = ' + (a * k) +
+           '. Odtud x = ' + (a * k) + ' − ' + b + ' = ' + x + '.',
+      _check: { kind: 'rovnicePodil', a, b, k }
+    };
+  }
+
+  // ── Slovní úlohy ──
+  function vek() {
+    // věkový rozdíl volíme jako první, ať vyjde realistický rodič (22–34 let)
+    const S = ri(6, 14), gap = ri(22, 34), F = S + gap, t = gap - S;
+    return {
+      prompt: 'Otci je ' + F + ' let, synovi ' + S + ' let. Za kolik let bude otec právě dvakrát starší než syn?',
+      type: 'text', ans: String(t),
+      sol: 'Za t let: ' + F + ' + t = 2 · (' + S + ' + t). Tedy ' + F + ' + t = ' + (2 * S) + ' + 2t, odkud t = ' +
+           F + ' − ' + (2 * S) + ' = ' + t + ' let.',
+      _check: { kind: 'vek', F, S }
+    };
+  }
+  function smes() {
+    const a = ri(2, 8), b = ri(2, 8), p = ri(20, 60);
+    // ceny se MUSÍ lišit (jinak je „směs" dvou stejných cen nesmyslná úloha)
+    let q = ri(20, 60), tries = 0;
+    while (tries++ < 80 && (q === p || (a * p + b * q) % (a + b) !== 0)) q = ri(20, 60);
+    if (q === p || (a * p + b * q) % (a + b) !== 0) return smesFallback(a, b, p);
+    const total = a * p + b * q, kg = a + b;
+    return {
+      prompt: 'Smícháme ' + a + ' kg zboží po ' + p + ' Kč/kg a ' + b + ' kg zboží po ' + q +
+              ' Kč/kg. Kolik Kč stojí 1 kg vzniklé směsi?',
+      type: 'text', ans: String(total / kg),
+      sol: 'Celková cena: ' + a + ' · ' + p + ' + ' + b + ' · ' + q + ' = ' + total + ' Kč. Celkem ' + kg +
+           ' kg, tedy ' + total + ' : ' + kg + ' = ' + (total / kg) + ' Kč/kg.',
+      _check: { kind: 'smes', a, p, b, q }
+    };
+  }
+  function smesFallback(a, b, p) {
+    // spolehlivá konstrukce s RŮZNÝMI cenami: průměr posuneme o celý krok
+    const kg = a + b, per = p + b, total = kg * per, q = (total - a * p) / b;
+    return {
+      prompt: 'Smícháme ' + a + ' kg zboží po ' + p + ' Kč/kg a ' + b + ' kg zboží po ' + q +
+              ' Kč/kg. Kolik Kč stojí 1 kg vzniklé směsi?',
+      type: 'text', ans: String(per),
+      sol: 'Celková cena: ' + a + ' · ' + p + ' + ' + b + ' · ' + q + ' = ' + total + ' Kč. Celkem ' + kg +
+           ' kg, tedy ' + total + ' : ' + kg + ' = ' + per + ' Kč/kg.',
+      _check: { kind: 'smes', a, p, b, q }
+    };
+  }
+
+  // ── Geometrie v rovině ──
+  function lichobeznik() {
+    const a = ri(6, 20), c = ri(2, a - 1);
+    let v = ri(2, 12);
+    if ((a + c) % 2 !== 0 && v % 2 !== 0) v += 1;
+    return {
+      prompt: 'Lichoběžník má základny ' + a + ' cm a ' + c + ' cm a výšku ' + v + ' cm. Jaký je jeho obsah v cm²?',
+      type: 'text', ans: String((a + c) * v / 2),
+      sol: 'S = (a + c) : 2 · v = (' + a + ' + ' + c + ') · ' + v + ' : 2 = ' + ((a + c) * v) + ' : 2 = ' + ((a + c) * v / 2) + ' cm².',
+      _check: { kind: 'lichobeznik', a, c, v }
+    };
+  }
+  function tretiUhel() {
+    const al = ri(20, 90), be = ri(20, Math.max(20, 150 - al));
+    return {
+      prompt: 'V trojúhelníku ABC je α = ' + al + '° a β = ' + be + '°. Jaká je velikost úhlu γ ve stupních?',
+      type: 'text', ans: String(180 - al - be),
+      sol: 'Součet vnitřních úhlů trojúhelníku je 180°. γ = 180° − ' + al + '° − ' + be + '° = ' + (180 - al - be) + '°.',
+      _check: { kind: 'tretiUhel', al, be }
+    };
+  }
+
+  // ── Tělesa ──
+  function hranol() {
+    const a = ri(4, 16), va = ri(2, 12), v = ri(3, 15);
+    const vv = (a * va) % 2 === 0 ? va : va + 1, Sp = a * vv / 2;
+    return {
+      prompt: 'Kolmý hranol má podstavu trojúhelníku se stranou ' + a + ' cm a příslušnou výškou ' + vv +
+              ' cm. Výška hranolu je ' + v + ' cm. Jaký je jeho objem v cm³?',
+      type: 'text', ans: String(Sp * v),
+      sol: 'Obsah podstavy: ' + a + ' · ' + vv + ' : 2 = ' + Sp + ' cm². Objem = ' + Sp + ' · ' + v + ' = ' + (Sp * v) + ' cm³.',
+      _check: { kind: 'hranol', a, va: vv, v }
+    };
+  }
+  function hranaZObjemu() {
+    const a = ri(2, 9), V = a * a * a;
+    return {
+      prompt: 'Krychle má objem ' + V + ' cm³. Jaká je délka její hrany v cm?',
+      type: 'text', ans: String(a),
+      sol: 'Hrana = třetí odmocnina z objemu: ' + a + ' · ' + a + ' · ' + a + ' = ' + V + ', tedy hrana měří ' + a + ' cm.',
+      _check: { kind: 'hranaZObjemu', V }
+    };
+  }
+
+  // ── Tabulky, data a statistika ──
+  function prumerChybejici() {
+    const n = 5, avg = ri(10, 60);
+    const known = [];
+    for (let i = 0; i < n - 1; i++) known.push(ri(Math.max(1, avg - 12), avg + 12));
+    const sumKnown = known.reduce((x, y) => x + y, 0), missing = n * avg - sumKnown;
+    if (missing < 1) return prumerChybejiciSafe(n, avg);
+    return {
+      prompt: 'Průměr ' + n + ' čísel je ' + avg + '. Čtyři z nich jsou ' + known.join(', ') +
+              '. Jaké je páté číslo?',
+      type: 'text', ans: String(missing),
+      sol: 'Součet všech pěti čísel = ' + n + ' · ' + avg + ' = ' + (n * avg) + '. Součet známých čtyř = ' +
+           sumKnown + '. Páté číslo = ' + (n * avg) + ' − ' + sumKnown + ' = ' + missing + '.',
+      _check: { kind: 'prumerChybejici', n, avg, known }
+    };
+  }
+  function prumerChybejiciSafe(n, avg) {
+    const known = [avg, avg, avg, avg], missing = n * avg - avg * 4;
+    return {
+      prompt: 'Průměr ' + n + ' čísel je ' + avg + '. Čtyři z nich jsou ' + known.join(', ') + '. Jaké je páté číslo?',
+      type: 'text', ans: String(missing),
+      sol: 'Součet všech pěti = ' + (n * avg) + ', známé čtyři dávají ' + (avg * 4) + '. Páté = ' + missing + '.',
+      _check: { kind: 'prumerChybejici', n, avg, known }
+    };
+  }
+  function soucetZPrumeru() {
+    const n = ri(4, 12), avg = ri(5, 40);
+    return {
+      prompt: 'Průměr ' + n + ' naměřených hodnot je ' + avg + '. Jaký je součet všech těchto hodnot?',
+      type: 'text', ans: String(n * avg),
+      sol: 'Součet = počet · průměr = ' + n + ' · ' + avg + ' = ' + (n * avg) + '.',
+      _check: { kind: 'soucetZPrumeru', n, avg }
+    };
+  }
+
   window.PZ_GEN = {
-    'vyrazy-mocniny': [mocnina, odmocnina, mocninaVyraz, mocnina10, kvadratSouctu, odmocninaSoucin],
-    'zlomky': [zlomekCelku, zlomekZbytek, zlomekPocet, smisene, zlomekRozsir, castJeCelek],
-    'vyrazy-promenna': [dosazeniLin, dosazeniKvadrat, dosazeniZavorka, dosazeniDve, vyrazSlovni],
-    'rovnice': [rovniceLin, rovniceZlomek, rovniceSlovni, rovniceZavorka, rovniceObeStrany],
-    'procenta': [procCast, procZaklad, procKolik, slevaCena, navyseniCena, urok],
-    'slovni': [slovniSoucetRozdil, slovniNakup, pohyb, cenaDoprava, zbyvaPenez],
-    'pomer': [deleniVPomeru, primaUmernost, neprimaUmernost, meritko, pomerDoplnit],
-    'data': [prumer, prumerPridani, median5, modus, rozsah],
-    'geometrie': [obvodObdelnikG, obsahObdelnikG, ctverecG, obsahTrojuhelnikG, uhelVedlejsi, pythagorasG],
-    'telesa': [objemKvadrT, povrchKvadrT, krychleT, hranyKvadrT, objemKvadrLitr],
+    'vyrazy-mocniny': [mocnina, odmocnina, mocninaVyraz, mocnina10, kvadratSouctu, odmocninaSoucin,
+                       poradiOperaci, rozdilMocnin],
+    'zlomky': [zlomekCelku, zlomekZbytek, zlomekPocet, smisene, zlomekRozsir, castJeCelek,
+               zlomekZCasti, zlomekZbytekDvakrat],
+    'vyrazy-promenna': [dosazeniLin, dosazeniKvadrat, dosazeniZavorka, dosazeniDve, vyrazSlovni,
+                        dosazeniZlomek, obvodVyraz],
+    'rovnice': [rovniceLin, rovniceZlomek, rovniceSlovni, rovniceZavorka, rovniceObeStrany,
+                rovniceDvojiZavorka, rovnicePodil],
+    'procenta': [procCast, procZaklad, procKolik, slevaCena, navyseniCena, urok,
+                 dveSlevy, dph],
+    'slovni': [slovniSoucetRozdil, slovniNakup, pohyb, cenaDoprava, zbyvaPenez,
+               vek, smes],
+    'pomer': [deleniVPomeru, primaUmernost, neprimaUmernost, meritko, pomerDoplnit,
+              pomerTri, recept],
+    'data': [prumer, prumerPridani, median5, modus, rozsah,
+             prumerChybejici, soucetZPrumeru],
+    'geometrie': [obvodObdelnikG, obsahObdelnikG, ctverecG, obsahTrojuhelnikG, uhelVedlejsi, pythagorasG,
+                  lichobeznik, tretiUhel],
+    'telesa': [objemKvadrT, povrchKvadrT, krychleT, hranyKvadrT, objemKvadrLitr,
+               hranol, hranaZObjemu],
   };
 })();
