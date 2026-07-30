@@ -104,11 +104,18 @@ function render(){
   const to=document.getElementById('st-topics');
   const tw = (PZ.topicWeights?PZ.topicWeights():[]).slice().sort((a,b)=>b.weight-a.weight);
   const whyColor = why => /zvládnuté/.test(why)?'var(--green)':(/chyby|diagnostik/.test(why)?'var(--red)':(/nezkoušel/.test(why)?'var(--gold)':'var(--muted)'));
-  to.innerHTML = tw.map(t=>{ const has=t.total>0, pct=has?Math.round(t.acc*100):0;
+  to.innerHTML = tw.map(t=>{
+    const hasP=t.total>0, hasT=(t.ttotal|0)>0;
+    // sloupec = procvičování; když okruh zatím jen v testu, ukaž testovou přesnost
+    const useT = !hasP && hasT;
+    const has = hasP || hasT;
+    const pct = hasP ? Math.round(t.acc*100) : (hasT ? Math.round(t.tacc*100) : 0);
+    // testová přesnost jako samostatný čip (ostrý test = jiný typ důkazu než procvičování)
+    const tChip = hasT ? ' <span style="font-size:.72rem;color:'+barColor(Math.round(t.tacc*100))+';font-weight:600" title="přesnost v testu nanečisto">· 📝 test '+Math.round(t.tacc*100)+' %</span>' : '';
     return '<div class="st-bar-row"><span class="st-bar-name">'+PZ.esc(t.name)+
-      ' <span style="font-size:.72rem;color:'+whyColor(t.why)+';font-weight:600">· '+PZ.esc(t.why)+'</span></span>'+
+      ' <span style="font-size:.72rem;color:'+whyColor(t.why)+';font-weight:600">· '+PZ.esc(t.why)+'</span>'+tChip+'</span>'+
       '<div class="st-bar">'+(has?'<div class="st-bar-in" style="width:'+pct+'%;background:'+barColor(pct)+'"></div>':'')+'</div>'+
-      '<span class="st-bar-val">'+(has?pct+' %':'—')+'</span></div>'; }).join('')+
+      '<span class="st-bar-val">'+(has?pct+' %'+(useT?' 📝':''):'—')+'</span></div>'; }).join('')+
     '<div style="margin-top:12px;text-align:center"><a class="pz-btn primary" href="procvicovani.html" style="display:inline-flex">🎯 Trénuj slabiny</a></div>';
 
   // diagnostika

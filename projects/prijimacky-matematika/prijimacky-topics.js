@@ -62,5 +62,14 @@
     try { return taskToItem(window.RPG_CERMAT_9.genSlot(idx)); } catch (e) { return null; }
   }
 
-  window.PZ_TOPICS = { list: TOPICS, item: practiceItem };
+  // Reverzní mapa: pozice testu (0-indexovaná) → okruhy, které ji pokrývají.
+  // Pozor: jedna pozice může patřit VÍC okruhům (např. slot 12 = procenta i slovní
+  // úlohy) — úloha skutečně cvičí obojí, takže se chyba přičte oběma.
+  function topicsForSlot(idx) {
+    const i = Number(idx);
+    if (!Number.isFinite(i)) return [];
+    return TOPICS.filter(t => (t.slots || []).indexOf(i) !== -1).map(t => t.id);
+  }
+
+  window.PZ_TOPICS = { list: TOPICS, item: practiceItem, topicsForSlot };
 })();
