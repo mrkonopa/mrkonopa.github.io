@@ -1041,6 +1041,11 @@ window.RPGSprites9 = (function () {
     raf = requestAnimationFrame(loop);
     const dt = Math.min(64, now - lastT); lastT = now;
     if (!ctx) return;
+    // Bitmapa canvasu MUSÍ mít stejnou šířku jako jeho CSS box, jinak prohlížeč
+    // obraz roztáhne a sprity vypadají protáhle. Při attach() ještě není hotový
+    // layout (clientWidth = 0 → fallback 600), takže se to samo dorovná tady.
+    // Řeší i otočení telefonu a schování adresního řádku (window.resize nestačí).
+    if (cv.clientWidth && cv.width !== cv.clientWidth) resize();
     if (now - (loop._ft || 0) > FRAME_MS) { tick++; loop._ft = now; }
     ST.hero.t += dt; ST.boss.t += dt;
     render(now);
