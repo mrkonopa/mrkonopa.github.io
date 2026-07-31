@@ -91,6 +91,13 @@ function badDeclension(text) {
 function floatNoise(text) {
   return [...String(text).matchAll(/\d+[.,]\d{6,}/g)].map(m => m[0]);
 }
+// Stejná normalizace, jakou hra dělá při zobrazení nápovědy (czTxt).
+const czTxt = t => String(t).replace(/(\d)\.(\d)/g, '$1,$2');
+// Nezaokrouhlený periodický rozvoj v nápovědě: 1/3 = 0,3333… Žák má vidět
+// zaokrouhlenou hodnotu se znaménkem ≈, ne useknuté cifry (Vojtovo pravidlo).
+function periodicDecimal(text) {
+  return [...String(text).matchAll(/\d+[.,]\d{3,}/g)].map(m => m[0]);
+}
 // Desetinná TEČKA v textu pro žáka — česky se píše čárka.
 function decimalDot(text) {
   const t = String(text);
@@ -132,7 +139,7 @@ function loadGrade(g) {
 
 /* ── běh ──────────────────────────────────────────────────────────── */
 console.log('\n── Audit kvality zadání (3.–9. ročník) ──\n');
-const found = { frac: [], decl: [], hintEmpty: [], hintDup: [], nan: [], typo: [], float: [], dotText: [], dotHint: [] };
+const found = { frac: [], decl: [], hintEmpty: [], hintDup: [], nan: [], typo: [], float: [], dotText: [], dotHint: [], periodic: [] };
 let generated = 0;
 
 for (const g of GRADES) {
@@ -160,7 +167,11 @@ for (const g of GRADES) {
         // základní tvar očekává; tady by bylo škodlivé.
         floatNoise(all).forEach(f => push('float', where, f + '  «' + text.replace(/\n/g, ' ').slice(0, 55) + '»'));
         decimalDot(text).forEach(() => push('dotText', where, text.replace(/\n/g, ' ').slice(0, 70)));
-        hints.forEach(h => decimalDot(h).forEach(() => push('dotHint', where, String(h).slice(0, 70))));
+        // nápovědy hodnotíme PO normalizaci, protože hra ji dělá při zobrazení
+        hints.forEach(h => decimalDot(czTxt(h)).forEach(() => push('dotHint', where, String(h).slice(0, 70))));
+        hints.forEach(h => periodicDecimal(czTxt(h)).forEach(v => {
+          if (!String(h).includes('≈')) push('periodic', where, v + '  «' + String(h).slice(0, 60) + '»');
+        }));
         badDeclension(text).forEach(d => push('decl', where, d + '  «' + text.slice(0, 60) + '»'));
         typography(text).forEach(x => push('typo', where, x + '  «' + text.slice(0, 60) + '»'));
         if (hints.length && hints.some(h => !String(h || '').trim())) push('hintEmpty', where, text.slice(0, 60));
@@ -195,14 +206,12 @@ report('hintDup', 'nápovědy L1 a L2 se liší');
 report('float', 'žádné artefakty plovoucí čárky (5,1000000000000005)');
 report('dotText', 'v ZADÁNÍ je desetinná čárka, ne tečka');
 
-/* Desetinná tečka v NÁPOVĚDÁCH je zatím známý dluh (viz níže) — hlásíme ji
-   jako varování, ať je vidět rozsah, ale nesrážíme tím celou bránu. */
-console.log('\n  ⚠️  ZNÁMÝ DLUH — desetinná tečka v nápovědách (' + found.dotHint.length + ' míst):');
-[...new Set(found.dotHint.map(x => x.where))].slice(0, 25).forEach(w => {
-  const ex = found.dotHint.find(x => x.where === w);
-  console.log('        • ' + w + ': ' + ex.detail);
-});
-console.log('      (v zadání opraveno, nápovědy čekají na samostatný průchod)');
+report('dotHint', 'v NÁPOVĚDÁCH je desetinná čárka, ne tečka');
+report('periodic', 'zaokrouhlená hodnota v nápovědě má znaménko ≈, ne useknuté cifry');
+
+// pojistka, že normalizaci opravdu dělá KAŽDÁ hra (ne jen náhodou v datech)
+const bezCz = GRADES.filter(g => !fs.readFileSync(P('rpg-mat-' + g + '.html'), 'utf8').includes('czTxt('));
+ok('všechny hry normalizují desetinnou čárku v nápovědách', bezCz.length === 0, 'chybí v: ' + bezCz.join(', '));
 
 console.log('\n══════════════════════════════════════════');
 console.log('  VÝSLEDEK: ' + pass + ' ✅ / ' + fail + ' ❌');

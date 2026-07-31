@@ -311,10 +311,17 @@ function gen_4_2(){
   const nasm=ri(2,4),p=nasm*ri(1,3),q=ri(40,80);
   tasks.push({text:`Cesta trvá ${p} ${skl(p,'hodinu','hodiny','hodin')} rychlostí ${q} km/h. Jak dlouho trvá stejná cesta rychlostí ${q*nasm} km/h?`,ans:p/nasm,hints:[`Nepřímá: ${nasm}× vyšší rychlost → ${nasm}× kratší čas.`,p+' : '+nasm+' = '+(p/nasm)+' h'],skill:'anal'});
   { const a=ri(2,5),per=ri(3,8),b=a*per;let c=ri(2,8);if(c===a)c=c%8+2; tasks.push({text:`${a} ${skl(a,'litr','litry','litrů')} barvy ${skl(a,'vymaluje','vymalují','vymaluje')} ${b} m². Kolik m² ${skl(c,'vymaluje','vymalují','vymaluje')} ${c} ${skl(c,'litr','litry','litrů')}?`,ans:c*per,hints:['Přímá úměrnost: více barvy → více plochy.','1 l = '+per+' m², '+c+' l = '+(c*per)+' m²'],skill:'anal'}); }
-  { // konstrukce od výsledku: e=f·k a x=d·k ⇒ d·e = f·x přesně (dřív 72 % úloh
-    // vyšlo necelé a odpověď se zaokrouhlovala, ačkoli zadání znělo přesně)
-    const d=ri(3,6),f=ri(d+1,d*2),k=ri(2,5),e=f*k,x=d*k;
-    tasks.push({text:`${d} ${skl(d,'kohout','kohouti','kohoutů')} sezobe obilí za ${e} ${skl(e,'den','dny','dní')}. Za kolik dní ${f} ${skl(f,'kohout','kohouti','kohoutů')}? (nepřímá úměrnost)`,ans:x,hints:['Nepřímá: počet × dny je stálý součin.',d+'·'+e+' = '+f+'·x → x = '+x+' '+skl(x,'den','dny','dní')],skill:'anal'}); }
+  { // DNY SE ZAOKROUHLUJÍ NAHORU: když práce vyjde na 18,75 dne, hotovo je
+    // až 19. den — proto Math.ceil, ne Math.round. Čísla schválně volíme tak,
+    // aby dělení NEvyšlo beze zbytku, protože právě tohle je ta dovednost.
+    const d=ri(3,6),f=ri(d+1,d*2),e=ri(20,60);
+    const presne=d*e/f, x=Math.ceil(presne);
+    const presneTxt=String(Math.round(presne*100)/100).replace('.',',');
+    tasks.push({text:`${d} ${skl(d,'kohout','kohouti','kohoutů')} sezobe obilí za ${e} ${skl(e,'den','dny','dní')}. Za kolik celých dní to zvládne ${f} ${skl(f,'kohout','kohouti','kohoutů')}? (nepřímá úměrnost)`,
+      ans:x,
+      hints:['Nepřímá úměrnost: počet × dny je stálý součin.',
+             d+'·'+e+' = '+f+'·x → x '+(Number.isInteger(presne)?'= ':'≈ ')+presneTxt+' → celých dní '+x],
+      skill:'anal'}); }
   { const g=ri(4,10),h=ri(3,8),i=ri(2,5); tasks.push({text:`Auto ujede za ${g} h vzdálenost ${g*h} km. Za ${i} h ujede?`,ans:i*h,hints:['Přímá: v = '+(g*h/g)+' km/h.',''+i+'×'+h+' = '+i*h+' km'],skill:'anal'}); }
   { const m=ri(3,7),per=ri(3,9),n=m*per,o=m*ri(2,4); tasks.push({text:`Na ${m} ${skl(m,'čtverec','čtverce','čtverců')} spotřebuju ${n} g lepidla. Na ${o} ${skl(o,'čtverec','čtverce','čtverců')}?`,ans:per*o,hints:['Přímá: 1 čtverec = '+per+' g.',''+o+'×'+per+' = '+(per*o)+' g'],skill:'anal'}); }
   { const a=ri(2,5),per=ri(3,8),b=a*per;let c=ri(2,8);if(c===a)c=c%8+2; tasks.push({text:`${a} ${skl(a,'pochodeň','pochodně','pochodní')} osvětlí ${b} m chodby. Kolik metrů osvětlí ${c} ${skl(c,'pochodeň','pochodně','pochodní')}?`,ans:c*per,hints:['Přímá úměrnost: 1 pochodeň = '+per+' m.',c+' × '+per+' = '+(c*per)+' m'],skill:'anal'}); }

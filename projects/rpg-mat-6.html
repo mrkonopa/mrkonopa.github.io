@@ -2567,6 +2567,9 @@ function submitAnswer(){
  }
 }
 
+// V ČR je desetinný oddělovač ČÁRKA. Nápovědy skládají čísla z JS, kde je
+// tečka — normalizujeme je centrálně při zobrazení (textContent, bez HTML).
+function czTxt(t){return String(t).replace(/(\d)\.(\d)/g,'$1,$2');}
 function showHint(){
  // jediná nápověda: jen postup, nikdy výsledek
  const t=BT.curTask;
@@ -2577,7 +2580,7 @@ function showHint(){
  hb.style.color='#7fe87f';
  hb.style.background='#0f1a0f';
  const hintText=(t.hints&&t.hints[0]&&String(t.hints[0]).trim())?t.hints[0]:'Rozděl si příklad na menší kroky a postupuj po jednom.';
- hb.textContent='💡 Nápověda:\n'+hintText;
+ hb.textContent='💡 Nápověda:\n'+czTxt(hintText);
  hb.classList.add('show');
  BT.hl=1;
  document.getElementById('hint-btn').disabled=true;
