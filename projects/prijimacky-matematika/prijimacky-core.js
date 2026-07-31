@@ -293,10 +293,105 @@
     'telesa': ['Napiš vzorec pro objem nebo povrch daného tělesa.', 'Kvádr: V = a·b·c, S = 2·(ab+bc+ac). Krychle: V = a³, S = 6a². Pozor: 1 litr = 1000 cm³.'],
     'data': ['Rozmysli, jestli jde o průměr, medián, modus nebo rozpětí.', 'Průměr = součet : počet. Medián = prostřední po seřazení. Modus = nejčastější. Rozpětí = max − min.'],
   };
+  /* Nápovědy PRO KONKRÉTNÍ TYP úlohy. Klíčem je `_check.kind`, který každý
+     generátor stejně vrací kvůli strojovému ověření — generátory se tedy
+     nemusely měnit vůbec. L1 = co si uvědomit, L2 = konkrétní postup BEZ
+     výsledku. Když typ v tabulce není, spadne se na per-okruh baseline. */
+  const KIND_HINTS = {
+    // ── výrazy, mocniny, odmocniny ──
+    mocnina: ['Mocnina je opakované násobení téhož čísla.', 'a² = a·a, a³ = a·a·a. Vynásob to postupně.'],
+    odmocnina: ['Hledáš číslo, které samo sebou vynásobené dá dané číslo.', 'Zkoušej: 10² = 100, 11² = 121… dokud netrefíš zadané číslo.'],
+    mocninaVyraz: ['Nejdřív mocnina, až potom násobení a odčítání.', 'Spočítej zvlášť a², zvlášť b·c, a teprve pak odečti.'],
+    mocnina10: ['Mocnina desíti = jednička a za ní tolik nul, kolik je exponent.', '10³ = 1 000 (tři nuly). Napiš 1 a doplň nuly.'],
+    kvadratSouctu: ['Nejdřív sečti závorku, pak umocni.', 'Spočítej (a+b) a výsledek vynásob sám sebou.'],
+    odmocninaSoucin: ['Odmocnina ze součinu = součin odmocnin.', '√(a²·b²) = a·b — najdi obě odmocniny a vynásob je.'],
+    poradiOperaci: ['Pořadí: mocniny a odmocniny → násobení → sčítání a odčítání.', 'Spočítej zvlášť a², zvlášť b·c, zvlášť odmocninu; pak teprve sečti a odečti.'],
+    rozdilMocnin: ['Obě mocniny spočítej zvlášť, pak teprve odečti.', 'Urči a² a b², větší mínus menší.'],
+    // ── zlomky ──
+    zlomekCelku: ['Zlomek z celku: nejdřív jeden díl, pak jich vezmi tolik, kolik je čitatel.', 'Celek : jmenovatel = jeden díl. Ten vynásob čitatelem.'],
+    zlomekZbytek: ['Spočítej část, která platí, a odečti ji od celku.', 'Celek : jmenovatel · čitatel = část. Zbytek = celek − část.'],
+    zlomekPocet: ['Kolik dílů 1/q se vejde do jednoho celku?', 'Do jednoho celku se vejde q dílů, do N celků tedy N·q.'],
+    smisene: ['Smíšené číslo = celky převedené na díly plus zbývající díly.', 'Celky · jmenovatel + čitatel.'],
+    zlomekRozsir: ['Rozšiřuješ: čitatel i jmenovatel násobíš stejným číslem.', 'Zjisti, kolikrát se zvětšil jmenovatel, a stejně zvětši čitatel.'],
+    castJeCelek: ['Znáš jeden díl a hledáš celek — postupuješ obráceně.', 'Celek = velikost jednoho dílu · jmenovatel.'],
+    zlomekZCasti: ['Dvoukrokové: nejdřív část z celku, pak část z té části.', 'Spočítej první část, a tu pak ber jako nový „celek" pro druhý zlomek.'],
+    zlomekZbytekDvakrat: ['Po každém odběru si spočítej, co ZBYLO — druhý zlomek je ze zbytku.', 'Zbytek po prvním = celek − první část. Druhý zlomek počítej z tohoto zbytku.'],
+    // ── výrazy s proměnnou ──
+    dosazeniLin: ['Za x dosaď dané číslo a spočítej.', 'Nejdřív násobení a·x, teprve pak přičti b.'],
+    dosazeniKvadrat: ['Za x dosaď číslo; pozor na pořadí — nejdřív mocnina.', 'Spočítej x², pak a·x, a nakonec sečti.'],
+    dosazeniZavorka: ['Nejdřív obsah závorky, pak násobení, nakonec odečtení.', 'Spočítej (x+b), vynásob a, a od výsledku odečti c.'],
+    dosazeniDve: ['Dosaď obě proměnné a spočítej oba součiny zvlášť.', 'a·x a b·y spočítej odděleně, pak sečti.'],
+    vyrazSlovni: ['Přelož slova do výrazu a teprve pak dosaď.', 'Nejdřív sečti to v závorce, výsledek vynásob.'],
+    dosazeniZlomek: ['Zlomková čára je i závorka — nejdřív celý čitatel.', 'Spočítej a·x + b, a teprve výsledek vyděl.'],
+    obvodVyraz: ['Vyjádři obě strany a pak použij vzorec pro obvod.', 'Strany jsou x a x+k. Obvod = 2·(součet obou stran).'],
+    // ── rovnice ──
+    rovniceLin: ['Osamostatni x: čísla na jednu stranu, x na druhou.', 'Odečti b od obou stran, pak vyděl číslem u x.'],
+    rovniceZlomek: ['Zbav se zlomku — vynásob obě strany jmenovatelem.', 'Nejdřív převeď b na druhou stranu, pak vynásob jmenovatelem.'],
+    rovniceZavorka: ['Nejdřív roznásob závorku, pak řeš jako obyčejnou rovnici.', 'Vyděl obě strany číslem před závorkou a pak odečti b.'],
+    rovniceObeStrany: ['x je na obou stranách — dej ho na jednu.', 'Odečti menší počet x od obou stran, čísla dej na druhou stranu.'],
+    rovniceDvojiZavorka: ['Roznásob obě závorky, pak posbírej x na jednu stranu.', 'Po roznásobení: členy s x doleva, čísla doprava, nakonec vyděl.'],
+    rovnicePodil: ['Zbav se dělení — vynásob obě strany dělitelem.', 'x + b = dělitel · výsledek. Pak odečti b.'],
+    // ── procenta ──
+    procCast: ['1 % je setina celku.', 'Celek : 100 = 1 %. To vynásob počtem procent.'],
+    procZaklad: ['Znáš část a procenta, hledáš celek — postupuješ obráceně.', 'Část : procenta = 1 %. To vynásob stem.'],
+    procKolik: ['Ptáš se, kolik setin celku je daná část.', 'Část : celek · 100 = počet procent.'],
+    slevaCena: ['Po slevě zbývá 100 − p procent původní ceny.', 'Cena · (100 − p) : 100. Nepočítej slevu a pak odečítat zvlášť.'],
+    navyseniCena: ['Po zdražení je to 100 + p procent původní ceny.', 'Cena · (100 + p) : 100.'],
+    urok: ['Úrok je procento z jistiny.', 'Jistina : 100 · úroková sazba.'],
+    dveSlevy: ['Slevy se NEsčítají — druhá se počítá až z nové ceny.', 'Spočítej cenu po první slevě a teprve z NÍ ber druhou slevu.'],
+    dph: ['DPH se připočítává k ceně bez daně.', 'Základ : 100 · 21 = daň. Cena s DPH = základ + daň.'],
+    // ── slovní úlohy ──
+    soucetRozdil: ['Znáš součet i rozdíl dvou čísel.', 'Větší = (součet + rozdíl) : 2. Menší dopočítáš odečtením.'],
+    nakup: ['Každou položku spočítej zvlášť a nakonec sečti.', 'počet · cena pro každou položku, pak součet.'],
+    draha: ['Dráha = rychlost × čas.', 'Vynásob rychlost počtem hodin.'],
+    cenaDoprava: ['Zvlášť zboží, zvlášť doprava.', 'počet · cena + dopravné.'],
+    zbyva: ['Nejdřív útrata, pak co zbylo z původní částky.', 'Peníze − (počet · cena).'],
+    vek: ['Za t let přibude t oběma stejně.', 'Sestav rovnici: otec + t = 2 · (syn + t).'],
+    smes: ['Cena směsi = celková cena děleno celková hmotnost.', 'Sečti ceny obou složek, vyděl součtem kilogramů.'],
+    // ── poměr a úměrnost ──
+    deleni: ['Poměr říká, na kolik stejných dílů se dělí.', 'Součet čísel poměru = počet dílů. Celek : ten součet = jeden díl.'],
+    prima: ['Víc kusů → víc peněz (přímá úměrnost).', 'Spočítej cenu jednoho kusu a vynásob novým počtem.'],
+    neprima: ['Víc dělníků → míň dní (nepřímá úměrnost).', 'Součin počet × dny je stálý. Vyděl ho novým počtem.'],
+    meritko: ['Měřítko říká, kolikrát je skutečnost větší než mapa.', 'Délka na mapě · měřítko = skutečnost v cm; pak převeď na metry.'],
+    pomerDoplnit: ['Zjisti, kolikrát se první člen zvětšil.', 'Stejným číslem vynásob i druhý člen poměru.'],
+    pomerTri: ['Stejný postup jako u dvou dílů, jen sčítáš tři čísla.', 'Součet všech tří čísel poměru = počet dílů. Pak celek : ten součet.'],
+    recept: ['Nejdřív spotřeba na jednu porci.', 'Množství : počet porcí = na jednu. Pak nové množství : to číslo.'],
+    // ── data a statistika ──
+    prumer: ['Průměr = součet dělený počtem.', 'Sečti všechna čísla a vyděl jejich počtem.'],
+    median: ['Medián je prostřední hodnota — nejdřív seřaď.', 'Seřaď od nejmenšího a vezmi číslo přesně uprostřed.'],
+    modus: ['Modus je hodnota, která se opakuje nejčastěji.', 'Spočítej, kolikrát se která hodnota objeví, a vyber nejčastější.'],
+    rozsah: ['Rozpětí je rozdíl mezi největší a nejmenší hodnotou.', 'Najdi maximum a minimum a odečti je.'],
+    prumerChybejici: ['Z průměru dopočítáš celkový součet.', 'Počet · průměr = součet všech. Odečti známá čísla.'],
+    soucetZPrumeru: ['Průměr a počet ti dají součet.', 'Součet = počet · průměr.'],
+    prumerPridani: ['Nový průměr počítej z NOVÉHO součtu i NOVÉHO počtu.', 'Původní součet + přidané číslo, to vyděl počtem o jedna větším.'],
+    // ── geometrie v rovině ──
+    obvodObd: ['Obvod je součet všech stran dokola.', 'O = 2·(a + b).'],
+    obsahObd: ['Obsah obdélníku je součin stran.', 'S = a · b.'],
+    obvodCtverec: ['Čtverec má čtyři stejné strany.', 'O = 4 · a.'],
+    obsahCtverec: ['Čtverec má obě strany stejné.', 'S = a · a.'],
+    obsahTroj: ['Trojúhelník je „půlka" obdélníku.', 'S = (a · v) : 2 — strana krát příslušná výška, děleno dvěma.'],
+    uhelVedlejsi: ['Vedlejší úhly dohromady dávají přímý úhel.', 'Druhý úhel = 180° − daný úhel.'],
+    pythag: ['Pravoúhlý trojúhelník → Pythagorova věta.', 'c² = a² + b². Sečti druhé mocniny odvěsen a odmocni.'],
+    lichobeznik: ['Potřebuješ obě základny a výšku.', 'S = (a + c) : 2 · v.'],
+    tretiUhel: ['Součet vnitřních úhlů trojúhelníku je vždy 180°.', 'γ = 180° − α − β.'],
+    // ── tělesa ──
+    objemKvadr: ['Objem kvádru = součin tří rozměrů.', 'V = a · b · c.'],
+    povrchKvadr: ['Kvádr má tři dvojice shodných stěn.', 'S = 2·(ab + bc + ac).'],
+    objemKrychle: ['Krychle má všechny hrany stejné.', 'V = a · a · a.'],
+    povrchKrychle: ['Krychle má šest shodných čtvercových stěn.', 'S = 6 · a².'],
+    hranyKvadr: ['Kvádr má 12 hran — od každého rozměru čtyři.', 'Součet = 4·(a + b + c).'],
+    objemLitr: ['Nejdřív objem v cm³, pak převod na litry.', 'V = a·b·c v cm³; 1 litr = 1000 cm³, tedy vyděl tisícem.'],
+    hranol: ['Objem hranolu = obsah podstavy × výška hranolu.', 'Podstava je trojúhelník: (a · v) : 2. To vynásob výškou hranolu.'],
+    hranaZObjemu: ['Hledáš číslo, které třikrát vynásobené sebou dá objem.', 'Zkoušej: 4·4·4 = 64, 5·5·5 = 125… dokud netrefíš zadaný objem.'],
+  };
+
   function hintsFor(item, topicId) {
     const th = TOPIC_HINTS[topicId] || ['Zkus si vzpomenout na postup pro tento typ úlohy.', 'Rozepiš si výpočet krok za krokem.'];
-    const l1 = (item && item.hint1) || th[0];
-    const l2 = (item && item.hint2) || th[1];
+    // priorita: vlastní hint generátoru → nápověda pro TYP úlohy → baseline okruhu
+    const kind = item && item._check && item._check.kind;
+    const kh = (kind && KIND_HINTS[kind]) || null;
+    const l1 = (item && item.hint1) || (kh && kh[0]) || th[0];
+    const l2 = (item && item.hint2) || (kh && kh[1]) || th[1];
     const l3 = 'Výsledek: ' + (item && item.ans != null ? item.ans : '');
     return [l1, l2, l3];
   }

@@ -997,7 +997,7 @@ const AREAS = [
  (()=>{const v=ri(11,98)/10;return{text:`Vynásob:\n${cz(v)} × 10 =`,ans:String(Math.round(v*100)/10),hints:[`× 10 = posuň čárku o 1 doprava.`,`Výsledek: ${Math.round(v*100)/10}`],skill:'calc'};})(),
  (()=>{const v=ri(15,98)/10;return{text:`Vyděl:\n${cz(Math.round(v*100)/10)} : 10 =`,ans:String(v),hints:[`: 10 = posuň čárku o 1 doleva.`,`Výsledek: ${v}`],skill:'calc'};})(),
  (()=>{const v=ri(105,995)/100;const r=Math.round(v*10)/10;const x=Math.round(v*100);return{text:`Zaokrouhli na desetiny:\n${cz(v)} ≈`,ans:String(r),distractors:(x%10!==0?[String((x%10>=5?Math.floor(x/10):Math.ceil(x/10))/10)]:[]),hints:[`Rozhoduje místo setin (druhé za čárkou).`,`Výsledek: ${r}`],skill:'calc'};})(),
- (()=>{const a=ri(20,79)/10,b=a+ri(2,30)/10;return{text:`Které číslo je větší?\n${cz(a)}  nebo  ${cz(b)}\n(napiš to větší)`,ans:String(b),hints:[`Porovnej nejdřív celé části, pak desetiny.`,`Výsledek: ${b}`],skill:'calc'};})(),
+ (()=>{const ai=ri(20,79),bi=ai+ri(2,30),a=ai/10,b=bi/10;return{text:`Které číslo je větší?\n${cz(a)}  nebo  ${cz(b)}\n(napiš to větší)`,ans:String(b),hints:[`Porovnej nejdřív celé části, pak desetiny.`,`Výsledek: ${cz(b)}`],skill:'calc'};})(),
  (()=>{const v=ri(105,985)/100;const r=Math.round(v);const h=Math.round(v*100)%100;return{text:`Zaokrouhli na celé číslo:\n${cz(v)} ≈`,ans:String(r),distractors:(h!==0?[String(h>=50?Math.floor(v):Math.ceil(v))]:[]),hints:[`Rozhoduje místo desetin.`,`Výsledek: ${r}`],skill:'calc'};})()
  ]
  },
@@ -2567,6 +2567,9 @@ function submitAnswer(){
  }
 }
 
+// V ČR je desetinný oddělovač ČÁRKA. Nápovědy skládají čísla z JS, kde je
+// tečka — normalizujeme je centrálně při zobrazení (textContent, bez HTML).
+function czTxt(t){return String(t).replace(/(\d)\.(\d)/g,'$1,$2');}
 function showHint(){
  // jediná nápověda: jen postup, nikdy výsledek
  const t=BT.curTask;
@@ -2577,7 +2580,7 @@ function showHint(){
  hb.style.color='#7fe87f';
  hb.style.background='#0f1a0f';
  const hintText=(t.hints&&t.hints[0]&&String(t.hints[0]).trim())?t.hints[0]:'Rozděl si příklad na menší kroky a postupuj po jednom.';
- hb.textContent='💡 Nápověda:\n'+hintText;
+ hb.textContent='💡 Nápověda:\n'+czTxt(hintText);
  hb.classList.add('show');
  BT.hl=1;
  document.getElementById('hint-btn').disabled=true;
@@ -3443,18 +3446,14 @@ function trWrong(given){
 }
 
 function trHint(){
- // jediná nápověda: jen postup, nikdy výsledek
- const t=TR.task;
- if(TR.hl>0)return;
- const hb=document.getElementById('tr-hint-box');
- hb.style.borderColor='var(--green)';
- hb.style.color='#7fe87f';
- hb.style.background='#0f1a0f';
- const trHintText=(t.hints&&t.hints[0]&&String(t.hints[0]).trim())?t.hints[0]:'Rozděl si příklad na menší kroky a postupuj po jednom.';
- hb.textContent='💡 Nápověda:\n'+trHintText;
- hb.classList.add('show');
- TR.hl=1;
- document.getElementById('tr-hint-btn').disabled=true;
+ // TRÉNINK má dvě úrovně jako 1. stupeň: 1/2 = nasměrování, 2/2 = výsledek
+ // (oranžově). Trénink není známkovaný, takže výsledek prozradit smí — v BOJI
+ // zůstává jediná nápověda bez výsledku, to je záměr.
+ const t=TR.task;if(TR.hl>=2)return;const hb=document.getElementById('tr-hint-box');
+ const hints=t.hints||[];
+ if(TR.hl===0){hb.textContent='💡 Nápověda 1/2:\n'+czTxt((hints[0]&&String(hints[0]).trim())?hints[0]:'Rozděl si příklad na menší kroky a postupuj po jednom.');hb.style.borderColor='var(--green)';hb.style.color='#7fe87f';hb.style.background='#0f1a0f';}
+ else{hb.textContent='💡 Nápověda 2/2:\n'+czTxt((hints[1]&&String(hints[1]).trim())?hints[1]:'Výsledek: '+t.ans);hb.style.borderColor='#ff8800';hb.style.color='#ffaa44';hb.style.background='#1a0e00';}
+ hb.classList.add('show');TR.hl++;if(TR.hl>=2)document.getElementById('tr-hint-btn').disabled=true;
 }
 
 function trNext(){trDraw();}
