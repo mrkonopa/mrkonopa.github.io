@@ -65,5 +65,26 @@ for (let run = 0; run < RUNS; run++) {
 }
 ok(bad.size === 0, `${RUNS} běhů bez strukturální chyby` + (bad.size ? ' — ' + [...bad].slice(0, 8).join(' | ') : ''));
 
+/* ── Číselná konvence v OSTRÉM TESTU (Vojtovo pravidlo) ──
+   Pozice 13 dřív počítala `stara * (1 + p/100)`, takže se do zadání dostalo
+   „Zboží zdražilo z 700 Kč na 770.0000000000001 Kč". Matematicky správně,
+   pro žáka nepoužitelné — a testy struktury to minuly. */
+{
+  const FLOAT = /\d+[.,]\d{4,}/;
+  const nalezy = new Set();
+  for (let i = 0; i < 400; i++) for (let s = 0; s < 16; s++) {
+    let t; try { t = G.genSlot(s); } catch (e) { continue; }
+    const txt = [t.intro, t.prompt, t.sol,
+      ...(t.parts || []).map(x => x.prompt + ' ' + x.sol),
+      ...(t.statements || []).map(x => x.text + ' ' + x.sol),
+      ...(Array.isArray(t.sol) ? t.sol : [])].filter(Boolean).join(' ')
+      .replace(/<[^>]*>/g, '');           // SVG atributy nejsou text pro žáka
+    const m = txt.match(FLOAT);
+    if (m) nalezy.add('pozice ' + (s + 1) + ': ' + m[0]);
+  }
+  ok(nalezy.size === 0, 'žádný artefakt plovoucí čárky v zadání ani řešení'
+    + (nalezy.size ? ' — ' + [...nalezy].slice(0, 5).join(' | ') : ''));
+}
+
 console.log(`\n  ${pass} ✅ / ${fail} ❌  (${RUNS} vygenerovaných testů)`);
 process.exit(fail ? 1 : 0);

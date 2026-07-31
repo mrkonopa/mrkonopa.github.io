@@ -865,14 +865,18 @@
 
   function gen13c() {
     // 2 body — MC, o kolik procent se cena zvýšila
-    const stara = ri(1, 9) * 100, p = [10, 20, 25, 50][ri(0, 3)], nova = stara * (1 + p / 100);
+    // POZOR: `stara * (1 + p/100)` je násobení desetinným číslem → vzniklo
+    // „770.0000000000001 Kč" přímo v zadání ostrého testu. Počítáme v celých:
+    // `stara` je násobek 100, takže přírůstek vyjde vždy celý.
+    const stara = ri(1, 9) * 100, p = [10, 20, 25, 50][ri(0, 3)];
+    const prirustek = stara * p / 100, nova = stara + prirustek;
     const opts = [p - 5, p, p + 5, p + 10, 'jiná hodnota'];
     const sh = shuffleOpts(opts, p);
     return {
       no: 13, points: 2, title: 'Zdražení', kind: 'mc',
       prompt: `Zboží zdražilo z ${stara} Kč na ${nova} Kč. O kolik procent se cena zvýšila?`,
       options: sh.labels, ans: sh.correctLetter,
-      sol: `Zdražení v korunách: ${nova} − ${stara} = ${nova - stara} Kč. Vztaženo k PŮVODNÍ ceně: ${nova - stara} : ${stara} = ${cz((nova - stara) / stara)} = ${p} % → odpověď ${sh.correctLetter}.`
+      sol: `Zdražení v korunách: ${nova} − ${stara} = ${prirustek} Kč. Vztaženo k PŮVODNÍ ceně: ${prirustek} : ${stara} = ${p}/100 = ${p} % → odpověď ${sh.correctLetter}.`
     };
   }
 
