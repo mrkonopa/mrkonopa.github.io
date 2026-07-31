@@ -74,11 +74,15 @@ ok(bad.size === 0, `${RUNS} běhů bez strukturální chyby` + (bad.size ? ' —
   const nalezy = new Set();
   for (let i = 0; i < 400; i++) for (let s = 0; s < 16; s++) {
     let t; try { t = G.genSlot(s); } catch (e) { continue; }
-    const txt = [t.intro, t.prompt, t.sol,
+    const raw = [t.intro, t.prompt, t.sol,
       ...(t.parts || []).map(x => x.prompt + ' ' + x.sol),
       ...(t.statements || []).map(x => x.text + ' ' + x.sol),
-      ...(Array.isArray(t.sol) ? t.sol : [])].filter(Boolean).join(' ')
-      .replace(/<[^>]*>/g, '');           // SVG atributy nejsou text pro žáka
+      ...(Array.isArray(t.sol) ? t.sol : [])].filter(Boolean).join(' ');
+    // SVG atributy (stroke-width="3.5") nejsou text pro žáka → odstranit.
+    // Odstraňujeme v CYKLU, dokud se text mění: jeden průchod by u vnořených
+    // značek („<<b>>") kus markupu nechal — na to upozornil CodeQL #76.
+    let txt = raw, prev;
+    do { prev = txt; txt = txt.replace(/<[^<>]*>/g, ''); } while (txt !== prev);
     const m = txt.match(FLOAT);
     if (m) nalezy.add('pozice ' + (s + 1) + ': ' + m[0]);
   }
