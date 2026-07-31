@@ -169,6 +169,50 @@ for (const topic in GEN) {
 ok(badFrac === 0, 'nezkrácený zlomek v zadání (' + badFrac + '×), např.: ' + fracEx);
 ok(badDecl === 0, 'špatné skloňování v zadání (' + badDecl + '×), např.: ' + declEx);
 if (!badFrac && !badDecl) { pass += 2; console.log('  ✅ zlomky v základním tvaru + skloňování OK'); }
+/* ── Číselná konvence (Vojtovo pravidlo) ──
+   Desetinná ČÁRKA, diskrétní jednotky celé (a při dělení nahoru), periodický
+   rozvoj zaokrouhlený se znaménkem ≈. */
+console.log('── Číselná konvence zadání ──');
+const DOT = /\d\.\d/, PERIODIC = /\d+[.,]\d{3,}/;
+const DISCRETE = /(dní|dny|den|náklaďák|autobus|krabic|balení|beden|pytl|porcí|porce|kusů|žáků|lidí|jízd)/i;
+let dots = 0, per = 0, frac = 0, dEx = '', pEx = '', fEx = '';
+for (const topic in GEN) for (const gen of GEN[topic]) for (let i = 0; i < 300; i++) {
+  const it = gen(), p = String(it.prompt || ''), sol = String(it.sol || '');
+  if (DOT.test(p) || DOT.test(sol)) { dots++; if (!dEx) dEx = (DOT.test(p) ? p : sol).slice(0, 70); }
+  if ((PERIODIC.test(p) || PERIODIC.test(sol)) && !/≈/.test(p + sol)) { per++; if (!pEx) pEx = (p + ' | ' + sol).slice(0, 80); }
+  if (DISCRETE.test(p) && !Number.isInteger(Number(it.ans))) { frac++; if (!fEx) fEx = p.slice(0, 60) + ' → ' + it.ans; }
+}
+ok(dots === 0, 'desetinná TEČKA místo čárky (' + dots + '×): ' + dEx);
+ok(per === 0, 'periodický rozvoj bez znaménka ≈ (' + per + '×): ' + pEx);
+ok(frac === 0, 'necelá odpověď u diskrétní jednotky (' + frac + '×): ' + fEx);
+if (!dots && !per && !frac) { pass += 3; console.log('  ✅ čárka, celé jednotky i ≈ v pořádku'); }
+
+/* ── Nápovědy pro KONKRÉTNÍ typ úlohy ── */
+console.log('── Progresivní nápovědy ──');
+global.window.PZ_TOPICS = { list: Object.keys(GEN).map(id => ({ id, name: id })) };
+eval(fs.readFileSync(path.join(__dirname, '..', 'projects/prijimacky-matematika/prijimacky-core.js'), 'utf8'));
+const PZ = global.window.PZ;
+const seenKinds = new Set(), missing = new Set(), weak = [];
+for (const topic in GEN) for (const gen of GEN[topic]) for (let i = 0; i < 40; i++) {
+  const it = gen(), k = it._check.kind;
+  seenKinds.add(k);
+  const h = PZ.hintsFor(it, topic);
+  // baseline okruhu poznáme podle toho, že se shoduje s TOPIC_HINTS — pak typ chybí
+  const generic = PZ.hintsFor({ ans: it.ans }, topic);
+  if (h[0] === generic[0] && h[1] === generic[1]) missing.add(k);
+  if (h.length !== 3 || !String(h[0]).trim() || !String(h[1]).trim()) weak.push(k);
+  // L2 smí výsledek prozradit jen tehdy, když je nápověda ODVOZENÁ Z POLOŽKY.
+  // Statický text pro daný typ („Zkoušej: 10² = 100…") se s odpovědí může
+  // potkat náhodou — to není únik, jen shoda číslic.
+  const jiny = PZ.hintsFor({ ...it, ans: 'XXX' }, topic);
+  const itemSpecific = jiny[1] !== h[1];
+  if (itemSpecific && String(h[1]).includes(String(it.ans))) weak.push(k + ' (L2 prozrazuje výsledek)');
+  if (!String(h[2]).includes(String(it.ans))) weak.push(k + ' (L3 neobsahuje výsledek)');
+}
+ok(missing.size === 0, 'každý typ úlohy má VLASTNÍ nápovědu (' + missing.size + ' bez ní: ' + [...missing].slice(0, 6).join(', ') + ')');
+ok(weak.length === 0, 'nápovědy jsou úplné a L2 neprozrazuje výsledek (' + [...new Set(weak)].slice(0, 4).join(', ') + ')');
+if (!missing.size && !weak.length) { pass += 2; console.log('  ✅ všech ' + seenKinds.size + ' typů má vlastní L1+L2, L3 nese výsledek'); }
+
 console.log('\n══════════════════════════════════════════');
 console.log('  VÝSLEDEK: ' + pass + ' ✅ / ' + fail + ' ❌');
 console.log('══════════════════════════════════════════');
