@@ -67,6 +67,12 @@ body{background:var(--bg);color:var(--text);font-family:var(--px);font-weight:70
 .learn-section p{font-family:var(--read);font-size:15px;line-height:1.6;color:var(--text);margin-bottom:6px}
 .learn-formula{background:var(--panel2);border:2px solid var(--gold);padding:12px 16px;margin-bottom:10px;font-family:var(--read);font-weight:600;font-size:16px;color:var(--gold);line-height:2}
 .learn-example{background:var(--panel);border:2px solid var(--green);padding:10px 14px;margin-bottom:8px}
+.learn-mistakes{background:var(--panel);border-left:4px solid #e05555;padding:12px 16px;margin:10px 0;border-radius:0 6px 6px 0}
+.learn-mistakes h3{font-family:var(--read);font-size:15px;margin:0 0 8px;color:#e05555}
+.learn-mistakes .mi{margin-bottom:10px}
+.learn-mistakes .mi-w{font-family:var(--read);font-size:15px;color:#e05555;text-decoration:line-through;text-decoration-thickness:1px}
+.learn-mistakes .mi-r{font-family:var(--read);font-size:15px;color:var(--green,#3fa34d);font-weight:600}
+.learn-mistakes .mi-why{font-family:var(--read);font-size:13px;color:var(--muted);margin-top:2px}
 .ex-q{font-family:var(--px);font-size:13px;color:var(--blue);margin-bottom:4px}
 .ex-s{font-family:var(--read);font-size:14px;color:var(--text);line-height:1.7}
 .learn-video{display:inline-flex;align-items:center;gap:8px;font-family:var(--px);font-size:13px;color:var(--red);text-decoration:none;border:2px solid var(--red);padding:8px 14px;background:var(--panel)}
@@ -224,6 +230,8 @@ html[data-theme="violet"]{--gold:#b06cff;--panel:#100a20;--panel2:#18103a;--blue
 .streak-chip{display:inline-flex;align-items:center;gap:5px;font-family:var(--px);font-weight:700;font-size:12px;color:#ffae3d;background:#1c1206;border:2px solid #ffae3d;padding:3px 9px;letter-spacing:.5px}
 .streak-chip .sf{animation:streak-flicker 1.4s ease-in-out infinite}
 @keyframes streak-flicker{0%,100%{transform:scale(1);filter:drop-shadow(0 0 2px #ffae3d)}50%{transform:scale(1.18);filter:drop-shadow(0 0 7px #ff7733)}}
+@keyframes shake{0%,100%{transform:translate(0,0)}20%{transform:translate(-4px,2px)}40%{transform:translate(4px,-2px)}60%{transform:translate(-3px,-2px)}80%{transform:translate(3px,2px)}}
+.shaking{animation:shake .16s ease-in-out}
 .reduced-motion *,.reduced-motion *::before,.reduced-motion *::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
 .reduced-motion .float-txt{display:none!important}
 .reduced-motion #hit-vignette{display:none!important}
@@ -334,8 +342,10 @@ html[data-theme="violet"]{--gold:#b06cff;--panel:#100a20;--panel2:#18103a;--blue
  </div>
  <div class="panel" id="map-leaderboard" style="display:none;padding:12px 14px"></div>
  <div class="panel" id="map-recommend" style="display:none;padding:12px 14px;margin-top:12px"></div>
+ <div class="panel" id="map-revive" style="display:none;padding:12px 14px;margin-top:12px"></div>
  <div style="display:flex;gap:8px;margin-top:12px">
   <button class="btn sm gold" style="flex:0 0 auto" onclick="go('shop')">🛍️ OBCHOD</button>
+  <button class="btn" style="flex:none" onclick="typeof RPGFindError!=='undefined'&&RPGFindError.open(window.RPG_LEARN_4)">🔍 NAJDI CHYBU</button>
   <button class="btn" style="flex:none" onclick="openBattle()">⚔️ ŽIVÝ SOUBOJ</button>
   <button class="btn b" style="flex:1" onclick="go('train')">🎯 TRÉNINK — procvičuj libovolné téma bez boje</button>
  </div>
@@ -358,6 +368,8 @@ html[data-theme="violet"]{--gold:#b06cff;--panel:#100a20;--panel2:#18103a;--blue
   <button class="shop-tab" onclick="setShopCat('victory',this)">🎉 Vítězství</button>
   <button class="shop-tab" onclick="setShopCat('skin',this)">🥷 Skin</button>
   <button class="shop-tab" onclick="setShopCat('powerup',this)">⚡ Powerupy</button>
+  <button class="shop-tab" onclick="setShopCat('title',this)">📜 Tituly</button>
+  <button class="shop-tab" onclick="setShopCat('pet',this)">🐾 Mazlíčci</button>
  </div>
  <div class="shop-grid" id="shop-grid"></div>
 </div>
@@ -390,7 +402,7 @@ html[data-theme="violet"]{--gold:#b06cff;--panel:#100a20;--panel2:#18103a;--blue
  </div>
  <div style="margin-top:8px">
   <div style="display:flex;justify-content:space-between;font-family:var(--px);font-size:11px;margin-bottom:4px">
-  <span style="color:var(--muted)">CESTA K MISTROVSTVÍ</span>
+  <span style="color:var(--muted)">CESTA K MISTROVSTVÍ <span id="tr-revive-chip" style="display:none;color:#ffd06a;margin-left:8px"></span></span>
   <span style="color:var(--gold)"><span id="tr-mscore">0</span> / <span id="tr-msgoal">15</span></span>
   </div>
   <div class="bar-out bar-xp"><div class="bar-in" id="tr-msbar" style="width:0%"></div></div>
@@ -536,10 +548,22 @@ html[data-theme="violet"]{--gold:#b06cff;--panel:#100a20;--panel2:#18103a;--blue
  <div class="ach-grid" id="pr-ach"></div>
  </div>
  <div class="panel">
+ <div style="font-family:var(--px);font-weight:700;font-size:12px;color:var(--muted);letter-spacing:1px;margin-bottom:10px">— ŽIVOTNÍ ÚSPĚCHY (všechny ročníky) —</div>
+ <div id="pr-gach"></div>
+ </div>
+ <div class="panel">
  <div style="font-family:var(--px);font-weight:700;font-size:12px;color:var(--muted);margin-bottom:12px;letter-spacing:1px">— NASTAVENÍ ⚙️ —</div>
  <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-family:var(--read);font-size:14px;color:var(--text)">
   <input type="checkbox" id="pr-rm" onchange="toggleReducedMotion(this.checked)" style="width:18px;height:18px;cursor:pointer;accent-color:var(--blue)">
   <span>Vypnout vizuální efekty<br><span style="font-size:12px;color:var(--muted)">Skryje blikání, floaty (+XP), animace výhry a poškození.</span></span>
+ </label>
+ <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-family:var(--read);font-size:14px;color:var(--text);margin-top:12px">
+  <input type="checkbox" id="pr-sponka" onchange="toggleSponka(this.checked)" style="width:18px;height:18px;cursor:pointer;accent-color:var(--blue)">
+  <span>Společník (sponka)<br><span style="font-size:12px;color:var(--muted)">Aktivní mazlíček tě bude sledovat po obrazovce a občas povzbudí nebo pomůže s nápovědou.</span></span>
+ </label>
+ <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-family:var(--read);font-size:14px;color:var(--text);margin-top:12px">
+  <input type="checkbox" id="pr-sound" onchange="toggleSound(this.checked)" style="width:18px;height:18px;cursor:pointer;accent-color:var(--blue)">
+  <span>Zvuky 🔊<br><span style="font-size:12px;color:var(--muted)">Krátké zvuky za správnou/špatnou odpověď, kritický zásah, minci a level-up. Výchozí vypnuto.</span></span>
  </label>
  </div>
  <div class="panel">
@@ -581,6 +605,16 @@ function countDiv(n){let c=0;for(let i=1;i<=n;i++)if(n%i===0)c++;return c;}
 const skl=(n,one,few,many)=>n===1?one:(n>=2&&n<=4?few:many);
 const cz=n=>String(n).replace('.',',');
 const r2=(n,d=2)=>Math.round(n*Math.pow(10,d))/Math.pow(10,d);
+
+// Obdélník / čtverec V MĚŘÍTKU (pro slovní úlohy 1. stupně). Popisky stran opt.lw (dole) / opt.lh (vlevo).
+function svgRect(w,h,opt={}){
+ const x=60,yb=128,s=Math.min(140/Math.max(w,1),92/Math.max(h,1));
+ const W=+(w*s).toFixed(1),H=+(h*s).toFixed(1),yt=+(yb-H).toFixed(1);
+ let t='';
+ if(opt.lw) t+=`<text x="${(x+W/2).toFixed(1)}" y="${yb+18}" fill="#ffe066" font-size="14" font-family="monospace" text-anchor="middle">${opt.lw}</text>`;
+ if(opt.lh) t+=`<text x="${x-8}" y="${(yb-H/2+4).toFixed(1)}" fill="#ffe066" font-size="14" font-family="monospace" text-anchor="end">${opt.lh}</text>`;
+ return `<svg viewBox="0 0 250 160"><rect x="${x}" y="${yt}" width="${W}" height="${H}" fill="none" stroke="#4ab0e0" stroke-width="3"/>${t}</svg>`;
+}
 
 // AREAS
 const AREAS=[
@@ -758,6 +792,8 @@ function loadS(){
  if(!Array.isArray(S.cosmetics.owned))S.cosmetics.owned=['theme-default','victory-default'];
  if(!S.cosmetics.active||typeof S.cosmetics.active!=='object')S.cosmetics.active={border:null,badge:null,theme:'theme-default',victory:'victory-default'};
  if(!S.creditsClaimed||typeof S.creditsClaimed!=='object')S.creditsClaimed={};
+ if(!S.trainErrs||typeof S.trainErrs!=='object')S.trainErrs={};
+ sanitizeMastery();
  sanitizeCosmetics();
  if(typeof RPGWallet!=='undefined')RPGWallet.migrateFrom(SAVE_KEY,S);
  return true;
@@ -765,6 +801,8 @@ function loadS(){
 function rmActive(){return((typeof RPGWallet!=='undefined')&&RPGWallet.getReducedMotion())||(S.settings&&S.settings.reducedMotion)||false;}
 function applyMotionPref(){document.documentElement.classList.toggle('reduced-motion',rmActive());}
 function toggleReducedMotion(on){if(!S.settings)S.settings={reducedMotion:false};S.settings.reducedMotion=on;if(typeof RPGWallet!=='undefined')RPGWallet.setReducedMotion(on);applyMotionPref();saveS();}
+function toggleSound(on){if(typeof RPGWallet!=='undefined')RPGWallet.setSoundOn(on);if(on&&typeof RPGSound!=='undefined')RPGSound.play('ok');}
+function toggleSponka(on){if(typeof RPGWallet!=='undefined')RPGWallet.setSponkaEnabled(on);}
 function calcLevel(){S.level=Math.floor(S.xp/100)+1;}
 
 // ACHIEVEMENTS
@@ -787,6 +825,7 @@ const ACH=[
  {id:'battle1',     ic:'⚔️', nm:'První klání',        desc:'Zúčastni se živého souboje'},
  {id:'battlewin',   ic:'🏆', nm:'Bojovník',            desc:'Vyhraj živý souboj (1. místo)'},
  {id:'battleflawless',ic:'💎',nm:'Bezchybný',         desc:'Všechny otázky správně v živém souboji'},
+ {id:'star1',ic:'⭐',nm:'Oživovatel',              desc:'Získej první hvězdu opakování'},
 ];
 function unlockAch(id){
  if(S.ach&&S.ach[id])return;
@@ -815,6 +854,7 @@ function evalAch(ev){
  if((st.trainCorrect||0)>=50)unlockAch('train50');
  if((S.streak&&S.streak.count||0)>=3)unlockAch('streak3');
  if((S.streak&&S.streak.count||0)>=7)unlockAch('streak7');
+ if(Object.values(S.mastery||{}).some(m=>m&&(m.stars|0)>=1))unlockAch('star1');
  const br=ev.battleResult;
  if(br){unlockAch('battle1');if(br.rank===1)unlockAch('battlewin');if(br.correct>=br.q_count&&br.q_count>0)unlockAch('battleflawless');}
 }
@@ -835,6 +875,7 @@ function touchStreak(){
  const y=new Date(Date.now()-864e5).toISOString().slice(0,10);
  S.streak.count=(S.streak.last===y)?(S.streak.count||0)+1:1;
  S.streak.last=today;saveS();evalAch({});
+ wMax('streakMax',S.streak.count);
  const sc=S.streak.count;earnCredits(sc>=7?20:sc>=3?10:5);
 }
 
@@ -882,6 +923,29 @@ function recommendedMission(){
  return best;
 }
 function goPractice(mid){go('train');startTrain(mid);}
+function dueRevives(){
+ const out=[];
+ AREAS.forEach(ar=>ar.missions.forEach(m=>{
+  const rv=reviveState(m.id);
+  if(rv.due)out.push({mid:m.id,name:m.name,icon:ar.icon||'',stars:rv.stars,daysSince:rv.daysSince,over:rv.daysSince-rv.nextGap});
+ }));
+ out.sort((a,b)=>b.over-a.over);
+ return out.slice(0,REVIVE_PANEL_MAX);
+}
+function renderRevive(){
+ const rp=document.getElementById('map-revive');if(!rp)return;
+ const due=dueRevives();
+ if(!due.length){rp.style.display='none';return;}
+ rp.style.display='block';
+ rp.innerHTML='<div style="font-family:var(--px);font-size:13px;color:var(--gold);font-weight:700;margin-bottom:2px">🔁 Dnes k oživení</div>'+
+  '<div style="font-family:var(--px);font-size:11px;color:var(--muted);margin-bottom:8px">Co umíš, si udržíš jen opakováním. Oživ téma ('+REVIVE_GOAL+' správných) a získej hvězdu!</div>'+
+  due.map(d=>{
+   const stars='⭐'.repeat(d.stars)+'☆'.repeat(3-d.stars);
+   return '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:5px 0;border-top:1px solid #ffffff12">'+
+    '<div style="font-family:var(--px);font-size:12px;color:var(--text)">'+d.icon+' <b>'+d.name+'</b> <span style="color:#ffd06a">'+stars+'</span> <span style="color:var(--muted)">· naposledy před '+d.daysSince+' '+(d.daysSince===1?'dnem':'dny')+'</span></div>'+
+    '<button class="btn b sm" style="flex:none" onclick="goPractice(\''+d.mid+'\')">⭐ Oživit</button></div>';
+  }).join('');
+}
 function renderRecommend(){
  const rp=document.getElementById('map-recommend');if(!rp)return;
  const rec=recommendedMission();
@@ -906,6 +970,7 @@ function renderMap(){
  if(sch){if(sc>=2){sch.style.display='inline-flex';document.getElementById('map-streak-n').textContent=sc;}else sch.style.display='none';}
  if(window.RPGCloud&&RPGCloud.renderLeaderboardInto)RPGCloud.renderLeaderboardInto('map-leaderboard',SAVE_KEY);
  renderRecommend();
+ renderRevive();
  const g=document.getElementById('map-grid');g.innerHTML='';
  const TINT={1:'#1a4a5a',2:'#2a4a3a',3:'#5a2a2a',4:'#5a4a1a',5:'#1a3a5a',6:'#3a4a2a',7:'#3a1a4a'};
  AREAS.forEach((ar,i)=>{
@@ -969,6 +1034,7 @@ function renderLearn(mid,m){
  (L.sections||[]).forEach(s=>{html+=`<div class="learn-section"><h3>${esc2(s.h||s.title||'')}</h3>`;(Array.isArray(s.p)?s.p:[s.p||s.body||'']).forEach(p=>{html+=`<p>${esc2(p).replace(/\n/g,'<br>')}</p>`;});html+='</div>';});
  if(L.formulas&&L.formulas.length){html+='<div class="learn-formula">';L.formulas.forEach(f=>{html+=esc2(f)+'<br>';});html+='</div>';}
  (L.examples||[]).forEach(ex=>{html+=`<div class="learn-example"><div class="ex-q">📝 ${esc2(ex.q)}</div><div class="ex-s">`;(Array.isArray(ex.s)?ex.s:[ex.s||ex.a||'']).forEach(step=>{html+=esc2(step).replace(/\n/g,'<br>')+'<br>';});html+='</div></div>';});
+ if(L.mistakes&&L.mistakes.length){html+='<div class="learn-mistakes"><h3>⚠️ Časté chyby</h3>';L.mistakes.forEach(mi=>{html+=`<div class="mi"><div class="mi-w">✗ ${esc2(mi.wrong)}</div><div class="mi-r">✓ ${esc2(mi.right)}</div>`+(mi.why?`<div class="mi-why">${esc2(mi.why)}</div>`:'')+'</div>';});html+='</div>';}
  el.innerHTML=html;
  if(L.video){const vurl=L.video.url||('https://www.youtube.com/watch?v='+L.video.id);const wrap=document.createElement('div');wrap.style.marginTop='16px';const a=document.createElement('a');a.className='learn-video';a.href=vurl;a.target='_blank';a.rel='noopener';a.textContent='▶ VIDEO: '+(L.video.title||'');wrap.appendChild(a);el.appendChild(wrap);}
  document.getElementById('learn-battle-btn').onclick=launchLearnBattle;
@@ -1006,7 +1072,25 @@ function launchBattle(aid,mid){
  const ex=window.RPG_TASK_EXTRA_4;
  if(ex&&typeof ex[m.id]==='function'){try{pool=pool.concat(ex[m.id]());}catch(e){}}
  if(!pool.length){alert('⚠️ Úkoly se nepodařilo načíst. Obnov prosím stránku (Ctrl+Shift+R) a zkus to znovu.');return;}
- BT.tasks=shuffleArr(pool).slice(0,m.tc);
+ BT.pool=pool;
+ // Postav BOHATÝ bank kandidátů (opakuj generátor pro rozmanitost) a vyber tc úloh
+ // přednostně s RŮZNOU odpovědí i textem → v boji se neopakují „stejná čísla"
+ // (dvě různě formulované úlohy padnou na stejný výsledek/čísla). Bank zůstává
+ // větší než výběr, aby fungoval adaptivní swap (adaptPick).
+ BT.srcIdx=(()=>{
+  const regen=()=>{let p=[];try{p=m.tasks()||[];}catch(e){}if(ex&&typeof ex[m.id]==='function'){try{p=p.concat(ex[m.id]()||[]);}catch(e){}}return p;};
+  let bank=pool.filter(t=>t&&t.text!=null),tries=0;
+  while(bank.length<Math.max(m.tc*4,12)&&tries<25){bank=bank.concat(regen().filter(t=>t&&t.text!=null));tries++;}
+  bank=shuffleArr(bank);BT.pool=bank;
+  const out=[],uT=new Set(),uA=new Set();
+  for(let i=0;i<bank.length&&out.length<m.tc;i++){const tx=String(bank[i].text),an=String(bank[i].ans);if(uT.has(tx)||uA.has(an))continue;uT.add(tx);uA.add(an);out.push(i);}
+  if(out.length<m.tc)for(let i=0;i<bank.length&&out.length<m.tc;i++){const tx=String(bank[i].text);if(uT.has(tx))continue;uT.add(tx);out.push(i);}
+  for(let i=0;out.length<m.tc&&bank.length;i++)out.push(i%bank.length);
+  return out;
+ })();
+ BT.tasks=BT.srcIdx.map(i=>BT.pool[i]);
+ BT.adapt={errRow:0,okRow:0,mode:0};
+ BT._rendered=-1;
  BT.idx=0;
  const _doneSoFar=BT.tasks.filter((_,i)=>S.done[`${mid}-${i}`]).length;
  BT._doneBattle=(_doneSoFar>=BT.tasks.length)?0:_doneSoFar;
@@ -1027,6 +1111,7 @@ function launchBattle(aid,mid){
   if(inpEl)inpEl.disabled=true;if(atkEl)atkEl.disabled=true;
   setTimeout(()=>{if(!BT.bossDefeated){if(inpEl)inpEl.disabled=false;if(atkEl)atkEl.disabled=false;if(inpEl&&!BT.mcMode&&!isYN(BT.curTask))inpEl.focus();}},700);}
  go('battle');
+ if(typeof RPGTutorial!=='undefined')RPGTutorial.maybe(S,saveS,stopTimer,startTimer);
 }
 
 function retryMission(){const m=AREAS.find(a=>a.id===BT.aid).missions.find(x=>x.id===BT.mid);for(let i=0;i<m.tc;i++)delete S.done[`${BT.mid}-${i}`];saveS();launchBattle(BT.aid,BT.mid);}
@@ -1047,6 +1132,14 @@ function flashHeart(idx){const h=document.querySelector(`.heart[data-i="${idx}"]
 function damagePlayer(){
  if(!S.errs)S.errs={};if(BT&&BT.mid){S.errs[BT.mid]=(S.errs[BT.mid]||0)+1;saveS();}
  if(BT.hp<=0)return;
+ // Štít nováčka: první chyba v boji nezraní (chyba se ale počítá do diagnostiky)
+ if(!BT.shieldUsed&&typeof RPGWallet!=='undefined'&&RPGWallet.hasPowerup&&RPGWallet.hasPowerup('pu-novice-shield')){
+  BT.shieldUsed=true;
+  floatText('⛨ Štít nováčka!',window.innerWidth/2-80,window.innerHeight*0.38,'#7fd8ff');
+  return;
+ }
+ BT.tookDamage=true;
+ if(typeof shakeBattle==='function')shakeBattle();
  hitVignette();flashHeart(BT.hp-1);BT.hp--;setTimeout(updatePlayerHp,360);
  if(BT.hp<=0){
   if(BT.secondChance&&!BT.usedSecondChance){BT.usedSecondChance=true;BT.hp=1;floatText('⚡ Druhá šance!',window.innerWidth/2-70,window.innerHeight*0.38,'#ffcc00');return;}
@@ -1063,21 +1156,25 @@ function missionFailed(){
 function startTimer(){
  stopTimer();
  if(!BT.curLimit){const _tEx=(typeof RPGWallet!=='undefined'&&RPGWallet.hasPowerup('pu-time-bonus'))?5:0;BT.curLimit=TIME_PER_TASK+_tEx;}
+ if(typeof RPGWallet!=='undefined'&&RPGWallet.hasPowerup&&RPGWallet.hasPowerup('pu-calm-mind'))BT.curLimit=Math.round(BT.curLimit*1.2);
  BT.timeLeft=BT.curLimit;BT.timeMax=BT.curLimit;
- document.getElementById('timer-wrap').style.display='block';updateTimerUi();
+ document.getElementById('timer-wrap').style.display='block';BT.noTimer=wPerk('notimer');updateTimerUi();
+ if(BT.noTimer)return;
  BT.timer=setInterval(()=>{if(BT.timerFrozen)return;BT.timeLeft--;updateTimerUi();if(BT.timeLeft<=0){stopTimer();onTimeOut();}},1000);
 }
 function stopTimer(){if(BT.timer){clearInterval(BT.timer);BT.timer=null;}}
 function updateTimerUi(){
+ const bar=document.getElementById('timer-bar');
+ if(BT.noTimer){document.getElementById('timer-v').textContent='∞';bar.style.width='100%';bar.classList.remove('warn','danger');return;}
  document.getElementById('timer-v').textContent=BT.timeLeft;
  const pct=Math.max(0,BT.timeLeft/BT.timeMax*100);
- const bar=document.getElementById('timer-bar');bar.style.width=pct+'%';
+ bar.style.width=pct+'%';
  bar.classList.toggle('warn',BT.timeLeft<=10&&BT.timeLeft>5);bar.classList.toggle('danger',BT.timeLeft<=5);
 }
 function onTimeOut(){
  if(BT.hp<=0)return;
  const fb=document.getElementById('bt-fb');fb.textContent='⏱ ČAS VYPRŠEL!';fb.className='feedback err';
- monsterAttack();damagePlayer();
+ if(typeof RPGSound!=='undefined')RPGSound.play('bad');monsterAttack();damagePlayer();adaptOnAnswer(false);
  setTimeout(()=>{
   if(BT.hp>0){
    const inp=document.getElementById('bt-ans');if(inp){inp.disabled=false;inp.value='';inp.focus();}
@@ -1087,15 +1184,45 @@ function onTimeOut(){
  },1300);
 }
 
+// ══ TICHÁ ADAPTIVNÍ OBTÍŽNOST BOJE (ZPD) ══
+function adaptScore(pi){
+ const errs=((S.trainErrs&&S.trainErrs[BT.mid])||{})[pi]||0;
+ return pi/Math.max(1,BT.pool.length)+Math.min(errs,4)/4;
+}
+function adaptOnAnswer(ok){
+ const a=BT.adapt;if(!a)return;
+ if(ok){a.okRow++;a.errRow=0;}else{a.errRow++;a.okRow=0;}
+ a.mode=a.errRow>=2?-1:(a.okRow>=3?1:0);
+}
+function adaptPick(easier){
+ if(!BT.pool||BT.pool.length<=BT.tasks.length+2)return null;
+ const usedPending=new Set(BT.srcIdx.filter((_,i)=>!S.done[`${BT.mid}-${i}`]));
+ const _aT=new Set(BT.tasks.map(t=>String(t&&t.text))),_aA=new Set(BT.tasks.map(t=>String(t&&t.ans)));
+ const cand=BT.pool.map((_,i)=>i).filter(i=>!usedPending.has(i)&&!_aT.has(String(BT.pool[i]&&BT.pool[i].text))&&!_aA.has(String(BT.pool[i]&&BT.pool[i].ans)));
+ if(!cand.length)return null;
+ cand.sort((x,y)=>adaptScore(x)-adaptScore(y));
+ const third=Math.max(1,Math.floor(cand.length/3));
+ const seg=easier?cand.slice(0,third):cand.slice(-third);
+ return seg[ri(0,seg.length-1)];
+}
+function adaptMaybeSwap(idx){
+ const a=BT.adapt;
+ if(!a||a.mode===0||BT._rendered===idx||S.done[`${BT.mid}-${idx}`])return;
+ const pi=adaptPick(a.mode<0);
+ if(pi!=null){BT.srcIdx[idx]=pi;BT.tasks[idx]=BT.pool[pi];}
+}
 function renderTask(){
  const mt=miniForIdx(BT.idx);if(mt){renderBattleMini(mt);return;}
  BT.miniStarting=false;
  const mhBtn=document.getElementById('bt-mini-hint');if(mhBtn)mhBtn.style.display='none';
+ adaptMaybeSwap(BT.idx);
+ BT._rendered=BT.idx;
  const t=BT.tasks[BT.idx];BT.curTask=t;BT.hl=0;BT.timerFrozen=false;
  if(BT.freezeTimeout){clearTimeout(BT.freezeTimeout);BT.freezeTimeout=null;}
  document.getElementById('timer-bar').classList.remove('frozen');
  const _tEx=(typeof RPGWallet!=='undefined'&&RPGWallet.hasPowerup('pu-time-bonus'))?5:0;
  BT.curLimit=TIME_PER_TASK+_tEx;
+ if(BT.adapt&&BT.adapt.mode<0)BT.curLimit=Math.round(BT.curLimit*1.2);
  document.getElementById('bt-num').textContent=BT.idx+1;document.getElementById('bt-tot').textContent=BT.tasks.length;
  const _hpPct=updateBossHpBar();
  if(_hpPct<=55&&BT.phase===1){BT.phase=2;const top=document.getElementById('bt-top');top.classList.add('phase2');const fb=document.getElementById('bt-fb');fb.textContent='🔥 BOSS JE V ZUŘIVOSTI! 🔥';fb.className='feedback err';const mon=document.getElementById('bt-mon');mon.style.filter='drop-shadow(0 6px 0 #0008) drop-shadow(0 0 14px #e74c3c)';mon.style.fontSize='132px';hitVignette();}
@@ -1115,7 +1242,7 @@ function renderTask(){
   document.getElementById('bt-input-row').style.display=yn?'none':'flex';document.getElementById('yn-row').style.display=yn?'flex':'none';
   document.querySelectorAll('#yn-row button').forEach(b=>b.disabled=false);
   document.getElementById('hint-btn').style.display='inline-block';document.getElementById('mc-grid').style.display='none';
-  document.getElementById('bt-ans').value='';document.getElementById('bt-ans').disabled=false;
+  const _bi=document.getElementById('bt-ans');_bi.value='';_bi.inputMode=/^\d+$/.test(String(BT.curTask.ans))?'numeric':/^\d+[.,]\d+$/.test(String(BT.curTask.ans))?'decimal':'text';document.getElementById('bt-ans').disabled=false;
   if(!yn)document.getElementById('bt-ans').focus();
  }
  startTimer();
@@ -1167,13 +1294,28 @@ function battleMiniDone(mistakes){
  if(mistakes===0)BT.combo++;else BT.combo=0;updateCombo();
  const xpKey=`${BT.mid}-${BT.idx}`;
  if(!S.xpClaimed)S.xpClaimed={};
- const xpGain=(!S.xpClaimed[xpKey])?7:2;S.xpClaimed[xpKey]=true;
- S.done[xpKey]=true;saveS();awardXp(xpGain,isCrit);if(typeof RPGWallet!=='undefined')RPGWallet.earn(isCrit?7:5,SAVE_KEY);
+ const _first=!S.xpClaimed[xpKey];const xpGain=(_first?7:2)+((_first&&BT.adapt&&BT.adapt.mode>0)?2:0);S.xpClaimed[xpKey]=true;
+ S.done[xpKey]=true;saveS();awardXp(xpGain,isCrit);if(typeof RPGWallet!=='undefined')RPGWallet.earn(isCrit?7+wCritBonus():5,SAVE_KEY);if(typeof RPGSound!=='undefined')RPGSound.play(isCrit?'crit':'ok');
  document.getElementById('next-btn').style.display='inline-block';document.getElementById('next-btn').focus();
  damageMonster(xpGain,isCrit);updateCombo();if(!S.stats)S.stats={};if(BT.combo>(S.stats.bestCombo||0))S.stats.bestCombo=BT.combo;
- evalAch({correct:true,combo:BT.combo,timeLeft:0});checkMissionComplete();
+ evalAch({correct:true,combo:BT.combo,timeLeft:0});wBump('tasks');if(isCrit)wBump('crits');checkMissionComplete();
 }
-function useMiniHint(){if(BT.hp<=1)return;BT.hp--;updatePlayerHp();BT.miniHintUsed=true;const mhBtn=document.getElementById('bt-mini-hint');if(mhBtn)mhBtn.style.display='none';}
+function useMiniHint(){
+ const mt=BT.mini&&BT.mini[BT.idx];
+ if(!mt||BT.miniHintUsed||BT.hp<=1)return;
+ BT.miniHintUsed=true;
+ const mhBtn=document.getElementById('bt-mini-hint');if(mhBtn)mhBtn.disabled=true;
+ damagePlayer();
+ if(mt.type==='order'){
+  const doneCount=document.querySelectorAll('#bt-prob .tto-chip.done').length;
+  const sorted=[...mt.data].sort((a,b)=>mt.desc?(b.v-a.v):(a.v-b.v));
+  const nextLabel=sorted[doneCount]&&sorted[doneCount].label;
+  if(nextLabel){const chip=[...document.querySelectorAll('#bt-prob .tto-chip')].find(c=>!c.classList.contains('done')&&c.textContent===nextLabel);if(chip)setTimeout(()=>chip.click(),250);}
+ } else {
+  const qBtn=[...document.querySelectorAll('#bt-prob .ttm-q:not(.done)')][0];
+  if(qBtn){qBtn.click();const ans=qBtn.dataset.a;const aBtn=[...document.querySelectorAll('#bt-prob .ttm-a:not(.done)')].find(b=>b.textContent===ans);if(aBtn)setTimeout(()=>aBtn.click(),250);}
+ }
+}
 
 function monsterAttack(){
  const mon=document.getElementById('bt-mon');if(!mon)return;
@@ -1225,12 +1367,13 @@ function mcDistractors(ans){
  }
  return wrong.slice(0,3).map(String);
 }
+function _mcWrong(t,ans){const a=String(ans),out=[];if(Array.isArray(t.distractors))t.distractors.forEach(d=>{const s=String(d);if(s!==a&&!out.includes(s)&&out.length<3)out.push(s);});mcDistractors(a).forEach(s=>{if(s!==a&&!out.includes(s)&&out.length<3)out.push(s);});return out;}
 function renderMC(t){
  const grid=document.getElementById('mc-grid');
  const ans=String(t.ans);
- const opts=(Array.isArray(t.mc_opts)&&t.mc_opts.length>=2)?t.mc_opts.map(String):shuffleArr([ans,...mcDistractors(ans)]);
+ const opts=(Array.isArray(t.mc_opts)&&t.mc_opts.length>=2)?t.mc_opts.map(String):shuffleArr([ans,..._mcWrong(t,ans)]);
  grid.innerHTML='';
- opts.forEach((o,i)=>{const b=document.createElement('button');b.className='mc-btn c'+i;b.textContent=o;b.onclick=()=>pickMC(b,o,ans);grid.appendChild(b);});
+ opts.forEach((o,i)=>{const b=document.createElement('button');b.className='mc-btn c'+i;b.textContent=o;b.dataset.v=o;b.onclick=()=>pickMC(b,o,ans);grid.appendChild(b);});
  grid.style.display='grid';
 }
 function pickMC(btn,chosen,correct){
@@ -1242,16 +1385,16 @@ function pickMC(btn,chosen,correct){
  if(ok){
   document.querySelectorAll('#mc-grid .mc-btn').forEach(b=>b.disabled=true);
   BT.combo++;updateCombo();
-  const isCrit=BT.combo>=3;const xpGain=(!S.xpClaimed[xpKey])?7:2;S.xpClaimed[xpKey]=true;S.done[xpKey]=true;BT._doneBattle++;saveS();
-  awardXp(xpGain,isCrit);if(typeof RPGWallet!=='undefined')RPGWallet.earn(isCrit?7:5,SAVE_KEY);
+  const isCrit=BT.combo>=3;const _first=!S.xpClaimed[xpKey];const xpGain=(_first?7:2)+((_first&&BT.adapt&&BT.adapt.mode>0)?2:0);S.xpClaimed[xpKey]=true;S.done[xpKey]=true;BT._doneBattle++;saveS();
+  awardXp(xpGain,isCrit);if(typeof RPGWallet!=='undefined')RPGWallet.earn(isCrit?7+wCritBonus():5,SAVE_KEY);if(typeof RPGSound!=='undefined')RPGSound.play(isCrit?'crit':'ok');
   fb.textContent='✓ SPRÁVNĚ!';fb.className='feedback ok';
   if(!S.stats)S.stats={};if(BT.combo>(S.stats.bestCombo||0))S.stats.bestCombo=BT.combo;
-  damageMonster(xpGain,isCrit);evalAch({correct:true,combo:BT.combo,timeLeft:BT.timeLeft});checkMissionComplete();
+  damageMonster(xpGain,isCrit);evalAch({correct:true,combo:BT.combo,timeLeft:BT.timeLeft});wBump('tasks');if(isCrit)wBump('crits');adaptOnAnswer(true);checkMissionComplete();
   document.getElementById('next-btn').style.display='inline-block';
  }else{
   btn.disabled=true;
   if(!S.errs)S.errs={};S.errs[BT.mid]=(S.errs[BT.mid]||0)+1;saveS();
-  BT.combo=0;updateCombo();fb.textContent=`✗ Zkus jiný!`;fb.className='feedback err';monsterAttack();damagePlayer();
+  BT.combo=0;updateCombo();fb.textContent=`✗ Zkus jiný!`;fb.className='feedback err';if(typeof RPGSound!=='undefined')RPGSound.play('bad');monsterAttack();damagePlayer();adaptOnAnswer(false);
  }
 }
 
@@ -1263,25 +1406,28 @@ function submitAnswer(){
  if(ok){
   inp.disabled=true;document.getElementById('attack-btn').disabled=true;
   BT.combo++;updateCombo();const isCrit=BT.combo>=3;
-  const xpGain=(!S.xpClaimed[xpKey])?7:2;S.xpClaimed[xpKey]=true;S.done[xpKey]=true;BT._doneBattle++;saveS();
-  awardXp(xpGain,isCrit);if(typeof RPGWallet!=='undefined')RPGWallet.earn(isCrit?7:5,SAVE_KEY);
+  const _first=!S.xpClaimed[xpKey];const xpGain=(_first?7:2)+((_first&&BT.adapt&&BT.adapt.mode>0)?2:0);S.xpClaimed[xpKey]=true;S.done[xpKey]=true;BT._doneBattle++;saveS();
+  awardXp(xpGain,isCrit);if(typeof RPGWallet!=='undefined')RPGWallet.earn(isCrit?7+wCritBonus():5,SAVE_KEY);if(typeof RPGSound!=='undefined')RPGSound.play(isCrit?'crit':'ok');
   fb.textContent='✓ SPRÁVNĚ!';fb.className='feedback ok';
   document.getElementById('next-btn').style.display='inline-block';
   if(!BT.mcMode)document.getElementById('bt-explain').style.display='block';
   damageMonster(xpGain,isCrit);updateCombo();
   if(!S.stats)S.stats={};if(BT.combo>(S.stats.bestCombo||0))S.stats.bestCombo=BT.combo;
-  evalAch({correct:true,combo:BT.combo,timeLeft:BT.timeLeft});checkMissionComplete();
+  evalAch({correct:true,combo:BT.combo,timeLeft:BT.timeLeft});wBump('tasks');if(isCrit)wBump('crits');adaptOnAnswer(true);checkMissionComplete();
  }else{
   BT.combo=0;updateCombo();fb.textContent='✗ ŠPATNĚ — "'+raw+'" není správně.';fb.className='feedback err';
-  monsterAttack();damagePlayer();
+  if(typeof RPGSound!=='undefined')RPGSound.play('bad');monsterAttack();damagePlayer();adaptOnAnswer(false);
   inp.value='';if(!isYN(t))inp.focus();
  }
 }
 
+// V ČR je desetinný oddělovač ČÁRKA. Nápovědy skládají čísla z JS, kde je
+// tečka — normalizujeme je centrálně při zobrazení (textContent, bez HTML).
+function czTxt(t){return String(t).replace(/(\d)\.(\d)/g,'$1,$2');}
 function showHint(){
  const t=BT.curTask;if(BT.hl>0)return;BT.missionHinted=true;
  const hb=document.getElementById('hint-box');hb.style.borderColor='var(--green)';hb.style.color='#7fe87f';hb.style.background='#0a1a0a';
- hb.textContent='💡 Nápověda:\n'+((t.hints&&t.hints[0]&&String(t.hints[0]).trim())?t.hints[0]:'Rozděl si příklad na menší kroky a postupuj po jednom.');
+ hb.textContent='💡 Nápověda:\n'+czTxt((t.hints&&t.hints[0]&&String(t.hints[0]).trim())?t.hints[0]:'Rozděl si příklad na menší kroky a postupuj po jednom.');
  hb.classList.add('show');BT.hl=1;document.getElementById('hint-btn').disabled=true;
 }
 
@@ -1312,13 +1458,16 @@ function floatText(txt,x,y,color){
  document.body.appendChild(el);void el.offsetWidth;el.classList.add('go');setTimeout(()=>el.remove(),1150);
 }
 function levelUpBurst(lvl){
+ if(typeof RPGSound!=='undefined')RPGSound.play('level');
  const lu=document.getElementById('levelup');document.getElementById('lvl-txt').textContent='⬆ LEVEL '+lvl;
  lu.classList.remove('show');void lu.offsetWidth;lu.classList.add('show');
  if(!rmActive()){for(let i=0;i<18;i++){const p=document.createElement('div');p.className='particle go';p.style.position='fixed';p.style.left='50%';p.style.top='50%';p.style.zIndex='111';const ang=(i/18)*Math.PI*2,dist=120+Math.random()*120;p.style.setProperty('--dx',(Math.cos(ang)*dist).toFixed(0)+'px');p.style.setProperty('--dy',(Math.sin(ang)*dist).toFixed(0)+'px');p.style.background=['#f0c040','#fff','#ffd966'][i%3];document.body.appendChild(p);setTimeout(()=>p.remove(),900);}}
  setTimeout(()=>lu.classList.remove('show'),1700);
 }
 function victoryBurst(){
+ if(typeof RPGSound!=='undefined')RPGSound.play('boss');
  const b=document.createElement('div');b.className='victory-banner';b.textContent='⚓ VÍTĚZSTVÍ! ⚓';
+ {const v=wCatalog().find(i=>i.id===_activeCosmetics()?.active?.victory&&i.cat==='victory');if(v&&v.cssKey)b.classList.add(v.cssKey);}
  document.body.appendChild(b);void b.offsetWidth;b.classList.add('go');setTimeout(()=>b.remove(),1500);
  if(!rmActive()){const coins=['🪙','✨','⭐','💰'];for(let i=0;i<22;i++){const d=document.createElement('div');d.className='gold-drop';d.textContent=coins[i%coins.length];d.style.left=(Math.random()*100)+'vw';const dur=(1.4+Math.random()*1.2);d.style.animationDuration=dur+'s';d.style.animationDelay=(Math.random()*0.4)+'s';document.body.appendChild(d);void d.offsetWidth;d.classList.add('go');setTimeout(()=>d.remove(),(dur+0.5)*1000);}}
 }
@@ -1347,6 +1496,7 @@ function useItem(i){
 
 // CREDITS / WALLET
 function earnCredits(n){
+ if(n>=10&&typeof RPGSound!=='undefined')RPGSound.play('coin');
  if(typeof RPGWallet!=='undefined'){RPGWallet.earn(n,SAVE_KEY);_updateCreditsUI();return;}
  S.credits=Math.floor((S.credits||0)+n);saveS();_updateCreditsUI();
 }
@@ -1367,16 +1517,24 @@ function sanitizeCosmetics(){
  });
 }
 function _activeCosmetics(){return(typeof RPGWallet!=='undefined')?RPGWallet.get().cosmetics:S.cosmetics;}
+/* ── Peněženka: pomocníci pro perky a životní countery (graceful bez modulu) ── */
+function wPerk(p){return typeof RPGWallet!=='undefined'&&RPGWallet.hasPerk&&RPGWallet.hasPerk(p);}
+function wBump(k,n){if(typeof RPGWallet!=='undefined'&&RPGWallet.bumpLife)RPGWallet.bumpLife(k,n).forEach(achToast);}
+function wMax(k,v){if(typeof RPGWallet!=='undefined'&&RPGWallet.setLifeMax)RPGWallet.setLifeMax(k,v).forEach(achToast);}
+function wCritBonus(){return wPerk('critcredit')?2:0;}
+function wCatalog(){return(typeof RPGWallet!=='undefined'&&RPGWallet.itemsAll)?RPGWallet.itemsAll():SHOP_ITEMS;}
+function trGuard(){TR.guardJust=false;if(TR.streak>0&&!TR.guardUsed&&typeof RPGWallet!=='undefined'&&RPGWallet.hasPowerup&&RPGWallet.hasPowerup('pu-study-guide')){TR.guardUsed=true;TR.guardJust=true;return true;}return false;}
 function applyCosmetics(){
  const cos=_activeCosmetics()||S.cosmetics;if(!cos)return;
- const av=document.getElementById('pr-avatar');if(av){av.className='';const b=typeof SHOP_ITEMS!=='undefined'?SHOP_ITEMS.find(i=>i.id===cos.active?.border&&i.cat==='border'):null;if(b)av.classList.add(b.cssKey);}
+ const av=document.getElementById('pr-avatar');if(av){av.className='';const b=wCatalog().find(i=>i.id===cos.active?.border&&i.cat==='border');if(b)av.classList.add(b.cssKey);}
  const nm=document.getElementById('pr-name');const mnm=document.getElementById('map-name');
  ['nm-cyan','nm-gold','nm-green','nm-purple'].forEach(c=>{nm&&nm.classList.remove(c);mnm&&mnm.classList.remove(c);});
- const bg=typeof SHOP_ITEMS!=='undefined'?SHOP_ITEMS.find(i=>i.id===cos.active?.badge&&i.cat==='badge'):null;
+ const bg=wCatalog().find(i=>i.id===cos.active?.badge&&i.cat==='badge');
  if(bg){nm&&nm.classList.add(bg.cssKey);mnm&&mnm.classList.add(bg.cssKey);}
- const th=typeof SHOP_ITEMS!=='undefined'?SHOP_ITEMS.find(i=>i.id===cos.active?.theme&&i.cat==='theme'):null;
+ const th=wCatalog().find(i=>i.id===cos.active?.theme&&i.cat==='theme');
  document.documentElement.dataset.theme=th&&th.cssKey?th.cssKey:'';
  const spMod=window.RPGSprites4;if(spMod&&typeof spMod.setSkin==='function')spMod.setSkin(cos.active?.skin||null);
+ if(typeof RPGWallet!=='undefined'&&RPGWallet.renderTitlePet)RPGWallet.renderTitlePet({nameEl:document.getElementById('pr-name'),mapNameEl:document.getElementById('map-name'),avatarEl:document.getElementById('pr-avatar')});
  _updateCreditsUI();renderShop();
 }
 
@@ -1391,7 +1549,7 @@ function renderShop(){
  const grid=document.getElementById('shop-grid');if(!grid)return;
  const bal=_walletBal();
  if(typeof SHOP_ITEMS==='undefined'){grid.innerHTML='<div style="color:var(--muted);font-size:13px">Obchod se načítá…</div>';return;}
- const items=SHOP_ITEMS.filter(i=>i.cat===_shopCat);
+ const items=((typeof RPGWallet!=='undefined'&&RPGWallet.items)?RPGWallet.items():SHOP_ITEMS).filter(i=>i.cat===_shopCat);
  grid.innerHTML=items.map(item=>{
   const owned=(typeof RPGWallet!=='undefined')?RPGWallet.owns(item.id)||(item.price===0):(S.cosmetics&&S.cosmetics.owned&&S.cosmetics.owned.includes(item.id))||item.price===0;
   if(item.cat==='powerup'){const levelOk=!item.minLevel||S.level>=item.minLevel;const canBuy=!owned&&bal>=item.price&&levelOk;return `<div class="shop-card${owned?' active':''}"><div class="shop-ic">${item.ic}</div><div class="shop-nm">${item.name}</div><div style="font-size:10px;opacity:.7;margin:2px 0">${item.desc||''}</div><div class="shop-pr">${item.price} kr · LV ${item.minLevel}</div><div style="margin-top:6px">${owned?`<span style="color:var(--gold);font-family:var(--px);font-size:11px">✓ AKTIVNÍ</span>`:!levelOk?`<span style="font-family:var(--px);font-size:11px;opacity:.5">🔒 LV ${item.minLevel}</span>`:`<button class="btn sm" onclick="buyItem('${item.id}')" ${canBuy?'':'disabled'}>KOUPIT ${item.price} kr</button>`}</div></div>`;}
@@ -1403,7 +1561,7 @@ function renderShop(){
 function buyItem(id){
  if(typeof RPGWallet!=='undefined'){const r=RPGWallet.buy(id);if(!r.ok){alert('Nedostatek kreditů!');return;}applyCosmetics();return;}
  const item=typeof SHOP_ITEMS!=='undefined'?SHOP_ITEMS.find(i=>i.id===id):null;if(!item)return;
- if(!S.cosmetics||!Array.isArray(S.cosmetics.owned))sanitizeCosmetics();
+ sanitizeMastery();if(!S.cosmetics||!Array.isArray(S.cosmetics.owned))sanitizeCosmetics();
  if(item.price===0||S.cosmetics.owned.includes(id)){activateItem(id);return;}
  if(S.credits<item.price){alert('Nedostatek kreditů!');return;}
  S.credits=Math.floor(S.credits)-item.price;S.cosmetics.owned=[...new Set([...S.cosmetics.owned,id])];saveS();activateItem(id);
@@ -1411,13 +1569,63 @@ function buyItem(id){
 function activateItem(id){
  if(typeof RPGWallet!=='undefined'){RPGWallet.activate(id);applyCosmetics();renderShop();return;}
  const item=typeof SHOP_ITEMS!=='undefined'?SHOP_ITEMS.find(i=>i.id===id):null;if(!item)return;
- if(!S.cosmetics||!Array.isArray(S.cosmetics.owned))sanitizeCosmetics();
+ sanitizeMastery();if(!S.cosmetics||!Array.isArray(S.cosmetics.owned))sanitizeCosmetics();
  S.cosmetics.active[item.cat]=id;saveS();applyCosmetics();renderShop();
 }
 
 // TRAIN + MASTERY
 const MASTERY_GOAL=15;
 function masteryOf(mid){if(!S.mastery)S.mastery={};const m=S.mastery[mid]||{score:0,mastered:false};return m;}
+
+// ══ HVĚZDNÉ OPAKOVÁNÍ (spaced repetition) ══
+// Mistrovství 🏅 zůstává navždy; hvězdy ⭐ se získávají ZOPAKOVÁNÍM tématu
+// s časovým odstupem (3/7/21 dní od posledního oživení). lastOk se posouvá
+// JEN při zisku hvězdy — denní trénink o hvězdu nepřipraví.
+const REVIVE_GAPS=[3,7,21];
+const REVIVE_CREDITS=[10,20,40];
+const REVIVE_GOAL=5;
+const REVIVE_PANEL_MAX=3;
+function todayStr(){return new Date().toISOString().slice(0,10);}
+function daysSinceStr(d){const t=Date.parse(d);if(!isFinite(t))return 0;return Math.floor((Date.now()-t)/864e5);}
+function sanitizeMastery(){
+ if(!S.mastery||typeof S.mastery!=='object'){S.mastery={};return;}
+ for(const mid of Object.keys(S.mastery)){
+  let m=S.mastery[mid];
+  if(!m||typeof m!=='object'){m=S.mastery[mid]={score:0,mastered:false};}
+  m.score=(typeof m.score==='number'&&isFinite(m.score)&&m.score>0)?Math.floor(m.score):0;
+  m.mastered=!!m.mastered;
+  m.stars=(typeof m.stars==='number'&&isFinite(m.stars))?Math.max(0,Math.min(3,Math.floor(m.stars))):0;
+  if(!m.mastered){m.stars=0;m.lastOk='';m.starHist=[];continue;}
+  if(typeof m.lastOk!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(m.lastOk)||!isFinite(Date.parse(m.lastOk)))m.lastOk=todayStr();
+  if(m.lastOk>todayStr())m.lastOk=todayStr();
+  m.starHist=Array.isArray(m.starHist)?m.starHist.filter(d=>typeof d==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(d)).slice(0,3):[];
+ }
+}
+function reviveState(mid){
+ const m=S.mastery&&S.mastery[mid];
+ if(!m||!m.mastered)return{stars:0,due:false,daysSince:0,nextGap:REVIVE_GAPS[0]};
+ const st=Math.max(0,Math.min(3,m.stars|0));
+ const ds=m.lastOk?daysSinceStr(m.lastOk):0;
+ const gap=st<3?REVIVE_GAPS[st]:Infinity;
+ return{stars:st,due:st<3&&ds>=gap,daysSince:ds,nextGap:gap};
+}
+function awardStar(mid){
+ const m=S.mastery&&S.mastery[mid];if(!m||!m.mastered)return 0;
+ const st=Math.max(0,Math.min(3,m.stars|0));if(st>=3)return 0;
+ m.stars=st+1;m.lastOk=todayStr();
+ if(!Array.isArray(m.starHist))m.starHist=[];
+ m.starHist.push(m.lastOk);
+ saveS();
+ earnCredits(REVIVE_CREDITS[m.stars-1]);
+ evalAch({});
+ return m.stars;
+}
+function trReviveChip(){
+ const el=document.getElementById('tr-revive-chip');if(!el)return;
+ if(TR.revive&&!TR.revive.earned){el.style.display='inline-block';el.textContent='🔁 Oživení: '+TR.revive.count+'/'+REVIVE_GOAL;}
+ else el.style.display='none';
+}
+
 let TR={mid:null,m:null,task:null,pool:[],correct:0,total:0,streak:0,hl:0};
 function renderTrainPicker(){
  document.getElementById('train-picker').style.display='block';
@@ -1428,25 +1636,39 @@ function renderTrainPicker(){
   ar.missions.forEach(m=>{
    const ms=masteryOf(m.id);const it=document.createElement('div');it.className='train-item'+(ms.mastered?' mastered':'');
    const hasLearn=window.RPG_LEARN_4&&window.RPG_LEARN_4[m.id];
-   it.innerHTML=`<div class="t-nm">${ms.mastered?'🏅 ':''}${m.name}</div><div class="t-prog" style="font-size:11px;color:var(--muted)">${ms.score|0}/${MASTERY_GOAL}</div>${hasLearn?`<button class="learn-btn" onclick="startLearn('${m.id}');event.stopPropagation()">📖</button>`:''}`;
+   const rv=reviveState(m.id);const starTxt=ms.mastered&&rv.stars>0?' <span style="color:#ffd06a">'+'⭐'.repeat(rv.stars)+'</span>':'';const dueChip=rv.due?' <span style="color:#ffd06a;font-size:10px">🔁 k oživení</span>':'';const gapTxt=!ms.mastered?`${ms.score|0}/${MASTERY_GOAL}`:(rv.stars>=3?'⭐⭐⭐ navždy tvoje':(rv.due?'dnes k oživení!':'další hvězda za '+Math.max(1,rv.nextGap-rv.daysSince)+' '+(Math.max(1,rv.nextGap-rv.daysSince)===1?'den':(Math.max(1,rv.nextGap-rv.daysSince)<=4?'dny':'dní'))));it.innerHTML=`<div class="t-nm">${ms.mastered?'🏅':''}${starTxt}${dueChip} ${m.name}</div><div class="t-prog" style="font-size:11px;color:var(--muted)">${gapTxt}</div>${hasLearn?`<button class="learn-btn" onclick="startLearn('${m.id}');event.stopPropagation()">📖</button>`:''}`;
    it.onclick=()=>startTrain(m.id);list.appendChild(it);
   });
  });
 }
+// Adaptivní pytlík: index do sloučeného poolu (pořadí je stabilní mezi
+// zatáhnutími, i když jsou čísla v úlohách pokaždé jiná) slouží jako proxy
+// klíč "typ úlohy". S.trainErrs[mid][idx] roste při chybě a klesá při
+// správné odpovědi (trCorrect) -> položky s vyšší chybovostí jsou v pytlíku
+// zastoupené vícekrát (max 5×), takže se losují častěji, ale nikdy úplně
+// nezmizí. Zachovává původní vlastnost "bez opakování, dokud se nevyčerpá".
+function trBuildBag(pool,mid){
+ const errMap=(S.trainErrs&&S.trainErrs[mid])||{};
+ const bag=[];
+ pool.forEach((t,i)=>{const w=1+Math.min(errMap[i]||0,4);for(let k=0;k<w;k++)bag.push({t,idx:i});});
+ return shuffleArr(bag);
+}
+
 function startTrain(mid){
  const ar=AREAS.find(a=>a.missions.some(m=>m.id===mid));const m=ar?ar.missions.find(x=>x.id===mid):null;if(!m)return;
  let pool=m.tasks();const ex=window.RPG_TASK_EXTRA_4;if(ex&&typeof ex[mid]==='function'){try{pool=pool.concat(ex[mid]());}catch(e){}}
  if(!pool.length){alert('Pro toto téma nejsou dostupné úlohy.');return;}
- TR={mid,m,pool:shuffleArr([...pool]),correct:0,total:0,streak:0,hl:0};
+ TR={mid,m,pool:trBuildBag(pool,mid),correct:0,total:0,streak:0,hl:0,curIdx:null,revive:reviveState(mid).due?{count:0,earned:false}:null};
  document.getElementById('train-picker').style.display='none';
  document.getElementById('train-play').style.display='block';
  document.getElementById('tr-title').textContent=m.name;
  document.getElementById('tr-msgoal').textContent=MASTERY_GOAL;
+ trReviveChip();
  trDraw();
 }
 function trDraw(){
- if(!TR.pool.length){const ar=AREAS.find(a=>a.missions.some(m=>m.id===TR.mid));const m=ar?ar.missions.find(x=>x.id===TR.mid):null;let pool=(m?m.tasks():[]);const ex=window.RPG_TASK_EXTRA_4;if(ex&&typeof ex[TR.mid]==='function'){try{pool=pool.concat(ex[TR.mid]());}catch(e){}}TR.pool=shuffleArr([...pool]);}
- TR.task=TR.pool.pop();TR.hl=0;trRender();trStats();
+ if(!TR.pool.length){const ar=AREAS.find(a=>a.missions.some(m=>m.id===TR.mid));const m=ar?ar.missions.find(x=>x.id===TR.mid):null;let pool=(m?m.tasks():[]);const ex=window.RPG_TASK_EXTRA_4;if(ex&&typeof ex[TR.mid]==='function'){try{pool=pool.concat(ex[TR.mid]());}catch(e){}}TR.pool=trBuildBag(pool,TR.mid);}
+ let entry=TR.pool.pop();if(entry){const _ar=AREAS.find(a=>a.missions.some(m=>m.id===TR.mid));const _m=_ar?_ar.missions.find(x=>x.id===TR.mid):null;let _fp=_m?_m.tasks():[];const _ex=window.RPG_TASK_EXTRA_4;if(_ex&&typeof _ex[TR.mid]==='function'){try{_fp=_fp.concat(_ex[TR.mid]());}catch(e){}}if(_fp[entry.idx])entry={t:_fp[entry.idx],idx:entry.idx};}if(entry&&TR._lastText&&String(entry.t.text)===TR._lastText){for(let k=TR.pool.length-1;k>=0;k--){if(String(TR.pool[k].t.text)!==TR._lastText){const _tmp=TR.pool[k];TR.pool[k]=entry;entry=_tmp;break;}}}TR._lastText=entry&&entry.t?String(entry.t.text):undefined;TR.task=entry.t;TR.curIdx=entry.idx;TR.hl=0;trRender();trStats();
 }
 function trRender(){
  const t=TR.task;if(!t)return;
@@ -1461,14 +1683,14 @@ function trRender(){
   else{document.getElementById('tr-yn-row').style.display='none';trRenderMC(t);}
  }else{
   document.getElementById('tr-input-row').style.display='flex';document.getElementById('tr-yn-row').style.display='none';document.getElementById('tr-mc').style.display='none';
-  const inp=document.getElementById('tr-ans');inp.value='';inp.disabled=false;inp.focus();
+  const inp=document.getElementById('tr-ans');inp.value='';inp.disabled=false;inp.focus();inp.inputMode=/^\d+$/.test(String(TR.task.ans))?'numeric':/^\d+[.,]\d+$/.test(String(TR.task.ans))?'decimal':'text';
  }
 }
 function trRenderMC(t){
  const grid=document.getElementById('tr-mc');const ans=String(t.ans);
- const opts=shuffleArr([ans,...mcDistractors(ans)]);
+ const opts=shuffleArr([ans,..._mcWrong(t,ans)]);
  grid.innerHTML='';
- opts.forEach((o,i)=>{const b=document.createElement('button');b.className='mc-btn c'+i;b.textContent=o;b.onclick=()=>trPickMC(b,o,ans);grid.appendChild(b);});
+ opts.forEach((o,i)=>{const b=document.createElement('button');b.className='mc-btn c'+i;b.textContent=o;b.dataset.v=o;b.onclick=()=>trPickMC(b,o,ans);grid.appendChild(b);});
  grid.style.display='grid';
 }
 function trPickMC(btn,chosen,correct){
@@ -1486,26 +1708,42 @@ function trSubmit(){
 }
 function trCorrect(){
  TR.correct++;TR.total++;TR.streak++;
+ if(TR.mid&&TR.curIdx!=null&&S.trainErrs&&S.trainErrs[TR.mid]&&S.trainErrs[TR.mid][TR.curIdx]){
+  S.trainErrs[TR.mid][TR.curIdx]=Math.max(0,S.trainErrs[TR.mid][TR.curIdx]-1);
+ }
  if(!S.stats)S.stats={};S.stats.trainCorrect=(S.stats.trainCorrect||0)+1;
- const ms=masteryOf(TR.mid);ms.score=Math.min(ms.score+1,MASTERY_GOAL+5);if(ms.score>=MASTERY_GOAL&&!ms.mastered){ms.mastered=true;floatText('🏅 MISTROVSTVÍ!',window.innerWidth/2-70,window.innerHeight*0.4,'#f0c040');}
+ const ms=masteryOf(TR.mid);const wasM=!!ms.mastered;ms.score=Math.min(ms.score+1,MASTERY_GOAL+5);if(ms.score>=MASTERY_GOAL&&!ms.mastered){ms.mastered=true;wBump('mastered');floatText('🏅 MISTROVSTVÍ!',window.innerWidth/2-70,window.innerHeight*0.4,'#f0c040');}
  if(!S.mastery)S.mastery={};S.mastery[TR.mid]=ms;
- earnCredits(ms.mastered?30:1);evalAch({correct:true,combo:TR.streak});saveS();
+ earnCredits((!wasM&&ms.mastered)?30:(ms.mastered?0:1));wBump('tasks');evalAch({correct:true,combo:TR.streak});saveS();
  const fb=document.getElementById('tr-fb');fb.textContent='✓ SPRÁVNĚ!';fb.className='feedback ok';
+ if(TR.revive&&!TR.revive.earned){
+  TR.revive.count++;
+  if(TR.revive.count>=REVIVE_GOAL){
+   TR.revive.earned=true;
+   const st=awardStar(TR.mid);
+   if(st===3)fb.textContent='🌟 TŘETÍ HVĚZDA! Tohle téma už jen tak nezapomeneš · +'+REVIVE_CREDITS[2]+' kr';
+   else if(st>0)fb.textContent='⭐ TÉMA OŽIVENO! Hvězda '+st+'/3 · +'+REVIVE_CREDITS[st-1]+' kr';
+  }
+  trReviveChip();
+ }
  trStats();document.getElementById('tr-next-btn').style.display='inline-block';
 }
 function trWrong(){
- TR.total++;TR.streak=0;
+ TR.total++;if(!trGuard())TR.streak=0;
  const ms=masteryOf(TR.mid);ms.score=Math.max(0,ms.score-1);if(!S.mastery)S.mastery={};S.mastery[TR.mid]=ms;
- if(!S.errs)S.errs={};S.errs[TR.mid]=(S.errs[TR.mid]||0)+1;saveS();
+ if(!S.errs)S.errs={};S.errs[TR.mid]=(S.errs[TR.mid]||0)+1;
+ if(!S.trainErrs)S.trainErrs={};if(!S.trainErrs[TR.mid])S.trainErrs[TR.mid]={};
+ if(TR.curIdx!=null)S.trainErrs[TR.mid][TR.curIdx]=(S.trainErrs[TR.mid][TR.curIdx]||0)+1;
+ saveS();
  const fb=document.getElementById('tr-fb');const t=TR.task;
- fb.textContent=`✗ Správně: ${t.ans}`;fb.className='feedback err';
+ fb.textContent=(TR.guardJust?'🔁 Studijní rádce tě podržel — série zůstává! ':'✗ ')+'Správně: '+t.ans;fb.className='feedback err';
  trStats();document.getElementById('tr-next-btn').style.display='inline-block';
 }
 function trHint(){
  const t=TR.task;if(TR.hl>=2)return;const hb=document.getElementById('tr-hint-box');
  const hints=t.hints||[];
- if(TR.hl===0){hb.textContent='💡 Nápověda 1/2:\n'+((hints[0]&&String(hints[0]).trim())?hints[0]:'Zkus to krok po kroku.');hb.style.borderColor='var(--green)';hb.style.color='#7fe87f';hb.style.background='#0a1a0a';}
- else{hb.textContent='💡 Nápověda 2/2:\n'+((hints[1]&&String(hints[1]).trim())?hints[1]:'Výsledek: '+t.ans);hb.style.borderColor='#ff8800';hb.style.color='#ffaa44';hb.style.background='#1a0e00';}
+ if(TR.hl===0){hb.textContent='💡 Nápověda 1/2:\n'+czTxt((hints[0]&&String(hints[0]).trim())?hints[0]:'Zkus to krok po kroku.');hb.style.borderColor='var(--green)';hb.style.color='#7fe87f';hb.style.background='#0a1a0a';}
+ else{hb.textContent='💡 Nápověda 2/2:\n'+czTxt((hints[1]&&String(hints[1]).trim())?hints[1]:'Výsledek: '+t.ans);hb.style.borderColor='#ff8800';hb.style.color='#ffaa44';hb.style.background='#1a0e00';}
  hb.classList.add('show');TR.hl++;if(TR.hl>=2)document.getElementById('tr-hint-btn').disabled=true;
 }
 function trStats(){
@@ -1543,7 +1781,10 @@ function renderProfile(){
  document.getElementById('pr-name').textContent=S.name;
  document.getElementById('pr-lv').textContent=S.level;document.getElementById('pr-xp').textContent=S.xp;
  const rmEl=document.getElementById('pr-rm');if(rmEl)rmEl.checked=rmActive();
- const av=document.getElementById('pr-avatar');if(av){const cos=_activeCosmetics()||S.cosmetics;if(typeof SHOP_ITEMS!=='undefined'){const b=SHOP_ITEMS.find(i=>i.id===cos.active?.border&&i.cat==='border');if(b)av.className=b.cssKey;}}
+ const spk=document.getElementById('pr-sponka');if(spk)spk.checked=(typeof RPGWallet!=='undefined')?RPGWallet.getSponkaEnabled():true;
+ const snd=document.getElementById('pr-sound');if(snd)snd.checked=(typeof RPGWallet!=='undefined')?RPGWallet.getSoundOn():false;
+ if(typeof RPGWallet!=='undefined'&&RPGWallet.renderGachInto)RPGWallet.renderGachInto(document.getElementById('pr-gach'));
+ const av=document.getElementById('pr-avatar');if(av){const cos=_activeCosmetics()||S.cosmetics;{const b=wCatalog().find(i=>i.id===cos.active?.border&&i.cat==='border');av.className=(b&&b.cssKey)||'';}}
  const attrsEl=document.getElementById('pr-attrs');
  attrsEl.innerHTML=Object.entries(ATTR_META).map(([k,v])=>`<div class="attr-row"><div class="attr-ic">${v.ic}</div><div class="attr-nm">${v.nm}</div><div class="attr-vl">${(S.attrs[k]||0)|0}</div></div>`).join('');
  const inv=document.getElementById('pr-inv');
@@ -1583,11 +1824,11 @@ document.addEventListener('keydown',e=>{
 
 // answerYN is in rpg-shared.js; define fallback
 function isYN(t){return t&&(String(t.ans)==='ANO'||String(t.ans)==='NE');}
-function answerYN(yn){document.querySelectorAll('#yn-row button').forEach(b=>b.disabled=true);const t=BT.curTask;const ok=checkAns(yn,String(t.ans));stopTimer();const xpKey=`${BT.mid}-${BT.idx}`;if(!S.xpClaimed)S.xpClaimed={};const fb=document.getElementById('bt-fb');if(ok){BT.combo++;updateCombo();const isCrit=BT.combo>=3;const xpGain=(!S.xpClaimed[xpKey])?7:2;S.xpClaimed[xpKey]=true;S.done[xpKey]=true;saveS();awardXp(xpGain,isCrit);if(typeof RPGWallet!=='undefined')RPGWallet.earn(isCrit?7:5,SAVE_KEY);fb.textContent='✓ SPRÁVNĚ!';fb.className='feedback ok';document.getElementById('next-btn').style.display='inline-block';damageMonster(xpGain,isCrit);updateCombo();evalAch({correct:true,combo:BT.combo,timeLeft:BT.timeLeft});checkMissionComplete();}else{BT.combo=0;updateCombo();if(!S.errs)S.errs={};S.errs[BT.mid]=(S.errs[BT.mid]||0)+1;saveS();fb.textContent='✗ Správně: '+t.ans;fb.className='feedback err';monsterAttack();damagePlayer();}}
+function answerYN(yn){document.querySelectorAll('#yn-row button').forEach(b=>b.disabled=true);const t=BT.curTask;const ok=checkAns(yn,String(t.ans));stopTimer();const xpKey=`${BT.mid}-${BT.idx}`;if(!S.xpClaimed)S.xpClaimed={};const fb=document.getElementById('bt-fb');if(ok){BT.combo++;updateCombo();const isCrit=BT.combo>=3;const _first=!S.xpClaimed[xpKey];const xpGain=(_first?7:2)+((_first&&BT.adapt&&BT.adapt.mode>0)?2:0);S.xpClaimed[xpKey]=true;S.done[xpKey]=true;saveS();awardXp(xpGain,isCrit);if(typeof RPGWallet!=='undefined')RPGWallet.earn(isCrit?7+wCritBonus():5,SAVE_KEY);if(typeof RPGSound!=='undefined')RPGSound.play(isCrit?'crit':'ok');fb.textContent='✓ SPRÁVNĚ!';fb.className='feedback ok';document.getElementById('next-btn').style.display='inline-block';damageMonster(xpGain,isCrit);updateCombo();evalAch({correct:true,combo:BT.combo,timeLeft:BT.timeLeft});wBump('tasks');if(isCrit)wBump('crits');adaptOnAnswer(true);checkMissionComplete();}else{BT.combo=0;updateCombo();if(!S.errs)S.errs={};S.errs[BT.mid]=(S.errs[BT.mid]||0)+1;saveS();fb.textContent='✗ Správně: '+t.ans;fb.className='feedback err';if(typeof RPGSound!=='undefined')RPGSound.play('bad');monsterAttack();damagePlayer();adaptOnAnswer(false);}}
 function checkAns(a,b){if(typeof a==='undefined'||typeof b==='undefined')return false;const na=String(a).trim().replace(',','.');const nb=String(b).trim().replace(',','.');const fa=parseFloat(na),fb=parseFloat(nb);if(!isNaN(fa)&&!isNaN(fb))return Math.abs(fa-fb)<0.001;return na.toUpperCase()===nb.toUpperCase();}
 
 function checkMissionComplete(){
- const ar=AREAS.find(a=>a.id===BT.aid);const m=ar.missions.find(x=>x.id===BT.mid);
+ const ar=AREAS.find(a=>a.id===BT.aid);const m=ar&&ar.missions.find(x=>x.id===BT.mid);if(!m)return;
  if(!BT.tasks.every((_,i)=>S.done[`${m.id}-${i}`]))return;
  BT.bossDefeated=true;
  const ans=document.getElementById('bt-ans');if(ans)ans.disabled=true;
@@ -1598,6 +1839,7 @@ function checkMissionComplete(){
  if(!S.creditsClaimed[BT.mid]){S.creditsClaimed[BT.mid]=true;earnCredits(15);}
  setTimeout(victoryBurst,650);
  evalAch({flawlessMission:!BT.missionHinted,wonAtOneHp:BT.hp===1});
+ if(!BT.tookDamage)wBump('flawless');
  if(isAreaDone(ar)&&!S.inv.includes(ar.art.id)){
   S.inv.push(ar.art.id);
   Object.entries(ar.attrGain).forEach(([k,v])=>{if(S.attrs[k]!==undefined)S.attrs[k]+=v;});
