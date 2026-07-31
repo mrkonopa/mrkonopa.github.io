@@ -163,12 +163,16 @@
 
   function gen4() {
     // 4 body — rovnice s postupem
-    const x1 = ri(2, 9);
-    const p = ri(2, 6), q = ri(2, 8);
-    // p*(a/p - x/q) - r*(x/s - t/u) = konst*x  -- keep simple: p(a - x) = q(x - b)
-    const a4 = ri(3, 10), b4 = ri(1, a4 - 1);
-    // p(a4 - x) = q(x - b4)  =>  p*a4 - p x = q x - q b4  => p*a4+q*b4 = (p+q) x
-    const x2 = (p * a4 + q * b4) / (p + q);
+    // p(a4 − x) = q(x − b4)  ⇒  p·a4 + q·b4 = (p+q)·x
+    // Kořen VOLÍME celý a dopočítáme a4, aby vyšel PŘESNĚ — dřív se a4/b4 losovaly
+    // nezávisle, takže kořen býval neukončený (91 : 11) a zadání ho tiše
+    // zaokrouhlovalo na 2 des. místa. Žák, který počítal správně a zaokrouhlil
+    // jinak, dostal „špatně" — a přijímačky mají kořeny celé.
+    const x2 = ri(2, 9);
+    const kq = ri(1, 3);
+    const p = ri(2, 6), q = p * kq;      // q násobkem p ⇒ a4 vyjde celé
+    const b4 = ri(1, x2 - 1);
+    const a4 = x2 + kq * (x2 - b4);      // p(a4 − x2) = p·kq·(x2 − b4) = q(x2 − b4) ✓
     const y1 = ri(2, 9);
     const c4 = ri(2, 5) / 10;            // koeficient v závorce (0,2–0,5)
     const diff = ri(2, 3) / 10;          // koeficient u y v rovnici (0,2–0,3) — NENULOVÝ ⇒ jednoznačný kořen
@@ -183,8 +187,8 @@
       parts: [
         { key: '4.1', points: 2, showExplain: true,
           prompt: `Vyřešte rovnici a napište kořen x: ${p}·(${a4} − x) = ${q}·(x − ${b4})`,
-          ans: String(Number.isInteger(x2) ? x2 : r2(x2)),
-          sol: `Roznásob závorky: ${p}·${a4} − ${p}x = ${q}x − ${q}·${b4}, tedy ${p * a4} − ${p}x = ${q}x − ${q * b4}. Převeď členy s x na jednu stranu a čísla na druhou: ${p * a4} + ${q * b4} = ${q}x + ${p}x, čili ${p * a4 + q * b4} = ${p + q}x. Vyděl: x = ${p * a4 + q * b4} : ${p + q} = ${Number.isInteger(x2) ? x2 : r2(x2)}.` },
+          ans: String(x2),
+          sol: `Roznásob závorky: ${p}·${a4} − ${p}x = ${q}x − ${q}·${b4}, tedy ${p * a4} − ${p}x = ${q}x − ${q * b4}. Převeď členy s x na jednu stranu a čísla na druhou: ${p * a4} + ${q * b4} = ${q}x + ${p}x, čili ${p * a4 + q * b4} = ${p + q}x. Vyděl: x = ${p * a4 + q * b4} : ${p + q} = ${x2}.` },
         { key: '4.2', points: 2, showExplain: true,
           prompt: `Vyřešte rovnici a napište kořen y: y − (y + ${m4})·${cz(c4)} = ${cz(n4)}y ${o4sign}`,
           ans: String(y1),
@@ -240,11 +244,11 @@
         { key: '6.1', points: 1,
           prompt: `Při dešti stoupla hladina vody v sudu o ${mm1} mm. Kolik litrů vody přibylo (zaokrouhlete na 1 des. místo)?`,
           ans: String(litry1exact),
-          sol: `Převeď mm na cm: ${mm1} mm = ${mm1 / 10} cm. Objem přibylé vody = obsah dna × výška: ${S6} cm² × ${mm1 / 10} cm = ${r2(S6 * (mm1 / 10))} cm³. Převeď na litry (1 l = 1000 cm³): ${r2(S6 * (mm1 / 10))} : 1000 ≈ ${litry1exact} l.` },
+          sol: `Převeď mm na cm: ${mm1} mm = ${cz(mm1 / 10)} cm. Objem přibylé vody = obsah dna × výška: ${S6} cm² × ${cz(mm1 / 10)} cm = ${cz(r2(S6 * (mm1 / 10)))} cm³. Převeď na litry (1 l = 1000 cm³): ${cz(r2(S6 * (mm1 / 10)))} : 1000 ≈ ${cz(litry1exact)} l.` },
         { key: '6.2', points: 1,
           prompt: `Při lijáku přibylo v sudu ${litry2} l vody. O kolik mm stoupla hladina (zaokrouhlete na celé mm)?`,
           ans: String(Math.round(litry2 * 1000 / S6 * 10)),
-          sol: `Převeď litry na cm³: ${litry2} l = ${litry2 * 1000} cm³. Výšku vypočítáš jako objem : obsah dna: ${litry2 * 1000} : ${S6} ≈ ${r2(litry2 * 1000 / S6)} cm. Převeď na mm (×10): ≈ ${Math.round(litry2 * 1000 / S6 * 10)} mm.` }
+          sol: `Převeď litry na cm³: ${litry2} l = ${litry2 * 1000} cm³. Výšku vypočítáš jako objem : obsah dna: ${litry2 * 1000} : ${S6} ≈ ${cz(r2(litry2 * 1000 / S6))} cm. Převeď na mm (×10): ≈ ${Math.round(litry2 * 1000 / S6 * 10)} mm.` }
       ]
     };
   }
@@ -1001,7 +1005,7 @@
         { key: '6.2', points: 1,
           prompt: `Nádrž o objemu ${V} litrů se napouští rychlostí ${rate} litrů za minutu. Za kolik minut bude plná?`,
           ans: String(min),
-          sol: `Čas = objem : rychlost = ${V} : ${rate} = ${min} minut.` }
+          sol: `Čas = objem : rychlost = ${V} : ${rate} = ${min} ${skl(min, 'minuta', 'minuty', 'minut')}.` }
       ]
     };
   }

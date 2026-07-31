@@ -226,7 +226,7 @@ function showResults(score, review, auto){
     const openAttr=r.earned<r.max?' open':'';
     const bodyHtml=(r.items||[]).map(it=>{
       const givenLine=it.ok?'':'<div class="cm-review-given">Tvoje odpověď: '+(it.given!=null?PZ.esc(String(it.given)):'(nevyplněno)')+'</div>';
-      return '<div class="cm-review-sub"><div class="cm-review-q">'+PZ.esc(it.prompt)+'</div>'+givenLine+'<div class="cm-review-correct">Správně: '+PZ.esc(String(it.correct))+'</div>'+(it.sol?'<div class="cm-review-sol">'+PZ.esc(it.sol)+'</div>':'')+'</div>';
+      return '<div class="cm-review-sub"><div class="cm-review-q">'+PZ.esc(it.prompt)+'</div>'+givenLine+'<div class="cm-review-correct">Správně: '+PZ.esc(PZ.czNum(it.correct))+'</div>'+(it.sol?'<div class="cm-review-sol">'+PZ.esc(it.sol)+'</div>':'')+'</div>';
     }).join('');
     html+='<details class="cm-review-item '+cls+'"'+openAttr+'><summary>Úloha '+r.no+(r.title?' — '+PZ.esc(r.title):'')+': '+r.earned+' / '+r.max+' b</summary><div class="cm-review-body">'+bodyHtml+'</div></details>';
   });
