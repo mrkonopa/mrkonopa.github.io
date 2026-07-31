@@ -213,6 +213,18 @@ report('periodic', 'zaokrouhlená hodnota v nápovědě má znaménko ≈, ne us
 const bezCz = GRADES.filter(g => !fs.readFileSync(P('rpg-mat-' + g + '.html'), 'utf8').includes('czTxt('));
 ok('všechny hry normalizují desetinnou čárku v nápovědách', bezCz.length === 0, 'chybí v: ' + bezCz.join(', '));
 
+/* Trénink má progresivní nápovědu (1/2 → 2/2), boj naopak JEDINOU bez výsledku.
+   V 6.–9. ročníku se druhá nápověda dřív vůbec nezobrazovala, přestože ji má
+   napsanou 83 % úloh — tenhle test hlídá, aby se ta regrese nevrátila. */
+const bezDvou = GRADES.filter(g => !fs.readFileSync(P('rpg-mat-' + g + '.html'), 'utf8').includes('Nápověda 2/2'));
+ok('trénink nabízí druhou úroveň nápovědy ve všech ročnících', bezDvou.length === 0, 'chybí v: ' + bezDvou.join(', '));
+const bojProzrazuje = GRADES.filter(g => {
+  const src = fs.readFileSync(P('rpg-mat-' + g + '.html'), 'utf8');
+  const m = src.match(/function showHint\(\)\{[\s\S]*?\n\}/);
+  return m && /hints\[1\]/.test(m[0]);      // boj se nesmí dostat k výsledkové nápovědě
+});
+ok('boj zůstává jednoúrovňový (nikdy neprozradí výsledek)', bojProzrazuje.length === 0, 'prozrazuje v: ' + bojProzrazuje.join(', '));
+
 console.log('\n══════════════════════════════════════════');
 console.log('  VÝSLEDEK: ' + pass + ' ✅ / ' + fail + ' ❌');
 console.log('══════════════════════════════════════════');
