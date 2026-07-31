@@ -411,6 +411,8 @@ html[data-theme="violet"]{--gold:#b06cff;--panel:#100a20;--panel2:#18103a;--blue
 .streak-chip .sf{animation:streak-flicker 1.4s ease-in-out infinite}
 @keyframes streak-flicker{0%,100%{transform:scale(1);filter:drop-shadow(0 0 2px #ffae3d)}50%{transform:scale(1.18);filter:drop-shadow(0 0 7px #ff7733)}}
 /* ── REDUCED MOTION (přístupnost) ── */
+@keyframes shake{0%,100%{transform:translate(0,0)}20%{transform:translate(-4px,2px)}40%{transform:translate(4px,-2px)}60%{transform:translate(-3px,-2px)}80%{transform:translate(3px,2px)}}
+.shaking{animation:shake .16s ease-in-out}
 .reduced-motion *,.reduced-motion *::before,.reduced-motion *::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
 .reduced-motion .float-txt{display:none!important}
 .reduced-motion #hit-vignette{display:none!important}
@@ -461,6 +463,12 @@ html[data-theme="violet"]{--gold:#b06cff;--panel:#100a20;--panel2:#18103a;--blue
 .learn-formula{background:#0f1a2f;border:2px solid var(--blue);border-radius:4px;padding:12px 16px;margin:10px 0;font-family:var(--read);font-weight:600;font-size:13px;color:var(--blue);line-height:1.8}
 .learn-formula b{color:#fff}
 .learn-example{background:var(--panel);border-left:4px solid var(--gold);padding:12px 16px;margin:10px 0;border-radius:0 6px 6px 0}
+.learn-mistakes{background:var(--panel);border-left:4px solid #e05555;padding:12px 16px;margin:10px 0;border-radius:0 6px 6px 0}
+.learn-mistakes h3{font-family:var(--read);font-size:15px;margin:0 0 8px;color:#e05555}
+.learn-mistakes .mi{margin-bottom:10px}
+.learn-mistakes .mi-w{font-family:var(--read);font-size:15px;color:#e05555;text-decoration:line-through;text-decoration-thickness:1px}
+.learn-mistakes .mi-r{font-family:var(--read);font-size:15px;color:var(--green,#3fa34d);font-weight:600}
+.learn-mistakes .mi-why{font-family:var(--read);font-size:13px;color:var(--muted);margin-top:2px}
 .learn-example .ex-q{font-family:var(--px);font-weight:700;font-size:13px;color:var(--gold);margin-bottom:6px}
 .learn-example .ex-s{font-family:var(--read);font-size:14.5px;color:var(--text);line-height:1.65}
 .learn-example .ex-s b{color:var(--green)}
@@ -521,8 +529,10 @@ html[data-theme="violet"]{--gold:#b06cff;--panel:#100a20;--panel2:#18103a;--blue
  </div>
  <div class="panel" id="map-leaderboard" style="display:none;padding:12px 14px"></div>
  <div class="panel" id="map-recommend" style="display:none;padding:12px 14px;margin-top:12px"></div>
+ <div class="panel" id="map-revive" style="display:none;padding:12px 14px;margin-top:12px"></div>
  <div style="display:flex;gap:8px;margin-top:12px">
   <button class="btn sm gold" style="flex:0 0 auto" onclick="go('shop')">🛍️ OBCHOD</button>
+  <button class="btn" style="flex:none" onclick="typeof RPGFindError!=='undefined'&&RPGFindError.open(window.RPG_LEARN_7)">🔍 NAJDI CHYBU</button>
   <button class="btn" style="flex:none" onclick="openBattle()">⚔️ ŽIVÝ SOUBOJ</button>
   <button class="btn b" style="flex:1" onclick="go('train')">🎯 TRÉNINK — procvičuj libovolné téma bez boje</button>
   <button class="btn" style="flex:none" onclick="go('tower')">🗼 VĚŽ LEGEND</button>
@@ -613,6 +623,8 @@ html[data-theme="violet"]{--gold:#b06cff;--panel:#100a20;--panel2:#18103a;--blue
   <button class="shop-tab" onclick="setShopCat('victory',this)">🎉 Vítězství</button>
   <button class="shop-tab" onclick="setShopCat('skin',this)">🥷 Skin</button>
   <button class="shop-tab" onclick="setShopCat('powerup',this)">⚡ Powerupy</button>
+  <button class="shop-tab" onclick="setShopCat('title',this)">📜 Tituly</button>
+  <button class="shop-tab" onclick="setShopCat('pet',this)">🐾 Mazlíčci</button>
  </div>
  <div class="shop-grid" id="shop-grid"></div>
 </div>
@@ -645,7 +657,7 @@ html[data-theme="violet"]{--gold:#b06cff;--panel:#100a20;--panel2:#18103a;--blue
  </div>
  <div style="margin-top:8px">
   <div style="display:flex;justify-content:space-between;font-family:var(--px);font-size:11px;margin-bottom:4px">
-  <span style="color:var(--muted)">CESTA K MISTROVSTVÍ</span>
+  <span style="color:var(--muted)">CESTA K MISTROVSTVÍ <span id="tr-revive-chip" style="display:none;color:#ffd06a;margin-left:8px"></span></span>
   <span style="color:var(--gold)"><span id="tr-mscore">0</span> / <span id="tr-msgoal">15</span></span>
   </div>
   <div class="bar-out bar-xp"><div class="bar-in" id="tr-msbar" style="width:0%"></div></div>
@@ -796,10 +808,22 @@ html[data-theme="violet"]{--gold:#b06cff;--panel:#100a20;--panel2:#18103a;--blue
  <div class="ach-grid" id="pr-ach"></div>
  </div>
  <div class="panel">
+ <div style="font-family:var(--px);font-weight:700;font-size:12px;color:var(--muted);letter-spacing:1px;margin-bottom:10px">— ŽIVOTNÍ ÚSPĚCHY (všechny ročníky) —</div>
+ <div id="pr-gach"></div>
+ </div>
+ <div class="panel">
  <div style="font-family:var(--px);font-weight:700;font-size:12px;color:var(--muted);margin-bottom:12px;letter-spacing:1px">— NASTAVENÍ ⚙️ —</div>
  <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-family:var(--read);font-size:14px;color:var(--text)">
   <input type="checkbox" id="pr-rm" onchange="toggleReducedMotion(this.checked)" style="width:18px;height:18px;cursor:pointer;accent-color:var(--blue)">
   <span>Vypnout vizuální efekty<br><span style="font-size:12px;color:var(--muted)">Skryje blikání, floaty (+XP), animace výhry a poškození. Hodí se při citlivosti na pohyb.</span></span>
+ </label>
+ <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-family:var(--read);font-size:14px;color:var(--text);margin-top:12px">
+  <input type="checkbox" id="pr-sponka" onchange="toggleSponka(this.checked)" style="width:18px;height:18px;cursor:pointer;accent-color:var(--blue)">
+  <span>Společník (sponka)<br><span style="font-size:12px;color:var(--muted)">Aktivní mazlíček tě bude sledovat po obrazovce a občas povzbudí nebo pomůže s nápovědou.</span></span>
+ </label>
+ <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-family:var(--read);font-size:14px;color:var(--text);margin-top:12px">
+  <input type="checkbox" id="pr-sound" onchange="toggleSound(this.checked)" style="width:18px;height:18px;cursor:pointer;accent-color:var(--blue)">
+  <span>Zvuky 🔊<br><span style="font-size:12px;color:var(--muted)">Krátké zvuky za správnou/špatnou odpověď, kritický zásah, minci a level-up. Výchozí vypnuto.</span></span>
  </label>
  </div>
  <div class="panel">
@@ -871,9 +895,9 @@ function svgCross(deg,opt={}){
 }
 // Kvádr / krychle v kosé projekci. Popisky a,b,c (šířka, výška, hloubka).
 function svgCuboid(a,b,c){
- const x=40,y=120,w=120,h=80,d=38,dd=30;
+ const x=54,y=118,w=104,h=72,d=30,dd=24;
  const f=`${x},${y} ${x+w},${y} ${x+w},${y-h} ${x},${y-h}`;
- return `<svg viewBox="0 0 250 160"><polygon points="${x},${y-h} ${x+d},${y-h-dd} ${x+w+d},${y-h-dd} ${x+w},${y-h}" fill="#33260f" stroke="#46c2b8" stroke-width="2"/><polygon points="${x+w},${y} ${x+w+d},${y-dd} ${x+w+d},${y-h-dd} ${x+w},${y-h}" fill="#2a1f10" stroke="#46c2b8" stroke-width="2"/><polygon points="${f}" fill="#3d2e14" stroke="#46c2b8" stroke-width="2.5"/><text x="${x+w/2}" y="${y+18}" fill="#f2c14e" font-size="15" font-family="monospace" text-anchor="middle">${a}</text><text x="${x-12}" y="${y-h/2+5}" fill="#f2c14e" font-size="15" font-family="monospace" text-anchor="middle">${b}</text><text x="${x+w+d+6}" y="${y-h-dd/2+2}" fill="#9bbf4a" font-size="14" font-family="monospace">${c}</text></svg>`;
+ return `<svg viewBox="0 0 250 160"><polygon points="${x},${y-h} ${x+d},${y-h-dd} ${x+w+d},${y-h-dd} ${x+w},${y-h}" fill="#33260f" stroke="#46c2b8" stroke-width="2"/><polygon points="${x+w},${y} ${x+w+d},${y-dd} ${x+w+d},${y-h-dd} ${x+w},${y-h}" fill="#2a1f10" stroke="#46c2b8" stroke-width="2"/><polygon points="${f}" fill="#3d2e14" stroke="#46c2b8" stroke-width="2.5"/><text x="${x+w/2}" y="${y+18}" fill="#f2c14e" font-size="14" font-family="monospace" text-anchor="middle">${a}</text><text x="${x-8}" y="${y-h/2+5}" fill="#f2c14e" font-size="14" font-family="monospace" text-anchor="end">${b}</text><text x="${x+w+d+5}" y="${y-h/2+5}" fill="#9bbf4a" font-size="14" font-family="monospace" text-anchor="start">${c}</text></svg>`;
 }
 // Trojúhelník daného typu s popisky úhlů/stran. kind: 'rovnostr'|'rovnoram'|'pravo'|'obecny'
 function svgTriangle(kind,opt={}){
@@ -905,11 +929,11 @@ function svgPointSym(){
 }
 // Rovnoběžník se stranou a (dole) a výškou v.
 function svgParallelogram(a,v){
- return `<svg viewBox="0 0 250 160"><polygon points="55,125 185,125 215,45 85,45" fill="#33260f" stroke="#46c2b8" stroke-width="2.5"/><line x1="85" y1="125" x2="85" y2="45" stroke="#f2c14e" stroke-width="2" stroke-dasharray="5 4"/><rect x="85" y="113" width="12" height="12" fill="none" stroke="#f2c14e" stroke-width="1.5"/><text x="120" y="142" fill="#f2c14e" font-size="14" font-family="monospace" text-anchor="middle">a = ${a}</text><text x="68" y="88" fill="#f2c14e" font-size="14" font-family="monospace" text-anchor="middle">v = ${v}</text></svg>`;
+ return `<svg viewBox="0 0 250 160"><polygon points="55,125 185,125 215,45 85,45" fill="#33260f" stroke="#46c2b8" stroke-width="2.5"/><line x1="115" y1="125" x2="115" y2="45" stroke="#f2c14e" stroke-width="2" stroke-dasharray="5 4"/><rect x="115" y="113" width="12" height="12" fill="none" stroke="#f2c14e" stroke-width="1.5"/><text x="120" y="142" fill="#f2c14e" font-size="14" font-family="monospace" text-anchor="middle">a = ${a}</text><text x="121" y="90" fill="#f2c14e" font-size="13" font-family="monospace" text-anchor="start">v = ${v}</text></svg>`;
 }
 // Lichoběžník: a (dolní základna), c (horní základna), v (výška).
 function svgTrapezoid(a,c,v){
- return `<svg viewBox="0 0 250 160"><polygon points="40,125 210,125 165,45 85,45" fill="#33260f" stroke="#46c2b8" stroke-width="2.5"/><line x1="85" y1="125" x2="85" y2="45" stroke="#f2c14e" stroke-width="2" stroke-dasharray="5 4"/><rect x="85" y="113" width="12" height="12" fill="none" stroke="#f2c14e" stroke-width="1.5"/><text x="125" y="142" fill="#f2c14e" font-size="13" font-family="monospace" text-anchor="middle">a = ${a}</text><text x="125" y="38" fill="#9bbf4a" font-size="13" font-family="monospace" text-anchor="middle">c = ${c}</text><text x="68" y="88" fill="#f2c14e" font-size="13" font-family="monospace" text-anchor="middle">v = ${v}</text></svg>`;
+ return `<svg viewBox="0 0 250 160"><polygon points="40,125 210,125 165,45 85,45" fill="#33260f" stroke="#46c2b8" stroke-width="2.5"/><line x1="110" y1="125" x2="110" y2="45" stroke="#f2c14e" stroke-width="2" stroke-dasharray="5 4"/><rect x="110" y="113" width="12" height="12" fill="none" stroke="#f2c14e" stroke-width="1.5"/><text x="125" y="142" fill="#f2c14e" font-size="13" font-family="monospace" text-anchor="middle">a = ${a}</text><text x="125" y="38" fill="#9bbf4a" font-size="13" font-family="monospace" text-anchor="middle">c = ${c}</text><text x="116" y="90" fill="#f2c14e" font-size="13" font-family="monospace" text-anchor="start">v = ${v}</text></svg>`;
 }
 
 // checkAns → přesunuto do sdíleného projects/rpg-shared.js
@@ -931,11 +955,11 @@ const AREAS = [
   intro:'Strážce karavany tě nepustí do pouště, dokud neukážeš, že počítáš zpaměti.',
   mc:true, tc:6,
   tasks:()=>[
-   (()=>{const a=ri(220,680),b=ri(120,460);return{text:`Vypočítej:\n${a} + ${b} =`,ans:String(a+b),hints:[`Sčítej po řádech.`,`${a} + ${b}`],skill:'calc'};})(),
-   (()=>{const a=ri(550,990),b=ri(120,520);return{text:`Vypočítej:\n${a} - ${b} =`,ans:String(a-b),hints:[`Odečítej pod sebou, pozor na výpůjčky.`,`${a} - ${b}`],skill:'calc'};})(),
-   (()=>{const a=ri(13,49),b=ri(4,9);return{text:`Vypočítej:\n${a} × ${b} =`,ans:String(a*b),hints:[`Násob po řádech a sečti.`,`${a} × ${b}`],skill:'calc'};})(),
-   (()=>{const b=ri(3,9),q=ri(13,40),a=b*q;return{text:`Vypočítej:\n${a} : ${b} =`,ans:String(q),hints:[`Kolikrát se ${b} vejde do ${a}?`,`${a} : ${b}`],skill:'calc'};})(),
-   (()=>{const a=ri(2,9),b=ri(2,9),c=ri(2,9);return{text:`Vypočítej (pozor na závorku):\n${a} × (${b} + ${c}) =`,ans:String(a*(b+c)),hints:[`Nejdřív spočítej závorku.`,`${a} × ${b+c}`],skill:'calc'};})(),
+   (()=>{const a=ri(220,680),b=ri(120,460);return{text:`${['Vypočítej','Spočítej','Urči','Kolik je'][ri(0,3)]}:\n${a} + ${b} =`,ans:String(a+b),hints:[`Sčítej po řádech.`,`${a} + ${b}`],skill:'calc'};})(),
+   (()=>{const a=ri(550,990),b=ri(120,520);return{text:`${['Vypočítej','Spočítej','Urči','Kolik je'][ri(0,3)]}:\n${a} - ${b} =`,ans:String(a-b),hints:[`Odečítej pod sebou, pozor na výpůjčky.`,`${a} - ${b}`],skill:'calc'};})(),
+   (()=>{const a=ri(13,49),b=ri(4,9);return{text:`${['Vypočítej','Spočítej','Urči','Kolik je'][ri(0,3)]}:\n${a} × ${b} =`,ans:String(a*b),hints:[`Násob po řádech a sečti.`,`${a} × ${b}`],skill:'calc'};})(),
+   (()=>{const b=ri(3,9),q=ri(13,40),a=b*q;return{text:`${['Vypočítej','Spočítej','Urči','Kolik je'][ri(0,3)]}:\n${a} : ${b} =`,ans:String(q),hints:[`Kolikrát se ${b} vejde do ${a}?`,`${a} : ${b}`],skill:'calc'};})(),
+   (()=>{const a=ri(2,9),b=ri(2,9),c=ri(2,9);return{text:`${['Vypočítej','Spočítej','Urči'][ri(0,2)]} (pozor na závorku):\n${a} × (${b} + ${c}) =`,ans:String(a*(b+c)),distractors:[String(a*b+c)],hints:[`Nejdřív spočítej závorku.`,`${a} × ${b+c}`],skill:'calc'};})(),
    (()=>{const a=ri(1234,8765);const r=Math.round(a/100)*100;return{text:`Zaokrouhli na stovky:\n${a} ≈`,ans:String(r),hints:[`Rozhoduje číslice desítek (${Math.floor(a/10)%10}).`,`${(a%100)>=50?'Nahoru.':'Dolů.'}`],skill:'calc'};})()
   ]
  },
@@ -945,12 +969,12 @@ const AREAS = [
   intro:'Z prasklého džbánu vytékají kapky. Spočítej desetinná čísla, než se vyprázdní.',
   tc:6,
   tasks:()=>[
-   (()=>{const a=ri(11,89)/10,b=ri(11,89)/10;const ans=Math.round((a+b)*10)/10;return{text:`Vypočítej:\n${cz(a)} + ${cz(b)} =`,ans:String(ans),hints:[`Zarovnej desetinné čárky pod sebe.`,`Sečti po sloupcích.`],skill:'calc'};})(),
-   (()=>{const a=ri(50,98)/10,b=ri(11,Math.round(a*10)-5)/10;const ans=Math.round((a-b)*10)/10;return{text:`Vypočítej:\n${cz(a)} - ${cz(b)} =`,ans:String(ans),hints:[`Zarovnej čárky a odečti.`,`Výsledek: ${ans}`],skill:'calc'};})(),
-   (()=>{const a=ri(11,49)/10,b=ri(2,9);const ans=Math.round(a*b*10)/10;return{text:`Vypočítej:\n${cz(a)} × ${b} =`,ans:String(ans),hints:[`Násob jako celá čísla, pak umísti čárku.`,`Výsledek má 1 desetinné místo.`],skill:'calc'};})(),
-   (()=>{const b=ri(2,8),q=ri(11,49)/10;const a=Math.round(q*b*10)/10;return{text:`Vypočítej:\n${cz(a)} : ${b} =`,ans:String(q),hints:[`Děl jako obvykle, čárku piš nad čárkou.`,`Výsledek: ${q}`],skill:'calc'};})(),
+   (()=>{const a=ri(11,89)/10,b=ri(11,89)/10;const ans=Math.round((a+b)*10)/10;return{text:`${['Vypočítej','Spočítej','Urči','Kolik je'][ri(0,3)]}:\n${cz(a)} + ${cz(b)} =`,ans:String(ans),hints:[`Zarovnej desetinné čárky pod sebe.`,`Sečti po sloupcích.`],skill:'calc'};})(),
+   (()=>{const a=ri(50,98)/10,b=ri(11,Math.round(a*10)-5)/10;const ans=Math.round((a-b)*10)/10;return{text:`${['Vypočítej','Spočítej','Urči','Kolik je'][ri(0,3)]}:\n${cz(a)} - ${cz(b)} =`,ans:String(ans),hints:[`Zarovnej čárky a odečti.`,`Výsledek: ${ans}`],skill:'calc'};})(),
+   (()=>{const a=ri(11,49)/10,b=ri(2,9);const ans=Math.round(a*b*10)/10;return{text:`${['Vypočítej','Spočítej','Urči','Kolik je'][ri(0,3)]}:\n${cz(a)} × ${b} =`,ans:String(ans),hints:[`Násob jako celá čísla, pak umísti čárku.`,`Výsledek má 1 desetinné místo.`],skill:'calc'};})(),
+   (()=>{const b=ri(2,8),q=ri(11,49)/10;const a=Math.round(q*b*10)/10;return{text:`${['Vypočítej','Spočítej','Urči','Kolik je'][ri(0,3)]}:\n${cz(a)} : ${b} =`,ans:String(q),hints:[`Děl jako obvykle, čárku piš nad čárkou.`,`Výsledek: ${q}`],skill:'calc'};})(),
    (()=>{const v=ri(115,985)/100;const r=Math.round(v*10)/10;return{text:`Zaokrouhli na desetiny:\n${cz(v)} ≈`,ans:String(r),hints:[`Rozhoduje místo setin.`,`Výsledek: ${r}`],skill:'calc'};})(),
-   (()=>{const a=ri(15,45)/10,b=ri(15,45)/10;const ans=Math.round(a*b*100)/100;return{text:`Vypočítej:\n${cz(a)} × ${cz(b)} =`,ans:String(ans),hints:[`Násob bez čárek, pak součet des. míst = 2.`,`Výsledek: ${ans}`],skill:'calc'};})()
+   (()=>{const a=ri(15,45)/10,b=ri(15,45)/10;const ans=Math.round(a*b*100)/100;return{text:`${['Vypočítej','Spočítej','Urči','Kolik je'][ri(0,3)]}:\n${cz(a)} × ${cz(b)} =`,ans:String(ans),hints:[`Násob bez čárek, pak součet des. míst = 2.`,`Výsledek: ${ans}`],skill:'calc'};})()
   ]
  },
  {
@@ -964,7 +988,7 @@ const AREAS = [
    (()=>{const a=ri(4,15);return{text:`Čtverec se stranou a = ${a} cm.\nVypočítej obsah S. (cm²)`,ans:String(a*a),hints:[`S = a × a.`,`${a} × ${a}`],skill:'geo'};})(),
    (()=>{const z=ri(4,12),v=ri(3,10);const S=z*v/2;const ans=Number.isInteger(S)?String(S):cz(S);return{svg:svgTriangle('obecny'),text:`Trojúhelník: základna z = ${z} cm, výška v = ${v} cm.\nVypočítej obsah S. (cm²)`,ans,hints:[`S = (z × v) : 2.`,`(${z} × ${v}) : 2`],skill:'geo'};})(),
    (()=>{const a=ri(4,12),b=ri(2,9),S=a*b;return{text:`Obdélník má obsah ${S} cm² a stranu a = ${a} cm.\nJak dlouhá je strana b? (cm)`,ans:String(b),hints:[`b = S : a.`,`${S} : ${a}`],skill:'anal'};})(),
-   (()=>{const a=ri(5,12),b=ri(5,12);return{text:`Zahrada chrámu má rozměry ${a} m × ${b} m.\nKolik metrů provazu je třeba na obvod? (m)`,ans:String(2*(a+b)),hints:[`Obvod obdélníku.`,`2 × (${a} + ${b})`],skill:'anal'};})()
+   (()=>{const a=ri(5,12),b=ri(5,12);return{text:[`Nádvoří chrámu má rozměry ${a} m × ${b} m.\nKolik metrů provazu je třeba na obvod? (m)`,`Chrámová zahrada je obdélník ${a} m × ${b} m.\nKolik metrů lana ovine celý její okraj? (m)`,`Kolem obdélníkového nádvoří ${a} m × ${b} m natáhneš posvátnou šňůru.\nKolik metrů šňůry spotřebuješ? (m)`][ri(0,2)],ans:String(2*(a+b)),hints:[`Obvod obdélníku.`,`2 × (${a} + ${b})`],skill:'anal'};})()
   ]
  }
  ]
@@ -981,12 +1005,12 @@ const AREAS = [
   intro:'Starý písař zapisuje zlomky na papyrus. Pomoz mu je zkrátit na základní tvar.',
   mc:true, tc:6,
   tasks:()=>[
-   (()=>{const g=ri(2,6),a=ri(1,4),b=ri(a+1,7);return{text:`Zkrať zlomek a napiš nový ČITATEL:\n${a*g}/${b*g}`,ans:String(a),hints:[`Vyděl čitatele i jmenovatele číslem ${g}.`,`${a*g} : ${g}`],skill:'calc'};})(),
-   (()=>{const g=ri(2,6),a=ri(1,4),b=ri(a+1,7);return{text:`Zkrať zlomek a napiš nový JMENOVATEL:\n${a*g}/${b*g}`,ans:String(b),hints:[`Vyděl obě čísla jejich společným dělitelem ${g}.`,`${b*g} : ${g}`],skill:'calc'};})(),
-   (()=>{const a=ri(1,5),b=ri(a+1,8),k=ri(2,5);return{text:`Rozšiř zlomek ${k}× a napiš nový ČITATEL:\n${a}/${b}`,ans:String(a*k),hints:[`Násob čitatele i jmenovatele ${k}.`,`${a} × ${k}`],skill:'calc'};})(),
+   (()=>{const g=ri(2,6),a=ri(1,4),b=ri(a+1,7);return{text:`Zkrať zlomek a napiš nový ČITATEL:\n${a*g}/${b*g}`,ans:String(a),distractors:(a*g-g!==a?[String(a*g-g)]:[]),hints:[`Vyděl čitatele i jmenovatele číslem ${g}.`,`${a*g} : ${g}`],skill:'calc'};})(),
+   (()=>{const g=ri(2,6),a=ri(1,4),b=ri(a+1,7);return{text:`Zkrať zlomek a napiš nový JMENOVATEL:\n${a*g}/${b*g}`,ans:String(b),distractors:(b*g-g!==b?[String(b*g-g)]:[]),hints:[`Vyděl obě čísla jejich společným dělitelem ${g}.`,`${b*g} : ${g}`],skill:'calc'};})(),
+   (()=>{const a=ri(1,5),b=ri(a+1,8),k=ri(2,5);return{text:`Rozšiř zlomek ${k}× a napiš nový ČITATEL:\n${a}/${b}`,ans:String(a*k),distractors:(a+k!==a*k?[String(a+k)]:[]),hints:[`Násob čitatele i jmenovatele ${k}.`,`${a} × ${k}`],skill:'calc'};})(),
    (()=>{const a=ri(1,5),b=ri(a+1,8);const g=gcd(a,b);return{text:`Je zlomek ${a}/${b} v základním tvaru?\n(napiš jeho největšího společného dělitele čitatele a jmenovatele)`,ans:String(g),hints:[`NSD(${a}, ${b}). Je-li 1, zlomek už zkrátit nejde.`,`Výsledek: ${g}`],skill:'anal'};})(),
    (()=>{const d=ri(3,9),num=ri(d+1,d*3);const w=Math.floor(num/d);return{text:`Kolikrát se celek vejde do zlomku ${num}/${d}?\n(celá část smíšeného čísla)`,ans:String(w),hints:[`Kolikrát se ${d} vejde do ${num}?`,`${num} : ${d} (celá část)`],skill:'calc'};})(),
-   (()=>{const w=ri(2,5),d=ri(3,7),num=ri(1,d-1);const imp=w*d+num;return{text:`Převeď na nepravý zlomek a napiš ČITATEL:\n${w} a ${num}/${d}`,ans:String(imp),hints:[`Celé × jmenovatel + čitatel.`,`${w} × ${d} + ${num}`],skill:'calc'};})()
+   (()=>{const w=ri(2,5),d=ri(3,7),num=ri(1,d-1);const imp=w*d+num;return{text:`Převeď na nepravý zlomek a napiš ČITATEL:\n${w} a ${num}/${d}`,ans:String(imp),distractors:[String(w*d)],hints:[`Celé × jmenovatel + čitatel.`,`${w} × ${d} + ${num}`],skill:'calc'};})()
   ]
  },
  {
@@ -995,12 +1019,12 @@ const AREAS = [
   intro:'Duch papyru zkouší, zda zvládneš sčítat zlomky — i když mají různé jmenovatele.',
   tc:6,
   tasks:()=>[
-   (()=>{const d=ri(5,12),a=ri(1,d-2),b=ri(1,d-a-1);const num=a+b,g=gcd(num,d);const ans=d/g===1?String(num/g):`${num/g}/${d/g}`;return{text:`Vypočítej (zkrať):\n${a}/${d} + ${b}/${d} =`,ans,hints:[`Stejný jmenovatel — sečti čitatele.`,`(${a} + ${b})/${d}`],skill:'calc'};})(),
-   (()=>{const d=ri(6,12),a=ri(2,d-1),b=ri(1,a-1);const num=a-b,g=gcd(num,d);const ans=d/g===1?String(num/g):`${num/g}/${d/g}`;return{text:`Vypočítej (zkrať):\n${a}/${d} - ${b}/${d} =`,ans,hints:[`Stejný jmenovatel — odečti čitatele.`,`(${a} - ${b})/${d}`],skill:'calc'};})(),
-   (()=>{const d1=ri(2,4),d2=d1*ri(2,3);const a=ri(1,d1),b=ri(1,d2-1);const num=a*(d2/d1)+b,g=gcd(num,d2);const an=num/g,ad=d2/g;const ans=ad===1?String(an):`${an}/${ad}`;return{text:`Vypočítej (společný jmenovatel je ${d2}):\n${a}/${d1} + ${b}/${d2} =`,ans,hints:[`Rozšiř ${a}/${d1} na jmenovatele ${d2}.`,`${a}/${d1} = ${a*(d2/d1)}/${d2}`],skill:'calc'};})(),
-   (()=>{const halves=[[1,2,1,4,'3','4'],[1,2,1,3,'5','6'],[2,3,1,6,'5','6'],[1,4,1,2,'3','4']];const p=halves[ri(0,halves.length-1)];return{text:`Vypočítej (zkrať):\n${p[0]}/${p[1]} + ${p[2]}/${p[3]} =`,ans:`${p[4]}/${p[5]}`,hints:[`Najdi společný jmenovatel.`,`Rozšiř oba zlomky.`],skill:'calc'};})(),
+   (()=>{const d=ri(5,12),a=ri(1,d-2),b=ri(1,d-a-1);const num=a+b,g=gcd(num,d);const ans=d/g===1?String(num/g):`${num/g}/${d/g}`;return{text:`${['Vypočítej','Spočítej','Urči'][ri(0,2)]} (zkrať):\n${a}/${d} + ${b}/${d} =`,ans,hints:[`Stejný jmenovatel — sečti čitatele.`,`(${a} + ${b})/${d}`],skill:'calc'};})(),
+   (()=>{const d=ri(6,12),a=ri(2,d-1),b=ri(1,a-1);const num=a-b,g=gcd(num,d);const ans=d/g===1?String(num/g):`${num/g}/${d/g}`;return{text:`${['Vypočítej','Spočítej','Urči'][ri(0,2)]} (zkrať):\n${a}/${d} - ${b}/${d} =`,ans,hints:[`Stejný jmenovatel — odečti čitatele.`,`(${a} - ${b})/${d}`],skill:'calc'};})(),
+   (()=>{const d1=ri(2,4),d2=d1*ri(2,3);const a=ri(1,d1),b=ri(1,d2-1);const num=a*(d2/d1)+b,g=gcd(num,d2);const an=num/g,ad=d2/g;const ans=ad===1?String(an):`${an}/${ad}`;return{text:`${['Vypočítej','Spočítej','Urči'][ri(0,2)]} (společný jmenovatel je ${d2}):\n${a}/${d1} + ${b}/${d2} =`,ans,hints:[`Rozšiř ${a}/${d1} na jmenovatele ${d2}.`,`${a}/${d1} = ${a*(d2/d1)}/${d2}`],skill:'calc'};})(),
+   (()=>{const halves=[[1,2,1,4,'3','4'],[1,2,1,3,'5','6'],[2,3,1,6,'5','6'],[1,4,1,2,'3','4']];const p=halves[ri(0,halves.length-1)];return{text:`${['Vypočítej','Spočítej','Urči'][ri(0,2)]} (zkrať):\n${p[0]}/${p[1]} + ${p[2]}/${p[3]} =`,ans:`${p[4]}/${p[5]}`,hints:[`Najdi společný jmenovatel.`,`Rozšiř oba zlomky.`],skill:'calc'};})(),
    (()=>{const d=ri(3,6),a=ri(1,d-1);const num=d-a;const g=gcd(num,d);const ans=d/g===1?String(num/g):`${num/g}/${d/g}`;return{text:`Doplň do celku (1 = ${d}/${d}):\n${a}/${d} + ? = 1\nNapiš chybějící zlomek.`,ans,hints:[`Chybí ${d}/${d} − ${a}/${d}.`,`(${d} - ${a})/${d}`],skill:'anal'};})(),
-   (()=>{const d=ri(4,8),a=ri(1,d-1),b=ri(1,d-1);const num=a+b;const total=num>=d?`1 a ${num-d}/${d}`:`${num}/${d}`;const val=num>=d?(num-d===0?'1':`${num}/${d}`):`${num}/${d}`;return{text:`Snědl jsi ${a}/${d} koláče ráno a ${b}/${d} večer.\nKolik koláče jsi snědl celkem? (zlomek)`,ans:val,hints:[`Sečti čitatele nad stejným jmenovatelem.`,`(${a} + ${b})/${d}`],skill:'anal'};})()
+   (()=>{const d=ri(4,8),a=ri(1,d-1),b=ri(1,d-1);const num=a+b;const total=num>=d?`1 a ${num-d}/${d}`:`${num}/${d}`;const val=num>=d?(num-d===0?'1':`${num}/${d}`):`${num}/${d}`;return{text:[`U oltáře snědl poutník ${a}/${d} obětního chleba ráno a ${b}/${d} večer.\nJakou část chleba snědl celkem? (zlomek)`,`Z posvátného bochníku ubyla ${a}/${d} ráno a ${b}/${d} v poledne.\nKolik z něj celkem zmizelo? (zlomek)`,`Snědl jsi ${a}/${d} chrámového koláče ráno a ${b}/${d} večer.\nKolik koláče jsi snědl celkem? (zlomek)`][ri(0,2)],ans:val,hints:[`Sečti čitatele nad stejným jmenovatelem.`,`(${a} + ${b})/${d}`],skill:'anal'};})()
   ]
  },
  {
@@ -1009,12 +1033,12 @@ const AREAS = [
   intro:'Posvátný had se svíjí kolem sloupu. Rozluští hieroglyfy, když zvládneš násobit zlomky.',
   tc:6,
   tasks:()=>[
-   (()=>{const a=ri(1,4),b=ri(2,5),c=ri(1,4),d=ri(2,5);const num=a*c,den=b*d,g=gcd(num,den);const an=num/g,ad=den/g;const ans=ad===1?String(an):`${an}/${ad}`;return{text:`Vypočítej (zkrať):\n${a}/${b} × ${c}/${d} =`,ans,hints:[`Násob čitatel × čitatel, jmenovatel × jmenovatel.`,`(${a}×${c})/(${b}×${d})`],skill:'calc'};})(),
-   (()=>{const b=ri(2,6),a=ri(1,b-1),n=ri(2,6)*b;const ans=n/b*a;return{text:`Vypočítej zlomek z čísla:\n${a}/${b} z ${n} =`,ans:String(ans),hints:[`Vyděl ${n} jmenovatelem, pak × čitatel.`,`${n} : ${b} × ${a}`],skill:'calc'};})(),
-   (()=>{const a=ri(1,4),b=ri(2,6),c=ri(2,5);const num=a,den=b*c,g=gcd(num,den);const an=num/g,ad=den/g;const ans=ad===1?String(an):`${an}/${ad}`;return{text:`Vypočítej (zkrať):\n${a}/${b} : ${c} =`,ans,hints:[`Dělení = násobení převrácenou hodnotou (× 1/${c}).`,`${a}/(${b}×${c})`],skill:'calc'};})(),
-   (()=>{const a=ri(1,4),b=ri(2,5),c=ri(1,4),d=ri(2,5);const num=a*d,den=b*c,g=gcd(num,den);const an=num/g,ad=den/g;const ans=ad===1?String(an):`${an}/${ad}`;return{text:`Vypočítej (zkrať):\n${a}/${b} : ${c}/${d} =`,ans,hints:[`Děleno zlomkem = násob převráceným: × ${d}/${c}.`,`(${a}×${d})/(${b}×${c})`],skill:'calc'};})(),
-   (()=>{const b=ri(2,5),k=ri(2,4),a=ri(1,b-1>=1?b-1:1);const ans=`${a*k}/${b}`;const g=gcd(a*k,b);const sans=b/g===1?String(a*k/g):`${a*k/g}/${b/g}`;return{text:`Vypočítej (zkrať):\n${a}/${b} × ${k} =`,ans:sans,hints:[`Násob jen čitatel.`,`(${a}×${k})/${b}`],skill:'calc'};})(),
-   (()=>{const den=ri(3,6),a=ri(1,den-1);const pizza=den;const eaten=a;return{text:`Pizza má ${den} ${skl(den,'díl','díly','dílů')}. Každý kamarád snědl 1 díl a bylo jich ${a}.\nJakou částí pizzy to je? (zlomek)`,ans:`${eaten}/${pizza}`,hints:[`Snědené díly / všechny díly.`,`${a}/${den}`],skill:'anal'};})()
+   (()=>{const a=ri(1,4),b=ri(2,5),c=ri(1,4),d=ri(2,5);const num=a*c,den=b*d,g=gcd(num,den);const an=num/g,ad=den/g;const ans=ad===1?String(an):`${an}/${ad}`;return{text:`${['Vypočítej','Spočítej','Urči'][ri(0,2)]} (zkrať):\n${a}/${b} × ${c}/${d} =`,ans,hints:[`Násob čitatel × čitatel, jmenovatel × jmenovatel.`,`(${a}×${c})/(${b}×${d})`],skill:'calc'};})(),
+   (()=>{const b=ri(2,6),a=ri(1,b-1),n=ri(2,6)*b;const ans=n/b*a;return{text:`${['Vypočítej','Spočítej','Urči'][ri(0,2)]} zlomek z čísla:\n${a}/${b} z ${n} =`,ans:String(ans),hints:[`Vyděl ${n} jmenovatelem, pak × čitatel.`,`${n} : ${b} × ${a}`],skill:'calc'};})(),
+   (()=>{const a=ri(1,4),b=ri(2,6),c=ri(2,5);const num=a,den=b*c,g=gcd(num,den);const an=num/g,ad=den/g;const ans=ad===1?String(an):`${an}/${ad}`;return{text:`${['Vypočítej','Spočítej','Urči'][ri(0,2)]} (zkrať):\n${a}/${b} : ${c} =`,ans,hints:[`Dělení = násobení převrácenou hodnotou (× 1/${c}).`,`${a}/(${b}×${c})`],skill:'calc'};})(),
+   (()=>{const a=ri(1,4),b=ri(2,5),c=ri(1,4),d=ri(2,5);const num=a*d,den=b*c,g=gcd(num,den);const an=num/g,ad=den/g;const ans=ad===1?String(an):`${an}/${ad}`;return{text:`${['Vypočítej','Spočítej','Urči'][ri(0,2)]} (zkrať):\n${a}/${b} : ${c}/${d} =`,ans,hints:[`Děleno zlomkem = násob převráceným: × ${d}/${c}.`,`(${a}×${d})/(${b}×${c})`],skill:'calc'};})(),
+   (()=>{const b=ri(2,5),k=ri(2,4),a=ri(1,b-1>=1?b-1:1);const ans=`${a*k}/${b}`;const g=gcd(a*k,b);const sans=b/g===1?String(a*k/g):`${a*k/g}/${b/g}`;return{text:`${['Vypočítej','Spočítej','Urči'][ri(0,2)]} (zkrať):\n${a}/${b} × ${k} =`,ans:sans,hints:[`Násob jen čitatel.`,`(${a}×${k})/${b}`],skill:'calc'};})(),
+   (()=>{const den=ri(3,6),a=ri(1,den-1);const pizza=den;const eaten=a;return{text:[`Kruhový obětní chléb je rozkrojen na ${den} ${skl(den,'díl','díly','dílů')}. Kněží si vzali ${a} ${skl(a,'díl','díly','dílů')}.\nJakou částí chleba to je? (zlomek)`,`Posvátný disk má ${den} ${skl(den,'díl','díly','dílů')} a ${a} z nich se rozzářilo.\nJaká část disku svítí? (zlomek)`,`Kamenné kolo má ${den} ${skl(den,'díl','díly','dílů')}, ${a} ${skl(a,'díl','díly','dílů')} je popraskaných.\nJakou částí kola to je? (zlomek)`][ri(0,2)],ans:`${eaten}/${pizza}`,hints:[`Snědené díly / všechny díly.`,`${a}/${den}`],skill:'anal'};})()
   ]
  }
  ]
@@ -1031,12 +1055,12 @@ const AREAS = [
   intro:'V mrazivé komoře klesá teplota pod nulu. Ledový strážce zkouší, jak počítáš se zápornými čísly.',
   mc:true, tc:6,
   tasks:()=>[
-   (()=>{const a=ri(2,18),b=ri(2,18);return{text:`Vypočítej:\n(-${a}) + (-${b}) =`,ans:String(-a-b),hints:[`Dvě záporná čísla — sčítej a výsledek je záporný.`,`-(${a} + ${b})`],skill:'calc'};})(),
-   (()=>{const a=ri(2,15),b=ri(2,20);return{text:`Vypočítej:\n${a} - ${b} =`,ans:String(a-b),hints:[`Když odečteš víc, výsledek je záporný.`,`${a} - ${b}`],skill:'calc'};})(),
-   (()=>{const a=ri(2,15),b=ri(2,15);return{text:`Vypočítej:\n(-${a}) + ${b} =`,ans:String(-a+b),hints:[`Sčítáš čísla s různým znaménkem — odečti menší od většího.`,`${b} - ${a}`],skill:'calc'};})(),
-   (()=>{const a=ri(2,15),b=ri(2,15);return{text:`Vypočítej (odčítání záporného):\n${a} - (-${b}) =`,ans:String(a+b),hints:[`Mínus mínus = plus. Stává se z toho ${a} + ${b}.`,`${a} + ${b}`],skill:'calc'};})(),
+   (()=>{const a=ri(2,18),b=ri(2,18);return{text:`${['Vypočítej','Spočítej','Urči','Kolik je'][ri(0,3)]}:\n(-${a}) + (-${b}) =`,ans:String(-a-b),distractors:[String(a+b)],hints:[`Dvě záporná čísla — sčítej a výsledek je záporný.`,`-(${a} + ${b})`],skill:'calc'};})(),
+   (()=>{const a=ri(2,15),b=ri(2,20);return{text:`${['Vypočítej','Spočítej','Urči','Kolik je'][ri(0,3)]}:\n${a} - ${b} =`,ans:String(a-b),distractors:(a!==b?[String(b-a)]:[]),hints:[`Když odečteš víc, výsledek je záporný.`,`${a} - ${b}`],skill:'calc'};})(),
+   (()=>{const a=ri(2,15),b=ri(2,15);return{text:`${['Vypočítej','Spočítej','Urči','Kolik je'][ri(0,3)]}:\n(-${a}) + ${b} =`,ans:String(-a+b),distractors:(a!==b?[String(a-b)]:[]),hints:[`Sčítáš čísla s různým znaménkem — odečti menší od většího.`,`${b} - ${a}`],skill:'calc'};})(),
+   (()=>{const a=ri(2,15),b=ri(2,15);return{text:`${['Vypočítej','Spočítej','Urči'][ri(0,2)]} (odčítání záporného):\n${a} - (-${b}) =`,ans:String(a+b),distractors:[String(a-b)],hints:[`Mínus mínus = plus. Stává se z toho ${a} + ${b}.`,`${a} + ${b}`],skill:'calc'};})(),
    (()=>{const rano=-ri(3,12),zmena=ri(5,20);return{text:`Ráno bylo ${rano} °C, do poledne se oteplilo o ${zmena} °C.\nKolik °C je v poledne?`,ans:String(rano+zmena),hints:[`Oteplení = přičítáš.`,`${rano} + ${zmena}`],skill:'anal'};})(),
-   (()=>{const a=ri(-9,9),b=ri(-9,9);return{text:`Vypočítej:\n${a<0?`(${a})`:a} + ${b<0?`(${b})`:b} =`,ans:String(a+b),hints:[`Pozor na znaménka.`,`Výsledek: ${a+b}`],skill:'calc'};})()
+   (()=>{const a=ri(-9,9),b=ri(-9,9);return{text:`${['Vypočítej','Spočítej','Urči','Kolik je'][ri(0,3)]}:\n${a<0?`(${a})`:a} + ${b<0?`(${b})`:b} =`,ans:String(a+b),hints:[`Pozor na znaménka.`,`Výsledek: ${a+b}`],skill:'calc'};})()
   ]
  },
  {
@@ -1045,12 +1069,12 @@ const AREAS = [
   intro:'Krystalový golem se řídí pravidly znamének. Stejná znaménka → plus, různá → mínus.',
   tc:6,
   tasks:()=>[
-   (()=>{const a=ri(2,12),b=ri(2,9);return{text:`Vypočítej:\n(-${a}) × ${b} =`,ans:String(-a*b),hints:[`Mínus × plus = mínus.`,`-(${a} × ${b})`],skill:'calc'};})(),
-   (()=>{const a=ri(2,12),b=ri(2,9);return{text:`Vypočítej:\n(-${a}) × (-${b}) =`,ans:String(a*b),hints:[`Mínus × mínus = plus.`,`${a} × ${b}`],skill:'calc'};})(),
-   (()=>{const b=ri(2,9),q=ri(2,9),a=b*q;return{text:`Vypočítej:\n(-${a}) : ${b} =`,ans:String(-q),hints:[`Různá znaménka → výsledek záporný.`,`-(${a} : ${b})`],skill:'calc'};})(),
-   (()=>{const b=ri(2,9),q=ri(2,9),a=b*q;return{text:`Vypočítej:\n(-${a}) : (-${b}) =`,ans:String(q),hints:[`Stejná znaménka → výsledek kladný.`,`${a} : ${b}`],skill:'calc'};})(),
-   (()=>{const a=ri(2,9),b=ri(2,6);return{text:`Vypočítej:\n${a} × (-${b}) + ${a} =`,ans:String(-a*b+a),hints:[`Nejdřív násobení: ${a}×(-${b})=${-a*b}, pak přičti ${a}.`,`${-a*b}+${a} = ${-a*b+a}`],skill:'calc'};})(),
-   (()=>{const dluh=ri(3,8),mes=ri(3,6);return{text:`Každý měsíc se zadlužíš o ${dluh} Kč (tedy -${dluh}).\nJaký je stav po ${mes} ${skl(mes,'měsíci','měsících','měsících')}? (Kč)`,ans:String(-dluh*mes),hints:[`${mes} × (-${dluh}).`,`-(${mes} × ${dluh})`],skill:'anal'};})()
+   (()=>{const a=ri(2,12),b=ri(2,9);return{text:`${['Vypočítej','Spočítej','Urči','Kolik je'][ri(0,3)]}:\n(-${a}) × ${b} =`,ans:String(-a*b),hints:[`Mínus × plus = mínus.`,`-(${a} × ${b})`],skill:'calc'};})(),
+   (()=>{const a=ri(2,12),b=ri(2,9);return{text:`${['Vypočítej','Spočítej','Urči','Kolik je'][ri(0,3)]}:\n(-${a}) × (-${b}) =`,ans:String(a*b),hints:[`Mínus × mínus = plus.`,`${a} × ${b}`],skill:'calc'};})(),
+   (()=>{const b=ri(2,9),q=ri(2,9),a=b*q;return{text:`${['Vypočítej','Spočítej','Urči','Kolik je'][ri(0,3)]}:\n(-${a}) : ${b} =`,ans:String(-q),hints:[`Různá znaménka → výsledek záporný.`,`-(${a} : ${b})`],skill:'calc'};})(),
+   (()=>{const b=ri(2,9),q=ri(2,9),a=b*q;return{text:`${['Vypočítej','Spočítej','Urči','Kolik je'][ri(0,3)]}:\n(-${a}) : (-${b}) =`,ans:String(q),hints:[`Stejná znaménka → výsledek kladný.`,`${a} : ${b}`],skill:'calc'};})(),
+   (()=>{const a=ri(2,9),b=ri(2,6);return{text:`${['Vypočítej','Spočítej','Urči','Kolik je'][ri(0,3)]}:\n${a} × (-${b}) + ${a} =`,ans:String(-a*b+a),hints:[`Nejdřív násobení: ${a}×(-${b})=${-a*b}, pak přičti ${a}.`,`${-a*b}+${a} = ${-a*b+a}`],skill:'calc'};})(),
+   (()=>{const dluh=ri(3,8),mes=ri(3,6);return{text:[`Každý měsíc klesne stav chrámové pokladnice o ${dluh} Kč (tedy -${dluh}).\nJaký je stav po ${mes} ${skl(mes,'měsíci','měsících','měsících')}? (Kč)`,`Každý měsíc se zadlužíš o ${dluh} Kč (tedy -${dluh}).\nJaký je stav po ${mes} ${skl(mes,'měsíci','měsících','měsících')}? (Kč)`,`Z truhlice ubývá ${dluh} Kč měsíčně (tedy -${dluh}).\nKolik Kč v ní bude po ${mes} ${skl(mes,'měsíci','měsících','měsících')}?`][ri(0,2)],ans:String(-dluh*mes),hints:[`${mes} × (-${dluh}).`,`-(${mes} × ${dluh})`],skill:'anal'};})()
   ]
  },
  {
@@ -1059,12 +1083,13 @@ const AREAS = [
   intro:'Vír mrazu míchá kladná i záporná racionální čísla. Udrž si v hlavě znaménka i čárky.',
   tc:6,
   tasks:()=>[
-   (()=>{const a=ri(11,49)/10,b=ri(11,49)/10;const ans=Math.round((-a+b)*10)/10;return{text:`Vypočítej:\n-${cz(a)} + ${cz(b)} =`,ans:String(ans),hints:[`Různá znaménka — odečti menší od většího, znaménko většího.`,`Výsledek: ${ans}`],skill:'calc'};})(),
-   (()=>{const a=ri(11,49)/10,b=ri(11,49)/10;const ans=Math.round((-a-b)*10)/10;return{text:`Vypočítej:\n-${cz(a)} - ${cz(b)} =`,ans:String(ans),hints:[`Obě záporná — sčítej a výsledek je záporný.`,`-(${cz(a)} + ${cz(b)})`],skill:'calc'};})(),
-   (()=>{const d=ri(3,7),a=ri(1,d-1);const g=gcd(a,d);const ans=d/g===1?String(-(a/g)):`-${a/g}/${d/g}`;return{text:`Vypočítej (zkrať):\n-${2*a}/${2*d} =\n(zkrácený tvar se znaménkem)`,ans,hints:[`Zkrať a zachovej znaménko mínus.`,`-${2*a}/${2*d} → -${a}/${d}`],skill:'calc'};})(),
-   (()=>{const a=ri(2,9),b=ri(11,29)/10;const ans=Math.round(-a*b*10)/10;return{text:`Vypočítej:\n(-${a}) × ${cz(b)} =`,ans:String(ans),hints:[`Mínus × plus = mínus.`,`-(${a} × ${cz(b)})`],skill:'calc'};})(),
+   (()=>{const a=ri(11,49)/10,b=ri(11,49)/10;const ans=Math.round((-a+b)*10)/10;return{text:`${['Vypočítej','Spočítej','Urči','Kolik je'][ri(0,3)]}:\n-${cz(a)} + ${cz(b)} =`,ans:String(ans),hints:[`Různá znaménka — odečti menší od většího, znaménko většího.`,`Výsledek: ${ans}`],skill:'calc'};})(),
+   (()=>{const a=ri(11,49)/10,b=ri(11,49)/10;const ans=Math.round((-a-b)*10)/10;return{text:`${['Vypočítej','Spočítej','Urči','Kolik je'][ri(0,3)]}:\n-${cz(a)} - ${cz(b)} =`,ans:String(ans),hints:[`Obě záporná — sčítej a výsledek je záporný.`,`-(${cz(a)} + ${cz(b)})`],skill:'calc'};})(),
+   (()=>{const d=ri(3,7),a=ri(1,d-1);const g=gcd(a,d);const ans=d/g===1?String(-(a/g)):`-${a/g}/${d/g}`;return{text:`${['Vypočítej','Spočítej','Urči'][ri(0,2)]} (zkrať):\n-${2*a}/${2*d} =\n(zkrácený tvar se znaménkem)`,ans,hints:[`Zkrať a zachovej znaménko mínus.`,`-${2*a}/${2*d} → -${a}/${d}`],skill:'calc'};})(),
+   (()=>{const a=ri(2,9),b=ri(11,29)/10;const ans=Math.round(-a*b*10)/10;return{text:`${['Vypočítej','Spočítej','Urči','Kolik je'][ri(0,3)]}:\n(-${a}) × ${cz(b)} =`,ans:String(ans),hints:[`Mínus × plus = mínus.`,`-(${a} × ${cz(b)})`],skill:'calc'};})(),
    (()=>{const a=ri(2,8);return{text:`Jaké číslo je opačné k -${a}?`,ans:String(a),hints:[`Opačné číslo má opačné znaménko.`,`-(-${a}) = ${a}`],skill:'anal'};})(),
-   (()=>{const a=ri(11,79)/10;return{text:`Jaká je absolutní hodnota čísla -${cz(a)}?\n|-${cz(a)}| =`,ans:String(a),hints:[`Absolutní hodnota je vzdálenost od nuly — vždy nezáporná.`,`Výsledek: ${a}`],skill:'anal'};})()
+   (()=>{const a=ri(11,79)/10;return{text:`Jaká je absolutní hodnota čísla -${cz(a)}?\n|-${cz(a)}| =`,ans:String(a),hints:[`Absolutní hodnota je vzdálenost od nuly — vždy nezáporná.`,`Výsledek: ${a}`],skill:'anal'};})(),
+   (()=>{const hloubka=ri(2,6),klesa=ri(2,5);return{text:[`V podzemní mrazírně klesá teplota o ${klesa} °C na každé patro. Sestoupíš o ${hloubka} ${skl(hloubka,'patro','patra','pater')}.\nO kolik °C se ochladí? (napiš záporné číslo)`,`Každé patro dolů ubere ${klesa} °C. Klesneš o ${hloubka} ${skl(hloubka,'patro','patra','pater')}.\nJaká je změna teploty? (záporné číslo)`][ri(0,1)],ans:String(-hloubka*klesa),hints:[`Klesání → záporná změna: ${hloubka} × (-${klesa}).`,`-(${hloubka} × ${klesa})`],skill:'anal'};})()
   ]
  }
  ]
@@ -1081,11 +1106,11 @@ const AREAS = [
   intro:'Strážce vah rozděluje poklady ve správném poměru. Ukaž, že poměrům rozumíš.',
   mc:true, tc:6,
   tasks:()=>[
-   (()=>{const g=ri(2,6),a=ri(1,5),b=ri(1,5);return{text:`Zkrať poměr a napiš PRVNÍ člen:\n${a*g} : ${b*g}`,ans:String(a),hints:[`Vyděl oba členy číslem ${g}.`,`${a*g} : ${g}`],skill:'calc'};})(),
-   (()=>{const g=ri(2,6),a=ri(1,5),b=ri(1,5);return{text:`Zkrať poměr a napiš DRUHÝ člen:\n${a*g} : ${b*g}`,ans:String(b),hints:[`Vyděl oba členy společným dělitelem ${g}.`,`${b*g} : ${g}`],skill:'calc'};})(),
-   (()=>{const a=ri(2,6),b=ri(2,6);return{text:`Jaký je převrácený poměr k ${a} : ${b}?\nNapiš jeho PRVNÍ člen.`,ans:String(b),hints:[`Převrácený poměr má členy prohozené.`,`${b} : ${a}`],skill:'anal'};})(),
+   (()=>{const g=ri(2,6),a=ri(1,5),b=ri(1,5);return{text:`Zkrať poměr a napiš PRVNÍ člen:\n${a*g} : ${b*g}`,ans:String(a),distractors:(a*g-g!==a?[String(a*g-g)]:[]),hints:[`Vyděl oba členy číslem ${g}.`,`${a*g} : ${g}`],skill:'calc'};})(),
+   (()=>{const g=ri(2,6),a=ri(1,5),b=ri(1,5);return{text:`Zkrať poměr a napiš DRUHÝ člen:\n${a*g} : ${b*g}`,ans:String(b),distractors:(b*g-g!==b?[String(b*g-g)]:[]),hints:[`Vyděl oba členy společným dělitelem ${g}.`,`${b*g} : ${g}`],skill:'calc'};})(),
+   (()=>{const a=ri(2,6),b=ri(2,6);return{text:`Jaký je převrácený poměr k ${a} : ${b}?\nNapiš jeho PRVNÍ člen.`,ans:String(b),distractors:(a!==b?[String(a)]:[]),hints:[`Převrácený poměr má členy prohozené.`,`${b} : ${a}`],skill:'anal'};})(),
    (()=>{const a=ri(2,5),b=ri(2,5),cel=ri(2,5);const sum=a+b;const dil=cel;return{text:`Poměr ${a} : ${b}, jeden díl = ${dil}.\nJaká je celková hodnota? (součet obou částí)`,ans:String(sum*dil),hints:[`Počet dílů = ${a}+${b}=${sum}. Vynásob hodnotou dílu.`,`${sum} × ${dil}`],skill:'anal'};})(),
-   (()=>{const dil=ri(3,9),a=ri(2,5);return{text:`Poměr je ${a} : 1 a jeden díl má hodnotu ${dil}.\nJak velká je první část?`,ans:String(a*dil),hints:[`První část = ${a} ${skl(a,'díl','díly','dílů')}.`,`${a} × ${dil}`],skill:'anal'};})(),
+   (()=>{const dil=ri(3,9),a=ri(2,5);return{text:`Poměr je ${a} : 1 a jeden díl má hodnotu ${dil}.\nJak velká je první část?`,ans:String(a*dil),distractors:[String(dil)],hints:[`První část = ${a} ${skl(a,'díl','díly','dílů')}.`,`${a} × ${dil}`],skill:'anal'};})(),
    (()=>{const a=ri(2,6),b=ri(2,6);const g=gcd(a,b);return{text:`Je poměr ${a} : ${b} v základním tvaru?\n(napiš společného dělitele obou členů)`,ans:String(g),hints:[`NSD(${a}, ${b}). Je-li 1, poměr je základní.`,`Výsledek: ${g}`],skill:'anal'};})()
   ]
  },
@@ -1095,11 +1120,11 @@ const AREAS = [
   intro:'Pán karavany počítá zásoby na cestu pouští. Vyřeš trojčlenku — přímou i nepřímou.',
   tc:6,
   tasks:()=>[
-   (()=>{const k=ri(2,5),cena1=ri(2,8)*k;const ks=ri(2,6);return{text:`${k} ${skl(k,'sešit stojí','sešity stojí','sešitů stojí')} ${cena1} Kč.\nKolik stojí ${k*ks} stejných sešitů? (Kč)`,ans:String(cena1*ks),hints:[`Přímá úměrnost: víc kusů → víc peněz.`,`${cena1} : ${k} × ${k*ks}`],skill:'anal'};})(),
-   (()=>{const naJednu=ri(3,8),lidi=ri(2,5);return{text:`1 dělník vykope studnu za ${naJednu*lidi} dní.\nZa kolik dní ji vykope ${lidi} dělníků? (nepřímá úměrnost)`,ans:String(naJednu),hints:[`Nepřímá úměrnost: víc dělníků → méně dní.`,`${naJednu*lidi} : ${lidi}`],skill:'anal'};})(),
+   (()=>{const k=ri(2,5),cena1=ri(2,8)*k;const ks=ri(2,6);return{text:[`${k} ${skl(k,'svitek stojí','svitky stojí','svitků stojí')} ${cena1} Kč.\nKolik stojí ${k*ks} stejných svitků? (Kč)`,`Za ${k} ${skl(k,'chrámový svitek','chrámové svitky','chrámových svitků')} zaplatíš ${cena1} Kč.\nKolik stojí ${k*ks} takových svitků? (Kč)`][ri(0,1)],ans:String(cena1*ks),hints:[`Přímá úměrnost: víc kusů → víc peněz.`,`${cena1} : ${k} × ${k*ks}`],skill:'anal'};})(),
+   (()=>{const naJednu=ri(3,8),lidi=ri(2,5);return{text:[`Jeden dělník vykope studnu za ${naJednu*lidi} dní.\nZa kolik dní ji vykopou, když jich je ${lidi}? (nepřímá úměrnost)`,`Jeden kopáč ryje tajnou chodbu ${naJednu*lidi} dní.\nZa kolik dní bude hotová, když se jich sejde ${lidi}? (nepřímá úměrnost)`][ri(0,1)],ans:String(naJednu),hints:[`Nepřímá úměrnost: víc dělníků → méně dní.`,`${naJednu*lidi} : ${lidi}`],skill:'anal'};})(),
    (()=>{const naKm=ri(2,4),km=ri(3,8);return{text:`Auto spotřebuje ${naKm} litry na 10 km.\nKolik litrů spotřebuje na ${km*10} km?`,ans:String(naKm*km),hints:[`Přímá úměrnost.`,`${naKm} × ${km}`],skill:'anal'};})(),
    (()=>{const rychlost=ri(2,5),cas=ri(2,6);const draha=rychlost*cas;return{text:`Při rychlosti ${rychlost*10} km/h trvá cesta ${cas} h.\nJak dlouho potrvá při dvojnásobné rychlosti? (h)`,ans:cz(cas/2),hints:[`Nepřímá úměrnost: 2× rychleji → poloviční čas.`,`${cas} : 2`],skill:'anal'};})(),
-   (()=>{const balik=ri(2,5),koni=ri(2,4),dny=ri(2,5);return{text:`${koni} koně snědí ${balik*koni} ${skl(balik*koni,'balík','balíky','balíků')} sena za den.\nKolik balíků sní za ${dny} ${skl(dny,'den','dny','dní')}?`,ans:String(balik*koni*dny),hints:[`Přímá úměrnost s počtem dní.`,`${balik*koni} × ${dny}`],skill:'anal'};})(),
+   (()=>{const balik=ri(2,5),koni=ri(2,4),dny=ri(2,5);return{text:[`${koni} koně snědí ${balik*koni} ${skl(balik*koni,'balík','balíky','balíků')} sena za den.\nKolik balíků sní za ${dny} ${skl(dny,'den','dny','dní')}?`,`Karavanní velbloudi spořádají ${balik*koni} ${skl(balik*koni,'balík','balíky','balíků')} pícniny denně.\nKolik balíků to je za ${dny} ${skl(dny,'den','dny','dní')}?`][ri(0,1)],ans:String(balik*koni*dny),hints:[`Přímá úměrnost s počtem dní.`,`${balik*koni} × ${dny}`],skill:'anal'};})(),
    (()=>{const za3=ri(2,5)*3;const ks=za3/3;return{text:`Za 3 hodiny práce dostaneš ${za3*10} Kč.\nKolik dostaneš za 5 hodin? (Kč)`,ans:String(ks*10*5),hints:[`Spočítej odměnu za 1 hodinu, pak × 5.`,`${za3*10} : 3 × 5`],skill:'anal'};})()
   ]
  },
@@ -1109,7 +1134,7 @@ const AREAS = [
   intro:'Kartograf kreslí mapu chrámu v měřítku. Přepočítej vzdálenosti mezi mapou a skutečností.',
   tc:6,
   tasks:()=>[
-   (()=>{const mer=[100,200,500][ri(0,2)];const cm=ri(2,8);return{text:`Měřítko mapy 1 : ${mer}.\nÚsečka na mapě měří ${cm} cm. Kolik cm je to ve skutečnosti?`,ans:String(cm*mer),hints:[`Skutečnost = mapa × měřítko.`,`${cm} × ${mer}`],skill:'anal'};})(),
+   (()=>{const mer=[100,200,500][ri(0,2)];const cm=ri(2,8);return{text:[`Mapa chrámového komplexu má měřítko 1 : ${mer}.\nÚsečka na mapě měří ${cm} cm. Kolik cm je to ve skutečnosti?`,`Kartograf kreslí plán chodeb v měřítku 1 : ${mer}.\nNa plánu je úsek ${cm} cm. Kolik cm měří doopravdy?`][ri(0,1)],ans:String(cm*mer),hints:[`Skutečnost = mapa × měřítko.`,`${cm} × ${mer}`],skill:'anal'};})(),
    (()=>{const mer=[100,1000][ri(0,1)];const cm=ri(2,9);const skut=cm*mer;const m=skut/100;return{text:`Měřítko 1 : ${mer}. Na mapě ${cm} cm.\nKolik je to ve skutečnosti v METRECH?`,ans:cz(m),hints:[`Nejdřív cm ve skutečnosti, pak : 100 na metry.`,`${cm} × ${mer} : 100`],skill:'anal'};})(),
    (()=>{const mer=[100,200,500][ri(0,2)];const cmMap=ri(2,8);const real=cmMap*mer;return{text:`Měřítko 1 : ${mer}. Ve skutečnosti ${real} cm.\nKolik cm to měří na mapě?`,ans:String(cmMap),hints:[`Mapa = skutečnost : měřítko.`,`${real} : ${mer}`],skill:'anal'};})(),
    (()=>{const km=ri(2,9);const cm=km*2;return{text:`Měřítko 1 : 100000 znamená 1 cm = 1 km.\nVzdálenost ${km} km je na mapě kolik cm?`,ans:String(km),hints:[`Při 1:100000 platí 1 cm = 1 km.`,`${km} km → ${km} cm`],skill:'anal'};})(),
@@ -1131,12 +1156,12 @@ const AREAS = [
   intro:'Hromady zlatých mincí čekají na rozdělení. Hlídač zkouší, jestli umíš počítat procenta.',
   mc:true, tc:6,
   tasks:()=>[
-   (()=>{const z=ri(2,9)*100,p=[10,20,25,50][ri(0,3)];return{text:`Vypočítej:\n${p} % z ${z} =`,ans:String(z*p/100),hints:[`1 % = ${z}/100 = ${z/100}. Pak × ${p}.`,`${z} : 100 × ${p}`],skill:'calc'};})(),
-   (()=>{const z=ri(2,9)*10,p=[10,20,30,40,50][ri(0,4)];return{text:`Vypočítej:\n${p} % z ${z} =`,ans:String(z*p/100),hints:[`1 % = ${z/100}.`,`${z/100} × ${p}`],skill:'calc'};})(),
-   (()=>{const z=ri(2,9)*100;return{text:`Kolik je 1 % z ${z}?`,ans:String(z/100),hints:[`1 % = celek : 100.`,`${z} : 100`],skill:'calc'};})(),
+   (()=>{const z=ri(2,9)*100,p=[10,20,25,50][ri(0,3)];return{text:`${['Vypočítej','Spočítej','Urči','Kolik je'][ri(0,3)]}:\n${p} % z ${z} =`,ans:String(z*p/100),distractors:(z*p/100!==z/p?[String(z/p)]:[]),hints:[`1 % = ${z}/100 = ${z/100}. Pak × ${p}.`,`${z} : 100 × ${p}`],skill:'calc'};})(),
+   (()=>{const z=ri(2,9)*10,p=[10,20,30,40,50][ri(0,4)];return{text:`${['Vypočítej','Spočítej','Urči','Kolik je'][ri(0,3)]}:\n${p} % z ${z} =`,ans:String(z*p/100),hints:[`1 % = ${z/100}.`,`${z/100} × ${p}`],skill:'calc'};})(),
+   (()=>{const z=ri(2,9)*100;return{text:`Kolik je 1 % z ${z}?`,ans:String(z/100),distractors:[String(z/10)],hints:[`1 % = celek : 100.`,`${z} : 100`],skill:'calc'};})(),
    (()=>{const z=ri(2,8)*100;return{text:`Kolik je 100 % z ${z}?`,ans:String(z),hints:[`100 % = celek.`,`Výsledek: ${z}`],skill:'anal'};})(),
    (()=>{const z=ri(2,8)*200;return{text:`Kolik je 50 % z ${z}?`,ans:String(z/2),hints:[`50 % = polovina.`,`${z} : 2`],skill:'calc'};})(),
-   (()=>{const z=ri(2,6)*100;return{text:`Kolik je 75 % z ${z}?`,ans:String(z*3/4),hints:[`75 % = tři čtvrtiny.`,`${z} : 4 × 3`],skill:'calc'};})()
+   (()=>{const z=ri(2,6)*100;return{text:`Kolik je 75 % z ${z}?`,ans:String(z*3/4),distractors:[String(z/4)],hints:[`75 % = tři čtvrtiny.`,`${z} : 4 × 3`],skill:'calc'};})()
   ]
  },
  {
@@ -1149,8 +1174,8 @@ const AREAS = [
    (()=>{const cel=ri(2,8)*50;const cast=cel/2;return{text:`${cast} je kolik procent z ${cel}?`,ans:'50',hints:[`Je to přesně polovina.`,`${cast} : ${cel} × 100`],skill:'anal'};})(),
    (()=>{const p=[10,20,25,50][ri(0,3)];const cast=ri(2,9)*p/100*100;const zaklad=cast*100/p;return{text:`${cast} je ${p} % z neznámého čísla.\nJaký je celek (základ)?`,ans:String(zaklad),hints:[`Základ = část : procenta × 100.`,`${cast} : ${p} × 100`],skill:'anal'};})(),
    (()=>{const zaklad=ri(2,9)*100;const cast=zaklad/100;return{text:`${cast} je 1 % z nějakého čísla.\nJaký je ten celek?`,ans:String(zaklad),hints:[`Celek = 1 % × 100.`,`${cast} × 100`],skill:'anal'};})(),
-   (()=>{const cel=ri(2,8)*20;const cast=cel/4;return{text:`Žák získal ${cast} z ${cel} bodů.\nKolik procent to je?`,ans:'25',hints:[`Je to čtvrtina.`,`${cast} : ${cel} × 100`],skill:'anal'};})(),
-   (()=>{const cena=ri(2,8)*100;const sleva=cena*20/100;const nova=cena-sleva;return{text:`Bota stála ${cena} Kč, sleva 20 %.\nKolik Kč stojí po slevě?`,ans:String(nova),hints:[`Spočítej 20 % a odečti od ceny.`,`${cena} - ${cena} : 100 × 20`],skill:'anal'};})()
+   (()=>{const cel=ri(2,8)*20;const cast=cel/4;return{text:[`Badatel získal ${cast} z ${cel} bodů zkoušky.\nKolik procent to je?`,`Ze ${cel} bodů hádanky jsi získal ${cast}.\nKolik procent to je?`][ri(0,1)],ans:'25',hints:[`Je to čtvrtina.`,`${cast} : ${cel} × 100`],skill:'anal'};})(),
+   (()=>{const cena=ri(2,8)*100;const sleva=cena*20/100;const nova=cena-sleva;return{text:[`Amulet v bazaru stál ${cena} Kč, kupec dal slevu 20 %.\nKolik Kč stojí po slevě?`,`Bota stála ${cena} Kč, sleva 20 %.\nKolik Kč stojí po slevě?`][ri(0,1)],ans:String(nova),hints:[`Spočítej 20 % a odečti od ceny.`,`${cena} - ${cena} : 100 × 20`],skill:'anal'};})()
   ]
  },
  {
@@ -1159,9 +1184,9 @@ const AREAS = [
   intro:'Pokladník faraona vede účty celé říše. Vyřeš slovní úlohy s procenty bez chyby.',
   tc:6,
   tasks:()=>[
-   (()=>{const cena=ri(2,9)*100,p=[10,20,25][ri(0,2)];const navic=cena*p/100;return{text:`Zboží za ${cena} Kč zdražilo o ${p} %.\nO kolik Kč se zvýšila cena?`,ans:String(navic),hints:[`Spočítej ${p} % z ceny.`,`${cena} : 100 × ${p}`],skill:'anal'};})(),
+   (()=>{const cena=ri(2,9)*100,p=[10,20,25][ri(0,2)];const navic=cena*p/100;return{text:[`Zboží za ${cena} Kč zdražilo o ${p} %.\nO kolik Kč se zvýšila cena?`,`Kupec zvedl cenu koření z ${cena} Kč o ${p} %.\nO kolik Kč se cena zvýšila?`][ri(0,1)],ans:String(navic),hints:[`Spočítej ${p} % z ceny.`,`${cena} : 100 × ${p}`],skill:'anal'};})(),
    (()=>{const cena=ri(2,9)*100,p=[10,20,25][ri(0,2)];const nova=cena+cena*p/100;return{text:`Zboží za ${cena} Kč zdražilo o ${p} %.\nKolik Kč stojí teď?`,ans:String(nova),hints:[`Přičti zdražení k původní ceně.`,`${cena} + ${cena} : 100 × ${p}`],skill:'anal'};})(),
-   (()=>{const zaci=ri(2,5)*20;const nemoc=zaci*15/100;return{text:`Ve škole je ${zaci} žáků, 15 % onemocnělo.\nKolik žáků chybí?`,ans:String(nemoc),hints:[`15 % z ${zaci}.`,`${zaci} : 100 × 15`],skill:'anal'};})(),
+   (()=>{const zaci=ri(2,5)*20;const nemoc=zaci*15/100;return{text:[`Výpravu tvoří ${zaci} nosičů, 15 % z nich onemocnělo.\nKolik nosičů chybí?`,`V táboře je ${zaci} dělníků, 15 % onemocnělo.\nKolik jich chybí?`][ri(0,1)],ans:String(nemoc),hints:[`15 % z ${zaci}.`,`${zaci} : 100 × 15`],skill:'anal'};})(),
    (()=>{const puv=ri(2,8)*100;const nova=puv*80/100;return{text:`Cena ${puv} Kč klesla o 20 %.\nKolik Kč je nová cena?`,ans:String(nova),hints:[`Po slevě zůstává 80 %.`,`${puv} : 100 × 80`],skill:'anal'};})(),
    (()=>{const cena=ri(2,8)*100;const dph=cena*21/100;return{text:`Cena bez DPH je ${cena} Kč, DPH 21 %.\nKolik Kč je samotné DPH?`,ans:String(dph),hints:[`21 % z ${cena}.`,`${cena} : 100 × 21`],skill:'anal'};})(),
    (()=>{const sporeni=ri(2,8)*1000;const urok=sporeni*2/100;return{text:`Uložíš ${sporeni} Kč s ročním úrokem 2 %.\nKolik Kč úroku dostaneš za rok?`,ans:String(urok),hints:[`2 % z ${sporeni}.`,`${sporeni} : 100 × 2`],skill:'anal'};})()
@@ -1214,7 +1239,8 @@ const AREAS = [
    (()=>{return{svg:svgTriangle('obecny'),text:`Shodují se v jedné STRANĚ a DVOU úhlech k ní přilehlých.\nKterá věta?\n(sss / sus / usu)`,ans:'usu',hints:[`úhel-strana-úhel.`,`Výsledek: usu`],skill:'craft'};})(),
    (()=>{const a=ri(40,80),b=ri(30,80);const c=180-a-b;if(c<10){return{svg:svgTriangle('obecny'),text:`Trojúhelník: α = 50°, β = 60°.\nJaký je úhel γ? (°)`,ans:'70',hints:[`Součet úhlů = 180°.`,`180 - 50 - 60`],skill:'geo'};}return{svg:svgTriangle('obecny'),text:`Trojúhelník: α = ${a}°, β = ${b}°.\nJaký je úhel γ? (°)`,ans:String(c),hints:[`Součet vnitřních úhlů = 180°.`,`180 - ${a} - ${b}`],skill:'geo'};})(),
    (()=>{const a=ri(3,9);return{svg:svgTriangle('rovnostr'),text:`Rovnostranný trojúhelník má stranu ${a} cm.\nJaký je jeho obvod? (cm)`,ans:String(3*a),hints:[`Všechny strany stejné.`,`3 × ${a}`],skill:'geo'};})(),
-   (()=>{return{text:`Shodné útvary mají stejný tvar i stejnou…\n(napiš jedno slovo: velikost / barvu)`,ans:'velikost',hints:[`Shodnost = stejný tvar i rozměry.`,`Výsledek: velikost`],skill:'craft'};})()
+   (()=>{return{text:`Shodné útvary mají stejný tvar i stejnou…\n(napiš jedno slovo: velikost / barvu)`,ans:'velikost',hints:[`Shodnost = stejný tvar i rozměry.`,`Výsledek: velikost`],skill:'craft'};})(),
+   (()=>{const s=ri(3,9);return{text:[`Podstava obětního oltáře je rovnostranný trojúhelník se stranou ${s} m.\nKolik metrů má jeho obvod? (m)`,`Tři sochy stojí ve vrcholech rovnostranného trojúhelníku o straně ${s} m.\nJak dlouhá je šňůra napnutá kolem všech tří? (m)`][ri(0,1)],ans:String(3*s),hints:[`Rovnostranný trojúhelník: 3 stejné strany.`,`3 × ${s}`],skill:'geo'};})()
   ]
  }
  ]
@@ -1249,7 +1275,7 @@ const AREAS = [
    (()=>{const a=ri(2,9),b=ri(2,9),c=ri(2,9);return{svg:svgCuboid(a,b,c),text:`Kvádr: a = ${a} cm, b = ${b} cm, c = ${c} cm.\nVypočítej objem V. (cm³)`,ans:String(a*b*c),hints:[`V = a × b × c.`,`${a} × ${b} × ${c}`],skill:'geo'};})(),
    (()=>{const a=ri(2,9);return{svg:svgCuboid(a,a,a),text:`Krychle s hranou a = ${a} cm.\nVypočítej povrch S. (cm²)`,ans:String(6*a*a),hints:[`Krychle má 6 stejných stěn.`,`6 × ${a} × ${a}`],skill:'geo'};})(),
    (()=>{const a=ri(2,7),b=ri(2,7),c=ri(2,7);return{svg:svgCuboid(a,b,c),text:`Kvádr: a = ${a}, b = ${b}, c = ${c} cm.\nVypočítej povrch S. (cm²)`,ans:String(2*(a*b+a*c+b*c)),hints:[`S = 2 × (ab + ac + bc).`,`2 × (${a*b} + ${a*c} + ${b*c})`],skill:'geo'};})(),
-   (()=>{const a=ri(2,6),b=ri(2,6),c=ri(2,6);return{svg:svgCuboid(a,b,c),text:`Akvárium tvaru kvádru: ${a} dm × ${b} dm × ${c} dm.\nKolik litrů vody se vejde?\n(1 dm³ = 1 litr)`,ans:String(a*b*c),hints:[`Objem v dm³ = počet litrů.`,`${a} × ${b} × ${c}`],skill:'anal'};})(),
+   (()=>{const a=ri(2,6),b=ri(2,6),c=ri(2,6);return{svg:svgCuboid(a,b,c),text:[`Kamenná cisterna tvaru kvádru: ${a} dm × ${b} dm × ${c} dm.\nKolik litrů vody se do ní vejde?\n(1 dm³ = 1 litr)`,`Obětní nádrž tvaru kvádru má rozměry ${a} dm × ${b} dm × ${c} dm.\nKolik litrů vody pojme?\n(1 dm³ = 1 litr)`][ri(0,1)],ans:String(a*b*c),hints:[`Objem v dm³ = počet litrů.`,`${a} × ${b} × ${c}`],skill:'anal'};})(),
    (()=>{const a=ri(2,8),b=ri(2,8),c=ri(2,8),V=a*b*c;return{svg:svgCuboid(a,b,c),text:`Kvádr má objem ${V} cm³ a podstavu ${a} × ${b} cm.\nJak vysoký je (hrana c)? (cm)`,ans:String(c),hints:[`c = V : (a × b).`,`${V} : ${a*b}`],skill:'anal'};})()
   ]
  },
@@ -1259,9 +1285,9 @@ const AREAS = [
   intro:'Na vrcholu pyramidy stojí kamenný Strážce. Zná celou matematiku 7. ročníku. Poraz ho a poklad je tvůj!',
   tc:6,
   tasks:()=>[
-   (()=>{const d=ri(5,10),a=ri(1,d-2),b=ri(1,d-a-1);const num=a+b,g=gcd(num,d);const ans=d/g===1?String(num/g):`${num/g}/${d/g}`;return{text:`Vypočítej (zkrať):\n${a}/${d} + ${b}/${d} =`,ans,hints:[`Stejný jmenovatel — sečti čitatele.`,`Výsledek: ${ans}`],skill:'calc'};})(),
-   (()=>{const a=ri(2,12),b=ri(2,9);return{text:`Vypočítej:\n(-${a}) × ${b} =`,ans:String(-a*b),hints:[`Mínus × plus = mínus.`,`Výsledek: ${-a*b}`],skill:'calc'};})(),
-   (()=>{const z=ri(2,8)*100,p=[10,20,25,50][ri(0,3)];return{text:`Vypočítej:\n${p} % z ${z} =`,ans:String(z*p/100),hints:[`1 % = ${z/100}, pak × ${p}.`,`Výsledek: ${z*p/100}`],skill:'anal'};})(),
+   (()=>{const d=ri(5,10),a=ri(1,d-2),b=ri(1,d-a-1);const num=a+b,g=gcd(num,d);const ans=d/g===1?String(num/g):`${num/g}/${d/g}`;return{text:`${['Vypočítej','Spočítej','Urči'][ri(0,2)]} (zkrať):\n${a}/${d} + ${b}/${d} =`,ans,hints:[`Stejný jmenovatel — sečti čitatele.`,`Výsledek: ${ans}`],skill:'calc'};})(),
+   (()=>{const a=ri(2,12),b=ri(2,9);return{text:`${['Vypočítej','Spočítej','Urči','Kolik je'][ri(0,3)]}:\n(-${a}) × ${b} =`,ans:String(-a*b),hints:[`Mínus × plus = mínus.`,`Výsledek: ${-a*b}`],skill:'calc'};})(),
+   (()=>{const z=ri(2,8)*100,p=[10,20,25,50][ri(0,3)];return{text:`${['Vypočítej','Spočítej','Urči','Kolik je'][ri(0,3)]}:\n${p} % z ${z} =`,ans:String(z*p/100),hints:[`1 % = ${z/100}, pak × ${p}.`,`Výsledek: ${z*p/100}`],skill:'anal'};})(),
    (()=>{const a=ri(4,12),v=ri(3,9);return{svg:svgParallelogram(a,v),text:`Rovnoběžník: a = ${a} cm, v = ${v} cm.\nVypočítej obsah S. (cm²)`,ans:String(a*v),hints:[`S = a × v.`,`Výsledek: ${a*v}`],skill:'geo'};})(),
    (()=>{const a=ri(2,8),b=ri(2,8),c=ri(2,8);return{svg:svgCuboid(a,b,c),text:`Kvádr ${a} × ${b} × ${c} cm.\nVypočítej objem. (cm³)`,ans:String(a*b*c),hints:[`V = a × b × c.`,`Výsledek: ${a*b*c}`],skill:'geo'};})(),
    (()=>{const x=ri(2,9),y=ri(2,9);return{svg:svgPointSym(),text:`Bod A [${x}, ${y}], středová souměrnost podle počátku.\nx-ová souřadnice obrazu A'?`,ans:String(-x),hints:[`Obě souřadnice mění znaménko.`,`Výsledek: ${-x}`],skill:'geo'};})()
@@ -1313,6 +1339,7 @@ function earnCredits(n){
  n=Number(n);
  if(!isFinite(n)||n<=0)return;
  n=Math.floor(n);
+ if(n>=10&&typeof RPGSound!=='undefined')RPGSound.play('coin');
  if(typeof RPGWallet!=='undefined'){RPGWallet.earn(n);}
  else{if(typeof S.credits!=='number'||!isFinite(S.credits)||S.credits<0)S.credits=0;S.credits=Math.floor(S.credits)+n;saveS();}
  _updateCreditsUI();
@@ -1334,26 +1361,34 @@ function sanitizeCosmetics(){
  });
 }
 function _activeCosmetics(){return(typeof RPGWallet!=='undefined')?RPGWallet.get().cosmetics:S.cosmetics;}
+/* ── Peněženka: pomocníci pro perky a životní countery (graceful bez modulu) ── */
+function wPerk(p){return typeof RPGWallet!=='undefined'&&RPGWallet.hasPerk&&RPGWallet.hasPerk(p);}
+function wBump(k,n){if(typeof RPGWallet!=='undefined'&&RPGWallet.bumpLife)RPGWallet.bumpLife(k,n).forEach(achToast);}
+function wMax(k,v){if(typeof RPGWallet!=='undefined'&&RPGWallet.setLifeMax)RPGWallet.setLifeMax(k,v).forEach(achToast);}
+function wCritBonus(){return wPerk('critcredit')?2:0;}
+function wCatalog(){return(typeof RPGWallet!=='undefined'&&RPGWallet.itemsAll)?RPGWallet.itemsAll():SHOP_ITEMS;}
+function trGuard(){TR.guardJust=false;if(TR.streak>0&&!TR.guardUsed&&typeof RPGWallet!=='undefined'&&RPGWallet.hasPowerup&&RPGWallet.hasPowerup('pu-study-guide')){TR.guardUsed=true;TR.guardJust=true;return true;}return false;}
 function applyCosmetics(){
  const cos=_activeCosmetics()||S.cosmetics;
  if(!cos)return;
  const av=document.getElementById('pr-avatar');
- if(av){av.className='';const b=SHOP_ITEMS.find(i=>i.id===cos.active?.border&&i.cat==='border');if(b)av.classList.add(b.cssKey);}
+ if(av){av.className='';const b=wCatalog().find(i=>i.id===cos.active?.border&&i.cat==='border');if(b)av.classList.add(b.cssKey);}
  const nm=document.getElementById('pr-name');const mnm=document.getElementById('map-name');
- ['nm-cyan','nm-gold','nm-green','nm-purple'].forEach(c=>{nm&&nm.classList.remove(c);mnm&&mnm.classList.remove(c);});
- const bg=SHOP_ITEMS.find(i=>i.id===cos.active?.badge&&i.cat==='badge');
+ [nm,mnm].forEach(el=>{if(!el)return;[...el.classList].filter(c=>c.startsWith('nm-')).forEach(c=>el.classList.remove(c));});
+ const bg=wCatalog().find(i=>i.id===cos.active?.badge&&i.cat==='badge');
  if(bg){nm&&nm.classList.add(bg.cssKey);mnm&&mnm.classList.add(bg.cssKey);}
- const th=SHOP_ITEMS.find(i=>i.id===cos.active?.theme&&i.cat==='theme');
+ const th=wCatalog().find(i=>i.id===cos.active?.theme&&i.cat==='theme');
  document.documentElement.dataset.theme=th&&th.cssKey?th.cssKey:'';
  const spMod=window.RPGSprites9||window.RPGSprites8||window.RPGSprites7||window.RPGSprites6;
  if(spMod&&typeof spMod.setSkin==='function')spMod.setSkin(cos.active?.skin||null);
+ if(typeof RPGWallet!=='undefined'&&RPGWallet.renderTitlePet)RPGWallet.renderTitlePet({nameEl:document.getElementById('pr-name'),mapNameEl:document.getElementById('map-name'),avatarEl:document.getElementById('pr-avatar')});
  _updateCreditsUI();
  renderShop();
 }
 function renderShop(){
  const grid=document.getElementById('shop-grid');if(!grid)return;
  const bal=_walletBal();
- const items=SHOP_ITEMS.filter(i=>i.cat===_shopCat);
+ const items=((typeof RPGWallet!=='undefined'&&RPGWallet.items)?RPGWallet.items():SHOP_ITEMS).filter(i=>i.cat===_shopCat);
  grid.innerHTML=items.map(item=>{
   const owned=(typeof RPGWallet!=='undefined')?RPGWallet.owns(item.id)||(item.price===0):(S.cosmetics&&S.cosmetics.owned&&S.cosmetics.owned.includes(item.id))||item.price===0;
   if(item.cat==='powerup'){
@@ -1413,10 +1448,12 @@ let S = {name:'HRDINA',xp:0,level:1,attrs:{calc:0,geo:0,anal:0,craft:0},done:{},
 let GODMODE=false;
 
 function saveS(){localStorage.setItem(SAVE_KEY,JSON.stringify(S));if(window.RPGCloud&&RPGCloud.push)RPGCloud.push(SAVE_KEY,S);}
-function loadS(){const r=localStorage.getItem(SAVE_KEY);if(!r)return false;try{S=JSON.parse(r);}catch(e){return false;}if(!S||typeof S!=='object'){S={name:'HRDINA',xp:0,level:1,attrs:{calc:0,geo:0,anal:0,craft:0},done:{},inv:[],mastery:{},xpClaimed:{},teacherUnlocked:[]};return false;}if(typeof S.name!=='string')S.name='HRDINA';if(typeof S.xp!=='number'||!isFinite(S.xp))S.xp=0;if(typeof S.level!=='number'||!isFinite(S.level))S.level=1;if(!S.attrs||typeof S.attrs!=='object')S.attrs={calc:0,geo:0,anal:0,craft:0};if(!S.done||typeof S.done!=='object')S.done={};if(!Array.isArray(S.inv))S.inv=[];if(!S.mastery||typeof S.mastery!=='object')S.mastery={};if(!S.xpClaimed||typeof S.xpClaimed!=='object')S.xpClaimed={};if(!Array.isArray(S.teacherUnlocked))S.teacherUnlocked=[];if(!S.ach||typeof S.ach!=='object')S.ach={};if(!S.stats||typeof S.stats!=='object')S.stats={crits:0,trainCorrect:0,bestCombo:0};if(!S.streak||typeof S.streak!=='object')S.streak={count:0,last:''};if(!S.errs||typeof S.errs!=='object')S.errs={};if(!Array.isArray(S.errsSnap))S.errsSnap=[];if(typeof S.snapsMigrated!=='boolean')S.snapsMigrated=false;if(!S.settings||typeof S.settings!=='object')S.settings={reducedMotion:false};if(typeof S.credits!=='number'||!isFinite(S.credits)||S.credits<0)S.credits=0;S.credits=Math.floor(S.credits);if(!S.cosmetics||typeof S.cosmetics!=='object')S.cosmetics={owned:['theme-default','victory-default'],active:{border:null,badge:null,theme:'theme-default',victory:'victory-default'}};if(!Array.isArray(S.cosmetics.owned))S.cosmetics.owned=['theme-default','victory-default'];if(!S.cosmetics.active||typeof S.cosmetics.active!=='object')S.cosmetics.active={border:null,badge:null,theme:'theme-default',victory:'victory-default'};if(!S.creditsClaimed||typeof S.creditsClaimed!=='object')S.creditsClaimed={};sanitizeCosmetics();if(typeof RPGWallet!=='undefined')RPGWallet.migrateFrom(SAVE_KEY,S);return true;}
+function loadS(){const r=localStorage.getItem(SAVE_KEY);if(!r)return false;try{S=JSON.parse(r);}catch(e){return false;}if(!S||typeof S!=='object'){S={name:'HRDINA',xp:0,level:1,attrs:{calc:0,geo:0,anal:0,craft:0},done:{},inv:[],mastery:{},xpClaimed:{},teacherUnlocked:[]};return false;}if(typeof S.name!=='string')S.name='HRDINA';if(typeof S.xp!=='number'||!isFinite(S.xp))S.xp=0;if(typeof S.level!=='number'||!isFinite(S.level))S.level=1;if(!S.attrs||typeof S.attrs!=='object')S.attrs={calc:0,geo:0,anal:0,craft:0};if(!S.done||typeof S.done!=='object')S.done={};if(!Array.isArray(S.inv))S.inv=[];if(!S.mastery||typeof S.mastery!=='object')S.mastery={};if(!S.xpClaimed||typeof S.xpClaimed!=='object')S.xpClaimed={};if(!Array.isArray(S.teacherUnlocked))S.teacherUnlocked=[];if(!S.ach||typeof S.ach!=='object')S.ach={};if(!S.stats||typeof S.stats!=='object')S.stats={crits:0,trainCorrect:0,bestCombo:0};if(!S.streak||typeof S.streak!=='object')S.streak={count:0,last:''};if(!S.errs||typeof S.errs!=='object')S.errs={};if(!Array.isArray(S.errsSnap))S.errsSnap=[];if(typeof S.snapsMigrated!=='boolean')S.snapsMigrated=false;if(!S.settings||typeof S.settings!=='object')S.settings={reducedMotion:false};if(typeof S.credits!=='number'||!isFinite(S.credits)||S.credits<0)S.credits=0;S.credits=Math.floor(S.credits);if(!S.cosmetics||typeof S.cosmetics!=='object')S.cosmetics={owned:['theme-default','victory-default'],active:{border:null,badge:null,theme:'theme-default',victory:'victory-default'}};if(!Array.isArray(S.cosmetics.owned))S.cosmetics.owned=['theme-default','victory-default'];if(!S.cosmetics.active||typeof S.cosmetics.active!=='object')S.cosmetics.active={border:null,badge:null,theme:'theme-default',victory:'victory-default'};if(!S.creditsClaimed||typeof S.creditsClaimed!=='object')S.creditsClaimed={};if(!S.trainErrs||typeof S.trainErrs!=='object')S.trainErrs={};sanitizeMastery();sanitizeCosmetics();if(typeof RPGWallet!=='undefined')RPGWallet.migrateFrom(SAVE_KEY,S);return true;}
 function rmActive(){return((typeof RPGWallet!=='undefined')&&RPGWallet.getReducedMotion())||(S.settings&&S.settings.reducedMotion)||false;}
 function applyMotionPref(){document.documentElement.classList.toggle('reduced-motion',rmActive());}
 function toggleReducedMotion(on){if(!S.settings||typeof S.settings!=='object')S.settings={reducedMotion:false};S.settings.reducedMotion=on;if(typeof RPGWallet!=='undefined')RPGWallet.setReducedMotion(on);applyMotionPref();saveS();}
+function toggleSound(on){if(typeof RPGWallet!=='undefined')RPGWallet.setSoundOn(on);if(on&&typeof RPGSound!=='undefined')RPGSound.play('ok');}
+function toggleSponka(on){if(typeof RPGWallet!=='undefined')RPGWallet.setSponkaEnabled(on);}
 function calcLevel(){S.level=Math.floor(S.xp/100)+1;}
 
 // ── JUICE: XP award + level-up + floaties + vignette ──
@@ -1442,6 +1479,7 @@ function floatText(txt,x,y,color){
  setTimeout(()=>el.remove(),1150);
 }
 function levelUpBurst(lvl){
+ if(typeof RPGSound!=='undefined')RPGSound.play('level');
  const lu=document.getElementById('levelup');
  document.getElementById('lvl-txt').textContent='⬆ LEVEL '+lvl;
  lu.classList.remove('show');void lu.offsetWidth;lu.classList.add('show');
@@ -1460,8 +1498,10 @@ function levelUpBurst(lvl){
  setTimeout(()=>lu.classList.remove('show'),1700);
 }
 function victoryBurst(){
+ if(typeof RPGSound!=='undefined')RPGSound.play('boss');
  const b=document.createElement('div');
  b.className='victory-banner';b.textContent='⚔ VÍTĚZSTVÍ! ⚔';
+ {const v=wCatalog().find(i=>i.id===_activeCosmetics()?.active?.victory&&i.cat==='victory');if(v&&v.cssKey)b.classList.add(v.cssKey);}
  document.body.appendChild(b);void b.offsetWidth;b.classList.add('go');
  setTimeout(()=>b.remove(),1500);
  // golden coin rain
@@ -1503,6 +1543,7 @@ const ACH=[
  {id:'battle1',     ic:'⚔️', nm:'První klání',       desc:'Zúčastni se živého souboje'},
  {id:'battlewin',   ic:'🏆', nm:'Bojovník',           desc:'Vyhraj živý souboj (1. místo)'},
  {id:'battleflawless',ic:'💎',nm:'Bezchybný',        desc:'Všechny otázky správně v živém souboji'},
+ {id:'star1',     ic:'⭐', nm:'Oživovatel',         desc:'Získej první hvězdu opakování'},
 ];
 function unlockAch(id){
  if(S.ach&&S.ach[id])return;
@@ -1531,6 +1572,7 @@ function evalAch(ev){
  if((st.trainCorrect||0)>=50)unlockAch('train50');
  if((S.streak&&S.streak.count||0)>=3)unlockAch('streak3');
  if((S.streak&&S.streak.count||0)>=7)unlockAch('streak7');
+ if(Object.values(S.mastery||{}).some(m=>m&&(m.stars|0)>=1))unlockAch('star1');
  const br=ev.battleResult;
  if(br){unlockAch('battle1');if(br.rank===1)unlockAch('battlewin');if(br.correct>=br.q_count&&br.q_count>0)unlockAch('battleflawless');}
 }
@@ -1560,6 +1602,7 @@ function touchStreak(){
  const y=new Date(Date.now()-864e5).toISOString().slice(0,10);
  S.streak.count=(S.streak.last===y)?(S.streak.count||0)+1:1;
  S.streak.last=today;saveS();evalAch({});
+ wMax('streakMax',S.streak.count);
  const sc=S.streak.count;earnCredits(sc>=7?20:sc>=3?10:5);
 }
 
@@ -1628,6 +1671,30 @@ function recommendedMission(){
  return best;
 }
 function goPractice(mid){go('train');startTrain(mid);}
+// témata „k oživení" — mastered, jimž vypršel interval hvězdy; seřazeno dle přetažení
+function dueRevives(){
+ const out=[];
+ AREAS.forEach(ar=>ar.missions.forEach(m=>{
+  const rv=reviveState(m.id);
+  if(rv.due)out.push({mid:m.id,name:m.name,icon:ar.icon,stars:rv.stars,daysSince:rv.daysSince,over:rv.daysSince-rv.nextGap});
+ }));
+ out.sort((a,b)=>b.over-a.over);
+ return out.slice(0,REVIVE_PANEL_MAX);
+}
+function renderRevive(){
+ const rp=document.getElementById('map-revive');if(!rp)return;
+ const due=dueRevives();
+ if(!due.length){rp.style.display='none';return;}
+ rp.style.display='block';
+ rp.innerHTML='<div style="font-family:var(--px);font-size:13px;color:var(--gold);font-weight:700;margin-bottom:2px">🔁 Dnes k oživení</div>'+
+  '<div style="font-family:var(--px);font-size:11px;color:var(--muted);margin-bottom:8px">Co umíš, si udržíš jen opakováním. Oživ téma ('+REVIVE_GOAL+' správných) a získej hvězdu!</div>'+
+  due.map(d=>{
+   const stars='⭐'.repeat(d.stars)+'☆'.repeat(3-d.stars);
+   return '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:5px 0;border-top:1px solid #ffffff12">'+
+    '<div style="font-family:var(--px);font-size:12px;color:var(--text)">'+d.icon+' <b>'+d.name+'</b> <span style="color:#ffd06a">'+stars+'</span> <span style="color:var(--muted)">· naposledy před '+d.daysSince+' '+skl(d.daysSince,'dnem','dny','dny')+'</span></div>'+
+    '<button class="btn b sm" style="flex:none" onclick="goPractice(\''+d.mid+'\')">⭐ Oživit</button></div>';
+  }).join('');
+}
 function renderRecommend(){
  const rp=document.getElementById('map-recommend');if(!rp)return;
  const rec=recommendedMission();
@@ -1653,6 +1720,7 @@ function renderMap(){
  if(sch){if(sc>=2){sch.style.display='inline-flex';document.getElementById('map-streak-n').textContent=sc;}else sch.style.display='none';}
  if(window.RPGCloud&&RPGCloud.renderLeaderboardInto)RPGCloud.renderLeaderboardInto('map-leaderboard',SAVE_KEY);
  renderRecommend();
+ renderRevive();
  const g=document.getElementById('map-grid');
  g.innerHTML='';
  // unikátní barevný nádech krajiny pro každou oblast
@@ -1753,6 +1821,7 @@ function renderLearn(mid,m){
   html+='</div>';
  }
  (L.examples||[]).forEach(ex=>{
+ if(L.mistakes&&L.mistakes.length){html+='<div class="learn-mistakes"><h3>⚠️ Časté chyby</h3>';L.mistakes.forEach(mi=>{html+=`<div class="mi"><div class="mi-w">✗ ${esc2(mi.wrong)}</div><div class="mi-r">✓ ${esc2(mi.right)}</div>`+(mi.why?`<div class="mi-why">${esc2(mi.why)}</div>`:'')+'</div>';});html+='</div>';}
   html+=`<div class="learn-example"><div class="ex-q">📝 ${esc2(ex.q)}</div><div class="ex-s">`;
   (Array.isArray(ex.s)?ex.s:[ex.s]).forEach(step=>{html+=step+'<br>';});
   html+='</div></div>';
@@ -1811,7 +1880,25 @@ function launchBattle(aid,mid){
  let pool=m.tasks();
  const ex=window.RPG_TASK_EXTRA_7;
  if(ex && typeof ex[m.id]==='function'){try{pool=pool.concat(ex[m.id]());}catch(e){}}
- BT.tasks=shuffleArr(pool).slice(0,m.tc);
+ BT.pool=pool;
+ // Postav BOHATÝ bank kandidátů (opakuj generátor pro rozmanitost) a vyber tc úloh
+ // přednostně s RŮZNOU odpovědí i textem → v boji se neopakují „stejná čísla"
+ // (dvě různě formulované úlohy padnou na stejný výsledek/čísla). Bank zůstává
+ // větší než výběr, aby fungoval adaptivní swap (adaptPick).
+ BT.srcIdx=(()=>{
+  const regen=()=>{let p=[];try{p=m.tasks()||[];}catch(e){}if(ex&&typeof ex[m.id]==='function'){try{p=p.concat(ex[m.id]()||[]);}catch(e){}}return p;};
+  let bank=pool.filter(t=>t&&t.text!=null),tries=0;
+  while(bank.length<Math.max(m.tc*4,12)&&tries<25){bank=bank.concat(regen().filter(t=>t&&t.text!=null));tries++;}
+  bank=shuffleArr(bank);BT.pool=bank;
+  const out=[],uT=new Set(),uA=new Set();
+  for(let i=0;i<bank.length&&out.length<m.tc;i++){const tx=String(bank[i].text),an=String(bank[i].ans);if(uT.has(tx)||uA.has(an))continue;uT.add(tx);uA.add(an);out.push(i);}
+  if(out.length<m.tc)for(let i=0;i<bank.length&&out.length<m.tc;i++){const tx=String(bank[i].text);if(uT.has(tx))continue;uT.add(tx);out.push(i);}
+  for(let i=0;out.length<m.tc&&bank.length;i++)out.push(i%bank.length);
+  return out;
+ })();
+ BT.tasks=BT.srcIdx.map(i=>BT.pool[i]);
+ BT.adapt={errRow:0,okRow:0,mode:0};
+ BT._rendered=-1;
  BT.idx=0;
  const _doneSoFar=BT.tasks.filter((_,i)=>S.done[`${mid}-${i}`]).length;
  BT._doneBattle=(_doneSoFar>=BT.tasks.length)?0:_doneSoFar;
@@ -1839,6 +1926,7 @@ function launchBattle(aid,mid){
   if(inpEl)inpEl.disabled=true;if(atkEl)atkEl.disabled=true;
   setTimeout(()=>{if(!BT.bossDefeated){if(inpEl)inpEl.disabled=false;if(atkEl)atkEl.disabled=false;if(inpEl&&!BT.mcMode&&!isYN(BT.curTask))inpEl.focus();}},700);}
  go('battle');
+ if(typeof RPGTutorial!=='undefined')RPGTutorial.maybe(S,saveS,stopTimer,startTimer);
 }
 
 function retryMission(){
@@ -1877,7 +1965,15 @@ function flashHeart(idx){
 function damagePlayer(){
  if(!S.errs)S.errs={};if(BT&&BT.mid){S.errs[BT.mid]=(S.errs[BT.mid]||0)+1;saveS();}
  if(BT.hp<=0)return;
+ // Štít nováčka: první chyba v boji nezraní (chyba se ale počítá do diagnostiky)
+ if(!BT.shieldUsed&&typeof RPGWallet!=='undefined'&&RPGWallet.hasPowerup&&RPGWallet.hasPowerup('pu-novice-shield')){
+  BT.shieldUsed=true;
+  floatText('⛨ Štít nováčka!',window.innerWidth/2-80,window.innerHeight*0.38,'#7fd8ff');
+  return;
+ }
+ BT.tookDamage=true;
  hitVignette();
+ if(typeof shakeBattle==='function')shakeBattle();
  flashHeart(BT.hp-1);
  BT.hp--;
  setTimeout(updatePlayerHp,360);
@@ -1906,9 +2002,14 @@ function missionFailed(){
 function startTimer(){
  stopTimer();
  if(!BT.curLimit){const _tExtra=(typeof RPGWallet!=='undefined'&&RPGWallet.hasPowerup('pu-time-bonus'))?5:0;BT.curLimit=TIME_PER_TASK+_tExtra;}
+ if(typeof RPGWallet!=='undefined'&&RPGWallet.hasPowerup&&RPGWallet.hasPowerup('pu-calm-mind'))BT.curLimit=Math.round(BT.curLimit*1.2);
  BT.timeLeft=BT.curLimit;BT.timeMax=BT.curLimit;
  document.getElementById('timer-wrap').style.display='block';
+ // Pán času (životní úspěch): čas se v normálním boji neodpočítává.
+ // Věž legend má vlastní časomíru (twStartTimer) — té se perk netýká.
+ BT.noTimer=wPerk('notimer');
  updateTimerUi();
+ if(BT.noTimer)return;
  BT.timer=setInterval(()=>{
  if(BT.timerFrozen)return;
  BT.timeLeft--;
@@ -1923,9 +2024,14 @@ function startTimer(){
 function stopTimer(){if(BT.timer){clearInterval(BT.timer);BT.timer=null;}}
 
 function updateTimerUi(){
+ const bar=document.getElementById('timer-bar');
+ if(BT.noTimer){
+  document.getElementById('timer-v').textContent='∞';
+  bar.style.width='100%';bar.classList.remove('warn','danger');
+  return;
+ }
  document.getElementById('timer-v').textContent=BT.timeLeft;
  const pct=Math.max(0,BT.timeLeft/BT.timeMax*100);
- const bar=document.getElementById('timer-bar');
  bar.style.width=pct+'%';
  bar.classList.toggle('warn',BT.timeLeft<=10&&BT.timeLeft>5);
  bar.classList.toggle('danger',BT.timeLeft<=5);
@@ -1936,8 +2042,10 @@ function onTimeOut(){
  const fb=document.getElementById('bt-fb');
  fb.textContent='⏱ ČAS VYPRŠEL!';
  fb.className='feedback err';
+ if(typeof RPGSound!=='undefined')RPGSound.play('bad');
  monsterAttack();
  damagePlayer();
+ adaptOnAnswer(false);
  // hide hint/next, let player retry on this task
  setTimeout(()=>{
  if(BT.hp>0){
@@ -1951,11 +2059,43 @@ function onTimeOut(){
  },1300);
 }
 
+// ══ TICHÁ ADAPTIVNÍ OBTÍŽNOST BOJE (ZPD) ══
+// Bez UI a bez persistence: 2 chyby v řadě → další úloha z lehčí části poolu
+// + delší čas; 3 správné v řadě → těžší úloha (+2 XP). S.done klíče indexují
+// POZICI (0..tc-1), takže výměna obsahu dosud nesplněné pozice je save-bezpečná.
+function adaptScore(pi){
+ const errs=((S.trainErrs&&S.trainErrs[BT.mid])||{})[pi]||0;
+ return pi/Math.max(1,BT.pool.length)+Math.min(errs,4)/4;
+}
+function adaptOnAnswer(ok){
+ const a=BT.adapt;if(!a)return;
+ if(ok){a.okRow++;a.errRow=0;}else{a.errRow++;a.okRow=0;}
+ a.mode=a.errRow>=2?-1:(a.okRow>=3?1:0);
+}
+function adaptPick(easier){
+ if(!BT.pool||BT.pool.length<=BT.tasks.length+2)return null;
+ const usedPending=new Set(BT.srcIdx.filter((_,i)=>!S.done[`${BT.mid}-${i}`]));
+ const _aT=new Set(BT.tasks.map(t=>String(t&&t.text))),_aA=new Set(BT.tasks.map(t=>String(t&&t.ans)));
+ const cand=BT.pool.map((_,i)=>i).filter(i=>!usedPending.has(i)&&!_aT.has(String(BT.pool[i]&&BT.pool[i].text))&&!_aA.has(String(BT.pool[i]&&BT.pool[i].ans)));
+ if(!cand.length)return null;
+ cand.sort((x,y)=>adaptScore(x)-adaptScore(y));
+ const third=Math.max(1,Math.floor(cand.length/3));
+ const seg=easier?cand.slice(0,third):cand.slice(-third);
+ return seg[ri(0,seg.length-1)];
+}
+function adaptMaybeSwap(idx){
+ const a=BT.adapt;
+ if(!a||a.mode===0||BT._rendered===idx||S.done[`${BT.mid}-${idx}`])return;
+ const pi=adaptPick(a.mode<0);
+ if(pi!=null){BT.srcIdx[idx]=pi;BT.tasks[idx]=BT.pool[pi];}
+}
 function renderTask(){
  const mt=miniForIdx(BT.idx);
  if(mt){renderBattleMini(mt);return;}
  BT.miniStarting=false;
  const mhBtn=document.getElementById('bt-mini-hint');if(mhBtn)mhBtn.style.display='none';
+ adaptMaybeSwap(BT.idx);
+ BT._rendered=BT.idx;
  const t=BT.tasks[BT.idx];
  BT.curTask=t;BT.hl=0;
  BT.timerFrozen=false;
@@ -1963,6 +2103,7 @@ function renderTask(){
  document.getElementById('timer-bar').classList.remove('frozen');
  const _tExtra=(typeof RPGWallet!=='undefined'&&RPGWallet.hasPowerup('pu-time-bonus'))?5:0;
  BT.curLimit=TIME_PER_TASK+_tExtra;
+ if(BT.adapt&&BT.adapt.mode<0)BT.curLimit=Math.round(BT.curLimit*1.2);
  const tot=BT.tasks.length;
  document.getElementById('bt-num').textContent=BT.idx+1;
  document.getElementById('bt-tot').textContent=tot;
@@ -2010,7 +2151,7 @@ function renderTask(){
  document.querySelectorAll('#yn-row button').forEach(b=>b.disabled=false);
  document.getElementById('hint-btn').style.display='inline-block';
  document.getElementById('mc-grid').style.display='none';
- document.getElementById('bt-ans').value='';
+ const _bi=document.getElementById('bt-ans');_bi.value='';_bi.inputMode=/^\d+$/.test(String(BT.curTask.ans))?'numeric':/^\d+[.,]\d+$/.test(String(BT.curTask.ans))?'decimal':'text';
  document.getElementById('bt-ans').disabled=false;
  if(!yn)document.getElementById('bt-ans').focus();
  }
@@ -2095,10 +2236,11 @@ function battleMiniDone(mistakes){
  const fb=document.getElementById('bt-fb');
  fb.className='feedback ok';
  fb.textContent=firstTime?((mistakes===0?'✓✓ BEZ CHYBY! +':'✓ HOTOVO! +')+xpGain+' XP'):'✓ HOTOVO! (mise už splněna — bez XP)';
- if(firstTime){awardXp(xpGain,isCrit);S.xpClaimed[xpKey]=true;earnCredits(mistakes===0?7:5);tryDropItem();}
+ if(firstTime){awardXp(xpGain,isCrit);S.xpClaimed[xpKey]=true;earnCredits(mistakes===0?7+(isCrit?wCritBonus():0):5);tryDropItem();}
  S.done[`${BT.mid}-${BT.idx}`]=true;saveS();
  if(!S.stats)S.stats={};if(BT.combo>(S.stats.bestCombo||0))S.stats.bestCombo=BT.combo;
  evalAch({correct:true,combo:BT.combo});
+ wBump('tasks');if(isCrit)wBump('crits');
  document.getElementById('next-btn').style.display='inline-block';
  document.getElementById('next-btn').focus();
  damageMonster(xpGain,isCrit);
@@ -2129,6 +2271,7 @@ function renderMC(t){
  const correct=String(t.ans);
  const cn=parseFloat(correct.replace(',','.'));
  const opts=new Set([correct]);
+ if(Array.isArray(t.distractors))t.distractors.forEach(d=>{const s=String(d);if(s!==correct&&opts.size<4)opts.add(s);});
  if(!isNaN(cn)&&cn!==0){const opp=String(-cn);if(opp!==correct)opts.add(opp);}
  let tries=0;
  while(opts.size<4 && tries<30){
@@ -2167,11 +2310,12 @@ function submitMC(opt,btn){
  const isCrit=BT.combo>=3 && BT.hl===0;
  const xpKey=`${BT.mid}-${BT.idx}`;
  const firstTime=!S.xpClaimed[xpKey];
- const xpGain=firstTime?Math.max(3,10-BT.hl*3)*(isCrit?2:1):0;
+ const xpGain=firstTime?(Math.max(3,10-BT.hl*3)*(isCrit?2:1)+(BT.adapt&&BT.adapt.mode>0?2:0)):0;
  const fb=document.getElementById('bt-fb');
  fb.textContent=firstTime?((isCrit?'✓✓ KRITICKÝ ZÁSAH! +':'✓ SPRÁVNĚ! +')+xpGain+' XP'):'✓ SPRÁVNĚ! (mise už splněna — bez XP)';
  fb.className='feedback ok';
- if(firstTime){awardXp(xpGain,isCrit);if(t.skill&&S.attrs[t.skill]!==undefined)S.attrs[t.skill]+=3;S.xpClaimed[xpKey]=true;earnCredits(isCrit?7:5);tryDropItem();}
+ if(typeof RPGSound!=='undefined')RPGSound.play(isCrit?'crit':'ok');
+ if(firstTime){awardXp(xpGain,isCrit);if(t.skill&&S.attrs[t.skill]!==undefined)S.attrs[t.skill]+=3;S.xpClaimed[xpKey]=true;earnCredits(isCrit?7+wCritBonus():5);tryDropItem();}
  S.done[`${BT.mid}-${BT.idx}`]=true;
  saveS();
  document.getElementById('next-btn').style.display='inline-block';
@@ -2179,14 +2323,18 @@ function submitMC(opt,btn){
  updateCombo();
  if(!S.stats)S.stats={};if(BT.combo>(S.stats.bestCombo||0))S.stats.bestCombo=BT.combo;
  evalAch({correct:true,combo:BT.combo,timeLeft:BT.timeLeft});
+ wBump('tasks');if(isCrit)wBump('crits');
+ adaptOnAnswer(true);
  checkMissionComplete();
  }else{
  btn.classList.add('wrong');
  btn.disabled=true;
  BT.combo=0;
  updateCombo();
+ if(typeof RPGSound!=='undefined')RPGSound.play('bad');
  monsterAttack();
  damagePlayer();
+ adaptOnAnswer(false);
  // timer keeps running; student picks another option
  }
 }
@@ -2402,10 +2550,11 @@ function submitAnswer(){
  const isCrit=BT.combo>=3 && BT.hl===0;
  const xpKey=`${BT.mid}-${BT.idx}`;
  const firstTime=!S.xpClaimed[xpKey];
- const xpGain=firstTime?Math.max(3,10-BT.hl*3)*(isCrit?2:1):0;
+ const xpGain=firstTime?(Math.max(3,10-BT.hl*3)*(isCrit?2:1)+(BT.adapt&&BT.adapt.mode>0?2:0)):0;
  fb.textContent=firstTime?((isCrit?'✓✓ KRITICKÝ ZÁSAH! +':'✓ SPRÁVNĚ! +')+xpGain+' XP'):'✓ SPRÁVNĚ! (mise už splněna — bez XP)';
  fb.className='feedback ok';
- if(firstTime){awardXp(xpGain,isCrit);if(t.skill&&S.attrs[t.skill]!==undefined)S.attrs[t.skill]+=3;S.xpClaimed[xpKey]=true;earnCredits(isCrit?7:5);tryDropItem();}
+ if(typeof RPGSound!=='undefined')RPGSound.play(isCrit?'crit':'ok');
+ if(firstTime){awardXp(xpGain,isCrit);if(t.skill&&S.attrs[t.skill]!==undefined)S.attrs[t.skill]+=3;S.xpClaimed[xpKey]=true;earnCredits(isCrit?7+wCritBonus():5);tryDropItem();}
  S.done[`${BT.mid}-${BT.idx}`]=true;
  saveS();
  document.getElementById('bt-ans').disabled=true;
@@ -2417,17 +2566,24 @@ function submitAnswer(){
  updateCombo();
  if(!S.stats)S.stats={};if(BT.combo>(S.stats.bestCombo||0))S.stats.bestCombo=BT.combo;
  evalAch({correct:true,combo:BT.combo,timeLeft:BT.timeLeft});
+ wBump('tasks');if(isCrit)wBump('crits');
+ adaptOnAnswer(true);
  checkMissionComplete();
  }else{
  BT.combo=0;
  updateCombo();
  fb.textContent='✗ ŠPATNĚ — "'+inp+'" není správně.';
  fb.className='feedback err';
+ if(typeof RPGSound!=='undefined')RPGSound.play('bad');
  monsterAttack();
  damagePlayer();
+ adaptOnAnswer(false);
  }
 }
 
+// V ČR je desetinný oddělovač ČÁRKA. Nápovědy skládají čísla z JS, kde je
+// tečka — normalizujeme je centrálně při zobrazení (textContent, bez HTML).
+function czTxt(t){return String(t).replace(/(\d)\.(\d)/g,'$1,$2');}
 function showHint(){
  // jediná nápověda: jen postup, nikdy výsledek
  const t=BT.curTask;
@@ -2438,7 +2594,7 @@ function showHint(){
  hb.style.color='#7fe87f';
  hb.style.background='#0f1a0f';
  const hintText=(t.hints&&t.hints[0]&&String(t.hints[0]).trim())?t.hints[0]:'Rozděl si příklad na menší kroky a postupuj po jednom.';
- hb.textContent='💡 Nápověda:\n'+hintText;
+ hb.textContent='💡 Nápověda:\n'+czTxt(hintText);
  hb.classList.add('show');
  BT.hl=1;
  document.getElementById('hint-btn').disabled=true;
@@ -2460,7 +2616,8 @@ function exitBattle(){stopTimer();if(BT.freezeTimeout){clearTimeout(BT.freezeTim
 
 function checkMissionComplete(){
  const ar=AREAS.find(a=>a.id===BT.aid);
- const m=ar.missions.find(x=>x.id===BT.mid);
+ const m=ar&&ar.missions.find(x=>x.id===BT.mid);
+ if(!m)return;
  const allDn=BT.tasks.every((_,i)=>S.done[`${m.id}-${i}`]);
  if(allDn){
  BT.bossDefeated=true;
@@ -2474,6 +2631,7 @@ function checkMissionComplete(){
  // boss poražen — vítězná sekvence (synchro s defeat animací)
  setTimeout(victoryBurst,650);
  evalAch({flawlessMission:!BT.missionHinted,wonAtOneHp:BT.hp===1});
+ if(!BT.tookDamage)wBump('flawless');
  if(isAreaDone(ar)&&!S.inv.includes(ar.art.id)){
  S.inv.push(ar.art.id);
  Object.entries(ar.attrGain).forEach(([k,v])=>{if(S.attrs[k]!==undefined)S.attrs[k]+=v;});
@@ -2613,7 +2771,7 @@ function twDrawTask(){
  let pool=TW.m.tasks();
  const ex=window.RPG_TASK_EXTRA_7;
  if(ex&&typeof ex[TW.m.id]==='function'){try{pool=pool.concat(ex[TW.m.id]());}catch(e){}}
- TW.task=pool[Math.floor(Math.random()*pool.length)];
+ {let _ti=Math.floor(Math.random()*pool.length);if(pool.length>1&&TW._lastText){let _g=0;while(_g++<8&&String(pool[_ti].text)===TW._lastText)_ti=Math.floor(Math.random()*pool.length);}TW._lastText=String(pool[_ti].text);TW.task=pool[_ti];}
  twRenderTask();
  twStartTimer();
 }
@@ -2635,7 +2793,7 @@ function twRenderTask(){
   document.getElementById('tw-input-row').style.display=yn?'none':'flex';
   document.getElementById('tw-yn-row').style.display=yn?'flex':'none';
   document.getElementById('tw-mc').style.display='none';
-  const inp=document.getElementById('tw-ans');inp.value='';inp.disabled=false;if(!yn)inp.focus();
+  const inp=document.getElementById('tw-ans');inp.value='';inp.disabled=false;if(!yn)inp.focus();inp.inputMode=/^\d+$/.test(String(TW.task.ans))?'numeric':/^\d+[.,]\d+$/.test(String(TW.task.ans))?'decimal':'text';
  }
 }
 
@@ -2644,6 +2802,7 @@ function twRenderMC(t){
  grid.style.display='grid';
  const correct=t.ans,cn=parseFloat(String(correct).replace(',','.'));
  const opts=new Set([correct]);
+ if(Array.isArray(t.distractors))t.distractors.forEach(d=>{const s=String(d);if(s!==correct&&opts.size<4)opts.add(s);});
  if(!isNaN(cn)&&cn!==0){const opp=String(-cn);if(opp!==String(correct))opts.add(opp);}
  let tries=0;
  while(opts.size<4&&tries<30){tries++;let alt;
@@ -2680,6 +2839,7 @@ function twCorrect(){
  const fb=document.getElementById('tw-fb');
  fb.className='feedback ok';fb.textContent='⬆ SPRÁVNĚ! Stoupáš do '+(TW.floor+1)+'. patra…';
  TW.floor++;
+ wBump('tasks');wMax('towerFloor',TW.floor);
  twClimbAnim();
  twStats();
  setTimeout(()=>{if(TW.on)twDrawTask();},twRM()?250:900);
@@ -2760,6 +2920,7 @@ function twLoop(now){
   TWA.rot+=dt*0.00022*(TWA.climbT>0?7:1);          // věž se pomalu točí, při výstupu rychleji
   if(TWA.climbT>0){TWA.scroll+=dt/800*TW_FH;TWA.climbT=Math.max(0,TWA.climbT-dt);}
   TWA.tick+=dt;
+  TWA.snowT=(TWA.snowT||0)+dt;
   if(TWA.tick>(TWA.climbT>0?130:520)){TWA.tick=0;TWA.frame^=1;}
  }
  twDrawCanvas();
@@ -2770,6 +2931,12 @@ function twHoliday(){
  const d=window.__TW_TESTNOW?new Date(window.__TW_TESTNOW):new Date();
  const m=d.getMonth();
  return {on:(m===6||m===7)};
+}
+// ── zimní turnaj: prosinec + leden — jen vizuál (věž zůstává otevřená a hratelná) ──
+function twWinter(){
+ const d=window.__TW_TESTNOW?new Date(window.__TW_TESTNOW):new Date();
+ const m=d.getMonth();
+ return {on:(m===11||m===0)};
 }
 // uklízečka (16×24, 2 snímky zametání) — kreslí se na římsu místo hrdiny
 const TW_CLEANER_PAL={K:'#0a0c12',C:'#f3c89a',c:'#cf9a68',H:'#d94f45',h:'#a02e26',D:'#4a7fb5',d:'#2f5580',W:'#eef1f6',G:'#9a6a34',Y:'#e6c24e',B:'#2e2e38'};
@@ -2794,6 +2961,8 @@ function twDrawCanvas(){
  // věž (válec)
  const cx=Math.round(w/2),R=72;
  const winA=TW.holiday?0.35:1;   // o prázdninách zhasnutá okna (nikdo doma)
+ const winter=twWinter().on&&!TW.holiday;   // zimní turnaj: teplá „sváteční" okna + sníh
+ const wcol=winter?'255,205,80':'232,192,96';
  x.fillStyle='#10162a';x.fillRect(cx-R,0,2*R,230);
  x.fillStyle='#0a0e1c';x.fillRect(cx-R,0,9,230);x.fillRect(cx+R-9,0,9,230);
  x.fillStyle='#171f3a';x.fillRect(cx-R+9,0,7,230);x.fillRect(cx+R-16,0,7,230);
@@ -2811,15 +2980,16 @@ function twDrawCanvas(){
    if(cs<=0.18)continue;                 // okno je na odvrácené straně
    const wx=cx+Math.sin(a)*R*0.74;
    const ww=Math.max(3,Math.round(9*cs)),wh=17;
-   x.fillStyle='rgba(232,192,96,'+((0.25+0.6*cs)*winA).toFixed(2)+')';
+   x.fillStyle='rgba('+wcol+','+((0.25+0.6*cs)*winA).toFixed(2)+')';
    x.fillRect(Math.round(wx-ww/2),Math.round(y+14),ww,wh);
-   x.fillStyle='rgba(232,192,96,'+((0.10*cs)*winA).toFixed(2)+')';
+   x.fillStyle='rgba('+wcol+','+((0.10*cs)*winA).toFixed(2)+')';
    x.fillRect(Math.round(wx-ww/2)-2,Math.round(y+12),ww+4,wh+4);
   }
  }
  // římsa s hrdinou (vpravo u věže)
  const hx=cx+R+6,hy=104;
  x.fillStyle='#1d2748';x.fillRect(hx-4,hy+72,56,5);
+ if(winter){x.fillStyle='#eaf2ff';x.fillRect(hx-4,hy+70,56,3);}   // sníh na římse
  if(TW.holiday){
   twDrawCleaner(x,hx+2,hy+6,3,twRM()?0:TWA.frame);
   if(!twRM()){for(let i=0;i<5;i++){const t=((TWA.tick||0)/520+i/5)%1;x.globalAlpha=+(0.5*(1-t)).toFixed(2);x.fillStyle=i%2?'#e6c24e':'#cfe0ff';x.fillRect(hx-4+i*13,Math.round(hy+66-t*40),3,3);}x.globalAlpha=1;}
@@ -2827,8 +2997,20 @@ function twDrawCanvas(){
   RPGSprites7.drawHeroOn(x,hx,hy,3,twRM()?0:TWA.frame,true);
  }
  // popisek patra na zdi
- x.fillStyle='#f4d03f';x.font='700 20px "Roboto Mono",monospace';x.textAlign='center';
- x.fillText(TW.holiday?'🧹 ÚKLID':(TW.on?'PATRO '+TW.floor:'VĚŽ LEGEND'),cx,42);
+ if(winter&&!twRM()){
+  const st=TWA.snowT||0;
+  for(let i=0;i<44;i++){
+   const sx=((i*71+Math.sin(st/700+i)*10+st*0.006*(1+(i%3)))%w+w)%w;
+   const sy=((i*53+st*0.05*(1+(i%4)))%230+230)%230;
+   x.globalAlpha=+(0.45+0.35*((i%3)/2)).toFixed(2);
+   x.fillStyle='#eaf2ff';
+   const sz=(i%5===0)?3:2;
+   x.fillRect(Math.round(sx),Math.round(sy),sz,sz);
+  }
+  x.globalAlpha=1;
+ }
+ x.fillStyle=winter?'#eaf2ff':'#f4d03f';x.font='700 20px "Roboto Mono",monospace';x.textAlign='center';
+ x.fillText(TW.holiday?'🧹 ÚKLID':(TW.on?'PATRO '+TW.floor:(winter?'❄️ ZIMNÍ TURNAJ':'VĚŽ LEGEND')),cx,42);
 }
 
 // ══════════════════════════════════════════
@@ -2939,6 +3121,9 @@ function renderProfile(){
  document.getElementById('pr-ach-t').textContent=ACH.length;
  }
  const rm=document.getElementById('pr-rm');if(rm)rm.checked=rmActive();
+ const spk=document.getElementById('pr-sponka');if(spk)spk.checked=(typeof RPGWallet!=='undefined')?RPGWallet.getSponkaEnabled():true;
+ const snd=document.getElementById('pr-sound');if(snd)snd.checked=(typeof RPGWallet!=='undefined')?RPGWallet.getSoundOn():false;
+ if(typeof RPGWallet!=='undefined'&&RPGWallet.renderGachInto)RPGWallet.renderGachInto(document.getElementById('pr-gach'));
  renderCrossGames();
 }
 
@@ -2951,7 +3136,7 @@ function exportCode(){
 function importPrompt(){
  const c=prompt('Vlož zálohovací kód:');
  if(!c)return;
- try{S=JSON.parse(decodeURIComponent(escape(atob(c))));if(!S.mastery)S.mastery={};if(!S.teacherUnlocked)S.teacherUnlocked=[];if(!S.ach)S.ach={};if(!S.stats)S.stats={crits:0,trainCorrect:0,bestCombo:0};if(!S.streak)S.streak={count:0,last:''};if(!S.errs)S.errs={};if(!Array.isArray(S.errsSnap))S.errsSnap=[];if(typeof S.credits!=='number'||!isFinite(S.credits)||S.credits<0)S.credits=0;S.credits=Math.floor(S.credits);if(!S.cosmetics||typeof S.cosmetics!=='object')S.cosmetics={owned:['theme-default','victory-default'],active:{border:null,badge:null,theme:'theme-default',victory:'victory-default'}};if(!S.creditsClaimed||typeof S.creditsClaimed!=='object')S.creditsClaimed={};sanitizeCosmetics();saveS();applyCosmetics();renderProfile();alert('Načteno!');}
+ try{S=JSON.parse(decodeURIComponent(escape(atob(c))));if(!S.mastery)S.mastery={};if(!S.teacherUnlocked)S.teacherUnlocked=[];if(!S.ach)S.ach={};if(!S.stats)S.stats={crits:0,trainCorrect:0,bestCombo:0};if(!S.streak)S.streak={count:0,last:''};if(!S.errs)S.errs={};if(!Array.isArray(S.errsSnap))S.errsSnap=[];if(typeof S.credits!=='number'||!isFinite(S.credits)||S.credits<0)S.credits=0;S.credits=Math.floor(S.credits);if(!S.cosmetics||typeof S.cosmetics!=='object')S.cosmetics={owned:['theme-default','victory-default'],active:{border:null,badge:null,theme:'theme-default',victory:'victory-default'}};if(!S.creditsClaimed||typeof S.creditsClaimed!=='object')S.creditsClaimed={};sanitizeMastery();sanitizeCosmetics();saveS();applyCosmetics();renderProfile();alert('Načteno!');}
  catch(e){alert('Chybný kód.');}
 }
 
@@ -2970,9 +3155,53 @@ function closeModal(){document.getElementById('modal').classList.remove('show');
 // TRÉNINK (nekonečné procvičování + mistrovství)
 // ══════════════════════════════════════════
 const MASTERY_GOAL=15;
-let TR={mid:null,m:null,task:null,hl:0,correct:0,total:0,streak:0};
+let TR={mid:null,m:null,task:null,hl:0,correct:0,total:0,streak:0,curIdx:null,revive:null};
 
 function masteryOf(mid){const x=S.mastery&&S.mastery[mid];return x?{score:x.score||0,mastered:!!x.mastered}:{score:0,mastered:false};}
+
+// ══ HVĚZDNÉ OPAKOVÁNÍ (spaced repetition) ══
+// Mistrovství 🏅 zůstává navždy; hvězdy ⭐ se získávají ZOPAKOVÁNÍM tématu
+// s časovým odstupem (3/7/21 dní od posledního oživení). lastOk se posouvá
+// JEN při zisku hvězdy — denní trénink o hvězdu nepřipraví.
+const REVIVE_GAPS=[3,7,21];      // dní od lastOk pro ⭐/⭐⭐/⭐⭐⭐
+const REVIVE_CREDITS=[10,20,40]; // kredity za 1./2./3. hvězdu
+const REVIVE_GOAL=5;             // správných v jednom sezení = oživení
+const REVIVE_PANEL_MAX=3;
+function todayStr(){return new Date().toISOString().slice(0,10);}
+function daysSinceStr(d){const t=Date.parse(d);if(!isFinite(t))return 0;return Math.floor((Date.now()-t)/864e5);}
+function sanitizeMastery(){
+ if(!S.mastery||typeof S.mastery!=='object'){S.mastery={};return;}
+ for(const mid of Object.keys(S.mastery)){
+  let m=S.mastery[mid];
+  if(!m||typeof m!=='object'){m=S.mastery[mid]={score:0,mastered:false};}
+  m.score=(typeof m.score==='number'&&isFinite(m.score)&&m.score>0)?Math.floor(m.score):0;
+  m.mastered=!!m.mastered;
+  m.stars=(typeof m.stars==='number'&&isFinite(m.stars))?Math.max(0,Math.min(3,Math.floor(m.stars))):0;
+  if(!m.mastered){m.stars=0;m.lastOk='';m.starHist=[];continue;}
+  if(typeof m.lastOk!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(m.lastOk)||!isFinite(Date.parse(m.lastOk)))m.lastOk=todayStr();
+  if(m.lastOk>todayStr())m.lastOk=todayStr();
+  m.starHist=Array.isArray(m.starHist)?m.starHist.filter(d=>typeof d==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(d)).slice(0,3):[];
+ }
+}
+function reviveState(mid){
+ const m=S.mastery&&S.mastery[mid];
+ if(!m||!m.mastered)return{stars:0,due:false,daysSince:0,nextGap:REVIVE_GAPS[0]};
+ const st=Math.max(0,Math.min(3,m.stars|0));
+ const ds=m.lastOk?daysSinceStr(m.lastOk):0;
+ const gap=st<3?REVIVE_GAPS[st]:Infinity;
+ return{stars:st,due:st<3&&ds>=gap,daysSince:ds,nextGap:gap};
+}
+function awardStar(mid){
+ const m=S.mastery&&S.mastery[mid];if(!m||!m.mastered)return 0;
+ const st=Math.max(0,Math.min(3,m.stars|0));if(st>=3)return 0;
+ m.stars=st+1;m.lastOk=todayStr();
+ if(!Array.isArray(m.starHist))m.starHist=[];
+ m.starHist.push(m.lastOk);
+ saveS();
+ earnCredits(REVIVE_CREDITS[m.stars-1]);
+ evalAch({});
+ return m.stars;
+}
 
 function renderTrainPicker(){
  document.getElementById('train-play').style.display='none';
@@ -2986,12 +3215,20 @@ function renderTrainPicker(){
   let html=`<div style="font-family:var(--px);font-weight:700;font-size:14px;color:var(--gold);margin-bottom:8px">${ar.icon} ${ar.name.replace(/\n/g,' ')}</div>`;
   ar.missions.slice().sort((a,b)=>(S.errs&&S.errs[b.id]||0)-(S.errs&&S.errs[a.id]||0)).forEach(m=>{
    const ms=masteryOf(m.id);
+   const rv=reviveState(m.id);
    const pct=Math.min(100,Math.round((ms.score|0)/MASTERY_GOAL*100))|0;
    const errs=S.errs&&S.errs[m.id]||0;
    const rec=errs>=2?`<span style="color:#e74c3c;font-size:11px;margin-left:6px">🔥 ${errs} chyb</span>`:'';
+   const starTxt=ms.mastered&&rv.stars>0?'<span style="color:#ffd06a">'+'⭐'.repeat(rv.stars)+'</span> ':'';
+   const dueChip=rv.due?`<span style="color:#ffd06a;font-size:11px;margin-left:6px">🔁 k oživení</span>`:'';
+   let sub;
+   if(!ms.mastered)sub=(ms.score|0)+' / '+MASTERY_GOAL;
+   else if(rv.stars>=3)sub='mistrovství splněno · ⭐⭐⭐ navždy tvoje';
+   else if(rv.due)sub='mistrovství splněno · dnes k oživení!';
+   else sub='mistrovství splněno · další hvězda za '+Math.max(1,rv.nextGap-rv.daysSince)+' '+skl(Math.max(1,rv.nextGap-rv.daysSince),'den','dny','dní');
    html+=`<button class="ms-item avail" style="width:100%;text-align:left;border:none;cursor:pointer" onclick="startTrain('${m.id}')">
-     <div style="flex:1"><div class="ms-name">${ms.mastered?'🏅 ':''}${m.name}${rec}</div>
-     <div class="ms-sub">${m.sub} · ${ms.mastered?'mistrovství splněno':(ms.score|0)+' / '+MASTERY_GOAL}</div>
+     <div style="flex:1"><div class="ms-name">${ms.mastered?'🏅 ':''}${starTxt}${m.name}${rec}${dueChip}</div>
+     <div class="ms-sub">${m.sub} · ${sub}</div>
      <div class="bar-out bar-xp" style="margin-top:6px;height:6px"><div class="bar-in" style="width:${pct}%"></div></div></div>
      <div style="font-size:16px;margin-left:8px">${ms.mastered?'🏅':'🎯'}</div></button>`;
   });
@@ -3004,19 +3241,43 @@ function startTrain(mid){
  const ar=AREAS.find(a=>a.missions.some(m=>m.id===mid));
  TR.m=ar.missions.find(m=>m.id===mid);
  TR.mid=mid;TR.correct=0;TR.total=0;TR.streak=0;
+ TR.revive=reviveState(mid).due?{count:0,earned:false}:null;
  document.getElementById('train-picker').style.display='none';
  document.getElementById('train-play').style.display='block';
  document.getElementById('tr-title').textContent=ar.icon+' '+TR.m.name;
  document.getElementById('tr-msgoal').textContent=MASTERY_GOAL;
+ trReviveChip();
  trStats();
  trDraw();
 }
+// chip „Oživení: X/5" u počítadla — jen když běží oživovací sezení
+function trReviveChip(){
+ const el=document.getElementById('tr-revive-chip');if(!el)return;
+ if(TR.revive&&!TR.revive.earned){el.style.display='inline-block';el.textContent='🔁 Oživení: '+TR.revive.count+'/'+REVIVE_GOAL;}
+ else el.style.display='none';
+}
+
+// Adaptivní výběr: index do sloučeného poolu (pořadí je stabilní mezi
+// zatáhnutími, i když jsou čísla v úlohách pokaždé jiná) slouží jako
+// proxy klíč "typ úlohy". S.trainErrs[mid][idx] roste při chybě a klesá
+// při správné odpovědi (trCorrect) -> pool se přirozeně přizpůsobuje
+// tomu, kde žák aktuálně chybuje, bez nutnosti trvalých ID šablon.
+function trWeightedPick(pool){
+ const errMap=(S.trainErrs&&S.trainErrs[TR.mid])||{};
+ const weights=pool.map((_,i)=>1+Math.min(errMap[i]||0,4));
+ const totalW=weights.reduce((a,b)=>a+b,0);
+ let r=Math.random()*totalW;
+ for(let i=0;i<weights.length;i++){r-=weights[i];if(r<=0)return i;}
+ return pool.length-1;
+}
 
 function trDraw(){
- let pool=TR.m.tasks();
- const ex=window.RPG_TASK_EXTRA_7;
- if(ex && typeof ex[TR.mid]==='function'){try{pool=pool.concat(ex[TR.mid]());}catch(e){}}
- TR.task=pool[Math.floor(Math.random()*pool.length)];
+ const pool=trPool();
+ let idx=trWeightedPick(pool);
+ if(pool.length>1&&TR._lastText){let _g=0;while(_g++<8&&String(pool[idx].text)===TR._lastText)idx=trWeightedPick(pool);}
+ TR._lastText=String(pool[idx].text);
+ TR.task=pool[idx];
+ TR.curIdx=idx;
  TR.hl=0;
  trRender();
 }
@@ -3043,7 +3304,7 @@ function trRender(){
   document.getElementById('tr-yn-row').style.display=yn?'flex':'none';
   hbtn.style.display='inline-block';
   document.getElementById('tr-mc').style.display='none';
-  const inp=document.getElementById('tr-ans');inp.value='';inp.disabled=false;if(!yn)inp.focus();
+  const inp=document.getElementById('tr-ans');inp.value='';inp.disabled=false;if(!yn)inp.focus();inp.inputMode=/^\d+$/.test(String(TR.task.ans))?'numeric':/^\d+[.,]\d+$/.test(String(TR.task.ans))?'decimal':'text';
  }
 }
 
@@ -3052,6 +3313,7 @@ function trRenderMC(t){
  grid.style.display='grid';
  const correct=t.ans,cn=parseFloat(String(correct).replace(',','.'));
  const opts=new Set([correct]);
+ if(Array.isArray(t.distractors))t.distractors.forEach(d=>{const s=String(d);if(s!==correct&&opts.size<4)opts.add(s);});
  if(!isNaN(cn)&&cn!==0){const opp=String(-cn);if(opp!==String(correct))opts.add(opp);}
  let tries=0;
  while(opts.size<4 && tries<30){tries++;let alt;
@@ -3111,7 +3373,7 @@ function trStartPexeso(){
  RPGTaskTypes.renderPexeso(document.getElementById('tr-prob'),pairs,m=>trSpecialDone(Math.max(0,m-2)));
 }
 function trSpecialBegin(){
- TR.task={ans:'',skill:null,hints:[]};
+ TR.task={ans:'',skill:null,hints:[]};TR.curIdx=null;
  document.getElementById('tr-input-row').style.display='none';
  document.getElementById('tr-yn-row').style.display='none';
  document.getElementById('tr-mc').style.display='none';
@@ -3123,7 +3385,7 @@ function trSpecialBegin(){
 function trSpecialDone(mistakes){
  if(mistakes===0){trCorrect();}
  else{
-  TR.total++;TR.streak=0;trStats();
+  TR.total++;if(!trGuard())TR.streak=0;trStats();
   const fb=document.getElementById('tr-fb');fb.className='feedback err';
   fb.textContent='Hotovo — ale s '+mistakes+' '+skl(mistakes,'chybou','chybami','chybami')+'. Bod za mistrovství jen bez chyb!';
  }
@@ -3131,10 +3393,14 @@ function trSpecialDone(mistakes){
 }
 function trCorrect(){
  TR.correct++;TR.total++;TR.streak++;
+ if(TR.mid&&TR.curIdx!=null&&S.trainErrs&&S.trainErrs[TR.mid]&&S.trainErrs[TR.mid][TR.curIdx]){
+  S.trainErrs[TR.mid][TR.curIdx]=Math.max(0,S.trainErrs[TR.mid][TR.curIdx]-1);
+ }
  const m=S.mastery[TR.mid]||(S.mastery[TR.mid]={score:0,mastered:false});
  const wasMastered=m.mastered;
  m.score=(m.score||0)+1;
  if(m.score>=MASTERY_GOAL)m.mastered=true;
+ wBump('tasks');if(!wasMastered&&m.mastered)wBump('mastered');
  if(TR.task.skill&&S.attrs[TR.task.skill]!==undefined)S.attrs[TR.task.skill]+=1;
  S.xp+=3;
  if(!S.stats)S.stats={};S.stats.trainCorrect=(S.stats.trainCorrect||0)+1;
@@ -3145,6 +3411,17 @@ function trCorrect(){
  if(!wasMastered&&m.mastered){earnCredits(30);fb.textContent='🏅 MISTROVSTVÍ SPLNĚNO! +3 XP +30 kr';}
  else if(!wasMastered){earnCredits(1);fb.textContent='✓ SPRÁVNĚ! +3 XP +1 kr';}
  else{fb.textContent='✓ SPRÁVNĚ! +3 XP';}
+ // hvězdné opakování: běží-li oživovací sezení, počítej správné odpovědi
+ if(TR.revive&&!TR.revive.earned){
+  TR.revive.count++;
+  if(TR.revive.count>=REVIVE_GOAL){
+   TR.revive.earned=true;
+   const st=awardStar(TR.mid);
+   if(st===3)fb.textContent='🌟 TŘETÍ HVĚZDA! Tohle téma už jen tak nezapomeneš · +'+REVIVE_CREDITS[2]+' kr';
+   else if(st>0)fb.textContent='⭐ TÉMA OŽIVENO! Hvězda '+st+'/3 · +'+REVIVE_CREDITS[st-1]+' kr';
+  }
+  trReviveChip();
+ }
  document.getElementById('tr-hint-btn').disabled=true;
  document.getElementById('tr-next-btn').style.display='inline-block';
  document.getElementById('tr-next-btn').focus();
@@ -3152,11 +3429,20 @@ function trCorrect(){
 }
 
 function trWrong(given){
- TR.total++;TR.streak=0;
- if(!S.errs)S.errs={};if(TR.mid){S.errs[TR.mid]=(S.errs[TR.mid]||0)+1;saveS();}
+ TR.total++;
+ if(!S.errs)S.errs={};if(TR.mid){S.errs[TR.mid]=(S.errs[TR.mid]||0)+1;
+  if(!S.trainErrs)S.trainErrs={};if(!S.trainErrs[TR.mid])S.trainErrs[TR.mid]={};
+  if(TR.curIdx!=null)S.trainErrs[TR.mid][TR.curIdx]=(S.trainErrs[TR.mid][TR.curIdx]||0)+1;
+  saveS();}
  const fb=document.getElementById('tr-fb');
  fb.className='feedback err';
- fb.textContent='✗ Není to ono. Správně: '+TR.task.ans;
+ // Studijní rádce: jedna chyba za trénink nezlomí sérii (chyba se počítá)
+ if(trGuard()){
+  fb.textContent='🔁 Studijní rádce tě podržel — série zůstává! Správně: '+TR.task.ans;
+ }else{
+  TR.streak=0;
+  fb.textContent='✗ Není to ono. Správně: '+TR.task.ans;
+ }
  document.getElementById('tr-hint-btn').disabled=true;
  document.getElementById('tr-next-btn').style.display='inline-block';
  document.getElementById('tr-next-btn').focus();
@@ -3164,18 +3450,14 @@ function trWrong(given){
 }
 
 function trHint(){
- // jediná nápověda: jen postup, nikdy výsledek
- const t=TR.task;
- if(TR.hl>0)return;
- const hb=document.getElementById('tr-hint-box');
- hb.style.borderColor='var(--green)';
- hb.style.color='#7fe87f';
- hb.style.background='#0f1a0f';
- const trHintText=(t.hints&&t.hints[0]&&String(t.hints[0]).trim())?t.hints[0]:'Rozděl si příklad na menší kroky a postupuj po jednom.';
- hb.textContent='💡 Nápověda:\n'+trHintText;
- hb.classList.add('show');
- TR.hl=1;
- document.getElementById('tr-hint-btn').disabled=true;
+ // TRÉNINK má dvě úrovně jako 1. stupeň: 1/2 = nasměrování, 2/2 = výsledek
+ // (oranžově). Trénink není známkovaný, takže výsledek prozradit smí — v BOJI
+ // zůstává jediná nápověda bez výsledku, to je záměr.
+ const t=TR.task;if(TR.hl>=2)return;const hb=document.getElementById('tr-hint-box');
+ const hints=t.hints||[];
+ if(TR.hl===0){hb.textContent='💡 Nápověda 1/2:\n'+czTxt((hints[0]&&String(hints[0]).trim())?hints[0]:'Rozděl si příklad na menší kroky a postupuj po jednom.');hb.style.borderColor='var(--green)';hb.style.color='#7fe87f';hb.style.background='#0f1a0f';}
+ else{hb.textContent='💡 Nápověda 2/2:\n'+czTxt((hints[1]&&String(hints[1]).trim())?hints[1]:'Výsledek: '+t.ans);hb.style.borderColor='#ff8800';hb.style.color='#ffaa44';hb.style.background='#1a0e00';}
+ hb.classList.add('show');TR.hl++;if(TR.hl>=2)document.getElementById('tr-hint-btn').disabled=true;
 }
 
 function trNext(){trDraw();}
