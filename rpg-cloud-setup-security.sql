@@ -9,7 +9,26 @@
 --   • Učitelé a superadmini mají bypass (my_role() >= teacher)
 --   • Přímý DB přístup (auth.uid() IS NULL) má bypass automaticky
 --   • INSERT se nekontroluje — první přihlášení žáka je vždy ok
+--
+-- OPRAVA (revize 2026-07): trigger četl `credits`/`xp` přímým castem
+-- `(data ->> 'xp')::bigint`. `data` ale píše ŽÁK, takže na "1,5", "abc",
+-- objektu nebo přetečení cast VYHODIL CHYBU — a protože běží BEFORE UPDATE,
+-- žákovi se od té chvíle NEULOŽILO NIC a sám se z toho nedostal. Navíc se
+-- strop přeskočil úplně, když ve STARÉM savu klíč chyběl. Čte se teď přes
+-- public._save_num() a podvržená hodnota se rovnou srovná.
 -- ══════════════════════════════════════════════════════════════════════
+
+-- ── Bezpečné čtení čísla ze žákovského JSONu ────────────────────────
+-- Nikdy nespadne: co není nezáporné číslo, je 0. Desetinné se usekne
+-- (1,5 kreditu → 1), ať žák nepřijde o zůstatek kvůli staré verzi klienta.
+CREATE OR REPLACE FUNCTION public._save_num(j jsonb, k text)
+RETURNS bigint LANGUAGE sql IMMUTABLE SET search_path = public AS $$
+  SELECT CASE
+    WHEN j IS NULL OR jsonb_typeof(j) <> 'object' THEN 0
+    WHEN (j ->> k) ~ '^[0-9]{1,15}(\.[0-9]+)?$'   THEN floor((j ->> k)::numeric)::bigint
+    ELSE 0
+  END;
+$$;
 
 -- ── Trigger funkce ──────────────────────────────────────────────────
 CREATE OR REPLACE FUNCTION fn_validate_save_delta()
@@ -40,30 +59,29 @@ BEGIN
   END IF;
 
   -- ── Kredity v peněžence (_wallet) ─────────────────────────────
-  IF NEW.game = '_wallet'
-     AND NEW.data ? 'credits'
-     AND OLD.data ? 'credits'
-  THEN
-    old_val := COALESCE((OLD.data ->> 'credits')::bigint, 0);
-    new_val := COALESCE((NEW.data ->> 'credits')::bigint, 0);
-    IF new_val < 0 THEN
-      NEW.data := jsonb_set(NEW.data, '{credits}', '0');
-    ELSIF new_val - old_val > 500 THEN
+  -- Chybějící klíč ve STARÉM savu strop dřív vypnul úplně — teď se bere jako 0.
+  IF NEW.game = '_wallet' AND NEW.data ? 'credits' THEN
+    old_val := public._save_num(OLD.data, 'credits');
+    new_val := public._save_num(NEW.data, 'credits');
+    -- cokoli, co není čisté nezáporné celé číslo (text, objekt, záporné,
+    -- desetinné), srovnej na přečtenou hodnotu
+    IF (NEW.data ->> 'credits') IS DISTINCT FROM new_val::text THEN
+      NEW.data := jsonb_set(NEW.data, '{credits}', to_jsonb(new_val));
+    END IF;
+    IF new_val - old_val > 500 THEN
       NEW.data := jsonb_set(NEW.data, '{credits}', to_jsonb(old_val + 500));
     END IF;
   END IF;
 
   -- ── XP v herních savech (RPG_MAT_*) ───────────────────────────
-  IF NEW.game LIKE 'RPG_MAT_%'
-     AND NEW.data ? 'xp'
-     AND OLD.data ? 'xp'
-  THEN
-    old_val := COALESCE((OLD.data ->> 'xp')::bigint, 0);
-    new_val := COALESCE((NEW.data ->> 'xp')::bigint, 0);
-    IF new_val < 0 THEN
-      NEW.data := jsonb_set(NEW.data, '{xp}',    '0');
-      NEW.data := jsonb_set(NEW.data, '{level}', '1');
-    ELSIF new_val - old_val > 200 THEN
+  IF NEW.game LIKE 'RPG_MAT_%' AND NEW.data ? 'xp' THEN
+    old_val := public._save_num(OLD.data, 'xp');
+    new_val := public._save_num(NEW.data, 'xp');
+    IF (NEW.data ->> 'xp') IS DISTINCT FROM new_val::text THEN
+      NEW.data := jsonb_set(NEW.data, '{xp}',    to_jsonb(new_val));
+      NEW.data := jsonb_set(NEW.data, '{level}', to_jsonb(new_val / 100 + 1));
+    END IF;
+    IF new_val - old_val > 200 THEN
       capped   := old_val + 200;
       NEW.data := jsonb_set(NEW.data, '{xp}',    to_jsonb(capped));
       NEW.data := jsonb_set(NEW.data, '{level}', to_jsonb(capped / 100 + 1));

@@ -78,8 +78,8 @@
       </div>
       <div class="pr-feedback" id="pr-fb" style="display:none"></div>
       <div class="pr-sol" id="pr-sol" style="display:none"></div>
-      <div style="margin-top:14px" id="pr-nextwrap" style="display:none">
-        <button class="pz-btn primary" id="pr-next" onclick="prNext()" style="display:none">Další úloha →</button>
+      <div>
+        <button class="pz-btn primary" id="pr-next" onclick="prNext()" style="display:none;margin-top:14px">Další úloha →</button>
       </div>
     </div>
   </div>
@@ -212,8 +212,8 @@ function grade(correct){
   fb.className='pr-feedback '+(correct?'ok':'bad');
   fb.textContent = correct
     ? (PR.streak>=3 ? '🔥 Paráda, série '+PR.streak+'!' : '✓ Správně!')
-    : ((PR.adaptive&&PR.stick) ? '✗ Nevadí — mrkni na postup, dáme ještě jednu z tohoto tématu. Správná odpověď: '+PR.item.ans
-                               : '✗ Špatně. Správná odpověď: '+PR.item.ans);
+    : ((PR.adaptive&&PR.stick) ? '✗ Nevadí — mrkni na postup, dáme ještě jednu z tohoto tématu. Správná odpověď: '+PZ.czNum(PR.item.ans)
+                               : '✗ Špatně. Správná odpověď: '+PZ.czNum(PR.item.ans));
   fb.style.display='block';
   if(PR.item.sol){ const sol=document.getElementById('pr-sol');
     sol.innerHTML='<span class="lbl">VYŘEŠENÝ POSTUP</span>'+PZ.esc(PR.item.sol); sol.style.display='block'; }

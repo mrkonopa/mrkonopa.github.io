@@ -60,6 +60,11 @@
     return /^\d+$/.test(a) ? 'numeric' : /^\d+[.,]\d+$/.test(a) ? 'decimal' : 'text';
   }
 
+  // V ČR se píše desetinná ČÁRKA. Generátory skládají odpovědi z JS čísel
+  // (1.4), takže se čárka doplní až při zobrazení — mění se jen tečka MEZI
+  // číslicemi, aby to nerozbilo číslování úloh („16.1") ani textové odpovědi.
+  const czNum = v => String(v == null ? '' : v).replace(/(\d)\.(\d)/g, '$1,$2');
+
   /* ════════ CLOUD SYNC POKROKU — Fáze 21 (graceful) ════════
      Bez RPGCloud / bez přihlášení běží vše lokálně jako dřív. Po přihlášení
      školním Google účtem se pokrok slévá napříč zařízeními (nikdy neztratí). */
@@ -392,9 +397,9 @@
     const kh = (kind && KIND_HINTS[kind]) || null;
     const l1 = (item && item.hint1) || (kh && kh[0]) || th[0];
     const l2 = (item && item.hint2) || (kh && kh[1]) || th[1];
-    const l3 = 'Výsledek: ' + (item && item.ans != null ? item.ans : '');
+    const l3 = 'Výsledek: ' + (item && item.ans != null ? czNum(item.ans) : '');
     return [l1, l2, l3];
   }
 
-  window.PZ = { esc, check, store, inputMode, themeSvg, attachLoginBar, cloudPush, cloudSync, topicWeights, pickWeakTopic, hintsFor, recordTestTopics, weakTopicsFromReview };
+  window.PZ = { esc, check, store, inputMode, czNum, themeSvg, attachLoginBar, cloudPush, cloudSync, topicWeights, pickWeakTopic, hintsFor, recordTestTopics, weakTopicsFromReview };
 })();
