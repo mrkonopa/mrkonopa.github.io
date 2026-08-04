@@ -3039,7 +3039,9 @@ function renderCrossGames(){
 }
 function svgAttrRadar(attrs){
  const CX=90,CY=88,R=60;
- const axes=[['calc',-90],['anal',30],['geo',150]];
+ const axes=[['calc',-90],['anal',0],['geo',90],['craft',180]];  // 4 atributy, ne 3 —
+ // 'craft' se dřív nekreslil vůbec, takže z radaru vycházel trojúhelník a žák
+ // svou zručnost v grafu nikde neviděl, i když ji sbíral.
  const rad=d=>d*Math.PI/180;
  const pt=(pct,deg)=>[CX+R*(pct/100)*Math.cos(rad(deg)),CY+R*(pct/100)*Math.sin(rad(deg))];
  const grid=[25,50,75,100].map(p=>{
