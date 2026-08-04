@@ -97,6 +97,9 @@ body::before{
 .btn.b:hover:not(:disabled){box-shadow:4px 4px 0 #1a4f73}
 .btn.g{color:var(--green);border-color:var(--green);box-shadow:3px 3px 0 #1a7a3a}
 .btn.r{color:var(--red);border-color:var(--red);box-shadow:3px 3px 0 #7b241c}
+.btn.p{color:var(--purple);border-color:var(--purple);box-shadow:3px 3px 0 #4a2472}
+.btn.m{color:var(--muted);border-color:#31405f;box-shadow:3px 3px 0 #1a2135}
+.btn.m:hover:not(:disabled){color:var(--text);border-color:var(--muted)}
 .btn.sm{font-size:12px;padding:7px 11px}
 .btn.full{width:100%;text-align:center;font-size:17px;padding:14px}
 .btn:disabled{opacity:.35;cursor:not-allowed;transform:none!important}
@@ -588,11 +591,11 @@ html[data-theme="violet"]{--gold:#b06cff;--panel:#100a20;--panel2:#18103a;--blue
  <div class="panel" id="map-revive" style="display:none;padding:12px 14px;margin-top:12px"></div>
  <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
   <button class="btn b" style="flex:1" onclick="go('train')"><span class="bic" data-ic="target"></span>TRÉNINK</button>
-  <button class="btn" style="flex:none" onclick="go('tower')"><span class="bic" data-ic="tower"></span>VĚŽ LEGEND</button>
-  <button class="btn" style="flex:none" onclick="openBattle()"><span class="bic" data-ic="swords"></span>ŽIVÝ SOUBOJ</button>
-  <button class="btn" style="flex:none" onclick="window.open('prijimacky-matematika/test.html','_blank','noopener')"><span class="bic" data-ic="doc"></span>CERMAT TEST ↗</button>
+  <button class="btn p" style="flex:none" onclick="go('tower')"><span class="bic" data-ic="tower"></span>VĚŽ LEGEND</button>
+  <button class="btn r" style="flex:none" onclick="openBattle()"><span class="bic" data-ic="swords"></span>ŽIVÝ SOUBOJ</button>
+  <button class="btn g" style="flex:none" onclick="window.open('prijimacky-matematika/test.html','_blank','noopener')"><span class="bic" data-ic="doc"></span>CERMAT TEST ↗</button>
   <button class="btn" style="flex:none" onclick="go('shop')"><span class="bic" data-ic="shop"></span>OBCHOD</button>
-  <button class="btn" style="flex:none" onclick="typeof RPGFindError!=='undefined'&&RPGFindError.open(window.RPG_LEARN_9)"><span class="bic" data-ic="search"></span>NAJDI CHYBU</button>
+  <button class="btn m" style="flex:none" onclick="typeof RPGFindError!=='undefined'&&RPGFindError.open(window.RPG_LEARN_9)"><span class="bic" data-ic="search"></span>NAJDI CHYBU</button>
  </div></div>
 </div>
 
@@ -3466,7 +3469,9 @@ function renderCrossGames(){
 }
 function svgAttrRadar(attrs){
  const CX=90,CY=88,R=60;
- const axes=[['calc',-90],['anal',30],['geo',150]];
+ const axes=[['calc',-90],['anal',0],['geo',90],['craft',180]];  // 4 atributy, ne 3 —
+ // 'craft' se dřív nekreslil vůbec, takže z radaru vycházel trojúhelník a žák
+ // svou zručnost v grafu nikde neviděl, i když ji sbíral.
  const rad=d=>d*Math.PI/180;
  const pt=(pct,deg)=>[CX+R*(pct/100)*Math.cos(rad(deg)),CY+R*(pct/100)*Math.sin(rad(deg))];
  const grid=[25,50,75,100].map(p=>{
