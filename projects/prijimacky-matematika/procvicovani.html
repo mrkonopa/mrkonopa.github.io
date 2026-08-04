@@ -12,14 +12,28 @@
 <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="prijimacky.css">
 <style>
-  .topic-list { display:grid; gap:12px; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); }
-  .topic-card { background:var(--card); border:1px solid var(--border); border-left:4px solid var(--blue);
-    border-radius:12px; box-shadow:var(--shadow); padding:16px 18px; text-align:left; cursor:pointer;
+  /* 10 okruhů: na širokém 2 sloupce (dřív 3 → poslední karta osiřela) */
+  .topic-list { display:grid; gap:12px; grid-template-columns:1fr; }
+  @media (min-width:700px) { .topic-list { grid-template-columns:1fr 1fr; } }
+  .topic-card { background:var(--card); border:1px solid var(--border); border-left:4px solid var(--ob,var(--blue));
+    border-radius:12px; box-shadow:var(--shadow); padding:14px 16px; text-align:left; cursor:pointer;
+    width:100%; display:grid; grid-template-columns:auto 1fr auto; align-items:center; gap:14px;
     font-family:var(--sans); transition:border-color .12s, box-shadow .12s, transform .12s; }
-  .topic-card:hover { border-color:var(--blue); box-shadow:var(--shadow-hover); transform:translateY(-2px); }
-  .topic-card .tn { font-size:1.05rem; font-weight:700; color:var(--text); }
-  .topic-card .to { font-size:.78rem; color:var(--muted); margin-top:2px; }
-  .topic-card .tp { font-size:.78rem; color:var(--teal); font-weight:600; margin-top:8px; }
+  .topic-card:hover { border-color:var(--ob,var(--blue)); box-shadow:var(--shadow-hover); transform:translateY(-2px); }
+  /* Ikona okruhu v barevném terči — barva podle oblasti dle specifikace CERMAT */
+  .topic-card .ti { width:42px; height:42px; border-radius:12px; display:grid; place-items:center;
+    color:var(--ob,var(--blue)); background:var(--ob-bg,var(--blue-light)); transition:transform .12s; }
+  .topic-card:hover .ti { transform:scale(1.07); }
+  .topic-card .tn { display:block; font-size:1rem; font-weight:700; color:var(--text); line-height:1.3; }
+  .topic-card .to { display:block; font-size:.75rem; color:var(--muted); margin-top:2px; }
+  .topic-card .tp { display:block; font-size:.75rem; color:var(--muted); font-weight:500; margin-top:4px; }
+  .topic-card .tp b { color:var(--text); font-weight:700; }
+  /* Prstenec pokroku — místo pouhého „nezačato" je vidět úspěšnost na první pohled */
+  .topic-card .tr { position:relative; width:38px; height:38px; display:grid; place-items:center; }
+  .topic-card .tr .pct { position:absolute; font-size:.62rem; font-weight:700; color:var(--muted); }
+  @media (max-width:420px) { .topic-card { gap:10px; padding:12px 13px; }
+    .topic-card .ti { width:36px; height:36px; border-radius:10px; } }
+  .pr-title-ic { vertical-align:-5px; margin-right:8px; color:var(--blue); }
   .pr-counter { display:flex; gap:16px; align-items:center; font-weight:700; color:var(--muted); font-size:.9rem; }
   .pr-counter b { color:var(--green); }
   .pr-feedback { margin-top:12px; font-weight:700; }
@@ -54,7 +68,7 @@
 <main>
   <!-- VÝBĚR OKRUHU -->
   <div id="pr-pick">
-    <button class="pz-btn primary" id="pr-adaptive-btn" style="width:100%;justify-content:center;padding:15px;margin-bottom:16px;font-size:1.05rem" onclick="prStartAdaptive()">🎯 Trénuj své slabiny <span style="font-weight:500;opacity:.85">(adaptivně)</span></button>
+    <button class="pz-btn primary" id="pr-adaptive-btn" style="width:100%;justify-content:center;padding:15px;margin-bottom:16px;font-size:1.05rem" onclick="prStartAdaptive()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" style="vertical-align:-4px;margin-right:7px"><path d="M12 3.5a8.5 8.5 0 1 0 0 17 8.5 8.5 0 1 0 0-17 M12 7.5a4.5 4.5 0 1 0 0 9 4.5 4.5 0 1 0 0-9 M12 12h.01"/></svg>Trénuj své slabiny <span style="font-weight:500;opacity:.85">(adaptivně)</span></button>
     <p style="text-align:center;color:var(--muted);font-size:.82rem;margin:-6px 0 18px">Vybírá okruhy podle toho, kde míváš chyby — z diagnostiky i z tvého procvičování.</p>
     <div class="topic-list" id="pr-topics"></div>
   </div>
@@ -104,12 +118,31 @@ function bumpProg(topicId, correct){
   t.total++; if(correct) t.ok++; t.last = Date.now(); p[topicId] = t; PZ.store.set(PROG_KEY, p); if(PZ.cloudPush)PZ.cloudPush();
 }
 
+// Barva karty podle oblasti ze specifikace CERMAT — žák tak na první pohled
+// vidí, které okruhy patří k sobě.
+const OBLAST_BARVA = {
+  'Číslo a proměnná':   ['var(--blue)',  'var(--blue-light)'],
+  'Závislosti a data':  ['var(--teal)',  'var(--teal-light)'],
+  'Geometrie':          ['var(--gold)',  'var(--gold-light)'],
+  'Nestandardní úlohy': ['var(--green)', 'var(--green-light)'],
+};
+
 function renderTopics(){
   const prog = loadProg();
   document.getElementById('pr-topics').innerHTML = PZ_TOPICS.list.map(t=>{
-    const p = prog[t.id]; const done = p ? (p.ok+' správně z '+p.total) : 'nezačato';
-    return '<div class="topic-card" onclick="prStart(\''+t.id+'\')"><div class="tn">'+PZ.esc(t.name)+'</div>'+
-      '<div class="to">'+PZ.esc(t.oblast)+'</div><div class="tp">'+PZ.esc(done)+'</div></div>';
+    const p = prog[t.id];
+    const frac = (p && p.total > 0) ? p.ok / p.total : null;
+    const popis = p && p.total ? '<b>'+p.ok+'</b> správně z '+p.total : 'zatím nezačato';
+    const [ob, obBg] = OBLAST_BARVA[t.oblast] || ['var(--blue)','var(--blue-light)'];
+    return '<button type="button" class="topic-card" style="--ob:'+ob+';--ob-bg:'+obBg+'" '+
+      'onclick="prStart(\''+t.id+'\')">'+
+      '<span class="ti">'+PZ.icon(t.id, '', 24)+'</span>'+
+      '<span><span class="tn">'+PZ.esc(t.name)+'</span>'+
+      '<span class="to">'+PZ.esc(t.oblast)+'</span>'+
+      '<span class="tp">'+popis+'</span></span>'+
+      '<span class="tr">'+PZ.ring(frac, 38)+
+        (frac === null ? '' : '<span class="pct">'+Math.round(frac*100)+'%</span>')+'</span>'+
+      '</button>';
   }).join('');
 }
 
@@ -143,7 +176,7 @@ function prNext(){
     const id = PR.stick || PZ.pickWeakTopic();
     PR.topic = PZ_TOPICS.list.find(x=>x.id===id) || PZ_TOPICS.list[0];
     const w = PZ.topicWeights().find(x=>x.id===PR.topic.id);
-    document.getElementById('pr-title').innerHTML = '🎯 '+PZ.esc(PR.topic.name)+
+    document.getElementById('pr-title').innerHTML = PZ.icon(PR.adaptive?'practice':PR.topic.id,'pr-title-ic',22)+PZ.esc(PR.topic.name)+
       ' <span style="color:var(--muted);font-weight:500;font-size:.82rem">· '+PZ.esc(w?w.why:'')+'</span>';
   }
   let it=null, guard=0;
