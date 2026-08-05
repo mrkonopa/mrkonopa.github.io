@@ -468,7 +468,7 @@ html[data-theme="violet"]{--gold:#b06cff;--panel:#100a20;--panel2:#18103a;--blue
 ::-webkit-scrollbar{width:8px;background:var(--bg)}
 ::-webkit-scrollbar-thumb{background:var(--panel2);border:2px solid var(--gold)}
 /* ── INTRO ANIM ── */
-.intro-sword{font-size:64px;margin-bottom:12px;display:inline-block;animation:sword-float 3s ease-in-out infinite;filter:drop-shadow(0 0 16px #f4d03f88)}
+.intro-sword{line-height:0;color:var(--gold);margin-bottom:12px;display:inline-block;animation:sword-float 3s ease-in-out infinite;filter:drop-shadow(0 0 16px #f4d03f88)}
 @keyframes sword-float{0%,100%{transform:translateY(0) rotate(-8deg)}50%{transform:translateY(-12px) rotate(8deg)}}
 .intro-title{font-family:var(--px);font-weight:700;font-size:34px;color:var(--gold);text-shadow:4px 4px 0 #7a5c00;line-height:1.1;margin-bottom:10px;animation:title-glow 2.5s ease-in-out infinite}
 @keyframes title-glow{0%,100%{text-shadow:4px 4px 0 #7a5c00,0 0 8px #f4d03f44}50%{text-shadow:4px 4px 0 #7a5c00,0 0 22px #f4d03faa}}
@@ -500,7 +500,7 @@ html[data-theme="violet"]{--gold:#b06cff;--panel:#100a20;--panel2:#18103a;--blue
 <div id="s-intro" class="screen active">
 <div class="wrap">
  <div style="text-align:center;padding:28px 0 20px">
- <div class="intro-sword">🚀</div>
+ <div class="intro-sword bic" data-ic="rocket" data-big="1"></div>
  <div class="intro-title">VESMÍRNÁ<br>EXPEDICE</div>
  <div style="font-family:var(--vt);font-size:24px;color:var(--blue)">Matematika 6. ročník · ZŠ Husova Liberec</div>
  </div>
@@ -713,7 +713,7 @@ html[data-theme="violet"]{--gold:#b06cff;--panel:#100a20;--panel2:#18103a;--blue
  </div>
  <div id="learn-content"></div>
  <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:18px">
-  <button class="btn b" id="learn-battle-btn" onclick="launchLearnBattle()">⚔️ BOJOVAT NYNÍ</button>
+  <button class="btn b" id="learn-battle-btn" onclick="launchLearnBattle()"><span class="bic" data-ic="swords"></span>BOJOVAT NYNÍ</button>
   <button class="btn sm" onclick="go('train')"><span class="bic" data-ic="target"></span>TRÉNOVAT</button>
  </div>
 </div>
@@ -762,7 +762,7 @@ html[data-theme="violet"]{--gold:#b06cff;--panel:#100a20;--panel2:#18103a;--blue
  <div class="bt-problem" id="bt-prob">...</div>
  <div class="bt-row" id="bt-input-row">
  <input id="bt-ans" aria-label="Odpověď" class="bt-input" type="text" placeholder="?" autocomplete="off">
- <button id="attack-btn" class="btn" onclick="submitAnswer()" style="white-space:nowrap">ÚTOK ⚔</button>
+ <button id="attack-btn" class="btn" onclick="submitAnswer()" style="white-space:nowrap">ÚTOK</button>
  </div>
  <div class="bt-row" id="yn-row" style="display:none">
  <button class="btn g" style="flex:1" onclick="answerYN('ANO')">✓ ANO</button>
@@ -1714,9 +1714,10 @@ function renderRecommend(){
 function fillIcons(root){
  if(typeof RPGIcons==='undefined')return;
  (root||document).querySelectorAll('.bic[data-ic]').forEach(function(el){
-  if(!el.firstChild) el.innerHTML=RPGIcons.svg(el.dataset.ic,12);
+  if(!el.firstChild) el.innerHTML=RPGIcons.svg(el.dataset.ic,el.dataset.big?48:12);
  });
 }
+document.addEventListener('DOMContentLoaded',function(){fillIcons();});
 
 function renderMap(){
  calcLevel();
@@ -3029,10 +3030,10 @@ function twDrawCanvas(){
 // PROFILE
 // ══════════════════════════════════════════
 const ALL_GAMES=[
- {key:'RPG_MAT_6',ic:'🚀',nm:'6. ročník – Vesmírná expedice'},
- {key:'RPG_MAT_7',ic:'⛏️',nm:'7. ročník – Ztracený chrám'},
- {key:'RPG_MAT_8',ic:'🎓',nm:'8. ročník – Mat. akademie'},
- {key:'RPG_MAT_9',ic:'💻',nm:'9. ročník – NULL_BYTE'},
+ {key:'RPG_MAT_6',ic:'rocket',nm:'6. ročník – Vesmírná expedice'},
+ {key:'RPG_MAT_7',ic:'temple',nm:'7. ročník – Ztracený chrám'},
+ {key:'RPG_MAT_8',ic:'castle',nm:'8. ročník – Mat. akademie'},
+ {key:'RPG_MAT_9',ic:'chip',nm:'9. ročník – NULL_BYTE'},
 ];
 function renderCrossGames(){
  const el=document.getElementById('pr-allgames');if(!el)return;
@@ -3041,7 +3042,7 @@ function renderCrossGames(){
   let s=null;try{s=JSON.parse(localStorage.getItem(g.key));}catch{}
   const cur=g.key===SAVE_KEY;
   html+='<div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--line)'+(cur?';font-weight:700':'')+'">' +
-   '<span style="font-size:16px">'+g.ic+'</span>'+
+   '<span style="line-height:0;color:var(--gold)">'+(typeof RPGIcons!=='undefined'?RPGIcons.svg(g.ic,16):'')+'</span>'+
    '<span style="flex:1;font-size:12px;color:'+(cur?'#fff':'var(--muted)')+'">'+g.nm+(cur?' ◀':'')+'</span>'+
    (s?'<span style="font-size:12px;color:var(--gold)">LV '+((s.level||1)|0)+' · '+((s.xp||0)|0)+' XP</span>':'<span style="font-size:11px;color:var(--muted)">—</span>')+
   '</div>';
@@ -3093,7 +3094,7 @@ async function updateBattleStats(){
   const acc=tot?Math.round(100*st.correct/tot):0;
   p.style.display='';
   inner.innerHTML=`<div style="display:flex;gap:16px;flex-wrap:wrap;font-family:var(--read,'Lexend',sans-serif);font-size:14px">
-   <span>⚔️ <b>${st.played}</b> soubojů</span>
+   <span><span class="bic" data-ic="swords"></span><b>${st.played}</b> soubojů</span>
    <span>🥇 <b>${st.wins||0}</b> výher</span>
    <span>✓ <b>${acc}%</b> správně</span>
    <span style="color:var(--muted)">⌀ ${st.avg_rank?Number(st.avg_rank).toFixed(1):'-'}. místo</span>
