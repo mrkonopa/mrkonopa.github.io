@@ -614,7 +614,7 @@ html[data-theme="violet"]{--gold:#b06cff;--panel:#100a20;--panel2:#18103a;--blue
  <div id="learn-content"></div>
  <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:18px">
   <button class="btn b" id="learn-battle-btn" onclick="launchLearnBattle()">⚔️ BOJOVAT NYNÍ</button>
-  <button class="btn sm" onclick="go('train')">🎯 TRÉNOVAT</button>
+  <button class="btn sm" onclick="go('train')"><span class="bic" data-ic="target"></span>TRÉNOVAT</button>
  </div>
 </div>
 </div>
@@ -694,7 +694,7 @@ html[data-theme="violet"]{--gold:#b06cff;--panel:#100a20;--panel2:#18103a;--blue
 <div class="wrap">
  <div class="topnav">
  <button class="btn sm" onclick="go('map')">← MAPA</button>
- <span style="font-family:var(--px);font-weight:700;font-size:14px;color:var(--gold)">🎯 TRÉNINK</span>
+ <span style="font-family:var(--px);font-weight:700;font-size:14px;color:var(--gold)"><span class="bic" data-ic="target"></span>TRÉNINK</span>
  <span style="min-width:60px"></span>
  </div>
 
@@ -756,7 +756,7 @@ html[data-theme="violet"]{--gold:#b06cff;--panel:#100a20;--panel2:#18103a;--blue
 <div class="wrap">
  <div class="topnav">
  <button class="btn sm" onclick="twExit()">← MAPA</button>
- <span style="font-family:var(--px);font-weight:700;font-size:14px;color:var(--gold)">🗼 VĚŽ LEGEND</span>
+ <span style="font-family:var(--px);font-weight:700;font-size:14px;color:var(--gold)"><span class="bic" data-ic="tower"></span>VĚŽ LEGEND</span>
  <span style="min-width:60px"></span>
  </div>
  <div class="panel" style="padding:0;overflow:hidden;background:#05060c">
@@ -826,7 +826,7 @@ html[data-theme="violet"]{--gold:#b06cff;--panel:#100a20;--panel2:#18103a;--blue
  <div class="topnav">
   <button class="btn sm" onclick="go('map')">← MAPA</button>
   <span style="font-family:var(--px);font-weight:700;font-size:14px;color:var(--gold)"><span class="bic" data-ic="shop"></span>OBCHOD</span>
-  <span class="credits-chip">💰 <span id="shop-bal">0</span> kr</span>
+  <span class="credits-chip"><span class="bic" data-ic="coin"></span><span id="shop-bal">0</span> kr</span>
  </div>
  <div class="panel" style="padding:10px 14px;font-family:var(--px);font-size:12px;color:var(--muted)">
   Kredity získáš za správné odpovědi, mistrovství a denní sérii. Kosmetika nemá vliv na boj — jde jen o styl.<br>💡 Kredity i koupená kosmetika jsou <b style="color:var(--gold)">společné pro všechny ročníky</b> — co koupíš tady, nosíš všude. <a href="rpg-matematika.html" style="color:var(--blue,#19e6e6)">Globální profil a obchod ↗</a>
@@ -835,7 +835,7 @@ html[data-theme="violet"]{--gold:#b06cff;--panel:#100a20;--panel2:#18103a;--blue
   <button class="btn sm shop-tab active-tab" onclick="shopCat('border')">🔲 Rámy avatara</button>
   <button class="btn sm shop-tab" onclick="shopCat('badge')">🏷️ Jméno</button>
   <button class="btn sm shop-tab" onclick="shopCat('theme')">🎨 Téma mapy</button>
-  <button class="btn sm shop-tab" onclick="shopCat('victory')">🎯 Výhra efekt</button>
+  <button class="btn sm shop-tab" onclick="shopCat('victory')"><span class="bic" data-ic="target"></span>Výhra efekt</button>
   <button class="btn sm shop-tab" onclick="shopCat('skin')">🥷 Skin hrdiny</button>
   <button class="btn sm shop-tab" onclick="shopCat('powerup')">⚡ Powerupy</button>
   <button class="btn sm shop-tab" onclick="shopCat('title')">📜 Tituly</button>
@@ -985,7 +985,7 @@ function earnCredits(n){
  const el=document.createElement('div');
  el.className='float-txt';
  el.style.cssText='left:60%;top:42%;color:#f4d03f';
- el.textContent='💰 +'+n;
+ el.textContent='+'+n+' kr';
  document.body.appendChild(el);
  void el.offsetWidth;el.classList.add('go');
  setTimeout(()=>el.remove(),1200);
@@ -1047,6 +1047,7 @@ function applyCosmetics(){
 let _shopCat='border';
 function shopCat(cat){
  _shopCat=cat;
+ if(typeof fillIcons==='function')fillIcons();
  document.querySelectorAll('.shop-tab').forEach(b=>b.classList.toggle('active-tab',b.textContent.includes(
   {border:'Rámy',badge:'Jméno',theme:'Téma',victory:'Výhra',skin:'Skin',powerup:'Powerupy',title:'Tituly',pet:'Mazlíč'}[cat]
  )));
@@ -1071,7 +1072,7 @@ function renderShop(){
    div.innerHTML=`<span class="si-ic">${item.ic}</span>
     <div class="si-nm">${item.name}</div>
     <div class="si-pr" style="font-size:10px;opacity:.75;margin:2px 0">${item.desc||''}</div>
-    <div class="si-pr">💰 ${item.price} kr · LV ${item.minLevel}</div>
+    <div class="si-pr">${RPGIcons.svg('coin',11)} ${item.price} kr · LV ${item.minLevel}</div>
     <div class="si-btn">
      ${owned?`<span class="btn sm" style="opacity:.4;cursor:default">✓ AKTIVNÍ</span>`
       :!levelOk?`<span class="btn sm" style="opacity:.4;cursor:default">🔒 LV ${item.minLevel}</span>`
@@ -1084,7 +1085,7 @@ function renderShop(){
   div.className='shop-item'+(owned?' owned':'')+(isActive?' active-item':'');
   div.innerHTML=`<span class="si-ic">${item.ic}</span>
    <div class="si-nm">${item.name}</div>
-   <div class="si-pr">${item.price===0?'ZDARMA':'💰 '+item.price+' kr'}</div>
+   <div class="si-pr">${item.price===0?'ZDARMA':RPGIcons.svg('coin',11)+' '+item.price+' kr'}</div>
    <div class="si-btn">
     ${isActive?`<span class="btn sm" style="opacity:.4;cursor:default">✓ AKTIVNÍ</span>`
      :owned?`<button class="btn sm g" onclick="activateItem('${item.id}')">AKTIVOVAT</button>`
@@ -1796,7 +1797,7 @@ function renderRecommend(){
   '<div style="font-family:var(--px);font-size:13px;color:var(--text);line-height:1.45">'+
   '<span style="color:var(--gold);font-weight:700">📚 Doporučený trénink</span><br>'+
   '<span style="color:var(--muted)">Tohle ti zatím dělá potíže:</span> <b>'+rec.name+'</b></div>'+
-  '<button class="btn b sm" style="flex:none" onclick="goPractice(\''+rec.mid+'\')">🎯 Procvičit</button></div>';
+  '<button class="btn b sm" style="flex:none" onclick="goPractice(\''+rec.mid+'\')"><span class="bic" data-ic="target"></span>Procvičit</button></div>';
 }
 
 // Pixelové ikony v tlačítkách — emoji se na každém systému kreslí jinak.
