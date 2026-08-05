@@ -11,9 +11,24 @@ window.RPG_LEARN_4 = {
     ],
     formulas: ['4 725 = 4 000 + 700 + 20 + 5'],
     examples: [
-      { q: 'Jaká cifra je na místě stovek v čísle 3 618?', a: '6' },
-      { q: 'Kolik tisíců je v čísle 7 042?', a: '7 tisíců' },
-      { q: 'Rozlož číslo 6 205 na řády.', a: '6 205 = 6 000 + 200 + 0 + 5 = 6 tisíc + 2 stovky + 5 jednotek (na místě desítek je 0)' },
+      { q: 'Jaká cifra je na místě stovek v čísle 3 618?',
+        s: [
+          'Řády čtu zprava: 8 jednotek, 1 desítka, 6 stovek, 3 tisíce.',
+          'Stovky jsou třetí číslice zprava.',
+          'Výsledek: na místě stovek je 6.'
+        ] },
+      { q: 'Kolik tisíců je v čísle 7 042?',
+        s: [
+          'Tisíce jsou čtvrtá číslice zprava.',
+          'V čísle 7 042 tam stojí 7.',
+          'Výsledek: 7 tisíců.'
+        ] },
+      { q: 'Rozlož číslo 6 205 na řády.',
+        s: [
+          'Zleva čtu řády: 6 tisíc, 2 stovky, 0 desítek, 5 jednotek.',
+          'Zapíšu jako součet: 6 000 + 200 + 0 + 5.',
+          'Výsledek: 6 205 = 6 tisíc + 2 stovky + 5 jednotek. Na místě desítek je nula, tu v součtu psát nemusím.'
+        ] },
     ],
     mistakes: [
       { wrong: '7 042 = 7 stovek', right: '7 042 = 7 tisíců (číslice 7 je na prvním místě zleva)', why: 'Řády se čtou zprava: jednotky, desítky, stovky, tisíce. Cifra nejvíc vlevo u čtyřciferného čísla jsou tisíce.' },
@@ -29,8 +44,18 @@ window.RPG_LEARN_4 = {
     ],
     formulas: ['3 456 < 4 123 (3 tisíce < 4 tisíce)', '5 200 > 5 180 (stovky: 2 > 1)'],
     examples: [
-      { q: 'Porovnej: 6 789 a 6 798', a: '6 789 < 6 798 (desítky: 8 < 9)' },
-      { q: 'Porovnej: 4 050 a 4 500', a: '4 050 < 4 500 (tisíce stejné, stovky: 0 < 5)' },
+      { q: 'Porovnej: 6 789 a 6 798',
+        s: [
+          'Porovnávám zleva, řád po řádu.',
+          'Tisíce 6 = 6, stovky 7 = 7, desítky 8 a 9 → tady se čísla poprvé liší.',
+          'Výsledek: 6 789 < 6 798.'
+        ] },
+      { q: 'Porovnej: 4 050 a 4 500',
+        s: [
+          'Zleva: tisíce 4 = 4, jdu dál.',
+          'Stovky: 0 a 5 → první rozdíl.',
+          'Výsledek: 4 050 < 4 500.'
+        ] },
     ],
     mistakes: [
       { wrong: '980 > 1 020, protože 980 „vypadá delší"', right: '980 < 1 020', why: 'Číslo s více ciframi (čtyřciferné 1 020) je vždy větší než trojciferné. Nejdřív porovnáváme počet cifer / nejvyšší řád.' },
@@ -47,9 +72,24 @@ window.RPG_LEARN_4 = {
     ],
     formulas: ['Zaokrouhlování na stovky: dívám se na desítky', 'Zaokrouhlování na tisíce: dívám se na stovky'],
     examples: [
-      { q: 'Zaokrouhli 4 680 na stovky.', a: '4 700 (desítky: 8 ≥ 5 → nahoru)' },
-      { q: 'Zaokrouhli 7 349 na tisíce.', a: '7 000 (stovky: 3 < 5 → dolů)' },
-      { q: 'Zaokrouhli 2 950 na stovky.', a: '3 000 (desítky: 5 ≥ 5 → nahoru, 29 stovek → 30 stovek = 3 000)' },
+      { q: 'Zaokrouhli 4 680 na stovky.',
+        s: [
+          'Zaokrouhluji na stovky → dívám se na desítky: 8.',
+          '8 je 5 nebo víc → jdu nahoru.',
+          'Výsledek: 4 680 ≈ 4 700.'
+        ] },
+      { q: 'Zaokrouhli 7 349 na tisíce.',
+        s: [
+          'Zaokrouhluji na tisíce → dívám se na stovky: 3.',
+          '3 je méně než 5 → jdu dolů.',
+          'Výsledek: 7 349 ≈ 7 000.'
+        ] },
+      { q: 'Zaokrouhli 2 950 na stovky.',
+        s: [
+          'Na stovky → rozhodují desítky: 5.',
+          '5 je 5 nebo víc → jdu nahoru: z 29 stovek se stane 30 stovek.',
+          'Výsledek: 2 950 ≈ 3 000.'
+        ] },
     ],
     mistakes: [
       { wrong: '4 680 na stovky = 4 600', right: '4 700', why: 'Při zaokrouhlení na stovky rozhoduje cifra desítek (8 ≥ 5), zaokrouhlujeme nahoru na 4 700.' },
@@ -65,8 +105,18 @@ window.RPG_LEARN_4 = {
     ],
     formulas: ['2 456 + 1 738 = 4 194'],
     examples: [
-      { q: '3 567 + 2 489 = ?', a: '6 056' },
-      { q: '4 785 + 1 936 = ?', a: '6 721 (5+6=11 píšu 1 přenos 1; 8+3+1=12 píšu 2 přenos 1; 7+9+1=17 píšu 7 přenos 1; 4+1+1=6)' },
+      { q: '3 567 + 2 489 = ?',
+        s: [
+          'Sčítám pod sebou zprava. Jednotky: 7 + 9 = 16 → píšu 6, přenáším 1.',
+          'Desítky: 6 + 8 + 1 = 15 → píšu 5, přenáším 1. Stovky: 5 + 4 + 1 = 10 → píšu 0, přenáším 1.',
+          'Tisíce: 3 + 2 + 1 = 6. Výsledek: 6 056.'
+        ] },
+      { q: '4 785 + 1 936 = ?',
+        s: [
+          'Jednotky: 5 + 6 = 11 → píšu 1, přenáším 1.',
+          'Desítky: 8 + 3 + 1 = 12 → píšu 2, přenáším 1. Stovky: 7 + 9 + 1 = 17 → píšu 7, přenáším 1.',
+          'Tisíce: 4 + 1 + 1 = 6. Výsledek: 6 721.'
+        ] },
     ],
     mistakes: [
       { wrong: '3 567 + 2 489 = 5 946', right: '6 056', why: 'Zapomenutý přenos: 7+9=16, píšu 6 a 1 přenáším do desítek. Bez přenosu vyjde chybně.' },
@@ -82,8 +132,18 @@ window.RPG_LEARN_4 = {
     ],
     formulas: ['5 003 − 2 487 = 2 516'],
     examples: [
-      { q: '8 000 − 3 456 = ?', a: '4 544' },
-      { q: '6 204 − 1 837 = ?', a: '4 367 (4−7 nejde → půjčím: 14−7=7; …; postupně 6 204 − 1 837 = 4 367)' },
+      { q: '8 000 − 3 456 = ?',
+        s: [
+          'Odčítám pod sebou zprava. Nahoře jsou samé nuly, takže si budu půjčovat z vyššího řádu.',
+          'Jednotky: 10 − 6 = 4. Desítky: 9 − 5 = 4. Stovky: 9 − 4 = 5.',
+          'Tisíce: 7 − 3 = 4. Výsledek: 4 544.'
+        ] },
+      { q: '6 204 − 1 837 = ?',
+        s: [
+          'Jednotky: 4 − 7 nejde → půjčím si desítku: 14 − 7 = 7.',
+          'Desítky: zbyla 0 → půjčím ze stovek: 10 − 3 = 7. Stovky: zbyla 1 → půjčím z tisíců: 11 − 8 = 3.',
+          'Tisíce: 5 − 1 = 4. Výsledek: 4 367.'
+        ] },
     ],
     mistakes: [
       { wrong: '8 000 − 3 456 = 5 456', right: '4 544', why: 'Odčítání od nul vyžaduje postupné půjčování přes několik řádů. Kdo nepůjčí, odečte špatně.' },
@@ -99,8 +159,18 @@ window.RPG_LEARN_4 = {
     ],
     formulas: [],
     examples: [
-      { q: 'Loď naložila 2 400 kg nákladu a ještě 850 kg. Celkem?', a: '2 400 + 850 = 3 250 kg' },
-      { q: 'V truhle bylo 3 500 mincí, piráti utratili 1 275. Kolik zbylo?', a: '3 500 − 1 275 = 2 225 mincí' },
+      { q: 'Loď naložila 2 400 kg nákladu a ještě 850 kg. Celkem?',
+        s: [
+          'Náklad přibývá → budu sčítat.',
+          '2 400 + 850 = 3 250.',
+          'Výsledek: loď veze celkem 3 250 kg.'
+        ] },
+      { q: 'V truhle bylo 3 500 mincí, piráti utratili 1 275. Kolik zbylo?',
+        s: [
+          'Mince ubyly → budu odčítat.',
+          '3 500 − 1 275 = 2 225.',
+          'Výsledek: v truhle zbylo 2 225 mincí.'
+        ] },
     ],
     mistakes: [
       { wrong: 'U slova „utratili" žák sečte místo odečte', right: 'ubývá → odčítáme (3 500 − 1 275)', why: 'Slova „zbylo, ubylo, utratili, méně" znamenají odčítání; „celkem, přibylo, více" znamenají sčítání.' },
@@ -115,9 +185,24 @@ window.RPG_LEARN_4 = {
     ],
     formulas: ['a × b = b × a (zákon zaměnitelnosti)'],
     examples: [
-      { q: '7 × 8 = ?', a: '56' },
-      { q: '9 × 6 = ?', a: '54' },
-      { q: '8 × 7 = ? (a porovnej se 7 × 8)', a: '56 — stejně jako 7 × 8 (zákon zaměnitelnosti)' },
+      { q: '7 × 8 = ?',
+        s: [
+          'Projdu řadu osmičky: 8, 16, 24, 32, 40, 48, 56.',
+          'Sedmý člen je 56.',
+          'Výsledek: 7 × 8 = 56.'
+        ] },
+      { q: '9 × 6 = ?',
+        s: [
+          'Devítku spočítám chytře přes desítku: 10 × 6 = 60.',
+          'Jednu šestku jsem přidal navíc, tak ji odečtu: 60 − 6 = 54.',
+          'Výsledek: 9 × 6 = 54.'
+        ] },
+      { q: '8 × 7 = ? (a porovnej se 7 × 8)',
+        s: [
+          '8 × 7 = 56.',
+          '7 × 8 je taky 56 → na pořadí činitelů nezáleží.',
+          'Výsledek: 56, stejně jako 7 × 8.'
+        ] },
     ],
     mistakes: [
       { wrong: '7 × 8 = 54', right: '56', why: 'Časté přehození s 9 × 6 = 54. Násobilku 7 a 8 je třeba mít pevně zpaměti.' },
@@ -134,9 +219,24 @@ window.RPG_LEARN_4 = {
     ],
     formulas: ['n × 10 → přidám jednu 0', 'n × 100 → přidám dvě 0', '6 × 40 = (6 × 4) × 10 = 240'],
     examples: [
-      { q: '7 × 300 = ?', a: '2 100' },
-      { q: '5 × 80 = ?', a: '400' },
-      { q: '4 × 600 = ?', a: '2 400 (4 × 6 = 24, přidám dvě nuly)' },
+      { q: '7 × 300 = ?',
+        s: [
+          'Nejdřív vynásobím bez nul: 7 × 3 = 21.',
+          'Ve 300 jsou dvě nuly → připíšu je.',
+          'Výsledek: 7 × 300 = 2 100.'
+        ] },
+      { q: '5 × 80 = ?',
+        s: [
+          'Bez nuly: 5 × 8 = 40.',
+          'V 80 je jedna nula → připíšu ji.',
+          'Výsledek: 5 × 80 = 400.'
+        ] },
+      { q: '4 × 600 = ?',
+        s: [
+          'Bez nul: 4 × 6 = 24.',
+          'V 600 jsou dvě nuly → připíšu je.',
+          'Výsledek: 4 × 600 = 2 400.'
+        ] },
     ],
     mistakes: [
       { wrong: '7 × 300 = 210', right: '2 100', why: 'U násobení stovkami se přidávají DVĚ nuly, ne jedna. 7 × 3 = 21, pak +00 → 2 100.' },
@@ -152,8 +252,18 @@ window.RPG_LEARN_4 = {
     ],
     formulas: ['34 × 6 = (30 + 4) × 6 = 30 × 6 + 4 × 6 = 180 + 24 = 204'],
     examples: [
-      { q: '47 × 5 = ?', a: '(40 + 7) × 5 = 200 + 35 = 235' },
-      { q: '63 × 4 = ?', a: '(60 + 3) × 4 = 240 + 12 = 252' },
+      { q: '47 × 5 = ?',
+        s: [
+          'Rozložím 47 na desítky a jednotky: 40 + 7.',
+          '40 × 5 = 200 a 7 × 5 = 35.',
+          'Sečtu obě části: 200 + 35 = 235. Výsledek: 47 × 5 = 235.'
+        ] },
+      { q: '63 × 4 = ?',
+        s: [
+          'Rozložím 63 na 60 + 3.',
+          '60 × 4 = 240 a 3 × 4 = 12.',
+          'Sečtu: 240 + 12 = 252. Výsledek: 63 × 4 = 252.'
+        ] },
     ],
     mistakes: [
       { wrong: '47 × 5 = 200 + 35 = 235, ale žák napíše 205 (sečte jen 200 + 5)', right: '200 + 35 = 235', why: 'Obě dílčí násobení se musí sečíst celá: 40×5=200 a 7×5=35, součet 235.' },
@@ -168,8 +278,18 @@ window.RPG_LEARN_4 = {
     ],
     formulas: ['a : b = c  ⟺  b × c = a'],
     examples: [
-      { q: '72 : 9 = ?', a: '8 (protože 9 × 8 = 72)' },
-      { q: '48 : 6 = ?', a: '8 (protože 6 × 8 = 48)' },
+      { q: '72 : 9 = ?',
+        s: [
+          'Ptám se: kolikrát se devítka vejde do 72?',
+          'Projdu řadu devítky: 9, 18, 27, 36, 45, 54, 63, 72 → osmý člen.',
+          'Výsledek: 72 : 9 = 8, protože 9 × 8 = 72.'
+        ] },
+      { q: '48 : 6 = ?',
+        s: [
+          'Ptám se: čím vynásobím 6, abych dostal 48?',
+          '6 × 8 = 48.',
+          'Výsledek: 48 : 6 = 8.'
+        ] },
     ],
     mistakes: [
       { wrong: '72 : 9 = 9', right: '8', why: 'Kontrola zpětným násobením: 9 × 9 = 81 ≠ 72, kdežto 9 × 8 = 72. Vždy si výsledek ověř násobením.' },
@@ -184,8 +304,18 @@ window.RPG_LEARN_4 = {
     ],
     formulas: ['a = b × q + r  (r < b)', '23 : 4 = 5 zbytek 3  (4×5=20, 23−20=3)'],
     examples: [
-      { q: '29 : 6 = ? zbytek ?', a: '4 zbytek 5 (6×4=24, 29−24=5)' },
-      { q: '38 : 5 = ? zbytek ?', a: '7 zbytek 3 (5×7=35, 38−35=3, a 3 < 5 ✓)' },
+      { q: '29 : 6 = ? zbytek ?',
+        s: [
+          'Hledám největší násobek šestky, který se do 29 vejde: 6 × 4 = 24.',
+          'Co zbude: 29 − 24 = 5.',
+          'Výsledek: 29 : 6 = 4 (zbytek 5). Zbytek musí být menší než dělitel — a 5 < 6 sedí.'
+        ] },
+      { q: '38 : 5 = ? zbytek ?',
+        s: [
+          'Největší násobek pětky do 38: 5 × 7 = 35.',
+          'Zbytek: 38 − 35 = 3.',
+          'Výsledek: 38 : 5 = 7 (zbytek 3). Kontrola: 3 < 5 sedí.'
+        ] },
     ],
     mistakes: [
       { wrong: '29 : 6 = 3 zbytek 11', right: '4 zbytek 5', why: 'Zbytek 11 je větší než dělitel 6 — to je vždy chyba. Vešel by se ještě jeden dělitel, podíl má být 4.' },
@@ -201,8 +331,18 @@ window.RPG_LEARN_4 = {
     ],
     formulas: [],
     examples: [
-      { q: '42 sušenek rozdělíme do 6 pytlíků rovnoměrně. Kolik v každém?', a: '42 : 6 = 7 sušenek' },
-      { q: '50 dukátů dáme po 8 do měšců. Kolik plných měšců a kolik zbyde?', a: '50 : 8 = 6 měšců, zbyde 2 dukáty (8×6=48, 50−48=2)' },
+      { q: '42 sušenek rozdělíme do 6 pytlíků rovnoměrně. Kolik v každém?',
+        s: [
+          'Rozděluji na stejné díly → budu dělit.',
+          '42 : 6 = 7.',
+          'Výsledek: v každém pytlíku je 7 sušenek.'
+        ] },
+      { q: '50 dukátů dáme po 8 do měšců. Kolik plných měšců a kolik zbyde?',
+        s: [
+          'Ptám se, kolikrát se 8 vejde do 50: 8 × 6 = 48.',
+          'Zbytek: 50 − 48 = 2.',
+          'Výsledek: naplníme 6 měšců a 2 dukáty zbydou.'
+        ] },
     ],
     mistakes: [
       { wrong: 'U „rozdělíme rovnoměrně" žák násobí (42 × 6)', right: 'rozdělování → dělíme (42 : 6)', why: 'Slova „rozdělit, každému stejně, po kolika" znamenají dělení, ne násobení.' },
@@ -217,9 +357,24 @@ window.RPG_LEARN_4 = {
     ],
     formulas: ['Obvod obdélníku: O = 2 × (a + b)', 'Obvod čtverce: O = 4 × a'],
     examples: [
-      { q: 'Obdélník: a = 8 cm, b = 5 cm. Obvod?', a: 'O = 2 × (8 + 5) = 2 × 13 = 26 cm' },
-      { q: 'Čtverec: a = 7 cm. Obvod?', a: 'O = 4 × 7 = 28 cm' },
-      { q: 'Obdélník: a = 12 cm, b = 3 cm. Obvod?', a: 'O = 2 × (12 + 3) = 2 × 15 = 30 cm' },
+      { q: 'Obdélník: a = 8 cm, b = 5 cm. Obvod?',
+        s: [
+          'Obvod je délka celého okraje. U obdélníku O = 2 × (a + b).',
+          'Sečtu sousední strany: 8 + 5 = 13.',
+          'Zdvojnásobím: 2 × 13 = 26. Výsledek: O = 26 cm.'
+        ] },
+      { q: 'Čtverec: a = 7 cm. Obvod?',
+        s: [
+          'Čtverec má čtyři stejné strany → O = 4 × a.',
+          '4 × 7 = 28.',
+          'Výsledek: O = 28 cm.'
+        ] },
+      { q: 'Obdélník: a = 12 cm, b = 3 cm. Obvod?',
+        s: [
+          'O = 2 × (a + b).',
+          '12 + 3 = 15, pak 2 × 15 = 30.',
+          'Výsledek: O = 30 cm.'
+        ] },
     ],
     mistakes: [
       { wrong: 'Obvod obdélníku = a + b = 8 + 5 = 13 cm', right: 'O = 2 × (a + b) = 26 cm', why: 'Obdélník má strany dvě dvojice — každou délku i šířku počítáme dvakrát.' },
@@ -235,9 +390,24 @@ window.RPG_LEARN_4 = {
     ],
     formulas: ['Obsah obdélníku: S = a × b', 'Obsah čtverce: S = a × a = a²', 'Jednotky: cm², m², dm²'],
     examples: [
-      { q: 'Obdélník: 6 cm × 4 cm. Obsah?', a: 'S = 6 × 4 = 24 cm²' },
-      { q: 'Čtverec: strana 9 cm. Obsah?', a: 'S = 9 × 9 = 81 cm²' },
-      { q: 'Obdélník: 10 cm × 7 cm. Obsah?', a: 'S = 10 × 7 = 70 cm²' },
+      { q: 'Obdélník: 6 cm × 4 cm. Obsah?',
+        s: [
+          'Obsah je plocha uvnitř. U obdélníku S = a × b.',
+          '6 × 4 = 24.',
+          'Výsledek: S = 24 cm². U obsahu se píší čtvereční centimetry.'
+        ] },
+      { q: 'Čtverec: strana 9 cm. Obsah?',
+        s: [
+          'U čtverce jsou obě strany stejné → S = a × a.',
+          '9 × 9 = 81.',
+          'Výsledek: S = 81 cm².'
+        ] },
+      { q: 'Obdélník: 10 cm × 7 cm. Obsah?',
+        s: [
+          'S = a × b.',
+          '10 × 7 = 70.',
+          'Výsledek: S = 70 cm².'
+        ] },
     ],
     mistakes: [
       { wrong: 'Obsah obdélníku = 2 × (6 + 4) = 20 cm²', right: 'S = a × b = 6 × 4 = 24 cm²', why: 'To je vzorec pro obvod. Obsah se počítá násobením stran (a × b).' },
@@ -254,8 +424,18 @@ window.RPG_LEARN_4 = {
     ],
     formulas: ['Bod: A(x, y) — x vpravo, y nahoru'],
     examples: [
-      { q: 'Kolik os souměrnosti má obdélník (ne čtverec)?', a: '2 osy (vodorovná a svislá středová osa)' },
-      { q: 'Zapiš souřadnice bodu, který je 5 vpravo a 2 nahoru.', a: 'B(5, 2) — první číslo vpravo (x), druhé nahoru (y)' },
+      { q: 'Kolik os souměrnosti má obdélník (ne čtverec)?',
+        s: [
+          'Osa souměrnosti je čára, podle které se obrazec dá přeložit tak, aby se poloviny přesně kryly.',
+          'U obdélníku to jde vodorovně středem a svisle středem. Přes úhlopříčku ne — půlky by se nepřekryly.',
+          'Výsledek: obdélník má 2 osy souměrnosti.'
+        ] },
+      { q: 'Zapiš souřadnice bodu, který je 5 vpravo a 2 nahoru.',
+        s: [
+          'V souřadnicích se píše nejdřív posun vpravo, potom nahoru.',
+          'Vpravo 5, nahoru 2.',
+          'Výsledek: B[5; 2]. Kdybych čísla prohodil, ukazoval bych na úplně jiný bod.'
+        ] },
     ],
     mistakes: [
       { wrong: 'Bod A(3, 4) čten jako 3 nahoru a 4 vpravo', right: '3 vpravo (x) a 4 nahoru (y)', why: 'Pořadí souřadnic je pevné: první je vodorovná (x, vpravo), druhá svislá (y, nahoru).' },
@@ -271,9 +451,24 @@ window.RPG_LEARN_4 = {
     ],
     formulas: ['1 km = 1 000 m', '1 m = 10 dm = 100 cm = 1 000 mm'],
     examples: [
-      { q: '5 km = ? m', a: '5 000 m' },
-      { q: '30 cm = ? dm', a: '3 dm' },
-      { q: '2 m = ? cm', a: '200 cm (1 m = 100 cm, tedy 2 × 100)' },
+      { q: '5 km = ? m',
+        s: [
+          '1 km = 1 000 m.',
+          '5 × 1 000 = 5 000.',
+          'Výsledek: 5 km = 5 000 m.'
+        ] },
+      { q: '30 cm = ? dm',
+        s: [
+          '1 dm = 10 cm → z centimetrů na decimetry dělím deseti.',
+          '30 : 10 = 3.',
+          'Výsledek: 30 cm = 3 dm.'
+        ] },
+      { q: '2 m = ? cm',
+        s: [
+          '1 m = 100 cm.',
+          '2 × 100 = 200.',
+          'Výsledek: 2 m = 200 cm.'
+        ] },
     ],
     mistakes: [
       { wrong: '5 km = 500 m', right: '5 000 m', why: 'Špatný počet nul. 1 km = 1 000 m (tři nuly), takže 5 km = 5 000 m.' },
@@ -290,9 +485,24 @@ window.RPG_LEARN_4 = {
     ],
     formulas: ['1 kg = 1 000 g', '1 h = 60 min', '1 min = 60 s'],
     examples: [
-      { q: '3 kg = ? g', a: '3 000 g' },
-      { q: '2 h 30 min = ? min', a: '150 min' },
-      { q: '1 h 15 min = ? min', a: '75 min (60 + 15)' },
+      { q: '3 kg = ? g',
+        s: [
+          '1 kg = 1 000 g.',
+          '3 × 1 000 = 3 000.',
+          'Výsledek: 3 kg = 3 000 g.'
+        ] },
+      { q: '2 h 30 min = ? min',
+        s: [
+          '1 hodina = 60 minut → 2 hodiny = 2 × 60 = 120 minut.',
+          'Přičtu zbývajících 30 minut: 120 + 30 = 150.',
+          'Výsledek: 2 h 30 min = 150 minut.'
+        ] },
+      { q: '1 h 15 min = ? min',
+        s: [
+          '1 hodina = 60 minut.',
+          '60 + 15 = 75.',
+          'Výsledek: 1 h 15 min = 75 minut.'
+        ] },
     ],
     mistakes: [
       { wrong: '3 kg = 300 g', right: '3 000 g', why: 'Špatný počet nul. 1 kg = 1 000 g (tři nuly), takže 3 kg = 3 000 g.' },
@@ -308,8 +518,18 @@ window.RPG_LEARN_4 = {
     ],
     formulas: [],
     examples: [
-      { q: 'Knížka stojí 149 Kč, pero 35 Kč. Zaplatíme celkem?', a: '149 + 35 = 184 Kč' },
-      { q: 'Platíš 200 Kč za nákup za 165 Kč. Kolik ti vrátí?', a: '200 − 165 = 35 Kč' },
+      { q: 'Knížka stojí 149 Kč, pero 35 Kč. Zaplatíme celkem?',
+        s: [
+          'Platím obojí → sčítám.',
+          '149 + 35 = 184.',
+          'Výsledek: zaplatíme 184 Kč.'
+        ] },
+      { q: 'Platíš 200 Kč za nákup za 165 Kč. Kolik ti vrátí?',
+        s: [
+          'Vrácené peníze = kolik dám mínus kolik to stojí.',
+          '200 − 165 = 35.',
+          'Výsledek: vrátí ti 35 Kč.'
+        ] },
     ],
     mistakes: [
       { wrong: 'U „kolik vrátí" žák sečte cenu a platbu', right: 'vrací se rozdíl: 200 − 165 = 35 Kč', why: 'Vrácené peníze = zaplaceno mínus cena. Slovo „vrátí/zbyde" znamená odčítání.' },
@@ -325,8 +545,18 @@ window.RPG_LEARN_4 = {
     ],
     formulas: ['1 000 000 = 1 000 × 1 000 = milion'],
     examples: [
-      { q: 'Jak zapíšeme: dvě stě třicet tisíc šest set deset?', a: '230 610' },
-      { q: 'Kolik tisíců je v čísle 405 000?', a: '405 tisíc' },
+      { q: 'Jak zapíšeme: dvě stě třicet tisíc šest set deset?',
+        s: [
+          'Rozdělím si to na tisíce a zbytek: dvě stě třicet tisíc a šest set deset.',
+          '230 tisíc = 230, za tím patří tři místa pro stovky, desítky a jednotky: 610.',
+          'Výsledek: 230 610.'
+        ] },
+      { q: 'Kolik tisíců je v čísle 405 000?',
+        s: [
+          'Poslední tři číslice jsou pod tisícem → zakryji je.',
+          'Zbyde 405.',
+          'Výsledek: 405 tisíc.'
+        ] },
     ],
     mistakes: [
       { wrong: '230 610 zapsáno jako 23 610 (chybí nula)', right: '230 610', why: 'Ve „dvě stě třicet tisíc" musí být tři cifry tisíců (230), pak tři cifry pro stovky/desítky/jednotky. Chybějící nula zmenší číslo desetkrát.' },
@@ -342,8 +572,18 @@ window.RPG_LEARN_4 = {
     ],
     formulas: ['256 780 + 143 220 = 400 000', '500 000 − 123 456 = 376 544'],
     examples: [
-      { q: '345 000 + 78 500 = ?', a: '423 500' },
-      { q: '600 000 − 245 000 = ?', a: '355 000' },
+      { q: '345 000 + 78 500 = ?',
+        s: [
+          'Sčítám pod sebou zprava. Jednotky i desítky jsou nuly, stovky: 0 + 5 = 5.',
+          'Tisíce: 5 + 8 = 13 → píšu 3, přenáším 1. Desetitisíce: 4 + 7 + 1 = 12 → píšu 2, přenáším 1.',
+          'Statisíce: 3 + 1 = 4. Výsledek: 423 500.'
+        ] },
+      { q: '600 000 − 245 000 = ?',
+        s: [
+          'Obě čísla končí třemi nulami → na chvíli je odmyslím a počítám v tisících.',
+          '600 − 245 = 355.',
+          'Nuly vrátím zpátky. Výsledek: 355 000.'
+        ] },
     ],
     mistakes: [
       { wrong: '345 000 + 78 500 = 415 500 (řády nezarovnané)', right: '423 500', why: 'Čísla s různým počtem cifer se musí zarovnat zprava, jinak sčítáme špatné řády.' },
@@ -358,8 +598,18 @@ window.RPG_LEARN_4 = {
     ],
     formulas: [],
     examples: [
-      { q: 'Zaokrouhli 456 789 na tisíce.', a: '457 000 (stovky: 7 ≥ 5 → nahoru)' },
-      { q: 'Obdélníková zahrada 25 m × 8 m — obvod a obsah?', a: 'O = 2 × (25 + 8) = 66 m; S = 25 × 8 = 200 m²' },
+      { q: 'Zaokrouhli 456 789 na tisíce.',
+        s: [
+          'Zaokrouhluji na tisíce → rozhodují stovky: 7.',
+          '7 je 5 nebo víc → jdu nahoru: ze 456 tisíc se stane 457 tisíc.',
+          'Výsledek: 456 789 ≈ 457 000.'
+        ] },
+      { q: 'Obdélníková zahrada 25 m × 8 m — obvod a obsah?',
+        s: [
+          'Obvod: O = 2 × (25 + 8) = 2 × 33 = 66 m.',
+          'Obsah: S = 25 × 8 = 200 m².',
+          'Výsledek: plot kolem zahrady měří 66 m a plocha je 200 m².'
+        ] },
     ],
     mistakes: [
       { wrong: '456 789 na tisíce = 456 000', right: '457 000', why: 'Při zaokrouhlení na tisíce rozhoduje cifra stovek (7 ≥ 5) → nahoru.' },

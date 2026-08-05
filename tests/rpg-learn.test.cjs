@@ -1,15 +1,26 @@
 /* ══════════════════════════════════════════════════════════════════
-   Test: learning content (Teorie) pro ročníky 6/7/8/9
-   Ověřuje moduly rpg-learn-N.js + zapojení s-learn v rpg-mat-N.html
+   Test: learning content (Teorie) pro ročníky 3.–9.
+
+   Ověřuje moduly rpg-learn-N.js + zapojení s-learn v rpg-mat-N.html.
+
+   Původně pokrýval jen 6.–9. — a přesně proto v něm přežila vada:
+   ve 4. ročníku měly VŠECHNY příklady jen otázku a holý výsledek
+   (`{q, a}`) místo kroků řešení (`{q, s:[…]}`). Renderer to nespadne,
+   jen místo návodu ukáže odpověď, takže „vyřešený postup", kvůli
+   kterému teorie existuje, tam chyběl. První stupeň se proto testuje
+   taky a přibylo pravidlo na kroky řešení.
    ══════════════════════════════════════════════════════════════════ */
 const fs = require('fs');
 const path = require('path');
 
 const PROJ = path.join(__dirname, '..', 'projects');
 let pass = 0, fail = 0;
-function ok(cond, msg){ if(cond){pass++; console.log('  ✅ '+msg);} else {fail++; console.log('  ❌ '+msg);} }
+function ok(cond, msg, detail){ if(cond){pass++; console.log('  ✅ '+msg);} else {fail++; console.log('  ❌ '+msg+(detail?' — '+detail:''));} }
 
-const GRADES = [6, 7, 8, 9];
+const GRADES = [3, 4, 5, 6, 7, 8, 9];
+// Oba stupně mají historicky jiná jména polí u sekcí: 2. stupeň {h, p:[]},
+// 1. stupeň {title, body}. Test počítá s obojím, ať neplatí jen na půlku her.
+const sekceMaObsah = (x) => !!(x && ((x.h || x.title) && ((Array.isArray(x.p) && x.p.length) || x.body)));
 
 for (const g of GRADES) {
   console.log(`\n── ${g}. ročník ──`);
@@ -39,6 +50,43 @@ for (const g of GRADES) {
   ok(videoOK, 'video je všude buď null, nebo {id,title}');
   console.log(`     (misí s videem: ${vids})`);
 
+  // sekce musí mít nadpis i text — prázdná sekce projde tvarem, ale žák
+  // v ní nic nenajde
+  {
+    const prazdne = keys.filter(k => (L[k].sections || []).some(x => !sekceMaObsah(x)));
+    ok(prazdne.length === 0, 'žádná sekce není bez nadpisu nebo bez textu',
+      prazdne.slice(0, 3).join(', '));
+  }
+
+  /* ŘEŠENÝ POSTUP — hlavní smysl teorie.
+
+     Pozor na míru: na 2. stupni jsou postupy často zhuštěné do jednoho
+     řádku („67 + 48 = 67 + 40 + 8 = 115"), a to je pro třináctileté
+     v pořádku. Pravidlo „aspoň dva kroky" by na ně křičelo vlka.
+     Skutečná vada byla jiná — ve 4. ročníku stálo místo postupu holé
+     „6". Hlídá se tedy to, co odlišuje vadu od zhuštění: příklad musí
+     mít kroky (`s`), ne jen odpověď (`a`), a text musí ukazovat práci,
+     ne pouhou hodnotu. */
+  {
+    const vsechny = keys.flatMap(k => (L[k].examples || []).map(e => ({ k, e })));
+    ok(vsechny.length >= keys.length, `příklady existují (${vsechny.length})`);
+
+    const holyVysledek = vsechny.filter(x => !Array.isArray(x.e.s) || !x.e.s.length);
+    ok(holyVysledek.length === 0,
+      'každý příklad má kroky řešení (`s`), ne jen odpověď (`a`)',
+      holyVysledek.slice(0, 3).map(x => x.k + ': ' + String(x.e.q).slice(0, 38)).join(' | '));
+
+    // Ukazuje postup = je tam rovnítko/šipka/dvojtečka, nebo je to věta.
+    const ukazujePostup = (t) => /[=→:]/.test(t) || (t.includes(' ') && t.length >= 18);
+    const bezPostupu = vsechny.filter(x => {
+      const t = (x.e.s || []).join(' ').replace(/<[^>]+>/g, '').trim();
+      return t && !ukazujePostup(t);
+    });
+    ok(bezPostupu.length === 0,
+      'řešení ukazuje postup, ne jen holou hodnotu',
+      bezPostupu.slice(0, 3).map(x => x.k + ': «' + (x.e.s || []).join(' ').slice(0, 30) + '»').join(' | '));
+  }
+
   // mise odpovídají vzoru oblast-mise 1-1 … 7-3
   const expected = [];
   for (let a = 1; a <= 7; a++) for (let m = 1; m <= 3; m++) expected.push(`${a}-${m}`);
@@ -50,10 +98,10 @@ for (const g of GRADES) {
   ok(html.includes('id="s-learn"'), 'HTML má obrazovku s-learn');
   ok(html.includes('function startLearn'), 'HTML má funkci startLearn');
   ok(html.includes('function renderLearn'), 'HTML má funkci renderLearn');
-  ok(html.includes('function launchLearnBattle'), 'HTML má funkci launchLearnBattle');
+  if (g >= 6) ok(html.includes('function launchLearnBattle'), 'HTML má funkci launchLearnBattle');
   ok(html.includes(`window.RPG_LEARN_${g}`), `renderLearn čte RPG_LEARN_${g}`);
   ok(html.includes(`./rpg-learn-${g}.js`), `HTML načítá rpg-learn-${g}.js`);
-  ok(html.includes("if(active.id==='s-learn'){launchLearnBattle();}"), 's-learn má klávesovou zkratku');
+  if (g >= 6) ok(html.includes("if(active.id==='s-learn'){launchLearnBattle();}"), 's-learn má klávesovou zkratku');
   ok(html.includes('startLearn('), 'tlačítko Teorie volá startLearn');
 }
 
