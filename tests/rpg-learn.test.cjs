@@ -48,6 +48,17 @@ for (const g of GRADES) {
   }
   ok(structOK, 'každá mise má intro + alespoň jednu sekci');
 
+  /* HLOUBKA VÝKLADU — definice sama nestačí, žák potřebuje i „proč"
+     a typickou past. První stupeň měl ⌀ 160 znaků na misi proti ~1 400
+     na druhém; práh je proto nastavený nízko a měří to, co je opravdu
+     málo, ne rozdíl mezi stupni. */
+  {
+    const txt = (x) => (Array.isArray(x.p) ? x.p.join(' ') : (x.body || '')) + ' ' + (x.h || x.title || '');
+    const chude = keys.filter(k => (L[k].sections || []).reduce((a, x) => a + txt(x).length, 0) < 250);
+    ok(chude.length === 0, 'výklad mise má aspoň 250 znaků, ne jen definici',
+      chude.slice(0, 3).join(', '));
+  }
+
   /* ÚVOD MÁ VTÁHNOUT DO PŘÍBĚHU, ne být popiskem z obsahu učebnice.
      Hry stojí na světě se strážci misí, ale první stupeň a 9. ročník
      měly úvody typu „Pořadí operací a obory čísel — základ každého

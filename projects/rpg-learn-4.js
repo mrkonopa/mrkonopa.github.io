@@ -8,6 +8,8 @@ window.RPG_LEARN_4 = {
     sections: [
       { title: 'Číselná řada do 10 000', body: 'Čísla od 1 000 do 10 000 se skládají ze čtyř číslic. Největší čtyřciferné číslo je 9 999, největší číslo do 10 000 je 10 000.' },
       { title: 'Rozklad čísla', body: 'Každé číslo můžeme rozložit: tisíce + stovky + desítky + jednotky. Např. 4 725 = 4 tisíce + 7 stovek + 2 desítky + 5 jednotek.' },
+    ,
+      { title: 'Mezera po třech cifrách není ozdoba', body: 'Velká čísla se píšou s mezerou po každých třech cifrách zprava: 4 725, ne 4725. Mezera pomáhá číslo hned přečíst — vlevo od ní jsou tisíce. Zakryj prstem poslední tři cifry a zbyde ti počet tisíců.' }
     ],
     formulas: ['4 725 = 4 000 + 700 + 20 + 5'],
     examples: [
@@ -41,6 +43,8 @@ window.RPG_LEARN_4 = {
     intro: '🐚 Lastury moře se srovnávají od nejmenší k největší. „Která je která?" šumí. Nauč se porovnávat čísla do 10 000.',
     sections: [
       { title: 'Jak porovnat dvě čísla', body: 'Porovnáváme vždy od nejvyššího řádu. Nejprve tisíce — kdo má více tisíců, má větší číslo. Jsou-li tisíce stejné, porovnáme stovky, pak desítky, pak jednotky.' },
+    ,
+      { title: 'Nejdřív spočítej cifry', body: 'Než začneš porovnávat po řádech, podívej se, kolik má které číslo cifer. Čtyřciferné je vždycky větší než trojciferné. Teprve při stejném počtu cifer jdeš zleva řád po řádu. Nikdy neporovnávej podle toho, které číslo „vypadá delší" na papíře.' }
     ],
     formulas: ['3 456 < 4 123 (3 tisíce < 4 tisíce)', '5 200 > 5 180 (stovky: 2 > 1)'],
     examples: [
@@ -69,6 +73,8 @@ window.RPG_LEARN_4 = {
     sections: [
       { title: 'Pravidlo zaokrouhlování', body: 'Podíváme se na číslici vpravo od místa, na které zaokrouhlujeme. Je-li 0–4, zaokrouhlíme dolů (zbývající číslice nahradíme nulami). Je-li 5–9, zaokrouhlíme nahoru.' },
       { title: 'Příklady', body: '3 247 zaokrouhleno na stovky: cifra desítek je 4 → dolů → 3 200. Na tisíce: cifra stovek je 2 → dolů → 3 000.' },
+    ,
+      { title: 'Zaokrouhlené číslo se píše s ≈', body: 'Zaokrouhlením se číslo změní, proto se mezi ně nepíše rovnítko, ale vlnovka: 3 247 ≈ 3 200. Nižší řády se nahradí nulami — nezmizí, jen se vynulují. Rozhoduje vždy jen jedna cifra: ta hned vpravo od místa, na které zaokrouhluješ.' }
     ],
     formulas: ['Zaokrouhlování na stovky: dívám se na desítky', 'Zaokrouhlování na tisíce: dívám se na stovky'],
     examples: [
@@ -102,6 +108,8 @@ window.RPG_LEARN_4 = {
     intro: '🐙 Mini chobotnice si osmi chapadly přidává náklad. „Kolik toho uneseš dohromady?" Nauč se sčítat pod sebou do 10 000.',
     sections: [
       { title: 'Sčítání pod sebou', body: 'Čísla zapíšeme pod sebe, jednotky pod jednotky, desítky pod desítky atd. Sčítáme zprava. Přesáhne-li součet 9, zapíšeme jednotku přenosu do vyššího řádu.' },
+    ,
+      { title: 'Zarovnání je půlka úspěchu', body: 'Nejčastější chyba při sčítání pod sebou není v počítání, ale v zápisu: jednotky musí být pod jednotkami. Když čísla nemají stejný počet cifer, zarovnej je doprava, ne doleva. Přenos si piš drobně nad další sloupec, ať na něj nezapomeneš.' }
     ],
     formulas: ['2 456 + 1 738 = 4 194'],
     examples: [
@@ -129,6 +137,8 @@ window.RPG_LEARN_4 = {
     intro: '🦈 Žralouček ukusuje z nákladu. „Kolik ti zbyde?" cení zuby. Nauč se odčítat pod sebou a půjčovat si z vyššího řádu.',
     sections: [
       { title: 'Odčítání pod sebou', body: 'Zapíšeme čísla pod sebe. Odčítáme zprava. Je-li menšenec menší než menšitel na daném místě, půjčíme si z vyššího řádu (přenosem).' },
+    ,
+      { title: 'Půjčování přes nuly', body: 'U příkladu jako 8 000 − 3 456 není odkud si půjčit v sousedním sloupci, protože tam je nula. Půjčuje se proto přes několik sloupců najednou: z osmičky se stane 7 a nuly se změní na devítky. Poslední sloupec dostane celou desítku: 10 − 6 = 4.' }
     ],
     formulas: ['5 003 − 2 487 = 2 516'],
     examples: [
@@ -156,6 +166,8 @@ window.RPG_LEARN_4 = {
     intro: '🪸 Korálový duch mluví v hádankách. „Přibývá, nebo ubývá?" Nauč se ve slovní úloze poznat, kdy sčítat a kdy odčítat.',
     sections: [
       { title: 'Postup řešení slovní úlohy', body: '1. Přečtu úlohu a vyznačím, co hledám.\n2. Zapíšu rovnici nebo výpočet.\n3. Vypočítám.\n4. Odpovím celou větou.' },
+    ,
+      { title: 'Slova napovídají operaci', body: '„Celkem", „dohromady", „přibylo" vedou na sčítání. „Zbylo", „utratil", „o kolik víc" na odčítání. Než počítáš, řekni si nahlas, co hledáš. Odpověz vždy celou větou s jednotkou — samotné číslo není odpověď.' }
     ],
     formulas: [],
     examples: [
@@ -182,6 +194,8 @@ window.RPG_LEARN_4 = {
     intro: '🏴‍☠️ Pirátský kapitán dělí kořist na stejné hromádky. „Kolik dohromady?" hřímá. Procvič si násobilku do deseti.',
     sections: [
       { title: 'Násobilka jako základ', body: 'Násobilka jsou výsledky součinů čísel 1 až 10. Musíme ji znát zpaměti! Platí i zákon zaměnitelnosti: 3 × 7 = 7 × 3.' },
+    ,
+      { title: 'Když si na spoj nevzpomeneš', body: 'Zapomenutý spoj si dopočítáš od něčeho, co víš. 7 × 8 vezmi jako 7 × 10 = 70 mínus dvě sedmičky: 70 − 14 = 56. 9 × 6 spočítáš jako 10 × 6 = 60 mínus jedna šestka: 54. Zákon zaměnitelnosti ti navíc půlí učení — stačí jedna polovina tabulky.' }
     ],
     formulas: ['a × b = b × a (zákon zaměnitelnosti)'],
     examples: [
@@ -216,6 +230,8 @@ window.RPG_LEARN_4 = {
     sections: [
       { title: 'Násobení 10 a 100', body: 'Násobíme-li číslo 10, připíšeme na konec nulu. Násobíme-li 100, připíšeme dvě nuly.' },
       { title: 'Násobení desítkami', body: '6 × 40 = 6 × 4 × 10 = 24 × 10 = 240. Využíváme násobilku a přidáme nulu.' },
+    ,
+      { title: 'Nuly připiš až nakonec', body: 'U 7 × 300 nejdřív vynásob 7 × 3 = 21 a teprve pak připiš dvě nuly: 2 100. Když nuly připíšeš dřív, snadno jich napíšeš víc nebo míň. Kolik nul je v činiteli, tolik jich připiš k výsledku.' }
     ],
     formulas: ['n × 10 → přidám jednu 0', 'n × 100 → přidám dvě 0', '6 × 40 = (6 × 4) × 10 = 240'],
     examples: [
@@ -249,6 +265,8 @@ window.RPG_LEARN_4 = {
     intro: '🔮 Mořský mág rozkládá čísla na kousky. „Zvládneš 47 × 5 z hlavy?" Nauč se rozklad na desítky a jednotky.',
     sections: [
       { title: 'Rozklad na desítky a jednotky', body: 'Dvoumístné číslo rozložíme na desítky a jednotky: 34 = 30 + 4. Pak násobíme každou část zvlášť a výsledky sečteme.' },
+    ,
+      { title: 'Rozklad si vždycky zkontroluj odhadem', body: 'U 47 × 5 rozlož 47 na 40 + 7, vynásob obě části a sečti: 200 + 35 = 235. Odhad: 47 je skoro 50, a 50 × 5 = 250 — výsledek 235 tomu odpovídá. Kdyby ti vyšlo 2 350 nebo 23, hned víš, že je někde chyba.' }
     ],
     formulas: ['34 × 6 = (30 + 4) × 6 = 30 × 6 + 4 × 6 = 180 + 24 = 204'],
     examples: [
@@ -275,6 +293,8 @@ window.RPG_LEARN_4 = {
     intro: '💀 Kostlivec pirát rozdává kosti spravedlivě. „Kolik na každého?" chrastí. Nauč se dělit beze zbytku.',
     sections: [
       { title: 'Dělení jako opak násobení', body: 'Dělení je opakem násobení. Hledáme číslo, kterým musíme vynásobit dělitele, abychom dostali dělenec. Např. 56 : 7 = ? → ptáme se: 7 × ? = 56 → 7 × 8 = 56 → výsledek je 8.' },
+    ,
+      { title: 'Dělení si ověříš násobením', body: 'Každé dělení jde zkontrolovat obráceně: vyjde-li 48 : 6 = 8, musí platit 6 × 8 = 48. Kontrola zabere pár vteřin a odhalí většinu chyb. Když ti nesedí, výsledek je špatně — ne kontrola.' }
     ],
     formulas: ['a : b = c  ⟺  b × c = a'],
     examples: [
@@ -301,6 +321,8 @@ window.RPG_LEARN_4 = {
     intro: '🪝 Kapitán s hákem nikdy nerozdělí všechno. „A co s tím, co zbyde?" Nauč se dělit se zbytkem a hlídat, že zbytek < dělitel.',
     sections: [
       { title: 'Zbytek po dělení', body: 'Ne vždy vyjde dělení přesně. Zbytek je část, která zbyde po dělení. Platí: dělenec = dělitel × podíl + zbytek. Zbytek musí být vždy menší než dělitel!' },
+    ,
+      { title: 'Zbytek musí být menší než dělitel', body: 'Kdyby byl zbytek stejný nebo větší než dělitel, znamenalo by to, že se do něj dělitel vejde ještě jednou. U 29 : 6 nemůže vyjít „3 zbytek 11" — jedenáct šestek by pobralo ještě jednu. Správně je 4 (zbytek 5), protože 5 < 6.' }
     ],
     formulas: ['a = b × q + r  (r < b)', '23 : 4 = 5 zbytek 3  (4×5=20, 23−20=3)'],
     examples: [
@@ -328,6 +350,8 @@ window.RPG_LEARN_4 = {
     intro: '🎲 Hazardní duch sází na to, že se spleteš. „Kolik plných měšců a kolik zbyde?" Nauč se slovní úlohy s dělením.',
     sections: [
       { title: 'Kdy dělíme?', body: 'Dělíme, když rozdělujeme stejnoměrně (kolika lidem?, kolik každému?) nebo zjišťujeme, kolikrát se vejde menší číslo do většího.' },
+    ,
+      { title: 'Ptá se úloha na plné díly, nebo na zbytek?', body: 'Stejné dělení může mít dvě různé odpovědi podle otázky. U 50 dukátů po 8: plných měšců je 6 a zbydou 2 dukáty. Když se úloha ptá „kolik plných", odpověz 6. Když „kolik zbyde", odpověz 2. Přečti si otázku ještě jednou, než odpovíš.' }
     ],
     formulas: [],
     examples: [
@@ -354,6 +378,8 @@ window.RPG_LEARN_4 = {
     intro: '🐠 Ohnivá rybka plave dokola kolem obdélníkového útesu. „Jak dlouhá je ta cesta?" Nauč se počítat obvod.',
     sections: [
       { title: 'Obvod = součet všech stran', body: 'Obvod je celková délka hranice (obrysu) tvaru. U obdélníku jsou dvě dvojice rovnoběžných stran (a a b). U čtverce jsou všechny strany stejně dlouhé.' },
+    ,
+      { title: 'Obvod obcházíš po hranici', body: 'Představ si, že po obrysu jdeš prstem dokola — délka té cesty je obvod. U obdélníku stačí sečíst dvě sousední strany a výsledek vzít dvakrát: 2 × (8 + 5) = 26 cm. Než začneš sčítat, zkontroluj, že jsou všechny strany ve stejné jednotce.' }
     ],
     formulas: ['Obvod obdélníku: O = 2 × (a + b)', 'Obvod čtverce: O = 4 × a'],
     examples: [
@@ -387,6 +413,8 @@ window.RPG_LEARN_4 = {
     intro: '🐡 Nafukovač se roztahuje do plochy. „Kolik čtverečků mě pokryje?" Nauč se počítat obsah obdélníku a čtverce.',
     sections: [
       { title: 'Obsah = počet čtverečků uvnitř', body: 'Obsah říká, kolik čtverečků (čtvercových jednotek) leží uvnitř tvaru. Obdélník se dá vyplnit čtverečky po řadách: a řad po b čtverečcích.' },
+    ,
+      { title: 'Obsah má jiné jednotky než obvod', body: 'Obvod se měří v centimetrech, obsah ve čtverečních centimetrech (cm²), protože počítáš čtverečky uvnitř. Když u obsahu napíšeš jen cm, je odpověď neúplná. Pomůcka: obvod je cesta kolem, obsah je koberec uvnitř.' }
     ],
     formulas: ['Obsah obdélníku: S = a × b', 'Obsah čtverce: S = a × a = a²', 'Jednotky: cm², m², dm²'],
     examples: [
@@ -421,6 +449,8 @@ window.RPG_LEARN_4 = {
     sections: [
       { title: 'Souřadnicová síť', body: 'V síti určujeme polohu bodu dvojicí čísel (x, y). První číslo je vzdálenost od svislé osy (vpravo), druhé od vodorovné osy (nahoru). Píšeme do závorky: bod A(3, 4).' },
       { title: 'Osy souměrnosti', body: 'Osa souměrnosti je přímka, která dělí tvar na dvě stejné (zrcadlové) části. Obdélník má 2 osy, čtverec má 4 osy souměrnosti.' },
+    ,
+      { title: 'Na pořadí souřadnic záleží', body: 'První číslo je posun vpravo, druhé nahoru. Bod [5; 2] a bod [2; 5] leží na úplně jiných místech. Zapisuje se do hranatých závorek a odděluje středníkem. Než zapíšeš, ukaž si prstem: nejdřív doprava, potom nahoru.' }
     ],
     formulas: ['Bod: A(x, y) — x vpravo, y nahoru'],
     examples: [
@@ -448,6 +478,8 @@ window.RPG_LEARN_4 = {
     sections: [
       { title: 'Přehled jednotek', body: '1 km = 1 000 m\n1 m = 10 dm\n1 dm = 10 cm\n1 cm = 10 mm' },
       { title: 'Převody', body: 'Při převodu na menší jednotky násobíme. Při převodu na větší jednotky dělíme.' },
+    ,
+      { title: 'Menší jednotka, větší číslo', body: 'Při převodu na menší jednotku číslo vzroste — 5 km je 5 000 m, protože metry jsou drobnější. Při převodu na větší jednotku číslo klesne. Než výsledek napíšeš, zeptej se: mělo mi vyjít větší, nebo menší číslo? Chytíš tím většinu překlepů.' }
     ],
     formulas: ['1 km = 1 000 m', '1 m = 10 dm = 100 cm = 1 000 mm'],
     examples: [
@@ -482,6 +514,8 @@ window.RPG_LEARN_4 = {
     sections: [
       { title: 'Hmotnost', body: '1 kg = 1 000 g. Hmotnost měříme na váze. Běžné jednotky: g (gram), kg (kilogram), t (tuna = 1 000 kg).' },
       { title: 'Čas', body: '1 hodina = 60 minut. 1 minuta = 60 sekund. 1 den = 24 hodin. 1 týden = 7 dní.' },
+    ,
+      { title: 'Čas se nepočítá po desítkách', body: 'U délky i hmotnosti se posouváš po desítkách, stovkách a tisících, ale u času ne — hodina má 60 minut, ne 100. Proto 1 h 15 min není 115 minut, ale 75 minut. Vždy nejdřív převeď hodiny na minuty a teprve pak přičti zbytek.' }
     ],
     formulas: ['1 kg = 1 000 g', '1 h = 60 min', '1 min = 60 s'],
     examples: [
@@ -515,6 +549,8 @@ window.RPG_LEARN_4 = {
     intro: '💰 Zlatý duch počítá dukáty do posledního. „Kolik zaplatíš a kolik ti vrátí?" Nauč se počítat s penězi.',
     sections: [
       { title: 'Peníze v ČR', body: '1 Kč = 100 haléřů (haléře se dnes nepoužívají). Běžné mince: 1, 2, 5, 10, 20, 50 Kč. Bankovky: 100, 200, 500, 1 000, 2 000, 5 000 Kč.' },
+    ,
+      { title: 'Vrácená částka musí být menší', body: 'Při nákupu ceny sčítáš. Když platíš větší bankovkou, vrácené peníze jsou rozdíl: kolik jsi dal mínus kolik to stálo. Zkontroluj se selským rozumem — vrácená částka musí být menší než to, cos podal. Kdyby vyšla větší, máš prohozené odčítání.' }
     ],
     formulas: [],
     examples: [
@@ -542,6 +578,8 @@ window.RPG_LEARN_4 = {
     sections: [
       { title: 'Od tisíce k milionu', body: '1 000 = tisíc\n10 000 = deset tisíc\n100 000 = sto tisíc\n1 000 000 = jeden milion = 1 000 tisíc.' },
       { title: 'Zápis velkých čísel', body: 'Velká čísla píšeme s mezerou po každých třech cifrách zprava: 345 678 (tři sta čtyřicet pět tisíc šest set sedmdesát osm).' },
+    ,
+      { title: 'Velká čísla čti po trojicích', body: 'Mezery rozdělují číslo na trojice a každá trojice má své jméno: 345 678 přečteš jako „tři sta čtyřicet pět tisíc — šest set sedmdesát osm". Nejdřív si číslo rozděl očima, teprve pak čti. Milion je tisíc tisíců, tedy 1 000 000.' }
     ],
     formulas: ['1 000 000 = 1 000 × 1 000 = milion'],
     examples: [
@@ -569,6 +607,8 @@ window.RPG_LEARN_4 = {
     intro: '🌪️ Bouřka žene vlny po statisících. „Sečti je, než tě smetou!" Opakování sčítání a odčítání velkých čísel.',
     sections: [
       { title: 'Postup je stejný jako pro menší čísla', body: 'Sčítáme a odčítáme stejně jako u menších čísel — pod sebou, zprava. Jenom máme více sloupců. Dávat pozor na přenosy!' },
+    ,
+      { title: 'Víc sloupců, stejný postup', body: 'Sčítání a odčítání velkých čísel se od menších liší jen počtem sloupců — postup je úplně stejný. Když čísla končí nulami, můžeš je na chvíli odmyslet: 600 000 − 245 000 spočítej jako 600 − 245 = 355 a nuly vrať. Hlídej si přenosy, těch je u dlouhých čísel víc.' }
     ],
     formulas: ['256 780 + 143 220 = 400 000', '500 000 − 123 456 = 376 544'],
     examples: [
@@ -595,6 +635,8 @@ window.RPG_LEARN_4 = {
     intro: '👑 Mořský vládce čeká na dně. „Ukaž mi všechno, co ses naučil." Finální přehled celého 4. ročníku.',
     sections: [
       { title: 'Přehled 4. ročníku', body: 'V 4. ročníku jsme se naučili: počítat do 10 000 a dál do 1 000 000, násobilku a dělení, obvody a obsahy, jednotky délky, hmotnosti a času.' },
+    ,
+      { title: 'Na co si dát pozor v závěru', body: 'Nejčastější chyby ročníku: zapomenutý přenos, špatné zarovnání pod sebou, zbytek větší než dělitel, smíchané jednotky v jednom příkladu a rovnítko místo ≈ u zaokrouhlení. U obsahu nezapomeň na cm². Když si na tohle dáš pozor, projdeš.' }
     ],
     formulas: [],
     examples: [
