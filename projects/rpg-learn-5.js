@@ -4,7 +4,7 @@
 */
 window.RPG_LEARN_5 = {
   '1-1': {
-    intro: 'Velká čísla do milionu — řády a zápis.',
+    intro: '🐲 Mládě draka počítá poklad po milionech. „Přečteš to číslo nahlas?" syčí. Nauč se řády a zápis velkých čísel.',
     sections: [
       { title: 'Řády velkých čísel', body: 'Zprava: jednotky, desítky, stovky, tisíce, desetitisíce, statisíce, miliony. 1 000 000 = milion = 1000 tisíc.' },
       { title: 'Zápis velkých čísel', body: 'Píšeme s mezerou po každých třech cifrách zprava: 345 678 čteme tři sta čtyřicet pět tisíc šest set sedmdesát osm.' },
@@ -22,7 +22,7 @@ window.RPG_LEARN_5 = {
     video: null
   },
   '1-2': {
-    intro: 'Porovnávání velkých čísel.',
+    intro: '🦎 Ještěr strážce klade vedle sebe dvě obrovská čísla. „Které je větší?" Nauč se porovnávat velká čísla po řádech.',
     sections: [
       { title: 'Postup porovnání', body: 'Nejprve porovnáme počet cifer — kdo má víc cifer, je větší. Při stejném počtu cifer porovnáváme od nejvyššího řádu vlevo.' },
     ],
@@ -38,7 +38,7 @@ window.RPG_LEARN_5 = {
     video: null
   },
   '1-3': {
-    intro: 'Zaokrouhlování velkých čísel.',
+    intro: '🪨 Skalní golem odlamuje z čísel poslední kusy. „Co zbude?" duní. Nauč se zaokrouhlovat velká čísla.',
     sections: [
       { title: 'Pravidlo', body: 'Podíváme se na cifru o jeden řád níž, než na který zaokrouhlujeme. 0–4 dolů, 5–9 nahoru. Zbylé nižší řády nahradíme nulami.' },
     ],
@@ -54,7 +54,7 @@ window.RPG_LEARN_5 = {
     video: null
   },
   '2-1': {
-    intro: 'Písemné násobení víceciferného čísla jednociferným.',
+    intro: '🔥 Ohnivá ještěrka rozmnožuje plameny. „Kolik jich bude, když je vezmeš sedmkrát?" Nauč se písemné násobení jednociferným.',
     sections: [
       { title: 'Postup', body: 'Násobíme každou cifru horního čísla zprava doleva. Přesáhne-li výsledek 9, přeneseme desítky do dalšího řádu a přičteme.' },
     ],
@@ -70,7 +70,7 @@ window.RPG_LEARN_5 = {
     video: null
   },
   '2-2': {
-    intro: 'Písemné násobení dvojciferným číslem.',
+    intro: '🐊 Lávový krokodýl násobí dvěma čelistmi najednou. „Zvládneš dvojciferného činitele?" Nauč se násobit pod sebou.',
     sections: [
       { title: 'Dva řádky a součet', body: 'Násobíme nejprve jednotkami, pak desítkami (výsledek posuneme o jedno místo doleva). Oba řádky sečteme.' },
     ],
@@ -86,7 +86,7 @@ window.RPG_LEARN_5 = {
     video: null
   },
   '2-3': {
-    intro: 'Slovní úlohy s násobením.',
+    intro: '👺 Ohnivý skřet schoval násobení do příběhu. „Kolikrát se to má vzít?" Nauč se slovní úlohy s násobením.',
     sections: [
       { title: 'Kdy násobíme?', body: 'Když máme více stejných skupin a hledáme celkový počet. Vždy odpovíme celou větou s jednotkou.' },
     ],
@@ -102,7 +102,7 @@ window.RPG_LEARN_5 = {
     video: null
   },
   '3-1': {
-    intro: 'Písemné dělení jednociferným číslem (beze zbytku).',
+    intro: '⚒️ Kovářský golem rozděluje žhavé železo na stejné díly. „Kolik na každý?" Nauč se písemné dělení jednociferným.',
     sections: [
       { title: 'Postup zleva', body: 'Dělíme postupně od nejvyššího řádu. Zjistíme, kolikrát se dělitel vejde, zapíšeme podíl, odečteme a snížíme další cifru.' },
     ],
@@ -118,7 +118,7 @@ window.RPG_LEARN_5 = {
     video: null
   },
   '3-2': {
-    intro: 'Dělení se zbytkem.',
+    intro: '🦂 Ohnivý škorpion nikdy nerozdělí všechno beze zbytku. „A co zbude?" Nauč se dělit se zbytkem.',
     sections: [
       { title: 'Zbytek', body: 'Když dělení nevyjde přesně, zbyde zbytek. Platí: dělenec = dělitel × podíl + zbytek. Zbytek je vždy menší než dělitel.' },
     ],
@@ -134,7 +134,7 @@ window.RPG_LEARN_5 = {
     video: null
   },
   '3-3': {
-    intro: 'Slovní úlohy s dělením.',
+    intro: '🐗 Lávový kanec rozryl úlohu na kusy. „Poznáš, co se má dělit?" Nauč se slovní úlohy s dělením.',
     sections: [
       { title: 'Kdy dělíme?', body: 'Když rozdělujeme rovnoměrně (kolik na jednoho?) nebo zjišťujeme, kolik skupin vznikne (po kolika?).' },
     ],
@@ -150,7 +150,7 @@ window.RPG_LEARN_5 = {
     video: null
   },
   '4-1': {
-    intro: 'Zlomky — část celku.',
+    intro: '💎 Krystalový wyrm rozlomil krystal na díly. „Kolik z celku držíš?" Nauč se zlomky jako část celku.',
     sections: [
       { title: 'Co je zlomek', body: 'Zlomek vyjadřuje část celku. Jmenovatel (dole) říká, na kolik dílů celek dělíme; čitatel (nahoře), kolik dílů bereme. 3/4 = celek rozdělím na 4 díly a vezmu 3.' },
       { title: 'Zlomek z čísla', body: 'Kolik je 3/4 z 20? Nejdřív 20 : 4 = 5 (jedna čtvrtina), pak × 3 = 15.' },
@@ -167,7 +167,7 @@ window.RPG_LEARN_5 = {
     video: null
   },
   '4-2': {
-    intro: 'Sčítání a odčítání zlomků se stejným jmenovatelem.',
+    intro: '🕷️ Křišťálový pavouk spřádá síť ze stejných dílků. „Sečti je," šeptá. Nauč se sčítat zlomky se stejným jmenovatelem.',
     sections: [
       { title: 'Stejný jmenovatel', body: 'Mají-li zlomky stejného jmenovatele, sčítáme (nebo odčítáme) jen čitatele. Jmenovatel zůstává stejný.' },
     ],
@@ -183,7 +183,7 @@ window.RPG_LEARN_5 = {
     video: null
   },
   '4-3': {
-    intro: 'Slovní úlohy se zlomky.',
+    intro: '👁️ Vševidoucí oko schovalo zlomek do příběhu. „Kolik to je doopravdy?" Nauč se slovní úlohy se zlomky.',
     sections: [
       { title: 'Najdi celek a část', body: 'V úloze najdeme celek (z čeho počítáme) a zlomek, který z něj bereme. Spočítáme část jako zlomek z čísla.' },
     ],
@@ -199,7 +199,7 @@ window.RPG_LEARN_5 = {
     video: null
   },
   '5-1': {
-    intro: 'Desetinná čísla — čtení a porovnávání.',
+    intro: '🌋 Lávová bestie měří teplotu na desetiny. „Které číslo je větší?" Nauč se číst a porovnávat desetinná čísla.',
     sections: [
       { title: 'Desetinná čárka', body: 'Za desetinnou čárkou jsou desetiny, setiny... 3,4 = 3 celé a 4 desetiny. Čteme „tři celé čtyři desetiny".' },
       { title: 'Porovnávání', body: 'Nejdřív porovnáme celou část. Při shodě porovnáme desetiny, pak setiny. 3,5 > 3,45, protože 3,50 > 3,45.' },
@@ -216,7 +216,7 @@ window.RPG_LEARN_5 = {
     video: null
   },
   '5-2': {
-    intro: 'Sčítání a odčítání desetinných čísel.',
+    intro: '🐉 Žhavý drak sčítá desetiny a setiny. „Pozor, ať ti čárka nesklouzne!" Nauč se sčítat a odčítat desetinná čísla.',
     sections: [
       { title: 'Čárka pod čárku', body: 'Píšeme čísla pod sebe tak, aby desetinná čárka byla pod čárkou. Pak sčítáme nebo odčítáme jako celá čísla a čárku opíšeme dolů.' },
     ],
@@ -232,7 +232,7 @@ window.RPG_LEARN_5 = {
     video: null
   },
   '5-3': {
-    intro: 'Násobení a dělení desetinných čísel 10 a 100.',
+    intro: '☄️ Ohnivá kometa posouvá desetinnou čárku. „Desetkrát? Stokrát?" Nauč se násobit a dělit desetinná čísla deseti a stem.',
     sections: [
       { title: 'Posun čárky', body: 'Násobíš 10 → čárka o jedno místo doprava. Násobíš 100 → o dvě místa doprava. Dělíš 10 → čárka doleva o jedno, dělíš 100 → o dvě.' },
     ],
@@ -248,7 +248,7 @@ window.RPG_LEARN_5 = {
     video: null
   },
   '6-1': {
-    intro: 'Obvod a obsah obdélníku a čtverce.',
+    intro: '🦅 Skalní orlosup obletí pozemek a pak ho přeměří. „Obvod, nebo obsah?" Nauč se obojí u obdélníku a čtverce.',
     sections: [
       { title: 'Obvod', body: 'Obvod je délka obrysu. Obdélník: O = 2 × (a + b). Čtverec: O = 4 × a.' },
       { title: 'Obsah', body: 'Obsah je plocha uvnitř. Obdélník: S = a × b. Čtverec: S = a × a. Jednotky obsahu: cm², m², mm².' },
@@ -265,7 +265,7 @@ window.RPG_LEARN_5 = {
     video: null
   },
   '6-2': {
-    intro: 'Převody jednotek — délka, hmotnost, objem, čas.',
+    intro: '🧊 Ledový drak mrazí metry, kilogramy i litry. „Převedeš je?" Nauč se převádět jednotky.',
     sections: [
       { title: 'Délka a hmotnost', body: '1 km = 1000 m, 1 m = 100 cm, 1 cm = 10 mm. 1 t = 1000 kg, 1 kg = 1000 g.' },
       { title: 'Objem a čas', body: '1 l = 1000 ml = 100 cl. 1 h = 60 min, 1 min = 60 s, 1 den = 24 h.' },
@@ -282,7 +282,7 @@ window.RPG_LEARN_5 = {
     video: null
   },
   '6-3': {
-    intro: 'Aritmetický průměr.',
+    intro: '⚖️ Strážce rovnováhy hledá střed mezi čísly. „Kolik připadne na jedno?" Nauč se aritmetický průměr.',
     sections: [
       { title: 'Jak spočítat průměr', body: 'Aritmetický průměr = součet všech čísel vydělený jejich počtem. Říká, jaká hodnota by připadla na každého, kdyby se vše rozdělilo rovnoměrně.' },
     ],
@@ -298,7 +298,7 @@ window.RPG_LEARN_5 = {
     video: null
   },
   '7-1': {
-    intro: 'Souboj s drakem — velká čísla a operace.',
+    intro: '🐲 Dračí stráž prověřuje velká čísla. „Projdeš, jen když se nespleteš." Opakování velkých čísel a operací.',
     sections: [
       { title: 'Připrav se na mix', body: 'Drak prověří sčítání, odčítání a zaokrouhlování velkých čísel. Počítej pečlivě po řádech.' },
     ],
@@ -314,7 +314,7 @@ window.RPG_LEARN_5 = {
     video: null
   },
   '7-2': {
-    intro: 'Souboj s drakem — písemné operace.',
+    intro: '🐉 Starodávný drak žádá písemné výpočty. „Ukaž mi celý postup." Opakování písemného násobení a dělení.',
     sections: [
       { title: 'Všechny čtyři operace', body: 'Procvičíš písemné násobení, dělení, desetinné sčítání a zlomek z čísla — vše dohromady.' },
     ],
@@ -330,7 +330,7 @@ window.RPG_LEARN_5 = {
     video: null
   },
   '7-3': {
-    intro: 'Finální duel — přehled celého 5. ročníku.',
+    intro: '👑 Dračí král čeká v nitru hory. „Ukaž mi všechno, co ses naučil." Finální duel z celého 5. ročníku.',
     sections: [
       { title: 'Co umíme', body: 'V 5. ročníku jsme zvládli: čísla přes milion, písemné násobení a dělení, zlomky, desetinná čísla, převody jednotek, obsah a obvod, aritmetický průměr.' },
     ],

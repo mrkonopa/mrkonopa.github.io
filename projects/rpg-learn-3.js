@@ -4,7 +4,7 @@
 */
 window.RPG_LEARN_3 = {
   '1-1': {
-    intro: 'Čísla do 1000 — stovky, desítky a jednotky.',
+    intro: '🐌 Hlemýžď Počtář si na krunýř pomalu zapisuje čísla. „Než projdeš, pověz mi, co který řád znamená," šeptá. Nauč se číst stovky, desítky a jednotky.',
     sections: [
       { title: 'Trojciferná čísla', body: 'Čísla od 100 do 999 mají tři číslice. Zleva: stovky, desítky, jednotky. Např. 472 = 4 stovky + 7 desítek + 2 jednotky.' },
       { title: 'Rozklad čísla', body: 'Každé číslo umíme rozložit na řády. 305 = 3 stovky + 0 desítek + 5 jednotek = 300 + 0 + 5.' },
@@ -21,7 +21,7 @@ window.RPG_LEARN_3 = {
     video: null
   },
   '1-2': {
-    intro: 'Porovnávání čísel do 1000 — znaky <, >, =.',
+    intro: '🐞 Beruška Soudkyně drží v tlapkách dvě čísla. „Které je větší?" ptá se přísně. Nauč se porovnávat čísla do 1000 pomocí znaků < a >.',
     sections: [
       { title: 'Jak porovnat dvě čísla', body: 'Porovnáváme od nejvyššího řádu. Nejdřív stovky — kdo má víc stovek, má větší číslo. Jsou-li stovky stejné, porovnáme desítky a pak jednotky.' },
     ],
@@ -37,7 +37,7 @@ window.RPG_LEARN_3 = {
     video: null
   },
   '1-3': {
-    intro: 'Zaokrouhlování — na desítky a stovky.',
+    intro: '🦗 Cvrček Skokan skáče po číselné ose a nikdy nedopadne přesně. „Zaokrouhli mě!" volá. Nauč se zaokrouhlovat na desítky a stovky.',
     sections: [
       { title: 'Pravidlo zaokrouhlování', body: 'Podíváme se na číslici vpravo od místa, na které zaokrouhlujeme. Je-li 0–4, zaokrouhlíme dolů. Je-li 5–9, zaokrouhlíme nahoru.' },
       { title: 'Příklady', body: '347 na desítky: jednotky jsou 7 → nahoru → 350. Na stovky: desítky jsou 4 → dolů → 300.' },
@@ -54,7 +54,7 @@ window.RPG_LEARN_3 = {
     video: null
   },
   '2-1': {
-    intro: 'Sčítání čísel do 1000.',
+    intro: '🍄 Muchomůrka roste a roste a rozsypala houby po celé mýtině. „Spočítej je všechny dohromady," směje se. Procvič sčítání do 1000.',
     sections: [
       { title: 'Sčítání po řádech', body: 'Sčítáme stejné řády: stovky ke stovkám, desítky k desítkám, jednotky k jednotkám. Přesáhne-li součet 9, přeneseme jednotku do vyššího řádu.' },
     ],
@@ -70,7 +70,7 @@ window.RPG_LEARN_3 = {
     video: null
   },
   '2-2': {
-    intro: 'Odčítání čísel do 1000.',
+    intro: '🐛 Hladová housenka ukusuje z listů. „Kolik ti zbyde, když ti ujím?" mlaská. Nauč se odčítat čísla do 1000.',
     sections: [
       { title: 'Odčítání po řádech', body: 'Odčítáme zprava. Je-li číslice nahoře menší než dole, půjčíme si jednu z vyššího řádu (desítku, stovku).' },
     ],
@@ -86,7 +86,7 @@ window.RPG_LEARN_3 = {
     video: null
   },
   '2-3': {
-    intro: 'Slovní úlohy se sčítáním a odčítáním.',
+    intro: '🦋 Motýlí duch mluví jen v příbězích. „Rozluštíš, jestli mám přidat, nebo ubrat?" Nauč se poznat, kdy se ve slovní úloze sčítá a kdy odčítá.',
     sections: [
       { title: 'Postup řešení', body: '1. Přečtu úlohu a vím, co hledám.\n2. Rozhodnu: sčítám, nebo odčítám?\n3. Vypočítám.\n4. Odpovím větou.' },
     ],
@@ -102,7 +102,7 @@ window.RPG_LEARN_3 = {
     video: null
   },
   '3-1': {
-    intro: 'Malá násobilka 1–10 — základ celé matematiky.',
+    intro: '🦊 Lstivá liška si připravila past ze stejně velkých hromádek. „Kolik je jich dohromady, když je nebudeš počítat po jedné?" Nauč se malou násobilku.',
     sections: [
       { title: 'Co je násobení', body: 'Násobení je opakované sčítání. 4 × 3 znamená 3 + 3 + 3 + 3 = 12. Musíme znát malou násobilku zpaměti!' },
       { title: 'Zákon zaměnitelnosti', body: 'Nezáleží na pořadí: 6 × 7 = 7 × 6 = 42.' },
@@ -119,7 +119,7 @@ window.RPG_LEARN_3 = {
     video: null
   },
   '3-2': {
-    intro: 'Násobení 10, 100 a desítkami.',
+    intro: '🐺 Vlčí mládě vyje na měsíc a přidává za čísla nuly. „Kolik bude desetkrát tolik?" Nauč se násobit deseti, stem a desítkami.',
     sections: [
       { title: 'Násobení 10 a 100', body: 'Násobíme-li 10, připíšeme na konec jednu nulu. Násobíme-li 100, připíšeme dvě nuly.' },
       { title: 'Násobení desítkami', body: '6 × 40 = 6 × 4 × 10 = 24 × 10 = 240.' },
@@ -136,7 +136,7 @@ window.RPG_LEARN_3 = {
     video: null
   },
   '3-3': {
-    intro: 'Slovní úlohy s násobením.',
+    intro: '🦝 Mýval Škodíš schoval slovní úlohu do bahna. „Poznáš, kolikrát se to má vzít?" Nauč se řešit slovní úlohy s násobením.',
     sections: [
       { title: 'Kdy násobíme?', body: 'Násobíme, když máme několik stejných skupin a chceme zjistit celkový počet. Např. 5 košíků po 6 hubách = 5 × 6 = 30 hub.' },
     ],
@@ -152,7 +152,7 @@ window.RPG_LEARN_3 = {
     video: null
   },
   '4-1': {
-    intro: 'Dělení bez zbytku — opak násobení.',
+    intro: '🐿️ Lakomá veverka má hromadu oříšků a chce je rozdělit spravedlivě. „Kolik jich připadne na každého?" Nauč se dělit beze zbytku.',
     sections: [
       { title: 'Dělení jako opak násobení', body: 'Dělení je opak násobení. 56 : 7 = ? → ptáme se: 7 × ? = 56 → 7 × 8 = 56 → výsledek je 8.' },
     ],
@@ -168,7 +168,7 @@ window.RPG_LEARN_3 = {
     video: null
   },
   '4-2': {
-    intro: 'Dělení se zbytkem — co nevyjde přesně.',
+    intro: '🦔 Ježek Bodlináč nikdy nevyjde přesně. „A co s tím, co zbude?" bodá. Nauč se dělit se zbytkem a hlídat, aby zbytek byl menší než dělitel.',
     sections: [
       { title: 'Zbytek po dělení', body: 'Ne vždy dělení vyjde přesně. Zbytek je to, co zbyde. Platí: dělenec = dělitel × podíl + zbytek. Zbytek je vždy menší než dělitel!' },
     ],
@@ -184,7 +184,7 @@ window.RPG_LEARN_3 = {
     video: null
   },
   '4-3': {
-    intro: 'Slovní úlohy s dělením — rovné rozdělování.',
+    intro: '🦡 Jezevec Hrabal rozhrabal mraveniště na stejné díly. „Kolik do každého?" Nauč se řešit slovní úlohy s dělením.',
     sections: [
       { title: 'Kdy dělíme?', body: 'Dělíme, když rozdělujeme stejnoměrně (kolik každému?) nebo zjišťujeme, kolikrát se menší číslo vejde do většího.' },
     ],
@@ -200,7 +200,7 @@ window.RPG_LEARN_3 = {
     video: null
   },
   '5-1': {
-    intro: 'Obvod trojúhelníku — součet všech stran.',
+    intro: '🌳 Starý dub natáhl tři kořeny do trojúhelníku. „Kolik je to dokola?" duní. Nauč se počítat obvod trojúhelníku.',
     sections: [
       { title: 'Obvod = obrys tvaru', body: 'Obvod je délka celé hranice tvaru. U trojúhelníku sečteme délky všech tří stran.' },
       { title: 'Rovnostranný trojúhelník', body: 'Má všechny tři strany stejně dlouhé, takže obvod = 3 × strana.' },
@@ -217,7 +217,7 @@ window.RPG_LEARN_3 = {
     video: null
   },
   '5-2': {
-    intro: 'Obvod čtverce a obdélníku — sečti délky všech stran.',
+    intro: '🪵 Dřevěný golem má tělo z rovných prken. „Změř mě po obvodu," vrže. Nauč se obvod čtverce a obdélníku.',
     sections: [
       { title: 'Čtverec', body: 'Čtverec má 4 stejné strany. Obvod spočítáš tak, že sečteš všechny 4 strany (strana + strana + strana + strana).' },
       { title: 'Obdélník', body: 'Obdélník má čtyři strany — dvě delší a dvě kratší. Obvod je součet všech čtyř stran.' },
@@ -234,7 +234,7 @@ window.RPG_LEARN_3 = {
     video: null
   },
   '5-3': {
-    intro: 'Úsečky, lomené čáry a rovinné obrazce.',
+    intro: '🍂 Listový přízrak se skládá z čar a tvarů. „Poznáš, co jsem?" šustí. Nauč se rozlišit úsečku, lomenou čáru a rovinné obrazce.',
     sections: [
       { title: 'Úsečka', body: 'Úsečka je rovná čára mezi dvěma body. Označujeme ji dvěma písmeny, např. úsečka AB. Měříme ji pravítkem v cm a mm.' },
       { title: 'Lomená čára', body: 'Lomená čára je několik úseček spojených za sebou. Její délku spočítáš součtem délek všech úseků.' },
@@ -252,7 +252,7 @@ window.RPG_LEARN_3 = {
     video: null
   },
   '6-1': {
-    intro: 'Jednotky délky — mm, cm, dm, m.',
+    intro: '🦉 Moudrá sova měří větve od milimetrů po metry. „Kolik je to v jiné jednotce?" houká. Nauč se převádět jednotky délky.',
     sections: [
       { title: 'Přehled jednotek', body: '1 m = 10 dm\n1 dm = 10 cm\n1 cm = 10 mm' },
       { title: 'Převody', body: 'Na menší jednotky násobíme 10. Na větší jednotky dělíme 10.' },
@@ -269,7 +269,7 @@ window.RPG_LEARN_3 = {
     video: null
   },
   '6-2': {
-    intro: 'Jednotky hmotnosti a času.',
+    intro: '⏳ Hodinový skřítek přesýpá čas a váží houby. „Kolik minut a kolik gramů?" chichotá se. Nauč se jednotky hmotnosti a času.',
     sections: [
       { title: 'Hmotnost', body: '1 kg = 1000 g. Hmotnost měříme na váze. Jednotky: g (gram), kg (kilogram).' },
       { title: 'Čas', body: '1 hodina = 60 minut. 1 minuta = 60 sekund. 1 den = 24 hodin.' },
@@ -286,7 +286,7 @@ window.RPG_LEARN_3 = {
     video: null
   },
   '6-3': {
-    intro: 'Peníze — počítání s korunami.',
+    intro: '🐦 Straka zlodějka sbírá mince do hnízda. „Kolik ti zbyde a kolik ti vrátím?" Nauč se počítat s korunami.',
     sections: [
       { title: 'České peníze', body: 'Mince: 1, 2, 5, 10, 20, 50 Kč. Bankovky: 100, 200, 500, 1000 Kč. Při nákupu sčítáme ceny, při placení počítáme, kolik nám vrátí.' },
     ],
@@ -302,7 +302,7 @@ window.RPG_LEARN_3 = {
     video: null
   },
   '7-1': {
-    intro: 'Velké opakování — počítání do 1000.',
+    intro: '🐺 Šedý vlk zkouší všechno, co už umíš. „Projdeš, jen když nic nezapomeneš." Velké opakování počítání do 1000.',
     sections: [
       { title: 'Co umíme', body: 'Sčítáme a odčítáme do 1000, násobíme a dělíme z malé násobilky. V této oblasti si vše procvičíme dohromady.' },
     ],
@@ -318,7 +318,7 @@ window.RPG_LEARN_3 = {
     video: null
   },
   '7-2': {
-    intro: 'Násobení a dělení 10 a 100.',
+    intro: '🌑 Stín lesa mizí a objevuje se s nulami navíc. „Desetkrát? Stokrát?" Opakování násobení a dělení deseti a stem.',
     sections: [
       { title: 'Rychlé počítání s nulami', body: 'Násobíš 10 → přidáš nulu. Násobíš 100 → přidáš dvě nuly. Dělíš 10 → ubereš nulu. Dělíš 100 → ubereš dvě nuly.' },
     ],
@@ -334,7 +334,7 @@ window.RPG_LEARN_3 = {
     video: null
   },
   '7-3': {
-    intro: 'Finální duel — mix všeho z 3. ročníku.',
+    intro: '👑 Král lesa čeká na mýtině. „Ukaž mi všechno, co ses naučil." Finální duel ze všeho, co třetí ročník přinesl.',
     sections: [
       { title: 'Přehled 3. ročníku', body: 'Naučili jsme se: čísla do 1000, sčítání a odčítání, malou násobilku a dělení (i se zbytkem), obvody, jednotky a peníze.' },
     ],

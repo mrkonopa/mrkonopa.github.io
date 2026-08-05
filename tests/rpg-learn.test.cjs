@@ -47,6 +47,27 @@ for (const g of GRADES) {
     }
   }
   ok(structOK, 'každá mise má intro + alespoň jednu sekci');
+
+  /* ÚVOD MÁ VTÁHNOUT DO PŘÍBĚHU, ne být popiskem z obsahu učebnice.
+     Hry stojí na světě se strážci misí, ale první stupeň a 9. ročník
+     měly úvody typu „Pořadí operací a obory čísel — základ každého
+     výpočtu." — správně, ale žáka to nikam nezve.
+
+     Pozor na detekci: symboly jako ⚖️ ⚗️ ⛰️ ✨ ⚙️ leží MIMO blok emoji
+     (U+1F300–1FAFF). Když jsem je do rozsahu nezahrnul, vyšlo mi, že
+     7. a 8. ročník příběh nemá — a přitom má. Proto se hlídá i délka
+     a přítomnost přímé řeči, ne jen jeden znakový rozsah. */
+  {
+    const maZnak = (t) => /[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{2B00}-\u{2BFF}]/u.test(t);
+    const maRec = (t) => /[„“"]/.test(t);
+    const ploche = keys.filter(k => {
+      const t = L[k].intro || '';
+      return !(maZnak(t) || maRec(t)) || t.length < 60;
+    });
+    ok(ploche.length === 0,
+      'úvod mise vtahuje do příběhu, není to holý popisek tématu',
+      ploche.slice(0, 3).map(k => k + ': «' + String(L[k].intro).slice(0, 42) + '»').join(' | '));
+  }
   ok(videoOK, 'video je všude buď null, nebo {id,title}');
   console.log(`     (misí s videem: ${vids})`);
 

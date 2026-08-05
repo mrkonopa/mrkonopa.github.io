@@ -4,7 +4,7 @@
 */
 window.RPG_LEARN_4 = {
   '1-1': {
-    intro: 'Čísla do 10 000 — číslice tisíců, stovek, desítek a jednotek.',
+    intro: '🦀 Krab strážce klepety přebírá mince po hromádkách. „Kolik jich je v tisících?" cvaká. Nauč se řády v číslech do 10 000.',
     sections: [
       { title: 'Číselná řada do 10 000', body: 'Čísla od 1 000 do 10 000 se skládají ze čtyř číslic. Největší čtyřciferné číslo je 9 999, největší číslo do 10 000 je 10 000.' },
       { title: 'Rozklad čísla', body: 'Každé číslo můžeme rozložit: tisíce + stovky + desítky + jednotky. Např. 4 725 = 4 tisíce + 7 stovek + 2 desítky + 5 jednotek.' },
@@ -38,7 +38,7 @@ window.RPG_LEARN_4 = {
     video: null
   },
   '1-2': {
-    intro: 'Porovnávání čísel do 10 000 — znaky <, >, =.',
+    intro: '🐚 Lastury moře se srovnávají od nejmenší k největší. „Která je která?" šumí. Nauč se porovnávat čísla do 10 000.',
     sections: [
       { title: 'Jak porovnat dvě čísla', body: 'Porovnáváme vždy od nejvyššího řádu. Nejprve tisíce — kdo má více tisíců, má větší číslo. Jsou-li tisíce stejné, porovnáme stovky, pak desítky, pak jednotky.' },
     ],
@@ -65,7 +65,7 @@ window.RPG_LEARN_4 = {
     video: null
   },
   '1-3': {
-    intro: 'Zaokrouhlování čísel — na desítky, stovky, tisíce.',
+    intro: '🌊 Vlna příboje smaže z písku poslední číslice. „Co zbude?" hučí. Nauč se zaokrouhlovat na desítky, stovky a tisíce.',
     sections: [
       { title: 'Pravidlo zaokrouhlování', body: 'Podíváme se na číslici vpravo od místa, na které zaokrouhlujeme. Je-li 0–4, zaokrouhlíme dolů (zbývající číslice nahradíme nulami). Je-li 5–9, zaokrouhlíme nahoru.' },
       { title: 'Příklady', body: '3 247 zaokrouhleno na stovky: cifra desítek je 4 → dolů → 3 200. Na tisíce: cifra stovek je 2 → dolů → 3 000.' },
@@ -99,7 +99,7 @@ window.RPG_LEARN_4 = {
     video: null
   },
   '2-1': {
-    intro: 'Sčítání čísel do 10 000 — postup pod sebou.',
+    intro: '🐙 Mini chobotnice si osmi chapadly přidává náklad. „Kolik toho uneseš dohromady?" Nauč se sčítat pod sebou do 10 000.',
     sections: [
       { title: 'Sčítání pod sebou', body: 'Čísla zapíšeme pod sebe, jednotky pod jednotky, desítky pod desítky atd. Sčítáme zprava. Přesáhne-li součet 9, zapíšeme jednotku přenosu do vyššího řádu.' },
     ],
@@ -126,7 +126,7 @@ window.RPG_LEARN_4 = {
     video: null
   },
   '2-2': {
-    intro: 'Odčítání čísel do 10 000 — postup pod sebou.',
+    intro: '🦈 Žralouček ukusuje z nákladu. „Kolik ti zbyde?" cení zuby. Nauč se odčítat pod sebou a půjčovat si z vyššího řádu.',
     sections: [
       { title: 'Odčítání pod sebou', body: 'Zapíšeme čísla pod sebe. Odčítáme zprava. Je-li menšenec menší než menšitel na daném místě, půjčíme si z vyššího řádu (přenosem).' },
     ],
@@ -153,7 +153,7 @@ window.RPG_LEARN_4 = {
     video: null
   },
   '2-3': {
-    intro: 'Slovní úlohy se sčítáním a odčítáním — postup řešení.',
+    intro: '🪸 Korálový duch mluví v hádankách. „Přibývá, nebo ubývá?" Nauč se ve slovní úloze poznat, kdy sčítat a kdy odčítat.',
     sections: [
       { title: 'Postup řešení slovní úlohy', body: '1. Přečtu úlohu a vyznačím, co hledám.\n2. Zapíšu rovnici nebo výpočet.\n3. Vypočítám.\n4. Odpovím celou větou.' },
     ],
@@ -179,7 +179,7 @@ window.RPG_LEARN_4 = {
     video: null
   },
   '3-1': {
-    intro: 'Násobilka 1–10 — opakování a procvičení.',
+    intro: '🏴‍☠️ Pirátský kapitán dělí kořist na stejné hromádky. „Kolik dohromady?" hřímá. Procvič si násobilku do deseti.',
     sections: [
       { title: 'Násobilka jako základ', body: 'Násobilka jsou výsledky součinů čísel 1 až 10. Musíme ji znát zpaměti! Platí i zákon zaměnitelnosti: 3 × 7 = 7 × 3.' },
     ],
@@ -212,7 +212,7 @@ window.RPG_LEARN_4 = {
     video: null
   },
   '3-2': {
-    intro: 'Násobení desítkami a stovkami — zkrácený postup.',
+    intro: '💣 Lodní dělostřelec počítá kule po desítkách a stovkách. „Kolik nábojů?" Nauč se násobit desítkami a stovkami zkráceně.',
     sections: [
       { title: 'Násobení 10 a 100', body: 'Násobíme-li číslo 10, připíšeme na konec nulu. Násobíme-li 100, připíšeme dvě nuly.' },
       { title: 'Násobení desítkami', body: '6 × 40 = 6 × 4 × 10 = 24 × 10 = 240. Využíváme násobilku a přidáme nulu.' },
@@ -246,7 +246,7 @@ window.RPG_LEARN_4 = {
     video: null
   },
   '3-3': {
-    intro: 'Násobení dvojciferného čísla jednociferným — rozklad.',
+    intro: '🔮 Mořský mág rozkládá čísla na kousky. „Zvládneš 47 × 5 z hlavy?" Nauč se rozklad na desítky a jednotky.',
     sections: [
       { title: 'Rozklad na desítky a jednotky', body: 'Dvoumístné číslo rozložíme na desítky a jednotky: 34 = 30 + 4. Pak násobíme každou část zvlášť a výsledky sečteme.' },
     ],
@@ -272,7 +272,7 @@ window.RPG_LEARN_4 = {
     video: null
   },
   '4-1': {
-    intro: 'Dělení bez zbytku — opak násobení.',
+    intro: '💀 Kostlivec pirát rozdává kosti spravedlivě. „Kolik na každého?" chrastí. Nauč se dělit beze zbytku.',
     sections: [
       { title: 'Dělení jako opak násobení', body: 'Dělení je opakem násobení. Hledáme číslo, kterým musíme vynásobit dělitele, abychom dostali dělenec. Např. 56 : 7 = ? → ptáme se: 7 × ? = 56 → 7 × 8 = 56 → výsledek je 8.' },
     ],
@@ -298,7 +298,7 @@ window.RPG_LEARN_4 = {
     video: null
   },
   '4-2': {
-    intro: 'Dělení se zbytkem — co nevyjde přesně.',
+    intro: '🪝 Kapitán s hákem nikdy nerozdělí všechno. „A co s tím, co zbyde?" Nauč se dělit se zbytkem a hlídat, že zbytek < dělitel.',
     sections: [
       { title: 'Zbytek po dělení', body: 'Ne vždy vyjde dělení přesně. Zbytek je část, která zbyde po dělení. Platí: dělenec = dělitel × podíl + zbytek. Zbytek musí být vždy menší než dělitel!' },
     ],
@@ -325,7 +325,7 @@ window.RPG_LEARN_4 = {
     video: null
   },
   '4-3': {
-    intro: 'Slovní úlohy s dělením — rovné dělení a rozdělování.',
+    intro: '🎲 Hazardní duch sází na to, že se spleteš. „Kolik plných měšců a kolik zbyde?" Nauč se slovní úlohy s dělením.',
     sections: [
       { title: 'Kdy dělíme?', body: 'Dělíme, když rozdělujeme stejnoměrně (kolika lidem?, kolik každému?) nebo zjišťujeme, kolikrát se vejde menší číslo do většího.' },
     ],
@@ -351,7 +351,7 @@ window.RPG_LEARN_4 = {
     video: null
   },
   '5-1': {
-    intro: 'Obvod obdélníku a čtverce — délka všech stran.',
+    intro: '🐠 Ohnivá rybka plave dokola kolem obdélníkového útesu. „Jak dlouhá je ta cesta?" Nauč se počítat obvod.',
     sections: [
       { title: 'Obvod = součet všech stran', body: 'Obvod je celková délka hranice (obrysu) tvaru. U obdélníku jsou dvě dvojice rovnoběžných stran (a a b). U čtverce jsou všechny strany stejně dlouhé.' },
     ],
@@ -384,7 +384,7 @@ window.RPG_LEARN_4 = {
     video: null
   },
   '5-2': {
-    intro: 'Obsah obdélníku a čtverce — pokrytí plochou.',
+    intro: '🐡 Nafukovač se roztahuje do plochy. „Kolik čtverečků mě pokryje?" Nauč se počítat obsah obdélníku a čtverce.',
     sections: [
       { title: 'Obsah = počet čtverečků uvnitř', body: 'Obsah říká, kolik čtverečků (čtvercových jednotek) leží uvnitř tvaru. Obdélník se dá vyplnit čtverečky po řadách: a řad po b čtverečcích.' },
     ],
@@ -417,7 +417,7 @@ window.RPG_LEARN_4 = {
     video: null
   },
   '5-3': {
-    intro: 'Souřadnice bodů, souřadnicová síť a osy souměrnosti.',
+    intro: '🧭 Navigační duch čte polohu ze sítě. „Kolik doprava a kolik nahoru?" Nauč se souřadnice a osy souměrnosti.',
     sections: [
       { title: 'Souřadnicová síť', body: 'V síti určujeme polohu bodu dvojicí čísel (x, y). První číslo je vzdálenost od svislé osy (vpravo), druhé od vodorovné osy (nahoru). Píšeme do závorky: bod A(3, 4).' },
       { title: 'Osy souměrnosti', body: 'Osa souměrnosti je přímka, která dělí tvar na dvě stejné (zrcadlové) části. Obdélník má 2 osy, čtverec má 4 osy souměrnosti.' },
@@ -444,7 +444,7 @@ window.RPG_LEARN_4 = {
     video: null
   },
   '6-1': {
-    intro: 'Jednotky délky — km, m, dm, cm, mm.',
+    intro: '🌀 Vírový stroj mele metry na centimetry. „Kolik je to v jiné jednotce?" Nauč se převádět jednotky délky.',
     sections: [
       { title: 'Přehled jednotek', body: '1 km = 1 000 m\n1 m = 10 dm\n1 dm = 10 cm\n1 cm = 10 mm' },
       { title: 'Převody', body: 'Při převodu na menší jednotky násobíme. Při převodu na větší jednotky dělíme.' },
@@ -478,7 +478,7 @@ window.RPG_LEARN_4 = {
     video: null
   },
   '6-2': {
-    intro: 'Jednotky hmotnosti a času.',
+    intro: '⏳ Časový čaroděj váží náklad a měří hodiny. „Kolik gramů a kolik minut?" Nauč se jednotky hmotnosti a času.',
     sections: [
       { title: 'Hmotnost', body: '1 kg = 1 000 g. Hmotnost měříme na váze. Běžné jednotky: g (gram), kg (kilogram), t (tuna = 1 000 kg).' },
       { title: 'Čas', body: '1 hodina = 60 minut. 1 minuta = 60 sekund. 1 den = 24 hodin. 1 týden = 7 dní.' },
@@ -512,7 +512,7 @@ window.RPG_LEARN_4 = {
     video: null
   },
   '6-3': {
-    intro: 'Peníze a slovní úlohy s mírami.',
+    intro: '💰 Zlatý duch počítá dukáty do posledního. „Kolik zaplatíš a kolik ti vrátí?" Nauč se počítat s penězi.',
     sections: [
       { title: 'Peníze v ČR', body: '1 Kč = 100 haléřů (haléře se dnes nepoužívají). Běžné mince: 1, 2, 5, 10, 20, 50 Kč. Bankovky: 100, 200, 500, 1 000, 2 000, 5 000 Kč.' },
     ],
@@ -538,7 +538,7 @@ window.RPG_LEARN_4 = {
     video: null
   },
   '7-1': {
-    intro: 'Čísla do 1 000 000 — milion.',
+    intro: '🐙 Kraken se vynořil z hloubky, kde se počítá na miliony. „Přečteš tak velké číslo?" Nauč se čísla do 1 000 000.',
     sections: [
       { title: 'Od tisíce k milionu', body: '1 000 = tisíc\n10 000 = deset tisíc\n100 000 = sto tisíc\n1 000 000 = jeden milion = 1 000 tisíc.' },
       { title: 'Zápis velkých čísel', body: 'Velká čísla píšeme s mezerou po každých třech cifrách zprava: 345 678 (tři sta čtyřicet pět tisíc šest set sedmdesát osm).' },
@@ -566,7 +566,7 @@ window.RPG_LEARN_4 = {
     video: null
   },
   '7-2': {
-    intro: 'Sčítání a odčítání čísel do 1 000 000.',
+    intro: '🌪️ Bouřka žene vlny po statisících. „Sečti je, než tě smetou!" Opakování sčítání a odčítání velkých čísel.',
     sections: [
       { title: 'Postup je stejný jako pro menší čísla', body: 'Sčítáme a odčítáme stejně jako u menších čísel — pod sebou, zprava. Jenom máme více sloupců. Dávat pozor na přenosy!' },
     ],
@@ -592,7 +592,7 @@ window.RPG_LEARN_4 = {
     video: null
   },
   '7-3': {
-    intro: 'Finální přehled — velká čísla, zaokrouhlování, operace.',
+    intro: '👑 Mořský vládce čeká na dně. „Ukaž mi všechno, co ses naučil." Finální přehled celého 4. ročníku.',
     sections: [
       { title: 'Přehled 4. ročníku', body: 'V 4. ročníku jsme se naučili: počítat do 10 000 a dál do 1 000 000, násobilku a dělení, obvody a obsahy, jednotky délky, hmotnosti a času.' },
     ],
