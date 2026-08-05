@@ -266,7 +266,7 @@ function gen_4_1(){
     ()=>{const a=ri(20,70);return{text:`Anténa satelitu svírá se svislicí úhel ${a}°. O kolik stupňů ji musíš otočit do pravého úhlu (90°)?`,ans:90-a,h1:'Odečti od pravého úhlu.',h2:`90 − ${a} = ${90-a}°`};},
   ];
   const tasks=[];
-  for(let i=0;i<13;i++){const t=T[i%T.length]();tasks.push({text:t.text,ans:t.ans,hints:[t.h1,t.h2],skill:'geo'});}
+  for(let i=0;i<T.length;i++){const t=T[i]();tasks.push({text:t.text,ans:t.ans,hints:[t.h1,t.h2],skill:'geo'});}
   return tasks;
 }
 
@@ -334,9 +334,22 @@ function gen_5_1(){
     ()=>{return{text:`Má úsečka střed souměrnosti i osu souměrnosti? Kolik OS souměrnosti má úsečka?`,ans:2,h1:'Osa procházející středem kolmo + osa v přímce úsečky.',h2:'2 osy'};},
     ()=>{const u=[['rovnostranný trojúhelník',3],['čtverec',4]][ri(0,1)];return{text:`Je počet os souměrnosti útvaru ${u[0]} stejný jako počet jeho vrcholů?`,ans:'ANO',h1:'Porovnej počet os a počet vrcholů.',h2:'ANO'};},
     ()=>{const u=[['obdélník (ne čtverec)',2],['kosočtverec',2]][ri(0,1)];return{text:`Kolik os souměrnosti má ${u[0]}? (má je vedené jinak než čtverec)`,ans:2,h1:'Obdélník přes středy stran, kosočtverec po úhlopříčkách.',h2:'2 osy'};},
+    /* Výčtové otázky („kolik os má čtverec?") mají konečně mnoho odpovědí,
+       takže se pool vyčerpá bez ohledu na počet variant — mise měla jen 47
+       unikátních úloh a žák viděl v nekonečném tréninku pořád totéž.
+       Následující typy pracují se souřadnicemi, takže se jejich zásoba
+       škáluje s čísly. Mise je MC, proto odpovědi zůstávají číselné. */
+    ()=>{const k=ri(3,12),a=ri(0,k-1);return{text:`Osou souměrnosti je svislá přímka x = ${k}.\nBod A má x-ovou souřadnici ${a}.\nJakou x-ovou souřadnici má jeho obraz?`,ans:2*k-a,h1:'Obraz leží na druhé straně osy, stejně daleko. Od osy je to '+(k-a)+'.',h2:`${k} + ${k-a} = ${2*k-a}`};},
+    ()=>{const d=ri(1,7),k=ri(d+1,d+10),a=k+d;return{text:`Osou souměrnosti je vodorovná přímka y = ${k}.\nBod B má y-ovou souřadnici ${a}.\nJakou y-ovou souřadnici má jeho obraz?`,ans:2*k-a,h1:'Bod je nad osou o '+(a-k)+', obraz bude o tolik pod ní.',h2:`${k} − ${a-k} = ${2*k-a}`};},
+    ()=>{const d=ri(2,15);return{text:`Bod leží ${d} cm od osy souměrnosti.\nJak daleko je od svého obrazu?`,ans:2*d,h1:'Obraz je na druhé straně ve stejné vzdálenosti.',h2:`2 × ${d} = ${2*d}`};},
+    // Vzdálenost od osy VOLÍME, aby střed vyšel celý. Kdyby se losovaly
+    // oba body nezávisle, vyšla by osa na půl jednotky a zaokrouhlení by
+    // označilo správně počítajícího žáka za chybujícího.
+    ()=>{const a=ri(1,9),d=ri(1,7),b=a+2*d;return{text:`Bod má x-ovou souřadnici ${a}, jeho obraz ${b}.\nKde leží osa souměrnosti? (napiš x)`,ans:a+d,h1:'Osa je přesně uprostřed mezi bodem a obrazem.',h2:`(${a} + ${b}) : 2 = ${a+d}`};},
+    ()=>{const d=ri(2,12);return{text:`Úsečka má délku ${d} cm.\nJak dlouhý je její obraz v osové souměrnosti?`,ans:d,h1:'Osová souměrnost délky nemění — je to shodné zobrazení.',h2:`${d} cm, stejně jako vzor`};},
   ];
   const tasks=[];
-  for(let i=0;i<13;i++){const t=T[i%T.length]();tasks.push({text:t.text,ans:t.ans,hints:[t.h1,t.h2],skill:'geo'});}
+  for(let i=0;i<T.length;i++){const t=T[i]();tasks.push({text:t.text,ans:t.ans,hints:[t.h1,t.h2],skill:'geo'});}
   return tasks;
 }
 
@@ -460,6 +473,25 @@ function gen_6_3(){
   { const a=ri(2,9); tasks.push({text:`Kolik cm³ je ${a} l? (1 l = 1000 cm³)`,ans:a*1000,hints:['1 l = 1000 cm³.',`= ${a*1000} cm³`],skill:'calc'}); }
   { const a=ri(2,8)*1000; tasks.push({text:`Kolik m³ je ${a} l? (1000 l = 1 m³)`,ans:a/1000,hints:['Děl 1000.',`= ${a/1000} m³`],skill:'calc'}); }
   { tasks.push({text:`Kolik vrcholů má krychle?`,ans:8,hints:['4 dole + 4 nahoře.','8'],skill:'geo'}); }
+  /* Zásoba mise byla jen 94 unikátních úloh: převody se točily kolem
+     pár čísel a otázky na krychli („kolik hran?") mají jedinou odpověď.
+     Následující typy pracují s rozměry a objemem, takže se jejich zásoba
+     škáluje s čísly. Mise je MC, odpovědi zůstávají číselné. */
+  const q1=ri(2,20),q2=ri(2,9);
+  tasks.push({text:`Kvádr má rozměry ${q1} cm × ${q2} cm × 10 cm.\nJaký má objem v cm³?`,ans:q1*q2*10,hints:['Objem kvádru = a · b · c.',`${q1} · ${q2} · 10 = ${q1*q2*10} cm³`],skill:'geo'});
+  const h=ri(2,12);
+  tasks.push({text:`Krychle má hranu ${h} cm.\nJaký má objem v cm³?`,ans:h*h*h,hints:['Objem krychle = a · a · a.',`${h} · ${h} · ${h} = ${h*h*h} cm³`],skill:'geo'});
+  const h2=ri(2,12);
+  tasks.push({text:`Krychle má hranu ${h2} cm.\nJaký je součet délek všech jejích hran? (cm)`,ans:12*h2,hints:['Krychle má 12 stejných hran.',`12 · ${h2} = ${12*h2} cm`],skill:'geo'});
+  const h3=ri(2,10);
+  tasks.push({text:`Krychle má hranu ${h3} cm.\nJaký má povrch v cm²? (6 stejných stěn)`,ans:6*h3*h3,hints:['Povrch krychle = 6 · a².',`6 · ${h3}² = ${6*h3*h3} cm²`],skill:'geo'});
+  const l=ri(2,40)*50;
+  tasks.push({text:`Nádrž pojme ${l} litrů.\nKolik je to ml? (1 l = 1000 ml)`,ans:l*1000,hints:['Na menší jednotku číslo roste — násobím tisícem.',`${l} · 1000 = ${l*1000} ml`],skill:'calc'});
+  const ml=ri(2,40)*1000;  // násobek tisíce ⇒ litry vyjdou celé (1,5 l by se navíc vypsalo s tečkou)
+  tasks.push({text:`Kanystr má ${ml} ml.\nKolik je to litrů? (1000 ml = 1 l)`,ans:ml/1000,hints:['Na větší jednotku číslo klesá — dělím tisícem.',`${ml} : 1000 = ${ml/1000} l`],skill:'calc'});
+  const dm=ri(2,30);
+  tasks.push({text:`Kolik cm³ je ${dm} dm³?\n(1 dm³ = 1000 cm³)`,ans:dm*1000,hints:['1 dm³ = 1000 cm³.',`${dm} · 1000 = ${dm*1000} cm³`],skill:'calc'});
+
   return tasks;
 }
 

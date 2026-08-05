@@ -270,7 +270,19 @@ window.RPG_TASK_EXTRA_8 = {
   (()=>{return{text:`Má trojúhelník s různě dlouhými stranami\nosu souměrnosti?\n(ANO/NE)`,ans:'NE',hints:[`Skalény trojúhelník nemá osu souměrnosti.`],skill:'geo'};})(),
   (()=>{return{text:`Kolik os souměrnosti má pravidelný\nšestiúhelník?`,ans:'6',hints:[`Pravidelný n-úhelník má n os.`],skill:'geo'};})(),
   (()=>{return{text:`Obraz bodu při osové souměrnosti leží\nna přímce kolmé k ose v téže vzdálenosti.\nPlatí to?\n(ANO/NE)`,ans:'ANO',hints:[`To je definice osové souměrnosti.`],skill:'geo'};})()
- ],
+ ,
+  /* Výčtové otázky o osách mají konečně mnoho odpovědí, takže se pool
+     vyčerpá — mise měla jen 91 unikátních úloh a v nekonečném tréninku
+     se opakovala. Následující typy pracují se souřadnicemi a vzdálenostmi,
+     takže se zásoba škáluje s čísly. Mise je MC, proto odpovědi zůstávají
+     číselné. */
+  (()=>{const k=ri(3,14),a=ri(0,k-1);return{text:`Osou souměrnosti je přímka x = ${k}.\nBod A má x-ovou souřadnici ${a}.\nJakou x-ovou souřadnici má obraz?`,ans:2*k-a,hints:[`Obraz je na druhé straně osy, stejně daleko — o ${k-a}.`,`${k} + ${k-a} = ${2*k-a}`],skill:'geo'};})(),
+  (()=>{const a=ri(1,12),d=ri(1,9),b=a+2*d;return{text:`Bod má x-ovou souřadnici ${a}, jeho obraz ${b}.\nKterou přímkou je osa souměrnosti? (napiš x)`,ans:a+d,hints:['Osa leží přesně uprostřed mezi vzorem a obrazem.',`(${a} + ${b}) : 2 = ${a+d}`],skill:'geo'};})(),
+  (()=>{const d=ri(2,18);return{text:`Bod je ${d} cm od osy souměrnosti.\nJak daleko je od svého obrazu?`,ans:2*d,hints:['Obraz leží ve stejné vzdálenosti na druhé straně.',`2 × ${d} = ${2*d}`],skill:'geo'};})(),
+  (()=>{const d=ri(3,20);return{text:`Úsečka měří ${d} cm.\nJak dlouhý je její obraz v osové souměrnosti?`,ans:d,hints:['Osová souměrnost je shodné zobrazení — délky nemění.',`${d} cm, stejně jako vzor`],skill:'geo'};})(),
+  (()=>{const n=ri(7,16);return{text:`Kolik os souměrnosti má pravidelný\n${n}úhelník?`,ans:n,hints:['Pravidelný n-úhelník má právě n os.',`${n} os`],skill:'geo'};})(),
+  (()=>{const v=ri(1,7),a=ri(v+1,v+12);return{text:`Osou souměrnosti je přímka y = ${a}.\nVzor má y-ovou souřadnici ${a+v}.\nJakou y-ovou souřadnici má obraz?`,ans:a-v,hints:[`Vzor je nad osou o ${v}, obraz bude o tolik pod ní.`,`${a} − ${v} = ${a-v}`],skill:'geo'};})()
+  ],
 
  // ───────── OBLAST 7 — FINÁLE ─────────
  '7-1': () => [   // Zkouška ohněm (mix)
