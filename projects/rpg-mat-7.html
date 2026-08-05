@@ -1759,7 +1759,7 @@ function renderMap(){
  nd.className='map-node '+finalCls;
  nd.style.setProperty('--tint',TINT[ar.id]||'#333');
  nd.style.animationDelay=(i*0.05)+'s';
- nd.innerHTML=`<span class="ni">${RPGIcons.svg(ar.icon,34)}</span><div class="nn">${ar.name}</div><div class="ns">${done?RPGIcons.svg('check',12)+' SPLNĚNO':unl?'▶ VSTUP':RPGIcons.svg('lock',12)+' ZAMČENO'}</div>`;
+ nd.innerHTML=`<span class="ni">${RPGIcons.svg(ar.icon,36)}</span><div class="nn">${ar.name}</div><div class="ns">${done?RPGIcons.svg('check',12)+' SPLNĚNO':unl?'▶ VSTUP':RPGIcons.svg('lock',12)+' ZAMČENO'}</div>`;
  if(unl)nd.onclick=()=>openArea(ar.id);
  g.appendChild(nd);
  });
@@ -1778,14 +1778,14 @@ function openArea(aid){
  const artHave=S.inv.includes(ar.art.id);
  hd.innerHTML=`
  <div style="display:flex;gap:14px;align-items:center">
- <div class="ni" style="color:var(--gold)">${RPGIcons.svg(ar.icon,44)}</div>
+ <div class="ni" style="color:var(--gold)">${RPGIcons.svg(ar.icon,48)}</div>
  <div>
  <div style="font-family:var(--px);font-weight:700;font-size:17px;color:var(--gold);letter-spacing:.5px">${ar.name.replace(/\n/g,' ')}</div>
  <div style="font-family:var(--vt);font-size:21px;color:var(--muted);margin-top:4px;line-height:1.3">${ar.desc}</div>
  </div>
  </div>
  <div style="margin-top:12px;display:flex;align-items:center;gap:10px;padding-top:10px;border-top:2px solid var(--panel2)">
- <div style="line-height:0;color:var(--gold)">${RPGIcons.svg(ar.art.ic,26)}</div>
+ <div style="line-height:0;color:var(--gold)">${RPGIcons.svg(ar.art.ic,24)}</div>
  <div style="font-family:var(--px);font-weight:400;font-size:12px;color:var(--muted);line-height:1.3">Artefakt oblasti:<br><span style="color:var(--gold);font-weight:700">${ar.art.nm.replace(/\n/g,' ')}</span></div>
  ${artHave?'<div style="margin-left:auto;font-family:var(--px);font-weight:700;font-size:13px;color:var(--gold)">✓ ZÍSKÁNO</div>':''}
  </div>`;
@@ -3056,7 +3056,7 @@ function renderCrossGames(){
   let s=null;try{s=JSON.parse(localStorage.getItem(g.key));}catch{}
   const cur=g.key===SAVE_KEY;
   html+='<div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--line)'+(cur?';font-weight:700':'')+'">' +
-   '<span style="line-height:0;color:var(--gold)">'+(typeof RPGIcons!=='undefined'?RPGIcons.svg(g.ic,16):'')+'</span>'+
+   '<span style="line-height:0;color:var(--gold)">'+(typeof RPGIcons!=='undefined'?RPGIcons.svg(g.ic,12):'')+'</span>'+
    '<span style="flex:1;font-size:12px;color:'+(cur?'#fff':'var(--muted)')+'">'+g.nm+(cur?' ◀':'')+'</span>'+
    (s?'<span style="font-size:12px;color:var(--gold)">LV '+((s.level||1)|0)+' · '+((s.xp||0)|0)+' XP</span>':'<span style="font-size:11px;color:var(--muted)">—</span>')+
   '</div>';
@@ -3146,8 +3146,8 @@ function renderProfile(){
  const s=document.createElement('div');
  s.className='inv-slot'+(have?' have':'');
  s.innerHTML=have
- ?`<div class="ic">${RPGIcons.svg(ar.art.ic,26)}</div><div class="nm">${ar.art.nm}</div>`
- :`<div class="ic" style="opacity:.18">${RPGIcons.svg('question',26)}</div><div class="nm" style="opacity:.25">???</div>`;
+ ?`<div class="ic">${RPGIcons.svg(ar.art.ic,24)}</div><div class="nm">${ar.art.nm}</div>`
+ :`<div class="ic" style="opacity:.18">${RPGIcons.svg('question',24)}</div><div class="nm" style="opacity:.25">???</div>`;
  inv.appendChild(s);
  });
  const ag=document.getElementById('pr-ach');

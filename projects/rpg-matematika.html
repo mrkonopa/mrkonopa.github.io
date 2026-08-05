@@ -524,7 +524,7 @@ function renderGlobalProfile(){
  // odznaky z všech her dohromady
  const allAch={};
  GAMES.forEach(g=>{ const S=load(g.key); if(S&&S.ach) Object.assign(allAch,S.ach); });
- document.getElementById('gp-ach').innerHTML=ACH.map(a=>`<div class="ab${allAch[a.id]?' on':''}" title="${esc(a.nm)}">${RPGIcons.svg(a.ic,20)}</div>`).join('');
+ document.getElementById('gp-ach').innerHTML=ACH.map(a=>`<div class="ab${allAch[a.id]?' on':''}" title="${esc(a.nm)}">${RPGIcons.svg(a.ic,24)}</div>`).join('');
  // životní úspěchy s pokrokem
  if(RPGWallet.renderGachInto)RPGWallet.renderGachInto(document.getElementById('gp-gach'));
  // VFX přepínač
