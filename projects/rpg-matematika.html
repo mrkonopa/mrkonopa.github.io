@@ -18,6 +18,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&family=VT323&display=swap" rel="stylesheet">
+<script src="rpg-icons.js"></script>
 <script src="./rpg-badwords.js"></script>
 <script src="./rpg-wallet.js"></script>
 <style>
@@ -50,18 +51,18 @@ body::before{
  background:linear-gradient(90deg,#5dc8f0,#f4d03f,#19e6e6);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
 .head .sub{font-family:var(--vt);font-size:22px;color:var(--muted);letter-spacing:1px}
 /* ── staveniště: výstražné pruhy (ploty) po stranách + majáky ── */
-.constr-side{position:fixed;top:0;bottom:0;width:16px;z-index:0;background:repeating-linear-gradient(45deg,#f6c343 0 12px,#171208 12px 24px);opacity:.55;pointer-events:none}
+.constr-side{display:none}
 .constr-side.l{left:0}.constr-side.r{right:0}
 @media(max-width:1072px){.constr-side{display:none}}
-.constr-zone{position:relative;border:2px dashed #6a541a;border-radius:12px;background:#1a140755;padding:16px 18px;margin:10px auto 4px;max-width:560px;overflow:hidden}
-.constr-zone::before,.constr-zone::after{content:'';position:absolute;left:0;right:0;height:7px;background:repeating-linear-gradient(45deg,#f6c343 0 11px,#171208 11px 22px)}
-.constr-zone::before{top:0}.constr-zone::after{bottom:0}
+.constr-zone{position:relative;border:1px solid #4a3d16;border-radius:10px;background:#17120a99;padding:13px 16px;margin:10px auto 4px;max-width:560px;overflow:hidden}
+.constr-zone::before{content:'';position:absolute;left:0;right:0;top:0;height:3px;background:repeating-linear-gradient(45deg,#c9a33a 0 8px,#171208 8px 16px);opacity:.7}
+
 .constr-head{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:8px}
-.constr-head .ct{font-family:var(--vt);font-size:19px;letter-spacing:1px;color:#ffd06a}
-.beacon{width:12px;height:12px;border-radius:50%;background:#ff8c1a;box-shadow:0 0 8px 2px #ff8c1a;animation:beacon 1.1s ease-in-out infinite;flex:none}
+.constr-head .ct{font-family:var(--px);font-weight:700;font-size:11px;letter-spacing:1.5px;color:#c9a33a}
+.beacon{width:7px;height:7px;border-radius:50%;background:#c9a33a;flex:none;opacity:.8}
 .beacon.d{animation-delay:.55s}
 @keyframes beacon{0%,100%{opacity:.25;box-shadow:0 0 4px 1px #ff8c1a}50%{opacity:1;box-shadow:0 0 13px 4px #ffb04d}}
-.constr-msg{font-size:13.5px;color:#f6d68a;line-height:1.5;text-align:center}
+.constr-msg{font-size:12.5px;color:#b9a878;line-height:1.55;text-align:center}
 .constr-msg a{color:#19e6e6;font-weight:700;text-decoration:none;border-bottom:1px dashed #19e6e6;cursor:pointer}
 /* student bar */
 .student{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:14px 16px;margin:18px 0;display:flex;flex-wrap:wrap;gap:14px;align-items:center;justify-content:space-between}
@@ -140,8 +141,8 @@ body::before{
 .gp-gach-hint{font-size:10px;color:var(--muted);font-weight:400;letter-spacing:0}
 .gp-gach-fold #gp-gach{margin-top:10px}
 .ach-grid{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
-.ach-grid .ab{font-size:20px;width:34px;height:34px;display:flex;align-items:center;justify-content:center;background:var(--panel2);border:1px solid var(--line);border-radius:7px;filter:grayscale(1) opacity(.35)}
-.ach-grid .ab.on{filter:none;border-color:#f4d03f;box-shadow:0 0 8px #f4d03f55}
+.ach-grid .ab{width:34px;height:34px;display:flex;align-items:center;justify-content:center;background:var(--panel2);border:1px solid var(--line);border-radius:7px;color:#3a4560}
+.ach-grid .ab.on{color:#f4d03f;border-color:#f4d03f;box-shadow:0 0 8px #f4d03f55}
 /* ── SDÍLENÝ OBCHOD ── */
 .shop{margin-top:14px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px;display:none}
 .shop.open{display:block}
@@ -192,7 +193,7 @@ body::before{
  <div class="constr-zone">
   <div class="constr-head">
    <span class="beacon" aria-hidden="true"></span>
-   <span class="ct">🚧 STAVENIŠTĚ 🚧</span>
+   <span class="ct">STAVENIŠTĚ</span>
    <span class="beacon d" aria-hidden="true"></span>
   </div>
   <div class="constr-msg">
@@ -345,11 +346,11 @@ const TOTAL_TASKS=126; // 7 oblastí × 3 mise × 6 úkolů
 const ATTR=[['calc','🔢','Výpočty'],['geo','📐','Geometrie'],['anal','🧠','Analýza'],['craft','⚡','Zručnost']];
 // odznaky (zrcadlo ACH z her — jen ikona+název pro souhrn napříč hrami)
 const ACH=[
- {id:'boot',ic:'🩸',nm:'První průnik'},{id:'crit',ic:'⚡',nm:'Overclock'},{id:'combo5',ic:'🔥',nm:'Řetězová reakce'},
- {id:'flawless',ic:'🧠',nm:'Čistý kód'},{id:'flash',ic:'⏱️',nm:'Bleskový průnik'},{id:'survivor',ic:'💀',nm:'Z posledních sil'},
- {id:'area1',ic:'🔑',nm:'Insider'},{id:'half',ic:'🌗',nm:'Půlka systému'},{id:'root',ic:'👁️',nm:'ROOT přístup'},
- {id:'lv5',ic:'📈',nm:'Level 5'},{id:'lv10',ic:'🚀',nm:'Level 10'},{id:'master1',ic:'🏅',nm:'Mistr tématu'},
- {id:'train50',ic:'🎯',nm:'Trenér'},{id:'streak3',ic:'📅',nm:'Návyk'},{id:'streak7',ic:'🗓️',nm:'Týden disciplíny'},
+ {id:'boot',ic:'drop',nm:'První průnik'},{id:'crit',ic:'bolt',nm:'Overclock'},{id:'combo5',ic:'flame',nm:'Řetězová reakce'},
+ {id:'flawless',ic:'chip',nm:'Čistý kód'},{id:'flash',ic:'stopwatch',nm:'Bleskový průnik'},{id:'survivor',ic:'skull',nm:'Z posledních sil'},
+ {id:'area1',ic:'key',nm:'Insider'},{id:'half',ic:'half',nm:'Půlka systému'},{id:'root',ic:'eye',nm:'ROOT přístup'},
+ {id:'lv5',ic:'chart',nm:'Level 5'},{id:'lv10',ic:'rocket',nm:'Level 10'},{id:'master1',ic:'medal',nm:'Mistr tématu'},
+ {id:'train50',ic:'target',nm:'Trenér'},{id:'streak3',ic:'calendar',nm:'Návyk'},{id:'streak7',ic:'streak',nm:'Týden disciplíny'},
 ];
 const HUB_HAS_WALLET = (typeof RPGWallet !== 'undefined');
 
@@ -523,7 +524,7 @@ function renderGlobalProfile(){
  // odznaky z všech her dohromady
  const allAch={};
  GAMES.forEach(g=>{ const S=load(g.key); if(S&&S.ach) Object.assign(allAch,S.ach); });
- document.getElementById('gp-ach').innerHTML=ACH.map(a=>`<div class="ab${allAch[a.id]?' on':''}" title="${esc(a.nm)}">${a.ic}</div>`).join('');
+ document.getElementById('gp-ach').innerHTML=ACH.map(a=>`<div class="ab${allAch[a.id]?' on':''}" title="${esc(a.nm)}">${RPGIcons.svg(a.ic,24)}</div>`).join('');
  // životní úspěchy s pokrokem
  if(RPGWallet.renderGachInto)RPGWallet.renderGachInto(document.getElementById('gp-gach'));
  // VFX přepínač

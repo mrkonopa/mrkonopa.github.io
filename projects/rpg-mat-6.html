@@ -97,6 +97,9 @@ body::before{
 .btn.b:hover:not(:disabled){box-shadow:4px 4px 0 #1a4f73}
 .btn.g{color:var(--green);border-color:var(--green);box-shadow:3px 3px 0 #1a7a3a}
 .btn.r{color:var(--red);border-color:var(--red);box-shadow:3px 3px 0 #7b241c}
+.btn.p{color:var(--purple);border-color:var(--purple);box-shadow:3px 3px 0 #4a2472}
+.btn.m{color:var(--muted);border-color:#31405f;box-shadow:3px 3px 0 #1a2135}
+.btn.m:hover:not(:disabled){color:var(--text);border-color:var(--muted)}
 .btn.sm{font-size:12px;padding:7px 11px}
 .btn.full{width:100%;text-align:center;font-size:17px;padding:14px}
 .btn:disabled{opacity:.35;cursor:not-allowed;transform:none!important}
@@ -119,9 +122,19 @@ body::before{
 .map-node.done{border-color:var(--green)}
 .map-node.locked{cursor:not-allowed}
 .map-node.locked::after{background:repeating-linear-gradient(135deg,#0a0e16e6 0 6px,#10151fe6 6px 12px),radial-gradient(circle at 50% 40%,#0008,#000d)}
-.map-node.locked .ni,.map-node.locked .nn{opacity:.35;filter:grayscale(1)}
+.map-node.locked .ni,.map-node.locked .nn{opacity:.45}
 .map-node:not(.locked):hover{transform:translate(-3px,-4px) scale(1.03);box-shadow:0 8px 16px #0007,0 0 14px var(--tint)}
-.map-node .ni{font-size:30px;display:block;margin-bottom:6px;position:relative;z-index:1}
+/* Ikona oblasti je pixelová grafika (rpg-icons.js), ne emoji — barvu
+   dědí z .ni, takže stav mise je jen jiná barva, ne jiná ikona. */
+.map-node .ni{display:block;margin-bottom:6px;position:relative;z-index:1;line-height:0;color:var(--blue)}
+.map-node.active .ni{color:var(--gold)}
+.map-node.done .ni{color:var(--green)}
+.map-node.locked .ni{color:var(--muted)}
+.map-node .ns .px-ic{vertical-align:-1px;margin-right:3px}
+.bic{display:inline-block;line-height:0;vertical-align:-2px;margin-right:6px}
+.credits-chip .bic{margin-right:4px}
+/* 7 oblastí do 3 sloupců nechávalo poslední kartu osamocenou. */
+.map-grid .map-node:last-child{grid-column:1/-1}
 .map-node .nn{font-family:var(--px);font-weight:700;font-size:12px;line-height:1.3;white-space:pre-line;color:var(--text);position:relative;z-index:1}
 .map-node .ns{font-family:var(--px);font-weight:400;font-size:11px;margin-top:6px;letter-spacing:.3px;position:relative;z-index:1}
 .map-node.done .ns{color:var(--green)}
@@ -370,7 +383,8 @@ body::before{
 .hint-box.show{display:block;animation:hint-slide .35s ease-out}
 @keyframes hint-slide{0%{opacity:0;transform:translateY(-10px);max-height:0}100%{opacity:1;transform:translateY(0);max-height:300px}}
 .credits-chip{display:inline-flex;align-items:center;gap:5px;font-family:var(--px);font-size:13px;color:#f4d03f;background:#1a1500;border:2px solid #7a5c00;padding:2px 9px;border-radius:2px}
-#pr-avatar{display:inline-block;font-size:48px;line-height:1}
+/* Avatar je TÝŽ pixelový hrdina, kterého hra kreslí v boji. */
+#pr-avatar{display:inline-block;width:54px;height:72px;image-rendering:pixelated}
 #pr-avatar.av-silver{filter:drop-shadow(0 0 7px silver)}
 #pr-avatar.av-cyan{filter:drop-shadow(0 0 9px #4d9fff) drop-shadow(0 0 3px #4d9fff)}
 #pr-avatar.av-gold{filter:drop-shadow(0 0 9px #f4d03f) drop-shadow(0 0 3px #f4d03f)}
@@ -409,13 +423,14 @@ html[data-theme="violet"]{--gold:#b06cff;--panel:#100a20;--panel2:#18103a;--blue
 .inv-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-top:10px}
 .inv-slot{background:var(--panel2);border:2px solid #2a2a2a;padding:10px 6px;text-align:center;min-height:80px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px}
 .inv-slot.have{border-color:var(--gold)}
-.inv-slot .ic{font-size:26px}
+.inv-slot .ic{line-height:0;color:var(--muted)}
+.inv-slot.have .ic{color:var(--gold)}
 .inv-slot .nm{font-family:var(--px);font-weight:400;font-size:10px;color:var(--muted);line-height:1.2;text-align:center;white-space:pre-line}
 .ach-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:10px}
 .ach-slot{background:var(--panel2);border:2px solid #2a2a2a;padding:10px 6px;text-align:center;min-height:96px;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:3px;opacity:.55}
 .ach-slot.have{border-color:var(--gold);opacity:1;box-shadow:0 0 10px #19e6e633}
-.ach-slot .ach-ic{font-size:24px;filter:grayscale(1)}
-.ach-slot.have .ach-ic{filter:none}
+.ach-slot .ach-ic{line-height:0;color:var(--muted)}
+.ach-slot.have .ach-ic{color:var(--gold)}
 .ach-slot .ach-nm{font-family:var(--px);font-weight:700;font-size:10px;color:var(--text);line-height:1.15}
 .ach-slot.have .ach-nm{color:var(--gold)}
 .ach-slot .ach-desc{font-family:var(--px);font-weight:400;font-size:9px;color:var(--muted);line-height:1.2}
@@ -453,7 +468,7 @@ html[data-theme="violet"]{--gold:#b06cff;--panel:#100a20;--panel2:#18103a;--blue
 ::-webkit-scrollbar{width:8px;background:var(--bg)}
 ::-webkit-scrollbar-thumb{background:var(--panel2);border:2px solid var(--gold)}
 /* ── INTRO ANIM ── */
-.intro-sword{font-size:64px;margin-bottom:12px;display:inline-block;animation:sword-float 3s ease-in-out infinite;filter:drop-shadow(0 0 16px #f4d03f88)}
+.intro-sword{line-height:0;color:var(--gold);margin-bottom:12px;display:inline-block;animation:sword-float 3s ease-in-out infinite;filter:drop-shadow(0 0 16px #f4d03f88)}
 @keyframes sword-float{0%,100%{transform:translateY(0) rotate(-8deg)}50%{transform:translateY(-12px) rotate(8deg)}}
 .intro-title{font-family:var(--px);font-weight:700;font-size:34px;color:var(--gold);text-shadow:4px 4px 0 #7a5c00;line-height:1.1;margin-bottom:10px;animation:title-glow 2.5s ease-in-out infinite}
 @keyframes title-glow{0%,100%{text-shadow:4px 4px 0 #7a5c00,0 0 8px #f4d03f44}50%{text-shadow:4px 4px 0 #7a5c00,0 0 22px #f4d03faa}}
@@ -485,7 +500,7 @@ html[data-theme="violet"]{--gold:#b06cff;--panel:#100a20;--panel2:#18103a;--blue
 <div id="s-intro" class="screen active">
 <div class="wrap">
  <div style="text-align:center;padding:28px 0 20px">
- <div class="intro-sword">🚀</div>
+ <div class="intro-sword bic" data-ic="rocket" data-big="1"></div>
  <div class="intro-title">VESMÍRNÁ<br>EXPEDICE</div>
  <div style="font-family:var(--vt);font-size:24px;color:var(--blue)">Matematika 6. ročník · ZŠ Husova Liberec</div>
  </div>
@@ -511,12 +526,12 @@ html[data-theme="violet"]{--gold:#b06cff;--panel:#100a20;--panel2:#18103a;--blue
  <div class="topnav">
  <span style="display:flex;align-items:center;gap:10px"><a href="rpg-matematika.html" class="btn sm" style="text-decoration:none" title="Zpět na RPG Matematika HUB">← HUB</a><span class="hl" id="map-name">HRDINA</span></span>
  <span>LV <span class="hl" id="map-lv">1</span> &nbsp; · &nbsp; XP <span class="hl" id="map-xp">0</span></span>
- <button class="btn sm" onclick="go('profile')">👤 PROFIL</button>
+ <button class="btn sm" onclick="go('profile')"><span class="bic" data-ic="user"></span>PROFIL</button>
  </div>
  <div class="panel" style="padding:10px 14px;display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap">
  <div style="font-family:var(--px);font-weight:400;font-size:13px;color:var(--muted);letter-spacing:1px">✦ &nbsp;EXPEDITIO COSMICA&nbsp; · &nbsp;ANNUS VI&nbsp; ✦</div>
  <span class="streak-chip" id="map-streak" style="display:none"><span class="sf">🔥</span> <span id="map-streak-n">0</span> dní v řadě</span>
- <span class="credits-chip" id="map-credits-chip">💰 <span id="map-credits">0</span> kr</span>
+ <span class="credits-chip" id="map-credits-chip"><span class="bic" data-ic="coin"></span><span id="map-credits">0</span> kr</span>
  </div>
  <div class="map-grid" id="map-grid"></div>
  <div class="panel" style="padding:10px 14px">
@@ -530,11 +545,11 @@ html[data-theme="violet"]{--gold:#b06cff;--panel:#100a20;--panel2:#18103a;--blue
  <div class="panel" id="map-recommend" style="display:none;padding:12px 14px;margin-top:12px"></div>
  <div class="panel" id="map-revive" style="display:none;padding:12px 14px;margin-top:12px"></div>
  <div style="display:flex;gap:8px;margin-top:12px">
-  <button class="btn sm gold" style="flex:0 0 auto" onclick="go('shop')">🛍️ OBCHOD</button>
-  <button class="btn" style="flex:none" onclick="typeof RPGFindError!=='undefined'&&RPGFindError.open(window.RPG_LEARN_6)">🔍 NAJDI CHYBU</button>
-  <button class="btn" style="flex:none" onclick="openBattle()">⚔️ ŽIVÝ SOUBOJ</button>
-  <button class="btn b" style="flex:1" onclick="go('train')">🎯 TRÉNINK — procvičuj libovolné téma bez boje</button>
-  <button class="btn" style="flex:none" onclick="go('tower')">🗼 VĚŽ LEGEND</button>
+  <button class="btn sm gold" style="flex:0 0 auto" onclick="go('shop')"><span class="bic" data-ic="shop"></span>OBCHOD</button>
+  <button class="btn" style="flex:none" onclick="typeof RPGFindError!=='undefined'&&RPGFindError.open(window.RPG_LEARN_6)"><span class="bic" data-ic="search"></span>NAJDI CHYBU</button>
+  <button class="btn r" style="flex:none" onclick="openBattle()"><span class="bic" data-ic="swords"></span>ŽIVÝ SOUBOJ</button>
+  <button class="btn b" style="flex:1" onclick="go('train')"><span class="bic" data-ic="target"></span>TRÉNINK — procvičuj libovolné téma bez boje</button>
+  <button class="btn p" style="flex:none" onclick="go('tower')"><span class="bic" data-ic="tower"></span>VĚŽ LEGEND</button>
  </div></div>
 </div>
 
@@ -543,7 +558,7 @@ html[data-theme="violet"]{--gold:#b06cff;--panel:#100a20;--panel2:#18103a;--blue
 <div class="wrap">
  <div class="topnav">
  <button class="btn sm" onclick="twExit()">← MAPA</button>
- <span style="font-family:var(--px);font-weight:700;font-size:14px;color:var(--gold)">🗼 VĚŽ LEGEND</span>
+ <span style="font-family:var(--px);font-weight:700;font-size:14px;color:var(--gold)"><span class="bic" data-ic="tower"></span>VĚŽ LEGEND</span>
  <span style="min-width:60px"></span>
  </div>
  <div class="panel" style="padding:0;overflow:hidden;background:#05060c">
@@ -611,8 +626,8 @@ html[data-theme="violet"]{--gold:#b06cff;--panel:#100a20;--panel2:#18103a;--blue
 <div class="wrap">
  <div class="topnav">
   <button class="btn sm" onclick="go('map')">← MAPA</button>
-  <span style="font-family:var(--px);font-size:14px;color:var(--gold)">🛍️ OBCHOD</span>
-  <span class="credits-chip">💰 <span id="shop-bal">0</span> kr</span>
+  <span style="font-family:var(--px);font-size:14px;color:var(--gold)"><span class="bic" data-ic="shop"></span>OBCHOD</span>
+  <span class="credits-chip"><span class="bic" data-ic="coin"></span><span id="shop-bal">0</span> kr</span>
  </div>
  <p style="font-size:13px;color:var(--muted);margin-bottom:12px;line-height:1.6">Kredity získáváš za správné odpovědi v boji a za splnění misí. Kosmetika nemá vliv na hratelnost.<br>💡 Kredity i koupená kosmetika jsou <b style="color:var(--gold)">společné pro všechny ročníky</b> — co koupíš tady, nosíš všude. <a href="rpg-matematika.html" style="color:var(--blue,#5dade2)">Globální profil a obchod ↗</a></p>
  <div class="shop-tabs">
@@ -634,7 +649,7 @@ html[data-theme="violet"]{--gold:#b06cff;--panel:#100a20;--panel2:#18103a;--blue
 <div class="wrap">
  <div class="topnav">
  <button class="btn sm" onclick="go('map')">← MAPA</button>
- <span style="font-family:var(--px);font-weight:700;font-size:14px;color:var(--gold)">🎯 TRÉNINK</span>
+ <span style="font-family:var(--px);font-weight:700;font-size:14px;color:var(--gold)"><span class="bic" data-ic="target"></span>TRÉNINK</span>
  <span style="min-width:60px"></span>
  </div>
  <div id="train-picker">
@@ -698,8 +713,8 @@ html[data-theme="violet"]{--gold:#b06cff;--panel:#100a20;--panel2:#18103a;--blue
  </div>
  <div id="learn-content"></div>
  <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:18px">
-  <button class="btn b" id="learn-battle-btn" onclick="launchLearnBattle()">⚔️ BOJOVAT NYNÍ</button>
-  <button class="btn sm" onclick="go('train')">🎯 TRÉNOVAT</button>
+  <button class="btn b" id="learn-battle-btn" onclick="launchLearnBattle()"><span class="bic" data-ic="swords"></span>BOJOVAT NYNÍ</button>
+  <button class="btn sm" onclick="go('train')"><span class="bic" data-ic="target"></span>TRÉNOVAT</button>
  </div>
 </div>
 </div>
@@ -747,7 +762,7 @@ html[data-theme="violet"]{--gold:#b06cff;--panel:#100a20;--panel2:#18103a;--blue
  <div class="bt-problem" id="bt-prob">...</div>
  <div class="bt-row" id="bt-input-row">
  <input id="bt-ans" aria-label="Odpověď" class="bt-input" type="text" placeholder="?" autocomplete="off">
- <button id="attack-btn" class="btn" onclick="submitAnswer()" style="white-space:nowrap">ÚTOK ⚔</button>
+ <button id="attack-btn" class="btn" onclick="submitAnswer()" style="white-space:nowrap">ÚTOK</button>
  </div>
  <div class="bt-row" id="yn-row" style="display:none">
  <button class="btn g" style="flex:1" onclick="answerYN('ANO')">✓ ANO</button>
@@ -785,12 +800,12 @@ html[data-theme="violet"]{--gold:#b06cff;--panel:#100a20;--panel2:#18103a;--blue
  </div>
  <div class="panel">
  <div style="display:flex;gap:14px;align-items:center;margin-bottom:14px">
- <div id="pr-avatar">🧙</div>
+ <canvas id="pr-avatar" width="54" height="72" aria-label="Tvůj hrdina"></canvas>
  <div>
  <div id="pr-name" style="font-family:var(--px);font-weight:700;font-size:20px;color:var(--gold);letter-spacing:1px">HRDINA</div>
  <div style="font-family:var(--px);font-weight:400;font-size:13px;color:var(--muted);margin-top:4px">ÚROVEŇ <span id="pr-lv">1</span></div>
  <div style="font-family:var(--px);font-weight:400;font-size:13px;color:var(--blue);margin-top:2px">XP: <span id="pr-xp">0</span></div>
- <div style="font-family:var(--px);font-weight:400;font-size:13px;color:#f4d03f;margin-top:2px">💰 <span id="pr-credits">0</span> kr &nbsp;<button class="btn sm" style="font-size:11px;padding:2px 8px" onclick="go('shop')">🛍️ OBCHOD</button></div>
+ <div style="font-family:var(--px);font-weight:400;font-size:13px;color:#f4d03f;margin-top:2px"><span class="bic" data-ic="coin"></span><span id="pr-credits">0</span> kr &nbsp;<button class="btn sm" style="font-size:11px;padding:2px 8px" onclick="go('shop')"><span class="bic" data-ic="shop"></span>OBCHOD</button></div>
  </div>
  </div>
  <div style="font-family:var(--px);font-weight:700;font-size:12px;color:var(--muted);margin-bottom:10px;letter-spacing:1px">— ATRIBUTY —</div>
@@ -932,9 +947,9 @@ function svgMirror(shape){
 // ══════════════════════════════════════════
 const AREAS = [
 {
- id:1, icon:'🛰️', name:'ODLETOVÁ\nSTANICE',
+ id:1, icon:'sat', name:'ODLETOVÁ\nSTANICE',
  desc:'Zahřívací kolo — opakování z 5. ročníku. Počítání, obvod, obsah a logika.',
- art:{id:'starmap',ic:'🗺️',nm:'Hvězdná\nmapa'},
+ art:{id:'starmap',ic:'map',nm:'Hvězdná\nmapa'},
  attrGain:{calc:12,anal:8},
  missions:[
  {
@@ -982,9 +997,9 @@ const AREAS = [
  ]
 },
 {
- id:2, icon:'🪐', name:'PLANETA\nDESETIN',
+ id:2, icon:'planet', name:'PLANETA\nDESETIN',
  desc:'Desetinná čísla a zlomky. Počítání, zaokrouhlování, průměr.',
- art:{id:'crystal',ic:'💎',nm:'Desetinný\nkrystal'},
+ art:{id:'crystal',ic:'gem',nm:'Desetinný\nkrystal'},
  attrGain:{calc:18,anal:6},
  missions:[
  {
@@ -1032,9 +1047,9 @@ const AREAS = [
  ]
 },
 {
- id:3, icon:'☄️', name:'POLE\nDĚLITELNOSTI',
+ id:3, icon:'comet', name:'POLE\nDĚLITELNOSTI',
  desc:'Dělitelnost, znaky dělitelnosti, prvočísla, NSD a NSN.',
- art:{id:'core',ic:'⚙️',nm:'Jádro\nasteroidu'},
+ art:{id:'core',ic:'gear',nm:'Jádro\nasteroidu'},
  attrGain:{calc:14,anal:10},
  missions:[
  {
@@ -1082,9 +1097,9 @@ const AREAS = [
  ]
 },
 {
- id:4, icon:'📐', name:'MLHOVINA\nÚHLŮ',
+ id:4, icon:'angle', name:'MLHOVINA\nÚHLŮ',
  desc:'Úhly — měření, druhy, vedlejší a vrcholové, sčítání a odčítání.',
- art:{id:'protractor',ic:'📐',nm:'Hvězdný\núhloměr'},
+ art:{id:'protractor',ic:'angle',nm:'Hvězdný\núhloměr'},
  attrGain:{geo:16,craft:8},
  missions:[
  {
@@ -1132,9 +1147,9 @@ const AREAS = [
  ]
 },
 {
- id:5, icon:'🌗', name:'ZRCADLOVÝ\nMĚSÍC',
+ id:5, icon:'half', name:'ZRCADLOVÝ\nMĚSÍC',
  desc:'Shodnost útvarů a osová souměrnost.',
- art:{id:'mirror',ic:'🪞',nm:'Zrcadlový\núlomek'},
+ art:{id:'mirror',ic:'mirror',nm:'Zrcadlový\núlomek'},
  attrGain:{geo:12,craft:12},
  missions:[
  {
@@ -1182,9 +1197,9 @@ const AREAS = [
  ]
 },
 {
- id:6, icon:'🧊', name:'KRYCHLOVÁ\nSTANICE',
+ id:6, icon:'ice', name:'KRYCHLOVÁ\nSTANICE',
  desc:'Objem a povrch krychle a kvádru, jednotky objemu, sítě.',
- art:{id:'cube',ic:'🧊',nm:'Energetická\nkostka'},
+ art:{id:'cube',ic:'ice',nm:'Energetická\nkostka'},
  attrGain:{geo:10,craft:14},
  missions:[
  {
@@ -1232,9 +1247,9 @@ const AREAS = [
  ]
 },
 {
- id:7, icon:'🌌', name:'TROJÚHELNÍKOVÁ\nGALAXIE',
+ id:7, icon:'star', name:'TROJÚHELNÍKOVÁ\nGALAXIE',
  desc:'Trojúhelníky, jejich úhly a vlastnosti — a velký finální boss!',
- art:{id:'medal',ic:'🏅',nm:'Galaktický\nodznak'},
+ art:{id:'medal',ic:'medal',nm:'Galaktický\nodznak'},
  attrGain:{calc:8,geo:10,anal:8,craft:8},
  missions:[
  {
@@ -1283,11 +1298,12 @@ const AREAS = [
 }
 ];
 
+const attrIc = (k,size) => (typeof RPGIcons!=='undefined' && ATTR_META[k]) ? RPGIcons.svg(ATTR_META[k].ic,size||24) : '';
 const ATTR_META = {
- calc: {ic:'🔋', nm:'Výpočetní energie'},
- geo: {ic:'🛰️', nm:'Geometr. navigace'},
- anal: {ic:'🧠', nm:'Logická bystrost'},
- craft:{ic:'📐', nm:'Prostorová zručnost'}
+ calc: {ic:'calc', nm:'Výpočetní energie'},
+ geo: {ic:'angle', nm:'Geometr. navigace'},
+ anal: {ic:'brain', nm:'Logická bystrost'},
+ craft: {ic:'bolt', nm:'Prostorová zručnost'}
 };
 
 // ══════════════════════════════════════════
@@ -1368,6 +1384,7 @@ function applyCosmetics(){
  const spMod=window.RPGSprites9||window.RPGSprites8||window.RPGSprites7||window.RPGSprites6;
  if(spMod&&typeof spMod.setSkin==='function')spMod.setSkin(cos.active?.skin||null);
  if(typeof RPGWallet!=='undefined'&&RPGWallet.renderTitlePet)RPGWallet.renderTitlePet({nameEl:document.getElementById('pr-name'),mapNameEl:document.getElementById('map-name'),avatarEl:document.getElementById('pr-avatar')});
+ if(typeof drawAvatar==='function')drawAvatar();
  _updateCreditsUI();
  renderShop();
 }
@@ -1511,25 +1528,25 @@ function hitVignette(){
 // ODZNAKY (ACHIEVEMENTS) + DENNÍ SÉRIE
 // ══════════════════════════════════════════
 const ACH=[
- {id:'boot',   ic:'🩸', nm:'První průnik',     desc:'Vyřeš první úkol'},
- {id:'crit',   ic:'⚡', nm:'Overclock',        desc:'10× kritický zásah'},
- {id:'combo5', ic:'🔥', nm:'Řetězová reakce',  desc:'Combo 5 v jednom boji'},
- {id:'flawless',ic:'🧠',nm:'Čistý kód',        desc:'Mise bez nápovědy'},
- {id:'flash',  ic:'⏱️', nm:'Bleskový průnik',  desc:'Správně s 30+ s na čase'},
- {id:'survivor',ic:'💀',nm:'Z posledních sil', desc:'Vyhraj boj s 1 životem'},
- {id:'area1',  ic:'🔑', nm:'Insider',          desc:'Splň první oblast'},
- {id:'half',   ic:'🌗', nm:'Půlka systému',    desc:'Splň 4 oblasti'},
- {id:'root',   ic:'👁️', nm:'ROOT přístup',     desc:'Splň všech 7 oblastí'},
- {id:'lv5',    ic:'📈', nm:'Level 5',          desc:'Dosáhni úrovně 5'},
- {id:'lv10',   ic:'🚀', nm:'Level 10',         desc:'Dosáhni úrovně 10'},
- {id:'master1',ic:'🏅', nm:'Mistr tématu',     desc:'1 mistrovství v tréninku'},
- {id:'train50',ic:'🎯', nm:'Trenér',           desc:'50 správných v tréninku'},
- {id:'streak3',     ic:'📅', nm:'Návyk',            desc:'Hraj 3 dny v řadě'},
- {id:'streak7',     ic:'🗓️', nm:'Týden disciplíny', desc:'Hraj 7 dní v řadě'},
- {id:'battle1',     ic:'⚔️', nm:'První klání',       desc:'Zúčastni se živého souboje'},
- {id:'battlewin',   ic:'🏆', nm:'Bojovník',           desc:'Vyhraj živý souboj (1. místo)'},
- {id:'battleflawless',ic:'💎',nm:'Bezchybný',        desc:'Všechny otázky správně v živém souboji'},
- {id:'star1',     ic:'⭐', nm:'Oživovatel',         desc:'Získej první hvězdu opakování'},
+ {id:'boot',   ic:'drop', nm:'První průnik',     desc:'Vyřeš první úkol'},
+ {id:'crit',   ic:'bolt', nm:'Overclock',        desc:'10× kritický zásah'},
+ {id:'combo5', ic:'flame', nm:'Řetězová reakce',  desc:'Combo 5 v jednom boji'},
+ {id:'flawless',ic:'brain',nm:'Čistý kód',        desc:'Mise bez nápovědy'},
+ {id:'flash',  ic:'stopwatch', nm:'Bleskový průnik',  desc:'Správně s 30+ s na čase'},
+ {id:'survivor',ic:'skull',nm:'Z posledních sil', desc:'Vyhraj boj s 1 životem'},
+ {id:'area1',  ic:'key', nm:'Insider',          desc:'Splň první oblast'},
+ {id:'half',   ic:'half', nm:'Půlka systému',    desc:'Splň 4 oblasti'},
+ {id:'root',   ic:'eye', nm:'ROOT přístup',     desc:'Splň všech 7 oblastí'},
+ {id:'lv5',    ic:'chart', nm:'Level 5',          desc:'Dosáhni úrovně 5'},
+ {id:'lv10',   ic:'rocket', nm:'Level 10',         desc:'Dosáhni úrovně 10'},
+ {id:'master1',ic:'medal', nm:'Mistr tématu',     desc:'1 mistrovství v tréninku'},
+ {id:'train50',ic:'target', nm:'Trenér',           desc:'50 správných v tréninku'},
+ {id:'streak3',     ic:'calendar', nm:'Návyk',            desc:'Hraj 3 dny v řadě'},
+ {id:'streak7',     ic:'streak', nm:'Týden disciplíny', desc:'Hraj 7 dní v řadě'},
+ {id:'battle1',     ic:'swords', nm:'První klání',       desc:'Zúčastni se živého souboje'},
+ {id:'battlewin',   ic:'trophy', nm:'Bojovník',           desc:'Vyhraj živý souboj (1. místo)'},
+ {id:'battleflawless',ic:'gem',nm:'Bezchybný',        desc:'Všechny otázky správně v živém souboji'},
+ {id:'star1',     ic:'star', nm:'Oživovatel',         desc:'Získej první hvězdu opakování'},
 ];
 function unlockAch(id){
  if(S.ach&&S.ach[id])return;
@@ -1577,7 +1594,7 @@ function _achNext(){
  if(!_achQ.length){_achBusy=false;return;}
  _achBusy=true;const a=_achQ.shift();
  const t=document.createElement('div');t.className='ach-toast';
- t.innerHTML=`<div class="ach-toast-ic">${a.ic}</div><div><div class="ach-toast-h">ODZNAK ODEMČEN</div><div class="ach-toast-n">${a.nm}</div></div>`;
+ t.innerHTML=`<div class="ach-toast-ic">${RPGIcons.svg(a.ic,24)}</div><div><div class="ach-toast-h">ODZNAK ODEMČEN</div><div class="ach-toast-n">${a.nm}</div></div>`;
  document.body.appendChild(t);void t.offsetWidth;t.classList.add('show');
  setTimeout(()=>{t.classList.remove('show');setTimeout(()=>{t.remove();_achNext();},360);},2200);
 }
@@ -1690,8 +1707,17 @@ function renderRecommend(){
   '<div style="font-family:var(--px);font-size:13px;color:var(--text);line-height:1.45">'+
   '<span style="color:var(--gold);font-weight:700">📚 Doporučený trénink</span><br>'+
   '<span style="color:var(--muted)">Tohle ti zatím dělá potíže:</span> <b>'+rec.name+'</b></div>'+
-  '<button class="btn b sm" style="flex:none" onclick="goPractice(\''+rec.mid+'\')">🎯 Procvičit</button></div>';
+  '<button class="btn b sm" style="flex:none" onclick="goPractice(\''+rec.mid+'\')"><span class="bic" data-ic="target"></span>Procvičit</button></div>';
 }
+
+// Pixelové ikony v tlačítkách — emoji se na každém systému kreslí jinak.
+function fillIcons(root){
+ if(typeof RPGIcons==='undefined')return;
+ (root||document).querySelectorAll('.bic[data-ic]').forEach(function(el){
+  if(!el.firstChild) el.innerHTML=RPGIcons.svg(el.dataset.ic,el.dataset.big?48:12);
+ });
+}
+document.addEventListener('DOMContentLoaded',function(){fillIcons();});
 
 function renderMap(){
  calcLevel();
@@ -1707,6 +1733,7 @@ function renderMap(){
  if(window.RPGCloud&&RPGCloud.renderLeaderboardInto)RPGCloud.renderLeaderboardInto('map-leaderboard',SAVE_KEY);
  renderRecommend();
  renderRevive();
+ fillIcons();
  const g=document.getElementById('map-grid');
  g.innerHTML='';
  // unikátní barevný nádech krajiny pro každou oblast
@@ -1718,7 +1745,7 @@ function renderMap(){
  nd.className='map-node '+finalCls;
  nd.style.setProperty('--tint',TINT[ar.id]||'#333');
  nd.style.animationDelay=(i*0.05)+'s';
- nd.innerHTML=`<span class="ni">${ar.icon}</span><div class="nn">${ar.name}</div><div class="ns">${done?'✓ SPLNĚNO':unl?'▶ VSTUP':'🔒 ZAMČENO'}</div>`;
+ nd.innerHTML=`<span class="ni">${RPGIcons.svg(ar.icon,36)}</span><div class="nn">${ar.name}</div><div class="ns">${done?RPGIcons.svg('check',12)+' SPLNĚNO':unl?'▶ VSTUP':RPGIcons.svg('lock',12)+' ZAMČENO'}</div>`;
  if(unl)nd.onclick=()=>openArea(ar.id);
  g.appendChild(nd);
  });
@@ -1737,14 +1764,14 @@ function openArea(aid){
  const artHave=S.inv.includes(ar.art.id);
  hd.innerHTML=`
  <div style="display:flex;gap:14px;align-items:center">
- <div style="font-size:42px">${ar.icon}</div>
+ <div class="ni" style="color:var(--gold)">${RPGIcons.svg(ar.icon,48)}</div>
  <div>
  <div style="font-family:var(--px);font-weight:700;font-size:17px;color:var(--gold);letter-spacing:.5px">${ar.name.replace(/\n/g,' ')}</div>
  <div style="font-family:var(--vt);font-size:21px;color:var(--muted);margin-top:4px;line-height:1.3">${ar.desc}</div>
  </div>
  </div>
  <div style="margin-top:12px;display:flex;align-items:center;gap:10px;padding-top:10px;border-top:2px solid var(--panel2)">
- <div style="font-size:26px">${ar.art.ic}</div>
+ <div style="line-height:0;color:var(--gold)">${RPGIcons.svg(ar.art.ic,24)}</div>
  <div style="font-family:var(--px);font-weight:400;font-size:12px;color:var(--muted);line-height:1.3">Artefakt oblasti:<br><span style="color:var(--gold);font-weight:700">${ar.art.nm.replace(/\n/g,' ')}</span></div>
  ${artHave?'<div style="margin-left:auto;font-family:var(--px);font-weight:700;font-size:13px;color:var(--gold)">✓ ZÍSKÁNO</div>':''}
  </div>`;
@@ -2622,7 +2649,7 @@ function checkMissionComplete(){
  S.inv.push(ar.art.id);
  Object.entries(ar.attrGain).forEach(([k,v])=>{if(S.attrs[k]!==undefined)S.attrs[k]+=v;});
  saveS();
- setTimeout(()=>showModal(ar.art.ic,'OBLAST SPLNĚNA!',`Získal jsi artefakt:\n${ar.art.nm.replace(/\n/g,' ')}!\n\n+${Object.entries(ar.attrGain).map(([k,v])=>v+' '+ATTR_META[k].ic).join(' ')}`),1700);
+ setTimeout(()=>showModal(ar.art.ic,'OBLAST SPLNĚNA!',`Získal jsi artefakt:\n${ar.art.nm.replace(/\n/g,' ')}!\n\n+${Object.entries(ar.attrGain).map(([k,v])=>v+' '+ATTR_META[k].nm).join(', ')}`),1700);
  }
  }
 }
@@ -3003,10 +3030,10 @@ function twDrawCanvas(){
 // PROFILE
 // ══════════════════════════════════════════
 const ALL_GAMES=[
- {key:'RPG_MAT_6',ic:'🚀',nm:'6. ročník – Vesmírná expedice'},
- {key:'RPG_MAT_7',ic:'⛏️',nm:'7. ročník – Ztracený chrám'},
- {key:'RPG_MAT_8',ic:'🎓',nm:'8. ročník – Mat. akademie'},
- {key:'RPG_MAT_9',ic:'💻',nm:'9. ročník – NULL_BYTE'},
+ {key:'RPG_MAT_6',ic:'rocket',nm:'6. ročník – Vesmírná expedice'},
+ {key:'RPG_MAT_7',ic:'temple',nm:'7. ročník – Ztracený chrám'},
+ {key:'RPG_MAT_8',ic:'castle',nm:'8. ročník – Mat. akademie'},
+ {key:'RPG_MAT_9',ic:'chip',nm:'9. ročník – NULL_BYTE'},
 ];
 function renderCrossGames(){
  const el=document.getElementById('pr-allgames');if(!el)return;
@@ -3015,7 +3042,7 @@ function renderCrossGames(){
   let s=null;try{s=JSON.parse(localStorage.getItem(g.key));}catch{}
   const cur=g.key===SAVE_KEY;
   html+='<div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--line)'+(cur?';font-weight:700':'')+'">' +
-   '<span style="font-size:16px">'+g.ic+'</span>'+
+   '<span style="line-height:0;color:var(--gold)">'+(typeof RPGIcons!=='undefined'?RPGIcons.svg(g.ic,12):'')+'</span>'+
    '<span style="flex:1;font-size:12px;color:'+(cur?'#fff':'var(--muted)')+'">'+g.nm+(cur?' ◀':'')+'</span>'+
    (s?'<span style="font-size:12px;color:var(--gold)">LV '+((s.level||1)|0)+' · '+((s.xp||0)|0)+' XP</span>':'<span style="font-size:11px;color:var(--muted)">—</span>')+
   '</div>';
@@ -3026,7 +3053,9 @@ function renderCrossGames(){
 function svgAttrRadar(attrs){
  const CX=90,CY=88,R=60;
  // 3 osy: calc=top (-90°), anal=bottom-right (30°), geo=bottom-left (150°)
- const axes=[['calc',-90],['anal',30],['geo',150]];
+ const axes=[['calc',-90],['anal',0],['geo',90],['craft',180]];  // 4 atributy, ne 3 —
+ // 'craft' se dřív nekreslil vůbec, takže z radaru vycházel trojúhelník a žák
+ // svou zručnost v grafu nikde neviděl, i když ji sbíral.
  const rad=d=>d*Math.PI/180;
  const pt=(pct,deg)=>[CX+R*(pct/100)*Math.cos(rad(deg)),CY+R*(pct/100)*Math.sin(rad(deg))];
  // mřížka — tři úrovně (25,50,75,100%)
@@ -3044,7 +3073,7 @@ function svgAttrRadar(attrs){
  // popisky (tématické ikony z ATTR_META)
  const lbls=axes.map(([k,d])=>{
   const [lx,ly]=pt(120,d);const m=ATTR_META[k]||{};
-  return `<text x="${lx}" y="${ly+4}" text-anchor="middle" dominant-baseline="middle" font-size="14" fill="var(--muted,#8895b5)">${m.ic||k}</text>`;
+  return `<text x="${lx}" y="${ly+4}" text-anchor="middle" dominant-baseline="middle" font-size="14" fill="var(--muted,#8895b5)"></text><g transform="translate(${(lx-8).toFixed(1)},${(ly-4).toFixed(1)})" color="var(--muted,#8895b5)">${attrIc(k,16)}</g>`;
  }).join('');
  // hodnoty vedle vrcholů
  const vals=axes.map(([k,d])=>{
@@ -3065,25 +3094,39 @@ async function updateBattleStats(){
   const acc=tot?Math.round(100*st.correct/tot):0;
   p.style.display='';
   inner.innerHTML=`<div style="display:flex;gap:16px;flex-wrap:wrap;font-family:var(--read,'Lexend',sans-serif);font-size:14px">
-   <span>⚔️ <b>${st.played}</b> soubojů</span>
+   <span><span class="bic" data-ic="swords"></span><b>${st.played}</b> soubojů</span>
    <span>🥇 <b>${st.wins||0}</b> výher</span>
    <span>✓ <b>${acc}%</b> správně</span>
    <span style="color:var(--muted)">⌀ ${st.avg_rank?Number(st.avg_rank).toFixed(1):'-'}. místo</span>
   </div>`;
  }catch(e){p.style.display='none';}
 }
+// Avatar v profilu = hrdina z bojového enginu.
+function drawAvatar(){
+ const cv=document.getElementById('pr-avatar');
+ const sp=window.RPGSprites6;
+ if(!cv||!sp||typeof sp.drawHeroOn!=='function')return;
+ const x=cv.getContext&&cv.getContext('2d');
+ if(!x)return;
+ x.clearRect(0,0,cv.width,cv.height);
+ x.imageSmoothingEnabled=false;
+ try{ sp.drawHeroOn(x,0,0,3,0,false); }catch(e){}
+}
+
 function renderProfile(){
  calcLevel();
  document.getElementById('pr-name').textContent=S.name;
  document.getElementById('pr-lv').textContent=S.level;
  document.getElementById('pr-xp').textContent=S.xp;
+ drawAvatar();
+ fillIcons();
  const el=document.getElementById('pr-attrs');
  el.innerHTML=svgAttrRadar(S.attrs);
  Object.entries(ATTR_META).forEach(([k,m])=>{
  const v=(S.attrs[k]||0)|0,pct=Math.min(100,v)|0;
  const row=document.createElement('div');
  row.className='attr-row';
- row.innerHTML=`<div class="attr-ic">${m.ic}</div><div class="attr-nm">${m.nm}</div>
+ row.innerHTML=`<div class="attr-ic">${attrIc(k,24)}</div><div class="attr-nm">${m.nm}</div>
  <div style="flex:1"><div class="bar-out bar-attr"><div class="bar-in" style="width:${pct}%"></div></div></div>
  <div class="attr-vl">${v}</div>`;
  el.appendChild(row);
@@ -3096,8 +3139,8 @@ function renderProfile(){
  const s=document.createElement('div');
  s.className='inv-slot'+(have?' have':'');
  s.innerHTML=have
- ?`<div class="ic">${ar.art.ic}</div><div class="nm">${ar.art.nm}</div>`
- :`<div class="ic" style="opacity:.15">❓</div><div class="nm" style="opacity:.25">???</div>`;
+ ?`<div class="ic">${RPGIcons.svg(ar.art.ic,24)}</div><div class="nm">${ar.art.nm}</div>`
+ :`<div class="ic" style="opacity:.18">${RPGIcons.svg('question',24)}</div><div class="nm" style="opacity:.25">???</div>`;
  inv.appendChild(s);
  });
  const ag=document.getElementById('pr-ach');
@@ -3107,7 +3150,7 @@ function renderProfile(){
  const have=!!(S.ach&&S.ach[a.id]);if(have)got++;
  const s=document.createElement('div');
  s.className='ach-slot'+(have?' have':'');
- s.innerHTML=`<div class="ach-ic">${have?a.ic:'🔒'}</div><div class="ach-nm">${have?a.nm:'???'}</div><div class="ach-desc">${have?a.desc:'zatím zamčeno'}</div>`;
+ s.innerHTML=`<div class="ach-ic">${RPGIcons.svg(have?a.ic:'lock',24)}</div><div class="ach-nm">${have?a.nm:'???'}</div><div class="ach-desc">${have?a.desc:'zatím zamčeno'}</div>`;
  ag.appendChild(s);
  });
  document.getElementById('pr-ach-n').textContent=got;
@@ -3508,6 +3551,7 @@ window.addEventListener('load',()=>{
  }
 });
 </script>
+<script defer src="./rpg-icons.js"></script>
 <script defer src="./rpg-sprites-6.js"></script>
 <script defer src="./rpg-tasks-6.js"></script>
 <script defer src="./rpg-learn-6.js"></script>

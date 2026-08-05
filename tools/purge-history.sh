@@ -24,8 +24,32 @@ REMOTE="${1:-https://github.com/mrkonopa/mrkonopa.github.io.git}"
 WORK="${TMPDIR:-/tmp}/purge-history-$$"
 MIRROR="$WORK/repo.git"
 
-command -v git-filter-repo >/dev/null || {
-  echo "CHYBÍ git-filter-repo → pip install git-filter-repo"; exit 1; }
+# git-filter-repo se dá volat dvěma cestami. Na Windows `pip install` uloží
+# modul, ale spustitelný soubor se často nedostane do PATH, takže `git
+# filter-repo` hlásí, že příkaz neexistuje — přitom `python -m git_filter_repo`
+# funguje. Zkoušíme obě, ať se krok 0 netváří hotově, když hotový není.
+FR=""
+if command -v git-filter-repo >/dev/null 2>&1; then
+  FR="git filter-repo"
+else
+  for PY in python3 python py; do
+    command -v "$PY" >/dev/null 2>&1 || continue
+    if "$PY" -m git_filter_repo --version >/dev/null 2>&1; then FR="$PY -m git_filter_repo"; break; fi
+  done
+fi
+[ -n "$FR" ] || {
+  cat <<'EOM'
+CHYBÍ git-filter-repo.
+
+  python -m pip install --user git-filter-repo
+
+Pak ověř, že to jde spustit (stačí, když projde JEDEN z těch dvou):
+
+  git filter-repo --version
+  python -m git_filter_repo --version
+EOM
+  exit 1; }
+echo "── použiju: $FR ──"
 
 echo "── zrcadlový klon $REMOTE ──"
 mkdir -p "$WORK"
@@ -56,7 +80,7 @@ while read -r r _; do
 done < "$WORK/refs-pred.txt" > "$WORK/stromy-pred.txt"
 
 echo "── přepisuji historii (--prune-empty never = commity zůstanou všechny) ──"
-git -C "$MIRROR" filter-repo --strip-blobs-with-ids "$WORK/dead.txt" --prune-empty never --force
+( cd "$MIRROR" && $FR --strip-blobs-with-ids "$WORK/dead.txt" --prune-empty never --force )
 
 echo "── kontrola, že se obsah nezměnil ──"
 CHYBA=0

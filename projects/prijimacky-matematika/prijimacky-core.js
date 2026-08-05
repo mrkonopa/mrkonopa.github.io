@@ -401,5 +401,59 @@
     return [l1, l2, l3];
   }
 
-  window.PZ = { esc, check, store, inputMode, czNum, themeSvg, attachLoginBar, cloudPush, cloudSync, topicWeights, pickWeakTopic, hintsFor, recordTestTopics, weakTopicsFromReview };
+  /* ════════ IKONY ════════
+     Emoji se na každém systému kreslí jinak (a v šedé se rozmažou v beztvarý
+     flek), takže rozhraní používá vlastní vektorové ikony. Jsou kreslené na
+     mřížce 24×24 jednou tloušťkou tahu a barvu dědí z CSS (`currentColor`),
+     aby seděly k Lexendu a daly se obarvit podle okruhu. */
+  const ICONS = {
+    // Celý kruh se v jedné cestě kreslí DVĚMA oblouky (…a r r 0 1 0 0 2r
+    // a r r 0 1 0 0 -2r). Jeden oblouk udělá jen půlkruh — na to jsem naletěl
+    // a terč vyšel jako „G", poměr jako „σᶜ".
+    // ── rozcestník ──
+    test:      'M6 3h8l4 4v14H6z M14 3v4h4 M9 12h6 M9 16h4',
+    practice:  'M12 3.5a8.5 8.5 0 1 0 0 17 8.5 8.5 0 1 0 0-17 M12 7.5a4.5 4.5 0 1 0 0 9 4.5 4.5 0 1 0 0-9 M12 12h.01',
+    diag:      'M12 3a9 9 0 1 0 0 18 9 9 0 1 0 0-18 M15.6 8.4l-2.3 4.9-4.9 2.3 2.3-4.9z',
+    stats:     'M4 20V10 M9.3 20V4 M14.7 20v-7 M20 20v-4',
+    // ── okruhy (10 okruhů dle specifikace CERMAT) ──
+    'vyrazy-mocniny':  'M3 13h2.5l2.5 6 4-16h9 M17.5 6.5l3 3 M20.5 6.5l-3 3',
+    zlomky:            'M3.5 12h17 M12 6.4v.02 M12 17.6v.02',
+    procenta:          'M6 18L18 6 M8.2 6.4a1.7 1.7 0 1 0 0 .02 M15.8 17.6a1.7 1.7 0 1 0 0 .02',
+    pomer:             'M12 3.5v16.5 M7 20h10 M3.5 6.5h17 M3.5 6.5L1 12.5h5z M20.5 6.5L18 12.5h5z',
+    'vyrazy-promenna': 'M7 4.5C4.5 8 4.5 16 7 19.5 M17 4.5c2.5 3.5 2.5 11.5 0 15 M10 9l4 6 M14 9l-4 6',
+    rovnice:           'M3.5 9.5h8 M3.5 14.5h8 M15 8l6 8 M21 8l-6 8',
+    slovni:            'M4 5h16v11H9l-5 4z M9.5 9.2a2.5 2.5 0 1 1 2.5 2.6v1 M12 14.6v.1',
+    geometrie:         'M3.5 19.5h17L8 4.5z M6.6 19.5a4.5 4.5 0 0 0 .9-3.9',
+    telesa:            'M4 7.5l8-4 8 4v9l-8 4-8-4z M4 7.5l8 4 8-4 M12 11.5v9',
+    data:              'M3.5 4.5h17v15h-17z M3.5 9.5h17 M3.5 14.5h17 M9.5 4.5v15 M15 4.5v15',
+    // ── ostatní ──
+    check:     'M4.5 12.5l5 5 10-11',
+    cross:     'M6 6l12 12 M18 6L6 18',
+    clock:     'M12 3a9 9 0 1 0 0 18 9 9 0 1 0 0-18 M12 7.5V12l3 2',
+  };
+  /** Vloží ikonu jako inline SVG. `cls` se přidá na <svg>, `size` v px. */
+  function icon(name, cls, size) {
+    const d = ICONS[name];
+    if (!d) return '';
+    const c = cls ? ' class="' + esc(cls) + '"' : '';
+    const s = size || 24;
+    return '<svg' + c + ' width="' + (s | 0) + '" height="' + (s | 0) + '" viewBox="0 0 24 24" ' +
+      'fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" ' +
+      'stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="' + d + '"/></svg>';
+  }
+  /** Prstenec pokroku 0–1 (nebo null = nezačato). Používá procvičování. */
+  function ring(frac, size) {
+    const s = size || 34, r = s / 2 - 3, c = 2 * Math.PI * r;
+    const f = (typeof frac === 'number' && isFinite(frac)) ? Math.max(0, Math.min(1, frac)) : null;
+    const barva = f === null ? 'var(--border)' : f >= .8 ? 'var(--green)' : f >= .5 ? 'var(--gold)' : 'var(--red)';
+    return '<svg class="pz-ring" width="' + s + '" height="' + s + '" viewBox="0 0 ' + s + ' ' + s + '" aria-hidden="true">' +
+      '<circle cx="' + s / 2 + '" cy="' + s / 2 + '" r="' + r.toFixed(2) + '" fill="none" stroke="var(--border)" stroke-width="3"/>' +
+      (f === null ? '' :
+        '<circle cx="' + s / 2 + '" cy="' + s / 2 + '" r="' + r.toFixed(2) + '" fill="none" stroke="' + barva +
+        '" stroke-width="3" stroke-linecap="round" stroke-dasharray="' + c.toFixed(2) + '" ' +
+        'stroke-dashoffset="' + (c * (1 - f)).toFixed(2) + '" transform="rotate(-90 ' + s / 2 + ' ' + s / 2 + ')"/>') +
+      '</svg>';
+  }
+
+  window.PZ = { esc, check, store, inputMode, czNum, themeSvg, icon, ring, attachLoginBar, cloudPush, cloudSync, topicWeights, pickWeakTopic, hintsFor, recordTestTopics, weakTopicsFromReview };
 })();

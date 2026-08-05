@@ -58,7 +58,12 @@ localStorage.setItem('PZ_DIAG_LAST', JSON.stringify({date:'2026-07-27',ok:6,n:10
   // adaptivní režim reálně běží
   await page.click('#pr-adaptive-btn');
   await page.waitForFunction(()=>document.getElementById('pr-run').style.display!=='none',{timeout:4000});
-  ok(await page.evaluate(()=>/🎯/.test(document.getElementById('pr-title').textContent)), 'režim ukazuje 🎯 + okruh');
+  // Nadpis nese ikonu režimu (dřív emoji 🎯, teď vektorová ikona terče —
+  // emoji se na každém systému kreslí jinak) a hned za ní jméno okruhu.
+  ok(await page.evaluate(()=>{
+    const el = document.getElementById('pr-title');
+    return !!el.querySelector('svg.pr-title-ic') && el.textContent.trim().length > 2;
+  }), 'režim ukazuje ikonu + okruh');
   ok(await page.evaluate(()=>!!(PR&&PR.adaptive&&PR.topic&&PR.item&&PR.item.prompt)), 'vybrán okruh + vygenerována úloha');
 
   // odpověz (jakkoli) a přejdi dál — okruh se může změnit
