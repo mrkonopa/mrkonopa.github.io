@@ -13,6 +13,18 @@ on:
     branches: [main]
   schedule:
     - cron: '30 4 * * 1'   # pondělí ráno — týdenní sken i bez commitů
+  # Ruční spuštění — viz stejná poznámka v tests.yml. Použitelné až
+  # z výchozí větve.
+  workflow_dispatch:
+
+# Když na PR přijde další commit, starší běh analyzuje kód, který už
+# neplatí — jeho výsledek se stejně zahodí. Bez tohohle zůstával viset ve
+# frontě a rval se o runnery s tím během, na kterém záleží. Na `main` se
+# neruší nic (`github.sha` je pro každý commit jiný), tam chceme mít
+# analýzu ke každému commitu.
+concurrency:
+  group: codeql-${{ github.event.pull_request.number || github.sha }}
+  cancel-in-progress: true
 
 jobs:
   analyze:
@@ -26,7 +38,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        language: [javascript-typescript, python]
+        # Python je z matice pryč. V repu jsou tři .py soubory (nástroje na
+        # zmenšování fotek, spouští se ručně na Vojtově stroji, nic z nich
+        # nejde na web). Celý produkt je JavaScript v HTML. Ten druhý job
+        # tedy nic nehlídal a jen zdvojnásoboval plochu, na které může CI
+        # spadnout — což se 6. 8. 2026 taky stalo.
+        language: [javascript-typescript]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4

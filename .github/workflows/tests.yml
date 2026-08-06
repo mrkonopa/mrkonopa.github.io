@@ -3,6 +3,22 @@ on:
   push:
     branches: [main]
   pull_request:
+  # Ruční spuštění. 6. 8. 2026 GitHub několik hodin nevytvářel běhy —
+  # commit na větvi byl, ale žádný job nevznikl a nebylo čím to popostrčit
+  # (zavřít a znovu otevřít PR nepomůže, check suite pro daný SHA už
+  # existuje). Tohle dává tlačítko „spustit bránu" v záložce Actions.
+  # Pozor: GitHub nabízí ruční spuštění jen u workflow, které je na
+  # výchozí větvi — použitelné tedy až po mergnutí do main.
+  workflow_dispatch:
+
+# Brána běží ~40 minut. Když na větev přijde další commit, starší běh
+# testuje kód, který už neplatí — jeho výsledek se stejně zahodí. Bez
+# tohohle zůstával viset ve frontě a rval se o runnery s tím během, na
+# kterém záleží. Na `main` se nic neruší (`github.sha` je pro každý
+# commit jiný), tam chceme historii výsledků úplnou.
+concurrency:
+  group: tests-${{ github.event.pull_request.number || github.sha }}
+  cancel-in-progress: true
 
 jobs:
   gate:
