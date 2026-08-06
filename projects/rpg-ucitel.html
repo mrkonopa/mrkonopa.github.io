@@ -84,6 +84,29 @@ body{background:var(--bg);color:var(--text);font-family:var(--px);min-height:100
  background:var(--panel2);color:var(--text);width:90px}
 .actrow input.wide{flex:1;width:auto;min-width:120px}
 .modal .close{float:right;background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;line-height:1}
+/* ── Detail žáka ────────────────────────────────────────────────────────
+   Dřív to byl jeden sloupec 520 px vysoký přes 1200 px, takže se učitel
+   na 1440px monitoru proscrolloval dvě obrazovky, zatímco vedle zbývalo
+   900 px prázdna. Teď dva sloupce: vlevo „jak si vede", vpravo „co s tím
+   udělám". Pod 900 px se to složí zpátky pod sebe. */
+.modal.wide{max-width:1060px}
+.det-chips{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0 16px}
+.chip{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:700;
+ padding:4px 10px;border-radius:20px;background:var(--panel2);border:1px solid var(--line);color:var(--text)}
+.chip.gold{border-color:var(--gold);color:var(--gold)}
+.chip.green{border-color:var(--green);color:var(--green)}
+.chip.red{border-color:var(--red);color:var(--red)}
+.chip.dim{color:var(--muted)}
+.det-cols{display:grid;grid-template-columns:1fr 1fr;gap:0 30px;align-items:start}
+.det-col{min-width:0}
+.det-col>h4:first-child{margin-top:0}
+.pbar{height:10px;background:var(--panel2);border:1px solid var(--line);border-radius:6px;overflow:hidden;margin:8px 0 4px}
+.pbar>i{display:block;height:100%;background:var(--green)}
+.det-radar{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.det-radar .leg{font-size:12px;line-height:1.9;min-width:130px}
+.det-radar .leg b{color:#fff;float:right}
+.note-empty{font-size:12px;color:var(--muted);padding:6px 0}
+@media(max-width:900px){.det-cols{grid-template-columns:1fr}.modal.wide{max-width:520px}}
 .note{margin-top:18px;background:var(--panel);border:1px dashed var(--line);border-radius:8px;padding:14px 16px;font-size:12px;color:var(--muted);line-height:1.6}
 .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--green);color:#06101e;
  font-weight:700;font-size:13px;padding:10px 18px;border-radius:6px;box-shadow:0 4px 16px #0008;z-index:200;display:none}
@@ -1007,11 +1030,61 @@ function buildMasteryHtml(d,gameKey){
   errHtml;
 }
 
+/* ── radar atributů ──────────────────────────────────────────────────────
+   Hra radar má, konzole ukazovala čtyři čísla pod sebou. Osy jsou ve
+   stejném pořadí jako ve hře (výpočty nahoře, po směru hodinových
+   ručiček), aby učitel viděl stejný tvar jako žák. Měřítko je relativní
+   k nejvyšší hodnotě, ne absolutní — jde o profil, ne o velikost. */
+function attrRadar(d){
+ const A=[['calc',-90],['anal',0],['geo',90],['craft',180]];
+ const v=A.map(([k])=>Math.max(0,((d.attrs&&d.attrs[k])||0)|0));
+ const max=Math.max(1,...v);
+ const R=54, cx=64, cy=64;
+ const bod=(idx,frac)=>{
+  const a=A[idx][1]*Math.PI/180;
+  return [(cx+Math.cos(a)*R*frac).toFixed(1),(cy+Math.sin(a)*R*frac).toFixed(1)];
+ };
+ let mrizka='';
+ [0.25,0.5,0.75,1].forEach(f=>{
+  mrizka+='<polygon points="'+A.map((_,i)=>bod(i,f).join(',')).join(' ')+
+   '" fill="none" stroke="#2a3550" stroke-width="1"/>';
+ });
+ A.forEach((_,i)=>{const p=bod(i,1);mrizka+='<line x1="'+cx+'" y1="'+cy+'" x2="'+p[0]+'" y2="'+p[1]+'" stroke="#2a3550" stroke-width="1"/>';});
+ const tvar=A.map((_,i)=>bod(i,v[i]/max).join(',')).join(' ');
+ const leg=A.map(([k],i)=>{
+  const lbl=(ATTR.find(x=>x[0]===k)||[,k])[1];
+  return '<div>'+esc(lbl)+'<b>'+v[i]+'</b></div>';
+ }).join('');
+ return '<div class="det-radar">'+
+  '<svg width="128" height="128" viewBox="0 0 128 128" aria-hidden="true">'+mrizka+
+   '<polygon points="'+tvar+'" fill="rgba(78,205,196,.28)" stroke="var(--accent)" stroke-width="2"/>'+
+  '</svg><div class="leg">'+leg+'</div></div>';
+}
+
+/* Přírůstek chyb mezi posledními dvěma týdenními snímky (fáze 6b).
+   Data konzole už stahuje kvůli Diagnostice, v detailu se nepoužívala. */
+function errTrendChip(userId,game){
+ const snaps=(SNAP_DATA[game]||[]).filter(s=>s.user_id===userId)
+   .slice().sort((a,b)=>String(a.snapped_at).localeCompare(String(b.snapped_at)));
+ if(snaps.length<2)return '';
+ const suma=o=>{let n=0;if(o&&typeof o==='object')for(const k in o){const v=o[k];if(typeof v==='number'&&isFinite(v))n+=v|0;}return n;};
+ const nova=suma(snaps[snaps.length-1].errs)-suma(snaps[snaps.length-2].errs);
+ if(nova===0)return '<span class="chip dim">➖ chyby beze změny</span>';
+ return nova>0
+  ? '<span class="chip red">🔺 +'+nova+' '+skl(nova,'chyba','chyby','chyb')+' od minule</span>'
+  : '<span class="chip green">🔽 '+(-nova)+' '+skl(-nova,'chyba','chyby','chyb')+' méně</span>';
+}
+
+/* České skloňování podle čísla (1 · 2–4 · 5+, 11–14 vždy genitiv). */
+function skl(n,jeden,dva,pet){
+ const a=Math.abs(n)%100; if(a>=11&&a<=14)return pet;
+ const b=a%10; return b===1?jeden:(b>=2&&b<=4?dva:pet);
+}
+
 /* ── detail žáka ── */
 function openDetail(i){
  const r=window.__filtered[i];if(!r)return;
  const g=gMeta(r.game), d=r.data||{}, admin=RPGCloud.isAdmin();
- const attrHtml=ATTR.map(([k,lbl])=>'<div class="row"><span>'+lbl+'</span><b>'+((d.attrs&&d.attrs[k]||0)|0)+'</b></div>').join('');
  const inv=Array.isArray(d.inv)?d.inv:[];
  let admHtml='';
  if(admin){
@@ -1023,34 +1096,55 @@ function openDetail(i){
      '<span style="font-size:11px;color:var(--muted)">peněženka žáka (musí mít alespoň 1 přihlášení)</span></div>'+
    '<div class="actrow"><button class="mini red" onclick="delChar('+i+')">🗑 Smazat celou postavu</button></div>';
  }
- document.getElementById('modal').innerHTML=
-  '<button class="close" onclick="closeModal()">✕</button>'+
-  '<h3>'+g.emoji+' '+esc(d.name||'—')+'</h3>'+
-  '<div class="msub">'+esc(r.full_name||'')+' · '+esc(r.email||'')+' · '+esc(g.nm)+'</div>'+
-  '<div class="row"><span>Level</span><b>'+((d.level||1)|0)+'</b></div>'+
-  '<div class="row"><span>XP</span><b>'+((d.xp||0)|0)+'</b></div>'+
-  '<div class="row"><span>Splněno úkolů</span><b>'+(doneCount(d)|0)+' / '+TOTAL_TASKS+' ('+(pct(d)|0)+' %)</b></div>'+
-  '<div class="row"><span>Artefakty</span><b>'+(inv.length?esc(inv.join(', ')):'—')+'</b></div>'+
-  (Array.isArray(d.teacherUnlocked)&&d.teacherUnlocked.length?'<div class="row"><span>Odemčeno učitelem</span><b style="color:var(--gold)">🔓 '+esc(d.teacherUnlocked.join(', '))+'</b></div>':'')+
-  '<div class="row"><span>Třídy</span><b>'+([...classesOfUser(r.user_id)].map(cid=>'🏫 '+esc(classNameOf(cid))).join(', ')||'<span style="color:var(--muted)">— žádná —</span>')+'</b></div>'+
-  '<div class="row"><span>Poslední aktivita</span><b>'+esc(fmtDate(r.updated_at))+'</b></div>'+
-  '<h4>Atributy</h4>'+attrHtml+
-  (MISSIONS_BY_GAME[r.game]?buildMasteryHtml(d,r.game):'')+
+ /* Hlavička: to, co učitel potřebuje na první pohled, v jedné řadě čipů
+    místo sedmi stejně vypadajících řádků pod sebou. */
+ const streak=(d.streak&&(d.streak.count|0))||0;
+ const achN=(d.ach&&typeof d.ach==='object')?Object.keys(d.ach).length:0;
+ const tridy=[...classesOfUser(r.user_id)].map(cid=>'🏫 '+esc(classNameOf(cid)));
+ const chips=[
+  '<span class="chip gold">LV '+((d.level||1)|0)+' · '+((d.xp||0)|0)+' XP</span>',
+  '<span class="chip">💰 '+Math.max(0,(d.credits||0)|0)+' kr</span>',
+  streak>0?'<span class="chip green">🔥 '+streak+' '+skl(streak,'den','dny','dní')+' v řadě</span>':'',
+  achN>0?'<span class="chip">🏆 '+achN+' '+skl(achN,'odznak','odznaky','odznaků')+'</span>':'',
+  '<span class="chip'+(minAgo(r.updated_at)<20?' green':' dim')+'">'+onlineDot(r.updated_at)+esc(fmtDate(r.updated_at))+'</span>',
+  errTrendChip(r.user_id,r.game),
+ ].filter(Boolean).join('');
+
+ const p=pct(d)|0;
+ const prehled=
+  '<h4>Postup</h4>'+
+  '<div class="row"><span>Splněno úkolů</span><b>'+(doneCount(d)|0)+' / '+TOTAL_TASKS+' ('+p+' %)</b></div>'+
+  '<div class="pbar"><i style="width:'+p+'%"></i></div>'+
+  (inv.length?'<div style="font-size:12px;color:var(--muted);margin-top:8px">🎒 Artefakty: '+esc(inv.join(', '))+'</div>':'')+
+  '<h4>Atributy</h4>'+attrRadar(d)+
+  (MISSIONS_BY_GAME[r.game]?buildMasteryHtml(d,r.game):'');
+
+ const akce=
+  '<h4>Třídy</h4>'+
+  '<div style="font-size:13px;margin-bottom:4px">'+(tridy.join(' ')||'<span style="color:var(--muted)">— žádná —</span>')+'</div>'+
   buildUnlockHtml(r)+
   '<h4>📨 Poznámky <span style="font-size:11px;color:var(--muted);font-weight:400">(vidí je i žák ve hře)</span></h4>'+
   '<div class="actrow"><input class="wide" id="note-body" placeholder="napiš vzkaz / pochvalu / poznámku…"><button class="mini gold" onclick="addNoteUI('+i+')">+ Přidat</button></div>'+
-  '<div id="notes-box"><div class="empty" style="padding:8px">Načítám…</div></div>'+
+  '<div id="notes-box"><div class="note-empty">Načítám…</div></div>'+
   '<h4>Náhled</h4>'+
   '<div class="actrow"><a class="mini" style="text-decoration:none" target="_blank" href="'+g.file+'?su='+encodeURIComponent(r.user_id)+'">👁 Otevřít postavu žáka</a>'+
     '<a class="mini" style="text-decoration:none" target="_blank" href="'+g.file+'?preview=1">🎬 Hra nanečisto</a></div>'+
   admHtml;
+
+ document.getElementById('modal').innerHTML=
+  '<button class="close" onclick="closeModal()">✕</button>'+
+  '<h3>'+g.emoji+' '+esc(d.name||'—')+'</h3>'+
+  '<div class="msub">'+esc(r.full_name||'')+' · '+esc(r.email||'')+' · '+esc(g.nm)+'</div>'+
+  '<div class="det-chips">'+chips+'</div>'+
+  '<div class="det-cols"><div class="det-col">'+prehled+'</div><div class="det-col">'+akce+'</div></div>';
+ document.getElementById('modal').classList.add('wide');
  document.getElementById('ovl').classList.add('show');
  loadNotes(r.user_id);
 }
 async function loadNotes(uid){
  const box=document.getElementById('notes-box');if(!box)return;
  const notes=await RPGCloud.listNotesFor(uid);
- if(!notes.length){box.innerHTML='<div class="empty" style="padding:8px">— zatím žádné poznámky —</div>';return;}
+ if(!notes.length){box.innerHTML='<div class="note-empty">— zatím žádné poznámky —</div>';return;}
  box.innerHTML=notes.map(n=>{
   const st=n.deleted_at?'<span style="color:#ff6b6b">🗑 smazáno žákem</span>'
            :(n.read_at?'<span style="color:#4ade80">✓ přečteno</span>'
@@ -1077,7 +1171,10 @@ async function delNoteUI(noteId,uid){
  if(res.ok){toast('Poznámka smazána');RPGCloud.logAction('note',{target:uid,detail:{del:true}});loadNotes(uid);}
  else toast('Chyba: '+res.error,1);
 }
-function closeModal(){document.getElementById('ovl').classList.remove('show');}
+function closeModal(){document.getElementById('ovl').classList.remove('show');
+ // `wide` patří jen detailu žáka — kdyby modal někdy použil někdo jiný,
+ // ať nedostane dvousloupcovou šířku po něm.
+ const m=document.getElementById('modal'); if(m)m.classList.remove('wide');}
 document.getElementById('ovl').addEventListener('click',e=>{if(e.target.id==='ovl')closeModal();});
 
 async function giveXP(i,sign){
