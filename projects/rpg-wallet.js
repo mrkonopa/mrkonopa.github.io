@@ -122,6 +122,10 @@ window.RPGWallet = (function () {
   ];
   const LIFE_KEYS = ['tasks', 'crits', 'flawless', 'mastered', 'streakMax', 'towerFloor', 'earned', 'spent'];
   const ACTIVE_CATS = ['border', 'badge', 'theme', 'victory', 'skin', 'title', 'pet'];
+  /* Kategorie, které jde VYPNOUT. `theme` a `victory` ne — tam musí něco
+     platit vždy (mají výchozí položku zdarma), takže jejich „vypnutí" by
+     znamenalo jen přepnutí na výchozí. */
+  const VYPNUTELNE = new Set(['border', 'badge', 'skin', 'title', 'pet']);
 
   /* Sezónní dostupnost (okno smí přetéct přes Silvestr, např. 1.12.–6.1.).
      Testy můžou čas podvrhnout přes window.__RW_TESTNOW. */
@@ -189,6 +193,7 @@ window.RPGWallet = (function () {
     w.settings.reducedMotion = !!w.settings.reducedMotion;
     w.settings.sponkaEnabled = w.settings.sponkaEnabled !== false;
     w.settings.soundOn = !!w.settings.soundOn;   // výchozí VYPNUTO (školní prostředí)
+    w.settings.petOff = !!w.settings.petOff;     // žák si mazlíčka výslovně vypnul
     if (!Array.isArray(w.migrated)) w.migrated = [];
     if (!w.absorbed || typeof w.absorbed !== 'object' || Array.isArray(w.absorbed)) w.absorbed = {};
     w.v = 1;
@@ -303,6 +308,21 @@ window.RPGWallet = (function () {
     const w = get();
     if (it.price > 0 && !w.cosmetics.owned.includes(id)) return { ok: false, reason: 'not-owned' };
     w.cosmetics.active[it.cat] = id;
+    // Zapnutí mazlíčka ruší dřívější vypnutí — viz deactivate().
+    if (it.cat === 'pet') w.settings.petOff = false;
+    put(w);
+    return { ok: true };
+  }
+  /* Vypnutí kategorie. U mazlíčka nestačí smazat `active.pet`: sponka
+     odjakživa brala i JAKÉHOKOLI vlastněného mazlíčka („koupil jsem si
+     ho, tak ho mám"), takže by se po vypnutí hned vrátila. Proto se
+     vypnutí drží zvlášť v `settings.petOff` — rozliší to „nikdy jsem si
+     nevybral" (fallback platí) od „vypnul jsem si to" (nic se nekreslí). */
+  function deactivate(cat) {
+    if (!VYPNUTELNE.has(cat)) return { ok: false, reason: 'povinná kategorie' };
+    const w = get();
+    w.cosmetics.active[cat] = null;
+    if (cat === 'pet') w.settings.petOff = true;
     put(w);
     return { ok: true };
   }
@@ -557,6 +577,9 @@ html[data-theme="leto"]{--gold:#ffd166;--panel:#062033;--panel2:#0a2e4a;--blue:#
      Kdo mazlíčka nevlastní, nevidí nic (owned obsahuje jen free položky). */
   function _spPetId() {
     try {
+      // Výslovné vypnutí přebíjí i fallback na vlastněného mazlíčka.
+      const st = get().settings || {};
+      if (st.petOff) return null;
       const active = activeId('pet');
       if (active && SPONKA_SPR[active]) return active;
       const owned = get().cosmetics.owned || [];
@@ -742,7 +765,7 @@ html[data-theme="leto"]{--gold:#ffd166;--panel:#062033;--panel2:#0a2e4a;--blue:#
   return {
     KEY, CLOUD_GAME, items, itemsAll, itemById, get,
     getCredits, earn,
-    buy, activate, owns, activeId, isActive, cssFor, hasPowerup,
+    buy, activate, deactivate, owns, activeId, isActive, cssFor, hasPowerup,
     getReducedMotion, setReducedMotion,
     getSponkaEnabled, setSponkaEnabled,
     getSoundOn, setSoundOn,

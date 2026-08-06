@@ -39,11 +39,14 @@ const srv=http.createServer((q,p)=>{let u=decodeURIComponent(q.url.split('?')[0]
  const fp=path.normalize(path.join(ROOT,u));
  if(!fp.startsWith(ROOT)){p.writeHead(403);return p.end('mimo ROOT');}
  let b=null,duvod='';
- try{b=fs.readFileSync(fp);}catch(e){duvod=(e&&e.code)||String(e);}
+ // Jen errno (ENOENT, EACCES…), nikdy celá výjimka — ta nese cestu i
+ // zásobník volání a neposílá se ven (CodeQL: information exposure
+ // through a stack trace). Do odpovědi nejde nic, důvod jen do konzole.
+ try{b=fs.readFileSync(fp);}catch(e){duvod=(e&&e.code)||'chyba čtení';}
  if(b===null){
    if(++ctyristaCtyri<=10)console.log('   [server] 404 '+u+' ('+duvod+')');
    else if(ctyristaCtyri===11)console.log('   [server] … další 404 se už nevypisují');
-   p.writeHead(404,{'X-Duvod':duvod});return p.end(duvod);}
+   p.writeHead(404);return p.end();}
  const m={html:'text/html',js:'application/javascript',css:'text/css'};
  p.writeHead(200,{'Content-Type':m[u.split('.').pop()]||'application/octet-stream'});p.end(b);});
 

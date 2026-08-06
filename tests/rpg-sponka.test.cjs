@@ -93,6 +93,34 @@ const ok = (c, m) => { if (c) { pass++; } else { fail++; console.log('  ❌ ' + 
   ok(await page.evaluate(() => { const b = document.getElementById('rw-sponka-bubble'); return b.style.display === 'block' && b.textContent.includes('💡'); }), 'HP=1: sponka ukáže nápovědu ve své bublině (💡)');
   ok(await page.evaluate(() => BT.hl === 0 && BT.missionHinted === false), 'auto-nápověda NEsahá na herní stav (BT.hl=0, missionHinted=false — odznak „bez nápovědy" zůstává)');
 
+  /* ── vypnutí mazlíčka v obchodu sponku SKUTEČNĚ schová ──────────────
+     Vojtovo zadání: kliknu na mazlíčka, kterého mám, vypnu ho — a sponka
+     zmizí. Nestačilo smazat `active.pet`: sponka bere i jakéhokoli
+     VLASTNĚNÉHO mazlíčka, takže by se hned vrátila. Proto `settings.petOff`.
+     Kontroluje se skutečný prvek v DOM, ne jen stav peněženky. */
+  ok(await page.evaluate(() => !!document.getElementById('rw-sponka')),
+    'před vypnutím sponka v DOM je');
+  const poVypnuti = await page.evaluate(async () => {
+    RPGWallet.deactivate('pet');
+    await new Promise(r => setTimeout(r, 600));   // onChange → _spSync → _spUnmount
+    return {
+      vDom: !!document.getElementById('rw-sponka'),
+      petOff: RPGWallet.get().settings.petOff === true,
+      vlastniDal: RPGWallet.owns('pet-sova') || RPGWallet.get().cosmetics.owned.some(id => /^pet-/.test(id)),
+    };
+  });
+  ok(!poVypnuti.vDom, 'po vypnutí mazlíčka sponka z DOM zmizí');
+  ok(poVypnuti.petOff, 'vypnutí je zapsané v peněžence');
+  ok(poVypnuti.vlastniDal, 'vypnutí nic neukradlo — mazlíček zůstal koupený');
+
+  const zpet = await page.evaluate(async () => {
+    const id = (RPGWallet.get().cosmetics.owned.find(x => /^pet-/.test(x)));
+    RPGWallet.activate(id);
+    await new Promise(r => setTimeout(r, 600));
+    return !!document.getElementById('rw-sponka');
+  });
+  ok(zpet, 'po opětovném zapnutí se sponka vrátí');
+
   const realErrs = errs.filter(e => !/ERR_|CERT_|Failed to fetch|supabase|jsdelivr/i.test(e));
   ok(realErrs.length === 0, 'žádné JS chyby: ' + realErrs.join(' | '));
 
