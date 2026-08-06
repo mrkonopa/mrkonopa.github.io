@@ -53,7 +53,33 @@ async function run() {
     ok('banner je vycentrovaný', info.centered === 'center', info.centered);
     ok('má 4 segmenty (d/h/m/s) s čísly', info.segs.every(v => v !== null && /^\d+$/.test(v)), JSON.stringify(info.segs));
     ok('čísla jsou velkým písmem (≥28px)', info.bigFont >= 28, info.bigFont + 'px');
-    ok('popisky: dny/hodiny/minuty/sekundy', info.labels.join(',') === 'dny,hodiny,minuty,sekundy', info.labels.join(','));
+    /* Pozor: tohle pravidlo dřív znělo `labels === 'dny,hodiny,minuty,sekundy'`
+       a svítilo zeleně nad špatnou češtinou — popisky byly natvrdo v HTML,
+       takže odpočet hlásil „249 DNY" a „08 SEKUNDY". Test tu vadu ZAFIXOVAL
+       místo aby ji odhalil. Správně se popisek skloňuje podle čísla nad ním,
+       takže se kontroluje TVAR, ne konkrétní slovo. Přesné skloňování včetně
+       hraničních čísel hlídá tests/prijimacky-countdown.test.cjs. */
+    const TVARY = {
+      d: ['den', 'dny', 'dní'], h: ['hodina', 'hodiny', 'hodin'],
+      m: ['minuta', 'minuty', 'minut'], s: ['sekunda', 'sekundy', 'sekund'],
+    };
+    const klice = ['d', 'h', 'm', 's'];
+    const spatne = info.labels.map((l, i) => TVARY[klice[i]].includes(l) ? null : klice[i] + ': ' + l).filter(Boolean);
+    ok('popisky jsou platné české tvary jednotek', info.labels.length === 4 && spatne.length === 0,
+      spatne.join(' | ') || info.labels.join(','));
+
+    /* A především: popisek musí sedět k číslu, které nad ním stojí. Právě
+       tuhle vazbu původní pravidlo nekontrolovalo vůbec. */
+    const pary = await pg.evaluate(() => [...document.querySelectorAll('.cc-seg')]
+      .map(s => [parseInt(s.querySelector('b').textContent, 10), s.querySelector('i').textContent.trim().toLowerCase()]));
+    const sklOcek = (n, j, dva, pet) => {
+      const a = Math.abs(n) % 100; if (a >= 11 && a <= 14) return pet;
+      const b = a % 10; return b === 1 ? j : (b >= 2 && b <= 4 ? dva : pet);
+    };
+    const nesed = pary.map(([n, l], i) => {
+      const t = TVARY[klice[i]]; return sklOcek(n, t[0], t[1], t[2]) === l ? null : n + ' ' + l;
+    }).filter(Boolean);
+    ok('popisek sedí k číslu nad sebou', pary.length === 4 && nesed.length === 0, nesed.join(' | '));
 
     const s1 = await pg.evaluate(() => document.getElementById('cc-s').textContent);
     await pg.waitForTimeout(1200);

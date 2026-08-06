@@ -299,9 +299,14 @@
     .cermat-countdown .cc-foot { font-size: .85rem; font-weight: 600; opacity: .85; }
     @media (max-width: 480px) {
       .cermat-countdown { padding: 18px 14px; }
-      .cermat-countdown .cc-seg { min-width: 0; flex: 1; }
-      .cermat-countdown .cc-seg b { font-size: 2.1rem; }
-      .cermat-countdown .cc-seg i { font-size: .62rem; letter-spacing: .5px; }
+      /* `flex:1` dělilo šířku na čtyři stejné díly, jenže dny mají tři
+         číslice a ostatní jen dvě — tříciferné číslo se do svého dílu
+         nevešlo a přetékalo ven. `flex:0 1 auto` nechá každý segment
+         široký přesně tak, jak potřebuje. */
+      .cermat-countdown .cc-seg { min-width: 0; flex: 0 1 auto; }
+      .cermat-countdown .cc-seg b { font-size: 1.9rem; }
+      .cermat-countdown .cc-seg i { font-size: .58rem; letter-spacing: .2px; }
+      .cermat-countdown .cc-clock { justify-content: center; flex-wrap: wrap; }
       .cermat-countdown .cc-sep { font-size: 1.5rem; }
       .cermat-countdown .cc-clock { gap: 2px; }
     }
@@ -665,6 +670,24 @@
 
   function pad(n){return String(n).padStart(2,'0');}
 
+  /* Popisky pod čísly se skloňují podle toho, co nad nimi stojí. Byly
+     natvrdo v HTML, takže odpočet hlásil „249 DNY" a „08 SEKUNDY“ —
+     česky špatně. Vzor: 1 → jednotné číslo, 2–4 → množné, jinak genitiv
+     (a 11–14 je výjimka, ta jde vždy do genitivu). */
+  function skl(n, jeden, dva, pet){
+    var a = Math.abs(n) % 100;
+    if (a >= 11 && a <= 14) return pet;
+    var b = a % 10;
+    if (b === 1) return jeden;
+    if (b >= 2 && b <= 4) return dva;
+    return pet;
+  }
+  function popisek(id, text){
+    var e = document.getElementById(id);
+    var i = e && e.parentElement && e.parentElement.querySelector('i');
+    if (i) i.textContent = text;
+  }
+
   function renderChip(){
     var chip = document.getElementById('cermat-chip');
     if(!chip) return;
@@ -678,6 +701,10 @@
     document.getElementById('cc-h').textContent = pad(hrs);
     document.getElementById('cc-m').textContent = pad(mins);
     document.getElementById('cc-s').textContent = pad(secs);
+    popisek('cc-d', skl(days, 'den',    'dny',     'dní'));
+    popisek('cc-h', skl(hrs,  'hodina', 'hodiny',  'hodin'));
+    popisek('cc-m', skl(mins, 'minuta', 'minuty',  'minut'));
+    popisek('cc-s', skl(secs, 'sekunda','sekundy', 'sekund'));
     document.getElementById('cermat-label').textContent = cermatLabel;
     chip.className = 'cermat-countdown ' + (days < 14 ? 'cc-soon' : 'cc-far');
     chip.style.display = 'flex';
@@ -704,6 +731,11 @@
       init(fallbackDate, '1. termín');
     })
     .catch(function(){ init(fallbackDate, '1. termín'); });
+
+  // Testovací háček (stejný vzor jako __TW_TESTNOW ve hrách): dovolí
+  // testu nastavit libovolný termín a ověřit skloňování i to, že se
+  // tříciferný počet dní vejde do svého segmentu.
+  window.__CC_TEST = { init: init, skl: skl };
 })();
 </script>
 
