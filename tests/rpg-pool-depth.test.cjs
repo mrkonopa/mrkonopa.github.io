@@ -15,10 +15,18 @@
    ohledu na to, kolik variant se dopíše. Řešením byly úlohy se
    souřadnicemi, jejichž zásoba roste s čísly.
 
-   Práh je nastavený hluboko pod průměrem — má chytat propadliny, ne
-   rozdíly mezi tématy. 90 opakování stačí: rozdíl mezi desítkami a
-   stovkami je vidět dávno předtím, než se zásoba vyčerpá. (S 250
-   opakováními běžel test přes 13 minut, což je na bránu moc.)
+   POZOR na past, do které jsem sám spadl: první verze losovala pevných
+   90× a porovnávala výsledek s prahem 140. Jenže po 90 losováních se
+   generátor ještě nevyčerpal, takže číslo bylo NÁHODNÝ VZOREK, ne
+   velikost zásoby — nejchudší mise vycházela jednou na 139, podruhé na
+   145 a test padal ob běh. Práh 1 kousek od naměřené hodnoty = test,
+   který křičí vlka.
+
+   Teď se losuje DO NASYCENÍ: dokud 40 losování po sobě nepřinese nic
+   nového (strop 400). To měří skutečnou kapacitu, ne vzorek, a je to
+   mezi běhy stabilní. Naměřeno po opravě: nejchudší g9 4-1 = 143,
+   g8 5-1 = 164, g6 5-1 = 279; propadliny měly 47 a 91. Práh 120 tedy
+   leží s rezervou pod zdravým minimem a nad kolapsem.
 
    Spusť: node tests/rpg-pool-depth.test.cjs
    ══════════════════════════════════════════════════════════════════════ */
@@ -28,13 +36,9 @@ const http = require('http'), fs = require('fs'), path = require('path');
 const ROOT = path.join(__dirname, '..');
 const PORT = 18777;
 const CHROMIUM = '/opt/pw-browsers/chromium-1194/chrome-linux/chrome';
-const OPAKOVANI = 90;
-// Práh je zkalibrovaný na 90 opakování a na skutečná data: po opravě má
-// nejchudší mise kolem 160 úloh, propadliny měly 47 a 94. Práh 140 tedy
-// chytá kolaps typu otázky, ale nekřičí na témata, která jsou přirozeně
-// méně variabilní. Vyšší práh by hlásil zdravé mise — a test, který
-// křičí vlka, se přestane číst.
-const PRAH = 140;
+const KLID = 40;        // kolik losování po sobě nesmí přinést nic nového
+const STROP = 400;      // pojistka proti nekonečnu u bohatých bank
+const PRAH = 120;
 const GRADES = [3, 4, 5, 6, 7, 8, 9];
 
 let pass = 0, fail = 0;
@@ -55,7 +59,7 @@ function serve() {
 }
 
 (async () => {
-  console.log('\n── Hloubka zásoby úloh (práh ' + PRAH + ') ──\n');
+  console.log('\n── Hloubka zásoby úloh (do nasycení, práh ' + PRAH + ') ──\n');
   const srv = await serve();
   const browser = await chromium.launch({ headless: true, executablePath: CHROMIUM });
   const chude = [];
@@ -69,23 +73,27 @@ function serve() {
       page.on('pageerror', e => errs.push(e.message));
       await page.goto(`http://localhost:${PORT}/projects/rpg-mat-${g}.html`, { waitUntil: 'domcontentloaded' });
       await page.waitForFunction(() => typeof startGame === 'function', { timeout: 8000 });
-      const r = await page.evaluate((n) => {
+      const r = await page.evaluate(([klid, strop]) => {
         localStorage.clear(); startGame('T'); S.tutorialDone = true;
         const roc = SAVE_KEY.split('_')[2];
         const banka = window['RPG_TASK_EXTRA_' + roc] || {};
         const out = [];
         for (const ar of AREAS) for (const m of ar.missions) {
           const t = new Set();
-          for (let i = 0; i < n; i++) {
+          let bezPrirustku = 0, kol = 0;
+          while (bezPrirustku < klid && kol < strop) {
+            kol++;
+            const pred = t.size;
             let pool = [];
             try { pool = m.tasks() || []; } catch (e) {}
             if (typeof banka[m.id] === 'function') { try { pool = pool.concat(banka[m.id]() || []); } catch (e) {} }
             pool.forEach(x => t.add(String(x.text || '')));
+            bezPrirustku = t.size > pred ? 0 : bezPrirustku + 1;
           }
-          out.push({ id: m.id, n: t.size });
+          out.push({ id: m.id, n: t.size, kol });
         }
         return out;
-      }, OPAKOVANI);
+      }, [KLID, STROP]);
       ok(errs.length === 0, `g${g} bez JS chyby`, errs[0] || '');
       ok(r.length === 21, `g${g} má 21 misí (${r.length})`);
       misiCelkem += r.length;
