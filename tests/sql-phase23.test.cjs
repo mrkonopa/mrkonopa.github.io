@@ -127,8 +127,17 @@ const asTeacher = (sql) => `set test.uid='${TEACHER}'; set test.email='ucitel@hu
     // ── 6) práva zůstala (interní helper) ──
     ok('anon NEMÁ execute na my_role()',
       H.q(`select has_function_privilege('anon','public.my_role()','execute')`)==='f');
-    ok('authenticated NEMÁ execute na my_role() (volá se jen zevnitř)',
-      H.q(`select has_function_privilege('authenticated','public.my_role()','execute')`)==='f');
+    /* POZOR — tohle tvrzení tu bylo obrácené a zafixovalo produkční vadu.
+       Znělo „authenticated NEMÁ execute (volá se jen zevnitř)", jenže
+       zevnitř se my_role() NEVOLÁ: volá ji RLS politika saves_select_staff
+       a ta běží právy VOLAJÍCÍHO. PostgreSQL navíc vyhodnotí všechny
+       permisivní politiky (OR), takže i žák čtoucí vlastní řádek ji spustí.
+       Bez práva to skončí „permission denied for function my_role" a
+       žákovi se nenačte postup z cloudu — přesně to bylo v produkčním logu.
+       SECURITY DEFINER mění kontext běhu, ne právo funkci zavolat.
+       Opravuje fáze 25; viz tests/sql-myrole-grant.test.cjs. */
+    ok('authenticated SMÍ volat my_role() (volá ji RLS politika na saves)',
+      H.q(`select has_function_privilege('authenticated','public.my_role()','execute')`)==='t');
     ok('my_role() je SECURITY DEFINER', H.q(`select prosecdef from pg_proc where proname='my_role'`)==='t');
 
     // ── 7) idempotence ──

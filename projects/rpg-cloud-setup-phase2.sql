@@ -87,4 +87,9 @@ create policy "saves_delete_admin" on public.saves
 -- Funkce je potřeba jen pro RLS politiky, ne přes /rest/v1/rpc/my_role.
 -- (Řeší Supabase security lint: anon/authenticated_security_definer_function_executable)
 revoke execute on function public.my_role() from anon;
-revoke execute on function public.my_role() from authenticated;
+-- POZOR: `authenticated` právo volat my_role() MÍT MUSÍ. Volá ji RLS
+-- politika saves_select_staff a PostgreSQL vyhodnocuje všechny permisivní
+-- politiky (OR), takže i žák čtoucí vlastní řádek ji spustí. Bez práva to
+-- skončí „permission denied for function my_role" a žákovi se nenačte
+-- postup z cloudu. SECURITY DEFINER mění kontext běhu, ne právo zavolat.
+grant execute on function public.my_role() to authenticated;

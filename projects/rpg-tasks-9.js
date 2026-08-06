@@ -17,7 +17,15 @@
    ════════════════════════════════════════════════════════════════════ */
 // FRAMING-POOLY: náhodné uvození drilu (nemění odpověď). Přes window, aby
 // nekolidovaly s globálním lexikálním scope hlavního skriptu hry i v Node auditu.
-window._fc = () => { const a = ['Vypočítej', 'Spočítej', 'Urči', 'Vyčísli']; return a[ri(0, a.length - 1)]; };
+window._fc = () => { const a = ['Vypočítej', 'Spočítej', 'Urči', 'Vyčísli',
+  /* Zásoba mise byla na hraně (138 unikátních úloh) — všechny otázky se
+     ptaly na tutéž věc jednou větou. Přibyly typy s jinou strukturou
+     jmenovatele, takže zásoba roste s čísly i s tvarem výrazu. */
+  (()=>{const a=ri(2,9),b=ri(2,12);return{text:`Pro jaké x nemá výraz\n(x + ${b}) / (${a}x + ${a*b}) smysl?\nx ≠`,ans:-b,hints:[`Vytkni ${a}: jmenovatel je ${a}(x + ${b}).`,`x + ${b} = 0 ⇒ x = −${b}`],skill:'anal'};})(),
+  (()=>{const a=ri(2,9);return{text:`Pro jaké x není definován výraz\n7 / (x² − ${a*a})?\n(napiš kladný kořen)`,ans:a,hints:[`x² − ${a*a} = (x − ${a})(x + ${a}).`,`Kladný kořen je ${a}`],skill:'anal'};})(),
+  (()=>{const a=ri(2,12),b=ri(1,9);return{text:`Kolik hodnot x musíš vyloučit\nu výrazu 4 / ((x − ${a})(x + ${b}))?`,ans:2,hints:['Každá závorka ve jmenovateli dává jednu vyloučenou hodnotu.','Dvě různé hodnoty ⇒ 2'],skill:'anal'};})(),
+  (()=>{const a=ri(2,9),b=ri(2,9);return{text:`Jmenovatel výrazu je ${a}x − ${a*b}.\nPro jaké x je roven nule?\nx =`,ans:b,hints:[`${a}x = ${a*b}`,`x = ${a*b} : ${a} = ${b}`],skill:'anal'};})(),
+  (()=>{const a=ri(2,9);return{text:`Má výraz ${a} / (x² + ${a}) nějakou\nvyloučenou hodnotu? (ANO/NE)`,ans:'NE',hints:['x² je vždy nezáporné, takže jmenovatel je vždy kladný.','NE — jmenovatel se nikdy nerovná nule'],skill:'anal'};})()]; return a[ri(0, a.length - 1)]; };
 window._fe = () => { const a = ['Vyřeš rovnici', 'Urči neznámou x', 'Najdi x z rovnice', 'Dořeš rovnici']; return a[ri(0, a.length - 1)]; };
 window.RPG_TASK_EXTRA_9 = {
 

@@ -61,7 +61,10 @@ $$;
 
 -- práva ponechána jako ve fázi 2 (interní helper: volají ho SECURITY
 -- DEFINER funkce, ne klient přímo)
-revoke execute on function public.my_role() from public, anon, authenticated;
+-- `authenticated` právo ponecháno schválně — volá ji RLS politika na
+-- `saves` a bez něj se žákovi nenačte postup (viz fáze 25).
+revoke execute on function public.my_role() from public, anon;
+grant execute on function public.my_role() to authenticated;
 
 -- ════════════════════════════════════════════════════════════════
 -- Kontrola po spuštění (jako učitel i jako žák):
