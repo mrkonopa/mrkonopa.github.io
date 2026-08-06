@@ -4,6 +4,15 @@ on:
     branches: [main]
   pull_request:
 
+# Brána běží ~40 minut. Když na větev přijde další commit, starší běh
+# testuje kód, který už neplatí — jeho výsledek se stejně zahodí. Bez
+# tohohle zůstával viset ve frontě a rval se o runnery s tím během, na
+# kterém záleží. Na `main` se nic neruší (`github.sha` je pro každý
+# commit jiný), tam chceme historii výsledků úplnou.
+concurrency:
+  group: tests-${{ github.event.pull_request.number || github.sha }}
+  cancel-in-progress: true
+
 jobs:
   gate:
     name: Testová brána (Node + Playwright)
