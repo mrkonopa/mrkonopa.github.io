@@ -24,6 +24,16 @@ body{background:var(--bg);color:var(--text);font-family:var(--px);font-weight:70
 .btn.sm{font-size:11px;padding:6px 12px;box-shadow:3px 3px 0 #7a5c00}
 .btn.sm:hover:not(:disabled){box-shadow:4px 4px 0 #7a5c00}
 .btn.full{width:100%;display:block}
+/* Řada akcí pod mapou. Dřív to byl flex, kde TRÉNINK měl flex:1 a ostatní
+   flex:none — nejdelší popisky tak přetékaly z rámečku ven. Mřížka
+   s pevným minimem dá každému tlačítku stejně místa a při úzkém okně je
+   poskládá pod sebe, takže je text vždy celý čitelný. */
+.map-actions{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:8px;margin-top:12px}
+.map-actions .btn{display:flex;align-items:center;justify-content:center;gap:2px;width:100%;font-size:12px;padding:11px 8px;min-height:52px;text-align:center;line-height:1.25;white-space:normal;overflow-wrap:anywhere}
+.map-actions .btn .bic{flex:none}
+.map-actions-note{font-family:var(--px);font-weight:400;font-size:11px;color:var(--muted);margin-top:8px;line-height:1.5}
+@media(max-width:560px){.map-actions{grid-template-columns:1fr}}
+
 .btn.g{background:var(--panel);color:var(--green);border-color:var(--green);box-shadow:4px 4px 0 #1a6632}
 .btn.g:hover:not(:disabled){box-shadow:5px 5px 0 #1a6632}
 .btn.b{background:var(--panel);color:var(--blue);border-color:var(--blue);box-shadow:4px 4px 0 #1a4060}
@@ -353,12 +363,12 @@ html[data-theme="violet"]{--gold:#b06cff;--panel:#100a20;--panel2:#18103a;--blue
  <div class="panel" id="map-leaderboard" style="display:none;padding:12px 14px"></div>
  <div class="panel" id="map-recommend" style="display:none;padding:12px 14px;margin-top:12px"></div>
  <div class="panel" id="map-revive" style="display:none;padding:12px 14px;margin-top:12px"></div>
- <div style="display:flex;gap:8px;margin-top:12px">
-  <button class="btn sm gold" style="flex:0 0 auto" onclick="go('shop')"><span class="bic" data-ic="shop"></span>OBCHOD</button>
-  <button class="btn" style="flex:none" onclick="typeof RPGFindError!=='undefined'&&RPGFindError.open(window.RPG_LEARN_4)"><span class="bic" data-ic="search"></span>NAJDI CHYBU</button>
-  <button class="btn" style="flex:none" onclick="openBattle()"><span class="bic" data-ic="swords"></span>ŽIVÝ SOUBOJ</button>
-  <button class="btn b" style="flex:1" onclick="go('train')"><span class="bic" data-ic="target"></span>TRÉNINK — procvičuj libovolné téma bez boje</button>
+ <div class="map-actions">
+  <button class="btn" onclick="typeof RPGFindError!=='undefined'&&RPGFindError.open(window.RPG_LEARN_4)"><span class="bic" data-ic="search"></span>NAJDI CHYBU</button>
+  <button class="btn" onclick="openBattle()"><span class="bic" data-ic="swords"></span>ŽIVÝ SOUBOJ</button>
+  <button class="btn b" onclick="go('train')"><span class="bic" data-ic="target"></span>TRÉNINK</button>
  </div>
+ <div class="map-actions-note">TRÉNINK = procvičování libovolného tématu bez boje, bez HP a bez časomíry.</div>
 </div>
 </div>
 

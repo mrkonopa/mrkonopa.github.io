@@ -257,14 +257,16 @@ body::before{
  <!-- ══ SDÍLENÝ OBCHOD ══ -->
  <div class="shop" id="shop">
   <div class="shop-h">🛍️ Sdílený obchod</div>
-  <div style="font-size:12px;color:var(--muted);line-height:1.6">Kredity vyděláváš v kterékoli hře — tady je utratíš za vzhled, který pak nosíš <b style="color:var(--text)">ve všech hrách</b>. Kosmetika nemá vliv na obtížnost ani postup.</div>
+  <div style="font-size:12px;color:var(--muted);line-height:1.6">Kredity vyděláváš v kterékoli hře — tady je utratíš a koupené si pak nosíš <b style="color:var(--text)">ve všech hrách</b>.<br>
+   <b style="color:var(--text)">⚡ Powerupy hru opravdu mění</b> — přidají srdce, čas navíc nebo druhou šanci, takže boj bude snazší. Ve <b style="color:var(--text)">Věži legend</b> a v <b style="color:var(--text)">živém souboji</b> jsou schválně vypnuté, aby tam měli všichni stejné podmínky.<br>
+   Všechno ostatní (rám, jméno, téma, vítězství, skin, titul, mazlíček) je jen vzhled — <b style="color:var(--text)">na obtížnost ani postup nemá vliv</b>.</div>
   <div class="shop-tabs" id="shop-tabs">
-   <button class="shop-tab on" onclick="setShopCat('border',this)">🖼 Rám</button>
+   <button class="shop-tab on" onclick="setShopCat('powerup',this)">⚡ Powerupy</button>
+   <button class="shop-tab" onclick="setShopCat('border',this)">🖼 Rám</button>
    <button class="shop-tab" onclick="setShopCat('badge',this)">🏷 Jméno</button>
    <button class="shop-tab" onclick="setShopCat('theme',this)">🎨 Téma</button>
    <button class="shop-tab" onclick="setShopCat('victory',this)">🎉 Vítězství</button>
    <button class="shop-tab" onclick="setShopCat('skin',this)">🥷 Skin hrdiny</button>
-   <button class="shop-tab" onclick="setShopCat('powerup',this)">⚡ Powerupy</button>
    <button class="shop-tab" onclick="setShopCat('title',this)">📜 Tituly</button>
    <button class="shop-tab" onclick="setShopCat('pet',this)">🐾 Mazlíčci</button>
   </div>
@@ -424,7 +426,7 @@ function resetAll(){
 }
 
 // ── Sdílený obchod ──
-let _shopCat='border';
+let _shopCat='powerup';
 function setShopCat(cat,btn){
  _shopCat=cat;
  document.querySelectorAll('.shop-tab').forEach(b=>b.classList.remove('on'));

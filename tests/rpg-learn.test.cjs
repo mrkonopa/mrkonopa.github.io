@@ -17,6 +17,16 @@ const PROJ = path.join(__dirname, '..', 'projects');
 let pass = 0, fail = 0;
 function ok(cond, msg, detail){ if(cond){pass++; console.log('  ✅ '+msg);} else {fail++; console.log('  ❌ '+msg+(detail?' — '+detail:''));} }
 
+// Odstranění HTML značek z textu řešení — jen aby se `<b>` nepočítalo jako
+// „postup". Jedno kolo `replace(/<[^>]+>/g,'')` nestačí: z `<<b>>` zbude
+// funkční značka, protože odebrání jedné vytvoří další. Proto se maže,
+// dokud se text mění (CodeQL: incomplete multi-character sanitization).
+const bezZnacek = (s) => {
+  let t = String(s == null ? '' : s), predtim;
+  do { predtim = t; t = t.replace(/<[^<>]*>/g, ''); } while (t !== predtim);
+  return t;
+};
+
 const GRADES = [3, 4, 5, 6, 7, 8, 9];
 // Oba stupně mají historicky jiná jména polí u sekcí: 2. stupeň {h, p:[]},
 // 1. stupeň {title, body}. Test počítá s obojím, ať neplatí jen na půlku her.
@@ -111,7 +121,7 @@ for (const g of GRADES) {
     // Ukazuje postup = je tam rovnítko/šipka/dvojtečka, nebo je to věta.
     const ukazujePostup = (t) => /[=→:]/.test(t) || (t.includes(' ') && t.length >= 18);
     const bezPostupu = vsechny.filter(x => {
-      const t = (x.e.s || []).join(' ').replace(/<[^>]+>/g, '').trim();
+      const t = bezZnacek((x.e.s || []).join(' ')).trim();
       return t && !ukazujePostup(t);
     });
     ok(bezPostupu.length === 0,
