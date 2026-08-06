@@ -13,6 +13,9 @@ on:
     branches: [main]
   schedule:
     - cron: '30 4 * * 1'   # pondělí ráno — týdenní sken i bez commitů
+  # Ruční spuštění — viz stejná poznámka v tests.yml. Použitelné až
+  # z výchozí větve.
+  workflow_dispatch:
 
 # Když na PR přijde další commit, starší běh analyzuje kód, který už
 # neplatí — jeho výsledek se stejně zahodí. Bez tohohle zůstával viset ve
