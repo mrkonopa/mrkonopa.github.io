@@ -444,6 +444,11 @@ html[data-theme="violet"]{--gold:#b06cff;--panel:#100a20;--panel2:#18103a;--blue
  <button class="btn sm b" id="tr-hint-btn" onclick="trHint()">💡 NÁPOVĚDA</button>
  <button class="btn sm g" id="tr-next-btn" style="display:none" onclick="trNext()">DALŠÍ ÚKOL →</button>
  </div>
+ <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+  <button class="btn sm b" onclick="trStartMatch()">🔗 SPOJOVAČKA</button>
+  <button class="btn sm b" onclick="trStartOrder()">↕ ŘAZENÍ</button>
+  <button class="btn sm b" onclick="trStartPexeso()">🃏 PEXESO</button>
+ </div>
  </div>
 </div>
 </div>
@@ -1678,6 +1683,65 @@ function renderTrainPicker(){
 // správné odpovědi (trCorrect) -> položky s vyšší chybovostí jsou v pytlíku
 // zastoupené vícekrát (max 5×), takže se losují častěji, ale nikdy úplně
 // nezmizí. Zachovává původní vlastnost "bez opakování, dokud se nevyčerpá".
+/* ── Minihry v tréninku ────────────────────────────────────────────────
+   Spojovačka a řazení už v 1. stupni fungovaly V BOJI (modul
+   rpg-tasktypes.js načítají všechny ročníky), ale do tréninku se
+   nenapojily — 2. stupeň je tam měl, 1. stupeň ani jednu. Přitom právě
+   malé děti z hravého procvičování těží nejvíc.
+
+   Pexeso 1. stupeň nepoužíval nikde; přidává se jen sem do tréninku,
+   boj zůstává beze změny. */
+function trPool(){
+ if(!TR.m)return [];
+ let pool=TR.m.tasks();
+ const ex=window.RPG_TASK_EXTRA_4;
+ if(ex && typeof ex[TR.mid]==='function'){try{pool=pool.concat(ex[TR.mid]());}catch(e){}}
+ return pool;
+}
+function trSpecialBegin(){
+ TR.task={ans:'',skill:null,hints:[]};TR.curIdx=null;
+ document.getElementById('tr-input-row').style.display='none';
+ document.getElementById('tr-yn-row').style.display='none';
+ document.getElementById('tr-mc').style.display='none';
+ document.getElementById('tr-hint-btn').style.display='none';
+ document.getElementById('tr-next-btn').style.display='none';
+ const fb=document.getElementById('tr-fb');fb.className='feedback';fb.textContent='';
+ const hb=document.getElementById('tr-hint-box');hb.textContent='';hb.classList.remove('show');
+}
+function trSpecialDone(mistakes){
+ if(mistakes===0){trCorrect();}
+ else{
+  TR.total++;if(!trGuard())TR.streak=0;trStats();
+  const fb=document.getElementById('tr-fb');fb.className='feedback err';
+  fb.textContent='Chyb: '+mistakes+' — zkus to znovu.';
+  document.getElementById('tr-next-btn').style.display='inline-block';
+ }
+}
+function trStartMatch(){
+ if(!window.RPGTaskTypes||!TR.m)return;
+ const pairs=RPGTaskTypes.pickPairs(trPool(),4);
+ const fb=document.getElementById('tr-fb');
+ if(!pairs){fb.className='feedback err';fb.textContent='Pro toto téma se spojovačka nedá sestavit.';return;}
+ trSpecialBegin();
+ RPGTaskTypes.renderMatch(document.getElementById('tr-prob'),pairs,trSpecialDone);
+}
+function trStartOrder(){
+ if(!window.RPGTaskTypes||!TR.m)return;
+ const items=RPGTaskTypes.pickOrderItems(trPool(),4);
+ const fb=document.getElementById('tr-fb');
+ if(!items){fb.className='feedback err';fb.textContent='Pro toto téma se řazení nedá sestavit.';return;}
+ trSpecialBegin();
+ RPGTaskTypes.renderOrder(document.getElementById('tr-prob'),items,trSpecialDone,{desc:Math.random()<0.5});
+}
+function trStartPexeso(){
+ if(!window.RPGTaskTypes||!TR.m)return;
+ const pairs=RPGTaskTypes.pickPairs(trPool(),4);
+ const fb=document.getElementById('tr-fb');
+ if(!pairs){fb.className='feedback err';fb.textContent='Pro toto téma se pexeso nedá sestavit.';return;}
+ trSpecialBegin();
+ RPGTaskTypes.renderPexeso(document.getElementById('tr-prob'),pairs,m=>trSpecialDone(Math.max(0,m-2)));
+}
+
 function trBuildBag(pool,mid){
  const errMap=(S.trainErrs&&S.trainErrs[mid])||{};
  const bag=[];
