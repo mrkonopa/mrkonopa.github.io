@@ -47,9 +47,52 @@ for (const f of files) {
   else runs.push({ f, args: [], label: f });
 }
 if (FILTER) runs = runs.filter(r => r.label.includes(FILTER));
+
+/* ── Rozdělení brány na dvě části (--only=node | browser) ──────────────
+   Na CI běží jako dva paralelní joby: rychlá půlka (čistý Node, SQL,
+   audity) doběhne za pár desítek vteřin, takže zpětná vazba na většinu
+   chyb přijde skoro hned; pomalá půlka (Playwright) běží vedle a jen ta
+   potřebuje instalovat prohlížeč.
+
+   Zařazení se NEURČUJE ručním seznamem — ten by zastaral hned, jak
+   přibude test. Rozhoduje, jestli si soubor sám vyžádá playwright.
+   Bez přepínače běží všechno jako dřív (a tak to zůstává lokálně). */
+const CAST = (process.argv.find(a => a.startsWith('--only=')) || '').slice(7);
+const jeProhlizec = f => {
+  try { return /require\(['"]playwright['"]\)/.test(fs.readFileSync(path.join(DIR, f), 'utf8')); }
+  catch (e) { return true; }   // nepřečtu-li ho, ať radši spadne do pomalé části
+};
+if (CAST) {
+  if (!['node', 'browser'].includes(CAST)) {
+    console.error(`Neznámá část „${CAST}" — povolené: node | browser`); process.exit(2);
+  }
+  const chci = CAST === 'browser';
+  runs = runs.filter(r => jeProhlizec(r.f) === chci);
+  if (!runs.length) { console.error(`Část „${CAST}" neobsahuje žádný test — něco je špatně.`); process.exit(2); }
+}
 runs.sort((a, b) => (b.f.startsWith('vstudents-deep') ? 1 : 0) - (a.f.startsWith('vstudents-deep') ? 1 : 0));
 
-console.log(`\n╔══ CI brána: ${runs.length} běhů (sekvenčně) ══╗\n`);
+/* ── Dělení na díly (--shard=i/n) ──────────────────────────────────────
+   Uvnitř jednoho stroje se testy pouštějí SEKVENČNĚ — tři souběžné
+   Playwrighty se navzájem uškrtí a dělají falešné timeouty (CLAUDE.md).
+   Na CI ale každý díl dostane VLASTNÍ runner, takže se nemají o co prát.
+   Tím se zkracuje čekání: brána trvá zhruba tak dlouho jako nejdelší díl,
+   ne jako součet všech.
+
+   Rozdělení je round-robin přes seřazený seznam, takže drahé a levné
+   testy padnou rovnoměrně; deep harness zůstává první v dílu 1, aby
+   nejdůležitější kontrola selhala co nejdřív. */
+const SHARD = (process.argv.find(a => a.startsWith('--shard=')) || '').slice(8);
+if (SHARD) {
+  const m = /^(\d+)\/(\d+)$/.exec(SHARD);
+  if (!m) { console.error(`Špatný tvar --shard: „${SHARD}" (čekám i/n, např. 2/3)`); process.exit(2); }
+  const idx = +m[1], poc = +m[2];
+  if (idx < 1 || poc < 1 || idx > poc) { console.error(`--shard=${SHARD} je mimo rozsah`); process.exit(2); }
+  runs = runs.filter((_, i) => i % poc === idx - 1);
+  if (!runs.length) { console.error(`Díl ${SHARD} je prázdný — dílů je víc než testů.`); process.exit(2); }
+}
+
+console.log(`\n╔══ CI brána${CAST?" ["+CAST+"]":""}${SHARD?" díl "+SHARD:""}: ${runs.length} běhů (sekvenčně) ══╗\n`);
 if (LIST_ONLY) { runs.forEach(r => console.log('  •', r.label)); process.exit(0); }
 
 function runOne(f, args) {

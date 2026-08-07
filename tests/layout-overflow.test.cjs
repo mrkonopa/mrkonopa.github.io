@@ -24,10 +24,29 @@
    ══════════════════════════════════════════════════════════════════════ */
 const { chromium } = require('playwright');
 const http=require('http'),fs=require('fs'),path=require('path');
-const ROOT='/home/user/mrkonopa.github.io',PORT=18999;
+// ROOT se MUSÍ odvodit od umístění testu. Původně tu byla natvrdo cesta
+// z vývojového sandboxu (`/home/user/…`) — vzniklo to při povýšení
+// ad-hoc auditu na test. Lokálně to fungovalo, na CI je repo jinde
+// (`/home/runner/work/…`), takže server nenašel ANI JEDEN soubor,
+// všech 42 načtení skončilo na 404 a audit doběhl za 10 vteřin bez
+// jediného měření.
+const ROOT=path.join(__dirname,'..'),PORT=18999;
+// Chyby při čtení se dřív tiše měnily na 404, takže „chybí soubor" a
+// „nešel přečíst" vypadaly stejně. Teď se důvod pošle v hlavičce i do
+// konzole — ať je příště vidět, co se doopravdy stalo.
+let ctyristaCtyri=0;   // ať rozbitý server nezaplaví log tisíci řádky
 const srv=http.createServer((q,p)=>{let u=decodeURIComponent(q.url.split('?')[0]);if(u.endsWith('/'))u+='index.html';
- const fp=path.normalize(path.join(ROOT,u));if(!fp.startsWith(ROOT)){p.writeHead(403);return p.end();}
- let b=null;try{b=fs.readFileSync(fp);}catch(e){} if(b===null){p.writeHead(404);return p.end();}
+ const fp=path.normalize(path.join(ROOT,u));
+ if(!fp.startsWith(ROOT)){p.writeHead(403);return p.end('mimo ROOT');}
+ let b=null,duvod='';
+ // Jen errno (ENOENT, EACCES…), nikdy celá výjimka — ta nese cestu i
+ // zásobník volání a neposílá se ven (CodeQL: information exposure
+ // through a stack trace). Do odpovědi nejde nic, důvod jen do konzole.
+ try{b=fs.readFileSync(fp);}catch(e){duvod=(e&&e.code)||'chyba čtení';}
+ if(b===null){
+   if(++ctyristaCtyri<=10)console.log('   [server] 404 '+u+' ('+duvod+')');
+   else if(ctyristaCtyri===11)console.log('   [server] … další 404 se už nevypisují');
+   p.writeHead(404);return p.end();}
  const m={html:'text/html',js:'application/javascript',css:'text/css'};
  p.writeHead(200,{'Content-Type':m[u.split('.').pop()]||'application/octet-stream'});p.end(b);});
 
@@ -78,14 +97,21 @@ const DET=()=>{
      await pg.evaluate(()=>{localStorage.clear();startGame('Testovací žákyně');S.tutorialDone=true;});}
    const screens=jeHra?await pg.evaluate(()=>[...document.querySelectorAll('.screen')].map(s=>s.id)):[null];
    for(const sc of screens){
+    // Dřív tahle větev vracela jen true/false a při false se `continue`lo
+    // BEZ ZÁZNAMU. Obrazovka se tedy tiše přeskočila a jediné, co se
+    // nakonec ozvalo, byla pojistka „skoro nic neproměřil" — bez důvodu.
+    // Teď se vrací důvod a zapíše se mezi nálezy.
     if(sc){const okk=await pg.evaluate(id=>{try{
       document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
-      const el=document.getElementById(id);if(!el)return false;el.classList.add('on');
+      const el=document.getElementById(id);
+      if(!el)return 'obrazovka v DOM není';
+      el.classList.add('on');
       const f={'s-map':()=>renderMap(),'s-profile':()=>renderProfile(),'s-shop':()=>renderShop(),
                's-train':()=>renderTrainPicker(),'s-tower':()=>renderTowerGate(),
                's-area':()=>renderArea(AREAS[0].id)}[id];
-      if(f)try{f();}catch(e){} return true;}catch(e){return false;}},sc);
-     if(!okk)continue; await pg.waitForTimeout(100);}
+      if(f)try{f();}catch(e){} return '';}catch(e){return 'výjimka: '+String(e&&e.message||e).slice(0,60);}},sc);
+     if(okk){nalezy.push(`${jm}@${w} ${sc}: PŘESKOČENO — ${okk}`);continue;}
+     await pg.waitForTimeout(100);}
     const r=await pg.evaluate(DET);
     obrazovek++; prvku+=r.videno;
     if(r.stranka||r.ven.length)
@@ -99,7 +125,8 @@ const DET=()=>{
  // Pojistka proti prázdnému běhu: kdyby se stránky přestaly načítat nebo
  // se změnil tvar DOM, smyčka by nic neproměřila a test by tiše prošel.
  const dost = obrazovek >= 150 && prvku >= 5000;
- if(!dost)console.log('  ❌ audit skoro nic neproměřil — pravidlo by štěkalo naprázdno');
+ if(!dost)console.log('  ❌ audit skoro nic neproměřil ('+obrazovek+' obrazovek / '+prvku+
+   ' prvků, čekáno ≥150 / ≥5000) — pravidlo by štěkalo naprázdno; ROOT='+ROOT);
  console.log(nalezy.length||!dost ? '\n  Rozvržení: SELHALO\n' : '\n  Rozvržení: v pořádku\n');
  await b.close();srv.close();
  process.exit((nalezy.length||obrazovek<150||prvku<5000)?1:0);

@@ -11,20 +11,53 @@ on:
   # výchozí větvi — použitelné tedy až po mergnutí do main.
   workflow_dispatch:
 
-# Brána běží ~40 minut. Když na větev přijde další commit, starší běh
-# testuje kód, který už neplatí — jeho výsledek se stejně zahodí. Bez
-# tohohle zůstával viset ve frontě a rval se o runnery s tím během, na
-# kterém záleží. Na `main` se nic neruší (`github.sha` je pro každý
-# commit jiný), tam chceme historii výsledků úplnou.
+# Když na PR přijde další commit, starší běh testuje kód, který už
+# neplatí — jeho výsledek se stejně zahodí. Bez tohohle zůstával viset ve
+# frontě a rval se o runnery s tím během, na kterém záleží. Na `main` se
+# neruší nic (`github.sha` je pro každý commit jiný), tam chceme historii
+# výsledků úplnou.
 concurrency:
   group: tests-${{ github.event.pull_request.number || github.sha }}
   cancel-in-progress: true
 
+# ── Proč dva druhy jobů ───────────────────────────────────────────────
+# Brána má 124 běhů a jako jeden job trvala ~15 minut. Z toho drtivou
+# většinu spotřebují Playwright testy; čistě Node testy (SQL harness,
+# audity, generátory) doběhnou za pár desítek vteřin a prohlížeč vůbec
+# nepotřebují — proto si ho ani neinstalují.
+#
+# Prohlížečová část se dělí na tři díly. Uvnitř JEDNOHO stroje se testy
+# musí pouštět sekvenčně (tři souběžné Playwrighty se navzájem uškrtí a
+# dělají falešné timeouty), ale každý díl dostane vlastní runner, takže
+# se nemají o co prát. Čekání pak trvá zhruba jako nejdelší díl.
+#
+# Rozdělení dělá tests/run-ci.cjs podle toho, jestli si soubor sám
+# vyžádá playwright — ne podle ručního seznamu, který by zastaral.
+# Lokálně `node tests/run-ci.cjs` pouští pořád všechno najednou.
+
 jobs:
-  gate:
-    name: Testová brána (Node + Playwright)
+  rychla:
+    name: Rychlé testy (bez prohlížeče)
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Instalace závislostí
+        run: npm install
+      - name: Spustit rychlou část
+        run: node tests/run-ci.cjs --only=node
+
+  prohlizec:
+    name: Prohlížečové testy (díl ${{ matrix.dil }}/3)
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false      # ať vidíme nálezy ze VŠECH dílů, ne jen z prvního
+      matrix:
+        dil: [1, 2, 3]
     steps:
       - uses: actions/checkout@v4
 
@@ -35,8 +68,26 @@ jobs:
       - name: Instalace závislostí
         run: npm install
 
+      # Verze prohlížeče je daná verzí playwrightu v package-lock.json,
+      # takže klíč cache stačí odvodit z něj. Při změně verze se cache
+      # mine a stáhne se nová — proto restore-keys nejsou (stará cache by
+      # obsahovala prohlížeč k jiné verzi knihovny).
+      - name: Cache prohlížeče
+        id: cache-pw
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: pw-${{ runner.os }}-${{ hashFiles('package-lock.json', 'package.json') }}
+
       - name: Instalace Chromia (Playwright)
-        run: npx playwright install --with-deps chromium
+        # Systémové knihovny (apt) se nekešují, ty je potřeba vždy;
+        # samotný prohlížeč se přeskočí, když ho cache vrátila.
+        run: |
+          if [ "${{ steps.cache-pw.outputs.cache-hit }}" = "true" ]; then
+            npx playwright install-deps chromium
+          else
+            npx playwright install --with-deps chromium
+          fi
 
       - name: Symlink Chromia na cestu, kterou testy očekávají
         # Testy hardkódují /opt/pw-browsers/chromium-1194/... (sandbox cesta).
@@ -55,5 +106,5 @@ jobs:
         run: |
           echo "127.0.0.1 cdn.jsdelivr.net fonts.googleapis.com fonts.gstatic.com www.youtube.com youtube.com" | sudo tee -a /etc/hosts
 
-      - name: Spustit bránu (sekvenčně)
-        run: node tests/run-ci.cjs
+      - name: Spustit díl ${{ matrix.dil }}/3
+        run: node tests/run-ci.cjs --only=browser --shard=${{ matrix.dil }}/3

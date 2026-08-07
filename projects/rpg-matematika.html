@@ -161,6 +161,8 @@ body::before{
 .sc button.buy{background:#19e6e6;color:#06121a;border-color:#19e6e6}
 .sc button:disabled{opacity:.4;cursor:not-allowed}
 .sc .act{font-size:11px;color:#f4d03f;font-weight:700;letter-spacing:1px;padding:7px 0}
+.sc button.off{background:transparent;border-color:#f4d03f;color:#f4d03f}
+.sc button.off:hover{background:#f4d03f;color:#06121a}
 /* přístupnost: vypnout veškerý pohyb */
 .reduced-motion *,.reduced-motion *::before,.reduced-motion *::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
 /* mobil: dotykové plochy tlačítek na ≥44px */
@@ -454,7 +456,12 @@ function renderShop(){
   const cls='sc'+(isActive?' active':isOwned?' owned':'');
   let btn;
   if(isActive){
-   btn=`<div class="act">✓ AKTIVNÍ</div>`;
+   // Rám, jméno, skin, titul i mazlíček jdou vypnout kliknutím. Téma
+   // a vítězná animace ne — tam musí něco platit vždycky, mají výchozí
+   // položku zdarma.
+   btn=VYPNUTELNE.has(it.cat)
+    ? `<button class="off" title="Kliknutím vypneš" onclick="deactivateItem('${esc(it.cat)}')">✓ AKTIVNÍ · vypnout</button>`
+    : `<div class="act">✓ AKTIVNÍ</div>`;
   } else if(isOwned||it.price===0){
    btn=`<button onclick="activateItem('${esc(it.id)}')">✓ Aktivovat</button>`;
   } else {
@@ -470,6 +477,12 @@ function buyItem(id){
  if(!res.ok&&res.reason==='insufficient'){
   alert(`Nestačí kreditů. Máš ${res.have} kr, potřebuješ ${res.need} kr. Hraj dál a vydělej víc!`);
  }
+ renderShop(); renderGlobalProfile();
+}
+const VYPNUTELNE=new Set(['border','badge','skin','title','pet']);
+function deactivateItem(cat){
+ if(!HUB_HAS_WALLET) return;
+ RPGWallet.deactivate(cat);
  renderShop(); renderGlobalProfile();
 }
 function activateItem(id){
