@@ -1731,7 +1731,6 @@ function trPickMC(btn,chosen,correct){
  if(!ok){const rb=Array.from(document.querySelectorAll('#tr-mc .mc-btn')).find(b=>checkAns(b.textContent.trim(),correct.trim()));if(rb)rb.classList.add('right');trWrong();}
  else trCorrect();
 }
-function trAnswerYN(yn){document.querySelectorAll('#tr-yn-row button').forEach(b=>b.disabled=true);const ok=checkAns(yn,TR.task.ans);if(ok)trCorrect();else trWrong();}
 function trSubmit(){
  const inp=document.getElementById('tr-ans');const raw=inp.value.trim();if(!raw)return;
  inp.disabled=true;const ok=checkAns(raw,String(TR.task.ans));
@@ -1865,10 +1864,13 @@ document.addEventListener('keydown',e=>{
  if(active.id==='s-learn'){launchLearnBattle();}
 });
 
-// answerYN is in rpg-shared.js; define fallback
-function isYN(t){return t&&(String(t.ans)==='ANO'||String(t.ans)==='NE');}
-function answerYN(yn){document.querySelectorAll('#yn-row button').forEach(b=>b.disabled=true);const t=BT.curTask;const ok=checkAns(yn,String(t.ans));stopTimer();const xpKey=`${BT.mid}-${BT.idx}`;if(!S.xpClaimed)S.xpClaimed={};const fb=document.getElementById('bt-fb');if(ok){BT.combo++;updateCombo();const isCrit=BT.combo>=3;const _first=!S.xpClaimed[xpKey];const xpGain=(_first?7:2)+((_first&&BT.adapt&&BT.adapt.mode>0)?2:0);S.xpClaimed[xpKey]=true;S.done[xpKey]=true;saveS();awardXp(xpGain,isCrit);if(typeof RPGWallet!=='undefined')RPGWallet.earn(isCrit?7+wCritBonus():5,SAVE_KEY);if(typeof RPGSound!=='undefined')RPGSound.play(isCrit?'crit':'ok');fb.textContent='✓ SPRÁVNĚ!';fb.className='feedback ok';document.getElementById('next-btn').style.display='inline-block';damageMonster(xpGain,isCrit);updateCombo();evalAch({correct:true,combo:BT.combo,timeLeft:BT.timeLeft});wBump('tasks');if(isCrit)wBump('crits');adaptOnAnswer(true);checkMissionComplete();}else{BT.combo=0;updateCombo();if(!S.errs)S.errs={};S.errs[BT.mid]=(S.errs[BT.mid]||0)+1;saveS();fb.textContent='✗ Správně: '+t.ans;fb.className='feedback err';if(typeof RPGSound!=='undefined')RPGSound.play('bad');monsterAttack();damagePlayer();adaptOnAnswer(false);}}
-function checkAns(a,b){if(typeof a==='undefined'||typeof b==='undefined')return false;const na=String(a).trim().replace(',','.');const nb=String(b).trim().replace(',','.');const fa=parseFloat(na),fb=parseFloat(nb);if(!isNaN(fa)&&!isNaN(fb))return Math.abs(fa-fb)<0.001;return na.toUpperCase()===nb.toUpperCase();}
+// isYN/answerYN/trAnswerYN/checkAns → sdílené v projects/rpg-shared.js.
+// Dřív tu ležely lokální kopie „jako fallback". Fungovaly ale opačně, než
+// se čekalo: rpg-shared.js se načítá s `defer`, takže běžel VŽDY ten
+// sdílený a lokální verze byly mrtvé. A kdyby se modul někdy nenačetl,
+// záloha by hodnotila JINAK než originál — „1 500", „1/2" ani „0,33"
+// by neuznala, a to potichu: hra běží dál, dítě jen dostane „špatně".
+// Záloha, která se chová jinak než originál, je horší než žádná.
 
 function checkMissionComplete(){
  const ar=AREAS.find(a=>a.id===BT.aid);const m=ar&&ar.missions.find(x=>x.id===BT.mid);if(!m)return;
