@@ -47,6 +47,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--px);font-weight:70
 .bar-in{height:100%;background:var(--gold);transition:width .5s}
 .bar-hp .bar-in{background:var(--red)}
 .bar-xp .bar-in{background:var(--blue)}
+.bar-attr .bar-in{background:var(--blue)}
 /* ── MAP ── */
 .map-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px}
 .map-node{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--panel);border:4px solid transparent;padding:18px 10px;cursor:not-allowed;transition:transform .15s,box-shadow .15s,border-color .15s;min-height:110px;box-shadow:4px 4px 0 #000a;overflow:hidden}
@@ -225,7 +226,7 @@ html[data-theme="violet"]{--gold:#b06cff;--panel:#100a20;--panel2:#18103a;--blue
 .task-ctr span{color:var(--gold)}
 .attr-row{display:flex;align-items:center;gap:8px;margin-bottom:10px}
 .attr-ic{min-width:30px;line-height:0;color:var(--blue)}
-.attr-nm{font-family:var(--px);font-weight:400;font-size:13px;min-width:170px;color:var(--text)}
+.attr-nm{font-family:var(--px);font-weight:400;font-size:13px;min-width:150px;color:var(--text)}
 .attr-vl{font-family:var(--px);font-weight:700;font-size:15px;color:var(--gold);min-width:36px;text-align:right}
 .inv-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-top:10px}
 .inv-slot{background:var(--panel2);border:2px solid #2a2a2a;padding:10px 6px;text-align:center;min-height:80px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px}
@@ -1330,7 +1331,7 @@ function battleMiniDone(mistakes){
  const xpKey=`${BT.mid}-${BT.idx}`;
  if(!S.xpClaimed)S.xpClaimed={};
  const _first=!S.xpClaimed[xpKey];const xpGain=(_first?7:2)+((_first&&BT.adapt&&BT.adapt.mode>0)?2:0);S.xpClaimed[xpKey]=true;
- S.done[xpKey]=true;saveS();awardXp(xpGain,isCrit);if(typeof RPGWallet!=='undefined')RPGWallet.earn(isCrit?7+wCritBonus():5,SAVE_KEY);if(typeof RPGSound!=='undefined')RPGSound.play(isCrit?'crit':'ok');
+ S.done[xpKey]=true;saveS();awardXp(xpGain,isCrit);if(typeof RPGWallet!=='undefined')RPGWallet.earn(isCrit?7+wCritBonus():5,SAVE_KEY);if(typeof RPGSound!=='undefined')RPGSound.play(isCrit?'crit':'ok');if(_first)tryDropItem();
  document.getElementById('next-btn').style.display='inline-block';document.getElementById('next-btn').focus();
  damageMonster(xpGain,isCrit);updateCombo();if(!S.stats)S.stats={};if(BT.combo>(S.stats.bestCombo||0))S.stats.bestCombo=BT.combo;
  evalAch({correct:true,combo:BT.combo,timeLeft:0});wBump('tasks');if(isCrit)wBump('crits');checkMissionComplete();
@@ -1421,7 +1422,7 @@ function pickMC(btn,chosen,correct){
   document.querySelectorAll('#mc-grid .mc-btn').forEach(b=>b.disabled=true);
   BT.combo++;updateCombo();
   const isCrit=BT.combo>=3;const _first=!S.xpClaimed[xpKey];const xpGain=(_first?7:2)+((_first&&BT.adapt&&BT.adapt.mode>0)?2:0);S.xpClaimed[xpKey]=true;S.done[xpKey]=true;BT._doneBattle++;saveS();
-  awardXp(xpGain,isCrit);if(typeof RPGWallet!=='undefined')RPGWallet.earn(isCrit?7+wCritBonus():5,SAVE_KEY);if(typeof RPGSound!=='undefined')RPGSound.play(isCrit?'crit':'ok');
+  awardXp(xpGain,isCrit);if(typeof RPGWallet!=='undefined')RPGWallet.earn(isCrit?7+wCritBonus():5,SAVE_KEY);if(typeof RPGSound!=='undefined')RPGSound.play(isCrit?'crit':'ok');if(_first)tryDropItem();
   fb.textContent='✓ SPRÁVNĚ!';fb.className='feedback ok';
   if(!S.stats)S.stats={};if(BT.combo>(S.stats.bestCombo||0))S.stats.bestCombo=BT.combo;
   damageMonster(xpGain,isCrit);evalAch({correct:true,combo:BT.combo,timeLeft:BT.timeLeft});wBump('tasks');if(isCrit)wBump('crits');adaptOnAnswer(true);checkMissionComplete();
@@ -1442,7 +1443,7 @@ function submitAnswer(){
   inp.disabled=true;document.getElementById('attack-btn').disabled=true;
   BT.combo++;updateCombo();const isCrit=BT.combo>=3;
   const _first=!S.xpClaimed[xpKey];const xpGain=(_first?7:2)+((_first&&BT.adapt&&BT.adapt.mode>0)?2:0);S.xpClaimed[xpKey]=true;S.done[xpKey]=true;BT._doneBattle++;saveS();
-  awardXp(xpGain,isCrit);if(typeof RPGWallet!=='undefined')RPGWallet.earn(isCrit?7+wCritBonus():5,SAVE_KEY);if(typeof RPGSound!=='undefined')RPGSound.play(isCrit?'crit':'ok');
+  awardXp(xpGain,isCrit);if(typeof RPGWallet!=='undefined')RPGWallet.earn(isCrit?7+wCritBonus():5,SAVE_KEY);if(typeof RPGSound!=='undefined')RPGSound.play(isCrit?'crit':'ok');if(_first)tryDropItem();
   fb.textContent='✓ SPRÁVNĚ!';fb.className='feedback ok';
   document.getElementById('next-btn').style.display='inline-block';
   if(!BT.mcMode)document.getElementById('bt-explain').style.display='block';
@@ -1849,7 +1850,33 @@ function trNext(){trDraw();}
 function trEnd(){renderTrainPicker();}
 
 // PROFILE
-const ATTR_META={calc:{ic:'calc',nm:'Výpočty — aritmetika a algebra'},geo:{ic:'angle',nm:'Geometrie — plochy a tělesa'},anal:{ic:'brain',nm:'Analýza — logika a slovní úlohy'},craft:{ic:'wrench',nm:'Řemeslo — tvorba a aplikace'}};
+const ATTR_META={calc:{ic:'calc',nm:'Dračí počty'},geo:{ic:'angle',nm:'Prostorový cit'},anal:{ic:'brain',nm:'Logická síla'},craft:{ic:'wrench',nm:'Zručnost'}};
+/* Pavučinový graf atributů — 2. stupeň ho má, 1. stupeň při portu vynechal.
+   Menší děti přitom z obrázku přečtou svůj pokrok líp než z holého čísla. */
+function attrIc(k,size){return (typeof RPGIcons!=='undefined'&&ATTR_META[k])?RPGIcons.svg(ATTR_META[k].ic,size||24):'';}
+function svgAttrRadar(attrs){
+ const CX=90,CY=88,R=60;
+ const axes=[['calc',-90],['anal',0],['geo',90],['craft',180]];
+ const rad=d=>d*Math.PI/180;
+ const pt=(pct,deg)=>[CX+R*(pct/100)*Math.cos(rad(deg)),CY+R*(pct/100)*Math.sin(rad(deg))];
+ const grid=[25,50,75,100].map(p=>{
+  const ps=axes.map(([,d])=>pt(p,d));
+  return `<polygon points="${ps.map(x=>x.join(',')).join(' ')}" fill="none" stroke="rgba(255,255,255,.1)" stroke-width="${p===100?1.5:.7}"/>`;
+ }).join('');
+ const lines=axes.map(([,d])=>`<line x1="${CX}" y1="${CY}" x2="${pt(100,d)[0]}" y2="${pt(100,d)[1]}" stroke="rgba(255,255,255,.18)" stroke-width=".8"/>`).join('');
+ const dp=axes.map(([k,d])=>pt(Math.min(100,(attrs[k]||0)|0),d));
+ const poly=`<polygon points="${dp.map(x=>x.join(',')).join(' ')}" fill="var(--blue,#5dc8f0)" fill-opacity=".22" stroke="var(--blue,#5dc8f0)" stroke-width="2"/>`;
+ const dots=dp.map(([x,y])=>`<circle cx="${x}" cy="${y}" r="3.5" fill="var(--blue,#5dc8f0)"/>`).join('');
+ const lbls=axes.map(([k,d])=>{
+  const [lx,ly]=pt(120,d);
+  return `<g transform="translate(${(lx-8).toFixed(1)},${(ly-4).toFixed(1)})" color="var(--muted,#8895b5)">${attrIc(k,16)}</g>`;
+ }).join('');
+ const vals=axes.map(([k,d])=>{
+  const v=(attrs[k]||0)|0;const [vx,vy]=pt(Math.min(100,v)+18,d);
+  return `<text x="${vx}" y="${vy+4}" text-anchor="middle" dominant-baseline="middle" font-size="11" font-weight="700" fill="var(--blue,#5dc8f0)">${v}</text>`;
+ }).join('');
+ return `<svg viewBox="0 0 180 176" style="width:180px;height:176px;display:block;margin:0 auto 4px">${grid}${lines}${poly}${dots}${lbls}${vals}</svg>`;
+}
 const ALL_GAMES=[
  {key:'RPG_MAT_3',ic:'oak',nm:'3. ročník – Kouzelný les'},
  {key:'RPG_MAT_4',ic:'anchor',nm:'4. ročník – Pirátská plavba'},
@@ -1892,7 +1919,10 @@ function renderProfile(){
  if(typeof RPGWallet!=='undefined'&&RPGWallet.renderGachInto)RPGWallet.renderGachInto(document.getElementById('pr-gach'));
  const av=document.getElementById('pr-avatar');if(av){const cos=_activeCosmetics()||S.cosmetics;{const b=wCatalog().find(i=>i.id===cos.active?.border&&i.cat==='border');av.className=(b&&b.cssKey)||'';}}
  const attrsEl=document.getElementById('pr-attrs');
- attrsEl.innerHTML=Object.entries(ATTR_META).map(([k,v])=>`<div class="attr-row"><div class="attr-ic">${typeof RPGIcons!=='undefined'?RPGIcons.svg(v.ic,24):''}</div><div class="attr-nm">${v.nm}</div><div class="attr-vl">${(S.attrs[k]||0)|0}</div></div>`).join('');
+ attrsEl.innerHTML=svgAttrRadar(S.attrs)+Object.entries(ATTR_META).map(([k,v])=>{
+  const c=(S.attrs[k]||0)|0,pct=Math.min(100,c)|0;
+  return `<div class="attr-row"><div class="attr-ic">${attrIc(k,24)}</div><div class="attr-nm">${v.nm}</div><div style="flex:1"><div class="bar-out bar-attr"><div class="bar-in" style="width:${pct}%"></div></div></div><div class="attr-vl">${c}</div></div>`;
+ }).join('');
  const inv=document.getElementById('pr-inv');
  const allArts=AREAS.map(ar=>({id:ar.art.id,ic:ar.art.ic,nm:ar.art.nm}));
  inv.innerHTML=allArts.map(a=>`<div class="inv-slot${S.inv.includes(a.id)?' have':''}"><div class="ic">${RPGIcons.svg(a.ic,24)}</div><div class="nm">${a.nm}</div></div>`).join('');
