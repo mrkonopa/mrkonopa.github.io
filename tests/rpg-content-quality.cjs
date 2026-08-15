@@ -72,16 +72,35 @@ const NOUNS = [
   { few: 'metry', many: 'metrů' }, { few: 'koruny', many: 'korun' },
   { few: 'porce', many: 'porcí' }, { few: 'body', many: 'bodů' },
   { few: 'roky', many: 'let' }, { few: 'stránky', many: 'stránek' },
+  { few: 'otočky', many: 'otoček' },
 ];
+
+/* Slova, po kterých je 2. pád správně i u počtu 2–4, takže „3 otoček" tam
+   chybou NENÍ. Jsou to předložky vážící genitiv („do 3 hnízd", „ze 4 beden")
+   a číselné výrazy („každá ze 3 komnat"). Bez tohoto seznamu by opačný směr
+   hlásil hlavně korektní češtinu — přesně to byl důvod, proč se dřív
+   nekontroloval vůbec. */
+const GENITIV_PRED = /\b(do|z|ze|od|ode|u|bez|beze|během|kolem|okolo|podle|vedle|místo|kromě|dobu|každ\w+)\s*$/i;
+
 function badDeclension(text) {
-  // POZOR: hlásíme jen JEDNOZNAČNÝ směr „5+ s tvarem pro 2–4" („5 hodiny").
-  // Opačný směr hlásit nelze: „po dobu 2 hodin" nebo „během 3 dní" je správně,
-  // protože ty předložky vážou genitiv. Kdybychom hlásili i to, test by křičel
-  // vlka na korektní češtinu (ověřeno na 262 tis. úlohách).
+  // Směr 1 — jednoznačný: „5+ s tvarem pro 2–4" („5 hodiny").
   const out = [];
+  const t = String(text);
   for (const { few, many } of NOUNS) {
     const r = new RegExp('(?<![\\d])(\\d*[05-9])\\s+' + few + '\\b', 'g');
-    for (const m of String(text).matchAll(r)) out.push(m[0] + ' → ' + m[1] + ' ' + many);
+    for (const m of t.matchAll(r)) out.push(m[0] + ' → ' + m[1] + ' ' + many);
+  }
+  /* Směr 2 — „2–4 s tvarem pro 5+" („3 otoček" místo „3 otočky").
+     Hlásí se jen u HOLÝCH 2/3/4 (ne 22/23/24, kde je genitiv taky přípustný)
+     a jen tam, kde před číslovkou NESTOJÍ slovo vážící genitiv. Tenhle směr
+     tu dřív nebyl vůbec, a proto v 5. ročníku roky přežilo
+     „Kolik metrů urazí 3 otoček?". */
+  for (const { few, many } of NOUNS) {
+    const r = new RegExp('(?<![\\d])([234])(?![\\d])\\s+' + many + '\\b', 'g');
+    for (const m of t.matchAll(r)) {
+      if (GENITIV_PRED.test(t.slice(0, m.index))) continue;
+      out.push(m[0] + ' → ' + m[1] + ' ' + few);
+    }
   }
   return out;
 }
@@ -128,7 +147,22 @@ function loadGrade(g) {
   const bankPath = P('rpg-tasks-' + g + '.js');
   let EX = {};
   if (fs.existsSync(bankPath)) {
-    try { new Function(fs.readFileSync(bankPath, 'utf8'))(); EX = global.window['RPG_TASK_EXTRA_' + g] || {}; } catch (e) {}
+    /* Dřív tu bylo `catch (e) {}`. Když se banka nenačetla (stačí překlep
+       v modulu), chyba se spolkla, EX zůstalo prázdné a audit doběhl
+       ZELENĚ — jen o desítky tisíc úloh chudší, čehož si nikdo nevšimne.
+       Ověřeno naostro: rozbitá banka 5. ročníku ubrala 57 460 úloh a
+       výsledek pořád hlásil 11 ✅ / 0 ❌. Rozbitá banka teď shodí audit. */
+    try {
+      new Function(fs.readFileSync(bankPath, 'utf8'))();
+      EX = global.window['RPG_TASK_EXTRA_' + g] || {};
+    } catch (e) {
+      console.error(`\n  ❌ banka ${g}. ročníku se nenačetla: ${e.message}\n`);
+      process.exit(1);
+    }
+    if (!Object.keys(EX).length) {
+      console.error(`\n  ❌ banka ${g}. ročníku je prázdná — audit by běžel naprázdno\n`);
+      process.exit(1);
+    }
   }
   AREAS.forEach(ar => (ar.missions || []).forEach(mi => {
     items.push({ mid: mi.id, name: mi.name, gen: mi.tasks, src: 'base' });

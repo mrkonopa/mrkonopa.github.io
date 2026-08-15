@@ -8,6 +8,7 @@ let failures = [];
 
 function makeEnv(file) {
   const magenta = [];
+  const fills = { n: 0 };
   let rafCb = null;
   const ctx = new Proxy({ canvas: null }, {
     get(t, p) {
@@ -17,7 +18,7 @@ function makeEnv(file) {
       return (...a) => {};
     },
     set(t, p, v) {
-      if (p === 'fillStyle') { t._fs = v; if (v === '#f0f') magenta.push(1); }
+      if (p === 'fillStyle') { t._fs = v; fills.n++; if (v === '#f0f') magenta.push(1); }
       else t[p] = v;
       return true;
     }
@@ -53,12 +54,12 @@ function makeEnv(file) {
   sandbox.globalThis = sandbox;
   vm.createContext(sandbox);
   vm.runInContext(fs.readFileSync(file, 'utf8'), sandbox);
-  return { win, topEl, magenta, getRaf: () => rafCb };
+  return { win, topEl, magenta, fills, getRaf: () => rafCb };
 }
 
 for (const n of [3, 4, 5, 6, 7, 8, 9]) {
   const file = `projects/rpg-sprites-${n}.js`;
-  const { win, topEl, magenta, getRaf } = makeEnv(file);
+  const { win, topEl, magenta, fills, getRaf } = makeEnv(file);
   const API = win['RPGSprites' + n];
   if (!API) { failures.push(`${file}: window.RPGSprites${n} nedefinováno`); continue; }
   API.attach(topEl);
@@ -73,8 +74,15 @@ for (const n of [3, 4, 5, 6, 7, 8, 9]) {
       for (let f = 0; f < 12; f++) { t += 100; if (cb) cb(t); }
     }
   }
+  /* Pojistka proti planému běhu. Dřív se tu tisklo `7 * modes.length * 12`,
+     tedy VYPOČTENÁ konstanta — hlásila „336 snímků" i kdyby se nevykreslil
+     jediný pixel (stačilo by, aby se nezaregistrovalo requestAnimationFrame
+     nebo aby API[mode] tiše spadlo do prázdného catch).
+     Teď se počítají skutečná nastavení fillStyle. Naměřeno 187–300 tis. na
+     sadu, podlaha je proto hluboko pod tím — chytá zhroucení, ne kolísání. */
+  if (fills.n < 50000) failures.push(`${file}: jen ${fills.n} kreslicích operací — audit běžel skoro naprázdno`);
   if (magenta.length) failures.push(`${file}: ${magenta.length}× fallback '#f0f' (chybějící znak v paletě)`);
-  else console.log(`sprites-${n}: OK — žádné magenta pixely (${7 * modes.length * 12} snímků)`);
+  else console.log(`sprites-${n}: OK — žádné magenta pixely (${fills.n} kreslicích operací)`);
 }
 
 if (failures.length) { console.error('\nFAIL:\n' + failures.join('\n')); process.exit(1); }

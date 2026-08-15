@@ -102,12 +102,17 @@ function runOne(f, args) {
   });
   const secs = ((Date.now() - started) / 1000).toFixed(0);
   const out = (res.stdout || '') + (res.stderr || '');
-  const last = out.split('\n').filter(l => /VÝSLEDEK|✅|❌|✓|✗|passed|failed|prošlo/.test(l)).pop() || '';
+  const last = out.split('\n').filter(l => /VÝSLEDEK|✅|❌|✓|✗|passed|failed|prošlo|čisté/.test(l)).pop() || '';
   const timedOut = res.signal === 'SIGTERM' || res.error?.code === 'ETIMEDOUT';
-  return { ok: res.status === 0 && !timedOut, secs, out, last, timedOut };
+  /* Test, který se sám přeskočil, skončí nulou — tedy „zeleně" — a přitom
+     nezkontroloval nic. SQL testy to dělají legitimně, když v prostředí
+     není PostgreSQL server (Vojtův Windows), ale na CI by to znamenalo, že
+     360 kontrol beze slova zmizelo. Proto se skip nese dál. */
+  const skipped = /⏭️?\s*SKIP/.test(out);
+  return { ok: res.status === 0 && !timedOut, secs, out, last, timedOut, skipped };
 }
 
-const fails = [], flaky = [];
+const fails = [], flaky = [], skipy = [];
 const t0 = Date.now();
 for (let i = 0; i < runs.length; i++) {
   const { f, args, label } = runs[i];
@@ -115,11 +120,24 @@ for (let i = 0; i < runs.length; i++) {
   // Retry-once: Playwright testy občas na CI bliknou (timing pod zátěží).
   // Skutečná chyba selže 2×; flaky projde na druhý pokus → nezčervená bránu.
   if (!r.ok) { const r2 = runOne(f, args); if (r2.ok) { flaky.push(label); r = r2; } else r = r2; }
-  const tag = r.ok ? (flaky.includes(label) ? '✅~' : '✅') : (r.timedOut ? '⏱ TIMEOUT' : '❌');
+  if (r.ok && r.skipped) skipy.push(label);
+  const tag = !r.ok ? (r.timedOut ? '⏱ TIMEOUT' : '❌')
+            : r.skipped ? '⏭ SKIP' : (flaky.includes(label) ? '✅~' : '✅');
   console.log(`[${String(i + 1).padStart(2)}/${runs.length}] ${tag} ${label} (${r.secs}s)  ${r.last.trim().slice(0, 70)}`);
   if (!r.ok) { fails.push(label); if (r.out.trim()) console.log(r.out.trim().split('\n').slice(-8).map(l => '      ' + l).join('\n')); }
 }
 if (flaky.length) console.log('\n⚠ flaky (prošlo až na 2. pokus): ' + flaky.join(', '));
+
+/* Přeskočený test je lokálně v pořádku (Vojtův Windows nemá PostgreSQL),
+   na CI ale ne: tam se prostředí zná a skip by znamenal, že kontroly tiše
+   vypadly z brány. Zelená, která nic nezkontrolovala, je horší než červená. */
+if (skipy.length) {
+  console.log('\n⏭ přeskočeno (test se sám vypnul): ' + skipy.join(', '));
+  if (process.env.CI) {
+    console.log('   Na CI je to CHYBA — prostředí má být kompletní, skip znamená tiše ztracené kontroly.');
+    fails.push(...skipy.map(s => s + ' (SKIP na CI)'));
+  }
+}
 
 const mins = ((Date.now() - t0) / 60000).toFixed(1);
 console.log(`\n╚══ ${runs.length - fails.length}/${runs.length} OK · ${mins} min ══╝`);
