@@ -151,7 +151,7 @@
       () => { const a = ri(150, 450), b = ri(3, 6); return { text: `Dračice snesla ${a} vajec. Její sestra ${b}krát víc. Kolik vajec snesla sestra?`, ans: a * b, h1: `„${b}krát víc" = násob: ${a} × ${b}.`, h2: `= ${a * b}` }; },
       () => { const den = ri(12, 30), hodin = ri(14, 24); return { text: `Kovadlina zvoní ${den} úderů za hodinu. Kolik úderů zazní za ${hodin} hodin?`, ans: den * hodin, h1: `${den} × ${hodin}`, h2: `= ${den * hodin}` }; },
       () => { const a = ri(115, 320), b = ri(4, 9), navic = ri(50, 200); return { text: `Drak spálil ${b} ${skl(b, 'vesnici', 'vesnice', 'vesnic')} po ${a} chalupách a ještě ${navic} chalup samostatně. Kolik chalup spálil celkem?`, ans: a * b + navic, h1: `${b} × ${a} = ${a * b}, přičti ${navic}.`, h2: `= ${a * b + navic}` }; },
-      () => { const kroku = ri(115, 380), b = ri(3, 8); return { text: `Jedna otočka dračího křídla urazí ${kroku} m. Kolik metrů urazí ${b} otoček?`, ans: kroku * b, h1: `${kroku} × ${b}`, h2: `= ${kroku * b} m` }; },
+      () => { const kroku = ri(115, 380), b = ri(3, 8); return { text: `Jedna otočka dračího křídla urazí ${kroku} m. Kolik metrů urazí ${b} ${skl(b, 'otočka', 'otočky', 'otoček')}?`, ans: kroku * b, h1: `${kroku} × ${b}`, h2: `= ${kroku * b} m` }; },
     ];
     for (let i = 0; i < T.length; i++) { const t = T[i % T.length](); tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'calc' }); }
     return tasks;
