@@ -220,7 +220,7 @@
       () => { const delka = ri(5, 9), q = ri(12, 40); return { text: `Řetěz dlouhý ${delka * q} m rozsekáme na kusy po ${delka} m. Kolik kusů vznikne?`, ans: q, h1: `${delka * q} : ${delka}`, h2: `= ${q}` }; },
       () => { const b = ri(3, 7), q = ri(30, 90), r = ri(1, b - 1); const n = b * q + r; return { text: `${n} drahokamů se dělí rovným dílem mezi ${b} ${skl(b, 'čaroděje', 'čaroděje', 'čarodějů')}. Kolik drahokamů zbyde?`, ans: r, h1: `${b} × ${q} = ${b * q}, zbytek ${n} − ${b * q}.`, h2: `zbyde ${r}` }; },
       () => { const lidi = ri(3, 8), celkem = lidi * ri(40, 150); return { text: `${celkem} dukátů žoldu se dělí rovným dílem mezi ${lidi} ${skl(lidi, 'strážného', 'strážné', 'strážných')}. Kolik dostane jeden?`, ans: celkem / lidi, h1: `${celkem} : ${lidi}`, h2: `= ${celkem / lidi}` }; },
-      () => { const q = ri(30, 120), b = ri(3, 8); return { text: `Král rozdal ${b * q} bochníků chleba. Každá rodina dostala ${b} bochníků. Kolik rodin obdaroval?`, ans: q, h1: `${b * q} : ${b}`, h2: `= ${q}` }; },
+      () => { const q = ri(30, 120), b = ri(3, 8); return { text: `Král rozdal ${b * q} bochníků chleba. Každá rodina dostala ${b} ${skl(b, 'bochník', 'bochníky', 'bochníků')}. Kolik rodin obdaroval?`, ans: q, h1: `${b * q} : ${b}`, h2: `= ${q}` }; },
     ];
     for (let i = 0; i < T.length; i++) { const t = T[i % T.length](); tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'calc' }); }
     return tasks;
