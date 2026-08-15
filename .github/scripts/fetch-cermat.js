@@ -2,7 +2,9 @@
 // Scrapes CERMAT website for the next JPZ math exam date (1. kolo).
 // Writes result to projects/cermat-date.json.
 // Called by .github/workflows/update-cermat.yml weekly.
-// If date cannot be found, exits 0 and leaves existing JSON unchanged.
+// If the date cannot be found, the stored JSON is left unchanged and the
+// script exits NON-ZERO, so the weekly job goes red instead of pretending
+// it worked. This workflow blocks nothing — it only reports.
 
 const https = require('https');
 const fs = require('fs');
@@ -10,10 +12,17 @@ const path = require('path');
 
 const JSON_PATH = path.join(__dirname, '../../projects/cermat-date.json');
 
+/* CERMAT se přestěhoval z cermat.cz na cermat.gov.cz a změnil strukturu
+   adres. Staré cesty vracely 404 devět týdnů po sobě, aniž by to bylo
+   vidět — job totiž končil exit 0 (viz `run()` níže).
+   Nová doména je z vývojového sandboxu blokovaná, takže konkrétní cesty
+   níže NEJSOU ověřené proti živému webu. Nevadí: když žádná nezabere,
+   job teď spadne ČERVENĚ a je vidět, že je potřeba adresu opravit. */
 const CERMAT_URLS = [
-  'https://www.cermat.cz/terminy-zkousek/',
-  'https://www.cermat.cz/prijimaci-rizeni/terminy/',
-  'https://www.cermat.cz/terminy/',
+  'https://cermat.gov.cz/terminy-zkousek/',
+  'https://cermat.gov.cz/prijimaci-rizeni/terminy/',
+  'https://cermat.gov.cz/jednotna-prijimaci-zkouska/',
+  'https://cermat.gov.cz/terminy/',
 ];
 
 // Czech month names → month index (0-based)
@@ -85,14 +94,15 @@ function parseDate(html, currentYear) {
   return { date: `${best.year}-${mm}-${dd}`, year: best.year, round: 1 };
 }
 
-async function run() {
+async function run(opts) {
+  const urls = (opts && opts.urls) || CERMAT_URLS;
   const now = new Date();
   // Look for next upcoming exam — skip dates already more than a week past
   const cutoff = new Date(now.getTime() - 7 * 24 * 3600 * 1000);
   const currentYear = now.getFullYear();
 
   let found = null;
-  for (const url of CERMAT_URLS) {
+  for (const url of urls) {
     try {
       console.log(`Fetching ${url} ...`);
       const html = await fetchUrl(url);
@@ -115,8 +125,16 @@ async function run() {
   }
 
   if (!found) {
-    console.log('Could not determine next CERMAT date — leaving existing JSON unchanged');
-    process.exit(0);
+    /* Dřív tu bylo `process.exit(0)` s odůvodněním „ať to neblokuje CI".
+       Jenže tenhle workflow NIC neblokuje — je samostatný a běží v pondělí
+       ráno. Jediné, co exit 0 zařídil, bylo, že se devět mrtvých běhů
+       tvářilo zeleně a nikdo si nevšiml, že se doména přestěhovala.
+       Job, jehož JEDINÝ úkol je stáhnout datum, musí při neúspěchu
+       zčervenat. Uložený JSON zůstává nedotčený, takže web běží dál. */
+    console.error('CHYBA: nepodařilo se zjistit termín — žádná z adres nevrátila použitelné datum.');
+    console.error('Zkontroluj CERMAT_URLS v .github/scripts/fetch-cermat.js (web CERMAT mění adresy).');
+    console.error('Uložený JSON zůstává beze změny, web tedy jede dál na posledním známém datu.');
+    process.exit(1);
   }
 
   const existing = JSON.parse(fs.readFileSync(JSON_PATH, 'utf8'));
@@ -143,7 +161,9 @@ async function run() {
 
 // Run only when invoked directly (so tests can require + unit-test parseDate).
 if (require.main === module) {
-  run().catch(e => { console.error(e); process.exit(0); }); // exit 0 to never block CI
+  // Neočekávaná chyba taky musí být VIDĚT — dřív ji `exit 0` schoval.
+  run().catch(e => { console.error(e); process.exit(1); });
 }
 
-module.exports = { parseDate };
+// CERMAT_URLS se exportuje, aby šlo testem hlídat, že nemíří na mrtvou doménu.
+module.exports = { parseDate, CERMAT_URLS, run };
