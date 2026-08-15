@@ -15,14 +15,22 @@ const JSON_PATH = path.join(__dirname, '../../projects/cermat-date.json');
 /* CERMAT se přestěhoval z cermat.cz na cermat.gov.cz a změnil strukturu
    adres. Staré cesty vracely 404 devět týdnů po sobě, aniž by to bylo
    vidět — job totiž končil exit 0 (viz `run()` níže).
-   Nová doména je z vývojového sandboxu blokovaná, takže konkrétní cesty
-   níže NEJSOU ověřené proti živému webu. Nevadí: když žádná nezabere,
-   job teď spadne ČERVENĚ a je vidět, že je potřeba adresu opravit. */
+
+   Obě domény jsou z vývojového sandboxu blokované, takže cesty níže
+   NEJSOU ověřené proti živému webu; `prijimacky.cermat.cz` je ale
+   doložitelně živý portál k JPZ (jeho stránky jsou indexované včetně
+   aktualit s termíny), proto stojí první. Když nezabere žádná adresa,
+   job spadne ČERVENĚ — a to je ta podstatná změna oproti tichému
+   `exit 0`, který devět týdnů předstíral úspěch. */
 const CERMAT_URLS = [
+  // Živý portál k JPZ — jeho stránky jsou dohledatelné a obsahují právě
+  // aktuality typu „Termíny konání jednotné přijímací zkoušky ve šk. roce…".
+  'https://prijimacky.cermat.cz/menu/jednotna-prijimaci-zkouska',
+  'https://prijimacky.cermat.cz/aktuality',
+  'https://prijimacky.cermat.cz/',
+  // Nové sídlo hlavního webu (sem vede přesměrování ze starého cermat.cz).
   'https://cermat.gov.cz/terminy-zkousek/',
-  'https://cermat.gov.cz/prijimaci-rizeni/terminy/',
   'https://cermat.gov.cz/jednotna-prijimaci-zkouska/',
-  'https://cermat.gov.cz/terminy/',
 ];
 
 // Czech month names → month index (0-based)
