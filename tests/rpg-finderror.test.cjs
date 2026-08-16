@@ -27,6 +27,32 @@ const ok = (c, m) => { if (c) { pass++; } else { fail++; console.log('  ❌ ' + 
   await page.evaluate(() => { localStorage.clear(); const i = document.getElementById('ni'); if (i) i.value = 'TEST'; startGame(); });
   await page.waitForFunction(() => document.querySelector('#s-map')?.classList.contains('active'), { timeout: 5000 });
 
+  /* Volba se hledá podle CELÉHO zápisu, ne podle prefixu.
+     Dřív test dělal `b.textContent.includes(cur.right.slice(0, 12))`. Jenže
+     u „najdi chybu" je chybná varianta schválně skoro totožná se správnou —
+     v 9. ročníku má 8 z 63 karet (12,7 %) shodných prvních 12 znaků, a jsou
+     to zrovna ty pedagogicky nejlepší („√(c² − b²)" vs „√(c² + b²)").
+     Prefix pak sedl na OBĚ tlačítka a `find` vrátilo to první, tedy v půlce
+     případů špatné. Test proto zhruba každý pátý běh hlásil vadu produktu,
+     který je v pořádku — jednou „správná volba nepřidá kredit", jindy
+     „špatná volba nedá hlášku o chybě", podle toho, která karta padla.
+     Tlačítko má před textem pořadové číslo (1/2), to se odřízne. */
+  await page.evaluate(() => {
+    window.__pickBtn = (ov, text) => {
+      const want = String(text).trim();
+      return [...ov.querySelectorAll('#fe-opts button')]
+        .find(b => b.textContent.replace(/^\s*[12]\s*/, '').trim() === want);
+    };
+  });
+
+  // ── 0) data: správná a chybná varianta se MUSÍ lišit ──
+  const dataOk = await page.evaluate(g => {
+    const pool = RPGFindError._build(window['RPG_LEARN_' + g]);
+    const same = pool.filter(c => String(c.right).trim() === String(c.wrong).trim());
+    return { n: pool.length, same: same.length, ukazka: (same[0] || {}).right || '' };
+  }, Number(GRADE));
+  ok(dataOk.same === 0, `žádná karta nemá shodný správný a chybný zápis (${dataOk.same}× „${dataOk.ukazka}")`);
+
   // ── 1) pool z mistakes ──
   const poolLen = await page.evaluate(g => RPGFindError._build(window['RPG_LEARN_' + g]).length, Number(GRADE));
   ok(poolLen >= 40, `pool z mistakes má dost karet (${poolLen})`);
@@ -46,13 +72,14 @@ const ok = (c, m) => { if (c) { pass++; } else { fail++; console.log('  ❌ ' + 
     // najdi, která volba je správná: přečti _cur a klikni tu s .right
     const ov = document.getElementById('find-error-overlay');
     const cur = ov._cur;
-    const btns = [...ov.querySelectorAll('#fe-opts button')];
-    const correct = btns.find(b => b.textContent.includes(cur.right.slice(0, 12)));
+    const correct = window.__pickBtn(ov, cur.right);
+    if (!correct) return { nenalezeno: true, hledano: cur.right };
     correct.click();
     const rev = ov.querySelector('#fe-reveal');
     const grn = getComputedStyle(correct).borderColor;
     return { revealShown: rev.style.display === 'block', hasWhy: rev.textContent.includes(cur.why.slice(0, 10)) || !cur.why, creditUp: ((typeof RPGWallet !== 'undefined') ? RPGWallet.getCredits() : 1) > before, nextShown: ov.querySelector('#fe-next').style.display !== 'none' };
   });
+  ok(!good.nenalezeno, `správná volba se v overlayi našla (hledáno „${good.hledano || ''}")`);
   ok(good.revealShown, 'po odpovědi se ukáže reveal');
   ok(good.hasWhy, 'reveal obsahuje vysvětlení (why)');
   ok(good.creditUp, 'správná volba přidá kredit');
@@ -63,12 +90,13 @@ const ok = (c, m) => { if (c) { pass++; } else { fail++; console.log('  ❌ ' + 
     const ov = document.getElementById('find-error-overlay');
     ov.querySelector('#fe-next').click();
     const cur = ov._cur;
-    const btns = [...ov.querySelectorAll('#fe-opts button')];
-    const wrongBtn = btns.find(b => b.textContent.includes(cur.wrong.slice(0, 12)));
+    const wrongBtn = window.__pickBtn(ov, cur.wrong);
+    if (!wrongBtn) return { nenalezeno: true, hledano: cur.wrong };
     wrongBtn.click();
     const rev = ov.querySelector('#fe-reveal');
-    return { fbErr: rev.textContent.includes('Chyba'), showsRight: rev.textContent.includes(cur.right.slice(0, 10)) };
+    return { fbErr: rev.textContent.includes('Chyba'), showsRight: rev.textContent.includes(String(cur.right).trim()) };
   });
+  ok(!bad.nenalezeno, `chybná volba se v overlayi našla (hledáno „${bad.hledano || ''}")`);
   ok(bad.fbErr, 'špatná volba → hláška o chybě');
   ok(bad.showsRight, 'reveal ukáže správný zápis i při chybě');
 
@@ -79,7 +107,7 @@ const ok = (c, m) => { if (c) { pass++; } else { fail++; console.log('  ❌ ' + 
     for (let i = 0; i < 30; i++) {
       ov.querySelector('#fe-next').click();
       const cur = ov._cur;
-      const correct = [...ov.querySelectorAll('#fe-opts button')].find(b => b.textContent.includes(cur.right.slice(0, 12)));
+      const correct = window.__pickBtn(ov, cur.right);
       if (correct) correct.click();
     }
     return RPGWallet.getCredits() - before; // už bylo 1 získáno dřív → cap 10 celkem
