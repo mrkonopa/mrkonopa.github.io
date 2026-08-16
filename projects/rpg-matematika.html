@@ -23,11 +23,96 @@
 <script src="./rpg-wallet.js"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+/* ═══════════════════════════════════════════════════════════════
+   DESIGNOVÉ TOKENY (fáze 00)
+
+   Fáze 00 vzhled NEMĚNÍ — jen pojmenovává hodnoty, které na stránce
+   už jsou, aby fáze 01 nezaváděla devátý vlastní :root blok.
+   Ověřeno porovnáním screenshotů před/po (tři šířky, pixel po pixelu).
+
+   Dvě jména z balíčku se ZÁMĚRNĚ liší od návrhu, protože by v tomhle
+   souboru něco přepsala:
+
+   • `--accent` NENÍ v :root. V hubu je to per-kartová proměnná, kterou
+     každé kartě nastavuje JS (`div.style.setProperty('--accent', …)`).
+     Kdyby existovala i globálně, zdědily by ji prvky MIMO karty (např.
+     tlačítka živého souboje), kde dnes žádná není — a změnily by barvu.
+     Globální akcentová barva je proto `--accent-ui`.
+   • `--px` si drží původní `'Roboto Mono','VT323',monospace`. Návrh má
+     jen `'Roboto Mono', monospace`; VT323 je tu záložní písmo pro znaky,
+     které Roboto Mono nemá, a jeho odebrání není „beze změny vzhledu".
+
+   Zbytek (`--text`/`--muted`) zůstává pod starými jmény, protože je
+   používá celý soubor; nová jména `--fg`/`--fg-muted` na ně ukazují,
+   takže fáze 01 může psát podle návrhu.
+   ═══════════════════════════════════════════════════════════════ */
 :root{
+ /* ── plochy ── */
  --bg:#0a0d16;--panel:#131826;--panel2:#1b2233;
- --text:#e6ecf7;--muted:#7a89a8;--line:#283150;
+ --panel-dark:#0d1119;--inset:#0c1020;
+
+ /* ── linky ── */
+ --line:#283150;--line-dim:#1e2740;--line-accent:#1d3346;
+
+ /* ── text ── */
+ --text:#e6ecf7;--muted:#7a89a8;
+ --fg:var(--text);--fg-strong:#ffffff;--fg-muted:var(--muted);
+ --fg-dim:#5a6a85;--fg-faint:#6f8299;
+
+ /* ── akcenty (viz poznámka výše: --accent je per-karta, ne globální) ── */
+ --accent-ui:#19e6e6;--accent-ink:#06121a;--accent-bg:#0d1a1a;
+ --gold:#f4d03f;
+
+ /* ── staveniště ── */
+ --warn-bg:#17120a;--warn-line:#4a3d16;--warn-fg:#c9a33a;--warn-text:#b9a878;
+
+ /* ── tvar ── */
+ --r-sm:6px;--r-md:8px;--r-lg:10px;
+ --shadow:0 8px 22px #0007;
+
+ /* ── typografie ── */
  --px:'Roboto Mono','VT323',monospace;
  --vt:'VT323',monospace;
+
+ /* ═══ barvy světů — sedm světů po barevném kruhu ═══
+    accent = hlavní barva · rim = obrysové světlo postavy
+    glow = 14% nádech na pozadí karty · ramp1–4 = stínování těla */
+ --g3-accent:#6fc24a;--g3-dark:#2f5c22;--g3-light:#d8ffcf;
+ --g3-rim:#a9f08a;--g3-bg:#101f13;--g3-line:#2d4a2a;--g3-glow:#6fc24a24;
+ --g3-ramp1:#10240f;--g3-ramp2:#1e4520;--g3-ramp3:#2f6b33;--g3-ramp4:#5da85c;
+
+ --g4-accent:#4ab0e0;--g4-dark:#1c5573;--g4-light:#d6f3ff;
+ --g4-rim:#8fd9ff;--g4-bg:#0b1c32;--g4-line:#204468;--g4-glow:#4ab0e024;
+ --g4-ramp1:#0e2438;--g4-ramp2:#173e5c;--g4-ramp3:#255e85;--g4-ramp4:#4e97c4;
+
+ --g5-accent:#e0584a;--g5-dark:#6e2019;--g5-light:#ffd9d3;
+ --g5-rim:#ff9a86;--g5-bg:#200e10;--g5-line:#4c2422;--g5-glow:#e0584a24;
+ --g5-ramp1:#2b1013;--g5-ramp2:#4d1f22;--g5-ramp3:#743430;--g5-ramp4:#ad6252;
+
+ --g6-accent:#5dc8f0;--g6-dark:#1d5d77;--g6-light:#dff5ff;
+ --g6-rim:#9adcff;--g6-bg:#151244;--g6-line:#302f74;--g6-glow:#5dc8f024;
+ --g6-ramp1:#141c40;--g6-ramp2:#243070;--g6-ramp3:#3a4d9e;--g6-ramp4:#6f89d8;
+
+ --g7-accent:#f2c14e;--g7-dark:#7a5a12;--g7-light:#fff2cf;
+ --g7-rim:#ffd98a;--g7-bg:#1d1509;--g7-line:#4d3a18;--g7-glow:#f2c14e24;
+ --g7-ramp1:#2b1d0c;--g7-ramp2:#4c3419;--g7-ramp3:#715228;--g7-ramp4:#ab834a;
+
+ /* 8. ročník: v návrhu FIALOVÁ místo dřívější zlaté — vedle azurové
+    devítky si byly zlatá a azurová příliš podobné a Akademie splývala.
+    Kdyby se Vojta vrátil ke zlaté:
+    #f4d03f / #7a6410 / #fff6cf / #ffe488 / #0d1117 / #2f2c1b */
+ --g8-accent:#b39ddb;--g8-dark:#4b3b78;--g8-light:#f0e8ff;
+ --g8-rim:#d3c2f5;--g8-bg:#171040;--g8-line:#332a66;--g8-glow:#b39ddb24;
+ --g8-ramp1:#1c1440;--g8-ramp2:#302566;--g8-ramp3:#4b3c94;--g8-ramp4:#7d6dc7;
+
+ --g9-accent:#19e6e6;--g9-dark:#0e8a8a;--g9-light:#d7ffff;
+ --g9-rim:#7fe9ff;--g9-bg:#05161c;--g9-line:#12454f;--g9-glow:#19e6e624;
+ --g9-ramp1:#082029;--g9-ramp2:#0f3a48;--g9-ramp3:#175a6b;--g9-ramp4:#2f92a4;
+
+ /* ── sdílené barvy postav (nezávislé na světě) ── */
+ --sp-outline:#05070c;--sp-boot-dark:#3d465e;--sp-boot-lite:#8b98b5;
+ --sp-blade:#eef4ff;--sp-blade-dark:#93a1bd;
+ --sp-gold:#f4d03f;--sp-gold-dark:#9a7a12;
 }
 body{background:var(--bg);color:var(--text);font-family:var(--px);min-height:100vh;font-size:16px;overflow-x:hidden}
 body::before{
@@ -48,24 +133,24 @@ body::before{
 .head .glyph{font-size:48px;display:inline-block;animation:float 3s ease-in-out infinite;will-change:transform;backface-visibility:hidden;transform:translateZ(0)}
 @keyframes float{0%,100%{transform:translate3d(0,0,0)}50%{transform:translate3d(0,-7px,0)}}
 .head h1{font-weight:700;font-size:30px;letter-spacing:3px;margin:6px 0 4px;
- background:linear-gradient(90deg,#5dc8f0,#f4d03f,#19e6e6);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+ background:linear-gradient(90deg,#5dc8f0,var(--gold),var(--accent-ui));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
 .head .sub{font-family:var(--vt);font-size:22px;color:var(--muted);letter-spacing:1px}
 /* ── staveniště: výstražné pruhy (ploty) po stranách + majáky ── */
 .constr-side{display:none}
 .constr-side.l{left:0}.constr-side.r{right:0}
 @media(max-width:1072px){.constr-side{display:none}}
-.constr-zone{position:relative;border:1px solid #4a3d16;border-radius:10px;background:#17120a99;padding:13px 16px;margin:10px auto 4px;max-width:560px;overflow:hidden}
-.constr-zone::before{content:'';position:absolute;left:0;right:0;top:0;height:3px;background:repeating-linear-gradient(45deg,#c9a33a 0 8px,#171208 8px 16px);opacity:.7}
+.constr-zone{position:relative;border:1px solid var(--warn-line);border-radius:var(--r-lg);background:#17120a99;padding:13px 16px;margin:10px auto 4px;max-width:560px;overflow:hidden}
+.constr-zone::before{content:'';position:absolute;left:0;right:0;top:0;height:3px;background:repeating-linear-gradient(45deg,var(--warn-fg) 0 8px,#171208 8px 16px);opacity:.7}
 
 .constr-head{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:8px}
-.constr-head .ct{font-family:var(--px);font-weight:700;font-size:11px;letter-spacing:1.5px;color:#c9a33a}
-.beacon{width:7px;height:7px;border-radius:50%;background:#c9a33a;flex:none;opacity:.8}
+.constr-head .ct{font-family:var(--px);font-weight:700;font-size:11px;letter-spacing:1.5px;color:var(--warn-fg)}
+.beacon{width:7px;height:7px;border-radius:50%;background:var(--warn-fg);flex:none;opacity:.8}
 .beacon.d{animation-delay:.55s}
 @keyframes beacon{0%,100%{opacity:.25;box-shadow:0 0 4px 1px #ff8c1a}50%{opacity:1;box-shadow:0 0 13px 4px #ffb04d}}
-.constr-msg{font-size:12.5px;color:#b9a878;line-height:1.55;text-align:center}
-.constr-msg a{color:#19e6e6;font-weight:700;text-decoration:none;border-bottom:1px dashed #19e6e6;cursor:pointer}
+.constr-msg{font-size:12.5px;color:var(--warn-text);line-height:1.55;text-align:center}
+.constr-msg a{color:var(--accent-ui);font-weight:700;text-decoration:none;border-bottom:1px dashed var(--accent-ui);cursor:pointer}
 /* student bar */
-.student{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:14px 16px;margin:18px 0;display:flex;flex-wrap:wrap;gap:14px;align-items:center;justify-content:space-between}
+.student{background:var(--panel);border:1px solid var(--line);border-radius:var(--r-md);padding:14px 16px;margin:18px 0;display:flex;flex-wrap:wrap;gap:14px;align-items:center;justify-content:space-between}
 .student .who{font-size:14px;color:var(--muted)}
 .student .who b{color:var(--text);font-size:16px}
 .stat-strip{display:flex;gap:20px;flex-wrap:wrap}
@@ -75,7 +160,7 @@ body::before{
 /* grid */
 .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-top:8px}
 @media(max-width:680px){.grid{grid-template-columns:1fr}}
-.card{position:relative;background:var(--gbg,var(--panel));border:1px solid var(--accent,#333);border-radius:10px;padding:18px;overflow:hidden;
+.card{position:relative;background:var(--gbg,var(--panel));border:1px solid var(--accent,#333);border-radius:var(--r-lg);padding:18px;overflow:hidden;
  box-shadow:0 0 0 1px #0004 inset,0 6px 18px #0006}
 .card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--accent)}
 .card .ctop{display:flex;align-items:center;gap:12px;margin-bottom:12px}
@@ -93,84 +178,84 @@ body::before{
 .attrs .a b{color:#fff}
 .prog{margin:10px 0 6px}
 .prog .pl{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:4px;letter-spacing:.5px}
-.bar{height:9px;background:#0006;border:1px solid var(--accent);border-radius:6px;overflow:hidden}
+.bar{height:9px;background:#0006;border:1px solid var(--accent);border-radius:var(--r-sm);overflow:hidden}
 .bar > i{display:block;height:100%;background:var(--accent);width:0;transition:width .8s ease;box-shadow:0 0 8px var(--accent)}
 .arts{font-size:12px;color:var(--muted);margin-top:4px}
 .empty{font-family:var(--vt);font-size:19px;color:var(--muted);padding:10px 0 14px;letter-spacing:1px}
 .cbtns{display:flex;gap:8px;margin-top:12px}
 .btn{flex:1;text-align:center;text-decoration:none;font-family:var(--px);font-weight:700;font-size:13px;letter-spacing:1px;
- padding:11px 10px;border-radius:6px;cursor:pointer;border:2px solid var(--accent);background:var(--accent);color:#0a0d16;transition:.15s}
+ padding:11px 10px;border-radius:var(--r-sm);cursor:pointer;border:2px solid var(--accent);background:var(--accent);color:#0a0d16;transition:.15s}
 .btn:hover{filter:brightness(1.12)}
 .btn.ghost{background:transparent;color:var(--accent);flex:0 0 auto;padding:11px 12px}
 .btn.ghost:hover{background:var(--accent);color:#0a0d16}
-.note{margin-top:26px;background:var(--panel);border:1px dashed var(--line);border-radius:8px;padding:16px 18px;font-size:13px;color:var(--muted);line-height:1.6}
+.note{margin-top:26px;background:var(--panel);border:1px dashed var(--line);border-radius:var(--r-md);padding:16px 18px;font-size:13px;color:var(--muted);line-height:1.6}
 .note b{color:var(--text)}
 .note .tag{display:inline-block;font-size:11px;color:var(--bg);background:var(--muted);padding:2px 7px;border-radius:4px;font-weight:700;letter-spacing:1px;margin-right:6px}
 /* ── GLOBÁLNÍ PROFIL ── */
-.gprofile{background:linear-gradient(135deg,#131826,#10131f);border:1px solid #2a3658;border-radius:10px;padding:18px;margin:18px 0;position:relative;overflow:hidden}
-.gprofile::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#5dc8f0,#f4d03f,#19e6e6)}
+.gprofile{background:linear-gradient(135deg,#131826,#10131f);border:1px solid #2a3658;border-radius:var(--r-lg);padding:18px;margin:18px 0;position:relative;overflow:hidden}
+.gprofile::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#5dc8f0,var(--gold),var(--accent-ui))}
 .gp-row{display:flex;flex-wrap:wrap;gap:18px;align-items:center;justify-content:space-between}
 .gp-id{display:flex;align-items:center;gap:14px}
 .gp-av{font-size:46px;line-height:1}
 .gp-av.av-silver{filter:drop-shadow(0 0 7px silver)}
 .gp-av.av-cyan{filter:drop-shadow(0 0 9px #4d9fff) drop-shadow(0 0 3px #4d9fff)}
-.gp-av.av-gold{filter:drop-shadow(0 0 9px #f4d03f) drop-shadow(0 0 3px #f4d03f)}
+.gp-av.av-gold{filter:drop-shadow(0 0 9px var(--gold)) drop-shadow(0 0 3px var(--gold))}
 .gp-av.av-holo{animation:holo 2.5s linear infinite}
-@keyframes holo{0%{filter:drop-shadow(0 0 8px #f4d03f)}25%{filter:drop-shadow(0 0 8px #4d9fff)}50%{filter:drop-shadow(0 0 8px #ff6090)}75%{filter:drop-shadow(0 0 8px #39ff9e)}100%{filter:drop-shadow(0 0 8px #f4d03f)}}
+@keyframes holo{0%{filter:drop-shadow(0 0 8px var(--gold))}25%{filter:drop-shadow(0 0 8px #4d9fff)}50%{filter:drop-shadow(0 0 8px #ff6090)}75%{filter:drop-shadow(0 0 8px #39ff9e)}100%{filter:drop-shadow(0 0 8px var(--gold))}}
 .gp-name{font-weight:700;font-size:18px;color:#fff;letter-spacing:1px}
-.gp-name.nm-cyan{color:#4d9fff}.gp-name.nm-gold{color:#f4d03f}.gp-name.nm-green{color:#39ff9e}.gp-name.nm-purple{color:#b06cff}
+.gp-name.nm-cyan{color:#4d9fff}.gp-name.nm-gold{color:var(--gold)}.gp-name.nm-green{color:#39ff9e}.gp-name.nm-purple{color:#b06cff}
 .gp-sub{font-size:12px;color:var(--muted);margin-top:3px}
 .gp-credits{text-align:center}
-.gp-credits .v{font-weight:700;font-size:26px;color:#f4d03f}
+.gp-credits .v{font-weight:700;font-size:26px;color:var(--gold)}
 .gp-credits .l{font-size:11px;color:var(--muted);letter-spacing:1px;text-transform:uppercase}
 .gp-attrs{display:flex;gap:16px;flex-wrap:wrap;margin-top:14px;padding-top:14px;border-top:1px solid var(--line)}
 .gp-attrs .a{font-size:13px;color:var(--muted)}
 .gp-attrs .a b{color:#fff;font-size:15px}
 .gp-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;align-items:center}
-.gp-btn{font-family:var(--px);font-weight:700;font-size:12px;letter-spacing:1px;padding:9px 14px;border-radius:6px;cursor:pointer;border:1px solid #2a3658;background:var(--panel2);color:var(--text);transition:.15s}
+.gp-btn{font-family:var(--px);font-weight:700;font-size:12px;letter-spacing:1px;padding:9px 14px;border-radius:var(--r-sm);cursor:pointer;border:1px solid #2a3658;background:var(--panel2);color:var(--text);transition:.15s}
 .gp-btn:hover{border-color:var(--muted)}
-.gp-btn.on{background:#f4d03f;color:#0a0d16;border-color:#f4d03f}
+.gp-btn.on{background:var(--gold);color:#0a0d16;border-color:var(--gold)}
 .gp-vfx{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--muted);margin-left:auto;cursor:pointer;user-select:none}
-.gp-vfx input{width:16px;height:16px;accent-color:#19e6e6;cursor:pointer}
+.gp-vfx input{width:16px;height:16px;accent-color:var(--accent-ui);cursor:pointer}
 .gp-gach-fold{margin-top:14px;border-top:1px solid var(--line);padding-top:10px}
 .gp-gach-fold summary{font-family:var(--px);font-size:12px;color:var(--text);letter-spacing:1px;cursor:pointer;list-style:none;display:flex;align-items:center;gap:6px;padding:4px 0;user-select:none}
 .gp-gach-fold summary::-webkit-details-marker{display:none}
 .gp-gach-fold summary::before{content:'▸';color:var(--muted);transition:transform .15s;font-size:11px}
 .gp-gach-fold[open] summary::before{transform:rotate(90deg)}
-.gp-gach-fold summary:hover{color:#f4d03f}
+.gp-gach-fold summary:hover{color:var(--gold)}
 .gp-gach-hint{font-size:10px;color:var(--muted);font-weight:400;letter-spacing:0}
 .gp-gach-fold #gp-gach{margin-top:10px}
 .ach-grid{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
 .ach-grid .ab{width:34px;height:34px;display:flex;align-items:center;justify-content:center;background:var(--panel2);border:1px solid var(--line);border-radius:7px;color:#3a4560}
-.ach-grid .ab.on{color:#f4d03f;border-color:#f4d03f;box-shadow:0 0 8px #f4d03f55}
+.ach-grid .ab.on{color:var(--gold);border-color:var(--gold);box-shadow:0 0 8px #f4d03f55}
 /* ── SDÍLENÝ OBCHOD ── */
-.shop{margin-top:14px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px;display:none}
+.shop{margin-top:14px;background:var(--panel);border:1px solid var(--line);border-radius:var(--r-lg);padding:16px;display:none}
 .shop.open{display:block}
 .shop-h{font-weight:700;font-size:14px;color:#fff;letter-spacing:1px;margin-bottom:4px}
 .shop-tabs{display:flex;gap:6px;flex-wrap:wrap;margin:12px 0}
 .shop-tab{font-family:var(--px);font-size:12px;background:var(--panel2);color:var(--muted);border:1px solid var(--line);padding:6px 11px;cursor:pointer;border-radius:5px}
-.shop-tab.on{background:#19e6e6;color:#06121a;border-color:#19e6e6;font-weight:700}
+.shop-tab.on{background:var(--accent-ui);color:var(--accent-ink);border-color:var(--accent-ui);font-weight:700}
 .shop-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
-.sc{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:12px;text-align:center}
+.sc{background:var(--panel2);border:1px solid var(--line);border-radius:var(--r-md);padding:12px;text-align:center}
 .sc.owned{border-color:#39ff9e66}
-.sc.active{border-color:#f4d03f;background:#1a1604}
+.sc.active{border-color:var(--gold);background:#1a1604}
 .sc .ic{font-size:30px;margin-bottom:5px}
 .sc .nm{font-size:12px;color:#fff;margin-bottom:5px;min-height:30px;display:flex;align-items:center;justify-content:center}
 .sc .pr{font-size:11px;color:var(--muted);margin-bottom:8px}
 .sc button{font-family:var(--px);font-weight:700;font-size:11px;letter-spacing:.5px;padding:7px 10px;border-radius:5px;cursor:pointer;width:100%;border:1px solid #2a3658;background:var(--panel);color:var(--text)}
-.sc button.buy{background:#19e6e6;color:#06121a;border-color:#19e6e6}
+.sc button.buy{background:var(--accent-ui);color:var(--accent-ink);border-color:var(--accent-ui)}
 .sc button:disabled{opacity:.4;cursor:not-allowed}
-.sc .act{font-size:11px;color:#f4d03f;font-weight:700;letter-spacing:1px;padding:7px 0}
-.sc button.off{background:transparent;border-color:#f4d03f;color:#f4d03f}
-.sc button.off:hover{background:#f4d03f;color:#06121a}
+.sc .act{font-size:11px;color:var(--gold);font-weight:700;letter-spacing:1px;padding:7px 0}
+.sc button.off{background:transparent;border-color:var(--gold);color:var(--gold)}
+.sc button.off:hover{background:var(--gold);color:var(--accent-ink)}
 /* přístupnost: vypnout veškerý pohyb */
 .reduced-motion *,.reduced-motion *::before,.reduced-motion *::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
 /* mobil: dotykové plochy tlačítek na ≥44px */
 @media(pointer:coarse){.btn,.gp-btn,.fb-send{display:inline-flex;align-items:center;justify-content:center;min-height:44px}}
 .stupen-switch{display:flex;gap:8px;justify-content:center;margin:20px 0 4px;flex-wrap:wrap}
 .ss-btn{font-family:inherit;font-weight:700;font-size:13px;letter-spacing:.5px;padding:11px 20px;border-radius:9px;cursor:pointer;border:2px solid var(--line);background:var(--panel);color:var(--muted);transition:all .15s}
-.ss-btn.on{border-color:#19e6e6;color:#19e6e6;background:#0d1a1a;box-shadow:0 0 12px #19e6e633}
-.ss-btn:hover{border-color:#19e6e6;color:#fff}
+.ss-btn.on{border-color:var(--accent-ui);color:var(--accent-ui);background:var(--accent-bg);box-shadow:0 0 12px #19e6e633}
+.ss-btn:hover{border-color:var(--accent-ui);color:#fff}
 @media(pointer:coarse){.ss-btn{min-height:44px}}
 </style>
 </head>
@@ -181,7 +266,7 @@ body::before{
  <div class="topnav">
   <a href="./">← zpět na projekty</a>
   <span style="display:flex;gap:10px">
-   <a id="teacher-link" href="rpg-ucitel.html" style="display:none;color:#19e6e6;border-color:#19e6e6">🎓 učitelská konzole</a>
+   <a id="teacher-link" href="rpg-ucitel.html" style="display:none;color:var(--accent-ui);border-color:var(--accent-ui)">🎓 učitelská konzole</a>
    <a href="#" onclick="resetAll();return false;">🗑 vymazat vše z tohoto zařízení</a>
   </span>
  </div>
@@ -230,7 +315,7 @@ body::before{
      </div>
      <div id="gp-rename" style="display:none;margin-top:4px">
       <input id="gp-rename-in" aria-label="Nové jméno postavy" maxlength="14" style="width:120px;background:#111;border:1px solid #555;color:#fff;padding:3px 6px;border-radius:4px;font-size:14px;text-transform:uppercase">
-      <button onclick="saveHeroRename()" style="background:#f4d03f;border:none;color:#0a0d16;padding:3px 10px;border-radius:4px;cursor:pointer;font-size:12px;font-weight:700;margin-left:4px">OK</button>
+      <button onclick="saveHeroRename()" style="background:var(--gold);border:none;color:#0a0d16;padding:3px 10px;border-radius:4px;cursor:pointer;font-size:12px;font-weight:700;margin-left:4px">OK</button>
       <button onclick="cancelHeroRename()" style="background:#2a3350;border:1px solid #4a5578;color:#e6ecf7;padding:3px 8px;border-radius:4px;cursor:pointer;font-size:12px;margin-left:2px">✕</button>
      </div>
      <div class="gp-sub">Tvůj společný profil pro všechny hry</div>
@@ -288,26 +373,26 @@ body::before{
 
  <!-- ══ ZPĚTNÁ VAZBA ══ -->
  <div id="hub-feedback" style="margin-top:28px">
-  <div style="background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:18px">
-   <div style="font-weight:700;font-size:14px;color:#19e6e6;letter-spacing:1px;margin-bottom:6px">💬 NÁPAD NEBO ZPĚTNÁ VAZBA</div>
+  <div style="background:var(--panel);border:1px solid var(--line);border-radius:var(--r-lg);padding:18px">
+   <div style="font-weight:700;font-size:14px;color:var(--accent-ui);letter-spacing:1px;margin-bottom:6px">💬 NÁPAD NEBO ZPĚTNÁ VAZBA</div>
    <div style="font-size:13px;color:var(--muted);margin-bottom:12px">Napiš mi, co by se ti ve hrách líbilo, co nefunguje, nebo co tě zaujalo. Přečtu každý vzkaz.</div>
    <textarea id="fb-body" aria-label="Tvůj nápad nebo připomínka" rows="3" placeholder="Sem napiš svůj nápad nebo připomínku…"
-    style="width:100%;padding:10px 12px;border-radius:7px;border:1px solid var(--line);background:#0c1020;color:var(--text);
+    style="width:100%;padding:10px 12px;border-radius:7px;border:1px solid var(--line);background:var(--inset);color:var(--text);
            font-family:inherit;font-size:14px;resize:vertical;box-sizing:border-box"></textarea>
    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;flex-wrap:wrap;gap:8px">
     <span id="fb-status" style="font-size:12px;color:var(--muted)"></span>
     <button onclick="submitFeedback()" class="fb-send"
-     style="font-family:inherit;font-weight:700;font-size:13px;padding:9px 18px;border-radius:6px;cursor:pointer;
-            border:2px solid #19e6e6;background:#19e6e6;color:#06101e">Odeslat</button>
+     style="font-family:inherit;font-weight:700;font-size:13px;padding:9px 18px;border-radius:var(--r-sm);cursor:pointer;
+            border:2px solid var(--accent-ui);background:var(--accent-ui);color:#06101e">Odeslat</button>
    </div>
   </div>
  </div>
 
  <!-- ══ ŽIVÝ SOUBOJ ══ -->
  <div id="hub-battle" style="display:none;margin-top:20px">
-  <div style="background:linear-gradient(135deg,#0d1a1a,#081418);border:1px solid #19e6e6;border-radius:10px;padding:18px;position:relative;overflow:hidden">
-   <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#19e6e6,#5dc8f0)"></div>
-   <div style="font-weight:700;font-size:16px;color:#19e6e6;letter-spacing:2px;margin-bottom:6px">⚔️ ŽIVÝ SOUBOJ</div>
+  <div style="background:linear-gradient(135deg,var(--accent-bg),#081418);border:1px solid var(--accent-ui);border-radius:var(--r-lg);padding:18px;position:relative;overflow:hidden">
+   <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--accent-ui),#5dc8f0)"></div>
+   <div style="font-weight:700;font-size:16px;color:var(--accent-ui);letter-spacing:2px;margin-bottom:6px">⚔️ ŽIVÝ SOUBOJ</div>
    <div style="font-size:13px;color:var(--muted);margin-bottom:14px">Vyber ročníky, z nichž budou otázky. Pak založ nebo se připoj.</div>
    <div class="hb-grade-group" data-st="1" style="display:none;gap:16px;flex-wrap:wrap;margin-bottom:16px">
     <label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-size:14px;color:var(--text)"><input type="checkbox" class="hb-grade" value="3" style="width:16px;height:16px;accent-color:#6fc24a"> 🌳 3. roč.</label>
@@ -317,11 +402,11 @@ body::before{
    <div class="hb-grade-group" data-st="2" style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:16px">
     <label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-size:14px;color:var(--text)"><input type="checkbox" class="hb-grade" value="6" style="width:16px;height:16px;accent-color:#5dc8f0"> 🚀 6. roč.</label>
     <label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-size:14px;color:var(--text)"><input type="checkbox" class="hb-grade" value="7" style="width:16px;height:16px;accent-color:#f2c14e"> ⛏️ 7. roč.</label>
-    <label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-size:14px;color:var(--text)"><input type="checkbox" class="hb-grade" value="8" style="width:16px;height:16px;accent-color:#f4d03f"> 🎓 8. roč.</label>
-    <label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-size:14px;color:var(--text)"><input type="checkbox" class="hb-grade" value="9" style="width:16px;height:16px;accent-color:#19e6e6" checked> 💻 9. roč.</label>
+    <label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-size:14px;color:var(--text)"><input type="checkbox" class="hb-grade" value="8" style="width:16px;height:16px;accent-color:var(--gold)"> 🎓 8. roč.</label>
+    <label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-size:14px;color:var(--text)"><input type="checkbox" class="hb-grade" value="9" style="width:16px;height:16px;accent-color:var(--accent-ui)" checked> 💻 9. roč.</label>
    </div>
    <div style="display:flex;gap:8px;flex-wrap:wrap">
-    <button onclick="openHubBattle('host')" class="btn" style="flex:0 0 auto;background:transparent;color:#19e6e6;border-color:#19e6e6;font-size:13px;padding:10px 16px">🎮 Založit souboj</button>
+    <button onclick="openHubBattle('host')" class="btn" style="flex:0 0 auto;background:transparent;color:var(--accent-ui);border-color:var(--accent-ui);font-size:13px;padding:10px 16px">🎮 Založit souboj</button>
     <button onclick="openHubBattle('join')" class="btn ghost" style="flex:0 0 auto;font-size:13px;padding:10px 16px">🔑 Připojit se kódem</button>
    </div>
   </div>
@@ -336,8 +421,8 @@ const GAMES=[
  {key:'RPG_MAT_5',file:'rpg-mat-5.html',emoji:'🐉',nm:'DRAČÍ ŘÍŠE',gr:'5. ročník',accent:'#e0584a',gbg:'#1a0c0e',st:1},
  {key:'RPG_MAT_6',file:'rpg-mat-6.html',emoji:'🚀',nm:'VESMÍRNÁ EXPEDICE',gr:'6. ročník',accent:'#5dc8f0',gbg:'#141038',st:2},
  {key:'RPG_MAT_7',file:'rpg-mat-7.html',emoji:'⛏️',nm:'ZTRACENÝ CHRÁM',gr:'7. ročník',accent:'#f2c14e',gbg:'#17110a',st:2},
- {key:'RPG_MAT_8',file:'rpg-mat-8.html',emoji:'🎓',nm:'MATEMATICKÁ AKADEMIE',gr:'8. ročník',accent:'#f4d03f',gbg:'#0d1117',st:2},
- {key:'RPG_MAT_9',file:'rpg-mat-9.html',emoji:'💻',nm:'NULL_BYTE',gr:'9. ročník',accent:'#19e6e6',gbg:'#080b14',st:2},
+ {key:'RPG_MAT_8',file:'rpg-mat-8.html',emoji:'🎓',nm:'MATEMATICKÁ AKADEMIE',gr:'8. ročník',accent:'var(--gold)',gbg:'#0d1117',st:2},
+ {key:'RPG_MAT_9',file:'rpg-mat-9.html',emoji:'💻',nm:'NULL_BYTE',gr:'9. ročník',accent:'var(--accent-ui)',gbg:'#080b14',st:2},
 ];
 function setStupen(n){
  _stupen=n; try{localStorage.setItem('RPG_HUB_STUPEN',String(n));}catch(e){}
@@ -400,7 +485,7 @@ function render(){
    <div class="ctitle"><div class="nm">${g.nm}</div><div class="gr">${g.gr}</div></div>
    <span class="badge">${S?'ROZEHRÁNO':'NOVÉ'}</span></div>
    ${body}<div class="cbtns">${btns}</div>
-   <div id="lb-${g.key}" style="display:none;margin-top:8px;padding:8px 10px;background:#0a0d14;border:1px solid #222;border-radius:8px;font-size:12px"></div>`;
+   <div id="lb-${g.key}" style="display:none;margin-top:8px;padding:8px 10px;background:#0a0d14;border:1px solid #222;border-radius:var(--r-md);font-size:12px"></div>`;
   grid.appendChild(div);
  });
  document.getElementById('started').textContent=started;
