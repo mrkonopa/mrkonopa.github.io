@@ -340,7 +340,6 @@ body::before{
     <div style="min-width:0">
      <div style="display:flex;align-items:center;gap:8px">
       <div class="gp-name" id="gp-name">TY</div>
-      <button id="gp-edit-btn" onclick="startHeroRename()" title="Přejmenovat hrdinu" style="background:none;border:none;cursor:pointer;font-size:13px;color:var(--muted);padding:0 4px;display:none">✏️</button>
      </div>
      <div id="gp-rename" style="display:none;margin-top:4px">
       <input id="gp-rename-in" aria-label="Nové jméno postavy" maxlength="14" style="width:120px;background:#111;border:1px solid #555;color:#fff;padding:3px 6px;border-radius:4px;font-size:14px;text-transform:uppercase">
@@ -752,8 +751,10 @@ function renderGlobalProfile(){
  maybeShowEditBtn();
 }
 function maybeShowEditBtn(){
+ // Dřív to byla tužtička u jména (24×15 px — moc malá, zvlášť prstem).
+ // Teď je to plnohodnotné tlačítko v řadě akcí, jak chce návrh.
  const hasAny=GAMES.some(g=>{try{return!!localStorage.getItem(g.key);}catch{return false;}});
- const btn=document.getElementById('gp-edit-btn');
+ const btn=document.getElementById('gp-rename-btn');
  if(btn)btn.style.display=hasAny?'':'none';
 }
 
@@ -766,13 +767,13 @@ function startHeroRename(){
   const nameEl=document.getElementById('gp-name');
   const ri=document.getElementById('gp-rename-in');
   if(ri)ri.value=nameEl.textContent!=='TY'?nameEl.textContent:'';
-  document.getElementById('gp-edit-btn').style.display='none';
+  const rb=document.getElementById('gp-rename-btn'); if(rb)rb.style.display='none';
   document.getElementById('gp-rename').style.display='block';
   if(ri){ri.focus();ri.select();}
 }
 function cancelHeroRename(){
   document.getElementById('gp-rename').style.display='none';
-  document.getElementById('gp-edit-btn').style.display='';
+  const rb=document.getElementById('gp-rename-btn'); if(rb)rb.style.display='';
 }
 async function saveHeroRename(){
   const ri=document.getElementById('gp-rename-in');
