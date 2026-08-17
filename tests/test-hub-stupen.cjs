@@ -12,17 +12,19 @@ const sleep=ms=>new Promise(r=>setTimeout(r,ms));
   const browser=await chromium.launch({executablePath:EXEC});
   const page=await(await browser.newContext({viewport:{width:900,height:1000}})).newPage();
   const jsErrs=[];page.on('pageerror',e=>jsErrs.push(e.message));
+  /* Pozn.: ročník karty se od fáze 01 čte z `.badge` vedle názvu — `.gr`
+     je nově podtitulek světa („poměry, procenta, trojúhelníky"). */
   console.log('\n━━ hub 1./2. stupeň switch ━━');
   await page.goto(base+'/projects/rpg-matematika.html',{waitUntil:'load'});
   await sleep(1500);
   ok(jsErrs.length===0,'no JS errors at load ('+jsErrs.join(';')+')');
   // default stupeň = 2 → cards are grades 6-9
-  let cards=await page.evaluate(()=>Array.from(document.querySelectorAll('#grid .card .gr')).map(e=>e.textContent));
-  ok(cards.length===4&&cards.every(c=>['6. ročník','7. ročník','8. ročník','9. ročník'].includes(c)),'default shows 2. stupeň (6-9): '+cards.join(','));
+  let cards=await page.evaluate(()=>Array.from(document.querySelectorAll('#grid .card .badge')).map(e=>e.textContent));
+  ok(cards.length===4&&cards.every(c=>['6. ROČNÍK','7. ROČNÍK','8. ROČNÍK','9. ROČNÍK'].includes(c)),'default shows 2. stupeň (6-9): '+cards.join(','));
   // switch to 1. stupeň
   await page.click('#st-1');await sleep(400);
-  cards=await page.evaluate(()=>Array.from(document.querySelectorAll('#grid .card .gr')).map(e=>e.textContent));
-  ok(cards.length===3&&cards.every(c=>['3. ročník','4. ročník','5. ročník'].includes(c)),'1. stupeň shows 3-5: '+cards.join(','));
+  cards=await page.evaluate(()=>Array.from(document.querySelectorAll('#grid .card .badge')).map(e=>e.textContent));
+  ok(cards.length===3&&cards.every(c=>['3. ROČNÍK','4. ROČNÍK','5. ROČNÍK'].includes(c)),'1. stupeň shows 3-5: '+cards.join(','));
   // active button state
   const st1on=await page.evaluate(()=>document.getElementById('st-1').classList.contains('on'));
   ok(st1on,'st-1 button is active after click');
@@ -31,12 +33,12 @@ const sleep=ms=>new Promise(r=>setTimeout(r,ms));
   ok(grpVis.one!=='none'&&grpVis.two==='none','battle grade group switched to 1. stupeň (3-5 visible, 6-9 hidden)');
   // persistence: reload keeps stupeň 1
   await page.reload({waitUntil:'load'});await sleep(1200);
-  cards=await page.evaluate(()=>Array.from(document.querySelectorAll('#grid .card .gr')).map(e=>e.textContent));
-  ok(cards.length===3&&cards.includes('3. ročník'),'stupeň choice persists across reload: '+cards.join(','));
+  cards=await page.evaluate(()=>Array.from(document.querySelectorAll('#grid .card .badge')).map(e=>e.textContent));
+  ok(cards.length===3&&cards.includes('3. ROČNÍK'),'stupeň choice persists across reload: '+cards.join(','));
   // switch back to 2
   await page.click('#st-2');await sleep(400);
-  cards=await page.evaluate(()=>Array.from(document.querySelectorAll('#grid .card .gr')).map(e=>e.textContent));
-  ok(cards.length===4&&cards.includes('9. ročník'),'switch back to 2. stupeň works: '+cards.join(','));
+  cards=await page.evaluate(()=>Array.from(document.querySelectorAll('#grid .card .badge')).map(e=>e.textContent));
+  ok(cards.length===4&&cards.includes('9. ROČNÍK'),'switch back to 2. stupeň works: '+cards.join(','));
   // links resolve to the right files
   const hrefs=await page.evaluate(()=>Array.from(document.querySelectorAll('#grid .card a.btn')).map(a=>a.getAttribute('href')));
   ok(hrefs.some(h=>h&&h.includes('rpg-mat-6.html')),'cards link to game files');
