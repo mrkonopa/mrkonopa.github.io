@@ -300,12 +300,69 @@ body::before{
 /* přístupnost: vypnout veškerý pohyb */
 .reduced-motion *,.reduced-motion *::before,.reduced-motion *::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
 /* mobil: dotykové plochy tlačítek na ≥44px */
-@media(pointer:coarse){.btn,.gp-btn,.fb-send{display:inline-flex;align-items:center;justify-content:center;min-height:44px}}
+/* Na dotykovém zařízení musí být cíl aspoň 44 px vysoký. Dřív pravidlo
+   pokrývalo jen tlačítka; horní odkazy (31 px), přepínač efektů (18 px)
+   a zaškrtávátka ročníků u souboje (17 px) zůstávaly moc malé. */
+@media(pointer:coarse){
+ .btn,.gp-btn,.fb-send{display:inline-flex;align-items:center;justify-content:center;min-height:44px}
+ .topnav a{display:flex;align-items:center;justify-content:center;min-height:44px}
+ .gp-vfx{min-height:44px}
+ .hb-grade-group label{min-height:44px;display:flex;align-items:center}
+}
 .stupen-switch{display:flex;gap:8px;justify-content:center;margin:20px 0 4px;flex-wrap:wrap}
 .ss-btn{font-family:inherit;font-weight:700;font-size:13px;letter-spacing:.5px;padding:11px 20px;border-radius:9px;cursor:pointer;border:2px solid var(--line);background:var(--panel);color:var(--muted);transition:all .15s}
 .ss-btn.on{border-color:var(--accent-ui);color:var(--accent-ui);background:var(--accent-bg);box-shadow:0 0 12px #19e6e633}
 .ss-btn:hover{border-color:var(--accent-ui);color:#fff}
 @media(pointer:coarse){.ss-btn{min-height:44px}}
+
+/* ══ MOBIL ═══════════════════════════════════════════════════════════
+   Na úzkém displeji nestačí nechat věci zalomit — z pěti čísel vznikne
+   ragged 3+2, ze čtyř atributů 3+1 a z odznaků 12+3 s počtem na dalším
+   řádku. Vypadá to jako rozsypaný čaj. Proto se tu z flexů stávají
+   MŘÍŽKY s pevným počtem sloupců: čísla pak stojí pod sebou v zákrytu
+   a řádky mají stejnou výšku. */
+@media(max-width:560px){
+ /* horní navigace: dva plné řádky místo ragged zalomení */
+ .topnav{flex-direction:column;align-items:stretch;gap:8px}
+ .topnav > span{display:flex;gap:8px}
+ .topnav a{text-align:center;flex:1}
+
+ .head{gap:12px;padding:2px 0 18px}
+
+ .gprofile{padding:14px}
+ .gp-row{gap:14px}
+ .gp-id{width:100%;min-width:0}
+ /* pět čísel: 3 + 2 v zákrytu, ne ragged wrap */
+ .gp-sum{display:grid;grid-template-columns:repeat(3,1fr);gap:12px 6px;width:100%}
+ .gp-sum .s .v{font-size:19px}
+ .gp-sum .s .l{font-size:9px;letter-spacing:1px}
+ /* čtyři atributy: 2×2 mřížka */
+ .gp-rowb{gap:12px;margin-top:12px;padding-top:12px}
+ .gp-ats{display:grid;grid-template-columns:repeat(2,1fr);gap:8px 10px;width:100%}
+ /* odznaky: pravidelná mřížka 8 sloupců, počet pod ní */
+ .gp-badges{width:100%;flex-direction:column;align-items:flex-start;gap:7px}
+ .gp-badges .row{display:grid;grid-template-columns:repeat(8,1fr);gap:5px;width:100%}
+ .gp-badges .row span{width:auto;height:20px}
+ /* akce: tlačítka přes celou šířku, přepínač efektů pod nimi */
+ .gp-actions{gap:8px}
+ .gp-actions .gp-btn{flex:1 1 100%;text-align:center}
+ .gp-vfx{margin-left:0;width:100%;padding-top:2px}
+
+ /* přepínač stupňů pod sebe — dva řádky se čtou líp než dvě úzká tlačítka */
+ .stupen-switch{flex-direction:column}
+
+ /* karta: portrét menší, ať na text zbude šířka */
+ .card .cbody{gap:11px;padding:18px 14px 12px}
+ .card .cpor{width:54px}
+ .card .cpor canvas{width:48px}
+ .card .ctitle .nm{font-size:15px;letter-spacing:1px}
+ .card .ctitle .gr{font-size:16px;margin-bottom:9px}
+ .cattrs .ca .l{font-size:8px;letter-spacing:.5px}
+ .cbtns{padding:12px 14px 14px}
+
+ .constr-bar{gap:7px}
+ .constr-bar .cm{min-width:100%}
+}
 </style>
 </head>
 <body>
