@@ -21,6 +21,7 @@
 <script src="rpg-icons.js"></script>
 <script src="./rpg-badwords.js"></script>
 <script src="./rpg-wallet.js"></script>
+<script src="./rpg-hero-portraits.js"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 /* ═══════════════════════════════════════════════════════════════
@@ -129,18 +130,21 @@ body::before{
 .topnav{display:flex;justify-content:space-between;align-items:center;font-size:13px;margin-bottom:22px}
 .topnav a{color:var(--muted);text-decoration:none;border:1px solid var(--line);padding:7px 12px;border-radius:4px;transition:.15s}
 .topnav a:hover{color:var(--text);border-color:var(--muted)}
-.head{text-align:center;padding:8px 0 18px}
-.head .glyph{font-size:48px;display:inline-block;animation:float 3s ease-in-out infinite;will-change:transform;backface-visibility:hidden;transform:translateZ(0)}
-@keyframes float{0%,100%{transform:translate3d(0,0,0)}50%{transform:translate3d(0,-7px,0)}}
-.head h1{font-weight:700;font-size:30px;letter-spacing:3px;margin:6px 0 4px;
- background:linear-gradient(90deg,#5dc8f0,var(--gold),var(--accent-ui));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
-.head .sub{font-family:var(--vt);font-size:22px;color:var(--muted);letter-spacing:1px}
+/* Hlavička: pixelový hrdina vedle názvu, zarovnáno vlevo jako v návrhu. */
+.head{display:flex;align-items:center;gap:16px;padding:4px 0 24px}
+.head .hd-por{flex:none;line-height:0}
+.head .hd-por canvas{width:27px;display:block;image-rendering:pixelated}
+.head h1{font-weight:700;font-size:26px;letter-spacing:4px;color:var(--fg-strong);line-height:1.1}
+.head .sub{font-family:var(--vt);font-size:19px;color:var(--fg-muted);letter-spacing:1px}
+@media(max-width:520px){.head h1{font-size:21px;letter-spacing:2px}}
 /* ── staveniště: výstražné pruhy (ploty) po stranách + majáky ── */
 .constr-side{display:none}
 .constr-side.l{left:0}.constr-side.r{right:0}
 @media(max-width:1072px){.constr-side{display:none}}
-.constr-zone{position:relative;border:1px solid var(--warn-line);border-radius:var(--r-lg);background:#17120a99;padding:13px 16px;margin:10px auto 4px;max-width:560px;overflow:hidden}
-.constr-zone::before{content:'';position:absolute;left:0;right:0;top:0;height:3px;background:repeating-linear-gradient(45deg,var(--warn-fg) 0 8px,#171208 8px 16px);opacity:.7}
+.constr-wrap{border:1px solid var(--warn-line);border-radius:var(--r-lg);overflow:hidden;margin-top:26px}
+.constr-bar{display:flex;align-items:center;gap:10px;background:var(--warn-bg);padding:10px 16px;border-bottom:1px solid var(--warn-line);flex-wrap:wrap}
+.constr-bar .ct{font-size:11px;letter-spacing:1.5px;color:var(--warn-fg);font-weight:700;flex:none}
+.constr-bar .cm{font-size:12.5px;color:var(--warn-text);line-height:1.5;flex:1;min-width:220px}
 
 .constr-head{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:8px}
 .constr-head .ct{font-family:var(--px);font-weight:700;font-size:11px;letter-spacing:1.5px;color:var(--warn-fg)}
@@ -157,46 +161,91 @@ body::before{
 .stat-strip .s{text-align:center}
 .stat-strip .s .v{font-weight:700;font-size:20px;color:var(--text)}
 .stat-strip .s .l{font-size:11px;color:var(--muted);letter-spacing:1px;text-transform:uppercase}
-/* grid */
-.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-top:8px}
+/* ══ MŘÍŽKA KARET (fáze 01) ══════════════════════════════════════════
+   Karta nese pixelovou postavu v barvách svého světa. Barvy se předávají
+   jako per-kartové proměnné (--accent, --rim, --glow, --line-c) — proto
+   NENÍ --accent v :root, viz poznámka u tokenů. */
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px;margin-top:8px}
 @media(max-width:680px){.grid{grid-template-columns:1fr}}
-.card{position:relative;background:var(--gbg,var(--panel));border:1px solid var(--accent,#333);border-radius:var(--r-lg);padding:18px;overflow:hidden;
- box-shadow:0 0 0 1px #0004 inset,0 6px 18px #0006}
-.card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--accent)}
-.card .ctop{display:flex;align-items:center;gap:12px;margin-bottom:12px}
-.card .emoji{font-size:38px;line-height:1;filter:drop-shadow(0 0 10px var(--accent))}
-.card .ctitle{flex:1}
-.card .ctitle .nm{font-weight:700;font-size:17px;color:#fff;letter-spacing:1px;line-height:1.1}
-.card .ctitle .gr{font-family:var(--vt);font-size:18px;color:var(--accent)}
-.card .badge{font-size:10px;letter-spacing:1px;color:#0a0d16;background:var(--accent);padding:3px 8px;border-radius:20px;font-weight:700;white-space:nowrap}
-/* save details */
-.charline{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px}
-.charline .cn{font-weight:700;font-size:15px;color:#fff}
-.charline .lv{font-size:12px;color:var(--accent);font-weight:700}
-.attrs{display:flex;gap:10px;margin:8px 0 10px;flex-wrap:wrap}
-.attrs .a{font-size:12px;color:var(--muted)}
-.attrs .a b{color:#fff}
-.prog{margin:10px 0 6px}
-.prog .pl{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:4px;letter-spacing:.5px}
-.bar{height:9px;background:#0006;border:1px solid var(--accent);border-radius:var(--r-sm);overflow:hidden}
-.bar > i{display:block;height:100%;background:var(--accent);width:0;transition:width .8s ease;box-shadow:0 0 8px var(--accent)}
-.arts{font-size:12px;color:var(--muted);margin-top:4px}
-.empty{font-family:var(--vt);font-size:19px;color:var(--muted);padding:10px 0 14px;letter-spacing:1px}
-.cbtns{display:flex;gap:8px;margin-top:12px}
-.btn{flex:1;text-align:center;text-decoration:none;font-family:var(--px);font-weight:700;font-size:13px;letter-spacing:1px;
- padding:11px 10px;border-radius:var(--r-sm);cursor:pointer;border:2px solid var(--accent);background:var(--accent);color:#0a0d16;transition:.15s}
+/* Sloupec, aby patička s CTA sedla ke spodní hraně i u nerozehrané hry —
+   jinak zůstane pod textem prázdné místo, když je karta v řádku vyšší. */
+.card{position:relative;display:flex;flex-direction:column;
+ background:linear-gradient(160deg,var(--glow),#00000000 55%),var(--gbg,var(--panel));
+ border:1px solid var(--line-c,var(--line));border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--shadow)}
+.card .cbtns{margin-top:auto}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:5px;
+ background:linear-gradient(90deg,var(--rim),var(--accent) 45%,var(--gbg))}
+.card .cbody{display:flex;gap:14px;padding:21px 18px 12px}
+/* rámeček portrétu */
+.card .cpor{width:66px;flex:none;background:linear-gradient(180deg,var(--glow),#00000045);
+ border:1px solid var(--line-c,var(--line));border-radius:var(--r-md);
+ display:flex;align-items:flex-end;justify-content:center;padding:6px 0 0}
+.card .cpor canvas{width:60px;display:block;image-rendering:pixelated}
+.card .ctitle{flex:1;min-width:0}
+.card .ctitle .nmrow{display:flex;align-items:center;gap:8px;margin-bottom:3px;flex-wrap:wrap}
+.card .ctitle .nm{font-weight:700;font-size:17px;color:var(--fg-strong);letter-spacing:1.5px;line-height:1.1}
+.card .badge{font-size:9px;letter-spacing:1.5px;padding:2px 5px;border-radius:3px;
+ color:var(--accent);border:1px solid var(--accent);white-space:nowrap;font-weight:400;background:none}
+.card .ctitle .gr{font-family:var(--vt);font-size:17px;color:var(--rim);opacity:.72;
+ letter-spacing:.5px;line-height:1.25;margin-bottom:11px}
+/* rozehraná hra */
+.charline{font-size:12.5px;color:var(--fg);letter-spacing:.5px}
+.charline .sep{color:#3d4f63}
+.charline .lv{color:var(--accent)}
+.segs{display:flex;gap:3px;margin-top:9px}
+.segs i{flex:1;height:6px;border-radius:1px;background:#ffffff14}
+.segs i.on{background:var(--accent)}
+.progline{display:flex;justify-content:space-between;margin-top:6px;font-size:10.5px;color:var(--fg-faint);letter-spacing:.5px}
+.progline .pct{color:#9fb4c9}
+/* nerozehraná hra */
+.empty{font-family:var(--vt);font-size:18px;color:var(--rim);opacity:.8;line-height:1.3;letter-spacing:.5px}
+/* pruh atributů pod tělem karty */
+.cattrs{display:flex;border-top:1px solid var(--line-c,var(--line));background:var(--glow)}
+.cattrs .ca{flex:1;padding:9px 0;text-align:center;border-right:1px solid var(--line-c,var(--line))}
+.cattrs .ca:last-child{border-right:none}
+.cattrs .ca .v{font-size:14px;color:var(--fg-strong);font-weight:700}
+.cattrs .ca .l{font-size:9px;letter-spacing:1px;color:var(--rim)}
+.cbtns{display:flex;gap:8px;padding:14px 18px 16px}
+.btn{flex:1;text-align:center;text-decoration:none;font-family:var(--px);font-weight:700;font-size:13px;letter-spacing:1.5px;
+ padding:12px 10px;border-radius:var(--r-sm);cursor:pointer;border:1px solid var(--accent);background:var(--accent);color:var(--accent-ink);transition:.15s}
 .btn:hover{filter:brightness(1.12)}
-.btn.ghost{background:transparent;color:var(--accent);flex:0 0 auto;padding:11px 12px}
-.btn.ghost:hover{background:var(--accent);color:#0a0d16}
+/* „SMAZAT" na kartě: tlumené, ať nesoupeří s hlavní akcí */
+.btn.ghost{background:transparent;color:var(--fg-faint);border-color:var(--line-c,var(--line));
+ flex:0 0 auto;padding:12px 14px;font-size:12px;font-weight:400;letter-spacing:1px}
+.btn.ghost:hover{color:var(--fg);border-color:var(--fg-muted);filter:none}
 .note{margin-top:26px;background:var(--panel);border:1px dashed var(--line);border-radius:var(--r-md);padding:16px 18px;font-size:13px;color:var(--muted);line-height:1.6}
 .note b{color:var(--text)}
 .note .tag{display:inline-block;font-size:11px;color:var(--bg);background:var(--muted);padding:2px 7px;border-radius:4px;font-weight:700;letter-spacing:1px;margin-right:6px}
-/* ── GLOBÁLNÍ PROFIL ── */
-.gprofile{background:linear-gradient(135deg,#131826,#10131f);border:1px solid #2a3658;border-radius:var(--r-lg);padding:18px;margin:18px 0;position:relative;overflow:hidden}
-.gprofile::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#5dc8f0,var(--gold),var(--accent-ui))}
-.gp-row{display:flex;flex-wrap:wrap;gap:18px;align-items:center;justify-content:space-between}
-.gp-id{display:flex;align-items:center;gap:14px}
-.gp-av{font-size:46px;line-height:1}
+/* ══ SLOUČENÝ PROFILOVÝ PRUH (fáze 01) ═══════════════════════════════
+   Dřív se XP a statistiky počítaly na jedné obrazovce dvakrát — jednou
+   v pruhu „postavy na tomto zařízení", podruhé v globálním profilu.
+   Teď je to jeden panel: identita, souhrn, atributy, odznaky, akce. */
+.gprofile{background:var(--panel);border:1px solid var(--line);border-radius:var(--r-lg);
+ padding:16px 18px;margin:0 0 22px}
+.gp-row{display:flex;flex-wrap:wrap;gap:20px;align-items:center}
+.gp-id{display:flex;align-items:flex-end;gap:13px;flex:1;min-width:230px}
+/* avatar = pixelová postava, ne emoji */
+.gp-av{width:52px;flex:none;background:#0d111c;border:1px solid var(--line);border-radius:var(--r-md);
+ display:flex;align-items:flex-end;justify-content:center;padding:5px 0 0}
+.gp-av canvas{width:44px;display:block;image-rendering:pixelated}
+/* souhrn: pět čísel vedle sebe */
+.gp-sum{display:flex;gap:26px;flex-wrap:wrap}
+.gp-sum .s .v{font-weight:700;font-size:21px;line-height:1.1;color:var(--fg-strong)}
+.gp-sum .s .v.gold{color:var(--gold)}
+.gp-sum .s .l{font-size:10px;letter-spacing:1.5px;color:var(--fg-muted)}
+/* řádek B: atributy vlevo, odznaky vpravo */
+.gp-rowb{display:flex;flex-wrap:wrap;gap:18px;align-items:center;justify-content:space-between;
+ margin-top:15px;padding-top:14px;border-top:1px solid var(--line)}
+.gp-ats{display:flex;gap:22px;flex-wrap:wrap}
+.gp-ats .at{display:flex;align-items:baseline;gap:7px}
+.gp-ats .at .v{font-weight:700;font-size:15px;color:var(--fg-strong)}
+.gp-ats .at .l{font-size:10px;letter-spacing:1.5px;color:var(--fg-muted)}
+/* Patnáct odznaků po 20 px se na úzkém displeji do řádku nevejde —
+   bez zalomení vyteče „6/15 ODZNAKŮ" ven z panelu. */
+.gp-badges{display:flex;align-items:center;gap:9px;flex-wrap:wrap;min-width:0}
+.gp-badges .row{display:flex;gap:4px;align-items:center;min-height:20px;flex-wrap:wrap}
+.gp-badges .row span{width:20px;height:20px;display:flex;align-items:center;justify-content:center;line-height:0}
+.gp-badges .cnt{font-size:11px;color:var(--fg-muted);letter-spacing:1px}
 .gp-av.av-silver{filter:drop-shadow(0 0 7px silver)}
 .gp-av.av-cyan{filter:drop-shadow(0 0 9px #4d9fff) drop-shadow(0 0 3px #4d9fff)}
 .gp-av.av-gold{filter:drop-shadow(0 0 9px var(--gold)) drop-shadow(0 0 3px var(--gold))}
@@ -272,43 +321,23 @@ body::before{
  </div>
 
  <div class="head">
-  <div class="glyph">🎮</div>
-  <h1>RPG MATEMATIKA</h1>
-  <div class="sub">Velitelské centrum · ZŠ Husova Liberec</div>
- </div>
-
- <div class="constr-zone">
-  <div class="constr-head">
-   <span class="beacon" aria-hidden="true"></span>
-   <span class="ct">STAVENIŠTĚ</span>
-   <span class="beacon d" aria-hidden="true"></span>
-  </div>
-  <div class="constr-msg">
-   Stránka i hry se pořád stavějí. <b style="color:#ffd06a">Našel/la jsi v příkladech — nebo kdekoliv jinde — chybu?</b>
-   Napiš mi ji prosím <b style="color:#ffd06a">hned</b> dole do pole
-   <a onclick="var f=document.getElementById('hub-feedback');if(f){f.scrollIntoView({behavior:'smooth',block:'center'});}var t=document.getElementById('fb-body');if(t)setTimeout(function(){t.focus();},400);return false;">💬&nbsp;Zpětná vazba</a>.
-   Každý vzkaz čtu a rychle opravím — moc mi to pomůže. 🙏
+  <div class="hd-por"><canvas id="hd-avatar" width="90" height="130" aria-hidden="true"></canvas></div>
+  <div>
+   <h1>RPG MATEMATIKA</h1>
+   <div class="sub">Velitelské centrum · ZŠ Husova Liberec</div>
   </div>
  </div>
 
  <div id="cloud-mount"></div>
 
- <div class="student">
-  <div class="who"><span id="who-where">Postavy uložené na <b>tomto zařízení</b></span> · <span id="started">0</span>/<span id="games-total">7</span> her rozehráno</div>
-  <div class="stat-strip">
-   <div class="s"><div class="v" id="tot-xp">0</div><div class="l">XP celkem</div></div>
-   <div class="s"><div class="v" id="tot-tasks">0</div><div class="l">úkolů hotovo</div></div>
-   <div class="s"><div class="v" id="tot-arts">0</div><div class="l">artefaktů</div></div>
-   <div class="s" id="tot-tower-wrap" style="display:none"><div class="v" id="tot-tower">0</div><div class="l">🗼 nejvyšší patro</div></div>
-  </div>
- </div>
-
- <!-- ══ GLOBÁLNÍ PROFIL ══ -->
+ <!-- ══ SLOUČENÝ PROFILOVÝ PRUH ══
+      Identita + souhrn + atributy + odznaky + akce v jednom panelu.
+      Dřív se XP počítalo na téže obrazovce dvakrát. -->
  <div class="gprofile" id="gprofile">
   <div class="gp-row">
    <div class="gp-id">
-    <span class="gp-av" id="gp-av">🧙</span>
-    <div>
+    <span class="gp-av" id="gp-av"><canvas id="gp-av-cv" width="90" height="130" aria-hidden="true"></canvas></span>
+    <div style="min-width:0">
      <div style="display:flex;align-items:center;gap:8px">
       <div class="gp-name" id="gp-name">TY</div>
       <button id="gp-edit-btn" onclick="startHeroRename()" title="Přejmenovat hrdinu" style="background:none;border:none;cursor:pointer;font-size:13px;color:var(--muted);padding:0 4px;display:none">✏️</button>
@@ -318,30 +347,42 @@ body::before{
       <button onclick="saveHeroRename()" style="background:var(--gold);border:none;color:#0a0d16;padding:3px 10px;border-radius:4px;cursor:pointer;font-size:12px;font-weight:700;margin-left:4px">OK</button>
       <button onclick="cancelHeroRename()" style="background:#2a3350;border:1px solid #4a5578;color:#e6ecf7;padding:3px 8px;border-radius:4px;cursor:pointer;font-size:12px;margin-left:2px">✕</button>
      </div>
-     <div class="gp-sub">Tvůj společný profil pro všechny hry</div>
+     <div class="gp-sub" id="who-where">Společný profil pro všechny hry</div>
     </div>
    </div>
-   <div class="gp-credits">
-    <div class="v" id="gp-credits">0</div>
-    <div class="l">💰 kreditů ve společné peněžence</div>
+   <div class="gp-sum">
+    <div class="s"><div class="v gold" id="gp-credits">0</div><div class="l">KREDITŮ</div></div>
+    <div class="s"><div class="v" id="tot-xp">0</div><div class="l">XP CELKEM</div></div>
+    <div class="s"><div class="v" id="tot-tasks">0</div><div class="l">ÚKOLŮ</div></div>
+    <div class="s"><div class="v" id="tot-arts">0</div><div class="l">ARTEFAKTŮ</div></div>
+    <div class="s" id="tot-tower-wrap" style="display:none"><div class="v" id="tot-tower">0</div><div class="l">PATRO VĚŽE</div></div>
    </div>
   </div>
-  <div class="gp-attrs" id="gp-attrs"></div>
-  <div class="ach-grid" id="gp-ach"></div>
+  <div class="gp-rowb">
+   <div class="gp-ats" id="gp-attrs"></div>
+   <div class="gp-badges">
+    <div class="row" id="gp-ach"></div>
+    <span class="cnt" id="gp-ach-cnt"></span>
+   </div>
+  </div>
+  <div style="display:none"><span id="started">0</span><span id="games-total">7</span></div>
   <details class="gp-gach-fold">
    <summary>🏆 ŽIVOTNÍ ÚSPĚCHY <span class="gp-gach-hint">(napříč všemi ročníky — klikni pro zobrazení)</span></summary>
    <div id="gp-gach"></div>
   </details>
   <div class="gp-actions">
    <button class="gp-btn" id="gp-shop-btn" onclick="toggleShop()">🛍️ SDÍLENÝ OBCHOD</button>
+   <button class="gp-btn" id="gp-rename-btn" onclick="startHeroRename()">✏️ PŘEJMENOVAT HRDINU</button>
    <label class="gp-vfx" title="Vypne blikání, otřesy a částice ve všech 4 hrách">
     <input type="checkbox" id="gp-vfx" onchange="toggleGlobalVfx(this.checked)">
     Vypnout vizuální efekty (všechny hry)
    </label>
   </div>
- </div>
 
- <!-- ══ SDÍLENÝ OBCHOD ══ -->
+ <!-- ══ SDÍLENÝ OBCHOD ══
+      Podle návrhu se rozbaluje UVNITŘ profilového panelu, ne jako
+      samostatný blok pod ním. Obsah se nemění — přebírá se stávající
+      SHOP_ITEMS / renderShop z RPGWallet. -->
  <div class="shop" id="shop">
   <div class="shop-h">🛍️ Sdílený obchod</div>
   <div style="font-size:12px;color:var(--muted);line-height:1.6">Kredity vyděláváš v kterékoli hře — tady je utratíš a koupené si pak nosíš <b style="color:var(--text)">ve všech hrách</b>.<br>
@@ -359,6 +400,7 @@ body::before{
   </div>
   <div class="shop-grid" id="shop-grid"></div>
  </div>
+ </div><!-- /gprofile -->
 
  <div class="stupen-switch">
   <button class="ss-btn" id="st-1" onclick="setStupen(1)">🌳 1. stupeň · 3.– 5. ročník</button>
@@ -371,24 +413,6 @@ body::before{
   Pak ji máš u sebe na <b>všech zařízeních</b> — můžeš hrát doma i ve škole a navázat tam, kde jsi skončil. Učitel zároveň vidí pokrok celé třídy na jednom místě. Bez přihlášení se pokrok ukládá jen do tohoto prohlížeče (localStorage), takže na jiném počítači začínáš znovu.
  </div>
 
- <!-- ══ ZPĚTNÁ VAZBA ══ -->
- <div id="hub-feedback" style="margin-top:28px">
-  <div style="background:var(--panel);border:1px solid var(--line);border-radius:var(--r-lg);padding:18px">
-   <div style="font-weight:700;font-size:14px;color:var(--accent-ui);letter-spacing:1px;margin-bottom:6px">💬 NÁPAD NEBO ZPĚTNÁ VAZBA</div>
-   <div style="font-size:13px;color:var(--muted);margin-bottom:12px">Napiš mi, co by se ti ve hrách líbilo, co nefunguje, nebo co tě zaujalo. Přečtu každý vzkaz.</div>
-   <textarea id="fb-body" aria-label="Tvůj nápad nebo připomínka" rows="3" placeholder="Sem napiš svůj nápad nebo připomínku…"
-    style="width:100%;padding:10px 12px;border-radius:7px;border:1px solid var(--line);background:var(--inset);color:var(--text);
-           font-family:inherit;font-size:14px;resize:vertical;box-sizing:border-box"></textarea>
-   <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;flex-wrap:wrap;gap:8px">
-    <span id="fb-status" style="font-size:12px;color:var(--muted)"></span>
-    <button onclick="submitFeedback()" class="fb-send"
-     style="font-family:inherit;font-weight:700;font-size:13px;padding:9px 18px;border-radius:var(--r-sm);cursor:pointer;
-            border:2px solid var(--accent-ui);background:var(--accent-ui);color:#06101e">Odeslat</button>
-   </div>
-  </div>
- </div>
-
- <!-- ══ ŽIVÝ SOUBOJ ══ -->
  <div id="hub-battle" style="display:none;margin-top:20px">
   <div style="background:linear-gradient(135deg,var(--accent-bg),#081418);border:1px solid var(--accent-ui);border-radius:var(--r-lg);padding:18px;position:relative;overflow:hidden">
    <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--accent-ui),#5dc8f0)"></div>
@@ -410,20 +434,74 @@ body::before{
     <button onclick="openHubBattle('join')" class="btn ghost" style="flex:0 0 auto;font-size:13px;padding:10px 16px">🔑 Připojit se kódem</button>
    </div>
   </div>
+
+ <!-- ══ STAVENIŠTĚ + ZPĚTNÁ VAZBA ══
+      Návrh je spojuje do jednoho bloku dole. Dřív bylo staveniště nahoře
+      a odkazovalo na pole, které je až na konci stránky. -->
+ <div id="hub-feedback" class="constr-wrap">
+  <div class="constr-bar">
+   <i class="beacon" aria-hidden="true"></i>
+   <span class="ct">STAVENIŠTĚ</span>
+   <span class="cm">Hry se pořád stavějí. Našel/la jsi chybu v příkladech nebo kdekoli jinde? Napiš mi ji hned sem dolů — každý vzkaz čtu a rychle opravím.</span>
+  </div>
+  <div style="background:var(--panel);padding:18px">
+   <div style="font-weight:700;font-size:14px;color:var(--accent-ui);letter-spacing:2px;margin-bottom:10px">NÁPAD NEBO ZPĚTNÁ VAZBA</div>
+   <textarea id="fb-body" aria-label="Tvůj nápad nebo připomínka" rows="3" placeholder="Sem napiš svůj nápad nebo připomínku…"
+    style="width:100%;padding:10px 12px;border-radius:7px;border:1px solid var(--line);background:var(--inset);color:var(--text);
+           font-family:inherit;font-size:14px;resize:vertical;box-sizing:border-box"></textarea>
+   <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;flex-wrap:wrap;gap:8px">
+    <span id="fb-status" style="font-size:12px;color:var(--muted)"></span>
+    <button onclick="submitFeedback()" class="fb-send"
+     style="font-family:inherit;font-weight:700;font-size:13px;padding:9px 18px;border-radius:var(--r-sm);cursor:pointer;
+            border:2px solid var(--accent-ui);background:var(--accent-ui);color:#06101e">Odeslat</button>
+   </div>
+  </div>
  </div>
+
+ <!-- ══ ŽIVÝ SOUBOJ ══ -->
+</div>
 </div>
 
 <script>
 let _stupen=(function(){try{const v=localStorage.getItem('RPG_HUB_STUPEN');return v==='1'?1:2;}catch(e){return 2;}})();
+/* `pk` = klíč světa pro portrét i barvy (RPGHeroPortrait.THEMES).
+   Barvy karty se berou odtud, aby postava a rám vždy seděly k sobě. */
 const GAMES=[
- {key:'RPG_MAT_3',file:'rpg-mat-3.html',emoji:'🌳',nm:'KOUZELNÝ LES',gr:'3. ročník',accent:'#6fc24a',gbg:'#0c1a0f',st:1},
- {key:'RPG_MAT_4',file:'rpg-mat-4.html',emoji:'🏴‍☠️',nm:'PIRÁTSKÁ PLAVBA',gr:'4. ročník',accent:'#4ab0e0',gbg:'#0a1628',st:1},
- {key:'RPG_MAT_5',file:'rpg-mat-5.html',emoji:'🐉',nm:'DRAČÍ ŘÍŠE',gr:'5. ročník',accent:'#e0584a',gbg:'#1a0c0e',st:1},
- {key:'RPG_MAT_6',file:'rpg-mat-6.html',emoji:'🚀',nm:'VESMÍRNÁ EXPEDICE',gr:'6. ročník',accent:'#5dc8f0',gbg:'#141038',st:2},
- {key:'RPG_MAT_7',file:'rpg-mat-7.html',emoji:'⛏️',nm:'ZTRACENÝ CHRÁM',gr:'7. ročník',accent:'#f2c14e',gbg:'#17110a',st:2},
- {key:'RPG_MAT_8',file:'rpg-mat-8.html',emoji:'🎓',nm:'MATEMATICKÁ AKADEMIE',gr:'8. ročník',accent:'var(--gold)',gbg:'#0d1117',st:2},
- {key:'RPG_MAT_9',file:'rpg-mat-9.html',emoji:'💻',nm:'NULL_BYTE',gr:'9. ročník',accent:'var(--accent-ui)',gbg:'#080b14',st:2},
+ {key:'RPG_MAT_3',pk:'g3',file:'rpg-mat-3.html',emoji:'🌳',nm:'KOUZELNÝ LES',gr:'3. ROČNÍK',tag:'les plný počtů do tisíce',st:1},
+ {key:'RPG_MAT_4',pk:'g4',file:'rpg-mat-4.html',emoji:'🏴‍☠️',nm:'PIRÁTSKÁ PLAVBA',gr:'4. ROČNÍK',tag:'plavba za velkými čísly',st:1},
+ {key:'RPG_MAT_5',pk:'g5',file:'rpg-mat-5.html',emoji:'🐉',nm:'DRAČÍ ŘÍŠE',gr:'5. ROČNÍK',tag:'zlomky a desetinná čísla',st:1},
+ {key:'RPG_MAT_6',pk:'g6',file:'rpg-mat-6.html',emoji:'🚀',nm:'VESMÍRNÁ EXPEDICE',gr:'6. ROČNÍK',tag:'expedice do světa čísel',st:2},
+ {key:'RPG_MAT_7',pk:'g7',file:'rpg-mat-7.html',emoji:'⛏️',nm:'ZTRACENÝ CHRÁM',gr:'7. ROČNÍK',tag:'poměry, procenta, trojúhelníky',st:2},
+ {key:'RPG_MAT_8',pk:'g8',file:'rpg-mat-8.html',emoji:'🎓',nm:'MATEMATICKÁ AKADEMIE',gr:'8. ROČNÍK',tag:'rovnice, mocniny, tělesa',st:2},
+ {key:'RPG_MAT_9',pk:'g9',file:'rpg-mat-9.html',emoji:'💻',nm:'NULL_BYTE',gr:'9. ROČNÍK',tag:'systém, kde platí jen důkaz',st:2},
 ];
+/* Barvy světa. Bez modulu portrétů se hub nesmí rozsypat — proto záloha
+   ve stejných hodnotách jako tokeny (graceful degradation je závazná). */
+const WORLD_FALLBACK={
+ g3:{accent:'#6fc24a',dark:'#2f5c22',rim:'#a9f08a'}, g4:{accent:'#4ab0e0',dark:'#1c5573',rim:'#8fd9ff'},
+ g5:{accent:'#e0584a',dark:'#6e2019',rim:'#ff9a86'}, g6:{accent:'#5dc8f0',dark:'#1d5d77',rim:'#9adcff'},
+ g7:{accent:'#f2c14e',dark:'#7a5a12',rim:'#ffd98a'}, g8:{accent:'#b39ddb',dark:'#4b3b78',rim:'#d3c2f5'},
+ g9:{accent:'#19e6e6',dark:'#0e8a8a',rim:'#7fe9ff'},
+};
+const WORLD_BG={g3:'#101f13',g4:'#0b1c32',g5:'#200e10',g6:'#151244',g7:'#1d1509',g8:'#171040',g9:'#05161c'};
+const WORLD_LINE={g3:'#2d4a2a',g4:'#204468',g5:'#4c2422',g6:'#302f74',g7:'#4d3a18',g8:'#332a66',g9:'#12454f'};
+const HAS_PORTRAIT=(typeof RPGHeroPortrait!=='undefined');
+function worldOf(pk){
+ const t=HAS_PORTRAIT?RPGHeroPortrait.THEMES[pk]:null;
+ const f=WORLD_FALLBACK[pk]||WORLD_FALLBACK.g9;
+ return {accent:(t&&t.accent)||f.accent, dark:(t&&t.dark)||f.dark, rim:(t&&t.rim)||f.rim,
+         bg:WORLD_BG[pk]||'#0a0d16', line:WORLD_LINE[pk]||'#283150'};
+}
+/* Portrét hrdiny (rozehráno) nebo silueta bosse (nerozehráno). Statické,
+   bez animace — hub je rozcestník a musí být čitelný i na Chromebooku. */
+function paintCard(cv,pk,played){
+ if(!cv||!HAS_PORTRAIT)return;
+ const P=RPGHeroPortrait;
+ try{
+  if(played) P.paint(cv,P.grid(pk),P.palette(pk));
+  else P.paint(cv,P.BOSS,P.palette(pk),{silhouette:true});
+ }catch(e){}
+}
 function setStupen(n){
  _stupen=n; try{localStorage.setItem('RPG_HUB_STUPEN',String(n));}catch(e){}
  const b1=document.getElementById('st-1'),b2=document.getElementById('st-2');
@@ -454,7 +532,7 @@ function render(){
  let started=0,totXp=0,totTasks=0,totArts=0,bestTower=0;
  GAMES.forEach(g=>{
   const S=load(g.key);
-  let body,btns;
+  let body,podTelem='';
   if(S){
    started++;
    if(HUB_HAS_WALLET) RPGWallet.absorbGame(g.key, S);
@@ -464,28 +542,53 @@ function render(){
    totXp+=xp; totTasks+=done; totArts+=arts;
    if(S.tower&&(S.tower.best|0)>bestTower)bestTower=S.tower.best|0;
    const pct=Math.min(100,Math.round(done/TOTAL_TASKS*100));
-   const attrHtml=ATTR.map(([k,ic])=>`<span class="a">${ic} <b>${((S.attrs&&S.attrs[k])||0)|0}</b></span>`).join('');
-   body=`<div class="charline"><span class="cn">👤 ${esc(S.name||'HRDINA')}</span><span class="lv">LV ${lv} · ${xp} XP</span></div>
-   <div class="attrs">${attrHtml}</div>
-   <div class="prog"><div class="pl"><span>POKROK</span><span>${done} / ${TOTAL_TASKS} úkolů · ${pct}%</span></div>
-   <div class="bar"><i data-w="${pct}"></i></div></div>
-   <div class="arts">🎒 artefaktů: <b style="color:#fff">${arts}</b></div>
-   ${(S.tower&&(S.tower.best|0)>0)?`<div class="arts">🗼 Věž legend: <b style="color:#fff">${S.tower.best|0}. patro</b></div>`:''}`;
-   btns=`<a class="btn" href="./${g.file}">▶ POKRAČOVAT</a><a class="btn ghost" href="#" onclick="resetOne('${g.key}');return false;" title="vymazat tuto postavu">🗑</a>`;
+   // 18 segmentů pokroku místo jednoho pruhu — je z nich vidět i malý postup
+   const plnych=Math.round(pct/100*18);
+   const segy=Array.from({length:18},(_,i)=>`<i class="${i<plnych?'on':''}"></i>`).join('');
+   const attrHtml=ATTR.map(([k,,lbl])=>
+    `<div class="ca"><div class="v">${((S.attrs&&S.attrs[k])||0)|0}</div><div class="l">${lbl.toUpperCase()}</div></div>`).join('');
+   body=`<div class="charline">${esc(S.name||'HRDINA')} <span class="sep">·</span> <span class="lv">LV ${lv}</span></div>
+   <div class="segs">${segy}</div>
+   <div class="progline"><span>${done} / ${TOTAL_TASKS} ÚKOLŮ</span><span class="pct">${pct} %</span></div>`;
+   podTelem=`<div class="cattrs">${attrHtml}</div>`;
   }else{
-   body=`<div class="empty">— zatím nehráno —</div>`;
-   btns=`<a class="btn" href="./${g.file}">▶ ZAČÍT HRÁT</a>`;
+   body=`<div class="empty">7 oblastí · 21 misí · ${TOTAL_TASKS} úkolů<br>čeká na tvou první postavu</div>`;
   }
   if(g.st!==_stupen)return; // jen hry vybraného stupně se zobrazí jako karty
+  const w=worldOf(g.pk);
   const div=document.createElement('div');
   div.className='card';
-  div.style.setProperty('--accent',g.accent);
-  div.style.setProperty('--gbg',g.gbg);
-  div.innerHTML=`<div class="ctop"><span class="emoji">${g.emoji}</span>
-   <div class="ctitle"><div class="nm">${g.nm}</div><div class="gr">${g.gr}</div></div>
-   <span class="badge">${S?'ROZEHRÁNO':'NOVÉ'}</span></div>
-   ${body}<div class="cbtns">${btns}</div>
-   <div id="lb-${g.key}" style="display:none;margin-top:8px;padding:8px 10px;background:#0a0d14;border:1px solid #222;border-radius:var(--r-md);font-size:12px"></div>`;
+  div.style.setProperty('--accent',w.accent);
+  div.style.setProperty('--rim',w.rim);
+  div.style.setProperty('--gbg',w.bg);
+  div.style.setProperty('--line-c',w.line);
+  div.style.setProperty('--glow',w.accent+'24');   // 14% nádech na pozadí
+  div.innerHTML=`<div class="cbody">
+   <div class="cpor"><canvas width="110" height="160" aria-hidden="true"></canvas></div>
+   <div class="ctitle">
+    <div class="nmrow"><div class="nm">${g.nm}</div><span class="badge">${g.gr}</span></div>
+    <div class="gr">${g.tag}</div>
+    ${body}
+   </div></div>
+   ${podTelem}
+   <div class="cbtns"></div>
+   <div id="lb-${g.key}" style="display:none;margin:0 18px 14px;padding:8px 10px;background:var(--panel-dark);border:1px solid var(--line-dim);border-radius:var(--r-md);font-size:12px"></div>`;
+
+  /* Tlačítka přes DOM + closure, ne řetězením onclick="…'${x}'…" —
+     kvůli CodeQL a proto, že do nich jde klíč savu. */
+  const btnBox=div.querySelector('.cbtns');
+  const cta=document.createElement('a');
+  cta.className='btn'; cta.href='./'+g.file;
+  cta.textContent=S?'POKRAČOVAT':'ZAČÍT HRÁT';
+  btnBox.appendChild(cta);
+  if(S){
+   const del=document.createElement('a');
+   del.className='btn ghost'; del.href='#'; del.title='vymazat tuto postavu';
+   del.textContent='SMAZAT';
+   del.onclick=function(){resetOne(g.key);return false;};
+   btnBox.appendChild(del);
+  }
+  paintCard(div.querySelector('.cpor canvas'),g.pk,!!S);
   grid.appendChild(div);
  });
  document.getElementById('started').textContent=started;
@@ -496,8 +599,6 @@ function render(){
  document.getElementById('tot-arts').textContent=totArts;
  document.getElementById('tot-tower-wrap').style.display=bestTower>0?'':'none';
  document.getElementById('tot-tower').textContent=bestTower>0?(bestTower+'.'):'0';
- // animate bars
- requestAnimationFrame(()=>document.querySelectorAll('.bar > i').forEach(i=>i.style.width=i.dataset.w+'%'));
  renderGlobalProfile();
 }
 function resetOne(key){
@@ -618,13 +719,30 @@ function renderGlobalProfile(){
  const tot={};
  ATTR.forEach(([k])=>{ tot[k]=0; });
  GAMES.forEach(g=>{ const S=load(g.key); if(S&&S.attrs) ATTR.forEach(([k])=>{ tot[k]+=(S.attrs[k]||0); }); });
- document.getElementById('gp-attrs').innerHTML=ATTR.map(([k,ic,label])=>
-  `<span class="a">${ic} ${esc(label)}<br><b>${tot[k]|0}</b></span>`
+ document.getElementById('gp-attrs').innerHTML=ATTR.map(([k,,label])=>
+  `<div class="at"><span class="v">${tot[k]|0}</span><span class="l">${esc(label.toUpperCase())}</span></div>`
  ).join('');
  // odznaky z všech her dohromady
  const allAch={};
  GAMES.forEach(g=>{ const S=load(g.key); if(S&&S.ach) Object.assign(allAch,S.ach); });
- document.getElementById('gp-ach').innerHTML=ACH.map(a=>`<div class="ab${allAch[a.id]?' on':''}" title="${esc(a.nm)}">${RPGIcons.svg(a.ic,24)}</div>`).join('');
+ /* Odznaky kreslí VÝHRADNĚ RPGIcons.svg(). Když modul není načtený,
+    nekreslí se nic — nikdy se nevypisuje NÁZEV ikony jako text ani se
+    nedělá náhradní čtvereček (past „egg místo vejce", viz CLAUDE.md). */
+ const achBox=document.getElementById('gp-ach'), achCnt=document.getElementById('gp-ach-cnt');
+ const ziskano=ACH.filter(a=>allAch[a.id]).length;
+ if(typeof RPGIcons==='undefined'){
+  achBox.innerHTML=''; if(achCnt)achCnt.textContent='';
+  if(!renderGlobalProfile._ikonyCekaji){ renderGlobalProfile._ikonyCekaji=true;
+   setTimeout(()=>{renderGlobalProfile._ikonyCekaji=false;renderGlobalProfile();},400); }
+ }else{
+  achBox.innerHTML=ACH.map(a=>
+   `<span title="${esc(a.nm)}" style="color:${allAch[a.id]?'var(--gold)':'#39445e'}">${RPGIcons.svg(a.ic,16)}</span>`).join('');
+  if(achCnt)achCnt.textContent=ziskano+'/'+ACH.length+' ODZNAKŮ';
+ }
+ // avatar: pixelová postava ve zlatém rampu (profil není vázaný na svět)
+ const avCv=document.getElementById('gp-av-cv');
+ if(avCv&&HAS_PORTRAIT){ try{ RPGHeroPortrait.paint(avCv,RPGHeroPortrait.grid('avatar'),
+   RPGHeroPortrait.palette('avatar'),{shadow:false}); }catch(e){} }
  // životní úspěchy s pokrokem
  if(RPGWallet.renderGachInto)RPGWallet.renderGachInto(document.getElementById('gp-gach'));
  // VFX přepínač
@@ -737,6 +855,12 @@ async function submitFeedback(){
  }
 }
 </script>
-<script>window.addEventListener('load',function(){try{setStupen(_stupen);}catch(e){}});</script>
+<script>window.addEventListener('load',function(){
+ try{setStupen(_stupen);}catch(e){}
+ try{ if(typeof RPGHeroPortrait!=='undefined'){
+  var c=document.getElementById('hd-avatar');
+  if(c)RPGHeroPortrait.paint(c,RPGHeroPortrait.grid('avatar'),RPGHeroPortrait.palette('avatar'),{shadow:false});
+ } }catch(e){}
+});</script>
 </body>
 </html>
