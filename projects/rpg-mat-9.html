@@ -944,6 +944,13 @@ html[data-theme="violet"]{--gold:#b06cff;--panel:#100a20;--panel2:#18103a;--blue
 <script defer src="./rpg-icons.js"></script>
 <script defer src="./rpg-svg-9.js"></script>
 <script defer src="./rpg-tasks-9.js"></script>
+<!-- Sdílené jádro spritů MUSÍ být před světem ročníku. Obojí zůstává
+     `defer`: odložené skripty se spouštějí v pořadí dokumentu, takže
+     jádro proběhne první, a zároveň se nezmění pořadí vůči ostatním
+     modulům. (README doporučuje bez `defer`; to by ale tenhle soubor
+     posunulo před ostatní odložené skripty — a na pořadí `defer` se
+     repo už jednou spálilo, viz CLAUDE.md.) -->
+<script defer src="./rpg-sprite-core.js"></script>
 <script defer src="./rpg-sprites-9.js"></script>
 <script defer src="./rpg-learn-9.js"></script>
 <script>
