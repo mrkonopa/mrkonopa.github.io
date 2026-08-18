@@ -17,15 +17,7 @@
    ════════════════════════════════════════════════════════════════════ */
 // FRAMING-POOLY: náhodné uvození drilu (nemění odpověď). Přes window, aby
 // nekolidovaly s globálním lexikálním scope hlavního skriptu hry i v Node auditu.
-window._fc = () => { const a = ['Vypočítej', 'Spočítej', 'Urči', 'Vyčísli',
-  /* Zásoba mise byla na hraně (138 unikátních úloh) — všechny otázky se
-     ptaly na tutéž věc jednou větou. Přibyly typy s jinou strukturou
-     jmenovatele, takže zásoba roste s čísly i s tvarem výrazu. */
-  (()=>{const a=ri(2,9),b=ri(2,12);return{text:`Pro jaké x nemá výraz\n(x + ${b}) / (${a}x + ${a*b}) smysl?\nx ≠`,ans:-b,hints:[`Vytkni ${a}: jmenovatel je ${a}(x + ${b}).`,`x + ${b} = 0 ⇒ x = −${b}`],skill:'anal'};})(),
-  (()=>{const a=ri(2,9);return{text:`Pro jaké x není definován výraz\n7 / (x² − ${a*a})?\n(napiš kladný kořen)`,ans:a,hints:[`x² − ${a*a} = (x − ${a})(x + ${a}).`,`Kladný kořen je ${a}`],skill:'anal'};})(),
-  (()=>{const a=ri(2,12),b=ri(1,9);return{text:`Kolik hodnot x musíš vyloučit\nu výrazu 4 / ((x − ${a})(x + ${b}))?`,ans:2,hints:['Každá závorka ve jmenovateli dává jednu vyloučenou hodnotu.','Dvě různé hodnoty ⇒ 2'],skill:'anal'};})(),
-  (()=>{const a=ri(2,9),b=ri(2,9);return{text:`Jmenovatel výrazu je ${a}x − ${a*b}.\nPro jaké x je roven nule?\nx =`,ans:b,hints:[`${a}x = ${a*b}`,`x = ${a*b} : ${a} = ${b}`],skill:'anal'};})(),
-  (()=>{const a=ri(2,9);return{text:`Má výraz ${a} / (x² + ${a}) nějakou\nvyloučenou hodnotu? (ANO/NE)`,ans:'NE',hints:['x² je vždy nezáporné, takže jmenovatel je vždy kladný.','NE — jmenovatel se nikdy nerovná nule'],skill:'anal'};})()]; return a[ri(0, a.length - 1)]; };
+window._fc = () => { const a = ['Vypočítej', 'Spočítej', 'Urči', 'Vyčísli']; return a[ri(0, a.length - 1)]; };
 window._fe = () => { const a = ['Vyřeš rovnici', 'Urči neznámou x', 'Najdi x z rovnice', 'Dořeš rovnici']; return a[ri(0, a.length - 1)]; };
 window.RPG_TASK_EXTRA_9 = {
 
@@ -169,6 +161,19 @@ window.RPG_TASK_EXTRA_9 = {
 
  // ───────── OBLAST 4 — SEKTOR LOMENÉHO KÓDU ─────────
  '4-1': () => [
+  /* Doplněno k rozšíření zásoby mise (jiná struktura jmenovatele).
+     POZOR na historii: tyhle generátory se kdysi omylem vlomily do pole
+     window._fc, které se tím nikdy neuzavřelo. _fc() pak losovalo z devíti
+     prvků, z toho pěti objektů úloh — a žákovi se v zadání ukazovalo
+     „[object Object]:" místo „Vypočítej:". Sem patří.
+     Původní záměr: zásoba mise byla na hraně (138 unikátních úloh) a
+     všechny otázky se ptaly na tutéž věc jednou větou; tyhle přidávají
+     jinou strukturu jmenovatele, takže zásoba roste tvarem, ne jen čísly. */
+  (()=>{const a=ri(2,9),b=ri(2,12);return{text:`Pro jaké x nemá výraz\n(x + ${b}) / (${a}x + ${a*b}) smysl?\nx ≠`,ans:String(-b),hints:[`Vytkni ${a}: jmenovatel je ${a}(x + ${b}).`,`x + ${b} = 0 ⇒ x = −${b}`],skill:'anal'};})(),
+  (()=>{const a=ri(2,9);return{text:`Pro jaké x není definován výraz\n7 / (x² − ${a*a})?\n(napiš kladný kořen)`,ans:String(a),hints:[`x² − ${a*a} = (x − ${a})(x + ${a}).`,`Kladný kořen je ${a}`],skill:'anal'};})(),
+  (()=>{const a=ri(2,12),b=ri(1,9);return{text:`Kolik hodnot x musíš vyloučit\nu výrazu 4 / ((x − ${a})(x + ${b}))?`,ans:'2',hints:['Každá závorka ve jmenovateli dává jednu vyloučenou hodnotu.','Dvě různé hodnoty ⇒ 2'],skill:'anal'};})(),
+  (()=>{const a=ri(2,9),b=ri(2,9);return{text:`Jmenovatel výrazu je ${a}x − ${a*b}.\nPro jaké x je roven nule?\nx =`,ans:String(b),hints:[`${a}x = ${a*b}`,`x = ${a*b} : ${a} = ${b}`],skill:'anal'};})(),
+  (()=>{const a=ri(2,9);return{text:`Má výraz ${a} / (x² + ${a}) nějakou\nvyloučenou hodnotu? (ANO/NE)`,ans:'NE',hints:['x² je vždy nezáporné, takže jmenovatel je vždy kladný.','NE — jmenovatel se nikdy nerovná nule'],skill:'anal'};})(),
   (()=>{const a=ri(2,9);return{text:`Pro jaké x není zlomek 8/(x − ${a}) definován?\nx ≠`,ans:String(a),hints:[`Jmenovatel nesmí být nula: x − ${a} = 0.`],skill:'anal'};})(),
   (()=>{const a=ri(2,9);return{text:`Jakou hodnotu x musíš vyloučit z definičního oboru výrazu 5/(x + ${a})?\nx ≠`,ans:String(-a),hints:[`Polož jmenovatel roven nule: x + ${a} = 0.`],skill:'anal'};})(),
   (()=>{const k=ri(1,6),a=2*k;return{text:`Pro kterou hodnotu x je jmenovatel výrazu 6/(2x − ${a}) roven nule?\nx =`,ans:String(k),hints:[`Vyřeš 2x − ${a} = 0.`],skill:'anal'};})(),
