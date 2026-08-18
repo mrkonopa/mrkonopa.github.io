@@ -173,7 +173,7 @@ function loadGrade(g) {
 
 /* ── běh ──────────────────────────────────────────────────────────── */
 console.log('\n── Audit kvality zadání (3.–9. ročník) ──\n');
-const found = { frac: [], decl: [], hintEmpty: [], hintDup: [], nan: [], typo: [], float: [], dotText: [], dotHint: [], periodic: [] };
+const found = { objekt: [], frac: [], decl: [], hintEmpty: [], hintDup: [], nan: [], typo: [], float: [], dotText: [], dotHint: [], periodic: [] };
 let generated = 0;
 
 for (const g of GRADES) {
@@ -206,6 +206,12 @@ for (const g of GRADES) {
         hints.forEach(h => periodicDecimal(czTxt(h)).forEach(v => {
           if (!String(h).includes('≈')) push('periodic', where, v + '  «' + String(h).slice(0, 60) + '»');
         }));
+        /* „[object Object]" v zadání. Vzniká, když se do řetězce dostane
+           objekt místo textu — a stalo se to: pole framing-poolu window._fc
+           v 9. ročníku se nikdy neuzavřelo, vlomilo se do něj pět generátorů
+           úloh a _fc() pak losovalo objekt místo slovesa. Žák viděl
+           „[object Object]: 30 × 3 =" zhruba u poloviny těch zadání. */
+        if (/\[object /.test(text)) push('objekt', where, text.slice(0, 60));
         badDeclension(text).forEach(d => push('decl', where, d + '  «' + text.slice(0, 60) + '»'));
         typography(text).forEach(x => push('typo', where, x + '  «' + text.slice(0, 60) + '»'));
         if (hints.length && hints.some(h => !String(h || '').trim())) push('hintEmpty', where, text.slice(0, 60));
@@ -234,6 +240,7 @@ if (process.env.LIST) {
   }
 }
 report('nan', 'žádné NaN/undefined');
+report('objekt', 'žádné „[object Object]" v zadání');
 report('decl', 'skloňování počitatelných jmen');
 report('hintEmpty', 'žádná prázdná nápověda');
 report('hintDup', 'nápovědy L1 a L2 se liší');
