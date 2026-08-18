@@ -27,7 +27,7 @@ function makeEnv(file) {
     const el = {
       style: {}, width: 600, height: 200, clientWidth: 600, isConnected: true,
       id: '', getContext: () => ctx, appendChild() {}, insertBefore() {}, removeChild() {},
-      querySelector: () => null, addEventListener() {}, parentNode: null,
+      querySelector: () => null, querySelectorAll: () => [], addEventListener() {}, parentNode: null,
     };
     el.parentNode = el; return el;
   }
@@ -53,6 +53,12 @@ function makeEnv(file) {
   };
   sandbox.globalThis = sandbox;
   vm.createContext(sandbox);
+  /* Od fáze 02 je engine 9. ročníku ve sdíleném jádru a soubor ročníku
+     je jen popis světa — bez jádra se `window.RPGSprites9` nedefinuje
+     vůbec (a to je správně, viz graceful degradation). Načti proto jádro
+     napřed, pokud existuje. */
+  const jadro = 'projects/rpg-sprite-core.js';
+  if (fs.existsSync(jadro)) vm.runInContext(fs.readFileSync(jadro, 'utf8'), sandbox);
   vm.runInContext(fs.readFileSync(file, 'utf8'), sandbox);
   return { win, topEl, magenta, fills, getRaf: () => rafCb };
 }
