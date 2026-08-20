@@ -46,7 +46,7 @@
     '...O4444444444O.....',
     '..O444444444444.OAO.',
     '..O4eeeeeeee4O..OeO.',
-    '..O4eAAAAAAe4O..OAO.',
+    '..O4eAaAAaAe4O..OAO.',
     '..O4eeeeeeee4O..KwK.',
     '..O444444444K...KwK.',
     '...K11111111K...KwK.',
