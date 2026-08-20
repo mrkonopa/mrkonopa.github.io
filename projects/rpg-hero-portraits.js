@@ -121,7 +121,7 @@ window.RPGHeroPortrait = (function () {
           ramp: ['#2b1d0c', '#4c3419', '#715228', '#ab834a'] },
     g8: { name: 'Matematická akademie',  head: 'board',  prop: 'scroll',
           accent: '#b39ddb', dark: '#4b3b78', light: '#f0e8ff', rim: '#d3c2f5',
-          ramp: ['#1c1440', '#302566', '#4b3c94', '#7d6dc7'] },
+          ramp: ['#1c1440', '#302566', '#4b3c94', '#8576cb'] },
     g9: { name: 'NULL_BYTE',             head: 'hood',   prop: 'sword',
           accent: '#19e6e6', dark: '#0e8a8a', light: '#d7ffff', rim: '#7fe9ff',
           ramp: ['#082029', '#0f3a48', '#175a6b', '#2f92a4'] }

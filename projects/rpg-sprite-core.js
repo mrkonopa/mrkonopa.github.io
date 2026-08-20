@@ -213,13 +213,25 @@ window.RPGSpriteCore = (function () {
         horizon: Math.round(cv.height * (world.backdrop && world.backdrop.horizon || 0.46)),
         ground: AR.h - AR.groundPad,
         rgba: a => 'rgba(' + t + ',' + a + ')',
-        rnd: srnd(curArea * 173 + 11),
+        /* Seed si určuje SVĚT. Dřív tu bylo natvrdo `curArea * 173 + 11`,
+           což je seed devítky — pro kterou se jádro psalo. Ostatní ročníky
+           mají vlastní (g6 `*97+13`, g7 `*131+7`, g8 `*149+5`) a s cizím
+           seedem by se jim rozložení hvězd a věží po refaktoru posunulo,
+           takže by nešlo ověřit „nulovou vizuální změnu". */
+        rnd: srnd((world.backdrop && world.backdrop.seed)
+                    ? world.backdrop.seed(curArea) : curArea * 173 + 11),
         now: now || 0, animOK: !rm()
       };
     }
     function drawBackdrop(now) {
+      /* `fullAnim` = svět si pohyblivé pozadí kreslí CELÉ v paintAnim.
+         Pak se podkladová keš nepřekládá, jinak by se poloprůhledné
+         vrstvy (opar, planeta) složily dvakrát a pozadí by zesvětlalo.
+         Pod reduced-motion se stejně kreslí jen keš, takže úspora
+         pro slabé stroje zůstává. */
+      const full = !rm() && world.backdrop && world.backdrop.fullAnim;
       const key = cv.width + 'x' + cv.height + '@' + curArea;
-      if (key !== bgKey) {
+      if (!full && key !== bgKey) {
         if (!bgc) bgc = document.createElement('canvas');
         bgc.width = cv.width; bgc.height = cv.height;
         bgx = bgc.getContext('2d');
@@ -228,7 +240,7 @@ window.RPGSpriteCore = (function () {
         if (world.backdrop && world.backdrop.paintStatic) world.backdrop.paintStatic(bgx, bgEnv(0));
         bgKey = key;
       }
-      ctx.drawImage(bgc, 0, 0);
+      if (!full) ctx.drawImage(bgc, 0, 0);
       if (!rm() && world.backdrop && world.backdrop.paintAnim) world.backdrop.paintAnim(ctx, bgEnv(now));
     }
 
@@ -389,7 +401,17 @@ window.RPGSpriteCore = (function () {
            přepsat — fáze 02 má hrdinu ještě 18 sloupců široko a bez
            přepisu by parťák uskočil o 10 px doleva. */
         const adx = (AL.dx != null) ? AL.dx : (HS.cols - 2) * HS.scale + 6;
-        const ax = hp.x + adx, ay = hp.y + 6 * HS.scale + bob;
+        /* Svisle se parťák měří od ZEMĚ (`dy`), ne od temene hrdiny.
+           Kotva k temeni znamená, že každá změna výšky hrdiny parťáka
+           tiše přesune — a to se už jednou stalo: devítka po fázi 03
+           vyrostla z 24 na 28 pokreslených řádků a parťák jí vyskočil
+           z 96 px na 76, tedy z výšky trupu do výšky hlavy. Nikdo si to
+           nevybral. Země je stabilní vztažný bod celé scény (stín, boss
+           i podlaha se měří od ní), stejným vzorem už funguje `bossPad`. */
+        const ay = (AL.dy != null)
+          ? (AR.h - AR.groundPad) - AL.dy + bob
+          : hp.y + 6 * HS.scale + bob;
+        const ax = hp.x + adx;
         drawSprite(ctx, AL.grids[rm() ? 0 : tick % AL.grids.length], AL.pal, ax, ay, AL.scale, false, false, rim);
         if (!rm() && AL.jet) {
           ctx.fillStyle = (tick % 2) ? AL.jet.hot : AL.jet.cold;
