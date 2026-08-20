@@ -13,179 +13,97 @@
 
   /* ── palety ── */
   // Hrdina v průzkumném obleku (olivová/khaki)
+  /* ══ paleta ══
+     Ramp 1–4 a akcent A/a jsou tokeny --g7-ramp1..4 / --g7-accent z fáze 00,
+     takže portrét na kartě hubu a sprite v aréně jsou tatáž postava.
+     Znak 'e' = světlý tón (sklo přilby / papyrus / papír).
+     Znak 'O' v mřížce = rim light — v paletě NENÍ, barvu dodává jádro. */
   const PAL_HERO = {
-    K:'#0a0c12', J:'#5a6a30', j:'#3a4a18', C:'#e8c060', c:'#a07820',
-    G:'#7a6a48', B:'#23232e', W:'#e8ecf5', Y:'#d4401c'
+    K: '#05070c',
+    1: '#2b1d0c', 2: '#4c3419', 3: '#715228', 4: '#ab834a',
+    A: '#f2c14e', a: '#7a5a12', e: '#fff2cf',
+    W: '#eef4ff', w: '#93a1bd',
+    Y: '#f4d03f', y: '#9a7a12',
+    G: '#3d465e', g: '#8b98b5'
   };
+
+  /* Přepisují jen ramp 2–4 a akcent; K, e, W/w, Y/y, G/g zůstávají, takže
+     žádný znak nezůstane nedefinovaný. ID stejná — obchod je prodává. */
   const HERO_SKINS = {
-    'skin-gold':    { J:'#caa12a', j:'#8a6a12', C:'#fff0b0', c:'#c9a227', G:'#8a7a3a' },
-    'skin-red':     { J:'#a51d2e', j:'#5e1019', C:'#ff6b6b', c:'#a02020', G:'#7a3a44' },
-    'skin-emerald': { J:'#108a55', j:'#0a4d31', C:'#39ff9e', c:'#1a8a5a', G:'#3a7a5a' },
-    'skin-ghost':   { J:'#4a3a78', j:'#241d3f', C:'#c08aff', c:'#7a4fd0', G:'#6a5a85' },
-    'skin-stealth': { J:'#2c2c34', j:'#161619', C:'#9fb0c8', c:'#5a6a85', G:'#40454f' }
+    'skin-gold': { 2: '#4a3a0e', 3: '#8a6a12', 4: '#caa12a', A: '#fff0b0', a: '#c9a227' },
+    'skin-red': { 2: '#3d0d14', 3: '#7a1a26', 4: '#c23a48', A: '#ff6b6b', a: '#a02020' },
+    'skin-emerald': { 2: '#0a3323', 3: '#0f6b45', 4: '#2aa877', A: '#39ff9e', a: '#1a8a5a' },
+    'skin-ghost': { 2: '#1d1733', 3: '#3a2d63', 4: '#6a55a8', A: '#c08aff', a: '#7a4fd0' },
+    'skin-stealth': { 2: '#14161c', 3: '#262a33', 4: '#4a515e', A: '#9fb0c8', a: '#5a6a85' }
   };
-  let activeSkin = null;
-  function setSkin(key) { activeSkin = HERO_SKINS[key] ? key : null; }
-  function heroPal() { return activeSkin ? Object.assign({}, PAL_HERO, HERO_SKINS[activeSkin]) : PAL_HERO; }
 
-  /* ── hrdina (18×24, průzkumník s kloboukem — kouká doprava) ── */
-  const HERO_IDLE = [[
-    '.......K..........',
-    '......KcCK........',
-    '....KKcCCcKK......',
-    '....KcCCCCcK......',
-    '...KcCCCCCCcK.....',
-    '..KcCCCCCCCCCcK...',
-    '...KKKKKKKKKK.....',
-    '....KcGGGGcK......',
-    '....KcGYGGcK......',
-    '.....KcGGcK.......',
-    '....KJJJJJJK......',
-    '.KGJjJJJJjJGK.....',
-    '.KGJjJJJJjJGK.....',
-    '.KGJjJCJJCJjJGK...',
-    '..KKJjJJJJjJKK....',
-    '...KJjJJJJjJK.....',
-    '...KJjJJJJjJK.....',
-    '...KJjJKKjJK......',
-    '...KJjK.KJjK......',
-    '...KJjK.KJjK......',
-    '...KGjK.KjGK......',
-    '...KBBK.KBBK......',
-    '..KBBBK.KBBBK.....',
-    '..KKKKK.KKKKK.....'
-  ],[
-    '..................',
-    '.......K..........',
-    '......KcCK........',
-    '....KKcCCcKK......',
-    '....KcCCCCcK......',
-    '...KcCCCCCCcK.....',
-    '..KcCCCCCCCCCcK...',
-    '...KKKKKKKKKK.....',
-    '....KcGGGGcK......',
-    '....KcGYGGcK......',
-    '.....KcGGcK.......',
-    '....KJJJJJJK......',
-    '.KGJjJJJJjJGK.....',
-    '.KGJjJJJJjJGK.....',
-    '.KGJjJCJJCJjJGK...',
-    '..KKJjJJJJjJKK....',
-    '...KJjJJJJjJK.....',
-    '...KJjJJJJjJK.....',
-    '...KJjJKKjJK......',
-    '...KJjK.KJjK......',
-    '...KJjK.KJjK......',
-    '...KGjK.KjGK......',
-    '...KBBK.KBBK......',
-    '..KBBBK.KBBBK.....'
-  ]];
-  const HERO_SLASH = [
-    '.......K..........',
-    '......KcCK........',
-    '....KKcCCcKK......',
-    '....KcCCCCcK......',
-    '...KcCCCCCCcK.....',
-    '..KcCCCCCCCCCcK...',
-    '...KKKKKKKKKK.....',
-    '....KcGGGGcK......',
-    '....KcGYGGcK......',
-    '.....KcGGcK.......',
-    '....KJJJJJJK......',
-    '.KGJjJJJJjJGKKGGK.',
-    '.KGJjJJJJjJGGKKKK.',
-    '.KGJjJCJJCJjJGKKKK',
-    '..KKJjJJJJjJKKGK..',
-    '...KJjJJJJjJK.....',
-    '...KJjJJJJjJK.....',
-    '...KJjJKKjJK......',
-    '...KJjK.KJjK......',
-    '...KJjK.KJjK......',
-    '...KGjK.KjGK......',
-    '...KBBK.KBBK......',
-    '..KBBBK.KBBBK.....',
-    '..KKKKK.KKKKK.....'
-  ];
-  const HERO_CAST = [
-    'Y......K..........',
-    'KY....KcCK........',
-    'KJY.KKcCCcKK......',
-    'KJjYKcCCCCcK......',
-    'KJjKcCCCCCCcK.....',
-    'KJKcCCCCCCCCCcK...',
-    'KJ.KKKKKKKKKK.....',
-    'KJ..KcGGGGcK......',
-    'KJ..KcGYGGcK......',
-    'KJ...KcGGcK.......',
-    'KJjKKJJJJJJK......',
-    '.KGJjJJJJjJGK.....',
-    '.KGJjJJJJjJGK.....',
-    '.KGJjJCJJCJjJGK...',
-    '..KKJjJJJJjJKK....',
-    '...KJjJJJJjJK.....',
-    '...KJjJJJJjJK.....',
-    '...KJjJKKjJK......',
-    '...KJjK.KJjK......',
-    '...KJjK.KJjK......',
-    '...KGjK.KjGK......',
-    '...KBBK.KBBK......',
-    '..KBBBK.KBBBK.....',
-    '..KKKKK.KKKKK.....'
-  ];
-  const HERO_SHOOT = [
-    '.......K..........',
-    '......KcCK........',
-    '....KKcCCcKK......',
-    '....KcCCCCcK......',
-    '...KcCCCCCCcK.....',
-    '..KcCCCCCCCCCcK...',
-    '...KKKKKKKKKK.....',
-    '....KcGGGGcK......',
-    '....KcGYGGcK......',
-    '.....KcGGcK.......',
-    '....KJJJJJJK......',
-    '.KGJjJJJJjJGKKKKK.',
-    '.KGJjJJJJjJGGGcCK.',
-    '.KGJjJCJJCJjJGKKKK',
-    '..KKJjJJJJjJKKKK..',
-    '...KJjJJJJjJK.....',
-    '...KJjJJJJjJK.....',
-    '...KJjJKKjJK......',
-    '...KJjK.KJjK......',
-    '...KJjK.KJjK......',
-    '...KGjK.KjGK......',
-    '...KBBK.KBBK......',
-    '..KBBBK.KBBBK.....',
-    '..KKKKK.KKKKK.....'
-  ];
-  const HERO_HIT = [
-    '.......K..........',
-    '......KcCK........',
-    '....KKcCCcKK......',
-    '....KcCCCCcK......',
-    '...KcCCCCCCcK.....',
-    '..KcCCCCCCCCCcK...',
-    '...KKKKKKKKKK.....',
-    '....KcGGGGcK......',
-    '....KcGJGGcK......',
-    '.....KcGGcK.......',
-    '....KJJJJJJK......',
-    '.KGJjJJJJjJGK.....',
-    '.KGJjJJJJjJGK.....',
-    '.KGJjJCJJCJjJGK...',
-    '..KKJjJJJJjJKK....',
-    '...KJjJJJJjJK.....',
-    '...KJjJJJJjJK.....',
-    '...KJjJKKjJK......',
-    '...KJjK.KJjK......',
-    '...KJjK.KJjK......',
-    '...KGjK.KjGK......',
-    '...KBBK.KBBK......',
-    '..KBBBK.KBBBK.....',
-    '..KKKKK.KKKKK.....'
+  /* ══ hrdina — 20 × 29, 28 pokreslených řádků (spodní je rezerva pro stín) ══
+     Sloupce 0–15 tělo, 16–19 rekvizita (pochodeň).
+     Řádek 13, sloupce 14–15 je PŘEDLOKTÍ, které rekvizitu drží —
+     bez něj se vznáší vedle těla. Drží se v jednom bodě, ne po celé délce. */
+  const IDLE0 = [
+    '.......K44K.........',
+    '......K3333K........',
+    '..KKKKKKKKKKKK......',
+    '..K3333333333K...A..',
+    '...KK444444KK...AeA.',
+    '....O44444K.....AYA.',
+    '....O4eAAe4K....YAY.',
+    '....O44444K......Y..',
+    '.....K444K......KwK.',
+    '.....K111K......KwK.',
+    '...O44444444K...KwK.',
+    '..O4w4444444K...KwK.',
+    '..O43w333332K...KwK.',
+    '..O433w3332KGGGGKwK.',
+    '..O4333w332KgG..KwK.',
+    '..O4YYYYYYY2KGG.KYK.',
+    '..O43333332K........',
+    '..K23333322K........',
+    '...K3333333K........',
+    '...K333K.K333K......',
+    '...O433K.O433K......',
+    '...O433K.O433K......',
+    '...OG3GK.OG3GK......',
+    '...KGGGK.KGGGK......',
+    '...KgGGK.KgGGK......',
+    '...KGGGK.KGGGK......',
+    '...KGGGK.KGGGK......',
+    '...KKKKK.KKKKK......',
+    '....................'
   ];
 
-  /* ── zlatý skarabeus (parťák, 10×10) ── */
+  /* ── pózy se ODVOZUJÍ z IDLE0, neopisují se ── */
+  const W = IDLE0[0].length;
+  const paste = (gr, r, c, s) => { gr[r] = (gr[r].slice(0, c) + s + gr[r].slice(c + s.length)).slice(0, W); };
+
+  /* Ruší rekvizitu I to předloktí — meč a rekvizita se vylučují a bez druhého
+     kroku by v pózách s mečem zůstal viset dvoupixelový stub. */
+  function stripProp(gr) {
+    const out = gr.map(r => r.slice(0, 16) + '....');
+    paste(out, 13, 14, '..');
+    return out;
+  }
+
+  /* Dech vypouští ZDVOJENÝ řádek 21 a zbytek posune o pixel níž.
+     Nohy zůstávají na místě ⇒ oba snímky mají 28 pokreslených řádků,
+     chodidla neposkakují a kontaktní stín se neodlepí. */
+  const IDLE1 = ['.'.repeat(W)].concat(IDLE0.slice(0, 21)).concat(IDLE0.slice(22));
+
+  const WINDUP = stripProp(IDLE0.slice());
+  paste(WINDUP, 0, 12, 'KWWWWWK'); paste(WINDUP, 1, 13, 'KwWWWK'); paste(WINDUP, 2, 15, 'KYYK');
+
+  const SLASH = stripProp(IDLE0.slice());
+  paste(SLASH, 12, 13, 'KWWWWWK'); paste(SLASH, 13, 13, 'KwWWWwK');
+
+  const CAST = IDLE0.slice();
+  paste(CAST, 1, 0, 'AA'); paste(CAST, 2, 0, 'AAA'); paste(CAST, 3, 0, 'aAa'); paste(CAST, 4, 0, '.A.');
+
+  const SHOOT = stripProp(IDLE0.slice());
+  paste(SHOOT, 13, 13, 'KGGWWA'); paste(SHOOT, 14, 13, 'KKK');
+
+  const HIT = IDLE0.map(r => r.replace(/A/g, 'a').replace(/O/g, 'K'));
+
   const PAL_COM = { K:'#0a0c12', G:'#c8a040', g:'#806820', S:'#e8d090', T:'#40a8c0' };
       const COMPANION = [[
     '.....KGGK.....',
@@ -672,20 +590,19 @@
 
   const WORLD7 = {
     id: 7,
-    /* KROK A: žádný rim ani stín — vzhled se nesmí změnit. */
-    look: { rim: false, shadow: false },
     /* bossPad 14: starý engine měl bosse na pevných 186 px. */
     arena: { h: 200, groundPad: 14, bossPad: 14, heroX: 0.12, bossX: 0.58 },
     hero: {
-      cols: 18, rows: 24, scale: 5,
-      pal: PAL_HERO, skins: HERO_SKINS,
-      grids: { idle: HERO_IDLE, slash: HERO_SLASH, cast: HERO_CAST, shoot: HERO_SHOOT, hit: HERO_HIT }
+      cols: 20, rows: 29, legacyRows: 24,   // legacyRows = kotva drawHeroOn (Věž legend)
+      scale: 5, pal: PAL_HERO, skins: HERO_SKINS,
+      grids: { idle: [IDLE0, IDLE1], windup: WINDUP, slash: SLASH,
+               cast: CAST, shoot: SHOOT, hit: HIT }
     },
     /* dx 96 = staré hp.x + 18*SCALE + 6; výchozí (18−2)*5+6 = 86 by parťáka
        posunulo o 10 px doleva.  `jet` = jiskřičky pod parťákem — bez nich
        se parťák kreslí, ale efekt tiše zmizí, a pod reduced-motion se to
        NEPOZNÁ, protože se stejně nekreslí. */
-    ally: { scale: 4, dy: 90, pal: PAL_COM, grids: COMPANION, dx: 96,
+    ally: { scale: 4, dy: 90, pal: PAL_COM, grids: COMPANION,
             jet: { hot: '#e8c060', cold: '#a07820', at: [[5, 13]] } },
     /* 5, NE 7 — všech 7 bossů má 24 řádků, starý engine je kreslil
        měřítkem 5 a BSCALE = 7 je mrtvá konstanta. NEOPRAVOVAT. */

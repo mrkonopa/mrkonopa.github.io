@@ -27,6 +27,10 @@ const PARAM = {
   // Bez tohohle běžela „Najdi chybu" jen pro 9. ročník a zbylých šest
   // sad karet nikdo nekontroloval. Všech sedm prochází (18 kontrol každý).
   'rpg-finderror.test.cjs': ['3', '4', '5', '6', '7', '8', '9'],
+  // Test jádra bere ročník argumentem. Bez tohohle řádku by se z něj
+  // kontrolovala jen výchozí devítka a zbylé tři migrované ročníky
+  // (mřížky, kontrast, skiny, drawHeroOn) by neprošly ničím.
+  'rpg-sprite-core.test.cjs': ['6', '7', '8', '9'],
 };
 // Harnessy/hostile skripty, co nesedí na *.test.cjs / *.audit.cjs vzor:
 const EXTRA = [
