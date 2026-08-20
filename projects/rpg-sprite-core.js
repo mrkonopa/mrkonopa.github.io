@@ -401,7 +401,17 @@ window.RPGSpriteCore = (function () {
            přepsat — fáze 02 má hrdinu ještě 18 sloupců široko a bez
            přepisu by parťák uskočil o 10 px doleva. */
         const adx = (AL.dx != null) ? AL.dx : (HS.cols - 2) * HS.scale + 6;
-        const ax = hp.x + adx, ay = hp.y + 6 * HS.scale + bob;
+        /* Svisle se parťák měří od ZEMĚ (`dy`), ne od temene hrdiny.
+           Kotva k temeni znamená, že každá změna výšky hrdiny parťáka
+           tiše přesune — a to se už jednou stalo: devítka po fázi 03
+           vyrostla z 24 na 28 pokreslených řádků a parťák jí vyskočil
+           z 96 px na 76, tedy z výšky trupu do výšky hlavy. Nikdo si to
+           nevybral. Země je stabilní vztažný bod celé scény (stín, boss
+           i podlaha se měří od ní), stejným vzorem už funguje `bossPad`. */
+        const ay = (AL.dy != null)
+          ? (AR.h - AR.groundPad) - AL.dy + bob
+          : hp.y + 6 * HS.scale + bob;
+        const ax = hp.x + adx;
         drawSprite(ctx, AL.grids[rm() ? 0 : tick % AL.grids.length], AL.pal, ax, ay, AL.scale, false, false, rim);
         if (!rm() && AL.jet) {
           ctx.fillStyle = (tick % 2) ? AL.jet.hot : AL.jet.cold;
