@@ -3516,7 +3516,7 @@ function renderTrainPicker(){
      RPGIcons.svg() se do hlavičky vypíše to slovo jako text. Přesně
      tohle se už jednou stalo v 1. stupni po přechodu z emoji na
      pixelovou sadu; ve 2. stupni to zůstalo v tréninku. */
-  const _ik = (typeof RPGIcons !== 'undefined') ? RPGIcons.svg(ar.icon, 14) : '';
+  const _ik = (typeof RPGIcons !== 'undefined') ? RPGIcons.svg(ar.icon, 12) : '';
   let html=`<div style="font-family:var(--px);font-weight:700;font-size:14px;color:var(--gold);margin-bottom:8px;display:flex;align-items:center;gap:6px"><span style="line-height:0">${_ik}</span>${ar.name.replace(/\n/g,' ')}</div>`;
   ar.missions.slice().sort((a,b)=>(S.errs&&S.errs[b.id]||0)-(S.errs&&S.errs[a.id]||0)).forEach(m=>{
    const ms=masteryOf(m.id);
