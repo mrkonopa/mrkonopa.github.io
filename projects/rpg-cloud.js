@@ -20,6 +20,13 @@ window.RPGCloud = (function () {
 
   const configured = () =>
     !!(CONFIG.SUPABASE_URL && CONFIG.SUPABASE_ANON_KEY && window.supabase);
+  /* `configured()` je false ze DVOU různých důvodů a pro učitele to není
+     totéž: buď nejsou vyplněné klíče (to spraví jen editace souboru),
+     nebo se nenačetla knihovna z CDN (blokovaná síť, výpadek, offline).
+     Konzole dřív hlásila „Vyplň klíče" i v druhém případě, takže by
+     šel opravovat něco, co je v pořádku. */
+  const hasKeys = () => !!(CONFIG.SUPABASE_URL && CONFIG.SUPABASE_ANON_KEY);
+  const libLoaded = () => !!window.supabase;
 
   const emailOK = u =>
     !!u && String(u.email || '').toLowerCase().endsWith('@' + CONFIG.ALLOWED_DOMAIN);
@@ -1235,7 +1242,7 @@ window.RPGCloud = (function () {
     } catch (e) { return []; }
   }
 
-  return { CONFIG, configured, init, login, logout, currentUser, getError,
+  return { CONFIG, configured, hasKeys, libLoaded, init, login, logout, currentUser, getError,
            pull, push, syncWallet, onChange, attachGame, attachHub,
            // Fáze 2 — role a učitelská konzole
            getRole, isStaff, isAdmin, fetchRole, requireStaff,

@@ -78,7 +78,16 @@ function serve() {
             for (const n of el.childNodes) {
               if (n.nodeType !== 3) continue;                    // jen textové uzly
               const t = (n.textContent || '').trim();
-              if (t && jmena.includes(t))
+              /* Dvě podoby téže vady:
+                 (a) uzel JE názvem ikony — `${ar.ic}` samo v elementu,
+                 (b) uzel jím ZAČÍNÁ — `${ar.icon} ${ar.name}` slepené do
+                     jednoho uzlu („mountain ÚDOLÍ OPAKOVÁNÍ").
+                 Původní test uměl jen (a), takže mu v tréninku 6.–9.
+                 ročníku uniklo (b) — vypsané „mountain" a „hill".
+                 Falešný poplach nehrozí: názvy ikon jsou anglická slova
+                 a všechny popisky ve hře jsou česky. */
+              const prvni = t.split(/\s+/)[0];
+              if (t && (jmena.includes(t) || (jmena.includes(prvni) && t !== prvni)))
                 uniky.push(jm + ' → «' + t + '» v <' + el.tagName.toLowerCase() +
                   (el.className ? ' class=' + String(el.className).split(' ')[0] : '') + '>');
             }

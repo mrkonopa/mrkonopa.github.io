@@ -567,13 +567,24 @@ function setStupen(n){
 }
 const TOTAL_TASKS=126; // 7 oblastí × 3 mise × 6 úkolů
 const ATTR=[['calc','🔢','Výpočty'],['geo','📐','Geometrie'],['anal','🧠','Analýza'],['craft','⚡','Zručnost']];
-// odznaky (zrcadlo ACH z her — jen ikona+název pro souhrn napříč hrami)
+// Odznaky — zrcadlo ACH z her, jen ikona + název pro souhrn napříč hrami.
+// POZOR, dvě věci, na kterých to už jednou drhlo:
+// 1) Seznam musí mít VŠECHNY odznaky, co mají hry. Když se do her přidaly
+//    čtyři (živý souboj + oživení) a sem ne, hub tiše hlásil „0/15" místo
+//    „0/19" a čtyři získané odznaky se vůbec nezobrazily. Kontrolu dělá
+//    tests/rpg-ach-hub.test.cjs — porovnává tenhle seznam s ACH ve hrách.
+// 2) Názvy tu musí být NEUTRÁLNÍ. Hub agreguje přes všechny ročníky, takže
+//    tematické jméno jednoho ročníku je pro ostatní špatně: dřív tu byly
+//    názvy z devítky, takže třeťákovi hub u jeho lesního odznaku ukazoval
+//    „ROOT přístup" místo „Pán lesa". Tematické názvy zůstávají ve hrách.
 const ACH=[
- {id:'boot',ic:'drop',nm:'První průnik'},{id:'crit',ic:'bolt',nm:'Overclock'},{id:'combo5',ic:'flame',nm:'Řetězová reakce'},
- {id:'flawless',ic:'chip',nm:'Čistý kód'},{id:'flash',ic:'stopwatch',nm:'Bleskový průnik'},{id:'survivor',ic:'skull',nm:'Z posledních sil'},
- {id:'area1',ic:'key',nm:'Insider'},{id:'half',ic:'half',nm:'Půlka systému'},{id:'root',ic:'eye',nm:'ROOT přístup'},
- {id:'lv5',ic:'chart',nm:'Level 5'},{id:'lv10',ic:'rocket',nm:'Level 10'},{id:'master1',ic:'medal',nm:'Mistr tématu'},
- {id:'train50',ic:'target',nm:'Trenér'},{id:'streak3',ic:'calendar',nm:'Návyk'},{id:'streak7',ic:'streak',nm:'Týden disciplíny'},
+ {id:'boot',ic:'drop',nm:'První úkol'},{id:'crit',ic:'bolt',nm:'Kritické zásahy'},{id:'combo5',ic:'flame',nm:'Série pěti'},
+ {id:'flawless',ic:'chip',nm:'Mise bez nápovědy'},{id:'flash',ic:'stopwatch',nm:'Rychlá odpověď'},{id:'survivor',ic:'skull',nm:'Z posledních sil'},
+ {id:'area1',ic:'key',nm:'První oblast'},{id:'half',ic:'half',nm:'Čtyři oblasti'},{id:'root',ic:'eye',nm:'Všech sedm oblastí'},
+ {id:'lv5',ic:'chart',nm:'Úroveň 5'},{id:'lv10',ic:'rocket',nm:'Úroveň 10'},{id:'master1',ic:'medal',nm:'Mistr tématu'},
+ {id:'train50',ic:'target',nm:'Trenér'},{id:'streak3',ic:'calendar',nm:'Tři dny v řadě'},{id:'streak7',ic:'streak',nm:'Sedm dní v řadě'},
+ {id:'battle1',ic:'swords',nm:'První živý souboj'},{id:'battlewin',ic:'trophy',nm:'Vítěz živého souboje'},
+ {id:'battleflawless',ic:'gem',nm:'Bezchybný souboj'},{id:'star1',ic:'star',nm:'Oživovatel'},
 ];
 const HUB_HAS_WALLET = (typeof RPGWallet !== 'undefined');
 

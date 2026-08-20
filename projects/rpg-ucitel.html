@@ -596,7 +596,17 @@ function paintGate(){
  document.getElementById('logout-btn').classList.toggle('hidden',!u);
  if(!RPGCloud.configured()){
   gate.classList.remove('hidden');con.classList.add('hidden');
-  big.textContent='Cloud není nastavený';msg.textContent='Vyplň klíče v rpg-cloud.js (viz RPG-CLOUD-SETUP.md).';btn.classList.add('hidden');return;
+  /* Dva různé důvody, dvě různé rady. Dřív tu stálo „Vyplň klíče" i tehdy,
+     když klíče vyplněné BYLY a jen se nenačetla knihovna ze sítě — učitel
+     by šel opravovat soubor, ve kterém není chyba. */
+  if(RPGCloud.hasKeys && RPGCloud.hasKeys() && RPGCloud.libLoaded && !RPGCloud.libLoaded()){
+   big.textContent='Nenačetla se cloudová knihovna';
+   msg.textContent='Klíče jsou vyplněné, ale nepodařilo se stáhnout knihovnu Supabase z internetu. Zkontroluj připojení — školní síť může mít blokované cdn.jsdelivr.net. Po obnovení stránky to zkusí znovu.';
+  }else{
+   big.textContent='Cloud není nastavený';
+   msg.textContent='Vyplň klíče v rpg-cloud.js (viz RPG-CLOUD-SETUP.md).';
+  }
+  btn.classList.add('hidden');return;
  }
  const err=RPGCloud.getError&&RPGCloud.getError();
  if(err&&String(err.message||'').startsWith('timeout')){

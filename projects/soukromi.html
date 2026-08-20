@@ -34,7 +34,12 @@
   .tldr{background:#eaf2fb;border:1px solid #cfe0f4;border-radius:12px;padding:16px 20px;margin:18px 0}
   .tldr b{color:var(--accent)}
   .note{background:#fff7ea;border:1px solid #f3e0bd;border-radius:12px;padding:14px 18px;font-size:15px;color:#6b5320}
-  table{border-collapse:collapse;width:100%;margin:12px 0;font-size:15px}
+  table{border-collapse:collapse;width:100%;margin:12px 0;font-size:15px;table-layout:fixed}
+  /* Bez tohohle roztáhne třetí sloupec tabulku na mobilu o 28 px ven
+     ze stránky (naměřeno 418 px při šířce 390) a celá stránka se
+     dá posouvat do stran. Dlouhé řetězce typu @husovaliberec.cz se
+     samy nezalomí. */
+  th,td{overflow-wrap:anywhere}
   th,td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
   th{background:#eef2f8;font-weight:600}
   footer{color:var(--muted);font-size:13px;margin-top:30px;text-align:center}

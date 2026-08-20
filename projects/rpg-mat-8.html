@@ -1778,15 +1778,15 @@ function hitVignette(){
 // ODZNAKY (ACHIEVEMENTS) + DENNÍ SÉRIE
 // ══════════════════════════════════════════
 const ACH=[
- {id:'boot',   ic:'drop', nm:'První průnik',     desc:'Vyřeš první úkol'},
- {id:'crit',   ic:'bolt', nm:'Overclock',        desc:'10× kritický zásah'},
- {id:'combo5', ic:'flame', nm:'Řetězová reakce',  desc:'Combo 5 v jednom boji'},
- {id:'flawless',ic:'brain',nm:'Čistý kód',        desc:'Mise bez nápovědy'},
- {id:'flash',  ic:'stopwatch', nm:'Bleskový průnik',  desc:'Správně s 30+ s na čase'},
+ {id:'boot',   ic:'drop', nm:'První zkouška',     desc:'Vyřeš první úkol'},
+ {id:'crit',   ic:'bolt', nm:'Bleskový důkaz',        desc:'10× kritický zásah'},
+ {id:'combo5', ic:'flame', nm:'Řetěz úvah',  desc:'Combo 5 v jednom boji'},
+ {id:'flawless',ic:'brain',nm:'Čistý postup',        desc:'Mise bez nápovědy'},
+ {id:'flash',  ic:'stopwatch', nm:'Rychlé řešení',  desc:'Správně s 30+ s na čase'},
  {id:'survivor',ic:'skull',nm:'Z posledních sil', desc:'Vyhraj boj s 1 životem'},
- {id:'area1',  ic:'key', nm:'Insider',          desc:'Splň první oblast'},
- {id:'half',   ic:'half', nm:'Půlka systému',    desc:'Splň 4 oblasti'},
- {id:'root',   ic:'eye', nm:'ROOT přístup',     desc:'Splň všech 7 oblastí'},
+ {id:'area1',  ic:'key', nm:'Klíč od učebny',          desc:'Splň první oblast'},
+ {id:'half',   ic:'half', nm:'Půlka studia',    desc:'Splň 4 oblasti'},
+ {id:'root',   ic:'eye', nm:'Rektor akademie',     desc:'Splň všech 7 oblastí'},
  {id:'lv5',    ic:'chart', nm:'Level 5',          desc:'Dosáhni úrovně 5'},
  {id:'lv10',   ic:'rocket', nm:'Level 10',         desc:'Dosáhni úrovně 10'},
  {id:'master1',ic:'medal', nm:'Mistr tématu',     desc:'1 mistrovství v tréninku'},
@@ -3512,7 +3512,12 @@ function renderTrainPicker(){
   const sec=document.createElement('div');
   sec.className='panel';
   sec.style.marginTop='12px';
-  let html=`<div style="font-family:var(--px);font-weight:700;font-size:14px;color:var(--gold);margin-bottom:8px">${ar.icon} ${ar.name.replace(/\n/g,' ')}</div>`;
+  /* `ar.icon` je NÁZEV ikony ('mountain', 'hill'), ne emoji — bez
+     RPGIcons.svg() se do hlavičky vypíše to slovo jako text. Přesně
+     tohle se už jednou stalo v 1. stupni po přechodu z emoji na
+     pixelovou sadu; ve 2. stupni to zůstalo v tréninku. */
+  const _ik = (typeof RPGIcons !== 'undefined') ? RPGIcons.svg(ar.icon, 14) : '';
+  let html=`<div style="font-family:var(--px);font-weight:700;font-size:14px;color:var(--gold);margin-bottom:8px;display:flex;align-items:center;gap:6px"><span style="line-height:0">${_ik}</span>${ar.name.replace(/\n/g,' ')}</div>`;
   ar.missions.slice().sort((a,b)=>(S.errs&&S.errs[b.id]||0)-(S.errs&&S.errs[a.id]||0)).forEach(m=>{
    const ms=masteryOf(m.id);
    const rv=reviveState(m.id);
