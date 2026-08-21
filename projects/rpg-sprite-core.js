@@ -405,11 +405,20 @@ window.RPGSpriteCore = (function () {
            Kotva k temeni znamená, že každá změna výšky hrdiny parťáka
            tiše přesune — a to se už jednou stalo: devítka po fázi 03
            vyrostla z 24 na 28 pokreslených řádků a parťák jí vyskočil
-           z 96 px na 76, tedy z výšky trupu do výšky hlavy. Nikdo si to
-           nevybral. Země je stabilní vztažný bod celé scény (stín, boss
-           i podlaha se měří od ní), stejným vzorem už funguje `bossPad`. */
+           o 20 px, z výšky trupu do výšky hlavy. Nikdo si to nevybral.
+           Země je stabilní vztažný bod celé scény (stín, boss i podlaha
+           se měří od ní), stejným vzorem už funguje `bossPad`.
+
+           `dy` je vzdálenost od země ke SPODKU KRESBY, ne k horní hraně
+           mřížky. Rozdíl se projeví, až parťák někdy povyroste: při
+           14 pokreslených řádcích dávají obě kotvy shodně 34 px nad
+           zemí, ale při 16 řádcích kotva k horní hraně spadne na 26 px
+           (sprite se propadne k zemi), kdežto kotva ke spodku drží 34
+           a sprite roste nahoru. Je to táž vada, jakou tenhle kód
+           opravuje u hrdiny, jen o patro níž. */
+        const alBottom = (AR.h - AR.groundPad) - AL.dy;
         const ay = (AL.dy != null)
-          ? (AR.h - AR.groundPad) - AL.dy + bob
+          ? alBottom - paintedRows(AL.grids[0]) * AL.scale + bob
           : hp.y + 6 * HS.scale + bob;
         const ax = hp.x + adx;
         drawSprite(ctx, AL.grids[rm() ? 0 : tick % AL.grids.length], AL.pal, ax, ay, AL.scale, false, false, rim);
