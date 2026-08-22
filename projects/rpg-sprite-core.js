@@ -166,6 +166,14 @@ window.RPGSpriteCore = (function () {
       return n;
     }
     const HERO_PAINT = paintedRows(HS.grids.idle[0]);
+    /* Kotva hrdiny k zemi. Normálně = počet pokreslených řádků, takže
+       chodidla stojí na podlaze. Starý engine 1. stupně ale kotvil podle
+       PEVNÉ výšky mřížky (24), a protože 4. ročník má 23 pokreslených
+       řádků a 5. ročník 22, vyšla by mu postava o 5 resp. 10 px níž.
+       U 6.–9. se obojí shodovalo (24 z 24), takže se to při jejich portu
+       neprojevilo. `anchorRows` slouží jen kroku A; nové mřížky ho nemají
+       a kotví se podle kresby. */
+    const HERO_ANCHOR = (HS.anchorRows != null) ? HS.anchorRows : HERO_PAINT;
     function onLitEdge(g, r, c, flip) {
       return !isOpaque(g, r - 1, c) || !isOpaque(g, r, flip ? c + 1 : c - 1);
     }
@@ -246,7 +254,7 @@ window.RPGSpriteCore = (function () {
 
     /* ── pozice ── */
     function heroPos() {
-      return { x: Math.round(cv.width * AR.heroX), y: (AR.h - AR.groundPad) - HERO_PAINT * HS.scale };
+      return { x: Math.round(cv.width * AR.heroX), y: (AR.h - AR.groundPad) - HERO_ANCHOR * HS.scale };
     }
     function bossGrids() { return BS.grids[curArea] || BS.grids[1]; }
     function bossPos() {
@@ -395,7 +403,10 @@ window.RPGSpriteCore = (function () {
 
       /* ── parťák (levituje vedle hrdiny) ── */
       if (AL) {
-        const bob = rm() ? 0 : Math.sin(now / 380) * 6;
+        /* Amplitudu houpání si určuje SVĚT: 2. stupeň má 6 px, 1. stupeň 5.
+           Natvrdo zadaná šestka by 1. stupni změnila pohyb parťáka — pod
+           reduced-motion by se to nepoznalo, protože tam je bob nulový. */
+        const bob = rm() ? 0 : Math.sin(now / 380) * (AL.bob != null ? AL.bob : 6);
         /* Výchozí odsazení `(cols-2)*scale` drží parťáka na místě i po
            zvětšení hrdiny na 20 sloupců (fáze 03). Svět si ho ale může
            přepsat — fáze 02 má hrdinu ještě 18 sloupců široko a bez
@@ -405,11 +416,20 @@ window.RPGSpriteCore = (function () {
            Kotva k temeni znamená, že každá změna výšky hrdiny parťáka
            tiše přesune — a to se už jednou stalo: devítka po fázi 03
            vyrostla z 24 na 28 pokreslených řádků a parťák jí vyskočil
-           z 96 px na 76, tedy z výšky trupu do výšky hlavy. Nikdo si to
-           nevybral. Země je stabilní vztažný bod celé scény (stín, boss
-           i podlaha se měří od ní), stejným vzorem už funguje `bossPad`. */
+           o 20 px, z výšky trupu do výšky hlavy. Nikdo si to nevybral.
+           Země je stabilní vztažný bod celé scény (stín, boss i podlaha
+           se měří od ní), stejným vzorem už funguje `bossPad`.
+
+           `dy` je vzdálenost od země ke SPODKU KRESBY, ne k horní hraně
+           mřížky. Rozdíl se projeví, až parťák někdy povyroste: při
+           14 pokreslených řádcích dávají obě kotvy shodně 34 px nad
+           zemí, ale při 16 řádcích kotva k horní hraně spadne na 26 px
+           (sprite se propadne k zemi), kdežto kotva ke spodku drží 34
+           a sprite roste nahoru. Je to táž vada, jakou tenhle kód
+           opravuje u hrdiny, jen o patro níž. */
+        const alBottom = (AR.h - AR.groundPad) - AL.dy;
         const ay = (AL.dy != null)
-          ? (AR.h - AR.groundPad) - AL.dy + bob
+          ? alBottom - paintedRows(AL.grids[0]) * AL.scale + bob
           : hp.y + 6 * HS.scale + bob;
         const ax = hp.x + adx;
         drawSprite(ctx, AL.grids[rm() ? 0 : tick % AL.grids.length], AL.pal, ax, ay, AL.scale, false, false, rim);

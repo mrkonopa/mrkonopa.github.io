@@ -333,7 +333,7 @@
       grids: { idle: [IDLE0, IDLE1], windup: WINDUP, slash: SLASH, cast: CAST, shoot: SHOOT, hit: HIT }
     },
     ally: {
-      scale: 4, dy: 90, pal: PAL_AND, grids: ANDROID,
+      scale: 4, dy: 34, pal: PAL_AND, grids: ANDROID,
       jet: { hot: '#19e6e6', cold: '#0e8a8a', at: [[4, 13], [9, 13]] }
     },
     bosses: { scale: 5, pals: BOSS_PALS, common: COMMON, grids: BOSS },

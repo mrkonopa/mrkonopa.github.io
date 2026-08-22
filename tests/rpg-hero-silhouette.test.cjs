@@ -38,7 +38,7 @@
 const fs = require('fs'), path = require('path');
 
 const ROOT = path.join(__dirname, '..');
-const ROCNIKY = [6, 7, 8, 9];
+const ROCNIKY = [3, 4, 5, 6, 7, 8, 9];
 const PRAH = 8;    // procenta odlišných obsazených pixelů
 
 let pass = 0, fail = 0;

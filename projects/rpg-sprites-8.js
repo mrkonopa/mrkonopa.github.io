@@ -606,7 +606,7 @@
        posunulo o 10 px doleva.  `jet` = jiskřičky pod parťákem — bez nich
        se parťák kreslí, ale efekt tiše zmizí, a pod reduced-motion se to
        NEPOZNÁ, protože se stejně nekreslí. */
-    ally: { scale: 4, dy: 90, pal: PAL_COM, grids: COMPANION,
+    ally: { scale: 4, dy: 34, pal: PAL_COM, grids: COMPANION,
             jet: { hot: '#aa88ff', cold: '#5533aa', at: [[3, 13], [6, 13]] } },
     /* 5, NE 7 — všech 7 bossů má 24 řádků, starý engine je kreslil
        měřítkem 5 a BSCALE = 7 je mrtvá konstanta. NEOPRAVOVAT. */

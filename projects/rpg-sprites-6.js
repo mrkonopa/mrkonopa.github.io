@@ -606,7 +606,7 @@
        studený/horký podle tick%2). Bez něj se sonda kreslí, ale plamínky
        zmizí — a pod reduced-motion se to NEPOZNÁ, protože se stejně
        nekreslí. Odhaleno až srovnáním animované vrstvy se zmrazeným časem. */
-    ally: { scale: 4, dy: 90, pal: PAL_COM, grids: COMPANION,
+    ally: { scale: 4, dy: 34, pal: PAL_COM, grids: COMPANION,
             jet: { hot: '#4dc8ff', cold: '#1a6a8a', at: [[5, 13], [6, 13]] } },
     /* 5, NE 7 — všech 7 bossů má 24 řádků, starý engine je kreslil
        měřítkem 5 a BSCALE = 7 je mrtvá konstanta. NEOPRAVOVAT. */
