@@ -102,6 +102,257 @@ window.RPGHeroPortrait = (function () {
     '...KKGGK..KGGKKR....', '...KGGGK..KGGGKR....', '...KKKKK..KKKKKR....'
   ];
 
+  /* ── mřížky hrdinů: DOSLOVNÁ KOPIE z rpg-sprites-3..9.js ─────────────
+     Portrét na kartě musí být tatáž postava jako v aréně. Dřív se skládal
+     ze sdíleného BODY + pokrývky hlavy, takže všech sedm ročníků mělo
+     stejné tělo a lišila se jen barva — přesně to, co Vojta na spritech
+     odmítl. Teď se kreslí SKUTEČNÁ arénová mřížka.
+
+     Je to kopie, ne odkaz: hub je rozcestník a načítat kvůli portrétům
+     ~146 kB sprite modulů by ho zbytečně zpomalilo. Že se kopie nerozejde
+     s originálem, hlídá tests/rpg-portrait-sync.test.cjs — porovnává
+     mřížky i palety znak po znaku. */
+  var HERO_ART = {
+    g3: {
+      grid: [
+        '..........KAK.......',
+        '.........KaAK.......',
+        '........K4aK........',
+        '.......K43K.........',
+        '......K443K.........',
+        '.....K4443K.........',
+        '....K44443K.........',
+        '....K444432K........',
+        '....O444444K........',
+        '....O4K44K4K.....A..',
+        '.....K4444K.....AaA.',
+        '.....K1111K......A..',
+        '...KAA4443AAK...KyK.',
+        '....O44444432KGGKyK.',
+        '....O4444432K...KyK.',
+        '....O4YYYY43K...KyK.',
+        '....O4444432K...KyK.',
+        '....O4444432K...KyK.',
+        '....O4444432K...KyK.',
+        '...O443A44443K..KyK.',
+        '...K444444432K..KyK.',
+        '...K.4K.4K.4K...KyK.',
+        '.....K4K.K4K........',
+        '.....K4K.K4K........',
+        '.....K4K.K4K........',
+        '....KGGK.KGGK.......',
+        '....KGgK.KGgK.......',
+        '....KKKK.KKKK.......',
+        '....................'
+      ],
+      pal: { K: '#05070c', 1: '#10240f', 2: '#1e4520', 3: '#2f6b33', 4: '#5da85c', A: '#a9f08a', a: '#6fc24a', e: '#d8ffcf', W: '#eef4ff', w: '#93a1bd', Y: '#f4d03f', y: '#9a7a12', G: '#3d465e', g: '#8b98b5' }
+    },
+    g4: {
+      grid: [
+        '.......K44K.........',
+        '......K44443K.......',
+        '.KKK444444444KKK....',
+        '...K33333333K.......',
+        '....K444443K........',
+        '....K4K4K43K........',
+        '.....K4443K.........',
+        '.....K1111K.........',
+        '....K444443K........',
+        '...K4A4444A43K......',
+        '...O444444443K......',
+        '...O444Y44443K......',
+        '...O444444443K......',
+        '..O4444444443KGG.KK.',
+        '.OA4444444444AK.K..K',
+        '..O4YYYY44443K..KYYK',
+        '..O44444444443K.KeeK',
+        '..O44444444443K.KeeK',
+        '..O44444444443K.KYYK',
+        '..K44444444443K..KK.',
+        '..K44444444443K.....',
+        '..K43K.K4K.K43K.....',
+        '..K3K..K4K..K3K.....',
+        '.......K4K..........',
+        '.......K4K..........',
+        '......KGGGK.........',
+        '......KGgGK.........',
+        '......KKKKK.........',
+        '....................'
+      ],
+      pal: { K: '#05070c', 1: '#0e2438', 2: '#173e5c', 3: '#255e85', 4: '#4e97c4', A: '#8fd9ff', a: '#4ab0e0', e: '#d6f3ff', W: '#eef4ff', w: '#93a1bd', Y: '#f4d03f', y: '#9a7a12', G: '#3d465e', g: '#8b98b5' }
+    },
+    g5: {
+      grid: [
+        '.....A.A.A..........',
+        '....KAKAKAK.........',
+        '....K4443K..........',
+        '...K444443K.........',
+        '...K4KKK43K.........',
+        '...K444443K.........',
+        '.....K11K...........',
+        '..KAA44444AAK.......',
+        '...O44444443K.......',
+        '...O4AAAA443K.......',
+        '...O44444443K.......',
+        '...O44444443K....KK.',
+        '...O44YY4443K...KAAK',
+        '...O444444443KGGKAYK',
+        '...O444444443KGGKAYK',
+        '...O44444443K...KAAK',
+        '..O4YYYYYY443K...KK.',
+        '..O4111111443K......',
+        '..K4444444443K......',
+        '.K43K......K43K.....',
+        '.K43K......K43K.....',
+        'K443K......K443K....',
+        'K443K......K443K....',
+        'K443K......K443K....',
+        'KGGGK......KGGGK....',
+        'KGgGK......KGgGK....',
+        'KGGGK......KGGGK....',
+        'KKKKK......KKKKK....',
+        '....................'
+      ],
+      pal: { K: '#05070c', 1: '#2b1013', 2: '#4d1f22', 3: '#743430', 4: '#e25132', A: '#ff9a86', a: '#e0584a', e: '#ffd9d3', W: '#eef4ff', w: '#93a1bd', Y: '#f4d03f', y: '#9a7a12', G: '#3d465e', g: '#8b98b5' }
+    },
+    g6: {
+      grid: [
+        '.......OAO..........',
+        '......O4A4O.........',
+        '....OO444444OO......',
+        '...O4444444444O.....',
+        '..O444444444444.OAO.',
+        '..O4eeeeeeee4O..OeO.',
+        '..O4eAaAAaAe4O..OAO.',
+        '..O4eeeeeeee4O..KwK.',
+        '..O444444444K...KwK.',
+        '...K11111111K...KwK.',
+        'OGGG44444444GGGKKwK.',
+        'OGgG4444444GGgGKKwK.',
+        '.O44444444444K..KwK.',
+        '.O4AAAAAAAA32KGGKwK.',
+        '.O4AeeeeeeA32K..KwK.',
+        '.O4YYYYYYYY32K..KYK.',
+        '.O44444444432K......',
+        '.K2444444442K.......',
+        '..K33333333333K.....',
+        '..K3333K.K3333K.....',
+        '..O4332K.O4332K.....',
+        '..O4332K.O4332K.....',
+        '..O4322K.O4322K.....',
+        '..K3322K.K3322K.....',
+        '..KGGGGK.KGGGGK.....',
+        '..KgGGGK.KgGGGK.....',
+        '..KGGGGK.KGGGGK.....',
+        '..KKKKKK.KKKKKK.....',
+        '....................'
+      ],
+      pal: { K: '#05070c', 1: '#141c40', 2: '#243070', 3: '#3a4d9e', 4: '#6f89d8', A: '#5dc8f0', a: '#1d5d77', e: '#dff5ff', W: '#eef4ff', w: '#93a1bd', Y: '#f4d03f', y: '#9a7a12', G: '#3d465e', g: '#8b98b5' }
+    },
+    g7: {
+      grid: [
+        '.......K44K.........',
+        '......K3333K........',
+        '...KKKKKKKKKK.......',
+        '...K33333333K....A..',
+        '...KK444444KK...AeA.',
+        '....O44444K.....AYA.',
+        '....O4eAAe4K....YAY.',
+        '....O44444K......Y..',
+        '.....K444K......KwK.',
+        '.....K111K......KwK.',
+        '...O44444444K...KwK.',
+        '..O4w4444444K...KwK.',
+        '..O43w333332K...KwK.',
+        '..O433w3332KGGGGKwK.',
+        '..O4333w332KgG..KwK.',
+        '..O4YYYYYYY2KGG.KYK.',
+        '..O43333332K........',
+        '..K23333322K........',
+        '...K3333333K........',
+        '...K333K.K333K......',
+        '...O433K.O433K......',
+        '...O433K.O433K......',
+        '...OG3GK.OG3GK......',
+        '...KGGGK.KGGGK......',
+        '...KgGGK.KgGGK......',
+        '...KGGGK.KGGGK......',
+        '...KGGGK.KGGGK......',
+        '...KKKKK.KKKKK......',
+        '....................'
+      ],
+      pal: { K: '#05070c', 1: '#2b1d0c', 2: '#4c3419', 3: '#715228', 4: '#ab834a', A: '#f2c14e', a: '#7a5a12', e: '#fff2cf', W: '#eef4ff', w: '#93a1bd', Y: '#f4d03f', y: '#9a7a12', G: '#3d465e', g: '#8b98b5' }
+    },
+    g8: {
+      grid: [
+        '......K44K..........',
+        '.....K3333K.........',
+        '....K433334K........',
+        '....O43ee34K........',
+        '....O4eAAe4K........',
+        '....O43ee34K........',
+        '....K433334K........',
+        '....K4444K..........',
+        '...K444444K.........',
+        '..K444444442K.......',
+        '..O44YY44432K.......',
+        '..O444444432K.......',
+        '...K33333332K....KK.',
+        '..O4333333332KGGKWW.',
+        '..O4333333332K..KWw.',
+        '.O433333333332K.KWw.',
+        '.O43333333332K..KWW.',
+        '.O433333333332K..KK.',
+        '.O433333333332K.....',
+        'O43333333333332K....',
+        'O43333333333332K....',
+        'K22222222222222K....',
+        '...K433K.K433K......',
+        '...O433K.O433K......',
+        '...O432K.O432K......',
+        '...KGGGK.KGGGK......',
+        '...KgGGK.KgGGK......',
+        '...KKKKK.KKKKK......',
+        '....................'
+      ],
+      pal: { K: '#05070c', 1: '#1c1440', 2: '#302566', 3: '#4b3c94', 4: '#8576cb', A: '#b39ddb', a: '#4b3b78', e: '#f0e8ff', W: '#eef4ff', w: '#93a1bd', Y: '#f4d03f', y: '#9a7a12', G: '#3d465e', g: '#8b98b5' }
+    },
+    g9: {
+      grid: [
+        '.......OAO..........',
+        '......O4A4O....wWO..',
+        '.....O444444O..wWO..',
+        '....O44444444O.wWO..',
+        '....O4AAAAAA4O.wWO..',
+        '....O4AAAAAA4K.wWO..',
+        '....O43333332K.wWO..',
+        '.....O333332K..wWO..',
+        '......K1111K...wWO..',
+        '...O444444444K.wWO..',
+        '..O4444444444K.wWO..',
+        '..O4333333333K.wWO..',
+        '..O4333A33332K.wWO..',
+        '..O4333A33332K.wWO..',
+        '..O4333333332K.wWO..',
+        '..O4YYYYYY332KYYYYK.',
+        '..O4333333332K.KyK..',
+        '..K2333333322K.KK...',
+        '...K333K.K333K......',
+        '...O433K.O433K......',
+        '...O433K.O433K......',
+        '...O432K.O432K......',
+        '...K332K.K332K......',
+        '...K222K.K222K......',
+        '..KGGGGK.KGGGGK.....',
+        '..KgggGK.KgggGK.....',
+        '..KGGGGK.KGGGGK.....',
+        '..KKKKKK.KKKKKK.....',
+        '....................'
+      ],
+      pal: { K: '#05070c', 1: '#082029', 2: '#0f3a48', 3: '#175a6b', 4: '#2f92a4', A: '#19e6e6', a: '#0e8a8a', W: '#eef4ff', w: '#93a1bd', Y: '#f4d03f', y: '#9a7a12', G: '#3d465e', g: '#8b98b5' }
+    }
+  };
+
   /* ── témata ročníků ───────────────────────────────────────────────── */
   var THEMES = {
     g3: { name: 'Kouzelný les',          head: 'leaf',   prop: 'wand',
@@ -134,8 +385,10 @@ window.RPGHeroPortrait = (function () {
 
   function theme(key) { return THEMES[key] || AVATAR; }
 
-  /* Poskládá mřížku: hlava (0–2) + tělo (3+) + předmět (sloupce 16–19). */
+  /* Mřížka ročníku = jeho ARÉNOVÁ mřížka, ne skládanka ze sdíleného těla.
+     Avatar v profilu není vázaný na svět, ten se dál skládá z BODY. */
   function grid(key) {
+    if (HERO_ART[key]) return HERO_ART[key].grid;
     var t = theme(key), h = HEADS[t.head], p = PROPS[t.prop];
     return BODY.map(function (row, i) {
       return (i < 3 ? h[i] : row) + (p[i] || '....');
@@ -144,7 +397,9 @@ window.RPGHeroPortrait = (function () {
 
   function palette(key) {
     var t = theme(key), r = t.ramp;
-    return {
+    /* Základ pokrývá znaky sdílené napříč ročníky i mřížku bosse, takže
+       ani po výměně palety nezůstane znak nedefinovaný (= magenta). */
+    var out = {
       K: '#05070c',
       1: r[0], 2: r[1], 3: r[2], 4: r[3],
       G: '#3d465e', g: '#8b98b5',
@@ -152,6 +407,15 @@ window.RPGHeroPortrait = (function () {
       Y: '#f4d03f', y: '#9a7a12',
       A: t.accent, a: t.dark, e: t.light, R: t.rim
     };
+    /* Ročník kreslí arénovou mřížku, takže musí dostat i ARÉNOVOU paletu —
+       jinak by se akcent lišil. 1. stupeň má v portrétu accent o stupeň
+       tmavší než v aréně (kartě to sluší), ale na postavě by to bylo vidět.
+       `O` je znak rim lightu v arénových mřížkách; v aréně ho dodává jádro
+       z neonu oblasti, na kartě je pevný podle světa. */
+    var art = HERO_ART[key];
+    if (art) { for (var ch in art.pal) out[ch] = art.pal[ch]; }
+    out.O = t.rim;
+    return out;
   }
 
   /* ── vykreslení ───────────────────────────────────────────────────────
@@ -212,7 +476,7 @@ window.RPGHeroPortrait = (function () {
   }
 
   return {
-    BODY: BODY, HEADS: HEADS, PROPS: PROPS, BOSS: BOSS, THEMES: THEMES,
+    BODY: BODY, HEADS: HEADS, PROPS: PROPS, BOSS: BOSS, THEMES: THEMES, HERO_ART: HERO_ART,
     grid: grid, palette: palette, paint: paint, missingChars: missingChars,
     keys: function () { return Object.keys(THEMES); }
   };
