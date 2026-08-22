@@ -112,7 +112,7 @@ window.RPGHeroPortrait = (function () {
           ramp: ['#0e2438', '#173e5c', '#255e85', '#4e97c4'] },
     g5: { name: 'Dračí říše',            head: 'horns',  prop: 'sword',
           accent: '#e0584a', dark: '#6e2019', light: '#ffd9d3', rim: '#ff9a86',
-          ramp: ['#2b1013', '#4d1f22', '#743430', '#ad6252'] },
+          ramp: ['#2b1013', '#4d1f22', '#743430', '#e25132' ] },
     g6: { name: 'Vesmírná expedice',     head: 'dome',   prop: 'beacon',
           accent: '#5dc8f0', dark: '#1d5d77', light: '#dff5ff', rim: '#9adcff',
           ramp: ['#141c40', '#243070', '#3a4d9e', '#6f89d8'] },

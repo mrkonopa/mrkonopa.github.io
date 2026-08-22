@@ -166,6 +166,14 @@ window.RPGSpriteCore = (function () {
       return n;
     }
     const HERO_PAINT = paintedRows(HS.grids.idle[0]);
+    /* Kotva hrdiny k zemi. Normálně = počet pokreslených řádků, takže
+       chodidla stojí na podlaze. Starý engine 1. stupně ale kotvil podle
+       PEVNÉ výšky mřížky (24), a protože 4. ročník má 23 pokreslených
+       řádků a 5. ročník 22, vyšla by mu postava o 5 resp. 10 px níž.
+       U 6.–9. se obojí shodovalo (24 z 24), takže se to při jejich portu
+       neprojevilo. `anchorRows` slouží jen kroku A; nové mřížky ho nemají
+       a kotví se podle kresby. */
+    const HERO_ANCHOR = (HS.anchorRows != null) ? HS.anchorRows : HERO_PAINT;
     function onLitEdge(g, r, c, flip) {
       return !isOpaque(g, r - 1, c) || !isOpaque(g, r, flip ? c + 1 : c - 1);
     }
@@ -246,7 +254,7 @@ window.RPGSpriteCore = (function () {
 
     /* ── pozice ── */
     function heroPos() {
-      return { x: Math.round(cv.width * AR.heroX), y: (AR.h - AR.groundPad) - HERO_PAINT * HS.scale };
+      return { x: Math.round(cv.width * AR.heroX), y: (AR.h - AR.groundPad) - HERO_ANCHOR * HS.scale };
     }
     function bossGrids() { return BS.grids[curArea] || BS.grids[1]; }
     function bossPos() {
@@ -395,7 +403,10 @@ window.RPGSpriteCore = (function () {
 
       /* ── parťák (levituje vedle hrdiny) ── */
       if (AL) {
-        const bob = rm() ? 0 : Math.sin(now / 380) * 6;
+        /* Amplitudu houpání si určuje SVĚT: 2. stupeň má 6 px, 1. stupeň 5.
+           Natvrdo zadaná šestka by 1. stupni změnila pohyb parťáka — pod
+           reduced-motion by se to nepoznalo, protože tam je bob nulový. */
+        const bob = rm() ? 0 : Math.sin(now / 380) * (AL.bob != null ? AL.bob : 6);
         /* Výchozí odsazení `(cols-2)*scale` drží parťáka na místě i po
            zvětšení hrdiny na 20 sloupců (fáze 03). Svět si ho ale může
            přepsat — fáze 02 má hrdinu ještě 18 sloupců široko a bez
