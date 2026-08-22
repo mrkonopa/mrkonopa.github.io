@@ -570,7 +570,9 @@
   }
 
   const backdrop = {
-    horizon: 0.46,
+    /* podlaha začíná na fy = H − 30. Krok A sem zkopíroval 0.46 z devítky —
+       dnes to nikdo nečte, ale fáze 04 by podle toho vrstvila. */
+    horizon: 0.85,
     seed: a => a * 149 + 5,   // PŮVODNÍ seed — jinak se rozložení posune
     /* Pozadí se odjakživa překresluje celé každý snímek, proto `fullAnim`
        a obě vrstvy volají téhož malíře: statická s vypnutým blikáním,

@@ -564,7 +564,9 @@
   }
 
   const backdrop = {
-    horizon: 0.46,
+    /* vesmír horizont nemá; 0.85 = kde začíná podlaha arény z CSS. Krok A sem zkopíroval 0.46 z devítky —
+       dnes to nikdo nečte, ale fáze 04 by podle toho vrstvila. */
+    horizon: 0.85,
     seed: a => a * 97 + 13,          // PŮVODNÍ seed — jinak se rozložení posune
     fullAnim: true,
     /* Vesmírné pozadí šestky se odjakživa překreslovalo celé každý snímek
