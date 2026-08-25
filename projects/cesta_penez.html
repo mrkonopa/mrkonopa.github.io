@@ -609,7 +609,7 @@ input.answer.wrong { border-color: var(--red); background: var(--red-light); ani
   </div>
 
   <p style="text-align:center; color:var(--muted); font-size:.78rem;">
-    Sazby platné k roku 2025. Čísla úloh se generují náhodně — sazby jsou ale skutečné. Viz <a href="https://www.financnisprava.cz" target="_blank" rel="noopener">finanční správa</a>.
+    Sazby platné k roku 2026. Čísla úloh se generují náhodně — sazby jsou ale skutečné. Viz <a href="https://www.financnisprava.cz" target="_blank" rel="noopener">finanční správa</a>.
   </p>
 </section>
 
@@ -671,7 +671,7 @@ function setLang(l) {
 /* ════════════════════════════════════════════════════════════════════════
    CESTA PENĚZ — finanční výprava
    8.–9. třída, lineární příběh
-   Hodnoty 2025: DPFO 15%, SP 7,1%, ZP 4,5%, sleva na poplatníka 2570 Kč/měs
+   Hodnoty 2026: DPFO 15%, SP 7,1%, ZP 4,5%, sleva na poplatníka 2570 Kč/měs
    Čísla úloh se generují náhodně — každá kapitola má vlastní `ctx`.
    ════════════════════════════════════════════════════════════════════════ */
 
@@ -721,8 +721,8 @@ function buildIntro() {
         'You\'ll travel through <b>8 life chapters</b> of one character (you). In each chapter you\'ll calculate something — tax, APR, mortgage — and make a few decisions that affect your final balance.'
       )}</p>
       <p>${i18n(
-        'Pracujeme s <b>reálnými českými sazbami (rok 2025)</b>. <b>Čísla se generují náhodně</b> — každý spoluhráč u stolu má svoji vlastní brigádu, plat, inflaci.',
-        'We use <b>real Czech rates (2025)</b>. <b>Numbers are randomised</b> — every player at the table gets their own job, salary, inflation rate.'
+        'Pracujeme s <b>reálnými českými sazbami (rok 2026)</b>. <b>Čísla se generují náhodně</b> — každý spoluhráč u stolu má svoji vlastní brigádu, plat, inflaci.',
+        'We use <b>real Czech rates (2026)</b>. <b>Numbers are randomised</b> — every player at the table gets their own job, salary, inflation rate.'
       )}</p>
     </div>
     <div class="intro-card" style="border-left-color: var(--act2-fg);">
@@ -850,11 +850,11 @@ const ACTS = [
   {
     id: 1, color: 'act1', icon: '🍦', title: 'První brigáda', age: '15 let',
     setup: () => {
-      // Pick a (hours, rate) pair such that total ≤ 11500 (DPP limit)
+      // Pick a (hours, rate) pair such that total ≤ 12000 (DPP limit 2026)
       const pairs = [];
       for (const h of [40, 45, 50, 55, 60, 65, 70, 75, 80]) {
         for (const r of [110, 120, 130, 140, 150]) {
-          if (h * r <= 11500) pairs.push({ hours: h, rate: r, total: h * r });
+          if (h * r <= 12000) pairs.push({ hours: h, rate: r, total: h * r });
         }
       }
       const p = pick(pairs);
@@ -875,7 +875,7 @@ const ACTS = [
         html: `
           <p>Léto, prázdniny. <b>${ctx.job.who.charAt(0).toUpperCase() + ctx.job.who.slice(1)}</b> ti dohodil(a) brigádu ve ${ctx.job.place === 'kavárna' ? 'kavárně' : ctx.job.place === 'pizza-rozvážka' ? 'pizzerii' : ctx.job.place === 'doučování angličtiny' ? 'doučování' : ctx.job.place === 'letní tábor (asistent)' ? 'letním táboře' : ctx.job.place === 'knihovna' ? 'knihovně' : 'zmrzlinárně'}. Smlouva: <b>dohoda o provedení práce (DPP)</b>.</p>
           <p>${ctx.job.boss.charAt(0).toUpperCase() + ctx.job.boss.slice(1)} ti říká: <i>"Hodinová mzda <b>${ctx.rate} Kč</b>, makáme ${ctx.job.period}, asi <b>${ctx.hours} hodin</b> za měsíc."</i></p>
-          <div class="fact-box">📘 <b>DPP = Dohoda o provedení práce.</b> Forma brigády oblíbená u studentů. <b>Když si vyděláš do 11 500 Kč/měsíc, neplatí se daň ani pojištění</b> (limit pro rok 2025). Nad 11 500 Kč se začíná strhávat daň 15 %.</div>
+          <div class="fact-box">📘 <b>DPP = Dohoda o provedení práce.</b> Forma brigády oblíbená u studentů. <b>Když si vyděláš do 12 000 Kč/měsíc, neplatí se daň ani pojištění</b> (limit pro rok 2026). Nad 12 000 Kč se začíná strhávat daň 15 %.</div>
           <p>Spočítej, kolik si <b>hrubého</b> vyděláš za měsíc.</p>
         `,
       })},
@@ -889,14 +889,14 @@ const ACTS = [
           `Vynásob počet hodin a hodinovou mzdu: <b>${ctx.hours} × ${ctx.rate}</b>.`,
           `${ctx.hours} × ${ctx.rate} = <b>${fmt(ctx.total)}</b> Kč.`,
         ],
-        explain: `${ctx.hours} × ${ctx.rate} = <b>${fmt(ctx.total)} Kč</b>. Limit 11 500 Kč jsi nepřesáhl — daň ani pojištění platit nebudeš.`,
+        explain: `${ctx.hours} × ${ctx.rate} = <b>${fmt(ctx.total)} Kč</b>. Limit 12 000 Kč jsi nepřesáhl — daň ani pojištění platit nebudeš.`,
       })},
 
       { type: 'story', build: ctx => ({
         icon: '✅',
         html: `
-          <p>Skvělé. <b>Vydělal sis ${fmt(ctx.total)} Kč</b>, a protože jsi pod hranicí 11 500 Kč, dostaneš <b>celou sumu</b> na účet.</p>
-          <div class="fact-box">⚠️ <b>Pozor — častý omyl:</b> Pokud bys měl <b>dvě DPP u různých zaměstnavatelů</b> a součet by přesáhl 11 500 Kč, daňový limit platí pro <b>každou DPP zvlášť</b>, ale sociální pojištění se počítá z celkového příjmu nad limit.</div>
+          <p>Skvělé. <b>Vydělal sis ${fmt(ctx.total)} Kč</b>, a protože jsi pod hranicí 12 000 Kč, dostaneš <b>celou sumu</b> na účet.</p>
+          <div class="fact-box">⚠️ <b>Pozor — častý omyl:</b> Pokud bys měl <b>dvě DPP u různých zaměstnavatelů</b> a součet by přesáhl 12 000 Kč, daňový limit platí pro <b>každou DPP zvlášť</b>, ale sociální pojištění se počítá z celkového příjmu nad limit.</div>
         `,
       })},
 
@@ -917,7 +917,7 @@ const ACTS = [
       { type: 'story', build: ctx => ({
         icon: '🎯',
         html: `
-          <p>Kapitola hotová. Naučil ses, že <b>brigáda do 11 500 Kč/měs neplatí daň</b> a že rezerva je důležitější než nové tenisky.</p>
+          <p>Kapitola hotová. Naučil ses, že <b>brigáda do 12 000 Kč/měs neplatí daň</b> a že rezerva je důležitější než nové tenisky.</p>
           <p>Za pár let ti skončí škola a začne první stálá práce — a tam už to s daněmi bude jinak.</p>
         `,
       })},
@@ -933,7 +933,7 @@ const ACTS = [
       const social = Math.round(gross * 0.071);   // 7.1 %
       const health = Math.round(gross * 0.045);   // 4.5 %
       const taxBase = Math.round(gross * 0.15);   // 15 %
-      const discount = 2570;                       // sleva na poplatníka 2025
+      const discount = 2570;                       // sleva na poplatníka 2026 (beze změny od 2022)
       const tax = taxBase - discount;             // skutečná daň (záporné nemůže být v tomto rozmezí)
       const net = gross - social - health - tax;
       return { gross, social, health, taxBase, discount, tax, net };
@@ -1021,7 +1021,7 @@ const ACTS = [
             <li>nárok na důchod, až ti bude 65+</li>
             <li>peněženku státu, která platí silnice, školy, policii a všechno ostatní</li>
           </ul>
-          <div class="fact-box">📊 <b>Pravidlo palce:</b> Z hrubé mzdy ti zhruba <b>78–82 %</b> přijde na účet. Nad ~133 000 Kč/měsíc (rok 2025) navíc nastupuje druhá sazba daně <b>23 %</b>.</div>
+          <div class="fact-box">📊 <b>Pravidlo palce:</b> Z hrubé mzdy ti zhruba <b>78–82 %</b> přijde na účet. Nad ~146 900 Kč/měsíc (rok 2026) navíc nastupuje druhá sazba daně <b>23 %</b>.</div>
         `,
       })},
 
@@ -1159,7 +1159,7 @@ Reálná ztráta:       ${fmt(ctx.realLoss)} Kč</div>
 
             <div class="kupni-sila">
               <div class="ks-now">
-                <h4>📅 Dnes (rok 2025)</h4>
+                <h4>📅 Dnes (rok 2026)</h4>
                 <ul>
                   ${items.map(it => li(it, 1)).join('')}
                 </ul>
@@ -1605,17 +1605,17 @@ const BUILD_EN = {
     /* 0 story */ ctx => ({ icon: ctx.job.icon, html: `
       <p>Summer holidays. <b>${ctx.job.who.charAt(0).toUpperCase() + ctx.job.who.slice(1)}</b> got you a summer job at a ${ctx.job.place === 'kavárna' ? 'café' : ctx.job.place === 'pizza-rozvážka' ? 'pizza delivery' : ctx.job.place === 'doučování angličtiny' ? 'tutoring agency' : ctx.job.place === 'letní tábor (asistent)' ? 'summer camp' : ctx.job.place === 'knihovna' ? 'library' : 'ice-cream parlour'}. Contract: <b>DPP — work agreement</b> (Czech short-term contract for students).</p>
       <p>Your boss says: <i>"Hourly rate <b>${ctx.rate} CZK</b>, we're working ${ctx.job.period}, about <b>${ctx.hours} hours</b> per month."</i></p>
-      <div class="fact-box">📘 <b>DPP (work agreement)</b> is a popular Czech student work contract. <b>If you earn up to 11,500 CZK/month, no tax or insurance is deducted</b> (2025 limit). Above 11,500 CZK the 15% income tax kicks in.</div>
+      <div class="fact-box">📘 <b>DPP (work agreement)</b> is a popular Czech student work contract. <b>If you earn up to 12,000 CZK/month, no tax or insurance is deducted</b> (2026 limit). Above 12,000 CZK the 15% income tax kicks in.</div>
       <p>Calculate your <b>gross</b> monthly earnings.</p>
     `}),
     /* 1 math  */ ctx => ({ q: `<b>${ctx.hours} hours × ${ctx.rate} CZK/h</b> = ?`, unit: 'CZK', answer: ctx.total, hints: [
       'What math operation do you need — addition, subtraction, multiplication or division?',
       `Multiply the number of hours by the hourly rate: <b>${ctx.hours} × ${ctx.rate}</b>.`,
       `${ctx.hours} × ${ctx.rate} = <b>${fmt(ctx.total)}</b> CZK.`,
-    ], explain: `${ctx.hours} × ${ctx.rate} = <b>${fmt(ctx.total)} CZK</b>. You're under the 11,500 CZK limit — no tax or insurance to pay.` }),
+    ], explain: `${ctx.hours} × ${ctx.rate} = <b>${fmt(ctx.total)} CZK</b>. You're under the 12,000 CZK limit — no tax or insurance to pay.` }),
     /* 2 story */ ctx => ({ icon: '✅', html: `
-      <p>Great. <b>You earned ${fmt(ctx.total)} CZK</b>, and because you're under 11,500 CZK you receive the <b>full amount</b> in your account.</p>
-      <div class="fact-box">⚠️ <b>Common mistake:</b> If you had <b>two DPP contracts with different employers</b> and the combined total exceeded 11,500 CZK, the tax-free limit applies per contract — but social insurance is calculated on total income above the threshold.</div>
+      <p>Great. <b>You earned ${fmt(ctx.total)} CZK</b>, and because you're under 12,000 CZK you receive the <b>full amount</b> in your account.</p>
+      <div class="fact-box">⚠️ <b>Common mistake:</b> If you had <b>two DPP contracts with different employers</b> and the combined total exceeded 12,000 CZK, the tax-free limit applies per contract — but social insurance is calculated on total income above the threshold.</div>
     `}),
     /* 3 decision */ ctx => ({ q: `What do you do with ${fmt(ctx.total)} CZK?`, options: [
       { title: 'Spend it all on new clothes and games', kind: 'bad', feedback: 'Tempting, but if an unexpected cost comes up (broken phone, transport), you\'ll have nothing. Keep <b>some as a buffer</b>.' },
@@ -1624,7 +1624,7 @@ const BUILD_EN = {
       { title: 'Send it to my parents to put in a savings account', kind: 'good', feedback: 'Smart! A savings account earns interest (modest, but better than nothing) and keeps money out of reach of impulse purchases.' },
     ]}),
     /* 4 story */ () => ({ icon: '🎯', html: `
-      <p>Chapter done. You learned that <b>DPP earnings under 11,500 CZK/month are tax-free</b> and that a buffer fund is more valuable than new trainers.</p>
+      <p>Chapter done. You learned that <b>DPP earnings under 12,000 CZK/month are tax-free</b> and that a buffer fund is more valuable than new trainers.</p>
       <p>In a few years school ends and your first permanent job starts — and taxes will work differently.</p>
     `}),
   ],
@@ -1671,7 +1671,7 @@ const BUILD_EN = {
         <li>entitlement to a pension at 65+</li>
         <li>roads, schools, police and everything else funded by the state</li>
       </ul>
-      <div class="fact-box">📊 <b>Rule of thumb:</b> About <b>78–82%</b> of gross salary arrives in your account. Above ~133,000 CZK/month (2025) a second tax rate of <b>23%</b> applies.</div>
+      <div class="fact-box">📊 <b>Rule of thumb:</b> About <b>78–82%</b> of gross salary arrives in your account. Above ~146,900 CZK/month (2026) a second tax rate of <b>23%</b> applies.</div>
     `}),
     /* 7 decision */ ctx => { const fivePct = Math.round(ctx.net * 0.05 / 100) * 100; const tenPct = Math.round(ctx.net * 0.1 / 100) * 100; const twentyPct = Math.round(ctx.net * 0.2 / 100) * 100; return { q: `From net salary ${fmt(ctx.net)} CZK — how much should you put aside immediately?`, options: [
       { title: 'Nothing — money is for spending', kind: 'bad', feedback: 'Wrong. Without a buffer, any unexpected expense (broken car, dentist) forces you to <b>take out a loan</b>. And loans cost money — see Chapter 4.' },
@@ -1731,7 +1731,7 @@ Real loss:              ${fmt(ctx.realLoss)} CZK</div>
         <p>Your <b>${fmt(ctx.savings)} CZK</b> — what can you really buy with it?</p>
         <div class="kupni-sila">
           <div class="ks-now">
-            <h4>📅 Today (2025)</h4>
+            <h4>📅 Today (2026)</h4>
             <ul>${items.map(it => li(it, 1)).join('')}</ul>
           </div>
           <div class="ks-future">
