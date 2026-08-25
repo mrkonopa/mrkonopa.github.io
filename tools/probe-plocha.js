@@ -38,7 +38,8 @@
   const frames = [];                   // hotové snímky
   const MAX = 240;
 
-  function blank() { return { px: 0, fills: 0, blits: 0, ms: 0, area: 0 }; }
+  function blank() { return { px: 0, fills: 0, blits: 0, ms: 0, area: 0, gap: 0 }; }
+  let lastT = 0;                       // čas předchozího callbacku (jen vnější úroveň)
 
   /* Plátno arény poznáme podle toho, na které se kreslí nejvíc. Hra může
      mít víc pláten (HP bar, ikony), a poměr „× plátna" má smysl jen proti
@@ -97,6 +98,16 @@
           f.ms = performance.now() - t0;
           const cv = mainCanvas();
           f.area = cv ? cv.width * cv.height : 0;
+          /* Odstup callbacků. Sám o sobě o zátěži neříká nic (zamčený na
+             obnovovací frekvenci), ale jeho ROZDĚLENÍ říká to podstatné:
+             odstup nad ~1,5 snímku = prohlížeč snímek zahodil. To je číslo,
+             které dítě vidí jako sekání — ne milisekundy práce.
+             Měří se jen na vnější úrovni (prev === null), aby vnořené rAF
+             nevykazovaly nulové odstupy. */
+          if (prev === null) {
+            if (lastT) f.gap = t - lastT;
+            lastT = t;
+          }
           if (f.fills || f.blits) { frames.push(f); if (frames.length > MAX) frames.shift(); }
           f = prev;
         }
@@ -120,7 +131,7 @@
   const API = {
     start() {
       if (live) return console.log('[RPGProbe] už běží');
-      frames.length = 0; seenCanvas.clear(); install(); live = true;
+      frames.length = 0; seenCanvas.clear(); lastT = 0; install(); live = true;
       console.log('[RPGProbe] sbírám — nech to ~3 s běžet, pak RPGProbe.report()');
     },
     stop() { if (!live) return; restore(); live = false; console.log('[RPGProbe] konec'); },
@@ -132,6 +143,16 @@
       const blits = stats(frames.map(x => x.blits));
       const ms = stats(frames.map(x => x.ms));
       const pad = (s, n) => String(s).padStart(n);
+
+      /* Zahozené snímky. Referenční odstup se bere z MEDIÁNU naměřených
+         odstupů, ne z pevných 16,66 — Chromebook může jít na 48 nebo 50 Hz
+         a proti pevné hodnotě by pak „zahazoval“ pořád. */
+      const gaps = frames.map(x => x.gap).filter(g => g > 0);
+      const gs = stats(gaps);
+      const base = gs ? gs.med : 16.66;
+      const dropped = gaps.filter(g => g > base * 1.5).length;
+      const dropPct = gaps.length ? (100 * dropped / gaps.length) : 0;
+      const hz = base ? Math.round(1000 / base) : 0;
       console.log(
         '\n[RPGProbe] ' + frames.length + ' snímků · plátno ' + area.toLocaleString('cs-CZ') + ' px\n' +
         '  PLOCHA   ' + pad(Math.round(px.med).toLocaleString('cs-CZ'), 9) + ' px  = ' +
@@ -140,10 +161,16 @@
         '  BLITŮ    ' + pad(Math.round(blits.med), 9) + '\n' +
         '  PRÁCE    ' + pad(ms.med.toFixed(3), 9) + ' ms  ⌀ ' + ms.avg.toFixed(3) +
           ' · max ' + ms.max.toFixed(3) + '  ⇒ vejde se ' + Math.round(16.66 / Math.max(ms.med, 0.001)) + ' ×\n' +
-        '  (PRÁCE je doba běhu callbacku rAF, ne odstup snímků — ten je\n' +
-        '   zamčený na 16,66 ms a o zátěži neříká nic.)\n'
+        '  SNÍMKY   ' + pad(hz, 9) + ' Hz   odstup ⌒ ' + (gs ? gs.med.toFixed(1) : '—') +
+          ' ms · max ' + (gs ? gs.max.toFixed(1) : '—') + '\n' +
+        '  ZAHOZENO ' + pad(dropPct.toFixed(1) + ' %', 9) + '     (' + dropped + ' z ' + gaps.length + ')\n' +
+        '  (PRÁCE je doba běhu callbacku rAF. Sama o sobě je jen část odpovědi —\n' +
+        '   rozhoduje ZAHOZENO: kolik snímků prohlížeč nestihl. Na výkonném\n' +
+        '   stroji bude 0 % i při vyšší práci; na Chromebooku je to číslo,\n' +
+        '   podle kterého se optimalizace rozhoduje.)\n'
       );
-      return { px: px, fills: fills, blits: blits, ms: ms, area: area, frames: frames.length };
+      return { px: px, fills: fills, blits: blits, ms: ms, area: area,
+               frames: frames.length, hz: hz, gap: gs, droppedPct: dropPct };
     },
     /* Vrátí surová data, ať se dá tabulka poskládat skriptem přes 7 her. */
     raw() { return frames.slice(); }
