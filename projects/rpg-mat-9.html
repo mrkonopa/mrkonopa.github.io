@@ -588,7 +588,7 @@ html[data-theme="violet"]{--gold:#b06cff;--panel:#100a20;--panel2:#18103a;--blue
  <div class="panel" style="padding:10px 14px;display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap">
  <div style="font-family:var(--px);font-weight:400;font-size:13px;color:var(--muted);letter-spacing:1px">&gt; &nbsp;SYS://NEXUS-9&nbsp; · &nbsp;ACCESS LVL_IX&nbsp; &lt;</div>
  <span class="streak-chip" id="map-streak" style="display:none"><span class="sf">🔥</span> <span id="map-streak-n">0</span> dní v řadě</span>
- <a class="cermat-chip cc-far" id="map-cermat" href="prijimacky-matematika/" target="_blank" rel="noopener" title="Otevřít archiv přijímaček CERMAT" style="display:none;text-decoration:none"><span class="bic" data-ic="calendar"></span><span id="map-cermat-txt"></span> <span style="opacity:.7">↗</span></a>
+ <a class="cermat-chip cc-far" id="map-cermat" href="prijimacky-matematika/" target="_blank" rel="noopener" title="Otevřít archiv přijímaček CERMAT — termín je zatím předběžný, oficiální bude uvedený tam" style="display:none;text-decoration:none"><span class="bic" data-ic="calendar"></span><span id="map-cermat-txt"></span> <span style="opacity:.7">↗</span></a>
  <span class="credits-chip" id="map-credits-chip"><span class="bic" data-ic="coin"></span><span id="map-credits">0</span> kr</span>
  </div>
  <div class="map-grid" id="map-grid"></div>
@@ -1523,7 +1523,7 @@ const attrIc = (k,size) => (typeof RPGIcons!=='undefined' && ATTR_META[k]) ? RPG
 // ══════════════════════════════════════════
 const SAVE_KEY = 'RPG_MAT_9';
 // Datum přijímaček (1. kolo) — načítá se z /projects/cermat-date.json (auto GH Action)
-let CERMAT_DATE = new Date('2027-04-13T08:00:00');
+let CERMAT_DATE = new Date('2027-04-09T08:00:00');
 (function fetchCermatDate(){
   fetch('/projects/cermat-date.json').then(r=>r.ok?r.json():null).then(d=>{
     if(d&&d.next&&d.next.date){

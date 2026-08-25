@@ -266,10 +266,21 @@
 
     /* CERMAT COUNTDOWN — velká karta na střed, klikací */
     .cermat-banner {
-      display: flex; justify-content: center;
+      /* Sloupec, ne řádek: poznámka o předběžném termínu patří POD odpočet.
+         Ve vodorovném flexu se vysázela vedle něj a četla se jako druhý
+         sloupec stránky. */
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: center;
       margin: 22px auto 4px;
       padding: 0 16px;
     }
+    /* Poznámka pod odpočtem. Datum je zatím dohledané, ne úředně
+       vyhlášené — a dokud to platí, musí to na stránce být vidět,
+       ne jen v komentáři ve zdrojáku. */
+    .cermat-note{max-width:520px;margin:10px auto 0;text-align:center;
+      font-size:12.5px;line-height:1.5;color:var(--muted,#6b7280)}
+    .cermat-note b{color:inherit}
+
     .cermat-countdown {
       display: flex; flex-direction: column; align-items: center; gap: 12px;
       width: 100%; max-width: 560px;
@@ -421,6 +432,11 @@
       </span>
       <span class="cc-foot"><span id="cermat-label">1. termín</span> · 📅 zobrazit termíny na webu CERMAT →</span>
     </a>
+    <p class="cermat-note">
+      Termín je zatím <b>předběžný</b> — vychází z veřejně dohledaných údajů pro
+      čtyřleté obory. Jakmile ho MŠMT oficiálně vyhlásí, bude to napsané přímo tady
+      a odpočet se srovná podle něj.
+    </p>
   </div>
 
   <main>
@@ -664,7 +680,7 @@
 <script>
 (function(){
   // Fallback date if JSON not available
-  var fallbackDate = new Date('2027-04-13T08:00:00');
+  var fallbackDate = new Date('2027-04-09T08:00:00');
   var cermatDate = fallbackDate;
   var cermatLabel = '1. termín';
 
