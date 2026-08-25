@@ -153,7 +153,7 @@
       const dropped = gaps.filter(g => g > base * 1.5).length;
       const dropPct = gaps.length ? (100 * dropped / gaps.length) : 0;
       const hz = base ? Math.round(1000 / base) : 0;
-      console.log(
+      const txt =
         '\n[RPGProbe] ' + frames.length + ' snímků · plátno ' + area.toLocaleString('cs-CZ') + ' px\n' +
         '  PLOCHA   ' + pad(Math.round(px.med).toLocaleString('cs-CZ'), 9) + ' px  = ' +
           (px.med / area).toFixed(2) + ' × plátna   (max ' + (px.max / area).toFixed(2) + ' ×)\n' +
@@ -166,12 +166,45 @@
         '  ZAHOZENO ' + pad(dropPct.toFixed(1) + ' %', 9) + '     (' + dropped + ' z ' + gaps.length + ')\n' +
         '  (PRÁCE je doba běhu callbacku rAF. Sama o sobě je jen část odpovědi —\n' +
         '   rozhoduje ZAHOZENO: kolik snímků prohlížeč nestihl. Na výkonném\n' +
-        '   stroji bude 0 % i při vyšší práci; na Chromebooku je to číslo,\n' +
-        '   podle kterého se optimalizace rozhoduje.)\n'
-      );
-      return { px: px, fills: fills, blits: blits, ms: ms, area: area,
+        '   stroji bude 0 % i při vyšší práci; na tabletu je to číslo,\n' +
+        '   podle kterého se optimalizace rozhoduje.)\n';
+      console.log(txt);
+      API._txt = txt;
+      return { px: px, fills: fills, blits: blits, ms: ms, area: area, text: txt,
                frames: frames.length, hz: hz, gap: gs, droppedPct: dropPct };
     },
+    /* ── výpis NA OBRAZOVKU ───────────────────────────────────
+       Na tabletu se konzole neotevře (iPad Safari ji bez Macu nemá vůbec,
+       Android Chrome jen přes USB ladění), takže by tam byla sonda k ničemu.
+       `show()` vysype týž text do panelu přes stránku. */
+    show() {
+      if (!API._txt) API.report();
+      const t = API._txt;
+      if (!t) return;
+      let box = document.getElementById('rpgprobe-out');
+      if (!box) {
+        box = document.createElement('pre');
+        box.id = 'rpgprobe-out';
+        box.style.cssText = 'position:fixed;left:8px;right:8px;top:8px;z-index:99999;' +
+          'background:#0b0f1aee;color:#d8e4ff;border:2px solid #4dc8ff;border-radius:8px;' +
+          'padding:12px;font:12px/1.45 ui-monospace,Menlo,Consolas,monospace;' +
+          'white-space:pre-wrap;max-height:70vh;overflow:auto;user-select:text';
+        box.addEventListener('click', function () { box.remove(); });
+        document.body.appendChild(box);
+      }
+      box.textContent = t + '\n(klepnutím zavřeš)';
+      return t;
+    },
+
+    /* Celé měření jedním voláním — pro bookmarklet na tabletu.
+       Sebere `sec` sekund a výsledek rovnou ukáže na obrazovce. */
+    run(sec) {
+      const s2 = Math.max(2, +sec || 5);
+      API.start();
+      setTimeout(function () { API.report(); API.stop(); API.show(); }, s2 * 1000);
+      return 'měřím ' + s2 + ' s…';
+    },
+
     /* Vrátí surová data, ať se dá tabulka poskládat skriptem přes 7 her. */
     raw() { return frames.slice(); }
   };
