@@ -671,7 +671,12 @@ const i18n = (cs, en) => lang === 'en' ? en : cs;
    `goniometrie.html`. Mění tečku JEN MEZI ČÍSLICEMI, takže nerozbije
    číslování ani „1. krok". V anglické verzi je tečka správně. */
 const czNum = t => (typeof t === 'string' && lang !== 'en')
-  ? t.replace(/(\d)\.(\d)/g, '$1,$2') : t;
+  /* Obsah ZNAČEK se nesmí měnit. V datech SVG cesty je čárka
+     ODDĚLOVAČ, takže `M 47.5,170` → `M 47,5,170` by z jednoho čísla
+     udělalo dvě a trojúhelník by se rozsypal. Dnes v `svgTriangle()`
+     žádné desetinné číslo není, ale stačí ho tam jednou přidat.
+     Regulární výraz proto značky matchne první a nechá je být. */
+  ? t.replace(/<[^>]*>|(\d)\.(\d)/g, (m, a, b) => a !== undefined ? a + ',' + b : m) : t;
 
 function setLang(l) {
   lang = l;

@@ -158,6 +158,28 @@ const srv = http.createServer((q, p) => {
     ok(r.obr > 1000, `[${jazyk}] vykresleno dost obrazovek (${r.obr})`);
   }
 
+  /* ═══ 3) `czNum` nesmí sahat dovnitř ZNAČEK ═══
+     V datech SVG cesty je čárka ODDĚLOVAČ, takže `M 47.5,170` →
+     `M 47,5,170` by z jednoho čísla udělalo dvě a trojúhelník by se
+     rozsypal. Dnes v `svgTriangle()` žádné desetinné číslo není, takže
+     by se to neprojevilo — stačí ho tam ale jednou přidat a diagram
+     zmizí bez jediné chybové hlášky. Proto ta pojistka. */
+  const cz = await pg.evaluate(() => {
+    setLang('cs');
+    return {
+      text: czNum('Výsledek je 2.5 m'),
+      svg: czNum('<path d="M 47.5,170 A 22,22 0 0,0 47,156"/> a 2.5 m'),
+      poradi: czNum('1. krok'),
+      en: (setLang('en'), czNum('Result is 2.5 m')),
+    };
+  });
+  await pg.evaluate(() => setLang('cs'));
+  ok(cz.text === 'Výsledek je 2,5 m', 'czNum: mění tečku mezi číslicemi', cz.text);
+  ok(cz.svg === '<path d="M 47.5,170 A 22,22 0 0,0 47,156"/> a 2,5 m',
+    'czNum: NEsahá dovnitř značek (SVG cesta zůstane celá)', cz.svg);
+  ok(cz.poradi === '1. krok', 'czNum: nechá „1. krok" být', cz.poradi);
+  ok(cz.en === 'Result is 2.5 m', 'czNum: v anglické verzi nedělá nic', cz.en);
+
   const skut = jsErr.filter(e => !/ERR_|CERT_|net::/i.test(e));
   ok(skut.length === 0, 'žádné JS chyby', skut.slice(0, 1).join(''));
 
