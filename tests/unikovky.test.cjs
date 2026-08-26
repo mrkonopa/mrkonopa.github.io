@@ -15,6 +15,8 @@
    • kód je číslo a nemá desetinnou tečku (zadává se do `input[number]`),
    • kód SEDÍ NA VÝSLEDEK, který hra sama uvádí v `successMsg`
      („🔓 Správně! 2⁴ = 16") — viz poznámka níže,
+   • POSLEDNÍ NÁPOVĚDA se DOPOČÍTÁ a musí dát kód („💡 60 + 32 + 37 = ?"
+     → 129) — nápověda, která vede jinam, je stejně zlá jako špatný kód,
    • každá úloha má neprázdnou nápovědu,
    • v textech není `undefined`, `NaN`, `[object Object]` ani desetinná
      tečka mezi číslicemi.
@@ -61,6 +63,15 @@ const ODEMCENI_MS = 2100;          // animace je 1900, necháváme rezervu
    postup). Stroj u nich rozhodnout nemůže, tak jsou tu vypsané jmenovitě
    i s ručním dopočtem — kdyby přibyl další, test spadne a bude ho vidět.
    Ověřeno ručně 26. 8. 2026 proti zadání poslední úlohy zámku: */
+/* Zámky, kde poslední nápověda ÚMYSLNĚ nekončí kódem, protože počítá
+   jen mezikrok. Stroj tu rozhodnout nemůže — je to pedagogicky správně.
+   Ověřeno ručně 26. 8. 2026: */
+const NAPOVEDA_MEZIKROK = {
+  // Kód je ROZDÍL průměrů (9 − 6 = 3), ale nápověda dovede žáka jen
+  // k průměru skupiny B (45 ÷ 5 = 9). Odečtení si má udělat sám.
+  statistika: [9],
+};
+
 const HLASKA_BEZ_VYSLEDKU = {
   procenta: [
     1,   // „Vypočítej 1 % ze 700"      → 700 ÷ 100 = 7    = code '7'
@@ -109,7 +120,7 @@ const HRY = fs.readdirSync(path.join(ROOT, 'projects'))
     /* ── statická část: kódy, nápovědy, artefakty ── */
     const st = await pg.evaluate(() => {
       if (typeof STEPS === 'undefined') return { chyba: 'STEPS není dostupné' };
-      const n = []; let uloh = 0; const xref = [];
+      const n = []; let uloh = 0; const xref = [], hint = [];
       STEPS.forEach((z, i) => {
         const kde = `zámek ${z.id || i + 1}`;
         const kod = z.code == null ? '' : String(z.code).trim();
@@ -128,10 +139,30 @@ const HRY = fs.readdirSync(path.join(ROOT, 'projects'))
         const sm = String(z.successMsg || '').replace(/<[^>]*>/g, '')
           .replace(/Zámek\s*\d+/gi, '').replace(/Lock\s*\d+/gi, '');
         const cisla = (sm.match(/-?\d+(?:[,.]\d+)?/g) || []).map(x => x.replace(',', '.'));
+        /* Aritmetika POSLEDNÍ nápovědy musí dát kód.
+           Pozor na dvě pasti, obě mě stály falešné poplachy:
+           tečka na konci předchozí VĚTY se plete s desetinnou
+           („= 25. 25 × 5 = ?" vyjde 126,25 místo 125), a minus je
+           často U+2212 („−"), ne ASCII. Věta se proto uřízne DŘÍV,
+           než se smažou mezery. */
+        let vypocet = null;
+        const posl = tasks.length ? String(tasks[tasks.length - 1].hint || '').replace(/<[^>]*>/g, '') : '';
+        const useky = posl.split('=');
+        if (useky.length >= 2) {
+          let e = useky[useky.length - 2].split(/\.\s+/).pop()
+            .replace(/[×·]/g, '*').replace(/÷/g, '/').replace(/[−–—]/g, '-')
+            .replace(/,(\d)/g, '.$1').replace(/\s/g, '')
+            .replace(/^[^0-9(+-]*/, '').replace(/^\.+/, '');
+          if (/^[\d+\-*/().]+$/.test(e) && /[+\-*/]/.test(e)) {
+            try { const v = Function('"use strict";return(' + e + ')')(); if (isFinite(v)) vypocet = v; } catch (err) {}
+          }
+        }
+
         const id = z.id || i + 1;
         xref.push(cisla.includes(kod.replace(',', '.'))
           ? { id, kde, stav: 'sedi' }
           : { id, kde, kod, stav: 'neuvadi', sm: sm.trim().slice(0, 70) });
+        hint.push({ id, kde, kod, vypocet, text: posl.trim().slice(0, 60) });
 
         const texty = [z.title, z.tag, z.body].filter(x => typeof x === 'string');
         tasks.forEach(t => ['body', 'hint', 'title'].forEach(kk => { if (typeof t[kk] === 'string') texty.push(t[kk]); }));
@@ -142,7 +173,7 @@ const HRY = fs.readdirSync(path.join(ROOT, 'projects'))
           if (tk) n.push(`${kde}: desetinná tečka „${tk[0]}"`);
         });
       });
-      return { pocet: STEPS.length, uloh, nalezy: [...new Set(n)], xref };
+      return { pocet: STEPS.length, uloh, nalezy: [...new Set(n)], xref, hint };
     });
 
     if (st.chyba) { await ctx.close(); return { jm, st }; }
@@ -186,7 +217,7 @@ const HRY = fs.readdirSync(path.join(ROOT, 'projects'))
     return { jm, st, hra, skut };
   }));
 
-  let zamku = 0, uloh = 0, xrefSedi = 0, xrefNeuvedeno = 0;
+  let zamku = 0, uloh = 0, xrefSedi = 0, xrefNeuvedeno = 0, hintSedi = 0, hintBezVyrazu = 0;
   for (const v of vysledky) {
     const { jm, st, hra, skut } = v;
     if (st.chyba) { ok(false, `${jm}: ${st.chyba}`); continue; }
@@ -205,6 +236,15 @@ const HRY = fs.readdirSync(path.join(ROOT, 'projects'))
     xrefNeuvedeno += st.xref.filter(x => x.stav !== 'sedi' && povolene.includes(x.id)).length;
     ok(spatne.length === 0, `${jm}: kód sedí na výsledek uvedený v hlášce`,
       spatne.map(x => `${x.kde} (kód ${x.kod}) → „${x.sm}"`).slice(0, 2).join(' | '));
+    const mezikrok = NAPOVEDA_MEZIKROK[jm] || [];
+    const hintSpatne = st.hint.filter(x => x.vypocet !== null && !mezikrok.includes(x.id)
+      && Math.abs(x.vypocet - parseFloat(String(x.kod).replace(',', '.'))) > 1e-9);
+    hintSedi += st.hint.filter(x => x.vypocet !== null && !mezikrok.includes(x.id)
+      && Math.abs(x.vypocet - parseFloat(String(x.kod).replace(',', '.'))) <= 1e-9).length;
+    hintBezVyrazu += st.hint.filter(x => x.vypocet === null).length;
+    ok(hintSpatne.length === 0, `${jm}: poslední nápověda vede na kód`,
+      hintSpatne.map(x => `${x.kde}: „${x.text}" → ${x.vypocet}, kód ${x.kod}`).slice(0, 2).join(' | '));
+
     /* Výjimka, která přestala být potřeba, se musí uklidit — jinak by
        tiše kryla zámek, který by se pokazil později. */
     const zbytecne = povolene.filter(id => st.xref.some(x => x.id === id && x.stav === 'sedi'));
@@ -221,6 +261,11 @@ const HRY = fs.readdirSync(path.join(ROOT, 'projects'))
      pravidlo by oslepilo a tohle to ohlásí místo tichého průchodu. */
   console.log(`\n  Kód × hláška: potvrzeno strojově ${xrefSedi}/${zamku}, ` +
     `${xrefNeuvedeno} ověřeno ručně (viz HLASKA_BEZ_VYSLEDKU).`);
+  console.log(`  Kód × nápověda: dopočítáno ${hintSedi}/${zamku}, ` +
+    `${hintBezVyrazu} nápověd bez uzavřeného výrazu (nelze soudit).`);
+  /* Naměřeno 44 dopočítaných. Podlaha 30 nechá rozumnou rezervu a
+     rozbité čtení nápověd by dalo 0. */
+  ok(hintSedi >= 30, `aritmetika nápověd pokrývá aspoň 30 zámků (${hintSedi})`);
   ok(xrefSedi >= 70, `křížová kontrola pokrývá aspoň 70 zámků (${xrefSedi})`);
 
   console.log(`\n  Únikovky: ${pass} ✅ / ${fail} ❌\n`);
