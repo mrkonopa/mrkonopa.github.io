@@ -59,8 +59,11 @@ a{color:var(--ch2);text-decoration:none}a:hover{color:#1250a0}
   letter-spacing:-.02em;margin-bottom:10px}
 .intro-title .accent{color:var(--ch1)}
 .intro-sub{color:var(--muted);font-size:.97rem;max-width:500px;margin:0 auto 18px}
-.code-row{display:flex;gap:10px;margin-top:10px}
-.code-row input{flex:1;padding:10px 14px;border:1.5px solid var(--border);
+.code-row{display:flex;gap:10px;margin-top:10px;flex-wrap:wrap}
+/* `min-width:0` je nutné: bez něj má input v flexu minimální šířku
+   podle placeholderu, takže se řádek na úzkém displeji (380 px)
+   nesmrští a tlačítko „Použít" vyleze z karty ven. */
+.code-row input{flex:1;min-width:0;padding:10px 14px;border:1.5px solid var(--border);
   border-radius:8px;font-family:var(--sans);font-size:.95rem}
 .code-row input:focus{outline:2px solid var(--ch2);border-color:transparent}
 .code-feedback{font-size:.88rem;margin-top:8px;min-height:1.4em}

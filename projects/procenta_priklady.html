@@ -663,6 +663,16 @@ const LANG_KEY = 'procenta_lang';
 let lang = localStorage.getItem(LANG_KEY) || 'cs';
 const i18n = (cs, en) => lang === 'en' ? en : cs;
 
+/* Desetinná ČÁRKA v české verzi.
+   Postup u „procentové části" ukazuje mezikrok jako JS číslo
+   („1 % ze 40 = 40 ÷ 100 = 0.4"), takže se do textu dostane tečka.
+   Naměřeno u 34 % lehkých úloh toho typu. Normalizuje se centrálně
+   při vykreslení, ne v generátorech — stejným vzorem jako
+   `goniometrie.html`. Mění tečku JEN MEZI ČÍSLICEMI, takže nerozbije
+   číslování ani „1. krok". V anglické verzi je tečka správně. */
+const czNum = t => (typeof t === 'string' && lang !== 'en')
+  ? t.replace(/(\d)\.(\d)/g, '$1,$2') : t;
+
 function setLang(l) {
   lang = l;
   try { localStorage.setItem(LANG_KEY, l); } catch(e) {}
@@ -1297,7 +1307,7 @@ function advanceHint() {
     ['Nasměrování', 'Vzorec', 'Postup s výsledkem'],
     ['Direction', 'Formula', 'Solution steps']
   );
-  box.innerHTML = `<span class="h-label">${i18n('Nápověda','Hint')} ${hintLevel}/3 — ${labels[hintLevel-1]}</span>${hints[hintLevel - 1]}`;
+  box.innerHTML = `<span class="h-label">${i18n('Nápověda','Hint')} ${hintLevel}/3 — ${labels[hintLevel-1]}</span>${czNum(hints[hintLevel - 1])}`;
   const dots = counter.querySelectorAll('.dot');
   dots.forEach((d, i) => {
     d.classList.toggle('shown', i < hintLevel);
@@ -1319,7 +1329,7 @@ function renderProblem() {
   container.innerHTML = `
     <div class="problem-card cat-${p.type}">
       <span class="tag cat-${p.type}">${p.typeLabel()}</span>
-      <p class="problem-text">${i18n(p.question_cs, p.question_en)}</p>
+      <p class="problem-text">${czNum(i18n(p.question_cs, p.question_en))}</p>
       <div class="input-row">
         <input class="answer" id="ans" type="number" inputmode="numeric"
                placeholder="?" autocomplete="off" autofocus>
@@ -1363,7 +1373,7 @@ function checkAnswer() {
     inp.classList.add('correct');
     fb.className = 'feedback ok show';
     fb.innerHTML = `
-      <strong>${i18n('✓ Správně!','✓ Correct!')}</strong> ${i18n('Odpověď je','The answer is')} <b>${p.answer}${p.unit ? ' ' + p.unit : ''}</b>.
+      <strong>${i18n('✓ Správně!','✓ Correct!')}</strong> ${i18n('Odpověď je','The answer is')} <b>${czNum(String(p.answer))}${p.unit ? ' ' + p.unit : ''}</b>.
       <div class="next-row"><button class="btn-next" id="btn-next">${i18n('Další →','Next →')}</button></div>
     `;
   } else {
@@ -1371,7 +1381,7 @@ function checkAnswer() {
     inp.classList.add('wrong');
     fb.className = 'feedback err show';
     fb.innerHTML = `
-      <strong>${i18n('✗ Bohužel.','✗ Not quite.')}</strong> ${i18n('Správná odpověď je','The correct answer is')} <b>${p.answer}${p.unit ? ' ' + p.unit : ''}</b>.
+      <strong>${i18n('✗ Bohužel.','✗ Not quite.')}</strong> ${i18n('Správná odpověď je','The correct answer is')} <b>${czNum(String(p.answer))}${p.unit ? ' ' + p.unit : ''}</b>.
       <span style="display:block;font-size:.85rem;color:var(--muted);margin-top:4px;">${i18n('Postup uvidíš na konci v souhrnu.','You\'ll see the solution at the end in the summary.')}</span>
       <div class="next-row"><button class="btn-next" id="btn-next">${i18n('Další →','Next →')}</button></div>
     `;
@@ -1472,13 +1482,13 @@ function showResult() {
       div.className = 'miss';
       const steps = lang === 'en' ? p.steps_en : p.steps_cs;
       div.innerHTML = `
-        <div class="miss-q"><span class="typeTag">${TYPE_LABELS()[p.type]}</span>${i18n(p.question_cs, p.question_en)}</div>
+        <div class="miss-q"><span class="typeTag">${TYPE_LABELS()[p.type]}</span>${czNum(i18n(p.question_cs, p.question_en))}</div>
         <div class="miss-answers">
-          <span class="your">${i18n('tvá odpověď:','your answer:')} ${h.userAnswer}${p.unit ? ' ' + p.unit : ''}</span>
-          <span class="right">${i18n('správně:','correct:')} ${p.answer}${p.unit ? ' ' + p.unit : ''}</span>
+          <span class="your">${i18n('tvá odpověď:','your answer:')} ${czNum(String(h.userAnswer))}${p.unit ? ' ' + p.unit : ''}</span>
+          <span class="right">${i18n('správně:','correct:')} ${czNum(String(p.answer))}${p.unit ? ' ' + p.unit : ''}</span>
         </div>
         <div class="miss-steps">
-          <ol>${steps.map(s => `<li>${s}</li>`).join('')}</ol>
+          <ol>${steps.map(s => `<li>${czNum(s)}</li>`).join('')}</ol>
         </div>
       `;
       errList.appendChild(div);

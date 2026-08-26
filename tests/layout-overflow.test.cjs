@@ -54,7 +54,20 @@ const PAGES=[...[3,4,5,6,7,8,9].map(g=>['g'+g,'/projects/rpg-mat-'+g+'.html']),
  ['hub','/projects/rpg-matematika.html'],['ucitel','/projects/rpg-ucitel.html'],
  ['pz-hub','/projects/prijimacky-matematika/index.html'],['pz-test','/projects/prijimacky-matematika/test.html'],
  ['pz-proc','/projects/prijimacky-matematika/procvicovani.html'],['pz-diag','/projects/prijimacky-matematika/diagnostika.html'],
- ['pz-stat','/projects/prijimacky-matematika/statistiky.html']];
+ ['pz-stat','/projects/prijimacky-matematika/statistiky.html'],
+ // Tenhle seznam byl ručně udržovaný a KRYL JEN RPG + přijímačky, i když
+ // hlavička testu tvrdila „prochází všechny stránky". Chybělo 15 stránek
+ // odkázaných z rozcestníku — únikovky, cesta peněz, procenta, goniometrie
+ // i osobní web. Po doplnění se hned našlo přetečení řádku „Mám kód
+ // odjinud" v goniometrii na 380 px. Zbytek byl v pořádku
+ // (252 obrazovek / 14 968 prvků).
+ ['gonio','/projects/goniometrie.html'],['naroz','/projects/narozeniny.html'],
+ ['papir','/projects/papir.html'],['cesta','/projects/cesta_penez.html'],
+ ['proc','/projects/procenta_priklady.html'],
+ ...['linearni_funkce','mocniny','procenta','pythagoras','rovnice','statistika','telesa','trojuhelniky']
+   .map(u=>['u-'+u,'/projects/unikovka_'+u+'.html']),
+ ['proj','/projects/index.html'],['home','/index.html'],['404','/404.html'],
+ ['travels','/travels/index.html']];
 const SIRKY=[1100,820,380];
 
 const DET=()=>{
