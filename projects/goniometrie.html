@@ -59,8 +59,11 @@ a{color:var(--ch2);text-decoration:none}a:hover{color:#1250a0}
   letter-spacing:-.02em;margin-bottom:10px}
 .intro-title .accent{color:var(--ch1)}
 .intro-sub{color:var(--muted);font-size:.97rem;max-width:500px;margin:0 auto 18px}
-.code-row{display:flex;gap:10px;margin-top:10px}
-.code-row input{flex:1;padding:10px 14px;border:1.5px solid var(--border);
+.code-row{display:flex;gap:10px;margin-top:10px;flex-wrap:wrap}
+/* `min-width:0` je nutné: bez něj má input v flexu minimální šířku
+   podle placeholderu, takže se řádek na úzkém displeji (380 px)
+   nesmrští a tlačítko „Použít" vyleze z karty ven. */
+.code-row input{flex:1;min-width:0;padding:10px 14px;border:1.5px solid var(--border);
   border-radius:8px;font-family:var(--sans);font-size:.95rem}
 .code-row input:focus{outline:2px solid var(--ch2);border-color:transparent}
 .code-feedback{font-size:.88rem;margin-top:8px;min-height:1.4em}
@@ -225,9 +228,35 @@ const pick = arr => arr[Math.floor(Math.random() * arr.length)];
 const rad = deg => deg * Math.PI / 180;
 const r1 = x => Math.round(x * 10) / 10;
 
+/* Poměr stran v nápovědě k arcsin/arccos/arctan se NESMÍ zaokrouhlit
+   na jedno desetinné místo. Nápověda ho totiž dává žákovi jako číslo
+   do kalkulačky („sin α = 11 / 15 = 0,7, takže α = arcsin(0,7)") a
+   z 0,7 vyjde 44°, kdežto správně je 47°. Naměřeno: u 25 ze 45
+   kombinací (56 %) se takhle žák dostane MIMO toleranci 1° a hra ho
+   za poslechnutí nápovědy označí za špatně; nejhorší případ byl
+   arcsin(0,9) → 64° proti správným 58°, tedy 6,2° vedle.
+   Na tři desetinná místa je odchylka nejvýš 0,04° (0 ze 45 mimo). */
+const r3 = x => Math.round(x * 1000) / 1000;
+
 /* ── i18n ── */
 let lang = localStorage.getItem(LANG_KEY) || 'cs';
 const i18n = (cs, en) => lang === 'en' ? en : cs;
+
+/* Desetinná ČÁRKA v české verzi.
+   Zadání i nápovědy vznikají z JS čísel (`r1(2.4/Math.sin(...))`), takže
+   se do textu dostane tečka — v češtině je to špatně. Normalizuje se
+   centrálně tady při vykreslení, ne v každém generátoru zvlášť: scén
+   s desetinným číslem je dvanáct a při ručním obcházení se na některou
+   vždycky zapomene.
+   Mění tečku JEN MEZI ČÍSLICEMI, takže nerozbije „1. krok" ani „sin⁻¹".
+   V anglické verzi je tečka správně, proto se nedělá nic. */
+const czNum = t => (typeof t === 'string' && lang !== 'en')
+  /* Obsah ZNAČEK se nesmí měnit. V datech SVG cesty je čárka
+     ODDĚLOVAČ, takže `M 47.5,170` → `M 47,5,170` by z jednoho čísla
+     udělalo dvě a trojúhelník by se rozsypal. Dnes v `svgTriangle()`
+     žádné desetinné číslo není, ale stačí ho tam jednou přidat.
+     Regulární výraz proto značky matchne první a nechá je být. */
+  ? t.replace(/<[^>]*>|(\d)\.(\d)/g, (m, a, b) => a !== undefined ? a + ',' + b : m) : t;
 
 function setLang(l) {
   lang = l;
@@ -489,7 +518,15 @@ const ACTS = [
       // p3: zadáno α a b (přilehlá), hledá se a (protilehlá): a = b·tan α
       p3:{ b:b1, a:Math.round(b1*Math.tan(aR)) },
       // p4: zadáno α a a (protilehlá), hledá se c (přepona): c = a/sin α
-      p4:{ a:Math.round(c3*Math.sin(aR)), c:c3 },
+      // POZOR: `c` se MUSÍ dopočítat ze ZAOKROUHLENÉ odvěsny, ne z c3.
+      // Dřív se zadávala zaokrouhlená `a`, ale odpovědí bylo původní
+      // `c3` — u 8 z 28 kombinací (29 %) pak L3 nápověda tvrdila jiné
+      // celé číslo, než z jejího vlastního postupu vyjde: při α=30°,
+      // c3=15 se ptala na „c = 7 / sin 30°", což je 14, a odpovídala 15.
+      // Stejný vzor, jaký kapitola 3 dělá správně (odvozuje ans ze
+      // zaokrouhlené strany).
+      p4:(() => { const a4 = Math.round(c3 * Math.sin(aR));
+                  return { a:a4, c:Math.round(a4 / Math.sin(aR)) }; })(),
     };
   },
   scenes: [
@@ -607,9 +644,9 @@ const ACTS = [
       svg:svgTriangle({a:true,c:true,alpha:true}), ans:ctx.p1.ans, tol:1, unit:'°',
       hints:[
         i18n(`Znáš protilehlou (a) a přeponu (c) — to je sinus.`,`You know opposite (a) and hypotenuse (c) — that's sine.`),
-        i18n(`sin α = ${ctx.p1.a} / ${ctx.p1.c} = ${r1(ctx.p1.a/ctx.p1.c)}, takže α = arcsin(${r1(ctx.p1.a/ctx.p1.c)})`,
-             `sin α = ${ctx.p1.a} / ${ctx.p1.c} = ${r1(ctx.p1.a/ctx.p1.c)}, so α = arcsin(${r1(ctx.p1.a/ctx.p1.c)})`),
-        `α = arcsin(${r1(ctx.p1.a/ctx.p1.c)}) ≈ <b>${ctx.p1.ans}°</b>`,
+        i18n(`sin α = ${ctx.p1.a} / ${ctx.p1.c} = ${r3(ctx.p1.a/ctx.p1.c)}, takže α = arcsin(${r3(ctx.p1.a/ctx.p1.c)})`,
+             `sin α = ${ctx.p1.a} / ${ctx.p1.c} = ${r3(ctx.p1.a/ctx.p1.c)}, so α = arcsin(${r3(ctx.p1.a/ctx.p1.c)})`),
+        `α = arcsin(${r3(ctx.p1.a/ctx.p1.c)}) ≈ <b>${ctx.p1.ans}°</b>`,
       ],
     })},
     { type:'math', build: ctx => ({
@@ -618,9 +655,9 @@ const ACTS = [
       svg:svgTriangle({b:true,c:true,alpha:true}), ans:ctx.p2.ans, tol:1, unit:'°',
       hints:[
         i18n(`Znáš přilehlou (b) a přeponu (c) — to je kosinus.`,`You know adjacent (b) and hypotenuse (c) — that's cosine.`),
-        i18n(`cos α = ${ctx.p2.b} / ${ctx.p2.c} = ${r1(ctx.p2.b/ctx.p2.c)}, takže α = arccos(${r1(ctx.p2.b/ctx.p2.c)})`,
-             `cos α = ${ctx.p2.b} / ${ctx.p2.c} = ${r1(ctx.p2.b/ctx.p2.c)}, so α = arccos(${r1(ctx.p2.b/ctx.p2.c)})`),
-        `α = arccos(${r1(ctx.p2.b/ctx.p2.c)}) ≈ <b>${ctx.p2.ans}°</b>`,
+        i18n(`cos α = ${ctx.p2.b} / ${ctx.p2.c} = ${r3(ctx.p2.b/ctx.p2.c)}, takže α = arccos(${r3(ctx.p2.b/ctx.p2.c)})`,
+             `cos α = ${ctx.p2.b} / ${ctx.p2.c} = ${r3(ctx.p2.b/ctx.p2.c)}, so α = arccos(${r3(ctx.p2.b/ctx.p2.c)})`),
+        `α = arccos(${r3(ctx.p2.b/ctx.p2.c)}) ≈ <b>${ctx.p2.ans}°</b>`,
       ],
     })},
     { type:'math', build: ctx => ({
@@ -629,9 +666,9 @@ const ACTS = [
       svg:svgTriangle({a:true,b:true,alpha:true}), ans:ctx.p3.ans, tol:1, unit:'°',
       hints:[
         i18n(`Znáš protilehlou (a) a přilehlou (b) — žádná přepona, to je tangens.`,`You know opposite (a) and adjacent (b) — no hypotenuse, that's tangent.`),
-        i18n(`tan α = ${ctx.p3.a} / ${ctx.p3.b} = ${r1(ctx.p3.a/ctx.p3.b)}, takže α = arctan(${r1(ctx.p3.a/ctx.p3.b)})`,
-             `tan α = ${ctx.p3.a} / ${ctx.p3.b} = ${r1(ctx.p3.a/ctx.p3.b)}, so α = arctan(${r1(ctx.p3.a/ctx.p3.b)})`),
-        `α = arctan(${r1(ctx.p3.a/ctx.p3.b)}) ≈ <b>${ctx.p3.ans}°</b>`,
+        i18n(`tan α = ${ctx.p3.a} / ${ctx.p3.b} = ${r3(ctx.p3.a/ctx.p3.b)}, takže α = arctan(${r3(ctx.p3.a/ctx.p3.b)})`,
+             `tan α = ${ctx.p3.a} / ${ctx.p3.b} = ${r3(ctx.p3.a/ctx.p3.b)}, so α = arctan(${r3(ctx.p3.a/ctx.p3.b)})`),
+        `α = arctan(${r3(ctx.p3.a/ctx.p3.b)}) ≈ <b>${ctx.p3.ans}°</b>`,
       ],
     })},
     { type:'math', build: ctx => ({
@@ -1066,18 +1103,18 @@ function finishAct() {
 }
 
 function renderStory(data,container) {
-  container.innerHTML=`<div class="scene-card">${data.title?`<h2>${data.title}</h2>`:''} ${data.html}</div>
+  container.innerHTML=`<div class="scene-card">${data.title?`<h2>${data.title}</h2>`:''} ${czNum(data.html)}</div>
     <button class="btn-next visible" id="btn-story-next">${i18n('Rozumím →','Got it →')}</button>`;
   document.getElementById('btn-story-next').addEventListener('click',nextScene);
 }
 
 function renderChoice(data,container) {
   const hasHints=data.hints&&data.hints.length>0;
-  const hHtml=hasHints?data.hints.map((h,i)=>`<div class="hint-box ${i===2?'l3':''}" id="hint-${i}">${h}</div>`).join(''):'';
+  const hHtml=hasHints?data.hints.map((h,i)=>`<div class="hint-box ${i===2?'l3':''}" id="hint-${i}">${czNum(h)}</div>`).join(''):'';
   container.innerHTML=`<div class="scene-card">
     <h2>${data.title}</h2>
     ${data.svg?`<div class="svg-wrap">${data.svg}</div>`:''}
-    <p class="problem-q">${data.q}</p>
+    <p class="problem-q">${czNum(data.q)}</p>
     <div class="choice-list">${data.choices.map((c,i)=>`<button class="choice-btn" data-idx="${i}">${c}</button>`).join('')}</div>
     <div class="feedback" id="feedback"></div>
     ${hasHints?`<div class="hint-section"><button class="hint-btn" id="hint-toggle">💡 ${i18n('Nápověda','Hint')} 1/3</button>${hHtml}</div>`:''}
@@ -1107,11 +1144,11 @@ function renderChoice(data,container) {
 
 function renderMath(data,container) {
   const hasHints=data.hints&&data.hints.length>0;
-  const hHtml=hasHints?data.hints.map((h,i)=>`<div class="hint-box ${i===2?'l3':''}" id="hint-${i}">${h}</div>`).join(''):'';
+  const hHtml=hasHints?data.hints.map((h,i)=>`<div class="hint-box ${i===2?'l3':''}" id="hint-${i}">${czNum(h)}</div>`).join(''):'';
   container.innerHTML=`<div class="scene-card">
     ${data.title?`<h2>${data.title}</h2>`:''}
     ${data.svg?`<div class="svg-wrap">${data.svg}</div>`:''}
-    <p class="problem-q">${data.q}</p>
+    <p class="problem-q">${czNum(data.q)}</p>
     <div class="input-row">
       <input type="number" class="answer-input" id="ans-input" placeholder="?" step="${data.step||1}">
       <span class="unit-label">${data.unit}</span>
@@ -1133,8 +1170,8 @@ function renderMath(data,container) {
     answered=true;
     if(ok) chapterScore.earned+=1;
     fb.innerHTML=ok
-      ? `${i18n('✓ Správně!','✓ Correct!')} ${data.ans} ${data.unit}`
-      : `${i18n('✗ Správná odpověď:','✗ Correct answer:')} <b>${data.ans} ${data.unit}</b>`;
+      ? `${i18n('✓ Správně!','✓ Correct!')} ${czNum(String(data.ans))} ${data.unit}`
+      : `${i18n('✗ Správná odpověď:','✗ Correct answer:')} <b>${czNum(String(data.ans))} ${data.unit}</b>`;
     fb.className='feedback '+(ok?'ok':'err');
     input.disabled=true;
     container.querySelector('#btn-check').textContent=i18n('Další →','Next →');

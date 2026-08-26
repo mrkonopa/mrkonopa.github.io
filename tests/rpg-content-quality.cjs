@@ -112,6 +112,7 @@ function floatNoise(text) {
 }
 // Stejná normalizace, jakou hra dělá při zobrazení nápovědy (czTxt).
 const czTxt = t => String(t).replace(/(\d)\.(\d)/g, '$1,$2');
+
 // Nezaokrouhlený periodický rozvoj v nápovědě: 1/3 = 0,3333… Žák má vidět
 // zaokrouhlenou hodnotu se znaménkem ≈, ne useknuté cifry (Vojtovo pravidlo).
 function periodicDecimal(text) {
@@ -173,7 +174,8 @@ function loadGrade(g) {
 
 /* ── běh ──────────────────────────────────────────────────────────── */
 console.log('\n── Audit kvality zadání (3.–9. ročník) ──\n');
-const found = { objekt: [], frac: [], decl: [], hintEmpty: [], hintDup: [], nan: [], typo: [], float: [], dotText: [], dotHint: [], periodic: [] };
+const found = { objekt: [], frac: [], decl: [], hintEmpty: [], hintDup: [], nan: [], typo: [], float: [], dotText: [], dotHint: [], periodic: [], hintMath: [] };
+let hintDop = 0;   // kolik nápověd se podařilo dopočítat (pojistka proti planému běhu)
 let generated = 0;
 
 for (const g of GRADES) {
@@ -192,6 +194,59 @@ for (const g of GRADES) {
         const all = text + ' ' + hints.join(' ');
 
         if (/NaN|undefined/.test(all)) push('nan', where, text.slice(0, 70));
+
+        /* ── Poslední nápověda se DOPOČÍTÁ a musí dát `ans`. ──────────
+           Kontrola „nápověda obsahuje výsledek" je slabá: projde
+           i tehdy, když je špatně zároveň nápověda i odpověď. Takhle
+           vypadala vada v `goniometrie.html` — a takhle vypadala
+           i úloha 8/7-2 („Obvod obdélníku je X, jedna strana Y, jaká
+           je druhá?"), kde se za obvod dosazovala jeho POLOVINA:
+           nesedělo to ve 100 % generování, žák dostal „špatně" i když
+           počítal správně, a nápověda ho vedla ke stejnému číslu.
+
+           TVAR JE ZÁMĚRNĚ ÚZKÝ. Nápověda smí mít prozaický popisek
+           před prvním „=" („Druhá strana = 18 − 12 = ?"), ale všechno
+           za ním musí být čistá aritmetika. Volnější tvar (vzít
+           poslední výraz odkudkoli) jsem změřil taky: dopočítá
+           70 567 nápověd, ALE dá 21 planých poplachů — RPG nápovědy
+           běžně popisují MEZIKROK („10 : 5 = 2, pak + 6.", „1 díl =
+           72 : 8 = 9, pak × 4 → 36") a odpovědi bývají zlomky jako
+           řetězec („1/6"). Úzký tvar dopočítá 4 940 nápověd a dá
+           0 planých poplachů — a tu skutečnou vadu chytí. */
+        (function () {
+          if (t == null || t.ans == null) return;
+          const cil = parseFloat(String(t.ans).replace(',', '.'));
+          if (!isFinite(cil)) return;
+          /* Značky se tu ZÁMĚRNĚ nestahují. Naměřeno na 574 080 úlohách:
+             stahování značek nezměnilo ANI JEDNU nápovědu — v RPG bankách
+             žádné HTML není. Bylo by to tedy mrtvé, a navíc nebezpečné:
+             `<` se v nápovědách používá jako MENŠÍ NEŽ („k = −3 < 0"),
+             takže by zápis typu „a < b > c" regulární výraz snědl. */
+          const posl = hints.length ? String(hints[hints.length - 1]) : '';
+          const cista = posl.replace(/^[\s💡📘⚠️]*/, '').trim();
+          const kde = cista.indexOf('=');
+          if (kde < 0) return;
+          if (!/^[-\d\s+*/().,:×·÷−–—]+=\s*\??$/.test(cista.slice(kde + 1))) return;
+          const us = cista.split('=');
+          if (us.length < 2) return;
+          /* Tečka na konci předchozí VĚTY se plete s desetinnou,
+             minus bývá U+2212 a tisíce oddělují ÚZKÉ mezery. */
+          let e = us[us.length - 2].split(/\.\s+/).pop()
+            .replace(/[×·]/g, '*').replace(/÷|:/g, '/').replace(/[−–—]/g, '-')
+            .replace(/[\s\u00a0\u202f]/g, '').replace(/,(\d)/g, '.$1')
+            .replace(/^[^0-9(+-]*/, '').replace(/^\.+/, '');
+          if (!/^[\d+\-*/().]+$/.test(e) || !/[+\-*/]/.test(e)) return;
+          let v = null; try { v = Function('"use strict";return(' + e + ')')(); } catch (err) {}
+          if (v === null || !isFinite(v)) return;
+          hintDop++;
+          /* Nápověda výsledek zaokrouhluje („r = 28 : 6,28 = ?" dá
+             4,4586, ale odpověď je 4,5), proto se porovnává na tolik
+             desetinných míst, kolik jich má `ans`. */
+          const des = (String(t.ans).split(/[.,]/)[1] || '').length;
+          const zaokr = Math.round(v * Math.pow(10, des)) / Math.pow(10, des);
+          if (Math.abs(zaokr - cil) > 1e-9)
+            push('hintMath', where, '„' + posl.slice(0, 60) + '" → ' + v + ', ans ' + t.ans);
+        })();
         // 1. stupeň (3.–5.): nezkrácený zlomek je záměr („kolik je 6/8 z 64" se
         // počítá po osminách), proto pravidlo platí až od 6. ročníku
         // Kontrolu základního tvaru zlomku tu ZÁMĚRNĚ neděláme: na 218 tis. úlohách
@@ -240,6 +295,10 @@ if (process.env.LIST) {
   }
 }
 report('nan', 'žádné NaN/undefined');
+report('hintMath', 'poslední nápověda se dopočítá na uvedenou odpověď');
+/* Pojistka proti planému běhu: kdyby se tvar nápověd změnil, filtr by
+   nepustil nic a pravidlo by MLČELO. Naměřeno 4 940 dopočítaných. */
+ok('aritmetika nápověd se vůbec měřila (' + hintDop + ' dopočítaných)', hintDop > 3000, 'dopočítáno jen ' + hintDop);
 report('objekt', 'žádné „[object Object]" v zadání');
 report('decl', 'skloňování počitatelných jmen');
 report('hintEmpty', 'žádná prázdná nápověda');

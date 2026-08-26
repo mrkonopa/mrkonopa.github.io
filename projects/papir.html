@@ -359,18 +359,24 @@
 </div>
 
 <script>
+/* Čtvrtá položka je tloušťka PAPÍRU po daném počtu přeložení, ne
+   velikost té věci, se kterou se srovnává. Dřív tu stálo jen samotné
+   číslo, takže karta vypadala jako „Vzdálenost k Měsíci — 440 000 km"
+   a dítě si odneslo špatný údaj: k Měsíci je 384 400 km, tedy o 14 %
+   míň. U průměru Země to bylo 13 744 proti skutečným 12 742 km.
+   Proto se teď ukazuje obojí a je pojmenované, co je co. */
 const MILESTONES = [
-  [ 1, '📄', 'Dvojitý papír',       '0,2 mm'],
-  [ 7, '📚', 'Silný sešit',         '1,3 cm'],
-  [10, '📖', 'Tlusté encyklopedie', '10 cm'],
-  [14, '🚶', 'Výška člověka',       '1,6 m'],
-  [20, '🏢', 'Výšková budova',      '105 m'],
-  [22, '🗼', 'Eiffelova věž',       '419 m'],
-  [27, '✈️', 'Letová hladina',      '13 km'],
-  [32, '🛸', 'Oběžná dráha ISS',    '430 km'],
-  [37, '🌍', 'Průměr Země',         '13 744 km'],
-  [42, '🌙', 'Vzdálenost k Měsíci', '440 000 km'],
-  [51, '☀️', 'Za Sluncem',          '225 mil. km'],
+  [ 1, '📄', 'Dvojitý papír',       '0,2 mm',      null],
+  [ 7, '📚', 'Silný sešit',         '1,3 cm',      null],
+  [10, '📖', 'Tlusté encyklopedie', '10 cm',       null],
+  [14, '🚶', 'Výška člověka',       '1,6 m',       'člověk ~1,7 m'],
+  [20, '🏢', 'Výšková budova',      '105 m',       null],
+  [22, '🗼', 'Eiffelova věž',       '419 m',       'věž 330 m'],
+  [27, '✈️', 'Letová hladina',      '13 km',       'letadla ~11 km'],
+  [32, '🛸', 'Oběžná dráha ISS',    '430 km',      'ISS ~420 km'],
+  [37, '🌍', 'Průměr Země',         '13 744 km',   'Země 12 742 km'],
+  [42, '🌙', 'Vzdálenost k Měsíci', '440 000 km',  'Měsíc 384 400 km'],
+  [51, '☀️', 'Za Sluncem',          '225 mil. km', 'Slunce 149,6 mil. km'],
 ];
 
 const WOW_MSGS = new Map([
@@ -440,7 +446,7 @@ function buildComparisons() {
   const wrap = document.getElementById('comparison');
   wrap.innerHTML = '';
   MILESTONES.forEach((m, i) => {
-    const [n, icon, name, label] = m;
+    const [n, icon, name, label, skutecnost] = m;
     const div = document.createElement('div');
     div.className = 'comp-item';
     div.id = `comp-${i}`;
@@ -448,7 +454,7 @@ function buildComparisons() {
       <span class="comp-icon">${icon}</span>
       <div class="comp-body">
         <div class="comp-name">${name}</div>
-        <div class="comp-dist">${label}</div>
+        <div class="comp-dist">papír ${label}${skutecnost ? ` · ${skutecnost}` : ''}</div>
         <div class="comp-bar-wrap"><div class="comp-bar-fill" id="bar-${i}"></div></div>
       </div>
       <span class="comp-folds">${n}× přeložení</span>`;
