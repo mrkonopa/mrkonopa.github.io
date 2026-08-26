@@ -74,6 +74,35 @@ const srv=http.createServer((q,p)=>{let u=decodeURIComponent(q.url.split('?')[0]
           const fmtd=Number(s.answer).toLocaleString('cs-CZ');
           if(!posl.includes(cis)&&!posl.includes(fmtd))
             out.nalezy.push(`akt ${ai+1}/scéna ${si}: 3. nápověda neuvádí výsledek ${cis} — „${posl.replace(/<[^>]*>/g,'').slice(0,70)}"`);
+          /* …jenže „uvádí výsledek" je SLABÁ kontrola: projde i tehdy,
+             když je špatně zároveň nápověda i `answer`. Přesně tak
+             vypadala vada v `goniometrie.html` — nápověda tvrdila
+             „c = 7 / sin 30° ≈ 15" (což je 14) a `ans` bylo taky 15,
+             takže shoda seděla a chyba prošla. Nápovědě se proto
+             DOPOČÍTÁ: „8 × 150 = 1 200" se vyhodnotí a musí dát
+             `answer`.
+             Pozor na pasti (obě mě stály falešný poplach jinde):
+             `fmt()` odděluje tisíce ÚZKOU mezerou (U+202F/U+00A0),
+             minus bývá U+2212, a tečka na konci předchozí VĚTY se
+             plete s desetinnou — proto se věta uřízne dřív, než se
+             smažou mezery. */
+          const holy=posl.replace(/<[^>]*>/g,'');
+          const useky=holy.split('=');
+          if(useky.length>=2){
+            let e=useky[useky.length-2].split(/\.\s+/).pop()
+              .replace(/[×·]/g,'*').replace(/÷/g,'/').replace(/[−–—]/g,'-')
+              .replace(/[\s\u00a0\u202f]/g,'')
+              .replace(/,(\d)/g,'.$1')
+              .replace(/^[^0-9(+-]*/,'').replace(/^\.+/,'');
+            if(/^[\d+\-*/().]+$/.test(e)&&/[+\-*/]/.test(e)){
+              let v=null; try{v=Function('"use strict";return('+e+')')();}catch(err){}
+              if(v!==null&&isFinite(v)){
+                out.dopocteno=(out.dopocteno||0)+1;
+                if(Math.abs(v-Number(s.answer))>0.005)
+                  out.nalezy.push(`akt ${ai+1}/scéna ${si}: nápověda se dopočítá na ${v}, ale odpověď je ${s.answer} — „${holy.slice(0,70)}"`);
+              } else out.bezVyrazu=(out.bezVyrazu||0)+1;
+            } else out.bezVyrazu=(out.bezVyrazu||0)+1;
+          } else out.bezVyrazu=(out.bezVyrazu||0)+1;
         }
       });
     });
@@ -85,6 +114,7 @@ const srv=http.createServer((q,p)=>{let u=decodeURIComponent(q.url.split('?')[0]
  if(r.chyba){console.log('CHYBA:',r.chyba);}
  else{
   console.log(`aktů ${r.aktu} · scén ${r.uloh} · 400 opakování`);
+  console.log(`nápovědy: dopočítáno ${r.dopocteno||0}, bez uzavřeného výrazu ${r.bezVyrazu||0}`);
   const druhy={};
   r.nalezy.forEach(x=>{
     const d = /desetinná tečka/.test(x)?'desetinná tečka':
