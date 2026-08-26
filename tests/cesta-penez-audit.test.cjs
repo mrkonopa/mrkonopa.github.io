@@ -41,6 +41,15 @@ const srv=http.createServer((q,p)=>{let u=decodeURIComponent(q.url.split('?')[0]
  await pg.waitForTimeout(900);
  const r=await pg.evaluate(()=>{
   const out={aktu:0,uloh:0,nalezy:[],cisla:new Set()};
+  /* Odstranění značek MUSÍ běžet do ustálení, ne jednou.
+   Jediný průchod `replace(/<[^>]*>/g,'')` je nekompletní: z
+   „<scr<b>ipt>" udělá „<script>", tedy značku, která tam předtím
+   nebyla. Tady jde jen o čtení textu z vlastních generátorů, takže
+   reálné riziko nehrozí, ale CodeQL to hlásí jako high (pravidlo
+   „Incomplete multi-character sanitization") a mít bránu červenou
+   kvůli devíti stejným místům nemá cenu. Opakuje se, dokud se
+   řetězec mění. */
+  const bezZnacek = s => { let p; do { p = s; s = String(s).replace(/<[^>]*>/g, ''); } while (s !== p); return s; };
   if(typeof ACTS==='undefined') return {chyba:'ACTS není v globálním rozsahu'};
   for(let opak=0;opak<400;opak++){
     ACTS.forEach((akt,ai)=>{
@@ -55,7 +64,7 @@ const srv=http.createServer((q,p)=>{let u=decodeURIComponent(q.url.split('?')[0]
           if(/undefined|NaN|\[object Object\]/.test(t))
             out.nalezy.push(`akt ${ai+1}/scéna ${si}: artefakt v textu — ${t.slice(0,90)}`);
           // desetinná TEČKA mezi číslicemi (v ČR se píše čárka)
-          const tecka=t.replace(/<[^>]*>/g,'').match(/\d+\.\d+/g);
+          const tecka=bezZnacek(t).match(/\d+\.\d+/g);
           if(tecka) out.nalezy.push(`akt ${ai+1}/scéna ${si}: desetinná tečka „${tecka[0]}" — ${t.slice(0,70)}`);
           // artefakty plovoucí čárky
           const fp=t.match(/\d+[.,]\d{6,}/g);
@@ -73,7 +82,7 @@ const srv=http.createServer((q,p)=>{let u=decodeURIComponent(q.url.split('?')[0]
           const cis=String(s.answer);
           const fmtd=Number(s.answer).toLocaleString('cs-CZ');
           if(!posl.includes(cis)&&!posl.includes(fmtd))
-            out.nalezy.push(`akt ${ai+1}/scéna ${si}: 3. nápověda neuvádí výsledek ${cis} — „${posl.replace(/<[^>]*>/g,'').slice(0,70)}"`);
+            out.nalezy.push(`akt ${ai+1}/scéna ${si}: 3. nápověda neuvádí výsledek ${cis} — „${bezZnacek(posl).slice(0,70)}"`);
           /* …jenže „uvádí výsledek" je SLABÁ kontrola: projde i tehdy,
              když je špatně zároveň nápověda i `answer`. Přesně tak
              vypadala vada v `goniometrie.html` — nápověda tvrdila
@@ -86,7 +95,7 @@ const srv=http.createServer((q,p)=>{let u=decodeURIComponent(q.url.split('?')[0]
              minus bývá U+2212, a tečka na konci předchozí VĚTY se
              plete s desetinnou — proto se věta uřízne dřív, než se
              smažou mezery. */
-          const holy=posl.replace(/<[^>]*>/g,'');
+          const holy=bezZnacek(posl);
           const useky=holy.split('=');
           if(useky.length>=2){
             let e=useky[useky.length-2].split(/\.\s+/).pop()

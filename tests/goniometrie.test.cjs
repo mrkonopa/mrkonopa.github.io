@@ -67,6 +67,15 @@ const srv = http.createServer((q, p) => {
     const F = { sin: Math.sin, cos: Math.cos, tan: Math.tan };
     const AF = { arcsin: Math.asin, arccos: Math.acos, arctan: Math.atan };
     const nalezy = []; let overeno = 0, neposouzeno = 0;
+    /* Odstranění značek MUSÍ běžet do ustálení, ne jednou.
+   Jediný průchod `replace(/<[^>]*>/g,'')` je nekompletní: z
+   „<scr<b>ipt>" udělá „<script>", tedy značku, která tam předtím
+   nebyla. Tady jde jen o čtení textu z vlastních generátorů, takže
+   reálné riziko nehrozí, ale CodeQL to hlásí jako high (pravidlo
+   „Incomplete multi-character sanitization") a mít bránu červenou
+   kvůli devíti stejným místům nemá cenu. Opakuje se, dokud se
+   řetězec mění. */
+    const bezZnacek = s => { let p; do { p = s; s = String(s).replace(/<[^>]*>/g, ''); } while (s !== p); return s; };
 
     /* Vyhodnotí levou stranu zápisu „… ≈ V". Vrátí null, když tvar nezná
        — takové případy se počítají zvlášť, aby nemohly tiše zmizet. */
@@ -89,7 +98,7 @@ const srv = http.createServer((q, p) => {
         let d = null; try { d = sc.build ? sc.build(c) : null; } catch (e) { nalezy.push(`kap.${act.id}/scéna ${si}: build spadl — ${e.message}`); return; }
         if (!d || !Array.isArray(d.hints)) return;
         d.hints.forEach(h => {
-          const t = String(h).replace(/<[^>]*>/g, '');
+          const t = bezZnacek(h);
           if (!t.includes('≈')) return;
           const [lev, prav] = t.split('≈');
           const v = parseFloat(String(prav).match(/-?[\d.]+/) || 'x');

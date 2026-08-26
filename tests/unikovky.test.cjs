@@ -121,6 +121,15 @@ const HRY = fs.readdirSync(path.join(ROOT, 'projects'))
     const st = await pg.evaluate(() => {
       if (typeof STEPS === 'undefined') return { chyba: 'STEPS není dostupné' };
       const n = []; let uloh = 0; const xref = [], hint = [];
+      /* Odstranění značek MUSÍ běžet do ustálení, ne jednou.
+   Jediný průchod `replace(/<[^>]*>/g,'')` je nekompletní: z
+   „<scr<b>ipt>" udělá „<script>", tedy značku, která tam předtím
+   nebyla. Tady jde jen o čtení textu z vlastních generátorů, takže
+   reálné riziko nehrozí, ale CodeQL to hlásí jako high (pravidlo
+   „Incomplete multi-character sanitization") a mít bránu červenou
+   kvůli devíti stejným místům nemá cenu. Opakuje se, dokud se
+   řetězec mění. */
+      const bezZnacek = s => { let p; do { p = s; s = String(s).replace(/<[^>]*>/g, ''); } while (s !== p); return s; };
       STEPS.forEach((z, i) => {
         const kde = `zámek ${z.id || i + 1}`;
         const kod = z.code == null ? '' : String(z.code).trim();
@@ -136,7 +145,7 @@ const HRY = fs.readdirSync(path.join(ROOT, 'projects'))
           if (t.hint !== undefined && !String(t.hint).trim()) n.push(`${kde}/úloha ${k + 1}: prázdná nápověda`);
         });
         /* kód × výsledek uvedený v successMsg (nezávislý zdroj) */
-        const sm = String(z.successMsg || '').replace(/<[^>]*>/g, '')
+        const sm = bezZnacek(z.successMsg || '')
           .replace(/Zámek\s*\d+/gi, '').replace(/Lock\s*\d+/gi, '');
         const cisla = (sm.match(/-?\d+(?:[,.]\d+)?/g) || []).map(x => x.replace(',', '.'));
         /* Aritmetika POSLEDNÍ nápovědy musí dát kód.
@@ -146,7 +155,7 @@ const HRY = fs.readdirSync(path.join(ROOT, 'projects'))
            často U+2212 („−"), ne ASCII. Věta se proto uřízne DŘÍV,
            než se smažou mezery. */
         let vypocet = null;
-        const posl = tasks.length ? String(tasks[tasks.length - 1].hint || '').replace(/<[^>]*>/g, '') : '';
+        const posl = tasks.length ? bezZnacek(tasks[tasks.length - 1].hint || '') : '';
         const useky = posl.split('=');
         if (useky.length >= 2) {
           let e = useky[useky.length - 2].split(/\.\s+/).pop()
@@ -167,7 +176,7 @@ const HRY = fs.readdirSync(path.join(ROOT, 'projects'))
         const texty = [z.title, z.tag, z.body].filter(x => typeof x === 'string');
         tasks.forEach(t => ['body', 'hint', 'title'].forEach(kk => { if (typeof t[kk] === 'string') texty.push(t[kk]); }));
         texty.forEach(t => {
-          const bez = t.replace(/<[^>]*>/g, '');
+          const bez = bezZnacek(t);
           if (/undefined|NaN|\[object Object\]/.test(bez)) n.push(`${kde}: artefakt — ${bez.slice(0, 50)}`);
           const tk = bez.match(/(?<![\d.])\d+\.\d+(?![\d.])/g);
           if (tk) n.push(`${kde}: desetinná tečka „${tk[0]}"`);

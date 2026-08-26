@@ -112,6 +112,14 @@ function floatNoise(text) {
 }
 // Stejná normalizace, jakou hra dělá při zobrazení nápovědy (czTxt).
 const czTxt = t => String(t).replace(/(\d)\.(\d)/g, '$1,$2');
+
+/* Odstranění značek MUSÍ běžet do ustálení, ne jednou. Jediný průchod
+   `replace(/<[^>]*>/g,'')` je nekompletní: z „<scr<b>ipt>" udělá
+   „<script>", tedy značku, která tam předtím nebyla. Tady jde jen
+   o čtení textu z vlastních generátorů, takže reálné riziko nehrozí,
+   ale CodeQL to hlásí jako high („Incomplete multi-character
+   sanitization"). Opakuje se, dokud se řetězec mění. */
+const bezZnacek = s => { let p; do { p = s; s = String(s).replace(/<[^>]*>/g, ''); } while (s !== p); return s; };
 // Nezaokrouhlený periodický rozvoj v nápovědě: 1/3 = 0,3333… Žák má vidět
 // zaokrouhlenou hodnotu se znaménkem ≈, ne useknuté cifry (Vojtovo pravidlo).
 function periodicDecimal(text) {
@@ -216,7 +224,7 @@ for (const g of GRADES) {
           if (t == null || t.ans == null) return;
           const cil = parseFloat(String(t.ans).replace(',', '.'));
           if (!isFinite(cil)) return;
-          const posl = hints.length ? String(hints[hints.length - 1]).replace(/<[^>]*>/g, '') : '';
+          const posl = hints.length ? bezZnacek(hints[hints.length - 1]) : '';
           const cista = posl.replace(/^[\s💡📘⚠️]*/, '').trim();
           const kde = cista.indexOf('=');
           if (kde < 0) return;

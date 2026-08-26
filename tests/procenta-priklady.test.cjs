@@ -56,12 +56,21 @@ const srv = http.createServer((q, p) => {
   const gen = await pg.evaluate(N => {
     if (typeof ALL_GENERATORS === 'undefined') return { chyba: 'ALL_GENERATORS není globální' };
     const nalezy = []; let n = 0;
+    /* Odstranění značek MUSÍ běžet do ustálení, ne jednou.
+   Jediný průchod `replace(/<[^>]*>/g,'')` je nekompletní: z
+   „<scr<b>ipt>" udělá „<script>", tedy značku, která tam předtím
+   nebyla. Tady jde jen o čtení textu z vlastních generátorů, takže
+   reálné riziko nehrozí, ale CodeQL to hlásí jako high (pravidlo
+   „Incomplete multi-character sanitization") a mít bránu červenou
+   kvůli devíti stejným místům nemá cenu. Opakuje se, dokud se
+   řetězec mění. */
+    const bezZnacek = s => { let p; do { p = s; s = String(s).replace(/<[^>]*>/g, ''); } while (s !== p); return s; };
     for (let it = 0; it < N; it++) for (const diff of ['easy', 'medium', 'hard'])
       for (const [typ, g] of Object.entries(ALL_GENERATORS)) {
         let p; try { p = g(diff); } catch (e) { nalezy.push(`${typ}/${diff}: generátor spadl — ${e.message}`); continue; }
         n++;
         [p.question_cs, p.question_en, ...(p.steps_cs || []), ...(p.steps_en || []), String(p.answer)]
-          .forEach(t => { const s = String(t).replace(/<[^>]*>/g, '');
+          .forEach(t => { const s = bezZnacek(t);
             if (/undefined|NaN|\[object Object\]/.test(s)) nalezy.push(`${typ}/${diff}: artefakt „${s.slice(0, 40)}"`); });
         if (typeof p.answer !== 'number' || !isFinite(p.answer)) nalezy.push(`${typ}/${diff}: odpověď není číslo (${p.answer})`);
         /* `5.1000000000000005` vzniká sčítáním desetinných čísel.
