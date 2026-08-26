@@ -121,15 +121,15 @@ const HRY = fs.readdirSync(path.join(ROOT, 'projects'))
     const st = await pg.evaluate(() => {
       if (typeof STEPS === 'undefined') return { chyba: 'STEPS není dostupné' };
       const n = []; let uloh = 0; const xref = [], hint = [];
-      /* Odstranění značek MUSÍ běžet do ustálení, ne jednou.
-   Jediný průchod `replace(/<[^>]*>/g,'')` je nekompletní: z
-   „<scr<b>ipt>" udělá „<script>", tedy značku, která tam předtím
-   nebyla. Tady jde jen o čtení textu z vlastních generátorů, takže
-   reálné riziko nehrozí, ale CodeQL to hlásí jako high (pravidlo
-   „Incomplete multi-character sanitization") a mít bránu červenou
-   kvůli devíti stejným místům nemá cenu. Opakuje se, dokud se
-   řetězec mění. */
-      const bezZnacek = s => { let p; do { p = s; s = String(s).replace(/<[^>]*>/g, ''); } while (s !== p); return s; };
+      /* Text ze značek vytahuje SKUTEČNÝ parser, ne regulární výraz.
+         Dvě věci naráz: (1) `replace(/<[^>]*>/g,'')` je podle CodeQL
+         „Incomplete multi-character sanitization" (high) — z „<scr<b>ipt>"
+         udělá „<script>"; varianta opakovaná do ustálení alert NEODSTRANILA
+         (ověřeno na CI), (2) regulární výraz by snědl matematické „menší
+         než": ze zápisu „a < b > c" by zbylo „a  c". Parser obojí řeší
+         správně a je to i poctivější kód — tohle není sanitizace, jen
+         čtení textu. */
+      const bezZnacek = v => new DOMParser().parseFromString(String(v), 'text/html').body.textContent;
       STEPS.forEach((z, i) => {
         const kde = `zámek ${z.id || i + 1}`;
         const kod = z.code == null ? '' : String(z.code).trim();
