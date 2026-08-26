@@ -678,6 +678,11 @@ function setLang(l) {
 const STORAGE_KEY = 'cesta_penez_v2';
 const pick = arr => arr[Math.floor(Math.random() * arr.length)];
 const fmt = n => Number(n).toLocaleString('cs-CZ');
+/* Koeficient růstu do ČESKÉHO textu. `toFixed(2)` dává „1.05" s tečkou,
+   jenže v ČR je oddělovač čárka — a v zadání i v nápovědě to dítě vidí.
+   Dvě desetinná místa se drží schválně: `toLocaleString` by z 1,10
+   udělalo „1,1" a pět procent by pak vypadalo jinak než deset. */
+const koef = n => Number(n).toFixed(2).replace('.', ',');
 
 /* Kódy pro pokračování odjinud — student je dostane po dokončení kapitoly */
 const ACT_CODES = {
@@ -1088,10 +1093,10 @@ const ACTS = [
         answer: ctx.basketAfter,
         hints: [
           'Inflace ti říká, o kolik % se zvýší ceny. Přičti tento procentní nárůst k původní ceně.',
-          `${fmt(ctx.savings)} × (1 + ${ctx.inflation}/100) = ${fmt(ctx.savings)} × ${(1 + ctx.inflation/100).toFixed(2)}.`,
-          `${fmt(ctx.savings)} × ${(1 + ctx.inflation/100).toFixed(2)} = <b>${fmt(ctx.basketAfter)}</b> Kč.`,
+          `${fmt(ctx.savings)} × (1 + ${ctx.inflation}/100) = ${fmt(ctx.savings)} × ${koef(1 + ctx.inflation/100)}.`,
+          `${fmt(ctx.savings)} × ${koef(1 + ctx.inflation/100)} = <b>${fmt(ctx.basketAfter)}</b> Kč.`,
         ],
-        explain: `${fmt(ctx.savings)} × ${(1 + ctx.inflation/100).toFixed(2)} = <b>${fmt(ctx.basketAfter)} Kč</b>. Aby sis za rok koupil totéž, potřebuješ o ${fmt(ctx.inflationLoss)} Kč víc.`,
+        explain: `${fmt(ctx.savings)} × ${koef(1 + ctx.inflation/100)} = <b>${fmt(ctx.basketAfter)} Kč</b>. Aby sis za rok koupil totéž, potřebuješ o ${fmt(ctx.inflationLoss)} Kč víc.`,
       })},
 
       { type: 'math', build: ctx => ({
@@ -1120,10 +1125,10 @@ const ACTS = [
         answer: ctx.savingsAfter,
         hints: [
           'Postup je stejný jako u inflace — jen místo růstu cen tě teď zajímá růst peněz.',
-          `${fmt(ctx.savings)} × (1 + ${ctx.savingsRate}/100) = ${fmt(ctx.savings)} × ${(1 + ctx.savingsRate/100).toFixed(2)}.`,
-          `${fmt(ctx.savings)} × ${(1 + ctx.savingsRate/100).toFixed(2)} = <b>${fmt(ctx.savingsAfter)}</b> Kč.`,
+          `${fmt(ctx.savings)} × (1 + ${ctx.savingsRate}/100) = ${fmt(ctx.savings)} × ${koef(1 + ctx.savingsRate/100)}.`,
+          `${fmt(ctx.savings)} × ${koef(1 + ctx.savingsRate/100)} = <b>${fmt(ctx.savingsAfter)}</b> Kč.`,
         ],
-        explain: `${fmt(ctx.savings)} × ${(1 + ctx.savingsRate/100).toFixed(2)} = <b>${fmt(ctx.savingsAfter)} Kč</b>. Vydělal sis ${fmt(ctx.savingsAfter - ctx.savings)} Kč úroku.`,
+        explain: `${fmt(ctx.savings)} × ${koef(1 + ctx.savingsRate/100)} = <b>${fmt(ctx.savingsAfter)} Kč</b>. Vydělal sis ${fmt(ctx.savingsAfter - ctx.savings)} Kč úroku.`,
       })},
 
       { type: 'story', build: ctx => ({

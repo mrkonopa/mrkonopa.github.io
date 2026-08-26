@@ -110,6 +110,64 @@ const otisk = s => crypto.createHash('sha256').update(s || '').digest('hex').sli
     await ctx.close();
   }
 
+  /* ── skin koupený v JEDNÉ hře musí být vidět ve VŠECH ─────────────
+     Peněženka je sdílená (`RPG_HUB_WALLET`, stejný origin), takže „co
+     koupíš tady, nosíš všude" je slíbená vlastnost — a do teď ji nic
+     neověřovalo: testy výš kupují a aktivují v rámci jedné hry a jednoho
+     načtení stránky. Tady se skin koupí v šestce a kontroluje se otisk
+     plátna v jiných ročnících po ČERSTVÉM načtení.
+
+     Pozor na základ srovnání: `RPGWallet.buy()` skin rovnou AKTIVUJE,
+     takže „před koupí" se musí měřit na úplně prázdné peněžence. Když
+     se to spletlo, vyšlo falešně, že přenos nefunguje.
+     A vypíná se `deactivate('skin')`, ne `activate(null)` — ten vrací
+     `{ok:false, reason:'unknown'}` a nechá skin zapnutý. */
+  {
+    const ctx = await br.newContext({ viewport: { width: 900, height: 800 } });
+    await ctx.route('**/*', r => r.request().url().startsWith('http://localhost:' + PORT) ? r.continue() : r.abort());
+    const pg = await ctx.newPage();
+
+    const nacti = async g => {
+      await pg.goto(`http://localhost:${PORT}/projects/rpg-mat-${g}.html`, { waitUntil: 'domcontentloaded' });
+      await pg.waitForFunction(() => typeof startGame === 'function', { timeout: 20000 });
+      return pg.evaluate(async () => {
+        startGame('Zkouška'); S.tutorialDone = true;
+        document.documentElement.classList.add('reduced-motion');
+        const ar = AREAS[0]; launchBattle(ar.id, ar.missions[0].id);
+        await new Promise(r => setTimeout(r, 800));
+        const cv = document.querySelector('#bt-top canvas');
+        return { otisk: cv ? cv.toDataURL() : null, aktivni: RPGWallet.activeId('skin') };
+      });
+    };
+
+    await pg.goto(`http://localhost:${PORT}/projects/rpg-mat-6.html`, { waitUntil: 'domcontentloaded' });
+    await pg.waitForFunction(() => typeof RPGWallet !== 'undefined', { timeout: 20000 });
+    await pg.evaluate(() => localStorage.clear());
+
+    const cista = await nacti(7);
+    ok(cista.aktivni == null, 'čistá peněženka nemá aktivní skin', String(cista.aktivni));
+
+    await pg.goto(`http://localhost:${PORT}/projects/rpg-mat-6.html`, { waitUntil: 'domcontentloaded' });
+    await pg.waitForFunction(() => typeof RPGWallet !== 'undefined', { timeout: 20000 });
+    const koupe = await pg.evaluate(() => { RPGWallet.earn(99999); const r = RPGWallet.buy('skin-gold');
+      return { ok: !!(r && r.ok), aktivni: RPGWallet.activeId('skin') }; });
+    ok(koupe.ok, 'skin se dá koupit v 6. ročníku');
+    ok(koupe.aktivni === 'skin-gold', 'koupě ho rovnou aktivuje', String(koupe.aktivni));
+
+    for (const g of [3, 5, 7, 9]) {
+      const r = await nacti(g);
+      ok(r.aktivni === 'skin-gold', `g${g}: peněženka nese skin i sem`, String(r.aktivni));
+      ok(r.otisk && r.otisk !== cista.otisk,
+        `g${g}: SKIN KOUPENÝ V ŠESTCE JE VIDĚT (otisk se liší od čisté peněženky)`);
+    }
+
+    await pg.evaluate(() => RPGWallet.deactivate('skin'));
+    const vyp = await nacti(7);
+    ok(vyp.aktivni == null, 'deactivate(\'skin\') skin vypne', String(vyp.aktivni));
+    ok(vyp.otisk === cista.otisk, 'po vypnutí vypadá hrdina jako s čistou peněženkou');
+    await ctx.close();
+  }
+
   console.log(`\n  Skiny naživo: ${pass} ✅ / ${fail} ❌\n`);
   await br.close(); srv.close();
   process.exit(fail ? 1 : 0);
