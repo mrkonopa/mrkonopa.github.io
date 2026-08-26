@@ -1508,7 +1508,13 @@ const AREAS = [
  (()=>{const a=ri(4,9),b=ri(4,9),need=ri(6,12);const total=a+b+need;return{
  text:`Jana odevzdala ${a} ${skl(a,'projekt','projekty','projektů')}, Petr ${b} ${skl(b,'projekt','projekty','projektů')}.\nDohromady mají mít ${total} projektů.\nKolik projektů jim chybí? (ks)`,ans:String(need),
  hints:[`Celkem potřebují ${total}, mají ${a+b}.`,`${total} - ${a+b} = ?`],skill:'anal'};})(),
- (()=>{const a=ri(2,8),b=ri(2,8),k=ri(2,6);const ans=(a+b)*k;return{
+ // Obvod MUSÍ být 2(a+b), ne (a+b). Dřív se za obvod dosadilo (a+b)*k,
+ // tedy POLOVINA skutečného obvodu obdélníku se stranami a*k a b*k —
+ // žák z obvodu spočítal O:2 − a*k a vyšlo mu (b−a)k/2 místo b*k.
+ // Nesedělo to ve 100 % generování (a někdy vyšla strana 0 cm),
+ // takže úloha byla VŽDY neřešitelná a nápověda vedla ke stejnému
+ // špatnému číslu. Kontrola: O = 2(a+b)k ⇒ O:2 − a*k = b*k. ✓
+ (()=>{const a=ri(2,8),b=ri(2,8),k=ri(2,6);const ans=2*(a+b)*k;return{
  text:`Obvod obdélníku je ${ans} cm.\nJedna strana je ${a*k} cm.\nJaká je druhá strana? (cm)`,ans:String(b*k),
  hints:[`O = 2(a+b), tedy a+b = O:2 = ${ans/2}.`,`Druhá strana = ${ans/2} - ${a*k} = ?`],skill:'geo'};})(),
  (()=>{const p=ri(10,40),tot=ri(20,60)*10;const ans=Math.round(tot*p/100);return{
