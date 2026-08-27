@@ -174,10 +174,11 @@ function loadGrade(g) {
 
 /* ── běh ──────────────────────────────────────────────────────────── */
 console.log('\n── Audit kvality zadání (3.–9. ročník) ──\n');
-const found = { objekt: [], frac: [], decl: [], hintEmpty: [], hintDup: [], nan: [], typo: [], float: [], dotText: [], dotHint: [], periodic: [], hintMath: [], geoInv: [], geoNezn: [], geoFwd: [] };
+const found = { objekt: [], frac: [], decl: [], hintEmpty: [], hintDup: [], nan: [], typo: [], float: [], dotText: [], dotHint: [], periodic: [], hintMath: [], geoInv: [], geoNezn: [], geoFwd: [], pct: [] };
 let hintDop = 0;   // kolik nápověd se podařilo dopočítat (pojistka proti planému běhu)
 let geoDop = 0;    // kolik inverzních geometrických úloh se dopočítalo
 let geoFwdDop = 0, geoFwdNezn = 0;   // dopředná geometrie: dopočítané / neznámý tvar
+let pctDop = 0, pctNezn = 0;         // procenta/převody/průměr
 let generated = 0;
 
 for (const g of GRADES) {
@@ -196,6 +197,52 @@ for (const g of GRADES) {
         const all = text + ' ' + hints.join(' ');
 
         if (/NaN|undefined/.test(all)) push('nan', where, text.slice(0, 70));
+        /* ── Procenta, převody jednotek a aritmetický průměr ─────────────
+             Třetí rodina „dopočítej zadání" po geometrii. Jsou to
+             nejmechaničtější úlohy v bankách, takže se v nich vada
+             schová stejně snadno jako v té obdélníkové.
+             Dopočítá ~6 460 úloh; pokrytí NENÍ úplné (slovní varianty
+             průměru typu „Za tři dny ulovil drak 40, 39 a 38 ovcí"
+             se počítají, ale nehlásí). Vzorek z nich ověřen ručně.
+             NÁLEZ při zavedení: žádný. */
+        (function(){
+          const txt=text.replace(/\s+/g,' ').replace(/(\d),(\d)/g,'$1.$2');
+          const cil=parseFloat(String(t&&t.ans).replace(',','.'));
+          if(!isFinite(cil))return;
+          const N='(-?\\d+(?:\\.\\d+)?)';
+          const R=re=>{const m=txt.match(new RegExp(re,'i'));return m?m.slice(1).map(Number):null;};
+          let ocek=null,vzor=null,m;
+          // ── procenta ──
+          if((m=R(N+' ?% z '+N))||(m=R('kolik je '+N+' ?% z '+N))){ocek=m[0]*m[1]/100;vzor='X % z Y';}
+          else if((m=R('zdraž[^.?!]*z '+N+'[^.?!]*o '+N+' ?%'))){ocek=m[0]*(1+m[1]/100);vzor='zdražení o X %';}
+          else if((m=R('zlevn[^.?!]*z '+N+'[^.?!]*o '+N+' ?%'))){ocek=m[0]*(1-m[1]/100);vzor='zlevnění o X %';}
+          // ── převody jednotek ──
+          else if((m=R(N+' ?m ?= ?\\\\? ?cm'))||(m=R('převeď '+N+' ?m na cm'))){ocek=m[0]*100;vzor='m→cm';}
+          else if((m=R(N+' ?cm ?= ?\\\\? ?mm'))||(m=R('převeď '+N+' ?cm na mm'))){ocek=m[0]*10;vzor='cm→mm';}
+          else if((m=R(N+' ?km ?= ?\\\\? ?m'))||(m=R('převeď '+N+' ?km na m'))){ocek=m[0]*1000;vzor='km→m';}
+          else if((m=R(N+' ?kg ?= ?\\\\? ?g'))||(m=R('převeď '+N+' ?kg na g'))){ocek=m[0]*1000;vzor='kg→g';}
+          else if((m=R(N+' ?l ?= ?\\\\? ?ml'))||(m=R('převeď '+N+' ?l na ml'))){ocek=m[0]*1000;vzor='l→ml';}
+          else if((m=R(N+' ?h ?= ?\\\\? ?min'))||(m=R('převeď '+N+' ?h na min'))){ocek=m[0]*60;vzor='h→min';}
+          else if((m=R(N+' ?min ?= ?\\\\? ?s'))){ocek=m[0]*60;vzor='min→s';}
+          // ── aritmetický průměr ──
+          else if((m=txt.match(new RegExp('(?:aritmetický )?průměr(?:[^.?!]*?čísel|:) ([\\d.,\\s a]+?)(?:[.?]|$)','i')))){
+            const cis=(m[1].match(/\d+(?:\.\d+)?/g)||[]).map(Number);
+            if(cis.length>=2){ocek=cis.reduce((a,b)=>a+b,0)/cis.length;vzor='aritmetický průměr';}
+          }
+          if(ocek===null||!isFinite(ocek)){
+            /* Počítej jen zadání, která na procento/převod/průměr
+               VYPADAJÍ — jinak by číslo zahrnovalo celou banku
+               (naměřeno 514 071) a nic by neříkalo. */
+            if (/%|převeď|průměr/i.test(txt)) pctNezn++;
+            return;
+          }
+          pctDop++;
+          const des=(String(t.ans).split(/[.,]/)[1]||'').length;
+          const z=Math.round(ocek*Math.pow(10,des))/Math.pow(10,des);
+          if(Math.abs(z-cil)>1e-9){
+            push('pct', where, vzor + ': „' + txt.slice(0, 70) + '" → vychází ' + ocek + ', ans ' + t.ans);
+          }
+        })();
         /* ── Dopředná geometrie: ze zadaných rozměrů dopočítat veličinu ──
              Sourozenec pravidla o inverzní geometrii. Tam se ptáme na
              rozměr ze zadané veličiny, tady naopak („Čtverec má stranu
@@ -475,6 +522,7 @@ report('nan', 'žádné NaN/undefined');
 report('hintMath', 'poslední nápověda se dopočítá na uvedenou odpověď');
 report('geoInv', 'inverzní geometrie: rozměr se dopočítá ze zadané veličiny');
 report('geoFwd', 'dopředná geometrie: veličina se dopočítá ze zadaných rozměrů');
+report('pct', 'procenta, převody jednotek a průměr se dopočítají');
 report('geoNezn', 'inverzní geometrie: každý tvar zadání je rozpoznaný');
 /* Kanárek na TICHÝ pokles pokrytí. Pravidlo pozná jen zadání, která
    projdou filtrem (obsahují slovo Obvod/Obsah/Objem/Povrch a ptají se
@@ -492,6 +540,9 @@ report('geoNezn', 'inverzní geometrie: každý tvar zadání je rozpoznaný');
    velký propad, ne ztrátu jedné rodiny. */
 ok('dopředná geometrie se vůbec měřila (' + geoFwdDop + ' dopočítaných, ' + geoFwdNezn + ' neznámý tvar)',
    geoFwdDop > 20000, 'dopočítáno jen ' + geoFwdDop);
+/* Naměřeno 6 460 a 6 462 — mírně kolísá, podlaha proto s rezervou. */
+ok('procenta/převody/průměr se vůbec měřily (' + pctDop + ' dopočítaných, ' + pctNezn + ' neznámý tvar)',
+   pctDop > 5000, 'dopočítáno jen ' + pctDop);
 ok('inverzní geometrie se vůbec měřila (' + geoDop + ' dopočítaných)', geoDop >= 8300,
    'dopočítáno jen ' + geoDop + ' (čekáno ≥8300) — ubylo pokrytí, nebo se změnil tvar zadání');
 /* Pojistka proti planému běhu: kdyby se tvar nápověd změnil, filtr by
