@@ -266,8 +266,13 @@ a:focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; border-ra
 }
 .math-q b { color: var(--blue-dark); font-weight: 700; }
 
-.input-row { display: flex; gap: 10px; align-items: center; margin-bottom: 6px; }
+.input-row { display: flex; gap: 10px; align-items: center; margin-bottom: 6px; flex-wrap: wrap; }
 input.answer {
+  /* Bez `min-width:0` si číselný vstup drží svou vnitřní šířku (~293 px),
+     takže se řádek na úzkém displeji nesmrští: na 380 px vylezlo „Kč" ven
+     a tlačítko „Zkontrolovat" skončilo CELÉ mimo obrazovku (372–519 px
+     proti rámečku končícímu na 344). Dítě pak nevidí, čím odpověď odešle. */
+  min-width: 0;
   flex: 1;
   font-family: var(--sans);
   font-size: 1.3rem; text-align: center;

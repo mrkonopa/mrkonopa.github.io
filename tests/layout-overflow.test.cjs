@@ -70,6 +70,90 @@ const PAGES=[...[3,4,5,6,7,8,9].map(g=>['g'+g,'/projects/rpg-mat-'+g+'.html']),
  ['travels','/travels/index.html']];
 const SIRKY=[1100,820,380];
 
+/* ── Průchod obrazovkami u stránek, které NEJSOU RPG hra ──────────────
+   Dřív se u nich měřila JEN úvodní obrazovka: `screens` bylo natvrdo
+   `[null]` pro všechno, co není `g3`–`g9`. Přetečení řádku „Mám kód
+   odjinud" se proto našlo jen díky tomu, že je náhodou na intru
+   goniometrie. Neproměřených zůstávalo ~177 obrazovek — a jsou to
+   zrovna ty s hustým obsahem: tabulky v zadáních zámků, SVG
+   trojúhelníky, nápovědové boxy.
+
+   Každý průchod má tři části a všechny běží V PROHLÍŽEČI (Playwright
+   si funkci serializuje), takže tu nesmí být nic z Node.
+   `prepnout` vrací prázdný řetězec při úspěchu, jinak důvod — stejně
+   jako herní větev, aby se přeskočená obrazovka neztratila potichu.
+
+   Nápovědy se ZÁMĚRNĚ rozbalují: L3 box je nejširší obsah na stránce
+   a právě on se na 380 px nejspíš někam nevejde. */
+const PRUCHODY = {
+  unikovka: {
+    pripravit: () => {
+      const b = [...document.querySelectorAll('button')]
+        .find(x => /Začít|Start|detektiv|Spustit/i.test(x.textContent));
+      if (b) b.click();
+    },
+    seznam: () => STEPS.map((_, i) => 'zámek ' + (i + 1)).concat(['finále']),
+    prepnout: k => {
+      try {
+        /* `k` je POPISEK, ne index. První verze psala `if (k < STEPS.length)`,
+           jenže „zámek 3" < 10 je false, takže se pokaždé volalo `finish()`
+           a všech jedenáct „obrazovek" byla jedna a tatáž finálová. Coverage
+           přitom vypadalo v pořádku (774 obrazovek) — proto ta pojistka na
+           různost otisků níže. */
+        if (k !== 'finále') {
+          render(+k.replace('zámek ', '') - 1);
+          /* Rozbal nápovědu k úloze i ke kódu — bez toho se měří
+             jen složená karta a boxy se nikdy nezobrazí. */
+          document.querySelectorAll('.hint-btn').forEach(b => b.click());
+          const ch = document.getElementById('ch-btn');
+          if (ch) { ch.click(); ch.click(); ch.click(); }
+        } else { finish(); }
+        return '';
+      } catch (e) { return 'výjimka: ' + String(e && e.message || e).slice(0, 60); }
+    },
+  },
+  /* Goniometrie i Cesta peněz mají stejný tvar: `startAct(id)` a pak
+     index scény + překreslení. Liší se jen jménem proměnné. */
+  gonio: {
+    seznam: () => ACTS.flatMap(a => a.scenes.map((_, i) => 'kap.' + a.id + '/scéna ' + i)),
+    prepnout: k => {
+      try {
+        const [ai, si] = k.replace('kap.', '').split('/scéna ');
+        startAct(+ai); currentSceneIdx = +si; renderScene();
+        const h = document.getElementById('hint-toggle');
+        if (h) { h.click(); h.click(); h.click(); }
+        return '';
+      } catch (e) { return 'výjimka: ' + String(e && e.message || e).slice(0, 60); }
+    },
+  },
+  cesta: {
+    seznam: () => ACTS.flatMap(a => a.scenes.map((_, i) => 'akt' + a.id + '/scéna ' + i)),
+    prepnout: k => {
+      try {
+        const [ai, si] = k.replace('akt', '').split('/scéna ');
+        startAct(+ai); sceneIdx = +si; renderScene();
+        const h = document.getElementById('hint-btn') || document.querySelector('.hint-btn');
+        if (h) { h.click(); h.click(); h.click(); }
+        return '';
+      } catch (e) { return 'výjimka: ' + String(e && e.message || e).slice(0, 60); }
+    },
+  },
+  proc: {
+    pripravit: () => { selectDifficulty('hard'); startGame(); },
+    seznam: () => problems.map((_, i) => 'úloha ' + (i + 1)),
+    prepnout: k => {
+      try {
+        cur = +k.replace('úloha ', '') - 1; hintLevel = 0; renderProblem();
+        advanceHint(); advanceHint(); advanceHint();
+        return '';
+      } catch (e) { return 'výjimka: ' + String(e && e.message || e).slice(0, 60); }
+    },
+  },
+};
+
+/* Z názvu stránky v PAGES na typ průchodu. */
+const typPruchodu = jm => /^u-/.test(jm) ? 'unikovka' : (PRUCHODY[jm] ? jm : null);
+
 const DET=()=>{
  const de=document.documentElement;
  const stranka=de.scrollWidth>de.clientWidth+1?de.scrollWidth-de.clientWidth:0;
@@ -91,7 +175,10 @@ const DET=()=>{
               (el.id||el.className.toString().split(' ')[0]||el.tagName)+
               ' «'+(el.textContent||'').trim().slice(0,20)+'» '+(mimo?'mimo':'')+(orez?'ořez':''));
  }
- return {stranka,videno,ven:[...new Set(ven)].slice(0,8)};
+ // Otisk obsahu — slouží k odhalení průchodu, který se ve skutečnosti
+ // nikam nepřepnul (viz komentář u průchodu únikovkami).
+ const otisk=(document.body.textContent||'').replace(/\s+/g,'').length;
+ return {stranka,videno,ven:[...new Set(ven)].slice(0,8),otisk};
 };
 
 (async()=>{
@@ -99,6 +186,7 @@ const DET=()=>{
  const b=await chromium.launch({headless:true,executablePath:'/opt/pw-browsers/chromium-1194/chrome-linux/chrome'});
  const nalezy=[]; let obrazovek=0,prvku=0;
  for(const [jm,url] of PAGES) for(const w of SIRKY){
+  const otisky=[];
   const ctx=await b.newContext({viewport:{width:w,height:900}});
   await ctx.route('**/*',r=>r.request().url().startsWith('http://localhost:'+PORT)?r.continue():r.abort());
   const pg=await ctx.newPage();
@@ -108,13 +196,25 @@ const DET=()=>{
    const jeHra=/^g\d$/.test(jm);
    if(jeHra){await pg.waitForFunction(()=>typeof startGame==='function',{timeout:8000});
      await pg.evaluate(()=>{localStorage.clear();startGame('Testovací žákyně');S.tutorialDone=true;});}
-   const screens=jeHra?await pg.evaluate(()=>[...document.querySelectorAll('.screen')].map(s=>s.id)):[null];
+   const typ=jeHra?null:typPruchodu(jm);
+   const P=typ?PRUCHODY[typ]:null;
+   if(P&&P.pripravit){await pg.evaluate(P.pripravit);await pg.waitForTimeout(250);}
+   const screens=jeHra
+     ? await pg.evaluate(()=>[...document.querySelectorAll('.screen')].map(s=>s.id))
+     : (P?await pg.evaluate(P.seznam):[null]);
    for(const sc of screens){
     // Dřív tahle větev vracela jen true/false a při false se `continue`lo
     // BEZ ZÁZNAMU. Obrazovka se tedy tiše přeskočila a jediné, co se
     // nakonec ozvalo, byla pojistka „skoro nic neproměřil" — bez důvodu.
     // Teď se vrací důvod a zapíše se mezi nálezy.
-    if(sc){const okk=await pg.evaluate(id=>{try{
+    // Ne-herní stránka s průchodem: přepni obrazovku jejím vlastním
+    // způsobem. Důvod neúspěchu se zapíše mezi nálezy, ať se obrazovka
+    // nepřeskočí potichu (stejná past jako u her, viz komentář níže).
+    if(sc&&P){const okk=await pg.evaluate(([f,k])=>new Function('k','return ('+f+')(k)')(k),
+      [P.prepnout.toString(),sc]);
+     if(okk){nalezy.push(`${jm}@${w} ${sc}: PŘESKOČENO — ${okk}`);continue;}
+     await pg.waitForTimeout(80);}
+    else if(sc){const okk=await pg.evaluate(id=>{try{
       document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
       const el=document.getElementById(id);
       if(!el)return 'obrazovka v DOM není';
@@ -126,20 +226,30 @@ const DET=()=>{
      if(okk){nalezy.push(`${jm}@${w} ${sc}: PŘESKOČENO — ${okk}`);continue;}
      await pg.waitForTimeout(100);}
     const r=await pg.evaluate(DET);
-    obrazovek++; prvku+=r.videno;
+    obrazovek++; prvku+=r.videno; otisky.push(r.otisk);
     if(r.stranka||r.ven.length)
       nalezy.push(`${jm}@${w}${sc?' '+sc:''}: ${r.stranka?'STRÁNKA +'+r.stranka+'px; ':''}${r.ven.join(' | ')}`);
    }
   }catch(e){nalezy.push(`${jm}@${w}: CHYBA ${String(e.message).slice(0,70)}`);}
+  /* Průchod, který se nikam nepřepnul, měří pořád tutéž obrazovku a
+     tváří se přitom jako plné pokrytí. Přesně to se stalo únikovkám.
+     Pár shodných otisků je v pořádku (obrazovky si můžou být podobné),
+     ale VŠECHNY stejné při více obrazovkách znamená, že se nic neděje. */
+  if(otisky.length>2&&new Set(otisky).size===1)
+    nalezy.push(`${jm}@${w}: PRŮCHOD SE NEPŘEPÍNÁ — všech ${otisky.length} obrazovek má shodný obsah`);
   await ctx.close();
  }
  console.log(`PROMĚŘENO: ${obrazovek} obrazovek, ${prvku} prvků`);
  if(nalezy.length){console.log('  ❌ nálezy:');nalezy.forEach(x=>console.log('     '+x));}
  // Pojistka proti prázdnému běhu: kdyby se stránky přestaly načítat nebo
  // se změnil tvar DOM, smyčka by nic neproměřila a test by tiše prošel.
- const dost = obrazovek >= 150 && prvku >= 5000;
+ // Podlaha je NAMĚŘENÁ: 774 obrazovek / 27 681 prvků. Hlídá i to, že
+ // průchody ne-herních stránek pořád fungují — kdyby `seznam` začal
+ // vracet prázdno, spadne se zpátky na 252 obrazovek (jen úvodní snímky)
+ // a test to ohlásí místo toho, aby tiše měřil třetinu webu jako dřív.
+ const dost = obrazovek >= 600 && prvku >= 20000;
  if(!dost)console.log('  ❌ audit skoro nic neproměřil ('+obrazovek+' obrazovek / '+prvku+
-   ' prvků, čekáno ≥150 / ≥5000) — pravidlo by štěkalo naprázdno; ROOT='+ROOT);
+   ' prvků, čekáno ≥600 / ≥20000) — pravidlo by štěkalo naprázdno; ROOT='+ROOT);
  console.log(nalezy.length||!dost ? '\n  Rozvržení: SELHALO\n' : '\n  Rozvržení: v pořádku\n');
  await b.close();srv.close();
  process.exit((nalezy.length||obrazovek<150||prvku<5000)?1:0);

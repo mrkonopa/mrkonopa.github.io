@@ -70,7 +70,14 @@ table.tt tr:nth-child(even) td{background:#fafaf5}
 .tag.blue{background:var(--blue-light);color:var(--blue)}.tag.green{background:var(--green-light);color:var(--green)}.tag.purple{background:var(--purple-light);color:var(--purple)}.tag.teal{background:var(--teal-light);color:var(--teal)}.tag.orange{background:var(--orange-light);color:var(--orange)}.tag.pink{background:var(--pink-light);color:var(--pink)}.tag.indigo{background:var(--indigo-light);color:var(--indigo)}.tag.rose{background:var(--rose-light);color:var(--rose)}.tag.cyan{background:var(--cyan-light);color:var(--cyan)}.tag.gold{background:#fef9ec;color:var(--gold-dark)}
 .code-wrap{background:var(--card);border-radius:var(--radius);padding:20px 22px;box-shadow:var(--shadow);width:100%;margin-top:10px;margin-bottom:18px}
 .code-wrap label{display:block;font-size:.98rem;color:var(--muted);margin-bottom:11px;font-weight:700}
-.code-row{display:flex;gap:10px;align-items:center}
+.code-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+/* Tabulky v učební části mají až 11 sloupců a na úzký displej se
+   nevejdou. Karta má `overflow:hidden`, takže se konec tabulky TIŠE
+   OŘÍZNE — u „druhých mocnin" tak dítě nevidí sloupec 10 (100) přímo
+   pod větou, že se ta čísla vyplatí znát nazpaměť, a nemá jak ho
+   zobrazit. Na úzku proto radši vodorovné posouvání.
+   Jen pod 520 px, aby se vykreslení na širokém displeji nezměnilo. */
+@media (max-width:520px){.task-card{overflow-x:auto}}
 .code-hint-bar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:12px}
 .code-hint-btn{background:none;border:1.5px dashed var(--gold-dark);color:var(--gold-dark);padding:5px 14px;border-radius:20px;font-family:'Lexend',sans-serif;font-weight:600;font-size:.82rem;cursor:pointer;transition:all .15s}
 .code-hint-btn:hover:not([disabled]){background:#fef9ec}
@@ -84,7 +91,7 @@ table.tt tr:nth-child(even) td{background:#fafaf5}
 .code-hint-box .h-label{font-size:.7rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gold-dark);display:block;margin-bottom:4px}
 .code-hint-box[data-level="3"]{background:var(--orange-light);border-left-color:var(--orange);color:#8b3f08}
 .code-hint-box[data-level="3"] .h-label{color:var(--orange)}
-.code-input{flex:1;font-family:'Lexend',sans-serif;font-size:1.5rem;text-align:center;letter-spacing:.12em;border:3px solid #ccc8bb;border-radius:12px;padding:11px 14px;outline:none;transition:border-color .2s;background:#fafaf6;color:var(--text)}
+.code-input{flex:1;min-width:0;font-family:'Lexend',sans-serif;font-size:1.5rem;text-align:center;letter-spacing:.12em;border:3px solid #ccc8bb;border-radius:12px;padding:11px 14px;outline:none;transition:border-color .2s;background:#fafaf6;color:var(--text)}
 .code-input:focus{border-color:var(--purple);background:#fff}
 .code-input.error{border-color:var(--red);animation:shake .32s}
 .code-input.success{border-color:var(--purple);background:var(--purple-light)}
