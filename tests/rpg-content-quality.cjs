@@ -174,8 +174,9 @@ function loadGrade(g) {
 
 /* ── běh ──────────────────────────────────────────────────────────── */
 console.log('\n── Audit kvality zadání (3.–9. ročník) ──\n');
-const found = { objekt: [], frac: [], decl: [], hintEmpty: [], hintDup: [], nan: [], typo: [], float: [], dotText: [], dotHint: [], periodic: [], hintMath: [] };
+const found = { objekt: [], frac: [], decl: [], hintEmpty: [], hintDup: [], nan: [], typo: [], float: [], dotText: [], dotHint: [], periodic: [], hintMath: [], geoInv: [], geoNezn: [] };
 let hintDop = 0;   // kolik nápověd se podařilo dopočítat (pojistka proti planému běhu)
+let geoDop = 0;    // kolik inverzních geometrických úloh se dopočítalo
 let generated = 0;
 
 for (const g of GRADES) {
@@ -194,6 +195,66 @@ for (const g of GRADES) {
         const all = text + ' ' + hints.join(' ');
 
         if (/NaN|undefined/.test(all)) push('nan', where, text.slice(0, 70));
+        /* ── Inverzní geometrie: dopočítat rozměr ze ZADANÉ veličiny ──────
+             Mise 8/7-2 („Obvod obdélníku je X, jedna strana Y, jaká je
+             druhá?") dosazovala za obvod jeho polovinu a byla neřešitelná
+             ve 100 % generování. Žádný audit to nechytil, protože
+             matematika byla konzistentní sama se sebou — jen neodpovídala
+             tomu, co zadání TVRDÍ. Tohle pravidlo zadání skutečně
+             dopočítá: z „Obvod obdélníku je 40, jedna strana 20" vyjde
+             druhá strana 0, kdežto `ans` říká 20.
+             Vzorů je 20 a pokrývají VŠECHNY inverzní geometrické úlohy
+             v bankách (0 nerozpoznaných z 8 320 nalezených). */
+        (function(){
+          const txt=text.replace(/\s+/g,' ').replace(/(\d),(\d)/g,'$1.$2');
+          const zadana=/(Obvod|Obsah|Objem|Povrch)[^.?!]{0,40}?\d/i.test(txt);
+          /* Mezi „Jaká je" a jménem rozměru bývá přívlastek („Jaká je DRUHÁ
+             strana?"). První verze ho nepřipouštěla, takže mise 8/7-2 —
+             přesně ta, kvůli které pravidlo vzniklo — filtrem NEPROŠLA
+             a sabotáž „nic nenašla". Proto se povoluje až 25 znaků mezi. */
+          const ptaSe=/(Jak dlouh|Kolik měří|Jak vysok|délka hrany|Jaká je[^?]{0,25}?(délka|strana|výška|šířka)|Jaký je[^?]{0,25}?(poloměr|průměr))/i.test(txt);
+          if(!(zadana&&ptaSe))return;
+          const cil=parseFloat(String(t&&t.ans).replace(',','.'));
+          const N='(-?\\d+(?:\\.\\d+)?)';
+          const R=(re)=>{const m=txt.match(new RegExp(re,'i'));return m?m.slice(1).map(Number):null;};
+          const PI=3.14;
+          let ocek=null,vzor=null; let m;
+          if((m=R('čtverec[^.?!]*obvod '+N)))            {ocek=m[0]/4; vzor='čtverec z obvodu';}
+          else if((m=R('čtvercov[^.?!]*obvod '+N)))      {ocek=m[0]/4; vzor='čtverec z obvodu';}
+          else if((m=R('čtverec[^.?!]*obsah '+N)))       {ocek=Math.sqrt(m[0]); vzor='čtverec z obsahu';}
+          else if((m=R('shodné čtverce[\\s\\S]*?obvod prvního je '+N))) {ocek=m[0]/4; vzor='shodné čtverce';}
+          else if((m=R('rovnostranný[^.?!]*obvod '+N)))  {ocek=m[0]/3; vzor='rovnostranný z obvodu';}
+          else if((m=R('obvod trojúhelníku je '+N+'[\\s\\S]*?strany měří '+N+' cm a '+N))) {ocek=m[0]-m[1]-m[2]; vzor='trojúhelník třetí strana';}
+          // Tvar „Obvod obdélníku je N … jedna strana je N" — právě tímhle
+          // zněla mise 8/7-2, která byla neřešitelná ve 100 % generování.
+          else if((m=R('obvod obdélníku je '+N+'[\\s\\S]*?stran[ay] (?:je )?'+N))) {ocek=m[0]/2-m[1]; vzor='obdélník z obvodu (obrácený slovosled)';}
+          else if((m=R('obdélník má obvod '+N+'[^.?!]*dvě strany měří po '+N))) {ocek=(m[0]-2*m[1])/2; vzor='obdélník obvod (dvě po)';}
+          else if((m=R('obdélník má obvod '+N+'[^.?!]*stranu '+N))) {ocek=m[0]/2-m[1]; vzor='obdélník z obvodu';}
+          else if((m=R('obdélník má obsah '+N+'[^.?!]*stran[uae] (?:a = )?'+N))) {ocek=m[0]/m[1]; vzor='obdélník z obsahu';}
+          else if((m=R('krychle má objem '+N)))          {ocek=Math.cbrt(m[0]); vzor='krychle z objemu';}
+          else if((m=R('krychle má povrch '+N)))         {ocek=Math.sqrt(m[0]/6); vzor='krychle z povrchu';}
+          else if((m=R('kvádr má objem '+N+'[^.?!]*podstav[uae][^.?!]*?'+N+'[^.?!]*?[×x] ?'+N))) {ocek=m[0]/(m[1]*m[2]); vzor='kvádr z objemu';}
+          else if((m=R('kvádr má objem '+N+'[^.?!]*a = '+N+'[^.?!]*b = '+N))) {ocek=m[0]/(m[1]*m[2]); vzor='kvádr z objemu (a,b)';}
+          else if((m=R('rovnoběžník má obsah '+N+'[^.?!]*základnu '+N))) {ocek=m[0]/m[1]; vzor='rovnoběžník výška';}
+          else if((m=R('obsah kruhu = '+N)))             {ocek=Math.sqrt(m[0]/PI); vzor='kruh poloměr z obsahu';}
+          else if((m=R('obvod (?:kružnice|kolečka) je '+N))) {ocek=m[0]/(2*PI); vzor='kružnice poloměr z obvodu';}
+          // POZOR: trojúhelník má obsah ½·z·v, takže výška je 2S/z —
+          // NE S/z jako u rovnoběžníku. Snadno se to splete.
+          else if((m=R('trojúhelník má obsah '+N+'[\\s\\S]*?základnu '+N))) {ocek=2*m[0]/m[1]; vzor='trojúhelník výška';}
+          else if((m=R('obdélník\\S*[\\s\\S]*?má obvod '+N+'[\\s\\S]*?stranu '+N))) {ocek=m[0]/2-m[1]; vzor='obdélník z obvodu (slovní)';}
+          if(ocek===null||!isFinite(ocek)||!isFinite(cil)){
+            /* Neznámý tvar se NESMÍ ztratit — jinak by stačilo přeformulovat
+               zadání a pravidlo by pro něj tiše přestalo platit. */
+            push('geoNezn', where, txt.slice(0, 80));
+            return;
+          }
+          geoDop++;
+          const des=(String(t.ans).split(/[.,]/)[1]||'').length;
+          const zaokr=Math.round(ocek*Math.pow(10,des))/Math.pow(10,des);
+          if(Math.abs(zaokr-cil)>1e-9){
+            push('geoInv', where, vzor + ': „' + txt.slice(0, 70) + '" → vychází ' + ocek + ', ans ' + t.ans);
+          }
+        })();
 
         /* ── Poslední nápověda se DOPOČÍTÁ a musí dát `ans`. ──────────
            Kontrola „nápověda obsahuje výsledek" je slabá: projde
@@ -296,6 +357,20 @@ if (process.env.LIST) {
 }
 report('nan', 'žádné NaN/undefined');
 report('hintMath', 'poslední nápověda se dopočítá na uvedenou odpověď');
+report('geoInv', 'inverzní geometrie: rozměr se dopočítá ze zadané veličiny');
+report('geoNezn', 'inverzní geometrie: každý tvar zadání je rozpoznaný');
+/* Kanárek na TICHÝ pokles pokrytí. Pravidlo pozná jen zadání, která
+   projdou filtrem (obsahují slovo Obvod/Obsah/Objem/Povrch a ptají se
+   na rozměr) — kdyby někdo úlohu přeformuloval („Perimetr obdélníku
+   činí…"), vypadne z filtru DŘÍV, než se dostane k rozpoznávání vzorů,
+   a `geoNezn` o ní mlčí. Ověřeno: takové přeformulování srazí počet
+   z 8 320 na 8 060.
+   Počet je mezi běhy PŘESNĚ stabilní (šablony × iterace, nic se
+   nelosuje), takže se sem dá dát skoro těsná hodnota: přírůstek
+   projde, pokles ne. Když sem legitimně přibude nebo ubude geometrická
+   úloha, přeměř a číslo uprav — ta hláška je právě od toho. */
+ok('inverzní geometrie se vůbec měřila (' + geoDop + ' dopočítaných)', geoDop >= 8300,
+   'dopočítáno jen ' + geoDop + ' (čekáno ≥8300) — ubylo pokrytí, nebo se změnil tvar zadání');
 /* Pojistka proti planému běhu: kdyby se tvar nápověd změnil, filtr by
    nepustil nic a pravidlo by MLČELO. Naměřeno 4 940 dopočítaných. */
 ok('aritmetika nápověd se vůbec měřila (' + hintDop + ' dopočítaných)', hintDop > 3000, 'dopočítáno jen ' + hintDop);
