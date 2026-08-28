@@ -13,20 +13,30 @@ const MIME = {'.html':'text/html','.js':'text/javascript','.css':'text/css','.pn
 function serve(){return new Promise(res=>{const s=http.createServer((q,r)=>{let u=decodeURIComponent(q.url.split('?')[0]);if(u.endsWith('/'))u+='index.html';const f=path.normalize(path.join(ROOT,u));if(!f.startsWith(ROOT+path.sep)||!fs.existsSync(f)||fs.statSync(f).isDirectory()){r.writeHead(404);return r.end();}r.writeHead(200,{'Content-Type':MIME[path.extname(f)]||'application/octet-stream'});fs.createReadStream(f).pipe(r);});s.listen(0,()=>res(s));});}
 
 const PAGES = [
- ['Home (terminal)','/index.html'],
+ // Seznam byl ručně udržovaný a kryl 15 z ~28 stránek — chyběl CELÝ
+ // 1. stupeň (RPG 3/4/5), goniometrie, narozeniny, papír, šest z osmi
+ // únikovek a podstránky přijímaček. Je to stejný vzorec jako u sweepu
+ // rozvržení: 1. stupeň se dodělával později a na seznam se zapomnělo.
+ // Sken: porovnej proti `ls projects/*.html` a odkazům z rozcestníku.
+ ['Home','/index.html'],
  ['404','/404.html'],
  ['Projects index','/projects/index.html'],
- ['Přijímačky archiv','/projects/prijimacky-matematika/index.html'],
- ['Únikovka procenta','/projects/unikovka_procenta.html'],
- ['Únikovka tělesa','/projects/unikovka_telesa.html'],
+ ['Přijímačky','/projects/prijimacky-matematika/index.html'],
+ ['Přijímačky test','/projects/prijimacky-matematika/test.html'],
+ ['Přijímačky procvičování','/projects/prijimacky-matematika/procvicovani.html'],
+ ['Přijímačky diagnostika','/projects/prijimacky-matematika/diagnostika.html'],
+ ['Přijímačky statistiky','/projects/prijimacky-matematika/statistiky.html'],
+ ...['linearni_funkce','mocniny','procenta','pythagoras','rovnice','statistika','telesa','trojuhelniky']
+   .map(u => ['Únikovka ' + u, '/projects/unikovka_' + u + '.html']),
  ['Procenta příklady','/projects/procenta_priklady.html'],
  ['Cesta peněz','/projects/cesta_penez.html'],
+ ['Goniometrie','/projects/goniometrie.html'],
+ ['Narozeniny','/projects/narozeniny.html'],
+ ['Papír','/projects/papir.html'],
  ['RPG hub','/projects/rpg-matematika.html'],
- ['RPG mat 6','/projects/rpg-mat-6.html'],
- ['RPG mat 7','/projects/rpg-mat-7.html'],
- ['RPG mat 8','/projects/rpg-mat-8.html'],
- ['RPG mat 9','/projects/rpg-mat-9.html'],
- ['Travels index','/travels/index.html'],
+ ...[3,4,5,6,7,8,9].map(g => ['RPG mat ' + g, '/projects/rpg-mat-' + g + '.html']),
+ ['RPG učitel','/projects/rpg-ucitel.html'],
+ ['Travels','/travels/index.html'],
 ];
 
 const VW = 360, VH = 740;

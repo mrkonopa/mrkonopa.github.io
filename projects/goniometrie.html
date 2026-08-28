@@ -213,7 +213,7 @@ a{color:var(--ch2);text-decoration:none}a:hover{color:#1250a0}
     <div class="cert-score" id="cert-score">— / —</div>
     <p style="color:var(--muted);font-size:.9rem;margin-top:6px" id="cert-msg"></p>
     <div class="cert-name-input" style="margin-top:16px">
-      <input type="text" id="cert-name" placeholder="Zadej své jméno…" maxlength="40" autocomplete="off">
+      <input type="text" id="cert-name" aria-label="Tvoje jméno na certifikát" placeholder="Zadej své jméno…" maxlength="40" autocomplete="off">
     </div>
   </div>
   <div style="text-align:center;margin-top:16px">
@@ -305,7 +305,7 @@ function buildIntro() {
       <h3>🔑 ${cs?'Mám kód odjinud':'I have a code'}</h3>
       <p style="font-size:.9rem;color:var(--muted);margin-bottom:8px">${cs?'Hraješ na jiném počítači? Zadej kód z předchozí kapitoly.':'Playing on another device? Enter the code from your previous session.'}</p>
       <div class="code-row">
-        <input type="text" id="code-input" placeholder="${cs?'např. sohcahtoa':'e.g. sohcahtoa'}" autocomplete="off" autocapitalize="off" spellcheck="false">
+        <input type="text" id="code-input" aria-label="${cs?'Kód kapitoly':'Chapter code'}" placeholder="${cs?'např. sohcahtoa':'e.g. sohcahtoa'}" autocomplete="off" autocapitalize="off" spellcheck="false">
         <button class="btn-check" id="code-apply">${cs?'Použít':'Apply'}</button>
       </div>
       <div class="code-feedback" id="code-feedback"></div>
@@ -324,7 +324,7 @@ function buildHubCode() {
     <div class="card" style="margin-bottom:0">
       <h3>🔑 ${cs?'Mám kód odjinud':'I have a code'}</h3>
       <div class="code-row">
-        <input type="text" id="code-input-hub" placeholder="${cs?'např. sohcahtoa':'e.g. sohcahtoa'}" autocomplete="off" autocapitalize="off" spellcheck="false">
+        <input type="text" id="code-input-hub" aria-label="${cs?'Kód kapitoly':'Chapter code'}" placeholder="${cs?'např. sohcahtoa':'e.g. sohcahtoa'}" autocomplete="off" autocapitalize="off" spellcheck="false">
         <button class="btn-check" id="code-apply-hub">${cs?'Použít':'Apply'}</button>
       </div>
       <div class="code-feedback" id="code-feedback-hub"></div>
