@@ -424,7 +424,12 @@
       .room-grid { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); }
       .sim-stats { gap: 8px; }
     }
-  </style>
+  /* Dotykové ovládání: navigace a přepínač jazyka musí mít aspoň 44 px,
+   jinak se na tabletu špatně trefují. Sedm z osmi únikovek tohle
+   pravidlo mělo — pythagoras na něj zapomněl, stejně jako stránky
+   níže. */
+@media(pointer:coarse){.back{display:inline-flex;align-items:center;min-height:44px}.btn-shuffle,.btn-reset,.btn-fold{min-height:44px}}
+</style>
 </head>
 <body>
 <div class="page">
@@ -443,7 +448,7 @@
       <span>Počet lidí v místnosti</span>
       <span class="count" id="count-display">23</span>
     </div>
-    <input type="range" id="slider" min="2" max="70" value="23" />
+    <input type="range" id="slider" min="2" max="70" value="23" aria-label="Počet lidí ve skupině" />
     <div class="range-ends"><span>2 lidi</span><span>70 lidí</span></div>
   </div>
 

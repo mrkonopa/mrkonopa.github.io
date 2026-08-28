@@ -146,14 +146,23 @@
       overflow: hidden;
     }
 
+    /* Celá karta je ODKAZ, ne jen název souboru. Dřív byl klikací jen
+       ten řádek s názvem (23 px vysoký), takže se na tabletu špatně
+       trefoval — a karta přitom už reagovala na hover, takže vypadala
+       klikací celá. Kartu dělá odkazem `<a class="project">`, ne overlay
+       přes `::after`: overlay sice plochu zvětší, ale MĚŘENÝ rámeček
+       odkazu zůstane malý, takže by mobilní audit hlásil dál. */
     .project {
       background: var(--bg-window);
       padding: 12px 14px;
       display: flex;
       flex-direction: column;
       transition: background 0.12s;
+      text-decoration: none;
+      color: inherit;
     }
     .project:hover { background: #121a13; }
+    .project:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
     /* perm + filename on same line */
     .project .line {
@@ -219,7 +228,9 @@
     .filter-tag.active { background: var(--accent); border-color: var(--accent); color: var(--bg); border-style: solid; }
     .project.hidden { display: none; }
     /* mobil: větší dotykové plochy filtrů a odkazů (zachová terminálový vzhled) */
-    @media(pointer:coarse){.filter-tag{min-height:40px;padding:9px 13px;display:inline-flex;align-items:center}.project .filename{display:inline-flex;align-items:center;min-height:40px}}
+    @media(pointer:coarse){.filter-tag{min-height:40px;padding:9px 13px;display:inline-flex;align-items:center}/* `.project` je teď sám odkaz, takže klikací je celá karta a `.filename`
+         už zvětšovat netřeba. Zbývaly odkazy v patičce. */
+      p.out a{display:inline-flex;align-items:center;min-height:44px}}
   </style>
 </head>
 <body>
@@ -249,156 +260,156 @@
 
           <div class="project-grid">
 
-            <div class="project">
+            <a class="project" href="./prijimacky-matematika/">
               <div class="line">
                 <span class="perm">drwxr-xr-x</span>
-                <a class="filename" href="./prijimacky-matematika/">prijimacky-matematika/</a>
+                <span class="filename">prijimacky-matematika/</span>
               </div>
               <p class="desc-cs">Sbírka CERMAT testů z matematiky pro 4leté SŠ (2023–2026) s řešeními.</p>
               <p class="meta">tags: math · education · czech · pdf-archive · entrance-exams · sš</p>
-            </div>
+            </a>
 
-            <div class="project">
+            <a class="project" href="./goniometrie.html">
               <div class="line">
                 <span class="perm">-rw-r--r--</span>
-                <a class="filename" href="./goniometrie.html">goniometrie.html</a>
+                <span class="filename">goniometrie.html</span>
               </div>
               <p class="desc-en">Trigonometry guide — sin, cos, tan, 7 chapters, 9th grade.</p>
               <p class="desc-cs">Průvodce goniometrickými funkcemi — sin, cos, tan, 7 kapitol, 9. třída.</p>
               <p class="meta">tags: math · goniometrie · trigonometry · slovní úlohy · education · czech · interactive · 9. třída</p>
-            </div>
+            </a>
 
-            <div class="project">
+            <a class="project" href="./rpg-matematika.html">
               <div class="line">
                 <span class="perm">-rw-r--r--</span>
-                <a class="filename" href="./rpg-matematika.html">rpg-matematika.html</a>
+                <span class="filename">rpg-matematika.html</span>
               </div>
               <p class="desc-en">EN: RPG Math command center — a hub linking all seven pixel-art math RPGs (grades 3–9). Shows each saved character (level, XP, attributes, progress, artifacts) read from the browser. Start screen for the whole series.</p>
               <p class="desc-cs">CS: Velitelské centrum RPG Matematiky — rozcestník propojující všech sedm pixel-art matematických her (3.–9. ročník). U každé ukazuje uloženou postavu (úroveň, XP, atributy, pokrok, artefakty) načtenou z prohlížeče. Vstupní obrazovka celé série.</p>
               <p class="meta">tags: math · rpg · hub · rozcestník · pixel-art · 3.–9. třída · education · czech · interactive</p>
-            </div>
+            </a>
 
-            <div class="project">
+            <a class="project" href="./cesta_penez.html">
               <div class="line">
                 <span class="perm">-rw-r--r--</span>
-                <a class="filename" href="./cesta_penez.html">cesta_penez.html</a>
+                <span class="filename">cesta_penez.html</span>
               </div>
               <p class="desc-en">Financial literacy story game — brigáda, taxes, loans, mortgage, scams — 8 chapters.</p>
               <p class="desc-cs">Příběhová hra o financích — brigáda, daně, půjčky, hypotéka, podvody — 8 kapitol.</p>
               <p class="meta">tags: math · finance · daně · RPSN · hypotéka · education · czech · interactive · 8.-9. třída</p>
-            </div>
+            </a>
 
-            <div class="project">
+            <a class="project" href="./procenta_priklady.html">
               <div class="line">
                 <span class="perm">-rw-r--r--</span>
-                <a class="filename" href="./procenta_priklady.html">procenta_priklady.html</a>
+                <span class="filename">procenta_priklady.html</span>
               </div>
               <p class="desc-en">10 randomised percentage problems per session with step-by-step solutions.</p>
               <p class="desc-cs">10 náhodně generovaných příkladů na procenta s postupem řešení.</p>
               <p class="meta">tags: math · procenta · education · czech · interactive · randomised</p>
-            </div>
+            </a>
 
-            <div class="project">
+            <a class="project" href="./unikovka_telesa.html">
               <div class="line">
                 <span class="perm">-rw-r--r--</span>
-                <a class="filename" href="./unikovka_telesa.html">unikovka_telesa.html</a>
+                <span class="filename">unikovka_telesa.html</span>
               </div>
               <p class="desc-en">Escape room — cubes &amp; cuboids, 10 locks, 6th grade.</p>
               <p class="desc-cs">Únikovka — krychle a kvádr, 10 zámků, 6. třída.</p>
               <p class="meta">tags: math · geometry · education · czech · interactive · 6. třída</p>
-            </div>
+            </a>
 
-            <div class="project">
+            <a class="project" href="./unikovka_procenta.html">
               <div class="line">
                 <span class="perm">-rw-r--r--</span>
-                <a class="filename" href="./unikovka_procenta.html">unikovka_procenta.html</a>
+                <span class="filename">unikovka_procenta.html</span>
               </div>
               <p class="desc-en">Escape room — percentages, 10 locks.</p>
               <p class="desc-cs">Únikovka — procenta, 10 zámků.</p>
               <p class="meta">tags: math · procenta · education · czech · interactive</p>
-            </div>
+            </a>
 
-            <div class="project">
+            <a class="project" href="./unikovka_pythagoras.html">
               <div class="line">
                 <span class="perm">-rw-r--r--</span>
-                <a class="filename" href="./unikovka_pythagoras.html">unikovka_pythagoras.html</a>
+                <span class="filename">unikovka_pythagoras.html</span>
               </div>
               <p class="desc-en">Escape room — Pythagorean theorem, 10 locks, 8th–9th grade.</p>
               <p class="desc-cs">Únikovka — Pythagorova věta, 10 zámků, 8.–9. třída.</p>
               <p class="meta">tags: math · pythagoras · geometry · education · czech · interactive · 8.-9. třída</p>
-            </div>
+            </a>
 
-            <div class="project">
+            <a class="project" href="./unikovka_mocniny.html">
               <div class="line">
                 <span class="perm">-rw-r--r--</span>
-                <a class="filename" href="./unikovka_mocniny.html">unikovka_mocniny.html</a>
+                <span class="filename">unikovka_mocniny.html</span>
               </div>
               <p class="desc-en">Escape room — powers &amp; roots, 10 locks, 8th grade.</p>
               <p class="desc-cs">Únikovka — mocniny a odmocniny, 10 zámků, 8. třída.</p>
               <p class="meta">tags: math · mocniny · odmocniny · education · czech · interactive · 8. třída</p>
-            </div>
+            </a>
 
-            <div class="project">
+            <a class="project" href="./unikovka_rovnice.html">
               <div class="line">
                 <span class="perm">-rw-r--r--</span>
-                <a class="filename" href="./unikovka_rovnice.html">unikovka_rovnice.html</a>
+                <span class="filename">unikovka_rovnice.html</span>
               </div>
               <p class="desc-en">Escape room — linear equations, 10 locks, 8th–9th grade.</p>
               <p class="desc-cs">Únikovka — lineární rovnice, 10 zámků, 8.–9. třída.</p>
               <p class="meta">tags: math · rovnice · algebra · education · czech · interactive · 8.-9. třída</p>
-            </div>
+            </a>
 
-            <div class="project">
+            <a class="project" href="./unikovka_trojuhelniky.html">
               <div class="line">
                 <span class="perm">-rw-r--r--</span>
-                <a class="filename" href="./unikovka_trojuhelniky.html">unikovka_trojuhelniky.html</a>
+                <span class="filename">unikovka_trojuhelniky.html</span>
               </div>
               <p class="desc-en">Escape room — triangles, 10 locks, 8th–9th grade. Types, angle sum, perimeter, area, Pythagorean theorem, sin/cos/tan.</p>
               <p class="desc-cs">Únikovka — trojúhelníky, 10 zámků, 8.–9. třída. Typy, součet úhlů, obvod, obsah, Pythagorova věta, sin/cos/tan.</p>
               <p class="meta">tags: math · trojúhelníky · pythagorova věta · goniometrie · education · czech · interactive · 8.-9. třída</p>
-            </div>
+            </a>
 
-            <div class="project">
+            <a class="project" href="./unikovka_statistika.html">
               <div class="line">
                 <span class="perm">-rw-r--r--</span>
-                <a class="filename" href="./unikovka_statistika.html">unikovka_statistika.html</a>
+                <span class="filename">unikovka_statistika.html</span>
               </div>
               <p class="desc-en">Escape room — statistics &amp; data, 10 vaults, 7th–8th grade. Frequency, mean, median, mode, range, relative frequency, weighted mean.</p>
               <p class="desc-cs">Únikovka — statistika a data, 10 trezorů, 7.–8. třída. Četnost, průměr, medián, modus, rozsah, relativní četnost, vážený průměr.</p>
               <p class="meta">tags: math · statistika · průměr · medián · education · czech · interactive · 7.-8. třída</p>
-            </div>
+            </a>
 
-            <div class="project">
+            <a class="project" href="./unikovka_linearni_funkce.html">
               <div class="line">
                 <span class="perm">-rw-r--r--</span>
-                <a class="filename" href="./unikovka_linearni_funkce.html">unikovka_linearni_funkce.html</a>
+                <span class="filename">unikovka_linearni_funkce.html</span>
               </div>
               <p class="desc-en">Escape room — linear functions, 10 locks, 9th grade. Function values, intercepts, slope, inverse calculation, direct proportionality, intersection of lines.</p>
               <p class="desc-cs">Únikovka — lineární funkce, 10 zámků, 9. třída. Hodnoty funkce, průsečíky os, směrnice, zpětný výpočet, přímá úměrnost, průsečík dvou přímek.</p>
               <p class="meta">tags: math · lineární funkce · směrnice · education · czech · interactive · 9. třída</p>
-            </div>
+            </a>
 
-            <div class="project">
+            <a class="project" href="./narozeniny.html">
               <div class="line">
                 <span class="perm">-rw-r--r--</span>
-                <a class="filename" href="./narozeniny.html">narozeniny.html</a>
+                <span class="filename">narozeniny.html</span>
               </div>
               <p class="desc-en">Birthday paradox — interactive slider, room of random people, match finder, bulk simulation.</p>
               <p class="desc-cs">Narozeninový paradox — slider, místnost s lidmi, hledání shod, simulace skupin.</p>
               <p class="meta">tags: math · probability · interactive · czech · fun · 8.-9. třída</p>
-            </div>
+            </a>
 
-            <div class="project">
+            <a class="project" href="./papir.html">
               <div class="line">
                 <span class="perm">-rw-r--r--</span>
-                <a class="filename" href="./papir.html">papir.html</a>
+                <span class="filename">papir.html</span>
               </div>
               <p class="desc-en">Paper folding — exponential growth visualised. Fold by fold to the Moon.</p>
               <p class="desc-cs">Přeložení papíru — vizualizace exponenciálního růstu. Přeložení po přeložení na Měsíc.</p>
               <p class="meta">tags: math · mocniny · interactive · czech · fun · 8. třída</p>
-            </div>
+            </a>
 
-            <!-- Add more <div class="project">…</div> blocks here as you ship things. -->
+            <!-- Add more <a class="project" href="…">…</a> blocks here as you ship things. -->
 
           </div>
         </div>

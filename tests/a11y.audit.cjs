@@ -16,19 +16,28 @@ const MIME = {'.html':'text/html','.js':'text/javascript','.css':'text/css','.pn
 function serve(){return new Promise(res=>{const s=http.createServer((q,r)=>{let u=decodeURIComponent(q.url.split('?')[0]);if(u.endsWith('/'))u+='index.html';const f=path.normalize(path.join(ROOT,u));if(!f.startsWith(ROOT+path.sep)||!fs.existsSync(f)||fs.statSync(f).isDirectory()){r.writeHead(404);return r.end();}r.writeHead(200,{'Content-Type':MIME[path.extname(f)]||'application/octet-stream'});fs.createReadStream(f).pipe(r);});s.listen(0,()=>res(s));});}
 
 const PAGES = [
+ // Seznam byl ručně udržovaný a kryl 15 z ~28 stránek — chyběl CELÝ
+ // 1. stupeň (RPG 3/4/5), goniometrie, narozeniny, papír, šest z osmi
+ // únikovek a podstránky přijímaček. Je to stejný vzorec jako u sweepu
+ // rozvržení: 1. stupeň se dodělával později a na seznam se zapomnělo.
+ // Sken: porovnej proti `ls projects/*.html` a odkazům z rozcestníku.
  ['Home','/index.html'],
  ['404','/404.html'],
  ['Projects index','/projects/index.html'],
  ['Přijímačky','/projects/prijimacky-matematika/index.html'],
- ['Únikovka procenta','/projects/unikovka_procenta.html'],
- ['Únikovka tělesa','/projects/unikovka_telesa.html'],
+ ['Přijímačky test','/projects/prijimacky-matematika/test.html'],
+ ['Přijímačky procvičování','/projects/prijimacky-matematika/procvicovani.html'],
+ ['Přijímačky diagnostika','/projects/prijimacky-matematika/diagnostika.html'],
+ ['Přijímačky statistiky','/projects/prijimacky-matematika/statistiky.html'],
+ ...['linearni_funkce','mocniny','procenta','pythagoras','rovnice','statistika','telesa','trojuhelniky']
+   .map(u => ['Únikovka ' + u, '/projects/unikovka_' + u + '.html']),
  ['Procenta příklady','/projects/procenta_priklady.html'],
  ['Cesta peněz','/projects/cesta_penez.html'],
+ ['Goniometrie','/projects/goniometrie.html'],
+ ['Narozeniny','/projects/narozeniny.html'],
+ ['Papír','/projects/papir.html'],
  ['RPG hub','/projects/rpg-matematika.html'],
- ['RPG mat 6','/projects/rpg-mat-6.html'],
- ['RPG mat 7','/projects/rpg-mat-7.html'],
- ['RPG mat 8','/projects/rpg-mat-8.html'],
- ['RPG mat 9','/projects/rpg-mat-9.html'],
+ ...[3,4,5,6,7,8,9].map(g => ['RPG mat ' + g, '/projects/rpg-mat-' + g + '.html']),
  ['RPG učitel','/projects/rpg-ucitel.html'],
  ['Travels','/travels/index.html'],
 ];
@@ -113,5 +122,14 @@ const PAGES = [
  await browser.close(); srv.close();
  console.log('\n==========================================');
  console.log('  CELKEM kategorií nálezů: '+total);
+ console.log('  proměřeno stránek: '+PAGES.length);
  console.log('==========================================');
+ /* Audit dřív skončil NULOU i s nálezy — reagoval jen na pád. Kdyby se
+    v tomhle stavu zapojil do brány, byla by to dekorace: pravidlo, které
+    nikdy neštěkne. Nález = červená. */
+ if(total>0){console.error('\n  ❌ přístupnost: '+total+' kategorií nálezů');process.exit(1);}
+ /* Pojistka proti planému běhu: kdyby se seznam stránek vyprázdnil nebo
+    se přestaly načítat, audit by hlásil 0 nálezů a tvářil se zeleně. */
+ if(PAGES.length<25){console.error('\n  ❌ audit proměřil jen '+PAGES.length+' stránek (čekáno ≥25)');process.exit(1);}
+ process.exit(0);
 })().catch(e=>{console.error(e);process.exit(1);});

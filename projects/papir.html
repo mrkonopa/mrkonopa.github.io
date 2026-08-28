@@ -291,7 +291,12 @@
       .page { padding: 40px 16px 80px; }
       .comp-folds { display: none; }
     }
-  </style>
+  /* Dotykové ovládání: navigace a přepínač jazyka musí mít aspoň 44 px,
+   jinak se na tabletu špatně trefují. Sedm z osmi únikovek tohle
+   pravidlo mělo — pythagoras na něj zapomněl, stejně jako stránky
+   níže. */
+@media(pointer:coarse){.back{display:inline-flex;align-items:center;min-height:44px}.btn-shuffle,.btn-reset,.btn-fold{min-height:44px}}
+</style>
 </head>
 <body>
 <div class="page">

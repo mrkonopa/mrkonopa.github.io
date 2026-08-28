@@ -381,7 +381,12 @@
       .hero .meta { flex-wrap: wrap; gap: 16px 22px; }
       footer { flex-direction: column; gap: 8px; }
     }
-  </style>
+  /* Dotykové ovládání: navigace a přepínač jazyka musí mít aspoň 44 px,
+   jinak se na tabletu špatně trefují. Sedm z osmi únikovek tohle
+   pravidlo mělo — pythagoras na něj zapomněl, stejně jako stránky
+   níže. */
+@media(pointer:coarse){.top-bar a,.back-home,a.home-link,header a,footer a{display:inline-flex;align-items:center;min-height:44px}}
+</style>
 </head>
 <body>
 
