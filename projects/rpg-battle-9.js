@@ -26,7 +26,20 @@
   const ri = (r, lo, hi) => lo + Math.floor(r() * (hi - lo + 1));
   const skl = (n,one,few,many)=>n===1?one:(n>=2&&n<=4?few:many);  // shoda čísla a jména (1 / 2-4 / 5+)   // celé [lo,hi]
   const pick = (r, arr) => arr[Math.floor(r() * arr.length)];
-  const S = v => String(v);
+  /* Zápis volby. Dvě věci naráz:
+     · zaokrouhlení smaže artefakty plovoucí čárky — distraktory se
+       počítaly jako `v + 0.1` / `v - 0.1`, takže z 3,3 vzniklo
+       3.1999999999999997 a svítilo to jako volba PŘED CELOU TŘÍDOU;
+     · desetinná ČÁRKA, protože zadání ji používá („Vypočítej: 1,8 + 1,5")
+       a volby ukazovaly tečku. (5. ročník čárku dělal už dřív, ale
+       bez zaokrouhlení — proto byly dvě varianty téhle funkce.)
+     Volby se porovnávají INDEXEM (`idx === q.correct` v rpg-battle-ui.js),
+     nikdy se neparsují, takže změna zápisu nic nerozbije. Nečíselné
+     hodnoty (ANO/NE, zlomky, záložní „x1") jdou beze změny. */
+  const S = v => {
+    if (typeof v !== 'number' || !Number.isFinite(v)) return String(v);
+    return String(Math.round(v * 1e6) / 1e6).replace('.', ',');
+  };
   // FRAMING-POOL: uvození drilu (deterministické přes seedovaný r, nemění hodnotu ani distraktory)
   const FR = r => pick(r, ['Vypočítej', 'Spočítej', 'Urči', 'Kolik je']);
   const fr = (r, expr) => { const f = FR(r); return f === 'Kolik je' ? `Kolik je ${expr}?` : `${f}: ${expr}`; };
