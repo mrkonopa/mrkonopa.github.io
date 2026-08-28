@@ -217,6 +217,11 @@ table.tt tr:nth-child(even) td{background:#fafaf5}
   font-size:1.35rem;cursor:pointer;padding:3px 7px;line-height:1;
   transition:border-color .15s,box-shadow .15s}
 .lang-btn.active{border-color:var(--blue);box-shadow:0 0 0 2px rgba(26,115,200,.25)}
+/* Dotykové ovládání: navigace a přepínač jazyka musí mít aspoň 44 px,
+   jinak se na tabletu špatně trefují. Sedm z osmi únikovek tohle
+   pravidlo mělo — pythagoras na něj zapomněl, stejně jako stránky
+   níže. */
+@media(pointer:coarse){.lang-btn{min-width:44px;min-height:44px;display:inline-flex;align-items:center;justify-content:center}.tp-back,.tp-home{display:inline-flex;align-items:center;min-height:44px}}
 </style>
 </head>
 <body>

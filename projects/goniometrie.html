@@ -163,6 +163,11 @@ a{color:var(--ch2);text-decoration:none}a:hover{color:#1250a0}
   line-height:1;box-shadow:0 1px 4px rgba(0,0,0,.08)}
 .lang-btn:hover{border-color:var(--ch2);box-shadow:0 2px 8px rgba(26,115,200,.2)}
 .lang-btn.active{border-color:var(--ch2);box-shadow:0 0 0 2px rgba(26,115,200,.25)}
+/* Dotykové ovládání: navigace a přepínač jazyka musí mít aspoň 44 px,
+   jinak se na tabletu špatně trefují. Sedm z osmi únikovek tohle
+   pravidlo mělo — pythagoras na něj zapomněl, stejně jako stránky
+   níže. */
+@media(pointer:coarse){.lang-btn{min-width:44px;min-height:44px;display:inline-flex;align-items:center;justify-content:center}.top-bar a{display:inline-flex;align-items:center;min-height:44px}}
 </style>
 </head>
 <body>
