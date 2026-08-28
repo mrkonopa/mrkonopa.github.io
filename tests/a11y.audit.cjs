@@ -122,5 +122,14 @@ const PAGES = [
  await browser.close(); srv.close();
  console.log('\n==========================================');
  console.log('  CELKEM kategorií nálezů: '+total);
+ console.log('  proměřeno stránek: '+PAGES.length);
  console.log('==========================================');
+ /* Audit dřív skončil NULOU i s nálezy — reagoval jen na pád. Kdyby se
+    v tomhle stavu zapojil do brány, byla by to dekorace: pravidlo, které
+    nikdy neštěkne. Nález = červená. */
+ if(total>0){console.error('\n  ❌ přístupnost: '+total+' kategorií nálezů');process.exit(1);}
+ /* Pojistka proti planému běhu: kdyby se seznam stránek vyprázdnil nebo
+    se přestaly načítat, audit by hlásil 0 nálezů a tvářil se zeleně. */
+ if(PAGES.length<25){console.error('\n  ❌ audit proměřil jen '+PAGES.length+' stránek (čekáno ≥25)');process.exit(1);}
+ process.exit(0);
 })().catch(e=>{console.error(e);process.exit(1);});

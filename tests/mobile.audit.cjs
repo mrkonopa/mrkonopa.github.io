@@ -41,10 +41,23 @@ const PAGES = [
 
 const VW = 360, VH = 740;
 
+/* Malé klikací plochy, které jsou ROZHODNUTÍ, ne vada. Vypsané
+   jmenovitě i s počtem, takže NOVÝ malý prvek na téže stránce bránu
+   shodí — jen ty známé projdou. Ověřeno s Vojtou 28. 8. 2026:
+    · osobní stránka: šest odkazů po 17 px. Je to retro terminál, kde
+      monospace řádky těsně pod sebou dělají celý ten efekt; zvětšení
+      na 44 px by ho rozbilo.
+    · statistiky přijímaček: „diagnostiku" je odkaz UVNITŘ VĚTY,
+      ne tlačítko — řádkový odkaz v textu se zvětšovat nedá. */
+const ZNAME_MALE_PLOCHY = {
+  '/index.html': 6,
+  '/projects/prijimacky-matematika/statistiky.html': 1,
+};
+
 (async()=>{
  const srv=await serve(); const base='http://127.0.0.1:'+srv.address().port;
  const browser=await chromium.launch({executablePath:EXEC});
- let totalIssues=0;
+ let totalIssues=0, vady=0;
  for(const [name,url] of PAGES){
   const ctx=await browser.newContext({viewport:{width:VW,height:VH},deviceScaleFactor:2,isMobile:true,hasTouch:true});
   const page=await ctx.newPage();
@@ -100,6 +113,14 @@ const VW = 360, VH = 740;
    console.log('\n### '+name+'  ('+url+')');
    issues.forEach(i=>console.log('  '+i));
    totalIssues+=issues.length;
+   /* Přetečení a JS chyby jsou VŽDY vada. Malé klikací plochy jsou vada
+      jen tehdy, když jich je víc, než kolik jich má stránka povoleno. */
+   if(report.overflowDoc||report.offRight.length||errs.length)vady++;
+   const povoleno=ZNAME_MALE_PLOCHY[url]||0;
+   if(report.smallTaps.length>povoleno){
+    vady++;
+    console.log('     ↑ povoleno '+povoleno+', nalezeno '+report.smallTaps.length);
+   }
   }else{
    console.log('\n### '+name+'  ('+url+')\n  ✅ OK (docW='+report.docW+')');
   }
@@ -107,6 +128,11 @@ const VW = 360, VH = 740;
  }
  await browser.close(); srv.close();
  console.log('\n==========================================');
- console.log('  CELKEM nálezů: '+totalIssues);
+ console.log('  CELKEM nálezů: '+totalIssues+'  (z toho vad: '+vady+')');
+ console.log('  proměřeno stránek: '+PAGES.length);
  console.log('==========================================');
+ /* Dřív se končilo NULOU i s nálezy. Nová pravidla viz ZNAME_MALE_PLOCHY. */
+ if(vady>0){console.error('\n  ❌ mobil: '+vady+' vad (přetečení, JS chyby nebo nové malé plochy)');process.exit(1);}
+ if(PAGES.length<25){console.error('\n  ❌ audit proměřil jen '+PAGES.length+' stránek (čekáno ≥25)');process.exit(1);}
+ process.exit(0);
 })().catch(e=>{console.error(e);process.exit(1);});
