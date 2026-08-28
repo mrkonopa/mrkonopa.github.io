@@ -18,7 +18,20 @@
   const skl = (n,one,few,many)=>n===1?one:(n>=2&&n<=4?few:many);  // shoda čísla a jména (1 / 2-4 / 5+)
   const pick = (r, arr) => arr[Math.floor(r() * arr.length)];
   const FR = r => pick(r, ['Vypočítej', 'Spočítej', 'Urči', 'Vyčísli']);  // framing-pool (rozmanitost zadání)
-  const S = v => String(v);
+  /* Zápis volby. Dvě věci naráz:
+     · zaokrouhlení smaže artefakty plovoucí čárky — distraktory se
+       počítaly jako `v + 0.1` / `v - 0.1`, takže z 3,3 vzniklo
+       3.1999999999999997 a svítilo to jako volba PŘED CELOU TŘÍDOU;
+     · desetinná ČÁRKA, protože zadání ji používá („Vypočítej: 1,8 + 1,5")
+       a volby ukazovaly tečku. (5. ročník čárku dělal už dřív, ale
+       bez zaokrouhlení — proto byly dvě varianty téhle funkce.)
+     Volby se porovnávají INDEXEM (`idx === q.correct` v rpg-battle-ui.js),
+     nikdy se neparsují, takže změna zápisu nic nerozbije. Nečíselné
+     hodnoty (ANO/NE, zlomky, záložní „x1") jdou beze změny. */
+  const S = v => {
+    if (typeof v !== 'number' || !Number.isFinite(v)) return String(v);
+    return String(Math.round(v * 1e6) / 1e6).replace('.', ',');
+  };
 
   const GEN = [
 
@@ -111,20 +124,39 @@
     },
 
     // 10) přímá/nepřímá úměra
+    //
+    // OBĚ větve byly rozbité a je to vidět naživo před třídou:
+    //  · „přímá úměra" se ptala, kolik hodin potrvá STEJNÝ díl většímu
+    //    počtu pracovníků, ale odpovídala NEZMĚNĚNÝ čas — nesedělo to
+    //    ve 100 % generování („5 pracovníků za 8 hodin → 10 pracovníků"
+    //    má být 4, hra čekala 8). Byla to navíc úměra nepřímá, takže
+    //    nesedělo ani jméno tématu. Nahrazeno skutečně PŘÍMOU úměrou.
+    //  · „nepřímá úměra" zaokrouhlovala přesný výsledek (`Math.round`),
+    //    ačkoli se na zaokrouhlení nikde neptá — v 50,4 % generování
+    //    žák spočítal třeba 1,67 a takovou volbu vůbec nenašel.
+    // Čísla se nově volí tak, aby dělení vyšlo BEZE ZBYTKU.
     function (r) {
       if (r() < 0.5) {
-        const unit = ri(r, 2, 8), q1 = ri(r, 2, 5), q2 = q1 * ri(r, 2, 3);
-        const v = unit * q2;
+        // PŘÍMÁ úměra: víc hodin = víc kusů.
+        const zaHod = ri(r, 3, 12);
+        const hod1 = ri(r, 2, 6);
+        const hod2 = hod1 * ri(r, 2, 3);
+        const v = zaHod * hod2;
         return { topic: 'přímá úměra',
-                 text: `${q1} ${skl(q1,'pracovník','pracovníci','pracovníků')} ${skl(q1,'udělá','udělají','udělá')} díl za ${unit} ${skl(unit,'hodinu','hodiny','hodin')}.\nKolik hodin ${skl(q2,'udělá','udělají','udělá')} stejný díl ${q2} ${skl(q2,'pracovník','pracovníci','pracovníků')}?`,
-                 value: unit, distractors: [unit * q2 / q1, unit + q2, unit * 2] };
+                 text: `Stroj vyrobí za ${hod1} ${skl(hod1,'hodinu','hodiny','hodin')} ${zaHod * hod1} ${skl(zaHod * hod1,'součástku','součástky','součástek')}.\nKolik jich vyrobí za ${hod2} ${skl(hod2,'hodinu','hodiny','hodin')}?`,
+                 value: v, distractors: [zaHod * hod1, v + zaHod, v - zaHod] };
       }
-      // nepřímá — x pracovníků, víc pracovníků = míň hodin
-      const workers1 = ri(r, 2, 5), hours1 = ri(r, 4, 12), workers2 = workers1 * ri(r, 2, 3);
-      const v = Math.round(workers1 * hours1 / workers2);
+      // NEPŘÍMÁ úměra: víc pracovníků = míň hodin.
+      // Výsledek volíme jako celé číslo a teprve k němu dopočítáme
+      // zadání, takže `workers1 * hours1 / workers2` vyjde přesně.
+      const workers1 = ri(r, 2, 5);
+      const nasobek = ri(r, 2, 3);
+      const workers2 = workers1 * nasobek;
+      const v = ri(r, 2, 5);
+      const hours1 = v * nasobek;
       return { topic: 'nepřímá úměra',
-               text: `${workers1} ${skl(workers1,'pracovník','pracovníci','pracovníků')} postaví zeď za ${hours1} ${skl(hours1,'hodinu','hodiny','hodin')}.\nKolik hodin to bude trvat ${workers2} pracovníkům?`,
-               value: v, distractors: [hours1, v + 2, workers1 * hours1 / workers2 + 1] };
+               text: `${workers1} ${skl(workers1,'pracovník','pracovníci','pracovníků')} ${skl(workers1,'postaví','postaví','postaví')} zeď za ${hours1} ${skl(hours1,'hodinu','hodiny','hodin')}.\nKolik hodin to bude trvat ${workers2} pracovníkům?`,
+               value: v, distractors: [hours1, v + 2, v * 2] };
     },
 
     // 11) obvod kruhu (2πr)

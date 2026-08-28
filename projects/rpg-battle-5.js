@@ -19,7 +19,20 @@
   const pick = (r, arr) => arr[Math.floor(r() * arr.length)];
   const cz = v => String(v).replace('.', ',');
   const r1 = n => Math.round(n * 10) / 10;
-  const S = v => String(v).replace('.', ',');
+  /* Zápis volby. Dvě věci naráz:
+     · zaokrouhlení smaže artefakty plovoucí čárky — distraktory se
+       počítaly jako `v + 0.1` / `v - 0.1`, takže z 3,3 vzniklo
+       3.1999999999999997 a svítilo to jako volba PŘED CELOU TŘÍDOU;
+     · desetinná ČÁRKA, protože zadání ji používá („Vypočítej: 1,8 + 1,5")
+       a volby ukazovaly tečku. (5. ročník čárku dělal už dřív, ale
+       bez zaokrouhlení — proto byly dvě varianty téhle funkce.)
+     Volby se porovnávají INDEXEM (`idx === q.correct` v rpg-battle-ui.js),
+     nikdy se neparsují, takže změna zápisu nic nerozbije. Nečíselné
+     hodnoty (ANO/NE, zlomky, záložní „x1") jdou beze změny. */
+  const S = v => {
+    if (typeof v !== 'number' || !Number.isFinite(v)) return String(v);
+    return String(Math.round(v * 1e6) / 1e6).replace('.', ',');
+  };
   const skl = (n, one, few, many) => { const a = Math.abs(n); return a === 1 ? one : a >= 2 && a <= 4 ? few : many; };
   // FRAMING pool — seedované (nemění value ani distraktory, jen slovní obal drilu).
   const FR = r => pick(r, ['Vypočítej', 'Spočítej', 'Urči', 'Kolik je']);
