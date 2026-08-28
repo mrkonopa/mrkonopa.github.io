@@ -123,7 +123,14 @@ body{
   box-shadow:var(--shadow);width:100%;margin-top:10px;margin-bottom:18px}
 .code-wrap label{display:block;font-family:'Lexend',sans-serif;font-size:.98rem;color:var(--muted);
   margin-bottom:11px;font-weight:700}
-.code-row{display:flex;gap:10px;align-items:center}
+.code-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+/* Tabulky v učební části mají až 11 sloupců a na úzký displej se
+   nevejdou. Karta má `overflow:hidden`, takže se konec tabulky TIŠE
+   OŘÍZNE — u „druhých mocnin" tak dítě nevidí sloupec 10 (100) přímo
+   pod větou, že se ta čísla vyplatí znát nazpaměť, a nemá jak ho
+   zobrazit. Na úzku proto radši vodorovné posouvání.
+   Jen pod 520 px, aby se vykreslení na širokém displeji nezměnilo. */
+@media (max-width:520px){.task-card{overflow-x:auto}}
 .code-hint-bar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:12px}
 .code-hint-btn{background:none;border:1.5px dashed var(--gold-dark);color:var(--gold-dark);
   padding:5px 14px;border-radius:20px;font-family:'Lexend',sans-serif;font-weight:600;font-size:.82rem;
@@ -141,7 +148,7 @@ body{
   color:var(--gold-dark);display:block;margin-bottom:4px}
 .code-hint-box[data-level="3"]{background:var(--orange-light);border-left-color:var(--orange);color:#8b3f08}
 .code-hint-box[data-level="3"] .h-label{color:var(--orange)}
-.code-input{flex:1;font-family:'Lexend',sans-serif;font-size:1.5rem;text-align:center;
+.code-input{flex:1;min-width:0;font-family:'Lexend',sans-serif;font-size:1.5rem;text-align:center;
   letter-spacing:.12em;border:3px solid #ccc8bb;border-radius:12px;padding:11px 14px;
   outline:none;transition:border-color .2s;background:#fafaf6;color:var(--text)}
 .code-input:focus{border-color:var(--blue);background:#fff}

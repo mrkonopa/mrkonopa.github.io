@@ -370,6 +370,10 @@ a:focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; border-ra
 
 .input-row { display: flex; gap: 10px; align-items: center; }
 input.answer {
+  /* Viz Cesta peněz: `flex:1` bez `min-width:0` se nesmrští pod vnitřní
+     šířku vstupu, takže pole na 380 px přetéká z karty (295 px proti
+     rámečku 288). `flex-wrap` samo nestačí. */
+  min-width: 0;
   flex: 1;
   font-family: var(--sans);
   font-size: 1.4rem; text-align: center;
