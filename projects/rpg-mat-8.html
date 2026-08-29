@@ -1854,12 +1854,35 @@ function _achNext(){
  document.body.appendChild(t);void t.offsetWidth;t.classList.add('show');
  setTimeout(()=>{t.classList.remove('show');setTimeout(()=>{t.remove();_achNext();},360);},2200);
 }
+/* Série se počítá po ŠKOLNÍCH dnech, ne kalendářních.
+   Dřív platilo `count = (last === včera) ? count+1 : 1`, takže dítě,
+   které hrálo v pátek a o víkendu ne, přišlo v pondělí o celou sérii.
+   Sedmidenní série (20 kr/den) i celoživotní meta `streakMax 100` tím
+   vyžadovaly hrát i o víkendu — u školního nástroje obráceně, než má být.
+   Nově série pokračuje, pokud mezi minulou návštěvou a dneškem NEZŮSTAL
+   ŽÁDNÝ ŠKOLNÍ DEN:
+     pátek → pondělí   drží (mezi nimi jen sobota a neděle)
+     sobota → pondělí  drží (mezi nimi jen neděle)
+     pondělí → středa  láme se (vynechalo se úterý)
+   Prázdniny to neřeší — ty odsud poznat nejde.
+   Datum se skládá v POLEDNE, aby posun letního času neposunul den. */
+function _vynechanySkolniDen(odISO,doISO){
+ if(!odISO)return true;
+ const d=new Date(odISO+'T12:00:00'), cil=new Date(doISO+'T12:00:00');
+ if(!isFinite(d)||!isFinite(cil))return true;
+ for(let i=0;i<400;i++){
+  d.setDate(d.getDate()+1);
+  if(d>=cil)return false;
+  const w=d.getDay();
+  if(w!==0&&w!==6)return true;
+ }
+ return true;
+}
 function touchStreak(){
  if(!S.streak)S.streak={count:0,last:''};
  const today=new Date().toISOString().slice(0,10);
  if(S.streak.last===today){evalAch({});return;}
- const y=new Date(Date.now()-864e5).toISOString().slice(0,10);
- S.streak.count=(S.streak.last===y)?(S.streak.count||0)+1:1;
+ S.streak.count=_vynechanySkolniDen(S.streak.last,today)?1:(S.streak.count||0)+1;
  S.streak.last=today;saveS();evalAch({});
  wMax('streakMax',S.streak.count);
  const sc=S.streak.count;earnCredits(sc>=7?20:sc>=3?10:5);
