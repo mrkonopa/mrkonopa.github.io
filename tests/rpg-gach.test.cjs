@@ -47,7 +47,11 @@ console.log('\n═══ rpg-gach: životní úspěchy + sezónní obchod ══
   const before = W.getCredits();
   const unl = W.bumpLife('tasks', 1);
   ok('1000. task odemkne Znalce', unl.length === 1 && unl[0].id === 'gach-tasks-1k');
-  ok('Znalec: +1000 kr', W.getCredits() === before + 1000, `${before}→${W.getCredits()}`);
+  /* Odměna se ČTE Z DEFINICE mety, ne natvrdo — jinak test spadne při
+     každém vyvážení ekonomiky na čísle, které s jeho smyslem (připsala
+     se odměna?) nesouvisí. */
+  const odmena = (W.gachList().find(g => g.id === 'gach-tasks-1k') || {}).reward.credits;
+  ok(`Znalec: +${odmena} kr`, W.getCredits() === before + odmena, `${before}→${W.getCredits()}`);
   ok('opakovaný bump už toast nevrací', W.bumpLife('tasks', 1).length === 0);
 }
 
@@ -161,7 +165,14 @@ console.log('\n═══ rpg-gach: životní úspěchy + sezónní obchod ══
   const { W } = makeSandbox();
   W.earn(20000);
   W.buy('title-pocitar'); W.buy('pet-sova');
-  ok('spent = 6000 po titulu (1000) + sově (5000)', W.lifeStats().spent === 6000, W.lifeStats().spent);
+  /* Ceny se ČTOU Z KATALOGU, ne natvrdo. Dřív tu stálo `=== 6000`
+     s poznámkou „titul (1000) + sova (5000)" — a při přecenění obchodu
+     test spadl na hodnotách, které s jeho smyslem (sleduje se `spent`?)
+     nemají nic společného. */
+  const cena = id => (W.itemById(id) || {}).price || 0;
+  const cekano = cena('title-pocitar') + cena('pet-sova');
+  ok(`spent = ${cekano} po titulu + sově (ceny z katalogu)`,
+     W.lifeStats().spent === cekano, W.lifeStats().spent);
   ok('aktivní titul i pet', W.activeId('title') === 'title-pocitar' && W.activeId('pet') === 'pet-sova');
 }
 
