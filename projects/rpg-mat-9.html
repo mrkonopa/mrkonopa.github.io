@@ -1989,6 +1989,24 @@ let BT={tasks:[],idx:0,hl:0,curTask:null,aid:null,mid:null,combo:0,
 
 const MAX_PLAYER_HP=3;
 const TIME_PER_TASK=40;
+/* Čas na úlohu podle její DÉLKY, ne jedna konstanta pro všechno.
+   Naměřeno na 574 080 úlohách: v 8. ročníku je 93,9 % zadání
+   víceřádkových slovních úloh, v 9. 85,8 % — a mají stejných 40 s jako
+   jednořádkové „NSN(4, 7) = ?". Ve 3. ročníku je víceřádkových 0,4 %
+   a času je 60 s. Nejmladší tak dostávali nejvíc času na nejkratší
+   zadání.
+   Délka zadání se uvnitř ročníku liší zhruba 9 až 137 znaků (medián
+   ~45, p90 ~85), takže je to použitelné měřítko.
+   Přidává se 1 s za každých 6 znaků nad 50, nejvýš +25 s. Čas se tím
+   NIKDY NEZKRACUJE — nejkratší úloha má přesně tolik co dřív, delší
+   dostane víc. Je to odhad, ne změřená potřeba dítěte; kdyby se ukázal
+   jako málo nebo moc, mění se jedno číslo. */
+function casNaUlohu(t){
+ const txt=String((t&&t.text)||'');
+ const navic=Math.min(25,Math.max(0,Math.ceil((txt.length-50)/6)));
+ return TIME_PER_TASK+navic;
+}
+
 const ITEM_DROP_CHANCE=0.28;
 const MAX_ITEMS=3;
 const ITEM_TYPES=['hp','freeze','skip'];
@@ -2177,7 +2195,7 @@ function missionFailed(){
 
 function startTimer(){
  stopTimer();
- if(!BT.curLimit){const _tExtra=(typeof RPGWallet!=='undefined'&&RPGWallet.hasPowerup('pu-time-bonus'))?5:0;BT.curLimit=TIME_PER_TASK+_tExtra;}
+ if(!BT.curLimit){const _tExtra=(typeof RPGWallet!=='undefined'&&RPGWallet.hasPowerup('pu-time-bonus'))?5:0;BT.curLimit=casNaUlohu(BT.curTask)+_tExtra;}
  if(typeof RPGWallet!=='undefined'&&RPGWallet.hasPowerup&&RPGWallet.hasPowerup('pu-calm-mind'))BT.curLimit=Math.round(BT.curLimit*1.2);
  BT.timeLeft=BT.curLimit;BT.timeMax=BT.curLimit;
  document.getElementById('timer-wrap').style.display='block';
@@ -2280,7 +2298,7 @@ function renderTask(){
  if(BT.freezeTimeout){clearTimeout(BT.freezeTimeout);BT.freezeTimeout=null;}
  document.getElementById('timer-bar').classList.remove('frozen');
  const _tExtra=(typeof RPGWallet!=='undefined'&&RPGWallet.hasPowerup('pu-time-bonus'))?5:0;
- BT.curLimit=TIME_PER_TASK+_tExtra;
+ BT.curLimit=casNaUlohu(t)+_tExtra;
  if(BT.adapt&&BT.adapt.mode<0)BT.curLimit=Math.round(BT.curLimit*1.2);
  const tot=BT.tasks.length;
  document.getElementById('bt-num').textContent=BT.idx+1;
