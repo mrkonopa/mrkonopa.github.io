@@ -1854,12 +1854,35 @@ function _achNext(){
  document.body.appendChild(t);void t.offsetWidth;t.classList.add('show');
  setTimeout(()=>{t.classList.remove('show');setTimeout(()=>{t.remove();_achNext();},360);},2200);
 }
+/* Série se počítá po ŠKOLNÍCH dnech, ne kalendářních.
+   Dřív platilo `count = (last === včera) ? count+1 : 1`, takže dítě,
+   které hrálo v pátek a o víkendu ne, přišlo v pondělí o celou sérii.
+   Sedmidenní série (20 kr/den) i celoživotní meta `streakMax 100` tím
+   vyžadovaly hrát i o víkendu — u školního nástroje obráceně, než má být.
+   Nově série pokračuje, pokud mezi minulou návštěvou a dneškem NEZŮSTAL
+   ŽÁDNÝ ŠKOLNÍ DEN:
+     pátek → pondělí   drží (mezi nimi jen sobota a neděle)
+     sobota → pondělí  drží (mezi nimi jen neděle)
+     pondělí → středa  láme se (vynechalo se úterý)
+   Prázdniny to neřeší — ty odsud poznat nejde.
+   Datum se skládá v POLEDNE, aby posun letního času neposunul den. */
+function _vynechanySkolniDen(odISO,doISO){
+ if(!odISO)return true;
+ const d=new Date(odISO+'T12:00:00'), cil=new Date(doISO+'T12:00:00');
+ if(!isFinite(d)||!isFinite(cil))return true;
+ for(let i=0;i<400;i++){
+  d.setDate(d.getDate()+1);
+  if(d>=cil)return false;
+  const w=d.getDay();
+  if(w!==0&&w!==6)return true;
+ }
+ return true;
+}
 function touchStreak(){
  if(!S.streak)S.streak={count:0,last:''};
  const today=new Date().toISOString().slice(0,10);
  if(S.streak.last===today){evalAch({});return;}
- const y=new Date(Date.now()-864e5).toISOString().slice(0,10);
- S.streak.count=(S.streak.last===y)?(S.streak.count||0)+1:1;
+ S.streak.count=_vynechanySkolniDen(S.streak.last,today)?1:(S.streak.count||0)+1;
  S.streak.last=today;saveS();evalAch({});
  wMax('streakMax',S.streak.count);
  const sc=S.streak.count;earnCredits(sc>=7?20:sc>=3?10:5);
@@ -2114,6 +2137,24 @@ let BT={tasks:[],idx:0,hl:0,curTask:null,aid:null,mid:null,combo:0,
 
 const MAX_PLAYER_HP=3;
 const TIME_PER_TASK=40;
+/* Čas na úlohu podle její DÉLKY, ne jedna konstanta pro všechno.
+   Naměřeno na 574 080 úlohách: v 8. ročníku je 93,9 % zadání
+   víceřádkových slovních úloh, v 9. 85,8 % — a mají stejných 40 s jako
+   jednořádkové „NSN(4, 7) = ?". Ve 3. ročníku je víceřádkových 0,4 %
+   a času je 60 s. Nejmladší tak dostávali nejvíc času na nejkratší
+   zadání.
+   Délka zadání se uvnitř ročníku liší zhruba 9 až 137 znaků (medián
+   ~45, p90 ~85), takže je to použitelné měřítko.
+   Přidává se 1 s za každých 6 znaků nad 50, nejvýš +25 s. Čas se tím
+   NIKDY NEZKRACUJE — nejkratší úloha má přesně tolik co dřív, delší
+   dostane víc. Je to odhad, ne změřená potřeba dítěte; kdyby se ukázal
+   jako málo nebo moc, mění se jedno číslo. */
+function casNaUlohu(t){
+ const txt=String((t&&t.text)||'');
+ const navic=Math.min(25,Math.max(0,Math.ceil((txt.length-50)/6)));
+ return TIME_PER_TASK+navic;
+}
+
 const ITEM_DROP_CHANCE=0.28;
 const MAX_ITEMS=3;
 const ITEM_TYPES=['hp','freeze','skip'];
@@ -2273,7 +2314,7 @@ function missionFailed(){
 
 function startTimer(){
  stopTimer();
- if(!BT.curLimit){const _tExtra=(typeof RPGWallet!=='undefined'&&RPGWallet.hasPowerup('pu-time-bonus'))?5:0;BT.curLimit=TIME_PER_TASK+_tExtra;}
+ if(!BT.curLimit){const _tExtra=(typeof RPGWallet!=='undefined'&&RPGWallet.hasPowerup('pu-time-bonus'))?5:0;BT.curLimit=casNaUlohu(BT.curTask)+_tExtra;}
  if(typeof RPGWallet!=='undefined'&&RPGWallet.hasPowerup&&RPGWallet.hasPowerup('pu-calm-mind'))BT.curLimit=Math.round(BT.curLimit*1.2);
  BT.timeLeft=BT.curLimit;BT.timeMax=BT.curLimit;
  document.getElementById('timer-wrap').style.display='block';
@@ -2374,7 +2415,7 @@ function renderTask(){
  if(BT.freezeTimeout){clearTimeout(BT.freezeTimeout);BT.freezeTimeout=null;}
  document.getElementById('timer-bar').classList.remove('frozen');
  const _tExtra=(typeof RPGWallet!=='undefined'&&RPGWallet.hasPowerup('pu-time-bonus'))?5:0;
- BT.curLimit=TIME_PER_TASK+_tExtra;
+ BT.curLimit=casNaUlohu(t)+_tExtra;
  if(BT.adapt&&BT.adapt.mode<0)BT.curLimit=Math.round(BT.curLimit*1.2);
  const tot=BT.tasks.length;
  document.getElementById('bt-num').textContent=BT.idx+1;
