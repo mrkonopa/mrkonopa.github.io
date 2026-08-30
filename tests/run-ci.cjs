@@ -22,7 +22,11 @@ const SKIP = new Set([
 // Testy, co berou ročník jako argument → pusť per-ročník (jinak nepokryjí vše):
 const PARAM = {
   'svg-tasks.test.cjs': ['3', '4', '5', '6', '7', '8', '9'],
-  'rpg-distractors.test.cjs': ['6', '7', '8', '9'],
+  // Kryl jen 2. stupeň, přestože 1. stupeň má VLASTNÍ implementaci výběru
+  // ze čtyř (`mcDistractors`/`pickMC` proti `submitMC`) — tedy tu, kterou
+  // nikdy nikdo strojově neprošel. Test na ni přitom byl připravený
+  // (má v sobě větev pro „compact g3–5 dataset.v"). Všech sedm prochází.
+  'rpg-distractors.test.cjs': ['3', '4', '5', '6', '7', '8', '9'],
   'rpg-battle-dedup.test.cjs': ['3', '4', '5', '6', '7', '8', '9'],
   // Bez tohohle běžela „Najdi chybu" jen pro 9. ročník a zbylých šest
   // sad karet nikdo nekontroloval. Všech sedm prochází (18 kontrol každý).
@@ -30,7 +34,34 @@ const PARAM = {
   // Test jádra bere ročník argumentem. Bez tohohle řádku by se z něj
   // kontrolovala jen výchozí devítka a zbylé tři migrované ročníky
   // (mřížky, kontrast, skiny, drawHeroOn) by neprošly ničím.
-  'rpg-sprite-core.test.cjs': ['6', '7', '8', '9'],
+  // Sprite jádro je od PR #223 ve VŠECH sedmi ročnících, ale záznam
+  // zůstal na čtyřech. Na 1. stupni prochází taky (23 kontrol každý).
+  'rpg-sprite-core.test.cjs': ['3', '4', '5', '6', '7', '8', '9'],
+
+  /* ── Doplněno po skenu `process.argv[2]` proti klíčům PARAM ──────────
+     Osm testů bralo ročník jako argument, ale v PARAM nebylo ANI JEDNO
+     z nich — běžely tedy jen pro svou výchozí devítku a zbylých šest
+     ročníků nekontroloval nikdo. Je to přesně vzorec, který CLAUDE.md
+     popisuje u „Najdi chybu"; poučení bylo zapsané, ale sken se nikdy
+     neudělal.
+
+     Vyplatilo se hned: `rpg-adaptive-battle` na ŠESTCE padal, protože
+     čekal časomíru 40×1,2 = 48, kenže základ se od změny času odvíjí
+     od délky zadání. V devítce to procházelo jen náhodou (padla krátká
+     úloha), takže test byl nestabilní i tam, kde „procházel".
+
+     Dva adaptivní tréninkové testy tu ZÁMĚRNĚ nejsou: 1. a 2. stupeň
+     mají každý vlastní mechanismus (`trBuildBag` proti `trWeightedPick`)
+     a na cizím stupni test spadne. `rpg-adaptive-train-bag` je proto
+     jen pro 1. stupeň, `rpg-adaptive-train` jen pro 2. */
+  'rpg-adaptive-battle.test.cjs': ['3', '4', '5', '6', '7', '8', '9'],
+  'rpg-adaptive-train-bag.test.cjs': ['3', '4', '5'],
+  'rpg-adaptive-train.test.cjs': ['6', '7', '8', '9'],
+  'rpg-keys.test.cjs': ['3', '4', '5', '6', '7', '8', '9'],
+  'rpg-revive-stars.test.cjs': ['3', '4', '5', '6', '7', '8', '9'],
+  'rpg-sound.test.cjs': ['3', '4', '5', '6', '7', '8', '9'],
+  'rpg-sponka.test.cjs': ['3', '4', '5', '6', '7', '8', '9'],
+  'rpg-tutorial.test.cjs': ['3', '4', '5', '6', '7', '8', '9'],
 };
 // Harnessy/hostile skripty, co nesedí na *.test.cjs / *.audit.cjs vzor:
 const EXTRA = [
