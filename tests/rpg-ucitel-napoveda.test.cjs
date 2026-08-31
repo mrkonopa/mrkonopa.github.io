@@ -72,6 +72,18 @@ const SESSION = `{user:{id:'u-uc',email:'${UCITELKA}',user_metadata:{full_name:'
     const kroku=await pg.evaluate(()=>UVOD.length);
     ok('úvod má krátký, projitelný počet kroků (3–5)', kroku>=3&&kroku<=5, String(kroku));
 
+    /* Úvod NESMÍ blokovat práci s konzolí. První verze byla modální překryv
+       přes celou obrazovku a zarazila klik na záložku — shodilo to
+       `rpg-prijimacky-topics` na CI a stejně by to zamklo i učitele, který
+       se chce jen rozhlédnout. Klika se přes skutečný `click()`, protože
+       zachycení ukazatele se z DOM nepozná. */
+    let klikProsel = true;
+    try { await pg.click('[data-tab="classes"]', { timeout: 3000 }); }
+    catch (e) { klikProsel = false; }
+    ok('úvod NEBLOKUJE klikání v konzoli (není modální překryv)', klikProsel);
+    ok('a při tom je pořád vidět', await pg.evaluate(()=>!document.getElementById('intro-wrap').hidden));
+    await pg.click('[data-tab="overview"]');
+
     // projít celý úvod tlačítkem „Dál"
     for(let i=0;i<kroku;i++) await pg.click('#in-dal');
     ok('po projití se úvod zavře', await pg.evaluate(()=>document.getElementById('intro-wrap').hidden));
