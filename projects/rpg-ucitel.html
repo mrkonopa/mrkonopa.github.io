@@ -170,6 +170,47 @@ h4{font-family:var(--px);font-size:12px;font-weight:700;color:var(--accent);lett
    pravidlo mělo — pythagoras na něj zapomněl, stejně jako stránky
    níže. */
 @media(pointer:coarse){.topnav a,.topnav button{min-height:44px;display:inline-flex;align-items:center}}
+/* ── Nápověda („?" panel + úvod pro nového učitele) ───────────────────────
+   Záměrně KLIDNÁ: nic se nehýbe a nic nevyskakuje samo (kromě úvodu při
+   úplně prvním otevření). Konzole se používá při hodině, někdy před třídou. */
+#help-btn{position:fixed;right:18px;bottom:18px;z-index:9998;width:46px;height:46px;border-radius:50%;
+ border:1px solid var(--accent);background:var(--panel);color:var(--accent);font-family:var(--vt);font-size:26px;
+ line-height:1;cursor:pointer;box-shadow:0 4px 18px rgba(0,0,0,.5)}
+#help-btn:hover{background:var(--accent);color:#06101e}
+#help-panel{position:fixed;top:0;right:0;bottom:0;width:min(430px,92vw);z-index:9999;background:var(--panel);
+ border-left:1px solid var(--line);display:flex;flex-direction:column;box-shadow:-8px 0 30px rgba(0,0,0,.55)}
+#help-panel[hidden]{display:none}
+#help-panel .hp-top{display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid var(--line)}
+#help-panel .hp-top b{font-family:var(--vt);font-size:22px;color:var(--accent);letter-spacing:1px;flex:1;min-width:0}
+#help-panel .hp-body{overflow-y:auto;padding:4px 16px 24px;font-size:13px;line-height:1.65;color:var(--text)}
+#help-panel h4{font-family:var(--vt);font-size:19px;color:var(--gold);letter-spacing:1px;margin:18px 0 6px;
+ padding-top:12px;border-top:1px solid var(--line)}
+#help-panel h4:first-of-type{border-top:0;padding-top:0}
+#help-panel p{color:var(--muted);margin:0 0 8px}
+#help-panel b{color:var(--text)}
+#help-panel .hp-sec.zvyrazneno{background:var(--panel2);border-radius:8px;margin:0 -8px;padding:8px 8px 1px}
+#help-panel .hp-kdo{display:inline-block;font-size:11px;border:1px solid var(--line);border-radius:10px;
+ padding:1px 8px;margin:0 0 6px;color:var(--muted)}
+#help-backdrop{position:fixed;inset:0;z-index:9998;background:rgba(4,7,14,.55)}
+#help-backdrop[hidden]{display:none}
+.help-chip{border:1px solid var(--line);background:none;color:var(--muted);border-radius:50%;width:18px;height:18px;
+ font-family:var(--px);font-size:11px;line-height:1;cursor:pointer;padding:0;vertical-align:middle;margin-left:6px}
+.help-chip:hover{color:var(--accent);border-color:var(--accent)}
+/* Úvod pro nového učitele — jednou, pak už nikdy. */
+/* Úvod je karta V TOKU stránky, ne překryv. Blokující overlay by kromě
+   učitele zastavil i každý test konzole (klik na záložku se o něj zarazil
+   — přesně tohle shodilo CI) a hlavně zamkne konzoli někomu, kdo se v ní
+   jen chce rozhlédnout. Karta poradí a přitom nepřekáží. */
+#intro-wrap{margin:0 0 16px}
+#intro-wrap[hidden]{display:none}
+#intro-box{background:var(--panel);border:1px solid var(--accent);border-left-width:4px;border-radius:10px;padding:18px 20px}
+#intro-box .in-krok{font-size:12px;color:var(--muted);letter-spacing:1px}
+#intro-box h3{font-family:var(--vt);font-size:26px;color:var(--accent);letter-spacing:1px;margin:4px 0 10px}
+#intro-box p{font-size:14px;line-height:1.7;color:var(--text);margin:0 0 14px}
+#intro-box .in-ovl{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+#intro-box .in-ovl .mezera{flex:1;min-width:0}
+@media(max-width:560px){#help-btn{right:12px;bottom:12px}}
+@media(pointer:coarse){#help-btn{width:52px;height:52px}.help-chip{width:26px;height:26px;font-size:13px}}
 </style>
 </head>
 <body>
@@ -192,6 +233,19 @@ h4{font-family:var(--px);font-size:12px;font-weight:700;color:var(--accent);lett
 
  <!-- konzole -->
  <div id="console" class="hidden">
+<div id="intro-wrap" hidden role="region" aria-label="Úvod do konzole">
+ <div id="intro-box">
+  <div class="in-krok" id="in-krok"></div>
+  <h3 id="in-nadpis"></h3>
+  <p id="in-text"></p>
+  <div class="in-ovl">
+   <button class="mini" onclick="ukonciUvod()">Přeskočit</button>
+   <span class="mezera"></span>
+   <button class="mini" id="in-zpet" onclick="uvodKrok(-1)">← Zpět</button>
+   <button class="mini gold" id="in-dal" onclick="uvodKrok(1)">Dál →</button>
+  </div>
+ </div>
+</div>
   <div class="tabs">
    <button class="tab on" data-tab="overview">PŘEHLED ŽÁKŮ</button>
    <button class="tab" data-tab="classes">TŘÍDY</button>
@@ -226,7 +280,7 @@ h4{font-family:var(--px);font-size:12px;font-weight:700;color:var(--accent);lett
     <select id="fclass" aria-label="Filtr podle třídy" onchange="renderTable()">
      <option value="">Všechny třídy</option>
     </select>
-    <label style="display:flex;align-items:center;gap:5px;font-size:12px;color:var(--muted);white-space:nowrap"><input type="checkbox" id="hide-staff" checked onchange="renderTable()"> Skrýt učitele</label>
+    <label style="display:flex;align-items:center;gap:5px;font-size:12px;color:var(--muted);white-space:nowrap"><input type="checkbox" id="hide-staff" checked onchange="renderTable()"> Skrýt učitele</label><button class="help-chip" type="button" title="Nápověda k přehledu žáků" aria-label="Nápověda k přehledu žáků" onclick="otevriNapovedu('overview')">?</button>
     <button class="mini" onclick="exportCSV()">⬇ Export CSV</button>
     <button class="mini" onclick="loadData()">↻ Obnovit</button>
    </div>
@@ -258,7 +312,7 @@ h4{font-family:var(--px);font-size:12px;font-weight:700;color:var(--accent);lett
      <option value="9">9. ročník</option>
     </select>
     <input id="new-class" aria-label="Vlastní název třídy" placeholder="nebo vlastní název (Doučování…)" style="flex:1">
-    <button class="mini gold" onclick="createClassUI()">+ Založit třídu</button>
+    <button class="mini gold" onclick="createClassUI()">+ Založit třídu</button><button class="help-chip" type="button" title="Nápověda ke třídám a kohortám" aria-label="Nápověda ke třídám a kohortám" onclick="otevriNapovedu('classes')">?</button>
    </div>
    <p style="color:var(--muted);font-size:12px;margin:-4px 0 12px;line-height:1.5">
     💡 Zadej <b>označení</b> + <b>ročník teď</b> a třída se každé <b>1. září</b> sama posune (6.B → 7.B → …). Nebo nech ročník prázdný a použij vlastní název.</p>
@@ -301,7 +355,7 @@ h4{font-family:var(--px);font-size:12px;font-weight:700;color:var(--accent);lett
   <div id="t-diag" class="hidden">
    <div class="info-box">Kde žáci <b>nejvíc chybují</b>. Pro každou misi: kolik žáků ji dokončilo a
     <b>průměrný počet chyb</b> (špatná odpověď nebo vypršený čas) na žáka — z boje <b>i tréninku</b>.
-    Čím <span style="color:#ff6b6b">červenější</span>, tím těžší. Řádek <b>„nově +X chyb"</b> = trend za poslední týden (🔽 zlepšení, 🔺 zhoršení).</div>
+    Čím <span style="color:#ff6b6b">červenější</span>, tím těžší. Řádek <b>„nově +X chyb"</b> = trend za poslední týden (🔽 zlepšení, 🔺 zhoršení).<button class="help-chip" type="button" title="Nápověda k diagnostice" aria-label="Nápověda k diagnostice" onclick="otevriNapovedu('diag')">?</button></div>
    <div class="controls">
     <select id="diag-game" aria-label="Diagnostika: filtr podle hry" onchange="renderDiag()"></select>
     <select id="diag-class" aria-label="Diagnostika: filtr podle třídy" onchange="renderDiag()"></select>
@@ -347,7 +401,7 @@ h4{font-family:var(--px);font-size:12px;font-weight:700;color:var(--accent);lett
   <div id="t-tower" class="hidden">
    <div class="info-box"><b>🗼 Věž legend</b> — soutěžní výstup: žebříček aktuální sezóny a trvalá síň slávy.
     Výchozí <b>„Všechny ročníky"</b> ukáže přehled napříč 6.–9. (aktuální rok i historii); pro <b>uzavření sezóny</b> nebo mazání vyber konkrétní ročník.
-    Na konci školního roku klikni <b>Uzavřít sezónu</b> — top 10 se natrvalo zapíše. Jde spustit opakovaně (přepíše zápis téže sezóny).</div>
+    Na konci školního roku klikni <b>Uzavřít sezónu</b> — top 10 se natrvalo zapíše. Jde spustit opakovaně (přepíše zápis téže sezóny).<button class="help-chip" type="button" title="Nápověda k Věži legend" aria-label="Nápověda k Věži legend" onclick="otevriNapovedu('tower')">?</button></div>
    <div class="controls">
     <select id="tower-game" aria-label="Věž legend: filtr podle hry" onchange="renderTower()"></select>
     <button class="mini" onclick="renderTower()">↻ Obnovit</button>
@@ -641,6 +695,7 @@ function paintGate(){
   'Přihlášen jako <b style="color:#fff">'+esc(u.email||'')+'</b> · role <b style="color:var(--accent)">'+esc(RPGCloud.getRole())+'</b>'+
   (admin?' — máš plná práva (mazání, úpravy, správa učitelů).':' — vidíš přehled a náhledy. Mazat/upravovat smí superadmin.');
  buildFilters();buildPreviewCards();loadData();
+ napovedaZapni();
 }
 
 function buildFilters(){
@@ -684,8 +739,11 @@ function openGodMode(file,sid){
 async function loadData(){
  document.getElementById('tbl-wrap').innerHTML='<div class="empty">Načítám data…</div>';
  ROWS=(await RPGCloud.listAllSaves()).filter(r=>r.game!=='_wallet'); // peněženka není postava
- // Načti role, ať z přehledu/tříd vyřadíme učitelské účty (testovací postavy učitelů)
- try{const roles=await RPGCloud.listRoles();STAFF_EMAILS=new Set((roles||[]).map(t=>(t.email||'').toLowerCase()));}
+ /* E-maily personálu, ať z přehledu/tříd vypadnou učitelské testovací postavy.
+    Přes `staffEmails()` (fáze 26), NE přes `listRoles()` — ten vrací běžné
+    učitelce prázdno (klientská pojistka + RLS jen pro superadmina), takže jí
+    „Skrýt učitele" tiše neskrývalo nikoho. */
+ try{STAFF_EMAILS=new Set(RPGCloud.staffEmails?await RPGCloud.staffEmails():[]);}
  catch(e){STAFF_EMAILS=new Set();}
  await loadClasses();
  // Načti snímky chybovosti ze snap_events (fáze 6b)
@@ -2070,10 +2128,196 @@ async function renderBattles(){
  wrap.innerHTML=html;
 }
 
+/* ══════════════════════════════════════════════════════════════════
+   NÁPOVĚDA pro učitele — kontextový „?" panel + jednorázový úvod.
+
+   Proč takhle: konzoli učitel používá při hodině, někdy s promítnutou
+   obrazovkou před třídou. Nic se proto nehýbe a nic nevyskakuje samo —
+   jediná výjimka je krátký úvod při ÚPLNĚ PRVNÍM otevření, aby nový
+   učitel vůbec věděl, co kde je. Panel se otevře na sekci podle
+   záložky, ve které právě jsi.
+
+   Obsah je STATICKÝ text psaný ve zdrojáku (žádná data od žáků), takže
+   se nikde neescapuje — a nesmí se sem nic uživatelského přimíchat.
+   ══════════════════════════════════════════════════════════════════ */
+const NAPOVEDA = [
+ { id:'uvod', nadpis:'Co je tahle konzole', kdo:'učitel i superadmin', text:
+   '<p>Vidíš tu <b>postavy žáků ze všech sedmi her</b> (3.–9. ročník) — jak daleko jsou, kde chybují a co jim jde. '+
+   'Žáci se přihlašují školním účtem, takže se jim postup ukládá do cloudu a najdou ho i na jiném počítači.</p>'+
+   '<p><b>1. stupeň (3.–5.)</b> a <b>2. stupeň (6.–9.)</b> mají různé hry i různé možnosti — u jednotlivých sekcí je '+
+   'napsané, čeho se týkají. Nejnápadnější rozdíl: <b>Věž legend má jen 2. stupeň</b>.</p>' },
+
+ { id:'overview', nadpis:'Přehled žáků', kdo:'učitel i superadmin', text:
+   '<p>Seznam všech postav. <b>Klikni na řádek</b> a rozbalí se detail: atributy, splněné mise, artefakty, mistrovství.</p>'+
+   '<p><b>Skrýt učitele</b> — my učitelé máme vlastní testovací postavy, které nejsou žáci. Zaškrtnuté je nechává '+
+   'mimo přehled. (Když ti seznam přijde krátký, zkus to odškrtnout.)</p>'+
+   '<p>🟢 u data znamená, že žák hraje <b>právě teď</b> (do 3 minut), 🟡 do 20 minut.</p>'+
+   '<p>Filtrovat jde podle <b>hry</b> i podle <b>třídy</b>, hledat podle jména nebo e-mailu. '+
+   '<b>Export CSV</b> stáhne přehled do tabulky.</p>'+
+   '<p><b>Odměny, odemykání a mazání postav smí jen superadmin</b> — učiteli se zaškrtávátka u řádků nezobrazí.</p>' },
+
+ { id:'classes', nadpis:'Třídy', kdo:'učitel i superadmin', text:
+   '<p>Třída je skupina žáků, přes kterou pak filtruješ přehled a děláš hromadné věci najednou. '+
+   'Žáky přiřazuješ <b>ručně</b> ze seznamu, klidně napříč ročníky (doučovací skupina je taky třída).</p>'+
+   '<p>Když třídě zadáš <b>označení + „ročník teď"</b>, uloží se ročníková kohorta a třída se každé '+
+   '<b>1. září sama posune</b> (6.B → 7.B → …). Nemusíš nic přepisovat.</p>'+
+   '<p>Volba ročníku nabízí 6.–9., protože kohorty se posouvají v rámci 2. stupně. '+
+   'Pro <b>1. stupeň nebo kroužek</b> nech ročník prázdný a dej třídě vlastní název.</p>'+
+   '<p><b>📨 Vzkazy</b> — každé třídě můžeš poslat zprávu, kterou žák uvidí přímo ve hře. Níž je vidět, kdo si ji přečetl.</p>' },
+
+ { id:'assignments', nadpis:'Úkoly', kdo:'učitel i superadmin', text:
+   '<p>Zadání pro třídu s <b>termínem</b> („procvič misi Zlomky do pátku"). Žákovi se ukáže ve hře a ty tu vidíš, '+
+   'kdo ho splnil.</p>' },
+
+ { id:'diag', nadpis:'Diagnostika — kde žáci tápou', kdo:'učitel i superadmin', text:
+   '<p>Teplotní mapa chybovosti po misích: kolik žáků misi dokončilo a <b>kolik chyb</b> na ni průměrně padlo. '+
+   'Zeleně to, co jde, červeně to, co drhne. Vybírá se ročník a případně třída.</p>'+
+   '<p>Chyby se počítají z bojů i z tréninku. Text „nově +X chyb" je <b>týdenní trend</b> — naplní se až po '+
+   'pár týdnech provozu, takže na začátku školního roku bývá prázdný.</p>' },
+
+ { id:'prijimacky', nadpis:'Přijímačky', kdo:'týká se 9. ročníku', text:
+   '<p>Připravenost na CERMAT z přijímačkového hubu: jak si třída stojí a <b>ve kterých okruzích</b> tápe. '+
+   'Naplňuje se z testů nanečisto, které žáci dělají na stránce přijímaček.</p>' },
+
+ { id:'leaderboard', nadpis:'Žebříčky', kdo:'učitel i superadmin', text:
+   '<p>Pořadí žáků podle XP v daném ročníku. Pozor na rozdíl: <b>žák ve hře vidí jen své spolužáky</b> '+
+   '(ty, se kterými sdílí třídu) a jen jméno, úroveň a XP — žádné e-maily. Ty tady vidíš celý ročník.</p>' },
+
+ { id:'tower', nadpis:'Věž legend', kdo:'JEN 2. stupeň (6.–9.)', text:
+   '<p>Soutěžní výstup: patro = jeden příklad, čas se zkracuje, 3 životy, <b>bez nápověd</b>. '+
+   'Kdo spadne, začíná znovu. <b>1. stupeň Věž nemá</b> — pro třeťáka až páťáka je to zbytečně tvrdé.</p>'+
+   '<p>Do věže pustí žáka jen server, a to podle <b>ročníku jeho třídy</b> — deváťák nemůže sbírat body '+
+   'v šesťácké věži. Kdo není přihlášený nebo nemá třídu, si zahraje jen nanečisto.</p>'+
+   '<p><b>O prázdninách (červenec a srpen) je věž zavřená</b> a v ní uklízečka; otevře se 1. září. '+
+   'Síň slávy zůstává pořád viditelná.</p>'+
+   '<p>Na konci roku <b>uzavřeš sezónu</b> a top 10 se natrvalo zapíše do síně slávy. Dělá se to ručně, '+
+   'čas je na to celé léto. (Uzavřít sezónu smí superadmin.)</p>' },
+
+ { id:'battles', nadpis:'Živé souboje', kdo:'učitel i superadmin', text:
+   '<p>Souboj celé třídy na jedné otázce naráz (styl Kahoot). Ty založíš místnost, žáci se připojí ze hry. '+
+   'Tady je <b>trvalý souhrn</b> odehraných místností i s pořadím.</p>' },
+
+ { id:'explain', nadpis:'Vysvětlení', kdo:'učitel i superadmin', text:
+   '<p>Po správné odpovědi může žák <b>jednou větou napsat, jak na to přišel</b>. Je to dobrovolné. '+
+   'Pozná se z toho, kdo počítá s porozuměním a kdo trefil správnou volbu tipem.</p>' },
+
+ { id:'feedback', nadpis:'Zpětná vazba', kdo:'učitel i superadmin', text:
+   '<p>Nápady a hlášení od žáků z hlavní stránky RPG Matematiky. Posílat je mohou jen přihlášení školním účtem.</p>' },
+
+ { id:'preview', nadpis:'Náhled her', kdo:'učitel i superadmin', text:
+   '<p>Spustí hru <b>nanečisto</b> — nic se neukládá, nic žákovi nezkazíš. Hodí se na ukázku ve třídě '+
+   'nebo když si chceš projít úlohu, na kterou se tě někdo ptal.</p>' },
+
+ { id:'teachers', nadpis:'Správa učitelů', kdo:'JEN superadmin', text:
+   '<p>Kolega se přidává <b>školním e-mailem</b>; roli dostane při svém prvním přihlášení přes Google.</p>'+
+   '<p><b>Učitel</b> vidí přehled, třídy, diagnostiku, náhledy a export. <b>Superadmin</b> navíc upravuje a maže '+
+   'postavy, rozdává XP a kredity, odemyká mise, spravuje učitele a uzavírá sezónu Věže.</p>' },
+
+ { id:'audit', nadpis:'Aktivita', kdo:'JEN superadmin', text:
+   '<p>Kdo kdy co udělal: XP, kredity, odemčení, mazání, vzkazy, role, třídy. Aby bylo dohledatelné, '+
+   'kdo zasáhl do postupu žáka.</p>' },
+
+ { id:'zaci', nadpis:'Co má žák ve hře', kdo:'dobré vědět', text:
+   '<p><b>Trénink</b> — nekonečné procvičování jedné mise bez boje a času, s nápovědami. Po 15 správných '+
+   'dostane mise 🏅 mistrovství.</p>'+
+   '<p><b>Nápovědy</b> jsou tři: nasměrování → vzorec → výsledek. Za odpověď s nápovědou je míň XP, ale je to '+
+   'lepší než hádat.</p>'+
+   '<p><b>Kredity a obchod</b> jsou čistě kosmetické (vzhled postavy, mazlíček). Na obtížnost ani postup nemají vliv.</p>'+
+   '<p>Ve hře jde vypnout <b>pohyblivé efekty</b> — pro žáky, kterým blikání vadí.</p>' },
+
+ { id:'potize', nadpis:'Když něco nesedí', kdo:'', text:
+   '<p><b>Žák v přehledu chybí</b> — nejspíš se ještě nikdy nepřihlásil školním účtem, nebo hrál bez přihlášení '+
+   '(pak je postup jen v jeho prohlížeči). Zkus taky odškrtnout „Skrýt učitele" a vypnout filtr třídy.</p>'+
+   '<p><b>Žák přišel o postup</b> — hrál na jiném počítači bez přihlášení. Přihlášený se postup slévá sám.</p>'+
+   '<p><b>Něco se nenačítá</b> — zkus stránku obnovit; konzole si data tahá až po přihlášení.</p>' }
+];
+
+let _tabAktualni = 'overview';
+
+function napovedaHtml(){
+ return NAPOVEDA.map(s =>
+   '<div class="hp-sec" id="hp-'+s.id+'">'+
+   '<h4>'+s.nadpis+'</h4>'+
+   (s.kdo ? '<span class="hp-kdo">'+s.kdo+'</span>' : '')+
+   s.text+'</div>').join('');
+}
+function otevriNapovedu(sekce){
+ const body = document.getElementById('help-body');
+ if(!body.dataset.hotovo){ body.innerHTML = napovedaHtml(); body.dataset.hotovo = '1'; }
+ document.getElementById('help-panel').hidden = false;
+ document.getElementById('help-backdrop').hidden = false;
+ const cil = document.getElementById('hp-' + (sekce || _tabAktualni));
+ body.querySelectorAll('.hp-sec').forEach(d => d.classList.remove('zvyrazneno'));
+ if(cil){ cil.classList.add('zvyrazneno'); body.scrollTop = cil.offsetTop - body.offsetTop - 8; }
+ else body.scrollTop = 0;
+}
+function zavriNapovedu(){
+ document.getElementById('help-panel').hidden = true;
+ document.getElementById('help-backdrop').hidden = true;
+}
+
+/* ── Úvod pro nového učitele: jednou, pak už nikdy ── */
+const UVOD = [
+ { nadpis:'Vítej v konzoli', tab:'overview', text:
+   'Tohle je přehled postav žáků ze všech sedmi her. Klikneš na řádek a uvidíš detail — atributy, splněné mise, mistrovství. '+
+   'Projdeme si ve třech krocích, co kde najdeš.' },
+ { nadpis:'Nejdřív si založ třídu', tab:'classes', text:
+   'Ve třídách si žáky rozdělíš a pak přes ně filtruješ přehled i posíláš vzkazy. Když třídě zadáš označení a ročník, '+
+   'posune se každé 1. září sama (6.B → 7.B).' },
+ { nadpis:'Diagnostika ti řekne, kde to drhne', tab:'diag', text:
+   'Teplotní mapa ukazuje, ve kterých misích žáci nejvíc chybují — červená znamená „tady se zastav". '+
+   'Naplňuje se z bojů i z tréninku.' },
+ { nadpis:'Otazník máš pořád po ruce', tab:'overview', text:
+   'Kdykoli klikneš na „?" vpravo dole, otevře se nápověda rovnou k tomu, na co se zrovna díváš. '+
+   'Je tam i přehled toho, co smí učitel a co jen superadmin. Tenhle úvod se dá znovu spustit tlačítkem „↻ Úvod".' }
+];
+const UVOD_KLIC = 'RPG_UCITEL_UVOD_HOTOVO';
+let _uvodI = 0;
+
+function uvodVidel(){ try{ return localStorage.getItem(UVOD_KLIC) === '1'; }catch(e){ return true; } }
+function spustUvod(){ zavriNapovedu(); _uvodI = 0; uvodVykresli(); document.getElementById('intro-wrap').hidden = false; }
+function uvodVykresli(){
+ const k = UVOD[_uvodI];
+ document.getElementById('in-krok').textContent = 'KROK ' + (_uvodI+1) + ' / ' + UVOD.length;
+ document.getElementById('in-nadpis').textContent = k.nadpis;
+ document.getElementById('in-text').textContent = k.text;
+ document.getElementById('in-zpet').style.visibility = _uvodI ? 'visible' : 'hidden';
+ document.getElementById('in-dal').textContent = (_uvodI === UVOD.length-1) ? 'Hotovo' : 'Dál →';
+ const t = document.querySelector('.tab[data-tab="'+k.tab+'"]');
+ if(t && !t.classList.contains('on')) t.click();
+}
+function uvodKrok(d){
+ if(_uvodI + d >= UVOD.length){ ukonciUvod(); return; }
+ _uvodI = Math.max(0, _uvodI + d);
+ uvodVykresli();
+}
+function ukonciUvod(){
+ document.getElementById('intro-wrap').hidden = true;
+ try{ localStorage.setItem(UVOD_KLIC, '1'); }catch(e){}
+}
+
+/* Nápověda se zapne, až když je uživatel opravdu ve staff části konzole
+   (ne na přihlašovací bráně) — jinak by otazník visel nad prázdnou stránkou. */
+function napovedaZapni(){
+ const b = document.getElementById('help-btn');
+ if(!b || !b.hidden) return;
+ b.hidden = false;
+ b.onclick = () => otevriNapovedu();
+ if(!uvodVidel()) spustUvod();
+}
+document.addEventListener('keydown', e => {
+ if(e.key === 'Escape'){ zavriNapovedu(); return; }
+ const pise = /^(INPUT|TEXTAREA|SELECT)$/.test((e.target && e.target.tagName) || '');
+ if(!pise && (e.key === '?' || (e.key === '/' && e.shiftKey))){
+  e.preventDefault();
+  document.getElementById('help-panel').hidden ? otevriNapovedu() : zavriNapovedu();
+ }
+});
+
 document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));
  t.classList.add('on');
- const tab=t.dataset.tab;
+ const tab=t.dataset.tab; _tabAktualni=tab;
  document.getElementById('t-overview').classList.toggle('hidden',tab!=='overview');
  document.getElementById('t-classes').classList.toggle('hidden',tab!=='classes');
  document.getElementById('t-assignments').classList.toggle('hidden',tab!=='assignments');
@@ -2100,6 +2344,19 @@ document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
  if(tab==='feedback')loadFeedback();
 });
 </script>
+
+<!-- ── NÁPOVĚDA ─────────────────────────────────────────────────────────── -->
+<button id="help-btn" hidden title="Nápověda (klávesa ?)" aria-label="Nápověda">?</button>
+<div id="help-backdrop" hidden onclick="zavriNapovedu()"></div>
+<aside id="help-panel" hidden role="dialog" aria-label="Nápověda ke konzoli" aria-modal="true">
+ <div class="hp-top">
+  <b>NÁPOVĚDA</b>
+  <button class="mini" onclick="spustUvod()">↻ Úvod</button>
+  <button class="mini" onclick="zavriNapovedu()" aria-label="Zavřít">✕</button>
+ </div>
+ <div class="hp-body" id="help-body"></div>
+</aside>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="./rpg-cloud.js"></script>
 <script>boot();</script>

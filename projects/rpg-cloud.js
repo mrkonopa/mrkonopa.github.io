@@ -202,6 +202,19 @@ window.RPGCloud = (function () {
       return data || [];
     } catch (e) { console.warn('[RPGCloud] listRoles selhal:', e); return []; }
   }
+  /* E-maily personálu — pro filtr „Skrýt učitele" v přehledu.
+     `listRoles()` na tohle NESTAČÍ: má klientskou pojistku „jen superadmin"
+     a i bez ní pouští RLS `roles_select` čtení všech řádků jen superadminovi,
+     takže běžná učitelka dostala prázdno a filtr neskryl nikoho (tiše).
+     RPC z fáze 26 vrací POUZE e-maily (bez rolí) komukoli ze staff. */
+  async function staffEmails() {
+    if (!client || !isStaff()) return [];
+    try {
+      const { data, error } = await client.rpc('staff_emails');
+      if (error) throw error;
+      return (data || []).map(r => String((r && r.email) || r || '').toLowerCase()).filter(Boolean);
+    } catch (e) { console.warn('[RPGCloud] staffEmails selhal:', e); return []; }
+  }
   async function upsertRole(email, r) {
     if (!client || !isAdmin()) return { ok: false, error: 'Nemáš oprávnění.' };
     email = String(email || '').trim().toLowerCase();
@@ -1247,7 +1260,7 @@ window.RPGCloud = (function () {
            // Fáze 2 — role a učitelská konzole
            getRole, isStaff, isAdmin, fetchRole, requireStaff,
            listAllSaves, pullSaveFor, updateSaveFor, deleteSaveFor,
-           listRoles, upsertRole, deleteRole,
+           listRoles, staffEmails, upsertRole, deleteRole,
            // Fáze 3 — třídy a poznámky
            listClasses, createClass, renameClass, deleteClass, updateClassMeta,
            listMemberships, addToClass, removeFromClass,
