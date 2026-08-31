@@ -1438,17 +1438,49 @@ function mcDistractors(ans){
   const offs=[-1,1,-2,2,3,-3,4,-4];
   for(let i=0;i<offs.length&&wrong.length<3;i++){const v=base+offs[i]*step;if(v!==base&&v>=0&&!wrong.includes(v))wrong.push(v);}
   for(let k=5;k<60&&wrong.length<3;k++){const v=base+k*step;if(v!==base&&!wrong.includes(v))wrong.push(v);}
+ }else if(!isNaN(parseFloat(s.replace(',','.')))){
+  /* DESETINNÁ odpověď. Dřív sem spadla do větve níž a volby vyšly jako
+     „ANO / 2.4 / 240 / NE" — u otázky „Kolik hodin spí drak?". Kromě
+     nesmyslu to rovnou PROZRADILO odpověď: jediné smysluplné číslo mezi
+     volbami bylo to správné, takže dítě nemuselo počítat.
+     2. stupeň to dělá správně (`parseFloat(correct.replace(',','.'))`);
+     tohle je doplnění téhož do 1. stupně.
+     Volby se porovnávají přes `checkAns`, které českou čárku i zlomky
+     zvládá, takže je bezpečné psát je s čárkou. */
+  const cn=parseFloat(s.replace(',','.'));
+  const des=Math.min(3,(s.split(/[.,]/)[1]||'').length);
+  const p=Math.pow(10,des);
+  const zapis=v=>{const z=Math.round(v*p)/p;return des?String(z).replace('.',','):String(z);};
+  const kroky=[1/p,-1/p,2/p,-2/p,1,-1,10,-10];
+  for(let i=0;i<kroky.length&&wrong.length<3;i++){
+   const v=cn+kroky[i];
+   if(v<0)continue;
+   const z=zapis(v);
+   if(z!==zapis(cn)&&!wrong.includes(z))wrong.push(z);
+  }
+  for(let k=2;k<60&&wrong.length<3;k++){const z=zapis(cn+k);if(z!==zapis(cn)&&!wrong.includes(z))wrong.push(z);}
  }else{
   ['ANO','NE','MOŽNÁ','NEVÍM','0','1'].forEach(x=>{if(x!==s&&!wrong.includes(x)&&wrong.length<3)wrong.push(x);});
   for(let n=2;wrong.length<3;n++){const c='?'+n;if(c!==s&&!wrong.includes(c))wrong.push(c);}
  }
  return wrong.slice(0,3).map(String);
 }
-function _mcWrong(t,ans){const a=String(ans),out=[];if(Array.isArray(t.distractors))t.distractors.forEach(d=>{const s=String(d);if(s!==a&&!out.includes(s)&&out.length<3)out.push(s);});mcDistractors(a).forEach(s=>{if(s!==a&&!out.includes(s)&&out.length<3)out.push(s);});return out;}
+/* Shoda se posuzuje na ZOBRAZENÉM zápisu (czMC), jinak by kurátorský
+   distraktor „2,4“ prošel vedle správné „2.4“ a po sjednocení by
+   vznikly dvě totožné volby. */
+function _mcWrong(t,ans){const a=czMC(ans),out=[];const pridej=x=>{const s=czMC(x);if(s!==a&&!out.includes(s)&&out.length<3)out.push(s);};if(Array.isArray(t.distractors))t.distractors.forEach(pridej);mcDistractors(String(ans)).forEach(pridej);return out;}
+/* Zápis voleb se SJEDNOTÍ na českou čárku. Bez toho se správná odpověď
+   z banky psala „2.4“ s tečkou, zatímco generované distraktory měly
+   čárku (nebo naopak) — ta jediná odlišně zapsaná volba tedy byla ta
+   správná a dítě nemuselo počítat. Normalizuje se PŘED odstraněním
+   duplicit, ať nevzniknou dvě volby lišící se jen oddělovačem.
+   `checkAns` porovnává čísla (čárku i zlomky zvládá), takže je změna
+   zápisu bezpečná; mění se jen to, co je vidět. */
+function czMC(x){return String(x).replace(/(\d)\.(\d)/g,'$1,$2');}
 function renderMC(t){
  const grid=document.getElementById('mc-grid');
- const ans=String(t.ans);
- const opts=(Array.isArray(t.mc_opts)&&t.mc_opts.length>=2)?t.mc_opts.map(String):shuffleArr([ans,..._mcWrong(t,ans)]);
+ const ans=czMC(t.ans);
+ const opts=((Array.isArray(t.mc_opts)&&t.mc_opts.length>=2)?t.mc_opts.map(String):shuffleArr([String(t.ans),..._mcWrong(t,String(t.ans))])).map(czMC);
  grid.innerHTML='';
  opts.forEach((o,i)=>{const b=document.createElement('button');b.className='mc-btn c'+i;b.textContent=o;b.dataset.v=o;b.onclick=()=>pickMC(b,o,ans);grid.appendChild(b);});
  grid.style.display='grid';
@@ -1824,8 +1856,8 @@ function trRender(){
  }
 }
 function trRenderMC(t){
- const grid=document.getElementById('tr-mc');const ans=String(t.ans);
- const opts=shuffleArr([ans,..._mcWrong(t,ans)]);
+ const grid=document.getElementById('tr-mc');const ans=czMC(t.ans);
+ const opts=shuffleArr([ans,..._mcWrong(t,String(t.ans))]).map(czMC);
  grid.innerHTML='';
  opts.forEach((o,i)=>{const b=document.createElement('button');b.className='mc-btn c'+i;b.textContent=o;b.dataset.v=o;b.onclick=()=>trPickMC(b,o,ans);grid.appendChild(b);});
  grid.style.display='grid';

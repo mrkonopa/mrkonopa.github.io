@@ -53,7 +53,12 @@ const ok = (c, m) => { if (c) { pass++; } else { fail++; console.log('  ❌ ' + 
     const beforeIdx = BT.srcIdx[BT.idx];
     renderTask();
     const t = BT.curTask;
-    const base = TIME_PER_TASK + ((typeof RPGWallet !== 'undefined' && RPGWallet.hasPowerup('pu-time-bonus')) ? 5 : 0);
+    /* Základ NENÍ konstanta: `casNaUlohu(t)` přidává čas podle délky
+       zadání (+1 s za 6 znaků nad 50). Dokud tu stálo TIME_PER_TASK,
+       test procházel jen když padla krátká úloha — v devítce náhodou
+       ano, v šestce ne. Byl by tedy nestabilní i tam, kde „prochází". */
+    const base = (typeof casNaUlohu === 'function' ? casNaUlohu(t) : TIME_PER_TASK)
+      + ((typeof RPGWallet !== 'undefined' && RPGWallet.hasPowerup('pu-time-bonus')) ? 5 : 0);
     const scores = BT.pool.map((_, i) => adaptScore(i)).sort((a, b) => a - b);
     const third = scores[Math.max(0, Math.floor(scores.length / 3) - 1)];
     return { mode, limit: BT.curLimit, expected: Math.round(base * 1.2), isMini: !!BT.mini[BT.idx], newScore: adaptScore(BT.srcIdx[BT.idx]), third, changed: BT.srcIdx[BT.idx] !== beforeIdx };

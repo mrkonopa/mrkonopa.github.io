@@ -37,7 +37,14 @@ const ok = (c, m) => { if (c) { pass++; } else { fail++; console.log('  ❌ ' + 
       const key = b.querySelector('.mc-key');
       return key ? b.textContent.slice(key.textContent.length) : b.textContent;
     });
+    /* Zobrazení sjednocuje desetinný oddělovač na čárku (czMC ve hrách),
+       takže porovnávat volby s `t.ans` doslovně by hlásilo „2,4 ≠ 2.4“
+       nad nabídkou, která je v pořádku. Rovnost se proto posuzuje na
+       normalizovaném zápisu; JESTLI je zápis jednotný, hlídá vlastní
+       pravidlo níž. */
+    const nrm = x => String(x).replace(/(\d)\.(\d)/g, '$1,$2');
     let renders = 0, badCount = 0, badDup = 0, distrEqAns = 0, curatedSeen = 0, curatedTotal = 0, nan = 0;
+    let mixCislaSlova = 0, nejednotnyZapis = 0;
     for (const ar of AREAS) for (const m of ar.missions) {
       if (!m.mc) continue;
       for (let rep = 0; rep < 40; rep++) {
@@ -45,27 +52,50 @@ const ok = (c, m) => { if (c) { pass++; } else { fail++; console.log('  ❌ ' + 
         tasks.forEach(t => {
           if (typeof isYN === 'function' && isYN(t)) return; // ANO/NE má vlastní řádek
           // distraktory se nikdy nerovnají ans
-          if (Array.isArray(t.distractors)) { curatedTotal++; t.distractors.forEach(d => { if (String(d) === String(t.ans)) distrEqAns++; }); }
+          if (Array.isArray(t.distractors)) { curatedTotal++; t.distractors.forEach(d => { if (nrm(d) === nrm(t.ans)) distrEqAns++; }); }
           renderMC(t);
           const opts = readOpts();
           renders++;
           if (opts.length !== 4) badCount++;
           if (new Set(opts).size !== opts.length) badDup++;
-          if (!opts.includes(String(t.ans))) badCount++;
+          if (!opts.map(nrm).includes(nrm(t.ans))) badCount++;
           if (opts.some(o => o === 'NaN' || o === 'undefined')) nan++;
+          /* Je odpověď číslo? Pak žádná volba nesmí být slovo. */
+          const jeCislo = x => !isNaN(parseFloat(String(x).replace(',', '.')));
+          if (jeCislo(t.ans) && opts.some(o => !jeCislo(o))) mixCislaSlova++;
+          /* Desetinné volby musí mít všechny stejný oddělovač. */
+          const des = opts.filter(o => /^-?\d+[.,]\d+$/.test(o));
+          if (des.length > 1) {
+            const sTeckou = des.filter(o => o.includes('.')).length;
+            if (sTeckou !== 0 && sTeckou !== des.length) nejednotnyZapis++;
+          }
           if (Array.isArray(t.distractors) && t.distractors.length) {
-            const seen = t.distractors.some(d => String(d) !== String(t.ans) ? opts.includes(String(d)) : true);
+            const seen = t.distractors.some(d => nrm(d) !== nrm(t.ans) ? opts.map(nrm).includes(nrm(d)) : true);
             if (seen) curatedSeen++;
           }
         });
       }
     }
-    return { renders, badCount, badDup, distrEqAns, curatedSeen, curatedTotal, nan };
+    return { renders, badCount, badDup, distrEqAns, curatedSeen, curatedTotal, nan, mixCislaSlova, nejednotnyZapis };
   }, Number(GRADE));
   ok(sweep.renders > 200, `proběhlo dost renderů (${sweep.renders})`);
   ok(sweep.badCount === 0, `každá MC úloha má 4 volby včetně správné (chyb ${sweep.badCount})`);
   ok(sweep.badDup === 0, `žádné duplicitní volby (dup ${sweep.badDup})`);
   ok(sweep.nan === 0, `žádné NaN/undefined volby (${sweep.nan})`);
+  /* ── Volby musí být SMYSLUPLNÉ, ne jen odlišné ─────────────────────
+     Kontroly výš („4 odlišné volby, mezi nimi správná, žádné NaN")
+     projdou i u nabídky „ANO / 2.4 / 240 / NE" u otázky „Kolik hodin
+     spí drak?" — jsou to platné, odlišné, nenulové řetězce. A přesně
+     tak to v 5. ročníku (mise 4-1, banka) vypadalo: 1. stupeň uměl
+     dělat distraktory jen z CELÝCH čísel a desetinná odpověď spadla
+     do větve s ANO/NE. Kromě nesmyslu to rovnou prozradilo odpověď,
+     protože jediné smysluplné číslo mezi volbami bylo to správné.
+     Druhá past byla v ZÁPISU: správná odpověď se z banky psala „2.4“
+     s tečkou, distraktory měly čárku — takže odlišná volba = správná. */
+  ok(sweep.mixCislaSlova === 0,
+    `u číselné otázky nejsou slovní volby typu ANO/NE (${sweep.mixCislaSlova})`);
+  ok(sweep.nejednotnyZapis === 0,
+    `zápis voleb je jednotný (tečka vs čárka neprozradí odpověď) (${sweep.nejednotnyZapis})`);
   ok(sweep.distrEqAns === 0, `kurátorský distraktor se NIKDY nerovná správné odpovědi (kolizí ${sweep.distrEqAns})`);
   // kurátorský obsah zatím jen g9 (pilot); na ostatních ročnících ověřujeme
   // jen bezpečnost infry (honor-line/mcWrong nerozbily MC generování)
