@@ -684,8 +684,11 @@ function openGodMode(file,sid){
 async function loadData(){
  document.getElementById('tbl-wrap').innerHTML='<div class="empty">Načítám data…</div>';
  ROWS=(await RPGCloud.listAllSaves()).filter(r=>r.game!=='_wallet'); // peněženka není postava
- // Načti role, ať z přehledu/tříd vyřadíme učitelské účty (testovací postavy učitelů)
- try{const roles=await RPGCloud.listRoles();STAFF_EMAILS=new Set((roles||[]).map(t=>(t.email||'').toLowerCase()));}
+ /* E-maily personálu, ať z přehledu/tříd vypadnou učitelské testovací postavy.
+    Přes `staffEmails()` (fáze 26), NE přes `listRoles()` — ten vrací běžné
+    učitelce prázdno (klientská pojistka + RLS jen pro superadmina), takže jí
+    „Skrýt učitele" tiše neskrývalo nikoho. */
+ try{STAFF_EMAILS=new Set(RPGCloud.staffEmails?await RPGCloud.staffEmails():[]);}
  catch(e){STAFF_EMAILS=new Set();}
  await loadClasses();
  // Načti snímky chybovosti ze snap_events (fáze 6b)
