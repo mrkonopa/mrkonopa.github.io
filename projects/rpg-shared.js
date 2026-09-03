@@ -325,3 +325,130 @@ const RPGTutorial = (function () {
   st.textContent = '@media(pointer:coarse){.mc-btn,.bt-row .btn,.bt-row .bt-input,[id$="yn-row"] .btn,[id$="yn-row"] button{min-height:44px}}';
   (document.head || document.documentElement).appendChild(st);
 })();
+
+
+/* ══════════════════════════════════════════════════════════════════
+   ODZNAKY, SÉRIE A HVĚZDNÉ OPAKOVÁNÍ — sdíleno všemi ročníky 3.–9.
+
+   Tyhle funkce byly ve všech SEDMI hrách byte po bytu totožné, takže
+   každá oprava znamenala sedm úprav — a přesně tak vznikají vady, kdy
+   se dvě kopie téhož rozejdou a nikde to nespadne.
+
+   Sahají výhradně na globály, které si drží každá hra sama (`S`, `AREAS`,
+   `unlockAch`, `saveS`, `earnCredits`, `REVIVE_GAPS` …). Ty se řeší až
+   při VOLÁNÍ, takže na pořadí načtení nezáleží — stejně to má dávno
+   `answerYN`, která volá per-game `submitAnswer`.
+   ══════════════════════════════════════════════════════════════════ */
+function evalAch(ev){
+ ev=ev||{};
+ const doneAreas=AREAS.filter(isAreaDone).length;
+ const masteredCount=Object.values(S.mastery||{}).filter(m=>m&&m.mastered).length;
+ const st=S.stats||{};
+ if(Object.keys(S.done||{}).length>=1)unlockAch('boot');
+ if((st.crits||0)>=10)unlockAch('crit');
+ if(ev.combo>=5)unlockAch('combo5');
+ if(ev.flawlessMission)unlockAch('flawless');
+ if(ev.correct&&ev.timeLeft>=30)unlockAch('flash');
+ if(ev.wonAtOneHp)unlockAch('survivor');
+ if(doneAreas>=1)unlockAch('area1');
+ if(doneAreas>=4)unlockAch('half');
+ if(doneAreas>=7)unlockAch('root');
+ if(S.level>=5)unlockAch('lv5');
+ if(S.level>=10)unlockAch('lv10');
+ if(masteredCount>=1)unlockAch('master1');
+ if((st.trainCorrect||0)>=50)unlockAch('train50');
+ if((S.streak&&S.streak.count||0)>=3)unlockAch('streak3');
+ if((S.streak&&S.streak.count||0)>=7)unlockAch('streak7');
+ if(Object.values(S.mastery||{}).some(m=>m&&(m.stars|0)>=1))unlockAch('star1');
+ const br=ev.battleResult;
+ if(br){unlockAch('battle1');if(br.rank===1)unlockAch('battlewin');if(br.correct>=br.q_count&&br.q_count>0)unlockAch('battleflawless');}
+}
+function touchStreak(){
+ if(!S.streak)S.streak={count:0,last:''};
+ const today=new Date().toISOString().slice(0,10);
+ if(S.streak.last===today){evalAch({});return;}
+ S.streak.count=_vynechanySkolniDen(S.streak.last,today)?1:(S.streak.count||0)+1;
+ S.streak.last=today;saveS();evalAch({});
+ wMax('streakMax',S.streak.count);
+ const sc=S.streak.count;earnCredits(sc>=7?20:sc>=3?10:5);
+}
+function awardStar(mid){
+ const m=S.mastery&&S.mastery[mid];if(!m||!m.mastered)return 0;
+ const st=Math.max(0,Math.min(3,m.stars|0));if(st>=3)return 0;
+ m.stars=st+1;m.lastOk=todayStr();
+ if(!Array.isArray(m.starHist))m.starHist=[];
+ m.starHist.push(m.lastOk);
+ saveS();
+ earnCredits(REVIVE_CREDITS[m.stars-1]);
+ evalAch({});
+ return m.stars;
+}
+function reviveState(mid){
+ const m=S.mastery&&S.mastery[mid];
+ if(!m||!m.mastered)return{stars:0,due:false,daysSince:0,nextGap:REVIVE_GAPS[0]};
+ const st=Math.max(0,Math.min(3,m.stars|0));
+ const ds=m.lastOk?daysSinceStr(m.lastOk):0;
+ const gap=st<3?REVIVE_GAPS[st]:Infinity;
+ return{stars:st,due:st<3&&ds>=gap,daysSince:ds,nextGap:gap};
+}
+function _vynechanySkolniDen(odISO,doISO){
+ if(!odISO)return true;
+ const d=new Date(odISO+'T12:00:00'), cil=new Date(doISO+'T12:00:00');
+ if(!isFinite(d)||!isFinite(cil))return true;
+ for(let i=0;i<400;i++){
+  d.setDate(d.getDate()+1);
+  if(d>=cil)return false;
+  const w=d.getDay();
+  if(w!==0&&w!==6)return true;
+ }
+ return true;
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   DOPORUČENÝ TRÉNINK, ADAPTIVNÍ VÝBĚR A SPOJOVAČKA — sdíleno 3.–9.
+
+   Druhá dávka konsolidace: i tyhle byly ve všech sedmi hrách totožné.
+   Sahají jen na per-game globály a DOM prvky (`BT`, `TR`, `S`, `#tr-mc`,
+   `recommendedMission`, `adaptScore`, `trPool` …), které se řeší až při
+   volání — hra si je drží sama, sdílený modul jen nese tělo funkce.
+   ══════════════════════════════════════════════════════════════════ */
+function renderRecommend(){
+ const rp=document.getElementById('map-recommend');if(!rp)return;
+ const rec=recommendedMission();
+ if(!rec){rp.style.display='none';return;}
+ rp.style.display='block';
+ rp.innerHTML='<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">'+
+  '<div style="font-family:var(--px);font-size:13px;color:var(--text);line-height:1.45">'+
+  '<span style="color:var(--gold);font-weight:700">📚 Doporučený trénink</span><br>'+
+  '<span style="color:var(--muted)">Tohle ti zatím dělá potíže:</span> <b>'+rec.name+'</b></div>'+
+  '<button class="btn b sm" style="flex:none" onclick="goPractice(\''+rec.mid+'\')"><span class="bic" data-ic="target"></span>Procvičit</button></div>';
+}
+function adaptPick(easier){
+ if(!BT.pool||BT.pool.length<=BT.tasks.length+2)return null;
+ const usedPending=new Set(BT.srcIdx.filter((_,i)=>!S.done[`${BT.mid}-${i}`]));
+ const _aT=new Set(BT.tasks.map(t=>String(t&&t.text))),_aA=new Set(BT.tasks.map(t=>String(t&&t.ans)));
+ const cand=BT.pool.map((_,i)=>i).filter(i=>!usedPending.has(i)&&!_aT.has(String(BT.pool[i]&&BT.pool[i].text))&&!_aA.has(String(BT.pool[i]&&BT.pool[i].ans)));
+ if(!cand.length)return null;
+ cand.sort((x,y)=>adaptScore(x)-adaptScore(y));
+ const third=Math.max(1,Math.floor(cand.length/3));
+ const seg=easier?cand.slice(0,third):cand.slice(-third);
+ return seg[ri(0,seg.length-1)];
+}
+function trSpecialBegin(){
+ TR.task={ans:'',skill:null,hints:[]};TR.curIdx=null;
+ document.getElementById('tr-input-row').style.display='none';
+ document.getElementById('tr-yn-row').style.display='none';
+ document.getElementById('tr-mc').style.display='none';
+ document.getElementById('tr-hint-btn').style.display='none';
+ document.getElementById('tr-next-btn').style.display='none';
+ const fb=document.getElementById('tr-fb');fb.className='feedback';fb.textContent='';
+ const hb=document.getElementById('tr-hint-box');hb.textContent='';hb.classList.remove('show');
+}
+function trStartMatch(){
+ if(!window.RPGTaskTypes||!TR.m)return;
+ const pairs=RPGTaskTypes.pickPairs(trPool(),4);
+ const fb=document.getElementById('tr-fb');
+ if(!pairs){fb.className='feedback err';fb.textContent='Pro toto téma se spojovačka nedá sestavit.';return;}
+ trSpecialBegin();
+ RPGTaskTypes.renderMatch(document.getElementById('tr-prob'),pairs,trSpecialDone);
+}
