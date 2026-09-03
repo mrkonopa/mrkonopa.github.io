@@ -403,3 +403,52 @@ function _vynechanySkolniDen(odISO,doISO){
  }
  return true;
 }
+
+/* ══════════════════════════════════════════════════════════════════
+   DOPORUČENÝ TRÉNINK, ADAPTIVNÍ VÝBĚR A SPOJOVAČKA — sdíleno 3.–9.
+
+   Druhá dávka konsolidace: i tyhle byly ve všech sedmi hrách totožné.
+   Sahají jen na per-game globály a DOM prvky (`BT`, `TR`, `S`, `#tr-mc`,
+   `recommendedMission`, `adaptScore`, `trPool` …), které se řeší až při
+   volání — hra si je drží sama, sdílený modul jen nese tělo funkce.
+   ══════════════════════════════════════════════════════════════════ */
+function renderRecommend(){
+ const rp=document.getElementById('map-recommend');if(!rp)return;
+ const rec=recommendedMission();
+ if(!rec){rp.style.display='none';return;}
+ rp.style.display='block';
+ rp.innerHTML='<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">'+
+  '<div style="font-family:var(--px);font-size:13px;color:var(--text);line-height:1.45">'+
+  '<span style="color:var(--gold);font-weight:700">📚 Doporučený trénink</span><br>'+
+  '<span style="color:var(--muted)">Tohle ti zatím dělá potíže:</span> <b>'+rec.name+'</b></div>'+
+  '<button class="btn b sm" style="flex:none" onclick="goPractice(\''+rec.mid+'\')"><span class="bic" data-ic="target"></span>Procvičit</button></div>';
+}
+function adaptPick(easier){
+ if(!BT.pool||BT.pool.length<=BT.tasks.length+2)return null;
+ const usedPending=new Set(BT.srcIdx.filter((_,i)=>!S.done[`${BT.mid}-${i}`]));
+ const _aT=new Set(BT.tasks.map(t=>String(t&&t.text))),_aA=new Set(BT.tasks.map(t=>String(t&&t.ans)));
+ const cand=BT.pool.map((_,i)=>i).filter(i=>!usedPending.has(i)&&!_aT.has(String(BT.pool[i]&&BT.pool[i].text))&&!_aA.has(String(BT.pool[i]&&BT.pool[i].ans)));
+ if(!cand.length)return null;
+ cand.sort((x,y)=>adaptScore(x)-adaptScore(y));
+ const third=Math.max(1,Math.floor(cand.length/3));
+ const seg=easier?cand.slice(0,third):cand.slice(-third);
+ return seg[ri(0,seg.length-1)];
+}
+function trSpecialBegin(){
+ TR.task={ans:'',skill:null,hints:[]};TR.curIdx=null;
+ document.getElementById('tr-input-row').style.display='none';
+ document.getElementById('tr-yn-row').style.display='none';
+ document.getElementById('tr-mc').style.display='none';
+ document.getElementById('tr-hint-btn').style.display='none';
+ document.getElementById('tr-next-btn').style.display='none';
+ const fb=document.getElementById('tr-fb');fb.className='feedback';fb.textContent='';
+ const hb=document.getElementById('tr-hint-box');hb.textContent='';hb.classList.remove('show');
+}
+function trStartMatch(){
+ if(!window.RPGTaskTypes||!TR.m)return;
+ const pairs=RPGTaskTypes.pickPairs(trPool(),4);
+ const fb=document.getElementById('tr-fb');
+ if(!pairs){fb.className='feedback err';fb.textContent='Pro toto téma se spojovačka nedá sestavit.';return;}
+ trSpecialBegin();
+ RPGTaskTypes.renderMatch(document.getElementById('tr-prob'),pairs,trSpecialDone);
+}
