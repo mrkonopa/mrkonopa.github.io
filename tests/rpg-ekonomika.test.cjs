@@ -40,9 +40,12 @@ const src = fs.readFileSync(path.join(ROOT, 'projects/rpg-wallet.js'), 'utf8');
 const ITEMS = new Function(src.match(/SHOP_ITEMS\s*=\s*\[[\s\S]*?\n\s*\];/)[0] + 'return SHOP_ITEMS;')();
 const GACH  = new Function(src.match(/GACH\s*=\s*\[[\s\S]*?\n\s*\];/)[0] + 'return GACH;')();
 
-/* Sazby čteme ZE HRY, ne z hlavy — kdyby je někdo změnil, přepočítá se
-   rozpočet a prahy níže se posunou s ním. */
-const hra = fs.readFileSync(path.join(ROOT, 'projects/rpg-mat-9.html'), 'utf8');
+/* Sazby čteme ZE ZDROJE, ne z hlavy — kdyby je někdo změnil, přepočítá se
+   rozpočet a prahy níže se posunou s ním. Sazba za denní sérii sedí ve
+   sdíleném `rpg-shared.js` (touchStreak je společná všem ročníkům), zbytek
+   je pořád v samotné hře — proto se čtou dva soubory. */
+const hra = fs.readFileSync(path.join(ROOT, 'projects/rpg-mat-9.html'), 'utf8')
+          + fs.readFileSync(path.join(ROOT, 'projects/rpg-shared.js'), 'utf8');
 const zaUkol   = Number((hra.match(/earnCredits\(mistakes===0\?(\d+)/) || [])[1]);
 const zaMisi   = Number((hra.match(/S\.creditsClaimed\[BT\.mid\]=true;earnCredits\((\d+)\)/) || [])[1]);
 const zaMistr  = Number((hra.match(/earnCredits\((\d+)\);fb\.textContent='🏅/) || [])[1]);
