@@ -10,9 +10,14 @@
    Pravidlo: série pokračuje, pokud mezi minulou návštěvou a dneškem
    NEZŮSTAL ŽÁDNÝ ŠKOLNÍ DEN.
 
-   Test bere funkci `_vynechanySkolniDen` PŘÍMO ZE ZDROJE hry (ne opis),
-   takže kdyby ji někdo změnil, testuje se ta změna. A ověřuje, že je
-   ve všech SEDMI ročnících stejná — bylo by snadné opravit jen jeden.
+   Test bere funkci `_vynechanySkolniDen` PŘÍMO ZE ZDROJE (ne opis), takže
+   kdyby ji někdo změnil, testuje se ta změna.
+
+   Funkce dřív ležela SEDMKRÁT v jednotlivých hrách a test hlídal, že jsou
+   všechny kopie totožné. Teď je JEDNOU v `rpg-shared.js`, takže se hlídá
+   opačný invariant: žádná hra ji nesmí mít znovu u sebe. Lokální kopie by
+   totiž podle pořadí skriptů mohla tu sdílenou přebít — a přesně takhle
+   vznikla mrtvá záloha `checkAns` v 1. stupni.
 
    Spusť: node tests/rpg-streak-skolni-dny.test.cjs
    ══════════════════════════════════════════════════════════════════════ */
@@ -22,9 +27,9 @@ const ROOT = path.join(__dirname, '..');
 let pass = 0, fail = 0;
 const ok = (c, m, d = '') => { if (c) { pass++; } else { fail++; console.log('  ❌ ' + m + (d ? ' — ' + d : '')); } };
 
-/* Vytáhni funkci ze hry a udělej z ní volatelnou. */
-function vytahni(g) {
-  const s = fs.readFileSync(path.join(ROOT, `projects/rpg-mat-${g}.html`), 'utf8');
+/* Vytáhni funkci ze SDÍLENÉHO modulu a udělej z ní volatelnou. */
+function vytahni() {
+  const s = fs.readFileSync(path.join(ROOT, 'projects/rpg-shared.js'), 'utf8');
   const i = s.indexOf('function _vynechanySkolniDen');
   if (i < 0) return null;
   const j = s.indexOf('\n}', i);
@@ -32,16 +37,22 @@ function vytahni(g) {
   return { src, fn: new Function(src + '; return _vynechanySkolniDen;')() };
 }
 
-const varianty = [3, 4, 5, 6, 7, 8, 9].map(g => ({ g, ...(vytahni(g) || {}) }));
-ok(varianty.every(v => v.fn), 'funkce je ve všech sedmi ročnících',
-  varianty.filter(v => !v.fn).map(v => 'g' + v.g).join(', '));
+const sdilena = vytahni();
+ok(!!(sdilena && sdilena.fn), 'funkce je ve sdíleném rpg-shared.js');
 
-/* Všech sedm musí být DOSLOVA stejných — jinak by se opravil jen jeden. */
-const prvni = varianty[0] && varianty[0].src;
-ok(varianty.every(v => v.src === prvni), 'všech sedm ročníků má stejné znění',
-  varianty.filter(v => v.src !== prvni).map(v => 'g' + v.g).join(', '));
+/* Žádná hra ji nesmí mít znovu u sebe — lokální kopie by sdílenou přebila. */
+const kopie = [3, 4, 5, 6, 7, 8, 9].filter(g =>
+  fs.readFileSync(path.join(ROOT, `projects/rpg-mat-${g}.html`), 'utf8')
+    .includes('function _vynechanySkolniDen'));
+ok(kopie.length === 0, 'žádná hra nemá vlastní kopii', kopie.map(g => 'g' + g).join(', '));
 
-const F = varianty[0].fn;
+/* A všech sedm ji musí mít odkud vzít. */
+const bezModulu = [3, 4, 5, 6, 7, 8, 9].filter(g =>
+  !fs.readFileSync(path.join(ROOT, `projects/rpg-mat-${g}.html`), 'utf8')
+    .includes('rpg-shared.js'));
+ok(bezModulu.length === 0, 'všech sedm her načítá rpg-shared.js', bezModulu.map(g => 'g' + g).join(', '));
+
+const F = sdilena.fn;
 
 /* Konkrétní data (2026): po 1., út 2., st 3., čt 4., pá 5., so 6., ne 7., po 8. června */
 const PRIPADY = [

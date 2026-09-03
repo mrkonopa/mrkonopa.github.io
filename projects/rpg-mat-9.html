@@ -1641,30 +1641,7 @@ function unlockAch(id){
  S.ach[id]=new Date().toISOString().slice(0,10);
  saveS();achToast(a);
 }
-function evalAch(ev){
- ev=ev||{};
- const doneAreas=AREAS.filter(isAreaDone).length;
- const masteredCount=Object.values(S.mastery||{}).filter(m=>m&&m.mastered).length;
- const st=S.stats||{};
- if(Object.keys(S.done||{}).length>=1)unlockAch('boot');
- if((st.crits||0)>=10)unlockAch('crit');
- if(ev.combo>=5)unlockAch('combo5');
- if(ev.flawlessMission)unlockAch('flawless');
- if(ev.correct&&ev.timeLeft>=30)unlockAch('flash');
- if(ev.wonAtOneHp)unlockAch('survivor');
- if(doneAreas>=1)unlockAch('area1');
- if(doneAreas>=4)unlockAch('half');
- if(doneAreas>=7)unlockAch('root');
- if(S.level>=5)unlockAch('lv5');
- if(S.level>=10)unlockAch('lv10');
- if(masteredCount>=1)unlockAch('master1');
- if((st.trainCorrect||0)>=50)unlockAch('train50');
- if((S.streak&&S.streak.count||0)>=3)unlockAch('streak3');
- if((S.streak&&S.streak.count||0)>=7)unlockAch('streak7');
- if(Object.values(S.mastery||{}).some(m=>m&&(m.stars|0)>=1))unlockAch('star1');
- const br=ev.battleResult;
- if(br){unlockAch('battle1');if(br.rank===1)unlockAch('battlewin');if(br.correct>=br.q_count&&br.q_count>0)unlockAch('battleflawless');}
-}
+// evalAch/touchStreak/awardStar/reviveState/_vynechanySkolniDen → sdílené v projects/rpg-shared.js (byly 7× totožné)
 // fronta odznaků (může se odemknout víc najednou)
 let _achQ=[],_achBusy=false;
 function achToast(a){_achQ.push(a);if(!_achBusy)_achNext();}
@@ -1698,27 +1675,6 @@ function _achNext(){
      pondělí → středa  láme se (vynechalo se úterý)
    Prázdniny to neřeší — ty odsud poznat nejde.
    Datum se skládá v POLEDNE, aby posun letního času neposunul den. */
-function _vynechanySkolniDen(odISO,doISO){
- if(!odISO)return true;
- const d=new Date(odISO+'T12:00:00'), cil=new Date(doISO+'T12:00:00');
- if(!isFinite(d)||!isFinite(cil))return true;
- for(let i=0;i<400;i++){
-  d.setDate(d.getDate()+1);
-  if(d>=cil)return false;
-  const w=d.getDay();
-  if(w!==0&&w!==6)return true;
- }
- return true;
-}
-function touchStreak(){
- if(!S.streak)S.streak={count:0,last:''};
- const today=new Date().toISOString().slice(0,10);
- if(S.streak.last===today){evalAch({});return;}
- S.streak.count=_vynechanySkolniDen(S.streak.last,today)?1:(S.streak.count||0)+1;
- S.streak.last=today;saveS();evalAch({});
- wMax('streakMax',S.streak.count);
- const sc=S.streak.count;earnCredits(sc>=7?20:sc>=3?10:5);
-}
 
 // CERMAT odpočet
 function updateCermatChip(){
@@ -2853,25 +2809,6 @@ function sanitizeMastery(){
   if(m.lastOk>todayStr())m.lastOk=todayStr();
   m.starHist=Array.isArray(m.starHist)?m.starHist.filter(d=>typeof d==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(d)).slice(0,3):[];
  }
-}
-function reviveState(mid){
- const m=S.mastery&&S.mastery[mid];
- if(!m||!m.mastered)return{stars:0,due:false,daysSince:0,nextGap:REVIVE_GAPS[0]};
- const st=Math.max(0,Math.min(3,m.stars|0));
- const ds=m.lastOk?daysSinceStr(m.lastOk):0;
- const gap=st<3?REVIVE_GAPS[st]:Infinity;
- return{stars:st,due:st<3&&ds>=gap,daysSince:ds,nextGap:gap};
-}
-function awardStar(mid){
- const m=S.mastery&&S.mastery[mid];if(!m||!m.mastered)return 0;
- const st=Math.max(0,Math.min(3,m.stars|0));if(st>=3)return 0;
- m.stars=st+1;m.lastOk=todayStr();
- if(!Array.isArray(m.starHist))m.starHist=[];
- m.starHist.push(m.lastOk);
- saveS();
- earnCredits(REVIVE_CREDITS[m.stars-1]);
- evalAch({});
- return m.stars;
 }
 
 function renderTrainPicker(){
