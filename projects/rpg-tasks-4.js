@@ -50,7 +50,7 @@
     ];
     for (let i = 0; i < T.length; i++) {
       const t = T[i % T.length]();
-      tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'calc', mc: true, distractors: t.distractors });
+      tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'calc', mc: true, distractors: t.distractors , mc_opts: t.mc_opts });
     }
     return tasks;
   }
@@ -62,19 +62,19 @@
     const tasks = [];
     const T = [
       () => { const [a, b] = dva(); const op = pick(['<', '>']); const ok = op === '<' ? a < b : a > b; return { text: `Je pravda, že ${a} ${op} ${b}?`, ans: ok ? 'ANO' : 'NE', h1: `Porovnej číslici tisíců: ${Math.floor(a / 1000)} a ${Math.floor(b / 1000)}.`, h2: ok ? 'ANO' : 'NE' }; },
-      () => { const [a, b] = dva(); return { text: `Které číslo je větší: ${a}, nebo ${b}?`, ans: Math.max(a, b), h1: `Porovnej nejdřív tisíce, pak nižší řády.`, h2: `= ${Math.max(a, b)}`, distractors: [String(Math.min(a, b))] }; }, // miskoncepce: vybere menší místo většího
-      () => { const [a, b] = dva(); return { text: `Které číslo je menší: ${a}, nebo ${b}?`, ans: Math.min(a, b), h1: `Menší je to s menšími tisíci.`, h2: `= ${Math.min(a, b)}`, distractors: [String(Math.max(a, b))] }; }, // miskoncepce: vybere větší místo menšího
+      () => { const [a, b] = dva(); return { text: `Které číslo je větší: ${a}, nebo ${b}?`, mc_opts:[String(a),String(b)], ans: Math.max(a, b), h1: `Porovnej nejdřív tisíce, pak nižší řády.`, h2: `= ${Math.max(a, b)}`, distractors: [String(Math.min(a, b))] }; }, // miskoncepce: vybere menší místo většího
+      () => { const [a, b] = dva(); return { text: `Které číslo je menší: ${a}, nebo ${b}?`, mc_opts:[String(a),String(b)], ans: Math.min(a, b), h1: `Menší je to s menšími tisíci.`, h2: `= ${Math.min(a, b)}`, distractors: [String(Math.max(a, b))] }; }, // miskoncepce: vybere větší místo menšího
       () => { const [a, b, c] = tri(); return { text: `Které z čísel ${a}, ${b}, ${c} je největší?`, ans: Math.max(a, b, c), h1: `Porovnej tisíce, při shodě stovky.`, h2: `= ${Math.max(a, b, c)}`, distractors: [String(Math.min(a, b, c))] }; }, // miskoncepce: vybere nejmenší
       () => { const [a, b, c] = tri(); return { text: `Které z čísel ${a}, ${b}, ${c} je nejmenší?`, ans: Math.min(a, b, c), h1: `Hledej nejmenší tisíce.`, h2: `= ${Math.min(a, b, c)}`, distractors: [String(Math.max(a, b, c))] }; }, // miskoncepce: vybere největší
       () => { const stejna = ri(0, 1) === 0; const a = ri(1000, 9999); const b = stejna ? a : a + ri(1, 90) * (ri(0, 1) ? 1 : -1); return { text: `Platí ${a} = ${b}?`, ans: a === b ? 'ANO' : 'NE', h1: `Porovnej všechny číslice.`, h2: a === b ? 'ANO' : 'NE' }; },
       () => { const lo = ri(1000, 7000), hi = lo + ri(300, 1500); const inside = ri(0, 1) === 0; const x = inside ? ri(lo + 1, hi - 1) : (ri(0, 1) ? ri(1000, lo - 1) : ri(hi + 1, 9999)); const ok = x > lo && x < hi; return { text: `Leží číslo ${x} mezi čísly ${lo} a ${hi}?`, ans: ok ? 'ANO' : 'NE', h1: `Musí být větší než ${lo} a menší než ${hi}.`, h2: ok ? 'ANO' : 'NE' }; },
-      () => { const [a, b] = dva(); const blizsi = Math.abs(a - 5000) < Math.abs(b - 5000) ? a : b; return { text: `Které číslo je blíž k číslu 5000: ${a}, nebo ${b}?`, ans: blizsi, h1: `Porovnej vzdálenosti od 5000.`, h2: `= ${blizsi}`, distractors: [String(blizsi === a ? b : a)] }; }, // miskoncepce: vybere to vzdálenější
+      () => { const [a, b] = dva(); const blizsi = Math.abs(a - 5000) < Math.abs(b - 5000) ? a : b; return { text: `Které číslo je blíž k číslu 5000: ${a}, nebo ${b}?`, mc_opts:[String(a),String(b)], ans: blizsi, h1: `Porovnej vzdálenosti od 5000.`, h2: `= ${blizsi}`, distractors: [String(blizsi === a ? b : a)] }; }, // miskoncepce: vybere to vzdálenější
       () => { const b = ri(1000, 8000), a = b + ri(100, 1500); return { text: `O kolik je ${a} větší než ${b}?`, ans: a - b, h1: `Rozdíl: ${a} − ${b}.`, h2: `= ${a - b}`, distractors: [String(a + b)] }; }, // miskoncepce: sečte místo odečtení
       () => { const [a, b] = dva(); const ok = a > b; return { text: `Kapitánova truhla má ${a} dublonů, bocmanova ${b}. Má kapitán víc?`, ans: ok ? 'ANO' : 'NE', h1: `Porovnej obě čísla.`, h2: ok ? 'ANO' : 'NE' }; },
     ];
     for (let i = 0; i < T.length; i++) {
       const t = T[i % T.length]();
-      tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'anal', mc: true, distractors: t.distractors });
+      tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'anal', mc: true, distractors: t.distractors , mc_opts: t.mc_opts });
     }
     return tasks;
   }
@@ -96,7 +96,7 @@
     ];
     for (let i = 0; i < T.length; i++) {
       const t = T[i % T.length]();
-      tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'calc' });
+      tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'calc' , mc_opts: t.mc_opts });
     }
     return tasks;
   }
@@ -123,7 +123,7 @@
     ];
     for (let i = 0; i < T.length; i++) {
       const t = T[i % T.length]();
-      tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'calc' });
+      tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'calc' , mc_opts: t.mc_opts });
     }
     return tasks;
   }
@@ -148,7 +148,7 @@
     ];
     for (let i = 0; i < T.length; i++) {
       const t = T[i % T.length]();
-      tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'calc' });
+      tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'calc' , mc_opts: t.mc_opts });
     }
     return tasks;
   }
@@ -170,7 +170,7 @@
     ];
     for (let i = 0; i < T.length; i++) {
       const t = T[i % T.length]();
-      tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'calc' });
+      tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'calc' , mc_opts: t.mc_opts });
     }
     return tasks;
   }
@@ -196,7 +196,7 @@
     ];
     for (let i = 0; i < T.length; i++) {
       const t = T[i % T.length]();
-      tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'calc', mc: true, distractors: t.distractors });
+      tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'calc', mc: true, distractors: t.distractors , mc_opts: t.mc_opts });
     }
     return tasks;
   }
@@ -219,7 +219,7 @@
     ];
     for (let i = 0; i < T.length; i++) {
       const t = T[i % T.length]();
-      tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'calc' });
+      tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'calc' , mc_opts: t.mc_opts });
     }
     return tasks;
   }
@@ -241,7 +241,7 @@
     ];
     for (let i = 0; i < T.length; i++) {
       const t = T[i % T.length]();
-      tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'calc' });
+      tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'calc' , mc_opts: t.mc_opts });
     }
     return tasks;
   }
@@ -267,7 +267,7 @@
     ];
     for (let i = 0; i < T.length; i++) {
       const t = T[i % T.length]();
-      tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'calc', mc: true, distractors: t.distractors });
+      tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'calc', mc: true, distractors: t.distractors , mc_opts: t.mc_opts });
     }
     return tasks;
   }
@@ -290,7 +290,7 @@
     ];
     for (let i = 0; i < T.length; i++) {
       const t = T[i % T.length]();
-      tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'calc' });
+      tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'calc' , mc_opts: t.mc_opts });
     }
     return tasks;
   }
@@ -312,7 +312,7 @@
     ];
     for (let i = 0; i < T.length; i++) {
       const t = T[i % T.length]();
-      tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'calc' });
+      tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'calc' , mc_opts: t.mc_opts });
     }
     return tasks;
   }
@@ -340,7 +340,7 @@
     ];
     for (let i = 0; i < T.length; i++) {
       const t = T[i % T.length]();
-      tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'geo', svg: t.svg });
+      tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'geo', svg: t.svg , mc_opts: t.mc_opts });
     }
     return tasks;
   }
@@ -363,7 +363,7 @@
     ];
     for (let i = 0; i < T.length; i++) {
       const t = T[i % T.length]();
-      tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'geo' });
+      tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'geo' , mc_opts: t.mc_opts });
     }
     return tasks;
   }
@@ -386,7 +386,7 @@
     ];
     for (let i = 0; i < T.length; i++) {
       const t = T[i % T.length]();
-      tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'geo' });
+      tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'geo' , mc_opts: t.mc_opts });
     }
     return tasks;
   }
@@ -412,7 +412,7 @@
     ];
     for (let i = 0; i < T.length; i++) {
       const t = T[i % T.length]();
-      tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'calc' });
+      tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'calc' , mc_opts: t.mc_opts });
     }
     return tasks;
   }
@@ -434,7 +434,7 @@
     ];
     for (let i = 0; i < T.length; i++) {
       const t = T[i % T.length]();
-      tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'calc' });
+      tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'calc' , mc_opts: t.mc_opts });
     }
     return tasks;
   }
@@ -456,7 +456,7 @@
     ];
     for (let i = 0; i < T.length; i++) {
       const t = T[i % T.length]();
-      tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'calc' });
+      tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'calc' , mc_opts: t.mc_opts });
     }
     return tasks;
   }
@@ -474,7 +474,7 @@
       () => { const m = ri(2, 9); return { text: `Kolik je ${m} × 1000?`, ans: m * 1000, h1: `Přidej tři nuly.`, h2: `= ${m * 1000}`, distractors: [String(m * 100)] }; }, // miskoncepce: přidá dvě nuly místo tří
       () => { const n = ri(10000, 999999); return { text: `Jaké číslo je o 1 větší než ${n}?`, ans: n + 1, h1: `Přičti jedničku.`, h2: `= ${n + 1}`, distractors: [String(n - 1)] }; }, // miskoncepce: záměna „větší" za „menší"
       () => { const st = ri(1, 9), tis = ri(10, 99); const n = st * 100000 + tis * 1000; const dt = Math.floor(n / 10000) % 10; return { text: `Kolik statisíců má číslo ${n}?`, ans: st, h1: `Statisíce jsou šestá cifra zprava.`, h2: `= ${st}`, distractors: (st !== dt ? [String(dt)] : []) }; }, // miskoncepce: přečte desetitisíce místo statisíců
-      () => { let a = ri(10000, 999999), b = ri(10000, 999999); while (a === b) b = ri(10000, 999999); return { text: `Které číslo je větší: ${a}, nebo ${b}?`, ans: Math.max(a, b), h1: `Delší zápis vyhrává; při stejné délce porovnej zleva.`, h2: `= ${Math.max(a, b)}`, distractors: [String(Math.min(a, b))] }; }, // miskoncepce: vybere menší místo většího
+      () => { let a = ri(10000, 999999), b = ri(10000, 999999); while (a === b) b = ri(10000, 999999); return { text: `Které číslo je větší: ${a}, nebo ${b}?`, mc_opts:[String(a),String(b)], ans: Math.max(a, b), h1: `Delší zápis vyhrává; při stejné délce porovnej zleva.`, h2: `= ${Math.max(a, b)}`, distractors: [String(Math.min(a, b))] }; }, // miskoncepce: vybere menší místo většího
       () => { const n = ri(10, 99); return { text: `Zapiš číslem: ${n} tisíc a 500.`, ans: n * 1000 + 500, h1: `${n} tisíc = ${n * 1000}, přičti 500.`, h2: `= ${n * 1000 + 500}`, distractors: [String(n * 100 + 500)] }; }, // miskoncepce: „tisíc" bere jako stovku
       () => { const pul = pick([['půl milionu', 500000], ['čtvrt milionu', 250000]]); return { text: `Kolik je ${pul[0]}? (1 milion = 1 000 000)`, ans: pul[1], h1: `Rozděl milion na poloviny/čtvrtiny.`, h2: `= ${pul[1]}`, distractors: [String(pul[1] / 10)] }; }, // miskoncepce: milion považuje za 100 000
       () => { const n = ri(100, 999) * 1000; const ok = ri(0, 1) === 0; const tvrz = ok ? n : n / 10; const spravne = tvrz === n; return { text: `Pirátský účetní tvrdí: ${n / 1000} tisíc = ${tvrz}. Má pravdu?`, ans: spravne ? 'ANO' : 'NE', h1: `Tisíce = tři nuly na konci.`, h2: spravne ? 'ANO' : 'NE' }; },
@@ -482,7 +482,7 @@
     ];
     for (let i = 0; i < T.length; i++) {
       const t = T[i % T.length]();
-      tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'calc', mc: true, distractors: t.distractors });
+      tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'calc', mc: true, distractors: t.distractors , mc_opts: t.mc_opts });
     }
     return tasks;
   }
@@ -504,7 +504,7 @@
     ];
     for (let i = 0; i < T.length; i++) {
       const t = T[i % T.length]();
-      tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'calc' });
+      tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'calc' , mc_opts: t.mc_opts });
     }
     return tasks;
   }
@@ -528,7 +528,7 @@
     ];
     for (let i = 0; i < T.length; i++) {
       const t = T[i % T.length]();
-      tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'calc' });
+      tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'calc' , mc_opts: t.mc_opts });
     }
     return tasks;
   }

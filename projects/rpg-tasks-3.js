@@ -55,7 +55,7 @@
     ];
     for (let i = 0; i < T.length; i++) {
       const t = T[i % T.length]();
-      tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'calc', mc: true, distractors: t.distractors });
+      tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'calc', mc: true, distractors: t.distractors , mc_opts: t.mc_opts });
     }
     return tasks;
   }
@@ -68,18 +68,18 @@
     const T = [
       () => { const [a, b] = dva(); const op = pick(['<', '>']); const ok = op === '<' ? a < b : a > b; return { text: `Je pravda, že ${a} ${op} ${b}?`, ans: ok ? 'ANO' : 'NE', h1: `Porovnej nejdřív stovky: ${Math.floor(a / 100)} a ${Math.floor(b / 100)}.`, h2: ok ? 'ANO' : 'NE' }; },
       () => { const stejna = ri(0, 1) === 0; const a = ri(100, 999); const b = stejna ? a : a + ri(1, 30) * (ri(0, 1) ? 1 : -1); return { text: `Platí ${a} = ${b}?`, ans: a === b ? 'ANO' : 'NE', h1: `Rovná se jen úplně stejné číslo.`, h2: a === b ? 'ANO' : 'NE' }; },
-      () => { const [a, b] = dva(); return { text: `Které číslo je větší: ${a}, nebo ${b}?`, ans: Math.max(a, b), h1: `Porovnej stovky, pak desítky a jednotky.`, h2: `= ${Math.max(a, b)}`, distractors: [String(Math.min(a, b))] }; }, // miskoncepce: vybere menší místo většího
-      () => { const [a, b] = dva(); return { text: `Které číslo je menší: ${a}, nebo ${b}?`, ans: Math.min(a, b), h1: `Menší je to, které je na číselné ose víc vlevo.`, h2: `= ${Math.min(a, b)}`, distractors: [String(Math.max(a, b))] }; }, // miskoncepce: vybere větší místo menšího
+      () => { const [a, b] = dva(); return { text: `Které číslo je větší: ${a}, nebo ${b}?`, mc_opts:[String(a),String(b)], ans: Math.max(a, b), h1: `Porovnej stovky, pak desítky a jednotky.`, h2: `= ${Math.max(a, b)}`, distractors: [String(Math.min(a, b))] }; }, // miskoncepce: vybere menší místo většího
+      () => { const [a, b] = dva(); return { text: `Které číslo je menší: ${a}, nebo ${b}?`, mc_opts:[String(a),String(b)], ans: Math.min(a, b), h1: `Menší je to, které je na číselné ose víc vlevo.`, h2: `= ${Math.min(a, b)}`, distractors: [String(Math.max(a, b))] }; }, // miskoncepce: vybere větší místo menšího
       () => { const [a, b, c] = tri(); return { text: `Které z čísel ${a}, ${b}, ${c} je největší?`, ans: Math.max(a, b, c), h1: `Porovnej po dvojicích, začni stovkami.`, h2: `= ${Math.max(a, b, c)}`, distractors: [String(Math.min(a, b, c))] }; }, // miskoncepce: vybere nejmenší místo největšího
       () => { const [a, b, c] = tri(); return { text: `Které z čísel ${a}, ${b}, ${c} je nejmenší?`, ans: Math.min(a, b, c), h1: `Hledej nejmenší stovky.`, h2: `= ${Math.min(a, b, c)}`, distractors: [String(Math.max(a, b, c))] }; }, // miskoncepce: vybere největší místo nejmenšího
       () => { const lo = ri(100, 700), hi = lo + ri(50, 200); const inside = ri(0, 1) === 0; const x = inside ? ri(lo + 1, hi - 1) : (ri(0, 1) ? ri(100, lo - 1) : ri(hi + 1, 999)); const ok = x > lo && x < hi; return { text: `Leží číslo ${x} mezi čísly ${lo} a ${hi}?`, ans: ok ? 'ANO' : 'NE', h1: `Musí být větší než ${lo} a zároveň menší než ${hi}.`, h2: ok ? 'ANO' : 'NE' }; },
-      () => { const [a, b] = dva(); const blizsi = Math.abs(a - 500) < Math.abs(b - 500) ? a : b; const dalsi = blizsi === a ? b : a; return { text: `Které číslo je blíž k číslu 500: ${a}, nebo ${b}?`, ans: blizsi, h1: `Porovnej, o kolik se každé liší od 500.`, h2: `= ${blizsi}`, distractors: (dalsi !== blizsi ? [String(dalsi)] : []) }; }, // miskoncepce: vybere to vzdálenější od 500
+      () => { const [a, b] = dva(); const blizsi = Math.abs(a - 500) < Math.abs(b - 500) ? a : b; const dalsi = blizsi === a ? b : a; return { text: `Které číslo je blíž k číslu 500: ${a}, nebo ${b}?`, mc_opts:[String(a),String(b)], ans: blizsi, h1: `Porovnej, o kolik se každé liší od 500.`, h2: `= ${blizsi}`, distractors: (dalsi !== blizsi ? [String(dalsi)] : []) }; }, // miskoncepce: vybere to vzdálenější od 500
       () => { const b = ri(100, 800), a = b + ri(10, 150); return { text: pick([`O kolik je ${a} větší než ${b}?`, `O kolik je číslo ${a} větší než číslo ${b}?`]), ans: a - b, h1: `Rozdíl zjistíš odčítáním: ${a} − ${b}.`, h2: `= ${a - b}`, distractors: [String(a + b)] }; }, // miskoncepce: sečte místo odečtení
       () => { const n = ri(100, 999); const ok = n >= 500; return { text: `Je číslo ${n} aspoň 500?`, ans: ok ? 'ANO' : 'NE', h1: `„Aspoň 500" znamená 500 nebo víc.`, h2: ok ? 'ANO' : 'NE' }; },
     ];
     for (let i = 0; i < T.length; i++) {
       const t = T[i % T.length]();
-      tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'anal', mc: true, distractors: t.distractors });
+      tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'anal', mc: true, distractors: t.distractors , mc_opts: t.mc_opts });
     }
     return tasks;
   }
@@ -101,7 +101,7 @@
     ];
     for (let i = 0; i < T.length; i++) {
       const t = T[i % T.length]();
-      tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'calc' });
+      tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'calc' , mc_opts: t.mc_opts });
     }
     return tasks;
   }
@@ -128,7 +128,7 @@
     ];
     for (let i = 0; i < T.length; i++) {
       const t = T[i % T.length]();
-      tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'calc' });
+      tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'calc' , mc_opts: t.mc_opts });
     }
     return tasks;
   }
@@ -151,7 +151,7 @@
     ];
     for (let i = 0; i < T.length; i++) {
       const t = T[i % T.length]();
-      tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'calc' });
+      tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'calc' , mc_opts: t.mc_opts });
     }
     return tasks;
   }
@@ -176,7 +176,7 @@
     ];
     for (let i = 0; i < T.length; i++) {
       const t = T[i % T.length]();
-      tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'calc' });
+      tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'calc' , mc_opts: t.mc_opts });
     }
     return tasks;
   }
@@ -203,7 +203,7 @@
     ];
     for (let i = 0; i < T.length; i++) {
       const t = T[i % T.length]();
-      tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'calc', mc: true, distractors: t.distractors });
+      tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'calc', mc: true, distractors: t.distractors , mc_opts: t.mc_opts });
     }
     return tasks;
   }
@@ -225,7 +225,7 @@
     ];
     for (let i = 0; i < T.length; i++) {
       const t = T[i % T.length]();
-      tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'calc' });
+      tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'calc' , mc_opts: t.mc_opts });
     }
     return tasks;
   }
@@ -248,7 +248,7 @@
     ];
     for (let i = 0; i < T.length; i++) {
       const t = T[i % T.length]();
-      tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'calc' });
+      tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'calc' , mc_opts: t.mc_opts });
     }
     return tasks;
   }
@@ -274,7 +274,7 @@
     ];
     for (let i = 0; i < T.length; i++) {
       const t = T[i % T.length]();
-      tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'calc', mc: true, distractors: t.distractors });
+      tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'calc', mc: true, distractors: t.distractors , mc_opts: t.mc_opts });
     }
     return tasks;
   }
@@ -297,7 +297,7 @@
     ];
     for (let i = 0; i < T.length; i++) {
       const t = T[i % T.length]();
-      tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'calc' });
+      tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'calc' , mc_opts: t.mc_opts });
     }
     return tasks;
   }
@@ -322,7 +322,7 @@
     ];
     for (let i = 0; i < T.length; i++) {
       const t = T[i % T.length]();
-      tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'calc' });
+      tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'calc' , mc_opts: t.mc_opts });
     }
     return tasks;
   }
@@ -348,7 +348,7 @@
     ];
     for (let i = 0; i < T.length; i++) {
       const t = T[i % T.length]();
-      tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'geo' });
+      tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'geo' , mc_opts: t.mc_opts });
     }
     return tasks;
   }
@@ -372,7 +372,7 @@
     ];
     for (let i = 0; i < T.length; i++) {
       const t = T[i % T.length]();
-      tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'geo', svg: t.svg });
+      tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'geo', svg: t.svg , mc_opts: t.mc_opts });
     }
     return tasks;
   }
@@ -395,7 +395,7 @@
     ];
     for (let i = 0; i < T.length; i++) {
       const t = T[i % T.length]();
-      tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'geo' });
+      tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'geo' , mc_opts: t.mc_opts });
     }
     return tasks;
   }
@@ -416,12 +416,12 @@
       () => { const n = ri(1, 9); return { text: `Kolik cm je ${n} m? (1 m = 100 cm)`, ans: n * 100, h1: '1 m = 100 cm — násob stem.', h2: `= ${n * 100} cm` }; },
       () => { const n = ri(2, 9) * 100; return { text: `Kolik m je ${n} cm?`, ans: n / 100, h1: 'Děl stem (100 cm = 1 m).', h2: `= ${n / 100} m` }; },
       () => { const m = ri(1, 5), cm = ri(10, 90); return { text: pick([`Liščí nora je hluboká ${m} m a ${cm} cm. Kolik je to celkem centimetrů?`, `Chodba k jezevčí noře měří ${m} m a ${cm} cm. Kolik je to celkem centimetrů?`]), ans: m * 100 + cm, h1: `${m} m = ${m * 100} cm, přičti ${cm} cm.`, h2: `= ${m * 100 + cm} cm` }; },
-      () => { const dm = ri(2, 9), cm = dm * 10 + pick([-5, 5]); const ok = dm * 10 > cm; return { text: `Co je delší — ${dm} dm, nebo ${cm} cm? Napiš délku té delší v cm.`, ans: ok ? dm * 10 : cm, h1: `Převeď na stejné jednotky: ${dm} dm = ${dm * 10} cm.`, h2: `= ${ok ? dm * 10 : cm} cm` }; },
+      () => { const dm = ri(2, 9), cm = dm * 10 + pick([-5, 5]); const ok = dm * 10 > cm; return { text: `Co je delší — ${dm} dm, nebo ${cm} cm? Napiš délku té delší v cm.`, mc_opts:[String(dm*10),String(cm)], ans: ok ? dm * 10 : cm, h1: `Převeď na stejné jednotky: ${dm} dm = ${dm * 10} cm.`, h2: `= ${ok ? dm * 10 : cm} cm` }; },
       () => { const n = ri(2, 9); const ok = ri(0, 1) === 0; const tvrz = ok ? n * 10 : n * 100; const spravne = tvrz === n * 10; return { text: `Je pravda, že ${n} dm = ${tvrz} cm?`, ans: spravne ? 'ANO' : 'NE', h1: `1 dm = 10 cm.`, h2: spravne ? 'ANO' : 'NE' }; },
     ];
     for (let i = 0; i < T.length; i++) {
       const t = T[i % T.length]();
-      tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'calc' });
+      tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'calc' , mc_opts: t.mc_opts });
     }
     return tasks;
   }
@@ -443,7 +443,7 @@
     ];
     for (let i = 0; i < T.length; i++) {
       const t = T[i % T.length]();
-      tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'calc' });
+      tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'calc' , mc_opts: t.mc_opts });
     }
     return tasks;
   }
@@ -467,7 +467,7 @@
     ];
     for (let i = 0; i < T.length; i++) {
       const t = T[i % T.length]();
-      tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'calc' });
+      tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'calc' , mc_opts: t.mc_opts });
     }
     return tasks;
   }
@@ -488,12 +488,12 @@
       () => { const a = ri(150, 800), b = ri(30, 140); const ok = ri(0, 1) === 0; const tvrz = ok ? a + b : a + b + pick([-10, 10]); const spravne = tvrz === a + b; return { text: `Je pravda, že ${a} + ${b} = ${tvrz}?`, ans: spravne ? 'ANO' : 'NE', h1: `Přepočítej si to.`, h2: spravne ? 'ANO' : 'NE' }; },
       () => { const a = ri(100, 800), b = ri(20, 150); return { text: `Jaké číslo je o ${b} větší než ${a}?`, ans: a + b, h1: `„O větší" = přičti.`, h2: `= ${a + b}` }; },
       () => { const n = ri(11, 990); const r = Math.round(n / 10) * 10; return { text: `Zaokrouhli ${n} na desítky.`, ans: r, h1: `Rozhodují jednotky: ${n % 10}.`, h2: `= ${r}` }; },
-      () => { let a = ri(100, 999), b = ri(100, 999); while (b === a) b = ri(100, 999); return { text: `Které číslo je větší: ${a}, nebo ${b}?`, ans: Math.max(a, b), h1: `Porovnej stovky.`, h2: `= ${Math.max(a, b)}` }; },
+      () => { let a = ri(100, 999), b = ri(100, 999); while (b === a) b = ri(100, 999); return { text: `Které číslo je větší: ${a}, nebo ${b}?`, mc_opts:[String(a),String(b)], ans: Math.max(a, b), h1: `Porovnej stovky.`, h2: `= ${Math.max(a, b)}` }; },
       () => { const q = ri(5, 45); return { text: `Jaká je polovina čísla ${q * 2}?`, ans: q, h1: `${q * 2} : 2`, h2: `= ${q}` }; },
     ];
     for (let i = 0; i < T.length; i++) {
       const t = T[i % T.length]();
-      tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'calc', mc: true, distractors: t.distractors });
+      tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'calc', mc: true, distractors: t.distractors , mc_opts: t.mc_opts });
     }
     return tasks;
   }
@@ -518,7 +518,7 @@
     ];
     for (let i = 0; i < T.length; i++) {
       const t = T[i % T.length]();
-      tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'calc' });
+      tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'calc' , mc_opts: t.mc_opts });
     }
     return tasks;
   }
@@ -542,7 +542,7 @@
     ];
     for (let i = 0; i < T.length; i++) {
       const t = T[i % T.length]();
-      tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: t.skill });
+      tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: t.skill , mc_opts: t.mc_opts });
     }
     return tasks;
   }
