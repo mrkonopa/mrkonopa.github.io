@@ -1676,9 +1676,20 @@ function renderDiag(){
  const sqlSnapsAll=SNAP_DATA[game]||[];
  const sqlByUserAll=new Map();
  sqlSnapsAll.forEach(s=>{if(!sqlByUserAll.has(s.user_id))sqlByUserAll.set(s.user_id,[]);sqlByUserAll.get(s.user_id).push(s);});
+/* Počet chyb je ze ŽÁKOVSKÉHO savu, který si žák může přepsat — je to
+   client-trusted údaj. Bez téhle pojistky stačil řetězec nebo objekt
+   v `errs` a součet se změnil na zřetězení: učiteli se v heatmapě
+   ukázalo „⌀ NaN chyb". Horší než ten text je barva: `hue` se počítá
+   z průměru a `NaN|0` je 0, tedy SYTĚ ČERVENÁ — jeden podvržený save
+   udělá z libovolné mise „největší problém třídy". Je to týž vzor jako
+   slepý ::int cast v SQL (fáze 19/24), jen na klientovi.
+   Strop 9999 drží i případ „obří číslo" (ukazovalo „⌀ 5e+307 chyb"). */
+ const _chyb = v => { const n = Number(v); return Number.isFinite(n) && n > 0 ? Math.min(n, 9999) : 0; };
+ /* Průměr s českou desetinnou ČÁRKOU — konzole psala „⌀ 3.0 chyb". */
+ const _prum = n => n.toFixed(1).replace('.', ',');
  miss.forEach(m=>{
   let reached=0,totErr=0,completed=0;
-  rows.forEach(r=>{const d=r.data||{},e=(d.errs||{})[m.id]||0;let dc=0;for(let i=0;i<TC;i++)if((d.done||{})[m.id+'-'+i])dc++;if(e>0||dc>0){reached++;totErr+=e;if(dc>=TC)completed++;}});
+  rows.forEach(r=>{const d=r.data||{},e=_chyb((d.errs||{})[m.id]);let dc=0;for(let i=0;i<TC;i++)if((d.done||{})[m.id+'-'+i])dc++;if(e>0||dc>0){reached++;totErr+=e;if(dc>=TC)completed++;}});
   const avg=reached?totErr/reached:0;
   allMissStats.push({m,reached,completed,avg});
  });
@@ -1695,7 +1706,7 @@ function renderDiag(){
      '<span style="font-size:11px;color:var(--muted)">'+(i+1)+'.</span> '+
      '<b style="font-size:13px;color:#fff">'+esc(s.m.name)+'</b>'+
      '<span style="color:var(--muted);font-size:11px"> ('+s.m.id+')</span>'+
-     '<div style="font-size:12px;color:var(--red);margin-top:2px">⌀ '+s.avg.toFixed(1)+' chyb · '+s.reached+' žáků</div></div>';
+     '<div style="font-size:12px;color:var(--red);margin-top:2px">⌀ '+_prum(s.avg)+' chyb · '+s.reached+' žáků</div></div>';
    }).join('')+
    '</div></div>';
  }
@@ -1710,7 +1721,7 @@ function renderDiag(){
    sqlSnaps.forEach(s=>{if(!sqlByUser.has(s.user_id))sqlByUser.set(s.user_id,[]);sqlByUser.get(s.user_id).push(s);});
    rows.forEach(r=>{
     const d=r.data||{},errs=d.errs||{},done=d.done||{};
-    const e=errs[m.id]||0;
+    const e=_chyb(errs[m.id]);
     let dc=0;for(let i=0;i<TC;i++)if(done[m.id+'-'+i])dc++;
     if(e>0||dc>0){reached++;totErr+=e;if(dc>=TC)completed++;}
     // Preferuj SQL snímky (fáze 6b); fallback na errsSnap v save JSON
@@ -1732,7 +1743,7 @@ function renderDiag(){
    cells+='<div style="background:'+bg+';border:1px solid '+bd+';border-radius:7px;padding:9px 11px">'+
     '<div style="font-weight:700;font-size:13px;color:#fff;margin-bottom:4px">'+m.id+' · '+esc(m.name)+'</div>'+
     '<div style="font-size:12px;color:var(--muted)">'+
-    (reached?('✅ '+(completed|0)+'/'+(reached|0)+' dokončilo · ⌀ '+esc(avg.toFixed(1))+' chyb'):'zatím nikdo nezkoušel')+
+    (reached?('✅ '+(completed|0)+'/'+(reached|0)+' dokončilo · ⌀ '+esc(_prum(avg))+' chyb'):'zatím nikdo nezkoušel')+
     '</div>'+trendHtml+'</div>';
   });
   const aname=(AREA_NAMES[game]||[])[area-1]||('Oblast '+area);
