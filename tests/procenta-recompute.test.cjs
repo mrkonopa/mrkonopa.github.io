@@ -40,7 +40,13 @@ const ok = (c, m, d = '') => { if (c) { pass++; console.log('  ✅ ' + m); } els
   const r = await page.evaluate(() => {
     const GEN = { part: genPart, base: genBase, percent: genPercent, increase: genIncrease,
                   decrease: genDecrease, compound: genCompound, comparison: genComparison, ratio: genRatio };
-    const cist = s => String(s).replace(/<[^>]*>/g, '').replace(/ /g, ' ');
+    /* Text ze značek vytahuje SKUTEČNÝ parser, ne regulární výraz.
+       `replace(/<[^>]*>/g,'')` je podle CodeQL „Incomplete multi-character
+       sanitization" (high) — a věcně by v matematice sežral „menší než":
+       ze zápisu „a < b > c" by zbylo „a  c". Tenhle test si tím prošel:
+       CodeQL ho na PR #234 označil hned, jak jsem ho přidal. */
+    const cist = s => new DOMParser().parseFromString(String(s), 'text/html')
+                        .body.textContent.replace(/\u00a0/g, ' ');
     const cislo = s => parseFloat(String(s).replace(/\s/g, '').replace(',', '.'));
     const blizko = (a, b) => Math.abs(a - b) < Math.max(0.01, Math.abs(b) * 1e-6);
 
