@@ -452,3 +452,62 @@ function trStartMatch(){
  trSpecialBegin();
  RPGTaskTypes.renderMatch(document.getElementById('tr-prob'),pairs,trSpecialDone);
 }
+
+/* ══════════════════════════════════════════════════════════════════
+   MASTERY, ODZNAKY, SNÍMKY CHYB, ADAPTIVNÍ OBTÍŽNOST — sdíleno 3.–9.
+
+   Třetí dávka konsolidace. Opět funkce, které byly ve všech sedmi hrách
+   byte po bytu totožné. `sanitizeMastery` je z nich nejcitlivější —
+   čistí žákovský save, takže sedm kopií znamenalo sedm míst, kde se dá
+   zapomenout na opravu.
+   ══════════════════════════════════════════════════════════════════ */
+function sanitizeMastery(){
+ if(!S.mastery||typeof S.mastery!=='object'){S.mastery={};return;}
+ for(const mid of Object.keys(S.mastery)){
+  let m=S.mastery[mid];
+  if(!m||typeof m!=='object'){m=S.mastery[mid]={score:0,mastered:false};}
+  m.score=(typeof m.score==='number'&&isFinite(m.score)&&m.score>0)?Math.floor(m.score):0;
+  m.mastered=!!m.mastered;
+  m.stars=(typeof m.stars==='number'&&isFinite(m.stars))?Math.max(0,Math.min(3,Math.floor(m.stars))):0;
+  if(!m.mastered){m.stars=0;m.lastOk='';m.starHist=[];continue;}
+  if(typeof m.lastOk!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(m.lastOk)||!isFinite(Date.parse(m.lastOk)))m.lastOk=todayStr();
+  if(m.lastOk>todayStr())m.lastOk=todayStr();
+  m.starHist=Array.isArray(m.starHist)?m.starHist.filter(d=>typeof d==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(d)).slice(0,3):[];
+ }
+}
+function _achNext(){
+ if(!_achQ.length){_achBusy=false;return;}
+ _achBusy=true;const a=_achQ.shift();
+ const t=document.createElement('div');t.className='ach-toast';
+ t.innerHTML=`<div class="ach-toast-ic">${RPGIcons.svg(a.ic,24)}</div><div><div class="ach-toast-h">ODZNAK ODEMČEN</div><div class="ach-toast-n">${a.nm}</div></div>`;
+ document.body.appendChild(t);void t.offsetWidth;t.classList.add('show');
+ setTimeout(()=>{t.classList.remove('show');setTimeout(()=>{t.remove();_achNext();},360);},2200);
+}
+function snapErrs(){if(!Array.isArray(S.errsSnap))S.errsSnap=[];const t=new Date().toISOString().slice(0,10);const last=S.errsSnap[S.errsSnap.length-1];if(last&&(new Date(t)-new Date(last.t))/864e5<7)return;const c={};for(const k in(S.errs||{}))if(S.errs[k]>0)c[k]=S.errs[k];S.errsSnap.push({t,errs:c,xp:S.xp||0});if(S.errsSnap.length>12)S.errsSnap=S.errsSnap.slice(-12);saveS();if(typeof RPGCloud!=='undefined'&&RPGCloud.pushErrsSnap)RPGCloud.pushErrsSnap(SAVE_KEY,S.errsSnap);}
+function trReviveChip(){
+ const el=document.getElementById('tr-revive-chip');if(!el)return;
+ if(TR.revive&&!TR.revive.earned){el.style.display='inline-block';el.textContent='🔁 Oživení: '+TR.revive.count+'/'+REVIVE_GOAL;}
+ else el.style.display='none';
+}
+function fillIcons(root){
+ if(typeof RPGIcons==='undefined')return;
+ (root||document).querySelectorAll('.bic[data-ic]').forEach(function(el){
+  if(!el.firstChild) el.innerHTML=RPGIcons.svg(el.dataset.ic,el.dataset.big?48:12);
+ });
+}
+function trGuard(){TR.guardJust=false;if(TR.streak>0&&!TR.guardUsed&&typeof RPGWallet!=='undefined'&&RPGWallet.hasPowerup&&RPGWallet.hasPowerup('pu-study-guide')){TR.guardUsed=true;TR.guardJust=true;return true;}return false;}
+function adaptMaybeSwap(idx){
+ const a=BT.adapt;
+ if(!a||a.mode===0||BT._rendered===idx||S.done[`${BT.mid}-${idx}`])return;
+ const pi=adaptPick(a.mode<0);
+ if(pi!=null){BT.srcIdx[idx]=pi;BT.tasks[idx]=BT.pool[pi];}
+}
+function adaptOnAnswer(ok){
+ const a=BT.adapt;if(!a)return;
+ if(ok){a.okRow++;a.errRow=0;}else{a.errRow++;a.okRow=0;}
+ a.mode=a.errRow>=2?-1:(a.okRow>=3?1:0);
+}
+function adaptScore(pi){
+ const errs=((S.trainErrs&&S.trainErrs[BT.mid])||{})[pi]||0;
+ return pi/Math.max(1,BT.pool.length)+Math.min(errs,4)/4;
+}
