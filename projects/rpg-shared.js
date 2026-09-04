@@ -452,3 +452,130 @@ function trStartMatch(){
  trSpecialBegin();
  RPGTaskTypes.renderMatch(document.getElementById('tr-prob'),pairs,trSpecialDone);
 }
+
+/* ══════════════════════════════════════════════════════════════════
+   MASTERY, ODZNAKY, SNÍMKY CHYB, ADAPTIVNÍ OBTÍŽNOST — sdíleno 3.–9.
+
+   Třetí dávka konsolidace. Opět funkce, které byly ve všech sedmi hrách
+   byte po bytu totožné. `sanitizeMastery` je z nich nejcitlivější —
+   čistí žákovský save, takže sedm kopií znamenalo sedm míst, kde se dá
+   zapomenout na opravu.
+   ══════════════════════════════════════════════════════════════════ */
+function sanitizeMastery(){
+ if(!S.mastery||typeof S.mastery!=='object'){S.mastery={};return;}
+ for(const mid of Object.keys(S.mastery)){
+  let m=S.mastery[mid];
+  if(!m||typeof m!=='object'){m=S.mastery[mid]={score:0,mastered:false};}
+  m.score=(typeof m.score==='number'&&isFinite(m.score)&&m.score>0)?Math.floor(m.score):0;
+  m.mastered=!!m.mastered;
+  m.stars=(typeof m.stars==='number'&&isFinite(m.stars))?Math.max(0,Math.min(3,Math.floor(m.stars))):0;
+  if(!m.mastered){m.stars=0;m.lastOk='';m.starHist=[];continue;}
+  if(typeof m.lastOk!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(m.lastOk)||!isFinite(Date.parse(m.lastOk)))m.lastOk=todayStr();
+  if(m.lastOk>todayStr())m.lastOk=todayStr();
+  m.starHist=Array.isArray(m.starHist)?m.starHist.filter(d=>typeof d==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(d)).slice(0,3):[];
+ }
+}
+function _achNext(){
+ if(!_achQ.length){_achBusy=false;return;}
+ _achBusy=true;const a=_achQ.shift();
+ const t=document.createElement('div');t.className='ach-toast';
+ t.innerHTML=`<div class="ach-toast-ic">${RPGIcons.svg(a.ic,24)}</div><div><div class="ach-toast-h">ODZNAK ODEMČEN</div><div class="ach-toast-n">${a.nm}</div></div>`;
+ document.body.appendChild(t);void t.offsetWidth;t.classList.add('show');
+ setTimeout(()=>{t.classList.remove('show');setTimeout(()=>{t.remove();_achNext();},360);},2200);
+}
+function snapErrs(){if(!Array.isArray(S.errsSnap))S.errsSnap=[];const t=new Date().toISOString().slice(0,10);const last=S.errsSnap[S.errsSnap.length-1];if(last&&(new Date(t)-new Date(last.t))/864e5<7)return;const c={};for(const k in(S.errs||{}))if(S.errs[k]>0)c[k]=S.errs[k];S.errsSnap.push({t,errs:c,xp:S.xp||0});if(S.errsSnap.length>12)S.errsSnap=S.errsSnap.slice(-12);saveS();if(typeof RPGCloud!=='undefined'&&RPGCloud.pushErrsSnap)RPGCloud.pushErrsSnap(SAVE_KEY,S.errsSnap);}
+function trReviveChip(){
+ const el=document.getElementById('tr-revive-chip');if(!el)return;
+ if(TR.revive&&!TR.revive.earned){el.style.display='inline-block';el.textContent='🔁 Oživení: '+TR.revive.count+'/'+REVIVE_GOAL;}
+ else el.style.display='none';
+}
+function fillIcons(root){
+ if(typeof RPGIcons==='undefined')return;
+ (root||document).querySelectorAll('.bic[data-ic]').forEach(function(el){
+  if(!el.firstChild) el.innerHTML=RPGIcons.svg(el.dataset.ic,el.dataset.big?48:12);
+ });
+}
+function trGuard(){TR.guardJust=false;if(TR.streak>0&&!TR.guardUsed&&typeof RPGWallet!=='undefined'&&RPGWallet.hasPowerup&&RPGWallet.hasPowerup('pu-study-guide')){TR.guardUsed=true;TR.guardJust=true;return true;}return false;}
+function adaptMaybeSwap(idx){
+ const a=BT.adapt;
+ if(!a||a.mode===0||BT._rendered===idx||S.done[`${BT.mid}-${idx}`])return;
+ const pi=adaptPick(a.mode<0);
+ if(pi!=null){BT.srcIdx[idx]=pi;BT.tasks[idx]=BT.pool[pi];}
+}
+function adaptOnAnswer(ok){
+ const a=BT.adapt;if(!a)return;
+ if(ok){a.okRow++;a.errRow=0;}else{a.errRow++;a.okRow=0;}
+ a.mode=a.errRow>=2?-1:(a.okRow>=3?1:0);
+}
+function adaptScore(pi){
+ const errs=((S.trainErrs&&S.trainErrs[BT.mid])||{})[pi]||0;
+ return pi/Math.max(1,BT.pool.length)+Math.min(errs,4)/4;
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   JÁDRO SPOLEČNÉ VŠEM ROČNÍKŮM — save, odznaky, peněženka, formát čísel
+
+   Čtvrtá dávka konsolidace: posledních 28 funkcí, které byly ve všech
+   sedmi hrách byte po bytu totožné. Jsou mezi nimi hodně centrální věci
+   (`saveS`, `unlockAch`, `exitBattle`, `stopTimer`, `calcLevel`), takže
+   sedm kopií znamenalo sedm míst k rozejití.
+
+   POŘADÍ NAČÍTÁNÍ je tu ta ošemetná část: modul se načítá s `defer`,
+   tedy AŽ PO inline skriptu hry. Ověřeno, že žádná z těchto funkcí se
+   ve hrách nevolá na nejvyšší úrovni při načtení — volají se výhradně
+   z obsluh událostí a z `boot()`, který běží na `load`. Kdyby sem někdo
+   přidal funkci volanou při parsování, hra spadne na ReferenceError.
+   ══════════════════════════════════════════════════════════════════ */
+function useMiniHint(){
+ const mt=BT.mini&&BT.mini[BT.idx];
+ if(!mt||BT.miniHintUsed||BT.hp<=1)return;
+ BT.miniHintUsed=true;
+ const mhBtn=document.getElementById('bt-mini-hint');if(mhBtn)mhBtn.disabled=true;
+ damagePlayer();
+ if(mt.type==='order'){
+  const doneCount=document.querySelectorAll('#bt-prob .tto-chip.done').length;
+  const sorted=[...mt.data].sort((a,b)=>mt.desc?(b.v-a.v):(a.v-b.v));
+  const nextLabel=sorted[doneCount]&&sorted[doneCount].label;
+  if(nextLabel){const chip=[...document.querySelectorAll('#bt-prob .tto-chip')].find(c=>!c.classList.contains('done')&&c.textContent===nextLabel);if(chip)setTimeout(()=>chip.click(),250);}
+ } else {
+  const qBtn=[...document.querySelectorAll('#bt-prob .ttm-q:not(.done)')][0];
+  if(qBtn){qBtn.click();const ans=qBtn.dataset.a;const aBtn=[...document.querySelectorAll('#bt-prob .ttm-a:not(.done)')].find(b=>b.textContent===ans);if(aBtn)setTimeout(()=>aBtn.click(),250);}
+ }
+}
+function unlockAch(id){
+ if(S.ach&&S.ach[id])return;
+ const a=ACH.find(x=>x.id===id);if(!a)return;
+ if(!S.ach)S.ach={};
+ S.ach[id]=new Date().toISOString().slice(0,10);
+ saveS();achToast(a);
+}
+function exitBattle(){stopTimer();if(BT.freezeTimeout){clearTimeout(BT.freezeTimeout);BT.freezeTimeout=null;}const m=document.getElementById('bt-mon');if(m)m.style.filter='';openArea(BT.aid);}
+function casNaUlohu(t){
+ const txt=String((t&&t.text)||'');
+ const navic=Math.min(25,Math.max(0,Math.ceil((txt.length-50)/6)));
+ return TIME_PER_TASK+navic;
+}
+function toggleSound(on){if(typeof RPGWallet!=='undefined')RPGWallet.setSoundOn(on);if(on&&typeof RPGSound!=='undefined')RPGSound.play('ok');}
+function rmActive(){return((typeof RPGWallet!=='undefined')&&RPGWallet.getReducedMotion())||(S.settings&&S.settings.reducedMotion)||false;}
+function saveS(){localStorage.setItem(SAVE_KEY,JSON.stringify(S));if(window.RPGCloud&&RPGCloud.push)RPGCloud.push(SAVE_KEY,S);}
+function wMax(k,v){if(typeof RPGWallet!=='undefined'&&RPGWallet.setLifeMax)RPGWallet.setLifeMax(k,v).forEach(achToast);}
+function wBump(k,n){if(typeof RPGWallet!=='undefined'&&RPGWallet.bumpLife)RPGWallet.bumpLife(k,n).forEach(achToast);}
+function daysSinceStr(d){const t=Date.parse(d);if(!isFinite(t))return 0;return Math.floor((Date.now()-t)/864e5);}
+function wCatalog(){return(typeof RPGWallet!=='undefined'&&RPGWallet.itemsAll)?RPGWallet.itemsAll():SHOP_ITEMS;}
+function _activeCosmetics(){return(typeof RPGWallet!=='undefined')?RPGWallet.get().cosmetics:S.cosmetics;}
+function esc2(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function _walletBal(){return(typeof RPGWallet!=='undefined')?RPGWallet.getCredits():(S.credits||0);}
+function applyMotionPref(){document.documentElement.classList.toggle('reduced-motion',rmActive());}
+function wPerk(p){return typeof RPGWallet!=='undefined'&&RPGWallet.hasPerk&&RPGWallet.hasPerk(p);}
+function toggleSponka(on){if(typeof RPGWallet!=='undefined')RPGWallet.setSponkaEnabled(on);}
+function closeModal(){document.getElementById('modal').classList.remove('show');}
+function stopTimer(){if(BT.timer){clearInterval(BT.timer);BT.timer=null;}}
+function czTxt(t){return String(t).replace(/(\d)\.(\d)/g,'$1,$2');}
+function czMC(x){return String(x).replace(/(\d)\.(\d)/g,'$1,$2');}
+function todayStr(){return new Date().toISOString().slice(0,10);}
+function achToast(a){_achQ.push(a);if(!_achBusy)_achNext();}
+function goPractice(mid){go('train');startTrain(mid);}
+function wCritBonus(){return wPerk('critcredit')?2:0;}
+function calcLevel(){S.level=Math.floor(S.xp/100)+1;}
+function trEnd(){renderTrainPicker();}
+function trNext(){trDraw();}

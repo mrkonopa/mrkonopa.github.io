@@ -44,7 +44,7 @@ const ok = (c, m) => { if (c) { pass++; } else { fail++; console.log('  ❌ ' + 
        pravidlo níž. */
     const nrm = x => String(x).replace(/(\d)\.(\d)/g, '$1,$2');
     let renders = 0, badCount = 0, badDup = 0, distrEqAns = 0, curatedSeen = 0, curatedTotal = 0, nan = 0;
-    let mixCislaSlova = 0, nejednotnyZapis = 0;
+    let mixCislaSlova = 0, nejednotnyZapis = 0, cizíVolba = 0, uzavrenych = 0;
     for (const ar of AREAS) for (const m of ar.missions) {
       if (!m.mc) continue;
       for (let rep = 0; rep < 40; rep++) {
@@ -56,13 +56,29 @@ const ok = (c, m) => { if (c) { pass++; } else { fail++; console.log('  ❌ ' + 
           renderMC(t);
           const opts = readOpts();
           renders++;
-          if (opts.length !== 4) badCount++;
+          /* Kolik voleb se čeká: běžně 4, u UZAVŘENÉHO výběru přesně tolik,
+             kolik jich úloha nabízí (`mc_opts`) — u „A, nebo B?" tedy dvě.
+             Dřív tu bylo natvrdo 4, což byl důvod, proč se k takové otázce
+             dopočítávala cizí čísla. */
+          const cekano = (Array.isArray(t.mc_opts) && t.mc_opts.length >= 2) ? t.mc_opts.length : 4;
+          if (opts.length !== cekano) badCount++;
           if (new Set(opts).size !== opts.length) badDup++;
           if (!opts.map(nrm).includes(nrm(t.ans))) badCount++;
           if (opts.some(o => o === 'NaN' || o === 'undefined')) nan++;
           /* Je odpověď číslo? Pak žádná volba nesmí být slovo. */
           const jeCislo = x => !isNaN(parseFloat(String(x).replace(',', '.')));
           if (jeCislo(t.ans) && opts.some(o => !jeCislo(o))) mixCislaSlova++;
+          /* UZAVŘENÝ VÝBĚR: ptá-li se zadání „…: A, nebo B?", musí být volby
+             přesně A a B. Dřív se dopočítávaly sousedy, takže u „Které číslo
+             je větší: 503, nebo 744?" svítilo „743 / 503 / 744 / 745" — dvě
+             čísla, která v otázce vůbec nejsou, a dítě mělo vybrat ze čtyř,
+             přestože se ho ptáme na dvě. (180 úloh v 1. stupni.) */
+          const mm = String(t.text || '').match(/(-?[\d ]+(?:[.,]\d+)?)\s*,\s*nebo\s*(-?[\d ]+(?:[.,]\d+)?)\s*\?/);
+          if (mm) {
+            uzavrenych++;
+            const kand = [mm[1].trim(), mm[2].trim()];
+            if (opts.some(o => !kand.includes(String(o).trim()))) cizíVolba++;
+          }
           /* Desetinné volby musí mít všechny stejný oddělovač. */
           const des = opts.filter(o => /^-?\d+[.,]\d+$/.test(o));
           if (des.length > 1) {
@@ -76,10 +92,10 @@ const ok = (c, m) => { if (c) { pass++; } else { fail++; console.log('  ❌ ' + 
         });
       }
     }
-    return { renders, badCount, badDup, distrEqAns, curatedSeen, curatedTotal, nan, mixCislaSlova, nejednotnyZapis };
+    return { renders, badCount, badDup, distrEqAns, curatedSeen, curatedTotal, nan, mixCislaSlova, nejednotnyZapis, cizíVolba, uzavrenych };
   }, Number(GRADE));
   ok(sweep.renders > 200, `proběhlo dost renderů (${sweep.renders})`);
-  ok(sweep.badCount === 0, `každá MC úloha má 4 volby včetně správné (chyb ${sweep.badCount})`);
+  ok(sweep.badCount === 0, `MC nabízí očekávaný počet voleb včetně správné (chyb ${sweep.badCount})`);
   ok(sweep.badDup === 0, `žádné duplicitní volby (dup ${sweep.badDup})`);
   ok(sweep.nan === 0, `žádné NaN/undefined volby (${sweep.nan})`);
   /* ── Volby musí být SMYSLUPLNÉ, ne jen odlišné ─────────────────────
@@ -96,6 +112,8 @@ const ok = (c, m) => { if (c) { pass++; } else { fail++; console.log('  ❌ ' + 
     `u číselné otázky nejsou slovní volby typu ANO/NE (${sweep.mixCislaSlova})`);
   ok(sweep.nejednotnyZapis === 0,
     `zápis voleb je jednotný (tečka vs čárka neprozradí odpověď) (${sweep.nejednotnyZapis})`);
+  ok(sweep.cizíVolba === 0,
+    `u uzavřeného výběru („A, nebo B?") nejsou cizí volby (${sweep.cizíVolba} z ${sweep.uzavrenych})`);
   ok(sweep.distrEqAns === 0, `kurátorský distraktor se NIKDY nerovná správné odpovědi (kolizí ${sweep.distrEqAns})`);
   // kurátorský obsah zatím jen g9 (pilot); na ostatních ročnících ověřujeme
   // jen bezpečnost infry (honor-line/mcWrong nerozbily MC generování)
