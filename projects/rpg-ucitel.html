@@ -630,6 +630,12 @@ function cohortStatus(c){
  return g+'. ročník · '+syLabel(schoolYearStart());
 }
 
+/* Číslo ze ŽÁKOVSKÉHO savu. Bez tohohle se `(d.xp||0)+delta` chovalo
+   podle typu: u řetězce „50" vyšlo ZŘETĚZENÍ („50"+10 = „5010"), takže
+   učitel přidal 10 XP a dítě skočilo na 5010 XP a úroveň 51; u nečíselné
+   hodnoty se do savu zapsalo NaN a rozbilo žákovi postup.
+   Zobrazení už chráněné bylo (`|0`), ale ZÁPISY ne. */
+function _num(v){ const n = Number(v); return Number.isFinite(n) && n > 0 ? n : 0; }
 function esc(s){return String(s==null?'':s).replace(/[<>&"']/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;',"'":'&#39;'}[c]));}
 function doneCount(d){return d&&d.done?Object.keys(d.done).length:0;}
 function masteryCount(d){if(!d||!d.mastery)return 0;return Object.values(d.mastery).filter(m=>m&&m.mastered).length;}
@@ -998,7 +1004,7 @@ async function bulkAwardXp(){
  let okN=0,errN=0;
  for(const r of rows){
   const d=Object.assign({},r.data||{});
-  d.xp=Math.max(0,(d.xp||0)+delta);
+  d.xp=Math.max(0,_num(d.xp)+delta);
   d.level=Math.floor(d.xp/100)+1;
   const res=await RPGCloud.updateSaveFor(r.user_id,r.game,d);
   if(res.ok){r.data=d;okN++;}else errN++;
@@ -1256,7 +1262,7 @@ async function giveXP(i,sign){
  if(isNaN(delta)){toast('Zadej číslo.',1);return;}
  delta=Math.abs(delta)*(sign||1);
  const d=Object.assign({},r.data||{});
- d.xp=Math.max(0,(d.xp||0)+delta);
+ d.xp=Math.max(0,_num(d.xp)+delta);
  d.level=Math.floor(d.xp/100)+1;
  const res=await RPGCloud.updateSaveFor(r.user_id,r.game,d);
  if(res.ok){r.data=d;toast((delta>=0?'+':'')+delta+' XP');RPGCloud.logAction('give_xp',{target:r.user_id,targetEmail:r.email,game:r.game,detail:{delta:delta}});renderStats();renderTable();openDetail(i);}
@@ -1270,7 +1276,7 @@ async function giveCredits(i,sign){
  const w=await RPGCloud.pullSaveFor(r.user_id,'_wallet');
  if(!w){toast('Žák nemá peněženku — musí se alespoň jednou přihlásit do hry.',1);return;}
  const d=Object.assign({},w);
- d.credits=Math.max(0,(d.credits||0)+delta);
+ d.credits=Math.max(0,_num(d.credits)+delta);
  const res=await RPGCloud.updateSaveFor(r.user_id,'_wallet',d);
  if(res.ok){toast((delta>=0?'+':'')+delta+' kreditů');RPGCloud.logAction('give_credits',{target:r.user_id,targetEmail:r.email,game:r.game,detail:{delta:delta}});}
  else toast('Chyba: '+res.error,1);
@@ -1436,7 +1442,7 @@ async function classAwardXp(cid){
  const v=prompt('Kolik XP přidat všem postavám ve třídě? (může být i záporné)','50');
  if(v==null)return;const delta=parseInt(v,10);if(isNaN(delta)){toast('Zadej číslo.',1);return;}
  let okN=0,errN=0;
- for(const r of rows){const d=Object.assign({},r.data||{});d.xp=Math.max(0,(d.xp||0)+delta);d.level=Math.floor(d.xp/100)+1;const res=await RPGCloud.updateSaveFor(r.user_id,r.game,d);if(res.ok){r.data=d;okN++;}else errN++;}
+ for(const r of rows){const d=Object.assign({},r.data||{});d.xp=Math.max(0,_num(d.xp)+delta);d.level=Math.floor(d.xp/100)+1;const res=await RPGCloud.updateSaveFor(r.user_id,r.game,d);if(res.ok){r.data=d;okN++;}else errN++;}
  toast((delta>=0?'+':'')+delta+' XP · '+okN+' postav'+(errN?' ('+errN+' chyb)':''),errN>0);
  RPGCloud.logAction('class_xp',{game:rows[0]&&rows[0].game,detail:{delta:delta,count:okN,class:cid}});
  renderStats();renderTable();

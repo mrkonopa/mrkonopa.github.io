@@ -386,6 +386,35 @@ async function run(){
       ok('b-2 dostal +50 XP (200→250)', afterXp.b===250, 'xp: '+afterXp.b);
       ok('Nevybraný b-3 beze změny (0)', afterXp.c===0, 'xp: '+afterXp.c);
 
+      /* ── Poškozený `xp` v savu nesmí odměnu zvrhnout ────────────────────
+         `xp` píše ŽÁK. Dokud se před sčítáním nepřetypovalo, chovalo se
+         `(d.xp||0)+delta` podle typu: u ČÍSELNÉHO ŘETĚZCE „50" vyšlo
+         zřetězení („50"+50 = „5050"), takže učitel přidal 50 XP a dítě
+         skočilo o padesát úrovní; u nečíselné hodnoty se do savu zapsalo
+         NaN a rozbilo žákovi postup. Zobrazení chráněné bylo (`|0`),
+         zápisy ne. */
+      const afterPodvrh=await pg.evaluate(async()=>{
+        const r1=window.__filtered.find(r=>r.user_id==='b-1');
+        const r2=window.__filtered.find(r=>r.user_id==='b-2');
+        r1.data.xp='50';        // číselný řetězec (starší klient / ruční úprava)
+        r2.data.xp='ahoj';      // nesmysl
+        const idx=window.__filtered.map((r,i)=>[r.user_id,i]).filter(([u])=>u==='b-1'||u==='b-2').map(([,i])=>i);
+        idx.forEach(i=>toggleSel(i,true));
+        document.getElementById('bulk-xp').value='50';
+        await bulkAwardXp();
+        return { a:window.__filtered.find(r=>r.user_id==='b-1').data.xp,
+                 b:window.__filtered.find(r=>r.user_id==='b-2').data.xp,
+                 la:window.__filtered.find(r=>r.user_id==='b-1').data.level,
+                 lb:window.__filtered.find(r=>r.user_id==='b-2').data.level };
+      });
+      ok('číselný řetězec „50" + 50 XP = 100, ne 5050',
+         afterPodvrh.a===100, 'xp: '+JSON.stringify(afterPodvrh.a));
+      ok('nesmysl v xp + 50 XP = 50, ne NaN',
+         afterPodvrh.b===50, 'xp: '+JSON.stringify(afterPodvrh.b));
+      ok('úrovně vyjdou jako konečná čísla',
+         Number.isFinite(afterPodvrh.la)&&Number.isFinite(afterPodvrh.lb),
+         'level: '+JSON.stringify([afterPodvrh.la,afterPodvrh.lb]));
+
       // hromadné odemčení mise 3-2 vybraným (po renderTable se výběr drží podle klíče)
       const afterUnlock=await pg.evaluate(async()=>{
         const idx=window.__filtered.map((r,i)=>[r.user_id,i]).filter(([u])=>u==='b-1'||u==='b-2').map(([,i])=>i);
