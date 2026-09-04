@@ -636,7 +636,7 @@ window.RPGCloud = (function () {
     try {
       const { data, error } = await client.rpc('battle_state', { p_battle: battleId });
       if (error) throw error; return data;
-    } catch (e) { return null; }
+    } catch (e) { console.warn('[RPGCloud] battleState selhal:', e); return null; }
   }
   async function submitBattleAnswer(battleId, qi, correct, points) {
     if (!client || !user) return false;
@@ -644,7 +644,7 @@ window.RPGCloud = (function () {
       const { error } = await client.rpc('submit_battle_answer',
         { p_battle: battleId, p_qi: qi, p_correct: !!correct, p_points: Math.round(points) || 0 });
       return !error;
-    } catch (e) { return false; }
+    } catch (e) { console.warn('[RPGCloud] submitBattleAnswer selhal:', e); return false; }
   }
   async function advanceBattle(battleId, qi) {
     if (!client || !user) return null;
@@ -665,21 +665,21 @@ window.RPGCloud = (function () {
     try {
       const { data, error } = await client.rpc('list_active_battles');
       if (error) throw error; return data || [];
-    } catch (e) { return []; }
+    } catch (e) { console.warn('[RPGCloud] listActiveBattles selhal:', e); return []; }
   }
   async function inviteBattleEmail(battleId, email) {
     if (!client || !user) return false;
     try {
       const { error } = await client.rpc('invite_battle_email', { p_battle: battleId, p_email: email });
       return !error;
-    } catch (e) { return false; }
+    } catch (e) { console.warn('[RPGCloud] inviteBattleEmail selhal:', e); return false; }
   }
   async function myBattleInvites() {
     if (!client || !user) return [];
     try {
       const { data, error } = await client.rpc('my_battle_invites');
       if (error) throw error; return data || [];
-    } catch (e) { return []; }
+    } catch (e) { console.warn('[RPGCloud] myBattleInvites selhal:', e); return []; }
   }
   /* Fáze 13: trvalá historie soubojů. Hráč po skončení zapíše svůj výsledek
      (server si čísla dopočítá z battle_players → nelze podvrhnout). */
@@ -688,7 +688,7 @@ window.RPGCloud = (function () {
     try {
       const { error } = await client.rpc('record_battle_result', { p_battle: battleId });
       return !error;
-    } catch (e) { return false; }
+    } catch (e) { console.warn('[RPGCloud] recordBattleResult selhal:', e); return false; }
   }
   /* Učitel: agregace soubojových statistik per žák (volitelně 1 ročník). */
   async function battleStatsAll(game) {
@@ -696,7 +696,7 @@ window.RPGCloud = (function () {
     try {
       const { data, error } = await client.rpc('battle_stats_all', { p_game: game || null });
       if (error) throw error; return data || [];
-    } catch (e) { return []; }
+    } catch (e) { console.warn('[RPGCloud] battleStatsAll selhal:', e); return []; }
   }
   /* Žák: vlastní soubojový souhrn. */
   async function battleStatsMe(game) {
@@ -704,7 +704,7 @@ window.RPGCloud = (function () {
     try {
       const { data, error } = await client.rpc('battle_stats_me', { p_game: game || null });
       if (error) throw error; return (data && data[0]) || null;
-    } catch (e) { return null; }
+    } catch (e) { console.warn('[RPGCloud] battleStatsMe selhal:', e); return null; }
   }
   /* Polling: zavolá cb(state) hned a pak každých intervalMs (default 1200).
      Vrací stop() funkci. Klient tím drží živý stav bez websocketů. */
@@ -1191,7 +1191,7 @@ window.RPGCloud = (function () {
         p_game: opts.game || null,
         p_detail: opts.detail || {}
       });
-    } catch (e) { /* logování nesmí shodit akci */ }
+    } catch (e) { console.warn('[RPGCloud] logAction selhal:', e); /* logování nesmí shodit akci */ }
   }
   // listAuditLog: čte jen superadmin (server i klient hlídají).
   async function listAuditLog(opts) {
@@ -1252,7 +1252,7 @@ window.RPGCloud = (function () {
       const { data, error } = await client.rpc('my_assignments');
       if (error) throw error;
       return data || [];
-    } catch (e) { return []; }
+    } catch (e) { console.warn('[RPGCloud] pullMyAssignments selhal:', e); return []; }
   }
 
   return { CONFIG, configured, hasKeys, libLoaded, init, login, logout, currentUser, getError,
