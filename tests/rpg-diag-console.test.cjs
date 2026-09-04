@@ -105,8 +105,14 @@ async function run() {
     const txt = await page.evaluate(()=>document.getElementById('diag-wrap').textContent);
 
     ok('heatmapa ukazuje názvy misí', /Bootovací sekvence/.test(txt));
-    ok('mise 1-1: 1/2 dokončilo, ⌀ 3.0 chyb', /1\/2 dokončilo · ⌀ 3\.0 chyb/.test(txt), txt.slice(0,200));
-    ok('mise 5-2: vysoká chybovost ⌀ 6.0', /⌀ 6\.0 chyb/.test(txt));
+    /* Průměr se píše českou desetinnou ČÁRKOU. Test dřív čekal „3.0"
+       s tečkou, čímž zakonzervoval nesprávný zápis — konzole je jediné
+       místo v projektu, kde tečka přežila. Kontroluje se i to, že se
+       tečka nevrátí. */
+    ok('mise 1-1: 1/2 dokončilo, ⌀ 3,0 chyb', /1\/2 dokončilo · ⌀ 3,0 chyb/.test(txt), txt.slice(0,200));
+    ok('mise 5-2: vysoká chybovost ⌀ 6,0', /⌀ 6,0 chyb/.test(txt));
+    ok('žádný průměr se nepíše s desetinnou tečkou', !/⌀ \d+\.\d/.test(txt),
+       (txt.match(/⌀ \d+\.\d[^·]*/) || [''])[0]);
     ok('mise bez dat má text „zatím nikdo nezkoušel"', /zatím nikdo nezkoušel/.test(txt));
     ok('vykresleno všech 7 oblastí', (txt.match(/Oblast \d/g)||[]).length===7);
 
@@ -119,14 +125,43 @@ async function run() {
     const heatCells = await page.evaluate(()=>document.querySelectorAll('#diag-wrap div[style*="hsl"]').length);
     ok('mise s daty mají heat-barvu (hsl pozadí)', heatCells>=2, 'hsl buněk='+heatCells);
 
-    // filtr třídy: 9.A obsahuje jen Neo (errs 1-1:4) → ⌀ 4.0, 1/1 dokončilo
+    // filtr třídy: 9.A obsahuje jen Neo (errs 1-1:4) → ⌀ 4,0, 1/1 dokončilo
     const classOpts = await page.evaluate(()=>document.getElementById('diag-class')?document.getElementById('diag-class').options.length:0);
     ok('filtr tříd je naplněn (Všechny + 9.A)', classOpts===2, 'options='+classOpts);
     await page.evaluate(()=>{ const c=document.getElementById('diag-class'); c.value='c1'; renderDiag(); });
     const txtC = await page.evaluate(()=>document.getElementById('diag-wrap').textContent);
-    ok('po filtru 9.A: mise 1-1 jen Neo → 1/1 ⌀ 4.0', /1\/1 dokončilo · ⌀ 4\.0 chyb/.test(txtC), txtC.slice(0,200));
+    ok('po filtru 9.A: mise 1-1 jen Neo → 1/1 ⌀ 4,0', /1\/1 dokončilo · ⌀ 4,0 chyb/.test(txtC), txtC.slice(0,200));
     // zpět na všechny třídy
     await page.evaluate(()=>{ const c=document.getElementById('diag-class'); c.value=''; renderDiag(); });
+
+    /* ── Podvržený save nesmí rozbít heatmapu ──────────────────────────
+       `errs` píše ŽÁK, takže si tam může dát cokoli. Bez čištění se
+       `totErr += e` změnilo na zřetězení a učiteli svítilo „⌀ NaN chyb";
+       horší než text je barva — `hue` se počítá z průměru a `NaN|0` je 0,
+       tedy sytě červená, takže jeden žák udělal z libovolné mise
+       „největší problém třídy". Je to týž vzor jako slepý ::int cast
+       v SQL (fáze 19/24), jen na klientovi. */
+    {
+      const podvrh = JSON.parse(JSON.stringify(scenario));
+      podvrh.saves[1].data.errs = { '1-1': 'pwn', '5-2': { x: 1 } };
+      podvrh.saves.push({ user_id:'z3', game:'RPG_MAT_9', name:'Morpheus', email:'z3@husovaliberec.cz',
+        full_name:'Žák 3', updated_at:new Date().toISOString(),
+        data:{ name:'Morpheus', xp:10, level:1, done:{ '1-1-0':1 }, errs:{ '1-1': 1e308 } } });
+      const c2 = await browser.newContext();
+      const p2 = await c2.newPage();
+      await p2.addInitScript(mockScript(podvrh));
+      await p2.goto(`${BASE}/projects/rpg-ucitel.html`, { waitUntil:'domcontentloaded' });
+      await p2.waitForFunction(()=>!document.getElementById('console').classList.contains('hidden'), {timeout:8000});
+      await p2.click('[data-tab="diag"]');
+      await p2.waitForTimeout(700);
+      const t2 = await p2.evaluate(()=>{ const s=document.getElementById('diag-game'); if(s){s.value='RPG_MAT_9';}
+                                          try{renderDiag();}catch(e){return 'VÝJIMKA: '+e.message;}
+                                          return document.getElementById('diag-wrap').innerText; });
+      ok('podvržené errs nedají NaN', !/NaN/.test(t2), (t2.match(/[^\n]*NaN[^\n]*/)||[''])[0].slice(0,80));
+      ok('podvržené errs nedají [object]', !/\[object/.test(t2));
+      ok('obří číslo se ořízne (žádná exponenciála)', !/e\+\d/.test(t2), (t2.match(/[^\n]*e\+\d[^\n]*/)||[''])[0].slice(0,60));
+      await c2.close();
+    }
 
     ok('žádné JS chyby na stránce', errors.length===0, errors.slice(0,3).join(' | '));
     await ctx.close();

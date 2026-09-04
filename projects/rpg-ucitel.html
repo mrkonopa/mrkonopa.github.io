@@ -630,6 +630,12 @@ function cohortStatus(c){
  return g+'. ročník · '+syLabel(schoolYearStart());
 }
 
+/* Číslo ze ŽÁKOVSKÉHO savu. Bez tohohle se `(d.xp||0)+delta` chovalo
+   podle typu: u řetězce „50" vyšlo ZŘETĚZENÍ („50"+10 = „5010"), takže
+   učitel přidal 10 XP a dítě skočilo na 5010 XP a úroveň 51; u nečíselné
+   hodnoty se do savu zapsalo NaN a rozbilo žákovi postup.
+   Zobrazení už chráněné bylo (`|0`), ale ZÁPISY ne. */
+function _num(v){ const n = Number(v); return Number.isFinite(n) && n > 0 ? n : 0; }
 function esc(s){return String(s==null?'':s).replace(/[<>&"']/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;',"'":'&#39;'}[c]));}
 function doneCount(d){return d&&d.done?Object.keys(d.done).length:0;}
 function masteryCount(d){if(!d||!d.mastery)return 0;return Object.values(d.mastery).filter(m=>m&&m.mastered).length;}
@@ -998,7 +1004,7 @@ async function bulkAwardXp(){
  let okN=0,errN=0;
  for(const r of rows){
   const d=Object.assign({},r.data||{});
-  d.xp=Math.max(0,(d.xp||0)+delta);
+  d.xp=Math.max(0,_num(d.xp)+delta);
   d.level=Math.floor(d.xp/100)+1;
   const res=await RPGCloud.updateSaveFor(r.user_id,r.game,d);
   if(res.ok){r.data=d;okN++;}else errN++;
@@ -1256,7 +1262,7 @@ async function giveXP(i,sign){
  if(isNaN(delta)){toast('Zadej číslo.',1);return;}
  delta=Math.abs(delta)*(sign||1);
  const d=Object.assign({},r.data||{});
- d.xp=Math.max(0,(d.xp||0)+delta);
+ d.xp=Math.max(0,_num(d.xp)+delta);
  d.level=Math.floor(d.xp/100)+1;
  const res=await RPGCloud.updateSaveFor(r.user_id,r.game,d);
  if(res.ok){r.data=d;toast((delta>=0?'+':'')+delta+' XP');RPGCloud.logAction('give_xp',{target:r.user_id,targetEmail:r.email,game:r.game,detail:{delta:delta}});renderStats();renderTable();openDetail(i);}
@@ -1270,7 +1276,7 @@ async function giveCredits(i,sign){
  const w=await RPGCloud.pullSaveFor(r.user_id,'_wallet');
  if(!w){toast('Žák nemá peněženku — musí se alespoň jednou přihlásit do hry.',1);return;}
  const d=Object.assign({},w);
- d.credits=Math.max(0,(d.credits||0)+delta);
+ d.credits=Math.max(0,_num(d.credits)+delta);
  const res=await RPGCloud.updateSaveFor(r.user_id,'_wallet',d);
  if(res.ok){toast((delta>=0?'+':'')+delta+' kreditů');RPGCloud.logAction('give_credits',{target:r.user_id,targetEmail:r.email,game:r.game,detail:{delta:delta}});}
  else toast('Chyba: '+res.error,1);
@@ -1436,7 +1442,7 @@ async function classAwardXp(cid){
  const v=prompt('Kolik XP přidat všem postavám ve třídě? (může být i záporné)','50');
  if(v==null)return;const delta=parseInt(v,10);if(isNaN(delta)){toast('Zadej číslo.',1);return;}
  let okN=0,errN=0;
- for(const r of rows){const d=Object.assign({},r.data||{});d.xp=Math.max(0,(d.xp||0)+delta);d.level=Math.floor(d.xp/100)+1;const res=await RPGCloud.updateSaveFor(r.user_id,r.game,d);if(res.ok){r.data=d;okN++;}else errN++;}
+ for(const r of rows){const d=Object.assign({},r.data||{});d.xp=Math.max(0,_num(d.xp)+delta);d.level=Math.floor(d.xp/100)+1;const res=await RPGCloud.updateSaveFor(r.user_id,r.game,d);if(res.ok){r.data=d;okN++;}else errN++;}
  toast((delta>=0?'+':'')+delta+' XP · '+okN+' postav'+(errN?' ('+errN+' chyb)':''),errN>0);
  RPGCloud.logAction('class_xp',{game:rows[0]&&rows[0].game,detail:{delta:delta,count:okN,class:cid}});
  renderStats();renderTable();
@@ -1676,9 +1682,20 @@ function renderDiag(){
  const sqlSnapsAll=SNAP_DATA[game]||[];
  const sqlByUserAll=new Map();
  sqlSnapsAll.forEach(s=>{if(!sqlByUserAll.has(s.user_id))sqlByUserAll.set(s.user_id,[]);sqlByUserAll.get(s.user_id).push(s);});
+/* Počet chyb je ze ŽÁKOVSKÉHO savu, který si žák může přepsat — je to
+   client-trusted údaj. Bez téhle pojistky stačil řetězec nebo objekt
+   v `errs` a součet se změnil na zřetězení: učiteli se v heatmapě
+   ukázalo „⌀ NaN chyb". Horší než ten text je barva: `hue` se počítá
+   z průměru a `NaN|0` je 0, tedy SYTĚ ČERVENÁ — jeden podvržený save
+   udělá z libovolné mise „největší problém třídy". Je to týž vzor jako
+   slepý ::int cast v SQL (fáze 19/24), jen na klientovi.
+   Strop 9999 drží i případ „obří číslo" (ukazovalo „⌀ 5e+307 chyb"). */
+ const _chyb = v => { const n = Number(v); return Number.isFinite(n) && n > 0 ? Math.min(n, 9999) : 0; };
+ /* Průměr s českou desetinnou ČÁRKOU — konzole psala „⌀ 3.0 chyb". */
+ const _prum = n => n.toFixed(1).replace('.', ',');
  miss.forEach(m=>{
   let reached=0,totErr=0,completed=0;
-  rows.forEach(r=>{const d=r.data||{},e=(d.errs||{})[m.id]||0;let dc=0;for(let i=0;i<TC;i++)if((d.done||{})[m.id+'-'+i])dc++;if(e>0||dc>0){reached++;totErr+=e;if(dc>=TC)completed++;}});
+  rows.forEach(r=>{const d=r.data||{},e=_chyb((d.errs||{})[m.id]);let dc=0;for(let i=0;i<TC;i++)if((d.done||{})[m.id+'-'+i])dc++;if(e>0||dc>0){reached++;totErr+=e;if(dc>=TC)completed++;}});
   const avg=reached?totErr/reached:0;
   allMissStats.push({m,reached,completed,avg});
  });
@@ -1695,7 +1712,7 @@ function renderDiag(){
      '<span style="font-size:11px;color:var(--muted)">'+(i+1)+'.</span> '+
      '<b style="font-size:13px;color:#fff">'+esc(s.m.name)+'</b>'+
      '<span style="color:var(--muted);font-size:11px"> ('+s.m.id+')</span>'+
-     '<div style="font-size:12px;color:var(--red);margin-top:2px">⌀ '+s.avg.toFixed(1)+' chyb · '+s.reached+' žáků</div></div>';
+     '<div style="font-size:12px;color:var(--red);margin-top:2px">⌀ '+_prum(s.avg)+' chyb · '+s.reached+' žáků</div></div>';
    }).join('')+
    '</div></div>';
  }
@@ -1710,7 +1727,7 @@ function renderDiag(){
    sqlSnaps.forEach(s=>{if(!sqlByUser.has(s.user_id))sqlByUser.set(s.user_id,[]);sqlByUser.get(s.user_id).push(s);});
    rows.forEach(r=>{
     const d=r.data||{},errs=d.errs||{},done=d.done||{};
-    const e=errs[m.id]||0;
+    const e=_chyb(errs[m.id]);
     let dc=0;for(let i=0;i<TC;i++)if(done[m.id+'-'+i])dc++;
     if(e>0||dc>0){reached++;totErr+=e;if(dc>=TC)completed++;}
     // Preferuj SQL snímky (fáze 6b); fallback na errsSnap v save JSON
@@ -1732,7 +1749,7 @@ function renderDiag(){
    cells+='<div style="background:'+bg+';border:1px solid '+bd+';border-radius:7px;padding:9px 11px">'+
     '<div style="font-weight:700;font-size:13px;color:#fff;margin-bottom:4px">'+m.id+' · '+esc(m.name)+'</div>'+
     '<div style="font-size:12px;color:var(--muted)">'+
-    (reached?('✅ '+(completed|0)+'/'+(reached|0)+' dokončilo · ⌀ '+esc(avg.toFixed(1))+' chyb'):'zatím nikdo nezkoušel')+
+    (reached?('✅ '+(completed|0)+'/'+(reached|0)+' dokončilo · ⌀ '+esc(_prum(avg))+' chyb'):'zatím nikdo nezkoušel')+
     '</div>'+trendHtml+'</div>';
   });
   const aname=(AREA_NAMES[game]||[])[area-1]||('Oblast '+area);
