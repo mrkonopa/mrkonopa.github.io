@@ -1,9 +1,10 @@
 /* ══════════════════════════════════════════════════════════════════
-   VĚŽ LEGEND — společné jádro pro 6.–9. ročník
+   SPOLEČNÉ JÁDRO 2. STUPNĚ (6.–9. ročník)
 
-   Věž je jen na 2. stupni (1. stupeň ji schválně nemá), proto samostatný
-   modul místo `rpg-shared.js`, který načítá všech sedm her — jinak by
-   třeťákům do jmenného prostoru spadlo `twHoliday()` a spol.
+   Modul nese to, co mají společné JEN hry 2. stupně — hlavně Věž legend,
+   kterou 1. stupeň schválně nemá. Proto samostatný soubor místo
+   `rpg-shared.js`, který načítá všech sedm her: jinak by třeťákům do
+   jmenného prostoru spadlo `twHoliday()` a spol.
 
    Tyhle funkce vznikly portem z 9. ročníku (tools/port-tower.cjs) a byly
    ve všech čtyřech hrách byte po bytu totožné. Co se mezi ročníky LIŠÍ,
@@ -164,4 +165,72 @@ function twWrong(given,timeout){
  twStats();
  if(TW.lives<=0){setTimeout(twEndRun,900);return;}
  const nb=document.getElementById('tw-next-btn');nb.style.display='inline-block';nb.focus();
+}
+
+
+/* ── Další společné funkce 2. stupně (mimo Věž) ────────────────────────
+   `submitMC` je z nich nejcitlivější — je to vyhodnocení odpovědi v boji,
+   tedy nejfrekventovanější cesta ve hře. Čtyři kopie znamenaly čtyři místa,
+   kde se dá bodování rozejít. */
+function submitMC(opt,btn){
+ if(BT.bossDefeated)return;
+ stopTimer();
+ const t=BT.curTask;
+ const ok=checkAns(opt,t.ans);
+ if(ok){
+ document.querySelectorAll('#mc-grid .mc-btn').forEach(b=>b.disabled=true);
+ btn.classList.add('right');
+ BT.combo++;
+ const isCrit=BT.combo>=3 && BT.hl===0;
+ const xpKey=`${BT.mid}-${BT.idx}`;
+ const firstTime=!S.xpClaimed[xpKey];
+ const xpGain=firstTime?(Math.max(3,10-BT.hl*3)*(isCrit?2:1)+(BT.adapt&&BT.adapt.mode>0?2:0)):0;
+ const fb=document.getElementById('bt-fb');
+ fb.textContent=firstTime?((isCrit?'✓✓ KRITICKÝ ZÁSAH! +':'✓ SPRÁVNĚ! +')+xpGain+' XP'):'✓ SPRÁVNĚ! (mise už splněna — bez XP)';
+ fb.className='feedback ok';
+ if(typeof RPGSound!=='undefined')RPGSound.play(isCrit?'crit':'ok');
+ if(firstTime){awardXp(xpGain,isCrit);if(t.skill&&S.attrs[t.skill]!==undefined)S.attrs[t.skill]+=3;S.xpClaimed[xpKey]=true;earnCredits(isCrit?7+wCritBonus():5);tryDropItem();}
+ S.done[`${BT.mid}-${BT.idx}`]=true;
+ saveS();
+ document.getElementById('next-btn').style.display='inline-block';
+ damageMonster(xpGain,isCrit);
+ updateCombo();
+ if(!S.stats)S.stats={};if(BT.combo>(S.stats.bestCombo||0))S.stats.bestCombo=BT.combo;
+ evalAch({correct:true,combo:BT.combo,timeLeft:BT.timeLeft});
+ wBump('tasks');if(isCrit)wBump('crits');
+ adaptOnAnswer(true);
+ checkMissionComplete();
+ }else{
+ btn.classList.add('wrong');
+ btn.disabled=true;
+ BT.combo=0;
+ updateCombo();
+ if(typeof RPGSound!=='undefined')RPGSound.play('bad');
+ monsterAttack();
+ damagePlayer();
+ adaptOnAnswer(false);
+ // timer keeps running; student picks another option
+ }
+}
+function suggestTower(){
+ if(document.getElementById('tower-suggest'))return;
+ const t=document.createElement('div');t.className='ach-toast';t.id='tower-suggest';
+ t.innerHTML=`<div class="ach-toast-ic">🗼</div><div style="flex:1"><div class="ach-toast-h">NOVÁ VÝZVA</div><div class="ach-toast-n">Vyzkoušej Věž legend!</div></div><button class="btn sm" style="flex:none;margin-left:6px" onclick="this.closest('.ach-toast').remove();go('tower')">Do věže →</button>`;
+ document.body.appendChild(t);void t.offsetWidth;t.classList.add('show');
+ setTimeout(()=>{const e=document.getElementById('tower-suggest');if(!e)return;e.classList.remove('show');setTimeout(()=>e.remove(),360);},6500);
+}
+function trWeightedPick(pool){
+ const errMap=(S.trainErrs&&S.trainErrs[TR.mid])||{};
+ const weights=pool.map((_,i)=>1+Math.min(errMap[i]||0,4));
+ const totalW=weights.reduce((a,b)=>a+b,0);
+ let r=Math.random()*totalW;
+ for(let i=0;i<weights.length;i++){r-=weights[i];if(r<=0)return i;}
+ return pool.length-1;
+}
+function showItemPickup(type){
+ const el=document.getElementById('item-pickup');
+ const def=ITEM_DEFS[type];
+ el.textContent=def.ic+' '+def.lb+' NALEZEN!';
+ el.style.opacity='1';
+ setTimeout(()=>{el.style.opacity='0';},2000);
 }

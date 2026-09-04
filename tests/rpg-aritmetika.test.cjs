@@ -26,8 +26,15 @@ const PORT = 19031;
 let pass = 0, fail = 0;
 const ok = (c, m, d = '') => { if (c) { pass++; console.log('  ✅ ' + m); } else { fail++; console.log('  ❌ ' + m + (d ? ' — ' + d : '')); } };
 (async()=>{
-  const srv=http.createServer((q,r)=>{const p=path.normalize(path.join(ROOT,q.url.split('?')[0]));
-    try{r.end(fs.readFileSync(p));}catch{r.statusCode=404;r.end();}}).listen(PORT);
+  const srv=http.createServer((q,r)=>{
+    /* Cesta se skládá z URL, takže se MUSÍ hlídat průchod adresáři — jinak
+       CodeQL hlásí „Uncontrolled data used in path expression" (high) a má
+       pravdu. Ostatní testy v repu tuhle pojistku mají; tenhle vznikl z mé
+       rychlé sondy a zdědil ji bez ní. */
+    const p = path.normalize(path.join(ROOT, decodeURIComponent(q.url.split('?')[0])));
+    if (!p.startsWith(ROOT + path.sep)) { r.statusCode = 403; r.end(); return; }
+    try { r.end(fs.readFileSync(p)); } catch { r.statusCode = 404; r.end(); }
+  }).listen(PORT);
   const exe='/opt/pw-browsers/chromium-1194/chrome-linux/chrome';
   const br=await chromium.launch({executablePath: fs.existsSync(exe)?exe:undefined});
   let celkemVse=0, celkemAri=0, celkemNesed=0; const ukazky=[];
