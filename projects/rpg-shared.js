@@ -511,3 +511,71 @@ function adaptScore(pi){
  const errs=((S.trainErrs&&S.trainErrs[BT.mid])||{})[pi]||0;
  return pi/Math.max(1,BT.pool.length)+Math.min(errs,4)/4;
 }
+
+/* ══════════════════════════════════════════════════════════════════
+   JÁDRO SPOLEČNÉ VŠEM ROČNÍKŮM — save, odznaky, peněženka, formát čísel
+
+   Čtvrtá dávka konsolidace: posledních 28 funkcí, které byly ve všech
+   sedmi hrách byte po bytu totožné. Jsou mezi nimi hodně centrální věci
+   (`saveS`, `unlockAch`, `exitBattle`, `stopTimer`, `calcLevel`), takže
+   sedm kopií znamenalo sedm míst k rozejití.
+
+   POŘADÍ NAČÍTÁNÍ je tu ta ošemetná část: modul se načítá s `defer`,
+   tedy AŽ PO inline skriptu hry. Ověřeno, že žádná z těchto funkcí se
+   ve hrách nevolá na nejvyšší úrovni při načtení — volají se výhradně
+   z obsluh událostí a z `boot()`, který běží na `load`. Kdyby sem někdo
+   přidal funkci volanou při parsování, hra spadne na ReferenceError.
+   ══════════════════════════════════════════════════════════════════ */
+function useMiniHint(){
+ const mt=BT.mini&&BT.mini[BT.idx];
+ if(!mt||BT.miniHintUsed||BT.hp<=1)return;
+ BT.miniHintUsed=true;
+ const mhBtn=document.getElementById('bt-mini-hint');if(mhBtn)mhBtn.disabled=true;
+ damagePlayer();
+ if(mt.type==='order'){
+  const doneCount=document.querySelectorAll('#bt-prob .tto-chip.done').length;
+  const sorted=[...mt.data].sort((a,b)=>mt.desc?(b.v-a.v):(a.v-b.v));
+  const nextLabel=sorted[doneCount]&&sorted[doneCount].label;
+  if(nextLabel){const chip=[...document.querySelectorAll('#bt-prob .tto-chip')].find(c=>!c.classList.contains('done')&&c.textContent===nextLabel);if(chip)setTimeout(()=>chip.click(),250);}
+ } else {
+  const qBtn=[...document.querySelectorAll('#bt-prob .ttm-q:not(.done)')][0];
+  if(qBtn){qBtn.click();const ans=qBtn.dataset.a;const aBtn=[...document.querySelectorAll('#bt-prob .ttm-a:not(.done)')].find(b=>b.textContent===ans);if(aBtn)setTimeout(()=>aBtn.click(),250);}
+ }
+}
+function unlockAch(id){
+ if(S.ach&&S.ach[id])return;
+ const a=ACH.find(x=>x.id===id);if(!a)return;
+ if(!S.ach)S.ach={};
+ S.ach[id]=new Date().toISOString().slice(0,10);
+ saveS();achToast(a);
+}
+function exitBattle(){stopTimer();if(BT.freezeTimeout){clearTimeout(BT.freezeTimeout);BT.freezeTimeout=null;}const m=document.getElementById('bt-mon');if(m)m.style.filter='';openArea(BT.aid);}
+function casNaUlohu(t){
+ const txt=String((t&&t.text)||'');
+ const navic=Math.min(25,Math.max(0,Math.ceil((txt.length-50)/6)));
+ return TIME_PER_TASK+navic;
+}
+function toggleSound(on){if(typeof RPGWallet!=='undefined')RPGWallet.setSoundOn(on);if(on&&typeof RPGSound!=='undefined')RPGSound.play('ok');}
+function rmActive(){return((typeof RPGWallet!=='undefined')&&RPGWallet.getReducedMotion())||(S.settings&&S.settings.reducedMotion)||false;}
+function saveS(){localStorage.setItem(SAVE_KEY,JSON.stringify(S));if(window.RPGCloud&&RPGCloud.push)RPGCloud.push(SAVE_KEY,S);}
+function wMax(k,v){if(typeof RPGWallet!=='undefined'&&RPGWallet.setLifeMax)RPGWallet.setLifeMax(k,v).forEach(achToast);}
+function wBump(k,n){if(typeof RPGWallet!=='undefined'&&RPGWallet.bumpLife)RPGWallet.bumpLife(k,n).forEach(achToast);}
+function daysSinceStr(d){const t=Date.parse(d);if(!isFinite(t))return 0;return Math.floor((Date.now()-t)/864e5);}
+function wCatalog(){return(typeof RPGWallet!=='undefined'&&RPGWallet.itemsAll)?RPGWallet.itemsAll():SHOP_ITEMS;}
+function _activeCosmetics(){return(typeof RPGWallet!=='undefined')?RPGWallet.get().cosmetics:S.cosmetics;}
+function esc2(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function _walletBal(){return(typeof RPGWallet!=='undefined')?RPGWallet.getCredits():(S.credits||0);}
+function applyMotionPref(){document.documentElement.classList.toggle('reduced-motion',rmActive());}
+function wPerk(p){return typeof RPGWallet!=='undefined'&&RPGWallet.hasPerk&&RPGWallet.hasPerk(p);}
+function toggleSponka(on){if(typeof RPGWallet!=='undefined')RPGWallet.setSponkaEnabled(on);}
+function closeModal(){document.getElementById('modal').classList.remove('show');}
+function stopTimer(){if(BT.timer){clearInterval(BT.timer);BT.timer=null;}}
+function czTxt(t){return String(t).replace(/(\d)\.(\d)/g,'$1,$2');}
+function czMC(x){return String(x).replace(/(\d)\.(\d)/g,'$1,$2');}
+function todayStr(){return new Date().toISOString().slice(0,10);}
+function achToast(a){_achQ.push(a);if(!_achBusy)_achNext();}
+function goPractice(mid){go('train');startTrain(mid);}
+function wCritBonus(){return wPerk('critcredit')?2:0;}
+function calcLevel(){S.level=Math.floor(S.xp/100)+1;}
+function trEnd(){renderTrainPicker();}
+function trNext(){trDraw();}
