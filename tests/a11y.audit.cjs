@@ -29,6 +29,7 @@ const PAGES = [
  ['Přijímačky procvičování','/projects/prijimacky-matematika/procvicovani.html'],
  ['Přijímačky diagnostika','/projects/prijimacky-matematika/diagnostika.html'],
  ['Přijímačky statistiky','/projects/prijimacky-matematika/statistiky.html'],
+ ['Přijímačky doplňky','/projects/prijimacky-matematika/doplnky.html'],
  ...['linearni_funkce','mocniny','procenta','pythagoras','rovnice','statistika','telesa','trojuhelniky']
    .map(u => ['Únikovka ' + u, '/projects/unikovka_' + u + '.html']),
  ['Procenta příklady','/projects/procenta_priklady.html'],
