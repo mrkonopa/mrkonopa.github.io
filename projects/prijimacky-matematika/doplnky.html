@@ -74,6 +74,11 @@
     p.lede{font-size:1rem;font-weight:300;color:var(--muted);max-width:660px}
 
     main{max-width:920px;margin:0 auto;padding:10px 24px 70px;display:grid;gap:22px}
+    /* Položka gridu se sama nesmrští pod svůj min-content, takže by ji
+       široký obrázek nebo předformátovaný výpočet roztáhl a odsunul
+       celou stránku vodorovně. Přetékat smí až vnitřek rámečků, které
+       na to mají overflow-x:auto. */
+    main > *{min-width:0}
 
     .toc{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
       padding:18px 20px;box-shadow:var(--shadow)}

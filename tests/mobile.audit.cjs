@@ -73,7 +73,17 @@ const ZNAME_MALE_PLOCHY = {
    const de=document.documentElement;
    out.docW=Math.max(de.scrollWidth,document.body?document.body.scrollWidth:0);
    out.overflowDoc=out.docW>VW+1;
-   // prvky vyčuhující výrazně za pravý okraj (>4px), jen viditelné
+   // prvky vyčuhující výrazně za pravý okraj (>4px), jen viditelné.
+   // Prvek uvnitř rámečku s overflow-x auto/scroll se NEHLÁSÍ — tam je
+   // přesah záměr (široká tabulka nebo obrázek se posouvá uvnitř karty,
+   // stránka sama se nehýbe). Stejné pravidlo má layout-overflow.test.cjs;
+   // do té doby se ty dva audity na téže věci rozcházely.
+   const vRolovaci=el=>{
+    for(let p=el.parentElement;p&&p!==document.body;p=p.parentElement){
+     if(/auto|scroll/.test(getComputedStyle(p).overflowX))return true;
+    }
+    return false;
+   };
    const all=[...document.querySelectorAll('body *')];
    const seen=new Set();
    for(const el of all){
@@ -81,6 +91,7 @@ const ZNAME_MALE_PLOCHY = {
     if(cs.display==='none'||cs.visibility==='hidden'||parseFloat(cs.opacity)===0)continue;
     const r=el.getBoundingClientRect();
     if(r.width===0||r.height===0)continue;
+    if(vRolovaci(el))continue;
     if(r.right>VW+4&&r.width<=VW+40){ // ignoruj plnošířkové wrappery, hlas konkrétní vyčuhující prvky
      const sel=el.tagName.toLowerCase()+(el.id?'#'+el.id:'')+(el.className&&typeof el.className==='string'?'.'+el.className.trim().split(/\s+/).slice(0,2).join('.'):'');
      if(!seen.has(sel)){seen.add(sel);out.offRight.push({sel,right:Math.round(r.right),w:Math.round(r.width)});}

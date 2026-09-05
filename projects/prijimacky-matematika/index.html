@@ -219,6 +219,17 @@
       padding: 8px 12px;
     }
     .row-note b { color: var(--gold); font-weight: 700; }
+    /* Odkaz na doplňky v úvodní karta — jako tlačítko, aby měl na dotykovém
+       displeji skutečnou klikací plochu (overlay přes ::after ji nezvětší,
+       getBoundingClientRect zůstane malý). */
+    .dopl-btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      margin-top: 4px; padding: 11px 16px;
+      background: var(--gold-light); color: var(--gold);
+      border: 1px solid #f0e3bd; border-radius: 10px;
+      font-size: .9rem; font-weight: 600; min-height: 44px;
+    }
+    .dopl-btn:hover, .dopl-btn:focus { background: #fdf3dc; color: var(--gold); }
     .row-note a { font-weight: 600; }
     @media (pointer:coarse) { .row-note a { display:inline-block; min-height:44px; line-height:44px; } }
 
@@ -378,9 +389,9 @@
     </p>
     <p>
       U pár úloh v řešeních něco chybí nebo nesedí s klíčem — u těch testů to
-      uvidíš rovnou u řádku a dořešené to je na stránce
-      <a href="./doplnky.html"><b>Doplňky k řešením</b></a>.
+      uvidíš rovnou u řádku a dořešené je to tady:
     </p>
+    <p><a class="dopl-btn" href="./doplnky.html"><span class="ico">🧩</span> Doplňky k řešením</a></p>
   </div>
 
   <style>
