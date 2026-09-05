@@ -135,6 +135,27 @@ t(/deployggb\.js/.test(DOP), 'GeoGebra se načítá z oficiálního CDN');
 t((DOP.match(/Thales|Circle\(S_0,\s*[AC]\)/g) || []).length >= 2, 'oba applety staví Thaletovu kružnici příkazem');
 t(!/materialId/.test(DOP), 'applety nezávisí na uloženém materiálu na geogebra.org');
 
+// GeoGebra se NESMÍ načítat sama od sebe. Applet vkládá do stránky vlastní
+// ovládací prvky bez přístupného jména, takže s ním audit přístupnosti spadne
+// — a co hůř, spadne jen tam, kde je geogebra.org dostupná. Přesně tenhle
+// rozdíl shodil CI, zatímco v sandboxu (kde je doména blokovaná) audit
+// procházel. Výsledek auditu nesmí záviset na dostupnosti cizího serveru.
+{
+  t(!/<script[^>]+\bsrc=/i.test(DOP), 'stránka při otevření nestahuje žádný cizí skript');
+  // POZOR: počítej skutečné NAČTENÍ, ne zmínky. Název souboru je i v komentáři
+  // a v chybové hlášce a hlásit je znamená chybu v měřidle, ne na stránce.
+  const nacteni = [...DOP.matchAll(/\.src\s*=\s*'https:\/\/www\.geogebra\.org\/apps\/deployggb\.js'/g)];
+  t(nacteni.length === 1, `deployggb.js se načítá z jediného místa (nalezeno ${nacteni.length})`);
+  const iKnihovna = DOP.indexOf('function knihovna');
+  t(iKnihovna > 0 && nacteni.length === 1 && nacteni[0].index > iKnihovna,
+    'deployggb.js se stahuje až uvnitř knihovna(), kterou volá obsluha kliknutí');
+  t(/addEventListener\('click'/.test(DOP), 'applet spouští kliknutí, ne načtení stránky');
+  for (const kod of ['m9c', 'nan']) {
+    t(new RegExp(`class="ggb-btn" data-ggb="${kod}"`).test(DOP), `${kod}: má tlačítko ke spuštění appletu`);
+  }
+  t(/<button[^>]*class="ggb-btn"[^>]*>\s*[^<\s][^<]*</.test(DOP), 'tlačítko má text, tedy přístupné jméno');
+}
+
 // desetinná ČÁRKA. Pravidlo se dívá jen na čísla S JEDNOTKOU — „6.2" je
 // číslo úlohy a „1.5" v CSS je řádkování, obojí je v pořádku a hlásit to
 // by znamenalo křičet vlka. Jednotka za číslem zároveň znamená, že se

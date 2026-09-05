@@ -127,7 +127,17 @@
       padding:9px 14px;background:#fbf8f1;border-bottom:1px solid var(--border);
       font-size:.82rem;color:var(--muted);flex-wrap:wrap}
     .ggb-box{min-height:60px}
-    .ggb-fallback{padding:14px 16px;font-size:.9rem;color:var(--muted)}
+    .ggb-fallback{padding:14px 16px 6px;font-size:.9rem;color:var(--muted)}
+    .ggb-akce{padding:0 16px 14px}
+    .ggb-btn{
+      display:inline-flex;align-items:center;gap:8px;min-height:44px;
+      padding:10px 18px;border:1px solid var(--border);border-radius:10px;
+      background:var(--blue-light);color:var(--blue-dark);
+      font-family:inherit;font-size:.9rem;font-weight:600;cursor:pointer;
+    }
+    .ggb-btn:hover{background:#dcebfa}
+    .ggb-btn:focus-visible{outline:2px solid var(--blue);outline-offset:3px}
+    .ggb-btn[disabled]{opacity:.6;cursor:default}
 
     @media (max-width:520px){
       main{padding-left:16px;padding-right:16px}
@@ -208,11 +218,12 @@
 
       <div class="ggb-wrap">
         <div class="ggb-head">
-          <span>GeoGebra — konstrukci si můžeš rozkliknout a posouvat</span>
-          <span>obrázek výše platí i bez ní</span>
+          <span>GeoGebra — konstrukci si můžeš rozklikat a posouvat</span>
         </div>
         <div class="ggb-box" id="ggb-m9c"></div>
-        <p class="ggb-fallback" id="ggb-m9c-fb">Interaktivní applet se nenačetl (nejspíš bez připojení k internetu). Obrázek a postup výše jsou úplné.</p>
+        <p class="ggb-fallback" id="ggb-m9c-fb">Applet se stahuje z geogebra.org, takže potřebuje internet.
+          Obrázek obdélníku i postup výše jsou úplné i bez něj.</p>
+        <p class="ggb-akce"><button type="button" class="ggb-btn" data-ggb="m9c">▶ Spustit interaktivní GeoGebru</button></p>
       </div>
 
       <p class="vysledek">Úloha má dvě řešení.</p>
@@ -262,11 +273,12 @@
 
       <div class="ggb-wrap">
         <div class="ggb-head">
-          <span>GeoGebra — konstrukci si můžeš rozkliknout a posouvat</span>
-          <span>obrázek výše platí i bez ní</span>
+          <span>GeoGebra — konstrukci si můžeš rozklikat a posouvat</span>
         </div>
         <div class="ggb-box" id="ggb-nan"></div>
-        <p class="ggb-fallback" id="ggb-nan-fb">Interaktivní applet se nenačetl (nejspíš bez připojení k internetu). Obrázek a postup výše jsou úplné.</p>
+        <p class="ggb-fallback" id="ggb-nan-fb">Applet se stahuje z geogebra.org, takže potřebuje internet.
+          Obrázek lichoběžníku i postup výše jsou úplné i bez něj.</p>
+        <p class="ggb-akce"><button type="button" class="ggb-btn" data-ggb="nan">▶ Spustit interaktivní GeoGebru</button></p>
       </div>
 
       <p class="vysledek">Úloha má dvě řešení.</p>
@@ -384,66 +396,95 @@ zkouška:  L = 2 + 0,5·(−3 − 3) = 2 − 3 = −1
   </main>
 
   <script>
-  /* GeoGebra applety. Konstrukce se skládá příkazy, takže není potřeba
-     žádný uložený materiál — a když se knihovna nenačte (offline, blokované
-     CDN), zůstane na stránce statický obrázek a postup, které jsou úplné. */
+  /* GeoGebra se načítá AŽ NA KLIKNUTÍ, ne sama od sebe. Tři důvody:
+     applet vkládá do stránky vlastní ovládací prvky, které nemají
+     přístupné jméno a přístupnostní audit je (právem) hlásí; na školním
+     tabletu by se stahoval ~megabajt skriptu, který většina čtenářů
+     nepotřebuje; a výsledek auditu by závisel na tom, jestli je zrovna
+     geogebra.org dostupná, což je vlastnost prostředí, ne stránky.
+     Statický obrázek a postup výše jsou úplné samy o sobě. */
   (function () {
-    var APPLETY = [
-      { box: 'ggb-m9c', fb: 'ggb-m9c-fb', vyska: 420,
-        prikazy: [
-          'A=(0,0)', 'S=(18.35,9.32)',
-          'p=Line((-8,12.94),(38,12.94))',
-          'S_0=Midpoint(A,S)', 'k=Circle(S_0,A)',
-          'D_1=Intersect(k,p,1)', 'D_2=Intersect(k,p,2)',
-          'C_1=2S-D_1', 'C_2=2S-D_2',
-          'B_1=A+C_1-D_1', 'B_2=A+C_2-D_2',
-          'ctyr1=Polygon(A,B_1,C_1,D_1)', 'ctyr2=Polygon(A,B_2,C_2,D_2)',
-          'SetColor(ctyr1,26,115,200)', 'SetColor(ctyr2,15,138,114)',
-          'SetColor(k,150,150,150)', 'SetLineStyle(k,2)',
-          'ZoomIn(-9,-10,39,17)'
-        ] },
-      { box: 'ggb-nan', fb: 'ggb-nan-fb', vyska: 430,
-        prikazy: [
-          'A=(0,0)', 'C=(16.82,17.33)', 'P=(10.44,10.73)', 'X=(22.96,2.81)',
-          'q=Line(P,X)', 'e=Line(A,C)',
-          'S_0=Midpoint(A,C)', 'k=Circle(S_0,A)',
-          'D_1=Intersect(k,q,1)', 'D_2=Intersect(k,q,2)',
-          'b_1=Line(D_1,P)', 'b_2=Line(D_2,P)',
-          'r_1=Line(A,Line(C,D_1))', 'r_2=Line(A,Line(C,D_2))',
-          'B_1=Intersect(b_1,r_1)', 'B_2=Intersect(b_2,r_2)',
-          'lich1=Polygon(A,B_1,C,D_1)', 'lich2=Polygon(A,B_2,C,D_2)',
-          'SetColor(lich1,26,115,200)', 'SetColor(lich2,15,138,114)',
-          'SetColor(k,150,150,150)', 'SetLineStyle(k,2)',
-          'SetVisibleInView(r_1,1,false)', 'SetVisibleInView(r_2,1,false)',
-          'ZoomIn(-9,-4,31,23)'
-        ] }
-    ];
+    var APPLETY = {
+      m9c: { vyska: 420, prikazy: [
+        'A=(0,0)', 'S=(18.35,9.32)',
+        'p=Line((-8,12.94),(38,12.94))',
+        'S_0=Midpoint(A,S)', 'k=Circle(S_0,A)',
+        'D_1=Intersect(k,p,1)', 'D_2=Intersect(k,p,2)',
+        'C_1=2S-D_1', 'C_2=2S-D_2',
+        'B_1=A+C_1-D_1', 'B_2=A+C_2-D_2',
+        'ctyr1=Polygon(A,B_1,C_1,D_1)', 'ctyr2=Polygon(A,B_2,C_2,D_2)',
+        'SetColor(ctyr1,26,115,200)', 'SetColor(ctyr2,15,138,114)',
+        'SetColor(k,150,150,150)', 'SetLineStyle(k,2)',
+        'ZoomIn(-9,-10,39,17)'
+      ] },
+      nan: { vyska: 430, prikazy: [
+        'A=(0,0)', 'C=(16.82,17.33)', 'P=(10.44,10.73)', 'X=(22.96,2.81)',
+        'q=Line(P,X)', 'e=Line(A,C)',
+        'S_0=Midpoint(A,C)', 'k=Circle(S_0,A)',
+        'D_1=Intersect(k,q,1)', 'D_2=Intersect(k,q,2)',
+        'b_1=Line(D_1,P)', 'b_2=Line(D_2,P)',
+        'r_1=Line(A,Line(C,D_1))', 'r_2=Line(A,Line(C,D_2))',
+        'B_1=Intersect(b_1,r_1)', 'B_2=Intersect(b_2,r_2)',
+        'lich1=Polygon(A,B_1,C,D_1)', 'lich2=Polygon(A,B_2,C,D_2)',
+        'SetColor(lich1,26,115,200)', 'SetColor(lich2,15,138,114)',
+        'SetColor(k,150,150,150)', 'SetLineStyle(k,2)',
+        'SetVisibleInView(r_1,1,false)', 'SetVisibleInView(r_2,1,false)',
+        'ZoomIn(-9,-4,31,23)'
+      ] }
+    };
 
-    function spustit(cfg) {
-      var box = document.getElementById(cfg.box);
-      if (!box || typeof window.GGBApplet !== 'function') return;
-      var app = new window.GGBApplet({
-        appName: 'geometry', language: 'cs',
-        width: box.clientWidth || 640, height: cfg.vyska,
-        showToolBar: false, showAlgebraInput: false, showMenuBar: false,
-        showResetIcon: true, enableRightClick: false, enableLabelDrags: false,
-        enableShiftDragZoom: true, capturingThreshold: 5,
-        appletOnLoad: function (api) {
-          for (var i = 0; i < cfg.prikazy.length; i++) {
-            try { api.evalCommand(cfg.prikazy[i]); } catch (e) { /* jeden příkaz navíc nesmí shodit zbytek */ }
-          }
-          var fb = document.getElementById(cfg.fb);
-          if (fb) fb.hidden = true;
-        }
-      }, true);
-      app.inject(cfg.box);
+    var nacitaSe = null;   // slib na deployggb.js, ať se nestahuje dvakrát
+
+    function knihovna() {
+      if (nacitaSe) return nacitaSe;
+      nacitaSe = new Promise(function (splneno, selhalo) {
+        if (typeof window.GGBApplet === 'function') return splneno();
+        var s = document.createElement('script');
+        s.src = 'https://www.geogebra.org/apps/deployggb.js';
+        s.async = true;
+        s.onload = function () {
+          typeof window.GGBApplet === 'function' ? splneno() : selhalo(new Error('GGBApplet chybí'));
+        };
+        s.onerror = function () { selhalo(new Error('deployggb.js se nenačetl')); };
+        document.head.appendChild(s);
+      });
+      return nacitaSe;
     }
 
-    var s = document.createElement('script');
-    s.src = 'https://www.geogebra.org/apps/deployggb.js';
-    s.async = true;
-    s.onload = function () { APPLETY.forEach(spustit); };
-    document.head.appendChild(s);
+    function spustit(kod, tlacitko) {
+      var cfg = APPLETY[kod];
+      var box = document.getElementById('ggb-' + kod);
+      var fb = document.getElementById('ggb-' + kod + '-fb');
+      if (!cfg || !box) return;
+      tlacitko.disabled = true;
+      tlacitko.textContent = 'Načítám GeoGebru…';
+      knihovna().then(function () {
+        var app = new window.GGBApplet({
+          appName: 'geometry', language: 'cs',
+          width: box.clientWidth || 640, height: cfg.vyska,
+          showToolBar: false, showAlgebraInput: false, showMenuBar: false,
+          showResetIcon: true, enableRightClick: false, enableLabelDrags: false,
+          enableShiftDragZoom: true, capturingThreshold: 5,
+          appletOnLoad: function (api) {
+            for (var i = 0; i < cfg.prikazy.length; i++) {
+              try { api.evalCommand(cfg.prikazy[i]); } catch (e) { /* jeden příkaz navíc nesmí shodit zbytek */ }
+            }
+            if (fb) fb.hidden = true;
+            tlacitko.parentNode.hidden = true;
+          }
+        }, true);
+        app.inject('ggb-' + kod);
+      }).catch(function () {
+        tlacitko.disabled = false;
+        tlacitko.textContent = '▶ Zkusit znovu';
+        if (fb) fb.textContent = 'GeoGebru se nepodařilo načíst — zkontroluj připojení k internetu. Obrázek a postup výše jsou úplné i bez ní.';
+      });
+    }
+
+    document.addEventListener('click', function (e) {
+      var b = e.target.closest ? e.target.closest('.ggb-btn') : null;
+      if (b) spustit(b.getAttribute('data-ggb'), b);
+    });
   })();
   </script>
 
