@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<!--
+  ───────────────────────────────────────────────────────────────────────────
+  DOPLŇKY K ŘEŠENÍM — přijímačky z matematiky
+  Ručně psaná řešení (*_vyplneno.pdf) byla stránku po stránce porovnána
+  s oficiálním klíčem CERMAT. Tahle stránka nese to, co v nich chybí
+  nebo je v nich špatně: dvě nedokončené konstrukce, jeden chybějící
+  dopočet a dvě chyby ve výsledku.
+
+  Jak přidat další doplněk:
+    1. Zkopíruj jeden blok <article class="fix"> a uprav id, hlavičku a obsah.
+    2. Do index.html přidej do příslušného <li class="row"> odkaz
+       <p class="row-note"> mířící na to nové id.
+    3. Hlídá tests/prijimacky-doplnky.test.cjs — každý doplněk musí mít
+       protějšek v index.html a naopak.
+  ───────────────────────────────────────────────────────────────────────────
+-->
+<html lang="cs">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Doplňky k řešením — Přijímačky z matematiky · Vojtěch Konopa</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <meta name="description" content="Chybějící a opravená řešení k jednotným přijímacím testům z matematiky — konstrukce krok za krokem i dopočty.">
+  <meta name="author" content="Vojtěch Konopa">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Vojtěch Konopa">
+  <meta property="og:locale" content="cs_CZ">
+  <meta property="og:url" content="https://mrkonopa.github.io/projects/prijimacky-matematika/doplnky.html">
+  <meta property="og:title" content="Doplňky k řešením — přijímačky z matematiky">
+  <meta property="og:description" content="Chybějící a opravená řešení k jednotným přijímacím testům z matematiky.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --blue:#1a73c8; --blue-light:#e8f1fb; --blue-dark:#1250a0;
+      --teal:#0f8a72; --teal-light:#e4f5f1;
+      --gold:#c89a10; --gold-light:#fef9ec;
+      --red:#d63c2f; --red-light:#fdeceb;
+      --bg:#f5f0e6; --card:#fff;
+      --text:#1a1a2e; --muted:#6b7280; --border:#e2dccc;
+      --shadow:0 2px 14px rgba(0,0,0,.06);
+      --radius:14px;
+      --sans:'Lexend','Inter','Segoe UI',system-ui,-apple-system,'Helvetica Neue',Arial,sans-serif;
+      --mono:ui-monospace,'SF Mono',Menlo,Consolas,monospace;
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    html,body{
+      font-family:var(--sans); background:var(--bg);
+      background-image:
+        radial-gradient(circle at 8% 12%,rgba(245,200,66,.10) 0%,transparent 38%),
+        radial-gradient(circle at 92% 88%,rgba(26,115,200,.07) 0%,transparent 38%);
+      color:var(--text); min-height:100vh; line-height:1.6;
+      -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+    }
+    a{color:var(--blue);text-decoration:none}
+    a:hover,a:focus{color:var(--blue-dark);outline:none}
+    a:focus-visible{outline:2px solid var(--blue);outline-offset:3px;border-radius:3px}
+
+    .top-bar{max-width:920px;margin:0 auto;padding:20px 24px 0;display:flex;
+      justify-content:space-between;gap:18px;font-size:.82rem;color:var(--muted);flex-wrap:wrap}
+    .top-bar a{color:var(--muted);display:inline-block;padding:6px 0}
+    .top-bar a:hover{color:var(--blue)}
+    .top-bar .crumb{color:var(--text);font-weight:500}
+
+    header.title-block{max-width:920px;margin:0 auto;padding:36px 24px 18px}
+    .eyebrow{display:inline-block;font-size:.74rem;font-weight:700;letter-spacing:.14em;
+      text-transform:uppercase;color:var(--blue);background:var(--blue-light);
+      padding:4px 12px;border-radius:20px;margin-bottom:14px}
+    h1.title{font-weight:800;font-size:clamp(28px,5vw,44px);line-height:1.1;
+      letter-spacing:-.02em;margin-bottom:10px}
+    h1.title .accent{color:var(--blue)}
+    p.lede{font-size:1rem;font-weight:300;color:var(--muted);max-width:660px}
+
+    main{max-width:920px;margin:0 auto;padding:10px 24px 70px;display:grid;gap:22px}
+
+    .toc{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+      padding:18px 20px;box-shadow:var(--shadow)}
+    .toc h2{font-size:.78rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+      color:var(--muted);margin-bottom:10px}
+    .toc ol{margin-left:20px;display:grid;gap:5px;font-size:.94rem}
+
+    article.fix{background:var(--card);border:1px solid var(--border);
+      border-radius:var(--radius);padding:22px 24px;box-shadow:var(--shadow);scroll-margin-top:16px}
+    article.fix > h2{font-size:1.22rem;font-weight:700;letter-spacing:-.01em;margin-bottom:4px}
+    .meta{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:12px}
+    .chip{font-size:.7rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+      padding:3px 10px;border-radius:20px}
+    .chip.rok{background:var(--blue-light);color:var(--blue)}
+    .chip.kod{font-family:var(--mono);text-transform:none;letter-spacing:0;
+      background:#faf5e6;color:var(--muted);font-weight:500}
+    .chip.chybi{background:var(--red-light);color:var(--red)}
+    .chip.oprava{background:var(--gold-light);color:var(--gold)}
+
+    .co{border-left:3px solid var(--red);background:var(--red-light);
+      padding:10px 14px;border-radius:0 8px 8px 0;margin-bottom:16px;font-size:.94rem}
+    .co b{color:var(--red)}
+    .zadani{border-left:3px solid var(--border);padding:8px 14px;margin-bottom:16px;
+      font-size:.94rem;color:var(--muted);font-style:italic}
+
+    h3.krok{font-size:.78rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+      color:var(--muted);margin:18px 0 8px}
+    ol.postup{margin-left:22px;display:grid;gap:7px;font-size:.96rem}
+    ol.postup b{font-weight:600}
+    ul.pozn{margin-left:22px;display:grid;gap:6px;font-size:.94rem;color:var(--muted)}
+
+    .vypocet{font-family:var(--mono);font-size:.92rem;background:#fbf8f1;
+      border:1px solid var(--border);border-radius:10px;padding:14px 16px;
+      overflow-x:auto;white-space:pre;line-height:1.75}
+    .vysledek{display:inline-block;margin-top:12px;background:var(--teal-light);
+      color:var(--teal);font-weight:700;padding:6px 14px;border-radius:8px}
+
+    figure.obr{margin:14px 0 4px;background:#fbf8f1;border:1px solid var(--border);
+      border-radius:10px;padding:10px;overflow-x:auto}
+    figure.obr svg{display:block;width:100%;height:auto;min-width:420px}
+    figcaption{font-size:.82rem;color:var(--muted);margin-top:8px;text-align:center}
+
+    .ggb-wrap{margin-top:14px;border:1px solid var(--border);border-radius:10px;
+      overflow:hidden;background:#fff}
+    .ggb-head{display:flex;justify-content:space-between;align-items:center;gap:10px;
+      padding:9px 14px;background:#fbf8f1;border-bottom:1px solid var(--border);
+      font-size:.82rem;color:var(--muted);flex-wrap:wrap}
+    .ggb-box{min-height:60px}
+    .ggb-fallback{padding:14px 16px;font-size:.9rem;color:var(--muted)}
+
+    @media (max-width:520px){
+      main{padding-left:16px;padding-right:16px}
+      article.fix{padding:18px 16px}
+    }
+    @media (pointer:coarse){
+      .top-bar a,.toc a{min-height:44px;display:inline-flex;align-items:center}
+    }
+  </style>
+</head>
+<body>
+
+  <div class="top-bar">
+    <a href="./">← zpět na přijímačky</a>
+    <span class="crumb">/projects/prijimacky-matematika/doplnky</span>
+  </div>
+
+  <header class="title-block">
+    <span class="eyebrow">Doplňky</span>
+    <h1 class="title">Co v řešeních <span class="accent">chybí nebo nesedí</span></h1>
+    <p class="lede">
+      Všech jedenáct ručně psaných řešení jsem stránku po stránce porovnal
+      s oficiálním klíčem CERMAT (137 stran, 16 úloh v každém testu).
+      Drtivá většina sedí. Tady je pět míst, kde ne — a jejich dořešení.
+    </p>
+  </header>
+
+  <main>
+
+    <nav class="toc" aria-label="Obsah">
+      <h2>Obsah</h2>
+      <ol>
+        <li><a href="#m9c-2025-10">2025 · 1. náhradní (M9C), úloha 10</a> — konstrukce obdélníku chybí</li>
+        <li><a href="#nanecisto-2025-10">2025 · nanečisto, úloha 10</a> — konstrukce lichoběžníku chybí</li>
+        <li><a href="#m9b-2024-62">2024 · 2. řádný (M9B), úloha 6.2</a> — chybí dopočet obvodu</li>
+        <li><a href="#m9c-2024-163">2024 · 1. náhradní (M9C), úloha 16.3</a> — zapsaná volba nesedí s výpočtem</li>
+        <li><a href="#m9b-2023-51">2023 · 2. řádný (M9B), úloha 5.1</a> — ztracené znaménko</li>
+        <li><a href="#drobnosti">Drobnosti v zápisu</a> — výsledky jsou správné</li>
+      </ol>
+    </nav>
+
+    <!-- ─── 1 · M9C 2025, úloha 10 ─────────────────────────────────────── -->
+    <article class="fix" id="m9c-2025-10">
+      <div class="meta">
+        <span class="chip rok">2025 · 1. náhradní</span>
+        <span class="chip kod">M9C</span>
+        <span class="chip chybi">chybí v řešení</span>
+      </div>
+      <h2>Úloha 10 — obdélník ABCD</h2>
+      <p class="co">V naskenovaném řešení je u této úlohy jen poznámka <b>„Přiložené na fotce."</b>
+        Konstrukce v PDF není, takže je celá tady.</p>
+      <p class="zadani">V rovině leží body <em>A</em>, <em>S</em> a přímka <em>p</em>.
+        Bod <em>A</em> je vrchol obdélníku <em>ABCD</em>, jehož vrchol <em>D</em> leží na přímce <em>p</em>.
+        Bod <em>S</em> je střed strany <em>CD</em>. Sestrojte vrcholy <em>B</em>, <em>C</em>, <em>D</em>
+        a obdélník narýsujte. Najděte všechna řešení.</p>
+
+      <h3 class="krok">Rozbor</h3>
+      <p>V obdélníku svírají strany <em>DA</em> a <em>DC</em> pravý úhel. Bod <em>S</em> leží na straně
+        <em>DC</em>, takže i úhel <em>ADS</em> je pravý. Bod <em>D</em> tedy vidí úsečku <em>AS</em>
+        pod pravým úhlem — leží na <b>Thaletově kružnici nad AS</b>. Zároveň má ležet na přímce
+        <em>p</em>, a to obě podmínky splní nejvýš dva body.</p>
+
+      <h3 class="krok">Postup konstrukce</h3>
+      <ol class="postup">
+        <li><b>S<sub>0</sub></b> — střed úsečky <em>AS</em>.</li>
+        <li><b>k</b> — Thaletova kružnice se středem <em>S<sub>0</sub></em> procházející bodem <em>A</em>.</li>
+        <li><b>D<sub>1</sub>, D<sub>2</sub></b> — průsečíky kružnice <em>k</em> s přímkou <em>p</em>.</li>
+        <li><b>C</b> — na polopřímce <em>DS</em> tak, aby <em>S</em> byl střed <em>DC</em>,
+            tedy <em>|DC| = 2·|DS|</em>.</li>
+        <li><b>B</b> — obraz bodu <em>A</em> v posunutí o vektor <em>DC</em>.</li>
+        <li>Narýsuj obdélník <em>ABCD</em>. Zkouška: <em>AD ⊥ DC</em> a <em>|AB| = |DC|</em>.</li>
+      </ol>
+
+      <figure class="obr" id="obr-m9c-2025-10"><svg viewBox="0 0 560 346" role="img" aria-label="Konstrukce obdélníku ABCD: Thaletova kružnice nad úsečkou AS, dvě řešení"><line x1="34.0" y1="66.7" x2="526.0" y2="66.7" stroke="#1a1a2e" stroke-width="1.6"/><text x="508.5" y="57.7" fill="#1a1a2e" font-size="14" font-style="italic">p</text><circle cx="216.3" cy="157.2" r="112.5" fill="none" stroke="#b0b4b9" stroke-width="1.3" stroke-dasharray="5 4"/><line x1="116.0" y1="208.1" x2="316.6" y2="106.2" stroke="#b0b4b9" stroke-width="1.2" stroke-dasharray="3 3"/><polygon points="116.0,208.1 450.2,287.3 483.7,145.8 149.5,66.7" fill="#1a73c812" stroke="#1a73c8" stroke-width="2" stroke-linejoin="round"/><polygon points="116.0,208.1 183.0,287.3 350.1,145.8 283.1,66.7" fill="#0f8a7212" stroke="#0f8a72" stroke-width="2" stroke-linejoin="round"/><circle cx="216.3" cy="157.2" r="3.2" fill="#5f6368"/><text x="208.3" y="175.2" fill="#5f6368" font-size="13" font-weight="600">S₀</text><circle cx="116.0" cy="208.1" r="3.2" fill="#1a1a2e"/><text x="99.0" y="214.1" fill="#1a1a2e" font-size="14" font-weight="600">A</text><circle cx="316.6" cy="106.2" r="3.2" fill="#1a1a2e"/><text x="325.6" y="123.2" fill="#1a1a2e" font-size="14" font-weight="600">S</text><circle cx="149.5" cy="66.7" r="3.2" fill="#1a73c8"/><text x="124.5" y="59.7" fill="#1a73c8" font-size="14" font-weight="600">D₁</text><circle cx="483.7" cy="145.8" r="3.2" fill="#1a73c8"/><text x="492.7" y="138.8" fill="#1a73c8" font-size="14" font-weight="600">C₁</text><circle cx="450.2" cy="287.3" r="3.2" fill="#1a73c8"/><text x="459.2" y="303.3" fill="#1a73c8" font-size="14" font-weight="600">B₁</text><circle cx="283.1" cy="66.7" r="3.2" fill="#0f8a72"/><text x="290.1" y="57.7" fill="#0f8a72" font-size="14" font-weight="600">D₂</text><circle cx="350.1" cy="145.8" r="3.2" fill="#0f8a72"/><text x="348.1" y="134.8" fill="#0f8a72" font-size="14" font-weight="600">C₂</text><circle cx="183.0" cy="287.3" r="3.2" fill="#0f8a72"/><text x="157.0" y="302.3" fill="#0f8a72" font-size="14" font-weight="600">B₂</text></svg>
+        <figcaption>Dvě řešení: <b style="color:#1a73c8">AB₁C₁D₁</b> a
+          <b style="color:#0f8a72">AB₂C₂D₂</b>. Čárkovaně Thaletova kružnice nad <em>AS</em>.</figcaption>
+      </figure>
+
+      <div class="ggb-wrap">
+        <div class="ggb-head">
+          <span>GeoGebra — konstrukci si můžeš rozkliknout a posouvat</span>
+          <span>obrázek výše platí i bez ní</span>
+        </div>
+        <div class="ggb-box" id="ggb-m9c"></div>
+        <p class="ggb-fallback" id="ggb-m9c-fb">Interaktivní applet se nenačetl (nejspíš bez připojení k internetu). Obrázek a postup výše jsou úplné.</p>
+      </div>
+
+      <p class="vysledek">Úloha má dvě řešení.</p>
+    </article>
+
+    <!-- ─── 2 · nanečisto 2025, úloha 10 ───────────────────────────────── -->
+    <article class="fix" id="nanecisto-2025-10">
+      <div class="meta">
+        <span class="chip rok">2025 · nanečisto</span>
+        <span class="chip kod">Nový Amos</span>
+        <span class="chip chybi">chybí v řešení</span>
+      </div>
+      <h2>Úloha 10 — pravoúhlý lichoběžník ABCD</h2>
+      <p class="co">V naskenovaném řešení je u této úlohy jen poznámka <b>„Bude na Classroomu!"</b>
+        Konstrukce v PDF není.</p>
+      <p class="zadani">V rovině leží přímky <em>AC</em> a <em>PX</em>, které se protínají v bodě <em>P</em>.
+        Body <em>A</em>, <em>C</em> jsou vrcholy pravoúhlého lichoběžníku <em>ABCD</em> se základnami
+        <em>AB</em>, <em>CD</em> a pravým úhlem při vrcholu <em>D</em>. Bod <em>P</em> je průsečík
+        úhlopříček. Vrchol <em>D</em> leží na přímce <em>PX</em>. Sestrojte vrcholy <em>B</em>, <em>D</em>
+        a lichoběžník narýsujte. Najděte všechna řešení.</p>
+
+      <h3 class="krok">Rozbor</h3>
+      <p>Pravý úhel je při vrcholu <em>D</em>, tedy mezi stranami <em>DA</em> a <em>DC</em>. Bod <em>D</em>
+        proto vidí úhlopříčku <em>AC</em> pod pravým úhlem a leží na <b>Thaletově kružnici nad AC</b>.
+        Druhá podmínka je přímka <em>PX</em> — opět nejvýš dva průsečíky.
+        Vrchol <em>B</em> pak dopadne sám: leží na přímce <em>DP</em> (to je druhá úhlopříčka)
+        a zároveň na rovnoběžce se základnou <em>CD</em> vedené bodem <em>A</em>.</p>
+
+      <h3 class="krok">Postup konstrukce</h3>
+      <ol class="postup">
+        <li><b>S<sub>0</sub></b> — střed úsečky <em>AC</em>.</li>
+        <li><b>k</b> — Thaletova kružnice se středem <em>S<sub>0</sub></em> procházející bodem <em>A</em>.</li>
+        <li><b>D<sub>1</sub>, D<sub>2</sub></b> — průsečíky kružnice <em>k</em> s přímkou <em>PX</em>.</li>
+        <li><b>b</b> — přímka <em>DP</em> (na ní leží úhlopříčka <em>BD</em>).</li>
+        <li><b>r</b> — rovnoběžka s přímkou <em>CD</em> vedená bodem <em>A</em>
+            (protože základny <em>AB</em> a <em>CD</em> jsou rovnoběžné).</li>
+        <li><b>B</b> — průsečík přímek <em>b</em> a <em>r</em>.</li>
+        <li>Narýsuj lichoběžník <em>ABCD</em>. Zkouška: úhel u <em>D</em> je pravý,
+            <em>AB ∥ CD</em> a úhlopříčky se protínají v <em>P</em>.</li>
+      </ol>
+
+      <figure class="obr" id="obr-nanecisto-2025-10"><svg viewBox="0 0 560 396" role="img" aria-label="Konstrukce pravoúhlého lichoběžníku ABCD: Thaletova kružnice nad úhlopříčkou AC, dvě řešení"><line x1="73.3" y1="387.8" x2="421.3" y2="29.3" stroke="#1a1a2e" stroke-width="1.6"/><line x1="36.0" y1="32.6" x2="478.3" y2="312.4" stroke="#1a1a2e" stroke-width="1.6"/><circle cx="247.3" cy="208.5" r="152.3" fill="none" stroke="#b0b4b9" stroke-width="1.3" stroke-dasharray="5 4"/><polygon points="141.2,317.8 487.0,317.9 353.4,99.2 141.3,99.2" fill="#1a73c812" stroke="#1a73c8" stroke-width="2" stroke-linejoin="round"/><polygon points="141.2,317.8 79.1,59.8 353.4,99.2 391.6,257.5" fill="#0f8a7212" stroke="#0f8a72" stroke-width="2" stroke-linejoin="round"/><line x1="487.0" y1="317.9" x2="141.3" y2="99.2" stroke="#1a73c8" stroke-width="1.1" stroke-dasharray="4 3"/><line x1="79.1" y1="59.8" x2="391.6" y2="257.5" stroke="#0f8a72" stroke-width="1.1" stroke-dasharray="4 3"/><circle cx="247.3" cy="208.5" r="3.2" fill="#5f6368"/><text x="217.3" y="212.5" fill="#5f6368" font-size="13" font-weight="600">S₀</text><circle cx="141.2" cy="317.8" r="3.2" fill="#1a1a2e"/><text x="123.2" y="326.8" fill="#1a1a2e" font-size="14" font-weight="600">A</text><circle cx="353.4" cy="99.2" r="3.2" fill="#1a1a2e"/><text x="363.4" y="92.2" fill="#1a1a2e" font-size="14" font-weight="600">C</text><circle cx="272.9" cy="182.5" r="3.2" fill="#1a1a2e"/><text x="281.9" y="197.5" fill="#1a1a2e" font-size="14" font-weight="600">P</text><circle cx="430.9" cy="282.4" r="3.2" fill="#1a1a2e"/><text x="439.9" y="295.4" fill="#1a1a2e" font-size="14" font-weight="600">X</text><circle cx="141.3" cy="99.2" r="3.2" fill="#1a73c8"/><text x="114.3" y="91.2" fill="#1a73c8" font-size="14" font-weight="600">D₁</text><circle cx="487.0" cy="317.9" r="3.2" fill="#1a73c8"/><text x="496.0" y="333.9" fill="#1a73c8" font-size="14" font-weight="600">B₁</text><circle cx="391.6" cy="257.5" r="3.2" fill="#0f8a72"/><text x="402.6" y="262.5" fill="#0f8a72" font-size="14" font-weight="600">D₂</text><circle cx="79.1" cy="59.8" r="3.2" fill="#0f8a72"/><text x="52.1" y="52.8" fill="#0f8a72" font-size="14" font-weight="600">B₂</text></svg>
+        <figcaption>Dvě řešení: <b style="color:#1a73c8">AB₁CD₁</b> a
+          <b style="color:#0f8a72">AB₂CD₂</b>. Čárkovaně Thaletova kružnice nad <em>AC</em>
+          a obě úhlopříčky <em>BD</em>.</figcaption>
+      </figure>
+
+      <div class="ggb-wrap">
+        <div class="ggb-head">
+          <span>GeoGebra — konstrukci si můžeš rozkliknout a posouvat</span>
+          <span>obrázek výše platí i bez ní</span>
+        </div>
+        <div class="ggb-box" id="ggb-nan"></div>
+        <p class="ggb-fallback" id="ggb-nan-fb">Interaktivní applet se nenačetl (nejspíš bez připojení k internetu). Obrázek a postup výše jsou úplné.</p>
+      </div>
+
+      <p class="vysledek">Úloha má dvě řešení.</p>
+    </article>
+
+    <!-- ─── 3 · M9B 2024, úloha 6.2 ────────────────────────────────────── -->
+    <article class="fix" id="m9b-2024-62">
+      <div class="meta">
+        <span class="chip rok">2024 · 2. řádný</span>
+        <span class="chip kod">M9B</span>
+        <span class="chip chybi">nedokončeno</span>
+      </div>
+      <h2>Úloha 6.2 — obvod lichoběžníku ABCD</h2>
+      <p class="co">Postup v řešení končí větou <b>„|BC| určíme z Pythagorovy věty"</b> a dál už nic.
+        Výsledek chybí.</p>
+      <p class="zadani">Čtyřúhelník <em>ABCD</em> je lichoběžník se základnami <em>AB</em>, <em>CD</em>,
+        ve kterém je úsečka <em>BD</em> jeho výškou. Platí |<em>AD</em>| = 17 cm, |<em>BD</em>| = 8 cm,
+        obsah trojúhelníku <em>BCD</em> je 24 cm². Vypočtěte obvod lichoběžníku.</p>
+
+      <h3 class="krok">Dopočet</h3>
+      <div class="vypocet">|AB| = √(17² − 8²) = √(289 − 64) = √225 = 15 cm     (z řešení, sedí)
+|CD| = 2 · S(BCD) : |BD| = 2 · 24 : 8 = 6 cm       (z řešení, sedí)
+
+|BC| = √(|BD|² + |CD|²) = √(8² + 6²) = √(64 + 36) = √100 = 10 cm
+
+o = |AB| + |BC| + |CD| + |DA|
+o = 15 + 10 + 6 + 17</div>
+      <p class="vysledek">o = 48 cm — souhlasí s klíčem</p>
+      <ul class="pozn" style="margin-top:12px">
+        <li>Proč je úhel <em>BDC</em> pravý: <em>BD</em> je výška na základnu <em>AB</em>,
+          a protože <em>CD</em> ∥ <em>AB</em>, je <em>BD</em> kolmá i na <em>CD</em>.
+          Trojúhelník <em>BDC</em> je tedy pravoúhlý s odvěsnami 8 cm a 6 cm.</li>
+      </ul>
+    </article>
+
+    <!-- ─── 4 · M9C 2024, úloha 16.3 ───────────────────────────────────── -->
+    <article class="fix" id="m9c-2024-163">
+      <div class="meta">
+        <span class="chip rok">2024 · 1. náhradní</span>
+        <span class="chip kod">M9C</span>
+        <span class="chip oprava">oprava</span>
+      </div>
+      <h2>Úloha 16.3 — zapsaná volba nesedí s výpočtem</h2>
+      <p class="co">Výpočet v řešení je správný a vychází <b>12,5 dne</b>, ale do políčka je zapsané
+        <b>C</b> (22,5). Správně je <b>B</b> — shodně s klíčem.</p>
+      <p class="zadani">Deset zedníků dokončí stavbu budovy za 20 dní. Kolik dní bude trvat dokončení
+        stavby, jestliže na první polovině stavby pracuje 8 zedníků a současně na druhé polovině
+        stavby pracuje 10 zedníků?</p>
+
+      <h3 class="krok">Dopočet</h3>
+      <div class="vypocet">celá práce = 10 zedníků · 20 dní = 200 zednickodnů
+každá polovina             = 100 zednickodnů
+
+první polovina:  100 : 8  = 12,5 dne
+druhá polovina:  100 : 10 = 10 dne
+
+Obě party pracují SOUČASNĚ, takže stavba je hotová,
+až skončí ta pomalejší.</div>
+      <p class="vysledek">12,5 dne → volba B</p>
+    </article>
+
+    <!-- ─── 5 · M9B 2023, úloha 5.1 ────────────────────────────────────── -->
+    <article class="fix" id="m9b-2023-51">
+      <div class="meta">
+        <span class="chip rok">2023 · 2. řádný</span>
+        <span class="chip kod">M9B</span>
+        <span class="chip oprava">oprava</span>
+      </div>
+      <h2>Úloha 5.1 — ztracené znaménko v posledním kroku</h2>
+      <p class="co">Postup je až do předposledního řádku správný, ale z <b>−x = 3</b> je v řešení
+        napsáno <b>x = 3</b> (a podtrženo jako výsledek). Správně je <b>x = −3</b>.</p>
+      <p class="zadani">Řešte rovnici: 2 + 0,5 · (x − 3) = 0,4 · (1,5x + 2)</p>
+
+      <h3 class="krok">Celý postup</h3>
+      <div class="vypocet">2 + 0,5·(x − 3) = 0,4·(1,5x + 2)
+2 + 0,5x − 1,5  = 0,6x + 0,8
+0,5x − 0,6x     = 0,8 − 2 + 1,5
+−0,1x           = 0,3            | · 10
+−x              = 3              | · (−1)
+x               = −3
+
+zkouška:  L = 2 + 0,5·(−3 − 3) = 2 − 3 = −1
+          P = 0,4·(1,5·(−3) + 2) = 0,4·(−2,5) = −1
+          L = P</div>
+      <p class="vysledek">x = −3 — souhlasí s klíčem</p>
+      <ul class="pozn" style="margin-top:12px">
+        <li>Násobení rovnice číslem −1 obrací znaménko na <b>obou</b> stranách.
+          Z <em>−x = 3</em> tedy vyjde <em>x = −3</em>, ne <em>x = 3</em>.</li>
+      </ul>
+    </article>
+
+    <!-- ─── 6 · drobnosti ──────────────────────────────────────────────── -->
+    <article class="fix" id="drobnosti">
+      <div class="meta">
+        <span class="chip rok">různé roky</span>
+        <span class="chip oprava">jen zápis</span>
+      </div>
+      <h2>Drobnosti v zápisu</h2>
+      <p>Tady je výsledek pokaždé správný, drhne jen mezikrok. Nechávám to vypsané,
+        ať to nikoho při čtení nezmate.</p>
+      <ul class="pozn" style="margin-top:12px;color:var(--text)">
+        <li><b>2025 · 2. řádný (M9B), úloha 8.2</b> — v odmocnině je napsáno
+          √(900&nbsp;+&nbsp;1200); správně je 40² = 1600, tedy √(900&nbsp;+&nbsp;1600) = √2500 = 50 cm.
+          Výsledek 50 cm je správně.</li>
+        <li><b>2025 · 2. řádný (M9B), úloha 15.3</b> — krácení je zapsané jako
+          32/80 = 8/20 = 4/20; z 8/20 vyjde 4/10, ne 4/20. Výsledek 40&nbsp;% je správně.</li>
+        <li><b>2025 · 1. náhradní (M9C), úloha 8.2</b> — „1 dlaždice 40 × 40 cm" je ve skutečnosti
+          čtveřice dlaždic 20 × 20 cm. Výsledek „o 120" je správně.</li>
+        <li><b>2024 · 2. řádný (M9B), úloha 15.1</b> — popisky <em>D</em> a <em>CH</em> jsou
+          prohozené oproti grafu (a oproti úloze 15.3 o dva řádky níž). Součty jsou stejné,
+          takže odpověď <em>A</em> je správně.</li>
+      </ul>
+    </article>
+
+  </main>
+
+  <script>
+  /* GeoGebra applety. Konstrukce se skládá příkazy, takže není potřeba
+     žádný uložený materiál — a když se knihovna nenačte (offline, blokované
+     CDN), zůstane na stránce statický obrázek a postup, které jsou úplné. */
+  (function () {
+    var APPLETY = [
+      { box: 'ggb-m9c', fb: 'ggb-m9c-fb', vyska: 420,
+        prikazy: [
+          'A=(0,0)', 'S=(18.35,9.32)',
+          'p=Line((-8,12.94),(38,12.94))',
+          'S_0=Midpoint(A,S)', 'k=Circle(S_0,A)',
+          'D_1=Intersect(k,p,1)', 'D_2=Intersect(k,p,2)',
+          'C_1=2S-D_1', 'C_2=2S-D_2',
+          'B_1=A+C_1-D_1', 'B_2=A+C_2-D_2',
+          'ctyr1=Polygon(A,B_1,C_1,D_1)', 'ctyr2=Polygon(A,B_2,C_2,D_2)',
+          'SetColor(ctyr1,26,115,200)', 'SetColor(ctyr2,15,138,114)',
+          'SetColor(k,150,150,150)', 'SetLineStyle(k,2)',
+          'ZoomIn(-9,-10,39,17)'
+        ] },
+      { box: 'ggb-nan', fb: 'ggb-nan-fb', vyska: 430,
+        prikazy: [
+          'A=(0,0)', 'C=(16.82,17.33)', 'P=(10.44,10.73)', 'X=(22.96,2.81)',
+          'q=Line(P,X)', 'e=Line(A,C)',
+          'S_0=Midpoint(A,C)', 'k=Circle(S_0,A)',
+          'D_1=Intersect(k,q,1)', 'D_2=Intersect(k,q,2)',
+          'b_1=Line(D_1,P)', 'b_2=Line(D_2,P)',
+          'r_1=Line(A,Line(C,D_1))', 'r_2=Line(A,Line(C,D_2))',
+          'B_1=Intersect(b_1,r_1)', 'B_2=Intersect(b_2,r_2)',
+          'lich1=Polygon(A,B_1,C,D_1)', 'lich2=Polygon(A,B_2,C,D_2)',
+          'SetColor(lich1,26,115,200)', 'SetColor(lich2,15,138,114)',
+          'SetColor(k,150,150,150)', 'SetLineStyle(k,2)',
+          'SetVisibleInView(r_1,1,false)', 'SetVisibleInView(r_2,1,false)',
+          'ZoomIn(-9,-4,31,23)'
+        ] }
+    ];
+
+    function spustit(cfg) {
+      var box = document.getElementById(cfg.box);
+      if (!box || typeof window.GGBApplet !== 'function') return;
+      var app = new window.GGBApplet({
+        appName: 'geometry', language: 'cs',
+        width: box.clientWidth || 640, height: cfg.vyska,
+        showToolBar: false, showAlgebraInput: false, showMenuBar: false,
+        showResetIcon: true, enableRightClick: false, enableLabelDrags: false,
+        enableShiftDragZoom: true, capturingThreshold: 5,
+        appletOnLoad: function (api) {
+          for (var i = 0; i < cfg.prikazy.length; i++) {
+            try { api.evalCommand(cfg.prikazy[i]); } catch (e) { /* jeden příkaz navíc nesmí shodit zbytek */ }
+          }
+          var fb = document.getElementById(cfg.fb);
+          if (fb) fb.hidden = true;
+        }
+      }, true);
+      app.inject(cfg.box);
+    }
+
+    var s = document.createElement('script');
+    s.src = 'https://www.geogebra.org/apps/deployggb.js';
+    s.async = true;
+    s.onload = function () { APPLETY.forEach(spustit); };
+    document.head.appendChild(s);
+  })();
+  </script>
+
+</body>
+</html>

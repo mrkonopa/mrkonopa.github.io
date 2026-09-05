@@ -54,7 +54,7 @@ const PAGES=[...[3,4,5,6,7,8,9].map(g=>['g'+g,'/projects/rpg-mat-'+g+'.html']),
  ['hub','/projects/rpg-matematika.html'],['ucitel','/projects/rpg-ucitel.html'],
  ['pz-hub','/projects/prijimacky-matematika/index.html'],['pz-test','/projects/prijimacky-matematika/test.html'],
  ['pz-proc','/projects/prijimacky-matematika/procvicovani.html'],['pz-diag','/projects/prijimacky-matematika/diagnostika.html'],
- ['pz-stat','/projects/prijimacky-matematika/statistiky.html'],
+ ['pz-stat','/projects/prijimacky-matematika/statistiky.html'],['pz-dopl','/projects/prijimacky-matematika/doplnky.html'],
  // Tenhle seznam byl ručně udržovaný a KRYL JEN RPG + přijímačky, i když
  // hlavička testu tvrdila „prochází všechny stránky". Chybělo 15 stránek
  // odkázaných z rozcestníku — únikovky, cesta peněz, procenta, goniometrie

@@ -206,6 +206,22 @@
     .tag.nahradni { background: var(--teal-light); color: var(--teal); }
     .tag.nanecisto{ background: var(--gold-light); color: var(--gold); }
 
+    /* POZNÁMKA O DOPLŇKU — řádky, kde v naskenovaném řešení něco chybí
+       nebo je špatně; míří na doplnky.html. */
+    .row-note {
+      margin-top: 10px;
+      font-size: .86rem;
+      line-height: 1.5;
+      color: var(--muted);
+      background: var(--gold-light);
+      border-left: 3px solid var(--gold);
+      border-radius: 0 8px 8px 0;
+      padding: 8px 12px;
+    }
+    .row-note b { color: var(--gold); font-weight: 700; }
+    .row-note a { font-weight: 600; }
+    @media (pointer:coarse) { .row-note a { display:inline-block; min-height:44px; line-height:44px; } }
+
     /* FILE BUTTONS */
     .files {
       display: flex; flex-wrap: wrap; gap: 8px;
@@ -360,6 +376,11 @@
       řešení od CERMATu, <b>📋 záznamový arch</b> je prázdný odpovědní formulář
       k vytištění. Všechny soubory se otevřou v novém okně.
     </p>
+    <p>
+      U pár úloh v řešeních něco chybí nebo nesedí s klíčem — u těch testů to
+      uvidíš rovnou u řádku a dořešené to je na stránce
+      <a href="./doplnky.html"><b>Doplňky k řešením</b></a>.
+    </p>
   </div>
 
   <style>
@@ -511,6 +532,7 @@
             <a href="./pdfs/2025/2_radny/M9B_2025_klic.pdf" target="_blank" rel="noopener"><span class="ico">✅</span> klíč</a>
             <a href="./pdfs/2025/2_radny/M9B_2025_ZA.pdf" target="_blank" rel="noopener"><span class="ico">📋</span> záznamový arch</a>
           </div>
+          <p class="row-note">Výsledky sedí, ale ve dvou mezikrocích je překlep — <a href="./doplnky.html#drobnosti">co přesně →</a></p>
         </li>
 
         <li class="row">
@@ -525,6 +547,7 @@
             <a href="./pdfs/2025/3_nahradni/M9C_2025_klic.pdf" target="_blank" rel="noopener"><span class="ico">✅</span> klíč</a>
             <a href="./pdfs/2025/3_nahradni/M9C_2025_ZA.pdf" target="_blank" rel="noopener"><span class="ico">📋</span> záznamový arch</a>
           </div>
+          <p class="row-note"><b>Úloha 10</b> v řešení chybí (je tam jen poznámka „Přiložené na fotce."). <a href="./doplnky.html#m9c-2025-10">Konstrukce s postupem →</a></p>
         </li>
 
         <li class="row">
@@ -553,6 +576,7 @@
             <a href="./pdfs/2025/5_nanecisto/nanecisto_2025_klic.pdf" target="_blank" rel="noopener"><span class="ico">✅</span> klíč</a>
             <a href="./pdfs/2025/5_nanecisto/nanecisto_2025_ZA.pdf" target="_blank" rel="noopener"><span class="ico">📋</span> záznamový arch</a>
           </div>
+          <p class="row-note"><b>Úloha 10</b> v řešení chybí (je tam jen poznámka „Bude na Classroomu!"). <a href="./doplnky.html#nanecisto-2025-10">Konstrukce s postupem →</a></p>
         </li>
 
       </ul>
@@ -590,6 +614,7 @@
             <a class="primary" href="./pdfs/2024/2_radny/M9B_2024_vyplneno.pdf" target="_blank" rel="noopener"><span class="ico">✏️</span> řešení</a>
             <a href="./pdfs/2024/2_radny/M9B_2024_klic.pdf" target="_blank" rel="noopener"><span class="ico">✅</span> klíč</a>
           </div>
+          <p class="row-note"><b>Úloha 6.2</b> není v řešení dopočítaná do konce. <a href="./doplnky.html#m9b-2024-62">Dopočet obvodu →</a></p>
         </li>
 
         <li class="row">
@@ -603,6 +628,7 @@
             <a class="primary" href="./pdfs/2024/3_nahradni/M9C_2024_vyplneno.pdf" target="_blank" rel="noopener"><span class="ico">✏️</span> řešení</a>
             <a href="./pdfs/2024/3_nahradni/M9C_2024_klic.pdf" target="_blank" rel="noopener"><span class="ico">✅</span> klíč</a>
           </div>
+          <p class="row-note"><b>Úloha 16.3</b> — zapsaná volba nesedí s vlastním výpočtem. <a href="./doplnky.html#m9c-2024-163">Oprava →</a></p>
         </li>
 
         <li class="row">
@@ -655,6 +681,7 @@
             <a href="./pdfs/2023/2_radny/M9B_2023_klic.pdf" target="_blank" rel="noopener"><span class="ico">✅</span> klíč</a>
             <a href="./pdfs/2023/2_radny/M9B_2023_ZA.pdf" target="_blank" rel="noopener"><span class="ico">📋</span> záznamový arch</a>
           </div>
+          <p class="row-note"><b>Úloha 5.1</b> — v posledním kroku se ztratilo znaménko. <a href="./doplnky.html#m9b-2023-51">Oprava →</a></p>
         </li>
 
       </ul>
