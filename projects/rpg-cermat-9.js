@@ -265,11 +265,11 @@
       intro: `Přímky p, q jsou rovnoběžné a protíná je příčka. Vyznačený úhel na přímce p má velikost ${given}°.`,
       parts: [
         { key: '7.1', points: 1, prompt: `Vypočítejte velikost úhlu α (souhlasný úhel na přímce q).`, ans: String(alpha),
-          sol: `Souhlasné úhly na rovnoběžkách jsou stejně velké, proto α = ${given}°.` },
+          sol: [`Rovnoběžky protnuté příčkou tvoří dvojice shodných úhlů. Souhlasné úhly leží na stejné straně příčky a u obou rovnoběžek stejně.`,`Souhlasné úhly jsou vždy stejně velké, takže α = ${given}°.`] },
         { key: '7.2', points: 1, prompt: `Vypočítejte velikost úhlu β (vedlejší úhel k α).`, ans: String(beta),
-          sol: `Vedlejší úhly dávají dohromady 180°, proto β = 180° − ${given}° = ${beta}°.` },
+          sol: [`Vedlejší úhly leží u téže přímky vedle sebe a dohromady tvoří přímý úhel 180°.`,`β = 180 − ${given} = ${beta}°.`] },
         { key: '7.3', points: 1, prompt: `Vypočítejte velikost úhlu γ (vrcholový úhel k danému úhlu ${given}° na přímce p).`, ans: String(gamma),
-          sol: `Vrcholové úhly jsou shodné (stejně velké), proto γ = ${given}°.` }
+          sol: [`Vrcholové úhly leží proti sobě přes průsečík dvou přímek — nedotýkají se ramenem, jen vrcholem.`,`Takové úhly jsou vždy shodné, takže γ = ${given}°.`] }
       ]
     };
   }
@@ -298,7 +298,7 @@
         { key: '8.2', points: 1, prompt: `O kolik se liší počet rostlin na nejdelší straně (${bStr} m) od počtu rostlin na jedné z kratších stran (${aStr} m)?`, ans: String(rozdilRostlin),
           sol: `Na straně ${bStr} m je ${rostlinB} rostlin (${bStr * 100} cm : ${rozestupCm} cm), na straně ${aStr} m je ${rostlinA} rostlin (${aStr * 100} cm : ${rozestupCm} cm). Rozdíl: ${rostlinB} − ${rostlinA} = ${rozdilRostlin}.` },
         { key: '8.3', points: 1, prompt: `Rostliny jsou po obvodu seskupené do skupinek po ${skupinaVelikost}. Kolik skupinek je celkem po obvodu (${pocetRostlin} rostlin)?`, ans: String(pocetRostlin / skupinaVelikost),
-          sol: `Počet skupinek = počet rostlin : velikost skupinky: ${pocetRostlin} : ${skupinaVelikost} = ${pocetRostlin / skupinaVelikost}.` }
+          sol: [`Nejdřív musíš znát celkový počet rostlin — ten jsi spočítal v předchozí podúloze (${pocetRostlin}).`,`Skupinky jsou po ${skupinaVelikost}, takže se celkový počet touto velikostí dělí.`,`Počet skupinek = ${pocetRostlin} : ${skupinaVelikost} = ${pocetRostlin / skupinaVelikost}.`] }
       ]
     };
   }
@@ -483,11 +483,11 @@
       intro: `Čtvercový bílý obrázek je po celém obvodu lemovaný rámem širokým ${RAM} cm (na každé straně stejně).`,
       parts: [
         { key: '16.1', points: 2, prompt: `Bílý čtverec má stranu ${w1} cm. Jaká je délka strany CELÉHO obrázku i s rámem (v cm)?`, ans: String(side(w1)),
-          sol: `Rám přidá ${RAM} cm na obou protějších stranách, tedy 2× ${RAM} cm: strana obrázku = ${w1} + 2 × ${RAM} = ${w1} + ${2 * RAM} = ${side(w1)} cm.` },
+          sol: [`Rám obepíná obrázek dokola, takže na KAŽDÉ straně přidá ${RAM} cm — na jedné straně i na protější.`,`Ke straně se proto přičítá dvakrát ${RAM} cm, tedy ${2 * RAM} cm.`,`Strana obrázku = ${w1} + ${2 * RAM} = ${side(w1)} cm.`] },
         { key: '16.2', points: 1, prompt: `Jaký obsah má samotný rám u obrázku s bílým čtvercem o straně ${w1} cm (v cm²)?`, ans: String(frameArea(w1)),
-          sol: `Obsah rámu = obsah celého obrázku − obsah bílého čtverce: ${side(w1)}² − ${w1}² = ${side(w1) * side(w1)} − ${w1 * w1} = ${frameArea(w1)} cm².` },
+          sol: [`Rám je mezikruží — plocha, která zbyde, když z celého obrázku vyjmeš bílý čtverec uprostřed.`,`Obsah celého obrázku: ${side(w1)}² = ${side(w1) * side(w1)} cm².`,`Obsah bílého čtverce: ${w1}² = ${w1 * w1} cm².`,`Obsah rámu = ${side(w1) * side(w1)} − ${w1 * w1} = ${frameArea(w1)} cm².`] },
         { key: '16.3', points: 1, prompt: `Jaká je délka strany celého obrázku, má-li bílý čtverec stranu ${w3} cm (v cm)?`, ans: String(side(w3)),
-          sol: `Stejně jako v 16.1: strana obrázku = ${w3} + 2 × ${RAM} = ${w3} + ${2 * RAM} = ${side(w3)} cm.` }
+          sol: [`Postupuj stejně jako v předchozí podúloze — rám přidá ${RAM} cm na obou protějších stranách.`,`Strana obrázku = ${w3} + ${2 * RAM} = ${side(w3)} cm.`] }
       ]
     };
   }
@@ -543,11 +543,11 @@
       intro: `V trojúhelníku ABC platí α = ${al}° (u vrcholu A) a β = ${be}° (u vrcholu B).`,
       parts: [
         { key: '7.1', points: 1, prompt: `Vypočítejte velikost vnitřního úhlu γ (u vrcholu C).`, ans: String(ga),
-          sol: `Součet vnitřních úhlů trojúhelníku je 180°: γ = 180° − α − β = 180° − ${al}° − ${be}° = ${ga}°.` },
+          sol: [`Součet vnitřních úhlů je v každém trojúhelníku 180°.`,`Třetí úhel dopočítáš odečtením obou známých: γ = 180 − ${al} − ${be}.`,`γ = ${180 - al} − ${be} = ${ga}°.`] },
         { key: '7.2', points: 1, prompt: `Vypočítejte velikost vnějšího úhlu u vrcholu C.`, ans: String(vnejsiC),
-          sol: `Vnější úhel se rovná součtu dvou vnitřních úhlů při zbylých vrcholech: α + β = ${al}° + ${be}° = ${vnejsiC}° (nebo 180° − γ = ${vnejsiC}°).` },
+          sol: [`Vnější úhel a vnitřní úhel u téhož vrcholu tvoří dohromady 180°.`,`Z toho plyne užitečné pravidlo: vnější úhel se rovná součtu obou zbývajících vnitřních úhlů.`,`Vnější úhel = ${al} + ${be} = ${vnejsiC}° (kontrola: 180 − ${ga} = ${vnejsiC}°).`] },
         { key: '7.3', points: 1, prompt: `Který vnitřní úhel trojúhelníku je největší? Napište jeho velikost ve stupních.`, ans: String(maxIn),
-          sol: `Porovnej α = ${al}°, β = ${be}°, γ = ${ga}°. Největší je ${maxIn}°.` }
+          sol: [`Nejdřív musíš znát všechny tři úhly — γ jsi dopočítal v předchozí podúloze.`,`Úhly jsou α = ${al}°, β = ${be}°, γ = ${ga}°.`,`Největší z nich je ${maxIn}°.`] }
       ]
     };
   }
@@ -562,7 +562,7 @@
       no: 12, points: 2, title: 'Bazén', kind: 'mc',
       prompt: `Bazén má tvar kvádru: délka ${delka} m, šířka ${sirka} m a všude stejná hloubka ${hloubka} m. Jaký je jeho objem?`,
       options: shuffled.labels, ans: shuffled.correctLetter,
-      sol: `Objem kvádru = délka × šířka × hloubka: ${delka} × ${sirka} × ${hloubka} = ${V} m³ → odpověď ${shuffled.correctLetter}.`
+      sol: [`Objem kvádru je součin všech tří rozměrů: V = délka · šířka · hloubka.`,`Vynásob první dva rozměry: ${delka} · ${sirka} = ${delka * sirka} m².`,`Objem = ${delka * sirka} · ${hloubka} = ${V} m³ → odpověď ${shuffled.correctLetter}.`]
     };
   }
 
@@ -654,7 +654,10 @@
         { key: '5.2', points: 2,
           prompt: `Cesta zabírá ${pCesta} % rozlohy zahrady. Vypočítejte v m² volnou část zahrady (bez záhonu a cesty). Použijte obsah záhonu = ${zahon} m².`,
           ans: String(volna),
-          sol: `Cesta = ${pCesta} % z ${celk} = ${cesta} m². Volná část = celková rozloha − záhon − cesta = ${celk} − ${zahon} − ${cesta} = ${volna} m².` }
+          sol: [`Nejdřív spočítej plochu cesty, teprve pak odečítej.`,
+            `Cesta je ${pCesta} % z ${celk} m²: ${celk} · ${pCesta} : 100 = ${cesta} m².`,
+            `Volná část = celková rozloha − záhon − cesta.`,
+            `Volná část = ${celk} − ${zahon} − ${cesta} = ${volna} m².`] }
       ]
     };
   }
@@ -675,7 +678,10 @@
         { key: '6.2', points: 1,
           prompt: `Voda v akváriu sahá do výšky ${hCm} cm. Kolik litrů vody v něm je?`,
           ans: String(litryVoda),
-          sol: `Objem vody = obsah dna × výška vody = (${a} · ${b}) · ${hCm} = ${baseA} · ${hCm} = ${baseA * hCm} cm³ = ${litryVoda} l.` }
+          sol: [`Voda tvoří kvádr o stejném dnu jako nádrž, jen s menší výškou — počítá se tedy obsah dna krát výška VODY, ne nádrže.`,
+            `Obsah dna: ${a} · ${b} = ${baseA} cm².`,
+            `Objem vody = ${baseA} · ${hCm} = ${baseA * hCm} cm³.`,
+            `Převeď na litry: ${baseA * hCm} : 1000 = ${cz(litryVoda)} l.`] }
       ]
     };
   }
@@ -692,11 +698,11 @@
       intro: `Obdélníkový pozemek má rozměry ${a} m × ${b} m. Po celém obvodu jsou ve stejných rozestupech ${dCm} cm sloupky plotu. Celkem je jich ${pocet}.`,
       parts: [
         { key: '8.1', points: 2, prompt: `Vypočítejte v metrech obvod pozemku.`, ans: String(obvod),
-          sol: `Obvod obdélníku = 2·(délka + šířka) = 2·(${a} + ${b}) = ${obvod} m.` },
+          sol: [`Obvod obdélníku je součet všech čtyř stran; protější jsou stejné, takže se sečtou dvě sousední a zdvojnásobí.`,`Součet sousedních stran: ${a} + ${b} = ${a + b} m.`,`Obvod = 2 · ${a + b} = ${obvod} m.`] },
         { key: '8.2', points: 1, prompt: `O kolik víc sloupků připadá na delší stranu (${b} m) než na kratší stranu (${a} m)?`, ans: String(rozdil),
           sol: `Na stranu ${b} m připadá ${naB} sloupků (${b * 100} cm : ${dCm} cm), na stranu ${a} m ${naA} sloupků (${a * 100} cm : ${dCm} cm). Rozdíl: ${naB} − ${naA} = ${rozdil}.` },
         { key: '8.3', points: 1, prompt: `Sloupky se natírají po skupinkách po ${skup}. Kolik skupinek je celkem (${pocet} sloupků)?`, ans: String(pocet / skup),
-          sol: `Počet skupinek = ${pocet} : ${skup} = ${pocet / skup}.` }
+          sol: [`Skupinky jsou po ${skup} kusech, takže celkový počet ${pocet} vyděl touto velikostí.`,`Počet skupinek = ${pocet} : ${skup} = ${pocet / skup}.`] }
       ]
     };
   }
@@ -737,10 +743,10 @@
     const a = ri(2, 6), hrany = 12 * a, povrch = 6 * a * a;
     const tvrz1 = ri(0, 1) ? hrany : hrany + ri(2, 6);
     const st1 = { text: `Součet délek všech hran krychle s hranou ${a} cm je ${tvrz1} cm.`, ans: tvrz1 === hrany ? 'A' : 'N',
-      sol: `Krychle má 12 stejně dlouhých hran: 12 · ${a} = ${hrany} cm. Tvrzení uvádí ${tvrz1} cm — ${tvrz1 === hrany ? 'PRAVDA (A).' : 'NEPRAVDA (N).'}` };
+      sol: [`Krychle má 12 hran a všechny jsou stejně dlouhé.`,`Součet hran = 12 · ${a} = ${hrany} cm.`,`Tvrzení uvádí ${tvrz1} cm — ${tvrz1 === hrany ? 'stejné číslo, je tedy PRAVDIVÉ (A).' : 'jiné číslo, je tedy NEPRAVDIVÉ (N).'}`] };
     const tvrz2 = ri(0, 1) ? povrch : povrch + 6 * ri(1, 4);
     const st2 = { text: `Povrch krychle s hranou ${a} cm je ${tvrz2} cm².`, ans: tvrz2 === povrch ? 'A' : 'N',
-      sol: `Povrch krychle = 6·a² = 6·${a}² = 6·${a * a} = ${povrch} cm². Tvrzení uvádí ${tvrz2} cm² — ${tvrz2 === povrch ? 'PRAVDA (A).' : 'NEPRAVDA (N).'}` };
+      sol: [`Krychle má 6 shodných čtvercových stěn, takže povrch je šestinásobek obsahu jedné stěny.`,`Obsah jedné stěny: ${a}² = ${a * a} cm².`,`Povrch = 6 · ${a * a} = ${povrch} cm². Tvrzení uvádí ${tvrz2} cm² — ${tvrz2 === povrch ? 'PRAVDIVÉ (A).' : 'NEPRAVDIVÉ (N).'}`] };
     const objemK = a * a * a, bb = a + 1, objemKv = a * a * bb;
     const st3 = ri(0, 1)
       ? { text: `Kvádr s hranami ${a} cm, ${a} cm, ${bb} cm má větší objem než krychle s hranou ${a} cm.`, ans: 'A',
@@ -799,9 +805,13 @@
       options: labels,
       ans: ansLetters,
       sol: [
-        `${t1.pct} % z ${t1.celek} = ${t1.pct}/100 · ${t1.celek} = ${t1.cast} žáků.`,
-        `${t2.pct} % z ${t2.celek} = ${t2.cast} Kč.`,
-        `${t3.pct} % z ${t3.celek} = ${t3.cast} litrů.`
+        [`Procenta jsou setiny celku: ${t1.pct} % znamená ${t1.pct} setin. Násob nejdřív, děl stem až nakonec — vyhneš se počítání s desetinnými čísly.`,
+         `${t1.celek} · ${t1.pct} = ${t1.celek * t1.pct}.`,
+         `${t1.celek * t1.pct} : 100 = ${t1.cast} žáků.`],
+        [`Stejný postup: nejdřív vynásob, pak vyděl stem.`,
+         `${t2.celek} · ${t2.pct} = ${t2.celek * t2.pct}, a ${t2.celek * t2.pct} : 100 = ${t2.cast} Kč.`],
+        [`A do třetice stejně.`,
+         `${t3.celek} · ${t3.pct} = ${t3.celek * t3.pct}, a ${t3.celek * t3.pct} : 100 = ${t3.cast} litrů.`]
       ]
     };
   }
@@ -815,11 +825,11 @@
       intro: `Obdélníkový obraz je po celém obvodu lemovaný rámem širokým ${RAM} cm (na každé straně stejně).`,
       parts: [
         { key: '16.1', points: 2, prompt: `Obraz má rozměry ${L} cm × ${W} cm. Jaká je délka celého obrazu i s rámem podél jeho DELŠÍ strany (v cm)?`, ans: String(outL(L)),
-          sol: `Rám přidá ${RAM} cm na obou koncích strany, tedy 2·${RAM} cm: ${L} + 2·${RAM} = ${L} + ${2 * RAM} = ${outL(L)} cm.` },
+          sol: [`Rám obepíná obraz dokola, takže délku strany prodlouží na OBOU koncích o ${RAM} cm.`,`Přičítá se tedy dvakrát ${RAM} cm, tedy ${2 * RAM} cm.`,`Vnější délka = ${L} + ${2 * RAM} = ${outL(L)} cm.`] },
         { key: '16.2', points: 1, prompt: `Jaký obsah má samotný rám (v cm²)?`, ans: String(frameArea),
           sol: `Obsah celého obrazu i s rámem = ${outL(L)} · ${outL(W)} = ${outL(L) * outL(W)} cm². Obsah samotného obrazu = ${L} · ${W} = ${L * W} cm². Rám = ${outL(L) * outL(W)} − ${L * W} = ${frameArea} cm².` },
         { key: '16.3', points: 1, prompt: `Jiný obraz má kratší stranu ${W3} cm. Jaká je délka celého obrazu i s rámem podél této strany (v cm)?`, ans: String(outL(W3)),
-          sol: `Stejně jako v 16.1: ${W3} + 2·${RAM} = ${W3} + ${2 * RAM} = ${outL(W3)} cm.` }
+          sol: [`Postupuj stejně jako u předchozí strany — rám přidá ${RAM} cm na obou koncích.`,`Vnější rozměr = ${W3} + ${2 * RAM} = ${outL(W3)} cm.`] }
       ]
     };
   }
@@ -867,7 +877,7 @@
       no: 12, points: 2, title: 'Kostky v krabici', kind: 'mc',
       prompt: `Krabice tvaru kvádru má rozměry ${a} cm × ${b} cm × ${cc} cm. Kolik krychlových kostek o hraně ${k} cm se do ní přesně vejde?`,
       options: sh.labels, ans: sh.correctLetter,
-      sol: `Podél hran se vejde ${a} : ${k} = ${a / k}, ${b} : ${k} = ${b / k} a ${cc} : ${k} = ${cc / k} kostek. Celkem ${a / k} · ${b / k} · ${cc / k} = ${pocet} kostek → odpověď ${sh.correctLetter}. (Kontrola: objem ${a * b * cc} cm³ : ${k}³ = ${a * b * cc} : ${k * k * k} = ${pocet}.)`
+      sol: [`Kostky se skládají do řad, vrstev a sloupců — spočítej tedy, kolik se jich vejde podél KAŽDÉ hrany.`,`Podél hran: ${a} : ${k} = ${a / k}, ${b} : ${k} = ${b / k} a ${cc} : ${k} = ${cc / k} kostek.`,`Celkem = ${a / k} · ${b / k} · ${cc / k} = ${pocet} kostek → odpověď ${sh.correctLetter}.`]
     };
   }
 
@@ -897,7 +907,7 @@
       no: 14, points: 2, title: 'Medián', kind: 'mc',
       prompt: `Určete medián (prostřední hodnotu) těchto čísel: ${arr.join(', ')}.`,
       options: sh.labels, ans: sh.correctLetter,
-      sol: `Seřaď čísla od nejmenšího: ${sorted.join(', ')}. Medián je prostřední (třetí) hodnota: ${med} → odpověď ${sh.correctLetter}.`
+      sol: [`Medián je prostřední hodnota — ale až po seřazení. Bez seřazení vyjde nesmysl.`,`Seřazeno od nejmenšího: ${sorted.join(', ')}.`,`Hodnot je pět, prostřední je tedy třetí: medián = ${med} → odpověď ${sh.correctLetter}.`]
     };
   }
 
@@ -931,15 +941,15 @@
         { key: '3.1', points: 1,
           prompt: `Ve výrazu (x + ${a})² = x² + ?·x + ${a}² napište číslo místo otazníku (koeficient u x).`,
           ans: String(2 * a),
-          sol: `Vzorec (x+a)² = x² + 2ax + a². Koeficient u x je 2a = 2·${a} = ${2 * a}.` },
+          sol: [`Použij vzorec (x + a)² = x² + 2ax + a². Prostřední člen má vždy tvar 2ax.`,`Zde je a = ${a}, takže koeficient u x je 2 · ${a} = ${2 * a}.`] },
         { key: '3.2', points: 1, showExplain: true,
           prompt: `Sečtěte členy a napište koeficient u x: ${p}x + ${q}x − ${r}x`,
           ans: String(p + q - r),
-          sol: `Sečti koeficienty: ${p} + ${q} − ${r} = ${p + q - r}. Výraz se rovná ${p + q - r}x.` },
+          sol: [`Všechny členy obsahují stejnou proměnnou x, takže je lze sečíst — sčítají se jen jejich koeficienty.`,`Sečti koeficienty: ${p} + ${q} − ${r} = ${p + q - r}.`,`Výraz se rovná ${p + q - r}x.`] },
         { key: '3.3', points: 2, showExplain: true,
           prompt: `Rozložte na součin pomocí vzorce a napište číslo místo otazníku: x² − ${c * c} = (x − ?)·(x + ?)`,
           ans: String(c),
-          sol: `Vzorec a² − b² = (a−b)(a+b). Protože ${c * c} = ${c}², je x² − ${c * c} = (x − ${c})(x + ${c}).` }
+          sol: [`Rozdíl druhých mocnin se rozkládá podle vzorce a² − b² = (a − b)(a + b).`,`Číslo ${c * c} je druhá mocnina: ${c}² = ${c * c}, takže b = ${c}.`,`Proto x² − ${c * c} = (x − ${c})(x + ${c}).`] }
       ]
     };
   }
@@ -952,11 +962,11 @@
       intro: `Rovnoramenný trojúhelník má oba úhly při základně stejné, každý ${beta}°.`,
       parts: [
         { key: '7.1', points: 1, prompt: `Vypočítejte velikost úhlu při hlavním vrcholu (proti základně).`, ans: String(alpha),
-          sol: `Součet vnitřních úhlů trojúhelníku je 180°: úhel u vrcholu = 180° − 2·${beta}° = ${alpha}°.` },
+          sol: [`Trojúhelník je rovnoramenný, takže oba úhly při základně jsou stejné — každý ${beta}°.`,`Součet všech tří je 180°, tedy úhel u vrcholu = 180 − ${beta} − ${beta} = 180 − ${2 * beta}.`,`Úhel u vrcholu = ${alpha}°.`] },
         { key: '7.2', points: 1, prompt: `Vypočítejte velikost vnějšího úhlu u jednoho z úhlů při základně.`, ans: String(vnejsi),
-          sol: `Vnější úhel = 180° − vnitřní = 180° − ${beta}° = ${vnejsi}°.` },
+          sol: [`Vnější úhel doplňuje vnitřní úhel u téhož vrcholu do přímého úhlu, tedy do 180°.`,`Vnější úhel = 180 − ${beta} = ${vnejsi}°.`] },
         { key: '7.3', points: 1, prompt: `Jaký je součet obou úhlů při základně?`, ans: String(soucet),
-          sol: `Oba úhly při základně jsou ${beta}°, jejich součet = 2 · ${beta}° = ${soucet}°.` }
+          sol: [`U rovnoramenného trojúhelníku jsou oba úhly při základně shodné, takže stačí jeden zdvojnásobit.`,`Součet = 2 · ${beta} = ${soucet}°.`] }
       ]
     };
   }
@@ -970,7 +980,7 @@
         { key: '10', points: 2,
           prompt: `Model budovy je v měřítku 1 : ${k}. Na modelu měří budova ${modelCm} cm. Jak vysoká je skutečná budova (v metrech)?`,
           ans: String(realM),
-          sol: `Měřítko 1 : ${k} znamená, že 1 cm na modelu = ${k} cm ve skutečnosti. Skutečná výška = ${modelCm} · ${k} = ${realCm} cm = ${realM} m.` }
+          sol: [`Měřítko 1 : ${k} znamená, že 1 cm na modelu odpovídá ${k} cm ve skutečnosti — skutečnost je ${k}× větší.`,`Skutečná výška v centimetrech: ${modelCm} · ${k} = ${realCm} cm.`,`Otázka je na metry, tedy ${realCm} : 100 = ${realM} m.`] }
       ]
     };
   }
@@ -1005,11 +1015,11 @@
         { key: '6.1', points: 1,
           prompt: `Sud pojme ${sud} litrů. Konev má objem ${konev} litrů. Kolik plných konví je potřeba na naplnění sudu?`,
           ans: String(pocet),
-          sol: `Počet konví = objem sudu : objem konve = ${sud} : ${konev} = ${pocet}.` },
+          sol: [`Ptáme se, kolikrát se konev vejde do sudu — to je dělení.`,`Počet konví = ${sud} : ${konev} = ${pocet}.`] },
         { key: '6.2', points: 1,
           prompt: `Nádrž o objemu ${V} litrů se napouští rychlostí ${rate} litrů za minutu. Za kolik minut bude plná?`,
           ans: String(min),
-          sol: `Čas = objem : rychlost = ${V} : ${rate} = ${min} ${skl(min, 'minuta', 'minuty', 'minut')}.` }
+          sol: [`Když znáš objem a rychlost napouštění, čas dostaneš dělením.`,`Čas = ${V} : ${rate} = ${min} ${skl(min, 'minuta', 'minuty', 'minut')}.`] }
       ]
     };
   }
@@ -1024,11 +1034,11 @@
       intro: `Obdélníková zahrada má rozměry ${a} m × ${b} m a chceme ji celou oplotit.`,
       parts: [
         { key: '8.1', points: 2, prompt: `Kolik metrů plotu je potřeba (obvod zahrady)?`, ans: String(obvod),
-          sol: `Obvod obdélníku = 2·(${a} + ${b}) = ${obvod} m.` },
+          sol: [`Obvod obdélníku je dvojnásobek součtu dvou sousedních stran.`,`Součet sousedních stran: ${a} + ${b} = ${a + b} m.`,`Obvod = 2 · ${a + b} = ${obvod} m.`] },
         { key: '8.2', points: 1, prompt: `Metr plotu stojí ${cena} Kč. Kolik Kč stojí celý plot?`, ans: String(celkem),
-          sol: `${obvod} m · ${cena} Kč = ${celkem} Kč.` },
+          sol: [`Cena se počítá za každý metr plotu, takže se obvod násobí cenou za metr.`,`Celkem = ${obvod} · ${cena} = ${celkem} Kč.`] },
         { key: '8.3', points: 1, prompt: `Sloupky jsou rozmístěny po ${d} metrech. Kolik sloupků je po celém obvodu?`, ans: String(sloupky),
-          sol: `Počet sloupků = obvod : rozestup = ${obvod} : ${d} = ${sloupky}.` }
+          sol: [`Sloupky stojí po celém obvodu v pravidelných rozestupech, takže se obvod dělí rozestupem.`,`Počet sloupků = ${obvod} : ${d} = ${sloupky}.`] }
       ]
     };
   }
@@ -1042,9 +1052,9 @@
       intro: `Obdélníkový bazén ${a} m × ${b} m je ze všech stran obklopen chodníkem širokým ${w} m.`,
       parts: [
         { key: '16.1', points: 2, prompt: `Jaká je celková délka obrazce (bazén i s chodníkem) podél delší strany bazénu (v m)?`, ans: String(oa),
-          sol: `Chodník přidá ${w} m na obou koncích: ${a} + 2·${w} = ${oa} m.` },
+          sol: [`Chodník obepíná bazén dokola, takže každý rozměr prodlouží na OBOU koncích o ${w} m.`,`Vnější rozměr = ${a} + 2 · ${w} = ${oa} m.`] },
         { key: '16.2', points: 1, prompt: `Jaká je celková šířka obrazce (bazén i s chodníkem, v m)?`, ans: String(ob),
-          sol: `${b} + 2·${w} = ${ob} m.` },
+          sol: [`Druhý rozměr se prodlouží úplně stejně — na obou koncích o ${w} m.`,`Vnější rozměr = ${b} + 2 · ${w} = ${ob} m.`] },
         { key: '16.3', points: 1, prompt: `Jaký obsah má samotný chodník (v m²)?`, ans: String(chodnik),
           sol: `Obsah celku = ${oa}·${ob} = ${oa * ob} m². Minus bazén ${a}·${b} = ${a * b} m². Chodník = ${oa * ob} − ${a * b} = ${chodnik} m².` }
       ]
@@ -1094,7 +1104,7 @@
       intro: `Obdélníková místnost má rozměry ${L} m × ${W} m.`,
       parts: [
         { key: '5.1', points: 2, prompt: `Jaký obsah má podlaha místnosti (v m²)?`, ans: String(area),
-          sol: `Obsah obdélníku = délka · šířka = ${L} · ${W} = ${area} m².` },
+          sol: [`Obsah obdélníku je součin dvou sousedních stran (pozor, ne jejich součet — to je obvod).`,`Obsah = ${L} · ${W} = ${area} m².`] },
         { key: '5.2', points: 2, prompt: `Na podlahu položíme obdélníkový koberec ${a} m × ${b} m. Kolik m² podlahy zůstane nezakryto?`, ans: String(volna),
           sol: `Koberec pokryje ${a} · ${b} = ${koberec} m². Nezakryto zůstane ${area} − ${koberec} = ${volna} m².` }
       ]
@@ -1152,7 +1162,7 @@
       no: 14, points: 2, title: 'Modus', kind: 'mc',
       prompt: `Určete modus (nejčastější hodnotu) těchto čísel: ${arr.join(', ')}.`,
       options: sh.labels, ans: sh.correctLetter,
-      sol: `Číslo ${m} se vyskytuje třikrát, ostatní jen jednou. Modus = ${m} → odpověď ${sh.correctLetter}.`
+      sol: [`Modus je hodnota, která se v souboru objevuje nejčastěji — nepočítá se, jen se hledá.`,`Číslo ${m} se vyskytuje třikrát, ostatní jen jednou.`,`Modus = ${m} → odpověď ${sh.correctLetter}.`]
     };
   }
 
