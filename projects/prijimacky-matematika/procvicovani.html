@@ -249,7 +249,12 @@ function grade(correct){
                                : '✗ Špatně. Správná odpověď: '+PZ.czNum(PR.item.ans));
   fb.style.display='block';
   if(PR.item.sol){ const sol=document.getElementById('pr-sol');
-    sol.innerHTML='<span class="lbl">VYŘEŠENÝ POSTUP</span>'+'<ol class="cm-review-steps">'+PZ.solSteps(PR.item.sol).map(x=>'<li>'+PZ.esc(x)+'</li>').join('')+'</ol>'; sol.style.display='block'; }
+    let odk='';
+    if(window.PZ_TOPICS && PZ_TOPICS.vykladProOkruh){ const v=PZ_TOPICS.vykladProOkruh(PR.topic);
+      if(v){ const vid=PZ_TOPICS.videoUrl(v);
+        odk='<div class="cm-review-links">Nejde ti to? <a href="'+PZ.esc(PZ_TOPICS.vykladUrl(v))+'">📖 '+PZ.esc(v.nazev)+'</a>'+
+          (vid?' <a href="'+PZ.esc(vid)+'" target="_blank" rel="noopener">▶ video</a>':'')+'</div>'; } }
+    sol.innerHTML='<span class="lbl">VYŘEŠENÝ POSTUP</span>'+'<ol class="cm-review-steps">'+PZ.solSteps(PR.item.sol).map(x=>'<li>'+PZ.esc(x)+'</li>').join('')+'</ol>'+odk; sol.style.display='block'; }
   const nb=document.getElementById('pr-next'); nb.style.display='inline-flex'; setTimeout(()=>nb.focus(),30);
 }
 

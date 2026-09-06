@@ -1032,6 +1032,22 @@ window.RPGCloud = (function () {
         else window.addEventListener('load', jump);
         return;
       }
+      // ── Přímý vstup do VÝKLADU (odkaz z přijímaček) ──
+      // Jede přes preview, takže localStorage je izolovaný a žákův postup zůstane netknutý.
+      // Tvar mise se ověřuje: hodnota jde z adresního řádku, tedy zvenčí.
+      const learnMid = params.get('learn');
+      if (preview && learnMid && /^[0-9]-[0-9]$/.test(learnMid)) {
+        previewBanner('📖 VÝKLAD K TÉMATU — otevřeno z přijímaček, do hry se nic neukládá.', '#39ff9e');
+        const otevri = () => {
+          if (typeof window.startGame !== 'function' || typeof window.startLearn !== 'function') return;
+          const ni = document.getElementById('ni');
+          if (ni && !ni.value) ni.value = 'VÝKLAD';
+          try { window.startGame(); window.startLearn(learnMid); } catch (e) { console.warn('výklad se nepodařilo otevřít', e); }
+        };
+        if (document.readyState === 'complete') otevri();
+        else window.addEventListener('load', otevri);
+        return;
+      }
       // ── Náhled hry (učitel si hraje nanečisto) ──
       if (preview) {
         previewBanner('🎬 NÁHLED HRY — hraješ nanečisto, nic se neukládá.', '#f4d03f');

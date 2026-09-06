@@ -161,6 +161,12 @@ main { max-width:920px; margin:0 auto; padding:18px 24px 80px; }
 .cm-review-correct { color:var(--green); font-size:.9rem; font-weight:600; margin-bottom:5px; }
 /* rozbor po odevzdání drží kontext zadání: úvodní text i nákres.
    Nákres se na úzkém displeji POSOUVÁ, neořezává — overflow:hidden by konec tiše uřízl. */
+.cm-review-links { margin-top:8px; font-size:.85rem; color:var(--muted); display:flex; flex-wrap:wrap;
+  gap:6px 10px; align-items:center; }
+.cm-review-links a { color:var(--blue); font-weight:600; text-decoration:none;
+  border-bottom:1px solid transparent; padding:4px 2px; }
+.cm-review-links a:hover { border-bottom-color:var(--blue); }
+@media (pointer:coarse) { .cm-review-links a { min-height:44px; display:inline-flex; align-items:center; } }
 .cm-review-intro { color:var(--text); font-size:.92rem; line-height:1.5; margin-bottom:6px; }
 .cm-review-svg { text-align:center; margin:4px 0 10px; overflow-x:auto; }
 .cm-review-svg svg { max-width:none; }

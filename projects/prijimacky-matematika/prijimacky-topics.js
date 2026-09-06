@@ -23,6 +23,50 @@
     { id: 'data', name: 'Tabulky, data a statistika', oblast: 'Závislosti a data', slots: [13] },
   ];
 
+  /* Okruh → výklad a video. Ročník NENÍ vždy devátý: test nanečisto zkouší látku
+     6.–9. třídy, takže výklad má přijít z ročníku, kde se to probírá. Poslat žáka
+     od „kolik je 3/8 z 240" na lomené výrazy 9. ročníku by ho jen zmátlo.
+     Mise vybrané MĚŘENÍM (četnost klíčových slov v rpg-learn-6/7/8/9.js), ne odhadem;
+     počet shod je uveden u každé. Video je to, které k misi patří v rpg-learn.
+     Odkaz vede přes ?preview=1, takže hra běží v izolovaném úložišti a žákovi
+     NEPŘEPÍŠE uložený postup.
+     POZOR: `video` je KOPIE id z rpg-learn-N.js (přijímačkové stránky ty moduly
+     nenačítají — jsou to ~240 KB navíc jen kvůli jednomu odkazu). Kopie se může
+     rozejít s originálem a nikde by to nespadlo, proto ji znak po znaku hlídá
+     tests/prijimacky-vyklad.test.cjs — stejný vzor jako rpg-hero-portraits.js. */
+  const VYKLAD = {
+    'vyrazy-mocniny':  { hra: 8, mise: '2-1', nazev: 'Druhá mocnina a odmocnina', video: 'DVQl6pLx8qI'  },      // 15 shod
+    'zlomky':          { hra: 7, mise: '2-1', nazev: 'Krácení zlomků', video: 'A05HhHZwfoQ'  },                  // 29 shod
+    'procenta':        { hra: 7, mise: '5-1', nazev: 'Výpočet procentové části', video: 'GFkEBrieSuA'  },        // 11 shod
+    'pomer':           { hra: 7, mise: '4-1', nazev: 'Poměr — slovní úlohy', video: 'YeptEbvYohc'  },            // 21 shod
+    'vyrazy-promenna': { hra: 8, mise: '4-1', nazev: 'Algebraické vzorce', video: 'TwzbrIEIwn0'  },              // 13 shod
+    'rovnice':         { hra: 8, mise: '3-1', nazev: 'Rovnice', video: 'q2saJQdkF34'  },                         // 13 shod
+    'slovni':          { hra: 9, mise: '3-3', nazev: 'Slovní úlohy — rovnice', video: '9KL_tx0SYJk'  },
+    'geometrie':       { hra: 7, mise: '1-3', nazev: 'Obvod a obsah čtverce a obdélníku', video: 'GcR_xKAu5kQ'  },// 31 shod
+    'telesa':          { hra: 7, mise: '7-2', nazev: 'Objem a povrch hranolu', video: 'LUgKaMWPels'  },          // 39 shod
+    'data':            { hra: 6, mise: '2-3', nazev: 'Aritmetický průměr', video: '4_MuthDfVJQ'  },              // 12 shod
+  };
+  /* Některé pozice mají v rámci okruhu vlastní téma a obecný odkaz by mířil vedle:
+     okruh „geometrie" pokrývá pozice 5–10, ale pozice 7 je o úhlech, 9 o Pythagorově
+     větě a 10 o podobnosti — poslat žáka na obvod a obsah by mu nepomohlo.
+     Klíč je 0-indexovaná pozice testu. Mise opět vybrané měřením, počet shod uveden. */
+  const VYKLAD_POZICE = {
+    6: { hra: 6, mise: '4-2', nazev: 'Vedlejší a vrcholové úhly', video: 'a0OCeHpRcOI' },  // 48 shod
+    8: { hra: 8, mise: '2-2', nazev: 'Pythagorova věta',          video: 'ssvz3u8imgk' },  // 29 shod
+    9: { hra: 9, mise: '7-1', nazev: 'Podobnost trojúhelníků',    video: 'XFIg5VJ2Ujc' },  // 10 shod
+  };
+  // Výklad pro pozici testu (0-indexovanou). Nejdřív výjimka pro konkrétní pozici,
+  // teprve pak okruh; topicsForSlot zůstává jediným zdrojem mapování pozice → okruh.
+  function vykladProSlot(idx) {
+    if (VYKLAD_POZICE[idx]) return Object.assign({ okruh: 'pozice-' + idx }, VYKLAD_POZICE[idx]);
+    for (const id of topicsForSlot(idx)) if (VYKLAD[id]) return Object.assign({ okruh: id }, VYKLAD[id]);
+    return null;
+  }
+  function vykladProOkruh(id) { return VYKLAD[id] ? Object.assign({ okruh: id }, VYKLAD[id]) : null; }
+  // Adresa výkladu ve hře. ?preview=1 → izolované úložiště (žákův postup zůstane netknutý).
+  function vykladUrl(v) { return '../rpg-mat-' + v.hra + '.html?preview=1&learn=' + encodeURIComponent(v.mise); }
+  function videoUrl(v) { return v.video ? 'https://www.youtube.com/watch?v=' + encodeURIComponent(v.video) : null; }
+
   // Převod testové úlohy (z RPG_CERMAT_9.genSlot) na JEDNU procvičovací položku.
   // Zachovává přesné znění (prompt/options/ans/sol). Typy: text | mc | yn.
   function taskToItem(t) {
@@ -71,5 +115,5 @@
     return TOPICS.filter(t => (t.slots || []).indexOf(i) !== -1).map(t => t.id);
   }
 
-  window.PZ_TOPICS = { list: TOPICS, item: practiceItem, topicsForSlot };
+  window.PZ_TOPICS = { list: TOPICS, item: practiceItem, topicsForSlot, vykladProSlot, vykladProOkruh, vykladUrl, videoUrl };
 })();
