@@ -20,6 +20,13 @@ const ok = (c, m) => { if (c) { pass++; } else { fail++; console.log('  ❌ ' + 
 const bad = new Set();
 const RUNS = 1000;
 const BADSOL = /undefined|NaN/;
+// Postup je od PR #241 buď souvislý text, nebo POLE KROKŮ. Prázdné pole je
+// truthy, takže původní kontrola `!sol` by ho pustila — proto vlastní helper.
+const vadnyPostup = sol => {
+  const kroky = Array.isArray(sol) ? sol : (typeof sol === 'string' && sol.trim() ? [sol] : []);
+  if (!kroky.length) return true;
+  return kroky.some(k => typeof k !== 'string' || !k.trim() || BADSOL.test(k));
+};
 
 ok(C && typeof C.generate === 'function', 'RPG_CERMAT_9.generate existuje');
 ok(C.maxScore === 50, 'maxScore = 50');
@@ -35,19 +42,19 @@ for (let run = 0; run < RUNS; run++) {
       if (t.statements.length !== t.points) bad.add(`t${t.no} tfgrid: ${t.points} b ≠ ${t.statements.length} tvrzení`);
       for (const s of t.statements) {
         if (!s.text || !/^[AN]$/.test(s.ans)) bad.add(`t${t.no} tfgrid ans ∉ {A,N}`);
-        if (!s.sol || BADSOL.test(s.sol)) bad.add(`t${t.no} tfgrid vadné řešení`);
+        if (vadnyPostup(s.sol)) bad.add(`t${t.no} tfgrid vadné řešení`);
       }
     } else if (t.kind === 'mc') {
       if (!t.prompt) bad.add(`t${t.no} mc bez zadání`);
       if (!Array.isArray(t.options) || t.options.length < 4) bad.add(`t${t.no} mc málo možností`);
       if (!/^[A-E]$/.test(t.ans) || !t.options.some(o => o.startsWith(t.ans + ')'))) bad.add(`t${t.no} mc ans mimo možnosti`);
-      if (!t.sol || BADSOL.test(t.sol)) bad.add(`t${t.no} mc vadné řešení`);
+      if (vadnyPostup(t.sol)) bad.add(`t${t.no} mc vadné řešení`);
     } else if (t.kind === 'match') {
       if (!Array.isArray(t.prompts) || t.prompts.length < 2) bad.add(`t${t.no} match málo zadání`);
       if (!Array.isArray(t.ans) || t.ans.length !== t.prompts.length) bad.add(`t${t.no} match délka ans`);
       for (const a of t.ans) if (!t.options.some(o => o.startsWith(a + ')'))) bad.add(`t${t.no} match ans mimo možnosti`);
       if (!Array.isArray(t.sol) || t.sol.length !== t.prompts.length) bad.add(`t${t.no} match délka sol`);
-      else for (const s of t.sol) if (!s || BADSOL.test(s)) bad.add(`t${t.no} match vadné řešení`);
+      else for (const s of t.sol) if (vadnyPostup(s)) bad.add(`t${t.no} match vadné řešení`);
     } else {
       if (!Array.isArray(t.parts)) { bad.add(`t${t.no} bez parts/kind`); continue; }
       let ps = 0;
@@ -56,7 +63,7 @@ for (let run = 0; run < RUNS; run++) {
         if (!p.prompt || !p.prompt.trim()) bad.add(`t${t.no}${p.key} bez zadání`);
         const a = String(p.ans);
         if (p.ans === undefined || p.ans === null || a === 'NaN' || a === 'undefined' || a === '') bad.add(`t${t.no}${p.key} vadná ans`);
-        if (!p.sol || BADSOL.test(p.sol)) bad.add(`t${t.no}${p.key} vadné řešení`);
+        if (vadnyPostup(p.sol)) bad.add(`t${t.no}${p.key} vadné řešení`);
       }
       if (ps !== t.points) bad.add(`t${t.no} součet podúloh ${ps} ≠ ${t.points}`);
     }

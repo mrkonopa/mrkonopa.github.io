@@ -218,11 +218,11 @@
         { key: '5.1', points: 2,
           prompt: `Délka domu a je rovna polovině strany pozemku (a = ${a5} m). Určete šířku domu b (v m, zaokrouhlete na celé metry).`,
           ans: String(b5),
-          sol: `Obsah pozemku je c² = ${c5}² = ${cel} m². Obsah domu je pětina z toho: ${cel} : 5 = ${domObsah} m². Šířku domu spočítáš jako obsah : délka: ${domObsah} : ${a5} = ${b5} m (zaokrouhleno na celé metry).` },
+          sol: [`Pozemek je čtverec, takže jeho obsah je strana krát strana: ${c5}² = ${cel} m².`,`Dům zabírá pětinu pozemku: ${cel} : 5 = ${domObsah} m².`,`Obdélníkový dům má obsah délka krát šířka, takže šířku dostaneš dělením: ${domObsah} : ${a5} = ${b5} m (zaokrouhleno na celé metry).`] },
         { key: '5.2', points: 2,
           prompt: `Rybníček má rozlohu ${pRybnik} % celkové rozlohy pozemku. Vypočítejte v m² rozlohu volné části pozemku (bez domu a rybníčku). Použijte obsah domu = ${domObsah} m² a obsah rybníčku = ${rybnik} m².`,
           ans: String(volna),
-          sol: `Volná část = celková rozloha − dům − rybníček: ${cel} − ${domObsah} − ${rybnik} = ${volna} m².` }
+          sol: [`Volná část je to, co zbyde, když z celého pozemku odečteš dům i rybníček.`,`Obě plochy už znáš ze zadání, takže je jen odečti: ${cel} − ${domObsah} − ${rybnik} = ${volna} m².`] }
       ]
     };
   }
@@ -333,7 +333,7 @@
         { key: '10', points: 2,
           prompt: `Dva podobné trojúhelníky mají koeficient podobnosti k = ${k10}. Strana menšího trojúhelníku měří ${orig} cm. Jak dlouhá je odpovídající strana většího trojúhelníku (v cm)?`,
           ans: String(orig * k10),
-          sol: `U podobných trojúhelníků platí, že odpovídající strany se liší koeficientem podobnosti k. Stranu většího trojúhelníku spočítáš jako: ${orig} × ${k10} = ${orig * k10} cm.` }
+          sol: [`Podobné trojúhelníky mají stejný tvar, jen jinou velikost. Každá strana většího je k-krát delší než odpovídající strana menšího.`,`Koeficient k = ${k10} je větší než 1, takže se NÁSOBÍ — strana musí vyjít delší než ${orig} cm.`,`Strana většího trojúhelníku = ${orig} · ${k10} = ${orig * k10} cm.`] }
       ]
     };
   }
@@ -344,22 +344,22 @@
     const soucetHran = 4 * (a11 + b11 + c11);
     const tvrzeniSoucet = soucetHran + (ri(0, 1) ? 0 : ri(2, 8));
     const st1 = { text: `Součet délek všech hran kvádru s hranami ${a11} cm, ${b11} cm a ${c11} cm je ${tvrzeniSoucet} cm.`, ans: tvrzeniSoucet === soucetHran ? 'A' : 'N',
-      sol: `Kvádr má 12 hran (4 od každého rozměru). Součet všech hran = 4·(a+b+c) = 4·(${a11}+${b11}+${c11}) = ${soucetHran} cm. Tvrzení uvádí ${tvrzeniSoucet} cm, což je ${tvrzeniSoucet === soucetHran ? 'stejné číslo — tvrzení je PRAVDIVÉ (A).' : 'jiné číslo — tvrzení je NEPRAVDIVÉ (N).'}` };
+      sol: [`Kvádr má 12 hran — od každého ze tří rozměrů právě čtyři stejné.`,`Součet všech hran = 4 · (a + b + c) = 4 · (${a11} + ${b11} + ${c11}) = ${soucetHran} cm.`,`Tvrzení uvádí ${tvrzeniSoucet} cm, což je ${tvrzeniSoucet === soucetHran ? 'stejné číslo — tvrzení je PRAVDIVÉ (A).' : 'jiné číslo — tvrzení je NEPRAVDIVÉ (N).'}`] };
     const povrch1 = 2 * (a11 * b11 + b11 * c11 + a11 * c11);
     const a11b = a11 + 1;
     const povrch2 = 2 * (a11b * b11 + b11 * c11 + a11b * c11);
     const rozdilTvrzeny = ri(0, 1) ? (povrch2 - povrch1) : (povrch2 - povrch1) + ri(2, 6);
     const st2 = { text: `Kvádr s hranami ${a11b} cm, ${b11} cm, ${c11} cm má o ${rozdilTvrzeny} cm² větší povrch než kvádr s hranami ${a11} cm, ${b11} cm, ${c11} cm.`, ans: rozdilTvrzeny === (povrch2 - povrch1) ? 'A' : 'N',
-      sol: `Povrch kvádru = 2·(a·b + b·c + a·c). Kvádr ${a11}×${b11}×${c11}: povrch = 2·(${a11}·${b11} + ${b11}·${c11} + ${a11}·${c11}) = ${povrch1} cm². Kvádr ${a11b}×${b11}×${c11}: povrch = 2·(${a11b}·${b11} + ${b11}·${c11} + ${a11b}·${c11}) = ${povrch2} cm². Skutečný rozdíl je ${povrch2 - povrch1} cm², tvrzení uvádí ${rozdilTvrzeny} cm², takže je ${rozdilTvrzeny === (povrch2 - povrch1) ? 'PRAVDIVÉ (A).' : 'NEPRAVDIVÉ (N).'}` };
+      sol: [`Povrch kvádru je plocha všech šesti stěn: S = 2 · (a·b + b·c + a·c).`,`Menší kvádr ${a11}×${b11}×${c11}: S = 2 · (${a11 * b11} + ${b11 * c11} + ${a11 * c11}) = ${povrch1} cm².`,`Větší kvádr ${a11b}×${b11}×${c11}: S = 2 · (${a11b * b11} + ${b11 * c11} + ${a11b * c11}) = ${povrch2} cm².`,`Rozdíl = ${povrch2} − ${povrch1} = ${povrch2 - povrch1} cm². Tvrzení uvádí ${rozdilTvrzeny} cm², takže je ${rozdilTvrzeny === (povrch2 - povrch1) ? 'PRAVDIVÉ (A).' : 'NEPRAVDIVÉ (N).'}`] };
     const objem1 = a11 * b11 * c11;
     const objem2 = a11b * b11 * c11;
     // náhodně obrátit směr tvrzení, ať poslední řádek není vždy 'A' (nepredikovatelné)
     const st3menuje = ri(0, 1);  // true: tvrdí větší (pravda), false: tvrdí menší (nepravda)
     const st3 = st3menuje
       ? { text: `Kvádr s hranami ${a11b} cm, ${b11} cm, ${c11} cm má větší objem než kvádr s hranami ${a11} cm, ${b11} cm, ${c11} cm.`, ans: 'A',
-          sol: `Objem kvádru = a·b·c. Kvádr ${a11}×${b11}×${c11}: ${objem1} cm³. Kvádr ${a11b}×${b11}×${c11}: ${objem2} cm³. Protože ${a11b} > ${a11} a ostatní hrany jsou stejné, je objem větší (${objem2} > ${objem1}) — tvrzení je PRAVDIVÉ (A).` }
+          sol: [`Objem kvádru je součin všech tří hran: V = a · b · c.`,`Menší kvádr ${a11}×${b11}×${c11}: V = ${objem1} cm³. Větší kvádr ${a11b}×${b11}×${c11}: V = ${objem2} cm³.`,`Jedna hrana se zvětšila z ${a11} na ${a11b} cm a ostatní zůstaly stejné, takže objem musí vzrůst: ${objem2} > ${objem1}. Tvrzení je PRAVDIVÉ (A).`] }
       : { text: `Kvádr s hranami ${a11} cm, ${b11} cm, ${c11} cm má větší objem než kvádr s hranami ${a11b} cm, ${b11} cm, ${c11} cm.`, ans: 'N',
-          sol: `Objem kvádru = a·b·c. Kvádr ${a11}×${b11}×${c11}: ${objem1} cm³. Kvádr ${a11b}×${b11}×${c11}: ${objem2} cm³. Protože ${a11} < ${a11b}, je objem menší (${objem1} < ${objem2}), ne větší — tvrzení je NEPRAVDIVÉ (N).` };
+          sol: [`Objem kvádru je součin všech tří hran: V = a · b · c.`,`Menší kvádr ${a11}×${b11}×${c11}: V = ${objem1} cm³. Větší kvádr ${a11b}×${b11}×${c11}: V = ${objem2} cm³.`,`Hrana se zvětšila z ${a11} na ${a11b} cm, takže objem VZROSTL (${objem1} < ${objem2}). Tvrzení říká opak, je tedy NEPRAVDIVÉ (N).`] };
     return {
       no: 11, points: 3, title: 'Kvádry',
       kind: 'tfgrid',
@@ -427,7 +427,7 @@
       prompt: `Test psalo ${n14} žáků, každý dostal známku 1 nebo 2. Aritmetický průměr známek byl ${cz(prumer)}. Kolik žáků dostalo jedničku?`,
       options: shuffled.labels,
       ans: shuffled.correctLetter,
-      sol: `Součet všech známek = průměr × počet žáků: ${cz(prumer)} × ${n14} = ${soucetZnamek}. Když j žáků má jedničku a zbylých ${n14}−j žáků má dvojku, součet = 1·j + 2·(${n14}−j) = ${2 * n14} − j. Z rovnice ${2 * n14} − j = ${soucetZnamek} vyjde j = ${2 * n14} − ${soucetZnamek} = ${pocetJednicek} → odpověď ${shuffled.correctLetter}.`
+      sol: [`Průměr je součet dělený počtem, takže součet dostaneš zpětně vynásobením: ${cz(prumer)} × ${n14} = ${soucetZnamek}.`,`Označ si j počet jedniček. Zbylých ${n14} − j žáků má dvojku, takže součet je 1·j + 2·(${n14} − j) = ${2 * n14} − j.`,`Tenhle součet se musí rovnat ${soucetZnamek}, odtud ${2 * n14} − j = ${soucetZnamek}.`,`Počet jedniček j = ${2 * n14} − ${soucetZnamek} = ${pocetJednicek} → odpověď ${shuffled.correctLetter}.`]
     };
   }
 
