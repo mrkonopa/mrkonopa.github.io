@@ -431,41 +431,69 @@
     const a = ri(3, 20), b = ri(3, 20);
     return {
       prompt: 'Obdélník má strany ' + a + ' cm a ' + b + ' cm. Jaký je jeho obvod (v cm)?', type: 'text', ans: String(2 * (a + b)),
-      sol: 'Obvod = 2·(a + b) = 2·(' + a + ' + ' + b + ') = ' + (2 * (a + b)) + ' cm.', _check: { kind: 'obvodObd', a, b }
+      sol: [
+        'Obvod je součet všech čtyř stran. Protější strany obdélníku jsou stejné, takže stačí sečíst dvě sousední a výsledek zdvojnásobit: o = 2 · (a + b).',
+        'Sečti sousední strany: ' + a + ' + ' + b + ' = ' + (a + b) + ' cm.',
+        'Obvod = 2 · ' + (a + b) + ' = ' + (2 * (a + b)) + ' cm.'
+      ], _check: { kind: 'obvodObd', a, b }
     };
   }
   function obsahObdelnikG() {
     const a = ri(3, 20), b = ri(3, 20);
     return {
       prompt: 'Obdélník má strany ' + a + ' cm a ' + b + ' cm. Jaký je jeho obsah (v cm²)?', type: 'text', ans: String(a * b),
-      sol: 'Obsah = a · b = ' + a + ' · ' + b + ' = ' + (a * b) + ' cm².', _check: { kind: 'obsahObd', a, b }
+      sol: [
+        'Obsah obdélníku je součin dvou SOUSEDNÍCH stran: S = a · b. (Pozor, ne obvod — ten se sčítá.)',
+        'Dosaď strany: S = ' + a + ' · ' + b + '.',
+        'Obsah = ' + a + ' · ' + b + ' = ' + (a * b) + ' cm².'
+      ], _check: { kind: 'obsahObd', a, b }
     };
   }
   function ctverecG() {
     const a = ri(3, 20);
     return ri(0, 1)
-      ? { prompt: 'Čtverec má stranu ' + a + ' cm. Jaký je jeho obsah (v cm²)?', type: 'text', ans: String(a * a), sol: 'Obsah = a² = ' + a + '² = ' + (a * a) + ' cm².', _check: { kind: 'obsahCtverec', a } }
-      : { prompt: 'Čtverec má stranu ' + a + ' cm. Jaký je jeho obvod (v cm)?', type: 'text', ans: String(4 * a), sol: 'Obvod = 4·a = 4·' + a + ' = ' + (4 * a) + ' cm.', _check: { kind: 'obvodCtverec', a } };
+      ? { prompt: 'Čtverec má stranu ' + a + ' cm. Jaký je jeho obsah (v cm²)?', type: 'text', ans: String(a * a), sol: [
+          'Čtverec má všechny strany stejně dlouhé, takže obsah je strana krát strana: S = a².',
+          'Dosaď stranu: S = ' + a + '².',
+          'Obsah = ' + a + ' · ' + a + ' = ' + (a * a) + ' cm².'
+        ], _check: { kind: 'obsahCtverec', a } }
+      : { prompt: 'Čtverec má stranu ' + a + ' cm. Jaký je jeho obvod (v cm)?', type: 'text', ans: String(4 * a), sol: [
+          'Čtverec má čtyři stejně dlouhé strany, takže obvod je čtyřnásobek strany: o = 4 · a.',
+          'Obvod = 4 · ' + a + ' = ' + (4 * a) + ' cm.'
+        ], _check: { kind: 'obvodCtverec', a } };
   }
   function obsahTrojuhelnikG() {
     const a = ri(2, 12) * 2, v = ri(3, 15);
     return {
       prompt: 'Trojúhelník má stranu ' + a + ' cm a výšku k této straně ' + v + ' cm. Jaký je jeho obsah (v cm²)?', type: 'text', ans: String(a * v / 2),
-      sol: 'Obsah trojúhelníku = (strana · výška) : 2 = (' + a + ' · ' + v + ') : 2 = ' + (a * v) + ' : 2 = ' + (a * v / 2) + ' cm².', _check: { kind: 'obsahTroj', a, v }
+      sol: [
+        'Trojúhelník je přesně POLOVINA rovnoběžníku se stejnou základnou i výškou — proto se na konci dělí dvěma: S = (z · v) : 2.',
+        'Nejdřív vynásob základnu výškou: ' + a + ' · ' + v + ' = ' + (a * v) + '.',
+        'Obsah = ' + (a * v) + ' : 2 = ' + (a * v / 2) + ' cm².'
+      ], _check: { kind: 'obsahTroj', a, v }
     };
   }
   function uhelVedlejsi() {
     const x = ri(20, 160);
     return {
       prompt: 'Vypočítejte velikost vedlejšího úhlu k úhlu ' + x + '°.', type: 'text', ans: String(180 - x),
-      sol: 'Vedlejší úhly dávají dohromady 180°: 180° − ' + x + '° = ' + (180 - x) + '°.', _check: { kind: 'uhelVedlejsi', x }
+      sol: [
+        'Vedlejší úhly leží vedle sebe u téže přímky a dohromady tvoří úhel přímý, tedy 180°.',
+        'Hledaný úhel proto dopočítáš odečtením od 180°.',
+        'Vedlejší úhel = 180 − ' + x + ' = ' + (180 - x) + '°.'
+      ], _check: { kind: 'uhelVedlejsi', x }
     };
   }
   function pythagorasG() {
     const tr = [[3, 4, 5], [6, 8, 10], [5, 12, 13], [8, 15, 17], [9, 12, 15]][ri(0, 4)];
     return {
       prompt: 'Pravoúhlý trojúhelník má odvěsny ' + tr[0] + ' cm a ' + tr[1] + ' cm. Jak dlouhá je přepona (v cm)?', type: 'text', ans: String(tr[2]),
-      sol: 'Pythagorova věta: c² = ' + tr[0] + '² + ' + tr[1] + '² = ' + (tr[0] * tr[0]) + ' + ' + (tr[1] * tr[1]) + ' = ' + (tr[0] * tr[0] + tr[1] * tr[1]) + '. Odmocni: c = ' + tr[2] + ' cm.', _check: { kind: 'pythag', a: tr[0], b: tr[1] }
+      sol: [
+        'Přepona leží naproti pravému úhlu a je vždy nejdelší. Platí pro ni Pythagorova věta: c² = a² + b².',
+        'Umocni obě odvěsny: ' + tr[0] + '² = ' + (tr[0] * tr[0]) + ' a ' + tr[1] + '² = ' + (tr[1] * tr[1]) + '.',
+        'Sečti je: c² = ' + (tr[0] * tr[0]) + ' + ' + (tr[1] * tr[1]) + ' = ' + (tr[0] * tr[0] + tr[1] * tr[1]) + '.',
+        'Teď jsi spočítal DRUHOU MOCNINU přepony, ne přeponu — odmocni ji: c = √' + (tr[0] * tr[0] + tr[1] * tr[1]) + ' = ' + tr[2] + ' cm.'
+      ], _check: { kind: 'pythag', a: tr[0], b: tr[1] }
     };
   }
 
@@ -708,7 +736,12 @@
     return {
       prompt: 'Lichoběžník má základny ' + a + ' cm a ' + c + ' cm a výšku ' + v + ' cm. Jaký je jeho obsah v cm²?',
       type: 'text', ans: String((a + c) * v / 2),
-      sol: 'S = (a + c) : 2 · v = (' + a + ' + ' + c + ') · ' + v + ' : 2 = ' + ((a + c) * v) + ' : 2 = ' + ((a + c) * v / 2) + ' cm².',
+      sol: [
+        'Lichoběžník má dvě rovnoběžné základny různé délky. Obsah se počítá z jejich PRŮMĚRU krát výška: S = (a + c) · v : 2.',
+        'Sečti základny: ' + a + ' + ' + c + ' = ' + (a + c) + ' cm.',
+        'Vynásob výškou (dělení dvěma nech až nakonec, vyhneš se počítání s polovinami): ' + (a + c) + ' · ' + v + ' = ' + ((a + c) * v) + '.',
+        'Obsah = ' + ((a + c) * v) + ' : 2 = ' + ((a + c) * v / 2) + ' cm².'
+      ],
       _check: { kind: 'lichobeznik', a, c, v }
     };
   }
@@ -717,7 +750,12 @@
     return {
       prompt: 'V trojúhelníku ABC je α = ' + al + '° a β = ' + be + '°. Jaká je velikost úhlu γ ve stupních?',
       type: 'text', ans: String(180 - al - be),
-      sol: 'Součet vnitřních úhlů trojúhelníku je 180°. γ = 180° − ' + al + '° − ' + be + '° = ' + (180 - al - be) + '°.',
+      sol: [
+        'Součet vnitřních úhlů je v KAŽDÉM trojúhelníku 180° — nezáleží na tom, jak je velký ani jak vypadá.',
+        'Třetí úhel proto dopočítáš tak, že od 180° odečteš oba známé.',
+        'Odečti první: 180 − ' + al + ' = ' + (180 - al) + '.',
+        'γ = ' + (180 - al) + ' − ' + be + ' = ' + (180 - al - be) + '°.'
+      ],
       _check: { kind: 'tretiUhel', al, be }
     };
   }
