@@ -94,6 +94,21 @@ async function fillAndSubmit(page, sabotage){
   ok(await page.evaluate(()=>/Správně:/.test(document.getElementById('cm-end-detail').textContent)),'review ukazuje správnou odpověď');
   ok(await page.evaluate(()=>document.querySelector('#cm-end-detail .cm-review-given')!==null),'review ukazuje „Tvoje odpověď" u chyby');
 
+  // ── rozbor drží kontext zadání: úvodní text i nákres ──
+  // Dřív se do rozboru předával jen prompt/odpověď, takže si dítě geometrickou chybu
+  // prohlíželo BEZ obrázku, u kterého ji udělalo. Porovnáváme proti pravdě z generátoru,
+  // ne proti konstantě — počet se mezi běhy liší. (Naměřeno na 3000 bězích: každý běh
+  // má aspoň 1 nákres a aspoň 6 introů, takže kontrola nikdy neběží naprázdno.)
+  const ctxR=await page.evaluate(()=>({
+    svgT: CM.tasks.filter(t=>t.svg).length,
+    introT: CM.tasks.filter(t=>t.intro).length,
+    svgD: document.querySelectorAll('#cm-end-detail .cm-review-svg svg').length,
+    introD: document.querySelectorAll('#cm-end-detail .cm-review-intro').length
+  }));
+  ok(ctxR.svgT>0 && ctxR.introT>0,'běh obsahuje úlohy s nákresem i introm ('+ctxR.svgT+' / '+ctxR.introT+')');
+  ok(ctxR.svgD===ctxR.svgT,'rozbor ukazuje nákres u všech úloh, které ho mají ('+ctxR.svgD+' / '+ctxR.svgT+')');
+  ok(ctxR.introD===ctxR.introT,'rozbor ukazuje úvodní text u všech úloh, které ho mají ('+ctxR.introD+' / '+ctxR.introT+')');
+
   ok(errs.length===0,'žádné JS chyby'+(errs.length?(' ['+errs[0]+']'):''));
 
   await browser.close(); srv.close();

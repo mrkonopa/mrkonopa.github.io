@@ -159,8 +159,22 @@ main { max-width:920px; margin:0 auto; padding:18px 24px 80px; }
 .cm-review-q { color:var(--text); margin-bottom:5px; line-height:1.45; }
 .cm-review-given { color:var(--red); font-size:.9rem; margin-bottom:3px; }
 .cm-review-correct { color:var(--green); font-size:.9rem; font-weight:600; margin-bottom:5px; }
-.cm-review-sol { color:var(--text); font-size:.9rem; line-height:1.55; background:var(--gold-light);
-  padding:8px 10px; border-left:3px solid var(--gold); border-radius:0 6px 6px 0; }
+/* rozbor po odevzdání drží kontext zadání: úvodní text i nákres.
+   Nákres se na úzkém displeji POSOUVÁ, neořezává — overflow:hidden by konec tiše uřízl. */
+.cm-review-links { margin-top:8px; font-size:.85rem; color:var(--muted); display:flex; flex-wrap:wrap;
+  gap:6px 10px; align-items:center; }
+.cm-review-links a { color:var(--blue); font-weight:600; text-decoration:none;
+  border-bottom:1px solid transparent; padding:4px 2px; }
+.cm-review-links a:hover { border-bottom-color:var(--blue); }
+@media (pointer:coarse) { .cm-review-links a { min-height:44px; display:inline-flex; align-items:center; } }
+.cm-review-intro { color:var(--text); font-size:.92rem; line-height:1.5; margin-bottom:6px; }
+.cm-review-svg { text-align:center; margin:4px 0 10px; overflow-x:auto; }
+.cm-review-svg svg { max-width:none; }
+.cm-review-steps { color:var(--text); font-size:.9rem; line-height:1.6; background:var(--gold-light);
+  border-left:3px solid var(--gold); border-radius:0 6px 6px 0; margin:0; padding:8px 10px 8px 30px; }
+.cm-review-steps li { margin:0; padding:2px 0; }
+.cm-review-steps li + li { border-top:1px dashed rgba(0,0,0,.07); }
+.pr-sol .cm-review-steps { background:none; border-left:none; border-radius:0; padding:2px 0 0 22px; }
 
 /* doporučení po testu — „co teď procvičovat" (uzavírá smyčku test → procvičování) */
 .cm-next { margin:18px 0 4px; background:var(--blue-light); border:1px solid var(--blue);

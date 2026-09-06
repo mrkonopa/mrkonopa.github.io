@@ -63,6 +63,17 @@
   // V ČR se píše desetinná ČÁRKA. Generátory skládají odpovědi z JS čísel
   // (1.4), takže se čárka doplní až při zobrazení — mění se jen tečka MEZI
   // číslicemi, aby to nerozbilo číslování úloh („16.1") ani textové odpovědi.
+  /* Postup úlohy → pole kroků. Jediné místo, kde se rozhoduje o TVARU postupu.
+     Generátor smí dodat rovnou pole (psané kroky) nebo starší souvislý text —
+     ten se rozdělí na věty. Dělí se POUZE tečka + velké písmeno: česká dvojtečka
+     je DĚLENÍ ('1600 : 5'), ne konec věty. Naměřeno na 9470 postupech: s dvojtečkou
+     13,63 % zmrzačených kroků, bez ní 0,27 % (a i ty jsou plané — krok začíná '√'). */
+  const solSteps = sol => {
+    if (Array.isArray(sol)) return sol.filter(x => typeof x === 'string' && x.trim()).map(x => x.trim());
+    if (typeof sol !== 'string' || !sol.trim()) return [];
+    return sol.split(/(?<=\.)\s+(?=[A-ZÁ-Ž])/).map(x => x.trim()).filter(Boolean);
+  };
+
   const czNum = v => String(v == null ? '' : v).replace(/(\d)\.(\d)/g, '$1,$2');
 
   /* ════════ CLOUD SYNC POKROKU — Fáze 21 (graceful) ════════
@@ -455,5 +466,5 @@
       '</svg>';
   }
 
-  window.PZ = { esc, check, store, inputMode, czNum, themeSvg, icon, ring, attachLoginBar, cloudPush, cloudSync, topicWeights, pickWeakTopic, hintsFor, recordTestTopics, weakTopicsFromReview };
+  window.PZ = { esc, check, store, inputMode, czNum, solSteps, themeSvg, icon, ring, attachLoginBar, cloudPush, cloudSync, topicWeights, pickWeakTopic, hintsFor, recordTestTopics, weakTopicsFromReview };
 })();
