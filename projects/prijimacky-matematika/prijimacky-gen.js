@@ -207,7 +207,11 @@
     const p = ri(1, 19) * 5, celek = [100, 200, 400, 500][ri(0, 3)], cast = p * celek / 100;
     return {
       prompt: 'Kolik je ' + p + ' % z ' + celek + '?', type: 'text', ans: String(cast),
-      sol: '1 % z ' + celek + ' je ' + (celek / 100) + '. Pak ' + p + ' % je ' + p + ' · ' + (celek / 100) + ' = ' + cast + '.',
+      sol: [
+        'Procenta jsou setiny celku. Nejjistější cesta vede přes JEDNO procento: spočítej ho a pak ho vynásob.',
+        '1 % je setina celku: ' + celek + ' : 100 = ' + cz(celek / 100) + '.',
+        p + ' % je ' + p + '× víc: ' + p + ' · ' + cz(celek / 100) + ' = ' + cz(cast) + '.'
+      ],
       _check: { kind: 'procCast', p, celek }
     };
   }
@@ -215,7 +219,11 @@
     const p = [10, 20, 25, 50][ri(0, 3)], celek = ri(2, 9) * 100, X = celek * p / 100;
     return {
       prompt: 'Číslo ' + X + ' je ' + p + ' % z nějakého celku. Jak velký je celek?', type: 'text', ans: String(celek),
-      sol: 'Když ' + p + ' % odpovídá ' + X + ', pak 1 % je ' + X + ' : ' + p + ' = ' + (X / p) + '. Celek (100 %) = ' + (X / p) + ' · 100 = ' + celek + '.',
+      sol: [
+        'Tady je to obráceně: znáš část a hledáš CELEK. Postup je stejný přes jedno procento, jen se jde opačným směrem.',
+        'Když ' + p + ' % odpovídá ' + X + ', pak 1 % je ' + p + '× méně: ' + X + ' : ' + p + ' = ' + cz(X / p) + '.',
+        'Celek je 100 %, tedy stonásobek jednoho procenta: ' + cz(X / p) + ' · 100 = ' + celek + '.'
+      ],
       _check: { kind: 'procZaklad', X, p }
     };
   }
@@ -223,7 +231,11 @@
     const celek = [100, 200, 400, 500][ri(0, 3)], p = ri(1, 19) * 5, X = p * celek / 100;
     return {
       prompt: 'Kolik procent je ' + X + ' z ' + celek + '?', type: 'text', ans: String(p),
-      sol: 'Podíl: ' + X + ' : ' + celek + ' = ' + cz(X / celek) + '. Vynásob 100: ' + cz(X / celek) + ' · 100 = ' + p + ' %.',
+      sol: [
+        'Ptáme se, jakou ČÁST celku tvoří dané číslo. Nejdřív tu část vyjádři podílem, pak ji převeď na procenta.',
+        'Vyděl část celkem: ' + X + ' : ' + celek + ' = ' + cz(X / celek) + '.',
+        'Podíl převedeš na procenta vynásobením stem: ' + cz(X / celek) + ' · 100 = ' + p + ' %.'
+      ],
       _check: { kind: 'procKolik', X, celek }
     };
   }
@@ -307,7 +319,11 @@
     const X = ri(1, 9) * 100, p = [10, 20, 25, 50][ri(0, 3)], nova = X - X * p / 100;
     return {
       prompt: 'Zboží stálo ' + X + ' Kč. Sleva je ' + p + ' %. Kolik Kč stojí po slevě?', type: 'text', ans: String(nova),
-      sol: 'Sleva = ' + p + ' % z ' + X + ' = ' + (X * p / 100) + ' Kč. Nová cena = ' + X + ' − ' + (X * p / 100) + ' = ' + nova + ' Kč.',
+      sol: [
+        'Sleva se počítá z PŮVODNÍ ceny. Spočítej nejdřív, kolik korun sleva dělá, a teprve pak ji odečti.',
+        'Sleva ' + p + ' % z ' + X + ' Kč: ' + X + ' · ' + p + ' : 100 = ' + (X * p / 100) + ' Kč.',
+        'Nová cena = ' + X + ' − ' + (X * p / 100) + ' = ' + nova + ' Kč.'
+      ],
       _check: { kind: 'slevaCena', X, p }
     };
   }
@@ -315,7 +331,11 @@
     const X = ri(1, 9) * 100, p = [10, 20, 25, 50][ri(0, 3)], nova = X + X * p / 100;
     return {
       prompt: 'Zboží stálo ' + X + ' Kč a zdražilo o ' + p + ' %. Kolik Kč stojí nyní?', type: 'text', ans: String(nova),
-      sol: 'Navýšení = ' + p + ' % z ' + X + ' = ' + (X * p / 100) + ' Kč. Nová cena = ' + X + ' + ' + (X * p / 100) + ' = ' + nova + ' Kč.',
+      sol: [
+        'Zdražení funguje stejně jako sleva, jen se na konci PŘIČÍTÁ. Počítá se také z původní ceny.',
+        'Navýšení ' + p + ' % z ' + X + ' Kč: ' + X + ' · ' + p + ' : 100 = ' + (X * p / 100) + ' Kč.',
+        'Nová cena = ' + X + ' + ' + (X * p / 100) + ' = ' + nova + ' Kč.'
+      ],
       _check: { kind: 'navyseniCena', X, p }
     };
   }
@@ -323,7 +343,11 @@
     const jist = ri(1, 9) * 1000, p = [2, 3, 4, 5][ri(0, 3)], u = jist * p / 100;
     return {
       prompt: 'Uložíme ' + jist + ' Kč s ročním úrokem ' + p + ' %. Kolik Kč činí úrok za jeden rok?', type: 'text', ans: String(u),
-      sol: 'Úrok za rok = ' + p + ' % z ' + jist + ' = ' + jist + ' · ' + p + ' : 100 = ' + u + ' Kč.',
+      sol: [
+        'Roční úrok je prostě procento z uložené částky — počítá se stejně jako každá jiná část celku.',
+        'Spočítej ' + p + ' % z ' + jist + ' Kč: ' + jist + ' · ' + p + ' = ' + (jist * p) + '.',
+        'Úrok = ' + (jist * p) + ' : 100 = ' + u + ' Kč.'
+      ],
       _check: { kind: 'urok', jist, p }
     };
   }
@@ -502,34 +526,60 @@
     const a = ri(2, 10), b = ri(2, 10), c = ri(2, 10);
     return {
       prompt: 'Kvádr má hrany ' + a + ' cm, ' + b + ' cm a ' + c + ' cm. Jaký je jeho objem (v cm³)?', type: 'text', ans: String(a * b * c),
-      sol: 'Objem = a · b · c = ' + a + ' · ' + b + ' · ' + c + ' = ' + (a * b * c) + ' cm³.', _check: { kind: 'objemKvadr', a, b, c }
+      sol: [
+        'Objem říká, kolik se dovnitř VEJDE. U kvádru se násobí všechny tři rozměry: V = a · b · c.',
+        'Vynásob první dva rozměry (to je obsah podstavy): ' + a + ' · ' + b + ' = ' + (a * b) + ' cm².',
+        'Objem = ' + (a * b) + ' · ' + c + ' = ' + (a * b * c) + ' cm³.'
+      ], _check: { kind: 'objemKvadr', a, b, c }
     };
   }
   function povrchKvadrT() {
     const a = ri(2, 10), b = ri(2, 10), c = ri(2, 10);
     return {
       prompt: 'Kvádr má hrany ' + a + ' cm, ' + b + ' cm a ' + c + ' cm. Jaký je jeho povrch (v cm²)?', type: 'text', ans: String(2 * (a * b + b * c + a * c)),
-      sol: 'Povrch = 2·(ab + bc + ac) = 2·(' + (a * b) + ' + ' + (b * c) + ' + ' + (a * c) + ') = ' + (2 * (a * b + b * c + a * c)) + ' cm².', _check: { kind: 'povrchKvadr', a, b, c }
+      sol: [
+        'Povrch je plocha VŠECH stěn dohromady. Kvádr má 6 stěn, ale vždy dvě a dvě jsou stejné, takže stačí spočítat tři různé a zdvojnásobit: S = 2 · (ab + bc + ac).',
+        'Spočítej tři různé stěny: ' + a + '·' + b + ' = ' + (a * b) + ', ' + b + '·' + c + ' = ' + (b * c) + ', ' + a + '·' + c + ' = ' + (a * c) + ' cm².',
+        'Sečti je: ' + (a * b) + ' + ' + (b * c) + ' + ' + (a * c) + ' = ' + (a * b + b * c + a * c) + ' cm².',
+        'Povrch = 2 · ' + (a * b + b * c + a * c) + ' = ' + (2 * (a * b + b * c + a * c)) + ' cm².'
+      ], _check: { kind: 'povrchKvadr', a, b, c }
     };
   }
   function krychleT() {
     const a = ri(2, 12);
     return ri(0, 1)
-      ? { prompt: 'Krychle má hranu ' + a + ' cm. Jaký je její objem (v cm³)?', type: 'text', ans: String(a * a * a), sol: 'Objem = a³ = ' + a + '³ = ' + (a * a * a) + ' cm³.', _check: { kind: 'objemKrychle', a } }
-      : { prompt: 'Krychle má hranu ' + a + ' cm. Jaký je její povrch (v cm²)?', type: 'text', ans: String(6 * a * a), sol: 'Povrch = 6·a² = 6·' + (a * a) + ' = ' + (6 * a * a) + ' cm².', _check: { kind: 'povrchKrychle', a } };
+      ? { prompt: 'Krychle má hranu ' + a + ' cm. Jaký je její objem (v cm³)?', type: 'text', ans: String(a * a * a), sol: [
+          'Krychle je kvádr, který má všechny hrany stejné, takže se hrana násobí sama sebou třikrát: V = a³.',
+          'Dosaď hranu: V = ' + a + '³ = ' + a + ' · ' + a + ' · ' + a + '.',
+          'Objem = ' + (a * a) + ' · ' + a + ' = ' + (a * a * a) + ' cm³.'
+        ], _check: { kind: 'objemKrychle', a } }
+      : { prompt: 'Krychle má hranu ' + a + ' cm. Jaký je její povrch (v cm²)?', type: 'text', ans: String(6 * a * a), sol: [
+          'Krychle má 6 stejných čtvercových stěn, takže povrch je šestinásobek obsahu jedné stěny: S = 6 · a².',
+          'Obsah jedné stěny: ' + a + '² = ' + (a * a) + ' cm².',
+          'Povrch = 6 · ' + (a * a) + ' = ' + (6 * a * a) + ' cm².'
+        ], _check: { kind: 'povrchKrychle', a } };
   }
   function hranyKvadrT() {
     const a = ri(2, 10), b = ri(2, 10), c = ri(2, 10);
     return {
       prompt: 'Kvádr má hrany ' + a + ' cm, ' + b + ' cm a ' + c + ' cm. Jaký je součet délek všech jeho hran (v cm)?', type: 'text', ans: String(4 * (a + b + c)),
-      sol: 'Kvádr má 12 hran (4 od každého rozměru): 4·(' + a + ' + ' + b + ' + ' + c + ') = ' + (4 * (a + b + c)) + ' cm.', _check: { kind: 'hranyKvadr', a, b, c }
+      sol: [
+        'Kvádr má 12 hran — od každého ze tří rozměrů právě čtyři stejné. Proto se sečtou tři rozměry a výsledek se vynásobí čtyřmi.',
+        'Sečti rozměry: ' + a + ' + ' + b + ' + ' + c + ' = ' + (a + b + c) + ' cm.',
+        'Součet hran = 4 · ' + (a + b + c) + ' = ' + (4 * (a + b + c)) + ' cm.'
+      ], _check: { kind: 'hranyKvadr', a, b, c }
     };
   }
   function objemKvadrLitr() {
     const a = ri(1, 5) * 10, b = ri(1, 5) * 10, c = ri(1, 5) * 10;
     return {
       prompt: 'Nádrž tvaru kvádru má rozměry ' + a + ' cm × ' + b + ' cm × ' + c + ' cm. Kolik litrů vody se do ní vejde? (1 l = 1000 cm³)', type: 'text', ans: String(a * b * c / 1000),
-      sol: 'Objem = ' + a + ' · ' + b + ' · ' + c + ' = ' + (a * b * c) + ' cm³ = ' + (a * b * c / 1000) + ' l.', _check: { kind: 'objemLitr', a, b, c }
+      sol: [
+        'Nejdřív spočítej objem v krychlových centimetrech: V = a · b · c.',
+        'Vynásob rozměry: ' + a + ' · ' + b + ' · ' + c + ' = ' + (a * b * c) + ' cm³.',
+        'Teprve teď převeď na litry. Jeden litr je 1000 cm³, takže se DĚLÍ tisícem.',
+        'Objem = ' + (a * b * c) + ' : 1000 = ' + cz(a * b * c / 1000) + ' l.'
+      ], _check: { kind: 'objemLitr', a, b, c }
     };
   }
 
@@ -598,8 +648,12 @@
       prompt: 'Zboží za ' + X + ' Kč bylo zlevněno o ' + p + ' %. Následně byla nová cena zlevněna ještě o ' + r +
               ' %. Kolik Kč stojí zboží po obou slevách?',
       type: 'text', ans: String(po2),
-      sol: 'Po první slevě: ' + X + ' · ' + (100 - p) + ' : 100 = ' + po1 + ' Kč. Po druhé slevě: ' +
-           po1 + ' · ' + (100 - r) + ' : 100 = ' + po2 + ' Kč. (Slevy se NEsčítají.)',
+      sol: [
+        'Druhá sleva se počítá z ceny PO první slevě, ne z původní. Proto se slevy nesčítají a musí se počítat postupně.',
+        'Po první slevě zbyde ' + (100 - p) + ' % původní ceny: ' + X + ' · ' + (100 - p) + ' : 100 = ' + cz(po1) + ' Kč.',
+        'Z této nové ceny zbyde po druhé slevě ' + (100 - r) + ' %: ' + cz(po1) + ' · ' + (100 - r) + ' : 100 = ' + cz(po2) + ' Kč.',
+        'Kdo slevy sečte na ' + (p + r) + ' %, dostane ' + cz(X * (100 - p - r) / 100) + ' Kč — a to je špatně. Správná odpověď je ' + cz(po2) + ' Kč.'
+      ],
       _check: { kind: 'dveSlevy', X, p, r }
     };
   }
@@ -608,7 +662,12 @@
     return {
       prompt: 'Cena zboží bez DPH je ' + base + ' Kč. Sazba DPH je 21 %. Kolik Kč stojí zboží včetně DPH?',
       type: 'text', ans: String(base + dan),
-      sol: 'DPH = ' + base + ' · 21 : 100 = ' + dan + ' Kč. Cena s DPH = ' + base + ' + ' + dan + ' = ' + (base + dan) + ' Kč.',
+      sol: [
+        'DPH se přičítá k ceně bez daně. Spočítej tedy nejdřív samotnou daň a pak ji připočti.',
+        'DPH je 21 % z ' + base + ' Kč: ' + base + ' · 21 = ' + (base * 21) + '.',
+        'Daň = ' + (base * 21) + ' : 100 = ' + cz(dan) + ' Kč.',
+        'Cena s DPH = ' + base + ' + ' + cz(dan) + ' = ' + cz(base + dan) + ' Kč.'
+      ],
       _check: { kind: 'dph', base }
     };
   }
@@ -768,7 +827,12 @@
       prompt: 'Kolmý hranol má podstavu trojúhelníku se stranou ' + a + ' cm a příslušnou výškou ' + vv +
               ' cm. Výška hranolu je ' + v + ' cm. Jaký je jeho objem v cm³?',
       type: 'text', ans: String(Sp * v),
-      sol: 'Obsah podstavy: ' + a + ' · ' + vv + ' : 2 = ' + Sp + ' cm². Objem = ' + Sp + ' · ' + v + ' = ' + (Sp * v) + ' cm³.',
+      sol: [
+        'Objem každého kolmého hranolu je obsah podstavy krát výška hranolu. Podstava je tady trojúhelník, takže se u ní dělí dvěma.',
+        'Obsah podstavy: (' + a + ' · ' + vv + ') : 2 = ' + (a * vv) + ' : 2 = ' + Sp + ' cm².',
+        'Pozor, nezaměň výšku PODSTAVY (' + vv + ' cm) s výškou HRANOLU (' + v + ' cm) — to je nejčastější chyba.',
+        'Objem = ' + Sp + ' · ' + v + ' = ' + (Sp * v) + ' cm³.'
+      ],
       _check: { kind: 'hranol', a, va: vv, v }
     };
   }
@@ -777,7 +841,11 @@
     return {
       prompt: 'Krychle má objem ' + V + ' cm³. Jaká je délka její hrany v cm?',
       type: 'text', ans: String(a),
-      sol: 'Hrana = třetí odmocnina z objemu: ' + a + ' · ' + a + ' · ' + a + ' = ' + V + ', tedy hrana měří ' + a + ' cm.',
+      sol: [
+        'Tohle je úloha obrácená: znáš objem a hledáš hranu. U krychle platí V = a³, takže hrana je TŘETÍ odmocnina objemu.',
+        'Hledej číslo, které po vynásobení samo sebou třikrát dá ' + V + '. Zkoušej: ' + a + ' · ' + a + ' = ' + (a * a) + ', a ' + (a * a) + ' · ' + a + ' = ' + V + '.',
+        'Hrana měří ' + a + ' cm.'
+      ],
       _check: { kind: 'hranaZObjemu', V }
     };
   }
