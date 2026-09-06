@@ -164,8 +164,11 @@ main { max-width:920px; margin:0 auto; padding:18px 24px 80px; }
 .cm-review-intro { color:var(--text); font-size:.92rem; line-height:1.5; margin-bottom:6px; }
 .cm-review-svg { text-align:center; margin:4px 0 10px; overflow-x:auto; }
 .cm-review-svg svg { max-width:none; }
-.cm-review-sol { color:var(--text); font-size:.9rem; line-height:1.55; background:var(--gold-light);
-  padding:8px 10px; border-left:3px solid var(--gold); border-radius:0 6px 6px 0; }
+.cm-review-steps { color:var(--text); font-size:.9rem; line-height:1.6; background:var(--gold-light);
+  border-left:3px solid var(--gold); border-radius:0 6px 6px 0; margin:0; padding:8px 10px 8px 30px; }
+.cm-review-steps li { margin:0; padding:2px 0; }
+.cm-review-steps li + li { border-top:1px dashed rgba(0,0,0,.07); }
+.pr-sol .cm-review-steps { background:none; border-left:none; border-radius:0; padding:2px 0 0 22px; }
 
 /* doporučení po testu — „co teď procvičovat" (uzavírá smyčku test → procvičování) */
 .cm-next { margin:18px 0 4px; background:var(--blue-light); border:1px solid var(--blue);

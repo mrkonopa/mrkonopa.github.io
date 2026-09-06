@@ -370,11 +370,15 @@
 
   function gen12() {
     // 2 body — MC A-E, objem (bazén se šikmým dnem)
-    const delka = ri(2, 4) * 10, sirka = ri(1, 2) * 5 + 5;
+    // Šířka je násobek 10 (ne 15): objem = zonaNepl × sirka × 2,5 musí vyjít CELÝ.
+    // Při šířce 15 a délce 30 vycházelo 562,5, ale volby byly 513/538/563/588 —
+    // kdo počítal správně, svou hodnotu mezi možnostmi nenašel a „jiný objem“
+    // (jediná poctivá volba) se počítal jako chyba. Zasaženo 1 z 6 kombinací.
+    const delka = ri(2, 4) * 10, sirka = ri(1, 2) * 10;
     const h1 = 1, h2 = 2;
     const zonaNepl = delka / 2;
     const V = delka === 0 ? 0 : (zonaNepl * sirka * h1) + (zonaNepl * sirka * (h1 + h2) / 2);
-    const correct = Math.round(V);
+    const correct = V;   // celé číslo z konstrukce; kdyby přestalo být, prijimacky-postupy.test.cjs to nahlásí
     const opts = [correct - 50, correct - 25, correct, correct + 25, 'jiný objem'];
     const shuffled = shuffleOpts(opts, correct);
     return {

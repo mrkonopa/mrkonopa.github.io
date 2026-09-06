@@ -249,7 +249,7 @@ function grade(correct){
                                : '✗ Špatně. Správná odpověď: '+PZ.czNum(PR.item.ans));
   fb.style.display='block';
   if(PR.item.sol){ const sol=document.getElementById('pr-sol');
-    sol.innerHTML='<span class="lbl">VYŘEŠENÝ POSTUP</span>'+PZ.esc(PR.item.sol); sol.style.display='block'; }
+    sol.innerHTML='<span class="lbl">VYŘEŠENÝ POSTUP</span>'+'<ol class="cm-review-steps">'+PZ.solSteps(PR.item.sol).map(x=>'<li>'+PZ.esc(x)+'</li>').join('')+'</ol>'; sol.style.display='block'; }
   const nb=document.getElementById('pr-next'); nb.style.display='inline-flex'; setTimeout(()=>nb.focus(),30);
 }
 
