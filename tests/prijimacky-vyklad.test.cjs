@@ -29,8 +29,8 @@ const vyklady = [];
 for (let i = 0; i < 16; i++) { const v = T.vykladProSlot(i); if (v) vyklady.push({ kde: 'pozice ' + (i + 1), v }); }
 for (const t of T.list) { const v = T.vykladProOkruh(t.id); if (v) vyklady.push({ kde: 'okruh ' + t.id, v }); }
 
-// Pojistka proti auditu, který nic neviděl: 15 pozic (16. nepatří žádnému okruhu) + 10 okruhů.
-ok(vyklady.length === 25, 'zkontrolováno ' + vyklady.length + ' odkazů (čekáno 25 = 15 pozic + 10 okruhů)');
+// Pojistka proti auditu, který nic neviděl: všech 16 pozic + 10 okruhů.
+ok(vyklady.length === 26, 'zkontrolováno ' + vyklady.length + ' odkazů (čekáno 26 = 16 pozic + 10 okruhů)');
 
 // ── 1) mise musí v příslušném ročníku SKUTEČNĚ existovat ──
 const chybi = vyklady.filter(x => !(LEARN[x.v.hra] && LEARN[x.v.hra][x.v.mise]));
@@ -68,9 +68,13 @@ ok(/params\.get\('learn'\)/.test(cloud), 'rpg-cloud.js čte parametr learn');
 ok(/\/\^\[0-9\]-\[0-9\]\$\/\.test\(learnMid\)/.test(cloud), 'tvar mise z adresy se ověřuje regulárním výrazem');
 ok(/if \(preview && learnMid/.test(cloud), 'výklad se otevře JEN v preview režimu (jinak by sáhl na žákův save)');
 
-// ── 7) pozice 16 vědomě výklad nemá — okruhy ji nepokrývají ──
-ok(T.vykladProSlot(15) === null && T.topicsForSlot(15).length === 0,
-  'pozice 16 nepatří žádnému okruhu, takže odkaz nedostává (starší mezera v TOPICS, ne regrese)');
+// ── 7) pozice 16 patří geometrii ──
+// Dřív nepatřila ŽÁDNÉMU okruhu, takže se neobjevovala v procvičování ani v diagnostice.
+// Změřeno: losuje jen Rámeček, Obraz v rámu a Chodník kolem bazénu — obvod a obsah
+// obdélníku s lemem. Kdyby ze slots vypadla, tenhle řádek spadne.
+const p16 = T.vykladProSlot(15);
+ok(T.topicsForSlot(15).indexOf('geometrie') !== -1, 'pozice 16 patří okruhu geometrie');
+ok(p16 !== null && /[Oo]bvod a obsah/.test(p16.nazev), 'pozice 16 dostává odkaz na výklad (' + (p16 ? p16.nazev : 'ŽÁDNÝ') + ')');
 
 console.log('\n══════════════════════════════════════════');
 console.log('  VÝSLEDEK: ' + pass + ' ✅ / ' + fail + ' ❌');

@@ -18,7 +18,10 @@
     { id: 'vyrazy-promenna', name: 'Výrazy s proměnnou', oblast: 'Číslo a proměnná', slots: [2] },
     { id: 'rovnice', name: 'Rovnice a soustavy', oblast: 'Číslo a proměnná', slots: [3] },
     { id: 'slovni', name: 'Slovní úlohy', oblast: 'Nestandardní úlohy', slots: [12, 11] },
-    { id: 'geometrie', name: 'Geometrie v rovině', oblast: 'Geometrie', slots: [4, 6, 7, 8, 9] },
+    // Pozice 16 (index 15) sem patří taky: na 300 běhů losuje jen Rámeček, Obraz v rámu
+    // a Chodník kolem bazénu — všechno obvod a obsah obdélníku s lemem. Dřív nepatřila
+    // ŽÁDNÉMU okruhu, takže se neobjevovala v procvičování ani v diagnostice.
+    { id: 'geometrie', name: 'Geometrie v rovině', oblast: 'Geometrie', slots: [4, 6, 7, 8, 9, 15] },
     { id: 'telesa', name: 'Tělesa (objem a povrch)', oblast: 'Geometrie', slots: [5, 10, 11] },
     { id: 'data', name: 'Tabulky, data a statistika', oblast: 'Závislosti a data', slots: [13] },
   ];
