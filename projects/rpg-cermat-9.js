@@ -560,6 +560,7 @@
     const shuffled = shuffleOpts(opts, V);
     return {
       no: 12, points: 2, title: 'Bazén', kind: 'mc',
+      svg: svgCuboid(delka + ' m', sirka + ' m', hloubka + ' m'),
       prompt: `Bazén má tvar kvádru: délka ${delka} m, šířka ${sirka} m a všude stejná hloubka ${hloubka} m. Jaký je jeho objem?`,
       options: shuffled.labels, ans: shuffled.correctLetter,
       sol: [`Objem kvádru je součin všech tří rozměrů: V = délka · šířka · hloubka.`,`Vynásob první dva rozměry: ${delka} · ${sirka} = ${delka * sirka} m².`,`Objem = ${delka * sirka} · ${hloubka} = ${V} m³ → odpověď ${shuffled.correctLetter}.`]
@@ -669,6 +670,7 @@
     const hCm = ri(1, c / 10 - 1) * 10, litryVoda = baseA * hCm / 1000;
     return {
       no: 6, points: 2, title: 'Akvárium',
+      svg: svgCuboid(a + ' cm', b + ' cm', c + ' cm'),
       intro: `Akvárium má tvar kvádru s rozměry dna ${a} cm × ${b} cm a výškou ${c} cm.`,
       parts: [
         { key: '6.1', points: 1,
@@ -875,6 +877,7 @@
     const sh = shuffleOpts(opts, pocet);
     return {
       no: 12, points: 2, title: 'Kostky v krabici', kind: 'mc',
+      svg: svgCuboid(a + ' cm', b + ' cm', cc + ' cm'),
       prompt: `Krabice tvaru kvádru má rozměry ${a} cm × ${b} cm × ${cc} cm. Kolik krychlových kostek o hraně ${k} cm se do ní přesně vejde?`,
       options: sh.labels, ans: sh.correctLetter,
       sol: [`Kostky se skládají do řad, vrstev a sloupců — spočítej tedy, kolik se jich vejde podél KAŽDÉ hrany.`,`Podél hran: ${a} : ${k} = ${a / k}, ${b} : ${k} = ${b / k} a ${cc} : ${k} = ${cc / k} kostek.`,`Celkem = ${a / k} · ${b / k} · ${cc / k} = ${pocet} kostek → odpověď ${sh.correctLetter}.`]
@@ -1134,9 +1137,12 @@
     const sh = shuffleOpts([V - 2, V - 1, V, V + 2, 'jiný objem'], V);
     return {
       no: 12, points: 2, title: 'Objem místnosti', kind: 'mc',
+      svg: svgCuboid(a + ' m', b + ' m', c + ' m'),
       prompt: `Místnost má tvar kvádru: délka ${a} m, šířka ${b} m, výška ${c} m. Jaký je její objem?`,
       options: sh.labels, ans: sh.correctLetter,
-      sol: `Objem = délka · šířka · výška = ${a} · ${b} · ${c} = ${V} m³ → odpověď ${sh.correctLetter}.`
+      sol: [`Objem kvádru je součin všech tří rozměrů.`,
+        `Vynásob podlahu: ${a} · ${b} = ${a * b} m².`,
+        `Objem = ${a * b} · ${c} = ${V} m³ → odpověď ${sh.correctLetter}.`]
     };
   }
 

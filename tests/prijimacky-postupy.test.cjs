@@ -19,8 +19,9 @@ global.gcd = function gcd(a, b) { return b ? gcd(b, a % b) : Math.abs(a); };
 global.cz = n => String(n).replace('.', ',');
 global.skl = (n, o, f, m) => n === 1 ? o : (n >= 2 && n <= 4 ? f : m);
 let svgVolani = 0;
+const svgPouzite = new Set();
 ['svgTriangle', 'svgLineGraph', 'svgCylinder', 'svgCone', 'svgSphere', 'svgSimilar', 'svgCuboid']
-  .forEach(f => global[f] = () => { svgVolani++; return '<svg></svg>'; });
+  .forEach(f => global[f] = () => { svgVolani++; svgPouzite.add(f); return '<svg></svg>'; });
 global.window = {};
 require(path.join(ROOT, 'projects/rpg-cermat-9.js'));
 require(path.join(ROOT, 'projects/prijimacky-matematika/prijimacky-gen.js'));
@@ -68,7 +69,13 @@ const zCermat = polozky.filter(p => p.zdroj === 'cermat').length;
 const zGen = polozky.filter(p => p.zdroj === 'gen').length;
 ok(zCermat >= 3800, 'test nanečisto: zkontrolováno ' + zCermat + ' zadání (podlaha 3800)');
 ok(zGen >= 9000, 'procvičování: zkontrolováno ' + zGen + ' zadání (podlaha 9000)');
-ok(svgVolani > 0, 'nákresy se skutečně volaly (' + svgVolani + '×)');
+const sPodilem = polozky.filter(p => p.zdroj === 'cermat' && p.maSvg).length;
+const podilSvg = 100 * sPodilem / zCermat;
+// Naměřeno na 12 bězích: 18,50–19,58 % (rozptyl 1,08 bodu). Odpojení svgCuboid
+// spadne na 14,9 %, proto podlaha 16 %: pod naměřeným minimem s rezervou 2,5 bodu
+// a zároveň nad hodnotou rozbitého stavu. Ověřeno z OBOU stran.
+ok(podilSvg >= 16, 'nákres má ' + podilSvg.toFixed(1) + ' % zadání testu (podlaha 16 %)');
+ok(svgPouzite.size >= 3, 'používají se aspoň 3 různé nákresy: ' + [...svgPouzite].join(', '));
 
 /* ════════ 2) KAŽDÉ ZADÁNÍ MÁ POSTUP ════════ */
 const bezPostupu = polozky.filter(p => solSteps(p.sol).length === 0);
