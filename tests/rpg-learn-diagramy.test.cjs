@@ -33,6 +33,18 @@ function serve(){ return new Promise(res=>{ const s=http.createServer((q,p)=>{
 let pass=0, fail=0;
 const ok=(c,m)=>{ if(c){pass++;console.log('  ✅ '+m);} else {fail++;console.log('  ❌ '+m);} };
 
+// Načte modul výkladu tak, jak ho načítá stránka: rpg-learn-svg.js PŘED ním.
+// Vrací window; při chybě vrací prázdný objekt, ať se pád projeví jako ❌
+// u konkrétní kontroly a nezabije zbytek běhu.
+function nactiVyklad(g) {
+  const w = {};
+  try {
+    if (g <= 5) new Function('window', fs.readFileSync(path.join(ROOT,'projects/rpg-learn-svg.js'),'utf8'))(w);
+    new Function('window', fs.readFileSync(path.join(ROOT,'projects/rpg-learn-'+g+'.js'),'utf8'))(w);
+  } catch (e) { console.log('  ⚠️  g'+g+': výklad se nenačetl — '+e.message); }
+  return w;
+}
+
 (async()=>{
   const srv=await serve(); const base='http://127.0.0.1:'+srv.address().port;
   const browser=await chromium.launch({executablePath:EXEC});
@@ -67,7 +79,11 @@ const ok=(c,m)=>{ if(c){pass++;console.log('  ✅ '+m);} else {fail++;console.lo
       const f = /L\.formulas\.forEach\(f=>\{html\+=esc2\(f\)/.test(h);
       const e = /forEach\(step=>\{html\+=esc2\(step\)/.test(h);
       if (!f || !e) chybi.push('g'+g+(f?'':' vzorce')+(e?'':' příklady'));
-      const w={}; new Function('window', fs.readFileSync(path.join(ROOT,'projects/rpg-learn-'+g+'.js'),'utf8'))(w);
+      // Načíst STEJNĚ jako prohlížeč: modul diagramů první. Bez něj by výklad
+      // sáhl po náhradě s prázdnými řetězci, takže by se tu měřilo něco jiného,
+      // než co vidí dítě — a při rozbité náhradě by celý test spadl uprostřed
+      // místo čisté ❌ (ověřeno sabotáží).
+      const w = nactiVyklad(g);
       const L=w['RPG_LEARN_'+g]; let ostre=0, ostreP=0;
       const spocti = t => (String(t).match(/[<>]/g)||[]).length;
       for (const mid in L) { const m=L[mid];
@@ -93,6 +109,9 @@ const ok=(c,m)=>{ if(c){pass++;console.log('  ✅ '+m);} else {fail++;console.lo
   // vidět — ale map/for na nich spadne, což se stalo při stavbě náhledu diagramů.
   {
     global.window = {};
+    // Modul diagramů musí jít PRVNÍ — jinak si výklad 1. stupně vezme náhradu
+    // vracející prázdné řetězce a kontrola by měřila něco jiného než prohlížeč.
+    require(path.join(ROOT, 'projects/rpg-learn-svg.js'));
     for (const g of [3,4,5,6,7,8,9]) require(path.join(ROOT, 'projects/rpg-learn-'+g+'.js'));
     const dir=[]; let misi=0;
     for (const g of [3,4,5,6,7,8,9]) {
@@ -105,6 +124,35 @@ const ok=(c,m)=>{ if(c){pass++;console.log('  ✅ '+m);} else {fail++;console.lo
     }
     ok(misi === 147, 'prošlo se všech 147 misí výkladu (7 ročníků × 21) — bez toho by kontrola běžela naprázdno');
     ok(dir.length === 0, 'pole sekcí nemá díry' + (dir.length ? ' — '+dir.length+'×, např. '+dir.slice(0,4).join(', ') : ''));
+  }
+
+  // ── 1d) diagramy musí být z MODULU, ne opsané v každém ročníku ──
+  // Sedm z deseti tvarů se napříč 3.–5. ročníkem opakuje a liší se jen čísly.
+  // Kdyby se vrátily inline do modulů výkladu, vzniknou tři kopie téže kresby,
+  // které se při první úpravě rozejdou a nikde to nespadne (viz portréty hrdinů).
+  {
+    const inline = [3,4,5].filter(g =>
+      /<svg/.test(fs.readFileSync(path.join(ROOT, 'projects/rpg-learn-'+g+'.js'), 'utf8')));
+    ok(inline.length===0, 'výklad 1. stupně nemá inline <svg> — diagramy jdou z modulu'
+      + (inline.length ? ' — opsané v: g'+inline.join(', g') : ''));
+
+    const w={}; new Function('window', fs.readFileSync(path.join(ROOT,'projects/rpg-learn-svg.js'),'utf8'))(w);
+    const D = w.RPGDia || {};
+    const CEKANE = ['rady','osaPorovnani','osaZaokrouhleni','mrizka','skupiny',
+                    'trojuhelnik','ctverecObdelnik','zebrik','hodiny','penize'];
+    const chybi = CEKANE.filter(f => typeof D[f] !== 'function');
+    ok(chybi.length===0, 'modul diagramů nabízí všech '+CEKANE.length+' generátorů'
+      + (chybi.length ? ' — chybí: '+chybi.join(', ') : ''));
+
+    // Bez modulu musí výklad zůstat TEXTOVÝ, ne zmizet celý. Kdyby náhrada
+    // chyběla, window.RPG_LEARN_3 by se vůbec nepřiřadilo a dítě by místo teorie
+    // vidělo „Teorie pro tuto misi není dostupná" — horší než výklad bez obrázků.
+    const bez={};
+    let spadlo=false;
+    try { new Function('window', fs.readFileSync(path.join(ROOT,'projects/rpg-learn-3.js'),'utf8'))(bez); }
+    catch(e) { spadlo=true; }
+    ok(!spadlo && bez.RPG_LEARN_3 && Object.keys(bez.RPG_LEARN_3).length===21,
+      'bez modulu diagramů se výklad načte celý (21 misí), jen bez obrázků');
   }
 
   // ── 2) runtime: každý diagram se VYKRESLÍ ──

@@ -1886,6 +1886,15 @@ window.addEventListener('load',()=>{
   [['RPGSprites3','rpg-sprites-3.js'],['RPG_TASK_EXTRA_3','rpg-tasks-3.js'],['RPG_LEARN_3','rpg-learn-3.js'],['RPG_BATTLE_3','rpg-battle-3.js']].forEach(([g,f])=>{
    if(typeof window[g]==='undefined'){var s=document.createElement('script');s.src='./'+f+'?cb='+Date.now();document.head.appendChild(s);}
   });
+  /* Modul diagramů je zvláštní případ: když chybí ON, výklad se načte (má náhradu),
+     takže by kontrola výše mlčela — jen by v teorii nebyl jediný obrázek. A přenačíst
+     sám modul nestačí, protože řetězce diagramů už vznikly prázdné; musí po něm
+     znovu proběhnout i rpg-learn-3.js, proto to řetězení přes onload. */
+  if(typeof window.RPGDia==='undefined'){
+   var sd=document.createElement('script');sd.src='./rpg-learn-svg.js?cb='+Date.now();
+   sd.onload=function(){var sl=document.createElement('script');sl.src='./rpg-learn-3.js?cb='+Date.now();document.head.appendChild(sl);};
+   document.head.appendChild(sd);
+  }
  },1000);
 });
 </script>
@@ -1893,6 +1902,7 @@ window.addEventListener('load',()=>{
 <script defer src="./rpg-sprite-core.js"></script>
 <script defer src="./rpg-sprites-3.js"></script>
 <script defer src="./rpg-tasks-3.js"></script>
+<script defer src="./rpg-learn-svg.js"></script>
 <script defer src="./rpg-learn-3.js"></script>
 <script defer src="./rpg-wallet.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
