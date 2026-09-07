@@ -1008,7 +1008,11 @@ function renderLearn(mid,m){
   <div style="font-family:var(--read);font-weight:700;font-size:17px;color:var(--blue);letter-spacing:.3px">${esc2(m?m.name:mid)}</div>
   <div style="font-family:var(--read);font-size:16px;color:var(--muted);margin-top:4px">${esc2(m?m.sub:'')}</div></div>`;
  if(L.intro)html+=`<div class="learn-intro">${esc2(L.intro)}</div>`;
- (L.sections||[]).forEach(s=>{html+=`<div class="learn-section"><h3>${esc2(s.h||s.title||'')}</h3>`;(Array.isArray(s.p)?s.p:[s.p||s.body||'']).forEach(p=>{html+=`<p>${esc2(p).replace(/\n/g,'<br>')}</p>`;});html+='</div>';});
+   // Odstavce výkladu jdou do HTML SUROVĚ — stejně jako v 6.–9. ročníku, kde je
+  // v sections[].p všech 34 diagramů. Bez toho by se <svg> i <b> vypsaly jako text.
+  // Obsah je statický text z rpg-learn-N.js, nic od žáka; esc2() zůstává u nadpisů,
+  // u zadání příkladů a všude, kde do HTML jde jméno nebo cokoli ze save.
+ (L.sections||[]).forEach(s=>{html+=`<div class="learn-section"><h3>${esc2(s.h||s.title||'')}</h3>`;(Array.isArray(s.p)?s.p:[s.p||s.body||'']).forEach(p=>{html+=`<p>${String(p).replace(/\n/g,'<br>')}</p>`;});html+='</div>';});
  if(L.formulas&&L.formulas.length){html+='<div class="learn-formula">';L.formulas.forEach(f=>{html+=esc2(f)+'<br>';});html+='</div>';}
  (L.examples||[]).forEach(ex=>{html+=`<div class="learn-example"><div class="ex-q">📝 ${esc2(ex.q)}</div><div class="ex-s">`;(Array.isArray(ex.s)?ex.s:[ex.s||ex.a||'']).forEach(step=>{html+=esc2(step).replace(/\n/g,'<br>')+'<br>';});html+='</div></div>';});
  if(L.mistakes&&L.mistakes.length){html+='<div class="learn-mistakes"><h3>⚠️ Časté chyby</h3>';L.mistakes.forEach(mi=>{html+=`<div class="mi"><div class="mi-w">✗ ${esc2(mi.wrong)}</div><div class="mi-r">✓ ${esc2(mi.right)}</div>`+(mi.why?`<div class="mi-why">${esc2(mi.why)}</div>`:'')+'</div>';});html+='</div>';}
@@ -1889,6 +1893,7 @@ window.addEventListener('load',()=>{
 <script defer src="./rpg-sprite-core.js"></script>
 <script defer src="./rpg-sprites-4.js"></script>
 <script defer src="./rpg-tasks-4.js"></script>
+<script defer src="./rpg-learn-svg.js"></script>
 <script defer src="./rpg-learn-4.js"></script>
 <script defer src="./rpg-wallet.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
