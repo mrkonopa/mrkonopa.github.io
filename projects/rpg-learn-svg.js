@@ -339,7 +339,13 @@
         return [+(cx + r * Math.cos(a)).toFixed(1), +(cy + r * Math.sin(a)).toFixed(1)];
       };
       let telo = '';
-      for (let i = 0; i < jmenovatel; i++) {
+      if (jmenovatel === 1) {
+        // Celý kruh jako JEDNA výseč je degenerovaná dráha — začátek i konec
+        // oblouku leží na témž bodě, takže se nenakreslí vůbec nic. Celek se
+        // proto kreslí jako obyčejný kruh.
+        telo += '<circle cx="' + cx + '" cy="' + cy + '" r="' + r + '" fill="'
+          + (citatel ? 'var(--gold)' : 'none') + '" stroke="var(--blue)" stroke-width="2"/>';
+      } else for (let i = 0; i < jmenovatel; i++) {
         const p1 = bod(i), p2 = bod(i + 1);
         const velky = 1 / jmenovatel > 0.5 ? 1 : 0;
         telo += '<path d="M ' + cx + ',' + cy + ' L ' + p1[0] + ',' + p1[1]
