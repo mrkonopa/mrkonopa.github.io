@@ -52,6 +52,41 @@ const ok=(c,m)=>{ if(c){pass++;console.log('  ✅ '+m);} else {fail++;console.lo
   const escP=[3,4,5].filter(g => /esc2\(p\)/.test(fs.readFileSync(path.join(ROOT,'projects/rpg-mat-'+g+'.html'),'utf8')));
   ok(escP.length===0, 'v 1. stupni nezbylo esc2(p) u odstavců výkladu'+(escP.length?' — '+escP.join(', '):''));
 
+  // ── 1c) vzorce a příklady 1. stupně naopak MUSÍ zůstat escapované ──
+  // Tohle NENÍ nedodělaná parita s 6.–9., ale záměr. V 1. stupni je „<" běžně
+  // MENŠÍ NEŽ — mise 1-2 je ve všech třech ročnících přímo o porovnávání čísel.
+  // Naměřeno ve formulas a examples[].s: g3 10, g4 7, g5 9 míst s holou ostrou
+  // závorkou („345 < 412", „zbytek < b", „Kontrola: 5 < 6 ✓"). Kdyby to někdo
+  // „srovnal" s 2. stupněm a esc2() odtud odebral, prohlížeč by z „zbytek < b"
+  // udělal tučnou značku a text spolkl. V sections[].p, kde jdou diagramy, není
+  // taková závorka ANI JEDNA — proto je surová cesta bezpečná právě tam.
+  {
+    const chybi=[], zmereno={};
+    for (const g of [3,4,5]) {
+      const h = fs.readFileSync(path.join(ROOT, 'projects/rpg-mat-'+g+'.html'), 'utf8');
+      const f = /L\.formulas\.forEach\(f=>\{html\+=esc2\(f\)/.test(h);
+      const e = /forEach\(step=>\{html\+=esc2\(step\)/.test(h);
+      if (!f || !e) chybi.push('g'+g+(f?'':' vzorce')+(e?'':' příklady'));
+      const w={}; new Function('window', fs.readFileSync(path.join(ROOT,'projects/rpg-learn-'+g+'.js'),'utf8'))(w);
+      const L=w['RPG_LEARN_'+g]; let ostre=0, ostreP=0;
+      const spocti = t => (String(t).match(/[<>]/g)||[]).length;
+      for (const mid in L) { const m=L[mid];
+        (m.formulas||[]).forEach(x=>{ostre+=spocti(x);});
+        (m.examples||[]).forEach(ex=>(Array.isArray(ex.s)?ex.s:[ex.s]).forEach(x=>{ostre+=spocti(x);}));
+        (m.sections||[]).forEach(sc=>(Array.isArray(sc.p)?sc.p:[sc.p]).forEach(x=>{
+          ostreP += (String(x).replace(/<[\s\S]*?>/g,'').match(/[<>]/g)||[]).length; }));
+      }
+      zmereno['g'+g]=ostre;
+      // Pojistka proti planému hlídání: kdyby v obsahu ostré závorky vymizely,
+      // ať to test řekne, místo aby dál vynucoval escapování bez důvodu.
+      ok(ostre>0, 'g'+g+': ve vzorcích a příkladech je '+ostre+' ostrých závorek — escapování má důvod');
+      // A hlavně: v odstavcích (surová cesta) žádná být nesmí.
+      ok(ostreP===0, 'g'+g+': v odstavcích výkladu není holá ostrá závorka (surová cesta je bezpečná)');
+    }
+    ok(chybi.length===0, 'vzorce i příklady 1. stupně zůstávají escapované'
+      + (chybi.length?' — chybí: '+chybi.join(', '):'') + ' — naměřeno '+JSON.stringify(zmereno));
+  }
+
   // ── 1b) pole sekcí nesmí mít DÍRY ──
   // Každá mise 3.–5. ročníku měla v sections jeden prázdný slot (osamocená čárka
   // ve zdroji, 63 dohromady; 6.–9. ani jeden). forEach díry přeskočí, takže to nebylo
