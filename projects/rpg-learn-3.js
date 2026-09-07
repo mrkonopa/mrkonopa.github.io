@@ -6,7 +6,23 @@ window.RPG_LEARN_3 = {
   '1-1': {
     intro: '🐌 Hlemýžď Počtář si na krunýř pomalu zapisuje čísla. „Než projdeš, pověz mi, co který řád znamená," šeptá. Nauč se číst stovky, desítky a jednotky.',
     sections: [
-      { title: 'Trojciferná čísla', body: 'Čísla od 100 do 999 mají tři číslice. Zleva: stovky, desítky, jednotky. Např. 472 = 4 stovky + 7 desítek + 2 jednotky.' },
+      { title: 'Trojciferná čísla', p: [
+        'Čísla od 100 do 999 mají tři číslice. Zleva: stovky, desítky, jednotky. Např. 472 = 4 stovky + 7 desítek + 2 jednotky.',
+        '<svg viewBox="0 0 280 130" style="display:block;margin:10px auto 0;max-width:100%" role="img" aria-label="Číslo 472 rozložené na 4 stovky, 7 desítek a 2 jednotky">' +
+          '<rect x="8" y="8" width="84" height="78" rx="6" fill="none" stroke="var(--blue)" stroke-width="2"/>' +
+          '<rect x="98" y="8" width="84" height="78" rx="6" fill="none" stroke="var(--blue)" stroke-width="2"/>' +
+          '<rect x="188" y="8" width="84" height="78" rx="6" fill="none" stroke="var(--blue)" stroke-width="2"/>' +
+          '<text x="50" y="56" font-size="34" font-family="monospace" fill="var(--gold)" text-anchor="middle">4</text>' +
+          '<text x="140" y="56" font-size="34" font-family="monospace" fill="var(--gold)" text-anchor="middle">7</text>' +
+          '<text x="230" y="56" font-size="34" font-family="monospace" fill="var(--gold)" text-anchor="middle">2</text>' +
+          '<text x="50" y="104" font-size="12" font-family="monospace" fill="var(--text)" text-anchor="middle">stovky</text>' +
+          '<text x="140" y="104" font-size="12" font-family="monospace" fill="var(--text)" text-anchor="middle">desítky</text>' +
+          '<text x="230" y="104" font-size="12" font-family="monospace" fill="var(--text)" text-anchor="middle">jednotky</text>' +
+          '<text x="50" y="122" font-size="13" font-family="monospace" fill="var(--muted)" text-anchor="middle">400</text>' +
+          '<text x="140" y="122" font-size="13" font-family="monospace" fill="var(--muted)" text-anchor="middle">70</text>' +
+          '<text x="230" y="122" font-size="13" font-family="monospace" fill="var(--muted)" text-anchor="middle">2</text>' +
+          '</svg>'
+      ] },
       { title: 'Rozklad čísla', body: 'Každé číslo umíme rozložit na řády. 305 = 3 stovky + 0 desítek + 5 jednotek = 300 + 0 + 5.' },
     ,
       { title: 'Pomůcka: rozděl si číslo zprava', body: 'Řády se počítají odzadu: první číslice zprava jsou jednotky, druhá desítky, třetí stovky. U čísla 472 zakryj prstem poslední dvě číslice — zbyde 4, a to jsou stovky. Pozor na nulu uprostřed: v čísle 305 nula neznamená „nic tam není", ale „žádné desítky".' }
@@ -25,7 +41,20 @@ window.RPG_LEARN_3 = {
   '1-2': {
     intro: '🐞 Beruška Soudkyně drží v tlapkách dvě čísla. „Které je větší?" ptá se přísně. Nauč se porovnávat čísla do 1000 pomocí znaků < a >.',
     sections: [
-      { title: 'Jak porovnat dvě čísla', body: 'Porovnáváme od nejvyššího řádu. Nejdřív stovky — kdo má víc stovek, má větší číslo. Jsou-li stovky stejné, porovnáme desítky a pak jednotky.' },
+      { title: 'Jak porovnat dvě čísla', p: [
+        'Porovnáváme od nejvyššího řádu. Nejdřív stovky — kdo má víc stovek, má větší číslo. Jsou-li stovky stejné, porovnáme desítky a pak jednotky.',
+        '<svg viewBox="0 0 290 74" style="display:block;margin:10px auto 0;max-width:100%" role="img" aria-label="Číselná osa: 345 leží vlevo od 412, proto je menší">' +
+        '<line x1="14" y1="34" x2="276" y2="34" stroke="var(--blue)" stroke-width="2"/>' +
+        '<polygon points="276,34 268,30 268,38" fill="var(--blue)"/>' +
+        '<line x1="60" y1="26" x2="60" y2="42" stroke="var(--muted)" stroke-width="2"/>' +
+        '<line x1="210" y1="26" x2="210" y2="42" stroke="var(--muted)" stroke-width="2"/>' +
+        '<circle cx="60" cy="34" r="6" fill="var(--gold)"/>' +
+        '<circle cx="210" cy="34" r="6" fill="var(--green)"/>' +
+        '<text x="60" y="20" font-size="14" font-family="monospace" fill="var(--gold)" text-anchor="middle">345</text>' +
+        '<text x="210" y="20" font-size="14" font-family="monospace" fill="var(--green)" text-anchor="middle">412</text>' +
+        '<text x="135" y="62" font-size="13" font-family="monospace" fill="var(--text)" text-anchor="middle">vlevo = menší · vpravo = větší</text>' +
+        '</svg>'
+      ] },
     ,
       { title: 'Když se první číslice shodují', body: 'Nejčastější chyba je porovnat čísla podle toho, které „vypadá delší". Řiď se řády zleva: 6 789 a 6 798 mají stejné tisíce i stovky, takže rozhodnou až desítky — 8 je méně než 9. Šipka u znaku vždycky ukazuje na menší číslo: 6 789 < 6 798.' }
     ],
@@ -43,7 +72,21 @@ window.RPG_LEARN_3 = {
   '1-3': {
     intro: '🦗 Cvrček Skokan skáče po číselné ose a nikdy nedopadne přesně. „Zaokrouhli mě!" volá. Nauč se zaokrouhlovat na desítky a stovky.',
     sections: [
-      { title: 'Pravidlo zaokrouhlování', body: 'Podíváme se na číslici vpravo od místa, na které zaokrouhlujeme. Je-li 0–4, zaokrouhlíme dolů. Je-li 5–9, zaokrouhlíme nahoru.' },
+      { title: 'Pravidlo zaokrouhlování', p: [
+        'Podíváme se na číslici vpravo od místa, na které zaokrouhlujeme. Je-li 0–4, zaokrouhlíme dolů. Je-li 5–9, zaokrouhlíme nahoru.',
+        '<svg viewBox="0 0 290 74" style="display:block;margin:10px auto 0;max-width:100%" role="img" aria-label="Číselná osa od 400 do 500 s vyznačenou půlkou 450">' +
+        '<line x1="14" y1="34" x2="276" y2="34" stroke="var(--blue)" stroke-width="2"/>' +
+        '<polygon points="276,34 268,30 268,38" fill="var(--blue)"/>' +
+        '<line x1="30" y1="26" x2="30" y2="42" stroke="var(--muted)" stroke-width="2"/>' +
+        '<line x1="150" y1="22" x2="150" y2="46" stroke="var(--red)" stroke-width="2" stroke-dasharray="4 3"/>' +
+        '<line x1="270" y1="26" x2="270" y2="42" stroke="var(--muted)" stroke-width="2"/>' +
+        '<text x="30" y="18" font-size="13" font-family="monospace" fill="var(--text)" text-anchor="middle">400</text>' +
+        '<text x="150" y="16" font-size="12" font-family="monospace" fill="var(--red)" text-anchor="middle">450</text>' +
+        '<text x="270" y="18" font-size="13" font-family="monospace" fill="var(--text)" text-anchor="middle">500</text>' +
+        '<text x="88" y="62" font-size="12" font-family="monospace" fill="var(--text)" text-anchor="middle">dolů na 400</text>' +
+        '<text x="212" y="62" font-size="12" font-family="monospace" fill="var(--text)" text-anchor="middle">nahoru na 500</text>' +
+        '</svg>'
+      ] },
       { title: 'Příklady', body: '347 na desítky: jednotky jsou 7 → nahoru → 350. Na stovky: desítky jsou 4 → dolů → 300.' },
     ,
       { title: 'Zaokrouhlené číslo se píše s ≈', body: 'Zaokrouhlením se číslo změní, proto se mezi ně nepíše rovnítko, ale vlnovka: 347 ≈ 350. Rovnítko by znamenalo, že 347 a 350 je totéž — a to není pravda. Rozhoduje vždy jen jedna číslice: ta hned vpravo od místa, na které zaokrouhluješ.' }
@@ -116,7 +159,26 @@ window.RPG_LEARN_3 = {
   '3-1': {
     intro: '🦊 Lstivá liška si připravila past ze stejně velkých hromádek. „Kolik je jich dohromady, když je nebudeš počítat po jedné?" Nauč se malou násobilku.',
     sections: [
-      { title: 'Co je násobení', body: 'Násobení je opakované sčítání. 4 × 3 znamená 3 + 3 + 3 + 3 = 12. Musíme znát malou násobilku zpaměti!' },
+      { title: 'Co je násobení', p: [
+        'Násobení je opakované sčítání. 4 × 3 znamená 3 + 3 + 3 + 3 = 12. Musíme znát malou násobilku zpaměti!',
+        '<svg viewBox="0 0 240 130" style="display:block;margin:10px auto 0;max-width:100%" role="img" aria-label="Čtyři řady po třech kuličkách, dohromady dvanáct">' +
+        '<circle cx="60" cy="26" r="9" fill="var(--gold)"/>' +
+        '<circle cx="110" cy="26" r="9" fill="var(--gold)"/>' +
+        '<circle cx="160" cy="26" r="9" fill="var(--gold)"/>' +
+        '<circle cx="60" cy="52" r="9" fill="var(--gold)"/>' +
+        '<circle cx="110" cy="52" r="9" fill="var(--gold)"/>' +
+        '<circle cx="160" cy="52" r="9" fill="var(--gold)"/>' +
+        '<circle cx="60" cy="78" r="9" fill="var(--gold)"/>' +
+        '<circle cx="110" cy="78" r="9" fill="var(--gold)"/>' +
+        '<circle cx="160" cy="78" r="9" fill="var(--gold)"/>' +
+        '<circle cx="60" cy="104" r="9" fill="var(--gold)"/>' +
+        '<circle cx="110" cy="104" r="9" fill="var(--gold)"/>' +
+        '<circle cx="160" cy="104" r="9" fill="var(--gold)"/>' +
+        '<text x="20" y="72" font-size="13" font-family="monospace" fill="var(--text)" text-anchor="middle">4</text>' +
+        '<text x="110" y="122" font-size="13" font-family="monospace" fill="var(--text)" text-anchor="middle">3 v řadě</text>' +
+        '<text x="200" y="72" font-size="15" font-family="monospace" fill="var(--green)">= 12</text>' +
+        '</svg>'
+      ] },
       { title: 'Zákon zaměnitelnosti', body: 'Nezáleží na pořadí: 6 × 7 = 7 × 6 = 42.' },
     ,
       { title: 'Násobilku si spočítáš, i když ji zapomeneš', body: 'Když si nevzpomeneš na 7 × 8, jdi od něčeho, co víš: 7 × 10 = 70, a od toho odečti dvě sedmičky: 70 − 14 = 56. Podobně 9 × 6 spočítáš jako 10 × 6 = 60 mínus jedna šestka: 54. Zákon zaměnitelnosti ti navíc půlí práci — stačí umět jednu polovinu tabulky.' }
@@ -190,7 +252,29 @@ window.RPG_LEARN_3 = {
   '4-2': {
     intro: '🦔 Ježek Bodlináč nikdy nevyjde přesně. „A co s tím, co zbude?" bodá. Nauč se dělit se zbytkem a hlídat, aby zbytek byl menší než dělitel.',
     sections: [
-      { title: 'Zbytek po dělení', body: 'Ne vždy dělení vyjde přesně. Zbytek je to, co zbyde. Platí: dělenec = dělitel × podíl + zbytek. Zbytek je vždy menší než dělitel!' },
+      { title: 'Zbytek po dělení', p: [
+        'Ne vždy dělení vyjde přesně. Zbytek je to, co zbyde. Platí: dělenec = dělitel × podíl + zbytek. Zbytek je vždy menší než dělitel!',
+        '<svg viewBox="0 0 280 112" style="display:block;margin:10px auto 0;max-width:100%" role="img" aria-label="Třináct kuliček rozdělených do tří skupin po čtyřech, jedna zbývá">' +
+        '<circle cx="24" cy="26" r="9" fill="var(--blue)"/>' +
+        '<circle cx="46" cy="26" r="9" fill="var(--blue)"/>' +
+        '<circle cx="24" cy="50" r="9" fill="var(--blue)"/>' +
+        '<circle cx="46" cy="50" r="9" fill="var(--blue)"/>' +
+        '<circle cx="112" cy="26" r="9" fill="var(--blue)"/>' +
+        '<circle cx="134" cy="26" r="9" fill="var(--blue)"/>' +
+        '<circle cx="112" cy="50" r="9" fill="var(--blue)"/>' +
+        '<circle cx="134" cy="50" r="9" fill="var(--blue)"/>' +
+        '<circle cx="200" cy="26" r="9" fill="var(--blue)"/>' +
+        '<circle cx="222" cy="26" r="9" fill="var(--blue)"/>' +
+        '<circle cx="200" cy="50" r="9" fill="var(--blue)"/>' +
+        '<circle cx="222" cy="50" r="9" fill="var(--blue)"/>' +
+        '<rect x="8" y="8" width="58" height="60" rx="6" fill="none" stroke="var(--muted)" stroke-width="2"/>' +
+        '<rect x="96" y="8" width="58" height="60" rx="6" fill="none" stroke="var(--muted)" stroke-width="2"/>' +
+        '<rect x="184" y="8" width="58" height="60" rx="6" fill="none" stroke="var(--muted)" stroke-width="2"/>' +
+        '<circle cx="272" cy="26" r="9" fill="var(--red)"/>' +
+        '<text x="140" y="88" font-size="13" font-family="monospace" fill="var(--text)" text-anchor="middle">13 : 4 = 3 skupiny po 4</text>' +
+        '<text x="140" y="106" font-size="13" font-family="monospace" fill="var(--red)" text-anchor="middle">zbytek 1 (červená)</text>' +
+        '</svg>'
+      ] },
     ,
       { title: 'Zbytek musí být menší než dělitel', body: 'Kdyby byl zbytek stejný nebo větší než dělitel, znamenalo by to, že se do něj dělitel vejde ještě jednou. U 29 : 6 nemůže vyjít „3 zbytek 11" — jedenáct šestek by pobralo ještě jednu. Správně je 4 (zbytek 5), protože 5 < 6.' }
     ],
@@ -226,7 +310,16 @@ window.RPG_LEARN_3 = {
   '5-1': {
     intro: '🌳 Starý dub natáhl tři kořeny do trojúhelníku. „Kolik je to dokola?" duní. Nauč se počítat obvod trojúhelníku.',
     sections: [
-      { title: 'Obvod = obrys tvaru', body: 'Obvod je délka celé hranice tvaru. U trojúhelníku sečteme délky všech tří stran.' },
+      { title: 'Obvod = obrys tvaru', p: [
+        'Obvod je délka celé hranice tvaru. U trojúhelníku sečteme délky všech tří stran.',
+        '<svg viewBox="0 0 250 130" style="display:block;margin:10px auto 0;max-width:100%" role="img" aria-label="Trojúhelník se stranami 5, 6 a 7 centimetrů">' +
+        '<polygon points="30,100 220,100 90,22" fill="none" stroke="var(--blue)" stroke-width="2.5"/>' +
+        '<text x="125" y="118" font-size="14" font-family="monospace" fill="var(--gold)" text-anchor="middle">7 cm</text>' +
+        '<text x="46" y="58" font-size="14" font-family="monospace" fill="var(--gold)" text-anchor="end">5 cm</text>' +
+        '<text x="170" y="52" font-size="14" font-family="monospace" fill="var(--gold)">6 cm</text>' +
+        '<text x="125" y="14" font-size="12" font-family="monospace" fill="var(--text)" text-anchor="middle">o = 5 + 6 + 7 = 18 cm</text>' +
+        '</svg>'
+      ] },
       { title: 'Rovnostranný trojúhelník', body: 'Má všechny tři strany stejně dlouhé, takže obvod = 3 × strana.' },
     ,
       { title: 'Obvod obcházíš po hranici', body: 'Představ si, že po obrysu tvaru jdeš prstem dokola. Délka té cesty je obvod. U trojúhelníku sečteš tři strany — a všechny musí být ve stejné jednotce. Než sečteš, zkontroluj, jestli není jedna strana v milimetrech a druhá v centimetrech.' }
@@ -245,7 +338,18 @@ window.RPG_LEARN_3 = {
   '5-2': {
     intro: '🪵 Dřevěný golem má tělo z rovných prken. „Změř mě po obvodu," vrže. Nauč se obvod čtverce a obdélníku.',
     sections: [
-      { title: 'Čtverec', body: 'Čtverec má 4 stejné strany. Obvod spočítáš tak, že sečteš všechny 4 strany (strana + strana + strana + strana).' },
+      { title: 'Čtverec', p: [
+        'Čtverec má 4 stejné strany. Obvod spočítáš tak, že sečteš všechny 4 strany (strana + strana + strana + strana).',
+        '<svg viewBox="0 0 260 120" style="display:block;margin:10px auto 0;max-width:100%" role="img" aria-label="Čtverec se stranou 4 cm a obdélník 6 krát 3 cm">' +
+        '<rect x="14" y="20" width="76" height="76" fill="none" stroke="var(--blue)" stroke-width="2.5"/>' +
+        '<text x="52" y="112" font-size="13" font-family="monospace" fill="var(--gold)" text-anchor="middle">4 cm</text>' +
+        '<text x="52" y="14" font-size="11" font-family="monospace" fill="var(--text)" text-anchor="middle">o = 4 · 4 = 16</text>' +
+        '<rect x="140" y="34" width="106" height="62" fill="none" stroke="var(--blue)" stroke-width="2.5"/>' +
+        '<text x="193" y="112" font-size="13" font-family="monospace" fill="var(--gold)" text-anchor="middle">6 cm</text>' +
+        '<text x="252" y="68" font-size="13" font-family="monospace" fill="var(--gold)">3</text>' +
+        '<text x="193" y="26" font-size="11" font-family="monospace" fill="var(--text)" text-anchor="middle">o = 2 · (6 + 3) = 18</text>' +
+        '</svg>'
+      ] },
       { title: 'Obdélník', body: 'Obdélník má čtyři strany — dvě delší a dvě kratší. Obvod je součet všech čtyř stran.' },
     ,
       { title: 'U obdélníku stačí sečíst dvě strany a zdvojnásobit', body: 'Obdélník má dvě delší a dvě kratší strany, takže místo sčítání čtyř čísel sečti jen sousední dvě a výsledek vezmi dvakrát. Pro strany 8 cm a 5 cm: 8 + 5 = 13, pak 2 × 13 = 26 cm. U čtverce je to ještě rychlejší: stačí jedna strana krát čtyři.' }
@@ -284,7 +388,19 @@ window.RPG_LEARN_3 = {
   '6-1': {
     intro: '🦉 Moudrá sova měří větve od milimetrů po metry. „Kolik je to v jiné jednotce?" houká. Nauč se převádět jednotky délky.',
     sections: [
-      { title: 'Přehled jednotek', body: '1 m = 10 dm\n1 dm = 10 cm\n1 cm = 10 mm' },
+      { title: 'Přehled jednotek', p: [
+        '1 m = 10 dm\n1 dm = 10 cm\n1 cm = 10 mm',
+        '<svg viewBox="0 0 280 96" style="display:block;margin:10px auto 0;max-width:100%" role="img" aria-label="Žebřík jednotek délky od metru po milimetr, každý krok desetkrát">' +
+        '<rect x="10" y="30" width="52" height="34" rx="6" fill="none" stroke="var(--blue)" stroke-width="2"/><text x="36" y="52" font-size="15" font-family="monospace" fill="var(--gold)" text-anchor="middle">m</text>' +
+        '<rect x="78" y="30" width="52" height="34" rx="6" fill="none" stroke="var(--blue)" stroke-width="2"/><text x="104" y="52" font-size="15" font-family="monospace" fill="var(--gold)" text-anchor="middle">dm</text>' +
+        '<rect x="146" y="30" width="52" height="34" rx="6" fill="none" stroke="var(--blue)" stroke-width="2"/><text x="172" y="52" font-size="15" font-family="monospace" fill="var(--gold)" text-anchor="middle">cm</text>' +
+        '<rect x="214" y="30" width="52" height="34" rx="6" fill="none" stroke="var(--blue)" stroke-width="2"/><text x="240" y="52" font-size="15" font-family="monospace" fill="var(--gold)" text-anchor="middle">mm</text>' +
+        '<text x="70" y="24" font-size="12" font-family="monospace" fill="var(--green)" text-anchor="middle">×10 →</text>' +
+        '<text x="138" y="24" font-size="12" font-family="monospace" fill="var(--green)" text-anchor="middle">×10 →</text>' +
+        '<text x="206" y="24" font-size="12" font-family="monospace" fill="var(--green)" text-anchor="middle">×10 →</text>' +
+        '<text x="140" y="86" font-size="12" font-family="monospace" fill="var(--text)" text-anchor="middle">doprava násob 10, doleva děl 10</text>' +
+        '</svg>'
+      ] },
       { title: 'Převody', body: 'Na menší jednotky násobíme 10. Na větší jednotky dělíme 10.' },
     ,
       { title: 'Menší jednotka, větší číslo', body: 'Když převádíš na menší jednotku, číslo vzroste — 3 m je 30 dm, protože decimetry jsou drobnější. Když převádíš na větší jednotku, číslo klesne. Než výsledek napíšeš, zeptej se sám sebe: mělo mi číslo vyjít větší, nebo menší? Chytíš tím většinu překlepů.' }
@@ -303,7 +419,22 @@ window.RPG_LEARN_3 = {
   '6-2': {
     intro: '⏳ Hodinový skřítek přesýpá čas a váží houby. „Kolik minut a kolik gramů?" chichotá se. Nauč se jednotky hmotnosti a času.',
     sections: [
-      { title: 'Hmotnost', body: '1 kg = 1000 g. Hmotnost měříme na váze. Jednotky: g (gram), kg (kilogram).' },
+      { title: 'Hmotnost', p: [
+        '1 kg = 1000 g. Hmotnost měříme na váze. Jednotky: g (gram), kg (kilogram).',
+        '<svg viewBox="0 0 250 120" style="display:block;margin:10px auto 0;max-width:100%" role="img" aria-label="Ciferník hodin ukazující tři hodiny, vedle převody času a hmotnosti">' +
+        '<circle cx="60" cy="60" r="46" fill="none" stroke="var(--blue)" stroke-width="2.5"/>' +
+        '<text x="60" y="31" font-size="13" font-family="monospace" fill="var(--text)" text-anchor="middle">12</text>' +
+        '<text x="94" y="65" font-size="13" font-family="monospace" fill="var(--text)" text-anchor="middle">3</text>' +
+        '<text x="60" y="99" font-size="13" font-family="monospace" fill="var(--text)" text-anchor="middle">6</text>' +
+        '<text x="26" y="65" font-size="13" font-family="monospace" fill="var(--text)" text-anchor="middle">9</text>' +
+        '<line x1="60" y1="60" x2="60" y2="32" stroke="var(--gold)" stroke-width="3"/>' +
+        '<line x1="60" y1="60" x2="86" y2="60" stroke="var(--green)" stroke-width="2.5"/>' +
+        '<circle cx="60" cy="60" r="4" fill="var(--gold)"/>' +
+        '<text x="180" y="42" font-size="13" font-family="monospace" fill="var(--text)" text-anchor="middle">1 h = 60 min</text>' +
+        '<text x="180" y="66" font-size="13" font-family="monospace" fill="var(--text)" text-anchor="middle">1 min = 60 s</text>' +
+        '<text x="180" y="90" font-size="13" font-family="monospace" fill="var(--text)" text-anchor="middle">1 kg = 1000 g</text>' +
+        '</svg>'
+      ] },
       { title: 'Čas', body: '1 hodina = 60 minut. 1 minuta = 60 sekund. 1 den = 24 hodin.' },
     ,
       { title: 'Čas se nepočítá po desítkách', body: 'U délky i hmotnosti se posouváš po desítkách a stovkách, ale u času ne — hodina má 60 minut, ne 100. Proto 1 h 15 min není 115 minut, ale 75 minut. Vždy nejdřív převeď hodiny na minuty a teprve pak přičti zbytek.' }
@@ -322,7 +453,22 @@ window.RPG_LEARN_3 = {
   '6-3': {
     intro: '🐦 Straka zlodějka sbírá mince do hnízda. „Kolik ti zbyde a kolik ti vrátím?" Nauč se počítat s korunami.',
     sections: [
-      { title: 'České peníze', body: 'Mince: 1, 2, 5, 10, 20, 50 Kč. Bankovky: 100, 200, 500, 1000 Kč. Při nákupu sčítáme ceny, při placení počítáme, kolik nám vrátí.' },
+      { title: 'České peníze', p: [
+        'Mince: 1, 2, 5, 10, 20, 50 Kč. Bankovky: 100, 200, 500, 1000 Kč. Při nákupu sčítáme ceny, při placení počítáme, kolik nám vrátí.',
+        '<svg viewBox="0 0 280 116" style="display:block;margin:10px auto 0;max-width:100%" role="img" aria-label="České mince od jedné do padesáti korun a bankovky od sta do tisíce">' +
+        '<circle cx="28" cy="30" r="18" fill="none" stroke="var(--gold)" stroke-width="2"/><text x="28" y="35" font-size="12" font-family="monospace" fill="var(--gold)" text-anchor="middle">1</text>' +
+        '<circle cx="72" cy="30" r="18" fill="none" stroke="var(--gold)" stroke-width="2"/><text x="72" y="35" font-size="12" font-family="monospace" fill="var(--gold)" text-anchor="middle">2</text>' +
+        '<circle cx="116" cy="30" r="18" fill="none" stroke="var(--gold)" stroke-width="2"/><text x="116" y="35" font-size="12" font-family="monospace" fill="var(--gold)" text-anchor="middle">5</text>' +
+        '<circle cx="160" cy="30" r="18" fill="none" stroke="var(--gold)" stroke-width="2"/><text x="160" y="35" font-size="12" font-family="monospace" fill="var(--gold)" text-anchor="middle">10</text>' +
+        '<circle cx="204" cy="30" r="18" fill="none" stroke="var(--gold)" stroke-width="2"/><text x="204" y="35" font-size="12" font-family="monospace" fill="var(--gold)" text-anchor="middle">20</text>' +
+        '<circle cx="248" cy="30" r="18" fill="none" stroke="var(--gold)" stroke-width="2"/><text x="248" y="35" font-size="12" font-family="monospace" fill="var(--gold)" text-anchor="middle">50</text>' +
+        '<rect x="14" y="62" width="54" height="28" rx="4" fill="none" stroke="var(--green)" stroke-width="2"/><text x="41" y="81" font-size="12" font-family="monospace" fill="var(--green)" text-anchor="middle">100</text>' +
+        '<rect x="80" y="62" width="54" height="28" rx="4" fill="none" stroke="var(--green)" stroke-width="2"/><text x="107" y="81" font-size="12" font-family="monospace" fill="var(--green)" text-anchor="middle">200</text>' +
+        '<rect x="146" y="62" width="54" height="28" rx="4" fill="none" stroke="var(--green)" stroke-width="2"/><text x="173" y="81" font-size="12" font-family="monospace" fill="var(--green)" text-anchor="middle">500</text>' +
+        '<rect x="212" y="62" width="54" height="28" rx="4" fill="none" stroke="var(--green)" stroke-width="2"/><text x="239" y="81" font-size="12" font-family="monospace" fill="var(--green)" text-anchor="middle">1000</text>' +
+        '<text x="140" y="108" font-size="12" font-family="monospace" fill="var(--text)" text-anchor="middle">mince nahoře · bankovky dole (v Kč)</text>' +
+        '</svg>'
+      ] },
     ,
       { title: 'Kolik zaplatím a kolik mi vrátí', body: 'Při nákupu ceny sčítáš. Když platíš větší bankovkou, vrácené peníze jsou rozdíl: kolik jsi dal mínus kolik to stálo. Zaplatíš-li 200 Kč za nákup 165 Kč, vrátí ti 200 − 165 = 35 Kč. Zkontroluj se selským rozumem: vrácená částka musí být menší než to, cos podal.' }
     ],
