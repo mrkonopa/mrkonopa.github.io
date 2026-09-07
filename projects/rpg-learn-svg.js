@@ -266,17 +266,27 @@
       let telo = t(W / 2, 22, a1 + ' × ' + zaklad + ' = ' + bezNul, 17, 'gold', 'middle')
         + t(W / 2, 42, 'nejdřív bez nul', 11, 'muted', 'middle')
         + line(40, 54, 240, 54, 'muted', 1, '4 3');
+      // Bez koncových nul nemá rámeček co orámovat — pak se nekreslí vůbec,
+      // místo prázdného rámečku a hlášky „0 nuly se připíšou".
+      // Skloňování: 1 nula · 2–4 nuly · 5+ nul. Napsané ručně, protože strojové
+      // skloňování číslovek je v tomhle repozitáři doložený zdroj chyb.
+      const hlaska = nul === 0 ? 'tady se žádná nula nepřipisuje'
+        : nul === 1 ? 'jedna nula se připíše'
+        : nul < 5 ? nul + ' nuly se připíšou'
+        : nul + ' nul se připíše';
       telo += t(xLevy, 80, levy, 17, 'text')
-        + ramec(xBox, 62, wNuly + 12, 26, 'green', 2, 4)
-        + t(xBox + (wNuly + 12) / 2, 81, nuly, 17, 'green', 'middle')
-        + t(W / 2, 106, nul === 1 ? 'jedna nula se připíše' : nul + ' nuly se připíšou', 12, 'green', 'middle');
+        + (nul ? ramec(xBox, 62, wNuly + 12, 26, 'green', 2, 4)
+               + t(xBox + (wNuly + 12) / 2, 81, nuly, 17, 'green', 'middle') : '')
+        + t(W / 2, 106, hlaska, 12, 'green', 'middle');
       return svg(W, 116, popis || (a1 + ' krát ' + b1 + ' se počítá jako ' + a1 + ' krát ' + zaklad + ', k výsledku se připíšou nuly'), telo);
     },
 
     /* Souřadnicová síť. Přerušované čáry k osám ukazují, ŽE se čte nejdřív
        doprava a pak nahoru — na pořadí souřadnic mise 5-3 přímo stojí. */
     sit(x1, y1, popisB, popis) {
-      const c = 26, x0 = 30, y0 = 16, n = 6;
+      // Mřížka se roztáhne tak, aby se do ní bod vešel. Napevno šest políček
+      // by u většího bodu znamenalo, že leží mimo síť.
+      const c = 26, x0 = 30, y0 = 16, n = Math.max(6, x1, y1);
       let telo = '';
       for (let i = 0; i <= n; i++) {
         telo += line(x0 + i * c, y0, x0 + i * c, y0 + n * c, 'muted', 1);
@@ -302,7 +312,7 @@
       const c = String(cislo).replace(/\s/g, '');
       const sk = [];
       for (let i = c.length; i > 0; i -= 3) sk.unshift(c.slice(Math.max(0, i - 3), i));
-      const JMENA = ['jednotky', 'tisíce', 'miliony'];
+      const JMENA = ['jednotky', 'tisíce', 'miliony', 'miliardy'];
       const bw = 76, mezera = 16, x0 = 12;
       const W = x0 * 2 + sk.length * bw + (sk.length - 1) * mezera;
       let telo = '';
@@ -310,7 +320,7 @@
         const x = x0 + i * (bw + mezera);
         telo += ramec(x, 24, bw, 44, 'blue', 2, 6)
           + t(x + bw / 2, 55, g, 26, 'gold', 'middle')
-          + t(x + bw / 2, 84, JMENA[sk.length - 1 - i], 12, 'text', 'middle');
+          + t(x + bw / 2, 84, JMENA[sk.length - 1 - i] || '', 12, 'text', 'middle');
         if (i < sk.length - 1) telo += t(x + bw + mezera / 2, 52, '·', 20, 'muted', 'middle');
       });
       telo += t(W / 2, 16, 'mezera po každých třech cifrách zprava', 11, 'muted', 'middle')
