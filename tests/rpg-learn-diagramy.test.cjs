@@ -52,6 +52,26 @@ const ok=(c,m)=>{ if(c){pass++;console.log('  ✅ '+m);} else {fail++;console.lo
   const escP=[3,4,5].filter(g => /esc2\(p\)/.test(fs.readFileSync(path.join(ROOT,'projects/rpg-mat-'+g+'.html'),'utf8')));
   ok(escP.length===0, 'v 1. stupni nezbylo esc2(p) u odstavců výkladu'+(escP.length?' — '+escP.join(', '):''));
 
+  // ── 1b) pole sekcí nesmí mít DÍRY ──
+  // Každá mise 3.–5. ročníku měla v sections jeden prázdný slot (osamocená čárka
+  // ve zdroji, 63 dohromady; 6.–9. ani jeden). forEach díry přeskočí, takže to nebylo
+  // vidět — ale map/for na nich spadne, což se stalo při stavbě náhledu diagramů.
+  {
+    global.window = {};
+    for (const g of [3,4,5,6,7,8,9]) require(path.join(ROOT, 'projects/rpg-learn-'+g+'.js'));
+    const dir=[]; let misi=0;
+    for (const g of [3,4,5,6,7,8,9]) {
+      const L = global.window['RPG_LEARN_'+g];
+      for (const [mid, m] of Object.entries(L)) {
+        misi++;
+        const sec = m.sections || [];
+        for (let i=0;i<sec.length;i++) if (sec[i] === undefined) dir.push('g'+g+'/'+mid+'['+i+']');
+      }
+    }
+    ok(misi === 147, 'prošlo se všech 147 misí výkladu (7 ročníků × 21) — bez toho by kontrola běžela naprázdno');
+    ok(dir.length === 0, 'pole sekcí nemá díry' + (dir.length ? ' — '+dir.length+'×, např. '+dir.slice(0,4).join(', ') : ''));
+  }
+
   // ── 2) runtime: každý diagram se VYKRESLÍ ──
   let celkem=0;
   for (const g of [3,4,5]) {
