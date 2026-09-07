@@ -338,7 +338,7 @@ window.RPG_LEARN_4 = {
         'Ne vždy vyjde dělení přesně. Zbytek je část, která zbyde po dělení. Platí: dělenec = dělitel × podíl + zbytek. Zbytek musí být vždy menší než dělitel!',
         DIA.skupiny(29, 6, 'Dvacet devět kuliček rozdělených do čtyř skupin po šesti, pět zbývá')
       ] },
-      { title: 'Zbytek musí být menší než dělitel', body: 'Kdyby byl zbytek stejný nebo větší než dělitel, znamenalo by to, že se do něj dělitel vejde ještě jednou. U 29 : 6 nemůže vyjít „3 zbytek 11" — jedenáct šestek by pobralo ještě jednu. Správně je 4 (zbytek 5), protože 5 < 6.' }
+      { title: 'Zbytek musí být menší než dělitel', body: 'Kdyby byl zbytek stejný nebo větší než dělitel, znamenalo by to, že se do něj dělitel vejde ještě jednou. U 29 : 6 nemůže vyjít „3 zbytek 11" — jedenáct šestek by pobralo ještě jednu. Správně je 4 (zbytek 5), protože 5 &lt; 6.' }
     ],
     formulas: ['a = b × q + r  (r < b)', '23 : 4 = 5 zbytek 3  (4×5=20, 23−20=3)'],
     examples: [

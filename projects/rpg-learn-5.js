@@ -2,13 +2,25 @@
    Dračí říše 🐉 | Matematika 5. ročník
    window.RPG_LEARN_5 = { '<mid>': {intro, sections[], formulas[], examples[], mistakes[], video} }
 */
+/* Diagramy kreslí sdílený modul rpg-learn-svg.js (jeden zdroj pro 3.–5. ročník).
+   Bez něj má výklad zůstat TEXTOVÝ, ne zmizet celý — proto náhrada vracející
+   prázdný řetězec místo výjimky, která by shodila celé window.RPG_LEARN_5.
+
+   Schválně `var`, ne `const`: samoopravná větev v rpg-mat-5.html umí modul
+   přenačíst, a druhé provedení `const` by skončilo na „Identifier already
+   declared". */
+var DIA = window.RPGDia || new Proxy({}, { get: () => () => '' });
+
 window.RPG_LEARN_5 = {
   '1-1': {
     intro: '🐲 Mládě draka počítá poklad po milionech. „Přečteš to číslo nahlas?" syčí. Nauč se řády a zápis velkých čísel.',
     sections: [
       { title: 'Řády velkých čísel', body: 'Zprava: jednotky, desítky, stovky, tisíce, desetitisíce, statisíce, miliony. 1 000 000 = milion = 1000 tisíc.' },
       { title: 'Zápis velkých čísel', body: 'Píšeme s mezerou po každých třech cifrách zprava: 345 678 čteme tři sta čtyřicet pět tisíc šest set sedmdesát osm.' },
-      { title: 'Trojice cifer mají jména', body: 'Mezery dělí velké číslo na trojice a každá má své jméno. 4 305 218 přečteš jako „čtyři miliony — tři sta pět tisíc — dvě stě osmnáct". Nejdřív si číslo rozděl očima, teprve pak čti nahlas. Milion je tisíc tisíců.' }
+      { title: 'Trojice cifer mají jména', p: [
+        'Mezery dělí velké číslo na trojice a každá má své jméno. 4 305 218 přečteš jako „čtyři miliony — tři sta pět tisíc — dvě stě osmnáct". Nejdřív si číslo rozděl očima, teprve pak čti nahlas. Milion je tisíc tisíců.',
+        DIA.trojice('4 305 218')
+      ] }
     ],
     formulas: ['1 000 000 = 1000 tisíc = milion'],
     examples: [
@@ -25,7 +37,10 @@ window.RPG_LEARN_5 = {
   '1-2': {
     intro: '🦎 Ještěr strážce klade vedle sebe dvě obrovská čísla. „Které je větší?" Nauč se porovnávat velká čísla po řádech.',
     sections: [
-      { title: 'Postup porovnání', body: 'Nejprve porovnáme počet cifer — kdo má víc cifer, je větší. Při stejném počtu cifer porovnáváme od nejvyššího řádu vlevo.' },
+      { title: 'Postup porovnání', p: [
+        'Nejprve porovnáme počet cifer — kdo má víc cifer, je větší. Při stejném počtu cifer porovnáváme od nejvyššího řádu vlevo.',
+        DIA.osaPorovnani('198 000', '201 000')
+      ] },
       { title: 'Nejdřív spočítej cifry', body: 'Než porovnáváš po řádech, podívej se na počet cifer — víc cifer znamená větší číslo. Teprve při stejném počtu jdeš zleva řád po řádu a hledáš první místo, kde se čísla liší. Nuly uvnitř čísla se nepřeskakují, jsou to plnohodnotné řády.' }
     ],
     formulas: ['345 678 < 354 000 (desetitisíce: 4 < 5)'],
@@ -42,7 +57,10 @@ window.RPG_LEARN_5 = {
   '1-3': {
     intro: '🪨 Skalní golem odlamuje z čísel poslední kusy. „Co zbude?" duní. Nauč se zaokrouhlovat velká čísla.',
     sections: [
-      { title: 'Pravidlo', body: 'Podíváme se na cifru o jeden řád níž, než na který zaokrouhlujeme. 0–4 dolů, 5–9 nahoru. Zbylé nižší řády nahradíme nulami.' },
+      { title: 'Pravidlo', p: [
+        'Podíváme se na cifru o jeden řád níž, než na který zaokrouhlujeme. 0–4 dolů, 5–9 nahoru. Zbylé nižší řády nahradíme nulami.',
+        DIA.osaZaokrouhleni('456 000', '457 000', '456 500')
+      ] },
       { title: 'Zaokrouhlené číslo se píše s ≈', body: 'Zaokrouhlením se hodnota změní, proto tam nepatří rovnítko, ale vlnovka: 456 789 ≈ 457 000. Nižší řády se nahradí nulami. Rozhoduje jediná cifra — ta hned vpravo od místa, na které zaokrouhluješ, bez ohledu na to, co je za ní.' }
     ],
     formulas: ['Na tisíce: rozhoduje cifra stovek', 'Na desetitisíce: rozhoduje cifra tisíců'],
@@ -127,7 +145,10 @@ window.RPG_LEARN_5 = {
   '3-2': {
     intro: '🦂 Ohnivý škorpion nikdy nerozdělí všechno beze zbytku. „A co zbude?" Nauč se dělit se zbytkem.',
     sections: [
-      { title: 'Zbytek', body: 'Když dělení nevyjde přesně, zbyde zbytek. Platí: dělenec = dělitel × podíl + zbytek. Zbytek je vždy menší než dělitel.' },
+      { title: 'Zbytek', p: [
+        'Když dělení nevyjde přesně, zbyde zbytek. Platí: dělenec = dělitel × podíl + zbytek. Zbytek je vždy menší než dělitel.',
+        DIA.skupiny(23, 4, 'Dvacet tři kuliček rozdělených do pěti skupin po čtyřech, tři zbývají')
+      ] },
       { title: 'Zbytek musí být menší než dělitel', body: 'Kdyby byl zbytek stejný nebo větší než dělitel, vešel by se tam dělitel ještě jednou. Kontrola je jednoduchá: dělitel × podíl + zbytek musí dát zpátky dělence. Když ti kontrola nesedí, chyba je ve výpočtu, ne v pravidle.' }
     ],
     formulas: ['a = b × q + zbytek (zbytek < b)', '745 : 6 = 124 zbytek 1'],
@@ -161,7 +182,10 @@ window.RPG_LEARN_5 = {
   '4-1': {
     intro: '💎 Krystalový wyrm rozlomil krystal na díly. „Kolik z celku držíš?" Nauč se zlomky jako část celku.',
     sections: [
-      { title: 'Co je zlomek', body: 'Zlomek vyjadřuje část celku. Jmenovatel (dole) říká, na kolik dílů celek dělíme; čitatel (nahoře), kolik dílů bereme. 3/4 = celek rozdělím na 4 díly a vezmu 3.' },
+      { title: 'Co je zlomek', p: [
+        'Zlomek vyjadřuje část celku. Jmenovatel (dole) říká, na kolik dílů celek dělíme; čitatel (nahoře), kolik dílů bereme. 3/4 = celek rozdělím na 4 díly a vezmu 3.',
+        DIA.zlomek(3, 4)
+      ] },
       { title: 'Zlomek z čísla', body: 'Kolik je 3/4 z 20? Nejdřív 20 : 4 = 5 (jedna čtvrtina), pak × 3 = 15.' },
       { title: 'Jmenovatel pojmenovává díl', body: 'Jmenovatel říká, na kolik stejných dílů celek dělíš, a tím ten díl pojmenuje: čtvrtina, pětina, osmina. Čitatel říká, kolik takových dílů bereš. Čím větší jmenovatel, tím menší díl — 1/8 je méně než 1/4, i když osmička je větší než čtyřka.' }
     ],
@@ -179,7 +203,10 @@ window.RPG_LEARN_5 = {
   '4-2': {
     intro: '🕷️ Křišťálový pavouk spřádá síť ze stejných dílků. „Sečti je," šeptá. Nauč se sčítat zlomky se stejným jmenovatelem.',
     sections: [
-      { title: 'Stejný jmenovatel', body: 'Mají-li zlomky stejného jmenovatele, sčítáme (nebo odčítáme) jen čitatele. Jmenovatel zůstává stejný.' },
+      { title: 'Stejný jmenovatel', p: [
+        'Mají-li zlomky stejného jmenovatele, sčítáme (nebo odčítáme) jen čitatele. Jmenovatel zůstává stejný.',
+        DIA.zlomkyScitani(3, 4, 10)
+      ] },
       { title: 'Jmenovatel se nesčítá', body: 'Při sčítání zlomků se stejným jmenovatelem se sčítají jen čitatelé: 2/7 + 3/7 = 5/7. Jmenovatel zůstává, protože se nemění velikost dílu — pořád jsou to sedminy. Napsat 5/14 je nejčastější chyba: sečetlo by se i to, na kolik dílů je celek rozdělený.' }
     ],
     formulas: ['2/7 + 3/7 = 5/7', '5/8 − 2/8 = 3/8'],
@@ -196,7 +223,10 @@ window.RPG_LEARN_5 = {
   '4-3': {
     intro: '👁️ Vševidoucí oko schovalo zlomek do příběhu. „Kolik to je doopravdy?" Nauč se slovní úlohy se zlomky.',
     sections: [
-      { title: 'Najdi celek a část', body: 'V úloze najdeme celek (z čeho počítáme) a zlomek, který z něj bereme. Spočítáme část jako zlomek z čísla.' },
+      { title: 'Najdi celek a část', p: [
+        'V úloze najdeme celek (z čeho počítáme) a zlomek, který z něj bereme. Spočítáme část jako zlomek z čísla.',
+        DIA.pasovyModel(28, 3, 4, 'žáků')
+      ] },
       { title: 'Najdi celek, pak teprve počítej', body: 'V úloze si nejdřív najdi, z čeho se počítá — to je celek. Teprve pak ber zlomek z něj. Postup je vždy stejný: celek děl jmenovatelem a výsledek vynásob čitatelem. Když se úloha ptá na zbytek, odečti spočítanou část od celku.' }
     ],
     formulas: ['část = (celek : jmenovatel) × čitatel'],
@@ -214,7 +244,10 @@ window.RPG_LEARN_5 = {
     intro: '🌋 Lávová bestie měří teplotu na desetiny. „Které číslo je větší?" Nauč se číst a porovnávat desetinná čísla.',
     sections: [
       { title: 'Desetinná čárka', body: 'Za desetinnou čárkou jsou desetiny, setiny... 3,4 = 3 celé a 4 desetiny. Čteme „tři celé čtyři desetiny".' },
-      { title: 'Porovnávání', body: 'Nejdřív porovnáme celou část. Při shodě porovnáme desetiny, pak setiny. 3,5 > 3,45, protože 3,50 > 3,45.' },
+      { title: 'Porovnávání', p: [
+        'Nejdřív porovnáme celou část. Při shodě porovnáme desetiny, pak setiny. 3,5 &gt; 3,45, protože 3,50 &gt; 3,45.',
+        DIA.desetinnePorovnani('2,7', '2,65')
+      ] },
       { title: 'Nula na konci hodnotu nemění', body: 'U desetinných čísel platí 3,5 = 3,50 = 3,500 — nuly na konci nic nepřidávají. Právě proto se čísla dají porovnat tak, že si je doplníš na stejný počet desetinných míst: 3,50 a 3,45. Pozor, uvnitř čísla nula hodnotu mění: 3,05 není totéž co 3,5.' }
     ],
     formulas: ['3,4 = 3 + 4/10', '3,5 > 3,45'],
@@ -248,7 +281,10 @@ window.RPG_LEARN_5 = {
   '5-3': {
     intro: '☄️ Ohnivá kometa posouvá desetinnou čárku. „Desetkrát? Stokrát?" Nauč se násobit a dělit desetinná čísla deseti a stem.',
     sections: [
-      { title: 'Posun čárky', body: 'Násobíš 10 → čárka o jedno místo doprava. Násobíš 100 → o dvě místa doprava. Dělíš 10 → čárka doleva o jedno, dělíš 100 → o dvě.' },
+      { title: 'Posun čárky', p: [
+        'Násobíš 10 → čárka o jedno místo doprava. Násobíš 100 → o dvě místa doprava. Dělíš 10 → čárka doleva o jedno, dělíš 100 → o dvě.',
+        DIA.posunCarky('2,3', 100, '×')
+      ] },
       { title: 'Kterým směrem čárka putuje', body: 'Násobení číslo zvětšuje, takže se čárka posouvá doprava. Dělení zmenšuje, takže doleva. Kolik nul, tolik míst: 10 posune o jedno, 100 o dvě. Když chybí místo, doplní se nula: 2,5 × 100 = 250.' }
     ],
     formulas: ['3,5 × 10 = 35', '42 : 10 = 4,2'],
@@ -265,8 +301,14 @@ window.RPG_LEARN_5 = {
   '6-1': {
     intro: '🦅 Skalní orlosup obletí pozemek a pak ho přeměří. „Obvod, nebo obsah?" Nauč se obojí u obdélníku a čtverce.',
     sections: [
-      { title: 'Obvod', body: 'Obvod je délka obrysu. Obdélník: O = 2 × (a + b). Čtverec: O = 4 × a.' },
-      { title: 'Obsah', body: 'Obsah je plocha uvnitř. Obdélník: S = a × b. Čtverec: S = a × a. Jednotky obsahu: cm², m², mm².' },
+      { title: 'Obvod', p: [
+        'Obvod je délka obrysu. Obdélník: O = 2 × (a + b). Čtverec: O = 4 × a.',
+        DIA.ctverecObdelnik(6, 8, 5)
+      ] },
+      { title: 'Obsah', p: [
+        'Obsah je plocha uvnitř. Obdélník: S = a × b. Čtverec: S = a × a. Jednotky obsahu: cm², m², mm².',
+        DIA.ctverecky(8, 5)
+      ] },
       { title: 'Obvod a obsah mají jiné jednotky', body: 'Obvod je cesta kolem a měří se v centimetrech nebo metrech. Obsah je plocha uvnitř a měří se v cm² nebo m². Když u obsahu napíšeš jen cm, je odpověď neúplná. Pomůcka: obvod je plot, obsah je tráva uvnitř.' }
     ],
     formulas: ['O = 2×(a+b), S = a×b', 'Čtverec: O = 4×a, S = a×a'],
@@ -283,7 +325,10 @@ window.RPG_LEARN_5 = {
   '6-2': {
     intro: '🧊 Ledový drak mrazí metry, kilogramy i litry. „Převedeš je?" Nauč se převádět jednotky.',
     sections: [
-      { title: 'Délka a hmotnost', body: '1 km = 1000 m, 1 m = 100 cm, 1 cm = 10 mm. 1 t = 1000 kg, 1 kg = 1000 g.' },
+      { title: 'Délka a hmotnost', p: [
+        '1 km = 1000 m, 1 m = 100 cm, 1 cm = 10 mm. 1 t = 1000 kg, 1 kg = 1000 g.',
+        DIA.zebrik(['km', 'm', 'cm', 'mm'], [1000, 100, 10])
+      ] },
       { title: 'Objem a čas', body: '1 l = 1000 ml = 100 cl. 1 h = 60 min, 1 min = 60 s, 1 den = 24 h.' },
       { title: 'Ověř si směr převodu', body: 'Na menší jednotku číslo roste, na větší klesá. Než výsledek napíšeš, zeptej se, jestli mělo vyjít větší, nebo menší. U času to ale neplatí po desítkách — hodina má 60 minut, ne 100. Tenhle rozdíl je nejčastější past celého tématu.' }
     ],
@@ -301,7 +346,10 @@ window.RPG_LEARN_5 = {
   '6-3': {
     intro: '⚖️ Strážce rovnováhy hledá střed mezi čísly. „Kolik připadne na jedno?" Nauč se aritmetický průměr.',
     sections: [
-      { title: 'Jak spočítat průměr', body: 'Aritmetický průměr = součet všech čísel vydělený jejich počtem. Říká, jaká hodnota by připadla na každého, kdyby se vše rozdělilo rovnoměrně.' },
+      { title: 'Jak spočítat průměr', p: [
+        'Aritmetický průměr = součet všech čísel vydělený jejich počtem. Říká, jaká hodnota by připadla na každého, kdyby se vše rozdělilo rovnoměrně.',
+        DIA.prumer([12, 8, 10])
+      ] },
       { title: 'Průměr leží mezi nejmenším a největším', body: 'Aritmetický průměr nikdy nevyjde menší než nejmenší hodnota ani větší než největší. Když ti vyjde mimo tento rozsah, je někde chyba ve výpočtu. Průměr říká, kolik by připadlo na jednoho, kdyby se všechno rozdělilo rovnoměrně.' }
     ],
     formulas: ['průměr = (součet hodnot) : (počet hodnot)'],

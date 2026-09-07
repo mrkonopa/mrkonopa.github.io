@@ -18,9 +18,9 @@ const ROOT = path.join(__dirname, '..');          // NIKDY natvrdo /home/user �
 const EXEC = '/opt/pw-browsers/chromium-1194/chrome-linux/chrome';
 const MIME = { '.html':'text/html', '.js':'text/javascript', '.css':'text/css', '.svg':'image/svg+xml' };
 
-// Naměřeno: 3. ročník má 10 misí s diagramem, 4. ročník 13. Podlaha nechává
-// rezervu 2 mise. 5. ročník zatím 0 — až se doplní, zvedne se i jeho podlaha.
-const PODLAHA = { 3: 8, 4: 11, 5: 0 };
+// Naměřeno: 3. ročník má 10 misí s diagramem, 4. ročník 13, 5. ročník 12
+// (mise 6-1 nese dva diagramy, obvod a obsah). Podlaha nechává rezervu 2 mise.
+const PODLAHA = { 3: 8, 4: 11, 5: 10 };
 
 function serve(){ return new Promise(res=>{ const s=http.createServer((q,p)=>{
   let u=decodeURIComponent(q.url.split('?')[0]); if(u.endsWith('/'))u+='index.html';
@@ -84,20 +84,27 @@ function nactiVyklad(g) {
       // než co vidí dítě — a při rozbité náhradě by celý test spadl uprostřed
       // místo čisté ❌ (ověřeno sabotáží).
       const w = nactiVyklad(g);
-      const L=w['RPG_LEARN_'+g]; let ostre=0, ostreP=0;
+      const L=w['RPG_LEARN_'+g]; let ostre=0, ostreP=0, kusu=0;
       const spocti = t => (String(t).match(/[<>]/g)||[]).length;
       for (const mid in L) { const m=L[mid];
         (m.formulas||[]).forEach(x=>{ostre+=spocti(x);});
         (m.examples||[]).forEach(ex=>(Array.isArray(ex.s)?ex.s:[ex.s]).forEach(x=>{ostre+=spocti(x);}));
-        (m.sections||[]).forEach(sc=>(Array.isArray(sc.p)?sc.p:[sc.p]).forEach(x=>{
-          ostreP += (String(x).replace(/<[\s\S]*?>/g,'').match(/[<>]/g)||[]).length; }));
+        // POZOR na body: — sekce 4. a 5. ročníku ho používají místo p:, a renderer
+        // ho vykresluje STEJNĚ SUROVĚ. Dokud se tu četlo jen sc.p, procházela
+        // kontrola u těchhle sekcí naprázdno a přehlédla čtyři holé závorky
+        // („6 789 < 6 798", „5 < 6", „3,5 > 3,45"). Nebyly rozbité jen proto,
+        // že po „<" stála mezera — HTML otevírá značku až po písmenu.
+        (m.sections||[]).forEach(sc=>(Array.isArray(sc.p)?sc.p:[sc.p!==undefined?sc.p:sc.body]).forEach(x=>{
+          kusu++;
+          ostreP += (String(x||'').replace(/<[\s\S]*?>/g,'').match(/[<>]/g)||[]).length; }));
       }
       zmereno['g'+g]=ostre;
       // Pojistka proti planému hlídání: kdyby v obsahu ostré závorky vymizely,
       // ať to test řekne, místo aby dál vynucoval escapování bez důvodu.
       ok(ostre>0, 'g'+g+': ve vzorcích a příkladech je '+ostre+' ostrých závorek — escapování má důvod');
       // A hlavně: v odstavcích (surová cesta) žádná být nesmí.
-      ok(ostreP===0, 'g'+g+': v odstavcích výkladu není holá ostrá závorka (surová cesta je bezpečná)');
+      ok(ostreP===0, 'g'+g+': v odstavcích výkladu není holá ostrá závorka — proměřeno '
+        +kusu+' kusů textu včetně body: (surová cesta je bezpečná)');
     }
     ok(chybi.length===0, 'vzorce i příklady 1. stupně zůstávají escapované'
       + (chybi.length?' — chybí: '+chybi.join(', '):'') + ' — naměřeno '+JSON.stringify(zmereno));
