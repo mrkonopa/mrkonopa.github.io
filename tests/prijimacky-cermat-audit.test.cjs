@@ -155,5 +155,40 @@ ok(bad.size === 0, `${RUNS} běhů bez strukturální chyby` + (bad.size ? ' —
     + (bad.size ? ' — ' + [...bad].slice(0, 5).join(' | ') : ''));
 }
 
+
+/* ── VĚRNOST OSTRÉMU TESTU: válec a sloupcový graf ──────────────────────
+   Banka je simulace CERMATu, takže musí obsahovat i typy úloh, které ostrý
+   test SKUTEČNĚ dává. Změřeno na 15 zadáních z archivu (projects/prijimacky-
+   matematika/pdfs): rotační válec je v 5 z nich (33 %), sloupcový graf / diagram
+   v 8 z nich (53 %). Do PR #241 banka válec zastupovala jedinou úlohou (sud)
+   a graf NEMĚLA VŮBEC — tenhle blok hlídá, aby se to nevrátilo.
+   Kontroluje se PŘÍTOMNOST VARIANT (deterministické), ne jen podíl v losu:
+   podíl mezi běhy kolísá o 10 bodů, takže samotná podlaha by byla vratká.
+   Pozn.: kužel, koule, jehlan ani graf lineární funkce v archivu NEJSOU
+   (0 z 15), proto se po nich nic nepožaduje. ── */
+const varianty = (poz, kolik) => {
+  const s = new Set();
+  for (let i = 0; i < kolik; i++) s.add(C.genSlot(poz - 1).title);
+  return s;
+};
+const v6 = varianty(6, 3000), v12 = varianty(12, 3000), v14 = varianty(14, 3000);
+ok(v6.has('Těžítko'), 'pozice 6 nabízí válec ve válci („Těžítko“) — [' + [...v6].join(', ') + ']');
+ok(v12.has('Povrch válce'), 'pozice 12 nabízí povrch válce — [' + [...v12].join(', ') + ']');
+ok(v14.has('Kroužky') && v14.has('Návštěvnost'), 'pozice 14 nabízí DVĚ úlohy se sloupcovým grafem — [' + [...v14].join(', ') + ']');
+
+// Podíl v celém testu — volná podlaha, jen aby se poznalo úplné vymizení.
+// Naměřeno na 10× 400 testech: válec 55,0–63,5 %, graf 27,3–37,5 %.
+const VALEC = ['Sud', 'Těžítko', 'Povrch válce'], GRAF = ['Kroužky', 'Návštěvnost'];
+let sValcem = 0, sGrafem = 0;
+const BEHU = 400;
+for (let i = 0; i < BEHU; i++) {
+  const t = C.generate().map(x => x.title);
+  if (t.some(x => VALEC.includes(x))) sValcem++;
+  if (t.some(x => GRAF.includes(x))) sGrafem++;
+}
+const pV = 100 * sValcem / BEHU, pG = 100 * sGrafem / BEHU;
+ok(pV >= 35, 'válcová úloha je v ' + pV.toFixed(1) + ' % testů (podlaha 35 %, naměřeno 55–64)');
+ok(pG >= 15, 'grafová úloha je v ' + pG.toFixed(1) + ' % testů (podlaha 15 %, naměřeno 27–38)');
+
 console.log(`\n  ${pass} ✅ / ${fail} ❌  (${RUNS} vygenerovaných testů)`);
 process.exit(fail ? 1 : 0);

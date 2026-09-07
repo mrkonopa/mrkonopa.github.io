@@ -1172,6 +1172,138 @@
     };
   }
 
+  /* ── Válec ve válci (skleněné těžítko) ── */
+  // Vnější válec z čirého skla, uvnitř menší válec z modrého. Popisky VEDLE obrazce,
+  // aby se nekřížily s tělesem (stejný důvod jako u svgSud).
+  function svgTezitko(R, H, r, h) {
+    const cx = 125, topY = 30, botY = 132, rxOut = 58, ryOut = 15;
+    const rxIn = Math.round(rxOut * r / R), ryIn = Math.round(ryOut * r / R);
+    const inTop = botY - Math.round((botY - topY) * h / H);
+    return `<svg viewBox="0 0 250 176">`
+      + `<path d="M ${cx - rxOut} ${topY} L ${cx - rxOut} ${botY} A ${rxOut} ${ryOut} 0 0 0 ${cx + rxOut} ${botY} L ${cx + rxOut} ${topY}" fill="#12233a" stroke="#19e6e6" stroke-width="2.5"/>`
+      + `<ellipse cx="${cx}" cy="${botY}" rx="${rxOut}" ry="${ryOut}" fill="none" stroke="#19e6e6" stroke-width="2" stroke-dasharray="5 4"/>`
+      + `<path d="M ${cx - rxIn} ${inTop} L ${cx - rxIn} ${botY} A ${rxIn} ${ryIn} 0 0 0 ${cx + rxIn} ${botY} L ${cx + rxIn} ${inTop} A ${rxIn} ${ryIn} 0 0 1 ${cx - rxIn} ${inTop} Z" fill="#1a5a80" stroke="#4cc9f0" stroke-width="2"/>`
+      + `<ellipse cx="${cx}" cy="${inTop}" rx="${rxIn}" ry="${ryIn}" fill="#2a7aa8" stroke="#4cc9f0" stroke-width="2"/>`
+      + `<ellipse cx="${cx}" cy="${topY}" rx="${rxOut}" ry="${ryOut}" fill="#1b2742" stroke="#19e6e6" stroke-width="2.5"/>`
+      + `<text x="6" y="${topY + 6}" fill="#19e6e6" font-size="13" font-family="monospace">čiré: r=${R} v=${H}</text>`
+      + `<text x="6" y="170" fill="#4cc9f0" font-size="13" font-family="monospace">modré: r=${r} v=${h}</text>`
+      + `</svg>`;
+  }
+
+  /* ── Sloupcový graf (CERMAT ho má v 8 z 15 zadání) ── */
+  // Jeden sloupec smí být neznámý ("?"). Hodnoty jsou NAD sloupci, popisky pod nimi,
+  // takže se nepřekrývají ani u dlouhých názvů.
+  function svgSloupce(popisky, hodnoty, idxNeznamy) {
+    const W = 250, baseY = 130, maxH = 86, x0 = 30;
+    const sirka = Math.floor((W - x0 - 14) / popisky.length) - 12;
+    const max = Math.max(...hodnoty.map((v, i) => i === idxNeznamy ? 0 : v)) || 1;
+    let s = `<svg viewBox="0 0 ${W} 160">`
+      + `<line x1="${x0 - 8}" y1="${baseY}" x2="${W - 6}" y2="${baseY}" stroke="#19e6e6" stroke-width="2"/>`
+      + `<line x1="${x0 - 8}" y1="18" x2="${x0 - 8}" y2="${baseY}" stroke="#19e6e6" stroke-width="2"/>`;
+    popisky.forEach((p, i) => {
+      const x = x0 + i * (sirka + 12);
+      const nezn = i === idxNeznamy;
+      const v = nezn ? Math.round(max * 0.55) : hodnoty[i];
+      const h = Math.max(6, Math.round(maxH * v / max));
+      s += `<rect x="${x}" y="${baseY - h}" width="${sirka}" height="${h}" fill="${nezn ? '#3a2a52' : '#1b6f8f'}" stroke="${nezn ? '#ff3d7f' : '#19e6e6'}" stroke-width="2"${nezn ? ' stroke-dasharray="5 4"' : ''}/>`
+        + `<text x="${x + sirka / 2}" y="${baseY - h - 5}" fill="${nezn ? '#ff3d7f' : '#39ff9e'}" font-size="13" font-family="monospace" text-anchor="middle">${nezn ? '?' : hodnoty[i]}</text>`
+        + `<text x="${x + sirka / 2}" y="${baseY + 16}" fill="#cfe8ff" font-size="11" font-family="monospace" text-anchor="middle">${p}</text>`;
+    });
+    return s + `</svg>`;
+  }
+
+  function gen6d() {
+    // 2 body — skleněné těžítko: válec ve válci (věrné M9A/2026, úloha 2)
+    // R je násobek 10 a h sudé ⇒ oba objemy vyjdou celé, žádné plovoucí zbytky.
+    const R = ri(1, 2) * 10, r = R / 2;
+    const H = ri(5, 8) * 2, h = ri(2, (H / 2) - 1) * 2;
+    const Vcelk = 3.14 * R * R * H, Vmodre = 3.14 * r * r * h, Vcire = Vcelk - Vmodre;
+    const des = x => Math.round(x / 10) * 10;
+    return {
+      no: 6, points: 2, title: 'Těžítko',
+      svg: svgTezitko(R, H, r, h),
+      intro: `Skleněné těžítko má tvar rotačního válce s poloměrem podstavy ${R} cm a výškou ${H} cm. Vnější část těžítka je z čirého skla, uvnitř je část z modrého skla, která má také tvar rotačního válce, a to s poloměrem podstavy ${r} cm a výškou ${h} cm. Pro výpočet použijte π ≐ 3,14.`,
+      parts: [
+        { key: '6.1', points: 1,
+          prompt: `Vypočítejte v cm³ objem celého těžítka. Výsledek zaokrouhlete na desítky cm³.`,
+          ans: String(des(Vcelk)),
+          sol: [`Objem válce je obsah podstavy krát výška: V = π · r² · v.`,
+            `Obsah podstavy: 3,14 · ${R}² = 3,14 · ${R * R} = ${cz(3.14 * R * R)} cm².`,
+            `Objem = ${cz(3.14 * R * R)} · ${H} = ${cz(Vcelk)} cm³${des(Vcelk) === Vcelk ? '.' : `, po zaokrouhlení na desítky ${des(Vcelk)} cm³.`}`] },
+        { key: '6.2', points: 1,
+          prompt: `Vypočítejte v cm³ objem čirého skla v těžítku. Výsledek zaokrouhlete na desítky cm³.`,
+          ans: String(des(Vcire)),
+          sol: [`Čiré sklo je to, co ZBYDE, když z celého těžítka odebereš modrý válec — počítá se rozdílem, ne zvlášť.`,
+            `Objem modré části: 3,14 · ${r}² · ${h} = ${cz(3.14 * r * r)} · ${h} = ${cz(Vmodre)} cm³.`,
+            `Objem čirého skla = ${cz(Vcelk)} − ${cz(Vmodre)} = ${cz(Vcire)} cm³.`,
+            ...(des(Vcire) === Vcire ? [] : [`Po zaokrouhlení na desítky: ${des(Vcire)} cm³.`])] }
+      ]
+    };
+  }
+
+  function gen12e() {
+    // 2 body — MC A-E, povrch válce z poměru pláště a podstavy (věrné M9A/2023, úloha 13)
+    // Poloměr je násobek 10, aby 3,14 · r² i celý povrch vyšly CELÉ. Při r = 15 vycházelo
+    // 3,14 · 225 = 706,5 a povrch 3532,5 — postup to psal jako „= 3533", tedy useknuté
+    // cifry s rovnítkem. Zachytil to prijimacky-postupy.test.cjs.
+    const r = ri(1, 2) * 10, k = ri(2, 4);
+    const povrch = (2 + k) * 3.14 * r * r;
+    const opts = [povrch - 2 * 3.14 * r * r, povrch - 3.14 * r * r, povrch, povrch + 3.14 * r * r, 'jiný povrch'];
+    const sh = shuffleOpts(opts, povrch);
+    return {
+      no: 12, points: 2, title: 'Povrch válce', kind: 'mc',
+      svg: svgCylinder(r, cz(k * r / 2)),
+      prompt: `Obsah pláště rotačního válce je ${k}krát větší než obsah jedné jeho podstavy. Poloměr podstavy válce je ${r} cm. Jaký je povrch válce v cm²? Pro výpočet použijte π ≐ 3,14.`,
+      options: sh.labels, ans: sh.correctLetter,
+      sol: [`Povrch válce je plášť PLUS DVĚ podstavy: S = S(plášť) + 2 · S(podstava).`,
+        `Plášť je ${k}krát větší než jedna podstava, takže celý povrch je ${k} + 2 = ${k + 2} podstav.`,
+        `Obsah jedné podstavy: 3,14 · ${r}² = ${cz(3.14 * r * r)} cm².`,
+        `Povrch = ${k + 2} · ${cz(3.14 * r * r)} = ${cz(povrch)} cm² → odpověď ${sh.correctLetter}.`]
+    };
+  }
+
+  function gen14e() {
+    // 2 body — MC A-E, čtení ze sloupcového grafu s chybějícím údajem
+    // (věrné M9A/2023, úloha 7 — jeden sloupec neznámý, znám celkový počet)
+    const jm = pick([['hudební', 'šachový', 'robotický'], ['fotbal', 'florbal', 'basket'], ['pěvecký', 'výtvarný', 'taneční']]);
+    const a = ri(4, 12) * 2, b = ri(3, 10) * 2, chybi = ri(3, 11) * 2;
+    const celkem = a + b + chybi, idx = ri(0, 2);
+    const hod = [a, b, chybi]; const tmp = hod[idx]; hod[idx] = hod[2]; hod[2] = tmp;
+    const neznamy = idx, hledana = hod[neznamy];
+    const zn = hod.filter((_, i) => i !== neznamy);
+    const sh = shuffleOpts([hledana - 4, hledana - 2, hledana, hledana + 2, 'jiný počet'], hledana);
+    return {
+      no: 14, points: 2, title: 'Kroužky', kind: 'mc',
+      svg: svgSloupce(jm, hod, neznamy),
+      prompt: `Žáci 9. tříd chodí do tří kroužků: ${jm.join(', ')}. Každý žák je právě v jednom z nich a celkem jich je ${celkem}. V grafu chybí počet žáků u kroužku „${jm[neznamy]}". Kolik žáků chodí do tohoto kroužku?`,
+      options: sh.labels, ans: sh.correctLetter,
+      sol: [`Každý žák je právě v jednom kroužku, takže se počty ve všech třech sloupcích sečtou na celkový počet.`,
+        `Z grafu přečti známé sloupce: ${zn[0]} a ${zn[1]}, dohromady ${zn[0]} + ${zn[1]} = ${zn[0] + zn[1]}.`,
+        `Chybějící počet = ${celkem} − ${zn[0] + zn[1]} = ${hledana} → odpověď ${sh.correctLetter}.`]
+    };
+  }
+
+  function gen14f() {
+    // 2 body — MC A-E, druhé čtení ze sloupcového grafu: rozdíl dvou sloupců
+    // (věrné M9C/2025 a M9D/2025 — tam se z grafu porovnávají dvě hodnoty).
+    const mesice = ['květen', 'červen', 'červenec', 'srpen', 'září'];
+    const hod = mesice.map(() => ri(3, 16) * 10);
+    let iA = ri(0, 4), iB = ri(0, 4);
+    while (iB === iA || hod[iB] === hod[iA]) { iB = ri(0, 4); }
+    if (hod[iA] < hod[iB]) { const t = iA; iA = iB; iB = t; }
+    const rozdil = hod[iA] - hod[iB];
+    const sh = shuffleOpts([rozdil - 20, rozdil - 10, rozdil, rozdil + 10, 'jiný počet'], rozdil);
+    return {
+      no: 14, points: 2, title: 'Návštěvnost', kind: 'mc',
+      svg: svgSloupce(mesice, hod, -1),
+      prompt: `V grafu je uvedena návštěvnost rodného domu spisovatele v jedné letní sezoně. O kolik více vstupenek se prodalo v ${mesice[iA]}${mesice[iA] === 'září' ? '' : 'i'} než v ${mesice[iB]}${mesice[iB] === 'září' ? '' : 'i'}?`,
+      options: sh.labels, ans: sh.correctLetter,
+      sol: [`Otázka „o kolik více“ znamená ROZDÍL — z grafu tedy stačí přečíst dvě hodnoty a odečíst je.`,
+        `${mesice[iA]}: ${hod[iA]} vstupenek, ${mesice[iB]}: ${hod[iB]} vstupenek.`,
+        `Rozdíl = ${hod[iA]} − ${hod[iB]} = ${rozdil} → odpověď ${sh.correctLetter}.`]
+    };
+  }
+
   /* ── SLOTY 1–16 ─────────────────────────────────────────────────
      Každá pozice testu je POLE variant (zatím vždy jedna). Pro
      přidání další varianty do pozice N stačí dopsat další funkci do
@@ -1181,8 +1313,8 @@
      vybere jednu variantu z každé pozice.
      ──────────────────────────────────────────────────────────────── */
   const SLOTS = [
-    [gen1, gen1b, gen1c], [gen2, gen2b, gen2c], [gen3, gen3b, gen3c], [gen4, gen4b, gen4c], [gen5, gen5b, gen5c], [gen6, gen6b, gen6c], [gen7, gen7b, gen7c], [gen8, gen8b, gen8c],
-    [gen9, gen9b, gen9c], [gen10, gen10b, gen10c], [gen11, gen11b, gen11c], [gen12, gen12b, gen12c, gen12d], [gen13, gen13b, gen13c, gen13d], [gen14, gen14b, gen14c, gen14d], [gen15, gen15b, gen15c], [gen16, gen16b, gen16c]
+    [gen1, gen1b, gen1c], [gen2, gen2b, gen2c], [gen3, gen3b, gen3c], [gen4, gen4b, gen4c], [gen5, gen5b, gen5c], [gen6, gen6b, gen6c, gen6d], [gen7, gen7b, gen7c], [gen8, gen8b, gen8c],
+    [gen9, gen9b, gen9c], [gen10, gen10b, gen10c], [gen11, gen11b, gen11c], [gen12, gen12b, gen12c, gen12d, gen12e], [gen13, gen13b, gen13c, gen13d], [gen14, gen14b, gen14c, gen14d, gen14e, gen14f], [gen15, gen15b, gen15c], [gen16, gen16b, gen16c]
   ];
 
   window.RPG_CERMAT_9 = {
