@@ -106,14 +106,22 @@
     /* Násobilka jako obdélníková mřížka kuliček — „4 řady po 3" je vidět,
        kdežto „4 · 3" se musí pamatovat. */
     mrizka(radky, sloupce, popis) {
+      // Rozteč sloupců se stahuje, aby mřížka nerostla donekonečna: 3 sloupce
+      // 3. ročníku si nechají původních 50 px, sedm sloupců 4. ročníku by s nimi
+      // sahalo na 369 px při plátně 240 a část kuliček by se NENAKRESLILA.
+      const dx = sloupce > 1 ? Math.min(50, Math.floor(220 / (sloupce - 1))) : 50;
       let telo = '';
       for (let r = 0; r < radky; r++)
         for (let s = 0; s < sloupce; s++)
-          telo += kruh(60 + s * 50, 26 + r * 26, 9, 'gold');
-      telo += t(20, 72, radky, 13, 'text', 'middle')
-        + t(110, 122, sloupce + ' v řadě', 13, 'text', 'middle')
-        + t(200, 72, '= ' + (radky * sloupce), 15, 'green');
-      return svg(240, 130, popis || ('Mřížka ' + radky + ' krát ' + sloupce + ', dohromady ' + radky * sloupce), telo);
+          telo += kruh(60 + s * dx, 26 + r * 26, 9, 'gold');
+      const posX = 60 + (sloupce - 1) * dx, posY = 26 + (radky - 1) * 26;
+      const soucet = '= ' + (radky * sloupce);
+      const xTxt = posX + 40, stredY = (26 + posY) / 2 + 7;
+      telo += t(20, stredY, radky, 13, 'text', 'middle')
+        + t((60 + posX) / 2, posY + 18, sloupce + ' v řadě', 13, 'text', 'middle')
+        + t(xTxt, stredY, soucet, 15, 'green');
+      return svg(xTxt + soucet.length * 9 + 4, posY + 26,
+        popis || ('Mřížka ' + radky + ' krát ' + sloupce + ', dohromady ' + radky * sloupce), telo);
     },
 
     /* Dělení se zbytkem: plné skupiny v rámečcích, zbytek stranou červeně.
@@ -121,22 +129,34 @@
     skupiny(celkem, poKolika, popis) {
       const skupin = Math.floor(celkem / poKolika);
       const zbytek = celkem % poKolika;
+      // Kuličky leží po DVOU v řadě — ve skupině i ve zbytku. Z toho se odvodí
+      // výška rámečku i celého plátna; bez toho se 29 : 6 (příklad ze 4. ročníku)
+      // uřízne, a to potichu, protože obsah mimo viewBox se prostě nenakreslí.
+      const rad = n => Math.ceil(n / 2);
+      const bunka = (x0, i) => [x0 + (i % 2) * 22, 26 + Math.floor(i / 2) * 24];
+      const ramH = 36 + 24 * (rad(poKolika) - 1);
       let kulicky = '', ramecky = '';
       for (let g = 0; g < skupin; g++) {
         const x0 = 24 + g * 88;
-        for (let i = 0; i < poKolika; i++)
-          kulicky += kruh(x0 + (i % 2) * 22, 26 + Math.floor(i / 2) * 24, 9, 'blue');
-        ramecky += ramec(8 + g * 88, 8, 58, 60, 'muted', 2, 6);
+        for (let i = 0; i < poKolika; i++) { const b = bunka(x0, i); kulicky += kruh(b[0], b[1], 9, 'blue'); }
+        ramecky += ramec(8 + g * 88, 8, 58, ramH, 'muted', 2, 6);
       }
+      // Zbytek stojí VPRAVO od poslední skupiny, ne na pevné souřadnici. Ta dřív
+      // vycházela na 272 + poloměr 9 = 281 při plátně 280, takže se červené
+      // kuličce ořezával okraj — zrovna tomu prvku, kvůli kterému obrázek je.
+      const konecSkupin = 66 + 88 * (skupin - 1);
+      const zbX = konecSkupin + 21;
       let zb = '';
-      for (let i = 0; i < zbytek; i++) zb += kruh(272, 26 + i * 24, 9, 'red');
-      return svg(280, 112,
+      for (let i = 0; i < zbytek; i++) { const b = bunka(zbX, i); zb += kruh(b[0], b[1], 9, 'red'); }
+      const dno = Math.max(8 + ramH, 26 + 24 * (rad(zbytek) - 1) + 9);
+      const W = Math.max(konecSkupin, zbX + (zbytek > 1 ? 22 : 0) + 9) + 8;
+      const H = dno + 44;
+      return svg(W, H,
         popis || ('Dělení ' + celkem + ' na skupiny po ' + poKolika + ', zbytek ' + zbytek),
         kulicky + ramecky + zb
-        + t(140, 88, celkem + ' : ' + poKolika + ' = ' + skupin + ' skupiny po ' + poKolika, 13, 'text', 'middle')
-        + t(140, 106, 'zbytek ' + zbytek + ' (červená)', 13, 'red', 'middle'));
+        + t(W / 2, dno + 20, celkem + ' : ' + poKolika + ' = ' + skupin + ' skupiny po ' + poKolika, 13, 'text', 'middle')
+        + t(W / 2, dno + 38, 'zbytek ' + zbytek + ' (červená)', 13, 'red', 'middle'));
     },
-
     /* Trojúhelník s popsanými stranami a součtem obvodu nad ním. */
     trojuhelnik(a1, b1, c1) {
       return svg(250, 130, 'Trojúhelník se stranami ' + a1 + ', ' + b1 + ' a ' + c1 + ' centimetrů',
@@ -164,16 +184,25 @@
        převod je právě ten krok. */
     zebrik(jednotky, krok, popisek, popis) {
       const n = jednotky.length;
+      // Krok smí být i POLE — 4. ročník má km → m ×1000, ale zbytek ×10.
+      // Jedno číslo pro všechny stupně by dítěti tvrdilo, že kilometr je
+      // deset metrů.
+      const kroky = Array.isArray(krok) ? krok : new Array(n - 1).fill(krok);
+      // Plátno roste s počtem jednotek. Natlačit pět rámečků do 280 px nejde:
+      // popisek „×1000 →" je širší než mezera, která by na něj zbyla.
+      const W = 24 + 52 * n + 16 * (n - 1);
       let telo = '';
       for (let i = 0; i < n; i++) {
         telo += ramec(10 + i * 68, 30, 52, 34, 'blue', 2, 6);
         telo += t(36 + i * 68, 52, jednotky[i], 15, 'gold', 'middle');
       }
-      for (let i = 0; i < n - 1; i++) telo += t(70 + i * 68, 24, '×' + krok + ' →', 12, 'green', 'middle');
-      telo += t(140, 86, popisek || ('doprava násob ' + krok + ', doleva děl ' + krok), 12, 'text', 'middle');
-      return svg(280, 96, popis || ('Žebřík jednotek ' + jednotky.join(' ') + ', každý krok ' + krok + 'krát'), telo);
+      for (let i = 0; i < n - 1; i++) telo += t(70 + i * 68, 24, '×' + kroky[i] + ' →', 12, 'green', 'middle');
+      const jednotny = kroky.every(k => k === kroky[0]);
+      telo += t(W / 2, 86, popisek
+        || (jednotny ? 'doprava násob ' + kroky[0] + ', doleva děl ' + kroky[0]
+                     : 'doprava násob, doleva děl — kroky nejsou stejné'), 12, 'text', 'middle');
+      return svg(W, 96, popis || ('Žebřík jednotek ' + jednotky.join(' ')), telo);
     },
-
     /* Ciferník + převodní vztahy vedle něj. Ručičky se zadávají DÉLKOU a ÚHLEM,
        ne koncovými body — jinak se při změně času musí přepočítávat ručně.
        Hodinová je kratší a silnější, minutová delší a tenčí; na tom celé čtení
@@ -199,11 +228,105 @@
       return svg(250, 120, popis || ('Ciferník ukazující ' + h + ':' + String(min).padStart(2, '0')), telo);
     },
 
+    /* Obsah jako POKRYTÍ ČTVEREČKY, ne jako vzorec. Nadpis mise 5-2 ve 4. ročníku
+       to říká doslova („Obsah = počet čtverečků uvnitř"), tak ať to dítě vidí:
+       a řad po b čtverečcích. Vzorec S = a × b si z toho odvodí samo. */
+    ctverecky(a1, b1, popis) {
+      const c = 20, x0 = 44, y0 = 22;
+      let telo = '';
+      for (let r = 0; r < b1; r++)
+        for (let k = 0; k < a1; k++)
+          telo += ramec(x0 + k * c, y0 + r * c, c, c, 'blue', 1);
+      const W = x0 + a1 * c + 20, dno = y0 + b1 * c;
+      telo += t(x0 + a1 * c / 2, dno + 18, a1 + ' cm', 13, 'gold', 'middle')
+        + t(x0 - 8, y0 + b1 * c / 2 + 4, b1 + ' cm', 13, 'gold', 'end')
+        + t(W / 2, 14, 'S = ' + a1 + ' × ' + b1 + ' = ' + (a1 * b1) + ' cm²', 13, 'text', 'middle')
+        + t(W / 2, dno + 36, a1 * b1 + ' čtverečků uvnitř', 12, 'green', 'middle');
+      return svg(W, dno + 44, popis || ('Obdélník ' + a1 + ' krát ' + b1 + ' pokrytý čtverečky, obsah ' + (a1 * b1) + ' čtverečních centimetrů'), telo);
+    },
+
+    /* Násobení desítkami: napřed součin bez nul, teprve pak se nuly PŘIPÍŠOU.
+       Nuly jsou v druhém řádku zvlášť orámované, aby bylo vidět, že se
+       nepočítají — jen se přidají. */
+    nasobeniRadu(a1, b1, popis) {
+      const nul = String(b1).length - String(b1).replace(/0+$/, '').length;
+      const zaklad = b1 / Math.pow(10, nul);
+      const bezNul = a1 * zaklad, vysledek = a1 * b1;
+      const W = 280;
+      // Druhý řádek se skládá z DVOU kusů vedle sebe (výsledek + orámované nuly),
+      // takže se jeho šířka musí spočítat, ne odhadnout. Napevno posazené
+      // souřadnice tu narážely textem do rámečku.
+      const ADV = 0.6;                     // monospace: šířka znaku ≈ 0,6 em
+      const sirkaTxt = (txt, fs) => txt.length * fs * ADV;
+      const zapis = String(bezNul), nuly = '0'.repeat(nul);
+      const levy = a1 + ' × ' + b1 + ' = ' + zapis;
+      const wLevy = sirkaTxt(levy, 17), wNuly = sirkaTxt(nuly, 17);
+      const xLevy = (W - (wLevy + 6 + wNuly + 12)) / 2;
+      const xBox = xLevy + wLevy + 6;
+      let telo = t(W / 2, 22, a1 + ' × ' + zaklad + ' = ' + bezNul, 17, 'gold', 'middle')
+        + t(W / 2, 42, 'nejdřív bez nul', 11, 'muted', 'middle')
+        + line(40, 54, 240, 54, 'muted', 1, '4 3');
+      telo += t(xLevy, 80, levy, 17, 'text')
+        + ramec(xBox, 62, wNuly + 12, 26, 'green', 2, 4)
+        + t(xBox + (wNuly + 12) / 2, 81, nuly, 17, 'green', 'middle')
+        + t(W / 2, 106, nul === 1 ? 'jedna nula se připíše' : nul + ' nuly se připíšou', 12, 'green', 'middle');
+      return svg(W, 116, popis || (a1 + ' krát ' + b1 + ' se počítá jako ' + a1 + ' krát ' + zaklad + ', k výsledku se připíšou nuly'), telo);
+    },
+
+    /* Souřadnicová síť. Přerušované čáry k osám ukazují, ŽE se čte nejdřív
+       doprava a pak nahoru — na pořadí souřadnic mise 5-3 přímo stojí. */
+    sit(x1, y1, popisB, popis) {
+      const c = 26, x0 = 30, y0 = 16, n = 6;
+      let telo = '';
+      for (let i = 0; i <= n; i++) {
+        telo += line(x0 + i * c, y0, x0 + i * c, y0 + n * c, 'muted', 1);
+        telo += line(x0, y0 + i * c, x0 + n * c, y0 + i * c, 'muted', 1);
+      }
+      const px = x0 + x1 * c, py = y0 + (n - y1) * c;
+      telo += line(x0, y0 + n * c, x0 + n * c, y0 + n * c, 'blue', 2)
+        + line(x0, y0, x0, y0 + n * c, 'blue', 2)
+        + line(x0, py, px, py, 'red', 1.5, '4 3')
+        + line(px, y0 + n * c, px, py, 'red', 1.5, '4 3')
+        + kruh(px, py, 5, 'gold')
+        + t(px + 9, py - 6, 'B[' + x1 + '; ' + y1 + ']', 13, 'gold')
+        + t(px, y0 + n * c + 16, x1, 12, 'red', 'middle')
+        + t(x0 - 8, py + 4, y1, 12, 'red', 'end')
+        + t(x0 + n * c / 2, y0 + n * c + 34, popisB || 'nejdřív doprava, pak nahoru', 12, 'text', 'middle');
+      return svg(x0 + n * c + 60, y0 + n * c + 42,
+        popis || ('Souřadnicová síť s bodem B na souřadnicích ' + x1 + ' a ' + y1), telo);
+    },
+
+    /* Velká čísla se čtou PO TROJICÍCH — to je celé učivo mise 7-1, a jedna
+       cifra na sloupec (rady) ho neukáže. Každá trojice má svoje jméno. */
+    trojice(cislo, popis) {
+      const c = String(cislo).replace(/\s/g, '');
+      const sk = [];
+      for (let i = c.length; i > 0; i -= 3) sk.unshift(c.slice(Math.max(0, i - 3), i));
+      const JMENA = ['jednotky', 'tisíce', 'miliony'];
+      const bw = 76, mezera = 16, x0 = 12;
+      const W = x0 * 2 + sk.length * bw + (sk.length - 1) * mezera;
+      let telo = '';
+      sk.forEach((g, i) => {
+        const x = x0 + i * (bw + mezera);
+        telo += ramec(x, 24, bw, 44, 'blue', 2, 6)
+          + t(x + bw / 2, 55, g, 26, 'gold', 'middle')
+          + t(x + bw / 2, 84, JMENA[sk.length - 1 - i], 12, 'text', 'middle');
+        if (i < sk.length - 1) telo += t(x + bw + mezera / 2, 52, '·', 20, 'muted', 'middle');
+      });
+      telo += t(W / 2, 16, 'mezera po každých třech cifrách zprava', 11, 'muted', 'middle')
+        + t(W / 2, 104, 'čti po trojicích, ne cifru po cifře', 12, 'green', 'middle');
+      return svg(W, 114, popis || ('Číslo ' + cislo + ' rozdělené na trojice cifer'), telo);
+    },
+
     /* České mince a bankovky. Hodnoty jsou parametr, ale výchozí je skutečná
        česká řada — autenticita před obecností (viz CLAUDE.md). */
     penize(mince, bankovky, popisek, popis) {
       const m = mince || [1, 2, 5, 10, 20, 50];
       const b = bankovky || [100, 200, 500, 1000];
+      // 4. ročník vypisuje ŠEST bankovek (až 5 000 Kč), trojka čtyři — plátno
+      // se proto řídí tím, co je delší. Napevno 280 by pátou a šestou uřízlo,
+      // a to potichu: obsah mimo viewBox se prostě nenakreslí.
+      const W = Math.max(60 + 44 * (m.length - 1), 82 + 66 * (b.length - 1));
       let telo = '';
       m.forEach((v, i) => {
         const cx = 28 + i * 44;
@@ -215,8 +338,8 @@
         telo += '<rect x="' + x + '" y="62" width="54" height="28" rx="4" fill="none" stroke="var(--green)" stroke-width="2"/>'
           + t(x + 27, 81, v, 12, 'green', 'middle');
       });
-      telo += t(140, 108, popisek || 'mince nahoře · bankovky dole (v Kč)', 12, 'text', 'middle');
-      return svg(280, 116, popis || 'České mince a bankovky', telo);
+      telo += t(W / 2, 108, popisek || 'mince nahoře · bankovky dole (v Kč)', 12, 'text', 'middle');
+      return svg(W, 116, popis || 'České mince a bankovky', telo);
     }
   };
 

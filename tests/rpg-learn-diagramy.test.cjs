@@ -18,9 +18,9 @@ const ROOT = path.join(__dirname, '..');          // NIKDY natvrdo /home/user �
 const EXEC = '/opt/pw-browsers/chromium-1194/chrome-linux/chrome';
 const MIME = { '.html':'text/html', '.js':'text/javascript', '.css':'text/css', '.svg':'image/svg+xml' };
 
-// Naměřeno: 3. ročník má 10 misí s diagramem. 4. a 5. zatím 0 — až se doplní,
-// zvedne se jejich podlaha. Podlaha 8 nechává rezervu 2 mise.
-const PODLAHA = { 3: 8, 4: 0, 5: 0 };
+// Naměřeno: 3. ročník má 10 misí s diagramem, 4. ročník 13. Podlaha nechává
+// rezervu 2 mise. 5. ročník zatím 0 — až se doplní, zvedne se i jeho podlaha.
+const PODLAHA = { 3: 8, 4: 11, 5: 0 };
 
 function serve(){ return new Promise(res=>{ const s=http.createServer((q,p)=>{
   let u=decodeURIComponent(q.url.split('?')[0]); if(u.endsWith('/'))u+='index.html';
@@ -155,6 +155,50 @@ function nactiVyklad(g) {
       'bez modulu diagramů se výklad načte celý (21 misí), jen bez obrázků');
   }
 
+  // ── 1e) nakreslené prvky musí ležet UVNITŘ viewBox ──
+  // SVG obsah mimo viewBox se prostě NENAKRESLÍ — stránka nepřeteče, jen chybí
+  // kus obrázku. Kontrola přetečení na 380 px tohle proto nevidí; je to táž třída
+  // vad jako „overflow:hidden ořezává obsah tiše" z CLAUDE.md.
+  // Naměřeno při zavádění 4. ročníku: penize se šesti bankovkami přetékaly o 91 px,
+  // zebrik s pěti jednotkami o 28 a skupiny(29,6) o 50. A skupiny(13,4) sahaly
+  // na 281 px při plátně 280 už ve 3. ročníku, takže se červené kuličce „zbytek"
+  // ořezával okraj.
+  {
+    const mimo = []; let mereno = 0;
+    for (const g of [3,4,5]) {
+      const w = nactiVyklad(g); const L = w['RPG_LEARN_'+g] || {};
+      for (const mid in L) for (const sc of (L[mid].sections||[]))
+        for (const el of (Array.isArray(sc.p)?sc.p:[sc.p])) {
+          const str = String(el); if (!/<svg/.test(str)) continue;
+          mereno++;
+          const vb = (str.match(/viewBox="0 0 ([\d.]+) ([\d.]+)/)||[]).slice(1).map(Number);
+          let mx=0, my=0;
+          for (const r of str.matchAll(/<rect x="([\d.-]+)" y="([\d.-]+)"[^>]*width="([\d.]+)" height="([\d.]+)"/g))
+            { mx=Math.max(mx,+r[1]+ +r[3]); my=Math.max(my,+r[2]+ +r[4]); }
+          for (const c of str.matchAll(/<circle cx="([\d.-]+)" cy="([\d.-]+)" r="([\d.]+)"/g))
+            { mx=Math.max(mx,+c[1]+ +c[3]); my=Math.max(my,+c[2]+ +c[3]); }
+          for (const l of str.matchAll(/<line x1="([\d.-]+)" y1="([\d.-]+)" x2="([\d.-]+)" y2="([\d.-]+)"/g))
+            { mx=Math.max(mx,+l[1],+l[3]); my=Math.max(my,+l[2],+l[4]); }
+          for (const x of str.matchAll(/<text x="([\d.-]+)" y="([\d.-]+)"/g))
+            { mx=Math.max(mx,+x[1]); my=Math.max(my,+x[2]); }
+          if (mx > vb[0] || my > vb[1])
+            mimo.push('g'+g+'/'+mid+' obsah '+mx.toFixed(0)+'×'+my.toFixed(0)+' > plátno '+vb[0]+'×'+vb[1]);
+        }
+    }
+    ok(mereno >= 20, 'proměřeno '+mereno+' diagramů (pojistka proti běhu naprázdno)');
+    ok(mimo.length === 0, 'žádný diagram nepřesahuje svůj viewBox'
+      + (mimo.length ? ' — '+mimo.length+'×: '+mimo.slice(0,3).join(' · ') : ''));
+  }
+
+  // ── 1f) žebřík jednotek musí ukázat SKUTEČNÉ kroky ──
+  // 4. ročník má km → m ×1000, ale zbytek ×10. Jedno číslo pro všechny stupně
+  // by dítěti tvrdilo, že kilometr je deset metrů.
+  {
+    const w = {}; new Function('window', fs.readFileSync(path.join(ROOT,'projects/rpg-learn-svg.js'),'utf8'))(w);
+    const kroky = (w.RPGDia.zebrik(['km','m','dm','cm','mm'], [1000,10,10,10]).match(/×(\d+) →/g)||[]).join(' ');
+    ok(kroky === '×1000 → ×10 → ×10 → ×10 →', 'žebřík umí různé kroky na každém stupni — naměřeno: '+(kroky||'nic'));
+  }
+
   // ── 2) runtime: každý diagram se VYKRESLÍ ──
   let celkem=0;
   for (const g of [3,4,5]) {
@@ -218,13 +262,35 @@ function nactiVyklad(g) {
       const pret=r.filter(x=>x.preteka);
       ok(pret.length===0, g+'. ročník: nic nepřetéká na 380 px'
         + (pret.length?' — '+pret.map(x=>x.mid).join(', '):''));
-      // CSS proměnná se musí rozvinout na skutečnou barvu; „none"/prázdno = paleta nedojela
+      // CSS proměnná se musí rozvinout na skutečnou barvu; „none"/prázdno = paleta nedojela.
+      // POZOR, tahle kontrola sama o sobě NEDOKAZUJE, že jde o paletu ROČNÍKU:
+      // --blue, --gold, --green i --red jsou ve 3.–5. ročníku shodné (#4ab0e0 atd.),
+      // liší se jen --bg/--panel/--line/--text/--muted. Že se barvy opravdu berou
+      // z ročníku, ověřuje až kontrola „--muted se liší" níž.
       const bezBarvy=r.filter(x=>!/^rgb/.test(x.barva));
       ok(bezBarvy.length===0, g+'. ročník: barvy z palety ročníku se rozvinuly (např. '+(r[0]||{}).barva+')'
         + (bezBarvy.length?' — '+bezBarvy.map(x=>x.mid).join(', '):''));
     }
     ok(errs.length===0, g+'. ročník: žádné JS chyby'+(errs.length?' ['+errs[0]+']':''));
     await ctx.close();
+  }
+
+  // ── 4) barvy se opravdu berou z ROČNÍKU, ne z jednoho sdíleného tématu ──
+  // Naměřeno: --muted je jediná barva diagramů, která se mezi ročníky liší
+  // (les #8aa884 · piráti #889aaa · draci #b08a82). Kdyby někdo v modulu
+  // nahradil proměnné pevnými kódy, tahle kontrola spadne — na rozdíl od té
+  // výše, která by prošla i s natvrdo zapsaným #4ab0e0.
+  {
+    const barvy = {};
+    for (const g of [3,4,5]) {
+      const page = await browser.newPage();
+      await page.route('**/*', rt => rt.request().url().startsWith(base) ? rt.continue() : rt.abort());
+      await page.goto(base+'/projects/rpg-mat-'+g+'.html', {waitUntil:'domcontentloaded'});
+      barvy[g] = await page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue('--muted').trim());
+      await page.close();
+    }
+    const unik = new Set(Object.values(barvy));
+    ok(unik.size === 3, 'každý ročník 1. stupně má vlastní --muted — naměřeno '+JSON.stringify(barvy));
   }
 
   ok(celkem>0, 'celkem zkontrolováno '+celkem+' misí s diagramem (pojistka proti běhu naprázdno)');
