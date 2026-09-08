@@ -328,6 +328,168 @@
       return svg(W, 114, popis || ('Číslo ' + cislo + ' rozdělené na trojice cifer'), telo);
     },
 
+    /* ZLOMEK JAKO ČÁST CELKU — nejdůležitější obrázek celého 1. stupně.
+       Schválně DVĚ podoby vedle sebe: kruh (klasická „pizza") a pás. Dítě, které
+       si zlomek představí jen jako výseč, pak neumí zlomek z čísla; pás vede
+       rovnou na pásový model v misi 4-3. */
+    zlomek(citatel, jmenovatel, popis) {
+      const cx = 66, cy = 74, r = 44;
+      const bod = k => {
+        const a = k / jmenovatel * 2 * Math.PI - Math.PI / 2;
+        return [+(cx + r * Math.cos(a)).toFixed(1), +(cy + r * Math.sin(a)).toFixed(1)];
+      };
+      let telo = '';
+      if (jmenovatel === 1) {
+        // Celý kruh jako JEDNA výseč je degenerovaná dráha — začátek i konec
+        // oblouku leží na témž bodě, takže se nenakreslí vůbec nic. Celek se
+        // proto kreslí jako obyčejný kruh.
+        telo += '<circle cx="' + cx + '" cy="' + cy + '" r="' + r + '" fill="'
+          + (citatel ? 'var(--gold)' : 'none') + '" stroke="var(--blue)" stroke-width="2"/>';
+      } else for (let i = 0; i < jmenovatel; i++) {
+        const p1 = bod(i), p2 = bod(i + 1);
+        const velky = 1 / jmenovatel > 0.5 ? 1 : 0;
+        telo += '<path d="M ' + cx + ',' + cy + ' L ' + p1[0] + ',' + p1[1]
+          + ' A ' + r + ',' + r + ' 0 ' + velky + ' 1 ' + p2[0] + ',' + p2[1] + ' Z"'
+          + ' fill="' + (i < citatel ? 'var(--gold)' : 'none') + '" stroke="var(--blue)" stroke-width="2"/>';
+      }
+      const bx = 140, bw = 150, bh = 44, dilek = bw / jmenovatel;
+      for (let i = 0; i < jmenovatel; i++)
+        telo += '<rect x="' + (bx + i * dilek) + '" y="52" width="' + dilek + '" height="' + bh + '"'
+          + ' fill="' + (i < citatel ? 'var(--gold)' : 'none') + '" stroke="var(--blue)" stroke-width="2"/>';
+      const W = bx + bw + 12;
+      telo += t(W / 2, 20, citatel + ' / ' + jmenovatel, 22, 'gold', 'middle')
+        + t(W / 2, 38, 'beru ' + citatel + ' ze ' + jmenovatel + ' stejných dílů', 12, 'text', 'middle')
+        + t(66, 136, 'jmenovatel = na kolik', 11, 'muted', 'middle')
+        + t(bx + bw / 2, 136, 'čitatel = kolik beru', 11, 'muted', 'middle');
+      return svg(W, 146, popis || ('Kruh a pás rozdělené na ' + jmenovatel + ' dílů, ' + citatel + ' z nich vybarvené'), telo);
+    },
+
+    /* Sčítání zlomků se stejným jmenovatelem. Díly mají STEJNOU ŠÍŘKU a jen se
+       jinak obarví — přesně proto se jmenovatel nesčítá, velikost dílu se nemění. */
+    zlomkyScitani(a1, b1, jmenovatel, popis) {
+      const bx = 14, bw = 252, bh = 40, dilek = bw / jmenovatel;
+      let telo = '';
+      for (let i = 0; i < jmenovatel; i++) {
+        const barva = i < a1 ? 'var(--gold)' : (i < a1 + b1 ? 'var(--green)' : 'none');
+        telo += '<rect x="' + +(bx + i * dilek).toFixed(1) + '" y="40" width="' + +dilek.toFixed(1)
+          + '" height="' + bh + '" fill="' + barva + '" stroke="var(--blue)" stroke-width="2"/>';
+      }
+      const W = bx * 2 + bw;
+      telo += t(W / 2, 24, a1 + '/' + jmenovatel + ' + ' + b1 + '/' + jmenovatel + ' = ' + (a1 + b1) + '/' + jmenovatel, 17, 'text', 'middle')
+        + t(bx + a1 * dilek / 2, 100, a1 + '/' + jmenovatel, 13, 'gold', 'middle')
+        + t(bx + (a1 + b1 / 2) * dilek, 100, b1 + '/' + jmenovatel, 13, 'green', 'middle')
+        + t(W / 2, 120, 'díly mají stejnou šířku — jmenovatel se proto nesčítá', 11, 'muted', 'middle');
+      return svg(W, 130, popis || ('Pás na ' + jmenovatel + ' dílů, ' + a1 + ' a ' + b1 + ' dílů vybarvené dvěma barvami'), telo);
+    },
+
+    /* Pásový model: celek rozdělený jmenovatelem, vybraná část zvýrazněná.
+       Pod každým dílem stojí, kolik na něj vyšlo — tím se „zlomek z čísla" stane
+       dělením a násobením, ne kouzlem. */
+    pasovyModel(celek, citatel, jmenovatel, jednotka, popis) {
+      const bx = 20, bw = 240, bh = 44, dilek = bw / jmenovatel;
+      const naDil = celek / jmenovatel, cast = naDil * citatel;
+      let telo = '';
+      for (let i = 0; i < jmenovatel; i++) {
+        const x = +(bx + i * dilek).toFixed(1);
+        telo += '<rect x="' + x + '" y="44" width="' + +dilek.toFixed(1) + '" height="' + bh + '"'
+          + ' fill="' + (i < citatel ? 'var(--gold)' : 'none') + '" stroke="var(--blue)" stroke-width="2"/>'
+          + t(x + dilek / 2, 72, naDil, 14, i < citatel ? 'bg' : 'text', 'middle');
+      }
+      const W = bx * 2 + bw;
+      telo += t(W / 2, 24, 'celek ' + celek + (jednotka ? ' ' + jednotka : '') + ' · beru ' + citatel + '/' + jmenovatel, 14, 'text', 'middle')
+        + t(W / 2, 110, celek + ' : ' + jmenovatel + ' = ' + naDil + ',  ' + naDil + ' × ' + citatel + ' = ' + cast, 14, 'green', 'middle');
+      return svg(W, 122, popis || ('Pás celku ' + celek + ' rozdělený na ' + jmenovatel + ' dílů, ' + citatel + ' vybarvené'), telo);
+    },
+
+    /* Porovnání desetinných čísel doplněním na stejný počet míst. Sloupce jsou
+       zarovnané podle ČÁRKY, protože právě to je ta dovednost; první sloupec,
+       kde se čísla liší, je červený. */
+    desetinnePorovnani(a1, b1, popis) {
+      const rozlozit = c => { const d = String(c).split(','); return [d[0], (d[1] || '')]; };
+      const A = rozlozit(a1), B = rozlozit(b1);
+      const mist = Math.max(A[1].length, B[1].length);
+      const dopl = x => [x[0], x[1].padEnd(mist, '0')];
+      const A2 = dopl(A), B2 = dopl(B);
+      let lisi = -1;
+      if (A2[0] !== B2[0]) lisi = -1; else
+        for (let i = 0; i < mist; i++) if (A2[1][i] !== B2[1][i]) { lisi = i; break; }
+      const x0 = 74, c = 32;
+      const zahlavi = ['celé'].concat(mist > 0 ? ['desetiny'] : []).concat(mist > 1 ? ['setiny'] : []);
+      let telo = t(x0 - 12, 30, '', 12, 'text', 'end');
+      zahlavi.forEach((h, i) => { telo += t(x0 + i * c + c / 2, 26, h, 10, 'muted', 'middle'); });
+      [[A2, 52, a1], [B2, 88, b1]].forEach(([X, y, puvod]) => {
+        telo += t(x0 - 14, y + 6, puvod, 15, 'gold', 'end');
+        const cifry = [X[0]].concat(X[1].split(''));
+        cifry.forEach((d, i) => {
+          const cerveny = (i - 1) === lisi;
+          telo += ramec(x0 + i * c, y - 14, c, 30, cerveny ? 'red' : 'muted', cerveny ? 2 : 1)
+            + t(x0 + i * c + c / 2, y + 7, d, 17, cerveny ? 'red' : 'text', 'middle');
+        });
+      });
+      const W = x0 + (mist + 1) * c + 14;
+      const vetsi = Number(String(a1).replace(',', '.')) > Number(String(b1).replace(',', '.')) ? a1 : b1;
+      telo += t(W / 2, 124, 'doplním na stejný počet míst · větší je ' + vetsi, 12, 'green', 'middle');
+      return svg(W, 134, popis || ('Porovnání čísel ' + a1 + ' a ' + b1 + ' po řádech'), telo);
+    },
+
+    /* Posun desetinné čárky. Výsledek se počítá POSUNEM ČÁRKY V ŘETĚZCI, ne
+       násobením: 2.3 * 100 dá v JS 229.99999999999997 a dítě by v učebním
+       textu vidělo artefakt plovoucí čárky. Zároveň je to věrnější tomu, co
+       se učí — čárka se posune, nenásobí se.
+       Umí oba směry, protože mise 5-3 učí „2,3 × 100" i „560 : 100". */
+    posunCarky(cislo, nasobitel, smer, popis) {
+      const doprava = (smer || '×') === '×';
+      const mist = String(nasobitel).length - 1;      // 10 → 1, 100 → 2, 1000 → 3
+      const txt = String(cislo).replace(/\s/g, '');
+      let cela = txt.split(',')[0], des = txt.split(',')[1] || '';
+      if (doprava) {
+        const brat = Math.min(mist, des.length);
+        cela += des.slice(0, brat) + '0'.repeat(mist - brat);
+        des = des.slice(brat);
+      } else {
+        if (cela.length <= mist) cela = '0'.repeat(mist - cela.length + 1) + cela;
+        des = cela.slice(cela.length - mist) + des;
+        cela = cela.slice(0, cela.length - mist);
+      }
+      des = des.replace(/0+$/, '');                    // 5,60 → 5,6
+      cela = cela.replace(/^0+(?=\d)/, '');            // 0230 → 230
+      const vysl = des ? cela + ',' + des : cela;
+      const W = 280;
+      const telo = t(W / 2, 26, String(cislo), 24, 'gold', 'middle')
+        + t(W / 2, 48, (doprava ? '× ' : ': ') + nasobitel, 14, 'text', 'middle')
+        + '<path d="M ' + (W / 2 - 40) + ',56 Q ' + (W / 2) + ',34 ' + (W / 2 + 40) + ',56" fill="none"'
+        + ' stroke="var(--green)" stroke-width="2" stroke-dasharray="4 3"/>'
+        + t(W / 2, 86, vysl, 24, 'green', 'middle')
+        + t(W / 2, 110, 'čárka o ' + mist + (mist === 1 ? ' místo ' : ' místa ')
+            + (doprava ? 'doprava' : 'doleva'), 12, 'green', 'middle');
+      return svg(W, 120, popis || ('Číslo ' + cislo + ' ' + (doprava ? 'krát ' : 'děleno ')
+        + nasobitel + ' je ' + vysl), telo);
+    },
+
+    /* Aritmetický průměr jako VYROVNÁNÍ sloupců. Přerušovaná čára je průměr;
+       je vidět, že leží mezi nejmenším a největším — což je přesně ta kontrola,
+       kterou text mise 6-3 doporučuje. */
+    prumer(hodnoty, popis) {
+      const n = hodnoty.length, max = Math.max.apply(null, hodnoty);
+      const soucet = hodnoty.reduce((a, b) => a + b, 0), pr = soucet / n;
+      const bx = 30, bw = 44, mez = 16, dno = 110, vyskaMax = 72;
+      const vyska = v => Math.round(v / max * vyskaMax);
+      let telo = '';
+      hodnoty.forEach((v, i) => {
+        const x = bx + i * (bw + mez), h = vyska(v);
+        telo += '<rect x="' + x + '" y="' + (dno - h) + '" width="' + bw + '" height="' + h + '"'
+          + ' fill="var(--blue)" stroke="var(--blue)" stroke-width="2"/>'
+          + t(x + bw / 2, dno - h - 6, v, 13, 'text', 'middle')
+          + t(x + bw / 2, dno + 16, i + 1 + '.', 11, 'muted', 'middle');
+      });
+      const W = bx + n * (bw + mez) - mez + 30;
+      const yPr = dno - vyska(pr);
+      telo += line(12, yPr, W - 12, yPr, 'red', 2, '5 4')
+        + t(W - 10, yPr - 5, 'průměr ' + String(pr).replace('.', ','), 12, 'red', 'end')
+        + t(W / 2, dno + 36, soucet + ' : ' + n + ' = ' + String(pr).replace('.', ','), 14, 'green', 'middle');
+      return svg(W, dno + 46, popis || ('Sloupce hodnot ' + hodnoty.join(', ') + ' s čarou průměru'), telo);
+    },
+
     /* České mince a bankovky. Hodnoty jsou parametr, ale výchozí je skutečná
        česká řada — autenticita před obecností (viz CLAUDE.md). */
     penize(mince, bankovky, popisek, popis) {

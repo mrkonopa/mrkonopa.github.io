@@ -41,7 +41,7 @@ window.RPG_LEARN_3 = {
         'Porovnáváme od nejvyššího řádu. Nejdřív stovky — kdo má víc stovek, má větší číslo. Jsou-li stovky stejné, porovnáme desítky a pak jednotky.',
         DIA.osaPorovnani(345, 412)
       ] },
-      { title: 'Když se první číslice shodují', body: 'Nejčastější chyba je porovnat čísla podle toho, které „vypadá delší". Řiď se řády zleva: 6 789 a 6 798 mají stejné tisíce i stovky, takže rozhodnou až desítky — 8 je méně než 9. Šipka u znaku vždycky ukazuje na menší číslo: 6 789 < 6 798.' }
+      { title: 'Když se první číslice shodují', body: 'Nejčastější chyba je porovnat čísla podle toho, které „vypadá delší". Řiď se řády zleva: 6 789 a 6 798 mají stejné tisíce i stovky, takže rozhodnou až desítky — 8 je méně než 9. Šipka u znaku vždycky ukazuje na menší číslo: 6 789 &lt; 6 798.' }
     ],
     formulas: ['345 < 412 (3 stovky < 4 stovky)', '560 > 540 (desítky: 6 > 4)'],
     examples: [
@@ -206,7 +206,7 @@ window.RPG_LEARN_3 = {
         'Ne vždy dělení vyjde přesně. Zbytek je to, co zbyde. Platí: dělenec = dělitel × podíl + zbytek. Zbytek je vždy menší než dělitel!',
         DIA.skupiny(13, 4, 'Třináct kuliček rozdělených do tří skupin po čtyřech, jedna zbývá')
       ] },
-      { title: 'Zbytek musí být menší než dělitel', body: 'Kdyby byl zbytek stejný nebo větší než dělitel, znamenalo by to, že se do něj dělitel vejde ještě jednou. U 29 : 6 nemůže vyjít „3 zbytek 11" — jedenáct šestek by pobralo ještě jednu. Správně je 4 (zbytek 5), protože 5 < 6.' }
+      { title: 'Zbytek musí být menší než dělitel', body: 'Kdyby byl zbytek stejný nebo větší než dělitel, znamenalo by to, že se do něj dělitel vejde ještě jednou. U 29 : 6 nemůže vyjít „3 zbytek 11" — jedenáct šestek by pobralo ještě jednu. Správně je 4 (zbytek 5), protože 5 &lt; 6.' }
     ],
     formulas: ['a = b × q + zbytek  (zbytek < b)', '23 : 4 = 5 zbytek 3  (4×5=20, 23−20=3)'],
     examples: [
