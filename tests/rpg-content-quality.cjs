@@ -46,6 +46,30 @@ const ok = (n, c, d = '') => { if (c) { console.log('  ✅ ' + n); pass++; } els
 
 /* ── pravidla ─────────────────────────────────────────────────────── */
 
+/* „Obdélník" nesmí vyjít jako ČTVEREC. Nahlásil to Vojtův syn a měřením se
+   potvrdilo: 751 nálezů z 883 200 vygenerovaných úloh (2,7 % zadání, která
+   obdélník zmiňují), v šesti ročnících ze sedmi — jen 3. ročník byl čistý,
+   protože jako jediný používal helper obd() se zabudovanou pojistkou.
+   Příčinou bylo losování obou stran z překrývajících se rozsahů, případně
+   `b=ri(3,a)` s horní mezí `a` samotným.
+   VÝJIMKA: úlohy o shodnosti („Obdélník a×b a obdélník b×a — jsou shodné?")
+   rovnost stran připouštějí, tam je smyslem porovnání. */
+const CTVEREC_VYJIMKA = /shodn|jsou stejné|zvláštní případ|čtverec je/i;
+const CTVEREC_VZORY = [
+  /obdéln\w*[^.!?]{0,60}?(\d+(?:,\d+)?)\s*(?:cm|dm|mm|m|km)?\s*[×x]\s*(\d+(?:,\d+)?)/i,
+  /obdéln\w*[^.!?]{0,60}?stran(?:ami|y|ách)\s*(\d+(?:,\d+)?)\s*(?:cm|dm|mm|m|km)?\s*a\s*(\d+(?:,\d+)?)/i,
+];
+function obdelnikJeCtverec(text) {
+  const t = String(text);
+  if (!/obdéln/i.test(t) || CTVEREC_VYJIMKA.test(t)) return null;
+  for (const v of CTVEREC_VZORY) {
+    const m = t.match(v);
+    if (m && m[1] === m[2]) return `strany ${m[1]} = ${m[2]}`;
+  }
+  return null;
+}
+
+
 // zlomek musí být v základním tvaru; VÝJIMKA: úlohy, které krácení/rozšiřování
 // samy zadávají (tam je nezkrácený zlomek smyslem úlohy)
 const KRATI = /krať|krácen|krátit|základní(m)? tvar|rozšiř|rozšíře|doplň(te)? čitatele|stejnou hodnotu/i;
@@ -174,7 +198,7 @@ function loadGrade(g) {
 
 /* ── běh ──────────────────────────────────────────────────────────── */
 console.log('\n── Audit kvality zadání (3.–9. ročník) ──\n');
-const found = { objekt: [], frac: [], decl: [], hintEmpty: [], hintDup: [], nan: [], typo: [], float: [], dotText: [], dotHint: [], periodic: [], hintMath: [], geoInv: [], geoNezn: [], geoFwd: [], pct: [] };
+const found = { objekt: [], frac: [], decl: [], hintEmpty: [], hintDup: [], nan: [], typo: [], float: [], dotText: [], dotHint: [], periodic: [], hintMath: [], geoInv: [], geoNezn: [], geoFwd: [], pct: [], ctverec: [] };
 let hintDop = 0;   // kolik nápověd se podařilo dopočítat (pojistka proti planému běhu)
 let geoDop = 0;    // kolik inverzních geometrických úloh se dopočítalo
 let geoFwdDop = 0, geoFwdNezn = 0;   // dopředná geometrie: dopočítané / neznámý tvar
@@ -493,6 +517,8 @@ for (const g of GRADES) {
         if (/\[object /.test(text)) push('objekt', where, text.slice(0, 60));
         badDeclension(text).forEach(d => push('decl', where, d + '  «' + text.slice(0, 60) + '»'));
         typography(text).forEach(x => push('typo', where, x + '  «' + text.slice(0, 60) + '»'));
+        { const c = obdelnikJeCtverec(text);
+          if (c) push('ctverec', where, c + '  «' + text.replace(/\n/g,' ').slice(0, 60) + '»'); }
         if (hints.length && hints.some(h => !String(h || '').trim())) push('hintEmpty', where, text.slice(0, 60));
         if (hints.length >= 2 && String(hints[0]).trim() === String(hints[1]).trim()) push('hintDup', where, text.slice(0, 60));
       }
@@ -523,6 +549,7 @@ report('hintMath', 'poslední nápověda se dopočítá na uvedenou odpověď');
 report('geoInv', 'inverzní geometrie: rozměr se dopočítá ze zadané veličiny');
 report('geoFwd', 'dopředná geometrie: veličina se dopočítá ze zadaných rozměrů');
 report('pct', 'procenta, převody jednotek a průměr se dopočítají');
+report('ctverec', 'žádný „obdélník" nemá obě strany stejné');
 report('geoNezn', 'inverzní geometrie: každý tvar zadání je rozpoznaný');
 /* Kanárek na TICHÝ pokles pokrytí. Pravidlo pozná jen zadání, která
    projdou filtrem (obsahují slovo Obvod/Obsah/Objem/Povrch a ptají se

@@ -58,7 +58,7 @@ function gen_1_2(){
   const tasks=[];
   const a=ri(4,15),b=ri(2,a-1);
   tasks.push({text:`Obdélník má strany ${a} cm a ${b} cm. Jaký je jeho obvod?`,ans:2*(a+b),hints:['Obvod = 2·(a+b).',`2·(${a}+${b}) = ${2*(a+b)} cm`],skill:'geo'});
-  const c=ri(3,14),d=ri(3,12);
+  const c=ri(3,14);let d=ri(3,12);if(d===c)d=d<12?d+1:d-1; /* strany různé — jinak z „obdélníku" vyjde čtverec */ 
   tasks.push({text:`Obdélník má strany ${c} cm a ${d} cm. Jaký je jeho obsah?`,ans:c*d,hints:['S = a·b.',`${c}·${d} = ${c*d} cm²`],skill:'geo'});
   const e=ri(3,15);
   tasks.push({text:`Čtverec má stranu ${e} cm. Jaký je jeho obvod?`,ans:4*e,hints:['Obvod čtverce = 4·a.',`4·${e} = ${4*e} cm`],skill:'geo'});
@@ -68,11 +68,11 @@ function gen_1_2(){
   tasks.push({text:`Obdélník má obvod ${2*(g+h)} cm a jednu stranu ${g} cm. Jak dlouhá je druhá strana?`,ans:h,hints:['Obvod/2 − známá strana.',`${(g+h)}−${g} = ${h} cm`],skill:'geo'});
   const i=ri(3,12),sq=i*i;
   tasks.push({text:`Čtverec má obsah ${sq} cm². Jak dlouhá je jeho strana?`,ans:i,hints:['a = √S.',`√${sq} = ${i} cm`],skill:'geo'});
-  { const a=ri(4,12),b=ri(3,10); tasks.push({text:`Obdélník ${a} × ${b} cm. Kolik cm² je jeho obsah?`,ans:a*b,hints:['S = a·b.',`${a}·${b} = ${a*b} cm²`],skill:'geo'}); }
+  { const a=ri(4,12);let b=ri(3,10);if(b===a)b=b<10?b+1:b-1; /* strany různé — jinak z „obdélníku" vyjde čtverec */  tasks.push({text:`Obdélník ${a} × ${b} cm. Kolik cm² je jeho obsah?`,ans:a*b,hints:['S = a·b.',`${a}·${b} = ${a*b} cm²`],skill:'geo'}); }
   { const a=ri(4,12); tasks.push({text:`Čtverec se stranou ${a} cm. Jaký je jeho obvod?`,ans:4*a,hints:['o = 4·a.',`4·${a} = ${4*a} cm`],skill:'geo'}); }
   { const a=ri(6,14),o=4*a; tasks.push({text:`Čtverec má obvod ${o} cm. Jak dlouhá je strana?`,ans:a,hints:['a = o/4.',`${o}/4 = ${a} cm`],skill:'geo'}); }
-  { const a=ri(3,10),b=ri(2,8); tasks.push({text:`Kolik dlaždic 1 × 1 cm pokryje podlahu ${a} × ${b} cm?`,ans:a*b,hints:['Počet dlaždic = obsah podlahy.',`${a}·${b} = ${a*b}`],skill:'geo'}); }
-  { const a=ri(4,12),b=ri(3,9); tasks.push({text:`Solární panel rakety má tvar obdélníku ${a} × ${b} dm. Jaký je jeho obsah? (dm²)`,ans:a*b,hints:['S = a·b.',`${a}·${b} = ${a*b} dm²`],skill:'geo'}); }
+  { const a=ri(3,10);let b=ri(2,8);if(b===a)b=b<8?b+1:b-1; /* strany různé — jinak z „obdélníku" vyjde čtverec */  tasks.push({text:`Kolik dlaždic 1 × 1 cm pokryje podlahu ${a} × ${b} cm?`,ans:a*b,hints:['Počet dlaždic = obsah podlahy.',`${a}·${b} = ${a*b}`],skill:'geo'}); }
+  { const a=ri(4,12);let b=ri(3,9);if(b===a)b=b<9?b+1:b-1; /* strany různé — jinak z „obdélníku" vyjde čtverec */  tasks.push({text:`Solární panel rakety má tvar obdélníku ${a} × ${b} dm. Jaký je jeho obsah? (dm²)`,ans:a*b,hints:['S = a·b.',`${a}·${b} = ${a*b} dm²`],skill:'geo'}); }
   { const a=ri(3,10); tasks.push({text:`Okno vesmírného modulu je čtverec se stranou ${a} dm. Jaký je jeho obvod? (dm)`,ans:4*a,hints:['o = 4·a.',`4·${a} = ${4*a} dm`],skill:'geo'}); }
   return tasks;
 }
@@ -551,8 +551,8 @@ function gen_7_3(){
     ()=>{const e=ri(2,9);return{text:`Krychle má hranu ${e} cm. Jaký je její objem?`,ans:e*e*e,h1:'Objem krychle V = a³.',h2:`${e}³ = ${e*e*e} cm³`};},
     ()=>{const a=ri(10,90);const ok=a%3===0;return{text:`Je číslo ${a} dělitelné třemi?`,ans:ok?'ANO':'NE',h1:'Sečti číslice a ověř dělitelnost tří.',h2:ok?'ANO':'NE'};},
     ()=>{const a=ri(11,49)/10,f=ri(2,6);return{text:`Vynásob ${cz(a)} × ${f} = ?`,ans:r1(a*f),h1:'Násob jako celá čísla a doplň desetinnou čárku.',h2:`= ${r1(a*f)}`};},
-    ()=>{const zaklad=ri(4,12),vyska=ri(2,8);const S=zaklad*vyska/2;return{text:`Trojúhelník má základnu ${zaklad} cm a výšku ${vyska} cm. Jaký je obsah?`,ans:r1(S),h1:'S = (základna · výška) : 2.',h2:`= ${r1(S)} cm²`};},
-    ()=>{const a=ri(3,10),b=ri(3,10);return{text:`Obdélník ${a} × ${b} cm — jaký má obvod?`,ans:2*(a+b),h1:'Obvod obdélníku O = 2 · (a + b).',h2:`= ${2*(a+b)} cm`};},
+    ()=>{const zaklad=ri(4,12);let vyska=ri(2,8);if(vyska===zaklad)vyska=vyska<8?vyska+1:vyska-1; /* strany různé — jinak z „obdélníku" vyjde čtverec */ const S=zaklad*vyska/2;return{text:`Trojúhelník má základnu ${zaklad} cm a výšku ${vyska} cm. Jaký je obsah?`,ans:r1(S),h1:'S = (základna · výška) : 2.',h2:`= ${r1(S)} cm²`};},
+    ()=>{const a=ri(3,10);let b=ri(3,10);if(b===a)b=b<10?b+1:b-1; /* strany různé — jinak z „obdélníku" vyjde čtverec */ return{text:`Obdélník ${a} × ${b} cm — jaký má obvod?`,ans:2*(a+b),h1:'Obvod obdélníku O = 2 · (a + b).',h2:`= ${2*(a+b)} cm`};},
     ()=>{const d=[2,3,4,5][ri(0,3)],n=d*ri(3,8);return{text:`Kolik je 1/${d} z čísla ${n}?`,ans:n/d,h1:`Vyděl číslo jmenovatelem: ${n} : ${d}.`,h2:`= ${n/d}`};},
   ];
   const tasks=[];

@@ -313,8 +313,8 @@ window.RPG_TASK_EXTRA_9 = {
   (()=>{const onmap=ri(2,8),mer=2000;return{text:`Mapa 1 : ${mer}. Na mapě ${onmap} cm.\nKolik m ve skutečnosti?`,ans:String(onmap*mer/100),hints:[`${onmap} × ${mer} cm → m.`],skill:'geo'};})(),
   (()=>{const a=ri(5,20),k=ri(2,4);return{text:`Podobné tvary, k = ${k}.\nObvod originálu ${a} cm → obvod obrazu? (cm)`,ans:String(a*k),hints:[`Obvod × k.`],skill:'geo'};})(),
   (()=>{const onmap=ri(3,9),mer=[200,500,1000][ri(0,2)];return{text:`Mapa 1 : ${mer}. Na mapě ${onmap} cm.\nSkutečná vzdálenost? (m)`,ans:String(onmap*mer/100),hints:[`${onmap} × ${mer} : 100.`],skill:'geo'};})(),
-  (()=>{const orig=ri(4,12),k=ri(2,4);return{text:`Originál ${orig} cm, obraz ${orig*k} cm.\nJe to zvětšení k = ${k}?\nANO / NE`,ans:'ANO',hints:[`${orig*k} : ${orig} = ${k}.`],skill:'geo'};})(),
-  (()=>{const k=ri(2,3),a=ri(3,10),b=ri(3,10);return{text:`Obdélník ${a} × ${b} cm zvětšen k = ${k}.\nObsah obrazu? (cm²)`,ans:String(a*k*b*k),hints:[`(${a*k}) × (${b*k}).`],skill:'geo'};})(),
+  (()=>{const orig=ri(4,12);let k=ri(2,4);if(k===orig)k=k<4?k+1:k-1; /* strany různé — jinak z „obdélníku" vyjde čtverec */ return{text:`Originál ${orig} cm, obraz ${orig*k} cm.\nJe to zvětšení k = ${k}?\nANO / NE`,ans:'ANO',hints:[`${orig*k} : ${orig} = ${k}.`],skill:'geo'};})(),
+  (()=>{const k=ri(2,3);let a=ri(3,10);if(a===k)a=a<10?a+1:a-1; /* strany různé — jinak z „obdélníku" vyjde čtverec */ let b=ri(3,10);if(b===a)b=b<10?b+1:b-1; /* strany různé — jinak z „obdélníku" vyjde čtverec */ return{text:`Obdélník ${a} × ${b} cm zvětšen k = ${k}.\nObsah obrazu? (cm²)`,ans:String(a*k*b*k),hints:[`(${a*k}) × (${b*k}).`],skill:'geo'};})(),
   (()=>{const a=ri(3,9),k=ri(2,4);return{text:`Schéma čipu zvětšíš v poměru k = ${k}. Vodič dlouhý ${a} mm bude na zvětšenině jak dlouhý? (mm)`,ans:String(a*k),hints:[`${a} × ${k}.`,`Výsledek: ${a*k}`],skill:'geo'};})()
  ],
  '7-2': () => [
