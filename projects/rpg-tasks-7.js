@@ -80,7 +80,7 @@ function gen_1_3(){
   const a=ri(4,15), b=ri(2,a-1);
   tasks.push({text:`Obdélník má strany ${a} cm a ${b} cm. Jaký je jeho obvod?`,ans:2*(a+b),hints:['Obvod = 2·(a + b).',`2·(${a}+${b}) = ${2*(a+b)} cm`],skill:'geo'});
   // obsah obdélníku
-  const c=ri(3,14), d=ri(3,12);
+  const c=ri(3,14);let d=ri(3,12);if(d===c)d=d<12?d+1:d-1; /* strany musi byt ruzne, jinak z obdelniku vyjde ctverec */ 
   tasks.push({text:`Obdélník má strany ${c} cm a ${d} cm. Jaký je jeho obsah?`,ans:c*d,hints:['S = a · b',`S = ${c}·${d} = ${c*d} cm²`],skill:'geo'});
   // obvod čtverce
   const e=ri(3,12);
@@ -99,7 +99,7 @@ function gen_1_3(){
   { const a=ri(4,12),h=ri(3,10); tasks.push({text:`Pravoúhlý trojúhelník s odvěsnami ${a} a ${h} cm. Obsah?`,ans:r1(a*h/2),hints:['S = (a·v)/2.',`= ${r1(a*h/2)} cm²`],skill:'geo'}); }
   { const a=ri(5,12),b=ri(4,11),c=ri(3,a+b-1); tasks.push({text:`Trojúhelník ${a}, ${b}, ${c} cm. Obvod?`,ans:a+b+c,hints:['Součet všech tří stran.',`= ${a+b+c} cm`],skill:'geo'}); }
   // thematické
-  { const a=ri(4,12),b=ri(3,a); tasks.push({text:`Obětní oltář má obdélníkovou desku ${a} m × ${b} m. Kolik metrů zdobené šňůry potřebuješ na její obvod?`,ans:2*(a+b),hints:['o = 2·(a + b).',`2·(${a}+${b}) = ${2*(a+b)} m`],skill:'geo'}); }
+  { const a=ri(4,12),b=ri(3,a-1); /* horni mez a-1, ne a: jinak z obdelniku vyjde ctverec */ tasks.push({text:`Obětní oltář má obdélníkovou desku ${a} m × ${b} m. Kolik metrů zdobené šňůry potřebuješ na její obvod?`,ans:2*(a+b),hints:['o = 2·(a + b).',`2·(${a}+${b}) = ${2*(a+b)} m`],skill:'geo'}); }
   { const a=ri(3,10); tasks.push({text:`Podlaha svatyně je čtverec o straně ${a} m. Kolik ${skl(a*a,'dlaždice','dlaždice','dlaždic')} o rozměru 1 m² ji pokryje?`,ans:a*a,hints:['S = a² a jedna dlaždice = 1 m².',`${a}² = ${a*a} dlaždic`],skill:'geo'}); }
   // SVG slovní úlohy s diagramem
   { const a=ri(4,12),v=ri(3,9); tasks.push({svg:svgParallelogram(a,v),text:`Pozemek tvaru rovnoběžníku má stranu ${a} m a výšku ${v} m.\nJaký je jeho obsah? (m²)`,ans:a*v,hints:['S = a · v (strana × výška).',`${a} · ${v} = ${a*v} m²`],skill:'geo'}); }

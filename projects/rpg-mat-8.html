@@ -492,6 +492,49 @@ html[data-theme="violet"]{--gold:#b06cff;--panel:#100a20;--panel2:#18103a;--blue
  .mc-btn{font-size:16px;padding:16px 8px}
  .attr-nm{min-width:140px;font-size:11px}
 }
+/* ── TABLET NA ŠÍŘKU: aréna VEDLE úlohy, ne nad ní ──
+   Naměřeno na iPadu 10,2" na šířku: aréna zabírá 286 px a zadání začíná až
+   na 553 px, takže tlačítko DÁLE leží pod okrajem. Se zapnutou klávesnicí
+   (viditelných ~420 px) je pod okrajem i samotné ZADÁNÍ o 132 px — dítě
+   odpoví a pak musí scrollovat, aby se dostalo dál.
+   Obsah je přitom svisle namačkaný v 680px sloupci, zatímco po stranách
+   zbývá 340 až 600 px nevyužité šířky.
+   Ve dvou sloupcích se výška počítá jako MAXIMUM, ne součet.
+   `display:contents` znamená, že na výšku a na mobilu se nezmění vůbec nic —
+   obaly tam pro rozvržení neexistují. */
+.bt-cols,.bt-col-arena,.bt-col-task{display:contents}
+/* Práh 860 px je NAMĚŘENÝ: jednosloupcová bojovka potřebuje 796 až 872 px,
+   takže i iPad na šířku (768 px) na ni nestačí — přesně ten případ, kdy se
+   muselo scrollovat pro DÁLE. min-width 700 hlídá, že je vedle sebe kam dát —
+   při 740 px zbývá na úlohu 443 px, což na vstup i tlačítka stačí. */
+@media(orientation:landscape) and (max-height:860px) and (min-width:700px){
+ /* Obrazovka se ukotví PŘÍMO na okno (position:fixed;inset:0), ne přes
+    100dvh — to totiž měří od začátku prvku, a ten začínal na y=29, takže
+    obal končil 23 px pod okrajem a přišpendlené tlačítko s ním.
+    Tímhle žádné dopočítávání odsazení není potřeba.
+    min-height:0 je nutné dvakrát: bez něj se flex ani grid nesmrští pod
+    velikost obsahu a rolování ve sloupci by se nikdy nezapnulo. */
+ #s-battle.screen{position:fixed;inset:0;overflow:hidden;display:flex;justify-content:center;padding:10px 12px}
+ #s-battle .wrap{max-width:1180px;height:100%;display:flex;flex-direction:column;min-height:0}
+ #s-battle .bt-cols{flex:1;min-height:0}
+ #s-battle .bt-col-task{min-height:0;align-self:stretch}
+ /* align-items:start jen pro arénu. Kdyby ho měl i sloupec úlohy, dostane
+    výšku obsahu a řádek mřížky PŘERŮSTE — přišpendlené tlačítko pak končí
+    až 38 px pod okrajem. Sloupec úlohy se proto roztahuje a roluje uvnitř. */
+ /* grid-template-rows:minmax(0,1fr) je nutné: `min-height:0` na kontejneru
+    NESTAČÍ, protože se implicitní řádek sizuje podle obsahu a sloupec úlohy
+    ho přeroste (naměřeno 415 px v řádku vysokém 267). */
+ #s-battle .bt-cols{display:grid;grid-template-columns:minmax(240px,38%) 1fr;grid-template-rows:minmax(0,1fr);column-gap:16px}
+ #s-battle .bt-col-arena{align-self:start}
+ #s-battle .bt-col-arena,#s-battle .bt-col-task{display:block;min-width:0}
+ /* Minihry (ŘAZENÍ, SPOJOVAČKA) mají 316 až 383 px vysoký seznam, který
+    stlačit nejde. Sloupec úlohy proto roluje SÁM a řádek s tlačítky zůstává
+    přišpendlený dole — DÁLE je tak na dosah, ať je zadání jakkoli dlouhé,
+    a aréna vedle se přitom nehýbe. */
+ #s-battle .bt-col-task{overflow-y:auto;overscroll-behavior:contain}
+ #s-battle .bt-akce{position:sticky;bottom:0;z-index:4;background:var(--bg);padding:6px 0 2px}
+ #s-battle .bt-top{margin-bottom:6px}
+}
 @media(max-height:750px){
  .bt-top{min-height:140px;padding:8px 18px 30px}
  .bt-monster{font-size:70px}
@@ -750,7 +793,9 @@ html[data-theme="violet"]{--gold:#b06cff;--panel:#100a20;--panel2:#18103a;--blue
  <div class="task-ctr">ÚKOL <span id="bt-num">1</span> / <span id="bt-tot">3</span></div>
  <span style="min-width:60px"></span>
  </div>
- <div class="bt-top" id="bt-top">
+ <div class="bt-cols">
+ <div class="bt-col-arena">
+<div class="bt-top" id="bt-top">
  <div class="hit-flash" id="hit-flash"></div>
  <div class="combo" id="combo"><span class="x">×</span><span id="combo-n">2</span> COMBO!</div>
  <span class="bt-monster" id="bt-mon">👾</span>
@@ -765,7 +810,9 @@ html[data-theme="violet"]{--gold:#b06cff;--panel:#100a20;--panel2:#18103a;--blue
  <div class="bt-powerups" id="bt-powerups"></div>
  <div class="item-pickup" id="item-pickup"></div>
  <div class="items-bar" id="items-bar"><div class="empty">— žádné předměty —</div></div>
- <div class="timer-wrap" id="timer-wrap" style="display:none">
+  </div>
+ <div class="bt-col-task">
+<div class="timer-wrap" id="timer-wrap" style="display:none">
  <div class="timer-lbl"><span class="l">⏱ ČAS</span><span class="v"><span id="timer-v">30</span> s</span></div>
  <div class="bar-timer"><div class="bar-timer-in" id="timer-bar" style="width:100%"></div></div>
  </div>
@@ -785,12 +832,14 @@ html[data-theme="violet"]{--gold:#b06cff;--panel:#100a20;--panel2:#18103a;--blue
   <label style="font-size:13px;color:var(--green);opacity:.85;display:block;margin-bottom:4px">✍ Jak jsi na to přišel? <span style="opacity:.6">(volitelně, 1–2 věty)</span></label>
   <textarea id="bt-explain-txt" rows="2" aria-label="Jak jsi na to přišel?" style="width:100%;box-sizing:border-box;background:#0a0a0f;color:#d0d0e0;border:1px solid var(--green);border-radius:4px;padding:6px;font-family:var(--read);font-size:15px;resize:vertical" placeholder="Napsal jsem…"></textarea>
  </div>
- <div style="display:flex;gap:8px;flex-wrap:wrap">
+ <div class="bt-akce" style="display:flex;gap:8px;flex-wrap:wrap">
  <button class="btn sm b" id="hint-btn" onclick="showHint()">💡 NÁPOVĚDA</button>
  <button class="btn sm r" id="bt-mini-hint" style="display:none" onclick="useMiniHint()">💡 −1 ❤️</button>
  <button class="btn sm g" id="next-btn" style="display:none" onclick="nextTask()">DÁLE →</button>
  </div>
- <div class="fail-overlay" id="fail-overlay">
+  </div>
+</div>
+<div class="fail-overlay" id="fail-overlay">
  <div class="ic">💀</div>
  <div class="ti">PORAŽEN</div>
  <div class="sb" id="fail-msg">Hrdina padl v boji. Mise musí být zopakována.</div>
@@ -1075,7 +1124,7 @@ const AREAS = [
  (()=>{const trojice=[[5,12,13],[8,15,17],[7,24,25],[20,21,29],[9,40,41]];const t=trojice[ri(0,trojice.length-1)];const a=t[0],b=t[1],ans=String(t[2]);return{
  text:`Pravoúhlý trojúhelník: a = ${a}, b = ${b}.\nVypočítej přeponu c.\n(přepona je celé číslo)`,ans,
  hints:[`c² = a² + b². Spočítej a² + b².`,`Po sečtení odmocni. Výsledek je celé číslo (pythagorejská trojice).`],skill:'geo'};})(),
- (()=>{const a=ri(6,12),b=ri(6,16);const c2=a*a+b*b;const ans=Math.sqrt(c2).toFixed(2);return{
+ (()=>{const a=ri(6,12);let b=ri(6,16);if(b===a)b=b<16?b+1:b-1; /* strany musi byt ruzne, jinak z obdelniku vyjde ctverec */ const c2=a*a+b*b;const ans=Math.sqrt(c2).toFixed(2);return{
  text:`${['Obdélníková zahrada akademie','Školní pozemek','Obdélníkové hřiště'][ri(0,2)]} má strany ${a} m a ${b} m.\nJak dlouhá je úhlopříčka? (2 des. místa)`,ans,
  hints:[`Úhlopříčka obdélníku = přepona pravoúhlého trojúhelníku.`,`Spočítej ${a}² + ${b}² a odmocni.`],skill:'geo'};})(),
  (()=>{const a=ri(40,80),b=ri(20,50);const c2=a*a+b*b;const ans=Math.sqrt(c2).toFixed(1);return{
@@ -1183,7 +1232,7 @@ const AREAS = [
  (()=>{const price=ri(3,9)*5,count=ri(2,6),paid=(price*count)+ri(1,4)*10;const change=paid-price*count;return{
  text:`Každá kniha ve školním obchodě akademie stojí ${price} Kč.\nKoupíš ${count} ${skl(count,'knihu','knihy','knih')} a zaplatíš ${paid} Kč.\nKolik Kč dostaneš zpět?`,ans:String(change),
  hints:[`Cena celkem = ${price} × ${count} = ${price*count} Kč.`,`Vráceno = ${paid} - ${price*count}.`],skill:'anal'};})(),
- (()=>{const w=ri(4,15),h=ri(4,20);return{
+ (()=>{const w=ri(4,15);let h=ri(4,20);if(h===w)h=h<20?h+1:h-1; /* strany musi byt ruzne, jinak z obdelniku vyjde ctverec */ return{
  text:`Obdélník má šířku ${w} cm a délku ${h} cm.\nVypočítej obvod. (cm)`,ans:String(2*(w+h)),
  hints:[`Obvod obdélníku: O = 2 × (a + b).`,`O = 2 × (${w} + ${h}) = ?`],skill:'geo'};})(),
  (()=>{const tot=ri(10,25)*2,diff=ri(1,8)*2;const big=(tot+diff)/2;return{
@@ -1523,7 +1572,7 @@ const AREAS = [
  (()=>{const r=ri(4,10);const o=Math.round(2*3.14*r);return{
  text:`Obvod kružnice je ${o} cm. (π = 3,14)\nJaký je poloměr? (cm, celé číslo)`,ans:String(r),
  hints:[`r = O : (2π) = ${o} : 6,28.`,`Výsledek zaokrouhli na celé číslo.`],skill:'geo'};})(),
- (()=>{const a=ri(3,12),b=ri(3,12);const c2=a*a+b*b;const c=Math.sqrt(c2).toFixed(2);return{
+ (()=>{const a=ri(3,12);let b=ri(3,12);if(b===a)b=b<12?b+1:b-1; /* strany musi byt ruzne, jinak z obdelniku vyjde ctverec */ const c2=a*a+b*b;const c=Math.sqrt(c2).toFixed(2);return{
  text:`Úhlopříčka obdélníku ${a} × ${b} cm.\nJak je dlouhá? (cm, 2 des. místa)`,ans:c,
  hints:[`Úhlopříčka = přepona pravoúhlého trojúhelníku.`,`d = √(${a}²+${b}²) = √${c2}.`],skill:'geo'};})()
  ]

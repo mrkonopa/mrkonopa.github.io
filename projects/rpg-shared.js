@@ -18,7 +18,17 @@ function checkAns(raw, correct){
  if(u===c) return true;
  const evalS = s => {
  if(/^-?\d+\/-?\d+$/.test(s)){const[a,b]=s.split('/');return parseFloat(a)/parseFloat(b);}
- return parseFloat(s);
+ /* parseFloat bere i to, co číslem není celé: z „1.2.3" udělá 1.2 a z „12kg" 12.
+    Ta druhá tolerance je ZÁMĚR — dítě, které napíše „12 kg" nebo „12 jablek",
+    výsledek zná a trestat ho za jednotku by bylo pedagogicky špatně (viz CLAUDE.md,
+    přísná záloha by z pěti reálných dětských zápisů neuznala ani jeden).
+    Ta první je ale vada: „1.2.3" je NEJEDNOZNAČNÝ zápis a tiše se z něj vezme
+    jen předpona, takže žák dostane bod za odpověď, kterou nedal. Proto se druhá
+    desetinná tečka odmítá. */
+ const m = /^-?\d+(?:\.\d+)?/.exec(s);
+ if(!m) return NaN;
+ if(/^\.\d/.test(s.slice(m[0].length))) return NaN;   // druhá desetinná tečka
+ return parseFloat(m[0]);
  };
  const un=evalS(u), cn=evalS(c);
  if(!isNaN(un)&&!isNaN(cn)) return Math.abs(un-cn)<0.016;
