@@ -1124,7 +1124,7 @@ const AREAS = [
  (()=>{const trojice=[[5,12,13],[8,15,17],[7,24,25],[20,21,29],[9,40,41]];const t=trojice[ri(0,trojice.length-1)];const a=t[0],b=t[1],ans=String(t[2]);return{
  text:`Pravoúhlý trojúhelník: a = ${a}, b = ${b}.\nVypočítej přeponu c.\n(přepona je celé číslo)`,ans,
  hints:[`c² = a² + b². Spočítej a² + b².`,`Po sečtení odmocni. Výsledek je celé číslo (pythagorejská trojice).`],skill:'geo'};})(),
- (()=>{const a=ri(6,12);let b=ri(6,16);if(b===a)b=b<16?b+1:b-1; /* strany různé — jinak z „obdélníku" vyjde čtverec */ const c2=a*a+b*b;const ans=Math.sqrt(c2).toFixed(2);return{
+ (()=>{const a=ri(6,12);let b=ri(6,16);if(b===a)b=b<16?b+1:b-1; /* strany musi byt ruzne, jinak z obdelniku vyjde ctverec */ const c2=a*a+b*b;const ans=Math.sqrt(c2).toFixed(2);return{
  text:`${['Obdélníková zahrada akademie','Školní pozemek','Obdélníkové hřiště'][ri(0,2)]} má strany ${a} m a ${b} m.\nJak dlouhá je úhlopříčka? (2 des. místa)`,ans,
  hints:[`Úhlopříčka obdélníku = přepona pravoúhlého trojúhelníku.`,`Spočítej ${a}² + ${b}² a odmocni.`],skill:'geo'};})(),
  (()=>{const a=ri(40,80),b=ri(20,50);const c2=a*a+b*b;const ans=Math.sqrt(c2).toFixed(1);return{
@@ -1232,7 +1232,7 @@ const AREAS = [
  (()=>{const price=ri(3,9)*5,count=ri(2,6),paid=(price*count)+ri(1,4)*10;const change=paid-price*count;return{
  text:`Každá kniha ve školním obchodě akademie stojí ${price} Kč.\nKoupíš ${count} ${skl(count,'knihu','knihy','knih')} a zaplatíš ${paid} Kč.\nKolik Kč dostaneš zpět?`,ans:String(change),
  hints:[`Cena celkem = ${price} × ${count} = ${price*count} Kč.`,`Vráceno = ${paid} - ${price*count}.`],skill:'anal'};})(),
- (()=>{const w=ri(4,15);let h=ri(4,20);if(h===w)h=h<20?h+1:h-1; /* strany různé — jinak z „obdélníku" vyjde čtverec */ return{
+ (()=>{const w=ri(4,15);let h=ri(4,20);if(h===w)h=h<20?h+1:h-1; /* strany musi byt ruzne, jinak z obdelniku vyjde ctverec */ return{
  text:`Obdélník má šířku ${w} cm a délku ${h} cm.\nVypočítej obvod. (cm)`,ans:String(2*(w+h)),
  hints:[`Obvod obdélníku: O = 2 × (a + b).`,`O = 2 × (${w} + ${h}) = ?`],skill:'geo'};})(),
  (()=>{const tot=ri(10,25)*2,diff=ri(1,8)*2;const big=(tot+diff)/2;return{
@@ -1572,7 +1572,7 @@ const AREAS = [
  (()=>{const r=ri(4,10);const o=Math.round(2*3.14*r);return{
  text:`Obvod kružnice je ${o} cm. (π = 3,14)\nJaký je poloměr? (cm, celé číslo)`,ans:String(r),
  hints:[`r = O : (2π) = ${o} : 6,28.`,`Výsledek zaokrouhli na celé číslo.`],skill:'geo'};})(),
- (()=>{const a=ri(3,12);let b=ri(3,12);if(b===a)b=b<12?b+1:b-1; /* strany různé — jinak z „obdélníku" vyjde čtverec */ const c2=a*a+b*b;const c=Math.sqrt(c2).toFixed(2);return{
+ (()=>{const a=ri(3,12);let b=ri(3,12);if(b===a)b=b<12?b+1:b-1; /* strany musi byt ruzne, jinak z obdelniku vyjde ctverec */ const c2=a*a+b*b;const c=Math.sqrt(c2).toFixed(2);return{
  text:`Úhlopříčka obdélníku ${a} × ${b} cm.\nJak je dlouhá? (cm, 2 des. místa)`,ans:c,
  hints:[`Úhlopříčka = přepona pravoúhlého trojúhelníku.`,`d = √(${a}²+${b}²) = √${c2}.`],skill:'geo'};})()
  ]

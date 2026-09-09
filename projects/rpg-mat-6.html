@@ -1031,12 +1031,12 @@ const AREAS = [
  intro:'Měřicí dron přeměřuje vše kolem. Spočítej obvody a obsahy, ať tě pustí dál.',
  tc:6,
  tasks:()=>[
- (()=>{const a=ri(3,12);let b=ri(3,12);if(b===a)b=b<12?b+1:b-1; /* strany různé — jinak z „obdélníku" vyjde čtverec */ return{text:`Obdélník: a = ${a} cm, b = ${b} cm.\nVypočítej obvod O. (cm)`,ans:String(2*(a+b)),hints:[`O = 2 × (a + b).`,`2 × (${a} + ${b})`],skill:'geo'};})(),
- (()=>{const a=ri(3,12);let b=ri(3,12);if(b===a)b=b<12?b+1:b-1; /* strany různé — jinak z „obdélníku" vyjde čtverec */ return{text:`Obdélník: a = ${a} cm, b = ${b} cm.\nVypočítej obsah S. (cm²)`,ans:String(a*b),hints:[`S = a × b.`,`${a} × ${b}`],skill:'geo'};})(),
+ (()=>{const a=ri(3,12);let b=ri(3,12);if(b===a)b=b<12?b+1:b-1; /* strany musi byt ruzne, jinak z obdelniku vyjde ctverec */ return{text:`Obdélník: a = ${a} cm, b = ${b} cm.\nVypočítej obvod O. (cm)`,ans:String(2*(a+b)),hints:[`O = 2 × (a + b).`,`2 × (${a} + ${b})`],skill:'geo'};})(),
+ (()=>{const a=ri(3,12);let b=ri(3,12);if(b===a)b=b<12?b+1:b-1; /* strany musi byt ruzne, jinak z obdelniku vyjde ctverec */ return{text:`Obdélník: a = ${a} cm, b = ${b} cm.\nVypočítej obsah S. (cm²)`,ans:String(a*b),hints:[`S = a × b.`,`${a} × ${b}`],skill:'geo'};})(),
  (()=>{const a=ri(3,15);return{text:`Čtverec se stranou a = ${a} cm.\nVypočítej obvod O. (cm)`,ans:String(4*a),hints:[`O = 4 × a.`,`4 × ${a}`],skill:'geo'};})(),
  (()=>{const a=ri(3,15);return{text:`Čtverec se stranou a = ${a} cm.\nVypočítej obsah S. (cm²)`,ans:String(a*a),hints:[`S = a × a.`,`${a} × ${a}`],skill:'geo'};})(),
  (()=>{const a=ri(4,12),b=ri(2,9),S=a*b;return{text:`Obdélník má obsah ${S} cm² a stranu a = ${a} cm.\nJak dlouhá je strana b? (cm)`,ans:String(b),hints:[`b = S : a.`,`${S} : ${a}`],skill:'anal'};})(),
- (()=>{const a=ri(5,12);let b=ri(5,12);if(b===a)b=b<12?b+1:b-1; /* strany různé — jinak z „obdélníku" vyjde čtverec */ const f=[`Obdélníkové solární pole má rozměry ${a} m × ${b} m.\nKolik metrů ochranné lišty je potřeba po celém obvodu? (m)`,`Přistávací plocha tvaru obdélníku měří ${a} m × ${b} m.\nKolik metrů zábradlí obepne její okraj? (m)`][ri(0,1)];return{text:f,ans:String(2*(a+b)),hints:[`To je obvod obdélníku.`,`2 × (${a} + ${b})`],skill:'anal'};})()
+ (()=>{const a=ri(5,12);let b=ri(5,12);if(b===a)b=b<12?b+1:b-1; /* strany musi byt ruzne, jinak z obdelniku vyjde ctverec */ const f=[`Obdélníkové solární pole má rozměry ${a} m × ${b} m.\nKolik metrů ochranné lišty je potřeba po celém obvodu? (m)`,`Přistávací plocha tvaru obdélníku měří ${a} m × ${b} m.\nKolik metrů zábradlí obepne její okraj? (m)`][ri(0,1)];return{text:f,ans:String(2*(a+b)),hints:[`To je obvod obdélníku.`,`2 × (${a} + ${b})`],skill:'anal'};})()
  ]
  },
  {
