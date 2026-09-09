@@ -53,8 +53,21 @@ const VSTUPY = [
   ['ano', 'ANO', true, 'ANO/NE malými písmeny'],
   ['−5', '-5', true, 'unicode minus (U+2212)'],
   ['1 234,5', '1234.5', true, 'mezera i čárka'],
+  /* Jednotka nebo slovo za číslem se uznat MÁ. Dítě, které napíše „12 kg"
+     nebo „12 jablek", výsledek zná; trestat ho za jednotku by bylo pedagogicky
+     špatně. Je to zapsané jako pravidlo schválně, aby to nikdo „nezpřísnil" —
+     přísná záloha, kterou tenhle test odstranil, neuznala ani jeden z pěti
+     reálných dětských zápisů. */
+  ['12 kg', '12', true, 'jednotka za číslem se uzná'],
+  ['12 jablek', '12', true, 'slovo za číslem se uzná'],
   // A co uznat NESMÍ — jinak by test prošel i pro funkci vracející vždy true.
   ['13', '12', false, 'jiné číslo se NEuzná'],
+  /* Dvě desetinné čárky = NEJEDNOZNAČNÝ zápis. parseFloat z „1.2.3" tiše vezme
+     jen 1.2, takže by žák dostal bod za odpověď, kterou nedal. Na rozdíl od
+     jednotky výše tady není co tolerovat — není poznat, co dítě myslelo. */
+  ['1,2,3', '1.2', false, 'dvě desetinné čárky se NEuznají'],
+  ['12,5,6', '12.5', false, 'dvě desetinné čárky u většího čísla'],
+  ['3.14.15', '3.14', false, 'dvě desetinné tečky'],
   ['ne', 'ANO', false, 'opačná odpověď se NEuzná'],
   ['', '12', false, 'prázdná odpověď se NEuzná'],
 ];
