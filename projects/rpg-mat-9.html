@@ -2357,6 +2357,20 @@ function battleMiniDone(mistakes){
    duplicit, ať nevzniknou dvě volby lišící se jen oddělovačem.
    `checkAns` porovnává čísla (čárku i zlomky zvládá), takže je změna
    zápisu bezpečná; mění se jen to, co je vidět. */
+/* UZAVŘENÝ VÝBĚR. Ptá-li se zadání „Které z čísel 768, 144, 148 je
+   největší?", jsou kandidáti právě ta tři čísla — dopočítávat k nim
+   sousedy je nesmysl: dítě pak vybírá ze čtyř možností u otázky, která
+   nabízí tři, a jeden ze skutečných kandidátů mezi volbami vůbec není.
+   Naměřeno v 6. ročníku u misí 1-1 a 2-1: 120 ze 120 vygenerovaných
+   zadání mělo mezi volbami číslo, které v otázce nestojí, včetně
+   záporné varianty správné odpovědi. Generátor to řekne přes `mc_opts`.
+   Fisher-Yates, ne `sort(()=>Math.random()-.5)`: u dvou a tří položek
+   je zamíchání srovnáním znatelně vychýlené a děti si všimnou, že
+   správná odpověď bývá první. */
+function _mcVolby(t){
+ if(!Array.isArray(t.mc_opts)||t.mc_opts.length<2)return null;
+ return shuffleArr(t.mc_opts.map(czMC));
+}
 function renderMC(t){
  const grid=document.getElementById('mc-grid');
  grid.style.display='grid';
@@ -2381,7 +2395,7 @@ function renderMC(t){
  }
  if(alt!==correct) opts.add(alt);
  }
- const arr=[...opts].sort(()=>Math.random()-.5);
+ const arr=_mcVolby(t)||[...opts].sort(()=>Math.random()-.5);
  grid.innerHTML='';
  arr.forEach((opt,i)=>{
  const b=document.createElement('button');
@@ -2803,7 +2817,7 @@ function trRenderMC(t){
   else alt=correct==='ANO'?'NE':'ANO';
   if(alt!==correct)opts.add(alt);
  }
- const arr=[...opts].sort(()=>Math.random()-.5);
+ const arr=_mcVolby(t)||[...opts].sort(()=>Math.random()-.5);
  grid.innerHTML='';
  arr.forEach((opt,i)=>{const b=document.createElement('button');b.className='mc-btn c'+i;b.innerHTML=`<span class="mc-key">${'ABCD'[i]}</span>${opt}`;b.onclick=()=>trPickMC(opt,b);grid.appendChild(b);});
 }

@@ -68,16 +68,37 @@ const ok = (c, m) => { if (c) { pass++; } else { fail++; console.log('  ❌ ' + 
           /* Je odpověď číslo? Pak žádná volba nesmí být slovo. */
           const jeCislo = x => !isNaN(parseFloat(String(x).replace(',', '.')));
           if (jeCislo(t.ans) && opts.some(o => !jeCislo(o))) mixCislaSlova++;
-          /* UZAVŘENÝ VÝBĚR: ptá-li se zadání „…: A, nebo B?", musí být volby
-             přesně A a B. Dřív se dopočítávaly sousedy, takže u „Které číslo
+          /* UZAVŘENÝ VÝBĚR: vyjmenuje-li zadání kandidáty, musí být volby
+             právě ony. Dřív se dopočítávaly sousedy, takže u „Které číslo
              je větší: 503, nebo 744?" svítilo „743 / 503 / 744 / 745" — dvě
              čísla, která v otázce vůbec nejsou, a dítě mělo vybrat ze čtyř,
-             přestože se ho ptáme na dvě. (180 úloh v 1. stupni.) */
-          const mm = String(t.text || '').match(/(-?[\d ]+(?:[.,]\d+)?)\s*,\s*nebo\s*(-?[\d ]+(?:[.,]\d+)?)\s*\?/);
-          if (mm) {
+             přestože se ho ptáme na dvě. (180 úloh v 1. stupni.)
+
+             🔴 PŮVODNÍ VZOR HLEDAL DOSLOVA „A, nebo B?" A MINUL ČTYŘI
+             TVARY Z PĚTI: tři čísla bez „nebo" („Které z čísel 768, 144,
+             148 je největší?"), „nebo" až za otazníkem na dalším řádku,
+             zlomkovou variantu a unicode minus (− U+2212, na který `-?`
+             nesedí). V 6. ročníku proto hlásil 0 z 0 — tedy prošel
+             naprázdno — zatímco mise 1-1 a 2-1 byly vadné ve 120 ze 120
+             generování. Proto se teď měří ŠIŘEJI a počet viděných zadání
+             se hlásí i kontroluje (viz podlaha níž).
+
+             Detekuje se ze ZADÁNÍ, ne z `mc_opts`: kdyby stačilo `mc_opts`,
+             prošel by každý nový generátor, který ho zapomene nastavit —
+             a to je přesně ta vada, kvůli které pravidlo existuje. */
+          const txt = String(t.text || '');
+          const nrmC = x => String(x).replace(/[−–—]/g, '-').replace(',', '.').replace(/\s/g, '');
+          const jeUzavreny =
+            /Které z čísel/i.test(txt) ||
+            /Kter[éýá]\s+(číslo|zlomek|hodnota)\s+je\s+(větší|menší)/i.test(txt) ||
+            /\d\s*(?:,\s*)?nebo\s*[−–—-]?\s*\d/.test(txt);
+          if (jeUzavreny) {
             uzavrenych++;
-            const kand = [mm[1].trim(), mm[2].trim()];
-            if (opts.some(o => !kand.includes(String(o).trim()))) cizíVolba++;
+            /* Kandidáti = čísla, která zadání skutečně uvádí. Nestačí
+               vytáhnout dvojici kolem „nebo" — u tří čísel i u zlomků
+               jsou kandidáti jinde ve větě. */
+            const cisla = new Set((txt.match(/[−–—-]?\d+(?:[.,]\d+)?/g) || []).map(nrmC));
+            if (opts.some(o => !cisla.has(nrmC(o)))) cizíVolba++;
           }
           /* Desetinné volby musí mít všechny stejný oddělovač. */
           const des = opts.filter(o => /^-?\d+[.,]\d+$/.test(o));
@@ -112,8 +133,27 @@ const ok = (c, m) => { if (c) { pass++; } else { fail++; console.log('  ❌ ' + 
     `u číselné otázky nejsou slovní volby typu ANO/NE (${sweep.mixCislaSlova})`);
   ok(sweep.nejednotnyZapis === 0,
     `zápis voleb je jednotný (tečka vs čárka neprozradí odpověď) (${sweep.nejednotnyZapis})`);
+  console.log(`  · uzavřených výběrů proměřeno: ${sweep.uzavrenych} (z ${sweep.renders} renderů)`);
+  /* POJISTKA PROTI BĚHU NAPRÁZDNO. Předchozí verze tohohle pravidla
+     svítila zeleně roky, protože v 6. ročníku neviděla ANI JEDNO
+     uzavřené zadání — a přitom tam byla vada ve 120 ze 120 generování.
+     Zelená u kontroly, která nic neproměřila, je horší než červená.
+     Podlahy jsou NAMĚŘENÉ (240 / 240 / 240 / 80 / 0 / 0 / 0), ne
+     odhadnuté. Nejsou ale zvolené jen „s rezervou dolů": ověřeno
+     sabotáží, že návrat k úzkému vzoru srazí 1. stupeň na 160 a
+     6. ročník na 0, takže podlaha 200 (resp. 50) tu regresi zachytí
+     na ČTYŘECH ročnících. Podlaha 150 by na trojce prošla — a přesně
+     takhle se z pojistky stane dekorace.
+     Nula u 7.–9. je správně: uzavřený výběr tam existuje (mise 7/3-3),
+     ale leží v misi BEZ MC, kde dítě odpověď píše. Kdyby ji někdo na MC
+     převedl, počet vyskočí nad nulu a kontrola cizích voleb se zapne
+     sama. */
+  const PODLAHA = { 3: 200, 4: 200, 5: 200, 6: 50, 7: 0, 8: 0, 9: 0 };
+  const podlaha = PODLAHA[String(GRADE)] ?? 0;
+  ok(sweep.uzavrenych >= podlaha,
+    `pravidlo o uzavřeném výběru něco proměřilo (${sweep.uzavrenych}, podlaha ${podlaha})`);
   ok(sweep.cizíVolba === 0,
-    `u uzavřeného výběru („A, nebo B?") nejsou cizí volby (${sweep.cizíVolba} z ${sweep.uzavrenych})`);
+    `u uzavřeného výběru nejsou cizí volby (${sweep.cizíVolba} z ${sweep.uzavrenych})`);
   ok(sweep.distrEqAns === 0, `kurátorský distraktor se NIKDY nerovná správné odpovědi (kolizí ${sweep.distrEqAns})`);
   // kurátorský obsah zatím jen g9 (pilot); na ostatních ročnících ověřujeme
   // jen bezpečnost infry (honor-line/mcWrong nerozbily MC generování)
