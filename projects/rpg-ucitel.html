@@ -264,6 +264,7 @@ h4{font-family:var(--px);font-size:12px;font-weight:700;color:var(--accent);lett
 
   <!-- PŘEHLED -->
   <div id="t-overview">
+   <div id="nocls" class="hidden" style="background:var(--panel);border-left:3px solid #e0584a;border-radius:0 8px 8px 0;padding:12px 16px;margin-bottom:16px"></div>
    <div id="insights" class="hidden" style="background:var(--panel);border-left:3px solid var(--gold);border-radius:0 8px 8px 0;padding:12px 16px;margin-bottom:16px"></div>
    <div class="stats">
     <div class="s"><div class="v" id="st-students">0</div><div class="l">žáků</div></div>
@@ -774,6 +775,72 @@ function fillClassFilter(){
   activeClasses().map(c=>'<option value="'+c.id+'">🏫 '+esc(classLabel(c))+'</option>').join('');
  sel.value=cur;
 }
+/* ── Žáci, kteří nejsou v ŽÁDNÉ třídě ──────────────────────────────────
+   Nezařazený žák o dvě věci opravdu PŘIJDE, nejen kosmeticky:
+     · Věž legend  — tower_eligible() se ptá _grades_of(), a ta bere ročník
+                     z členství ve třídě; bez třídy nevrátí nic ⇒ zamčeno,
+     · žebříček    — leaderboard() chce spolužáka ze stejné třídy ⇒ skrytý.
+   Po 1. 9. je to nejčastější stav nových šesťáků: hrát začnou hned, do
+   třídy je někdo zařadí až později, a nikde to nevyskočí.
+
+   POČÍTÁ SE ZE VŠECH ŘÁDKŮ (ROWS), NE Z filtered(). Kdyby to bralo filtr,
+   stačilo by v přehledu přepnout na konkrétní třídu a varování by zmizelo,
+   přestože ti žáci pořád existují — tedy přesně ta „kontrola, která tiše
+   mlčí". Ze stejného důvodu je to vlastní panel, ne řádek v Key Insights:
+   ten se při prázdném filtru celý schová.
+
+   Archivovaná třída se počítá jako třída: _grades_of() ani leaderboard()
+   archivaci neřeší, takže žák v archivované třídě přístup pořád má.
+   1. stupeň se nepočítá jako nález — kohorty začínají 6. ročníkem, takže
+   „třeťák bez třídy" je normální stav, ne vada. Pravidlo, které křičí
+   vlka, je horší než žádné. */
+function renderNoClass(){
+ const el=document.getElementById('nocls');if(!el)return;
+ const hide=()=>{el.innerHTML='';el.classList.add('hidden');};
+ if(!ROWS.length)return hide();
+ const grOf=k=>{const n=parseInt(String(k).slice(-1),10);return n>=3&&n<=9?n:0;};
+ // nejvyšší ročník, který ten žák hraje — jedním průchodem, ne filtrem
+ // uvnitř cyklu (renderTable() běží i z automatického obnovení po 60 s)
+ const maxGr={};
+ ROWS.forEach(r=>{const g=grOf(r.game);if(g>(maxGr[r.user_id]||0))maxGr[r.user_id]=g;});
+ const bez=[];let mali=0;
+ studentsDistinct().forEach(s=>{
+  if(classesOfUser(s.user_id).size)return;
+  const g=maxGr[s.user_id]||0;
+  if(g>=6)bez.push(s);
+  else if(g>=3)mali++;
+ });
+ if(!bez.length)return hide();
+ const n=bez.length;
+ // tvary napsané ručně (1 / 2–4 / 5+); strojové skloňování číslovek je
+ // v tomhle repozitáři doložený zdroj chyb
+ const zak=n===1?'žák':(n<5?'žáci':'žáků');
+ const jeNeni=n===1||n>=5?'není':'nejsou';
+ const cls=activeClasses();
+ let html='<div style="font-weight:700;color:#e0584a;letter-spacing:.5px;margin-bottom:6px">⚠️ '+
+  n+' '+zak+' '+jeNeni+' v žádné třídě</div>'+
+  '<div style="font-size:13.5px;line-height:1.5;color:var(--text);margin-bottom:10px">'+
+  'Bez třídy jim hra neví ročník, takže jim <b>nejde Věž legend ani žebříček</b>. Zařaď je:</div>';
+ // jména se vypisují VŽDY, i když ještě není kam zařazovat — vědět KDO
+ // je bez třídy je užitečné samo o sobě; chybí-li třídy, zmizí jen výběr
+ const opts=cls.length?('<option value="">— zařadit do třídy —</option>'+
+  cls.map(c=>'<option value="'+esc(c.id)+'">'+esc(classLabel(c))+'</option>').join('')):'';
+ html+='<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:6px">';
+ bez.forEach(s=>{
+  html+='<div style="display:flex;align-items:center;gap:8px;font-size:13px;padding:4px 6px;border-radius:4px;background:rgba(224,88,74,.10)">'+
+   '<span style="flex:1;min-width:0"><b style="color:#fff">'+esc(s.name||'—')+'</b> '+
+    '<span style="color:var(--muted);font-size:11px">'+esc(s.email||'')+'</span></span>'+
+   (cls.length?('<select aria-label="Zařadit žáka do třídy" style="max-width:150px" '+
+    'onchange="if(this.value)toggleMember(this.value,\''+esc(s.user_id)+'\',true)">'+opts+'</select>'):'')+
+  '</div>';
+ });
+ html+='</div>';
+ if(!cls.length)html+='<div class="empty" style="margin-top:8px">— nejdřív založ třídu v záložce TŘÍDY —</div>';
+ if(mali)html+='<div style="color:var(--muted);font-size:12px;margin-top:8px">'+
+  '1. stupeň se do tříd nezařazuje (kohorty začínají 6. ročníkem); takových je tu '+mali+'.</div>';
+ el.innerHTML=html;
+ el.classList.remove('hidden');
+}
 /* Key Insights — narativní shrnutí „na co se dnes zaměřit", klientsky z dat
    (ROWS, mastery, errs, updated_at). Respektuje filtr hry/třídy/skrytí učitelů
    přes filtered(). Žádné SQL. Jména žáků VŽDY přes esc() (save je jejich). */
@@ -844,6 +911,7 @@ function toggleSelUser(ui,on){
 }
 function keys_filtered(){return new Set((window.__filtered||[]).map(selKey));}
 function renderTable(){
+ renderNoClass();
  renderInsights();
  const rows=filtered();
  if(!rows.length){document.getElementById('tbl-wrap').innerHTML='<div class="empty">— žádné postavy —</div>';window.__filtered=rows;window.__userList=[];updateBulkBar();return;}
@@ -1392,7 +1460,9 @@ async function createClassUI(){
   document.getElementById('new-class').value='';
   document.getElementById('new-section').value='';
   document.getElementById('new-grade').value='';
-  await loadClasses();renderClasses();
+  // renderTable() taky: panel „žák bez třídy" v přehledu nabízí výběr
+  // z aktivních tříd, takže po založení první třídy musí přibýt i tam
+  await loadClasses();renderClasses();renderTable();
  } else toast('Chyba: '+res.error,1);
 }
 async function editCohortUI(id){
@@ -2171,7 +2241,11 @@ const NAPOVEDA = [
    '<p>🟢 u data znamená, že žák hraje <b>právě teď</b> (do 3 minut), 🟡 do 20 minut.</p>'+
    '<p>Filtrovat jde podle <b>hry</b> i podle <b>třídy</b>, hledat podle jména nebo e-mailu. '+
    '<b>Export CSV</b> stáhne přehled do tabulky.</p>'+
-   '<p><b>Odměny, odemykání a mazání postav smí jen superadmin</b> — učiteli se zaškrtávátka u řádků nezobrazí.</p>' },
+   '<p><b>Odměny, odemykání a mazání postav smí jen superadmin</b> — učiteli se zaškrtávátka u řádků nezobrazí.</p>'+
+   '<p><b>⚠️ Červený panel „žáci bez třídy"</b> se ukáže, když někdo hraje, ale nikdo ho zatím nezařadil do třídy. '+
+   'Není to kosmetika: bez třídy hra neví, do kterého ročníku žák patří, takže mu <b>nejde Věž legend ani žebříček</b>. '+
+   'Zařadíš ho rovnou z panelu výběrem třídy. Typicky to naskočí v září u nových šesťáků. '+
+   'Žáci 1. stupně se v panelu nehlásí — kohorty tříd začínají 6. ročníkem.</p>' },
 
  { id:'classes', nadpis:'Třídy', kdo:'učitel i superadmin', text:
    '<p>Třída je skupina žáků, přes kterou pak filtruješ přehled a děláš hromadné věci najednou. '+
