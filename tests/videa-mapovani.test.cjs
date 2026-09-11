@@ -128,9 +128,105 @@ async function run() {
     /* NÁVRHY podle tématu strany */
     const navrhu = await page.evaluate(() => document.querySelectorAll('.navrh').length);
     ok('mise dostane návrhy stran podle tématu', navrhu >= 1, 'návrhů=' + navrhu);
-    const navrhText = await page.evaluate(() => (document.querySelector('.navrh') || {}).textContent || '');
-    ok('návrh uvádí téma, díl i stranu', /s\.\s*\d+/.test(navrhText) && navrhText.length > 15,
-      JSON.stringify(navrhText.slice(0, 60)));
+    /* Návrh musí říct VŠECHNO, co k rozhodnutí potřebuješ: téma strany
+       (tučně), díl, číslo strany a kolik je na ní cvičení. Kontrola je
+       po částech, ať selhání rovnou pojmenuje, co chybí — dřív to byl
+       jeden regulární výraz na starý zápis „s. 12" a při přeformulování
+       popisku hlásil vadu nástroje, který je v pořádku. */
+    const n0 = await page.evaluate(() => {
+      const el = document.querySelector('.navrh');
+      if (!el) return null;
+      return { tema: (el.querySelector('b') || {}).textContent || '', vse: el.textContent || '' };
+    });
+    const chybi = !n0 ? ['celý návrh'] : [
+      n0.tema.trim().length > 3 ? null : 'téma',
+      /(\d\.\s*díl|Geometrie)/.test(n0.vse) ? null : 'díl',
+      /strana\s*\d+/.test(n0.vse) ? null : 'strana',
+      /\d+\s*(videí|videa|video)/.test(n0.vse) ? null : 'počet videí',
+    ].filter(Boolean);
+    ok('návrh uvádí téma, díl, stranu i počet videí', chybi.length === 0,
+      'chybí: ' + chybi.join(', ') + ' — ' + JSON.stringify((n0 ? n0.vse : '').slice(0, 80)));
+    /* ── ČITELNOST ────────────────────────────────────────────────────
+       Vojta nahlásil, že „texty nejsou vidět" — a byla to pravda:
+       tučný nadpis návrhu měl `color:#fff` na krémovém pozadí. Ze
+       zdrojáku se to nepozná (barva se dědí z několika míst), proto se
+       měří SKUTEČNÝ poměr jasu na vykreslené stránce. Práh 4,5 je WCAG AA
+       pro běžný text; naměřeno je po opravě nejhůř ~4,9, takže rezerva
+       je reálná, ne vymyšlená. */
+    const kontrast = await page.evaluate(() => {
+      const lum = c => {
+        const v = (c.match(/[\d.]+/g) || []).slice(0, 3).map(Number);
+        if (v.length < 3) return null;
+        const [r, g, b] = v.map(x => { x /= 255; return x <= 0.03928 ? x / 12.92 : Math.pow((x + 0.055) / 1.055, 2.4); });
+        return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+      };
+      const pozadi = el => {
+        for (let n = el; n; n = n.parentElement) {
+          const c = getComputedStyle(n).backgroundColor;
+          if (c && !/rgba\(0,\s*0,\s*0,\s*0\)|transparent/.test(c)) return c;
+        }
+        return 'rgb(255, 255, 255)';
+      };
+      const nalezy = []; let mereno = 0, nej = 99;
+      document.querySelectorAll('body *').forEach(el => {
+        /* jen prvky s VLASTNÍM textem — jinak by se každý obal počítal znovu */
+        const vlastni = [...el.childNodes].some(n => n.nodeType === 3 && n.textContent.trim());
+        if (!vlastni) return;
+        const st = getComputedStyle(el);
+        if (st.display === 'none' || st.visibility === 'hidden' || +st.opacity === 0) return;
+        const Lf = lum(st.color), Lb = lum(pozadi(el));
+        if (Lf == null || Lb == null) return;
+        mereno++;
+        const p = (Math.max(Lf, Lb) + 0.05) / (Math.min(Lf, Lb) + 0.05);
+        if (p < nej) nej = p;
+        if (p < 4.5) nalezy.push(el.tagName.toLowerCase() + '[' + st.color + ' na ' + pozadi(el) + ' = '
+          + p.toFixed(2) + '] „' + el.textContent.trim().slice(0, 24) + '"');
+      });
+      return { nalezy, mereno, nej: +nej.toFixed(2) };
+    });
+    /* pojistka proti běhu naprázdno: kdyby se detail nevykreslil, sken
+       by nic nenašel a „0 nálezů" by vypadalo jako úspěch */
+    ok('kontrast se měřil na skutečné stránce', kontrast.mereno >= 30, 'změřeno prvků=' + kontrast.mereno);
+    ok('všechny texty mají kontrast aspoň 4,5 (nejhorší ' + kontrast.nej + ')',
+      kontrast.nalezy.length === 0, kontrast.nalezy.slice(0, 4).join(' | '));
+
+    /* ── NÁVOD ───────────────────────────────────────────────────────
+       Druhá půlka téže zpětné vazby: „vůbec nevím, co mám v tom mapování
+       dělat". Postup patří do nástroje, ne do chatu. */
+    const navod = await page.evaluate(() => {
+      const el = document.getElementById('navod'), b = document.getElementById('b-navod');
+      return { je: !!el, kroku: el ? el.querySelectorAll('ol li').length : 0,
+        videt: !!el && !el.classList.contains('skryty'), btn: b ? b.textContent : '' };
+    });
+    ok('nástroj nese návod a je hned vidět', navod.je && navod.videt, JSON.stringify(navod));
+    ok('návod má očíslované kroky', navod.kroku >= 3, 'kroků=' + navod.kroku);
+    /* Kolik misí zůstane bez návrhu, se v návodu POČÍTÁ. Napsané číslo by
+       se při každém doladění vážení tiše rozešlo se skutečností — a právě
+       takové tvrzení pak čte člověk jako fakt. */
+    const bez = await page.evaluate(() => (document.getElementById('bez-navrhu') || {}).textContent || '');
+    const mBez = /^(\d+) z (\d+)$/.exec(bez.trim());
+    ok('návod uvádí NAMĚŘENÝ počet misí bez návrhu',
+      !!mBez && +mBez[2] === 63 && +mBez[1] >= 0 && +mBez[1] < 20, JSON.stringify(bez));
+    await page.click('#b-navod');
+    await page.waitForFunction(() => document.getElementById('navod').classList.contains('skryty'), { timeout: 4000 });
+    ok('návod jde schovat', true);
+    /* schování se musí pamatovat — kdo si ho schová, nechce ho vidět zas */
+    await page.reload({ waitUntil: 'domcontentloaded' });
+    await page.waitForSelector('#seznam .m', { timeout: 8000 });
+    const poZnovu = await page.evaluate(() => document.getElementById('navod').classList.contains('skryty'));
+    ok('a schovaný zůstane i po zavření okna', poZnovu === true, 'po reloadu skrytý=' + poZnovu);
+    await page.click('#b-navod');
+    await page.click('#seznam .m[data-i="0"]');
+    await page.waitForSelector('.navrh', { timeout: 4000 });
+
+    /* zaškrtávátko musí zůstat zaškrtávátkem — globální `width:100%` pro
+       pole ho jednou roztáhlo přes celý řádek a popisek odletěl doprava */
+    const cb = await page.evaluate(() => {
+      const r = document.getElementById('d-vse').getBoundingClientRect();
+      return { w: Math.round(r.width), h: Math.round(r.height) };
+    });
+    ok('zaškrtávátko není roztažené přes celý řádek', cb.w > 0 && cb.w <= 30, JSON.stringify(cb));
+
     await page.click('.navrh');
     await page.waitForSelector('.mrizka .s.on', { timeout: 4000 });
     ok('kliknutí na návrh vybere díl i stranu', true);
