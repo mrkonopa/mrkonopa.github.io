@@ -43,13 +43,13 @@ function gen_1_1(){
     ()=>{const a=ri(300,900),b=ri(50,250),c=ri(20,90);return{text:ask(`${a} − ${b} − ${c}`),ans:a-b-c,dis:[String(a-b+c)],h1:'Odečítej postupně zleva doprava.',h2:`${a}−${b} = ${a-b}, pak −${c} = ${a-b-c}`};},
     ()=>{const a=ri(120,600),b=ri(80,380);return{text:`Doplň: ${a} + ? = ${a+b}`,ans:b,dis:[String(a+b)],h1:`Odečti: ${a+b} − ${a}.`,h2:`= ${b}`};},
     ()=>{const b=ri(3,9),q=ri(11,40);return{text:`Doplň: ? × ${b} = ${b*q}`,ans:q,dis:[String(b*q)],h1:`Vyděl: ${b*q} : ${b}.`,h2:`= ${q}`};},
-    ()=>{const s=new Set();while(s.size<3)s.add(ri(120,980));const arr=[...s];return{text:`Které z čísel ${arr[0]}, ${arr[1]}, ${arr[2]} je největší?`,ans:Math.max(...arr),dis:[String(Math.min(...arr))],h1:'Porovnej stovky, pak nižší řády.',h2:`= ${Math.max(...arr)}`};},
+    ()=>{const s=new Set();while(s.size<3)s.add(ri(120,980));const arr=[...s];return{text:`Které z čísel ${arr[0]}, ${arr[1]}, ${arr[2]} je největší?`,ans:Math.max(...arr),mc_opts:arr,dis:[String(Math.min(...arr))],h1:'Porovnej stovky, pak nižší řády.',h2:`= ${Math.max(...arr)}`};},
     ()=>{const a=ri(200,800);return{text:`Jaký je dvojnásobek čísla ${a}?`,ans:a*2,dis:[String(Math.round(a/2))],h1:`2 × ${a}`,h2:`= ${a*2}`};},
     ()=>{const a=ri(120,400),b=ri(80,300);return{text:`Ve flotile ${jsou(a)} ${sp(a,'raketa')} a připojí se dalších ${b}. Kolik ${sp(a+b,'raketa')} je pak ve flotile?`,ans:a+b,dis:(a-b>0?[String(a-b)]:[]),h1:'Přičti nově příchozí rakety.',h2:`${a}+${b} = ${a+b}`};},
     ()=>{const s=ri(5,9),m=ri(11,30);return{text:`${s} ${sp(s,'sonda')} pošle každá ${m} snímků. Kolik snímků dorazí celkem?`,ans:s*m,dis:[String(s+m)],h1:'Počet sond × snímků na sondu.',h2:`${s}·${m} = ${s*m}`};},
   ];
   const tasks=[];
-  for(let i=0;i<13;i++){const t=T[i%T.length]();tasks.push({text:t.text,ans:t.ans,hints:[t.h1,t.h2],distractors:t.dis,skill:'calc'});}
+  for(let i=0;i<13;i++){const t=T[i%T.length]();tasks.push({text:t.text,ans:t.ans,mc_opts:t.mc_opts,hints:[t.h1,t.h2],distractors:t.dis,skill:'calc'});}
   return tasks;
 }
 
@@ -121,7 +121,7 @@ function gen_2_1(){
     ()=>{const n=ri(120,980);return{text:`Vyděl číslo ${n} stem (${n} : 100) — kolik CELÝCH jednotek vyjde?`,ans:Math.floor(n/100),dis:(Math.floor(n/10)!==Math.floor(n/100)?[String(Math.floor(n/10))]:[]),h1:'Celá část podílu — čárku posuň o dvě místa doleva.',h2:`= ${Math.floor(n/100)}`};},
   ];
   const tasks=[];
-  for(let i=0;i<13;i++){const t=T[i%T.length]();tasks.push({text:t.text,ans:t.ans,hints:[t.h1,t.h2],distractors:t.dis,skill:'calc'});}
+  for(let i=0;i<13;i++){const t=T[i%T.length]();tasks.push({text:t.text,ans:t.ans,mc_opts:t.mc_opts,hints:[t.h1,t.h2],distractors:t.dis,skill:'calc'});}
   return tasks;
 }
 
@@ -142,7 +142,7 @@ function gen_2_2(){
     ()=>{const a=ri(30,90)/10;const ok=ri(0,1)===0;const tvrz=ok?r1(a*2):r1(a*2+0.1);const spravne=tvrz===r1(a*2);return{text:`Je dvojnásobek čísla ${cz(a)} roven ${tvrz}?`,ans:spravne?'ANO':'NE',h1:'Spočítej 2 × dané číslo.',h2:spravne?'ANO':'NE'};},
   ];
   const tasks=[];
-  for(let i=0;i<13;i++){const t=T[i%T.length]();tasks.push({text:t.text,ans:t.ans,hints:[t.h1,t.h2],skill:'calc'});}
+  for(let i=0;i<13;i++){const t=T[i%T.length]();tasks.push({text:t.text,ans:t.ans,mc_opts:t.mc_opts,hints:[t.h1,t.h2],skill:'calc'});}
   return tasks;
 }
 
@@ -158,12 +158,12 @@ function gen_2_3(){
     ()=>{const z1=ri(1,3),z2=ri(1,3),z3=ri(1,4),z4=ri(1,4);return{text:`Sonda poslala 4 měření síly signálu: ${z1}, ${z2}, ${z3}, ${z4}. Jaký je jejich průměr? (na 2 desetinná místa)`,ans:r2((z1+z2+z3+z4)/4),h1:'Sečti všechna čtyři měření a vyděl čtyřmi.',h2:`= ${r2((z1+z2+z3+z4)/4)}`};},
     ()=>{const d=ri(4,9),a=ri(1,d-1);return{text:`Kolik ${d}tin chybí zlomku ${a}/${d} do celku ${d}/${d}? (napiš jen čitatel)`,ans:d-a,h1:`Celek je ${d}/${d}, odečti ${a}.`,h2:`= ${d-a}`};},
     ()=>{const avg=ri(4,12),x=avg-ri(1,3),y=2*avg-x;return{text:`Průměr dvou čísel je ${avg}, první je ${x}. Jaké je druhé číslo?`,ans:y,h1:`Součet obou = ${avg} × 2 = ${avg*2}, odečti první.`,h2:`= ${y}`};},
-    ()=>{const d=ri(4,9),a=ri(1,d-1);let b=ri(1,d-1);while(b===a)b=ri(1,d-1);return{text:`Který zlomek je větší: ${a}/${d}, nebo ${b}/${d}? Napiš jeho čitatel.`,ans:Math.max(a,b),h1:'Při stejném jmenovateli rozhoduje čitatel.',h2:`= ${Math.max(a,b)}`};},
+    ()=>{const d=ri(4,9),a=ri(1,d-1);let b=ri(1,d-1);while(b===a)b=ri(1,d-1);return{text:`Který zlomek je větší: ${a}/${d}, nebo ${b}/${d}? Napiš jeho čitatel.`,ans:Math.max(a,b),mc_opts:[a,b],h1:'Při stejném jmenovateli rozhoduje čitatel.',h2:`= ${Math.max(a,b)}`};},
     ()=>{const parts=ri(3,5);return{text:`Zásobník paliva má ${parts} ${skl(parts,'stejný díl','stejné díly','stejných dílů')}, spotřebovali ${parts-1} z nich. Kolik ${parts}tin zbylo? (napiš jen čitatel)`,ans:1,h1:`Z ${parts} dílů zbývá ${parts}−${parts-1}.`,h2:`= 1`};},
     ()=>{const d=ri(4,8),a=ri(1,d-2),b=ri(1,d-a-1)||1;const num=a+b;const ok=num===d;return{text:`Dají zlomky ${a}/${d} + ${b}/${d} dohromady přesně jeden celek?`,ans:ok?'ANO':'NE',h1:`Celek je ${d}/${d}. Je ${a}+${b} rovno ${d}?`,h2:ok?'ANO':'NE'};},
   ];
   const tasks=[];
-  for(let i=0;i<13;i++){const t=T[i%T.length]();tasks.push({text:t.text,ans:t.ans,hints:[t.h1,t.h2],skill:i%3===2?'anal':'calc'});}
+  for(let i=0;i<13;i++){const t=T[i%T.length]();tasks.push({text:t.text,ans:t.ans,mc_opts:t.mc_opts,hints:[t.h1,t.h2],skill:i%3===2?'anal':'calc'});}
   return tasks;
 }
 
@@ -189,7 +189,7 @@ function gen_3_1(){
     ()=>{const d=[3,4,5,6][ri(0,3)];const ok=ri(0,1)===0;const a=ok?d*ri(20,90):d*ri(20,90)+ri(1,d-1);return{text:`Náklad ${a} kontejnerů chceme rozdělit rovným dílem mezi ${d} ${sp(d,'raketa')}. Vyjde to beze zbytku?`,ans:a%d===0?'ANO':'NE',h1:`Je ${a} dělitelné ${d}?`,h2:a%d===0?'ANO':'NE'};},
   ];
   const tasks=[];
-  for(let i=0;i<13;i++){const t=T[i%T.length]();tasks.push({text:t.text,ans:t.ans,hints:[t.h1,t.h2],skill:'anal'});}
+  for(let i=0;i<13;i++){const t=T[i%T.length]();tasks.push({text:t.text,ans:t.ans,mc_opts:t.mc_opts,hints:[t.h1,t.h2],skill:'anal'});}
   return tasks;
 }
 
@@ -213,7 +213,7 @@ function gen_3_2(){
     ()=>{const n=[6,8,10,12,15][ri(0,4)];return{text:`Kolik dělitelů má číslo ${n} KROMĚ 1 a sebe sama?`,ans:divc(n)-2,dis:[String(divc(n))],h1:'Spočítej všechny dělitele a dva odečti.',h2:`= ${divc(n)-2}`};},
   ];
   const tasks=[];
-  for(let i=0;i<13;i++){const t=T[i%T.length]();tasks.push({text:t.text,ans:t.ans,hints:[t.h1,t.h2],distractors:t.dis,skill:'anal'});}
+  for(let i=0;i<13;i++){const t=T[i%T.length]();tasks.push({text:t.text,ans:t.ans,mc_opts:t.mc_opts,hints:[t.h1,t.h2],distractors:t.dis,skill:'anal'});}
   return tasks;
 }
 
@@ -266,7 +266,7 @@ function gen_4_1(){
     ()=>{const a=ri(20,70);return{text:`Anténa satelitu svírá se svislicí úhel ${a}°. O kolik stupňů ji musíš otočit do pravého úhlu (90°)?`,ans:90-a,h1:'Odečti od pravého úhlu.',h2:`90 − ${a} = ${90-a}°`};},
   ];
   const tasks=[];
-  for(let i=0;i<T.length;i++){const t=T[i]();tasks.push({text:t.text,ans:t.ans,hints:[t.h1,t.h2],skill:'geo'});}
+  for(let i=0;i<T.length;i++){const t=T[i]();tasks.push({text:t.text,ans:t.ans,mc_opts:t.mc_opts,hints:[t.h1,t.h2],skill:'geo'});}
   return tasks;
 }
 
@@ -310,7 +310,7 @@ function gen_4_3(){
     ()=>{const deg=ri(2,5);return{text:`Kolik SEKUND má ${deg}′? (1′ = 60″)`,ans:deg*60,h1:'Jedna minuta má 60 vteřin.',h2:`${deg} · 60 = ${deg*60}″`};},
   ];
   const tasks=[];
-  for(let i=0;i<13;i++){const t=T[i%T.length]();tasks.push({text:t.text,ans:t.ans,hints:[t.h1,t.h2],skill:'calc'});}
+  for(let i=0;i<13;i++){const t=T[i%T.length]();tasks.push({text:t.text,ans:t.ans,mc_opts:t.mc_opts,hints:[t.h1,t.h2],skill:'calc'});}
   return tasks;
 }
 
@@ -349,7 +349,7 @@ function gen_5_1(){
     ()=>{const d=ri(2,12);return{text:`Úsečka má délku ${d} cm.\nJak dlouhý je její obraz v osové souměrnosti?`,ans:d,h1:'Osová souměrnost délky nemění — je to shodné zobrazení.',h2:`${d} cm, stejně jako vzor`};},
   ];
   const tasks=[];
-  for(let i=0;i<T.length;i++){const t=T[i]();tasks.push({text:t.text,ans:t.ans,hints:[t.h1,t.h2],skill:'geo'});}
+  for(let i=0;i<T.length;i++){const t=T[i]();tasks.push({text:t.text,ans:t.ans,mc_opts:t.mc_opts,hints:[t.h1,t.h2],skill:'geo'});}
   return tasks;
 }
 
@@ -398,7 +398,7 @@ function gen_5_3(){
     ()=>{return{text:`Mění shodné zobrazení obsah útvaru?`,ans:'NE',h1:'Shodnost zachovává všechny rozměry i obsah.',h2:'NE'};},
   ];
   const tasks=[];
-  for(let i=0;i<13;i++){const t=T[i%T.length]();tasks.push({text:t.text,ans:t.ans,hints:[t.h1,t.h2],skill:'geo'});}
+  for(let i=0;i<13;i++){const t=T[i%T.length]();tasks.push({text:t.text,ans:t.ans,mc_opts:t.mc_opts,hints:[t.h1,t.h2],skill:'geo'});}
   return tasks;
 }
 
@@ -516,7 +516,7 @@ function gen_7_1(){
     ()=>{const a=ri(30,80),b=ri(30,80);return{text:`Tři lodě letí v trojúhelníkové formaci. U dvou z nich svírají spojnice úhly ${a}° a ${b}°. Jaký je úhel u třetí lodi?`,ans:180-a-b,h1:'Součet vnitřních úhlů trojúhelníku je 180°.',h2:`180 − ${a} − ${b} = ${180-a-b}°`};},
   ];
   const tasks=[];
-  for(let i=0;i<13;i++){const t=T[i%T.length]();tasks.push({text:t.text,ans:t.ans,hints:[t.h1,t.h2],skill:'geo'});}
+  for(let i=0;i<13;i++){const t=T[i%T.length]();tasks.push({text:t.text,ans:t.ans,mc_opts:t.mc_opts,hints:[t.h1,t.h2],skill:'geo'});}
   return tasks;
 }
 
@@ -535,7 +535,7 @@ function gen_7_2(){
     ()=>{const a=ri(5,12),b=ri(4,11),c=ri(3,a+b-1);const nej=Math.max(a,b,c);return{text:`Trojúhelník má strany ${a}, ${b}, ${c} cm. Jak dlouhá je jeho NEJDELŠÍ strana?`,ans:nej,h1:'Porovnej tři délky.',h2:`= ${nej} cm`};},
   ];
   const tasks=[];
-  for(let i=0;i<13;i++){const t=T[i%T.length]();tasks.push({text:t.text,ans:t.ans,hints:[t.h1,t.h2],skill:'geo'});}
+  for(let i=0;i<13;i++){const t=T[i%T.length]();tasks.push({text:t.text,ans:t.ans,mc_opts:t.mc_opts,hints:[t.h1,t.h2],skill:'geo'});}
   return tasks;
 }
 
@@ -556,7 +556,7 @@ function gen_7_3(){
     ()=>{const d=[2,3,4,5][ri(0,3)],n=d*ri(3,8);return{text:`Kolik je 1/${d} z čísla ${n}?`,ans:n/d,h1:`Vyděl číslo jmenovatelem: ${n} : ${d}.`,h2:`= ${n/d}`};},
   ];
   const tasks=[];
-  for(let i=0;i<13;i++){const t=T[i%T.length]();tasks.push({text:t.text,ans:t.ans,hints:[t.h1,t.h2],skill:i%3===1?'calc':'geo'});}
+  for(let i=0;i<13;i++){const t=T[i%T.length]();tasks.push({text:t.text,ans:t.ans,mc_opts:t.mc_opts,hints:[t.h1,t.h2],skill:i%3===1?'calc':'geo'});}
   return tasks;
 }
 

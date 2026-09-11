@@ -69,7 +69,7 @@ function gen_1_2(){
     ()=>{const cel=ri(40,90)/10,ub=ri(11,30)/10;return{text:ask(`Svitek byl dlouhý ${cz(cel)} m, ${cz(ub)} m se ukroutilo. Kolik metrů zbylo?`),ans:r1(cel-ub),h1:'Odečti ukroucenou část.',h2:`= ${r1(cel-ub)} m`};},
   ];
   const tasks=[];
-  for(let i=0;i<13;i++){const t=T[i%T.length]();tasks.push({text:t.text,ans:t.ans,hints:[t.h1,t.h2],skill:'calc',distractors:t.dis});}
+  for(let i=0;i<13;i++){const t=T[i%T.length]();tasks.push({text:t.text,ans:t.ans,mc_opts:t.mc_opts,hints:[t.h1,t.h2],skill:'calc',distractors:t.dis});}
   return tasks;
 }
 
@@ -130,7 +130,7 @@ function gen_2_1(){
     ()=>{const a=ri(2,6),k=ri(2,5);return{text:`${a*k} ${skl(a*k,'schod','schody','schodů')} rozdělíš do ${k} stejných úseků. Kolik schodů má jeden úsek?`,ans:a,dis:[String(a*k)],h1:`Vyděl počet schodů počtem úseků.`,h2:`${a*k} : ${k} = ${a}`};},
   ];
   const tasks=[];
-  for(let i=0;i<13;i++){const t=T[i%T.length]();tasks.push({text:t.text,ans:t.ans,hints:[t.h1,t.h2],skill:'calc',distractors:t.dis});}
+  for(let i=0;i<13;i++){const t=T[i%T.length]();tasks.push({text:t.text,ans:t.ans,mc_opts:t.mc_opts,hints:[t.h1,t.h2],skill:'calc',distractors:t.dis});}
   return tasks;
 }
 
@@ -154,7 +154,7 @@ function gen_2_2(){
     ()=>{const d=ri(3,8),a=ri(1,d-1);const num=d-a;return{text:`Z truhlice bylo ${a}/${d} zlata vybráno. Jaká část zlata v truhlici zbyla? (zlomek)`,ans:asFrac(num,d),h1:`Celek je ${d}/${d}, odečti ${a}/${d}.`,h2:`${num}/${d}`};},
   ];
   const tasks=[];
-  for(let i=0;i<13;i++){const t=T[i%T.length]();tasks.push({text:t.text,ans:t.ans,hints:[t.h1,t.h2],skill:'calc',distractors:t.dis});}
+  for(let i=0;i<13;i++){const t=T[i%T.length]();tasks.push({text:t.text,ans:t.ans,mc_opts:t.mc_opts,hints:[t.h1,t.h2],skill:'calc',distractors:t.dis});}
   return tasks;
 }
 
@@ -177,7 +177,7 @@ function gen_2_3(){
     ()=>{const a=ri(2,4),b=ri(3,7);const whole=a*b;return{text:`Svitek dělíš na proužky široké 1/${b} m. Kolik proužků nařežeš ze ${a} m svitku?`,ans:whole,h1:`Dělení hodnotou 1/${b} = násobit ${b}.`,h2:`${a} × ${b} = ${whole}`};},
   ];
   const tasks=[];
-  for(let i=0;i<13;i++){const t=T[i%T.length]();tasks.push({text:t.text,ans:t.ans,hints:[t.h1,t.h2],skill:'calc',distractors:t.dis});}
+  for(let i=0;i<13;i++){const t=T[i%T.length]();tasks.push({text:t.text,ans:t.ans,mc_opts:t.mc_opts,hints:[t.h1,t.h2],skill:'calc',distractors:t.dis});}
   return tasks;
 }
 
@@ -204,7 +204,7 @@ function gen_3_1(){
     ()=>{const a=ri(4,12),b=ri(4,12);return{text:`Jaká je absolutní hodnota výrazu |${a} − ${b}|?`,ans:Math.abs(a-b),dis:[String(a+b)],h1:'Nejdřív spočítej vnitřek, pak jeho vzdálenost od nuly.',h2:`= ${Math.abs(a-b)}`};},
   ];
   const tasks=[];
-  for(let i=0;i<13;i++){const t=T[i%T.length]();tasks.push({text:t.text,ans:t.ans,hints:[t.h1,t.h2],skill:'calc',distractors:t.dis});}
+  for(let i=0;i<13;i++){const t=T[i%T.length]();tasks.push({text:t.text,ans:t.ans,mc_opts:t.mc_opts,hints:[t.h1,t.h2],skill:'calc',distractors:t.dis});}
   return tasks;
 }
 
@@ -226,7 +226,7 @@ function gen_3_2(){
     ()=>{const step=ri(2,6),n=ri(3,6);return{text:`Každý ze ${n} ${skl(n,'schodu','schodů','schodů')} klesá o ${step} m. O kolik metrů celkem klesneš po ${n} schodech? (zapiš jako záporné číslo)`,ans:-(step*n),h1:'Klesání = záporné; vynásob počtem schodů.',h2:`= −${step*n} m`};},
   ];
   const tasks=[];
-  for(let i=0;i<13;i++){const t=T[i%T.length]();tasks.push({text:t.text,ans:t.ans,hints:[t.h1,t.h2],skill:'calc',distractors:t.dis});}
+  for(let i=0;i<13;i++){const t=T[i%T.length]();tasks.push({text:t.text,ans:t.ans,mc_opts:t.mc_opts,hints:[t.h1,t.h2],skill:'calc',distractors:t.dis});}
   return tasks;
 }
 
@@ -243,12 +243,12 @@ function gen_3_3(){
     ()=>{const a=ri(2,5),b=ri(3,9),c=ri(2,5);return{text:`Vynásob záporný zlomek celým číslem: (−${a}/${b}) × ${c} = ?`,ans:asFrac(-a*c,b),h1:'Záporný zlomek krát kladné číslo = záporné; násob jen čitatel.',h2:`−${a*c}/${b}, pak zkrať`};},
     ()=>{const a=ri(3,8),b=ri(3,8);const gt=(-a/b)<(-b/a);return{text:`Je −${a}/${b} menší než −${b}/${a}? (menší = více vlevo na číselné ose)`,ans:gt?'ANO':'NE',h1:'U záporných čísel je menší to, které je „zápornější".',h2:gt?'ANO':'NE'};},
     ()=>{const cel=ri(-5,-1);return{text:`Které racionální číslo leží přesně uprostřed mezi ${cel} a ${cel+1}? (desetinné)`,ans:r1(cel+0.5),h1:'Střed = průměr obou čísel.',h2:`= ${cz(cel+0.5)}`};},
-    ()=>{const a=ri(2,6)/10;const b=ri(2,6)/10;const bigger=Math.max(a,b);return{text:`Které číslo je větší: −${cz(a)}, nebo −${cz(b)}?${a===b?' (jsou stejná — napiš −'+cz(a)+')':''}`,ans:-Math.min(a,b),h1:'Ze dvou záporných je větší to blíž nule (menší velikost).',h2:`= ${cz(-Math.min(a,b))}`};},
+    ()=>{const a=ri(2,6)/10;const b=ri(2,6)/10;const bigger=Math.max(a,b);return{text:`Které číslo je větší: −${cz(a)}, nebo −${cz(b)}?${a===b?' (jsou stejná — napiš −'+cz(a)+')':''}`,ans:-Math.min(a,b),mc_opts:[-a,-b],h1:'Ze dvou záporných je větší to blíž nule (menší velikost).',h2:`= ${cz(-Math.min(a,b))}`};},
     ()=>{const a=ri(2,5),b=ri(3,8);return{text:`Jaké číslo je opačné k −${a}/${b}? (zapiš jako zlomek)`,ans:`${a}/${b}`,h1:'Opačné číslo má opačné znaménko.',h2:`${a}/${b}`};},
     ()=>{const t0=ri(15,40)/10,dn=ri(20,55)/10;return{text:`V hrobce byla teplota −${cz(t0)} °C, přes noc klesla o dalších ${cz(dn)} °C. Jaká je teď? (°C)`,ans:r1(-t0-dn),h1:'Klesnutí = odečti od záporné teploty (jdeš hlouběji do záporu).',h2:`−${cz(t0)} − ${cz(dn)} = ${r1(-t0-dn)} °C`};},
   ];
   const tasks=[];
-  for(let i=0;i<13;i++){const t=T[i%T.length]();tasks.push({text:t.text,ans:t.ans,hints:[t.h1,t.h2],skill:'calc',distractors:t.dis});}
+  for(let i=0;i<13;i++){const t=T[i%T.length]();tasks.push({text:t.text,ans:t.ans,mc_opts:t.mc_opts,hints:[t.h1,t.h2],skill:'calc',distractors:t.dis});}
   return tasks;
 }
 
@@ -382,7 +382,7 @@ function gen_5_1(){
     ()=>{const p=[10,20,25,50][ri(0,3)],z=ri(3,9)*40;return{text:`Poklad má hodnotu ${z} zlaťáků. Past ti sebrala ${p} %. O kolik zlaťáků jsi přišel?`,ans:Math.round(p/100*z),dis:(p!==50?[String(z-Math.round(p/100*z))]:[]),h1:'Ztráta = základ × procenta : 100.',h2:`= ${Math.round(p/100*z)}`};},
   ];
   const tasks=[];
-  for(let i=0;i<13;i++){const t=T[i%T.length]();tasks.push({text:t.text,ans:t.ans,hints:[t.h1,t.h2],skill:'calc',distractors:t.dis});}
+  for(let i=0;i<13;i++){const t=T[i%T.length]();tasks.push({text:t.text,ans:t.ans,mc_opts:t.mc_opts,hints:[t.h1,t.h2],skill:'calc',distractors:t.dis});}
   return tasks;
 }
 
@@ -502,7 +502,7 @@ function gen_6_3(){
     ()=>{return{text:`Určuje shoda jen ve dvou stranách (bez úhlu) shodnost trojúhelníků?`,ans:'NE',h1:'Dvě strany bez úhlu mezi nimi trojúhelník jednoznačně neurčí.',h2:'NE'};},
   ];
   const tasks=[];
-  for(let i=0;i<13;i++){const t=T[i%T.length]();tasks.push({text:t.text,ans:t.ans,hints:[t.h1,t.h2],skill:'geo'});}
+  for(let i=0;i<13;i++){const t=T[i%T.length]();tasks.push({text:t.text,ans:t.ans,mc_opts:t.mc_opts,hints:[t.h1,t.h2],skill:'geo'});}
   // thematické
   { const s=(()=>{const set=new Set();while(set.size<3)set.add(ri(3,12));return[...set].sort((x,y)=>x-y);})(); tasks.push({text:`Dvě kamenné desky ve tvaru trojúhelníku mají strany ${s[0]}, ${s[1]}, ${s[2]} cm a ${s[0]}, ${s[1]}, ${s[2]} cm. Jsou shodné (věta sss)?`,ans:'ANO',hints:['Shodují se ve všech třech stranách.','ANO'],skill:'geo'}); }
   { const b=ri(40,80),c=ri(40,80),a=180-b-c; tasks.push({text:`Trojúhelníkový vlys nad branou chrámu má dva úhly ${b}° a ${c}°. Jaký je jeho třetí úhel (potřebný pro větu usu)?`,ans:a,hints:['Součet úhlů v trojúhelníku = 180°.',`180 − ${b} − ${c} = ${a}°`],skill:'geo'}); }

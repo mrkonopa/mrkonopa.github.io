@@ -66,18 +66,45 @@ const ok = (c, m) => { if (c) { pass++; } else { fail++; console.log('  ❌ ' + 
   // ── 3) trWrong() zapíše chybu na TR.curIdx, trDraw() dodá platný curIdx ──
   const idxBefore = await page.evaluate(() => TR.curIdx);
   ok(idxBefore != null, `trDraw() nastavil TR.curIdx (je ${idxBefore})`);
-  await page.evaluate(() => {
+  /* 🔴 Odpovědět ŠPATNĚ nejde naslepo prvním tlačítkem. Selektor sbírá
+     i řádek ANO/NE, který je v DOM PŘED mřížkou MC (a u číselné úlohy
+     je jen skrytý, ne odstraněný), takže `btns[0]` byl vždycky „✓ ANO".
+     U úlohy, kde je správně ANO, tím test odpověděl SPRÁVNĚ, chyba se
+     nezapsala, S.trainErrs['1-1'] vůbec nevzniklo a krok 4 spadl na
+     „Cannot set properties of undefined". Padalo to podle toho, jaká
+     úloha se zrovna vylosovala — na CI jednou za čas, lokálně osmkrát
+     po sobě ne. Volba se proto hledá podle TOHO, CO JE V NÍ, a bere se
+     jen z viditelných tlačítek. */
+  const klikl = await page.evaluate(() => {
     const inp = document.getElementById('tr-ans');
-    if (inp && document.getElementById('tr-input-row').style.display !== 'none') { inp.value = '__spatne__'; trSubmit(); }
-    else { const btns = document.querySelectorAll('#tr-mc .mc-btn,#tr-yn-row button'); if (btns[0]) btns[0].click(); }
+    if (inp && document.getElementById('tr-input-row').style.display !== 'none') {
+      inp.value = '__spatne__'; trSubmit(); return 'text';
+    }
+    /* Neodfiltrovávat podle viditelnosti: tenhle test kreslí trénink
+       přímými voláními, ne přes zobrazenou obrazovku, takže NIC nemá
+       offsetParent a seznam by vyšel prázdný (vyzkoušeno). Rozhoduje
+       obsah volby, ne to, kde v DOM leží. */
+    const btns = [...document.querySelectorAll('#tr-mc .mc-btn, #tr-yn-row button')];
+    const hodnota = b => (b.dataset && b.dataset.v != null) ? b.dataset.v
+      : b.textContent.replace(/^[✓✗A-D]\s*/, '').trim();
+    const spatne = btns.find(b => !checkAns(hodnota(b), TR.task.ans));
+    if (!spatne) return 'NENALEZENA ŠPATNÁ VOLBA z ' + JSON.stringify(btns.map(hodnota));
+    spatne.click();
+    return 'volba:' + hodnota(spatne);
   });
+  ok(!/^NENALEZENA/.test(klikl), `našla se prokazatelně špatná odpověď (${klikl})`);
   await page.waitForTimeout(150);
   const recordedErr = await page.evaluate((idx) => (S.trainErrs && S.trainErrs['1-1'] && S.trainErrs['1-1'][idx]) || 0, idxBefore);
   ok(recordedErr >= 1, `chyba na indexu ${idxBefore} se zapsala do S.trainErrs (je ${recordedErr})`);
 
   // ── 4) trCorrect() sníží zpět chybovost daného indexu ──
-  await page.evaluate((idx) => { S.trainErrs['1-1'][idx] = 3; TR.curIdx = idx; trCorrect(); }, idxBefore);
-  const afterDecay = await page.evaluate((idx) => S.trainErrs['1-1'][idx], idxBefore);
+  /* `S.trainErrs['1-1']` tu MUSÍ existovat, protože ho vyrobil krok 3.
+     Kdyby ne, chceme srozumitelné ❌, ne TypeError z page.evaluate. */
+  const afterDecay = await page.evaluate((idx) => {
+    if (!S.trainErrs || !S.trainErrs['1-1']) return 'chybí S.trainErrs[1-1]';
+    S.trainErrs['1-1'][idx] = 3; TR.curIdx = idx; trCorrect();
+    return S.trainErrs['1-1'][idx];
+  }, idxBefore);
   ok(afterDecay === 2, `správná odpověď sníží chybovost o 1 (3→${afterDecay})`);
 
   // ── 5) pytlík se nikdy nevyprázdní bez náhrady (trDraw funguje opakovaně) ──
