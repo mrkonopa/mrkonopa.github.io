@@ -8,12 +8,16 @@
    má 3 632 videí s dílem, stranou i YouTube ID — ale chybí článek
    mise → strana učebnice, a ten je pedagogické rozhodnutí.
 
-   PROČ KLIKACÍ NÁSTROJ A NE AUTOMAT: názvy videí NEOBSAHUJÍ TÉMA.
-   Změřeno na všech 3 632: jsou to čistě „Matýskova matematika, 4. díl,
-   strana 24, cvičení 1a". Podle čeho hledat „zaokrouhlování" tam tedy
-   není nic — vyhledávání podle klíčového slova by bylo k ničemu.
-   Zbývá buď kniha po ruce, nebo doplnit popisky stran zvenčí; nástroj
-   umí obojí (viz pole „Popisky stran" v pravém sloupci).
+   PROČ NE ČISTÝ AUTOMAT: názvy videí NEOBSAHUJÍ TÉMA. Změřeno na všech
+   3 632: jsou to čistě „Matýskova matematika, 4. díl, strana 24,
+   cvičení 1a", takže podle čeho hledat „zaokrouhlování" tam není nic.
+   Chybějící rozměr dodávají popisky stran (matyskova-popisky-stran.csv,
+   567 stran s tématem, napojeno na videa 1 : 1). Z nich nástroj VYROBÍ
+   NÁVRH — shoda názvu mise a tématu strany po slovních základech — ale
+   vybírá pořád člověk. Strojově odvozená pedagogika je v tomhle
+   repozitáři doložený zdroj chyb a návrh se umí splést srozumitelně:
+   „Dělení bez zbytku" mu sedne na „Dělení se zbytkem" (společné slovo,
+   opačné téma) a „Souřadnice a síť" na „Síť krychle".
 
    Výstup: tools/videa-mapovani.html — JEDEN soubor s daty uvnitř,
    takže se dá otevřít dvojklikem z Windows (žádný server, žádné fetch
@@ -27,6 +31,7 @@ const path = require('path');
 const ROOT = path.join(__dirname, '..');
 const CSV_VIDEA = path.join(ROOT, 'tools/data/matyskova-videa.csv');
 const CSV_MISE = path.join(ROOT, 'tools/data/1stupen-videa-mapovani.csv');
+const CSV_POPISKY = path.join(ROOT, 'tools/data/matyskova-popisky-stran.csv');
 /* výstup jde přepsat argumentem, aby test mohl generovat do dočasného
    souboru a porovnat ho s tím zapsaným v repozitáři (hlídání rozjetí) */
 const OUT = process.argv[2] ? path.resolve(process.argv[2]) : path.join(ROOT, 'tools/videa-mapovani.html');
@@ -34,7 +39,8 @@ const OUT = process.argv[2] ? path.resolve(process.argv[2]) : path.join(ROOT, 't
 /* ── CSV parser, který zvládne uvozovky a čárky uvnitř polí ────────
    Názvy videí čárky OBSAHUJÍ („…, 4. díl, strana 24…"), takže dělit
    na `split(',')` by rozsekalo řádek na kusy. */
-function parseCsv(text) {
+function parseCsv(text, delim) {
+  const D = delim || ',';
   const rows = [];
   let row = [], val = '', q = false;
   for (let i = 0; i < text.length; i++) {
@@ -43,12 +49,12 @@ function parseCsv(text) {
       if (c === '"') { if (text[i + 1] === '"') { val += '"'; i++; } else q = false; }
       else val += c;
     } else if (c === '"') q = true;
-    else if (c === ',') { row.push(val); val = ''; }
+    else if (c === D) { row.push(val); val = ''; }
     else if (c === '\n') { row.push(val); rows.push(row); row = []; val = ''; }
     else if (c !== '\r') val += c;
   }
   if (val !== '' || row.length) { row.push(val); rows.push(row); }
-  const head = rows.shift().map(h => h.trim());
+  const head = rows.shift().map(h => h.replace(/^﻿/, '').trim());
   return rows.filter(r => r.length > 1).map(r => {
     const o = {}; head.forEach((h, i) => { o[h] = (r[i] || '').trim(); }); return o;
   });
@@ -56,6 +62,25 @@ function parseCsv(text) {
 
 const videa = parseCsv(fs.readFileSync(CSV_VIDEA, 'utf8'));
 const mise = parseCsv(fs.readFileSync(CSV_MISE, 'utf8'));
+/* Popisky stran jsou oddělené STŘEDNÍKEM, protože samotná témata čárky
+   obsahují („Orientace na číselné ose; jednotky, desítky"). */
+const popisky = parseCsv(fs.readFileSync(CSV_POPISKY, 'utf8'), ';');
+
+/* slug z popisků → přesný název dílu, jak ho zná CSV s videi.
+   Ověřeno měřením: po tomhle mapování má popisek i video 567 z 567
+   stran, tedy 100 %. Kdyby se některý název rozešel, generátor to
+   níž zjistí a spadne — tichá mezera by znamenala díl bez témat. */
+const SLUG_DIL = {
+  '7-dil': '7. díl',
+  '8-dil': '8. díl',
+  'geometrie-3': 'Geometrie pro 3. ročník',
+  '4-rocnik-1-dil': '4. ročník, 1. díl',
+  '4-rocnik-2-dil': '4. ročník, 2. díl',
+  'geometrie-4': 'Geometrie pro 4. ročník',
+  '5-rocnik-1-dil': '5. ročník, 1. díl',
+  '5-rocnik-2-dil': '5. ročník, 2. díl',
+  'geometrie-5': 'Geometrie pro 5. ročník'
+};
 
 /* ── z názvu vytáhni stranu a cvičení ─────────────────────────────── */
 /* `\s+`, ne jedna mezera: 18 titulků má za slovem „strana" nedělitelnou
@@ -98,8 +123,35 @@ const MISE = mise.map(m => ({
 const stranPerDil = {};
 zaznamy.forEach(([di, s]) => { (stranPerDil[di] = stranPerDil[di] || new Set()).add(s); });
 
+/* ── témata stran a ročník dílu ───────────────────────────────────── */
+const TEMATA = {};      // "dilIndex|strana" → téma
+const DIL_ROCNIK = {};  // dilIndex → '3' | '4' | '5'
+let bezDilu = 0, mimoVidea = 0;
+popisky.forEach(p => {
+  const nazev = SLUG_DIL[p.dil_slug];
+  if (!nazev) { bezDilu++; return; }
+  const di = dily.indexOf(nazev);
+  if (di < 0) { mimoVidea++; return; }
+  DIL_ROCNIK[di] = p.rocnik;
+  TEMATA[di + '|' + parseInt(p.strana, 10)] = p.tema;
+});
+
+/* Tichá mezera by tu byla nejhorší: díl bez témat vypadá v nástroji
+   úplně normálně, jen se u něj nedá nic najít. */
+if (bezDilu || mimoVidea) {
+  console.error('❌ Popisky se nepodařilo napojit: ' + bezDilu + ' neznámých slugů, ' +
+    mimoVidea + ' dílů chybí v CSV s videi. Zkontroluj SLUG_DIL.');
+  process.exit(1);
+}
+const temPocet = Object.keys(TEMATA).length;
+if (temPocet < 500) {
+  console.error('❌ Témat napojeno jen ' + temPocet + ' (čekáno 500+).');
+  process.exit(1);
+}
+
 console.log('Načteno: ' + zaznamy.length + ' videí · ' + dily.length + ' dílů · ' + MISE.length + ' misí');
 console.log('Bez použitelné strany nebo ID: ' + bezStrany);
+console.log('Popisků stran napojeno: ' + temPocet + ' · dílů s ročníkem: ' + Object.keys(DIL_ROCNIK).length);
 dily.forEach((d, i) => {
   const s = [...(stranPerDil[i] || [])].sort((a, b) => a - b);
   console.log('  ' + String(i).padStart(2) + '  ' + d.padEnd(26) + s.length + ' stran (' + s[0] + '–' + s[s.length - 1] + ')');
@@ -144,7 +196,10 @@ const html = `<meta charset="utf-8">
  .s .p{display:block;font-size:10px;color:var(--muted)}
  .s.on{background:var(--accent);border-color:var(--accent);color:#fff}
  .s.on .p{color:#dce8fb}
- .s.tema{border-color:var(--warn)}
+ .navrh{display:flex;align-items:center;gap:8px;padding:6px 8px;border:1px dashed var(--warn);
+        border-radius:6px;margin-top:5px;cursor:pointer;background:#fffaf4}
+ .navrh:hover{border-style:solid}
+ .navrh.on{background:#e9f6ee;border-color:var(--ok);border-style:solid}
  .vid{display:flex;align-items:center;gap:8px;padding:6px 8px;border:1px solid var(--line);
       border-radius:6px;margin-top:5px;cursor:pointer;background:#fff}
  .vid:hover{border-color:var(--accent)}
@@ -175,6 +230,8 @@ const html = `<meta charset="utf-8">
 const DILY = ${JSON.stringify(dily)};
 const Z = ${JSON.stringify(zaznamy)};
 const MISE = ${JSON.stringify(MISE)};
+const TEMATA = ${JSON.stringify(TEMATA)};
+const DIL_ROCNIK = ${JSON.stringify(DIL_ROCNIK)};
 const KLIC = 'MATYSKA_MAPOVANI';
 
 /* strany a videa podle dílu — spočítá se jednou */
@@ -184,18 +241,52 @@ Z.forEach(([d, s, id, cv]) => {
   (PODLE[d][s] = PODLE[d][s] || []).push({ id, cv });
 });
 
-/* volitelné popisky stran: "dil;strana;téma" na řádek. Bez nich se
-   mapuje z knihy; s nimi (třeba z obsahu učebnice) je vidět, co na
-   které straně je. */
-let TEMATA = {};
-function klicTema(d, s) { return d + '|' + s; }
+function tema(di, s) { return TEMATA[di + '|' + s] || ''; }
+
+/* ── NÁVRH STRAN ───────────────────────────────────────────────────
+   Témata stran jsou konkrétní („Násobení a dělení čísly 2, 3"), názvy
+   misí obecnější („Malá násobilka"), takže se shoda hledá po slovních
+   ZÁKLADECH, ne po celých slovech — čeština by jinak „násobení" a
+   „násobilku" považovala za dvě různá slova. Základ = prvních pět
+   znaků bez diakritiky, což pokryje ohýbání i odvozeniny.
+
+   Je to NÁVRH, ne rozhodnutí: v nástroji je označený jako návrh a
+   nic nevybírá za tebe. Strojově odvozená pedagogika je v tomhle
+   repozitáři doložený zdroj chyb, tak ať je vidět, čí je to volba. */
+const STOP = new Set(['a','i','do','na','se','po','pro','ale','nebo','jak','kde','tak','pak','aby']);
+function zaklady(txt) {
+  return [...new Set(String(txt || '')
+    .toLowerCase()
+    .normalize('NFD').replace(/[\\u0300-\\u036f]/g, '')
+    .split(/[^a-z0-9]+/)
+    .filter(w => w.length >= 3 && !STOP.has(w))
+    .map(w => w.slice(0, 5)))];
+}
+function skore(nazevMise, temaStrany) {
+  const a = zaklady(nazevMise), b = new Set(zaklady(temaStrany));
+  if (!a.length || !b.size) return 0;
+  const shoda = a.filter(z => b.has(z)).length;
+  return shoda ? shoda / a.length : 0;
+}
+function navrhy(m, limit) {
+  const out = [];
+  Object.keys(PODLE).forEach(di => {
+    if (String(DIL_ROCNIK[di] || '') !== String(m.r)) return;
+    Object.keys(PODLE[di]).forEach(s => {
+      const t = tema(di, s);
+      const sc = skore(m.nm, t);
+      if (sc > 0) out.push({ di: +di, s: +s, t, sc });
+    });
+  });
+  out.sort((x, y) => y.sc - x.sc || x.di - y.di || x.s - y.s);
+  return out.slice(0, limit || 8);
+}
 
 let STAV = {};      // "rocnik/mise" → {dil, strana, id, cv, pozn}
 let vybrana = 0;
 
 function nacti() {
   try { STAV = JSON.parse(localStorage.getItem(KLIC) || '{}') || {}; } catch (e) { STAV = {}; }
-  try { TEMATA = JSON.parse(localStorage.getItem(KLIC + '_TEMATA') || '{}') || {}; } catch (e) { TEMATA = {}; }
   // předvyplň z CSV, pokud tam něco je a v localStorage ještě ne
   MISE.forEach(m => {
     const k = kl(m);
@@ -241,24 +332,44 @@ function renderDetail() {
   let html = '<h2>' + esc(m.r) + '. ročník · ' + esc(m.id) + ' — ' + esc(m.nm) + '</h2>' +
     '<div class="podnadpis">Vyber díl, pak stranu a nakonec konkrétní cvičení.</div>';
 
+  /* NÁVRHY — nejdřív, ať se většinou jen potvrzuje místo hledání */
+  const nav = navrhy(m, 6);
+  if (nav.length) {
+    html += '<label>Návrh podle tématu <span style="font-weight:400">(strojový tip, ne rozhodnutí — ověř si ho)</span></label>';
+    nav.forEach(n => {
+      const vyb = String(s.dil) === DILY[n.di] && String(s.strana) === String(n.s);
+      html += '<div class="navrh' + (vyb ? ' on' : '') + '" data-navrh-di="' + n.di + '" data-navrh-s="' + n.s + '">' +
+        '<span><b style="color:#fff">' + esc(n.t) + '</b> ' +
+        '<span style="color:var(--muted);font-size:11px">' + esc(DILY[n.di]) + ', s. ' + n.s +
+        ' · ' + PODLE[n.di][n.s].length + '×</span></span></div>';
+    });
+  }
+
+  /* Díly se nabízejí jen pro ročník té mise — patnáct dílů v seznamu
+     je zbytečná práce, když kandidáti jsou tři. */
+  const vsechny = !!s.vsechnyDily;
+  const nabidka = DILY.map((d, i) => i).filter(i =>
+    vsechny || String(DIL_ROCNIK[i] || '') === String(m.r) || String(s.dil) === String(DILY[i]));
   html += '<label for="d-dil">Díl učebnice</label><select id="d-dil"><option value="">— vyber díl —</option>' +
-    DILY.map((d, i) => '<option value="' + i + '"' + (String(s.dil) === String(d) ? ' selected' : '') + '>' +
-      esc(d) + ' (' + Object.keys(PODLE[i] || {}).length + ' stran)</option>').join('') + '</select>';
+    nabidka.map(i => '<option value="' + i + '"' + (String(s.dil) === String(DILY[i]) ? ' selected' : '') + '>' +
+      esc(DILY[i]) + ' (' + Object.keys(PODLE[i] || {}).length + ' stran)</option>').join('') + '</select>' +
+    '<label style="display:flex;align-items:center;gap:6px;margin-top:6px;font-weight:400">' +
+    '<input type="checkbox" id="d-vse"' + (vsechny ? ' checked' : '') + '> ukázat všech ' + DILY.length + ' dílů</label>';
 
   const di = DILY.indexOf(s.dil);
   if (di >= 0) {
     const strany = Object.keys(PODLE[di] || {}).map(Number).sort((a, b) => a - b);
-    html += '<label>Strana <span style="font-weight:400">(číslo nahoře, počet videí dole)</span></label>' +
+    html += '<label>Strana <span style="font-weight:400">(najeď myší pro téma, dole počet videí)</span></label>' +
       '<div class="mrizka">' + strany.map(n => {
-        const t = TEMATA[klicTema(s.dil, n)];
-        return '<button class="s' + (String(s.strana) === String(n) ? ' on' : '') + (t ? ' tema' : '') +
+        const t = tema(di, n);
+        return '<button class="s' + (String(s.strana) === String(n) ? ' on' : '') +
           '" data-s="' + n + '"' + (t ? ' title="' + esc(t) + '"' : '') + '>' + n +
           '<span class="p">' + PODLE[di][n].length + '</span></button>';
       }).join('') + '</div>';
 
     const vids = (PODLE[di] || {})[s.strana] || [];
     if (vids.length) {
-      const t = TEMATA[klicTema(s.dil, s.strana)];
+      const t = tema(di, s.strana);
       html += '<label>Cvičení na straně ' + esc(s.strana) + (t ? ' — ' + esc(t) : '') + '</label>';
       vids.forEach(v => {
         html += '<div class="vid' + (s.id === v.id ? ' on' : '') + '" data-id="' + esc(v.id) + '" data-cv="' + esc(v.cv) + '">' +
@@ -278,14 +389,16 @@ function renderDetail() {
     '<button class="btn" id="b-clear">Vymazat u této mise</button>' +
     '<button class="btn p" id="b-next">Další mise ▸</button></div>';
 
-  html += '<details><summary>Popisky stran (nepovinné — když je odněkud máš)</summary>' +
-    '<div class="podnadpis" style="margin-top:8px">Jeden řádek = <code>díl;strana;téma</code>. ' +
-    'Názvy videí téma neobsahují, tohle je jediná cesta, jak ho v mřížce vidět.</div>' +
-    '<textarea id="d-temata" placeholder="4. díl;24;Zaokrouhlování na desítky"></textarea>' +
-    '<div class="radek"><button class="btn" id="b-temata">Načíst popisky</button>' +
-    '<span class="stav" id="temata-stav">' + Object.keys(TEMATA).length + ' popisků</span></div></details>';
-
   el.innerHTML = html;
+
+  [...el.querySelectorAll('[data-navrh-di]')].forEach(n => {
+    n.onclick = () => {
+      s.dil = DILY[+n.dataset.navrhDi]; s.strana = n.dataset.navrhS; s.id = ''; s.cv = '';
+      uloz(); renderDetail(); renderSeznam(); renderStav();
+    };
+  });
+  const cbVse = document.getElementById('d-vse');
+  if (cbVse) cbVse.onchange = e => { s.vsechnyDily = e.target.checked; uloz(); renderDetail(); };
 
   document.getElementById('d-dil').onchange = e => {
     s.dil = e.target.value === '' ? '' : DILY[+e.target.value];
@@ -306,20 +419,6 @@ function renderDetail() {
   };
   document.getElementById('b-next').onclick = () => {
     vybrana = Math.min(MISE.length - 1, vybrana + 1); renderSeznam(); renderDetail();
-  };
-  document.getElementById('b-temata').onclick = () => {
-    const txt = document.getElementById('d-temata').value;
-    let n = 0;
-    txt.split(/\\n/).forEach(r => {
-      const c = r.split(';');
-      if (c.length < 3) return;
-      const d = c[0].trim(), st = c[1].trim(), te = c.slice(2).join(';').trim();
-      if (!d || !st || !te) return;
-      TEMATA[klicTema(d, st)] = te; n++;
-    });
-    try { localStorage.setItem(KLIC + '_TEMATA', JSON.stringify(TEMATA)); } catch (e) {}
-    alert('Načteno ' + n + ' popisků.');
-    renderDetail();
   };
 }
 

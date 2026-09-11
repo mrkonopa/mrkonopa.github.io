@@ -65,6 +65,15 @@ async function run() {
   }
   ok('žádné video nevypadlo kvůli tvaru názvu', /Bez použitelné strany nebo ID: 0\b/.test(vystup),
     'hlásí: ' + (/Bez použitelné[^\n]*/.exec(vystup) || [''])[0]);
+  /* Popisky stran jsou to, co z nástroje dělá nástroj — bez nich se
+     v patnácti dílech po 64 stranách nedá nic najít. Kdyby se mapování
+     slugů rozešlo, generátor spadne; tohle hlídá i tichý pokles. */
+  const mPop = /Popisků stran napojeno: (\d+) · dílů s ročníkem: (\d+)/.exec(vystup);
+  ok('hlásí, kolik popisků stran se napojilo', !!mPop, JSON.stringify(vystup.slice(0, 120)));
+  if (mPop) {
+    ok('napojeno všech 567 popisků', +mPop[1] === 567, 'popisků=' + mPop[1]);
+    ok('… a devět dílů má určený ročník', +mPop[2] === 9, 'dílů=' + mPop[2]);
+  }
 
   /* ── 2. zapsaný soubor se nerozešel s generátorem ───────────────── */
   const zapsany = fs.existsSync(HTML) ? fs.readFileSync(HTML, 'utf8') : '';
@@ -99,8 +108,32 @@ async function run() {
     /* vyber misi, díl, stranu a cvičení */
     await page.click('#seznam .m[data-i="0"]');
     await page.waitForSelector('#d-dil', { timeout: 4000 });
+    /* Nabídka je zúžená na ročník té mise. Patnáct dílů v seznamu byla
+       zbytečná práce, když kandidáti pro třeťáka jsou tři (7. díl,
+       8. díl, Geometrie pro 3. ročník). */
     const dilu = await page.evaluate(() => document.getElementById('d-dil').options.length - 1);
-    ok('nabídka dílů má 15 položek', dilu === 15, 'dílů=' + dilu);
+    ok('nabídka dílů je zúžená na ročník mise', dilu === 3, 'dílů=' + dilu);
+    const jmenaDilu = await page.evaluate(() =>
+      [...document.getElementById('d-dil').options].slice(1).map(o => o.textContent.split(' (')[0]));
+    ok('a jsou to díly pro 3. ročník',
+      jmenaDilu.join('|') === '7. díl|8. díl|Geometrie pro 3. ročník', jmenaDilu.join(' | '));
+
+    /* únikové zaškrtávátko musí vrátit všech patnáct */
+    await page.click('#d-vse');
+    await page.waitForFunction(() => document.getElementById('d-dil').options.length - 1 === 15, { timeout: 4000 });
+    ok('zaškrtnutím se ukáže všech 15 dílů', true);
+    await page.click('#d-vse');
+    await page.waitForFunction(() => document.getElementById('d-dil').options.length - 1 === 3, { timeout: 4000 });
+
+    /* NÁVRHY podle tématu strany */
+    const navrhu = await page.evaluate(() => document.querySelectorAll('.navrh').length);
+    ok('mise dostane návrhy stran podle tématu', navrhu >= 1, 'návrhů=' + navrhu);
+    const navrhText = await page.evaluate(() => (document.querySelector('.navrh') || {}).textContent || '');
+    ok('návrh uvádí téma, díl i stranu', /s\.\s*\d+/.test(navrhText) && navrhText.length > 15,
+      JSON.stringify(navrhText.slice(0, 60)));
+    await page.click('.navrh');
+    await page.waitForSelector('.mrizka .s.on', { timeout: 4000 });
+    ok('kliknutí na návrh vybere díl i stranu', true);
 
     await page.selectOption('#d-dil', { index: 1 });
     await page.waitForSelector('.mrizka .s', { timeout: 4000 });
