@@ -260,6 +260,42 @@ async function run() {
     ok('nevyplněné mise zůstanou prázdné, ne „undefined"',
       !/undefined|\bnull\b|NaN/.test(csv), 'v CSV je nechtěná hodnota');
 
+    /* ── EXPORT → IMPORT musí vrátit TOTÉŽ ──────────────────────────
+       Import dřív dělil řádek přes split(','), s komentářem „exportujeme
+       jen hodnoty bez čárek". Jenže DVĚ mise z 63 se jmenují „Násobení
+       a dělení 10, 100" (3/7-2 a 5/5-3): export je správně zabalí do
+       uvozovek, naivní dělení je rozseká a všechny sloupce za názvem se
+       posunou o jedna. Mise se páruje podle sloupců PŘED názvem, takže
+       se řádek přijal a uložil cizí díl, stranu i ID — tiše. */
+    const kolo = await page.evaluate(() => {
+      const zapis = { dil: DILY[0], strana: '7', id: 'ABCDEFGHIJK', cv: '2', pozn: 'zkouška' };
+      const scarkou = MISE.filter(m => m.nm.indexOf(',') >= 0).map(m => kl(m));
+      if (!scarkou.length) return { chyba: 'žádná mise nemá v názvu čárku — kontrola by běžela naprázdno' };
+      scarkou.forEach(k => { STAV[k] = Object.assign({}, zapis); });
+      const vyvoz = doCsv();
+      scarkou.forEach(k => { delete STAV[k]; });
+      const puv = window.prompt;
+      window.prompt = () => vyvoz;
+      const puvAlert = window.alert; window.alert = () => {};
+      document.getElementById('b-import').click();
+      window.prompt = puv; window.alert = puvAlert;
+      const vysledek = {
+        mist: scarkou.length,
+        zpet: scarkou.map(k => STAV[k] && [STAV[k].dil, STAV[k].strana, STAV[k].id, STAV[k].cv, STAV[k].pozn].join('|')),
+        ceka: [zapis.dil, zapis.strana, zapis.id, zapis.cv, zapis.pozn].join('|'),
+      };
+      /* ukliď po sobě: následující kontrola počítá s JEDNOU hotovou misí,
+         a sdílený stav by ji shodil bez souvislosti s tím, co měří */
+      scarkou.forEach(k => { delete STAV[k]; });
+      uloz(); renderSeznam(); renderStav();
+      return vysledek;
+    });
+    ok('kontrola má na čem běžet (mise s čárkou v názvu)', !kolo.chyba, kolo.chyba);
+    if (!kolo.chyba) {
+      ok('export → import vrátí u misí s čárkou v názvu TOTÉŽ (' + kolo.mist + ' misí)',
+        kolo.zpet.every(z => z === kolo.ceka), 'čekáno ' + kolo.ceka + ', vrátilo ' + JSON.stringify(kolo.zpet));
+    }
+
     /* stav přežije zavření a otevření (localStorage) */
     await page.reload({ waitUntil: 'domcontentloaded' });
     await page.waitForSelector('#seznam .m', { timeout: 8000 });

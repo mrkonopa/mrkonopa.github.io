@@ -497,6 +497,27 @@ function csvPole(v) {
   v = String(v == null ? '' : v);
   return /[",\\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v;
 }
+/* 🔴 Rozdělit řádek přes split(',') NESTAČÍ, i když to tak původně stálo
+   v komentáři („exportujeme jen hodnoty bez čárek"). DVĚ mise se jmenují
+   „Násobení a dělení 10, 100" (3/7-2 a 5/5-3) — export je podle pravidel
+   zabalí do uvozovek, ale naivní dělení je rozseká a VŠECHNY sloupce za
+   názvem se posunou o jedna. Protože se mise páruje podle sloupců PŘED
+   názvem (rocnik, mise), řádek se přesto přijal a uložil nesmyslný díl,
+   stranu i ID — tiše, u dvou misí z 63. */
+function radekCsv(r) {
+  const out = []; let val = '', q = false;
+  for (let i = 0; i < r.length; i++) {
+    const c = r[i];
+    if (q) {
+      if (c === '"') { if (r[i + 1] === '"') { val += '"'; i++; } else q = false; }
+      else val += c;
+    } else if (c === '"') q = true;
+    else if (c === ',') { out.push(val); val = ''; }
+    else val += c;
+  }
+  out.push(val);
+  return out;
+}
 function doCsv() {
   const hl = ['rocnik', 'mise', 'nazev_mise', 'dil', 'strana', 'youtube_id', 'cviceni', 'poznamka'];
   const rad = MISE.map(m => {
@@ -528,13 +549,11 @@ document.getElementById('b-import').onclick = () => {
   const txt = prompt('Vlož obsah CSV (hlavička + řádky):');
   if (!txt) return;
   const radky = txt.split(/\\r?\\n/).filter(r => r.trim());
-  const hl = radky.shift().split(',').map(h => h.trim());
+  const hl = radekCsv(radky.shift()).map(h => h.trim());
   const ix = n => hl.indexOf(n);
   let n = 0;
   radky.forEach(r => {
-    // jednoduché dělení stačí: exportujeme jen hodnoty bez čárek kromě názvu mise,
-    // a ten se při importu nepoužívá (mise se páruje podle ročníku a kódu)
-    const c = r.split(',');
+    const c = radekCsv(r);
     const key = (c[ix('rocnik')] || '').trim() + '/' + (c[ix('mise')] || '').trim();
     if (!MISE.some(m => kl(m) === key)) return;
     STAV[key] = {
