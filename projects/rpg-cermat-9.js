@@ -94,7 +94,15 @@
       parts: [{ key: '', points: 1,
         prompt: `Vypočítejte druhou odmocninu ze součinu čísel ${a} a ${b}: √(${a} · ${b}) =`,
         ans: String(root),
-        sol: `Nejdřív součin: ${a} · ${b} = ${a * b}. Pak odmocni: √${a * b} = ${root} (protože ${root}² = ${a * b}).` }]
+        /* Postup má tři kroky v pevném tvaru: PRAVIDLO (proč se to dělá
+           takhle) → DOSAZENÍ (s mezivýsledkem) → VÝSLEDEK. Kdo úlohu
+           spletl, potřebuje nejdřív to pravidlo; samotná aritmetika mu
+           řekne jen to, že se netrefil. */
+        sol: [
+          `Odmocnit jde až jedno číslo — nejdřív tedy spočítej, co je pod odmocninou.`,
+          `Součin: ${a} · ${b} = ${a * b}.`,
+          `√${a * b} = ${root}, protože ${root} · ${root} = ${a * b}.`
+        ] }]
     };
   }
 
@@ -505,7 +513,11 @@
       parts: [{ key: '', points: 1,
         prompt: `Vypočítejte, o kolik je součin čísel ${a} a ${b} větší než jejich součet.`,
         ans: String(ans),
-        sol: `Součin: ${a} · ${b} = ${a * b}. Součet: ${a} + ${b} = ${a + b}. Rozdíl: ${a * b} − ${a + b} = ${ans}.` }]
+        sol: [
+          `„O kolik větší" znamená ROZDÍL. Spočítej proto obě čísla zvlášť a teprve pak je odečti.`,
+          `Součin: ${a} · ${b} = ${a * b}. Součet: ${a} + ${b} = ${a + b}.`,
+          `Rozdíl = ${a * b} − ${a + b} = ${ans}.`
+        ] }]
     };
   }
 
@@ -846,7 +858,138 @@
       parts: [{ key: '', points: 1,
         prompt: `Vypočítejte: ${a}² − ${b} · ${c} =`,
         ans: String(ans),
-        sol: `Nejdřív mocnina a násobení: ${a}² = ${a * a} a ${b} · ${c} = ${b * c}. Pak odečti: ${a * a} − ${b * c} = ${ans}.` }]
+        sol: [
+          `Mocnina i násobení mají přednost před odčítáním — spočítej je dřív, ne zleva doprava.`,
+          `${a}² = ${a} · ${a} = ${a * a} a ${b} · ${c} = ${b * c}.`,
+          `Nakonec odečti: ${a * a} − ${b * c} = ${ans}.`
+        ] }]
+    };
+  }
+
+  /* ── POZICE 1 — další varianty ───────────────────────────────────
+     Archetypy NEJSOU vymyšlené: vznikly skenem všech 13 ostrých zadání
+     v pdfs/ (2023–2026) a vybráním úloh za 1 bod. Naměřeno 11 takových
+     úloh; naše původní tři varianty pokrývaly jediný z jejich archetypů
+     (mocnina/odmocnina), takže deváťák viděl při opakování pořád totéž.
+     U každé varianty je uvedeno, ze které ostré úlohy vychází. ──────── */
+
+  function gen1d() {
+    // Vzor: M9B/2026 ú. 1 a nanecisto/2025 ú. 1 — rozdíl dvou obsahů
+    // v RŮZNÝCH jednotkách. Jediný archetyp, který se v archivu opakuje
+    // dvakrát, a v roce 2026 stojí rovnou na první pozici testu.
+    // Setiny m² se drží v CELÝCH číslech, aby převod nevyrobil artefakt
+    // plovoucí čárky (0,1 · 10000 v JS není přesně 1000).
+    const setin = pick([5, 10, 20, 25, 40, 50]);
+    const velke = setin * 100;          // 1 m² = 10 000 cm² ⇒ setin/100 m² = setin · 100 cm²
+    const male = ri(2, 9) * 10;         // 20–90 cm², vždy menší než nejmenší velká plocha (500)
+    const ans = velke - male;
+    return {
+      no: 1, points: 1, title: 'Číselný výraz',
+      parts: [{ key: '', points: 1,
+        prompt: `Vypočítejte, o kolik cm² je plocha o obsahu ${cz(setin / 100)} m² větší než plocha o obsahu ${male} cm².`,
+        ans: String(ans),
+        sol: [
+          `Obsahy jde odečítat, teprve když jsou ve STEJNÝCH jednotkách — převeď proto m² na cm².`,
+          `Metr má 100 cm, takže 1 m² = 100 · 100 = 10 000 cm². Z toho ${cz(setin / 100)} m² = ${velke} cm².`,
+          `Rozdíl = ${velke} − ${male} = ${ans} cm².`
+        ] }]
+    };
+  }
+
+  function gen1e() {
+    // Vzor: M9C/2025 ú. 1 — „kolikrát více je 5 kilogramů než 0,25 gramů".
+    // Značky (kg, g) místo slov schválně: „0,25 gramů" je sice správně,
+    // ale skloňování číslovek je v tomhle repozitáři doložený zdroj chyb.
+    // 1 kg tu schválně není: krok „1 kg = 1000 g, takže 1 kg = 1000 g"
+    // je tautologie a úloha „kolikrát více je 1 kg" navíc nic nezkouší.
+    const kg = pick([2, 4, 5, 8, 10]);
+    const setinG = pick([10, 20, 25, 50]);        // setiny gramu
+    const gramu = kg * 1000;
+    const ans = gramu * 100 / setinG;             // dělitel dělí 100 000 beze zbytku
+    return {
+      no: 1, points: 1, title: 'Číselný výraz',
+      parts: [{ key: '', points: 1,
+        prompt: `Určete, kolikrát více je ${kg} kg než ${cz(setinG / 100)} g.`,
+        ans: String(ans),
+        sol: [
+          `„Kolikrát více" znamená DĚLENÍ. Dělit ale jde jen stejné jednotky, takže nejdřív převeď.`,
+          `1 kg = 1000 g, takže ${kg} kg = ${gramu} g.`,
+          `Dělit desetinným číslem se nemusíš: rozšiř obě čísla stem, podíl se tím nezmění — ${gramu * 100} : ${setinG}.`,
+          `${gramu * 100} : ${setinG} = ${ans}, tedy ${ans}krát více.`
+        ] }]
+    };
+  }
+
+  function gen1f() {
+    // Vzor: M9C/2024 ú. 1 — celek zadaný SOUČTEM a ROZDÍLEM dvou částí.
+    // Skutečná města tu schválně nejsou: čísla se losují a u pojmenovaného
+    // města by ze zadání bylo nepravdivé tvrzení o skutečnosti.
+    const mensi = ri(12, 45) * 10;
+    const rozdil = ri(3, 15) * 10;
+    const celkem = 2 * mensi + rozdil;
+    return {
+      no: 1, points: 1, title: 'Číselný výraz',
+      parts: [{ key: '', points: 1,
+        prompt: `V knihovně je dohromady ${celkem} knih. Beletrie je o ${rozdil} knih více než naučné literatury. Kolik je naučných knih?`,
+        ans: String(mensi),
+        sol: [
+          `Obě části dohromady dávají celek. Kdybys od celku odečetl ten rozdíl, zbyly by DVĚ stejné části — obě velké jako ta menší.`,
+          `${celkem} − ${rozdil} = ${celkem - rozdil}, a to jsou dvě stejné části.`,
+          `Naučných knih je polovina: ${celkem - rozdil} : 2 = ${mensi}.`
+        ] }]
+    };
+  }
+
+  function gen1g() {
+    // Vzor: M9D/2024 ú. 1 — dvě různé délky kroku na stejné trase.
+    // `nas` je nejmenší násobek metrů, při kterém trasa v CENTIMETRECH
+    // vyjde beze zbytku pro oba kroky; jinak by počet kroků nebyl celý.
+    const d = pick([
+      { a: 75, b: 60, nas: 3 }, { a: 80, b: 60, nas: 12 }, { a: 90, b: 60, nas: 9 },
+      { a: 60, b: 40, nas: 6 }, { a: 80, b: 50, nas: 4 }
+    ]);
+    /* Trasa musí být dělitelná `nas` (aby počty kroků vyšly celé) A ZÁROVEŇ
+       stovkou metrů — jinak vyjde délka jako „3,084 km", což na trase
+       nikdo neuvádí a rozbije to dojem z ostrého zadání (tam 2,7 km). */
+    const krok = d.nas * 100 / gcd(d.nas, 100);
+    const trasaM = krok * ri(Math.ceil(1200 / krok), Math.floor(6000 / krok));
+    const trasaCm = trasaM * 100;
+    const krokuA = trasaCm / d.a, krokuB = trasaCm / d.b;
+    const ans = krokuB - krokuA;
+    return {
+      no: 1, points: 1, title: 'Číselný výraz',
+      parts: [{ key: '', points: 1,
+        prompt: `Trasa je dlouhá ${cz(trasaM / 1000)} km. Jeden turista má krok dlouhý ${d.a} cm, druhý ${d.b} cm. O kolik kroků udělá druhý turista na celé trase více než první?`,
+        ans: String(ans),
+        sol: [
+          `Kdo má kratší krok, musí jich udělat víc. Spočítej počet kroků každého zvlášť — je to trasa dělená délkou jeho kroku.`,
+          `Kroky jsou v centimetrech, převeď proto i trasu: ${cz(trasaM / 1000)} km = ${trasaM} m = ${trasaCm} cm.`,
+          `Kroků: ${trasaCm} : ${d.a} = ${krokuA} a ${trasaCm} : ${d.b} = ${krokuB}.`,
+          `Rozdíl = ${krokuB} − ${krokuA} = ${ans} kroků.`
+        ] }]
+    };
+  }
+
+  function gen1h() {
+    // Vzor: M9A/2023 ú. 1 — kolik minut zbývá do konce. Časy se drží
+    // v minutách od půlnoci a na text se převádějí až nakonec, aby
+    // nevznikl čas typu 19:65.
+    const fmt = m => Math.floor(m / 60) + ':' + String(m % 60).padStart(2, '0');
+    const zacatek = ri(14, 19) * 60 + ri(0, 11) * 5;
+    const delka = ri(16, 26) * 5;        // 80–130 minut, vždy delší než zbytek
+    const zbyva = ri(3, 12) * 5;         // 15–60 minut
+    const konec = zacatek + delka, ted = konec - zbyva;
+    const h = Math.floor(delka / 60), m = delka % 60;
+    return {
+      no: 1, points: 1, title: 'Číselný výraz',
+      parts: [{ key: '', points: 1,
+        prompt: `Film začal v ${fmt(zacatek)} a trvá ${delka} minut. Kolik minut zbývá do jeho konce v ${fmt(ted)}?`,
+        ans: String(zbyva),
+        sol: [
+          `Přímo se to spočítat nedá — nejdřív zjisti, KDY film končí: k času začátku přičti jeho délku.`,
+          `${delka} minut = ${h} h ${m} min, takže konec je v ${fmt(konec)}.`,
+          `Od konce odečti současný čas: z ${fmt(ted)} do ${fmt(konec)} zbývá ${zbyva} minut.`
+        ] }]
     };
   }
 
@@ -1313,7 +1456,7 @@
      vybere jednu variantu z každé pozice.
      ──────────────────────────────────────────────────────────────── */
   const SLOTS = [
-    [gen1, gen1b, gen1c], [gen2, gen2b, gen2c], [gen3, gen3b, gen3c], [gen4, gen4b, gen4c], [gen5, gen5b, gen5c], [gen6, gen6b, gen6c, gen6d], [gen7, gen7b, gen7c], [gen8, gen8b, gen8c],
+    [gen1, gen1b, gen1c, gen1d, gen1e, gen1f, gen1g, gen1h], [gen2, gen2b, gen2c], [gen3, gen3b, gen3c], [gen4, gen4b, gen4c], [gen5, gen5b, gen5c], [gen6, gen6b, gen6c, gen6d], [gen7, gen7b, gen7c], [gen8, gen8b, gen8c],
     [gen9, gen9b, gen9c], [gen10, gen10b, gen10c], [gen11, gen11b, gen11c], [gen12, gen12b, gen12c, gen12d, gen12e], [gen13, gen13b, gen13c, gen13d], [gen14, gen14b, gen14c, gen14d, gen14e, gen14f], [gen15, gen15b, gen15c], [gen16, gen16b, gen16c]
   ];
 
