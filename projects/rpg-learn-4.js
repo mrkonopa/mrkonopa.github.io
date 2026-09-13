@@ -48,7 +48,7 @@ window.RPG_LEARN_4 = {
       { wrong: '3 618 → na místě stovek je 8', right: 'na místě stovek je 6', why: '8 je na místě jednotek. Stovky jsou třetí cifra zprava.' },
       { wrong: '6 205 přečteno jako „šest set dvacet pět"', right: 'šest tisíc dvě stě pět', why: 'Nula na místě desítek se nesmí přeskočit — mění hodnotu celého čísla.' },
     ],
-    video: null
+    video: { id: 'XE9E4ReifS0', title: 'Vyvození číselného oboru 0–10 000 · 4. roč., 1. díl, s. 18' }
   },
   '1-2': {
     intro: '🐚 Lastury moře se srovnávají od nejmenší k největší. „Která je která?" šumí. Nauč se porovnávat čísla do 10 000.',
@@ -79,7 +79,7 @@ window.RPG_LEARN_4 = {
       { wrong: '6 789 > 6 798 (protože 9 > 8 na konci)', right: '6 789 < 6 798', why: 'Porovnává se od nejvyššího řádu. Tisíce i stovky jsou stejné, rozhoduje první odlišný řád zleva — desítky (8 < 9).' },
       { wrong: '4 050 = 4 500 (mají stejné cifry)', right: '4 050 < 4 500', why: 'Na pořadí cifer záleží — 0 a 5 jsou prohozené na místě stovek a desítek, hodnota je jiná.' },
     ],
-    video: null
+    video: { id: 'De1FgIanQkg', title: 'Porovnávání čísel · 4. roč., 1. díl, s. 23' }
   },
   '1-3': {
     intro: '🌊 Vlna příboje smaže z písku poslední číslice. „Co zbude?" hučí. Nauč se zaokrouhlovat na desítky, stovky a tisíce.',
@@ -117,7 +117,7 @@ window.RPG_LEARN_4 = {
       { wrong: '7 349 na tisíce = 7 349 → dívám se na desítky (4)', right: 'dívám se na stovky (3) → 7 000', why: 'Při zaokrouhlení na tisíce rozhoduje cifra o řád níž — stovky, ne desítky.' },
       { wrong: '2 950 na stovky = 2 900', right: '3 000', why: 'Desítky jsou 5 → nahoru. 29 stovek se zvětší na 30 stovek, což je celý tisíc navíc — snadno se zapomene přenos.' },
     ],
-    video: null
+    video: { id: 'Jtkyh_Y1jRI', title: 'Zaokrouhlování na desítky, stovky, tisíce · 4. roč., 1. díl, s. 25' }
   },
   '2-1': {
     intro: '🐙 Mini chobotnice si osmi chapadly přidává náklad. „Kolik toho uneseš dohromady?" Nauč se sčítat pod sebou do 10 000.',
@@ -145,7 +145,7 @@ window.RPG_LEARN_4 = {
       { wrong: 'Čísla sečtena „nakřivo" (tisíce + stovky)', right: 'jednotky pod jednotky, desítky pod desítky…', why: 'Při psaní pod sebe musí být řády přesně zarovnané zprava, jinak sčítáme nesprávné cifry.' },
       { wrong: '4 785 + 1 936 = 5 711', right: '6 721', why: 'Postupné přenosy se řetězí (11 → 12 → 17). Když jeden přenos vypadne, chybí i tisíc ve výsledku.' },
     ],
-    video: null
+    video: { id: 'vUbjhuvGEfY', title: 'Pamětné sčítání a odčítání · 4. roč., 1. díl, s. 26' }
   },
   '2-2': {
     intro: '🦈 Žralouček ukusuje z nákladu. „Kolik ti zbyde?" cení zuby. Nauč se odčítat pod sebou a půjčovat si z vyššího řádu.',
@@ -173,7 +173,7 @@ window.RPG_LEARN_4 = {
       { wrong: '6 204 − 1 837: 4 − 7 = 3 (odečtu menší od většího)', right: '4 − 7 nejde, půjčím si → 14 − 7 = 7', why: 'Nelze prohodit menšence a menšitele. Je-li horní cifra menší, půjčíme si z vyššího řádu.' },
       { wrong: 'Po půjčce zapomenu zmenšit vyšší řád o 1', right: 'z čeho si půjčím, to o 1 zmenším', why: 'Půjčka musí být „zaplacena" — vyšší řád se sníží o 1, jinak výsledek přeroste.' },
     ],
-    video: null
+    video: { id: '558wydnw5WY', title: 'Písemné sčítání a odčítání · 4. roč., 1. díl, s. 33' }
   },
   '2-3': {
     intro: '🪸 Korálový duch mluví v hádankách. „Přibývá, nebo ubývá?" Nauč se ve slovní úloze poznat, kdy sčítat a kdy odčítat.',
@@ -200,7 +200,7 @@ window.RPG_LEARN_4 = {
       { wrong: 'U slova „utratili" žák sečte místo odečte', right: 'ubývá → odčítáme (3 500 − 1 275)', why: 'Slova „zbylo, ubylo, utratili, méně" znamenají odčítání; „celkem, přibylo, více" znamenají sčítání.' },
       { wrong: 'Napíšu jen číslo bez jednotky a bez odpovědi', right: '… = 3 250 kg, odpovím celou větou', why: 'Slovní úloha vyžaduje jednotku a odpověď větou — samotné číslo je neúplné řešení.' },
     ],
-    video: null
+    video: { id: 'poRfIJwimEE', title: 'Výpočet jednoho a více dílů · 4. roč., 1. díl, s. 16' }
   },
   '3-1': {
     intro: '🏴‍☠️ Pirátský kapitán dělí kořist na stejné hromádky. „Kolik dohromady?" hřímá. Procvič si násobilku do deseti.',
@@ -237,7 +237,7 @@ window.RPG_LEARN_4 = {
       { wrong: '6 × 7 = 13', right: '42', why: 'Násobení se plete se sčítáním (6 + 7 = 13). Násobení znamená opakované sčítání: 6 sedmkrát.' },
       { wrong: '8 × 7 ≠ 7 × 8', right: '8 × 7 = 7 × 8 = 56', why: 'Na pořadí činitelů nezáleží — platí zákon zaměnitelnosti.' },
     ],
-    video: null
+    video: { id: 'C4ZTCULcSck', title: 'Násobení a dělení · 4. roč., 1. díl, s. 8' }
   },
   '3-2': {
     intro: '💣 Lodní dělostřelec počítá kule po desítkách a stovkách. „Kolik nábojů?" Nauč se násobit desítkami a stovkami zkráceně.',
@@ -275,7 +275,7 @@ window.RPG_LEARN_4 = {
       { wrong: '5 × 80 = 40', right: '400', why: 'Nula z čísla 80 se musí připsat k výsledku: 5 × 8 = 40, +0 → 400.' },
       { wrong: '4 × 600 = 240', right: '2 400', why: 'Zapomenutá jedna nula. Počet přidaných nul = počet nul u čísla (600 → dvě nuly).' },
     ],
-    video: null
+    video: { id: 'GXNrokepgIw', title: 'Násobení a dělení čísly 10, 100 a 1 000 · 4. roč., 1. díl, s. 44' }
   },
   '3-3': {
     intro: '🔮 Mořský mág rozkládá čísla na kousky. „Zvládneš 47 × 5 z hlavy?" Nauč se rozklad na desítky a jednotky.',
@@ -302,7 +302,7 @@ window.RPG_LEARN_4 = {
       { wrong: '47 × 5 = 200 + 35 = 235, ale žák napíše 205 (sečte jen 200 + 5)', right: '200 + 35 = 235', why: 'Obě dílčí násobení se musí sečíst celá: 40×5=200 a 7×5=35, součet 235.' },
       { wrong: '63 × 4 = (60 + 3) × 4 = 240 + 3 = 243 (jednotky nenásobil)', right: '240 + 12 = 252', why: 'Číslem se násobí OBĚ části rozkladu — i jednotky (3 × 4 = 12), ne jen desítky.' },
     ],
-    video: null
+    video: { id: '2u9h67FEiEw', title: 'Písemné násobení dvojciferným činitelem · 4. roč., 1. díl, s. 36' }
   },
   '4-1': {
     intro: '💀 Kostlivec pirát rozdává kosti spravedlivě. „Kolik na každého?" chrastí. Nauč se dělit beze zbytku.',
@@ -329,7 +329,7 @@ window.RPG_LEARN_4 = {
       { wrong: '72 : 9 = 9', right: '8', why: 'Kontrola zpětným násobením: 9 × 9 = 81 ≠ 72, kdežto 9 × 8 = 72. Vždy si výsledek ověř násobením.' },
       { wrong: '48 : 6 = 7', right: '8', why: 'Sousední spoj z násobilky (6 × 7 = 42) se plete se správným 6 × 8 = 48.' },
     ],
-    video: null
+    video: { id: 'yzNEt1-St5w', title: 'Písemné dělení jednociferným dělitelem · 4. roč., 1. díl, s. 38' }
   },
   '4-2': {
     intro: '🪝 Kapitán s hákem nikdy nerozdělí všechno. „A co s tím, co zbyde?" Nauč se dělit se zbytkem a hlídat, že zbytek < dělitel.',
@@ -360,7 +360,7 @@ window.RPG_LEARN_4 = {
       { wrong: '38 : 5 = 7 zbytek 8', right: '7 zbytek 3', why: 'Zbytek MUSÍ být menší než dělitel (r < b). Zbytek 8 ≥ 5 znamená, že podíl je malý.' },
       { wrong: 'U dělení se zbytkem žák napíše jen podíl a zbytek zapomene', right: 'uvedu podíl i zbytek', why: 'Dělenec = dělitel × podíl + zbytek — bez zbytku je odpověď neúplná.' },
     ],
-    video: null
+    video: { id: 'SU2ApqdkfJY', title: 'Dělení se zbytkem · 4. roč., 1. díl, s. 14' }
   },
   '4-3': {
     intro: '🎲 Hazardní duch sází na to, že se spleteš. „Kolik plných měšců a kolik zbyde?" Nauč se slovní úlohy s dělením.',
@@ -387,7 +387,7 @@ window.RPG_LEARN_4 = {
       { wrong: 'U „rozdělíme rovnoměrně" žák násobí (42 × 6)', right: 'rozdělování → dělíme (42 : 6)', why: 'Slova „rozdělit, každému stejně, po kolika" znamenají dělení, ne násobení.' },
       { wrong: '50 : 8 = 6, zbytek ignoruje', right: '6 měšců a 2 dukáty zbydou', why: 'Ve slovní úloze má zbytek význam (dukáty, které se do měšce nevešly) — nesmí se zahodit.' },
     ],
-    video: null
+    video: { id: 'RLZwFjRyDmQ', title: 'Výpočet jednoho a více dílů · 4. roč., 1. díl, s. 17' }
   },
   '5-1': {
     intro: '🐠 Ohnivá rybka plave dokola kolem obdélníkového útesu. „Jak dlouhá je ta cesta?" Nauč se počítat obvod.',
@@ -424,7 +424,7 @@ window.RPG_LEARN_4 = {
       { wrong: 'Obvod čtverce = a × a = 49 cm', right: 'O = 4 × a = 28 cm', why: 'a × a je vzorec pro OBSAH. Obvod je součet čtyř stran (4 × a).' },
       { wrong: 'Výsledek obvodu zapsán v cm² ', right: 'obvod je v cm (délka), obsah v cm²', why: 'Obvod je délka čáry — jednotka je cm/m, nikdy ne čtvereční.' },
     ],
-    video: null
+    video: { id: 'RMTEOCd99rA', title: 'Obvod čtverce a obdélníku · Geometrie 4, s. 29' }
   },
   '5-2': {
     intro: '🐡 Nafukovač se roztahuje do plochy. „Kolik čtverečků mě pokryje?" Nauč se počítat obsah obdélníku a čtverce.',
@@ -461,7 +461,7 @@ window.RPG_LEARN_4 = {
       { wrong: 'Obsah zapsán v cm místo cm²', right: 'S = 24 cm² (čtvereční centimetry)', why: 'Obsah je plocha — jednotka je vždy čtvereční (cm², m²…).' },
       { wrong: 'Záměna: pro obvod použije a × b, pro obsah 2×(a+b)', right: 'obsah = a × b, obvod = 2 × (a + b)', why: 'Vzorce se často prohodí. Obsah = plocha uvnitř (násobení), obvod = hranice okolo (sčítání).' },
     ],
-    video: null
+    video: { id: 'Rf57hSPekUQ', title: 'Obsah čtverce a obdélníku · Geometrie 4, s. 30' }
   },
   '5-3': {
     intro: '🧭 Navigační duch čte polohu ze sítě. „Kolik doprava a kolik nahoru?" Nauč se souřadnice a osy souměrnosti.',
@@ -492,7 +492,7 @@ window.RPG_LEARN_4 = {
       { wrong: 'Bod A(3, 4) čten jako 3 nahoru a 4 vpravo', right: '3 vpravo (x) a 4 nahoru (y)', why: 'Pořadí souřadnic je pevné: první je vodorovná (x, vpravo), druhá svislá (y, nahoru).' },
       { wrong: 'Obdélník má 4 osy souměrnosti', right: 'obdélník má 2, čtverec 4', why: 'Úhlopříčné osy u obdélníku nedělí tvar na zrcadlové poloviny — má jen 2 osy.' },
     ],
-    video: null
+    video: { id: '3xxPqG-IFfE', title: 'Obsah mnohoúhelníku · Geometrie 4, s. 22' }
   },
   '6-1': {
     intro: '🌀 Vírový stroj mele metry na centimetry. „Kolik je to v jiné jednotce?" Nauč se převádět jednotky délky.',
@@ -530,7 +530,7 @@ window.RPG_LEARN_4 = {
       { wrong: '2 m = 20 cm', right: '200 cm', why: '1 m = 100 cm (dvě nuly). Chybí jedna nula — 2 m = 200 cm.' },
       { wrong: '30 cm = 300 dm (násobil místo dělil)', right: '3 dm', why: 'Převod na VĚTŠÍ jednotku (cm → dm) se dělí, ne násobí: 30 : 10 = 3 dm.' },
     ],
-    video: null
+    video: { id: 'QTk6cWovM_I', title: 'Základní převody jednotek · 4. roč., 1. díl, s. 51' }
   },
   '6-2': {
     intro: '⏳ Časový čaroděj váží náklad a měří hodiny. „Kolik gramů a kolik minut?" Nauč se jednotky hmotnosti a času.',
@@ -569,7 +569,7 @@ window.RPG_LEARN_4 = {
       { wrong: '2 h 30 min = 230 min', right: '150 min', why: 'Hodiny a minuty se nesčítají jako cifry. 2 h = 120 min, +30 = 150 min.' },
       { wrong: '1 h = 100 min', right: '1 h = 60 min', why: 'Čas není desítková soustava — hodina má 60 minut, ne 100.' },
     ],
-    video: null
+    video: { id: 'SyIrthU_Lz8', title: 'Převody jednotek času, šedesátková soustava · 4. roč., 2. díl, s. 45' }
   },
   '6-3': {
     intro: '💰 Zlatý duch počítá dukáty do posledního. „Kolik zaplatíš a kolik ti vrátí?" Nauč se počítat s penězi.',
@@ -599,7 +599,7 @@ window.RPG_LEARN_4 = {
       { wrong: 'U „kolik vrátí" žák sečte cenu a platbu', right: 'vrací se rozdíl: 200 − 165 = 35 Kč', why: 'Vrácené peníze = zaplaceno mínus cena. Slovo „vrátí/zbyde" znamená odčítání.' },
       { wrong: 'Výsledek bez jednotky Kč a bez odpovědi', right: '… = 184 Kč, odpovím větou', why: 'U peněz vždy uvádíme jednotku Kč a odpovídáme celou větou.' },
     ],
-    video: null
+    video: { id: 'GdHK8b__Xrs', title: 'Měřítko mapy · 4. roč., 2. díl, s. 40' }
   },
   '7-1': {
     intro: '🐙 Kraken se vynořil z hloubky, kde se počítá na miliony. „Přečteš tak velké číslo?" Nauč se čísla do 1 000 000.',
@@ -631,7 +631,7 @@ window.RPG_LEARN_4 = {
       { wrong: '405 000 přečteno jako „čtyřicet pět tisíc"', right: 'čtyři sta pět tisíc', why: 'Nula uprostřed (405) drží místo desítek tisíc — nesmí se přeskočit při čtení.' },
       { wrong: 'Velké číslo zapsáno bez mezer: 405000', right: '405 000 (mezera po třech ciframi zprava)', why: 'Mezera po trojicích zprava usnadní čtení a brání záměně řádů.' },
     ],
-    video: null
+    video: { id: 'R8jHl3Tt-EU', title: 'Vyvození číselného oboru 0–1 000 000 · 4. roč., 2. díl, s. 4' }
   },
   '7-2': {
     intro: '🌪️ Bouřka žene vlny po statisících. „Sečti je, než tě smetou!" Opakování sčítání a odčítání velkých čísel.',
@@ -658,7 +658,7 @@ window.RPG_LEARN_4 = {
       { wrong: '345 000 + 78 500 = 415 500 (řády nezarovnané)', right: '423 500', why: 'Čísla s různým počtem cifer se musí zarovnat zprava, jinak sčítáme špatné řády.' },
       { wrong: '600 000 − 245 000 = 445 000', right: '355 000', why: 'Postupné půjčování přes nuly. Kontrola: 355 000 + 245 000 = 600 000 ✓.' },
     ],
-    video: null
+    video: { id: 'C_WBLKg35OU', title: 'Kombinované početní operace – se závorkami i… · 4. roč., 2. díl, s. 34' }
   },
   '7-3': {
     intro: '👑 Mořský vládce čeká na dně. „Ukaž mi všechno, co ses naučil." Finální přehled celého 4. ročníku.',
