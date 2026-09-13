@@ -162,7 +162,12 @@ const html = `<meta charset="utf-8">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
- :root{--bg:#f6f7f9;--panel:#fff;--line:#dfe3e8;--text:#1e2430;--muted:#6b7684;--accent:#2f6fd0;--ok:#1f9254;--warn:#c9711b}
+ /* Barvy jsou ZMĚŘENÉ, ne vybrané od oka: každá, kterou se někde píše text,
+    má proti VŠEM pozadím nástroje (#fff, #fffaf4, #fff8ec, #e9f6ee, #e4edfb)
+    poměr jasu aspoň 4,5 (WCAG AA pro běžný text). Původní sada ho neměla —
+    --warn 3,39 · --ok 3,75 · --accent 4,14 · --muted 4,37 — a bylo to na
+    nástroji vidět. Hlídá tests/videa-mapovani.test.cjs. */
+ :root{--bg:#f6f7f9;--panel:#fff;--line:#dfe3e8;--text:#1e2430;--muted:#616a78;--accent:#2b63bb;--ok:#17743f;--warn:#9c560c}
  *{box-sizing:border-box}
  body{margin:0;background:var(--bg);color:var(--text);
       font-family:'Lexend','Inter','Segoe UI',system-ui,-apple-system,Arial,sans-serif;font-size:14px}
@@ -170,6 +175,15 @@ const html = `<meta charset="utf-8">
         display:flex;align-items:center;gap:14px;flex-wrap:wrap;position:sticky;top:0;z-index:5}
  h1{font-size:16px;margin:0;font-weight:700}
  .stav{color:var(--muted);font-size:13px}
+ #navod{background:#fff8ec;border-bottom:1px solid #f0dcc0;padding:12px 18px;font-size:13.5px;line-height:1.55}
+ #navod.skryty{display:none}
+ #navod .nadpis{font-weight:700;margin-bottom:6px;color:var(--warn);letter-spacing:.3px}
+ #navod ol{margin:0;padding-left:20px}
+ #navod li{margin-bottom:4px}
+ #navod .pozn{margin-top:8px;color:var(--muted);font-size:12.5px}
+ #navod .zn{display:inline-block;min-width:16px;text-align:center;font-weight:700}
+ #navod .zn.ok{color:var(--ok)}
+ #navod .tip{color:var(--warn);font-weight:600}
  .wrap{display:grid;grid-template-columns:300px 1fr;gap:16px;padding:16px;align-items:start}
  @media(max-width:860px){.wrap{grid-template-columns:1fr}}
  .karta{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px}
@@ -186,7 +200,7 @@ const html = `<meta charset="utf-8">
  h2{font-size:15px;margin:0 0 4px}
  .podnadpis{color:var(--muted);font-size:13px;margin-bottom:12px}
  label{display:block;font-size:12px;color:var(--muted);margin:12px 0 4px;font-weight:600}
- select,input,textarea{width:100%;padding:7px 9px;border:1px solid var(--line);border-radius:6px;
+ select,input[type=text],textarea{width:100%;padding:7px 9px;border:1px solid var(--line);border-radius:6px;
         font:inherit;font-size:13px;background:#fff;color:var(--text)}
  textarea{min-height:70px;resize:vertical;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px}
  .mrizka{display:grid;grid-template-columns:repeat(auto-fill,minmax(46px,1fr));gap:4px;margin-top:6px}
@@ -196,6 +210,7 @@ const html = `<meta charset="utf-8">
  .s .p{display:block;font-size:10px;color:var(--muted)}
  .s.on{background:var(--accent);border-color:var(--accent);color:#fff}
  .s.on .p{color:#dce8fb}
+ input[type=checkbox]{width:auto;margin:0}
  .navrh{display:flex;align-items:center;gap:8px;padding:6px 8px;border:1px dashed var(--warn);
         border-radius:6px;margin-top:5px;cursor:pointer;background:#fffaf4}
  .navrh:hover{border-style:solid}
@@ -218,10 +233,31 @@ const html = `<meta charset="utf-8">
  <h1>Mapování videí — 1. stupeň</h1>
  <span class="stav" id="stav"></span>
  <span style="margin-left:auto;display:flex;gap:8px">
+  <button class="btn" id="b-navod">? Návod</button>
   <button class="btn" id="b-export">⬇ Export CSV</button>
   <button class="btn" id="b-import">⬆ Import CSV</button>
  </span>
 </header>
+<div id="navod">
+ <div class="nadpis">Jak na to — tři kroky u každé mise</div>
+ <ol>
+  <li><b>Vlevo klikni na misi.</b> <span class="zn">—</span> ještě nemá video,
+      <span class="zn ok">✓</span> už má. Pořadí je jedno, můžeš skákat.</li>
+  <li><b>Vyber stranu učebnice.</b> Buď klikni na některý z <span class="tip">oranžových návrhů</span>
+      (nástroj je odvodil z tématu strany — <i>umí se splést</i>, tak je ověř), nebo si vyber
+      díl a v mřížce stranu. Číslo nahoře je strana, číslo dole počet videí;
+      <b>po najetí myší se ukáže téma té strany</b>.</li>
+  <li><b>Klikni na konkrétní cvičení.</b> Tím je mise hotová. Přes „otevřít ▸" si video
+      pustíš na YouTube, jestli si chceš ověřit, že sedí.</li>
+ </ol>
+ <div class="pozn">
+  <b>Nemusíš to dodělat naráz</b> — rozdělaná práce se ukládá v prohlížeči, klidně zavři okno.
+  Na konci dej <b>⬇ Export CSV</b> a pošli mi ten soubor; napojím videa do hry.
+  Díly se nabízejí jen pro ročník té mise; zaškrtávátkem si zobrazíš všech 15.
+  <b>Bez návrhu: <span id="bez-navrhu">?</span> misí</b> (hlavně „Finální duel" — boss nemá jedno
+  téma) — těm stranu vyber ručně, nebo je nech prázdné.
+ </div>
+</div>
 <div class="wrap">
  <div class="karta mise" id="seznam"></div>
  <div class="karta" id="detail"></div>
@@ -262,11 +298,36 @@ function zaklady(txt) {
     .filter(w => w.length >= 3 && !STOP.has(w))
     .map(w => w.slice(0, 5)))];
 }
-function skore(nazevMise, temaStrany) {
+/* Váha slova = jak je vzácné. Bez toho táhne skóre obyčejné „čísla",
+   které je skoro v každém tématu, a u mise „Čísla do 1000" pak vyjdou
+   jako nejlepší návrhy čtyři strany o násobení nulami. Slovo, které je
+   ve víc než pětině témat ročníku, tedy skoro nic neříká a váží málo. */
+const VAHY = {};
+function spocitejVahy() {
+  const perRoc = {};
+  Object.keys(PODLE).forEach(di => {
+    const r = String(DIL_ROCNIK[di] || '');
+    if (!r) return;
+    (perRoc[r] = perRoc[r] || []);
+    Object.keys(PODLE[di]).forEach(s => { const t = tema(di, s); if (t) perRoc[r].push(t); });
+  });
+  Object.keys(perRoc).forEach(r => {
+    const temata = perRoc[r], vyskyt = {};
+    temata.forEach(t => zaklady(t).forEach(z => { vyskyt[z] = (vyskyt[z] || 0) + 1; }));
+    VAHY[r] = {};
+    Object.keys(vyskyt).forEach(z => {
+      const podil = vyskyt[z] / temata.length;
+      VAHY[r][z] = podil > 0.20 ? 0.15 : 1;   // běžné slovo: skoro nic neváží
+    });
+  });
+}
+function skore(nazevMise, temaStrany, rocnik) {
   const a = zaklady(nazevMise), b = new Set(zaklady(temaStrany));
   if (!a.length || !b.size) return 0;
-  const shoda = a.filter(z => b.has(z)).length;
-  return shoda ? shoda / a.length : 0;
+  const w = VAHY[String(rocnik)] || {};
+  let shoda = 0, celkem = 0;
+  a.forEach(z => { const v = (w[z] === undefined ? 1 : w[z]); celkem += v; if (b.has(z)) shoda += v; });
+  return celkem ? shoda / celkem : 0;
 }
 function navrhy(m, limit) {
   const out = [];
@@ -274,12 +335,21 @@ function navrhy(m, limit) {
     if (String(DIL_ROCNIK[di] || '') !== String(m.r)) return;
     Object.keys(PODLE[di]).forEach(s => {
       const t = tema(di, s);
-      const sc = skore(m.nm, t);
+      const sc = skore(m.nm, t, m.r);
       if (sc > 0) out.push({ di: +di, s: +s, t, sc });
     });
   });
   out.sort((x, y) => y.sc - x.sc || x.di - y.di || x.s - y.s);
-  return out.slice(0, limit || 8);
+  /* Totéž téma bývá na několika stranách po sobě. Ukázat ho čtyřikrát
+     znamená vyplýtvat čtyři ze šesti míst — nabídne se jednou, a to ta
+     strana s nejvyšším skóre (při shodě první v pořadí). */
+  const videno = new Set(), uniq = [];
+  for (const n of out) {
+    if (videno.has(n.t)) continue;
+    videno.add(n.t); uniq.push(n);
+    if (uniq.length >= (limit || 8)) break;
+  }
+  return uniq;
 }
 
 let STAV = {};      // "rocnik/mise" → {dil, strana, id, cv, pozn}
@@ -339,9 +409,10 @@ function renderDetail() {
     nav.forEach(n => {
       const vyb = String(s.dil) === DILY[n.di] && String(s.strana) === String(n.s);
       html += '<div class="navrh' + (vyb ? ' on' : '') + '" data-navrh-di="' + n.di + '" data-navrh-s="' + n.s + '">' +
-        '<span><b style="color:#fff">' + esc(n.t) + '</b> ' +
-        '<span style="color:var(--muted);font-size:11px">' + esc(DILY[n.di]) + ', s. ' + n.s +
-        ' · ' + PODLE[n.di][n.s].length + '×</span></span></div>';
+        '<span style="flex:1;min-width:0"><b>' + esc(n.t) + '</b><br>' +
+        '<span style="color:var(--muted);font-size:11.5px">' + esc(DILY[n.di]) + ' · strana ' + n.s +
+        ' · ' + PODLE[n.di][n.s].length + ' videí</span></span>' +
+        '<span style="color:var(--warn);font-size:11px;white-space:nowrap">vybrat ▸</span></div>';
     });
   }
 
@@ -426,6 +497,27 @@ function csvPole(v) {
   v = String(v == null ? '' : v);
   return /[",\\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v;
 }
+/* 🔴 Rozdělit řádek přes split(',') NESTAČÍ, i když to tak původně stálo
+   v komentáři („exportujeme jen hodnoty bez čárek"). DVĚ mise se jmenují
+   „Násobení a dělení 10, 100" (3/7-2 a 5/5-3) — export je podle pravidel
+   zabalí do uvozovek, ale naivní dělení je rozseká a VŠECHNY sloupce za
+   názvem se posunou o jedna. Protože se mise páruje podle sloupců PŘED
+   názvem (rocnik, mise), řádek se přesto přijal a uložil nesmyslný díl,
+   stranu i ID — tiše, u dvou misí z 63. */
+function radekCsv(r) {
+  const out = []; let val = '', q = false;
+  for (let i = 0; i < r.length; i++) {
+    const c = r[i];
+    if (q) {
+      if (c === '"') { if (r[i + 1] === '"') { val += '"'; i++; } else q = false; }
+      else val += c;
+    } else if (c === '"') q = true;
+    else if (c === ',') { out.push(val); val = ''; }
+    else val += c;
+  }
+  out.push(val);
+  return out;
+}
 function doCsv() {
   const hl = ['rocnik', 'mise', 'nazev_mise', 'dil', 'strana', 'youtube_id', 'cviceni', 'poznamka'];
   const rad = MISE.map(m => {
@@ -457,13 +549,11 @@ document.getElementById('b-import').onclick = () => {
   const txt = prompt('Vlož obsah CSV (hlavička + řádky):');
   if (!txt) return;
   const radky = txt.split(/\\r?\\n/).filter(r => r.trim());
-  const hl = radky.shift().split(',').map(h => h.trim());
+  const hl = radekCsv(radky.shift()).map(h => h.trim());
   const ix = n => hl.indexOf(n);
   let n = 0;
   radky.forEach(r => {
-    // jednoduché dělení stačí: exportujeme jen hodnoty bez čárek kromě názvu mise,
-    // a ten se při importu nepoužívá (mise se páruje podle ročníku a kódu)
-    const c = r.split(',');
+    const c = radekCsv(r);
     const key = (c[ix('rocnik')] || '').trim() + '/' + (c[ix('mise')] || '').trim();
     if (!MISE.some(m => kl(m) === key)) return;
     STAV[key] = {
@@ -477,6 +567,32 @@ document.getElementById('b-import').onclick = () => {
   alert('Načteno ' + n + ' řádků.');
 };
 
+/* Návod je vidět hned napoprvé (bez něj nikdo neví, co se po něm chce),
+   ale jde schovat a volba se pamatuje — při dvacáté misi už jen překáží. */
+const KLIC_NAVOD = KLIC + '_NAVOD_SKRYT';
+function navodViditelnost() {
+  let skryt = false;
+  try { skryt = localStorage.getItem(KLIC_NAVOD) === '1'; } catch (e) {}
+  document.getElementById('navod').classList.toggle('skryty', skryt);
+  document.getElementById('b-navod').textContent = skryt ? '? Návod' : '✕ Skrýt návod';
+}
+document.getElementById('b-navod').onclick = () => {
+  const skryt = !document.getElementById('navod').classList.contains('skryty');
+  try { localStorage.setItem(KLIC_NAVOD, skryt ? '1' : '0'); } catch (e) {}
+  navodViditelnost();
+};
+navodViditelnost();
+spocitejVahy();
+/* Kolik misí zůstane bez návrhu, se v návodu NEPÍŠE natvrdo — spočítá se
+   tady, z těch samých návrhů, které uvidíš. Napsané číslo by se při každé
+   změně vážení tiše rozešlo se skutečností. */
+(() => {
+  /* Zápis „X z Y" se vyhýbá skloňování číslovky — to je v tomhle
+     repozitáři doložený zdroj chyb („3 otoček", „4 minut"). */
+  const bez = MISE.filter(m => navrhy(m, 1).length === 0).length;
+  const el = document.getElementById('bez-navrhu');
+  if (el) el.textContent = bez + ' z ' + MISE.length;
+})();
 nacti(); renderSeznam(); renderDetail(); renderStav();
 </script>
 `;

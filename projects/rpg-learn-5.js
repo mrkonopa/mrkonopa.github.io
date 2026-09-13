@@ -32,7 +32,7 @@ window.RPG_LEARN_5 = {
       { wrong: '230 tisíc = 23 000', right: '230 000', why: 'Za „tisíc" patří tři nuly, ne dvě. 230 × 1000 = 230 000.' },
       { wrong: 'V čísle 472 935 je na místě tisíců 4', right: 'na místě tisíců je 2', why: 'Řády se čtou ZPRAVA. 4 je na místě statisíců, ne tisíců.' },
     ],
-    video: null
+    video: { id: 'IZ2UpqdmEWY', title: 'Vyvození číselného oboru · 5. roč., 2. díl, s. 2' }
   },
   '1-2': {
     intro: '🦎 Ještěr strážce klade vedle sebe dvě obrovská čísla. „Které je větší?" Nauč se porovnávat velká čísla po řádech.',
@@ -52,7 +52,7 @@ window.RPG_LEARN_5 = {
       { wrong: '87 500 > 105 000, protože 87 > 10', right: '87 500 < 105 000', why: 'Nesrovnáváme začátky, ale celá čísla. 105 000 má víc cifer, proto je větší.' },
       { wrong: '198 000 > 201 000, protože 98 > 01', right: '198 000 < 201 000', why: 'Porovnáváme od nejvyššího řádu vlevo: statisíce 1 < 2.' },
     ],
-    video: null
+    video: { id: 'nCN7cruIdYY', title: 'Zaokrouhlování a porovnávání čísel · 5. roč., 2. díl, s. 6' }
   },
   '1-3': {
     intro: '🪨 Skalní golem odlamuje z čísel poslední kusy. „Co zbude?" duní. Nauč se zaokrouhlovat velká čísla.',
@@ -72,7 +72,7 @@ window.RPG_LEARN_5 = {
       { wrong: '456 789 na tisíce = 456 000', right: '457 000', why: 'Rozhoduje cifra stovek (7). 7 ≥ 5, proto zaokrouhlujeme nahoru.' },
       { wrong: '234 500 na desetitisíce = 235 000', right: '230 000', why: 'Na desetitisíce rozhoduje cifra tisíců (4), ne stovek. 4 < 5 → dolů.' },
     ],
-    video: null
+    video: { id: 'nVbk8Z3BFb8', title: 'Zaokrouhlování čísel · 5. roč., 1. díl, s. 4' }
   },
   '2-1': {
     intro: '🔥 Ohnivá ještěrka rozmnožuje plameny. „Kolik jich bude, když je vezmeš sedmkrát?" Nauč se písemné násobení jednociferným.',
@@ -89,7 +89,7 @@ window.RPG_LEARN_5 = {
       { wrong: '258 × 4 = 8 202 (přenos připsán vedle)', right: '1 032', why: 'Přenos se PŘIČÍTÁ k dalšímu součinu, nepíše se jako samostatná cifra.' },
       { wrong: '258 × 4 = 8032 (zapomenutý přenos)', right: '1 032', why: 'Z 8 × 4 = 32 se přenáší 3 do dalšího řádu — nesmí se zapomenout přičíst.' },
     ],
-    video: null
+    video: { id: 'gG3KC9eVicQ', title: 'Dělení se zbytkem, písemné násobení a dělení · 5. roč., 1. díl, s. 11' }
   },
   '2-2': {
     intro: '🐊 Lávový krokodýl násobí dvěma čelistmi najednou. „Zvládneš dvojciferného činitele?" Nauč se násobit pod sebou.',
@@ -106,7 +106,7 @@ window.RPG_LEARN_5 = {
       { wrong: '64 × 25: druhý řádek nezasunutý (64×2=128 pod jednotky)', right: 'druhý řádek posunout o řád: 1 280', why: 'Desítky (2) znamenají 20 — součin patří o jedno místo doleva.' },
       { wrong: '47 × 23 = 47×3 = 141 (jen jednou)', right: '1 081', why: 'Musíme násobit OBĚMA ciframi (3 i 20) a řádky sečíst.' },
     ],
-    video: null
+    video: { id: 'k3oYow_JB88', title: 'Násobení a dělení · 5. roč., 2. díl, s. 12' }
   },
   '2-3': {
     intro: '👺 Ohnivý skřet schoval násobení do příběhu. „Kolikrát se to má vzít?" Nauč se slovní úlohy s násobením.',
@@ -123,7 +123,7 @@ window.RPG_LEARN_5 = {
       { wrong: '180 km za 6 dní → 180 + 6 = 186', right: '180 × 6 = 1 080 km', why: 'Šest stejných skupin po 180 = násobení, ne sčítání jedné hodnoty a počtu.' },
       { wrong: 'Odpověď „1 080" bez jednotky', right: '1 080 km', why: 'Slovní úlohu vždy dokončíme celou větou s jednotkou.' },
     ],
-    video: null
+    video: { id: '0-nwEEZYUhQ', title: 'Výpočet jednoho a více dílů, výpočet jedné a… · 5. roč., 1. díl, s. 34' }
   },
   '3-1': {
     intro: '⚒️ Kovářský golem rozděluje žhavé železo na stejné díly. „Kolik na každý?" Nauč se písemné dělení jednociferným.',
@@ -140,7 +140,7 @@ window.RPG_LEARN_5 = {
       { wrong: '742 : 7 = 16 (vynechaná nula)', right: '106', why: 'Když se dělitel do cifry nevejde, píše se do podílu 0 — nesmí se přeskočit.' },
       { wrong: '856 : 8 = 17', right: '107', why: 'Stejná chyba: prostřední 0 v podílu se nesmí zapomenout.' },
     ],
-    video: null
+    video: { id: 'TAdGMO6GpTw', title: 'Násobení a dělení, příklady s více početními… · 5. roč., 1. díl, s. 10' }
   },
   '3-2': {
     intro: '🦂 Ohnivý škorpion nikdy nerozdělí všechno beze zbytku. „A co zbude?" Nauč se dělit se zbytkem.',
@@ -160,7 +160,7 @@ window.RPG_LEARN_5 = {
       { wrong: '523 : 4 = 13 zbytek 3 (vynechaná 0)', right: '130 zbytek 3', why: 'I zde chybí nula v podílu — po 12:4=3 se snižuje 3 a vzniká další cifra.' },
       { wrong: '745 : 6 = 124 zbytek 7', right: '124 zbytek 1', why: 'Zbytek musí být MENŠÍ než dělitel (6). Zbytek 7 znamená, že podíl je moc malý.' },
     ],
-    video: null
+    video: { id: 'bAO0tTajbkc', title: 'Pamětné dělení se zbytkem · 5. roč., 1. díl, s. 39' }
   },
   '3-3': {
     intro: '🐗 Lávový kanec rozryl úlohu na kusy. „Poznáš, co se má dělit?" Nauč se slovní úlohy s dělením.',
@@ -177,7 +177,7 @@ window.RPG_LEARN_5 = {
       { wrong: '480 zlatých mezi 6 → 480 × 6', right: '480 : 6 = 80', why: 'Rozdělování rovnoměrně je dělení, ne násobení.' },
       { wrong: 'Odpověď „50" bez jednotky', right: '50 toulců', why: 'Slovní úloha se dokončí celou větou s jednotkou.' },
     ],
-    video: null
+    video: { id: 'hH6Ao2y1p14', title: 'Výpočet jednoho a více dílů, výpočet jedné a… · 5. roč., 1. díl, s. 33' }
   },
   '4-1': {
     intro: '💎 Krystalový wyrm rozlomil krystal na díly. „Kolik z celku držíš?" Nauč se zlomky jako část celku.',
@@ -198,7 +198,7 @@ window.RPG_LEARN_5 = {
       { wrong: '2/5 z 30 = 30 : 2 × 5 = 75', right: '12', why: 'Nejdřív dělíme JMENOVATELEM (5), pak násobíme čitatelem (2). Ne obráceně.' },
       { wrong: '3/4 z 20 = 3 × 4 = 12', right: '15', why: 'Zlomek z čísla není součin čitatele a jmenovatele. 20 : 4 × 3 = 15.' },
     ],
-    video: null
+    video: { id: 'I_-bRO9D-2M', title: 'Zlomky, výpočet částí z celku · 5. roč., 1. díl, s. 20' }
   },
   '4-2': {
     intro: '🕷️ Křišťálový pavouk spřádá síť ze stejných dílků. „Sečti je," šeptá. Nauč se sčítat zlomky se stejným jmenovatelem.',
@@ -218,7 +218,7 @@ window.RPG_LEARN_5 = {
       { wrong: '3/10 + 4/10 = 7/20', right: '7/10', why: 'Jmenovatelé se NESČÍTAJÍ. Při stejném jmenovateli zůstává (10), sčítají se jen čitatele.' },
       { wrong: '5/8 − 2/8 = 3/0', right: '3/8', why: 'Jmenovatel se neodečítá ani nemění — zůstává 8.' },
     ],
-    video: null
+    video: { id: 'zb1ntxKuhUE', title: 'Zlomky · 5. roč., 1. díl, s. 48' }
   },
   '4-3': {
     intro: '👁️ Vševidoucí oko schovalo zlomek do příběhu. „Kolik to je doopravdy?" Nauč se slovní úlohy se zlomky.',
@@ -238,7 +238,7 @@ window.RPG_LEARN_5 = {
       { wrong: '3/4 z 28 = 28 : 3 × 4', right: '28 : 4 × 3 = 21', why: 'Dělíme JMENOVATELEM (4), násobíme čitatelem (3) — pořadí nezaměnit.' },
       { wrong: '2/5 z 60 = 60 − 2 − 5', right: '24 l', why: 'Zlomek z čísla se počítá dělením a násobením, ne odečítáním čitatele a jmenovatele.' },
     ],
-    video: null
+    video: { id: 'fpbLmqLNDGc', title: 'Části z celku – čtvrt, půl, tři čtvrtě… · 5. roč., 2. díl, s. 30' }
   },
   '5-1': {
     intro: '🌋 Lávová bestie měří teplotu na desetiny. „Které číslo je větší?" Nauč se číst a porovnávat desetinná čísla.',
@@ -259,7 +259,7 @@ window.RPG_LEARN_5 = {
       { wrong: '0,45 > 0,5, protože 45 > 5', right: '0,5 > 0,45', why: 'Delší zápis za čárkou NEznamená větší číslo. Porovnej po řádech: 0,50 > 0,45.' },
       { wrong: '2,65 > 2,7, protože 65 > 7', right: '2,7 > 2,65', why: 'Desetiny se porovnávají s desetinami: 2,70 vs 2,65 → 7 > 6.' },
     ],
-    video: null
+    video: { id: 'TyhDPCBqBqU', title: 'Desetinná čísla – základní seznámení… · 5. roč., 1. díl, s. 51' }
   },
   '5-2': {
     intro: '🐉 Žhavý drak sčítá desetiny a setiny. „Pozor, ať ti čárka nesklouzne!" Nauč se sčítat a odčítat desetinná čísla.',
@@ -276,7 +276,7 @@ window.RPG_LEARN_5 = {
       { wrong: '0,5 + 0,7 = 0,12', right: '1,2', why: 'Desetiny se sčítají jako celé: 5 + 7 = 12, to je 1 celá a 2 desetiny → 1,2. Nepíše se „0,12".' },
       { wrong: '4,6 + 3,8 = 7,14', right: '8,4', why: 'Z desetin 6 + 8 = 14 se přenáší 1 do celých — nesmí zůstat „14" za čárkou.' },
     ],
-    video: null
+    video: { id: 'tubxrNy0MtU', title: 'Desetinná čísla – sčítání a odčítání · 5. roč., 1. díl, s. 56' }
   },
   '5-3': {
     intro: '☄️ Ohnivá kometa posouvá desetinnou čárku. „Desetkrát? Stokrát?" Nauč se násobit a dělit desetinná čísla deseti a stem.',
@@ -296,7 +296,7 @@ window.RPG_LEARN_5 = {
       { wrong: '3,5 × 10 = 3,50', right: '35', why: 'U desetinných čísel se NEPŘIDÁVÁ nula — posouvá se čárka. 3,5 × 10 = 35.' },
       { wrong: '2,3 × 100 = 2,300', right: '230', why: 'Násobení 100 posune čárku o dvě místa doprava, nepřidávají se nuly za čárku.' },
     ],
-    video: null
+    video: { id: '2IJHRB97Gqs', title: 'Desetinná čísla – násobení a dělení… · 5. roč., 2. díl, s. 21' }
   },
   '6-1': {
     intro: '🦅 Skalní orlosup obletí pozemek a pak ho přeměří. „Obvod, nebo obsah?" Nauč se obojí u obdélníku a čtverce.',
@@ -320,7 +320,7 @@ window.RPG_LEARN_5 = {
       { wrong: 'Obsah obdélníku 8 × 5 = 40 cm', right: '40 cm²', why: 'Obsah má vždy čtvereční jednotku (cm²), obvod běžnou (cm).' },
       { wrong: 'Obvod 8 × 5 = 40', right: 'O = 2 × (8 + 5) = 26 cm', why: 'Násobení stran je OBSAH. Obvod je součet všech stran: 2×(a+b).' },
     ],
-    video: null
+    video: { id: 'aVp-RKYt8BI', title: 'Čtverec a obdélník – obvod a obsah · Geometrie 5, s. 26' }
   },
   '6-2': {
     intro: '🧊 Ledový drak mrazí metry, kilogramy i litry. „Převedeš je?" Nauč se převádět jednotky.',
@@ -341,7 +341,7 @@ window.RPG_LEARN_5 = {
       { wrong: '5 km = 500 m', right: '5 000 m', why: '1 km = 1000 m (tři nuly), ne 100 m. 5 × 1000 = 5 000.' },
       { wrong: '1 m = 10 cm', right: '1 m = 100 cm', why: 'Metr má 100 cm. Deset platí až u převodu centimetrů na milimetry (1 cm = 10 mm).' },
     ],
-    video: null
+    video: { id: 'Y4p1PiLYXOc', title: 'Převody jednotek – jednotky délky · 5. roč., 1. díl, s. 22' }
   },
   '6-3': {
     intro: '⚖️ Strážce rovnováhy hledá střed mezi čísly. „Kolik připadne na jedno?" Nauč se aritmetický průměr.',
@@ -361,7 +361,7 @@ window.RPG_LEARN_5 = {
       { wrong: 'Průměr 6, 9, 7, 10 = 32 : 3', right: '32 : 4 = 8', why: 'Dělíme POČTEM hodnot. Čísla jsou čtyři, tedy dělíme 4, ne 3.' },
       { wrong: 'Průměr 12, 8, 10 = 12 + 8 + 10 = 30', right: '30 : 3 = 10', why: 'Průměr není jen součet — součet se ještě dělí počtem hodnot.' },
     ],
-    video: null
+    video: { id: 'fei07aW1ltA', title: 'Aritmetický průměr, odhad výsledku · 5. roč., 1. díl, s. 35' }
   },
   '7-1': {
     intro: '🐲 Dračí stráž prověřuje velká čísla. „Projdeš, jen když se nespleteš." Opakování velkých čísel a operací.',
@@ -378,7 +378,7 @@ window.RPG_LEARN_5 = {
       { wrong: '345 000 + 278 000 = 523 000', right: '623 000', why: 'Z 45 + 78 (tisíců) vzniká přenos do statisíců — nesmí se zapomenout.' },
       { wrong: '600 000 − 145 000 = 545 000', right: '455 000', why: 'Při odčítání se musí půjčovat přes nuly: 600 − 145 = 455.' },
     ],
-    video: null
+    video: { id: 'muycYgNM84g', title: 'Zapisování velkých čísel v textu · 5. roč., 2. díl, s. 18' }
   },
   '7-2': {
     intro: '🐉 Starodávný drak žádá písemné výpočty. „Ukaž mi celý postup." Opakování písemného násobení a dělení.',
@@ -395,7 +395,7 @@ window.RPG_LEARN_5 = {
       { wrong: '348 × 7 = 2 106 (zapomenuté přenosy)', right: '2 436', why: 'Každý přenos (5, pak 3) se musí přičíst k dalšímu součinu.' },
       { wrong: '912 : 8 = 14 (vynechaná cifra)', right: '114', why: 'Podíl musí mít tři cifry — po prvním kroku se snižuje a dělí dál.' },
     ],
-    video: null
+    video: { id: 'KT1xqtawg48', title: 'Početní operace se závorkami a bez závorek… · 5. roč., 2. díl, s. 14' }
   },
   '7-3': {
     intro: '👑 Dračí král čeká v nitru hory. „Ukaž mi všechno, co ses naučil." Finální duel z celého 5. ročníku.',

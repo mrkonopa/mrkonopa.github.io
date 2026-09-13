@@ -32,7 +32,7 @@ window.RPG_LEARN_3 = {
       { wrong: '305 = 35', right: '305 = 3 stovky, 0 desítek, 5 jednotek', why: 'Nulu uprostřed nesmíš vynechat — drží místo desítek. Bez ní by číslo mělo jiný řád.' },
       { wrong: 'V čísle 472 je na místě desítek 4', right: 'Na místě desítek je 7 (prostřední cifra)', why: 'Žáci pletou pořadí řádů. Zleva jsou stovky, uprostřed desítky, vpravo jednotky.' },
     ],
-    video: null
+    video: { id: 'oiXGedrkdaY', title: 'Vyvození číselného oboru · 8. díl, s. 2' }
   },
   '1-2': {
     intro: '🐞 Beruška Soudkyně drží v tlapkách dvě čísla. „Které je větší?" ptá se přísně. Nauč se porovnávat čísla do 1000 pomocí znaků < a >.',
@@ -52,7 +52,7 @@ window.RPG_LEARN_3 = {
       { wrong: '480 > 500 (protože 8 je velké)', right: '480 < 500', why: 'Nesmíš porovnávat podle jedné cifry. Rozhoduje nejvyšší řád — nejdřív stovky (4 < 5).' },
       { wrong: 'Znak < čte jako „větší než"', right: 'Špička (užší konec) ukazuje na menší číslo: 3 < 8', why: 'Žáci si pletou směr znaku. Otevřená strana míří k většímu číslu.' },
     ],
-    video: null
+    video: { id: 'JsoOpJzqWqk', title: 'Porovnávání čísel · 8. díl, s. 5' }
   },
   '1-3': {
     intro: '🦗 Cvrček Skokan skáče po číselné ose a nikdy nedopadne přesně. „Zaokrouhli mě!" volá. Nauč se zaokrouhlovat na desítky a stovky.',
@@ -73,7 +73,7 @@ window.RPG_LEARN_3 = {
       { wrong: '45 zaokrouhlím na desítky na 40', right: '45 → 50', why: 'Cifra 5 se vždy zaokrouhluje nahoru, ne dolů. To je časté nedopatření.' },
       { wrong: '349 na stovky → 400 (protože 49 je skoro 50)', right: '349 → 300', why: 'Pro stovky se koukám jen na cifru desítek (4), ne na celé číslo 49. 4 < 5 → dolů.' },
     ],
-    video: null
+    video: { id: 'oOY7moK6keA', title: 'Zaokrouhlování na stovky · 8. díl, s. 36' }
   },
   '2-1': {
     intro: '🍄 Muchomůrka roste a roste a rozsypala houby po celé mýtině. „Spočítej je všechny dohromady," směje se. Procvič sčítání do 1000.',
@@ -90,7 +90,7 @@ window.RPG_LEARN_3 = {
       { wrong: '356 + 228 = 574', right: '356 + 228 = 584', why: 'Žák zapomněl přenést desítku. Z 6 + 8 = 14 se přenáší 1 do desítek.' },
       { wrong: 'Zarovná zleva: 245 a 30 → počítá 2450 + 30', right: 'Zarovnej zprava (jednotky pod jednotky): 245 + 30 = 275', why: 'Když je jedno číslo kratší, zarovnej ho zprava podle jednotek, ne zleva.' },
     ],
-    video: null
+    video: { id: 'Fng0eQ2RHx8', title: 'Sčítání a odčítání bez přechodu přes základ… · 8. díl, s. 30' }
   },
   '2-2': {
     intro: '🐛 Hladová housenka ukusuje z listů. „Kolik ti zbyde, když ti ujím?" mlaská. Nauč se odčítat čísla do 1000.',
@@ -107,7 +107,7 @@ window.RPG_LEARN_3 = {
       { wrong: '583 − 247 = 344 (počítá 7 − 3 místo 3 − 7)', right: '583 − 247 = 336', why: 'Žák odečte menší od většího „aby to šlo". Správně si musíš půjčit z vyššího řádu.' },
       { wrong: '600 − 254 = 454', right: '600 − 254 = 346', why: 'Půjčování přes nuly dělá potíže. Z 600 si musíš půjčit postupně přes desítky i stovky.' },
     ],
-    video: null
+    video: { id: 'CkxYPe_vbCg', title: 'Sčítání a odčítání s přechodem přes základ 100 · 8. díl, s. 33' }
   },
   '2-3': {
     intro: '🦋 Motýlí duch mluví jen v příbězích. „Rozluštíš, jestli mám přidat, nebo ubrat?" Nauč se poznat, kdy se ve slovní úloze sčítá a kdy odčítá.',
@@ -124,7 +124,7 @@ window.RPG_LEARN_3 = {
       { wrong: 'U „snědla 120" žák sečte 350 + 120 = 470', right: '350 − 120 = 230', why: 'Žák počítá bez přemýšlení. Když něco ubývá (snědl, ztratil, utratil), musíš odčítat.' },
       { wrong: 'Napíše jen výsledek 370 bez odpovědi', right: 'Skřítek má celkem 370 žaludů.', why: 'Ke slovní úloze patří odpověď celou větou, ne jen číslo.' },
     ],
-    video: null
+    video: { id: 'ZDyGnc4EgW4', title: 'Zápis a řešení slovních úloh · 7. díl, s. 4' }
   },
   '3-1': {
     intro: '🦊 Lstivá liška si připravila past ze stejně velkých hromádek. „Kolik je jich dohromady, když je nebudeš počítat po jedné?" Nauč se malou násobilku.',
@@ -145,7 +145,7 @@ window.RPG_LEARN_3 = {
       { wrong: '7 × 8 = 54', right: '7 × 8 = 56', why: 'Klasická chyba z nejisté násobilky. 7 × 8 = 56, ne 54 (to je 6 × 9).' },
       { wrong: '6 × 7 se učí zvlášť a 7 × 6 zvlášť', right: '6 × 7 = 7 × 6 = 42', why: 'Na pořadí činitelů nezáleží. Stačí umět jeden směr a druhý plyne z něj.' },
     ],
-    video: null
+    video: { id: '7YDz1zd2v5Q', title: 'Násobení a dělení čísly 2, 3 · 7. díl, s. 12' }
   },
   '3-2': {
     intro: '🐺 Vlčí mládě vyje na měsíc a přidává za čísla nuly. „Kolik bude desetkrát tolik?" Nauč se násobit deseti, stem a desítkami.',
@@ -163,7 +163,7 @@ window.RPG_LEARN_3 = {
       { wrong: '5 × 100 = 500 zapíše jako 50', right: '5 × 100 = 500', why: 'Při násobení 100 se přidávají dvě nuly, ne jedna. Žáci často přidají jen jednu.' },
       { wrong: '6 × 40 = 24', right: '6 × 40 = 240', why: 'Žák vynásobí 6 × 4, ale zapomene připsat nulu za desítku.' },
     ],
-    video: null
+    video: { id: 'moBiS4YHdbg', title: 'Násobení a dělení čísly 10, 100 · 8. díl, s. 46' }
   },
   '3-3': {
     intro: '🦝 Mýval Škodíš schoval slovní úlohu do bahna. „Poznáš, kolikrát se to má vzít?" Nauč se řešit slovní úlohy s násobením.',
@@ -180,7 +180,7 @@ window.RPG_LEARN_3 = {
       { wrong: 'U „4 větve po 7 ptácích" žák sečte 4 + 7 = 11', right: '4 × 7 = 28', why: 'Několik stejných skupin se počítá násobením, ne sčítáním čísel ze zadání.' },
       { wrong: '„o 3 víc" chápe jako „3× víc"', right: '„o kolik" = přičti, „kolikrát" = násob', why: 'Slovíčka „o" a „krát" se pletou. „O 3 víc" znamená + 3, „3krát víc" znamená × 3.' },
     ],
-    video: null
+    video: { id: 'mvTq58-MAaY', title: 'Násobení mimo rozsah malé násobilky · 7. díl, s. 49' }
   },
   '4-1': {
     intro: '🐿️ Lakomá veverka má hromadu oříšků a chce je rozdělit spravedlivě. „Kolik jich připadne na každého?" Nauč se dělit beze zbytku.',
@@ -197,7 +197,7 @@ window.RPG_LEARN_3 = {
       { wrong: '72 : 9 = 7', right: '72 : 9 = 8', why: 'Nejistá násobilka. Kontrola: 9 × 7 = 63, ne 72. Správně 9 × 8 = 72.' },
       { wrong: '40 : 5 = 35 (odečte 40 − 5)', right: '40 : 5 = 8', why: 'Žák si plete dělení s odčítáním. Dělení hledá, kolikrát se 5 vejde do 40.' },
     ],
-    video: null
+    video: { id: 'WSBtUhb8BpU', title: 'Násobení a dělení čísly 6, 7 · 7. díl, s. 18' }
   },
   '4-2': {
     intro: '🦔 Ježek Bodlináč nikdy nevyjde přesně. „A co s tím, co zbude?" bodá. Nauč se dělit se zbytkem a hlídat, aby zbytek byl menší než dělitel.',
@@ -217,7 +217,7 @@ window.RPG_LEARN_3 = {
       { wrong: '29 : 6 = 3 zbytek 11', right: '29 : 6 = 4 zbytek 5', why: 'Zbytek 11 je větší než dělitel 6 → ještě se tam vejde další šestka. Zbytek musí být vždy menší než dělitel.' },
       { wrong: '23 : 4 = 5 zbytek 4', right: '23 : 4 = 5 zbytek 3', why: 'Zbytek 4 = dělitel → dá se dělit dál. Zbytek nesmí být roven ani větší než dělitel.' },
     ],
-    video: null
+    video: { id: 'iz2YZKRainE', title: 'Dělení se zbytkem · 8. díl, s. 37' }
   },
   '4-3': {
     intro: '🦡 Jezevec Hrabal rozhrabal mraveniště na stejné díly. „Kolik do každého?" Nauč se řešit slovní úlohy s dělením.',
@@ -234,7 +234,7 @@ window.RPG_LEARN_3 = {
       { wrong: 'U „rozděl 24 mezi 4" žák počítá 24 × 4', right: '24 : 4 = 6', why: 'Rovné rozdělování je dělení, ne násobení. Každý dostane méně, než je celek.' },
       { wrong: 'Výsledek 6 oříšků napíše bez odpovědi', right: 'Každá veverka dostane 6 oříšků.', why: 'Ke slovní úloze patří odpověď větou, aby bylo jasné, co číslo znamená.' },
     ],
-    video: null
+    video: { id: '5ZhtJIOzAt0', title: 'Dělení mimo rozsah malé násobilky · 8. díl, s. 61' }
   },
   '5-1': {
     intro: '🌳 Starý dub natáhl tři kořeny do trojúhelníku. „Kolik je to dokola?" duní. Nauč se počítat obvod trojúhelníku.',
@@ -255,7 +255,7 @@ window.RPG_LEARN_3 = {
       { wrong: 'O = 5 + 6 + 7 = 18, ale zapíše bez jednotky', right: 'O = 18 cm', why: 'K délce vždy patří jednotka (cm). Bez ní není jasné, o čem číslo mluví.' },
       { wrong: 'Rovnostranný se stranou 8 → O = 8 + 8 = 16', right: 'O = 3 × 8 = 24 cm', why: 'Trojúhelník má tři strany, ne dvě. Žák jednu stranu vynechá.' },
     ],
-    video: null
+    video: { id: 'HuWO3pPc4lQ', title: 'Trojúhelníky · Geometrie 3, s. 36' }
   },
   '5-2': {
     intro: '🪵 Dřevěný golem má tělo z rovných prken. „Změř mě po obvodu," vrže. Nauč se obvod čtverce a obdélníku.',
@@ -276,7 +276,7 @@ window.RPG_LEARN_3 = {
       { wrong: 'Obdélník 8 a 5 → O = 8 + 5 = 13', right: 'O = 8 + 5 + 8 + 5 = 26 cm', why: 'Obdélník má čtyři strany, ne dvě. Každá délka je tam dvakrát.' },
       { wrong: 'Čtverec 6 cm → O = 6 × 6 = 36', right: 'O = 4 × 6 = 24 cm', why: 'Obvod je součet stran (4 × 6), ne 6 × 6. To by byl obsah, ne obvod.' },
     ],
-    video: null
+    video: { id: '8IWTzsswN7c', title: 'Čtyřúhelníky · Geometrie 3, s. 39' }
   },
   '5-3': {
     intro: '🍂 Listový přízrak se skládá z čar a tvarů. „Poznáš, co jsem?" šustí. Nauč se rozlišit úsečku, lomenou čáru a rovinné obrazce.',
@@ -295,7 +295,7 @@ window.RPG_LEARN_3 = {
       { wrong: 'Délku lomené čáry odhadne podle nejdelšího úseku', right: 'Sečti všechny úseky: 2 + 5 + 3 = 10 cm', why: 'Délka lomené čáry je součet všech úseků, ne jen ten nejdelší.' },
       { wrong: 'Trojúhelník má 4 strany', right: 'Trojúhelník má 3 strany a 3 vrcholy', why: 'Žáci pletou trojúhelník se čtvercem. Troj- znamená tři.' },
     ],
-    video: null
+    video: { id: 'h4XkTyUjxVE', title: 'Opakování – úsečka · Geometrie 3, s. 6' }
   },
   '6-1': {
     intro: '🦉 Moudrá sova měří větve od milimetrů po metry. „Kolik je to v jiné jednotce?" houká. Nauč se převádět jednotky délky.',
@@ -316,7 +316,7 @@ window.RPG_LEARN_3 = {
       { wrong: '3 dm = 3 cm', right: '3 dm = 30 cm', why: 'Žák jen přepíše číslo bez převodu. Mezi dm a cm je poměr 10.' },
       { wrong: '50 mm = 500 cm', right: '50 mm = 5 cm', why: 'Na větší jednotku se dělí, ne násobí. mm je menší než cm, tak jich musí být míň.' },
     ],
-    video: null
+    video: { id: 'o0zTo51cq4g', title: 'Jednotky délky, hmotnosti, objemu, času… · 7. díl, s. 56' }
   },
   '6-2': {
     intro: '⏳ Hodinový skřítek přesýpá čas a váží houby. „Kolik minut a kolik gramů?" chichotá se. Nauč se jednotky hmotnosti a času.',
@@ -338,7 +338,7 @@ window.RPG_LEARN_3 = {
       { wrong: '1 h = 100 min', right: '1 h = 60 min', why: 'Čas není desítkový. Hodina má 60 minut, ne 100.' },
       { wrong: '2 kg = 200 g', right: '2 kg = 2000 g', why: 'Mezi kg a g je tisíc, ne sto. Žák přidá jen dvě nuly místo tří.' },
     ],
-    video: null
+    video: { id: 'ekcOF7kMlYw', title: 'Hodiny a určování času · 7. díl, s. 24' }
   },
   '6-3': {
     intro: '🐦 Straka zlodějka sbírá mince do hnízda. „Kolik ti zbyde a kolik ti vrátím?" Nauč se počítat s korunami.',
@@ -358,7 +358,7 @@ window.RPG_LEARN_3 = {
       { wrong: 'Za 3 perníčky po 25 Kč zaplatí 25 Kč', right: '3 × 25 = 75 Kč', why: 'Cena je za jeden kus, ne za všechny. Tři kusy musíš vynásobit.' },
       { wrong: 'Vrátí = cena − zaplaceno (70 − 100)', right: 'Vrátí = zaplaceno − cena = 100 − 70 = 30 Kč', why: 'Odčítá se v opačném pořadí. Od zaplacené částky odečteš cenu.' },
     ],
-    video: null
+    video: { id: 's1CL2kZiJLc', title: 'Finanční gramotnost (Kč, €) · 7. díl, s. 11' }
   },
   '7-1': {
     intro: '🐺 Šedý vlk zkouší všechno, co už umíš. „Projdeš, jen když nic nezapomeneš." Velké opakování počítání do 1000.',
@@ -375,7 +375,7 @@ window.RPG_LEARN_3 = {
       { wrong: '320 + 150 = 370 (zapomene stovky)', right: '320 + 150 = 470', why: 'Při rychlém počítání žák sečte jen část řádů. Vždy projdi jednotky, desítky i stovky.' },
       { wrong: 'Plete znaménka: 480 − 260 sečte na 740', right: '480 − 260 = 220', why: 'Nepozorné čtení znaménka. Nejdřív se podívej, jestli sčítáš, nebo odčítáš.' },
     ],
-    video: null
+    video: { id: '3Hx2NcSZMBc', title: 'Sloučené početní operace bez závorek a se… · 8. díl, s. 55' }
   },
   '7-2': {
     intro: '🌑 Stín lesa mizí a objevuje se s nulami navíc. „Desetkrát? Stokrát?" Opakování násobení a dělení deseti a stem.',
@@ -392,7 +392,7 @@ window.RPG_LEARN_3 = {
       { wrong: '7 × 100 = 70', right: '7 × 100 = 700', why: 'U násobení 100 se přidají dvě nuly, ne jedna.' },
       { wrong: '600 : 100 = 60', right: '600 : 100 = 6', why: 'Při dělení 100 se uberou dvě nuly. Žák ubere jen jednu.' },
     ],
-    video: null
+    video: { id: 'MeZZZcAlJqc', title: 'Násobení číslem končícím na jednu nebo dvě… · 8. díl, s. 47' }
   },
   '7-3': {
     intro: '👑 Král lesa čeká na mýtině. „Ukaž mi všechno, co ses naučil." Finální duel ze všeho, co třetí ročník přinesl.',
