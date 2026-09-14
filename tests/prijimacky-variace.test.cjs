@@ -54,7 +54,7 @@ const skupiny = mSlots ? [...mSlots[1].matchAll(/\[([^\[\]]+)\]/g)]
 ok(skupiny.length === 16, 'SLOTS má 16 pozic', 'nalezeno=' + skupiny.length);
 
 /* Naměřeno 2026-09-13. Pozice se zvedá, jakmile se předělá. */
-const VARIANT = { 1: 8, 2: 3, 3: 3, 4: 3, 5: 3, 6: 4, 7: 3, 8: 3,
+const VARIANT = { 1: 8, 2: 6, 3: 3, 4: 3, 5: 3, 6: 4, 7: 3, 8: 3,
   9: 3, 10: 3, 11: 3, 12: 5, 13: 4, 14: 6, 15: 3, 16: 3 };
 const maloVariant = [];
 skupiny.forEach((g, i) => {
@@ -95,7 +95,7 @@ const vyklady = t => {
 /* Naměřeno 2026-09-13 přes 3 000 generování na pozici. Pozice 1 je
    předělaná (pravidlo → dosazení → výsledek), proto 3. Ostatní drží
    svůj dnešní stav, aby nemohly klesnout. */
-const KROKU = { 1: 3, 2: 1, 3: 2, 4: 2, 5: 2, 6: 2, 7: 2, 8: 2,
+const KROKU = { 1: 3, 2: 3, 3: 2, 4: 2, 5: 2, 6: 2, 7: 2, 8: 2,
   9: 3, 10: 3, 11: 2, 12: 3, 13: 2, 14: 3, 15: 2, 16: 2 };
 const BEHU = 1200;
 const melke = [];
@@ -122,26 +122,70 @@ ok(videnoVykladu > 30000, 'změřilo se ' + videnoVykladu + ' postupů (podlaha 
 ok(melke.length === 0, 'žádná pozice neklesla pod svou naměřenou hloubku postupu',
   melke.slice(0, 3).join(' | '));
 
-/* ── 3. pozice 1 — vzorek stylu, na který se předělává zbytek ─────── */
-const jedna = { celkem: 0, bezPravidla: [], kratke: [] };
-for (let b = 0; b < 1500; b++) {
-  const t = C.genSlot(0);
-  vyklady(t).forEach(s => {
-    jedna.celkem++;
-    const st = Array.isArray(s) ? s : [s];
-    /* První krok má pojmenovat PRAVIDLO, ne rovnou počítat. Poznávací
-       znak: sám o sobě neobsahuje výsledek celé úlohy. Kontroluje se
-       tedy to, co jde zkontrolovat — že první krok není holá rovnice. */
-    if (/^\s*[-\d(√]/.test(String(st[0]))) jedna.bezPravidla.push(String(st[0]).slice(0, 50));
-    if (String(st[0]).length < 30) jedna.kratke.push(String(st[0]));
-  });
+/* ── 3. předělané pozice — styl, na který se převádí zbytek ───────
+   Tvar postupu je PRAVIDLO → DOSAZENÍ → VÝSLEDEK. Zkontrolovat jde
+   ta první část: první krok má něco VYSVĚTLIT, ne rovnou počítat.
+
+   ⚠️ Měří se POČET PÍSMEN, ne to, čím krok začíná. První verze pravidla
+   hlásila „začíná číslicí nebo závorkou" a byl to planý poplach: první
+   krok u (a+b)² schválně začíná výrazem — „(5 + 5)² NENÍ 5² + 5² —
+   druhá mocnina součtu se roznásobuje vzorcem…" — a je to ten
+   pedagogicky nejlepší první krok v celé sadě, protože pojmenuje
+   klasickou chybu. Naměřeno: první kroky mají 50–103 písmen, kdežto
+   holý aritmetický krok („Součin: 3 · 12 = 36.") jich má 6. Podlaha 40
+   leží mezi tím s rezervou na obě strany.
+
+   Rozsah 50–103 je PŘEMĚŘENÝ opraveným čítačem (viz níže) — vyšel
+   shodně, protože dnešní kroky násobí tečkou `·`, ne `×`. Rozbité
+   měřidlo by tedy mlčelo až do prvního kroku, který by `×` použil. */
+const HOTOVE = [1, 2];
+const styl = { celkem: 0, bezVysvetleni: [] };
+/* 🔴 NE `[a-zá-žA-ZÁ-Ž]`. Rozsah á–ž je U+00E1–U+017E a obsahuje i ÷
+   (U+00F7), rozsah Á–Ž zase × (U+00D7) — čítač písmen by počítal
+   znaménka a podlaha by byla měřená rozbitým měřidlem. Nahlásil to
+   CodeQL („overly permissive regular expression range") a měl pravdu.
+   `\p{L}` je vlastnost Unicode pro písmeno, žádný rozsah. */
+const pismen = s => (String(s).match(/\p{L}/gu) || []).length;
+HOTOVE.forEach(p => {
+  for (let b = 0; b < 1500; b++) {
+    vyklady(C.genSlot(p - 1)).forEach(s => {
+      styl.celkem++;
+      const st = Array.isArray(s) ? s : [s];
+      if (pismen(st[0]) < 40) styl.bezVysvetleni.push('pozice ' + p + ': „' + String(st[0]).slice(0, 60) + '"');
+    });
+  }
+});
+ok(styl.celkem >= 4000, 'předělané pozice (' + HOTOVE.join(', ') + '): změřeno ' +
+  styl.celkem + ' postupů', 'celkem=' + styl.celkem);
+ok(styl.bezVysvetleni.length === 0,
+  'první krok vysvětluje pravidlo, nepočítá (aspoň 40 písmen; naměřeno 50–103)',
+  [...new Set(styl.bezVysvetleni)].slice(0, 3).join(' | '));
+
+/* ── 4. zlomek tvaru n/n v zadání ─────────────────────────────────
+   „2 : 7/7" nebo „(4/4 + 2/5) : 5" není matematicky špatně, ale dělení
+   jedničkou nezkouší nic a v ostrém zadání by takový zlomek nikdo
+   nenapsal — žák to čte jako překlep. Vzniká tím, že se čitatel a
+   jmenovatel losují z PŘEKRÝVAJÍCÍCH SE rozsahů; v pozici 2 se to
+   takhle objevilo ve třech generátorech nezávisle na sobě.
+   Naměřeno po opravě: 0 z 64 000 zadání napříč všemi 16 pozicemi. */
+const nn = {};
+let videnoZadani = 0;
+for (let i = 0; i < C.slotCount(); i++) {
+  for (let b = 0; b < 800; b++) {
+    const t = C.genSlot(i);
+    [t.prompt || '', ...(t.parts || []).map(p => p.prompt),
+      ...(t.statements || []).map(s => s && s.text), ...(t.prompts || [])]
+      .filter(Boolean).forEach(z => {
+        videnoZadani++;
+        const re = /(\d+)\/(\d+)/g; let m;
+        while ((m = re.exec(z))) if (m[1] === m[2]) { (nn[i + 1] = nn[i + 1] || new Set()).add(z.slice(0, 70)); break; }
+      });
+  }
 }
-ok(jedna.celkem >= 1400, 'pozice 1: změřeno ' + jedna.celkem + ' postupů', 'celkem=' + jedna.celkem);
-ok(jedna.bezPravidla.length === 0,
-  'pozice 1: první krok vždy pojmenuje pravidlo, nezačíná rovnou počítáním',
-  [...new Set(jedna.bezPravidla)].slice(0, 3).join(' | '));
-ok(jedna.kratke.length === 0, 'pozice 1: první krok není odbytý (aspoň 30 znaků)',
-  [...new Set(jedna.kratke)].slice(0, 3).join(' | '));
+ok(videnoZadani > 20000, 'prošlo se ' + videnoZadani + ' zadání (podlaha 20 000)',
+  'naměřeno=' + videnoZadani);
+ok(Object.keys(nn).length === 0, 'v zadání není zlomek tvaru n/n (dělení jedničkou)',
+  Object.keys(nn).map(p => 'pozice ' + p + ': ' + [...nn[p]][0]).slice(0, 3).join(' | '));
 
 console.log('\n  ' + pass + ' ✅  ' + fail + ' ❌\n');
 process.exit(fail ? 1 : 0);
