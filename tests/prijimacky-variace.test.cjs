@@ -133,10 +133,19 @@ ok(melke.length === 0, 'žádná pozice neklesla pod svou naměřenou hloubku po
    pedagogicky nejlepší první krok v celé sadě, protože pojmenuje
    klasickou chybu. Naměřeno: první kroky mají 50–103 písmen, kdežto
    holý aritmetický krok („Součin: 3 · 12 = 36.") jich má 6. Podlaha 40
-   leží mezi tím s rezervou na obě strany. */
+   leží mezi tím s rezervou na obě strany.
+
+   Rozsah 50–103 je PŘEMĚŘENÝ opraveným čítačem (viz níže) — vyšel
+   shodně, protože dnešní kroky násobí tečkou `·`, ne `×`. Rozbité
+   měřidlo by tedy mlčelo až do prvního kroku, který by `×` použil. */
 const HOTOVE = [1, 2];
 const styl = { celkem: 0, bezVysvetleni: [] };
-const pismen = s => (String(s).match(/[a-zá-žA-ZÁ-Ž]/g) || []).length;
+/* 🔴 NE `[a-zá-žA-ZÁ-Ž]`. Rozsah á–ž je U+00E1–U+017E a obsahuje i ÷
+   (U+00F7), rozsah Á–Ž zase × (U+00D7) — čítač písmen by počítal
+   znaménka a podlaha by byla měřená rozbitým měřidlem. Nahlásil to
+   CodeQL („overly permissive regular expression range") a měl pravdu.
+   `\p{L}` je vlastnost Unicode pro písmeno, žádný rozsah. */
+const pismen = s => (String(s).match(/\p{L}/gu) || []).length;
 HOTOVE.forEach(p => {
   for (let b = 0; b < 1500; b++) {
     vyklady(C.genSlot(p - 1)).forEach(s => {
