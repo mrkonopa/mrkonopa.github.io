@@ -17,30 +17,58 @@ const skl = (n,one,few,many) => n===1?one : (n>=2&&n<=4?few:many);
 const cz = n => String(n).replace('.',',');
 
 // ── SVG diagramy (v měřítku, self-describing data-atributy pro testy) ──
+// 🔴 Délka ramen se DOPOČÍTÁVÁ. Pevných 170 px se vešlo jen do úhlu ~50°;
+// nad ním rameno vyjelo z viewBoxu a prohlížeč ho uříznul TIŠE (stránka
+// nepřeteče, jen kus obrázku chybí). Naměřeno: u 90° chybělo 40 px, u 140°
+// 70 px vlevo — a generátory v 6. ročníku losují až ri(100,160).
+// Vrchol se přitom posouvá, aby byl obrázek v plátně vycentrovaný.
 function svgAngle(deg,opt={}){
- const cx=60,cy=130,len=170,r=38;
- const rad=deg*Math.PI/180;
- const x2=(cx+len*Math.cos(rad)).toFixed(1), y2=(cy-len*Math.sin(rad)).toFixed(1);
- const ax2=(cx+r*Math.cos(rad)).toFixed(1), ay2=(cy-r*Math.sin(rad)).toFixed(1);
+ const W=250,H=160,PAD=14,r=38;
+ const rad=deg*Math.PI/180, co=Math.cos(rad), si=Math.sin(rad);
+ // rameno směrem vpravo má délku len, druhé taky — musí se vejít obě
+ const len=Math.min(170,(W-2*PAD)/(1-Math.min(0,co)),(H-2*PAD-16)/Math.max(si,0.001));
+ // šířka/výška kresby v místní soustavě s vrcholem v počátku
+ const minX=Math.min(0,len*co), maxX=len, maxY=0, minY=-len*si;
+ const cx=+((W-(maxX-minX))/2-minX).toFixed(1), cy=+((H-(maxY-minY))/2-minY).toFixed(1);
+ const x2=(cx+len*co).toFixed(1), y2=(cy-len*si).toFixed(1);
+ const ax2=(cx+r*co).toFixed(1), ay2=(cy-r*si).toFixed(1);
  const lblx=(cx+(r+20)*Math.cos(rad/2)).toFixed(1), lbly=(cy-(r+20)*Math.sin(rad/2)+6).toFixed(1);
- return `<svg viewBox="0 0 250 160"><line x1="${cx}" y1="${cy}" x2="${cx+len}" y2="${cy}" stroke="#19e6e6" stroke-width="3.5"/><line x1="${cx}" y1="${cy}" x2="${x2}" y2="${y2}" stroke="#19e6e6" stroke-width="3.5"/><path d="M ${cx+r} ${cy} A ${r} ${r} 0 0 0 ${ax2} ${ay2}" fill="none" stroke="#ff3d7f" stroke-width="2.5"/>${opt.label?`<text x="${lblx}" y="${lbly}" fill="#ff3d7f" font-size="17" font-family="monospace" text-anchor="middle">${opt.label}</text>`:''}<circle cx="${cx}" cy="${cy}" r="3.5" fill="#fff"/></svg>`;
+ return `<svg viewBox="0 0 ${W} ${H}"><line x1="${cx}" y1="${cy}" x2="${(cx+len).toFixed(1)}" y2="${cy}" stroke="#19e6e6" stroke-width="3.5"/><line x1="${cx}" y1="${cy}" x2="${x2}" y2="${y2}" stroke="#19e6e6" stroke-width="3.5"/><path d="M ${(cx+r).toFixed(1)} ${cy} A ${r} ${r} 0 0 0 ${ax2} ${ay2}" fill="none" stroke="#ff3d7f" stroke-width="2.5"/>${opt.label?`<text x="${lblx}" y="${lbly}" fill="#ff3d7f" font-size="17" font-family="monospace" text-anchor="middle">${opt.label}</text>`:''}<circle cx="${cx}" cy="${cy}" r="3.5" fill="#fff"/></svg>`;
 }
 // Dvě protínající se přímky (vedlejší / vrcholové úhly). Vyznačí jeden úhel α.
+// Šikmá přímka se stejně jako u svgAngle zkracuje, aby se vešla (nad 45° trčela ven).
 function svgCross(deg,opt={}){
- const cx=125,cy=80,len=115;
- const rad=deg*Math.PI/180,r=30;
- const dx=len*Math.cos(rad),dy=len*Math.sin(rad);
- const ax2=(cx+r*Math.cos(rad)).toFixed(1), ay2=(cy-r*Math.sin(rad)).toFixed(1);
+ const W=250,H=160,PAD=10,cx=125,cy=80,r=30;
+ const rad=deg*Math.PI/180, co=Math.cos(rad), si=Math.sin(rad);
+ const len=Math.min(115,(W/2-PAD)/Math.max(Math.abs(co),0.001),(H/2-PAD)/Math.max(si,0.001));
+ const dx=len*co,dy=len*si;
+ const ax2=(cx+r*co).toFixed(1), ay2=(cy-r*si).toFixed(1);
  const lblx=(cx+(r+16)*Math.cos(rad/2)).toFixed(1), lbly=(cy-(r+16)*Math.sin(rad/2)+5).toFixed(1);
- return `<svg viewBox="0 0 250 160"><line x1="${cx-len}" y1="${cy}" x2="${cx+len}" y2="${cy}" stroke="#19e6e6" stroke-width="3"/><line x1="${(cx-dx).toFixed(1)}" y1="${(cy+dy).toFixed(1)}" x2="${(cx+dx).toFixed(1)}" y2="${(cy-dy).toFixed(1)}" stroke="#19e6e6" stroke-width="3"/><path d="M ${cx+r} ${cy} A ${r} ${r} 0 0 0 ${ax2} ${ay2}" fill="none" stroke="#ff3d7f" stroke-width="2.5"/><text x="${lblx}" y="${lbly}" fill="#ff3d7f" font-size="16" font-family="monospace" text-anchor="middle">${opt.label||'α'}</text><circle cx="${cx}" cy="${cy}" r="3.5" fill="#fff"/></svg>`;
+ return `<svg viewBox="0 0 ${W} ${H}"><line x1="${cx-115}" y1="${cy}" x2="${cx+115}" y2="${cy}" stroke="#19e6e6" stroke-width="3"/><line x1="${(cx-dx).toFixed(1)}" y1="${(cy+dy).toFixed(1)}" x2="${(cx+dx).toFixed(1)}" y2="${(cy-dy).toFixed(1)}" stroke="#19e6e6" stroke-width="3"/><path d="M ${cx+r} ${cy} A ${r} ${r} 0 0 0 ${ax2} ${ay2}" fill="none" stroke="#ff3d7f" stroke-width="2.5"/><text x="${lblx}" y="${lbly}" fill="#ff3d7f" font-size="16" font-family="monospace" text-anchor="middle">${opt.label||'α'}</text><circle cx="${cx}" cy="${cy}" r="3.5" fill="#fff"/></svg>`;
 }
-// Kvádr / krychle v kosé projekci. Popisky a,b,c (šířka, výška, hloubka).
+// Kvádr / krychle v kosé projekci. Popisky a,b,c (šířka, výška, HLOUBKA).
+// 🔴 Hloubka c patří k USTUPUJÍCÍ hraně, ne ke svislé. Dřív seděla u svislé
+// hrany vpravo — tedy u téže hrany, kterou vyznačuje výška b — takže obrázek
+// tvrdil, že kvádr má dvě výšky a žádnou hloubku.
+// Těleso stojí od x=60, aby se vlevo vešel i šestiznakový popisek výšky
+// („250 cm"): banka i hry dnes posílají nejvýš pět znaků, tohle je jeden
+// znak rezervy. Při x=54 přetékal popisek o 4,5 px doleva a uřízl se.
 function svgCuboid(a,b,c){
- const x=54,y=118,w=104,h=72,d=30,dd=24;
+ const x=60,y=118,w=104,h=72,d=30,dd=24;
  const f=`${x},${y} ${x+w},${y} ${x+w},${y-h} ${x},${y-h}`;
- return `<svg viewBox="0 0 250 160"><polygon points="${x},${y-h} ${x+d},${y-h-dd} ${x+w+d},${y-h-dd} ${x+w},${y-h}" fill="#16203a" stroke="#19e6e6" stroke-width="2"/><polygon points="${x+w},${y} ${x+w+d},${y-dd} ${x+w+d},${y-h-dd} ${x+w},${y-h}" fill="#101a30" stroke="#19e6e6" stroke-width="2"/><polygon points="${f}" fill="#1b2742" stroke="#19e6e6" stroke-width="2.5"/><text x="${x+w/2}" y="${y+18}" fill="#ff3d7f" font-size="14" font-family="monospace" text-anchor="middle">${a}</text><text x="${x-8}" y="${y-h/2+5}" fill="#ff3d7f" font-size="14" font-family="monospace" text-anchor="end">${b}</text><text x="${x+w+d+5}" y="${y-h/2+5}" fill="#39ff9e" font-size="14" font-family="monospace" text-anchor="start">${c}</text></svg>`;
+ // popisek c: kolmo ven od STŘEDU ustupující hrany (x+w,y) → (x+w+d,y-dd).
+ // Musí stát u PROSTŘEDKU té hrany, ne za jejím koncem — jinak je stejně
+ // daleko od svislé hrany jako od ní a nepozná se, co vlastně popisuje.
+ // Vodicí čára se schválně NEKRESLÍ: v kosé projekci znamená čárkovaná čára
+ // SKRYTOU HRANU (tak ji kreslí i CERMAT), takže by se četla jako další hrana.
+ const cxL=(x+w+d/2+12).toFixed(1), cyL=(y-dd/2+21).toFixed(1);
+ return `<svg viewBox="0 0 250 160"><polygon points="${x},${y-h} ${x+d},${y-h-dd} ${x+w+d},${y-h-dd} ${x+w},${y-h}" fill="#16203a" stroke="#19e6e6" stroke-width="2"/><polygon points="${x+w},${y} ${x+w+d},${y-dd} ${x+w+d},${y-h-dd} ${x+w},${y-h}" fill="#101a30" stroke="#19e6e6" stroke-width="2"/><polygon points="${f}" fill="#1b2742" stroke="#19e6e6" stroke-width="2.5"/><text x="${x+w/2}" y="${y+18}" fill="#ff3d7f" font-size="14" font-family="monospace" text-anchor="middle">${a}</text><text x="${x-8}" y="${y-h/2+5}" fill="#ff3d7f" font-size="14" font-family="monospace" text-anchor="end">${b}</text><text x="${cxL}" y="${cyL}" fill="#39ff9e" font-size="14" font-family="monospace" text-anchor="middle">${c}</text></svg>`;
 }
 // Trojúhelník daného typu s popisky úhlů/stran. kind: 'rovnostr'|'rovnoram'|'pravo'|'obecny'
+// 🔴 Popisky vrcholů se odvozují z GEOMETRIE (ven od těžiště), ne z pořadí
+// v poli. Pevná tabulka odsazení platila jen pro tvary „vrchol nahoře, dva
+// dole"; u pravoúhlého trojúhelníku je ale první bod vlevo DOLE, takže popisek
+// skončil uvnitř obrazce, přímo na značce pravého úhlu.
 function svgTriangle(kind,opt={}){
  let p;
  if(kind==='rovnostr') p=[[125,30],[55,135],[195,135]];
@@ -49,9 +77,13 @@ function svgTriangle(kind,opt={}){
  else p=[[60,40],[40,135],[205,120]];
  const pts=p.map(q=>q.join(',')).join(' ');
  const vlabels=(opt.v||['A','B','C']);
- const off=[[0,-10],[-12,14],[12,14]];
+ const tx=(p[0][0]+p[1][0]+p[2][0])/3, ty=(p[0][1]+p[1][1]+p[2][1])/3;
  let txt='';
- p.forEach((q,i)=>{txt+=`<text x="${q[0]+off[i][0]}" y="${q[1]+off[i][1]}" fill="#fff" font-size="14" font-family="monospace" text-anchor="middle">${vlabels[i]}</text>`;});
+ p.forEach((q,i)=>{
+  const dx=q[0]-tx, dy=q[1]-ty, dl=Math.hypot(dx,dy)||1;
+  const lx=(q[0]+dx/dl*14).toFixed(1), ly=(q[1]+dy/dl*14+5).toFixed(1);
+  txt+=`<text x="${lx}" y="${ly}" fill="#fff" font-size="14" font-family="monospace" text-anchor="middle">${vlabels[i]}</text>`;
+ });
  let extra=opt.extra||'';
  return `<svg viewBox="0 0 250 165"><polygon points="${pts}" fill="#16203a" stroke="#19e6e6" stroke-width="3"/>${kind==='pravo'?`<rect x="55" y="120" width="15" height="15" fill="none" stroke="#ff3d7f" stroke-width="2"/>`:''}${txt}${extra}</svg>`;
 }
@@ -110,10 +142,12 @@ function svgLineGraph(k,q){
  return `<svg viewBox="0 0 250 160" data-lgk="${k}"><line x1="10" y1="${oy}" x2="240" y2="${oy}" stroke="#2a3a5e" stroke-width="1.5"/><line x1="${ox}" y1="6" x2="${ox}" y2="154" stroke="#2a3a5e" stroke-width="1.5"/><line data-lgline="1" x1="${X1.toFixed(1)}" y1="${cl(Y1).toFixed(1)}" x2="${X2.toFixed(1)}" y2="${cl(Y2).toFixed(1)}" stroke="#19e6e6" stroke-width="3"/><circle cx="${ox}" cy="${cl(Y(0)).toFixed(1)}" r="3.5" fill="#ff3d7f"/><text x="232" y="${oy-6}" fill="#5d6e94" font-size="12" font-family="monospace">x</text><text x="${ox+5}" y="14" fill="#5d6e94" font-size="12" font-family="monospace">y</text></svg>`;
 }
 // Válec: r poloměr podstavy, v výška.
+// Popisek r leží NAD horní podstavou. Dřív seděl na jejím obrysu (y=topY-5,
+// tedy uvnitř elipsy vysoké 2·ry) a byl přes čáru špatně čitelný.
 function svgCylinder(r,v){
  const cx=125,topY=35,h=85,rx=46,ry=14;
  const botY=topY+h;
- return `<svg viewBox="0 0 250 160"><path d="M ${cx-rx} ${topY} L ${cx-rx} ${botY} A ${rx} ${ry} 0 0 0 ${cx+rx} ${botY} L ${cx+rx} ${topY}" fill="#16203a" stroke="#19e6e6" stroke-width="2.5"/><ellipse cx="${cx}" cy="${botY}" rx="${rx}" ry="${ry}" fill="none" stroke="#19e6e6" stroke-width="2.5" stroke-dasharray="5 4"/><ellipse cx="${cx}" cy="${topY}" rx="${rx}" ry="${ry}" fill="#1b2742" stroke="#19e6e6" stroke-width="2.5"/><line x1="${cx}" y1="${topY}" x2="${cx+rx}" y2="${topY}" stroke="#ff3d7f" stroke-width="2"/><text x="${cx+rx/2}" y="${topY-5}" fill="#ff3d7f" font-size="14" font-family="monospace" text-anchor="middle">r=${r}</text><text x="${cx+rx+8}" y="${topY+h/2}" fill="#ff3d7f" font-size="14" font-family="monospace">v=${v}</text></svg>`;
+ return `<svg viewBox="0 0 250 160"><path d="M ${cx-rx} ${topY} L ${cx-rx} ${botY} A ${rx} ${ry} 0 0 0 ${cx+rx} ${botY} L ${cx+rx} ${topY}" fill="#16203a" stroke="#19e6e6" stroke-width="2.5"/><ellipse cx="${cx}" cy="${botY}" rx="${rx}" ry="${ry}" fill="none" stroke="#19e6e6" stroke-width="2.5" stroke-dasharray="5 4"/><ellipse cx="${cx}" cy="${topY}" rx="${rx}" ry="${ry}" fill="#1b2742" stroke="#19e6e6" stroke-width="2.5"/><line x1="${cx}" y1="${topY}" x2="${cx+rx}" y2="${topY}" stroke="#ff3d7f" stroke-width="2"/><text x="${cx+rx/2}" y="${topY-ry-6}" fill="#ff3d7f" font-size="14" font-family="monospace" text-anchor="middle">r=${r}</text><text x="${cx+rx+8}" y="${topY+h/2}" fill="#ff3d7f" font-size="14" font-family="monospace">v=${v}</text></svg>`;
 }
 // Kužel: r poloměr podstavy, v výška.
 function svgCone(r,v){

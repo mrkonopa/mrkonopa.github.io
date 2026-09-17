@@ -57,9 +57,16 @@
     const dUx = -dTx, dUy = -dTy;                            // příčka směrem nahoru
     const R = 20, LR = 34;
     // oblouk mezi dvěma jednotkovými směry ve vrcholu V
+    // 🔴 Příznak sweep byl OBRÁCENĚ. V soustavě SVG roste y DOLŮ, takže kladný
+    // směr otáčení (sweep=1) je po směru hodinových ručiček — a kladný vektorový
+    // součin `ax*by − ay*bx` právě takové otočení z a do b znamená. Se špatným
+    // příznakem si prohlížeč (kvůli large-arc=0) vybere DRUHÝ možný střed, tedy
+    // ten zrcadlený přes tětivu: oblouk se vyboulí K VRCHOLU místo od něj a úhel
+    // vypadá vyznačený na opačné straně. Ostré papíry CERMATu i školní učebnice
+    // kreslí oblouk se středem ve vrcholu, vypouklý ven (např. M9C/2024 úloha 6).
     function arc(V, ax, ay, bx, by, color) {
       const p1x = V.x + ax * R, p1y = V.y + ay * R, p2x = V.x + bx * R, p2y = V.y + by * R;
-      const cross = ax * by - ay * bx, sweep = cross < 0 ? 1 : 0;
+      const cross = ax * by - ay * bx, sweep = cross > 0 ? 1 : 0;
       return `<path d="M ${r1(p1x)} ${r1(p1y)} A ${R} ${R} 0 0 ${sweep} ${r1(p2x)} ${r1(p2y)}" fill="none" stroke="${color}" stroke-width="2.5"/>`;
     }
     function lbl(V, ax, ay, bx, by, text, color) {
@@ -1513,7 +1520,10 @@
   // Vnější válec z čirého skla, uvnitř menší válec z modrého. Popisky VEDLE obrazce,
   // aby se nekřížily s tělesem (stejný důvod jako u svgSud).
   function svgTezitko(R, H, r, h) {
-    const cx = 125, topY = 30, botY = 132, rxOut = 58, ryOut = 15;
+    // topY=36 (dřív 30): popisek „čiré: r=… v=…" je 15 znaků, tedy ~117 px,
+    // takže od x=6 dosáhne k x=123 a při topY=30 ležel PŘES horní podstavu
+    // (elipsa začíná na x=67). Teď je nad ní a komentář výš konečně platí.
+    const cx = 125, topY = 36, botY = 132, rxOut = 58, ryOut = 15;
     const rxIn = Math.round(rxOut * r / R), ryIn = Math.round(ryOut * r / R);
     const inTop = botY - Math.round((botY - topY) * h / H);
     return `<svg viewBox="0 0 250 176">`
@@ -1522,17 +1532,24 @@
       + `<path d="M ${cx - rxIn} ${inTop} L ${cx - rxIn} ${botY} A ${rxIn} ${ryIn} 0 0 0 ${cx + rxIn} ${botY} L ${cx + rxIn} ${inTop} A ${rxIn} ${ryIn} 0 0 1 ${cx - rxIn} ${inTop} Z" fill="#1a5a80" stroke="#4cc9f0" stroke-width="2"/>`
       + `<ellipse cx="${cx}" cy="${inTop}" rx="${rxIn}" ry="${ryIn}" fill="#2a7aa8" stroke="#4cc9f0" stroke-width="2"/>`
       + `<ellipse cx="${cx}" cy="${topY}" rx="${rxOut}" ry="${ryOut}" fill="#1b2742" stroke="#19e6e6" stroke-width="2.5"/>`
-      + `<text x="6" y="${topY + 6}" fill="#19e6e6" font-size="13" font-family="monospace">čiré: r=${R} v=${H}</text>`
+      + `<text x="6" y="13" fill="#19e6e6" font-size="13" font-family="monospace">čiré: r=${R} v=${H}</text>`
       + `<text x="6" y="170" fill="#4cc9f0" font-size="13" font-family="monospace">modré: r=${r} v=${h}</text>`
       + `</svg>`;
   }
 
   /* ── Sloupcový graf (CERMAT ho má v 8 z 15 zadání) ── */
-  // Jeden sloupec smí být neznámý ("?"). Hodnoty jsou NAD sloupci, popisky pod nimi,
-  // takže se nepřekrývají ani u dlouhých názvů.
+  // Jeden sloupec smí být neznámý ("?"). Hodnoty jsou NAD sloupci, popisky pod nimi.
+  // 🔴 Popisek se VEJDE jen tehdy, když se mu přizpůsobí písmo. Při pevných 11 px
+  // měly měsíce („červenec" = 8 znaků ≈ 53 px) rozteč sloupce jen 41 px, takže se
+  // sousední názvy PŘEKRÝVALY a četlo se „červenčervenec". Zkrátit je nejde —
+  // zadání se na ně odkazuje jménem („o kolik více než v srpnu").
   function svgSloupce(popisky, hodnoty, idxNeznamy) {
     const W = 250, baseY = 130, maxH = 86, x0 = 30;
     const sirka = Math.floor((W - x0 - 14) / popisky.length) - 12;
+    const roztec = sirka + 12;
+    const nejdelsi = Math.max(...popisky.map(p => String(p).length), 1);
+    // monospace má šířku znaku ≈ 0,6 em; 3 px rezerva mezi sousedy
+    const fsP = Math.max(8, Math.min(11, (roztec - 3) / (0.6 * nejdelsi)));
     const max = Math.max(...hodnoty.map((v, i) => i === idxNeznamy ? 0 : v)) || 1;
     let s = `<svg viewBox="0 0 ${W} 160">`
       + `<line x1="${x0 - 8}" y1="${baseY}" x2="${W - 6}" y2="${baseY}" stroke="#19e6e6" stroke-width="2"/>`
@@ -1544,7 +1561,7 @@
       const h = Math.max(6, Math.round(maxH * v / max));
       s += `<rect x="${x}" y="${baseY - h}" width="${sirka}" height="${h}" fill="${nezn ? '#3a2a52' : '#1b6f8f'}" stroke="${nezn ? '#ff3d7f' : '#19e6e6'}" stroke-width="2"${nezn ? ' stroke-dasharray="5 4"' : ''}/>`
         + `<text x="${x + sirka / 2}" y="${baseY - h - 5}" fill="${nezn ? '#ff3d7f' : '#39ff9e'}" font-size="13" font-family="monospace" text-anchor="middle">${nezn ? '?' : hodnoty[i]}</text>`
-        + `<text x="${x + sirka / 2}" y="${baseY + 16}" fill="#cfe8ff" font-size="11" font-family="monospace" text-anchor="middle">${p}</text>`;
+        + `<text x="${x + sirka / 2}" y="${baseY + 16}" fill="#cfe8ff" font-size="${fsP.toFixed(1)}" font-family="monospace" text-anchor="middle">${p}</text>`;
     });
     return s + `</svg>`;
   }
