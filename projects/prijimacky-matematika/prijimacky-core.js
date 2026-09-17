@@ -17,11 +17,28 @@
     ['#ffffff', '#1a1a2e'],
     // tmavé výplně tvarů → světle modrá
     ['#16203a', '#eaf1fb'], ['#101a2e', '#eaf1fb'], ['#1b2742', '#eaf1fb'], ['#12233a', '#eaf1fb'], ['#233', '#eaf1fb'],
+    // 🔴 boční stěna kvádru. Chyběla tu a na bílé straně zůstávala TÉMĚŘ ČERNÁ
+    // (kontrast 17,3 : 1) — v kosé projekci to vypadalo jako díra v tělese.
+    // Odstín je o kousek tmavší než přední stěna, aby se dala hloubka rozeznat.
+    ['#101a30', '#dbe7f6'],
     // vodní plochy (rybník apod.) → světle modrá, ať se liší od pevniny
     ['#0e4a6e', '#bcdcf0'], ['#1a5a80', '#cfe8f5'],
     // neon tahy/akcenty → akademická modrá / teal / červená
-    ['#19e6e6', '#1a73c8'], ['#4cc9f0', '#1a73c8'], ['#39ff9e', '#0f8a72'],
+    // #0e8168 (dřív #0f8a72): zelená nese POPISKY (názvy přímek p/q, hloubka
+    // kvádru, horní základna lichoběžníku) a na bílé měla kontrast 4,29 : 1,
+    // tedy těsně POD normou 4,5. Nejmenší ztmavení, které projde, je 4,82 : 1.
+    ['#19e6e6', '#1a73c8'], ['#4cc9f0', '#1a73c8'], ['#39ff9e', '#0e8168'],
     ['#ff3d7f', '#d63c2f'], ['#ff5c8a', '#d63c2f'],
+    // sloupcový graf: neznámý sloupec (tmavě fialová výplň → světlý nádech
+    // červené, protože jeho obrys je po přebarvení červený) a plné sloupce,
+    // které na bílé obstojí a zůstávají (kontrast 5,6 : 1 a 4,7 : 1)
+    ['#3a2a52', '#f7e3e0'], ['#1b6f8f', '#1b6f8f'], ['#2a7aa8', '#2a7aa8'],
+    // 🔴 popisky pod sloupci. Světle modrý text má na bílé kontrast 1,3 : 1,
+    // tedy byl prakticky NEVIDITELNÝ — musí zčernat jako ostatní text.
+    ['#cfe8ff', '#1a1a2e'],
+    // pomocné osy (souměrnost, graf funkce). Na tmavém jsou schválně nenápadné;
+    // bez převodu by na bílé byly tmavší než samotná kresba (11,3 : 1).
+    ['#2a3a5e', '#c3cede'],
     // tlumené popisky → šedá
     ['#8a9bc4', '#6b7280'], ['#5d6e94', '#6b7280'],
     ['#fff', '#1a1a2e'],
