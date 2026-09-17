@@ -342,6 +342,66 @@ function bankaCermat() {
   }
 
   await br.close();
+
+  /* ── 7. světlý motiv přijímaček musí mít rozhodnutí o KAŽDÉ barvě ──
+     Stránka přijímaček prohání kresby přes `PZ.themeSvg`, který nahrazuje
+     barvy podle seznamu `SVG_MAP`. Co v seznamu NENÍ, projde beze změny —
+     a protože kresby jsou navržené na tmavé pozadí hry, na bílé to dopadne
+     zle a TIŠE. Naměřeno před opravou:
+       #101a30 (boční stěna kvádru)  kontrast 17,3 : 1 → černý blok v tělese
+       #3a2a52 (neznámý sloupec)     kontrast 12,9 : 1 → černý blok v grafu
+       #2a3a5e (pomocné osy)         kontrast 11,3 : 1 → osy tmavší než kresba
+       #cfe8ff (popisky pod sloupci) kontrast  1,3 : 1 → text NEVIDITELNÝ
+     Pravidlo je proto „každá barva musí být v seznamu", ne „ať to nějak
+     vypadá": nutí to u každé nové barvy rozhodnout se vědomě, i kdyby
+     rozhodnutí znělo „nechat jak je" (pak se zapíše sama na sebe). */
+  {
+    const core = fs.readFileSync(path.join(ROOT, 'projects/prijimacky-matematika/prijimacky-core.js'), 'utf8');
+    const i = core.indexOf('const SVG_MAP');
+    const blok = core.slice(i, core.indexOf('];', i));
+    const MAP = [...blok.matchAll(/\['(#[0-9a-f]{3,6})',\s*'(#[0-9a-f]{3,6})'\]/g)].map(m => [m[1], m[2]]);
+    const theme = s => { let o = String(s); for (const [a, b] of MAP) o = o.split(a).join(b); return o; };
+    const lum = h => {
+      const p = h.length === 4 ? '#' + [...h.slice(1)].map(c => c + c).join('') : h;
+      const v = [1, 3, 5].map(k => parseInt(p.substr(k, 2), 16) / 255)
+        .map(c => (c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4)));
+      return 0.2126 * v[0] + 0.7152 * v[1] + 0.0722 * v[2];
+    };
+    const kontrast = h => 1.05 / (lum(h) + 0.05);
+
+    const C = bankaCermat();
+    const barvy = new Map(), textPo = new Map();
+    const sber = (s, kde) => {
+      for (const m of s.matchAll(/(?:fill|stroke)="(#[0-9a-fA-F]{3,6})"/g))
+        (barvy.get(m[1]) || barvy.set(m[1], new Set()).get(m[1])).add(kde);
+      for (const m of theme(s).matchAll(/<text[^>]*fill="(#[0-9a-fA-F]{3,6})"/g))
+        (textPo.get(m[1]) || textPo.set(m[1], new Set()).get(m[1])).add(kde);
+    };
+    for (let b = 0; b < 300; b++) for (let k = 0; k < C.slotCount(); k++) {
+      const t = C.genSlot(k); if (t && t.svg) sber(t.svg, 'banka/pozice ' + (k + 1));
+    }
+    ([['svgAngle', JADRO.svgAngle(35, { label: 'α' })], ['svgCross', JADRO.svgCross(50)],
+      ['svgCuboid', JADRO.svgCuboid('6 m', '5 m', '4 m')], ['svgTriangle', JADRO.svgTriangle('pravo')],
+      ['svgRightTri', JADRO.svgRightTri(3, 4)], ['svgMirror', JADRO.svgMirror('L')],
+      ['svgPointSym', JADRO.svgPointSym()], ['svgParallelogram', JADRO.svgParallelogram('9', '6')],
+      ['svgTrapezoid', JADRO.svgTrapezoid('14', '8', '6')], ['svgLineGraph', JADRO.svgLineGraph(2, -3)],
+      ['svgCylinder', JADRO.svgCylinder(5, 12)], ['svgCone', JADRO.svgCone(6, 10)],
+      ['svgSphere', JADRO.svgSphere(7)], ['svgSimilar', JADRO.svgSimilar(3)],
+      ['svgNumLine', JADRO.svgNumLine(-5, 5, { point: 3 })]]).forEach(([n, s]) => sber(s, n));
+
+    const nemapovane = [...barvy.keys()].filter(c => !MAP.some(([a]) => a === c));
+    const slabyText = [...textPo.keys()].filter(c => kontrast(c) < 4.5);
+    ok(barvy.size >= 18, 'posbíráno ' + barvy.size + ' barev z kreseb (podlaha 18)');
+    ok(nemapovane.length === 0,
+      'světlý motiv přijímaček má rozhodnutí o každé barvě kresby (' + MAP.length + ' pravidel)',
+      nemapovane.map(c => c + ' (kontrast na bílé ' + kontrast(c).toFixed(1) + ':1, ' +
+        [...barvy.get(c)][0] + ')').slice(0, 4).join(' | '));
+    ok(slabyText.length === 0,
+      'po převodu na světlý motiv je každý popisek čitelný (nejnižší kontrast ' +
+      Math.min(...[...textPo.keys()].map(kontrast)).toFixed(1) + ':1, práh 4,5)',
+      slabyText.map(c => c + ' → ' + kontrast(c).toFixed(1) + ':1 v ' + [...textPo.get(c)][0]).join(' | '));
+  }
+
   console.log('\n  ' + pass + ' ✅  ' + fail + ' ❌\n');
   process.exit(fail ? 1 : 0);
 })();
