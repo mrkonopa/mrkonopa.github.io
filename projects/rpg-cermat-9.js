@@ -108,7 +108,13 @@
 
   function gen2() {
     // 3 body — dva výrazy se zlomky, druhý s postupem
-    const a = ri(2, 6), b = ri(2, 6), c = ri(3, 9);
+    /* 🔴 Rozsahy b (2–6) a c (3–9) se PŘEKRÝVAJÍ, takže se losovalo
+       b = c, a pak je 1/b − 1/c nula — zadání „(−3) · (1/3 − 1/3)"
+       nezkouší vůbec nic. Naměřeno na 10 024 generováních: 11,4 %.
+       c = b + 1 zůstává v původním rozsahu (b je nejvýš 6). */
+    const a = ri(2, 6), b = ri(2, 6);
+    let c = ri(3, 9);
+    if (c === b) c = b + 1;
     // 2.1: (-a) * (1/b - 1/c)
     const v1 = (-a) * (1 / b - 1 / c);
     const num1 = -a * (c - b), den1 = b * c, g1 = gcd(Math.abs(num1), den1);
@@ -125,11 +131,21 @@
         { key: '2.1', points: 1, showExplain: false,
           prompt: `Vypočítejte a výsledek zapište zlomkem v základním tvaru: (−${a}) · (1/${b} − 1/${c}) =`,
           ans: ans1,
-          sol: `Nejdřív uprav závorku na společného jmenovatele: 1/${b} − 1/${c} = (${c} − ${b})/(${b}·${c}) = ${c - b}/${b * c}. Pak vynásob číslem −${a}: (−${a}) · ${c - b}/${b * c} = ${num1}/${den1}. ${g1 === 1 ? `Zlomek ${num1}/${den1} už je v základním tvaru: ${ans1}.` : `Zkrať zlomek jejich NSD (${g1}) na výsledný tvar ${ans1}.`}` },
+          sol: [
+            `Zlomky se dají odečíst, teprve když mají stejného jmenovatele — nejdřív tedy uprav závorku.`,
+            `Společný jmenovatel je ${b} · ${c} = ${b * c}, takže 1/${b} − 1/${c} = ${c}/${b * c} − ${b}/${b * c} = ${c - b}/${b * c}.`,
+            `Vynásob číslem −${a}: (−${a}) · ${c - b}/${b * c} = ${num1}/${den1}.`,
+            g1 === 1 ? `Zlomek ${num1}/${den1} už je v základním tvaru: ${ans1}.`
+              : `Krať největším společným dělitelem, tedy ${g1}: ${ans1}.`
+          ] },
         { key: '2.2', points: 2, showExplain: true,
           prompt: `Vypočítejte: (${d}² − ${e}²) : ${f} =`,
           ans: String(ans2),
-          sol: `Umocni obě čísla na druhou: ${d}² = ${d * d}, ${e}² = ${e * e}. Odečti je: ${d * d} − ${e * e} = ${num2}. Nakonec vyděl číslem ${f}: ${num2} : ${f} = ${ans2}.` }
+          sol: [
+            `Závorka má přednost — spočítej ji celou dřív, než začneš dělit.`,
+            `Umocni obě čísla: ${d}² = ${d * d} a ${e}² = ${e * e}, takže závorka je ${d * d} − ${e * e} = ${num2}.`,
+            `Nakonec vyděl: ${num2} : ${f} = ${ans2}.`
+          ] }
       ]
     };
   }
@@ -619,11 +635,22 @@
         { key: '2.1', points: 1, showExplain: false,
           prompt: `Vypočítejte a výsledek zapište zlomkem v základním tvaru: ${a} · (1/${b} + 1/${c}) =`,
           ans: ans1,
-          sol: `Sečti zlomky v závorce na společného jmenovatele ${b}·${c} = ${b * c}: 1/${b} + 1/${c} = ${b + c}/${b * c}. Vynásob číslem ${a}: ${a} · ${b + c}/${b * c} = ${num}/${den}. ${g === 1 ? `Zlomek ${num}/${den} už je v základním tvaru: ${ans1}.` : `Zkrať NSD (${g}): ${ans1}.`}` },
+          sol: [
+            `Zlomky se dají sečíst, teprve když mají stejného jmenovatele — nejdřív tedy uprav závorku.`,
+            `Společný jmenovatel je ${b} · ${c} = ${b * c}, takže 1/${b} + 1/${c} = ${c}/${b * c} + ${b}/${b * c} = ${b + c}/${b * c}.`,
+            `Vynásob číslem ${a}: ${a} · ${b + c}/${b * c} = ${num}/${den}.`,
+            g === 1 ? `Zlomek ${num}/${den} už je v základním tvaru: ${ans1}.`
+              : `Krať největším společným dělitelem, tedy ${g}: ${ans1}.`
+          ] },
         { key: '2.2', points: 2, showExplain: true,
           prompt: `Vypočítejte: (${d} + ${e})² − (${d}² + ${e}²) =`,
           ans: String(ans2),
-          sol: `Umocni součet vzorcem (a+b)² = a² + 2ab + b²: (${d}+${e})² = ${d * d} + ${2 * d * e} + ${e * e} = ${(d + e) * (d + e)}. Odečti (${d}² + ${e}²) = ${d * d + e * e}: ${(d + e) * (d + e)} − ${d * d + e * e} = ${ans2}. (Zbyde přesně dvojnásobek součinu 2·${d}·${e}.)` }
+          sol: [
+            `(${d} + ${e})² NENÍ ${d}² + ${e}² — druhá mocnina součtu se roznásobuje vzorcem (a + b)² = a² + 2ab + b². Právě na tomhle je úloha postavená.`,
+            `Roznásob: (${d} + ${e})² = ${d * d} + 2 · ${d} · ${e} + ${e * e} = ${(d + e) * (d + e)}.`,
+            `Druhá závorka je ${d}² + ${e}² = ${d * d} + ${e * e} = ${d * d + e * e}.`,
+            `Odečti je: ${(d + e) * (d + e)} − ${d * d + e * e} = ${ans2}. Zbyde přesně prostřední člen 2 · ${d} · ${e}.`
+          ] }
       ]
     };
   }
@@ -1059,7 +1086,13 @@
 
   function gen2c() {
     // 3 body — dělení zlomků (stejný jmenovatel) + rozdíl druhých mocnin vzorcem
-    const b = ri(3, 9), a = ri(2, 8), c = ri(2, 8);
+    /* Ani tady se čitatel nesmí rovnat jmenovateli: „5/5 : 3/5" je
+       dělenec 1 a „a/5 : 5/5" dělení jedničkou — obojí z úlohy dělá
+       nesmysl, přestože společný jmenovatel je jejím smyslem. */
+    const b = ri(3, 9);
+    let a = ri(2, 8), c = ri(2, 8);
+    if (a === b) a = a % 8 + 2;
+    if (c === b) c = c % 8 + 2;
     const g = gcd(a, c), na = a / g, nc = c / g;
     const ans1 = nc === 1 ? String(na) : `${na}/${nc}`;
     const d = ri(5, 12), e = ri(1, d - 1), ans2 = d * d - e * e;
@@ -1069,11 +1102,172 @@
         { key: '2.1', points: 1, showExplain: false,
           prompt: `Vypočítejte a zapište zlomkem v základním tvaru: ${a}/${b} : ${c}/${b} =`,
           ans: ans1,
-          sol: `Dělení zlomků: ${a}/${b} : ${c}/${b} = ${a}/${b} · ${b}/${c} = ${a}/${c}. ${g === 1 ? `Základní tvar: ${ans1}.` : `Zkrať NSD (${g}): ${ans1}.`}` },
+          sol: [
+            `Dělit zlomkem znamená násobit jeho převrácenou hodnotou — druhý zlomek se tedy obrátí vzhůru nohama.`,
+            `${a}/${b} : ${c}/${b} = ${a}/${b} · ${b}/${c}. Jmenovatel ${b} se v čitateli i jmenovateli vykrátí, zbyde ${a}/${c}.`,
+            g === 1 ? `Zlomek ${a}/${c} už je v základním tvaru: ${ans1}.`
+              : `Krať největším společným dělitelem, tedy ${g}: ${ans1}.`
+          ] },
         { key: '2.2', points: 2, showExplain: true,
           prompt: `Vypočítejte pomocí vzorce: (${d} + ${e}) · (${d} − ${e}) =`,
           ans: String(ans2),
-          sol: `Vzorec (a+b)(a−b) = a² − b²: (${d}+${e})(${d}−${e}) = ${d}² − ${e}² = ${d * d} − ${e * e} = ${ans2}.` }
+          sol: [
+            `Roznásobovat závorku po členech není potřeba — je to vzorec pro rozdíl druhých mocnin: (a + b) · (a − b) = a² − b².`,
+            `Dosaď a = ${d} a b = ${e}: (${d} + ${e}) · (${d} − ${e}) = ${d}² − ${e}².`,
+            `Umocni a odečti: ${d * d} − ${e * e} = ${ans2}.`
+          ] }
+      ]
+    };
+  }
+
+  /* ── POZICE 2 — další varianty ───────────────────────────────────
+     Sken úlohy 2 ve všech 13 ostrých zadáních ukázal, že je to
+     v posledních letech téměř výhradně ZLOMKOVÝ VÝRAZ se zápisem
+     v základním tvaru, a že nejtěžší podúlohou bývá SLOŽENÝ ZLOMEK
+     (zlomek ve zlomku) — v roce 2026 je v OBOU testech (M9A ú. 2.2,
+     M9B ú. 2.3) a právě u něj se vyžaduje celý postup řešení.
+     V bance nebyl ani jednou. Naše tři původní varianty měly navíc
+     druhou podúlohu na algebraické vzorce, což je látka pozice 3.
+
+     Pozn. k zápisu: složený zlomek se v ostrém testu sází nad sebe.
+     Zadání tady jde do prostého textového pole (`PZ.esc`), takže se
+     píše dělením se závorkami — matematicky totéž, vizuálně ne. ──── */
+
+  // zlomek v základním tvaru jako text; celé číslo se vypíše bez jmenovatele
+  function zlText(n, d) {
+    if (d < 0) { n = -n; d = -d; }
+    const g = gcd(Math.abs(n), d) || 1;
+    const nn = n / g, dd = d / g;
+    return dd === 1 ? String(nn) : `${nn}/${dd}`;
+  }
+
+  function gen2d() {
+    // 3 body — 2.1 zlomkový výraz se závorkou, 2.2 SLOŽENÝ ZLOMEK s postupem.
+    // Vzor: M9B/2026 ú. 2.3 „(1 − 1/4) : (2 · 5/8 − 2)".
+    const a = ri(2, 6), c = ri(3, 8), e = ri(3, 8);
+    const d = ri(1, e - 1);
+    /* Závorka nesmí vyjít 0, tedy b/c se nesmí rovnat d/e. Cyklus projde
+       všechny přípustné čitatele 1…c−1; kolidovat může nejvýš jeden, takže
+       vždycky skončí — na rozdíl od jednorázové opravy, která se může
+       trefit do téže hodnoty znovu. */
+    let b = ri(1, c - 1);
+    for (let i = 0; i < c && b * e === d * c; i++) b = b % (c - 1) + 1;
+    const cit1 = a * (b * e - d * c), jm1 = c * e;
+    const ans1 = zlText(cit1, jm1);
+
+    const n = ri(2, 6);                                 // čitatel: 1 − 1/n = (n−1)/n
+    const m = ri(3, 9), k = ri(2, m - 1);               // jmenovatel: m/k − 1 = (m−k)/k
+    const cit2 = (n - 1) * k, jm2 = n * (m - k);
+    const ans2 = zlText(cit2, jm2);
+    return {
+      no: 2, points: 3, title: 'Výrazy se zlomky',
+      parts: [
+        { key: '2.1', points: 1, showExplain: false,
+          prompt: `Vypočítejte a výsledek zapište zlomkem v základním tvaru: ${a} · (${b}/${c} − ${d}/${e}) =`,
+          ans: ans1,
+          sol: [
+            `Zlomky se dají odečíst, teprve když mají stejného jmenovatele — nejdřív tedy uprav závorku.`,
+            `Společný jmenovatel je ${c} · ${e} = ${c * e}: ${b}/${c} = ${b * e}/${c * e} a ${d}/${e} = ${d * c}/${c * e}, takže závorka je ${b * e - d * c}/${c * e}.`,
+            `Vynásob číslem ${a}: ${a} · ${b * e - d * c}/${c * e} = ${cit1}/${jm1}.`,
+            `Zkrať na základní tvar: ${ans1}.`
+          ] },
+        { key: '2.2', points: 2, showExplain: true,
+          prompt: `Vypočítejte a výsledek zapište zlomkem v základním tvaru: (1 − 1/${n}) : (${m}/${k} − 1) =`,
+          ans: ans2,
+          sol: [
+            `Takový zápis je jen DĚLENÍ dvou závorek. Spočítej proto každou zvlášť a teprve pak je vyděl — uvnitř závorek se nic krátit nedá.`,
+            `Celé číslo se na zlomek převede přes jmenovatele: 1 = ${n}/${n}, takže první závorka je ${n}/${n} − 1/${n} = ${n - 1}/${n}.`,
+            `Stejně druhá: 1 = ${k}/${k}, takže ${m}/${k} − ${k}/${k} = ${m - k}/${k}.`,
+            `Dělit zlomkem znamená násobit jeho převrácenou hodnotou: ${n - 1}/${n} · ${k}/${m - k} = ${cit2}/${jm2}.`,
+            `Zkrať na základní tvar: ${ans2}.`
+          ] }
+      ]
+    };
+  }
+
+  function gen2e() {
+    // 3 body — 2.1 ZÁPORNÁ DESETINNÁ ČÍSLA v závorkách (vzor: M9A/2026 ú. 2.1
+    // „(−1,5 − 1) · (−1,5 + 1)"), 2.2 řetězec dělení zlomků s postupem
+    // (vzor: M9B/2026 ú. 2.2 „1 : 6/5 − 1/6 : 5").
+    // Půlky se drží v CELÝCH polovinách, aby desetinná čísla vycházela přesně.
+    const pH = pick([1, 3, 5, 7]);                      // p = pH/2
+    const q = ri(1, 3);
+    const ans1 = pH * pH / 4 - q * q;                   // (−p − q)(−p + q) = p² − q²
+
+    const a = ri(2, 7), c = ri(2, 6), d = ri(2, 6);
+    /* b se nesmí rovnat a — „1 : 5/5" je dělení jedničkou a nezkouší nic.
+       Stejná past jako v gen2, kde se překrývaly rozsahy b a c. */
+    let b = ri(3, 9);
+    if (b === a) b = a + 1;
+    const cit2 = b * c * d - a, jm2 = a * c * d;        // b/a − 1/(c·d)
+    const ans2 = zlText(cit2, jm2);
+    return {
+      no: 2, points: 3, title: 'Výrazy se zlomky',
+      parts: [
+        { key: '2.1', points: 1, showExplain: false,
+          prompt: `Vypočítejte: (−${cz(pH / 2)} − ${q}) · (−${cz(pH / 2)} + ${q}) =`,
+          ans: cz(ans1),
+          sol: [
+            `Závorky se počítají první. Pozor na znaménka: mínus krát mínus dává plus, takže součin dvou záporných čísel je KLADNÝ.`,
+            `První závorka: −${cz(pH / 2)} − ${q} = ${cz(-(pH / 2) - q)}. Druhá: −${cz(pH / 2)} + ${q} = ${cz(-(pH / 2) + q)}.`,
+            `Vynásob je: ${cz(-(pH / 2) - q)} · ${cz(-(pH / 2) + q)} = ${cz(ans1)}.`,
+            `Zkouška vzorcem: je to (−${cz(pH / 2)})² − ${q}² = ${cz(pH * pH / 4)} − ${q * q} = ${cz(ans1)}.`
+          ] },
+        { key: '2.2', points: 2, showExplain: true,
+          prompt: `Vypočítejte a výsledek zapište zlomkem v základním tvaru: 1 : ${a}/${b} − 1/${c} : ${d} =`,
+          ans: ans2,
+          sol: [
+            `Dělení má přednost před odčítáním — spočítej proto oba podíly zvlášť a teprve pak je od sebe odečti.`,
+            `Dělit zlomkem = násobit převrácenou hodnotou: 1 : ${a}/${b} = 1 · ${b}/${a} = ${b}/${a}.`,
+            `Dělit celým číslem = násobit jeho převrácenou hodnotou, tedy zvětšit jmenovatele: 1/${c} : ${d} = 1/${c * d}.`,
+            `Společný jmenovatel je ${a} · ${c * d} = ${jm2}: ${b}/${a} = ${b * c * d}/${jm2} a 1/${c * d} = ${a}/${jm2}, takže rozdíl je ${cit2}/${jm2}.`,
+            `Zkrať na základní tvar: ${ans2}.`
+          ] }
+      ]
+    };
+  }
+
+  function gen2f() {
+    // 3 body — 2.1 celé číslo dělené zlomkem, 2.2 součet zlomků dělený
+    // celým číslem s postupem. Vzor: M9B/2026 ú. 2.1 „3 · (2/3 − 7/9) + 2/3"
+    // a M9A/2025 ú. 2.1 — obojí stojí na „uprav a zapiš v základním tvaru".
+    const a = ri(2, 9), b = ri(2, 7);
+    /* c se nesmí rovnat b — „2 : 7/7" je zase jen dělení jedničkou.
+       b je nejvýš 7, takže b + 1 zůstává v původním rozsahu 3–9. */
+    let c = ri(3, 9);
+    if (c === b) c = b + 1;
+    const ans1 = zlText(a * c, b);                      // a : b/c = a·c/b
+
+    /* Čitatel se nesmí rovnat jmenovateli — „(4/4 + 2/5) : 5" sice není
+       matematicky špatně, ale v ostrém zadání by nikdo zlomek 4/4
+       nenapsal a žák to čte jako překlep. Posun o jedna v kruhu 1–5
+       kolizi spolehlivě odstraní, protože q a s se už nemění. */
+    const q = ri(2, 8), s = ri(2, 8), t = ri(2, 6);
+    let p = ri(1, 5), r = ri(1, 5);
+    if (p === q) p = p % 5 + 1;
+    if (r === s) r = r % 5 + 1;
+    const cit2 = p * s + r * q, jm2 = q * s * t;        // (p/q + r/s) : t
+    const ans2 = zlText(cit2, jm2);
+    return {
+      no: 2, points: 3, title: 'Výrazy se zlomky',
+      parts: [
+        { key: '2.1', points: 1, showExplain: false,
+          prompt: `Vypočítejte a výsledek zapište zlomkem v základním tvaru: ${a} : ${b}/${c} =`,
+          ans: ans1,
+          sol: [
+            `Dělit zlomkem znamená násobit jeho převrácenou hodnotou — zlomek se obrátí vzhůru nohama a dělení se změní na násobení.`,
+            `${a} : ${b}/${c} = ${a} · ${c}/${b} = ${a * c}/${b}.`,
+            `Zkrať na základní tvar: ${ans1}.`
+          ] },
+        { key: '2.2', points: 2, showExplain: true,
+          prompt: `Vypočítejte a výsledek zapište zlomkem v základním tvaru: (${p}/${q} + ${r}/${s}) : ${t} =`,
+          ans: ans2,
+          sol: [
+            `Závorka má přednost — nejdřív sečti zlomky uvnitř a teprve celý výsledek vyděl.`,
+            `Společný jmenovatel je ${q} · ${s} = ${q * s}: ${p}/${q} = ${p * s}/${q * s} a ${r}/${s} = ${r * q}/${q * s}, takže závorka je ${cit2}/${q * s}.`,
+            `Dělit celým číslem znamená zvětšit jmenovatele ${t}krát: ${cit2}/${q * s} : ${t} = ${cit2}/${jm2}.`,
+            `Zkrať na základní tvar: ${ans2}.`
+          ] }
       ]
     };
   }
@@ -1456,7 +1650,7 @@
      vybere jednu variantu z každé pozice.
      ──────────────────────────────────────────────────────────────── */
   const SLOTS = [
-    [gen1, gen1b, gen1c, gen1d, gen1e, gen1f, gen1g, gen1h], [gen2, gen2b, gen2c], [gen3, gen3b, gen3c], [gen4, gen4b, gen4c], [gen5, gen5b, gen5c], [gen6, gen6b, gen6c, gen6d], [gen7, gen7b, gen7c], [gen8, gen8b, gen8c],
+    [gen1, gen1b, gen1c, gen1d, gen1e, gen1f, gen1g, gen1h], [gen2, gen2b, gen2c, gen2d, gen2e, gen2f], [gen3, gen3b, gen3c], [gen4, gen4b, gen4c], [gen5, gen5b, gen5c], [gen6, gen6b, gen6c, gen6d], [gen7, gen7b, gen7c], [gen8, gen8b, gen8c],
     [gen9, gen9b, gen9c], [gen10, gen10b, gen10c], [gen11, gen11b, gen11c], [gen12, gen12b, gen12c, gen12d, gen12e], [gen13, gen13b, gen13c, gen13d], [gen14, gen14b, gen14c, gen14d, gen14e, gen14f], [gen15, gen15b, gen15c], [gen16, gen16b, gen16c]
   ];
 
