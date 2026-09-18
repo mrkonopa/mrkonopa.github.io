@@ -226,6 +226,25 @@
     #lb-close { position:fixed; top:18px; right:22px; font-size:28px; color:#fff;
       cursor:pointer; font-family:'JetBrains Mono',monospace; line-height:1; opacity:0.7; z-index:1001; }
     #lb-close:hover { opacity:1; }
+  
+    /* ── DOTYK ────────────────────────────────────────────────────
+       Na tabletu a telefonu má mít klikací plocha aspoň 44 px na výšku.
+       Sedm z osmi únikovek to v repu už mělo, cestovatelské zápisky ne —
+       proto „HOME" 34 × 14 px. Platí jen pro hrubý ukazatel, takže na
+       monitoru se vzhled nemění ani o pixel. */
+    @media (pointer: coarse) {
+      .top-bar a, footer a, nav a { display: inline-flex; align-items: center; min-height: 44px; }
+      /* Popisek „← previous" stojí NAD textem, ne vedle něj — sloupec to udrží. */
+      .nav-strip a { flex-direction: column; align-items: flex-start; justify-content: center; }
+    }
+
+    /* Na 360 px se drobečková cesta, odkaz zpět a uživatel do jednoho
+       řádku nevejdou — nejdelší z nich (~/travels/yugoslavia-2020)
+       přetahovala dokument na 383 px. Řádek se proto smí ZALOMIT.
+       Zkoušel jsem místo toho cestu useknout třemi tečkami, jenže to je
+       tichý ořez textu a sweep rozvržení ho (správně) hlásí jako vadu —
+       zalomení nic neskrývá. */
+    .top-bar { flex-wrap: wrap; }
   </style>
 </head>
 <body>
@@ -432,97 +451,97 @@
 
     <h3 class="day-heading">21 Jul 2019 · Travel</h3>
     <div class="gallery">
-      <a href="./images/romania_2019/ro_fagaras_0002_21.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0002_21.07.19_web.jpg" alt="" loading="lazy"/></a>
-      <a href="./images/romania_2019/ro_fagaras_0006_21.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0006_21.07.19_web.jpg" alt="" loading="lazy"/></a>
+      <a aria-label="Open photo 1 of 2 — 21 Jul 2019 · Travel" href="./images/romania_2019/ro_fagaras_0002_21.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0002_21.07.19_web.jpg" alt="" loading="lazy"/></a>
+      <a aria-label="Open photo 2 of 2 — 21 Jul 2019 · Travel" href="./images/romania_2019/ro_fagaras_0006_21.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0006_21.07.19_web.jpg" alt="" loading="lazy"/></a>
     </div>
 
     <h3 class="day-heading">22 Jul 2019 · Arrival</h3>
     <div class="gallery">
-      <a href="./images/romania_2019/ro_fagaras_0025_22.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0025_22.07.19_web.jpg" alt="" loading="lazy"/></a>
-      <a href="./images/romania_2019/ro_fagaras_0028_22.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0028_22.07.19_web.jpg" alt="" loading="lazy"/></a>
-      <a href="./images/romania_2019/ro_fagaras_0036_22.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0036_22.07.19_web.jpg" alt="" loading="lazy"/></a>
-      <a href="./images/romania_2019/ro_fagaras_0037_22.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0037_22.07.19_web.jpg" alt="" loading="lazy"/></a>
-      <a href="./images/romania_2019/ro_fagaras_0043_22.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0043_22.07.19_web.jpg" alt="" loading="lazy"/></a>
-      <a href="./images/romania_2019/ro_fagaras_0054_22.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0054_22.07.19_web.jpg" alt="" loading="lazy"/></a>
+      <a aria-label="Open photo 1 of 6 — 22 Jul 2019 · Arrival" href="./images/romania_2019/ro_fagaras_0025_22.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0025_22.07.19_web.jpg" alt="" loading="lazy"/></a>
+      <a aria-label="Open photo 2 of 6 — 22 Jul 2019 · Arrival" href="./images/romania_2019/ro_fagaras_0028_22.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0028_22.07.19_web.jpg" alt="" loading="lazy"/></a>
+      <a aria-label="Open photo 3 of 6 — 22 Jul 2019 · Arrival" href="./images/romania_2019/ro_fagaras_0036_22.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0036_22.07.19_web.jpg" alt="" loading="lazy"/></a>
+      <a aria-label="Open photo 4 of 6 — 22 Jul 2019 · Arrival" href="./images/romania_2019/ro_fagaras_0037_22.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0037_22.07.19_web.jpg" alt="" loading="lazy"/></a>
+      <a aria-label="Open photo 5 of 6 — 22 Jul 2019 · Arrival" href="./images/romania_2019/ro_fagaras_0043_22.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0043_22.07.19_web.jpg" alt="" loading="lazy"/></a>
+      <a aria-label="Open photo 6 of 6 — 22 Jul 2019 · Arrival" href="./images/romania_2019/ro_fagaras_0054_22.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0054_22.07.19_web.jpg" alt="" loading="lazy"/></a>
     </div>
 
     <h3 class="day-heading">23 Jul 2019 · Day 1 · Into the Forest</h3>
     <div class="gallery">
-      <a href="./images/romania_2019/ro_fagaras_0058_23.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0058_23.07.19_web.jpg" alt="" loading="lazy"/></a>
-      <a href="./images/romania_2019/ro_fagaras_0060_23.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0060_23.07.19_web.jpg" alt="" loading="lazy"/></a>
-      <a href="./images/romania_2019/ro_fagaras_0065_23.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0065_23.07.19_web.jpg" alt="" loading="lazy"/></a>
-      <a href="./images/romania_2019/ro_fagaras_0068_23.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0068_23.07.19_web.jpg" alt="" loading="lazy"/></a>
-      <a href="./images/romania_2019/ro_fagaras_0077_23.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0077_23.07.19_web.jpg" alt="" loading="lazy"/></a>
-      <a href="./images/romania_2019/ro_fagaras_0081_23.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0081_23.07.19_web.jpg" alt="" loading="lazy"/></a>
-      <a href="./images/romania_2019/ro_fagaras_0092_23.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0092_23.07.19_web.jpg" alt="" loading="lazy"/></a>
-      <a href="./images/romania_2019/ro_fagaras_0094_23.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0094_23.07.19_web.jpg" alt="" loading="lazy"/></a>
-      <a href="./images/romania_2019/ro_fagaras_0097_23.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0097_23.07.19_web.jpg" alt="" loading="lazy"/></a>
-      <a href="./images/romania_2019/ro_fagaras_0101_23.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0101_23.07.19_web.jpg" alt="" loading="lazy"/></a>
-      <a href="./images/romania_2019/ro_fagaras_0103_23.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0103_23.07.19_web.jpg" alt="" loading="lazy"/></a>
-      <a href="./images/romania_2019/ro_fagaras_0104_23.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0104_23.07.19_web.jpg" alt="" loading="lazy"/></a>
+      <a aria-label="Open photo 1 of 12 — 23 Jul 2019 · Day 1 · Into the Forest" href="./images/romania_2019/ro_fagaras_0058_23.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0058_23.07.19_web.jpg" alt="" loading="lazy"/></a>
+      <a aria-label="Open photo 2 of 12 — 23 Jul 2019 · Day 1 · Into the Forest" href="./images/romania_2019/ro_fagaras_0060_23.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0060_23.07.19_web.jpg" alt="" loading="lazy"/></a>
+      <a aria-label="Open photo 3 of 12 — 23 Jul 2019 · Day 1 · Into the Forest" href="./images/romania_2019/ro_fagaras_0065_23.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0065_23.07.19_web.jpg" alt="" loading="lazy"/></a>
+      <a aria-label="Open photo 4 of 12 — 23 Jul 2019 · Day 1 · Into the Forest" href="./images/romania_2019/ro_fagaras_0068_23.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0068_23.07.19_web.jpg" alt="" loading="lazy"/></a>
+      <a aria-label="Open photo 5 of 12 — 23 Jul 2019 · Day 1 · Into the Forest" href="./images/romania_2019/ro_fagaras_0077_23.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0077_23.07.19_web.jpg" alt="" loading="lazy"/></a>
+      <a aria-label="Open photo 6 of 12 — 23 Jul 2019 · Day 1 · Into the Forest" href="./images/romania_2019/ro_fagaras_0081_23.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0081_23.07.19_web.jpg" alt="" loading="lazy"/></a>
+      <a aria-label="Open photo 7 of 12 — 23 Jul 2019 · Day 1 · Into the Forest" href="./images/romania_2019/ro_fagaras_0092_23.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0092_23.07.19_web.jpg" alt="" loading="lazy"/></a>
+      <a aria-label="Open photo 8 of 12 — 23 Jul 2019 · Day 1 · Into the Forest" href="./images/romania_2019/ro_fagaras_0094_23.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0094_23.07.19_web.jpg" alt="" loading="lazy"/></a>
+      <a aria-label="Open photo 9 of 12 — 23 Jul 2019 · Day 1 · Into the Forest" href="./images/romania_2019/ro_fagaras_0097_23.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0097_23.07.19_web.jpg" alt="" loading="lazy"/></a>
+      <a aria-label="Open photo 10 of 12 — 23 Jul 2019 · Day 1 · Into the Forest" href="./images/romania_2019/ro_fagaras_0101_23.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0101_23.07.19_web.jpg" alt="" loading="lazy"/></a>
+      <a aria-label="Open photo 11 of 12 — 23 Jul 2019 · Day 1 · Into the Forest" href="./images/romania_2019/ro_fagaras_0103_23.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0103_23.07.19_web.jpg" alt="" loading="lazy"/></a>
+      <a aria-label="Open photo 12 of 12 — 23 Jul 2019 · Day 1 · Into the Forest" href="./images/romania_2019/ro_fagaras_0104_23.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0104_23.07.19_web.jpg" alt="" loading="lazy"/></a>
     </div>
 
     <h3 class="day-heading">24 Jul 2019 · Day 2 · The Ridge</h3>
     <div class="gallery">
-      <a href="./images/romania_2019/ro_fagaras_0117_24.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0117_24.07.19_web.jpg" alt="" loading="lazy"/></a>
-      <a href="./images/romania_2019/ro_fagaras_0120_24.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0120_24.07.19_web.jpg" alt="" loading="lazy"/></a>
-      <a href="./images/romania_2019/ro_fagaras_0129_24.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0129_24.07.19_web.jpg" alt="" loading="lazy"/></a>
-      <a href="./images/romania_2019/ro_fagaras_0131_24.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0131_24.07.19_web.jpg" alt="" loading="lazy"/></a>
-      <a href="./images/romania_2019/ro_fagaras_0140_24.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0140_24.07.19_web.jpg" alt="" loading="lazy"/></a>
-      <a href="./images/romania_2019/ro_fagaras_0154_24.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0154_24.07.19_web.jpg" alt="" loading="lazy"/></a>
-      <a href="./images/romania_2019/ro_fagaras_0158_24.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0158_24.07.19_web.jpg" alt="" loading="lazy"/></a>
-      <a href="./images/romania_2019/ro_fagaras_0162_24.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0162_24.07.19_web.jpg" alt="" loading="lazy"/></a>
-      <a href="./images/romania_2019/ro_fagaras_0176_24.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0176_24.07.19_web.jpg" alt="" loading="lazy"/></a>
-      <a href="./images/romania_2019/ro_fagaras_0180_24.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0180_24.07.19_web.jpg" alt="" loading="lazy"/></a>
-      <a href="./images/romania_2019/ro_fagaras_0184_24.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0184_24.07.19_web.jpg" alt="" loading="lazy"/></a>
-      <a href="./images/romania_2019/ro_fagaras_0196_24.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0196_24.07.19_web.jpg" alt="" loading="lazy"/></a>
-      <a href="./images/romania_2019/ro_fagaras_0208_24.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0208_24.07.19_web.jpg" alt="" loading="lazy"/></a>
-      <a href="./images/romania_2019/ro_fagaras_0219_24.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0219_24.07.19_web.jpg" alt="" loading="lazy"/></a>
-      <a href="./images/romania_2019/ro_fagaras_0237_24.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0237_24.07.19_web.jpg" alt="" loading="lazy"/></a>
+      <a aria-label="Open photo 1 of 15 — 24 Jul 2019 · Day 2 · The Ridge" href="./images/romania_2019/ro_fagaras_0117_24.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0117_24.07.19_web.jpg" alt="" loading="lazy"/></a>
+      <a aria-label="Open photo 2 of 15 — 24 Jul 2019 · Day 2 · The Ridge" href="./images/romania_2019/ro_fagaras_0120_24.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0120_24.07.19_web.jpg" alt="" loading="lazy"/></a>
+      <a aria-label="Open photo 3 of 15 — 24 Jul 2019 · Day 2 · The Ridge" href="./images/romania_2019/ro_fagaras_0129_24.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0129_24.07.19_web.jpg" alt="" loading="lazy"/></a>
+      <a aria-label="Open photo 4 of 15 — 24 Jul 2019 · Day 2 · The Ridge" href="./images/romania_2019/ro_fagaras_0131_24.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0131_24.07.19_web.jpg" alt="" loading="lazy"/></a>
+      <a aria-label="Open photo 5 of 15 — 24 Jul 2019 · Day 2 · The Ridge" href="./images/romania_2019/ro_fagaras_0140_24.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0140_24.07.19_web.jpg" alt="" loading="lazy"/></a>
+      <a aria-label="Open photo 6 of 15 — 24 Jul 2019 · Day 2 · The Ridge" href="./images/romania_2019/ro_fagaras_0154_24.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0154_24.07.19_web.jpg" alt="" loading="lazy"/></a>
+      <a aria-label="Open photo 7 of 15 — 24 Jul 2019 · Day 2 · The Ridge" href="./images/romania_2019/ro_fagaras_0158_24.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0158_24.07.19_web.jpg" alt="" loading="lazy"/></a>
+      <a aria-label="Open photo 8 of 15 — 24 Jul 2019 · Day 2 · The Ridge" href="./images/romania_2019/ro_fagaras_0162_24.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0162_24.07.19_web.jpg" alt="" loading="lazy"/></a>
+      <a aria-label="Open photo 9 of 15 — 24 Jul 2019 · Day 2 · The Ridge" href="./images/romania_2019/ro_fagaras_0176_24.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0176_24.07.19_web.jpg" alt="" loading="lazy"/></a>
+      <a aria-label="Open photo 10 of 15 — 24 Jul 2019 · Day 2 · The Ridge" href="./images/romania_2019/ro_fagaras_0180_24.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0180_24.07.19_web.jpg" alt="" loading="lazy"/></a>
+      <a aria-label="Open photo 11 of 15 — 24 Jul 2019 · Day 2 · The Ridge" href="./images/romania_2019/ro_fagaras_0184_24.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0184_24.07.19_web.jpg" alt="" loading="lazy"/></a>
+      <a aria-label="Open photo 12 of 15 — 24 Jul 2019 · Day 2 · The Ridge" href="./images/romania_2019/ro_fagaras_0196_24.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0196_24.07.19_web.jpg" alt="" loading="lazy"/></a>
+      <a aria-label="Open photo 13 of 15 — 24 Jul 2019 · Day 2 · The Ridge" href="./images/romania_2019/ro_fagaras_0208_24.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0208_24.07.19_web.jpg" alt="" loading="lazy"/></a>
+      <a aria-label="Open photo 14 of 15 — 24 Jul 2019 · Day 2 · The Ridge" href="./images/romania_2019/ro_fagaras_0219_24.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0219_24.07.19_web.jpg" alt="" loading="lazy"/></a>
+      <a aria-label="Open photo 15 of 15 — 24 Jul 2019 · Day 2 · The Ridge" href="./images/romania_2019/ro_fagaras_0237_24.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0237_24.07.19_web.jpg" alt="" loading="lazy"/></a>
     </div>
 
     <h3 class="day-heading">25 Jul 2019 · Day 3 · Snow and Mist</h3>
     <div class="gallery">
-      <a href="./images/romania_2019/ro_fagaras_0262_25.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0262_25.07.19_web.jpg" alt="" loading="lazy"/></a>
-      <a href="./images/romania_2019/ro_fagaras_0268_25.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0268_25.07.19_web.jpg" alt="" loading="lazy"/></a>
-      <a href="./images/romania_2019/ro_fagaras_0283_25.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0283_25.07.19_web.jpg" alt="" loading="lazy"/></a>
-      <a href="./images/romania_2019/ro_fagaras_0291_25.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0291_25.07.19_web.jpg" alt="" loading="lazy"/></a>
-      <a href="./images/romania_2019/ro_fagaras_0307_25.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0307_25.07.19_web.jpg" alt="" loading="lazy"/></a>
-      <a href="./images/romania_2019/ro_fagaras_0313_25.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0313_25.07.19_web.jpg" alt="" loading="lazy"/></a>
-      <a href="./images/romania_2019/ro_fagaras_0326_25.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0326_25.07.19_web.jpg" alt="" loading="lazy"/></a>
+      <a aria-label="Open photo 1 of 7 — 25 Jul 2019 · Day 3 · Snow and Mist" href="./images/romania_2019/ro_fagaras_0262_25.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0262_25.07.19_web.jpg" alt="" loading="lazy"/></a>
+      <a aria-label="Open photo 2 of 7 — 25 Jul 2019 · Day 3 · Snow and Mist" href="./images/romania_2019/ro_fagaras_0268_25.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0268_25.07.19_web.jpg" alt="" loading="lazy"/></a>
+      <a aria-label="Open photo 3 of 7 — 25 Jul 2019 · Day 3 · Snow and Mist" href="./images/romania_2019/ro_fagaras_0283_25.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0283_25.07.19_web.jpg" alt="" loading="lazy"/></a>
+      <a aria-label="Open photo 4 of 7 — 25 Jul 2019 · Day 3 · Snow and Mist" href="./images/romania_2019/ro_fagaras_0291_25.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0291_25.07.19_web.jpg" alt="" loading="lazy"/></a>
+      <a aria-label="Open photo 5 of 7 — 25 Jul 2019 · Day 3 · Snow and Mist" href="./images/romania_2019/ro_fagaras_0307_25.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0307_25.07.19_web.jpg" alt="" loading="lazy"/></a>
+      <a aria-label="Open photo 6 of 7 — 25 Jul 2019 · Day 3 · Snow and Mist" href="./images/romania_2019/ro_fagaras_0313_25.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0313_25.07.19_web.jpg" alt="" loading="lazy"/></a>
+      <a aria-label="Open photo 7 of 7 — 25 Jul 2019 · Day 3 · Snow and Mist" href="./images/romania_2019/ro_fagaras_0326_25.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0326_25.07.19_web.jpg" alt="" loading="lazy"/></a>
     </div>
 
     <h3 class="day-heading">26 Jul 2019 · Day 4 · Cabana Podragu</h3>
     <div class="gallery">
-      <a href="./images/romania_2019/ro_fagaras_0346_26.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0346_26.07.19_web.jpg" alt="" loading="lazy"/></a>
-      <a href="./images/romania_2019/ro_fagaras_0360_26.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0360_26.07.19_web.jpg" alt="" loading="lazy"/></a>
-      <a href="./images/romania_2019/ro_fagaras_0365_26.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0365_26.07.19_web.jpg" alt="" loading="lazy"/></a>
-      <a href="./images/romania_2019/ro_fagaras_0395_26.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0395_26.07.19_web.jpg" alt="" loading="lazy"/></a>
-      <a href="./images/romania_2019/ro_fagaras_0401_26.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0401_26.07.19_web.jpg" alt="" loading="lazy"/></a>
-      <a href="./images/romania_2019/ro_fagaras_0404_26.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0404_26.07.19_web.jpg" alt="" loading="lazy"/></a>
-      <a href="./images/romania_2019/ro_fagaras_0410_26.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0410_26.07.19_web.jpg" alt="" loading="lazy"/></a>
+      <a aria-label="Open photo 1 of 7 — 26 Jul 2019 · Day 4 · Cabana Podragu" href="./images/romania_2019/ro_fagaras_0346_26.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0346_26.07.19_web.jpg" alt="" loading="lazy"/></a>
+      <a aria-label="Open photo 2 of 7 — 26 Jul 2019 · Day 4 · Cabana Podragu" href="./images/romania_2019/ro_fagaras_0360_26.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0360_26.07.19_web.jpg" alt="" loading="lazy"/></a>
+      <a aria-label="Open photo 3 of 7 — 26 Jul 2019 · Day 4 · Cabana Podragu" href="./images/romania_2019/ro_fagaras_0365_26.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0365_26.07.19_web.jpg" alt="" loading="lazy"/></a>
+      <a aria-label="Open photo 4 of 7 — 26 Jul 2019 · Day 4 · Cabana Podragu" href="./images/romania_2019/ro_fagaras_0395_26.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0395_26.07.19_web.jpg" alt="" loading="lazy"/></a>
+      <a aria-label="Open photo 5 of 7 — 26 Jul 2019 · Day 4 · Cabana Podragu" href="./images/romania_2019/ro_fagaras_0401_26.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0401_26.07.19_web.jpg" alt="" loading="lazy"/></a>
+      <a aria-label="Open photo 6 of 7 — 26 Jul 2019 · Day 4 · Cabana Podragu" href="./images/romania_2019/ro_fagaras_0404_26.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0404_26.07.19_web.jpg" alt="" loading="lazy"/></a>
+      <a aria-label="Open photo 7 of 7 — 26 Jul 2019 · Day 4 · Cabana Podragu" href="./images/romania_2019/ro_fagaras_0410_26.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0410_26.07.19_web.jpg" alt="" loading="lazy"/></a>
     </div>
 
     <h3 class="day-heading">27 Jul 2019 · Day 5 · Moldoveanu</h3>
     <div class="gallery">
-      <a href="./images/romania_2019/ro_fagaras_0420_27.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0420_27.07.19_web.jpg" alt="" loading="lazy"/></a>
-      <a href="./images/romania_2019/ro_fagaras_0426_27.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0426_27.07.19_web.jpg" alt="" loading="lazy"/></a>
-      <a href="./images/romania_2019/ro_fagaras_0441_27.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0441_27.07.19_web.jpg" alt="" loading="lazy"/></a>
-      <a href="./images/romania_2019/ro_fagaras_0464_27.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0464_27.07.19_web.jpg" alt="" loading="lazy"/></a>
-      <a href="./images/romania_2019/ro_fagaras_0465_27.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0465_27.07.19_web.jpg" alt="" loading="lazy"/></a>
-      <a href="./images/romania_2019/ro_fagaras_0467_27.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0467_27.07.19_web.jpg" alt="" loading="lazy"/></a>
-      <a href="./images/romania_2019/ro_fagaras_0486_27.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0486_27.07.19_web.jpg" alt="" loading="lazy"/></a>
-      <a href="./images/romania_2019/ro_fagaras_0487_27.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0487_27.07.19_web.jpg" alt="" loading="lazy"/></a>
-      <a href="./images/romania_2019/ro_fagaras_0496_27.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0496_27.07.19_web.jpg" alt="" loading="lazy"/></a>
-      <a href="./images/romania_2019/ro_fagaras_0500_27.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0500_27.07.19_web.jpg" alt="" loading="lazy"/></a>
+      <a aria-label="Open photo 1 of 10 — 27 Jul 2019 · Day 5 · Moldoveanu" href="./images/romania_2019/ro_fagaras_0420_27.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0420_27.07.19_web.jpg" alt="" loading="lazy"/></a>
+      <a aria-label="Open photo 2 of 10 — 27 Jul 2019 · Day 5 · Moldoveanu" href="./images/romania_2019/ro_fagaras_0426_27.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0426_27.07.19_web.jpg" alt="" loading="lazy"/></a>
+      <a aria-label="Open photo 3 of 10 — 27 Jul 2019 · Day 5 · Moldoveanu" href="./images/romania_2019/ro_fagaras_0441_27.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0441_27.07.19_web.jpg" alt="" loading="lazy"/></a>
+      <a aria-label="Open photo 4 of 10 — 27 Jul 2019 · Day 5 · Moldoveanu" href="./images/romania_2019/ro_fagaras_0464_27.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0464_27.07.19_web.jpg" alt="" loading="lazy"/></a>
+      <a aria-label="Open photo 5 of 10 — 27 Jul 2019 · Day 5 · Moldoveanu" href="./images/romania_2019/ro_fagaras_0465_27.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0465_27.07.19_web.jpg" alt="" loading="lazy"/></a>
+      <a aria-label="Open photo 6 of 10 — 27 Jul 2019 · Day 5 · Moldoveanu" href="./images/romania_2019/ro_fagaras_0467_27.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0467_27.07.19_web.jpg" alt="" loading="lazy"/></a>
+      <a aria-label="Open photo 7 of 10 — 27 Jul 2019 · Day 5 · Moldoveanu" href="./images/romania_2019/ro_fagaras_0486_27.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0486_27.07.19_web.jpg" alt="" loading="lazy"/></a>
+      <a aria-label="Open photo 8 of 10 — 27 Jul 2019 · Day 5 · Moldoveanu" href="./images/romania_2019/ro_fagaras_0487_27.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0487_27.07.19_web.jpg" alt="" loading="lazy"/></a>
+      <a aria-label="Open photo 9 of 10 — 27 Jul 2019 · Day 5 · Moldoveanu" href="./images/romania_2019/ro_fagaras_0496_27.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0496_27.07.19_web.jpg" alt="" loading="lazy"/></a>
+      <a aria-label="Open photo 10 of 10 — 27 Jul 2019 · Day 5 · Moldoveanu" href="./images/romania_2019/ro_fagaras_0500_27.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0500_27.07.19_web.jpg" alt="" loading="lazy"/></a>
     </div>
 
     <h3 class="day-heading">28 Jul 2019 · Return</h3>
     <div class="gallery">
-      <a href="./images/romania_2019/ro_fagaras_0509_28.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0509_28.07.19_web.jpg" alt="" loading="lazy"/></a>
-      <a href="./images/romania_2019/ro_fagaras_0517_28.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0517_28.07.19_web.jpg" alt="" loading="lazy"/></a>
-      <a href="./images/romania_2019/ro_fagaras_0525_28.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0525_28.07.19_web.jpg" alt="" loading="lazy"/></a>
-      <a href="./images/romania_2019/ro_fagaras_0532_28.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0532_28.07.19_web.jpg" alt="" loading="lazy"/></a>
+      <a aria-label="Open photo 1 of 4 — 28 Jul 2019 · Return" href="./images/romania_2019/ro_fagaras_0509_28.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0509_28.07.19_web.jpg" alt="" loading="lazy"/></a>
+      <a aria-label="Open photo 2 of 4 — 28 Jul 2019 · Return" href="./images/romania_2019/ro_fagaras_0517_28.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0517_28.07.19_web.jpg" alt="" loading="lazy"/></a>
+      <a aria-label="Open photo 3 of 4 — 28 Jul 2019 · Return" href="./images/romania_2019/ro_fagaras_0525_28.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0525_28.07.19_web.jpg" alt="" loading="lazy"/></a>
+      <a aria-label="Open photo 4 of 4 — 28 Jul 2019 · Return" href="./images/romania_2019/ro_fagaras_0532_28.07.19_web.jpg"><img src="./images/romania_2019/ro_fagaras_0532_28.07.19_web.jpg" alt="" loading="lazy"/></a>
     </div>
 
   </section>

@@ -38,6 +38,15 @@ const PAGES = [
  ...[3,4,5,6,7,8,9].map(g => ['RPG mat ' + g, '/projects/rpg-mat-' + g + '.html']),
  ['RPG učitel','/projects/rpg-ucitel.html'],
  ['Travels','/travels/index.html'],
+ // Viz stejná poznámka v `a11y.audit.cjs`: kryl se rozcestník cestování,
+ // ale ani jeden ze sedmi zápisků pod ním, plus tři stránky mimo
+ // rozcestník. `ucitel.html` není odkázaná schválně (kódy k únikovkám),
+ // ale adresou je dostupná, takže se měří jako každá jiná.
+ ['Podmínky','/projects/podminky.html'],
+ ['Soukromí','/projects/soukromi.html'],
+ ['Pro učitele (kódy)','/projects/ucitel.html'],
+ ...['ukraine-2017','cr-bh-2018','romania-2019','yugoslavia-2020','spain-france-2021','italy-2022','baltic-2023']
+   .map(u => ['Travels ' + u, '/travels/' + u + '.html']),
 ];
 
 const VW = 360, VH = 740;
@@ -53,6 +62,12 @@ const VW = 360, VH = 740;
 const ZNAME_MALE_PLOCHY = {
   '/index.html': 6,
   '/projects/prijimacky-matematika/statistiky.html': 1,
+  /* Právní stránky: e-mailové odkazy a odkaz na uoou.cz stojí UPROSTŘED
+     VĚTY („Stačí napsat na …", „stížnost u Úřadu (…)"). Zvětšení na
+     44 px by rozhodilo řádkování odstavce. Odkaz zpět i odkazy v patičce
+     zvětšené JSOU — ty stojí samostatně. */
+  '/projects/podminky.html': 1,
+  '/projects/soukromi.html': 3,
 };
 
 (async()=>{

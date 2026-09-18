@@ -67,7 +67,14 @@ const PAGES=[...[3,4,5,6,7,8,9].map(g=>['g'+g,'/projects/rpg-mat-'+g+'.html']),
  ...['linearni_funkce','mocniny','procenta','pythagoras','rovnice','statistika','telesa','trojuhelniky']
    .map(u=>['u-'+u,'/projects/unikovka_'+u+'.html']),
  ['proj','/projects/index.html'],['home','/index.html'],['404','/404.html'],
- ['travels','/travels/index.html']];
+ // Počtvrté: z cestování se měřil jen rozcestník, ne sedm zápisků pod ním
+ // (a jeden z nich přetéká na 380 px). Plus tři stránky mimo rozcestník —
+ // `ucitel.html` je nelinkovaná schválně (kódy k únikovkám), ne mrtvá.
+ ['travels','/travels/index.html'],
+ ['podminky','/projects/podminky.html'],['soukromi','/projects/soukromi.html'],
+ ['ucitel-kody','/projects/ucitel.html'],
+ ...['ukraine-2017','cr-bh-2018','romania-2019','yugoslavia-2020','spain-france-2021','italy-2022','baltic-2023']
+   .map(u=>['t-'+u,'/travels/'+u+'.html'])];
 const SIRKY=[1100,820,380];
 
 /* ── Průchod obrazovkami u stránek, které NEJSOU RPG hra ──────────────

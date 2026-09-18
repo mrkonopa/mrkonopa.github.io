@@ -41,6 +41,19 @@ const PAGES = [
  ...[3,4,5,6,7,8,9].map(g => ['RPG mat ' + g, '/projects/rpg-mat-' + g + '.html']),
  ['RPG učitel','/projects/rpg-ucitel.html'],
  ['Travels','/travels/index.html'],
+ // POČTVRTÉ se ten seznam rozešel — a znovu tak, že kryl jen ROZCESTNÍK
+ // a ne to, kam vede: z cestování se měřil `index.html`, ale ani jeden
+ // ze SEDMI zápisků pod ním. K tomu tři stránky mimo rozcestník:
+ // podmínky a soukromí (odkazované z patičky /projects/) a `ucitel.html`,
+ // která NENÍ odkázaná odnikud schválně — jsou v ní kódy k únikovkám,
+ // takže ji Vojta dává kolegům adresou. Nelinkovaná ≠ neexistující:
+ // z prohlížeče je dostupná úplně stejně a patří do brány.
+ // Naměřeno při doplnění: 3 nálezy přístupnosti, 11 mobilních vad.
+ ['Podmínky','/projects/podminky.html'],
+ ['Soukromí','/projects/soukromi.html'],
+ ['Pro učitele (kódy)','/projects/ucitel.html'],
+ ...['ukraine-2017','cr-bh-2018','romania-2019','yugoslavia-2020','spain-france-2021','italy-2022','baltic-2023']
+   .map(u => ['Travels ' + u, '/travels/' + u + '.html']),
 ];
 
 (async()=>{
