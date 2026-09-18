@@ -1563,8 +1563,10 @@ const attrIc = (k,size) => (typeof RPGIcons!=='undefined' && ATTR_META[k]) ? RPG
 // STATE
 // ══════════════════════════════════════════
 const SAVE_KEY = 'RPG_MAT_9';
-// Datum přijímaček (1. kolo) — načítá se z /projects/cermat-date.json (auto GH Action)
-let CERMAT_DATE = new Date('2027-04-09T08:00:00');
+// Datum přijímaček (1. kolo) — načítá se z /projects/cermat-date.json (auto GH Action).
+// Záloha: 1. řádný termín pro ČTYŘLETÉ OBORY, ověřený z tabulky termínů CERMATu
+// (prijimacky.cermat.cz). Víceletá gymnázia mají 14. a 15. 4., sem nepatří.
+let CERMAT_DATE = new Date('2027-04-12T08:00:00');
 (function fetchCermatDate(){
   fetch('/projects/cermat-date.json').then(r=>r.ok?r.json():null).then(d=>{
     if(d&&d.next&&d.next.date){
