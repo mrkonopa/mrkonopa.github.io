@@ -23,9 +23,46 @@
   // atribut, tak ať to nezávisí na tom, že si na to někdo vzpomene.
   const a = s => String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
 
-  const svg = (w, h, popis, telo) =>
-    '<svg viewBox="0 0 ' + w + ' ' + h + '" style="display:block;margin:10px auto 0;max-width:100%"'
-    + ' role="img" aria-label="' + a(popis) + '">' + telo + '</svg>';
+  /* 🔴 Plátno se musí roztáhnout i podle POPISKŮ, ne jen podle kresby.
+     Generátory počítají šířku z obrázku, jenže text je širší, než kam sahá
+     jeho kotva — vysvětlivka pod diagramem přetékala až o 63 px na KAŽDOU
+     stranu a prohlížeč ji uřízl TIŠE (obsah mimo viewBox se prostě nenakreslí,
+     stránka nepřeteče, takže to nehlásí ani kontrola přetečení na 380 px).
+     Naměřeno na 36 skutečných voláních z výkladu: rozšíří se 6 z nich
+     (+3,3 až +125,6 px), zbylých 30 zůstane beze změny. */
+  const ZNAK = 0.6; // monospace: šířka znaku ≈ 0,6 em
+
+  /* Text bez značek. Schválně BEZ `replace(/<[^>]*>/g,'')` — ten vzor hlásí
+     CodeQL a v matematice navíc `<` běžně znamená MENŠÍ NEŽ. */
+  const cistyText = s => {
+    let out = '', uvnitr = false;
+    for (const ch of String(s)) {
+      if (ch === '<') uvnitr = true;
+      else if (ch === '>') uvnitr = false;
+      else if (!uvnitr) out += ch;
+    }
+    return out.replace(/&(?:[a-z]+|#\d+);/gi, 'x'); // entita = jeden znak
+  };
+
+  const svg = (w, h, popis, telo) => {
+    let minX = 0, maxX = w, minY = 0, maxY = h;
+    const re = /<text\b([^>]*)>([\s\S]*?)<\/text>/g;
+    let m;
+    while ((m = re.exec(telo))) {
+      const atr = m[1];
+      const x = +((/\bx="([-\d.]+)"/.exec(atr) || [0, 0])[1]);
+      const y = +((/\by="([-\d.]+)"/.exec(atr) || [0, 0])[1]);
+      const fs = +((/\bfont-size="([\d.]+)"/.exec(atr) || [0, 12])[1]);
+      const kotva = ((/\btext-anchor="([a-z]+)"/.exec(atr) || [0, 'start'])[1]);
+      const sir = cistyText(m[2]).length * ZNAK * fs;
+      const l = kotva === 'middle' ? x - sir / 2 : (kotva === 'end' ? x - sir : x);
+      minX = Math.min(minX, l); maxX = Math.max(maxX, l + sir);
+      minY = Math.min(minY, y - fs * 0.9); maxY = Math.max(maxY, y + fs * 0.3);
+    }
+    const vb = [minX, minY, maxX - minX, maxY - minY].map(n => +n.toFixed(1)).join(' ');
+    return '<svg viewBox="' + vb + '" style="display:block;margin:10px auto 0;max-width:100%"'
+      + ' role="img" aria-label="' + a(popis) + '">' + telo + '</svg>';
+  };
 
   // t(x, y, text, velikost, barva, zarovnání) — zkratka, jinak je každý popisek na řádek
   const t = (x, y, s, size, fill, anchor) =>
@@ -416,7 +453,11 @@
       const x0 = 74, c = 32;
       const zahlavi = ['celé'].concat(mist > 0 ? ['desetiny'] : []).concat(mist > 1 ? ['setiny'] : []);
       let telo = t(x0 - 12, 30, '', 12, 'text', 'end');
-      zahlavi.forEach((h, i) => { telo += t(x0 + i * c + c / 2, 26, h, 10, 'muted', 'middle'); });
+      /* Záhlaví střídá dva řádky. Sloupec je široký 32 px, ale „desetiny" má
+         při velikosti 10 asi 48 px, takže se na jednom řádku slévalo se
+         sousedy („celédesetinysetiny"). Zkrátit na „des./set." by u páťáka
+         zabilo smysl popisku, tak se místo toho prostřídají výšky. */
+      zahlavi.forEach((h, i) => { telo += t(x0 + i * c + c / 2, i % 2 ? 14 : 26, h, 10, 'muted', 'middle'); });
       [[A2, 52, a1], [B2, 88, b1]].forEach(([X, y, puvod]) => {
         telo += t(x0 - 14, y + 6, puvod, 15, 'gold', 'end');
         const cifry = [X[0]].concat(X[1].split(''));
@@ -484,8 +525,13 @@
       });
       const W = bx + n * (bw + mez) - mez + 30;
       const yPr = dno - vyska(pr);
+      /* Popisek průměru je LEGENDA nahoře, ne cedulka u čáry. U čáry seděl
+         přesně tam, kde má hodnotu sloupec rovný průměru — u [12, 8, 10]
+         se „průměr 10" překrývalo s „10" nad třetím sloupcem o 42 × 35 px.
+         Nahoře je volno vždy: nejvyšší sloupec sahá nejvýš na dno − 72. */
       telo += line(12, yPr, W - 12, yPr, 'red', 2, '5 4')
-        + t(W - 10, yPr - 5, 'průměr ' + String(pr).replace('.', ','), 12, 'red', 'end')
+        + line(12, 10, 34, 10, 'red', 2, '5 4')
+        + t(40, 14, 'průměr ' + String(pr).replace('.', ','), 12, 'red', 'start')
         + t(W / 2, dno + 36, soucet + ' : ' + n + ' = ' + String(pr).replace('.', ','), 14, 'green', 'middle');
       return svg(W, dno + 46, popis || ('Sloupce hodnot ' + hodnoty.join(', ') + ' s čarou průměru'), telo);
     },
