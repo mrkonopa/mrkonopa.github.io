@@ -76,8 +76,27 @@ const ZNAME_MALE_PLOCHY = {
  let totalIssues=0, vady=0; const souhrn=[];
  for(const [name,url] of PAGES){
   const ctx=await browser.newContext({viewport:{width:VW,height:VH},deviceScaleFactor:2,isMobile:true,hasTouch:true});
+  /* Měříme JEN naše stránky. Cokoli mimo vlastní server se odřízne —
+     stejně jako to dělá `layout-overflow.test.cjs` i hostile harness.
+     PROČ: tři cestovatelské zápisky mají vložené video z
+     `youtube-nocookie.com`. Blackhole na CI míří jen na `youtube.com`,
+     takže se na runneru SKUTEČNĚ načetl přehrávač a audit pak hlásil
+     „🐞 JS chyby: A network error occurred." — jenže to byla výjimka
+     z YOUTUBE PLAYERU uvnitř iframu, ne z naší stránky (ta v JS nemá
+     jedinou síťovou operaci, jen počítadlo fotek a lightbox). Padalo to
+     navíc jen na jedné ze tří stránek s videem, tedy náhodně podle
+     toho, jak se runneru zrovna dařilo YouTube načíst. Odříznutím
+     externích zdrojů se zároveň srovná sandbox s CI: tady se fonty
+     stáhnou, na runneru jsou blokované, a měření se tím rozcházelo. */
+  await ctx.route('**/*',r=>r.request().url().startsWith(base)?r.continue():r.abort());
   const page=await ctx.newPage();
-  const errs=[]; page.on('pageerror',e=>errs.push(e.message));
+  /* K hlášce se bere i PRVNÍ ŘÁDEK ZÁSOBNÍKU. Samotné „A network error
+     occurred." neřekne, kdo ji vyhodil — a přesně to stálo jeden kruh
+     přes CI, než se ukázalo, že šlo o cizí kód ve vloženém iframu. */
+  const errs=[]; page.on('pageerror',e=>{
+   const kde=(e.stack||'').split('\n').find(r=>/https?:\/\//.test(r));
+   errs.push(e.message+(kde?'  ['+kde.trim().slice(0,90)+']':''));
+  });
   try{
    await page.goto(base+url,{waitUntil:'load',timeout:15000});
    await page.waitForTimeout(600);

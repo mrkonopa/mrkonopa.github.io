@@ -62,6 +62,12 @@ const PAGES = [
  let total=0;
  for(const [name,url] of PAGES){
   const ctx=await browser.newContext({viewport:{width:1024,height:800}});
+  /* Jen naše stránky — vzor převzatý z `layout-overflow.test.cjs`.
+     Tři cestovatelské zápisky mají vložené video z youtube-nocookie.com
+     a bez tohoto odříznutí by se na runneru načetl skutečný přehrávač
+     (blackhole na CI míří jen na youtube.com). Kromě cizího JS to taky
+     zdržuje: blokovaný požadavek na fonty drží `load` až 12 s. */
+  await ctx.route('**/*',r=>r.request().url().startsWith(base)?r.continue():r.abort());
   const page=await ctx.newPage();
   try{await page.goto(base+url,{waitUntil:'load',timeout:15000});await page.waitForTimeout(400);}
   catch(e){console.log('\n### '+name+'  ⚠️ '+e.message);await ctx.close();continue;}
