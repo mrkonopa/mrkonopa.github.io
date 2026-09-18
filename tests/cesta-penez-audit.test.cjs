@@ -3,7 +3,7 @@
 
    PROČ tenhle test vznikl. Cesta peněz je osmikapitolová hra s 50 scénami
    a náhodně generovanými čísly, a do teď na ni NEEXISTOVAL jediný test.
-   Hry `rpg-*` mají `rpg-content-quality.cjs`, který hlídá čárku, ≈,
+   Hry `rpg-*` mají `rpg-content-quality.audit.cjs`, který hlídá čárku, ≈,
    skloňování a prázdné nápovědy nad ~175 tisíci úlohami; Cesta peněz
    neměla nic, přestože má tytéž vlastnosti — generátory, nápovědy,
    české číslovky.

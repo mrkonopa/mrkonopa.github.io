@@ -104,7 +104,7 @@ ok(bad.size === 0, `${RUNS} běhů bez strukturální chyby` + (bad.size ? ' —
 }
 
 /* ── Kvalita ČEŠTINY v zadání a postupu ──────────────────────────────────
-   Stejná pravidla, jaká hlídá tests/rpg-content-quality.cjs u her: v ČR se
+   Stejná pravidla, jaká hlídá tests/rpg-content-quality.audit.cjs u her: v ČR se
    píše desetinná ČÁRKA, zaokrouhlená hodnota se značí ≈ a počitatelná jména
    se skloňují. Matematika přitom může být v pořádku a drhne až text — proto
    se to musí testovat zvlášť. Kontroluje se jen to, co žák VIDÍ jako větu
