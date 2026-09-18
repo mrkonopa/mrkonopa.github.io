@@ -14,7 +14,7 @@
  *   4) NaN/undefined v textu i nápovědách,
  *   5) dvojité mezery a mezera před interpunkcí (typografie).
  *
- * Spusť: node tests/rpg-content-quality.cjs
+ * Spusť: node tests/rpg-content-quality.audit.cjs
  */
 const fs = require('fs');
 const path = require('path');

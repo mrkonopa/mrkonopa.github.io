@@ -225,6 +225,29 @@
       h1.location { font-size: 52px; }
       .gallery-grid { grid-template-columns: repeat(2, 1fr); }
     }
+  
+    /* ── DOTYK ────────────────────────────────────────────────────
+       Na tabletu a telefonu má mít klikací plocha aspoň 44 px na výšku.
+       Sedm z osmi únikovek to v repu už mělo, cestovatelské zápisky ne —
+       proto „HOME" 34 × 14 px. Platí jen pro hrubý ukazatel, takže na
+       monitoru se vzhled nemění ani o pixel. */
+    @media (pointer: coarse) {
+      .top-bar a, footer a, nav a { display: inline-flex; align-items: center; min-height: 44px; }
+      /* Popisek „← previous" stojí NAD textem, ne vedle něj — sloupec to udrží. */
+      .nav-strip a { flex-direction: column; align-items: flex-start; justify-content: center; }
+    }
+
+    /* Na 360 px se drobečková cesta, odkaz zpět a uživatel do jednoho
+       řádku nevejdou — nejdelší z nich (~/travels/yugoslavia-2020)
+       přetahovala dokument na 383 px. Řádek se proto smí ZALOMIT.
+       Zkoušel jsem místo toho cestu useknout třemi tečkami, jenže to je
+       tichý ořez textu a sweep rozvržení ho (správně) hlásí jako vadu —
+       zalomení nic neskrývá.
+       Totéž preventivně u patičky a navigace: jsou to stejné jednořádkové
+       flex pruhy a runner CI vykresluje jiný build prohlížeče než sandbox,
+       takže pár pixelů rozdílu ve zlomu písma je reálná možnost. Zalomení
+       se projeví jedině tehdy, když by se řádek jinak nevešel. */
+    .top-bar, footer, .nav-strip { flex-wrap: wrap; }
   </style>
 </head>
 <body>

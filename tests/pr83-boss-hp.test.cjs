@@ -4,7 +4,7 @@
    3) BT._bid guard — žádný stale callback z minulého boje
    4) RPGSprites9.setProgress existuje a boss.progress se hýbe
    5) +XP vlevo (hrdina), -HP spark vpravo (boss)
-   Spusť: node tests/pr83-verify.cjs */
+   Spusť: node tests/pr83-boss-hp.test.cjs */
 const http = require('http');
 const fs = require('fs');
 const path = require('path');

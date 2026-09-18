@@ -1,7 +1,7 @@
 /* ══════════════════════════════════════════════════════════════════════
    RPG banky — DOPOČÍTÁNÍ ARITMETICKÝCH ZADÁNÍ (3.–9. ročník).
 
-   PROČ. `rpg-content-quality.cjs` dopočítává geometrii a poslední nápovědu,
+   PROČ. `rpg-content-quality.audit.cjs` dopočítává geometrii a poslední nápovědu,
    ale samotné aritmetické zadání („Vypočítej: 755 − 169 =") nikdo neověřoval
    proti deklarované odpovědi. Test tedy NEČTE `ans` jako pravdu: vezme text
    zadání, vyhodnotí výraz a porovná — druhý, nezávislý zdroj pravdy.

@@ -43,6 +43,15 @@
   th,td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
   th{background:#eef2f8;font-weight:600}
   footer{color:var(--muted);font-size:13px;margin-top:30px;text-align:center}
+
+/* ── DOTYK ─────────────────────────────────────────────────────────
+   Odkaz zpět a odkaz v patičce byly 24 a 37 px vysoké.
+   Platí jen pro hrubý ukazatel (tablet, telefon) — na monitoru se
+   nemění nic. Odkazy UVNITŘ VĚTY se takhle zvětšit nedají (rozhodily
+   by řádkování), ty jsou vypsané v ZNAME_MALE_PLOCHY v mobile.audit. */
+@media (pointer: coarse){
+  .back, footer a{display:inline-flex;align-items:center;min-height:44px}
+}
 </style>
 </head>
 <body>

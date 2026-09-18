@@ -38,6 +38,15 @@ const PAGES = [
  ...[3,4,5,6,7,8,9].map(g => ['RPG mat ' + g, '/projects/rpg-mat-' + g + '.html']),
  ['RPG učitel','/projects/rpg-ucitel.html'],
  ['Travels','/travels/index.html'],
+ // Viz stejná poznámka v `a11y.audit.cjs`: kryl se rozcestník cestování,
+ // ale ani jeden ze sedmi zápisků pod ním, plus tři stránky mimo
+ // rozcestník. `ucitel.html` není odkázaná schválně (kódy k únikovkám),
+ // ale adresou je dostupná, takže se měří jako každá jiná.
+ ['Podmínky','/projects/podminky.html'],
+ ['Soukromí','/projects/soukromi.html'],
+ ['Pro učitele (kódy)','/projects/ucitel.html'],
+ ...['ukraine-2017','cr-bh-2018','romania-2019','yugoslavia-2020','spain-france-2021','italy-2022','baltic-2023']
+   .map(u => ['Travels ' + u, '/travels/' + u + '.html']),
 ];
 
 const VW = 360, VH = 740;
@@ -53,16 +62,41 @@ const VW = 360, VH = 740;
 const ZNAME_MALE_PLOCHY = {
   '/index.html': 6,
   '/projects/prijimacky-matematika/statistiky.html': 1,
+  /* Právní stránky: e-mailové odkazy a odkaz na uoou.cz stojí UPROSTŘED
+     VĚTY („Stačí napsat na …", „stížnost u Úřadu (…)"). Zvětšení na
+     44 px by rozhodilo řádkování odstavce. Odkaz zpět i odkazy v patičce
+     zvětšené JSOU — ty stojí samostatně. */
+  '/projects/podminky.html': 1,
+  '/projects/soukromi.html': 3,
 };
 
 (async()=>{
  const srv=await serve(); const base='http://127.0.0.1:'+srv.address().port;
  const browser=await chromium.launch({executablePath:EXEC});
- let totalIssues=0, vady=0;
+ let totalIssues=0, vady=0; const souhrn=[];
  for(const [name,url] of PAGES){
   const ctx=await browser.newContext({viewport:{width:VW,height:VH},deviceScaleFactor:2,isMobile:true,hasTouch:true});
+  /* Měříme JEN naše stránky. Cokoli mimo vlastní server se odřízne —
+     stejně jako to dělá `layout-overflow.test.cjs` i hostile harness.
+     PROČ: tři cestovatelské zápisky mají vložené video z
+     `youtube-nocookie.com`. Blackhole na CI míří jen na `youtube.com`,
+     takže se na runneru SKUTEČNĚ načetl přehrávač a audit pak hlásil
+     „🐞 JS chyby: A network error occurred." — jenže to byla výjimka
+     z YOUTUBE PLAYERU uvnitř iframu, ne z naší stránky (ta v JS nemá
+     jedinou síťovou operaci, jen počítadlo fotek a lightbox). Padalo to
+     navíc jen na jedné ze tří stránek s videem, tedy náhodně podle
+     toho, jak se runneru zrovna dařilo YouTube načíst. Odříznutím
+     externích zdrojů se zároveň srovná sandbox s CI: tady se fonty
+     stáhnou, na runneru jsou blokované, a měření se tím rozcházelo. */
+  await ctx.route('**/*',r=>r.request().url().startsWith(base)?r.continue():r.abort());
   const page=await ctx.newPage();
-  const errs=[]; page.on('pageerror',e=>errs.push(e.message));
+  /* K hlášce se bere i PRVNÍ ŘÁDEK ZÁSOBNÍKU. Samotné „A network error
+     occurred." neřekne, kdo ji vyhodil — a přesně to stálo jeden kruh
+     přes CI, než se ukázalo, že šlo o cizí kód ve vloženém iframu. */
+  const errs=[]; page.on('pageerror',e=>{
+   const kde=(e.stack||'').split('\n').find(r=>/https?:\/\//.test(r));
+   errs.push(e.message+(kde?'  ['+kde.trim().slice(0,90)+']':''));
+  });
   try{
    await page.goto(base+url,{waitUntil:'load',timeout:15000});
    await page.waitForTimeout(600);
@@ -127,21 +161,38 @@ const ZNAME_MALE_PLOCHY = {
    totalIssues+=issues.length;
    /* Přetečení a JS chyby jsou VŽDY vada. Malé klikací plochy jsou vada
       jen tehdy, když jich je víc, než kolik jich má stránka povoleno. */
-   if(report.overflowDoc||report.offRight.length||errs.length)vady++;
+   let vadaTady=false;
+   if(report.overflowDoc||report.offRight.length||errs.length){vady++;vadaTady=true;}
    const povoleno=ZNAME_MALE_PLOCHY[url]||0;
    if(report.smallTaps.length>povoleno){
-    vady++;
+    vady++;vadaTady=true;
     console.log('     ↑ povoleno '+povoleno+', nalezeno '+report.smallTaps.length);
    }
+   souhrn.push({url,vada:vadaTady,popis:issues.join(' · '),
+     plochy:report.smallTaps.length,povoleno});
   }else{
    console.log('\n### '+name+'  ('+url+')\n  ✅ OK (docW='+report.docW+')');
   }
   await ctx.close();
  }
+ const verze=browser.version();
  await browser.close(); srv.close();
+
+ /* Souhrn patří na KONEC. `run-ci.cjs` ukazuje z výstupu testu jen jeho
+    poslední řádky, takže nálezy vypsané průběžně u jednotlivých stránek
+    se z logu CI ztratí — a pak v něm stojí „1 vada" bez uvedení stránky.
+    Stálo to jeden celý kruh přes CI (~7 min), a to jenom kvůli tomu,
+    abych se dozvěděl, KDE. Vypisuje se i verze prohlížeče: sandbox má
+    předinstalovaný starší build než si stáhne runner, takže se měření
+    může lišit a z logu to musí být poznat. */
+ if(souhrn.length){
+  console.log('\n── SOUHRN NÁLEZŮ (stránka → co) ──');
+  for(const s of souhrn) console.log('  '+(s.vada?'❌':'ℹ️ ')+' '+s.url+
+    (s.plochy?'  [plochy '+s.plochy+'/'+s.povoleno+']':'')+'  '+s.popis.slice(0,150));
+ }
  console.log('\n==========================================');
  console.log('  CELKEM nálezů: '+totalIssues+'  (z toho vad: '+vady+')');
- console.log('  proměřeno stránek: '+PAGES.length);
+ console.log('  proměřeno stránek: '+PAGES.length+'  ·  '+verze);
  console.log('==========================================');
  /* Dřív se končilo NULOU i s nálezy. Nová pravidla viz ZNAME_MALE_PLOCHY. */
  if(vady>0){console.error('\n  ❌ mobil: '+vady+' vad (přetečení, JS chyby nebo nové malé plochy)');process.exit(1);}
