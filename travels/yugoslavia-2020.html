@@ -239,8 +239,12 @@
        přetahovala dokument na 383 px. Řádek se proto smí ZALOMIT.
        Zkoušel jsem místo toho cestu useknout třemi tečkami, jenže to je
        tichý ořez textu a sweep rozvržení ho (správně) hlásí jako vadu —
-       zalomení nic neskrývá. */
-    .top-bar { flex-wrap: wrap; }
+       zalomení nic neskrývá.
+       Totéž preventivně u patičky a navigace: jsou to stejné jednořádkové
+       flex pruhy a runner CI vykresluje jiný build prohlížeče než sandbox,
+       takže pár pixelů rozdílu ve zlomu písma je reálná možnost. Zalomení
+       se projeví jedině tehdy, když by se řádek jinak nevešel. */
+    .top-bar, footer, .nav-strip { flex-wrap: wrap; }
   </style>
 </head>
 <body>

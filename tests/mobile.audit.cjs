@@ -73,7 +73,7 @@ const ZNAME_MALE_PLOCHY = {
 (async()=>{
  const srv=await serve(); const base='http://127.0.0.1:'+srv.address().port;
  const browser=await chromium.launch({executablePath:EXEC});
- let totalIssues=0, vady=0;
+ let totalIssues=0, vady=0; const souhrn=[];
  for(const [name,url] of PAGES){
   const ctx=await browser.newContext({viewport:{width:VW,height:VH},deviceScaleFactor:2,isMobile:true,hasTouch:true});
   const page=await ctx.newPage();
@@ -142,21 +142,38 @@ const ZNAME_MALE_PLOCHY = {
    totalIssues+=issues.length;
    /* Přetečení a JS chyby jsou VŽDY vada. Malé klikací plochy jsou vada
       jen tehdy, když jich je víc, než kolik jich má stránka povoleno. */
-   if(report.overflowDoc||report.offRight.length||errs.length)vady++;
+   let vadaTady=false;
+   if(report.overflowDoc||report.offRight.length||errs.length){vady++;vadaTady=true;}
    const povoleno=ZNAME_MALE_PLOCHY[url]||0;
    if(report.smallTaps.length>povoleno){
-    vady++;
+    vady++;vadaTady=true;
     console.log('     ↑ povoleno '+povoleno+', nalezeno '+report.smallTaps.length);
    }
+   souhrn.push({url,vada:vadaTady,popis:issues.join(' · '),
+     plochy:report.smallTaps.length,povoleno});
   }else{
    console.log('\n### '+name+'  ('+url+')\n  ✅ OK (docW='+report.docW+')');
   }
   await ctx.close();
  }
+ const verze=browser.version();
  await browser.close(); srv.close();
+
+ /* Souhrn patří na KONEC. `run-ci.cjs` ukazuje z výstupu testu jen jeho
+    poslední řádky, takže nálezy vypsané průběžně u jednotlivých stránek
+    se z logu CI ztratí — a pak v něm stojí „1 vada" bez uvedení stránky.
+    Stálo to jeden celý kruh přes CI (~7 min), a to jenom kvůli tomu,
+    abych se dozvěděl, KDE. Vypisuje se i verze prohlížeče: sandbox má
+    předinstalovaný starší build než si stáhne runner, takže se měření
+    může lišit a z logu to musí být poznat. */
+ if(souhrn.length){
+  console.log('\n── SOUHRN NÁLEZŮ (stránka → co) ──');
+  for(const s of souhrn) console.log('  '+(s.vada?'❌':'ℹ️ ')+' '+s.url+
+    (s.plochy?'  [plochy '+s.plochy+'/'+s.povoleno+']':'')+'  '+s.popis.slice(0,150));
+ }
  console.log('\n==========================================');
  console.log('  CELKEM nálezů: '+totalIssues+'  (z toho vad: '+vady+')');
- console.log('  proměřeno stránek: '+PAGES.length);
+ console.log('  proměřeno stránek: '+PAGES.length+'  ·  '+verze);
  console.log('==========================================');
  /* Dřív se končilo NULOU i s nálezy. Nová pravidla viz ZNAME_MALE_PLOCHY. */
  if(vady>0){console.error('\n  ❌ mobil: '+vady+' vad (přetečení, JS chyby nebo nové malé plochy)');process.exit(1);}
