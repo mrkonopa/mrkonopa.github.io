@@ -170,31 +170,111 @@ function nactiVyklad(g) {
   // zebrik s pěti jednotkami o 28 a skupiny(29,6) o 50. A skupiny(13,4) sahaly
   // na 281 px při plátně 280 už ve 3. ročníku, takže se červené kuličce „zbytek"
   // ořezával okraj.
+  // 🔴 Měří se SKUTEČNĚ VYKRESLENÝ rozměr, ne souřadnice ve zdrojáku.
+  // První verze brala u textu jen jeho KOTVU (`<text x= y=>`), takže vysvětlivka
+  // vycentrovaná pod obrázkem prošla, i když byla o 63 px širší než plátno —
+  // kotva je uprostřed, přetéká až vykreslený text. Takhle se schovalo 13 vad
+  // napříč 3.–9. ročníkem, mezi nimi popisek `a` u lichoběžníku 11 px POD
+  // plátnem, tedy úplně neviditelný.
+  // Dvě další pasti: (1) `getBBox()` vrací rozměr v MÍSTNÍ soustavě prvku,
+  // takže uvnitř `<g transform>` nesedí s viewBoxem — měří se proto přes
+  // `getBoundingClientRect()` a přepočítává zpět (obrys je v tom už započítaný);
+  // (2) viewBox už nezačíná vždy na „0 0" (u kvádru v 6. ročníku je min-x −4),
+  // takže se čtou všechny čtyři složky, ne jen šířka a výška.
   {
-    const mimo = []; let mereno = 0;
+    const kresby = [];
     for (const g of [3,4,5]) {
       const w = nactiVyklad(g); const L = w['RPG_LEARN_'+g] || {};
       for (const mid in L) for (const sc of (L[mid].sections||[]))
         for (const el of (Array.isArray(sc.p)?sc.p:[sc.p])) {
           const str = String(el); if (!/<svg/.test(str)) continue;
-          mereno++;
-          const vb = (str.match(/viewBox="0 0 ([\d.]+) ([\d.]+)/)||[]).slice(1).map(Number);
-          let mx=0, my=0;
-          for (const r of str.matchAll(/<rect x="([\d.-]+)" y="([\d.-]+)"[^>]*width="([\d.]+)" height="([\d.]+)"/g))
-            { mx=Math.max(mx,+r[1]+ +r[3]); my=Math.max(my,+r[2]+ +r[4]); }
-          for (const c of str.matchAll(/<circle cx="([\d.-]+)" cy="([\d.-]+)" r="([\d.]+)"/g))
-            { mx=Math.max(mx,+c[1]+ +c[3]); my=Math.max(my,+c[2]+ +c[3]); }
-          for (const l of str.matchAll(/<line x1="([\d.-]+)" y1="([\d.-]+)" x2="([\d.-]+)" y2="([\d.-]+)"/g))
-            { mx=Math.max(mx,+l[1],+l[3]); my=Math.max(my,+l[2],+l[4]); }
-          for (const x of str.matchAll(/<text x="([\d.-]+)" y="([\d.-]+)"/g))
-            { mx=Math.max(mx,+x[1]); my=Math.max(my,+x[2]); }
-          if (mx > vb[0] || my > vb[1])
-            mimo.push('g'+g+'/'+mid+' obsah '+mx.toFixed(0)+'×'+my.toFixed(0)+' > plátno '+vb[0]+'×'+vb[1]);
+          kresby.push({ kde: 'g'+g+'/'+mid, svg: str });
         }
     }
-    ok(mereno >= 20, 'proměřeno '+mereno+' diagramů (pojistka proti běhu naprázdno)');
-    ok(mimo.length === 0, 'žádný diagram nepřesahuje svůj viewBox'
-      + (mimo.length ? ' — '+mimo.length+'×: '+mimo.slice(0,3).join(' · ') : ''));
+    for (const g of [6,7,8,9]) {
+      const src = fs.readFileSync(path.join(ROOT,'projects','rpg-learn-'+g+'.js'),'utf8');
+      const re = /<svg[\s\S]*?<\/svg>/g; let m, n = 0;
+      while ((m = re.exec(src))) {
+        n++;
+        kresby.push({ kde: 'g'+g+'/vložený #'+n,
+          svg: m[0].replace(/\\'/g,"'").replace(/\\"/g,'"') });
+      }
+    }
+
+    const page = await browser.newPage();
+    await page.setContent('<!DOCTYPE html><body style="margin:0"></body>');
+    const r = await page.evaluate(({ kresby, TOL }) => {
+      const out = []; let mereno = 0, prvku = 0;
+      for (const k of kresby) {
+        const d = document.createElement('div');
+        d.style.cssText = 'width:600px'; d.innerHTML = k.svg; document.body.appendChild(d);
+        const svg = d.querySelector('svg');
+        if (svg) {
+          mereno++;
+          const vb = svg.viewBox.baseVal, R = svg.getBoundingClientRect();
+          const s = R.width ? vb.width / R.width : 1;
+          svg.querySelectorAll('*').forEach(el => {
+            if (!el.getBBox) return;
+            const c = el.getBoundingClientRect();
+            if (!c.width && !c.height) return;
+            prvku++;
+            const L = vb.x + (c.left - R.left) * s, T = vb.y + (c.top - R.top) * s;
+            const P = L + c.width * s, B = T + c.height * s;
+            const ven = [];
+            if (L < vb.x - TOL) ven.push('vlevo o '+(vb.x-L).toFixed(1));
+            if (T < vb.y - TOL) ven.push('nahoře o '+(vb.y-T).toFixed(1));
+            if (P > vb.x+vb.width+TOL) ven.push('vpravo o '+(P-vb.x-vb.width).toFixed(1));
+            if (B > vb.y+vb.height+TOL) ven.push('dole o '+(B-vb.y-vb.height).toFixed(1));
+            if (ven.length) out.push(k.kde+' · '+el.tagName +
+              (el.textContent ? ' „'+el.textContent.trim().slice(0,16)+'"' : '') + ' → '+ven.join(', '));
+          });
+        }
+        d.remove();
+      }
+      return { out, mereno, prvku };
+      // Práh 2 px je NAMĚŘENÝ z obou stran: po opravě je přesah 0,0 px,
+      // před ní byl šum ze zaokrouhlení dotahu písma 1,0 px (číslice na ose)
+      // a nejmenší SKUTEČNÁ vada 2,5 px. Práh leží mezi tím.
+    }, { kresby, TOL: 2 });
+    await page.close();
+
+    ok(r.mereno >= 40 && r.prvku >= 500,
+      'proměřeno '+r.prvku+' prvků ve '+r.mereno+' diagramech 3.–9. ročníku (podlaha 500 / 40)');
+    ok(r.out.length === 0, 'žádný prvek diagramu nepřesahuje svůj viewBox (tichý ořez)'
+      + (r.out.length ? ' — '+r.out.length+'×: '+r.out.slice(0,3).join(' · ') : ''));
+
+    // ── 1e2) a dva popisky se nesmí PŘEKRÝT ──
+    // Druhá tichá vada: SVG nic nehlásí, jen se text vykreslí přes text.
+    // Naměřeny 4 případy: záhlaví sloupců v porovnání desetinných čísel se
+    // slévala do „celédesetinysetiny", u průměru seděl popisek čáry přesně
+    // na hodnotě sloupce rovného průměru (překryv 42 × 35 px) a v 6. ročníku
+    // leželo slovo „krychle" na popisku hrany. Měří se skutečné rámečky,
+    // ne odhad šířky ze zdrojáku.
+    const page2 = await browser.newPage();
+    await page2.setContent('<!DOCTYPE html><body style="margin:0"></body>');
+    const p = await page2.evaluate(({ kresby }) => {
+      const out = []; let dvojic = 0;
+      for (const k of kresby) {
+        const d = document.createElement('div');
+        d.style.cssText = 'width:600px'; d.innerHTML = k.svg; document.body.appendChild(d);
+        const t = [...d.querySelectorAll('text')].map(el => ({ el, b: el.getBoundingClientRect() }));
+        for (let i = 0; i < t.length; i++) for (let j = i + 1; j < t.length; j++) {
+          dvojic++;
+          const A = t[i].b, B = t[j].b;
+          const px = Math.min(A.right, B.right) - Math.max(A.left, B.left);
+          const py = Math.min(A.bottom, B.bottom) - Math.max(A.top, B.top);
+          if (px > 1 && py > 1) out.push(k.kde + ': „' + t[i].el.textContent.trim() + '" × „' +
+            t[j].el.textContent.trim() + '" o ' + px.toFixed(0) + '×' + py.toFixed(0) + ' px');
+        }
+        d.remove();
+      }
+      return { out, dvojic };
+    }, { kresby });
+    await page2.close();
+
+    ok(p.dvojic >= 800, 'porovnáno '+p.dvojic+' dvojic popisků (podlaha 800)');
+    ok(p.out.length === 0, 'žádné dva popisky se v diagramu nepřekrývají'
+      + (p.out.length ? ' — '+p.out.length+'×: '+p.out.slice(0,3).join(' · ') : ''));
   }
 
   // ── 1f) žebřík jednotek musí ukázat SKUTEČNÉ kroky ──
