@@ -50,31 +50,11 @@ const srv=http.createServer((q,p)=>{let u=decodeURIComponent(q.url.split('?')[0]
  const m={html:'text/html',js:'application/javascript',css:'text/css'};
  p.writeHead(200,{'Content-Type':m[u.split('.').pop()]||'application/octet-stream'});p.end(b);});
 
-const PAGES=[...[3,4,5,6,7,8,9].map(g=>['g'+g,'/projects/rpg-mat-'+g+'.html']),
- ['hub','/projects/rpg-matematika.html'],['ucitel','/projects/rpg-ucitel.html'],
- ['pz-hub','/projects/prijimacky-matematika/index.html'],['pz-test','/projects/prijimacky-matematika/test.html'],
- ['pz-proc','/projects/prijimacky-matematika/procvicovani.html'],['pz-diag','/projects/prijimacky-matematika/diagnostika.html'],
- ['pz-stat','/projects/prijimacky-matematika/statistiky.html'],['pz-dopl','/projects/prijimacky-matematika/doplnky.html'],
- // Tenhle seznam byl ručně udržovaný a KRYL JEN RPG + přijímačky, i když
- // hlavička testu tvrdila „prochází všechny stránky". Chybělo 15 stránek
- // odkázaných z rozcestníku — únikovky, cesta peněz, procenta, goniometrie
- // i osobní web. Po doplnění se hned našlo přetečení řádku „Mám kód
- // odjinud" v goniometrii na 380 px. Zbytek byl v pořádku
- // (252 obrazovek / 14 968 prvků).
- ['gonio','/projects/goniometrie.html'],['naroz','/projects/narozeniny.html'],
- ['papir','/projects/papir.html'],['cesta','/projects/cesta_penez.html'],
- ['proc','/projects/procenta_priklady.html'],
- ...['linearni_funkce','mocniny','procenta','pythagoras','rovnice','statistika','telesa','trojuhelniky']
-   .map(u=>['u-'+u,'/projects/unikovka_'+u+'.html']),
- ['proj','/projects/index.html'],['home','/index.html'],['404','/404.html'],
- // Počtvrté: z cestování se měřil jen rozcestník, ne sedm zápisků pod ním
- // (a jeden z nich přetéká na 380 px). Plus tři stránky mimo rozcestník —
- // `ucitel.html` je nelinkovaná schválně (kódy k únikovkám), ne mrtvá.
- ['travels','/travels/index.html'],
- ['podminky','/projects/podminky.html'],['soukromi','/projects/soukromi.html'],
- ['ucitel-kody','/projects/ucitel.html'],
- ...['ukraine-2017','cr-bh-2018','romania-2019','yugoslavia-2020','spain-france-2021','italy-2022','baltic-2023']
-   .map(u=>['t-'+u,'/travels/'+u+'.html'])];
+/* Seznam stránek je SDÍLENÝ (tests/stranky.cjs) — tři ručně udržované
+   kopie se podle CLAUDE.md rozešly čtyřikrát a pokaždé v nich chyběl celý
+   kus webu. Úplnost proti skutečnému obsahu repozitáře hlídá
+   `stranky-uplnost.test.cjs`. */
+const PAGES = require('./stranky.cjs').jakoDvojiceId();
 const SIRKY=[1100,820,380];
 
 /* ── Průchod obrazovkami u stránek, které NEJSOU RPG hra ──────────────

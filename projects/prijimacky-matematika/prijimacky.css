@@ -4,12 +4,12 @@
    procvicovani/diagnostika/statistiky.html. Žádný tmavý RPG styl.
    ───────────────────────────────────────────────────────────────────────── */
 :root {
-  --blue:#1a73c8; --blue-light:#e8f1fb; --blue-dark:#1250a0;
-  --teal:#0f8a72; --teal-light:#e4f5f1;
-  --gold:#c89a10; --gold-light:#fef9ec;
-  --green:#1e9e5a; --green-light:#e6f7ef;
-  --red:#d63c2f; --red-light:#fdeceb;
-  --bg:#f5f0e6; --card:#fff; --text:#1a1a2e; --muted:#6b7280;
+  --blue:#196ec0; --blue-light:#e8f1fb; --blue-dark:#1250a0;
+  --teal:#0e7c67; --teal-light:#e4f5f1;
+  --gold:#8e6d0b; --gold-light:#fef9ec;
+  --green:#187e48; --green-light:#e6f7ef;
+  --red:#c7382c; --red-light:#fdeceb;
+  --bg:#f5f0e6; --card:#fff; --text:#1a1a2e; --muted:#676d7b;
   --border:#e2dccc;
   --shadow:0 2px 14px rgba(0,0,0,.06);
   --shadow-hover:0 6px 22px rgba(26,115,200,.16);

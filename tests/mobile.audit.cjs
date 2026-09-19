@@ -12,42 +12,11 @@ const MIME = {'.html':'text/html','.js':'text/javascript','.css':'text/css','.pn
 
 function serve(){return new Promise(res=>{const s=http.createServer((q,r)=>{let u=decodeURIComponent(q.url.split('?')[0]);if(u.endsWith('/'))u+='index.html';const f=path.normalize(path.join(ROOT,u));if(!f.startsWith(ROOT+path.sep)||!fs.existsSync(f)||fs.statSync(f).isDirectory()){r.writeHead(404);return r.end();}r.writeHead(200,{'Content-Type':MIME[path.extname(f)]||'application/octet-stream'});fs.createReadStream(f).pipe(r);});s.listen(0,()=>res(s));});}
 
-const PAGES = [
- // Seznam byl ručně udržovaný a kryl 15 z ~28 stránek — chyběl CELÝ
- // 1. stupeň (RPG 3/4/5), goniometrie, narozeniny, papír, šest z osmi
- // únikovek a podstránky přijímaček. Je to stejný vzorec jako u sweepu
- // rozvržení: 1. stupeň se dodělával později a na seznam se zapomnělo.
- // Sken: porovnej proti `ls projects/*.html` a odkazům z rozcestníku.
- ['Home','/index.html'],
- ['404','/404.html'],
- ['Projects index','/projects/index.html'],
- ['Přijímačky','/projects/prijimacky-matematika/index.html'],
- ['Přijímačky test','/projects/prijimacky-matematika/test.html'],
- ['Přijímačky procvičování','/projects/prijimacky-matematika/procvicovani.html'],
- ['Přijímačky diagnostika','/projects/prijimacky-matematika/diagnostika.html'],
- ['Přijímačky statistiky','/projects/prijimacky-matematika/statistiky.html'],
-  ['Přijímačky doplňky','/projects/prijimacky-matematika/doplnky.html'],
- ...['linearni_funkce','mocniny','procenta','pythagoras','rovnice','statistika','telesa','trojuhelniky']
-   .map(u => ['Únikovka ' + u, '/projects/unikovka_' + u + '.html']),
- ['Procenta příklady','/projects/procenta_priklady.html'],
- ['Cesta peněz','/projects/cesta_penez.html'],
- ['Goniometrie','/projects/goniometrie.html'],
- ['Narozeniny','/projects/narozeniny.html'],
- ['Papír','/projects/papir.html'],
- ['RPG hub','/projects/rpg-matematika.html'],
- ...[3,4,5,6,7,8,9].map(g => ['RPG mat ' + g, '/projects/rpg-mat-' + g + '.html']),
- ['RPG učitel','/projects/rpg-ucitel.html'],
- ['Travels','/travels/index.html'],
- // Viz stejná poznámka v `a11y.audit.cjs`: kryl se rozcestník cestování,
- // ale ani jeden ze sedmi zápisků pod ním, plus tři stránky mimo
- // rozcestník. `ucitel.html` není odkázaná schválně (kódy k únikovkám),
- // ale adresou je dostupná, takže se měří jako každá jiná.
- ['Podmínky','/projects/podminky.html'],
- ['Soukromí','/projects/soukromi.html'],
- ['Pro učitele (kódy)','/projects/ucitel.html'],
- ...['ukraine-2017','cr-bh-2018','romania-2019','yugoslavia-2020','spain-france-2021','italy-2022','baltic-2023']
-   .map(u => ['Travels ' + u, '/travels/' + u + '.html']),
-];
+/* Seznam stránek je SDÍLENÝ (tests/stranky.cjs) — tři ručně udržované
+   kopie se podle CLAUDE.md rozešly čtyřikrát a pokaždé v nich chyběl celý
+   kus webu. Úplnost proti skutečnému obsahu repozitáře hlídá
+   `stranky-uplnost.test.cjs`. */
+const PAGES = require('./stranky.cjs').jakoDvojiceJmeno();
 
 const VW = 360, VH = 740;
 
