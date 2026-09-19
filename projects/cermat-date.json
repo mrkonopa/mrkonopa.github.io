@@ -1,11 +1,11 @@
 {
   "next": {
-    "date": "2027-04-09",
+    "date": "2027-04-12",
     "label": "1. řádný termín 2027 (čtyřleté obory)",
     "round": 1,
     "year": 2027
   },
-  "source": "manual",
-  "updated": "2026-08-25",
-  "note": "Automaticky aktualizováno GitHub Action (.github/workflows/update-cermat.yml). Manuálně uprav pole next.date (YYYY-MM-DD) pokud automatika selže. POZOR: 9. 4. 2027 je dohledaný termín pro ČTYŘLETÉ OBORY (druhý řádný 12. 4.). Dřív tu bylo 13. 4., což je termín víceletých gymnázií — jiný typ školy. Zatím NENÍ potvrzeno z primárního zdroje (cermat.gov.cz i msmt.gov.cz jsou ze sandboxu blokované); shodly se na něm nezávislé sekundární weby."
+  "source": "https://prijimacky.cermat.cz/menu/jednotna-prijimaci-zkouska.html",
+  "updated": "2026-09-18",
+  "note": "OVĚŘENO Z PRIMÁRNÍHO ZDROJE 18. 9. 2026 — tabulka termínů na webu CERMAT (viz source): Čtyřleté obory a obory nástavbového studia = 1. řádný 12. 4. 2027, 2. řádný 13. 4. 2027, náhradní 29. a 30. 4. 2027. Obory šestiletých a osmiletých gymnázií = 14. a 15. 4. 2027 (JINÝ TYP ŠKOLY, sem nepatří). Dřív tu stálo 9. 4. 2027, což byla EXTRAPOLACE staršího vzorce, ne vyhlášený termín: v letech 2024–2026 byly řádné termíny čtyřletých oborů vždy pátek + pondělí (12.+15. 4. 2024, 11.+14. 4. 2025, 10.+13. 4. 2026), takže se na 2027 dopočetlo pátek 9. 4. Pro 2027 se ale blok posunul na pondělí–čtvrtek. POUČENÍ: termín nikdy nedopočítávej ze vzorce, vždy si otevři tabulku na prijimacky.cermat.cz. Automaticky aktualizuje GitHub Action (.github/workflows/update-cermat.yml) — pozor, ten je od 17. 8. 2026 červený, takže tohle datum je zapsané ručně."
 }
