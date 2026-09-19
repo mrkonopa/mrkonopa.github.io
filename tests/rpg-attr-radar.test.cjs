@@ -93,6 +93,82 @@ function serve() {
         };
       }, ATTRS);
 
+      /* ── Popisky v grafu se nesmí přetisknout ────────────────────────
+         Hodnota jede po ose za svým vrcholem (poloměr v+18 %), ikona osy
+         sedí na pevném poloměru. Dřív byla ikona na 120 %, takže se při
+         atributu 100 potkaly na 1,2 px a číslo se vykreslilo PŘES ikonu.
+         SVG na to nijak neupozorní — jen se text přetiskne přes text,
+         což je v tomhle repu doložená třída tichých vad.
+
+         Měří se VYKRESLENÝ text přes getBoundingClientRect přepočtený na
+         jednotky viewBoxu; `getBBox` vrací rozměr v místní soustavě, takže
+         uvnitř <g transform> nesedí. A čte se všech šest složek viewBoxu,
+         ne předpoklad „0 0 …".
+
+         Ověřeno sabotáží: návrat ikony na 120 % shodí tuhle kontrolu ve
+         všech sedmi ročnících (a jen ji). */
+      const pop = await page.evaluate(() => {
+        const STAVY = [
+          ['start (vše 0)', { calc: 0, geo: 0, anal: 0, craft: 0 }],
+          ['rozehráno', { calc: 48, geo: 33, anal: 51, craft: 27 }],
+          ['zkušený', { calc: 87, geo: 72, anal: 96, craft: 64 }],
+          ['na stropě', { calc: 100, geo: 100, anal: 100, craft: 100 }],
+          ['přes strop', { calc: 240, geo: 180, anal: 300, craft: 150 }],
+        ];
+        const out = { mereno: 0, nalezy: [], nejmensiMezera: 999 };
+        const host = document.createElement('div');
+        host.style.cssText = 'position:absolute;left:0;top:0;width:400px';
+        document.body.appendChild(host);
+        const prekryv = (a, b) => {
+          const px = Math.min(a.x + a.w, b.x + b.w) - Math.max(a.x, b.x);
+          const py = Math.min(a.y + a.h, b.y + b.h) - Math.max(a.y, b.y);
+          return px > 0 && py > 0 ? { px, py } : null;
+        };
+        for (const [jmeno, attrs] of STAVY) {
+          host.innerHTML = svgAttrRadar(attrs);
+          const svg = host.querySelector('svg'); if (!svg) continue;
+          const vb = (svg.getAttribute('viewBox') || '').split(/\s+/).map(Number);
+          if (vb.length !== 4 || vb.some(n => !Number.isFinite(n))) continue;
+          const box = svg.getBoundingClientRect();
+          const sx = vb[2] / box.width, sy = vb[3] / box.height;
+          const ram = el => {
+            const b = el.getBoundingClientRect();
+            return { x: vb[0] + (b.left - box.left) * sx, y: vb[1] + (b.top - box.top) * sy,
+                     w: b.width * sx, h: b.height * sy, t: (el.textContent || 'ikona').trim() };
+          };
+          const hodnoty = [...svg.querySelectorAll('text')].filter(t => (t.textContent || '').trim()).map(ram);
+          const ikony = [...svg.querySelectorAll('g')].map(ram);
+          if (hodnoty.length !== 4 || ikony.length !== 4) {
+            out.nalezy.push(`${jmeno}: čekám 4 hodnoty a 4 ikony, mám ${hodnoty.length}/${ikony.length}`);
+            continue;
+          }
+          out.mereno++;
+          for (let i = 0; i < hodnoty.length; i++) {
+            for (const ik of ikony) {
+              const p = prekryv(hodnoty[i], ik);
+              if (p) out.nalezy.push(`${jmeno}: hodnota „${hodnoty[i].t}" se tiskne přes IKONU osy (${p.px.toFixed(1)}×${p.py.toFixed(1)} px)`);
+            }
+            for (let j = i + 1; j < hodnoty.length; j++) {
+              const p = prekryv(hodnoty[i], hodnoty[j]);
+              if (p) out.nalezy.push(`${jmeno}: hodnoty „${hodnoty[i].t}" a „${hodnoty[j].t}" přes sebe (${p.px.toFixed(1)}×${p.py.toFixed(1)} px)`);
+              const dx = Math.max(0, Math.max(hodnoty[i].x, hodnoty[j].x) - Math.min(hodnoty[i].x + hodnoty[i].w, hodnoty[j].x + hodnoty[j].w));
+              const dy = Math.max(0, Math.max(hodnoty[i].y, hodnoty[j].y) - Math.min(hodnoty[i].y + hodnoty[i].h, hodnoty[j].y + hodnoty[j].h));
+              out.nejmensiMezera = Math.min(out.nejmensiMezera, Math.hypot(dx, dy));
+            }
+            const h = hodnoty[i];
+            if (h.x < vb[0] - 0.5 || h.y < vb[1] - 0.5 ||
+                h.x + h.w > vb[0] + vb[2] + 0.5 || h.y + h.h > vb[1] + vb[3] + 0.5)
+              out.nalezy.push(`${jmeno}: hodnota „${h.t}" vyčuhuje z plátna`);
+          }
+        }
+        host.remove();
+        return out;
+      });
+
+      ok(pop.nalezy.length === 0, `g${g} popisky grafu se nepřetiskují`, pop.nalezy[0] || '');
+      // pojistka proti „audit doběhl zeleně a nic neviděl"
+      ok(pop.mereno === 5, `g${g} proměřeno všech 5 stavů atributů`, 'změřeno: ' + pop.mereno);
+
       mereni++;
       nazvy[g] = r.nazvy;
       ok(r.maSvg, `g${g} profil obsahuje graf atributů`);
