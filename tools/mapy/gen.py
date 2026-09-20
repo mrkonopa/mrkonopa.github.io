@@ -123,17 +123,52 @@ def regrese(v, s):
     a = (n * sum(x * y for x, y in zip(v, s)) - sv * ss) / (n * sum(x * x for x in s) - ss * ss)
     return a, (sv - a * ss) / n
 
+def stara_mapa(zapisek):
+    """Vrátí tělo PŮVODNÍ vložené mapy.
+
+    Jakmile se stránka převede na sdílený modul, vložená mapa v ní není —
+    a právě ona je zdrojem souřadnic. Proto se v takovém případě vytáhne
+    z historie gitu. Ať to na ní nevisí navždy, výsledek se ukládá do
+    `tools/mapy/zdroj/<zápisek>.svg`, který je v repozitáři.
+    """
+    zaloha = ZDE / 'zdroj' / f'{zapisek}.svg'
+    if zaloha.exists():
+        return zaloha.read_text(encoding='utf-8')
+    import subprocess
+    s = open(f'/home/user/mrkonopa.github.io/travels/{zapisek}.html', encoding='utf-8').read()
+    m = re.search(r'<svg[^>]*viewBox="[^"]+"[^>]*>(.*?)</svg>', s, re.S)
+    if not m:
+        for rev in ('HEAD', 'HEAD~1', 'HEAD~2', 'HEAD~3', 'HEAD~4', 'HEAD~5', 'HEAD~6'):
+            try:
+                st = subprocess.run(['git', 'show', f'{rev}:travels/{zapisek}.html'],
+                                    cwd='/home/user/mrkonopa.github.io',
+                                    capture_output=True, text=True, check=True).stdout
+            except subprocess.CalledProcessError:
+                continue
+            m = re.search(r'<svg[^>]*viewBox="[^"]+"[^>]*>(.*?)</svg>', st, re.S)
+            if m: break
+    if not m:
+        raise SystemExit(f'{zapisek}: původní mapa se nenašla ani v historii')
+    zaloha.parent.mkdir(parents=True, exist_ok=True)
+    zaloha.write_text(m.group(1), encoding='utf-8')
+    return m.group(1)
+
+
 def vyrob(zapisek, kotvy, sirka=300, okraj=10, tol_trasa=0.35, tol_podklad=0.45,
           bez_druheho=()):
-    s = open(f'/home/user/mrkonopa.github.io/travels/{zapisek}.html', encoding='utf-8').read()
-    telo = re.search(r'<svg[^>]*viewBox="[^"]+"[^>]*>(.*?)</svg>', s, re.S).group(1)
+    telo = stara_mapa(zapisek)
 
     puvodni = [(float(m.group(1)), float(m.group(2)), m.group(3).strip()) for m in
                re.finditer(r'<circle[^>]*?cx="([\d.]+)"[^>]*?cy="([\d.]+)"[^>]*?/>\s*<!--\s*(.*?)\s*-->', telo, re.S)]
+    if not puvodni:   # Balt má komentář PŘED kolečkem
+        puvodni = [(float(m.group(2)), float(m.group(3)), m.group(1).strip()) for m in
+                   re.finditer(r'<!--\s*([^<>]{2,60}?)\s*-->\s*<circle[^>]*?cx="([\d.]+)"[^>]*?cy="([\d.]+)"', telo, re.S)]
     par = []
     for x, y, popis in puvodni:
         for klic, (la, lo) in kotvy.items():
-            if klic.lower() in popis.lower(): par.append((x, y, la, lo, klic)); break
+            # kód musí být na ZAČÁTKU komentáře, jinak „ES" sedne na „ES5 …"
+            if popis.lower().startswith(klic.lower()) or klic.lower() in popis.lower().split():
+                par.append((x, y, la, lo, klic)); break
     if len(par) < 3: sys.exit(f'{zapisek}: málo kotev ({len(par)})')
     ax, bx = regrese([p[0] for p in par], [p[3] for p in par])
     ay, by = regrese([p[1] for p in par], [p[2] for p in par])
@@ -213,12 +248,44 @@ def vyrob(zapisek, kotvy, sirka=300, okraj=10, tol_trasa=0.35, tol_podklad=0.45,
                      for i, (la, lo, p) in enumerate(zast_geo)],
     }
 
+def kotvy_z_kmz(cesta):
+    """Kotvy z Vojtova KMZ: klíč je kód (P7, ES5…), který je i v komentáři mapy."""
+    mapa = json.load(open(cesta))
+    ven = {}
+    for x in mapa:
+        jm = re.sub(r'<!\[CDATA\[|\]\]>', '', x['nazev']).strip()
+        # Jen kódy tvaru P7 / ES5 / LI1. Dřív se bralo cokoli před pomlčkou,
+        # takže z „ES-1_Zatopené vězení" vyšel klíč „ES" — a ten se pak
+        # napasoval na první komentář, ve kterém se „es" vyskytlo. Fit tím
+        # vyšel na 25 px místo 0,6.
+        m = re.match(r'([A-Z]{1,3}\d+)\b', jm)
+        if m: ven[m.group(1)] = (x['lat'], x['lon'])
+    return ven
+
+
 if __name__ == '__main__':
     KOTVY_IT = {'CZ start/end': (50.767, 15.056), 'Craco': (40.377, 16.440), 'Etna': (37.751, 14.993),
                 'Agrigento': (37.311, 13.577), 'Palermo': (38.116, 13.361), 'Salerno / Vietri': (40.673, 14.727),
                 'Rome': (41.903, 12.496), "Lago d'Iseo": (45.717, 10.062)}
     d = vyrob('italy-2022', KOTVY_IT, bez_druheho=("IT · LAGO D'ISEO",))
-    json.dump(d, open(ZDE / 'italy2.json', 'w'), ensure_ascii=False)
+    d['popis'] = 'Mapa trasy: Liberec, Dolomity, Řím, Sicílie a zpět trajektem'
+    ven = Path('/home/user/mrkonopa.github.io/travels/mapy'); ven.mkdir(parents=True, exist_ok=True)
+    (ven / 'italy-2022.js').write_text(
+        '/* Data mapy trasy — vyrobil tools/mapy/gen.py, needituj ručně. */\n'
+        'window.MAPA_TRASY = ' + json.dumps(d, ensure_ascii=False) + ';\n', encoding='utf-8')
+    print('→ travels/mapy/italy-2022.js')
+
+    # ── Balt: kotvy přímo z KMZ, se kterým se mapa kreslila ───────────
+    KMZ = '/tmp/claude-0/-home-user-mrkonopa-github-io/bb6c9958-601f-50e9-b037-8b2b3a7ac6a9/scratchpad/baltic/mapa.json'
+    if Path(KMZ).exists():
+        d = vyrob('baltic-2023', kotvy_z_kmz(KMZ))
+        d['popis'] = 'Mapa trasy: Polsko, Litva, Lotyšsko a Estonsko'
+        (ven / 'baltic-2023.js').write_text(
+            '/* Data mapy trasy — vyrobil tools/mapy/gen.py, needituj ručně. */\n'
+            'window.MAPA_TRASY = ' + json.dumps(d, ensure_ascii=False) + ';\n', encoding='utf-8')
+        print(f"→ travels/mapy/baltic-2023.js   plátno {d['sirka']}×{d['vyska']}, "
+              f"dřív zploštělé {d['zplosteniPredtim']}×, odchylka kotev {d['odchylkaKotev']} px, "
+              f"zastávek {len(d['zastavky'])}")
     print(f"plátno {d['sirka']} × {d['vyska']}   (dřív zploštělé {d['zplosteniPredtim']}×, "
           f"odchylka kotev {d['odchylkaKotev']} px)")
     print(f"podklad {len(d['podklad'])} obrysů, trasa {sum(t.count(',') for t in d['trasy'])} bodů "

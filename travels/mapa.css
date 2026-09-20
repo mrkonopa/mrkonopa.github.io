@@ -26,8 +26,8 @@
    Pevnina je jen o málo světlejší než pozadí: mapa má sloužit trase,
    ne kreslit státy. */
 .mapa-pevnina path {
-  fill: #272725;
-  stroke: #403f3c;
+  fill: #2d2d2a;
+  stroke: #4c4b47;
   stroke-width: 0.5;
   stroke-linejoin: round;
 }
