@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="route track">
+  <!-- Ikona cestovatelské sekce: lomená čára trasy s bodem startu a cíle.
+       Paleta sekce (#1c1c1c pozadí, #f5b800 jantarová), ne zelená terminálová
+       z /favicon.svg — ta zůstává zbytku webu. Tah 3,2 jednotky a jen čtyři
+       vrcholy, aby to bylo čitelné i v 16 px. -->
+  <rect width="32" height="32" rx="6" fill="#1c1c1c"/>
+  <path d="M6 24 L12 13 L19 19 L26 7" fill="none" stroke="#f5b800" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="6" cy="24" r="3.2" fill="#ededec"/>
+  <circle cx="26" cy="7" r="3.2" fill="#f5b800"/>
+</svg>
