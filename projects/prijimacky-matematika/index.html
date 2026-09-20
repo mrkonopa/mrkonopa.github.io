@@ -50,15 +50,15 @@
   <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     :root {
-      --blue:#1a73c8; --blue-light:#e8f1fb; --blue-dark:#1250a0;
-      --teal:#0f8a72; --teal-light:#e4f5f1;
-      --gold:#c89a10; --gold-light:#fef9ec;
-      --green:#1e9e5a; --green-light:#e6f7ef;
-      --red:#d63c2f;
+      --blue:#196ec0; --blue-light:#e8f1fb; --blue-dark:#1250a0;
+      --teal:#0e7c67; --teal-light:#e4f5f1;
+      --gold:#8e6d0b; --gold-light:#fef9ec;
+      --green:#187e48; --green-light:#e6f7ef;
+      --red:#c7382c;
       --bg:#f5f0e6;
       --card:#fff;
       --text:#1a1a2e;
-      --muted:#6b7280;
+      --muted:#676d7b;
       --border:#e2dccc;
       --shadow:0 2px 14px rgba(0,0,0,.06);
       --shadow-hover:0 6px 22px rgba(26,115,200,.16);
@@ -450,7 +450,7 @@
 
   <div class="cermat-banner">
     <a class="cermat-countdown cc-far" id="cermat-chip"
-       href="https://prijimacky.cermat.cz/" target="_blank" rel="noopener"
+       href="https://prijimacky.cermat.cz/menu/jednotna-prijimaci-zkouska.html" target="_blank" rel="noopener"
        title="Otevřít oficiální termíny přijímaček na webu CERMAT" style="display:none">
       <span class="cc-head">⏳ Do přijímaček zbývá</span>
       <span class="cc-clock" aria-live="off">
@@ -465,9 +465,11 @@
       <span class="cc-foot"><span id="cermat-label">1. termín</span> · 📅 zobrazit termíny na webu CERMAT →</span>
     </a>
     <p class="cermat-note">
-      Termín je zatím <b>předběžný</b> — vychází z veřejně dohledaných údajů pro
-      čtyřleté obory. Jakmile ho MŠMT oficiálně vyhlásí, bude to napsané přímo tady
-      a odpočet se srovná podle něj.
+      Termín je <b>oficiální</b> — vyhlásilo ho MŠMT a CERMAT ho má v tabulce termínů
+      (klikni na odpočet). Pro <b>čtyřleté obory a nástavby</b> je 1. řádný termín
+      <b>12. dubna 2027</b>, druhý 13. dubna, náhradní 29. a 30. dubna.
+      Odpočet míří na ten první. Šestiletá a osmiletá gymnázia píšou 14. a 15. dubna —
+      to je jiný typ školy.
     </p>
   </div>
 
@@ -717,8 +719,9 @@
 
 <script>
 (function(){
-  // Fallback date if JSON not available
-  var fallbackDate = new Date('2027-04-09T08:00:00');
+  // Záloha, když se JSON nenačte. 1. řádný termín ČTYŘLETÝCH oborů, ověřený
+  // z tabulky termínů CERMATu; víceletá gymnázia mají 14. a 15. 4., ta sem nepatří.
+  var fallbackDate = new Date('2027-04-12T08:00:00');
   var cermatDate = fallbackDate;
   var cermatLabel = '1. termín';
 

@@ -14,10 +14,10 @@
       --fg-muted: #6b7280;
       --accent: #2563eb;
       --accent-light: #dbeafe;
-      --match: #dc2626;
+      --match: #ca2323;
       --match-light: #fee2e2;
       --match-border: #fca5a5;
-      --green: #16a34a;
+      --green: #11813a;
       --green-light: #dcfce7;
       --border: #e5e7eb;
       --card-bg: #f9fafb;
@@ -654,7 +654,7 @@ function updateProb(n) {
 
   const bar = document.getElementById('prob-bar');
   bar.style.width = (p * 100) + '%';
-  const clr = p < 0.45 ? '#16a34a' : p < 0.75 ? '#d97706' : '#dc2626';
+  const clr = p < 0.45 ? '#11813a' : p < 0.75 ? '#d97706' : '#dc2626';
   bar.style.background = clr;
 
   document.getElementById('count-display').textContent = n;
