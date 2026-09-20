@@ -174,6 +174,16 @@ def vyrob(zapisek, kotvy, sirka=300, okraj=10, tol_trasa=0.35, tol_podklad=0.45,
     if not puvodni:   # Balt má komentář PŘED kolečkem
         puvodni = [(float(m.group(2)), float(m.group(3)), m.group(1).strip()) for m in
                    re.finditer(r'<!--\s*([^<>]{2,60}?)\s*-->\s*<circle[^>]*?cx="([\d.]+)"[^>]*?cy="([\d.]+)"', telo, re.S)]
+    if not puvodni:   # spain-france nemá u koleček komentáře vůbec
+        puvodni = [(float(m.group(1)), float(m.group(2)), '')
+                   for m in re.finditer(r'<circle[^>]*?cx="([\d.]+)"[^>]*?cy="([\d.]+)"[^>]*?r="([\d.]+)"', telo, re.S)
+                   if 2.5 <= float(m.group(3)) <= 7]
+    pop, mimo = popisky(telo, [(x, y, _) and (x, y) for x, y, _ in puvodni])
+    # Některé mapy nemají u koleček komentáře (spain-france) — tam se kotva
+    # páruje podle vykresleného POPISKU zastávky.
+    puvodni = [(x, y, popis or pop.get(i, {}).get('hlavni', ''))
+               for i, (x, y, popis) in enumerate(puvodni)]
+
     par = []
     for x, y, popis in puvodni:
         for klic, (la, lo) in kotvy.items():
@@ -215,7 +225,6 @@ def vyrob(zapisek, kotvy, sirka=300, okraj=10, tol_trasa=0.35, tol_podklad=0.45,
                              for i in range(len(body)))) / 2
             if plocha < 3: continue
             zeme.append('M' + 'L'.join(f'{x:.1f},{y:.1f}' for x, y in body) + 'Z')
-    pop, mimo = popisky(telo, [(x, y) for x, y, _ in puvodni])
     spoje = []
     for m in re.finditer(r'<line\b([^>]*stroke-dasharray[^>]*)/?>', telo, re.S):
         atr = m.group(1)
@@ -288,6 +297,23 @@ if __name__ == '__main__':
         '/* Data mapy trasy — vyrobil tools/mapy/gen.py, needituj ručně. */\n'
         'window.MAPA_TRASY = ' + json.dumps(d, ensure_ascii=False) + ';\n', encoding='utf-8')
     print('→ travels/mapy/italy-2022.js')
+
+    # ── Francie a Španělsko: kotvy podle POPISKŮ měst (u koleček nejsou
+    #    komentáře). Odchylka 0,66 px potvrzuje, že i tahle mapa je
+    #    lineární projekcí skutečných souřadnic.
+    KOTVY_ES = {
+        'Liberec': (50.767, 15.056), 'Paris': (48.857, 2.352), 'Madrid': (40.417, -3.704),
+        'Barcelona': (41.385, 2.173), 'Marseille': (43.296, 5.370), 'Toulon': (43.125, 5.930),
+        'Benidorm': (38.538, -0.131), 'Pointe du Hoc': (49.396, -0.989),
+    }
+    d = vyrob('spain-france-2021', KOTVY_ES)
+    d['popis'] = 'Mapa trasy: Francie, Španělsko a zpět přes Itálii'
+    (ven / 'spain-france-2021.js').write_text(
+        '/* Data mapy trasy — vyrobil tools/mapy/gen.py, needituj ručně. */\n'
+        'window.MAPA_TRASY = ' + json.dumps(d, ensure_ascii=False) + ';\n', encoding='utf-8')
+    print(f"→ travels/mapy/spain-france-2021.js   plátno {d['sirka']}×{d['vyska']}, "
+          f"dřív zploštělé {d['zplosteniPredtim']}×, odchylka kotev {d['odchylkaKotev']} px, "
+          f"zastávek {len(d['zastavky'])}")
 
     # ── Balt: kotvy přímo z KMZ, se kterým se mapa kreslila ───────────
     KMZ = '/tmp/claude-0/-home-user-mrkonopa-github-io/bb6c9958-601f-50e9-b037-8b2b3a7ac6a9/scratchpad/baltic/mapa.json'

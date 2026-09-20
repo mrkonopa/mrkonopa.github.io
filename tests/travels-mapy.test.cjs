@@ -38,8 +38,10 @@ const STARA_MAPA = {
   'ukraine-2017': 'jen úsečky mezi zastávkami, čeká na GPX záznam',
   'cr-bh-2018': 'jen úsečky mezi zastávkami, čeká na GPX záznam',
   'yugoslavia-2020': 'jen úsečky mezi zastávkami, čeká na GPX záznam',
-  'romania-2019': 'převod na sdílený modul ještě neproběhl',
-  'spain-france-2021': 'převod na sdílený modul ještě neproběhl',
+  /* Rumunsko NENÍ mapa, ale VÝŠKOVÝ PROFIL hřebenovky (osa 1000–2500 m,
+     Negoiu 2535, Moldoveanu 2544, značky dnů). Na geografickou mapu se
+     převádět nemá — jeho vady se opraví na místě. */
+  'romania-2019': 'výškový profil hřebenovky, ne mapa trasy',
 };
 
 /* Naměřeno: popisky vycházejí na 9–15 skutečných px podle šířky okna.
