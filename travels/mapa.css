@@ -1,0 +1,91 @@
+/* ══════════════════════════════════════════════════════════════════════
+   Vzhled mapy trasy — společný pro všechny zápisky (viz mapa.js).
+
+   Mapa je nově SVISLÝ PANEL, ne pruh přes celou šířku. Důvod je věcný:
+   se správným poměrem stran je většina těch cest vyšší než širší (Liberec
+   → Sicílie je 14,4° na výšku a 7,8° na šířku), takže pruh přes celou
+   šířku šel udělat jen zploštěním, a to dělalo z Itálie placku.
+
+   Písmo je v jednotkách viewBoxu, takže se zmenšuje SPOLU s mapou. Dřív
+   bylo v pixelech a na mobilu popisky zůstávaly velké, zatímco kresba se
+   smrskla — proto na sebe lezly.
+   ══════════════════════════════════════════════════════════════════════ */
+
+.route-svg-wrap {
+  max-width: 420px;
+  margin: 0 auto;
+}
+.route-svg-wrap svg {
+  width: 100%;
+  height: auto;
+  display: block;
+  overflow: visible;
+}
+
+/* ── podklad ──────────────────────────────────────────────────────────
+   Pevnina je jen o málo světlejší než pozadí: mapa má sloužit trase,
+   ne kreslit státy. */
+.mapa-pevnina path {
+  fill: #272725;
+  stroke: #403f3c;
+  stroke-width: 0.5;
+  stroke-linejoin: round;
+}
+
+/* ── trasa ────────────────────────────────────────────────────────── */
+.mapa-trasa {
+  fill: none;
+  stroke: var(--accent, #f5b800);
+  stroke-width: 1.8;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  opacity: 0.92;
+}
+.mapa-spoj {
+  stroke: var(--accent, #f5b800);
+  stroke-width: 1.5;
+  stroke-dasharray: 3 4;
+  opacity: 0.65;
+}
+.mapa-spoj-popis {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  letter-spacing: 0.12em;
+  fill: var(--accent, #f5b800);
+  opacity: 0.8;
+}
+
+/* ── zastávky ─────────────────────────────────────────────────────── */
+.mapa-bod {
+  fill: #d8d8d2;
+  stroke: var(--bg, #1c1c1c);
+  stroke-width: 0.8;
+}
+.mapa-bod--start {
+  fill: var(--accent, #f5b800);
+}
+
+/* ── popisky ──────────────────────────────────────────────────────── */
+.mapa-popis text {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  letter-spacing: 0.1em;
+  fill: var(--fg-dim, #a8a8a2);
+  dominant-baseline: middle;
+}
+.mapa-popis--start text {
+  fill: var(--accent, #f5b800);
+}
+.mapa-popis .mapa-popis-druhy {
+  fill: var(--fg-muted, #8e8e89);
+  letter-spacing: 0.06em;
+}
+.mapa-vodic {
+  stroke: var(--fg-muted, #8e8e89);
+  stroke-width: 0.4;
+  opacity: 0.5;
+}
+
+/* Na úzkém displeji je panel přes celou šířku — poměr stran drží
+   viewBox, takže se nic nedeformuje. */
+@media (max-width: 520px) {
+  .route-svg-wrap { max-width: none; }
+}

@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Baltics 2023 · Travels · Vojtěch Konopa</title>
-  <meta name="description" content="Summer 2023 across the Baltics — Soviet-era ruins through Poland, Lithuania, Latvia, and Estonia. Karosta, Patarei, Rummu, the Hill of Crosses, and ten more stops on a single loop." />
+  <meta name="description" content="Summer 2023 across the Baltics — Soviet-era ruins through Poland, Lithuania, Latvia, and Estonia. Karosta, Rummu, the Hill of Crosses, and ten more stops on a single loop." />
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -65,17 +65,6 @@
       background: linear-gradient(to top, rgba(0,0,0,0.55), transparent);
       pointer-events: none;
     }
-    .hero-placeholder {
-      width: 100%; aspect-ratio: 16/9; max-height: 80vh;
-      background: linear-gradient(160deg, #1e2a1e 0%, #1a1a2e 40%, #2a1a1a 100%);
-      display: flex; align-items: center; justify-content: center;
-      border-bottom: 1px solid var(--border);
-    }
-    .hero-placeholder span {
-      font-family: var(--mono); font-size: 11px; letter-spacing: 0.22em;
-      text-transform: uppercase; color: var(--fg-muted);
-    }
-
     .title-block {
       max-width: 1080px; margin: 0 auto; padding: 56px 28px 28px;
       border-bottom: 1px solid var(--border);
@@ -193,14 +182,6 @@
     }
     .gallery-grid img:hover { filter: none; cursor: zoom-in; }
 
-    .photo-placeholder {
-      padding: 28px; background: var(--surface);
-      font-family: var(--mono); font-size: 11px; letter-spacing: 0.18em;
-      text-transform: uppercase; color: var(--fg-muted);
-      border: 1px dashed var(--border);
-      text-align: center;
-    }
-
     /* lightbox */
     #lb { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.92);
       z-index:1000; align-items:center; justify-content:center; }
@@ -265,10 +246,7 @@
     <span>vojta@konopa</span>
   </div>
 
-  <!-- hero placeholder — replace with actual photo when ready -->
-  <div class="hero-placeholder">
-    <span>// photo pending</span>
-  </div>
+  <div class="hero" style="background-image:url('./images/baltic_2023/balt_0360_06.07.2023_web.jpg'); background-position: center;"></div>
 
   <div class="title-block">
     <div class="label-row">
@@ -344,25 +322,20 @@
         <text x="275" y="544" font-family="'JetBrains Mono',monospace" font-size="9"
               fill="var(--fg)" filter="url(#lbl-bg)">Energylandia</text>
 
-        <!-- P16 Grodziec cement works -->
-        <circle cx="250" cy="522" r="5" fill="var(--accent)" stroke="var(--bg)" stroke-width="1.5"/>
-        <text x="242" y="518" font-family="'JetBrains Mono',monospace" font-size="9"
-              fill="var(--fg)" filter="url(#lbl-bg)" text-anchor="end">Grodziec Cement Works</text>
-
         <!-- P9 EC2 Łódź -->
         <circle cx="269" cy="452" r="5" fill="var(--accent)" stroke="var(--bg)" stroke-width="1.5"/>
         <text x="277" y="449" font-family="'JetBrains Mono',monospace" font-size="9"
               fill="var(--fg)" filter="url(#lbl-bg)">EC2 Łódź</text>
 
-        <!-- P5 Shipwreck -->
+        <!-- P5 opuštěná loď -->
         <circle cx="222" cy="311" r="5" fill="var(--accent)" stroke="var(--bg)" stroke-width="1.5"/>
         <text x="214" y="307" font-family="'JetBrains Mono',monospace" font-size="9"
-              fill="var(--fg)" filter="url(#lbl-bg)" text-anchor="end">Shipwreck</text>
+              fill="var(--fg)" filter="url(#lbl-bg)" text-anchor="end">The ship</text>
 
         <!-- P1 Wolf's Lair vicinity -->
         <circle cx="376" cy="334" r="5" fill="var(--accent)" stroke="var(--bg)" stroke-width="1.5"/>
         <text x="384" y="330" font-family="'JetBrains Mono',monospace" font-size="9"
-              fill="var(--fg)" filter="url(#lbl-bg)">Wolf's Lair area</text>
+              fill="var(--fg)" filter="url(#lbl-bg)">Wolf's Lair</text>
 
         <!-- LITHUANIA dots -->
         <!-- LI1 Curonian Spit -->
@@ -432,14 +405,6 @@
       what came next: concrete and rust. The largest amusement park in Poland.
     </p>
 
-    <h3>Grodziec Cement Works</h3>
-    <span class="location-tag">Będzin · Upper Silesia · PL</span>
-    <p>
-      Nieczynna Cementownia „Grodziec" — a decommissioned cement plant in Silesia.
-      <strong>Monumental industrial architecture</strong>, idle since the 1980s. Giant rotary
-      kilns, dust-coated corridors, views across the Silesian industrial basin.
-    </p>
-
     <h3>EC2 — abandoned heating plant</h3>
     <span class="location-tag">Łódź · PL</span>
     <p>
@@ -448,20 +413,35 @@
       Part of the complex has been converted to a museum; the rest is still waiting.
     </p>
 
-    <h3>Soviet shipwreck</h3>
+    <h3>The abandoned ship</h3>
     <span class="location-tag">Gulf of Gdańsk · PL</span>
     <p>
-      Along the shore of the Gulf of Gdańsk a number of <strong>shipwrecks</strong> sit in
-      the shallows — remnants of Soviet and German naval presence. Rusted hulls breaking
-      the surface at low tide.
+      A cargo ship left where she was laid up, and still furnished: bunks made up,
+      Russian books on the shelves, photographs pinned above a desk, plates left on a
+      mess table. The damage control plan on the bridge names her <strong>m/v
+      Khatanga</strong>. Down in the engine room the tools still hang in their outlines
+      on the workshop wall; on deck, the sun comes up over the cranes of the port.
     </p>
 
-    <h3>Wolf's Lair area — Soviet military site</h3>
-    <span class="location-tag">Kaliningrad border region · PL/RU</span>
+    <h3>Torpedownia — torpedo testing station</h3>
+    <span class="location-tag">Babie Doły · Gdynia · PL</span>
     <p>
-      Around the Kaliningrad enclave, fragments of Soviet military infrastructure linger
-      in the forest. <strong>Underground bunkers, abandoned barracks</strong>, barbed wire,
-      Cyrillic stencils on the walls — as if time stopped sometime in the 1990s.
+      A concrete block standing <strong>three hundred metres out in the sea</strong>, built
+      on sunken caissons in 1942 as a Luftwaffe torpedo testing station and used until the
+      Germans left in 1945. The Soviets later trained divers here; since then nobody has
+      maintained it and the sea has been taking it apart.
+    </p>
+
+    <h3>Wolf's Lair</h3>
+    <span class="location-tag">Gierłoż · Kętrzyn · PL</span>
+    <p>
+      Hitler's field headquarters in the Masurian woods, in use from 1941 to 1944 — and the
+      place where <strong>Stauffenberg's bomb went off on 20 July 1944</strong>. The
+      briefing had been moved that day out of a reinforced bunker into a light wooden
+      barrack, which is why Hitler walked away from it. Before they left in January 1945
+      the Germans mined the whole complex; the charges lifted the bunkers and cracked them
+      open without pulverising them, so what stands in the forest today are split concrete
+      blocks the size of houses.
     </p>
 
     <h2>// LITHUANIA — CROSSES, DUNES, SOVIET ARCHITECTURE</h2>
@@ -490,14 +470,6 @@
       Lithuania's second city — an interwar capital, now a living city with brutalist Soviet
       blocks sitting next to Art Deco and Baroque. The <strong>Ninth Fort</strong>, a site
       of mass executions during the Second World War, sits on the outskirts.
-    </p>
-
-    <h3>Sporto rūmai — sports palace</h3>
-    <span class="location-tag">Vilnius · LT</span>
-    <p>
-      A Soviet sports palace in Vilnius from 1971. <strong>A vast concrete hall</strong>
-      with its characteristic cantilevered roof and Soviet-era detailing. Abandoned, waiting
-      for either restoration or demolition.
     </p>
 
     <h2>// LATVIA — KAROSTA AND THE RIGA CORNER HOUSE</h2>
@@ -532,13 +504,14 @@
       lake</strong>, a favourite spot for divers and photographers.
     </p>
 
-    <h3>Patarei — Communism is Prison</h3>
-    <span class="location-tag">Tallinn · EE</span>
+    <h3>Omedu — the kolkhoz roe plant</h3>
+    <span class="location-tag">Omedu · EE</span>
     <p>
-      A 19th-century sea fortress repurposed as a prison — operational from tsarist times
-      through German occupation and the Soviet era, with the last inmates released in 2004.
-      Today it houses the exhibition <strong>„Kommunism on vangla"</strong> (Communism is
-      Prison). Peeling plaster, rusted bars, interrogation records pasted onto the walls.
+      The roe-processing shop of the Kirov fishing kolkhoz, on the western shore of Lake
+      Peipus. A chimney, two enormous tanks and a long low block that looks more like a
+      village school than a factory. <strong>Nothing is left inside</strong> — whatever
+      the plant once handled is long gone, and the site is now plainly used as an airsoft
+      ground. Vaulted corridors, graffiti, a red eagle painted across a doorway.
     </p>
 
     <h3>Jägala Waterfall</h3>
@@ -550,15 +523,265 @@
       home.
     </p>
 
+    <h3>Lennusadam — the Seaplane Harbour</h3>
+    <span class="location-tag">Tallinn · EE</span>
+    <p>
+      The Estonian Maritime Museum, in the seaplane hangars right on the waterfront. Inside
+      stands <strong>the submarine Lembit</strong>, built for the Estonian navy by
+      Vickers-Armstrong in 1936 and kept as she was in the 1930s; out at the quay lies the
+      steam icebreaker Suur Tõll, the largest pre-war icebreaker left anywhere. The last
+      stop before the old town, and the only place on this trip where the ships were meant
+      to be boarded.
+    </p>
+
   </article>
 
-  <!-- GALLERY PLACEHOLDER — add photos once curated -->
   <section class="gallery-section">
-    <div class="day-heading">
-      <b>// photos</b> — coming soon
+    <h3 class="day-heading">// <b>Poland</b> · Wilhelm's palace · 2 Jul</h3>
+    <div class="gallery-grid">
+      <img src="./images/baltic_2023/balt_0001_02.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0007_02.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0008_02.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0009_02.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0014_02.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0017_02.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0021_02.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0024_02.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0028_02.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0033_02.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0035_02.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0036_02.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0039_02.07.2023_web.jpg" alt="" loading="lazy">
     </div>
-    <div class="photo-placeholder">
-      photographs will be added
+
+    <h3 class="day-heading">// <b>Poland</b> · EC2 power plant · 3 Jul</h3>
+    <div class="gallery-grid">
+      <img src="./images/baltic_2023/balt_0040_03.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0043_03.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0049_03.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0054_03.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0055_03.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0056_03.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0057_03.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0061_03.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0063_03.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0066_03.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0069_03.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0071_03.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0075_03.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0080_03.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0084_03.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0090_03.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0099_03.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0104_03.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0105_03.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0108_03.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0110_03.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0113_03.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0115_03.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0116_03.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0122_03.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0125_03.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0130_03.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0131_03.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0132_03.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0136_03.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/T_PHOTO-2023-07-05-05-37-23_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/T_PHOTO-2023-07-05-05-37-24_web.jpg" alt="" loading="lazy">
+    </div>
+
+    <h3 class="day-heading">// <b>Poland</b> · Westerplatte &amp; Torpedownia · 4 Jul</h3>
+    <div class="gallery-grid">
+      <img src="./images/baltic_2023/balt_0143_04.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0145_04.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0147_04.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/T_PHOTO-2023-07-04-20-26-40_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/T_PHOTO-2023-07-04-20-26-40 2_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/T_PHOTO-2023-07-04-20-26-41_web.jpg" alt="" loading="lazy">
+    </div>
+
+    <h3 class="day-heading">// <b>Poland</b> · the ship wreck · 5 Jul</h3>
+    <div class="gallery-grid">
+      <img src="./images/baltic_2023/balt_0155_05.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0160_05.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0165_05.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0175_05.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0179_05.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0183_05.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0192_05.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0195_05.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0197_05.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0206_05.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0208_05.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0232_05.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0239_05.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0240_05.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0250_05.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0252_05.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0258_05.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0260_05.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0266_05.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0270_05.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0273_05.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0276_05.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0277_05.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0280_05.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0284_05.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0288_05.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/T_PHOTO-2023-07-05-05-35-32 2_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/T_PHOTO-2023-07-05-05-35-57 2_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/T_PHOTO-2023-07-05-05-35-57 3_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/T_PHOTO-2023-07-05-05-35-57_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/T_PHOTO-2023-07-05-05-35-55_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/T_PHOTO-2023-07-05-05-37-00 2_web.jpg" alt="" loading="lazy">
+    </div>
+
+    <h3 class="day-heading">// <b>Poland</b> · Wolf's Lair · 5 Jul</h3>
+    <div class="gallery-grid">
+      <img src="./images/baltic_2023/balt_0293_05.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0295_05.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0300_05.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0305_05.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0306_05.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0311_05.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0317_05.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0319_05.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0324_05.07.2023_web.jpg" alt="" loading="lazy">
+    </div>
+
+    <h3 class="day-heading">// <b>Lithuania</b> · migrating dunes · 6 Jul</h3>
+    <div class="gallery-grid">
+      <img src="./images/baltic_2023/balt_0333_06.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0338_06.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0339_06.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0340_06.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0341_06.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0344_06.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0349_06.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0350_06.07.2023_web.jpg" alt="" loading="lazy">
+    </div>
+
+    <h3 class="day-heading">// <b>Latvia</b> · Karosta batteries · 6–7 Jul</h3>
+    <div class="gallery-grid">
+      <img src="./images/baltic_2023/balt_0354_06.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0357_06.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0360_06.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0361_06.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0363_06.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0367_06.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0371_06.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0378_06.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0379_06.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0381_06.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0386_06.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0387_06.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0390_06.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0393_06.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0397_06.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0398_06.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0399_06.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0407_06.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/T_PHOTO-2023-07-06-19-47-01_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/T_PHOTO-2023-07-06-23-33-30 2_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/T_PHOTO-2023-07-07-13-31-26 2_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/T_PHOTO-2023-07-07-20-46-12 2_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/T_PHOTO-2023-07-07-20-46-18_web.jpg" alt="" loading="lazy">
+    </div>
+
+    <h3 class="day-heading">// <b>Latvia</b> · Riga · 7–8 Jul</h3>
+    <div class="gallery-grid">
+      <img src="./images/baltic_2023/T_PHOTO-2023-07-08-10-05-50 3_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/T_PHOTO-2023-07-08-11-10-44 2_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/T_PHOTO-2023-07-08-11-10-22 2_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/T_PHOTO-2023-07-08-11-10-22_web.jpg" alt="" loading="lazy">
+    </div>
+
+    <h3 class="day-heading">// <b>Estonia</b> · Rummu prison &amp; quarry · 9 Jul</h3>
+    <div class="gallery-grid">
+      <img src="./images/baltic_2023/balt_0411_09.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0419_09.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0420_09.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0421_09.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0423_09.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0424_09.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0428_09.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0429_09.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0431_09.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0440_09.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0445_09.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0449_09.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0456_09.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0461_09.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0464_09.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0465_09.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0470_09.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0472_09.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0473_09.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0474_09.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0476_09.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0478_09.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0481_09.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0491_09.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0492_09.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0496_09.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/T_PHOTO-2023-07-09-10-54-49_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/T_PHOTO-2023-07-09-18-24-38_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/T_PHOTO-2023-07-10-21-42-17_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/T_PHOTO-2023-07-10-21-42-20_web.jpg" alt="" loading="lazy">
+    </div>
+
+    <h3 class="day-heading">// <b>Estonia</b> · Jägala, Omedu &amp; Tallinn · 10 Jul</h3>
+    <div class="gallery-grid">
+      <img src="./images/baltic_2023/balt_0498_10.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0501_10.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0505_10.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0506_10.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0509_10.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0511_10.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0513_10.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0517_10.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0519_10.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0523_10.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0525_10.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0526_10.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0528_10.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0529_10.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0535_10.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/T_PHOTO-2023-07-10-21-42-21 3_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/T_PHOTO-2023-07-10-21-46-27 2_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/T_PHOTO-2023-07-10-21-50-22_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/T_PHOTO-2023-07-10-21-42-21_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/T_PHOTO-2023-07-10-11-30-24 2_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/T_PHOTO-2023-07-10-14-13-13_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/T_PHOTO-2023-07-10-21-42-21 4_web.jpg" alt="" loading="lazy">
+    </div>
+
+    <h3 class="day-heading">// <b>Lithuania</b> · Hill of Crosses · 11 Jul</h3>
+    <div class="gallery-grid">
+      <img src="./images/baltic_2023/balt_0536_11.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0537_11.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0539_11.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0541_11.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0543_11.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0544_11.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0545_11.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0547_11.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0549_11.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0552_11.07.2023_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/balt_0554_11.07.2023_web.jpg" alt="" loading="lazy">
+    </div>
+
+    <h3 class="day-heading">// <b>film</b> · Mojmír's roll · no dates on the negatives</h3>
+    <div class="gallery-grid">
+      <img src="./images/baltic_2023/M_000265650002_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/M_000265650004_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/M_000265650006_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/M_000265650007_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/M_000265650008_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/M_000265650010_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/M_000265650011_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/M_000265650012_web.jpg" alt="" loading="lazy">
+      <img src="./images/baltic_2023/M_000265650014_web.jpg" alt="" loading="lazy">
     </div>
   </section>
 

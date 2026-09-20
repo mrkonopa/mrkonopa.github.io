@@ -121,6 +121,12 @@
     if (!lb.classList.contains('open')) return;
     if (e.key === 'ArrowLeft') { e.preventDefault(); ukaz(idx - 1); }
     else if (e.key === 'ArrowRight') { e.preventDefault(); ukaz(idx + 1); }
+    /* Escape zavírá i odtud. Šest zápisků ze sedmi si ho obsluhuje samo,
+       baltic-2023 ne — tedy přesně ten vzorec „sedm z osmi", na který
+       tenhle web opakovaně doplácí. Odebrání třídy je nezávadné i tam,
+       kde si ji stránka odebrala sama; nic jiného zavření nedělá
+       (`closeLb` navíc jen maže `src`, což hlídá pozorovatel níž). */
+    else if (e.key === 'Escape') lb.classList.remove('open');
   });
 
   /* ── kde zrovna jsme ─────────────────────────────────────────────────

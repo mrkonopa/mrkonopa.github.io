@@ -26,12 +26,14 @@ const ROOT = path.join(__dirname, '..');
 const EXEC = '/opt/pw-browsers/chromium-1194/chrome-linux/chrome';
 const MIME = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.png': 'image/png', '.jpg': 'image/jpeg', '.svg': 'image/svg+xml' };
 
-/* Zápisky, které mají fotky. `baltic-2023` tu schválně NENÍ — zatím
-   žádné nemá (je v něm jen místo pro ně), takže by se neměl co přepínat.
-   Až fotky přibudou, přidej ho sem; prázdný seznam by byl horší než
-   jmenovitá výjimka. */
-const STRANKY = ['ukraine-2017', 'cr-bh-2018', 'romania-2019', 'italy-2022', 'yugoslavia-2020', 'spain-france-2021'];
-const BEZ_FOTEK = ['baltic-2023'];
+/* Seznam zápisků se bere ze SDÍLENÉHO `stranky.cjs`, ne z ruční kopie —
+   ta se v tomhle repozitáři rozešla čtyřikrát a pokaždé o ní nikdo
+   nevěděl. Zápisek bez fotek musí být vyjmenovaný i s důvodem a musí
+   existovat: neexistující výjimka test shodí, aby seznam nehnil. */
+const ZAPISKY = require('./stranky.cjs').STRANKY
+  .filter(p => p.id.startsWith('t-')).map(p => p.id.slice(2));
+const BEZ_FOTEK = {};   // např. 'baltic-2023': 'fotky se teprve vybírají'
+const STRANKY = ZAPISKY.filter(u => !(u in BEZ_FOTEK));
 
 let pass = 0, fail = 0;
 const ok = (c, m, d = '') => { c ? pass++ : (fail++, console.log('  ❌ ' + m + (d ? ' — ' + d : ''))); };
@@ -63,6 +65,13 @@ const ZKOUSKA = async () => {
   const bp = document.getElementById('lb-prev'), bn = document.getElementById('lb-next');
   if (!bp || !bn) return { chyba: 'chybí tlačítka na přepínání' };
 
+  /* Rozměr se MUSÍ měřit až na načtené fotce. Dokud se nenačte, má
+     `#lb-img` skoro nulovou šířku, zatímco tlačítka už svou polovinu
+     plátna mají — a kontrola „další je na pravé polovině" pak hlásí
+     vadu na stránce, která je v pořádku (naměřeno na italy-2022:
+     spadlo 1 běh ze dvou, podruhé prošlo beze změny kódu). */
+  for (let i = 0; i < 60 && !(img.complete && img.naturalWidth > 0); i++) await spi(50);
+  await spi(50);
   const ram = img.getBoundingClientRect();
   const rn = bn.getBoundingClientRect(), rp = bp.getBoundingClientRect();
 
@@ -131,7 +140,8 @@ const ZKOUSKA = async () => {
 
     /* Zápisek bez fotek se nemá co přepínat — ale musí se aspoň načíst
        bez chyby, jinak by se rozbitý modul schoval za „nic tu není". */
-    for (const s of BEZ_FOTEK) {
+    for (const [s, duvod] of Object.entries(BEZ_FOTEK)) {
+      ok(ZAPISKY.includes(s), `výjimka „${s}" míří na existující zápisek`, duvod);
       const ctx = await browser.newContext({ viewport: { width: 1200, height: 900 } });
       await ctx.route('**/*', r => r.request().url().startsWith(base) ? r.continue() : r.abort());
       const page = await ctx.newPage();
