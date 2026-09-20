@@ -89,6 +89,17 @@ def orez_obdelnikem(body, bbox):
     return body
 
 
+# Názvy států NEJSOU popisky zastávek. Bez tohohle seznamu se spárovaly
+# s nejbližším bodem a na mapě pak stálo „ESTONIA / Rummu" nebo
+# „LITHUANIA / Wolf's Lair" — přičemž Vlčí doupě je v Polsku. Nové mapy
+# kreslí obrysy států, takže se jejich názvy nevykreslují vůbec.
+NAZVY_ZEMI = {'POLAND', 'LITHUANIA', 'LATVIA', 'ESTONIA', 'GERMANY', 'CZECHIA',
+              'SLOVAKIA', 'AUSTRIA', 'ITALY', 'CROATIA', 'SLOVENIA', 'HUNGARY',
+              'SERBIA', 'ROMANIA', 'BULGARIA', 'GREECE', 'ALBANIA', 'KOSOVO',
+              'MONTENEGRO', 'BOSNIA', 'NORTH MACEDONIA', 'FRANCE', 'SPAIN',
+              'UKRAINE', 'BELARUS', 'RUSSIA', 'SWEDEN', 'FINLAND', 'DENMARK'}
+
+
 def popisky(telo, puvodni):
     """Spáruje <text> se stopou podle nejbližšího bodu ve starých souřadnicích.
     Rozlišuje hlavní a doplňkový řádek podle velikosti písma — v původních
@@ -96,7 +107,7 @@ def popisky(telo, puvodni):
     vsechny = []
     for m in re.finditer(r'<text\b([^>]*)>(.*?)</text>', telo, re.S):
         atr, text = m.group(1), re.sub(r'<[^>]+>', '', m.group(2)).strip()
-        if not text: continue
+        if not text or text.strip().upper() in NAZVY_ZEMI: continue
         sx = re.search(r'\sx="([-\d.]+)"', atr); sy = re.search(r'\sy="([-\d.]+)"', atr)
         if not (sx and sy): continue
         fs = re.search(r'font-size="([\d.]+)"', atr)
@@ -155,7 +166,7 @@ def stara_mapa(zapisek):
 
 
 def vyrob(zapisek, kotvy, sirka=300, okraj=10, tol_trasa=0.35, tol_podklad=0.45,
-          bez_druheho=()):
+          bez_druheho=(), bez_zastavek=()):
     telo = stara_mapa(zapisek)
 
     puvodni = [(float(m.group(1)), float(m.group(2)), m.group(3).strip()) for m in
@@ -240,12 +251,15 @@ def vyrob(zapisek, kotvy, sirka=300, okraj=10, tol_trasa=0.35, tol_podklad=0.45,
         'zplosteniPredtim': round(zplost, 2), 'odchylkaKotev': round(odch, 2),
         'podklad': zeme,
         'trasy': [' '.join(f'{x:.1f},{y:.1f}' for x, y in t) for t in trasy],
+        # `bez_zastavek`: místa, kam se nakonec nejelo. Zůstat tam nesmí —
+        # mapa by tvrdila něco jiného než článek (Sporto rūmai ve Vilniusu).
         'zastavky': [{'x': round(P(lo, la)[0], 1), 'y': round(P(lo, la)[1], 1),
                       'hlavni': pop.get(i, {}).get('hlavni', ''),
                       'druhy': ('' if pop.get(i, {}).get('hlavni', '') in bez_druheho
                                 else pop.get(i, {}).get('druhy', '')),
                       'zacatek': 'start' in p.lower()}
-                     for i, (la, lo, p) in enumerate(zast_geo)],
+                     for i, (la, lo, p) in enumerate(zast_geo)
+                     if pop.get(i, {}).get('hlavni', '') not in bez_zastavek],
     }
 
 def kotvy_z_kmz(cesta):
@@ -278,7 +292,7 @@ if __name__ == '__main__':
     # ── Balt: kotvy přímo z KMZ, se kterým se mapa kreslila ───────────
     KMZ = '/tmp/claude-0/-home-user-mrkonopa-github-io/bb6c9958-601f-50e9-b037-8b2b3a7ac6a9/scratchpad/baltic/mapa.json'
     if Path(KMZ).exists():
-        d = vyrob('baltic-2023', kotvy_z_kmz(KMZ))
+        d = vyrob('baltic-2023', kotvy_z_kmz(KMZ), bez_zastavek=('Vilnius',))
         d['popis'] = 'Mapa trasy: Polsko, Litva, Lotyšsko a Estonsko'
         (ven / 'baltic-2023.js').write_text(
             '/* Data mapy trasy — vyrobil tools/mapy/gen.py, needituj ručně. */\n'
