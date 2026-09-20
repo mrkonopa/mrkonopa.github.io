@@ -117,6 +117,13 @@
       overflow: hidden;
     }
     .route-svg-wrap svg { display: block; width: 100%; height: auto; }
+    /* Profil je 1060 jednotek široký. Na telefonu se roztáhne na 338 px,
+       takže by popisky vyšly na 2,6 px — nečitelné. Radši se posouvá,
+       než aby se zmenšil do nesmyslu nebo se ořezal. */
+    @media (max-width: 760px) {
+      .route-svg-wrap { overflow-x: auto; overflow-y: hidden; }
+      .route-svg-wrap svg { min-width: 860px; }
+    }
 
     #route-path {
       fill: none;
@@ -139,7 +146,7 @@
       to   { opacity: 1; transform: scale(1); }
     }
     .peak-label {
-      font-family: var(--mono); font-size: 11px;
+      font-family: var(--mono); font-size: 12px;
       letter-spacing: 0.08em; text-transform: uppercase;
       fill: var(--fg-dim); opacity: 0;
     }
@@ -148,7 +155,7 @@
     .peak-label.animate { animation: fade-in .4s ease forwards; }
     @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
     .endpoint-label {
-      font-family: var(--mono); font-size: 11px;
+      font-family: var(--mono); font-size: 12px;
       letter-spacing: 0.15em; text-transform: uppercase;
       fill: var(--fg); opacity: 0;
     }
@@ -320,10 +327,10 @@
         <line x1="20" y1="172" x2="940" y2="172" stroke="#2d2d2d" stroke-width="1"/>
 
         <!-- elevation labels — x=948 fits in viewBox width 1060 -->
-        <text x="948" y="41"  font-family="'JetBrains Mono',monospace" font-size="9" fill="#555" text-anchor="start">2500 m</text>
-        <text x="948" y="86"  font-family="'JetBrains Mono',monospace" font-size="9" fill="#555" text-anchor="start">2000 m</text>
-        <text x="948" y="130" font-family="'JetBrains Mono',monospace" font-size="9" fill="#555" text-anchor="start">1500 m</text>
-        <text x="948" y="175" font-family="'JetBrains Mono',monospace" font-size="9" fill="#555" text-anchor="start">1000 m</text>
+        <text x="948" y="41"  font-family="'JetBrains Mono',monospace" font-size="10" fill="#555" text-anchor="start">2500 m</text>
+        <text x="948" y="86"  font-family="'JetBrains Mono',monospace" font-size="10" fill="#555" text-anchor="start">2000 m</text>
+        <text x="948" y="130" font-family="'JetBrains Mono',monospace" font-size="10" fill="#555" text-anchor="start">1500 m</text>
+        <text x="948" y="175" font-family="'JetBrains Mono',monospace" font-size="10" fill="#555" text-anchor="start">1000 m</text>
 
         <!-- route line — exact GPX polyline -->
         <polyline id="route-path"
@@ -332,7 +339,7 @@
 
         <!-- START: Avrig -->
         <circle class="endpoint-dot" id="dot-start" cx="20" cy="212.6" r="4"/>
-        <text class="endpoint-label start" id="lbl-start" x="20" y="244" text-anchor="middle" filter="url(#txt-bg)">Avrig</text>
+        <text class="endpoint-label start" id="lbl-start" x="26" y="244" text-anchor="middle" filter="url(#txt-bg)">Avrig</text>
 
         <!-- END: Victoria — cx=940 so text fits fully inside viewBox -->
         <circle class="endpoint-dot" id="dot-end" cx="940" cy="201" r="4"/>
@@ -341,34 +348,38 @@
         <!-- ESPEZI area — western high point (km ~16.8, GPX ele ~2280m) -->
         <!-- Espezi summit 2522m is 570m from track; labelled as nearest major peak -->
         <circle class="peak-dot" id="dot-espezi" cx="332" cy="61.7" r="3"/>
+        <!-- Rozestup jmen a výšek je 18 jednotek: naměřený rámeček popisku má
+             14,5 (u „Câb. Podragu" 15,6 kvůli diakritice), takže 14 nestačilo. -->
         <text class="peak-label peak-top" id="lbl-espezi"  x="332" y="49" text-anchor="middle" filter="url(#txt-bg)">Espezi</text>
-        <text class="peak-label"          id="lbl-espezi2" x="332" y="35" text-anchor="middle" filter="url(#txt-bg)">2522 m</text>
+        <text class="peak-label"          id="lbl-espezi2" x="332" y="31" text-anchor="middle" filter="url(#txt-bg)">2522 m</text>
 
         <!-- NEGOIU — km 28.6, summit 2535m is 1.4km from track -->
         <circle class="peak-dot" id="dot-negoiu" cx="526" cy="70.6" r="3"/>
         <text class="peak-label peak-top" id="lbl-negoiu"  x="514" y="55" text-anchor="end" filter="url(#txt-bg)">Negoiu</text>
-        <text class="peak-label"          id="lbl-negoiu2" x="514" y="41" text-anchor="end" filter="url(#txt-bg)">2535 m</text>
+        <text class="peak-label"          id="lbl-negoiu2" x="514" y="37" text-anchor="end" filter="url(#txt-bg)">2535 m</text>
 
         <!-- CABANA PODRAGU hut — km 29.8, 2136m -->
         <rect class="peak-dot" id="dot-podragu" x="543" y="67" width="6" height="6" rx="1"/>
         <text class="peak-label" id="lbl-podragu"  x="555" y="55" text-anchor="start" filter="url(#txt-bg)">Câb. Podragu</text>
-        <text class="peak-label" id="lbl-podragu2" x="555" y="41" text-anchor="start" filter="url(#txt-bg)">2136 m</text>
+        <text class="peak-label" id="lbl-podragu2" x="555" y="37" text-anchor="start" filter="url(#txt-bg)">2136 m</text>
 
         <!-- MOLDOVEANU 2544m — highest in Romania, km 40.1 -->
         <circle class="peak-dot" id="dot-moldo" cx="729" cy="52.9" r="5"/>
-        <line id="moldo-tick" x1="729" y1="32" x2="729" y2="47" stroke="#f5b800" stroke-width="1.5" opacity="0"/>
-        <text class="peak-label peak-highest" id="lbl-moldo"  x="729" y="28" text-anchor="middle" filter="url(#txt-bg)">Moldoveanu</text>
+        <!-- Moldoveanu se odsadit nahoru nedá (výška 2544 m je u stropu plátna),
+             takže dolů jde jméno a spojnice se o ty 4 jednotky zkrátí. -->
+        <line id="moldo-tick" x1="729" y1="36" x2="729" y2="47" stroke="#f5b800" stroke-width="1.5" opacity="0"/>
+        <text class="peak-label peak-highest" id="lbl-moldo"  x="729" y="32" text-anchor="middle" filter="url(#txt-bg)">Moldoveanu</text>
         <text class="peak-label peak-highest" id="lbl-moldo2" x="729" y="14" text-anchor="middle" filter="url(#txt-bg)">2544 m ▲</text>
 
         <!-- day dividers at approximate day boundaries -->
         <line id="day2-tick" x1="214" y1="215" x2="214" y2="227" stroke="#444" stroke-width="1" opacity="0"/>
-        <text id="day2-lbl" x="214" y="241" font-family="'JetBrains Mono',monospace" font-size="8" fill="#555" text-anchor="middle" opacity="0">DAY 2</text>
+        <text id="day2-lbl" x="214" y="241" font-family="'JetBrains Mono',monospace" font-size="10" fill="#555" text-anchor="middle" opacity="0">DAY 2</text>
         <line id="day3-tick" x1="409" y1="215" x2="409" y2="227" stroke="#444" stroke-width="1" opacity="0"/>
-        <text id="day3-lbl" x="409" y="241" font-family="'JetBrains Mono',monospace" font-size="8" fill="#555" text-anchor="middle" opacity="0">DAY 3</text>
+        <text id="day3-lbl" x="409" y="241" font-family="'JetBrains Mono',monospace" font-size="10" fill="#555" text-anchor="middle" opacity="0">DAY 3</text>
         <line id="day4-tick" x1="550" y1="215" x2="550" y2="227" stroke="#444" stroke-width="1" opacity="0"/>
-        <text id="day4-lbl" x="550" y="241" font-family="'JetBrains Mono',monospace" font-size="8" fill="#555" text-anchor="middle" opacity="0">DAY 4</text>
+        <text id="day4-lbl" x="550" y="241" font-family="'JetBrains Mono',monospace" font-size="10" fill="#555" text-anchor="middle" opacity="0">DAY 4</text>
         <line id="day5-tick" x1="692" y1="215" x2="692" y2="227" stroke="#444" stroke-width="1" opacity="0"/>
-        <text id="day5-lbl" x="692" y="241" font-family="'JetBrains Mono',monospace" font-size="8" fill="#555" text-anchor="middle" opacity="0">DAY 5</text>
+        <text id="day5-lbl" x="692" y="241" font-family="'JetBrains Mono',monospace" font-size="10" fill="#555" text-anchor="middle" opacity="0">DAY 5</text>
 
       </svg>
     </div>

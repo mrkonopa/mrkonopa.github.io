@@ -38,9 +38,15 @@ const STARA_MAPA = {
   'ukraine-2017': 'jen úsečky mezi zastávkami, čeká na GPX záznam',
   'cr-bh-2018': 'jen úsečky mezi zastávkami, čeká na GPX záznam',
   'yugoslavia-2020': 'jen úsečky mezi zastávkami, čeká na GPX záznam',
-  /* Rumunsko NENÍ mapa, ale VÝŠKOVÝ PROFIL hřebenovky (osa 1000–2500 m,
-     Negoiu 2535, Moldoveanu 2544, značky dnů). Na geografickou mapu se
-     převádět nemá — jeho vady se opraví na místě. */
+};
+
+/* Rumunsko NENÍ mapa, ale VÝŠKOVÝ PROFIL hřebenovky (osa 1000–2500 m,
+   Negoiu 2535, Moldoveanu 2544, značky dnů) — na geografickou mapu se
+   převádět nemá. Kontroly POPISKŮ na něj ale PLATÍ v plné síle: jeho vady
+   („Avrig" mimo plátno, překryv jmen s výškami, písmo 2,6 px na mobilu) se
+   opravily na místě a nesmí se tiše vrátit. Přeskakují se jen kontroly
+   „je to převedená mapa" (sdílený modul, hustota trasy). */
+const PROFIL = {
   'romania-2019': 'výškový profil hřebenovky, ne mapa trasy',
 };
 
@@ -115,8 +121,9 @@ const ZMER = () => {
   const browser = await chromium.launch({ headless: true, executablePath: EXEC });
   let promereno = 0;
   try {
-    for (const zla of Object.keys(STARA_MAPA)) {
-      ok(ZAPISKY.includes(zla), `výjimka „${zla}" míří na existující zápisek`, STARA_MAPA[zla]);
+    for (const zla of [...Object.keys(STARA_MAPA), ...Object.keys(PROFIL)]) {
+      ok(ZAPISKY.includes(zla), `výjimka „${zla}" míří na existující zápisek`,
+        STARA_MAPA[zla] || PROFIL[zla]);
     }
 
     for (const sirka of [1280, 380]) {
@@ -155,8 +162,10 @@ const ZMER = () => {
         ok(r.nejmensiPismo >= PISMO_MIN, `${popis}: nejmenší písmo ≥ ${PISMO_MIN} px`, `naměřeno ${r.nejmensiPismo}`);
 
         /* Převedené zápisky navíc: trasa musí být skutečný záznam, ne
-           pár úseček mezi body, a poměr stran nesmí být zploštělý. */
-        if (sirka === 1280) {
+           pár úseček mezi body, a poměr stran nesmí být zploštělý.
+           Výškový profil tyhle tři kontroly míjí — kreslí se vlastním
+           vloženým SVG a jeho „trasa" je stoupání, ne cesta po mapě. */
+        if (sirka === 1280 && !PROFIL[z]) {
           ok(r.bodyTrasy > 100, `${z}: trasa je záznam, ne úsečky (${r.bodyTrasy} bodů)`);
           const html = fs.readFileSync(path.join(ROOT, 'travels', z + '.html'), 'utf8');
           ok(!/<div class="route-svg-wrap">\s*<svg/.test(html),
