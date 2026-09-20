@@ -123,7 +123,8 @@ def regrese(v, s):
     a = (n * sum(x * y for x, y in zip(v, s)) - sv * ss) / (n * sum(x * x for x in s) - ss * ss)
     return a, (sv - a * ss) / n
 
-def vyrob(zapisek, kotvy, sirka=300, okraj=10, tol_trasa=0.35, tol_podklad=0.45):
+def vyrob(zapisek, kotvy, sirka=300, okraj=10, tol_trasa=0.35, tol_podklad=0.45,
+          bez_druheho=()):
     s = open(f'/home/user/mrkonopa.github.io/travels/{zapisek}.html', encoding='utf-8').read()
     telo = re.search(r'<svg[^>]*viewBox="[^"]+"[^>]*>(.*?)</svg>', s, re.S).group(1)
 
@@ -178,14 +179,36 @@ def vyrob(zapisek, kotvy, sirka=300, okraj=10, tol_trasa=0.35, tol_podklad=0.45)
         spoje.append({'z': najdi(c['x1'], c['y1']), 'do': najdi(c['x2'], c['y2']),
                       'popis': mimo[0] if mimo else ''})
 
+
+    # ── řez trasy tam, kde se PLULO ────────────────────────────────────
+    # Export z mapy.cz je dopočítaná cesta, ne surový GPS záznam: mezi
+    # Palermem a Salernem protáhl plánovač silnici přes Messinu a Kalábrii,
+    # takže mapa tvrdila, že se ze Sicílie jelo zpátky autem. Úsek mezi
+    # zastávkami trajektu se proto z trasy VYŘÍZNE a zobrazí ho čárkovaná
+    # čára spoje. Ověřeno měřením: trasa jinde vede po moři jen dvakrát
+    # po třech bodech, a to je Messinská úžina.
+    zast_body = [P(lo, la) for la, lo, _ in zast_geo]
+    def nejbliz(i):
+        zx, zy = zast_body[i]
+        return min(range(len(trasa)), key=lambda k: (trasa[k][0]-zx)**2 + (trasa[k][1]-zy)**2)
+    rezy = sorted((min(nejbliz(s['z']), nejbliz(s['do'])),
+                   max(nejbliz(s['z']), nejbliz(s['do']))) for s in spoje)
+    trasy, zac = [], 0
+    for a, b in rezy:
+        if a > zac: trasy.append(trasa[zac:a + 1])
+        zac = b
+    trasy.append(trasa[zac:])
+    trasy = [t for t in trasy if len(t) > 1]
+
     return {
         'sirka': round(sirka), 'vyska': round(vyska, 1), 'spoje': spoje,
         'zplosteniPredtim': round(zplost, 2), 'odchylkaKotev': round(odch, 2),
         'podklad': zeme,
-        'trasa': ' '.join(f'{x:.1f},{y:.1f}' for x, y in trasa),
+        'trasy': [' '.join(f'{x:.1f},{y:.1f}' for x, y in t) for t in trasy],
         'zastavky': [{'x': round(P(lo, la)[0], 1), 'y': round(P(lo, la)[1], 1),
                       'hlavni': pop.get(i, {}).get('hlavni', ''),
-                      'druhy': pop.get(i, {}).get('druhy', ''),
+                      'druhy': ('' if pop.get(i, {}).get('hlavni', '') in bez_druheho
+                                else pop.get(i, {}).get('druhy', '')),
                       'zacatek': 'start' in p.lower()}
                      for i, (la, lo, p) in enumerate(zast_geo)],
     }
@@ -194,11 +217,12 @@ if __name__ == '__main__':
     KOTVY_IT = {'CZ start/end': (50.767, 15.056), 'Craco': (40.377, 16.440), 'Etna': (37.751, 14.993),
                 'Agrigento': (37.311, 13.577), 'Palermo': (38.116, 13.361), 'Salerno / Vietri': (40.673, 14.727),
                 'Rome': (41.903, 12.496), "Lago d'Iseo": (45.717, 10.062)}
-    d = vyrob('italy-2022', KOTVY_IT)
+    d = vyrob('italy-2022', KOTVY_IT, bez_druheho=("IT · LAGO D'ISEO",))
     json.dump(d, open(ZDE / 'italy2.json', 'w'), ensure_ascii=False)
     print(f"plátno {d['sirka']} × {d['vyska']}   (dřív zploštělé {d['zplosteniPredtim']}×, "
           f"odchylka kotev {d['odchylkaKotev']} px)")
-    print(f"podklad {len(d['podklad'])} obrysů, trasa {d['trasa'].count(',')} bodů, "
+    print(f"podklad {len(d['podklad'])} obrysů, trasa {sum(t.count(',') for t in d['trasy'])} bodů "
+          f"ve {len(d['trasy'])} úsecích, "
           f"soubor {len(json.dumps(d))//1024} kB")
     bez = [z for z in d['zastavky'] if not z['hlavni']]
     print(f"zastávek {len(d['zastavky'])}, bez popisku {len(bez)}, spojů (trajekt) {len(d['spoje'])}")

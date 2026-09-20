@@ -48,7 +48,7 @@
   opacity: 0.65;
 }
 .mapa-spoj-popis {
-  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
   letter-spacing: 0.12em;
   fill: var(--accent, #f5b800);
   opacity: 0.8;
@@ -66,10 +66,20 @@
 
 /* ── popisky ──────────────────────────────────────────────────────── */
 .mapa-popis text {
-  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
   letter-spacing: 0.1em;
   fill: var(--fg-dim, #a8a8a2);
   dominant-baseline: middle;
+}
+/* Lem kolem písma: obrys v barvě pozadí vykreslený POD výplní. Dřív to
+   dělal filtr `feMorphology`, který text rozmazal. */
+.mapa-popis text,
+.mapa-spoj-popis {
+  paint-order: stroke fill;
+  stroke: var(--bg, #1c1c1c);
+  stroke-width: 2.6px;
+  stroke-linejoin: round;
+  text-rendering: geometricPrecision;
 }
 .mapa-popis--start text {
   fill: var(--accent, #f5b800);

@@ -611,6 +611,15 @@
       PL:[7], LT:[7], LV:[7], EE:[7],
     };
 
+    /* Zvýraznění navštívených zemí se ODVOZUJE ze seznamu cest, nepíše se
+       do značek ručně. Ručně to bylo do teď a rozešlo se: Balt byl v TRIPS
+       i v COUNTRY_TRIPS, ale PL, LT, LV a EE neměly na mapě třídu `visited`,
+       takže se čtyři země nezvýraznily a nešly rozkliknout. */
+    Object.keys(COUNTRY_TRIPS).forEach(kod => {
+      const zeme = document.querySelector('#europe-map .country[data-code="' + kod + '"]');
+      if (zeme) zeme.classList.add('visited');
+    });
+
     const tt        = document.getElementById('map-tt');
     const ttCountry = document.getElementById('tt-country');
     const ttTrips   = document.getElementById('tt-trips');
