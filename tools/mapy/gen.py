@@ -165,8 +165,68 @@ def stara_mapa(zapisek):
     return m.group(1)
 
 
+def rdp_iter(body, tol):
+    """Douglas–Peucker bez rekurze.
+
+    Ten rekurzivní výš stačí na obrysy států a na trasy vytažené ze staré
+    mapy (stovky bodů). Surový GPX má ale 111 126 bodů, a tam by rekurze
+    sáhla hluboko pod `sys.setrecursionlimit`. Výsledek je totožný.
+    """
+    if len(body) < 3: return body
+    drzet = [False] * len(body); drzet[0] = drzet[-1] = True
+    zasob = [(0, len(body) - 1)]
+    while zasob:
+        a, b = zasob.pop()
+        if b <= a + 1: continue
+        (x1, y1), (x2, y2) = body[a], body[b]
+        dx, dy = x2 - x1, y2 - y1
+        nej, idx = 0.0, a
+        for i in range(a + 1, b):
+            x, y = body[i]
+            if dx == dy == 0: d = math.hypot(x - x1, y - y1)
+            else:
+                t = max(0, min(1, ((x - x1) * dx + (y - y1) * dy) / (dx * dx + dy * dy)))
+                d = math.hypot(x - (x1 + t * dx), y - (y1 + t * dy))
+            if d > nej: nej, idx = d, i
+        if nej > tol:
+            drzet[idx] = True
+            zasob.append((a, idx)); zasob.append((idx, b))
+    return [p for p, k in zip(body, drzet) if k]
+
+
+def trasa_z_gpx(zapisek, gpx=None, tol_stupne=0.002):
+    """Skutečný GPS záznam trasy → `zdroj/<zápisek>.trasa.json` (lat, lon).
+
+    Surový export má 8,9 MB, což do repozitáře nepatří (a `.git` tu má i
+    bez toho přes 700 MB). Uloží se proto ZJEDNODUŠENÁ trasa: Douglas–
+    Peucker s tolerancí ~0,002° ≈ 220 m. Mapa je 300 jednotek široká na
+    zhruba 1 400 km, takže 1 jednotka ≈ 4,7 km — 220 m je o víc než řád
+    pod tím, co se dá na mapě rozeznat.
+    """
+    ulozene = ZDE / 'zdroj' / f'{zapisek}.trasa.json'
+    if ulozene.exists():
+        return [tuple(p) for p in json.load(open(ulozene, encoding='utf-8'))]
+    if not gpx: raise SystemExit(f'{zapisek}: chybí GPX i uložená trasa')
+    import xml.etree.ElementTree as ET
+    ko = ET.parse(gpx).getroot(); ns = ko.tag.split('}')[0][1:]
+    syrove = [(float(p.get('lat')), float(p.get('lon'))) for p in ko.iter('{%s}trkpt' % ns)]
+    # předředění po ~250 m: ve městech je bodů hustě a RDP by je procházel
+    # zbytečně; 250 m je hluboko pod tolerancí, takže se tvar nemění
+    hust = [syrove[0]]
+    for b in syrove[1:]:
+        if (b[0] - hust[-1][0]) ** 2 + ((b[1] - hust[-1][1]) * 0.7) ** 2 >= 0.00225 ** 2:
+            hust.append(b)
+    if hust[-1] != syrove[-1]: hust.append(syrove[-1])
+    lehka = rdp_iter(hust, tol_stupne)
+    ulozene.parent.mkdir(parents=True, exist_ok=True)
+    json.dump([[round(a, 5), round(b, 5)] for a, b in lehka], open(ulozene, 'w', encoding='utf-8'))
+    print(f'  GPX {zapisek}: {len(syrove)} → {len(hust)} → {len(lehka)} bodů '
+          f'({ulozene.stat().st_size / 1024:.0f} kB)')
+    return lehka
+
+
 def vyrob(zapisek, kotvy, sirka=300, okraj=10, tol_trasa=0.35, tol_podklad=0.45,
-          bez_druheho=(), bez_zastavek=()):
+          bez_druheho=(), bez_zastavek=(), gpx=None):
     telo = stara_mapa(zapisek)
 
     puvodni = [(float(m.group(1)), float(m.group(2)), m.group(3).strip()) for m in
@@ -198,11 +258,22 @@ def vyrob(zapisek, kotvy, sirka=300, okraj=10, tol_trasa=0.35, tol_podklad=0.45,
     zplost = (abs(ax) / math.cos(math.radians(strlat))) / abs(ay)
     inv = lambda x, y: ((y - by) / ay, (x - bx) / ax)
 
-    trasa_geo = [inv(*map(float, p.split(','))) for p in
-                 re.search(r'<polyline[^>]*?points="([^"]+)"', telo, re.S).group(1).split()]
     zast_geo = [(*inv(x, y), popis) for x, y, popis in puvodni]
 
+    # Trasa: buď SKUTEČNÝ GPS záznam (lepší — vede po silnicích), nebo, když
+    # ho pro cestu nemáme, čára ze staré mapy vrácená zpět na souřadnice.
+    # Zastávky se berou ze staré mapy VŽDY: v GPX nejsou pojmenované.
+    trasa_geo = (trasa_z_gpx(zapisek, gpx) if (gpx or (ZDE / 'zdroj' / f'{zapisek}.trasa.json').exists())
+                 else [inv(*map(float, p.split(','))) for p in
+                       re.search(r'<polyline[^>]*?points="([^"]+)"', telo, re.S).group(1).split()])
+    zapis = trasa_geo is not None and (gpx or (ZDE / 'zdroj' / f'{zapisek}.trasa.json').exists())
+
     lats = [t[0] for t in trasa_geo]; lons = [t[1] for t in trasa_geo]
+    if zapis:
+        # Se záznamem musí výřez pokrýt i zastávky — leží na trase jen
+        # přibližně (rekonstrukce ze staré mapy má odchylku v jednotkách
+        # pixelů) a zastávka mimo plátno by se tiše oříznula.
+        lats += [z[0] for z in zast_geo]; lons += [z[1] for z in zast_geo]
     rez = 0.45
     bbox = (min(lons) - rez, min(lats) - rez * 0.7, max(lons) + rez, max(lats) + rez * 0.7)
     k = math.cos(math.radians((bbox[1] + bbox[3]) / 2))
@@ -210,7 +281,7 @@ def vyrob(zapisek, kotvy, sirka=300, okraj=10, tol_trasa=0.35, tol_podklad=0.45,
     vyska = (bbox[3] - bbox[1]) * sc + 2 * okraj
     P = lambda lo, la: (okraj + (lo - bbox[0]) * k * sc, okraj + (bbox[3] - la) * sc)
 
-    trasa = rdp([P(lo, la) for la, lo in trasa_geo], tol_trasa)
+    trasa = rdp_iter([P(lo, la) for la, lo in trasa_geo], tol_trasa)
     zeme = []
     for jmeno, prsteny in nacti_topo(ZDE / 'countries-50m.json'):
         for pr in prsteny:
@@ -257,6 +328,11 @@ def vyrob(zapisek, kotvy, sirka=300, okraj=10, tol_trasa=0.35, tol_podklad=0.45,
 
     return {
         'sirka': round(sirka), 'vyska': round(vyska, 1), 'spoje': spoje,
+        # Odkud je ČÁRA TRASY. `gps` = skutečný záznam (vede po silnicích),
+        # `stara-mapa` = čára z ručně kreslené mapy vrácená na souřadnice.
+        # Zastávky jsou ze staré mapy v obou případech, proto `odchylkaKotev`
+        # platí dál — jen se u `gps` týká JEN zastávek, ne trasy.
+        'zdrojTrasy': 'gps' if zapis else 'stara-mapa',
         'zplosteniPredtim': round(zplost, 2), 'odchylkaKotev': round(odch, 2),
         'podklad': zeme,
         'trasy': [' '.join(f'{x:.1f},{y:.1f}' for x, y in t) for t in trasy],
@@ -306,7 +382,9 @@ if __name__ == '__main__':
         'Barcelona': (41.385, 2.173), 'Marseille': (43.296, 5.370), 'Toulon': (43.125, 5.930),
         'Benidorm': (38.538, -0.131), 'Pointe du Hoc': (49.396, -0.989),
     }
-    d = vyrob('spain-france-2021', KOTVY_ES)
+    GPX_ES = '/root/.claude/uploads/bb6c9958-601f-50e9-b037-8b2b3a7ac6a9/095aee60-export7.gpx'
+    d = vyrob('spain-france-2021', KOTVY_ES,
+              gpx=GPX_ES if Path(GPX_ES).exists() else None)
     d['popis'] = 'Mapa trasy: Francie, Španělsko a zpět přes Itálii'
     (ven / 'spain-france-2021.js').write_text(
         '/* Data mapy trasy — vyrobil tools/mapy/gen.py, needituj ručně. */\n'

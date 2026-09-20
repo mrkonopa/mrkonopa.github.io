@@ -179,6 +179,30 @@
     article p { margin-bottom: 1.4em; color: var(--fg); }
     article p:last-child { margin-bottom: 0; }
 
+    /* ── ÚSEKY CESTY (jak jsme se tam dostali) ──
+       Mřížka 58px + zbytek: značka dopravy si drží šířku, popis se
+       smrskne a zalomí. Pevná šířka obou sloupců by na 380 px přetekla. */
+    .legs { list-style: none; margin: 0 0 1.4em; padding: 0; }
+    .legs-h {
+      font-family: var(--mono); font-size: 10px; font-weight: 500;
+      letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--fg-muted); margin: 0 0 10px;
+    }
+    .legs + .legs { margin-top: 0; }
+    .legs li {
+      display: grid; grid-template-columns: 58px minmax(0, 1fr);
+      gap: 14px; align-items: baseline;
+      padding: 7px 0; border-top: 1px solid var(--border);
+      font-size: 15px;
+    }
+    .legs li:last-child { border-bottom: 1px solid var(--border); }
+    .legs .mode {
+      font-family: var(--mono); font-size: 10px;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--accent);
+    }
+    .legs .mode.foot, .legs .mode.lift { color: var(--fg-dim); }
+
     /* ── GALLERY ── */
     .gallery-section {
       max-width: 1080px; margin: 0 auto; padding: 0 28px 96px;
@@ -398,6 +422,22 @@
       bigger just behind them.
     </p>
     <p>
+      Getting there took the better part of two days and four changes. Bus from Liberec to Prague,
+      then east by rail — Vienna, then the long night leg across Hungary into Transylvania, then a
+      local train down the valley to Avrig. From the station you walk. The trailhead is not a place
+      anyone drives you to; the road simply thins out and becomes forest.
+    </p>
+
+    <h3 class="legs-h">Outbound</h3>
+    <ol class="legs">
+      <li><span class="mode">Bus</span><span>Liberec → Prague</span></li>
+      <li><span class="mode">Rail</span><span>Prague → Vienna</span></li>
+      <li><span class="mode">Rail</span><span>Vienna → Brașov</span></li>
+      <li><span class="mode">Rail</span><span>Brașov → Avrig</span></li>
+      <li><span class="mode foot">Foot</span><span>Avrig → trailhead, and up</span></li>
+    </ol>
+
+    <p>
       The Făgăraș massif is the highest part of the Southern Carpathians. Fifty-two kilometres of
       ridge running roughly east–west above the 2000-metre line, punctuated by glacial lakes and a
       handful of stone huts that have been there long enough to stop looking temporary. The classic
@@ -453,11 +493,18 @@
       at 15:11. The peak was close enough.
     </p>
     <p>
-      The descent to Victoria is long and the knees notice it. The town itself is post-industrial
-      Transylvania in miniature: apartment blocks, a factory that used to make something important,
-      a train station with a conductor in dress uniform who looks at your ticket like it might be
-      forged. We took the train north.
+      The descent to Victoria is long and the knees notice it. Victoria itself is post-industrial
+      Transylvania in miniature: apartment blocks and a factory that used to make something important.
+      We never got as far as the town. On the road below it we ran into two girls we'd met earlier on
+      the trail, and they had a car. They drove us to Brașov, where we ate the first proper meal in
+      five days, and from there the train took us home.
     </p>
+
+    <h3 class="legs-h">Return</h3>
+    <ol class="legs">
+      <li><span class="mode lift">Lift</span><span>below Victoria → Brașov</span></li>
+      <li><span class="mode">Rail</span><span>Brașov → home</span></li>
+    </ol>
 
   </article>
 
