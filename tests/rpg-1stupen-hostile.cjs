@@ -181,10 +181,19 @@ function realErrs(errs) {
           const nb = document.getElementById('next-btn'); if (nb && nb.style.display !== 'none') { try { nextTask(); } catch (e) {} }
           if (k % 7 === 0) await slp(5);
         }
-        return { hp: BT.hp, xp: S.xp, credits: (typeof RPGWallet !== 'undefined' ? RPGWallet.getCredits() : 0) };
+        return { hp: BT.hp, maxHp: BT.maxHp, xp: S.xp, credits: (typeof RPGWallet !== 'undefined' ? RPGWallet.getCredits() : 0) };
       });
       let prob = '';
-      if (!(state.hp >= 0 && state.hp <= 3)) prob += `hp=${state.hp};`;
+      /* 🔴 Mez ber z HRY, ne natvrdo. Dřív tu stálo `state.hp <= 3`, jenže
+         `MAX_PLAYER_HP` je 6 (g3) a 5 (g4/g5) — boj tedy LEGITIMNĚ začíná
+         na šesti srdíčkách a `hp=4` je v pořádku. Test procházel jen
+         proto, že spam čtyřiceti špatných odpovědí obvykle stihne HP
+         srazit k nule dřív, než smyčka skončí; na vytíženém CI runneru
+         to nestihl a brána spadla na hře, která je v pořádku
+         („[g3] spam-boj: nekonzistentní stav: hp=4"). Lokálně to
+         neprošlo reprodukovat ani třikrát po sobě — byl to závod.
+         Invariant, o který tu jde, je 0 ≤ hp ≤ maxHp. */
+      if (!(state.hp >= 0 && state.hp <= state.maxHp)) prob += `hp=${state.hp}/maxHp=${state.maxHp};`;
       if (!Number.isFinite(state.xp) || state.xp < 0) prob += `xp=${state.xp};`;
       if (!Number.isFinite(state.credits) || state.credits < 0) prob += `credits=${state.credits};`;
       if (prob) bug(grade, 'spam-boj', 'nekonzistentní stav: ' + prob); else pass(grade, 'spam-boj: stav konzistentní');
