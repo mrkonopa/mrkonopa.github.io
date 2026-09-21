@@ -80,9 +80,20 @@ const ok=(c,m)=>{if(c){pass++;console.log('  ✓ '+m);}else{fail++;console.log('
   ok(await page.evaluate(()=>document.getElementById('attack-btn').disabled),'ÚTOK je po správné odpovědi disabled');
   ok(await page.evaluate(()=>document.getElementById('bt-ans').disabled),'input je disabled');
   await page.evaluate(()=>nextTask());
+  // ⚠ ZÁVOD: dřív tu bylo pevných 150 ms a pak rovnou kontrola. Jenže hra
+  // odemyká ÚTOK až po překreslení úkolu, takže na pomalejším stroji ještě
+  // zamčený byl — naměřeno sondou: při vzorku ve 200 ms vyšel zamčený ve
+  // 4 z 6 běhů, při volnějším běhu v 0 ze 4, a při vzorkování v čase
+  // 200/400/600/1200/2500 ms byl odemčený POKAŽDÉ už na prvním vzorku.
+  // Tedy kolísání stroje, ne vada hry (dítě se k tlačítku dostane).
+  // Proto se teď ČEKÁ NA PODMÍNKU. Tvrzení se tím neoslabuje: když se
+  // tlačítko neodemkne vůbec, čekání vyprší a kontrola spadne.
   await page.waitForTimeout(150);
   const ynNow=await page.evaluate(()=>document.getElementById('yn-row').style.display!=='none');
-  if(!ynNow) ok(await page.evaluate(()=>!document.getElementById('attack-btn').disabled),'ÚTOK je po DÁLE zase enabled');
+  if(!ynNow){
+    await page.waitForFunction(()=>!document.getElementById('attack-btn').disabled,{timeout:4000}).catch(()=>{});
+    ok(await page.evaluate(()=>!document.getElementById('attack-btn').disabled),'ÚTOK je po DÁLE zase enabled');
+  }
   else console.log('  (další úkol je ANO/NE — zámek tlačítka se netýká)');
 
   console.log('— stale attack guard (BT._bid) —');

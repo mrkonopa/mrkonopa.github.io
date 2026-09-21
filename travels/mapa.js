@@ -27,8 +27,8 @@
    CO DĚLÁ TENHLE SOUBOR: dostane hotová data (podklad, trasa, zastávky)
    a jen je vykreslí — včetně UMÍSTĚNÍ POPISKŮ, které se počítá až tady,
    protože potřebuje skutečné rozměry vykresleného textu. Zkouší osm poloh
-   kolem bodu ve dvou vzdálenostech a vezme první, která se s ničím nepere
-   a vejde se do plátna.
+   kolem bodu ve třech vzdálenostech a vezme první, která se s ničím nepere
+   a vejde se do plátna; když se nevejde nikam, posune popisek dovnitř.
 
    Data dodá stránka v `window.MAPA_TRASY`; bez nich se nic nekreslí a
    zápisek vypadá jako dřív (jen bez mapy), takže chybějící soubor nic
@@ -58,19 +58,10 @@
     preserveAspectRatio: 'xMidYMid meet',
   });
 
-  /* Světlý lem kolem textu, aby byl čitelný i přes pevninu. Tentýž
-     postup měly původní mapy — jen ho teď mají všechny stejný. */
-  var defs = el('defs');
-  var f = el('filter', { id: 'mapa-lem', x: '-14%', y: '-30%', width: '128%', height: '160%' });
-  f.appendChild(el('feMorphology', { in: 'SourceGraphic', operator: 'dilate', radius: '1.6', result: 'exp' }));
-  f.appendChild(el('feFlood', { 'flood-color': 'var(--bg, #1c1c1c)', result: 'bg' }));
-  f.appendChild(el('feComposite', { in: 'bg', in2: 'exp', operator: 'in', result: 'lem' }));
-  var merge = el('feMerge');
-  merge.appendChild(el('feMergeNode', { in: 'lem' }));
-  merge.appendChild(el('feMergeNode', { in: 'SourceGraphic' }));
-  f.appendChild(merge);
-  defs.appendChild(f);
-  svg.appendChild(defs);
+  /* Lem kolem textu dělá `paint-order: stroke fill` ve stylu, ne filtr.
+     Původní mapy na to měly `feMorphology`, jenže filtr text RASTRUJE a
+     rozmázne — Vojta to popsal jako „divné písmo, chtělo by to ostřejší".
+     Obrys je ostrý, levnější a nepotřebuje `<defs>`. */
 
   /* ── podklad: pevnina ─────────────────────────────────────────────── */
   var zeme = el('g', { class: 'mapa-pevnina' });
@@ -79,8 +70,15 @@
   });
   svg.appendChild(zeme);
 
-  /* ── trasa ────────────────────────────────────────────────────────── */
-  if (D.trasa) svg.appendChild(el('polyline', { class: 'mapa-trasa', points: D.trasa }));
+  /* ── trasa ────────────────────────────────────────────────────────────
+     Trasa je POLE úseků, ne jedna čára. Tam, kde se plulo, je v záznamu
+     díra: export z mapy.cz je dopočítaná cesta, ne surový GPS záznam,
+     takže mezi Palermem a Salernem protáhl plánovač silnici přes Messinu
+     a mapa tvrdila, že se ze Sicílie jelo zpátky autem. Ten úsek se
+     vyřízne a nahradí ho čárkovaný spoj níž. */
+  (D.trasy || (D.trasa ? [D.trasa] : [])).forEach(function (body) {
+    svg.appendChild(el('polyline', { class: 'mapa-trasa', points: body }));
+  });
 
   /* Spoje mimo silnici (trajekt) — čárkovaně, aby bylo poznat, že se
      tenhle úsek nejel. */
@@ -92,7 +90,7 @@
     if (s.popis) {
       var t = el('text', {
         class: 'mapa-spoj-popis', x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 - 2,
-        'text-anchor': 'middle', 'font-size': PISMO_DRUHE, filter: 'url(#mapa-lem)',
+        'text-anchor': 'middle', 'font-size': PISMO_DRUHE,
       }, s.popis);
       svg.appendChild(t);
     }
@@ -150,11 +148,11 @@
       var z = p.z;
       if (!z.hlavni) return;
       var g = el('g', { class: z.zacatek ? 'mapa-popis mapa-popis--start' : 'mapa-popis' });
-      var t1 = el('text', { 'font-size': PISMO_HLAVNI, filter: 'url(#mapa-lem)' }, z.hlavni);
+      var t1 = el('text', { 'font-size': PISMO_HLAVNI }, z.hlavni);
       g.appendChild(t1);
       var t2 = null;
       if (z.druhy) {
-        t2 = el('text', { class: 'mapa-popis-druhy', 'font-size': PISMO_DRUHE, filter: 'url(#mapa-lem)' }, z.druhy);
+        t2 = el('text', { class: 'mapa-popis-druhy', 'font-size': PISMO_DRUHE }, z.druhy);
         g.appendChild(t2);
       }
       vrstva.appendChild(g);

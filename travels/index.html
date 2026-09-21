@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Travels — Vojtěch Konopa</title>
-<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/travels/favicon.svg" type="image/svg+xml">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Vojtěch Konopa">
 <meta property="og:locale" content="cs_CZ">
@@ -610,6 +610,15 @@
       GR:[4], AL:[4], FR:[5], ES:[5], IT:[5,6],
       PL:[7], LT:[7], LV:[7], EE:[7],
     };
+
+    /* Zvýraznění navštívených zemí se ODVOZUJE ze seznamu cest, nepíše se
+       do značek ručně. Ručně to bylo do teď a rozešlo se: Balt byl v TRIPS
+       i v COUNTRY_TRIPS, ale PL, LT, LV a EE neměly na mapě třídu `visited`,
+       takže se čtyři země nezvýraznily a nešly rozkliknout. */
+    Object.keys(COUNTRY_TRIPS).forEach(kod => {
+      const zeme = document.querySelector('#europe-map .country[data-code="' + kod + '"]');
+      if (zeme) zeme.classList.add('visited');
+    });
 
     const tt        = document.getElementById('map-tt');
     const ttCountry = document.getElementById('tt-country');
