@@ -119,7 +119,16 @@
     [1, 0, 'start'], [-1, 0, 'end'], [1, -1, 'start'], [-1, -1, 'end'],
     [1, 1, 'start'], [-1, 1, 'end'], [0, -1, 'middle'], [0, 1, 'middle'],
   ];
-  var VZDALENOSTI = [5, 10, 16];
+  /* Jak daleko od bodu se popisek smí odsunout, než se zkusí další směr.
+     Původně jen [5, 10, 16]; u Kosova 2024 je na jihu jedenáct zastávek
+     na malé ploše (Priština a Prekaz jsou 32 km = 13 jednotek od sebe)
+     a 8 směrů × 3 vzdálenosti na ně nestačilo — popisky skončily na sobě.
+     Delší kroky se zkusí AŽ když všechny bližší kolidují, takže popisek,
+     který si dřív místo našel, zůstává na svém. Změnit se může jedině
+     ten, který dřív nenašel nic a skončil naraženým na kraj plátna — a to
+     je zlepšení. Ověřeno měřením: `travels-mapy` hlásí 0 překryvů na všech
+     mapách i po téhle změně. */
+  var VZDALENOSTI = [5, 10, 16, 24, 34, 46];
   var obsazeno = Z.map(function (z) {
     return { x: z.x - 4, y: z.y - 4, w: 8, h: 8 };   // samotné body
   });

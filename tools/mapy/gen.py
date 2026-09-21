@@ -362,6 +362,77 @@ def kotvy_z_kmz(cesta):
     return ven
 
 
+def vyrob_nove(zapisek, gpx, zastavky, sirka=300, okraj=10,
+               tol_trasa=0.35, tol_podklad=0.45, opravy=(), rez=0.45):
+    """Mapa pro cestu, která STAROU ručně kreslenou mapu nemá.
+
+    Tady se nic neinvertuje: trasa je skutečný záznam a zastávky mají
+    souřadnice z Vojtova plánu, takže odpadá celé párování kotev.
+
+    `opravy` = úseky, kde se vyexportovaná trasa liší od SKUTEČNĚ jeté.
+    Každá je `{'od': (lat,lon), 'do': (lat,lon), 'pres': [(lat,lon), …],
+    'proc': '…'}`: kus mezi nejbližšími body k `od` a `do` se vyřízne a
+    nahradí čarou přes `pres`. Vzniklo to proto, že export z mapy.cz
+    protáhl cestu od solných plání po POBŘEŽÍ přes Bar, jenže se jelo
+    horskou R15 nad Skadarským jezerem — naměřeno, že trasa míjí
+    vyhlídku o 4,8 km a Barem prochází na 60 m.
+    """
+    syrove = trasa_z_gpx(zapisek, gpx)
+
+    def nejbliz(body, cil):
+        return min(range(len(body)), key=lambda i:
+                   (body[i][0] - cil[0]) ** 2 +
+                   ((body[i][1] - cil[1]) * math.cos(math.radians(cil[0]))) ** 2)
+
+    nahrazeno = []
+    for o in opravy:
+        a, b = nejbliz(syrove, o['od']), nejbliz(syrove, o['do'])
+        if a > b: a, b = b, a
+        nahrazeno.append({'proc': o['proc'], 'bodu_pryc': b - a,
+                          'bodu_misto': len(o['pres']) + 2})
+        syrove = syrove[:a + 1] + list(o['pres']) + syrove[b:]
+
+    lats = [t[0] for t in syrove] + [z['lat'] for z in zastavky]
+    lons = [t[1] for t in syrove] + [z['lon'] for z in zastavky]
+    # `rez` = volné pole kolem trasy. Nejjižnější zastávka potřebuje místo
+    # POD sebou, jinak jí popisek nezbude než nahoru a srazí se se sousedem
+    # (Ohrid × Mavrovo, 77 km od sebe, a přesto na sobě).
+    bbox = (min(lons) - rez, min(lats) - rez * 0.7, max(lons) + rez, max(lats) + rez * 0.7)
+    k = math.cos(math.radians((bbox[1] + bbox[3]) / 2))
+    sc = (sirka - 2 * okraj) / ((bbox[2] - bbox[0]) * k)
+    vyska = (bbox[3] - bbox[1]) * sc + 2 * okraj
+    P = lambda lo, la: (okraj + (lo - bbox[0]) * k * sc, okraj + (bbox[3] - la) * sc)
+
+    trasa = rdp_iter([P(lo, la) for la, lo in syrove], tol_trasa)
+
+    zeme = []
+    for _, prsteny in nacti_topo(ZDE / 'countries-50m.json'):
+        for pr in prsteny:
+            xs = [b[0] for b in pr]; ys = [b[1] for b in pr]
+            if max(xs) < bbox[0] - 2 or min(xs) > bbox[2] + 2 or max(ys) < bbox[1] - 2 or min(ys) > bbox[3] + 2:
+                continue
+            pr = orez_obdelnikem(pr, bbox)
+            if len(pr) < 4: continue
+            body = rdp_iter([P(lo, la) for lo, la in pr], tol_podklad)
+            if len(body) < 4: continue
+            plocha = abs(sum(body[i][0] * body[(i + 1) % len(body)][1] -
+                             body[(i + 1) % len(body)][0] * body[i][1]
+                             for i in range(len(body)))) / 2
+            if plocha < 3: continue
+            zeme.append('M' + 'L'.join(f'{x:.1f},{y:.1f}' for x, y in body) + 'Z')
+
+    return {
+        'sirka': round(sirka), 'vyska': round(vyska, 1), 'spoje': [],
+        'zdrojTrasy': 'gps', 'opravy': nahrazeno,
+        'podklad': zeme,
+        'trasy': [' '.join(f'{x:.1f},{y:.1f}' for x, y in trasa)],
+        'zastavky': [{'x': round(P(z['lon'], z['lat'])[0], 1),
+                      'y': round(P(z['lon'], z['lat'])[1], 1),
+                      'hlavni': z['hlavni'], 'druhy': z.get('druhy', ''),
+                      'zacatek': z.get('zacatek', False)} for z in zastavky],
+    }
+
+
 if __name__ == '__main__':
     KOTVY_IT = {'CZ start/end': (50.767, 15.056), 'Craco': (40.377, 16.440), 'Etna': (37.751, 14.993),
                 'Agrigento': (37.311, 13.577), 'Palermo': (38.116, 13.361), 'Salerno / Vietri': (40.673, 14.727),
@@ -404,6 +475,46 @@ if __name__ == '__main__':
         print(f"→ travels/mapy/baltic-2023.js   plátno {d['sirka']}×{d['vyska']}, "
               f"dřív zploštělé {d['zplosteniPredtim']}×, odchylka kotev {d['odchylkaKotev']} px, "
               f"zastávek {len(d['zastavky'])}")
+
+    # ── Kosovo 2024: první cesta, která má SKUTEČNÝ záznam i pojmenovaná
+    #    místa se souřadnicemi, takže se nic neinvertuje ze staré mapy ──
+    GPX_KOS = '/root/.claude/uploads/bb6c9958-601f-50e9-b037-8b2b3a7ac6a9/5972aaaf-export8.gpx'
+    if Path(GPX_KOS).exists() or (ZDE / 'zdroj' / 'kosovo-2024.trasa.json').exists():
+        # Zastávky: jen ta místa, která POTVRZUJÍ FOTKY. Do mapy se nedává,
+        # co bylo jen v plánu — Balt na tom pohořel s Vilniusem.
+        ZAST = [
+            {'hlavni': 'Liberec',      'lat': 50.7702, 'lon': 15.0586, 'zacatek': True},
+            {'hlavni': 'Budapešť',     'lat': 47.5487, 'lon': 19.1041, 'druhy': 'hrob vláčků'},
+            {'hlavni': 'Novi Sad',     'lat': 45.2490, 'lon': 19.8105, 'druhy': 'Jugoalat'},
+            {'hlavni': 'Trepča',       'lat': 42.9103, 'lon': 20.8483, 'druhy': 'důl a slévárna'},
+            {'hlavni': 'Priština',     'lat': 42.6671, 'lon': 21.1669},
+            {'hlavni': 'Prekaz',       'lat': 42.7541, 'lon': 20.8056, 'druhy': 'Adem Jashari'},
+            {'hlavni': 'Mavrovo',      'lat': 41.6601, 'lon': 20.7355},
+            {'hlavni': 'Ohrid',        'lat': 40.9795, 'lon': 20.9150},
+            {'hlavni': 'Ulcinj',       'lat': 41.9175, 'lon': 19.2520, 'druhy': 'solné pláně'},
+            {'hlavni': 'Skadar',       'lat': 42.0645, 'lon': 19.3741, 'druhy': 'vyhlídka na R15'},
+            {'hlavni': 'Grmožur',      'lat': 42.2447, 'lon': 19.0925},
+        ]
+        # Export z mapy.cz protáhl cestu od solných plání po POBŘEŽÍ přes Bar.
+        # Ve skutečnosti se jelo horskou R15 nad Skadarským jezerem — naměřeno,
+        # že vyexportovaná trasa míjí vyhlídku o 4,8 km a Barem prochází na 60 m.
+        OPRAVY = [{
+            'od': (41.9175, 19.2520), 'do': (42.2447, 19.0925),
+            'pres': [(42.0645, 19.3741), (42.1000, 19.3300), (42.1400, 19.2600),
+                     (42.1700, 19.2000), (42.2000, 19.1300)],
+            'proc': 'export vedl po pobřeží přes Bar, jelo se horskou R15 nad jezerem',
+        }]
+        d = vyrob_nove('kosovo-2024', GPX_KOS if Path(GPX_KOS).exists() else None, ZAST, opravy=OPRAVY, rez=0.75)
+        d['popis'] = 'Mapa trasy: Maďarsko, Srbsko, Kosovo, Severní Makedonie a Černá Hora'
+        (ven / 'kosovo-2024.js').write_text(
+            '/* Data mapy trasy — vyrobil tools/mapy/gen.py, needituj ručně. */\n'
+            'window.MAPA_TRASY = ' + json.dumps(d, ensure_ascii=False) + ';\n', encoding='utf-8')
+        print(f"→ travels/mapy/kosovo-2024.js   plátno {d['sirka']}×{d['vyska']}, "
+              f"zastávek {len(d['zastavky'])}, trasa {sum(t.count(',') for t in d['trasy'])} bodů, "
+              f"oprav {len(d['opravy'])}")
+        for o in d['opravy']:
+            print(f"    oprava: {o['proc']} ({o['bodu_pryc']} bodů pryč, {o['bodu_misto']} místo nich)")
+
     print(f"plátno {d['sirka']} × {d['vyska']}   (dřív zploštělé {d['zplosteniPredtim']}×, "
           f"odchylka kotev {d['odchylkaKotev']} px)")
     print(f"podklad {len(d['podklad'])} obrysů, trasa {sum(t.count(',') for t in d['trasy'])} bodů "
