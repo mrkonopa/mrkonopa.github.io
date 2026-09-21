@@ -55,7 +55,7 @@ const STRANKY = [
   s('ucitel-kody', 'Pro učitele (kódy)', '/projects/ucitel.html'),
 
   s('travels', 'Travels', '/travels/index.html'),
-  ...['ukraine-2017', 'cr-bh-2018', 'romania-2019', 'yugoslavia-2020', 'spain-france-2021', 'italy-2022', 'baltic-2023']
+  ...['ukraine-2017', 'cr-bh-2018', 'romania-2019', 'yugoslavia-2020', 'spain-france-2021', 'italy-2022', 'baltic-2023', 'kosovo-2024']
     .map(u => s('t-' + u, 'Travels ' + u, '/travels/' + u + '.html')),
 ];
 

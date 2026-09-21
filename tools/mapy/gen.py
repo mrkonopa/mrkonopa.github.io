@@ -225,6 +225,30 @@ def trasa_z_gpx(zapisek, gpx=None, tol_stupne=0.002):
     return lehka
 
 
+# Cílový poměr stran mapy (šířka : výška). Mapa se kreslí PŘES CELOU
+# ŠÍŘKU sekce a musí lícovat s nadpisem nad sebou — naměřeno 1024 px
+# obsahu od x = 208. Při 1024 px a poměru 1,9 vychází 539 px na výšku,
+# což odpovídá tomu, jak si to Vojta načrtl do snímku obrazovky.
+#
+# Poměr se NEDĚLÁ zploštěním (to byla původní vada všech map, viz
+# mapa.js), ale ROZTAŽENÍM VÝŘEZU: dokreslí se víc okolní pevniny.
+# Vojtovo zadání doslova: „Ne roztáhnout fotku, ale přidat konturu
+# států, které tam jsou."
+POMER_CIL = 1.9
+
+
+def na_pomer(bbox, cil=POMER_CIL):
+    """Roztáhne výřez na cílový poměr stran — dopočítá chybějící osu."""
+    k = math.cos(math.radians((bbox[1] + bbox[3]) / 2))
+    sir = (bbox[2] - bbox[0]) * k
+    vys = bbox[3] - bbox[1]
+    if sir / vys < cil:                       # moc vysoká ⇒ rozšířit
+        chybi = (vys * cil - sir) / 2 / k
+        return (bbox[0] - chybi, bbox[1], bbox[2] + chybi, bbox[3])
+    chybi = (sir / cil - vys) / 2             # moc plochá ⇒ zvýšit
+    return (bbox[0], bbox[1] - chybi, bbox[2], bbox[3] + chybi)
+
+
 def vyrob(zapisek, kotvy, sirka=300, okraj=10, tol_trasa=0.35, tol_podklad=0.45,
           bez_druheho=(), bez_zastavek=(), gpx=None):
     telo = stara_mapa(zapisek)
@@ -276,6 +300,7 @@ def vyrob(zapisek, kotvy, sirka=300, okraj=10, tol_trasa=0.35, tol_podklad=0.45,
         lats += [z[0] for z in zast_geo]; lons += [z[1] for z in zast_geo]
     rez = 0.45
     bbox = (min(lons) - rez, min(lats) - rez * 0.7, max(lons) + rez, max(lats) + rez * 0.7)
+    bbox = na_pomer(bbox)
     k = math.cos(math.radians((bbox[1] + bbox[3]) / 2))
     sc = (sirka - 2 * okraj) / ((bbox[2] - bbox[0]) * k)
     vyska = (bbox[3] - bbox[1]) * sc + 2 * okraj
@@ -362,7 +387,212 @@ def kotvy_z_kmz(cesta):
     return ven
 
 
+def vyrob_nove(zapisek, gpx, zastavky, sirka=300, okraj=10,
+               tol_trasa=0.35, tol_podklad=0.45, opravy=(), rez=0.45):
+    """Mapa pro cestu, která STAROU ručně kreslenou mapu nemá.
+
+    Tady se nic neinvertuje: trasa je skutečný záznam a zastávky mají
+    souřadnice z Vojtova plánu, takže odpadá celé párování kotev.
+
+    `opravy` = úseky, kde se vyexportovaná trasa liší od SKUTEČNĚ jeté.
+    Každá je `{'od': (lat,lon), 'do': (lat,lon), 'pres': [(lat,lon), …],
+    'proc': '…'}`: kus mezi nejbližšími body k `od` a `do` se vyřízne a
+    nahradí čarou přes `pres`. Vzniklo to proto, že export z mapy.cz
+    protáhl cestu od solných plání po POBŘEŽÍ přes Bar, jenže se jelo
+    horskou R15 nad Skadarským jezerem — naměřeno, že trasa míjí
+    vyhlídku o 4,8 km a Barem prochází na 60 m.
+    """
+    syrove = trasa_z_gpx(zapisek, gpx)
+
+    def nejbliz(body, cil):
+        return min(range(len(body)), key=lambda i:
+                   (body[i][0] - cil[0]) ** 2 +
+                   ((body[i][1] - cil[1]) * math.cos(math.radians(cil[0]))) ** 2)
+
+    nahrazeno = []
+    for o in opravy:
+        a, b = nejbliz(syrove, o['od']), nejbliz(syrove, o['do'])
+        if a > b: a, b = b, a
+        nahrazeno.append({'proc': o['proc'], 'bodu_pryc': b - a,
+                          'bodu_misto': len(o['pres']) + 2})
+        syrove = syrove[:a + 1] + list(o['pres']) + syrove[b:]
+
+    lats = [t[0] for t in syrove] + [z['lat'] for z in zastavky]
+    lons = [t[1] for t in syrove] + [z['lon'] for z in zastavky]
+    # `rez` = volné pole kolem trasy. Nejjižnější zastávka potřebuje místo
+    # POD sebou, jinak jí popisek nezbude než nahoru a srazí se se sousedem
+    # (Ohrid × Mavrovo, 77 km od sebe, a přesto na sobě).
+    bbox = (min(lons) - rez, min(lats) - rez * 0.7, max(lons) + rez, max(lats) + rez * 0.7)
+    bbox = na_pomer(bbox)
+    k = math.cos(math.radians((bbox[1] + bbox[3]) / 2))
+    sc = (sirka - 2 * okraj) / ((bbox[2] - bbox[0]) * k)
+    vyska = (bbox[3] - bbox[1]) * sc + 2 * okraj
+    P = lambda lo, la: (okraj + (lo - bbox[0]) * k * sc, okraj + (bbox[3] - la) * sc)
+
+    trasa = rdp_iter([P(lo, la) for la, lo in syrove], tol_trasa)
+
+    zeme = []
+    for _, prsteny in nacti_topo(ZDE / 'countries-50m.json'):
+        for pr in prsteny:
+            xs = [b[0] for b in pr]; ys = [b[1] for b in pr]
+            if max(xs) < bbox[0] - 2 or min(xs) > bbox[2] + 2 or max(ys) < bbox[1] - 2 or min(ys) > bbox[3] + 2:
+                continue
+            pr = orez_obdelnikem(pr, bbox)
+            if len(pr) < 4: continue
+            body = rdp_iter([P(lo, la) for lo, la in pr], tol_podklad)
+            if len(body) < 4: continue
+            plocha = abs(sum(body[i][0] * body[(i + 1) % len(body)][1] -
+                             body[(i + 1) % len(body)][0] * body[i][1]
+                             for i in range(len(body)))) / 2
+            if plocha < 3: continue
+            zeme.append('M' + 'L'.join(f'{x:.1f},{y:.1f}' for x, y in body) + 'Z')
+
+    return {
+        'sirka': round(sirka), 'vyska': round(vyska, 1), 'spoje': [],
+        'zdrojTrasy': 'gps', 'opravy': nahrazeno,
+        'podklad': zeme,
+        'trasy': [' '.join(f'{x:.1f},{y:.1f}' for x, y in trasa)],
+        'zastavky': [{'x': round(P(z['lon'], z['lat'])[0], 1),
+                      'y': round(P(z['lon'], z['lat'])[1], 1),
+                      'hlavni': z['hlavni'], 'druhy': z.get('druhy', ''),
+                      'zacatek': z.get('zacatek', False)} for z in zastavky],
+    }
+
+
+def vyrob_body(zapisek, zastavky, sirka=300, okraj=10, tol_podklad=0.45, rez=0.45):
+    """Mapa pro cestu, u které NENÍ ZÁZNAM TRASY — jen pojmenované zastávky.
+
+    Tohle je třetí případ vedle `vyrob` (stará kreslená mapa se invertuje)
+    a `vyrob_nove` (je GPX). Ukrajina 2017, Chorvatsko s Bosnou 2018
+    a Jugoslávie 2020 neměly ANI JEDNO: jejich vložené mapy byly ruční
+    náčrty se čtyřmi až devíti body a přímými čárami mezi nimi, BEZ
+    JEDINÉHO OBRYSU PEVNINY. Vojta to nahlásil z obrazovky: „rád bych,
+    aby to bylo dokreslené až do kraje… přidat konturu států, které tam
+    jsou."
+
+    Invertovat se ty náčrty nedají: `vyrob` staví na tom, že stará mapa
+    je LINEÁRNÍ PROJEKCÍ skutečných souřadnic (ověřeno u Itálie na 0–5 km
+    a u Baltu na 0,6 px), ale u čtyř ručně rozmístěných bodů by regrese
+    měla jen dva stupně volnosti a malá odchylka by nic nedokazovala.
+    Zastávky proto mají souřadnice rovnou — jména míst napsal na mapu
+    Vojta, dohledat k nim polohu je otázka faktu, ne odhadu.
+
+    Trasa zůstává PŘERUŠOVANÁ čára mezi zastávkami, jako byla dosud:
+    kudy se přesně jelo, nevíme, a plná čára by to tvrdila. Až záznam
+    přijde, zápisek se převede přes `vyrob_nove`.
+    """
+    lats = [z['lat'] for z in zastavky]
+    lons = [z['lon'] for z in zastavky]
+    bbox = (min(lons) - rez, min(lats) - rez * 0.7, max(lons) + rez, max(lats) + rez * 0.7)
+    k = math.cos(math.radians((bbox[1] + bbox[3]) / 2))
+
+    bbox = na_pomer(bbox)
+    k = math.cos(math.radians((bbox[1] + bbox[3]) / 2))
+    sc = (sirka - 2 * okraj) / ((bbox[2] - bbox[0]) * k)
+    vyska = (bbox[3] - bbox[1]) * sc + 2 * okraj
+    P = lambda lo, la: (okraj + (lo - bbox[0]) * k * sc, okraj + (bbox[3] - la) * sc)
+
+    zeme = []
+    for _, prsteny in nacti_topo(ZDE / 'countries-50m.json'):
+        for pr in prsteny:
+            xs = [b[0] for b in pr]; ys = [b[1] for b in pr]
+            if max(xs) < bbox[0] - 2 or min(xs) > bbox[2] + 2 or max(ys) < bbox[1] - 2 or min(ys) > bbox[3] + 2:
+                continue
+            pr = orez_obdelnikem(pr, bbox)
+            if len(pr) < 4: continue
+            body = rdp_iter([P(lo, la) for lo, la in pr], tol_podklad)
+            if len(body) < 4: continue
+            plocha = abs(sum(body[i][0] * body[(i + 1) % len(body)][1] -
+                             body[(i + 1) % len(body)][0] * body[i][1]
+                             for i in range(len(body)))) / 2
+            if plocha < 3: continue
+            zeme.append('M' + 'L'.join(f'{x:.1f},{y:.1f}' for x, y in body) + 'Z')
+
+    # Spoje = přerušované úsečky v pořadí, jak se jelo. Poslední zpátky na
+    # začátek jen u okruhu (`okruh: True` na poslední zastávce).
+    spoje = [{'z': i, 'do': i + 1} for i in range(len(zastavky) - 1)]
+    if zastavky[-1].get('okruh'):
+        spoje.append({'z': len(zastavky) - 1, 'do': 0})
+
+    return {
+        'sirka': round(sirka), 'vyska': round(vyska, 1),
+        'zdrojTrasy': 'jen-zastavky', 'podklad': zeme,
+        'trasy': [], 'spoje': spoje,
+        'zastavky': [{'x': round(P(z['lon'], z['lat'])[0], 1),
+                      'y': round(P(z['lon'], z['lat'])[1], 1),
+                      'hlavni': z['hlavni'], 'druhy': z.get('druhy', ''),
+                      'zacatek': z.get('zacatek', False)} for z in zastavky],
+    }
+
+
+# ══════════════════════════════════════════════════════════════════════
+#  Tři zápisky bez záznamu trasy (viz `vyrob_body`). Spouští se zvlášť:
+#      python3 tools/mapy/gen.py body
+#  Souřadnice odpovídají jménům, která Vojta napsal na původní mapu.
+#  Dvě jsou OBLASTI, ne body — u nich je vzatý přirozený střed té části
+#  pobřeží, kam původní náčrt zastávku kreslil, a je to tu napsané, aby
+#  se z toho nedělala přesnost, která tam není.
+# ══════════════════════════════════════════════════════════════════════
+BODY_CEST = {
+    'ukraine-2017': (
+        'Mapa trasy: Liberec, Kyjev, Černobyl a Karpaty',
+        [
+            {'hlavni': 'CZ · LIBEREC', 'lat': 50.7663, 'lon': 15.0543, 'zacatek': True},
+            {'hlavni': 'UA · KYIV', 'druhy': 'capital · base', 'lat': 50.4501, 'lon': 30.5234},
+            {'hlavni': 'CHERNOBYL', 'druhy': 'exclusion zone', 'lat': 51.2763, 'lon': 30.2219},
+            # Ukrajinské Karpaty; původní náčrt kreslí „SW mountains" do
+            # jihozápadního cípu země — nejvyšší část je okolí Hoverly.
+            {'hlavni': 'CARPATHIANS', 'druhy': 'SW mountains',
+             'lat': 48.1600, 'lon': 24.5003, 'okruh': True},
+        ]),
+    'cr-bh-2018': (
+        'Mapa trasy: Chorvatsko a Bosna — Kumrovec, Una, Dalmácie, Mostar',
+        [
+            {'hlavni': 'CZ · LIBEREC', 'lat': 50.7663, 'lon': 15.0543, 'zacatek': True},
+            {'hlavni': 'HR · KUMROVEC', 'druhy': 'tito birthplace', 'lat': 46.0575, 'lon': 15.6783},
+            {'hlavni': 'ŠTRBAČKI BUK', 'druhy': 'waterfall · una river', 'lat': 44.6656, 'lon': 16.1528},
+            # OBLAST, ne bod: Dalmácie. Střed té části pobřeží = Split.
+            {'hlavni': 'HR · DALMATIA', 'druhy': 'adriatic coast', 'lat': 43.5081, 'lon': 16.4402},
+            {'hlavni': 'HR · DUBROVNIK', 'druhy': 'south coast', 'lat': 42.6507, 'lon': 18.0944},
+            {'hlavni': 'BiH · MOSTAR', 'druhy': 'herzegovina · bridge',
+             'lat': 43.3373, 'lon': 17.8150, 'okruh': True},
+        ]),
+    'yugoslavia-2020': (
+        'Mapa trasy: Maďarsko, Srbsko, Bulharsko, Řecko, Albánie a Dalmácie',
+        [
+            {'hlavni': 'CZ · LIBEREC', 'lat': 50.7663, 'lon': 15.0543, 'zacatek': True},
+            {'hlavni': 'HU · OROSZLÁNY', 'druhy': 'coal plant', 'lat': 47.4833, 'lon': 18.3167},
+            {'hlavni': 'RS · BELGRADE', 'druhy': 'capital', 'lat': 44.7866, 'lon': 20.4489},
+            {'hlavni': 'BG · BUZLUDZHA', 'druhy': 'monument', 'lat': 42.7358, 'lon': 25.3936},
+            {'hlavni': 'BG · SOFIA', 'druhy': 'city', 'lat': 42.6977, 'lon': 23.3219},
+            {'hlavni': 'GR · THESSALONIKI', 'druhy': 'train graveyard', 'lat': 40.6401, 'lon': 22.9444},
+            {'hlavni': 'GR · ATHENS', 'druhy': 'ellinikon · ace high', 'lat': 37.9838, 'lon': 23.7275},
+            {'hlavni': 'AL · POLIÇAN', 'druhy': 'ammo factory', 'lat': 40.6167, 'lon': 20.1000},
+            # OBLAST, ne bod: jižní Dalmácie. Střed = Split.
+            {'hlavni': 'HR · DALMATIA', 'druhy': 'south coast',
+             'lat': 43.5081, 'lon': 16.4402, 'okruh': True},
+        ]),
+}
+
+
+def udelej_body():
+    ven = Path('/home/user/mrkonopa.github.io/travels/mapy')
+    ven.mkdir(parents=True, exist_ok=True)
+    for zapisek, (popis, zast) in BODY_CEST.items():
+        d = vyrob_body(zapisek, zast)
+        d['popis'] = popis
+        (ven / f'{zapisek}.js').write_text(
+            '/* Data mapy trasy — vyrobil tools/mapy/gen.py, needituj ručně. */\n'
+            'window.MAPA_TRASY = ' + json.dumps(d, ensure_ascii=False) + ';\n', encoding='utf-8')
+        print(f"→ travels/mapy/{zapisek}.js   plátno {d['sirka']}×{d['vyska']}, "
+              f"podklad {len(d['podklad'])} obrysů, zastávek {len(d['zastavky'])}, "
+              f"spojů {len(d['spoje'])}, {len(json.dumps(d))//1024} kB")
+
+
 if __name__ == '__main__':
+    if len(sys.argv) > 1 and sys.argv[1] == 'body':
+        udelej_body(); sys.exit(0)
+
     KOTVY_IT = {'CZ start/end': (50.767, 15.056), 'Craco': (40.377, 16.440), 'Etna': (37.751, 14.993),
                 'Agrigento': (37.311, 13.577), 'Palermo': (38.116, 13.361), 'Salerno / Vietri': (40.673, 14.727),
                 'Rome': (41.903, 12.496), "Lago d'Iseo": (45.717, 10.062)}
@@ -404,6 +634,46 @@ if __name__ == '__main__':
         print(f"→ travels/mapy/baltic-2023.js   plátno {d['sirka']}×{d['vyska']}, "
               f"dřív zploštělé {d['zplosteniPredtim']}×, odchylka kotev {d['odchylkaKotev']} px, "
               f"zastávek {len(d['zastavky'])}")
+
+    # ── Kosovo 2024: první cesta, která má SKUTEČNÝ záznam i pojmenovaná
+    #    místa se souřadnicemi, takže se nic neinvertuje ze staré mapy ──
+    GPX_KOS = '/root/.claude/uploads/bb6c9958-601f-50e9-b037-8b2b3a7ac6a9/5972aaaf-export8.gpx'
+    if Path(GPX_KOS).exists() or (ZDE / 'zdroj' / 'kosovo-2024.trasa.json').exists():
+        # Zastávky: jen ta místa, která POTVRZUJÍ FOTKY. Do mapy se nedává,
+        # co bylo jen v plánu — Balt na tom pohořel s Vilniusem.
+        ZAST = [
+            {'hlavni': 'Liberec',      'lat': 50.7702, 'lon': 15.0586, 'zacatek': True},
+            {'hlavni': 'Budapešť',     'lat': 47.5487, 'lon': 19.1041, 'druhy': 'hrob vláčků'},
+            {'hlavni': 'Novi Sad',     'lat': 45.2490, 'lon': 19.8105, 'druhy': 'Jugoalat'},
+            {'hlavni': 'Trepča',       'lat': 42.9103, 'lon': 20.8483, 'druhy': 'důl a slévárna'},
+            {'hlavni': 'Priština',     'lat': 42.6671, 'lon': 21.1669},
+            {'hlavni': 'Prekaz',       'lat': 42.7541, 'lon': 20.8056, 'druhy': 'Adem Jashari'},
+            {'hlavni': 'Mavrovo',      'lat': 41.6601, 'lon': 20.7355},
+            {'hlavni': 'Ohrid',        'lat': 40.9795, 'lon': 20.9150},
+            {'hlavni': 'Ulcinj',       'lat': 41.9175, 'lon': 19.2520, 'druhy': 'solné pláně'},
+            {'hlavni': 'Skadar',       'lat': 42.0645, 'lon': 19.3741, 'druhy': 'vyhlídka na R15'},
+            {'hlavni': 'Grmožur',      'lat': 42.2447, 'lon': 19.0925},
+        ]
+        # Export z mapy.cz protáhl cestu od solných plání po POBŘEŽÍ přes Bar.
+        # Ve skutečnosti se jelo horskou R15 nad Skadarským jezerem — naměřeno,
+        # že vyexportovaná trasa míjí vyhlídku o 4,8 km a Barem prochází na 60 m.
+        OPRAVY = [{
+            'od': (41.9175, 19.2520), 'do': (42.2447, 19.0925),
+            'pres': [(42.0645, 19.3741), (42.1000, 19.3300), (42.1400, 19.2600),
+                     (42.1700, 19.2000), (42.2000, 19.1300)],
+            'proc': 'export vedl po pobřeží přes Bar, jelo se horskou R15 nad jezerem',
+        }]
+        d = vyrob_nove('kosovo-2024', GPX_KOS if Path(GPX_KOS).exists() else None, ZAST, opravy=OPRAVY, rez=0.75)
+        d['popis'] = 'Mapa trasy: Maďarsko, Srbsko, Kosovo, Severní Makedonie a Černá Hora'
+        (ven / 'kosovo-2024.js').write_text(
+            '/* Data mapy trasy — vyrobil tools/mapy/gen.py, needituj ručně. */\n'
+            'window.MAPA_TRASY = ' + json.dumps(d, ensure_ascii=False) + ';\n', encoding='utf-8')
+        print(f"→ travels/mapy/kosovo-2024.js   plátno {d['sirka']}×{d['vyska']}, "
+              f"zastávek {len(d['zastavky'])}, trasa {sum(t.count(',') for t in d['trasy'])} bodů, "
+              f"oprav {len(d['opravy'])}")
+        for o in d['opravy']:
+            print(f"    oprava: {o['proc']} ({o['bodu_pryc']} bodů pryč, {o['bodu_misto']} místo nich)")
+
     print(f"plátno {d['sirka']} × {d['vyska']}   (dřív zploštělé {d['zplosteniPredtim']}×, "
           f"odchylka kotev {d['odchylkaKotev']} px)")
     print(f"podklad {len(d['podklad'])} obrysů, trasa {sum(t.count(',') for t in d['trasy'])} bodů "

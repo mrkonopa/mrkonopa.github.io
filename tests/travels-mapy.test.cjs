@@ -32,12 +32,24 @@ const MIME = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css
 const ZAPISKY = require('./stranky.cjs').STRANKY
   .filter(p => p.id.startsWith('t-')).map(p => p.id.slice(2));
 
-/* Zápisky, které ještě běží na staré vložené mapě. Výjimka musí mířit na
-   existující zápisek, jinak test spadne — ať seznam nehnije. */
-const STARA_MAPA = {
-  'ukraine-2017': 'jen úsečky mezi zastávkami, čeká na GPX záznam',
-  'cr-bh-2018': 'jen úsečky mezi zastávkami, čeká na GPX záznam',
-  'yugoslavia-2020': 'jen úsečky mezi zastávkami, čeká na GPX záznam',
+/* Zápisky, které ještě běží na staré vložené mapě. Dnes PRÁZDNÉ — všech
+   sedm map kreslí sdílený modul. Konstrukce zůstává pro případ, že by
+   přibyl nový zápisek dřív, než se mu mapa udělá. */
+const STARA_MAPA = {};
+
+/* Zápisky BEZ ZÁZNAMU TRASY. Jejich mapa má skutečný podklad, skutečné
+   souřadnice zastávek a plnou kontrolu popisků — jen mezi zastávkami
+   vede PŘERUŠOVANÁ úsečka místo jeté cesty, protože GPX k nim není.
+   Míjí je proto jediná kontrola: „trasa je záznam".
+
+   Původně byly celé ve `STARA_MAPA`, tedy bez jakékoli kontroly —
+   a přitom jejich vložené mapy neměly ANI JEDEN obrys pevniny. Vojta:
+   „rád bych, aby to bylo dokreslené až do kraje… přidat konturu států."
+   Po převodu na modul se na ně kontroly popisků vztahují v plné síle. */
+const BEZ_ZAZNAMU = {
+  'ukraine-2017': 'jen zastávky, čeká na GPX záznam',
+  'cr-bh-2018': 'jen zastávky, čeká na GPX záznam',
+  'yugoslavia-2020': 'jen zastávky, čeká na GPX záznam',
 };
 
 /* Rumunsko NENÍ mapa, ale VÝŠKOVÝ PROFIL hřebenovky (osa 1000–2500 m,
@@ -112,18 +124,49 @@ const ZMER = () => {
     nejmensiPismo: Math.round(Math.min(...texty.map(x => x.px)) * 10) / 10,
     bodyTrasy: body.length,
     pomer: Math.round((vb.height / vb.width) * 100) / 100,
+    panelW: Math.round(r.width), panelH: Math.round(r.height),
+    panelL: Math.round(r.left), ...(() => {
+      const sek = document.querySelector('.route-section');
+      const st = getComputedStyle(sek), sr = sek.getBoundingClientRect();
+      return { sekceL: Math.round(sr.left + parseFloat(st.paddingLeft)),
+               sekceW: Math.round(sr.width - parseFloat(st.paddingLeft) - parseFloat(st.paddingRight)) };
+    })(),
+    podkladu: svg.querySelectorAll('.mapa-pevnina path').length,
+    spoju: svg.querySelectorAll('.mapa-spoj').length,
   };
 };
+
+/* Rozměry panelu mapy.
+
+   Mapa jde PŘES CELOU ŠÍŘKU sekce a lícuje s nadpisem nad sebou.
+   Naměřeno před opravou: `.title-block`, `.data-strip` i `.route-section`
+   mají obsah 1024 px od x = 208, ale panel mapy byl 779 px odsazený na
+   x = 331 — o 151 px zúžený a opticky utržený od hlavičky. Vojta to
+   nahlásil třikrát, naposledy s červeně zakresleným snímkem: „chci, aby
+   ta mapa byla roztáhlá přes celou obrazovku tak, aby navazovala na ten
+   nadpis nad tím."
+
+   Hlídá se proto:
+     LÍCOVÁNÍ    — levý okraj i šířka panelu se MUSÍ rovnat obsahu sekce.
+                   Chytá návrat k pevné `max-width` i k centrování.
+     POMĚR STRAN — generátor roztahuje výřez na 1,9 : 1 (s okrajem 10
+                   jednotek vychází plátno 300 × 167,4, tedy 1,79).
+                   Chytá mapu, která se do generátoru dostala bez
+                   `na_pomer()` a zůstala vysoká.
+
+   Plocha se už neporovnává: když jsou všechny mapy stejně široké i
+   stejně vysoké, je to tvrzení, které nemůže spadnout. */
+const POMER_CIL = 1.79, POMER_ODCHYLKA = 0.03;
 
 (async () => {
   console.log('\n── Mapy tras ──\n');
   const srv = await serve(); const base = 'http://127.0.0.1:' + srv.address().port;
   const browser = await chromium.launch({ headless: true, executablePath: EXEC });
-  let promereno = 0;
+  let promereno = 0; const mereno = {};
   try {
-    for (const zla of [...Object.keys(STARA_MAPA), ...Object.keys(PROFIL)]) {
+    for (const zla of [...Object.keys(STARA_MAPA), ...Object.keys(PROFIL), ...Object.keys(BEZ_ZAZNAMU)]) {
       ok(ZAPISKY.includes(zla), `výjimka „${zla}" míří na existující zápisek`,
-        STARA_MAPA[zla] || PROFIL[zla]);
+        STARA_MAPA[zla] || PROFIL[zla] || BEZ_ZAZNAMU[zla]);
     }
 
     for (const sirka of [1280, 380]) {
@@ -166,7 +209,23 @@ const ZMER = () => {
            Výškový profil tyhle tři kontroly míjí — kreslí se vlastním
            vloženým SVG a jeho „trasa" je stoupání, ne cesta po mapě. */
         if (sirka === 1280 && !PROFIL[z]) {
-          ok(r.bodyTrasy > 100, `${z}: trasa je záznam, ne úsečky (${r.bodyTrasy} bodů)`);
+          mereno[z] = true;
+          ok(r.panelL === r.sekceL && r.panelW === r.sekceW,
+            `${z}: mapa lícuje s nadpisem (x ${r.sekceL}, šířka ${r.sekceW})`,
+            `panel x ${r.panelL}, šířka ${r.panelW}`);
+          const pom = r.panelW / r.panelH;
+          ok(Math.abs(pom - POMER_CIL) <= POMER_ODCHYLKA,
+            `${z}: poměr stran ${POMER_CIL} ± ${POMER_ODCHYLKA}`, `naměřeno ${pom.toFixed(3)}`);
+          if (BEZ_ZAZNAMU[z]) {
+            /* Bez záznamu se nehlídá hustota trasy, ale MUSÍ být podklad
+               a spoje mezi zastávkami — jinak by převod mohl tiše vyrobit
+               prázdné plátno a test by mlčel. */
+            ok(r.podkladu >= 5, `${z}: mapa má obrysy států (${r.podkladu})`, BEZ_ZAZNAMU[z]);
+            ok(r.spoju >= 3, `${z}: zastávky jsou pospojované (${r.spoju} úseků)`);
+            ok(r.bodyTrasy === 0, `${z}: trasa se netváří jako záznam`, `${r.bodyTrasy} bodů`);
+          } else {
+            ok(r.bodyTrasy > 100, `${z}: trasa je záznam, ne úsečky (${r.bodyTrasy} bodů)`);
+          }
           const html = fs.readFileSync(path.join(ROOT, 'travels', z + '.html'), 'utf8');
           ok(!/<div class="route-svg-wrap">\s*<svg/.test(html),
             `${z}: mapa se kreslí modulem, ne vloženým SVG`);
@@ -177,6 +236,13 @@ const ZMER = () => {
       }
     }
     ok(promereno === ZAPISKY.length * 2, `proměřeno všech ${ZAPISKY.length} zápisků na obou šířkách`, 'proměřeno ' + promereno);
+
+    /* Pojistka „vidělo to vůbec něco": mapou kreslených zápisků musí být
+       tolik, kolik jich není ve výjimkách. */
+    const kresby = ZAPISKY.filter(z => !STARA_MAPA[z] && !PROFIL[z]);
+    ok(Object.keys(mereno).length === kresby.length,
+      `panel změřen u všech ${kresby.length} mapou kreslených zápisků`,
+      'změřeno ' + Object.keys(mereno).length);
   } finally { await browser.close(); srv.close(); }
 
   console.log(`\n  Mapy tras: ${pass} ✅ / ${fail} ❌\n`);

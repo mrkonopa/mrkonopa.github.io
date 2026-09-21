@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kosovo 2024 · Travels · Vojtěch Konopa</title>
+  <link rel="icon" href="/travels/favicon.svg" type="image/svg+xml">
+  <meta name="description" content="Summer 2024 through Hungary, Serbia, Kosovo, North Macedonia and Montenegro — mines, factories, memorials and salt flats on a single loop south." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./mapa.css" />
+  <style>
+    :root {
+      --bg: #1c1c1c;
+      --surface: #262626;
+      --surface-2: #2e2e2e;
+      --border: #3a3a3a;
+      --border-strong: #555;
+      --fg: #ededec;
+      --fg-dim: #a8a8a2;
+      --fg-muted: #8e8e89;
+      --accent: #f5b800;
+      --concrete: #4a4a48;
+      --display: 'Archivo Black', 'Inter', system-ui, sans-serif;
+      --body: 'Inter', system-ui, -apple-system, Segoe UI, sans-serif;
+      --mono: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      background: var(--bg);
+      color: var(--fg);
+      font-family: var(--body);
+      font-size: 16px;
+      line-height: 1.55;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a { color: var(--fg); text-decoration: none; border-bottom: 1px solid transparent; transition: color .15s, border-color .15s; }
+    a:hover, a:focus { color: var(--accent); border-bottom-color: var(--accent); outline: none; }
+    a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 1px; }
+    img { display: block; max-width: 100%; }
+
+    .top-bar {
+      border-bottom: 1px solid var(--border);
+      padding: 18px 28px;
+      display: flex; justify-content: space-between; align-items: baseline; gap: 18px;
+      font-family: var(--mono); font-size: 12px;
+      letter-spacing: 0.08em; text-transform: uppercase; color: var(--fg-dim);
+    }
+    .top-bar a { color: var(--fg-dim); }
+    .top-bar a:hover { color: var(--accent); }
+    .top-bar .crumb { color: var(--fg); }
+
+    .hero {
+      position: relative; width: 100%;
+      aspect-ratio: 16 / 9; max-height: 80vh;
+      background-color: var(--concrete);
+      background-size: cover; background-position: center; overflow: hidden;
+    }
+    .hero::before {
+      content: ''; position: absolute; inset: auto 0 0 0; height: 50%;
+      background: linear-gradient(to top, rgba(0,0,0,0.55), transparent);
+      pointer-events: none;
+    }
+    .title-block {
+      max-width: 1080px; margin: 0 auto; padding: 56px 28px 28px;
+      border-bottom: 1px solid var(--border);
+    }
+    .label-row {
+      display: flex; gap: 24px; flex-wrap: wrap;
+      font-family: var(--mono); font-size: 11px;
+      letter-spacing: 0.18em; text-transform: uppercase;
+      color: var(--accent); margin-bottom: 18px;
+    }
+    .label-row .dim { color: var(--fg-dim); }
+    h1.location {
+      font-family: var(--display);
+      font-size: clamp(52px, 10vw, 130px);
+      line-height: 0.88;
+      letter-spacing: -0.025em;
+      text-transform: uppercase;
+      margin-bottom: 22px;
+    }
+    .subtitle {
+      font-size: 18px; font-weight: 300;
+      color: var(--fg-dim); max-width: 680px; line-height: 1.65;
+      margin-bottom: 28px;
+    }
+
+    .data-strip {
+      display: flex; flex-wrap: wrap; gap: 0;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      font-family: var(--mono);
+    }
+    .data-item {
+      padding: 14px 28px 14px 0;
+      margin-right: 28px;
+      border-right: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .data-item:last-child { border-right: none; }
+    .data-label {
+      font-size: 9.5px; letter-spacing: 0.22em;
+      text-transform: uppercase; color: var(--fg-muted);
+      display: block; margin-bottom: 4px;
+    }
+    .data-val {
+      font-size: 18px; font-weight: 700; color: var(--fg);
+      letter-spacing: -0.01em;
+    }
+    .data-val span { font-size: 11px; font-weight: 400; color: var(--fg-dim); margin-left: 2px; }
+
+    /* ── ROUTE MAP ── */
+    .route-section {
+      max-width: 1080px; margin: 0 auto; padding: 56px 28px 48px;
+      border-bottom: 1px solid var(--border);
+    }
+    .section-label {
+      font-family: var(--mono); font-size: 11px;
+      letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--fg-dim); margin-bottom: 20px;
+    }
+    /* Rozměry mapy řeší mapa.css (sdílený modul). Zůstat tu nemůžou:
+       `overflow:hidden` by ořízlo popisky, které jsou schválně kousek
+       vedle plátna. */
+
+    /* ── ARTICLE ── */
+    .article {
+      max-width: 780px; margin: 0 auto; padding: 64px 28px 80px;
+    }
+    .article h2 {
+      font-family: var(--mono); font-size: 11px;
+      letter-spacing: 0.22em; text-transform: uppercase;
+      color: var(--accent); margin-bottom: 20px; margin-top: 52px;
+      padding-bottom: 10px; border-bottom: 1px solid var(--border);
+    }
+    .article h2:first-child { margin-top: 0; }
+    .article h3 {
+      font-family: var(--display); font-size: 22px;
+      text-transform: uppercase; letter-spacing: -0.01em;
+      margin: 36px 0 14px; color: var(--fg);
+    }
+    .article p {
+      font-size: 15.5px; line-height: 1.75; color: var(--fg-dim);
+      font-weight: 300; margin-bottom: 18px;
+    }
+    .article p strong { color: var(--fg); font-weight: 500; }
+    .article .location-tag {
+      display: inline-block;
+      font-family: var(--mono); font-size: 10px;
+      letter-spacing: 0.18em; text-transform: uppercase;
+      color: var(--accent); background: rgba(245,184,0,0.08);
+      border: 1px solid rgba(245,184,0,0.25);
+      padding: 3px 8px; border-radius: 2px;
+      margin-bottom: 12px;
+    }
+
+    /* ── GALLERY ── */
+    .gallery-section {
+      max-width: 1280px; margin: 0 auto; padding: 0 0 96px;
+    }
+    .day-heading {
+      font-family: var(--mono); font-size: 11px;
+      letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--fg-dim); padding: 20px 28px 12px;
+      border-top: 1px solid var(--border);
+    }
+    .day-heading b { color: var(--accent); }
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 1px; background: var(--border);
+    }
+    .gallery-grid img {
+      width: 100%; aspect-ratio: 4/3;
+      object-fit: cover; display: block;
+      filter: grayscale(0.35) contrast(1.05);
+      transition: filter 0.25s ease;
+    }
+    .gallery-grid img:hover { filter: none; cursor: zoom-in; }
+
+    /* lightbox */
+    #lb { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.92);
+      z-index:1000; align-items:center; justify-content:center; }
+    #lb.open { display:flex; }
+    #lb img { max-width:90vw; max-height:90vh; object-fit:contain; display:block; }
+    #lb-close { position:fixed; top:18px; right:22px; font-size:28px; color:#fff;
+      cursor:pointer; font-family:var(--mono); line-height:1; opacity:0.7; }
+    #lb-close:hover { opacity:1; }
+
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 32px 28px; max-width: 1280px; margin: 0 auto;
+      display: flex; justify-content: space-between; gap: 18px;
+      font-family: var(--mono); font-size: 11px;
+      letter-spacing: 0.16em; text-transform: uppercase; color: var(--fg-dim);
+    }
+    footer a { color: var(--fg-dim); border-bottom: 1px solid transparent; }
+    footer a:hover { color: var(--accent); border-bottom-color: var(--accent); }
+
+    @media (max-width: 768px) {
+      .title-block { padding: 36px 20px 24px; }
+      .article { padding: 40px 20px 60px; }
+      .route-section { padding: 36px 20px 32px; }
+      .top-bar, footer { padding: 14px 20px; }
+      .data-item { padding: 12px 18px 12px 0; margin-right: 18px; }
+      .data-val { font-size: 16px; }
+    }
+    @media (max-width: 480px) {
+      h1.location { font-size: 52px; }
+      .gallery-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+  
+    /* ── DOTYK ────────────────────────────────────────────────────
+       Na tabletu a telefonu má mít klikací plocha aspoň 44 px na výšku.
+       Sedm z osmi únikovek to v repu už mělo, cestovatelské zápisky ne —
+       proto „HOME" 34 × 14 px. Platí jen pro hrubý ukazatel, takže na
+       monitoru se vzhled nemění ani o pixel. */
+    @media (pointer: coarse) {
+      .top-bar a, footer a, nav a { display: inline-flex; align-items: center; min-height: 44px; }
+      /* Popisek „← previous" stojí NAD textem, ne vedle něj — sloupec to udrží. */
+      .nav-strip a { flex-direction: column; align-items: flex-start; justify-content: center; }
+    }
+
+    /* Na 360 px se drobečková cesta, odkaz zpět a uživatel do jednoho
+       řádku nevejdou — nejdelší z nich (~/travels/yugoslavia-2020)
+       přetahovala dokument na 383 px. Řádek se proto smí ZALOMIT.
+       Zkoušel jsem místo toho cestu useknout třemi tečkami, jenže to je
+       tichý ořez textu a sweep rozvržení ho (správně) hlásí jako vadu —
+       zalomení nic neskrývá.
+       Totéž preventivně u patičky a navigace: jsou to stejné jednořádkové
+       flex pruhy a runner CI vykresluje jiný build prohlížeče než sandbox,
+       takže pár pixelů rozdílu ve zlomu písma je reálná možnost. Zalomení
+       se projeví jedině tehdy, když by se řádek jinak nevešel. */
+    .top-bar, footer, .nav-strip { flex-wrap: wrap; }
+  
+    /* Podtitul v hlavním nadpisu: „Kosovo" velké, „and its neighbours"
+       menší pod tím. Vlastní blok, ne <br>, aby se dal samostatně
+       odsadit a zmenšit. */
+    h1.location small {
+      display: block; margin-top: 8px;
+      font-family: var(--body); font-weight: 300;
+      font-size: clamp(16px, 2.2vw, 26px);
+      letter-spacing: 0.02em; text-transform: none;
+      color: var(--fg-dim);
+    }
+</style>
+<body>
+
+  <div class="top-bar">
+    <a href="./index.html">← back to travels</a>
+    <span class="crumb">~/travels/kosovo-2024</span>
+    <span>vojta@konopa</span>
+  </div>
+
+  <div class="hero" style="background-image:url('./images/kosovo_2024/k0088.jpg'); background-position: center;"></div>
+
+  <div class="title-block">
+    <div class="label-row">
+      <span>FIELD JOURNAL · 008</span>
+      <span class="dim">HU · RS · XK · MK · ME · SUMMER 2024</span>
+    </div>
+    <h1 class="location">KOSOVO<small>and its neighbours</small></h1>
+    <p class="subtitle">
+      Nine days and just under four thousand kilometres, from Liberec down to the Macedonian
+      lakes and back up the Adriatic. A lead mine at Trepça, the fortress hill of Novo Brdo,
+      a church left standing in a reservoir, and a salt works that runs to the horizon.
+    </p>
+    <div class="data-strip">
+      <div class="data-item">
+        <span class="data-label">Countries</span>
+        <div class="data-val">HU · RS · XK · MK · ME</div>
+      </div>
+      <div class="data-item">
+        <span class="data-label">Dates</span>
+        <div class="data-val">4–12 Aug 2024</div>
+      </div>
+      <div class="data-item">
+        <span class="data-label">Distance</span>
+        <div class="data-val">3 966 km</div>
+      </div>
+      <div class="data-item">
+        <span class="data-label">Photos</span>
+        <div class="data-val" id="photo-count">—</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ROUTE MAP -->
+  <section class="route-section">
+    <p class="section-label">// ROUTE (GPX) — Liberec → Budapest → Novi Sad → Trepça → Pristina → Mavrovo → Prespa → Ohrid → Ulcinj → Lake Skadar → Liberec</p>
+    <div class="route-svg-wrap"></div>
+  </section>
+
+  <!-- ARTICLE -->
+  <article class="article">
+
+    <h2>// HUNGARY — THE FIRST NIGHT</h2>
+
+    <h3>The train graveyard</h3>
+    <span class="location-tag">Istvántelek · Budapest · HU</span>
+    <p>
+      A railway works on the northern edge of Budapest, half still in service and half left
+      to itself. In the abandoned half the glazed roof has come down in sheets, birches have
+      grown up out of the inspection pits, and a brick water tower stands over the sidings.
+      Between the halls the carriages have gone matt under decades of graffiti. We got in at
+      the end of the day, when the light was coming through the broken roof in stripes.
+    </p>
+
+    <h2>// SERBIA — VOJVODINA</h2>
+
+    <h3>The Spitzer house</h3>
+    <span class="location-tag">Beočin · RS</span>
+    <p>
+      A manor under the Fruška Gora, built for the family that owned the cement works below
+      it. The shell is intact enough to show what it was: round oculus windows over the
+      arcade, a stone eagle still sitting on the gable, and in one upstairs room a painted
+      ceiling in pink and gold that has come through the rain better than the floor
+      underneath it has.
+    </p>
+
+    <h3>Jugoalat</h3>
+    <span class="location-tag">Novi Sad · RS</span>
+    <p>
+      A tool factory on the edge of Novi Sad and by a long way the biggest thing we walked
+      into on this trip — offices with the paperwork still in the shelves, a canteen, then
+      hall after hall of machinery pulled half to pieces for scrap. On a wall in the
+      administration block hangs an enamel badge: <strong>JUGOALAT · 1935–1985</strong>, made
+      for the fiftieth anniversary. The factory did not get another forty.
+    </p>
+
+    <h2>// KOSOVO — LEAD, SILVER AND MEMORY</h2>
+
+    <h3>Trepça</h3>
+    <span class="location-tag">Stantërg · Mitrovica · XK</span>
+    <p>
+      Lead, zinc and silver have come out of this valley since the Middle Ages, and the
+      Trepça combine that grew up around it was once the largest industrial employer in
+      Kosovo. What stands on the hillside now is a company town coming apart slowly: winding
+      gear, a locomotive rusted onto its rails, ore chutes running down the slope, a chemical
+      plant with its windows out. From the top you can see the whole works laid out in the
+      trees, with the village roofs in among it.
+    </p>
+
+    <h3>Novo Brdo</h3>
+    <span class="location-tag">XK</span>
+    <p>
+      A bare hill east of Pristina with the stumps of a fortress on top and an excavation
+      opened up around it. In the fourteenth century this was one of the richest mining towns
+      in the Balkans — silver and argentiferous lead, its own mint, Saxon miners, Ragusan
+      traders. What is there now is grass, a few courses of wall, and a very long view.
+    </p>
+
+    <h3>Pristina</h3>
+    <span class="location-tag">XK</span>
+    <p>
+      Three buildings in one afternoon, and no two of them agree about anything. The
+      <strong>National Library “Pjetër Bogdani”</strong> under its domes and its steel net;
+      the Catholic cathedral of Mother Teresa, still in scaffolding; and behind the
+      university, the Orthodox church begun in the 1990s and never finished, standing in
+      waist-high grass with its brick still raw.
+    </p>
+
+    <h3>Prekaz</h3>
+    <span class="location-tag">XK</span>
+    <p>
+      The Jashari family houses, kept as they were left in March 1998 — shot through from the
+      ground to the roofline, the render gone in patches the size of doors, a steel frame now
+      built over the top of them to keep the weather off. Behind, on the slope, the graves in
+      a long row and a wide circular plaza laid out in front of them. It was the quietest
+      place we stopped at, and the only one where turning up as a visitor felt like it needed
+      explaining.
+    </p>
+
+    <h2>// NORTH MACEDONIA — TWO LAKES</h2>
+
+    <h3>The church in the reservoir</h3>
+    <span class="location-tag">Mavrovo · MK</span>
+    <p>
+      Sveti Nikola was left standing when the valley was dammed in the 1950s, and for much of
+      the year the water is around it. We came in a dry summer and walked out to it over the
+      lake bed: no roof, the arcades open to the sky, the plaster gone down to the stone, and
+      a bell turret still on top of it.
+    </p>
+
+    <h3>Oteševo</h3>
+    <span class="location-tag">Lake Prespa · MK</span>
+    <p>
+      A whole holiday settlement on the west shore of Prespa, emptied and left standing:
+      terraced concrete blocks stepped up the slope, a pine wood closing in on the car parks,
+      corridors painted over with somebody’s murals, a sawtooth glass roof above what must
+      have been a dining room. <strong>Hotel Evropa</strong>, the biggest of them, burned in
+      2004 and never reopened. Down on the shore the lake has pulled a long way back from
+      where it is supposed to be.
+    </p>
+
+    <h3>The children’s hospital</h3>
+    <span class="location-tag">Ohrid · MK</span>
+    <p>
+      A low pavilion hospital above the lake road, closed and stripped — consulting rooms
+      with the fittings torn off the walls, wooden shutters pulled to, a ladder left standing
+      in a doorway, and that particular green-and-white institutional paint that the whole
+      region seems to have been issued at once.
+    </p>
+
+    <h2>// MONTENEGRO — SALT, WATER AND CONCRETE</h2>
+
+    <h3>Solana Ulcinj</h3>
+    <span class="location-tag">Ulcinj · ME</span>
+    <p>
+      The largest place on the trip, and not a building at all. The Ulcinj salt works took
+      its first harvest in 1935, went bankrupt in 2005 and lost the right to extract salt in
+      2011. What is left is roughly fifteen square kilometres of evaporation pans and feeder
+      canals running dead straight to the horizon, with the industrial end of it stripped
+      back to the steel: roof trusses standing over nothing, a hall swept clean with its
+      shutters closed, the pumps gone. On the front of the administration block the Cyrillic
+      still reads <strong>УПРАВА СОЛАНЕ У УЛЦИЊУ</strong>, with a bust on a plinth in the
+      grass in front of it. The pans themselves have been taken over by birds; in the middle
+      of the afternoon the only thing moving was one of them, high up over the water.
+    </p>
+
+    <h3>The R15 over Rumija</h3>
+    <span class="location-tag">Lake Skadar · ME</span>
+    <p>
+      Rather than the coast road we took the R15, which climbs out of the Ulcinj plain over
+      the Rumija ridge and comes down towards Lake Skadar. From the top the whole lake is
+      laid out underneath — the largest in the Balkans, shared with Albania — shallow,
+      islanded and hazy with heat, and behind it the mountains going up in flat grey steps.
+    </p>
+
+    <h3>The unfinished hotel</h3>
+    <span class="location-tag">Montenegrin coast · ME</span>
+    <p>
+      Storey after storey of bare concrete frame above a bay, curved in plan, with the
+      balcony slabs cantilevered out and nothing on them. Somebody clearly means to finish
+      it: there is a tower crane standing in the middle of the building and lettering along
+      one flank. From below it looks less like a ruin than like a thing paused.
+    </p>
+
+    <h3>The submarine pens</h3>
+    <span class="location-tag">Bay of Kotor · ME</span>
+    <p>
+      Tunnels cut into the rock at the mouth of the bay, wide enough to take a submarine and
+      high enough to clear a conning tower, with a concrete quay down one side and the sea
+      running in at the far end. The Yugoslav navy put them here to keep boats out of sight
+      from the air. Inside they are cold and echoing and sprayed over near the entrances, and
+      the way out is a white rectangle of Adriatic at the end of a very long dark room.
+    </p>
+
+  </article>
+
+  <!-- GALLERY -->
+  <section class="gallery-section">
+    <h3 class="day-heading">// <b>Hungary</b> · Budapest · the Istvántelek train graveyard · 4 Aug</h3>
+    <div class="gallery-grid">
+      <img src="./images/kosovo_2024/k0001.jpg" alt="Hungary — Budapest · the Istvántelek train graveyard, 4 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0002.jpg" alt="Hungary — Budapest · the Istvántelek train graveyard, 4 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0003.jpg" alt="Hungary — Budapest · the Istvántelek train graveyard, 4 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0004.jpg" alt="Hungary — Budapest · the Istvántelek train graveyard, 4 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0006.jpg" alt="Hungary — Budapest · the Istvántelek train graveyard, 4 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0007.jpg" alt="Hungary — Budapest · the Istvántelek train graveyard, 4 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0008.jpg" alt="Hungary — Budapest · the Istvántelek train graveyard, 4 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0009.jpg" alt="Hungary — Budapest · the Istvántelek train graveyard, 4 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0010.jpg" alt="Hungary — Budapest · the Istvántelek train graveyard, 4 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0011.jpg" alt="Hungary — Budapest · the Istvántelek train graveyard, 4 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0012.jpg" alt="Hungary — Budapest · the Istvántelek train graveyard, 4 Aug 2024" loading="lazy" />
+    </div>
+
+    <h3 class="day-heading">// <b>Serbia</b> · Beočin · the Spitzer house · 5 Aug</h3>
+    <div class="gallery-grid">
+      <img src="./images/kosovo_2024/k0014.jpg" alt="Serbia — Beočin · the Spitzer house, 5 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0015.jpg" alt="Serbia — Beočin · the Spitzer house, 5 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0016.jpg" alt="Serbia — Beočin · the Spitzer house, 5 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0017.jpg" alt="Serbia — Beočin · the Spitzer house, 5 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0018.jpg" alt="Serbia — Beočin · the Spitzer house, 5 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0019.jpg" alt="Serbia — Beočin · the Spitzer house, 5 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0020.jpg" alt="Serbia — Beočin · the Spitzer house, 5 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0021.jpg" alt="Serbia — Beočin · the Spitzer house, 5 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0022.jpg" alt="Serbia — Beočin · the Spitzer house, 5 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0023.jpg" alt="Serbia — Beočin · the Spitzer house, 5 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0024.jpg" alt="Serbia — Beočin · the Spitzer house, 5 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0025.jpg" alt="Serbia — Beočin · the Spitzer house, 5 Aug 2024" loading="lazy" />
+    </div>
+
+    <h3 class="day-heading">// <b>Serbia</b> · Novi Sad · Jugoalat · 5 Aug</h3>
+    <div class="gallery-grid">
+      <img src="./images/kosovo_2024/k0026.jpg" alt="Serbia — Novi Sad · Jugoalat, 5 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0027.jpg" alt="Serbia — Novi Sad · Jugoalat, 5 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0028.jpg" alt="Serbia — Novi Sad · Jugoalat, 5 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0029.jpg" alt="Serbia — Novi Sad · Jugoalat, 5 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0030.jpg" alt="Serbia — Novi Sad · Jugoalat, 5 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0031.jpg" alt="Serbia — Novi Sad · Jugoalat, 5 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0032.jpg" alt="Serbia — Novi Sad · Jugoalat, 5 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0033.jpg" alt="Serbia — Novi Sad · Jugoalat, 5 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0034.jpg" alt="Serbia — Novi Sad · Jugoalat, 5 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0035.jpg" alt="Serbia — Novi Sad · Jugoalat, 5 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0036.jpg" alt="Serbia — Novi Sad · Jugoalat, 5 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0037.jpg" alt="Serbia — Novi Sad · Jugoalat, 5 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0038.jpg" alt="Serbia — Novi Sad · Jugoalat, 5 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0039.jpg" alt="Serbia — Novi Sad · Jugoalat, 5 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0040.jpg" alt="Serbia — Novi Sad · Jugoalat, 5 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0041.jpg" alt="Serbia — Novi Sad · Jugoalat, 5 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0042.jpg" alt="Serbia — Novi Sad · Jugoalat, 5 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0043.jpg" alt="Serbia — Novi Sad · Jugoalat, 5 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0044.jpg" alt="Serbia — Novi Sad · Jugoalat, 5 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0045.jpg" alt="Serbia — Novi Sad · Jugoalat, 5 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0046.jpg" alt="Serbia — Novi Sad · Jugoalat, 5 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0047.jpg" alt="Serbia — Novi Sad · Jugoalat, 5 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0048.jpg" alt="Serbia — Novi Sad · Jugoalat, 5 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0049.jpg" alt="Serbia — Novi Sad · Jugoalat, 5 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0050.jpg" alt="Serbia — Novi Sad · Jugoalat, 5 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0051.jpg" alt="Serbia — Novi Sad · Jugoalat, 5 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0052.jpg" alt="Serbia — Novi Sad · Jugoalat, 5 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0053.jpg" alt="Serbia — Novi Sad · Jugoalat, 5 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0054.jpg" alt="Serbia — Novi Sad · Jugoalat, 5 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0055.jpg" alt="Serbia — Novi Sad · Jugoalat, 5 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0056.jpg" alt="Serbia — Novi Sad · Jugoalat, 5 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0057.jpg" alt="Serbia — Novi Sad · Jugoalat, 5 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0058.jpg" alt="Serbia — Novi Sad · Jugoalat, 5 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0059.jpg" alt="Serbia — Novi Sad · Jugoalat, 5 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0060.jpg" alt="Serbia — Novi Sad · Jugoalat, 5 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0061.jpg" alt="Serbia — Novi Sad · Jugoalat, 5 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0062.jpg" alt="Serbia — Novi Sad · Jugoalat, 5 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0064.jpg" alt="Serbia — Novi Sad · Jugoalat, 5 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0065.jpg" alt="Serbia — Novi Sad · Jugoalat, 5 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0066.jpg" alt="Serbia — Novi Sad · Jugoalat, 5 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0067.jpg" alt="Serbia — Novi Sad · Jugoalat, 5 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0068.jpg" alt="Serbia — Novi Sad · Jugoalat, 5 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0069.jpg" alt="Serbia — Novi Sad · Jugoalat, 5 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0070.jpg" alt="Serbia — Novi Sad · Jugoalat, 5 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0071.jpg" alt="Serbia — Novi Sad · Jugoalat, 5 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0072.jpg" alt="Serbia — Novi Sad · Jugoalat, 5 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0073.jpg" alt="Serbia — Novi Sad · Jugoalat, 5 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0074.jpg" alt="Serbia — Novi Sad · Jugoalat, 5 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0075.jpg" alt="Serbia — Novi Sad · Jugoalat, 5 Aug 2024" loading="lazy" />
+    </div>
+
+    <h3 class="day-heading">// <b>Kosovo</b> · Trepça · the mine and the smelter · 6 Aug</h3>
+    <div class="gallery-grid">
+      <img src="./images/kosovo_2024/k0076.jpg" alt="Kosovo — Trepça · the mine and the smelter, 6 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0077.jpg" alt="Kosovo — Trepça · the mine and the smelter, 6 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0078.jpg" alt="Kosovo — Trepça · the mine and the smelter, 6 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0079.jpg" alt="Kosovo — Trepça · the mine and the smelter, 6 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0080.jpg" alt="Kosovo — Trepça · the mine and the smelter, 6 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0081.jpg" alt="Kosovo — Trepça · the mine and the smelter, 6 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0082.jpg" alt="Kosovo — Trepça · the mine and the smelter, 6 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0083.jpg" alt="Kosovo — Trepça · the mine and the smelter, 6 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0084.jpg" alt="Kosovo — Trepça · the mine and the smelter, 6 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0085.jpg" alt="Kosovo — Trepça · the mine and the smelter, 6 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0086.jpg" alt="Kosovo — Trepça · the mine and the smelter, 6 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0087.jpg" alt="Kosovo — Trepça · the mine and the smelter, 6 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0088.jpg" alt="Kosovo — Trepça · the mine and the smelter, 6 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0089.jpg" alt="Kosovo — Trepça · the mine and the smelter, 6 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0090.jpg" alt="Kosovo — Trepça · the mine and the smelter, 6 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0091.jpg" alt="Kosovo — Trepça · the mine and the smelter, 6 Aug 2024" loading="lazy" />
+    </div>
+
+    <h3 class="day-heading">// <b>Kosovo</b> · Novo Brdo · the fortress · 7 Aug</h3>
+    <div class="gallery-grid">
+      <img src="./images/kosovo_2024/k0100.jpg" alt="Kosovo — Novo Brdo · the fortress, 7 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0102.jpg" alt="Kosovo — Novo Brdo · the fortress, 7 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0103.jpg" alt="Kosovo — Novo Brdo · the fortress, 7 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0104.jpg" alt="Kosovo — Novo Brdo · the fortress, 7 Aug 2024" loading="lazy" />
+    </div>
+
+    <h3 class="day-heading">// <b>Kosovo</b> · Pristina · 7 Aug</h3>
+    <div class="gallery-grid">
+      <img src="./images/kosovo_2024/k0105.jpg" alt="Kosovo — Pristina, 7 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0106.jpg" alt="Kosovo — Pristina, 7 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0107.jpg" alt="Kosovo — Pristina, 7 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0108.jpg" alt="Kosovo — Pristina, 7 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0109.jpg" alt="Kosovo — Pristina, 7 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0110.jpg" alt="Kosovo — Pristina, 7 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0112.jpg" alt="Kosovo — Pristina, 7 Aug 2024" loading="lazy" />
+    </div>
+
+    <h3 class="day-heading">// <b>Kosovo</b> · Prekaz · the Jashari memorial · 8 Aug</h3>
+    <div class="gallery-grid">
+      <img src="./images/kosovo_2024/k0113.jpg" alt="Kosovo — Prekaz · the Jashari memorial, 8 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0114.jpg" alt="Kosovo — Prekaz · the Jashari memorial, 8 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0116.jpg" alt="Kosovo — Prekaz · the Jashari memorial, 8 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0117.jpg" alt="Kosovo — Prekaz · the Jashari memorial, 8 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0118.jpg" alt="Kosovo — Prekaz · the Jashari memorial, 8 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0119.jpg" alt="Kosovo — Prekaz · the Jashari memorial, 8 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0120.jpg" alt="Kosovo — Prekaz · the Jashari memorial, 8 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0121.jpg" alt="Kosovo — Prekaz · the Jashari memorial, 8 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0122.jpg" alt="Kosovo — Prekaz · the Jashari memorial, 8 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0123.jpg" alt="Kosovo — Prekaz · the Jashari memorial, 8 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0124.jpg" alt="Kosovo — Prekaz · the Jashari memorial, 8 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0125.jpg" alt="Kosovo — Prekaz · the Jashari memorial, 8 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0126.jpg" alt="Kosovo — Prekaz · the Jashari memorial, 8 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0127.jpg" alt="Kosovo — Prekaz · the Jashari memorial, 8 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0128.jpg" alt="Kosovo — Prekaz · the Jashari memorial, 8 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0129.jpg" alt="Kosovo — Prekaz · the Jashari memorial, 8 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0132.jpg" alt="Kosovo — Prekaz · the Jashari memorial, 8 Aug 2024" loading="lazy" />
+    </div>
+
+    <h3 class="day-heading">// <b>N. Macedonia</b> · Mavrovo · the church in the reservoir · 9 Aug</h3>
+    <div class="gallery-grid">
+      <img src="./images/kosovo_2024/k0133.jpg" alt="N. Macedonia — Mavrovo · the church in the reservoir, 9 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0134.jpg" alt="N. Macedonia — Mavrovo · the church in the reservoir, 9 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0135.jpg" alt="N. Macedonia — Mavrovo · the church in the reservoir, 9 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0136.jpg" alt="N. Macedonia — Mavrovo · the church in the reservoir, 9 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0137.jpg" alt="N. Macedonia — Mavrovo · the church in the reservoir, 9 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0138.jpg" alt="N. Macedonia — Mavrovo · the church in the reservoir, 9 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0139.jpg" alt="N. Macedonia — Mavrovo · the church in the reservoir, 9 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0140.jpg" alt="N. Macedonia — Mavrovo · the church in the reservoir, 9 Aug 2024" loading="lazy" />
+    </div>
+
+    <h3 class="day-heading">// <b>N. Macedonia</b> · Lake Prespa · Oteševo · 9 Aug</h3>
+    <div class="gallery-grid">
+      <img src="./images/kosovo_2024/k0141.jpg" alt="N. Macedonia — Lake Prespa · Oteševo, 9 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0142.jpg" alt="N. Macedonia — Lake Prespa · Oteševo, 9 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0143.jpg" alt="N. Macedonia — Lake Prespa · Oteševo, 9 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0144.jpg" alt="N. Macedonia — Lake Prespa · Oteševo, 9 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0145.jpg" alt="N. Macedonia — Lake Prespa · Oteševo, 9 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0146.jpg" alt="N. Macedonia — Lake Prespa · Oteševo, 9 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0147.jpg" alt="N. Macedonia — Lake Prespa · Oteševo, 9 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0148.jpg" alt="N. Macedonia — Lake Prespa · Oteševo, 9 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0150.jpg" alt="N. Macedonia — Lake Prespa · Oteševo, 9 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0151.jpg" alt="N. Macedonia — Lake Prespa · Oteševo, 9 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0152.jpg" alt="N. Macedonia — Lake Prespa · Oteševo, 9 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0153.jpg" alt="N. Macedonia — Lake Prespa · Oteševo, 9 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0154.jpg" alt="N. Macedonia — Lake Prespa · Oteševo, 9 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0155.jpg" alt="N. Macedonia — Lake Prespa · Oteševo, 9 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0156.jpg" alt="N. Macedonia — Lake Prespa · Oteševo, 9 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0157.jpg" alt="N. Macedonia — Lake Prespa · Oteševo, 9 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0158.jpg" alt="N. Macedonia — Lake Prespa · Oteševo, 9 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0159.jpg" alt="N. Macedonia — Lake Prespa · Oteševo, 9 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0160.jpg" alt="N. Macedonia — Lake Prespa · Oteševo, 9 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0161.jpg" alt="N. Macedonia — Lake Prespa · Oteševo, 9 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0162.jpg" alt="N. Macedonia — Lake Prespa · Oteševo, 9 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0163.jpg" alt="N. Macedonia — Lake Prespa · Oteševo, 9 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0164.jpg" alt="N. Macedonia — Lake Prespa · Oteševo, 9 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0165.jpg" alt="N. Macedonia — Lake Prespa · Oteševo, 9 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0166.jpg" alt="N. Macedonia — Lake Prespa · Oteševo, 9 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0167.jpg" alt="N. Macedonia — Lake Prespa · Oteševo, 9 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0168.jpg" alt="N. Macedonia — Lake Prespa · Oteševo, 9 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0169.jpg" alt="N. Macedonia — Lake Prespa · Oteševo, 9 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0170.jpg" alt="N. Macedonia — Lake Prespa · Oteševo, 9 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0171.jpg" alt="N. Macedonia — Lake Prespa · Oteševo, 9 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0172.jpg" alt="N. Macedonia — Lake Prespa · Oteševo, 9 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0177.jpg" alt="N. Macedonia — Lake Prespa · Oteševo, 9 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0178.jpg" alt="N. Macedonia — Lake Prespa · Oteševo, 9 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0179.jpg" alt="N. Macedonia — Lake Prespa · Oteševo, 9 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0180.jpg" alt="N. Macedonia — Lake Prespa · Oteševo, 9 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0181.jpg" alt="N. Macedonia — Lake Prespa · Oteševo, 9 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0182.jpg" alt="N. Macedonia — Lake Prespa · Oteševo, 9 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0183.jpg" alt="N. Macedonia — Lake Prespa · Oteševo, 9 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0184.jpg" alt="N. Macedonia — Lake Prespa · Oteševo, 9 Aug 2024" loading="lazy" />
+    </div>
+
+    <h3 class="day-heading">// <b>N. Macedonia</b> · Ohrid · the children’s hospital · 10 Aug</h3>
+    <div class="gallery-grid">
+      <img src="./images/kosovo_2024/k0185.jpg" alt="N. Macedonia — Ohrid · the children’s hospital, 10 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0186.jpg" alt="N. Macedonia — Ohrid · the children’s hospital, 10 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0187.jpg" alt="N. Macedonia — Ohrid · the children’s hospital, 10 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0188.jpg" alt="N. Macedonia — Ohrid · the children’s hospital, 10 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0189.jpg" alt="N. Macedonia — Ohrid · the children’s hospital, 10 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0190.jpg" alt="N. Macedonia — Ohrid · the children’s hospital, 10 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0191.jpg" alt="N. Macedonia — Ohrid · the children’s hospital, 10 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0192.jpg" alt="N. Macedonia — Ohrid · the children’s hospital, 10 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0193.jpg" alt="N. Macedonia — Ohrid · the children’s hospital, 10 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0194.jpg" alt="N. Macedonia — Ohrid · the children’s hospital, 10 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0195.jpg" alt="N. Macedonia — Ohrid · the children’s hospital, 10 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0196.jpg" alt="N. Macedonia — Ohrid · the children’s hospital, 10 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0197.jpg" alt="N. Macedonia — Ohrid · the children’s hospital, 10 Aug 2024" loading="lazy" />
+    </div>
+
+    <h3 class="day-heading">// <b>Montenegro</b> · Ulcinj · the salt works · 11 Aug</h3>
+    <div class="gallery-grid">
+      <img src="./images/kosovo_2024/k0198.jpg" alt="Montenegro — Ulcinj · the salt works, 11 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0199.jpg" alt="Montenegro — Ulcinj · the salt works, 11 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0200.jpg" alt="Montenegro — Ulcinj · the salt works, 11 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0203.jpg" alt="Montenegro — Ulcinj · the salt works, 11 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0204.jpg" alt="Montenegro — Ulcinj · the salt works, 11 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0205.jpg" alt="Montenegro — Ulcinj · the salt works, 11 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0206.jpg" alt="Montenegro — Ulcinj · the salt works, 11 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0207.jpg" alt="Montenegro — Ulcinj · the salt works, 11 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0208.jpg" alt="Montenegro — Ulcinj · the salt works, 11 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0209.jpg" alt="Montenegro — Ulcinj · the salt works, 11 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0210.jpg" alt="Montenegro — Ulcinj · the salt works, 11 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0211.jpg" alt="Montenegro — Ulcinj · the salt works, 11 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0212.jpg" alt="Montenegro — Ulcinj · the salt works, 11 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0213.jpg" alt="Montenegro — Ulcinj · the salt works, 11 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0227.jpg" alt="Montenegro — Ulcinj · the salt works, 11 Aug 2024" loading="lazy" />
+    </div>
+
+    <h3 class="day-heading">// <b>Montenegro</b> · Lake Skadar · the R15 over Rumija · 11 Aug</h3>
+    <div class="gallery-grid">
+      <img src="./images/kosovo_2024/k0239.jpg" alt="Montenegro — Lake Skadar · the R15 over Rumija, 11 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0240.jpg" alt="Montenegro — Lake Skadar · the R15 over Rumija, 11 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0242.jpg" alt="Montenegro — Lake Skadar · the R15 over Rumija, 11 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0244.jpg" alt="Montenegro — Lake Skadar · the R15 over Rumija, 11 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0245.jpg" alt="Montenegro — Lake Skadar · the R15 over Rumija, 11 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0246.jpg" alt="Montenegro — Lake Skadar · the R15 over Rumija, 11 Aug 2024" loading="lazy" />
+    </div>
+
+    <h3 class="day-heading">// <b>Montenegro</b> · the unfinished hotel · 12 Aug</h3>
+    <div class="gallery-grid">
+      <img src="./images/kosovo_2024/k0247.jpg" alt="Montenegro — the unfinished hotel, 12 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0248.jpg" alt="Montenegro — the unfinished hotel, 12 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0249.jpg" alt="Montenegro — the unfinished hotel, 12 Aug 2024" loading="lazy" />
+    </div>
+
+    <h3 class="day-heading">// <b>Montenegro</b> · Bay of Kotor · the submarine pens · 12 Aug</h3>
+    <div class="gallery-grid">
+      <img src="./images/kosovo_2024/k0250.jpg" alt="Montenegro — Bay of Kotor · the submarine pens, 12 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0251.jpg" alt="Montenegro — Bay of Kotor · the submarine pens, 12 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0252.jpg" alt="Montenegro — Bay of Kotor · the submarine pens, 12 Aug 2024" loading="lazy" />
+      <img src="./images/kosovo_2024/k0253.jpg" alt="Montenegro — Bay of Kotor · the submarine pens, 12 Aug 2024" loading="lazy" />
+    </div>
+  </section>
+
+  <!-- lightbox -->
+  <div id="lb"><span id="lb-close">×</span><img id="lb-img" src="" alt=""/></div>
+
+  <footer>
+    <span>08 · KOSOVO · 2024</span>
+    <a href="./index.html">← travels</a>
+    <span>vojta@konopa</span>
+  </footer>
+
+  <script>
+    // lightbox
+    document.querySelectorAll('.gallery-grid img').forEach(img => {
+      img.addEventListener('click', () => {
+        document.getElementById('lb-img').src = img.src;
+        document.getElementById('lb').classList.add('open');
+      });
+    });
+    document.getElementById('lb-close').addEventListener('click', () =>
+      document.getElementById('lb').classList.remove('open'));
+    document.getElementById('lb').addEventListener('click', e => {
+      if (e.target === e.currentTarget) e.currentTarget.classList.remove('open');
+    });
+
+    // photo count
+    const imgs = document.querySelectorAll('.gallery-grid img');
+    if (imgs.length) document.getElementById('photo-count').textContent = imgs.length;
+  </script>
+  <!-- přepínání fotek ve zvětšeném zobrazení (sdílené, viz lightbox.js) -->
+  <script src="lightbox.js" defer></script>
+  <!-- mapa trasy: data + sdílený vykreslovač (viz mapa.js) -->
+  <script src="./mapy/kosovo-2024.js" defer></script>
+  <script src="./mapa.js" defer></script>
+</body>
+</html>

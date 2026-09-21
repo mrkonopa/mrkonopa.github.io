@@ -1,19 +1,57 @@
 /* ══════════════════════════════════════════════════════════════════════
    Vzhled mapy trasy — společný pro všechny zápisky (viz mapa.js).
 
-   Mapa je nově SVISLÝ PANEL, ne pruh přes celou šířku. Důvod je věcný:
-   se správným poměrem stran je většina těch cest vyšší než širší (Liberec
-   → Sicílie je 14,4° na výšku a 7,8° na šířku), takže pruh přes celou
-   šířku šel udělat jen zploštěním, a to dělalo z Itálie placku.
+   Mapa jde přes CELOU ŠÍŘKU sekce. Dřív to šlo udělat jen ZPLOŠTĚNÍM
+   (Itálie 3,54×, Balt 1,82× — z italské mapy byla placka), takže se
+   mezitím z mapy stal úzký svislý panel. Ani to nebylo ono: panel byl
+   779 px v sekci široké 1024 a opticky se utrhl od hlavičky. Teď se
+   šířka bere celá a poměr stran 1,9 : 1 drží GENERÁTOR tím, že výřez
+   roztáhne a dokreslí okolní pevninu — kresba se tedy nedeformuje.
 
-   Písmo je v jednotkách viewBoxu, takže se zmenšuje SPOLU s mapou. Dřív
-   bylo v pixelech a na mobilu popisky zůstávaly velké, zatímco kresba se
-   smrskla — proto na sebe lezly.
+   Písmo se počítá z NAMĚŘENÉ šířky panelu (viz `velikostPisma` v
+   mapa.js). Pevná hodnota nešla ani v pixelech (na mobilu by popisky
+   zůstaly velké, zatímco kresba se smrskne), ani v jednotkách viewBoxu
+   (při 1024 px panelu vycházely 32 px a mapu přebily).
    ══════════════════════════════════════════════════════════════════════ */
 
+/* Mapa jde PŘES CELOU ŠÍŘKU sekce a lícuje s nadpisem nad sebou.
+
+   Naměřeno: `.title-block`, `.data-strip` i `.route-section` mají obsah
+   1024 px od x = 208, ale panel mapy býval 779 px odsazený na x = 331 —
+   tedy o 151 px zúžený a opticky utržený od hlavičky. Vojta: „chci, aby
+   ta mapa byla roztáhlá přes celou obrazovku tak, aby navazovala na ten
+   nadpis nad tím."
+
+   Poměr stran drží generátor (výřez se roztáhne na 1,9 : 1 dokreslením
+   okolní pevniny), takže se tu nic neomezuje ani necentruje. Na mobilu
+   vychází totéž — 100 % šířky. */
 .route-svg-wrap {
-  max-width: 420px;
-  margin: 0 auto;
+  width: 100%;
+}
+
+/* Na telefonu mapa VODOROVNĚ ROLUJE místo toho, aby se smrskla.
+
+   Naměřeno: se šířkou přes celou sekci pokrývá mapa 3–4× víc území než
+   dřív, takže na 340px panelu leží jedenáct kosovských zastávek na pár
+   pixelech od sebe. Popisky se pod 8 px zmenšit nesmí (nepřečtou se),
+   takže se na sebe nevyhnutelně lezou — brána to hlásila na čtyřech
+   mapách a žádné vylepšení rozmisťování to spravit nemůže.
+
+   Šířka je 1024 px, tedy PŘESNĚ jako na desktopu. Zkoušel jsem 720 px
+   jako kompromis, ale tam se zas nevešly druhé řádky popisků (Craco ×
+   Agrigento, vyhlídka na R15 × Mavrovo) — 1024 je jediné měřítko, o
+   kterém je naměřeno, že projde bez překryvu, a navíc se mapa na
+   telefonu vykreslí úplně stejně jako na počítači.
+
+   Je to týž vzor, jaký v repozitáři má výškový profil Rumunska —
+   posouvání místo ořezu, tedy nic se neschová. */
+@media (max-width: 1023px) {
+  .route-svg-wrap {
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+  }
+  .route-svg-wrap svg { min-width: 1024px; }
 }
 .route-svg-wrap svg {
   width: 100%;
@@ -77,7 +115,11 @@
 .mapa-spoj-popis {
   paint-order: stroke fill;
   stroke: var(--bg, #1c1c1c);
-  stroke-width: 2.6px;
+  /* Lem v `em`, ne v jednotkách viewBoxu: velikost písma se teď počítá z šířky
+     panelu (viz mapa.js), takže pevná hodnota by na velké mapě byla
+     tenká a na malé tlustá. 0,27 em = poměr, který měl původní zápis
+     (2,6 jednotky při písmu 9,5). */
+  stroke-width: 0.27em;
   stroke-linejoin: round;
   text-rendering: geometricPrecision;
 }
@@ -94,8 +136,3 @@
   opacity: 0.5;
 }
 
-/* Na úzkém displeji je panel přes celou šířku — poměr stran drží
-   viewBox, takže se nic nedeformuje. */
-@media (max-width: 520px) {
-  .route-svg-wrap { max-width: none; }
-}
