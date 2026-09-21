@@ -42,7 +42,27 @@
   if (!host) return;
 
   var NS = 'http://www.w3.org/2000/svg';
+  /* Písmo je v jednotkách viewBoxu, takže roste i klesá SPOLU s mapou.
+
+     🔴 Zmenšit ho nejde, i když se s většími panely zdá velké. Zkoušel
+     jsem 7 / 5,9 (aby vykreslená velikost zůstala kolem 13 px jako při
+     420px panelu) a brána to shodila: na 380 px je panel 340 px široký,
+     tedy 1,13 px na jednotku, takže druhý řádek vyšel na 6,7 px a hlavní
+     na 7,9 — pod čitelnostním prahem 8 px.
+
+     Poměr desktop : mobil je 700 / 340 = 2,1, takže s podlahou 8 px na
+     mobilu vychází na desktopu nutně 17 px a výš. Menší popisky na
+     velké mapě by šly udělat jedině tak, že by velikost počítal až
+     renderer z naměřené šířky panelu — jenže pak přestane být
+     rozmisťování nezávislé na rozlišení a muselo by se přepočítávat při
+     každé změně velikosti okna. Za to to nestojí. */
   var PISMO_HLAVNI = 9.5, PISMO_DRUHE = 8, ODSTUP = 1.2;
+
+  /* Poměr stran ven do CSS, aby si šířku panelu spočítalo samo (viz
+     mapa.css). Jediná pevná `max-width` pro všechny mapy nejde: při
+     420 px byla Itálie 1052 px vysoká, kdežto Španělsko jen 415 — tedy
+     stejně široké panely, ale úplně jiné využití místa. */
+  host.style.setProperty('--mapa-pomer', (D.sirka / D.vyska).toFixed(4));
 
   function el(jmeno, atr, text) {
     var e = document.createElementNS(NS, jmeno);

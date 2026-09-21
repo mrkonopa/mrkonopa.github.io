@@ -112,14 +112,41 @@ const ZMER = () => {
     nejmensiPismo: Math.round(Math.min(...texty.map(x => x.px)) * 10) / 10,
     bodyTrasy: body.length,
     pomer: Math.round((vb.height / vb.width) * 100) / 100,
+    panelW: Math.round(r.width), panelH: Math.round(r.height),
   };
 };
+
+/* Velikost panelu na desktopu (viz mapa.css).
+
+   Dřív měly všechny mapy `max-width: 420px`, jenže jejich poměr stran jde
+   od 0,99 (Španělsko) po 2,51 (Itálie) — stejná šířka tedy znamenala
+   Španělsko 420 × 415 v sekci široké 1024 px a Itálii 420 × 1052. Vojta
+   to nahlásil z obrazovky: „takové divný… aby to bylo větší a na tu
+   šířku toho."
+
+   Šířka se proto odvozuje z poměru stran (`--mapa-pomer` nastaví mapa.js).
+   Hlídají se tři věci a každá chytá jinou poruchu:
+
+     ŠÍŘKA v mezích    — 420 px by znamenalo návrat k pevné hodnotě,
+                         1024 px zase že `--mapa-pomer` nikdo nenastavil
+                         a uplatnila se záloha „bez omezení";
+     VÝŠKA pod stropem — hlídá, že se z vysoké mapy nestane několik
+                         obrazovek;
+     PODOBNÁ PLOCHA    — vlastní smysl té změny. Naměřeno: dnes je rozdíl
+                         mezi největší a nejmenší mapou 1,29×, při pevných
+                         420 px to bylo 2,54× (Španělsko 174 tis. px²
+                         proti Itálii 442 tis.). Práh 1,6 leží mezi tím,
+                         takže návrat k pevné šířce ho shodí.
+
+   Meze jsou naměřené, ne přané: 500 = Itálie (dolní mez v CSS),
+   700 = Španělsko (horní mez), 1253 = Itálie na výšku. */
+const PANEL_MIN = 500, PANEL_MAX = 700, PANEL_VYSKA_MAX = 1300, PLOCHA_ROZPTYL = 1.6;
 
 (async () => {
   console.log('\n── Mapy tras ──\n');
   const srv = await serve(); const base = 'http://127.0.0.1:' + srv.address().port;
   const browser = await chromium.launch({ headless: true, executablePath: EXEC });
-  let promereno = 0;
+  let promereno = 0; const plochy = {};
   try {
     for (const zla of [...Object.keys(STARA_MAPA), ...Object.keys(PROFIL)]) {
       ok(ZAPISKY.includes(zla), `výjimka „${zla}" míří na existující zápisek`,
@@ -166,6 +193,11 @@ const ZMER = () => {
            Výškový profil tyhle tři kontroly míjí — kreslí se vlastním
            vloženým SVG a jeho „trasa" je stoupání, ne cesta po mapě. */
         if (sirka === 1280 && !PROFIL[z]) {
+          plochy[z] = r.panelW * r.panelH;
+          ok(r.panelW >= PANEL_MIN && r.panelW <= PANEL_MAX,
+            `${z}: panel je ${PANEL_MIN}–${PANEL_MAX} px široký`, `naměřeno ${r.panelW}`);
+          ok(r.panelH <= PANEL_VYSKA_MAX,
+            `${z}: panel není vyšší než ${PANEL_VYSKA_MAX} px`, `naměřeno ${r.panelH}`);
           ok(r.bodyTrasy > 100, `${z}: trasa je záznam, ne úsečky (${r.bodyTrasy} bodů)`);
           const html = fs.readFileSync(path.join(ROOT, 'travels', z + '.html'), 'utf8');
           ok(!/<div class="route-svg-wrap">\s*<svg/.test(html),
@@ -177,6 +209,21 @@ const ZMER = () => {
       }
     }
     ok(promereno === ZAPISKY.length * 2, `proměřeno všech ${ZAPISKY.length} zápisků na obou šířkách`, 'proměřeno ' + promereno);
+
+    /* Plochy mezi sebou — jádro té změny. Pojistka „vidělo to vůbec něco"
+       je v počtu: mapou kreslených zápisků musí být tolik, kolik jich
+       není ve výjimkách. */
+    const kresby = ZAPISKY.filter(z => !STARA_MAPA[z] && !PROFIL[z]);
+    ok(Object.keys(plochy).length === kresby.length,
+      `plocha změřena u všech ${kresby.length} mapou kreslených zápisků`,
+      'změřeno ' + Object.keys(plochy).length);
+    if (Object.keys(plochy).length) {
+      const v = Object.values(plochy), rozptyl = Math.max(...v) / Math.min(...v);
+      ok(rozptyl <= PLOCHA_ROZPTYL,
+        `mapy zabírají podobnou plochu (rozptyl ≤ ${PLOCHA_ROZPTYL}×)`,
+        `naměřeno ${rozptyl.toFixed(2)}× — ` +
+        Object.entries(plochy).map(([k, x]) => `${k} ${Math.round(x / 1000)} tis.`).join(', '));
+    }
   } finally { await browser.close(); srv.close(); }
 
   console.log(`\n  Mapy tras: ${pass} ✅ / ${fail} ❌\n`);

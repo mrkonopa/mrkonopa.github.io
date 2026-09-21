@@ -11,8 +11,39 @@
    smrskla — proto na sebe lezly.
    ══════════════════════════════════════════════════════════════════════ */
 
+/* Šířka panelu se ODVOZUJE Z POMĚRU STRAN, ne zadává napevno.
+
+   Proč: `max-width: 420px` platila pro všechny čtyři mapy, ale ty mají
+   poměr od 0,99 (Španělsko) po 2,51 (Itálie). Naměřeno při 420 px:
+
+     Španělsko  420 × 415      Balt   420 × 556
+     Kosovo     420 × 666      Itálie 420 × 1052
+
+   Tedy stejně široké panely, ale Španělsko byl skoro čtverec ztracený
+   v sekci široké 1024 px (660 px zůstávalo prázdných), zatímco Itálie
+   byla pruh přes dvě obrazovky. Vojta to popsal slovy „takové divný…
+   aby to bylo větší a na tu šířku toho".
+
+   Nově se cílí na VÝŠKU (`--mapa-cil`) a šířka z ní vyjde sama, takže
+   všechny čtyři mapy zabírají podobně velkou plochu. Meze:
+     · `min(100%, …)` — nikdy širší než sekce (na mobilu tedy 100 %),
+     · horní mez 700 px — ať se ploché mapy nerozlézají přes celou šířku
+       a panel zůstane panelem,
+     · dolní mez 500 px — jinak by extrémně vysoká Itálie vyšla na 359 px,
+       tedy ÚŽEJI než dnes; tady má být všechno větší, ne menší.
+
+   Itálie roste nejmíň (+19 %) a je to v pořádku: s poměrem 2,51 je už
+   teď nejvyšší z celé sady a při šířce 700 px by měřila 1 754 px, tedy
+   dvě obrazovky. Zbytek roste o 35–67 %.
+
+   `--mapa-pomer` nastaví mapa.js z dat. Záloha 99 znamená „bez omezení",
+   takže stránky bez sdílené mapy (Rumunsko má výškový profil, Ukrajina,
+   Chorvatsko a Jugoslávie staré vložené SVG) zůstávají na 100 % šířky
+   jako dosud. */
 .route-svg-wrap {
-  max-width: 420px;
+  --mapa-pomer: 99;
+  --mapa-cil: 900px;
+  max-width: min(100%, max(500px, min(700px, calc(var(--mapa-pomer) * var(--mapa-cil)))));
   margin: 0 auto;
 }
 .route-svg-wrap svg {
