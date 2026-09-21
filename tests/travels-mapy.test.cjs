@@ -125,40 +125,44 @@ const ZMER = () => {
     bodyTrasy: body.length,
     pomer: Math.round((vb.height / vb.width) * 100) / 100,
     panelW: Math.round(r.width), panelH: Math.round(r.height),
+    panelL: Math.round(r.left), ...(() => {
+      const sek = document.querySelector('.route-section');
+      const st = getComputedStyle(sek), sr = sek.getBoundingClientRect();
+      return { sekceL: Math.round(sr.left + parseFloat(st.paddingLeft)),
+               sekceW: Math.round(sr.width - parseFloat(st.paddingLeft) - parseFloat(st.paddingRight)) };
+    })(),
     podkladu: svg.querySelectorAll('.mapa-pevnina path').length,
     spoju: svg.querySelectorAll('.mapa-spoj').length,
   };
 };
 
-/* Velikost panelu na desktopu (počítá `mapa.js`, viz komentář tam).
+/* Rozměry panelu mapy.
 
-   Dřív měly všechny mapy `max-width: 420px`, jenže jejich poměr stran jde
-   od 0,40 (Ukrajina — východozápadní koridor) po 2,51 (Itálie). Stejná
-   šířka tedy znamenala Španělsko 420 × 415, skoro čtverec ztracený
-   v sekci široké 1024 px, a Itálii 420 × 1052, pruh přes dvě obrazovky.
-   Vojta to nahlásil z obrazovky: „takové divný… aby to bylo větší a na
-   tu šířku toho."
+   Mapa jde PŘES CELOU ŠÍŘKU sekce a lícuje s nadpisem nad sebou.
+   Naměřeno před opravou: `.title-block`, `.data-strip` i `.route-section`
+   mají obsah 1024 px od x = 208, ale panel mapy byl 779 px odsazený na
+   x = 331 — o 151 px zúžený a opticky utržený od hlavičky. Vojta to
+   nahlásil třikrát, naposledy s červeně zakresleným snímkem: „chci, aby
+   ta mapa byla roztáhlá přes celou obrazovku tak, aby navazovala na ten
+   nadpis nad tím."
 
-   Šířka se proto počítá z poměru stran na KONSTANTNÍ PLOCHU. Hlídají se
-   tři věci a každá chytá jinou poruchu:
+   Hlídá se proto:
+     LÍCOVÁNÍ    — levý okraj i šířka panelu se MUSÍ rovnat obsahu sekce.
+                   Chytá návrat k pevné `max-width` i k centrování.
+     POMĚR STRAN — generátor roztahuje výřez na 1,9 : 1 (s okrajem 10
+                   jednotek vychází plátno 300 × 167,4, tedy 1,79).
+                   Chytá mapu, která se do generátoru dostala bez
+                   `na_pomer()` a zůstala vysoká.
 
-     ŠÍŘKA v mezích    — 420 px by znamenalo návrat k pevné hodnotě;
-     VÝŠKA pod stropem — ať se z vysoké mapy nestane několik obrazovek;
-     PODOBNÁ PLOCHA    — vlastní smysl té změny. Naměřeno: dnes je rozdíl
-                         mezi největší a nejmenší mapou 1,18×, při pevných
-                         420 px to bylo 2,53× (Španělsko 174 tis. px²
-                         proti Itálii 442 tis.). Práh 1,6 leží mezi tím,
-                         takže návrat k pevné šířce ho shodí.
-
-   Meze jsou naměřené: 489 = Itálie (nejužší), 1024 = Ukrajina (narazí na
-   šířku sekce), 1225 = Itálie na výšku. */
-const PANEL_MIN = 460, PANEL_MAX = 1024, PANEL_VYSKA_MAX = 1300, PLOCHA_ROZPTYL = 1.6;
+   Plocha se už neporovnává: když jsou všechny mapy stejně široké i
+   stejně vysoké, je to tvrzení, které nemůže spadnout. */
+const POMER_CIL = 1.79, POMER_ODCHYLKA = 0.03;
 
 (async () => {
   console.log('\n── Mapy tras ──\n');
   const srv = await serve(); const base = 'http://127.0.0.1:' + srv.address().port;
   const browser = await chromium.launch({ headless: true, executablePath: EXEC });
-  let promereno = 0; const plochy = {};
+  let promereno = 0; const mereno = {};
   try {
     for (const zla of [...Object.keys(STARA_MAPA), ...Object.keys(PROFIL), ...Object.keys(BEZ_ZAZNAMU)]) {
       ok(ZAPISKY.includes(zla), `výjimka „${zla}" míří na existující zápisek`,
@@ -205,11 +209,13 @@ const PANEL_MIN = 460, PANEL_MAX = 1024, PANEL_VYSKA_MAX = 1300, PLOCHA_ROZPTYL 
            Výškový profil tyhle tři kontroly míjí — kreslí se vlastním
            vloženým SVG a jeho „trasa" je stoupání, ne cesta po mapě. */
         if (sirka === 1280 && !PROFIL[z]) {
-          plochy[z] = r.panelW * r.panelH;
-          ok(r.panelW >= PANEL_MIN && r.panelW <= PANEL_MAX,
-            `${z}: panel je ${PANEL_MIN}–${PANEL_MAX} px široký`, `naměřeno ${r.panelW}`);
-          ok(r.panelH <= PANEL_VYSKA_MAX,
-            `${z}: panel není vyšší než ${PANEL_VYSKA_MAX} px`, `naměřeno ${r.panelH}`);
+          mereno[z] = true;
+          ok(r.panelL === r.sekceL && r.panelW === r.sekceW,
+            `${z}: mapa lícuje s nadpisem (x ${r.sekceL}, šířka ${r.sekceW})`,
+            `panel x ${r.panelL}, šířka ${r.panelW}`);
+          const pom = r.panelW / r.panelH;
+          ok(Math.abs(pom - POMER_CIL) <= POMER_ODCHYLKA,
+            `${z}: poměr stran ${POMER_CIL} ± ${POMER_ODCHYLKA}`, `naměřeno ${pom.toFixed(3)}`);
           if (BEZ_ZAZNAMU[z]) {
             /* Bez záznamu se nehlídá hustota trasy, ale MUSÍ být podklad
                a spoje mezi zastávkami — jinak by převod mohl tiše vyrobit
@@ -231,20 +237,12 @@ const PANEL_MIN = 460, PANEL_MAX = 1024, PANEL_VYSKA_MAX = 1300, PLOCHA_ROZPTYL 
     }
     ok(promereno === ZAPISKY.length * 2, `proměřeno všech ${ZAPISKY.length} zápisků na obou šířkách`, 'proměřeno ' + promereno);
 
-    /* Plochy mezi sebou — jádro té změny. Pojistka „vidělo to vůbec něco"
-       je v počtu: mapou kreslených zápisků musí být tolik, kolik jich
-       není ve výjimkách. */
+    /* Pojistka „vidělo to vůbec něco": mapou kreslených zápisků musí být
+       tolik, kolik jich není ve výjimkách. */
     const kresby = ZAPISKY.filter(z => !STARA_MAPA[z] && !PROFIL[z]);
-    ok(Object.keys(plochy).length === kresby.length,
-      `plocha změřena u všech ${kresby.length} mapou kreslených zápisků`,
-      'změřeno ' + Object.keys(plochy).length);
-    if (Object.keys(plochy).length) {
-      const v = Object.values(plochy), rozptyl = Math.max(...v) / Math.min(...v);
-      ok(rozptyl <= PLOCHA_ROZPTYL,
-        `mapy zabírají podobnou plochu (rozptyl ≤ ${PLOCHA_ROZPTYL}×)`,
-        `naměřeno ${rozptyl.toFixed(2)}× — ` +
-        Object.entries(plochy).map(([k, x]) => `${k} ${Math.round(x / 1000)} tis.`).join(', '));
-    }
+    ok(Object.keys(mereno).length === kresby.length,
+      `panel změřen u všech ${kresby.length} mapou kreslených zápisků`,
+      'změřeno ' + Object.keys(mereno).length);
   } finally { await browser.close(); srv.close(); }
 
   console.log(`\n  Mapy tras: ${pass} ✅ / ${fail} ❌\n`);

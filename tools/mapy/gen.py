@@ -225,6 +225,30 @@ def trasa_z_gpx(zapisek, gpx=None, tol_stupne=0.002):
     return lehka
 
 
+# Cílový poměr stran mapy (šířka : výška). Mapa se kreslí PŘES CELOU
+# ŠÍŘKU sekce a musí lícovat s nadpisem nad sebou — naměřeno 1024 px
+# obsahu od x = 208. Při 1024 px a poměru 1,9 vychází 539 px na výšku,
+# což odpovídá tomu, jak si to Vojta načrtl do snímku obrazovky.
+#
+# Poměr se NEDĚLÁ zploštěním (to byla původní vada všech map, viz
+# mapa.js), ale ROZTAŽENÍM VÝŘEZU: dokreslí se víc okolní pevniny.
+# Vojtovo zadání doslova: „Ne roztáhnout fotku, ale přidat konturu
+# států, které tam jsou."
+POMER_CIL = 1.9
+
+
+def na_pomer(bbox, cil=POMER_CIL):
+    """Roztáhne výřez na cílový poměr stran — dopočítá chybějící osu."""
+    k = math.cos(math.radians((bbox[1] + bbox[3]) / 2))
+    sir = (bbox[2] - bbox[0]) * k
+    vys = bbox[3] - bbox[1]
+    if sir / vys < cil:                       # moc vysoká ⇒ rozšířit
+        chybi = (vys * cil - sir) / 2 / k
+        return (bbox[0] - chybi, bbox[1], bbox[2] + chybi, bbox[3])
+    chybi = (sir / cil - vys) / 2             # moc plochá ⇒ zvýšit
+    return (bbox[0], bbox[1] - chybi, bbox[2], bbox[3] + chybi)
+
+
 def vyrob(zapisek, kotvy, sirka=300, okraj=10, tol_trasa=0.35, tol_podklad=0.45,
           bez_druheho=(), bez_zastavek=(), gpx=None):
     telo = stara_mapa(zapisek)
@@ -276,6 +300,7 @@ def vyrob(zapisek, kotvy, sirka=300, okraj=10, tol_trasa=0.35, tol_podklad=0.45,
         lats += [z[0] for z in zast_geo]; lons += [z[1] for z in zast_geo]
     rez = 0.45
     bbox = (min(lons) - rez, min(lats) - rez * 0.7, max(lons) + rez, max(lats) + rez * 0.7)
+    bbox = na_pomer(bbox)
     k = math.cos(math.radians((bbox[1] + bbox[3]) / 2))
     sc = (sirka - 2 * okraj) / ((bbox[2] - bbox[0]) * k)
     vyska = (bbox[3] - bbox[1]) * sc + 2 * okraj
@@ -398,6 +423,7 @@ def vyrob_nove(zapisek, gpx, zastavky, sirka=300, okraj=10,
     # POD sebou, jinak jí popisek nezbude než nahoru a srazí se se sousedem
     # (Ohrid × Mavrovo, 77 km od sebe, a přesto na sobě).
     bbox = (min(lons) - rez, min(lats) - rez * 0.7, max(lons) + rez, max(lats) + rez * 0.7)
+    bbox = na_pomer(bbox)
     k = math.cos(math.radians((bbox[1] + bbox[3]) / 2))
     sc = (sirka - 2 * okraj) / ((bbox[2] - bbox[0]) * k)
     vyska = (bbox[3] - bbox[1]) * sc + 2 * okraj
@@ -460,22 +486,7 @@ def vyrob_body(zapisek, zastavky, sirka=300, okraj=10, tol_podklad=0.45, rez=0.4
     bbox = (min(lons) - rez, min(lats) - rez * 0.7, max(lons) + rez, max(lats) + rez * 0.7)
     k = math.cos(math.radians((bbox[1] + bbox[3]) / 2))
 
-    # MEZ NA POMĚR STRAN. Bez ní vyšlo Chorvatsko 300 × 926, tedy 3,09 —
-    # Liberec–Dubrovník je 8,1° na výšku, ale jen 2,1 šířkové jednotky, a
-    # z mapy by byla nudle 1 500 px vysoká. Dopočítá se proto chybějící
-    # okraj na UŽŠÍ ose: mapa tím ukáže víc okolní pevniny, což je přesně
-    # to, oč tady jde. Meze jsou naměřené z hotových map: nejvyšší je
-    # Itálie 2,51 (ta je v pořádku), nejplošší Španělsko 0,99; strop 2,2
-    # a podlaha 0,45 tedy leží uvnitř toho, co už na webu je.
-    POMER_MAX, POMER_MIN = 2.2, 0.45
-    sir = (bbox[2] - bbox[0]) * k
-    vys = bbox[3] - bbox[1]
-    if vys / sir > POMER_MAX:                      # moc vysoká ⇒ rozšířit
-        chybi = (vys / POMER_MAX - sir) / 2 / k
-        bbox = (bbox[0] - chybi, bbox[1], bbox[2] + chybi, bbox[3])
-    elif vys / sir < POMER_MIN:                    # moc plochá ⇒ zvýšit
-        chybi = (sir * POMER_MIN - vys) / 2
-        bbox = (bbox[0], bbox[1] - chybi, bbox[2], bbox[3] + chybi)
+    bbox = na_pomer(bbox)
     k = math.cos(math.radians((bbox[1] + bbox[3]) / 2))
     sc = (sirka - 2 * okraj) / ((bbox[2] - bbox[0]) * k)
     vyska = (bbox[3] - bbox[1]) * sc + 2 * okraj

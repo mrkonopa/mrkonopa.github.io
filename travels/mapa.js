@@ -53,42 +53,35 @@
      Opačný směr má ale taky mez — na mobilu je panel jen ~340 px a pod
      8 px se popisek nedá přečíst (hlídá `travels-mapy`). Cílová velikost
      proto s panelem mírně roste a je svázaná zdola i shora:
-     340 px → 11 px · 615 px → 12,8 px · 1024 px → 15 px.
+     340 px → 10 px · 615 px → 11,8 px · 1024 px → 14 px.
 
      Protože se velikost odvíjí od pixelů, MUSÍ se rozmístění přepočítat
      při změně velikosti okna — viz `rozmisti()` na konci souboru. */
-  var PX_MIN = 11, PX_MAX = 15, PX_DELIC = 48, DRUHY_POMER = 0.84;
-  var PISMO_HLAVNI, PISMO_DRUHE, ODSTUP = 1.2;
+  var PX_MIN = 10, PX_MAX = 14, PX_DELIC = 52, DRUHY_POMER = 0.84;
+  /* Odstup druhého řádku. 1,2 bylo TĚSNÉ: rámeček textu je s diacritikou
+     vyšší než velikost písma (u „Budapešť" ~1,3×), takže se hlavní řádek
+     s vlastním druhým řádkem překrýval — brána to našla na Kosovu. */
+  var PISMO_HLAVNI, PISMO_DRUHE, ODSTUP = 1.45;
 
   function velikostPisma() {
-    var sirkaPx = host.getBoundingClientRect().width || D.sirka;
+    /* MĚŘÍ SE PLÁTNO, ne jeho obal. Na telefonu má obal 324 px, ale SVG
+       uvnitř `min-width: 720px` (mapa tam vodorovně roluje), takže podle
+       obalu by písmo vyšlo 2,2× větší, než se skutečně vykreslí. */
+    var sirkaPx = (svg && svg.getBoundingClientRect().width) ||
+                  host.getBoundingClientRect().width || D.sirka;
     var cil = Math.max(PX_MIN, Math.min(PX_MAX, sirkaPx / PX_DELIC));
     PISMO_HLAVNI = cil * (D.sirka / sirkaPx);
     PISMO_DRUHE = PISMO_HLAVNI * DRUHY_POMER;
     return sirkaPx;
   }
 
-  /* ŠÍŘKA PANELU se počítá z poměru stran na KONSTANTNÍ PLOCHU.
+  /* Šířka panelu se tady UŽ NEPOČÍTÁ — mapa jde přes celou šířku sekce
+     (viz mapa.css). Krátce tu stálo odvozování z poměru stran na
+     konstantní plochu; padlo to, jakmile Vojta upřesnil, co chce:
+     „aby ta mapa byla roztáhlá přes celou obrazovku tak, aby navazovala
+     na ten nadpis nad tím." Poměr stran řeší rovnou generátor, který
+     výřez roztáhne na 1,9 : 1 dokreslením okolní pevniny. */
 
-     Jediná pevná `max-width` pro všechny mapy nejde: poměry jdou od 0,40
-     (Ukrajina, východozápadní koridor) po 2,51 (Itálie). Při společných
-     420 px vycházelo Španělsko 420 × 415, tedy skoro čtverec ztracený
-     v sekci široké 1024 px, kdežto Itálie 420 × 1052, pruh přes dvě
-     obrazovky — rozdíl ploch 2,53×.
-
-     Cílit na výšku taky nestačí: plochá Ukrajina by pak byla nízký proužek.
-     Konstantní plocha dá každé mapě podobně velké okno bez ohledu na tvar
-     (naměřený rozptyl 1,18×), a šířka z ní vyjde jako odmocnina — což CSS
-     nespočítá, proto je to tady a ne ve stylu.
-
-     Meze: dolní 460 px, ať se nic nezmenší proti původním 420; horní
-     1100 px řeší jen extrém, ve skutečnosti dřív narazí `min(100%, …)`
-     ve stylu, takže Ukrajina končí na šířce sekce. */
-  var PLOCHA_CIL = 600000, SIRKA_MIN = 460, SIRKA_MAX = 1100;
-  host.style.setProperty('--mapa-sirka', Math.round(Math.max(SIRKA_MIN,
-    Math.min(SIRKA_MAX, Math.sqrt(PLOCHA_CIL * (D.sirka / D.vyska))))) + 'px');
-
-  velikostPisma();
 
   function el(jmeno, atr, text) {
     var e = document.createElementNS(NS, jmeno);
@@ -97,12 +90,15 @@
     return e;
   }
 
-  var svg = el('svg', {
+  var svg = null;
+  svg = el('svg', {
     viewBox: '0 0 ' + D.sirka + ' ' + D.vyska,
     role: 'img',
     'aria-label': D.popis || 'Mapa trasy',
     preserveAspectRatio: 'xMidYMid meet',
   });
+
+  velikostPisma();   // až teď: potřebuje `svg` k měření
 
   /* Lem kolem textu dělá `paint-order: stroke fill` ve stylu, ne filtr.
      Původní mapy na to měly `feMorphology`, jenže filtr text RASTRUJE a
@@ -163,9 +159,16 @@
   svg.appendChild(vrstva);
   host.appendChild(svg);
 
+  /* Kam od bodu popisek zkusit. Osm základních směrů + osm mezilehlých:
+     Ohrid a Mavrovo leží 77 km od sebe a na 340px panelu to je asi 6 px,
+     takže se jim osm směrů nevešlo a skončily na sobě (tahle dvojice je
+     v repozitáři doložený problém už podruhé). Mezilehlé směry se zkusí
+     AŽ po základních, takže popisek, který si místo našel, zůstává. */
   var POLOHY = [
     [1, 0, 'start'], [-1, 0, 'end'], [1, -1, 'start'], [-1, -1, 'end'],
     [1, 1, 'start'], [-1, 1, 'end'], [0, -1, 'middle'], [0, 1, 'middle'],
+    [1, -0.45, 'start'], [-1, -0.45, 'end'], [1, 0.45, 'start'], [-1, 0.45, 'end'],
+    [0.45, -1, 'start'], [-0.45, -1, 'end'], [0.45, 1, 'start'], [-0.45, 1, 'end'],
   ];
   /* Jak daleko od bodu se popisek smí odsunout, než se zkusí další směr.
      Původně jen [5, 10, 16]; u Kosova 2024 je na jihu jedenáct zastávek
@@ -176,7 +179,12 @@
      ten, který dřív nenašel nic a skončil naraženým na kraj plátna — a to
      je zlepšení. Ověřeno měřením: `travels-mapy` hlásí 0 překryvů na všech
      mapách i po téhle změně. */
-  var VZDALENOSTI = [5, 10, 16, 24, 34, 46];
+  /* Násobky VELIKOSTI PÍSMA, ne absolutní jednotky. Dokud byla mapa 300
+     jednotek na ~7° zeměpisné délky, absolutní hodnoty odpovídaly; teď
+     mapa pokrývá 3–4× víc území, takže zastávky leží blíž u sebe a pevné
+     odsazení 46 jednotek by popisek odstřelilo přes půl Evropy. Poměry
+     jsou převzaté z původních hodnot při písmu 9,5 (5/9,5 = 0,53 atd.). */
+  var VZDALENOSTI_POMER = [0.53, 1.05, 1.68, 2.53, 3.58, 4.84];
   var obsazeno = [];
 
   function kolize(a) {
@@ -189,11 +197,12 @@
   /* Vnitřní okraj: popisek se nesmí dotknout kraje plátna. Bez něj skončí
      „CZ · LIBEREC" přesně na hraně a vypadá to useknutě, i když technicky
      uvnitř je. */
-  var OKRAJ = 3;
   function venku(a) {
+    var OKRAJ = 0.32 * PISMO_HLAVNI;
     return a.x < OKRAJ || a.y < OKRAJ ||
            a.x + a.w > D.sirka - OKRAJ || a.y + a.h > D.vyska - OKRAJ;
   }
+  function okraj() { return 0.32 * PISMO_HLAVNI; }
 
   /* ROZMÍSTĚNÍ POPISKŮ — spouští se znovu při změně velikosti okna.
 
@@ -207,8 +216,24 @@
     var sirkaPx = velikostPisma();
     while (vrstva.firstChild) vrstva.removeChild(vrstva.firstChild);
     popisySpoju.forEach(function (t) { t.setAttribute('font-size', PISMO_DRUHE); });
+    var pulBodu = 0.45 * PISMO_HLAVNI;               // samotné body
+    /* Popisek trajektu („FERRY GNV") se kreslí natvrdo doprostřed spoje
+       a rozmisťování se ho dosud VŮBEC NEÚČASTNILO — mohl tedy skončit
+       pod jménem zastávky a nikdo to nehlídal. Zaregistruje se do
+       obsazených ploch jako první, takže se mu ostatní vyhnou. */
+    var obsazenoNavic = popisySpoju.map(function (t) {
+      var b = t.getBBox(), r = 0.17 * PISMO_HLAVNI;
+      return { x: b.x - r, y: b.y - r, w: b.width + 2 * r, h: b.height + 2 * r };
+    });
     obsazeno = Z.map(function (z) {
-      return { x: z.x - 4, y: z.y - 4, w: 8, h: 8 };   // samotné body
+      return { x: z.x - pulBodu, y: z.y - pulBodu, w: 2 * pulBodu, h: 2 * pulBodu };
+    });
+    obsazeno = obsazeno.concat(obsazenoNavic);
+    /* Kolečko zastávky je taky v jednotkách viewBoxu — bez škálování by
+       při 1024px panelu mělo 10px poloměr a přebilo by popisek. */
+    Z.forEach(function (z, i) {
+      var kr = body.children[i];
+      if (kr) kr.setAttribute('r', (z.zacatek ? 0.42 : 0.32) * PISMO_HLAVNI);
     });
 
     /* Nejdřív začátek trasy, pak shora dolů — ať mají přednost body,
@@ -229,9 +254,9 @@
         vrstva.appendChild(g);
 
         var nejlepsi = null;
-        for (var v = 0; v < VZDALENOSTI.length && !nejlepsi; v++) {
+        for (var v = 0; v < VZDALENOSTI_POMER.length && !nejlepsi; v++) {
           for (var i = 0; i < POLOHY.length && !nejlepsi; i++) {
-            var sm = POLOHY[i], d = VZDALENOSTI[v];
+            var sm = POLOHY[i], d = VZDALENOSTI_POMER[v] * PISMO_HLAVNI;
             var x = z.x + sm[0] * d, y = z.y + sm[1] * d;
             t1.setAttribute('x', x); t1.setAttribute('y', y); t1.setAttribute('text-anchor', sm[2]);
             if (t2) {
@@ -242,7 +267,8 @@
             /* Rezerva kolem popisku: 0,8 jednotky sice stačilo na „žádný
                překryv", ale popisky na sebe pak vizuálně tlačí. 1,6 dá
                mezeru, která je vidět. */
-            var ram = { x: bb.x - 1.6, y: bb.y - 1.6, w: bb.width + 3.2, h: bb.height + 3.2 };
+            var rez = 0.17 * PISMO_HLAVNI;
+          var ram = { x: bb.x - rez, y: bb.y - rez, w: bb.width + 2 * rez, h: bb.height + 2 * rez };
             if (!venku(ram) && !kolize(ram)) nejlepsi = ram;
           }
         }
@@ -252,8 +278,9 @@
              popisek POSUNE zpátky do plátna — vyjít ven je horší než stát
              blíž jinému popisku. */
           var bb2 = g.getBBox();
-          var dx = Math.min(0, D.sirka - OKRAJ - (bb2.x + bb2.width)) - Math.min(0, bb2.x - OKRAJ);
-          var dy = Math.min(0, D.vyska - OKRAJ - (bb2.y + bb2.height)) - Math.min(0, bb2.y - OKRAJ);
+          var O = okraj();
+          var dx = Math.min(0, D.sirka - O - (bb2.x + bb2.width)) - Math.min(0, bb2.x - O);
+          var dy = Math.min(0, D.vyska - O - (bb2.y + bb2.height)) - Math.min(0, bb2.y - O);
           [t1, t2].forEach(function (t) {
             if (!t) return;
             t.setAttribute('x', +t.getAttribute('x') + dx);
@@ -266,7 +293,7 @@
 
         /* Vodicí čára, když popisek utekl daleko od svého bodu. */
         var stred = { x: nejlepsi.x + nejlepsi.w / 2, y: nejlepsi.y + nejlepsi.h / 2 };
-        if (Math.hypot(stred.x - z.x, stred.y - z.y) > 14) {
+        if (Math.hypot(stred.x - z.x, stred.y - z.y) > 1.5 * PISMO_HLAVNI) {
           vrstva.insertBefore(el('line', {
             class: 'mapa-vodic', x1: z.x, y1: z.y,
             x2: stred.x < z.x ? nejlepsi.x + nejlepsi.w : nejlepsi.x, y2: stred.y,
