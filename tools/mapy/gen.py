@@ -433,7 +433,155 @@ def vyrob_nove(zapisek, gpx, zastavky, sirka=300, okraj=10,
     }
 
 
+def vyrob_body(zapisek, zastavky, sirka=300, okraj=10, tol_podklad=0.45, rez=0.45):
+    """Mapa pro cestu, u které NENÍ ZÁZNAM TRASY — jen pojmenované zastávky.
+
+    Tohle je třetí případ vedle `vyrob` (stará kreslená mapa se invertuje)
+    a `vyrob_nove` (je GPX). Ukrajina 2017, Chorvatsko s Bosnou 2018
+    a Jugoslávie 2020 neměly ANI JEDNO: jejich vložené mapy byly ruční
+    náčrty se čtyřmi až devíti body a přímými čárami mezi nimi, BEZ
+    JEDINÉHO OBRYSU PEVNINY. Vojta to nahlásil z obrazovky: „rád bych,
+    aby to bylo dokreslené až do kraje… přidat konturu států, které tam
+    jsou."
+
+    Invertovat se ty náčrty nedají: `vyrob` staví na tom, že stará mapa
+    je LINEÁRNÍ PROJEKCÍ skutečných souřadnic (ověřeno u Itálie na 0–5 km
+    a u Baltu na 0,6 px), ale u čtyř ručně rozmístěných bodů by regrese
+    měla jen dva stupně volnosti a malá odchylka by nic nedokazovala.
+    Zastávky proto mají souřadnice rovnou — jména míst napsal na mapu
+    Vojta, dohledat k nim polohu je otázka faktu, ne odhadu.
+
+    Trasa zůstává PŘERUŠOVANÁ čára mezi zastávkami, jako byla dosud:
+    kudy se přesně jelo, nevíme, a plná čára by to tvrdila. Až záznam
+    přijde, zápisek se převede přes `vyrob_nove`.
+    """
+    lats = [z['lat'] for z in zastavky]
+    lons = [z['lon'] for z in zastavky]
+    bbox = (min(lons) - rez, min(lats) - rez * 0.7, max(lons) + rez, max(lats) + rez * 0.7)
+    k = math.cos(math.radians((bbox[1] + bbox[3]) / 2))
+
+    # MEZ NA POMĚR STRAN. Bez ní vyšlo Chorvatsko 300 × 926, tedy 3,09 —
+    # Liberec–Dubrovník je 8,1° na výšku, ale jen 2,1 šířkové jednotky, a
+    # z mapy by byla nudle 1 500 px vysoká. Dopočítá se proto chybějící
+    # okraj na UŽŠÍ ose: mapa tím ukáže víc okolní pevniny, což je přesně
+    # to, oč tady jde. Meze jsou naměřené z hotových map: nejvyšší je
+    # Itálie 2,51 (ta je v pořádku), nejplošší Španělsko 0,99; strop 2,2
+    # a podlaha 0,45 tedy leží uvnitř toho, co už na webu je.
+    POMER_MAX, POMER_MIN = 2.2, 0.45
+    sir = (bbox[2] - bbox[0]) * k
+    vys = bbox[3] - bbox[1]
+    if vys / sir > POMER_MAX:                      # moc vysoká ⇒ rozšířit
+        chybi = (vys / POMER_MAX - sir) / 2 / k
+        bbox = (bbox[0] - chybi, bbox[1], bbox[2] + chybi, bbox[3])
+    elif vys / sir < POMER_MIN:                    # moc plochá ⇒ zvýšit
+        chybi = (sir * POMER_MIN - vys) / 2
+        bbox = (bbox[0], bbox[1] - chybi, bbox[2], bbox[3] + chybi)
+    k = math.cos(math.radians((bbox[1] + bbox[3]) / 2))
+    sc = (sirka - 2 * okraj) / ((bbox[2] - bbox[0]) * k)
+    vyska = (bbox[3] - bbox[1]) * sc + 2 * okraj
+    P = lambda lo, la: (okraj + (lo - bbox[0]) * k * sc, okraj + (bbox[3] - la) * sc)
+
+    zeme = []
+    for _, prsteny in nacti_topo(ZDE / 'countries-50m.json'):
+        for pr in prsteny:
+            xs = [b[0] for b in pr]; ys = [b[1] for b in pr]
+            if max(xs) < bbox[0] - 2 or min(xs) > bbox[2] + 2 or max(ys) < bbox[1] - 2 or min(ys) > bbox[3] + 2:
+                continue
+            pr = orez_obdelnikem(pr, bbox)
+            if len(pr) < 4: continue
+            body = rdp_iter([P(lo, la) for lo, la in pr], tol_podklad)
+            if len(body) < 4: continue
+            plocha = abs(sum(body[i][0] * body[(i + 1) % len(body)][1] -
+                             body[(i + 1) % len(body)][0] * body[i][1]
+                             for i in range(len(body)))) / 2
+            if plocha < 3: continue
+            zeme.append('M' + 'L'.join(f'{x:.1f},{y:.1f}' for x, y in body) + 'Z')
+
+    # Spoje = přerušované úsečky v pořadí, jak se jelo. Poslední zpátky na
+    # začátek jen u okruhu (`okruh: True` na poslední zastávce).
+    spoje = [{'z': i, 'do': i + 1} for i in range(len(zastavky) - 1)]
+    if zastavky[-1].get('okruh'):
+        spoje.append({'z': len(zastavky) - 1, 'do': 0})
+
+    return {
+        'sirka': round(sirka), 'vyska': round(vyska, 1),
+        'zdrojTrasy': 'jen-zastavky', 'podklad': zeme,
+        'trasy': [], 'spoje': spoje,
+        'zastavky': [{'x': round(P(z['lon'], z['lat'])[0], 1),
+                      'y': round(P(z['lon'], z['lat'])[1], 1),
+                      'hlavni': z['hlavni'], 'druhy': z.get('druhy', ''),
+                      'zacatek': z.get('zacatek', False)} for z in zastavky],
+    }
+
+
+# ══════════════════════════════════════════════════════════════════════
+#  Tři zápisky bez záznamu trasy (viz `vyrob_body`). Spouští se zvlášť:
+#      python3 tools/mapy/gen.py body
+#  Souřadnice odpovídají jménům, která Vojta napsal na původní mapu.
+#  Dvě jsou OBLASTI, ne body — u nich je vzatý přirozený střed té části
+#  pobřeží, kam původní náčrt zastávku kreslil, a je to tu napsané, aby
+#  se z toho nedělala přesnost, která tam není.
+# ══════════════════════════════════════════════════════════════════════
+BODY_CEST = {
+    'ukraine-2017': (
+        'Mapa trasy: Liberec, Kyjev, Černobyl a Karpaty',
+        [
+            {'hlavni': 'CZ · LIBEREC', 'lat': 50.7663, 'lon': 15.0543, 'zacatek': True},
+            {'hlavni': 'UA · KYIV', 'druhy': 'capital · base', 'lat': 50.4501, 'lon': 30.5234},
+            {'hlavni': 'CHERNOBYL', 'druhy': 'exclusion zone', 'lat': 51.2763, 'lon': 30.2219},
+            # Ukrajinské Karpaty; původní náčrt kreslí „SW mountains" do
+            # jihozápadního cípu země — nejvyšší část je okolí Hoverly.
+            {'hlavni': 'CARPATHIANS', 'druhy': 'SW mountains',
+             'lat': 48.1600, 'lon': 24.5003, 'okruh': True},
+        ]),
+    'cr-bh-2018': (
+        'Mapa trasy: Chorvatsko a Bosna — Kumrovec, Una, Dalmácie, Mostar',
+        [
+            {'hlavni': 'CZ · LIBEREC', 'lat': 50.7663, 'lon': 15.0543, 'zacatek': True},
+            {'hlavni': 'HR · KUMROVEC', 'druhy': 'tito birthplace', 'lat': 46.0575, 'lon': 15.6783},
+            {'hlavni': 'ŠTRBAČKI BUK', 'druhy': 'waterfall · una river', 'lat': 44.6656, 'lon': 16.1528},
+            # OBLAST, ne bod: Dalmácie. Střed té části pobřeží = Split.
+            {'hlavni': 'HR · DALMATIA', 'druhy': 'adriatic coast', 'lat': 43.5081, 'lon': 16.4402},
+            {'hlavni': 'HR · DUBROVNIK', 'druhy': 'south coast', 'lat': 42.6507, 'lon': 18.0944},
+            {'hlavni': 'BiH · MOSTAR', 'druhy': 'herzegovina · bridge',
+             'lat': 43.3373, 'lon': 17.8150, 'okruh': True},
+        ]),
+    'yugoslavia-2020': (
+        'Mapa trasy: Maďarsko, Srbsko, Bulharsko, Řecko, Albánie a Dalmácie',
+        [
+            {'hlavni': 'CZ · LIBEREC', 'lat': 50.7663, 'lon': 15.0543, 'zacatek': True},
+            {'hlavni': 'HU · OROSZLÁNY', 'druhy': 'coal plant', 'lat': 47.4833, 'lon': 18.3167},
+            {'hlavni': 'RS · BELGRADE', 'druhy': 'capital', 'lat': 44.7866, 'lon': 20.4489},
+            {'hlavni': 'BG · BUZLUDZHA', 'druhy': 'monument', 'lat': 42.7358, 'lon': 25.3936},
+            {'hlavni': 'BG · SOFIA', 'druhy': 'city', 'lat': 42.6977, 'lon': 23.3219},
+            {'hlavni': 'GR · THESSALONIKI', 'druhy': 'train graveyard', 'lat': 40.6401, 'lon': 22.9444},
+            {'hlavni': 'GR · ATHENS', 'druhy': 'ellinikon · ace high', 'lat': 37.9838, 'lon': 23.7275},
+            {'hlavni': 'AL · POLIÇAN', 'druhy': 'ammo factory', 'lat': 40.6167, 'lon': 20.1000},
+            # OBLAST, ne bod: jižní Dalmácie. Střed = Split.
+            {'hlavni': 'HR · DALMATIA', 'druhy': 'south coast',
+             'lat': 43.5081, 'lon': 16.4402, 'okruh': True},
+        ]),
+}
+
+
+def udelej_body():
+    ven = Path('/home/user/mrkonopa.github.io/travels/mapy')
+    ven.mkdir(parents=True, exist_ok=True)
+    for zapisek, (popis, zast) in BODY_CEST.items():
+        d = vyrob_body(zapisek, zast)
+        d['popis'] = popis
+        (ven / f'{zapisek}.js').write_text(
+            '/* Data mapy trasy — vyrobil tools/mapy/gen.py, needituj ručně. */\n'
+            'window.MAPA_TRASY = ' + json.dumps(d, ensure_ascii=False) + ';\n', encoding='utf-8')
+        print(f"→ travels/mapy/{zapisek}.js   plátno {d['sirka']}×{d['vyska']}, "
+              f"podklad {len(d['podklad'])} obrysů, zastávek {len(d['zastavky'])}, "
+              f"spojů {len(d['spoje'])}, {len(json.dumps(d))//1024} kB")
+
+
 if __name__ == '__main__':
+    if len(sys.argv) > 1 and sys.argv[1] == 'body':
+        udelej_body(); sys.exit(0)
+
     KOTVY_IT = {'CZ start/end': (50.767, 15.056), 'Craco': (40.377, 16.440), 'Etna': (37.751, 14.993),
                 'Agrigento': (37.311, 13.577), 'Palermo': (38.116, 13.361), 'Salerno / Vietri': (40.673, 14.727),
                 'Rome': (41.903, 12.496), "Lago d'Iseo": (45.717, 10.062)}

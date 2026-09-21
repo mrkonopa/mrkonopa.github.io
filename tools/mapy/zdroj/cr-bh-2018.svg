@@ -1,0 +1,45 @@
+
+        <defs>
+          <filter id="lbl-bg-crbh" x="-20%" y="-40%" width="140%" height="180%">
+            <feMorphology in="SourceGraphic" operator="dilate" radius="3" result="exp"/>
+            <feFlood flood-color="#262626" result="bg"/>
+            <feComposite in="bg" in2="exp" operator="in" result="outline"/>
+            <feMerge><feMergeNode in="outline"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+        </defs>
+
+        <!-- Closed loop polyline -->
+        <polyline points="280,60 320,240 480,320 545,290 350,205 285,150 280,60"
+          fill="none" stroke="#f5b800" stroke-width="1.5"
+          stroke-dasharray="5 7" opacity="0.55"/>
+
+        <!-- Dots -->
+        <circle cx="280" cy="60"  r="5" fill="#f5b800"/>           <!-- CZ -->
+        <circle cx="320" cy="240" r="4" fill="var(--fg-dim)"/>     <!-- Dalmatia -->
+        <circle cx="480" cy="320" r="4" fill="var(--fg-dim)"/>     <!-- Dubrovnik -->
+        <circle cx="545" cy="290" r="4" fill="var(--fg-dim)"/>     <!-- Mostar -->
+        <circle cx="350" cy="205" r="4" fill="var(--fg-dim)"/>     <!-- Štrbački Buk -->
+        <circle cx="285" cy="150" r="4" fill="var(--fg-dim)"/>     <!-- Kumrovec -->
+
+        <!-- Labels -->
+        <g font-family="'JetBrains Mono', monospace"
+           font-size="11" letter-spacing="0.12em" filter="url(#lbl-bg-crbh)">
+
+          <text x="292" y="55" text-anchor="start" fill="#f5b800">CZ · LIBEREC</text>
+
+          <text x="308" y="247" text-anchor="end" fill="var(--fg-dim)">HR · DALMATIA</text>
+          <text x="308" y="261" text-anchor="end" fill="var(--fg-muted)" font-size="9.5">adriatic coast</text>
+
+          <text x="468" y="326" text-anchor="end" fill="var(--fg-dim)">HR · DUBROVNIK</text>
+          <text x="468" y="340" text-anchor="end" fill="var(--fg-muted)" font-size="9.5">south coast</text>
+
+          <text x="557" y="285" text-anchor="start" fill="var(--fg-dim)">BiH · MOSTAR</text>
+          <text x="557" y="299" text-anchor="start" fill="var(--fg-muted)" font-size="9.5">herzegovina · bridge</text>
+
+          <text x="362" y="201" text-anchor="start" fill="var(--fg-dim)">ŠTRBAČKI BUK</text>
+          <text x="362" y="215" text-anchor="start" fill="var(--fg-muted)" font-size="9.5">waterfall · una river</text>
+
+          <text x="273" y="146" text-anchor="end" fill="var(--fg-dim)">HR · KUMROVEC</text>
+          <text x="273" y="160" text-anchor="end" fill="var(--fg-muted)" font-size="9.5">tito birthplace</text>
+        </g>
+      

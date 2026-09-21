@@ -32,12 +32,24 @@ const MIME = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css
 const ZAPISKY = require('./stranky.cjs').STRANKY
   .filter(p => p.id.startsWith('t-')).map(p => p.id.slice(2));
 
-/* Zápisky, které ještě běží na staré vložené mapě. Výjimka musí mířit na
-   existující zápisek, jinak test spadne — ať seznam nehnije. */
-const STARA_MAPA = {
-  'ukraine-2017': 'jen úsečky mezi zastávkami, čeká na GPX záznam',
-  'cr-bh-2018': 'jen úsečky mezi zastávkami, čeká na GPX záznam',
-  'yugoslavia-2020': 'jen úsečky mezi zastávkami, čeká na GPX záznam',
+/* Zápisky, které ještě běží na staré vložené mapě. Dnes PRÁZDNÉ — všech
+   sedm map kreslí sdílený modul. Konstrukce zůstává pro případ, že by
+   přibyl nový zápisek dřív, než se mu mapa udělá. */
+const STARA_MAPA = {};
+
+/* Zápisky BEZ ZÁZNAMU TRASY. Jejich mapa má skutečný podklad, skutečné
+   souřadnice zastávek a plnou kontrolu popisků — jen mezi zastávkami
+   vede PŘERUŠOVANÁ úsečka místo jeté cesty, protože GPX k nim není.
+   Míjí je proto jediná kontrola: „trasa je záznam".
+
+   Původně byly celé ve `STARA_MAPA`, tedy bez jakékoli kontroly —
+   a přitom jejich vložené mapy neměly ANI JEDEN obrys pevniny. Vojta:
+   „rád bych, aby to bylo dokreslené až do kraje… přidat konturu států."
+   Po převodu na modul se na ně kontroly popisků vztahují v plné síle. */
+const BEZ_ZAZNAMU = {
+  'ukraine-2017': 'jen zastávky, čeká na GPX záznam',
+  'cr-bh-2018': 'jen zastávky, čeká na GPX záznam',
+  'yugoslavia-2020': 'jen zastávky, čeká na GPX záznam',
 };
 
 /* Rumunsko NENÍ mapa, ale VÝŠKOVÝ PROFIL hřebenovky (osa 1000–2500 m,
@@ -113,34 +125,34 @@ const ZMER = () => {
     bodyTrasy: body.length,
     pomer: Math.round((vb.height / vb.width) * 100) / 100,
     panelW: Math.round(r.width), panelH: Math.round(r.height),
+    podkladu: svg.querySelectorAll('.mapa-pevnina path').length,
+    spoju: svg.querySelectorAll('.mapa-spoj').length,
   };
 };
 
-/* Velikost panelu na desktopu (viz mapa.css).
+/* Velikost panelu na desktopu (počítá `mapa.js`, viz komentář tam).
 
    Dřív měly všechny mapy `max-width: 420px`, jenže jejich poměr stran jde
-   od 0,99 (Španělsko) po 2,51 (Itálie) — stejná šířka tedy znamenala
-   Španělsko 420 × 415 v sekci široké 1024 px a Itálii 420 × 1052. Vojta
-   to nahlásil z obrazovky: „takové divný… aby to bylo větší a na tu
-   šířku toho."
+   od 0,40 (Ukrajina — východozápadní koridor) po 2,51 (Itálie). Stejná
+   šířka tedy znamenala Španělsko 420 × 415, skoro čtverec ztracený
+   v sekci široké 1024 px, a Itálii 420 × 1052, pruh přes dvě obrazovky.
+   Vojta to nahlásil z obrazovky: „takové divný… aby to bylo větší a na
+   tu šířku toho."
 
-   Šířka se proto odvozuje z poměru stran (`--mapa-pomer` nastaví mapa.js).
-   Hlídají se tři věci a každá chytá jinou poruchu:
+   Šířka se proto počítá z poměru stran na KONSTANTNÍ PLOCHU. Hlídají se
+   tři věci a každá chytá jinou poruchu:
 
-     ŠÍŘKA v mezích    — 420 px by znamenalo návrat k pevné hodnotě,
-                         1024 px zase že `--mapa-pomer` nikdo nenastavil
-                         a uplatnila se záloha „bez omezení";
-     VÝŠKA pod stropem — hlídá, že se z vysoké mapy nestane několik
-                         obrazovek;
+     ŠÍŘKA v mezích    — 420 px by znamenalo návrat k pevné hodnotě;
+     VÝŠKA pod stropem — ať se z vysoké mapy nestane několik obrazovek;
      PODOBNÁ PLOCHA    — vlastní smysl té změny. Naměřeno: dnes je rozdíl
-                         mezi největší a nejmenší mapou 1,29×, při pevných
-                         420 px to bylo 2,54× (Španělsko 174 tis. px²
+                         mezi největší a nejmenší mapou 1,18×, při pevných
+                         420 px to bylo 2,53× (Španělsko 174 tis. px²
                          proti Itálii 442 tis.). Práh 1,6 leží mezi tím,
                          takže návrat k pevné šířce ho shodí.
 
-   Meze jsou naměřené, ne přané: 500 = Itálie (dolní mez v CSS),
-   700 = Španělsko (horní mez), 1253 = Itálie na výšku. */
-const PANEL_MIN = 500, PANEL_MAX = 700, PANEL_VYSKA_MAX = 1300, PLOCHA_ROZPTYL = 1.6;
+   Meze jsou naměřené: 489 = Itálie (nejužší), 1024 = Ukrajina (narazí na
+   šířku sekce), 1225 = Itálie na výšku. */
+const PANEL_MIN = 460, PANEL_MAX = 1024, PANEL_VYSKA_MAX = 1300, PLOCHA_ROZPTYL = 1.6;
 
 (async () => {
   console.log('\n── Mapy tras ──\n');
@@ -148,9 +160,9 @@ const PANEL_MIN = 500, PANEL_MAX = 700, PANEL_VYSKA_MAX = 1300, PLOCHA_ROZPTYL =
   const browser = await chromium.launch({ headless: true, executablePath: EXEC });
   let promereno = 0; const plochy = {};
   try {
-    for (const zla of [...Object.keys(STARA_MAPA), ...Object.keys(PROFIL)]) {
+    for (const zla of [...Object.keys(STARA_MAPA), ...Object.keys(PROFIL), ...Object.keys(BEZ_ZAZNAMU)]) {
       ok(ZAPISKY.includes(zla), `výjimka „${zla}" míří na existující zápisek`,
-        STARA_MAPA[zla] || PROFIL[zla]);
+        STARA_MAPA[zla] || PROFIL[zla] || BEZ_ZAZNAMU[zla]);
     }
 
     for (const sirka of [1280, 380]) {
@@ -198,7 +210,16 @@ const PANEL_MIN = 500, PANEL_MAX = 700, PANEL_VYSKA_MAX = 1300, PLOCHA_ROZPTYL =
             `${z}: panel je ${PANEL_MIN}–${PANEL_MAX} px široký`, `naměřeno ${r.panelW}`);
           ok(r.panelH <= PANEL_VYSKA_MAX,
             `${z}: panel není vyšší než ${PANEL_VYSKA_MAX} px`, `naměřeno ${r.panelH}`);
-          ok(r.bodyTrasy > 100, `${z}: trasa je záznam, ne úsečky (${r.bodyTrasy} bodů)`);
+          if (BEZ_ZAZNAMU[z]) {
+            /* Bez záznamu se nehlídá hustota trasy, ale MUSÍ být podklad
+               a spoje mezi zastávkami — jinak by převod mohl tiše vyrobit
+               prázdné plátno a test by mlčel. */
+            ok(r.podkladu >= 5, `${z}: mapa má obrysy států (${r.podkladu})`, BEZ_ZAZNAMU[z]);
+            ok(r.spoju >= 3, `${z}: zastávky jsou pospojované (${r.spoju} úseků)`);
+            ok(r.bodyTrasy === 0, `${z}: trasa se netváří jako záznam`, `${r.bodyTrasy} bodů`);
+          } else {
+            ok(r.bodyTrasy > 100, `${z}: trasa je záznam, ne úsečky (${r.bodyTrasy} bodů)`);
+          }
           const html = fs.readFileSync(path.join(ROOT, 'travels', z + '.html'), 'utf8');
           ok(!/<div class="route-svg-wrap">\s*<svg/.test(html),
             `${z}: mapa se kreslí modulem, ne vloženým SVG`);

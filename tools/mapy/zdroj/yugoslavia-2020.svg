@@ -1,0 +1,68 @@
+
+        <defs>
+          <!-- Thick dark halo so labels are always readable over the route line -->
+          <filter id="lbl-bg" x="-20%" y="-40%" width="140%" height="180%">
+            <feMorphology in="SourceGraphic" operator="dilate" radius="3" result="exp"/>
+            <feFlood flood-color="#262626" result="bg"/>
+            <feComposite in="bg" in2="exp" operator="in" result="outline"/>
+            <feMerge><feMergeNode in="outline"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+        </defs>
+
+        <!-- Route line (closed loop, dashed yellow) -->
+        <polyline id="route-line"
+          points="370,45 388,122 420,200 565,178 545,220 548,280 480,345 388,308 278,250 370,45"
+          fill="none" stroke="#f5b800" stroke-width="1.5"
+          stroke-dasharray="5 7" opacity="0.55"/>
+
+        <!-- ── dots ── -->
+        <circle cx="370" cy="45"  r="5" fill="#f5b800"/>          <!-- CZ start/end -->
+        <circle cx="388" cy="122" r="4" fill="var(--fg-dim)"/>    <!-- HU coal plant -->
+        <circle cx="420" cy="200" r="4" fill="var(--fg-dim)"/>    <!-- RS Belgrade -->
+        <circle cx="565" cy="178" r="4" fill="var(--fg-dim)"/>    <!-- BG Buzludzha -->
+        <circle cx="545" cy="220" r="4" fill="var(--fg-dim)"/>    <!-- BG Sofia -->
+        <circle cx="548" cy="280" r="4" fill="var(--fg-dim)"/>    <!-- GR Thessaloniki -->
+        <circle cx="480" cy="345" r="4" fill="var(--fg-dim)"/>    <!-- GR Athens -->
+        <circle cx="388" cy="308" r="4" fill="var(--fg-dim)"/>    <!-- AL Poliçan -->
+        <circle cx="278" cy="250" r="4" fill="var(--fg-dim)"/>    <!-- HR Dalmatia -->
+
+        <!-- ── labels (each pushed away from the route line) ── -->
+        <g font-family="'JetBrains Mono', monospace"
+           font-size="10.5" letter-spacing="0.12em" filter="url(#lbl-bg)">
+
+          <!-- CZ — above the dot, route leaves downward -->
+          <text x="382" y="38"  text-anchor="start" fill="#f5b800" font-size="11">CZ · LIBEREC</text>
+
+          <!-- HU — left, route enters from above-left and exits toward below-right -->
+          <text x="376" y="117" text-anchor="end" fill="var(--fg-dim)">HU · OROSZLÁNY</text>
+          <text x="376" y="130" text-anchor="end" fill="var(--fg-muted)" font-size="9.5">coal plant</text>
+
+          <!-- RS — left, route exits right toward Buzludzha -->
+          <text x="408" y="195" text-anchor="end" fill="var(--fg-dim)">RS · BELGRADE</text>
+          <text x="408" y="208" text-anchor="end" fill="var(--fg-muted)" font-size="9.5">capital</text>
+
+          <!-- BG Buzludzha — right, route line is to its left -->
+          <text x="577" y="173" text-anchor="start" fill="var(--fg-dim)">BG · BUZLUDZHA</text>
+          <text x="577" y="186" text-anchor="start" fill="var(--fg-muted)" font-size="9.5">monument</text>
+
+          <!-- BG Sofia — right, below Buzludzha -->
+          <text x="557" y="216" text-anchor="start" fill="var(--fg-dim)">BG · SOFIA</text>
+          <text x="557" y="229" text-anchor="start" fill="var(--fg-muted)" font-size="9.5">city</text>
+
+          <!-- GR Thessaloniki — right, route passes mostly vertically here -->
+          <text x="560" y="275" text-anchor="start" fill="var(--fg-dim)">GR · THESSALONIKI</text>
+          <text x="560" y="288" text-anchor="start" fill="var(--fg-muted)" font-size="9.5">train graveyard</text>
+
+          <!-- GR Athens — left, route exits upper-left toward Albania -->
+          <text x="468" y="350" text-anchor="end" fill="var(--fg-dim)">GR · ATHENS</text>
+          <text x="468" y="363" text-anchor="end" fill="var(--fg-muted)" font-size="9.5">ellinikon · ace high</text>
+
+          <!-- AL — left, route exits upper-right toward HR -->
+          <text x="376" y="303" text-anchor="end" fill="var(--fg-dim)">AL · POLIÇAN</text>
+          <text x="376" y="316" text-anchor="end" fill="var(--fg-muted)" font-size="9.5">ammo factory</text>
+
+          <!-- HR — left, route exits upper-right back to CZ -->
+          <text x="266" y="246" text-anchor="end" fill="var(--fg-dim)">HR · DALMATIA</text>
+          <text x="266" y="259" text-anchor="end" fill="var(--fg-muted)" font-size="9.5">south coast</text>
+        </g>
+      
