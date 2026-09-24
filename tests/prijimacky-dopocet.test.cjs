@@ -513,8 +513,9 @@ const V69 = {
     if (!blizko(Xb / pod['banány'], Xk / pod['káva'])) throw new Error('tuny banánů a kávy nesedí s diagramem');
     if (pod['rýže'] + pod.cukr + pod['káva'] + pod['banány'] !== 100) throw new Error('diagram nedává 100 %');
     if (k === '11.1') {
-      const ZL = { jedna: 1, dvě: 2, tři: 3, čtyři: 4 }, JM = { polovin: 2, třetin: 3, čtvrtin: 4, pětin: 5, desetin: 10, dvacetin: 20 };
-      const [, c, j] = s.match(/dohromady (\S+) (\S+?)[ay] celkové/); return blizko(ZL[c] / JM[j], (pod['káva'] + pod['banány']) / 100); }
+      const ZL = { jednu: 1, dvě: 2, tři: 3, čtyři: 4 }, JM = { polovin: 2, třetin: 3, čtvrtin: 4, pětin: 5, desetin: 10, dvacetin: 20 };
+      const [, c, j] = s.match(/dohromady (?:(\S+) )?(\S+?)[yu] celkové/);           // „polovinu" bez číslovky
+      return blizko((c ? ZL[c] : 1) / JM[j], (pod['káva'] + pod['banány']) / 100); }
     if (k === '11.2') { const [m, n] = cisla(s, /je (\d+) ∶ (\d+)\./); return blizko(m / n, pod['káva'] / pod['rýže']); }
     return blizko(Xk / pod['káva'] * pod['rýže'], cisla(s, /veze ([\d,]+) t rýže/)[0]); },
   'Pravidelný mnohoúhelník': (t, k) => {
@@ -613,7 +614,7 @@ const V1214 = {
     [p] = cisla(t.intro, /pouze (\d+) % celkové/); return Z / (p / 100) - Z * k; },
   'Pomlázky': t => { const k = SLOVA[t.intro.match(/První den prodal (\S+) všech/)[1]], [D] = cisla(t.intro, /o (\d+) pomlázek více/);
     return D / (k - 2); },                                                // první den 1 díl z k, druhý zbytek k − 1
-  'Kanystr': t => { const [n] = cisla(t.intro, /nalití (\d+) hrnků/), f = ZLOMKY[t.intro.match(/zaplněno (\S+ \S+) objemu/)[1]],
+  'Kanystr': t => { const [n] = cisla(t.intro, /nalití (\d+) hrnků/), f = ZLOMKY[t.intro.match(/zaplněn[oy] (\S+ \S+) objemu/)[1]],
     [Z] = cisla(t.intro, /chybělo (\d[\d ]*) ml/), chybi = n / f - n - 1; return Z / chybi; },
   'Vlaky na kolejích': t => { const [d] = cisla(t.intro, /má o (\d+) vagon\S* více/), k = SLOVA[t.intro.match(/koleji a (\S+) méně/)[1]],
     [T] = cisla(t.intro, /dohromady mají (\d+) vagonů/), x = (T - d - k * d) / (k + 2); return k * (x + d) - x; },

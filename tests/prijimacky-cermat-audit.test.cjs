@@ -182,8 +182,14 @@ ok(v12.has('Povrch válce'), 'pozice 12 nabízí povrch válce — [' + [...v12]
 ok(v14.has('Kroužky') && v14.has('Návštěvnost'), 'pozice 14 nabízí DVĚ úlohy se sloupcovým grafem — [' + [...v14].join(', ') + ']');
 
 // Podíl v celém testu — volná podlaha, jen aby se poznalo úplné vymizení.
-// Naměřeno na 10× 400 testech: válec 55,0–63,5 %, graf 27,3–37,5 %.
-const VALEC = ['Sud', 'Těžítko', 'Povrch válce'], GRAF = ['Kroužky', 'Návštěvnost'];
+// Naměřeno na 10× 400 testech: válec 51–59 %, graf 52–61 % (ostré testy: 33 % a 53 %).
+// Podlaha grafu 40 % leží pod minimem a nad stavem bez nových grafových variant (~29 %).
+/* 2026-09-24: seznamy se musí držet banky. Pozice 6 a 12 dostaly nové varianty
+   (přelévání mezi válci, dort ze dvou forem, ptačí hodinka, kruhové diagramy),
+   a se starým seznamem podíl válce „klesl" pod podlahu jen proto, že se nové
+   válce nepočítaly — kolísalo to mezi 33 a 36 %, tedy test padal náhodně. */
+const VALEC = ['Sud', 'Těžítko', 'Přelévání vody', 'Povrch válce', 'Dort ze dvou forem'],
+  GRAF = ['Kroužky', 'Návštěvnost', 'Ptačí hodinka', 'Kruhový diagram zahrady', 'Náklad lodi'];
 let sValcem = 0, sGrafem = 0;
 const BEHU = 400;
 for (let i = 0; i < BEHU; i++) {
@@ -192,8 +198,8 @@ for (let i = 0; i < BEHU; i++) {
   if (t.some(x => GRAF.includes(x))) sGrafem++;
 }
 const pV = 100 * sValcem / BEHU, pG = 100 * sGrafem / BEHU;
-ok(pV >= 35, 'válcová úloha je v ' + pV.toFixed(1) + ' % testů (podlaha 35 %, naměřeno 55–64)');
-ok(pG >= 15, 'grafová úloha je v ' + pG.toFixed(1) + ' % testů (podlaha 15 %, naměřeno 27–38)');
+ok(pV >= 35, 'válcová úloha je v ' + pV.toFixed(1) + ' % testů (podlaha 35 %, naměřeno 51–59)');
+ok(pG >= 40, 'úloha s grafem nebo diagramem je v ' + pG.toFixed(1) + ' % testů (podlaha 40 %, naměřeno 52–61)');
 
 console.log(`\n  ${pass} ✅ / ${fail} ❌  (${RUNS} vygenerovaných testů)`);
 process.exit(fail ? 1 : 0);

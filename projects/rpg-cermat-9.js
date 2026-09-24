@@ -2042,7 +2042,7 @@
       intro: `Obsah pláště rotačního válce je ${k}krát větší než obsah jedné podstavy tohoto válce. Poloměr podstavy válce je ${r} cm.`,
       prompt: `Jaký je povrch válce? Pro výpočet použijte π ≐ 3,14.`,
       options: sh.labels, ans: sh.correctLetter,
-      sol: [`Povrch válce je plášť PLUS DVĚ podstavy. Plášť je ${k}krát větší než jedna podstava, takže celý povrch je ${k} + 2 = ${k + 2} podstav — výšku válce vůbec nepotřebuješ.`,
+      sol: [`Povrch válce je plášť PLUS DVĚ podstavy. Plášť je ${k}krát větší než jedna podstava, takže celý povrch je ${k} + 2 = ${k + 2} ${skl(k + 2, 'podstava', 'podstavy', 'podstav')} — výšku válce vůbec nepotřebuješ.`,
         `Jedna podstava: 3,14 · ${r} · ${r} = ${tis(Sp)} cm².`,
         `Povrch: ${k + 2} · ${tis(Sp)} = ${tis(povrch)} cm²${odpovedMC(sh)}`]
     };
@@ -3502,8 +3502,9 @@
     const zl = gcd(2 * k, 100), z1 = gcd(k, 100), p1 = ri(0, 1) === 1, [cT, jT] = p1 ? [2 * k / zl, 100 / zl] : [k / z1, 100 / z1];
     const p2 = ri(0, 1) === 1, pomer = p2 ? `${k / g} ∶ ${r / g}` : `${r / g} ∶ ${k / g}`;       // chyba: obrácený poměr
     const p3 = ri(0, 1) === 1, rTvr = p3 ? rize : X * r / 100;                                     // chyba: procenta z 36 t
-    const ZLS = { 1: 'jedna', 2: 'dvě', 3: 'tři', 4: 'čtyři' }, JM = { 2: 'poloviny', 3: 'třetiny', 4: 'čtvrtiny', 5: 'pětiny', 10: 'desetiny', 20: 'dvacetiny', 25: 'pětadvacetiny', 50: 'padesátiny' };
-    const zlText = (n, d) => (ZLS[n] && JM[d] ? `${ZLS[n]} ${n === 1 ? JM[d].replace(/y$/, 'a') : JM[d]}` : `${n}/${d}`);
+    // „tvoří … jednu pětinu / dvě pětiny" — 4. pád (u 2–4 stejný jako 1. pád)
+    const ZLS = { 1: 'jednu', 2: 'dvě', 3: 'tři', 4: 'čtyři' }, JM = { 2: 'poloviny', 3: 'třetiny', 4: 'čtvrtiny', 5: 'pětiny', 10: 'desetiny', 20: 'dvacetiny', 25: 'pětadvacetiny', 50: 'padesátiny' };
+    const zlText = (n, d) => (n === 1 && d === 2 ? 'polovinu' : ZLS[n] && JM[d] ? `${ZLS[n]} ${n === 1 ? JM[d].replace(/y$/, 'u') : JM[d]}` : `${n}/${d}`);
     return {
       no: 11, points: 3, title: 'Náklad lodi', kind: 'tfgrid', okruh: 'data',
       svg: svgKolac([['rýže', r], ['cukr', c], ['káva', k], ['banány', k]].map(([jm, p]) => ({ jm, uhel: p * 3.6, text: p + ' %' }))),
@@ -3841,7 +3842,7 @@
       intro: `Košíkář prodal během prvních dvou dnů velikonočních trhů všechny upletené pomlázky. První den prodal ${slovo} všech upletených pomlázek. Druhý den prodal o ${D} pomlázek více než první den.`,
       prompt: `Kolik pomlázek prodal košíkář první den velikonočních trhů?`,
       options: sh.labels, ans: sh.correctLetter,
-      sol: [`Rozděl všechny pomlázky na ${k} stejných dílů. První den prodal 1 díl, druhý den zbytek, tedy ${dily(k - 1)}. Druhý den prodal víc právě o ${k - 1} − 1 = ${dily(k - 2)}.`,
+      sol: [`Rozděl všechny pomlázky na ${k} ${k <= 4 ? 'stejné díly' : 'stejných dílů'}. První den prodal 1 díl, druhý den zbytek, tedy ${dily(k - 1)}. Druhý den prodal víc právě o ${k - 1} − 1 = ${dily(k - 2)}.`,
         `Rozdíl ${D} pomlázek tedy odpovídá ${k - 2} ${skl(k - 2, 'dílu', 'dílům', 'dílům')}.`,
         `První den (jeden díl): ${D} : ${k - 2} = ${x} pomlázek${odpovedMC(sh)}`]
     };
@@ -3856,10 +3857,11 @@
     const sh = volbyMC(h, [Z / (c + 1), Z / (c - 1), Z / (c + 2)].filter(Number.isInteger), 50, 'jiný objem', x => `${tis(x)} ml`);
     return {
       no: 13, points: 2, title: 'Kanystr', kind: 'mc', okruh: 'slovni',
-      intro: `Pomocí hrnku naléváme do prázdného kanystru vodu ze studánky. Po nalití ${n} hrnků plných vody bylo zaplněno ${slovy} objemu kanystru. Když jsme přilili ještě 1 hrnek plný vody, do úplného zaplnění kanystru chybělo ${tis(Z)} ml vody.`,
+      // „bylo zaplněno sedm osmin", ale „byly zaplněny tři čtvrtiny" (2–4 → sloveso v množném čísle)
+      intro: `Pomocí hrnku naléváme do prázdného kanystru vodu ze studánky. Po nalití ${n} hrnků plných vody ${p <= 4 ? 'byly zaplněny' : 'bylo zaplněno'} ${slovy} objemu kanystru. Když jsme přilili ještě 1 hrnek plný vody, do úplného zaplnění kanystru chybělo ${tis(Z)} ml vody.`,
       prompt: `Jaký je objem hrnku?`,
       options: sh.labels, ans: sh.correctLetter,
-      sol: [`Nejdřív zjisti, kolik hrnků pojme celý kanystr: ${n} hrnků je ${slovy} objemu, takže jedna ${jednaq} je ${n} : ${p} = ${n / p} hrnků a celý kanystr ${q} · ${n / p} = ${K} hrnků.`,
+      sol: [`Nejdřív zjisti, kolik hrnků pojme celý kanystr: ${n} hrnků naplní ${slovy} objemu, takže jedna ${jednaq} je ${n} : ${p} = ${n / p} ${skl(n / p, 'hrnek', 'hrnky', 'hrnků')} a celý kanystr ${q} · ${n / p} = ${K} hrnků.`,
         `Po ${n + 1} hrncích chybí ${K} − ${n + 1} = ${c} ${skl(c, 'hrnek', 'hrnky', 'hrnků')}, a to je ${tis(Z)} ml.`,
         `Objem hrnku = ${tis(Z)} : ${c} = ${h} ml${odpovedMC(sh)}`]
     };
@@ -3889,9 +3891,10 @@
     /* Růže : statice = (m + 1) : m, takže o kolik je růží víc, tolik je jeden
        díl. Chryzantémy musí vyjít celé, proto se kombinace losuje znovu. */
     let m, u, w, t;
-    do { [m, u, w] = pick([[4, 2, 3], [3, 3, 4], [2, 2, 3], [4, 4, 5], [5, 5, 4]]); t = pick([1, 2, 3]); } while (!Number.isInteger(m * t * w / u));
+    do { [m, u, w] = pick([[4, 2, 3], [3, 3, 4], [2, 2, 3], [4, 4, 5], [5, 5, 4]]); t = pick([2, 3]); } while (!Number.isInteger(m * t * w / u));
     const R = (m + 1) * t, S = m * t, Cc = S * w / u;
-    const [cr, cc, cs] = [pick([45, 50, 54, 60]), pick([30, 35, 40]), pick([25, 28, 35])];
+    // Ceny se liší, jinak by záměna static a chryzantém dala stejnou částku a nešla odhalit.
+    const [cr, cc, cs] = [pick([45, 50, 54, 60]), pick([35, 40, 45]), pick([25, 28, 32])];
     const cena = (r, c, s) => r * cr + c * cc + s * cs, spravne = cena(R, Cc, S);
     // chyby: prohozené statice a chryzantémy, prohozené růže a statice, díl neroznásobený
     const sh = volbyMC(spravne, [cena(R, S, Cc), cena(S, Cc, R), cena(m + 1, w * m / u, m)].filter(Number.isInteger), 20, 'jinou částku', x => `${tis(x)} korun`);
