@@ -14,10 +14,15 @@
     { id: 'vyrazy-mocniny', name: 'Číselné výrazy, mocniny a odmocniny', oblast: 'Číslo a proměnná', slots: [0] },
     { id: 'zlomky', name: 'Zlomky a desetinná čísla', oblast: 'Číslo a proměnná', slots: [1] },
     { id: 'procenta', name: 'Procenta a finanční matematika', oblast: 'Číslo a proměnná', slots: [14, 12] },
-    { id: 'pomer', name: 'Poměr a úměrnost', oblast: 'Závislosti a data', slots: [] },
+    // Pozice 13 střídá procenta, slovní úlohy a poměr (kytice podle nanečisto 2025).
+    // Který okruh úloha opravdu cvičí, říká její `okruh` (topicsForTask); procvičování
+    // okruhu z pozice bere jen úlohy, které do něj patří.
+    { id: 'pomer', name: 'Poměr a úměrnost', oblast: 'Závislosti a data', slots: [12] },
     { id: 'vyrazy-promenna', name: 'Výrazy s proměnnou', oblast: 'Číslo a proměnná', slots: [2] },
     { id: 'rovnice', name: 'Rovnice a soustavy', oblast: 'Číslo a proměnná', slots: [3] },
-    { id: 'slovni', name: 'Slovní úlohy', oblast: 'Nestandardní úlohy', slots: [12, 11] },
+    // Pozice 12 (index 11) sem už nepatří: všechny její varianty jsou tělesa (okruh 'telesa'),
+    // takže by procvičování slovních úloh z ní nikdy nic nevylosovalo.
+    { id: 'slovni', name: 'Slovní úlohy', oblast: 'Nestandardní úlohy', slots: [12] },
     // Pozice 16 (index 15) sem patří taky: na 300 běhů losuje jen Rámeček, Obraz v rámu
     // a Chodník kolem bazénu — všechno obvod a obsah obdélníku s lemem. Dřív nepatřila
     // ŽÁDNÉMU okruhu, takže se neobjevovala v procvičování ani v diagnostice.
@@ -115,8 +120,10 @@
     try {
       /* Pozice může střídat úlohy různých okruhů (pozice 11: tělesa, diagramy,
          mapa, mnohoúhelníky). Losuje se proto znovu, dokud úloha do okruhu
-         nepatří — jinak by „Tělesa" nabídla kruhový diagram. */
-      for (let i = 0; i < 40; i++) {
+         nepatří — jinak by „Tělesa" nabídla kruhový diagram. Kytice (poměr) je
+         jedna z 9 variant pozice 13, takže 40 pokusů selhalo v 0,9 % a test
+         procvičování by občas chytil prázdnou položku; 200 pokusů = 6 · 10⁻¹¹. */
+      for (let i = 0; i < 200; i++) {
         const t = window.RPG_CERMAT_9.genSlot(idx);
         if (topicsForTask(t).indexOf(topicId) !== -1) return taskToItem(t);
       }

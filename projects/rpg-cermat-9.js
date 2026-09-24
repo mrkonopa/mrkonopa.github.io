@@ -467,65 +467,65 @@
   }
 
   function gen12() {
-    // 2 body — MC A-E, objem (bazén se šikmým dnem)
-    // Šířka je násobek 10 (ne 15): objem = zonaNepl × sirka × 2,5 musí vyjít CELÝ.
-    // Při šířce 15 a délce 30 vycházelo 562,5, ale volby byly 513/538/563/588 —
-    // kdo počítal správně, svou hodnotu mezi možnostmi nenašel a „jiný objem“
-    // (jediná poctivá volba) se počítal jako chyba. Zasaženo 1 z 6 kombinací.
-    const delka = ri(2, 4) * 10, sirka = ri(1, 2) * 10;
-    const h1 = 1, h2 = 2;
-    const zonaNepl = delka / 2;
-    const V = delka === 0 ? 0 : (zonaNepl * sirka * h1) + (zonaNepl * sirka * (h1 + h2) / 2);
-    const correct = V;   // celé číslo z konstrukce; kdyby přestalo být, prijimacky-postupy.test.cjs to nahlásí
-    const opts = [correct - 50, correct - 25, correct, correct + 25, 'jiný objem'];
-    const shuffled = shuffleOpts(opts, correct);
+    // 2 body — bazén se šikmým dnem (věrné M9A/2025, úloha 12; klíč A = 500 m³)
+    /* Objem = kvádr (neplavci) + hranol s lichoběžníkovou podstavou (plavci).
+       Zóny se losují zvlášť, takže „průměrná hloubka celého bazénu" dává jiné
+       číslo než správný postup. Šířka je sudá, aby vyšel celý objem i při
+       průměrné hloubce 1,5 m. Při šířce 15 a délce 30 dřív vycházelo 562,5,
+       ale mezi volbami bylo jen 563 — kdo počítal správně, neměl co zvolit. */
+    const n = pick([15, 20, 25]), p = pick([15, 20, 25]), d = n + p, s = pick([8, 10, 12]), h1 = 1, h2 = pick([2, 3]);
+    const Vn = n * s * h1, Vp = p * s * (h1 + h2) / 2, V = Vn + Vp;
+    const sh = volbyMC(V, [d * s * (h1 + h2) / 2, Vn + p * s * h2, d * s * h1, d * s * h2], 50, 'jiný objem', v => `${tis(v)} m³`);
     return {
-      no: 12, points: 2, title: 'Bazén',
-      kind: 'mc',
-      prompt: `Bazén má délku ${delka} m a šířku ${sirka} m. V zóně pro neplavce (polovina délky) je všude hloubka ${h1} m. V zóně pro plavce dno plynule klesá z ${h1} m na ${h2} m. Jaký je objem bazénu?`,
-      options: shuffled.labels,
-      ans: shuffled.correctLetter,
-      sol: `Bazén rozděl na dvě poloviny po délce ${zonaNepl} m. Neplavecká část má všude hloubku ${h1} m: objem = ${zonaNepl} × ${sirka} × ${h1} = ${zonaNepl * sirka * h1} m³. Plavecká část má šikmé dno od ${h1} m do ${h2} m, průměrná hloubka je (${h1}+${h2}):2 = ${cz((h1 + h2) / 2)} m: objem = ${zonaNepl} × ${sirka} × ${cz((h1 + h2) / 2)} = ${cz(zonaNepl * sirka * (h1 + h2) / 2)} m³. Celkový objem = ${zonaNepl * sirka * h1} + ${cz(zonaNepl * sirka * (h1 + h2) / 2)} = ${correct} m³ → odpověď ${shuffled.correctLetter}.`
+      no: 12, points: 2, title: 'Bazén', kind: 'mc', okruh: 'telesa',
+      svg: svgBazen(n, d, h1, h2),
+      intro: `Bazén má délku ${d} metrů a šířku ${s} metrů. Hloubka bazénu není všude stejná (viz obrázek). V celé zóně pro neplavce, která je dlouhá ${n} m, je hloubka ${h1} m. Zóna pro plavce má šikmé dno a hloubka bazénu se v ní postupně zvětší z ${h1} m na ${h2} m.`,
+      prompt: `Jaký je objem bazénu?`,
+      options: sh.labels, ans: sh.correctLetter,
+      sol: [`Bazén rozděl na dvě části. Neplavecká zóna je kvádr. Plavecká je hranol, jehož podstavou je lichoběžník z bokorysu — jeho objem dá délka zóny · šířka · PRŮMĚRNÁ hloubka zóny.`,
+        `Neplavci: ${n} · ${s} · ${h1} = ${Vn} m³. Plavci: délka ${d} − ${n} = ${p} m, průměrná hloubka (${h1} + ${h2}) : 2 = ${cz((h1 + h2) / 2)} m, objem ${p} · ${s} · ${cz((h1 + h2) / 2)} = ${Vp} m³.`,
+        `Celý bazén: ${Vn} + ${Vp} = ${V} m³${odpovedMC(sh)}`]
     };
   }
 
   function gen13() {
-    // 2 body — MC A-E, procenta (tábory)
-    const mista = ri(4, 8) * 20;
-    const p1 = 20, p2 = 30;
-    const prihl1 = Math.round(mista * (1 + p1 / 100));
-    const prihl2 = Math.round(mista * (1 + p2 / 100));
-    const celkem = prihl1 + prihl2;
-    const odmitnuto = celkem - 2 * mista;
-    const opts = [odmitnuto - 10, odmitnuto - 5, odmitnuto, odmitnuto + 5, 'jiný počet'];
-    const shuffled = shuffleOpts(opts, odmitnuto);
+    // 2 body — tábory, přihlášky nad počet míst (věrné M9A/2025, úloha 13; klíč B = 75)
+    /* Obě navýšení se počítají z počtu MÍST, který zadání neuvádí — zná se jen
+       součet přihlášek. m je násobek 20, aby přihlášky vyšly celé. */
+    const [slovo, p1] = pick([['o pětinu', 20], ['o čtvrtinu', 25], ['o desetinu', 10]]), p2 = pick([15, 30, 35, 40].filter(x => x !== p1));
+    const m = 20 * ri(3, 10), N = m * (200 + p1 + p2) / 100, odm = m * (p1 + p2) / 100;
+    // chyby: procenta z přihlášek (jako by se dělily napůl), jen druhý termín, jen první termín
+    const sh = volbyMC(odm, [N * (p1 + p2) / 200, m * p2 / 100, m * p1 / 100].filter(Number.isInteger), 5, 'jiný počet přihlášek', x => `${x} přihlášek`);
     return {
-      no: 13, points: 2, title: 'Letní tábory',
-      kind: 'mc',
-      prompt: `Tábor měl dva termíny se stejným počtem míst. Celkem přišlo ${celkem} přihlášek. V prvním termínu počet přihlášek překročil počet míst o ${p1} %, ve druhém o ${p2} %. Kolik přihlášek muselo být kvůli nedostatku míst odmítnuto?`,
-      options: shuffled.labels,
-      ans: shuffled.correctLetter,
-      sol: `V prvním termínu přišlo ${prihl1} přihlášek (${mista} + ${p1} % = ${mista} × 1,2 = ${prihl1}), ve druhém ${prihl2} přihlášek (${mista} × 1,3 = ${prihl2}). Celkem ${prihl1} + ${prihl2} = ${celkem} přihlášek na ${2 * mista} míst (2 × ${mista}). Odmítnuto bylo ${celkem} − ${2 * mista} = ${odmitnuto} přihlášek → odpověď ${shuffled.correctLetter}.`
+      no: 13, points: 2, title: 'Letní tábory', kind: 'mc', okruh: 'procenta',
+      intro: `U ${pick(['Pelhřimova', 'Tábora', 'Jindřichova Hradce'])} se letos pořádaly dětské tábory ve dvou termínech. Počet nabízených míst byl v obou termínech stejný. Sešlo se celkem ${N} přihlášek. V prvním termínu počet přihlášek překročil počet nabízených míst ${slovo}, ve druhém termínu o ${p2} %.`,
+      prompt: `Kolik přihlášek celkem muselo být kvůli nedostatku míst odmítnuto?`,
+      options: sh.labels, ans: sh.correctLetter,
+      sol: [`Obě navýšení se počítají z počtu MÍST m, ne z přihlášek. V prvním termínu přišlo ${cz((100 + p1) / 100)} · m přihlášek, ve druhém ${cz((100 + p2) / 100)} · m, dohromady ${cz((200 + p1 + p2) / 100)} · m.`,
+        `${cz((200 + p1 + p2) / 100)} · m = ${N}, takže m = ${N} : ${cz((200 + p1 + p2) / 100)} = ${m} míst v každém termínu.`,
+        `Odmítnuto: ${N} − 2 · ${m} = ${odm} přihlášek${odpovedMC(sh)}`]
     };
   }
 
   function gen14() {
-    // 2 body — MC A-E, statistika/průměr
-    const n14 = 20;
-    // průměr 1,5–1,9: se známkami 1 a 2 je průměr vždy v (1;2) ⇒ počet jedniček 2–10 (kladný)
-    const prumer = ri(15, 19) / 10;
-    // zjednodušený model: známky 1 a 2, žádné jiné
-    const soucetZnamek = Math.round(prumer * n14);
-    const pocetJednicek = 2 * n14 - soucetZnamek; // z: 1*j + 2*(n-j) = soucet -> j = 2n - soucet
-    const opts = [pocetJednicek - 2, pocetJednicek - 1, pocetJednicek, pocetJednicek + 1, pocetJednicek + 2];
-    const shuffled = shuffleOpts(opts, pocetJednicek);
+    // 2 body — počet jedniček z průměru (věrné M9A/2025, úloha 14; klíč D = 8)
+    /* Známky jsou 1, 2 a 3 a jedniček je stejně jako dvojek. Průměr má mít
+       jedno desetinné místo, proto se kombinace losuje znovu. Distraktor
+       2n − součet je model „jen jedničky a dvojky" — přesně ten, který dřív
+       používala sama banka. */
+    let n, j, t;
+    do { n = pick([20, 24, 25, 30]); j = ri(3, 10); t = n - 2 * j; } while (t < 2 || (30 * (j + t)) % n !== 0 || j === t);
+    const pr = 3 * (j + t) / n, soucet = 3 * (j + t);
+    const zaku = v => `${v} ${skl(v, 'žák', 'žáci', 'žáků')}`;
+    const sh = volbyMC(j, [t, j + t, 2 * n - soucet], 1, 'jiný počet žáků', zaku);
     return {
-      no: 14, points: 2, title: 'Testové známky',
-      kind: 'mc',
-      prompt: `Test psalo ${n14} žáků, každý dostal známku 1 nebo 2. Aritmetický průměr známek byl ${cz(prumer)}. Kolik žáků dostalo jedničku?`,
-      options: shuffled.labels,
-      ans: shuffled.correctLetter,
-      sol: [`Průměr je součet dělený počtem, takže součet dostaneš zpětně vynásobením: ${cz(prumer)} × ${n14} = ${soucetZnamek}.`,`Označ si j počet jedniček. Zbylých ${n14} − j žáků má dvojku, takže součet je 1·j + 2·(${n14} − j) = ${2 * n14} − j.`,`Tenhle součet se musí rovnat ${soucetZnamek}, odtud ${2 * n14} − j = ${soucetZnamek}.`,`Počet jedniček j = ${2 * n14} − ${soucetZnamek} = ${pocetJednicek} → odpověď ${shuffled.correctLetter}.`]
+      no: 14, points: 2, title: 'Testové známky', kind: 'mc', okruh: 'data',
+      intro: `Test z matematiky psalo ${n} žáků. Nejhorší známka byla 3. Počet jedniček a dvojek byl stejný. Aritmetický průměr známek všech žáků byl ${cz(pr)}.`,
+      prompt: `Kolik žáků dostalo z testu známku 1?`,
+      options: sh.labels, ans: sh.correctLetter,
+      sol: [`Průměr krát počet žáků dá součet všech známek. Známky jsou jen 1, 2 a 3; jedniček a dvojek je stejně (j) a zbylých ${n} − 2j žáků má trojku.`,
+        `Součet známek: ${cz(pr)} · ${n} = ${soucet}. Zároveň 1 · j + 2 · j + 3 · (${n} − 2j) = ${3 * n} − 3j.`,
+        `${3 * n} − 3j = ${soucet}, tedy j = (${3 * n} − ${soucet}) : 3 = ${j}${odpovedMC(sh)}`]
     };
   }
 
@@ -676,40 +676,25 @@
     };
   }
 
-  function gen12b() {
-    // 2 body — MC A-E, objem kvádru (bazén tvaru kvádru)
-    const delka = ri(2, 4) * 5, sirka = ri(2, 3) * 4, hloubka = ri(1, 2) + 1;
-    const V = delka * sirka * hloubka;
-    const opts = [V - sirka * hloubka, V - delka, V, V + delka, 'jiný objem'];
-    const shuffled = shuffleOpts(opts, V);
-    return {
-      no: 12, points: 2, title: 'Bazén', kind: 'mc',
-      svg: svgCuboid(delka + ' m', sirka + ' m', hloubka + ' m'),
-      prompt: `Bazén má tvar kvádru: délka ${delka} m, šířka ${sirka} m a všude stejná hloubka ${hloubka} m. Jaký je jeho objem?`,
-      options: shuffled.labels, ans: shuffled.correctLetter,
-      sol: [`Objem kvádru je součin všech tří rozměrů: V = délka · šířka · hloubka.`,`Vynásob první dva rozměry: ${delka} · ${sirka} = ${delka * sirka} m².`,`Objem = ${delka * sirka} · ${hloubka} = ${V} m³ → odpověď ${shuffled.correctLetter}.`]
-    };
-  }
-
   function gen13b() {
-    // 2 body — MC A-E, procenta (zdražení a následná sleva)
-    /* 🔴 Konečná cena se dřív ZAOKROUHLOVALA: 500 Kč, +25 %, −10 % je
-       562,50 Kč, ale nabízelo se jen 563 a „jiná cena" — kdo počítal
-       správně, zvolil „jinou cenu" a dostal špatně (1 generování ze 12).
-       Teď se losuje znovu, dokud cena nevyjde celá. Našel to nezávislý
-       dopočet rovností v postupech (prijimacky-dopocet.test.cjs). */
+    // 2 body — zdražení a potom sleva z nové ceny
+    /* Konečná cena se dřív ZAOKROUHLOVALA (500 Kč, +25 %, −10 % = 562,50 Kč,
+       nabízelo se 563). Losuje se znovu, dokud cena nevyjde celá. */
     let cena, p1, p2, po1, fin;
     do {
-      cena = ri(4, 9) * 100; p1 = [10, 20, 25][ri(0, 2)]; p2 = [10, 20][ri(0, 1)];
+      cena = ri(4, 9) * 100; p1 = pick([10, 20, 25]); p2 = pick([10, 20]);
       po1 = cena * (100 + p1) / 100; fin = po1 * (100 - p2) / 100;
-    } while (!Number.isInteger(po1) || !Number.isInteger(fin));
-    const opts = [fin - 20, fin - 10, fin, fin + 10, 'jiná cena'];
-    const shuffled = shuffleOpts(opts, fin);
+    } while (!Number.isInteger(po1) || !Number.isInteger(fin) || p1 === p2);
+    // chyby: procenta jen sečtená, jen zdražení, původní cena
+    const sh = volbyMC(fin, [cena * (100 + p1 - p2) / 100, po1, cena].filter(Number.isInteger), 10, 'jiná cena', x => `${tis(x)} Kč`);
     return {
-      no: 13, points: 2, title: 'Cena zboží', kind: 'mc',
-      prompt: `Zboží stálo ${cena} Kč. Nejdřív zdražilo o ${p1} %, potom z nové ceny zlevnilo o ${p2} %. Kolik stojí nyní?`,
-      options: shuffled.labels, ans: shuffled.correctLetter,
-      sol: `Po zdražení o ${p1} %: ${cena} × ${cz(1 + p1 / 100)} = ${po1} Kč. Po zlevnění o ${p2} % z této ceny: ${po1} × ${cz(1 - p2 / 100)} = ${fin} Kč → odpověď ${shuffled.correctLetter}. (Pozor: procenta se počítají vždy z aktuální ceny, ne z původní.)`
+      no: 13, points: 2, title: 'Cena zboží', kind: 'mc', okruh: 'procenta',
+      intro: `Zboží stálo ${cena} Kč. Nejdřív zdražilo o ${p1} %, potom z nové ceny zlevnilo o ${p2} %.`,
+      prompt: `Kolik stojí zboží nyní?`,
+      options: sh.labels, ans: sh.correctLetter,
+      sol: [`Každá změna ceny se počítá z AKTUÁLNÍ ceny: sleva ${p2} % se bere z ceny po zdražení, ne z původní. Procenta se proto nesmějí jen sečíst.`,
+        `Po zdražení o ${p1} %: ${cena} · ${cz((100 + p1) / 100)} = ${po1} Kč.`,
+        `Po slevě o ${p2} %: ${po1} · ${cz((100 - p2) / 100)} = ${fin} Kč${odpovedMC(sh)}`]
     };
   }
 
@@ -938,19 +923,20 @@
   }
 
   function gen14b() {
-    // 2 body — MC A-E, doplnění chybějící hodnoty z průměru
-    const known = []; let s = 0;
-    for (let i = 0; i < 4; i++) { const v = ri(2, 9); known.push(v); s += v; }
-    let missing = ri(3, 9);
-    while ((s + missing) % 5 !== 0) missing++;
+    // 2 body — chybějící hodnota z průměru
+    const known = Array.from({ length: 4 }, () => ri(2, 9)), s = known.reduce((x, y) => x + y, 0);
+    let missing = ri(3, 9); while ((s + missing) % 5 !== 0) missing++;
     const soucet = s + missing, prumer = soucet / 5;
-    const opts = [missing - 2, missing - 1, missing, missing + 1, missing + 2];
-    const shuffled = shuffleOpts(opts, missing);
+    // chyby: součet jako by hodnot byly jen čtyři, průměr sám, průměr známých hodnot
+    const sh = volbyMC(missing, [4 * prumer - s, prumer, s / 4].filter(Number.isInteger), 1, 'jiná hodnota');
     return {
-      no: 14, points: 2, title: 'Průměr měření', kind: 'mc',
-      prompt: `Pět měření mělo aritmetický průměr ${prumer}. Čtyři z naměřených hodnot byly ${known.join(', ')}. Jaká byla pátá hodnota?`,
-      options: shuffled.labels, ans: shuffled.correctLetter,
-      sol: `Součet všech pěti hodnot = průměr × počet = ${prumer} · 5 = ${soucet}. Součet čtyř známých: ${known.join(' + ')} = ${s}. Pátá hodnota = ${soucet} − ${s} = ${missing} → odpověď ${shuffled.correctLetter}.`
+      no: 14, points: 2, title: 'Průměr měření', kind: 'mc', okruh: 'data',
+      intro: `Pět měření mělo aritmetický průměr ${prumer}. Čtyři z naměřených hodnot byly ${known.join(', ')}.`,
+      prompt: `Jaká byla pátá naměřená hodnota?`,
+      options: sh.labels, ans: sh.correctLetter,
+      sol: [`Z průměru dopočítáš součet všech hodnot (průměr krát jejich počet). Chybějící hodnota je rozdíl mezi tímto součtem a součtem hodnot, které znáš.`,
+        `Součet všech pěti: ${prumer} · 5 = ${soucet}; známé: ${known.join(' + ')} = ${s}.`,
+        `Pátá hodnota: ${soucet} − ${s} = ${missing}${odpovedMC(sh)}`]
     };
   }
 
@@ -1313,47 +1299,53 @@
   }
 
   function gen12c() {
-    // 2 body — MC, počet krychlových kostek v kvádrové krabici
-    const k = [2, 5][ri(0, 1)], a = ri(2, 4) * k, b = ri(2, 4) * k, cc = ri(2, 3) * k;
-    const pocet = (a / k) * (b / k) * (cc / k);
-    const opts = [pocet - 2, pocet - 1, pocet, pocet + 2, 'jiný počet'];
-    const sh = shuffleOpts(opts, pocet);
+    // 2 body — kolik krychlových kostek vyplní krabici
+    const k = pick([2, 5]), a = ri(2, 4) * k, b = ri(2, 4) * k, c = ri(2, 3) * k;
+    const pocet = (a / k) * (b / k) * (c / k), V = a * b * c;
+    // chyby: objem krabice dělený jen HRANOU kostky, jedna vrstva, dělení obsahem stěny
+    const sh = volbyMC(pocet, [V / k, (a / k) * (b / k), V / (k * k)], 1, 'jiný počet');
     return {
-      no: 12, points: 2, title: 'Kostky v krabici', kind: 'mc',
-      svg: svgCuboid(a + ' cm', b + ' cm', cc + ' cm'),
-      prompt: `Krabice tvaru kvádru má rozměry ${a} cm × ${b} cm × ${cc} cm. Kolik krychlových kostek o hraně ${k} cm se do ní přesně vejde?`,
+      no: 12, points: 2, title: 'Kostky v krabici', kind: 'mc', okruh: 'telesa',
+      svg: svgCuboid(a + ' cm', b + ' cm', c + ' cm'),
+      intro: `Krabice tvaru kvádru má vnitřní rozměry ${a} cm × ${b} cm × ${c} cm. Krabici chceme beze zbytku vyplnit krychlovými kostkami o hraně ${k} cm.`,
+      prompt: `Kolik kostek se do krabice vejde?`,
       options: sh.labels, ans: sh.correctLetter,
-      sol: [`Kostky se skládají do řad, vrstev a sloupců — spočítej tedy, kolik se jich vejde podél KAŽDÉ hrany.`,`Počet kostek podél hran: ${a} : ${k} = ${a / k}, ${b} : ${k} = ${b / k} a ${cc} : ${k} = ${cc / k}.`,`Celkem = ${a / k} · ${b / k} · ${cc / k} = ${pocet} kostek → odpověď ${sh.correctLetter}.`]
+      sol: [`Kostky se skládají do řad, vrstev a sloupců, takže spočítej, kolik se jich vejde podél KAŽDÉ hrany. Objem krabice dělený jen hranou kostky (ne jejím objemem) by dal nesmysl.`,
+        `Podél hran: ${a} : ${k} = ${a / k}, ${b} : ${k} = ${b / k} a ${c} : ${k} = ${c / k}.`,
+        `Kostek: ${a / k} · ${b / k} · ${c / k} = ${pocet}${odpovedMC(sh)}`]
     };
   }
 
   function gen13c() {
-    // 2 body — MC, o kolik procent se cena zvýšila
-    // POZOR: `stara * (1 + p/100)` je násobení desetinným číslem → vzniklo
-    // „770.0000000000001 Kč" přímo v zadání ostrého testu. Počítáme v celých:
-    // `stara` je násobek 100, takže přírůstek vyjde vždy celý.
-    const stara = ri(1, 9) * 100, p = [10, 20, 25, 50][ri(0, 3)];
-    const prirustek = stara * p / 100, nova = stara + prirustek;
-    const opts = [p - 5, p, p + 5, p + 10, 'jiná hodnota'];
-    const sh = shuffleOpts(opts, p);
+    // 2 body — o kolik procent se cena zvýšila
+    // Násobení desetinným číslem dalo „770.0000000000001 Kč" — počítá se v celých.
+    const stara = ri(1, 9) * 100, p = pick([10, 20, 25, 50]), prir = stara * p / 100, nova = stara + prir;
+    // chyby: nová cena v procentech původní (index místo přírůstku), přírůstek vztažený k nové ceně
+    const sh = volbyMC(p, [100 + p, 100 * prir / nova].filter(Number.isInteger), 5, 'o jiný počet procent', x => `o ${x} %`);
     return {
-      no: 13, points: 2, title: 'Zdražení', kind: 'mc',
-      prompt: `Zboží zdražilo z ${stara} Kč na ${nova} Kč. O kolik procent se cena zvýšila?`,
+      no: 13, points: 2, title: 'Zdražení', kind: 'mc', okruh: 'procenta',
+      intro: `Zboží zdražilo z ${stara} Kč na ${nova} Kč.`,
+      prompt: `O kolik procent se cena zvýšila?`,
       options: sh.labels, ans: sh.correctLetter,
-      sol: `Zdražení v korunách: ${nova} − ${stara} = ${prirustek} Kč. Vztaženo k PŮVODNÍ ceně: ${prirustek} : ${stara} = ${p}/100 = ${p} % → odpověď ${sh.correctLetter}.`
+      sol: [`Zdražení v procentech říká, jakou část PŮVODNÍ ceny tvoří přírůstek. Ne novou cenu v procentech (to by bylo přes 100 %) a ne přírůstek k nové ceně.`,
+        `Přírůstek: ${nova} − ${stara} = ${prir} Kč.`,
+        `${prir} : ${stara} = ${cz(p / 100)}, tedy o ${p} %${odpovedMC(sh)}`]
     };
   }
 
   function gen14c() {
-    // 2 body — MC, medián pěti čísel
+    // 2 body — medián pěti čísel
     const arr = []; while (arr.length < 5) { const v = ri(1, 20); if (!arr.includes(v)) arr.push(v); }
-    const sorted = [...arr].sort((x, y) => x - y), med = sorted[2];
-    const sh = shuffleOpts(sorted.slice(), med);
+    const sorted = [...arr].sort((x, y) => x - y), med = sorted[2], soucet = arr.reduce((x, y) => x + y, 0);
+    // chyby: prostřední číslo NESEŘAZENÉHO seznamu, průměr, střed rozpětí
+    const sh = volbyMC(med, [arr[2], soucet / 5, (sorted[0] + sorted[4]) / 2].filter(Number.isInteger), 1, null);
     return {
-      no: 14, points: 2, title: 'Medián', kind: 'mc',
+      no: 14, points: 2, title: 'Medián', kind: 'mc', okruh: 'data',
       prompt: `Určete medián (prostřední hodnotu) těchto čísel: ${arr.join(', ')}.`,
       options: sh.labels, ans: sh.correctLetter,
-      sol: [`Medián je prostřední hodnota — ale až po seřazení. Bez seřazení vyjde nesmysl.`,`Seřazeno od nejmenšího: ${sorted.join(', ')}.`,`Hodnot je pět, prostřední je tedy třetí: medián = ${med} → odpověď ${sh.correctLetter}.`]
+      sol: [`Medián je prostřední hodnota — ale až po seřazení. Prostřední číslo neseřazeného seznamu ani průměr to nejsou.`,
+        `Seřazeno od nejmenšího: ${sorted.join(', ')}.`,
+        `Hodnot je pět, prostřední je třetí: medián je ${med}${odpovedMC(sh)}`]
     };
   }
 
@@ -1923,44 +1915,37 @@
     };
   }
 
-  function gen12d() {
-    // 2 body — MC, objem místnosti (kvádr)
-    const a = ri(3, 6), b = ri(3, 6), c = ri(2, 4), V = a * b * c;
-    const sh = shuffleOpts([V - 2, V - 1, V, V + 2, 'jiný objem'], V);
-    return {
-      no: 12, points: 2, title: 'Objem místnosti', kind: 'mc',
-      svg: svgCuboid(a + ' m', b + ' m', c + ' m'),
-      prompt: `Místnost má tvar kvádru: délka ${a} m, šířka ${b} m, výška ${c} m. Jaký je její objem?`,
-      options: sh.labels, ans: sh.correctLetter,
-      sol: [`Objem kvádru je součin všech tří rozměrů.`,
-        `Vynásob podlahu: ${a} · ${b} = ${a * b} m².`,
-        `Objem = ${a * b} · ${c} = ${V} m³ → odpověď ${sh.correctLetter}.`]
-    };
-  }
-
   function gen13d() {
-    // 2 body — MC, kolik procent ušetříš
-    const puvodni = ri(2, 9) * 100, usetreno = [10, 20, 25, 50][ri(0, 3)], usetrenoKc = puvodni * usetreno / 100;
-    const sh = shuffleOpts([usetreno - 5, usetreno, usetreno + 5, usetreno + 10, 'jiná hodnota'], usetreno);
+    // 2 body — kolik procent ušetříš
+    const puv = ri(2, 9) * 100, p = pick([10, 20, 25, 50]), usKc = puv * p / 100, nova = puv - usKc;
+    // chyby: kolik procent zaplatíš, úspora vztažená k nové ceně
+    const sh = volbyMC(p, [100 - p, 100 * usKc / nova].filter(Number.isInteger), 5, 'jiná hodnota', x => `${x} %`);
     return {
-      no: 13, points: 2, title: 'Úspora v procentech', kind: 'mc',
-      prompt: `Zboží stálo ${puvodni} Kč, teď ho koupíš za ${puvodni - usetrenoKc} Kč. Kolik procent ušetříš?`,
+      no: 13, points: 2, title: 'Úspora v procentech', kind: 'mc', okruh: 'procenta',
+      intro: `Zboží stálo ${puv} Kč, teď ho koupíš za ${nova} Kč.`,
+      prompt: `Kolik procent z původní ceny ušetříš?`,
       options: sh.labels, ans: sh.correctLetter,
-      sol: `Úspora = ${puvodni} − ${puvodni - usetrenoKc} = ${usetrenoKc} Kč. Vztaženo k původní ceně: ${usetrenoKc} : ${puvodni} = ${usetreno} % → odpověď ${sh.correctLetter}.`
+      sol: [`Úspora v procentech je část PŮVODNÍ ceny, kterou nezaplatíš. Pozor na záměnu s tím, kolik procent zaplatíš — to je doplněk do 100 %.`,
+        `Úspora: ${puv} − ${nova} = ${usKc} Kč.`,
+        `${usKc} : ${puv} = ${cz(p / 100)}, tedy ${p} %${odpovedMC(sh)}`]
     };
   }
 
   function gen14d() {
-    // 2 body — MC, modus
+    // 2 body — modus
     const vals = []; while (vals.length < 5) { const v = ri(2, 12); if (!vals.includes(v)) vals.push(v); }
     const m = vals[0], arr = [m, m, m, vals[1], vals[2], vals[3], vals[4]];
     for (let i = arr.length - 1; i > 0; i--) { const j = ri(0, i); [arr[i], arr[j]] = [arr[j], arr[i]]; }
-    const sh = shuffleOpts(vals.slice(), m);
+    const serazeno = [...arr].sort((x, y) => x - y);
+    // chyby: počet výskytů místo hodnoty, medián, největší hodnota
+    const sh = volbyMC(m, [3, serazeno[3], serazeno[6]], 1, null);
     return {
-      no: 14, points: 2, title: 'Modus', kind: 'mc',
+      no: 14, points: 2, title: 'Modus', kind: 'mc', okruh: 'data',
       prompt: `Určete modus (nejčastější hodnotu) těchto čísel: ${arr.join(', ')}.`,
       options: sh.labels, ans: sh.correctLetter,
-      sol: [`Modus je hodnota, která se v souboru objevuje nejčastěji — nepočítá se, jen se hledá.`,`Číslo ${m} se vyskytuje třikrát, ostatní jen jednou.`,`Modus = ${m} → odpověď ${sh.correctLetter}.`]
+      sol: [`Modus je hodnota, která se v souboru objevuje nejčastěji — nepočítá se, jen se hledá. Odpovědí je ta HODNOTA, ne to, kolikrát se opakuje.`,
+        `Číslo ${m} se vyskytuje třikrát, ostatní jen jednou.`,
+        `Modus je ${m}${odpovedMC(sh)}`]
     };
   }
 
@@ -2044,23 +2029,22 @@
   }
 
   function gen12e() {
-    // 2 body — MC A-E, povrch válce z poměru pláště a podstavy (věrné M9A/2023, úloha 13)
-    // Poloměr je násobek 10, aby 3,14 · r² i celý povrch vyšly CELÉ. Při r = 15 vycházelo
-    // 3,14 · 225 = 706,5 a povrch 3532,5 — postup to psal jako „= 3533", tedy useknuté
-    // cifry s rovnítkem. Zachytil to prijimacky-postupy.test.cjs.
-    const r = ri(1, 2) * 10, k = ri(2, 4);
-    const povrch = (2 + k) * 3.14 * r * r;
-    const opts = [povrch - 2 * 3.14 * r * r, povrch - 3.14 * r * r, povrch, povrch + 3.14 * r * r, 'jiný povrch'];
-    const sh = shuffleOpts(opts, povrch);
+    // 2 body — povrch válce z poměru pláště a podstavy (věrné M9A/2023, úloha 13)
+    /* Poloměr je násobek 10 a podstava se počítá v celých (314 · r · r : 100),
+       aby povrch vyšel celý: 3,14 · 15² = 706,5 dávalo „= 3533", tedy useknuté
+       cifry s rovnítkem. */
+    const r = pick([10, 20]), k = ri(2, 4), Sp = 314 * r * r / 100, povrch = (k + 2) * Sp;
+    // chyby: jen plášť, plášť a JEDNA podstava, plášť bez obou podstav krát dvě
+    const sh = volbyMC(povrch, [(k + 1) * Sp, k * Sp, 2 * k * Sp], Sp, 'jiný povrch', v => `${tis(v)} cm²`);
     return {
-      no: 12, points: 2, title: 'Povrch válce', kind: 'mc',
+      no: 12, points: 2, title: 'Povrch válce', kind: 'mc', okruh: 'telesa',
       svg: svgCylinder(r, cz(k * r / 2)),
-      prompt: `Obsah pláště rotačního válce je ${k}krát větší než obsah jedné jeho podstavy. Poloměr podstavy válce je ${r} cm. Jaký je povrch válce v cm²? Pro výpočet použijte π ≐ 3,14.`,
+      intro: `Obsah pláště rotačního válce je ${k}krát větší než obsah jedné podstavy tohoto válce. Poloměr podstavy válce je ${r} cm.`,
+      prompt: `Jaký je povrch válce? Pro výpočet použijte π ≐ 3,14.`,
       options: sh.labels, ans: sh.correctLetter,
-      sol: [`Povrch válce je plášť PLUS DVĚ podstavy: S = S(plášť) + 2 · S(podstava).`,
-        `Plášť je ${k}krát větší než jedna podstava, takže celý povrch je ${k} + 2 = ${k + 2} podstav.`,
-        `Obsah jedné podstavy: 3,14 · ${r}² = ${cz(3.14 * r * r)} cm².`,
-        `Povrch = ${k + 2} · ${cz(3.14 * r * r)} = ${cz(povrch)} cm² → odpověď ${sh.correctLetter}.`]
+      sol: [`Povrch válce je plášť PLUS DVĚ podstavy. Plášť je ${k}krát větší než jedna podstava, takže celý povrch je ${k} + 2 = ${k + 2} podstav — výšku válce vůbec nepotřebuješ.`,
+        `Jedna podstava: 3,14 · ${r} · ${r} = ${tis(Sp)} cm².`,
+        `Povrch: ${k + 2} · ${tis(Sp)} = ${tis(povrch)} cm²${odpovedMC(sh)}`]
     };
   }
 
@@ -2073,15 +2057,16 @@
     const hod = [a, b, chybi]; const tmp = hod[idx]; hod[idx] = hod[2]; hod[2] = tmp;
     const neznamy = idx, hledana = hod[neznamy];
     const zn = hod.filter((_, i) => i !== neznamy);
-    const sh = shuffleOpts([hledana - 4, hledana - 2, hledana, hledana + 2, 'jiný počet'], hledana);
+    // chyby: odečten jen jeden známý sloupec (dvakrát), součet známých sloupců
+    const sh = volbyMC(hledana, [celkem - zn[0], celkem - zn[1], zn[0] + zn[1]], 2, 'jiný počet');
     return {
-      no: 14, points: 2, title: 'Kroužky', kind: 'mc',
+      no: 14, points: 2, title: 'Kroužky', kind: 'mc', okruh: 'data',
       svg: svgSloupce(jm, hod, neznamy),
       prompt: `Žáci 9. tříd chodí do tří kroužků: ${jm.join(', ')}. Každý žák je právě v jednom z nich a celkem jich je ${celkem}. V grafu chybí počet žáků u kroužku „${jm[neznamy]}". Kolik žáků chodí do tohoto kroužku?`,
       options: sh.labels, ans: sh.correctLetter,
       sol: [`Každý žák je právě v jednom kroužku, takže se počty ve všech třech sloupcích sečtou na celkový počet.`,
         `Z grafu přečti známé sloupce: ${zn[0]} a ${zn[1]}, dohromady ${zn[0]} + ${zn[1]} = ${zn[0] + zn[1]}.`,
-        `Chybějící počet = ${celkem} − ${zn[0] + zn[1]} = ${hledana} → odpověď ${sh.correctLetter}.`]
+        `Chybějící počet = ${celkem} − ${zn[0] + zn[1]} = ${hledana}${odpovedMC(sh)}`]
     };
   }
 
@@ -2101,21 +2086,21 @@
     while (hod[iB] === hod[iA]) hod[iB] = ri(3, 16) * 10;
     if (hod[iA] < hod[iB]) { const t = iA; iA = iB; iB = t; }
     const rozdil = hod[iA] - hod[iB];
-    /* Distraktory jen kladné: pro rozdíl 10 dřív vycházely volby „−10" a „0"
-       jako odpověď na „o kolik více" — nesmysl, který se vyloučí bez počítání. */
-    const vedle = [rozdil - 20, rozdil - 10, rozdil + 10, rozdil + 20, rozdil + 30].filter(v => v > 0).slice(0, 3);
-    const sh = shuffleOpts([...vedle, rozdil, 'jiný počet'], rozdil);
+    /* Distraktory jsou omyly (hodnota jednoho měsíce, součet místo rozdílu)
+       a jen kladné: pro rozdíl 10 dřív vycházely volby „−10" a „0" jako
+       odpověď na „o kolik více" — nesmysl, který se vyloučí bez počítání. */
+    const sh = volbyMC(rozdil, [hod[iA], hod[iB], hod[iA] + hod[iB]], 10, 'jiný počet');
     /* 6. pád se musí vypsat, ne skládat: přilepené „-i" dávalo
        „v květeni", „v červeni" a „v srpeni" — ve třech měsících z pěti. */
     const V_MESICI = { 'květen': 'květnu', 'červen': 'červnu', 'červenec': 'červenci', 'srpen': 'srpnu', 'září': 'září' };
     return {
-      no: 14, points: 2, title: 'Návštěvnost', kind: 'mc',
+      no: 14, points: 2, title: 'Návštěvnost', kind: 'mc', okruh: 'data',
       svg: svgSloupce(mesice, hod, -1),
       prompt: `V grafu je uvedena návštěvnost rodného domu spisovatele v jedné letní sezoně. O kolik více vstupenek se prodalo v ${V_MESICI[mesice[iA]]} než v ${V_MESICI[mesice[iB]]}?`,
       options: sh.labels, ans: sh.correctLetter,
       sol: [`Otázka „o kolik více“ znamená ROZDÍL — z grafu tedy stačí přečíst dvě hodnoty a odečíst je.`,
         `${mesice[iA]}: ${hod[iA]} vstupenek, ${mesice[iB]}: ${hod[iB]} vstupenek.`,
-        `Rozdíl = ${hod[iA]} − ${hod[iB]} = ${rozdil} → odpověď ${sh.correctLetter}.`]
+        `Rozdíl = ${hod[iA]} − ${hod[iB]} = ${rozdil}${odpovedMC(sh)}`]
     };
   }
 
@@ -3604,6 +3589,323 @@
     };
   }
 
+  /* ══ Pozice 12–14: úlohy s výběrem odpovědi (2026-09-24) ══════════════
+     Ostré úlohy 12–14 nabízejí pět voleb SEŘAZENÝCH podle velikosti (jednou
+     vzestupně, jindy sestupně) a pátá bývá „jiný objem / jiný počet".
+     Distraktory tu nejsou šum kolem výsledku („správně ± 25"), ale výsledky
+     TYPICKÝCH CHYB — stejně jako u pozice 15: kdo se splete klasickým
+     způsobem, najde svou chybu mezi volbami. V 1 z 10 úloh se správný
+     výsledek schválně nenabídne a platí „jiný…" — žák musí věřit svému
+     výpočtu, i když číslo v nabídce nenajde.
+     Úloha nese `okruh`: pozice 13 střídá procenta, slovní úlohy a poměr,
+     a bez něj by se chyba ve slovní úloze připsala procentům. */
+  function volbyMC(spravne, chyby, krok, jine, fmt) {
+    const f = fmt || (v => tis(cz(v)));
+    const stejne = (x, y) => Math.abs(x - y) < 1e-9;
+    const kand = [];
+    const pridej = v => { if (Number.isFinite(v) && v > 0 && !stejne(v, spravne) && !kand.some(x => stejne(x, v))) kand.push(v); };
+    chyby.forEach(pridej);
+    for (let d = 1; kand.length < 4; d++) { pridej(r2(spravne + d * krok)); pridej(r2(spravne - d * krok)); }
+    const jiny = !!jine && ri(1, 10) === 1;
+    const cisla = jiny ? kand.slice(0, 4) : [spravne].concat(kand.slice(0, jine ? 3 : 4));
+    cisla.sort((x, y) => x - y);
+    if (ri(0, 1)) cisla.reverse();
+    const labels = cisla.map(f).concat(jine ? [jine] : []).map((v, i) => 'ABCDE'[i] + ') ' + v);
+    return { labels, jiny, jine, correctLetter: jiny ? 'E' : 'ABCDE'[cisla.findIndex(x => stejne(x, spravne))] };
+  }
+  // Konec posledního kroku: písmeno správné volby, nebo proč platí „jiný…".
+  const odpovedMC = sh => (sh.jiny
+    ? `. Tahle hodnota mezi čísly v nabídce není, platí volba ${sh.correctLetter}) ${sh.jine}.`
+    : ` → odpověď ${sh.correctLetter}.`);
+
+  // Kvádr v rovnoběžném promítání: přední stěna w × h, hloubka jde šikmo vzhůru doprava.
+  function kvadrPlochy(x, y, w, h, dx, dy, predni, horni, bok) {
+    return poly([bod(x, y - h), bod(x + dx, y - h - dy), bod(x + w + dx, y - h - dy), bod(x + w, y - h)], horni)
+      + poly([bod(x + w, y), bod(x + w + dx, y - dy), bod(x + w + dx, y - h - dy), bod(x + w, y - h)], bok)
+      + poly([bod(x, y), bod(x + w, y), bod(x + w, y - h), bod(x, y - h)], predni);
+  }
+
+  // Podélný řez bazénem: vlevo zóna pro neplavce (rovné dno), vpravo plavci (šikmé dno).
+  function svgBazen(n, d, h1, h2) {
+    const x0 = 36, W = 228, k = W / d, kh = 24, y0 = 30, xN = x0 + n * k, xK = x0 + W, y1 = y0 + h1 * kh, y2 = y0 + h2 * kh;
+    return `<svg viewBox="0 0 300 ${y2 + 48}">`
+      + poly([bod(x0, y0), bod(xK, y0), bod(xK, y2), bod(xN, y1), bod(x0, y1)], BILA)
+      + cara(bod(xN, y0), bod(xN, y1), SEDA, '4 3')
+      + napis((x0 + xN) / 2, y0 - 8, 'neplavci', JMENO) + napis((xN + xK) / 2, y0 - 8, 'plavci', JMENO)
+      + napis(x0 - 5, (y0 + y1) / 2 + 4, `${h1} m`, ZADANY, 'end') + napis(xK + 5, (y0 + y2) / 2 + 4, `${h2} m`, ZADANY, 'start')
+      + napis((x0 + xN) / 2, y1 + 17, `${n} m`, ZADANY)
+      + cara(bod(x0, y2 + 26), bod(xK, y2 + 26), SEDA) + cara(bod(x0, y2 + 20), bod(x0, y2 + 32), SEDA) + cara(bod(xK, y2 + 20), bod(xK, y2 + 32), SEDA)
+      + napis((x0 + xK) / 2, y2 + 42, `${d} m`, ZADANY)
+      + `</svg>`;
+  }
+
+  // Hala ABCDEFGH (podlaha ABCD, E nad A …) s lomenou čarou A–C–F–H–A.
+  function svgHala(d, s, v) {
+    const k = Math.min(150 / d, 84 / v), L = d * k, H = v * k, g = Math.max(18, s * k * 0.4), x0 = 52, y0 = H + g + 34;
+    const A = bod(x0, y0), B = bod(x0 + L, y0), C = bod(x0 + L + g, y0 - g), D = bod(x0 + g, y0 - g);
+    const nad = P => bod(P.x, P.y - H), [E, F, G, Hh] = [nad(A), nad(B), nad(C), nad(D)];
+    const P = (Q, t, dx, dy) => napis(Q.x + dx, Q.y + dy, t, VRCHOL);
+    return `<svg viewBox="0 0 300 ${Math.ceil(y0 + 28)}">`
+      + cara(A, D, SEDA, '4 3') + cara(D, C, SEDA, '4 3') + cara(D, Hh, SEDA, '4 3')
+      + cara(A, B, CARA) + cara(B, C, CARA) + cara(C, G, CARA) + cara(B, F, CARA) + cara(A, E, CARA)
+      + cara(E, F, CARA) + cara(F, G, CARA) + cara(G, Hh, CARA) + cara(Hh, E, CARA)
+      + cara(A, C, HLEDANY) + cara(C, F, HLEDANY) + cara(F, Hh, HLEDANY) + cara(Hh, A, HLEDANY)
+      + P(A, 'A', -10, 14) + P(B, 'B', 6, 14) + P(C, 'C', 10, 4) + P(D, 'D', -12, -4)
+      + P(E, 'E', -10, -4) + P(F, 'F', -2, -8) + P(G, 'G', 10, -2) + P(Hh, 'H', -4, -8)
+      + napis((A.x + B.x) / 2, y0 + 20, `${d} m`, ZADANY) + napis(A.x - 12, (A.y + E.y) / 2 + 4, `${v} m`, ZADANY, 'end')
+      + `</svg>`;
+  }
+
+  // Krychle, na jejíchž stěnách leží šedé čtverce podél jedné úhlopříčky (n × n síť).
+  function svgPolepenaKrychle(n) {
+    const a = 108, g = 44, x0 = 64, y0 = 184;
+    const stena = (O, e1, e2) => {
+      const p = (u, w) => bod(O.x + e1.x * u + e2.x * w, O.y + e1.y * u + e2.y * w);
+      let out = poly([p(0, 0), p(1, 0), p(1, 1), p(0, 1)], BILA);
+      for (let i = 0; i < n; i++) out += poly([p(i / n, i / n), p((i + 1) / n, i / n), p((i + 1) / n, (i + 1) / n), p(i / n, (i + 1) / n)], SEDA);
+      return out;
+    };
+    return `<svg viewBox="0 0 300 208">`
+      + stena(bod(x0, y0 - a), bod(a, 0), bod(g, -g))
+      + stena(bod(x0 + a, y0), bod(g, -g), bod(0, -a))
+      + stena(bod(x0, y0), bod(a, 0), bod(0, -a))
+      + napis(x0 + a / 2, y0 + 15, '?', HLEDANY)
+      + `</svg>`;
+  }
+
+  // Dva pravidelné čtyřboké hranoly se stejnou podstavou a různou výškou.
+  function svgDvaHranoly() {
+    return `<svg viewBox="0 0 300 190">`
+      + kvadrPlochy(40, 164, 62, 118, 30, 24, BILA, SEDA, TMAVA) + kvadrPlochy(176, 164, 62, 64, 30, 24, BILA, SEDA, TMAVA)
+      + napis(71, 180, 'a', ZADANY) + napis(207, 180, 'a', ZADANY)
+      + napis(71, 109, '1.', JMENO) + napis(207, 136, '2.', JMENO)
+      + `</svg>`;
+  }
+
+  // Trojboký hranol ležící na boční stěně; přední podstava je rovnoramenný trojúhelník.
+  function svgLeziciHranol(z, v) {
+    const k = Math.min(150 / z, 80 / v), Z = z * k, V = v * k, g = Math.max(22, V * 0.55), x0 = 40, y0 = 150;
+    /* Hloubka jde STRMĚ vzhůru (70°): při sklonu jako rovnoběžné promítání (35°)
+       byla u ploché podstavy levá stěna střechy jen proužek a těleso se nedalo přečíst. */
+    const P1 = bod(x0, y0), P2 = bod(x0 + Z, y0), P3 = bod(x0 + Z / 2, y0 - V), dx = g * 0.36, dy = g;
+    const s = Q => bod(Q.x + dx, Q.y - dy), M = bod(x0 + Z / 2, y0);
+    return `<svg viewBox="0 0 300 185">`
+      + poly([P1, P3, s(P3), s(P1)], BILA) + poly([P2, P3, s(P3), s(P2)], SEDA) + poly([P1, P2, P3], BILA)
+      + cara(P3, M, HLEDANY, '4 3') + napis(M.x + 9, (M.y + P3.y) / 2 + 4, 'v', HLEDANY, 'start')
+      + napis((P1.x + P2.x) / 2, y0 + 18, `${z} cm`, ZADANY)
+      + napis((P2.x + s(P2).x) / 2 + 8, (P2.y + s(P2).y) / 2 + 6, 'v', HLEDANY, 'start')
+      + `</svg>`;
+  }
+
+  function gen12f() {
+    // 2 body — lomená čára v hale tvaru kvádru (věrné M9A/2023, úloha 12; klíč C = 54 m)
+    /* Dvě pythagorejské trojice se společnou odvěsnou: [délka, šířka, úhlopříčka
+       podlahy] a [šířka, výška, úhlopříčka boční stěny]. Distraktory jsou přesně
+       ty z ostrého zadání: výška místo úhlopříčky stěny (46), šířka místo ní (50)
+       a všechny čtyři úseky jako úhlopříčka podlahy (68). */
+    const [d, s, u, v, w] = pick([[15, 8, 17, 6, 10], [20, 15, 25, 8, 17], [16, 12, 20, 5, 13], [35, 12, 37, 9, 15], [30, 16, 34, 12, 20], [40, 9, 41, 12, 15]]);
+    const L = 2 * u + 2 * w;
+    const sh = volbyMC(L, [2 * u + 2 * v, 2 * u + 2 * s, 4 * u], 4, 'jiná délka', x => `${x} m`);
+    return {
+      no: 12, points: 2, title: 'Lomená čára v hale', kind: 'mc', okruh: 'telesa',
+      svg: svgHala(d, s, v),
+      intro: `Vnitřní prostor haly má tvar kvádru ABCDEFGH, jehož výška je ${v} m a délka ${d} m. Uvnitř haly je na podlaze, stropě a dvou stěnách vyznačena uzavřená lomená čára ACFHA. Úhlopříčka vyznačená na podlaze haly měří ${u} m a tvoří úsek AC této lomené čáry.`,
+      prompt: `Jaká je délka lomené čáry ACFHA?`,
+      options: sh.labels, ans: sh.correctLetter,
+      sol: [`Čára má čtyři úseky: AC a FH jsou stejně dlouhé úhlopříčky podlahy a stropu, CF a HA úhlopříčky dvou shodných bočních stěn. Na boční stěnu potřebuješ šířku haly, kterou dopočítáš z podlahy Pythagorovou větou.`,
+        `Šířka: ${u} · ${u} − ${d} · ${d} = ${s * s}, tedy ${s} m. Úhlopříčka boční stěny: ${s} · ${s} + ${v} · ${v} = ${w * w}, tedy ${w} m.`,
+        `Délka čáry: 2 · ${u} + 2 · ${w} = ${L} m${odpovedMC(sh)}`]
+    };
+  }
+
+  function gen12g() {
+    // 2 body — krychle s polepenými úhlopříčkami stěn (věrné M9C/2025, úloha 13; klíč B = 10 cm)
+    /* Stěna je síť n × n čtverců, šedé leží na úhlopříčce, bílých je n · n − n.
+       Hrana je násobek n, aby strana malého čtverce vyšla celá. */
+    const [n, slovy] = pick([[4, 'čtyřmi'], [5, 'pěti']]), t = pick([1, 2, 3]), a = n * t, W = 6 * (n * n - n) * t * t;
+    const sh = volbyMC(a, [], n === 5 ? 5 : 4, 'jiná délka', x => `${x} cm`);
+    return {
+      no: 12, points: 2, title: 'Polepená krychle', kind: 'mc', okruh: 'telesa',
+      svg: svgPolepenaKrychle(n),
+      intro: `Na každé stěně krychle je vždy jedna úhlopříčka celá přelepena ${slovy} shodnými šedými čtverci tak, že sousední čtverce mají právě jeden společný vrchol (viz obrázek). Nepolepená část každé stěny je bílá. Součet obsahů všech bílých nepolepených ploch na povrchu krychle je ${tis(W)} cm².`,
+      prompt: `Jakou délku má hrana krychle?`,
+      options: sh.labels, ans: sh.correctLetter,
+      sol: [`Každá stěna je čtvercová síť ${n} × ${n} shodných čtverců — šedé leží na úhlopříčce a dotýkají se jen rohy. Šedých je na stěně ${n}, bílých tedy ${n * n} − ${n} = ${n * n - n}.`,
+        `Bílá plocha jedné stěny: ${tis(W)} : 6 = ${W / 6} cm². Jeden čtverec: ${W / 6} : ${n * n - n} = ${t * t} cm², jeho strana měří ${t} cm.`,
+        `Hrana krychle: ${n} · ${t} = ${a} cm${odpovedMC(sh)}`]
+    };
+  }
+
+  function gen12h() {
+    // 2 body — rozdíl objemů dvou krychlí (věrné M9D/2025, úloha 12; klíč C = 37 cm³)
+    const a = ri(2, 6), b = a + pick([1, 2]), D = 6 * (b * b - a * a), H = 12 * a, dV = b ** 3 - a ** 3;
+    // chyby: objem malé, rozdíl povrchů místo objemů, objem velké
+    const sh = volbyMC(dV, [a ** 3, D, b ** 3], 3, 'o jiný objem', x => `o ${x} cm³`);
+    return {
+      no: 12, points: 2, title: 'Dvě krychle', kind: 'mc', okruh: 'telesa',
+      intro: `Povrch malé krychle je o ${D} cm² menší než povrch velké krychle. Součet délek všech hran malé krychle je ${H} cm.`,
+      prompt: `O kolik cm³ se liší objem malé a velké krychle?`,
+      options: sh.labels, ans: sh.correctLetter,
+      sol: [`Z hran malé krychle zjistíš její hranu (krychle má 12 stejných hran). Hranu velké krychle dá její povrch — ten je o ${D} cm² větší a skládá se ze šesti čtverců.`,
+        `Malá: ${H} : 12 = ${a} cm, povrch 6 · ${a} · ${a} = ${6 * a * a} cm². Velká: povrch ${6 * a * a} + ${D} = ${6 * b * b} cm², jedna stěna ${6 * b * b} : 6 = ${b * b} cm², hrana ${b} cm.`,
+        `Rozdíl objemů: ${b} · ${b} · ${b} − ${a} · ${a} · ${a} = ${dV} cm³${odpovedMC(sh)}`]
+    };
+  }
+
+  function gen12i() {
+    // 2 body — dva hranoly se stejnou podstavou (věrné M9A/2026, úloha 14; klíč B = 6 cm)
+    /* Volby ostrého zadání (8, 6, 5, 4, 3) jsou přesně tyhle omyly: dělení
+       obsahem podstavy (72 : 9), správně čtyřmi stěnami (72 : 12), šesti
+       stěnami (72 : 18) a osmi (72 : 24). Pátá volba tu „jiná" není. */
+    const a = pick([2, 3, 4, 5]), dh = ri(2, 8), D = 4 * a * dh;
+    const chyby = [D / (a * a), D / (6 * a), D / (8 * a), D / (2 * a)].filter(Number.isInteger);
+    const sh = volbyMC(dh, chyby, 1, null, x => `o ${x} cm`);
+    return {
+      no: 12, points: 2, title: 'Dva hranoly', kind: 'mc', okruh: 'telesa',
+      svg: svgDvaHranoly(),
+      intro: `První i druhý pravidelný čtyřboký hranol mají podstavnou hranu délky a = ${a} cm. První hranol má o ${D} cm² větší povrch než druhý hranol.`,
+      prompt: `O kolik cm se liší výšky obou hranolů?`,
+      options: sh.labels, ans: sh.correctLetter,
+      sol: [`Podstavy mají oba hranoly stejné, takže se povrchy liší jen pláštěm. Plášť tvoří 4 obdélníky a × výška, a o kolik je vyšší hranol, o tolik je každý z nich delší.`,
+        `Na jednu ze 4 stěn připadá ${D} : 4 = ${D / 4} cm².`,
+        `Rozdíl výšek: ${D / 4} : ${a} = ${dh} cm${odpovedMC(sh)}`]
+    };
+  }
+
+  function gen12j() {
+    // 2 body — dvoupatrový dort ze dvou válcových forem (věrné M9B/2025, úloha 14; klíč D = 500π cm³)
+    const r1 = pick([8, 12, 16]), r2 = r1 * 3 / 4, h = pick([4, 5, 6]), V = h * (r1 * r1 + r2 * r2);
+    // chyby: „o čtvrtinu menší" jako „čtvrtina", obě formy velké, rozdíl místo součtu
+    const sh = volbyMC(V, [h * (r1 * r1 + (r1 / 4) * (r1 / 4)), 2 * h * r1 * r1, h * (r1 * r1 - r2 * r2)], 10 * h, 'jiný objem', x => `${tis(x)}π cm³`);
+    return {
+      no: 12, points: 2, title: 'Dort ze dvou forem', kind: 'mc', okruh: 'telesa',
+      intro: `Na výrobu dortu byly použity dvě různé formy tvaru rotačního válce. Poloměr podstavy první formy je ${r1} cm a poloměr podstavy druhé formy je o čtvrtinu menší. Výška obou forem je stejná, a to ${h} cm. Dvoupatrový dort je složen z většího a menšího korpusu. Každý korpus má stejný objem jako forma, v níž byl upečen.`,
+      prompt: `Jaký je celkový objem obou korpusů dvoupatrového dortu?`,
+      options: sh.labels, ans: sh.correctLetter,
+      sol: [`Objem válce je π · r · r · výška. „O čtvrtinu menší" znamená, že se z poloměru čtvrtina ODEČTE — zbudou tři čtvrtiny, ne jedna. Výsledek nech s π, jako ve volbách.`,
+        `Menší poloměr: ${r1} − ${r1} : 4 = ${r2} cm. Korpusy: ${r1} · ${r1} · ${h} = ${h * r1 * r1} a ${r2} · ${r2} · ${h} = ${h * r2 * r2}, tedy ${h * r1 * r1}π a ${h * r2 * r2}π cm³.`,
+        `Celkem: ${h * r1 * r1} + ${h * r2 * r2} = ${V}, objem je ${V}π cm³${odpovedMC(sh)}`]
+    };
+  }
+
+  function gen12k() {
+    // 2 body — ležící trojboký hranol (věrné M9B/2023, úloha 13; klíč C = 300 cm³)
+    /* Podstava je rovnoramenný trojúhelník, jehož polovina je pythagorejský
+       trojúhelník [polovina základny, výška, rameno]. Výška je vždy kratší než
+       rameno i základna, takže „nejkratší hrana hranolu" je opravdu boční hrana. */
+    const [pz, v, ram] = pick([[12, 5, 13], [4, 3, 5], [8, 6, 10], [12, 9, 15], [15, 8, 17]]), z = 2 * pz, S = pz * v, V = S * v;
+    // chyby: ještě jednou děleno dvěma, zapomenutá polovina v obsahu, délka hranolu = rameno
+    const sh = volbyMC(V, [V / 2, z * v * v, S * ram], 10, 'jiný objem', x => `${tis(x)} cm³`);
+    return {
+      no: 12, points: 2, title: 'Trojboký hranol', kind: 'mc', okruh: 'telesa',
+      svg: svgLeziciHranol(z, v),
+      intro: `Trojboký hranol je položen na jedné boční stěně. Podstavu hranolu tvoří rovnoramenný trojúhelník, který má základnu délky ${z} cm a obsah ${S} cm². Velikost v výšky na základnu tohoto trojúhelníku je stejná jako délka nejkratší hrany hranolu.`,
+      prompt: `Jaký je objem trojbokého hranolu?`,
+      options: sh.labels, ans: sh.correctLetter,
+      sol: [`Objem hranolu je obsah podstavy krát délka boční hrany. Boční hrana je nejkratší hrana hranolu, tedy stejně dlouhá jako výška v podstavy — a tu dopočítáš z obsahu trojúhelníku (základna · výška : 2).`,
+        `Výška podstavy: 2 · ${S} : ${z} = ${v} cm, takže i boční hrana měří ${v} cm (ramena mají ${ram} cm a základna ${z} cm, jsou delší).`,
+        `Objem: ${S} · ${v} = ${tis(V)} cm³${odpovedMC(sh)}`]
+    };
+  }
+
+  function gen13e() {
+    // 2 body — rozšíření parkoviště (věrné M9A/2026, úloha 12; klíč C = 75 míst)
+    /* Část (místa pro zásobování) zůstává, mění se celek. Kombinace [k, p]
+       jsou takové, že letošní celek 100 · Z : p vyjde celý a větší než loňský. */
+    const [zlomek, k, p] = pick([['jednu dvacetinu', 20, 4], ['jednu desetinu', 10, 5], ['jednu desetinu', 10, 8], ['jednu osminu', 8, 5], ['jednu pětadvacetinu', 25, 2]]);
+    let Z; do { Z = ri(10, 30); } while (!Number.isInteger(100 * Z / p));
+    const loni = Z * k, letos = 100 * Z / p, ans = letos - loni;
+    const mist = x => `o ${x} ${skl(x, 'místo', 'místa', 'míst')}`;
+    // chyby: letošní kapacita, loňská kapacita
+    const sh = volbyMC(ans, [letos, loni], 25, 'o jiný počet míst', mist);
+    return {
+      no: 13, points: 2, title: 'Parkoviště', kind: 'mc', okruh: 'procenta',
+      intro: `Na parkovišti je ${Z} míst vyhrazeno pro zásobování. Zatímco loni tato místa představovala ${zlomek} celkové kapacity parkoviště, letos díky rozšíření parkoviště představují tato místa pouze ${p} % celkové kapacity.`,
+      prompt: `O kolik parkovacích míst se díky rozšíření parkoviště zvětšila jeho celková kapacita?`,
+      options: sh.labels, ans: sh.correctLetter,
+      sol: [`Míst pro zásobování je loni i letos stejně, mění se jen celková kapacita. Z části a jejího podílu dopočítáš celek zvlášť pro loňský a zvlášť pro letošní rok, a ty pak odečteš.`,
+        `Loni: ${Z} · ${k} = ${loni} míst. Letos je ${Z} míst ${p} %, tedy 1 % je ${Z} : ${p} = ${cz(Z / p)} a celek ${cz(Z / p)} · 100 = ${letos} míst.`,
+        `Kapacita se zvětšila o ${letos} − ${loni} = ${ans} míst${odpovedMC(sh)}`]
+    };
+  }
+
+  function gen13f() {
+    // 2 body — pomlázky prodané za dva dny (věrné M9B/2023, úloha 14; klíč A = 60)
+    /* Distraktory ostrého zadání (45, 36, 30 u rozdílu 180) jsou 180 děleno 4, 5
+       a 6 — tedy počtem dílů druhého dne, všech dílů a o jeden víc. */
+    const [slovo, k] = pick([['pětinu', 5], ['čtvrtinu', 4], ['šestinu', 6]]), x = ri(3, 12) * 5, D = (k - 2) * x;
+    const kusu = v => `${v} ${skl(v, 'pomlázku', 'pomlázky', 'pomlázek')}`;
+    const sh = volbyMC(x, [D / (k - 1), D / k, D / (k + 1)].filter(Number.isInteger), 5, 'jiný počet pomlázek', kusu);
+    return {
+      no: 13, points: 2, title: 'Pomlázky', kind: 'mc', okruh: 'slovni',
+      intro: `Košíkář prodal během prvních dvou dnů velikonočních trhů všechny upletené pomlázky. První den prodal ${slovo} všech upletených pomlázek. Druhý den prodal o ${D} pomlázek více než první den.`,
+      prompt: `Kolik pomlázek prodal košíkář první den velikonočních trhů?`,
+      options: sh.labels, ans: sh.correctLetter,
+      sol: [`Rozděl všechny pomlázky na ${k} stejných dílů. První den prodal 1 díl, druhý den zbytek, tedy ${dily(k - 1)}. Druhý den prodal víc právě o ${k - 1} − 1 = ${dily(k - 2)}.`,
+        `Rozdíl ${D} pomlázek tedy odpovídá ${k - 2} ${skl(k - 2, 'dílu', 'dílům', 'dílům')}.`,
+        `První den (jeden díl): ${D} : ${k - 2} = ${x} pomlázek${odpovedMC(sh)}`]
+    };
+  }
+
+  function gen13g() {
+    // 2 body — hrnky vody do kanystru (věrné M9B/2026, úloha 14; klíč A = 350 ml)
+    /* n hrnků je p/q kanystru; po n + 1 hrncích chybí c hrnků. Pro q − p = 1
+       je n = p · (c + 1). Distraktor Z : (c + 2) je volba D ostrého zadání. */
+    const [slovy, p, q, jednaq] = pick([['sedm osmin', 7, 8, 'osmina'], ['tři čtvrtiny', 3, 4, 'čtvrtina'], ['pět šestin', 5, 6, 'šestina'], ['čtyři pětiny', 4, 5, 'pětina']]);
+    const c = pick([2, 3, 4]), n = p * (c + 1), h = pick([150, 200, 250, 300, 350, 400]), Z = c * h, K = q * n / p;
+    const sh = volbyMC(h, [Z / (c + 1), Z / (c - 1), Z / (c + 2)].filter(Number.isInteger), 50, 'jiný objem', x => `${tis(x)} ml`);
+    return {
+      no: 13, points: 2, title: 'Kanystr', kind: 'mc', okruh: 'slovni',
+      intro: `Pomocí hrnku naléváme do prázdného kanystru vodu ze studánky. Po nalití ${n} hrnků plných vody bylo zaplněno ${slovy} objemu kanystru. Když jsme přilili ještě 1 hrnek plný vody, do úplného zaplnění kanystru chybělo ${tis(Z)} ml vody.`,
+      prompt: `Jaký je objem hrnku?`,
+      options: sh.labels, ans: sh.correctLetter,
+      sol: [`Nejdřív zjisti, kolik hrnků pojme celý kanystr: ${n} hrnků je ${slovy} objemu, takže jedna ${jednaq} je ${n} : ${p} = ${n / p} hrnků a celý kanystr ${q} · ${n / p} = ${K} hrnků.`,
+        `Po ${n + 1} hrncích chybí ${K} − ${n + 1} = ${c} ${skl(c, 'hrnek', 'hrnky', 'hrnků')}, a to je ${tis(Z)} ml.`,
+        `Objem hrnku = ${tis(Z)} : ${c} = ${h} ml${odpovedMC(sh)}`]
+    };
+  }
+
+  function gen13h() {
+    // 2 body — vagony na třech kolejích (věrné M9D/2025, úloha 13; klíč E = 14)
+    /* Pět číselných voleb bez „jiný": počty na první, druhé a třetí koleji
+       a rozdíl třetí a druhé jsou přesně ty chyby, které se tu dělají. */
+    const d = pick([2, 3, 4, 5]), [kSlovo, k] = pick([['dvakrát', 2], ['třikrát', 3]]), x = ri(4, 12);
+    const v2 = x + d, v3 = k * v2, T = x + v2 + v3, ans = v3 - x;
+    const vag = v => `o ${v} ${skl(v, 'vagon', 'vagony', 'vagonů')}`;
+    const sh = volbyMC(ans, [x, v2, v3, v3 - v2], 1, null, vag);
+    return {
+      no: 13, points: 2, title: 'Vlaky na kolejích', kind: 'mc', okruh: 'slovni',
+      intro: `Ve stanici ${pick(['Lichá Lhota', 'Horní Lhota', 'Suchá Lhota'])} stojí na každé ze tří kolejí jeden vlak. Vlak na druhé koleji má o ${d} ${skl(d, 'vagon', 'vagony', 'vagonů')} více než vlak na první koleji a ${kSlovo} méně vagonů než vlak na třetí koleji. Všechny tři vlaky dohromady mají ${T} vagonů.`,
+      prompt: `O kolik vagonů více má vlak na třetí koleji než vlak na první koleji?`,
+      options: sh.labels, ans: sh.correctLetter,
+      sol: [`Označ x počet vagonů na první koleji. Druhý vlak má x + ${d}, třetí ${kSlovo} víc než druhý, tedy ${k} · (x + ${d}). Všechny tři dohromady dávají ${T}.`,
+        `x + (x + ${d}) + ${k} · (x + ${d}) = ${T}, tedy ${k + 2}x + ${d * (k + 1)} = ${T} a x = (${T} − ${d * (k + 1)}) : ${k + 2} = ${x}.`,
+        `Vlaky mají ${x}, ${v2} a ${v3} vagonů; rozdíl ${v3} − ${x} = ${ans}${odpovedMC(sh)}`]
+    };
+  }
+
+  function gen13i() {
+    // 2 body — cena kytice z poměrů (věrné nanečisto 2025, úloha 12; klíč D = 1 300 Kč)
+    /* Růže : statice = (m + 1) : m, takže o kolik je růží víc, tolik je jeden
+       díl. Chryzantémy musí vyjít celé, proto se kombinace losuje znovu. */
+    let m, u, w, t;
+    do { [m, u, w] = pick([[4, 2, 3], [3, 3, 4], [2, 2, 3], [4, 4, 5], [5, 5, 4]]); t = pick([1, 2, 3]); } while (!Number.isInteger(m * t * w / u));
+    const R = (m + 1) * t, S = m * t, Cc = S * w / u;
+    const [cr, cc, cs] = [pick([45, 50, 54, 60]), pick([30, 35, 40]), pick([25, 28, 35])];
+    const cena = (r, c, s) => r * cr + c * cc + s * cs, spravne = cena(R, Cc, S);
+    // chyby: prohozené statice a chryzantémy, prohozené růže a statice, díl neroznásobený
+    const sh = volbyMC(spravne, [cena(R, S, Cc), cena(S, Cc, R), cena(m + 1, w * m / u, m)].filter(Number.isInteger), 20, 'jinou částku', x => `${tis(x)} korun`);
+    return {
+      no: 13, points: 2, title: 'Kytice', kind: 'mc', okruh: 'pomer',
+      intro: `Kytice byla svázána ze tří druhů květin: růží, chryzantém a static. Růží a chryzantém dohromady je v kytici o ${t} více než chryzantém a static dohromady. Počet růží ku počtu static je v poměru ${m + 1} ∶ ${m}, počet static ku počtu chryzantém v poměru ${u} ∶ ${w}. Jeden kus stojí: růže ${cr} Kč, chryzantéma ${cc} Kč, statice ${cs} Kč. Cena celé kytice je součtem cen všech jejích květin.`,
+      prompt: `Kolik korun bude stát celá kytice?`,
+      options: sh.labels, ans: sh.correctLetter,
+      sol: [`Chryzantémy jsou na obou stranách porovnání, takže se odečtou: růží je o ${t} více než static. Poměr ${m + 1} ∶ ${m} říká, že růže mají o 1 díl víc než statice — jeden díl je tedy ${t}.`,
+        `Růží ${m + 1} · ${t} = ${R}, static ${m} · ${t} = ${S}, chryzantém ${S} : ${u} · ${w} = ${Cc}.`,
+        `Cena: ${R} · ${cr} + ${Cc} · ${cc} + ${S} · ${cs} = ${tis(spravne)} Kč${odpovedMC(sh)}`]
+    };
+  }
+
   const O_KOLIK_VETSI = [[3, 'o třetinu'], [4, 'o čtvrtinu'], [5, 'o pětinu']];
   function gen6g() {
     // 2 body — „o třetinu větší" počítané z menšího (věrné M9A/2026, úloha 5)
@@ -3636,7 +3938,7 @@
      ──────────────────────────────────────────────────────────────── */
   const SLOTS = [
     [gen1, gen1b, gen1c, gen1d, gen1e, gen1f, gen1g, gen1h], [gen2, gen2b, gen2c, gen2d, gen2e, gen2f], [gen3, gen3b, gen3c, gen3d, gen3e, gen3f], [gen4, gen4b, gen4c, gen4d, gen4e], [gen5, gen5b, gen5c, gen5d, gen5e], [gen6, gen6b, gen6c, gen6d, gen6e, gen6f, gen6g], [gen7, gen7b, gen7c, gen7d, gen7e, gen7f], [gen8, gen8b, gen8c, gen8d, gen8e, gen8f],
-    [gen9, gen9b, gen9c, gen9d, gen9e, gen9f], [gen10, gen10b, gen10c, gen10d, gen10e, gen10f], [gen11, gen11b, gen11c, gen11d, gen11e, gen11f, gen11g, gen11h], [gen12, gen12b, gen12c, gen12d, gen12e], [gen13, gen13b, gen13c, gen13d], [gen14, gen14b, gen14c, gen14d, gen14e, gen14f], [gen15, gen15b, gen15c, gen15d, gen15e, gen15f, gen15g, gen15h], [gen16, gen16b, gen16c, gen16d, gen16e, gen16f, gen16g, gen16h, gen16i, gen16j]
+    [gen9, gen9b, gen9c, gen9d, gen9e, gen9f], [gen10, gen10b, gen10c, gen10d, gen10e, gen10f], [gen11, gen11b, gen11c, gen11d, gen11e, gen11f, gen11g, gen11h], [gen12, gen12c, gen12e, gen12f, gen12g, gen12h, gen12i, gen12j, gen12k], [gen13, gen13b, gen13c, gen13d, gen13e, gen13f, gen13g, gen13h, gen13i], [gen14, gen14b, gen14c, gen14d, gen14e, gen14f], [gen15, gen15b, gen15c, gen15d, gen15e, gen15f, gen15g, gen15h], [gen16, gen16b, gen16c, gen16d, gen16e, gen16f, gen16g, gen16h, gen16i, gen16j]
   ];
 
   window.RPG_CERMAT_9 = {

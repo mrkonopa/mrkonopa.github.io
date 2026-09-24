@@ -114,7 +114,7 @@ const VZORY15 = [
 
 /* Volba „C) 45 %" / „D) 27 let" → 45 / 27; krajní („více než…", „jiný…") → null. */
 const hodnotaVolby = o => {
-  const t = o.slice(3).trim();
+  const t = o.slice(3).trim().replace(/^o\s+/, '');                          // „o 37 cm³", „o jiný objem"
   if (/^(více|méně|jiný|jiná|jiné)(?![\p{L}\d])/u.test(t)) return null;   // \b by za „ý/á/é/ě" nezabralo
   const m = t.match(/^(\d[\d\s]*(?:,\d+)?)/);
   return m ? cislo(m[1]) : null;
@@ -571,6 +571,102 @@ ok(podul69 > 41000, POPIS69 + ': dopočítáno ' + podul69 + ' podúloh (podlaha
 ok(nerozp69.size === 0, POPIS69 + ': každé zadání se dalo přečíst', [...nerozp69].slice(0, 3).join(' | '));
 ok(spatne69.length === 0, POPIS69 + ': odpověď banky se shoduje s dopočtem ze zadání',
   [...new Set(spatne69)].slice(0, 3).join(' | '));
+
+/* ═══ A4) POZICE 12–14 — úlohy s výběrem odpovědi ═════════════════════
+   Výsledek se spočítá ze ZNĚNÍ a musí být mezi volbami právě jednou, pod
+   písmenem, které banka označila za správné. Když v nabídce není, platí
+   krajní „jiný…" — i to se ostrým testům stává. Volby musí být seřazené
+   (vzestupně, nebo sestupně) jako na ostrém testu. Hodnoty grafů se čtou
+   z popisků OBRÁZKU. Neznámý titul je chyba (kontrola by oslepla). */
+const SLOVA = { čtyřmi: 4, pěti: 5, pětinu: 5, čtvrtinu: 4, šestinu: 6, desetinu: 10, dvacetinu: 20, osminu: 8, pětadvacetinu: 25,
+  dvakrát: 2, třikrát: 3 };
+const ZLOMKY = { 'sedm osmin': 7 / 8, 'tři čtvrtiny': 3 / 4, 'pět šestin': 5 / 6, 'čtyři pětiny': 4 / 5 };
+const odmocnina = x => { const r = Math.round(Math.sqrt(x)); if (r * r !== x) throw new Error(x + ' není čtverec'); return r; };
+const hodnotyGrafu = svg => [...String(svg).matchAll(/>([^<]+)<\/text>/g)].map(m => m[1]);
+const V1214 = {
+  // ── pozice 12 ──
+  'Bazén': t => { const [d, s] = cisla(t.intro, /délku (\d+) metrů a šířku (\d+) metrů/), [n, h1] = cisla(t.intro, /dlouhá (\d+) m, je hloubka (\d+) m/),
+    [, h2] = cisla(t.intro, /zvětší z (\d+) m na (\d+) m/); return n * s * h1 + (d - n) * s * (h1 + h2) / 2; },
+  'Kostky v krabici': t => { const [a, b, c] = cisla(t.intro, /rozměry (\d+) cm × (\d+) cm × (\d+) cm/), [k] = cisla(t.intro, /o hraně (\d+) cm/);
+    return Math.floor(a / k) * Math.floor(b / k) * Math.floor(c / k); },
+  'Povrch válce': t => { const [k] = cisla(t.intro, /pláště rotačního válce je (\d+)krát/), [r] = cisla(t.intro, /Poloměr podstavy válce je (\d+) cm/);
+    return (k + 2) * 3.14 * r * r; },
+  'Lomená čára v hale': t => { const [v, d] = cisla(t.intro, /výška je (\d+) m a délka (\d+) m/), [u] = cisla(t.intro, /měří (\d+) m a tvoří úsek AC/);
+    const s = odmocnina(u * u - d * d); return 2 * u + 2 * odmocnina(s * s + v * v); },
+  'Polepená krychle': t => { const n = SLOVA[t.intro.match(/přelepena (\S+) shodnými/)[1]], [W] = cisla(t.intro, /ploch na povrchu krychle je (\d[\d ]*) cm²/);
+    return odmocnina(W * n / (6 * (n - 1))); },                         // bílá je (n − 1)/n každé stěny
+  'Dvě krychle': t => { const [D] = cisla(t.intro, /o (\d+) cm² menší/), [H] = cisla(t.intro, /hran malé krychle je (\d+) cm/);
+    const a = H / 12, b = odmocnina(a * a + D / 6); return b ** 3 - a ** 3; },
+  'Dva hranoly': t => { const [a] = cisla(t.intro, /délky a = (\d+) cm/), [D] = cisla(t.intro, /o (\d+) cm² větší povrch/); return D / 4 / a; },
+  'Dort ze dvou forem': t => { const [r1] = cisla(t.intro, /první formy je (\d+) cm a poloměr podstavy druhé formy je o čtvrtinu menší/),
+    [h] = cisla(t.intro, /stejná, a to (\d+) cm/), r2 = r1 - r1 / 4; return h * (r1 * r1 + r2 * r2); },     // v násobcích π
+  'Trojboký hranol': t => { const [z, S] = cisla(t.intro, /základnu délky (\d+) cm a obsah (\d+) cm²/), v = 2 * S / z;
+    if (!(v < z && v < Math.hypot(z / 2, v))) throw new Error('výška podstavy není nejkratší hrana'); return S * v; },
+  // ── pozice 13 ──
+  'Letní tábory': t => { const [N] = cisla(t.intro, /celkem (\d+) přihlášek/), p1 = 100 / SLOVA[t.intro.match(/míst o (\S+), ve druhém/)[1]],
+    [p2] = cisla(t.intro, /ve druhém termínu o (\d+) %/), m = N / (2 + p1 / 100 + p2 / 100); return N - 2 * m; },
+  'Cena zboží': t => { const [c, a, b] = cisla(t.intro, /stálo (\d+) Kč\. Nejdřív zdražilo o (\d+) %, potom z nové ceny zlevnilo o (\d+) %/);
+    return c * (1 + a / 100) * (1 - b / 100); },
+  'Zdražení': t => { const [a, b] = cisla(t.intro, /z (\d+) Kč na (\d+) Kč/); return (b - a) / a * 100; },
+  'Úspora v procentech': t => { const [a, b] = cisla(t.intro, /stálo (\d+) Kč, teď ho koupíš za (\d+) Kč/); return (a - b) / a * 100; },
+  'Parkoviště': t => { const [Z] = cisla(t.intro, /je (\d+) míst vyhrazeno/), k = SLOVA[t.intro.match(/představovala jednu (\S+) celkové/)[1]],
+    [p] = cisla(t.intro, /pouze (\d+) % celkové/); return Z / (p / 100) - Z * k; },
+  'Pomlázky': t => { const k = SLOVA[t.intro.match(/První den prodal (\S+) všech/)[1]], [D] = cisla(t.intro, /o (\d+) pomlázek více/);
+    return D / (k - 2); },                                                // první den 1 díl z k, druhý zbytek k − 1
+  'Kanystr': t => { const [n] = cisla(t.intro, /nalití (\d+) hrnků/), f = ZLOMKY[t.intro.match(/zaplněno (\S+ \S+) objemu/)[1]],
+    [Z] = cisla(t.intro, /chybělo (\d[\d ]*) ml/), chybi = n / f - n - 1; return Z / chybi; },
+  'Vlaky na kolejích': t => { const [d] = cisla(t.intro, /má o (\d+) vagon\S* více/), k = SLOVA[t.intro.match(/koleji a (\S+) méně/)[1]],
+    [T] = cisla(t.intro, /dohromady mají (\d+) vagonů/), x = (T - d - k * d) / (k + 2); return k * (x + d) - x; },
+  'Kytice': t => { const [o] = cisla(t.intro, /je v kytici o (\d+) více/), [a, b, u, w] = cisla(t.intro, /poměru (\d+) ∶ (\d+), počet static ku počtu chryzantém v poměru (\d+) ∶ (\d+)/),
+    [cr, cc, cs] = cisla(t.intro, /růže (\d+) Kč, chryzantéma (\d+) Kč, statice (\d+) Kč/);
+    const S = o * b / (a - b), R = S + o, Ch = S * w / u; return R * cr + Ch * cc + S * cs; },   // R + C = C + S + o ⇒ R = S + o
+  // ── pozice 14 ──
+  'Testové známky': t => { const [n] = cisla(t.intro, /psalo (\d+) žáků/), [p] = cisla(t.intro, /byl ([\d,]+)\.$/), res = [];
+    for (let j = 0; 2 * j <= n; j++) if (blizko((j + 2 * j + 3 * (n - 2 * j)) / n, p)) res.push(j);
+    if (res.length !== 1) throw new Error('řešení ' + res.length); return res[0]; },
+  'Průměr měření': t => { const [p] = cisla(t.intro, /průměr (\d+)\./), zn = t.intro.match(/byly ([\d, ]+)\./)[1].split(', ').map(Number);
+    return 5 * p - zn.reduce((x, y) => x + y, 0); },
+  'Medián': t => { const a = t.prompt.match(/čísel: ([\d, ]+)\./)[1].split(', ').map(Number).sort((x, y) => x - y); return a[(a.length - 1) / 2]; },
+  'Modus': t => { const a = t.prompt.match(/čísel: ([\d, ]+)\./)[1].split(', ').map(Number), c = {};
+    a.forEach(v => { c[v] = (c[v] || 0) + 1; }); const max = Math.max(...Object.values(c)), m = Object.keys(c).filter(v => c[v] === max);
+    if (m.length !== 1) throw new Error('modů je ' + m.length); return +m[0]; },
+  'Kroužky': t => { const [N] = cisla(t.prompt, /celkem jich je (\d+)/), zn = hodnotyGrafu(t.svg).filter(x => /^\d+$/.test(x)).map(Number);
+    if (zn.length !== 2) throw new Error('v grafu je ' + zn.length + ' známých sloupců'); return N - zn[0] - zn[1]; },
+  'Návštěvnost': t => { const tx = hodnotyGrafu(t.svg), hod = {};
+    for (let i = 0; i < tx.length; i += 2) hod[tx[i + 1]] = +tx[i];            // za každým sloupcem hodnota, pak měsíc
+    const Z6 = { 'květnu': 'květen', 'červnu': 'červen', 'červenci': 'červenec', 'srpnu': 'srpen', 'září': 'září' };
+    const [, a, b] = t.prompt.match(/prodalo v (\S+) než v (\S+)\?/); return hod[Z6[a]] - hod[Z6[b]]; }
+};
+const nerozp1214 = new Set(), spatne1214 = [], videno1214 = {};
+let jinySpravne = 0, mc1214 = 0;
+for (const i of [11, 12, 13]) for (let b = 0; b < 2500; b++) {
+  const t = C.genSlot(i), f = V1214[t.title];
+  if (!f) { nerozp1214.add('pozice ' + (i + 1) + ': „' + t.title + '"'); continue; }
+  videno1214[t.title] = (videno1214[t.title] || 0) + 1;
+  let ceka;
+  try { ceka = f(t); } catch (e) { nerozp1214.add(t.title + ': ' + e.message); continue; }
+  mc1214++;
+  const hodnoty = t.options.map(hodnotaVolby), pis = t.options.map(o => o[0]), cisl = hodnoty.filter(v => v !== null);
+  if (!cisl.every((v, j) => !j || v > cisl[j - 1]) && !cisl.every((v, j) => !j || v < cisl[j - 1]))
+    spatne1214.push(t.title + ': volby nejsou seřazené — ' + t.options.join(' | '));
+  const kde = hodnoty.map((v, j) => (v !== null && blizko(v, ceka) ? pis[j] : null)).filter(Boolean);
+  if (kde.length > 1) spatne1214.push(t.title + ': výsledek ' + ceka + ' je mezi volbami ' + kde.length + '× — ' + t.options.join(' | '));
+  else if (kde.length === 1) { if (kde[0] !== t.ans) spatne1214.push(t.title + ': spočteno ' + ceka + ' (volba ' + kde[0] + '), banka tvrdí ' + t.ans + ' — ' + t.options.join(' | ')); }
+  else {
+    const j = t.options.findIndex(o => /^(o\s+)?jin/.test(o.slice(3).trim()));
+    if (j < 0 || pis[j] !== t.ans) spatne1214.push(t.title + ': výsledek ' + ceka + ' v nabídce není a banka neoznačila „jiný…" — ' + t.options.join(' | ') + ' → ' + t.ans);
+    else jinySpravne++;
+  }
+}
+/* Naměřeno: 7 500 úloh, každá z 24 variant 270–430×, „jiný…" správně ~600×.
+   Podlahy chytají vymizení, ne kolísání. */
+ok(Object.keys(V1214).every(n => (videno1214[n] || 0) >= 150), 'pozice 12–14: všech ' + Object.keys(V1214).length + ' variant se v losu objevuje (podlaha 150×)',
+  JSON.stringify(videno1214));
+ok(mc1214 === 7500, 'pozice 12–14: dopočítáno ' + mc1214 + ' úloh s volbami (čeká se 7 500)');
+ok(jinySpravne >= 300, 'pozice 12–14: „jiný…" je správnou volbou ' + jinySpravne + '× (podlaha 300)', 'naměřeno=' + jinySpravne);
+ok(nerozp1214.size === 0, 'pozice 12–14: každé zadání se dalo přečíst', [...nerozp1214].slice(0, 3).join(' | '));
+ok(spatne1214.length === 0, 'pozice 12–14: výsledek ze zadání je právě jednou mezi seřazenými volbami, pod správným písmenem',
+  [...new Set(spatne1214)].slice(0, 3).join(' | '));
 
 /* ═══ B) ROVNOSTI V POSTUPECH — celý test ═══════════════════════════
    Každé „výraz = výsledek" z čistých čísel se vyhodnotí. Od rovnítka se

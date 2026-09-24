@@ -113,14 +113,14 @@ ok(vD && vD.okruh === 'data' && v7 && v7.okruh === T.vykladProSlot(6).okruh, 'v�
 const puvodni = BANKA.genSlot;
 let posledni = null, mimo = 0, polozek = 0;
 BANKA.genSlot = i => (posledni = puvodni(i));
-for (const id of ['telesa', 'data', 'geometrie']) for (let b = 0; b < 300; b++) {
+for (const id of T.list.map(x => x.id)) for (let b = 0; b < 150; b++) {
   const it = T.item(id);
   if (!it) continue;
   polozek++;
   if (T.topicsForTask(posledni).indexOf(id) === -1) mimo++;
 }
 BANKA.genSlot = puvodni;
-ok(polozek > 800 && mimo === 0, 'procvičování okruhu dá jen jeho úlohy (' + polozek + ' položek, mimo okruh ' + mimo + ')');
+ok(polozek > 1400 && mimo === 0, 'procvičování okruhu dá jen jeho úlohy (' + polozek + ' položek, mimo okruh ' + mimo + ')');
 
 console.log('\n══════════════════════════════════════════');
 console.log('  VÝSLEDEK: ' + pass + ' ✅ / ' + fail + ' ❌');
