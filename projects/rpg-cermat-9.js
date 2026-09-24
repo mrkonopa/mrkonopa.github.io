@@ -698,17 +698,6 @@
     };
   }
 
-  function shuffleOpts(rawOpts, correctVal) {
-    const letters = ['A', 'B', 'C', 'D', 'E'];
-    const arr = rawOpts.map(v => typeof v === 'string' ? v : String(v));
-    // shuffle
-    for (let i = arr.length - 1; i > 0; i--) { const j = ri(0, i); [arr[i], arr[j]] = [arr[j], arr[i]]; }
-    const correctStr = String(correctVal);
-    const correctIdx = arr.indexOf(correctStr);
-    const labels = arr.map((v, i) => `${letters[i]}) ${typeof correctVal === 'number' ? v : v}`);
-    return { labels, correctLetter: letters[correctIdx] };
-  }
-
   function gen2b() {
     // 3 body — zlomkový výraz + rozdíl druhých mocnin přes vzorec
     const a = ri(2, 6), b = ri(2, 6), c = ri(3, 9);
