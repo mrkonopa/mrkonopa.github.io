@@ -160,8 +160,11 @@ for (const topic in GEN) {
         if (a < b && gcd(a, b) !== 1) { badFrac++; if (!fracEx) fracEx = p; }
       }
       // počitatelná jména: 2–4 → tvar bez -í, 5+ → -í
-      const decl = [[/\b([2-4]) porcí\b/, '2–4 porce'], [/\b([5-9]|\d\d+) porce\b/, '5+ porcí'],
-                    [/\b([2-4]) dní\b/, '2–4 dny'], [/\b1 (porce|dny|kusů|litrů|žáků)\b/, '1 + jednotné číslo']];
+      // 🔴 Konec slova je (?![\p{L}\d]), NE \b: \b v JavaScriptu zná jen A–Z, takže
+      // za „porcí", „dní", „litrů" hranice nikdy nevznikla a tři ze čtyř pravidel
+      // byla slepá (stejná vada jako v prijimacky-cermat-audit, nalezeno 2026-09-24).
+      const decl = [[/\b([2-4]) porcí(?![\p{L}\d])/u, '2–4 porce'], [/\b([5-9]|\d\d+) porce(?![\p{L}\d])/u, '5+ porcí'],
+                    [/\b([2-4]) dní(?![\p{L}\d])/u, '2–4 dny'], [/\b1 (porce|dny|kusů|litrů|žáků)(?![\p{L}\d])/u, '1 + jednotné číslo']];
       for (const [re, why] of decl) if (re.test(p)) { badDecl++; if (!declEx) declEx = why + ': ' + p; }
     }
   }

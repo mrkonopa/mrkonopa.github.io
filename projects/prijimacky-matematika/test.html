@@ -164,29 +164,33 @@ function cmSubmit(auto){
   if(!CM.on) return;
   stopTimer(); CM.on=false;
   let score=0; const review=[];
+  // Rozbor ukazuje celou volbu („C) 54 m"), ne jen písmeno — u seřazených voleb
+  // je hodnota to, co žák potřebuje vidět vedle svého výpočtu.
+  const volbaText=(opts,p)=>{ if(p==null) return null; const o=(opts||[]).find(x=>String(x).startsWith(p+')')); return o||p; };
+  const anoNe=v=>v==='A'?'A (pravdivé)':v==='N'?'N (nepravdivé)':v;
   CM.tasks.forEach(t=>{
     if(t.kind==='tfgrid'){
       let earned=0;
       const items=t.statements.map((s,i)=>{ const sel=document.querySelector('input[name="cm-tf-'+t.no+'-'+i+'"]:checked');
         const given=sel?sel.value:null; const ok=given===s.ans; if(ok)earned++;
-        return {prompt:s.text, given, correct:s.ans, ok, sol:s.sol}; });
-      score+=earned; review.push({no:t.no, title:t.title, intro:t.intro, svg:t.svg, earned, max:t.points, items});
+        return {prompt:s.text, given:anoNe(given), correct:anoNe(s.ans), ok, sol:s.sol}; });
+      score+=earned; review.push({no:t.no, okruh:t.okruh, title:t.title, intro:t.intro, svg:t.svg, earned, max:t.points, items});
     } else if(t.kind==='mc'){
       const sel=document.querySelector('input[name="cm-mc-'+t.no+'"]:checked');
       const given=sel?sel.value:null; const ok=given===t.ans; const earned=ok?t.points:0;
-      score+=earned; review.push({no:t.no, title:t.title, intro:t.intro, svg:t.svg, earned, max:t.points, items:[{prompt:t.prompt, given, correct:t.ans, ok, sol:t.sol}]});
+      score+=earned; review.push({no:t.no, okruh:t.okruh, title:t.title, intro:t.intro, svg:t.svg, earned, max:t.points, items:[{prompt:t.prompt, given:volbaText(t.options,given), correct:volbaText(t.options,t.ans), ok, sol:t.sol}]});
     } else if(t.kind==='match'){
       let earned=0; const per=t.points/t.prompts.length;
       const items=t.prompts.map((p,i)=>{ const sel=document.getElementById('cm-match-'+t.no+'-'+i);
         const given=sel&&sel.value?sel.value:null; const ok=given===t.ans[i]; if(ok)earned+=per;
-        return {prompt:p, given, correct:t.ans[i], ok, sol:(t.sol&&t.sol[i])||''}; });
-      earned=Math.round(earned); score+=earned; review.push({no:t.no, title:t.title, intro:t.intro, svg:t.svg, earned, max:t.points, items});
+        return {prompt:p, given:volbaText(t.options,given), correct:volbaText(t.options,t.ans[i]), ok, sol:(t.sol&&t.sol[i])||''}; });
+      earned=Math.round(earned); score+=earned; review.push({no:t.no, okruh:t.okruh, title:t.title, intro:t.intro, svg:t.svg, earned, max:t.points, items});
     } else {
       let earned=0;
       const items=(t.parts||[]).map((p,i)=>{ const inp=document.getElementById('cm-p-'+t.no+'-'+i);
         const v=inp?inp.value:''; const given=v.trim()||null; const ok=v.trim()!=='' && PZ.check(v, p.ans);
         if(ok)earned+=p.points; return {prompt:p.prompt, given, correct:String(p.ans), ok, sol:p.sol}; });
-      score+=earned; review.push({no:t.no, title:t.title, intro:t.intro, svg:t.svg, earned, max:t.points, items});
+      score+=earned; review.push({no:t.no, okruh:t.okruh, title:t.title, intro:t.intro, svg:t.svg, earned, max:t.points, items});
     }
   });
   saveAttempt(score, G().maxScore);
@@ -230,7 +234,7 @@ function showResults(score, review, auto){
     // Výklad + video k okruhu úlohy. Pozice testu je 0-indexovaná, r.no je 1-indexované.
     let odkazyHtml='';
     if(window.PZ_TOPICS && PZ_TOPICS.vykladProSlot){
-      const v=PZ_TOPICS.vykladProSlot(r.no-1);
+      const v=PZ_TOPICS.vykladProUlohu?PZ_TOPICS.vykladProUlohu(r):PZ_TOPICS.vykladProSlot(r.no-1);
       if(v){ const vid=PZ_TOPICS.videoUrl(v);
         odkazyHtml='<div class="cm-review-links">Nejde ti to? <a href="'+PZ.esc(PZ_TOPICS.vykladUrl(v))+'">📖 '+PZ.esc(v.nazev)+'</a>'+
           (vid?' <a href="'+PZ.esc(vid)+'" target="_blank" rel="noopener">▶ video</a>':'')+'</div>'; }

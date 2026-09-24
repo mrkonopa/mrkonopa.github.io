@@ -134,8 +134,8 @@
     let touched = 0;
     review.forEach(r => {
       if (!isObj(r)) return;
-      // pozice úlohy v testu je 1-indexovaná (r.no), slot je 0-indexovaný
-      const ids = PZ_TOPICS.topicsForSlot(num(r.no) - 1);
+      // vlastní okruh úlohy má přednost; jinak pozice (r.no je 1-indexovaná, slot 0-indexovaný)
+      const ids = PZ_TOPICS.topicsForTask ? PZ_TOPICS.topicsForTask(r) : PZ_TOPICS.topicsForSlot(num(r.no) - 1);
       if (!ids.length) return;
       // granularita po podúlohách (věrnější než jen body); fallback = celá úloha
       const items = Array.isArray(r.items) ? r.items.filter(isObj) : [];
@@ -160,7 +160,7 @@
     const agg = {};
     review.forEach(r => {
       if (!isObj(r)) return;
-      const ids = PZ_TOPICS.topicsForSlot(num(r.no) - 1);
+      const ids = PZ_TOPICS.topicsForTask ? PZ_TOPICS.topicsForTask(r) : PZ_TOPICS.topicsForSlot(num(r.no) - 1);
       const items = Array.isArray(r.items) ? r.items.filter(isObj) : [];
       const tot = items.length || 1;
       const ok = items.length ? items.filter(it => !!it.ok).length : (num(r.earned) >= num(r.max) ? 1 : 0);

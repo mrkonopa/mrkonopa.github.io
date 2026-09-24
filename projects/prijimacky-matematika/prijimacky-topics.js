@@ -14,10 +14,15 @@
     { id: 'vyrazy-mocniny', name: 'Číselné výrazy, mocniny a odmocniny', oblast: 'Číslo a proměnná', slots: [0] },
     { id: 'zlomky', name: 'Zlomky a desetinná čísla', oblast: 'Číslo a proměnná', slots: [1] },
     { id: 'procenta', name: 'Procenta a finanční matematika', oblast: 'Číslo a proměnná', slots: [14, 12] },
-    { id: 'pomer', name: 'Poměr a úměrnost', oblast: 'Závislosti a data', slots: [] },
+    // Pozice 13 střídá procenta, slovní úlohy a poměr (kytice podle nanečisto 2025).
+    // Který okruh úloha opravdu cvičí, říká její `okruh` (topicsForTask); procvičování
+    // okruhu z pozice bere jen úlohy, které do něj patří.
+    { id: 'pomer', name: 'Poměr a úměrnost', oblast: 'Závislosti a data', slots: [12] },
     { id: 'vyrazy-promenna', name: 'Výrazy s proměnnou', oblast: 'Číslo a proměnná', slots: [2] },
     { id: 'rovnice', name: 'Rovnice a soustavy', oblast: 'Číslo a proměnná', slots: [3] },
-    { id: 'slovni', name: 'Slovní úlohy', oblast: 'Nestandardní úlohy', slots: [12, 11] },
+    // Pozice 12 (index 11) sem už nepatří: všechny její varianty jsou tělesa (okruh 'telesa'),
+    // takže by procvičování slovních úloh z ní nikdy nic nevylosovalo.
+    { id: 'slovni', name: 'Slovní úlohy', oblast: 'Nestandardní úlohy', slots: [12] },
     // Pozice 16 (index 15) sem patří taky: na 300 běhů losuje jen Rámeček, Obraz v rámu
     // a Chodník kolem bazénu — všechno obvod a obsah obdélníku s lemem. Dřív nepatřila
     // ŽÁDNÉMU okruhu, takže se neobjevovala v procvičování ani v diagnostice.
@@ -65,6 +70,12 @@
     for (const id of topicsForSlot(idx)) if (VYKLAD[id]) return Object.assign({ okruh: id }, VYKLAD[id]);
     return null;
   }
+  // Výklad pro konkrétní úlohu z rozboru: vlastní okruh úlohy má přednost před pozicí.
+  function vykladProUlohu(r) {
+    const id = r && r.okruh;
+    if (typeof id === 'string' && VYKLAD[id] && TOPICS.some(x => x.id === id)) return Object.assign({ okruh: id }, VYKLAD[id]);
+    return vykladProSlot(Number(r && r.no) - 1);
+  }
   function vykladProOkruh(id) { return VYKLAD[id] ? Object.assign({ okruh: id }, VYKLAD[id]) : null; }
   // Adresa výkladu ve hře. ?preview=1 → izolované úložiště (žákův postup zůstane netknutý).
   function vykladUrl(v) { return '../rpg-mat-' + v.hra + '.html?preview=1&learn=' + encodeURIComponent(v.mise); }
@@ -106,7 +117,18 @@
     const k = Math.floor(Math.random() * total);
     if (k < gens.length) { try { return gens[k](); } catch (e) { return null; } }
     const idx = slots[k - gens.length];
-    try { return taskToItem(window.RPG_CERMAT_9.genSlot(idx)); } catch (e) { return null; }
+    try {
+      /* Pozice může střídat úlohy různých okruhů (pozice 11: tělesa, diagramy,
+         mapa, mnohoúhelníky). Losuje se proto znovu, dokud úloha do okruhu
+         nepatří — jinak by „Tělesa" nabídla kruhový diagram. Kytice (poměr) je
+         jedna z 9 variant pozice 13, takže 40 pokusů selhalo v 0,9 % a test
+         procvičování by občas chytil prázdnou položku; 200 pokusů = 6 · 10⁻¹¹. */
+      for (let i = 0; i < 200; i++) {
+        const t = window.RPG_CERMAT_9.genSlot(idx);
+        if (topicsForTask(t).indexOf(topicId) !== -1) return taskToItem(t);
+      }
+      return null;
+    } catch (e) { return null; }
   }
 
   // Reverzní mapa: pozice testu (0-indexovaná) → okruhy, které ji pokrývají.
@@ -118,5 +140,15 @@
     return TOPICS.filter(t => (t.slots || []).indexOf(i) !== -1).map(t => t.id);
   }
 
-  window.PZ_TOPICS = { list: TOPICS, item: practiceItem, topicsForSlot, vykladProSlot, vykladProOkruh, vykladUrl, videoUrl };
+  /* Okruhy úlohy (nebo položky rozboru {no, okruh}). Úloha smí nést vlastní
+     `okruh`: pozice 11 ostrého testu střídá tělesa, kruhové diagramy, mapu
+     i mnohoúhelníky a mapování jen podle pozice by chybu v diagramu připsalo
+     tělesům. Neznámý okruh se ignoruje (rozbor může přijít i ze starší verze). */
+  function topicsForTask(t) {
+    const id = t && t.okruh;
+    if (typeof id === 'string' && TOPICS.some(x => x.id === id)) return [id];
+    return topicsForSlot(Number(t && t.no) - 1);
+  }
+
+  window.PZ_TOPICS = { list: TOPICS, item: practiceItem, topicsForSlot, topicsForTask, vykladProSlot, vykladProUlohu, vykladProOkruh, vykladUrl, videoUrl };
 })();

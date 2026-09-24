@@ -53,9 +53,14 @@ const skupiny = mSlots ? [...mSlots[1].matchAll(/\[([^\[\]]+)\]/g)]
   .map(m => m[1].split(',').map(s => s.trim()).filter(Boolean)) : [];
 ok(skupiny.length === 16, 'SLOTS má 16 pozic', 'nalezeno=' + skupiny.length);
 
-/* Naměřeno 2026-09-13. Pozice se zvedá, jakmile se předělá. */
-const VARIANT = { 1: 8, 2: 6, 3: 3, 4: 3, 5: 3, 6: 4, 7: 3, 8: 3,
-  9: 3, 10: 3, 11: 3, 12: 5, 13: 4, 14: 6, 15: 3, 16: 3 };
+/* Naměřeno 2026-09-13. Pozice se zvedá, jakmile se předělá
+   (2026-09-23: pozice 15 → 8 variant, pět nových sad podle ostrých úloh;
+   pozice 3 → 6 a 4 → 5 — vytýkání, rozklad po úpravě, zlomky, soustava;
+   2026-09-24: pozice 6 → 7, 7 → 6, 8 → 6 a 9 → 6 podle ostrých úloh 6–8
+   a Pythagorovy věty vnořené do úlohy; pozice 16 → 10, obrazce a děje
+   podle ostrých úloh 16; pozice 5 → 5 a 10 → 6). */
+const VARIANT = { 1: 8, 2: 6, 3: 6, 4: 5, 5: 5, 6: 7, 7: 6, 8: 6,
+  9: 6, 10: 6, 11: 8, 12: 9, 13: 9, 14: 7, 15: 8, 16: 10 };
 const maloVariant = [];
 skupiny.forEach((g, i) => {
   const p = i + 1;
@@ -95,8 +100,8 @@ const vyklady = t => {
 /* Naměřeno 2026-09-13 přes 3 000 generování na pozici. Pozice 1 je
    předělaná (pravidlo → dosazení → výsledek), proto 3. Ostatní drží
    svůj dnešní stav, aby nemohly klesnout. */
-const KROKU = { 1: 3, 2: 3, 3: 2, 4: 2, 5: 2, 6: 2, 7: 2, 8: 2,
-  9: 3, 10: 3, 11: 2, 12: 3, 13: 2, 14: 3, 15: 2, 16: 2 };
+const KROKU = { 1: 3, 2: 3, 3: 3, 4: 3, 5: 3, 6: 3, 7: 3, 8: 3,
+  9: 3, 10: 3, 11: 3, 12: 3, 13: 3, 14: 3, 15: 3, 16: 3 };
 const BEHU = 1200;
 const melke = [];
 let videnoVykladu = 0;
@@ -138,7 +143,11 @@ ok(melke.length === 0, 'žádná pozice neklesla pod svou naměřenou hloubku po
    Rozsah 50–103 je PŘEMĚŘENÝ opraveným čítačem (viz níže) — vyšel
    shodně, protože dnešní kroky násobí tečkou `·`, ne `×`. Rozbité
    měřidlo by tedy mlčelo až do prvního kroku, který by `×` použil. */
-const HOTOVE = [1, 2];
+/* 2026-09-23: pozice 15 má první kroky 76–133 písmen, pozice 3 46–116
+   a pozice 4 85–134; nejkratší postup má u všech tří 3 kroky.
+   2026-09-24: pozice 6–9 (objem, úhly, obvod, Pythagorova věta) mají první
+   kroky 49–180 písmen a nejkratší postup 3 kroky. */
+const HOTOVE = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16];
 const styl = { celkem: 0, bezVysvetleni: [] };
 /* 🔴 NE `[a-zá-žA-ZÁ-Ž]`. Rozsah á–ž je U+00E1–U+017E a obsahuje i ÷
    (U+00F7), rozsah Á–Ž zase × (U+00D7) — čítač písmen by počítal
@@ -158,7 +167,7 @@ HOTOVE.forEach(p => {
 ok(styl.celkem >= 4000, 'předělané pozice (' + HOTOVE.join(', ') + '): změřeno ' +
   styl.celkem + ' postupů', 'celkem=' + styl.celkem);
 ok(styl.bezVysvetleni.length === 0,
-  'první krok vysvětluje pravidlo, nepočítá (aspoň 40 písmen; naměřeno 50–103)',
+  'první krok vysvětluje pravidlo, nepočítá (aspoň 40 písmen; naměřeno 46–180)',
   [...new Set(styl.bezVysvetleni)].slice(0, 3).join(' | '));
 
 /* ── 4. zlomek tvaru n/n v zadání ─────────────────────────────────
@@ -186,6 +195,37 @@ ok(videnoZadani > 20000, 'prošlo se ' + videnoZadani + ' zadání (podlaha 20 0
   'naměřeno=' + videnoZadani);
 ok(Object.keys(nn).length === 0, 'v zadání není zlomek tvaru n/n (dělení jedničkou)',
   Object.keys(nn).map(p => 'pozice ' + p + ': ' + [...nn[p]][0]).slice(0, 3).join(' | '));
+
+/* ── 5. zlomek dělený SÁM SEBOU ────────────────────────────────────
+   Týž druh prázdnoty jako n/n, jen o krok dál: „6/4 : 6/4" je vždycky 1.
+   V pozici 2 (gen2c) se čitatel dělence i dělitele losoval nezávisle ze
+   stejného rozsahu, takže to vycházelo v 17 % generování té varianty
+   (565 ze 40 000 podúloh pozice 2). Porovnává se HODNOTA (a·d = b·c),
+   ne zápis — „2/4 : 1/2" je tatáž prázdnota. Po opravě 0. */
+const samoDeleni = {};
+let videnoDeleni = 0;
+for (let i = 0; i < C.slotCount(); i++) {
+  for (let b = 0; b < 800; b++) {
+    const t = C.genSlot(i);
+    [t.prompt || '', ...(t.parts || []).map(p => p.prompt),
+      ...(t.statements || []).map(s => s && s.text), ...(t.prompts || [])]
+      .filter(Boolean).forEach(z => {
+        const re = /(\d+)\/(\d+)\s*:\s*(\d+)\/(\d+)/g; let m;
+        while ((m = re.exec(z))) {
+          videnoDeleni++;
+          if (m[1] * m[4] === m[2] * m[3]) { (samoDeleni[i + 1] = samoDeleni[i + 1] || new Set()).add(z.slice(0, 70)); break; }
+        }
+      });
+  }
+}
+/* Pojistka: pravidlo musí dělení zlomků vůbec VIDĚT, jinak by „0 nálezů"
+   nic neznamenalo. Naměřeno v šesti bězích 115–149 výskytů na 12 800
+   zadání (dělení zlomkem je jen v několika variantách pozice 2); podlaha
+   60 leží pod minimem s rezervou, rozbité měřidlo dá 0. */
+ok(videnoDeleni > 60, 'dělení zlomkem se v zadáních vyskytlo ' + videnoDeleni + '× (podlaha 60)',
+  'naměřeno=' + videnoDeleni);
+ok(Object.keys(samoDeleni).length === 0, 'v zadání se zlomek nedělí sám sebou (výsledek by byl vždy 1)',
+  Object.keys(samoDeleni).map(p => 'pozice ' + p + ': ' + [...samoDeleni[p]][0]).slice(0, 3).join(' | '));
 
 console.log('\n  ' + pass + ' ✅  ' + fail + ' ❌\n');
 process.exit(fail ? 1 : 0);
