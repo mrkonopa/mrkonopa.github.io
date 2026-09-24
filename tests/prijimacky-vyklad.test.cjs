@@ -76,6 +76,52 @@ const p16 = T.vykladProSlot(15);
 ok(T.topicsForSlot(15).indexOf('geometrie') !== -1, 'pozice 16 patří okruhu geometrie');
 ok(p16 !== null && /[Oo]bvod a obsah/.test(p16.nazev), 'pozice 16 dostává odkaz na výklad (' + (p16 ? p16.nazev : 'ŽÁDNÝ') + ')');
 
+// ── 8) úloha s vlastním okruhem ──
+/* Pozice 11 ostrého testu střídá tělesa, kruhové diagramy, mapu i mnohoúhelníky,
+   takže úloha nese `okruh` a ten má přednost před mapováním pozice. Bez toho by
+   procvičování „Tělesa" nabídlo kruhový diagram a chyba v diagramu by se v rozboru
+   připsala tělesům. Kontroluje se se SKUTEČNOU bankou, ne s vymyšlenou úlohou. */
+global.ri = (a, b) => Math.floor(Math.random() * (b - a + 1)) + a;
+global.gcd = function gcd(a, b) { return b ? gcd(b, a % b) : Math.abs(a); };
+global.cz = n => String(n).replace('.', ',');
+global.skl = (n, o, f, m) => (n === 1 ? o : (n >= 2 && n <= 4 ? f : m));
+['svgTriangle', 'svgLineGraph', 'svgCylinder', 'svgCone', 'svgSphere', 'svgSimilar',
+  'svgCuboid', 'svgSloupce', 'svgTezitko'].forEach(f => { global[f] = () => '<svg></svg>'; });
+require(path.join(ROOT, 'projects', 'rpg-cermat-9.js'));
+const BANKA = global.window.RPG_CERMAT_9, OKRUHY = new Set(T.list.map(x => x.id));
+const sOkruhem = {}, bezOkruhu = {}, spatnyOkruh = new Set();
+for (let i = 0; i < BANKA.slotCount(); i++) for (let b = 0; b < 400; b++) {
+  const t = BANKA.genSlot(i);
+  if (t.okruh === undefined) { bezOkruhu[i] = (bezOkruhu[i] || 0) + 1; continue; }
+  sOkruhem[i] = (sOkruhem[i] || 0) + 1;
+  if (!OKRUHY.has(t.okruh)) spatnyOkruh.add(t.title + ': „' + t.okruh + '"');
+}
+ok(spatnyOkruh.size === 0, 'vlastní okruh úlohy je vždy jeden z okruhů přijímaček' + (spatnyOkruh.size ? ' — ' + [...spatnyOkruh].slice(0, 3).join(', ') : ''));
+// Pozice, která okruh u některé úlohy uvádí, ho musí uvádět u VŠECH — úloha bez něj
+// by spadla na mapování pozice a to u smíšené pozice neplatí.
+const napul = Object.keys(sOkruhem).filter(i => bezOkruhu[i]);
+ok(napul.length === 0, 'pozice s vlastními okruhy je uvádějí u všech úloh' + (napul.length ? ' — chybí na pozicích ' + napul.map(i => +i + 1).join(', ') : ''));
+ok((sOkruhem[10] || 0) === 400, 'všech 400 úloh pozice 11 nese okruh (naměřeno ' + (sOkruhem[10] || 0) + ')');
+
+ok(T.topicsForTask({ no: 11, okruh: 'data' }).join() === 'data', 'okruh úlohy má přednost před pozicí');
+ok(T.topicsForTask({ no: 11, okruh: '__proto__' }).join() === T.topicsForSlot(10).join() &&
+  T.topicsForTask({ no: 11, okruh: 'neznamy' }).join() === T.topicsForSlot(10).join(), 'neznámý okruh (i „__proto__") se ignoruje a platí pozice');
+const vD = T.vykladProUlohu({ no: 11, okruh: 'data' }), v7 = T.vykladProUlohu({ no: 7 });
+ok(vD && vD.okruh === 'data' && v7 && v7.okruh === T.vykladProSlot(6).okruh, 'výklad v rozboru: podle okruhu úlohy, bez něj podle pozice');
+
+// Procvičování okruhu nesmí sáhnout po úloze z jiného okruhu (PZ_GEN tu není, losuje se jen z pozic).
+const puvodni = BANKA.genSlot;
+let posledni = null, mimo = 0, polozek = 0;
+BANKA.genSlot = i => (posledni = puvodni(i));
+for (const id of ['telesa', 'data', 'geometrie']) for (let b = 0; b < 300; b++) {
+  const it = T.item(id);
+  if (!it) continue;
+  polozek++;
+  if (T.topicsForTask(posledni).indexOf(id) === -1) mimo++;
+}
+BANKA.genSlot = puvodni;
+ok(polozek > 800 && mimo === 0, 'procvičování okruhu dá jen jeho úlohy (' + polozek + ' položek, mimo okruh ' + mimo + ')');
+
 console.log('\n══════════════════════════════════════════');
 console.log('  VÝSLEDEK: ' + pass + ' ✅ / ' + fail + ' ❌');
 console.log('══════════════════════════════════════════');

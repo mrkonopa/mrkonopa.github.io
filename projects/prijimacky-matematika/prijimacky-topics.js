@@ -65,6 +65,12 @@
     for (const id of topicsForSlot(idx)) if (VYKLAD[id]) return Object.assign({ okruh: id }, VYKLAD[id]);
     return null;
   }
+  // Výklad pro konkrétní úlohu z rozboru: vlastní okruh úlohy má přednost před pozicí.
+  function vykladProUlohu(r) {
+    const id = r && r.okruh;
+    if (typeof id === 'string' && VYKLAD[id] && TOPICS.some(x => x.id === id)) return Object.assign({ okruh: id }, VYKLAD[id]);
+    return vykladProSlot(Number(r && r.no) - 1);
+  }
   function vykladProOkruh(id) { return VYKLAD[id] ? Object.assign({ okruh: id }, VYKLAD[id]) : null; }
   // Adresa výkladu ve hře. ?preview=1 → izolované úložiště (žákův postup zůstane netknutý).
   function vykladUrl(v) { return '../rpg-mat-' + v.hra + '.html?preview=1&learn=' + encodeURIComponent(v.mise); }
@@ -106,7 +112,16 @@
     const k = Math.floor(Math.random() * total);
     if (k < gens.length) { try { return gens[k](); } catch (e) { return null; } }
     const idx = slots[k - gens.length];
-    try { return taskToItem(window.RPG_CERMAT_9.genSlot(idx)); } catch (e) { return null; }
+    try {
+      /* Pozice může střídat úlohy různých okruhů (pozice 11: tělesa, diagramy,
+         mapa, mnohoúhelníky). Losuje se proto znovu, dokud úloha do okruhu
+         nepatří — jinak by „Tělesa" nabídla kruhový diagram. */
+      for (let i = 0; i < 40; i++) {
+        const t = window.RPG_CERMAT_9.genSlot(idx);
+        if (topicsForTask(t).indexOf(topicId) !== -1) return taskToItem(t);
+      }
+      return null;
+    } catch (e) { return null; }
   }
 
   // Reverzní mapa: pozice testu (0-indexovaná) → okruhy, které ji pokrývají.
@@ -118,5 +133,15 @@
     return TOPICS.filter(t => (t.slots || []).indexOf(i) !== -1).map(t => t.id);
   }
 
-  window.PZ_TOPICS = { list: TOPICS, item: practiceItem, topicsForSlot, vykladProSlot, vykladProOkruh, vykladUrl, videoUrl };
+  /* Okruhy úlohy (nebo položky rozboru {no, okruh}). Úloha smí nést vlastní
+     `okruh`: pozice 11 ostrého testu střídá tělesa, kruhové diagramy, mapu
+     i mnohoúhelníky a mapování jen podle pozice by chybu v diagramu připsalo
+     tělesům. Neznámý okruh se ignoruje (rozbor může přijít i ze starší verze). */
+  function topicsForTask(t) {
+    const id = t && t.okruh;
+    if (typeof id === 'string' && TOPICS.some(x => x.id === id)) return [id];
+    return topicsForSlot(Number(t && t.no) - 1);
+  }
+
+  window.PZ_TOPICS = { list: TOPICS, item: practiceItem, topicsForSlot, topicsForTask, vykladProSlot, vykladProUlohu, vykladProOkruh, vykladUrl, videoUrl };
 })();

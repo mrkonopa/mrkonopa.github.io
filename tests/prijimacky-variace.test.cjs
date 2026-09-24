@@ -60,7 +60,7 @@ ok(skupiny.length === 16, 'SLOTS má 16 pozic', 'nalezeno=' + skupiny.length);
    a Pythagorovy věty vnořené do úlohy; pozice 16 → 10, obrazce a děje
    podle ostrých úloh 16; pozice 5 → 5 a 10 → 6). */
 const VARIANT = { 1: 8, 2: 6, 3: 6, 4: 5, 5: 5, 6: 7, 7: 6, 8: 6,
-  9: 6, 10: 6, 11: 3, 12: 5, 13: 4, 14: 6, 15: 8, 16: 10 };
+  9: 6, 10: 6, 11: 8, 12: 5, 13: 4, 14: 6, 15: 8, 16: 10 };
 const maloVariant = [];
 skupiny.forEach((g, i) => {
   const p = i + 1;
@@ -101,7 +101,7 @@ const vyklady = t => {
    předělaná (pravidlo → dosazení → výsledek), proto 3. Ostatní drží
    svůj dnešní stav, aby nemohly klesnout. */
 const KROKU = { 1: 3, 2: 3, 3: 3, 4: 3, 5: 3, 6: 3, 7: 3, 8: 3,
-  9: 3, 10: 3, 11: 2, 12: 3, 13: 2, 14: 3, 15: 3, 16: 3 };
+  9: 3, 10: 3, 11: 3, 12: 3, 13: 2, 14: 3, 15: 3, 16: 3 };
 const BEHU = 1200;
 const melke = [];
 let videnoVykladu = 0;
@@ -147,7 +147,7 @@ ok(melke.length === 0, 'žádná pozice neklesla pod svou naměřenou hloubku po
    a pozice 4 85–134; nejkratší postup má u všech tří 3 kroky.
    2026-09-24: pozice 6–9 (objem, úhly, obvod, Pythagorova věta) mají první
    kroky 49–180 písmen a nejkratší postup 3 kroky. */
-const HOTOVE = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 16];
+const HOTOVE = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 15, 16];
 const styl = { celkem: 0, bezVysvetleni: [] };
 /* 🔴 NE `[a-zá-žA-ZÁ-Ž]`. Rozsah á–ž je U+00E1–U+017E a obsahuje i ÷
    (U+00F7), rozsah Á–Ž zase × (U+00D7) — čítač písmen by počítal

@@ -278,6 +278,9 @@ const cisla = (s, re) => { const m = String(s).match(re); return m ? m.slice(1).
 const stupne = svg => [...String(svg).matchAll(/>(\d+)°</g)].map(m => +m[1]);
 const na1 = x => Math.round(x * 10) / 10, naDes = x => Math.round(x / 10) * 10;
 const ZLS = { polovinu: 1 / 2, třetinu: 1 / 3, čtvrtinu: 1 / 4, pětinu: 1 / 5, 'dvě pětiny': 2 / 5 };
+const tv = (t, k) => t.statements[+k.split('.')[1] - 1].text;
+// Popisky výsečí kruhového diagramu v pořadí kreslení: [úhel nebo procento?, jméno] za každou výsečí.
+const popiskyVyseci = svg => String(svg).split('<path').slice(1).map(ch => [...ch.matchAll(/>([^<]+)<\/text>/g)].map(m => m[1]));
 const V69 = {
   // ── pozice 6 ──
   'Sud': (t, k) => { const [S] = cisla(t.intro, /Dno sudu má obsah (\d+) cm²/), p = t.parts.find(x => x.key === k).prompt;
@@ -468,9 +471,68 @@ const V69 = {
     if (k === '16.2') { const [B] = cisla(pr, /obrazce je (\d+) cm/); return Math.abs(kusy(B, 2) - kusy(B, 3)); }
     const [D] = cisla(pr, /liší o (\d+) cm/);
     for (let tt = 1; tt < 200; tt++) { const s = tt + D; if (kusy(s + 4, 2) === kusy(tt + 6, 3) && Number.isInteger(kusy(s + 4, 2))) return kusy(s + 4, 2); }
-    throw new Error('žádná dvojice obrazců se stejným počtem'); }
+    throw new Error('žádná dvojice obrazců se stejným počtem'); },
+  // ── pozice 11 (tvrzení A/N): přepočet vrací PRAVDIVOST tvrzení ──
+  /* Hodnoty z diagramů se čtou z popisků OBRÁZKU (výseč → její úhel nebo
+     procento), protože žák je má jen tam. Výseč bez popisku musí být
+     právě jedna a dopočítá se do plného úhlu. */
+  'Kvádry': (t, k) => { const d = cisla(t.intro, /hrany délek (\d+) cm, (\d+) cm a (\d+) cm/), s = tv(t, k);
+    if (k === '11.1') return cisla(s, /je (\d+) cm\./)[0] === 4 * (d[0] + d[1] + d[2]);
+    const [z, na, X] = cisla(s, /délky (\d+) cm prodlouží na (\d+) cm, \S+ kvádru se zvětší o (\d+) cm/), e = d.slice();
+    e[d.indexOf(z)] = na;
+    const S = ([x, y, w]) => 2 * (x * y + y * w + x * w), V = ([x, y, w]) => x * y * w;
+    return k === '11.2' ? S(e) - S(d) === X : V(e) - V(d) === X; },
+  'Krychle': (t, k) => { const [a] = cisla(t.intro, /hranu délky (\d+) cm/), s = tv(t, k);
+    if (k === '11.1') return cisla(s, /je (\d+) cm\./)[0] === 12 * a;
+    if (k === '11.2') return cisla(s, /je (\d+) cm²/)[0] === 6 * a * a;
+    const KRAT = { dvakrát: 2, třikrát: 3, čtyřikrát: 4, šestkrát: 6, osmkrát: 8 };
+    return KRAT[s.match(/má (\S+) větší objem/)[1]] === (2 * a) ** 3 / a ** 3; },
+  'Tělesa': (t, k) => { const [a, b, c] = cisla(t.intro, /hrany délek (\d+) cm, (\d+) cm a (\d+) cm/), s = tv(t, k);
+    if (k === '11.1') return cisla(s, /je (\d+) cm³/)[0] === a * b * c;
+    if (k === '11.2') return cisla(s, /je (\d+) cm²/)[0] === 2 * (a * b + b * c + a * c);
+    const [, n, co] = s.match(/má (\d+) (\S+)\./); return +n === { stěn: 6, hran: 12, vrcholů: 8 }[co]; },
+  'Turistická mapa': (t, k) => {
+    const [a, b] = cisla(t.intro, /Každ\S+ ([\d,]+) cm na turistické mapě rovinaté oblasti je ve skutečnosti (\d+) m/);
+    const [V] = cisla(t.intro, /trasy je přesně ([\d,]+) km, což je trojnásobek/), mNaCm = b / a, s = tv(t, k);
+    if (k === '11.1') { const [mm, h] = cisla(s, /měří (\d+) mm, je ve skutečnosti delší než ([\d,]+) km/); return mm / 10 * mNaCm > h * 1000; }
+    if (k === '11.2') return blizko((V - V / 3) * 1000 / mNaCm, cisla(s, /o ([\d,]+) cm delší/)[0]);
+    return blizko(mNaCm * 100, cisla(s, /je 1 : (\d[\d ]*\d)\./)[0]); },
+  'Kruhový diagram zahrady': (t, k) => {
+    const uhel = {};
+    popiskyVyseci(t.svg).forEach(tx => { uhel[tx[tx.length - 1]] = tx.length > 1 ? parseInt(tx[0], 10) : null; });
+    const bez = Object.keys(uhel).filter(n => uhel[n] === null);
+    if (bez.length !== 1) throw new Error('výsečí bez popisku je ' + bez.length);
+    uhel[bez[0]] = 360 - Object.values(uhel).reduce((x, y) => x + (y || 0), 0);
+    const [Am] = cisla(t.intro, /Magnolie zabírají plochu o rozloze (\d+) m²/), m2 = u => u * Am / uhel.magnolie, s = tv(t, k);
+    if (k === '11.1') return blizko(m2(uhel['jabloně'] - uhel.magnolie), cisla(s, /o (\d+) m² větší/)[0]);
+    if (k === '11.2') return blizko((uhel.levandule + uhel.bazalka) / uhel.hortenzie, cisla(s, /zabírají ([\d,]+)krát/)[0]);
+    return m2(uhel['růže']) < cisla(s, /menší než (\d+) m²/)[0]; },
+  'Náklad lodi': (t, k) => {
+    const pod = {}; popiskyVyseci(t.svg).forEach(tx => { pod[tx[1]] = parseInt(tx[0], 10); });
+    const [Xb, Xk] = cisla(t.intro, /veze (\d+) tun banánů a (\d+) tun kávy/), s = tv(t, k);
+    if (!blizko(Xb / pod['banány'], Xk / pod['káva'])) throw new Error('tuny banánů a kávy nesedí s diagramem');
+    if (pod['rýže'] + pod.cukr + pod['káva'] + pod['banány'] !== 100) throw new Error('diagram nedává 100 %');
+    if (k === '11.1') {
+      const ZL = { jedna: 1, dvě: 2, tři: 3, čtyři: 4 }, JM = { polovin: 2, třetin: 3, čtvrtin: 4, pětin: 5, desetin: 10, dvacetin: 20 };
+      const [, c, j] = s.match(/dohromady (\S+) (\S+?)[ay] celkové/); return blizko(ZL[c] / JM[j], (pod['káva'] + pod['banány']) / 100); }
+    if (k === '11.2') { const [m, n] = cisla(s, /je (\d+) ∶ (\d+)\./); return blizko(m / n, pod['káva'] / pod['rýže']); }
+    return blizko(Xk / pod['káva'] * pod['rýže'], cisla(s, /veze ([\d,]+) t rýže/)[0]); },
+  'Pravidelný mnohoúhelník': (t, k) => {
+    const N = { pětiúhelníku: 5, šestiúhelníku: 6, osmiúhelníku: 8, devítiúhelníku: 9, desetiúhelníku: 10, dvanáctiúhelníku: 12 };
+    const n = N[t.intro.match(/pravidelného (\S+) se středem/)[1]], al = 360 / n, be = (180 - al) / 2, ga = 180 - al, s = tv(t, k);
+    if (t.svg.match(/<polygon points="([^"]+)"/)[1].trim().split(/\s+/).length !== n) throw new Error('obrázek nemá ' + n + ' vrcholů');
+    if (k === '11.1') return blizko(al, cisla(s, /α = ([\d,]+)°/)[0]);
+    if (k === '11.2') return be < cisla(s, /β < ([\d,]+)°/)[0];
+    const VZ = { 'γ = 2 · β': blizko(ga, 2 * be), 'α + γ = 180°': blizko(al + ga, 180), 'γ = α': blizko(ga, al), 'α + β = 90°': blizko(al + be, 90) };
+    if (!(s in VZ)) throw new Error('neznámý vztah „' + s + '"');
+    return VZ[s]; },
+  // Strana kosočtverce je přepona trojúhelníku s odvěsnami a/2 a b (obrázek: polovina obdélníku rozdělená úhlopříčkou).
+  'Obdélník a kosočtverec': (t, k) => { const [a, b] = cisla(t.intro, /stranami délek (\d+) cm a (\d+) cm/), s = tv(t, k);
+    const str = Math.hypot(a / 2, b);
+    if (k === '11.1') return /je stejný jako obsah/.test(s);
+    return blizko(k === '11.2' ? str : a * b / str, cisla(s, /měří ([\d,]+) cm/)[0]); }
 };
-const POZ69 = [4, 5, 6, 7, 8, 9, 15], POPIS69 = 'pozice 5–10 a 16';
+const POZ69 = [4, 5, 6, 7, 8, 9, 10, 15], POPIS69 = 'pozice 5–11 a 16';
 const videno69 = {}, nerozp69 = new Set(), spatne69 = [];
 let podul69 = 0;
 /* Odpověď může být zlomek („5/16"): porovnává se hodnota a zlomek musí být
@@ -481,10 +543,15 @@ for (const i of POZ69) {
     const t = C.genSlot(i), f = V69[t.title];
     if (!f) { nerozp69.add('pozice ' + (i + 1) + ': „' + t.title + '"'); continue; }
     videno69[t.title] = (videno69[t.title] || 0) + 1;
-    t.parts.forEach(p => {
+    // Tvrzení A/N se dopočítávají stejně jako podúlohy; přepočet vrací pravdivost.
+    (t.statements ? t.statements.map((st, j) => ({ key: t.no + '.' + (j + 1), ans: st.ans, prompt: st.text })) : t.parts).forEach(p => {
       podul69++;
       let ceka;
       try { ceka = f(t, p.key); } catch (e) { nerozp69.add(t.title + ' ' + p.key + ': ' + e.message); return; }
+      if (typeof ceka === 'boolean') {
+        if (ceka !== (p.ans === 'A')) spatne69.push(t.title + ' ' + p.key + ': banka ' + p.ans + ', ze zadání ' + (ceka ? 'A' : 'N') + ' — „' + p.prompt.slice(0, 70) + '"');
+        return;
+      }
       const zl = String(p.ans).match(/^(\d+)\/(\d+)$/);
       if (zl && gcd(+zl[1], +zl[2]) !== 1) spatne69.push(t.title + ' ' + p.key + ': zlomek ' + p.ans + ' není v základním tvaru');
       if (!Number.isFinite(ceka) || !blizko(ceka, hodnota(p.ans)))
@@ -496,11 +563,11 @@ const var69 = Object.keys(V69).length;
 /* Naměřeno ve třech bězích (pozice 6–9): 10 000 úloh = 22 065–22 085 podúloh,
    každá z 25 variant 317–465×. S pozicí 16 (10 variant, 2 500 úloh) přibylo
    7 500 podúloh a každá její varianta padne ~250×; pozice 5 a 10 (11 variant)
-   přidaly dalších 7 500. Podlahy leží pod tím
-   s rezervou; rozbitý los dá 0. */
+   přidaly dalších 7 500 a pozice 11 (8 variant tvrzení A/N) dalších 7 500
+   (celkem naměřeno 44 578). Podlahy leží pod tím s rezervou; rozbitý los dá 0. */
 ok(Object.keys(videno69).length === var69 && Object.values(videno69).every(n => n >= 150),
   POPIS69 + ': všech ' + var69 + ' variant se v losu objevuje (podlaha 150×)', JSON.stringify(videno69));
-ok(podul69 > 34000, POPIS69 + ': dopočítáno ' + podul69 + ' podúloh (podlaha 34 000)', 'naměřeno=' + podul69);
+ok(podul69 > 41000, POPIS69 + ': dopočítáno ' + podul69 + ' podúloh (podlaha 41 000)', 'naměřeno=' + podul69);
 ok(nerozp69.size === 0, POPIS69 + ': každé zadání se dalo přečíst', [...nerozp69].slice(0, 3).join(' | '));
 ok(spatne69.length === 0, POPIS69 + ': odpověď banky se shoduje s dopočtem ze zadání',
   [...new Set(spatne69)].slice(0, 3).join(' | '));

@@ -154,13 +154,18 @@ function bankaCermat() {
      opsaná, trojúhelník z přímek) mají vrcholy pokaždé jinde — počítají se
      z úhlů —, takže pevný seznam vrcholů jako výše nestačí. Oblouk proto
      nese střed v `data-vrchol` a měří se proti němu, zase na VYKRESLENÉ
-     křivce. Špatný příznak sweep dá odchylku v desítkách pixelů. */
+     křivce. Špatný příznak sweep dá odchylku v desítkách pixelů.
+     Pozice 11 přidává pravidelné mnohoúhelníky (α, β, γ u středu a vrcholů). */
   {
-    const C = bankaCermat(), kresby = new Set();
+    const C = bankaCermat(), kresby = new Set(), zPozice11 = new Set();
     for (let i = 0; i < 6000; i++) {
       const t = C.genSlot(6);
       if (t && t.svg && /data-vrchol/.test(t.svg)) kresby.add(t.svg);
+      const u = C.genSlot(10);
+      if (u && u.svg && /data-vrchol/.test(u.svg)) { kresby.add(u.svg); zPozice11.add(u.svg); }
     }
+    // Naměřeno: 6 mnohoúhelníků (5, 6, 8, 9, 10, 12 vrcholů) po 3 obloucích.
+    ok(zPozice11.size === 6, 'pozice 11: změřeno ' + zPozice11.size + ' mnohoúhelníků s oblouky (čeká se 6)');
     const r = await page.evaluate(svgs => {
       const out = [];
       for (const s of svgs) {
