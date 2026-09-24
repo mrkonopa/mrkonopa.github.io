@@ -635,7 +635,18 @@ const V1214 = {
   'Návštěvnost': t => { const tx = hodnotyGrafu(t.svg), hod = {};
     for (let i = 0; i < tx.length; i += 2) hod[tx[i + 1]] = +tx[i];            // za každým sloupcem hodnota, pak měsíc
     const Z6 = { 'květnu': 'květen', 'červnu': 'červen', 'červenci': 'červenec', 'srpnu': 'srpen', 'září': 'září' };
-    const [, a, b] = t.prompt.match(/prodalo v (\S+) než v (\S+)\?/); return hod[Z6[a]] - hod[Z6[b]]; }
+    const [, a, b] = t.prompt.match(/prodalo v (\S+) než v (\S+)\?/); return hod[Z6[a]] - hod[Z6[b]]; },
+  // Hodnoty z popisků sloupců (data-kdo, data-druh), druhy v pořadí podle výčtu v zadání.
+  'Ptačí hodinka': t => {
+    const druhy = t.intro.match(/ptáků \(([^)]+)\)/)[1].split(', '), J = [], B = [];
+    for (const m of String(t.svg).matchAll(/data-kdo="([JB])" data-druh="(\d)"[^>]*>([^<]+)</g)) (m[1] === 'J' ? J : B)[+m[2]] = m[3] === '?' ? null : +m[3];
+    const P = druhy.indexOf('pěnkava obecná'), SY = druhy.indexOf('sýkora koňadra'), BR = druhy.indexOf('brhlík lesní'), [d] = cisla(t.intro, /pěnkav o (\d+) méně než sýkor/);
+    if (J[P] !== null || B[BR] !== null || J.filter(v => v === null).length !== 1 || B.filter(v => v === null).length !== 1)
+      throw new Error('v grafu nechybějí právě Jonášovy pěnkavy a Beátiny brhlíky');
+    if (B.filter(v => v === 0).length !== 1 || J.some(v => v === 0)) throw new Error('Beáta nemá právě jeden nespatřený druh');
+    J[P] = J[SY] + B[SY] - d - B[P];                                   // pěnkav o d méně než sýkor
+    const sB = J.reduce((x, y) => x + y, 0) / 1.2;                     // Jonáš o pětinu víc než Beáta
+    return sB - B.reduce((x, y) => x + (y || 0), 0); }
 };
 const nerozp1214 = new Set(), spatne1214 = [], videno1214 = {};
 let jinySpravne = 0, mc1214 = 0;
@@ -772,14 +783,15 @@ ok(spojovnik.size === 0, 'záporná čísla mají pravé minus (−), ne spojovn
    gen14f (pozice 14, „Návštěvnost") hledala druhý měsíc s JINOU výškou
    sloupce tak, že přelosovávala jen měsíc. Když vyšlo všech pět sloupců
    stejně (1 : 38 416), cyklus neskončil. Tady se ta situace vynutí:
-   první losování vybere poslední variantu pozice 14, dalších pět dá
+   první losování vybere předposlední variantu pozice 14 (gen14f; za ní
+   je Ptačí hodinka), dalších pět dá
    sloupcům stejnou výšku. */
 {
   const puvodni = global.ri;
   let n = 0;
   global.ri = (a, b) => {
     if (++n > 100000) throw new Error('zacyklení');
-    if (n === 1) return b;                       // pick() → poslední varianta pozice 14
+    if (n === 1) return b - 1;                   // pick() → předposlední varianta pozice 14 (gen14f)
     if (n <= 6) return 7;                        // pět sloupců stejně vysokých (70)
     return Math.floor(Math.random() * (b - a + 1)) + a;
   };

@@ -3906,6 +3906,61 @@
     };
   }
 
+  // Dvojitý sloupcový graf (Jonáš a Beáta) pro Ptačí hodinku. Neznámé hodnoty
+  // (null) mají čárkovaný sloupec a „?". Hodnoty nesou data-kdo a data-druh,
+  // aby je dopočet četl z KRESBY, jako žák.
+  function svgPtaci(nazvy, J, B) {
+    const baseY = 156, maxH = 100, x0 = 34, sk = (300 - x0 - 8) / nazvy.length, bw = 17;
+    const max = Math.max(...J.concat(B).filter(v => v !== null)) || 1;
+    let out = `<svg viewBox="0 0 300 182">`
+      + `<line x1="${x0 - 6}" y1="${baseY}" x2="294" y2="${baseY}" stroke="#19e6e6" stroke-width="2"/>`
+      + `<line x1="${x0 - 6}" y1="30" x2="${x0 - 6}" y2="${baseY}" stroke="#19e6e6" stroke-width="2"/>`
+      + `<rect x="${x0 + 40}" y="8" width="12" height="12" fill="#1b6f8f" stroke="#19e6e6" stroke-width="1"/>` + txt12(x0 + 57, 18, 'Jonáš', VRCHOL, 'start')
+      + `<rect x="${x0 + 130}" y="8" width="12" height="12" fill="#0e4a6e" stroke="#19e6e6" stroke-width="1"/>` + txt12(x0 + 147, 18, 'Beáta', VRCHOL, 'start');
+    nazvy.forEach((n, i) => {
+      const gx = x0 + i * sk + (sk - 2 * bw - 3) / 2;
+      [[J[i], 'J', gx, '#1b6f8f'], [B[i], 'B', gx + bw + 3, '#0e4a6e']].forEach(([v, kdo, x, fill]) => {
+        const nezn = v === null, h = nezn ? Math.round(maxH * 0.55) : Math.round(maxH * v / max);
+        if (nezn || v > 0) out += `<rect x="${r1(x)}" y="${baseY - h}" width="${bw}" height="${h}" fill="${nezn ? '#3a2a52' : fill}" stroke="${nezn ? '#ff3d7f' : '#19e6e6'}" stroke-width="1.5"${nezn ? ' stroke-dasharray="4 3"' : ''}/>`;
+        out += `<text data-kdo="${kdo}" data-druh="${i}" x="${r1(x + bw / 2)}" y="${baseY - h - 4}" fill="${nezn ? '#ff3d7f' : '#39ff9e'}" font-size="11" font-family="monospace" text-anchor="middle">${nezn ? '?' : v}</text>`;
+      });
+      // 10 px: „červenka" (8 znaků) má ve 12 px 58 px a sloupcová skupina jen 52 px.
+      out += `<text x="${r1(x0 + i * sk + sk / 2)}" y="${baseY + 16}" fill="${VRCHOL}" font-size="10" font-family="monospace" text-anchor="middle">${n}</text>`;
+    });
+    return out + `</svg>`;
+  }
+
+  function gen14g() {
+    // 2 body — Ptačí hodinka: dvojitý sloupcový graf se dvěma neznámými (věrné M9D/2025, úloha 14; klíč A = 2)
+    /* Z grafu chybí Jonášovy pěnkavy a Beátiny brhlíky. Pěnkavy se dopočítají
+       z porovnání se sýkorami, brhlíky z toho, že Jonáš viděl o pětinu víc ptáků
+       (jeho součet je 1,2násobek Beátina). Losuje se, dokud vše nevyjde celé. */
+    const JM = ['kos černý', 'brhlík lesní', 'sýkora koňadra', 'červenka obecná', 'pěnkava obecná'], KR = ['kos', 'brhlík', 'sýkora', 'červenka', 'pěnkava'];
+    let J, B, d, sJ, sB;
+    do {
+      B = JM.map(() => ri(1, 8)); B[pick([0, 3])] = 0;
+      J = JM.map(() => ri(1, 8));
+      sB = B.reduce((x, y) => x + y, 0); sJ = 6 * sB / 5;
+      J[4] = sJ - (J[0] + J[1] + J[2] + J[3]);
+      d = J[2] + B[2] - J[4] - B[4];
+    } while (!Number.isInteger(sJ) || J[4] < 1 || J[4] > 9 || d < 2);
+    const x = B[1], ostatni = B.filter((v, i) => i !== 1 && v > 0);
+    // chyby: Jonášovy pěnkavy vynechané, „o pětinu více" jako odečtení pětiny z Jonášova součtu, Jonášův brhlík
+    const sJbez = sJ - J[4], chyby = [sJbez * 5 / 6 - (sB - x), sJ * 4 / 5 - (sB - x), J[1]].filter(v => Number.isInteger(v));
+    const jed = v => `${v} ${skl(v, 'jedinec', 'jedince', 'jedinců')}`;
+    const sh = volbyMC(x, chyby, 1, 'jiný počet jedinců', jed);
+    return {
+      no: 14, points: 2, title: 'Ptačí hodinka', kind: 'mc', okruh: 'data',
+      svg: svgPtaci(KR, J.map((v, i) => (i === 4 ? null : v)), B.map((v, i) => (i === 1 ? null : v))),
+      intro: `Jonáš a Beáta se zapojili do programu Ptačí hodinka. Každý v okolí svého krmítka sledoval výskyt ptáků (${JM.join(', ')}) v průběhu jedné vybrané hodiny. U každého ptačího druhu zaznamenali do grafu vždy nejvyšší počet jedinců spatřených najednou. Jonáš spatřil pět druhů ptáků, zatímco Beáta pouze čtyři z nich. Oba dohromady zaznamenali pěnkav o ${d} méně než sýkor. Jonáš zaznamenal celkem o pětinu více ptačích jedinců než Beáta.`,
+      prompt: `Kolik jedinců brhlíka lesního zaznamenala Beáta?`,
+      options: sh.labels, ans: sh.correctLetter,
+      sol: [`V grafu chybějí dvě hodnoty: Jonášovy pěnkavy a Beátiny brhlíky. Pěnkavy dopočítáš z porovnání se sýkorami, brhlíky z celkových počtů — „o pětinu více" znamená, že Jonášův součet je 1,2násobek Beátina.`,
+        `Sýkor dohromady ${J[2]} + ${B[2]} = ${J[2] + B[2]}, pěnkav o ${d} méně, tedy ${J[2] + B[2] - d}; Jonášových pěnkav ${J[2] + B[2] - d} − ${B[4]} = ${J[4]}. Jonáš celkem ${J.join(' + ')} = ${sJ}.`,
+        `Beáta celkem ${sJ} : 1,2 = ${sB}; bez brhlíků má ${ostatni.join(' + ')} = ${sB - x}, brhlíků tedy ${sB} − ${sB - x} = ${x}${odpovedMC(sh)}`]
+    };
+  }
+
   const O_KOLIK_VETSI = [[3, 'o třetinu'], [4, 'o čtvrtinu'], [5, 'o pětinu']];
   function gen6g() {
     // 2 body — „o třetinu větší" počítané z menšího (věrné M9A/2026, úloha 5)
@@ -3938,7 +3993,7 @@
      ──────────────────────────────────────────────────────────────── */
   const SLOTS = [
     [gen1, gen1b, gen1c, gen1d, gen1e, gen1f, gen1g, gen1h], [gen2, gen2b, gen2c, gen2d, gen2e, gen2f], [gen3, gen3b, gen3c, gen3d, gen3e, gen3f], [gen4, gen4b, gen4c, gen4d, gen4e], [gen5, gen5b, gen5c, gen5d, gen5e], [gen6, gen6b, gen6c, gen6d, gen6e, gen6f, gen6g], [gen7, gen7b, gen7c, gen7d, gen7e, gen7f], [gen8, gen8b, gen8c, gen8d, gen8e, gen8f],
-    [gen9, gen9b, gen9c, gen9d, gen9e, gen9f], [gen10, gen10b, gen10c, gen10d, gen10e, gen10f], [gen11, gen11b, gen11c, gen11d, gen11e, gen11f, gen11g, gen11h], [gen12, gen12c, gen12e, gen12f, gen12g, gen12h, gen12i, gen12j, gen12k], [gen13, gen13b, gen13c, gen13d, gen13e, gen13f, gen13g, gen13h, gen13i], [gen14, gen14b, gen14c, gen14d, gen14e, gen14f], [gen15, gen15b, gen15c, gen15d, gen15e, gen15f, gen15g, gen15h], [gen16, gen16b, gen16c, gen16d, gen16e, gen16f, gen16g, gen16h, gen16i, gen16j]
+    [gen9, gen9b, gen9c, gen9d, gen9e, gen9f], [gen10, gen10b, gen10c, gen10d, gen10e, gen10f], [gen11, gen11b, gen11c, gen11d, gen11e, gen11f, gen11g, gen11h], [gen12, gen12c, gen12e, gen12f, gen12g, gen12h, gen12i, gen12j, gen12k], [gen13, gen13b, gen13c, gen13d, gen13e, gen13f, gen13g, gen13h, gen13i], [gen14, gen14b, gen14c, gen14d, gen14e, gen14f, gen14g], [gen15, gen15b, gen15c, gen15d, gen15e, gen15f, gen15g, gen15h], [gen16, gen16b, gen16c, gen16d, gen16e, gen16f, gen16g, gen16h, gen16i, gen16j]
   ];
 
   window.RPG_CERMAT_9 = {
