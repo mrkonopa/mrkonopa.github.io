@@ -353,6 +353,30 @@ const V69 = {
   'Pravoúhlý lichoběžník': t => { const [a, c, v] = cisla(t.intro, /AB = (\d+) cm a CD = (\d+) cm[\s\S]*měří (\d+) cm/);
     return a + c + v + Math.hypot(v, a - c); },
   'Kosočtverec': t => { const [e, f] = cisla(t.intro, /e = (\d+) cm a f = (\d+) cm/); return 4 * Math.hypot(e / 2, f / 2); },
+  // ── pozice 5 ──
+  'Pozemek': (t, k) => { const [c] = cisla(t.intro, /stranou c = (\d+) m/), S = c * c;
+    if (k === '5.1') return (S / 5) / (c / 2);
+    const [p] = cisla(t.parts[1].prompt, /představuje (\d+) %/); return S - S / 5 - S * p / 100; },
+  'Zahrada': (t, k) => { const [L, W] = cisla(t.intro, /rozměry (\d+) m × (\d+) m/), S = L * W;
+    if (k === '5.1') return (S / 4) / cisla(t.parts[0].prompt, /Délka záhonu je (\d+) m/)[0];
+    const [p] = cisla(t.parts[1].prompt, /zabírá (\d+) %/); return S - S / 4 - S * p / 100; },
+  'Místnost': (t, k) => { const [L, W] = cisla(t.intro, /rozměry (\d+) m × (\d+) m/);
+    if (k === '5.1') return L * W;
+    const [a, b] = cisla(t.parts[1].prompt, /koberec (\d+) m × (\d+) m/); return L * W - a * b; },
+  'Salát podle receptu': (t, k) => { const [R, U, G, g] = cisla(t.intro, /obsahujícího (\d+) g rajčat celkem (\d+) g cukru[\s\S]*každých (\d+) g rajčat pouze (\d+) g/);
+    const rec = R / G * g; return k === '5.1' ? rec : (U - rec) / rec * 100; },
+  'Dva běžci': (t, k) => { const [DA, TA, DB, tt] = cisla(t.intro, /běžel (\d+)kilometrový okruh[\s\S]*za (\d+) minut[\s\S]*pouze (\d+)kilometrový[\s\S]*po (\d+) minutách/);
+    const zbyva = DA - DA * tt / TA, bara = DB - zbyva;                    // stejná zbývající vzdálenost
+    return k === '5.1' ? bara : tt * DB / bara; },
+  // ── pozice 10 ──
+  'Podobné trojúhelníky': t => { const [kk, s] = cisla(t.parts[0].prompt, /k = (\d+)\. Strana menšího trojúhelníku měří (\d+) cm/); return kk * s; },
+  'Měřítko mapy': t => { const [kk, d] = cisla(t.parts[0].prompt, /1 : (\d+) je úsečka dlouhá (\d+) cm/); return d * kk / 100; },
+  'Měřítko modelu': t => { const [kk, m] = cisla(t.parts[0].prompt, /měřítku 1 : (\d+)\. Na modelu měří budova (\d+) cm/); return m * kk / 100; },
+  'Mapa a trasa': t => { const [a, b, D] = cisla(t.parts[0].prompt, /(\d+(?:,\d+)?) cm na turistické mapě je ve skutečnosti (\d+) m\. Trasa je ve skutečnosti dlouhá (\d+(?:,\d+)?) km/);
+    return D * 1000 * a / b; },
+  'Plocha podle měřítka': t => { const [kk, S] = cisla(t.parts[0].prompt, /1 : ([\d ]+) má pozemek obsah (\d+) cm²/); return S * kk * kk / 10000; },
+  'Obsah podobných trojúhelníků': t => { const [o1, o2, S1] = cisla(t.parts[0].prompt, /obvody (\d+) cm a (\d+(?:,\d+)?) cm\. Menší z nich má obsah (\d+) cm²/);
+    return S1 * (o2 / o1) ** 2; },
   // ── pozice 16 ── Obrazce se tady STAVÍ (simulace), ne počítají vzorcem, který
   // používá generátor: síť se vybarvuje pole po poli, roboti běží sekundu po sekundě,
   // trojúhelníčky šestiúhelníku se počítají na mřížce.
@@ -446,7 +470,7 @@ const V69 = {
     for (let tt = 1; tt < 200; tt++) { const s = tt + D; if (kusy(s + 4, 2) === kusy(tt + 6, 3) && Number.isInteger(kusy(s + 4, 2))) return kusy(s + 4, 2); }
     throw new Error('žádná dvojice obrazců se stejným počtem'); }
 };
-const POZ69 = [5, 6, 7, 8, 15], POPIS69 = 'pozice 6–9 a 16';
+const POZ69 = [4, 5, 6, 7, 8, 9, 15], POPIS69 = 'pozice 5–10 a 16';
 const videno69 = {}, nerozp69 = new Set(), spatne69 = [];
 let podul69 = 0;
 /* Odpověď může být zlomek („5/16"): porovnává se hodnota a zlomek musí být
@@ -471,11 +495,12 @@ for (const i of POZ69) {
 const var69 = Object.keys(V69).length;
 /* Naměřeno ve třech bězích (pozice 6–9): 10 000 úloh = 22 065–22 085 podúloh,
    každá z 25 variant 317–465×. S pozicí 16 (10 variant, 2 500 úloh) přibylo
-   7 500 podúloh a každá její varianta padne ~250×. Podlahy leží pod tím
+   7 500 podúloh a každá její varianta padne ~250×; pozice 5 a 10 (11 variant)
+   přidaly dalších 7 500. Podlahy leží pod tím
    s rezervou; rozbitý los dá 0. */
 ok(Object.keys(videno69).length === var69 && Object.values(videno69).every(n => n >= 150),
   POPIS69 + ': všech ' + var69 + ' variant se v losu objevuje (podlaha 150×)', JSON.stringify(videno69));
-ok(podul69 > 27000, POPIS69 + ': dopočítáno ' + podul69 + ' podúloh (podlaha 27 000)', 'naměřeno=' + podul69);
+ok(podul69 > 34000, POPIS69 + ': dopočítáno ' + podul69 + ' podúloh (podlaha 34 000)', 'naměřeno=' + podul69);
 ok(nerozp69.size === 0, POPIS69 + ': každé zadání se dalo přečíst', [...nerozp69].slice(0, 3).join(' | '));
 ok(spatne69.length === 0, POPIS69 + ': odpověď banky se shoduje s dopočtem ze zadání',
   [...new Set(spatne69)].slice(0, 3).join(' | '));

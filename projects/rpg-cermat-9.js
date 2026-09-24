@@ -280,10 +280,12 @@
     const cel = c5 * c5;
     const domObsah = cel / 5;
     const a5 = c5 / 2; // délka domu = polovina strany
-    const b5 = Math.round(domObsah / a5); // šířka domu
-    const rybnik = Math.round(cel * ri(10, 25) / 100);
-    const volna = cel - Math.round(domObsah) - rybnik;
-    const pRybnik = Math.round(rybnik / cel * 100);
+    const b5 = domObsah / a5; // šířka domu = 2c/5 ⇒ 8/12/16 m, vždy celá
+    /* Rybníček zadaný PROCENTY, jako v ostré úloze (M9A/2025 ú. 5: 18 % → 558 m²).
+       Dřív tu podúloha rovnou prozradila „obsah domu = … a obsah rybníčku = …"
+       a zbylo jen odečítání. c² je 400/900/1600, takže p % vyjde vždy celé. */
+    const pRybnik = ri(10, 25), rybnik = cel * pRybnik / 100;
+    const volna = cel - domObsah - rybnik;
     return {
       no: 5, points: 4, title: 'Pozemek',
       svg: (function () {
@@ -293,13 +295,15 @@
       intro: `Pozemek má tvar čtverce se stranou c = ${c5} m. Na pozemku je dům (obdélník) a rybníček. Půdorys domu má obsah rovný pětině rozlohy pozemku.`,
       parts: [
         { key: '5.1', points: 2,
-          prompt: `Délka domu a je rovna polovině strany pozemku (a = ${a5} m). Určete šířku domu b (v m, zaokrouhlete na celé metry).`,
+          prompt: `Délka domu a je rovna polovině délky strany pozemku c. Určete šířku domu b (v m).`,
           ans: String(b5),
-          sol: [`Pozemek je čtverec, takže jeho obsah je strana krát strana: ${c5}² = ${cel} m².`,`Dům zabírá pětinu pozemku: ${cel} : 5 = ${domObsah} m².`,`Obdélníkový dům má obsah délka krát šířka, takže šířku dostaneš dělením: ${domObsah} : ${a5} = ${b5} m (zaokrouhleno na celé metry).`] },
+          sol: [`Pozemek je čtverec, takže jeho obsah je strana krát strana: ${c5} · ${c5} = ${cel} m².`,`Dům zabírá pětinu pozemku: ${cel} : 5 = ${domObsah} m². Jeho délka je polovina strany: a = ${c5} : 2 = ${a5} m.`,`Obdélníkový dům má obsah délka krát šířka, takže šířku dostaneš dělením: b = ${domObsah} : ${a5} = ${b5} m.`] },
         { key: '5.2', points: 2,
-          prompt: `Rybníček má rozlohu ${pRybnik} % celkové rozlohy pozemku. Vypočítejte v m² rozlohu volné části pozemku (bez domu a rybníčku). Použijte obsah domu = ${domObsah} m² a obsah rybníčku = ${rybnik} m².`,
+          prompt: `Rozloha rybníčku představuje ${pRybnik} % celkové rozlohy pozemku. Vypočítejte v m² rozlohu volné části pozemku, na níž není ani dům, ani rybníček.`,
           ans: String(volna),
-          sol: [`Volná část je to, co zbyde, když z celého pozemku odečteš dům i rybníček.`,`Obě plochy už znáš ze zadání, takže je jen odečti: ${cel} − ${domObsah} − ${rybnik} = ${volna} m².`] }
+          sol: [`Volná část je to, co zbyde, když z celého pozemku odečteš dům i rybníček. Obě plochy je proto potřeba nejdřív vyjádřit v m² — dům je pětina pozemku, rybníček daná procenta.`,
+            `Pozemek: ${c5} · ${c5} = ${cel} m². Dům: ${cel} : 5 = ${domObsah} m². Rybníček: ${cel} · ${pRybnik} : 100 = ${rybnik} m².`,
+            `Volná část: ${cel} − ${domObsah} − ${rybnik} = ${volna} m².`] }
       ]
     };
   }
@@ -798,18 +802,19 @@
     const volna = celk - zahon - cesta;
     return {
       no: 5, points: 4, title: 'Zahrada',
-      intro: `Obdélníková zahrada má rozměry ${L} m × ${W} m. Je na ní obdélníkový záhon a cesta.`,
+      intro: `Obdélníková zahrada má rozměry ${L} m × ${W} m. Je na ní obdélníkový záhon, jehož obsah je rovný čtvrtině rozlohy zahrady, a cesta.`,
       parts: [
         { key: '5.1', points: 2,
-          prompt: `Záhon má obsah rovný čtvrtině rozlohy zahrady a jeho délka je ${zL} m. Určete šířku záhonu (v m).`,
+          prompt: `Délka záhonu je ${zL} m. Určete šířku záhonu (v m).`,
           ans: String(zW),
-          sol: `Rozloha zahrady = ${L} · ${W} = ${celk} m². Obsah záhonu = čtvrtina: ${celk} : 4 = ${zahon} m². Šířka = obsah : délka = ${zahon} : ${zL} = ${zW} m.` },
+          sol: [`Šířku obdélníku dostaneš z obsahu a délky: obsah = délka · šířka, takže šířka = obsah : délka. Obsah záhonu je čtvrtina rozlohy zahrady.`,
+            `Zahrada: ${L} · ${W} = ${celk} m². Záhon: ${celk} : 4 = ${zahon} m².`,
+            `Šířka = ${zahon} : ${zL} = ${zW} m.`] },
         { key: '5.2', points: 2,
-          prompt: `Cesta zabírá ${pCesta} % rozlohy zahrady. Vypočítejte v m² volnou část zahrady (bez záhonu a cesty). Použijte obsah záhonu = ${zahon} m².`,
+          prompt: `Cesta zabírá ${pCesta} % rozlohy zahrady. Vypočítejte v m² volnou část zahrady, kde není záhon ani cesta.`,
           ans: String(volna),
-          sol: [`Nejdřív spočítej plochu cesty, teprve pak odečítej.`,
-            `Cesta je ${pCesta} % z ${celk} m²: ${celk} · ${pCesta} : 100 = ${cesta} m².`,
-            `Volná část = celková rozloha − záhon − cesta.`,
+          sol: [`Volná část = celá zahrada − záhon − cesta. Obě odečítané plochy nejdřív vyjádři v m²: záhon je čtvrtina zahrady, cesta dané procento.`,
+            `Zahrada: ${L} · ${W} = ${celk} m². Záhon: ${celk} : 4 = ${zahon} m². Cesta: ${celk} · ${pCesta} : 100 = ${cesta} m².`,
             `Volná část = ${celk} − ${zahon} − ${cesta} = ${volna} m².`] }
       ]
     };
@@ -900,7 +905,9 @@
         { key: '10', points: 2,
           prompt: `Na mapě s měřítkem 1 : ${k} je úsečka dlouhá ${dCm} cm. Jaká je skutečná vzdálenost v metrech?`,
           ans: String(realM),
-          sol: `Měřítko 1 : ${k} znamená, že 1 cm na mapě odpovídá ${k} cm ve skutečnosti. Skutečná délka = ${dCm} · ${k} = ${dCm * k} cm. Převeď na metry (: 100): ${dCm * k} : 100 = ${realM} m.` }
+          sol: [`Měřítko 1 : ${k} znamená, že 1 cm na mapě odpovídá ${k} cm ve skutečnosti — každá délka je ve skutečnosti ${k}krát větší.`,
+            `Skutečná délka v centimetrech: ${dCm} · ${k} = ${dCm * k} cm.`,
+            `Na metry (1 m = 100 cm): ${dCm * k} : 100 = ${cz(realM)} m.`] }
       ]
     };
   }
@@ -1878,9 +1885,11 @@
       intro: `Obdélníková místnost má rozměry ${L} m × ${W} m.`,
       parts: [
         { key: '5.1', points: 2, prompt: `Jaký obsah má podlaha místnosti (v m²)?`, ans: String(area),
-          sol: [`Obsah obdélníku je součin dvou sousedních stran (pozor, ne jejich součet — to je obvod).`,`Obsah = ${L} · ${W} = ${area} m².`] },
+          sol: [`Obsah obdélníku je součin dvou sousedních stran (pozor, ne jejich součet — to je obvod).`,`Sousední strany místnosti měří ${L} m a ${W} m.`,`Obsah = ${L} · ${W} = ${area} m².`] },
         { key: '5.2', points: 2, prompt: `Na podlahu položíme obdélníkový koberec ${a} m × ${b} m. Kolik m² podlahy zůstane nezakryto?`, ans: String(volna),
-          sol: `Koberec pokryje ${a} · ${b} = ${koberec} m². Nezakryto zůstane ${area} − ${koberec} = ${volna} m².` }
+          sol: [`Nezakrytá část je to, co zbyde z podlahy po odečtení koberce — obsah podlahy minus obsah koberce, obojí jako obsah obdélníku.`,
+            `Podlaha: ${L} · ${W} = ${area} m². Koberec: ${a} · ${b} = ${koberec} m².`,
+            `Nezakryto: ${area} − ${koberec} = ${volna} m².`] }
       ]
     };
   }
@@ -3251,6 +3260,116 @@
     };
   }
 
+  /* ══ Pozice 5 a 10 (2026-09-24) ══════════════════════════════════════ */
+  function gen5d() {
+    // 4 body — poměr podle receptu a „o kolik procent víc" (věrné M9B/2026, úloha 5; klíč 85 g, o 200 % více)
+    /* Procenta se počítají z množství PODLE RECEPTU. Kdo je vezme ze skutečnosti,
+       dostane jiné číslo — to je právě ta past, kvůli které úloha stojí za to. */
+    let G, g, R, rec, p, U;
+    do {
+      // G = 400 by dávalo osminy (850 : 400 = 2,125) — tři desetinná místa do postupu pro deváťáka nepatří.
+      G = pick([200, 250, 500]); g = pick([20, 25, 30, 40, 50]); R = ri(3, 20) * 50; rec = R * g / G;
+      p = pick([20, 40, 50, 60, 80, 100, 150, 200]); U = rec * (100 + p) / 100;
+    } while (!Number.isInteger(rec) || !Number.isInteger(U) || rec < 20 || R <= G);   // salát větší než „každých G g"
+    const jm = pick(['František', 'Ondřej', 'Matěj', 'Tomáš']);
+    return {
+      no: 5, points: 4, title: 'Salát podle receptu',
+      intro: `${jm} dal do svého salátu obsahujícího ${R} g rajčat celkem ${U} g cukru. Podle receptu však do salátu patří na každých ${G} g rajčat pouze ${g} g cukru.`,
+      parts: [
+        { key: '5.1', points: 2, prompt: `Vypočítejte, kolik gramů cukru měl ${jm} dát podle receptu do svého salátu.`, ans: String(rec),
+          sol: [`Recept dává poměr: ${g} g cukru na každých ${G} g rajčat. Zjisti, kolikrát se ${G} g vejde do ${R} g rajčat, a stejně tolikrát vezmi ${g} g cukru.`,
+            `${R} : ${G} = ${cz(R / G)}.`,
+            `Cukr podle receptu: ${cz(R / G)} · ${g} = ${rec} g.`] },
+        { key: '5.2', points: 2, prompt: `Vypočítejte, o kolik procent více cukru dal ${jm} do svého salátu, než měl dát podle receptu.`, ans: String(p),
+          sol: [`Procenta se počítají z hodnoty, se kterou srovnáváš — tady z množství PODLE RECEPTU (to je 100 %). Nejdřív ho tedy spočítej: ${G} g rajčat odpovídá ${g} g cukru.`,
+            `Podle receptu: ${R} : ${G} · ${g} = ${rec} g. Dal ${U} g, tedy o ${U} − ${rec} = ${U - rec} g víc.`,
+            `${U - rec} g z ${rec} g je ${U - rec} : ${rec} · 100 = ${p} %.`] }
+      ]
+    };
+  }
+
+  function gen5e() {
+    // 4 body — dva běžci, stejná zbývající vzdálenost (věrné M9A/2026, úloha 7; klíč 5 km, 54 minut)
+    const moznosti = [];
+    [8, 10, 12, 15].forEach(DA => [40, 48, 50, 60, 75].forEach(TA => [20, 24, 25, 30, 36, 40].forEach(t => {
+      if (t >= TA) return;
+      const dA = DA * t / TA, rA = DA - dA;
+      if (!Number.isInteger(dA * 2)) return;                          // Adam uběhne celé nebo půl km
+      [DA - 1, DA - 2, DA - 3].forEach(DB => {
+        const sB = DB - rA, TB = t * DB / sB;
+        if (sB > 0 && Number.isInteger(TB) && TB > t && Math.abs(TB / DB - TA / DA) > 0.01) moznosti.push([DA, TA, t, DB]);
+      });
+    })));
+    const [DA, TA, t, DB] = pick(moznosti), dA = DA * t / TA, rA = DA - dA, sB = DB - rA, TB = t * DB / sB;
+    return {
+      no: 5, points: 4, title: 'Dva běžci',
+      intro: `Adam běžel ${DA}kilometrový okruh stálým tempem a uběhl jej za ${TA} minut. Bára běžela pouze ${DB}kilometrový okruh rovněž stálým tempem (jiným než Adam). Adam i Bára vyběhli ve stejném okamžiku a po ${t} minutách běhu jim oběma zbývala do cíle stejná vzdálenost.`,
+      parts: [
+        { key: '5.1', points: 2, prompt: `Vypočítejte, kolik km uběhla Bára za ${t} minut.`, ans: String(sB),
+          sol: [`Oběma zbývá stejná vzdálenost. Tu spočítáš u Adama, jehož tempo znáš, a pak ji odečteš od délky Bářina okruhu.`,
+            `Adam za ${t} minut uběhne ${DA} · ${t} : ${TA} = ${cz(dA)} km, zbývá mu ${DA} − ${cz(dA)} = ${cz(rA)} km.`,
+            `Bára uběhla ${DB} − ${cz(rA)} = ${cz(sB)} km.`] },
+        { key: '5.2', points: 2, prompt: `Vypočítejte, za kolik minut uběhla svůj okruh Bára.`, ans: String(TB),
+          sol: [`Bára běží stálým tempem, takže čas je přímo úměrný dráze: na celý okruh potřebuje tolikrát víc času, kolikrát je okruh delší než to, co uběhla za ${t} minut.`,
+            `Za ${t} minut uběhla: Adamovi zbývá ${DA} − ${DA} · ${t} : ${TA} = ${cz(rA)} km, jí tedy ${DB} − ${cz(rA)} = ${cz(sB)} km.`,
+            `Celý okruh: ${t} · ${DB} : ${cz(sB)} = ${TB} minut.`] }
+      ]
+    };
+  }
+
+  function gen10d() {
+    // 2 body — měřítko zadané slovy (věrné M9A/2023, úloha 11: 3,5 cm na mapě = 700 m)
+    const [a, b] = pick([[3.5, 700], [2, 500], [2.5, 1000], [4, 1000], [1.5, 300], [2.5, 250]]);
+    const m1 = b / a;                                                   // metrů na 1 cm mapy
+    let D; do { D = ri(2, 24) / 2; } while (!Number.isInteger(D * 1000 / m1 * 10));
+    const naMape = D * 1000 / m1;
+    return {
+      no: 10, points: 2, title: 'Mapa a trasa',
+      parts: [
+        { key: '10', points: 2,
+          prompt: `${Number.isInteger(a) && a <= 4 ? 'Každé' : 'Každých'} ${cz(a)} cm na turistické mapě je ve skutečnosti ${b} m. Trasa je ve skutečnosti dlouhá ${cz(D)} km. Kolik centimetrů měří na mapě?`,
+          ans: String(naMape),
+          sol: [`Mapa zmenšuje všechny délky ve stejném poměru. Stačí zjistit, kolik metrů skutečnosti odpovídá JEDNOMU centimetru mapy, a trasu převést na metry.`,
+            `1 cm na mapě = ${b} : ${cz(a)} = ${m1} m; trasa ${cz(D)} km = ${cz(D)} · 1000 = ${D * 1000} m.`,
+            `Na mapě: ${D * 1000} : ${m1} = ${cz(naMape)} cm.`] }
+      ]
+    };
+  }
+
+  function gen10e() {
+    // 2 body — obsah podle měřítka: délky k-krát, obsah k·k-krát
+    const k = pick([200, 500, 1000, 2000]), S = ri(4, 40), cm2 = S * k * k, m2 = cm2 / 10000;
+    return {
+      no: 10, points: 2, title: 'Plocha podle měřítka',
+      parts: [
+        { key: '10', points: 2,
+          prompt: `Na plánu v měřítku 1 : ${tis(k)} má pozemek obsah ${S} cm². Jaká je skutečná rozloha pozemku v m²?`,
+          ans: String(m2),
+          sol: [`Měřítko platí pro DÉLKY: každá délka je ve skutečnosti ${tis(k)}krát větší. Obsah je délka krát délka, takže se zvětší ${tis(k)} · ${tis(k)} krát — násobit obsah jen číslem ${tis(k)} je nejčastější chyba.`,
+            `1 cm² plánu je čtverec 1 cm × 1 cm, ve skutečnosti ${tis(k)} cm × ${tis(k)} cm = ${tis(k * k)} cm² = ${tis(k * k / 10000)} m² (1 m² = 10 000 cm²).`,
+            `Pozemek: ${S} · ${tis(k * k / 10000)} = ${tis(m2)} m².`] }
+      ]
+    };
+  }
+
+  function gen10f() {
+    // 2 body — podobné útvary: poměr obvodů = k, poměr obsahů = k²
+    const [k, o1] = pick([[2, ri(6, 20)], [3, ri(5, 12)], [1.5, 2 * ri(5, 12)]]), o2 = k * o1;
+    let S1; do { S1 = ri(4, 30); } while (!Number.isInteger(S1 * k * k));
+    const S2 = S1 * k * k;
+    return {
+      no: 10, points: 2, title: 'Obsah podobných trojúhelníků',
+      parts: [
+        { key: '10', points: 2,
+          prompt: `Dva podobné trojúhelníky mají obvody ${o1} cm a ${cz(o2)} cm. Menší z nich má obsah ${S1} cm². Jaký obsah má větší trojúhelník (v cm²)?`,
+          ans: String(S2),
+          sol: [`U podobných útvarů jsou všechny DÉLKY (strany i obvod) v poměru koeficientu podobnosti k, ale OBSAHY v poměru k · k, protože obsah násobí dvě délky.`,
+            `k = ${cz(o2)} : ${o1} = ${cz(k)}.`,
+            `Obsah většího: ${S1} · ${cz(k)} · ${cz(k)} = ${cz(S2)} cm².`] }
+      ]
+    };
+  }
+
   const O_KOLIK_VETSI = [[3, 'o třetinu'], [4, 'o čtvrtinu'], [5, 'o pětinu']];
   function gen6g() {
     // 2 body — „o třetinu větší" počítané z menšího (věrné M9A/2026, úloha 5)
@@ -3282,8 +3401,8 @@
      vybere jednu variantu z každé pozice.
      ──────────────────────────────────────────────────────────────── */
   const SLOTS = [
-    [gen1, gen1b, gen1c, gen1d, gen1e, gen1f, gen1g, gen1h], [gen2, gen2b, gen2c, gen2d, gen2e, gen2f], [gen3, gen3b, gen3c, gen3d, gen3e, gen3f], [gen4, gen4b, gen4c, gen4d, gen4e], [gen5, gen5b, gen5c], [gen6, gen6b, gen6c, gen6d, gen6e, gen6f, gen6g], [gen7, gen7b, gen7c, gen7d, gen7e, gen7f], [gen8, gen8b, gen8c, gen8d, gen8e, gen8f],
-    [gen9, gen9b, gen9c, gen9d, gen9e, gen9f], [gen10, gen10b, gen10c], [gen11, gen11b, gen11c], [gen12, gen12b, gen12c, gen12d, gen12e], [gen13, gen13b, gen13c, gen13d], [gen14, gen14b, gen14c, gen14d, gen14e, gen14f], [gen15, gen15b, gen15c, gen15d, gen15e, gen15f, gen15g, gen15h], [gen16, gen16b, gen16c, gen16d, gen16e, gen16f, gen16g, gen16h, gen16i, gen16j]
+    [gen1, gen1b, gen1c, gen1d, gen1e, gen1f, gen1g, gen1h], [gen2, gen2b, gen2c, gen2d, gen2e, gen2f], [gen3, gen3b, gen3c, gen3d, gen3e, gen3f], [gen4, gen4b, gen4c, gen4d, gen4e], [gen5, gen5b, gen5c, gen5d, gen5e], [gen6, gen6b, gen6c, gen6d, gen6e, gen6f, gen6g], [gen7, gen7b, gen7c, gen7d, gen7e, gen7f], [gen8, gen8b, gen8c, gen8d, gen8e, gen8f],
+    [gen9, gen9b, gen9c, gen9d, gen9e, gen9f], [gen10, gen10b, gen10c, gen10d, gen10e, gen10f], [gen11, gen11b, gen11c], [gen12, gen12b, gen12c, gen12d, gen12e], [gen13, gen13b, gen13c, gen13d], [gen14, gen14b, gen14c, gen14d, gen14e, gen14f], [gen15, gen15b, gen15c, gen15d, gen15e, gen15f, gen15g, gen15h], [gen16, gen16b, gen16c, gen16d, gen16e, gen16f, gen16g, gen16h, gen16i, gen16j]
   ];
 
   window.RPG_CERMAT_9 = {
