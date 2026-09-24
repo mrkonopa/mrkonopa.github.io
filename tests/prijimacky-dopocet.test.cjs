@@ -352,11 +352,107 @@ const V69 = {
     return z * Math.sqrt(r * r - z * z / 4) / 2; },
   'Pravoúhlý lichoběžník': t => { const [a, c, v] = cisla(t.intro, /AB = (\d+) cm a CD = (\d+) cm[\s\S]*měří (\d+) cm/);
     return a + c + v + Math.hypot(v, a - c); },
-  'Kosočtverec': t => { const [e, f] = cisla(t.intro, /e = (\d+) cm a f = (\d+) cm/); return 4 * Math.hypot(e / 2, f / 2); }
+  'Kosočtverec': t => { const [e, f] = cisla(t.intro, /e = (\d+) cm a f = (\d+) cm/); return 4 * Math.hypot(e / 2, f / 2); },
+  // ── pozice 16 ── Obrazce se tady STAVÍ (simulace), ne počítají vzorcem, který
+  // používá generátor: síť se vybarvuje pole po poli, roboti běží sekundu po sekundě,
+  // trojúhelníčky šestiúhelníku se počítají na mřížce.
+  'Rámeček': (t, k) => { const [R] = cisla(t.intro, /širokým (\d+) cm/), p = t.parts.find(x => x.key === k).prompt, [w] = cisla(p, /(?:stranu|o straně) (\d+) cm/);
+    return k === '16.2' ? (w + 2 * R) ** 2 - w * w : w + 2 * R; },
+  'Obraz v rámu': (t, k) => { const [R] = cisla(t.intro, /širokým (\d+) cm/), [L, W] = cisla(t.parts[0].prompt, /rozměry (\d+) cm × (\d+) cm/);
+    if (k === '16.1') return L + 2 * R;
+    if (k === '16.2') return (L + 2 * R) * (W + 2 * R) - L * W;
+    return cisla(t.parts[2].prompt, /kratší stranu (\d+) cm/)[0] + 2 * R; },
+  'Chodník kolem bazénu': (t, k) => { const [a, b, w] = cisla(t.intro, /bazén (\d+) m × (\d+) m[\s\S]*širokým (\d+) m/);
+    return k === '16.1' ? a + 2 * w : k === '16.2' ? b + 2 * w : (a + 2 * w) * (b + 2 * w) - a * b; },
+  'Trojúhelníkové obrazce': (t, k) => {
+    const obr = []; let b = 1, s = 0;                                          // [bílé, šedé] po obrazcích
+    for (let i = 1; i <= 14; i++) { obr[i] = [b, s]; s += b; b *= 3; }        // každý bílý → 3 bílé + 1 šedý
+    const p = t.parts.find(x => x.key === k).prompt;
+    if (k === '16.1') return obr[cisla(p, /obsahuje (\d+)\. obrazec/)[0]][0];
+    if (k === '16.2') { const [m, G] = cisla(p, /^(\d+)\. obrazec obsahuje (\d+) šedých/);
+      if (obr[m][1] !== G) throw new Error(m + '. obrazec má ' + obr[m][1] + ' šedých, zadání tvrdí ' + G);
+      return obr[m + 1][1]; }
+    const [D] = cisla(p, /liší o ([\d ]+)\./), i = obr.findIndex((o, j) => j > 1 && o && o[1] - obr[j - 1][1] === D);
+    if (i < 0) throw new Error('rozdíl ' + D + ' neodpovídá žádné dvojici obrazců');
+    return obr[i][0]; },
+  'Roboti a míčky': (t, k) => {
+    const RAD = { druhé: 2, třetí: 3, čtvrté: 4, páté: 5, šesté: 6 }, POR = { desáté: 10, dvacáté: 20, třicáté: 30 };
+    const m = t.intro.match(/v každé (\S+) sekundě (\d+) míč\S* najednou a Pat v každé (\S+) sekundě z nádoby (\d+) míč/);
+    const [p, dp, r, dr] = [RAD[m[1]], +m[2], RAD[m[3]], +m[4]];
+    const stav = [0], zm = [0];
+    for (let s = 1; s <= 400; s++) { zm[s] = 1 + (s % p === 0 ? dp : 0) - (s % r === 0 ? dr : 0); stav[s] = stav[s - 1] + zm[s]; }
+    const pr = t.parts.find(x => x.key === k).prompt;
+    if (k === '16.1') return stav[cisla(pr, /na konci (\d+)\. sekundy/)[0]];
+    if (k === '16.2') { const [X] = cisla(pr, /překročil (\d+)/); return stav.findIndex(v => v > X); }
+    const mm = pr.match(/zvětšil celkem o (\d+)\.[\s\S]*právě po (\S+)\./);
+    let n = 0; for (let s = 1; s <= 400; s++) if (zm[s] === +mm[1] && ++n === POR[mm[2]]) return stav[s];
+    throw new Error('zvětšení o ' + mm[1] + ' nenastalo dost často'); },
+  'Vkládané čtverce': (t, k) => {
+    const obrazec = n => {                                                     // díly: {barva, obsah}
+      const d = []; for (let j = 1; j < n; j++) for (let i = 0; i < 4; i++) d.push({ bila: j % 2 === 1, obsah: 1 / 2 ** (j + 2) });   // čtverec j má 1/2^(j−1), jeho 4 rohy dohromady polovinu
+      d.push({ bila: n % 2 === 1, obsah: 1 / 2 ** (n - 1) }); return d; };
+    const pr = t.parts.find(x => x.key === k).prompt;
+    if (k === '16.1') return obrazec(cisla(pr, /obsahuje (\d+)\. obrazec/)[0]).filter(x => !x.bila).length;
+    if (k === '16.2') { const [W] = cisla(pr, /obsahuje (\d+) bílých/); for (let n = 1; n < 300; n++) if (obrazec(n).filter(x => x.bila).length === W) return n; }
+    const d = obrazec(cisla(pr, /obsahu (\d+)\. obrazce/)[0]);
+    const celk = d.reduce((a, x) => a + x.obsah, 0);
+    if (Math.abs(celk - 1) > 1e-12) throw new Error('díly nedávají celý obrazec: ' + celk);
+    return d.filter(x => !x.bila).reduce((a, x) => a + x.obsah, 0); },
+  'Šestiúhelníkové obrazce': (t, k) => {
+    const pocet = n => { let bi = 0, se = 0; const r3 = Math.sqrt(3);          // trojúhelníčky uvnitř šestiúhelníku o straně n
+      for (let j = -2 * n; j < 2 * n; j++) for (let i = -3 * n; i <= 3 * n; i++) [[0, 1 / 3, 1 / 3], [1, 2 / 3, 2 / 3]].forEach(([dn, dx, dy]) => {
+        const x = i + dx + (j + dy) / 2, y = (j + dy) * r3 / 2;
+        if (Math.abs(y) <= n * r3 / 2 && r3 * Math.abs(x) + Math.abs(y) <= r3 * n) { if (dn) se++; else bi++; } });
+      return { bi, se }; };
+    const pr = t.parts.find(x => x.key === k).prompt;
+    if (k === '16.1') { const [n] = cisla(pr, /pás (\d+)\. obrazce/), a = pocet(n), b = pocet(n - 1); return a.bi + a.se - b.bi - b.se; }
+    if (k === '16.2') return pocet(cisla(pr, /celý (\d+)\. obrazec/)[0]).se;
+    const [G] = cisla(pr, /pásu (\d+) šedých/);
+    for (let n = 1; n < 120; n++) if (pocet(n).se - pocet(n - 1).se === G) return n;
+    throw new Error('žádný obrazec nemá v pásu ' + G + ' šedých'); },
+  'Vybarvování sítě': (t, k) => {
+    const pole = new Map([['0,0', 1]]), pridano = [0, 1];                     // pole → pořadí obrazce, kdy přibylo
+    for (let n = 2; n <= 40; n++) {
+      const nova = [];
+      for (const kl of pole.keys()) { const [x, y] = kl.split(',').map(Number);
+        for (const [dx, dy] of [[1, 1], [1, -1], [-1, 1], [-1, -1]]) { const c = (x + dx) + ',' + (y + dy);
+          if (pole.has(c) || nova.includes(c)) continue;
+          const [cx, cy] = [x + dx, y + dy];
+          if (![[1, 0], [-1, 0], [0, 1], [0, -1]].some(([ex, ey]) => pole.has((cx + ex) + ',' + (cy + ey)))) nova.push(c); } }
+      nova.forEach(c => pole.set(c, n)); pridano[n] = nova.length;
+    }
+    const barvy = n => { let sv = 0, tm = 0; for (const v of pole.values()) if (v <= n) { if (v % 2) sv++; else tm++; } return { sv, tm }; };
+    const pr = t.parts.find(x => x.key === k).prompt;
+    if (k === '16.1') return pridano[cisla(pr, /jsme z (\d+)\. obrazce/)[0] + 1];
+    if (k === '16.2') { const b = barvy(cisla(pr, /v (\d+)\. obrazci/)[0]); return Math.abs(b.sv - b.tm); }
+    const [D] = cisla(pr, /má (\d+) tmavých/);
+    for (let n = 2; n <= 40; n += 2) if (barvy(n).tm === D) return barvy(n).sv;
+    throw new Error('žádný sudý obrazec nemá ' + D + ' tmavých polí'); },
+  'Mirek a Zuzka': (t, k) => {
+    const sl = []; for (let m = 1; m <= 1000; m++) { sl.push(m); if (m % 2 === 0) sl.push(m - 1 + m); }
+    const pr = t.parts.find(x => x.key === k).prompt;
+    if (k === '16.1') { const [a] = cisla(pr, /mezi čísly (\d+) a/); const i = sl.findIndex((v, j) => v === a && sl[j + 2] === a + 1); return sl[i + 1]; }
+    if (k === '16.2') { const [P] = cisla(pr, /Jako (\d+)\./), C = sl[P - 1], j = sl.indexOf(C, P); return sl[j - 1]; }
+    const [L] = cisla(pr, /prvními (\d+) vyslovenými/), cet = {};
+    sl.slice(0, L).forEach(v => { cet[v] = (cet[v] || 0) + 1; });
+    return Math.max(...Object.keys(cet).filter(v => cet[v] >= 2).map(Number)); },
+  // Počet obdélníčků z OBSAHU pásu (obrazec² − bílý čtverec²) : 6, ne z délky řady jako generátor.
+  'Obrazce z obdélníčků': (t, k) => {
+    const kusy = (O, w) => (O * O - (O - 2 * w) ** 2) / 6;                    // tmavý pás w = 2, světlý w = 3
+    const pr = t.parts.find(x => x.key === k).prompt;
+    if (k === '16.1') return kusy(cisla(pr, /tmavého obrazce je (\d+) cm/)[0], 2);
+    if (k === '16.2') { const [B] = cisla(pr, /obrazce je (\d+) cm/); return Math.abs(kusy(B, 2) - kusy(B, 3)); }
+    const [D] = cisla(pr, /liší o (\d+) cm/);
+    for (let tt = 1; tt < 200; tt++) { const s = tt + D; if (kusy(s + 4, 2) === kusy(tt + 6, 3) && Number.isInteger(kusy(s + 4, 2))) return kusy(s + 4, 2); }
+    throw new Error('žádná dvojice obrazců se stejným počtem'); }
 };
+const POZ69 = [5, 6, 7, 8, 15], POPIS69 = 'pozice 6–9 a 16';
 const videno69 = {}, nerozp69 = new Set(), spatne69 = [];
 let podul69 = 0;
-for (const i of [5, 6, 7, 8]) {
+/* Odpověď může být zlomek („5/16"): porovnává se hodnota a zlomek musí být
+   v základním tvaru, jak zadání žádá. */
+const hodnota = s => { const m = String(s).match(/^(\d+)\/(\d+)$/); return m ? m[1] / m[2] : cislo(s); };
+for (const i of POZ69) {
   for (let b = 0; b < 2500; b++) {
     const t = C.genSlot(i), f = V69[t.title];
     if (!f) { nerozp69.add('pozice ' + (i + 1) + ': „' + t.title + '"'); continue; }
@@ -365,18 +461,23 @@ for (const i of [5, 6, 7, 8]) {
       podul69++;
       let ceka;
       try { ceka = f(t, p.key); } catch (e) { nerozp69.add(t.title + ' ' + p.key + ': ' + e.message); return; }
-      if (!Number.isFinite(ceka) || !blizko(ceka, cislo(p.ans)))
+      const zl = String(p.ans).match(/^(\d+)\/(\d+)$/);
+      if (zl && gcd(+zl[1], +zl[2]) !== 1) spatne69.push(t.title + ' ' + p.key + ': zlomek ' + p.ans + ' není v základním tvaru');
+      if (!Number.isFinite(ceka) || !blizko(ceka, hodnota(p.ans)))
         spatne69.push(t.title + ' ' + p.key + ': banka ' + p.ans + ', ze zadání ' + ceka + ' — „' + String(t.intro || p.prompt).slice(0, 70) + '"');
     });
   }
 }
-/* Naměřeno ve třech bězích: 10 000 úloh = 22 065–22 085 podúloh, každá z 25
-   variant 317–465×. Podlahy leží pod tím s rezervou; rozbitý los dá 0. */
-ok(Object.keys(videno69).length === 25 && Object.values(videno69).every(n => n >= 150),
-  'pozice 6–9: všech 25 variant se v losu objevuje (podlaha 150×)', JSON.stringify(videno69));
-ok(podul69 > 20000, 'pozice 6–9: dopočítáno ' + podul69 + ' podúloh (podlaha 20 000)', 'naměřeno=' + podul69);
-ok(nerozp69.size === 0, 'pozice 6–9: každé zadání se dalo přečíst', [...nerozp69].slice(0, 3).join(' | '));
-ok(spatne69.length === 0, 'pozice 6–9: odpověď banky se shoduje s dopočtem ze zadání',
+const var69 = Object.keys(V69).length;
+/* Naměřeno ve třech bězích (pozice 6–9): 10 000 úloh = 22 065–22 085 podúloh,
+   každá z 25 variant 317–465×. S pozicí 16 (10 variant, 2 500 úloh) přibylo
+   7 500 podúloh a každá její varianta padne ~250×. Podlahy leží pod tím
+   s rezervou; rozbitý los dá 0. */
+ok(Object.keys(videno69).length === var69 && Object.values(videno69).every(n => n >= 150),
+  POPIS69 + ': všech ' + var69 + ' variant se v losu objevuje (podlaha 150×)', JSON.stringify(videno69));
+ok(podul69 > 27000, POPIS69 + ': dopočítáno ' + podul69 + ' podúloh (podlaha 27 000)', 'naměřeno=' + podul69);
+ok(nerozp69.size === 0, POPIS69 + ': každé zadání se dalo přečíst', [...nerozp69].slice(0, 3).join(' | '));
+ok(spatne69.length === 0, POPIS69 + ': odpověď banky se shoduje s dopočtem ze zadání',
   [...new Set(spatne69)].slice(0, 3).join(' | '));
 
 /* ═══ B) ROVNOSTI V POSTUPECH — celý test ═══════════════════════════

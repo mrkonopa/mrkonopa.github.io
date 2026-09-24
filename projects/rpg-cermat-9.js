@@ -587,9 +587,11 @@
         { key: '16.1', points: 2, prompt: `Bílý čtverec má stranu ${w1} cm. Jaká je délka strany CELÉHO obrázku i s rámem (v cm)?`, ans: String(side(w1)),
           sol: [`Rám obepíná obrázek dokola, takže na KAŽDÉ straně přidá ${RAM} cm — na jedné straně i na protější.`,`Ke straně se proto přičítá dvakrát ${RAM} cm, tedy ${2 * RAM} cm.`,`Strana obrázku = ${w1} + ${2 * RAM} = ${side(w1)} cm.`] },
         { key: '16.2', points: 1, prompt: `Jaký obsah má samotný rám u obrázku s bílým čtvercem o straně ${w1} cm (v cm²)?`, ans: String(frameArea(w1)),
-          sol: [`Rám je mezikruží — plocha, která zbyde, když z celého obrázku vyjmeš bílý čtverec uprostřed.`,`Obsah celého obrázku: ${side(w1)}² = ${side(w1) * side(w1)} cm².`,`Obsah bílého čtverce: ${w1}² = ${w1 * w1} cm².`,`Obsah rámu = ${side(w1) * side(w1)} − ${w1 * w1} = ${frameArea(w1)} cm².`] },
+          /* „Rám je mezikruží" stálo tu dřív — mezikruží je ale plocha mezi dvěma
+             KRUŽNICEMI; čtvercový rám je to, co zbyde ze čtverce po vyjmutí menšího. */
+          sol: [`Rám je plocha, která zbyde, když z celého obrázku (velký čtverec) vyjmeš bílý čtverec uprostřed — jeho obsah je tedy rozdíl dvou obsahů.`,`Obsah celého obrázku: ${side(w1)} · ${side(w1)} = ${side(w1) * side(w1)} cm².`,`Obsah bílého čtverce: ${w1} · ${w1} = ${w1 * w1} cm².`,`Obsah rámu = ${side(w1) * side(w1)} − ${w1 * w1} = ${frameArea(w1)} cm².`] },
         { key: '16.3', points: 1, prompt: `Jaká je délka strany celého obrázku, má-li bílý čtverec stranu ${w3} cm (v cm)?`, ans: String(side(w3)),
-          sol: [`Postupuj stejně jako v předchozí podúloze — rám přidá ${RAM} cm na obou protějších stranách.`,`Strana obrázku = ${w3} + ${2 * RAM} = ${side(w3)} cm.`] }
+          sol: [`Rám obepíná obrázek dokola, takže na KAŽDÉ straně přidá ${RAM} cm — stranu celého obrázku prodlouží na obou koncích.`,`Přičítá se tedy 2 · ${RAM} = ${2 * RAM} cm.`,`Strana obrázku = ${w3} + ${2 * RAM} = ${side(w3)} cm.`] }
       ]
     };
   }
@@ -993,9 +995,11 @@
         { key: '16.1', points: 2, prompt: `Obraz má rozměry ${L} cm × ${W} cm. Jaká je délka celého obrazu i s rámem podél jeho DELŠÍ strany (v cm)?`, ans: String(outL(L)),
           sol: [`Rám obepíná obraz dokola, takže délku strany prodlouží na OBOU koncích o ${RAM} cm.`,`Přičítá se tedy dvakrát ${RAM} cm, tedy ${2 * RAM} cm.`,`Vnější délka = ${L} + ${2 * RAM} = ${outL(L)} cm.`] },
         { key: '16.2', points: 1, prompt: `Jaký obsah má samotný rám (v cm²)?`, ans: String(frameArea),
-          sol: `Obsah celého obrazu i s rámem = ${outL(L)} · ${outL(W)} = ${outL(L) * outL(W)} cm². Obsah samotného obrazu = ${L} · ${W} = ${L * W} cm². Rám = ${outL(L) * outL(W)} − ${L * W} = ${frameArea} cm².` },
+          sol: [`Rám je to, co zbyde z celého obdélníku (obraz i s rámem), když z něj vyjmeš samotný obraz — obsah rámu je rozdíl dvou obsahů. Pozor: oba rozměry celku jsou o 2 · ${RAM} cm větší.`,
+            `Obsah celku: ${outL(L)} · ${outL(W)} = ${outL(L) * outL(W)} cm². Obsah obrazu: ${L} · ${W} = ${L * W} cm².`,
+            `Rám = ${outL(L) * outL(W)} − ${L * W} = ${frameArea} cm².`] },
         { key: '16.3', points: 1, prompt: `Jiný obraz má kratší stranu ${W3} cm. Jaká je délka celého obrazu i s rámem podél této strany (v cm)?`, ans: String(outL(W3)),
-          sol: [`Postupuj stejně jako u předchozí strany — rám přidá ${RAM} cm na obou koncích.`,`Vnější rozměr = ${W3} + ${2 * RAM} = ${outL(W3)} cm.`] }
+          sol: [`Rám obepíná obraz dokola, takže každý jeho rozměr prodlouží na OBOU koncích o šířku rámu ${RAM} cm.`,`Přičítá se tedy 2 · ${RAM} = ${2 * RAM} cm.`,`Vnější rozměr = ${W3} + ${2 * RAM} = ${outL(W3)} cm.`] }
       ]
     };
   }
@@ -1819,11 +1823,13 @@
       intro: `Obdélníkový bazén ${a} m × ${b} m je ze všech stran obklopen chodníkem širokým ${w} m.`,
       parts: [
         { key: '16.1', points: 2, prompt: `Jaká je celková délka obrazce (bazén i s chodníkem) podél delší strany bazénu (v m)?`, ans: String(oa),
-          sol: [`Chodník obepíná bazén dokola, takže každý rozměr prodlouží na OBOU koncích o ${w} m.`,`Vnější rozměr = ${a} + 2 · ${w} = ${oa} m.`] },
+          sol: [`Chodník obepíná bazén dokola, takže každý rozměr prodlouží na OBOU koncích o šířku chodníku ${w} m.`,`Delší strana bazénu měří ${a} m.`,`Vnější rozměr = ${a} + 2 · ${w} = ${oa} m.`] },
         { key: '16.2', points: 1, prompt: `Jaká je celková šířka obrazce (bazén i s chodníkem, v m)?`, ans: String(ob),
-          sol: [`Druhý rozměr se prodlouží úplně stejně — na obou koncích o ${w} m.`,`Vnější rozměr = ${b} + 2 · ${w} = ${ob} m.`] },
+          sol: [`Chodník obepíná bazén ze všech stran, takže se i druhý rozměr prodlouží na obou koncích o šířku chodníku ${w} m.`,`Kratší strana bazénu měří ${b} m.`,`Vnější rozměr = ${b} + 2 · ${w} = ${ob} m.`] },
         { key: '16.3', points: 1, prompt: `Jaký obsah má samotný chodník (v m²)?`, ans: String(chodnik),
-          sol: `Obsah celku = ${oa}·${ob} = ${oa * ob} m². Minus bazén ${a}·${b} = ${a * b} m². Chodník = ${oa * ob} − ${a * b} = ${chodnik} m².` }
+          sol: [`Chodník je to, co zbyde z velkého obdélníku (bazén i s chodníkem), když z něj vyjmeš bazén — jeho obsah je rozdíl dvou obsahů.`,
+            `Celek: ${oa} · ${ob} = ${oa * ob} m². Bazén: ${a} · ${b} = ${a * b} m².`,
+            `Chodník = ${oa * ob} − ${a * b} = ${chodnik} m².`] }
       ]
     };
   }
@@ -2961,6 +2967,290 @@
     };
   }
 
+  /* ══ Pozice 16: obrazce a posloupnosti (ostrá úloha 16, 2026-09-24) ══
+     V ostrých testech je úloha 16 skoro vždy „nestandardní": obrazce, které
+     rostou podle pravidla, nebo děj krok po kroku. Všech sedm nových variant
+     je ověřených proti klíčům (M9A/2023, M9B/2023, M9A/2025, M9C/2025,
+     M9A/2026, M9B/2026; M9B/2025 dopočtem). Barvy: BILA a SEDA vyjdou ve
+     světlém motivu přijímaček jako bílá a šedá (PZ.themeSvg, SVG_MAP). */
+  const BILA = '#1b2742', SEDA = '#8a9bc4', TMAVA = '#1b6f8f';
+  const HORNI = ['⁰', '¹', '²', '³', '⁴', '⁵', '⁶', '⁷', '⁸', '⁹'];
+  const mocnina = (z, e) => z + String(e).split('').map(c => HORNI[+c]).join('');
+  const poly = (body, fill) => `<polygon points="${body.map(b => r1(b.x) + ',' + r1(b.y)).join(' ')}" fill="${fill}" stroke="${CARA}" stroke-width="1"/>`;
+
+  // M9A/2023: bílý trojúhelník, každý bílý se dělí na 4 a prostřední zešedne. Obrazce 1–3.
+  function svgSierpinski() {
+    const s = 84, h = s * Math.sqrt(3) / 2;
+    let out = `<svg viewBox="0 0 300 118">`;
+    const tri = (A, B, C, hl) => {
+      if (!hl) { out += poly([A, B, C], BILA); return; }
+      const ab = bod((A.x + B.x) / 2, (A.y + B.y) / 2), bc = bod((B.x + C.x) / 2, (B.y + C.y) / 2), ca = bod((C.x + A.x) / 2, (C.y + A.y) / 2);
+      out += poly([ab, bc, ca], SEDA);
+      tri(A, ab, ca, hl - 1); tri(ab, B, bc, hl - 1); tri(ca, bc, C, hl - 1);
+    };
+    [0, 1, 2].forEach(k => {
+      const x0 = 12 + k * 96, y0 = 8 + h;
+      tri(bod(x0, y0), bod(x0 + s, y0), bod(x0 + s / 2, y0 - h), k);
+      out += napis(x0 + s / 2, y0 + 18, (k + 1) + '. obrazec', VRCHOL);
+    });
+    return out + `</svg>`;
+  }
+  // M9B/2026: do čtverce se vkládá čtverec s vrcholy ve středech stran, střídavě šedý a bílý. Obrazce 1–4.
+  function svgVkladane() {
+    const a = 60;
+    let out = `<svg viewBox="0 0 300 96">`;
+    [1, 2, 3, 4].forEach(n => {
+      const x0 = 12 + (n - 1) * 72, y0 = 6;
+      let q = [bod(x0, y0), bod(x0 + a, y0), bod(x0 + a, y0 + a), bod(x0, y0 + a)];
+      out += poly(q, BILA);
+      for (let j = 2; j <= n; j++) {
+        q = q.map((P, i) => bod((P.x + q[(i + 1) % 4].x) / 2, (P.y + q[(i + 1) % 4].y) / 2));
+        out += poly(q, j % 2 === 0 ? SEDA : BILA);
+      }
+      out += napis(x0 + a / 2, y0 + a + 20, n + '.', VRCHOL);   // „1. obrazec" je širší než rozteč 72 px a popisky se překrývaly
+    });
+    return out + `</svg>`;
+  }
+  // M9C/2025: šestiúhelník z trojúhelníčků, sousední mají různou barvu. Obrazce 1–3.
+  function svgSestiuhelnik() {
+    const s = 11, v = s * Math.sqrt(3) / 2, cy = 42, r3 = Math.sqrt(3);
+    let out = `<svg viewBox="0 0 300 100">`;
+    [[1, 44], [2, 130], [3, 240]].forEach(([n, cx]) => {
+      const R = n * s, P = (a, b) => bod(cx + (a + b / 2) * s, cy + b * v);
+      for (let j = -2 * n; j < 2 * n; j++) for (let i = -3 * n; i <= 3 * n; i++) {
+        [[P(i, j), P(i + 1, j), P(i, j + 1), BILA], [P(i + 1, j), P(i + 1, j + 1), P(i, j + 1), SEDA]].forEach(([A, B, C, f]) => {
+          const tx = (A.x + B.x + C.x) / 3 - cx, ty = (A.y + B.y + C.y) / 3 - cy;
+          if (Math.abs(ty) <= R * r3 / 2 && r3 * Math.abs(tx) + Math.abs(ty) <= r3 * R) out += poly([A, B, C], f);
+        });
+      }
+      out += napis(cx, 92, n + '. obrazec', VRCHOL);
+    });
+    return out + `</svg>`;
+  }
+  // M9A/2025: bílý čtverec v pásu z obdélníčků 2 × 3 cm „do mlýnku" — tmavý (úzký pás) a světlý (široký).
+  function svgObdelnicky() {
+    const k = 8;
+    let out = `<svg viewBox="0 0 300 128">`;
+    const pas = (x0, y0, s, w, l, fill) => {
+      const O = (s + 2 * w) * k, W = w * k, Lk = l * k, m = (s + w) / l, L = x0, T = y0, R = x0 + O, B = y0 + O;
+      out += `<rect x="${L}" y="${T}" width="${O}" height="${O}" fill="${BILA}" stroke="${CARA}" stroke-width="1"/>`;
+      for (let i = 0; i < m; i++) {
+        out += `<rect x="${L + i * Lk}" y="${T}" width="${Lk}" height="${W}" fill="${fill}" stroke="${CARA}" stroke-width="1"/>`
+          + `<rect x="${R - W}" y="${T + i * Lk}" width="${W}" height="${Lk}" fill="${fill}" stroke="${CARA}" stroke-width="1"/>`
+          + `<rect x="${R - (i + 1) * Lk}" y="${B - W}" width="${Lk}" height="${W}" fill="${fill}" stroke="${CARA}" stroke-width="1"/>`
+          + `<rect x="${L}" y="${B - (i + 1) * Lk}" width="${W}" height="${Lk}" fill="${fill}" stroke="${CARA}" stroke-width="1"/>`;
+      }
+      return O;
+    };
+    const O1 = pas(24, 8, 4, 2, 3, TMAVA), O2 = pas(160, 8, 5, 3, 2, BILA);
+    return out + napis(24 + O1 / 2, 8 + O2 + 16, 'tmavý', VRCHOL) + napis(160 + O2 / 2, 8 + O2 + 16, 'světlý', VRCHOL) + `</svg>`;
+  }
+
+  function gen16d() {
+    // 4 body — trojúhelníkové obrazce (věrné M9A/2023, úloha 16; klíč 81, 364, 19 683)
+    const k = ri(4, 6), m = ri(5, 7), n = ri(8, 10);
+    const bile = i => 3 ** (i - 1), sede = i => (3 ** (i - 1) - 1) / 2, D = 3 ** (n - 2);
+    return {
+      no: 16, points: 4, title: 'Trojúhelníkové obrazce',
+      svg: svgSierpinski(),
+      intro: `Prvním obrazcem je bílý rovnostranný trojúhelník. Každý další obrazec vznikne z předchozího obrazce podle následujících pravidel: 1. Nejprve každý bílý trojúhelník v obrazci rozdělíme na 4 shodné rovnostranné trojúhelníky. 2. Poté v každé takto vzniklé čtveřici bílých trojúhelníků obarvíme vnitřní trojúhelník na šedo.`,
+      parts: [
+        { key: '16.1', points: 1, prompt: `Určete, kolik bílých trojúhelníků obsahuje ${k}. obrazec.`, ans: String(bile(k)),
+          sol: [`Každý bílý trojúhelník se v dalším obrazci rozpadne na 4 menší: tři krajní zůstanou bílé a prostřední zešedne. Počet bílých se tedy s každým obrazcem ZTROJNÁSOBÍ.`,
+            `1. obrazec má 1 bílý trojúhelník, každý další třikrát víc: 1${' · 3'.repeat(k - 1)} = ${bile(k)}.`,
+            `${k}. obrazec obsahuje ${bile(k)} bílých trojúhelníků.`] },
+        { key: '16.2', points: 1, prompt: `${m}. obrazec obsahuje ${sede(m)} šedých trojúhelníků. Určete, kolik šedých trojúhelníků obsahuje ${m + 1}. obrazec.`, ans: String(sede(m) + bile(m)),
+          sol: [`Při přechodu k dalšímu obrazci vznikne z KAŽDÉHO bílého trojúhelníku právě jeden nový šedý. Šedých tedy přibude tolik, kolik bylo v předchozím obrazci bílých.`,
+            `${m}. obrazec má ${mocnina(3, m - 1)} = ${bile(m)} bílých trojúhelníků (bílých se každým krokem ztrojnásobí).`,
+            `Šedých v ${m + 1}. obrazci: ${sede(m)} + ${bile(m)} = ${sede(m) + bile(m)}.`] },
+        { key: '16.3', points: 2, prompt: `Počet šedých trojúhelníků v posledním a v předposledním obrazci se liší o ${tis(D)}. Určete, kolik bílých trojúhelníků obsahuje poslední obrazec.`, ans: String(3 * D),
+          sol: [`Rozdíl počtu šedých mezi dvěma po sobě jdoucími obrazci je počet bílých v tom PŘEDCHOZÍM — z každého jeho bílého trojúhelníku vznikl jeden šedý.`,
+            `Předposlední obrazec má tedy ${tis(D)} bílých trojúhelníků.`,
+            `V posledním se bílých ztrojnásobí: 3 · ${tis(D)} = ${tis(3 * D)}.`] }
+      ]
+    };
+  }
+
+  const RADOVE = { 2: 'druhé', 3: 'třetí', 4: 'čtvrté', 5: 'páté', 6: 'šesté' };
+  const PORADI = { 10: 'desáté', 20: 'dvacáté', 30: 'třicáté' };
+  function gen16e() {
+    // 4 body — roboti plní a vybírají nádobu (věrné M9A/2026, úloha 16; klíč 18, 28. s, 78)
+    /* Dok přidá p míčků každou p-tou sekundu, Pat odebere r každou r-tou. Dvojice
+       jsou vybrané tak, aby změna o 1 + p byla JEDNOZNAČNÁ: jiná sekunda dá 1,
+       1 − r nebo 1 + p − r a žádná z nich nemá stejnou velikost jako 1 + p. */
+    const [p, r] = pick([[2, 5], [3, 4], [3, 6]]), c = 1 + p;
+    const zmena = t => 1 + (t % p ? 0 : p) - (t % r ? 0 : r);
+    const stav = t => t + p * Math.floor(t / p) - r * Math.floor(t / r);
+    const T1 = ri(11, 19), X = pick([20, 25, 30, 35]), N = pick([10, 20, 30]);
+    let tX = 1; while (stav(tX) <= X) tX++;
+    let kolik = 0, tN = 0; while (kolik < N) { tN++; if (zmena(tN) === c) kolik++; }
+    const pr3 = [];
+    for (let t = 1; pr3.length < 4; t++) if (zmena(t) === c) pr3.push(t);
+    const mic = n => skl(n, 'míček', 'míčky', 'míčků');
+    return {
+      no: 16, points: 4, title: 'Roboti a míčky',
+      intro: `Po spuštění automatu začali dva roboti Jas a Dok plnit prázdnou nádobu míčky a třetí robot Pat začal míčky odebírat. Jas dal do nádoby v každé sekundě 1 míček, Dok dal do nádoby v každé ${RADOVE[p]} sekundě ${p} ${mic(p)} najednou a Pat v každé ${RADOVE[r]} sekundě z nádoby ${r} ${mic(r)} najednou odebral.`,
+      parts: [
+        { key: '16.1', points: 1, prompt: `Určete počet míčků v nádobě na konci ${T1}. sekundy po spuštění automatu.`, ans: String(stav(T1)),
+          sol: [`Roboti jednají nezávisle, takže stačí sečíst, kolik míčků za ${T1} sekund každý přidal nebo odebral. Kolikrát robot zasáhl, je počet násobků jeho periody mezi 1 a ${T1}.`,
+            `Jas: ${T1} míčků. Dok zasáhl ${Math.floor(T1 / p)}krát: ${Math.floor(T1 / p)} · ${p} = ${p * Math.floor(T1 / p)}. Pat zasáhl ${Math.floor(T1 / r)}krát: ${Math.floor(T1 / r)} · ${r} = ${r * Math.floor(T1 / r)}.`,
+            `V nádobě: ${T1} + ${p * Math.floor(T1 / p)} − ${r * Math.floor(T1 / r)} = ${stav(T1)} ${mic(stav(T1))}.`] },
+        { key: '16.2', points: 1, prompt: `Určete, v kolikáté sekundě po spuštění počet míčků v nádobě poprvé překročil ${X}.`, ans: String(tX),
+          sol: [`Počet míčků neroste rovnoměrně — v sekundě, kdy odebírá Pat, klesne. Proto nestačí dělit; stav v okolí hledaného okamžiku je potřeba sledovat sekundu po sekundě.`,
+            `Stav na konci sekundy t je t + ${p} · (počet násobků ${p}) − ${r} · (počet násobků ${r}): ${tX - 2}. s → ${stav(tX - 2)}, ${tX - 1}. s → ${stav(tX - 1)}, ${tX}. s → ${stav(tX)}.`,
+            `Poprvé je v nádobě víc než ${X} míčků na konci ${tX}. sekundy (${stav(tX)} ${mic(stav(tX))}), dřív nikdy.`] },
+        { key: '16.3', points: 2, prompt: `V některých sekundách se oproti předchozí sekundě počet míčků v nádobě zvětšil celkem o ${c}. Určete počet míčků v nádobě v okamžiku, kdy k tomuto zvětšení došlo právě po ${PORADI[N]}.`, ans: String(stav(tN)),
+          sol: [`Zvětšení o ${c} nastane jen v sekundě, kdy přidá Jas i Dok (1 + ${p} = ${c}) a Pat nic neodebere — tedy v násobcích ${p}, které nejsou násobky ${r}.`,
+            `Takové sekundy jdou ${pr3.join(', ')}, …; ${N}. z nich je ${tN}. sekunda.`,
+            `Na konci ${tN}. sekundy je v nádobě ${tN} + ${p} · ${Math.floor(tN / p)} − ${r} · ${Math.floor(tN / r)} = ${stav(tN)} ${mic(stav(tN))}.`] }
+      ]
+    };
+  }
+
+  function gen16f() {
+    // 4 body — vkládané čtverce (věrné M9B/2026, úloha 16; klíč 17, 45. obrazec, 5/16)
+    /* Vnitřní čtverec n-tého obrazce je šedý v sudém obrazci, bílý v lichém;
+       každý dřívější čtverec úrovně j se rozpadl na 4 trojúhelníky své barvy. */
+    const n1 = ri(8, 14), m = 2 * ri(15, 30) + 1, k = pick([4, 5, 6]);
+    const sedych = n => (n % 2 === 0 ? 1 : 0) + 4 * Math.floor((n - 1) / 2);
+    const W = 2 * m - 1, q = Math.floor((n1 - 1) / 2);
+    // obsah celého obrazce = 1; trojúhelníky z úrovně j mají dohromady 1/2^j, vnitřní čtverec k-tého obrazce 1/2^(k−1)
+    const cleny = [];
+    for (let j = 2; j <= k - 1; j += 2) cleny.push(2 ** j);
+    if (k % 2 === 0) cleny.push(2 ** (k - 1));
+    const jm = 2 ** (k - 1), cit = cleny.reduce((a, d) => a + jm / d, 0), g = gcd(cit, jm);
+    return {
+      no: 16, points: 4, title: 'Vkládané čtverce',
+      svg: svgVkladane(),
+      intro: `První obrazec je bílý čtverec. Druhý obrazec vznikne z prvního vložením menšího šedého čtverce, jehož vrcholy leží ve středech stran bílého čtverce. Další obrazce vznikají střídavým vkládáním stále menších bílých a šedých čtverců, jejichž vrcholy vždy leží ve středech stran čtverce vloženého v předchozím obrazci. Druhý a každý další obrazec se potom skládá z bílých a šedých dílů. Např. třetí obrazec obsahuje 9 dílů — 1 bílý čtverec, 4 šedé trojúhelníky a 4 bílé trojúhelníky.`,
+      parts: [
+        { key: '16.1', points: 1, prompt: `Určete, kolik šedých dílů obsahuje ${n1}. obrazec.`, ans: String(sedych(n1)),
+          sol: [`Vložením nového čtverce se ten předchozí rozpadne na 4 trojúhelníky své barvy. Šedé trojúhelníky tedy přibudou pokaždé, když se vkládá do ŠEDÉHO čtverce — šedé čtverce vznikají ve 2., 4., 6. … obrazci.`,
+            `Do ${n1}. obrazce se šedý čtverec rozpadl ${q}krát: ${q} · 4 = ${4 * q} šedých trojúhelníků.${n1 % 2 ? '' : ` Navíc je v ${n1}. obrazci šedý i vnitřní čtverec.`}`,
+            n1 % 2 ? `Šedých dílů je ${4 * q}.` : `Šedých dílů: ${4 * q} + 1 = ${4 * q + 1}.`] },
+        { key: '16.2', points: 1, prompt: `Určete, kolikátý obrazec obsahuje ${W} bílých dílů.`, ans: String(m),
+          sol: [`V lichém obrazci je vnitřní čtverec bílý a k tomu jsou tu 4 bílé trojúhelníky za každý dřívější bílý čtverec. V n-tém lichém obrazci je tak bílých dílů 1 + 4 · (n − 1) : 2 = 2n − 1.`,
+            `V sudém obrazci je bílých dílů 4 · n : 2 = 2n, tedy vždy sudý počet. Lichých ${W} bílých dílů proto může mít jen lichý obrazec.`,
+            `2n − 1 = ${W}, tedy n = (${W} + 1) : 2 = ${m}.`] },
+        { key: '16.3', points: 2, prompt: `Vyjádřete zlomkem v základním tvaru, jakou část obsahu ${k}. obrazce představuje obsah všech jeho šedých dílů dohromady.`, ans: `${cit / g}/${jm / g}`,
+          sol: [`Vrcholy vloženého čtverce leží ve středech stran předchozího, takže má POLOVIČNÍ obsah. Trojúhelníky, které kolem něj zbydou, tvoří dohromady druhou polovinu předchozího čtverce.`,
+            `Obsah celého obrazce ber jako 1. Šedé jsou ${cleny.map(d => (d === 2 ** (k - 1) && k % 2 === 0 ? `vnitřní ${k}. čtverec (1/${d})` : `trojúhelníky kolem ${Math.log2(d) + 1}. čtverce (1/${d})`)).join(' a ')}.`,
+            `Dohromady: ${cleny.map(d => '1/' + d).join(' + ')} = ${cit / g}/${jm / g}.`] }
+      ]
+    };
+  }
+
+  function gen16g() {
+    // 4 body — šestiúhelníky z trojúhelníčků, pásy (věrné M9C/2025, úloha 16; klíč 42, 108, 38. obrazec)
+    const k = ri(3, 7), m = ri(4, 9), n = ri(20, 60), G = 3 * (2 * n - 1);
+    return {
+      no: 16, points: 4, title: 'Šestiúhelníkové obrazce',
+      svg: svgSestiuhelnik(),
+      intro: `Vytváříme obrazce tvaru pravidelného šestiúhelníku složené z bílých a šedých shodných rovnostranných trojúhelníků; trojúhelníky se společnou stranou mají vždy různou barvu. První obrazec se skládá ze 3 bílých a 3 šedých trojúhelníků a každý další obrazec vznikne přidáním jednoho pásu trojúhelníků okolo předchozího obrazce.`,
+      parts: [
+        { key: '16.1', points: 1, prompt: `Vypočítejte, kolik trojúhelníků (bílých i šedých dohromady) obsahuje poslední přidaný pás ${k}. obrazce.`, ans: String(6 * (2 * k - 1)),
+          sol: [`Šestiúhelník n-tého obrazce se skládá ze 6 velkých rovnostranných trojúhelníků o straně n a každý z nich z n · n trojúhelníčků — celkem 6n². Poslední pás je rozdíl dvou po sobě jdoucích obrazců.`,
+            `${k}. obrazec: 6 · ${k} · ${k} = ${6 * k * k}, ${k - 1}. obrazec: 6 · ${k - 1} · ${k - 1} = ${6 * (k - 1) * (k - 1)}.`,
+            `Poslední pás: ${6 * k * k} − ${6 * (k - 1) * (k - 1)} = ${6 * (2 * k - 1)} trojúhelníků.`] },
+        { key: '16.2', points: 1, prompt: `Vypočítejte, kolik šedých trojúhelníků obsahuje celý ${m}. obrazec.`, ans: String(3 * m * m),
+          sol: [`Sousední trojúhelníky mají různou barvu a bílých i šedých je v každém obrazci stejně (v 1. obrazci 3 a 3). Šedá je tedy přesně polovina všech trojúhelníků.`,
+            `${m}. obrazec má 6 · ${m} · ${m} = ${6 * m * m} trojúhelníků.`,
+            `Šedých: ${6 * m * m} : 2 = ${3 * m * m}.`] },
+        { key: '16.3', points: 2, prompt: `Určete, kolikátý obrazec má v posledním přidaném pásu ${G} šedých trojúhelníků.`, ans: String(n),
+          sol: [`Poslední pás n-tého obrazce má 6n² − 6(n − 1)² = 6 · (2n − 1) trojúhelníků a polovina z nich je šedá, tedy 3 · (2n − 1). Pozor: i 1. obrazec je takový „pás" (3 šedé), počítá se od něj.`,
+            `3 · (2n − 1) = ${G}, tedy 2n − 1 = ${G} : 3 = ${2 * n - 1}.`,
+            `n = (${2 * n - 1} + 1) : 2 = ${n}.`] }
+      ]
+    };
+  }
+
+  function gen16h() {
+    // 4 body — vybarvování polí čtvercové sítě (věrné M9B/2023, úloha 16; klíč 32, o 19, 361 nebo 441)
+    /* Do k-tého obrazce přibude 4 · (k − 1) polí (k ≥ 2), světlá v lichých, tmavá
+       v sudých. Po 2q-tém obrazci je tmavých 4q² a světlých (2q − 1)². Ostré zadání
+       má u 16.3 dvě řešení (361 i 441); tady je doplněné, že naposledy přibyla
+       tmavá pole, aby odpověď byla jedna. */
+    const n = ri(8, 14), m = ri(8, 12), q = ri(8, 14);
+    const svetla = x => 1 + Array.from({ length: x }, (_, i) => i + 1).filter(i => i >= 3 && i % 2).reduce((a, i) => a + 4 * (i - 1), 0);
+    const tmava = x => Array.from({ length: x }, (_, i) => i + 1).filter(i => i % 2 === 0).reduce((a, i) => a + 4 * (i - 1), 0);
+    const lichy = Array.from({ length: m }, (_, i) => i + 1).filter(i => i >= 3 && i % 2).map(i => 4 * (i - 1));
+    const sudy = Array.from({ length: m }, (_, i) => i + 1).filter(i => i % 2 === 0).map(i => 4 * (i - 1));
+    const S = svetla(m), T = tmava(m);
+    return {
+      no: 16, points: 4, title: 'Vybarvování sítě',
+      intro: `Vybarvováním některých prázdných polí čtvercové sítě postupně vytváříme obrazce. Prvním obrazcem je jedno světle vybarvené pole čtvercové sítě. Každý další obrazec vytvoříme z předchozího obrazce tak, že vybarvíme všechna prázdná pole, která mají s předchozím obrazcem společné pouze vrcholy. Tato nově vybarvená pole jsou u sudých obrazců tmavá a u lichých obrazců světlá. Druhý obrazec jsme vytvořili z prvního obrazce vybarvením 4 dalších polí tmavou barvou. Třetí obrazec má celkem 13 polí (9 světlých a 4 tmavé) a vytvořili jsme jej z druhého obrazce vybarvením 8 dalších polí světlou barvou.`,
+      parts: [
+        { key: '16.1', points: 1, prompt: `Určete, vybarvením kolika dalších polí jsme z ${n}. obrazce vytvořili ${n + 1}. obrazec.`, ans: String(4 * n),
+          sol: [`Nová pole leží vždy dokola kolem obrazce a s každým krokem jich přibude o 4 víc: ze zadání 4 (na 2. obrazec) a 8 (na 3. obrazec).`,
+            `Přírůstky tvoří řadu 4, 8, 12, …, takže z n-tého obrazce na další přibude 4 · n polí.`,
+            `Z ${n}. na ${n + 1}. obrazec: 4 · ${n} = ${4 * n} polí.`] },
+        { key: '16.2', points: 1, prompt: `Určete, o kolik se liší počet tmavých a světlých polí v ${m}. obrazci.`, ans: String(Math.abs(S - T)),
+          sol: [`Světlá pole přibývají v lichých obrazcích a tmavá v sudých; do k-tého obrazce přibude 4 · (k − 1) polí. Obě barvy se proto sčítají zvlášť.`,
+            `Světlá: 1 + ${lichy.join(' + ')} = ${S}. Tmavá: ${sudy.join(' + ')} = ${T}.`,
+            `Rozdíl: ${Math.max(S, T)} − ${Math.min(S, T)} = ${Math.abs(S - T)}.`] },
+        { key: '16.3', points: 2, prompt: `Obrazec má ${4 * q * q} tmavých polí a naposledy do něj přibyla tmavá pole. Určete, kolik má světlých polí.`, ans: String((2 * q - 1) ** 2),
+          sol: [`Tmavá pole přibývají ve 2., 4., 6. … obrazci po 4, 12, 20, … kusech, tedy čtyřnásobky lichých čísel. Po 2q-tém obrazci je jich 4 · (1 + 3 + … ) = 4q², protože součet prvních q lichých čísel je q².`,
+            `4q² = ${4 * q * q}, tedy q² = ${4 * q * q} : 4 = ${q * q} a q = ${q}. Naposledy přibyla tmavá pole, takže jde o ${2 * q}. obrazec.`,
+            `Světlá pole ${2 * q}. obrazce jsou všechna z ${2 * q - 1}. obrazce: 1 + 8 + 16 + … + ${4 * (2 * q - 2)} = ${(2 * q - 1) ** 2}.`] }
+      ]
+    };
+  }
+
+  function gen16i() {
+    // 4 body — Mirek a Zuzka odříkávají čísla (věrné M9B/2025, úloha 16)
+    /* Trojice „Mirek liché, Mirek sudé, Zuzka součet": b-tá trojice je
+       2b − 1, 2b, 4b − 1. Mezi prvními L čísly zazní dvakrát jen Zuzčin součet
+       4k − 1, který Mirek stihne říct taky. */
+    const a = 2 * ri(10, 30), b = ri(20, 40), P = 3 * b, C = 4 * b - 1, L = pick([120, 150, 180, 210]);
+    const M = 2 * L / 3, nej = M % 4 === 3 ? M : M - ((M + 1) % 4);
+    return {
+      no: 16, points: 4, title: 'Mirek a Zuzka',
+      intro: `Mirek a Zuzka odříkávali čísla následujícím způsobem: Mirek postupně odříkával všechna po sobě jdoucí přirozená čísla od 1 do 1 000. Za každým druhým číslem udělal krátkou pauzu, během níž Zuzka řekla součet posledních dvou čísel, která vyslovil Mirek. Na začátku tedy zazněla čísla 1, 2, 3, 3, 4, 7, 5, 6, 11, … (každé třetí číslo řekla Zuzka, ostatní Mirek).`,
+      parts: [
+        { key: '16.1', points: 1, prompt: `Určete číslo, které zaznělo mezi čísly ${a} a ${a + 1}.`, ans: String(2 * a - 1),
+          sol: [`Čísla jdou po trojicích: Mirek řekne dvě po sobě jdoucí čísla (liché a sudé) a Zuzka hned jejich součet. Mezi ${a} a ${a + 1} tedy zazní součet dvojice, kterou sudé ${a} uzavírá.`,
+            `Ta dvojice je ${a - 1} a ${a}.`,
+            `Zuzka řekne ${a - 1} + ${a} = ${2 * a - 1}.`] },
+        { key: '16.2', points: 1, prompt: `Jako ${P}. v pořadí bylo vysloveno číslo C, které později zaznělo ještě jednou. Určete číslo, které bylo vysloveno bezprostředně předtím, než podruhé zaznělo číslo C.`, ans: String(2 * C - 3),
+          sol: [`Každá trojice je „Mirek liché, Mirek sudé, Zuzka součet". ${P}. číslo je tedy poslední v ${b}. trojici — Zuzčin součet.`,
+            `${b}. trojice obsahuje Mirkova čísla ${2 * b - 1} a ${2 * b}, takže C = ${2 * b - 1} + ${2 * b} = ${C}. Podruhé ho řekne Mirek, a protože je liché, začíná jím novou trojici.`,
+            `Bezprostředně před ním zazní Zuzčin součet předchozí dvojice: ${C - 2} + ${C - 1} = ${2 * C - 3}.`] },
+        { key: '16.3', points: 2, prompt: `Určete největší číslo, které mezi prvními ${L} vyslovenými čísly zaznělo dvakrát.`, ans: String(nej),
+          sol: [`Dvakrát může zaznít jen číslo, které řekne Zuzka jako součet A zároveň Mirek při počítání. Zuzčiny součty jsou 3, 7, 11, … — vždy o 4 víc, tedy čísla, která dávají po dělení 4 zbytek 3.`,
+            `Mezi prvními ${L} čísly je ${L / 3} trojic, Mirek v nich došel do čísla 2 · ${L / 3} = ${M}; Zuzka došla mnohem dál, takže rozhoduje Mirek.`,
+            `Největší číslo nejvýš ${M} se zbytkem 3 po dělení 4 je ${nej} (${nej} = 4 · ${(nej + 1) / 4} − 1); Zuzka ho řekla dřív, Mirek pak podruhé.`] }
+      ]
+    };
+  }
+
+  function gen16j() {
+    // 4 body — čtvercové obrazce z obdélníčků 2 × 3 cm (věrné M9A/2025, úloha 16; klíč 24, o 12, 36)
+    /* Pás „do mlýnku": každá strana má řadu, která pokrývá stranu obrazce bez
+       jednoho rohu. Tmavý pás je široký 2 cm (obdélníček leží delší stranou 3 cm
+       podél), světlý 3 cm (podél 2 cm). Řada tmavého: (A − 2) : 3 kusů. */
+    const A = pick([14, 17, 20, 23, 26, 29]), B = pick([11, 17, 23, 29, 35]), Dl = pick([6, 8, 10, 12, 14]);
+    const tm = O => 4 * (O - 2) / 3, sv = O => 4 * (O - 3) / 2;
+    return {
+      no: 16, points: 4, title: 'Obrazce z obdélníčků',
+      svg: svgObdelnicky(),
+      intro: `Vytváříme tmavé a světlé obrazce tvaru čtverce jako na obrázku. Každý takový obrazec obsahuje jeden bílý čtverec obklopený pásem z několika shodných obdélníčků. Každý obdélníček má rozměry 2 cm a 3 cm. Obdélníčky jsou buď tmavé, nebo světlé a jsou natočeny tak, že pás z tmavých obdélníčků je vždy užší (2 cm) než pás ze světlých obdélníčků (3 cm).`,
+      parts: [
+        { key: '16.1', points: 1, prompt: `Délka strany tmavého obrazce je ${A} cm. Určete počet obdélníčků v obrazci.`, ans: String(tm(A)),
+          sol: [`Obdélníčky tvoří 4 stejné řady, po jedné u každé strany, a každá řada pokrývá stranu obrazce bez jednoho rohu (roh patří sousední řadě). V tmavém pásu (šířka 2 cm) leží obdélníček delší stranou 3 cm podél.`,
+            `Jedna řada pokrývá ${A} − 2 = ${A - 2} cm, tedy ${A - 2} : 3 = ${(A - 2) / 3} obdélníčků.`,
+            `Čtyři řady: 4 · ${(A - 2) / 3} = ${tm(A)} obdélníčků.`] },
+        { key: '16.2', points: 1, prompt: `Délka strany tmavého i světlého obrazce je ${B} cm. Určete, o kolik se liší počet obdélníčků v těchto dvou obrazcích.`, ans: String(Math.abs(tm(B) - sv(B))),
+          sol: [`Ve světlém pásu (šířka 3 cm) leží obdélníček kratší stranou 2 cm podél. Řada tedy pokrývá stranu bez rohu 3 cm, v tmavém bez rohu 2 cm.`,
+            `Tmavý: 4 · (${B} − 2) : 3 = ${tm(B)}. Světlý: 4 · (${B} − 3) : 2 = ${sv(B)}.`,
+            `Rozdíl: ${Math.max(tm(B), sv(B))} − ${Math.min(tm(B), sv(B))} = ${Math.abs(tm(B) - sv(B))}.`] },
+        { key: '16.3', points: 2, prompt: `Tmavý i světlý obrazec mají stejný počet obdélníčků, ale délky stran bílých čtverců v těchto obrazcích se liší o ${Dl} cm. Určete počet obdélníčků v tmavém obrazci.`, ans: String(4 * (Dl - 1)),
+          sol: [`Stejný počet obdélníčků znamená stejně dlouhé řady. Když je strana bílého čtverce s (tmavý) a t (světlý), je počet obdélníčků v tmavé řadě (s + 2) : 3 a ve světlé (t + 3) : 2; tmavý obrazec má přitom větší bílý čtverec.`,
+            `Rovnice: (s + 2) : 3 = (t + 3) : 2, tedy 2s + 4 = 3t + 9, a s = t + ${Dl}. Dosazení: 2t + ${2 * Dl + 4} = 3t + 9, takže t = ${2 * Dl - 5} cm a s = ${3 * Dl - 5} cm.`,
+            `Počet obdélníčků: 4 · (${3 * Dl - 5} + 2) : 3 = ${4 * (Dl - 1)}.`] }
+      ]
+    };
+  }
+
   const O_KOLIK_VETSI = [[3, 'o třetinu'], [4, 'o čtvrtinu'], [5, 'o pětinu']];
   function gen6g() {
     // 2 body — „o třetinu větší" počítané z menšího (věrné M9A/2026, úloha 5)
@@ -2993,7 +3283,7 @@
      ──────────────────────────────────────────────────────────────── */
   const SLOTS = [
     [gen1, gen1b, gen1c, gen1d, gen1e, gen1f, gen1g, gen1h], [gen2, gen2b, gen2c, gen2d, gen2e, gen2f], [gen3, gen3b, gen3c, gen3d, gen3e, gen3f], [gen4, gen4b, gen4c, gen4d, gen4e], [gen5, gen5b, gen5c], [gen6, gen6b, gen6c, gen6d, gen6e, gen6f, gen6g], [gen7, gen7b, gen7c, gen7d, gen7e, gen7f], [gen8, gen8b, gen8c, gen8d, gen8e, gen8f],
-    [gen9, gen9b, gen9c, gen9d, gen9e, gen9f], [gen10, gen10b, gen10c], [gen11, gen11b, gen11c], [gen12, gen12b, gen12c, gen12d, gen12e], [gen13, gen13b, gen13c, gen13d], [gen14, gen14b, gen14c, gen14d, gen14e, gen14f], [gen15, gen15b, gen15c, gen15d, gen15e, gen15f, gen15g, gen15h], [gen16, gen16b, gen16c]
+    [gen9, gen9b, gen9c, gen9d, gen9e, gen9f], [gen10, gen10b, gen10c], [gen11, gen11b, gen11c], [gen12, gen12b, gen12c, gen12d, gen12e], [gen13, gen13b, gen13c, gen13d], [gen14, gen14b, gen14c, gen14d, gen14e, gen14f], [gen15, gen15b, gen15c, gen15d, gen15e, gen15f, gen15g, gen15h], [gen16, gen16b, gen16c, gen16d, gen16e, gen16f, gen16g, gen16h, gen16i, gen16j]
   ];
 
   window.RPG_CERMAT_9 = {
