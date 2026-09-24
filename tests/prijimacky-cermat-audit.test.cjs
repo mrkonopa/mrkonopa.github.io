@@ -176,30 +176,33 @@ const varianty = (poz, kolik) => {
   for (let i = 0; i < kolik; i++) s.add(C.genSlot(poz - 1).title);
   return s;
 };
-const v6 = varianty(6, 3000), v12 = varianty(12, 3000), v14 = varianty(14, 3000);
+const v6 = varianty(6, 3000), v11 = varianty(11, 3000), v12 = varianty(12, 3000), v14 = varianty(14, 3000);
 ok(v6.has('Těžítko'), 'pozice 6 nabízí válec ve válci („Těžítko“) — [' + [...v6].join(', ') + ']');
 ok(v12.has('Povrch válce'), 'pozice 12 nabízí povrch válce — [' + [...v12].join(', ') + ']');
-ok(v14.has('Kroužky') && v14.has('Návštěvnost'), 'pozice 14 nabízí DVĚ úlohy se sloupcovým grafem — [' + [...v14].join(', ') + ']');
+ok(v14.has('Kroužky') && v14.has('Návštěvnost') && v14.has('Ptačí hodinka'), 'pozice 14 nabízí TŘI úlohy se sloupcovým grafem — [' + [...v14].join(', ') + ']');
+ok(v11.has('Kruhový diagram zahrady') && v11.has('Náklad lodi'), 'pozice 11 nabízí DVĚ úlohy s kruhovým diagramem — [' + [...v11].join(', ') + ']');
 
 // Podíl v celém testu — volná podlaha, jen aby se poznalo úplné vymizení.
 // Naměřeno na 10× 400 testech: válec 51–59 %, graf 52–61 % (ostré testy: 33 % a 53 %).
-// Podlaha grafu 40 % leží pod minimem a nad stavem bez nových grafových variant (~29 %).
-/* 2026-09-24: seznamy se musí držet banky. Pozice 6 a 12 dostaly nové varianty
-   (přelévání mezi válci, dort ze dvou forem, ptačí hodinka, kruhové diagramy),
-   a se starým seznamem podíl válce „klesl" pod podlahu jen proto, že se nové
-   válce nepočítaly — kolísalo to mezi 33 a 36 %, tedy test padal náhodně. */
-const VALEC = ['Sud', 'Těžítko', 'Přelévání vody', 'Povrch válce', 'Dort ze dvou forem'],
-  GRAF = ['Kroužky', 'Návštěvnost', 'Ptačí hodinka', 'Kruhový diagram zahrady', 'Náklad lodi'];
+// Podlaha grafu 48 % leží pod minimem (3,6 σ při 400 testech) a nad stavem bez
+// diagramů v pozici 11 (43 %); jejich přítomnost navíc hlídá kontrola výše.
+/* 2026-09-24: ÚLOHY SE TŘÍDÍ PODLE ZNĚNÍ, ne podle ručního seznamu titulů.
+   Ruční seznam znal jen tři staré válce; nové (přelévání, dort) nepočítal,
+   podíl „klesl" na 33–36 % proti podlaze 35 % a test padal náhodně. Zadání
+   se slovem válec / graf / diagram najde přesně 5 + 5 variant (ověřeno
+   výpisem titulů), takže nová varianta se započte sama. */
+const znení = t => [t.intro, t.prompt].concat((t.parts || []).map(p => p.prompt), (t.statements || []).map(x => x.text), t.prompts || []).join(' ');
+const jeValec = t => /válc|válec/i.test(znení(t)), jeGraf = t => /graf|diagram/i.test(znení(t));
 let sValcem = 0, sGrafem = 0;
 const BEHU = 400;
 for (let i = 0; i < BEHU; i++) {
-  const t = C.generate().map(x => x.title);
-  if (t.some(x => VALEC.includes(x))) sValcem++;
-  if (t.some(x => GRAF.includes(x))) sGrafem++;
+  const t = C.generate();
+  if (t.some(jeValec)) sValcem++;
+  if (t.some(jeGraf)) sGrafem++;
 }
 const pV = 100 * sValcem / BEHU, pG = 100 * sGrafem / BEHU;
 ok(pV >= 35, 'válcová úloha je v ' + pV.toFixed(1) + ' % testů (podlaha 35 %, naměřeno 51–59)');
-ok(pG >= 40, 'úloha s grafem nebo diagramem je v ' + pG.toFixed(1) + ' % testů (podlaha 40 %, naměřeno 52–61)');
+ok(pG >= 48, 'úloha s grafem nebo diagramem je v ' + pG.toFixed(1) + ' % testů (podlaha 48 %, naměřeno 52–61)');
 
 console.log(`\n  ${pass} ✅ / ${fail} ❌  (${RUNS} vygenerovaných testů)`);
 process.exit(fail ? 1 : 0);
