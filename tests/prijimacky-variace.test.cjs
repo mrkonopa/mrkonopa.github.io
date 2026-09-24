@@ -55,9 +55,11 @@ ok(skupiny.length === 16, 'SLOTS má 16 pozic', 'nalezeno=' + skupiny.length);
 
 /* Naměřeno 2026-09-13. Pozice se zvedá, jakmile se předělá
    (2026-09-23: pozice 15 → 8 variant, pět nových sad podle ostrých úloh;
-   pozice 3 → 6 a 4 → 5 — vytýkání, rozklad po úpravě, zlomky, soustava). */
-const VARIANT = { 1: 8, 2: 6, 3: 6, 4: 5, 5: 3, 6: 4, 7: 3, 8: 3,
-  9: 3, 10: 3, 11: 3, 12: 5, 13: 4, 14: 6, 15: 8, 16: 3 };
+   pozice 3 → 6 a 4 → 5 — vytýkání, rozklad po úpravě, zlomky, soustava;
+   2026-09-24: pozice 6 → 7, 7 → 6, 8 → 6 a 9 → 6 podle ostrých úloh 6–8
+   a Pythagorovy věty vnořené do úlohy). */
+const VARIANT = { 1: 8, 2: 6, 3: 6, 4: 5, 5: 3, 6: 7, 7: 6, 8: 6,
+  9: 6, 10: 3, 11: 3, 12: 5, 13: 4, 14: 6, 15: 8, 16: 3 };
 const maloVariant = [];
 skupiny.forEach((g, i) => {
   const p = i + 1;
@@ -97,7 +99,7 @@ const vyklady = t => {
 /* Naměřeno 2026-09-13 přes 3 000 generování na pozici. Pozice 1 je
    předělaná (pravidlo → dosazení → výsledek), proto 3. Ostatní drží
    svůj dnešní stav, aby nemohly klesnout. */
-const KROKU = { 1: 3, 2: 3, 3: 3, 4: 3, 5: 2, 6: 2, 7: 2, 8: 2,
+const KROKU = { 1: 3, 2: 3, 3: 3, 4: 3, 5: 2, 6: 3, 7: 3, 8: 3,
   9: 3, 10: 3, 11: 2, 12: 3, 13: 2, 14: 3, 15: 3, 16: 2 };
 const BEHU = 1200;
 const melke = [];
@@ -141,8 +143,10 @@ ok(melke.length === 0, 'žádná pozice neklesla pod svou naměřenou hloubku po
    shodně, protože dnešní kroky násobí tečkou `·`, ne `×`. Rozbité
    měřidlo by tedy mlčelo až do prvního kroku, který by `×` použil. */
 /* 2026-09-23: pozice 15 má první kroky 76–133 písmen, pozice 3 46–116
-   a pozice 4 85–134; nejkratší postup má u všech tří 3 kroky. */
-const HOTOVE = [1, 2, 3, 4, 15];
+   a pozice 4 85–134; nejkratší postup má u všech tří 3 kroky.
+   2026-09-24: pozice 6–9 (objem, úhly, obvod, Pythagorova věta) mají první
+   kroky 49–180 písmen a nejkratší postup 3 kroky. */
+const HOTOVE = [1, 2, 3, 4, 6, 7, 8, 9, 15];
 const styl = { celkem: 0, bezVysvetleni: [] };
 /* 🔴 NE `[a-zá-žA-ZÁ-Ž]`. Rozsah á–ž je U+00E1–U+017E a obsahuje i ÷
    (U+00F7), rozsah Á–Ž zase × (U+00D7) — čítač písmen by počítal
@@ -162,7 +166,7 @@ HOTOVE.forEach(p => {
 ok(styl.celkem >= 4000, 'předělané pozice (' + HOTOVE.join(', ') + '): změřeno ' +
   styl.celkem + ' postupů', 'celkem=' + styl.celkem);
 ok(styl.bezVysvetleni.length === 0,
-  'první krok vysvětluje pravidlo, nepočítá (aspoň 40 písmen; naměřeno 46–134)',
+  'první krok vysvětluje pravidlo, nepočítá (aspoň 40 písmen; naměřeno 46–180)',
   [...new Set(styl.bezVysvetleni)].slice(0, 3).join(' | '));
 
 /* ── 4. zlomek tvaru n/n v zadání ─────────────────────────────────

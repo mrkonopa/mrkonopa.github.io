@@ -115,7 +115,12 @@ ok(bad.size === 0, `${RUNS} běhů bez strukturální chyby` + (bad.size ? ' —
   const NUMBERING = /\b(?:1[0-6]|[1-9])\.[1-9]\b/g;
   const DOT = /(?<![\d.,])\d+\.\d+(?![.\d])/;
   const PERIOD = /\d,\d{3,}/;                     // useknutý rozvoj
-  const DECL = /\b(?:[5-9]|\d\d+)\s+(?:hodiny|minuty|koruny|metry|centimetry|kilometry|litry|kilogramy|dny|roky|žáci|body|stupně)\b|\b[2-4]\s+(?:hodin|minut|korun|metrů|centimetrů|kilometrů|litrů|kilogramů|dnů|let|žáků|bodů|stupňů)\b/;
+  /* 🔴 Konec slova NESMÍ být `\b`: ten v JavaScriptu zná jen písmena A–Z, takže
+     za „litrů", „metrů", „žáků" nebo „stupně" (končí ů/ě) hranice nikdy nevznikla
+     a 9 ze 13 hlídaných tvarů bylo slepých. Proto „Konev má objem 3 litrů"
+     prošlo auditem, dokud si toho nikdo nevšiml při čtení. `(?![\p{L}\d])`
+     s příznakem u je hranice slova pro češtinu. */
+  const DECL = /\b(?:[5-9]|\d\d+)\s+(?:hodiny|minuty|koruny|metry|centimetry|kilometry|litry|kilogramy|dny|roky|žáci|body|stupně)(?![\p{L}\d])|\b[2-4]\s+(?:hodin|minut|korun|metrů|centimetrů|kilometrů|litrů|kilogramů|dnů|let|žáků|bodů|stupňů|kostek|konví|dílů|kusů)(?![\p{L}\d])/u;
   const dot = new Set(), per = new Set(), dec = new Set();
   for (let i = 0; i < 400; i++) for (let s = 0; s < 16; s++) {
     let t; try { t = C.genSlot(s); } catch (e) { continue; }

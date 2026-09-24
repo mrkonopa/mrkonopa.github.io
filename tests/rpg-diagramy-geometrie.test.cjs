@@ -149,6 +149,39 @@ function bankaCermat() {
       mimo.slice(0, 3).map(x => x.uhel + '° oblouk#' + x.i + ' → ' + x.odchylka + ' px').join(' | '));
   }
 
+  /* ── 2b. totéž pro oblouky, které nesou svůj vrchol ──
+     Kresby úhlů v pozici 7 testu nanečisto (přímky jedním bodem, kružnice
+     opsaná, trojúhelník z přímek) mají vrcholy pokaždé jinde — počítají se
+     z úhlů —, takže pevný seznam vrcholů jako výše nestačí. Oblouk proto
+     nese střed v `data-vrchol` a měří se proti němu, zase na VYKRESLENÉ
+     křivce. Špatný příznak sweep dá odchylku v desítkách pixelů. */
+  {
+    const C = bankaCermat(), kresby = new Set();
+    for (let i = 0; i < 6000; i++) {
+      const t = C.genSlot(6);
+      if (t && t.svg && /data-vrchol/.test(t.svg)) kresby.add(t.svg);
+    }
+    const r = await page.evaluate(svgs => {
+      const out = [];
+      for (const s of svgs) {
+        const d = document.createElement('div'); d.innerHTML = s; document.body.appendChild(d);
+        d.querySelectorAll('path[data-vrchol]').forEach(p => {
+          const [vx, vy] = p.dataset.vrchol.split(' ').map(Number), R = +p.dataset.r, L = p.getTotalLength();
+          let max = 0;
+          for (let k = 0; k <= 12; k++) { const q = p.getPointAtLength(L * k / 12); max = Math.max(max, Math.abs(Math.hypot(q.x - vx, q.y - vy) - R)); }
+          out.push(+max.toFixed(2));
+        });
+        d.remove();
+      }
+      return out;
+    }, [...kresby]);
+    /* Naměřeno: 104 různých kreseb, 403 oblouků, největší odchylka 0,10 px
+       (zaokrouhlení souřadnic na desetiny). */
+    ok(r.length >= 200, 'změřeno ' + r.length + ' oblouků s vyznačeným vrcholem v ' + kresby.size + ' kresbách (podlaha 200)');
+    ok(r.every(x => x <= 0.5), 'každý oblouk s vyznačeným vrcholem leží na kružnici kolem něj (největší odchylka ' +
+      Math.max(0, ...r).toFixed(2) + ' px, práh 0,5)');
+  }
+
   /* ── 3. popisek vrcholu trojúhelníku leží VNĚ obrazce ──
      Práh 0 px by byl křehký (písmeno se dotýká hrany), proto se měří
      střed popisku a ten musí být mimo mnohoúhelník. Navíc nesmí padnout

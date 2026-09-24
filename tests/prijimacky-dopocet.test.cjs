@@ -115,7 +115,7 @@ const VZORY15 = [
 /* Volba „C) 45 %" / „D) 27 let" → 45 / 27; krajní („více než…", „jiný…") → null. */
 const hodnotaVolby = o => {
   const t = o.slice(3).trim();
-  if (/^(více|méně|jiný|jiná|jiné)\b/.test(t)) return null;
+  if (/^(více|méně|jiný|jiná|jiné)(?![\p{L}\d])/u.test(t)) return null;   // \b by za „ý/á/é/ě" nezabralo
   const m = t.match(/^(\d[\d\s]*(?:,\d+)?)/);
   return m ? cislo(m[1]) : null;
 };
@@ -266,6 +266,118 @@ ok(nerozp34.size === 0, 'pozice 3 a 4: každé zadání se dalo přečíst (' + 
   [...nerozp34].slice(0, 3).join(' | '));
 ok(spatne34.length === 0, 'pozice 3 a 4: odpověď banky splňuje zadání (kořen, soustava, identita, koeficient)',
   [...new Set(spatne34)].slice(0, 3).join(' | '));
+
+/* ═══ A3) POZICE 6–9 — objem, úhly, obvod, Pythagorova věta ══════════
+   Každá varianta má vlastní přepočet ze ZNĚNÍ (úvod + podúloha). U úhlů
+   se dané hodnoty čtou z popisků OBRÁZKU — ostré zadání je taky dává jen
+   tam, takže žák je čte odtud — a hledané úhly se odvozují z geometrie
+   té konfigurace, ne z kódu generátoru. Kde zadání chce zaokrouhlit,
+   zaokrouhluje se tady stejně. Neznámý titul je chyba: šablona se změnila
+   a kontrola by oslepla. */
+const cisla = (s, re) => { const m = String(s).match(re); return m ? m.slice(1).map(x => cislo(x)) : null; };
+const stupne = svg => [...String(svg).matchAll(/>(\d+)°</g)].map(m => +m[1]);
+const na1 = x => Math.round(x * 10) / 10, naDes = x => Math.round(x / 10) * 10;
+const ZLS = { polovinu: 1 / 2, třetinu: 1 / 3, čtvrtinu: 1 / 4, pětinu: 1 / 5, 'dvě pětiny': 2 / 5 };
+const V69 = {
+  // ── pozice 6 ──
+  'Sud': (t, k) => { const [S] = cisla(t.intro, /Dno sudu má obsah (\d+) cm²/), p = t.parts.find(x => x.key === k).prompt;
+    if (k === '6.1') { const [mm] = cisla(p, /o (\d+) mm/); return na1(S * mm / 10 / 1000); }
+    const [l] = cisla(p, /přibylo v sudu (\d+) l/); return Math.round(l * 1000 / S * 10); },
+  'Akvárium': (t, k) => { const [a, b, c] = cisla(t.intro, /dna (\d+) cm × (\d+) cm a výškou (\d+) cm/);
+    if (k === '6.1') return a * b * c / 1000;
+    const [h] = cisla(t.parts[1].prompt, /do výšky (\d+) cm/); return a * b * h / 1000; },
+  'Nádrže': (t, k) => { const p = t.parts.find(x => x.key === k).prompt;
+    if (k === '6.1') { const [s, kv] = cisla(p, /pojme (\d+) litrů\. Konev má objem (\d+) litr/); return Math.ceil(s / kv); }
+    const [V, r] = cisla(p, /objemu (\d+) litrů se napouští rychlostí (\d+) litr/); return V / r; },
+  'Těžítko': (t, k) => { const [R, H, r, h] = cisla(t.intro, /podstavy (\d+) cm a výškou (\d+) cm[\s\S]*podstavy (\d+) cm a výškou (\d+) cm/);
+    return k === '6.1' ? naDes(3.14 * R * R * H) : naDes(3.14 * (R * R * H - r * r * h)); },
+  'Sud, kbelík a konvička': (t, k) => { const p = t.parts.find(x => x.key === k).prompt;
+    if (k === '6.2') { const [N, V] = cisla(p, /na (\d+) krychlí, z nichž každá má objem (\d+) dm³/); return N * V * 1000; }
+    const m = p.match(/je (\d+)krát větší než objem kbelíku\. Objem kbelíku je (\d+)krát větší[\s\S]*jsme (.+?) vody odebrali, takže v něm zbylo (\d+) litrů/);
+    const f = ZLS[m[3]]; if (f === undefined) throw new Error('zlomek „' + m[3] + '"');
+    return (+m[4] / (1 - f)) / (+m[1] * +m[2]); },
+  'Přelévání vody': (t, k) => { const [v, d1, d2] = cisla(t.intro, /výšku v = (\d+) cm\. Nádoba A má průměr podstavy (\d+) cm, nádoba B má průměr podstavy (\d+) cm/);
+    return k === '6.1' ? v * (d1 / d2) ** 2 : (d2 / d1) ** 2; },
+  'Dva sudy': (t, k) => { const m = t.intro.match(/má o (\S+) větší objem než menší sud\. Objem většího sudu je (\d+) litrů/);
+    const f = ZLS[m[1]], V = +m[2], men = V / (1 + f); if (f === undefined) throw new Error('zlomek „' + m[1] + '"');
+    if (k === '6.1') return men;
+    const pct = (V - men) / V * 100; return /desetiny/.test(t.parts[1].prompt) ? na1(pct) : pct; },
+  // ── pozice 7 ── (dané úhly z popisků obrázku, hledané z geometrie)
+  'Úhly na rovnoběžkách': (t, k) => { const [g] = cisla(t.intro, /velikost (\d+)°/); return k === '7.2' ? 180 - g : g; },
+  'Úhly v trojúhelníku': (t, k) => { const [a, b] = cisla(t.intro, /α = (\d+)°[\s\S]*β = (\d+)°/), c = 180 - a - b;
+    return k === '7.1' ? c : k === '7.2' ? a + b : Math.max(a, b, c); },
+  'Úhly v rovnoramenném trojúhelníku': (t, k) => { const [b] = cisla(t.intro, /každý (\d+)°/);
+    return k === '7.1' ? 180 - 2 * b : k === '7.2' ? 180 - b : 2 * b; },
+  // α a 30° jsou střídavé; β je střídavý k vedlejšímu úhlu 130°; γ je vedlejší k úhlu
+  // pravoúhlého trojúhelníku q, r, t u průsečíku q a t: 180 − (90 − β) = 90 + β.
+  'Přímky jedním bodem a kolmice': (t, k) => { const u = stupne(t.svg).sort((x, y) => x - y), be = 180 - u[1];
+    if (u.length !== 2) throw new Error('čekal jsem 2 vyznačené úhly, je ' + u.length);
+    return k === '7.1' ? u[0] : k === '7.2' ? be : 90 + be; },
+  // Trojúhelník X, pata výšky, B: pravý úhel u paty, u X vedlejší k vyznačenému D,
+  // takže u B zbývá D − 90 = β/2 = φ. AB je průměr ⇒ úhel u C je pravý (Thalet) ⇒ α = 90 − β.
+  'Kružnice opsaná a osa úhlu': (t, k) => { const [D] = stupne(t.svg), fi = D - 90; return k === '7.1' ? fi : 90 - 2 * fi; },
+  'Trojúhelník z přímek': (t, k) => { const [E, m, n] = cisla(t.intro, /svírají úhel (\d+)°[\s\S]*v poměru (\d+) : (\d+)/);
+    const be = 180 - E, al = E * m / (m + n), ga = E * n / (m + n);
+    return k === '7.1' ? be : k === '7.2' ? ga : Math.max(al, be, ga) - Math.min(al, be, ga); },
+  // ── pozice 8 ──
+  'Záhon': (t, k) => { const m = t.intro.match(/je o (\S+) kratší[\s\S]*celkem (\d+) rostlin[\s\S]*měří (\d+) cm/);
+    const f = ZLS[m[1]], N = +m[2], d = +m[3], O = N * d / 100;          // uzavřený obvod: mezer = rostlin
+    if (k === '8.1') return O;
+    const x = O / (1 + 3 * (1 - f));
+    if (k === '8.2') return x * f * 100 / d;
+    let min = Infinity;                                                   // r červených + 2 bílé, aspoň 2 úseky
+    for (let r = 1; r + 2 <= N / 2; r++) if (N % (r + 2) === 0) min = Math.min(min, r * N / (r + 2));
+    return min; },
+  'Plot kolem pozemku': (t, k) => { const [a, b, d, n] = cisla(t.intro, /rozměry (\d+) m × (\d+) m[\s\S]*rozestupech (\d+) cm[\s\S]*Celkem je jich (\d+)/);
+    if (n !== 2 * (a + b) * 100 / d) throw new Error('úvod tvrdí ' + n + ' sloupků, obvodu odpovídá ' + 2 * (a + b) * 100 / d);
+    if (k === '8.1') return 2 * (a + b);
+    if (k === '8.2') return (Math.max(a, b) - Math.min(a, b)) * 100 / d;
+    const [g] = cisla(t.parts[2].prompt, /po skupinkách po (\d+)/); return n / g; },
+  'Oplocení zahrady': (t, k) => { const [a, b] = cisla(t.intro, /rozměry (\d+) m × (\d+) m/), O = 2 * (a + b);
+    if (k === '8.1') return O;
+    if (k === '8.2') return O * cisla(t.parts[1].prompt, /stojí (\d+) Kč/)[0];
+    return O / cisla(t.parts[2].prompt, /po (\d+) metrech/)[0]; },
+  'Odstřižené rohy': (t, k) => { const [a, c] = cisla(t.intro, /straně délky (\d+) cm[\s\S]*základna má délku (\d+) cm/), x = (a - c) / 2;
+    return k === '8.1' ? x * a : k === '8.2' ? a + c + 2 * Math.hypot(x, a) : (a + c) * a / 2; },
+  'Strana trojúhelníku': (t, k) => { const [a, b] = cisla(t.intro, /a = (\d+) cm, b = (\d+) cm/), lo = Math.abs(a - b) + 1, hi = a + b - 1;
+    return k === '8.1' ? lo : k === '8.2' ? hi : hi - lo + 1; },
+  'Dva pozemky': (t, k) => { const [p, d] = cisla(t.intro, /o (\d+) % kratší[\s\S]*o (\d+) m delší/), q = 1 - p / 100;
+    const a = 2 * d / (4 - 2 * (q + 1));                                  // 4a = 2 · (q·a + a + d)
+    return k === '8.1' ? a : k === '8.2' ? q * a : Math.abs(a * a - q * a * (a + d)); },
+  // ── pozice 9 ──
+  'Žebřík u zdi': t => { const [h, d] = cisla(t.intro, /do výšky (\d+) m\. Pata žebříku je od zdi vzdálena (\d+) m/); return Math.hypot(h, d); },
+  'Úhlopříčka hřiště': t => { const [a, b] = cisla(t.intro, /rozměry (\d+) m a (\d+) m/); return Math.hypot(a, b); },
+  'Drak na provázku': t => { const [c, a] = cisla(t.intro, /dlouhém (\d+) m[\s\S]*vzdáleným (\d+) m/); return Math.sqrt(c * c - a * a); },
+  'Rovnoramenný trojúhelník': t => { const [z, O] = cisla(t.intro, /délky (\d+) cm má obvod (\d+) cm/), r = (O - z) / 2;
+    return z * Math.sqrt(r * r - z * z / 4) / 2; },
+  'Pravoúhlý lichoběžník': t => { const [a, c, v] = cisla(t.intro, /AB = (\d+) cm a CD = (\d+) cm[\s\S]*měří (\d+) cm/);
+    return a + c + v + Math.hypot(v, a - c); },
+  'Kosočtverec': t => { const [e, f] = cisla(t.intro, /e = (\d+) cm a f = (\d+) cm/); return 4 * Math.hypot(e / 2, f / 2); }
+};
+const videno69 = {}, nerozp69 = new Set(), spatne69 = [];
+let podul69 = 0;
+for (const i of [5, 6, 7, 8]) {
+  for (let b = 0; b < 2500; b++) {
+    const t = C.genSlot(i), f = V69[t.title];
+    if (!f) { nerozp69.add('pozice ' + (i + 1) + ': „' + t.title + '"'); continue; }
+    videno69[t.title] = (videno69[t.title] || 0) + 1;
+    t.parts.forEach(p => {
+      podul69++;
+      let ceka;
+      try { ceka = f(t, p.key); } catch (e) { nerozp69.add(t.title + ' ' + p.key + ': ' + e.message); return; }
+      if (!Number.isFinite(ceka) || !blizko(ceka, cislo(p.ans)))
+        spatne69.push(t.title + ' ' + p.key + ': banka ' + p.ans + ', ze zadání ' + ceka + ' — „' + String(t.intro || p.prompt).slice(0, 70) + '"');
+    });
+  }
+}
+/* Naměřeno ve třech bězích: 10 000 úloh = 22 065–22 085 podúloh, každá z 25
+   variant 317–465×. Podlahy leží pod tím s rezervou; rozbitý los dá 0. */
+ok(Object.keys(videno69).length === 25 && Object.values(videno69).every(n => n >= 150),
+  'pozice 6–9: všech 25 variant se v losu objevuje (podlaha 150×)', JSON.stringify(videno69));
+ok(podul69 > 20000, 'pozice 6–9: dopočítáno ' + podul69 + ' podúloh (podlaha 20 000)', 'naměřeno=' + podul69);
+ok(nerozp69.size === 0, 'pozice 6–9: každé zadání se dalo přečíst', [...nerozp69].slice(0, 3).join(' | '));
+ok(spatne69.length === 0, 'pozice 6–9: odpověď banky se shoduje s dopočtem ze zadání',
+  [...new Set(spatne69)].slice(0, 3).join(' | '));
 
 /* ═══ B) ROVNOSTI V POSTUPECH — celý test ═══════════════════════════
    Každé „výraz = výsledek" z čistých čísel se vyhodnotí. Od rovnítka se
