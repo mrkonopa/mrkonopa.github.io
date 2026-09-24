@@ -93,6 +93,14 @@ async function fillAndSubmit(page, sabotage){
   ok(sc2<50 && sc2>0,'jedna chyba → částečné skóre ('+sc2+')');
   ok(await page.evaluate(()=>/Správně:/.test(document.getElementById('cm-end-detail').textContent)),'review ukazuje správnou odpověď');
   ok(await page.evaluate(()=>document.querySelector('#cm-end-detail .cm-review-given')!==null),'review ukazuje „Tvoje odpověď" u chyby');
+  // U úloh s volbami rozbor ukazuje celou volbu („Správně: C) 54 m"), ne holé písmeno,
+  // a u tvrzení A/N slovo („A (pravdivé)"). Úlohy 12–14 jsou vždy s volbami.
+  const volby=await page.evaluate(()=>{
+    const txt=[...document.querySelectorAll('#cm-end-detail .cm-review-correct')].map(e=>e.textContent);
+    return { mc: txt.filter(x=>/^Správně: [A-F]\) \S/.test(x)).length, holych: txt.filter(x=>/^Správně: [A-F]$/.test(x)).length,
+      an: txt.filter(x=>/^Správně: [AN] \((ne)?pravdivé\)$/.test(x)).length };
+  });
+  ok(volby.mc>=6 && volby.holych===0 && volby.an>=3,'rozbor ukazuje celé volby a slovem pravdivost ('+JSON.stringify(volby)+')');
 
   // ── rozbor drží kontext zadání: úvodní text i nákres ──
   // Dřív se do rozboru předával jen prompt/odpověď, takže si dítě geometrickou chybu
