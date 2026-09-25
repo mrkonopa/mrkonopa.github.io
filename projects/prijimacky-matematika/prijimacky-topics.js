@@ -19,7 +19,8 @@
     // Pozice 13 střídá procenta, slovní úlohy a poměr (kytice podle nanečisto 2025).
     // Který okruh úloha opravdu cvičí, říká její `okruh` (topicsForTask); procvičování
     // okruhu z pozice bere jen úlohy, které do něj patří.
-    { id: 'pomer', name: 'Poměr a úměrnost', oblast: 'Závislosti a data', slots: [12, 4, 0] },
+    // Pozice 10 (index 9): měřítko mapy a plánu je poměr; úlohy to nesou v `okruh`.
+    { id: 'pomer', name: 'Poměr a úměrnost', oblast: 'Závislosti a data', slots: [12, 4, 0, 9] },
     { id: 'vyrazy-promenna', name: 'Výrazy s proměnnou', oblast: 'Číslo a proměnná', slots: [2] },
     { id: 'rovnice', name: 'Rovnice a soustavy', oblast: 'Číslo a proměnná', slots: [3] },
     // Pozice 12 (index 11) sem už nepatří: všechny její varianty jsou tělesa (okruh 'telesa'),

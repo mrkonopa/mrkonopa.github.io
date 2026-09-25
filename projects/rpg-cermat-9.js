@@ -336,43 +336,6 @@
     };
   }
 
-  function gen9() {
-    // 4 body — Pythagorova věta, slovní úloha (náhrada za konstrukční úlohu)
-    // reálné rozměry žebříku (přepona 5–17 m) — bez umělého násobení, ať zadání sedí na skutečnost
-    const triples = [[3, 4, 5], [6, 8, 10], [5, 12, 13], [8, 15, 17], [9, 12, 15]];
-    const t = triples[ri(0, triples.length - 1)];
-    const a9 = t[0], b9 = t[1], c9 = t[2];
-    return {
-      no: 9, points: 4, title: 'Žebřík u zdi',
-      svg: svgTriangle('pravo', { v: ['C', 'A', 'B'] }),
-      intro: `Žebřík opřený o svislou zeď dosahuje do výšky ${b9} m. Pata žebříku je od zdi vzdálena ${a9} m.`,
-      parts: [
-        { key: '9.1', points: 4, showExplain: true,
-          prompt: `Vypočítejte délku žebříku (v m). Uveďte celý postup.`,
-          ans: String(c9),
-          sol: [`Žebřík, zeď a zem tvoří pravoúhlý trojúhelník s pravým úhlem u paty zdi. Žebřík leží proti pravému úhlu, je to tedy přepona — a tu dává Pythagorova věta: c² = a² + b².`,
-            `Odvěsny jsou výška ${b9} m a vzdálenost paty ${a9} m: c² = ${a9 * a9} + ${b9 * b9} = ${a9 * a9 + b9 * b9}.`,
-            `c = √${a9 * a9 + b9 * b9} = ${c9} m.`] }
-      ]
-    };
-  }
-
-  function gen10() {
-    // 2 body — podobnost trojúhelníků, měřítko (náhrada za konstrukční úlohu)
-    const orig = ri(4, 12);
-    const k10 = [2, 3, 4][ri(0, 2)];
-    return {
-      no: 10, points: 2, title: 'Podobné trojúhelníky',
-      svg: svgSimilar(k10),
-      parts: [
-        { key: '10', points: 2,
-          prompt: `Dva podobné trojúhelníky mají koeficient podobnosti k = ${k10}. Strana menšího trojúhelníku měří ${orig} cm. Jak dlouhá je odpovídající strana většího trojúhelníku (v cm)?`,
-          ans: String(orig * k10),
-          sol: [`Podobné trojúhelníky mají stejný tvar, jen jinou velikost. Každá strana většího je k-krát delší než odpovídající strana menšího.`,`Koeficient k = ${k10} je větší než 1, takže se NÁSOBÍ — strana musí vyjít delší než ${orig} cm.`,`Strana většího trojúhelníku = ${orig} · ${k10} = ${orig * k10} cm.`] }
-      ]
-    };
-  }
-
   function gen11() {
     // 3 body — kvádr, jehož jedna hrana se prodlouží o 1 cm (součet hran, povrch, objem)
     /* Nepravdivá tvrzení jsou výsledky TYPICKÝCH chyb: součet jen šesti hran
@@ -383,7 +346,7 @@
     const S1 = 2 * (a * b + b * c + a * c), S2 = 2 * (a2 * b + b * c + a2 * c), p2 = ri(0, 1) === 1, sTvr = p2 ? S2 - S1 : b + c;
     const V1 = a * b * c, V2 = a2 * b * c, p3 = ri(0, 1) === 1, vTvr = p3 ? V2 - V1 : V2;
     return {
-      no: 11, points: 3, title: 'Kvádry', kind: 'tfgrid', okruh: 'telesa',
+      no: 11, points: 4, stupnice: STUPNICE11, title: 'Kvádry', kind: 'tfgrid', okruh: 'telesa',
       intro: `Kvádr má hrany délek ${a} cm, ${b} cm a ${c} cm. Rozhodněte o každém z tvrzení (11.1–11.3), zda je pravdivé (A), či nikoli (N).`,
       statements: [
         tvrzeni(`Součet délek všech hran kvádru je ${hTvr} cm.`, p1,
@@ -827,30 +790,11 @@
     };
   }
 
-  function gen9b() {
-    // 4 body — Pythagoras: úhlopříčka obdélníkového hřiště
-    const triples = [[3, 4, 5], [6, 8, 10], [5, 12, 13], [8, 15, 17], [9, 12, 15], [12, 16, 20]];
-    const t = triples[ri(0, triples.length - 1)], a = t[0], b = t[1], c = t[2];
-    return {
-      no: 9, points: 4, title: 'Úhlopříčka hřiště',
-      svg: svgTriangle('pravo', { v: ['C', 'A', 'B'] }),
-      intro: `Obdélníkové hřiště má rozměry ${a} m a ${b} m.`,
-      parts: [
-        { key: '9.1', points: 4, showExplain: true,
-          prompt: `Vypočítejte délku úhlopříčky hřiště (v m). Uveďte celý postup.`,
-          ans: String(c),
-          sol: [`Úhlopříčka rozdělí obdélník na dva pravoúhlé trojúhelníky: strany hřiště jsou jejich odvěsny a úhlopříčka přepona. Platí tedy Pythagorova věta u² = a² + b².`,
-            `Odvěsny ${a} m a ${b} m: u² = ${a * a} + ${b * b} = ${a * a + b * b}.`,
-            `u = √${a * a + b * b} = ${c} m.`] }
-      ]
-    };
-  }
-
   function gen10b() {
     // 2 body — měřítko mapy
     const k = [1000, 2000, 5000, 10000][ri(0, 3)], dCm = ri(2, 9), realM = dCm * k / 100;
     return {
-      no: 10, points: 2, title: 'Měřítko mapy',
+      no: 10, points: 2, title: 'Měřítko mapy', okruh: 'pomer',
       parts: [
         { key: '10', points: 2,
           prompt: `Na mapě s měřítkem 1 : ${k} je úsečka dlouhá ${dCm} cm. Jaká je skutečná vzdálenost v metrech?`,
@@ -869,7 +813,7 @@
     const p2 = ri(0, 1) === 1, sTvr = p2 ? S : 4 * a * a;                             // chyba: jen čtyři boční stěny
     const [slovo, kolik] = pick([['osmkrát', 8], ['osmkrát', 8], ['dvakrát', 2], ['čtyřikrát', 4]]), p3 = kolik === 8;
     return {
-      no: 11, points: 3, title: 'Krychle', kind: 'tfgrid', okruh: 'telesa',
+      no: 11, points: 4, stupnice: STUPNICE11, title: 'Krychle', kind: 'tfgrid', okruh: 'telesa',
       intro: `Krychle má hranu délky ${a} cm. Rozhodněte o každém z tvrzení (11.1–11.3), zda je pravdivé (A), či nikoli (N).`,
       statements: [
         tvrzeni(`Součet délek všech hran krychle je ${hTvr} cm.`, p1,
@@ -1921,47 +1865,6 @@
     };
   }
 
-  function gen10c() {
-    // 2 body — měřítko modelu (převod na skutečnost)
-    const k = [100, 200, 500, 1000][ri(0, 3)], modelCm = ri(2, 9), realCm = modelCm * k, realM = realCm / 100;
-    return {
-      no: 10, points: 2, title: 'Měřítko modelu',
-      parts: [
-        { key: '10', points: 2,
-          prompt: `Model budovy je v měřítku 1 : ${k}. Na modelu měří budova ${modelCm} cm. Jak vysoká je skutečná budova (v metrech)?`,
-          ans: String(realM),
-          sol: [`Měřítko 1 : ${k} znamená, že 1 cm na modelu odpovídá ${k} cm ve skutečnosti — skutečnost je ${k}× větší.`,`Skutečná výška v centimetrech: ${modelCm} · ${k} = ${realCm} cm.`,`Otázka je na metry, tedy ${realCm} : 100 = ${realM} m.`] }
-      ]
-    };
-  }
-
-  function gen11c() {
-    // 3 body — kvádr: objem, povrch a počet stěn, hran, vrcholů
-    const a = ri(2, 5), b = ri(2, 5), c = ri(2, 5), V = a * b * c, S = 2 * (a * b + b * c + a * c);
-    const p1 = ri(0, 1) === 1, vTvr = p1 ? V : S;                                     // chyba: záměna objemu a povrchu
-    const p2 = ri(0, 1) === 1, sTvr = p2 ? S : S / 2;                                 // chyba: každá stěna jen jednou
-    const PRVKY = [['stěn', 6], ['hran', 12], ['vrcholů', 8]], [jm, pocet] = pick(PRVKY);
-    const p3 = ri(0, 1) === 1, nTvr = p3 ? pocet : pick(PRVKY.filter(x => x[0] !== jm))[1];  // chyba: záměna prvků
-    return {
-      no: 11, points: 3, title: 'Tělesa', kind: 'tfgrid', okruh: 'telesa',
-      intro: `Kvádr má hrany délek ${a} cm, ${b} cm a ${c} cm. Rozhodněte o každém z tvrzení (11.1–11.3), zda je pravdivé (A), či nikoli (N).`,
-      statements: [
-        tvrzeni(`Objem kvádru je ${vTvr} cm³.`, p1,
-          [`Objem kvádru (kolik se do něj vejde) je součin délek jeho tří hran. Nezaměň ho s povrchem, který sčítá obsahy stěn.`,
-            `Objem: ${a} · ${b} · ${c} = ${V} cm³.`,
-            `Tvrzení uvádí ${vTvr} cm³. ${verdikt(p1)}`]),
-        tvrzeni(`Povrch kvádru je ${sTvr} cm².`, p2,
-          [`Povrch je součet obsahů šesti stěn. Stěny tvoří tři dvojice shodných protilehlých obdélníků, proto S = 2 · (a · b + b · c + a · c).`,
-            `Tři různé stěny: ${a} · ${b} = ${a * b}, ${b} · ${c} = ${b * c}, ${a} · ${c} = ${a * c} cm².`,
-            `Povrch: 2 · (${a * b} + ${b * c} + ${a * c}) = ${S} cm². ${verdikt(p2)}`]),
-        tvrzeni(`Každý kvádr má ${nTvr} ${jm}.`, p3,
-          [`Stěny, hrany a vrcholy spočítáš z tvaru kvádru: stěny tvoří tři dvojice protilehlých obdélníků, hrany jsou po čtyřech od každého rozměru a vrcholy leží po čtyřech v dolní a horní podstavě.`,
-            `Stěn: 3 · 2 = 6, hran: 3 · 4 = 12, vrcholů: 4 + 4 = 8.`,
-            `Kvádr má ${pocet} ${jm}, tvrzení uvádí ${nTvr}. ${verdikt(p3)}`])
-      ]
-    };
-  }
-
   function gen6c() {
     // 2 body — nádrže (dělení, čas napouštění; bez π)
     /* Konev: v polovině případů dělení NEVYJDE a počet konví se zaokrouhluje
@@ -2051,11 +1954,11 @@
     const triples = [[3, 4, 5], [6, 8, 10], [5, 12, 13], [8, 15, 17], [9, 12, 15], [12, 16, 20]];
     const t = triples[ri(0, triples.length - 1)], a = t[0], b = t[1], c = t[2];
     return {
-      no: 9, points: 4, title: 'Drak na provázku',
+      no: 9, points: 3, title: 'Drak na provázku', okruh: 'geometrie',
       svg: svgTriangle('pravo', { v: ['C', 'A', 'B'] }),
       intro: `Drak drží na napnutém provázku dlouhém ${c} m. Drak je přímo nad místem vzdáleným ${a} m od toho, kdo ho pouští (ruku ber u země).`,
       parts: [
-        { key: '9.1', points: 4, showExplain: true,
+        { key: '9.1', points: 3, showExplain: true,
           prompt: `V jaké výšce nad zemí drak letí (v m)? Uveďte celý postup.`,
           ans: String(b),
           sol: [`Napnutý provázek, vodorovná vzdálenost a výška draka tvoří pravoúhlý trojúhelník; provázek leží proti pravému úhlu, je to přepona. Hledaná výška je odvěsna, takže se v Pythagorově větě ODEČÍTÁ: v² = c² − a².`,
@@ -3072,11 +2975,11 @@
     const [h0, v, r] = pick([[8, 15, 17], [5, 12, 13], [12, 5, 13], [9, 12, 15], [12, 9, 15], [6, 8, 10], [8, 6, 10], [15, 8, 17], [7, 24, 25], [12, 16, 20], [16, 12, 20]]);
     const z = 2 * h0, O = z + 2 * r;
     return {
-      no: 9, points: 4, title: 'Rovnoramenný trojúhelník',
+      no: 9, points: 3, title: 'Rovnoramenný trojúhelník', okruh: 'geometrie',
       svg: svgTriangle('rovnoram', { v: ['K', 'L', 'M'] }),
       intro: `Rovnoramenný trojúhelník KLM se základnou LM délky ${z} cm má obvod ${O} cm.`,
       parts: [
-        { key: '9.1', points: 4, showExplain: true,
+        { key: '9.1', points: 3, showExplain: true,
           prompt: `Vypočítejte obsah trojúhelníku KLM (v cm²). Uveďte celý postup.`, ans: String(z * v / 2),
           sol: [`K obsahu potřebuješ základnu a výšku na ni. Výška z vrcholu K rozpůlí základnu LM a s ramenem tvoří pravoúhlý trojúhelník, ve kterém je rameno přeponou.`,
             `Obě ramena jsou stejná: (${O} − ${z}) : 2 = ${r} cm. Polovina základny: ${z} : 2 = ${h0} cm.`,
@@ -3091,10 +2994,10 @@
     const [dx, v, b] = pick([[3, 4, 5], [6, 8, 10], [5, 12, 13], [8, 6, 10], [9, 12, 15], [12, 5, 13], [8, 15, 17], [12, 9, 15]]);
     const c = ri(4, 15), a = c + dx, obvod = a + b + c + v;
     return {
-      no: 9, points: 4, title: 'Pravoúhlý lichoběžník',
+      no: 9, points: 3, title: 'Pravoúhlý lichoběžník', okruh: 'geometrie',
       intro: `Pravoúhlý lichoběžník ABCD má základny AB = ${a} cm a CD = ${c} cm a pravý úhel při vrcholu A. Rameno AD je kolmé k oběma základnám a měří ${v} cm.`,
       parts: [
-        { key: '9.1', points: 4, showExplain: true,
+        { key: '9.1', points: 3, showExplain: true,
           prompt: `Vypočítejte obvod lichoběžníku ABCD (v cm). Uveďte celý postup.`, ans: String(obvod),
           sol: [`Obvod je součet všech čtyř stran. Neznáš jen šikmé rameno BC — dopočítáš ho z pravoúhlého trojúhelníku, který vznikne, když z vrcholu C spustíš kolmici na základnu AB.`,
             `Ten trojúhelník má odvěsny ${v} cm (stejně jako AD) a ${a} − ${c} = ${dx} cm (o tolik je AB delší než CD).`,
@@ -3108,10 +3011,10 @@
     // 4 body — kosočtverec z úhlopříček: strana Pythagorovou větou, pak obvod
     const [e2, f2, s] = pick([[3, 4, 5], [6, 8, 10], [5, 12, 13], [9, 12, 15], [8, 15, 17], [12, 16, 20], [7, 24, 25]]);
     return {
-      no: 9, points: 4, title: 'Kosočtverec',
+      no: 9, points: 3, title: 'Kosočtverec', okruh: 'geometrie',
       intro: `Kosočtverec ABCD má úhlopříčky délek e = ${2 * e2} cm a f = ${2 * f2} cm.`,
       parts: [
-        { key: '9.1', points: 4, showExplain: true,
+        { key: '9.1', points: 3, showExplain: true,
           prompt: `Vypočítejte obvod kosočtverce (v cm). Uveďte celý postup.`, ans: String(4 * s),
           sol: [`Úhlopříčky kosočtverce jsou na sebe kolmé a navzájem se půlí. Rozdělí ho tak na čtyři shodné pravoúhlé trojúhelníky, jejichž přeponou je strana kosočtverce.`,
             `Odvěsny: ${2 * e2} : 2 = ${e2} cm a ${2 * f2} : 2 = ${f2} cm.`,
@@ -3469,7 +3372,7 @@
     let D; do { D = ri(2, 24) / 2; } while (!Number.isInteger(D * 1000 / m1 * 10));
     const naMape = D * 1000 / m1;
     return {
-      no: 10, points: 2, title: 'Mapa a trasa',
+      no: 10, points: 2, title: 'Mapa a trasa', okruh: 'pomer',
       parts: [
         { key: '10', points: 2,
           prompt: `${Number.isInteger(a) && a <= 4 ? 'Každé' : 'Každých'} ${cz(a)} cm na turistické mapě je ve skutečnosti ${b} m. Trasa je ve skutečnosti dlouhá ${cz(D)} km. Kolik centimetrů měří na mapě?`,
@@ -3485,7 +3388,7 @@
     // 2 body — obsah podle měřítka: délky k-krát, obsah k·k-krát
     const k = pick([200, 500, 1000, 2000]), S = ri(4, 40), cm2 = S * k * k, m2 = cm2 / 10000;
     return {
-      no: 10, points: 2, title: 'Plocha podle měřítka',
+      no: 10, points: 2, title: 'Plocha podle měřítka', okruh: 'pomer',
       parts: [
         { key: '10', points: 2,
           prompt: `Na plánu v měřítku 1 : ${tis(k)} má pozemek obsah ${S} cm². Jaká je skutečná rozloha pozemku v m²?`,
@@ -3503,7 +3406,7 @@
     let S1; do { S1 = ri(4, 30); } while (!Number.isInteger(S1 * k * k));
     const S2 = S1 * k * k;
     return {
-      no: 10, points: 2, title: 'Obsah podobných trojúhelníků',
+      no: 10, points: 2, title: 'Obsah podobných trojúhelníků', okruh: 'geometrie',
       parts: [
         { key: '10', points: 2,
           prompt: `Dva podobné trojúhelníky mají obvody ${o1} cm a ${cz(o2)} cm. Menší z nich má obsah ${S1} cm². Jaký obsah má větší trojúhelník (v cm²)?`,
@@ -3582,7 +3485,7 @@
     const rozdil = (V - P) * 1000 / m1, p2 = ri(0, 1) === 1, rTvr = p2 ? rozdil : V * 1000 / m1;   // chyba: celá vycházková
     const p3 = ri(0, 1) === 1, mTvr = p3 ? meritko : meritko * 10;                                  // chyba: m ↔ cm o řád
     return {
-      no: 11, points: 3, title: 'Turistická mapa', kind: 'tfgrid', okruh: 'pomer',
+      no: 11, points: 4, stupnice: STUPNICE11, title: 'Turistická mapa', kind: 'tfgrid', okruh: 'pomer',
       intro: `${Number.isInteger(a) && a <= 4 ? 'Každé' : 'Každých'} ${cz(a)} cm na turistické mapě rovinaté oblasti je ve skutečnosti ${b} m. Délka vycházkové trasy je přesně ${cz(V)} km, což je trojnásobek délky přímé trasy. Rozhodněte o každém z tvrzení (11.1–11.3), zda je pravdivé (A), či nikoli (N).`,
       statements: [
         tvrzeni(`Trasa, která na mapě měří ${mm} mm, je ve skutečnosti delší než ${cz(hranice)} km.`, p1,
@@ -3621,7 +3524,7 @@
     const vysece = [['magnolie', mag, true], ['jabloně', jab, true], ['levandule', lev, true], ['bazalka', baz, true], ['hortenzie', hor, true], ['růže', ruz, false]]
       .map(([jm, d, zn]) => ({ jm, uhel: d * 15, text: zn ? d * 15 + '°' : '' }));
     return {
-      no: 11, points: 3, title: 'Kruhový diagram zahrady', kind: 'tfgrid', okruh: 'data',
+      no: 11, points: 4, stupnice: STUPNICE11, title: 'Kruhový diagram zahrady', kind: 'tfgrid', okruh: 'data',
       svg: svgKolac(vysece),
       intro: `V zahradě se pěstuje 6 druhů rostlin. Diagram udává, jakou část osázené plochy zahrady zabírají jednotlivé druhy rostlin. V každé části zahrady se pěstuje pouze jeden druh rostlin. Magnolie zabírají plochu o rozloze ${Am} m². V některých výsečích diagramu je uvedena velikost úhlu, který příslušnou výseč vymezuje. Rozhodněte o každém z tvrzení (11.1–11.3), zda je pravdivé (A), či nikoli (N).`,
       statements: [
@@ -3656,7 +3559,7 @@
     const ZLS = { 1: 'jednu', 2: 'dvě', 3: 'tři', 4: 'čtyři' }, JM = { 2: 'poloviny', 3: 'třetiny', 4: 'čtvrtiny', 5: 'pětiny', 10: 'desetiny', 20: 'dvacetiny', 25: 'pětadvacetiny', 50: 'padesátiny' };
     const zlText = (n, d) => (n === 1 && d === 2 ? 'polovinu' : ZLS[n] && JM[d] ? `${ZLS[n]} ${n === 1 ? JM[d].replace(/y$/, 'u') : JM[d]}` : `${n}/${d}`);
     return {
-      no: 11, points: 3, title: 'Náklad lodi', kind: 'tfgrid', okruh: 'data',
+      no: 11, points: 4, stupnice: STUPNICE11, title: 'Náklad lodi', kind: 'tfgrid', okruh: 'data',
       svg: svgKolac([['rýže', r], ['cukr', c], ['káva', k], ['banány', k]].map(([jm, p]) => ({ jm, uhel: p * 3.6, text: p + ' %' }))),
       intro: `Náklad na lodi se skládá pouze ze čtyř druhů zboží – rýže, cukru, kávy a banánů. Loď veze ${X} tun banánů a ${X} tun kávy. Diagram udává, jaký podíl na celkové hmotnosti nákladu mají jednotlivé druhy zboží. Rozhodněte o každém z tvrzení (11.1–11.3), zda je pravdivé (A), či nikoli (N).`,
       statements: [
@@ -3691,7 +3594,7 @@
       ['γ = α', false, `γ = ${cz(ga)}°, ale α = ${cz(al)}°.`],
       ['α + β = 90°', false, `α + β = ${cz(al)} + ${cz(be)} = ${cz(al + be)}, ne 90.`]]);
     return {
-      no: 11, points: 3, title: 'Pravidelný mnohoúhelník', kind: 'tfgrid', okruh: 'geometrie',
+      no: 11, points: 4, stupnice: STUPNICE11, title: 'Pravidelný mnohoúhelník', kind: 'tfgrid', okruh: 'geometrie',
       svg: svgMnohouhelnik(n),
       intro: `V náčrtku pravidelného ${JMN[n]} se středem S jsou vyznačeny úhly α, β, γ: α svírají spojnice středu se dvěma sousedními vrcholy, β je úhel při vrcholu v trojúhelníku, který tvoří střed a tyto dva vrcholy, a γ je vnitřní úhel mnohoúhelníku. Úhly neměřte, náčrtek není přesný. Rozhodněte o každém z tvrzení (11.1–11.3), zda je pravdivé (A), či nikoli (N).`,
       statements: [
@@ -3720,7 +3623,7 @@
     const p2 = ri(0, 1) === 1, sTvr = p2 ? s : x + b;                                         // chyba: součet odvěsen
     const p3 = ri(0, 1) === 1, vTvr = p3 ? v : b;                                              // chyba: výška obdélníku
     return {
-      no: 11, points: 3, title: 'Obdélník a kosočtverec', kind: 'tfgrid', okruh: 'geometrie',
+      no: 11, points: 4, stupnice: STUPNICE11, title: 'Obdélník a kosočtverec', kind: 'tfgrid', okruh: 'geometrie',
       svg: svgKosoctverec(a, b),
       intro: `Obdélník se stranami délek ${a} cm a ${b} cm se skládá ze čtyř shodných pravoúhlých trojúhelníků (viz obrázek vlevo). Přemístěním trojúhelníků vznikl kosočtverec (vpravo). Rozhodněte o každém z tvrzení (11.1–11.3), zda je pravdivé (A), či nikoli (N).`,
       statements: [
@@ -3864,7 +3767,7 @@
       prompt: `Jaká je délka lomené čáry ACFHA?`,
       options: sh.labels, ans: sh.correctLetter,
       sol: [`Čára má čtyři úseky: AC a FH jsou stejně dlouhé úhlopříčky podlahy a stropu, CF a HA úhlopříčky dvou shodných bočních stěn. Na boční stěnu potřebuješ šířku haly, kterou dopočítáš z podlahy Pythagorovou větou.`,
-        `Šířka: ${u} · ${u} − ${d} · ${d} = ${s * s}, tedy ${s} m. Úhlopříčka boční stěny: ${s} · ${s} + ${v} · ${v} = ${w * w}, tedy ${w} m.`,
+        `Šířka haly s: s² = ${u}² − ${d}² = ${u * u} − ${d * d} = ${s * s}, s = √${s * s} = ${s} m. Úhlopříčka boční stěny w: w² = ${s}² + ${v}² = ${s * s} + ${v * v} = ${w * w}, w = √${w * w} = ${w} m.`,
         `Délka čáry: 2 · ${u} + 2 · ${w} = ${L} m${odpovedMC(sh)}`]
     };
   }
@@ -4527,9 +4430,187 @@
     };
   }
 
+  /* ── Pozice 9–12 podle ostrých testů 2017–2026 ──────────────────── */
+
+  // Obdélník ABCD vepsaný do kružnice se středem S; popsaná je jen strana AB.
+  function svgObdelnikKruh(r, a, b) {
+    const cx = 110, cy = 96, R = 72, hx = a / (2 * r) * R, hy = b / (2 * r) * R;
+    const A = [cx - hx, cy + hy], B = [cx + hx, cy + hy], C = [cx + hx, cy - hy], D = [cx - hx, cy - hy];
+    const t = (x, y, s, fill) => `<text x="${r1(x)}" y="${r1(y)}" fill="${fill || '#ffffff'}" font-size="13" font-family="monospace" text-anchor="middle">${s}</text>`;
+    const ven = (P, s) => { const dx = P[0] - cx, dy = P[1] - cy, d = Math.hypot(dx, dy); return t(P[0] + dx / d * 14, P[1] + dy / d * 14 + 4, s); };
+    return `<svg viewBox="0 0 220 194">`
+      + `<circle cx="${cx}" cy="${cy}" r="${R}" fill="none" stroke="#19e6e6" stroke-width="2"/>`
+      + `<polygon points="${[A, B, C, D].map(p => r1(p[0]) + ',' + r1(p[1])).join(' ')}" fill="#12233a" stroke="#19e6e6" stroke-width="2"/>`
+      + `<circle cx="${cx}" cy="${cy}" r="2.5" fill="#39ff9e"/>` + t(cx + 10, cy - 6, 'S', '#39ff9e')
+      + ven(A, 'A') + ven(B, 'B') + ven(C, 'C') + ven(D, 'D') + t(cx, A[1] - 7, a + ' cm', '#39ff9e')
+      + `</svg>`;
+  }
+
+  function gen9g() {
+    // Thaletova kružnice (konstrukční úlohy 9–10 ostrých testů): vrcholy obdélníku leží
+    // na kružnici, úhlopříčka je tedy průměr. Kdo vezme za úhlopříčku poloměr, dostane
+    // 13² − 10² = 69 a chybu pozná sám. Nahrazuje jednokrokový „Žebřík" a „Úhlopříčku hřiště".
+    const [r, a, b] = pick([[5, 6, 8], [5, 8, 6], [10, 12, 16], [10, 16, 12], [13, 10, 24], [13, 24, 10],
+      [15, 18, 24], [15, 24, 18], [17, 16, 30], [17, 30, 16], [25, 14, 48], [25, 48, 14]]);
+    return {
+      no: 9, points: 3, title: 'Obdélník v kružnici', okruh: 'geometrie',
+      svg: svgObdelnikKruh(r, a, b),
+      intro: `Všechny vrcholy obdélníku ABCD leží na kružnici k se středem S a poloměrem ${r} cm. Strana AB měří ${a} cm.`,
+      parts: [
+        { key: '9.1', points: 2, showExplain: true,
+          prompt: `Vypočítejte v cm délku strany BC.`,
+          ans: String(b),
+          sol: [
+            `Úhel ABC je pravý a jeho vrchol leží na kružnici k, takže k je Thaletova kružnice nad úhlopříčkou AC: úhlopříčka obdélníku je průměr kružnice, ne poloměr.`,
+            `|AC| = 2 · ${r} = ${2 * r} cm.`,
+            `Pythagorova věta v trojúhelníku ABC: |BC|² = ${2 * r}² − ${a}² = ${4 * r * r} − ${a * a} = ${b * b}, |BC| = √${b * b} = ${b} cm.`
+          ] },
+        { key: '9.2', points: 1,
+          prompt: `Vypočítejte v cm obvod obdélníku ABCD.`,
+          ans: String(2 * (a + b)),
+          sol: [
+            `Obvod obdélníku je dvojnásobek součtu dvou sousedních stran, tedy 2 · (|AB| + |BC|).`,
+            `|AB| = ${a} cm a |BC| = ${b} cm (z úlohy 9.1).`,
+            `o = 2 · (${a} + ${b}) = ${2 * (a + b)} cm.`
+          ] }
+      ]
+    };
+  }
+
+  // Úsečka AB, s ní rovnoběžná přímka p ve vzdálenosti v a kóta té vzdálenosti.
+  function svgPrimkaP(a, v) {
+    const u = Math.min(150 / (a + 2), 110 / v), yAB = 20 + v * u + 10, yP = yAB - v * u, x0 = 80, xB = x0 + a * u;
+    const t = (x, y, s, fill, k) => `<text x="${r1(x)}" y="${r1(y)}" fill="${fill}" font-size="13" font-family="monospace" text-anchor="${k || 'middle'}">${s}</text>`;
+    return `<svg viewBox="0 0 ${Math.round(xB + 50)} ${Math.round(yAB + 26)}">`
+      + `<line x1="12" y1="${r1(yP)}" x2="${r1(xB + 38)}" y2="${r1(yP)}" stroke="#39ff9e" stroke-width="2"/>` + t(xB + 42, yP + 4, 'p', '#39ff9e', 'start')
+      + `<line x1="${x0}" y1="${r1(yAB)}" x2="${r1(xB)}" y2="${r1(yAB)}" stroke="#19e6e6" stroke-width="3"/>`
+      + `<circle cx="${x0}" cy="${r1(yAB)}" r="3" fill="#19e6e6"/><circle cx="${r1(xB)}" cy="${r1(yAB)}" r="3" fill="#19e6e6"/>`
+      + t(x0, yAB + 18, 'A', '#ffffff') + t(xB, yAB + 18, 'B', '#ffffff') + t((x0 + xB) / 2, yAB + 18, a + ' cm', '#8a9bc4')
+      + `<line x1="${x0 - 30}" y1="${r1(yP)}" x2="${x0 - 30}" y2="${r1(yAB)}" stroke="#8a9bc4" stroke-width="1.5" stroke-dasharray="4 3"/>`
+      + t(x0 - 34, (yP + yAB) / 2 + 4, v + ' cm', '#8a9bc4', 'end')
+      + `</svg>`;
+  }
+
+  function gen10g() {
+    // Počet řešení jako u konstrukčních úloh CERMAT: kolik bodů C přímky p dá rovnoramenný
+    // a kolik pravoúhlý trojúhelník ABC. Rovnoramenný: osa úsečky AB (1 bod) a kružnice
+    // k(A; |AB|), k(B; |AB|) po 2, 1 nebo 0 bodech. Pravoúhlý: kolmice v A a v B a Thaletova
+    // kružnice nad AB. Body nikdy nesplynou — to by chtělo v = a·√3/2, a to celé není.
+    const a = pick([4, 6, 8]), v = ri(1, a + 2);
+    const rr = v < a ? 5 : v === a ? 3 : 1, pp = 2 * v < a ? 4 : 2 * v === a ? 3 : 2;
+    const kruh = (x, meze) => (x < meze ? '2 body' : x === meze ? '1 bod (přímka p se kružnice jen dotkne)' : 'žádný bod');
+    return {
+      no: 10, points: 2, title: 'Body C na přímce', okruh: 'geometrie',
+      svg: svgPrimkaP(a, v),
+      intro: `Úsečka AB měří ${a} cm. Přímka p je rovnoběžná s úsečkou AB a má od ní vzdálenost ${v} cm.`,
+      parts: [
+        { key: '10.1', points: 1,
+          prompt: `Kolik bodů C přímky p má tu vlastnost, že trojúhelník ABC je rovnoramenný?`,
+          ans: String(rr),
+          sol: [
+            `Rovnoramenný trojúhelník má dvě shodné strany, takže jsou tři možnosti: |CA| = |CB|, |AC| = |AB|, nebo |BC| = |AB|. Každou prober zvlášť.`,
+            `|CA| = |CB|: bod C leží na ose úsečky AB, a ta přímku p protne v 1 bodě.`,
+            `|AC| = ${a} cm: C leží na kružnici k₁(A; ${a} cm) a bod A je od přímky p vzdálen ${v} cm, takže ${kruh(v, a)}. Kružnice k₂(B; ${a} cm) stejně: ${kruh(v, a)}.`,
+            `Dohromady ${rr} ${skl(rr, 'bod', 'body', 'bodů')}.`
+          ] },
+        { key: '10.2', points: 1,
+          prompt: `Kolik bodů C přímky p má tu vlastnost, že trojúhelník ABC je pravoúhlý?`,
+          ans: String(pp),
+          sol: [
+            `Pravý úhel může být u vrcholu A, u vrcholu B, nebo u vrcholu C. U A a u B leží C na kolmici k úsečce AB, pravý úhel u C dává Thaletova kružnice nad AB.`,
+            `Pravý úhel u A nebo u B: kolmice v bodech A a B protnou přímku p, to jsou 2 body.`,
+            `Pravý úhel u C: C leží na Thaletově kružnici se středem ve středu úsečky AB a poloměrem ${cz(a / 2)} cm. Přímka p je od středu vzdálena ${v} cm, takže ${kruh(2 * v, a)}.`,
+            `Dohromady ${pp} ${skl(pp, 'bod', 'body', 'bodů')}.`
+          ] }
+      ]
+    };
+  }
+
+  function gen11i() {
+    // Vzor: M9 2017 2. ř. a 2020 1. ř. ú. 11 — natírání plotu. Kolik lidí a jak velký díl
+    // plotu: doba je nepřímo úměrná počtu pracovníků a přímo úměrná velikosti dílu.
+    const hod = n => `${n} ${skl(n, 'hodinu', 'hodiny', 'hodin')}`;
+    const DIL = { 2: ['Polovinu', 'polovina'], 3: ['Třetinu', 'třetina'], 4: ['Čtvrtinu', 'čtvrtina'] };
+    let p, T, q, m, n, t0;
+    for (;;) {
+      p = pick([2, 3, 4]); T = pick([12, 24, 36]); q = pick([2, 3, 4]); m = pick([2, 3, 4]); n = pick([2, 3, 4]);
+      t0 = T / p;
+      if (t0 % q === 0 && t0 / q >= 2 && !(m === p && n === q)) break;   // nepravdivá verze 2 musí vyjít celá
+    }
+    const pravda = [Math.random() < 0.5, Math.random() < 0.5, Math.random() < 0.5];
+    const s1 = pravda[0] ? T : t0 * (p + 1), s2 = pravda[1] ? t0 * q : t0 / q, s3 = pravda[2] ? T / m * n : T * n;
+    const verdikt = ok => `Tvrzení je ${ok ? 'PRAVDIVÉ (A)' : 'NEPRAVDIVÉ (N)'}.`;
+    return {
+      no: 11, points: 4, stupnice: STUPNICE11, title: 'Natírání plotu', kind: 'tfgrid', okruh: 'pomer',
+      intro: `Všichni pracovníci natírají plot stejným tempem. ${DIL[p][0]} plotu by natřeli všichni pracovníci společně za ${hod(t0)}.`,
+      statements: [
+        { text: `Celý plot by natřeli všichni pracovníci za ${hod(s1)}.`, ans: pravda[0] ? 'A' : 'N',
+          sol: [`Stejní pracovníci natřou ${p}krát větší plochu za ${p}krát delší dobu — doba je přímo úměrná velikosti natřené části.`,
+            `${t0} · ${p} = ${T} hodin.`,
+            `Celý plot natřou za ${hod(T)}, tvrzení uvádí ${s1}. ${verdikt(pravda[0])}`] },
+        { text: `${DIL[p][0]} plotu by natřela ${DIL[q][1]} pracovníků za ${hod(s2)}.`, ans: pravda[1] ? 'A' : 'N',
+          sol: [`Méně pracovníků pracuje déle: počet pracovníků a doba jsou nepřímo úměrné. ${DIL[q][1][0].toUpperCase() + DIL[q][1].slice(1)} pracovníků potřebuje ${q}krát víc času, ne ${q}krát méně.`,
+            `${t0} · ${q} = ${t0 * q} hodin.`,
+            `${DIL[p][0]} plotu natře ${DIL[q][1]} pracovníků za ${hod(t0 * q)}, tvrzení uvádí ${s2}. ${verdikt(pravda[1])}`] },
+        { text: `${DIL[m][0]} plotu by natřela ${DIL[n][1]} pracovníků za ${hod(s3)}.`, ans: pravda[2] ? 'A' : 'N',
+          sol: [`Dva vlivy naráz: menší díl plotu dobu zkrátí, méně pracovníků ji prodlouží. Nejdřív spočítej celý plot, pak díl plotu a nakonec méně pracovníků.`,
+            `Celý plot všichni za ${T} h, ${DIL[m][0].toLowerCase()} plotu všichni za ${T} : ${m} = ${T / m} h.`,
+            `${DIL[n][1][0].toUpperCase() + DIL[n][1].slice(1)} pracovníků: ${T / m} · ${n} = ${T / m * n} hodin, tvrzení uvádí ${s3}. ${verdikt(pravda[2])}`] }
+      ]
+    };
+  }
+
+  // Dva stejné obdélníky 2 : 1 — vlevo rozdělený na dva čtverce, vpravo na dva menší obdélníky.
+  function svgDvaDeleni() {
+    const r = x => `<rect x="${x}" y="16" width="96" height="48" fill="#12233a" stroke="#19e6e6" stroke-width="2"/>`;
+    const c = (x1, y1, x2, y2) => `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#19e6e6" stroke-width="1.5" stroke-dasharray="5 4"/>`;
+    return `<svg viewBox="0 0 240 80">` + r(12) + c(60, 16, 60, 64) + r(132) + c(132, 40, 228, 40) + `</svg>`;
+  }
+
+  function gen12l() {
+    // Vzor: M9 2023 2. náhr. a 2025 1. náhr. ú. 12 — velký obdélník se dá rozdělit na dva
+    // shodné menší obdélníky i na dva čtverce. Z obvodu menšího obdélníku 30 cm vyjde
+    // obvod velkého 36 cm; ostrá úloha nabízela i 40 cm (rozpůlený čtverec) a 60 cm.
+    const a = pick([3, 6, 9, 12]), maly = 5 * a, velky = 6 * a;
+    const sh = volbyMC(velky, [2 * maly, 20 * a / 3], a, 'jiný obvod', x => `${x} cm`);
+    return {
+      no: 12, points: 2, title: 'Obdélník ze dvou čtverců', kind: 'mc', okruh: 'geometrie',
+      svg: svgDvaDeleni(),
+      intro: `Velký obdélník lze rozdělit na dva shodné menší obdélníky, nebo na dva čtverce (viz obrázek). Obvod jednoho menšího obdélníku je ${maly} cm.`,
+      prompt: `Jaký je obvod velkého obdélníku?`,
+      options: sh.labels, ans: sh.correctLetter,
+      sol: [`Velký obdélník tvoří dva čtverce, jeho strany jsou tedy s a 2s (s je strana čtverce). Menší obdélník vznikne rozpůlením podél delší strany a má strany 2s a s : 2.`,
+        `Obvod menšího obdélníku: 2 · (2s + s : 2) = 5s = ${maly} cm, takže s = ${maly} : 5 = ${a} cm.`,
+        `Obvod velkého obdélníku: 2 · (2 · ${a} + ${a}) = ${velky} cm${odpovedMC(sh)}`]
+    };
+  }
+
+  function gen12m() {
+    // Vzor: M9 2026 1. náhr. ú. 12 — stejné video nahrávané dvěma rychlostmi. Rychlost a doba
+    // jsou nepřímo úměrné (36 Mb/s za 60 minut, 54 Mb/s za 40 minut).
+    const [t, v1, v2] = pick([[60, 36, 54], [60, 30, 40], [90, 40, 60], [60, 24, 40], [120, 25, 40], [48, 30, 45]]);
+    const t2 = t * v1 / v2;
+    // chyby: přímá úměra místo nepřímé, odečtený rozdíl rychlostí, stejná doba
+    const sh = volbyMC(t2, [t * v2 / v1, t - (v2 - v1), t], 5, 'jiný počet minut', x => `${x} min`);
+    return {
+      no: 12, points: 2, title: 'Nahrávání videa', kind: 'mc', okruh: 'pomer',
+      intro: `Jan nahrával video na internet rychlostí ${v1} Mb/s a trvalo mu to ${t} minut. Karel nahrával stejné video rychlostí ${v2} Mb/s.`,
+      prompt: `Kolik minut nahrával video Karel?`,
+      options: sh.labels, ans: sh.correctLetter,
+      sol: [`Stejné video znamená stejné množství dat. Vyšší rychlost ho přenese za kratší dobu: rychlost a doba jsou nepřímo úměrné, stálý je jejich součin.`,
+        `Data: ${v1} Mb/s po dobu ${t} min = ${tis(t * 60)} s, tedy ${v1} · ${tis(t * 60)} = ${tis(v1 * t * 60)} Mb.`,
+        `Karel: ${tis(v1 * t * 60)} : ${v2} = ${tis(t2 * 60)} s, tedy ${t2} minut${odpovedMC(sh)}`]
+    };
+  }
+
+  /* Úloha 11 (tři tvrzení A/N) se v ostrých testech 2023, 2025 a 2026 boduje stupnicí:
+     3 tvrzení správně 4 body, 2 správně 2 body, jinak 0 (klíče „3 podúlohy 4 b.
+     2 podúlohy 2 b. 1 podúloha 0 b."). Úloha 9 má proto 3 body, aby test měl dál 50. */
+  const STUPNICE11 = Object.freeze([0, 0, 2, 4]);
+
   const SLOTS = [
     [gen1, gen1b, gen1c, gen1d, gen1e, gen1f, gen1g, gen1h, gen1i, gen1j, gen1k], [gen2, gen2b, gen2c, gen2d, gen2e, gen2f], [gen3, gen3b, gen3c, gen3d, gen3e, gen3f], [gen4, gen4d, gen4e, gen4f, gen4g], [gen5, gen5b, gen5d, gen5e, gen5f, gen5g, gen5h, gen5i], [gen6, gen6b, gen6c, gen6d, gen6e, gen6f, gen6g, gen6h], [gen7d, gen7e, gen7f, gen7g, gen7h], [gen8, gen8b, gen8d, gen8e, gen8f, gen8g],
-    [gen9, gen9b, gen9c, gen9d, gen9e, gen9f], [gen10, gen10b, gen10c, gen10d, gen10e, gen10f], [gen11, gen11b, gen11c, gen11d, gen11e, gen11f, gen11g, gen11h], [gen12, gen12c, gen12e, gen12f, gen12g, gen12h, gen12i, gen12j, gen12k], [gen13, gen13b, gen13c, gen13d, gen13e, gen13f, gen13g, gen13h, gen13i], [gen14, gen14b, gen14c, gen14d, gen14e, gen14f, gen14g], [gen15, gen15b, gen15c, gen15d, gen15e, gen15f, gen15g, gen15h], [gen16, gen16b, gen16c, gen16d, gen16e, gen16f, gen16g, gen16h, gen16i, gen16j]
+    [gen9c, gen9d, gen9e, gen9f, gen9g], [gen10b, gen10d, gen10e, gen10f, gen10g], [gen11, gen11b, gen11d, gen11e, gen11f, gen11g, gen11h, gen11i], [gen12, gen12c, gen12e, gen12f, gen12g, gen12h, gen12i, gen12j, gen12k, gen12l, gen12m], [gen13, gen13b, gen13c, gen13d, gen13e, gen13f, gen13g, gen13h, gen13i], [gen14, gen14b, gen14c, gen14d, gen14e, gen14f, gen14g], [gen15, gen15b, gen15c, gen15d, gen15e, gen15f, gen15g, gen15h], [gen16, gen16b, gen16c, gen16d, gen16e, gen16f, gen16g, gen16h, gen16i, gen16j]
   ];
 
   window.RPG_CERMAT_9 = {

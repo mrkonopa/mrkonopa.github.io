@@ -351,8 +351,6 @@ const V69 = {
     const a = 2 * d / (4 - 2 * (q + 1));                                  // 4a = 2 · (q·a + a + d)
     return k === '8.1' ? a : k === '8.2' ? q * a : Math.abs(a * a - q * a * (a + d)); },
   // ── pozice 9 ──
-  'Žebřík u zdi': t => { const [h, d] = cisla(t.intro, /do výšky (\d+) m\. Pata žebříku je od zdi vzdálena (\d+) m/); return Math.hypot(h, d); },
-  'Úhlopříčka hřiště': t => { const [a, b] = cisla(t.intro, /rozměry (\d+) m a (\d+) m/); return Math.hypot(a, b); },
   'Drak na provázku': t => { const [c, a] = cisla(t.intro, /dlouhém (\d+) m[\s\S]*vzdáleným (\d+) m/); return Math.sqrt(c * c - a * a); },
   'Rovnoramenný trojúhelník': t => { const [z, O] = cisla(t.intro, /délky (\d+) cm má obvod (\d+) cm/), r = (O - z) / 2;
     return z * Math.sqrt(r * r - z * z / 4) / 2; },
@@ -388,6 +386,19 @@ const V69 = {
     return k === '7.1' ? a : a * a * (a + a * (1 + f)); },
   'Dlaždice': (t, k) => { const [a, b] = cisla(t.intro, /o rozměrech (\d+) cm a (\d+) cm/); let s = a; while (s % b) s += a;
     return k === '8.1' ? s : k === '8.2' ? (s / a) * (s / b) - 4 : 4 * s; },
+  // ── pozice 9–11: Thaletova kružnice, počet řešení, nepřímá úměrnost ──
+  'Obdélník v kružnici': (t, k) => { const [r, a] = cisla(t.intro, /poloměrem (\d+) cm\. Strana AB měří (\d+) cm/), b = Math.sqrt(4 * r * r - a * a);
+    return k === '9.1' ? b : 2 * (a + b); },
+  // rovnoramenný: osa AB (1 bod) + kružnice k(A; |AB|) a k(B; |AB|); pravoúhlý: kolmice v A a B + Thaletova kružnice
+  'Body C na přímce': (t, k) => { const [a, v] = cisla(t.intro, /měří (\d+) cm\. Přímka p [\s\S]*vzdálenost (\d+) cm/);
+    const pruniky = (d, r) => (d < r ? 2 : d === r ? 1 : 0);
+    return k === '10.1' ? 1 + 2 * pruniky(v, a) : 2 + pruniky(v, a / 2); },
+  'Natírání plotu': (t, k) => { const DIL = { polovinu: 1 / 2, třetinu: 1 / 3, čtvrtinu: 1 / 4, polovina: 1 / 2, třetina: 1 / 3, čtvrtina: 1 / 4 };
+    const m = t.intro.match(/(\S+) plotu by natřeli všichni pracovníci společně za (\d+) hodin/), T = +m[2] / DIL[m[1].toLowerCase()];
+    const z = tv(t, k); let x;
+    if ((x = z.match(/^Celý plot by natřeli všichni pracovníci za (\d+) hodin/))) return +x[1] === T;
+    x = z.match(/^(\S+) plotu by natřela (\S+) pracovníků za (\d+) hodin/);
+    return +x[3] === T * DIL[x[1].toLowerCase()] / DIL[x[2]]; },
   // ── pozice 5 ──
   'Pozemek': (t, k) => { const [c] = cisla(t.intro, /stranou c = (\d+) m/), S = c * c;
     if (k === '5.1') return (S / 5) / (c / 2);
@@ -401,9 +412,7 @@ const V69 = {
     const zbyva = DA - DA * tt / TA, bara = DB - zbyva;                    // stejná zbývající vzdálenost
     return k === '5.1' ? bara : tt * DB / bara; },
   // ── pozice 10 ──
-  'Podobné trojúhelníky': t => { const [kk, s] = cisla(t.parts[0].prompt, /k = (\d+)\. Strana menšího trojúhelníku měří (\d+) cm/); return kk * s; },
   'Měřítko mapy': t => { const [kk, d] = cisla(t.parts[0].prompt, /1 : (\d+) je úsečka dlouhá (\d+) cm/); return d * kk / 100; },
-  'Měřítko modelu': t => { const [kk, m] = cisla(t.parts[0].prompt, /měřítku 1 : (\d+)\. Na modelu měří budova (\d+) cm/); return m * kk / 100; },
   'Mapa a trasa': t => { const [a, b, D] = cisla(t.parts[0].prompt, /(\d+(?:,\d+)?) cm na turistické mapě je ve skutečnosti (\d+) m\. Trasa je ve skutečnosti dlouhá (\d+(?:,\d+)?) km/);
     return D * 1000 * a / b; },
   'Plocha podle měřítka': t => { const [kk, S] = cisla(t.parts[0].prompt, /1 : ([\d ]+) má pozemek obsah (\d+) cm²/); return S * kk * kk / 10000; },
@@ -516,10 +525,6 @@ const V69 = {
     if (k === '11.2') return cisla(s, /je (\d+) cm²/)[0] === 6 * a * a;
     const KRAT = { dvakrát: 2, třikrát: 3, čtyřikrát: 4, šestkrát: 6, osmkrát: 8 };
     return KRAT[s.match(/má (\S+) větší objem/)[1]] === (2 * a) ** 3 / a ** 3; },
-  'Tělesa': (t, k) => { const [a, b, c] = cisla(t.intro, /hrany délek (\d+) cm, (\d+) cm a (\d+) cm/), s = tv(t, k);
-    if (k === '11.1') return cisla(s, /je (\d+) cm³/)[0] === a * b * c;
-    if (k === '11.2') return cisla(s, /je (\d+) cm²/)[0] === 2 * (a * b + b * c + a * c);
-    const [, n, co] = s.match(/má (\d+) (\S+)\./); return +n === { stěn: 6, hran: 12, vrcholů: 8 }[co]; },
   'Turistická mapa': (t, k) => {
     const [a, b] = cisla(t.intro, /Každ\S+ ([\d,]+) cm na turistické mapě rovinaté oblasti je ve skutečnosti (\d+) m/);
     const [V] = cisla(t.intro, /trasy je přesně ([\d,]+) km, což je trojnásobek/), mNaCm = b / a, s = tv(t, k);
@@ -641,6 +646,9 @@ const V1214 = {
     [h] = cisla(t.intro, /stejná, a to (\d+) cm/), r2 = r1 - r1 / 4; return h * (r1 * r1 + r2 * r2); },     // v násobcích π
   'Trojboký hranol': t => { const [z, S] = cisla(t.intro, /základnu délky (\d+) cm a obsah (\d+) cm²/), v = 2 * S / z;
     if (!(v < z && v < Math.hypot(z / 2, v))) throw new Error('výška podstavy není nejkratší hrana'); return S * v; },
+  'Obdélník ze dvou čtverců': t => { const [o] = cisla(t.intro, /Obvod jednoho menšího obdélníku je (\d+) cm/), sq = o / 5; return 6 * sq; },
+  'Nahrávání videa': t => { const [v1, t1, v2] = cisla(t.intro, /rychlostí (\d+) Mb\/s a trvalo mu to (\d+) minut\. Karel nahrával stejné video rychlostí (\d+) Mb\/s/);
+    return v1 * t1 / v2; },
   // ── pozice 13 ──
   'Letní tábory': t => { const [N] = cisla(t.intro, /celkem (\d+) přihlášek/), p1 = 100 / SLOVA[t.intro.match(/míst o (\S+), ve druhém/)[1]],
     [p2] = cisla(t.intro, /ve druhém termínu o (\d+) %/), m = N / (2 + p1 / 100 + p2 / 100); return N - 2 * m; },

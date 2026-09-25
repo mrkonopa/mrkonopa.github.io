@@ -39,7 +39,11 @@ for (let run = 0; run < RUNS; run++) {
   for (const t of tasks) {
     sum += t.points;
     if (t.kind === 'tfgrid') {
-      if (t.statements.length !== t.points) bad.add(`t${t.no} tfgrid: ${t.points} b ≠ ${t.statements.length} tvrzení`);
+      // Stupnice CERMAT (3 správně 4 b, 2 správně 2 b, jinak 0): položka pro každý počet
+      // správných tvrzení, neklesá, končí plným počtem bodů. Bez ní bod za tvrzení.
+      const st = t.stupnice;
+      if (st ? (st.length !== t.statements.length + 1 || st[st.length - 1] !== t.points || st.some((b, i) => i && b < st[i - 1]))
+        : t.statements.length !== t.points) bad.add(`t${t.no} tfgrid: ${t.points} b, ${t.statements.length} tvrzení, stupnice ${JSON.stringify(st)}`);
       for (const s of t.statements) {
         if (!s.text || !/^[AN]$/.test(s.ans)) bad.add(`t${t.no} tfgrid ans ∉ {A,N}`);
         if (vadnyPostup(s.sol)) bad.add(`t${t.no} tfgrid vadné řešení`);
