@@ -1,0 +1,60 @@
+name: Kontrola videí na YouTube
+
+# Jednou týdně ověří, že všechna videa z výkladů a zápisků pořád existují.
+# Mrtvé nebo neověřitelné video = červený běh + issue „Mrtvá videa na YouTube"
+# (jinak by se o mrtvém odkazu nikdo nedozvěděl). Když je zase vše v pořádku,
+# běh issue sám zavře. Podrobnosti: .github/scripts/check-videos.js
+on:
+  schedule:
+    - cron: '23 5 * * 3'   # každou středu 5:23 UTC
+  workflow_dispatch:        # tlačítko „Run workflow" v Actions
+  pull_request:             # jen při změně kontroly samotné, ať se ověří naostro
+    paths:
+      - '.github/scripts/check-videos.js'
+      - '.github/workflows/videa.yml'
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  videa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Ověřit videa
+        env:
+          VIDEA_REPORT: videa-report.md
+        run: node .github/scripts/check-videos.js
+
+      - name: Ohlásit mrtvá videa
+        if: failure() && github.event_name != 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BEH: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          [ -s videa-report.md ] || echo "Kontrola spadla dřív, než stihla napsat souhrn." > videa-report.md
+          printf '\nBěh: %s\n' "$BEH" >> videa-report.md
+          nazev="Mrtvá videa na YouTube"
+          cislo=$(gh issue list --state open --search "in:title \"$nazev\"" --json number --jq '.[0].number')
+          if [ -n "$cislo" ]; then
+            gh issue comment "$cislo" --body-file videa-report.md
+          else
+            gh issue create --title "$nazev" --body-file videa-report.md
+          fi
+
+      - name: Zavřít hlášení, když je vše v pořádku
+        if: success() && github.event_name != 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BEH: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          for cislo in $(gh issue list --state open --search 'in:title "Mrtvá videa na YouTube"' --json number --jq '.[].number'); do
+            gh issue close "$cislo" --comment "Všechna videa zase žijí ($BEH)."
+          done

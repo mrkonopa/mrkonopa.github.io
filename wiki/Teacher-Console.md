@@ -1,82 +1,36 @@
 # Učitelská konzole
 
-Soubor: `projects/rpg-ucitel.html`
+<https://mrkonopa.github.io/projects/rpg-ucitel.html> · soubor `projects/rpg-ucitel.html`
 
-## Role systém
+**Návod je v konzoli:** tlačítko **?** vpravo dole (nápověda k otevřené záložce), malé **?** u méně
+samozřejmých prvků a **↻ Úvod**. Tady je jen mapa, ať víš, kam kliknout.
+
+## Role
 
 | Role | Kdo | Co smí |
-|------|-----|--------|
-| `student` | všichni přihlášení žáci | hrát, ukládat, číst vlastní data |
-| `teacher` | učitelé (allowlist v `roles`) | číst vše, náhledy postav, export CSV, diagnostika |
-| `superadmin` | Vojta | vše výše + mazání/úpravy postav, odměny, správa učitelů |
+|---|---|---|
+| `student` | každý přihlášený žák | hrát, ukládat, číst vlastní data |
+| `teacher` | e-maily v tabulce `roles` | číst vše, náhledy, export, diagnostika, úkoly |
+| `superadmin` | Vojta | navíc úpravy a mazání postav, odměny, správa učitelů, aktivita |
 
-Přidání učitele: v konzoli záložka **UČITELÉ** → zadej e-mail, klikni Přidat.
+Učitele přidává superadmin v záložce **SPRÁVA UČITELŮ**.
 
-## Záložky konzole
+## Záložky
 
-### PŘEHLED
-- Tabulka všech žáků s filtrem (ročník, třída, hledání)
-- Online indikátor: 🟢 aktivní <3 min, 🟡 aktivní <20 min
-- Auto-refresh každých 60 s
-- Export CSV
+| Záložka | Pro koho | K čemu |
+|---|---|---|
+| PŘEHLED ŽÁKŮ | učitel | tabulka žáků, online stav, export CSV, detail žáka, zaškrtávátko **Skrýt učitele** |
+| TŘÍDY | učitel | třídy s ročníkovou kohortou (po 1. 9. se posunou samy), hromadné vzkazy |
+| 📋 ÚKOLY | učitel | „procvič misi X do data", žák to vidí ve hře |
+| DIAGNOSTIKA | učitel | kde třída tápe: chybovost po misích a trend |
+| 📝 PŘIJÍMAČKY | 9. ročník | připravenost žáků a slabé okruhy celé třídy |
+| 🏆 ŽEBŘÍČKY | učitel | pořadí žáků ročníku podle XP (žák ve hře vidí jen spolužáky) |
+| VĚŽ LEGEND | jen 6.–9. | žebříček sezóny, síň slávy, uzavření sezóny |
+| ⚔️ SOUBOJE | učitel | souhrn odehraných živých soubojů i s pořadím |
+| VYSVĚTLENÍ | učitel | jak žáci popsali svůj postup |
+| ZPĚTNÁ VAZBA | učitel | nápady a hlášení od žáků |
+| NÁHLED HER | učitel | hra nanečisto (`?preview=1`, nic se neukládá) |
+| SPRÁVA UČITELŮ | jen superadmin | přidání a odebrání učitelů |
+| 📜 AKTIVITA | jen superadmin | záznam zásahů učitelů do postav žáků |
 
-### DETAIL ŽÁKA (klik na řádek)
-- Level, XP, splněné úkoly, artefakty, atributy
-- Mastery přehled (21 misí s ukazatelem)
-- Odemykání misí (`teacherUnlocked`)
-- Odměny (superadmin):
-  - **⭐ Přidat XP** — zadej ±číslo, level se dopočítá
-  - **💰 Přidat kredity** — upraví peněženku žáka (musí mít alespoň 1 přihlášení)
-- Poznámky — vzkaz žákovi (vidí ve hře jako widget „📨 Vzkazy")
-- Náhledy: 👁 Otevřít postavu žáka / 🎬 Hra nanečisto
-
-### TŘÍDY
-- Vytváření tříd s označením (např. „9.A") a rokem kohorty
-- Roční posun: třída se po 1. září automaticky posune (6→7→8→9)
-- Přiřazení žáků (klidně napříč ročníky)
-- Hromadné poznámky celé třídě
-- Hromadné akce třídy: +XP / odemčení misí
-
-### DIAGNOSTIKA
-- Heatmapa chybovosti (21 misí × žáci)
-- Filtr dle třídy
-- Trend: 🔺 zhoršení / 🔽 zlepšení (delta posledních 2 snímků)
-- Barvy: zelená (⌀0 chyb) → červená (⌀4+ chyb)
-
-### VĚŽ LEGEND
-- Žebříček sezóny (kdo je nejvýš)
-- Síň slávy (natrvalo)
-- Tlačítko „Uzavřít sezónu" — uloží top 10 do síně slávy
-
-### SOUBOJE
-- Historie live soubojů (datum, skóre, výsledek)
-- Podium nejaktivnějších hráčů (🥇🥈🥉)
-
-### VYSVĚTLENÍ
-- Žáci po správné odpovědi mohou popsat postup
-- Uloženo do `explanations`, učitel čte zde
-
-### ZPĚTNÁ VAZBA
-- Žáci mohou hlásit chyby v úlohách
-- Učitel vidí, schvaluje/maže
-
-## Hromadné akce (superadmin)
-
-V záložce PŘEHLED: zaškrtnout více žáků →
-- **Bulk +XP** — přidat XP vybraným
-- **Bulk unlock** — odemknout konkrétní misi vybraným
-- **Bulk smazat** — smazat vybrané postavy (nevratné!)
-
-Křížová ochrana: `bulkUnlock` kontroluje, zda jde mise o ročník kohorty třídy.
-
-## Náhledový režim her
-
-- `?su=<user_id>` — načte postavu žáka, read-only banner, nic se neukládá
-- `?preview=1` — hra nanečisto, sandbox localStorage
-
-## Online přítomnost
-
-Heartbeat každých 120 s aktualizuje `updated_at` v `saves`. Konzole zobrazuje:
-- 🟢 `updated_at` < 3 minuty
-- 🟡 `updated_at` < 20 minut
-- (prázdné) jinak
+Čtení postavy žáka bez možnosti změny: odkaz 👁 v detailu žáka (`?su=<id>`).

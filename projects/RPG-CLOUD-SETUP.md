@@ -107,6 +107,23 @@ Postupem času přibyly další funkce, každá má svůj SQL soubor. **Stačí 
 | 10 | [`rpg-cloud-setup-phase10.sql`](./rpg-cloud-setup-phase10.sql) | 9 | `feedback` — anonymní nápady hráčů |
 | 11 | [`rpg-cloud-setup-phase11.sql`](./rpg-cloud-setup-phase11.sql) | 1–5 | Věž legend (`tower_runs`, `tower_hall` + RPC) |
 | 12 | [`rpg-cloud-setup-phase12.sql`](./rpg-cloud-setup-phase12.sql) | 11, 2 | Věž legend — nástroje pro učitele (žebříček + mazání) |
+| 13 | [`rpg-cloud-setup-phase13.sql`](./rpg-cloud-setup-phase13.sql) | 2, 7 | trvalá historie živých soubojů (`battle_results`) |
+| 14 | [`rpg-cloud-setup-phase14.sql`](./rpg-cloud-setup-phase14.sql) | 7 | týmový režim a rychlá odveta živého souboje |
+| 15 | [`rpg-cloud-setup-phase15.sql`](./rpg-cloud-setup-phase15.sql) | 1–3 | audit log akcí učitelů (záložka AKTIVITA) |
+| 16 | [`rpg-cloud-setup-phase16.sql`](./rpg-cloud-setup-phase16.sql) | 3 | archiv tříd, které dohrály 2. stupeň |
+| 17 | [`rpg-cloud-setup-phase17.sql`](./rpg-cloud-setup-phase17.sql) | 11 | věž zavřená o letních prázdninách (i na serveru) |
+| 18 | [`rpg-cloud-setup-phase18.sql`](./rpg-cloud-setup-phase18.sql) | 11, 12, 17 | bezpečnostní úklid podle Supabase linteru |
+| 19 | [`rpg-cloud-setup-phase19.sql`](./rpg-cloud-setup-phase19.sql) | 4, 11, 17 | hardening: bezpečný cast XP v žebříčku, strop patra věže |
+| 20 | [`rpg-cloud-setup-phase20.sql`](./rpg-cloud-setup-phase20.sql) | 3 | úkoly s termínem (`assignments`, záložka ÚKOLY) |
+| 21 | [`rpg-cloud-setup-phase21.sql`](./rpg-cloud-setup-phase21.sql) | 2, 3 | přijímačky: cloud pokroku + připravenost žáka |
+| 22 | [`rpg-cloud-setup-phase22.sql`](./rpg-cloud-setup-phase22.sql) | 21 | přijímačky: diagnostika okruhů pro celou třídu |
+| 23 | [`rpg-cloud-setup-phase23.sql`](./rpg-cloud-setup-phase23.sql) | 2, 7, 11, 12 | oprava: `my_role()` nesmí vracet NULL (jinak se otevřou učitelské brány) |
+| 24 | [`rpg-cloud-setup-phase24.sql`](./rpg-cloud-setup-phase24.sql) | 20 | oprava: poškozený save žáka neshodí učiteli přehled úkolů |
+| 25 | [`rpg-cloud-setup-phase25.sql`](./rpg-cloud-setup-phase25.sql) | 2, 23 | oprava: „permission denied for function my_role" |
+| 26 | [`rpg-cloud-setup-phase26.sql`](./rpg-cloud-setup-phase26.sql) | 2, 23 | `staff_emails()` — „Skrýt učitele" funguje i běžnému učiteli |
+| S | [`../rpg-cloud-setup-security.sql`](../rpg-cloud-setup-security.sql) | 1 | serverové stropy kreditů a XP (trigger na `saves`), v kořeni repa |
+
+Číselné pořadí je vždy bezpečné (6b po 6, bezpečnostní trigger kdykoli po fázi 1). **Fázi 7 nenechávej bez fáze 9** — teprve devítka odebere novým funkcím právo pro `anon`.
 
 ## Spustit se to dá kdykoli znovu (idempotentní)
 
@@ -118,4 +135,4 @@ Všechny soubory jsou napsané tak, že **je můžeš spustit opakovaně bez chy
 
 Žádné `drop table`, takže opakované spuštění **nikdy nesmaže data** žáků.
 
-> **Aktuální stav (projekt `ovajoalbyofenjbbyhcy`):** všechny fáze 1–12 jsou nasazené a živé. Tabulka níže je referenční — využiješ ji při zakládání nového projektu nebo když přidáš kolegovi vlastní instanci.
+> **Aktuální stav (projekt `ovajoalbyofenjbbyhcy`):** všechny fáze 1–26 i bezpečnostní trigger jsou nasazené (ověřeno 23. 9. 2026). Znovu ověříš dotazem [`tools/sql-stav-nasazeni.sql`](../tools/sql-stav-nasazeni.sql) — jen čte a u opravených funkcí hledá otisk nové verze. Tabulka výše je referenční pro nový projekt.
