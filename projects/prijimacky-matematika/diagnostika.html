@@ -118,7 +118,7 @@ function dgRender(){
   } else if(it.type==='yn'){
     ans.innerHTML = '<div class="yn-row"><button class="pz-btn" onclick="dgSubmitYN(\'A\')">ANO</button><button class="pz-btn" onclick="dgSubmitYN(\'N\')">NE</button></div>';
   } else {
-    ans.innerHTML = '<input type="text" id="dg-input" inputmode="'+PZ.inputMode(it.ans)+'" autocomplete="off" placeholder="výsledek" '+
+    ans.innerHTML = '<input type="text" id="dg-input" inputmode="'+(it.klavesnice||PZ.inputMode(it.ans))+'" autocomplete="off" placeholder="výsledek" '+
       'onkeydown="if(event.key===\'Enter\')dgSubmit()"><div style="margin-top:12px"><button class="pz-btn primary" onclick="dgSubmit()">Další →</button></div>';
     setTimeout(()=>{ const i=document.getElementById('dg-input'); if(i)i.focus(); },30);
   }

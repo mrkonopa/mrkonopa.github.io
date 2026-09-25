@@ -52,12 +52,105 @@
       .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
   }
 
-  // Kontrola odpovědi — přednostně sdílená checkAns z rpg-shared.js; fallback pro jistotu.
+  /* Kontrola odpovědi — přednostně sdílená checkAns z rpg-shared.js; fallback pro jistotu.
+     Dvě výjimky, kde by sdílená kontrola hodnotila jinak než CERMAT:
+     1) ZLOMEK jako správná odpověď se porovnává PŘESNĚ a musí být v základním tvaru.
+        checkAns má toleranci 0,016 kvůli hrám (dítě píše 0,33 za 1/3), takže uznala
+        1/14 místo 1/12 i −1/7 místo −3/20. Zlomek je v bance jen tam, kde zadání
+        chce „výsledek zlomkem v základním tvaru".
+     2) „NEMÁ ŘEŠENÍ" / „NEKONEČNĚ MNOHO ŘEŠENÍ" (rovnice) se uzná i v běžných
+        obměnách a s tečkou na konci. */
+  const RE_NEMA = /nemareseni|zadnereseni|nemazadn[ey](reseni|koren)|nemakoren|bezreseni|neexistuje|^∅$|^\{\}$|[=∈]∅$|^(k|x)?=?\{\}$|prazdnamnozina/;
+  const RE_NEKON = /nekonecne(mnoho)?|nekonecno|kazde(realne)?cislo|vsechna(realna)?cisla|libovolne(realne)?cislo|^(x∈)?r$|[=∈]r$/;
+  const zakladni = s => {
+    const m = /^(-?)(\d+)\/(\d+)$/.exec(s);
+    return m ? { n: (m[1] ? -1 : 1) * Number(m[2]), d: Number(m[3]) } : null;
+  };
+  /* VÝRAZ s jednou proměnnou („4/3 p", „120x + 600") jako funkce té proměnné.
+     Vlastní malý parser (žádné eval): čísla, proměnná, + − · : / a závorky,
+     násobení se smí vynechat („2p", „3(p + 1)"). Zlomek před proměnnou se čte
+     jako v testu: „4/3p" = 4/3 · p, protože se počítá zleva doprava. */
+  function vyrazFn(s, prom) {
+    const t = [];
+    for (let i = 0; i < s.length;) {
+      const ch = s[i];
+      if (/[\d.]/.test(ch)) {
+        let j = i; while (j < s.length && /[\d.]/.test(s[j])) j++;
+        const n = s.slice(i, j); if (!/^\d+(\.\d+)?$/.test(n)) return null;
+        t.push(Number(n)); i = j; continue;
+      }
+      if (ch === prom) t.push('v');
+      else if ('+-*/()'.includes(ch)) t.push(ch);
+      else return null;                                      // cizí znak (jiná proměnná, jednotka…)
+      i++;
+    }
+    const u = [];
+    t.forEach(x => {                                          // doplní vynechané násobení
+      const p = u[u.length - 1];
+      if ((typeof p === 'number' || p === 'v' || p === ')') && (typeof x === 'number' || x === 'v' || x === '(')) u.push('*');
+      u.push(x);
+    });
+    return v => {
+      let k = 0;
+      const faktor = () => {
+        const x = u[k];
+        if (x === '-' || x === '+') { k++; const b = faktor(); return b === null ? null : (x === '-' ? -b : b); }
+        if (x === '(') { k++; const a = soucet(); if (u[k] !== ')') return null; k++; return a; }
+        if (typeof x === 'number') { k++; return x; }
+        if (x === 'v') { k++; return v; }
+        return null;
+      };
+      const soucin = () => {
+        let a = faktor();
+        while (a !== null && (u[k] === '*' || u[k] === '/')) { const op = u[k++], b = faktor(); a = b === null ? null : (op === '*' ? a * b : a / b); }
+        return a;
+      };
+      const soucet = () => {
+        let a = soucin();
+        while (a !== null && (u[k] === '+' || u[k] === '-')) { const op = u[k++], b = soucin(); a = b === null ? null : (op === '+' ? a + b : a - b); }
+        return a;
+      };
+      const r = soucet();
+      return r !== null && k === u.length && Number.isFinite(r) ? r : null;
+    };
+  }
   function check(raw, correct) {
-    if (typeof window.checkAns === 'function') return window.checkAns(raw, correct);
-    const norm = s => String(s).trim().toLowerCase().normalize('NFD')
-      .replace(/[̀-ͯ]/g, '').replace(/\s+/g, '').replace(/,/g, '.').replace(/[−–]/g, '-');
+    const norm = s => String(s == null ? '' : s).trim().toLowerCase().normalize('NFD')
+      .replace(/[̀-ͯ]/g, '').replace(/\s+/g, '').replace(/,/g, '.').replace(/[−–]/g, '-')
+      .replace(/[„“"'.!;]+$/g, '').replace(/^[„“"']+/g, '');
+    // „o 147 cm" u otázky „o kolik": předložka před číslem není součást odpovědi
+    raw = String(raw == null ? '' : raw).replace(/^\s*o\s*(?=[−–-]?\d)/i, '');
     const u = norm(raw), c = norm(correct);
+    if (c === 'nemareseni') return RE_NEMA.test(u) && !RE_NEKON.test(u);
+    if (c === 'nekonecnemnohoreseni') return RE_NEKON.test(u);
+    // ČAS „15:22": hodiny i minuty přesně (checkAns by z „15:40" vzala jen 15)
+    const cas = /^(\d{1,2}):(\d{2})$/.exec(c);
+    if (cas) { const m = /^(\d{1,2})[:.h](\d{2})(?:min|hod|h)?$/.exec(u); return !!m && +m[1] === +cas[1] && m[2] === cas[2]; }
+    /* 4) VÝRAZ s proměnnou („Vyjádřete výrazem s proměnnou p…"): uzná se každý
+       ekvivalentní zápis — „4/3p", „p + p/3", „4p : 3" —, oba výrazy se porovnají
+       v několika bodech. Přibližné „1,33p" neprojde (tolerance je 1e-9). */
+    const prom = c.match(/[a-z]/g);
+    if (prom && new Set(prom).size === 1 && /[\d+\-*/()]/.test(c)) {
+      const vycisti = x => x.replace(/[·⋅×]/g, '*').replace(/:/g, '/').replace(/^.*=/, '');
+      const f = vyrazFn(vycisti(c), prom[0]), g = vyrazFn(vycisti(u), prom[0]);
+      if (!f || !g) return false;
+      return [2, 3, 5, 7.5, 12].every(v => { const a = f(v), b = g(v); return a !== null && b !== null && Math.abs(a - b) <= 1e-9 * Math.max(1, Math.abs(a)); });
+    }
+    const zc = zakladni(c);
+    if (zc && zc.d > 1) {
+      const zu = zakladni(u);
+      const nsd = (x, y) => (y ? nsd(y, x % y) : x);   // vlastní, ať kontrola nezávisí na pořadí skriptů
+      return !!zu && zu.n * zc.d === zc.n * zu.d && nsd(Math.abs(zu.n), zu.d) === 1;
+    }
+    /* 3) DESETINNÉ číslo jako správná odpověď se taky porovnává přesně: tolerance
+       0,016 by u koeficientu 0,09 uznala i 0,1. Jednotka za číslem („1,5 l") dál
+       nevadí, druhá desetinná čárka ano (stejně jako ve sdílené checkAns). */
+    if (/^-?\d+\.\d+$/.test(c)) {
+      const m = /^-?\d+(?:\.\d+)?/.exec(u);
+      if (!m || /^\.\d/.test(u.slice(m[0].length))) return false;
+      return Math.abs(parseFloat(m[0]) - parseFloat(c)) < 1e-9;
+    }
+    if (typeof window.checkAns === 'function') return window.checkAns(raw, correct);
     if (u === c) return true;
     const ev = s => { if (/^-?\d+\/-?\d+$/.test(s)) { const [a, b] = s.split('/'); return parseFloat(a) / parseFloat(b); } return parseFloat(s); };
     const un = ev(u), cn = ev(c);

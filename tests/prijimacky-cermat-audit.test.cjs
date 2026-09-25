@@ -39,7 +39,11 @@ for (let run = 0; run < RUNS; run++) {
   for (const t of tasks) {
     sum += t.points;
     if (t.kind === 'tfgrid') {
-      if (t.statements.length !== t.points) bad.add(`t${t.no} tfgrid: ${t.points} b ≠ ${t.statements.length} tvrzení`);
+      // Stupnice CERMAT (3 správně 4 b, 2 správně 2 b, jinak 0): položka pro každý počet
+      // správných tvrzení, neklesá, končí plným počtem bodů. Bez ní bod za tvrzení.
+      const st = t.stupnice;
+      if (st ? (st.length !== t.statements.length + 1 || st[st.length - 1] !== t.points || st.some((b, i) => i && b < st[i - 1]))
+        : t.statements.length !== t.points) bad.add(`t${t.no} tfgrid: ${t.points} b, ${t.statements.length} tvrzení, stupnice ${JSON.stringify(st)}`);
       for (const s of t.statements) {
         if (!s.text || !/^[AN]$/.test(s.ans)) bad.add(`t${t.no} tfgrid ans ∉ {A,N}`);
         if (vadnyPostup(s.sol)) bad.add(`t${t.no} tfgrid vadné řešení`);
@@ -124,10 +128,13 @@ ok(bad.size === 0, `${RUNS} běhů bez strukturální chyby` + (bad.size ? ' —
   const dot = new Set(), per = new Set(), dec = new Set();
   for (let i = 0; i < 400; i++) for (let s = 0; s < 16; s++) {
     let t; try { t = C.genSlot(s); } catch (e) { continue; }
+    /* Kroky postupu se spojují MEZEROU: `String(pole)` je spojí čárkou a z konce
+       jednoho kroku a začátku dalšího („= 17/5" + „221/100 : …") vyrobí „5,221". */
+    const kroky = x => [].concat(x || []).flat(2).join(' ');
     const raw = [t.intro, t.prompt, t.sol,
-      ...(t.parts || []).map(x => (x.prompt || '') + ' ' + (x.sol || '')),
-      ...(t.statements || []).map(x => (x.text || '') + ' ' + (x.sol || '')),
-      ...(Array.isArray(t.sol) ? t.sol : [])].filter(x => typeof x === 'string').join(' ');
+      ...(t.parts || []).map(x => (x.prompt || '') + ' ' + kroky(x.sol)),
+      ...(t.statements || []).map(x => (x.text || '') + ' ' + kroky(x.sol)),
+      ...(Array.isArray(t.sol) ? t.sol.flat(2) : [])].filter(x => typeof x === 'string').join(' ');
     let txt = raw, prev;
     do { prev = txt; txt = txt.replace(/<[^<>]*>/g, ''); } while (txt !== prev);
     txt = txt.replace(NUMBERING, '#');
@@ -152,11 +159,14 @@ ok(bad.size === 0, `${RUNS} běhů bez strukturální chyby` + (bad.size ? ' —
   for (let i = 0; i < 600; i++) {
     let t; try { t = C.genSlot(3); } catch (e) { continue; }
     (t.parts || []).forEach(p => {
+      // Přesné číslo: celé, nebo desetinné nejvýš na setiny (−2,5; 0,75) — ne useknutý
+      // periodický rozvoj. Rovnice bez jediného kořene má odpověď slovy.
+      if (/^(nemá řešení|nekonečně mnoho řešení)$/.test(p.ans)) return;
       const n = Number(String(p.ans).replace(',', '.'));
-      if (!Number.isFinite(n) || !Number.isInteger(n)) bad.add(p.key + ' = ' + p.ans);
+      if (!Number.isFinite(n) || !Number.isInteger(Math.round(n * 100) / 100 * 100) || Math.abs(n * 100 - Math.round(n * 100)) > 1e-9) bad.add(p.key + ' = ' + p.ans);
     });
   }
-  ok(bad.size === 0, 'kořeny rovnic (pozice 4) jsou celá čísla'
+  ok(bad.size === 0, 'kořeny rovnic (pozice 4) jsou přesná čísla (celá nebo na setiny) či „nemá řešení“'
     + (bad.size ? ' — ' + [...bad].slice(0, 5).join(' | ') : ''));
 }
 

@@ -110,49 +110,10 @@ function bankaCermat() {
 
   /* ── 2. oblouk úhlu leží na kružnici SE STŘEDEM VE VRCHOLU ──
      Neměří se zdroják, ale SKUTEČNĚ VYKRESLENÁ křivka (getPointAtLength).
-     Kdyby se kontrolovalo jen „v `d` je správný příznak", byl by to opis
-     kódu; takhle se měří, co dítě uvidí. */
-  {
-    const C = bankaCermat();
-    const vz = new Map();
-    for (let i = 0; i < 8000 && vz.size < 12; i++) {
-      const t = C.genSlot(6);
-      if (t && t.svg && /rovnoběžk/i.test(t.title || '')) {
-        const u = (t.intro.match(/(\d+)°/) || [])[1];
-        if (u && !vz.has(u)) vz.set(u, t.svg);
-      }
-    }
-    const r = await page.evaluate(({ vz }) => {
-      /* průsečíky příčky s rovnoběžkami — pevné body kresby */
-      const VRCH = [{ x: 172, y: 52 }, { x: 120, y: 134 }], R = 20;
-      const out = [];
-      for (const [uhel, svgStr] of vz) {
-        const d = document.createElement('div'); d.innerHTML = svgStr; document.body.appendChild(d);
-        d.querySelectorAll('path').forEach((p, i) => {
-          const L = p.getTotalLength(), body = [];
-          for (let k = 0; k <= 12; k++) body.push(p.getPointAtLength(L * k / 12));
-          const V = VRCH.reduce((a, b) =>
-            Math.hypot(body[0].x - a.x, body[0].y - a.y) <= Math.hypot(body[0].x - b.x, body[0].y - b.y) ? a : b);
-          let max = 0;
-          body.forEach(q => { max = Math.max(max, Math.abs(Math.hypot(q.x - V.x, q.y - V.y) - R)); });
-          out.push({ uhel, i, odchylka: +max.toFixed(2) });
-        });
-        d.remove();
-      }
-      return out;
-    }, { vz: [...vz.entries()] });
-    const mimo = r.filter(x => x.odchylka > 0.5);
-    ok(r.length >= 30, 'změřeno ' + r.length + ' oblouků úhlů (pojistka proti běhu naprázdno)');
-    ok(mimo.length === 0,
-      'každý oblouk leží na kružnici se středem ve vrcholu (největší odchylka ' +
-      Math.max(0, ...r.map(x => x.odchylka)).toFixed(2) + ' px, práh 0,5)',
-      mimo.slice(0, 3).map(x => x.uhel + '° oblouk#' + x.i + ' → ' + x.odchylka + ' px').join(' | '));
-  }
-
-  /* ── 2b. totéž pro oblouky, které nesou svůj vrchol ──
      Kresby úhlů v pozici 7 testu nanečisto (přímky jedním bodem, kružnice
      opsaná, trojúhelník z přímek) mají vrcholy pokaždé jinde — počítají se
-     z úhlů —, takže pevný seznam vrcholů jako výše nestačí. Oblouk proto
+     z úhlů. (Kresba rovnoběžek s pevnými vrcholy, kterou tu kontrolovala
+     samostatná sekce, zmizela i s triviální úlohou „Úhly na rovnoběžkách".) Oblouk proto
      nese střed v `data-vrchol` a měří se proti němu, zase na VYKRESLENÉ
      křivce. Špatný příznak sweep dá odchylku v desítkách pixelů.
      Pozice 11 přidává pravidelné mnohoúhelníky (α, β, γ u středu a vrcholů). */
