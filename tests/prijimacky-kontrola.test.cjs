@@ -8,6 +8,8 @@
       z banky musí projít sám se sebou, neprojde rozšířený (2p/2q) ani
       nejbližší cizí zlomek, který by tolerance pustila.
    2. „NEMÁ ŘEŠENÍ" / „NEKONEČNĚ MNOHO ŘEŠENÍ" se uzná i v běžných obměnách.
+      DESETINNÉ číslo se porovnává taky přesně (0,1 není 0,09), ČAS celý
+      (15:40 není 15:22) a „o 147 cm" u otázky „o kolik" projde.
    3. POZICE 4 NIC NEPROZRADÍ: všechny rovnice mají stejný úvod, zadání
       začíná „Řešte …" a klávesnice je textová (číselná by u mobilu řekla,
       že odpověď není „nemá řešení"). Klávesnice se musí dostat i do
@@ -44,6 +46,13 @@ const PRIPADY = [
   ['každé číslo', 'nekonečně mnoho řešení', true], ['nemá řešení', 'nekonečně mnoho řešení', false],
   // mimo zlomky se nic nezměnilo: jednotka i čárka dál projdou
   ['2,5', '2.5', true], ['−2,5', '-2.5', true], ['12 kg', '12', true], ['7.', '7', true], ['8', '7', false],
+  // desetinná odpověď přesně: tolerance by u 0,09 uznala i 0,1
+  ['0,09', '0.09', true], ['0,090', '0.09', true], ['0,1', '0.09', false], ['1,5 l', '1.5', true], ['1,51', '1.5', false], ['1,5,3', '1.5', false],
+  // „o kolik…": předložka před číslem nevadí, jiné číslo dál neprojde
+  ['o 147 cm', '147', true], ['O 147', '147', true], ['o 140 cm', '147', false], ['o 2,5', '2.5', true],
+  // čas porovnaný CELÝ (tolerance by z „15:40" vzala jen hodiny)
+  ['15:22', '15:22', true], ['15.22', '15:22', true], ['15 h 22 min', '15:22', true], ['15:22 h', '15:22', true],
+  ['15:40', '15:22', false], ['15', '15:22', false], ['3:22', '15:22', false], ['15:2', '15:22', false],
 ];
 const spatne = PRIPADY.filter(([u, k, e]) => check(u, k) !== e);
 ok(spatne.length === 0, `${PRIPADY.length} ručních případů`, spatne.map(([u, k, e]) => `„${u}" vs ${k} → ${!e}`).join(' | '));

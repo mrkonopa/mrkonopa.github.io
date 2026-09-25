@@ -124,10 +124,13 @@ ok(bad.size === 0, `${RUNS} běhů bez strukturální chyby` + (bad.size ? ' —
   const dot = new Set(), per = new Set(), dec = new Set();
   for (let i = 0; i < 400; i++) for (let s = 0; s < 16; s++) {
     let t; try { t = C.genSlot(s); } catch (e) { continue; }
+    /* Kroky postupu se spojují MEZEROU: `String(pole)` je spojí čárkou a z konce
+       jednoho kroku a začátku dalšího („= 17/5" + „221/100 : …") vyrobí „5,221". */
+    const kroky = x => [].concat(x || []).flat(2).join(' ');
     const raw = [t.intro, t.prompt, t.sol,
-      ...(t.parts || []).map(x => (x.prompt || '') + ' ' + (x.sol || '')),
-      ...(t.statements || []).map(x => (x.text || '') + ' ' + (x.sol || '')),
-      ...(Array.isArray(t.sol) ? t.sol : [])].filter(x => typeof x === 'string').join(' ');
+      ...(t.parts || []).map(x => (x.prompt || '') + ' ' + kroky(x.sol)),
+      ...(t.statements || []).map(x => (x.text || '') + ' ' + kroky(x.sol)),
+      ...(Array.isArray(t.sol) ? t.sol.flat(2) : [])].filter(x => typeof x === 'string').join(' ');
     let txt = raw, prev;
     do { prev = txt; txt = txt.replace(/<[^<>]*>/g, ''); } while (txt !== prev);
     txt = txt.replace(NUMBERING, '#');

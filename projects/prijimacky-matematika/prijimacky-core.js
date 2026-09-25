@@ -70,14 +70,27 @@
     const norm = s => String(s == null ? '' : s).trim().toLowerCase().normalize('NFD')
       .replace(/[̀-ͯ]/g, '').replace(/\s+/g, '').replace(/,/g, '.').replace(/[−–]/g, '-')
       .replace(/[„“"'.!;]+$/g, '').replace(/^[„“"']+/g, '');
+    // „o 147 cm" u otázky „o kolik": předložka před číslem není součást odpovědi
+    raw = String(raw == null ? '' : raw).replace(/^\s*o\s*(?=[−–-]?\d)/i, '');
     const u = norm(raw), c = norm(correct);
     if (c === 'nemareseni') return RE_NEMA.test(u) && !RE_NEKON.test(u);
     if (c === 'nekonecnemnohoreseni') return RE_NEKON.test(u);
+    // ČAS „15:22": hodiny i minuty přesně (checkAns by z „15:40" vzala jen 15)
+    const cas = /^(\d{1,2}):(\d{2})$/.exec(c);
+    if (cas) { const m = /^(\d{1,2})[:.h](\d{2})(?:min|hod|h)?$/.exec(u); return !!m && +m[1] === +cas[1] && m[2] === cas[2]; }
     const zc = zakladni(c);
     if (zc && zc.d > 1) {
       const zu = zakladni(u);
       const nsd = (x, y) => (y ? nsd(y, x % y) : x);   // vlastní, ať kontrola nezávisí na pořadí skriptů
       return !!zu && zu.n * zc.d === zc.n * zu.d && nsd(Math.abs(zu.n), zu.d) === 1;
+    }
+    /* 3) DESETINNÉ číslo jako správná odpověď se taky porovnává přesně: tolerance
+       0,016 by u koeficientu 0,09 uznala i 0,1. Jednotka za číslem („1,5 l") dál
+       nevadí, druhá desetinná čárka ano (stejně jako ve sdílené checkAns). */
+    if (/^-?\d+\.\d+$/.test(c)) {
+      const m = /^-?\d+(?:\.\d+)?/.exec(u);
+      if (!m || /^\.\d/.test(u.slice(m[0].length))) return false;
+      return Math.abs(parseFloat(m[0]) - parseFloat(c)) < 1e-9;
     }
     if (typeof window.checkAns === 'function') return window.checkAns(raw, correct);
     if (u === c) return true;

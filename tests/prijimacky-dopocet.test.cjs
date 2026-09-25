@@ -11,7 +11,8 @@
 
    Dvě části:
      A) odpověď — pozice 15 (vzory zadání), 4 (dosazení kořene do
-        rovnice) a 3 (porovnání mnohočlenů),
+        rovnice), 3 (porovnání mnohočlenů), 6–9 a 12–14 (geometrie,
+        úlohy s volbami) a 1–2 (přesný výpočet výrazu ve zlomcích),
      B) každá ROVNOST v postupech celého testu („240 · 1,25 = 300")
         se vyhodnotí a musí platit. Na rozdíl od `prijimacky-postupy`
         (jen poslední krok, jen v úzkém tvaru) tu jde o všechny kroky.
@@ -201,7 +202,10 @@ function koeficient(vyraz, prom, stupen) {        // koeficient u prom^stupen, j
   if (!blizko(h(2), 4 * c2 + 2 * c1 + c0) || !blizko(h(-3), 9 * c2 - 3 * c1 + c0)) throw new Error('není kvadratický: „' + vyraz + '"');
   return [c0, c1, c2][stupen];
 }
-const cisloAns = a => Number(String(a).replace('−', '-').replace(',', '.'));
+const cisloAns = a => {                          // „−4/9" i „2,5" → číslo
+  const t = String(a).replace('−', '-').replace(',', '.'), z = /^(-?\d+)\/(\d+)$/.exec(t);
+  return z ? z[1] / z[2] : Number(t);
+};
 
 const nerozp34 = new Set(), spatne34 = [], druhy34 = {};
 let videno34 = 0;
@@ -246,8 +250,11 @@ function over34(poz, p) {
   if ((m = z.match(/napište koeficient u ([akny x])(²?): (.+)$/))) {
     return pouzij('koeficient', () => blizko(koeficient(m[3], m[1], m[2] ? 2 : 1), ans));
   }
-  if ((m = z.match(/napište absolutní člen \(číslo bez x\): (.+)$/))) {
-    return pouzij('absolutní člen', () => blizko(koeficient(m[1], 'x', 0), ans));
+  if ((m = z.match(/napište absolutní člen \(číslo bez ([akny x])\): (.+)$/))) {
+    return pouzij('absolutní člen', () => blizko(koeficient(m[2], m[1], 0), ans));
+  }
+  if ((m = z.match(/^Vypočítejte pro ([akny x]) = (−?\d+): (.+) =$/))) {
+    return pouzij('dosazení', () => { const hodnota = cisloAns(m[2]); return blizko(jsVyraz(m[3])(...PROM.map(q => (q === m[1] ? hodnota : 0))), ans); });
   }
   if ((m = z.match(/^Umocněte a výsledek zapište bez závorek: (.+?)\. Napište číslo, které stojí před (a)/))) {
     return pouzij('umocnění', () => blizko(koeficient(m[1], m[2], 1), ans));
@@ -262,12 +269,12 @@ for (let b = 0; b < 3000; b++) {
   });
 }
 /* Naměřeno 15 600 (pozice 3 má vždy 3 podúlohy, pozice 4 dvě, jen soustava
-   tři). Každý z devíti druhů zadání (od 2026-09-25 i rovnice bez jediného
-   kořene — „nemá řešení" a „nekonečně mnoho") se musí objevit, jinak by se šablona
+   tři). Každý z deseti druhů zadání (od 2026-09-25 i rovnice bez jediného
+   kořene — „nemá řešení" a „nekonečně mnoho" — a dosazení do výrazu) se musí objevit, jinak by se šablona
    mohla v bance změnit a vzor by tiše přestal něco kontrolovat. */
 ok(videno34 > 14000, 'pozice 3 a 4: prošlo se ' + videno34 + ' podúloh (podlaha 14 000)', 'naměřeno=' + videno34);
-ok(Object.keys(druhy34).length === 9 && Object.values(druhy34).every(n => n >= 100),
-  'pozice 3 a 4: všech 9 druhů zadání se v losu objevuje (podlaha 100×)',
+ok(Object.keys(druhy34).length === 10 && Object.values(druhy34).every(n => n >= 100),
+  'pozice 3 a 4: všech 10 druhů zadání se v losu objevuje (podlaha 100×)',
   JSON.stringify(druhy34));
 ok(nerozp34.size === 0, 'pozice 3 a 4: každé zadání se dalo přečíst (' + Object.keys(druhy34).length + ' druhů)',
   [...nerozp34].slice(0, 3).join(' | '));
@@ -686,6 +693,113 @@ ok(jinySpravne >= 300, 'pozice 12–14: „jiný…" je správnou volbou ' + jin
 ok(nerozp1214.size === 0, 'pozice 12–14: každé zadání se dalo přečíst', [...nerozp1214].slice(0, 3).join(' | '));
 ok(spatne1214.length === 0, 'pozice 12–14: výsledek ze zadání je právě jednou mezi seřazenými volbami, pod správným písmenem',
   [...new Set(spatne1214)].slice(0, 3).join(' | '));
+
+/* ═══ A5) POZICE 1 a 2 — číselné výrazy a krátké slovní úlohy ══════════
+   Výraz ze zadání („(2 + 1/4) : (2 · 1/4 − 5) =") se spočítá PŘESNĚ ve
+   zlomcích vlastním parserem. „a/b" se čte jako jedno číslo — v ostrém
+   testu je to zlomková čára, ne dělení, takže „1 : 3/4" je 4/3. Slovní
+   úlohy pozice 1 mají pevné šablony a každá má svůj vzor podle ZNĚNÍ. */
+const qz = (n, d = 1) => { if (d < 0) { n = -n; d = -d; } const g = gcd(Math.abs(n), d) || 1; return [n / g, d / g]; };
+const qSec = (a, b) => qz(a[0] * b[1] + b[0] * a[1], a[1] * b[1]);
+const qNas = (a, b) => qz(a[0] * b[0], a[1] * b[1]);
+const qDel = (a, b) => (b && b[0] !== 0 ? qz(a[0] * b[1], a[1] * b[0]) : null);
+const qNeg = a => a && [-a[0], a[1]];
+function qCislo(s) {                                   // „−1,25", „3/4", „7" → [čitatel, jmenovatel]
+  const m = /^([-−]?)(\d+)(?:,(\d+))?(?:\/(\d+))?$/.exec(String(s).trim().replace('.', ','));
+  if (!m) return null;
+  let r = m[3] ? qz(Number(m[2] + m[3]), 10 ** m[3].length) : qz(Number(m[2]));
+  if (m[4]) r = qz(r[0], r[1] * Number(m[4]));
+  return m[1] ? qNeg(r) : r;
+}
+function qVyraz(text) {
+  const tok = text.match(/\d+(?:,\d+)?(?:\/\d+)?|[()·:+−√²]/g);
+  if (!tok || tok.join('') !== text.replace(/\s+/g, '')) return null;     // neznámý znak ⇒ nerozpoznáno
+  let i = 0;
+  const zaklad = () => {
+    if (tok[i] === '(') { i++; const v = vyraz(); if (tok[i] !== ')') return null; i++; return v; }
+    const v = tok[i] ? qCislo(tok[i]) : null; if (v) i++; return v;
+  };
+  const mocnina = v => { if (v && tok[i] === '²') { i++; return qNas(v, v); } return v; };
+  const cinitel = () => {
+    if (tok[i] === '−') { i++; return qNeg(cinitel()); }
+    if (tok[i] === '√') {
+      i++; const w = zaklad(); if (!w || w[0] < 0) return null;
+      const a = Math.round(Math.sqrt(w[0])), b = Math.round(Math.sqrt(w[1]));
+      return a * a === w[0] && b * b === w[1] ? mocnina(qz(a, b)) : null;
+    }
+    return mocnina(zaklad());
+  };
+  const clen = () => {
+    let v = cinitel();
+    while (v && (tok[i] === '·' || tok[i] === ':')) { const op = tok[i++], w = cinitel(); v = w && (op === '·' ? qNas(v, w) : qDel(v, w)); }
+    return v;
+  };
+  const vyraz = () => {
+    let v = clen();
+    while (v && (tok[i] === '+' || tok[i] === '−')) { const op = tok[i++], w = clen(); v = w && qSec(v, op === '+' ? w : qNeg(w)); }
+    return v;
+  };
+  const v = vyraz();
+  return v && i === tok.length ? v : null;
+}
+const Q = n => qz(n);
+const ZL7 = { polovinou: 2, třetinou: 3, čtvrtinou: 4, pětinou: 5 };
+const FILM = { '1 hodinu': 60, 'hodinu a půl': 90, '2 hodiny': 120, '2 a půl hodiny': 150 };
+const SE_DETMI = { 'se dvěma': 2, 'se třemi': 3, 'se čtyřmi': 4 };
+const cas = m => Math.floor(m / 60) + ':' + String(m % 60).padStart(2, '0');
+const VZORY12 = [
+  ['výraz', /^Vypočítejte[^:]*: (.+) =$/, m => qVyraz(m[1])],
+  ['kolikrát: součet a odmocnina', /^Vypočítejte, kolikrát je součet čísel (\d+) a (\d+) větší než druhá odmocnina ze součinu čísel \1 a \2\.$/,
+    m => qDel(Q(+m[1] + +m[2]), qVyraz(`√(${m[1]} · ${m[2]})`))],
+  ['součin a součet', /^Vypočítejte, o kolik je součin čísel (\d+) a (\d+) větší než jejich součet\.$/, m => Q(m[1] * m[2] - m[1] - m[2])],
+  ['obsah v jednotkách', /^Vypočítejte, o kolik cm² je plocha o obsahu (\d+(?:,\d+)?) m² větší než plocha o obsahu (\d+) cm²\.$/,
+    m => qSec(qNas(qCislo(m[1]), Q(10000)), Q(-m[2]))],
+  ['hmotnost v jednotkách', /^Určete, kolikrát více je (\d+) kg než (\d+(?:,\d+)?) g\.$/, m => qDel(Q(m[1] * 1000), qCislo(m[2]))],
+  ['součet a rozdíl', /^V knihovně je dohromady (\d+) knih\. Beletrie je o (\d+) knih více než naučné literatury\. Kolik je naučných knih\?$/,
+    m => qz(m[1] - m[2], 2)],
+  ['kroky', /^Trasa je dlouhá (\d+(?:,\d+)?) km\. Jeden turista má krok dlouhý (\d+) cm, druhý (\d+) cm\. O kolik kroků udělá druhý turista na celé trase více než první\?$/,
+    m => { const T = qNas(qCislo(m[1]), Q(100000)); return qSec(qDel(T, Q(+m[3])), qNeg(qDel(T, Q(+m[2])))); }],
+  ['jízda s pauzou', /^Řidič strávil jízdou v autě přesně (\d+) hodin[y]?, než dojel do cíle\. Jízdu zahájil ráno ve? (\d+):(\d\d) a přerušil ji jen jednou, když si udělal pauzu na oběd: z auta vystoupil ve? (\d+):(\d\d) a vrátil se za (\d+) minut\. Pak pokračoval v jízdě až do cíle\. Určete, kdy řidič dorazil do cíle\. Výsledek zapište ve tvaru hodiny:minuty\.$/,
+    m => { const start = m[2] * 60 + +m[3], ven = m[4] * 60 + +m[5];
+      // pauza musí přijít během jízdy, jinak si zadání odporuje
+      return ven > start && ven - start < m[1] * 60 ? cas(start + m[1] * 60 + +m[6]) : 'pauza mimo jízdu'; }],
+  ['stuha', /^Dárkovou stuhu dlouhou (\d+) m jsme dvěma střihy rozdělili na tři díly\. Nejprve jsme odstřihli (.+?) stuhy na první dárek, potom jsme odstřihli (.+?) zbytku stuhy na druhý dárek a poslední díl jsme použili na třetí dárek\. Vypočítejte, kolik cm stuhy jsme použili na (druhý|třetí) dárek\.$/,
+    m => { const a = ZL[m[2]], b = ZL[m[3]]; if (!a || !b) return null;
+      const zbytek = qNas(Q(m[1] * 100), qz(a[1] - a[0], a[1])), druhy = qNas(zbytek, qz(b[0], b[1]));
+      return m[4] === 'druhý' ? druhy : qSec(zbytek, qNeg(druhy)); }],
+  ['poměr a rozdíl', /^Hmotnosti dvou závaží jsou v poměru (\d+) : (\d+) a liší se o (\d+) g\. Vypočítejte v gramech hmotnost (lehčího|těžšího) závaží\.$/,
+    m => { const p = +m[1], r = +m[2], dil = qz(+m[3], Math.abs(r - p)); return qNas(dil, Q(m[4] === 'lehčího' ? Math.min(p, r) : Math.max(p, r))); }],
+  ['uplynulá a zbývající doba', /^Celý film trvá (.+?)\. Doba, která ještě zbývá do konce filmu, je (\S+) doby, která již uplynula od začátku filmu\. Vypočítejte, kolik minut zbývá do konce filmu\.$/,
+    m => (FILM[m[1]] && ZL7[m[2]] ? qz(FILM[m[1]], ZL7[m[2]] + 1) : null)],
+  ['vstupenky', /^Dětská vstupenka do muzea stojí (.+?) ceny vstupenky pro dospělého\. Jeden dospělý (se \S+) dětmi zaplatil za vstupenky (\d+) korun\. Vypočítejte v korunách cenu jedné (dětské vstupenky|vstupenky pro dospělého)\.$/,
+    m => { const f = ZL[m[1]], n = SE_DETMI[m[2]]; if (!f || !n) return null;
+      const dosp = qDel(Q(+m[3]), qSec(Q(1), qNas(Q(n), qz(f[0], f[1])))); return m[4] === 'dětské vstupenky' ? qNas(dosp, qz(f[0], f[1])) : dosp; }],
+  ['opakovaná změna: hod', /^Při tréninku hodu oštěpem měřil první hod (\d+) m\. Každý další hod byl o (\S+) delší než hod předchozí\. Vypočítejte, o kolik cm byl třetí hod delší než první\.$/,
+    m => { const f = ZL[m[2]]; if (!f || f[0] !== 1) return null; const k = qz(f[1] + 1, f[1]), c1 = Q(m[1] * 100);
+      return qSec(qNas(c1, qNas(k, k)), qNeg(c1)); }],
+  ['opakovaná změna: odskok', /^Míček po prvním dopadu vyskočil do výšky (\d+) cm\. Každý další odskok byl o (\S+) nižší než odskok předchozí\. Vypočítejte, o kolik cm byl třetí odskok nižší než první\.$/,
+    m => { const f = ZL[m[2]]; if (!f || f[0] !== 1) return null; const k = qz(f[1] - 1, f[1]), c1 = Q(+m[1]);
+      return qSec(c1, qNeg(qNas(c1, qNas(k, k)))); }]
+];
+const BEHU12 = 6000, videno12 = {}, nerozp12 = new Set(), spatne12 = [];
+let podul12 = 0;
+for (const slot of [0, 1]) for (let b = 0; b < BEHU12; b++) {
+  const t = C.genSlot(slot);
+  t.parts.forEach(p => {
+    const text = ((t.intro ? t.intro + ' ' : '') + p.prompt).trim();
+    const shody = VZORY12.map(([nazev, re, f]) => { const m = re.exec(text); return m && [nazev, f(m)]; }).filter(Boolean);
+    if (shody.length !== 1 || shody[0][1] == null) { nerozp12.add('pozice ' + (slot + 1) + ': ' + text.slice(0, 90)); return; }
+    const [nazev, v] = shody[0];
+    podul12++; videno12[nazev] = (videno12[nazev] || 0) + 1;
+    const sedi = typeof v === 'string' ? v === String(p.ans) : (() => { const a = qCislo(p.ans); return !!a && a[0] === v[0] && a[1] === v[1]; })();
+    if (!sedi) spatne12.push('pozice ' + (slot + 1) + ' (' + nazev + '): „' + text.slice(-70) + '" → banka ' + p.ans + ', ze zadání ' + (typeof v === 'string' ? v : v[1] === 1 ? v[0] : v.join('/')));
+  });
+}
+ok(Object.keys(videno12).length === VZORY12.length && Object.values(videno12).every(n => n >= 100),
+  'pozice 1 a 2: všech ' + VZORY12.length + ' druhů zadání se v losu objevuje (podlaha 100×)', JSON.stringify(videno12));
+ok(podul12 > 17000, 'pozice 1 a 2: dopočítáno ' + podul12 + ' podúloh (podlaha 17 000)', 'naměřeno=' + podul12);
+ok(nerozp12.size === 0, 'pozice 1 a 2: každé zadání rozpoznal právě jeden vzor', [...nerozp12].slice(0, 3).join(' | '));
+ok(spatne12.length === 0, 'pozice 1 a 2: odpověď banky se shoduje s přesným dopočtem ze zadání', [...new Set(spatne12)].slice(0, 3).join(' | '));
 
 /* ═══ B) ROVNOSTI V POSTUPECH — celý test ═══════════════════════════
    Každé „výraz = výsledek" z čistých čísel se vyhodnotí. Od rovnítka se

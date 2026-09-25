@@ -12,17 +12,19 @@
   // (Mapování odpovídá oficiální CERMAT Části C1; ověřeno na reálném M9A 2025.)
   const TOPICS = [
     { id: 'vyrazy-mocniny', name: 'Číselné výrazy, mocniny a odmocniny', oblast: 'Číslo a proměnná', slots: [0] },
-    { id: 'zlomky', name: 'Zlomky a desetinná čísla', oblast: 'Číslo a proměnná', slots: [1] },
+    // Pozice 1 střídá čísla s krátkými slovními úlohami (stuha, poměr, jízda s pauzou),
+    // stejně jako ostré testy 2023–26; okruh nese každá její úloha (topicsForTask).
+    { id: 'zlomky', name: 'Zlomky a desetinná čísla', oblast: 'Číslo a proměnná', slots: [1, 0] },
     { id: 'procenta', name: 'Procenta a finanční matematika', oblast: 'Číslo a proměnná', slots: [14, 12] },
     // Pozice 13 střídá procenta, slovní úlohy a poměr (kytice podle nanečisto 2025).
     // Který okruh úloha opravdu cvičí, říká její `okruh` (topicsForTask); procvičování
     // okruhu z pozice bere jen úlohy, které do něj patří.
-    { id: 'pomer', name: 'Poměr a úměrnost', oblast: 'Závislosti a data', slots: [12, 4] },
+    { id: 'pomer', name: 'Poměr a úměrnost', oblast: 'Závislosti a data', slots: [12, 4, 0] },
     { id: 'vyrazy-promenna', name: 'Výrazy s proměnnou', oblast: 'Číslo a proměnná', slots: [2] },
     { id: 'rovnice', name: 'Rovnice a soustavy', oblast: 'Číslo a proměnná', slots: [3] },
     // Pozice 12 (index 11) sem už nepatří: všechny její varianty jsou tělesa (okruh 'telesa'),
     // takže by procvičování slovních úloh z ní nikdy nic nevylosovalo.
-    { id: 'slovni', name: 'Slovní úlohy', oblast: 'Nestandardní úlohy', slots: [12, 4, 5] },
+    { id: 'slovni', name: 'Slovní úlohy', oblast: 'Nestandardní úlohy', slots: [12, 4, 5, 0] },
     // Pozice 16 (index 15) sem patří taky: na 300 běhů losuje jen Rámeček, Obraz v rámu
     // a Chodník kolem bazénu — všechno obvod a obsah obdélníku s lemem. Dřív nepatřila
     // ŽÁDNÉMU okruhu, takže se neobjevovala v procvičování ani v diagnostice.

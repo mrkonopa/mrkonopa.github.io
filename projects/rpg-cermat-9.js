@@ -114,15 +114,37 @@
   }
 
   function gen1() {
-    // 1 bod — druhá odmocnina součinu; součin je vždy druhá mocnina ⇒ výsledek CELÉ číslo (bez kalkulačky)
-    const k = ri(2, 3), v = ri(2, 3);
-    const a = k, b = k * v * v;       // a·b = k²·v² = (k·v)²
-    const root = k * v;
+    // 1 bod — druhá odmocnina ze součinu, který je vždy druhou mocninou (bez kalkulačky).
+    // V polovině případů jako M9A/2025 ú. 1: „Vypočtěte, kolikrát je součet čísel 16 a 4
+    // větší než druhá odmocnina ze součinu čísel 16 a 4" (2,5krát). Dvojice se berou
+    // ze všech rozkladů r² = a · b pro r do 30; dřív byly jen čtyři.
+    const kolikrat = Math.random() < 0.5, dvojice = [];
+    for (let r = 4; r <= 30; r++) for (let a = 2; a < r; a++) {
+      const b = r * r / a;
+      // podíl na nejvýš dvě desetinná místa, ať se dá spočítat bez kalkulačky
+      if (Number.isInteger(b) && b <= 200 && (!kolikrat || ((a + b) * 100) % r === 0)) dvojice.push([a, b, r]);
+    }
+    const [a, b, r] = pick(dvojice);
+    if (kolikrat) {
+      const q = (a + b) / r;
+      return {
+        no: 1, points: 1, title: 'Číselný výraz', okruh: 'vyrazy-mocniny',
+        parts: [{ key: '', points: 1,
+          prompt: `Vypočítejte, kolikrát je součet čísel ${a} a ${b} větší než druhá odmocnina ze součinu čísel ${a} a ${b}.`,
+          ans: String(q),
+          sol: [
+            `„Kolikrát větší" znamená DĚLENÍ. Spočítej zvlášť součet a odmocninu ze součinu a teprve pak je vyděl.`,
+            `Součet: ${a} + ${b} = ${a + b}.`,
+            `Součin: ${a} · ${b} = ${a * b} a √${a * b} = ${r}, protože ${r} · ${r} = ${a * b}.`,
+            `${a + b} : ${r} = ${cz(q)}, součet je tedy ${cz(q)}krát větší.`
+          ] }]
+      };
+    }
     return {
-      no: 1, points: 1, title: 'Číselný výraz',
+      no: 1, points: 1, title: 'Číselný výraz', okruh: 'vyrazy-mocniny',
       parts: [{ key: '', points: 1,
         prompt: `Vypočítejte druhou odmocninu ze součinu čísel ${a} a ${b}: √(${a} · ${b}) =`,
-        ans: String(root),
+        ans: String(r),
         /* Postup má tři kroky v pevném tvaru: PRAVIDLO (proč se to dělá
            takhle) → DOSAZENÍ (s mezivýsledkem) → VÝSLEDEK. Kdo úlohu
            spletl, potřebuje nejdřív to pravidlo; samotná aritmetika mu
@@ -130,53 +152,34 @@
         sol: [
           `Odmocnit jde až jedno číslo — nejdřív tedy spočítej, co je pod odmocninou.`,
           `Součin: ${a} · ${b} = ${a * b}.`,
-          `√${a * b} = ${root}, protože ${root} · ${root} = ${a * b}.`
+          `√${a * b} = ${r}, protože ${r} · ${r} = ${a * b}.`
         ] }]
     };
   }
 
   function gen2() {
-    // 3 body — dva výrazy se zlomky, druhý s postupem
-    /* 🔴 Rozsahy b (2–6) a c (3–9) se PŘEKRÝVAJÍ, takže se losovalo
-       b = c, a pak je 1/b − 1/c nula — zadání „(−3) · (1/3 − 1/3)"
-       nezkouší vůbec nic. Naměřeno na 10 024 generováních: 11,4 %.
-       c = b + 1 zůstává v původním rozsahu (b je nejvýš 6). */
-    const a = ri(2, 6), b = ri(2, 6);
-    let c = ri(3, 9);
-    if (c === b) c = b + 1;
-    // 2.1: (-a) * (1/b - 1/c)
-    const v1 = (-a) * (1 / b - 1 / c);
-    const num1 = -a * (c - b), den1 = b * c, g1 = gcd(Math.abs(num1), den1);
-    const ans1 = g1 === den1 ? String(num1 / g1) : `${num1 / g1}/${den1 / g1}`;
-    // 2.2: (d^2 - e^2) / f  s postupem — f je dělitel num2 ⇒ výsledek CELÉ číslo
-    /* Dřív při rozdílu bez dělitele 2–6 (4² − 3² = 7, 7² − 6² = 13) padlo
-       f = 1 a zadání dělilo jedničkou. Takové dvojice se teď přelosují. */
-    let d, e, num2, fCand;
-    do { d = ri(4, 9); e = ri(2, d - 1); num2 = d * d - e * e; fCand = [2, 3, 4, 5, 6].filter(x => num2 % x === 0); }
-    while (!fCand.length);
-    const f = pick(fCand);
-    const ans2 = num2 / f;
+    // 3 body — 2.1 celé číslo krát rozdíl zlomků (M9A/2025 ú. 2.1), 2.2 složený zlomek
+    // s postupem. Dřív byla 2.2 „(d² − e²) : f", tedy vůbec ne zlomky, ale látka pozice 1.
+    let a, B, D, Z, R1;
+    for (;;) {
+      a = ri(2, 6); B = zlomekZ(2, 9); D = zlomekZ(2, 9);
+      if (B[1] === D[1] || lcm(B[1], D[1]) > 24) continue;  // společný jmenovatel potřeba, ale ne přes 24
+      Z = zKrok(B, D, -1); R1 = zRed(-a * Z.v[0], Z.v[1]);
+      if (R1[1] > 1 && vejdeSe(R1)) break;
+    }
+    const s2 = slozenyZlomek(false);
     return {
       no: 2, points: 3, title: 'Výrazy se zlomky',
       parts: [
         { key: '2.1', points: 1, showExplain: false,
-          prompt: `Vypočítejte a výsledek zapište zlomkem v základním tvaru: (−${a}) · (1/${b} − 1/${c}) =`,
-          ans: ans1,
+          prompt: `${ZL} (−${a}) · (${zTxt(B)} − ${zTxt(D)}) =`,
+          ans: zAns(R1),
           sol: [
-            `Zlomky se dají odečíst, teprve když mají stejného jmenovatele — nejdřív tedy uprav závorku.`,
-            `Společný jmenovatel je ${b} · ${c} = ${b * c}, takže 1/${b} − 1/${c} = ${c}/${b * c} − ${b}/${b * c} = ${zlS(c - b, b * c)}.`,
-            `Vynásob číslem −${a}: (−${a}) · ${zlZ(c - b, b * c)} = ${zlS(num1, den1)}.`,
-            g1 === 1 ? `Zlomek ${zlS(num1, den1)} už je v základním tvaru: ${ans1.replace('-', '−')}.`
-              : `Krať největším společným dělitelem, tedy ${g1}: ${ans1.replace('-', '−')}.`
+            `Zlomky se dají odečíst, teprve když mají stejného jmenovatele — převeď je na nejmenší společný násobek jmenovatelů a teprve pak násob.`,
+            Z.t,
+            `(−${a}) · ${zZav(Z.v)} = ${zTxt([-a * Z.v[0], Z.v[1]])}${gcd(a * Math.abs(Z.v[0]), Z.v[1]) > 1 ? ` = ${zTxt(R1)}` : ''}`
           ] },
-        { key: '2.2', points: 2, showExplain: true,
-          prompt: `Vypočítejte: (${d}² − ${e}²) : ${f} =`,
-          ans: String(ans2),
-          sol: [
-            `Závorka má přednost — spočítej ji celou dřív, než začneš dělit.`,
-            `Umocni obě čísla: ${d}² = ${d * d} a ${e}² = ${e * e}, takže závorka je ${d * d} − ${e * e} = ${num2}.`,
-            `Nakonec vyděl: ${num2} : ${f} = ${ans2}.`
-          ] }
+        { key: '2.2', points: 2, showExplain: true, ...s2 }
       ]
     };
   }
@@ -612,7 +615,7 @@
     const a = ri(4, 9), b = ri(4, 9);
     const ans = a * b - (a + b);
     return {
-      no: 1, points: 1, title: 'Číselný výraz',
+      no: 1, points: 1, title: 'Číselný výraz', okruh: 'vyrazy-mocniny',
       parts: [{ key: '', points: 1,
         prompt: `Vypočítejte, o kolik je součin čísel ${a} a ${b} větší než jejich součet.`,
         ans: String(ans),
@@ -668,53 +671,157 @@
   }
 
   function gen2b() {
-    // 3 body — zlomkový výraz + rozdíl druhých mocnin přes vzorec
-    const a = ri(2, 6), b = ri(2, 6), c = ri(3, 9);
-    const num = a * (b + c), den = b * c;          // a·(1/b + 1/c) = a(b+c)/(bc)
-    const g = gcd(num, den), n1 = num / g, d1 = den / g;
-    const ans1 = d1 === 1 ? String(n1) : `${n1}/${d1}`;
-    const d = ri(3, 9), e = ri(2, 8);
-    const ans2 = 2 * d * e;                          // (d+e)² − (d²+e²) = 2de
+    // 3 body — 2.1 DESETINNÉ číslo uvnitř zlomkového výrazu (2024 1. náhr. ú. 3.1,
+    // 2026 1. náhr. ú. 2.2), 2.2 složený zlomek s druhou mocninou (2025 2. náhr. ú. 3.2).
+    let q, m, t, a;
+    do {
+      q = pick([2, 4, 5]); m = ri(q + 1, 3 * q - 1); t = ri(2, 4); a = ri(1, 9);
+    } while (gcd(m, q) !== 1 || gcd(a, m * t) !== 1 || gcd(a, t * q) !== 1);
+    const R1 = zRed(-a, t * q);
+    const s2 = slozenyZlomek(true);
     return {
       no: 2, points: 3, title: 'Výrazy se zlomky',
       parts: [
         { key: '2.1', points: 1, showExplain: false,
-          prompt: `Vypočítejte a výsledek zapište zlomkem v základním tvaru: ${a} · (1/${b} + 1/${c}) =`,
-          ans: ans1,
+          prompt: `${ZL} ${a}/${m * t} · (−${cz(m / q)}) =`,
+          ans: zAns(R1),
           sol: [
-            `Zlomky se dají sečíst, teprve když mají stejného jmenovatele — nejdřív tedy uprav závorku.`,
-            `Společný jmenovatel je ${b} · ${c} = ${b * c}, takže 1/${b} + 1/${c} = ${c}/${b * c} + ${b}/${b * c} = ${b + c}/${b * c}.`,
-            `Vynásob číslem ${a}: ${a} · ${b + c}/${b * c} = ${num}/${den}.`,
-            g === 1 ? `Zlomek ${num}/${den} už je v základním tvaru: ${ans1}.`
-              : `Krať největším společným dělitelem, tedy ${g}: ${ans1}.`
+            `Desetinné číslo převeď na zlomek, ať se dá krátit. Pak násob čitatel čitatelem a jmenovatel jmenovatelem — a krať ještě před násobením, čísla zůstanou malá.`,
+            `${cz(m / q)} = ${m}/${q}`,
+            `${a}/${m * t} · (−${m}/${q}) = −${a}/${t} · 1/${q} = ${zTxt(R1)}`
           ] },
-        { key: '2.2', points: 2, showExplain: true,
-          prompt: `Vypočítejte: (${d} + ${e})² − (${d}² + ${e}²) =`,
-          ans: String(ans2),
-          sol: [
-            `(${d} + ${e})² NENÍ ${d}² + ${e}² — druhá mocnina součtu se roznásobuje vzorcem (a + b)² = a² + 2ab + b². Právě na tomhle je úloha postavená.`,
-            `Roznásob: (${d} + ${e})² = ${d * d} + 2 · ${d} · ${e} + ${e * e} = ${(d + e) * (d + e)}.`,
-            `Druhá závorka je ${d}² + ${e}² = ${d * d} + ${e * e} = ${d * d + e * e}.`,
-            `Odečti je: ${(d + e) * (d + e)} − ${d * d + e * e} = ${ans2}. Zbyde přesně prostřední člen 2 · ${d} · ${e}.`
-          ] }
+        { key: '2.2', points: 2, showExplain: true, ...s2 }
+      ]
+    };
+  }
+
+  /* ── Pozice 3 podle ostrých testů 2024–26 ─────────────────────────
+     Dlouhá úprava za 2 body s postupem („(3 − x)·(3 + x) + (x² + 2)·3 − 2x·(x + 1)",
+     M9 2026 1. náhr. ú. 3.3), umocnění „s háčkem", kde je zlomek v závorce nebo
+     před ní („4·(n − 1/2)²", „1/2·(2a + 4)²", M9 2026 ú. 3.2), a dosazení do
+     rozepsaného čtverce („pro a = 7: 9a² − 6a + 1", M9 2026 1. ř. ú. 3.1).
+     Mnohočlen je [c0, c1, c2] = c0 + c1·v + c2·v². */
+  const shuffle = arr => { const a = arr.slice(); for (let i = a.length - 1; i > 0; i--) { const j = ri(0, i); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+  const polyTxt = (P, v) => mnoho([[P[2], v + '²'], [P[1], v], [P[0], '']]);
+  const polySoucet = (...Ps) => [0, 1, 2].map(i => Ps.reduce((s, P) => s + P[i], 0));
+  const polyRozepsane = (Ps, v) => {
+    let s = '';
+    Ps.forEach(P => [[P[2], v + '²'], [P[1], v], [P[0], '']].forEach(([c, x]) => { if (c) s += clen(c, x, s === ''); }));
+    return s || '0';
+  };
+  const zkTxt = ([n, d]) => (d === 1 ? String(Math.abs(n)) : Math.abs(n) + '/' + d);
+  function clenZ(z, x, prvni) {                        // člen se zlomkovým koeficientem: „ − 2/3 n", „ + n²", „ + 1/4"
+    if (z[0] === 0) return '';
+    const telo = !x ? zkTxt(z) : Math.abs(z[0]) === z[1] ? x : zkTxt(z) + (z[1] > 1 ? ' ' : '') + x;
+    return prvni ? (z[0] < 0 ? '−' : '') + telo : (z[0] < 0 ? ' − ' : ' + ') + telo;
+  }
+  // „napište koeficient u x" / „u x²" / „absolutní člen" — ptá se jen na nenulový člen
+  function dotaz(P, v, nabidka) {
+    const moznosti = nabidka.filter(k => P[k] !== 0);
+    const k = pick(moznosti.length ? moznosti : [1]);
+    return {
+      text: k === 0 ? `absolutní člen (číslo bez ${v})` : `koeficient u ${v}${k === 2 ? '²' : ''}`,
+      zaver: k === 0 ? `Číslo bez ${v} (absolutní člen) je ${zn(P[0])}.` : `Koeficient u ${v}${k === 2 ? '²' : ''} je ${zn(P[k])}.`,
+      ans: String(P[k])
+    };
+  }
+  function dlouhyVyraz(v) {
+    for (;;) {
+      const A = ri(2, 6), C = ri(1, 5), D = ri(2, 4), E = ri(1, 3), F = ri(1, 4), K = ri(2, 4), L = ri(1, 5);
+      const G = ri(2, 4), H = ri(2, 3), P1 = ri(1, 4), Q1 = ri(2, 6), M = ri(2, 3), N = ri(1, 4);
+      const prvni = pick([
+        { t: `(${A} − ${v})·(${A} + ${v})`, P: [A * A, 0, -1] },
+        { t: `(${v} + ${P1})·(${Q1} − ${v})`, P: [P1 * Q1, Q1 - P1, -1] },
+        { t: `(${M}${v} − ${N})²`, P: [N * N, -2 * M * N, M * M] }
+      ]);
+      const dalsi = shuffle([
+        { t: `(${v}² + ${C})·${D}`, z: 1, P: [C * D, 0, D] },
+        { t: `${clen(E, v, true)}·(${v} + ${F})`, z: -1, P: [0, -E * F, -E] },
+        { t: `${K}·(${v} + ${L})`, z: -1, P: [-K * L, -K, 0] },
+        { t: `(${G}${v} − ${v})·${H}${v}`, z: 1, P: [0, 0, (G - 1) * H] }
+      ]).slice(0, 2);
+      const R = polySoucet(prvni.P, dalsi[0].P, dalsi[1].P);
+      if (R[1] === 0 || R.some(c => Math.abs(c) > 60)) continue;
+      const d = dotaz(R, v, [1, 1, 0, 2]);
+      const zapis = x => (x.z > 0 ? ' + ' : ' − ') + x.t;
+      const rozn = x => `${x.z > 0 ? '' : '−'}${x.t} = ${polyTxt(x.P, v)}`;
+      return {
+        prompt: `Upravte na co nejjednodušší tvar bez závorek a napište ${d.text}: ${prvni.t}${zapis(dalsi[0])}${zapis(dalsi[1])}`,
+        ans: d.ans,
+        sol: [
+          `Nejdřív roznásob každý součin zvlášť a teprve pak sečti členy se stejnou mocninou ${v}. Minus před součinem mění znaménko VŠEM členům, které z něj vzniknou.`,
+          `Roznásobíme: ${prvni.t} = ${polyTxt(prvni.P, v)}; ${rozn(dalsi[0])}; ${rozn(dalsi[1])}.`,
+          `Sečteme: ${polyRozepsane([prvni.P, dalsi[0].P, dalsi[1].P], v)} = ${polyTxt(R, v)}.`,
+          d.zaver
+        ]
+      };
+    }
+  }
+  function hacek(v) {
+    const druh = ri(1, 3);
+    if (druh === 1) {                                  // K·(v − 1/d)², K = m·d²
+      const d = pick([2, 3]), m = pick([1, 2]), K = m * d * d, P = [m, -2 * m * d, K], q = dotaz(P, v, [1, 1, 0, 2]);
+      return {
+        prompt: `Roznásobte a upravte (výsledek bez závorek) a napište ${q.text}: ${K} · (${v} − 1/${d})²`,
+        ans: q.ans,
+        sol: [
+          `Nejdřív umocni závorku podle vzorce (a − b)² = a² − 2ab + b², i když je v ní zlomek, a teprve pak násob číslem ${K} — násobí se KAŽDÝ ze tří členů.`,
+          `(${v} − 1/${d})² = ${v}² − 2 · ${v} · 1/${d} + (1/${d})² = ${v}²${clenZ(zRed(-2, d), v, false)}${clenZ(zRed(1, d * d), '', false)}.`,
+          `${K} · (${v}²${clenZ(zRed(-2, d), v, false)}${clenZ(zRed(1, d * d), '', false)}) = ${polyTxt(P, v)}.`,
+          q.zaver
+        ]
+      };
+    }
+    if (druh === 2) {                                  // 1/d·(d·v + c)², c násobek d
+      const d = pick([2, 3]), c = d * ri(1, 3), P = [c * c / d, 2 * c, d], q = dotaz(P, v, [1, 1, 0, 2]);
+      return {
+        prompt: `Roznásobte a upravte (výsledek bez závorek) a napište ${q.text}: 1/${d} · (${d}${v} + ${c})²`,
+        ans: q.ans,
+        sol: [
+          `Nejdřív umocni závorku podle vzorce (a + b)² = a² + 2ab + b², teprve pak násob zlomkem 1/${d} — to znamená vydělit číslem ${d} každý člen.`,
+          `(${d}${v} + ${c})² = ${polyTxt([c * c, 2 * d * c, d * d], v)}.`,
+          `1/${d} · (${polyTxt([c * c, 2 * d * c, d * d], v)}) = ${polyTxt(P, v)}.`,
+          q.zaver
+        ]
+      };
+    }
+    let p, qq;                                         // (p/q·v − r)²: háček je (p/q)² = p²/q²
+    do { p = ri(1, 3); qq = ri(2, 5); } while (gcd(p, qq) !== 1);
+    const r = ri(1, 4), c2 = zRed(p * p, qq * qq), c1 = zRed(-2 * p * r, qq), naV2 = Math.random() < 0.7;
+    const cil = naV2 ? c2 : c1;
+    return {
+      prompt: `Umocněte (zlomek zapište v základním tvaru) a napište koeficient u ${v}${naV2 ? '²' : ''}: (${p}/${qq} ${v} − ${r})²`,
+      ans: zAns(cil),
+      sol: [
+        `Umocňuje se CELÝ první člen i se zlomkem: na druhou jde čitatel i jmenovatel. Prostřední člen je dvojnásobek součinu obou členů v závorce.`,
+        `(${p}/${qq} ${v})² = ${zkTxt(c2)} ${v}², 2 · ${p}/${qq} ${v} · ${r} = ${clenZ(zRed(2 * p * r, qq), v, true)} a ${r}² = ${r * r}.`,
+        `(${p}/${qq} ${v} − ${r})² = ${clenZ(c2, v + '²', true)}${clenZ(c1, v, false)} + ${r * r}.`,
+        `Koeficient u ${v}${naV2 ? '²' : ''} je ${zTxt(cil)}.`
+      ]
+    };
+  }
+  function dosazeni(v) {                               // hodnota rozepsaného čtverce (p·v − q)²
+    let p, q, x;
+    do { p = ri(2, 5); q = ri(1, 5); x = ri(2, 9); } while (gcd(p, q) !== 1 || p * x - q < 5);
+    const P = [q * q, -2 * p * q, p * p], h = p * x - q;
+    return {
+      prompt: `Vypočítejte pro ${v} = ${x}: ${polyTxt(P, v)} =`,
+      ans: String(h * h),
+      sol: [
+        `Dosazovat do každého členu zvlášť jde, ale je to zdlouhavé. Výraz je rozepsaný čtverec (A − B)² = A² − 2AB + B², takže stačí dosadit do závorky.`,
+        `${p * p}${v}² = (${p}${v})², ${q * q} = ${q}² a prostřední člen sedí: 2 · ${p}${v} · ${q} = ${2 * p * q}${v}. Tedy ${polyTxt(P, v)} = (${p}${v} − ${q})².`,
+        `Pro ${v} = ${x}: (${p} · ${x} − ${q})² = ${h}² = ${h * h}.`
       ]
     };
   }
 
   function gen3b() {
-    // 4 body — vzorce (x−a)², rozdíl čtverců, doplnění na (x+k)²
-    const a = ri(3, 8), p = ri(2, 6), k = ri(2, 7);
+    // 4 body — dosazení do rozepsaného čtverce, rozdíl dvou čtverců, dlouhá úprava s postupem
+    const p = ri(2, 6);
     return {
       no: 3, points: 4, title: 'Algebraické výrazy',
       parts: [
-        { key: '3.1', points: 1,
-          prompt: `Ve výrazu (x − ${a})² = x² − ?·x + ${a}² napište číslo místo otazníku (koeficient u x).`,
-          ans: String(2 * a),
-          sol: [
-            `Použij vzorec (x − a)² = x² − 2ax + a²: prostřední člen je vždy dvojnásobek součinu obou členů v závorce, a právě ten se při umocňování nejčastěji zapomene.`,
-            `Tady je a = ${a}, takže 2a = 2 · ${a} = ${2 * a}.`,
-            `(x − ${a})² = x² − ${2 * a}x + ${a * a}; místo otazníku patří ${2 * a}.`
-          ] },
+        { key: '3.1', points: 1, ...dosazeni(pick(['a', 'x', 'n'])) },
         { key: '3.2', points: 1, showExplain: true,
           prompt: `Upravte na co nejjednodušší tvar a napište koeficient u x: (x + ${p})² − (x − ${p})²`,
           ans: String(4 * p),
@@ -724,14 +831,7 @@
             `Rozdíl: x² + ${2 * p}x + ${p * p} − x² + ${2 * p}x − ${p * p} — členy x² i čísla se vyruší.`,
             `Zbude ${2 * p}x + ${2 * p}x, koeficient u x je ${2 * p} + ${2 * p} = ${4 * p}.`
           ] },
-        { key: '3.3', points: 2, showExplain: true,
-          prompt: `Rozložte na součin pomocí vzorce a napište číslo místo otazníku: x² + ${2 * k}x + ${k * k} = (x + ?)²`,
-          ans: String(k),
-          sol: [
-            `Trojčlen tvaru a² + 2ab + b² je rozepsaný čtverec (a + b)². Z prostředního členu zjistíš b a poslední člen ti ho potvrdí.`,
-            `2 · x · b = ${2 * k}x, takže b = ${2 * k} : 2 = ${k}.`,
-            `Kontrola: b² = ${k} · ${k} = ${k * k} sedí, takže x² + ${2 * k}x + ${k * k} = (x + ${k})².`
-          ] }
+        { key: '3.3', points: 2, showExplain: true, ...dlouhyVyraz(pick(['x', 'n', 'y'])) }
       ]
     };
   }
@@ -961,18 +1061,44 @@
   /* ═══ TŘETÍ VARIANTY vybraných pozic (podle reálných CERMAT předloh) ═══ */
 
   function gen1c() {
-    // 1 bod — mocnina a násobení (pořadí operací), výsledek kladný
-    const a = ri(5, 9), b = ri(2, 4), c = ri(2, 4), ans = a * a - b * c;
+    // 1 bod — pořadí operací s mocninou. Čtyři tvary z ostrých testů: „a² − b · c",
+    // „(−6)² − 3 · (−3)" (M9 2022 2. ř. ú. 1), „√(1,3² − 1,2²)" (M9 2023 1. náhr.
+    // ú. 2.2) a „(0,08 − 1) : 0,2" (M9 2022 2. náhr. ú. 2.2). Desetinná čísla se
+    // počítají v celých setinách, aby nevznikl artefakt plovoucí čárky.
+    const tvar = ri(1, 4);
+    let prompt, ans, sol;
+    if (tvar === 1) {
+      const a = ri(5, 9), b = ri(2, 4), c = ri(2, 4);
+      ans = a * a - b * c; prompt = `Vypočítejte: ${a}² − ${b} · ${c} =`;
+      sol = [`Mocnina i násobení mají přednost před odčítáním — spočítej je dřív, ne zleva doprava.`,
+        `${a}² = ${a} · ${a} = ${a * a} a ${b} · ${c} = ${b * c}.`,
+        `Nakonec odečti: ${a * a} − ${b * c} = ${ans}.`];
+    } else if (tvar === 2) {
+      const a = ri(3, 9), b = ri(2, 6), c = ri(2, 6);
+      ans = a * a + b * c; prompt = `Vypočítejte: (−${a})² − ${b} · (−${c}) =`;
+      sol = [`Mocnina i násobení mají přednost před odčítáním. Pozor na znaménka: záporné číslo na druhou je KLADNÉ a odečíst záporné číslo znamená přičíst.`,
+        `(−${a})² = (−${a}) · (−${a}) = ${a * a} a ${b} · (−${c}) = −${b * c}.`,
+        `${a * a} − (−${b * c}) = ${a * a} + ${b * c} = ${ans}.`];
+    } else if (tvar === 3) {
+      const [x, y, z] = pick([[3, 4, 5], [5, 12, 13], [8, 15, 17], [6, 8, 10], [7, 24, 25], [9, 12, 15], [12, 16, 20]]);
+      const Z = cz(z / 10), Y = cz(y / 10), zz = cz(z * z / 100), yy = cz(y * y / 100), xx = cz(x * x / 100);
+      ans = cz(x / 10); prompt = `Vypočítejte: √(${Z}² − ${Y}²) =`;
+      sol = [`Pod odmocninou se nejdřív umocní a odečte. Odmocnina rozdílu NENÍ rozdíl odmocnin, takže výsledek není ${Z} − ${Y}.`,
+        `${Z}² = ${zz} a ${Y}² = ${yy}, rozdíl ${zz} − ${yy} = ${xx}.`,
+        `√${xx} = ${ans}, protože ${ans} · ${ans} = ${xx}.`];
+    } else {
+      let pS, q, rS;
+      do { pS = pick([2, 4, 5, 6, 8, 12, 15, 16, 25]); q = ri(1, 3); rS = pick([20, 25, 40, 50]); }
+      while (((pS - 100 * q) * 100) % rS !== 0);                    // podíl na nejvýš dvě místa
+      const cS = pS - 100 * q, v = cS / rS;
+      ans = String(v); prompt = `Vypočítejte: (${cz(pS / 100)} − ${q}) : ${cz(rS / 100)} =`;
+      sol = [`Závorka má přednost. Dělit desetinným číslem se nemusíš: vynásob dělence i dělitele stem, podíl se tím nezmění.`,
+        `Závorka: ${cz(pS / 100)} − ${q} = ${zn(cS / 100)}.`,
+        `${zn(cS / 100)} : ${cz(rS / 100)} = ${zn(cS)} : ${rS} = ${zn(v)}.`];
+    }
     return {
-      no: 1, points: 1, title: 'Číselný výraz',
-      parts: [{ key: '', points: 1,
-        prompt: `Vypočítejte: ${a}² − ${b} · ${c} =`,
-        ans: String(ans),
-        sol: [
-          `Mocnina i násobení mají přednost před odčítáním — spočítej je dřív, ne zleva doprava.`,
-          `${a}² = ${a} · ${a} = ${a * a} a ${b} · ${c} = ${b * c}.`,
-          `Nakonec odečti: ${a * a} − ${b * c} = ${ans}.`
-        ] }]
+      no: 1, points: 1, title: 'Číselný výraz', okruh: 'vyrazy-mocniny',
+      parts: [{ key: '', points: 1, prompt, ans: String(ans), sol }]
     };
   }
 
@@ -994,7 +1120,7 @@
     const male = ri(2, 9) * 10;         // 20–90 cm², vždy menší než nejmenší velká plocha (500)
     const ans = velke - male;
     return {
-      no: 1, points: 1, title: 'Číselný výraz',
+      no: 1, points: 1, title: 'Číselný výraz', okruh: 'vyrazy-mocniny',
       parts: [{ key: '', points: 1,
         prompt: `Vypočítejte, o kolik cm² je plocha o obsahu ${cz(setin / 100)} m² větší než plocha o obsahu ${male} cm².`,
         ans: String(ans),
@@ -1017,7 +1143,7 @@
     const gramu = kg * 1000;
     const ans = gramu * 100 / setinG;             // dělitel dělí 100 000 beze zbytku
     return {
-      no: 1, points: 1, title: 'Číselný výraz',
+      no: 1, points: 1, title: 'Číselný výraz', okruh: 'vyrazy-mocniny',
       parts: [{ key: '', points: 1,
         prompt: `Určete, kolikrát více je ${kg} kg než ${cz(setinG / 100)} g.`,
         ans: String(ans),
@@ -1038,7 +1164,7 @@
     const rozdil = ri(3, 15) * 10;
     const celkem = 2 * mensi + rozdil;
     return {
-      no: 1, points: 1, title: 'Číselný výraz',
+      no: 1, points: 1, title: 'Číselný výraz', okruh: 'slovni',
       parts: [{ key: '', points: 1,
         prompt: `V knihovně je dohromady ${celkem} knih. Beletrie je o ${rozdil} knih více než naučné literatury. Kolik je naučných knih?`,
         ans: String(mensi),
@@ -1067,7 +1193,7 @@
     const krokuA = trasaCm / d.a, krokuB = trasaCm / d.b;
     const ans = krokuB - krokuA;
     return {
-      no: 1, points: 1, title: 'Číselný výraz',
+      no: 1, points: 1, title: 'Číselný výraz', okruh: 'slovni',
       parts: [{ key: '', points: 1,
         prompt: `Trasa je dlouhá ${cz(trasaM / 1000)} km. Jeden turista má krok dlouhý ${d.a} cm, druhý ${d.b} cm. O kolik kroků udělá druhý turista na celé trase více než první?`,
         ans: String(ans),
@@ -1081,24 +1207,141 @@
   }
 
   function gen1h() {
-    // Vzor: M9A/2023 ú. 1 — kolik minut zbývá do konce. Časy se drží
-    // v minutách od půlnoci a na text se převádějí až nakonec, aby
-    // nevznikl čas typu 19:65.
+    // Vzor: M9B/2026 1. náhr. ú. 1 — jízda s pauzou na oběd („strávil jízdou přesně
+    // 7 hodin… zahájil v 7:44… vystoupil ve 12:02 a vrátil se za 38 minut. Kdy dorazil
+    // do cíle?"). Časy se drží v minutách od půlnoci a na text se převádějí až nakonec,
+    // aby nevznikl čas typu 19:65. Odpověď je čas, PZ.check ho porovná celý.
     const fmt = m => Math.floor(m / 60) + ':' + String(m % 60).padStart(2, '0');
-    const zacatek = ri(14, 19) * 60 + ri(0, 11) * 5;
-    const delka = ri(16, 26) * 5;        // 80–130 minut, vždy delší než zbytek
-    const zbyva = ri(3, 12) * 5;         // 15–60 minut
-    const konec = zacatek + delka, ted = konec - zbyva;
-    const h = Math.floor(delka / 60), m = delka % 60;
+    const vCas = m => ([2, 3, 4, 12, 13, 14, 20, 21, 22, 23].includes(Math.floor(m / 60)) ? 've ' : 'v ') + fmt(m);
+    const hm = m => [m >= 60 ? Math.floor(m / 60) + ' h' : '', m % 60 ? (m % 60) + ' min' : ''].filter(Boolean).join(' ');
+    const start = ri(6, 8) * 60 + ri(1, 58), ven = ri(11 * 60, 13 * 60 + 30), pred = ven - start;
+    const jizda = (Math.ceil((pred + 60) / 60) + ri(0, 1)) * 60, pauza = ri(15, 55);
+    const zpet = ven + pauza, zbyva = jizda - pred, cil = zpet + zbyva;
     return {
-      no: 1, points: 1, title: 'Číselný výraz',
-      parts: [{ key: '', points: 1,
-        prompt: `Film začal v ${fmt(zacatek)} a trvá ${delka} minut. Kolik minut zbývá do jeho konce v ${fmt(ted)}?`,
-        ans: String(zbyva),
+      no: 1, points: 1, title: 'Číselný výraz', okruh: 'slovni',
+      intro: `Řidič strávil jízdou v autě přesně ${jizda / 60} ${skl(jizda / 60, 'hodinu', 'hodiny', 'hodin')}, než dojel do cíle. Jízdu zahájil ráno ${vCas(start)} a přerušil ji jen jednou, když si udělal pauzu na oběd: z auta vystoupil ${vCas(ven)} a vrátil se za ${pauza} minut. Pak pokračoval v jízdě až do cíle.`,
+      parts: [{ key: '', points: 1, klavesnice: 'text',
+        prompt: `Určete, kdy řidič dorazil do cíle. Výsledek zapište ve tvaru hodiny:minuty.`,
+        ans: fmt(cil),
         sol: [
-          `Přímo se to spočítat nedá — nejdřív zjisti, KDY film končí: k času začátku přičti jeho délku.`,
-          `${delka} minut = ${h} h ${m} min, takže konec je v ${fmt(konec)}.`,
-          `Od konce odečti současný čas: z ${fmt(ted)} do ${fmt(konec)} zbývá ${zbyva} minut.`
+          `Pauza se do doby jízdy nepočítá, auto při ní stojí. Zjisti proto, kolik jízdy zbývalo po pauze, a přičti to k času, kdy řidič znovu vyjel.`,
+          `Před pauzou jel od ${fmt(start)} do ${fmt(ven)}, tedy ${hm(pred)}.`,
+          `Po pauze zbývalo ${jizda / 60} h − ${hm(pred)} = ${hm(zbyva)} jízdy.`,
+          `Znovu vyjel ${vCas(zpet)} a jel ještě ${hm(zbyva)}, do cíle tedy dorazil ${vCas(cil)}.`
+        ] }]
+    };
+  }
+
+  // „čtvrtinu", „dvě pětiny" — zlomek ve 4. pádě (odstřihli…, stojí…)
+  const ZLOMEK_4P = { '1/2': 'polovinu', '1/3': 'třetinu', '2/3': 'dvě třetiny', '1/4': 'čtvrtinu', '3/4': 'tři čtvrtiny',
+    '1/5': 'pětinu', '2/5': 'dvě pětiny', '3/5': 'tři pětiny', '4/5': 'čtyři pětiny' };
+
+  function gen1i() {
+    // Vzor: M9B/2025 2. náhr. ú. 1 — „Třímetrovou dárkovou stuhu jsme dvěma střihy
+    // rozdělili na tři díly… nejprve čtvrtinu stuhy, potom dvě pětiny ZBYTKU…"
+    // Díl ze zbytku je ta past: dvě pětiny se nepočítají z celé stuhy.
+    let L, p, k, q, cel, prvni, zbytek, druhy;
+    for (;;) {
+      L = ri(2, 6); p = pick([3, 4, 5]); [k, q] = pick([[1, 2], [1, 3], [2, 3], [1, 4], [3, 4], [2, 5], [3, 5], [4, 5]]);
+      cel = L * 100; prvni = cel / p; zbytek = cel - prvni;
+      if (cel % p === 0 && zbytek % q === 0) { druhy = zbytek / q * k; break; }
+    }
+    const treti = zbytek - druhy, ptej = pick(['druhý', 'třetí', 'třetí']);
+    return {
+      no: 1, points: 1, title: 'Číselný výraz', okruh: 'zlomky',
+      intro: `Dárkovou stuhu dlouhou ${L} m jsme dvěma střihy rozdělili na tři díly. Nejprve jsme odstřihli ${ZLOMEK_4P['1/' + p]} stuhy na první dárek, potom jsme odstřihli ${ZLOMEK_4P[k + '/' + q]} zbytku stuhy na druhý dárek a poslední díl jsme použili na třetí dárek.`,
+      parts: [{ key: '', points: 1,
+        prompt: `Vypočítejte, kolik cm stuhy jsme použili na ${ptej} dárek.`,
+        ans: String(ptej === 'druhý' ? druhy : treti),
+        sol: [
+          `Druhý díl se počítá ze ZBYTKU, ne z celé stuhy — nejdřív proto zjisti, kolik stuhy zbylo po prvním střihu.`,
+          `${L} m = ${cel} cm. První dárek: ${cel} : ${p} = ${prvni} cm, zbylo ${cel} − ${prvni} = ${zbytek} cm.`,
+          `Druhý dárek (${ZLOMEK_4P[k + '/' + q]} zbytku): ${zbytek} : ${q} · ${k} = ${druhy} cm.`,
+          ...(ptej === 'třetí' ? [`Třetí dárek dostal, co zbylo: ${zbytek} − ${druhy} = ${treti} cm.`] : [])
+        ] }]
+    };
+  }
+
+  function gen1j() {
+    // Poměr a celek, tři kontexty z ostrých testů: závaží v poměru 3 : 5, která se liší
+    // o 600 g (M9 2023 2. náhr. ú. 1); film, kde zbývající doba je polovinou uplynulé
+    // (M9A/2023 ú. 1); vstupenky, kde dětská stojí dvě pětiny dospělé (M9 2025 2. ř. ú. 1).
+    const kontext = ri(1, 3), dily = n => skl(n, 'díl', 'díly', 'dílů');
+    if (kontext === 1) {
+      // rozdíl dílů aspoň 2, jinak by krok „600 : 1" nic neříkal
+      const [p, q] = pick([[2, 5], [3, 5], [3, 7], [4, 7], [5, 7], [3, 8], [5, 8], [2, 7], [4, 9], [5, 9]]);
+      const dil = pick([50, 60, 80, 100, 120, 150, 200, 250]), rozdil = (q - p) * dil, lehci = Math.random() < 0.6;
+      const m = lehci ? p : q;
+      return {
+        no: 1, points: 1, title: 'Číselný výraz', okruh: 'pomer',
+        parts: [{ key: '', points: 1,
+          prompt: `Hmotnosti dvou závaží jsou v poměru ${p} : ${q} a liší se o ${rozdil} g. Vypočítejte v gramech hmotnost ${lehci ? 'lehčího' : 'těžšího'} závaží.`,
+          ans: String(m * dil),
+          sol: [
+            `Poměr ${p} : ${q} říká, že lehčí závaží má ${p} stejných dílů a těžší ${q} takových dílů. Rozdíl hmotností tedy odpovídá rozdílu počtu dílů.`,
+            `Rozdíl: ${q} − ${p} = ${q - p} ${dily(q - p)}, a to je ${rozdil} g. Jeden díl: ${rozdil} : ${q - p} = ${dil} g.`,
+            `${lehci ? 'Lehčí' : 'Těžší'} závaží má ${m} ${dily(m)}: ${m} · ${dil} = ${m * dil} g.`
+          ] }]
+      };
+    }
+    if (kontext === 2) {
+      const [k, slovo] = pick([[2, 'polovinou'], [3, 'třetinou'], [4, 'čtvrtinou'], [5, 'pětinou']]);
+      const [T, t4, t1] = pick([[60, '1 hodinu', '1 hodina'], [90, 'hodinu a půl', 'hodina a půl'], [120, '2 hodiny', '2 hodiny'],
+        [150, '2 a půl hodiny', '2 a půl hodiny']].filter(([d]) => d % (k + 1) === 0));
+      const zbyva = T / (k + 1);
+      return {
+        no: 1, points: 1, title: 'Číselný výraz', okruh: 'pomer',
+        intro: `Celý film trvá ${t4}. Doba, která ještě zbývá do konce filmu, je ${slovo} doby, která již uplynula od začátku filmu.`,
+        parts: [{ key: '', points: 1,
+          prompt: `Vypočítejte, kolik minut zbývá do konce filmu.`,
+          ans: String(zbyva),
+          sol: [
+            `Uplynulou dobu si rozděl na ${k} stejné díly — zbývající doba je jeden takový díl. Celý film tedy tvoří ${k} + 1 = ${k + 1} ${dily(k + 1)}.`,
+            `Celý film: ${t1} je ${T} minut.`,
+            `Jeden díl: ${T} : ${k + 1} = ${zbyva} minut, a to je doba, která zbývá do konce.`
+          ] }]
+      };
+    }
+    const [k, q] = pick([[1, 2], [1, 3], [2, 3], [3, 4], [2, 5], [3, 5]]), n = ri(2, 4), dil = pick([10, 15, 20, 25, 30, 40]);
+    const dosp = q * dil, det = k * dil, celkem = dosp + n * det, ptejDet = Math.random() < 0.7, vse = q + n * k;
+    return {
+      no: 1, points: 1, title: 'Číselný výraz', okruh: 'pomer',
+      intro: `Dětská vstupenka do muzea stojí ${ZLOMEK_4P[k + '/' + q]} ceny vstupenky pro dospělého. Jeden dospělý ${{ 2: 'se dvěma', 3: 'se třemi', 4: 'se čtyřmi' }[n]} dětmi zaplatil za vstupenky ${celkem} korun.`,
+      parts: [{ key: '', points: 1,
+        prompt: `Vypočítejte v korunách cenu jedné ${ptejDet ? 'dětské vstupenky' : 'vstupenky pro dospělého'}.`,
+        ans: String(ptejDet ? det : dosp),
+        sol: [
+          `Cenu vstupenky pro dospělého si rozděl na ${q} stejné díly — dětská stojí ${k} ${skl(k, 'takový díl', 'takové díly', 'takových dílů')}. Všechny vstupenky pak spočítáš v dílech.`,
+          `Dospělý ${q} ${dily(q)}, děti ${n} · ${k} = ${n * k} ${dily(n * k)}, dohromady ${q} + ${n * k} = ${vse} ${dily(vse)}, a to je ${celkem} Kč.`,
+          `Jeden díl: ${celkem} : ${vse} = ${dil} Kč. ${ptejDet ? `Dětská vstupenka: ${k} · ${dil} = ${det} Kč.` : `Vstupenka pro dospělého: ${q} · ${dil} = ${dosp} Kč.`}`
+        ] }]
+    };
+  }
+
+  function gen1k() {
+    // Vzor: M9B/2026 2. náhr. ú. 1 — „Délka jeho prvního hodu byla 7 m. Každý další hod
+    // byl o desetinu delší než předchozí. O kolik cm byl třetí hod delší než první?"
+    // (147 cm, ne 140: druhá desetina se bere z DELŠÍHO hodu). Počítá se v centimetrech,
+    // aby desetinná čísla nevyrobila artefakt plovoucí čárky.
+    const hod = Math.random() < 0.5;
+    const [f, slovo] = pick(hod ? [[10, 'desetinu'], [5, 'pětinu']] : [[10, 'desetinu'], [5, 'pětinu'], [4, 'čtvrtinu']]);
+    const c1 = hod ? ri(5, 9) * 100 : pick({ 10: [100, 200], 5: [75, 100, 125, 150], 4: [64, 96, 128, 160] }[f]);
+    const zmena = x => (hod ? x + x / f : x - x / f), op = hod ? '+' : '−';
+    const c2 = zmena(c1), c3 = zmena(c2), ans = Math.abs(c3 - c1), co = hod ? 'hod' : 'odskok';
+    return {
+      no: 1, points: 1, title: 'Číselný výraz', okruh: 'zlomky',
+      intro: hod
+        ? `Při tréninku hodu oštěpem měřil první hod ${c1 / 100} m. Každý další hod byl o ${slovo} delší než hod předchozí.`
+        : `Míček po prvním dopadu vyskočil do výšky ${c1} cm. Každý další odskok byl o ${slovo} nižší než odskok předchozí.`,
+      parts: [{ key: '', points: 1,
+        prompt: `Vypočítejte, o kolik cm byl třetí ${co} ${hod ? 'delší' : 'nižší'} než první.`,
+        ans: String(ans),
+        sol: [
+          `Každá změna se počítá z PŘEDCHOZÍ hodnoty, ne z té první — ${hod ? 'druhé prodloužení je proto větší než první' : 'druhé snížení je proto menší než první'}.`,
+          ...(hod ? [`První hod: ${c1 / 100} m = ${c1} cm.`] : []),
+          `Druhý ${co}: ${c1} ${op} ${c1} : ${f} = ${c1} ${op} ${c1 / f} = ${c2} cm.`,
+          `Třetí ${co}: ${c2} ${op} ${c2} : ${f} = ${c2} ${op} ${c2 / f} = ${c3} cm.`,
+          `Rozdíl: ${hod ? c3 + ' − ' + c1 : c1 + ' − ' + c3} = ${ans} cm.`
         ] }]
     };
   }
@@ -1374,59 +1617,30 @@
   }
 
   function gen2c() {
-    // 3 body — dělení zlomků (stejný jmenovatel) + rozdíl druhých mocnin vzorcem
-    /* Ani tady se čitatel nesmí rovnat jmenovateli: „5/5 : 3/5" je
-       dělenec 1 a „a/5 : 5/5" dělení jedničkou — obojí z úlohy dělá
-       nesmysl, přestože společný jmenovatel je jejím smyslem. */
-    /* A dělenec se nesmí rovnat děliteli: a a c se losovaly nezávisle,
-       takže v 17 % případů vyšlo „6/4 : 6/4 = 1" — zlomek dělený sám
-       sebou, stejná prázdnota jako dělení jedničkou. Cyklus místo
-       jednorázové opravy: ta se může trefit do téže hodnoty znovu. */
-    const b = ri(3, 9);
-    let a = ri(2, 8), c = ri(2, 8);
-    if (a === b) a = a % 8 + 2;
-    while (c === b || c === a) c = ri(2, 8);
-    const g = gcd(a, c), na = a / g, nc = c / g;
-    const ans1 = nc === 1 ? String(na) : `${na}/${nc}`;
-    const d = ri(5, 12), e = ri(1, d - 1), ans2 = d * d - e * e;
+    // 3 body — 2.1 dělení zlomků se stejným jmenovatelem, 2.2 složený zlomek.
+    /* Zlomky v zadání jsou vždy v základním tvaru („6/4" by ostrý test nenapsal)
+       a dělenec se nerovná děliteli (6/4 : 6/4 = 1 nezkouší nic). */
+    let a, b, c;
+    do { b = ri(3, 9); a = ri(1, 2 * b - 1); c = ri(1, 2 * b - 1); }
+    while (a === c || gcd(a, b) !== 1 || gcd(c, b) !== 1 || c === b);
+    const R1 = zRed(a, c);
+    const s2 = slozenyZlomek(Math.random() < 0.5);
     return {
       no: 2, points: 3, title: 'Výrazy se zlomky',
       parts: [
         { key: '2.1', points: 1, showExplain: false,
-          prompt: `Vypočítejte a zapište zlomkem v základním tvaru: ${a}/${b} : ${c}/${b} =`,
-          ans: ans1,
+          prompt: `${ZL} ${a}/${b} : ${c}/${b} =`,
+          ans: zAns(R1),
           sol: [
-            `Dělit zlomkem znamená násobit jeho převrácenou hodnotou — druhý zlomek se tedy obrátí vzhůru nohama.`,
-            `${a}/${b} : ${c}/${b} = ${a}/${b} · ${b}/${c}. Jmenovatel ${b} se v čitateli i jmenovateli vykrátí, zbyde ${a}/${c}.`,
-            g === 1 ? `Zlomek ${a}/${c} už je v základním tvaru: ${ans1}.`
-              : `Krať největším společným dělitelem, tedy ${g}: ${ans1}.`
+            `Dělit zlomkem znamená násobit jeho převrácenou hodnotou — druhý zlomek se obrátí vzhůru nohama. Stejný jmenovatel se pak vykrátí.`,
+            `${a}/${b} : ${c}/${b} = ${a}/${b} · ${b}/${c} = ${a}/${c}`,
+            gcd(a, c) === 1 ? `Zlomek ${a}/${c} už je v základním tvaru.` : `Zkrátíme ${gcd(a, c)}: ${a}/${c} = ${zTxt(R1)}`
           ] },
-        { key: '2.2', points: 2, showExplain: true,
-          prompt: `Vypočítejte pomocí vzorce: (${d} + ${e}) · (${d} − ${e}) =`,
-          ans: String(ans2),
-          sol: [
-            `Roznásobovat závorku po členech není potřeba — je to vzorec pro rozdíl druhých mocnin: (a + b) · (a − b) = a² − b².`,
-            `Dosaď a = ${d} a b = ${e}: (${d} + ${e}) · (${d} − ${e}) = ${d}² − ${e}².`,
-            `Umocni a odečti: ${d * d} − ${e * e} = ${ans2}.`
-          ] }
+        { key: '2.2', points: 2, showExplain: true, ...s2 }
       ]
     };
   }
 
-  /* ── POZICE 2 — další varianty ───────────────────────────────────
-     Sken úlohy 2 ve všech 13 ostrých zadáních ukázal, že je to
-     v posledních letech téměř výhradně ZLOMKOVÝ VÝRAZ se zápisem
-     v základním tvaru, a že nejtěžší podúlohou bývá SLOŽENÝ ZLOMEK
-     (zlomek ve zlomku) — v roce 2026 je v OBOU testech (M9A ú. 2.2,
-     M9B ú. 2.3) a právě u něj se vyžaduje celý postup řešení.
-     V bance nebyl ani jednou. Naše tři původní varianty měly navíc
-     druhou podúlohu na algebraické vzorce, což je látka pozice 3.
-
-     Pozn. k zápisu: složený zlomek se v ostrém testu sází nad sebe.
-     Zadání tady jde do prostého textového pole (`PZ.esc`), takže se
-     píše dělením se závorkami — matematicky totéž, vizuálně ne. ──── */
-
-  // zlomek v základním tvaru jako text; celé číslo se vypíše bez jmenovatele
   function zlText(n, d) {
     if (d < 0) { n = -n; d = -d; }
     const g = gcd(Math.abs(n), d) || 1;
@@ -1434,46 +1648,120 @@
     return dd === 1 ? String(nn) : `${nn}/${dd}`;
   }
 
-  function gen2d() {
-    // 3 body — 2.1 zlomkový výraz se závorkou, 2.2 SLOŽENÝ ZLOMEK s postupem.
-    // Vzor: M9B/2026 ú. 2.3 „(1 − 1/4) : (2 · 5/8 − 2)".
-    const a = ri(2, 6), c = ri(3, 8), e = ri(3, 8);
-    const d = ri(1, e - 1);
-    /* Závorka nesmí vyjít 0, tedy b/c se nesmí rovnat d/e. Cyklus projde
-       všechny přípustné čitatele 1…c−1; kolidovat může nejvýš jeden, takže
-       vždycky skončí — na rozdíl od jednorázové opravy, která se může
-       trefit do téže hodnoty znovu. */
-    let b = ri(1, c - 1);
-    for (let i = 0; i < c && b * e === d * c; i++) b = b % (c - 1) + 1;
-    const cit1 = a * (b * e - d * c), jm1 = c * e;
-    const ans1 = zlText(cit1, jm1);
+  /* ── Přesná zlomková aritmetika (v celých číslech, bez plovoucí čárky) ──
+     Zlomek je dvojice [čitatel, jmenovatel] v základním tvaru, jmenovatel > 0. */
+  const zRed = (n, d) => { if (d < 0) { n = -n; d = -d; } const g = gcd(Math.abs(n), d) || 1; return [n / g, d / g]; };
+  const zSec = (a, b, s) => zRed(a[0] * b[1] + s * b[0] * a[1], a[1] * b[1]);   // s = +1 / −1
+  const zTxt = ([n, d]) => (d === 1 ? zn(n) : (n < 0 ? '−' : '') + Math.abs(n) + '/' + d);
+  const zZav = z => (z[0] < 0 ? `(${zTxt(z)})` : zTxt(z));
+  const zAns = ([n, d]) => (d === 1 ? String(n) : `${n}/${d}`);
+  // zlomek v základním tvaru: zlomekZ menší než 1, zlomekN i větší (ne celé číslo)
+  const zlomekZ = (od, po) => { let x, y; do { y = ri(od, po); x = ri(1, y - 1); } while (gcd(x, y) !== 1); return [x, y]; };
+  const zlomekN = (od, po) => { let x, y; do { y = ri(od, po); x = ri(1, 2 * y - 1); } while (gcd(x, y) !== 1); return [x, y]; };
+  // výsledek jako v ostrých testech: čitatel nejvýš 20, jmenovatel nejvýš 20 (u dělení celým číslem 30)
+  const vejdeSe = (R, maxJm = 20) => R[1] <= maxJm && Math.abs(R[0]) <= 20;
+  /* Znění z ostrých testů 2026 („…nebo celým číslem"): výsledek občas vyjde
+     celý (0, 1, −1) a stejné znění ve všech podúlohách nic neprozradí. */
+  const ZL = 'Vypočítejte a výsledek zapište zlomkem v základním tvaru nebo celým číslem:';
+  // „3/4 : (−3/2) = 3/4 · (−2/3) = −6/12 = −1/2"
+  function zDeleni(N, M, R) {
+    const inv = zRed(M[1], M[0]), hruby = [N[0] * inv[0], N[1] * inv[1]];
+    return `${zTxt(N)} : ${zZav(M)} = ${zTxt(N)} · ${zZav(inv)}${gcd(Math.abs(hruby[0]), hruby[1]) > 1 ? ` = ${zTxt(hruby)}` : ''} = ${zTxt(R)}`;
+  }
+  // „3/4 − 5/6 = 9/12 − 10/12 = −1/12": rozšíření na NEJMENŠÍHO společného jmenovatele
+  function zKrok(a, b, s) {
+    const v = zSec(a, b, s), op = s > 0 ? ' + ' : ' − ';
+    if (a[1] === b[1]) return { v, t: `${zTxt(a)}${op}${zTxt(b)} = ${zTxt(v)}` };
+    const L = lcm(a[1], b[1]), r = z => `${zn(z[0] * L / z[1])}/${L}`;
+    const hruby = a[0] * L / a[1] + s * b[0] * L / b[1];
+    const mezi = gcd(Math.abs(hruby), L) > 1 && hruby !== 0 ? ` = ${zTxt([hruby, L])}` : '';   // nezkrácený mezivýsledek
+    return { v, t: `${zTxt(a)}${op}${zTxt(b)} = ${r(a)}${op}${r(b)}${mezi} = ${zTxt(v)}` };
+  }
+  /* Složený zlomek (2025 2. náhr. ú. 3.2, 2026 1. ř. ú. 2.2, 2026 2. ř. ú. 2.3):
+     VÝSLEDEK se volí první — čitatel i jmenovatel nejvýš 20, necelý, ve 40 %
+     záporný (v ostrých testech 2023–26 je záporných 15 z 38 výsledků). Závorky
+     se skládají z jednoduchých zlomků, nanejvýš jedno celé číslo v každé;
+     s `mocnina` je první člen čitatele druhá mocnina zlomku. */
+  function slozenyZlomek(mocnina) {
+    const zlomek = () => zlomekN(2, 6);
+    const clen = bezCelych => (!bezCelych && ri(0, 3) === 0 ? [ri(1, 3), 1] : zlomek());
+    const zaporny = Math.random() < 0.4, cele = Math.random() < 0.2;
+    for (let pokus = 0; pokus < 5000; pokus++) {
+      let q = null, a1 = clen(), a2 = clen(a1[1] === 1);
+      if (mocnina) { do { q = zlomek(); } while (q[0] >= q[1] * 2 || q[1] > 5); a1 = [q[0] * q[0], q[1] * q[1]]; }
+      const b1 = clen(), b2 = clen(b1[1] === 1), s1 = pick([1, -1]), s2 = pick([1, -1]);
+      const N = zSec(a1, a2, s1), M = zSec(b1, b2, s2);
+      const stejne = (x, y) => x[0] === y[0] && x[1] === y[1];
+      // mezivýsledky zvládnutelné bez kalkulačky (jinak vznikalo i „221/100")
+      if (N[0] === 0 || M[0] === 0 || stejne(a1, a2) || stejne(b1, b2) || !vejdeSe(N, 36) || !vejdeSe(M, 36)) continue;
+      const R = zRed(N[0] * M[1], N[1] * M[0]);
+      if ((R[1] === 1) !== cele || !vejdeSe(R) || (R[0] < 0) !== zaporny) continue;
+      const kN = zKrok(a1, a2, s1), kM = zKrok(b1, b2, s2);
+      const prvni = mocnina ? `(${q[0]}/${q[1]})²` : zTxt(a1);
+      const cit = `${prvni}${s1 > 0 ? ' + ' : ' − '}${zTxt(a2)}`, jm = `${zTxt(b1)}${s2 > 0 ? ' + ' : ' − '}${zTxt(b2)}`;
+      return {
+        prompt: `${ZL} (${cit}) : (${jm}) =`,
+        ans: zAns(R),
+        sol: [
+          `Složený zlomek je dělení: zvlášť spočítej čitatel (první závorku) a jmenovatel (druhou závorku), každý na nejmenšího společného jmenovatele, a teprve pak je vyděl — dělit zlomkem znamená násobit převrácenou hodnotou.`,
+          ...(mocnina ? [`(${q[0]}/${q[1]})² = ${q[0] * q[0]}/${q[1] * q[1]}`] : []),
+          `Čitatel: ${kN.t}`,
+          `Jmenovatel: ${kM.t}`,
+          zDeleni(N, M, R)
+        ]
+      };
+    }
+    throw new Error('slozenyZlomek: nenašel se výsledek');
+  }
 
-    const n = ri(2, 6);                                 // čitatel: 1 − 1/n = (n−1)/n
-    const m = ri(3, 9), k = ri(2, m - 1);               // jmenovatel: m/k − 1 = (m−k)/k
-    const cit2 = (n - 1) * k, jm2 = n * (m - k);
-    const ans2 = zlText(cit2, jm2);
+  function gen2d() {
+    // 3 body — 2.1 „3 · (2/3 − 7/9) + 2/3" (M9B/2026 ú. 2.1), 2.2 složený zlomek
+    // s násobením ve jmenovateli: „(1 − 1/4) : (2 · 5/8 − 2)" (M9B/2026 ú. 2.3)
+    // a „(7/2 − 1/6) : (12 − 6 · 3/4)" (M9B/2026 2. náhr. ú. 2.3).
+    let a, B, D, F, Z, P, R1;
+    for (;;) {
+      a = ri(2, 6); B = zlomekZ(3, 9); D = zlomekZ(3, 9);
+      F = zRed(ri(1, 2 * B[1] - 1), pick([B[1], D[1]]));
+      if (B[1] === D[1] || lcm(B[1], D[1]) > 24 || F[1] === 1) continue;   // společný jmenovatel potřeba, ale ne přes 24; F není celé
+      Z = zKrok(B, D, -1); P = zRed(a * Z.v[0], Z.v[1]); R1 = zSec(P, F, 1);
+      if (vejdeSe(R1) && vejdeSe(P, 24)) break;
+    }
+    let k, f, sN, w, u, v, c, W, kN, kM, R2, jm;
+    for (;;) {
+      k = ri(1, 3); f = zlomekZ(2, 6); sN = pick([1, -1]);
+      w = ri(2, 6); v = pick([4, 6, 8, 9, 10, 12]); u = ri(1, v - 1); c = ri(1, 6);
+      if (gcd(u, v) !== 1 || gcd(w, v) === 1) continue;             // součin se má dát zkrátit
+      W = zRed(w * u, v);
+      const obracene = Math.random() < 0.5;
+      kN = zKrok([k, 1], f, sN);
+      kM = obracene ? zKrok([c, 1], W, -1) : zKrok(W, [c, 1], -1);
+      if (kN.v[0] === 0 || kM.v[0] === 0) continue;
+      R2 = zRed(kN.v[0] * kM.v[1], kN.v[1] * kM.v[0]);
+      if (!vejdeSe(R2)) continue;
+      jm = obracene ? `${c} − ${w} · ${u}/${v}` : `${w} · ${u}/${v} − ${c}`;
+      break;
+    }
     return {
       no: 2, points: 3, title: 'Výrazy se zlomky',
       parts: [
         { key: '2.1', points: 1, showExplain: false,
-          prompt: `Vypočítejte a výsledek zapište zlomkem v základním tvaru: ${a} · (${b}/${c} − ${d}/${e}) =`,
-          ans: ans1,
+          prompt: `${ZL} ${a} · (${zTxt(B)} − ${zTxt(D)}) + ${zTxt(F)} =`,
+          ans: zAns(R1),
           sol: [
-            `Zlomky se dají odečíst, teprve když mají stejného jmenovatele — nejdřív tedy uprav závorku.`,
-            `Společný jmenovatel je ${c} · ${e} = ${c * e}: ${b}/${c} = ${b * e}/${c * e} a ${d}/${e} = ${d * c}/${c * e}, takže závorka je ${zlS(b * e - d * c, c * e)}.`,
-            `Vynásob číslem ${a}: ${a} · ${zlZ(b * e - d * c, c * e)} = ${zlS(cit1, jm1)}.`,
-            gcd(Math.abs(cit1), jm1) === 1 ? `Zlomek už je v základním tvaru: ${ans1.replace('-', '−')}.`
-              : `Zkrať na základní tvar: ${ans1.replace('-', '−')}.`
+            `Pořadí: nejdřív závorka (zlomky převeď na nejmenšího společného jmenovatele), pak násobení a sčítání až nakonec.`,
+            `Závorka: ${Z.t}`,
+            `${a} · ${zZav(Z.v)} = ${zTxt([a * Z.v[0], Z.v[1]])}${gcd(Math.abs(a * Z.v[0]), Z.v[1]) > 1 ? ` = ${zTxt(P)}` : ''}`,
+            zKrok(P, F, 1).t
           ] },
         { key: '2.2', points: 2, showExplain: true,
-          prompt: `Vypočítejte a výsledek zapište zlomkem v základním tvaru: (1 − 1/${n}) : (${m}/${k} − 1) =`,
-          ans: ans2,
+          prompt: `${ZL} (${k}${sN > 0 ? ' + ' : ' − '}${zTxt(f)}) : (${jm}) =`,
+          ans: zAns(R2),
           sol: [
-            `Takový zápis je jen DĚLENÍ dvou závorek. Spočítej proto každou zvlášť a teprve pak je vyděl — uvnitř závorek se nic krátit nedá.`,
-            `Celé číslo se na zlomek převede přes jmenovatele: 1 = ${n}/${n}, takže první závorka je ${n}/${n} − 1/${n} = ${n - 1}/${n}.`,
-            `Stejně druhá: 1 = ${k}/${k}, takže ${m}/${k} − ${k}/${k} = ${m - k}/${k}.`,
-            `Dělit zlomkem znamená násobit jeho převrácenou hodnotou: ${n - 1}/${n} · ${k}/${m - k} = ${cit2}/${jm2}.`,
-            `Zkrať na základní tvar: ${ans2}.`
+            `Uvnitř závorky má násobení přednost před odčítáním. Každou závorku spočítej zvlášť (celé číslo převeď na zlomek se stejným jmenovatelem) a teprve pak je vyděl — dělit zlomkem znamená násobit převrácenou hodnotou.`,
+            `Čitatel: ${kN.t}`,
+            `${w} · ${u}/${v} = ${w * u}/${v}${gcd(w * u, v) > 1 ? ` = ${zTxt(W)}` : ''}`,
+            `Jmenovatel: ${kM.t}`,
+            zDeleni(kN.v, kM.v, R2)
           ] }
       ]
     };
@@ -1488,13 +1776,15 @@
     const q = ri(1, 3);
     const ans1 = pH * pH / 4 - q * q;                   // (−p − q)(−p + q) = p² − q²
 
-    const a = ri(2, 7), c = ri(2, 6), d = ri(2, 6);
-    /* b se nesmí rovnat a — „1 : 5/5" je dělení jedničkou a nezkouší nic.
-       Stejná past jako v gen2, kde se překrývaly rozsahy b a c. */
-    let b = ri(3, 9);
-    if (b === a) b = a + 1;
-    const cit2 = b * c * d - a, jm2 = a * c * d;        // b/a − 1/(c·d)
-    const ans2 = zlText(cit2, jm2);
+    /* a/b v základním tvaru a různé od 1 („1 : 5/5" nezkouší nic); rozdíl se
+       počítá na NEJMENŠÍHO společného jmenovatele, ne na součin. */
+    let a, b, c, d, Kr;
+    for (;;) {
+      a = ri(2, 7); b = ri(3, 9); c = ri(2, 6); d = ri(2, 6);
+      if (gcd(a, b) !== 1 || lcm(a, c * d) > 60) continue;
+      Kr = zKrok([b, a], [1, c * d], -1);
+      if (Kr.v[0] !== 0 && vejdeSe(Kr.v, 30)) break;
+    }
     return {
       no: 2, points: 3, title: 'Výrazy se zlomky',
       parts: [
@@ -1513,67 +1803,66 @@
             `Zkouška vzorcem: je to (−${cz(pH / 2)})² − ${q}² = ${cz(pH * pH / 4)} − ${q * q} = ${zn(ans1)}.`
           ] },
         { key: '2.2', points: 2, showExplain: true,
-          prompt: `Vypočítejte a výsledek zapište zlomkem v základním tvaru: 1 : ${a}/${b} − 1/${c} : ${d} =`,
-          ans: ans2,
+          prompt: `${ZL} 1 : ${a}/${b} − 1/${c} : ${d} =`,
+          ans: zAns(Kr.v),
           sol: [
-            `Dělení má přednost před odčítáním — spočítej proto oba podíly zvlášť a teprve pak je od sebe odečti.`,
-            `Dělit zlomkem = násobit převrácenou hodnotou: 1 : ${a}/${b} = 1 · ${b}/${a} = ${b}/${a}.`,
-            `Dělit celým číslem = násobit jeho převrácenou hodnotou, tedy zvětšit jmenovatele: 1/${c} : ${d} = 1/${c * d}.`,
-            `Společný jmenovatel je ${a} · ${c * d} = ${jm2}: ${b}/${a} = ${b * c * d}/${jm2} a 1/${c * d} = ${a}/${jm2}, takže rozdíl je ${cit2}/${jm2}.`,
-            `Zkrať na základní tvar: ${ans2}.`
+            `Dělení má přednost před odčítáním — spočítej proto oba podíly zvlášť a teprve pak je od sebe odečti na nejmenším společném jmenovateli.`,
+            `Dělit zlomkem = násobit převrácenou hodnotou: 1 : ${a}/${b} = 1 · ${b}/${a} = ${b}/${a}`,
+            `Dělit celým číslem = násobit jeho převrácenou hodnotou: 1/${c} : ${d} = 1/${c} · 1/${d} = 1/${c * d}`,
+            Kr.t
           ] }
       ]
     };
   }
 
   function gen2f() {
-    // 3 body — 2.1 celé číslo dělené zlomkem, 2.2 součet zlomků dělený
-    // celým číslem s postupem. Vzor: M9B/2026 ú. 2.1 „3 · (2/3 − 7/9) + 2/3"
-    // a M9A/2025 ú. 2.1 — obojí stojí na „uprav a zapiš v základním tvaru".
-    const a = ri(2, 9), b = ri(2, 7);
-    /* c se nesmí rovnat b — „2 : 7/7" je zase jen dělení jedničkou.
-       b je nejvýš 7, takže b + 1 zůstává v původním rozsahu 3–9. */
-    let c = ri(3, 9);
-    if (c === b) c = b + 1;
-    const ans1 = zlText(a * c, b);                      // a : b/c = a·c/b
-
-    /* Čitatel se nesmí rovnat jmenovateli — „(4/4 + 2/5) : 5" sice není
-       matematicky špatně, ale v ostrém zadání by nikdo zlomek 4/4
-       nenapsal a žák to čte jako překlep. Posun o jedna v kruhu 1–5
-       kolizi spolehlivě odstraní, protože q a s se už nemění. */
-    const q = ri(2, 8), s = ri(2, 8), t = ri(2, 6);
-    let p = ri(1, 5), r = ri(1, 5);
-    if (p === q) p = p % 5 + 1;
-    if (r === s) r = r % 5 + 1;
-    const cit2 = p * s + r * q, jm2 = q * s * t;        // (p/q + r/s) : t
-    const ans2 = zlText(cit2, jm2);
+    // 3 body — 2.1 „6/5 : 9/15 − 2" (M9B/2026 1. náhr. ú. 2.1), 2.2 „(18/14 · 7/6 − 1) : 6"
+    // (M9B/2026 2. náhr. ú. 2.2): násobení s krácením křížem, jednička, dělení celým číslem.
+    let B, D, k, Q, K1;
+    for (;;) {
+      B = zlomekN(2, 9); D = zlomekN(2, 9); k = ri(1, 3);
+      // dělení sebou samým nic nezkouší; bez společného dělitele by nebylo co krátit
+      if (B[0] * D[1] === D[0] * B[1] || gcd(B[0], D[0]) * gcd(B[1], D[1]) === 1) continue;
+      Q = zRed(B[0] * D[1], B[1] * D[0]); K1 = zKrok(Q, [k, 1], -1);
+      if (vejdeSe(K1.v)) break;
+    }
+    let p, q, r, s, t, P, K2, R2;
+    for (;;) {
+      [p, q] = zlomekN(2, 9); [r, s] = zlomekN(2, 9); t = ri(2, 6);
+      if (gcd(p, s) === 1 && gcd(r, q) === 1) continue;             // krácení křížem
+      P = zRed(p * r, q * s);
+      if (P[0] === P[1]) continue;                                   // závorka by byla 0
+      K2 = zKrok(P, [1, 1], -1); R2 = zRed(K2.v[0], K2.v[1] * t);
+      if (vejdeSe(R2, 30)) break;
+    }
+    const hruby2 = [K2.v[0], K2.v[1] * t];
     return {
       no: 2, points: 3, title: 'Výrazy se zlomky',
       parts: [
         { key: '2.1', points: 1, showExplain: false,
-          prompt: `Vypočítejte a výsledek zapište zlomkem v základním tvaru: ${a} : ${b}/${c} =`,
-          ans: ans1,
+          prompt: `${ZL} ${zTxt(B)} : ${zTxt(D)} − ${k} =`,
+          ans: zAns(K1.v),
           sol: [
-            `Dělit zlomkem znamená násobit jeho převrácenou hodnotou — zlomek se obrátí vzhůru nohama a dělení se změní na násobení.`,
-            `${a} : ${b}/${c} = ${a} · ${c}/${b} = ${a * c}/${b}.`,
-            `Zkrať na základní tvar: ${ans1}.`
+            `Dělení má přednost před odčítáním. Dělit zlomkem znamená násobit jeho převrácenou hodnotou — a krátit se vyplatí ještě před násobením.`,
+            zDeleni(B, D, Q),
+            K1.t
           ] },
         { key: '2.2', points: 2, showExplain: true,
-          prompt: `Vypočítejte a výsledek zapište zlomkem v základním tvaru: (${p}/${q} + ${r}/${s}) : ${t} =`,
-          ans: ans2,
+          prompt: `${ZL} (${p}/${q} · ${r}/${s} − 1) : ${t} =`,
+          ans: zAns(R2),
           sol: [
-            `Závorka má přednost — nejdřív sečti zlomky uvnitř a teprve celý výsledek vyděl.`,
-            `Společný jmenovatel je ${q} · ${s} = ${q * s}: ${p}/${q} = ${p * s}/${q * s} a ${r}/${s} = ${r * q}/${q * s}, takže závorka je ${cit2}/${q * s}.`,
-            `Dělit celým číslem znamená zvětšit jmenovatele ${t}krát: ${cit2}/${q * s} : ${t} = ${cit2}/${jm2}.`,
-            `Zkrať na základní tvar: ${ans2}.`
+            `Nejdřív závorka a v ní násobení před odčítáním. Zlomky násob tak, že nejdřív zkrátíš křížem (čitatel jednoho s jmenovatelem druhého), čísla pak zůstanou malá.`,
+            `${p}/${q} · ${r}/${s} = ${p * r}/${q * s}${gcd(p * r, q * s) > 1 ? ` = ${zTxt(P)}` : ''}`,
+            K2.t,
+            `${zTxt(K2.v)} : ${t} = ${zTxt(K2.v)} · 1/${t} = ${zTxt(hruby2)}${gcd(Math.abs(hruby2[0]), hruby2[1]) > 1 ? ` = ${zTxt(R2)}` : ''}`
           ] }
       ]
     };
   }
 
   function gen3c() {
-    // 4 body — vzorec (x+a)², sčítání členů, rozklad rozdílu čtverců
-    const a = ri(3, 9), p = ri(3, 9), q = ri(2, 8), r = ri(1, Math.min(p, q)), c = ri(3, 10);
+    // 4 body — vzorec (x+a)², umocnění se zlomkem, dlouhá úprava s postupem
+    const a = ri(3, 9);
     return {
       no: 3, points: 4, title: 'Algebraické výrazy',
       parts: [
@@ -1581,14 +1870,8 @@
           prompt: `Ve výrazu (x + ${a})² = x² + ?·x + ${a}² napište číslo místo otazníku (koeficient u x).`,
           ans: String(2 * a),
           sol: [`Použij vzorec (x + a)² = x² + 2ax + a². Prostřední člen má vždy tvar 2ax a při umocňování se nejčastěji zapomene.`,`Zde je a = ${a}, takže koeficient u x je 2 · ${a} = ${2 * a}.`,`Celý výsledek: (x + ${a})² = x² + ${2 * a}x + ${a * a}.`] },
-        { key: '3.2', points: 1, showExplain: true,
-          prompt: `Sečtěte členy a napište koeficient u x: ${p}x + ${q}x − ${r}x`,
-          ans: String(p + q - r),
-          sol: [`Všechny členy obsahují stejnou proměnnou x, takže je lze sečíst — sčítají se jen jejich koeficienty.`,`Sečti koeficienty: ${p} + ${q} − ${r} = ${p + q - r}.`,`Výraz se rovná ${p + q - r}x.`] },
-        { key: '3.3', points: 2, showExplain: true,
-          prompt: `Rozložte na součin pomocí vzorce a napište číslo místo otazníku: x² − ${c * c} = (x − ?)·(x + ?)`,
-          ans: String(c),
-          sol: [`Rozdíl druhých mocnin se rozkládá podle vzorce a² − b² = (a − b)(a + b).`,`Číslo ${c * c} je druhá mocnina: ${c}² = ${c * c}, takže b = ${c}.`,`Proto x² − ${c * c} = (x − ${c})(x + ${c}).`] }
+        { key: '3.2', points: 1, showExplain: true, ...hacek(pick(['a', 'n', 'x'])) },
+        { key: '3.3', points: 2, showExplain: true, ...dlouhyVyraz(pick(['x', 'y', 'a'])) }
       ]
     };
   }
@@ -4019,7 +4302,7 @@
      vybere jednu variantu z každé pozice.
      ──────────────────────────────────────────────────────────────── */
   const SLOTS = [
-    [gen1, gen1b, gen1c, gen1d, gen1e, gen1f, gen1g, gen1h], [gen2, gen2b, gen2c, gen2d, gen2e, gen2f], [gen3, gen3b, gen3c, gen3d, gen3e, gen3f], [gen4, gen4d, gen4e, gen4f, gen4g], [gen5, gen5b, gen5c, gen5d, gen5e], [gen6, gen6b, gen6c, gen6d, gen6e, gen6f, gen6g], [gen7, gen7b, gen7c, gen7d, gen7e, gen7f], [gen8, gen8b, gen8c, gen8d, gen8e, gen8f],
+    [gen1, gen1b, gen1c, gen1d, gen1e, gen1f, gen1g, gen1h, gen1i, gen1j, gen1k], [gen2, gen2b, gen2c, gen2d, gen2e, gen2f], [gen3, gen3b, gen3c, gen3d, gen3e, gen3f], [gen4, gen4d, gen4e, gen4f, gen4g], [gen5, gen5b, gen5c, gen5d, gen5e], [gen6, gen6b, gen6c, gen6d, gen6e, gen6f, gen6g], [gen7, gen7b, gen7c, gen7d, gen7e, gen7f], [gen8, gen8b, gen8c, gen8d, gen8e, gen8f],
     [gen9, gen9b, gen9c, gen9d, gen9e, gen9f], [gen10, gen10b, gen10c, gen10d, gen10e, gen10f], [gen11, gen11b, gen11c, gen11d, gen11e, gen11f, gen11g, gen11h], [gen12, gen12c, gen12e, gen12f, gen12g, gen12h, gen12i, gen12j, gen12k], [gen13, gen13b, gen13c, gen13d, gen13e, gen13f, gen13g, gen13h, gen13i], [gen14, gen14b, gen14c, gen14d, gen14e, gen14f, gen14g], [gen15, gen15b, gen15c, gen15d, gen15e, gen15f, gen15g, gen15h], [gen16, gen16b, gen16c, gen16d, gen16e, gen16f, gen16g, gen16h, gen16i, gen16j]
   ];
 
