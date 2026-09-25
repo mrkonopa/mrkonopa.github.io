@@ -26,9 +26,9 @@
     // Pozice 12 (index 11) sem už nepatří: všechny její varianty jsou tělesa (okruh 'telesa'),
     // takže by procvičování slovních úloh z ní nikdy nic nevylosovalo.
     { id: 'slovni', name: 'Slovní úlohy', oblast: 'Nestandardní úlohy', slots: [12, 4, 5, 0] },
-    // Pozice 16 (index 15) sem patří taky: na 300 běhů losuje jen Rámeček, Obraz v rámu
-    // a Chodník kolem bazénu — všechno obvod a obsah obdélníku s lemem. Dřív nepatřila
-    // ŽÁDNÉMU okruhu, takže se neobjevovala v procvičování ani v diagnostice.
+    // Pozice 16 (index 15) sem patří taky: většina jejích obrazců (mozaika, patra, čtverce
+    // z pruhů, vybarvování sítě) je geometrie; číselné řady (roboti, Mirek a Zuzka) nesou
+    // `okruh: 'slovni'`. Dřív nepatřila ŽÁDNÉMU okruhu, takže chyběla v procvičování i v diagnostice.
     // Pozice 6 (index 5) přidává „Bílý a šedý obdélník“, pozice 7 (index 6) „Krychli a hranol“ —
     // jako v ostrých testech 2026, kde se geometrie v rovině i tělesa na pozicích 6–8 střídají.
     { id: 'geometrie', name: 'Geometrie v rovině', oblast: 'Geometrie', slots: [4, 5, 6, 7, 8, 9, 15] },
