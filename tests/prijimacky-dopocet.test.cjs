@@ -210,9 +210,15 @@ function over34(poz, p) {
   const z = p.prompt, ans = cisloAns(p.ans);
   const pouzij = (druh, fn) => { druhy34[poz + ': ' + druh] = (druhy34[poz + ': ' + druh] || 0) + 1; if (!fn()) spatne34.push(poz + ' ' + druh + ': „' + z.slice(0, 90) + '" → banka ' + p.ans); };
   let m;
-  if ((m = z.match(/napište kořen (x|y): (.+) = (.+)$/))) {
-    const [, v, L, R] = m, f = jsVyraz(L), g = jsVyraz(R);
+  if ((m = z.match(/^Řešte rovnici: (.+) = (.+)$/))) {
+    const [, L, R] = m, v = /y/.test(L + R) ? 'y' : 'x', f = jsVyraz(L), g = jsVyraz(R);
     const d = t => { const arg = PROM.map(q => (q === v ? t : 0)); return f(...arg) - g(...arg); };
+    /* „nemá řešení" / „nekonečně mnoho řešení": rozdíl stran nesmí na neznámé
+       záviset vůbec a jeho hodnota rozhodne — nenulová = žádný kořen, nula = každé číslo. */
+    if (/řešení/.test(String(p.ans))) {
+      const konst = [-3, 0, 1, 5, 12].every(t => blizko(d(t), d(0)));
+      return pouzij('rovnice bez jediného kořene', () => konst && (/nemá/.test(p.ans) ? !blizko(d(0), 0) : blizko(d(0), 0)));
+    }
     return pouzij('rovnice', () => blizko(d(ans), 0) && !blizko(d(ans + 1), 0));
   }
   if ((m = z.match(/^Řešte soustavu rovnic (.+) = (.+) a (.+) = (.+)\. Napište hodnotu (x|y)\.$/))) {
@@ -256,11 +262,12 @@ for (let b = 0; b < 3000; b++) {
   });
 }
 /* Naměřeno 15 600 (pozice 3 má vždy 3 podúlohy, pozice 4 dvě, jen soustava
-   tři). Každý z osmi druhů zadání se musí objevit, jinak by se šablona
+   tři). Každý z devíti druhů zadání (od 2026-09-25 i rovnice bez jediného
+   kořene — „nemá řešení" a „nekonečně mnoho") se musí objevit, jinak by se šablona
    mohla v bance změnit a vzor by tiše přestal něco kontrolovat. */
 ok(videno34 > 14000, 'pozice 3 a 4: prošlo se ' + videno34 + ' podúloh (podlaha 14 000)', 'naměřeno=' + videno34);
-ok(Object.keys(druhy34).length === 8 && Object.values(druhy34).every(n => n >= 100),
-  'pozice 3 a 4: všech 8 druhů zadání se v losu objevuje (podlaha 100×)',
+ok(Object.keys(druhy34).length === 9 && Object.values(druhy34).every(n => n >= 100),
+  'pozice 3 a 4: všech 9 druhů zadání se v losu objevuje (podlaha 100×)',
   JSON.stringify(druhy34));
 ok(nerozp34.size === 0, 'pozice 3 a 4: každé zadání se dalo přečíst (' + Object.keys(druhy34).length + ' druhů)',
   [...nerozp34].slice(0, 3).join(' | '));

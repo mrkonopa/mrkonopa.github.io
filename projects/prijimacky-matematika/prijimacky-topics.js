@@ -17,12 +17,12 @@
     // Pozice 13 střídá procenta, slovní úlohy a poměr (kytice podle nanečisto 2025).
     // Který okruh úloha opravdu cvičí, říká její `okruh` (topicsForTask); procvičování
     // okruhu z pozice bere jen úlohy, které do něj patří.
-    { id: 'pomer', name: 'Poměr a úměrnost', oblast: 'Závislosti a data', slots: [12] },
+    { id: 'pomer', name: 'Poměr a úměrnost', oblast: 'Závislosti a data', slots: [12, 4] },
     { id: 'vyrazy-promenna', name: 'Výrazy s proměnnou', oblast: 'Číslo a proměnná', slots: [2] },
     { id: 'rovnice', name: 'Rovnice a soustavy', oblast: 'Číslo a proměnná', slots: [3] },
     // Pozice 12 (index 11) sem už nepatří: všechny její varianty jsou tělesa (okruh 'telesa'),
     // takže by procvičování slovních úloh z ní nikdy nic nevylosovalo.
-    { id: 'slovni', name: 'Slovní úlohy', oblast: 'Nestandardní úlohy', slots: [12] },
+    { id: 'slovni', name: 'Slovní úlohy', oblast: 'Nestandardní úlohy', slots: [12, 4, 5] },
     // Pozice 16 (index 15) sem patří taky: na 300 běhů losuje jen Rámeček, Obraz v rámu
     // a Chodník kolem bazénu — všechno obvod a obsah obdélníku s lemem. Dřív nepatřila
     // ŽÁDNÉMU okruhu, takže se neobjevovala v procvičování ani v diagnostice.
@@ -101,7 +101,9 @@
     // open — vyber jednu podúlohu (generátor je dělá samostatné, viz reálný M9A)
     const parts = t.parts || [];
     const p = parts.length ? parts[Math.floor(Math.random() * parts.length)] : { prompt: t.prompt || '', ans: '', sol: '' };
-    return { intro, svg, prompt: p.prompt, type: 'text', ans: String(p.ans), sol: p.sol || '' };
+    // `klavesnice`: rovnice mají vždy textovou klávesnici — číselná by prozradila, že odpověď
+    // není „nemá řešení" (viz inputMode v prijimacky-core.js).
+    return { intro, svg, prompt: p.prompt, type: 'text', ans: String(p.ans), sol: p.sol || '', ...(p.klavesnice ? { klavesnice: p.klavesnice } : {}) };
   }
 
   // Vygeneruj procvičovací položku pro daný okruh. Zdroj = pozice testu (SLOTS)

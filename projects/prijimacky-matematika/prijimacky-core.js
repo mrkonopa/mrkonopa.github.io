@@ -52,12 +52,34 @@
       .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
   }
 
-  // Kontrola odpovědi — přednostně sdílená checkAns z rpg-shared.js; fallback pro jistotu.
+  /* Kontrola odpovědi — přednostně sdílená checkAns z rpg-shared.js; fallback pro jistotu.
+     Dvě výjimky, kde by sdílená kontrola hodnotila jinak než CERMAT:
+     1) ZLOMEK jako správná odpověď se porovnává PŘESNĚ a musí být v základním tvaru.
+        checkAns má toleranci 0,016 kvůli hrám (dítě píše 0,33 za 1/3), takže uznala
+        1/14 místo 1/12 i −1/7 místo −3/20. Zlomek je v bance jen tam, kde zadání
+        chce „výsledek zlomkem v základním tvaru".
+     2) „NEMÁ ŘEŠENÍ" / „NEKONEČNĚ MNOHO ŘEŠENÍ" (rovnice) se uzná i v běžných
+        obměnách a s tečkou na konci. */
+  const RE_NEMA = /nemareseni|zadnereseni|nemazadn[ey](reseni|koren)|nemakoren|bezreseni|neexistuje|^∅$|^\{\}$|[=∈]∅$|^(k|x)?=?\{\}$|prazdnamnozina/;
+  const RE_NEKON = /nekonecne(mnoho)?|nekonecno|kazde(realne)?cislo|vsechna(realna)?cisla|libovolne(realne)?cislo|^(x∈)?r$|[=∈]r$/;
+  const zakladni = s => {
+    const m = /^(-?)(\d+)\/(\d+)$/.exec(s);
+    return m ? { n: (m[1] ? -1 : 1) * Number(m[2]), d: Number(m[3]) } : null;
+  };
   function check(raw, correct) {
-    if (typeof window.checkAns === 'function') return window.checkAns(raw, correct);
-    const norm = s => String(s).trim().toLowerCase().normalize('NFD')
-      .replace(/[̀-ͯ]/g, '').replace(/\s+/g, '').replace(/,/g, '.').replace(/[−–]/g, '-');
+    const norm = s => String(s == null ? '' : s).trim().toLowerCase().normalize('NFD')
+      .replace(/[̀-ͯ]/g, '').replace(/\s+/g, '').replace(/,/g, '.').replace(/[−–]/g, '-')
+      .replace(/[„“"'.!;]+$/g, '').replace(/^[„“"']+/g, '');
     const u = norm(raw), c = norm(correct);
+    if (c === 'nemareseni') return RE_NEMA.test(u) && !RE_NEKON.test(u);
+    if (c === 'nekonecnemnohoreseni') return RE_NEKON.test(u);
+    const zc = zakladni(c);
+    if (zc && zc.d > 1) {
+      const zu = zakladni(u);
+      const nsd = (x, y) => (y ? nsd(y, x % y) : x);   // vlastní, ať kontrola nezávisí na pořadí skriptů
+      return !!zu && zu.n * zc.d === zc.n * zu.d && nsd(Math.abs(zu.n), zu.d) === 1;
+    }
+    if (typeof window.checkAns === 'function') return window.checkAns(raw, correct);
     if (u === c) return true;
     const ev = s => { if (/^-?\d+\/-?\d+$/.test(s)) { const [a, b] = s.split('/'); return parseFloat(a) / parseFloat(b); } return parseFloat(s); };
     const un = ev(u), cn = ev(c);

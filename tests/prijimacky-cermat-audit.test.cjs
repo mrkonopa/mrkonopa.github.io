@@ -152,11 +152,14 @@ ok(bad.size === 0, `${RUNS} běhů bez strukturální chyby` + (bad.size ? ' —
   for (let i = 0; i < 600; i++) {
     let t; try { t = C.genSlot(3); } catch (e) { continue; }
     (t.parts || []).forEach(p => {
+      // Přesné číslo: celé, nebo desetinné nejvýš na setiny (−2,5; 0,75) — ne useknutý
+      // periodický rozvoj. Rovnice bez jediného kořene má odpověď slovy.
+      if (/^(nemá řešení|nekonečně mnoho řešení)$/.test(p.ans)) return;
       const n = Number(String(p.ans).replace(',', '.'));
-      if (!Number.isFinite(n) || !Number.isInteger(n)) bad.add(p.key + ' = ' + p.ans);
+      if (!Number.isFinite(n) || !Number.isInteger(Math.round(n * 100) / 100 * 100) || Math.abs(n * 100 - Math.round(n * 100)) > 1e-9) bad.add(p.key + ' = ' + p.ans);
     });
   }
-  ok(bad.size === 0, 'kořeny rovnic (pozice 4) jsou celá čísla'
+  ok(bad.size === 0, 'kořeny rovnic (pozice 4) jsou přesná čísla (celá nebo na setiny) či „nemá řešení“'
     + (bad.size ? ' — ' + [...bad].slice(0, 5).join(' | ') : ''));
 }
 

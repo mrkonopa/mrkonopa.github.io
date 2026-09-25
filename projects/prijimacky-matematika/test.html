@@ -142,7 +142,7 @@ function taskHtml(t){
     const opts = t.options.map(o=>'<option value="'+o.charAt(0)+'">'+PZ.esc(o)+'</option>').join('');
     body = t.prompts.map((p,i)=>'<div class="cm-match-row"><span class="cm-tf-text">'+t.no+'.'+(i+1)+' '+PZ.esc(p)+'</span><select id="cm-match-'+t.no+'-'+i+'"><option value="">– vyber –</option>'+opts+'</select></div>').join('');
   } else {
-    body = (t.parts||[]).map((p,i)=>'<div class="cm-part">'+(p.key?'<div class="cm-part-label">'+PZ.esc(p.key)+'</div>':'')+'<div class="cm-part-prompt">'+PZ.esc(p.prompt)+'</div><input type="text" id="cm-p-'+t.no+'-'+i+'" inputmode="'+PZ.inputMode(p.ans)+'" autocomplete="off" placeholder="výsledek"></div>').join('');
+    body = (t.parts||[]).map((p,i)=>'<div class="cm-part">'+(p.key?'<div class="cm-part-label">'+PZ.esc(p.key)+'</div>':'')+'<div class="cm-part-prompt">'+PZ.esc(p.prompt)+'</div><input type="text" id="cm-p-'+t.no+'-'+i+'" inputmode="'+(p.klavesnice||PZ.inputMode(p.ans))+'" autocomplete="off" placeholder="výsledek"></div>').join('');
   }
   return '<div class="cm-task"><div class="cm-task-head"><span>ÚLOHA '+t.no+(t.title?' — '+PZ.esc(t.title):'')+'</span><span class="pts">'+t.points+' b</span></div>'+intro+body+'</div>';
 }
