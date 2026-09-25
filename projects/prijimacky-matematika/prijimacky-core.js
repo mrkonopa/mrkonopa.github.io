@@ -66,6 +66,54 @@
     const m = /^(-?)(\d+)\/(\d+)$/.exec(s);
     return m ? { n: (m[1] ? -1 : 1) * Number(m[2]), d: Number(m[3]) } : null;
   };
+  /* VÝRAZ s jednou proměnnou („4/3 p", „120x + 600") jako funkce té proměnné.
+     Vlastní malý parser (žádné eval): čísla, proměnná, + − · : / a závorky,
+     násobení se smí vynechat („2p", „3(p + 1)"). Zlomek před proměnnou se čte
+     jako v testu: „4/3p" = 4/3 · p, protože se počítá zleva doprava. */
+  function vyrazFn(s, prom) {
+    const t = [];
+    for (let i = 0; i < s.length;) {
+      const ch = s[i];
+      if (/[\d.]/.test(ch)) {
+        let j = i; while (j < s.length && /[\d.]/.test(s[j])) j++;
+        const n = s.slice(i, j); if (!/^\d+(\.\d+)?$/.test(n)) return null;
+        t.push(Number(n)); i = j; continue;
+      }
+      if (ch === prom) t.push('v');
+      else if ('+-*/()'.includes(ch)) t.push(ch);
+      else return null;                                      // cizí znak (jiná proměnná, jednotka…)
+      i++;
+    }
+    const u = [];
+    t.forEach(x => {                                          // doplní vynechané násobení
+      const p = u[u.length - 1];
+      if ((typeof p === 'number' || p === 'v' || p === ')') && (typeof x === 'number' || x === 'v' || x === '(')) u.push('*');
+      u.push(x);
+    });
+    return v => {
+      let k = 0;
+      const faktor = () => {
+        const x = u[k];
+        if (x === '-' || x === '+') { k++; const b = faktor(); return b === null ? null : (x === '-' ? -b : b); }
+        if (x === '(') { k++; const a = soucet(); if (u[k] !== ')') return null; k++; return a; }
+        if (typeof x === 'number') { k++; return x; }
+        if (x === 'v') { k++; return v; }
+        return null;
+      };
+      const soucin = () => {
+        let a = faktor();
+        while (a !== null && (u[k] === '*' || u[k] === '/')) { const op = u[k++], b = faktor(); a = b === null ? null : (op === '*' ? a * b : a / b); }
+        return a;
+      };
+      const soucet = () => {
+        let a = soucin();
+        while (a !== null && (u[k] === '+' || u[k] === '-')) { const op = u[k++], b = soucin(); a = b === null ? null : (op === '+' ? a + b : a - b); }
+        return a;
+      };
+      const r = soucet();
+      return r !== null && k === u.length && Number.isFinite(r) ? r : null;
+    };
+  }
   function check(raw, correct) {
     const norm = s => String(s == null ? '' : s).trim().toLowerCase().normalize('NFD')
       .replace(/[̀-ͯ]/g, '').replace(/\s+/g, '').replace(/,/g, '.').replace(/[−–]/g, '-')
@@ -78,6 +126,16 @@
     // ČAS „15:22": hodiny i minuty přesně (checkAns by z „15:40" vzala jen 15)
     const cas = /^(\d{1,2}):(\d{2})$/.exec(c);
     if (cas) { const m = /^(\d{1,2})[:.h](\d{2})(?:min|hod|h)?$/.exec(u); return !!m && +m[1] === +cas[1] && m[2] === cas[2]; }
+    /* 4) VÝRAZ s proměnnou („Vyjádřete výrazem s proměnnou p…"): uzná se každý
+       ekvivalentní zápis — „4/3p", „p + p/3", „4p : 3" —, oba výrazy se porovnají
+       v několika bodech. Přibližné „1,33p" neprojde (tolerance je 1e-9). */
+    const prom = c.match(/[a-z]/g);
+    if (prom && new Set(prom).size === 1 && /[\d+\-*/()]/.test(c)) {
+      const vycisti = x => x.replace(/[·⋅×]/g, '*').replace(/:/g, '/').replace(/^.*=/, '');
+      const f = vyrazFn(vycisti(c), prom[0]), g = vyrazFn(vycisti(u), prom[0]);
+      if (!f || !g) return false;
+      return [2, 3, 5, 7.5, 12].every(v => { const a = f(v), b = g(v); return a !== null && b !== null && Math.abs(a - b) <= 1e-9 * Math.max(1, Math.abs(a)); });
+    }
     const zc = zakladni(c);
     if (zc && zc.d > 1) {
       const zu = zakladni(u);

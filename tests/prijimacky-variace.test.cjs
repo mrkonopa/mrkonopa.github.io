@@ -59,7 +59,9 @@ ok(skupiny.length === 16, 'SLOTS má 16 pozic', 'nalezeno=' + skupiny.length);
    2026-09-24: pozice 6 → 7, 7 → 6, 8 → 6 a 9 → 6 podle ostrých úloh 6–8
    a Pythagorovy věty vnořené do úlohy; pozice 16 → 10, obrazce a děje
    podle ostrých úloh 16; pozice 5 → 5 a 10 → 6). */
-const VARIANT = { 1: 11, 2: 6, 3: 6, 4: 5, 5: 5, 6: 7, 7: 6, 8: 6,
+/* Pozice 7: tři triviální úhlové varianty („α je souhlasný, tedy 55°“) nahradily
+   dvě podle ostrých testů 2026 (kruh z výsečí, krychle s hranolem), proto 5. */
+const VARIANT = { 1: 11, 2: 6, 3: 6, 4: 5, 5: 8, 6: 8, 7: 5, 8: 6,
   9: 6, 10: 6, 11: 8, 12: 9, 13: 9, 14: 7, 15: 8, 16: 10 };
 const maloVariant = [];
 skupiny.forEach((g, i) => {

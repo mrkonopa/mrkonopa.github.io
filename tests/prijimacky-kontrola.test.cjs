@@ -9,7 +9,8 @@
       nejbližší cizí zlomek, který by tolerance pustila.
    2. „NEMÁ ŘEŠENÍ" / „NEKONEČNĚ MNOHO ŘEŠENÍ" se uzná i v běžných obměnách.
       DESETINNÉ číslo se porovnává taky přesně (0,1 není 0,09), ČAS celý
-      (15:40 není 15:22) a „o 147 cm" u otázky „o kolik" projde.
+      (15:40 není 15:22) a „o 147 cm" u otázky „o kolik" projde. VÝRAZ
+      s proměnnou („4/3 p") projde v každém ekvivalentním zápisu („p + p/3").
    3. POZICE 4 NIC NEPROZRADÍ: všechny rovnice mají stejný úvod, zadání
       začíná „Řešte …" a klávesnice je textová (číselná by u mobilu řekla,
       že odpověď není „nemá řešení"). Klávesnice se musí dostat i do
@@ -53,6 +54,13 @@ const PRIPADY = [
   // čas porovnaný CELÝ (tolerance by z „15:40" vzala jen hodiny)
   ['15:22', '15:22', true], ['15.22', '15:22', true], ['15 h 22 min', '15:22', true], ['15:22 h', '15:22', true],
   ['15:40', '15:22', false], ['15', '15:22', false], ['3:22', '15:22', false], ['15:2', '15:22', false],
+  // výraz s proměnnou: každý ekvivalentní zápis, ale ne přibližný, jiná proměnná ani jiný výraz
+  ['4/3 p', '4/3 p', true], ['4/3p', '4/3 p', true], ['p + p/3', '4/3 p', true], ['4p : 3', '4/3 p', true],
+  ['(4/3)·p', '4/3 p', true], ['p·4/3', '4/3 p', true], ['1,33p', '4/3 p', false], ['4/3', '4/3 p', false],
+  ['4/3 x', '4/3 p', false], ['3/4 p', '4/3 p', false], ['((p', '4/3 p', false], ['', '4/3 p', false],
+  ['120x + 600', '120x + 600', true], ['600 + 120x', '120x + 600', true], ['120(x + 5)', '120x + 600', true],
+  ['T = 120x + 600', '120x + 600', true], ['120x + 600 Kč', '120x + 600', false], ['160x', '120x + 600', false],
+  ['0,5r', 'r/2', true], ['1/2r', 'r/2', true], ['3r/8', '3/8 r', true],
 ];
 const spatne = PRIPADY.filter(([u, k, e]) => check(u, k) !== e);
 ok(spatne.length === 0, `${PRIPADY.length} ručních případů`, spatne.map(([u, k, e]) => `„${u}" vs ${k} → ${!e}`).join(' | '));
@@ -75,6 +83,27 @@ for (let i = 0; i < 1500; i++) for (let s = 0; s < 16; s++) {
 }
 ok(zlomku > 500, `zlomkových odpovědí v losu: ${zlomku} (pojistka proti prázdnému měření)`);
 ok(vadne.size === 0, 'přesně jen správný zlomek v základním tvaru', [...vadne].slice(0, 3).join(' | '));
+
+console.log('── Výrazy s proměnnou ze skutečné banky ──');
+/* „Vyjádřete výrazem s proměnnou p…" (pozice 5): kdyby banka vydala výraz,
+   kterému PZ.check nerozumí, nedostal by bod NIKDO — ani kdo počítal správně. */
+let vyrazu = 0; const vadneV = new Set();
+for (let i = 0; i < 3000; i++) {
+  const t = C.genSlot(4);
+  (t.parts || []).forEach(p => {
+    if (!/[a-z]/.test(p.ans)) return;
+    vyrazu++;
+    const jiny = p.ans.replace(/^(\d+)\/(\d+) ([a-z])$/, '$1$3 : $2').replace(/^(\d+)([a-z]) \+ (\d+)$/, '$3 + $1$2').replace(/^(\d+)([a-z])$/, '$2 · $1');
+    const spatny = p.ans.replace(/\d+/, d => String(+d + 1));
+    if (!check(p.ans, p.ans)) vadneV.add('sám se sebou: ' + p.ans);
+    if (jiny === p.ans || !check(jiny, p.ans)) vadneV.add(`jiný zápis „${jiny}" neprošel za ${p.ans}`);
+    if (check(spatny, p.ans)) vadneV.add(`špatný výraz „${spatny}" prošel za ${p.ans}`);
+    if (p.klavesnice !== 'text') vadneV.add('výraz bez textové klávesnice: ' + t.title + ' ' + p.key);
+  });
+}
+ok(vyrazu > 300, `výrazových odpovědí v losu pozice 5: ${vyrazu} (pojistka proti prázdnému měření)`);
+ok(vadneV.size === 0, 'výraz z banky projde sám se sebou i jinak zapsaný, jiný výraz neprojde, klávesnice je textová',
+  [...vadneV].slice(0, 3).join(' | '));
 
 console.log('── Pozice 4 nic neprozradí ──');
 const uvody = new Set(), zadani = new Set(), klav = new Set(); let odpovedi = { nema: 0, nekon: 0, cislo: 0 };

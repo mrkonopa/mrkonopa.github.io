@@ -70,48 +70,6 @@
       + `<text x="${cx}" y="165" fill="#39ff9e" font-size="14" font-family="monospace" text-anchor="middle">obsah dna S = ${baseArea} cm²</text>`
       + `</svg>`;
   }
-  // Dvě rovnoběžky (p, q) s příčkou a VYZNAČENÝMI úhly (oblouk + popisek uvnitř).
-  // Zadaný úhel a jemu rovné (α souhlasný, γ vrcholový) jsou modré; β (vedlejší) růžové.
-  function svgAngles(given) {
-    const A = { x: 172, y: 52 }, B = { x: 120, y: 134 }; // průsečíky příčky s p (nahoře) a q (dole)
-    const len = Math.hypot(B.x - A.x, B.y - A.y);
-    const dTx = (B.x - A.x) / len, dTy = (B.y - A.y) / len; // příčka směrem dolů (k B)
-    const dUx = -dTx, dUy = -dTy;                            // příčka směrem nahoru
-    const R = 20, LR = 34;
-    // oblouk mezi dvěma jednotkovými směry ve vrcholu V
-    // 🔴 Příznak sweep byl OBRÁCENĚ. V soustavě SVG roste y DOLŮ, takže kladný
-    // směr otáčení (sweep=1) je po směru hodinových ručiček — a kladný vektorový
-    // součin `ax*by − ay*bx` právě takové otočení z a do b znamená. Se špatným
-    // příznakem si prohlížeč (kvůli large-arc=0) vybere DRUHÝ možný střed, tedy
-    // ten zrcadlený přes tětivu: oblouk se vyboulí K VRCHOLU místo od něj a úhel
-    // vypadá vyznačený na opačné straně. Ostré papíry CERMATu i školní učebnice
-    // kreslí oblouk se středem ve vrcholu, vypouklý ven (např. M9C/2024 úloha 6).
-    function arc(V, ax, ay, bx, by, color) {
-      const p1x = V.x + ax * R, p1y = V.y + ay * R, p2x = V.x + bx * R, p2y = V.y + by * R;
-      const cross = ax * by - ay * bx, sweep = cross > 0 ? 1 : 0;
-      return `<path d="M ${r1(p1x)} ${r1(p1y)} A ${R} ${R} 0 0 ${sweep} ${r1(p2x)} ${r1(p2y)}" fill="none" stroke="${color}" stroke-width="2.5"/>`;
-    }
-    function lbl(V, ax, ay, bx, by, text, color) {
-      let mx = ax + bx, my = ay + by; const ml = Math.hypot(mx, my) || 1; mx /= ml; my /= ml;
-      return `<text x="${r1(V.x + mx * LR)}" y="${r1(V.y + my * LR + 4)}" fill="${color}" font-size="13" font-family="monospace" text-anchor="middle">${text}</text>`;
-    }
-    const C = '#4cc9f0', P = '#ff5c8a';
-    return `<svg viewBox="0 0 260 180">`
-      + `<line x1="15" y1="52" x2="245" y2="52" stroke="#19e6e6" stroke-width="2"/>`
-      + `<line x1="15" y1="134" x2="245" y2="134" stroke="#19e6e6" stroke-width="2"/>`
-      + `<line x1="${A.x + dUx * 44}" y1="${A.y + dUy * 44}" x2="${B.x + dTx * 40}" y2="${B.y + dTy * 40}" stroke="#ff3d7f" stroke-width="2"/>`
-      + `<text x="248" y="49" fill="#39ff9e" font-size="13" font-family="monospace">p</text>`
-      + `<text x="248" y="131" fill="#39ff9e" font-size="13" font-family="monospace">q</text>`
-      // zadaný úhel u A (mezi p vpravo a příčkou nahoru) — modrý
-      + arc(A, 1, 0, dUx, dUy, C) + lbl(A, 1, 0, dUx, dUy, given + '°', C)
-      // γ vrcholový k zadanému u A (mezi p vlevo a příčkou dolů) — modrý
-      + arc(A, -1, 0, dTx, dTy, C) + lbl(A, -1, 0, dTx, dTy, 'γ', C)
-      // α souhlasný u B (mezi q vpravo a příčkou nahoru) — modrý
-      + arc(B, 1, 0, dUx, dUy, C) + lbl(B, 1, 0, dUx, dUy, 'α', C)
-      // β vedlejší k α u B (mezi q vlevo a příčkou nahoru) — růžový
-      + arc(B, -1, 0, dUx, dUy, P) + lbl(B, -1, 0, dUx, dUy, 'β', P)
-      + `</svg>`;
-  }
 
   function gen1() {
     // 1 bod — druhá odmocnina ze součinu, který je vždy druhou mocninou (bez kalkulačky).
@@ -316,58 +274,29 @@
   }
 
   function gen6() {
-    // 2 body — válcový sud
-    const r6 = ri(15, 30);
-    const S6 = Math.round(3.14 * r6 * r6);
-    const mm1 = ri(5, 15);
-    const litry1 = r1(S6 * mm1 / 1000 * 10 / 10); // S(cm2)*h(cm)=cm3 -> /1000 = l ; mm1/10=cm
-    const litry1exact = r1(S6 * (mm1 / 10) / 1000);
-    const litry2 = ri(2, 6);
-    const mm2 = r1(litry2 * 1000 / S6 * 10);
+    // 2 body — válcový sud. Test je BEZ kalkulačky, takže obsah dna je kulaté číslo
+    // (dřív 3,14 · r², např. 1963 cm², a výsledek šel jen zaokrouhlit).
+    // Přírůstek v litrech vyjde přesně na setiny, výška v mm celá.
+    const S6 = pick([1000, 1200, 1500, 2000, 2500]);
+    const mm1 = ri(2, 15), cm3 = S6 * mm1 / 10, litry1 = S6 * mm1 / 10000;
+    const litry2 = pick([1, 2, 3, 4, 5, 6].filter(l => (l * 10000) % S6 === 0)), mm2 = litry2 * 10000 / S6;
     return {
       no: 6, points: 2, title: 'Sud', okruh: 'telesa',
       svg: svgSud(S6),
       intro: `Zahradní sud má tvar rotačního válce. Dno sudu má obsah ${S6} cm².`,
       parts: [
         { key: '6.1', points: 1,
-          prompt: `Při dešti stoupla hladina vody v sudu o ${mm1} mm. Kolik litrů vody přibylo (zaokrouhlete na 1 des. místo)?`,
-          ans: String(litry1exact),
+          prompt: `Při dešti stoupla hladina vody v sudu o ${mm1} mm. Kolik litrů vody přibylo?`,
+          ans: String(litry1),
           sol: [`Přibylá voda má tvar válce se stejným dnem jako sud a s výškou, o kterou stoupla hladina. Objem válce = obsah dna · výška, obojí ale musí být ve stejných jednotkách.`,
-            `Výška v cm: ${mm1} mm = ${cz(mm1 / 10)} cm. Objem: ${S6} · ${cz(mm1 / 10)} = ${cz(r2(S6 * mm1 / 10))} cm³.`,
-            `V litrech (1 l = 1000 cm³): ${cz(r2(S6 * mm1 / 10))} : 1000 ${r2(S6 * mm1 / 10) / 1000 === litry1exact ? '=' : '≈'} ${cz(litry1exact)} l.`] },
+            `Výška v cm: ${mm1} mm = ${cz(mm1 / 10)} cm. Objem: ${S6} · ${cz(mm1 / 10)} = ${tis(cm3)} cm³.`,
+            `V litrech (1 l = 1000 cm³): ${tis(cm3)} : 1000 = ${cz(litry1)} l.`] },
         { key: '6.2', points: 1,
-          prompt: `Při lijáku přibylo v sudu ${litry2} l vody. O kolik mm stoupla hladina (zaokrouhlete na celé mm)?`,
-          ans: String(Math.round(litry2 * 1000 / S6 * 10)),
+          prompt: `Při lijáku přibylo v sudu ${litry2} l vody. O kolik mm stoupla hladina?`,
+          ans: String(mm2),
           sol: [`Přibylá voda je opět válec se dnem sudu. Jeho výšku dostaneš, když objem vydělíš obsahem dna — objem ale musí být v cm³, protože dno je v cm².`,
-            `Objem: ${litry2} l = ${litry2 * 1000} cm³. Výška: ${litry2 * 1000} : ${S6} ≈ ${cz(r2(litry2 * 1000 / S6))} cm.`,
-            `V milimetrech (1 cm = 10 mm) je to přibližně ${cz(r1(litry2 * 10000 / S6))} mm, po zaokrouhlení ${Math.round(litry2 * 1000 / S6 * 10)} mm.`] }
-      ]
-    };
-  }
-
-  function gen7() {
-    // 3 body — úhly na rovnoběžkách s příčkou
-    const given = ri(2, 16) * 5; // úhel na jedné rovnoběžce
-    const alpha = given;          // souhlasný úhel
-    const beta = 180 - given;     // přilehlý (vedlejší)
-    const gamma = given;          // vrcholový k alpha
-    return {
-      no: 7, points: 3, title: 'Úhly na rovnoběžkách', okruh: 'geometrie',
-      svg: svgAngles(given),
-      intro: `Přímky p, q jsou rovnoběžné a protíná je příčka. Vyznačený úhel na přímce p má velikost ${given}°.`,
-      parts: [
-        { key: '7.1', points: 1, prompt: `Vypočítejte velikost úhlu α (souhlasný úhel na přímce q).`, ans: String(alpha),
-          sol: [`Rovnoběžky protnuté příčkou tvoří dvojice shodných úhlů. Souhlasné úhly leží u obou rovnoběžek na stejné straně příčky a ve stejné poloze.`,
-            `Úhel α u přímky q je souhlasný s vyznačeným úhlem ${given}° u přímky p.`,
-            `α = ${given}°.`] },
-        { key: '7.2', points: 1, prompt: `Vypočítejte velikost úhlu β (vedlejší úhel k α).`, ans: String(beta),
-          sol: [`Vedlejší úhly leží u téže přímky vedle sebe a dohromady tvoří přímý úhel 180°.`,
-            `Úhel β je vedlejší k úhlu α, a ten má ${given}° (je souhlasný s vyznačeným úhlem).`,
-            `β = 180 − ${given} = ${beta}°.`] },
-        { key: '7.3', points: 1, prompt: `Vypočítejte velikost úhlu γ (vrcholový úhel k danému úhlu ${given}° na přímce p).`, ans: String(gamma),
-          sol: [`Vrcholové úhly leží proti sobě přes průsečík dvou přímek — nemají společné rameno, jen vrchol. Vrcholové úhly jsou vždy shodné.`,
-            `Úhel γ je vrcholový k vyznačenému úhlu ${given}° u přímky p.`,
-            `γ = ${given}°.`] }
+            `Objem: ${litry2} l = ${tis(litry2 * 1000)} cm³. Výška: ${tis(litry2 * 1000)} : ${S6} = ${cz(mm2 / 10)} cm.`,
+            `V milimetrech (1 cm = 10 mm): ${cz(mm2 / 10)} · 10 = ${mm2} mm.`] }
       ]
     };
   }
@@ -624,27 +553,6 @@
           `Součin: ${a} · ${b} = ${a * b}. Součet: ${a} + ${b} = ${a + b}.`,
           `Rozdíl = ${a * b} − ${a + b} = ${ans}.`
         ] }]
-    };
-  }
-
-  function gen7b() {
-    // 3 body — úhly v trojúhelníku (součet 180°) + vnější úhel
-    const al = ri(30, 70), be = ri(30, Math.min(90, 155 - al));
-    const ga = 180 - al - be;
-    const vnejsiC = al + be; // vnější úhel u C = 180 - γ = α + β
-    const maxIn = Math.max(al, be, ga);
-    return {
-      no: 7, points: 3, title: 'Úhly v trojúhelníku', okruh: 'geometrie',
-      svg: svgTriangle('obecny', { v: ['A', 'B', 'C'] }),
-      intro: `V trojúhelníku ABC platí α = ${al}° (u vrcholu A) a β = ${be}° (u vrcholu B).`,
-      parts: [
-        { key: '7.1', points: 1, prompt: `Vypočítejte velikost vnitřního úhlu γ (u vrcholu C).`, ans: String(ga),
-          sol: [`Součet vnitřních úhlů je v každém trojúhelníku 180°, takže třetí úhel dopočítáš ze dvou známých.`,`Třetí úhel dopočítáš odečtením obou známých: γ = 180 − ${al} − ${be}.`,`γ = ${180 - al} − ${be} = ${ga}°.`] },
-        { key: '7.2', points: 1, prompt: `Vypočítejte velikost vnějšího úhlu u vrcholu C.`, ans: String(vnejsiC),
-          sol: [`Vnější úhel a vnitřní úhel u téhož vrcholu tvoří dohromady 180°.`,`Z toho plyne užitečné pravidlo: vnější úhel se rovná součtu obou zbývajících vnitřních úhlů.`,`Vnější úhel = ${al} + ${be} = ${vnejsiC}° (kontrola: 180 − ${ga} = ${vnejsiC}°).`] },
-        { key: '7.3', points: 1, prompt: `Který vnitřní úhel trojúhelníku je největší? Napište jeho velikost ve stupních.`, ans: String(maxIn),
-          sol: [`Nejdřív musíš znát všechny tři úhly — γ jsi dopočítal v předchozí podúloze.`,`Úhly jsou α = ${al}°, β = ${be}°, γ = ${ga}°.`,`Největší z nich je ${maxIn}°.`] }
-      ]
     };
   }
 
@@ -2013,27 +1921,6 @@
     };
   }
 
-  function gen7c() {
-    // 3 body — úhly v rovnoramenném trojúhelníku (bez SVG, plně z textu)
-    const beta = ri(30, 75), alpha = 180 - 2 * beta, vnejsi = 180 - beta, soucet = 2 * beta;
-    return {
-      no: 7, points: 3, title: 'Úhly v rovnoramenném trojúhelníku', okruh: 'geometrie',
-      intro: `Rovnoramenný trojúhelník má oba úhly při základně stejné, každý ${beta}°.`,
-      parts: [
-        { key: '7.1', points: 1, prompt: `Vypočítejte velikost úhlu při hlavním vrcholu (proti základně).`, ans: String(alpha),
-          sol: [`Trojúhelník je rovnoramenný, takže oba úhly při základně jsou stejné — každý ${beta}°.`,`Součet všech tří je 180°, tedy úhel u vrcholu = 180 − ${beta} − ${beta} = 180 − ${2 * beta}.`,`Úhel u vrcholu = ${alpha}°.`] },
-        { key: '7.2', points: 1, prompt: `Vypočítejte velikost vnějšího úhlu u jednoho z úhlů při základně.`, ans: String(vnejsi),
-          sol: [`Vnější úhel doplňuje vnitřní úhel u téhož vrcholu do přímého úhlu, tedy do 180°.`,
-            `Vnitřní úhel při základně má ${beta}°.`,
-            `Vnější úhel = 180 − ${beta} = ${vnejsi}°.`] },
-        { key: '7.3', points: 1, prompt: `Jaký je součet obou úhlů při základně?`, ans: String(soucet),
-          sol: [`U rovnoramenného trojúhelníku jsou oba úhly při základně shodné, takže stačí jeden zdvojnásobit.`,
-            `Každý z nich má ${beta}°.`,
-            `Součet = 2 · ${beta} = ${soucet}°.`] }
-      ]
-    };
-  }
-
   function gen10c() {
     // 2 body — měřítko modelu (převod na skutečnost)
     const k = [100, 200, 500, 1000][ri(0, 3)], modelCm = ri(2, 9), realCm = modelCm * k, realM = realCm / 100;
@@ -2104,32 +1991,6 @@
     };
   }
 
-  function gen8c() {
-    // 4 body — oplocení obdélníkové zahrady (obvod, cena, sloupky)
-    // Obdélník, ne čtverec: „obdélníková zahrada 8 m × 8 m" by žák četl jako překlep.
-    const a = ri(5, 15);
-    let b; do { b = ri(5, 15); } while (b === a);
-    const obvod = 2 * (a + b);
-    const cena = ri(50, 150), celkem = obvod * cena;
-    const cand = [2, 3, 4, 5].filter(x => obvod % x === 0), d = cand[ri(0, cand.length - 1)], sloupky = obvod / d;
-    return {
-      no: 8, points: 4, title: 'Oplocení zahrady', okruh: 'geometrie',
-      intro: `Obdélníková zahrada má rozměry ${a} m × ${b} m a chceme ji celou oplotit.`,
-      parts: [
-        { key: '8.1', points: 2, prompt: `Kolik metrů plotu je potřeba (obvod zahrady)?`, ans: String(obvod),
-          sol: [`Obvod obdélníku je dvojnásobek součtu dvou sousedních stran.`,`Součet sousedních stran: ${a} + ${b} = ${a + b} m.`,`Obvod = 2 · ${a + b} = ${obvod} m.`] },
-        { key: '8.2', points: 1, prompt: `Metr plotu stojí ${cena} Kč. Kolik Kč stojí celý plot?`, ans: String(celkem),
-          sol: [`Cena se počítá za každý metr plotu, takže se délka plotu (obvod zahrady) násobí cenou za jeden metr.`,
-            `Plot měří 2 · (${a} + ${b}) = ${obvod} m.`,
-            `Celkem = ${obvod} · ${cena} = ${celkem} Kč.`] },
-        { key: '8.3', points: 1, prompt: `Sloupky jsou rozmístěny po ${d} metrech. Kolik sloupků je po celém obvodu?`, ans: String(sloupky),
-          sol: [`Plot je uzavřený, takže sloupků je stejně jako mezer mezi nimi — na rozdíl od rovné řady, kde je sloupků o jeden víc než mezer.`,
-            `Obvod je 2 · (${a} + ${b}) = ${obvod} m, mezera ${d} m.`,
-            `Počet sloupků = ${obvod} : ${d} = ${sloupky}.`] }
-      ]
-    };
-  }
-
   function gen16c() {
     // 4 body — chodník kolem bazénu (vnější rozměry + obsah chodníku)
     const w = ri(1, 3), a = ri(5, 10), b = ri(3, a - 1);
@@ -2182,24 +2043,6 @@
         `1 % = ${t.cast} : ${t.p} = ${t.cast / t.p}.`,
         `100 % = ${t.cast / t.p} · 100 = ${t.celek}.`
       ])
-    };
-  }
-
-  function gen5c() {
-    // 4 body — obdélníková místnost: obsah podlahy + nezakrytá plocha (bez SVG)
-    const L = ri(4, 9), W = ri(3, 8), area = L * W;
-    const a = ri(2, L - 1), b = ri(2, W - 1), koberec = a * b, volna = area - koberec;
-    return {
-      no: 5, points: 4, title: 'Místnost', okruh: 'geometrie',
-      intro: `Obdélníková místnost má rozměry ${L} m × ${W} m.`,
-      parts: [
-        { key: '5.1', points: 2, prompt: `Jaký obsah má podlaha místnosti (v m²)?`, ans: String(area),
-          sol: [`Obsah obdélníku je součin dvou sousedních stran (pozor, ne jejich součet — to je obvod).`,`Sousední strany místnosti měří ${L} m a ${W} m.`,`Obsah = ${L} · ${W} = ${area} m².`] },
-        { key: '5.2', points: 2, prompt: `Na podlahu položíme obdélníkový koberec ${a} m × ${b} m. Kolik m² podlahy zůstane nezakryto?`, ans: String(volna),
-          sol: [`Nezakrytá část je to, co zbyde z podlahy po odečtení koberce — obsah podlahy minus obsah koberce, obojí jako obsah obdélníku.`,
-            `Podlaha: ${L} · ${W} = ${area} m². Koberec: ${a} · ${b} = ${koberec} m².`,
-            `Nezakryto: ${area} − ${koberec} = ${volna} m².`] }
-      ]
     };
   }
 
@@ -2307,7 +2150,7 @@
   }
 
   function gen6d() {
-    // 2 body — skleněné těžítko: válec ve válci (věrné M9A/2026, úloha 2)
+    // 2 body — skleněné těžítko: válec ve válci (věrné M9A/2024 1. ř., úloha 2)
     // R je násobek 10 a h sudé ⇒ oba objemy vyjdou celé, žádné plovoucí zbytky.
     const R = ri(1, 2) * 10, r = R / 2;
     const H = ri(5, 8) * 2, h = ri(2, (H / 2) - 1) * 2;
@@ -2875,7 +2718,7 @@
   }
   const cara = (A, B, barva, carky) => `<line x1="${r1(A.x)}" y1="${r1(A.y)}" x2="${r1(B.x)}" y2="${r1(B.y)}" stroke="${barva}" stroke-width="2"${carky ? ` stroke-dasharray="${carky}"` : ''}/>`;
   // Oblouk se středem VE VRCHOLU V mezi jednotkovými směry a, b. Sweep se
-  // POČÍTÁ z vektorového součinu (proč, viz svgAngles). data-vrchol nese
+  // POČÍTÁ z vektorového součinu (proč, viz CLAUDE.md, „SVG angle arcs"). data-vrchol nese
   // střed, aby test mohl na vykreslené křivce změřit, že na té kružnici leží.
   function oblouk(V, a, b, R, barva) {
     const sweep = a.x * b.y - a.y * b.x > 0 ? 1 : 0;
@@ -4301,8 +4144,391 @@
      bodový součet 50). generate() při každém spuštění testu náhodně
      vybere jednu variantu z každé pozice.
      ──────────────────────────────────────────────────────────────── */
+  /* ── Pozice 5–8 podle ostrých testů 2021–2026 ────────────────────
+     „Vyjádřete výrazem s proměnnou…" stojí v šesti z osmi testů 2025–26
+     (stromy, fitcentrum, kanalizace, čaj a punč…). Odpověď je výraz a PZ.check
+     uzná každý ekvivalentní zápis („4/3 p" i „p + p/3"). Geometrie přidává
+     úlohy, které se v ostrých testech opakují místo triviálních úhlů:
+     kruh z výsečí, krychle s hranolem, dva obdélníky a dlaždice (NSN). */
+
+  function gen5f() {
+    // Vzor: M9 2023 2. náhr. ú. 6 — „V sobotu o třetinu více než v pátek, v neděli
+    // o 60 % více než v pátek… V pátek o 290 stromů méně než v obou dalších dnech."
+    let k, q, p;
+    for (;;) {
+      k = pick([2, 3, 4, 5]); q = pick([20, 25, 40, 50, 60, 75, 80]);
+      if (q * k === 100) continue;                        // sobota a neděle by vyšly stejně
+      const krok = lcm(k, zRed(100 + q, 100)[1]);
+      p = krok * ri(Math.ceil(60 / krok), Math.floor(300 / krok));
+      if (p >= 60) break;
+    }
+    const zSo = zRed(k + 1, k), zNe = zRed(100 + q, 100), so = p + p / k, ne = p * (100 + q) / 100, zb = so + ne - p;
+    const slovo = { 2: 'polovinu', 3: 'třetinu', 4: 'čtvrtinu', 5: 'pětinu' }[k], L = lcm(zSo[1], zNe[1]);
+    const c = zSec(zSec(zSo, zNe, 1), [1, 1], -1), naL = z => `${z[0] * L / z[1]}/${L} p`;
+    return {
+      no: 5, points: 4, title: 'Sázení stromů', okruh: 'slovni',
+      intro: `V pátek, v sobotu a v neděli se na mýtině vysazovaly stromy. V sobotu bylo vysázeno o ${slovo} více stromů než v pátek. V neděli bylo vysázeno o ${q} % více stromů než v pátek. Počet stromů vysázených v pátek označíme p.`,
+      parts: [
+        { key: '5.1', points: 1, klavesnice: 'text',
+          prompt: `Vyjádřete výrazem s proměnnou p počet stromů vysázených v sobotu.`,
+          ans: `${zSo[0]}/${zSo[1]} p`,
+          sol: [
+            `„O ${slovo} více" znamená celý páteční počet p a k tomu ještě ${slovo} z něj, tedy 1/${k} p.`,
+            `p + 1/${k} p = ${k}/${k} p + 1/${k} p = ${zSo[0]}/${zSo[1]} p`,
+            `V sobotu bylo vysázeno ${zSo[0]}/${zSo[1]} p stromů.`
+          ] },
+        { key: '5.2', points: 1, klavesnice: 'text',
+          prompt: `Vyjádřete výrazem s proměnnou p počet stromů vysázených v neděli.`,
+          ans: `${zNe[0]}/${zNe[1]} p`,
+          sol: [
+            `„O ${q} % více" znamená 100 % pátečního počtu a k tomu dalších ${q} %, dohromady ${100 + q} % z p.`,
+            `${100 + q} % = ${100 + q}/100 = ${zNe[0]}/${zNe[1]}`,
+            `V neděli bylo vysázeno ${zNe[0]}/${zNe[1]} p stromů.`
+          ] },
+        { key: '5.3', points: 2, showExplain: true,
+          prompt: `V pátek bylo vysázeno o ${zb} stromů méně než v obou zbývajících dnech dohromady. Vypočítejte, kolik stromů bylo vysázeno v pátek.`,
+          ans: String(p),
+          sol: [
+            `Sestav rovnici: sobota a neděle dohromady mají o ${zb} stromů víc než pátek, tedy sobota + neděle − pátek = ${zb}.`,
+            `${zSo[0]}/${zSo[1]} p + ${zNe[0]}/${zNe[1]} p − p = ${zb}, na společném jmenovateli ${L}: ${naL(zSo)} + ${naL(zNe)} − ${L}/${L} p = ${zb}`,
+            c[1] === 1 ? `${c[0]}p = ${zb}, tedy p = ${zb} : ${c[0]} = ${p}` : `${c[0]}/${c[1]} p = ${zb}, tedy p = ${zb} · ${c[1]}/${c[0]} = ${p}`,
+            `Zkouška: v sobotu ${so}, v neděli ${ne} a ${so} + ${ne} − ${p} = ${zb}. V pátek bylo vysázeno ${p} stromů.`
+          ] }
+      ]
+    };
+  }
+
+  function gen5g() {
+    // Vzor: M9 2023 2. ř. ú. 6 — zásoby masa pro 12člennou expedici na 30 dní.
+    // Nepřímá úměrnost: víc lidí sní zásoby rychleji, stálý je součin členové · dny.
+    let N, D, zl, D2, n, d1, d2;
+    for (;;) {
+      N = pick([8, 10, 12, 15, 16, 20]); D = pick([20, 24, 30, 36, 40, 45, 60]);
+      zl = pick([[5, 6, 'pět šestin'], [2, 3, 'dvě třetiny'], [3, 4, 'tři čtvrtiny'], [3, 5, 'tři pětiny'], [1, 2, 'polovinu']]);
+      const T = N * D;
+      const moznosti = [15, 18, 20, 24, 25, 30, 36, 40, 45, 48, 50, 60, 72, 80, 90]
+        .filter(x => x !== D && T % x === 0 && T / x >= 4 && T / x <= 40 && T / x !== N);
+      d1 = ri(2, 6); d2 = ri(d1 + 1, 12);
+      if ((D * zl[0]) % zl[1] || !moznosti.length || T % (d1 + 2 * d2)) continue;
+      n = T / (d1 + 2 * d2);
+      if (n >= 3 && n <= 40) { D2 = pick(moznosti); break; }
+    }
+    const T = N * D, dnu = x => `${x} ${skl(x, 'den', 'dny', 'dní')}`, cast = D * zl[0] / zl[1];
+    return {
+      no: 5, points: 4, title: 'Zásoby expedice', okruh: 'pomer',
+      intro: `V chatě za polárním kruhem jsou připraveny zásoby masa pro ${N}člennou expedici přesně na ${D} dní. Každý člen expedice spotřebuje za den z připravených zásob stejné množství masa.`,
+      parts: [
+        { key: '5.1', points: 1,
+          prompt: `Vypočítejte, za kolik dní by ${N}členná expedice spotřebovala ${zl[2]} připravených zásob masa.`,
+          ans: String(cast),
+          sol: [
+            `Tatáž expedice sní každý den stejně, takže ${zl[2]} zásob spotřebuje za ${zl[2]} doby — počet dní je přímo úměrný snědenému množství.`,
+            `${D} : ${zl[1]} · ${zl[0]} = ${cast}`,
+            `Expedice by ${zl[2]} zásob spotřebovala za ${dnu(cast)}.`
+          ] },
+        { key: '5.2', points: 1,
+          prompt: `Vypočítejte, kolikačlenná expedice by všechny připravené zásoby masa spotřebovala za ${D2} dní.`,
+          ans: String(T / D2),
+          sol: [
+            `Čím víc členů, tím rychleji zásoby dojdou — počet členů a počet dní jsou NEPŘÍMO úměrné. Stálý je jejich součin: počet denních porcí v zásobách.`,
+            `Zásoby: ${N} · ${D} = ${T} denních porcí.`,
+            `Na ${D2} dní: ${T} : ${D2} = ${T / D2}, zásoby by za ${D2} dní spotřebovala ${T / D2}členná expedice.`
+          ] },
+        { key: '5.3', points: 2, showExplain: true,
+          prompt: `Dvě expedice společně spotřebovaly všechny připravené zásoby masa. První expedice pobývala na chatě ${dnu(d1)}. Druhá expedice měla dvakrát více členů než první a pobývala na chatě ${dnu(d2)}. Vypočítejte, kolik členů měla první expedice.`,
+          ans: String(n),
+          sol: [
+            `Počítej v denních porcích (jedna porce je to, co sní jeden člen za den). Zásoby mají ${T} porcí a obě expedice je snědly celé.`,
+            `n … počet členů první expedice. První snědla ${d1} · n = ${d1}n porcí, druhá má 2n členů a snědla 2n · ${d2} = ${2 * d2}n porcí.`,
+            `${d1}n + ${2 * d2}n = ${T}, tedy ${d1 + 2 * d2}n = ${T} a n = ${T} : ${d1 + 2 * d2} = ${n}.`,
+            `První expedice měla ${n} ${skl(n, 'člena', 'členy', 'členů')}.`
+          ] }
+      ]
+    };
+  }
+
+  function gen5h() {
+    // Vzor: M9 2026 1. náhr. ú. 5 — člen klubu platí roční poplatek a levnější vstup,
+    // běžný návštěvník jen dražší vstup. Kolikrát šli, když oba zaplatili stejně?
+    let P, c, d, x;
+    for (;;) {
+      c = pick([80, 90, 100, 110, 120]); d = pick([20, 25, 30, 40, 50]); P = pick([400, 450, 500, 600, 750, 800, 900, 1000]);
+      x = P / d;
+      if (Number.isInteger(x) && x >= 8 && x <= 40) break;
+    }
+    const b = c + d;
+    return {
+      no: 5, points: 4, title: 'Fitcentrum', okruh: 'slovni',
+      intro: `Do fitcentra mají přístup členové klubu i běžní návštěvníci. Člen klubu zaplatí na začátku roku jednorázový poplatek ${P} korun a za každý vstup platí ${c} korun. Běžný návštěvník platí za každý vstup ${b} korun. Jana je členkou klubu, Petr členem klubu není. Počet Janiných letošních vstupů do fitcentra označíme x.`,
+      parts: [
+        { key: '5.1', points: 1, klavesnice: 'text',
+          prompt: `Vyjádřete výrazem s proměnnou x, kolik korun Jana letos celkem zaplatila fitcentru.`,
+          ans: `${c}x + ${P}`,
+          sol: [
+            `Jana platí dvě věci: za každý z x vstupů ${c} korun a jednou za rok poplatek ${P} korun.`,
+            `Vstupy: ${c} · x = ${c}x korun, k tomu poplatek ${P} korun.`,
+            `Jana zaplatila ${c}x + ${P} korun.`
+          ] },
+        { key: '5.2', points: 1, klavesnice: 'text',
+          prompt: `Petr chodí do fitcentra vždy s Janou. Vyjádřete výrazem s proměnnou x, kolik korun letos zaplatil fitcentru Petr.`,
+          ans: `${b}x`,
+          sol: [
+            `Petr chodí vždy s Janou, takže má stejný počet vstupů x. Poplatek neplatí, platí jen vstupné.`,
+            `Za každý vstup ${b} korun: ${b} · x = ${b}x.`,
+            `Petr zaplatil ${b}x korun.`
+          ] },
+        { key: '5.3', points: 2, showExplain: true,
+          prompt: `Petr zaplatil letos za všechny vstupy dohromady stejnou částku, jakou fitcentru letos celkem zaplatila Jana. Vypočítejte, kolikrát Jana letos navštívila fitcentrum.`,
+          ans: String(x),
+          sol: [
+            `Obě částky jsou si rovny, takže se výrazy z předchozích podúloh dají položit do rovnice.`,
+            `${b}x = ${c}x + ${P}`,
+            `${b}x − ${c}x = ${P}, tedy ${d}x = ${P} a x = ${P} : ${d} = ${x}.`,
+            `Jana letos navštívila fitcentrum ${x}krát.`
+          ] }
+      ]
+    };
+  }
+
+  function gen5i() {
+    // Vzor: M9 2026 2. ř. ú. 6 — čaj za 40 Kč, punč o 75 % dražší; prodali 510 nápojů
+    // za 29 700 Kč. Kolik čajů? (200)
+    let c, p, pu, N, x;
+    for (;;) {
+      c = pick([30, 40, 50, 60]); p = pick([25, 50, 75, 80]); pu = c * (100 + p) / 100;
+      if (!Number.isInteger(pu)) continue;
+      N = ri(20, 60) * 10; x = ri(Math.ceil(N / 50), Math.floor(N * 4 / 50)) * 10;
+      break;
+    }
+    const T = c * x + pu * (N - x), pr = c * p / 100;
+    return {
+      no: 5, points: 4, title: 'Čaj a punč', okruh: 'slovni',
+      intro: `Na vánočním jarmarku prodávali ve stánku pouze čaj a punč. Čaj prodávali za ${c} korun a cena punče byla o ${p} % vyšší než cena čaje.`,
+      parts: [
+        { key: '5.1', points: 1,
+          prompt: `Vypočítejte v korunách cenu jednoho punče.`,
+          ans: String(pu),
+          sol: [
+            `„O ${p} % vyšší" znamená celou cenu čaje a k tomu ještě ${p} % z ní, dohromady ${100 + p} % ceny čaje.`,
+            `${p} % z ${c} korun: ${c} · ${cz(p / 100)} = ${pr} korun.`,
+            `Punč stojí ${c} + ${pr} = ${pu} korun.`
+          ] },
+        { key: '5.2', points: 1, klavesnice: 'text',
+          prompt: `Počet čajů, které dnes ve stánku prodali, označíme x. Vyjádřete výrazem s proměnnou x, kolik korun dnes ve stánku utržili za všechny prodané čaje.`,
+          ans: `${c}x`,
+          sol: [
+            `Každý čaj stojí stejně, takže tržba za čaje je cena jednoho čaje krát počet prodaných čajů.`,
+            `${c} · x = ${c}x`,
+            `Za čaje utržili ${c}x korun.`
+          ] },
+        { key: '5.3', points: 2, showExplain: true,
+          prompt: `Ve stánku dnes prodali celkem ${N} nápojů a utržili za ně dohromady ${tis(T)} korun. Vypočítejte, kolik čajů dnes ve stánku prodali.`,
+          ans: String(x),
+          sol: [
+            `x … počet čajů. Punčů je zbytek do ${N} nápojů, tedy ${N} − x. Tržba za čaje a tržba za punče dávají dohromady celou tržbu.`,
+            `${c}x + ${pu} · (${N} − x) = ${tis(T)}`,
+            `${c}x + ${tis(pu * N)} − ${pu}x = ${tis(T)}, tedy ${pu - c}x = ${tis(pu * N)} − ${tis(T)} = ${tis(pu * N - T)}.`,
+            `x = ${tis(pu * N - T)} : ${pu - c} = ${x}. Prodali ${x} čajů.`
+          ] }
+      ]
+    };
+  }
+
+  // Obdélník ABCD rozdělený svislou čarou na bílý (vlevo) a šedý (vpravo) obdélník.
+  function svgDvaObdelniky(w, g, h) {
+    const sc = Math.min(220 / (w + g), 110 / h), x0 = 22, y0 = 22, W = (w + g) * sc, H = h * sc;
+    const t = (x, y, s) => `<text x="${r1(x)}" y="${r1(y)}" fill="#ffffff" font-size="14" font-family="monospace" text-anchor="middle">${s}</text>`;
+    return `<svg viewBox="0 0 ${Math.round(W + 44)} ${Math.round(H + 46)}">`
+      + `<rect x="${x0}" y="${y0}" width="${r1(w * sc)}" height="${r1(H)}" fill="#12233a" stroke="#19e6e6" stroke-width="2"/>`
+      + `<rect x="${r1(x0 + w * sc)}" y="${y0}" width="${r1(g * sc)}" height="${r1(H)}" fill="#2a3a5e" stroke="#19e6e6" stroke-width="2"/>`
+      + t(x0 - 9, y0 + H + 16, 'A') + t(x0 + W + 9, y0 + H + 16, 'B') + t(x0 + W + 9, y0 - 6, 'C') + t(x0 - 9, y0 - 6, 'D')
+      + `</svg>`;
+  }
+
+  function gen6h() {
+    // Vzor: M9 2026 2. náhr. ú. 6 — obdélník ABCD složený z bílého a šedého obdélníku;
+    // obvod ABCD 68 cm, BC = 10 cm, obvod šedého o 12 cm větší než obvod bílého.
+    let h, L, dlt, w, g;
+    for (;;) {
+      h = pick([6, 8, 10, 12]); L = ri(8, 20) * 2; dlt = ri(1, 6) * 2;
+      g = (L + dlt / 2) / 2; w = L - g;
+      if (Number.isInteger(g) && w >= 3) break;
+    }
+    const O = 2 * (L + h);
+    return {
+      no: 6, points: 2, title: 'Bílý a šedý obdélník', okruh: 'geometrie',
+      svg: svgDvaObdelniky(w, g, h),
+      intro: `Obdélník ABCD je složen z bílého a šedého obdélníku jako na obrázku. Obvod obdélníku ABCD je ${O} cm a délka strany BC je ${h} cm. Obvod šedého obdélníku je o ${dlt} cm větší než obvod bílého obdélníku.`,
+      parts: [
+        { key: '6.1', points: 1,
+          prompt: `Vypočítejte v cm délku strany AB obdélníku ABCD.`,
+          ans: String(L),
+          sol: [
+            `Obvod obdélníku je dvojnásobek součtu dvou sousedních stran, takže polovina obvodu je AB + BC.`,
+            `AB + BC = ${O} : 2 = ${O / 2} cm.`,
+            `AB = ${O / 2} − ${h} = ${L} cm.`
+          ] },
+        { key: '6.2', points: 1, showExplain: true,
+          prompt: `Vypočítejte v cm² obsah šedého obdélníku.`,
+          ans: String(g * h),
+          sol: [
+            `Oba obdélníky mají stejnou výšku ${h} cm, takže se jejich obvody liší jen o dvojnásobek rozdílu jejich šířek.`,
+            `Rozdíl šířek: ${dlt} : 2 = ${dlt / 2} cm. Dohromady mají šířky ${L} cm, takže šedý obdélník je široký (${L} + ${dlt / 2}) : 2 = ${g} cm.`,
+            `Obsah šedého obdélníku: ${g} · ${h} = ${g * h} cm².`
+          ] }
+      ]
+    };
+  }
+
+  // Kruh rozdělený na n bílých výsečí s úhlem w a n šedých s úhlem g (střídavě).
+  function svgVysece(n, w, g) {
+    const cx = 100, cy = 92, R = 72, bod = u => [r1(cx + R * Math.cos((u - 90) * Math.PI / 180)), r1(cy + R * Math.sin((u - 90) * Math.PI / 180))];
+    let s = `<svg viewBox="0 0 200 184">`, u = 0;
+    for (let i = 0; i < n; i++) for (const [ul, fill] of [[w, '#12233a'], [g, '#2a3a5e']]) {
+      const [x1, y1] = bod(u), [x2, y2] = bod(u + ul);
+      s += `<path d="M ${cx} ${cy} L ${x1} ${y1} A ${R} ${R} 0 ${ul > 180 ? 1 : 0} 1 ${x2} ${y2} Z" fill="${fill}" stroke="#19e6e6" stroke-width="2"/>`;
+      u += ul;
+    }
+    const [tx, ty] = [r1(cx + 0.6 * R * Math.cos((w / 2 - 90) * Math.PI / 180)), r1(cy + 0.6 * R * Math.sin((w / 2 - 90) * Math.PI / 180) + 5)];
+    return s + `<text x="${tx}" y="${ty}" fill="#39ff9e" font-size="14" font-family="monospace" text-anchor="middle">${w}°</text></svg>`;
+  }
+
+  function gen7g() {
+    // Vzor: M9 2026 2. ř. ú. 7 — kruh o poloměru 10 cm rozdělený na tři shodné bílé
+    // a tři shodné šedé části: kolikrát je bílá větší (3krát) a obvod bílé části
+    // na desetiny (35,7 cm). Bílá výseč má 90°, šedá 30°.
+    const [n, w, g] = pick([[3, 90, 30], [3, 80, 40], [3, 100, 20], [2, 120, 60], [2, 135, 45], [2, 150, 30], [4, 60, 30], [4, 72, 18]]);
+    const r = pick([6, 8, 10, 12, 14, 20]), slovy = { 2: 'dvě', 3: 'tři', 4: 'čtyři' }[n];
+    // obvod bílé části v desetinách cm, zaokrouhlený v celých číslech: (2r + w/360 · 6,28 r) · 10
+    const T10 = Math.floor((2 * (72000 * r + 628 * r * w) + 3600) / 7200);
+    const kruh = 2 * 3.14 * r, oblouk = kruh * w / 360, presne = Math.abs(oblouk * 100 - Math.round(oblouk * 100)) < 1e-9;
+    return {
+      no: 7, points: 3, title: 'Kruh z výsečí', okruh: 'geometrie',
+      svg: svgVysece(n, w, g),
+      intro: `Kruh o poloměru ${r} cm je rozdělen na ${slovy} shodné bílé a ${slovy} shodné šedé kruhové výseče, které se střídají jako na obrázku. Každá bílá výseč má středový úhel ${w}°.`,
+      parts: [
+        { key: '7.1', points: 1,
+          prompt: `Určete, kolikrát je obsah jedné bílé části kruhu větší než obsah jedné šedé části.`,
+          ans: String(w / g),
+          sol: [
+            `Obsah kruhové výseče je úměrný jejímu středovému úhlu, stačí tedy porovnat úhly. Všechny výseče dohromady mají 360°.`,
+            `Jedna bílá a jedna šedá výseč: 360 : ${n} = ${360 / n}°, šedá má ${360 / n} − ${w} = ${g}°.`,
+            `${w} : ${g} = ${w / g}, bílá část je ${w / g}krát větší.`
+          ] },
+        { key: '7.2', points: 2, showExplain: true,
+          prompt: `Vypočítejte v cm obvod jedné bílé části kruhu (π ≈ 3,14). Výsledek zaokrouhlete na desetiny centimetru.`,
+          ans: String(T10 / 10),
+          sol: [
+            `Obvod výseče tvoří dva poloměry a oblouk. Oblouk je taková část obvodu kruhu, jakou část z 360° tvoří středový úhel.`,
+            `Obvod kruhu: 2 · 3,14 · ${r} = ${cz(r2(kruh))} cm. Oblouk: ${cz(r2(kruh))} · ${w}/360 ${presne ? '=' : '≈'} ${cz(presne ? r2(oblouk) : Math.round(oblouk * 1000) / 1000)} cm.`,
+            `Obvod bílé části: 2 · ${r} + ${cz(presne ? r2(oblouk) : Math.round(oblouk * 1000) / 1000)} ${presne && Number.isInteger(r2(2 * r + oblouk) * 10) ? '=' : '≈'} ${cz(T10 / 10)} cm.`
+          ] }
+      ]
+    };
+  }
+
+  // Velký hranol ABCDEFGH v kosém promítání: vlevo šedá krychle, vpravo bílý hranol.
+  function svgKrychleHranol(a, b) {
+    const u = 150 / (a + b), H = a * u, d = 0.35 * a * u, x0 = 24, y0 = 18 + d;
+    const P = (x, y) => [r1(x), r1(y)], A = P(x0, y0 + H), B = P(x0 + (a + b) * u, y0 + H), E = P(x0, y0), F = P(B[0], y0);
+    const po = p => P(p[0] + d, p[1] - d), C = po(B), D = po(A), G = po(F), Hh = po(E);
+    const M1 = P(x0 + a * u, y0 + H), M2 = P(x0 + a * u, y0), M3 = po(M2);
+    const pl = (pts, fill) => `<polygon points="${pts.map(p => p.join(',')).join(' ')}" fill="${fill}" stroke="#19e6e6" stroke-width="2"/>`;
+    const t = (p, s, dx, dy) => `<text x="${r1(p[0] + dx)}" y="${r1(p[1] + dy)}" fill="#ffffff" font-size="13" font-family="monospace" text-anchor="middle">${s}</text>`;
+    const skryta = (p, q) => `<line x1="${p[0]}" y1="${p[1]}" x2="${q[0]}" y2="${q[1]}" stroke="#2a3a5e" stroke-width="1.5" stroke-dasharray="5 4"/>`;
+    return `<svg viewBox="0 0 ${Math.round(B[0] + d + 26)} ${Math.round(y0 + H + 26)}">`
+      + skryta(A, D) + skryta(D, C) + skryta(D, Hh)
+      + pl([A, M1, M2, E], '#2a3a5e') + pl([M1, B, F, M2], '#12233a')
+      + pl([E, M2, M3, Hh], '#2a3a5e') + pl([M2, F, G, M3], '#12233a') + pl([B, C, G, F], '#101a30')
+      + t(A, 'A', -8, 14) + t(B, 'B', 6, 14) + t(C, 'C', 10, 4) + t(D, 'D', -10, 4)
+      + t(E, 'E', -10, 0) + t(F, 'F', 0, 16) + t(G, 'G', 10, -2) + t(Hh, 'H', -8, -4)
+      + `</svg>`;
+  }
+
+  function gen7h() {
+    // Vzor: M9 2026 1. náhr. ú. 7 — šedá krychle s povrchem 54 cm² slepená s bílým
+    // hranolem, jehož nejdelší hrana je o polovinu delší než hrana krychle (3 cm; 67,5 cm³).
+    const [a, f, slovo] = pick([[2, 2, 'polovinu'], [3, 2, 'polovinu'], [4, 2, 'polovinu'], [6, 2, 'polovinu'],
+      [3, 3, 'třetinu'], [6, 3, 'třetinu'], [4, 4, 'čtvrtinu'], [5, 5, 'pětinu']]);
+    const S = 6 * a * a, b = a + a / f, V = a * a * (a + b);
+    return {
+      no: 7, points: 3, title: 'Krychle a hranol', okruh: 'telesa',
+      svg: svgKrychleHranol(a, b),
+      intro: `Slepením šedé krychle s povrchem ${S} cm² a bílého hranolu vznikne velký hranol ABCDEFGH (viz obrázek). Nejdelší hrana bílého hranolu je o ${slovo} delší než hrana šedé krychle.`,
+      parts: [
+        { key: '7.1', points: 1,
+          prompt: `Vypočítejte v cm délku hrany šedé krychle.`,
+          ans: String(a),
+          sol: [
+            `Povrch krychle tvoří šest shodných čtverců. Obsah jedné stěny je tedy šestina povrchu a hrana je druhá odmocnina z obsahu stěny.`,
+            `Jedna stěna: ${S} : 6 = ${a * a} cm².`,
+            `Hrana: √${a * a} = ${a} cm.`
+          ] },
+        { key: '7.2', points: 2, showExplain: true,
+          prompt: `Vypočítejte v cm³ objem velkého hranolu ABCDEFGH.`,
+          ans: String(V),
+          sol: [
+            `Bílý hranol je přilepený ke stěně krychle, takže má stejnou podstavu ${a} cm × ${a} cm a jeho nejdelší hrana prodlužuje krychli.`,
+            `Nejdelší hrana bílého hranolu: ${a} + ${a} : ${f} = ${cz(b)} cm. Velký hranol je dlouhý ${a} + ${cz(b)} = ${cz(a + b)} cm.`,
+            `V = ${a} · ${a} · ${cz(a + b)} = ${cz(V)} cm³.`
+          ] }
+      ]
+    };
+  }
+
+  // Čtverec z obdélníkových dlaždic (delší strany vodorovně) bez čtyř rohových dlaždic.
+  function svgDlazdice(a, b, s) {
+    const u = 176 / s, x0 = 12, y0 = 12, na = s / a, nb = s / b;
+    let o = `<svg viewBox="0 0 200 200">`;
+    for (let r = 0; r < nb; r++) for (let c = 0; c < na; c++) {
+      const roh = (r === 0 || r === nb - 1) && (c === 0 || c === na - 1);
+      o += `<rect x="${r1(x0 + c * a * u)}" y="${r1(y0 + r * b * u)}" width="${r1(a * u)}" height="${r1(b * u)}" `
+        + (roh ? `fill="none" stroke="#2a3a5e" stroke-width="1.5" stroke-dasharray="4 3"/>` : `fill="#12233a" stroke="#19e6e6" stroke-width="1.5"/>`);
+    }
+    return o + `</svg>`;
+  }
+
+  function gen8g() {
+    // Vzor: M9 2021 1. náhr. ú. 8 — nejmenší čtverec z dlaždic 18 × 8 cm (strana 72 cm,
+    // nejmenší společný násobek), bez rohových dlaždic zbude 32 dlaždic a obvod se
+    // NEZMĚNÍ (288 cm): zářez nahradí dva kusy obvodu stejně dlouhými stranami.
+    const [a, b] = pick([[18, 8], [12, 9], [15, 9], [20, 12], [24, 9], [16, 12], [14, 8], [16, 10], [27, 12], [20, 15]]);
+    const s = lcm(a, b), na = s / a, nb = s / b, pocet = na * nb - 4;
+    return {
+      no: 8, points: 4, title: 'Dlaždice', okruh: 'geometrie',
+      svg: svgDlazdice(a, b, s),
+      intro: `Z celých dlaždic tvaru obdélníku o rozměrech ${a} cm a ${b} cm je sestaven nejmenší možný čtverec. Delší strany všech dlaždic jsou rovnoběžné s jednou stranou čtverce. Z každého ze čtyř rohů čtverce pak odebereme po jedné dlaždici a dostaneme nový útvar.`,
+      parts: [
+        { key: '8.1', points: 1,
+          prompt: `Vypočítejte v cm délku strany sestaveného čtverce.`,
+          ans: String(s),
+          sol: [
+            `Strana čtverce musí být násobkem délky i šířky dlaždice, jinak by se dlaždice nevešly celé. Nejmenší čtverec má stranu rovnou nejmenšímu společnému násobku.`,
+            `Násobky ${a}: ${[1, 2, 3, 4].map(i => a * i).join(', ')}, … a násobky ${b}: ${[1, 2, 3, 4].map(i => b * i).join(', ')}, …`,
+            `Nejmenší společný násobek čísel ${a} a ${b} je ${s}, strana čtverce měří ${s} cm.`
+          ] },
+        { key: '8.2', points: 1,
+          prompt: `Vypočítejte počet dlaždic v novém útvaru.`,
+          ans: String(pocet),
+          sol: [
+            `Spočítej, kolik dlaždic leží podél každé strany čtverce, vynásob to a odečti čtyři rohové dlaždice.`,
+            `Podél delších stran dlaždic: ${s} : ${a} = ${na}, podél kratších: ${s} : ${b} = ${nb}.`,
+            `Čtverec: ${na} · ${nb} = ${na * nb} dlaždic, bez čtyř rohových ${na * nb} − 4 = ${pocet}.`
+          ] },
+        { key: '8.3', points: 2, showExplain: true,
+          prompt: `Vypočítejte v cm obvod nového útvaru.`,
+          ans: String(4 * s),
+          sol: [
+            `Odebráním rohové dlaždice obvod neklesne: z obvodu zmizí dva kusy (${a} cm a ${b} cm), ale zářez přidá dvě strany dlaždice přesně stejně dlouhé.`,
+            `Nový útvar má proto stejný obvod jako původní čtverec.`,
+            `o = 4 · ${s} = ${4 * s} cm.`
+          ] }
+      ]
+    };
+  }
+
   const SLOTS = [
-    [gen1, gen1b, gen1c, gen1d, gen1e, gen1f, gen1g, gen1h, gen1i, gen1j, gen1k], [gen2, gen2b, gen2c, gen2d, gen2e, gen2f], [gen3, gen3b, gen3c, gen3d, gen3e, gen3f], [gen4, gen4d, gen4e, gen4f, gen4g], [gen5, gen5b, gen5c, gen5d, gen5e], [gen6, gen6b, gen6c, gen6d, gen6e, gen6f, gen6g], [gen7, gen7b, gen7c, gen7d, gen7e, gen7f], [gen8, gen8b, gen8c, gen8d, gen8e, gen8f],
+    [gen1, gen1b, gen1c, gen1d, gen1e, gen1f, gen1g, gen1h, gen1i, gen1j, gen1k], [gen2, gen2b, gen2c, gen2d, gen2e, gen2f], [gen3, gen3b, gen3c, gen3d, gen3e, gen3f], [gen4, gen4d, gen4e, gen4f, gen4g], [gen5, gen5b, gen5d, gen5e, gen5f, gen5g, gen5h, gen5i], [gen6, gen6b, gen6c, gen6d, gen6e, gen6f, gen6g, gen6h], [gen7d, gen7e, gen7f, gen7g, gen7h], [gen8, gen8b, gen8d, gen8e, gen8f, gen8g],
     [gen9, gen9b, gen9c, gen9d, gen9e, gen9f], [gen10, gen10b, gen10c, gen10d, gen10e, gen10f], [gen11, gen11b, gen11c, gen11d, gen11e, gen11f, gen11g, gen11h], [gen12, gen12c, gen12e, gen12f, gen12g, gen12h, gen12i, gen12j, gen12k], [gen13, gen13b, gen13c, gen13d, gen13e, gen13f, gen13g, gen13h, gen13i], [gen14, gen14b, gen14c, gen14d, gen14e, gen14f, gen14g], [gen15, gen15b, gen15c, gen15d, gen15e, gen15f, gen15g, gen15h], [gen16, gen16b, gen16c, gen16d, gen16e, gen16f, gen16g, gen16h, gen16i, gen16j]
   ];
 

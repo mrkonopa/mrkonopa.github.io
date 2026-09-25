@@ -58,7 +58,7 @@ console.log('\n── Test nanečisto: nezávislý dopočet ──\n');
 const ZL = {
   'polovinu': [1, 2], 'třetinu': [1, 3], 'čtvrtinu': [1, 4], 'pětinu': [1, 5], 'šestinu': [1, 6], 'desetinu': [1, 10],
   'dvě třetiny': [2, 3], 'tři čtvrtiny': [3, 4], 'dvě pětiny': [2, 5], 'tři pětiny': [3, 5], 'čtyři pětiny': [4, 5],
-  'pět osmin': [5, 8], 'čtyři sedminy': [4, 7]
+  'pět osmin': [5, 8], 'čtyři sedminy': [4, 7], 'pět šestin': [5, 6]
 };
 const zl = s => {
   const k = String(s).toLowerCase().replace(/^(?:posledních|poslední)\s+/, '');
@@ -298,8 +298,8 @@ const popiskyVyseci = svg => String(svg).split('<path').slice(1).map(ch => [...c
 const V69 = {
   // ── pozice 6 ──
   'Sud': (t, k) => { const [S] = cisla(t.intro, /Dno sudu má obsah (\d+) cm²/), p = t.parts.find(x => x.key === k).prompt;
-    if (k === '6.1') { const [mm] = cisla(p, /o (\d+) mm/); return na1(S * mm / 10 / 1000); }
-    const [l] = cisla(p, /přibylo v sudu (\d+) l/); return Math.round(l * 1000 / S * 10); },
+    if (k === '6.1') { const [mm] = cisla(p, /o (\d+) mm/); return S * mm / 10 / 1000; }
+    const [l] = cisla(p, /přibylo v sudu (\d+) l/); return l * 1000 / S * 10; },
   'Akvárium': (t, k) => { const [a, b, c] = cisla(t.intro, /dna (\d+) cm × (\d+) cm a výškou (\d+) cm/);
     if (k === '6.1') return a * b * c / 1000;
     const [h] = cisla(t.parts[1].prompt, /do výšky (\d+) cm/); return a * b * h / 1000; },
@@ -320,13 +320,6 @@ const V69 = {
     if (k === '6.1') return men;
     const pct = (V - men) / V * 100; return /desetiny/.test(t.parts[1].prompt) ? na1(pct) : pct; },
   // ── pozice 7 ── (dané úhly z popisků obrázku, hledané z geometrie)
-  'Úhly na rovnoběžkách': (t, k) => { const [g] = cisla(t.intro, /velikost (\d+)°/); return k === '7.2' ? 180 - g : g; },
-  'Úhly v trojúhelníku': (t, k) => { const [a, b] = cisla(t.intro, /α = (\d+)°[\s\S]*β = (\d+)°/), c = 180 - a - b;
-    return k === '7.1' ? c : k === '7.2' ? a + b : Math.max(a, b, c); },
-  'Úhly v rovnoramenném trojúhelníku': (t, k) => { const [b] = cisla(t.intro, /každý (\d+)°/);
-    return k === '7.1' ? 180 - 2 * b : k === '7.2' ? 180 - b : 2 * b; },
-  // α a 30° jsou střídavé; β je střídavý k vedlejšímu úhlu 130°; γ je vedlejší k úhlu
-  // pravoúhlého trojúhelníku q, r, t u průsečíku q a t: 180 − (90 − β) = 90 + β.
   'Přímky jedním bodem a kolmice': (t, k) => { const u = stupne(t.svg).sort((x, y) => x - y), be = 180 - u[1];
     if (u.length !== 2) throw new Error('čekal jsem 2 vyznačené úhly, je ' + u.length);
     return k === '7.1' ? u[0] : k === '7.2' ? be : 90 + be; },
@@ -350,10 +343,6 @@ const V69 = {
     if (k === '8.1') return 2 * (a + b);
     if (k === '8.2') return (Math.max(a, b) - Math.min(a, b)) * 100 / d;
     const [g] = cisla(t.parts[2].prompt, /po skupinkách po (\d+)/); return n / g; },
-  'Oplocení zahrady': (t, k) => { const [a, b] = cisla(t.intro, /rozměry (\d+) m × (\d+) m/), O = 2 * (a + b);
-    if (k === '8.1') return O;
-    if (k === '8.2') return O * cisla(t.parts[1].prompt, /stojí (\d+) Kč/)[0];
-    return O / cisla(t.parts[2].prompt, /po (\d+) metrech/)[0]; },
   'Odstřižené rohy': (t, k) => { const [a, c] = cisla(t.intro, /straně délky (\d+) cm[\s\S]*základna má délku (\d+) cm/), x = (a - c) / 2;
     return k === '8.1' ? x * a : k === '8.2' ? a + c + 2 * Math.hypot(x, a) : (a + c) * a / 2; },
   'Strana trojúhelníku': (t, k) => { const [a, b] = cisla(t.intro, /a = (\d+) cm, b = (\d+) cm/), lo = Math.abs(a - b) + 1, hi = a + b - 1;
@@ -370,6 +359,35 @@ const V69 = {
   'Pravoúhlý lichoběžník': t => { const [a, c, v] = cisla(t.intro, /AB = (\d+) cm a CD = (\d+) cm[\s\S]*měří (\d+) cm/);
     return a + c + v + Math.hypot(v, a - c); },
   'Kosočtverec': t => { const [e, f] = cisla(t.intro, /e = (\d+) cm a f = (\d+) cm/); return 4 * Math.hypot(e / 2, f / 2); },
+  // ── pozice 5 a 6: výrazy s proměnnou (vrací funkci té proměnné) ──
+  'Sázení stromů': (t, k) => { const m = t.intro.match(/o (\S+) více stromů než v pátek\. V neděli bylo vysázeno o (\d+) % více/);
+    const so = 1 + ZLS[m[1]], ne = 1 + m[2] / 100; if (!ZLS[m[1]]) throw new Error('zlomek „' + m[1] + '"');
+    if (k === '5.1') return p => so * p;
+    if (k === '5.2') return p => ne * p;
+    const [D] = cisla(t.parts[2].prompt, /o (\d+) stromů méně/); return D / (so + ne - 1); },
+  'Zásoby expedice': (t, k) => { const [N, D] = cisla(t.intro, /pro (\d+)člennou expedici přesně na (\d+) dní/), p = t.parts.find(x => x.key === k).prompt;
+    if (k === '5.1') { const m = p.match(/spotřebovala (.+?) připravených zásob/), f = ZL[m[1]]; if (!f) throw new Error('zlomek „' + m[1] + '"'); return D * f[0] / f[1]; }
+    if (k === '5.2') { const [D2] = cisla(p, /za (\d+) dní/); return N * D / D2; }
+    const [d1, d2] = cisla(p, /pobývala na chatě (\d+) \S+\. Druhá expedice měla dvakrát více členů než první a pobývala na chatě (\d+)/);
+    return N * D / (d1 + 2 * d2); },
+  'Fitcentrum': (t, k) => { const [P, c, b] = cisla(t.intro, /poplatek (\d+) korun a za každý vstup platí (\d+) korun\. Běžný návštěvník platí za každý vstup (\d+) korun/);
+    return k === '5.1' ? x => c * x + P : k === '5.2' ? x => b * x : P / (b - c); },
+  'Čaj a punč': (t, k) => { const [c, p] = cisla(t.intro, /za (\d+) korun a cena punče byla o (\d+) % vyšší/), pu = c * (1 + p / 100);
+    if (k === '5.1') return pu;
+    if (k === '5.2') return x => c * x;
+    const [N, T] = cisla(t.parts[2].prompt.replace(/(\d) (\d{3})/g, '$1$2'), /celkem (\d+) nápojů a utržili za ně dohromady (\d+) korun/);
+    return (pu * N - T) / (pu - c); },
+  'Bílý a šedý obdélník': (t, k) => { const [O, h, d] = cisla(t.intro, /je (\d+) cm a délka strany BC je (\d+) cm\. Obvod šedého obdélníku je o (\d+) cm větší/);
+    const L = O / 2 - h; return k === '6.1' ? L : (L + d / 2) / 2 * h; },
+  // ── pozice 7 a 8: kruh, tělesa, dlaždice ──
+  'Kruh z výsečí': (t, k) => { const m = t.intro.match(/poloměru (\d+) cm je rozdělen na (dvě|tři|čtyři) shodné bílé[\s\S]*středový úhel (\d+)°/);
+    const r = +m[1], n = { dvě: 2, tři: 3, čtyři: 4 }[m[2]], w = +m[3], g = 360 / n - w;
+    return k === '7.1' ? w / g : na1(2 * r + w / 360 * 2 * 3.14 * r); },
+  'Krychle a hranol': (t, k) => { const m = t.intro.match(/s povrchem (\d+) cm²[\s\S]*je o (\S+) delší než hrana šedé krychle/), a = Math.sqrt(m[1] / 6), f = ZLS[m[2]];
+    if (!f) throw new Error('zlomek „' + m[2] + '"');
+    return k === '7.1' ? a : a * a * (a + a * (1 + f)); },
+  'Dlaždice': (t, k) => { const [a, b] = cisla(t.intro, /o rozměrech (\d+) cm a (\d+) cm/); let s = a; while (s % b) s += a;
+    return k === '8.1' ? s : k === '8.2' ? (s / a) * (s / b) - 4 : 4 * s; },
   // ── pozice 5 ──
   'Pozemek': (t, k) => { const [c] = cisla(t.intro, /stranou c = (\d+) m/), S = c * c;
     if (k === '5.1') return (S / 5) / (c / 2);
@@ -377,9 +395,6 @@ const V69 = {
   'Zahrada': (t, k) => { const [L, W] = cisla(t.intro, /rozměry (\d+) m × (\d+) m/), S = L * W;
     if (k === '5.1') return (S / 4) / cisla(t.parts[0].prompt, /Délka záhonu je (\d+) m/)[0];
     const [p] = cisla(t.parts[1].prompt, /zabírá (\d+) %/); return S - S / 4 - S * p / 100; },
-  'Místnost': (t, k) => { const [L, W] = cisla(t.intro, /rozměry (\d+) m × (\d+) m/);
-    if (k === '5.1') return L * W;
-    const [a, b] = cisla(t.parts[1].prompt, /koberec (\d+) m × (\d+) m/); return L * W - a * b; },
   'Salát podle receptu': (t, k) => { const [R, U, G, g] = cisla(t.intro, /obsahujícího (\d+) g rajčat celkem (\d+) g cukru[\s\S]*každých (\d+) g rajčat pouze (\d+) g/);
     const rec = R / G * g; return k === '5.1' ? rec : (U - rec) / rec * 100; },
   'Dva běžci': (t, k) => { const [DA, TA, DB, tt] = cisla(t.intro, /běžel (\d+)kilometrový okruh[\s\S]*za (\d+) minut[\s\S]*pouze (\d+)kilometrový[\s\S]*po (\d+) minutách/);
@@ -563,6 +578,15 @@ for (const i of POZ69) {
       podul69++;
       let ceka;
       try { ceka = f(t, p.key); } catch (e) { nerozp69.add(t.title + ' ' + p.key + ': ' + e.message); return; }
+      if (typeof ceka === 'function') {                 // „Vyjádřete výrazem…": porovná se v několika bodech
+        const prom = (String(p.ans).match(/[a-z]/) || ['?'])[0];
+        const e = String(p.ans).replace(/−/g, '-').replace(/,/g, '.').replace(/\s+/g, '').replace(new RegExp('(\\d)' + prom, 'g'), '$1*' + prom);
+        let f2 = null;
+        if (new RegExp('^[\\d.+\\-*/()' + prom + ']+$').test(e)) f2 = Function(prom, '"use strict";return (' + e + ');');
+        if (!f2 || ![3, 7, 12].every(x => blizko(f2(x), ceka(x))))
+          spatne69.push(t.title + ' ' + p.key + ': banka ' + p.ans + ' neodpovídá výrazu ze zadání (v bodě 7 čeká ' + ceka(7) + ')');
+        return;
+      }
       if (typeof ceka === 'boolean') {
         if (ceka !== (p.ans === 'A')) spatne69.push(t.title + ' ' + p.key + ': banka ' + p.ans + ', ze zadání ' + (ceka ? 'A' : 'N') + ' — „' + p.prompt.slice(0, 70) + '"');
         return;

@@ -28,8 +28,10 @@
     // Pozice 16 (index 15) sem patří taky: na 300 běhů losuje jen Rámeček, Obraz v rámu
     // a Chodník kolem bazénu — všechno obvod a obsah obdélníku s lemem. Dřív nepatřila
     // ŽÁDNÉMU okruhu, takže se neobjevovala v procvičování ani v diagnostice.
-    { id: 'geometrie', name: 'Geometrie v rovině', oblast: 'Geometrie', slots: [4, 6, 7, 8, 9, 15] },
-    { id: 'telesa', name: 'Tělesa (objem a povrch)', oblast: 'Geometrie', slots: [5, 10, 11] },
+    // Pozice 6 (index 5) přidává „Bílý a šedý obdélník“, pozice 7 (index 6) „Krychli a hranol“ —
+    // jako v ostrých testech 2026, kde se geometrie v rovině i tělesa na pozicích 6–8 střídají.
+    { id: 'geometrie', name: 'Geometrie v rovině', oblast: 'Geometrie', slots: [4, 5, 6, 7, 8, 9, 15] },
+    { id: 'telesa', name: 'Tělesa (objem a povrch)', oblast: 'Geometrie', slots: [5, 6, 10, 11] },
     { id: 'data', name: 'Tabulky, data a statistika', oblast: 'Závislosti a data', slots: [13] },
   ];
 
