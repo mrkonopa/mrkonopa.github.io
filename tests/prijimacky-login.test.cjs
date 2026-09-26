@@ -24,10 +24,10 @@ const ok=(c,m)=>{ if(c){pass++;console.log('  ✅ '+m);} else {fail++;console.lo
 // Mock Supabase: přihlášený školní účet, cloud vrátí __MOCK_CLOUD, save uloží do __MOCK_SAVED.
 const MOCK = `
 window.__MOCK_SAVED = null;
-window.__MOCK_CLOUD = { attempts:[{date:'2026-05-02',score:44,max:50}],
+window.__MOCK_CLOUD = { attempts:[{date:'2026-05-02',score:44,max:50,ulohy:[[99,4,'<x>'],'nesmysl']}],
   practice:{ rovnice:{ok:3,total:12}, zlomky:{ok:8,total:8} },
   diag:{date:'2026-05-02',ok:9,n:10,topics:[]} };
-localStorage.setItem('PZ_CERMAT_ATTEMPTS', JSON.stringify([{date:'2026-05-01',score:20,max:50}]));
+localStorage.setItem('PZ_CERMAT_ATTEMPTS', JSON.stringify([{date:'2026-05-01',t:111,score:20,max:50,cas:1800,ulohy:[[1,1,null],[0,2,'zlomky']]}]));
 localStorage.setItem('PZ_PRACTICE_PROGRESS', JSON.stringify({ rovnice:{ok:5,total:10} }));
 (function(){
   let session = { user: { id:'u1', email:'zak@husovaliberec.cz' } };
@@ -79,6 +79,11 @@ localStorage.setItem('PZ_PRACTICE_PROGRESS', JSON.stringify({ rovnice:{ok:5,tota
 
   const att=await p1.evaluate(()=>JSON.parse(localStorage.getItem('PZ_CERMAT_ATTEMPTS')));
   ok(att.length===2 && att.some(a=>a.score===20) && att.some(a=>a.score===44),'testy sloučeny (lokál 20 + cloud 44)');
+  // body po úlohách a čas nesmí sync zahodit (dřív se pokus ořezal na {date,score,max});
+  // podvržené hodnoty z cloudu se oříznou (99 z max 4 → 4, neznámý okruh → null)
+  const l20=att.find(a=>a.score===20), c44=att.find(a=>a.score===44);
+  ok(l20 && l20.t===111 && l20.cas===1800 && JSON.stringify(l20.ulohy)==='[[1,1,null],[0,2,"zlomky"]]','sync zachová body po úlohách, čas i okamžik odevzdání');
+  ok(c44 && JSON.stringify(c44.ulohy)==='[[4,4,null],[0,0,null]]','podvržené body po úlohách z cloudu oříznuté ('+JSON.stringify(c44&&c44.ulohy)+')');
   const pra=await p1.evaluate(()=>JSON.parse(localStorage.getItem('PZ_PRACTICE_PROGRESS')));
   ok(pra.rovnice.ok===5 && pra.rovnice.total===12,'procvičování: per-téma max (ok 5, total 12)');
   ok(pra.zlomky && pra.zlomky.ok===8,'procvičování: nové téma z cloudu (zlomky)');
@@ -87,11 +92,12 @@ localStorage.setItem('PZ_PRACTICE_PROGRESS', JSON.stringify({ rovnice:{ok:5,tota
 
   const saved=await p1.evaluate(()=>window.__MOCK_SAVED);
   ok(saved && saved.attempts && saved.attempts.length===2,'sloučený pokrok uložen zpět do cloudu');
-  // readiness = avg(best 44/50=88 %, přesnost 13/20=65 %) = 77
-  ok(saved && saved.readiness===77,'readiness přepočítán a uložen (77): '+(saved&&saved.readiness));
+  // readiness = medián posledních testů (20 a 44 → 32 b.) = 64 %; procvičování se
+  // nepočítá, když existuje test (dřív průměr NEJLEPŠÍHO testu a přesnosti = 77)
+  ok(saved && saved.readiness===64,'readiness přepočítán a uložen (64): '+(saved&&saved.readiness));
 
   ok(await p1.evaluate(()=>{ const el=document.querySelector('#pz-login'); return el && /zak@husovaliberec\.cz/.test(el.textContent) && /Odhlásit/.test(el.textContent); }),'login lišta ukazuje účet + Odhlásit');
-  ok(await p1.evaluate(()=>document.querySelector('#st-big .st-stat .v').textContent==='77 %'),'statistiky překresleny po syncu (77 %)');
+  ok(await p1.evaluate(()=>document.querySelector('#st-big .st-stat .v').textContent==='64 %'),'statistiky překresleny po syncu (64 %)');
   await c1.close();
 
   ok(errs.length===0,'žádné JS chyby'+(errs.length?(' ['+errs[0]+']'):''));

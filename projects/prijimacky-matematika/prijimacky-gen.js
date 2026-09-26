@@ -11,6 +11,8 @@
 (function () {
   'use strict';
   const cz = window.cz || (n => String(n).replace('.', ','));
+  // „2 kusy, 5 kusů" — dřív tu stálo natvrdo „kusy" i u 5–8 kusů.
+  const kusy = n => n + ' ' + (n === 1 ? 'kus' : (n >= 2 && n <= 4 ? 'kusy' : 'kusů'));
 
   // Zlomek v ZÁKLADNÍM tvaru (p < q, nesoudělné). Bez toho vznikaly zadání
   // jako „2/4 z počtu", což u přijímačkového stylu vypadá nedbale.
@@ -324,7 +326,7 @@
   function slovniNakup() {
     const a = ri(2, 6), p = ri(10, 40), b = ri(2, 5), q = ri(10, 40), total = a * p + b * q;
     return {
-      prompt: 'Koupili jsme ' + a + ' kusy po ' + p + ' Kč a ' + b + ' kusy po ' + q + ' Kč. Kolik Kč jsme zaplatili celkem?', type: 'text', ans: String(total),
+      prompt: 'Koupili jsme ' + kusy(a) + ' po ' + p + ' Kč a ' + kusy(b) + ' po ' + q + ' Kč. Kolik Kč jsme zaplatili celkem?', type: 'text', ans: String(total),
       sol: a + ' · ' + p + ' = ' + (a * p) + ' Kč a ' + b + ' · ' + q + ' = ' + (b * q) + ' Kč. Celkem ' + (a * p) + ' + ' + (b * q) + ' = ' + total + ' Kč.',
       _check: { kind: 'nakup', a, p, b, q }
     };
@@ -387,7 +389,7 @@
   function cenaDoprava() {
     const a = ri(2, 8), p = ri(20, 90), d = ri(30, 150), total = a * p + d;
     return {
-      prompt: 'Objednali jsme ' + a + ' kusy po ' + p + ' Kč a k tomu dopravu ' + d + ' Kč. Kolik Kč zaplatíme celkem?', type: 'text', ans: String(total),
+      prompt: 'Objednali jsme ' + kusy(a) + ' po ' + p + ' Kč a k tomu dopravu ' + d + ' Kč. Kolik Kč zaplatíme celkem?', type: 'text', ans: String(total),
       sol: [
         'Doprava se platí JEDNOU za celou objednávku, ne za každý kus — proto se přičítá až nakonec.',
         'Cena zboží: ' + a + ' · ' + p + ' = ' + (a * p) + ' Kč.',
@@ -399,7 +401,7 @@
   function zbyvaPenez() {
     const a = ri(2, 5), p = ri(20, 60), spend = a * p, zbyva = ri(30, 300), M = spend + zbyva;
     return {
-      prompt: 'Měli jsme ' + M + ' Kč. Koupili jsme ' + a + ' kusy po ' + p + ' Kč. Kolik Kč nám zbylo?', type: 'text', ans: String(zbyva),
+      prompt: 'Měli jsme ' + M + ' Kč. Koupili jsme ' + kusy(a) + ' po ' + p + ' Kč. Kolik Kč nám zbylo?', type: 'text', ans: String(zbyva),
       sol: [
         'Nejdřív spočítej, kolik se utratilo, a teprve to odečti od toho, co bylo na začátku.',
         'Útrata: ' + a + ' · ' + p + ' = ' + spend + ' Kč.',

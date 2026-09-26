@@ -125,6 +125,44 @@ const PRUCHODY = {
       } catch (e) { return 'výjimka: ' + String(e && e.message || e).slice(0, 60); }
     },
   },
+  /* Diagnostika přijímaček: úlohy jedna po druhé a nakonec výsledek. Liché
+     téma odpoví „Nevím", takže přijdou úlohy z obou úrovní a konec má mapu,
+     plán i rozbor chyb. Právě ten konec na 360 px přetékal o 34 px (řádky
+     plánu) a úvodní snímek, který se dřív jediný měřil, to vidět nemohl. */
+  'pz-diag': {
+    pripravit: () => { dgStart(); },
+    seznam: () => Array.from({ length: DG.okruhy.length * 2 }, (_, i) => 'úloha ' + (i + 1)).concat(['konec']),
+    prepnout: k => {
+      try {
+        const odpovez = () => {
+          const it = DG.it;
+          if (DG.k % 2) { dgNevim(); return; }
+          if (it.type === 'mc') { const r = document.querySelector('input[name="dg-mc"][value="' + it.ans + '"]'); if (r) r.checked = true; dgSubmit(); }
+          else if (it.type === 'yn') dgSubmitYN(it.ans);
+          else { document.getElementById('dg-input').value = String(it.ans); dgSubmit(); }
+        };
+        const cil = k === 'konec' ? Infinity : +k.replace('úloha ', '') - 1;
+        let g = 0;
+        while (DG.k < DG.okruhy.length && DG.k * 2 + DG.krok < cil && g++ < 100) odpovez();
+        return (k === 'konec') === (DG.k >= DG.okruhy.length) ? '' : 'průchod se nedostal na ' + k;
+      } catch (e) { return 'výjimka: ' + String(e && e.message || e).slice(0, 60); }
+    },
+  },
+  /* Statistiky S DATY — bez nich se měřil jen prázdný stav. Šest pokusů
+     s body po úlohách ukáže trend i sekci „Kde ztrácíš body". */
+  'pz-stat': {
+    pripravit: () => {
+      const MAX = [1, 2, 4, 4, 4, 4, 3, 3, 3, 3, 4, 2, 2, 2, 6, 3];
+      const att = [30, 34, 38, 41, 36, 44].map((s, i) => ({ date: '2026-0' + (i + 3) + '-10', t: i + 1, score: s, max: 50, cas: 3300,
+        ulohy: MAX.map((m, j) => [j === 14 ? 2 : j === 10 ? 3 : m, m, j === 14 ? 'procenta' : j === 10 ? 'geometrie' : null]) }));
+      localStorage.setItem('PZ_CERMAT_ATTEMPTS', JSON.stringify(att));
+      localStorage.setItem('PZ_PRACTICE_PROGRESS', JSON.stringify({ zlomky: { ok: 2, total: 8 }, geometrie: { ok: 5, total: 9 } }));
+      localStorage.setItem('PZ_DIAG_LAST', JSON.stringify({ date: '2026-09-01', ver: 2, ok: 11, n: 20,
+        topics: PZ_TOPICS.list.map((t, i) => ({ id: t.id, level: i % 4, correct: i % 4 >= 2 })) }));
+    },
+    seznam: () => ['s daty'],
+    prepnout: () => { try { render(); return ''; } catch (e) { return 'výjimka: ' + String(e && e.message || e).slice(0, 60); } },
+  },
   proc: {
     pripravit: () => { selectDifficulty('hard'); startGame(); },
     seznam: () => problems.map((_, i) => 'úloha ' + (i + 1)),

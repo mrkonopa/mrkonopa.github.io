@@ -86,6 +86,11 @@ async function fillAndSubmit(page, sabotage, tfSpatne){
 
   // historie se uloží (localStorage)
   ok(await page.evaluate(()=>{ try{return JSON.parse(localStorage.getItem('PZ_CERMAT_ATTEMPTS')).length>=1;}catch(e){return false;} }),'pokus uložen do historie');
+  // body po úlohách (statistiky z nich počítají, KDE se body ztrácejí) musí sedět na skóre
+  const posl=await page.evaluate(()=>{ try{ const a=JSON.parse(localStorage.getItem('PZ_CERMAT_ATTEMPTS')); return a[a.length-1]; }catch(e){ return null; } });
+  ok(posl && Array.isArray(posl.ulohy) && posl.ulohy.length===16 && posl.ulohy.reduce((s,u)=>s+u[0],0)===posl.score &&
+     posl.ulohy.reduce((s,u)=>s+u[1],0)===posl.max && posl.t>0 && posl.cas>=0,
+     'pokus nese body po 16 úlohách (součet = skóre '+(posl&&posl.score)+', maxima = '+(posl&&posl.max)+'), čas a okamžik odevzdání');
 
   // ── jedna chyba → méně než 50 + review ukáže správně/tvoje ──
   await page.click('button.pz-btn.primary:has-text("Zkusit znovu")');
@@ -127,6 +132,10 @@ async function fillAndSubmit(page, sabotage, tfSpatne){
     await fillAndSubmit(page, false, spatne);
     const sc=await page.evaluate(()=>parseInt(document.getElementById('cm-end-score').textContent));
     ok(sc===cekam,'úloha 11: '+spatne+' tvrzení špatně → '+cekam+' / 50 ('+sc+')');
+    // ztráta musí v uložených bodech po úlohách sedět právě na úlohu 11
+    const u=await page.evaluate(()=>{ const a=JSON.parse(localStorage.getItem('PZ_CERMAT_ATTEMPTS')); return a[a.length-1].ulohy; });
+    const ztraty=u.map((x,i)=>x[1]-x[0]>0?i+1:0).filter(Boolean);
+    ok(ztraty.join()==='11' && u[10][0]===cekam-46,'uložené body po úlohách: ztráta jen v úloze 11 ('+ztraty.join()+', '+u[10][0]+' b.)');
   }
 
   ok(errs.length===0,'žádné JS chyby'+(errs.length?(' ['+errs[0]+']'):''));

@@ -109,9 +109,11 @@ main { max-width:920px; margin:0 auto; padding:18px 24px 80px; }
 .cm-part { margin-top:14px; }
 .cm-part-label { font-size:.78rem; font-weight:700; letter-spacing:.04em; color:var(--teal); margin-bottom:4px; }
 .cm-part-prompt { font-size:1.02rem; color:var(--text); margin-bottom:8px; line-height:1.5; }
-.cm-part input[type=text] { width:100%; font-family:var(--sans); font-weight:600; font-size:1.05rem;
+/* Pole odpovědi: test, procvičování i diagnostika stejně (v posledních dvou bylo
+   dřív úplně nestylované — malé výchozí pole prohlížeče). */
+.cm-part input[type=text], #pr-answer input[type=text], #dg-answer input[type=text] { width:100%; font-family:var(--sans); font-weight:600; font-size:1.05rem;
   background:#fff; color:var(--text); border:1.5px solid var(--border); border-radius:8px; padding:10px 12px; outline:none; }
-.cm-part input[type=text]:focus { border-color:var(--blue); box-shadow:0 0 0 3px var(--blue-light); }
+.cm-part input[type=text]:focus, #pr-answer input[type=text]:focus, #dg-answer input[type=text]:focus { border-color:var(--blue); box-shadow:0 0 0 3px var(--blue-light); }
 .cm-explain { display:block; width:100%; margin-top:8px; background:#fafaf6; color:var(--text);
   border:1px solid var(--border); border-radius:8px; padding:8px 10px; font-family:var(--sans);
   font-size:.9rem; resize:vertical; }
@@ -185,7 +187,7 @@ main { max-width:920px; margin:0 auto; padding:18px 24px 80px; }
 .cm-next-row { display:flex; align-items:center; gap:10px; background:var(--card); border:1px solid var(--border);
   border-radius:8px; padding:9px 11px; text-decoration:none; color:var(--text); transition:border-color .15s, transform .15s; }
 .cm-next-row:hover { border-color:var(--blue); transform:translateX(2px); }
-.cm-next-row .nm { font-weight:600; flex:1; line-height:1.35; }
+.cm-next-row .nm { font-weight:600; flex:1; min-width:0; line-height:1.35; }
 .cm-next-row .sc { font-size:.85rem; color:var(--red); font-weight:700; font-variant-numeric:tabular-nums; white-space:nowrap; }
 .cm-next-row .go { font-size:.85rem; color:var(--blue); font-weight:700; white-space:nowrap; }
 

@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Diagnostika — Přijímačky z matematiky · Vojtěch Konopa</title>
-<meta name="description" content="Krátká diagnostika z matematiky k přijímačkám: jedna úloha z každého tématu najde, kde ztrácíš body, a doporučí, co procvičovat." />
+<meta name="description" content="Diagnostika z matematiky k přijímačkám: dvě úlohy z každého tématu určí, jak na tom v něm jsi, a ukážou, kde získáš nejvíc bodů." />
 <meta name="author" content="Vojtěch Konopa" />
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -19,6 +19,15 @@
   .dg-dot { width:22px; height:22px; border-radius:50%; flex:none; display:grid; place-items:center; color:#fff; font-weight:800; font-size:.8rem; }
   .dg-dot.ok { background:var(--green); }
   .dg-dot.bad { background:var(--red); }
+  .dg-dot.l0 { background:var(--red); } .dg-dot.l1 { background:var(--gold); }
+  .dg-dot.l2 { background:var(--blue); } .dg-dot.l3 { background:var(--green); }
+  .dg-lv { font-size:.78rem; font-weight:700; margin-left:6px; white-space:nowrap; }
+  .dg-lv.l0 { color:var(--red); } .dg-lv.l1 { color:var(--gold); } .dg-lv.l2 { color:var(--blue); } .dg-lv.l3 { color:var(--green); }
+  .dg-lv-d { display:block; font-size:.82rem; font-weight:400; color:var(--muted); margin-top:2px; }
+  .dg-map-name { min-width:0; }
+  .dg-odkazy { display:flex; flex-wrap:wrap; gap:14px; margin-top:4px; }
+  .dg-akce { margin-top:12px; display:flex; flex-wrap:wrap; gap:10px; }
+  @media (pointer:coarse) { .dg-odkazy a { min-height:44px; display:inline-flex; align-items:center; } }
   .dg-map-name { flex:1; font-weight:600; }
   .dg-map-row a { font-weight:700; font-size:.88rem; white-space:nowrap; }
   .yn-row { display:flex; gap:10px; }
@@ -36,14 +45,14 @@
 <header class="title-block">
   <span class="eyebrow">Diagnostika</span>
   <h1 class="title">Zjisti, kde <span class="accent">ztrácíš body</span></h1>
-  <p class="lede">Jedna úloha z každého tématu. Bez nápovědy — výsledek a mapu slabin uvidíš na konci a rovnou dostaneš, co procvičovat.</p>
+  <p class="lede">Dvě úlohy z každého tématu: první na úrovni testu, druhá podle toho, jak ti šla. Na konci uvidíš, jak na tom v každém tématu jsi a kde získáš nejvíc bodů.</p>
 </header>
 
 <main>
   <div id="dg-gate">
     <div class="cm-panel" style="text-align:center">
-      <div class="cm-gate-intro">Krátká diagnostika napříč tématy — <span class="hl">9 úloh, pár minut.</span><br>
-        Odpovídej podle svého; nejde o známku, jde o mapu slabin.</div>
+      <div class="cm-gate-intro">Diagnostika napříč tématy — <span class="hl">20 úloh, bez nápovědy.</span><br>
+        Když nevíš, klikni na <b>Nevím</b>. Hádání by mapu zkreslilo; nejde o známku.</div>
       <div style="margin-top:16px"><button class="pz-btn primary" onclick="dgStart()">▶ Začít diagnostiku</button></div>
     </div>
   </div>
@@ -51,7 +60,7 @@
   <div id="dg-run" style="display:none">
     <div class="cm-panel" style="margin-bottom:14px">
       <div style="display:flex;justify-content:space-between;font-weight:700;color:var(--muted);font-size:.9rem">
-        <span id="dg-topicname"></span><span>Úloha <b id="dg-i">1</b> / <span id="dg-n">9</span></span></div>
+        <span id="dg-topicname"></span><span>Úloha <b id="dg-i">1</b> / <span id="dg-n">20</span></span></div>
       <div class="dg-prog"><div class="dg-prog-in" id="dg-prog" style="width:0"></div></div>
     </div>
     <div class="cm-task">
@@ -67,9 +76,11 @@
       <div class="cm-end-emoji">🧭</div>
       <div class="cm-end-title">Mapa slabin</div>
       <div class="cm-end-score" id="dg-score"></div>
+      <div class="cm-end-pct" id="dg-score-sub"></div>
     </div>
     <div class="cm-panel" style="margin-top:14px" id="dg-map"></div>
     <div id="dg-reco-wrap"></div>
+    <div id="dg-rozbor"></div>
     <div class="cm-actions"><button class="pz-btn ghost" onclick="location.reload()">↻ Znovu</button>
       <a class="pz-btn" href="./">← Rozcestník</a></div>
   </div>
@@ -86,72 +97,137 @@
 <script>document.addEventListener('DOMContentLoaded',function(){if(window.PZ&&PZ.attachLoginBar)PZ.attachLoginBar();});</script>
 <script>
 const DIAG_KEY = 'PZ_DIAG_LAST';
-let DG = { seq:[], i:0 };
-
+/* Dvě úlohy na téma. První je vždy na úrovni ostrého testu. Kdo ji dá,
+   dostane druhou testovou — trefa u výběru z pěti je 20 %, jedna úloha by
+   „zvládnuto" nedokázala. Kdo ne, dostane jednodušší úlohu ze základu: pozná se
+   tak, jestli chybí základ, nebo „jen" testová úroveň. Dřív byla jedna úloha na
+   téma, takže jeden překlep znamenal „slabina" a nic víc se nedozvěděl. */
+const UROVNE = [
+  { t:'Začni výkladem', d:'Chybí základ. Projdi si výklad a pak procvičuj.' },
+  { t:'Základ máš', d:'Jednodušší úlohu zvládáš, testová ti zatím utekla.' },
+  { t:'Skoro', d:'Jedna úloha na úrovni testu vyšla, druhá ne.' },
+  { t:'Zvládáš', d:'Obě úlohy na úrovni testu správně.' },
+];
+const urovenZ = (prvni, druha) => prvni ? (druha ? 3 : 2) : (druha ? 1 : 0);
+let DG = { okruhy:[], k:0, krok:0, it:null, vysl:[], odp:[] };
+function dgUloha(okruh, uroven){
+  let it=null, g=0; do { it=PZ_TOPICS.item(okruh.id, uroven); g++; } while((!it||!it.prompt)&&g<8);
+  return it;
+}
 function dgStart(){
-  DG.seq = PZ_TOPICS.list.map(t=>{
-    let it=null, g=0; do { it=PZ_TOPICS.item(t.id); g++; } while((!it||!it.prompt)&&g<8);
-    return { topic:t, item:it, correct:null };
-  }).filter(x=>x.item);
-  DG.i = 0;
+  DG.okruhy = PZ_TOPICS.list.slice(); DG.k=0; DG.krok=0; DG.odp=[];
+  DG.vysl = DG.okruhy.map(()=>({ prvni:null, druha:null }));
   document.getElementById('dg-gate').style.display='none';
   document.getElementById('dg-end').style.display='none';
   document.getElementById('dg-run').style.display='block';
-  document.getElementById('dg-n').textContent = DG.seq.length;
+  document.getElementById('dg-n').textContent = DG.okruhy.length*2;
+  dgDalsi();
+}
+// Další úloha: první vždy „test", druhá „test" po správné, „zaklad" po chybné.
+function dgDalsi(){
+  if(DG.k>=DG.okruhy.length) return dgEnd();
+  const v=DG.vysl[DG.k];
+  const uroven = DG.krok===0 ? 'test' : (v.prvni ? 'test' : 'zaklad');
+  DG.it = dgUloha(DG.okruhy[DG.k], uroven);
+  if(!DG.it){ dgZapis(false, null); return; }   // okruh bez úlohy — počítá se jako neřešená
+  DG.it.uroven = DG.it.uroven || uroven;
   dgRender(); window.scrollTo(0,0);
 }
-
 function dgRender(){
-  const cur = DG.seq[DG.i]; const it = cur.item;
-  document.getElementById('dg-topicname').textContent = cur.topic.name;
-  document.getElementById('dg-i').textContent = DG.i+1;
-  document.getElementById('dg-prog').style.width = (DG.i/DG.seq.length*100)+'%';
+  const it = DG.it, i = DG.k*2+DG.krok;
+  document.getElementById('dg-topicname').textContent = DG.okruhy[DG.k].name+' · '+(it.uroven==='zaklad'?'základ':'úroveň testu');
+  document.getElementById('dg-i').textContent = i+1;
+  document.getElementById('dg-prog').style.width = (i/(DG.okruhy.length*2)*100)+'%';
   const introEl=document.getElementById('dg-intro');
   if(it.intro){ introEl.textContent=it.intro; introEl.style.display='block'; } else introEl.style.display='none';
   const svgEl=document.getElementById('dg-svg');
   if(it.svg){ svgEl.innerHTML=PZ.themeSvg(it.svg); svgEl.style.display='block'; } else svgEl.style.display='none';
   document.getElementById('dg-prompt').textContent = it.prompt;
   const ans=document.getElementById('dg-answer');
+  const nevim='<button class="pz-btn ghost" onclick="dgNevim()" title="Hádání by mapu zkreslilo">Nevím</button>';
   if(it.type==='mc'){
-    ans.innerHTML = it.options.map(o=>'<label class="cm-mc-opt"><input type="radio" name="dg-mc" value="'+o.charAt(0)+'"> '+PZ.esc(o)+'</label>').join('')+
-      '<div style="margin-top:12px"><button class="pz-btn primary" onclick="dgSubmit()">Další →</button></div>';
+    ans.innerHTML = it.options.map(o=>'<label class="cm-mc-opt"><input type="radio" name="dg-mc" value="'+PZ.esc(o.charAt(0))+'"> '+PZ.esc(o)+'</label>').join('')+
+      '<div class="dg-akce"><button class="pz-btn primary" onclick="dgSubmit()">Další →</button>'+nevim+'</div>';
   } else if(it.type==='yn'){
-    ans.innerHTML = '<div class="yn-row"><button class="pz-btn" onclick="dgSubmitYN(\'A\')">ANO</button><button class="pz-btn" onclick="dgSubmitYN(\'N\')">NE</button></div>';
+    ans.innerHTML = '<div class="yn-row"><button class="pz-btn" onclick="dgSubmitYN(\'A\')">ANO</button><button class="pz-btn" onclick="dgSubmitYN(\'N\')">NE</button></div>'+
+      '<div class="dg-akce">'+nevim+'</div>';
   } else {
     ans.innerHTML = '<input type="text" id="dg-input" inputmode="'+(it.klavesnice||PZ.inputMode(it.ans))+'" autocomplete="off" placeholder="výsledek" '+
-      'onkeydown="if(event.key===\'Enter\')dgSubmit()"><div style="margin-top:12px"><button class="pz-btn primary" onclick="dgSubmit()">Další →</button></div>';
+      'onkeydown="if(event.key===\'Enter\')dgSubmit()"><div class="dg-akce"><button class="pz-btn primary" onclick="dgSubmit()">Další →</button>'+nevim+'</div>';
     setTimeout(()=>{ const i=document.getElementById('dg-input'); if(i)i.focus(); },30);
   }
 }
-
-function dgSubmitYN(v){ DG.seq[DG.i].correct = (v===DG.seq[DG.i].item.ans); dgAdvance(); }
+function dgSubmitYN(v){ dgZapis(v===DG.it.ans, v); }
+function dgNevim(){ dgZapis(false, null); }
 function dgSubmit(){
-  const cur=DG.seq[DG.i], it=cur.item;
-  if(it.type==='mc'){ const s=document.querySelector('input[name="dg-mc"]:checked'); if(!s)return; cur.correct=(s.value===it.ans); }
-  else { const inp=document.getElementById('dg-input'); const v=inp?inp.value:''; cur.correct=(v.trim()!=='' && PZ.check(v,it.ans)); }
-  dgAdvance();
+  const it=DG.it;
+  if(it.type==='mc'){ const s=document.querySelector('input[name="dg-mc"]:checked'); if(!s)return; dgZapis(s.value===it.ans, s.value); }
+  else { const inp=document.getElementById('dg-input'); const v=inp?inp.value:''; if(!v.trim())return; dgZapis(PZ.check(v,it.ans), v.trim()); }
 }
-function dgAdvance(){ DG.i++; if(DG.i>=DG.seq.length) dgEnd(); else { dgRender(); window.scrollTo(0,0); } }
-
+function dgZapis(ok, given){
+  const v=DG.vysl[DG.k];
+  if(DG.krok===0) v.prvni=ok; else v.druha=ok;
+  if(DG.it) DG.odp.push({ okruh:DG.okruhy[DG.k], it:DG.it, given, ok });
+  if(DG.krok===0) DG.krok=1; else { DG.krok=0; DG.k++; }
+  dgDalsi();
+}
+// Zobrazitelný tvar odpovědi: volba celým textem, A/N slovem, číslo s čárkou.
+function dgText(it, v){
+  if(v==null) return 'nevím';
+  if(it.type==='mc'){ const o=(it.options||[]).find(x=>String(x).charAt(0)===v); return o||v; }
+  if(it.type==='yn') return v==='A'?'ANO':v==='N'?'NE':v;
+  return PZ.czNum(v);
+}
 function dgEnd(){
   document.getElementById('dg-run').style.display='none';
   document.getElementById('dg-end').style.display='block';
-  const okN = DG.seq.filter(x=>x.correct).length;
-  document.getElementById('dg-score').textContent = okN+' / '+DG.seq.length+' správně';
-  document.getElementById('dg-map').innerHTML = '<div class="cm-history-title">VÝSLEDEK PO TÉMATECH</div>'+
-    DG.seq.map(x=>'<div class="dg-map-row"><span class="dg-dot '+(x.correct?'ok':'bad')+'">'+(x.correct?'✓':'✗')+'</span>'+
-      '<span class="dg-map-name">'+PZ.esc(x.topic.name)+'</span>'+
-      (x.correct?'':'<a href="procvicovani.html?okruh='+x.topic.id+'">Procvičit →</a>')+'</div>').join('');
-  const weak = DG.seq.filter(x=>!x.correct).map(x=>x.topic);
+  const body = (PZ_TOPICS.bodyVTestu && PZ_TOPICS.bodyVTestu()) || {};
+  const rows = DG.okruhy.map((t,k)=>({ t, lv:urovenZ(DG.vysl[k].prvni, DG.vysl[k].druha), b:body[t.id]||0 }));
+  const okN = DG.odp.filter(x=>x.ok).length, n = DG.okruhy.length*2;
+  const zvl = rows.filter(r=>r.lv===3).length;
+  document.getElementById('dg-score').textContent = zvl+' / '+rows.length;
+  document.getElementById('dg-score-sub').textContent = 'témat zvládáš na úrovni testu · správně '+okN+' z '+n+' úloh';
+  const odkazy = r=>{
+    if(r.lv===3) return '';
+    let h='<a href="procvicovani.html?okruh='+encodeURIComponent(r.t.id)+'">Procvičit →</a>';
+    const v=r.lv===0&&PZ_TOPICS.vykladProOkruh?PZ_TOPICS.vykladProOkruh(r.t.id):null;
+    if(v) h='<a href="'+PZ.esc(PZ_TOPICS.vykladUrl(v))+'">📖 Výklad</a> '+h;
+    return '<span class="dg-odkazy">'+h+'</span>';   // vkládá se DO bloku názvu, pod popis
+  };
+  // nejslabší nahoře; při stejné úrovni to, co v testu nese víc bodů
+  const mapa = rows.slice().sort((a,b)=>a.lv-b.lv || b.b-a.b);
+  document.getElementById('dg-map').innerHTML = '<div class="cm-history-title">VÝSLEDEK PO TÉMATECH · nejslabší nahoře</div>'+
+    mapa.map(r=>'<div class="dg-map-row"><span class="dg-dot l'+r.lv+'" title="úroveň '+r.lv+' ze 3">'+r.lv+'</span>'+
+      '<span class="dg-map-name">'+PZ.esc(r.t.name)+'<span class="dg-lv l'+r.lv+'">'+PZ.esc(UROVNE[r.lv].t)+'</span>'+
+      '<span class="dg-lv-d">'+PZ.esc(UROVNE[r.lv].d)+'</span>'+odkazy(r)+'</span></div>').join('');
+  // Plán: kde je nejvíc bodů k získání = (3 − úroveň) × body okruhu v testu
+  const plan = rows.filter(r=>r.lv<3).sort((a,b)=>(3-b.lv)*b.b-(3-a.lv)*a.b).slice(0,3);
   const reco=document.getElementById('dg-reco-wrap');
-  if(weak.length){
-    reco.innerHTML='<div class="dg-reco"><h3>🎯 Doporučení — zaměř se na:</h3><p>'+
-      weak.map(t=>'<a href="procvicovani.html?okruh='+t.id+'">'+PZ.esc(t.name)+'</a>').join(' · ')+'</p></div>';
+  if(plan.length){
+    reco.innerHTML='<div class="cm-next"><div class="cm-next-t">🎯 Kde získáš nejvíc bodů</div>'+
+      '<div class="cm-next-sub">Seřazeno podle toho, jak ti téma šlo a kolik bodů v testu nanečisto průměrně nese.</div>'+
+      '<div class="cm-next-list">'+plan.map(r=>'<a class="cm-next-row" href="procvicovani.html?okruh='+encodeURIComponent(r.t.id)+'">'+
+        '<span class="nm">'+PZ.esc(r.t.name)+' <span class="dg-lv l'+r.lv+'">'+PZ.esc(UROVNE[r.lv].t)+'</span>'+
+        '<span class="dg-lv-d">v testu nese průměrně '+PZ.czNum(Math.round(r.b*10)/10)+' b.</span></span>'+
+        '<span class="go">Procvičit →</span></a>').join('')+'</div></div>';
   } else {
-    reco.innerHTML='<div class="dg-reco"><h3>🎉 Skvělé!</h3><p>Zvládl/a jsi úlohu z každého tématu. Zkus si celý <a href="test.html">test nanečisto na čas</a>.</p></div>';
+    reco.innerHTML='<div class="cm-next"><div class="cm-next-t">🎉 Skvělé!</div><div class="cm-next-sub">Všechna témata zvládáš na úrovni testu. Zkus si celý <a href="test.html">test nanečisto na čas</a>.</div></div>';
   }
-  PZ.store.set(DIAG_KEY, { date:new Date().toISOString().slice(0,10), ok:okN, n:DG.seq.length,
-    topics:DG.seq.map(x=>({id:x.topic.id, correct:x.correct})) });
+  // Rozbor chyb: odpověď, správně a postup — dřív byla na konci jen ✓/✗.
+  const chyby = DG.odp.filter(x=>!x.ok);
+  document.getElementById('dg-rozbor').innerHTML = chyby.length ?
+    '<div class="cm-panel" style="margin-top:14px"><div class="cm-history-title">ROZBOR CHYB · '+chyby.length+'</div>'+
+    chyby.map(x=>{ const it=x.it; const st=PZ.solSteps(it.sol);
+      return '<details class="cm-review-item bad"><summary>'+PZ.esc(x.okruh.name)+' · '+(it.uroven==='zaklad'?'základ':'úroveň testu')+'</summary><div class="cm-review-body">'+
+        (it.intro?'<div class="cm-review-intro">'+PZ.esc(it.intro)+'</div>':'')+
+        '<div class="cm-review-q">'+PZ.esc(it.prompt)+'</div>'+
+        '<div class="cm-review-given">Tvoje odpověď: '+PZ.esc(dgText(it, x.given))+'</div>'+
+        '<div class="cm-review-correct">Správně: '+PZ.esc(dgText(it, it.ans))+'</div>'+
+        (st.length?'<ol class="cm-review-steps">'+st.map(k=>'<li>'+PZ.esc(k)+'</li>').join('')+'</ol>':'')+
+        '</div></details>'; }).join('')+'</div>' : '';
+  // `correct` zůstává kvůli starším čtenářům (úroveň ≥ 2 = „v pořádku")
+  PZ.store.set(DIAG_KEY, { date:new Date().toISOString().slice(0,10), ver:2, ok:okN, n,
+    topics:rows.map(r=>({ id:r.t.id, level:r.lv, correct:r.lv>=2 })) });
   if(PZ.cloudPush)PZ.cloudPush();
   window.scrollTo(0,0);
 }

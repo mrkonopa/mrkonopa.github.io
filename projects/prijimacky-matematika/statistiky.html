@@ -22,10 +22,18 @@
   .st-bar-name { flex:0 0 46%; font-size:.92rem; font-weight:500; }
   .st-bar { flex:1; height:14px; background:var(--border); border-radius:7px; overflow:hidden; }
   .st-bar-in { height:100%; border-radius:7px; }
-  .st-bar-val { flex:0 0 66px; text-align:right; font-size:.85rem; font-weight:700; color:var(--muted); }
+  .st-bar-val { flex:0 0 auto; min-width:66px; text-align:right; font-size:.85rem; font-weight:700; color:var(--muted); white-space:nowrap; }
+  /* Na telefonu má název vlastní řádek, lišta s hodnotou jde pod něj — jinak se
+     název s čipy mačkal do 46 % šířky a hodnota („−2,5 / 6 b.") se lámala. */
+  @media (max-width:520px) { .st-bar-row { flex-wrap:wrap; row-gap:4px; } .st-bar-row .st-bar-name { flex:1 1 100%; } }
   .st-attempt { display:flex; align-items:center; gap:12px; padding:7px 0; border-top:1px solid var(--border); }
   .st-attempt:first-child { border-top:none; }
   .st-empty { color:var(--muted); font-style:italic; }
+  .st-src { font-size:.78rem; color:var(--muted); margin-top:4px; }
+  .st-trend { font-size:.9rem; color:var(--text); margin-bottom:8px; }
+  .st-cas, .st-okruh { font-weight:400; color:var(--muted); }
+  .st-go { font-size:.8rem; font-weight:700; white-space:nowrap; }
+  @media (pointer:coarse) { .st-go { min-height:44px; display:inline-flex; align-items:center; } }
 </style>
 </head>
 <body>
@@ -45,6 +53,10 @@
   <div class="cm-panel" style="margin-top:16px">
     <div class="st-sec-title">TESTY NANEČISTO — poslední pokusy</div>
     <div id="st-tests"></div>
+  </div>
+  <div class="cm-panel" style="margin-top:16px">
+    <div class="st-sec-title">KDE ZTRÁCÍŠ BODY · úlohy testu nanečisto</div>
+    <div id="st-ztraty"></div>
   </div>
   <div class="cm-panel" style="margin-top:16px">
     <div class="st-sec-title">MAPA TÉMAT · nejslabší nahoře</div>
@@ -67,41 +79,81 @@
 <script>document.addEventListener('DOMContentLoaded',function(){if(window.PZ&&PZ.attachLoginBar)PZ.attachLoginBar();});</script>
 <script>
 function barColor(pct){ return pct>=80?'var(--green)':pct>=50?'var(--blue)':pct>=25?'var(--gold)':'var(--red)'; }
-
+const UROVEN_T = ['Začni výkladem','Základ máš','Skoro','Zvládáš'];
+const UROVEN_C = ['var(--red)','var(--gold)','var(--blue)','var(--green)'];
+const nazevOkruhu = id => { const t=PZ_TOPICS.list.find(x=>x.id===id); return t?t.name:''; };
+/* Kde se ztrácejí body: průměr (max − získané) po úlohách testu z posledních
+   pěti pokusů, které body po úlohách nesou (starší pokusy je nemají). Okruh
+   úlohy = nejčastější okruh na té pozici; pozice může střídat témata. */
+function ztraty(pokusy){
+  const s = pokusy.filter(a=>Array.isArray(a.ulohy)&&a.ulohy.length).slice(-5);
+  if(!s.length) return null;
+  const poz = [];
+  s.forEach(a=>a.ulohy.forEach((u,i)=>{
+    if(!(u[1]>0)) return;
+    const p = poz[i] || (poz[i] = { no:i+1, ztrata:0, max:0, n:0, okruhy:{} });
+    p.ztrata += u[1]-u[0]; p.max += u[1]; p.n++;
+    const id = u[2] && nazevOkruhu(u[2]) ? u[2] : (PZ_TOPICS.topicsForSlot(i)[0]||null);
+    if(id) p.okruhy[id] = (p.okruhy[id]||0)+1;
+  }));
+  const list = poz.filter(Boolean).map(p=>{
+    const okruh = Object.keys(p.okruhy).sort((a,b)=>p.okruhy[b]-p.okruhy[a])[0]||null;
+    return { no:p.no, ztrata:p.ztrata/p.n, max:p.max/p.n, okruh };
+  });
+  return { pocet:s.length, list, celkem:list.reduce((a,b)=>a+b.ztrata,0) };
+}
+const cz1 = v => PZ.czNum(Math.round(v*10)/10);
 function render(){
-  // obranné čtení: poškozený localStorage nesmí shodit render
-  const rawA = PZ.store.get('PZ_CERMAT_ATTEMPTS', []);
-  const attempts = Array.isArray(rawA) ? rawA.filter(a=>a&&typeof a==='object') : [];
+  // obranné čtení: poškozený localStorage nesmí shodit render (PZ.pokusy čistí)
+  const attempts = PZ.pokusy();
   const rawP = PZ.store.get('PZ_PRACTICE_PROGRESS', {});
   const prog = (rawP && typeof rawP==='object' && !Array.isArray(rawP)) ? rawP : {};
   const diag = PZ.store.get('PZ_DIAG_LAST', null);
-
-  // velké statistiky
-  const bestTest = attempts.length ? Math.max(...attempts.map(a=>a.score|0)) : null;
-  const testPct = bestTest!=null ? Math.round(bestTest/50*100) : null;
-  let pOk=0,pTot=0; for(const k in prog){ pOk+=prog[k].ok|0; pTot+=prog[k].total|0; }
-  const pracPct = pTot ? Math.round(pOk/pTot*100) : null;
-  // připravenost = průměr dostupných signálů (test best %, přesnost procvičování)
-  const sig=[]; if(testPct!=null)sig.push(testPct); if(pracPct!=null)sig.push(pracPct);
-  const ready = sig.length ? Math.round(sig.reduce((a,b)=>a+b,0)/sig.length) : null;
-
+  const odhad = PZ.odhadBodu();
+  const bestTest = attempts.length ? Math.max(...attempts.map(a=>a.score)) : null;
+  let pTot=0; for(const k in prog){ if(prog[k]&&typeof prog[k]==='object') pTot+=prog[k].total|0; }
+  // připravenost počítá jádro (stejné číslo jde do cloudu a učitelské konzole)
+  const ready = (attempts.length||pTot) ? PZ.computeReadiness() : null;
+  const zdroj = odhad ? '≈ '+cz1(odhad.body)+' / '+odhad.max+' b. · medián posledních '+odhad.posledni.length+' testů'
+                      : (pTot ? 'zatím jen z procvičování — udělej test nanečisto' : '');
   document.getElementById('st-big').innerHTML =
-    '<div class="st-stat st-ready"><div class="v">'+(ready!=null?ready+' %':'—')+'</div><div class="l">Odhad připravenosti</div></div>'+
+    '<div class="st-stat st-ready"><div class="v">'+(ready!=null?ready+' %':'—')+'</div><div class="l">Odhad připravenosti</div>'+
+      (zdroj?'<div class="st-src">'+PZ.esc(zdroj)+'</div>':'')+'</div>'+
     '<div class="st-stat"><div class="v">'+(bestTest!=null?bestTest+' / 50':'—')+'</div><div class="l">Nejlepší test nanečisto</div></div>'+
     '<div class="st-stat"><div class="v">'+pTot+'</div><div class="l">Vyřešených úloh (procvičování)</div></div>'+
     '<div class="st-stat"><div class="v">'+attempts.length+'</div><div class="l">Odevzdaných testů</div></div>';
-
-  // testy — trend
+  // testy — trend (od nejnovějšího)
   const te=document.getElementById('st-tests');
   if(attempts.length){
-    te.innerHTML = attempts.slice(-8).reverse().map(a=>{ const sc=a.score|0,mx=a.max|0,pct=mx?Math.round(sc/mx*100):0;
+    let hlava='';
+    if(odhad && odhad.trend!=null){
+      const tr=odhad.trend, zn=tr>0?'📈 +':tr<0?'📉 −':'➡️ ';
+      hlava='<div class="st-trend">Trend: <b>'+zn+cz1(Math.abs(tr))+' b.</b> — posledních 3 testů proti třem předchozím</div>';
+    }
+    te.innerHTML = hlava + attempts.slice(-8).reverse().map(a=>{ const sc=a.score,mx=a.max,pct=mx?Math.round(sc/mx*100):0;
+      const cas = a.cas ? ' <span class="st-cas">· '+Math.round(a.cas/60)+' min</span>' : '';
       return '<div class="st-attempt"><span style="flex:0 0 90px;color:var(--muted);font-size:.85rem">'+PZ.esc(a.date)+'</span>'+
         '<div class="st-bar"><div class="st-bar-in" style="width:'+pct+'%;background:'+barColor(pct)+'"></div></div>'+
-        '<span class="st-bar-val">'+sc+' / '+mx+'</span></div>'; }).join('');
+        '<span class="st-bar-val">'+sc+' / '+mx+cas+'</span></div>'; }).join('');
   } else te.innerHTML='<div class="st-empty">Zatím žádný test. Zkus <a href="test.html">test nanečisto</a>.</div>';
-
+  // kde ztrácíš body — po úlohách testu
+  const zt=document.getElementById('st-ztraty'), z=ztraty(attempts);
+  if(z){
+    const top=z.list.filter(x=>x.ztrata>0.05).sort((a,b)=>b.ztrata-a.ztrata).slice(0,6);
+    const nos=top.slice(0,3).map(x=>x.no);
+    const kde = !nos.length ? '' : nos.length===1 ? ' Nejvíc v úloze '+nos[0]+'.' : ' Nejvíc v úlohách '+nos.slice(0,-1).join(', ')+' a '+nos[nos.length-1]+'.';
+    zt.innerHTML = '<div class="st-trend">'+(z.pocet===1?'V posledním testu':'V posledních '+z.pocet+' testech')+' ztrácíš průměrně <b>'+cz1(z.celkem)+' b.</b>'+kde+'</div>'+
+      (top.length ? top.map(x=>{ const pct=x.max?Math.round(x.ztrata/x.max*100):0, nm=x.okruh?nazevOkruhu(x.okruh):'';
+        return '<div class="st-bar-row"><span class="st-bar-name">Úloha '+x.no+(nm?' <span class="st-okruh">· '+PZ.esc(nm)+'</span>':'')+
+          (x.okruh?' <a class="st-go" href="procvicovani.html?okruh='+encodeURIComponent(x.okruh)+'">Procvičit →</a>':'')+'</span>'+
+          '<div class="st-bar"><div class="st-bar-in" style="width:'+pct+'%;background:var(--red)"></div></div>'+
+          '<span class="st-bar-val">−'+cz1(x.ztrata)+' / '+cz1(x.max)+' b.</span></div>'; }).join('')
+        : '<div class="st-empty">V posledních testech jsi neztratil/a ani bod. 🎉</div>');
+  // bez odkazu: řádkový odkaz ve větě je malá dotyková plocha a na test vede už panel nad tím
+  } else zt.innerHTML='<div class="st-empty">Po dalším testu nanečisto tu uvidíš, ve kterých úlohách ztrácíš body.</div>';
   // mapa témat — všechny okruhy, nejslabší nahoře (reuse adaptivních vah)
   const to=document.getElementById('st-topics');
+  const lv = PZ.diagUrovne(diag);
   const tw = (PZ.topicWeights?PZ.topicWeights():[]).slice().sort((a,b)=>b.weight-a.weight);
   const whyColor = why => /zvládnuté/.test(why)?'var(--green)':(/chyby|diagnostik/.test(why)?'var(--red)':(/nezkoušel/.test(why)?'var(--gold)':'var(--muted)'));
   to.innerHTML = tw.map(t=>{
@@ -110,21 +162,28 @@ function render(){
     const useT = !hasP && hasT;
     const has = hasP || hasT;
     const pct = hasP ? Math.round(t.acc*100) : (hasT ? Math.round(t.tacc*100) : 0);
-    // testová přesnost jako samostatný čip (ostrý test = jiný typ důkazu než procvičování)
+    // testová přesnost a úroveň z diagnostiky jako samostatné čipy (jiný typ důkazu než procvičování)
     const tChip = hasT ? ' <span style="font-size:.72rem;color:'+barColor(Math.round(t.tacc*100))+';font-weight:600" title="přesnost v testu nanečisto">· 📝 test '+Math.round(t.tacc*100)+' %</span>' : '';
+    const dChip = lv.has(t.id) ? ' <span style="font-size:.72rem;color:'+UROVEN_C[lv.get(t.id)]+';font-weight:600" title="úroveň z poslední diagnostiky">· 🧭 '+UROVEN_T[lv.get(t.id)]+'</span>' : '';
     return '<div class="st-bar-row"><span class="st-bar-name">'+PZ.esc(t.name)+
-      ' <span style="font-size:.72rem;color:'+whyColor(t.why)+';font-weight:600">· '+PZ.esc(t.why)+'</span>'+tChip+'</span>'+
+      ' <span style="font-size:.72rem;color:'+whyColor(t.why)+';font-weight:600">· '+PZ.esc(t.why)+'</span>'+tChip+dChip+'</span>'+
       '<div class="st-bar">'+(has?'<div class="st-bar-in" style="width:'+pct+'%;background:'+barColor(pct)+'"></div>':'')+'</div>'+
       '<span class="st-bar-val">'+(has?pct+' %'+(useT?' 📝':''):'—')+'</span></div>'; }).join('')+
     '<div style="margin-top:12px;text-align:center"><a class="pz-btn primary" href="procvicovani.html" style="display:inline-flex">🎯 Trénuj slabiny</a></div>';
-
   // diagnostika
   const de=document.getElementById('st-diag');
-  if(diag && diag.topics){
-    const weak = diag.topics.filter(x=>!x.correct).map(x=>{ const t=PZ_TOPICS.list.find(y=>y.id===x.id); return t?t.name:x.id; });
-    de.innerHTML = '<div style="margin-bottom:8px">'+PZ.esc(diag.date)+' — <b>'+diag.ok+' / '+diag.n+' správně</b></div>'+
-      (weak.length ? 'Slabá témata: '+weak.map(w=>PZ.esc(w)).join(' · ')+' — <a href="diagnostika.html">nová diagnostika</a>'
+  if(diag && Array.isArray(diag.topics)){
+    const hlava = '<div style="margin-bottom:8px">'+PZ.esc(diag.date)+' — <b>'+(diag.ok|0)+' / '+(diag.n|0)+' správně</b></div>';
+    if(diag.ver===2){
+      const zvl=[...lv.values()].filter(v=>v===3).length;
+      const slabe=[...lv.entries()].filter(e=>e[1]<=1).map(e=>nazevOkruhu(e[0])+' ('+UROVEN_T[e[1]].toLowerCase()+')');
+      de.innerHTML = hlava+'Zvládáš <b>'+zvl+' z '+lv.size+'</b> témat na úrovni testu.'+
+        (slabe.length?'<br>Nejvíc chybí: '+slabe.map(w=>PZ.esc(w)).join(' · '):'')+' — <a href="diagnostika.html">nová diagnostika</a>';
+    } else {
+      const weak = diag.topics.filter(x=>x&&!x.correct).map(x=>nazevOkruhu(x.id)||x.id);
+      de.innerHTML = hlava+(weak.length ? 'Slabá témata: '+weak.map(w=>PZ.esc(w)).join(' · ')+' — <a href="diagnostika.html">nová diagnostika</a>'
                    : 'Všechna témata zvládnutá 🎉 <a href="diagnostika.html">zkusit znovu</a>');
+    }
   } else de.innerHTML='<div class="st-empty">Ještě jsi nedělal/a <a href="diagnostika.html">diagnostiku</a>.</div>';
 }
 window.PZ_ON_SYNC = render;  // po cloud syncu (po přihlášení) překresli
