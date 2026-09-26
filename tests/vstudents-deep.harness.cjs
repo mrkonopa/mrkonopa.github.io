@@ -32,7 +32,7 @@ async function answerCorrect(page){
     const t = BT.curTask;
     if (BT.mcMode) {
       const btns = [...document.querySelectorAll('#mc-grid .mc-btn')];
-      const ok = btns.find(b => (b.dataset.v ?? b.textContent.replace(/^[A-D]\s*/,'').trim()) === String(t.ans));
+      const ok = btns.find(b => (b.dataset.v ?? b.textContent.replace(/^[A-D]\s*/,'').trim()) === czMC(t.ans));
       (ok || btns[0]).click();
     } else if (t.ans === 'ANO' || t.ans === 'NE') {
       answerYN(t.ans);
@@ -51,10 +51,10 @@ async function answerWrong(page){
       // U MC mise špatná odpověď zablokuje jen ten knoflík a zůstane na téže úloze;
       // jedna úloha má jen 3 špatné možnosti. Když dojdou, postup správně na další úlohu.
       const btns = [...document.querySelectorAll('#mc-grid .mc-btn')];
-      const bad = btns.find(b => !b.disabled && (b.dataset.v ?? b.textContent.replace(/^[A-D]\s*/,'').trim()) !== String(t.ans));
+      const bad = btns.find(b => !b.disabled && (b.dataset.v ?? b.textContent.replace(/^[A-D]\s*/,'').trim()) !== czMC(t.ans));
       if (bad) { bad.click(); }
       else {
-        const good = btns.find(b => (b.dataset.v ?? b.textContent.replace(/^[A-D]\s*/,'').trim()) === String(t.ans));
+        const good = btns.find(b => (b.dataset.v ?? b.textContent.replace(/^[A-D]\s*/,'').trim()) === czMC(t.ans));
         if (good) good.click();
         await new Promise(r => setTimeout(r, 300));
         const nb = document.getElementById('next-btn');
@@ -229,7 +229,7 @@ async function answerWrong(page){
         const before = TR.correct || 0;
         if (mc) {
           const btns = [...document.querySelectorAll('#tr-mc .mc-btn')];
-          const okB = btns.find(b => (b.dataset.v ?? b.textContent.replace(/^[A-D]\s*/,'').trim()) === String(t.ans));
+          const okB = btns.find(b => (b.dataset.v ?? b.textContent.replace(/^[A-D]\s*/,'').trim()) === czMC(t.ans));
           (okB || btns[0]).click();
         } else if (t.ans === 'ANO' || t.ans === 'NE') {
           trAnswerYN ? trAnswerYN(t.ans) : trSubmit();
