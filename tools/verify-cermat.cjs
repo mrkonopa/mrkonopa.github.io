@@ -26,7 +26,11 @@ for(let run=0; run<500; run++){
         if(!s.text||!/^[AN]$/.test(s.ans)) bad.push(`t${t.no} tfgrid bad statement: ${JSON.stringify(s)}`);
         if(vadnyPostup(s.sol)) bad.push(`t${t.no} tfgrid bad sol: ${JSON.stringify(s.sol)}`);
       }
-      if(t.statements.length*1 !== t.points) bad.push(`t${t.no} tfgrid points mismatch: ${t.points} vs ${t.statements.length} statements`);
+      // Stupnice (CERMAT: 3 správně 4 b, 2 správně 2 b, jinak 0) má položku pro každý počet
+      // správných tvrzení, neklesá a končí plným počtem bodů; bez stupnice bod za tvrzení.
+      const st = t.stupnice;
+      if(st){ if(st.length!==t.statements.length+1 || st[st.length-1]!==t.points || st.some((b,i)=>i&&b<st[i-1])) bad.push(`t${t.no} tfgrid bad stupnice: ${JSON.stringify(st)} / ${t.points} b`); }
+      else if(t.statements.length*1 !== t.points) bad.push(`t${t.no} tfgrid points mismatch: ${t.points} vs ${t.statements.length} statements`);
     } else if(t.kind==='mc'){
       sum += t.points;
       if(!t.prompt) bad.push(`t${t.no} mc missing prompt`);

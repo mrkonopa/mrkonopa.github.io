@@ -142,7 +142,7 @@ function taskHtml(t){
     const opts = t.options.map(o=>'<option value="'+o.charAt(0)+'">'+PZ.esc(o)+'</option>').join('');
     body = t.prompts.map((p,i)=>'<div class="cm-match-row"><span class="cm-tf-text">'+t.no+'.'+(i+1)+' '+PZ.esc(p)+'</span><select id="cm-match-'+t.no+'-'+i+'"><option value="">– vyber –</option>'+opts+'</select></div>').join('');
   } else {
-    body = (t.parts||[]).map((p,i)=>'<div class="cm-part">'+(p.key?'<div class="cm-part-label">'+PZ.esc(p.key)+'</div>':'')+'<div class="cm-part-prompt">'+PZ.esc(p.prompt)+'</div><input type="text" id="cm-p-'+t.no+'-'+i+'" inputmode="'+PZ.inputMode(p.ans)+'" autocomplete="off" placeholder="výsledek"></div>').join('');
+    body = (t.parts||[]).map((p,i)=>'<div class="cm-part">'+(p.key?'<div class="cm-part-label">'+PZ.esc(p.key)+'</div>':'')+'<div class="cm-part-prompt">'+PZ.esc(p.prompt)+'</div><input type="text" id="cm-p-'+t.no+'-'+i+'" inputmode="'+(p.klavesnice||PZ.inputMode(p.ans))+'" autocomplete="off" placeholder="výsledek"></div>').join('');
   }
   return '<div class="cm-task"><div class="cm-task-head"><span>ÚLOHA '+t.no+(t.title?' — '+PZ.esc(t.title):'')+'</span><span class="pts">'+t.points+' b</span></div>'+intro+body+'</div>';
 }
@@ -170,10 +170,12 @@ function cmSubmit(auto){
   const anoNe=v=>v==='A'?'A (pravdivé)':v==='N'?'N (nepravdivé)':v;
   CM.tasks.forEach(t=>{
     if(t.kind==='tfgrid'){
-      let earned=0;
+      let spravne=0;
       const items=t.statements.map((s,i)=>{ const sel=document.querySelector('input[name="cm-tf-'+t.no+'-'+i+'"]:checked');
-        const given=sel?sel.value:null; const ok=given===s.ans; if(ok)earned++;
+        const given=sel?sel.value:null; const ok=given===s.ans; if(ok)spravne++;
         return {prompt:s.text, given:anoNe(given), correct:anoNe(s.ans), ok, sol:s.sol}; });
+      // Body podle stupnice CERMAT (3 tvrzení správně = 4 b, 2 = 2 b, jinak 0); bez ní bod za tvrzení.
+      const earned=t.stupnice?(t.stupnice[spravne]||0):spravne;
       score+=earned; review.push({no:t.no, okruh:t.okruh, title:t.title, intro:t.intro, svg:t.svg, earned, max:t.points, items});
     } else if(t.kind==='mc'){
       const sel=document.querySelector('input[name="cm-mc-'+t.no+'"]:checked');

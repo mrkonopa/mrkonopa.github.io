@@ -12,22 +12,27 @@
   // (Mapování odpovídá oficiální CERMAT Části C1; ověřeno na reálném M9A 2025.)
   const TOPICS = [
     { id: 'vyrazy-mocniny', name: 'Číselné výrazy, mocniny a odmocniny', oblast: 'Číslo a proměnná', slots: [0] },
-    { id: 'zlomky', name: 'Zlomky a desetinná čísla', oblast: 'Číslo a proměnná', slots: [1] },
+    // Pozice 1 střídá čísla s krátkými slovními úlohami (stuha, poměr, jízda s pauzou),
+    // stejně jako ostré testy 2023–26; okruh nese každá její úloha (topicsForTask).
+    { id: 'zlomky', name: 'Zlomky a desetinná čísla', oblast: 'Číslo a proměnná', slots: [1, 0] },
     { id: 'procenta', name: 'Procenta a finanční matematika', oblast: 'Číslo a proměnná', slots: [14, 12] },
     // Pozice 13 střídá procenta, slovní úlohy a poměr (kytice podle nanečisto 2025).
     // Který okruh úloha opravdu cvičí, říká její `okruh` (topicsForTask); procvičování
     // okruhu z pozice bere jen úlohy, které do něj patří.
-    { id: 'pomer', name: 'Poměr a úměrnost', oblast: 'Závislosti a data', slots: [12] },
+    // Pozice 10 (index 9): měřítko mapy a plánu je poměr; úlohy to nesou v `okruh`.
+    { id: 'pomer', name: 'Poměr a úměrnost', oblast: 'Závislosti a data', slots: [12, 4, 0, 9] },
     { id: 'vyrazy-promenna', name: 'Výrazy s proměnnou', oblast: 'Číslo a proměnná', slots: [2] },
     { id: 'rovnice', name: 'Rovnice a soustavy', oblast: 'Číslo a proměnná', slots: [3] },
     // Pozice 12 (index 11) sem už nepatří: všechny její varianty jsou tělesa (okruh 'telesa'),
     // takže by procvičování slovních úloh z ní nikdy nic nevylosovalo.
-    { id: 'slovni', name: 'Slovní úlohy', oblast: 'Nestandardní úlohy', slots: [12] },
-    // Pozice 16 (index 15) sem patří taky: na 300 běhů losuje jen Rámeček, Obraz v rámu
-    // a Chodník kolem bazénu — všechno obvod a obsah obdélníku s lemem. Dřív nepatřila
-    // ŽÁDNÉMU okruhu, takže se neobjevovala v procvičování ani v diagnostice.
-    { id: 'geometrie', name: 'Geometrie v rovině', oblast: 'Geometrie', slots: [4, 6, 7, 8, 9, 15] },
-    { id: 'telesa', name: 'Tělesa (objem a povrch)', oblast: 'Geometrie', slots: [5, 10, 11] },
+    { id: 'slovni', name: 'Slovní úlohy', oblast: 'Nestandardní úlohy', slots: [12, 4, 5, 0] },
+    // Pozice 16 (index 15) sem patří taky: většina jejích obrazců (mozaika, patra, čtverce
+    // z pruhů, vybarvování sítě) je geometrie; číselné řady (roboti, Mirek a Zuzka) nesou
+    // `okruh: 'slovni'`. Dřív nepatřila ŽÁDNÉMU okruhu, takže chyběla v procvičování i v diagnostice.
+    // Pozice 6 (index 5) přidává „Bílý a šedý obdélník“, pozice 7 (index 6) „Krychli a hranol“ —
+    // jako v ostrých testech 2026, kde se geometrie v rovině i tělesa na pozicích 6–8 střídají.
+    { id: 'geometrie', name: 'Geometrie v rovině', oblast: 'Geometrie', slots: [4, 5, 6, 7, 8, 9, 15] },
+    { id: 'telesa', name: 'Tělesa (objem a povrch)', oblast: 'Geometrie', slots: [5, 6, 10, 11] },
     { id: 'data', name: 'Tabulky, data a statistika', oblast: 'Závislosti a data', slots: [13] },
   ];
 
@@ -101,7 +106,9 @@
     // open — vyber jednu podúlohu (generátor je dělá samostatné, viz reálný M9A)
     const parts = t.parts || [];
     const p = parts.length ? parts[Math.floor(Math.random() * parts.length)] : { prompt: t.prompt || '', ans: '', sol: '' };
-    return { intro, svg, prompt: p.prompt, type: 'text', ans: String(p.ans), sol: p.sol || '' };
+    // `klavesnice`: rovnice mají vždy textovou klávesnici — číselná by prozradila, že odpověď
+    // není „nemá řešení" (viz inputMode v prijimacky-core.js).
+    return { intro, svg, prompt: p.prompt, type: 'text', ans: String(p.ans), sol: p.sol || '', ...(p.klavesnice ? { klavesnice: p.klavesnice } : {}) };
   }
 
   // Vygeneruj procvičovací položku pro daný okruh. Zdroj = pozice testu (SLOTS)

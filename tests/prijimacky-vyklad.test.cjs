@@ -70,8 +70,8 @@ ok(/if \(preview && learnMid/.test(cloud), 'výklad se otevře JEN v preview re�
 
 // ── 7) pozice 16 patří geometrii ──
 // Dřív nepatřila ŽÁDNÉMU okruhu, takže se neobjevovala v procvičování ani v diagnostice.
-// Změřeno: losuje jen Rámeček, Obraz v rámu a Chodník kolem bazénu — obvod a obsah
-// obdélníku s lemem. Kdyby ze slots vypadla, tenhle řádek spadne.
+// Většina jejích obrazců je geometrie (číselné řady nesou vlastní okruh). Kdyby ze slots
+// vypadla, tenhle řádek spadne.
 const p16 = T.vykladProSlot(15);
 ok(T.topicsForSlot(15).indexOf('geometrie') !== -1, 'pozice 16 patří okruhu geometrie');
 ok(p16 !== null && /[Oo]bvod a obsah/.test(p16.nazev), 'pozice 16 dostává odkaz na výklad (' + (p16 ? p16.nazev : 'ŽÁDNÝ') + ')');

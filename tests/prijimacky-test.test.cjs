@@ -23,18 +23,20 @@ let pass=0, fail=0;
 const ok=(c,m)=>{ if(c){pass++;console.log('  ✅ '+m);} else {fail++;console.log('  ❌ '+m);} };
 
 // vyplní VŠECHNY úlohy (volitelně jednu open úlohu schválně špatně) a odevzdá
-async function fillAndSubmit(page, sabotage){
+// tfSpatne = kolik tvrzení úlohy 11 odpovědět obráceně (stupnice CERMAT: 3 správně 4 b, 2 správně 2 b, jinak 0)
+async function fillAndSubmit(page, sabotage, tfSpatne){
   page.once('dialog', d=>d.accept());
-  await page.evaluate((sab)=>{
+  await page.evaluate(([sab, tfS])=>{
     let firstOpenDone=false;
     CM.tasks.forEach(t=>{
-      if(t.kind==='tfgrid'){ t.statements.forEach((s,i)=>{ const r=document.querySelector('input[name="cm-tf-'+t.no+'-'+i+'"][value="'+s.ans+'"]'); if(r)r.checked=true; }); }
+      if(t.kind==='tfgrid'){ t.statements.forEach((s,i)=>{ const v=i<tfS?(s.ans==='A'?'N':'A'):s.ans;
+        const r=document.querySelector('input[name="cm-tf-'+t.no+'-'+i+'"][value="'+v+'"]'); if(r)r.checked=true; }); }
       else if(t.kind==='mc'){ const r=document.querySelector('input[name="cm-mc-'+t.no+'"][value="'+t.ans+'"]'); if(r)r.checked=true; }
       else if(t.kind==='match'){ t.prompts.forEach((p,i)=>{ const sel=document.getElementById('cm-match-'+t.no+'-'+i); if(sel)sel.value=t.ans[i]; }); }
       else { (t.parts||[]).forEach((p,i)=>{ const inp=document.getElementById('cm-p-'+t.no+'-'+i);
         if(!inp)return; if(sab&&!firstOpenDone){ inp.value='___SPATNE___'; firstOpenDone=true; } else inp.value=String(p.ans); }); }
     });
-  }, !!sabotage);
+  }, [!!sabotage, tfSpatne||0]);
   await page.click('button.pz-btn.primary:has-text("Odevzdat")');
   await page.waitForFunction(()=>document.getElementById('cm-end').style.display!=='none',{timeout:5000});
 }
@@ -116,6 +118,16 @@ async function fillAndSubmit(page, sabotage){
   ok(ctxR.svgT>0 && ctxR.introT>0,'běh obsahuje úlohy s nákresem i introm ('+ctxR.svgT+' / '+ctxR.introT+')');
   ok(ctxR.svgD===ctxR.svgT,'rozbor ukazuje nákres u všech úloh, které ho mají ('+ctxR.svgD+' / '+ctxR.svgT+')');
   ok(ctxR.introD===ctxR.introT,'rozbor ukazuje úvodní text u všech úloh, které ho mají ('+ctxR.introD+' / '+ctxR.introT+')');
+
+  // ── úloha 11 se boduje stupnicí, ne bodem za tvrzení ──
+  // 1 tvrzení špatně → 2 správně → 2 body ze 4; 2 špatně → 1 správně → 0 bodů.
+  for (const [spatne, cekam] of [[1, 48], [2, 46], [3, 46]]) {
+    await page.click('button.pz-btn.primary:has-text("Zkusit znovu")');
+    await page.waitForFunction(()=>document.getElementById('cm-play').style.display!=='none',{timeout:5000});
+    await fillAndSubmit(page, false, spatne);
+    const sc=await page.evaluate(()=>parseInt(document.getElementById('cm-end-score').textContent));
+    ok(sc===cekam,'úloha 11: '+spatne+' tvrzení špatně → '+cekam+' / 50 ('+sc+')');
+  }
 
   ok(errs.length===0,'žádné JS chyby'+(errs.length?(' ['+errs[0]+']'):''));
 
