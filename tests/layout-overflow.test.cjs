@@ -163,6 +163,25 @@ const PRUCHODY = {
     seznam: () => ['s daty'],
     prepnout: () => { try { render(); return ''; } catch (e) { return 'výjimka: ' + String(e && e.message || e).slice(0, 60); } },
   },
+  /* Test nanečisto: dřív se měřila jen brána. Běžící test má 16 úloh včetně
+     dvou kreslicích oken (konstrukce 9 a 10), pak okno přes celou obrazovku
+     s časem a nakonec rozbor se snímky konstrukcí a otevřenými postupy. */
+  'pz-test': {
+    pripravit: () => { cmStart(); },
+    seznam: () => ['běžící test', 'konstrukce přes celou obrazovku', 'rozbor'],
+    prepnout: k => {
+      try {
+        if (k === 'běžící test') return CM.on && document.querySelectorAll('#cm-tasks .kn-svg').length === 2 ? '' : 'test neběží se dvěma kreslicími okny';
+        if (k === 'konstrukce přes celou obrazovku') { CM.okna[9].plna(true); updateTimerUI(); return CM.okna[9].jePlna() ? '' : 'celá obrazovka se neotevřela'; }
+        CM.okna[9].plna(false);
+        // kresba kousek vedle vrcholů: snímek pak má kresbu žáka i vzorové řešení
+        CM.tasks.forEach(t => { if (t.kind === 'konstrukce') Object.values(t.u.reseni[0]).forEach(p => CM.okna[t.no].tvary.push({ typ: 'bod', p: PZ_GEO.bod(p.x + 14, p.y) })); });
+        cmSubmit(false);
+        document.querySelectorAll('#cm-end-detail details').forEach(d => { d.open = true; });
+        return document.querySelectorAll('#cm-end-detail .kn-snimek').length === 2 ? '' : 'rozbor bez snímků konstrukcí';
+      } catch (e) { return 'výjimka: ' + String(e && e.message || e).slice(0, 60); }
+    },
+  },
   /* Konstrukce: každý typ ve stavu, kdy je na stránce nejvíc textu — tři
      nápovědy, výsledek a poslední krok postupu — a nakonec okno přes celou
      obrazovku (na úzkém displeji se lišta nástrojů musí zalomit). */

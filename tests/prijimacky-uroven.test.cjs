@@ -54,9 +54,14 @@ const soucet = Object.values(b).reduce((s, v) => s + v, 0);
 ok(Math.abs(soucet - C.maxScore) < 1e-9, 'součet bodů přes okruhy = ' + C.maxScore + ' (' + soucet.toFixed(6) + ')');
 ok(T.list.every(o => typeof b[o.id] === 'number'), 'každý okruh má svou hodnotu');
 const poradi = Object.entries(b).sort((x, y) => y[1] - x[1]);
-// práh 1,5×: váhy se losují, naměřené minimum na 300 bězích je 2,06× (práh 2× by občas spadl)
-ok(poradi[0][0] === 'geometrie' && poradi[0][1] > 1.5 * poradi[1][1], 'geometrie nese nejvíc (' + poradi.slice(0, 3).map(([k, v]) => k + ' ' + v.toFixed(1)).join(', ') + ')');
+// práh 1,3×: váhy se losují. Od konstrukcí v úlohách 9 a 10 (5 b. mimo okruhy) je naměřené
+// minimum na 300 bězích 1,51× (dřív 2,06×, kdy se úlohy 9 a 10 počítaly geometrii); práh 1,5×
+// by tedy občas spadl nad správným kódem
+ok(poradi[0][0] === 'geometrie' && poradi[0][1] > 1.3 * poradi[1][1], 'geometrie nese nejvíc (' + poradi.slice(0, 3).map(([k, v]) => k + ' ' + v.toFixed(1)).join(', ') + ')');
 ok(T.bodyVTestu() === b, 'výsledek se počítá jen jednou za načtení');
+// úlohy 9 a 10 jsou v testu nanečisto konstrukce: jejich body nesmí zvednout geometrii
+ok(Math.abs(b.konstrukce - 5) < 1e-9 && T.konstrukcePozice.join() === '8,9', 'konstrukce (úlohy 9 a 10) nesou 5 b. mimo okruhy (' + b.konstrukce + ')');
+ok(T.topicsForTask({ no: 9, okruh: 'konstrukce' }).length === 0, 'úloha s okruhem „konstrukce" nepatří žádnému okruhu procvičování');
 
 console.log('\n══════════════════════════════════════════');
 console.log('  VÝSLEDEK: ' + pass + ' ✅ / ' + fail + ' ❌');

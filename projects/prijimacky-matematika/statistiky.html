@@ -81,7 +81,9 @@
 function barColor(pct){ return pct>=80?'var(--green)':pct>=50?'var(--blue)':pct>=25?'var(--gold)':'var(--red)'; }
 const UROVEN_T = ['Začni výkladem','Základ máš','Skoro','Zvládáš'];
 const UROVEN_C = ['var(--red)','var(--gold)','var(--blue)','var(--green)'];
-const nazevOkruhu = id => { const t=PZ_TOPICS.list.find(x=>x.id===id); return t?t.name:''; };
+// Konstrukce (úlohy 9 a 10 testu nanečisto) nejsou okruh procvičování — mají vlastní stránku
+const nazevOkruhu = id => { if(id==='konstrukce') return 'Konstrukce'; const t=PZ_TOPICS.list.find(x=>x.id===id); return t?t.name:''; };
+const odkazOkruhu = id => id==='konstrukce' ? 'konstrukce.html' : 'procvicovani.html?okruh='+encodeURIComponent(id);
 /* Kde se ztrácejí body: průměr (max − získané) po úlohách testu z posledních
    pěti pokusů, které body po úlohách nesou (starší pokusy je nemají). Okruh
    úlohy = nejčastější okruh na té pozici; pozice může střídat témata. */
@@ -145,7 +147,7 @@ function render(){
     zt.innerHTML = '<div class="st-trend">'+(z.pocet===1?'V posledním testu':'V posledních '+z.pocet+' testech')+' ztrácíš průměrně <b>'+cz1(z.celkem)+' b.</b>'+kde+'</div>'+
       (top.length ? top.map(x=>{ const pct=x.max?Math.round(x.ztrata/x.max*100):0, nm=x.okruh?nazevOkruhu(x.okruh):'';
         return '<div class="st-bar-row"><span class="st-bar-name">Úloha '+x.no+(nm?' <span class="st-okruh">· '+PZ.esc(nm)+'</span>':'')+
-          (x.okruh?' <a class="st-go" href="procvicovani.html?okruh='+encodeURIComponent(x.okruh)+'">Procvičit →</a>':'')+'</span>'+
+          (x.okruh?' <a class="st-go" href="'+odkazOkruhu(x.okruh)+'">Procvičit →</a>':'')+'</span>'+
           '<div class="st-bar"><div class="st-bar-in" style="width:'+pct+'%;background:var(--red)"></div></div>'+
           '<span class="st-bar-val">−'+cz1(x.ztrata)+' / '+cz1(x.max)+' b.</span></div>'; }).join('')
         : '<div class="st-empty">V posledních testech jsi neztratil/a ani bod. 🎉</div>');

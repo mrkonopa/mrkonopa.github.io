@@ -159,8 +159,16 @@
      `okruh`: pozice 11 ostrého testu střídá tělesa, kruhové diagramy, mapu
      i mnohoúhelníky a mapování jen podle pozice by chybu v diagramu připsalo
      tělesům. Neznámý okruh se ignoruje (rozbor může přijít i ze starší verze). */
+  /* Úlohy 9 a 10 ostrého testu jsou VŽDY rýsovací konstrukce (archiv M9 2019–2026,
+     každá za 2 nebo 3 body). Test nanečisto je tam nahradí kreslením (test.html);
+     banka na těch pozicích drží výpočetní úlohy, které dál slouží RPG hře (kreslit
+     neumí) a procvičování geometrie. Konstrukce nejsou okruh procvičování (kreslí se,
+     neodpovídá se): pokrok mají vlastní (konstrukce.html) a do slabin okruhů se
+     nepočítají — chyba v konstrukci by jinak zvedla váhu výpočetní geometrie. */
+  const KONSTRUKCE_POZICE = [8, 9];
   function topicsForTask(t) {
     const id = t && t.okruh;
+    if (id === 'konstrukce') return [];
     if (typeof id === 'string' && TOPICS.some(x => x.id === id)) return [id];
     return topicsForSlot(Number(t && t.no) - 1);
   }
@@ -168,8 +176,9 @@
   /* Kolik bodů nese okruh v testu nanečisto — průměr přes vylosované testy.
      Počítá se z banky, ne z ručně opsané tabulky: ruční seznam se s bankou
      rozejde při prvním rozšíření. Úloha s víc okruhy se dělí rovným dílem.
-     Naměřeno (400 testů): geometrie 16,2 b., procenta 7,2 … výrazy s mocninami
-     0,4 b. — pořadí doporučení v diagnostice podle toho dává smysl. */
+     Naměřeno (300 × 60 testů): geometrie 12,3 b., procenta 7,1, konstrukce 5
+     (úlohy 9 a 10, mimo okruhy) … výrazy s mocninami 0,4 b. — pořadí doporučení
+     v diagnostice podle toho dává smysl. */
   let bodyCache = null;
   function bodyVTestu() {
     if (bodyCache) return bodyCache;
@@ -178,7 +187,9 @@
     const N = 60, sum = {};
     try {
       for (let k = 0; k < N; k++) {
-        for (const t of C.generate()) {
+        for (const [i, t] of C.generate().entries()) {
+          // v testu nanečisto jsou tu konstrukce, ne výpočetní úlohy z banky
+          if (KONSTRUKCE_POZICE.indexOf(i) >= 0) { sum.konstrukce = (sum.konstrukce || 0) + (Number(t.points) || 0); continue; }
           const ids = topicsForTask(t);
           for (const id of ids) sum[id] = (sum[id] || 0) + (Number(t.points) || 0) / ids.length;
         }
@@ -186,9 +197,10 @@
     } catch (e) { return {}; }
     const out = {};
     for (const t of TOPICS) out[t.id] = (sum[t.id] || 0) / N;
+    out.konstrukce = (sum.konstrukce || 0) / N;          // úlohy 9 a 10 — mimo okruhy, ale v součtu 50
     bodyCache = out;
     return out;
   }
 
-  window.PZ_TOPICS = { list: TOPICS, item: practiceItem, topicsForSlot, topicsForTask, vykladProSlot, vykladProUlohu, vykladProOkruh, vykladUrl, videoUrl, bodyVTestu };
+  window.PZ_TOPICS = { list: TOPICS, item: practiceItem, topicsForSlot, topicsForTask, vykladProSlot, vykladProUlohu, vykladProOkruh, vykladUrl, videoUrl, bodyVTestu, konstrukcePozice: KONSTRUKCE_POZICE };
 })();

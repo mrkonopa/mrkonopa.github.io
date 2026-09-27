@@ -225,6 +225,26 @@ const vysledek=page=>page.evaluate(()=>{ const v=document.querySelector('#kn-vys
     const k2=await page.evaluate(()=>{ const a=document.querySelector('a.topic-card[href="konstrukce.html"]'); return {img:!!a.querySelector('img'), t:a.textContent}; });
     ok(!k2.img&&!/NaN/.test(k2.t),'podvržený pokrok (HTML, text) kartu nerozbije');
   }
+  // 11) odkaz z rozboru testu (?typ=) otevře rovnou ten typ; hodnocení ukáže body jako v testu nanečisto
+  {
+    await page.goto(base+URL_K+'?typ=obdelnik',{waitUntil:'domcontentloaded'});
+    await page.waitForFunction(()=>typeof KN!=='undefined'&&KN.u,{timeout:8000});
+    const t=await page.evaluate(()=>({typ:KN.u.typ, sel:document.getElementById('kn-typ').value}));
+    ok(t.typ==='obdelnik'&&t.sel==='obdelnik','?typ=obdelnik otevře obdélník a nastaví výběr ('+t.typ+')');
+    await page.evaluate(()=>KN.u.reseni.forEach(r=>Object.values(r).forEach(p=>KN.tvary.push({typ:'bod',p}))));
+    await page.click('#kn-vyhodnot');
+    const p1=await page.textContent('#kn-vysledek');
+    await page.click('button.pz-btn.ghost:has-text("Další úloha")');
+    // o 14 jednotek vedle: mezi tolerancí „přesně" (10) a „mírně nepřesně" (18)
+    await page.evaluate(()=>KN.u.reseni.forEach(r=>Object.values(r).forEach(p=>KN.tvary.push({typ:'bod',p:PZ_GEO.bod(p.x+14,p.y)}))));
+    await page.click('#kn-vyhodnot');
+    const p2=await page.textContent('#kn-vysledek');
+    ok(/Správně/.test(p1)&&/za 3 z 3 b\./.test(p1)&&/Skoro!.*mírná nepřesnost/.test(p2)&&/za 2 z 3 b\./.test(p2),
+      'hodnocení ukáže body jako v testu nanečisto: přesně 3 z 3, kousek vedle „Skoro!" a 2 z 3');
+    await page.goto(base+URL_K+'?typ=__proto__',{waitUntil:'domcontentloaded'});
+    await page.waitForFunction(()=>typeof KN!=='undefined'&&KN.u,{timeout:8000});
+    ok(await page.evaluate(()=>PZ_KONSTRUKCE.TYPY.indexOf(KN.u.typ)>=0&&document.getElementById('kn-typ').value===''),'podvržené ?typ=__proto__ nic nerozbije (náhodný typ)');
+  }
   ok(errs.length===0,'žádné JS chyby na počítači'+(errs.length?': '+errs.slice(0,3).join(' | '):''));
   await ctx.close();
 

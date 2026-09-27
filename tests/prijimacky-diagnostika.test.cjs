@@ -85,10 +85,13 @@ const UROVEN = v => v[0] ? (v[1] ? 3 : 2) : (v[1] ? 1 : 0);
   const plan=await page.evaluate(()=>{
     const body=PZ_TOPICS.bodyVTestu(), lv=JSON.parse(localStorage.getItem('PZ_DIAG_LAST')).topics;
     const cek=lv.filter(t=>t.level<3).sort((a,b)=>(3-b.level)*body[b.id]-(3-a.level)*body[a.id]).slice(0,3).map(t=>t.id);
-    const je=[...document.querySelectorAll('#dg-reco-wrap .cm-next-row')].map(a=>decodeURIComponent(a.getAttribute('href').split('okruh=')[1]));
-    return { cek, je };
+    const je=[...document.querySelectorAll('#dg-reco-wrap .cm-next-row:not([href="konstrukce.html"])')].map(a=>decodeURIComponent(a.getAttribute('href').split('okruh=')[1]));
+    const kn=document.querySelector('#dg-reco-wrap a.cm-next-row[href="konstrukce.html"]');
+    return { cek, je, kn: kn ? kn.textContent : null };
   });
   ok(plan.je.length===3 && plan.je.join()===plan.cek.join(),'plán: 3 témata podle bodů, které lze získat ('+plan.je.join(', ')+')');
+  // konstrukce (úlohy 9 a 10) diagnostika nezkouší — konec na ně odkáže zvlášť, s body v testu
+  ok(/Konstrukce \(úlohy 9 a 10\)/.test(plan.kn||'') && /nesou 5 b\./.test(plan.kn||''),'konstrukce: odkaz na procvičování s body v testu ('+(plan.kn||'chybí').replace(/\s+/g,' ')+')');
 
   const rozbor=await page.evaluate(()=>({ n:document.querySelectorAll('#dg-rozbor .cm-review-item').length,
     nevim:[...document.querySelectorAll('#dg-rozbor .cm-review-given')].filter(e=>/nevím/.test(e.textContent)).length,

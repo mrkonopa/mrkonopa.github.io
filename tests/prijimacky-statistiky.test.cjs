@@ -106,6 +106,15 @@ const txt = (page, id) => page.evaluate(id=>document.getElementById(id).textCont
     await ctx.close();
   }
 
+  // ── E) konstrukce (úlohy 9 a 10): nejsou okruh procvičování, vedou na vlastní stránku ──
+  {
+    const K = MAX.map((m,i)=>i===8?[1,3,'konstrukce']:[m,m,null]);
+    const {ctx,page}=await otevri(browser,base,seed([{date:'2026-04-01',t:1,score:48,max:50,ulohy:K}],null,null),errs);
+    const r=await page.evaluate(()=>[...document.querySelectorAll('#st-ztraty .st-bar-row')].map(x=>({t:x.textContent.replace(/\s+/g,' '), a:(x.querySelector('a')||{getAttribute:()=>''}).getAttribute('href')})));
+    ok(r.length===1 && /^Úloha 9 · Konstrukce/.test(r[0].t) && r[0].a==='konstrukce.html','ztráta v konstrukci: „Úloha 9 · Konstrukce" s odkazem na procvičování konstrukcí ('+(r[0]?r[0].t+' → '+r[0].a:'nic')+')');
+    await ctx.close();
+  }
+
   // ── D) podvržená data: nesmí spadnout ani nic vložit do stránky ──
   {
     const att=[{date:'2026-03-01',score:25,max:50,ulohy:[[1e9,'x','__proto__'],null,'x',[5,2,'<img src=x onerror="window.__xss=1">']]},
