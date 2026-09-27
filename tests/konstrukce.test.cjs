@@ -228,6 +228,31 @@ const vysledek=page=>page.evaluate(()=>{ const v=document.querySelector('#kn-vys
   ok(errs.length===0,'žádné JS chyby na počítači'+(errs.length?': '+errs.slice(0,3).join(' | '):''));
   await ctx.close();
 
+  // ══ Telefon 360 px: zavřený výběr typu ukáže jen zvolenou položku — nesmí ji uříznout.
+  // Měří se text v SKUTEČNÉM písmu výběru proti místu uvnitř (bez odsazení a šipky),
+  // ne přes scrollWidth: ten ořez výběru hlásí jen novější Chromium (na CI ano,
+  // v sandboxu ne), takže by kontrola závisela na verzi prohlížeče.
+  {
+    const mctx=await browser.newContext({viewport:{width:360,height:800},hasTouch:true,isMobile:true});
+    await mctx.route('**/*',blok);
+    const mp=await mctx.newPage();
+    await mp.goto(base+URL_K,{waitUntil:'domcontentloaded'});
+    await mp.waitForFunction(()=>typeof KN!=='undefined'&&KN.u,{timeout:8000});
+    // Přirozená šířka výběru (bez max-width) = nejdelší položka + odsazení + šipka,
+    // spočítaná TÝMŽ prohlížečem. Vejde-li se do panelu, výběr se nikdy nezúží
+    // a zvolená položka se nikdy neuřízne.
+    const m=await mp.evaluate(()=>{
+      const s=document.getElementById('kn-typ'), pa=s.parentElement, ps=getComputedStyle(pa);
+      const panel=pa.clientWidth-parseFloat(ps.paddingLeft)-parseFloat(ps.paddingRight);
+      s.style.maxWidth='none'; const prirozena=s.offsetWidth; s.style.maxWidth='';
+      const c=document.createElement('canvas').getContext('2d'); c.font=getComputedStyle(s).font;
+      const txt=[...s.options].map(o=>o.textContent).reduce((a,t)=>c.measureText(t).width>c.measureText(a).width?t:a,'');
+      return {panel:Math.round(panel), prirozena, txt};
+    });
+    ok(m.prirozena<=m.panel,'360 px: výběr typu se do panelu vejde bez zúžení, nic se neuřízne (přirozeně '+m.prirozena+' px, panel '+m.panel+' px; nejdelší „'+m.txt+'")');
+    await mctx.close();
+  }
+
   // ══ Tablet ══
   console.log('── Konstrukce: tablet ──');
   for(const vp of [{width:820,height:1180,n:'na výšku'},{width:1180,height:820,n:'na šířku'}]){

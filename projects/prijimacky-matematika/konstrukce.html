@@ -82,12 +82,15 @@
     <label class="kn-tip" for="kn-typ">Typ úlohy</label>
     <select id="kn-typ" class="kn-typ" onchange="knNova()">
       <option value="">Náhodně — střídat typy</option>
-      <option value="thales">Pravý úhel (Thaletova kružnice)</option>
-      <option value="osa">Stejná vzdálenost od dvou bodů (osa úsečky)</option>
-      <option value="kruznice">Daná vzdálenost od bodu (kružnice)</option>
-      <option value="vyska">Výška trojúhelníku (rovnoběžky)</option>
+      <!-- krátké popisky: zavřený výběr ukáže jen zvolenou položku a když se
+           nevejde do panelu, uřízne ji; na 360 px je přirozená šířka výběru
+           269 px proti 282 px panelu (dřívější nejdelší popisek dával 369 px) -->
+      <option value="thales">Pravý úhel · Thaletova kružnice</option>
+      <option value="osa">Stejně daleko od A a B · osa</option>
+      <option value="kruznice">Vzdálenost od bodu · kružnice</option>
+      <option value="vyska">Výška · rovnoběžky s AB</option>
       <option value="soumernost">Osová souměrnost</option>
-      <option value="rovnobeznik">Rovnoběžník — čtvrtý vrchol</option>
+      <option value="rovnobeznik">Rovnoběžník · 4. vrchol</option>
     </select>
     <div id="kn-domov">
       <div class="kn-nastroje" id="kn-nastroje" role="toolbar" aria-label="Nástroje"></div>
