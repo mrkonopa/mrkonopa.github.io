@@ -63,6 +63,10 @@ const vysledek=page=>page.evaluate(()=>{ const v=document.querySelector('#kn-vys
   await page.waitForFunction(()=>typeof KN!=='undefined'&&KN.u,{timeout:8000});
   console.log('── Konstrukce: počítač ──');
   ok(await page.$$eval('#kn-nastroje [data-n]',b=>b.length)===6 && await page.$$eval('#kn-nastroje [data-a]',b=>b.length)===3,'lišta: 6 nástrojů + zpět, smazat, zvětšit');
+  // výběr typu nesmí zapomenout nový generátor ani nabízet neexistující typ
+  const vyber=await page.evaluate(()=>{ const v=[...document.querySelectorAll('#kn-typ option')].map(o=>o.value).filter(Boolean);
+    return { n:v.length, typu:PZ_KONSTRUKCE.TYPY.length, chybi:PZ_KONSTRUKCE.TYPY.filter(t=>!v.includes(t)), navic:v.filter(t=>!PZ_KONSTRUKCE.GENERATORY[t]) }; });
+  ok(vyber.n===vyber.typu && !vyber.chybi.length && !vyber.navic.length,'výběr nabízí každý typ úlohy právě jednou ('+vyber.n+' z '+vyber.typu+(vyber.chybi.length?', chybí '+vyber.chybi.join(', '):'')+')');
 
   // 1) každý typ: zadání se vykreslí a Bod na každém řešení = správně
   const typy=await page.evaluate(()=>PZ_KONSTRUKCE.TYPY);

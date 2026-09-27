@@ -66,6 +66,7 @@
     const d = u.dane, out = [];
     (d.primky || []).forEach(l => out.push({ typ: 'primka', p: l.p, q: l.q }));
     (d.usecky || []).forEach(s => out.push({ typ: 'usecka', p: s.p, q: s.q }));
+    (d.kruznice || []).forEach(k => out.push({ typ: 'kruznice', c: k.c, r: k.r }));
     (d.mnohouhelniky || []).forEach(m => m.forEach((k, i) => out.push({ typ: 'usecka', p: d.body[k], q: d.body[m[(i + 1) % m.length]] })));
     return out;
   }
@@ -75,6 +76,8 @@
     let h = '';
     (d.mnohouhelniky || []).forEach(m => { h += '<polygon points="' + m.map(k => f1(d.body[k].x) + ',' + f1(d.body[k].y)).join(' ') + '" class="kn-d-plocha"/>'; });
     (d.usecky || []).forEach(s => { h += cara(s.p, s.q, 'kn-d'); });
+    // zadaná kružnice: název vpravo nahoře na obvodu
+    (d.kruznice || []).forEach(k => { const s = G.bod(Math.SQRT1_2, -Math.SQRT1_2); h += kruzSvg({ c: k.c, r: k.r }, 'kn-d') + popisek(G.secti(k.c, G.nasob(s, k.r)), k.nazev, s, 'kn-d-txt kn-d-prim'); });
     (d.primky || []).forEach(l => {
       h += primkaSvg(l.p, l.q, 'kn-d'); const o = G.oriznoutNaOkno(l.p, l.q, 14);
       if (!o) return;
