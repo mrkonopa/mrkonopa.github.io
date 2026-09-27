@@ -20,6 +20,7 @@
     width:100%; display:grid; grid-template-columns:auto 1fr auto; align-items:center; gap:14px;
     font-family:var(--sans); transition:border-color .12s, box-shadow .12s, transform .12s; }
   .topic-card:hover { border-color:var(--ob,var(--blue)); box-shadow:var(--shadow-hover); transform:translateY(-2px); }
+  a.topic-card { text-decoration:none; color:inherit; }
   /* Ikona okruhu v barevném terči — barva podle oblasti dle specifikace CERMAT */
   .topic-card .ti { width:42px; height:42px; border-radius:12px; display:grid; place-items:center;
     color:var(--ob,var(--blue)); background:var(--ob-bg,var(--blue-light)); transition:transform .12s; }
@@ -143,7 +144,20 @@ function renderTopics(){
       '<span class="tr">'+PZ.ring(frac, 38)+
         (frac === null ? '' : '<span class="pct">'+Math.round(frac*100)+'%</span>')+'</span>'+
       '</button>';
-  }).join('');
+  }).join('') + kartaKonstrukce(prog.konstrukce);
+}
+/* Konstrukce (úlohy 9 a 10) mají vlastní stránku s kreslicím oknem, ne
+   textovou odpověď — proto nejsou mezi okruhy v PZ_TOPICS (diagnostika,
+   adaptivita a statistiky počítají s úlohami, na které se odpovídá). */
+function kartaKonstrukce(p){
+  const ok = p ? Math.max(0, p.ok|0) : 0, total = p ? Math.max(0, p.total|0) : 0;
+  const frac = total > 0 ? Math.min(1, ok / total) : null;
+  const popis = total ? '<b>'+ok+'</b> správně z '+total : 'kresli od ruky nebo pravítkem';
+  return '<a class="topic-card" href="konstrukce.html" style="--ob:var(--gold);--ob-bg:var(--gold-light)">'+
+    '<span class="ti">'+PZ.icon('konstrukce', '', 24)+'</span>'+
+    '<span><span class="tn">Konstrukce</span><span class="to">Geometrie · úlohy 9 a 10</span>'+
+    '<span class="tp">'+popis+'</span></span>'+
+    '<span class="tr">'+PZ.ring(frac, 38)+(frac === null ? '' : '<span class="pct">'+Math.round(frac*100)+'%</span>')+'</span></a>';
 }
 
 function prStart(id){

@@ -31,6 +31,7 @@ const STRANKY = [
   s('pz-test', 'Přijímačky test', '/projects/prijimacky-matematika/test.html'),
   s('pz-proc', 'Přijímačky procvičování', '/projects/prijimacky-matematika/procvicovani.html'),
   s('pz-diag', 'Přijímačky diagnostika', '/projects/prijimacky-matematika/diagnostika.html'),
+  s('pz-konstr', 'Přijímačky konstrukce', '/projects/prijimacky-matematika/konstrukce.html'),
   s('pz-stat', 'Přijímačky statistiky', '/projects/prijimacky-matematika/statistiky.html'),
   s('pz-dopl', 'Přijímačky doplňky', '/projects/prijimacky-matematika/doplnky.html'),
 

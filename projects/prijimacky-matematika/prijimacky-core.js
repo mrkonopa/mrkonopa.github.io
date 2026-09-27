@@ -607,6 +607,8 @@
     geometrie:         'M3.5 19.5h17L8 4.5z M6.6 19.5a4.5 4.5 0 0 0 .9-3.9',
     telesa:            'M4 7.5l8-4 8 4v9l-8 4-8-4z M4 7.5l8 4 8-4 M12 11.5v9',
     data:              'M3.5 4.5h17v15h-17z M3.5 9.5h17 M3.5 14.5h17 M9.5 4.5v15 M15 4.5v15',
+    // kružítko — konstrukční úlohy (samostatná stránka, ne okruh v PZ_TOPICS)
+    konstrukce:        'M12 3.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 1 0 0-3 M11.3 6.3L6 20 M12.7 6.3L18 20 M8.4 13.8h7.2',
     // ── ostatní ──
     check:     'M4.5 12.5l5 5 10-11',
     cross:     'M6 6l12 12 M18 6L6 18',

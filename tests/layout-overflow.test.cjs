@@ -163,6 +163,23 @@ const PRUCHODY = {
     seznam: () => ['s daty'],
     prepnout: () => { try { render(); return ''; } catch (e) { return 'výjimka: ' + String(e && e.message || e).slice(0, 60); } },
   },
+  /* Konstrukce: každý typ ve stavu, kdy je na stránce nejvíc textu — tři
+     nápovědy, výsledek a poslední krok postupu — a nakonec okno přes celou
+     obrazovku (na úzkém displeji se lišta nástrojů musí zalomit). */
+  'pz-konstr': {
+    pripravit: () => {},
+    seznam: () => PZ_KONSTRUKCE.TYPY.concat(['celá obrazovka']),
+    prepnout: k => {
+      try {
+        if (k === 'celá obrazovka') { knFull(true); return KN.full ? '' : 'celá obrazovka se neotevřela'; }
+        knFull(false);
+        document.getElementById('kn-typ').value = k; knNova();
+        knNapoveda(); knNapoveda(); knNapoveda(); knVyhodnot();
+        KN.krok = KN.u.postup.length - 1; knPostup();
+        return KN.u.typ === k ? '' : 'průchod se nedostal na ' + k;
+      } catch (e) { return 'výjimka: ' + String(e && e.message || e).slice(0, 60); }
+    },
+  },
   proc: {
     pripravit: () => { selectDifficulty('hard'); startGame(); },
     seznam: () => problems.map((_, i) => 'úloha ' + (i + 1)),
