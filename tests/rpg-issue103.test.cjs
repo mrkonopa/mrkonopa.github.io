@@ -22,7 +22,7 @@ const SEED = {name:'TEST',xp:0,level:1,attrs:{calc:0,geo:0,anal:0,craft:0},done:
 async function answerCurrent(page, correct){
   await page.evaluate((correct)=>{
     const t=TW.task;const v=correct?String(t.ans):'×××';
-    if(TW.m.mc){const btns=[...document.querySelectorAll('#tw-mc .mc-btn')];const target=btns.find(b=>correct===(b.textContent.replace(/^[A-D]/,'')===String(t.ans)));(target||btns[0]).click();}
+    if(TW.m.mc){const btns=[...document.querySelectorAll('#tw-mc .mc-btn')];const txt=b=>b.textContent.slice(b.querySelector('.mc-key').textContent.length);const target=btns.find(b=>correct===(txt(b)===czMC(t.ans)));if(!target)throw new Error('MC volba nenalezena: '+czMC(t.ans)+' mezi '+btns.map(txt).join(' | '));target.click();}
     else if(/^(ANO|NE)$/i.test(String(t.ans).trim())){twAnswerYN(correct?String(t.ans).toUpperCase():(String(t.ans).toUpperCase()==='ANO'?'NE':'ANO'));}
     else{document.getElementById('tw-ans').value=v;twSubmit();}
   },correct);

@@ -11,6 +11,11 @@ on:
   # výchozí větvi — použitelné tedy až po mergnutí do main.
   workflow_dispatch:
 
+# Token jen pro čtení. Brána nic nezapisuje (checkout, npm, cache, testy);
+# bez tohohle bloku by dostala výchozí práva repozitáře.
+permissions:
+  contents: read
+
 # Když na PR přijde další commit, starší běh testuje kód, který už
 # neplatí — jeho výsledek se stejně zahodí. Bez tohohle zůstával viset ve
 # frontě a rval se o runnery s tím během, na kterém záleží. Na `main` se

@@ -199,16 +199,59 @@
   const isObj = x => !!x && typeof x === 'object' && !Array.isArray(x);
   const num = x => { const n = Number(x); return Number.isFinite(n) ? n : 0; };
 
-  // Odhad připravenosti (0–100) — STEJNÝ vzorec jako statistiky.html:
-  // průměr z (nejlepší test/50) a (přesnost procvičování).
+  /* Jeden pokus o test v bezpečném tvaru (lokál i cloud může být cokoli).
+     `ulohy` = [získané body, max, okruh] po pozicích testu — statistiky z nich
+     ukážou, KDE se body ztrácejí; `cas` = sekundy do odevzdání; `t` = okamžik
+     odevzdání (dva pokusy téhož dne se stejným skóre se pak nesloučí v jeden). */
+  const okruhId = x => (typeof x === 'string' && /^[a-z-]{2,30}$/.test(x)) ? x : null;
+  function cistyPokus(x) {
+    if (!isObj(x)) return null;
+    const p = { date: String(x.date == null ? '' : x.date).slice(0, 20), score: num(x.score), max: num(x.max) || 50 };
+    const t = num(x.t); if (t > 0) p.t = Math.floor(t);
+    const cas = num(x.cas); if (cas > 0) p.cas = Math.min(Math.round(cas), 36000);
+    if (Array.isArray(x.ulohy)) {
+      p.ulohy = x.ulohy.slice(0, 20).map(u => {
+        if (!Array.isArray(u)) return [0, 0, null];
+        const m = Math.max(0, Math.min(num(u[1]), 20));
+        return [Math.max(0, Math.min(num(u[0]), m)), m, okruhId(u[2])];
+      });
+    }
+    return p;
+  }
+  // Pokusy od nejstaršího (datum, pak okamžik odevzdání). Po sloučení s cloudem
+  // chronologické být nemusí — a „poslední tři" musí být opravdu poslední.
+  function pokusy() {
+    const raw = store.get(K_ATT, []);
+    const arr = (Array.isArray(raw) ? raw : []).map(cistyPokus).filter(Boolean);
+    return arr.sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : (a.t || 0) - (b.t || 0)));
+  }
+  /* Odhad bodů = MEDIÁN posledních tří testů: jeden povedený ani jeden
+     pokažený pokus ho neutáhne. Trend = průměr posledních tří proti třem
+     předchozím (jen když jich je aspoň šest, jinak se porovnává málo s málem). */
+  function odhadBodu() {
+    const p = pokusy();
+    if (!p.length) return null;
+    const posl = p.slice(-3).map(a => a.score);
+    const s = posl.slice().sort((a, b) => a - b), h = s.length >> 1;
+    const body = s.length % 2 ? s[h] : (s[h - 1] + s[h]) / 2;
+    const prumer = xs => xs.reduce((a, b) => a + b, 0) / xs.length;
+    const trend = p.length >= 6 ? Math.round((prumer(posl) - prumer(p.slice(-6, -3).map(a => a.score))) * 10) / 10 : null;
+    return { body, posledni: posl, trend, max: p[p.length - 1].max || 50, pocet: p.length };
+  }
+
+  /* Odhad připravenosti (0–100) — jediný zdroj pro statistiky i učitelskou
+     konzoli (cloud ukládá právě tohle číslo). Z testů nanečisto, když nějaký
+     je; procvičování jen do prvního testu — počítají se v něm i úlohy
+     s nápovědou a jednodušší doplňkové, takže s testem srovnatelné není.
+     Dřív to byl průměr NEJLEPŠÍHO testu a přesnosti procvičování: jeden
+     povedený test držel odhad nahoře navždy. */
   function computeReadiness() {
-    const att = store.get(K_ATT, []), pra = store.get(K_PRA, {});
-    const sig = [];
-    if (Array.isArray(att) && att.length) sig.push(Math.round(Math.max(...att.map(a => num(a && a.score))) / 50 * 100));
+    const o = odhadBodu();
+    if (o) return Math.max(0, Math.min(100, Math.round(o.body / o.max * 100)));
+    const pra = store.get(K_PRA, {});
     let ok = 0, tot = 0;
     if (isObj(pra)) for (const k in pra) { const v = pra[k]; if (isObj(v)) { ok += num(v.ok); tot += num(v.total); } }
-    if (tot) sig.push(Math.round(ok / tot * 100));
-    return sig.length ? Math.max(0, Math.min(100, Math.round(sig.reduce((a, b) => a + b, 0) / sig.length))) : 0;
+    return tot ? Math.max(0, Math.min(100, Math.round(ok / tot * 100))) : 0;
   }
   const readLocal = () => ({
     attempts: store.get(K_ATT, []), practice: store.get(K_PRA, {}),
@@ -273,13 +316,14 @@
   // nebo je z jiné verze klienta) může být jakýkoli JSON — nesmí shodit sync.
   function mergeStats(a, b) {
     a = isObj(a) ? a : {}; b = isObj(b) ? b : {};
-    // testy: jen objektové položky, sanitizované na {date,score,max}, dedup, cap 50
+    // testy: jen objektové položky v bezpečném tvaru (cistyPokus — i body po
+    // úlohách a čas, jinak by je první sync tiše zahodil), dedup, cap 50
     const seen = new Set(), attempts = [];
     const rawAtt = [].concat(Array.isArray(a.attempts) ? a.attempts : [], Array.isArray(b.attempts) ? b.attempts : []);
     for (const x of rawAtt) {
-      if (!isObj(x)) continue;
-      const item = { date: String(x.date == null ? '' : x.date).slice(0, 20), score: num(x.score), max: num(x.max) || 50 };
-      const key = item.date + '|' + item.score + '|' + item.max;
+      const item = cistyPokus(x);
+      if (!item) continue;
+      const key = item.date + '|' + item.score + '|' + item.max + (item.t ? '|' + item.t : '');
       if (!seen.has(key)) { seen.add(key); attempts.push(item); }
     }
     // procvičování: per-téma vyšší ok i total; jen objektové hodnoty; cap 60 témat (anti-flood)
@@ -367,11 +411,22 @@
      Váha okruhu roste s jeho slabostí: nízká přesnost, chyba v diagnostice,
      „dávno neprocvičeno" (spaced repetition), nikdy nezkoušeno. Zvládnuté
      okruhy se deprioritizují. pickWeakTopic() dělá váhovaný náhodný výběr. */
+  // Úrovně okruhů z poslední diagnostiky (Map id → 0–3). Nový tvar nese
+  // `level`, starý jen ✓/✗: ✓ = 3, ✗ = 1 (dřívější váha +2 tak zůstává).
+  function diagUrovne(diag) {
+    const m = new Map();
+    if (!isObj(diag) || !Array.isArray(diag.topics)) return m;
+    for (const x of diag.topics) {
+      if (!isObj(x) || !okruhId(x.id)) continue;
+      const lv = (Number.isInteger(x.level) && x.level >= 0 && x.level <= 3) ? x.level : (x.correct ? 3 : 1);
+      m.set(x.id, lv);
+    }
+    return m;
+  }
   function topicWeights() {
     const prog = store.get('PZ_PRACTICE_PROGRESS', {}) || {};
     const diag = store.get('PZ_DIAG_LAST', null);
-    const diagWrong = new Set();
-    if (diag && Array.isArray(diag.topics)) diag.topics.forEach(x => { if (x && !x.correct) diagWrong.add(x.id); });
+    const diagLvl = diagUrovne(diag);
     const test = isObj(store.get(K_TST, {})) ? store.get(K_TST, {}) : {};
     const now = Date.now();
     const list = (window.PZ_TOPICS && PZ_TOPICS.list) || [];
@@ -385,7 +440,12 @@
       let w = 1, why = '';
       if (total === 0) { w += 2.5; why = 'ještě jsi nezkoušel'; }
       else { w += (1 - acc) * 3; if (acc < 0.6) why = 'tady míváš chyby'; }
-      if (diagWrong.has(t.id)) { w += 2; why = 'slabina z diagnostiky'; }
+      // úroveň z diagnostiky 0–3: čím níž, tím víc; starý tvar (jen ✓/✗) = úroveň 3/1
+      if (diagLvl.has(t.id) && diagLvl.get(t.id) < 3) {
+        const u = diagLvl.get(t.id);
+        w += [2.5, 2, 1][u];
+        if (u <= 1) why = 'slabina z diagnostiky';
+      }
       // ostrý test nanečisto = nejsilnější důkaz (časový tlak, reálné podmínky)
       if (tacc != null) { w += (1 - tacc) * 3.5; if (tacc < 0.6) why = 'chyby v testu nanečisto'; }
       if (p && p.last) { const days = (now - num(p.last)) / 86400000; w += Math.min(Math.max(days, 0), 10) * 0.25; }
@@ -547,6 +607,8 @@
     geometrie:         'M3.5 19.5h17L8 4.5z M6.6 19.5a4.5 4.5 0 0 0 .9-3.9',
     telesa:            'M4 7.5l8-4 8 4v9l-8 4-8-4z M4 7.5l8 4 8-4 M12 11.5v9',
     data:              'M3.5 4.5h17v15h-17z M3.5 9.5h17 M3.5 14.5h17 M9.5 4.5v15 M15 4.5v15',
+    // kružítko — konstrukční úlohy (samostatná stránka, ne okruh v PZ_TOPICS)
+    konstrukce:        'M12 3.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 1 0 0-3 M11.3 6.3L6 20 M12.7 6.3L18 20 M8.4 13.8h7.2',
     // ── ostatní ──
     check:     'M4.5 12.5l5 5 10-11',
     cross:     'M6 6l12 12 M18 6L6 18',
@@ -576,5 +638,6 @@
       '</svg>';
   }
 
-  window.PZ = { esc, check, store, inputMode, czNum, solSteps, themeSvg, icon, ring, attachLoginBar, cloudPush, cloudSync, topicWeights, pickWeakTopic, hintsFor, recordTestTopics, weakTopicsFromReview };
+  window.PZ = { esc, check, store, inputMode, czNum, solSteps, themeSvg, icon, ring, attachLoginBar, cloudPush, cloudSync, topicWeights, pickWeakTopic, hintsFor, recordTestTopics, weakTopicsFromReview,
+    computeReadiness, pokusy, odhadBodu, cistyPokus, diagUrovne, mergeStats };
 })();

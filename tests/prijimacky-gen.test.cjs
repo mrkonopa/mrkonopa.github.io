@@ -164,7 +164,10 @@ for (const topic in GEN) {
       // za „porcí", „dní", „litrů" hranice nikdy nevznikla a tři ze čtyř pravidel
       // byla slepá (stejná vada jako v prijimacky-cermat-audit, nalezeno 2026-09-24).
       const decl = [[/\b([2-4]) porcí(?![\p{L}\d])/u, '2–4 porce'], [/\b([5-9]|\d\d+) porce(?![\p{L}\d])/u, '5+ porcí'],
-                    [/\b([2-4]) dní(?![\p{L}\d])/u, '2–4 dny'], [/\b1 (porce|dny|kusů|litrů|žáků)(?![\p{L}\d])/u, '1 + jednotné číslo']];
+                    [/\b([2-4]) dní(?![\p{L}\d])/u, '2–4 dny'], [/\b1 (porce|dny|kusů|litrů|žáků)(?![\p{L}\d])/u, '1 + jednotné číslo'],
+                    // „Objednali jsme 6 kusy po 71 Kč" — kus v seznamu nebyl a tři generátory
+                    // psaly „kusy" natvrdo i u 5–8 kusů (nalezeno 2026-09-26, 25–57 % zadání)
+                    [/\b([5-9]|\d\d+) kusy(?![\p{L}\d])/u, '5+ kusů'], [/\b([2-4]) kusů(?![\p{L}\d])/u, '2–4 kusy']];
       for (const [re, why] of decl) if (re.test(p)) { badDecl++; if (!declEx) declEx = why + ': ' + p; }
     }
   }

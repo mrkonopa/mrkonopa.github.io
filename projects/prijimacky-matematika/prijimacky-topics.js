@@ -114,15 +114,23 @@
   // Vygeneruj procvičovací položku pro daný okruh. Zdroj = pozice testu (SLOTS)
   // NEBO doplňkové neutrální generátory z prijimacky-gen.js (window.PZ_GEN),
   // sloučené do jednoho losovacího poolu → víc variety u řídkých okruhů.
-  function practiceItem(topicId) {
+  // `uroven` vybere jen jeden zdroj: 'zaklad' = doplňkové generátory (jeden
+  // krok, „Čtverec má stranu 11 cm, jaký je obsah?"), 'test' = pozice ostrého
+  // testu. Bez ní obojí jako dřív. Když okruh zdroj dané úrovně nemá, vezme se
+  // druhý — okruh bez úlohy by diagnostiku zastavil. Položka nese `uroven`.
+  function practiceItem(topicId, uroven) {
     const topic = TOPICS.find(x => x.id === topicId);
     if (!topic) return null;
-    const gens = (window.PZ_GEN && window.PZ_GEN[topicId]) || [];
-    const slots = (typeof window.RPG_CERMAT_9 !== 'undefined') ? (topic.slots || []) : [];
+    let gens = (window.PZ_GEN && window.PZ_GEN[topicId]) || [];
+    let slots = (typeof window.RPG_CERMAT_9 !== 'undefined') ? (topic.slots || []) : [];
+    if (uroven === 'zaklad' && gens.length) slots = [];
+    else if (uroven === 'test' && slots.length) gens = [];
     const total = gens.length + slots.length;
     if (!total) return null;
     const k = Math.floor(Math.random() * total);
-    if (k < gens.length) { try { return gens[k](); } catch (e) { return null; } }
+    if (k < gens.length) {
+      try { const it = gens[k](); if (it) it.uroven = 'zaklad'; return it; } catch (e) { return null; }
+    }
     const idx = slots[k - gens.length];
     try {
       /* Pozice může střídat úlohy různých okruhů (pozice 11: tělesa, diagramy,
@@ -132,7 +140,7 @@
          procvičování by občas chytil prázdnou položku; 200 pokusů = 6 · 10⁻¹¹. */
       for (let i = 0; i < 200; i++) {
         const t = window.RPG_CERMAT_9.genSlot(idx);
-        if (topicsForTask(t).indexOf(topicId) !== -1) return taskToItem(t);
+        if (topicsForTask(t).indexOf(topicId) !== -1) { const it = taskToItem(t); it.uroven = 'test'; return it; }
       }
       return null;
     } catch (e) { return null; }
@@ -157,5 +165,30 @@
     return topicsForSlot(Number(t && t.no) - 1);
   }
 
-  window.PZ_TOPICS = { list: TOPICS, item: practiceItem, topicsForSlot, topicsForTask, vykladProSlot, vykladProUlohu, vykladProOkruh, vykladUrl, videoUrl };
+  /* Kolik bodů nese okruh v testu nanečisto — průměr přes vylosované testy.
+     Počítá se z banky, ne z ručně opsané tabulky: ruční seznam se s bankou
+     rozejde při prvním rozšíření. Úloha s víc okruhy se dělí rovným dílem.
+     Naměřeno (400 testů): geometrie 16,2 b., procenta 7,2 … výrazy s mocninami
+     0,4 b. — pořadí doporučení v diagnostice podle toho dává smysl. */
+  let bodyCache = null;
+  function bodyVTestu() {
+    if (bodyCache) return bodyCache;
+    const C = window.RPG_CERMAT_9;
+    if (!C || typeof C.generate !== 'function') return {};
+    const N = 60, sum = {};
+    try {
+      for (let k = 0; k < N; k++) {
+        for (const t of C.generate()) {
+          const ids = topicsForTask(t);
+          for (const id of ids) sum[id] = (sum[id] || 0) + (Number(t.points) || 0) / ids.length;
+        }
+      }
+    } catch (e) { return {}; }
+    const out = {};
+    for (const t of TOPICS) out[t.id] = (sum[t.id] || 0) / N;
+    bodyCache = out;
+    return out;
+  }
+
+  window.PZ_TOPICS = { list: TOPICS, item: practiceItem, topicsForSlot, topicsForTask, vykladProSlot, vykladProUlohu, vykladProOkruh, vykladUrl, videoUrl, bodyVTestu };
 })();

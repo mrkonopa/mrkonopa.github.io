@@ -85,9 +85,13 @@ let CM = { on:false, tasks:[], timeLeft:0, timerId:null };
 const G = () => window.RPG_CERMAT_9;
 
 function loadAttempts(){ return PZ.store.get(ATTEMPTS_KEY, []); }
-function saveAttempt(score, max){
+function saveAttempt(score, max, review){
   const a = loadAttempts();
-  a.push({ date:new Date().toISOString().slice(0,10), score, max });
+  // Body po úlohách (s okruhem úlohy) a čas do odevzdání: statistiky z nich
+  // ukážou, KDE se body ztrácejí. Bez nich zbylo jen celkové skóre.
+  const ulohy = (review||[]).map(r=>[Number(r.earned)||0, Number(r.max)||0, r.okruh||null]);
+  const cas = Math.max(0, G().timeLimitSec - CM.timeLeft);
+  a.push({ date:new Date().toISOString().slice(0,10), t:Date.now(), score, max, ulohy, cas });
   if(a.length>20) a.splice(0, a.length-20);
   PZ.store.set(ATTEMPTS_KEY, a); if(PZ.cloudPush)PZ.cloudPush();
 }
@@ -195,7 +199,7 @@ function cmSubmit(auto){
       score+=earned; review.push({no:t.no, okruh:t.okruh, title:t.title, intro:t.intro, svg:t.svg, earned, max:t.points, items});
     }
   });
-  saveAttempt(score, G().maxScore);
+  saveAttempt(score, G().maxScore, review);
   // ostrý test krmí sklad slabin po okruzích → adaptivní procvičování se z něj učí
   if (PZ.recordTestTopics) { try { PZ.recordTestTopics(review); } catch(e) {} }
   showResults(score, review, auto);

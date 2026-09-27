@@ -43,7 +43,16 @@ jobs:
         # nejde na web). Celý produkt je JavaScript v HTML. Ten druhý job
         # tedy nic nehlídal a jen zdvojnásoboval plochu, na které může CI
         # spadnout — což se 6. 8. 2026 taky stalo.
-        language: [javascript-typescript]
+        #
+        # `actions` kontroluje samotné workflow (.github/workflows): vložení
+        # nedůvěryhodného vstupu do příkazů, práva tokenu, checkout cizího
+        # kódu. Workflow jsou jediný kód, který smí do repa zapisovat —
+        # update-cermat.yml pushuje do main, a tím rovnou nasazuje web.
+        # POZOR: jazyk z matice už neodebírej bez smazání jeho konfigurace
+        # v Settings → Code scanning. Stará konfigurace pythonu na main
+        # jinak od 6. 8. do 26. 9. 2026 dělala z kontroly CodeQL na PR jen
+        # „neutral" — rozdíl proti main se vůbec nepočítal.
+        language: [javascript-typescript, actions]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4

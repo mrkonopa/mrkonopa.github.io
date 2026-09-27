@@ -37,7 +37,9 @@ const ok=(c,m)=>{ if(c){pass++;console.log('  ✅ '+m);} else {fail++;console.lo
 
   const nTopics=await page.evaluate(()=>PZ_TOPICS.list.length);
   ok(nTopics>=10,'okruhů ≥ 10 ('+nTopics+')');
-  ok(await page.evaluate(()=>document.querySelectorAll('.topic-card').length===PZ_TOPICS.list.length),'karta pro každý okruh ('+nTopics+')');
+  ok(await page.evaluate(()=>document.querySelectorAll('button.topic-card').length===PZ_TOPICS.list.length),'karta pro každý okruh ('+nTopics+')');
+  // Konstrukce nejsou okruh (kreslí se, neodpovídá se) — vede na ně odkaz, právě jeden
+  ok(await page.evaluate(()=>document.querySelectorAll('a.topic-card[href="konstrukce.html"]').length===1),'navíc jedna karta-odkaz na Konstrukce');
 
   // VALIDITA: každý okruh generuje smysluplné položky (prompt + odpověď)
   const report=await page.evaluate(()=>{

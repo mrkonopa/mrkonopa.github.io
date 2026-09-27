@@ -34,10 +34,14 @@ async function answerCurrent(page, correct){
     const t=TW.task;
     const v=correct?String(t.ans):'×××';
     if(TW.m.mc){
-      // MC: klikni na správné/špatné tlačítko
+      // MC: klikni na správné/špatné tlačítko. Tlačítko ukazuje odpověď přes
+      // czMC (desetinná čárka), t.ans ji má s tečkou — porovnává se zobrazený
+      // tvar, a to text ZA písmenem volby (.mc-key).
       const btns=[...document.querySelectorAll('#tw-mc .mc-btn')];
-      const target=btns.find(b=>correct===(b.textContent.replace(/^[A-D]/,'')===String(t.ans)));
-      (target||btns[0]).click();
+      const txt=b=>b.textContent.slice(b.querySelector('.mc-key').textContent.length);
+      const target=btns.find(b=>correct===(txt(b)===czMC(t.ans)));
+      if(!target)throw new Error('MC volba nenalezena: '+czMC(t.ans)+' mezi '+btns.map(txt).join(' | '));
+      target.click();
     }else if(/^(ANO|NE)$/i.test(String(t.ans).trim())){
       twAnswerYN(correct?String(t.ans).toUpperCase():(String(t.ans).toUpperCase()==='ANO'?'NE':'ANO'));
     }else{

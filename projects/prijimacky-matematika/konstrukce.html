@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Konstrukční úlohy — Přijímačky z matematiky · Vojtěch Konopa</title>
+<meta name="description" content="Konstrukční úlohy k přijímačkám z matematiky: nakresli řešení od ruky nebo pravítkem a kružítkem, stránka ho vyhodnotí a ukáže postup krok za krokem." />
+<meta name="author" content="Vojtěch Konopa" />
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="prijimacky.css">
+<style>
+  .kn-hlava { display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:8px 14px; margin-bottom:10px; }
+  .kn-nazev { font-weight:700; color:var(--text); }
+  .kn-skore { font-size:.88rem; color:var(--muted); font-weight:600; }
+  .kn-typ { font-family:var(--sans); font-size:.9rem; padding:8px 10px; border:1.5px solid var(--border); border-radius:8px; background:#fff; color:var(--text); max-width:100%; }
+  .kn-nastroje { display:flex; flex-wrap:wrap; gap:6px; margin:10px 0 8px; }
+  .kn-tool { display:inline-flex; align-items:center; gap:6px; font-family:var(--sans); font-size:.82rem; font-weight:600;
+    padding:7px 10px; border:1.5px solid var(--border); border-radius:8px; background:#fff; color:var(--text); cursor:pointer; }
+  .kn-tool:hover { border-color:var(--blue); }
+  .kn-tool[aria-pressed="true"] { background:var(--blue); border-color:var(--blue); color:#fff; }
+  .kn-tool svg { flex:none; }
+  .kn-svgwrap { position:relative; }
+  #kn-svg { display:block; width:100%; height:auto; background:#fff; border:1px solid var(--border); border-radius:10px; touch-action:none; user-select:none; -webkit-user-select:none; }
+  .kn-tip { font-size:.8rem; color:var(--muted); margin-top:6px; }
+  .kn-tip-dotyk { display:none; }
+  .kn-text { margin:12px 0 4px; line-height:1.55; color:var(--text); }
+  .kn-akce { display:flex; flex-wrap:wrap; gap:10px; margin-top:14px; }
+  .kn-vysl { margin-top:14px; border-radius:10px; padding:12px 14px; font-weight:600; line-height:1.45; }
+  .kn-vysl.ok { background:var(--green-light); color:var(--green); }
+  .kn-vysl.bad { background:var(--red-light); color:var(--red); }
+  .kn-vysl .kn-pozn { display:block; font-weight:400; font-size:.88rem; color:var(--text); margin-top:4px; }
+  .kn-postup { margin-top:12px; background:var(--gold-light); border-radius:10px; padding:12px 14px; }
+  .kn-postup-t { font-size:.8rem; font-weight:700; color:var(--muted); letter-spacing:.04em; }
+  .kn-postup-krok { margin:6px 0 10px; line-height:1.5; }
+  .kn-postup-nav { display:flex; gap:8px; flex-wrap:wrap; }
+  /* nápovědy: L1 a L2 žluté, L3 (výsledek) oranžová — stejný vzor jako ve zbytku přijímaček */
+  .kn-hint { margin-top:10px; border-radius:8px; padding:10px 12px; background:var(--gold-light); border-left:4px solid var(--gold); line-height:1.45; }
+  .kn-hint.l3 { background:#fdebdd; border-left-color:#c2410c; }
+  .kn-hint .hl { display:block; font-size:.75rem; font-weight:700; color:var(--muted); margin-bottom:2px; }
+  /* celá obrazovka (tablet): okno přes celý displej, kreslí se prstem */
+  #kn-full { position:fixed; inset:0; z-index:50; background:var(--bg); display:none; flex-direction:column; padding:8px; gap:6px; }
+  #kn-full.on { display:flex; }
+  .kn-full-top { display:flex; flex-wrap:wrap; align-items:center; gap:6px; }
+  /* základ „auto": lišta, která se k tlačítkům nevejde, dostane vlastní řádek
+     a zalomí se uvnitř (s flex:1 ji tlačítka zmáčkla a nástroje vyčuhovaly) */
+  .kn-full-top .kn-nastroje { margin:0; flex:1 1 auto; min-width:0; }
+  .kn-full-text { font-size:.88rem; line-height:1.4; color:var(--text); max-height:4.3em; overflow:auto; }
+  .kn-full-plocha { flex:1; min-height:0; display:flex; align-items:flex-start; justify-content:center; }
+  /* na počítači okno nepřeroste: text zadání pod ním má zůstat na obrazovce */
+  #kn-domov .kn-svgwrap { max-width:640px; margin:0 auto; }
+  #kn-full .kn-svgwrap { width:min(100%, calc((100dvh - 170px) * 4 / 3)); }
+  body.kn-full-on { overflow:hidden; }
+  @media (pointer:coarse) {
+    .kn-tool, .kn-akce .pz-btn { min-height:44px; }
+    .kn-tip-mys { display:none; }
+    .kn-tip-dotyk { display:inline; }
+    .kn-svgwrap:not(.plna) #kn-svg { touch-action:pan-y; }
+  }
+</style>
+</head>
+<body>
+<div class="top-bar">
+  <a href="./"><span class="crumb">← Přijímačky z matematiky</span></a>
+  <a href="/">mrkonopa.github.io</a>
+</div>
+
+<header class="title-block">
+  <span class="eyebrow">Konstrukce</span>
+  <h1 class="title">Sestroj a <span class="accent">zkontroluj</span></h1>
+  <p class="lede">Konstrukční úlohy jako v přijímačkách (úlohy 9 a 10). Kresli od ruky, nebo pravítkem a kružítkem — stránka zkontroluje, jestli jsi hledané body našel/našla všechny, a ukáže postup.</p>
+</header>
+
+<main>
+  <div class="cm-panel">
+    <div class="kn-hlava">
+      <span class="kn-nazev" id="kn-nazev"></span>
+      <span class="kn-skore">správně <b id="kn-ok">0</b> z <b id="kn-total">0</b></span>
+    </div>
+    <label class="kn-tip" for="kn-typ">Typ úlohy</label>
+    <select id="kn-typ" class="kn-typ" onchange="knNova()">
+      <option value="">Náhodně — střídat typy</option>
+      <!-- krátké popisky: zavřený výběr ukáže jen zvolenou položku a když se
+           nevejde do panelu, uřízne ji; na 360 px je přirozená šířka výběru
+           269 px proti 282 px panelu (dřívější nejdelší popisek dával 369 px) -->
+      <option value="thales">Pravý úhel · Thaletova kružnice</option>
+      <option value="osa">Stejně daleko od A a B · osa</option>
+      <option value="kruznice">Vzdálenost od bodu · kružnice</option>
+      <option value="vyska">Výška · rovnoběžky s AB</option>
+      <option value="soumernost">Osová souměrnost</option>
+      <option value="rovnobeznik">Rovnoběžník · 4. vrchol</option>
+    </select>
+    <div id="kn-domov">
+      <div class="kn-nastroje" id="kn-nastroje" role="toolbar" aria-label="Nástroje"></div>
+      <div class="kn-svgwrap" id="kn-svgwrap">
+        <svg id="kn-svg" viewBox="0 0 400 300" role="img" aria-label="Kreslicí okno se zadáním">
+          <g id="kn-dane"></g><g id="kn-zak"></g><g id="kn-reseni"></g><g id="kn-nahled"></g>
+        </svg>
+      </div>
+    </div>
+    <div class="kn-tip"><span class="kn-tip-mys">Kresli myší do okna. Od ruky: rovná čára se narovná, oblouk se promění v kružnici, klepnutí je bod.</span><span class="kn-tip-dotyk">Klepni do okna — otevře se přes celou obrazovku a můžeš kreslit prstem.</span></div>
+    <p class="kn-text" id="kn-text"></p>
+    <div class="kn-akce">
+      <button class="pz-btn primary" id="kn-vyhodnot" onclick="knVyhodnot()">Vyhodnotit</button>
+      <button class="pz-btn" id="kn-hint-btn" onclick="knNapoveda()">💡 Nápověda</button>
+      <button class="pz-btn ghost" onclick="knNova()">Další úloha →</button>
+    </div>
+    <div id="kn-napovedy"></div>
+    <div id="kn-vysledek"></div>
+    <div id="kn-postup"></div>
+  </div>
+  <div class="cm-actions"><a class="pz-btn" href="procvicovani.html">← Procvičování</a><a class="pz-btn" href="./">Rozcestník</a></div>
+</main>
+
+<div id="kn-full" role="dialog" aria-modal="true" aria-label="Kreslicí okno přes celou obrazovku">
+  <div class="kn-full-top" id="kn-full-top"><button class="pz-btn primary" onclick="knVyhodnot()">Vyhodnotit</button><button class="pz-btn" onclick="knFull(false)">✓ Hotovo</button></div>
+  <div class="kn-full-text" id="kn-full-text"></div>
+  <div class="kn-full-plocha" id="kn-full-plocha"></div>
+</div>
+
+<script src="prijimacky-core.js"></script>
+<script src="konstrukce-geo.js"></script>
+<script src="konstrukce-ulohy.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script defer src="../rpg-cloud.js"></script>
+<script>document.addEventListener('DOMContentLoaded',function(){if(window.PZ&&PZ.attachLoginBar)PZ.attachLoginBar();});</script>
+<script>
+const G = PZ_GEO, PROG_KEY = 'PZ_PRACTICE_PROGRESS';
+const KN = { u:null, tvary:[], nastroj:'ruka', tah:null, vyber:null, hint:0, vyhodnoceno:false, krok:-1, ok:0, total:0, aktivni:null, full:false };
+const NASTROJE = [
+  ['ruka','Od ruky','M4 20l4-1 11-11-3-3L5 16z M14 6l3 3'],
+  ['pravitko','Pravítko','M3 17L17 3l4 4L7 21z M7 13l2 2 M10 10l2 2 M13 7l2 2'],
+  ['kruzitko','Kružítko','M12 3.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 1 0 0-3 M11.3 6.3L6 20 M12.7 6.3L18 20 M8.4 13.8h7.2'],
+  ['kolmice','Kolmice','M4 20h16 M12 20V4 M12 16h4v4'],
+  ['rovnobezka','Rovnoběžka','M4 10L20 6 M4 19l16-4'],
+  ['bod','Bod','M8 8l8 8 M16 8l-8 8'],
+];
+const AKCE = [
+  ['zpet','Zpět','M9 5L4 10l5 5 M4 10h10a5 5 0 0 1 0 10h-3', 'knZpet()'],
+  ['smazat','Smazat','M4 7h16 M9 7V4h6v3 M6 7l1 13h10l1-13', 'knSmazat()'],
+  ['zvetsit','Zvětšit','M4 9V4h5 M20 9V4h-5 M4 15v5h5 M20 15v5h-5', 'knFull(true)'],
+];
+const ik = d => '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="'+d+'"/></svg>';
+function knNastroje(){
+  document.getElementById('kn-nastroje').innerHTML =
+    NASTROJE.map(([id,t,d])=>'<button type="button" class="kn-tool" data-n="'+id+'" aria-pressed="'+(KN.nastroj===id)+'" onclick="knNastroj(\''+id+'\')">'+ik(d)+t+'</button>').join('')+
+    AKCE.filter(a=>!(a[0]==='zvetsit'&&KN.full)).map(([id,t,d,f])=>'<button type="button" class="kn-tool" data-a="'+id+'" onclick="'+f+'">'+ik(d)+t+'</button>').join('');
+}
+function knNastroj(id){ KN.nastroj=id; KN.vyber=null; KN.tah=null; knNastroje(); kresliNahled(); }
+
+// ── souřadnice a přichytávání ──
+const svg = () => document.getElementById('kn-svg');
+function bodZ(e){ const s=svg(), pt=s.createSVGPoint(); pt.x=e.clientX; pt.y=e.clientY; const q=pt.matrixTransform(s.getScreenCTM().inverse()); return G.bod(q.x,q.y); }
+// dosah přichycení ≈ 14 px na obrazovce, v jednotkách okna
+function dosah(){ const w=svg().getBoundingClientRect().width||400; return Math.max(6, Math.min(16, 14*400/w)); }
+function daneTvary(){
+  const d=KN.u.dane, out=[];
+  (d.primky||[]).forEach(l=>out.push({typ:'primka',p:l.p,q:l.q}));
+  (d.usecky||[]).forEach(s=>out.push({typ:'usecka',p:s.p,q:s.q}));
+  (d.mnohouhelniky||[]).forEach(m=>m.forEach((k,i)=>out.push({typ:'usecka',p:d.body[k],q:d.body[m[(i+1)%m.length]]})));
+  return out;
+}
+const kotvy = () => G.prichytne(KN.tvary.concat(daneTvary()), Object.values(KN.u.dane.body));
+const snap = x => G.nejblizsi(x, kotvy(), dosah()) || x;
+
+// ── kreslení do SVG ──
+const f1 = v => (Math.round(v*10)/10).toString();
+function cara(p,q,cls){ return '<line x1="'+f1(p.x)+'" y1="'+f1(p.y)+'" x2="'+f1(q.x)+'" y2="'+f1(q.y)+'" class="'+cls+'"/>'; }
+function primkaSvg(p,q,cls){ const o=G.oriznoutNaOkno(p,q,0); return o?cara(o.p,o.q,cls):''; }
+function kruzSvg(k,cls){
+  if(k.rozpeti==null) return '<circle cx="'+f1(k.c.x)+'" cy="'+f1(k.c.y)+'" r="'+f1(k.r)+'" class="'+cls+'"/>';
+  const a0=k.od, a1=k.od+k.rozpeti, p0=G.bod(k.c.x+k.r*Math.cos(a0),k.c.y+k.r*Math.sin(a0)), p1=G.bod(k.c.x+k.r*Math.cos(a1),k.c.y+k.r*Math.sin(a1));
+  // sweep se POČÍTÁ ze znaménka úhlu (y roste dolů), natvrdo zapsaná nula je past
+  return '<path d="M'+f1(p0.x)+' '+f1(p0.y)+' A'+f1(k.r)+' '+f1(k.r)+' 0 '+(Math.abs(k.rozpeti)>Math.PI?1:0)+' '+(k.rozpeti>0?1:0)+' '+f1(p1.x)+' '+f1(p1.y)+'" class="'+cls+'"/>';
+}
+function krizek(p,cls){ const s=4.5; return '<path d="M'+f1(p.x-s)+' '+f1(p.y-s)+'L'+f1(p.x+s)+' '+f1(p.y+s)+'M'+f1(p.x+s)+' '+f1(p.y-s)+'L'+f1(p.x-s)+' '+f1(p.y+s)+'" class="'+cls+'"/>'; }
+function popisek(p,t,smer,cls){
+  const x=Math.max(10,Math.min(390,p.x+smer.x*13)), y=Math.max(12,Math.min(292,p.y+smer.y*13));
+  return '<text x="'+f1(x)+'" y="'+f1(y)+'" class="'+cls+'" text-anchor="middle" dominant-baseline="middle">'+PZ.esc(t)+'</text>';
+}
+function tvarSvg(t,cls){
+  if(t.typ==='usecka') return cara(t.p,t.q,cls);
+  if(t.typ==='primka') return primkaSvg(t.p,t.q,cls);
+  if(t.typ==='kruznice') return kruzSvg(t,cls);
+  if(t.typ==='bod') return krizek(t.p,cls);
+  if(t.typ==='kresba') return '<polyline points="'+t.body.map(x=>f1(x.x)+','+f1(x.y)).join(' ')+'" class="'+cls+' kn-kresba"/>';
+  return '';
+}
+function kresliDane(){
+  const d=KN.u.dane, body=Object.entries(d.body), tez=body.reduce((a,[,p])=>G.bod(a.x+p.x/body.length,a.y+p.y/body.length),G.bod(0,0));
+  let h='';
+  (d.mnohouhelniky||[]).forEach(m=>{ h+='<polygon points="'+m.map(k=>f1(d.body[k].x)+','+f1(d.body[k].y)).join(' ')+'" class="kn-d-plocha"/>'; });
+  (d.usecky||[]).forEach(s=>{ h+=cara(s.p,s.q,'kn-d'); });
+  (d.primky||[]).forEach(l=>{ h+=primkaSvg(l.p,l.q,'kn-d'); const o=G.oriznoutNaOkno(l.p,l.q,14);
+    if(o){ const u=G.jednot(G.odecti(o.q,o.p)); h+=popisek(G.secti(o.q,G.nasob(u,-6)),l.nazev,G.bod(-u.y,u.x),'kn-d-txt kn-d-prim'); } });
+  body.forEach(([k,p])=>{ const s=G.jednot(G.odecti(p,tez)); h+='<circle cx="'+f1(p.x)+'" cy="'+f1(p.y)+'" r="3" class="kn-d-bod"/>'+popisek(p,k,(s.x||s.y)?s:G.bod(0,-1),'kn-d-txt'); });
+  // měřítko 1 cm vlevo dole
+  h+='<path d="M12 288h30 M12 284v8 M42 284v8" class="kn-meritko"/><text x="27" y="280" class="kn-meritko-t" text-anchor="middle">1 cm</text>';
+  document.getElementById('kn-dane').innerHTML=h;
+}
+function kresliZaka(){ document.getElementById('kn-zak').innerHTML=KN.tvary.map(t=>tvarSvg(t,'kn-z')).join(''); }
+function kresliReseni(){
+  const g=document.getElementById('kn-reseni'); let h='';
+  // L3 nápověda nebo vyhodnocení: hledané body
+  if(KN.hint>=3||KN.vyhodnoceno){
+    const vic=KN.u.reseni.length>1, idx='₁₂₃₄';
+    KN.u.reseni.forEach((s,i)=>Object.entries(s).forEach(([k,p])=>{ h+='<circle cx="'+f1(p.x)+'" cy="'+f1(p.y)+'" r="4" class="kn-r-bod"/>'+popisek(p,k+(vic?idx[i]:''),G.bod(0.7,-0.7),'kn-r-txt'); }));
+  }
+  if(KN.krok>=0) KN.u.postup.slice(0,KN.krok+1).forEach(s=>s.tvary.forEach(t=>{
+    h+= t.typ==='bod' ? '<circle cx="'+f1(t.p.x)+'" cy="'+f1(t.p.y)+'" r="3.5" class="kn-r-bod"/>'+(t.popis?popisek(t.p,t.popis,G.bod(-0.7,-0.7),'kn-r-txt'):'') : tvarSvg(t,'kn-r');
+  }));
+  g.innerHTML=h;
+}
+function kresliNahled(t){
+  let h='';
+  if(KN.vyber) h+=tvarSvg(KN.vyber,'kn-vyber');
+  if(t) h+=tvarSvg(t,'kn-nahled');
+  if(t&&t.typ==='kruznice'&&t.rozpeti==null) h+='<text x="'+f1(Math.min(360,t.c.x+t.r*0.7+6))+'" y="'+f1(Math.max(14,t.c.y-t.r*0.7-6))+'" class="kn-r-txt">r = '+PZ.czNum(Math.round(t.r/G.CM*10)/10)+' cm</text>';
+  document.getElementById('kn-nahled').innerHTML=h;
+}
+function kresli(){ kresliDane(); kresliZaka(); kresliReseni(); kresliNahled(); }
+
+// ── ovládání ukazatelem (myš, prst, pero) ──
+function linearniPod(x){
+  const kand=daneTvary().concat(KN.tvary.filter(t=>t.typ==='usecka'||t.typ==='primka'));
+  let best=null, bd=dosah()*1.6;
+  for(const t of kand){ const d=t.typ==='primka'?G.vzdalOdPrimky(x,t.p,t.q):G.vzdalOdUsecky(x,t.p,t.q); if(d<bd){bd=d;best=t;} }
+  return best;
+}
+function polomer(c,x){
+  // kružítko: přes bod pod ukazatelem, jinak zaokrouhlení na půl centimetru (je-li blízko)
+  const b=G.nejblizsi(x,kotvy().filter(p=>G.vzdal(p,c)>1),dosah());
+  if(b) return G.vzdal(b,c);
+  const r=G.vzdal(c,x), pul=Math.round(r/(G.CM/2))*(G.CM/2);
+  return Math.abs(r-pul)<=3?pul:r;
+}
+function dolu(e){
+  if(!KN.u) return;
+  const hruby=matchMedia('(pointer:coarse)').matches;
+  if(hruby&&!KN.full){ return; }                // na tabletu se kreslí až přes celou obrazovku (otevře klepnutí)
+  if(KN.aktivni!==null) return;                 // druhý prst / dlaň se ignoruje
+  KN.aktivni=e.pointerId; try{ svg().setPointerCapture(e.pointerId); }catch(_){}
+  e.preventDefault();
+  const x=bodZ(e);
+  if(KN.nastroj==='ruka') KN.tah={body:[x]};
+  else if(KN.nastroj==='pravitko') KN.tah={p:snap(x)};
+  else if(KN.nastroj==='kruzitko') KN.tah={c:snap(x)};
+  else KN.tah={x};
+}
+function pohyb(e){
+  if(KN.aktivni!==e.pointerId||!KN.tah) return;
+  const evs=e.getCoalescedEvents?e.getCoalescedEvents():[e];
+  if(KN.nastroj==='ruka'){ evs.forEach(v=>KN.tah.body.push(bodZ(v))); kresliNahled({typ:'kresba',body:KN.tah.body}); return; }
+  const x=bodZ(e);
+  if(KN.nastroj==='pravitko') kresliNahled({typ:'usecka',p:KN.tah.p,q:snap(x)});
+  else if(KN.nastroj==='kruzitko') kresliNahled({typ:'kruznice',c:KN.tah.c,r:polomer(KN.tah.c,x)});
+}
+function nahoru(e){
+  if(KN.aktivni!==e.pointerId) return;
+  KN.aktivni=null;
+  const tah=KN.tah; KN.tah=null;
+  if(!tah) return;
+  const x=bodZ(e); let novy=null;
+  if(KN.nastroj==='ruka'){ tah.body.push(x); const r=G.rozpoznej(tah.body); novy=r&&r.typ!=='kresba'?G.prichyt(r,kotvy(),dosah()):r; }
+  else if(KN.nastroj==='pravitko'){ const q=snap(x); if(G.vzdal(tah.p,q)>4) novy={typ:'usecka',p:tah.p,q}; }
+  else if(KN.nastroj==='kruzitko'){ const r=polomer(tah.c,x); if(r>4) novy={typ:'kruznice',c:tah.c,r}; }
+  else if(KN.nastroj==='bod') novy={typ:'bod',p:snap(x)};
+  else if(KN.nastroj==='kolmice'||KN.nastroj==='rovnobezka'){
+    if(!KN.vyber){ KN.vyber=linearniPod(x); kresliNahled(); return; }
+    const p=snap(x), u=G.jednot(G.odecti(KN.vyber.q,KN.vyber.p)), s=KN.nastroj==='kolmice'?G.bod(-u.y,u.x):u;
+    novy={typ:'primka',p,q:G.secti(p,s)}; KN.vyber=null;
+  }
+  if(novy){ KN.tvary.push(novy); kresliZaka(); }
+  kresliNahled();
+}
+function knZpet(){ KN.tvary.pop(); KN.vyber=null; kresliZaka(); kresliNahled(); }
+function knSmazat(){ if(KN.tvary.length&&!confirm('Smazat celý svůj náčrt?')) return; KN.tvary=[]; KN.vyber=null; kresliZaka(); kresliNahled(); }
+
+// ── celá obrazovka ──
+function knFull(on){
+  const wrap=document.getElementById('kn-svgwrap'), tools=document.getElementById('kn-nastroje');
+  if(on&&!KN.full){
+    KN.full=true;
+    document.getElementById('kn-full-top').prepend(tools);
+    document.getElementById('kn-full-plocha').appendChild(wrap);
+    document.getElementById('kn-full-text').textContent=KN.u?KN.u.text:'';
+    wrap.classList.add('plna'); document.getElementById('kn-full').classList.add('on'); document.body.classList.add('kn-full-on');
+  } else if(!on&&KN.full){
+    KN.full=false;
+    const domov=document.getElementById('kn-domov'); domov.appendChild(tools); domov.appendChild(wrap);
+    wrap.classList.remove('plna'); document.getElementById('kn-full').classList.remove('on'); document.body.classList.remove('kn-full-on');
+  }
+  knNastroje(); kresliNahled();
+}
+
+// ── úloha, nápovědy, vyhodnocení, postup ──
+function knNova(){
+  const typ=document.getElementById('kn-typ').value||undefined;
+  KN.u=PZ_KONSTRUKCE.nova(typ); KN.tvary=[]; KN.tah=null; KN.vyber=null; KN.hint=0; KN.vyhodnoceno=false; KN.krok=-1;
+  document.getElementById('kn-nazev').textContent=KN.u.nazev;
+  document.getElementById('kn-text').textContent=KN.u.text;
+  document.getElementById('kn-full-text').textContent=KN.u.text;
+  svg().setAttribute('aria-label','Kreslicí okno. '+KN.u.text);
+  ['kn-napovedy','kn-vysledek','kn-postup'].forEach(id=>document.getElementById(id).innerHTML='');
+  const hb=document.getElementById('kn-hint-btn'); hb.disabled=false; hb.textContent='💡 Nápověda';
+  kresli();
+}
+function knNapoveda(){
+  if(KN.hint>=3) return;
+  KN.hint++;
+  const nazvy=['Nasměrování','Postup','Výsledek'];
+  document.getElementById('kn-napovedy').innerHTML=KN.u.napovedy.slice(0,KN.hint).map((t,i)=>
+    '<div class="kn-hint l'+(i+1)+'"><span class="hl">Nápověda '+(i+1)+'/3 · '+nazvy[i]+'</span>'+PZ.esc(t)+'</div>').join('');
+  const hb=document.getElementById('kn-hint-btn');
+  hb.textContent=KN.hint>=3?'💡 Nápověda 3/3':'💡 Další nápověda ('+KN.hint+'/3)'; if(KN.hint>=3) hb.disabled=true;
+  kresliReseni();
+}
+function bumpProg(ok){
+  const p=PZ.store.get(PROG_KEY,{}); const o=(p&&typeof p==='object'&&!Array.isArray(p))?p:{};
+  const t=(o.konstrukce&&typeof o.konstrukce==='object')?o.konstrukce:{ok:0,total:0};
+  o.konstrukce={ ok:(t.ok|0)+(ok?1:0), total:(t.total|0)+1, last:Date.now() };
+  PZ.store.set(PROG_KEY,o); if(PZ.cloudPush)PZ.cloudPush();
+}
+function knVyhodnot(){
+  if(KN.full) knFull(false);
+  const v=G.vyhodnot(KN.u,KN.tvary), prvni=!KN.vyhodnoceno;
+  KN.vyhodnoceno=true;
+  if(prvni){ KN.total++; if(v.spravne) KN.ok++; bumpProg(v.spravne); document.getElementById('kn-ok').textContent=KN.ok; document.getElementById('kn-total').textContent=KN.total; }
+  let t, pozn='';
+  if(v.kropeni) t='Označených bodů je moc — úloha chce jen hledané body. Pomocné body klidně nech, ale bodů „pro jistotu" se vyvaruj.';
+  else if(v.spravne) t='✓ Správně! '+(v.celkem>1?'Našel/našla jsi všechna řešení ('+v.celkem+').':'Hledané body sedí.');
+  else if(v.nalezeno>0) t='Našel/našla jsi '+v.nalezeno+' z '+v.celkem+' řešení. Úloha chce všechna.';
+  else t='Hledaný bod tam zatím není. Označ ho klepnutím nástrojem Bod (nebo ať v něm končí úsečka).';
+  if(!v.kropeni&&v.navic>0) pozn='Máš '+v.navic+' '+(v.navic===1?'bod':v.navic<5?'body':'bodů')+' mimo řešení — jsou-li pomocné, nevadí to.';
+  document.getElementById('kn-vysledek').innerHTML='<div class="kn-vysl '+(v.spravne?'ok':'bad')+'">'+PZ.esc(t)+(pozn?'<span class="kn-pozn">'+PZ.esc(pozn)+'</span>':'')+'</div>';
+  KN.krok=0; knPostup();
+}
+function knPostup(){
+  const P=KN.u.postup, k=Math.max(0,Math.min(P.length-1,KN.krok));
+  KN.krok=k;
+  document.getElementById('kn-postup').innerHTML='<div class="kn-postup"><div class="kn-postup-t">VZOROVÝ POSTUP · krok '+(k+1)+' z '+P.length+'</div>'+
+    '<div class="kn-postup-krok">'+PZ.esc(P[k].text)+'</div><div class="kn-postup-nav">'+
+    '<button class="pz-btn ghost" onclick="KN.krok--;knPostup()"'+(k===0?' disabled':'')+'>← Předchozí</button>'+
+    '<button class="pz-btn ghost" onclick="KN.krok++;knPostup()"'+(k===P.length-1?' disabled':'')+'>Další krok →</button></div></div>';
+  kresliReseni();
+}
+
+// ── start ──
+(function(){
+  const s=svg();
+  s.addEventListener('pointerdown',dolu); s.addEventListener('pointermove',pohyb);
+  s.addEventListener('pointerup',nahoru); s.addEventListener('pointercancel',e=>{ if(KN.aktivni===e.pointerId){ KN.aktivni=null; KN.tah=null; kresliNahled(); } });
+  // tablet: klepnutí do okna otevře kreslení přes celou obrazovku
+  s.addEventListener('click',()=>{ if(!KN.full&&matchMedia('(pointer:coarse)').matches) knFull(true); });
+  document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&KN.full) knFull(false); });
+  knNastroje(); knNova();
+})();
+</script>
+<style>
+  /* barvy kresby: zadání tmavě, žák modře, vzorové řešení oranžově (L3 barva) */
+  .kn-d { stroke:#1a1a2e; stroke-width:2; fill:none; }
+  .kn-d-plocha { fill:#e8f1fb; stroke:#1a1a2e; stroke-width:2; }
+  .kn-d-bod { fill:#1a1a2e; }
+  .kn-d-txt { font-family:var(--sans); font-size:14px; font-weight:700; fill:#1a1a2e; }
+  .kn-d-prim { font-style:italic; }
+  .kn-z { stroke:#196ec0; stroke-width:2; fill:none; stroke-linecap:round; }
+  .kn-kresba { stroke-opacity:.45; }
+  .kn-nahled { stroke:#196ec0; stroke-width:1.6; stroke-dasharray:5 4; fill:none; }
+  .kn-vyber { stroke:#196ec0; stroke-width:5; stroke-opacity:.35; fill:none; }
+  .kn-r { stroke:#c2410c; stroke-width:1.8; stroke-dasharray:6 4; fill:none; }
+  .kn-r-bod { fill:#c2410c; }
+  .kn-r-txt { font-family:var(--sans); font-size:13px; font-weight:700; fill:#c2410c; }
+  .kn-meritko { stroke:#676d7b; stroke-width:1.5; fill:none; }
+  .kn-meritko-t { font-family:var(--sans); font-size:10px; fill:#676d7b; }
+</style>
+</body>
+</html>

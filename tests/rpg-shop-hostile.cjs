@@ -142,7 +142,7 @@ async function runStudent(browser, base, idx) {
         const t = BT.curTask || BT.tasks[BT.idx]; if (!t) return { done:true };
         if (BT.mcMode) {
           const btns = [...document.querySelectorAll('#mc-grid .mc-btn')];
-          const ok = btns.find(b => (b.dataset.v ?? b.textContent.replace(/^[A-D]\s*/,'').trim()) === String(t.ans));
+          const ok = btns.find(b => (b.dataset.v ?? b.textContent.replace(/^[A-D]\s*/,'').trim()) === czMC(t.ans));
           (ok || btns[0]).click();
         } else {
           const el = document.getElementById('bt-ans'); el.disabled = false; el.value = String(t.ans);
