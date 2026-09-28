@@ -3,9 +3,11 @@
    reálná jednotná přijímací zkouška: 16 úloh, 50 bodů, 70 minut.
    Poměr typů úloh vychází z reálného testu M9A/2025 (otevřené s výsledkem,
    otevřené s postupem, uzavřené A–E, pravda/nepravda A/N, přiřazování).
-   Rýsovací konstrukční úlohy (v reálném testu 2) NEJSOU zahrnuty — engine
-   nemá kreslicí nástroj — nahrazeny dalšími výpočetními geometrickými úlohami
-   se stejnou bodovou dotací.
+   Rýsovací konstrukce (v ostrém testu VŽDY úlohy 9 a 10) tu nejsou — RPG hra
+   kreslit neumí — a pozice 9 a 10 drží výpočetní geometrii se stejnou bodovou
+   dotací (3 + 2 b.). Test nanečisto na webu přijímaček je nahradí kreslením
+   (test.html + konstrukce-*.js, PZ_TOPICS.konstrukcePozice); výpočetní varianty
+   dál slouží hře a procvičování geometrie.
 
    window.RPG_CERMAT_9 = { timeLimitSec, maxScore, generate: () => [task,...] }
    task = {

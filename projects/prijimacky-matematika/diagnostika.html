@@ -24,6 +24,7 @@
   .dg-lv { font-size:.78rem; font-weight:700; margin-left:6px; white-space:nowrap; }
   .dg-lv.l0 { color:var(--red); } .dg-lv.l1 { color:var(--gold); } .dg-lv.l2 { color:var(--blue); } .dg-lv.l3 { color:var(--green); }
   .dg-lv-d { display:block; font-size:.82rem; font-weight:400; color:var(--muted); margin-top:2px; }
+  .dg-kn { margin-top:10px; }
   .dg-map-name { min-width:0; }
   .dg-odkazy { display:flex; flex-wrap:wrap; gap:14px; margin-top:4px; }
   .dg-akce { margin-top:12px; display:flex; flex-wrap:wrap; gap:10px; }
@@ -213,6 +214,10 @@ function dgEnd(){
   } else {
     reco.innerHTML='<div class="cm-next"><div class="cm-next-t">🎉 Skvělé!</div><div class="cm-next-sub">Všechna témata zvládáš na úrovni testu. Zkus si celý <a href="test.html">test nanečisto na čas</a>.</div></div>';
   }
+  // Úlohy 9 a 10 jsou konstrukce: kreslí se, takže je diagnostika nezkouší — ať se na ně nezapomene
+  if(body.konstrukce>0) reco.insertAdjacentHTML('beforeend','<div class="cm-next-list dg-kn"><a class="cm-next-row" href="konstrukce.html">'+
+    '<span class="nm">📐 Konstrukce (úlohy 9 a 10)<span class="dg-lv-d">Diagnostika je nezkouší, protože se kreslí. V testu nesou '+PZ.czNum(Math.round(body.konstrukce*10)/10)+' b.</span></span>'+
+    '<span class="go">Procvičit →</span></a></div>');
   // Rozbor chyb: odpověď, správně a postup — dřív byla na konci jen ✓/✗.
   const chyby = DG.odp.filter(x=>!x.ok);
   document.getElementById('dg-rozbor').innerHTML = chyby.length ?

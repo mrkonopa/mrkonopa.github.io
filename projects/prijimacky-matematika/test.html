@@ -30,7 +30,7 @@
     <div class="cm-panel" style="text-align:center">
       <div class="cm-gate-intro">Simulace jednotné přijímací zkoušky z matematiky.<br>
         <span class="hl">16 úloh · 50 bodů · 70 minut.</span><br>
-        Mix otevřených, uzavřených (A–E), pravda/nepravda a přiřazovacích úloh — jako u skutečného testu.</div>
+        Mix otevřených, uzavřených (A–E), pravda/nepravda a přiřazovacích úloh a dvě konstrukce, které se rýsují přímo v okně — jako u skutečného testu.</div>
       <div id="cm-gate-status" class="cm-gate-status"></div>
       <div style="margin-top:16px"><button class="pz-btn primary" onclick="cmStart()">▶ Začít test</button></div>
     </div>
@@ -76,12 +76,16 @@
 <script src="../rpg-cermat-9.js"></script>
 <!-- topics.js kvůli mapě pozice testu → okruh (rozbor krmí sklad slabin) -->
 <script src="prijimacky-topics.js"></script>
+<!-- úlohy 9 a 10 = rýsovací konstrukce (jako v ostrém testu): geometrie, generátory, kreslicí okno -->
+<script src="konstrukce-geo.js"></script>
+<script src="konstrukce-ulohy.js"></script>
+<script src="konstrukce-okno.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script defer src="../rpg-cloud.js"></script>
 <script>document.addEventListener('DOMContentLoaded',function(){if(window.PZ&&PZ.attachLoginBar)PZ.attachLoginBar();});</script>
 <script>
 const ATTEMPTS_KEY = 'PZ_CERMAT_ATTEMPTS';
-let CM = { on:false, tasks:[], timeLeft:0, timerId:null };
+let CM = { on:false, tasks:[], timeLeft:0, timerId:null, okna:{} };
 const G = () => window.RPG_CERMAT_9;
 
 function loadAttempts(){ return PZ.store.get(ATTEMPTS_KEY, []); }
@@ -117,15 +121,30 @@ function renderGate(){
   }
 }
 
+/* Úlohy 9 a 10 ostrého testu jsou VŽDY rýsovací konstrukce. Banka má na těch pozicích
+   výpočetní úlohy (RPG hra kreslit neumí), tady je nahradí konstrukce se STEJNÝMI body,
+   takže test má dál 50 bodů. Bez modulů konstrukcí zůstanou výpočetní úlohy. */
+const sKonstrukcemi = () => !!(window.PZ_KONSTRUKCE && window.PZ_OKNO && window.PZ_GEO && window.PZ_TOPICS && PZ_TOPICS.konstrukcePozice);
+function konstrukceUloha(t){
+  const u = PZ_KONSTRUKCE.proTest(t.no);
+  return u ? { no:t.no, points:t.points, kind:'konstrukce', title:u.nazev, okruh:'konstrukce', u } : t;
+}
 function cmStart(){
   if(!G()) return;
   CM.tasks = G().generate();
+  if(sKonstrukcemi()) CM.tasks = CM.tasks.map((t,i)=>PZ_TOPICS.konstrukcePozice.indexOf(i)>=0 ? konstrukceUloha(t) : t);
   CM.timeLeft = G().timeLimitSec;
   CM.on = true;
   document.getElementById('cm-gate').style.display='none';
   document.getElementById('cm-end').style.display='none';
   document.getElementById('cm-play').style.display='block';
+  if(window.PZ_OKNO) PZ_OKNO.zavritPlnou();
   document.getElementById('cm-tasks').innerHTML = CM.tasks.map(taskHtml).join('');
+  CM.okna = {};
+  CM.tasks.forEach(t=>{ if(t.kind!=='konstrukce') return;
+    // v testu se průběžně nevyhodnocuje: celá obrazovka má jen „Hotovo"
+    const okno = PZ_OKNO.vytvor(document.getElementById('cm-kn-'+t.no), { id:'cm-kn'+t.no, akce:[['✓ Hotovo','primary',()=>okno.plna(false)]] });
+    okno.uloha(t.u); CM.okna[t.no] = okno; });
   updateTimerUI();
   stopTimer();
   CM.timerId = setInterval(cmTick, 1000);
@@ -145,6 +164,10 @@ function taskHtml(t){
   } else if(t.kind==='match'){
     const opts = t.options.map(o=>'<option value="'+o.charAt(0)+'">'+PZ.esc(o)+'</option>').join('');
     body = t.prompts.map((p,i)=>'<div class="cm-match-row"><span class="cm-tf-text">'+t.no+'.'+(i+1)+' '+PZ.esc(p)+'</span><select id="cm-match-'+t.no+'-'+i+'"><option value="">– vyber –</option>'+opts+'</select></div>').join('');
+  } else if(t.kind==='konstrukce'){
+    body = '<div class="cm-part-prompt">'+PZ.esc(t.u.text)+'</div>'+
+      '<div class="cm-kn-pozn">Rýsuj v okně pravítkem a kružítkem, nebo od ruky. Hledané vrcholy označ nástrojem Bod, nebo v nich ukonči strany útvaru. Vyhodnotí se až po odevzdání testu.</div>'+
+      '<div class="cm-kn" id="cm-kn-'+t.no+'"></div>';
   } else {
     body = (t.parts||[]).map((p,i)=>'<div class="cm-part">'+(p.key?'<div class="cm-part-label">'+PZ.esc(p.key)+'</div>':'')+'<div class="cm-part-prompt">'+PZ.esc(p.prompt)+'</div><input type="text" id="cm-p-'+t.no+'-'+i+'" inputmode="'+(p.klavesnice||PZ.inputMode(p.ans))+'" autocomplete="off" placeholder="výsledek"></div>').join('');
   }
@@ -157,6 +180,8 @@ function updateTimerUI(){
   const pct = Math.max(0, CM.timeLeft/G().timeLimitSec*100);
   document.getElementById('cm-timer-bar').style.width = pct+'%';
   document.getElementById('cm-timer').classList.toggle('low', CM.timeLeft<=300);
+  const fc = document.getElementById('kn-full-cas');      // čas i při kreslení přes celou obrazovku
+  if(fc) fc.textContent = CM.on ? '⏱ '+m+':'+String(s).padStart(2,'0') : '';
 }
 function cmTick(){ CM.timeLeft--; updateTimerUI(); if(CM.timeLeft<=0){ stopTimer(); cmSubmit(true); } }
 function stopTimer(){ if(CM.timerId){ clearInterval(CM.timerId); CM.timerId=null; } }
@@ -167,6 +192,7 @@ function cmGiveUp(){ if(CM.on && confirm('Vzdát test bez uložení výsledku?')
 function cmSubmit(auto){
   if(!CM.on) return;
   stopTimer(); CM.on=false;
+  if(window.PZ_OKNO) PZ_OKNO.zavritPlnou();
   let score=0; const review=[];
   // Rozbor ukazuje celou volbu („C) 54 m"), ne jen písmeno — u seřazených voleb
   // je hodnota to, co žák potřebuje vidět vedle svého výpočtu.
@@ -185,6 +211,12 @@ function cmSubmit(auto){
       const sel=document.querySelector('input[name="cm-mc-'+t.no+'"]:checked');
       const given=sel?sel.value:null; const ok=given===t.ans; const earned=ok?t.points:0;
       score+=earned; review.push({no:t.no, okruh:t.okruh, title:t.title, intro:t.intro, svg:t.svg, earned, max:t.points, items:[{prompt:t.prompt, given:volbaText(t.options,given), correct:volbaText(t.options,t.ans), ok, sol:t.sol}]});
+    } else if(t.kind==='konstrukce'){
+      // bodování podle klíčů CERMAT: přesně → plný počet, mírná nepřesnost / část řešení → méně
+      const okno=CM.okna[t.no], tvary=okno?okno.tvary.slice():[];
+      if(okno) okno.zamkni(true);
+      const b=PZ_GEO.bodovat(t.u, tvary, t.points);
+      score+=b.body; review.push({no:t.no, kind:'konstrukce', okruh:'konstrukce', title:t.title, intro:t.u.text, earned:b.body, max:t.points, kn:{u:t.u, tvary, b}});
     } else if(t.kind==='match'){
       let earned=0; const per=t.points/t.prompts.length;
       const items=t.prompts.map((p,i)=>{ const sel=document.getElementById('cm-match-'+t.no+'-'+i);
@@ -211,8 +243,12 @@ function nextStepsHtml(review){
   if(!PZ.weakTopicsFromReview) return '';
   let weak=[];
   try { weak = PZ.weakTopicsFromReview(review) || []; } catch(e) { return ''; }
-  if(!weak.length) return '';
-  const rows = weak.slice(0,4).map(w=>{
+  // konstrukce nejsou okruh procvičování — ztracené body vedou na vlastní stránku
+  const kn = review.filter(r=>r.kind==='konstrukce'), knZtrata = kn.reduce((a,r)=>a+(r.max-r.earned),0);
+  if(!weak.length && !knZtrata) return '';
+  const knRow = knZtrata ? '<a class="cm-next-row" href="konstrukce.html"><span class="nm">Konstrukce (úlohy 9 a 10)</span>'+
+    '<span class="sc">'+knZtrata+' b. ztraceno</span><span class="go">Procvičit →</span></a>' : '';
+  const rows = knRow + weak.slice(0, knZtrata ? 3 : 4).map(w=>{
     const miss = (w.total - w.ok)|0;
     return '<a class="cm-next-row" href="procvicovani.html?okruh='+encodeURIComponent(w.id)+'">'+
       '<span class="nm">'+PZ.esc(w.name)+'</span>'+
@@ -226,6 +262,26 @@ function nextStepsHtml(review){
 // Postup jako číslované kroky. Jeden krok = jedna myšlenka s mezivýsledkem.
 function solHtml(sol){ const st=PZ.solSteps(sol); if(!st.length) return '';
   return '<ol class="cm-review-steps">'+st.map(x=>'<li>'+PZ.esc(x)+'</li>').join('')+'</ol>'; }
+// Slovní hodnocení konstrukce: kolik řešení je přesně, s mírnou nepřesností, zčásti
+function popisKonstrukce(b){
+  if(b.kropeni) return 'Označených bodů je moc — body „pro jistotu" se hodnotí jako chybná konstrukce.';
+  const n=b.celkem, chybi=n-b.presne-b.mirne-b.cast;
+  if(n===1) return b.presne?'Konstrukce je přesná.':b.mirne?'Konstrukce je sestrojená s mírnou nepřesností.':b.cast?'Sestrojená je jen část hledaných vrcholů.':'Hledané vrcholy v konstrukci nejsou.';
+  const casti=[]; if(b.presne) casti.push('přesně '+b.presne); if(b.mirne) casti.push('s mírnou nepřesností '+b.mirne);
+  if(b.cast) casti.push('jen zčásti '+b.cast); if(chybi) casti.push('chybí '+chybi);
+  return 'Úloha má '+n+' řešení: '+casti.join(', ')+'.';
+}
+function konstrukceRozbor(r, cls, openAttr){
+  const u=r.kn.u, b=r.kn.b;
+  const body='<div class="cm-review-intro">'+PZ.esc(u.text)+'</div>'+
+    '<div class="cm-review-svg">'+PZ_OKNO.snimek(u, r.kn.tvary, { reseni:true, krok:u.postup.length-1 })+'</div>'+
+    '<div class="cm-kn-legenda"><span class="z">plně modře</span> tvoje konstrukce · <span class="r">čárkovaně oranžově</span> vzorové řešení</div>'+
+    '<div class="cm-review-sub"><div class="'+(b.body>=b.max?'cm-review-correct':'cm-review-given')+'">'+PZ.esc(popisKonstrukce(b))+'</div>'+
+    '<div class="cm-kn-pozn">Přesně = do 3 mm od správného vrcholu, mírná nepřesnost = do 6 mm (stojí bod, stejně jako v ostrém testu).</div>'+
+    solHtml(u.postup.map(k=>k.text))+'</div>'+
+    '<div class="cm-review-links">Procvič si to s nápovědou a postupem krok za krokem: <a href="konstrukce.html?typ='+encodeURIComponent(u.typ)+'">📐 '+PZ.esc(u.nazev)+'</a></div>';
+  return '<details class="cm-review-item '+cls+'"'+openAttr+'><summary>Úloha '+r.no+' — '+PZ.esc(r.title)+': '+r.earned+' / '+r.max+' b</summary><div class="cm-review-body">'+body+'</div></details>';
+}
 function showResults(score, review, auto){
   document.getElementById('cm-play').style.display='none';
   document.getElementById('cm-end').style.display='block';
@@ -239,6 +295,10 @@ function showResults(score, review, auto){
     const openAttr=r.earned<r.max?' open':'';
     // Výklad + video k okruhu úlohy. Pozice testu je 0-indexovaná, r.no je 1-indexované.
     let odkazyHtml='';
+    if(r.kind==='konstrukce'){
+      html+=konstrukceRozbor(r, cls, openAttr);
+      return;
+    }
     if(window.PZ_TOPICS && PZ_TOPICS.vykladProSlot){
       const v=PZ_TOPICS.vykladProUlohu?PZ_TOPICS.vykladProUlohu(r):PZ_TOPICS.vykladProSlot(r.no-1);
       if(v){ const vid=PZ_TOPICS.videoUrl(v);

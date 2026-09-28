@@ -184,12 +184,14 @@ main { max-width:920px; margin:0 auto; padding:18px 24px 80px; }
 .cm-next-t { font-weight:800; color:var(--blue); margin-bottom:4px; }
 .cm-next-sub { font-size:.88rem; color:var(--muted); margin-bottom:10px; line-height:1.45; }
 .cm-next-list { display:flex; flex-direction:column; gap:7px; }
-.cm-next-row { display:flex; align-items:center; gap:10px; background:var(--card); border:1px solid var(--border);
+/* Na úzkém displeji se „ztraceno" a „Procvičit →" zalomí pod název (základ názvu 12em);
+   s flex:1 a min-width:0 se název smrskl pod délku slova a přetékal přes ně (380 px). */
+.cm-next-row { display:flex; flex-wrap:wrap; align-items:center; gap:4px 10px; background:var(--card); border:1px solid var(--border);
   border-radius:8px; padding:9px 11px; text-decoration:none; color:var(--text); transition:border-color .15s, transform .15s; }
 .cm-next-row:hover { border-color:var(--blue); transform:translateX(2px); }
-.cm-next-row .nm { font-weight:600; flex:1; min-width:0; line-height:1.35; }
+.cm-next-row .nm { font-weight:600; flex:1 1 12em; min-width:0; line-height:1.35; }
 .cm-next-row .sc { font-size:.85rem; color:var(--red); font-weight:700; font-variant-numeric:tabular-nums; white-space:nowrap; }
-.cm-next-row .go { font-size:.85rem; color:var(--blue); font-weight:700; white-space:nowrap; }
+.cm-next-row .go { font-size:.85rem; color:var(--blue); font-weight:700; white-space:nowrap; margin-left:auto; }
 
 .cm-actions { display:flex; gap:10px; justify-content:center; margin-top:16px; flex-wrap:wrap; }
 .cm-history-title { font-size:.8rem; font-weight:700; color:var(--muted); margin-bottom:8px; letter-spacing:.04em; }
@@ -208,3 +210,60 @@ main { max-width:920px; margin:0 auto; padding:18px 24px 80px; }
   .wrap, header.title-block, .hub-grid, main { padding-left:16px; padding-right:16px; }
   .cm-task { padding:15px 16px; }
 }
+
+/* ── KONSTRUKCE: kreslicí okno (konstrukce-okno.js) — procvičování i test nanečisto ── */
+.kn-nastroje { display:flex; flex-wrap:wrap; gap:6px; margin:10px 0 8px; }
+.kn-tool { display:inline-flex; align-items:center; gap:6px; font-family:var(--sans); font-size:.82rem; font-weight:600;
+  padding:7px 10px; border:1.5px solid var(--border); border-radius:8px; background:#fff; color:var(--text); cursor:pointer; }
+.kn-tool:hover { border-color:var(--blue); }
+.kn-tool[aria-pressed="true"] { background:var(--blue); border-color:var(--blue); color:#fff; }
+.kn-tool:disabled { opacity:.5; cursor:default; }
+.kn-tool svg { flex:none; }
+.kn-svgwrap { position:relative; }
+.kn-svg { display:block; width:100%; height:auto; background:#fff; border:1px solid var(--border); border-radius:10px; touch-action:none; user-select:none; -webkit-user-select:none; }
+.kn-tip { font-size:.8rem; color:var(--muted); margin-top:6px; }
+.kn-tip-dotyk { display:none; }
+/* celá obrazovka (tablet): okno přes celý displej, kreslí se prstem */
+.kn-full { position:fixed; inset:0; z-index:50; background:var(--bg); display:none; flex-direction:column; padding:8px; gap:6px; }
+.kn-full.on { display:flex; }
+.kn-full-top { display:flex; flex-wrap:wrap; align-items:center; gap:6px; }
+/* základ „auto": lišta, která se k tlačítkům nevejde, dostane vlastní řádek
+   a zalomí se uvnitř (s flex:1 ji tlačítka zmáčkla a nástroje vyčuhovaly) */
+.kn-full-top .kn-nastroje { margin:0; flex:1 1 auto; min-width:0; }
+.kn-full-akce { display:flex; flex-wrap:wrap; gap:6px; }
+.kn-full-cas { font-weight:700; color:var(--muted); font-variant-numeric:tabular-nums; }
+.kn-full-cas:empty { display:none; }
+.kn-full-text { font-size:.88rem; line-height:1.4; color:var(--text); max-height:4.3em; overflow:auto; }
+.kn-full-plocha { flex:1; min-height:0; display:flex; align-items:flex-start; justify-content:center; }
+/* na počítači okno nepřeroste: text zadání pod ním má zůstat na obrazovce */
+.kn-domov .kn-svgwrap { max-width:640px; margin:0 auto; }
+.kn-full .kn-svgwrap { width:min(100%, calc((100dvh - 170px) * 4 / 3)); }
+body.kn-full-on { overflow:hidden; }
+@media (pointer:coarse) {
+  .kn-tool, .kn-full-akce .pz-btn { min-height:44px; }
+  .kn-tip-mys { display:none; }
+  .kn-tip-dotyk { display:inline; }
+  .kn-svgwrap:not(.plna) .kn-svg { touch-action:pan-y; }
+}
+/* barvy kresby: zadání tmavě, žák modře, vzorové řešení oranžově (barva L3 nápovědy) */
+.kn-d { stroke:#1a1a2e; stroke-width:2; fill:none; }
+.kn-d-plocha { fill:#e8f1fb; stroke:#1a1a2e; stroke-width:2; }
+.kn-d-bod { fill:#1a1a2e; }
+.kn-d-txt { font-family:var(--sans); font-size:14px; font-weight:700; fill:#1a1a2e; }
+.kn-d-prim { font-style:italic; }
+.kn-z { stroke:#196ec0; stroke-width:2; fill:none; stroke-linecap:round; }
+.kn-kresba { stroke-opacity:.45; }
+.kn-nahled { stroke:#196ec0; stroke-width:1.6; stroke-dasharray:5 4; fill:none; }
+.kn-vyber { stroke:#196ec0; stroke-width:5; stroke-opacity:.35; fill:none; }
+.kn-r { stroke:#c2410c; stroke-width:1.8; stroke-dasharray:6 4; fill:none; }
+.kn-r-bod { fill:#c2410c; }
+.kn-r-txt { font-family:var(--sans); font-size:13px; font-weight:700; fill:#c2410c; }
+.kn-meritko { stroke:#676d7b; stroke-width:1.5; fill:none; }
+.kn-meritko-t { font-family:var(--sans); font-size:10px; fill:#676d7b; }
+/* v testu nanečisto (úlohy 9 a 10) a v rozboru */
+.cm-kn { margin-top:6px; }
+.cm-kn-pozn { font-size:.84rem; color:var(--muted); margin:4px 0 2px; line-height:1.45; }
+.cm-review-svg svg.kn-snimek { width:100%; max-width:560px; height:auto; margin:0 auto; }
+.cm-kn-legenda { font-size:.8rem; color:var(--muted); margin:-4px 0 8px; text-align:center; }
+.cm-kn-legenda .z { color:#196ec0; font-weight:700; }
+.cm-kn-legenda .r { color:#c2410c; font-weight:700; }

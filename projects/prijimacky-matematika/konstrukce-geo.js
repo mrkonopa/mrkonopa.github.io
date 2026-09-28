@@ -245,13 +245,17 @@
      neoznačí). Řešení je nalezené, když má KAŽDÝ jeho hledaný bod
      kandidáta v toleranci. Body navíc se jen hlásí — pomocné body jsou
      na papíře běžné — a trestají se až při zjevném „kropení". */
-  function vyhodnot(u, tvary, tol) {
-    const T = tol || u.tol || 10;
+  function kandidati(tvary) {
     const kand = [];
     for (const t of tvary || []) {
       if (t.typ === 'bod') kand.push({ p: t.p, oznaceny: true });
       else if (t.typ === 'usecka') { kand.push({ p: t.p }); kand.push({ p: t.q }); }
     }
+    return kand;
+  }
+  function vyhodnot(u, tvary, tol) {
+    const T = tol || u.tol || 10;
+    const kand = kandidati(tvary);
     const reseni = u.reseni.map(s => Object.keys(s).every(k => kand.some(c => vzdal(c.p, s[k]) <= T)));
     const nalezeno = reseni.filter(Boolean).length;
     const vyznamne = [].concat(Object.values(u.dane.body || {}), ...u.reseni.map(s => Object.values(s)), u.pomocne || []);
@@ -259,6 +263,39 @@
     const hledanych = u.reseni.reduce((s, r) => s + Object.keys(r).length, 0);
     const kropeni = navic > Math.max(3, hledanych);
     return { nalezeno, celkem: u.reseni.length, reseni, navic, kropeni, spravne: nalezeno === u.reseni.length && !kropeni };
+  }
+
+  /* Bodování v testu nanečisto podle klíčů CERMAT (M9C/2025 ú. 10,
+     M9A/2025 ú. 9–10, M9A/2026 ú. 9–10): plný počet = všechna řešení
+     přesně; o bod méně = všechna s mírnou nepřesností, nebo jen část
+     řešení přesně; o dva méně = jen část řešení s mírnou nepřesností,
+     nebo jen část hledaných bodů („správně jsou sestrojeny pouze oba
+     body D"); jinak 0. Body „pro jistotu" (kropení) = zcela chybná
+     konstrukce, 0 b. Hranice přesnosti CERMAT nezveřejňuje: „přesně"
+     je tolerance procvičování (10 jednotek ≈ 3 mm), mírná nepřesnost
+     do 18 jednotek (6 mm). */
+  const TOL_PRESNE = 10, TOL_MIRNE = 18;
+  // Stav každého řešení: 'presne' | 'mirne' | 'cast' (jen některé hledané body) | null
+  function stavReseni(u, tvary) {
+    const kand = kandidati(tvary);
+    return u.reseni.map(s => {
+      const d = Object.keys(s).map(k => kand.reduce((m, c) => Math.min(m, vzdal(c.p, s[k])), Infinity));
+      if (d.every(x => x <= TOL_PRESNE)) return 'presne';
+      if (d.every(x => x <= TOL_MIRNE)) return 'mirne';
+      return d.some(x => x <= TOL_MIRNE) ? 'cast' : null;
+    });
+  }
+  function bodovat(u, tvary, max) {
+    const stav = stavReseni(u, tvary), n = stav.length;
+    const pocet = s => stav.filter(x => x === s).length;
+    const presne = pocet('presne'), mirne = pocet('mirne'), cast = pocet('cast');
+    const v = vyhodnot(u, tvary, TOL_PRESNE);
+    let body = 0;
+    if (v.kropeni) body = 0;
+    else if (presne === n) body = max;
+    else if (presne + mirne === n || presne > 0) body = max - 1;
+    else if (mirne > 0 || cast > 0) body = max - 2;
+    return { body: Math.max(0, body), max, stav, presne, mirne, cast, celkem: n, kropeni: v.kropeni, navic: v.navic };
   }
 
   // Přímka ořezaná na okno (pro kreslení nekonečné přímky jako úsečky)
@@ -276,5 +313,6 @@
   }
 
   window.PZ_GEO = { CM, W, H, bod, vzdal, stred, jednot, secti, odecti, nasob, skal, vekt, uhel, pata, vzdalOdPrimky, vzdalOdUsecky,
-    osove, stredove, prusecikPP, prusecikyPK, prusecikyKK, pruseciky, fitKruznice, rozpoznej, prichytne, prichyt, nejblizsi, vyhodnot, oriznoutNaOkno };
+    osove, stredove, prusecikPP, prusecikyPK, prusecikyKK, pruseciky, fitKruznice, rozpoznej, prichytne, prichyt, nejblizsi, vyhodnot, oriznoutNaOkno,
+    TOL_PRESNE, TOL_MIRNE, stavReseni, bodovat };
 })();
