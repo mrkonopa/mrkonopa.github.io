@@ -2,7 +2,10 @@ node_modules/
 *.orig
 travels/images/ua_2017/originals/
 travels/images/cr_bh_2018/originals/
-.claude/
+# Místní soubory Claude Code (settings.local.json aj.) ne; sdílené nastavení a startovní hooky ano.
+.claude/*
+!.claude/settings.json
+!.claude/hooks/
 tests/diag-*.cjs
 
 # Stažené PDF CERMATu (tools/cermat-archiv/stahni.py) — stovky MB, dají se stáhnout znovu
