@@ -29,8 +29,10 @@
     ['kruzitko', 'Kružítko', 'M12 3.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 1 0 0-3 M11.3 6.3L6 20 M12.7 6.3L18 20 M8.4 13.8h7.2'],
     ['kolmice', 'Kolmice', 'M4 20h16 M12 20V4 M12 16h4v4'],
     ['rovnobezka', 'Rovnoběžka', 'M4 10L20 6 M4 19l16-4'],
+    ['uhlomer', 'Úhloměr', 'M3 18h18 M3 18a9 9 0 0 1 18 0 M12 18l5-7'],
     ['bod', 'Bod', 'M8 8l8 8 M16 8l-8 8'],
   ];
+  const UHEL_TIP = ['Úhloměr: klepni na vrchol úhlu.', 'Teď klepni na první rameno (bod nebo čáru).', 'Teď klepni tam, kam má vést druhé rameno.'];
   const AKCE = [
     ['zpet', 'Zpět', 'M9 5L4 10l5 5 M4 10h10a5 5 0 0 1 0 10h-3'],
     ['smazat', 'Smazat', 'M4 7h16 M9 7V4h6v3 M6 7l1 13h10l1-13'],
@@ -56,6 +58,7 @@
   function tvarSvg(t, cls) {
     if (t.typ === 'usecka') return cara(t.p, t.q, cls);
     if (t.typ === 'primka') return primkaSvg(t.p, t.q, cls);
+    if (t.typ === 'poloprimka') { const o = G.oriznoutPoloprimku(t.p, t.q); return o ? cara(o.p, o.q, cls) : ''; }
     if (t.typ === 'kruznice') return kruzSvg(t, cls);
     if (t.typ === 'bod') return krizek(t.p, cls);
     if (t.typ === 'kresba') return '<polyline points="' + t.body.map(x => f1(x.x) + ',' + f1(x.y)).join(' ') + '" class="' + cls + ' kn-kresba"/>';
@@ -66,6 +69,7 @@
     const d = u.dane, out = [];
     (d.primky || []).forEach(l => out.push({ typ: 'primka', p: l.p, q: l.q }));
     (d.usecky || []).forEach(s => out.push({ typ: 'usecka', p: s.p, q: s.q }));
+    (d.poloprimky || []).forEach(s => out.push({ typ: 'poloprimka', p: s.p, q: s.q }));
     (d.kruznice || []).forEach(k => out.push({ typ: 'kruznice', c: k.c, r: k.r }));
     (d.mnohouhelniky || []).forEach(m => m.forEach((k, i) => out.push({ typ: 'usecka', p: d.body[k], q: d.body[m[(i + 1) % m.length]] })));
     return out;
@@ -76,6 +80,8 @@
     let h = '';
     (d.mnohouhelniky || []).forEach(m => { h += '<polygon points="' + m.map(k => f1(d.body[k].x) + ',' + f1(d.body[k].y)).join(' ') + '" class="kn-d-plocha"/>'; });
     (d.usecky || []).forEach(s => { h += cara(s.p, s.q, 'kn-d'); });
+    // zadaná polopřímka (např. BX): jméno nese bod X, který je mezi zadanými body
+    (d.poloprimky || []).forEach(s => { h += tvarSvg({ typ: 'poloprimka', p: s.p, q: s.q }, 'kn-d'); });
     // zadaná kružnice: název vpravo nahoře na obvodu
     (d.kruznice || []).forEach(k => { const s = G.bod(Math.SQRT1_2, -Math.SQRT1_2); h += kruzSvg({ c: k.c, r: k.r }, 'kn-d') + popisek(G.secti(k.c, G.nasob(s, k.r)), k.nazev, s, 'kn-d-txt kn-d-prim'); });
     (d.primky || []).forEach(l => {
@@ -114,6 +120,31 @@
     }));
     return h;
   }
+  /* Úhloměr: velikost úhlu od prvního ramene (směr a) k ukazateli x v celých
+     stupních 0–180 a strana, na kterou se měří. Osa y míří dolů, takže
+     vekt(a, w) > 0 je po směru hodinových ručiček — a otoc() s kladným úhlem taky. */
+  function uhelZ(v, a, x) {
+    if (G.vzdal(x, v) < 8) return null;
+    const w = G.jednot(G.odecti(x, v)), strana = G.vekt(a, w) < 0 ? -1 : 1;
+    const st = Math.round(Math.acos(Math.max(-1, Math.min(1, G.skal(a, w)))) * 180 / Math.PI);
+    return { st, strana, smer: G.otoc(a, strana * st * Math.PI / 180) };
+  }
+  // Půlkruh se stupnicí po 10° položený nulou na první rameno; s w navíc druhé rameno, oblouk a velikost
+  function uhlomerSvg(v, a, strana, w) {
+    const R = 64, na = (st, r) => G.secti(v, G.nasob(G.otoc(a, strana * st * Math.PI / 180), r)), xy = p => f1(p.x) + ' ' + f1(p.y);
+    const sweep = strana > 0 ? 1 : 0;
+    let h = '<path d="M' + xy(na(0, R)) + ' A' + R + ' ' + R + ' 0 0 ' + sweep + ' ' + xy(na(180, R)) + 'Z" class="kn-uhlomer"/>';
+    for (let st = 0; st <= 180; st += 10) h += cara(na(st, R - (st % 30 ? 5 : 9)), na(st, R), 'kn-uhlomer-c');
+    for (let st = 0; st <= 180; st += 30) { const t = na(st, R - 17); h += '<text x="' + f1(t.x) + '" y="' + f1(t.y) + '" class="kn-uhlomer-t" text-anchor="middle" dominant-baseline="middle">' + st + '</text>'; }
+    if (w) {
+      h += tvarSvg({ typ: 'poloprimka', p: v, q: G.secti(v, w.smer) }, 'kn-nahled');
+      if (w.st > 0 && w.st < 180) h += '<path d="M' + xy(na(0, 24)) + ' A24 24 0 0 ' + sweep + ' ' + xy(na(w.st, 24)) + '" class="kn-uhlomer-oblouk"/>';
+      const t = na(w.st / 2, R + 14);
+      h += '<text x="' + f1(Math.max(16, Math.min(384, t.x))) + '" y="' + f1(Math.max(12, Math.min(288, t.y))) + '" class="kn-uhlomer-cislo" text-anchor="middle" dominant-baseline="middle">' + w.st + '°</text>';
+    }
+    return h;
+  }
+
   // Statický obrázek pro rozbor: zadání, vzorové řešení a NAVRCH kresba žáka —
   // jeho značka v hledaném bodě by jinak zmizela pod oranžovým bodem řešení
   function snimek(u, tvary, uk) {
@@ -159,11 +190,17 @@
     const kresliDane = () => { $('dane').innerHTML = S.u ? svgDane(S.u) : ''; };
     const kresliZaka = () => { $('zak').innerHTML = S.tvary.map(t => tvarSvg(t, 'kn-z')).join(''); };
     const kresliReseni = () => { $('reseni').innerHTML = S.u ? svgReseni(S.u, S.uk) : ''; };
-    function kresliNahled(t) {
+    // x = poloha ukazatele (úhloměr ukazuje druhé rameno a velikost úhlu za ním)
+    function kresliNahled(t, x) {
       let h = '';
-      if (S.vyber) h += tvarSvg(S.vyber, 'kn-vyber');
+      const V = S.vyber && S.vyber.typ === 'uhel' ? S.vyber : null;
+      if (V) {
+        h += '<circle cx="' + f1(V.v.x) + '" cy="' + f1(V.v.y) + '" r="5" class="kn-vyber-bod"/>';
+        if (V.a) { const w = x ? uhelZ(V.v, V.a, x) : null; h += tvarSvg({ typ: 'poloprimka', p: V.v, q: G.secti(V.v, V.a) }, 'kn-vyber') + uhlomerSvg(V.v, V.a, w ? w.strana : 1, w); }
+      } else if (S.vyber) h += tvarSvg(S.vyber, 'kn-vyber');
       if (t) h += tvarSvg(t, 'kn-nahled');
       if (t && t.typ === 'kruznice' && t.rozpeti == null) h += '<text x="' + f1(Math.min(360, t.c.x + t.r * 0.7 + 6)) + '" y="' + f1(Math.max(14, t.c.y - t.r * 0.7 - 6)) + '" class="kn-r-txt">r = ' + String(Math.round(t.r / G.CM * 10) / 10).replace('.', ',') + ' cm</text>';
+      if (S.nastroj === 'uhlomer' && S.u && !S.zamceno) h += '<text x="6" y="13" class="kn-uhel-tip">' + UHEL_TIP[!V ? 0 : V.a ? 2 : 1] + '</text>';
       $('nahled').innerHTML = h;
     }
     function kresli() { kresliDane(); kresliZaka(); kresliReseni(); kresliNahled(); }
@@ -175,10 +212,24 @@
     const kotvy = () => G.prichytne(S.tvary.concat(daneTvary(S.u)), Object.values(S.u.dane.body));
     const snap = x => G.nejblizsi(x, kotvy(), dosah()) || x;
     function linearniPod(x) {
-      const kand = daneTvary(S.u).concat(S.tvary.filter(t => t.typ === 'usecka' || t.typ === 'primka'));
+      const kand = daneTvary(S.u).concat(S.tvary).filter(t => t.typ === 'usecka' || t.typ === 'primka' || t.typ === 'poloprimka');
       let best = null, bd = dosah() * 1.6;
-      for (const t of kand) { const d = t.typ === 'primka' ? G.vzdalOdPrimky(x, t.p, t.q) : G.vzdalOdUsecky(x, t.p, t.q); if (d < bd) { bd = d; best = t; } }
+      for (const t of kand) {
+        const d = t.typ === 'primka' ? G.vzdalOdPrimky(x, t.p, t.q) : t.typ === 'poloprimka' ? G.vzdalOdPoloprimky(x, t.p, t.q) : G.vzdalOdUsecky(x, t.p, t.q);
+        if (d < bd) { bd = d; best = t; }
+      }
       return best;
+    }
+    /* První rameno úhloměru: směr k bodu pod ukazatelem (přichycení), jinak podél
+       čáry, která vede vrcholem (na papíře přiložíš úhloměr nulou na rameno),
+       jinak prostě k ukazateli. */
+    function ramenoZ(v, x) {
+      const b = G.nejblizsi(x, kotvy().filter(p => G.vzdal(p, v) > 2), dosah());
+      if (b) return G.jednot(G.odecti(b, v));
+      const l = daneTvary(S.u).concat(S.tvary).find(t => (t.typ === 'usecka' || t.typ === 'primka' || t.typ === 'poloprimka') &&
+        G.vzdalOdPrimky(v, t.p, t.q) <= 1.5 && G.vzdalOdPrimky(x, t.p, t.q) <= dosah() * 1.6);
+      if (l) { const s = G.jednot(G.odecti(l.q, l.p)); return G.skal(G.odecti(x, v), s) < 0 ? G.nasob(s, -1) : s; }
+      return G.vzdal(x, v) > 8 ? G.jednot(G.odecti(x, v)) : null;
     }
     function polomer(c, x) {
       // kružítko: přes bod pod ukazatelem, jinak zaokrouhlení na půl centimetru (je-li blízko)
@@ -202,6 +253,8 @@
       else S.tah = { x };
     }
     function pohyb(e) {
+      // úhloměr: druhé rameno a velikost úhlu sledují ukazatel (myš i bez stisku, prst při tažení)
+      if (S.nastroj === 'uhlomer' && S.vyber && S.vyber.a && !S.zamceno && (S.aktivni === null || S.aktivni === e.pointerId)) { kresliNahled(null, bodZ(e)); return; }
       if (S.aktivni !== e.pointerId || !S.tah) return;
       const evs = e.getCoalescedEvents ? e.getCoalescedEvents() : [e];
       if (S.nastroj === 'ruka') { evs.forEach(v => S.tah.body.push(bodZ(v))); kresliNahled({ typ: 'kresba', body: S.tah.body }); return; }
@@ -223,6 +276,15 @@
         if (!S.vyber) { S.vyber = linearniPod(x); kresliNahled(); return; }
         const p = snap(x), u = G.jednot(G.odecti(S.vyber.q, S.vyber.p)), s = S.nastroj === 'kolmice' ? G.bod(-u.y, u.x) : u;
         novy = { typ: 'primka', p, q: G.secti(p, s) }; S.vyber = null;
+      }
+      else if (S.nastroj === 'uhlomer') {
+        // tři klepnutí: vrchol → první rameno → kam vede druhé rameno (úhel v celých stupních)
+        const V = S.vyber && S.vyber.typ === 'uhel' ? S.vyber : null;
+        if (!V) { S.vyber = { typ: 'uhel', v: snap(x) }; kresliNahled(); return; }
+        if (!V.a) { V.a = ramenoZ(V.v, x); kresliNahled(); return; }
+        const w = uhelZ(V.v, V.a, x);
+        if (!w) { kresliNahled(null, x); return; }
+        novy = { typ: 'poloprimka', p: V.v, q: G.secti(V.v, G.nasob(w.smer, 60)), stupne: w.st }; S.vyber = null;
       }
       if (novy) { S.tvary.push(novy); kresliZaka(); }
       kresliNahled();

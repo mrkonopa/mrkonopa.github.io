@@ -69,9 +69,11 @@
   }
   function naTvaru(t, x, rez) {
     if (t.typ === 'usecka') return vzdalOdUsecky(x, t.p, t.q) <= rez + 1e-6;
+    // polopřímka (rameno úhlu z úhloměru) začíná ve vrcholu p a vede přes q
+    if (t.typ === 'poloprimka') return skal(odecti(x, t.p), jednot(odecti(t.q, t.p))) >= -(rez + 1e-6);
     return t.typ === 'primka' || t.typ === 'kruznice';
   }
-  const linearni = t => t.typ === 'usecka' || t.typ === 'primka';
+  const linearni = t => t.typ === 'usecka' || t.typ === 'primka' || t.typ === 'poloprimka';
   // Průsečíky dvou tvarů. Úsečka se ořeže s rezervou `rez` (žák ji mohl
   // nakreslit o kousek kratší); oblouk se bere jako celá kružnice.
   function pruseciky(a, b, rez) {
@@ -188,9 +190,9 @@
   function prichytne(tvary, dane) {
     const out = [];
     for (const p of dane || []) out.push(p);
-    const cary = tvary.filter(t => t.typ === 'usecka' || t.typ === 'primka' || t.typ === 'kruznice');
+    const cary = tvary.filter(t => linearni(t) || t.typ === 'kruznice');
     for (const t of tvary) {
-      if (t.typ === 'bod') out.push(t.p);
+      if (t.typ === 'bod' || t.typ === 'poloprimka') out.push(t.p);
       if (t.typ === 'usecka') { out.push(t.p); out.push(t.q); }
     }
     for (let i = 0; i < cary.length; i++) for (let j = i + 1; j < cary.length; j++) for (const x of pruseciky(cary[i], cary[j], 6)) out.push(x);
@@ -311,8 +313,21 @@
     const t0 = Math.min(...ts), t1 = Math.max(...ts);
     return { p: secti(p, nasob(u, t0)), q: secti(p, nasob(u, t1)) };
   }
+  // Polopřímka z p přes q ořezaná na okno: jen část od vrcholu dál (null, když do okna nevede)
+  function oriznoutPoloprimku(p, q) {
+    const o = oriznoutNaOkno(p, q, 0), u = odecti(q, p), uu = skal(u, u) || EPS;
+    if (!o) return null;
+    const t0 = skal(odecti(o.p, p), u) / uu, t1 = skal(odecti(o.q, p), u) / uu;
+    const od = Math.max(0, Math.min(t0, t1)), po = Math.max(t0, t1);
+    return po <= od ? null : { p: secti(p, nasob(u, od)), q: secti(p, nasob(u, po)) };
+  }
+  function vzdalOdPoloprimky(x, p, q) {
+    return skal(odecti(x, p), odecti(q, p)) <= 0 ? vzdal(x, p) : vzdalOdPrimky(x, p, q);
+  }
+  // Otočení vektoru o úhel a (radiány). Osa y míří DOLŮ, takže kladný úhel je na obrazovce po směru hodinových ručiček.
+  const otoc = (v, a) => bod(v.x * Math.cos(a) - v.y * Math.sin(a), v.x * Math.sin(a) + v.y * Math.cos(a));
 
   window.PZ_GEO = { CM, W, H, bod, vzdal, stred, jednot, secti, odecti, nasob, skal, vekt, uhel, pata, vzdalOdPrimky, vzdalOdUsecky,
     osove, stredove, prusecikPP, prusecikyPK, prusecikyKK, pruseciky, fitKruznice, rozpoznej, prichytne, prichyt, nejblizsi, vyhodnot, oriznoutNaOkno,
-    TOL_PRESNE, TOL_MIRNE, stavReseni, bodovat };
+    oriznoutPoloprimku, vzdalOdPoloprimky, otoc, TOL_PRESNE, TOL_MIRNE, stavReseni, bodovat };
 })();
