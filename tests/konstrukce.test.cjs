@@ -62,7 +62,7 @@ const vysledek=page=>page.evaluate(()=>{ const v=document.querySelector('#kn-vys
   await page.goto(base+URL_K,{waitUntil:'domcontentloaded'});
   await page.waitForFunction(()=>typeof KN!=='undefined'&&KN.u,{timeout:8000});
   console.log('── Konstrukce: počítač ──');
-  ok(await page.$$eval('#kn-nastroje [data-n]',b=>b.length)===6 && await page.$$eval('#kn-nastroje [data-a]',b=>b.length)===3,'lišta: 6 nástrojů + zpět, smazat, zvětšit');
+  ok(await page.$$eval('#kn-nastroje [data-n]',b=>b.length)===7 && await page.$$eval('#kn-nastroje [data-a]',b=>b.length)===3,'lišta: 7 nástrojů (i úhloměr) + zpět, smazat, zvětšit');
   // výběr typu nesmí zapomenout nový generátor ani nabízet neexistující typ
   const vyber=await page.evaluate(()=>{ const v=[...document.querySelectorAll('#kn-typ option')].map(o=>o.value).filter(Boolean);
     return { n:v.length, typu:PZ_KONSTRUKCE.TYPY.length, chybi:PZ_KONSTRUKCE.TYPY.filter(t=>!v.includes(t)), navic:v.filter(t=>!PZ_KONSTRUKCE.GENERATORY[t]) }; });
@@ -177,6 +177,44 @@ const vysledek=page=>page.evaluate(()=>{ const v=document.querySelector('#kn-vys
       ok(t.typ==='primka'&&Math.abs(cos-ocek)<1e-9&&Math.hypot(t.p.x-u.dane.body.A.x,t.p.y-u.dane.body.A.y)<1e-6,
         id+' k přímce p bodem A (|cos| = '+cos.toFixed(6)+')');
     }
+  }
+
+  /* 6b) úhloměr: úloha „úhel při K a |LK| = |LM|" vyřešená jako na papíře —
+     úhloměrem rameno na obě strany, kružítkem kružnice ze L přes K, body
+     do průsečíků (klepnutí kousek vedle skočí na průsečík RAMENE, tedy
+     polopřímky). Úhel se měří na výsledném tvaru, ne v kódu stránky. */
+  {
+    const u=await nova(page,'rovnoramennyUhel');
+    const {K,L}=u.dane.body, st=+u.text.match(/úhlu LKM je (\d+)°/)[1];
+    const e={x:(L.x-K.x)/Math.hypot(L.x-K.x,L.y-K.y), y:(L.y-K.y)/Math.hypot(L.x-K.x,L.y-K.y)};
+    const naUhel=(deg,r)=>{ const a=deg*Math.PI/180; return {x:K.x+r*(e.x*Math.cos(a)-e.y*Math.sin(a)), y:K.y+r*(e.x*Math.sin(a)+e.y*Math.cos(a))}; };
+    await nastroj(page,'uhlomer');
+    ok(/klepni na vrchol/.test(await page.textContent('#kn-nahled')),'úhloměr: nápověda v okně vede krok za krokem („klepni na vrchol úhlu")');
+    const ramena=[];
+    for(const znam of [1,-1]){
+      await klik(page,K); await klik(page,L);
+      const [cil]=await naObrazovku(page,[naUhel(znam*st,70)]); await page.mouse.move(cil.x,cil.y);
+      const ukazuje=await page.$eval('#kn-nahled .kn-uhlomer-cislo',x=>x.textContent).catch(()=>null);
+      await page.mouse.click(cil.x,cil.y);
+      const t=await page.evaluate(()=>KN.tvary[KN.tvary.length-1]); ramena.push(t);
+      const d=Math.hypot(t.q.x-t.p.x,t.q.y-t.p.y), zmer=Math.acos(((t.q.x-t.p.x)*e.x+(t.q.y-t.p.y)*e.y)/d)*180/Math.PI;
+      // rameno musí vést na TU stranu KL, kam žák ukázal (převrácená strana by se úhlem neprozradila)
+      const strana=Math.sign(e.x*(t.q.y-t.p.y)-e.y*(t.q.x-t.p.x));
+      ok(t.typ==='poloprimka'&&Math.hypot(t.p.x-K.x,t.p.y-K.y)<1e-9&&Math.abs(zmer-st)<1e-9&&ukazuje===st+'°'&&strana===znam,
+        'úhloměr: rameno z K svírá s KL přesně '+st+'° na stranu, kam žák ukázal (změřeno '+zmer.toFixed(6)+'°, náhled ukazoval '+ukazuje+')'+(znam<0?' — i na druhou stranu':''));
+    }
+    await nastroj(page,'kruzitko'); await tah(page,[L,{x:(L.x+K.x)/2+5,y:(L.y+K.y)/2+5},K]);
+    const X=await page.evaluate(()=>{ const t=KN.tvary, k=t[t.length-1];
+      return [t[t.length-3],t[t.length-2]].flatMap(r=>PZ_GEO.pruseciky(r,k,0)); });
+    const ciziK=X.filter(x=>Math.hypot(x.x-K.x,x.y-K.y)>5);
+    ok(ciziK.length===2,'průsečíky ramen s kružnicí: dva kromě bodu K');
+    await nastroj(page,'bod');
+    for(const x of ciziK) await klik(page,{x:x.x+3,y:x.y-3});
+    const body=await page.evaluate(()=>KN.tvary.filter(t=>t.typ==='bod').map(t=>t.p));
+    ok(ciziK.every(x=>body.some(b=>Math.hypot(b.x-x.x,b.y-x.y)<1e-6)),'klepnutí vedle průsečíku ramene s kružnicí skočí přesně na průsečík');
+    await page.click('#kn-vyhodnot');
+    const v=await vysledek(page);
+    ok(v&&v.ok,'úhloměr + kružítko + body → „Správně" ('+(v?v.t:'bez výsledku')+')');
   }
 
   // 7) nápovědy: tři úrovně, třetí oranžová a ukáže řešení v okně

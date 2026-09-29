@@ -166,7 +166,7 @@ function taskHtml(t){
     body = t.prompts.map((p,i)=>'<div class="cm-match-row"><span class="cm-tf-text">'+t.no+'.'+(i+1)+' '+PZ.esc(p)+'</span><select id="cm-match-'+t.no+'-'+i+'"><option value="">– vyber –</option>'+opts+'</select></div>').join('');
   } else if(t.kind==='konstrukce'){
     body = '<div class="cm-part-prompt">'+PZ.esc(t.u.text)+'</div>'+
-      '<div class="cm-kn-pozn">Rýsuj v okně pravítkem a kružítkem, nebo od ruky. Hledané vrcholy označ nástrojem Bod, nebo v nich ukonči strany útvaru. Vyhodnotí se až po odevzdání testu.</div>'+
+      '<div class="cm-kn-pozn">Rýsuj v okně pravítkem, kružítkem a úhloměrem, nebo od ruky. Hledané vrcholy označ nástrojem Bod, nebo v nich ukonči strany útvaru. Vyhodnotí se až po odevzdání testu.</div>'+
       '<div class="cm-kn" id="cm-kn-'+t.no+'"></div>';
   } else {
     body = (t.parts||[]).map((p,i)=>'<div class="cm-part">'+(p.key?'<div class="cm-part-label">'+PZ.esc(p.key)+'</div>':'')+'<div class="cm-part-prompt">'+PZ.esc(p.prompt)+'</div><input type="text" id="cm-p-'+t.no+'-'+i+'" inputmode="'+(p.klavesnice||PZ.inputMode(p.ans))+'" autocomplete="off" placeholder="výsledek"></div>').join('');

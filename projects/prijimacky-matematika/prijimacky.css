@@ -258,6 +258,14 @@ body.kn-full-on { overflow:hidden; }
 .kn-r { stroke:#c2410c; stroke-width:1.8; stroke-dasharray:6 4; fill:none; }
 .kn-r-bod { fill:#c2410c; }
 .kn-r-txt { font-family:var(--sans); font-size:13px; font-weight:700; fill:#c2410c; }
+/* úhloměr: průsvitný půlkruh se stupnicí, druhé rameno a velikost úhlu modře jako kresba žáka */
+.kn-uhlomer { fill:#fff7e6; fill-opacity:.6; stroke:#b45309; stroke-width:1.2; }
+.kn-uhlomer-c { stroke:#b45309; stroke-width:1; }
+.kn-uhlomer-t { font-family:var(--sans); font-size:8px; fill:#92400e; }
+.kn-uhlomer-oblouk { stroke:#196ec0; stroke-width:1.6; fill:none; }
+.kn-uhlomer-cislo { font-family:var(--sans); font-size:14px; font-weight:700; fill:#196ec0; paint-order:stroke; stroke:#fff; stroke-width:3px; }
+.kn-uhel-tip { font-family:var(--sans); font-size:11px; font-weight:600; fill:#475569; paint-order:stroke; stroke:#fff; stroke-width:3px; }
+.kn-vyber-bod { fill:#196ec0; fill-opacity:.35; stroke:#196ec0; stroke-width:1.5; }
 .kn-meritko { stroke:#676d7b; stroke-width:1.5; fill:none; }
 .kn-meritko-t { font-family:var(--sans); font-size:10px; fill:#676d7b; }
 /* v testu nanečisto (úlohy 9 a 10) a v rozboru */

@@ -33,6 +33,7 @@ const texty = u => [u.text].concat(u.napovedy, u.postup.map(k => k.text));
 
 // Úhel XVY ve vrcholu V (radiány)
 const uhel = (V, X, Y) => Math.acos(Math.max(-1, Math.min(1, G.skal(G.jednot(G.odecti(X, V)), G.jednot(G.odecti(Y, V))))));
+const stupne = r => r * 180 / Math.PI;
 // Obdélník ABCD (v tomto pořadí): úhlopříčky se půlí a jsou shodné
 function obdelnik4(A, B, C, D) {
   if (G.vzdal(G.stred(A, C), G.stred(B, D)) > EPS || Math.abs(G.vzdal(A, C) - G.vzdal(B, D)) > EPS) return 'ABCD není obdélník';
@@ -297,14 +298,91 @@ const VLASTNOST = {
     if (Math.abs(G.vzdal(C, A) - G.vzdal(C, B)) > EPS) return 'ramena nejsou shodná';
     return G.vzdalOdPrimky(C, A, Q) > EPS ? 'C neleží na přímce AQ' : null;
   },
+  // ── úhel ve stupních: velikost se vyčte z TEXTU a změří na řešení ──
+  rovnoramennyUhel(u) {
+    const { K: Kk, L } = u.dane.body, st = cislo(u.text, /úhlu LKM je (\d+)°/), M = u.reseni.map(r => r.M);
+    for (const X of M) {
+      if (Math.abs(stupne(uhel(Kk, L, X)) - st) > 1e-6) return 'úhel LKM není ' + st + '°';
+      if (Math.abs(G.vzdal(L, Kk) - G.vzdal(L, X)) > EPS) return '|LK| ≠ |LM|';
+    }
+    const u0 = G.odecti(L, Kk);
+    return G.vekt(u0, G.odecti(M[0], Kk)) * G.vekt(u0, G.odecti(M[1], Kk)) < 0 ? null : 'řešení nejsou na opačných stranách přímky KL';
+  },
+  uhelOsaStrany(u) {
+    const { B, X } = u.dane.body, o = u.dane.primky[0], { A, C } = u.reseni[0], st = cislo(u.text, /úhlu BAC je (\d+)°/);
+    if (!naPrimce(G.stred(A, B), o) || Math.abs(G.skal(G.jednot(G.odecti(A, B)), G.jednot(G.odecti(o.q, o.p)))) > 1e-9) return 'o není osou strany AB';
+    const pl = (u.dane.poloprimky || [])[0];
+    if (!pl || G.vzdal(pl.p, B) > EPS || G.vzdalOdPrimky(X, pl.p, pl.q) > EPS) return 'zadaná polopřímka není BX';
+    if (G.vzdalOdPrimky(C, B, X) > EPS || G.skal(G.odecti(C, B), G.odecti(X, B)) <= 0) return 'C neleží na polopřímce BX';
+    return Math.abs(stupne(uhel(A, B, C)) - st) > 1e-6 ? 'úhel BAC není ' + st + '°' : null;
+  },
+  rovnobeznikUhel(u) {
+    const { A, S } = u.dane.body, p = u.dane.primky[0], { B, C, D } = u.reseni[0], st = cislo(u.text, /má velikost (\d+)°/);
+    if (G.vzdal(G.stred(A, C), S) > EPS || G.vzdal(G.stred(B, D), S) > EPS) return 'S není střed úhlopříček';
+    if (!naPrimce(B, p)) return 'B neleží na přímce p';
+    if (Math.abs(stupne(uhel(S, A, B)) - st) > 1e-6) return 'úhel ASB není ' + st + '°';
+    // jediné řešení: rameno souměrné podle přímky SA (druhá strana) přímku p neprotne
+    const e = G.jednot(G.odecti(A, S)), d = G.jednot(G.odecti(B, S)), d2 = G.odecti(G.nasob(e, 2 * G.skal(d, e)), d);
+    const Y = G.prusecikPP(S, G.secti(S, d2), p.p, p.q);
+    return Y && G.skal(G.odecti(Y, S), d2) > 0 ? 'přímku p protne i rameno na druhé straně — řešení jsou dvě' : null;
+  },
+  pravouhlyUhel(u) {
+    const { A } = u.dane.body, [b, c] = u.dane.primky, st = cislo(u.text, /při vrcholu C je (\d+)°/);
+    for (const { B, C } of u.reseni) {
+      if (!naPrimce(A, b) || !naPrimce(B, b) || !naPrimce(C, c)) return 'vrcholy neleží na svých přímkách';
+      if (Math.abs(uhel(A, B, C) - Math.PI / 2) > 1e-9) return 'úhel při A není pravý';
+      if (Math.abs(stupne(uhel(C, A, B)) - st) > 1e-6) return 'úhel při C není ' + st + '°';
+    }
+    const [r1, r2] = u.reseni;
+    return G.vzdal(r1.C, r2.C) < EPS && G.skal(G.odecti(r1.B, A), G.odecti(r2.B, A)) < 0 ? null : 'řešení nejsou souměrná podle přímky AC';
+  },
+  lichobeznikUhel(u) {
+    const { A, D } = u.dane.body, st = cislo(u.text, /úhlu DAB je (\d+)°/), m = u.text.match(/\|AB\| : \|CD\| = (\d+) : (\d+)/);
+    if (!m) return 'v zadání chybí poměr základen';
+    for (const { B, C } of u.reseni) {
+      if (Math.abs(G.vzdal(A, B) - G.vzdal(A, D)) > EPS) return '|AB| ≠ |AD|';
+      if (Math.abs(stupne(uhel(A, D, B)) - st) > 1e-6) return 'úhel DAB není ' + st + '°';
+      if (G.vzdal(G.jednot(G.odecti(B, A)), G.jednot(G.odecti(C, D))) > 1e-9) return 'základny AB a DC nejsou rovnoběžné a souhlasné';
+      if (Math.abs(G.vzdal(D, C) * m[1] - G.vzdal(A, B) * m[2]) > EPS) return 'poměr základen nesedí';
+      const q = [A, B, C, D], z = q.map((x, i) => G.vekt(G.odecti(q[(i + 1) % 4], x), G.odecti(q[(i + 2) % 4], q[(i + 1) % 4])));
+      if (!(z.every(v => v > 0) || z.every(v => v < 0))) return 'lichoběžník není konvexní';
+    }
+    const [r1, r2] = u.reseni, e = G.odecti(D, A);
+    return G.vekt(e, G.odecti(r1.B, A)) * G.vekt(e, G.odecti(r2.B, A)) < 0 ? null : 'řešení nejsou na opačných stranách přímky AD';
+  },
+  tupyUhelVyska(u) {
+    const { A, C, M } = u.dane.body, { B } = u.reseni[0], st = cislo(u.text, /při vrcholu C je (\d+)°/), v = cislo(u.text, /měří (\d+(?:,\d+)?) cm/) * G.CM;
+    if (Math.abs(G.vzdalOdPrimky(B, A, C) - v) > EPS) return 'výška na stranu AC nesedí';
+    if (Math.abs(stupne(uhel(C, A, B)) - st) > 1e-6) return 'úhel při C není ' + st + '°';
+    const s = [[A, B], [B, C], [C, A]].map(([X, Y]) => Math.sign(G.vekt(G.odecti(Y, X), G.odecti(M, X))));
+    return s[0] === s[1] && s[1] === s[2] ? null : 'M neleží uvnitř trojúhelníku';
+  },
 };
 const POCET_RESENI = { thales: 2, osa: 1, kruznice: 2, vyska: 2, soumernost: 1, rovnobeznik: 1, obdelnik: 2, ctverec: 1, kosoctverec: 1, lichobeznik: 1, teznice: 2, rovnoramenny: 2,
   stredova: 1, osauhlu: 1, opsana: 1, vysky: 1, obdelnikUhl: 2, obdelnikM: 1, lichobeznikZakl: 1, rovnoramennyOsa: 1, ctverecUhl: 1, vcTc: 1,
   obdelnikStrana: 2, kosoctverecOsa: 1, teziste: 1, dveThalet: 1, rovnoramennyKruz: 2, pravouhlyLich: 1, osaStrany: 2, sestiuhelnik: 1,
-  stredyStran: 3, lichobeznikTri: 2, obdelnikSp: 1, rovnoramennyZakl: 1 };
+  stredyStran: 3, lichobeznikTri: 2, obdelnikSp: 1, rovnoramennyZakl: 1,
+  rovnoramennyUhel: 2, uhelOsaStrany: 1, rovnobeznikUhel: 1, pravouhlyUhel: 2, lichobeznikUhel: 2, tupyUhelVyska: 1 };
+
+/* Polopřímka (rameno z úhloměru) v geometrii: průsečík za vrcholem se nepočítá,
+   vrchol je bod k přichycení a kreslí se jen od vrcholu dál. Kružnice
+   se středem ve vrcholu protne přímku dvakrát, polopřímku jen jednou. */
+console.log('── Polopřímka ──');
+{
+  const V = G.bod(200, 150), ray = { typ: 'poloprimka', p: V, q: G.bod(260, 150) }, k = { typ: 'kruznice', c: V, r: 50 };
+  const X = G.pruseciky(ray, k, 0), Xp = G.pruseciky({ typ: 'primka', p: V, q: ray.q }, k, 0);
+  ok(Xp.length === 2 && X.length === 1 && Math.abs(X[0].x - 250) < 1e-9, 'polopřímka a kružnice kolem vrcholu: 1 průsečík (přímka 2), a to před vrcholem');
+  const l = { typ: 'usecka', p: G.bod(150, 100), q: G.bod(150, 200) };
+  ok(G.pruseciky(ray, l, 0).length === 0 && G.pruseciky({ typ: 'poloprimka', p: V, q: G.bod(140, 150) }, l, 0).length === 1, 'úsečka za vrcholem polopřímku neprotne, před vrcholem ano');
+  ok(G.prichytne([ray], []).some(x => G.vzdal(x, V) < 1e-9), 'vrchol polopřímky je bod k přichycení');
+  const o = G.oriznoutPoloprimku(V, ray.q);
+  ok(o && G.vzdal(o.p, V) < 1e-9 && Math.abs(o.q.x - G.W) < 1e-9, 'polopřímka se kreslí od vrcholu k okraji okna, ne za vrchol');
+  const r = G.otoc(G.bod(1, 0), Math.PI / 2);
+  ok(Math.abs(r.x) < 1e-12 && Math.abs(r.y - 1) < 1e-12, 'otoc: +90° otočí (1, 0) na (0, 1), tedy po směru hodinových ručiček na obrazovce');
+}
 
 console.log('── Konstrukce: generátory úloh ──');
-ok(K.TYPY.length === 34 && K.TYPY.every(t => VLASTNOST[t]), '34 typů a každý má nezávislou kontrolu (' + K.TYPY.join(', ') + ')');
+ok(K.TYPY.length === 40 && K.TYPY.every(t => VLASTNOST[t]), '40 typů a každý má nezávislou kontrolu (' + K.TYPY.join(', ') + ')');
 
 const N = 300;
 for (const typ of K.TYPY) {
@@ -366,10 +444,12 @@ for (const typ of K.TYPY) {
   ok(prvni.size >= N * 0.95, typ + ': čísla se losují (' + prvni.size + ' různých zadání z ' + N + ')');
 }
 
-// střídání typů: nova() bez typu nedá dvakrát po sobě týž a projde všechny
+/* střídání typů: nova() bez typu nedá dvakrát po sobě týž a projde všechny.
+   Počet losování roste s počtem typů: pevných 300 stačilo na 34 typů, se 40 už
+   jeden typ v seedovaném běhu nepadl (šance, že typ chybí, je (1 − 1/(n−1))^N). */
 let minuly = null, dvakrat = 0, prazdne = 0;
 const videne = new Set();
-for (let i = 0; i < 300; i++) {
+for (let i = 0; i < K.TYPY.length * 20; i++) {
   const u = K.nova();
   if (!u) { prazdne++; minuly = null; continue; }
   if (u.typ === minuly) dvakrat++;
