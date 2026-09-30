@@ -33,6 +33,10 @@
     // červené, protože jeho obrys je po přebarvení červený) a plné sloupce,
     // které na bílé obstojí a zůstávají (kontrast 5,6 : 1 a 4,7 : 1)
     ['#3a2a52', '#f7e3e0'], ['#1b6f8f', '#1b6f8f'], ['#2a7aa8', '#2a7aa8'],
+    // světlá pole čtvercové sítě (tmavá jsou #1b6f8f). Musí být světlejší než tmavá
+    // v OBOU motivech — žádná barva ze seznamu to nesplňuje, #4cc9f0 by na bílé
+    // ztmavla na #1a73c8 a s #1b6f8f by splynula.
+    ['#a8c8e0', '#d6e4f0'],
     // 🔴 popisky pod sloupci. Světle modrý text má na bílé kontrast 1,3 : 1,
     // tedy byl prakticky NEVIDITELNÝ — musí zčernat jako ostatní text.
     ['#cfe8ff', '#1a1a2e'],

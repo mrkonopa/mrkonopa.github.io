@@ -320,6 +320,7 @@
     const cervenych = N - 2 * k, m = x => cz(x / 100);
     return {
       no: 8, points: 4, title: 'Záhon', okruh: 'geometrie',
+      svg: svgZahon(q, dCm),
       intro: `Záhon v parku má tvar čtyřúhelníku, jehož tři strany jsou stejně dlouhé. Každá z těchto tří stran je ${slovy} kratší, než je čtvrtá strana čtyřúhelníku. Po obvodu záhonu je ve stejných rozestupech vysázeno celkem ${N} rostlin, z nichž je po jedné rostlině i v každém rohu záhonu. Rozestupy mezi rostlinami měří ${dCm} cm.`,
       parts: [
         { key: '8.1', points: 2, prompt: `Vypočítejte v metrech obvod záhonu.`, ans: String(obvodCm / 100),
@@ -349,6 +350,9 @@
     const V1 = a * b * c, V2 = a2 * b * c, p3 = ri(0, 1) === 1, vTvr = p3 ? V2 - V1 : V2;
     return {
       no: 11, points: 4, stupnice: STUPNICE11, title: 'Kvádry', kind: 'tfgrid', okruh: 'telesa',
+      // Sdílený kvádr má pevné proporce (šířka > výška > hloubka); hrany se mu proto
+      // dávají seřazené, jinak by „5 cm" ve výšce vypadalo kratší než „2 cm" dole.
+      svg: svgCuboid(...[a, b, c].sort((x, y) => y - x).map(x => x + ' cm')),
       intro: `Kvádr má hrany délek ${a} cm, ${b} cm a ${c} cm. Rozhodněte o každém z tvrzení (11.1–11.3), zda je pravdivé (A), či nikoli (N).`,
       statements: [
         tvrzeni(`Součet délek všech hran kvádru je ${hTvr} cm.`, p1,
@@ -706,6 +710,7 @@
     const skup = cand[ri(0, cand.length - 1)];
     return {
       no: 8, points: 4, title: 'Plot kolem pozemku', okruh: 'geometrie',
+      svg: svgPlot(a, b, dCm),
       intro: `Obdélníkový pozemek má rozměry ${a} m × ${b} m. Po celém obvodu jsou ve stejných rozestupech ${dCm} cm sloupky plotu. Celkem je jich ${pocet}.`,
       parts: [
         { key: '8.1', points: 2, prompt: `Vypočítejte v metrech obvod pozemku.`, ans: String(obvod),
@@ -746,6 +751,7 @@
     const [slovo, kolik] = pick([['osmkrát', 8], ['osmkrát', 8], ['dvakrát', 2], ['čtyřikrát', 4]]), p3 = kolik === 8;
     return {
       no: 11, points: 4, stupnice: STUPNICE11, title: 'Krychle', kind: 'tfgrid', okruh: 'telesa',
+      svg: svgKrychle(a + ' cm'),
       intro: `Krychle má hranu délky ${a} cm. Rozhodněte o každém z tvrzení (11.1–11.3), zda je pravdivé (A), či nikoli (N).`,
       statements: [
         tvrzeni(`Součet délek všech hran krychle je ${hTvr} cm.`, p1,
@@ -1856,7 +1862,7 @@
     // chyby: jen plášť, plášť a JEDNA podstava, plášť bez obou podstav krát dvě
     const sh = volbyMC(povrch, [(k + 1) * Sp, k * Sp, 2 * k * Sp], Sp, 'jiný povrch', v => `${tis(v)} cm²`);
     return {
-      no: 12, points: 2, title: 'Povrch válce', kind: 'mc', okruh: 'telesa',
+      no: 13, points: 2, title: 'Povrch válce', kind: 'mc', okruh: 'telesa',
       svg: svgCylinder(r, cz(k * r / 2)),
       intro: `Obsah pláště rotačního válce je ${k}krát větší než obsah jedné podstavy tohoto válce. Poloměr podstavy válce je ${r} cm.`,
       prompt: `Jaký je povrch válce? Pro výpočet použijte π ≐ 3,14.`,
@@ -2629,6 +2635,7 @@
     const v = k === 2 ? pick([12, 16, 20, 24, 28]) : pick([18, 27, 36]), h = v / (k * k);
     return {
       no: 6, points: 2, title: 'Přelévání vody', okruh: 'telesa',
+      svg: svgNadoby(d1, d2, v),
       intro: `Dvě válcové nádoby A a B mají stejnou výšku v = ${v} cm. Nádoba A má průměr podstavy ${d1} cm, nádoba B má průměr podstavy ${d2} cm. Nádoba A je naplněna až po okraj vodou, nádoba B je prázdná.`,
       parts: [
         { key: '6.1', points: 1, prompt: `Do jaké výšky (v cm) bude sahat voda v nádobě B, když do ní přelijeme všechnu vodu z nádoby A?`,
@@ -2654,6 +2661,125 @@
       + `<polygon points="${L},${B} ${r1(L + xx)},${T} ${r1(R - xx)},${T} ${R},${B}" fill="#12233a" stroke="${CARA}" stroke-width="2.5"/>`
       + napis((L + R) / 2, B + 20, `${a} cm`, JMENO) + napis((L + R) / 2, T - 8, `${c} cm`, JMENO)
       + `</svg>`;
+  }
+
+  /* ── Nákresy, které měla předloha a varianta ne (nadpis „VÝCHOZÍ TEXT
+     A OBRÁZEK K ÚLOZE N" v ostrém testu). Kreslí se jen to, co je v předloze:
+     tvar, rozestupy, kóty. Nic, co by šlo vyčíst místo počítání. ── */
+  const tecka = (x, y) => `<circle cx="${r1(x)}" cy="${r1(y)}" r="3.4" fill="${JMENO}"/>`;
+  // Rostliny/sloupky: v každém rohu jedna a pár vedle levého dolního rohu —
+  // všech 60–130 by se slilo a sváděly by k počítání teček místo počítání.
+  function teckyObvod(v, zdola, zboku) {
+    const [bl, br, , tl] = v, krok = 9;
+    const po = (a, b, k) => { const d = Math.hypot(b[0] - a[0], b[1] - a[1]); return [a[0] + (b[0] - a[0]) * k * krok / d, a[1] + (b[1] - a[1]) * k * krok / d]; };
+    let s = v.map(p => tecka(p[0], p[1])).join('');
+    for (let k = 1; k <= zdola; k++) s += tecka(...po(bl, br, k));
+    for (let k = 1; k <= zboku; k++) s += tecka(...po(bl, tl, k));
+    return s;
+  }
+  // Výřez s rozestupem: tři rostliny a kóty mezi nimi (jako v M9A/2025 ú. 8).
+  function rozestup(x0, y, dCm) {
+    const kx = [x0, x0 + 50, x0 + 100];
+    return kx.map(x => tecka(x, y)).join('')
+      + napis(x0 - 8, y + 4, '…', VRCHOL, 'end') + napis(x0 + 108, y + 4, '…', VRCHOL, 'start')
+      + [0, 1].map(i => `<path d="M ${kx[i]} ${y + 12} v 6 M ${kx[i + 1]} ${y + 12} v 6 M ${kx[i]} ${y + 15} H ${kx[i + 1]}" stroke="${ZADANY}" stroke-width="1.2" fill="none"/>`
+        + napis((kx[i] + kx[i + 1]) / 2, y + 32, `${dCm} cm`, JMENO)).join('');
+  }
+  // Záhon (M9A/2025 ú. 8): tři stejné strany a čtvrtá o q-tinu delší → rovnoramenný lichoběžník.
+  function svgZahon(q, dCm) {
+    const Lb = 130, s = Lb * (q - 1) / q, o = (Lb - s) / 2, h = Math.sqrt(s * s - o * o), x0 = 14, yb = 18 + h;
+    const v = [[x0, yb], [x0 + Lb, yb], [x0 + Lb - o, yb - h], [x0 + o, yb - h]];
+    return `<svg viewBox="0 0 314 ${r1(yb + 16)}">`
+      + `<polygon points="${v.map(p => p.map(r1).join(',')).join(' ')}" fill="#12233a" stroke="${CARA}" stroke-width="2.5"/>`
+      + teckyObvod(v, 3, 2) + rozestup(190, r1(yb / 2 - 8), dCm) + `</svg>`;
+  }
+  // Plot kolem obdélníkového pozemku: kóty stran, sloupky v rozích, rozestup ve výřezu.
+  function svgPlot(a, b, dCm) {
+    const w = 118, h = r1(w * a / b), x0 = 52, y0 = 14;
+    const v = [[x0, y0 + h], [x0 + w, y0 + h], [x0 + w, y0], [x0, y0]];
+    return `<svg viewBox="0 0 316 ${r1(y0 + h + 30)}">`
+      + `<rect x="${x0}" y="${y0}" width="${w}" height="${h}" fill="#12233a" stroke="${CARA}" stroke-width="2.5"/>`
+      + teckyObvod(v, 3, 2)
+      + napis(x0 + w / 2, y0 + h + 22, `${b} m`, JMENO) + napis(x0 - 10, y0 + h / 2 + 5, `${a} m`, JMENO, 'end')
+      + rozestup(196, r1(y0 + h / 2 - 12), dCm) + `</svg>`;
+  }
+  // Dva pozemky (M9A/2023 ú. 8): čtverec a obdélník, v obdélníku čárkovaně čtverec
+  // se společným levým horním rohem — obdélník je o d delší a o p % nižší.
+  function svgPozemky(a, w, h) {
+    const k = 110 / Math.max(a, w), sa = r1(a * k), sw = r1(w * k), sh = r1(h * k), y0 = 14, x2 = 14 + sa + 42;
+    return `<svg viewBox="0 0 ${r1(x2 + Math.max(sa, sw) + 14)} ${r1(y0 + Math.max(sa, sh) + 14)}">`
+      + `<rect x="14" y="${y0}" width="${sa}" height="${sa}" fill="#12233a" stroke="${CARA}" stroke-width="2.5"/>`
+      + `<rect x="${r1(x2)}" y="${y0}" width="${sw}" height="${sh}" fill="#12233a" stroke="${CARA}" stroke-width="2.5"/>`
+      + `<rect x="${r1(x2)}" y="${y0}" width="${sa}" height="${sa}" fill="none" stroke="#8a9bc4" stroke-width="1.5" stroke-dasharray="5 4"/>`
+      + `</svg>`;
+  }
+  // Válec v kosém pohledu: plášť, zadní polovina dolní podstavy čárkovaně (skrytá hrana).
+  function valec(cx, yTop, yBot, rx, ry) {
+    return `<path d="M ${cx - rx} ${yTop} L ${cx - rx} ${yBot} A ${rx} ${ry} 0 0 0 ${cx + rx} ${yBot} L ${cx + rx} ${yTop}" fill="#12233a" stroke="${CARA}" stroke-width="2.5"/>`
+      + `<path d="M ${cx - rx} ${yBot} A ${rx} ${ry} 0 0 1 ${cx + rx} ${yBot}" fill="none" stroke="${CARA}" stroke-width="1.5" stroke-dasharray="5 4"/>`
+      + `<ellipse cx="${cx}" cy="${yTop}" rx="${rx}" ry="${ry}" fill="#1b2742" stroke="${CARA}" stroke-width="2.5"/>`;
+  }
+  // Přelévání vody (M9C/2024 ú. 2): nádoby A a B stejně vysoké, B má k-krát větší průměr.
+  function svgNadoby(d1, d2, v) {
+    // Kóta výšky stojí těsně u A a popisek za ní (≈ 40 px), teprve pak začíná B.
+    const rB = 45, rA = r1(rB * d1 / d2), yT = 26, yB = 126, xA = 24 + rA, xK = xA + rA + 14, xB = xK + 54 + rB;
+    const kota = (x1, x2, y, t) => `<path d="M ${x1} ${y - 3} v 6 M ${x2} ${y - 3} v 6 M ${x1} ${y} H ${x2}" stroke="${ZADANY}" stroke-width="1.2" fill="none"/>` + napis((x1 + x2) / 2, y + 17, t, JMENO);
+    return `<svg viewBox="0 0 ${r1(xB + rB + 14)} 176">`
+      + valec(xA, yT, yB, rA, r1(rA * 0.2)) + valec(xB, yT, yB, rB, 9)
+      + napis(xA, 82, 'A', VRCHOL) + napis(xB, 82, 'B', VRCHOL)
+      + `<path d="M ${xK - 3} ${yT} h 6 M ${xK - 3} ${yB} h 6 M ${xK} ${yT} V ${yB}" stroke="${ZADANY}" stroke-width="1.2" fill="none"/>`
+      + napis(xK + 7, 80, `${v} cm`, JMENO, 'start')
+      + kota(xA - rA, xA + rA, yB + 20, `${d1} cm`) + kota(xB - rB, xB + rB, yB + 20, `${d2} cm`) + `</svg>`;
+  }
+  // Dort ze dvou forem (M9B/2025 ú. 14): dva stejně vysoké válce na sobě, horní má 3/4 poloměru.
+  function svgDort() {
+    const cx = 110;
+    return `<svg viewBox="0 0 220 142">` + valec(cx, 84, 122, 80, 15) + valec(cx, 44, 84, 60, 11) + `</svg>`;
+  }
+  // Krychle: tři viditelné stěny, kóta u přední dolní hrany.
+  function svgKrychle(t) {
+    const x = 44, y = 128, s = 78, d = 30, dd = 24;
+    return `<svg viewBox="0 0 196 152">`
+      + `<polygon points="${x},${y - s} ${x + d},${y - s - dd} ${x + s + d},${y - s - dd} ${x + s},${y - s}" fill="#16203a" stroke="${CARA}" stroke-width="2"/>`
+      + `<polygon points="${x + s},${y} ${x + s + d},${y - dd} ${x + s + d},${y - s - dd} ${x + s},${y - s}" fill="#101a30" stroke="${CARA}" stroke-width="2"/>`
+      + `<rect x="${x}" y="${y - s}" width="${s}" height="${s}" fill="#1b2742" stroke="${CARA}" stroke-width="2.5"/>`
+      + napis(x + s / 2, y + 18, t, JMENO) + `</svg>`;
+  }
+  // Vybarvování sítě (M9B/2023 ú. 16): první tři obrazce. Pole se NEKRESLÍ ručně,
+  // ale počítají pravidlem ze zadání (přibudou prázdná pole, která mají
+  // s obrazcem společné jen vrcholy) — obrázek tak nemůže zadání odporovat.
+  function obrazceSite(kolik) {
+    const pole = new Map([['0,0', 1]]), vysl = [];
+    for (let n = 1; n <= kolik; n++) {
+      if (n > 1) {
+        const nova = [];
+        for (const k of pole.keys()) {
+          const [x, y] = k.split(',').map(Number);
+          for (const [dx, dy] of [[1, 1], [1, -1], [-1, 1], [-1, -1]]) {
+            const c = `${x + dx},${y + dy}`;
+            if (pole.has(c)) continue;
+            const hrana = [[1, 0], [-1, 0], [0, 1], [0, -1]].some(([ex, ey]) => pole.has(`${x + dx + ex},${y + dy + ey}`));
+            if (!hrana) nova.push(c);
+          }
+        }
+        for (const c of nova) pole.set(c, n);
+      }
+      vysl.push(new Map(pole));
+    }
+    return vysl;
+  }
+  function svgSit() {
+    const c = 10, n = 7, g = n * c, mez = 22, x0 = 10, y0 = 8;
+    return `<svg viewBox="0 0 ${x0 + 3 * g + 2 * mez + 30} ${y0 + g + 26}">` + obrazceSite(3).map((pole, i) => {
+      const gx = x0 + i * (g + mez);
+      let s = '';
+      for (const [k, kdy] of pole) {
+        const [x, y] = k.split(',').map(Number);
+        s += `<rect x="${gx + (x + 3) * c}" y="${y0 + (y + 3) * c}" width="${c}" height="${c}" fill="${kdy % 2 ? '#a8c8e0' : '#1b6f8f'}" stroke="#8a9bc4" stroke-width="1"/>`;
+      }
+      for (let j = 0; j <= n; j++) s += `<path d="M ${gx + j * c} ${y0} V ${y0 + g} M ${gx} ${y0 + j * c} H ${gx + g}" stroke="#2a3a5e" stroke-width="0.8"/>`;
+      return s + napis(gx + g / 2, y0 + g + 18, `${i + 1}. obrazec`, VRCHOL);
+    }).join('') + napis(x0 + 3 * g + 2 * mez + 8, y0 + g / 2 + 4, '…', VRCHOL) + `</svg>`;
   }
 
   function gen8d() {
@@ -2717,6 +2843,7 @@
       : `${cz(zbyva)}a = ${2 * d}, tedy a = ${2 * d} : ${cz(zbyva)} = ${a} m.`;
     return {
       no: 8, points: 4, title: 'Dva pozemky', okruh: 'geometrie',
+      svg: svgPozemky(a, dl, kr),
       intro: `Čtvercový pozemek má stejný obvod jako obdélníkový pozemek. Obdélníkový pozemek má jednu stranu o ${p} % kratší než čtvercový pozemek a druhou stranu o ${d} m delší než čtvercový pozemek. Délku strany čtvercového pozemku označíme a.`,
       parts: [
         { key: '8.1', points: 2, prompt: `Vypočítejte v metrech délku a strany čtvercového pozemku.`, ans: String(a),
@@ -3001,6 +3128,7 @@
     const S = svetla(m), T = tmava(m);
     return {
       no: 16, points: 4, title: 'Vybarvování sítě', okruh: 'geometrie',
+      svg: svgSit(),
       intro: `Vybarvováním některých prázdných polí čtvercové sítě postupně vytváříme obrazce. Prvním obrazcem je jedno světle vybarvené pole čtvercové sítě. Každý další obrazec vytvoříme z předchozího obrazce tak, že vybarvíme všechna prázdná pole, která mají s předchozím obrazcem společné pouze vrcholy. Tato nově vybarvená pole jsou u sudých obrazců tmavá a u lichých obrazců světlá. Druhý obrazec jsme vytvořili z prvního obrazce vybarvením 4 dalších polí tmavou barvou. Třetí obrazec má celkem 13 polí (9 světlých a 4 tmavé) a vytvořili jsme jej z druhého obrazce vybarvením 8 dalších polí světlou barvou.`,
       parts: [
         { key: '16.1', points: 1, prompt: `Určete, vybarvením kolika dalších polí jsme z ${n}. obrazce vytvořili ${n + 1}. obrazec.`, ans: String(4 * n),
@@ -3561,7 +3689,7 @@
     const [n, slovy] = pick([[4, 'čtyřmi'], [5, 'pěti']]), t = pick([1, 2, 3]), a = n * t, W = 6 * (n * n - n) * t * t;
     const sh = volbyMC(a, [], n === 5 ? 5 : 4, 'jiná délka', x => `${x} cm`);
     return {
-      no: 12, points: 2, title: 'Polepená krychle', kind: 'mc', okruh: 'telesa',
+      no: 13, points: 2, title: 'Polepená krychle', kind: 'mc', okruh: 'telesa',
       svg: svgPolepenaKrychle(n),
       intro: `Na každé stěně krychle je vždy jedna úhlopříčka celá přelepena ${slovy} shodnými šedými čtverci tak, že sousední čtverce mají právě jeden společný vrchol (viz obrázek). Nepolepená část každé stěny je bílá. Součet obsahů všech bílých nepolepených ploch na povrchu krychle je ${tis(W)} cm².`,
       prompt: `Jakou délku má hrana krychle?`,
@@ -3615,6 +3743,7 @@
     const sh = volbyMC(V, [h * (r1 * r1 + (r1 / 4) * (r1 / 4)), 2 * h * r1 * r1, h * (r1 * r1 - r2 * r2)], 10 * h, 'jiný objem', x => `${tis(x)}π cm³`);
     return {
       no: 12, points: 2, title: 'Dort ze dvou forem', kind: 'mc', okruh: 'telesa',
+      svg: svgDort(),
       intro: `Na výrobu dortu byly použity dvě různé formy tvaru rotačního válce. Poloměr podstavy první formy je ${r1} cm a poloměr podstavy druhé formy je o čtvrtinu menší. Výška obou forem je stejná, a to ${h} cm. Dvoupatrový dort je složen z většího a menšího korpusu. Každý korpus má stejný objem jako forma, v níž byl upečen.`,
       prompt: `Jaký je celkový objem obou korpusů dvoupatrového dortu?`,
       options: sh.labels, ans: sh.correctLetter,
@@ -3633,7 +3762,7 @@
     // chyby: ještě jednou děleno dvěma, zapomenutá polovina v obsahu, délka hranolu = rameno
     const sh = volbyMC(V, [V / 2, z * v * v, S * ram], 10, 'jiný objem', x => `${tis(x)} cm³`);
     return {
-      no: 12, points: 2, title: 'Trojboký hranol', kind: 'mc', okruh: 'telesa',
+      no: 13, points: 2, title: 'Trojboký hranol', kind: 'mc', okruh: 'telesa',
       svg: svgLeziciHranol(z, v),
       intro: `Trojboký hranol je položen na jedné boční stěně. Podstavu hranolu tvoří rovnoramenný trojúhelník, který má základnu délky ${z} cm a obsah ${S} cm². Velikost v výšky na základnu tohoto trojúhelníku je stejná jako délka nejkratší hrany hranolu.`,
       prompt: `Jaký je objem trojbokého hranolu?`,
@@ -4244,7 +4373,7 @@
     const z = 2 * pz, o = z + 2 * r, S = z * v / 2;
     const sh = volbyMC(S, [z * r / 2, z * v, z * r], 4, 'jiný obsah', x => `${tis(x)} cm²`);
     return {
-      no: 14, points: 2, title: 'Rovnoramenný trojúhelník', kind: 'mc', okruh: 'geometrie',
+      no: 13, points: 2, title: 'Rovnoramenný trojúhelník', kind: 'mc', okruh: 'geometrie',
       svg: svgTriangle('rovnoram', { v: ['K', 'L', 'M'], extra: `<text x="125" y="157" fill="#39ff9e" font-size="13" font-family="monospace" text-anchor="middle">${z} cm</text>` }),
       intro: `Rovnoramenný trojúhelník KLM se základnou LM délky ${z} cm má obvod ${o} cm.`,
       prompt: `Jaký je obsah trojúhelníku KLM?`,
@@ -4679,20 +4808,35 @@
      2 podúlohy 2 b. 1 podúloha 0 b."). Úloha 9 má proto 3 body, aby test měl dál 50. */
   const STUPNICE11 = Object.freeze([0, 0, 2, 4]);
 
+  /* Pozice 13: tělesa a rovinné útvary s obrázkem, jak je má ostrá úloha 13
+     (Trojboký hranol M9B/2023, Polepená krychle M9C/2025, Povrch válce M9A/2023,
+     Rovnoramenný trojúhelník M9A/2026 — dřív ležely na pozicích 12 a 14), a slovní
+     úlohy bez obrázku. Obrázek má ostrá úloha 13 v 80 % testů 2015–2026, v letech
+     2023–2026 v 9 ze 16. Při rovnoměrném losu by jich bylo 4 ze 13, proto mají
+     úlohy s obrázkem trojnásobnou váhu: 12 ze 21 losů = 57 %.
+     Váha je ZVLÁŠŤ, ne opakováním v SLOTS: seznam variant zůstává výčtem funkcí,
+     ze kterého tests/prijimacky-variace.test.cjs počítá variabilitu pozic. */
+  const VAHA = new Map([[gen12e, 3], [gen12g, 3], [gen12k, 3], [gen14h, 3]]);
+  // Stejně jako pick() losuje přes ri(), takže testy, které ri() řídí, fungují dál.
+  function losuj(varianty) {
+    const idx = [];
+    varianty.forEach((f, i) => { for (let k = 0; k < (VAHA.get(f) || 1); k++) idx.push(i); });
+    return varianty[idx[ri(0, idx.length - 1)]];
+  }
   const SLOTS = [
     [gen1, gen1b, gen1c, gen1d, gen1e, gen1f, gen1g, gen1h, gen1i, gen1j, gen1k], [gen2, gen2b, gen2c, gen2d, gen2e, gen2f], [gen3, gen3b, gen3c, gen3d, gen3e, gen3f], [gen4, gen4d, gen4e, gen4f, gen4g], [gen5, gen5b, gen5d, gen5e, gen5f, gen5g, gen5h, gen5i], [gen6, gen6b, gen6c, gen6d, gen6e, gen6f, gen6g, gen6h], [gen7d, gen7e, gen7f, gen7g, gen7h], [gen8, gen8b, gen8d, gen8e, gen8f, gen8g],
-    [gen9c, gen9d, gen9e, gen9f, gen9g], [gen10b, gen10d, gen10e, gen10f, gen10g], [gen11, gen11b, gen11d, gen11e, gen11f, gen11g, gen11h, gen11i], [gen12, gen12c, gen12e, gen12f, gen12g, gen12h, gen12i, gen12j, gen12k, gen12l, gen12m], [gen13, gen13b, gen13d, gen13e, gen13f, gen13g, gen13h, gen13i, gen13j], [gen14, gen14b, gen14e, gen14h, gen14i, gen14f, gen14g], [gen15d, gen15e, gen15f, gen15g, gen15h, gen15i, gen15j], [gen16d, gen16e, gen16f, gen16g, gen16h, gen16i, gen16j, gen16k, gen16l, gen16m]
+    [gen9c, gen9d, gen9e, gen9f, gen9g], [gen10b, gen10d, gen10e, gen10f, gen10g], [gen11, gen11b, gen11d, gen11e, gen11f, gen11g, gen11h, gen11i], [gen12, gen12c, gen12f, gen12h, gen12i, gen12j, gen12l, gen12m], [gen12e, gen12g, gen12k, gen14h, gen13, gen13b, gen13d, gen13e, gen13f, gen13g, gen13h, gen13i, gen13j], [gen14, gen14b, gen14e, gen14i, gen14f, gen14g], [gen15d, gen15e, gen15f, gen15g, gen15h, gen15i, gen15j], [gen16d, gen16e, gen16f, gen16g, gen16h, gen16i, gen16j, gen16k, gen16l, gen16m]
   ];
 
   window.RPG_CERMAT_9 = {
     timeLimitSec: 70 * 60,
     maxScore: 50,
     generate: function () {
-      return SLOTS.map(variants => pick(variants)());
+      return SLOTS.map(variants => losuj(variants)());
     },
     // Vystaveno pro přijímačkový hub (procvičování po tématech): 16 pozic testu,
     // každá = pole variant. genSlot(i) vygeneruje úlohu z pozice i (0-indexováno).
     slotCount: function () { return SLOTS.length; },
-    genSlot: function (i) { return pick(SLOTS[i])(); }
+    genSlot: function (i) { return losuj(SLOTS[i])(); }
   };
 })();

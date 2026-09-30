@@ -718,7 +718,9 @@ const V1214 = {
 };
 const nerozp1214 = new Set(), spatne1214 = [], videno1214 = {};
 let jinySpravne = 0, krajSpravne = 0, mc1214 = 0;
-for (const i of [11, 12, 13]) for (let b = 0; b < 2500; b++) {
+// Pozice 13 dává slovním úlohám jen 3 ze 7 losů (POZICE13 v bance), proto se jí losuje
+// dvojnásobek — jinak by každá z devíti slovních variant prošla dopočtem jen ~120×.
+for (const i of [11, 12, 13]) for (let b = 0; b < (i === 12 ? 5000 : 2500); b++) {
   const t = C.genSlot(i), f = V1214[t.title];
   if (!f) { nerozp1214.add('pozice ' + (i + 1) + ': „' + t.title + '"'); continue; }
   videno1214[t.title] = (videno1214[t.title] || 0) + 1;
@@ -746,11 +748,12 @@ for (const i of [11, 12, 13]) for (let b = 0; b < 2500; b++) {
   else if ((kde[0] || kraje[0]) !== t.ans) spatne1214.push(t.title + ': spočteno ' + ceka + ' (volba ' + (kde[0] || kraje[0]) + '), banka tvrdí ' + t.ans + ' — ' + t.options.join(' | '));
   else if (kraje.length) krajSpravne++;
 }
-/* Naměřeno: 7 500 úloh, každá z 24 variant 270–430×, „jiný…" správně ~600×.
+/* Naměřeno (září 2026, 3 běhy): 10 000 úloh, každá z 27 variant 218–748×
+   (nejméně slovní úlohy na pozici 13, které mají 3 ze 7 losů).
    Podlahy chytají vymizení, ne kolísání. */
 ok(Object.keys(V1214).every(n => (videno1214[n] || 0) >= 150), 'pozice 12–14: všech ' + Object.keys(V1214).length + ' variant se v losu objevuje (podlaha 150×)',
   JSON.stringify(videno1214));
-ok(mc1214 === 7500, 'pozice 12–14: dopočítáno ' + mc1214 + ' úloh s volbami (čeká se 7 500)');
+ok(mc1214 === 10000, 'pozice 12–14: dopočítáno ' + mc1214 + ' úloh s volbami (čeká se 10 000)');
 /* „Jiný…" nebyl v 66 ostrých úlohách 12–14 s klíčem správně ani jednou, je to jen
    distraktor. Kdo má věřit svému výpočtu bez čísla v nabídce, dostane intervalové
    volby „méně než…/více než…" (má je 19 z těch 66 úloh). */

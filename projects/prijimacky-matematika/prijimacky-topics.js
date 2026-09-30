@@ -31,8 +31,10 @@
     // `okruh: 'slovni'`. Dřív nepatřila ŽÁDNÉMU okruhu, takže chyběla v procvičování i v diagnostice.
     // Pozice 6 (index 5) přidává „Bílý a šedý obdélník“, pozice 7 (index 6) „Krychli a hranol“ —
     // jako v ostrých testech 2026, kde se geometrie v rovině i tělesa na pozicích 6–8 střídají.
-    { id: 'geometrie', name: 'Geometrie v rovině', oblast: 'Geometrie', slots: [4, 5, 6, 7, 8, 9, 15] },
-    { id: 'telesa', name: 'Tělesa (objem a povrch)', oblast: 'Geometrie', slots: [5, 6, 10, 11] },
+    // Pozice 13 (index 12) nese od září 2026 i tělesa a trojúhelník z ostrých úloh 13
+    // (hranol, polepená krychle, válec, rovnoramenný trojúhelník) vedle slovních úloh.
+    { id: 'geometrie', name: 'Geometrie v rovině', oblast: 'Geometrie', slots: [4, 5, 6, 7, 8, 9, 12, 15] },
+    { id: 'telesa', name: 'Tělesa (objem a povrch)', oblast: 'Geometrie', slots: [5, 6, 10, 11, 12] },
     { id: 'data', name: 'Tabulky, data a statistika', oblast: 'Závislosti a data', slots: [13] },
   ];
 
