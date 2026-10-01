@@ -3092,8 +3092,10 @@ function trDraw(){
 
 function trRender(){
  const t=TR.task;
- document.getElementById('tr-prob').textContent=t.text;
  const probEl=document.getElementById('tr-prob');
+ // obrázek úlohy jako v boji — bez něj trénink ukazoval jen text, i u „Úhel na obrázku je…"
+ if(t.svg){probEl.innerHTML=`<div class="prob-svg">${t.svg}</div><div class="prob-txt"></div>`;probEl.querySelector('.prob-txt').textContent=t.text;}
+ else probEl.textContent=t.text;
  probEl.classList.remove('pop');void probEl.offsetWidth;probEl.classList.add('pop');
  document.getElementById('tr-fb').className='feedback';
  document.getElementById('tr-fb').textContent='';

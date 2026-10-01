@@ -11,6 +11,7 @@ global.cz = n => String(n).replace('.', ',');
 global.skl = (n, o, f, m) => n === 1 ? o : (n >= 2 && n <= 4 ? f : m);
 ['svgTriangle', 'svgLineGraph', 'svgCylinder', 'svgCone', 'svgSphere', 'svgSimilar', 'svgCuboid']
   .forEach(f => global[f] = () => '<svg></svg>');
+const { trojuhelniky } = require('./trojuhelniky.cjs');
 global.window = {};
 require('../projects/rpg-cermat-9.js');
 const C = global.window.RPG_CERMAT_9;
@@ -125,7 +126,8 @@ ok(bad.size === 0, `${RUNS} běhů bez strukturální chyby` + (bad.size ? ' —
      prošlo auditem, dokud si toho nikdo nevšiml při čtení. `(?![\p{L}\d])`
      s příznakem u je hranice slova pro češtinu. */
   const DECL = /\b(?:[5-9]|\d\d+)\s+(?:hodiny|minuty|koruny|metry|centimetry|kilometry|litry|kilogramy|dny|roky|žáci|body|stupně)(?![\p{L}\d])|\b[2-4]\s+(?:hodin|minut|korun|metrů|centimetrů|kilometrů|litrů|kilogramů|dnů|let|žáků|bodů|stupňů|kostek|konví|dílů|kusů)(?![\p{L}\d])/u;
-  const dot = new Set(), per = new Set(), dec = new Set();
+  const dot = new Set(), per = new Set(), dec = new Set(), troj = new Set();
+  let trojN = 0;
   for (let i = 0; i < 400; i++) for (let s = 0; s < 16; s++) {
     let t; try { t = C.genSlot(s); } catch (e) { continue; }
     /* Kroky postupu se spojují MEZEROU: `String(pole)` je spojí čárkou a z konce
@@ -143,11 +145,20 @@ ok(bad.size === 0, `${RUNS} běhů bez strukturální chyby` + (bad.size ? ' —
     if ((m = txt.match(DOT))) dot.add(kde + m[0]);
     if ((m = txt.match(PERIOD)) && !/≈/.test(txt)) per.add(kde + m[0]);
     if ((m = txt.match(DECL))) dec.add(kde + m[0]);
+    /* Trojúhelník ze stran musí jít sestrojit — sdílené pravidlo s RPG
+       (tests/trojuhelniky.cjs). Posuzuje se jen ZADÁNÍ, ne postup. */
+    const zad = [t.intro, t.prompt, ...(t.parts || []).map(x => x.prompt), ...(t.statements || []).map(x => x.text)]
+      .filter(x => typeof x === 'string').join(' ');
+    for (const tr of trojuhelniky(zad, t.ans)) { trojN++; if (!tr.ok) troj.add(kde + tr.strany.join(' / ')); }
   }
   const uk = s => [...s].slice(0, 5).join(' | ');
   ok(dot.size === 0, 'desetinná ČÁRKA místo tečky v textu' + (dot.size ? ' — ' + uk(dot) : ''));
   ok(per.size === 0, 'zaokrouhlená hodnota má ≈, ne useknuté cifry' + (per.size ? ' — ' + uk(per) : ''));
   ok(dec.size === 0, 'skloňování počitatelných jmen' + (dec.size ? ' — ' + uk(dec) : ''));
+  /* Naměřeno 1. 10. 2026: 130–147 posouzených na běh — rovnoramenné
+     se základnou a obvodem (pozice 9 a 13); tři volné strany žádná pozice
+     nezadává. Podlaha 80 chytí propad pokrytí, ne kolísání losu. */
+  ok(troj.size === 0 && trojN > 80, 'trojúhelníky ze zadání jdou sestrojit (' + trojN + ' posouzených)' + (troj.size ? ' — ' + uk(troj) : ''));
 }
 
 /* ── Kořeny rovnic musí vyjít PŘESNĚ ─────────────────────────────────────

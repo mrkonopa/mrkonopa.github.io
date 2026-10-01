@@ -67,6 +67,7 @@ const vZadani = (hodnota, text) => {
 };
 
 let obrazku = 0, chybGeneratoru = 0, kvadru = 0;
+const obrazkuRoc = {};
 const skupiny = {}, kvadrZle = [];
 for (const g of GRADES) {
   const html = fs.readFileSync(P('rpg-mat-' + g + '.html'), 'utf8');
@@ -86,7 +87,7 @@ for (const g of GRADES) {
       try { ulohy = gen() || []; } catch (e) { chybGeneratoru++; continue; }
       for (const t of ulohy) {
         if (!t || !t.svg) continue;
-        obrazku++;
+        obrazku++; obrazkuRoc[g] = (obrazkuRoc[g] || 0) + 1;
         const text = String(t.text || ''), klic = g + '/' + mi.id + ' ' + zdroj + ' | ' + text.replace(/\d+/g, '#').replace(/\n/g, ' ').slice(0, 70);
         const sk = skupiny[klic] = skupiny[klic] || { n: 0, prozradi: 0 };
         sk.n++;
@@ -105,8 +106,16 @@ for (const g of GRADES) {
 
 console.log('\n── Obrázky u úloh (3.–9. ročník) ──');
 ok(chybGeneratoru === 0, 'žádný generátor nespadl (' + chybGeneratoru + ')');
-// Naměřeno 12 700 obrázků při ITER=100; rozbité načtení kreseb dá desítky.
-ok(obrazku > 10000, 'prohlédnuto ' + obrazku + ' obrázků (podlaha 10 000)');
+// Naměřeno 16 500 obrázků při ITER=100 (dřív 12 700, +3 800 z obdélníků,
+// čtverců a trojúhelníků 1. stupně); rozbité načtení kreseb dá desítky.
+ok(obrazku > 15000, 'prohlédnuto ' + obrazku + ' obrázků (podlaha 15 000)');
+/* 1. stupeň zvlášť: v celkovém součtu by ztráta obrázků v jednom ročníku
+   zapadla. Počty jsou PŘESNĚ stabilní (každá šablona obdélníku, čtverce
+   a trojúhelníku obrázek vydá vždy): 3. roč. 2 000, 4. roč. 1 000,
+   5. roč. 1 100 při ITER=100. Dřív měl každý jen 100 (jediná šablona). */
+const ROC1 = { 3: 20, 4: 10, 5: 11 };
+const malo = Object.entries(ROC1).filter(([g, n]) => (obrazkuRoc[g] || 0) < n * ITER).map(([g, n]) => g + '. roč. ' + (obrazkuRoc[g] || 0) + ' < ' + n * ITER);
+ok(malo.length === 0, '1. stupeň: obdélníky, čtverce a trojúhelníky mají obrázek (' + [3, 4, 5].map(g => g + '. ' + (obrazkuRoc[g] || 0)).join(', ') + ')', malo.join(', '));
 const prozrazene = Object.entries(skupiny).filter(([, s]) => s.n >= 20 && s.prozradi / s.n > 0.40);
 ok(prozrazene.length === 0, 'žádný obrázek neprozradí výsledek, který v zadání není (práh 40 % losů skupiny)',
   prozrazene.map(([k, s]) => Math.round(100 * s.prozradi / s.n) + ' % ' + k).join(' | '));

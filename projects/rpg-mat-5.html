@@ -1709,7 +1709,11 @@ function trRender(){
  document.getElementById('tr-fb').className='feedback';
  document.getElementById('tr-next-btn').style.display='none';
  document.getElementById('tr-hint-btn').disabled=false;document.getElementById('tr-hint-btn').textContent='💡 NÁPOVĚDA';
- const prob=document.getElementById('tr-prob');prob.textContent=t.text;prob.classList.remove('pop');void prob.offsetWidth;prob.classList.add('pop');
+ const prob=document.getElementById('tr-prob');
+ // obrázek úlohy jako v boji — bez něj trénink ukazoval jen text (8. a 9. ročník ho měly vždy)
+ if(t.svg){prob.innerHTML=`<div class="prob-svg">${t.svg}</div><div class="prob-txt"></div>`;prob.querySelector('.prob-txt').textContent=t.text;}
+ else prob.textContent=t.text;
+ prob.classList.remove('pop');void prob.offsetWidth;prob.classList.add('pop');
  if(t.mc||isYN(t)){
   document.getElementById('tr-input-row').style.display='none';
   if(isYN(t)){document.getElementById('tr-yn-row').style.display='flex';document.querySelectorAll('#tr-yn-row button').forEach(b=>b.disabled=false);document.getElementById('tr-mc').style.display='none';}

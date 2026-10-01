@@ -176,6 +176,9 @@ const zapornaHodnota = v => parseFloat(String(v).replace(',', '.').replace('−'
    (tests/rovnosti.cjs, původem prijimacky-dopocet). Spojovník, který je
    ve skutečnosti mínus („-6 + 4"), se před měřením převede na mínus. */
 const { rovnostiVKroku, spocti, minusZeSpojovniku: _minus, ZA_OPERATOREM } = require('./rovnosti.cjs');
+/* Trojúhelník ze tří stran musí jít sestrojit — sdílený rozpoznávač
+   (tests/trojuhelniky.cjs), používá ho i audit banky testu nanečisto. */
+const { trojuhelniky } = require('./trojuhelniky.cjs');
 const minusZeSpojovniku = h => _minus(czTxt(h));
 
 /* ── načtení úloh ze hry ───────────────────────────────────────────── */
@@ -219,12 +222,13 @@ function loadGrade(g) {
 
 /* ── běh ──────────────────────────────────────────────────────────── */
 console.log('\n── Audit kvality zadání (3.–9. ročník) ──\n');
-const found = { zap16: [], zavorka: [], rovnost: [], objekt: [], frac: [], decl: [], hintEmpty: [], hintDup: [], nan: [], typo: [], float: [], dotText: [], dotHint: [], periodic: [], hintMath: [], geoInv: [], geoNezn: [], geoFwd: [], pct: [], ctverec: [] };
+const found = { zap16: [], zavorka: [], rovnost: [], objekt: [], frac: [], decl: [], hintEmpty: [], hintDup: [], nan: [], typo: [], float: [], dotText: [], dotHint: [], periodic: [], hintMath: [], geoInv: [], geoNezn: [], geoFwd: [], pct: [], ctverec: [], troj: [] };
 let hintDop = 0;   // kolik nápověd se podařilo dopočítat (pojistka proti planému běhu)
 let geoDop = 0;    // kolik inverzních geometrických úloh se dopočítalo
 let geoFwdDop = 0, geoFwdNezn = 0;   // dopředná geometrie: dopočítané / neznámý tvar
 let pctDop = 0, pctNezn = 0;         // procenta/převody/průměr
 let generated = 0;
+let trojDop = 0;      // kolik trojúhelníků ze tří stran se posoudilo
 let rovnostiDop = 0;   // kolik rovností v nápovědách se vyhodnotilo
 
 for (const g of GRADES) {
@@ -541,6 +545,10 @@ for (const g of GRADES) {
         typography(text).forEach(x => push('typo', where, x + '  «' + text.slice(0, 60) + '»'));
         { const c = obdelnikJeCtverec(text);
           if (c) push('ctverec', where, c + '  «' + text.replace(/\n/g,' ').slice(0, 60) + '»'); }
+        for (const tr of trojuhelniky(text, t.ans)) {
+          trojDop++;
+          if (!tr.ok) push('troj', where, tr.strany.join(' / ') + '  «' + text.replace(/\n/g, ' ').slice(0, 60) + '»');
+        }
         if (hints.length && hints.some(h => !String(h || '').trim())) push('hintEmpty', where, text.slice(0, 60));
         if (hints.length >= 2 && String(hints[0]).trim() === String(hints[1]).trim()) push('hintDup', where, text.slice(0, 60));
         if (g <= 6 && !ZAPORNE_VYJIMKA.has(g + '/' + it.mid)) {
@@ -578,6 +586,8 @@ console.log('  vygenerováno a zkontrolováno ' + generated.toLocaleString('cs-C
 const report = (kind, label) => {
   const b = found[kind];
   ok(label + ' (' + b.length + ')', b.length === 0);
+  // WHERE=<pravidlo> vypíše nálezy po misích (ladění)
+  if (process.env.WHERE && kind === process.env.WHERE) [...new Set(b.map(x => x.where))].forEach(w => console.log('        ' + w + ' ' + b.filter(x => x.where === w).length + '× ' + b.filter(x => x.where === w).slice(0, 2).map(x => x.detail).join(' ‖ ')));
   b.slice(0, 8).forEach(x => console.log('        • ' + x.where + ': ' + x.detail));
   if (b.length > 8) console.log('        … a dalších ' + (b.length - 8));
 };
@@ -594,6 +604,15 @@ report('geoInv', 'inverzní geometrie: rozměr se dopočítá ze zadané veliči
 report('geoFwd', 'dopředná geometrie: veličina se dopočítá ze zadaných rozměrů');
 report('pct', 'procenta, převody jednotek a průměr se dopočítají');
 report('ctverec', 'žádný „obdélník" nemá obě strany stejné');
+report('troj', 'každý trojúhelník ze tří stran jde sestrojit (součet dvou kratších > nejdelší)');
+/* Pojistka proti planému běhu: rozpoznávač zná jen tvary zadání, které
+   v bankách skutečně jsou; po přeformulování by pravidlo tiše mlčelo.
+   Naměřeno 1. 10. 2026: 7 540 trojúhelníků při ITER 260 (75 400 při 2 600),
+   mezi běhy PŘESNĚ stabilní — proto těsná podlaha jako u inverzní geometrie:
+   přírůstek projde, pokles ne. Když legitimně přibude nebo ubude úloha
+   s trojúhelníkem, přeměř a číslo uprav. */
+ok('trojúhelníky se vůbec posuzovaly (' + trojDop + ')', trojDop >= 29 * ITER,
+   'posouzeno jen ' + trojDop + ' (čekáno ≥ ' + 29 * ITER + ') — ubylo pokrytí, nebo se změnil tvar zadání');
 report('geoNezn', 'inverzní geometrie: každý tvar zadání je rozpoznaný');
 /* Kanárek na TICHÝ pokles pokrytí. Pravidlo pozná jen zadání, která
    projdou filtrem (obsahují slovo Obvod/Obsah/Objem/Povrch a ptají se

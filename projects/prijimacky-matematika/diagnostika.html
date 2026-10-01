@@ -225,6 +225,8 @@ function dgEnd(){
     chyby.map(x=>{ const it=x.it; const st=PZ.solSteps(it.sol);
       return '<details class="cm-review-item bad"><summary>'+PZ.esc(x.okruh.name)+' · '+(it.uroven==='zaklad'?'základ':'úroveň testu')+'</summary><div class="cm-review-body">'+
         (it.intro?'<div class="cm-review-intro">'+PZ.esc(it.intro)+'</div>':'')+
+        // obrázek jako v rozboru testu — chybu si dítě prohlíží u téhož obrázku, u kterého ji udělalo
+        (it.svg?'<div class="cm-review-svg">'+PZ.themeSvg(it.svg)+'</div>':'')+
         '<div class="cm-review-q">'+PZ.esc(it.prompt)+'</div>'+
         '<div class="cm-review-given">Tvoje odpověď: '+PZ.esc(dgText(it, x.given))+'</div>'+
         '<div class="cm-review-correct">Správně: '+PZ.esc(dgText(it, it.ans))+'</div>'+

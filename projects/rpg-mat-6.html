@@ -1288,7 +1288,7 @@ const AREAS = [
  tc:6,
  tasks:()=>[
  (()=>{const a=ri(3,9);return{text:`Dva shodné čtverce. Jeden má stranu ${a} cm.\nJak dlouhá je strana druhého? (cm)`,ans:String(a),hints:[`Shodné útvary mají stejné rozměry.`,`Výsledek: ${a}`],skill:'geo'};})(),
- (()=>{const a=ri(4,9),b=ri(4,9),c=ri(4,9);return{text:`Trojúhelník KLM je shodný s ABC.\nABC má strany ${a}, ${b}, ${c} cm.\nJaký je obvod KLM? (cm)`,ans:String(a+b+c),hints:[`Shodné = stejné strany.`,`${a} + ${b} + ${c}`],skill:'geo'};})(),
+ (()=>{const a=ri(4,9),b=ri(4,9),c=ri(Math.max(4,Math.abs(a-b)+1),Math.min(9,a+b-1));return{text:`Trojúhelník KLM je shodný s ABC.\nABC má strany ${a}, ${b}, ${c} cm.\nJaký je obvod KLM? (cm)`,ans:String(a+b+c),hints:[`Shodné = stejné strany.`,`${a} + ${b} + ${c}`],skill:'geo'};})(),
  (()=>{const a=ri(3,8),b=ri(3,8);return{text:`Dva shodné obdélníky ${a} × ${b} cm.\nJaký obsah má jeden z nich? (cm²)`,ans:String(a*b),hints:[`S = a × b.`,`${a} × ${b}`],skill:'geo'};})(),
  (()=>{return{text:`Shodné útvary mají stejný obsah.\nMají i stejný obvod?\n(ANO / NE)`,ans:'ANO',hints:[`Shodné = úplně stejné ve všem.`,`Výsledek: ANO`],skill:'geo'};})(),
  (()=>{const a=ri(20,70);return{text:`Trojúhelník ABC je shodný s DEF.\nÚhel u vrcholu A má ${a}°.\nKolik stupňů má odpovídající úhel u vrcholu D?`,ans:String(a),hints:[`Shodné = stejné úhly.`,`Výsledek: ${a}`],skill:'geo'};})(),
@@ -1374,11 +1374,11 @@ const AREAS = [
  tc:6,
  tasks:()=>[
  (()=>{const a=ri(3,9);return{svg:svgTriangle('rovnostr'),text:`Rovnostranný trojúhelník má stranu ${a} cm.\nJaký je jeho obvod? (cm)`,ans:String(3*a),hints:[`Všechny tři strany jsou stejné.`,`3 × ${a}`],skill:'geo'};})(),
- (()=>{const r=ri(3,8),s=2*r;return{text:`Rameno rovnoramenného trojúhelníku je ${r} cm, základna ${s} cm.\nJaký je obvod? (cm)`,ans:String(r+r+s),hints:[`Dvě stejná ramena + základna.`,`${r} + ${r} + ${s}`],skill:'geo'};})(),
+ (()=>{const r=ri(3,8);let s=ri(2,2*r-2);if(s>=r)s++;/* základna kratší než obě ramena dohromady a jiná než rameno */return{text:`Rameno rovnoramenného trojúhelníku je ${r} cm, základna ${s} cm.\nJaký je obvod? (cm)`,ans:String(r+r+s),hints:[`Dvě stejná ramena + základna.`,`${r} + ${r} + ${s}`],skill:'geo'};})(),
  (()=>{return{text:`Kolik výšek má trojúhelník?`,ans:'3',hints:[`Z každého vrcholu jedna, kolmá na protější stranu.`,`Výsledek: 3`],skill:'craft'};})(),
  (()=>{return{text:`Kolik těžnic má trojúhelník?`,ans:'3',hints:[`Z každého vrcholu do středu protější strany.`,`Výsledek: 3`],skill:'craft'};})(),
  (()=>{const o=ri(12,30);const s=o/3;if(o%3!==0){return{text:`Rovnostranný trojúhelník má obvod 18 cm.\nJak dlouhá je jedna strana? (cm)`,ans:'6',hints:[`Obvod : 3.`,`18 : 3`],skill:'geo'};}return{text:`Rovnostranný trojúhelník má obvod ${o} cm.\nJak dlouhá je jedna strana? (cm)`,ans:String(s),hints:[`Obvod : 3.`,`${o} : 3`],skill:'geo'};})(),
- (()=>{const a=ri(4,9),b=ri(4,9),c=ri(4,9);return{text:`Trojúhelník má strany ${a}, ${b} a ${c} cm.\nJaký je jeho obvod? (cm)`,ans:String(a+b+c),hints:[`Obvod = součet všech stran.`,`${a} + ${b} + ${c}`],skill:'geo'};})()
+ (()=>{const a=ri(4,9),b=ri(4,9),c=ri(Math.max(4,Math.abs(a-b)+1),Math.min(9,a+b-1));return{text:`Trojúhelník má strany ${a}, ${b} a ${c} cm.\nJaký je jeho obvod? (cm)`,ans:String(a+b+c),hints:[`Obvod = součet všech stran.`,`${a} + ${b} + ${c}`],skill:'geo'};})()
  ]
  },
  {
@@ -3081,8 +3081,10 @@ function trDraw(){
 
 function trRender(){
  const t=TR.task;
- document.getElementById('tr-prob').textContent=t.text;
  const probEl=document.getElementById('tr-prob');
+ // obrázek úlohy jako v boji — bez něj trénink ukazoval jen text, i u „Úhel na obrázku je…"
+ if(t.svg){probEl.innerHTML=`<div class="prob-svg">${t.svg}</div><div class="prob-txt"></div>`;probEl.querySelector('.prob-txt').textContent=t.text;}
+ else probEl.textContent=t.text;
  probEl.classList.remove('pop');void probEl.offsetWidth;probEl.classList.add('pop');
  document.getElementById('tr-fb').className='feedback';
  document.getElementById('tr-fb').textContent='';

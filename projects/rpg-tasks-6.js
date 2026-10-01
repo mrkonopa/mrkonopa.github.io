@@ -40,7 +40,7 @@ function gen_1_1(){
     ()=>{const i=ri(115,985);return{text:`Zaokrouhli ${i} na desítky.`,ans:Math.round(i/10)*10,dis:(Math.floor(i/10)*10!==Math.round(i/10)*10?[String(Math.floor(i/10)*10)]:[]),h1:'Rozhoduje číslice jednotek.',h2:`≈ ${Math.round(i/10)*10}`};},
     ()=>{const j=ri(3,9),k=ri(3,9),l=ri(5,40);return{text:ask(`${j} × ${k} + ${l}`),ans:j*k+l,dis:[String(j*(k+l))],h1:'Nejdřív násobení, pak sčítání.',h2:`${j*k}+${l} = ${j*k+l}`};},
     ()=>{const a=ri(3,9),b=ri(3,9),c=ri(2,Math.min(12,a*b-1));/* záporná čísla se v 6. ročníku neučí: typická chyba „nejdřív odčítání“ jen když vyjde kladně */return{text:ask(`${a} × ${b} − ${c}`),ans:a*b-c,dis:(b>c?[String(a*(b-c))]:[]),h1:'Nejdřív násobení, pak odčítání.',h2:`${a*b}−${c} = ${a*b-c}`};},
-    ()=>{const a=ri(300,900),b=ri(50,250),c=ri(20,90);return{text:ask(`${a} − ${b} − ${c}`),ans:a-b-c,dis:[String(a-b+c)],h1:'Odečítej postupně zleva doprava.',h2:`${a}−${b} = ${a-b}, pak ${a-b}−${c} = ${a-b-c}`};},
+    ()=>{const b=ri(50,250),c=ri(20,90),a=ri(Math.max(300,b+c+1),900);/* menšenec větší než oba menšitele dohromady — jinak vyjde záporně */return{text:ask(`${a} − ${b} − ${c}`),ans:a-b-c,dis:[String(a-b+c)],h1:'Odečítej postupně zleva doprava.',h2:`${a}−${b} = ${a-b}, pak ${a-b}−${c} = ${a-b-c}`};},
     ()=>{const a=ri(120,600),b=ri(80,380);return{text:`Doplň: ${a} + ? = ${a+b}`,ans:b,dis:[String(a+b)],h1:`Odečti: ${a+b} − ${a}.`,h2:`= ${b}`};},
     ()=>{const b=ri(3,9),q=ri(11,40);return{text:`Doplň: ? × ${b} = ${b*q}`,ans:q,dis:[String(b*q)],h1:`Vyděl: ${b*q} : ${b}.`,h2:`= ${q}`};},
     ()=>{const s=new Set();while(s.size<3)s.add(ri(120,980));const arr=[...s];return{text:`Které z čísel ${arr[0]}, ${arr[1]}, ${arr[2]} je největší?`,ans:Math.max(...arr),mc_opts:arr,dis:[String(Math.min(...arr))],h1:'Porovnej stovky, pak nižší řády.',h2:`= ${Math.max(...arr)}`};},
@@ -523,7 +523,7 @@ function gen_7_1(){
 // 7-2 Vlastnosti trojúhelníku
 function gen_7_2(){
   const T=[
-    ()=>{const a=ri(5,12),b=ri(4,11),c=ri(3,a+b-1);return{text:`Trojúhelník má strany ${a}, ${b}, ${c} cm. Jaký je jeho obvod?`,ans:a+b+c,h1:'Obvod je součet všech tří stran.',h2:`${a}+${b}+${c} = ${a+b+c} cm`};},
+    ()=>{const a=ri(5,12),b=ri(4,11),c=ri(Math.max(3,Math.abs(a-b)+1),a+b-1);return{text:`Trojúhelník má strany ${a}, ${b}, ${c} cm. Jaký je jeho obvod?`,ans:a+b+c,h1:'Obvod je součet všech tří stran.',h2:`${a}+${b}+${c} = ${a+b+c} cm`};},
     ()=>{const d=ri(4,12),h=ri(3,10);return{text:`Trojúhelníkový solární panel má základnu ${d} dm a výšku ${h} dm. Jaký je jeho obsah? (dm²)`,ans:r1(d*h/2),h1:'S = (základna × výška) : 2.',h2:`(${d}·${h}) : 2 = ${r1(d*h/2)} dm²`};},
     ()=>{return{text:`Kolik výšek má trojúhelník?`,ans:3,h1:'Z každého vrcholu vede jedna výška.',h2:'3'};},
     ()=>{const e=ri(3,7),f=ri(3,7);const ok=ri(0,1)===0;const g=ok?ri(Math.max(2,Math.abs(e-f)+1),e+f-1):e+f+ri(1,3);const real=(e+f>g&&e+g>f&&f+g>e);return{text:`Mohou úsečky ${e} cm, ${f} cm a ${g} cm být stranami trojúhelníku?`,ans:real?'ANO':'NE',h1:`Součet dvou kratších musí být větší než nejdelší.`,h2:real?'ANO':'NE'};},
@@ -532,7 +532,7 @@ function gen_7_2(){
     ()=>{const o=ri(4,10)*3;return{text:`Rovnostranný trojúhelník má obvod ${o} cm. Jak dlouhá je jedna strana?`,ans:o/3,h1:'Všechny tři strany jsou stejné; strana = obvod : 3.',h2:`${o} : 3 = ${o/3} cm`};},
     ()=>{const zaklad=ri(2,9)*2,vyska=ri(3,10);const S=zaklad*vyska/2;return{text:`Trojúhelník má obsah ${S} cm² a základnu ${zaklad} cm. Jaká je jeho výška?`,ans:vyska,h1:'Ze vzorce S = (z·v):2 vyjádři výšku: v = 2·S : z.',h2:`2·${S} : ${zaklad} = ${vyska} cm`};},
     ()=>{const a=ri(4,9),b=ri(4,9),c=ri(Math.max(2,Math.abs(a-b)+1),a+b-1);const rovnoram=(a===b||b===c||a===c);return{text:`Má trojúhelník se stranami ${a}, ${b}, ${c} cm alespoň dvě stejně dlouhé strany (je rovnoramenný)?`,ans:rovnoram?'ANO':'NE',h1:'Porovnej délky stran, hledej dvojici stejných.',h2:rovnoram?'ANO':'NE'};},
-    ()=>{const a=ri(5,12),b=ri(4,11),c=ri(3,a+b-1);const nej=Math.max(a,b,c);return{text:`Trojúhelník má strany ${a}, ${b}, ${c} cm. Jak dlouhá je jeho NEJDELŠÍ strana?`,ans:nej,h1:'Porovnej tři délky.',h2:`= ${nej} cm`};},
+    ()=>{const a=ri(5,12),b=ri(4,11),c=ri(Math.max(3,Math.abs(a-b)+1),a+b-1);const nej=Math.max(a,b,c);return{text:`Trojúhelník má strany ${a}, ${b}, ${c} cm. Jak dlouhá je jeho NEJDELŠÍ strana?`,ans:nej,h1:'Porovnej tři délky.',h2:`= ${nej} cm`};},
   ];
   const tasks=[];
   for(let i=0;i<13;i++){const t=T[i%T.length]();tasks.push({text:t.text,ans:t.ans,mc_opts:t.mc_opts,hints:[t.h1,t.h2],skill:'geo'});}

@@ -94,12 +94,12 @@ function gen_1_3(){
   const g=ri(4,12), h=ri(3,10);
   tasks.push({text:`Pravoúhlý trojúhelník má odvěsny ${g} cm a ${h} cm. Jaký je jeho obsah?`,ans:r1(g*h/2),hints:['S = (a·v)/2, kde a a v jsou odvěsny (kolmice).','S = '+g+'·'+h+'/2 = '+r1(g*h/2)+' cm²'],skill:'geo'});
   // obvod trojúhelníku
-  const i=ri(5,12),j=ri(4,11),k=ri(3,i+j-1);
+  const i=ri(5,12),j=ri(4,11),k=ri(Math.max(3,Math.abs(i-j)+1),i+j-1); // třetí strana mezi rozdílem a součtem, jinak trojúhelník nejde sestrojit
   tasks.push({text:`Trojúhelník má strany ${i} cm, ${j} cm a ${k} cm. Jaký je jeho obvod?`,ans:i+j+k,hints:['Obvod trojúhelníku = součet všech tří stran.',`${i}+${j}+${k} = ${i+j+k} cm`],skill:'geo'});
   { const a=ri(4,14),b=ri(2,a-1); tasks.push({text:`Obdélník ${a} × ${b} cm. Jaký je obvod?`,ans:2*(a+b),hints:['o = 2·(a+b).',`= ${2*(a+b)} cm`],skill:'geo'}); }
   { const a=ri(3,12); tasks.push({text:`Čtverec se stranou ${a} cm. Jaký je obsah?`,ans:a*a,hints:['S = a².',`= ${a*a} cm²`],skill:'geo'}); }
   { const a=ri(4,12),h=ri(3,10); tasks.push({text:`Pravoúhlý trojúhelník s odvěsnami ${a} a ${h} cm. Obsah?`,ans:r1(a*h/2),hints:['S = (a·v)/2.',`= ${r1(a*h/2)} cm²`],skill:'geo'}); }
-  { const a=ri(5,12),b=ri(4,11),c=ri(3,a+b-1); tasks.push({text:`Trojúhelník ${a}, ${b}, ${c} cm. Obvod?`,ans:a+b+c,hints:['Součet všech tří stran.',`= ${a+b+c} cm`],skill:'geo'}); }
+  { const a=ri(5,12),b=ri(4,11),c=ri(Math.max(3,Math.abs(a-b)+1),a+b-1); tasks.push({text:`Trojúhelník ${a}, ${b}, ${c} cm. Obvod?`,ans:a+b+c,hints:['Součet všech tří stran.',`= ${a+b+c} cm`],skill:'geo'}); }
   // thematické
   { const a=ri(4,12),b=ri(3,a-1); /* horni mez a-1, ne a: jinak z obdelniku vyjde ctverec */ tasks.push({text:`Obětní oltář má obdélníkovou desku ${a} m × ${b} m. Kolik metrů zdobené šňůry potřebuješ na její obvod?`,ans:2*(a+b),hints:['o = 2·(a + b).',`2·(${a}+${b}) = ${2*(a+b)} m`],skill:'geo'}); }
   { const a=ri(3,10); tasks.push({text:`Podlaha svatyně je čtverec o straně ${a} m. Kolik ${skl(a*a,'dlaždice','dlaždice','dlaždic')} o rozměru 1 m² ji pokryje?`,ans:a*a,hints:['S = a² a jedna dlaždice = 1 m².',`${a}² = ${a*a} dlaždic`],skill:'geo'}); }
@@ -488,7 +488,8 @@ function gen_6_2(){
 
 // 6-3 Shodnost trojúhelníků (věty sss, sus, usu)
 function gen_6_3(){
-  const troj=()=>{const s=new Set();while(s.size<3)s.add(ri(3,12));return [...s].sort((x,y)=>x-y);};
+  // strany sestrojitelného trojúhelníku, i když se nejdelší prodlouží až o 3 (druhý trojúhelník v otázce „Jsou shodné?")
+  const troj=()=>{let s;do{const q=new Set();while(q.size<3)q.add(ri(3,12));s=[...q].sort((x,y)=>x-y);}while(s[0]+s[1]<=s[2]+3);return s;};
   const T=[
     ()=>{const s=troj();return{text:`Dva trojúhelníky mají strany ${s[0]}, ${s[1]}, ${s[2]} cm a ${s[0]}, ${s[1]}, ${s[2]} cm. Jsou shodné?`,ans:'ANO',h1:'Věta sss: shodují se ve všech třech stranách.',h2:'ANO'};},
     ()=>{const s=troj();return{text:`První trojúhelník má strany ${s[0]}, ${s[1]}, ${s[2]} cm, druhý ${s[0]}, ${s[1]}, ${s[2]+1} cm. Jsou shodné?`,ans:'NE',h1:'Věta sss selhává — jedna strana se liší.',h2:'NE'};},
@@ -506,7 +507,7 @@ function gen_6_3(){
   const tasks=[];
   for(let i=0;i<13;i++){const t=T[i%T.length]();tasks.push({text:t.text,ans:t.ans,mc_opts:t.mc_opts,hints:[t.h1,t.h2],skill:'geo'});}
   // thematické
-  { const s=(()=>{const set=new Set();while(set.size<3)set.add(ri(3,12));return[...set].sort((x,y)=>x-y);})(); tasks.push({text:`Dvě kamenné desky ve tvaru trojúhelníku mají strany ${s[0]}, ${s[1]}, ${s[2]} cm a ${s[0]}, ${s[1]}, ${s[2]} cm. Jsou shodné (věta sss)?`,ans:'ANO',hints:['Shodují se ve všech třech stranách.','ANO'],skill:'geo'}); }
+  { const s=troj(); tasks.push({text:`Dvě kamenné desky ve tvaru trojúhelníku mají strany ${s[0]}, ${s[1]}, ${s[2]} cm a ${s[0]}, ${s[1]}, ${s[2]} cm. Jsou shodné (věta sss)?`,ans:'ANO',hints:['Shodují se ve všech třech stranách.','ANO'],skill:'geo'}); }
   { const b=ri(40,80),c=ri(40,80),a=180-b-c; tasks.push({text:`Trojúhelníkový vlys nad branou chrámu má dva úhly ${b}° a ${c}°. Jaký je jeho třetí úhel (potřebný pro větu usu)?`,ans:a,hints:['Součet úhlů v trojúhelníku = 180°.',`180 − ${b} − ${c} = ${a}°`],skill:'geo'}); }
   return tasks;
 }
