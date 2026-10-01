@@ -633,11 +633,13 @@ function mcVolby2(t){
  const zap=mcZaporne(t),cele=Number.isInteger(cn)&&Math.abs(cn)<200;
  const hodnota=k=>cele?cn+k:Math.round((cn+k)*100)/100;
  const dolu=[],nahoru=[];
- if(zap&&cn!==0)(cn>0?dolu:nahoru).push(-cn);   // chyba ve znaménku
  shuffleArr([1,2,3,4,5]).forEach(k=>{const v=hodnota(-k);if(zap||v>=0)dolu.push(v);nahoru.push(hodnota(k));});
  for(let k=6;k<40;k++)nahoru.push(hodnota(k));
  const povinne=kur.map(mcCislo).filter(v=>!isNaN(v));
- const doplnek=mcRozloz(cn,povinne,dolu,nahoru).filter(v=>!povinne.includes(v)).map(czMC);
+ // Chyba ve znaménku je u úloh se zápornými čísly TA typická, proto je mezi
+ // volbami vždy (jako kurátorský distraktor); vyrovnání pořadí počítá s ní.
+ const znamenko=zap&&cn!==0&&kur.length<3&&!povinne.includes(-cn)?[-cn]:[];
+ const doplnek=mcRozloz(cn,[...povinne,...znamenko],dolu,nahoru).filter(v=>!povinne.includes(v)).map(czMC);
  return shuffleArr([...new Set([correct,...kur,...doplnek])].slice(0,4));
 }
 function todayStr(){return new Date().toISOString().slice(0,10);}
