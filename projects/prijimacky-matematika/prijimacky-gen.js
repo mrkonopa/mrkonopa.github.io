@@ -11,6 +11,15 @@
 (function () {
   'use strict';
   const cz = window.cz || (n => String(n).replace('.', ','));
+  // Záporné číslo: mínus, ne spojovník; za operátorem v závorce („: (−3)“).
+  const zn = n => (n < 0 ? '−' + (-n) : String(n));
+  const zav = n => (n < 0 ? '(−' + (-n) + ')' : String(n));
+  /* Obrázky kreslí sdílené ../rpg-svg-9.js — procvičování i diagnostika ho
+     načítají stejně jako test nanečisto, takže žák vidí všude tytéž kresby
+     (a 9. ročník RPG taky). Bez něj (Node testy bez kreseb) úloha obrázek
+     prostě nemá; pokrytí hlídá prijimacky-postupy.test.cjs se SKUTEČNÝMI
+     kresbami. */
+  const kresba = (jm, ...a) => { const f = globalThis[jm]; return typeof f === 'function' ? f(...a) : undefined; };
   // „2 kusy, 5 kusů" — dřív tu stálo natvrdo „kusy" i u 5–8 kusů.
   const kusy = n => n + ' ' + (n === 1 ? 'kus' : (n >= 2 && n <= 4 ? 'kusy' : 'kusů'));
 
@@ -591,9 +600,14 @@
   }
 
   // ── Geometrie v rovině ──
+  // Obdélník nesmí vyjít jako čtverec: při b = a bylo zadání „Obdélník má
+  // strany 15 cm a 15 cm" (7 % losů). Pravidlo z RPG her, kde to našel
+  // Vojtův syn; b se proto losuje z 3–20 BEZ hodnoty a.
+  const druhaStrana = a => { const b = ri(3, 19); return b >= a ? b + 1 : b; };
   function obvodObdelnikG() {
-    const a = ri(3, 20), b = ri(3, 20);
+    const a = ri(3, 20), b = druhaStrana(a);
     return {
+      svg: kresba('svgObdelnik', a, b, a + ' cm', b + ' cm'),
       prompt: 'Obdélník má strany ' + a + ' cm a ' + b + ' cm. Jaký je jeho obvod (v cm)?', type: 'text', ans: String(2 * (a + b)),
       sol: [
         'Obvod je součet všech čtyř stran. Protější strany obdélníku jsou stejné, takže stačí sečíst dvě sousední a výsledek zdvojnásobit: o = 2 · (a + b).',
@@ -603,8 +617,9 @@
     };
   }
   function obsahObdelnikG() {
-    const a = ri(3, 20), b = ri(3, 20);
+    const a = ri(3, 20), b = druhaStrana(a);
     return {
+      svg: kresba('svgObdelnik', a, b, a + ' cm', b + ' cm'),
       prompt: 'Obdélník má strany ' + a + ' cm a ' + b + ' cm. Jaký je jeho obsah (v cm²)?', type: 'text', ans: String(a * b),
       sol: [
         'Obsah obdélníku je součin dvou SOUSEDNÍCH stran: S = a · b. (Pozor, ne obvod — ten se sčítá.)',
@@ -616,12 +631,12 @@
   function ctverecG() {
     const a = ri(3, 20);
     return ri(0, 1)
-      ? { prompt: 'Čtverec má stranu ' + a + ' cm. Jaký je jeho obsah (v cm²)?', type: 'text', ans: String(a * a), sol: [
+      ? { svg: kresba('svgObdelnik', a, a, a + ' cm'), prompt: 'Čtverec má stranu ' + a + ' cm. Jaký je jeho obsah (v cm²)?', type: 'text', ans: String(a * a), sol: [
           'Čtverec má všechny strany stejně dlouhé, takže obsah je strana krát strana: S = a².',
           'Dosaď stranu: S = ' + a + '².',
           'Obsah = ' + a + ' · ' + a + ' = ' + (a * a) + ' cm².'
         ], _check: { kind: 'obsahCtverec', a } }
-      : { prompt: 'Čtverec má stranu ' + a + ' cm. Jaký je jeho obvod (v cm)?', type: 'text', ans: String(4 * a), sol: [
+      : { svg: kresba('svgObdelnik', a, a, a + ' cm'), prompt: 'Čtverec má stranu ' + a + ' cm. Jaký je jeho obvod (v cm)?', type: 'text', ans: String(4 * a), sol: [
           'Čtverec má čtyři stejně dlouhé strany, takže obvod je čtyřnásobek strany: o = 4 · a.',
           'Obvod = 4 · ' + a + ' = ' + (4 * a) + ' cm.'
         ], _check: { kind: 'obvodCtverec', a } };
@@ -629,6 +644,7 @@
   function obsahTrojuhelnikG() {
     const a = ri(2, 12) * 2, v = ri(3, 15);
     return {
+      svg: kresba('svgTrojVyska', a, v, a + ' cm', v + ' cm'),
       prompt: 'Trojúhelník má stranu ' + a + ' cm a výšku k této straně ' + v + ' cm. Jaký je jeho obsah (v cm²)?', type: 'text', ans: String(a * v / 2),
       sol: [
         'Trojúhelník je přesně POLOVINA rovnoběžníku se stejnou základnou i výškou — proto se na konci dělí dvěma: S = (z · v) : 2.',
@@ -640,6 +656,7 @@
   function uhelVedlejsi() {
     const x = ri(20, 160);
     return {
+      svg: kresba('svgVedlejsi', x, x + '°', '?'),
       prompt: 'Vypočítejte velikost vedlejšího úhlu k úhlu ' + x + '°.', type: 'text', ans: String(180 - x),
       sol: [
         'Vedlejší úhly leží vedle sebe u téže přímky a dohromady tvoří úhel přímý, tedy 180°.',
@@ -651,6 +668,7 @@
   function pythagorasG() {
     const tr = [[3, 4, 5], [6, 8, 10], [5, 12, 13], [8, 15, 17], [9, 12, 15]][ri(0, 4)];
     return {
+      svg: kresba('svgRightTri', tr[0], tr[1], { la: tr[0] + ' cm', lb: tr[1] + ' cm', lc: '?' }),
       prompt: 'Pravoúhlý trojúhelník má odvěsny ' + tr[0] + ' cm a ' + tr[1] + ' cm. Jak dlouhá je přepona (v cm)?', type: 'text', ans: String(tr[2]),
       sol: [
         'Přepona leží naproti pravému úhlu a je vždy nejdelší. Platí pro ni Pythagorova věta: c² = a² + b².',
@@ -665,6 +683,7 @@
   function objemKvadrT() {
     const a = ri(2, 10), b = ri(2, 10), c = ri(2, 10);
     return {
+      svg: kresba('svgCuboid', a + ' cm', b + ' cm', c + ' cm'),
       prompt: 'Kvádr má hrany ' + a + ' cm, ' + b + ' cm a ' + c + ' cm. Jaký je jeho objem (v cm³)?', type: 'text', ans: String(a * b * c),
       sol: [
         'Objem říká, kolik se dovnitř VEJDE. U kvádru se násobí všechny tři rozměry: V = a · b · c.',
@@ -676,6 +695,7 @@
   function povrchKvadrT() {
     const a = ri(2, 10), b = ri(2, 10), c = ri(2, 10);
     return {
+      svg: kresba('svgCuboid', a + ' cm', b + ' cm', c + ' cm'),
       prompt: 'Kvádr má hrany ' + a + ' cm, ' + b + ' cm a ' + c + ' cm. Jaký je jeho povrch (v cm²)?', type: 'text', ans: String(2 * (a * b + b * c + a * c)),
       sol: [
         'Povrch je plocha VŠECH stěn dohromady. Kvádr má 6 stěn, ale vždy dvě a dvě jsou stejné, takže stačí spočítat tři různé a zdvojnásobit: S = 2 · (ab + bc + ac).',
@@ -688,12 +708,12 @@
   function krychleT() {
     const a = ri(2, 12);
     return ri(0, 1)
-      ? { prompt: 'Krychle má hranu ' + a + ' cm. Jaký je její objem (v cm³)?', type: 'text', ans: String(a * a * a), sol: [
+      ? { svg: kresba('svgKrychle', a + ' cm'), prompt: 'Krychle má hranu ' + a + ' cm. Jaký je její objem (v cm³)?', type: 'text', ans: String(a * a * a), sol: [
           'Krychle je kvádr, který má všechny hrany stejné, takže se hrana násobí sama sebou třikrát: V = a³.',
           'Dosaď hranu: V = ' + a + '³ = ' + a + ' · ' + a + ' · ' + a + '.',
           'Objem = ' + (a * a) + ' · ' + a + ' = ' + (a * a * a) + ' cm³.'
         ], _check: { kind: 'objemKrychle', a } }
-      : { prompt: 'Krychle má hranu ' + a + ' cm. Jaký je její povrch (v cm²)?', type: 'text', ans: String(6 * a * a), sol: [
+      : { svg: kresba('svgKrychle', a + ' cm'), prompt: 'Krychle má hranu ' + a + ' cm. Jaký je její povrch (v cm²)?', type: 'text', ans: String(6 * a * a), sol: [
           'Krychle má 6 stejných čtvercových stěn, takže povrch je šestinásobek obsahu jedné stěny: S = 6 · a².',
           'Obsah jedné stěny: ' + a + '² = ' + (a * a) + ' cm².',
           'Povrch = 6 · ' + (a * a) + ' = ' + (6 * a * a) + ' cm².'
@@ -702,6 +722,7 @@
   function hranyKvadrT() {
     const a = ri(2, 10), b = ri(2, 10), c = ri(2, 10);
     return {
+      svg: kresba('svgCuboid', a + ' cm', b + ' cm', c + ' cm'),
       prompt: 'Kvádr má hrany ' + a + ' cm, ' + b + ' cm a ' + c + ' cm. Jaký je součet délek všech jeho hran (v cm)?', type: 'text', ans: String(4 * (a + b + c)),
       sol: [
         'Kvádr má 12 hran — od každého ze tří rozměrů právě čtyři stejné. Proto se sečtou tři rozměry a výsledek se vynásobí čtyřmi.',
@@ -713,6 +734,7 @@
   function objemKvadrLitr() {
     const a = ri(1, 5) * 10, b = ri(1, 5) * 10, c = ri(1, 5) * 10;
     return {
+      svg: kresba('svgCuboid', a + ' cm', b + ' cm', c + ' cm'),
       prompt: 'Nádrž tvaru kvádru má rozměry ' + a + ' cm × ' + b + ' cm × ' + c + ' cm. Kolik litrů vody se do ní vejde? (1 l = 1000 cm³)', type: 'text', ans: String(a * b * c / 1000),
       sol: [
         'Nejdřív spočítej objem v krychlových centimetrech: V = a · b · c.',
@@ -894,8 +916,8 @@
       sol: [
         'Závorky jsou na obou stranách — nejdřív je roznásob, teprve pak se dá třídit.',
         'Po roznásobení: ' + a + 'x + ' + (a * b) + ' = ' + c + 'x + ' + (c * d) + '.',
-        'Členy s x doleva, čísla doprava: ' + (a - c) + 'x = ' + (c * d) + ' − ' + (a * b) + ' = ' + (c * d - a * b) + '.',
-        'Vyděl ' + (a - c) + ': x = ' + (c * d - a * b) + ' : ' + (a - c) + ' = ' + x + '.'
+        'Členy s x doleva, čísla doprava: ' + zn(a - c) + 'x = ' + (c * d) + ' − ' + (a * b) + ' = ' + zn(c * d - a * b) + '.',
+        'Vyděl ' + zav(a - c) + ': x = ' + zn(c * d - a * b) + ' : ' + zav(a - c) + ' = ' + x + '.'
       ],
       _check: { kind: 'rovniceDvojiZavorka', a, b, c, d }
     };
@@ -974,6 +996,7 @@
     let v = ri(2, 12);
     if ((a + c) % 2 !== 0 && v % 2 !== 0) v += 1;
     return {
+      svg: kresba('svgTrapezoid', a + ' cm', c + ' cm', v + ' cm'),
       prompt: 'Lichoběžník má základny ' + a + ' cm a ' + c + ' cm a výšku ' + v + ' cm. Jaký je jeho obsah v cm²?',
       type: 'text', ans: String((a + c) * v / 2),
       sol: [
@@ -988,6 +1011,7 @@
   function tretiUhel() {
     const al = ri(20, 90), be = ri(20, Math.max(20, 150 - al));
     return {
+      svg: kresba('svgTrojUhly', al, be, al + '°', be + '°', '?'),
       prompt: 'V trojúhelníku ABC je α = ' + al + '° a β = ' + be + '°. Jaká je velikost úhlu γ ve stupních?',
       type: 'text', ans: String(180 - al - be),
       sol: [
@@ -1005,6 +1029,7 @@
     const a = ri(4, 16), va = ri(2, 12), v = ri(3, 15);
     const vv = (a * va) % 2 === 0 ? va : va + 1, Sp = a * vv / 2;
     return {
+      svg: kresba('svgHranol3', a, vv, v, a + ' cm', vv + ' cm', v + ' cm'),
       prompt: 'Kolmý hranol má podstavu trojúhelníku se stranou ' + a + ' cm a příslušnou výškou ' + vv +
               ' cm. Výška hranolu je ' + v + ' cm. Jaký je jeho objem v cm³?',
       type: 'text', ans: String(Sp * v),
@@ -1020,6 +1045,7 @@
   function hranaZObjemu() {
     const a = ri(2, 9), V = a * a * a;
     return {
+      svg: kresba('svgKrychle', 'a = ?'),
       prompt: 'Krychle má objem ' + V + ' cm³. Jaká je délka její hrany v cm?',
       type: 'text', ans: String(a),
       sol: [

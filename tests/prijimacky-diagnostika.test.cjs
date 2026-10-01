@@ -99,6 +99,19 @@ const UROVEN = v => v[0] ? (v[1] ? 3 : 2) : (v[1] ? 1 : 0);
   ok(rozbor.n===spatne,'rozbor: každá chyba má položku ('+rozbor.n+' / '+spatne+')');
   ok(rozbor.nevim===nevim,'„Nevím" se v rozboru ukáže jako nevím ('+rozbor.nevim+')');
   ok(rozbor.kroky>0,'rozbor ukazuje postup ('+rozbor.kroky+' položek s kroky)');
+  /* Obrázek v rozboru — jako rozbor testu nanečisto (dřív tu chyběl, takže si dítě
+     chybu z geometrie prohlíželo bez obrázku, u kterého ji udělalo). Los obrázek mezi
+     chybami mít nemusí, proto se první chybě navíc podstrčí skutečná geometrická
+     úloha s obrázkem a konec se vykreslí znovu — jinak by kontrola mohla být prázdná. */
+  const obr=await page.evaluate(()=>{
+    const pocet=()=>document.querySelectorAll('#dg-rozbor .cm-review-svg svg').length;
+    const cekano=DG.odp.filter(x=>!x.ok&&x.it&&x.it.svg).length, je=pocet();
+    let it=null; for(let i=0;i<300&&!it;i++){ const u=PZ_TOPICS.item('geometrie','test'); if(u&&u.svg) it=u; }
+    const x=DG.odp.find(o=>!o.ok&&!(o.it&&o.it.svg)); if(it&&x){ x.it=it; dgEnd(); }
+    return { cekano, je, podstrceno:!!(it&&x), po:pocet(), cekanoPo:DG.odp.filter(o=>!o.ok&&o.it&&o.it.svg).length };
+  });
+  ok(obr.je===obr.cekano,'rozbor: obrázek u každé chybné úlohy, která ho měla ('+obr.je+' / '+obr.cekano+')');
+  ok(obr.podstrceno&&obr.po===obr.cekanoPo&&obr.po>obr.je,'rozbor: podstrčená úloha s obrázkem ho v rozboru má ('+obr.po+' / '+obr.cekanoPo+')');
   ok(errs.length===0,'žádné JS chyby'+(errs.length?(' ['+errs[0]+']'):''));
   await browser.close(); srv.close();
   console.log('\n══════════════════════════════════════════');

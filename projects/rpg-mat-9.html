@@ -1411,7 +1411,7 @@ const AREAS = [
    (()=>{const x=ri(2,12),y=ri(2,12),sm=x+y,df=x-y;return{text:`${['Vyřeš soustavu','Rozlušti soustavu'][ri(0,1)]}, urči y:\nx + y = ${sm}\nx − y = ${df}`,ans:String(y),hints:[`Odečti rovnice: 2y = ${sm-df}.`,`y = ${(sm-df)/2}`],skill:'anal'};})(),
    (()=>{const x=ri(2,9),y=ri(2,9),e1=x+y,e2=2*x+y;return{text:`${['Vyřeš soustavu','Rozlušti soustavu'][ri(0,1)]}, urči x:\nx + y = ${e1}\n2x + y = ${e2}`,ans:String(x),hints:[`Odečti rovnice: x = ${e2-e1}.`,`Výsledek: ${x}`],skill:'anal'};})(),
    (()=>{const x=ri(2,8),y=2*x,sm=x+y;return{text:`${['Vyřeš soustavu','Rozlušti soustavu'][ri(0,1)]}, urči x:\ny = 2x\nx + y = ${sm}`,ans:String(x),hints:[`Dosaď: x + 2x = ${sm}, tedy 3x = ${sm}.`,`x = ${sm/3}`],skill:'anal'};})(),
-   (()=>{const x=ri(3,10),y=ri(2,9),sm=x+y,d=x-y;return{text:`Součet dvou čísel je ${sm}, jejich rozdíl je ${d}.\nVětší z čísel?`,ans:String(x),hints:[`Větší = (součet + rozdíl)/2.`,`(${sm} + ${d}) / 2`],skill:'anal'};})(),
+   (()=>{const x=ri(3,10),y=ri(2,x-1),sm=x+y,d=x-y;/* dřív y až 9: při x < y vyšel rozdíl záporný a „větší z čísel“ bylo to MENŠÍ (asi 40 % losů) */return{text:`Součet dvou čísel je ${sm}, jejich rozdíl je ${d}.\nVětší z čísel?`,ans:String(x),hints:[`Větší = (součet + rozdíl) : 2.`,`(${sm} + ${d}) : 2`],skill:'anal'};})(),
    (()=>{const x=ri(3,9),y=ri(2,8),e1=2*x+3*y,e2=x;return{text:`${['Vyřeš soustavu','Rozlušti soustavu'][ri(0,1)]}, urči y:\n2x + 3y = ${e1}\nx = ${e2}`,ans:String(y),hints:[`Dosaď x = ${e2}: ${2*e2} + 3y = ${e1}.`,`3y = ${e1-2*e2}`],skill:'anal'};})()
   ]
  },
@@ -2376,28 +2376,8 @@ function _mcVolby(t){
 function renderMC(t){
  const grid=document.getElementById('mc-grid');
  grid.style.display='grid';
- // generate 3 wrong answers
- const correct=czMC(t.ans);
- const cn=parseFloat(correct.replace(',','.'));
- const opts=new Set([correct]);
- if(Array.isArray(t.distractors))t.distractors.forEach(d=>{const s=czMC(d);if(s!==correct&&opts.size<4)opts.add(s);});
- // always include opposite-sign distractor so sign errors are testable
- if(!isNaN(cn)&&cn!==0){const opp=czMC(-cn);if(opp!==correct)opts.add(opp);}
- let tries=0;
- while(opts.size<4 && tries<30){
- tries++;
- let alt;
- if(!isNaN(cn)){
- const delta=ri(-5,5)||ri(1,3);
- let v=Math.round((cn+delta)*100)/100;
- if(Number.isInteger(cn) && Math.abs(cn)<200) v=cn+delta;
- alt=czMC(v);
- }else{
- alt=correct==='ANO'?'NE':'ANO';
- }
- if(alt!==correct) opts.add(alt);
- }
- const arr=_mcVolby(t)||[...opts].sort(()=>Math.random()-.5);
+ // volby staví sdílené mcVolby2 (rpg-shared.js): rovnoměrné pořadí, znaménko jen u záporných čísel
+ const arr=_mcVolby(t)||mcVolby2(t);
  grid.innerHTML='';
  arr.forEach((opt,i)=>{
  const b=document.createElement('button');
@@ -2809,17 +2789,8 @@ function trRender(){
 function trRenderMC(t){
  const grid=document.getElementById('tr-mc');
  grid.style.display='grid';
- const correct=czMC(t.ans),cn=parseFloat(String(correct).replace(',','.'));
- const opts=new Set([correct]);
- if(Array.isArray(t.distractors))t.distractors.forEach(d=>{const s=czMC(d);if(s!==correct&&opts.size<4)opts.add(s);});
- if(!isNaN(cn)&&cn!==0){const opp=czMC(-cn);if(opp!==correct)opts.add(opp);}
- let tries=0;
- while(opts.size<4 && tries<30){tries++;let alt;
-  if(!isNaN(cn)){const delta=ri(-5,5)||ri(1,3);let v=Math.round((cn+delta)*100)/100;if(Number.isInteger(cn)&&Math.abs(cn)<200)v=cn+delta;alt=czMC(v);}
-  else alt=correct==='ANO'?'NE':'ANO';
-  if(alt!==correct)opts.add(alt);
- }
- const arr=_mcVolby(t)||[...opts].sort(()=>Math.random()-.5);
+ // volby staví sdílené mcVolby2 (rpg-shared.js): rovnoměrné pořadí, znaménko jen u záporných čísel
+ const arr=_mcVolby(t)||mcVolby2(t);
  grid.innerHTML='';
  arr.forEach((opt,i)=>{const b=document.createElement('button');b.className='mc-btn c'+i;b.innerHTML=`<span class="mc-key">${'ABCD'[i]}</span>${opt}`;b.onclick=()=>trPickMC(opt,b);grid.appendChild(b);});
 }

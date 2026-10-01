@@ -44,8 +44,10 @@ const solSteps = sol => {
 const polozky = [];   // {zdroj, kde, prompt, ans, sol, maSvg}
 const RUNS = 260, PER = 130;
 
+const zadani = [];   // {zdroj, kde, text} — úvod + otázka, pro pravidla nad zněním
 for (let r = 0; r < RUNS; r++) for (const t of C.generate()) {
   const maSvg = !!t.svg;
+  zadani.push({ zdroj: 'cermat', kde: 't' + t.no + ' ' + t.title, text: [t.intro, t.prompt, ...(t.parts || []).map(p => p.prompt), ...(t.statements || []).map(x => x && x.text)].filter(Boolean).join(' ') });
   if (t.kind === 'tfgrid') (t.statements || []).forEach((s, i) =>
     polozky.push({ zdroj: 'cermat', kde: 't' + t.no + '.' + (i + 1) + ' tfgrid', prompt: s.text, ans: s.ans, sol: s.sol, maSvg }));
   else if (t.kind === 'mc')
@@ -58,6 +60,7 @@ for (let r = 0; r < RUNS; r++) for (const t of C.generate()) {
 for (const [okruh, fns] of Object.entries(GEN)) for (const fn of fns) for (let i = 0; i < PER; i++) {
   let t; try { t = fn(); } catch (e) { continue; }
   if (t) polozky.push({ zdroj: 'gen', kde: okruh + '/' + fn.name, prompt: t.prompt, ans: t.ans, sol: t.sol, maSvg: !!t.svg });
+  if (t) zadani.push({ zdroj: 'gen', kde: okruh + '/' + fn.name, text: t.prompt });
 }
 
 console.log('── Přijímačky: postupy ──');
@@ -140,7 +143,45 @@ ok(dopocteno >= 1500, 'dopočítáno ' + dopocteno + ' posledních kroků (podla
 ok(nesedi.length === 0, 'poslední krok se dopočítá na to, co tvrdí' +
   (nesedi.length ? ' — ' + nesedi.length + ' nesedí, např. ' + nesedi[0] : ''));
 
-/* ════════ 6) SHODA solSteps S PRODUKTEM ════════
+/* ════════ 6) PRAVIDLA Z RPG HER ════════
+   Vojtův pokyn (30. 9. 2026): co se osvědčí na jednom místě, patří všude.
+   Tři pravidla, která hlídají RPG hry (rpg-content-quality.audit.cjs), tu
+   chyběla — a dvě z nich v přijímačkách hned něco našla:
+   • „Obdélník" nesmí vyjít jako čtverec. Našel to Vojtův syn v RPG; tady
+     „Obdélník má strany 15 cm a 15 cm" v procvičování (5–7 % losů obou
+     obdélníkových úloh) a „Obdélníková zahrada má rozměry 30 m × 30 m"
+     v testu (2 % losů pozice 5).
+   • Záporné číslo za operátorem v závorce a s mínusem: v postupu rovnice
+     stálo „Vyděl -2: x = -4 : -2 = 2" (spojovník, bez závorky).
+   • Každá rovnost v postupu platí — pro banku testu to dělá prijimacky-
+     dopocet, pro „základ" to nedělal nikdo (naměřeno: nesedí 0). */
+const { nesediciRovnosti, ZA_OPERATOREM } = require('./rovnosti.cjs');
+const CTVEREC = [/obdéln\w*[^.!?]{0,60}?(\d+(?:,\d+)?)\s*(?:cm|dm|mm|m|km)?\s*[×x]\s*(\d+(?:,\d+)?)/i,
+  /obdéln\w*[^.!?]{0,60}?stran(?:ami|y|ách)?\s*(\d+(?:,\d+)?)\s*(?:cm|dm|mm|m|km)?\s*a\s*(\d+(?:,\d+)?)/i];
+const ctverce = zadani.filter(z => /obdéln/i.test(z.text) && !/shodn|čtverec je/i.test(z.text) &&
+  CTVEREC.some(v => { const m = z.text.match(v); return m && m[1] === m[2]; }));
+const obdelniku = zadani.filter(z => /obdéln/i.test(z.text)).length;
+// Naměřeno 799–837 zadání s obdélníkem (4 běhy, losuje se); rozbitý filtr dá 0.
+ok(obdelniku >= 600, 'zadání s obdélníkem: ' + obdelniku + ' (podlaha 600)');
+ok(ctverce.length === 0, '„obdélník" nikdy nevyjde jako čtverec' +
+  (ctverce.length ? ' — ' + ctverce.length + '×, např. ' + ctverce[0].kde + ': ' + ctverce[0].text.slice(0, 80) : ''));
+const zaOperatorem = [];
+for (const z of zadani) if (ZA_OPERATOREM.test(z.text)) zaOperatorem.push(z.kde + ': ' + z.text.slice(0, 60));
+for (const p of polozky) for (const k of solSteps(p.sol)) if (ZA_OPERATOREM.test(k)) zaOperatorem.push(p.kde + ': ' + k.slice(0, 60));
+ok(zaOperatorem.length === 0, 'záporné číslo hned za operátorem je v závorce' +
+  (zaOperatorem.length ? ' — ' + zaOperatorem.length + '×, např. ' + zaOperatorem[0] : ''));
+let rovnosti = 0; const nesediRov = [];
+for (const p of polozky) if (p.zdroj === 'gen') for (const k of solSteps(p.sol)) {
+  const { spatne, videno } = nesediciRovnosti(k);
+  rovnosti += videno;
+  spatne.forEach(([L, R, l]) => nesediRov.push(p.kde + ': „' + L + ' = ' + R + '" (vyjde ' + +l.toFixed(6) + ')'));
+}
+// Naměřeno 18 006–18 016 rovností v „základu" (PER = 130, 4 běhy); rozbitý skener dá 0.
+ok(rovnosti >= 15000, 'v postupech „základu" se vyhodnotilo ' + rovnosti + ' rovností (podlaha 15 000)');
+ok(nesediRov.length === 0, 'každá rovnost v postupu „základu" platí' +
+  (nesediRov.length ? ' — ' + nesediRov.length + '×, např. ' + nesediRov[0] : ''));
+
+/* ════════ 7) SHODA solSteps S PRODUKTEM ════════
    Kopie pravidla nahoře se nesmí rozejít se zdrojem — dvě verze téhož se
    rozejdou a nikde to nespadne (tenhle repozitál na to už doplatil). */
 const fs = require('fs');

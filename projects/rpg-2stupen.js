@@ -77,17 +77,9 @@ function twPickMC(opt,btn){
 function twRenderMC(t){
  const grid=document.getElementById('tw-mc');
  grid.style.display='grid';
- const correct=czMC(t.ans),cn=parseFloat(String(correct).replace(',','.'));
- const opts=new Set([correct]);
- if(Array.isArray(t.distractors))t.distractors.forEach(d=>{const s=czMC(d);if(s!==correct&&opts.size<4)opts.add(s);});
- if(!isNaN(cn)&&cn!==0){const opp=czMC(-cn);if(opp!==String(correct))opts.add(opp);}
- let tries=0;
- while(opts.size<4&&tries<30){tries++;let alt;
-  if(!isNaN(cn)){const delta=ri(-5,5)||ri(1,3);let v=Math.round((cn+delta)*100)/100;if(Number.isInteger(cn)&&Math.abs(cn)<200)v=cn+delta;alt=czMC(v);}
-  else alt=correct==='ANO'?'NE':'ANO';
-  if(alt!==correct)opts.add(alt);
- }
- const arr=[...opts].sort(()=>Math.random()-.5);
+ // stejné volby jako v boji a tréninku (rpg-shared.js); dřív tu byla devátá kopie
+ // a uzavřený výběr (`mc_opts`) se ve věži vůbec nepoužil
+ const arr=(typeof _mcVolby==='function'&&_mcVolby(t))||mcVolby2(t);
  grid.innerHTML='';
  arr.forEach((opt,i)=>{const b=document.createElement('button');b.className='mc-btn c'+i;b.innerHTML='<span class="mc-key">'+'ABCD'[i]+'</span>'+twEsc(opt);b.onclick=()=>twPickMC(opt,b);grid.appendChild(b);});
 }

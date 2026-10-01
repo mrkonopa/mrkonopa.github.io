@@ -64,8 +64,11 @@ window.RPG_TASK_EXTRA_9 = {
   (()=>{const a=ri(2,5),b=ri(2,5),c=ri(2,5);return{text:`${window._fc()}:\n(-${a}) × (-${b}) × (-${c}) =`,ans:String(-a*b*c),hints:[`Tři záporná → záporné.`],skill:'calc'};})(),
   (()=>{const a=ri(2,6),b=ri(2,6),c=ri(2,8);return{text:`${window._fc()}:\n(-${a}) × ${b} + ${c} =`,ans:String(-a*b+c),hints:[`-${a*b} + ${c}.`],skill:'calc'};})(),
   (()=>{const a=ri(2,9),b=ri(4,14);return{text:`Napětí na jádru bylo ${a} V a kleslo o ${b} V.\nJaké je teď? (může vyjít i záporné)`,ans:String(a-b),hints:[`${a} − ${b}.`,`Výsledek: ${a-b}`],skill:'calc'};})(),
-  (()=>{const a=ri(2,9),b=ri(4,14),res=-a+b,lo=Math.min(-a,res,0)-1,hi=Math.max(-a,res,0)+1;return{svg:svgNumLine(lo,hi,{point:-a,arrow:{from:-a,to:res},arrowLabel:`+${b}`}),text:`Teploměr ráno ukazoval −${a} °C.\nPřes den se oteplilo o ${b} °C.\nKolik °C ukazuje teď?`,ans:String(res),hints:[`Od −${a} postup o ${b} doprava (k plusu).`,`−${a} + ${b} = ${res}`],skill:'calc'};})(),
-  (()=>{const a=ri(4,12),b=ri(2,a),res=-a+b,lo=Math.min(-a,0)-1,hi=Math.max(res,0)+1;return{svg:svgNumLine(lo,hi,{point:-a,arrow:{from:-a,to:res},arrowLabel:`+${b}`}),text:`Ponorka byla v hloubce ${a} m (tj. −${a} m).\nVynořila se o ${b} m.\nJaká je teď její hloubka? (m, záporné = pod hladinou)`,ans:String(res),hints:[`Od −${a} postup o ${b} k hladině.`,`−${a} + ${b} = ${res}`],skill:'calc'};})()
+  // Osa ukazuje jen START. Dřív tu byla i šipka „+b“ a končila přímo na výsledku,
+  // takže obrázek úlohu vyřešil za žáka (naměřeno u 68 a 84 % losů, kde výsledek
+  // v zadání není). Počítat po dílcích od vyznačeného bodu jde dál.
+  (()=>{const a=ri(2,9),b=ri(4,14),res=-a+b,lo=Math.min(-a,res,0)-1,hi=Math.max(-a,res,0)+1;return{svg:svgNumLine(lo,hi,{point:-a}),text:`Teploměr ráno ukazoval −${a} °C.\nPřes den se oteplilo o ${b} °C.\nKolik °C ukazuje teď?`,ans:String(res),hints:[`Od −${a} postup o ${b} doprava (k plusu).`,`−${a} + ${b} = ${res}`],skill:'calc'};})(),
+  (()=>{const a=ri(4,12),b=ri(2,a),res=-a+b,lo=Math.min(-a,0)-1,hi=Math.max(res,0)+1;return{svg:svgNumLine(lo,hi,{point:-a}),text:`Ponorka byla v hloubce ${a} m (tj. −${a} m).\nVynořila se o ${b} m.\nJaká je teď její hloubka? (m, záporné = pod hladinou)`,ans:String(res),hints:[`Od −${a} postup o ${b} k hladině.`,`−${a} + ${b} = ${res}`],skill:'calc'};})()
  ],
 
  // ───────── OBLAST 2 — MOCNINOVÝ REAKTOR ─────────
@@ -328,9 +331,9 @@ window.RPG_TASK_EXTRA_9 = {
   (()=>{const r=ri(2,5);return{svg:svgSphere(r),text:`Koule r = ${r} cm.\nJe povrch ${Math.round(4*3.14*r*r)} cm²?\nANO / NE`,ans:'ANO',hints:[`S = 4πr² = 4·3,14·${r*r}.`],skill:'geo'};})(),
   (()=>{const a=ri(2,6),b=ri(2,6),c=ri(2,6);return{svg:svgCuboid(a,b,c),text:`Kvádr ${a}×${b}×${c} cm.\nPovrch? (cm²)`,ans:String(2*(a*b+b*c+a*c)),hints:[`2(ab+bc+ac).`],skill:'geo'};})(),
   (()=>{const r=ri(2,5),v=ri(3,8);return{svg:svgCone(r,v),text:`Kužel: r = ${r} cm, v = ${v} cm.\nObjem? (cm³, π = 3,14)`,ans:String(Math.round(1/3*3.14*r*r*v)),hints:[`V = 1/3·π·r²·v.`],skill:'geo'};})(),
-  (()=>{const a=ri(3,8);return{svg:svgCuboid(a,a,a),text:`Krychle s hranou ${a} cm.\nObjem? (cm³)`,ans:String(a*a*a),hints:[`V = a³ = ${a}³.`],skill:'geo'};})(),
+  (()=>{const a=ri(3,8);return{svg:svgKrychle(`${a} cm`),text:`Krychle s hranou ${a} cm.\nObjem? (cm³)`,ans:String(a*a*a),hints:[`V = a³ = ${a}³.`],skill:'geo'};})(),
   (()=>{const r=ri(2,6);return{svg:svgCylinder(r,r),text:`Podstava válce má poloměr ${r} cm.\nJaký je obsah kruhové podstavy? (cm², π = 3,14)`,ans:String(Math.round(3.14*r*r)),hints:[`S = π·r² = 3,14 · ${r*r}.`],skill:'geo'};})(),
-  (()=>{const a=ri(3,8);return{svg:svgCuboid(a,a,a),text:`Datová krychle má hranu ${a} jednotek.\nKolik datových buněk (objem) obsahuje? (jednotek³)`,ans:String(a*a*a),hints:[`V = a³ = ${a}³.`,`Výsledek: ${a*a*a}`],skill:'geo'};})(),
+  (()=>{const a=ri(3,8);return{svg:svgKrychle(`${a}`),text:`Datová krychle má hranu ${a} jednotek.\nKolik datových buněk (objem) obsahuje? (jednotek³)`,ans:String(a*a*a),hints:[`V = a³ = ${a}³.`,`Výsledek: ${a*a*a}`],skill:'geo'};})(),
   (()=>{const a=ri(3,6),b=ri(2,5),c=ri(2,4),V=a*b*c;return{svg:svgCuboid(`${a} dm`,`${b} dm`,`${c} dm`),text:`Akvárium tvaru kvádru má rozměry ${a} × ${b} × ${c} dm.\nKolik litrů vody se do něj vejde? (1 dm³ = 1 l)`,ans:String(V),hints:[`V = a · b · c = ${a} · ${b} · ${c}.`,`Výsledek: ${V} l`],skill:'geo'};})(),
   (()=>{const r=ri(2,5),v=ri(6,12),S=Math.round(2*3.14*r*(r+v));return{svg:svgCylinder(r,v),text:`Plechovka tvaru válce má poloměr ${r} cm a výšku ${v} cm.\nKolik cm² plechu je na ni potřeba (celý povrch)? (π = 3,14)`,ans:String(S),hints:[`S = 2πr(r+v) = 2 · 3,14 · ${r} · ${r+v}.`,`Výsledek: ${S} cm²`],skill:'geo'};})(),
   (()=>{const r=ri(2,5),v=ri(4,9),V=Math.round(3.14*r*r*v);return{svg:svgCylinder(r,v),text:`Zásobník tvaru válce má poloměr podstavy ${r} dm a výšku ${v} dm.\nKolik litrů pojme? (π = 3,14; 1 dm³ = 1 l)`,ans:String(V),hints:[`V = π · r² · v = 3,14 · ${r*r} · ${v}.`,`Výsledek: ${V} l`],skill:'geo'};})()
