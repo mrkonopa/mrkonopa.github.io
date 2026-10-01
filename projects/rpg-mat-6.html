@@ -984,6 +984,14 @@ function svgCross(deg,opt={}){
 // („250 cm"): banka i hry dnes posílají nejvýš pět znaků, tohle je jeden
 // znak rezervy. Při x=54 přetékal popisek o 4,5 px doleva a uřízl se.
 function svgCuboid(a,b,c){
+ // Popisky jdou na hrany podle VELIKOSTI: největší číslo k nejdelší nakreslené
+ // hraně (šířka), prostřední k výšce, nejmenší k ustupující hloubce. Dřív šly
+ // v pořadí argumentů, takže v 45 % kvádrů stálo „2“ u nejdelší hrany a „9“
+ // u nejkratší. Není-li některý popisek číslo („?“) nebo mají popisky různé
+ // jednotky („2 m“ proti „80 cm“), pořadí určuje volající.
+ const cis=[a,b,c].map(v=>parseFloat(String(v).replace(',','.')));
+ const jedn=[a,b,c].map(v=>String(v).replace(/^[\s\d.,−-]+/,''));
+ if(cis.every(Number.isFinite)&&jedn.every(u=>u===jedn[0]))[a,b,c]=[a,b,c].map((v,i)=>[v,cis[i]]).sort((p,q)=>q[1]-p[1]).map(p=>p[0]);
  const x=60,y=118,w=104,h=72,d=30,dd=24;
  const f=`${x},${y} ${x+w},${y} ${x+w},${y-h} ${x},${y-h}`;
  // popisek c: kolmo ven od STŘEDU ustupující hrany (x+w,y) → (x+w+d,y-dd).
@@ -993,6 +1001,11 @@ function svgCuboid(a,b,c){
  // SKRYTOU HRANU (tak ji kreslí i CERMAT), takže by se četla jako další hrana.
  const cxL=(x+w+d/2+12).toFixed(1), cyL=(y-dd/2+21).toFixed(1);
  return `<svg viewBox="0 0 250 160"><polygon points="${x},${y-h} ${x+d},${y-h-dd} ${x+w+d},${y-h-dd} ${x+w},${y-h}" fill="#2b2566" stroke="#5dc8f0" stroke-width="2"/><polygon points="${x+w},${y} ${x+w+d},${y-dd} ${x+w+d},${y-h-dd} ${x+w},${y-h}" fill="#241f5a" stroke="#5dc8f0" stroke-width="2"/><polygon points="${f}" fill="#322a72" stroke="#5dc8f0" stroke-width="2.5"/><text x="${x+w/2}" y="${y+18}" fill="#ffd84d" font-size="14" font-family="monospace" text-anchor="middle">${a}</text><text x="${x-8}" y="${y-h/2+5}" fill="#ffd84d" font-size="14" font-family="monospace" text-anchor="end">${b}</text><text x="${cxL}" y="${cyL}" fill="#43e88a" font-size="14" font-family="monospace" text-anchor="middle">${c}</text></svg>`;
+}
+// Krychle — kopie svgKrychle z rpg-svg-9.js v barvách tohoto ročníku (hlídá rpg-diagramy-geometrie).
+function svgKrychle(t) {
+  const x = 44, y = 128, s = 78, d = 30, dd = 24;
+  return `<svg viewBox="0 0 196 152"><polygon points="${x},${y - s} ${x + d},${y - s - dd} ${x + s + d},${y - s - dd} ${x + s},${y - s}" fill="#2b2566" stroke="#5dc8f0" stroke-width="2"/><polygon points="${x + s},${y} ${x + s + d},${y - dd} ${x + s + d},${y - s - dd} ${x + s},${y - s}" fill="#241f5a" stroke="#5dc8f0" stroke-width="2"/><rect x="${x}" y="${y - s}" width="${s}" height="${s}" fill="#322a72" stroke="#5dc8f0" stroke-width="2.5"/><text x="${x + s / 2}" y="${y + 18}" fill="#ffd84d" font-size="14" font-family="monospace" text-anchor="middle">${t}</text></svg>`;
 }
 // Trojúhelník daného typu s popisky úhlů/stran. kind: 'rovnostr'|'rovnoram'|'pravo'|'obecny'
 // 🔴 Popisky vrcholů se odvozují z GEOMETRIE (ven od těžiště), ne z pořadí
@@ -1296,7 +1309,7 @@ const AREAS = [
  intro:'Nákladní robot skládá kontejnery. Spočítej jejich objemy.',
  tc:6,
  tasks:()=>[
- (()=>{const a=ri(2,9);return{svg:svgCuboid(a,a,a),text:`Krychle s hranou a = ${a} cm.\nVypočítej objem V. (cm³)`,ans:String(a*a*a),hints:[`V = a × a × a.`,`${a} × ${a} × ${a}`],skill:'geo'};})(),
+ (()=>{const a=ri(2,9);return{svg:svgKrychle(`${a} cm`),text:`Krychle s hranou a = ${a} cm.\nVypočítej objem V. (cm³)`,ans:String(a*a*a),hints:[`V = a × a × a.`,`${a} × ${a} × ${a}`],skill:'geo'};})(),
  (()=>{const a=ri(2,9),b=ri(2,9),c=ri(2,9);return{svg:svgCuboid(a,b,c),text:`Kvádr: a = ${a} cm, b = ${b} cm, c = ${c} cm.\nVypočítej objem V. (cm³)`,ans:String(a*b*c),hints:[`V = a × b × c.`,`${a} × ${b} × ${c}`],skill:'geo'};})(),
  (()=>{const a=ri(2,6),b=ri(2,6),c=ri(2,6);return{svg:svgCuboid(a,b,c),text:`Zásobník vody tvaru kvádru: ${a} dm × ${b} dm × ${c} dm.\nKolik litrů vody se do něj vejde?\n(1 dm³ = 1 litr)`,ans:String(a*b*c),hints:[`Objem v dm³ = počet litrů.`,`${a} × ${b} × ${c}`],skill:'anal'};})(),
  (()=>{const a=ri(2,8);return{text:`Krychle má objem ${a*a*a} cm³.\nJak dlouhá je její hrana? (cm)`,ans:String(a),hints:[`Hledej číslo, které × samo × samo = objem.`,`Třetí odmocnina z ${a*a*a}.`],skill:'anal'};})(),
@@ -1310,7 +1323,7 @@ const AREAS = [
  intro:'Svářecí dron potahuje kostky plechem. Spočítej, kolik plechu je potřeba — povrch.',
  tc:6,
  tasks:()=>[
- (()=>{const a=ri(2,9);return{svg:svgCuboid(a,a,a),text:`Krychle s hranou a = ${a} cm.\nVypočítej povrch S. (cm²)`,ans:String(6*a*a),hints:[`Krychle má 6 stejných stěn.`,`6 × ${a} × ${a}`],skill:'geo'};})(),
+ (()=>{const a=ri(2,9);return{svg:svgKrychle(`${a} cm`),text:`Krychle s hranou a = ${a} cm.\nVypočítej povrch S. (cm²)`,ans:String(6*a*a),hints:[`Krychle má 6 stejných stěn.`,`6 × ${a} × ${a}`],skill:'geo'};})(),
  (()=>{const a=ri(2,7),b=ri(2,7),c=ri(2,7);return{svg:svgCuboid(a,b,c),text:`Kvádr: a = ${a}, b = ${b}, c = ${c} cm.\nVypočítej povrch S. (cm²)`,ans:String(2*(a*b+a*c+b*c)),hints:[`S = 2 × (ab + ac + bc).`,`2 × (${a*b} + ${a*c} + ${b*c})`],skill:'geo'};})(),
  (()=>{const a=ri(2,9);return{text:`Krychle má povrch ${6*a*a} cm².\nJaký je obsah jedné stěny? (cm²)`,ans:String(a*a),hints:[`Krychle má 6 stejných stěn.`,`${6*a*a} : 6`],skill:'anal'};})(),
  (()=>{const a=ri(2,8);return{text:`Jedna stěna krychle má obsah ${a*a} cm².\nJaký je povrch celé krychle? (cm²)`,ans:String(6*a*a),hints:[`Povrch = 6 × jedna stěna.`,`6 × ${a*a}`],skill:'anal'};})(),
@@ -1379,7 +1392,7 @@ const AREAS = [
  (()=>{const a=ri(2,8),b=ri(2,8),c=ri(2,8);return{svg:svgCuboid(a,b,c),text:`Kvádr ${a} × ${b} × ${c} cm.\nVypočítej objem. (cm³)`,ans:String(a*b*c),hints:[`V = a × b × c.`,`Výsledek: ${a*b*c}`],skill:'geo'};})(),
  (()=>{const a=ri(40,80),b=ri(30,70);const c=180-a-b;if(c<15){return{text:`Trojúhelník: α = 55°, β = 65°.\nÚhel γ? (°)`,ans:'60',hints:[`180 − α − β.`,`Výsledek: 60`],skill:'geo'};}return{text:`Trojúhelník: α = ${a}°, β = ${b}°.\nÚhel γ? (°)`,ans:String(c),hints:[`Součet úhlů = 180°.`,`Výsledek: ${c}`],skill:'geo'};})(),
  (()=>{const a=ri(3,8)*10;return{svg:svgCross(a,{label:'α'}),text:`Úhel α = ${a}°.\nVedlejší úhel? (°)`,ans:String(180-a),hints:[`Doplň do 180°.`,`Výsledek: ${180-a}`],skill:'geo'};})(),
- (()=>{const a=ri(2,9);return{svg:svgCuboid(a,a,a),text:`Krychle s hranou ${a} cm.\nVypočítej povrch. (cm²)`,ans:String(6*a*a),hints:[`6 stejných stěn.`,`6 × ${a} × ${a}`],skill:'geo'};})()
+ (()=>{const a=ri(2,9);return{svg:svgKrychle(`${a} cm`),text:`Krychle s hranou ${a} cm.\nVypočítej povrch. (cm²)`,ans:String(6*a*a),hints:[`6 stejných stěn.`,`6 × ${a} × ${a}`],skill:'geo'};})()
  ]
  }
  ]
@@ -2284,27 +2297,8 @@ function _mcVolby(t){
 function renderMC(t){
  const grid=document.getElementById('mc-grid');
  grid.style.display='grid';
- // generate 3 wrong answers
- const correct=czMC(t.ans);
- const cn=parseFloat(correct.replace(',','.'));
- const opts=new Set([correct]);
- if(Array.isArray(t.distractors))t.distractors.forEach(d=>{const s=czMC(d);if(s!==correct&&opts.size<4)opts.add(s);});
- if(!isNaN(cn)&&cn!==0){const opp=czMC(-cn);if(opp!==correct)opts.add(opp);}
- let tries=0;
- while(opts.size<4 && tries<30){
- tries++;
- let alt;
- if(!isNaN(cn)){
- const delta=ri(-5,5)||ri(1,3);
- let v=Math.round((cn+delta)*100)/100;
- if(Number.isInteger(cn) && Math.abs(cn)<200) v=cn+delta;
- alt=czMC(v);
- }else{
- alt=correct==='ANO'?'NE':'ANO';
- }
- if(alt!==correct) opts.add(alt);
- }
- const arr=_mcVolby(t)||[...opts].sort(()=>Math.random()-.5);
+ // volby staví sdílené mcVolby2 (rpg-shared.js): rovnoměrné pořadí, znaménko jen u záporných čísel
+ const arr=_mcVolby(t)||mcVolby2(t);
  grid.innerHTML='';
  arr.forEach((opt,i)=>{
  const b=document.createElement('button');
@@ -3114,17 +3108,8 @@ function trRender(){
 function trRenderMC(t){
  const grid=document.getElementById('tr-mc');
  grid.style.display='grid';
- const correct=czMC(t.ans),cn=parseFloat(correct.replace(',','.'));
- const opts=new Set([correct]);
- if(Array.isArray(t.distractors))t.distractors.forEach(d=>{const s=czMC(d);if(s!==correct&&opts.size<4)opts.add(s);});
- if(!isNaN(cn)&&cn!==0){const opp=czMC(-cn);if(opp!==correct)opts.add(opp);}
- let tries=0;
- while(opts.size<4 && tries<30){tries++;let alt;
-  if(!isNaN(cn)){const delta=ri(-5,5)||ri(1,3);let v=Math.round((cn+delta)*100)/100;if(Number.isInteger(cn)&&Math.abs(cn)<200)v=cn+delta;alt=czMC(v);}
-  else alt=correct==='ANO'?'NE':'ANO';
-  if(alt!==correct)opts.add(alt);
- }
- const arr=_mcVolby(t)||[...opts].sort(()=>Math.random()-.5);
+ // volby staví sdílené mcVolby2 (rpg-shared.js): rovnoměrné pořadí, znaménko jen u záporných čísel
+ const arr=_mcVolby(t)||mcVolby2(t);
  grid.innerHTML='';
  arr.forEach((opt,i)=>{const b=document.createElement('button');b.className='mc-btn c'+i;b.innerHTML=`<span class="mc-key">${'ABCD'[i]}</span>${opt}`;b.onclick=()=>trPickMC(opt,b);grid.appendChild(b);});
 }

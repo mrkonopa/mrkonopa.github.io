@@ -1347,8 +1347,15 @@ function updateCombo(){
 
 // MC distractory: pro celá čísla škáluje krok podle velikosti/zaokrouhlení (aby u velkých čísel
 // nebyly odpovědi triviálně odlišitelné), jinak ANO/NE/MOŽNÁ.
-function mcDistractors(ans){
- const s=String(ans).trim();const base=parseInt(s,10);const wrong=[];
+function mcDistractors(ans,povinne){
+ const s=String(ans).trim();const base=parseInt(s,10);
+ /* Kandidáti na OBĚ strany; kolik voleb půjde pod správnou, losuje mcRozloz
+    (rpg-shared.js). Dřív se sousedé přidávali v pevném pořadí −1, +1, −2,
+    takže správná odpověď byla ve 3. ročníku v 88 % případů druhá největší
+    a nikdy největší — dítě, které si toho všimne, nemusí počítat.
+    `povinne` = kurátorské distraktory úlohy; vrací se jen DOPLNĚK k nim. */
+ const pov=(povinne||[]).map(mcCislo).filter(v=>!isNaN(v));
+ const doplnek=(spr,dolu,nahoru)=>mcRozloz(spr,pov,dolu,nahoru).filter(v=>!pov.includes(v));
  if(s!==''&&s!=='NaN'&&String(base)===s){
   const mag=Math.abs(base);let step=1;
   if(base%1000===0&&mag>=1000)step=1000;
@@ -1357,40 +1364,36 @@ function mcDistractors(ans){
   else if(mag>=10000)step=100;
   else if(mag>=1000)step=10;
   else if(base%10===0&&mag>=10)step=10;
-  const offs=[-1,1,-2,2,3,-3,4,-4];
-  for(let i=0;i<offs.length&&wrong.length<3;i++){const v=base+offs[i]*step;if(v!==base&&v>=0&&!wrong.includes(v))wrong.push(v);}
-  for(let k=5;k<60&&wrong.length<3;k++){const v=base+k*step;if(v!==base&&!wrong.includes(v))wrong.push(v);}
+  const dolu=[],nahoru=[];
+  for(let i=1;i<=3;i++){const v=base-i*step;if(v>=0||base<0)dolu.push(v);}
+  for(let i=1;i<60;i++)nahoru.push(base+i*step);
+  return doplnek(base,dolu,nahoru).map(String);
  }else if(!isNaN(parseFloat(s.replace(',','.')))){
   /* DESETINNÁ odpověď. Dřív sem spadla do větve níž a volby vyšly jako
      „ANO / 2.4 / 240 / NE" — u otázky „Kolik hodin spí drak?". Kromě
      nesmyslu to rovnou PROZRADILO odpověď: jediné smysluplné číslo mezi
      volbami bylo to správné, takže dítě nemuselo počítat.
-     2. stupeň to dělá správně (`parseFloat(correct.replace(',','.'))`);
-     tohle je doplnění téhož do 1. stupně.
      Volby se porovnávají přes `checkAns`, které českou čárku i zlomky
      zvládá, takže je bezpečné psát je s čárkou. */
   const cn=parseFloat(s.replace(',','.'));
   const des=Math.min(3,(s.split(/[.,]/)[1]||'').length);
   const p=Math.pow(10,des);
   const zapis=v=>{const z=Math.round(v*p)/p;return des?String(z).replace('.',','):String(z);};
-  const kroky=[1/p,-1/p,2/p,-2/p,1,-1,10,-10];
-  for(let i=0;i<kroky.length&&wrong.length<3;i++){
-   const v=cn+kroky[i];
-   if(v<0)continue;
-   const z=zapis(v);
-   if(z!==zapis(cn)&&!wrong.includes(z))wrong.push(z);
-  }
-  for(let k=2;k<60&&wrong.length<3;k++){const z=zapis(cn+k);if(z!==zapis(cn)&&!wrong.includes(z))wrong.push(z);}
- }else{
-  ['ANO','NE','MOŽNÁ','NEVÍM','0','1'].forEach(x=>{if(x!==s&&!wrong.includes(x)&&wrong.length<3)wrong.push(x);});
-  for(let n=2;wrong.length<3;n++){const c='?'+n;if(c!==s&&!wrong.includes(c))wrong.push(c);}
+  const dolu=[],nahoru=[];
+  for(let i=1;i<=3;i++){const v=Math.round((cn-i/p)*p)/p;if(v>=0)dolu.push(v);}
+  for(let i=1;i<=3;i++)nahoru.push(Math.round((cn+i/p)*p)/p);
+  for(let k=1;k<60;k++)nahoru.push(Math.round((cn+k)*p)/p);
+  return doplnek(Math.round(cn*p)/p,dolu,nahoru).map(zapis);
  }
- return wrong.slice(0,3).map(String);
+ const wrong=[];
+ ['ANO','NE','MOŽNÁ','NEVÍM','0','1'].forEach(x=>{if(x!==s&&!wrong.includes(x)&&wrong.length<3)wrong.push(x);});
+ for(let n=2;wrong.length<3;n++){const c='?'+n;if(c!==s&&!wrong.includes(c))wrong.push(c);}
+ return wrong;
 }
 /* Shoda se posuzuje na ZOBRAZENÉM zápisu (czMC), jinak by kurátorský
    distraktor „2,4“ prošel vedle správné „2.4“ a po sjednocení by
    vznikly dvě totožné volby. */
-function _mcWrong(t,ans){const a=czMC(ans),out=[];const pridej=x=>{const s=czMC(x);if(s!==a&&!out.includes(s)&&out.length<3)out.push(s);};if(Array.isArray(t.distractors))t.distractors.forEach(pridej);mcDistractors(String(ans)).forEach(pridej);return out;}
+function _mcWrong(t,ans){const a=czMC(ans),out=[];const pridej=x=>{const s=czMC(x);if(s!==a&&!out.includes(s)&&out.length<3)out.push(s);};if(Array.isArray(t.distractors))t.distractors.forEach(pridej);mcDistractors(String(ans),t.distractors).forEach(pridej);return out;}
 /* Zápis voleb se SJEDNOTÍ na českou čárku. Bez toho se správná odpověď
    z banky psala „2.4“ s tečkou, zatímco generované distraktory měly
    čárku (nebo naopak) — ta jediná odlišně zapsaná volba tedy byla ta

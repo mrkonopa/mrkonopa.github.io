@@ -32,7 +32,7 @@ window.RPG_TASK_EXTRA_8 = {
  // ───────── OBLAST 1 — ÚDOLÍ OPAKOVÁNÍ ─────────
  '1-1': () => [   // Celá čísla (MC, jen numerické/ANO-NE)
   (()=>{const a=ri(8,40),b=ri(8,40);return{text:`${rp(FC)}:\n(-${a}) + (-${b}) =`,ans:String(-a-b),distractors:[String(-a+b)],hints:[`Obě čísla záporná → sečti a dej minus.`,`-(${a}+${b})`],skill:'calc'};})(),
-  (()=>{const a=ri(10,40),b=ri(10,40);return{text:`${rp(FC)}:\n(-${a}) - (-${b}) =`,ans:String(-a+b),distractors:[String(-a-b)],hints:[`- (-${b}) = + ${b}.`,`-${a} + ${b}`],skill:'calc'};})(),
+  (()=>{const a=ri(10,40),b=ri(10,40);return{text:`${rp(FC)}:\n(−${a}) − (−${b}) =`,ans:String(-a+b),distractors:[String(-a-b)],hints:[`−(−${b}) = +${b}.`,`−${a} + ${b}`],skill:'calc'};})(),
   (()=>{const a=ri(3,12),b=ri(3,9);return{text:`${rp(FC)}:\n(-${a}) × ${b} =`,ans:String(-a*b),distractors:[String(a*b)],hints:[`Mínus × plus = mínus.`],skill:'calc'};})(),
   (()=>{const b=ri(3,9),q=ri(3,9),a=b*q;return{text:`${rp(FC)}:\n(-${a}) : (-${b}) =`,ans:String(q),distractors:[String(-q)],hints:[`Mínus : mínus = plus.`,`${a} : ${b}`],skill:'calc'};})(),
   (()=>{const a=ri(5,20);return{text:`Vypočítej absolutní hodnotu:\n|-${a}| =`,ans:String(a),distractors:[String(-a)],hints:[`Absolutní hodnota je vždy nezáporná.`],skill:'calc'};})(),

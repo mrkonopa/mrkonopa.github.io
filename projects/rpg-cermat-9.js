@@ -645,7 +645,9 @@
 
   function gen5b() {
     // 4 body — obdélníková zahrada: rozměr záhonu + volná plocha
-    const L = ri(3, 6) * 10, W = ri(2, 4) * 10, celk = L * W;
+    // obdélníková zahrada nesmí vyjít jako čtverec (30 × 30 bylo ve 2 % losů)
+    const L = ri(3, 6) * 10; let W; do { W = ri(2, 4) * 10; } while (W === L);
+    const celk = L * W;
     const zahon = celk / 4, zL = L / 2, zW = zahon / zL;   // zW = W/2, celé
     const pCesta = ri(2, 6) * 5, cesta = celk * pCesta / 100;
     const volna = celk - zahon - cesta;

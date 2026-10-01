@@ -39,8 +39,8 @@ function gen_1_1(){
     ()=>{const i=ri(150,899);return{text:`Zaokrouhli ${i} na stovky.`,ans:Math.round(i/100)*100,dis:(Math.floor(i/100)*100!==Math.round(i/100)*100?[String(Math.floor(i/100)*100)]:[]),h1:'Rozhoduje číslice desítek.',h2:`≈ ${Math.round(i/100)*100}`};},
     ()=>{const i=ri(115,985);return{text:`Zaokrouhli ${i} na desítky.`,ans:Math.round(i/10)*10,dis:(Math.floor(i/10)*10!==Math.round(i/10)*10?[String(Math.floor(i/10)*10)]:[]),h1:'Rozhoduje číslice jednotek.',h2:`≈ ${Math.round(i/10)*10}`};},
     ()=>{const j=ri(3,9),k=ri(3,9),l=ri(5,40);return{text:ask(`${j} × ${k} + ${l}`),ans:j*k+l,dis:[String(j*(k+l))],h1:'Nejdřív násobení, pak sčítání.',h2:`${j*k}+${l} = ${j*k+l}`};},
-    ()=>{const a=ri(3,9),b=ri(3,9),c=ri(2,12);return{text:ask(`${a} × ${b} − ${c}`),ans:a*b-c,dis:[String(a*(b-c))],h1:'Nejdřív násobení, pak odčítání.',h2:`${a*b}−${c} = ${a*b-c}`};},
-    ()=>{const a=ri(300,900),b=ri(50,250),c=ri(20,90);return{text:ask(`${a} − ${b} − ${c}`),ans:a-b-c,dis:[String(a-b+c)],h1:'Odečítej postupně zleva doprava.',h2:`${a}−${b} = ${a-b}, pak −${c} = ${a-b-c}`};},
+    ()=>{const a=ri(3,9),b=ri(3,9),c=ri(2,Math.min(12,a*b-1));/* záporná čísla se v 6. ročníku neučí: typická chyba „nejdřív odčítání“ jen když vyjde kladně */return{text:ask(`${a} × ${b} − ${c}`),ans:a*b-c,dis:(b>c?[String(a*(b-c))]:[]),h1:'Nejdřív násobení, pak odčítání.',h2:`${a*b}−${c} = ${a*b-c}`};},
+    ()=>{const a=ri(300,900),b=ri(50,250),c=ri(20,90);return{text:ask(`${a} − ${b} − ${c}`),ans:a-b-c,dis:[String(a-b+c)],h1:'Odečítej postupně zleva doprava.',h2:`${a}−${b} = ${a-b}, pak ${a-b}−${c} = ${a-b-c}`};},
     ()=>{const a=ri(120,600),b=ri(80,380);return{text:`Doplň: ${a} + ? = ${a+b}`,ans:b,dis:[String(a+b)],h1:`Odečti: ${a+b} − ${a}.`,h2:`= ${b}`};},
     ()=>{const b=ri(3,9),q=ri(11,40);return{text:`Doplň: ? × ${b} = ${b*q}`,ans:q,dis:[String(b*q)],h1:`Vyděl: ${b*q} : ${b}.`,h2:`= ${q}`};},
     ()=>{const s=new Set();while(s.size<3)s.add(ri(120,980));const arr=[...s];return{text:`Které z čísel ${arr[0]}, ${arr[1]}, ${arr[2]} je největší?`,ans:Math.max(...arr),mc_opts:arr,dis:[String(Math.min(...arr))],h1:'Porovnej stovky, pak nižší řády.',h2:`= ${Math.max(...arr)}`};},
@@ -152,7 +152,7 @@ function gen_2_3(){
     ()=>{const d=ri(4,9),a=ri(1,d-2),b=ri(1,d-a-1)||1;const num=a+b,g=gcd(num,d);const red=g===d?String(num/g):`${num/g}/${d/g}`;return{text:`Sečti zlomky se stejným jmenovatelem: ${a}/${d} + ${b}/${d} = ?`,ans:red,h1:'Jmenovatel opiš, sčítej jen čitatele.',h2:`${a}+${b} = ${num}, tedy ${num}/${d}${g>1?' = '+red:''}`};},
     ()=>{const e=ri(5,9),c=ri(2,e-1),f=ri(1,c-1)||1;const numD=c-f,gD=gcd(numD,e);return{text:`Odečti zlomky: ${c}/${e} − ${f}/${e} = ?`,ans:numD===0?'0':(gD===e?String(numD/gD):`${numD/gD}/${e/gD}`),h1:'Jmenovatel opiš, odečti čitatele.',h2:`${c}−${f} = ${numD}, tedy ${numD}/${e}`};},
     ()=>{const x=ri(2,9)*2,y=ri(2,9)*2;return{text:`Jaký je aritmetický průměr čísel ${x} a ${y}?`,ans:(x+y)/2,h1:'Sečti obě čísla a vyděl dvěma.',h2:`(${x}+${y}) : 2 = ${(x+y)/2}`};},
-    ()=>{const p=ri(2,9),q=ri(2,9),rr=3*ri(3,9)-p-q;return{text:`Jaký je průměr tří čísel ${p}, ${q} a ${rr}?`,ans:(p+q+rr)/3,h1:'Sečti všechna tři a vyděl třemi.',h2:`(${p}+${q}+${rr}) : 3 = ${(p+q+rr)/3}`};},
+    ()=>{const p=ri(2,9),q=ri(2,9),rr=3*ri(Math.max(3,Math.ceil((p+q+1)/3)),9)-p-q;/* dřív i záporné třetí číslo — v 6. ročníku */return{text:`Jaký je průměr tří čísel ${p}, ${q} a ${rr}?`,ans:(p+q+rr)/3,h1:'Sečti všechna tři a vyděl třemi.',h2:`(${p}+${q}+${rr}) : 3 = ${(p+q+rr)/3}`};},
     ()=>{const dd=ri(2,5),nn=dd*ri(3,8);return{text:`Kolik je 1/${dd} z čísla ${nn}?`,ans:nn/dd,h1:`Vyděl číslo jmenovatelem: ${nn} : ${dd}.`,h2:`= ${nn/dd}`};},
     ()=>{const dd=ri(3,6),nn=dd*ri(3,8),k=ri(2,dd-1);return{text:`Kolik je ${k}/${dd} z čísla ${nn}?`,ans:nn/dd*k,h1:`Nejdřív ${nn} : ${dd} = ${nn/dd}, pak × ${k}.`,h2:`= ${nn/dd*k}`};},
     ()=>{const z1=ri(1,3),z2=ri(1,3),z3=ri(1,4),z4=ri(1,4);return{text:`Sonda poslala 4 měření síly signálu: ${z1}, ${z2}, ${z3}, ${z4}. Jaký je jejich průměr? (na 2 desetinná místa)`,ans:r2((z1+z2+z3+z4)/4),h1:'Sečti všechna čtyři měření a vyděl čtyřmi.',h2:`= ${r2((z1+z2+z3+z4)/4)}`};},
@@ -428,7 +428,7 @@ function gen_6_1(){
   { const a=ri(2,8),b=ri(2,8),h=ri(2,5); tasks.push({text:`Kvádr: podstava ${a} × ${b} cm, výška ${h} cm. Objem?`,ans:a*b*h,hints:['V = S·v = a·b·v.',`= ${a*b*h} cm³`],skill:'geo'}); }
   // SVG slovní úlohy s diagramem
   { const a=ri(3,6),b=ri(2,5),c=ri(2,4); tasks.push({svg:svgCuboid(`${a} dm`,`${b} dm`,`${c} dm`),text:`Nádrž tvaru kvádru má rozměry ${a} × ${b} × ${c} dm.\nKolik litrů vody pojme? (1 dm³ = 1 l)`,ans:a*b*c,hints:['V = a · b · c.',`${a} · ${b} · ${c} = ${a*b*c} l`],skill:'geo'}); }
-  { const a=ri(2,6); tasks.push({svg:svgCuboid(`${a} cm`,`${a} cm`,`${a} cm`),text:`Kostka tvaru krychle má hranu ${a} cm.\nJaký je její objem? (cm³)`,ans:a*a*a,hints:['V = a³.',`${a}³ = ${a*a*a} cm³`],skill:'geo'}); }
+  { const a=ri(2,6); tasks.push({svg:svgKrychle(`${a} cm`),text:`Kostka tvaru krychle má hranu ${a} cm.\nJaký je její objem? (cm³)`,ans:a*a*a,hints:['V = a³.',`${a}³ = ${a*a*a} cm³`],skill:'geo'}); }
   return tasks;
 }
 

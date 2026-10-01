@@ -9,6 +9,8 @@ const cz = n => String(n).replace('.',',');
 const r1 = n => cz(Math.round(n*10)/10);
 const r2 = n => cz(Math.round(n*100)/100);
 const pick = a => a[Math.floor(Math.random()*a.length)];
+// záporné číslo za operátorem patří do závorky: „2·(−2) − (−4)“, ne „2·-2−-4“
+const zav = n => n < 0 ? '(−' + (-n) + ')' : String(n);
 // FRAMING POOL — mění jen sloveso výzvy, ne odpověď (bezpečné i pro MC)
 const askCalc = e => pick([`Vypočítej ${e} = ?`,`Spočítej ${e} = ?`,`Urči hodnotu výrazu ${e}.`,`Kolik je ${e}?`]);
 const fq = e => pick(['Vypočítej','Spočítej','Urči hodnotu'])+`: ${e}`;
@@ -28,7 +30,7 @@ function gen_1_1(){
   tasks.push({text:mem(`${a} + ${b}`),ans:a+b,distractors:[String(a+b-10)],hints:[`Zaokrouhlej ${a} na desítky a uprav.`,`${a} + ${b} = ${a+b}`],skill:'calc'});
   // odčítání
   const c=ri(40,90),d=ri(11,c-5);
-  tasks.push({text:mem(`${c} − ${d}`),ans:c-d,distractors:[String(c-d-10)],hints:[`Odečti po částech.`,`${c} − ${d} = ${c-d}`],skill:'calc'});
+  tasks.push({text:mem(`${c} − ${d}`),ans:c-d,distractors:[String(c-d-10>=0?c-d-10:c-d+10)],/* „45 − 37“ nesmí nabízet −2 */hints:[`Odečti po částech.`,`${c} − ${d} = ${c-d}`],skill:'calc'});
   // násobení
   const e=ri(4,9),f=ri(6,12);
   tasks.push({text:mem(`${e} × ${f}`),ans:e*f,distractors:[String(e*f-e)],hints:[`Rozlož ${f} = ${Math.floor(f/2)} + ${f-Math.floor(f/2)}.`,`${e} × ${f} = ${e*f}`],skill:'calc'});
@@ -471,16 +473,16 @@ function gen_6_2(){
   const a=ri(2,8),b=ri(2,8);
   tasks.push({text:`Bod A [${a}, ${b}] je obrazem středové souměrnosti podle středu S [0, 0]. Jaká je x-souřadnice vzoru?`,ans:-a,hints:['Souřadnice vzoru jsou opačné k obrazu.','x-souřadnice vzoru = −'+a+' = '+(-a)],skill:'geo'});
   const c=ri(-5,5),d=ri(-5,5),sx=ri(-3,3),sy=ri(-3,3);
-  tasks.push({text:`Střed souměrnosti je S [${sx}, ${sy}], vzor A [${c}, ${d}]. Jaká je x-souřadnice obrazu A'?`,ans:2*sx-c,hints:["Obraz: x' = 2·sx − x vzoru.",'= 2·'+sx+'−'+c+' = '+(2*sx-c)],skill:'geo'});
+  tasks.push({text:`Střed souměrnosti je S [${sx}, ${sy}], vzor A [${c}, ${d}]. Jaká je x-souřadnice obrazu A'?`,ans:2*sx-c,hints:["Obraz: x' = 2·sx − x vzoru.",'= 2·'+zav(sx)+' − '+zav(c)+' = '+(2*sx-c)],skill:'geo'});
   tasks.push({text:'Má obdélník středovou souměrnost?',ans:'ANO',hints:['Střed souměrnosti = průsečík úhlopříček.','ANO.'],skill:'geo'});
   tasks.push({text:'Má pravidelný šestiúhelník středovou souměrnost?',ans:'ANO',hints:['Střed = průsečík os.','ANO.'],skill:'geo'});
-  { const a=ri(2,8),b=ri(2,8),sx=ri(-3,3),sy=ri(-3,3);tasks.push({text:`Střed S [${sx}, ${sy}], vzor A [${a}, ${b}]. y-souřadnice obrazu A'?`,ans:2*sy-b,hints:["Obraz: y' = 2·sy − y vzoru.",'= 2·'+sy+'−'+b+' = '+(2*sy-b)],skill:'geo'}); }
+  { const a=ri(2,8),b=ri(2,8),sx=ri(-3,3),sy=ri(-3,3);tasks.push({text:`Střed S [${sx}, ${sy}], vzor A [${a}, ${b}]. y-souřadnice obrazu A'?`,ans:2*sy-b,hints:["Obraz: y' = 2·sy − y vzoru.",'= 2·'+zav(sy)+' − '+zav(b)+' = '+(2*sy-b)],skill:'geo'}); }
   tasks.push({text:'Má rovnoramenný trojúhelník středovou souměrnost?',ans:'NE',hints:['Trojúhelník nikdy nemá středovou souměrnost.','NE.'],skill:'geo'});
   tasks.push({text:'Má kosočtverec středovou souměrnost?',ans:'ANO',hints:['Střed souměrnosti = průsečík úhlopříček.','ANO.'],skill:'geo'});
   { const c=ri(-6,6),d=ri(-6,6); tasks.push({text:`Obraz bodu [${c}, ${d}] při středové souměrnosti podle O [0,0]. y-souřadnice?`,ans:-d,hints:["y' = −y.",'= '+(-d)],skill:'geo'}); }
   // thematické
   { const a=ri(2,8),b=ri(2,8); tasks.push({text:`Socha stojí v bodě [${a}, ${b}]. Její zrcadlový obraz podle oltáře v počátku S [0, 0] má jakou x-souřadnici?`,ans:-a,hints:["Střed v počátku: x' = −x.",`= ${-a}`],skill:'geo'}); }
-  { const sx=ri(-3,3),sy=ri(-3,3),c=ri(-5,5),d=ri(-5,5); tasks.push({text:`Oltář je střed souměrnosti S [${sx}, ${sy}]. Kamenný sloup stojí ve vzoru A [${c}, ${d}]. Jaká je y-souřadnice jeho obrazu A'?`,ans:2*sy-d,hints:["y' = 2·sy − y.",`= 2·${sy} − ${d} = ${2*sy-d}`],skill:'geo'}); }
+  { const sx=ri(-3,3),sy=ri(-3,3),c=ri(-5,5),d=ri(-5,5); tasks.push({text:`Oltář je střed souměrnosti S [${sx}, ${sy}]. Kamenný sloup stojí ve vzoru A [${c}, ${d}]. Jaká je y-souřadnice jeho obrazu A'?`,ans:2*sy-d,hints:["y' = 2·sy − y.",`= 2·${zav(sy)} − ${zav(d)} = ${2*sy-d}`],skill:'geo'}); }
   return tasks;
 }
 
@@ -580,7 +582,8 @@ function gen_7_3(){
   const tasks=[];
   // zlomky + celá čísla
   const a=ri(2,6),b=ri(3,8);const g=gcd(a,b);
-  tasks.push({text:`Výsledek: ${a}/${b} + ${b-a}/${b} = ?`,ans:'1',hints:['Stejný jmenovatel, přičti čitatele.',''+a+'/'+ b+' + '+(b-a)+'/'+b+' = '+b+'/'+b+' = 1'],skill:'calc'});
+  const zl2 = b-a<0 ? `(−${a-b}/${b})` : `${b-a}/${b}`;
+  tasks.push({text:`Výsledek: ${a}/${b} + ${zl2} = ?`,ans:'1',hints:['Stejný jmenovatel, přičti čitatele.',`${a}/${b} + ${zl2} = ${b}/${b} = 1`],skill:'calc'});
   // procenta
   const c=ri(10,30)*10,p=ri(10,30);
   tasks.push({text:`${p} % z ${c} = ?`,ans:Math.round(p/100*c),hints:['Část = základ × p/100.',''+Math.round(p/100*c)],skill:'calc'});
@@ -599,7 +602,7 @@ function gen_7_3(){
   { const a=ri(5,20),b=ri(3,12); tasks.push({text:`(−${a}) + ${b} = ?`,ans:b-a,hints:['Záporné + kladné: odečti menší od většího.',`${b}−${a} = ${b-a}`],skill:'calc'}); }
   { const c=ri(1,4)*10,d=ri(3,8)*100; tasks.push({text:`${c} % z ${d} = ?`,ans:Math.round(c/100*d),hints:['část = základ × p/100.','= '+Math.round(c/100*d)],skill:'calc'}); }
   { const e=ri(4,12),f=ri(3,10),ht=ri(3,8); tasks.push({text:`Lichoběžník, základny ${e} a ${f} cm, výška ${ht} cm. Obsah?`,ans:(e+f)*ht/2,hints:['S = (a+c)/2·h.',`${(e+f)*ht/2} cm²`],skill:'geo'}); }
-  { const g=ri(3,7),h2=ri(2,5);const top=1*g+ri(1,g-1);const g2=gcd(top,g);const ans=g2===g?String(top/g2):`${top/g2}/${g/g2}`;tasks.push({text:`${h2}/${g} + ${g-h2}/${g} = ?`,ans:'1',hints:['Jmenovatelé stejní, sečti čitatele.',`${h2}+(${g-h2}) = ${g}, tj. ${g}/${g} = 1`],skill:'calc'}); }
+  { const g=ri(3,7),h2=ri(2,5);const top=1*g+ri(1,g-1);const g2=gcd(top,g);const ans=g2===g?String(top/g2):`${top/g2}/${g/g2}`;const zl2 = g-h2<0 ? `(−${h2-g}/${g})` : `${g-h2}/${g}`; tasks.push({text:`${h2}/${g} + ${zl2} = ?`,ans:'1',hints:['Jmenovatelé stejní, sečti čitatele.',`${h2} + ${zav(g-h2)} = ${g}, tj. ${g}/${g} = 1`],skill:'calc'}); }
   // framing pool na bare drily
   { const e=ri(2,9),f=ri(2,9); tasks.push({text:askCalc(`(−${e}) × (−${f})`),ans:e*f,hints:['Záporné × záporné = kladné.',`= ${e*f}`],skill:'calc'}); }
   { const p=ri(10,30),c=ri(10,30)*10; tasks.push({text:askCalc(`${p} % z ${c}`),ans:Math.round(p/100*c),hints:['část = základ × p/100.',`= ${Math.round(p/100*c)}`],skill:'calc'}); }

@@ -42,7 +42,8 @@ const ok = (c, m, d) => { if (c) { pass++; console.log('  ✅ ' + m); } else { f
 
 /* ── načtení kreslicích funkcí ─────────────────────────────────────── */
 const EXPORT = '\n;return {svgAngle,svgCross,svgCuboid,svgTriangle,svgRightTri,svgMirror,' +
-  'svgPointSym,svgParallelogram,svgTrapezoid,svgLineGraph,svgCylinder,svgCone,svgSphere,svgSimilar,svgNumLine};';
+  'svgPointSym,svgParallelogram,svgTrapezoid,svgLineGraph,svgCylinder,svgCone,svgSphere,svgSimilar,svgNumLine,' +
+  'svgObdelnik,svgTrojVyska,svgVedlejsi,svgTrojUhly,svgKrychle,svgHranol3};';
 const jadroSrc = fs.readFileSync(path.join(ROOT, 'projects/rpg-svg-9.js'), 'utf8');
 const JADRO = new Function(jadroSrc + EXPORT)();
 
@@ -82,8 +83,8 @@ function bankaCermat() {
   {
     const bezBarev = s => s.replace(/#[0-9a-fA-F]{6}\b/g, '#');
     const KOPIE = [
-      ['projects/rpg-mat-6.html', ['svgAngle', 'svgCross', 'svgCuboid', 'svgTriangle', 'svgMirror']],
-      ['projects/rpg-mat-7.html', ['svgAngle', 'svgCross', 'svgCuboid', 'svgTriangle', 'svgMirror',
+      ['projects/rpg-mat-6.html', ['svgAngle', 'svgCross', 'svgCuboid', 'svgKrychle', 'svgTriangle', 'svgMirror']],
+      ['projects/rpg-mat-7.html', ['svgAngle', 'svgCross', 'svgCuboid', 'svgKrychle', 'svgTriangle', 'svgMirror',
         'svgPointSym', 'svgParallelogram', 'svgTrapezoid']],
     ];
     const rozdilne = []; let porovnano = 0;
@@ -99,7 +100,7 @@ function bankaCermat() {
         }
       }
     }
-    ok(porovnano === 13, 'porovnáno ' + porovnano + ' kopií kreslicích funkcí (6. a 7. ročník)');
+    ok(porovnano === 15, 'porovnáno ' + porovnano + ' kopií kreslicích funkcí (6. a 7. ročník)');
     ok(rozdilne.length === 0, 'kopie v hrách mají shodnou geometrii se sdíleným jádrem (liší se jen barvy)',
       rozdilne.slice(0, 2).join(' | '));
   }
@@ -125,6 +126,14 @@ function bankaCermat() {
       const u = C.genSlot(10);
       if (u && u.svg && /data-vrchol/.test(u.svg)) { kresby.add(u.svg); zPozice11.add(u.svg); }
     }
+    /* Sdílené kresby úhlů pro „základ" přijímaček (vedlejší úhly, trojúhelník
+       z úhlů) — přes celý rozsah, který generátory losují. */
+    const zakladu = new Set();
+    for (let x = 20; x <= 160; x += 5) zakladu.add(JADRO.svgVedlejsi(x, x + '°', '?'));
+    for (let al = 20; al <= 90; al += 10) for (let be = 20; be <= Math.max(20, 150 - al); be += 10)
+      zakladu.add(JADRO.svgTrojUhly(al, be, al + '°', be + '°', '?'));
+    zakladu.forEach(s => kresby.add(s));
+    ok(zakladu.size >= 50, 'změřeno i ' + zakladu.size + ' sdílených kreseb úhlů pro „základ" (podlaha 50)');
     // Naměřeno: 6 mnohoúhelníků (5, 6, 8, 9, 10, 12 vrcholů) po 3 obloucích.
     ok(zPozice11.size === 6, 'pozice 11: změřeno ' + zPozice11.size + ' mnohoúhelníků s oblouky (čeká se 6)');
     const r = await page.evaluate(svgs => {
@@ -202,7 +211,7 @@ function bankaCermat() {
      takže mu vyšla blíž ta ustupující a sabotáž „prošla". Vada se pozná až
      na plné dvanáctce, kde starému popisku vyjde nejblíž SVISLÁ hrana vzadu. */
   {
-    const r = await page.evaluate(({ svg }) => {
+    const zmerKvadr = svg => page.evaluate(({ svg }) => {
       const d = document.createElement('div'); d.innerHTML = svg; document.body.appendChild(d);
       const s = d.querySelector('svg');
       /* geometrie kresby: přední stěna x..x+w, y-h..y; ustoupení o (dp,-dd) */
@@ -232,8 +241,9 @@ function bankaCermat() {
       });
       d.remove();
       return out;
-    }, { svg: JADRO.svgCuboid('50 cm', '30 cm', '40 cm') });
-    const ocekavano = { '50 cm': 'šířka', '30 cm': 'výška', '40 cm': 'hloubka' };
+    }, { svg });
+    const r = await zmerKvadr(JADRO.svgCuboid('50 cm', '40 cm', '30 cm'));
+    const ocekavano = { '50 cm': 'šířka', '40 cm': 'výška', '30 cm': 'hloubka' };
     const spatne = r.filter(t => ocekavano[t.txt] !== t.nejblizsi);
     ok(r.length === 3, 'kvádr má tři popisky rozměrů (naměřeno ' + r.length + ')');
     ok(spatne.length === 0,
@@ -241,6 +251,20 @@ function bankaCermat() {
       Math.min(...r.map(t => t.d2 - t.d1)).toFixed(1) + ' px)',
       spatne.map(t => '„' + t.txt + '" (má být ' + ocekavano[t.txt] + ') je nejblíž hraně směru ' +
         t.nejblizsi + ' — ' + t.d1 + ' px').join(' | '));
+    /* Popisky jdou na hrany podle VELIKOSTI (nejdelší nakreslená hrana je
+       šířka 104 px, pak výška 72, nejkratší ustupující hloubka). Dřív šly
+       v pořadí argumentů, takže v 45 % kvádrů v RPG stálo „2" u nejdelší
+       hrany a „9" u nejkratší. Popisek, který není číslo („?" u hledané
+       výšky), pořadí nemění — tam rozhoduje úloha. */
+    const r2 = await zmerKvadr(JADRO.svgCuboid('30 cm', '50 cm', '40 cm'));
+    const spatne2 = r2.filter(t => ocekavano[t.txt] !== t.nejblizsi);
+    ok(spatne2.length === 0, 'kvádr zadaný v libovolném pořadí má největší číslo u šířky a nejmenší u hloubky',
+      spatne2.map(t => '„' + t.txt + '" u ' + t.nejblizsi + ' (má být ' + ocekavano[t.txt] + ')').join(' | '));
+    const r3 = await zmerKvadr(JADRO.svgCuboid('5 cm', '?', '3 cm'));
+    const oc3 = { '5 cm': 'šířka', '?': 'výška', '3 cm': 'hloubka' };
+    const spatne3 = r3.filter(t => oc3[t.txt] !== t.nejblizsi);
+    ok(spatne3.length === 0, 'hledaná hrana „?" zůstane tam, kam ji úloha dala',
+      spatne3.map(t => '„' + t.txt + '" u ' + t.nejblizsi + ' (má být ' + oc3[t.txt] + ')').join(' | '));
   }
 
   /* ── 5. nic se neořezává viewBoxem ──
@@ -260,6 +284,17 @@ function bankaCermat() {
        tedy jeden znak rezervy — víc by byl vymyšlený případ. */
     kresby.push({ jm: 'svgCuboid 6 znaků', svg: JADRO.svgCuboid('120 cm', '250 cm', '333 cm') });
     kresby.push({ jm: 'svgRightTri(12,5)', svg: JADRO.svgRightTri(12, 5, { la: '12 cm', lb: '5 cm', lc: 'c' }) });
+    /* Sdílené kresby „základu" v krajních poměrech, které generátory umí vydat. */
+    for (const [a, b] of [[20, 3], [3, 20], [12, 12], [19, 20], [7, 4]])
+      kresby.push({ jm: 'svgObdelnik(' + a + ',' + b + ')', svg: JADRO.svgObdelnik(a, b, a + ' cm', b + ' cm') });
+    for (const [z, v] of [[4, 15], [24, 3], [12, 8], [24, 15], [6, 6]])
+      kresby.push({ jm: 'svgTrojVyska(' + z + ',' + v + ')', svg: JADRO.svgTrojVyska(z, v, z + ' cm', v + ' cm') });
+    for (const x of [20, 45, 90, 135, 160]) kresby.push({ jm: 'svgVedlejsi(' + x + ')', svg: JADRO.svgVedlejsi(x, x + '°', '?') });
+    for (const [al, be] of [[20, 20], [90, 60], [30, 120], [60, 60], [20, 130]])
+      kresby.push({ jm: 'svgTrojUhly(' + al + ',' + be + ')', svg: JADRO.svgTrojUhly(al, be, al + '°', be + '°', '?') });
+    kresby.push({ jm: 'svgKrychle', svg: JADRO.svgKrychle('12 cm') });
+    for (const [a, va, v] of [[4, 12, 15], [16, 2, 3], [16, 12, 15], [8, 6, 15], [12, 12, 3]])
+      kresby.push({ jm: 'svgHranol3(' + [a, va, v] + ')', svg: JADRO.svgHranol3(a, va, v, a + ' cm', va + ' cm', v + ' cm') });
     /* + všechny tvary, které skutečně vydá banka testu nanečisto */
     const C = bankaCermat(); const videno = new Set();
     for (let b = 0; b < 400; b++) for (let i = 0; i < C.slotCount(); i++) {
