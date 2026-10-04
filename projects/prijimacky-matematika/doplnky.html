@@ -405,7 +405,7 @@ zkouška:  L = 2 + 0,5·(−3 − 3) = 2 − 3 = −1
      Statický obrázek a postup výše jsou úplné samy o sobě. */
   (function () {
     var APPLETY = {
-      m9c: { vyska: 420, prikazy: [
+      m9c: { vyska: 420, okno: [-9, -10, 39, 17], prikazy: [
         'A=(0,0)', 'S=(18.35,9.32)',
         'p=Line((-8,12.94),(38,12.94))',
         'S_0=Midpoint(A,S)', 'k=Circle(S_0,A)',
@@ -413,11 +413,10 @@ zkouška:  L = 2 + 0,5·(−3 − 3) = 2 − 3 = −1
         'C_1=2S-D_1', 'C_2=2S-D_2',
         'B_1=A+C_1-D_1', 'B_2=A+C_2-D_2',
         'ctyr1=Polygon(A,B_1,C_1,D_1)', 'ctyr2=Polygon(A,B_2,C_2,D_2)',
-        'SetColor(ctyr1,26,115,200)', 'SetColor(ctyr2,15,138,114)',
-        'SetColor(k,150,150,150)', 'SetLineStyle(k,2)',
-        'ZoomIn(-9,-10,39,17)'
+        'SetColor(ctyr1,"#1A73C8")', 'SetColor(ctyr2,"#0F8A72")',
+        'SetColor(k,"#969696")', 'SetLineStyle(k,2)'
       ] },
-      nan: { vyska: 430, prikazy: [
+      nan: { vyska: 430, okno: [-9, -4, 31, 23], prikazy: [
         'A=(0,0)', 'C=(16.82,17.33)', 'P=(10.44,10.73)', 'X=(22.96,2.81)',
         'q=Line(P,X)', 'e=Line(A,C)',
         'S_0=Midpoint(A,C)', 'k=Circle(S_0,A)',
@@ -426,14 +425,37 @@ zkouška:  L = 2 + 0,5·(−3 − 3) = 2 − 3 = −1
         'r_1=Line(A,Line(C,D_1))', 'r_2=Line(A,Line(C,D_2))',
         'B_1=Intersect(b_1,r_1)', 'B_2=Intersect(b_2,r_2)',
         'lich1=Polygon(A,B_1,C,D_1)', 'lich2=Polygon(A,B_2,C,D_2)',
-        'SetColor(lich1,26,115,200)', 'SetColor(lich2,15,138,114)',
-        'SetColor(k,150,150,150)', 'SetLineStyle(k,2)',
-        'SetVisibleInView(r_1,1,false)', 'SetVisibleInView(r_2,1,false)',
-        'ZoomIn(-9,-4,31,23)'
+        'SetColor(lich1,"#1A73C8")', 'SetColor(lich2,"#0F8A72")',
+        'SetColor(k,"#969696")', 'SetLineStyle(k,2)',
+        'SetVisibleInView(r_1,1,false)', 'SetVisibleInView(r_2,1,false)'
       ] }
     };
 
     var nacitaSe = null;   // slib na deployggb.js, ať se nestahuje dvakrát
+    var API = {};          // načtené applety podle kódu úlohy
+
+    /* Postaví konstrukci od nuly — při spuštění i tlačítkem „Vrátit do výchozího stavu".
+       Vlastní ⟳ GeoGebry použít nejde: vrací applet do stavu PŘED příkazy, tedy smaže celou
+       konstrukci (ověřeno na jádru GeoGebry: 26 objektů → 0). Barvy se zadávají hexem —
+       SetColor s čísly bere složky 0–1, takže „26,115,200" dalo bílou a mnohoúhelníky
+       i kružnice byly na bílé nákresně neviditelné. */
+    function postav(api, cfg) {
+      api.newConstruction();
+      for (var i = 0; i < cfg.prikazy.length; i++) {
+        try { api.evalCommand(cfg.prikazy[i]); } catch (e) { /* jeden příkaz navíc nesmí shodit zbytek */ }
+      }
+      try { api.setAxesVisible(false, false); api.setGridVisible(false); } catch (e) {}
+      try { api.getAllObjectNames().forEach(function (n) { if (api.getObjectType(n) === 'point') api.setLabelVisible(n, true); }); } catch (e) {}
+      // Stejné měřítko v obou osách — jinak je Thaletova kružnice elipsa a pravý úhel
+      // nevypadá jako pravý. Okno konstrukce se do nákresny vepíše celé.
+      var o = cfg.okno;
+      try {
+        var vp = JSON.parse(api.getViewProperties(1));
+        var m = Math.min(vp.width / (o[2] - o[0]), vp.height / (o[3] - o[1]));
+        var cx = (o[0] + o[2]) / 2, cy = (o[1] + o[3]) / 2, rx = vp.width / m / 2, ry = vp.height / m / 2;
+        api.setCoordSystem(cx - rx, cx + rx, cy - ry, cy + ry);
+      } catch (e) { api.evalCommand('ZoomIn(' + o.join(',') + ')'); }
+    }
 
     function knihovna() {
       if (nacitaSe) return nacitaSe;
@@ -456,21 +478,24 @@ zkouška:  L = 2 + 0,5·(−3 − 3) = 2 − 3 = −1
       var box = document.getElementById('ggb-' + kod);
       var fb = document.getElementById('ggb-' + kod + '-fb');
       if (!cfg || !box) return;
+      if (API[kod]) return postav(API[kod], cfg);
       tlacitko.disabled = true;
       tlacitko.textContent = 'Načítám GeoGebru…';
       knihovna().then(function () {
         var app = new window.GGBApplet({
-          appName: 'geometry', language: 'cs',
+          // „classic" s perspektivou G = jen nákresna; aplikace „geometry" nechávala vlevo
+          // panel algebry přes třetinu šířky
+          appName: 'classic', perspective: 'G', language: 'cs',
           width: box.clientWidth || 640, height: cfg.vyska,
           showToolBar: false, showAlgebraInput: false, showMenuBar: false,
-          showResetIcon: true, enableRightClick: false, enableLabelDrags: false,
+          showResetIcon: false, enableRightClick: false, enableLabelDrags: false,
           enableShiftDragZoom: true, capturingThreshold: 5,
           appletOnLoad: function (api) {
-            for (var i = 0; i < cfg.prikazy.length; i++) {
-              try { api.evalCommand(cfg.prikazy[i]); } catch (e) { /* jeden příkaz navíc nesmí shodit zbytek */ }
-            }
+            API[kod] = api;
+            postav(api, cfg);
             if (fb) fb.hidden = true;
-            tlacitko.parentNode.hidden = true;
+            tlacitko.disabled = false;
+            tlacitko.textContent = '↺ Vrátit do výchozího stavu';
           }
         }, true);
         app.inject('ggb-' + kod);

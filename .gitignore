@@ -11,3 +11,6 @@ tests/diag-*.cjs
 # Stažené PDF CERMATu (tools/cermat-archiv/stahni.py) — stovky MB, dají se stáhnout znovu
 tools/cermat-archiv/.cache/
 __pycache__/
+
+# Jádro GeoGebry pro tools/ggb-overeni.cjs (48 MB z npm) — dá se stáhnout znovu
+tools/ggb-overeni/.cache/
