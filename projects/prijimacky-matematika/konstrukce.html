@@ -115,7 +115,7 @@
     <div class="kn-akce">
       <button class="pz-btn primary" id="kn-vyhodnot" onclick="knVyhodnot()">Vyhodnotit</button>
       <button class="pz-btn" id="kn-hint-btn" onclick="knNapoveda()">💡 Nápověda</button>
-      <button class="pz-btn ghost" onclick="knNova()">Další úloha →</button>
+      <button class="pz-btn ghost" onclick="knNova(1)">Další úloha →</button>
     </div>
     <div id="kn-napovedy"></div>
     <div id="kn-vysledek"></div>
@@ -146,7 +146,7 @@ const ukazReseni = () => okno.ukaz({ reseni: KN.hint>=3||KN.vyhodnoceno, krok: K
 const bodyVTestu = typ => PZ_KONSTRUKCE.PRO_TEST[9].indexOf(typ)>=0 ? 3 : PZ_KONSTRUKCE.PRO_TEST[10].indexOf(typ)>=0 ? 2 : 0;
 
 // ── úloha, nápovědy, vyhodnocení, postup ──
-function knNova(){
+function knNova(posun){
   const typ=document.getElementById('kn-typ').value||undefined;
   KN.u=PZ_KONSTRUKCE.nova(typ); KN.hint=0; KN.vyhodnoceno=false; KN.krok=-1;
   okno.uloha(KN.u);
@@ -154,6 +154,9 @@ function knNova(){
   document.getElementById('kn-text').textContent=KN.u.text;
   ['kn-napovedy','kn-vysledek','kn-postup'].forEach(id=>document.getElementById(id).innerHTML='');
   const hb=document.getElementById('kn-hint-btn'); hb.disabled=false; hb.textContent='💡 Nápověda';
+  // po „Další úloha" musí být vidět okno se zadanými body a pod ním zadání — stránka zůstávala
+  // tam, kde žák klikl, a horní okraj okna byl na iPadu 49–126 px nad obrazovkou
+  if(posun) PZ.ukaz(document.getElementById('kn-okno'), document.getElementById('kn-text'));
 }
 function knNapoveda(){
   if(KN.hint>=3) return;
@@ -188,6 +191,7 @@ function knVyhodnot(){
   if(max) pozn=(pozn?pozn+' ':'')+'V testu nanečisto by to bylo za '+b.body+' z '+max+' b.';
   document.getElementById('kn-vysledek').innerHTML='<div class="kn-vysl '+(v.spravne?'ok':'bad')+'">'+PZ.esc(t)+(pozn?'<span class="kn-pozn">'+PZ.esc(pozn)+'</span>':'')+'</div>';
   KN.krok=0; knPostup();
+  PZ.ukaz(document.getElementById('kn-vysledek'));   // hláška pod tlačítkem nesmí zůstat pod okrajem
 }
 function knPostup(){
   const P=KN.u.postup, k=Math.max(0,Math.min(P.length-1,KN.krok));

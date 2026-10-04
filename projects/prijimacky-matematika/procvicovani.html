@@ -213,8 +213,9 @@ function prNext(){
   } else {
     ans.innerHTML = '<input type="text" id="pr-input" inputmode="'+(it.klavesnice||PZ.inputMode(it.ans))+'" autocomplete="off" placeholder="výsledek" '+
       'onkeydown="if(event.key===\'Enter\')prSubmit()"><div style="margin-top:12px"><button class="pz-btn primary" onclick="prSubmit()">Zkontrolovat</button></div>';
-    setTimeout(()=>{ const i=document.getElementById('pr-input'); if(i)i.focus(); },30);
   }
+  // začátek nové úlohy (úvod, obrázek nebo zadání) musí být vidět, ne jen vstup
+  setTimeout(()=>PZ.ukaz([introEl,svgEl,document.getElementById('pr-prompt')].find(e=>e.style.display!=='none'), document.getElementById('pr-input')),30);
   // reset progresivních nápověd
   PR.hintLevel=0; PR.hints = PZ.hintsFor(PR.item, PR.topic.id);
   document.getElementById('pr-hints').innerHTML='';
@@ -269,7 +270,7 @@ function grade(correct){
         odk='<div class="cm-review-links">Nejde ti to? <a href="'+PZ.esc(PZ_TOPICS.vykladUrl(v))+'">📖 '+PZ.esc(v.nazev)+'</a>'+
           (vid?' <a href="'+PZ.esc(vid)+'" target="_blank" rel="noopener">▶ video</a>':'')+'</div>'; } }
     sol.innerHTML='<span class="lbl">VYŘEŠENÝ POSTUP</span>'+'<ol class="cm-review-steps">'+PZ.solSteps(PR.item.sol).map(x=>'<li>'+PZ.esc(x)+'</li>').join('')+'</ol>'+odk; sol.style.display='block'; }
-  const nb=document.getElementById('pr-next'); nb.style.display='inline-flex'; setTimeout(()=>nb.focus(),30);
+  const nb=document.getElementById('pr-next'); nb.style.display='inline-flex'; setTimeout(()=>PZ.ukaz(fb,nb),30);
 }
 
 renderTopics();

@@ -642,6 +642,23 @@
       '</svg>';
   }
 
+  /* Nová úloha (nebo vyhodnocení) na obrazovce: ZAČÁTEK musí být vidět a pod ním cíl
+     (vstup, tlačítko „Další"), pokud se vejde. Prostý focus() nechal stránku tam, kde žák
+     klikl na „Další", nebo vstup vycentroval — obrázek nové úlohy pak zůstal nad okrajem
+     (naměřeno až 381 px na iPadu bez klávesnice, s klávesnicí u každé úlohy s obrázkem).
+     Posouvá se jen o tolik, kolik je třeba; když se obojí nevejde, má přednost začátek. */
+  function ukaz(zacatek, cil) {
+    const M = 10;
+    if (zacatek) {
+      const s = zacatek.getBoundingClientRect().top - M;
+      let d = 0;
+      if (s < 0) d = s;
+      else { const v = (cil || zacatek).getBoundingClientRect().bottom + M - window.innerHeight; if (v > 0) d = Math.min(v, s); }
+      if (d) window.scrollBy(0, d);
+    }
+    if (cil) cil.focus({ preventScroll: true });
+  }
+
   window.PZ = { esc, check, store, inputMode, czNum, solSteps, themeSvg, icon, ring, attachLoginBar, cloudPush, cloudSync, topicWeights, pickWeakTopic, hintsFor, recordTestTopics, weakTopicsFromReview,
-    computeReadiness, pokusy, odhadBodu, cistyPokus, diagUrovne, mergeStats };
+    computeReadiness, pokusy, odhadBodu, cistyPokus, diagUrovne, mergeStats, ukaz };
 })();
