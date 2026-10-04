@@ -983,16 +983,20 @@ function svgAngle(deg,opt={}){
  const lblx=(cx+(r+20)*Math.cos(rad/2)).toFixed(1), lbly=(cy-(r+20)*Math.sin(rad/2)+6).toFixed(1);
  return `<svg viewBox="0 0 ${W} ${H}"><line x1="${cx}" y1="${cy}" x2="${(cx+len).toFixed(1)}" y2="${cy}" stroke="#5dc8f0" stroke-width="3.5"/><line x1="${cx}" y1="${cy}" x2="${x2}" y2="${y2}" stroke="#5dc8f0" stroke-width="3.5"/><path d="M ${(cx+r).toFixed(1)} ${cy} A ${r} ${r} 0 0 0 ${ax2} ${ay2}" fill="none" stroke="#ffd84d" stroke-width="2.5"/>${opt.label?`<text x="${lblx}" y="${lbly}" fill="#ffd84d" font-size="17" font-family="monospace" text-anchor="middle">${opt.label}</text>`:''}<circle cx="${cx}" cy="${cy}" r="3.5" fill="#fff"/></svg>`;
 }
-// Dvě protínající se přímky (vedlejší / vrcholové úhly). Vyznačí jeden úhel α.
-// Šikmá přímka se stejně jako u svgAngle zkracuje, aby se vešla (nad 45° trčela ven).
+// Dvě protínající se přímky (vedlejší / vrcholové úhly). Vyznačí úhel α (opt.label)
+// a s opt.label2 i úhel k němu VRCHOLOVÝ. Kopie sdíleného svgCross (záměna palety).
 function svgCross(deg,opt={}){
  const W=250,H=160,PAD=10,cx=125,cy=80,r=30;
  const rad=deg*Math.PI/180, co=Math.cos(rad), si=Math.sin(rad);
  const len=Math.min(115,(W/2-PAD)/Math.max(Math.abs(co),0.001),(H/2-PAD)/Math.max(si,0.001));
  const dx=len*co,dy=len*si;
  const ax2=(cx+r*co).toFixed(1), ay2=(cy-r*si).toFixed(1);
- const lblx=(cx+(r+16)*Math.cos(rad/2)).toFixed(1), lbly=(cy-(r+16)*Math.sin(rad/2)+5).toFixed(1);
- return `<svg viewBox="0 0 ${W} ${H}"><line x1="${cx-115}" y1="${cy}" x2="${cx+115}" y2="${cy}" stroke="#5dc8f0" stroke-width="3"/><line x1="${(cx-dx).toFixed(1)}" y1="${(cy+dy).toFixed(1)}" x2="${(cx+dx).toFixed(1)}" y2="${(cy-dy).toFixed(1)}" stroke="#5dc8f0" stroke-width="3"/><path d="M ${cx+r} ${cy} A ${r} ${r} 0 0 0 ${ax2} ${ay2}" fill="none" stroke="#ffd84d" stroke-width="2.5"/><text x="${lblx}" y="${lbly}" fill="#ffd84d" font-size="16" font-family="monospace" text-anchor="middle">${opt.label||'α'}</text><circle cx="${cx}" cy="${cy}" r="3.5" fill="#fff"/></svg>`;
+ const lab=opt.label||'α', vzd=t=>Math.min(len-8,Math.max(r+16,(Math.max(10,_sirka(t,16)/2*si+10*Math.abs(co))+1)/Math.sin(rad/2)));
+ const d1=vzd(lab), lblx=(cx+d1*Math.cos(rad/2)).toFixed(1), lbly=(cy-d1*Math.sin(rad/2)+5).toFixed(1);
+ let vrch='';
+ if(opt.label2){ const d2=vzd(opt.label2);
+  vrch=`<path d="M ${cx-r} ${cy} A ${r} ${r} 0 0 0 ${(cx-r*co).toFixed(1)} ${(cy+r*si).toFixed(1)}" fill="none" stroke="#43e88a" stroke-width="2.5"/><text x="${(cx-d2*Math.cos(rad/2)).toFixed(1)}" y="${(cy+d2*Math.sin(rad/2)+5).toFixed(1)}" fill="#43e88a" font-size="16" font-family="monospace" text-anchor="middle">${opt.label2}</text>`; }
+ return `<svg viewBox="0 0 ${W} ${H}"><line x1="${cx-115}" y1="${cy}" x2="${cx+115}" y2="${cy}" stroke="#5dc8f0" stroke-width="3"/><line x1="${(cx-dx).toFixed(1)}" y1="${(cy+dy).toFixed(1)}" x2="${(cx+dx).toFixed(1)}" y2="${(cy-dy).toFixed(1)}" stroke="#5dc8f0" stroke-width="3"/><path d="M ${cx+r} ${cy} A ${r} ${r} 0 0 0 ${ax2} ${ay2}" fill="none" stroke="#ffd84d" stroke-width="2.5"/><text x="${lblx}" y="${lbly}" fill="#ffd84d" font-size="16" font-family="monospace" text-anchor="middle">${lab}</text>${vrch}<circle cx="${cx}" cy="${cy}" r="3.5" fill="#fff"/></svg>`;
 }
 // Kvádr / krychle v kosé projekci. Popisky a,b,c (šířka, výška, HLOUBKA).
 // 🔴 Hloubka c patří k USTUPUJÍCÍ hraně, ne ke svislé. Dřív seděla u svislé
@@ -1001,15 +1005,17 @@ function svgCross(deg,opt={}){
 // Těleso stojí od x=60, aby se vlevo vešel i šestiznakový popisek výšky
 // („250 cm"): banka i hry dnes posílají nejvýš pět znaků, tohle je jeden
 // znak rezervy. Při x=54 přetékal popisek o 4,5 px doleva a uřízl se.
-function svgCuboid(a,b,c){
+function svgCuboid(a,b,c,pevne){
  // Popisky jdou na hrany podle VELIKOSTI: největší číslo k nejdelší nakreslené
  // hraně (šířka), prostřední k výšce, nejmenší k ustupující hloubce. Dřív šly
  // v pořadí argumentů, takže v 45 % kvádrů stálo „2“ u nejdelší hrany a „9“
  // u nejkratší. Není-li některý popisek číslo („?“) nebo mají popisky různé
- // jednotky („2 m“ proti „80 cm“), pořadí určuje volající.
+ // jednotky („2 m“ proti „80 cm“), pořadí určuje volající. Stejně tak s `pevne`:
+ // když zadání jmenuje VÝŠKU („podstava 7 × 3 cm, výška 2 cm“), musí stát u svislé
+ // hrany, i kdyby nebyla prostřední — jinak obrázek tvrdí jinou výšku než text.
  const cis=[a,b,c].map(v=>parseFloat(String(v).replace(',','.')));
  const jedn=[a,b,c].map(v=>String(v).replace(/^[\s\d.,−-]+/,''));
- if(cis.every(Number.isFinite)&&jedn.every(u=>u===jedn[0]))[a,b,c]=[a,b,c].map((v,i)=>[v,cis[i]]).sort((p,q)=>q[1]-p[1]).map(p=>p[0]);
+ if(!pevne&&cis.every(Number.isFinite)&&jedn.every(u=>u===jedn[0]))[a,b,c]=[a,b,c].map((v,i)=>[v,cis[i]]).sort((p,q)=>q[1]-p[1]).map(p=>p[0]);
  const x=60,y=118,w=104,h=72,d=30,dd=24;
  const f=`${x},${y} ${x+w},${y} ${x+w},${y-h} ${x},${y-h}`;
  // popisek c: kolmo ven od STŘEDU ustupující hrany (x+w,y) → (x+w+d,y-dd).
@@ -1103,6 +1109,21 @@ function svgTrojStrany(strany, zakl) {
   };
   pop(A, B, Z.t); pop(A, C, L.t); pop(B, C, P.t);
   return `<svg viewBox="0 0 250 160"><polygon data-kresba="strany" points="${[A, B, C].map(p => p.map(n => n.toFixed(1)).join(',')).join(' ')}" fill="#2b2566" stroke="#5dc8f0" stroke-width="2.5" stroke-linejoin="round"/>` + t + `</svg>`;
+}
+// Kopie sdíleného svgVedlejsi (záměna palety): přímka a polopřímka, vedlejší úhly.
+function svgVedlejsi(x, lx, ly) {
+  const W = 250, H = 124, V = [125, 104], rad = x * Math.PI / 180;
+  const L = Math.min(112, 92 / Math.max(Math.sin(rad), 0.001));
+  const K = [V[0] + L * Math.cos(rad), V[1] - L * Math.sin(rad)], P = [V[0] + 112, V[1]], Q = [V[0] - 112, V[1]];
+  const pol = (uhel, r) => [V[0] + r * Math.cos(uhel * Math.PI / 180), V[1] - r * Math.sin(uhel * Math.PI / 180) + 5];
+  // Popisek musí mít od obou ramen aspoň půl výšky písma, i svým koncem
+  // blíž k vrcholu: d · sin(θ/2) ≥ 9 pro d zmenšené o půl šířky popisku.
+  const vzdal = (uhel, r, t) => Math.min(L - 8, Math.max(r + 20, 9 / Math.sin(uhel * Math.PI / 360) + _sirka(t) / 2 + 2));
+  const p1 = pol(x / 2, vzdal(x, 24, lx)), p2 = pol((180 + x) / 2, vzdal(180 - x, 32, ly));
+  return `<svg viewBox="0 0 ${W} ${H}"><line x1="${Q[0]}" y1="${V[1]}" x2="${P[0]}" y2="${V[1]}" stroke="#5dc8f0" stroke-width="3"/>`
+    + `<line x1="${V[0]}" y1="${V[1]}" x2="${K[0].toFixed(1)}" y2="${K[1].toFixed(1)}" stroke="#5dc8f0" stroke-width="3"/>`
+    + _oblouk(V, P, K, 24) + _oblouk(V, K, Q, 32, '#43e88a')
+    + _txt(p1[0], p1[1], lx) + _txt(p2[0], p2[1], ly, '#43e88a') + `<circle cx="${V[0]}" cy="${V[1]}" r="3.5" fill="#fff"/></svg>`;
 }
 // Trojúhelník daného typu s popisky úhlů/stran. kind: 'rovnostr'|'rovnoram'|'pravo'|'obecny'
 // 🔴 Popisky vrcholů se odvozují z GEOMETRIE (ven od těžiště), ne z pořadí
@@ -1321,10 +1342,10 @@ const AREAS = [
  tc:6,
  tasks:()=>[
  (()=>{const a=ri(3,8)*10;return{svg:svgCross(a,{label:'α'}),text:`Úhel α = ${a}°.\nJaký je k němu vedlejší úhel? (°)`,ans:String(180-a),hints:[`Vedlejší úhly se doplňují do 180°.`,`180 - ${a}`],skill:'geo'};})(),
- (()=>{const a=ri(3,8)*10;return{svg:svgCross(a,{label:'α'}),text:`Úhel α = ${a}°.\nJaký je k němu vrcholový úhel? (°)`,ans:String(a),hints:[`Vrcholové úhly jsou shodné (stejně velké).`,`= α`],skill:'geo'};})(),
- (()=>{const a=ri(20,70);return{text:`Vedlejší úhel má ${180-a}°.\nKolik stupňů má původní úhel?`,ans:String(a),hints:[`Doplň do 180°.`,`180 - ${180-a}`],skill:'geo'};})(),
- (()=>{const a=ri(30,80);return{svg:svgCross(a,{label:'α'}),text:`Vrcholový úhel k α má ${a}°.\nKolik stupňů má α?`,ans:String(a),hints:[`Vrcholové úhly jsou stejné.`,`Výsledek: ${a}`],skill:'geo'};})(),
- (()=>{const a=ri(2,7)*10;return{text:`Dva vedlejší úhly. Jeden má ${a}°.\nO kolik stupňů je druhý větší než první?`,ans:String((180-a)-a),hints:[`Druhý = 180 − ${a} = ${180-a}.`,`${180-a} - ${a}`],skill:'geo'};})(),
+ (()=>{const a=ri(3,8)*10;return{svg:svgCross(a,{label:'α',label2:'?'}),text:`Úhel α = ${a}°.\nJaký je k němu vrcholový úhel? (°)`,ans:String(a),hints:[`Vrcholové úhly jsou shodné (stejně velké).`,`= α`],skill:'geo'};})(),
+ (()=>{const a=ri(20,70);return{svg:svgVedlejsi(a,'?',`${180-a}°`),text:`Vedlejší úhel má ${180-a}°.\nKolik stupňů má původní úhel?`,ans:String(a),hints:[`Doplň do 180°.`,`180 - ${180-a}`],skill:'geo'};})(),
+ (()=>{const a=ri(30,80);return{svg:svgCross(a,{label:'α',label2:`${a}°`}),text:`Vrcholový úhel k α má ${a}°.\nKolik stupňů má α?`,ans:String(a),hints:[`Vrcholové úhly jsou stejné.`,`Výsledek: ${a}`],skill:'geo'};})(),
+ (()=>{const a=ri(2,7)*10;return{svg:svgVedlejsi(a,`${a}°`,'?'),text:`Dva vedlejší úhly. Jeden má ${a}°.\nO kolik stupňů je druhý větší než první?`,ans:String((180-a)-a),hints:[`Druhý = 180 − ${a} = ${180-a}.`,`${180-a} - ${a}`],skill:'geo'};})(),
  (()=>{const a=ri(40,80);return{text:`Úhel a jeho vedlejší úhel jsou stejně velké.\nKolik stupňů má každý z nich?`,ans:'90',hints:[`Když jsou stejné a dají 180°...`,`180 : 2`],skill:'geo'};})()
  ]
  },
@@ -1409,9 +1430,9 @@ const AREAS = [
  (()=>{const a=ri(2,9);return{svg:svgKrychle(`${a} cm`),text:`Krychle s hranou a = ${a} cm.\nVypočítej objem V. (cm³)`,ans:String(a*a*a),hints:[`V = a × a × a.`,`${a} × ${a} × ${a}`],skill:'geo'};})(),
  (()=>{const a=ri(2,9),b=ri(2,9),c=ri(2,9);return{svg:svgCuboid(a,b,c),text:`Kvádr: a = ${a} cm, b = ${b} cm, c = ${c} cm.\nVypočítej objem V. (cm³)`,ans:String(a*b*c),hints:[`V = a × b × c.`,`${a} × ${b} × ${c}`],skill:'geo'};})(),
  (()=>{const a=ri(2,6),b=ri(2,6),c=ri(2,6);return{svg:svgCuboid(a,b,c),text:`Zásobník vody tvaru kvádru: ${a} dm × ${b} dm × ${c} dm.\nKolik litrů vody se do něj vejde?\n(1 dm³ = 1 litr)`,ans:String(a*b*c),hints:[`Objem v dm³ = počet litrů.`,`${a} × ${b} × ${c}`],skill:'anal'};})(),
- (()=>{const a=ri(2,8);return{text:`Krychle má objem ${a*a*a} cm³.\nJak dlouhá je její hrana? (cm)`,ans:String(a),hints:[`Hledej číslo, které × samo × samo = objem.`,`Třetí odmocnina z ${a*a*a}.`],skill:'anal'};})(),
- (()=>{const a=ri(2,9),b=ri(2,9),c=ri(2,9);const V=a*b*c;return{text:`Kvádr má objem ${V} cm³, podstavu a = ${a} cm a b = ${b} cm.\nJak vysoký je? (c v cm)`,ans:String(c),hints:[`c = V : (a × b).`,`${V} : ${a*b}`],skill:'anal'};})(),
- (()=>{const a=ri(2,5);return{text:`Kolik krychliček s hranou 1 cm se vejde do krychle s hranou ${a} cm?`,ans:String(a*a*a),hints:[`To je objem velké krychle v cm³.`,`${a} × ${a} × ${a}`],skill:'geo'};})()
+ (()=>{const a=ri(2,8);return{svg:svgKrychle('?'),text:`Krychle má objem ${a*a*a} cm³.\nJak dlouhá je její hrana? (cm)`,ans:String(a),hints:[`Hledej číslo, které × samo × samo = objem.`,`Třetí odmocnina z ${a*a*a}.`],skill:'anal'};})(),
+ (()=>{const a=ri(2,9),b=ri(2,9),c=ri(2,9);const V=a*b*c;return{svg:svgCuboid(Math.max(a,b),'?',Math.min(a,b)),text:`Kvádr má objem ${V} cm³, podstavu a = ${a} cm a b = ${b} cm.\nJak vysoký je? (c v cm)`,ans:String(c),hints:[`c = V : (a × b).`,`${V} : ${a*b}`],skill:'anal'};})(),
+ (()=>{const a=ri(2,5);return{svg:svgKrychle(`${a} cm`),text:`Kolik krychliček s hranou 1 cm se vejde do krychle s hranou ${a} cm?`,ans:String(a*a*a),hints:[`To je objem velké krychle v cm³.`,`${a} × ${a} × ${a}`],skill:'geo'};})()
  ]
  },
  {
@@ -3200,7 +3221,8 @@ function trRender(){
   document.getElementById('tr-yn-row').style.display=yn?'flex':'none';
   hbtn.style.display='inline-block';
   document.getElementById('tr-mc').style.display='none';
-  const inp=document.getElementById('tr-ans');inp.value='';inp.disabled=false;if(!yn)inp.focus();inp.inputMode=/^\d+$/.test(String(TR.task.ans))?'numeric':/^\d+[.,]\d+$/.test(String(TR.task.ans))?'decimal':'text';
+  // Fokus bez centrování: Chrome vstup pod okrajem VYCENTRUJE, takže na tabletu s klávesnicí odjel začátek obrázku; „nearest“ posune jen o tolik, kolik je třeba.
+  const inp=document.getElementById('tr-ans');inp.value='';inp.disabled=false;if(!yn){inp.focus({preventScroll:true});document.getElementById('tr-input-row').scrollIntoView({block:'nearest'});}inp.inputMode=/^\d+$/.test(String(TR.task.ans))?'numeric':/^\d+[.,]\d+$/.test(String(TR.task.ans))?'decimal':'text';
  }
 }
 

@@ -2800,7 +2800,8 @@ function trRender(){
   document.getElementById('tr-yn-row').style.display=yn?'flex':'none';
   hbtn.style.display='inline-block';
   document.getElementById('tr-mc').style.display='none';
-  const inp=document.getElementById('tr-ans');inp.value='';inp.disabled=false;if(!yn)inp.focus();inp.inputMode=/^\d+$/.test(String(TR.task.ans))?'numeric':/^\d+[.,]\d+$/.test(String(TR.task.ans))?'decimal':'text';
+  // Fokus bez centrování: Chrome vstup pod okrajem VYCENTRUJE, takže na tabletu s klávesnicí odjel začátek obrázku; „nearest“ posune jen o tolik, kolik je třeba.
+  const inp=document.getElementById('tr-ans');inp.value='';inp.disabled=false;if(!yn){inp.focus({preventScroll:true});document.getElementById('tr-input-row').scrollIntoView({block:'nearest'});}inp.inputMode=/^\d+$/.test(String(TR.task.ans))?'numeric':/^\d+[.,]\d+$/.test(String(TR.task.ans))?'decimal':'text';
  }
 }
 

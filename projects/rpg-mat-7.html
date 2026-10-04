@@ -983,16 +983,20 @@ function svgAngle(deg,opt={}){
  const lblx=(cx+(r+20)*Math.cos(rad/2)).toFixed(1), lbly=(cy-(r+20)*Math.sin(rad/2)+6).toFixed(1);
  return `<svg viewBox="0 0 ${W} ${H}"><line x1="${cx}" y1="${cy}" x2="${(cx+len).toFixed(1)}" y2="${cy}" stroke="#46c2b8" stroke-width="3.5"/><line x1="${cx}" y1="${cy}" x2="${x2}" y2="${y2}" stroke="#46c2b8" stroke-width="3.5"/><path d="M ${(cx+r).toFixed(1)} ${cy} A ${r} ${r} 0 0 0 ${ax2} ${ay2}" fill="none" stroke="#f2c14e" stroke-width="2.5"/>${opt.label?`<text x="${lblx}" y="${lbly}" fill="#f2c14e" font-size="17" font-family="monospace" text-anchor="middle">${opt.label}</text>`:''}<circle cx="${cx}" cy="${cy}" r="3.5" fill="#fff"/></svg>`;
 }
-// Dvě protínající se přímky (vedlejší / vrcholové úhly). Vyznačí jeden úhel α.
-// Šikmá přímka se stejně jako u svgAngle zkracuje, aby se vešla (nad 45° trčela ven).
+// Dvě protínající se přímky (vedlejší / vrcholové úhly). Vyznačí úhel α (opt.label)
+// a s opt.label2 i úhel k němu VRCHOLOVÝ. Kopie sdíleného svgCross (záměna palety).
 function svgCross(deg,opt={}){
  const W=250,H=160,PAD=10,cx=125,cy=80,r=30;
  const rad=deg*Math.PI/180, co=Math.cos(rad), si=Math.sin(rad);
  const len=Math.min(115,(W/2-PAD)/Math.max(Math.abs(co),0.001),(H/2-PAD)/Math.max(si,0.001));
  const dx=len*co,dy=len*si;
  const ax2=(cx+r*co).toFixed(1), ay2=(cy-r*si).toFixed(1);
- const lblx=(cx+(r+16)*Math.cos(rad/2)).toFixed(1), lbly=(cy-(r+16)*Math.sin(rad/2)+5).toFixed(1);
- return `<svg viewBox="0 0 ${W} ${H}"><line x1="${cx-115}" y1="${cy}" x2="${cx+115}" y2="${cy}" stroke="#46c2b8" stroke-width="3"/><line x1="${(cx-dx).toFixed(1)}" y1="${(cy+dy).toFixed(1)}" x2="${(cx+dx).toFixed(1)}" y2="${(cy-dy).toFixed(1)}" stroke="#46c2b8" stroke-width="3"/><path d="M ${cx+r} ${cy} A ${r} ${r} 0 0 0 ${ax2} ${ay2}" fill="none" stroke="#f2c14e" stroke-width="2.5"/><text x="${lblx}" y="${lbly}" fill="#f2c14e" font-size="16" font-family="monospace" text-anchor="middle">${opt.label||'α'}</text><circle cx="${cx}" cy="${cy}" r="3.5" fill="#fff"/></svg>`;
+ const lab=opt.label||'α', vzd=t=>Math.min(len-8,Math.max(r+16,(Math.max(10,_sirka(t,16)/2*si+10*Math.abs(co))+1)/Math.sin(rad/2)));
+ const d1=vzd(lab), lblx=(cx+d1*Math.cos(rad/2)).toFixed(1), lbly=(cy-d1*Math.sin(rad/2)+5).toFixed(1);
+ let vrch='';
+ if(opt.label2){ const d2=vzd(opt.label2);
+  vrch=`<path d="M ${cx-r} ${cy} A ${r} ${r} 0 0 0 ${(cx-r*co).toFixed(1)} ${(cy+r*si).toFixed(1)}" fill="none" stroke="#9bbf4a" stroke-width="2.5"/><text x="${(cx-d2*Math.cos(rad/2)).toFixed(1)}" y="${(cy+d2*Math.sin(rad/2)+5).toFixed(1)}" fill="#9bbf4a" font-size="16" font-family="monospace" text-anchor="middle">${opt.label2}</text>`; }
+ return `<svg viewBox="0 0 ${W} ${H}"><line x1="${cx-115}" y1="${cy}" x2="${cx+115}" y2="${cy}" stroke="#46c2b8" stroke-width="3"/><line x1="${(cx-dx).toFixed(1)}" y1="${(cy+dy).toFixed(1)}" x2="${(cx+dx).toFixed(1)}" y2="${(cy-dy).toFixed(1)}" stroke="#46c2b8" stroke-width="3"/><path d="M ${cx+r} ${cy} A ${r} ${r} 0 0 0 ${ax2} ${ay2}" fill="none" stroke="#f2c14e" stroke-width="2.5"/><text x="${lblx}" y="${lbly}" fill="#f2c14e" font-size="16" font-family="monospace" text-anchor="middle">${lab}</text>${vrch}<circle cx="${cx}" cy="${cy}" r="3.5" fill="#fff"/></svg>`;
 }
 // Kvádr / krychle v kosé projekci. Popisky a,b,c (šířka, výška, HLOUBKA).
 // 🔴 Hloubka c patří k USTUPUJÍCÍ hraně, ne ke svislé. Dřív seděla u svislé
@@ -1001,15 +1005,17 @@ function svgCross(deg,opt={}){
 // Těleso stojí od x=60, aby se vlevo vešel i šestiznakový popisek výšky
 // („250 cm"): banka i hry dnes posílají nejvýš pět znaků, tohle je jeden
 // znak rezervy. Při x=54 přetékal popisek o 4,5 px doleva a uřízl se.
-function svgCuboid(a,b,c){
+function svgCuboid(a,b,c,pevne){
  // Popisky jdou na hrany podle VELIKOSTI: největší číslo k nejdelší nakreslené
  // hraně (šířka), prostřední k výšce, nejmenší k ustupující hloubce. Dřív šly
  // v pořadí argumentů, takže v 45 % kvádrů stálo „2“ u nejdelší hrany a „9“
  // u nejkratší. Není-li některý popisek číslo („?“) nebo mají popisky různé
- // jednotky („2 m“ proti „80 cm“), pořadí určuje volající.
+ // jednotky („2 m“ proti „80 cm“), pořadí určuje volající. Stejně tak s `pevne`:
+ // když zadání jmenuje VÝŠKU („podstava 7 × 3 cm, výška 2 cm“), musí stát u svislé
+ // hrany, i kdyby nebyla prostřední — jinak obrázek tvrdí jinou výšku než text.
  const cis=[a,b,c].map(v=>parseFloat(String(v).replace(',','.')));
  const jedn=[a,b,c].map(v=>String(v).replace(/^[\s\d.,−-]+/,''));
- if(cis.every(Number.isFinite)&&jedn.every(u=>u===jedn[0]))[a,b,c]=[a,b,c].map((v,i)=>[v,cis[i]]).sort((p,q)=>q[1]-p[1]).map(p=>p[0]);
+ if(!pevne&&cis.every(Number.isFinite)&&jedn.every(u=>u===jedn[0]))[a,b,c]=[a,b,c].map((v,i)=>[v,cis[i]]).sort((p,q)=>q[1]-p[1]).map(p=>p[0]);
  const x=60,y=118,w=104,h=72,d=30,dd=24;
  const f=`${x},${y} ${x+w},${y} ${x+w},${y-h} ${x},${y-h}`;
  // popisek c: kolmo ven od STŘEDU ustupující hrany (x+w,y) → (x+w+d,y-dd).
@@ -3240,7 +3246,8 @@ function trRender(){
   document.getElementById('tr-yn-row').style.display=yn?'flex':'none';
   hbtn.style.display='inline-block';
   document.getElementById('tr-mc').style.display='none';
-  const inp=document.getElementById('tr-ans');inp.value='';inp.disabled=false;if(!yn)inp.focus();inp.inputMode=/^\d+$/.test(String(TR.task.ans))?'numeric':/^\d+[.,]\d+$/.test(String(TR.task.ans))?'decimal':'text';
+  // Fokus bez centrování: Chrome vstup pod okrajem VYCENTRUJE, takže na tabletu s klávesnicí odjel začátek obrázku; „nearest“ posune jen o tolik, kolik je třeba.
+  const inp=document.getElementById('tr-ans');inp.value='';inp.disabled=false;if(!yn){inp.focus({preventScroll:true});document.getElementById('tr-input-row').scrollIntoView({block:'nearest'});}inp.inputMode=/^\d+$/.test(String(TR.task.ans))?'numeric':/^\d+[.,]\d+$/.test(String(TR.task.ans))?'decimal':'text';
  }
 }
 

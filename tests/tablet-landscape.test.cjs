@@ -103,13 +103,15 @@ const ok=(c,m)=>{ if(c){pass++;console.log('  ✅ '+m);} else {fail++;console.lo
      šířku se nevejde nikdy, tam se smí posunout zadání, ovládání ne.
      Sabotáž: bez `scroll-padding-bottom` spadne telefon, bez obrázku vedle
      zadání (:has) spadnou tablety s klávesnicí. */
-  let obrMer = 0;
+  let obrMer = 0, trMer = 0, twMer = 0;
   for (const g of [3,4,5,6,7,8,9]) {
     const spatne = [];
     for (const [jm, w, h] of ZARIZENI) {
       const ctx = await br.newContext({ viewport:{width:w,height:h}, hasTouch:true });
       await ctx.route('**/*', r => r.request().url().startsWith(base) ? r.continue() : r.abort());
       const page = await ctx.newPage();
+      // Věž je o prázdninách zavřená; pevné datum, ať test platí po celý rok.
+      await page.addInitScript(() => { window.__TW_TESTNOW = '2026-05-15T10:00:00'; });
       await page.goto(`${base}/projects/rpg-mat-${g}.html`, {waitUntil:'domcontentloaded'});
       await page.waitForFunction(()=>typeof window.startGame==='function', null, {timeout:10000});
       const r = await page.evaluate(async (tablet) => {
@@ -130,6 +132,32 @@ const ok=(c,m)=>{ if(c){pass++;console.log('  ✅ '+m);} else {fail++;console.lo
         }
         const nejhorsi = [...vyber.values()].sort((a, b) => b.t.text.length - a.t.text.length).slice(0, 6);
         const vady = [];
+        /* Trénink a věž nemají přišpendlenou lištu: roluje celá stránka a fokus
+           do vstupu ji posune. Chrome ale vstup pod okrajem VYCENTRUJE, takže na
+           iPadu s klávesnicí odjel začátek obrázku o 4–13 px — trénink proto
+           posouvá jen „nearest“. Fokus se před vykreslením sundá, jako když ho ve
+           skutečném průchodu drží tlačítko DÁLE; jinak druhé focus() nic
+           neposune a měří se nesmysl (vstup „119 px pod okrajem“). */
+        const vh0 = innerHeight; let tr = 0, tw = 0;
+        const mer = (co, probId, rowId, mi) => {
+          const pr = document.getElementById(probId).getBoundingClientRect();
+          const row = document.getElementById(rowId).getBoundingClientRect();
+          if (row.bottom - vh0 > 1) vady.push(`${co}: vstup ${Math.round(row.bottom - vh0)} px pod okrajem (${mi})`);
+          if (tablet && pr.top < -1) vady.push(`${co}: začátek zadání odjel o ${Math.round(-pr.top)} px (${mi})`);
+        };
+        for (const p of nejhorsi) {
+          go('train'); startTrain(p.mi); if (document.activeElement) document.activeElement.blur(); scrollTo(0, 0);
+          TR.task = p.t; trRender(); await new Promise(res => requestAnimationFrame(() => res()));
+          mer('trénink', 'tr-prob', 'tr-input-row', p.mi); tr++;
+        }
+        if (typeof twStart === 'function') {
+          for (const p of nejhorsi) {
+            go('tower'); twStart(); if (document.activeElement) document.activeElement.blur(); scrollTo(0, 0);
+            TW.task = p.t; twRenderTask(); await new Promise(res => requestAnimationFrame(() => res()));
+            mer('věž', 'tw-prob', 'tw-input-row', p.mi); tw++;
+          }
+          TW.on = false; if (typeof twStopTimer === 'function') twStopTimer();
+        }
         for (const p of nejhorsi) {
           launchBattle(p.ar, p.mi);
           const col = document.querySelector('.bt-col-task'); col.scrollTop = 0;
@@ -144,17 +172,18 @@ const ok=(c,m)=>{ if(c){pass++;console.log('  ✅ '+m);} else {fail++;console.lo
           if (zakryto > 1) vady.push(`vstup ${zakryto} px pod lištou (${p.mi})`);
           if (tablet && c.top - prob.top > 1) vady.push(`začátek zadání odjel o ${Math.round(c.top - prob.top)} px (${p.mi})`);
         }
-        return { n: nejhorsi.length, vady };
+        return { n: nejhorsi.length, vady, tr, tw };
       }, h >= 420);
-      obrMer += r.n;
+      obrMer += r.n; trMer += r.tr; twMer += r.tw;
       for (const v of r.vady) spatne.push(`${jm}: ${v}`);
       await ctx.close();
     }
-    ok(spatne.length===0, `${g}. ročník: u 6 úloh s obrázkem a nejdelším zadáním je vstup nad lištou na všech ${ZARIZENI.length} rozměrech`
+    ok(spatne.length===0, `${g}. ročník: u 6 úloh s obrázkem a nejdelším zadáním je vstup vidět v boji, tréninku${g>=6?' i věži':''} na všech ${ZARIZENI.length} rozměrech`
       + (spatne.length ? ' — ' + spatne.slice(0,3).join(' · ') : ''));
   }
   // Pod šest úloh s obrázkem by ročník klesl jen tehdy, kdyby se obrázky ztratily.
-  ok(obrMer === 7*ZARIZENI.length*6, `proměřeno ${obrMer} úloh s obrázkem (čekáno ${7*ZARIZENI.length*6})`);
+  ok(obrMer === 7*ZARIZENI.length*6 && trMer === obrMer && twMer === 4*ZARIZENI.length*6,
+    `proměřeno ${obrMer} úloh s obrázkem v boji, ${trMer} v tréninku a ${twMer} ve věži (čekáno ${7*ZARIZENI.length*6} / ${7*ZARIZENI.length*6} / ${4*ZARIZENI.length*6})`);
 
   await br.close(); srv.close();
   console.log(`\n══════════════════════════════════════════\n  VÝSLEDEK: ${pass} ✅ / ${fail} ❌\n══════════════════════════════════════════`);

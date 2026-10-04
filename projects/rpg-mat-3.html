@@ -1758,7 +1758,8 @@ function trRender(){
   else{document.getElementById('tr-yn-row').style.display='none';trRenderMC(t);}
  }else{
   document.getElementById('tr-input-row').style.display='flex';document.getElementById('tr-yn-row').style.display='none';document.getElementById('tr-mc').style.display='none';
-  const inp=document.getElementById('tr-ans');inp.value='';inp.disabled=false;inp.focus();inp.inputMode=/^\d+$/.test(String(TR.task.ans))?'numeric':/^\d+[.,]\d+$/.test(String(TR.task.ans))?'decimal':'text';
+  // Fokus bez centrování: Chrome vstup pod okrajem VYCENTRUJE, takže na tabletu s klávesnicí odjel začátek obrázku; „nearest“ posune jen o tolik, kolik je třeba.
+  const inp=document.getElementById('tr-ans');inp.value='';inp.disabled=false;inp.focus({preventScroll:true});document.getElementById('tr-input-row').scrollIntoView({block:'nearest'});inp.inputMode=/^\d+$/.test(String(TR.task.ans))?'numeric':/^\d+[.,]\d+$/.test(String(TR.task.ans))?'decimal':'text';
  }
 }
 function trRenderMC(t){

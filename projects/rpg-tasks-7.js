@@ -552,29 +552,29 @@ function gen_7_2(){
   const tasks=[];
   // objem kvádru
   const a=ri(3,10),b=ri(2,8),c=ri(2,6);
-  tasks.push({text:`Kvádr má rozměry ${a} cm × ${b} cm × ${c} cm. Jaký je jeho objem?`,ans:a*b*c,hints:['V = a·b·c',`${a}·${b}·${c} = ${a*b*c} cm³`],skill:'geo'});
+  tasks.push({svg:svgCuboid(`${a} cm`,`${b} cm`,`${c} cm`),text:`Kvádr má rozměry ${a} cm × ${b} cm × ${c} cm. Jaký je jeho objem?`,ans:a*b*c,hints:['V = a·b·c',`${a}·${b}·${c} = ${a*b*c} cm³`],skill:'geo'});
   // povrch kvádru
   const d=ri(3,8),e=ri(2,7),f=ri(2,6);
-  tasks.push({text:`Kvádr ${d} × ${e} × ${f} cm. Jaký je jeho povrch?`,ans:2*(d*e+e*f+d*f),hints:['S = 2·(ab+bc+ac)',`2·(${d*e}+${e*f}+${d*f}) = ${2*(d*e+e*f+d*f)} cm²`],skill:'geo'});
+  tasks.push({svg:svgCuboid(`${d} cm`,`${e} cm`,`${f} cm`),text:`Kvádr ${d} × ${e} × ${f} cm. Jaký je jeho povrch?`,ans:2*(d*e+e*f+d*f),hints:['S = 2·(ab+bc+ac)',`2·(${d*e}+${e*f}+${d*f}) = ${2*(d*e+e*f+d*f)} cm²`],skill:'geo'});
   // objem krychle
   const g=ri(3,8);
-  tasks.push({text:`Krychle má hranu ${g} cm. Jaký je její objem?`,ans:g*g*g,hints:['V = a³',`${g}³ = ${g*g*g} cm³`],skill:'geo'});
+  tasks.push({svg:svgKrychle(`${g} cm`),text:`Krychle má hranu ${g} cm. Jaký je její objem?`,ans:g*g*g,hints:['V = a³',`${g}³ = ${g*g*g} cm³`],skill:'geo'});
   // povrch krychle
   const h=ri(2,7);
-  tasks.push({text:`Krychle má hranu ${h} cm. Jaký je její povrch?`,ans:6*h*h,hints:['S = 6·a²',`6·${h}² = ${6*h*h} cm²`],skill:'geo'});
+  tasks.push({svg:svgKrychle(`${h} cm`),text:`Krychle má hranu ${h} cm. Jaký je její povrch?`,ans:6*h*h,hints:['S = 6·a²',`6·${h}² = ${6*h*h} cm²`],skill:'geo'});
   // ze zadaného objemu → hrana krychle
   const i=ri(2,6),vi=i*i*i;
-  tasks.push({text:`Krychle má objem ${vi} cm³. Jaká je délka hrany?`,ans:i,hints:['a = ∛V',`∛${vi} = ${i} cm`],skill:'geo'});
+  tasks.push({svg:svgKrychle('?'),text:`Krychle má objem ${vi} cm³. Jaká je délka hrany?`,ans:i,hints:['a = ∛V',`∛${vi} = ${i} cm`],skill:'geo'});
   // z povrchu → hrana
   const j=ri(2,6),sj=6*j*j;
-  tasks.push({text:`Krychle má povrch ${sj} cm². Jaká je délka hrany?`,ans:j,hints:['S = 6a² → a = √(S/6)',`√(${sj}/6) = ${j} cm`],skill:'geo'});
-  { const a=ri(3,9),b=ri(2,7),c=ri(2,6); tasks.push({text:`Kvádr ${a}×${b}×${c} cm. Objem?`,ans:a*b*c,hints:['V = a·b·c.',`${a*b*c} cm³`],skill:'geo'}); }
-  { const d=ri(3,8),e=ri(2,6),f=ri(2,5); tasks.push({text:`Kvádr ${d}×${e}×${f} cm. Povrch?`,ans:2*(d*e+e*f+d*f),hints:['S = 2(ab+bc+ac).',`${2*(d*e+e*f+d*f)} cm²`],skill:'geo'}); }
-  { const g=ri(2,7); tasks.push({text:`Krychle se stranou ${g} cm. Objem?`,ans:g*g*g,hints:['V = a³.',`${g*g*g} cm³`],skill:'geo'}); }
-  { const h=ri(3,9),vv=ri(4,12),sv=h*h*vv; tasks.push({text:`Hranol s čtvercovou základnou strany ${h} cm a výškou ${vv} cm. Objem?`,ans:sv,hints:['V = základna × výška.',`${h}²×${vv} = ${sv} cm³`],skill:'geo'}); }
+  tasks.push({svg:svgKrychle('?'),text:`Krychle má povrch ${sj} cm². Jaká je délka hrany?`,ans:j,hints:['S = 6a² → a = √(S/6)',`√(${sj}/6) = ${j} cm`],skill:'geo'});
+  { const a=ri(3,9),b=ri(2,7),c=ri(2,6); tasks.push({svg:svgCuboid(`${a} cm`,`${b} cm`,`${c} cm`),text:`Kvádr ${a}×${b}×${c} cm. Objem?`,ans:a*b*c,hints:['V = a·b·c.',`${a*b*c} cm³`],skill:'geo'}); }
+  { const d=ri(3,8),e=ri(2,6),f=ri(2,5); tasks.push({svg:svgCuboid(`${d} cm`,`${e} cm`,`${f} cm`),text:`Kvádr ${d}×${e}×${f} cm. Povrch?`,ans:2*(d*e+e*f+d*f),hints:['S = 2(ab+bc+ac).',`${2*(d*e+e*f+d*f)} cm²`],skill:'geo'}); }
+  { const g=ri(2,7); tasks.push({svg:svgKrychle(`${g} cm`),text:`Krychle se stranou ${g} cm. Objem?`,ans:g*g*g,hints:['V = a³.',`${g*g*g} cm³`],skill:'geo'}); }
+  { const h=ri(3,9),vv=ri(4,12),sv=h*h*vv; tasks.push({svg:svgCuboid(`${h} cm`,`${vv} cm`,`${h} cm`,1),text:`Hranol s čtvercovou základnou strany ${h} cm a výškou ${vv} cm. Objem?`,ans:sv,hints:['V = základna × výška.',`${h}²×${vv} = ${sv} cm³`],skill:'geo'}); }
   // thematické
-  { const a=ri(3,9),b=ri(2,7),c=ri(2,6); tasks.push({text:`Truhlice má tvar kvádru ${a} × ${b} × ${c} dm. Jaký je její objem v dm³?`,ans:a*b*c,hints:['V = a·b·c.',`${a}·${b}·${c} = ${a*b*c} dm³`],skill:'geo'}); }
-  { const g=ri(2,6); tasks.push({text:`Obětní oltář je kamenná krychle o hraně ${g} dm. Kolik dm² má jeho povrch?`,ans:6*g*g,hints:['S = 6·a².',`6·${g}² = ${6*g*g} dm²`],skill:'geo'}); }
+  { const a=ri(3,9),b=ri(2,7),c=ri(2,6); tasks.push({svg:svgCuboid(`${a} dm`,`${b} dm`,`${c} dm`),text:`Truhlice má tvar kvádru ${a} × ${b} × ${c} dm. Jaký je její objem v dm³?`,ans:a*b*c,hints:['V = a·b·c.',`${a}·${b}·${c} = ${a*b*c} dm³`],skill:'geo'}); }
+  { const g=ri(2,6); tasks.push({svg:svgKrychle(`${g} dm`),text:`Obětní oltář je kamenná krychle o hraně ${g} dm. Kolik dm² má jeho povrch?`,ans:6*g*g,hints:['S = 6·a².',`6·${g}² = ${6*g*g} dm²`],skill:'geo'}); }
   return tasks;
 }
 
@@ -596,7 +596,7 @@ function gen_7_3(){
   tasks.push({text:`(−${e}) × (−${f}) = ?`,ans:e*f,hints:['Záporné × záporné = kladné.','= '+(e*f)],skill:'calc'});
   // objem kvádru
   const g2=ri(3,7),h=ri(2,5),i=ri(2,5);
-  tasks.push({text:`Kvádr ${g2} × ${h} × ${i} cm. Objem?`,ans:g2*h*i,hints:['V = a·b·c',`${g2*h*i} cm³`],skill:'geo'});
+  tasks.push({svg:svgCuboid(`${g2} cm`,`${h} cm`,`${i} cm`),text:`Kvádr ${g2} × ${h} × ${i} cm. Objem?`,ans:g2*h*i,hints:['V = a·b·c',`${g2*h*i} cm³`],skill:'geo'});
   // poměr
   const j=ri(2,5),k=ri(2,5),tot=ri(10,30)*(j+k);
   tasks.push({text:`Rozděl ${tot} v poměru ${j} : ${k}. První díl?`,ans:Math.round(tot*j/(j+k)),hints:['1 díl = '+(tot/(j+k))+', pak × '+j,''+Math.round(tot*j/(j+k))],skill:'anal'});
@@ -609,7 +609,7 @@ function gen_7_3(){
   { const p=ri(10,30),c=ri(10,30)*10; tasks.push({text:askCalc(`${p} % z ${c}`),ans:Math.round(p/100*c),hints:['část = základ × p/100.',`= ${Math.round(p/100*c)}`],skill:'calc'}); }
   // thematické
   { const kn=ri(3,9)*20,p=[10,25,50][ri(0,2)]; tasks.push({text:`V truhlici je ${kn} zlatých ${skl(kn,'minci','mince','mincí')}, ${p} % z nich je pravých. Kolik pravých mincí truhlice ukrývá?`,ans:Math.round(p/100*kn),hints:['část = základ × p/100.',`= ${Math.round(p/100*kn)}`],skill:'calc'}); }
-  { const a=ri(3,7),b=ri(2,5),c=ri(2,5); tasks.push({text:`Kamenná truhlice tvaru kvádru měří ${a} × ${b} × ${c} dm. Jaký je její objem?`,ans:a*b*c,hints:['V = a·b·c.',`${a*b*c} dm³`],skill:'geo'}); }
+  { const a=ri(3,7),b=ri(2,5),c=ri(2,5); tasks.push({svg:svgCuboid(`${a} dm`,`${b} dm`,`${c} dm`),text:`Kamenná truhlice tvaru kvádru měří ${a} × ${b} × ${c} dm. Jaký je její objem?`,ans:a*b*c,hints:['V = a·b·c.',`${a*b*c} dm³`],skill:'geo'}); }
   return tasks;
 }
 

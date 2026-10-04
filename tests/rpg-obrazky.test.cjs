@@ -22,7 +22,9 @@
  *  2) KVÁDR S POPISKY PROTI PROPORCÍM — v 45 % kvádrů stálo „2" u nejdelší
  *     nakreslené hrany a „9" u nejkratší. svgCuboid teď dává popisky podle
  *     velikosti (šířka > výška > hloubka); popisek, který není číslo („?"),
- *     pořadí nemění.
+ *     pořadí nemění. Když zadání jmenuje VÝŠKU („podstava 7 × 3 cm, výška
+ *     2 cm“), kreslí se s pevným pořadím: výška u svislé hrany, podstava
+ *     seřazená (šířka ≥ hloubka).
  *
  * Spusť: node tests/rpg-obrazky.test.cjs
  */
@@ -71,7 +73,7 @@ const vZadani = (hodnota, text) => {
   return new RegExp('(^|[^\\d,])' + h + '(?!\\d|,\\d)').test(t);
 };
 
-let obrazku = 0, chybGeneratoru = 0, kvadru = 0;
+let obrazku = 0, chybGeneratoru = 0, kvadru = 0, kvadruPevnych = 0;
 const obrazkuRoc = {};
 const skupiny = {}, kvadrZle = [];
 for (const g of GRADES) {
@@ -84,7 +86,7 @@ for (const g of GRADES) {
   for (const [jm, kod] of kresby) global[jm] = new Function(kod + '\n;return ' + jm)();
   const kvadr = global.svgCuboid;
   // pořadí popisků kvádru se čte z výstupu: šířka, výška, hloubka
-  if (g >= 6 && g !== 8) global.svgCuboid = (...a) => { const s = kvadr(...a); global.__kvadry.push(s); return s; };
+  if (g >= 6 && g !== 8) global.svgCuboid = (...a) => { const s = kvadr(...a); global.__kvadry.push({ s, pevne: !!a[3] }); return s; };
   global.__kvadry = [];
   const AREAS = new Function('return ' + html.match(/const AREAS\s*=\s*(\[[\s\S]*?\n\s*\];)/)[1].replace(/;\s*$/, ''))();
   global.window = {};
@@ -106,34 +108,38 @@ for (const g of GRADES) {
       }
     }
   }));
-  for (const s of global.__kvadry) {
-    kvadru++;
+  for (const { s, pevne } of global.__kvadry) {
+    kvadru++; if (pevne) kvadruPevnych++;
     const [a, b, c] = popisky(s).map(cislo);
-    if (a !== null && b !== null && c !== null && !(a >= b && b >= c)) kvadrZle.push(g + '. roč.: ' + popisky(s).join(' / '));
+    // S pevným pořadím stojí u svislé hrany výška ze zadání; podstava se řadí dál.
+    const zle = pevne ? a !== null && c !== null && a < c : a !== null && b !== null && c !== null && !(a >= b && b >= c);
+    if (zle) kvadrZle.push(g + '. roč.: ' + popisky(s).join(' / '));
   }
 }
 
 console.log('\n── Obrázky u úloh (3.–9. ročník) ──');
 ok(chybGeneratoru === 0, 'žádný generátor nespadl (' + chybGeneratoru + ')');
-// Naměřeno 33 600 obrázků při ITER=100 (12 700 → 16 500 po 1. stupni → 33 600
-// po 2. stupni a Pythagorovi v 8. ročníku); rozbité načtení kreseb dá desítky.
+// Naměřeno 40 700 obrázků při ITER=100 (12 700 → 16 500 po 1. stupni → 33 600
+// po 2. stupni a Pythagorovi v 8. ročníku → 40 700 po tělesech a úhlech);
+// rozbité načtení kreseb dá desítky.
 ok(obrazku > 15000, 'prohlédnuto ' + obrazku + ' obrázků (podlaha 15 000)');
 /* Každý ročník zvlášť: v celkovém součtu by ztráta obrázků v jednom ročníku
    (nebo v jedné misi, kterou přemapování úlohy připraví o `svg`) zapadla.
    Počty jsou PŘESNĚ stabilní — každá šablona s obrázkem ho vydá vždy, tři běhy
-   po sobě daly totéž: 3. 2 200, 4. 2 000, 5. 1 300, 6. 6 800, 7. 6 200,
-   8. 9 800, 9. 5 300 při ITER=100. Podlaha je proto těsná: přírůstek projde,
+   po sobě daly totéž: 3. 2 200, 4. 2 000, 5. 1 300, 6. 10 700, 7. 7 600,
+   8. 11 600, 9. 5 300 při ITER=100. Podlaha je proto těsná: přírůstek projde,
    pokles ne. 1. stupeň měl dřív po 100 (jediná šablona), 4. ročník do 4. 10. 2026
-   bez obrázku celou misi 5-2 (obsah), 8. ročník Pythagora skoro bez obrázků. */
-const ROC = { 3: 22, 4: 20, 5: 13, 6: 68, 7: 62, 8: 98, 9: 53 };
+   bez obrázku celou misi 5-2 (obsah), 8. ročník Pythagora skoro bez obrázků,
+   6. a 7. ročník krychle, kvádry a vedlejší úhly, 8. ročník Thaletovu kružnici. */
+const ROC = { 3: 22, 4: 20, 5: 13, 6: 107, 7: 76, 8: 116, 9: 53 };
 const malo = Object.entries(ROC).filter(([g, n]) => (obrazkuRoc[g] || 0) < n * ITER).map(([g, n]) => g + '. roč. ' + (obrazkuRoc[g] || 0) + ' < ' + n * ITER);
 ok(malo.length === 0, 'každý ročník má aspoň naměřený počet obrázků (' + Object.keys(ROC).map(g => g + '. ' + (obrazkuRoc[g] || 0)).join(', ') + ')', malo.join(', '));
 const prozrazene = Object.entries(skupiny).filter(([, s]) => s.n >= 20 && s.prozradi / s.n > 0.40);
 ok(prozrazene.length === 0, 'žádný obrázek neprozradí výsledek, který v zadání není (práh 40 % losů skupiny)',
   prozrazene.map(([k, s]) => Math.round(100 * s.prozradi / s.n) + ' % ' + k).join(' | '));
-// Naměřeno 2 400 kvádrů při ITER=100 (6., 7. a 9. ročník).
+// Naměřeno 3 400 kvádrů při ITER=100 (6., 7. a 9. ročník), z toho 200 s výškou ze zadání.
 ok(kvadru > 1500, 'prohlédnuto ' + kvadru + ' kvádrů (podlaha 1 500)');
-ok(kvadrZle.length === 0, 'kvádr má největší číslo u nejdelší nakreslené hrany (šířka ≥ výška ≥ hloubka)',
+ok(kvadrZle.length === 0, 'kvádr má největší číslo u nejdelší nakreslené hrany (šířka ≥ výška ≥ hloubka; s výškou ze zadání ' + kvadruPevnych + '× šířka ≥ hloubka)',
   kvadrZle.length + '× — ' + kvadrZle.slice(0, 3).join(' | '));
 
 console.log('\n══════════════════════════════════════════');

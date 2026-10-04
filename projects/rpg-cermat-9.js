@@ -678,7 +678,9 @@
     const hCm = ri(1, c / 10 - 1) * 10, litryVoda = baseA * hCm / 1000;
     return {
       no: 6, points: 2, title: 'Akvárium', okruh: 'telesa',
-      svg: svgCuboid(a + ' cm', b + ' cm', c + ' cm'),
+      // Výška c je v zadání jmenovaná (6.2 na ní stojí), takže zůstává u svislé hrany;
+      // řazení podle velikosti by „50 cm“ položilo na dno.
+      svg: svgCuboid(Math.max(a, b) + ' cm', c + ' cm', Math.min(a, b) + ' cm', 1),
       intro: `Akvárium má tvar kvádru s rozměry dna ${a} cm × ${b} cm a výškou ${c} cm.`,
       parts: [
         { key: '6.1', points: 1,

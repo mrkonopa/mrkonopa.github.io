@@ -102,9 +102,11 @@ function bankaCermat() {
        konstanty `const _txt = …` se porovnávají celým řádkem). */
     const NOVE = ['const:_txt', 'const:_sirka', '_oblouk', 'svgObdelnik', 'svgTrojVyska', 'svgTrojUhly', 'svgTrojStrany'];
     const KOPIE = [
-      ['projects/rpg-mat-6.html', ['svgAngle', 'svgCross', 'svgCuboid', 'svgKrychle', 'svgTriangle', 'svgMirror', ...NOVE]],
+      ['projects/rpg-mat-6.html', ['svgAngle', 'svgCross', 'svgCuboid', 'svgKrychle', 'svgTriangle', 'svgMirror', 'svgVedlejsi', ...NOVE]],
       ['projects/rpg-mat-7.html', ['svgAngle', 'svgCross', 'svgCuboid', 'svgKrychle', 'svgTriangle', 'svgMirror',
         'svgPointSym', 'svgParallelogram', 'svgTrapezoid', 'svgRightTri', ...NOVE]],
+      // 8. ročník má vlastní sadu kreseb; z jádra jen trojúhelník z úhlů (od 4. 10. 2026)
+      ['projects/rpg-mat-8.html', ['const:_txt', 'const:_sirka', '_oblouk', 'svgTrojUhly']],
     ];
     const rozdilne = []; let porovnano = 0;
     for (const [soubor, jmena] of KOPIE) {
@@ -120,7 +122,7 @@ function bankaCermat() {
         }
       }
     }
-    ok(porovnano === 30, 'porovnáno ' + porovnano + ' kopií kreslicích funkcí (6. a 7. ročník)');
+    ok(porovnano === 35, 'porovnáno ' + porovnano + ' kopií kreslicích funkcí (6., 7. a 8. ročník)');
     ok(rozdilne.length === 0, 'kopie v hrách mají shodnou geometrii se sdíleným jádrem (liší se jen barvy)',
       rozdilne.slice(0, 2).join(' | '));
   }
@@ -285,6 +287,26 @@ function bankaCermat() {
     const spatne3 = r3.filter(t => oc3[t.txt] !== t.nejblizsi);
     ok(spatne3.length === 0, 'hledaná hrana „?" zůstane tam, kam ji úloha dala',
       spatne3.map(t => '„' + t.txt + '" u ' + t.nejblizsi + ' (má být ' + oc3[t.txt] + ')').join(' | '));
+    /* „Podstava 7 × 3 cm, výška 2 cm": výška ze zadání patří ke svislé hraně,
+       i když není prostřední — řazení podle velikosti by ji dalo k hloubce. */
+    const r4 = await zmerKvadr(JADRO.svgCuboid('5 cm', '8 cm', '3 cm', 1));
+    const oc4 = { '5 cm': 'šířka', '8 cm': 'výška', '3 cm': 'hloubka' };
+    const spatne4 = r4.filter(t => oc4[t.txt] !== t.nejblizsi);
+    ok(r4.length === 3 && spatne4.length === 0, 's pevným pořadím zůstane výška ze zadání u svislé hrany',
+      spatne4.map(t => '„' + t.txt + '" u ' + t.nejblizsi + ' (má být ' + oc4[t.txt] + ')').join(' | '));
+    /* Totéž na skutečné úloze: „Akvárium" v testu nanečisto (pozice 6) má dno
+       a × b a VÝŠKU c a podúloha 6.2 na ní stojí („voda sahá do výšky…"). Řazení
+       podle velikosti kladlo „50 cm" výšky na dno. Losuje se ~13 % pozice 6. */
+    const B6 = bankaCermat(); let akv = 0; const spatne5 = [];
+    for (let i = 0; i < 600 && akv < 12; i++) {
+      const u = B6.genSlot(5); if (!u || u.title !== 'Akvárium') continue;
+      akv++;
+      const vyska = ((u.intro || '').match(/výškou (\d+) cm/) || [])[1] + ' cm';
+      const r5 = await zmerKvadr(u.svg);
+      if (!r5.some(t => t.txt === vyska && t.nejblizsi === 'výška')) spatne5.push('výška ' + vyska + ': ' + r5.map(t => t.txt + ' u ' + t.nejblizsi).join(', '));
+    }
+    ok(akv >= 5 && spatne5.length === 0, 'Akvárium v testu nanečisto má výšku ze zadání u svislé hrany (' + akv + ' úloh)',
+      spatne5.slice(0, 2).join(' | '));
   }
 
   /* ── 5. nic se neořezává viewBoxem ──
@@ -397,6 +419,51 @@ function bankaCermat() {
     ok(p.dvojic >= 100, 'porovnáno ' + p.dvojic + ' dvojic popisků (podlaha 100)');
     ok(p.out.length === 0, 'žádné dva popisky se v kresbě nepřekrývají',
       p.out.slice(0, 3).join(' | '));
+  }
+
+  /* ── 6b. popisek úhlu nesmí ležet na PŘÍMCE ──
+     Kontrola překryvu hlídá jen text proti textu. V kříži přímek se ale
+     „20°" ve 20° úhlu tiskl přes čáru: vzdálenost popisku se odhadovala
+     z půlky výšky písma a půlky šířky, jenže vodorovný rámeček sahá k šikmé
+     přímce o a·sin θ + b·|cos θ|. Projdou se všechny úhly, které banky
+     losují (20–160°), s nejdelším popiskem („160°") i u vrcholového úhlu. */
+  {
+    const kresby = [];
+    for (let deg = 20; deg <= 160; deg += 5) {
+      kresby.push({ jm: 'svgCross(' + deg + ')', svg: JADRO.svgCross(deg, { label: deg + '°', label2: '?' }) });
+      kresby.push({ jm: 'svgCross(' + deg + ', vrcholový)', svg: JADRO.svgCross(deg, { label: 'α', label2: deg + '°' }) });
+      kresby.push({ jm: 'svgVedlejsi(' + deg + ')', svg: JADRO.svgVedlejsi(deg, deg + '°', '?') });
+      kresby.push({ jm: 'svgVedlejsi(' + deg + ', ?)', svg: JADRO.svgVedlejsi(deg, '?', (180 - deg) + '°') });
+    }
+    const r = await page.evaluate(({ kresby }) => {
+      const out = []; let popisku = 0;
+      for (const k of kresby) {
+        const d = document.createElement('div');
+        d.style.cssText = 'width:260px'; d.innerHTML = k.svg; document.body.appendChild(d);
+        const svg = d.querySelector('svg');
+        svg.style.cssText = 'display:block;width:260px;height:auto';
+        const m = svg.getScreenCTM();
+        const L = [...svg.querySelectorAll('line')].map(l => ['x1', 'y1', 'x2', 'y2'].map(a => l[a].baseVal.value));
+        for (const t of svg.querySelectorAll('text')) {
+          if (!t.textContent.trim()) continue;
+          popisku++;
+          const q = t.getBoundingClientRect();
+          const zasah = L.some(([x1, y1, x2, y2]) => {
+            for (let i = 0; i <= 200; i++) {
+              const x = x1 + (x2 - x1) * i / 200, y = y1 + (y2 - y1) * i / 200;
+              const sx = m.a * x + m.e, sy = m.d * y + m.f;
+              if (sx > q.left + 1 && sx < q.right - 1 && sy > q.top + 1 && sy < q.bottom - 1) return true;
+            }
+            return false;
+          });
+          if (zasah) out.push(k.jm + ': „' + t.textContent.trim() + '"');
+        }
+        d.remove();
+      }
+      return { out, popisku };
+    }, { kresby });
+    ok(r.popisku === kresby.length * 2, 'proměřeno ' + r.popisku + ' popisků úhlů v kříži a u vedlejších úhlů (čeká se ' + kresby.length * 2 + ')');
+    ok(r.out.length === 0, 'žádný popisek úhlu neleží na přímce', r.out.slice(0, 4).join(' | '));
   }
 
   /* ── 8. obrázky ze skutečných úloh bank 3.–8. ročníku ──
