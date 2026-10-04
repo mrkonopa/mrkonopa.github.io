@@ -92,6 +92,70 @@ const ok=(c,m)=>{ if(c){pass++;console.log('  ✅ '+m);} else {fail++;console.lo
   // Pojistka proti běhu naprázdno: bez skutečných měření by kontrola prošla i tak.
   ok(mereni === 7*ZARIZENI.length, `proměřeno ${mereni} kombinací ročník × rozměr (čekáno ${7*ZARIZENI.length})`);
 
+  /* ── Úlohy S OBRÁZKEM: šest nejhorších v každém ročníku ──
+     Úlohu výš vybírá semínko, takže o obrázku rozhoduje los — a když obrázky
+     přibyly do mise 1-2 v 6. ročníku, vstup na telefonu zajel pod okraj. Ve
+     skutečnosti byl i ZA přišpendlenou lištou s DÁLE: fokus posune sloupec jen
+     „do okna" a o liště nic neví. Naměřeno na 306 úlohách s obrázkem: na telefonu
+     136 zakrytých vstupů, na iPadu s klávesnicí 3. Proto se tu berou úlohy s
+     obrázkem a NEJDELŠÍM zadáním a vstup musí být nad lištou, ne jen v okně.
+     Na tabletech (výška ≥ 420) musí zůstat vidět i začátek zadání; telefon na
+     šířku se nevejde nikdy, tam se smí posunout zadání, ovládání ne.
+     Sabotáž: bez `scroll-padding-bottom` spadne telefon, bez obrázku vedle
+     zadání (:has) spadnou tablety s klávesnicí. */
+  let obrMer = 0;
+  for (const g of [3,4,5,6,7,8,9]) {
+    const spatne = [];
+    for (const [jm, w, h] of ZARIZENI) {
+      const ctx = await br.newContext({ viewport:{width:w,height:h}, hasTouch:true });
+      await ctx.route('**/*', r => r.request().url().startsWith(base) ? r.continue() : r.abort());
+      const page = await ctx.newPage();
+      await page.goto(`${base}/projects/rpg-mat-${g}.html`, {waitUntil:'domcontentloaded'});
+      await page.waitForFunction(()=>typeof window.startGame==='function', null, {timeout:10000});
+      const r = await page.evaluate(async (tablet) => {
+        document.getElementById('ni').value = 'Test';
+        startGame(); S.tutorialDone = true;
+        const vyber = new Map();
+        for (const ar of AREAS) for (const mi of ar.missions) {
+          if (mi.mc) continue;                              // výběr ze 4 nemá vstup
+          for (let i = 0; i < 4; i++) {
+            let ts = []; try { ts = mi.tasks() || []; } catch (e) {}
+            for (const k of Object.keys(window)) if (/^RPG_TASK_EXTRA_\d$/.test(k) && window[k][mi.id]) {
+              try { ts = ts.concat(window[k][mi.id]() || []); } catch (e) {} }
+            for (const t of ts) if (t && t.svg && !isYN(t)) {
+              const klic = String(t.text).replace(/\d+/g, '#');
+              if (!vyber.has(klic) || vyber.get(klic).t.text.length < t.text.length) vyber.set(klic, { t, ar: ar.id, mi: mi.id });
+            }
+          }
+        }
+        const nejhorsi = [...vyber.values()].sort((a, b) => b.t.text.length - a.t.text.length).slice(0, 6);
+        const vady = [];
+        for (const p of nejhorsi) {
+          launchBattle(p.ar, p.mi);
+          const col = document.querySelector('.bt-col-task'); col.scrollTop = 0;
+          BT.tasks[BT.idx] = p.t; if (BT.mini) BT.mini[BT.idx] = null;
+          renderTask();                                     // dá fokus do vstupu
+          document.getElementById('next-btn').style.display = '';
+          await new Promise(res => requestAnimationFrame(() => res()));
+          const vh = innerHeight, lista = document.querySelector('.bt-akce').getBoundingClientRect();
+          const vstup = document.getElementById('bt-input-row').getBoundingClientRect();
+          const prob = document.getElementById('bt-prob').getBoundingClientRect(), c = col.getBoundingClientRect();
+          const zakryto = Math.round(vstup.bottom - Math.min(vh, lista.top));
+          if (zakryto > 1) vady.push(`vstup ${zakryto} px pod lištou (${p.mi})`);
+          if (tablet && c.top - prob.top > 1) vady.push(`začátek zadání odjel o ${Math.round(c.top - prob.top)} px (${p.mi})`);
+        }
+        return { n: nejhorsi.length, vady };
+      }, h >= 420);
+      obrMer += r.n;
+      for (const v of r.vady) spatne.push(`${jm}: ${v}`);
+      await ctx.close();
+    }
+    ok(spatne.length===0, `${g}. ročník: u 6 úloh s obrázkem a nejdelším zadáním je vstup nad lištou na všech ${ZARIZENI.length} rozměrech`
+      + (spatne.length ? ' — ' + spatne.slice(0,3).join(' · ') : ''));
+  }
+  // Pod šest úloh s obrázkem by ročník klesl jen tehdy, kdyby se obrázky ztratily.
+  ok(obrMer === 7*ZARIZENI.length*6, `proměřeno ${obrMer} úloh s obrázkem (čekáno ${7*ZARIZENI.length*6})`);
+
   await br.close(); srv.close();
   console.log(`\n══════════════════════════════════════════\n  VÝSLEDEK: ${pass} ✅ / ${fail} ❌\n══════════════════════════════════════════`);
   process.exit(fail ? 1 : 0);

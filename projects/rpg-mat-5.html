@@ -352,6 +352,24 @@ html[data-theme="violet"]{--gold:#b06cff;--panel:#100a20;--panel2:#18103a;--blue
  #s-battle .bt-col-task{overflow-y:auto;overscroll-behavior:contain}
  #s-battle .bt-akce{position:sticky;bottom:0;z-index:4;background:var(--bg);padding:6px 0 2px}
  #s-battle .bt-top{margin-bottom:6px}
+ /* Obrázek úlohy nesmí vytlačit VSTUP pod okraj — ten není v přišpendlené liště.
+    Kvádr je při plné šířce 201 px vysoký, telefon na šířku má 360 px okna;
+    viewBox drží poměr stran, kresba se jen zmenší. */
+ #s-battle .prob-svg svg{max-height:32vh}
+ /* Fokus na vstup posune sloupec jen tak, aby byl vstup vidět — o přišpendlené liště
+    nic neví, takže vstup skončil ZA ní (naměřeno na telefonu u 136 z 306 úloh s obrázkem).
+    Odsazení o výšku lišty (41 px) a kousek navíc to srovná. */
+ #s-battle .bt-col-task{scroll-padding-bottom:50px}
+}
+@media(orientation:landscape) and (max-height:500px) and (min-width:700px){
+ /* Nízká obrazovka na šířku (telefon, tablet s klávesnicí): obrázek jde VEDLE zadání,
+    ne nad něj. Pod sebou zabraly na telefonu 740 × 360 přes 200 px a vstup zajel pod
+    přišpendlenou lištu s DÁLE. :has() omezí změnu na zadání s obrázkem (minihry ne);
+    prohlížeč, který ho nezná, nechá úlohu pod sebou jako dřív. */
+ #s-battle .bt-problem:has(> .prob-svg){display:flex;flex-direction:row-reverse;align-items:flex-start;gap:10px}
+ #s-battle .bt-problem > .prob-svg{flex:0 0 45%;margin-bottom:0}
+ #s-battle .bt-problem > .prob-svg svg{max-height:30vh}
+ #s-battle .bt-problem > .prob-txt{flex:1;min-width:0}
 }
 @media(max-height:750px){.bt-top{min-height:140px;padding:8px 18px 30px}.bt-monster{font-size:70px}.player-hp{font-size:22px;margin-bottom:6px}.items-bar{min-height:36px;margin-bottom:4px}.bt-problem{padding:12px;margin-bottom:6px;font-size:20px}.bt-row{margin-bottom:6px}.bt-input{padding:8px;font-size:17px}.topnav{margin-bottom:6px;padding-bottom:6px}}
 </style>
