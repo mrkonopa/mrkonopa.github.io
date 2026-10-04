@@ -44,7 +44,7 @@ global.countDiv = () => 1;
 // Kreslicí funkce ročníku: 6./7./8. mají vlastní kopie v HTML, 9. sdílené
 // rpg-svg-9.js, 1. stupeň svgRect v HTML. Tělo se vezme počítáním závorek.
 function vytahni(src) {
-  const out = [], re = /function (svg(?!AttrRadar)\w+)\s*\(/g;
+  const out = [], re = /function (svg(?!AttrRadar)\w+|_oblouk)\s*\(/g;
   let m;
   while ((m = re.exec(src))) {
     let j = src.indexOf('{', src.indexOf(')', m.index)), d = 0;
@@ -60,10 +60,15 @@ function vytahni(src) {
 const POPISEK = /<text(?![^>]*data-nltick)[^>]*>([^<]*)<\/text>/g;
 const popisky = svg => [...String(svg).matchAll(POPISEK)].map(m => m[1].trim());
 const cislo = s => { const t = String(s).replace(/[−–]/g, '-').replace(/\s+/g, '').replace(/(cm|dm|mm|km|m|l|kg|g|°|Kč|cm²|cm³|dm³|m²|m³)$/, '').replace(',', '.'); return /^-?\d+(\.\d+)?$/.test(t) ? +t : null; };
+/* Číslo v zadání: hledá se HODNOTA (bez jednotky), za kterou nestojí číslice ani
+   „,číslice" (desetinná čárka). Dřív se hledal celý popisek i s jednotkou a čárka
+   za ním byla zakázaná vždy — „70°" v „úhly 70°, 50° a 60°" se tak nenašlo a
+   pravidlo hlásilo prozrazení u výsledku, který v zadání stojí. */
 const vZadani = (hodnota, text) => {
   const t = String(text).replace(/[−–]/g, '-').replace(/-\s+(\d)/g, '-$1').replace(/(\d)\.(\d)/g, '$1,$2');
-  const h = String(hodnota).replace('.', ',').replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  return new RegExp('(^|[^\\d,])' + h + '($|[^\\d,])').test(t);
+  const c = cislo(hodnota);
+  const h = (c === null ? String(hodnota) : String(c).replace('.', ',')).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return new RegExp('(^|[^\\d,])' + h + '(?!\\d|,\\d)').test(t);
 };
 
 let obrazku = 0, chybGeneratoru = 0, kvadru = 0;
@@ -71,7 +76,11 @@ const obrazkuRoc = {};
 const skupiny = {}, kvadrZle = [];
 for (const g of GRADES) {
   const html = fs.readFileSync(P('rpg-mat-' + g + '.html'), 'utf8');
-  const kresby = vytahni(g === 9 ? fs.readFileSync(P('rpg-svg-9.js'), 'utf8') : html);
+  const zdroj = g === 9 ? fs.readFileSync(P('rpg-svg-9.js'), 'utf8') : html;
+  /* Pomocníci jádra (_txt, _sirka, _oblouk) — kopie kreseb v 6./7. ročníku je volají,
+     a bez nich by každá úloha s obrázkem obdélníku či trojúhelníku spadla. */
+  for (const k of ['_txt', '_sirka']) { const i = zdroj.indexOf('\nconst ' + k + ' ='); if (i >= 0) global[k] = new Function(zdroj.slice(i + 1, zdroj.indexOf('\n', i + 1)) + '\n;return ' + k)(); }
+  const kresby = vytahni(zdroj);
   for (const [jm, kod] of kresby) global[jm] = new Function(kod + '\n;return ' + jm)();
   const kvadr = global.svgCuboid;
   // pořadí popisků kvádru se čte z výstupu: šířka, výška, hloubka

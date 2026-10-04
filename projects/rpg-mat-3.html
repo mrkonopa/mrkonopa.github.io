@@ -708,7 +708,7 @@ function svgTroj(strany,zakl){
   const qx=mx+nx*10,qy=anc!=='middle'?my+ny*10+5:(ny>0?my+19:my-8);
   t+=`<text x="${f(qx)}" y="${f(qy)}" fill="#ffe066" font-size="14" font-family="monospace" text-anchor="${anc}">${txt}</text>`; };
  pop(A,B,Z.t);pop(A,C,L.t);pop(B,C,P.t);
- return `<svg viewBox="0 0 250 160"><polygon points="${[A,B,C].map(q=>f(q[0])+','+f(q[1])).join(' ')}" fill="none" stroke="#6fcf6f" stroke-width="3" stroke-linejoin="round"/>${t}</svg>`;
+ return `<svg viewBox="0 0 250 160"><polygon data-kresba="strany" points="${[A,B,C].map(q=>f(q[0])+','+f(q[1])).join(' ')}" fill="none" stroke="#6fcf6f" stroke-width="3" stroke-linejoin="round"/>${t}</svg>`;
 }
 
 // AREAS

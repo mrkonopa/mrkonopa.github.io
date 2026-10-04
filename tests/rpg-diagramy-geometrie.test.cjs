@@ -43,7 +43,7 @@ const ok = (c, m, d) => { if (c) { pass++; console.log('  ✅ ' + m); } else { f
 /* ── načtení kreslicích funkcí ─────────────────────────────────────── */
 const EXPORT = '\n;return {svgAngle,svgCross,svgCuboid,svgTriangle,svgRightTri,svgMirror,' +
   'svgPointSym,svgParallelogram,svgTrapezoid,svgLineGraph,svgCylinder,svgCone,svgSphere,svgSimilar,svgNumLine,' +
-  'svgObdelnik,svgTrojVyska,svgVedlejsi,svgTrojUhly,svgKrychle,svgHranol3};';
+  'svgObdelnik,svgTrojVyska,svgVedlejsi,svgTrojUhly,svgKrychle,svgHranol3,svgTrojStrany};';
 const jadroSrc = fs.readFileSync(path.join(ROOT, 'projects/rpg-svg-9.js'), 'utf8');
 const JADRO = new Function(jadroSrc + EXPORT)();
 
@@ -56,6 +56,22 @@ function funkceZeHry(soubor, jmena) {
     if (i < 0) throw new Error(soubor + ': nenalezeno ' + jm);
     return src.slice(i + 1, src.indexOf('\n}\n', i) + 2);
   }).join('\n');
+}
+
+/* Konstanta na jeden řádek (`const _txt = (…) => …;`), podle jména. */
+function konstZeHry(soubor, jm) {
+  const src = fs.readFileSync(path.join(ROOT, soubor), 'utf8');
+  const i = src.indexOf('\nconst ' + jm + ' =');
+  if (i < 0) throw new Error(soubor + ': nenalezeno const ' + jm);
+  return src.slice(i + 1, src.indexOf('\n', i + 1));
+}
+/* Všechny kreslicí funkce hry (svg… + pomocníci jádra), jak je hra skutečně má. */
+function kresbyZeHry(soubor) {
+  const src = fs.readFileSync(path.join(ROOT, soubor), 'utf8');
+  const fn = [...src.matchAll(/\nfunction (svg(?!AttrRadar)\w+|_oblouk)\(/g)].map(m => m[1]);
+  const ko = [...src.matchAll(/\nconst (_txt|_sirka) =/g)].map(m => m[1]);
+  const kod = ko.map(k => konstZeHry(soubor, k)).join('\n') + '\n' + funkceZeHry(soubor, fn);
+  return new Function(kod + '\n;return {' + [...ko, ...fn].join(',') + '};')();
 }
 
 /* Banka testu nanečisto — kresby úhlů na rovnoběžkách jsou uvnitř ní. */
@@ -82,16 +98,20 @@ function bankaCermat() {
      znormalizují a zbytek musí sedět ZNAK PO ZNAKU. */
   {
     const bezBarev = s => s.replace(/#[0-9a-fA-F]{6}\b/g, '#');
+    /* Od 1. 10. 2026 i obdélník, trojúhelník s výškou, z úhlů a ze stran (+ jejich pomocníci;
+       konstanty `const _txt = …` se porovnávají celým řádkem). */
+    const NOVE = ['const:_txt', 'const:_sirka', '_oblouk', 'svgObdelnik', 'svgTrojVyska', 'svgTrojUhly', 'svgTrojStrany'];
     const KOPIE = [
-      ['projects/rpg-mat-6.html', ['svgAngle', 'svgCross', 'svgCuboid', 'svgKrychle', 'svgTriangle', 'svgMirror']],
+      ['projects/rpg-mat-6.html', ['svgAngle', 'svgCross', 'svgCuboid', 'svgKrychle', 'svgTriangle', 'svgMirror', ...NOVE]],
       ['projects/rpg-mat-7.html', ['svgAngle', 'svgCross', 'svgCuboid', 'svgKrychle', 'svgTriangle', 'svgMirror',
-        'svgPointSym', 'svgParallelogram', 'svgTrapezoid']],
+        'svgPointSym', 'svgParallelogram', 'svgTrapezoid', ...NOVE]],
     ];
     const rozdilne = []; let porovnano = 0;
     for (const [soubor, jmena] of KOPIE) {
       for (const jm of jmena) {
-        const kopie = bezBarev(funkceZeHry(soubor, [jm]).trim());
-        const zdroj = bezBarev(funkceZeHry('projects/rpg-svg-9.js', [jm]).trim());
+        const vem = f => jm.startsWith('const:') ? konstZeHry(f, jm.slice(6)) : funkceZeHry(f, [jm]);
+        const kopie = bezBarev(vem(soubor).trim());
+        const zdroj = bezBarev(vem('projects/rpg-svg-9.js').trim());
         porovnano++;
         if (kopie !== zdroj) {
           const i = [...kopie].findIndex((c, k) => c !== zdroj[k]);
@@ -100,7 +120,7 @@ function bankaCermat() {
         }
       }
     }
-    ok(porovnano === 15, 'porovnáno ' + porovnano + ' kopií kreslicích funkcí (6. a 7. ročník)');
+    ok(porovnano === 29, 'porovnáno ' + porovnano + ' kopií kreslicích funkcí (6. a 7. ročník)');
     ok(rozdilne.length === 0, 'kopie v hrách mají shodnou geometrii se sdíleným jádrem (liší se jen barvy)',
       rozdilne.slice(0, 2).join(' | '));
   }
@@ -293,6 +313,10 @@ function bankaCermat() {
     for (const [al, be] of [[20, 20], [90, 60], [30, 120], [60, 60], [20, 130]])
       kresby.push({ jm: 'svgTrojUhly(' + al + ',' + be + ')', svg: JADRO.svgTrojUhly(al, be, al + '°', be + '°', '?') });
     kresby.push({ jm: 'svgKrychle', svg: JADRO.svgKrychle('12 cm') });
+    for (const [st, z] of [[[7, 8, 9], null], [[3, 8, 10], null], [[4, 4, 7], 2], [[12, 12, 2], 2], [[10, 10, 10], null], [[12, 11, 20], null]])
+      kresby.push({ jm: 'svgTrojStrany(' + st + ')', svg: JADRO.svgTrojStrany(st.map(d => [d, d + ' cm']), z) });
+    for (const [a, b] of [[5, 5], [12, 4], [5, 10], [12, 10]])
+      kresby.push({ jm: 'svgParallelogram(' + a + ',null,' + b + ')', svg: JADRO.svgParallelogram(a, null, b) });
     for (const [a, va, v] of [[4, 12, 15], [16, 2, 3], [16, 12, 15], [8, 6, 15], [12, 12, 3]])
       kresby.push({ jm: 'svgHranol3(' + [a, va, v] + ')', svg: JADRO.svgHranol3(a, va, v, a + ' cm', va + ' cm', v + ' cm') });
     /* + všechny tvary, které skutečně vydá banka testu nanečisto */
@@ -375,24 +399,25 @@ function bankaCermat() {
       p.out.slice(0, 3).join(' | '));
   }
 
-  /* ── 8. kresby 1. stupně (obdélník, čtverec, trojúhelník) ──
+  /* ── 8. obrázky ze skutečných úloh bank 3.–8. ročníku ──
      Od 1. 10. 2026 mají obrázek všechny obdélníky, čtverce a trojúhelníky
-     ze stran ve 3.–5. ročníku (dřív jediná šablona na ročník). svgRect je ve
-     třech hrách kopií s jinou barvou čáry, svgTroj jen ve 3. ročníku — jinde
-     trojúhelník ze tří stran žádná úloha nezadává. Měří se SKUTEČNÉ obrázky
-     z bank (každý tvar zadání), ne vymyšlené případy. */
+     ze stran ve 3.–5. ročníku (dřív jediná šablona na ročník) a velká část
+     geometrie v 6.–8. (obdélník, trojúhelník z úhlů, ze stran a s výškou,
+     rovnoběžník, lichoběžník, kruh, válec). svgRect je ve třech hrách 1. stupně
+     kopií s jinou barvou čáry; trojúhelník ze stran kreslí svgTroj (3. roč.)
+     a svgTrojStrany (jádro + kopie v 6./7.). Každá hra se měří se SVÝMI
+     kresbami (kresbyZeHry), na obrázcích, které banka skutečně vydá. */
   {
     const bezBarev = s => s.replace(/#[0-9a-fA-F]{6}\b/g, '#');
     const kopie = [3, 4, 5].map(g => bezBarev(funkceZeHry('projects/rpg-mat-' + g + '.html', ['svgRect']).trim()));
     ok(kopie[1] === kopie[0] && kopie[2] === kopie[0], 'svgRect ve 3., 4. a 5. ročníku je táž kresba (liší se jen barva čáry)');
 
     const kresby = [];
-    for (const g of [3, 4, 5]) {
-      const jm = g === 3 ? ['svgRect', 'svgTroj'] : ['svgRect'];
-      const H = new Function(funkceZeHry('projects/rpg-mat-' + g + '.html', jm) + '\n;return {' + jm.join(',') + '};')();
+    for (const g of [3, 4, 5, 6, 7, 8]) {
+      const H = kresbyZeHry('projects/rpg-mat-' + g + '.html');
       const c = { window: {}, ri: (a, b) => Math.floor(Math.random() * (b - a + 1)) + a, pick: a => a[Math.floor(Math.random() * a.length)],
         gcd: function gcd(a, b) { return b ? gcd(b, a % b) : Math.abs(a); }, cz: n => String(n).replace('.', ','),
-        skl: (n, o, f, m) => (n === 1 ? o : (n >= 2 && n <= 4 ? f : m)), shuffleArr: a => a, ...H };
+        skl: (n, o, f, m) => (n === 1 ? o : (n >= 2 && n <= 4 ? f : m)), shuffleArr: a => a, countDiv: () => 1, ...H };
       const k = Object.keys(c);
       new Function(...k, fs.readFileSync(path.join(ROOT, 'projects/rpg-tasks-' + g + '.js'), 'utf8'))(...k.map(x => c[x]));
       const EX = c.window['RPG_TASK_EXTRA_' + g], videno = new Set();
@@ -428,7 +453,7 @@ function bankaCermat() {
           if (Math.min(A.r, B.r) - Math.max(A.l, B.l) > 1 && Math.min(A.b, B.b) - Math.max(A.t, B.t) > 1)
             prekryv.push(k.jm + ': „' + texty[i].el.textContent + '" × „' + texty[j].el.textContent + '"');
         }
-        const pg = svg.querySelector('polygon');
+        const pg = svg.querySelector('polygon[data-kresba="strany"]');
         if (pg) {
           troj++;
           const v = pg.getAttribute('points').trim().split(/\s+/).map(q => q.split(',').map(Number));
@@ -448,14 +473,15 @@ function bankaCermat() {
       }
       return { ven, prekryv, kriz, tvar, troj, textu, tvarN };
     }, { kresby });
-    /* Naměřeno 1. 10. 2026: 963 různých kreseb, z toho 355 trojúhelníků
-       a 2 276 popisků. Podlahy hlídají jen, že se měřilo. */
-    ok(kresby.length >= 800 && r.troj >= 250 && r.textu >= 1500,
-      '1. stupeň: proměřeno ' + kresby.length + ' kreseb, ' + r.troj + ' trojúhelníků, ' + r.textu + ' popisků');
-    ok(r.ven.length === 0, '1. stupeň: nic nepřesahuje viewBox', r.ven.slice(0, 3).join(' | '));
-    ok(r.prekryv.length === 0, '1. stupeň: popisky se nepřekrývají', r.prekryv.slice(0, 3).join(' | '));
-    ok(r.kriz.length === 0, '1. stupeň: popisek trojúhelníku nekříží žádnou stranu', r.kriz.slice(0, 3).join(' | '));
-    ok(r.tvar.length === 0 && r.tvarN >= 100, '1. stupeň: trojúhelník má tvar podle délek ze zadání (poměr stran do 1 %, ' + r.tvarN + ' posouzených)', r.tvar.slice(0, 3).join(' | '));
+    /* Naměřeno 1. 10. 2026: 2 153 různých kreseb, z toho 450 trojúhelníků ze
+       stran a 5 150 popisků (dedup tvarem, nejvýš 400 na banku). Podlahy hlídají
+       jen, že se měřilo. */
+    ok(kresby.length >= 1700 && r.troj >= 350 && r.textu >= 4000,
+      'banky 3.–8. roč.: proměřeno ' + kresby.length + ' kreseb, ' + r.troj + ' trojúhelníků, ' + r.textu + ' popisků');
+    ok(r.ven.length === 0, 'banky 3.–8. roč.: nic nepřesahuje viewBox', r.ven.slice(0, 3).join(' | '));
+    ok(r.prekryv.length === 0, 'banky 3.–8. roč.: popisky se nepřekrývají', r.prekryv.slice(0, 3).join(' | '));
+    ok(r.kriz.length === 0, 'banky 3.–8. roč.: popisek trojúhelníku ze stran nekříží žádnou stranu', r.kriz.slice(0, 3).join(' | '));
+    ok(r.tvar.length === 0 && r.tvarN >= 200, 'banky 3.–8. roč.: trojúhelník ze stran má tvar podle délek ze zadání (poměr stran do 1 %, ' + r.tvarN + ' posouzených)', r.tvar.slice(0, 3).join(' | '));
   }
 
   await br.close();

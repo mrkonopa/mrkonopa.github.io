@@ -971,11 +971,13 @@ function svgRightTri(a,b,opt){
 // Kruh s poloměrem r NEBO průměrem d (předej jen jeden popisek).
 function svgCircleR(lbl={}){
  const hasD=!!lbl.d;
- return `<svg viewBox="0 0 250 160"><circle cx="125" cy="80" r="58" fill="#101a2e" stroke="#5dade2" stroke-width="3"/><circle cx="125" cy="80" r="3" fill="#e74c3c"/>${hasD?`<line x1="67" y1="80" x2="183" y2="80" stroke="#f4d03f" stroke-width="2"/><text x="125" y="70" fill="#f4d03f" font-size="14" font-family="monospace" text-anchor="middle">${lbl.d}</text>`:`<line x1="125" y1="80" x2="183" y2="80" stroke="#f4d03f" stroke-width="2"/><text x="125" y="70" fill="#f4d03f" font-size="14" font-family="monospace" text-anchor="middle">${lbl.r}</text>`}</svg>`;
+ // popisek poloměru patří nad poloměr (střed úsečky x = 154), dlouhý se posune doleva, aby nekřížil kružnici
+ const xr=Math.min(154,177-String(lbl.r||'').length*4.2).toFixed(1);
+ return `<svg viewBox="0 0 250 160"><circle cx="125" cy="80" r="58" fill="#101a2e" stroke="#5dade2" stroke-width="3"/><circle cx="125" cy="80" r="3" fill="#e74c3c"/>${hasD?`<line x1="67" y1="80" x2="183" y2="80" stroke="#f4d03f" stroke-width="2"/><text x="125" y="70" fill="#f4d03f" font-size="14" font-family="monospace" text-anchor="middle">${lbl.d}</text>`:`<line x1="125" y1="80" x2="183" y2="80" stroke="#f4d03f" stroke-width="2"/><text x="${xr}" y="70" fill="#f4d03f" font-size="14" font-family="monospace" text-anchor="middle">${lbl.r}</text>`}</svg>`;
 }
 // Válec: r poloměr podstavy, v výška (popisky se předávají hotové).
-function svgCyl(rl,vl){
- return `<svg viewBox="0 0 250 160"><path d="M 79 35 L 79 120 A 46 14 0 0 0 171 120 L 171 35" fill="#101a2e" stroke="#5dade2" stroke-width="2.5"/><ellipse cx="125" cy="120" rx="46" ry="14" fill="none" stroke="#5dade2" stroke-width="2.5" stroke-dasharray="5 4"/><ellipse cx="125" cy="35" rx="46" ry="14" fill="#16203a" stroke="#5dade2" stroke-width="2.5"/><line x1="125" y1="35" x2="171" y2="35" stroke="#e74c3c" stroke-width="2"/><text x="148" y="15" fill="#e74c3c" font-size="13" font-family="monospace" text-anchor="middle">${rl}</text><text x="186" y="82" fill="#f4d03f" font-size="13" font-family="monospace">${vl}</text></svg>`;
+function svgCyl(rl,vl,prumer){
+ return `<svg viewBox="0 0 250 160"><path d="M 79 35 L 79 120 A 46 14 0 0 0 171 120 L 171 35" fill="#101a2e" stroke="#5dade2" stroke-width="2.5"/><ellipse cx="125" cy="120" rx="46" ry="14" fill="none" stroke="#5dade2" stroke-width="2.5" stroke-dasharray="5 4"/><ellipse cx="125" cy="35" rx="46" ry="14" fill="#16203a" stroke="#5dade2" stroke-width="2.5"/><line x1="${prumer?79:125}" y1="35" x2="171" y2="35" stroke="#e74c3c" stroke-width="2"/><text x="${prumer?125:148}" y="15" fill="#e74c3c" font-size="13" font-family="monospace" text-anchor="middle">${rl}</text><text x="${Math.min(186,248-String(vl).length*7.8).toFixed(1)}" y="82" fill="#f4d03f" font-size="13" font-family="monospace">${vl}</text></svg>`;
 }
 // Thaletova kružnice: průměr AB, bod C na oblouku, pravý úhel u C.
 function svgThales(abl){
@@ -1359,12 +1361,15 @@ const AREAS = [
  text:`Průměr kruhu d = ${d} cm.\nVypočítej obvod kružnice. (π = 3,14)`,ans,
  hints:[`Průměr = 2r, tedy r = ${r}. Vzorec: O = 2πr = πd.`,`O = 3,14 × ${d} = ?`],skill:'geo'};})(),
  (()=>{const r=ri(3,10);const o=2*3.14*r;const ans=(o/2/3.14).toFixed(1);return{
+ svg:svgCircleR({r:'r = ?'}),
  text:`Obvod kružnice je ${o.toFixed(2).replace('.',',')} cm.\nVypočítej poloměr r. (π = 3,14, 1 des. místo)`,ans,
  hints:[`Z O = 2πr plyne r = O : (2π).`,`r = ${o.toFixed(2)} : (2 × 3,14) = ${o.toFixed(2)} : 6,28.`],skill:'geo'};})(),
  (()=>{const d=ri(2,8)*2;const r=d/2;const ans=(3.14*r*r).toFixed(2);return{
+ svg:svgCircleR({d:`d = ${d} cm`}),
  text:`Kruh má průměr d = ${d} cm.\nVypočítej obsah kruhu. (π = 3,14)`,ans,
  hints:[`Nejdřív poloměr: r = d : 2 = ${r}. Pak S = πr².`,`S = 3,14 × ${r}² = 3,14 × ${r*r} = ?`],skill:'geo'};})(),
  (()=>{const r=ri(3,9);const ans=(3.14*r*r).toFixed(2);return{
+ svg:svgCircleR({r:`r = ${r} cm`}),
  text:`Pizzeria prodává pizza s poloměrem ${r} cm.\nJaký je obsah pizzy? cm² (π = 3,14)`,ans,
  hints:[`Pizza = kruh s r = ${r} cm. S = πr².`,`S = 3,14 × ${r*r} = ?`],skill:'geo'};})()
  ]
@@ -1384,12 +1389,15 @@ const AREAS = [
  text:`${['Vypočítej','Urči','Spočítej'][ri(0,2)]} povrch válce (π = 3,14):\nr = ${r} cm, h = ${h} cm\nS = ?`,ans,
  hints:[`Vzorec: S = 2πr(r + h) = plášť + dvě základny.`,`S = 2 × 3,14 × ${r} × (${r} + ${h}) = 6,28 × ${r} × ${r+h}.`],skill:'geo'};})(),
  (()=>{const r=ri(2,6),v_target=ri(3,10);const h=v_target;const ans=(3.14*r*r*h).toFixed(2);return{
+ svg:svgCyl(`r = ${r} cm`,`h = ${h} cm`),
  text:`Plechovka má r = ${r} cm a výšku h = ${h} cm.\nJaký je objem? (π = 3,14, cm³)`,ans,
  hints:[`V = πr²h.`,`V = 3,14 × ${r*r} × ${h} = ?`],skill:'craft'};})(),
  (()=>{const r=ri(2,5),h=ri(4,10);const v=(3.14*r*r*h).toFixed(2);return{
+ svg:svgCyl(`r = ${r} dm`,`h = ${h} dm`),
  text:`Válec: r = ${r} dm, h = ${h} dm.\nKolik litrů vody pojme?\n(1 dm³ = 1 litr, π = 3,14)`,ans:v,
  hints:[`Objem v dm³ = V = πr²h. Objem v dm³ přímo = litry.`,`V = 3,14 × ${r*r} × ${h} = ?`],skill:'craft'};})(),
  (()=>{const r=ri(3,7),h=ri(5,14);const ans=Math.round(3.14*r*r*h).toString();return{
+ svg:svgCyl(`r = ${r} m`,`h = ${h} m`),
  text:`Silo (válec) má r = ${r} m a h = ${h} m.\nJaký je objem? (m³, celé číslo, π = 3,14)`,ans,
  hints:[`V = πr²h ≈ 3,14 × ${r*r} × ${h}.`,`Zaokrouhli výsledek na celé číslo.`],skill:'craft'};})(),
  (()=>{const r=ri(2,5),h1=ri(3,8),h2=ri(3,8);const v1=3.14*r*r*h1,v2=3.14*r*r*h2;return{
@@ -1404,21 +1412,27 @@ const AREAS = [
  tc:6,
  tasks:()=>[
  (()=>{const r=ri(5,15);const ans=Math.round(2*3.14*r);return{
+ svg:svgCircleR({r:`r = ${r} m`}),
  text:`Kulatý bazén má poloměr ${r} m.\nJak dlouhé je jeho oplocení? (m, celé číslo, π = 3,14)`,ans:String(ans),
  hints:[`Délka oplocení = obvod kružnice = 2πr.`,`O = 2 × 3,14 × ${r} ≈ ?`],skill:'geo'};})(),
  (()=>{const r=ri(10,20);const ans=Math.round(3.14*r*r);return{
+ svg:svgCircleR({r:`r = ${r} m`}),
  text:`${['Hřiště akademie','Kruhový trávník','Sportovní hřiště'][ri(0,2)]} má tvar kruhu s r = ${r} m.\nJaká je jeho plocha? (m², celé číslo, π = 3,14)`,ans:String(ans),
  hints:[`Plocha kruhu = πr².`,`S ≈ 3,14 × ${r*r} = ?`],skill:'geo'};})(),
  (()=>{const d=ri(3,8)*2;const r=d/2;const ans=(3.14*r*r).toFixed(2);return{
+ svg:svgCircleR({d:`d = ${d} m`}),
  text:`Kruhová fontána má průměr ${d} m.\nJaká je plocha vodní hladiny? (m², π = 3,14)`,ans,
  hints:[`Průměr = ${d} m → r = ${r} m. Obsah = πr².`,`S = 3,14 × ${r}² = 3,14 × ${r*r} = ?`],skill:'geo'};})(),
  (()=>{const r=ri(3,7),h=ri(10,25);const ans=Math.round(2*3.14*r*h);return{
+ svg:svgCyl(`r = ${r} m`,`h = ${h} m`),
  text:`Válcová nádrž r = ${r} m, h = ${h} m.\nJaký je povrch pláště? (m², celé číslo, π = 3,14)`,ans:String(ans),
  hints:[`Plášť válce = 2πrh.`,`P = 2 × 3,14 × ${r} × ${h} ≈ ?`],skill:'craft'};})(),
  (()=>{const r=ri(4,9),h=ri(5,12);const ans=Math.round(3.14*r*r*h);return{
+ svg:svgCyl(`r = ${r} m`,`h = ${h} m`),
  text:`Do válcové studny (r = ${r} m, h = ${h} m) se napustí voda.\nKolik m³ vody pojme? (celé číslo, π = 3,14)`,ans:String(ans),
  hints:[`Objem = πr²h.`,`V ≈ 3,14 × ${r*r} × ${h} = ?`],skill:'craft'};})(),
  (()=>{const o=ri(5,14)*2;const r=(o/(2*3.14)).toFixed(1);return{
+ svg:svgCircleR({r:'r = ?'}),
  text:`Obvod kolečka je ${o} cm.\nJaký je jeho poloměr? (1 des. místo, π = 3,14)`,ans:r,
  hints:[`Z O = 2πr: r = O : (2π).`,`r = ${o} : 6,28 = ?`],skill:'geo'};})()
  ]

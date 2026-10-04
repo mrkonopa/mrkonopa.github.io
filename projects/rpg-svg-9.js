@@ -133,7 +133,14 @@ function svgPointSym(){
  return `<svg viewBox="0 0 250 160"><line x1="20" y1="80" x2="230" y2="80" stroke="#2a3a5e" stroke-width="1.5"/><line x1="125" y1="15" x2="125" y2="145" stroke="#2a3a5e" stroke-width="1.5"/><circle cx="125" cy="80" r="4" fill="#ff3d7f"/><text x="131" y="76" fill="#ff3d7f" font-size="13" font-family="monospace">S</text><circle cx="80" cy="52" r="5" fill="#19e6e6"/><text x="62" y="50" fill="#19e6e6" font-size="13" font-family="monospace">A</text><circle cx="170" cy="108" r="5" fill="#19e6e6" opacity=".5"/><text x="178" y="112" fill="#19e6e6" font-size="13" font-family="monospace">A'</text><line x1="80" y1="52" x2="170" y2="108" stroke="#39ff9e" stroke-width="1.5" stroke-dasharray="4 4"/></svg>`;
 }
 // Rovnoběžník se stranou a (dole) a výškou v.
-function svgParallelogram(a,v){
+function svgParallelogram(a,v,b){
+ /* Strany a, b bez výšky (úloha na obvod): v MĚŘÍTKU se sklonem 60°, ať se u kosočtverce
+    strany i shodují. Dřív se druhé číslo vždy psalo jako výška „v = …", i když šlo o stranu. */
+ if(v==null&&b!=null){
+  const k=Math.min(140/(a+b*0.5),88/(b*0.866)),A=a*k,dx=b*0.5*k,dy=b*0.866*k,x0=(250-A-dx)/2,y0=125;
+  const P=[[x0,y0],[x0+A,y0],[x0+A+dx,y0-dy],[x0+dx,y0-dy]].map(q=>q.map(n=>n.toFixed(1)).join(',')).join(' ');
+  return `<svg viewBox="0 0 250 160"><polygon points="${P}" fill="#16203a" stroke="#19e6e6" stroke-width="2.5"/><text x="${(x0+A/2).toFixed(1)}" y="142" fill="#ff3d7f" font-size="14" font-family="monospace" text-anchor="middle">a = ${a}</text><text x="${(x0+dx/2-8).toFixed(1)}" y="${(y0-dy/2+5).toFixed(1)}" fill="#ff3d7f" font-size="13" font-family="monospace" text-anchor="end">b = ${b}</text></svg>`;
+ }
  return `<svg viewBox="0 0 250 160"><polygon points="55,125 185,125 215,45 85,45" fill="#16203a" stroke="#19e6e6" stroke-width="2.5"/><line x1="115" y1="125" x2="115" y2="45" stroke="#ff3d7f" stroke-width="2" stroke-dasharray="5 4"/><rect x="115" y="113" width="12" height="12" fill="none" stroke="#ff3d7f" stroke-width="1.5"/><text x="120" y="142" fill="#ff3d7f" font-size="14" font-family="monospace" text-anchor="middle">a = ${a}</text><text x="121" y="90" fill="#ff3d7f" font-size="13" font-family="monospace" text-anchor="start">v = ${v}</text></svg>`;
 }
 // Lichoběžník: a (dolní základna), c (horní základna), v (výška).
@@ -277,6 +284,33 @@ function svgTrojUhly(al, be, la, lb, lc) {
     + _oblouk(A, B, C, r) + _oblouk(B, C, A, r) + _oblouk(C, A, B, r, '#39ff9e')
     + _txt(A[0] + 4, A[1] + 18, la, null, 'end') + _txt(B[0] - 4, B[1] + 18, lb, null, 'start')
     + _txt(C[0], C[1] - 8, lc, '#39ff9e') + `</svg>`;
+}
+/* Trojúhelník V MĚŘÍTKU ze tří stran („Trojúhelník má strany 7, 8, 9 cm").
+   strany = [[délka, popisek], …]; dolů jde strana s indexem zakl (u rovnoramenného
+   ZÁKLADNA — jinak by dole leželo rameno a dítě by ho vzalo za základnu), bez
+   zakl nejdelší, aby trojúhelník „stál". Popisek leží vně, u středu své strany.
+   Totéž rozložení má svgTroj v 1. stupni (rpg-mat-3.html). */
+function svgTrojStrany(strany, zakl) {
+  const S = strany.map(q => ({ d: q[0], t: q[1] }));
+  const Z = zakl != null ? S[zakl] : S.reduce((m, q) => (q.d > m.d ? q : m));
+  const [L, P] = S.filter(q => q !== Z).sort((p, q) => q.d - p.d);
+  const x = (Z.d * Z.d + L.d * L.d - P.d * P.d) / (2 * Z.d), y = Math.sqrt(Math.max(0, L.d * L.d - x * x));
+  const x0 = Math.min(0, x), x1 = Math.max(Z.d, x), k = Math.min(140 / (x1 - x0), 84 / Math.max(y, 1e-9));
+  const ox = 125 - (x0 + x1) / 2 * k, oy = 124;
+  const A = [ox, oy], B = [ox + Z.d * k, oy], C = [ox + x * k, oy - y * k];
+  const T = [(A[0] + B[0] + C[0]) / 3, (A[1] + B[1] + C[1]) / 3];
+  let t = '';
+  const pop = (U, V, txt) => {
+    if (!txt) return;
+    const mx = (U[0] + V[0]) / 2, my = (U[1] + V[1]) / 2;
+    let nx = V[1] - U[1], ny = U[0] - V[0];
+    const dl = Math.hypot(nx, ny) || 1; nx /= dl; ny /= dl;
+    if ((mx - T[0]) * nx + (my - T[1]) * ny < 0) { nx = -nx; ny = -ny; }   // normála ven od těžiště
+    const kotva = nx > 0.15 ? 'start' : nx < -0.15 ? 'end' : 'middle';
+    t += _txt(mx + nx * 10, kotva !== 'middle' ? my + ny * 10 + 5 : (ny > 0 ? my + 19 : my - 8), txt, null, kotva);
+  };
+  pop(A, B, Z.t); pop(A, C, L.t); pop(B, C, P.t);
+  return `<svg viewBox="0 0 250 160"><polygon data-kresba="strany" points="${[A, B, C].map(p => p.map(n => n.toFixed(1)).join(',')).join(' ')}" fill="#16203a" stroke="#19e6e6" stroke-width="2.5" stroke-linejoin="round"/>` + t + `</svg>`;
 }
 // Krychle: tři viditelné stěny, popisek u přední dolní hrany. Ustupující
 // hrana je v kosém promítání poloviční (30 × 24 px ≈ 39 px k 78 px), takže
