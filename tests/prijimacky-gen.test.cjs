@@ -167,7 +167,11 @@ for (const topic in GEN) {
                     [/\b([2-4]) dní(?![\p{L}\d])/u, '2–4 dny'], [/\b1 (porce|dny|kusů|litrů|žáků)(?![\p{L}\d])/u, '1 + jednotné číslo'],
                     // „Objednali jsme 6 kusy po 71 Kč" — kus v seznamu nebyl a tři generátory
                     // psaly „kusy" natvrdo i u 5–8 kusů (nalezeno 2026-09-26, 25–57 % zadání)
-                    [/\b([5-9]|\d\d+) kusy(?![\p{L}\d])/u, '5+ kusů'], [/\b([2-4]) kusů(?![\p{L}\d])/u, '2–4 kusy']];
+                    [/\b([5-9]|\d\d+) kusy(?![\p{L}\d])/u, '5+ kusů'], [/\b([2-4]) kusů(?![\p{L}\d])/u, '2–4 kusy'],
+                    // „4 stejných výrobků stojí“, „4 dělníků vykope“, „vykope … 2 dělníků“ (nalezeno 2026-10-04):
+                    // podmět 2–4 má 1. pád a sloveso v množném čísle; 2. pád je správně jen po slovech jako „cena“
+                    [/\b([2-4]) (stejných )?výrobků stojí/u, '2–4 stejné výrobky stojí'], [/\b([2-4]) dělníků(?![\p{L}\d])/u, '2–4 dělníci'],
+                    [/\b([5-9]|\d\d+) dělníci(?![\p{L}\d])/u, '5+ dělníků']];
       for (const [re, why] of decl) if (re.test(p)) { badDecl++; if (!declEx) declEx = why + ': ' + p; }
     }
   }

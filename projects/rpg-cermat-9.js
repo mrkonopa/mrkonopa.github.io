@@ -2409,6 +2409,42 @@
     const mx = a.x + b.x, my = a.y + b.y, ml = Math.hypot(mx, my) || 1;
     return napis(V.x + mx / ml * D, V.y + my / ml * D + 4, text, barva);
   }
+  /* Volné místo pro popisek úhlu. Pevná vzdálenost na ose úhlu nestačí: v úzkém
+     úhlu (φ má 8–30°) ležel popisek na obou ramenech a v malém trojúhelníku ležel
+     na protější straně. Zkoušejí se vzdálenosti od D výš a směry uvnitř úhlu (od
+     osy k ramenům); bere se první místo, kde rámeček popisku nesahá na žádnou
+     úsečku [P, Q] ani kružnici {c, r} z prekazky. Oblouk: s Rob > 0 má pevný
+     poloměr (popisek musí ležet vně), bez něj se kreslí těsně pod popisek —
+     jako u úzkého φ v předloze M9A/2026 ú. 8. */
+  const usecBox = (P, Q, B) => {
+    let t0 = 0, t1 = 1; const dx = Q.x - P.x, dy = Q.y - P.y;
+    for (const [p, q] of [[-dx, P.x - B.l], [dx, B.r - P.x], [-dy, P.y - B.t], [dy, B.b - P.y]]) {
+      if (p === 0) { if (q < 0) return false; continue; }
+      const r = q / p;
+      if (p < 0) { if (r > t1) return false; if (r > t0) t0 = r; } else { if (r < t0) return false; if (r < t1) t1 = r; }
+    }
+    return t0 <= t1;
+  };
+  const kruhBox = (S, R, B) => Math.hypot(Math.max(B.l - S.x, 0, S.x - B.r), Math.max(B.t - S.y, 0, S.y - B.b)) <= R + 1.5
+    && Math.max(...[[B.l, B.t], [B.r, B.t], [B.l, B.b], [B.r, B.b]].map(([x, y]) => Math.hypot(x - S.x, y - S.y))) >= R - 1.5;
+  function volnyUhel(V, a, b, D, text, barva, prekazky, Rob) {
+    const pw = 3.9 * String(text).length + 1.5, ph = 8;
+    const ua = Math.atan2(a.y, a.x); let du = Math.atan2(b.y, b.x) - ua;
+    while (du > Math.PI) du -= 2 * Math.PI; while (du < -Math.PI) du += 2 * Math.PI;
+    /* S pevným obloukem zůstává popisek U VRCHOLU (nejdál o 24 px, oblouk se
+       případně zmenší): daleko by patřil k jinému úhlu — „115°“ od X utekl až ke C. */
+    const pokusy = Rob ? [Rob, Math.round(Rob * 0.75), Math.max(8, Math.round(Rob * 0.55))].flatMap(r => Array.from({ length: 13 }, (_, i) => [r, D - (Rob - r) + 2 * i]))
+      : Array.from({ length: 71 }, (_, i) => [0, D + 2 * i]);
+    for (const [r0, d] of pokusy) for (const f of [0.5, 0.38, 0.62, 0.26, 0.74]) {
+      const t = ua + du * f, cx = V.x + Math.cos(t) * d, cy = V.y + Math.sin(t) * d;
+      const B = { l: cx - pw, r: cx + pw, t: cy - ph, b: cy + ph }, R = r0 || Math.max(16, d - 13);
+      if (Math.hypot(Math.max(B.l - V.x, 0, V.x - B.r), Math.max(B.t - V.y, 0, V.y - B.b)) < R + 2) continue;
+      if (prekazky.some(p => (p.box ? p.box.l < B.r && B.l < p.box.r && p.box.t < B.b && B.t < p.box.b : p.c ? kruhBox(p.c, p.r, B) : usecBox(p[0], p[1], B)))) continue;
+      prekazky.push({ box: B });
+      return oblouk(V, a, b, R, barva) + napis(cx, cy + 4, text, barva);
+    }
+    return oblouk(V, a, b, Rob || 20, barva) + stitek(V, a, b, D, text, barva);
+  }
   function pravy(V, a, b, barva) {
     const k = 9, P1 = bod(V.x + a.x * k, V.y + a.y * k), P3 = bod(V.x + b.x * k, V.y + b.y * k);
     return `<polyline points="${r1(P1.x)},${r1(P1.y)} ${r1(P1.x + b.x * k)},${r1(P1.y + b.y * k)} ${r1(P3.x)},${r1(P3.y)}" fill="none" stroke="${barva}" stroke-width="1.5"/>`;
@@ -2429,15 +2465,18 @@
     const T = bod(R.x + 60 / tg(fq), rY - 60), Ts = bod(T.x, sY);     // T = průsečík q a t
     const [p1, p2] = orez(R, smer(fp), ...box), [q1, q2] = orez(R, smer(fq), ...box);
     const L = smer(180), P = smer(0), N = smer(90);
+    // Popisky úhlů na první volné místo (volnyUhel): v úzkém úhlu u R ležely na přímkách.
+    const prek = [[bod(box[0], rY), bod(box[2], rY)], [bod(box[0], sY), bod(box[2], sY)], [bod(T.x, box[1]), bod(T.x, box[3])], [p1, p2], [q1, q2],
+      { box: { l: Ts.x - 11, r: Ts.x + 1, t: sY - 11, b: sY + 1 } }, { box: { l: R.x - 17, r: R.x - 7, t: rY - 19, b: rY - 4 } }];
     return `<svg viewBox="0 0 ${W} ${H}">`
       + cara(bod(box[0], rY), bod(box[2], rY), CARA) + cara(bod(box[0], sY), bod(box[2], sY), CARA)
       + cara(bod(T.x, box[1]), bod(T.x, box[3]), CARA) + cara(p1, p2, CARA) + cara(q1, q2, CARA)
       + pravy(Ts, N, L, CARA)
-      + oblouk(R, L, smer(180 + fp), 20, ZADANY) + stitek(R, L, smer(180 + fp), 36, fp + '°', ZADANY)
-      + oblouk(R, P, smer(180 + fq), 16, ZADANY) + stitek(R, P, smer(180 + fq), 30, (180 - fq) + '°', ZADANY)
-      + oblouk(Ps, P, smer(fp), 20, HLEDANY) + stitek(Ps, P, smer(fp), 34, 'α', HLEDANY)
-      + oblouk(Qs, P, smer(fq), 20, HLEDANY) + stitek(Qs, P, smer(fq), 34, 'β', HLEDANY)
-      + oblouk(T, N, smer(180 + fq), 16, HLEDANY) + stitek(T, N, smer(180 + fq), 30, 'γ', HLEDANY)
+      + volnyUhel(R, L, smer(180 + fp), 36, fp + '°', ZADANY, prek, 20)
+      + volnyUhel(R, P, smer(180 + fq), 30, (180 - fq) + '°', ZADANY, prek, 16)
+      + volnyUhel(Ps, P, smer(fp), 34, 'α', HLEDANY, prek, 20)
+      + volnyUhel(Qs, P, smer(fq), 34, 'β', HLEDANY, prek, 20)
+      + volnyUhel(T, N, smer(180 + fq), 30, 'γ', HLEDANY, prek, 16)
       + napis(R.x - 8, rY - 8, 'R', VRCHOL, 'end')
       + jmenoPrimky(p1, smer(fp), 'p', JMENO) + jmenoPrimky(q1, smer(fq), 'q', JMENO)
       + napis(box[2] - 2, rY - 6, 'r', JMENO, 'end') + napis(box[2] - 2, sY - 6, 's', JMENO, 'end')
@@ -2447,25 +2486,33 @@
 
   // M9A/2026 ú. 8: AB je průměr kružnice k (střed S), q ⊥ AB bodem C, o je osa úhlu při B.
   function svgThales(be) {
-    const W = 300, H = 270, Y = 150, S = bod(150, Y), Rk = 108, box = [6, 8, W - 6, H - 6];
+    // Rk 130 (dřív 108): u X se jinak popisek daného úhlu („115°“) s obloukem nevešel pod CB.
+    const W = 310, H = 310, Y = 160, S = bod(155, Y), Rk = 130, box = [6, 8, W - 6, H - 6];
     const A = bod(S.x - Rk, Y), B = bod(S.x + Rk, Y), al = 90 - be;
     const cb = Math.cos(be * Math.PI / 180), sb = Math.sin(be * Math.PI / 180);
     const C = bod(B.x - 2 * Rk * cb * cb, Y - 2 * Rk * cb * sb), Pq = bod(C.x, Y);
     const X = bod(C.x, Y - (B.x - C.x) * tg(be / 2));
     const [o1, o2] = orez(B, smer(180 - be / 2), ...box);
-    const vC = bod((C.x - S.x) / Rk, (C.y - S.y) / Rk), K = smer(35);
+    const K = smer(35);
+    const vlevo = C.x <= S.x, Cl = vlevo ? C.x - 15 : C.x + 3;
+    const prek = [[A, B], [A, C], [C, B], [bod(C.x, box[1]), bod(C.x, Y + 40)], [B, o2], { c: S, r: Rk },
+      { box: { l: Cl, r: Cl + 12, t: C.y - 17, b: C.y - 1 } }, { box: { l: Pq.x - 1, r: Pq.x + 10, t: Y - 10, b: Y + 1 } }];
     return `<svg viewBox="0 0 ${W} ${H}">`
       + `<circle cx="${S.x}" cy="${S.y}" r="${Rk}" fill="none" stroke="${CARA}" stroke-width="2"/>`
       + cara(A, B, CARA) + cara(A, C, CARA) + cara(C, B, CARA)
-      + cara(bod(C.x, box[1]), bod(C.x, Y + 40), CARA) + cara(o1, o2, '#8a9bc4', '6 4')
+      // o jen od B doleva jako v předloze — za B pokračovala přes písmeno B
+      + cara(bod(C.x, box[1]), bod(C.x, Y + 40), CARA) + cara(B, o2, '#8a9bc4', '6 4')
       + pravy(Pq, smer(90), smer(0), CARA)
-      + oblouk(X, smer(90), smer(-be / 2), 16, ZADANY) + stitek(X, smer(90), smer(-be / 2), 32, (90 + be / 2) + '°', ZADANY)
-      + oblouk(B, smer(180 - be / 2), smer(180 - be), 30, HLEDANY) + stitek(B, smer(180 - be / 2), smer(180 - be), 44, 'φ', HLEDANY)
-      + oblouk(A, smer(0), smer(al), 20, HLEDANY) + stitek(A, smer(0), smer(al), 32, 'α', HLEDANY)
+      + volnyUhel(X, smer(90), smer(-be / 2), 26, (90 + be / 2) + '°', ZADANY, prek, 16)
+      + volnyUhel(B, smer(180 - be / 2), smer(180 - be), 44, 'φ', HLEDANY, prek)
+      + volnyUhel(A, smer(0), smer(al), 30, 'α', HLEDANY, prek, 20)
       + napis(A.x - 6, Y + 4, 'A', VRCHOL, 'end') + napis(B.x + 6, Y + 4, 'B', VRCHOL, 'start')
-      + napis(C.x + vC.x * 14, C.y + vC.y * 14 + 4, 'C', VRCHOL) + napis(S.x, Y + 18, 'S', VRCHOL)
+      // C vlevo nahoře jako v předloze (ven od středu leželo písmeno na přímce q); když C
+      // vyjde vpravo od vrcholu kružnice, kružnice by vlevo vedla přes písmeno — pak vpravo
+      + napis(C.x + (vlevo ? -5 : 5), C.y - 5, 'C', VRCHOL, vlevo ? 'end' : 'start') + napis(S.x, Y + 18, 'S', VRCHOL)
       + napis(S.x + K.x * (Rk + 12), S.y + K.y * (Rk + 12) + 4, 'k', JMENO)
-      + napis(C.x + 7, box[1] + 12, 'q', JMENO, 'start') + jmenoPrimky(o2, smer(-be / 2), 'o', JMENO)
+      // název q na opačnou stranu přímky než písmeno C — u horního okraje se překrývaly
+      + napis(C.x + (vlevo ? 7 : -7), box[1] + 12, 'q', JMENO, vlevo ? 'start' : 'end') + jmenoPrimky(o2, smer(-be / 2), 'o', JMENO)
       + `</svg>`;
   }
 
@@ -2550,7 +2597,9 @@
 
   function gen7e() {
     // 3 body — kružnice opsaná, výška a osa úhlu (věrné M9A/2026, úloha 8: φ za 1 bod, α za 2)
-    const fi = ri(8, 30), be = 2 * fi, al = 90 - be, dany = 90 + fi;
+    /* φ 12–26°: při 8–10° a 28–30° je v trojúhelníku XCB od X ke straně CB jen
+       28–33 px a popisek daného úhlu se k X s obloukem nevejde (změřeno). */
+    const fi = ri(12, 26), be = 2 * fi, al = 90 - be, dany = 90 + fi;
     const vedl = [`Přímky q a o se protínají v bodě X. Vyznačený úhel ${dany}° a úhel mezi q (směrem dolů k AB) a o (směrem k B) jsou vedlejší: 180 − ${dany} = ${90 - fi}°.`,
       `Ten úhel patří trojúhelníku, který tvoří q, strana AB a osa o. U strany AB má pravý úhel (q ⊥ AB), takže u vrcholu B mu zbývá 180 − 90 − ${90 - fi} = ${fi}°.`];
     return {
@@ -3332,13 +3381,30 @@
   // Kruhový diagram: výseče [{jm, uhel, text}] od poledne po směru hodinových ručiček.
   // Jen SVĚTLÉ výplně (po převodu na světlý motiv), aby tmavý popisek uvnitř šel přečíst.
   function svgKolac(vysece) {
-    const cx = 150, cy = 100, R = 62, VYPLN = ['#1a5a80', '#0e4a6e', '#101a30', '#3a2a52', '#1b2742', '#0e4a6e'];
-    let out = `<svg viewBox="0 0 300 200">`, u = 90;
+    // R 76 (dřív 62): popisek „30°“ ani „10 %“ se do třicetistupňové výseče nevešel nikam.
+    const cx = 160, cy = 106, R = 76, VYPLN = ['#1a5a80', '#0e4a6e', '#101a30', '#3a2a52', '#1b2742', '#0e4a6e'];
+    let out = `<svg viewBox="0 0 320 212">`, u = 90;
     vysece.forEach((v, i) => {
       const a1 = u - v.uhel, P0 = smer(u), P1 = smer(a1);
       out += `<path d="M ${cx} ${cy} L ${r1(cx + R * P0.x)} ${r1(cy + R * P0.y)} A ${R} ${R} 0 ${v.uhel > 180 ? 1 : 0} 1 ${r1(cx + R * P1.x)} ${r1(cy + R * P1.y)} Z" fill="${VYPLN[i % VYPLN.length]}" stroke="${CARA}" stroke-width="1.5"/>`;
       const d = smer((u + a1) / 2);
-      if (v.text) out += txt12(cx + d.x * R * 0.64, cy + d.y * R * 0.64 + 4, v.text, VRCHOL);
+      /* Popisek výseče na první místo, kde rámeček nesahá na hraniční poloměry ani
+         na obvod. Na pevných 0,64·R ležel v úzké výseči (30°, 36°) přes hranici. */
+      if (v.text) {
+        const pw = 3.6 * String(v.text).length + 1.5, ph = 7.5, O = bod(cx, cy);
+        const hr = [[O, bod(cx + R * P0.x, cy + R * P0.y)], [O, bod(cx + R * P1.x, cy + R * P1.y)]];
+        let m = null;
+        for (const k of [0.64, 0.7, 0.58, 0.76, 0.52, 0.82, 0.46, 0.88, 0.4]) {
+          for (const f of [0.5, 0.42, 0.58, 0.34, 0.66]) {
+            const dd = smer(u - v.uhel * f), x = cx + dd.x * R * k, y = cy + dd.y * R * k;
+            const B = { l: x - pw, r: x + pw, t: y - ph, b: y + ph };
+            if (!hr.some(([P, Q]) => usecBox(P, Q, B)) && !kruhBox(O, R, B)) { m = [x, y]; break; }
+          }
+          if (m) break;
+        }
+        m = m || [cx + d.x * R * 0.64, cy + d.y * R * 0.64];
+        out += txt12(m[0], m[1] + 4, v.text, VRCHOL);
+      }
       out += txt12(cx + d.x * (R + 8), cy + d.y * (R + 8) + 4 + (d.y > 0.5 ? 6 : 0), v.jm, JMENO, d.x > 0.25 ? 'start' : d.x < -0.25 ? 'end' : 'middle');
       u = a1;
     });
@@ -3351,11 +3417,14 @@
     const S = bod(cx, cy), sm = (A, B) => { const d = Math.hypot(B.x - A.x, B.y - A.y); return bod((B.x - A.x) / d, (B.y - A.y) / d); };
     const body = Array.from({ length: n }, (_, k) => V(k));
     const [V0, V1, V2] = [V(0), V(1), V(2)];
+    /* Popisky úhlů na první volné místo: osa vnitřního úhlu u V1 vede přímo do
+       středu S, takže γ na ose ležel na úsečce S–V1. */
+    const prek = [...body.map((P, k) => [P, body[(k + 1) % n]]), [S, V0], [S, V1], { box: { l: cx - 6, r: cx + 6, t: cy + 6, b: cy + 21 } }];
     return `<svg viewBox="0 0 300 210">` + poly(body, BILA)
       + cara(S, V0, CARA) + cara(S, V1, CARA)
-      + oblouk(S, sm(S, V0), sm(S, V1), 16, HLEDANY) + stitek(S, sm(S, V0), sm(S, V1), 28, 'α', HLEDANY)
-      + oblouk(V0, sm(V0, S), sm(V0, V1), 18, HLEDANY) + stitek(V0, sm(V0, S), sm(V0, V1), 30, 'β', HLEDANY)
-      + oblouk(V1, sm(V1, V0), sm(V1, V2), 14, HLEDANY) + stitek(V1, sm(V1, V0), sm(V1, V2), 27, 'γ', HLEDANY)
+      + volnyUhel(S, sm(S, V0), sm(S, V1), 28, 'α', HLEDANY, prek, 16)
+      + volnyUhel(V0, sm(V0, S), sm(V0, V1), 30, 'β', HLEDANY, prek, 18)
+      + volnyUhel(V1, sm(V1, V0), sm(V1, V2), 27, 'γ', HLEDANY, prek, 14)
       + `<circle cx="${cx}" cy="${cy}" r="2.5" fill="${CARA}"/>` + napis(cx, cy + 17, 'S', VRCHOL)
       + `</svg>`;
   }
@@ -3612,14 +3681,27 @@
     const k = Math.min(150 / d, 84 / v), L = d * k, H = v * k, g = Math.max(18, s * k * 0.4), x0 = 52, y0 = H + g + 34;
     const A = bod(x0, y0), B = bod(x0 + L, y0), C = bod(x0 + L + g, y0 - g), D = bod(x0 + g, y0 - g);
     const nad = P => bod(P.x, P.y - H), [E, F, G, Hh] = [nad(A), nad(B), nad(C), nad(D)];
-    const P = (Q, t, dx, dy) => napis(Q.x + dx, Q.y + dy, t, VRCHOL);
+    /* Písmeno vrcholu na první volné z kandidátních míst: rámeček nesmí sahat na
+       žádnou hranu ani úhlopříčku. Při malé hloubce (g = 18 px) leželo F nad
+       vrcholem na zadní horní hraně a D vlevo na úhlopříčce H–A. */
+    const usecky = [[A, D], [D, C], [D, Hh], [A, B], [B, C], [C, G], [B, F], [A, E], [E, F], [F, G], [G, Hh], [Hh, E], [A, C], [C, F], [F, Hh], [Hh, A]];
+    const obs = [{ l: (A.x + B.x) / 2 - 22, r: (A.x + B.x) / 2 + 22, t: y0 + 9, b: y0 + 24 }, { l: A.x - 52, r: A.x - 11, t: (A.y + E.y) / 2 - 7, b: (A.y + E.y) / 2 + 8 }];
+    const P = (Q, t, ...mista) => {
+      for (const [dx, dy] of mista) {
+        const x = Q.x + dx, y = Q.y + dy, Bx = { l: x - 5, r: x + 5, t: y - 11, b: y + 4 };
+        if (usecky.some(([U, W]) => usecBox(U, W, Bx)) || obs.some(o => o.l < Bx.r && Bx.l < o.r && o.t < Bx.b && Bx.t < o.b)) continue;
+        obs.push(Bx); return napis(x, y, t, VRCHOL);
+      }
+      return napis(Q.x + mista[0][0], Q.y + mista[0][1], t, VRCHOL);
+    };
     return `<svg viewBox="0 0 300 ${Math.ceil(y0 + 28)}">`
       + cara(A, D, SEDA, '4 3') + cara(D, C, SEDA, '4 3') + cara(D, Hh, SEDA, '4 3')
       + cara(A, B, CARA) + cara(B, C, CARA) + cara(C, G, CARA) + cara(B, F, CARA) + cara(A, E, CARA)
       + cara(E, F, CARA) + cara(F, G, CARA) + cara(G, Hh, CARA) + cara(Hh, E, CARA)
       + cara(A, C, HLEDANY) + cara(C, F, HLEDANY) + cara(F, Hh, HLEDANY) + cara(Hh, A, HLEDANY)
-      + P(A, 'A', -10, 14) + P(B, 'B', 6, 14) + P(C, 'C', 10, 4) + P(D, 'D', -12, -4)
-      + P(E, 'E', -10, -4) + P(F, 'F', -2, -8) + P(G, 'G', 10, -2) + P(Hh, 'H', -4, -8)
+      + P(A, 'A', [-10, 14], [-10, 4], [0, 17]) + P(B, 'B', [6, 14], [11, 4], [0, 17]) + P(C, 'C', [10, 4], [10, 13], [6, -7])
+      + P(D, 'D', [9, -5], [-9, -5], [9, 12]) + P(E, 'E', [-10, -4], [-10, 9], [-4, -8])
+      + P(F, 'F', [-2, -8], [13, 8], [13, -1], [-9, 16], [-10, -4]) + P(G, 'G', [10, -2], [10, 9], [2, -8]) + P(Hh, 'H', [-4, -8], [-12, -4], [7, -8])
       + napis((A.x + B.x) / 2, y0 + 20, `${d} m`, ZADANY) + napis(A.x - 12, (A.y + E.y) / 2 + 4, `${v} m`, ZADANY, 'end')
       + `</svg>`;
   }
@@ -4691,7 +4773,8 @@
       + `<circle cx="${x0}" cy="${r1(yAB)}" r="3" fill="#19e6e6"/><circle cx="${r1(xB)}" cy="${r1(yAB)}" r="3" fill="#19e6e6"/>`
       + t(x0, yAB + 18, 'A', '#ffffff') + t(xB, yAB + 18, 'B', '#ffffff') + t((x0 + xB) / 2, yAB + 18, a + ' cm', '#8a9bc4')
       + `<line x1="${x0 - 30}" y1="${r1(yP)}" x2="${x0 - 30}" y2="${r1(yAB)}" stroke="#8a9bc4" stroke-width="1.5" stroke-dasharray="4 3"/>`
-      + t(x0 - 34, (yP + yAB) / 2 + 4, v + ' cm', '#8a9bc4', 'end')
+      // při malé vzdálenosti (1 cm ≈ 15 px) ležel popisek na přímce p — pak stojí nad ní
+      + t(x0 - 34, yAB - yP < 22 ? yP - 7 : (yP + yAB) / 2 + 4, v + ' cm', '#8a9bc4', 'end')
       + `</svg>`;
   }
 

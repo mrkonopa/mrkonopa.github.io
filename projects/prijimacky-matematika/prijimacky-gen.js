@@ -53,7 +53,8 @@
   function primaUmernost() {
     const perU = ri(4, 15), n1 = ri(2, 6), n2 = ri(7, 12), cost1 = perU * n1, cost2 = perU * n2;
     return {
-      prompt: n1 + ' stejných výrobků stojí ' + cost1 + ' Kč. Kolik Kč stojí ' + n2 + ' takových výrobků?',
+      // 2–4 stejné výrobky stojí / 5+ stejných výrobků stojí (dřív „4 stejných výrobků stojí“)
+      prompt: n1 + (n1 <= 4 ? ' stejné výrobky stojí ' : ' stejných výrobků stojí ') + cost1 + ' Kč. Kolik Kč stojí ' + n2 + ' takových výrobků?',
       type: 'text', ans: String(cost2),
       sol: [
         'Čím víc kusů, tím vyšší cena — jde o přímou úměrnost. Nejjistější je spočítat cenu JEDNOHO kusu a tou pak násobit.',
@@ -69,13 +70,16 @@
     for (let w = 2; w <= 12; w++) if (total % w === 0 && w !== w1) cand.push(w);
     if (!cand.length) return primaUmernost();
     const w2 = cand[ri(0, cand.length - 1)], d2 = total / w2;
+    const kdo = w => w + (w <= 4 ? ' dělníci' : ' dělníků'), kope = w => (w <= 4 ? 'vykopou' : 'vykope');
+    const dni = n => (n === 1 ? 'den' : n <= 4 ? 'dny' : 'dní');
     return {
-      prompt: w1 + ' dělníků vykope příkop za ' + d1 + ' dní. Za kolik dní vykope stejný příkop ' + w2 + ' dělníků při stejném pracovním tempu?',
+      // 2–4 dělníci vykopou / 5+ dělníků vykope (dřív „4 dělníků vykope“, „vykope … 2 dělníků“)
+      prompt: kdo(w1) + ' ' + kope(w1) + ' příkop za ' + d1 + ' dní. Za kolik dní ' + kope(w2) + ' stejný příkop ' + kdo(w2) + ' při stejném pracovním tempu?',
       type: 'text', ans: String(d2),
       sol: [
         'Pozor, tady je úměrnost NEPŘÍMÁ: víc dělníků znamená MÉNĚ dní. Práce zůstává stejná, jen se rozdělí mezi víc lidí.',
         'Spočítej celkovou práci v člověkodnech: ' + w1 + ' · ' + d1 + ' = ' + total + '.',
-        'Tuhle práci rozděl mezi ' + w2 + ' dělníků: ' + total + ' : ' + w2 + ' = ' + d2 + ' dní.'
+        'Tuhle práci rozděl mezi ' + w2 + (w2 <= 4 ? ' dělníky: ' : ' dělníků: ') + total + ' : ' + w2 + ' = ' + d2 + ' ' + dni(d2) + '.'
       ],
       _check: { kind: 'neprima', w1, d1, w2, expect: d2 }
     };
@@ -892,6 +896,7 @@
   function obvodVyraz() {
     const x = ri(3, 15), k = ri(1, 9);
     return {
+      svg: kresba('svgObdelnik', x + k, x, '(x + ' + k + ') cm', 'x cm'),
       prompt: 'Obdélník má jednu stranu x cm a druhou o ' + k + ' cm delší. Jaký je jeho obvod v cm pro x = ' + x + '?',
       type: 'text', ans: String(4 * x + 2 * k),
       sol: [
