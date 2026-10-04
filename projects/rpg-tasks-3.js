@@ -532,8 +532,8 @@
       () => { const a = ri(150, 700), b = ri(50, 250); return { text: `${FR()}: ${a} + ${b} = ?`, ans: a + b, h1: `Po řádech: stovky, desítky, jednotky.`, h2: `= ${a + b}`, skill: 'calc' }; },
       () => { const b = ri(50, 300), a = b + ri(100, 500); return { text: `${FR()}: ${a} − ${b} = ?`, ans: a - b, h1: `Odečti po skupinách.`, h2: `= ${a - b}`, skill: 'calc' }; },
       () => { const n = ri(15, 980); const r = Math.round(n / 10) * 10; return { text: `Zaokrouhli ${n} na desítky.`, ans: r, h1: `Jednotky: ${n % 10}.`, h2: `= ${r}`, skill: 'calc' }; },
-      () => { const [a, b, c] = triSides(2, 12); return { text: `Jaký obvod má trojúhelník se stranami ${a} cm, ${b} cm a ${c} cm?`, ans: a + b + c, h1: `Sečti strany: ${a} + ${b} + ${c}.`, h2: `= ${a + b + c} cm`, skill: 'geo' }; },
-      () => { const a = ri(2, 12); return { text: `Jaký obvod má čtverec se stranou ${a} cm?`, ans: 4 * a, h1: `Čtyři stejné strany: ${a} + ${a} + ${a} + ${a}.`, h2: `= ${4 * a} cm`, skill: 'geo' }; },
+      () => { const [a, b, c] = triSides(2, 12); return { svg: svgTroj([[a, `${a} cm`], [b, `${b} cm`], [c, `${c} cm`]]), text: `Jaký obvod má trojúhelník se stranami ${a} cm, ${b} cm a ${c} cm?`, ans: a + b + c, h1: `Sečti strany: ${a} + ${b} + ${c}.`, h2: `= ${a + b + c} cm`, skill: 'geo' }; },
+      () => { const a = ri(2, 12); return { svg: svgRect(a, a, { lw: `${a} cm`, lh: `${a} cm` }), text: `Jaký obvod má čtverec se stranou ${a} cm?`, ans: 4 * a, h1: `Čtyři stejné strany: ${a} + ${a} + ${a} + ${a}.`, h2: `= ${4 * a} cm`, skill: 'geo' }; },
       () => { const d = ri(2, 9), q = ri(2, 9), r = ri(1, d - 1); const n = d * q + r; return { text: `Jaký zbytek má dělení ${n} : ${d}?`, ans: r, h1: `${d} × ${q} = ${d * q}, zbytek ${n} − ${d * q}.`, h2: `zbytek ${r}`, skill: 'calc' }; },
       () => { const n = ri(1, 8); return { text: `Kolik minut je ${n} ${skl(n, 'hodina', 'hodiny', 'hodin')}?`, ans: n * 60, h1: `1 h = 60 min.`, h2: `= ${n * 60} min`, skill: 'calc' }; },
       () => { const cena = ri(30, 90), bank = 100; return { text: `Platíš stovkou za mapu za ${cena} Kč. Kolik ti vrátí?`, ans: bank - cena, h1: `100 − ${cena}`, h2: `= ${bank - cena} Kč`, skill: 'calc' }; },
@@ -542,7 +542,7 @@
     ];
     for (let i = 0; i < T.length; i++) {
       const t = T[i % T.length]();
-      tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: t.skill , mc_opts: t.mc_opts });
+      tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: t.skill, svg: t.svg , mc_opts: t.mc_opts });
     }
     return tasks;
   }

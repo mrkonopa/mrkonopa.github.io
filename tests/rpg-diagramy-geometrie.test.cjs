@@ -104,7 +104,7 @@ function bankaCermat() {
     const KOPIE = [
       ['projects/rpg-mat-6.html', ['svgAngle', 'svgCross', 'svgCuboid', 'svgKrychle', 'svgTriangle', 'svgMirror', ...NOVE]],
       ['projects/rpg-mat-7.html', ['svgAngle', 'svgCross', 'svgCuboid', 'svgKrychle', 'svgTriangle', 'svgMirror',
-        'svgPointSym', 'svgParallelogram', 'svgTrapezoid', ...NOVE]],
+        'svgPointSym', 'svgParallelogram', 'svgTrapezoid', 'svgRightTri', ...NOVE]],
     ];
     const rozdilne = []; let porovnano = 0;
     for (const [soubor, jmena] of KOPIE) {
@@ -120,7 +120,7 @@ function bankaCermat() {
         }
       }
     }
-    ok(porovnano === 29, 'porovnáno ' + porovnano + ' kopií kreslicích funkcí (6. a 7. ročník)');
+    ok(porovnano === 30, 'porovnáno ' + porovnano + ' kopií kreslicích funkcí (6. a 7. ročník)');
     ok(rozdilne.length === 0, 'kopie v hrách mají shodnou geometrii se sdíleným jádrem (liší se jen barvy)',
       rozdilne.slice(0, 2).join(' | '));
   }

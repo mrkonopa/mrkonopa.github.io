@@ -350,20 +350,20 @@
     const obd = () => { const a = ri(3, 15); let b = ri(3, 14); if (b === a) b++; return [a, b]; };
     const tasks = [];
     const T = [
-      () => { const [a, b] = obd(); return { text: `Obdélník má strany ${a} cm a ${b} cm. Jaký je jeho obsah?`, ans: a * b, h1: `S = a × b = ${a} × ${b}.`, h2: `= ${a * b} cm²` }; },
-      () => { const a = ri(3, 12); return { text: `Čtverec má stranu ${a} cm. Jaký je jeho obsah?`, ans: a * a, h1: `S = a × a = ${a} × ${a}.`, h2: `= ${a * a} cm²` }; },
-      () => { const a = ri(3, 12), S = a * ri(3, 12); return { text: `Obdélník má obsah ${S} cm² a jednu stranu ${a} cm. Jak dlouhá je druhá strana?`, ans: S / a, h1: `Druhá strana = obsah : strana = ${S} : ${a}.`, h2: `= ${S / a} cm` }; },
-      () => { const [a, b] = obd(); return { text: `Kolik čtverečků o straně 1 cm pokryje obdélník ${a} cm × ${b} cm?`, ans: a * b, h1: `Počet čtverečků = obsah = ${a} × ${b}.`, h2: `= ${a * b}` }; },
-      () => { const [a, b] = obd(); return { text: `Pirátská mapa má tvar obdélníku ${a} dm × ${b} dm. Jaký je její obsah?`, ans: a * b, h1: `S = ${a} × ${b}.`, h2: `= ${a * b} dm²` }; },
-      () => { const a = ri(3, 10); return { text: `Čtvercové okno kajuty má stranu ${a} dm. Kolik dm² skla je potřeba?`, ans: a * a, h1: `Sklo = obsah čtverce.`, h2: `= ${a * a} dm²` }; },
-      () => { const a = ri(3, 10); const S = a * a; const ok = ri(0, 1) === 0; const tvrz = ok ? S : 4 * a; const spravne = tvrz === S; return { text: `Je pravda, že čtverec se stranou ${a} cm má OBSAH ${tvrz} cm²?`, ans: spravne ? 'ANO' : 'NE', h1: `Pozor, obsah není obvod: S = ${a} × ${a}.`, h2: spravne ? 'ANO' : 'NE' }; },
+      () => { const [a, b] = obd(); return { svg: svgRect(a, b, { lw: `${a} cm`, lh: `${b} cm` }), text: `Obdélník má strany ${a} cm a ${b} cm. Jaký je jeho obsah?`, ans: a * b, h1: `S = a × b = ${a} × ${b}.`, h2: `= ${a * b} cm²` }; },
+      () => { const a = ri(3, 12); return { svg: svgRect(a, a, { lw: `${a} cm`, lh: `${a} cm` }), text: `Čtverec má stranu ${a} cm. Jaký je jeho obsah?`, ans: a * a, h1: `S = a × a = ${a} × ${a}.`, h2: `= ${a * a} cm²` }; },
+      () => { const a = ri(3, 12); let b = ri(3, 12); if (b === a) b = b < 12 ? b + 1 : b - 1; /* obdélník, ne čtverec */ const S = a * b; return { svg: svgRect(a, b, { lw: `${a} cm`, lh: '?' }), text: `Obdélník má obsah ${S} cm² a jednu stranu ${a} cm. Jak dlouhá je druhá strana?`, ans: S / a, h1: `Druhá strana = obsah : strana = ${S} : ${a}.`, h2: `= ${S / a} cm` }; },
+      () => { const [a, b] = obd(); return { svg: svgRect(a, b, { lw: `${a} cm`, lh: `${b} cm` }), text: `Kolik čtverečků o straně 1 cm pokryje obdélník ${a} cm × ${b} cm?`, ans: a * b, h1: `Počet čtverečků = obsah = ${a} × ${b}.`, h2: `= ${a * b}` }; },
+      () => { const [a, b] = obd(); return { svg: svgRect(a, b, { lw: `${a} dm`, lh: `${b} dm` }), text: `Pirátská mapa má tvar obdélníku ${a} dm × ${b} dm. Jaký je její obsah?`, ans: a * b, h1: `S = ${a} × ${b}.`, h2: `= ${a * b} dm²` }; },
+      () => { const a = ri(3, 10); return { svg: svgRect(a, a, { lw: `${a} dm`, lh: `${a} dm` }), text: `Čtvercové okno kajuty má stranu ${a} dm. Kolik dm² skla je potřeba?`, ans: a * a, h1: `Sklo = obsah čtverce.`, h2: `= ${a * a} dm²` }; },
+      () => { const a = ri(3, 10); const S = a * a; const ok = ri(0, 1) === 0; const tvrz = ok ? S : 4 * a; const spravne = tvrz === S; return { svg: svgRect(a, a, { lw: `${a} cm`, lh: `${a} cm` }), text: `Je pravda, že čtverec se stranou ${a} cm má OBSAH ${tvrz} cm²?`, ans: spravne ? 'ANO' : 'NE', h1: `Pozor, obsah není obvod: S = ${a} × ${a}.`, h2: spravne ? 'ANO' : 'NE' }; },
       () => { const [a, b] = obd(); const [c, d] = obd(); const S1 = a * b, S2 = c * d; return { text: `První palubní deska měří ${a} × ${b} cm, druhá ${c} × ${d} cm. O kolik cm² je větší ta s větším obsahem?`, ans: Math.abs(S1 - S2), h1: `Obsahy: ${S1} cm² a ${S2} cm².`, h2: `= ${Math.abs(S1 - S2)} cm²` }; },
-      () => { const a = ri(2, 7); return { text: `Strana čtverce měří ${a} cm. Jaký obsah má obdélník se stranami ${a} cm a ${2 * a} cm — dvakrát delší druhou stranou?`, ans: a * 2 * a, h1: `S = ${a} × ${2 * a}.`, h2: `= ${a * 2 * a} cm²` }; },
-      () => { const [a, b] = obd(); return { text: `Záhon na ostrově má tvar obdélníku ${a} m × ${b} m. Kolik m² plochy piráti osázeli?`, ans: a * b, h1: `Plocha = obsah = ${a} × ${b}.`, h2: `= ${a * b} m²` }; },
+      () => { const a = ri(2, 7); return { svg: svgRect(2 * a, a, { lw: `${2 * a} cm`, lh: `${a} cm` }), text: `Strana čtverce měří ${a} cm. Jaký obsah má obdélník se stranami ${a} cm a ${2 * a} cm — dvakrát delší druhou stranou?`, ans: a * 2 * a, h1: `S = ${a} × ${2 * a}.`, h2: `= ${a * 2 * a} cm²` }; },
+      () => { const [a, b] = obd(); return { svg: svgRect(a, b, { lw: `${a} m`, lh: `${b} m` }), text: `Záhon na ostrově má tvar obdélníku ${a} m × ${b} m. Kolik m² plochy piráti osázeli?`, ans: a * b, h1: `Plocha = obsah = ${a} × ${b}.`, h2: `= ${a * b} m²` }; },
     ];
     for (let i = 0; i < T.length; i++) {
       const t = T[i % T.length]();
-      tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'geo' , mc_opts: t.mc_opts });
+      tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'geo', svg: t.svg , mc_opts: t.mc_opts });
     }
     return tasks;
   }
@@ -374,7 +374,7 @@
     const tasks = [];
     const T = [
       () => { const a=ri(2,10);let b=ri(2,10);if(b===a)b=b<10?b+1:b-1; /* strany musi byt ruzne, jinak z obdelniku vyjde ctverec */  return { text: `Kolik čtverečků pokryje obdélník ${a} × ${b} ve čtvercové síti?`, ans: a * b, h1: `${a} ${skl(a, 'řada', 'řady', 'řad')} po ${b} čtverečcích.`, h2: `= ${a * b}` }; },
-      () => { const a = ri(2, 10);let b=ri(2,10);if(b===a)b=b<10?b+1:b-1; /* strany musi byt ruzne, jinak z obdelniku vyjde ctverec */  return { text: `Zahrada tvaru obdélníku má strany ${a} m a ${b} m. Kolik metrů plotu je potřeba na ohrazení?`, ans: 2 * (a + b), h1: `Plot = obvod = 2 × (${a} + ${b}).`, h2: `= ${2 * (a + b)} m` }; },
+      () => { const a = ri(2, 10);let b=ri(2,10);if(b===a)b=b<10?b+1:b-1; /* strany musi byt ruzne, jinak z obdelniku vyjde ctverec */  return { svg: svgRect(a, b, { lw: `${a} m`, lh: `${b} m` }), text: `Zahrada tvaru obdélníku má strany ${a} m a ${b} m. Kolik metrů plotu je potřeba na ohrazení?`, ans: 2 * (a + b), h1: `Plot = obvod = 2 × (${a} + ${b}).`, h2: `= ${2 * (a + b)} m` }; },
       () => { const [nm, n] = OSY[ri(0, 2)]; return { text: `Kolik os souměrnosti má ${nm}?`, ans: n, h1: `Osa souměrnosti přeloží obrazec přesně na sebe.`, h2: `= ${n}` }; },
       () => { const a = ri(2, 6); return { text: `Ve čtvercové síti je čtverec ${a} × ${a}. Kolik čtverečků zabírá?`, ans: a * a, h1: `${a} × ${a}`, h2: `= ${a * a}` }; },
       () => { const a = ri(3, 8), b = ri(2, a - 1); return { text: `Obrazec ve čtvercové síti se skládá z obdélníku ${a} × ${b} a jednoho čtverečku navíc. Kolik čtverečků má celkem?`, ans: a * b + 1, h1: `${a} × ${b} = ${a * b}, přičti 1.`, h2: `= ${a * b + 1}` }; },
@@ -386,7 +386,7 @@
     ];
     for (let i = 0; i < T.length; i++) {
       const t = T[i % T.length]();
-      tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'geo' , mc_opts: t.mc_opts });
+      tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'geo', svg: t.svg , mc_opts: t.mc_opts });
     }
     return tasks;
   }

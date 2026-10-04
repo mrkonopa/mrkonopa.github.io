@@ -92,17 +92,17 @@ function gen_1_3(){
   tasks.push({svg:svgObdelnik(f,f,`${f} cm`,''),text:`Čtverec má stranu ${f} cm. Jaký je jeho obsah?`,ans:f*f,hints:['S = a²',`S = ${f}² = ${f*f} cm²`],skill:'geo'});
   // obsah pravoúhlého trojúhelníku
   const g=ri(4,12), h=ri(3,10);
-  tasks.push({text:`Pravoúhlý trojúhelník má odvěsny ${g} cm a ${h} cm. Jaký je jeho obsah?`,ans:r1(g*h/2),hints:['S = (a·v)/2, kde a a v jsou odvěsny (kolmice).','S = '+g+'·'+h+'/2 = '+r1(g*h/2)+' cm²'],skill:'geo'});
+  tasks.push({svg:svgRightTri(g,h,{la:`${g} cm`,lb:`${h} cm`,lc:''}),text:`Pravoúhlý trojúhelník má odvěsny ${g} cm a ${h} cm. Jaký je jeho obsah?`,ans:r1(g*h/2),hints:['S = (a·v)/2, kde a a v jsou odvěsny (kolmice).','S = '+g+'·'+h+'/2 = '+r1(g*h/2)+' cm²'],skill:'geo'});
   // obvod trojúhelníku
   const i=ri(5,12),j=ri(4,11),k=ri(Math.max(3,Math.abs(i-j)+1),i+j-1); // třetí strana mezi rozdílem a součtem, jinak trojúhelník nejde sestrojit
   tasks.push({svg:svgTrojStrany([[i,`${i} cm`],[j,`${j} cm`],[k,`${k} cm`]]),text:`Trojúhelník má strany ${i} cm, ${j} cm a ${k} cm. Jaký je jeho obvod?`,ans:i+j+k,hints:['Obvod trojúhelníku = součet všech tří stran.',`${i}+${j}+${k} = ${i+j+k} cm`],skill:'geo'});
   { const a=ri(4,14),b=ri(2,a-1); tasks.push({svg:svgObdelnik(a,b,`${a} cm`,`${b} cm`),text:`Obdélník ${a} × ${b} cm. Jaký je obvod?`,ans:2*(a+b),hints:['o = 2·(a+b).',`= ${2*(a+b)} cm`],skill:'geo'}); }
   { const a=ri(3,12); tasks.push({svg:svgObdelnik(a,a,`${a} cm`,''),text:`Čtverec se stranou ${a} cm. Jaký je obsah?`,ans:a*a,hints:['S = a².',`= ${a*a} cm²`],skill:'geo'}); }
-  { const a=ri(4,12),h=ri(3,10); tasks.push({text:`Pravoúhlý trojúhelník s odvěsnami ${a} a ${h} cm. Obsah?`,ans:r1(a*h/2),hints:['S = (a·v)/2.',`= ${r1(a*h/2)} cm²`],skill:'geo'}); }
+  { const a=ri(4,12),h=ri(3,10); tasks.push({svg:svgRightTri(a,h,{la:`${a} cm`,lb:`${h} cm`,lc:''}),text:`Pravoúhlý trojúhelník s odvěsnami ${a} a ${h} cm. Obsah?`,ans:r1(a*h/2),hints:['S = (a·v)/2.',`= ${r1(a*h/2)} cm²`],skill:'geo'}); }
   { const a=ri(5,12),b=ri(4,11),c=ri(Math.max(3,Math.abs(a-b)+1),a+b-1); tasks.push({svg:svgTrojStrany([[a,`${a} cm`],[b,`${b} cm`],[c,`${c} cm`]]),text:`Trojúhelník ${a}, ${b}, ${c} cm. Obvod?`,ans:a+b+c,hints:['Součet všech tří stran.',`= ${a+b+c} cm`],skill:'geo'}); }
   // thematické
-  { const a=ri(4,12),b=ri(3,a-1); /* horni mez a-1, ne a: jinak z obdelniku vyjde ctverec */ tasks.push({text:`Obětní oltář má obdélníkovou desku ${a} m × ${b} m. Kolik metrů zdobené šňůry potřebuješ na její obvod?`,ans:2*(a+b),hints:['o = 2·(a + b).',`2·(${a}+${b}) = ${2*(a+b)} m`],skill:'geo'}); }
-  { const a=ri(3,10); tasks.push({text:`Podlaha svatyně je čtverec o straně ${a} m. Kolik ${skl(a*a,'dlaždice','dlaždice','dlaždic')} o rozměru 1 m² ji pokryje?`,ans:a*a,hints:['S = a² a jedna dlaždice = 1 m².',`${a}² = ${a*a} dlaždic`],skill:'geo'}); }
+  { const a=ri(4,12),b=ri(3,a-1); /* horni mez a-1, ne a: jinak z obdelniku vyjde ctverec */ tasks.push({svg:svgObdelnik(a,b,`${a} m`,`${b} m`),text:`Obětní oltář má obdélníkovou desku ${a} m × ${b} m. Kolik metrů zdobené šňůry potřebuješ na její obvod?`,ans:2*(a+b),hints:['o = 2·(a + b).',`2·(${a}+${b}) = ${2*(a+b)} m`],skill:'geo'}); }
+  { const a=ri(3,10); tasks.push({svg:svgObdelnik(a,a,`${a} m`,''),text:`Podlaha svatyně je čtverec o straně ${a} m. Kolik ${skl(a*a,'dlaždice','dlaždice','dlaždic')} o rozměru 1 m² ji pokryje?`,ans:a*a,hints:['S = a² a jedna dlaždice = 1 m².',`${a}² = ${a*a} dlaždic`],skill:'geo'}); }
   // SVG slovní úlohy s diagramem
   { const a=ri(4,12),v=ri(3,9); tasks.push({svg:svgParallelogram(a,v),text:`Pozemek tvaru rovnoběžníku má stranu ${a} m a výšku ${v} m.\nJaký je jeho obsah? (m²)`,ans:a*v,hints:['S = a · v (strana × výška).',`${a} · ${v} = ${a*v} m²`],skill:'geo'}); }
   { const a=ri(9,15),c=ri(3,a-3),v=2*ri(2,4); tasks.push({svg:svgTrapezoid(a,c,v),text:`Průřez hráze má tvar lichoběžníku se základnami ${a} m a ${c} m při výšce ${v} m.\nJaký je obsah průřezu? (m²)`,ans:(a+c)*v/2,hints:['S = (a + c) · v / 2.',`(${a} + ${c}) · ${v} / 2 = ${(a+c)*v/2} m²`],skill:'geo'}); }
