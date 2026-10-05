@@ -87,14 +87,14 @@ body{background:var(--bg);color:var(--text);font-family:var(--px);font-weight:70
 .learn-formula{background:var(--panel2);border:2px solid var(--gold);padding:12px 16px;margin-bottom:10px;font-family:var(--read);font-weight:600;font-size:16px;color:var(--gold);line-height:2}
 .learn-example{background:var(--panel);border:2px solid var(--green);padding:10px 14px;margin-bottom:8px}
 .learn-mistakes{background:var(--panel);border-left:4px solid #e05555;padding:12px 16px;margin:10px 0;border-radius:0 6px 6px 0}
-.learn-mistakes h3{font-family:var(--read);font-size:15px;margin:0 0 8px;color:#e05555}
+.learn-mistakes h3{font-family:var(--read);font-size:15px;margin:0 0 8px;color:var(--red-t)}
 .learn-mistakes .mi{margin-bottom:10px}
-.learn-mistakes .mi-w{font-family:var(--read);font-size:15px;color:#e05555;text-decoration:line-through;text-decoration-thickness:1px}
+.learn-mistakes .mi-w{font-family:var(--read);font-size:15px;color:var(--red-t);text-decoration:line-through;text-decoration-thickness:1px}
 .learn-mistakes .mi-r{font-family:var(--read);font-size:15px;color:var(--green,#3fa34d);font-weight:600}
 .learn-mistakes .mi-why{font-family:var(--read);font-size:13px;color:var(--muted);margin-top:2px}
 .ex-q{font-family:var(--px);font-size:13px;color:var(--blue);margin-bottom:4px}
 .ex-s{font-family:var(--read);font-size:14px;color:var(--text);line-height:1.7}
-.learn-video{display:inline-flex;align-items:center;gap:8px;font-family:var(--px);font-size:13px;color:var(--red);text-decoration:none;border:2px solid var(--red);padding:8px 14px;background:var(--panel)}
+.learn-video{display:inline-flex;align-items:center;gap:8px;font-family:var(--px);font-size:13px;color:var(--red-t);text-decoration:none;border:2px solid var(--red);padding:8px 14px;background:var(--panel)}
 /* ── BATTLE TOP ── */
 .bt-top{position:relative;overflow:hidden;background:linear-gradient(180deg,#071525 0%,#0d2535 60%,#0c3040 100%);border:2px solid var(--line);min-height:200px;padding:18px 18px 36px;display:flex;flex-direction:column;align-items:center;justify-content:center;margin-bottom:12px}
 .bt-top.phase2{background:linear-gradient(180deg,#200808 0%,#300f10 60%,#1a1820 100%)!important}
@@ -220,7 +220,7 @@ html[data-theme="violet"]{--gold:#b06cff;--panel:#100a20;--panel2:#18103a;--blue
 @keyframes float-up{0%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(-60px)}}
 .feedback{font-family:var(--px);font-weight:700;font-size:16px;text-align:center;padding:10px;margin-bottom:10px;display:none}
 .feedback.ok{color:var(--green);display:block}
-.feedback.err{color:var(--red);display:block;animation:shake .15s steps(2) 3}
+.feedback.err{color:var(--red-t);display:block;animation:shake .15s steps(2) 3}
 @keyframes shake{0%{transform:translateX(0)}50%{transform:translateX(6px)}100%{transform:translateX(0)}}
 .task-ctr{font-family:var(--px);font-weight:400;font-size:13px;color:var(--muted);text-align:center}
 .task-ctr span{color:var(--gold)}
@@ -1260,8 +1260,8 @@ function renderTask(){
  const _hpPct=updateBossHpBar();
  if(_hpPct<=55&&BT.phase===1){BT.phase=2;const top=document.getElementById('bt-top');top.classList.add('phase2');const fb=document.getElementById('bt-fb');fb.textContent='🔥 BOSS JE V ZUŘIVOSTI! 🔥';fb.className='feedback err';const mon=document.getElementById('bt-mon');mon.style.filter='drop-shadow(0 6px 0 #0008) drop-shadow(0 0 14px #e74c3c)';mon.style.fontSize='132px';hitVignette();}
  const probEl=document.getElementById('bt-prob');
- if(t.svg){probEl.innerHTML=`<div class="prob-svg">${t.svg}</div><div class="prob-txt"></div>`;probEl.querySelector('.prob-txt').textContent=t.text;}
- else probEl.textContent=t.text;
+ if(t.svg){probEl.innerHTML=`<div class="prob-svg">${t.svg}</div><div class="prob-txt"></div>`;probEl.querySelector('.prob-txt').textContent=zapis(t.text);}
+ else probEl.textContent=zapis(t.text);
  probEl.classList.remove('pop');void probEl.offsetWidth;probEl.classList.add('pop');
  document.getElementById('bt-fb').className='feedback';
  document.getElementById('hint-box').textContent='';document.getElementById('hint-box').classList.remove('show');
@@ -1276,7 +1276,7 @@ function renderTask(){
   document.querySelectorAll('#yn-row button').forEach(b=>b.disabled=false);
   document.getElementById('hint-btn').style.display='inline-block';document.getElementById('mc-grid').style.display='none';
   const _bi=document.getElementById('bt-ans');_bi.value='';_bi.inputMode=/^\d+$/.test(String(BT.curTask.ans))?'numeric':/^\d+[.,]\d+$/.test(String(BT.curTask.ans))?'decimal':'text';document.getElementById('bt-ans').disabled=false;
-  if(!yn)document.getElementById('bt-ans').focus();
+  if(!yn)fokusVstup(document.getElementById('bt-ans'),document.getElementById('bt-input-row'));
  }
  startTimer();
 }
@@ -1729,8 +1729,8 @@ function trRender(){
  document.getElementById('tr-hint-btn').disabled=false;document.getElementById('tr-hint-btn').textContent='💡 NÁPOVĚDA';
  const prob=document.getElementById('tr-prob');
  // obrázek úlohy jako v boji — bez něj trénink ukazoval jen text (8. a 9. ročník ho měly vždy)
- if(t.svg){prob.innerHTML=`<div class="prob-svg">${t.svg}</div><div class="prob-txt"></div>`;prob.querySelector('.prob-txt').textContent=t.text;}
- else prob.textContent=t.text;
+ if(t.svg){prob.innerHTML=`<div class="prob-svg">${t.svg}</div><div class="prob-txt"></div>`;prob.querySelector('.prob-txt').textContent=zapis(t.text);}
+ else prob.textContent=zapis(t.text);
  prob.classList.remove('pop');void prob.offsetWidth;prob.classList.add('pop');
  if(t.mc||isYN(t)){
   document.getElementById('tr-input-row').style.display='none';
@@ -1738,9 +1738,11 @@ function trRender(){
   else{document.getElementById('tr-yn-row').style.display='none';trRenderMC(t);}
  }else{
   document.getElementById('tr-input-row').style.display='flex';document.getElementById('tr-yn-row').style.display='none';document.getElementById('tr-mc').style.display='none';
-  // Fokus bez centrování: Chrome vstup pod okrajem VYCENTRUJE, takže na tabletu s klávesnicí odjel začátek obrázku; „nearest“ posune jen o tolik, kolik je třeba.
-  const inp=document.getElementById('tr-ans');inp.value='';inp.disabled=false;inp.focus({preventScroll:true});document.getElementById('tr-input-row').scrollIntoView({block:'nearest'});inp.inputMode=/^\d+$/.test(String(TR.task.ans))?'numeric':/^\d+[.,]\d+$/.test(String(TR.task.ans))?'decimal':'text';
+  // Fokus bez centrování: Chrome vstup pod okrajem VYCENTRUJE, takže na tabletu s klávesnicí odjel začátek obrázku; posun pak řeší ukazUlohu na konci funkce (začátek úlohy má přednost).
+  const inp=document.getElementById('tr-ans');inp.value='';inp.disabled=false;inp.focus({preventScroll:true});inp.inputMode=/^\d+$/.test(String(TR.task.ans))?'numeric':/^\d+[.,]\d+$/.test(String(TR.task.ans))?'decimal':'text';
  }
+ // začátek úlohy má přednost, odpověď (vstup / ANO-NE / volby) se dotáhne do okna — viz ukazUlohu v rpg-shared.js
+ ukazUlohu(document.getElementById('tr-prob'),['tr-input-row','tr-yn-row','tr-mc'].map(i=>document.getElementById(i)).find(e=>e&&getComputedStyle(e).display!=='none'));
 }
 function trRenderMC(t){
  const grid=document.getElementById('tr-mc');const ans=czMC(t.ans);
@@ -1791,7 +1793,7 @@ function trWrong(){
  if(TR.curIdx!=null)S.trainErrs[TR.mid][TR.curIdx]=(S.trainErrs[TR.mid][TR.curIdx]||0)+1;
  saveS();
  const fb=document.getElementById('tr-fb');const t=TR.task;
- fb.textContent=(TR.guardJust?'🔁 Studijní rádce tě podržel — série zůstává! ':'✗ ')+'Správně: '+t.ans;fb.className='feedback err';
+ fb.textContent=(TR.guardJust?'🔁 Studijní rádce tě podržel — série zůstává! ':'✗ ')+'Správně: '+czMC(t.ans);fb.className='feedback err';
  trStats();document.getElementById('tr-next-btn').style.display='inline-block';
 }
 function trHint(){
@@ -1865,7 +1867,7 @@ function renderCrossGames(){
    (s?'<span style="font-size:12px;color:var(--gold)">LV '+((s.level||1)|0)+' · '+((s.xp||0)|0)+' XP</span>':'<span style="font-size:11px;color:var(--muted)">—</span>')+
   '</div>';
  });
- html+='<a href="rpg-matematika.html" style="display:block;margin-top:10px;color:var(--blue);font-size:12px;font-family:var(--px);text-align:center">🌐 RPG Matematika HUB — přehled a obchod</a>';
+ html+='<a href="rpg-matematika.html" style="display:block;margin-top:2px;padding:13px 0;color:var(--blue);font-size:12px;font-family:var(--px);text-align:center">🌐 RPG Matematika HUB — přehled a obchod</a>';
  el.innerHTML=html;
 }
 // Avatar v profilu = hrdina z bojového enginu.

@@ -249,6 +249,8 @@ body.kn-full-on { overflow:hidden; }
 .kn-d { stroke:#1a1a2e; stroke-width:2; fill:none; }
 .kn-d-plocha { fill:#e8f1fb; stroke:#1a1a2e; stroke-width:2; }
 .kn-d-bod { fill:#1a1a2e; }
+/* popisky s bílým obtažením: kde se čáře vyhnout nedá (hustý střed kružnic), čára pod písmem zmizí */
+.kn-d-txt, .kn-r-txt { paint-order:stroke; stroke:#fff; stroke-width:3px; stroke-linejoin:round; }
 .kn-d-txt { font-family:var(--sans); font-size:14px; font-weight:700; fill:#1a1a2e; }
 .kn-d-prim { font-style:italic; }
 .kn-z { stroke:#196ec0; stroke-width:2; fill:none; stroke-linecap:round; }

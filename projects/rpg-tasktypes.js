@@ -15,6 +15,27 @@ window.RPGTaskTypes = (function () {
   const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g,
     c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
 
+  /* Hodnota odpovědi tak, jak ji myslí úloha: zlomek („1/3"), smíšené číslo
+     („2 1/2"), mezery v tisících („1 500"), desetinná čárka, minus i spojovník,
+     jednotka za číslem. Dřív se bralo parseFloat — „1/3" vyšlo 1 a „1 500" taky 1,
+     takže řazení stavělo zlomky podle čitatele: 561 z 20 276 úloh, kde se dalo
+     řadit (6/2-3 „1/6 + 1/6 =" → hra 1, správně 0,33), naměřeno 4. 10. 2026. */
+  function hodnota(a) {
+    let s = String(a == null ? '' : a).trim().replace(/[−–]/g, '-'), m;
+    if ((m = s.match(/^(-?\d+)\s+(\d+)\/(\d+)$/))) return (+m[1] < 0 ? -1 : 1) * (Math.abs(+m[1]) + m[2] / m[3]);
+    if ((m = s.match(/^(-?\d+)\/(\d+)$/))) return +m[2] ? m[1] / m[2] : NaN;
+    s = s.replace(/(\d)\s(?=\d{3}(?!\d))/g, '$1').replace(',', '.');
+    if ((m = s.match(/^(-?\d+(?:\.\d+)?)\s*(%|°|[a-zA-Zčšžřůáéíý²³]+.*)?$/))) return +m[1];
+    return NaN;
+  }
+  /* Zápis odpovědi a zadání pro dítě: desetinná čárka, minus „−", mocnina horním
+     indexem — přes sdílené czMC/zapis z rpg-shared.js, aby minihry vypadaly
+     stejně jako boj. Dřív ukazovaly odpověď, jak leží v bance („4.8" 1 021×,
+     „-5" 1 824×). Bez sdíleného modulu (izolovaný test) jen čárka a minus. */
+  const zobraz = a => (typeof window.czMC === 'function' ? window.czMC(a)
+    : String(a).replace(/(\d)\.(\d)/g, '$1,$2').replace(/(^|[\s(])-(?=\d)/g, '$1−'));
+  const zadani = q => (typeof window.zapis === 'function' ? window.zapis(q) : String(q));
+
   function shuffle(a) {
     a = a.slice();
     for (let i = a.length - 1; i > 0; i--) {
@@ -57,17 +78,20 @@ window.RPGTaskTypes = (function () {
 
   /* ── SPOJOVAČKA ──
      Z poolu vybere n úloh s krátkými UNIKÁTNÍMI odpověďmi (jinak by spoj
-     nebyl jednoznačný). Vrací [{q,a}] nebo null, když se nedá sestavit. */
+     nebyl jednoznačný). Jedinečnost se hlídá podle HODNOTY, ne zápisu:
+     „3.2" a „3,2" je totéž číslo (dřív 445× v jedné hře obojí — párování pak
+     rozhodoval zápis, ne výpočet). Vrací [{q,a}] nebo null. */
   function pickPairs(pool, n, maxQLen) {
     n = n || 4; maxQLen = maxQLen || 110;
     const seen = new Set(), out = [];
     for (const t of shuffle(pool || [])) {
       if (!t || !t.text || t.ans == null || t.svg) continue;     // SVG úlohy nemají v 2 sloupcích místo
-      const a = String(t.ans).trim();
-      if (!a || a.length > 8 || seen.has(a)) continue;
+      const a = String(t.ans).trim(), h = hodnota(a);
+      const klic = Number.isFinite(h) ? 'n' + Math.round(h * 1e9) : 's' + a.toLowerCase().replace(/\s+/g, '');
+      if (!a || a.length > 8 || seen.has(klic)) continue;
       const q = String(t.text).replace(/\s+/g, ' ').trim();
       if (q.length < 4 || q.length > maxQLen) continue;
-      seen.add(a); out.push({ q, a });
+      seen.add(klic); out.push({ q, a });
       if (out.length === n) return out;
     }
     return null;
@@ -82,7 +106,7 @@ window.RPGTaskTypes = (function () {
     const L = el.querySelector('[data-ttm="l"]'), R = el.querySelector('[data-ttm="r"]');
     pairs.forEach(p => {
       const b = document.createElement('button');
-      b.className = 'ttm-q'; b.textContent = p.q; b.dataset.a = p.a;
+      b.className = 'ttm-q'; b.textContent = zadani(p.q); b.dataset.a = p.a;
       b.onclick = () => {
         if (b.classList.contains('done')) return;
         L.querySelectorAll('.ttm-q').forEach(x => x.classList.remove('sel'));
@@ -92,7 +116,7 @@ window.RPGTaskTypes = (function () {
     });
     shuffle(pairs.map(p => p.a)).forEach(a => {
       const b = document.createElement('button');
-      b.className = 'ttm-a'; b.textContent = a;
+      b.className = 'ttm-a'; b.textContent = zobraz(a);
       b.onclick = () => {
         if (b.classList.contains('done') || !sel) return;
         if (sel.dataset.a === a) {
@@ -119,11 +143,11 @@ window.RPGTaskTypes = (function () {
     const seen = new Set(), vals = [];
     for (const t of shuffle(pool || [])) {
       if (!t || t.ans == null || t.svg) continue;
-      const v = parseFloat(String(t.ans).replace(',', '.'));
+      const v = hodnota(t.ans);
       if (!isFinite(v) || seen.has(v)) continue;
       const q = String(t.text || '').replace(/\s+/g, ' ').trim();
       if (q.length < 2 || q.length > 42) continue;   // chip musí být krátký
-      seen.add(v); vals.push({ v, label: q, ans: String(t.ans) });
+      seen.add(v); vals.push({ v, label: zadani(q), ans: String(t.ans) });
       if (vals.length === n) break;
     }
     return vals.length >= 4 ? vals : null;
@@ -148,7 +172,7 @@ window.RPGTaskTypes = (function () {
         if (it.v === sorted[want].v) {
           b.classList.add('done');
           b.innerHTML = '<span class="tto-n">' + (want + 1) + '.</span>' + esc(it.label) +
-            ' <span class="tto-n">= ' + esc(it.ans) + '</span>';
+            ' <span class="tto-n">= ' + esc(zobraz(it.ans)) + '</span>';
           want++;
           if (want === items.length && typeof onDone === 'function') onDone(mistakes);
         } else {
@@ -185,7 +209,7 @@ window.RPGTaskTypes = (function () {
       document.head.appendChild(css);
     }
     let open = null, lock = false, solved = 0, mistakes = 0;
-    const cards = shuffle(pairs.flatMap((p, i) => [{ k: i, t: p.q }, { k: i, t: p.a }]));
+    const cards = shuffle(pairs.flatMap((p, i) => [{ k: i, t: zadani(p.q) }, { k: i, t: zobraz(p.a) }]));
     el.innerHTML = '<div class="ttm-head">🃏 PEXESO — najdi dvojice úloha + výsledek</div>' +
       '<div class="ttp-grid" data-ttm="grid"></div>';
     const grid = el.querySelector('[data-ttm="grid"]');
@@ -211,5 +235,5 @@ window.RPGTaskTypes = (function () {
     });
   }
 
-  return { pickPairs, renderMatch, pickOrderItems, renderOrder, renderPexeso };
+  return { pickPairs, renderMatch, pickOrderItems, renderOrder, renderPexeso, hodnota, zobraz };
 })();

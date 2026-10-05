@@ -86,8 +86,8 @@ function twRenderMC(t){
 function twRenderTask(){
  const t=TW.task;
  const probEl=document.getElementById('tw-prob');
- if(t.svg){probEl.innerHTML='<div class="prob-svg">'+t.svg+'</div><div class="prob-txt"></div>';probEl.querySelector('.prob-txt').textContent=t.text;}
- else probEl.textContent=t.text;
+ if(t.svg){probEl.innerHTML='<div class="prob-svg">'+t.svg+'</div><div class="prob-txt"></div>';probEl.querySelector('.prob-txt').textContent=zapis(t.text);}
+ else probEl.textContent=zapis(t.text);
  probEl.classList.remove('pop');void probEl.offsetWidth;probEl.classList.add('pop');
  const fb=document.getElementById('tw-fb');fb.className='feedback';fb.textContent='';
  document.getElementById('tw-next-btn').style.display='none';
@@ -152,7 +152,7 @@ function twWrong(given,timeout){
  if(!S.errs)S.errs={};if(TW.m){S.errs[TW.m.id]=(S.errs[TW.m.id]||0)+1;saveS();}
  const fb=document.getElementById('tw-fb');
  fb.className='feedback err';
- fb.textContent=(timeout?'⏱ ČAS VYPRŠEL!':'✗ Špatně.')+' Správně: '+TW.task.ans+(TW.lives>0?' — ztrácíš ❤':'');
+ fb.textContent=(timeout?'⏱ ČAS VYPRŠEL!':'✗ Špatně.')+' Správně: '+czMC(TW.task.ans)+(TW.lives>0?' — ztrácíš ❤':'');
  const inp=document.getElementById('tw-ans');inp.disabled=true;
  twStats();
  if(TW.lives<=0){setTimeout(twEndRun,900);return;}

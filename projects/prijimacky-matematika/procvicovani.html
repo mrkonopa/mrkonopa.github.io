@@ -49,9 +49,10 @@
     border-radius:0 8px 8px 0; padding:8px 12px; font-size:.92rem; line-height:1.5; color:var(--text); }
   .pr-hint .hl { display:block; font-size:.72rem; font-weight:700; color:var(--blue); letter-spacing:.04em; margin-bottom:2px; }
   .pr-hint.l2 { border-left-color:var(--teal); }
-  .pr-hint.l2 .hl { color:var(--teal); }
+  /* štítky nápověd ≥ 4,5 : 1 na svém podkladu (dřív L2 4,49 a L3 jen 2,39 : 1, průchod 5. 10. 2026) */
+  .pr-hint.l2 .hl { color:#0b705d; }
   .pr-hint.l3 { background:#fff3e0; border-left-color:#e8890c; font-weight:600; }
-  .pr-hint.l3 .hl { color:#e8890c; }
+  .pr-hint.l3 .hl { color:#a8500a; }
 </style>
 </head>
 <body>
@@ -211,7 +212,7 @@ function prNext(){
   } else if(it.type==='yn'){
     ans.innerHTML = '<div class="yn-row"><button class="pz-btn" onclick="prSubmitYN(\'A\')">ANO</button><button class="pz-btn" onclick="prSubmitYN(\'N\')">NE</button></div>';
   } else {
-    ans.innerHTML = '<input type="text" id="pr-input" inputmode="'+(it.klavesnice||PZ.inputMode(it.ans))+'" autocomplete="off" placeholder="výsledek" '+
+    ans.innerHTML = '<input type="text" id="pr-input" aria-label="Tvoje odpověď" inputmode="'+(it.klavesnice||PZ.inputMode(it.ans))+'" autocomplete="off" placeholder="výsledek" '+
       'onkeydown="if(event.key===\'Enter\')prSubmit()"><div style="margin-top:12px"><button class="pz-btn primary" onclick="prSubmit()">Zkontrolovat</button></div>';
   }
   // začátek nové úlohy (úvod, obrázek nebo zadání) musí být vidět, ne jen vstup
@@ -260,8 +261,8 @@ function grade(correct){
   fb.className='pr-feedback '+(correct?'ok':'bad');
   fb.textContent = correct
     ? (PR.streak>=3 ? '🔥 Paráda, série '+PR.streak+'!' : '✓ Správně!')
-    : ((PR.adaptive&&PR.stick) ? '✗ Nevadí — mrkni na postup, dáme ještě jednu z tohoto tématu. Správná odpověď: '+PZ.czNum(PR.item.ans)
-                               : '✗ Špatně. Správná odpověď: '+PZ.czNum(PR.item.ans));
+    : ((PR.adaptive&&PR.stick) ? '✗ Nevadí — mrkni na postup, dáme ještě jednu z tohoto tématu. Správná odpověď: '+PZ.odpovedText(PR.item)
+                               : '✗ Špatně. Správná odpověď: '+PZ.odpovedText(PR.item));
   fb.style.display='block';
   if(PR.item.sol){ const sol=document.getElementById('pr-sol');
     let odk='';

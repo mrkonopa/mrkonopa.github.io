@@ -20,24 +20,9 @@ function serve(){return new Promise(res=>{const s=http.createServer((q,r)=>{let 
    kus webu. Úplnost proti skutečnému obsahu repozitáře hlídá
    `stranky-uplnost.test.cjs`. */
 const PAGES = require('./stranky.cjs').jakoDvojiceJmeno();
+const { projdi, OBRAZOVKY } = require('./vnitrni-obrazovky.cjs');
 
-(async()=>{
- const srv=await serve(); const base='http://127.0.0.1:'+srv.address().port;
- const browser=await chromium.launch({executablePath:EXEC});
- let total=0;
- for(const [name,url] of PAGES){
-  const ctx=await browser.newContext({viewport:{width:1024,height:800}});
-  /* Jen naše stránky — vzor převzatý z `layout-overflow.test.cjs`.
-     Tři cestovatelské zápisky mají vložené video z youtube-nocookie.com
-     a bez tohoto odříznutí by se na runneru načetl skutečný přehrávač
-     (blackhole na CI míří jen na youtube.com). Kromě cizího JS to taky
-     zdržuje: blokovaný požadavek na fonty drží `load` až 12 s. */
-  await ctx.route('**/*',r=>r.request().url().startsWith(base)?r.continue():r.abort());
-  const page=await ctx.newPage();
-  try{await page.goto(base+url,{waitUntil:'load',timeout:15000});await page.waitForTimeout(400);}
-  catch(e){console.log('\n### '+name+'  ⚠️ '+e.message);await ctx.close();continue;}
-
-  const rep=await page.evaluate(()=>{
+const SKEN=()=>{
    const accName=el=>{
     const t=(el.textContent||'').replace(/\s+/g,' ').trim();
     if(t)return t;
@@ -88,7 +73,25 @@ const PAGES = require('./stranky.cjs').jakoDvojiceJmeno();
    }
    out.outlineNoneNoFocus=hasOutlineNone&&!hasFocusVisible;
    return out;
-  });
+  };
+
+(async()=>{
+ const srv=await serve(); const base='http://127.0.0.1:'+srv.address().port;
+ const browser=await chromium.launch({executablePath:EXEC});
+ let total=0;
+ for(const [name,url] of PAGES){
+  const ctx=await browser.newContext({viewport:{width:1024,height:800}});
+  /* Jen naše stránky — vzor převzatý z `layout-overflow.test.cjs`.
+     Tři cestovatelské zápisky mají vložené video z youtube-nocookie.com
+     a bez tohoto odříznutí by se na runneru načetl skutečný přehrávač
+     (blackhole na CI míří jen na youtube.com). Kromě cizího JS to taky
+     zdržuje: blokovaný požadavek na fonty drží `load` až 12 s. */
+  await ctx.route('**/*',r=>r.request().url().startsWith(base)?r.continue():r.abort());
+  const page=await ctx.newPage();
+  try{await page.goto(base+url,{waitUntil:'load',timeout:15000});await page.waitForTimeout(400);}
+  catch(e){console.log('\n### '+name+'  ⚠️ '+e.message);await ctx.close();continue;}
+
+  const rep=await page.evaluate(SKEN);
 
   const issues=[];
   if(!rep.lang)issues.push('🌐 chybí lang na <html>');
@@ -104,6 +107,22 @@ const PAGES = require('./stranky.cjs').jakoDvojiceJmeno();
   else console.log('\n### '+name+'  ✅ OK');
   await ctx.close();
  }
+ /* Vnitřní obrazovky (běžící test, diagnostika, procvičování, boj, trénink…):
+    úvodní obrazovka žádné pole odpovědi nemá, takže 21 polí testu nanečisto
+    a pole diagnostiky i procvičování bez popisku audit dřív neviděl vůbec
+    (průchod 5. 10. 2026). Měří se jména a popisky — lang, title a <h1>
+    patří stránce, ty se kontrolují výš. */
+ const vn=await projdi(browser,base,async(page,jm)=>{
+  const rep=await page.evaluate(SKEN), issues=[];
+  if(rep.imgNoAlt.length)issues.push('🖼️  '+rep.imgNoAlt.length+' <img> bez alt: '+rep.imgNoAlt.slice(0,5).join(', '));
+  if(rep.nameless.length)issues.push('🔘 '+rep.nameless.length+' ovládacích prvků bez jména: '+rep.nameless.slice(0,8).join(', '));
+  if(rep.unlabeled.length)issues.push('📝 '+rep.unlabeled.length+' polí bez popisku: '+rep.unlabeled.slice(0,8).join(', '));
+  if(issues.length){console.log('\n### '+jm);issues.forEach(i=>console.log('  '+i));total+=issues.length;}
+ });
+ vn.chyby.forEach(c=>{console.log('\n### ⚠️ obrazovka se nedala otevřít: '+c);total++;});
+ const cekano=OBRAZOVKY.reduce((a,o)=>a+o.kroky.length,0);
+ console.log('\n  vnitřních obrazovek proměřeno: '+vn.obrazovek+' z '+cekano);
+ if(vn.obrazovek<cekano){console.error('\n  ❌ vnitřních obrazovek proměřeno jen '+vn.obrazovek+' z '+cekano);process.exit(1);}
  await browser.close(); srv.close();
  console.log('\n==========================================');
  console.log('  CELKEM kategorií nálezů: '+total);

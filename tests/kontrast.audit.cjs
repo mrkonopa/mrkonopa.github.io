@@ -31,6 +31,8 @@
 const http = require('http'); const fs = require('fs'); const path = require('path');
 const { chromium } = require('playwright');
 const { ROOT, jakoDvojiceJmeno } = require('./stranky.cjs');
+const { projdi, OBRAZOVKY } = require('./vnitrni-obrazovky.cjs');
+const CEKANO_OBRAZOVEK = OBRAZOVKY.reduce((a, o) => a + o.kroky.length, 0);
 const EXEC = '/opt/pw-browsers/chromium-1194/chrome-linux/chrome';
 const MIME = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.png': 'image/png', '.jpg': 'image/jpeg', '.svg': 'image/svg+xml', '.json': 'application/json' };
 const PAGES = jakoDvojiceJmeno();
@@ -39,6 +41,10 @@ const PAGES = jakoDvojiceJmeno();
    rozbité vykreslení dá nulu, takže nic nestojí mít rezervu, a naopak
    těsná podlaha by shodila stránku, která je v pořádku. */
 const PODLAHA_TEXTU = 1800;   // naměřeno 2 564
+/* Vnitřní obrazovky (boj, trénink, teorie, profil, obchod, věž, běžící test,
+   rozbor, konec diagnostiky…) — dřív se neměřily vůbec a průchod 5. 10. 2026
+   na nich našel 24 skupin textu pod prahem (nejhorší 2,79 : 1). */
+const PODLAHA_VNITRNI = 3000; // naměřeno 4 100 textů na 69 obrazovkách
 
 function serve() {
   return new Promise(res => {
@@ -119,7 +125,7 @@ const SKEN = () => {
   console.log('\n── Kontrast textu (WCAG AA) ──\n');
   const srv = await serve(); const base = 'http://127.0.0.1:' + srv.address().port;
   const browser = await chromium.launch({ headless: true, executablePath: EXEC });
-  let mereno = 0, nejiste = 0, nalezu = 0, chyby = 0;
+  let mereno = 0, nejiste = 0, nalezu = 0, chyby = 0, mereniVnitrni = 0, obrazovek = 0;
   const souhrn = [];
   try {
     for (const [jmeno, url] of PAGES) {
@@ -144,11 +150,23 @@ const SKEN = () => {
       } catch (e) { chyby++; console.log(`❌ ${jmeno}: CHYBA ${e.message.slice(0, 80)}`); }
       await ctx.close();
     }
+    // vnitřní obrazovky: kam se žák dostane až klikáním
+    const vn = await projdi(browser, base, async (page, jm) => {
+      const r = await page.evaluate(SKEN);
+      mereniVnitrni += r.mereno; nejiste += r.nejiste; nalezu += r.nalezy.length;
+      if (r.nalezy.length) {
+        console.log(`❌ ${jm}  (${r.mereno} textů) — ${r.nalezy.length} pod prahem`);
+        r.nalezy.slice(0, 6).forEach(n => console.log(
+          `     ${String(n.pom).padStart(5)} : 1 (práh ${n.prah})  ${n.kde}  „${n.txt}"  ${n.fg} na ${n.bg}  ${n.vel}px`));
+        souhrn.push(`${jm} → ${r.nalezy.length}× pod prahem (nejhorší ${r.nalezy[0].pom} : 1)`);
+      }
+    });
+    obrazovek = vn.obrazovek; vn.chyby.forEach(c => { chyby++; console.log('❌ obrazovka se nedala otevřít: ' + c); });
   } finally { await browser.close(); srv.close(); }
 
   if (souhrn.length) { console.log('\n── SOUHRN ──'); souhrn.forEach(x => console.log('  ' + x)); }
   console.log('\n==========================================');
-  console.log(`  proměřeno textů: ${mereno} na ${PAGES.length} stránkách`);
+  console.log(`  proměřeno textů: ${mereno} na ${PAGES.length} stránkách + ${mereniVnitrni} na ${obrazovek} vnitřních obrazovkách`);
   console.log(`  neurčitelné pozadí (obrázek/přechod): ${nejiste} — nehlásí se`);
   console.log(`  POD PRAHEM: ${nalezu}`);
   console.log('==========================================\n');
@@ -158,6 +176,10 @@ const SKEN = () => {
   let fail = nalezu + chyby;
   if (mereno < PODLAHA_TEXTU) {
     console.log(`❌ POJISTKA: proměřeno jen ${mereno} textů (podlaha ${PODLAHA_TEXTU}) — audit skoro nic neviděl.`);
+    fail++;
+  }
+  if (mereniVnitrni < PODLAHA_VNITRNI || obrazovek < CEKANO_OBRAZOVEK) {
+    console.log(`❌ POJISTKA: na vnitřních obrazovkách proměřeno jen ${mereniVnitrni} textů na ${obrazovek} obrazovkách (podlaha ${PODLAHA_VNITRNI} / ${CEKANO_OBRAZOVEK}).`);
     fail++;
   }
   process.exit(fail ? 1 : 0);

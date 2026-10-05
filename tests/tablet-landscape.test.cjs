@@ -103,7 +103,7 @@ const ok=(c,m)=>{ if(c){pass++;console.log('  ✅ '+m);} else {fail++;console.lo
      šířku se nevejde nikdy, tam se smí posunout zadání, ovládání ne.
      Sabotáž: bez `scroll-padding-bottom` spadne telefon, bez obrázku vedle
      zadání (:has) spadnou tablety s klávesnicí. */
-  let obrMer = 0, trMer = 0, twMer = 0;
+  let obrMer = 0, trMer = 0, twMer = 0, trDale = 0, btDale = 0, twDale = 0;
   for (const g of [3,4,5,6,7,8,9]) {
     const spatne = [];
     for (const [jm, w, h] of ZARIZENI) {
@@ -135,10 +135,11 @@ const ok=(c,m)=>{ if(c){pass++;console.log('  ✅ '+m);} else {fail++;console.lo
         /* Trénink a věž nemají přišpendlenou lištu: roluje celá stránka a fokus
            do vstupu ji posune. Chrome ale vstup pod okrajem VYCENTRUJE, takže na
            iPadu s klávesnicí odjel začátek obrázku o 4–13 px — trénink proto
-           posouvá jen „nearest“. Fokus se před vykreslením sundá, jako když ho ve
+           posouvá sám (`ukazUlohu`). Fokus se před vykreslením sundá, jako když ho ve
            skutečném průchodu drží tlačítko DÁLE; jinak druhé focus() nic
            neposune a měří se nesmysl (vstup „119 px pod okrajem“). */
-        const vh0 = innerHeight; let tr = 0, tw = 0;
+        const vh0 = innerHeight; let tr = 0, tw = 0, trD = 0;
+        const raf = () => new Promise(res => requestAnimationFrame(() => requestAnimationFrame(res)));
         const mer = (co, probId, rowId, mi) => {
           const pr = document.getElementById(probId).getBoundingClientRect();
           const row = document.getElementById(rowId).getBoundingClientRect();
@@ -150,6 +151,23 @@ const ok=(c,m)=>{ if(c){pass++;console.log('  ✅ '+m);} else {fail++;console.lo
           TR.task = p.t; trRender(); await new Promise(res => requestAnimationFrame(() => res()));
           mer('trénink', 'tr-prob', 'tr-input-row', p.mi); tr++;
         }
+        /* Realisticky: žák odpoví, sjede k „DALŠÍ ÚKOL“ a klikne tam, kde právě je.
+           Měření od horního okraje (výš) tohle nevidí — po kliknutí zůstala stránka
+           sjetá a začátek nové úlohy byl nad okrajem (iPad s klávesnicí 5–15 px ve
+           3., 6. a 8. roč., 5. 10. 2026; boj a věž v pořádku). */
+        { go('train'); startTrain(nejhorsi[0].mi);
+          const puvodni = window.trDraw; let k = 0;
+          window.trDraw = function () { TR.task = nejhorsi[k % nejhorsi.length].t; TR.hl = 0; trRender(); };
+          trDraw();
+          for (k = 1; k <= nejhorsi.length; k++) {
+            await raf();
+            document.getElementById('tr-ans').value = '987654'; trSubmit(); await raf();
+            const nb = document.getElementById('tr-next-btn'); nb.scrollIntoView({ block: 'nearest' }); await raf();
+            if (document.activeElement) document.activeElement.blur();
+            nb.click(); await raf();
+            mer('trénink po DALŠÍ ÚKOL', 'tr-prob', 'tr-input-row', nejhorsi[k % nejhorsi.length].mi); trD++;
+          }
+          window.trDraw = puvodni; }
         if (typeof twStart === 'function') {
           for (const p of nejhorsi) {
             go('tower'); twStart(); if (document.activeElement) document.activeElement.blur(); scrollTo(0, 0);
@@ -160,6 +178,11 @@ const ok=(c,m)=>{ if(c){pass++;console.log('  ✅ '+m);} else {fail++;console.lo
         }
         for (const p of nejhorsi) {
           launchBattle(p.ar, p.mi);
+          /* Vstup má fokus UŽ PŘED vykreslením: focus() na takový prvek nic neposune,
+             takže to je ta těžší cesta. Dřív záleželo na losu první úlohy boje
+             (s fokusem jen u textové), a proto test padal zhruba 1 běh z 5. */
+          document.getElementById('bt-input-row').style.display = 'flex';
+          const bi = document.getElementById('bt-ans'); bi.disabled = false; bi.focus();
           const col = document.querySelector('.bt-col-task'); col.scrollTop = 0;
           BT.tasks[BT.idx] = p.t; if (BT.mini) BT.mini[BT.idx] = null;
           renderTask();                                     // dá fokus do vstupu
@@ -169,12 +192,48 @@ const ok=(c,m)=>{ if(c){pass++;console.log('  ✅ '+m);} else {fail++;console.lo
           const vstup = document.getElementById('bt-input-row').getBoundingClientRect();
           const prob = document.getElementById('bt-prob').getBoundingClientRect(), c = col.getBoundingClientRect();
           const zakryto = Math.round(vstup.bottom - Math.min(vh, lista.top));
-          if (zakryto > 1) vady.push(`vstup ${zakryto} px pod lištou (${p.mi})`);
+          // diagnostika do hlášky: kdyby to padalo jen občas, ať je z logu vidět proč
+          if (zakryto > 1) vady.push(`vstup ${zakryto} px pod lištou (${p.mi}; sloupec ${col.scrollTop}/${col.scrollHeight - col.clientHeight}, zadání ${Math.round(prob.top)}–${Math.round(prob.bottom)}, vstup ${Math.round(vstup.top)}–${Math.round(vstup.bottom)}, lišta ${Math.round(lista.top)}, fokus ${document.activeElement && document.activeElement.id}, úloha ${BT.curTask === p.t ? 'zadaná' : 'VYMĚNĚNÁ: ' + String(BT.curTask && BT.curTask.text).slice(0, 30)})`);
           if (tablet && c.top - prob.top > 1) vady.push(`začátek zadání odjel o ${Math.round(c.top - prob.top)} px (${p.mi})`);
         }
-        return { n: nejhorsi.length, vady, tr, tw };
+        /* Boj a věž realisticky (průchod 5. 10. 2026): žák odpoví, sjede k DÁLE (boj),
+           klikne tam, kde je; ve věži se další patro vykreslí samo. Naměřeno 0 nálezů
+           na tabletech (boj 0 z 252, věž 0 z 96) — hlídá se, aby to tak zůstalo.
+           Telefon na šířku se nevejde nikdy: tam se hlídá jen vstup (nad lištou). */
+        const cekej = ms => new Promise(res => setTimeout(res, ms));
+        let btD = 0, twD = 0;
+        { launchBattle(nejhorsi[0].ar, nejhorsi[0].mi); await raf();
+          BT.tasks = nejhorsi.map(o => o.t).concat(nejhorsi.map(o => o.t)); BT.mini = BT.tasks.map(() => null); BT.idx = 0; renderTask(); await raf();
+          for (let i = 0; i < nejhorsi.length - 1; i++) {
+            const inp = document.getElementById('bt-ans'); if (!inp) { vady.push('boj po DÁLE: chybí vstup'); break; }
+            inp.value = String(BT.tasks[BT.idx].ans); submitAnswer(); await raf(); await cekej(80);
+            const col = document.querySelector('.bt-col-task'); col.scrollTop = col.scrollHeight; window.scrollTo(0, document.body.scrollHeight);
+            const nb = document.getElementById('next-btn'); if (!nb || nb.style.display === 'none') { vady.push('boj: DÁLE se neukázalo'); break; }
+            if (document.activeElement) document.activeElement.blur();
+            nb.click(); await raf(); await cekej(80);
+            const p = document.getElementById('bt-prob').getBoundingClientRect(), v = document.getElementById('bt-input-row').getBoundingClientRect();
+            const c = col.getBoundingClientRect(), horni = Math.max(0, c.top), dolni = Math.min(innerHeight, document.querySelector('.bt-akce').getBoundingClientRect().top);
+            if (tablet && p.top < horni - 1) vady.push(`boj po DÁLE: začátek zadání ${Math.round(horni - p.top)} px nad okrajem`);
+            if (v.bottom > dolni + 1) vady.push(`boj po DÁLE: vstup ${Math.round(v.bottom - dolni)} px pod lištou`);
+            btD++;
+          } }
+        if (typeof twStart === 'function') {
+          S.settings = S.settings || {}; S.settings.reducedMotion = true;   // věž pak přejde na další patro za 250 ms, ne 900
+          go('tower'); twStart(); await raf();
+          const puvodni = window.twDrawTask; let q = 0;
+          window.twDrawTask = function () { TW.task = nejhorsi[q++ % nejhorsi.length].t; twRenderTask(); };
+          twDrawTask(); await raf();
+          for (let i = 0; i < 4; i++) {
+            const inp = document.getElementById('tw-ans'); if (!inp) break;
+            inp.scrollIntoView({ block: 'nearest' }); inp.value = String(TW.task.ans); twSubmit();
+            await cekej(400); await raf();
+            mer('věž po správné odpovědi', 'tw-prob', 'tw-input-row', 'patro ' + (i + 2)); twD++;
+          }
+          TW.on = false; if (typeof twStopTimer === 'function') twStopTimer(); window.twDrawTask = puvodni;
+        }
+        return { n: nejhorsi.length, vady, tr, tw, trD, btD, twD };
       }, h >= 420);
-      obrMer += r.n; trMer += r.tr; twMer += r.tw;
+      obrMer += r.n; trMer += r.tr; twMer += r.tw; trDale += r.trD; btDale += r.btD; twDale += r.twD;
       for (const v of r.vady) spatne.push(`${jm}: ${v}`);
       await ctx.close();
     }
@@ -182,8 +241,8 @@ const ok=(c,m)=>{ if(c){pass++;console.log('  ✅ '+m);} else {fail++;console.lo
       + (spatne.length ? ' — ' + spatne.slice(0,3).join(' · ') : ''));
   }
   // Pod šest úloh s obrázkem by ročník klesl jen tehdy, kdyby se obrázky ztratily.
-  ok(obrMer === 7*ZARIZENI.length*6 && trMer === obrMer && twMer === 4*ZARIZENI.length*6,
-    `proměřeno ${obrMer} úloh s obrázkem v boji, ${trMer} v tréninku a ${twMer} ve věži (čekáno ${7*ZARIZENI.length*6} / ${7*ZARIZENI.length*6} / ${4*ZARIZENI.length*6})`);
+  ok(obrMer === 7*ZARIZENI.length*6 && trMer === obrMer && trDale === obrMer && twMer === 4*ZARIZENI.length*6 && btDale === 7*ZARIZENI.length*5 && twDale === 4*ZARIZENI.length*4,
+    `proměřeno ${obrMer} úloh s obrázkem v boji (+ ${btDale} po DÁLE), ${trMer} v tréninku (+ ${trDale} po „DALŠÍ ÚKOL“) a ${twMer} ve věži (+ ${twDale} po správné odpovědi)`);
 
   await br.close(); srv.close();
   console.log(`\n══════════════════════════════════════════\n  VÝSLEDEK: ${pass} ✅ / ${fail} ❌\n══════════════════════════════════════════`);

@@ -360,7 +360,7 @@ function svgKrychle(t) {
 function svgHranol3(a, va, v, la, lva, lv) {
   const k = Math.min(170 / Math.max(a, 1), 88 / Math.max(va, 1), 120 / Math.max(va + 0.5 * v, 1));
   const Z = a * k, V = va * k, g = Math.max(22, 0.5 * v * k), dx = g * 0.36, dy = g;
-  const W = 300, x0 = Math.max(70, (W - Z - dx - 50) / 2), y0 = V + dy + 20, H = Math.round(y0 + 26);
+  const x0 = Math.max(70, (300 - Z - dx - 50) / 2), y0 = V + dy + 20, H = Math.round(y0 + 26);
   const P1 = [x0, y0], P2 = [x0 + Z, y0], P3 = [x0 + Z / 2, y0 - V], M = [x0 + Z / 2, y0];
   const sh = Q => [Q[0] + dx, Q[1] - dy];
   const pts = (...p) => p.map(q => q.map(n => n.toFixed(1)).join(',')).join(' ');
@@ -372,6 +372,9 @@ function svgHranol3(a, va, v, la, lva, lv) {
   // Účaří aspoň 5 px nad základnou (u plochého trojúhelníku leželo spodkem písma na ní).
   const sirV = lva ? _sirka(lva) : 0, yb = Math.min(y0 - 0.2 * V + 4, y0 - 5), yM = y0 - V / 2;
   const uvnitr = sirV <= (Z / 2) * (1 - (y0 - yb + 11) / Math.max(V, 1)) - 14;
+  // Šířka plátna podle popisku výšky hranolu: u dlouhé podstavy stál „15 cm“ za pravým
+  // okrajem 300 a uřízl se (naměřeno 5. 10. 2026 na úlohách „základu“ přijímaček).
+  const xLv = (P2[0] + sh(P2)[0]) / 2 + 10, W = Math.max(300, Math.ceil(xLv + (lv ? _sirka(lv) : 0) + 6));
   return `<svg viewBox="0 0 ${W} ${H}"><polygon points="${pts(P1, P3, sh(P3), sh(P1))}" fill="#1b2742" stroke="#19e6e6" stroke-width="2"/>`
     + `<polygon points="${pts(P2, P3, sh(P3), sh(P2))}" fill="#101a30" stroke="#19e6e6" stroke-width="2"/>`
     + `<polygon points="${pts(P1, P2, P3)}" fill="#1b2742" stroke="#19e6e6" stroke-width="2.5"/>`
@@ -380,5 +383,5 @@ function svgHranol3(a, va, v, la, lva, lv) {
     + (la ? _txt(x0 + Z / 2, y0 + 20, la) : '')
     + (lva ? (uvnitr ? _txt(M[0] + 12, yb, lva, null, 'start')
       : `<line x1="${x0 - 3}" y1="${yM.toFixed(1)}" x2="${(M[0] - 2).toFixed(1)}" y2="${yM.toFixed(1)}" stroke="#ff3d7f" stroke-width="1" stroke-dasharray="1 3"/>` + _txt(x0 - 6, yM + 5, lva, null, 'end')) : '')
-    + (lv ? _txt((P2[0] + sh(P2)[0]) / 2 + 10, (P2[1] + sh(P2)[1]) / 2 + 6, lv, '#39ff9e', 'start') : '') + `</svg>`;
+    + (lv ? _txt(xLv, (P2[1] + sh(P2)[1]) / 2 + 6, lv, '#39ff9e', 'start') : '') + `</svg>`;
 }

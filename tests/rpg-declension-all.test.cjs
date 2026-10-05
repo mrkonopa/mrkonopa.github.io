@@ -57,6 +57,9 @@ const DICT = [
   ['pirát',['piráti','piráty'],'pirátů'],['dělník',['dělníci','dělníky'],'dělníků'],['rytíř',['rytíři','rytíře'],'rytířů'],
   ['drak',['draci','draky'],'draků'],['kosmonaut',['kosmonauti','kosmonauty'],'kosmonautů'],['žák',['žáci','žáky'],'žáků'],
   ['dron','drony','dronů'],['tým','týmy','týmů'],
+  /* Doplněno 4. 10. 2026 (velký průchod, KONTROLY.md #16): „Na každé z 6 větví sedí
+     2 ptáků“ v živém souboji i bance 3. ročníku prošlo, protože slovo tu chybělo. */
+  ['ptáka',['ptáci','ptáky'],'ptáků'],['veverku','veverky','veverek'],['větev','větve','větví'],
   /* Doplněno po nálezu „Kolik metrů urazí 3 otoček?" v 5. ročníku.
      Slovník tehdy pokrýval jen 34 % slov stojících za číslovkou, takže
      chyba u neznámého slova propadla — scanner je v pořádku, jen o tom
@@ -103,17 +106,24 @@ bad.length = 0;
 
 // ── harvest RPG textu ──
 let gen = 0;
-const add = (t, w) => { if (t && typeof t === 'string') { gen++; scan(t, w); } };
+const zdroje = {};
+const add = (t, w) => { if (t && typeof t === 'string') { gen++; const z = w.split('/')[0]; zdroje[z] = (zdroje[z] || 0) + 1; scan(t, w); } };
 const walk = (o, w) => { if (!o) return; if (typeof o === 'string') { add(o, w); return; } if (Array.isArray(o)) return o.forEach(x => walk(x, w)); if (typeof o === 'object') for (const k in o) walk(o[k], w); };
 for (const g of [3, 4, 5, 6, 7, 8, 9]) {
   global.window = {}; try { new Function(fs.readFileSync(path.join(PROJ, 'rpg-tasks-' + g + '.js'), 'utf8'))(); } catch (e) { ok(false, 'tasks-' + g + ' load: ' + e.message); }
   const ex = global.window['RPG_TASK_EXTRA_' + g] || {};
   for (let r = 0; r < 80; r++) for (const mid in ex) { if (typeof ex[mid] !== 'function') continue; let l; try { l = ex[mid](); } catch (e) { continue; } l.forEach(t => { add(t.text, 'tasks-' + g + '/' + mid); (t.hints || []).forEach(x => add(x, 'tasks-' + g + '/' + mid + '/hint')); }); }
-  try { const api = require(path.join(PROJ, 'rpg-battle-' + g + '.js')); for (let s = 1; s < 250; s++) (api.build(s, 8) || []).forEach(q => add(q.text, 'battle-' + g)); } catch (e) {}
+  try { const api = require(path.join(PROJ, 'rpg-battle-' + g + '.js')); for (let s = 1; s < 250; s++) (api.build(s, 8) || []).forEach(q => add(q.text, 'battle-' + g)); } catch (e) { ok(false, 'battle-' + g + ' load: ' + e.message); }
   try { const h = fs.readFileSync(path.join(PROJ, 'rpg-mat-' + g + '.html'), 'utf8'); const src = extractAreas(h); (src.match(/\bsvg\w+/g) || []).forEach(n => global[n] = () => '<svg></svg>'); const A = new Function(src + '\nreturn AREAS;')(); A.forEach(ar => { add(ar.name, 'base-' + g); add(ar.desc, 'base-' + g); ar.missions.forEach(m => { add(m.name, 'base-' + g + '/' + m.id); add(m.sub, 'base-' + g + '/' + m.id); add(m.intro, 'base-' + g + '/' + m.id); if (typeof m.tasks === 'function') for (let r = 0; r < 80; r++) m.tasks().forEach(t => { add(t.text, 'base-' + g + '/' + m.id); (t.hints || []).forEach(x => add(x, 'base-' + g + '/' + m.id + '/hint')); }); }); }); } catch (e) { ok(false, 'base-' + g + ': ' + e.message); }
-  global.window = {}; try { new Function(fs.readFileSync(path.join(PROJ, 'rpg-learn-' + g + '.js'), 'utf8'))(); walk(global.window['RPG_LEARN_' + g], 'learn-' + g); } catch (e) {}
+  global.window = {}; try { new Function(fs.readFileSync(path.join(PROJ, 'rpg-learn-' + g + '.js'), 'utf8'))(); walk(global.window['RPG_LEARN_' + g], 'learn-' + g); } catch (e) { ok(false, 'learn-' + g + ' load: ' + e.message); }
 }
 ok(gen > 20000, 'vygenerováno dost textu (' + gen + ')');
+/* Tichý `catch` kolem načtení dřív schoval, kdyby banka souboje nebo výklad nešly
+   načíst — test by doběhl zeleně, jen o celý zdroj chudší. Každý zdroj každého
+   ročníku proto musí něco dodat (KONTROLY.md, „Když audit hlásí 0 nálezů…“). */
+{ const chybi = [];
+  for (const g of [3, 4, 5, 6, 7, 8, 9]) for (const z of ['tasks', 'battle', 'learn']) if (!(zdroje[z + '-' + g] > 50)) chybi.push(z + '-' + g + ' (' + (zdroje[z + '-' + g] || 0) + ')');
+  ok(chybi.length === 0, 'každý zdroj textu každého ročníku něco dodal — chybí: ' + chybi.join(', ')); }
 
 /* Kolik slov za číslovkou slovník vůbec pokrývá. Není to tvrdé pravidlo —
    většina neznámých slov nejsou skloňovaná podstatná jména („větší",

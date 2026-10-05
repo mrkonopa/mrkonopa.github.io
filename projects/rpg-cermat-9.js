@@ -4686,7 +4686,8 @@
     const H = pick([30, 36, 42, 60]), P = 2 * H;
     const strana = k => H * k / (k + 1);
     const des = x => Math.abs(x * 100 - Math.round(x * 100)) < 1e-9;
-    const k1 = pick([2, 3, 4, 5, 6, 7, 8, 9].filter(k => des(strana(k)))), k2 = pick([3, 4, 5, 6, 7, 8, 9, 10, 11].filter(k => k !== k1 && Number.isInteger(4 * strana(k))));
+    // k1 ≠ 2: obrázek popisuje stranu 2. čtverce, 16.1 by se ptala na číslo z obrázku (~14 % losů)
+    const k1 = pick([3, 4, 5, 6, 7, 8, 9].filter(k => des(strana(k)))), k2 = pick([3, 4, 5, 6, 7, 8, 9, 10, 11].filter(k => k !== k1 && Number.isInteger(4 * strana(k))));
     const k3 = pick([...Array(H).keys()].filter(k => k >= 4 && H % (k + 1) === 0 && k !== k1 && k !== k2));
     const X = strana(k3), d = (P - 2 * X) / 2;
     return {

@@ -27,9 +27,17 @@
      Volby se porovnávají INDEXEM (`idx === q.correct` v rpg-battle-ui.js),
      nikdy se neparsují, takže změna zápisu nic nerozbije. Nečíselné
      hodnoty (ANO/NE, zlomky, záložní „x1") jdou beze změny. */
+  /* Zápis jako ve škole: minus „−“ (ne spojovník „-“) a mocnina horním indexem
+     („10³“, ne „10^3“). Naměřeno 4. 10. 2026: spojovník v 7.–9. ročníku u tisíců
+     otázek a voleb, stříška v 8. a 9. ročníku ~360× každý. Volby se porovnávají
+     INDEXEM, nikdy se neparsují, takže změna zápisu nic nerozbije. */
+  const HORNI = { 0: '⁰', 1: '¹', 2: '²', 3: '³', 4: '⁴', 5: '⁵', 6: '⁶', 7: '⁷', 8: '⁸', 9: '⁹', '-': '⁻' };
+  const zapis = s => String(s)
+    .replace(/(^|[\s(\[=:;,+×·*\/−])-(?=\d)/g, '$1−')
+    .replace(/\^(-?\d+)/g, (_, e) => [...e].map(c => HORNI[c]).join(''));
   const S = v => {
-    if (typeof v !== 'number' || !Number.isFinite(v)) return String(v);
-    return String(Math.round(v * 1e6) / 1e6).replace('.', ',');
+    if (typeof v !== 'number' || !Number.isFinite(v)) return zapis(String(v));
+    return zapis(String(Math.round(v * 1e6) / 1e6).replace('.', ','));
   };
   // FRAMING POOL — mění jen sloveso výzvy, ne hodnotu/distraktory (MC-safe, deterministické)
   const FR = r => pick(r, ['Vypočítej', 'Spočítej', 'Urči hodnotu výrazu', 'Kolik je']);
@@ -46,10 +54,14 @@
                distractors: [x + 1, x - 1, x + 2] };
     },
 
-    // 2) zlomky — zkrácení (výsledný čitatel)
+    // 2) zlomky — zkrácení na základní tvar (výsledný čitatel)
+    //     a/b musí být sám v základním tvaru: dřív 2/4 × 3 = „6/12“ čekalo čitatel 2,
+    //     správně 1 — kdo zkrátil úplně, měl „špatně“ (71 z 4 800, 7. roč.).
     function (r) {
-      const g = ri(r, 2, 6), a = ri(r, 1, 4), b = ri(r, a + 1, 7);
-      return { topic: 'zlomky', text: `Zkrať zlomek: ${a * g}/${b * g}. Napiš výsledný ČITATEL.`,
+      const g = ri(r, 2, 6);
+      let a, b;
+      do { a = ri(r, 1, 4); b = ri(r, a + 1, 7); } while (gcd(a, b) !== 1);
+      return { topic: 'zlomky', text: `Zkrať zlomek ${a * g}/${b * g} na základní tvar. Napiš výsledný ČITATEL.`,
                value: a, distractors: [b, a * g, b * g] };
     },
 
@@ -91,7 +103,8 @@
     function (r) {
       const a = ri(r, -10, 5), b = ri(r, 2, 10);
       const v = a - b;
-      return { topic: 'záporná čísla', text: `${FR(r)}: (${a}) − ${b}`, value: v,
+      // kladné číslo se do závorky nepíše („(2) − 3“ bylo 339× na 1 500 sad)
+      return { topic: 'záporná čísla', text: `${FR(r)}: ${a < 0 ? '(' + a + ')' : a} − ${b}`, value: v,
                distractors: [a + b, -(a - b), v + 2] };
     },
 
@@ -225,7 +238,7 @@
       const j = Math.floor(r() * (i + 1));
       [choices[i], choices[j]] = [choices[j], choices[i]];
     }
-    return { id, topic: raw.topic, text: raw.text, choices,
+    return { id, topic: raw.topic, text: zapis(raw.text), choices,
              correct: choices.indexOf(correct), answer: correct };
   }
 

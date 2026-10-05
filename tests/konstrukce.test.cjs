@@ -287,6 +287,30 @@ const vysledek=page=>page.evaluate(()=>{ const v=document.querySelector('#kn-vys
     await page.waitForFunction(()=>typeof KN!=='undefined'&&KN.u,{timeout:8000});
     ok(await page.evaluate(()=>PZ_KONSTRUKCE.TYPY.indexOf(KN.u.typ)>=0&&document.getElementById('kn-typ').value===''),'podvržené ?typ=__proto__ nic nerozbije (náhodný typ)');
   }
+  /* 12) popisky ve snímku se vzorovým řešením (rozbor testu i procvičování).
+     Dřív se kladly pevným posunem a ve 240 snímcích ležely 711× na čáře nebo
+     kružnici a 5× na sobě (5. 10. 2026). Teď jdou do volného místa; zbývá jen
+     hustý střed kružnic (naměřeno 8 z 1 638 popisků, 0,5 %), kde se čáře vyhnout
+     nedá — tam ji schová bílé obtažení písma. Práh 2 % leží mezi zbytkem a
+     starým stavem (43 %). Měřidlo je sdílené: tests/popisky-mer.cjs. */
+  {
+    const r=await page.evaluate(merSrc=>{
+      const MER=new Function('return '+merSrc)(), out={cara:[],prekryv:[],orez:[],textu:0,snimku:0};
+      let a=7; Math.random=()=>{ a=(a*16807)%2147483647; return a/2147483647; };
+      for(const typ of PZ_KONSTRUKCE.TYPY) for(let i=0;i<6;i++){
+        const u=PZ_KONSTRUKCE.nova(typ), d=document.createElement('div'); d.style.cssText='width:400px'; document.body.appendChild(d);
+        d.innerHTML=PZ_OKNO.snimek(u,[],{reseni:true,krok:u.postup.length-1});
+        const m=MER([d.querySelector('svg')],typ); out.cara.push(...m.cara); out.prekryv.push(...m.prekryv); out.orez.push(...m.orez); out.textu+=m.textu; out.snimku++;
+        if(!out.halo){ const t=d.querySelector('text.kn-r-txt')||d.querySelector('text.kn-d-txt'); const cs=getComputedStyle(t); out.halo=/^stroke/.test(cs.paintOrder)&&parseFloat(cs.strokeWidth)>=2&&/255, 255, 255/.test(cs.stroke); }
+        d.remove();
+      }
+      out.typu=PZ_KONSTRUKCE.TYPY.length; return out;
+    },require('./popisky-mer.cjs').mer.toString());
+    ok(r.typu>=40&&r.snimku===r.typu*6&&r.textu>=1200,'snímky konstrukcí: proměřeno '+r.snimku+' snímků a '+r.textu+' popisků');
+    ok(r.cara.length<=0.02*r.textu,'snímky konstrukcí: přes popisek vede čára nejvýš u 2 % popisků ('+r.cara.length+' z '+r.textu+(r.cara.length?': '+r.cara.slice(0,3).join(' | '):'')+')');
+    ok(r.prekryv.length===0&&r.orez.length===0,'snímky konstrukcí: popisky se nepřekrývají a nevyčuhují z okna'+(r.prekryv.length+r.orez.length?' — '+r.prekryv.concat(r.orez).slice(0,3).join(' | '):''));
+    ok(r.halo===true,'popisky konstrukcí mají bílé obtažení (čára pod písmem zmizí)');
+  }
   ok(errs.length===0,'žádné JS chyby na počítači'+(errs.length?': '+errs.slice(0,3).join(' | '):''));
   await ctx.close();
 

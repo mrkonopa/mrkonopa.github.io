@@ -90,6 +90,36 @@ for (let i = 0; i < 400; i++) {
 ok(pomer.length > 150 && Math.max(...pomer) < 0.01, 'obdélník se kreslí ve skutečném poměru stran (' + pomer.length +
   ' kreseb, největší odchylka ' + (100 * Math.max(...pomer)).toFixed(2) + ' %)');
 
+/* ── Test nanečisto (rpg-cermat-9.js): obrázek neprozradí výsledek podúlohy ──
+   „Čtverce z obdélníků" (pozice 16) popisuje v obrázku stranu 2. čtverce — a 16.1
+   se při k = 2 ptala právě na ni (~14 % losů, průchod 5. 10. 2026). Výsledek, který
+   je popiskem obrázku a v textu není, se hlásí. Výjimka: zadání říká, že hodnoty
+   jsou „vyznačeny v obrázku" (pozice 7 — úhly jsou zadané obrázkem a rovnost
+   vrcholových úhlů je smyslem úlohy, ne prozrazení). */
+{
+  global.gcd = function g(a, b) { return b ? g(b, a % b) : Math.abs(a); };
+  global.cz = n => String(n).replace('.', ','); global.skl = (n, o, f, m) => (n === 1 ? o : (n >= 2 && n <= 4 ? f : m));
+  require(path.join(ROOT, 'projects/rpg-cermat-9.js'));
+  const C = global.window.RPG_CERMAT_9;
+  const cislo = a => new RegExp('(^|[^\\d,.])' + String(a).replace(/[.,]/, '[,.]') + '(?![\\d,]|\\.\\d)');
+  const nal = new Map(); let casti = 0;
+  for (let i = 0; i < 400; i++) for (let sl = 0; sl < 16; sl++) {
+    let t; try { t = C.genSlot(sl); } catch (e) { continue; }
+    const cs = t.parts && t.parts.length ? t.parts.map(p => ({ ans: p.ans, prompt: p.prompt, svg: p.svg || t.svg, key: p.key })) : [{ ans: t.ans, prompt: t.prompt, svg: t.svg, key: String(sl + 1) }];
+    for (const c of cs) {
+      if (!c.svg || c.ans == null || !/^-?\d+([.,]\d+)?$/.test(String(c.ans))) continue;
+      casti++;
+      const zad = [t.intro, c.prompt, t.prompt].filter(Boolean).join(' ');
+      if (/vyznačen/.test(zad)) continue;
+      const popisky = [...String(c.svg).matchAll(/>([^<>]*)</g)].map(m => m[1].trim()).filter(Boolean);
+      const hit = popisky.find(l => cislo(c.ans).test(l));
+      if (hit && !cislo(c.ans).test(zad)) nal.set(c.key + ' ' + (t.title || ''), (nal.get(c.key + ' ' + (t.title || '')) || 0) + 1);
+    }
+  }
+  ok(casti > 3000, 'test nanečisto: proměřeno ' + casti + ' číselných podúloh s obrázkem (podlaha 3 000)');
+  ok(nal.size === 0, 'test nanečisto: obrázek neprozradí výsledek podúlohy', [...nal].map(([k, n]) => k + ' ' + n + '×').join(', '));
+}
+
 console.log('\n══════════════════════════════════════════');
 console.log('  VÝSLEDEK: ' + pass + ' ✅ / ' + fail + ' ❌');
 console.log('══════════════════════════════════════════');

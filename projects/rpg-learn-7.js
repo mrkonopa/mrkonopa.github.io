@@ -688,7 +688,7 @@ window.RPG_LEARN_7 = {
     p: ['<b>Čtverec:</b> S = a². &ensp; <b>Obdélník:</b> S = a · b. (Platilo již v 6. třídě — jen připomenutí.)'] },
   { h: 'Rovnoběžník',
     p: ['Rovnoběžník: dvě dvojice rovnoběžných stran. Obsah <b>S = a · v</b>, kde v je <b>výška</b> (kolmá vzdálenost rovnoběžných stran — ne délka boční strany!).',
-        '<svg width="260" height="111" style="display:block;margin:8px auto 0" viewBox="0 0 260 111"><polygon points="40,90 200,90 230,20 70,20" fill="none" stroke="#4a9eff" stroke-width="2"/><line x1="200" y1="20" x2="200" y2="90" stroke="#ffcc00" stroke-width="2" stroke-dasharray="6,4"/><rect x="195" y="85" width="10" height="10" fill="none" stroke="#ffcc00" stroke-width="1.5"/><text x="110" y="108" fill="#c9d1d9" font-size="14" font-family="sans-serif">a</text><text x="206" y="60" fill="#ffcc00" font-size="13" font-family="sans-serif">v</text></svg>'] },
+        '<svg width="260" height="111" style="display:block;margin:8px auto 0" viewBox="0 0 260 111"><polygon points="40,90 200,90 230,20 70,20" fill="none" stroke="#4a9eff" stroke-width="2"/><line x1="200" y1="20" x2="200" y2="90" stroke="#ffcc00" stroke-width="2" stroke-dasharray="6,4"/><rect x="195" y="85" width="10" height="10" fill="none" stroke="#ffcc00" stroke-width="1.5"/><text x="110" y="108" fill="#c9d1d9" font-size="14" font-family="sans-serif">a</text><text x="195" y="60" fill="#ffcc00" font-size="13" font-family="sans-serif" text-anchor="end">v</text></svg>'] },
   { h: 'Trojúhelník',
     p: ['<b>S = (a · v<sub>a</sub>) / 2</b>. Výška v<sub>a</sub> musí být kolmá k základně a.'] },
   { h: 'Lichoběžník',

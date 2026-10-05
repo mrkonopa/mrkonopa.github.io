@@ -61,6 +61,12 @@ const PARAM = {
   'rpg-revive-stars.test.cjs': ['3', '4', '5', '6', '7', '8', '9'],
   'rpg-sound.test.cjs': ['3', '4', '5', '6', '7', '8', '9'],
   'rpg-sponka.test.cjs': ['3', '4', '5', '6', '7', '8', '9'],
+  /* Velký průchod 5. 10. 2026: tyhle dva hostile testy braly ročník argumentem
+     (výchozí 9.) a v PARAM nebyly — sponka, „Najdi chybu“, klávesy i tutoriál
+     přitom běží ve všech 3.–9. Ověřeno na ročníku z každého stupně (3., 6.),
+     pak zapsáno pro všech sedm. Hlídá to teď `brana-uplnost` (oddíl 6). */
+  'rpg-newfeatures-hostile.cjs': ['3', '4', '5', '6', '7', '8', '9'],
+  'rpg-sponka-hostile.cjs': ['3', '4', '5', '6', '7', '8', '9'],
   'rpg-tutorial.test.cjs': ['3', '4', '5', '6', '7', '8', '9'],
 };
 // Harnessy/hostile skripty, co nesedí na *.test.cjs / *.audit.cjs vzor:

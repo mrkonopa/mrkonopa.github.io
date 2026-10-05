@@ -33,6 +33,38 @@ const ok=(c,m)=>{ if(c){pass++;console.log('  ✅ '+m);} else {fail++;console.lo
   ok(/1 %/.test(hf[0]) && /1 %/.test(hf[1]) === false || /procenta/i.test(hf[0]) || /díl/.test(hf[0]), 'L1 procenta = nasměrování ('+hf[0].slice(0,40)+'…)');
   ok(hf.length===3 && /Výsledek: 42/.test(hf[2]), 'L3 = výsledek (42)');
 
+  /* Nápovědy nad SKUTEČNÝMI úlohami všech okruhů (základ i test), průchod 5. 10. 2026:
+     #9 — L1 i L2 byly obecné podle okruhu, v RPG je nápověda k úloze → L2 je teď
+     první krok vlastního postupu, pokud neprozradí výsledek (to je práce L3);
+     #12 — u ANO/NE ukazovala L3 „Výsledek: N" (tlačítka říkají ANO/NE) a u výběru
+     jen písmeno „D" bez znění volby. */
+  const hs = await page.evaluate(() => {
+    const out = { n: 0, sKroky: 0, l2krok: 0, prozradi: [], yn: 0, ynSpatne: [], mc: 0, mcSpatne: [] };
+    for (const t of PZ_TOPICS.list) for (const lvl of ['zaklad', 'test']) for (let i = 0; i < 40; i++) {
+      let it; try { it = PZ_TOPICS.item(t.id, lvl); } catch (e) { continue; }
+      if (!it) continue; out.n++;
+      const h = PZ.hintsFor(it, t.id), kroky = it.sol ? PZ.solSteps(it.sol) : [];
+      if (kroky.length > 1) { out.sKroky++; if (h[1] === String(kroky[0]).trim()) out.l2krok++; }
+      if (it.type === 'yn') { out.yn++; if (!/^Výsledek: (ANO|NE)$/.test(h[2])) out.ynSpatne.push(h[2]); }
+      if (it.type === 'mc') { out.mc++; if (h[2].replace('Výsledek: ', '').length < 4) out.mcSpatne.push(h[2]); }
+      const a = String(it.ans);
+      if (/^-?\d+([.,]\d+)?$/.test(a) && a.replace('-', '').length >= 2) {
+        const re = new RegExp('(^|[^\\d,.])' + a.replace(/[.,]/, '[.,]').replace('-', '[−-]') + '(?![\\d]|[.,]\\d)');
+        if (re.test(h[1]) && !re.test(it.prompt || '') && !re.test(it.intro || '')) out.prozradi.push(t.id + ': ' + h[1].slice(0, 60));
+      }
+    }
+    return out;
+  });
+  ok(hs.n >= 600, 'nápovědy: proměřeno ' + hs.n + ' úloh všech okruhů (základ i test)');
+  ok(hs.l2krok >= 0.9 * hs.sKroky, 'L2 je první krok vlastního postupu u ' + hs.l2krok + ' z ' + hs.sKroky + ' úloh s postupem (naměřeno 98,7 %, podlaha 90 %)');
+  ok(hs.prozradi.length === 0, 'L2 neprozradí výsledek' + (hs.prozradi.length ? ' — ' + hs.prozradi.slice(0, 3).join(' | ') : ''));
+  // v bance první krok výsledek neprozrazuje nikde — pojistku proto ověř na podvržené úloze
+  const umela = await page.evaluate(() => [PZ.hintsFor({ ans: '42', prompt: 'Kolik?', sol: ['Obsah je 6 · 7 = 42 cm².', 'Hotovo.'] }, 'geometrie')[1],
+    PZ.hintsFor({ ans: '42', prompt: 'Kolik?', sol: ['Obsah obdélníku je a · b.', 'S = 6 · 7 = 42 cm².'] }, 'geometrie')[1]]);
+  ok(!/42/.test(umela[0]) && umela[1] === 'Obsah obdélníku je a · b.', 'krok s výsledkem se jako L2 nepoužije, krok bez něj ano (' + umela.map(x => '„' + x.slice(0, 30) + '“').join(' / ') + ')');
+  ok(hs.yn > 0 && hs.ynSpatne.length === 0, 'ANO/NE: L3 říká „ANO" nebo „NE" (' + hs.yn + ' úloh)' + (hs.ynSpatne.length ? ' — ' + hs.ynSpatne.slice(0, 3).join(' | ') : ''));
+  ok(hs.mc > 0 && hs.mcSpatne.length === 0, 'výběr: L3 ukáže celé znění volby, ne jen písmeno (' + hs.mc + ' úloh)' + (hs.mcSpatne.length ? ' — ' + hs.mcSpatne.slice(0, 3).join(' | ') : ''));
+
   // spusť okruh a odhaluj nápovědy postupně
   await page.evaluate(()=>prStart('procenta'));
   await page.waitForFunction(()=>document.getElementById('pr-hintwrap').style.display!=='none',{timeout:4000});

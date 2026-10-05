@@ -591,32 +591,18 @@ function bankaCermat() {
     { Object.assign(globalThis, vse, zakl()); globalThis.window = globalThis;
       new Function(fs.readFileSync(path.join(ROOT, 'projects/prijimacky-matematika/prijimacky-gen.js'), 'utf8'))();
       for (const gens of Object.values(globalThis.PZ_GEN)) for (const f of gens) for (let i = 0; i < 40; i++) pridej('zaklad', f()); }
-    const r = await page.evaluate(({ kresby }) => {
-      const cara = [], prekryv = [], utek = []; let textu = 0, oblouku = 0;
+    // doplňky k řešením přijímaček: dvě ruční kresby konstrukcí (7 popisků přes čáru, 5. 10. 2026)
+    for (const m of fs.readFileSync(path.join(ROOT, 'projects/prijimacky-matematika/doplnky.html'), 'utf8').matchAll(/<svg[^>]*aria-label="(Konstrukce[^"]*)"[\s\S]*?<\/svg>/g))
+      pridej('doplnky', { svg: m[0], text: m[1] });
+    /* Měřidlo je sdílené (tests/popisky-mer.cjs) — totéž měří výklad 3.–9. ročníku,
+       doplňky a snímky konstrukcí; dvě kopie téhož měřidla by se rozešly. */
+    const r = await page.evaluate(({ kresby, merSrc }) => {
+      const MER = new Function('return ' + merSrc)();
+      const cara = [], prekryv = [], orez = [], utek = []; let textu = 0, oblouku = 0;
       for (const k of kresby) {
         const d = document.createElement('div'); d.style.cssText = 'width:260px'; d.innerHTML = k.svg; document.body.appendChild(d);
         const svg = d.querySelector('svg'); svg.style.cssText = 'display:block;width:260px;height:auto';
-        const T = [...svg.querySelectorAll('text')].filter(t => t.textContent.trim()).map(el => ({ el, q: el.getBoundingClientRect() }));
-        textu += T.length;
-        const body = [], m = el => el.getScreenCTM(), bod = (el, x, y) => { const c = m(el); return [c.a * x + c.c * y + c.e, c.b * x + c.d * y + c.f]; };
-        const usek = (el, a, b) => { for (let i = 0; i <= 80; i++) body.push({ el, p: bod(el, a[0] + (b[0] - a[0]) * i / 80, a[1] + (b[1] - a[1]) * i / 80) }); };
-        for (const el of svg.querySelectorAll('line')) usek(el, [el.x1.baseVal.value, el.y1.baseVal.value], [el.x2.baseVal.value, el.y2.baseVal.value]);
-        for (const el of svg.querySelectorAll('polygon,polyline')) { const p = [...el.points].map(q => [q.x, q.y]);
-          for (let i = 0; i + 1 < p.length + (el.tagName === 'polygon' ? 1 : 0); i++) usek(el, p[i], p[(i + 1) % p.length]); }
-        for (const el of svg.querySelectorAll('path,circle,ellipse')) { const L = el.getTotalLength(); for (let i = 0; i <= 120; i++) { const q = el.getPointAtLength(L * i / 120); body.push({ el, p: bod(el, q.x, q.y) }); } }
-        for (const el of svg.querySelectorAll('rect')) { const x = el.x.baseVal.value, y = el.y.baseVal.value, w = el.width.baseVal.value, h = el.height.baseVal.value;
-          usek(el, [x, y], [x + w, y]); usek(el, [x + w, y], [x + w, y + h]); usek(el, [x + w, y + h], [x, y + h]); usek(el, [x, y + h], [x, y]); }
-        for (const t of T) {
-          const q = t.q, zas = new Set();
-          for (const b of body) {
-            const st = getComputedStyle(b.el); if (st.stroke === 'none' || parseFloat(st.strokeWidth) === 0) continue;
-            if (b.el.tagName === 'rect') { const R = b.el.getBoundingClientRect(); if (R.left <= q.left + 1 && R.right >= q.right - 1 && R.top <= q.top + 1 && R.bottom >= q.bottom - 1) continue; }
-            if (b.p[0] > q.left + 1 && b.p[0] < q.right - 1 && b.p[1] > q.top + 1 && b.p[1] < q.bottom - 1) zas.add(b.el.tagName);
-          }
-          if (zas.size) cara.push(k.jm + ': „' + t.el.textContent.trim() + '" × ' + [...zas].join(','));
-        }
-        for (let i = 0; i < T.length; i++) for (let j = i + 1; j < T.length; j++) { const A = T[i].q, B = T[j].q;
-          if (Math.min(A.right, B.right) - Math.max(A.left, B.left) > 1 && Math.min(A.bottom, B.bottom) - Math.max(A.top, B.top) > 1) prekryv.push(k.jm + ': „' + T[i].el.textContent + '" × „' + T[j].el.textContent + '"'); }
+        const m = MER([svg], k.jm); cara.push(...m.cara); prekryv.push(...m.prekryv); orez.push(...m.orez); textu += m.textu;
         /* jen test nanečisto: tam se oblouk a jeho popisek kreslí vždy hned za sebou
            (oblouk + stitek / volnyUhel); trojúhelník z úhlů v RPG kreslí popisky až po obloucích */
         if (k.jm.startsWith('test/')) for (const a of svg.querySelectorAll('path[data-vrchol]')) { const t = a.nextElementSibling; if (!t || t.tagName !== 'text') continue; oblouku++;
@@ -624,15 +610,16 @@ function bankaCermat() {
           if (od > 36) utek.push(k.jm + ': „' + t.textContent + '" ' + od.toFixed(0) + ' px za svým obloukem'); }
         d.remove();
       }
-      return { cara, prekryv, utek, textu, oblouku };
-    }, { kresby });
+      return { cara, prekryv, orez, utek, textu, oblouku };
+    }, { kresby, merSrc: require('./popisky-mer.cjs').mer.toString() });
     /* Naměřeno 4. 10. 2026: ~6 000 různých kreseb (banky + šablony 3.–9. ~2 800,
        test nanečisto ~1 900, základ ~1 000), ~18 000 popisků, ~250 dvojic oblouk–
        popisek s odstupem 10–30 px (dřív až ~70). Podlahy hlídají, že se měřilo. */
-    ok(kresby.length >= 4000 && r.textu >= 12000 && r.oblouku >= 100 && ['3', '6', '9', 'test', 'zaklad'].every(z => zdroje[z] > 50),
+    ok(kresby.length >= 4000 && r.textu >= 12000 && r.oblouku >= 100 && ['3', '6', '9', 'test', 'zaklad'].every(z => zdroje[z] > 50) && zdroje.doplnky === 2,
       'všechny zdroje: proměřeno ' + kresby.length + ' kreseb (' + Object.entries(zdroje).map(([z, n]) => z + ' ' + n).join(', ') + '), ' + r.textu + ' popisků, ' + r.oblouku + ' oblouků');
     ok(r.cara.length === 0, 'všechny zdroje: přes žádný popisek nevede čára, hrana, oblouk ani kružnice', r.cara.length + '× — ' + r.cara.slice(0, 3).join(' | '));
     ok(r.prekryv.length === 0, 'všechny zdroje: popisky se nepřekrývají', r.prekryv.slice(0, 3).join(' | '));
+    ok(r.orez.length === 0, 'všechny zdroje: žádný popisek nevyčuhuje z kresby', r.orez.length + '× — ' + r.orez.slice(0, 3).join(' | '));
     ok(r.utek.length === 0, 'test nanečisto: popisek úhlu stojí u svého oblouku (nejvýš 36 px za ním)', r.utek.slice(0, 3).join(' | '));
   }
 

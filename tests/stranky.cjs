@@ -73,7 +73,8 @@ const MIMO = [
 /* Všechny .html v repozitáři (bez node_modules a .git), cestou od kořene. */
 function vsechnyHtml(dir = ROOT, ven = []) {
   for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
-    if (e.name === 'node_modules' || e.name === '.git') continue;
+    // .cache = stažené podklady nástrojů (PDF CERMATu, jádro GeoGebry), v .gitignore a na web nejdou
+    if (e.name === 'node_modules' || e.name === '.git' || e.name === '.cache') continue;
     const p = path.join(dir, e.name);
     if (e.isDirectory()) vsechnyHtml(p, ven);
     else if (e.name.endsWith('.html')) ven.push('/' + path.relative(ROOT, p).split(path.sep).join('/'));
