@@ -352,6 +352,24 @@ html[data-theme="violet"]{--gold:#b06cff;--panel:#100a20;--panel2:#18103a;--blue
  #s-battle .bt-col-task{overflow-y:auto;overscroll-behavior:contain}
  #s-battle .bt-akce{position:sticky;bottom:0;z-index:4;background:var(--bg);padding:6px 0 2px}
  #s-battle .bt-top{margin-bottom:6px}
+ /* Obrázek úlohy nesmí vytlačit VSTUP pod okraj — ten není v přišpendlené liště.
+    Kvádr je při plné šířce 201 px vysoký, telefon na šířku má 360 px okna;
+    viewBox drží poměr stran, kresba se jen zmenší. */
+ #s-battle .prob-svg svg{max-height:32vh}
+ /* Fokus na vstup posune sloupec jen tak, aby byl vstup vidět — o přišpendlené liště
+    nic neví, takže vstup skončil ZA ní (naměřeno na telefonu u 136 z 306 úloh s obrázkem).
+    Odsazení o výšku lišty (41 px) a kousek navíc to srovná. */
+ #s-battle .bt-col-task{scroll-padding-bottom:50px}
+}
+@media(orientation:landscape) and (max-height:500px) and (min-width:700px){
+ /* Nízká obrazovka na šířku (telefon, tablet s klávesnicí): obrázek jde VEDLE zadání,
+    ne nad něj. Pod sebou zabraly na telefonu 740 × 360 přes 200 px a vstup zajel pod
+    přišpendlenou lištu s DÁLE. :has() omezí změnu na zadání s obrázkem (minihry ne);
+    prohlížeč, který ho nezná, nechá úlohu pod sebou jako dřív. */
+ #s-battle .bt-problem:has(> .prob-svg){display:flex;flex-direction:row-reverse;align-items:flex-start;gap:10px}
+ #s-battle .bt-problem > .prob-svg{flex:0 0 45%;margin-bottom:0}
+ #s-battle .bt-problem > .prob-svg svg{max-height:30vh}
+ #s-battle .bt-problem > .prob-txt{flex:1;min-width:0}
 }
 @media(max-height:750px){.bt-top{min-height:140px;padding:8px 18px 30px}.bt-monster{font-size:70px}.player-hp{font-size:22px;margin-bottom:6px}.items-bar{min-height:36px;margin-bottom:4px}.bt-problem{padding:12px;margin-bottom:6px;font-size:20px}.bt-row{margin-bottom:6px}.bt-input{padding:8px;font-size:17px}.topnav{margin-bottom:6px;padding-bottom:6px}}
 </style>
@@ -689,6 +707,26 @@ function svgRect(w,h,opt={}){
  if(opt.lw) t+=`<text x="${(x+W/2).toFixed(1)}" y="${yb+18}" fill="#ffe066" font-size="14" font-family="monospace" text-anchor="middle">${opt.lw}</text>`;
  if(opt.lh) t+=`<text x="${x-8}" y="${(yb-H/2+4).toFixed(1)}" fill="#ffe066" font-size="14" font-family="monospace" text-anchor="end">${opt.lh}</text>`;
  return `<svg viewBox="0 0 250 160"><rect x="${x}" y="${yt}" width="${W}" height="${H}" fill="none" stroke="#6fcf6f" stroke-width="3"/>${t}</svg>`;
+}
+// Trojúhelník V MĚŘÍTKU ze tří stran: strany = [[délka, popisek], …] v pořadí ze zadání.
+// Dolů jde strana s indexem zakl (u rovnoramenného ZÁKLADNA), jinak nejdelší, aby
+// trojúhelník „stál"; popisek leží vně, u středu své strany.
+function svgTroj(strany,zakl){
+ const S=strany.map(q=>({d:q[0],t:q[1]}));
+ const Z=zakl!=null?S[zakl]:S.reduce((m,q)=>q.d>m.d?q:m),[L,P]=S.filter(q=>q!==Z).sort((p,q)=>q.d-p.d);
+ const x=(Z.d*Z.d+L.d*L.d-P.d*P.d)/(2*Z.d),y=Math.sqrt(Math.max(0,L.d*L.d-x*x));
+ const x0=Math.min(0,x),x1=Math.max(Z.d,x),k=Math.min(140/(x1-x0),84/Math.max(y,1e-9));
+ const ox=125-(x0+x1)/2*k,oy=124,f=v=>+v.toFixed(1);
+ const A=[ox,oy],B=[ox+Z.d*k,oy],C=[ox+x*k,oy-y*k],T=[(A[0]+B[0]+C[0])/3,(A[1]+B[1]+C[1])/3];
+ let t='';
+ const pop=(U,V,txt)=>{ if(!txt)return;
+  const mx=(U[0]+V[0])/2,my=(U[1]+V[1])/2;let nx=V[1]-U[1],ny=U[0]-V[0];const dl=Math.hypot(nx,ny)||1;nx/=dl;ny/=dl;
+  if((mx-T[0])*nx+(my-T[1])*ny<0){nx=-nx;ny=-ny;}   // normála ven od těžiště
+  const anc=nx>0.15?'start':nx<-0.15?'end':'middle';
+  const qx=mx+nx*10,qy=anc!=='middle'?my+ny*10+5:(ny>0?my+19:my-8);
+  t+=`<text x="${f(qx)}" y="${f(qy)}" fill="#ffe066" font-size="14" font-family="monospace" text-anchor="${anc}">${txt}</text>`; };
+ pop(A,B,Z.t);pop(A,C,L.t);pop(B,C,P.t);
+ return `<svg viewBox="0 0 250 160"><polygon data-kresba="strany" points="${[A,B,C].map(q=>f(q[0])+','+f(q[1])).join(' ')}" fill="none" stroke="#6fcf6f" stroke-width="3" stroke-linejoin="round"/>${t}</svg>`;
 }
 
 // AREAS
@@ -1347,8 +1385,15 @@ function updateCombo(){
 
 // MC distractory: pro celá čísla škáluje krok podle velikosti/zaokrouhlení (aby u velkých čísel
 // nebyly odpovědi triviálně odlišitelné), jinak ANO/NE/MOŽNÁ.
-function mcDistractors(ans){
- const s=String(ans).trim();const base=parseInt(s,10);const wrong=[];
+function mcDistractors(ans,povinne){
+ const s=String(ans).trim();const base=parseInt(s,10);
+ /* Kandidáti na OBĚ strany; kolik voleb půjde pod správnou, losuje mcRozloz
+    (rpg-shared.js). Dřív se sousedé přidávali v pevném pořadí −1, +1, −2,
+    takže správná odpověď byla ve 3. ročníku v 88 % případů druhá největší
+    a nikdy největší — dítě, které si toho všimne, nemusí počítat.
+    `povinne` = kurátorské distraktory úlohy; vrací se jen DOPLNĚK k nim. */
+ const pov=(povinne||[]).map(mcCislo).filter(v=>!isNaN(v));
+ const doplnek=(spr,dolu,nahoru)=>mcRozloz(spr,pov,dolu,nahoru).filter(v=>!pov.includes(v));
  if(s!==''&&s!=='NaN'&&String(base)===s){
   const mag=Math.abs(base);let step=1;
   if(base%1000===0&&mag>=1000)step=1000;
@@ -1357,40 +1402,36 @@ function mcDistractors(ans){
   else if(mag>=10000)step=100;
   else if(mag>=1000)step=10;
   else if(base%10===0&&mag>=10)step=10;
-  const offs=[-1,1,-2,2,3,-3,4,-4];
-  for(let i=0;i<offs.length&&wrong.length<3;i++){const v=base+offs[i]*step;if(v!==base&&v>=0&&!wrong.includes(v))wrong.push(v);}
-  for(let k=5;k<60&&wrong.length<3;k++){const v=base+k*step;if(v!==base&&!wrong.includes(v))wrong.push(v);}
+  const dolu=[],nahoru=[];
+  for(let i=1;i<=3;i++){const v=base-i*step;if(v>=0||base<0)dolu.push(v);}
+  for(let i=1;i<60;i++)nahoru.push(base+i*step);
+  return doplnek(base,dolu,nahoru).map(String);
  }else if(!isNaN(parseFloat(s.replace(',','.')))){
   /* DESETINNÁ odpověď. Dřív sem spadla do větve níž a volby vyšly jako
      „ANO / 2.4 / 240 / NE" — u otázky „Kolik hodin spí drak?". Kromě
      nesmyslu to rovnou PROZRADILO odpověď: jediné smysluplné číslo mezi
      volbami bylo to správné, takže dítě nemuselo počítat.
-     2. stupeň to dělá správně (`parseFloat(correct.replace(',','.'))`);
-     tohle je doplnění téhož do 1. stupně.
      Volby se porovnávají přes `checkAns`, které českou čárku i zlomky
      zvládá, takže je bezpečné psát je s čárkou. */
   const cn=parseFloat(s.replace(',','.'));
   const des=Math.min(3,(s.split(/[.,]/)[1]||'').length);
   const p=Math.pow(10,des);
   const zapis=v=>{const z=Math.round(v*p)/p;return des?String(z).replace('.',','):String(z);};
-  const kroky=[1/p,-1/p,2/p,-2/p,1,-1,10,-10];
-  for(let i=0;i<kroky.length&&wrong.length<3;i++){
-   const v=cn+kroky[i];
-   if(v<0)continue;
-   const z=zapis(v);
-   if(z!==zapis(cn)&&!wrong.includes(z))wrong.push(z);
-  }
-  for(let k=2;k<60&&wrong.length<3;k++){const z=zapis(cn+k);if(z!==zapis(cn)&&!wrong.includes(z))wrong.push(z);}
- }else{
-  ['ANO','NE','MOŽNÁ','NEVÍM','0','1'].forEach(x=>{if(x!==s&&!wrong.includes(x)&&wrong.length<3)wrong.push(x);});
-  for(let n=2;wrong.length<3;n++){const c='?'+n;if(c!==s&&!wrong.includes(c))wrong.push(c);}
+  const dolu=[],nahoru=[];
+  for(let i=1;i<=3;i++){const v=Math.round((cn-i/p)*p)/p;if(v>=0)dolu.push(v);}
+  for(let i=1;i<=3;i++)nahoru.push(Math.round((cn+i/p)*p)/p);
+  for(let k=1;k<60;k++)nahoru.push(Math.round((cn+k)*p)/p);
+  return doplnek(Math.round(cn*p)/p,dolu,nahoru).map(zapis);
  }
- return wrong.slice(0,3).map(String);
+ const wrong=[];
+ ['ANO','NE','MOŽNÁ','NEVÍM','0','1'].forEach(x=>{if(x!==s&&!wrong.includes(x)&&wrong.length<3)wrong.push(x);});
+ for(let n=2;wrong.length<3;n++){const c='?'+n;if(c!==s&&!wrong.includes(c))wrong.push(c);}
+ return wrong;
 }
 /* Shoda se posuzuje na ZOBRAZENÉM zápisu (czMC), jinak by kurátorský
    distraktor „2,4“ prošel vedle správné „2.4“ a po sjednocení by
    vznikly dvě totožné volby. */
-function _mcWrong(t,ans){const a=czMC(ans),out=[];const pridej=x=>{const s=czMC(x);if(s!==a&&!out.includes(s)&&out.length<3)out.push(s);};if(Array.isArray(t.distractors))t.distractors.forEach(pridej);mcDistractors(String(ans)).forEach(pridej);return out;}
+function _mcWrong(t,ans){const a=czMC(ans),out=[];const pridej=x=>{const s=czMC(x);if(s!==a&&!out.includes(s)&&out.length<3)out.push(s);};if(Array.isArray(t.distractors))t.distractors.forEach(pridej);mcDistractors(String(ans),t.distractors).forEach(pridej);return out;}
 /* Zápis voleb se SJEDNOTÍ na českou čárku. Bez toho se správná odpověď
    z banky psala „2.4“ s tečkou, zatímco generované distraktory měly
    čárku (nebo naopak) — ta jediná odlišně zapsaná volba tedy byla ta
@@ -1706,14 +1747,19 @@ function trRender(){
  document.getElementById('tr-fb').className='feedback';
  document.getElementById('tr-next-btn').style.display='none';
  document.getElementById('tr-hint-btn').disabled=false;document.getElementById('tr-hint-btn').textContent='💡 NÁPOVĚDA';
- const prob=document.getElementById('tr-prob');prob.textContent=t.text;prob.classList.remove('pop');void prob.offsetWidth;prob.classList.add('pop');
+ const prob=document.getElementById('tr-prob');
+ // obrázek úlohy jako v boji — bez něj trénink ukazoval jen text (8. a 9. ročník ho měly vždy)
+ if(t.svg){prob.innerHTML=`<div class="prob-svg">${t.svg}</div><div class="prob-txt"></div>`;prob.querySelector('.prob-txt').textContent=t.text;}
+ else prob.textContent=t.text;
+ prob.classList.remove('pop');void prob.offsetWidth;prob.classList.add('pop');
  if(t.mc||isYN(t)){
   document.getElementById('tr-input-row').style.display='none';
   if(isYN(t)){document.getElementById('tr-yn-row').style.display='flex';document.querySelectorAll('#tr-yn-row button').forEach(b=>b.disabled=false);document.getElementById('tr-mc').style.display='none';}
   else{document.getElementById('tr-yn-row').style.display='none';trRenderMC(t);}
  }else{
   document.getElementById('tr-input-row').style.display='flex';document.getElementById('tr-yn-row').style.display='none';document.getElementById('tr-mc').style.display='none';
-  const inp=document.getElementById('tr-ans');inp.value='';inp.disabled=false;inp.focus();inp.inputMode=/^\d+$/.test(String(TR.task.ans))?'numeric':/^\d+[.,]\d+$/.test(String(TR.task.ans))?'decimal':'text';
+  // Fokus bez centrování: Chrome vstup pod okrajem VYCENTRUJE, takže na tabletu s klávesnicí odjel začátek obrázku; „nearest“ posune jen o tolik, kolik je třeba.
+  const inp=document.getElementById('tr-ans');inp.value='';inp.disabled=false;inp.focus({preventScroll:true});document.getElementById('tr-input-row').scrollIntoView({block:'nearest'});inp.inputMode=/^\d+$/.test(String(TR.task.ans))?'numeric':/^\d+[.,]\d+$/.test(String(TR.task.ans))?'decimal':'text';
  }
 }
 function trRenderMC(t){

@@ -39,8 +39,8 @@ function gen_1_1(){
     ()=>{const i=ri(150,899);return{text:`Zaokrouhli ${i} na stovky.`,ans:Math.round(i/100)*100,dis:(Math.floor(i/100)*100!==Math.round(i/100)*100?[String(Math.floor(i/100)*100)]:[]),h1:'Rozhoduje číslice desítek.',h2:`≈ ${Math.round(i/100)*100}`};},
     ()=>{const i=ri(115,985);return{text:`Zaokrouhli ${i} na desítky.`,ans:Math.round(i/10)*10,dis:(Math.floor(i/10)*10!==Math.round(i/10)*10?[String(Math.floor(i/10)*10)]:[]),h1:'Rozhoduje číslice jednotek.',h2:`≈ ${Math.round(i/10)*10}`};},
     ()=>{const j=ri(3,9),k=ri(3,9),l=ri(5,40);return{text:ask(`${j} × ${k} + ${l}`),ans:j*k+l,dis:[String(j*(k+l))],h1:'Nejdřív násobení, pak sčítání.',h2:`${j*k}+${l} = ${j*k+l}`};},
-    ()=>{const a=ri(3,9),b=ri(3,9),c=ri(2,12);return{text:ask(`${a} × ${b} − ${c}`),ans:a*b-c,dis:[String(a*(b-c))],h1:'Nejdřív násobení, pak odčítání.',h2:`${a*b}−${c} = ${a*b-c}`};},
-    ()=>{const a=ri(300,900),b=ri(50,250),c=ri(20,90);return{text:ask(`${a} − ${b} − ${c}`),ans:a-b-c,dis:[String(a-b+c)],h1:'Odečítej postupně zleva doprava.',h2:`${a}−${b} = ${a-b}, pak −${c} = ${a-b-c}`};},
+    ()=>{const a=ri(3,9),b=ri(3,9),c=ri(2,Math.min(12,a*b-1));/* záporná čísla se v 6. ročníku neučí: typická chyba „nejdřív odčítání“ jen když vyjde kladně */return{text:ask(`${a} × ${b} − ${c}`),ans:a*b-c,dis:(b>c?[String(a*(b-c))]:[]),h1:'Nejdřív násobení, pak odčítání.',h2:`${a*b}−${c} = ${a*b-c}`};},
+    ()=>{const b=ri(50,250),c=ri(20,90),a=ri(Math.max(300,b+c+1),900);/* menšenec větší než oba menšitele dohromady — jinak vyjde záporně */return{text:ask(`${a} − ${b} − ${c}`),ans:a-b-c,dis:[String(a-b+c)],h1:'Odečítej postupně zleva doprava.',h2:`${a}−${b} = ${a-b}, pak ${a-b}−${c} = ${a-b-c}`};},
     ()=>{const a=ri(120,600),b=ri(80,380);return{text:`Doplň: ${a} + ? = ${a+b}`,ans:b,dis:[String(a+b)],h1:`Odečti: ${a+b} − ${a}.`,h2:`= ${b}`};},
     ()=>{const b=ri(3,9),q=ri(11,40);return{text:`Doplň: ? × ${b} = ${b*q}`,ans:q,dis:[String(b*q)],h1:`Vyděl: ${b*q} : ${b}.`,h2:`= ${q}`};},
     ()=>{const s=new Set();while(s.size<3)s.add(ri(120,980));const arr=[...s];return{text:`Které z čísel ${arr[0]}, ${arr[1]}, ${arr[2]} je největší?`,ans:Math.max(...arr),mc_opts:arr,dis:[String(Math.min(...arr))],h1:'Porovnej stovky, pak nižší řády.',h2:`= ${Math.max(...arr)}`};},
@@ -57,23 +57,23 @@ function gen_1_1(){
 function gen_1_2(){
   const tasks=[];
   const a=ri(4,15),b=ri(2,a-1);
-  tasks.push({text:`Obdélník má strany ${a} cm a ${b} cm. Jaký je jeho obvod?`,ans:2*(a+b),hints:['Obvod = 2·(a+b).',`2·(${a}+${b}) = ${2*(a+b)} cm`],skill:'geo'});
+  tasks.push({svg:svgObdelnik(a,b,`${a} cm`,`${b} cm`),text:`Obdélník má strany ${a} cm a ${b} cm. Jaký je jeho obvod?`,ans:2*(a+b),hints:['Obvod = 2·(a+b).',`2·(${a}+${b}) = ${2*(a+b)} cm`],skill:'geo'});
   const c=ri(3,14);let d=ri(3,12);if(d===c)d=d<12?d+1:d-1; /* strany musi byt ruzne, jinak z obdelniku vyjde ctverec */ 
-  tasks.push({text:`Obdélník má strany ${c} cm a ${d} cm. Jaký je jeho obsah?`,ans:c*d,hints:['S = a·b.',`${c}·${d} = ${c*d} cm²`],skill:'geo'});
+  tasks.push({svg:svgObdelnik(c,d,`${c} cm`,`${d} cm`),text:`Obdélník má strany ${c} cm a ${d} cm. Jaký je jeho obsah?`,ans:c*d,hints:['S = a·b.',`${c}·${d} = ${c*d} cm²`],skill:'geo'});
   const e=ri(3,15);
-  tasks.push({text:`Čtverec má stranu ${e} cm. Jaký je jeho obvod?`,ans:4*e,hints:['Obvod čtverce = 4·a.',`4·${e} = ${4*e} cm`],skill:'geo'});
+  tasks.push({svg:svgObdelnik(e,e,`${e} cm`,''),text:`Čtverec má stranu ${e} cm. Jaký je jeho obvod?`,ans:4*e,hints:['Obvod čtverce = 4·a.',`4·${e} = ${4*e} cm`],skill:'geo'});
   const f=ri(3,15);
-  tasks.push({text:`Čtverec má stranu ${f} cm. Jaký je jeho obsah?`,ans:f*f,hints:['S = a².',`${f}² = ${f*f} cm²`],skill:'geo'});
+  tasks.push({svg:svgObdelnik(f,f,`${f} cm`,''),text:`Čtverec má stranu ${f} cm. Jaký je jeho obsah?`,ans:f*f,hints:['S = a².',`${f}² = ${f*f} cm²`],skill:'geo'});
   const g=ri(5,12),h=g*ri(2,4);
-  tasks.push({text:`Obdélník má obvod ${2*(g+h)} cm a jednu stranu ${g} cm. Jak dlouhá je druhá strana?`,ans:h,hints:['Obvod/2 − známá strana.',`${(g+h)}−${g} = ${h} cm`],skill:'geo'});
+  tasks.push({svg:svgObdelnik(h,g,'?',`${g} cm`),text:`Obdélník má obvod ${2*(g+h)} cm a jednu stranu ${g} cm. Jak dlouhá je druhá strana?`,ans:h,hints:['Obvod/2 − známá strana.',`${(g+h)}−${g} = ${h} cm`],skill:'geo'});
   const i=ri(3,12),sq=i*i;
-  tasks.push({text:`Čtverec má obsah ${sq} cm². Jak dlouhá je jeho strana?`,ans:i,hints:['a = √S.',`√${sq} = ${i} cm`],skill:'geo'});
-  { const a=ri(4,12);let b=ri(3,10);if(b===a)b=b<10?b+1:b-1; /* strany musi byt ruzne, jinak z obdelniku vyjde ctverec */  tasks.push({text:`Obdélník ${a} × ${b} cm. Kolik cm² je jeho obsah?`,ans:a*b,hints:['S = a·b.',`${a}·${b} = ${a*b} cm²`],skill:'geo'}); }
-  { const a=ri(4,12); tasks.push({text:`Čtverec se stranou ${a} cm. Jaký je jeho obvod?`,ans:4*a,hints:['o = 4·a.',`4·${a} = ${4*a} cm`],skill:'geo'}); }
-  { const a=ri(6,14),o=4*a; tasks.push({text:`Čtverec má obvod ${o} cm. Jak dlouhá je strana?`,ans:a,hints:['a = o/4.',`${o}/4 = ${a} cm`],skill:'geo'}); }
-  { const a=ri(3,10);let b=ri(2,8);if(b===a)b=b<8?b+1:b-1; /* strany musi byt ruzne, jinak z obdelniku vyjde ctverec */  tasks.push({text:`Kolik dlaždic 1 × 1 cm pokryje podlahu ${a} × ${b} cm?`,ans:a*b,hints:['Počet dlaždic = obsah podlahy.',`${a}·${b} = ${a*b}`],skill:'geo'}); }
-  { const a=ri(4,12);let b=ri(3,9);if(b===a)b=b<9?b+1:b-1; /* strany musi byt ruzne, jinak z obdelniku vyjde ctverec */  tasks.push({text:`Solární panel rakety má tvar obdélníku ${a} × ${b} dm. Jaký je jeho obsah? (dm²)`,ans:a*b,hints:['S = a·b.',`${a}·${b} = ${a*b} dm²`],skill:'geo'}); }
-  { const a=ri(3,10); tasks.push({text:`Okno vesmírného modulu je čtverec se stranou ${a} dm. Jaký je jeho obvod? (dm)`,ans:4*a,hints:['o = 4·a.',`4·${a} = ${4*a} dm`],skill:'geo'}); }
+  tasks.push({svg:svgObdelnik(1,1,'?',''),text:`Čtverec má obsah ${sq} cm². Jak dlouhá je jeho strana?`,ans:i,hints:['a = √S.',`√${sq} = ${i} cm`],skill:'geo'});
+  { const a=ri(4,12);let b=ri(3,10);if(b===a)b=b<10?b+1:b-1; /* strany musi byt ruzne, jinak z obdelniku vyjde ctverec */  tasks.push({svg:svgObdelnik(a,b,`${a} cm`,`${b} cm`),text:`Obdélník ${a} × ${b} cm. Kolik cm² je jeho obsah?`,ans:a*b,hints:['S = a·b.',`${a}·${b} = ${a*b} cm²`],skill:'geo'}); }
+  { const a=ri(4,12); tasks.push({svg:svgObdelnik(a,a,`${a} cm`,''),text:`Čtverec se stranou ${a} cm. Jaký je jeho obvod?`,ans:4*a,hints:['o = 4·a.',`4·${a} = ${4*a} cm`],skill:'geo'}); }
+  { const a=ri(6,14),o=4*a; tasks.push({svg:svgObdelnik(1,1,'?',''),text:`Čtverec má obvod ${o} cm. Jak dlouhá je strana?`,ans:a,hints:['a = o/4.',`${o}/4 = ${a} cm`],skill:'geo'}); }
+  { const a=ri(3,10);let b=ri(2,8);if(b===a)b=b<8?b+1:b-1; /* strany musi byt ruzne, jinak z obdelniku vyjde ctverec */  tasks.push({svg:svgObdelnik(a,b,`${a} cm`,`${b} cm`),text:`Kolik dlaždic 1 × 1 cm pokryje podlahu ${a} × ${b} cm?`,ans:a*b,hints:['Počet dlaždic = obsah podlahy.',`${a}·${b} = ${a*b}`],skill:'geo'}); }
+  { const a=ri(4,12);let b=ri(3,9);if(b===a)b=b<9?b+1:b-1; /* strany musi byt ruzne, jinak z obdelniku vyjde ctverec */  tasks.push({svg:svgObdelnik(a,b,`${a} dm`,`${b} dm`),text:`Solární panel rakety má tvar obdélníku ${a} × ${b} dm. Jaký je jeho obsah? (dm²)`,ans:a*b,hints:['S = a·b.',`${a}·${b} = ${a*b} dm²`],skill:'geo'}); }
+  { const a=ri(3,10); tasks.push({svg:svgObdelnik(a,a,`${a} dm`,''),text:`Okno vesmírného modulu je čtverec se stranou ${a} dm. Jaký je jeho obvod? (dm)`,ans:4*a,hints:['o = 4·a.',`4·${a} = ${4*a} dm`],skill:'geo'}); }
   return tasks;
 }
 
@@ -152,7 +152,7 @@ function gen_2_3(){
     ()=>{const d=ri(4,9),a=ri(1,d-2),b=ri(1,d-a-1)||1;const num=a+b,g=gcd(num,d);const red=g===d?String(num/g):`${num/g}/${d/g}`;return{text:`Sečti zlomky se stejným jmenovatelem: ${a}/${d} + ${b}/${d} = ?`,ans:red,h1:'Jmenovatel opiš, sčítej jen čitatele.',h2:`${a}+${b} = ${num}, tedy ${num}/${d}${g>1?' = '+red:''}`};},
     ()=>{const e=ri(5,9),c=ri(2,e-1),f=ri(1,c-1)||1;const numD=c-f,gD=gcd(numD,e);return{text:`Odečti zlomky: ${c}/${e} − ${f}/${e} = ?`,ans:numD===0?'0':(gD===e?String(numD/gD):`${numD/gD}/${e/gD}`),h1:'Jmenovatel opiš, odečti čitatele.',h2:`${c}−${f} = ${numD}, tedy ${numD}/${e}`};},
     ()=>{const x=ri(2,9)*2,y=ri(2,9)*2;return{text:`Jaký je aritmetický průměr čísel ${x} a ${y}?`,ans:(x+y)/2,h1:'Sečti obě čísla a vyděl dvěma.',h2:`(${x}+${y}) : 2 = ${(x+y)/2}`};},
-    ()=>{const p=ri(2,9),q=ri(2,9),rr=3*ri(3,9)-p-q;return{text:`Jaký je průměr tří čísel ${p}, ${q} a ${rr}?`,ans:(p+q+rr)/3,h1:'Sečti všechna tři a vyděl třemi.',h2:`(${p}+${q}+${rr}) : 3 = ${(p+q+rr)/3}`};},
+    ()=>{const p=ri(2,9),q=ri(2,9),rr=3*ri(Math.max(3,Math.ceil((p+q+1)/3)),9)-p-q;/* dřív i záporné třetí číslo — v 6. ročníku */return{text:`Jaký je průměr tří čísel ${p}, ${q} a ${rr}?`,ans:(p+q+rr)/3,h1:'Sečti všechna tři a vyděl třemi.',h2:`(${p}+${q}+${rr}) : 3 = ${(p+q+rr)/3}`};},
     ()=>{const dd=ri(2,5),nn=dd*ri(3,8);return{text:`Kolik je 1/${dd} z čísla ${nn}?`,ans:nn/dd,h1:`Vyděl číslo jmenovatelem: ${nn} : ${dd}.`,h2:`= ${nn/dd}`};},
     ()=>{const dd=ri(3,6),nn=dd*ri(3,8),k=ri(2,dd-1);return{text:`Kolik je ${k}/${dd} z čísla ${nn}?`,ans:nn/dd*k,h1:`Nejdřív ${nn} : ${dd} = ${nn/dd}, pak × ${k}.`,h2:`= ${nn/dd*k}`};},
     ()=>{const z1=ri(1,3),z2=ri(1,3),z3=ri(1,4),z4=ri(1,4);return{text:`Sonda poslala 4 měření síly signálu: ${z1}, ${z2}, ${z3}, ${z4}. Jaký je jejich průměr? (na 2 desetinná místa)`,ans:r2((z1+z2+z3+z4)/4),h1:'Sečti všechna čtyři měření a vyděl čtyřmi.',h2:`= ${r2((z1+z2+z3+z4)/4)}`};},
@@ -274,22 +274,22 @@ function gen_4_1(){
 function gen_4_2(){
   const tasks=[];
   const a=ri(20,160);
-  tasks.push({text:`Vedlejší úhel k úhlu ${a}° má kolik stupňů? (vedlejší úhly dají dohromady 180°)`,ans:180-a,hints:['Vedlejší úhly: součet = 180°.',`180−${a} = ${180-a}°`],skill:'geo'});
+  tasks.push({svg:svgVedlejsi(a,`${a}°`,'?'),text:`Vedlejší úhel k úhlu ${a}° má kolik stupňů? (vedlejší úhly dají dohromady 180°)`,ans:180-a,hints:['Vedlejší úhly: součet = 180°.',`180−${a} = ${180-a}°`],skill:'geo'});
   const b=ri(20,160);
-  tasks.push({text:`Vrcholový úhel k úhlu ${b}° má kolik stupňů?`,ans:b,hints:['Vrcholové úhly jsou shodné.',`= ${b}°`],skill:'geo'});
+  tasks.push({svg:svgCross(b,{label:`${b}°`,label2:'?'}),text:`Vrcholový úhel k úhlu ${b}° má kolik stupňů?`,ans:b,hints:['Vrcholové úhly jsou shodné.',`= ${b}°`],skill:'geo'});
   const c=ri(30,80);
-  tasks.push({text:`Dva vedlejší úhly. Jeden má ${c}°. Druhý?`,ans:180-c,hints:['Součet vedlejších = 180°.',`= ${180-c}°`],skill:'geo'});
+  tasks.push({svg:svgVedlejsi(c,`${c}°`,'?'),text:`Dva vedlejší úhly. Jeden má ${c}°. Druhý?`,ans:180-c,hints:['Součet vedlejších = 180°.',`= ${180-c}°`],skill:'geo'});
   const d=ri(40,140);
   tasks.push({text:`Je vrcholový úhel k úhlu ${d}° také ${d}°?`,ans:'ANO',hints:['Vrcholové úhly jsou vždy shodné.','ANO'],skill:'geo'});
   const e=ri(30,90);
   tasks.push({text:`Součet úhlu a jeho vedlejšího úhlu je vždy kolik stupňů?`,ans:180,hints:['To je definice vedlejších úhlů.','180°'],skill:'geo'});
   const f=ri(50,130);
-  tasks.push({text:`Úhel je ${f}°. Kolik stupňů má jeho vedlejší úhel?`,ans:180-f,hints:['180 − daný úhel.',`= ${180-f}°`],skill:'geo'});
-  { const a=ri(20,160); tasks.push({text:`Vedlejší úhel k úhlu ${a}°? (součet = 180°)`,ans:180-a,hints:['180 − daný úhel.',`= ${180-a}°`],skill:'geo'}); }
-  { const a=ri(20,160); tasks.push({text:`Vrcholový úhel k úhlu ${a}°?`,ans:a,hints:['Vrcholové úhly jsou shodné.',`= ${a}°`],skill:'geo'}); }
-  { const a=ri(30,80); tasks.push({text:`Jeden ze dvou vedlejších úhlů je ${a}°. Druhý?`,ans:180-a,hints:['Součet vedlejších = 180°.',`= ${180-a}°`],skill:'geo'}); }
+  tasks.push({svg:svgVedlejsi(f,`${f}°`,'?'),text:`Úhel je ${f}°. Kolik stupňů má jeho vedlejší úhel?`,ans:180-f,hints:['180 − daný úhel.',`= ${180-f}°`],skill:'geo'});
+  { const a=ri(20,160); tasks.push({svg:svgVedlejsi(a,`${a}°`,'?'),text:`Vedlejší úhel k úhlu ${a}°? (součet = 180°)`,ans:180-a,hints:['180 − daný úhel.',`= ${180-a}°`],skill:'geo'}); }
+  { const a=ri(20,160); tasks.push({svg:svgCross(a,{label:`${a}°`,label2:'?'}),text:`Vrcholový úhel k úhlu ${a}°?`,ans:a,hints:['Vrcholové úhly jsou shodné.',`= ${a}°`],skill:'geo'}); }
+  { const a=ri(30,80); tasks.push({svg:svgVedlejsi(a,`${a}°`,'?'),text:`Jeden ze dvou vedlejších úhlů je ${a}°. Druhý?`,ans:180-a,hints:['Součet vedlejších = 180°.',`= ${180-a}°`],skill:'geo'}); }
   { const a=ri(40,140); tasks.push({text:`Jsou vrcholové úhly vždy shodné? (ANO/NE)`,ans:'ANO',hints:['Ano, mají stejnou velikost.','ANO'],skill:'geo'}); }
-  { const a=ri(30,150); tasks.push({text:`Kurz rakety a jeho vedlejší úhel svírají přímku. Kurz je ${a}°. Kolik má vedlejší úhel?`,ans:180-a,hints:['Vedlejší úhly: součet = 180°.',`180 − ${a} = ${180-a}°`],skill:'geo'}); }
+  { const a=ri(30,150); tasks.push({svg:svgVedlejsi(a,`${a}°`,'?'),text:`Kurz rakety a jeho vedlejší úhel svírají přímku. Kurz je ${a}°. Kolik má vedlejší úhel?`,ans:180-a,hints:['Vedlejší úhly: součet = 180°.',`180 − ${a} = ${180-a}°`],skill:'geo'}); }
   return tasks;
 }
 
@@ -410,25 +410,25 @@ function gen_5_3(){
 function gen_6_1(){
   const tasks=[];
   const a=ri(3,10),b=ri(2,8),c=ri(2,6);
-  tasks.push({text:`Kvádr ${a} × ${b} × ${c} cm. Jaký je jeho objem?`,ans:a*b*c,hints:['V = a·b·c.',`= ${a*b*c} cm³`],skill:'geo'});
+  tasks.push({svg:svgCuboid(`${a} cm`,`${b} cm`,`${c} cm`),text:`Kvádr ${a} × ${b} × ${c} cm. Jaký je jeho objem?`,ans:a*b*c,hints:['V = a·b·c.',`= ${a*b*c} cm³`],skill:'geo'});
   const d=ri(2,9);
-  tasks.push({text:`Krychle má hranu ${d} cm. Jaký je její objem?`,ans:d*d*d,hints:['V = a³.',`${d}³ = ${d*d*d} cm³`],skill:'geo'});
+  tasks.push({svg:svgKrychle(`${d} cm`),text:`Krychle má hranu ${d} cm. Jaký je její objem?`,ans:d*d*d,hints:['V = a³.',`${d}³ = ${d*d*d} cm³`],skill:'geo'});
   const e=ri(2,5),vi=e*e*e;
-  tasks.push({text:`Krychle má objem ${vi} cm³. Jaká je délka hrany?`,ans:e,hints:['a = ∛V.',`∛${vi} = ${e} cm`],skill:'geo'});
+  tasks.push({svg:svgKrychle('?'),text:`Krychle má objem ${vi} cm³. Jaká je délka hrany?`,ans:e,hints:['a = ∛V.',`∛${vi} = ${e} cm`],skill:'geo'});
   const f=ri(2,8),g=ri(2,8),vol=f*g*ri(2,5);
   const h=vol/(f*g);
-  tasks.push({text:`Kvádr má objem ${vol} cm³, podstava ${f} × ${g} cm. Jaká je výška?`,ans:h,hints:['v = V/(a·b).',`= ${h} cm`],skill:'geo'});
+  tasks.push({svg:svgCuboid(`${Math.max(f,g)} cm`,'?',`${Math.min(f,g)} cm`),text:`Kvádr má objem ${vol} cm³, podstava ${f} × ${g} cm. Jaká je výška?`,ans:h,hints:['v = V/(a·b).',`= ${h} cm`],skill:'geo'});
   const i=ri(3,8);
-  tasks.push({text:`Palivová nádrž tvaru krychle má hranu ${i} m. Kolik m³ paliva se vejde?`,ans:i*i*i,hints:['V = a³.',`= ${i*i*i} m³`],skill:'geo'});
+  tasks.push({svg:svgKrychle(`${i} m`),text:`Palivová nádrž tvaru krychle má hranu ${i} m. Kolik m³ paliva se vejde?`,ans:i*i*i,hints:['V = a³.',`= ${i*i*i} m³`],skill:'geo'});
   const j=ri(2,6),k=ri(2,6),l=ri(2,6);
-  tasks.push({text:`Nákladní modul tvaru kvádru ${j} × ${k} × ${l} m. Jaký je jeho objem? (m³)`,ans:j*k*l,hints:['V = a·b·c.',`= ${j*k*l} m³`],skill:'geo'});
-  { const a=ri(3,10),b=ri(2,8),c=ri(2,6); tasks.push({text:`Kvádr ${a} × ${b} × ${c} cm. Jaký je objem?`,ans:a*b*c,hints:['V = a·b·c.',`= ${a*b*c} cm³`],skill:'geo'}); }
-  { const a=ri(2,9); tasks.push({text:`Krychle má hranu ${a} cm. Jaký je objem?`,ans:a*a*a,hints:['V = a³.',`${a}³ = ${a*a*a} cm³`],skill:'geo'}); }
-  { const a=ri(2,5); tasks.push({text:`Krychle má objem ${a*a*a} cm³. Jak dlouhá je hrana? (cm)`,ans:a,hints:['a = ∛V.',`∛${a*a*a} = ${a} cm`],skill:'geo'}); }
-  { const a=ri(2,8),b=ri(2,8),h=ri(2,5); tasks.push({text:`Kvádr: podstava ${a} × ${b} cm, výška ${h} cm. Objem?`,ans:a*b*h,hints:['V = S·v = a·b·v.',`= ${a*b*h} cm³`],skill:'geo'}); }
+  tasks.push({svg:svgCuboid(`${j} m`,`${k} m`,`${l} m`),text:`Nákladní modul tvaru kvádru ${j} × ${k} × ${l} m. Jaký je jeho objem? (m³)`,ans:j*k*l,hints:['V = a·b·c.',`= ${j*k*l} m³`],skill:'geo'});
+  { const a=ri(3,10),b=ri(2,8),c=ri(2,6); tasks.push({svg:svgCuboid(`${a} cm`,`${b} cm`,`${c} cm`),text:`Kvádr ${a} × ${b} × ${c} cm. Jaký je objem?`,ans:a*b*c,hints:['V = a·b·c.',`= ${a*b*c} cm³`],skill:'geo'}); }
+  { const a=ri(2,9); tasks.push({svg:svgKrychle(`${a} cm`),text:`Krychle má hranu ${a} cm. Jaký je objem?`,ans:a*a*a,hints:['V = a³.',`${a}³ = ${a*a*a} cm³`],skill:'geo'}); }
+  { const a=ri(2,5); tasks.push({svg:svgKrychle('?'),text:`Krychle má objem ${a*a*a} cm³. Jak dlouhá je hrana? (cm)`,ans:a,hints:['a = ∛V.',`∛${a*a*a} = ${a} cm`],skill:'geo'}); }
+  { const a=ri(2,8),b=ri(2,8),h=ri(2,5); tasks.push({svg:svgCuboid(`${Math.max(a,b)} cm`,`${h} cm`,`${Math.min(a,b)} cm`,1),text:`Kvádr: podstava ${a} × ${b} cm, výška ${h} cm. Objem?`,ans:a*b*h,hints:['V = S·v = a·b·v.',`= ${a*b*h} cm³`],skill:'geo'}); }
   // SVG slovní úlohy s diagramem
   { const a=ri(3,6),b=ri(2,5),c=ri(2,4); tasks.push({svg:svgCuboid(`${a} dm`,`${b} dm`,`${c} dm`),text:`Nádrž tvaru kvádru má rozměry ${a} × ${b} × ${c} dm.\nKolik litrů vody pojme? (1 dm³ = 1 l)`,ans:a*b*c,hints:['V = a · b · c.',`${a} · ${b} · ${c} = ${a*b*c} l`],skill:'geo'}); }
-  { const a=ri(2,6); tasks.push({svg:svgCuboid(`${a} cm`,`${a} cm`,`${a} cm`),text:`Kostka tvaru krychle má hranu ${a} cm.\nJaký je její objem? (cm³)`,ans:a*a*a,hints:['V = a³.',`${a}³ = ${a*a*a} cm³`],skill:'geo'}); }
+  { const a=ri(2,6); tasks.push({svg:svgKrychle(`${a} cm`),text:`Kostka tvaru krychle má hranu ${a} cm.\nJaký je její objem? (cm³)`,ans:a*a*a,hints:['V = a³.',`${a}³ = ${a*a*a} cm³`],skill:'geo'}); }
   return tasks;
 }
 
@@ -436,21 +436,21 @@ function gen_6_1(){
 function gen_6_2(){
   const tasks=[];
   const a=ri(2,7);
-  tasks.push({text:`Krychle má hranu ${a} cm. Jaký je její povrch?`,ans:6*a*a,hints:['S = 6·a².',`6·${a}² = ${6*a*a} cm²`],skill:'geo'});
+  tasks.push({svg:svgKrychle(`${a} cm`),text:`Krychle má hranu ${a} cm. Jaký je její povrch?`,ans:6*a*a,hints:['S = 6·a².',`6·${a}² = ${6*a*a} cm²`],skill:'geo'});
   const b=ri(3,8),c=ri(2,7),d=ri(2,6);
-  tasks.push({text:`Kvádr ${b} × ${c} × ${d} cm. Jaký je jeho povrch?`,ans:2*(b*c+c*d+b*d),hints:['S = 2·(ab+bc+ac).',`= ${2*(b*c+c*d+b*d)} cm²`],skill:'geo'});
+  tasks.push({svg:svgCuboid(`${b} cm`,`${c} cm`,`${d} cm`),text:`Kvádr ${b} × ${c} × ${d} cm. Jaký je jeho povrch?`,ans:2*(b*c+c*d+b*d),hints:['S = 2·(ab+bc+ac).',`= ${2*(b*c+c*d+b*d)} cm²`],skill:'geo'});
   const e=ri(2,6),se=6*e*e;
-  tasks.push({text:`Krychle má povrch ${se} cm². Jaká je délka hrany?`,ans:e,hints:['a = √(S/6).',`= ${e} cm`],skill:'geo'});
+  tasks.push({svg:svgKrychle('?'),text:`Krychle má povrch ${se} cm². Jaká je délka hrany?`,ans:e,hints:['a = √(S/6).',`= ${e} cm`],skill:'geo'});
   tasks.push({text:`Kolik stěn má krychle?`,ans:6,hints:['Vezmi si kostku a počítej stěny po dvojicích — protilehlé.','Krychle má 6 stěn.'],skill:'geo'});
   const g=ri(2,6);
-  tasks.push({text:`Obsah jedné stěny krychle s hranou ${g} cm?`,ans:g*g,hints:['Stěna je čtverec a².',`= ${g*g} cm²`],skill:'geo'});
+  tasks.push({svg:svgKrychle(`${g} cm`),text:`Obsah jedné stěny krychle s hranou ${g} cm?`,ans:g*g,hints:['Stěna je čtverec a².',`= ${g*g} cm²`],skill:'geo'});
   const h=ri(3,7),i=ri(2,6);
-  tasks.push({text:`Kvádr má podstavu ${h} × ${i} cm. Jaký je obsah jedné podstavy?`,ans:h*i,hints:['Podstava = a·b.',`= ${h*i} cm²`],skill:'geo'});
-  { const a=ri(2,7); tasks.push({text:`Krychle má hranu ${a} cm. Jaký je povrch?`,ans:6*a*a,hints:['S = 6·a².',`6·${a}² = ${6*a*a} cm²`],skill:'geo'}); }
-  { const a=ri(3,8),b=ri(2,7),c=ri(2,6); tasks.push({text:`Kvádr ${a} × ${b} × ${c} cm. Jaký je povrch?`,ans:2*(a*b+b*c+a*c),hints:['S = 2(ab+bc+ac).',`= ${2*(a*b+b*c+a*c)} cm²`],skill:'geo'}); }
-  { const a=ri(2,6); tasks.push({text:`Obsah jedné stěny krychle s hranou ${a} cm? (cm²)`,ans:a*a,hints:['Stěna je čtverec a².',`= ${a*a} cm²`],skill:'geo'}); }
+  tasks.push({svg:svgObdelnik(h,i,`${h} cm`,`${i} cm`),text:`Kvádr má podstavu ${h} × ${i} cm. Jaký je obsah jedné podstavy?`,ans:h*i,hints:['Podstava = a·b.',`= ${h*i} cm²`],skill:'geo'});
+  { const a=ri(2,7); tasks.push({svg:svgKrychle(`${a} cm`),text:`Krychle má hranu ${a} cm. Jaký je povrch?`,ans:6*a*a,hints:['S = 6·a².',`6·${a}² = ${6*a*a} cm²`],skill:'geo'}); }
+  { const a=ri(3,8),b=ri(2,7),c=ri(2,6); tasks.push({svg:svgCuboid(`${a} cm`,`${b} cm`,`${c} cm`),text:`Kvádr ${a} × ${b} × ${c} cm. Jaký je povrch?`,ans:2*(a*b+b*c+a*c),hints:['S = 2(ab+bc+ac).',`= ${2*(a*b+b*c+a*c)} cm²`],skill:'geo'}); }
+  { const a=ri(2,6); tasks.push({svg:svgKrychle(`${a} cm`),text:`Obsah jedné stěny krychle s hranou ${a} cm? (cm²)`,ans:a*a,hints:['Stěna je čtverec a².',`= ${a*a} cm²`],skill:'geo'}); }
   { tasks.push({text:`Kolik stěn má kvádr?`,ans:6,hints:['Stejně jako krychle — protilehlé po dvojicích.','6'],skill:'geo'}); }
-  { const a=ri(2,6); tasks.push({text:`Modul tvaru krychle s hranou ${a} m se má polepit ochranným štítem. Kolik m² štítu je potřeba na celý povrch?`,ans:6*a*a,hints:['S = 6·a².',`6·${a}² = ${6*a*a} m²`],skill:'geo'}); }
+  { const a=ri(2,6); tasks.push({svg:svgKrychle(`${a} m`),text:`Modul tvaru krychle s hranou ${a} m se má polepit ochranným štítem. Kolik m² štítu je potřeba na celý povrch?`,ans:6*a*a,hints:['S = 6·a².',`6·${a}² = ${6*a*a} m²`],skill:'geo'}); }
   // SVG slovní úloha s diagramem
   { const a=ri(3,7),b=ri(2,6),c=ri(2,5); tasks.push({svg:svgCuboid(`${a} cm`,`${b} cm`,`${c} cm`),text:`Krabice tvaru kvádru má rozměry ${a} × ${b} × ${c} cm.\nKolik cm² kartonu je potřeba na celý povrch?`,ans:2*(a*b+b*c+a*c),hints:['S = 2 · (a·b + b·c + a·c).',`= ${2*(a*b+b*c+a*c)} cm²`],skill:'geo'}); }
   return tasks;
@@ -478,13 +478,13 @@ function gen_6_3(){
      Následující typy pracují s rozměry a objemem, takže se jejich zásoba
      škáluje s čísly. Mise je MC, odpovědi zůstávají číselné. */
   const q1=ri(2,20),q2=ri(2,9);
-  tasks.push({text:`Kvádr má rozměry ${q1} cm × ${q2} cm × 10 cm.\nJaký má objem v cm³?`,ans:q1*q2*10,hints:['Objem kvádru = a · b · c.',`${q1} · ${q2} · 10 = ${q1*q2*10} cm³`],skill:'geo'});
+  tasks.push({svg:svgCuboid(`${q1} cm`,`${q2} cm`,'10 cm'),text:`Kvádr má rozměry ${q1} cm × ${q2} cm × 10 cm.\nJaký má objem v cm³?`,ans:q1*q2*10,hints:['Objem kvádru = a · b · c.',`${q1} · ${q2} · 10 = ${q1*q2*10} cm³`],skill:'geo'});
   const h=ri(2,12);
-  tasks.push({text:`Krychle má hranu ${h} cm.\nJaký má objem v cm³?`,ans:h*h*h,hints:['Objem krychle = a · a · a.',`${h} · ${h} · ${h} = ${h*h*h} cm³`],skill:'geo'});
+  tasks.push({svg:svgKrychle(`${h} cm`),text:`Krychle má hranu ${h} cm.\nJaký má objem v cm³?`,ans:h*h*h,hints:['Objem krychle = a · a · a.',`${h} · ${h} · ${h} = ${h*h*h} cm³`],skill:'geo'});
   const h2=ri(2,12);
-  tasks.push({text:`Krychle má hranu ${h2} cm.\nJaký je součet délek všech jejích hran? (cm)`,ans:12*h2,hints:['Krychle má 12 stejných hran.',`12 · ${h2} = ${12*h2} cm`],skill:'geo'});
+  tasks.push({svg:svgKrychle(`${h2} cm`),text:`Krychle má hranu ${h2} cm.\nJaký je součet délek všech jejích hran? (cm)`,ans:12*h2,hints:['Krychle má 12 stejných hran.',`12 · ${h2} = ${12*h2} cm`],skill:'geo'});
   const h3=ri(2,10);
-  tasks.push({text:`Krychle má hranu ${h3} cm.\nJaký má povrch v cm²? (6 stejných stěn)`,ans:6*h3*h3,hints:['Povrch krychle = 6 · a².',`6 · ${h3}² = ${6*h3*h3} cm²`],skill:'geo'});
+  tasks.push({svg:svgKrychle(`${h3} cm`),text:`Krychle má hranu ${h3} cm.\nJaký má povrch v cm²? (6 stejných stěn)`,ans:6*h3*h3,hints:['Povrch krychle = 6 · a².',`6 · ${h3}² = ${6*h3*h3} cm²`],skill:'geo'});
   const l=ri(2,40)*50;
   tasks.push({text:`Nádrž pojme ${l} litrů.\nKolik je to ml? (1 l = 1000 ml)`,ans:l*1000,hints:['Na menší jednotku číslo roste — násobím tisícem.',`${l} · 1000 = ${l*1000} ml`],skill:'calc'});
   const ml=ri(2,40)*1000;  // násobek tisíce ⇒ litry vyjdou celé (1,5 l by se navíc vypsalo s tečkou)
@@ -502,61 +502,61 @@ function gen_6_3(){
 // 7-1 Úhly v trojúhelníku (součet 180°)
 function gen_7_1(){
   const T=[
-    ()=>{const a=ri(30,80),b=ri(30,80);return{text:`Trojúhelník má úhly ${a}° a ${b}°. Jaký je třetí úhel?`,ans:180-a-b,h1:'Součet vnitřních úhlů trojúhelníku je 180°.',h2:`180 − ${a} − ${b} = ${180-a-b}°`};},
-    ()=>{const c=ri(40,70);return{text:`V rovnoramenném trojúhelníku jsou úhly při základně ${c}°. Jaký je úhel při hlavním vrcholu?`,ans:180-2*c,h1:'Odečti od 180° dva stejné úhly při základně.',h2:`180 − 2·${c} = ${180-2*c}°`};},
+    ()=>{const a=ri(30,80),b=ri(30,80);return{svg:svgTrojUhly(a,b,`${a}°`,`${b}°`,'?'),text:`Trojúhelník má úhly ${a}° a ${b}°. Jaký je třetí úhel?`,ans:180-a-b,h1:'Součet vnitřních úhlů trojúhelníku je 180°.',h2:`180 − ${a} − ${b} = ${180-a-b}°`};},
+    ()=>{const c=ri(40,70);return{svg:svgTrojUhly(c,c,`${c}°`,`${c}°`,'?'),text:`V rovnoramenném trojúhelníku jsou úhly při základně ${c}°. Jaký je úhel při hlavním vrcholu?`,ans:180-2*c,h1:'Odečti od 180° dva stejné úhly při základně.',h2:`180 − 2·${c} = ${180-2*c}°`};},
     ()=>{return{text:`Kolik stupňů má každý úhel v rovnostranném trojúhelníku?`,ans:60,h1:'Tři stejné úhly se dělí o 180°.',h2:'180 : 3 = 60°'};},
-    ()=>{const d=ri(30,80);return{text:`Pravoúhlý trojúhelník má jeden ostrý úhel ${d}°. Jaký je druhý ostrý úhel?`,ans:90-d,h1:'Oba ostré úhly dají dohromady 90°.',h2:`90 − ${d} = ${90-d}°`};},
+    ()=>{const d=ri(30,80);return{svg:svgTrojUhly(d,90-d,`${d}°`,'?','90°'),text:`Pravoúhlý trojúhelník má jeden ostrý úhel ${d}°. Jaký je druhý ostrý úhel?`,ans:90-d,h1:'Oba ostré úhly dají dohromady 90°.',h2:`90 − ${d} = ${90-d}°`};},
     ()=>{const e=ri(50,120);return{text:`Dva úhly trojúhelníku dají dohromady ${e}°. Jaký je třetí úhel?`,ans:180-e,h1:'Od 180° odečti součet dvou známých.',h2:`180 − ${e} = ${180-e}°`};},
     ()=>{const f=ri(20,60);return{text:`Jaký je vnější úhel trojúhelníku u vrcholu, kde je vnitřní úhel ${f}°?`,ans:180-f,h1:'Vnější a vnitřní úhel u vrcholu jsou vedlejší (180°).',h2:`180 − ${f} = ${180-f}°`};},
     ()=>{const a=ri(40,80),b=ri(40,80);const ok=(a+b)<180;return{text:`Mohou být v trojúhelníku dva úhly ${a}° a ${b}° současně?`,ans:ok?'ANO':'NE',h1:`Jejich součet musí být menší než 180°: ${a}+${b}=${a+b}.`,h2:ok?'ANO':'NE'};},
-    ()=>{const v=ri(20,100);return{text:`Rovnoramenný trojúhelník má úhel při hlavním vrcholu ${v}°. Jaký je jeden úhel při základně?`,ans:(180-v)/2,h1:'Zbytek do 180° se rovným dílem rozdělí mezi dva úhly při základně.',h2:`(180 − ${v}) : 2 = ${(180-v)/2}°`};},
-    ()=>{const a=ri(30,70),b=ri(30,70);const third=180-a-b;return{text:`Trojúhelník má úhly ${a}°, ${b}° a ${third}°. Je pravoúhlý (má úhel 90°)?`,ans:(a===90||b===90||third===90)?'ANO':'NE',h1:'Je některý z úhlů přesně 90°?',h2:(a===90||b===90||third===90)?'ANO':'NE'};},
-    ()=>{const a=ri(50,120);const b=ri(20,Math.min(60,179-a));const third=180-a-b;const nej=Math.max(a,b,third);return{text:`Trojúhelník má úhly ${a}°, ${b}° a ${third}°. Jaký je jeho NEJVĚTŠÍ úhel?`,ans:nej,h1:'Porovnej všechny tři úhly.',h2:`= ${nej}°`};},
+    ()=>{const v=ri(20,100);return{svg:svgTrojUhly((180-v)/2,(180-v)/2,'?','?',`${v}°`),text:`Rovnoramenný trojúhelník má úhel při hlavním vrcholu ${v}°. Jaký je jeden úhel při základně?`,ans:(180-v)/2,h1:'Zbytek do 180° se rovným dílem rozdělí mezi dva úhly při základně.',h2:`(180 − ${v}) : 2 = ${(180-v)/2}°`};},
+    ()=>{const a=ri(30,70),b=ri(30,70);const third=180-a-b;return{svg:svgTrojUhly(a,b,`${a}°`,`${b}°`,`${third}°`),text:`Trojúhelník má úhly ${a}°, ${b}° a ${third}°. Je pravoúhlý (má úhel 90°)?`,ans:(a===90||b===90||third===90)?'ANO':'NE',h1:'Je některý z úhlů přesně 90°?',h2:(a===90||b===90||third===90)?'ANO':'NE'};},
+    ()=>{const a=ri(50,120);const b=ri(20,Math.min(60,160-a));/* třetí úhel aspoň 20°, ať trojúhelník jde nakreslit */const third=180-a-b;const nej=Math.max(a,b,third);return{svg:svgTrojUhly(a,b,`${a}°`,`${b}°`,`${third}°`),text:`Trojúhelník má úhly ${a}°, ${b}° a ${third}°. Jaký je jeho NEJVĚTŠÍ úhel?`,ans:nej,h1:'Porovnej všechny tři úhly.',h2:`= ${nej}°`};},
     ()=>{return{text:`Může mít trojúhelník dva pravé úhly (2× 90°)?`,ans:'NE',h1:'Dva pravé úhly by daly 180° a na třetí by nezbylo nic.',h2:'NE'};},
-    ()=>{const a=ri(30,80),b=ri(30,80);return{text:`Tři lodě letí v trojúhelníkové formaci. U dvou z nich svírají spojnice úhly ${a}° a ${b}°. Jaký je úhel u třetí lodi?`,ans:180-a-b,h1:'Součet vnitřních úhlů trojúhelníku je 180°.',h2:`180 − ${a} − ${b} = ${180-a-b}°`};},
+    ()=>{const a=ri(30,80),b=ri(30,80);return{svg:svgTrojUhly(a,b,`${a}°`,`${b}°`,'?'),text:`Tři lodě letí v trojúhelníkové formaci. U dvou z nich svírají spojnice úhly ${a}° a ${b}°. Jaký je úhel u třetí lodi?`,ans:180-a-b,h1:'Součet vnitřních úhlů trojúhelníku je 180°.',h2:`180 − ${a} − ${b} = ${180-a-b}°`};},
   ];
   const tasks=[];
-  for(let i=0;i<13;i++){const t=T[i%T.length]();tasks.push({text:t.text,ans:t.ans,mc_opts:t.mc_opts,hints:[t.h1,t.h2],skill:'geo'});}
+  for(let i=0;i<13;i++){const t=T[i%T.length]();tasks.push({svg:t.svg,text:t.text,ans:t.ans,mc_opts:t.mc_opts,hints:[t.h1,t.h2],skill:'geo'});}
   return tasks;
 }
 
 // 7-2 Vlastnosti trojúhelníku
 function gen_7_2(){
   const T=[
-    ()=>{const a=ri(5,12),b=ri(4,11),c=ri(3,a+b-1);return{text:`Trojúhelník má strany ${a}, ${b}, ${c} cm. Jaký je jeho obvod?`,ans:a+b+c,h1:'Obvod je součet všech tří stran.',h2:`${a}+${b}+${c} = ${a+b+c} cm`};},
-    ()=>{const d=ri(4,12),h=ri(3,10);return{text:`Trojúhelníkový solární panel má základnu ${d} dm a výšku ${h} dm. Jaký je jeho obsah? (dm²)`,ans:r1(d*h/2),h1:'S = (základna × výška) : 2.',h2:`(${d}·${h}) : 2 = ${r1(d*h/2)} dm²`};},
+    ()=>{const a=ri(5,12),b=ri(4,11),c=ri(Math.max(3,Math.abs(a-b)+1),a+b-1);return{svg:svgTrojStrany([[a,`${a} cm`],[b,`${b} cm`],[c,`${c} cm`]]),text:`Trojúhelník má strany ${a}, ${b}, ${c} cm. Jaký je jeho obvod?`,ans:a+b+c,h1:'Obvod je součet všech tří stran.',h2:`${a}+${b}+${c} = ${a+b+c} cm`};},
+    ()=>{const d=ri(4,12),h=ri(3,10);return{svg:svgTrojVyska(d,h,`${d} dm`,`${h} dm`),text:`Trojúhelníkový solární panel má základnu ${d} dm a výšku ${h} dm. Jaký je jeho obsah? (dm²)`,ans:r1(d*h/2),h1:'S = (základna × výška) : 2.',h2:`(${d}·${h}) : 2 = ${r1(d*h/2)} dm²`};},
     ()=>{return{text:`Kolik výšek má trojúhelník?`,ans:3,h1:'Z každého vrcholu vede jedna výška.',h2:'3'};},
     ()=>{const e=ri(3,7),f=ri(3,7);const ok=ri(0,1)===0;const g=ok?ri(Math.max(2,Math.abs(e-f)+1),e+f-1):e+f+ri(1,3);const real=(e+f>g&&e+g>f&&f+g>e);return{text:`Mohou úsečky ${e} cm, ${f} cm a ${g} cm být stranami trojúhelníku?`,ans:real?'ANO':'NE',h1:`Součet dvou kratších musí být větší než nejdelší.`,h2:real?'ANO':'NE'};},
-    ()=>{const ram=ri(4,9),zakl=ri(2,2*ram-1);const o=2*ram+zakl;return{text:`Rovnoramenný trojúhelník má ramena po ${ram} cm a základnu ${zakl} cm. Jaký je jeho obvod?`,ans:o,h1:'Obvod = dvě ramena + základna.',h2:`2·${ram} + ${zakl} = ${o} cm`};},
+    ()=>{const ram=ri(4,9),zakl=ri(2,2*ram-1);const o=2*ram+zakl;return{svg:svgTrojStrany([[ram,`${ram} cm`],[ram,`${ram} cm`],[zakl,`${zakl} cm`]],2),text:`Rovnoramenný trojúhelník má ramena po ${ram} cm a základnu ${zakl} cm. Jaký je jeho obvod?`,ans:o,h1:'Obvod = dvě ramena + základna.',h2:`2·${ram} + ${zakl} = ${o} cm`};},
     ()=>{return{text:`Kolik vrcholů má trojúhelník?`,ans:3,h1:'„Troj" napovídá počet.',h2:'3'};},
-    ()=>{const o=ri(4,10)*3;return{text:`Rovnostranný trojúhelník má obvod ${o} cm. Jak dlouhá je jedna strana?`,ans:o/3,h1:'Všechny tři strany jsou stejné; strana = obvod : 3.',h2:`${o} : 3 = ${o/3} cm`};},
-    ()=>{const zaklad=ri(2,9)*2,vyska=ri(3,10);const S=zaklad*vyska/2;return{text:`Trojúhelník má obsah ${S} cm² a základnu ${zaklad} cm. Jaká je jeho výška?`,ans:vyska,h1:'Ze vzorce S = (z·v):2 vyjádři výšku: v = 2·S : z.',h2:`2·${S} : ${zaklad} = ${vyska} cm`};},
+    ()=>{const o=ri(4,10)*3;return{svg:svgTrojStrany([[1,'?'],[1,''],[1,'']]),text:`Rovnostranný trojúhelník má obvod ${o} cm. Jak dlouhá je jedna strana?`,ans:o/3,h1:'Všechny tři strany jsou stejné; strana = obvod : 3.',h2:`${o} : 3 = ${o/3} cm`};},
+    ()=>{const zaklad=ri(2,9)*2,vyska=ri(3,10);const S=zaklad*vyska/2;return{svg:svgTrojVyska(zaklad,vyska,`${zaklad} cm`,'?'),text:`Trojúhelník má obsah ${S} cm² a základnu ${zaklad} cm. Jaká je jeho výška?`,ans:vyska,h1:'Ze vzorce S = (z·v):2 vyjádři výšku: v = 2·S : z.',h2:`2·${S} : ${zaklad} = ${vyska} cm`};},
     ()=>{const a=ri(4,9),b=ri(4,9),c=ri(Math.max(2,Math.abs(a-b)+1),a+b-1);const rovnoram=(a===b||b===c||a===c);return{text:`Má trojúhelník se stranami ${a}, ${b}, ${c} cm alespoň dvě stejně dlouhé strany (je rovnoramenný)?`,ans:rovnoram?'ANO':'NE',h1:'Porovnej délky stran, hledej dvojici stejných.',h2:rovnoram?'ANO':'NE'};},
-    ()=>{const a=ri(5,12),b=ri(4,11),c=ri(3,a+b-1);const nej=Math.max(a,b,c);return{text:`Trojúhelník má strany ${a}, ${b}, ${c} cm. Jak dlouhá je jeho NEJDELŠÍ strana?`,ans:nej,h1:'Porovnej tři délky.',h2:`= ${nej} cm`};},
+    ()=>{const a=ri(5,12),b=ri(4,11),c=ri(Math.max(3,Math.abs(a-b)+1),a+b-1);const nej=Math.max(a,b,c);return{svg:svgTrojStrany([[a,`${a} cm`],[b,`${b} cm`],[c,`${c} cm`]]),text:`Trojúhelník má strany ${a}, ${b}, ${c} cm. Jak dlouhá je jeho NEJDELŠÍ strana?`,ans:nej,h1:'Porovnej tři délky.',h2:`= ${nej} cm`};},
   ];
   const tasks=[];
-  for(let i=0;i<13;i++){const t=T[i%T.length]();tasks.push({text:t.text,ans:t.ans,mc_opts:t.mc_opts,hints:[t.h1,t.h2],skill:'geo'});}
+  for(let i=0;i<13;i++){const t=T[i%T.length]();tasks.push({svg:t.svg,text:t.text,ans:t.ans,mc_opts:t.mc_opts,hints:[t.h1,t.h2],skill:'geo'});}
   return tasks;
 }
 
 // 7-3 Finální duel — mix všech témat
 function gen_7_3(){
   const T=[
-    ()=>{const a=ri(30,80),b=ri(30,80);return{text:`Trojúhelník má úhly ${a}° a ${b}°. Jaký je třetí úhel?`,ans:180-a-b,h1:'Součet vnitřních úhlů je 180°.',h2:`180 − ${a} − ${b} = ${180-a-b}°`};},
-    ()=>{const a=ri(2,8),b=ri(2,8),c=ri(2,6);return{text:`Kvádr ${a} × ${b} × ${c} cm. Jaký je jeho objem?`,ans:a*b*c,h1:'Objem kvádru V = a · b · c.',h2:`= ${a*b*c} cm³`};},
+    ()=>{const a=ri(30,80),b=ri(30,80);return{svg:svgTrojUhly(a,b,`${a}°`,`${b}°`,'?'),text:`Trojúhelník má úhly ${a}° a ${b}°. Jaký je třetí úhel?`,ans:180-a-b,h1:'Součet vnitřních úhlů je 180°.',h2:`180 − ${a} − ${b} = ${180-a-b}°`};},
+    ()=>{const a=ri(2,8),b=ri(2,8),c=ri(2,6);return{svg:svgCuboid(`${a} cm`,`${b} cm`,`${c} cm`),text:`Kvádr ${a} × ${b} × ${c} cm. Jaký je jeho objem?`,ans:a*b*c,h1:'Objem kvádru V = a · b · c.',h2:`= ${a*b*c} cm³`};},
     ()=>{const f=ri(11,50)/10,g=ri(11,40)/10;return{text:`Sečti desetinná čísla ${cz(f)} + ${cz(g)} = ?`,ans:r1(f+g),h1:'Zarovnej desetinné čárky pod sebe.',h2:`= ${r1(f+g)}`};},
     ()=>{const a=ri(2,6)*ri(2,5),b=ri(2,6)*ri(2,5);return{text:`Najdi největší společný dělitel: NSD(${a}, ${b}) = ?`,ans:gcd(a,b),h1:'Rozlož obě čísla na prvočinitele a vezmi společné.',h2:`= ${gcd(a,b)}`};},
-    ()=>{const j=ri(20,160);return{text:`Jaký je vedlejší úhel k úhlu ${j}°?`,ans:180-j,h1:'Vedlejší úhly dají dohromady 180°.',h2:`180 − ${j} = ${180-j}°`};},
-    ()=>{const k=ri(3,12);return{text:`Čtverec má stranu ${k} cm. Jaký je jeho obsah?`,ans:k*k,h1:'Obsah čtverce S = a².',h2:`${k}² = ${k*k} cm²`};},
-    ()=>{const e=ri(2,9);return{text:`Krychle má hranu ${e} cm. Jaký je její objem?`,ans:e*e*e,h1:'Objem krychle V = a³.',h2:`${e}³ = ${e*e*e} cm³`};},
+    ()=>{const j=ri(20,160);return{svg:svgVedlejsi(j,`${j}°`,'?'),text:`Jaký je vedlejší úhel k úhlu ${j}°?`,ans:180-j,h1:'Vedlejší úhly dají dohromady 180°.',h2:`180 − ${j} = ${180-j}°`};},
+    ()=>{const k=ri(3,12);return{svg:svgObdelnik(k,k,`${k} cm`,''),text:`Čtverec má stranu ${k} cm. Jaký je jeho obsah?`,ans:k*k,h1:'Obsah čtverce S = a².',h2:`${k}² = ${k*k} cm²`};},
+    ()=>{const e=ri(2,9);return{svg:svgKrychle(`${e} cm`),text:`Krychle má hranu ${e} cm. Jaký je její objem?`,ans:e*e*e,h1:'Objem krychle V = a³.',h2:`${e}³ = ${e*e*e} cm³`};},
     ()=>{const a=ri(10,90);const ok=a%3===0;return{text:`Je číslo ${a} dělitelné třemi?`,ans:ok?'ANO':'NE',h1:'Sečti číslice a ověř dělitelnost tří.',h2:ok?'ANO':'NE'};},
     ()=>{const a=ri(11,49)/10,f=ri(2,6);return{text:`Vynásob ${cz(a)} × ${f} = ?`,ans:r1(a*f),h1:'Násob jako celá čísla a doplň desetinnou čárku.',h2:`= ${r1(a*f)}`};},
-    ()=>{const zaklad=ri(4,12);let vyska=ri(2,8);if(vyska===zaklad)vyska=vyska<8?vyska+1:vyska-1; /* strany musi byt ruzne, jinak z obdelniku vyjde ctverec */ const S=zaklad*vyska/2;return{text:`Trojúhelník má základnu ${zaklad} cm a výšku ${vyska} cm. Jaký je obsah?`,ans:r1(S),h1:'S = (základna · výška) : 2.',h2:`= ${r1(S)} cm²`};},
-    ()=>{const a=ri(3,10);let b=ri(3,10);if(b===a)b=b<10?b+1:b-1; /* strany musi byt ruzne, jinak z obdelniku vyjde ctverec */ return{text:`Obdélník ${a} × ${b} cm — jaký má obvod?`,ans:2*(a+b),h1:'Obvod obdélníku O = 2 · (a + b).',h2:`= ${2*(a+b)} cm`};},
+    ()=>{const zaklad=ri(4,12);let vyska=ri(2,8);if(vyska===zaklad)vyska=vyska<8?vyska+1:vyska-1; /* strany musi byt ruzne, jinak z obdelniku vyjde ctverec */ const S=zaklad*vyska/2;return{svg:svgTrojVyska(zaklad,vyska,`${zaklad} cm`,`${vyska} cm`),text:`Trojúhelník má základnu ${zaklad} cm a výšku ${vyska} cm. Jaký je obsah?`,ans:r1(S),h1:'S = (základna · výška) : 2.',h2:`= ${r1(S)} cm²`};},
+    ()=>{const a=ri(3,10);let b=ri(3,10);if(b===a)b=b<10?b+1:b-1; /* strany musi byt ruzne, jinak z obdelniku vyjde ctverec */ return{svg:svgObdelnik(a,b,`${a} cm`,`${b} cm`),text:`Obdélník ${a} × ${b} cm — jaký má obvod?`,ans:2*(a+b),h1:'Obvod obdélníku O = 2 · (a + b).',h2:`= ${2*(a+b)} cm`};},
     ()=>{const d=[2,3,4,5][ri(0,3)],n=d*ri(3,8);return{text:`Kolik je 1/${d} z čísla ${n}?`,ans:n/d,h1:`Vyděl číslo jmenovatelem: ${n} : ${d}.`,h2:`= ${n/d}`};},
   ];
   const tasks=[];
-  for(let i=0;i<13;i++){const t=T[i%T.length]();tasks.push({text:t.text,ans:t.ans,mc_opts:t.mc_opts,hints:[t.h1,t.h2],skill:i%3===1?'calc':'geo'});}
+  for(let i=0;i<13;i++){const t=T[i%T.length]();tasks.push({svg:t.svg,text:t.text,ans:t.ans,mc_opts:t.mc_opts,hints:[t.h1,t.h2],skill:i%3===1?'calc':'geo'});}
   return tasks;
 }
 

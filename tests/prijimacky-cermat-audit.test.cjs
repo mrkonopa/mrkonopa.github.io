@@ -11,6 +11,7 @@ global.cz = n => String(n).replace('.', ',');
 global.skl = (n, o, f, m) => n === 1 ? o : (n >= 2 && n <= 4 ? f : m);
 ['svgTriangle', 'svgLineGraph', 'svgCylinder', 'svgCone', 'svgSphere', 'svgSimilar', 'svgCuboid']
   .forEach(f => global[f] = () => '<svg></svg>');
+const { trojuhelniky } = require('./trojuhelniky.cjs');
 global.window = {};
 require('../projects/rpg-cermat-9.js');
 const C = global.window.RPG_CERMAT_9;
@@ -125,7 +126,8 @@ ok(bad.size === 0, `${RUNS} běhů bez strukturální chyby` + (bad.size ? ' —
      prošlo auditem, dokud si toho nikdo nevšiml při čtení. `(?![\p{L}\d])`
      s příznakem u je hranice slova pro češtinu. */
   const DECL = /\b(?:[5-9]|\d\d+)\s+(?:hodiny|minuty|koruny|metry|centimetry|kilometry|litry|kilogramy|dny|roky|žáci|body|stupně)(?![\p{L}\d])|\b[2-4]\s+(?:hodin|minut|korun|metrů|centimetrů|kilometrů|litrů|kilogramů|dnů|let|žáků|bodů|stupňů|kostek|konví|dílů|kusů)(?![\p{L}\d])/u;
-  const dot = new Set(), per = new Set(), dec = new Set();
+  const dot = new Set(), per = new Set(), dec = new Set(), troj = new Set();
+  let trojN = 0;
   for (let i = 0; i < 400; i++) for (let s = 0; s < 16; s++) {
     let t; try { t = C.genSlot(s); } catch (e) { continue; }
     /* Kroky postupu se spojují MEZEROU: `String(pole)` je spojí čárkou a z konce
@@ -143,11 +145,20 @@ ok(bad.size === 0, `${RUNS} běhů bez strukturální chyby` + (bad.size ? ' —
     if ((m = txt.match(DOT))) dot.add(kde + m[0]);
     if ((m = txt.match(PERIOD)) && !/≈/.test(txt)) per.add(kde + m[0]);
     if ((m = txt.match(DECL))) dec.add(kde + m[0]);
+    /* Trojúhelník ze stran musí jít sestrojit — sdílené pravidlo s RPG
+       (tests/trojuhelniky.cjs). Posuzuje se jen ZADÁNÍ, ne postup. */
+    const zad = [t.intro, t.prompt, ...(t.parts || []).map(x => x.prompt), ...(t.statements || []).map(x => x.text)]
+      .filter(x => typeof x === 'string').join(' ');
+    for (const tr of trojuhelniky(zad, t.ans)) { trojN++; if (!tr.ok) troj.add(kde + tr.strany.join(' / ')); }
   }
   const uk = s => [...s].slice(0, 5).join(' | ');
   ok(dot.size === 0, 'desetinná ČÁRKA místo tečky v textu' + (dot.size ? ' — ' + uk(dot) : ''));
   ok(per.size === 0, 'zaokrouhlená hodnota má ≈, ne useknuté cifry' + (per.size ? ' — ' + uk(per) : ''));
   ok(dec.size === 0, 'skloňování počitatelných jmen' + (dec.size ? ' — ' + uk(dec) : ''));
+  /* Naměřeno 1. 10. 2026: 130–147 posouzených na běh — rovnoramenné
+     se základnou a obvodem (pozice 9 a 13); tři volné strany žádná pozice
+     nezadává. Podlaha 80 chytí propad pokrytí, ne kolísání losu. */
+  ok(troj.size === 0 && trojN > 80, 'trojúhelníky ze zadání jdou sestrojit (' + trojN + ' posouzených)' + (troj.size ? ' — ' + uk(troj) : ''));
 }
 
 /* ── Kořeny rovnic musí vyjít PŘESNĚ ─────────────────────────────────────
@@ -186,11 +197,35 @@ const varianty = (poz, kolik) => {
   for (let i = 0; i < kolik; i++) s.add(C.genSlot(poz - 1).title);
   return s;
 };
-const v6 = varianty(6, 3000), v11 = varianty(11, 3000), v12 = varianty(12, 3000), v14 = varianty(14, 3000);
+const v6 = varianty(6, 3000), v11 = varianty(11, 3000), v13 = varianty(13, 3000), v14 = varianty(14, 3000);
 ok(v6.has('Těžítko'), 'pozice 6 nabízí válec ve válci („Těžítko“) — [' + [...v6].join(', ') + ']');
-ok(v12.has('Povrch válce'), 'pozice 12 nabízí povrch válce — [' + [...v12].join(', ') + ']');
+ok(v13.has('Povrch válce'), 'pozice 13 nabízí povrch válce (M9A/2023 ú. 13) — [' + [...v13].join(', ') + ']');
 ok(v14.has('Kroužky') && v14.has('Návštěvnost') && v14.has('Ptačí hodinka'), 'pozice 14 nabízí TŘI úlohy se sloupcovým grafem — [' + [...v14].join(', ') + ']');
 ok(v11.has('Kruhový diagram zahrady') && v11.has('Náklad lodi'), 'pozice 11 nabízí DVĚ úlohy s kruhovým diagramem — [' + [...v11].join(', ') + ']');
+
+/* ── Obrázky tam, kde je má předloha (září 2026) ──
+   Měřeno podle nadpisů CERMATu („VÝCHOZÍ TEXT A OBRÁZEK K ÚLOZE N") ve 35 testech
+   M9 2015–2026: obrázek má pozice 8 v 86 % a pozice 13 v 80 % (2023–2026 v 9 ze 16).
+   Test nanečisto měl dřív 34 % a 0 %. Pozor, příznak „nákres" v archivu je po
+   STRÁNKÁCH, takže u úloh 14 hlásil i obrázek sousední úlohy 13 (Pomlázky, Úklid
+   haly) — rozhoduje nadpis, ne stránka. Přelévání, Záhon, Dva pozemky, Dort
+   a Vybarvování měly obrázek v předloze; kvádr, krychle a plot jsou bez předlohy,
+   ale tělesa a pozemky jsou v ostrých testech bez obrázku výjimka. */
+const S_OBRAZKEM = { 6: ['Přelévání vody'], 8: ['Záhon', 'Dva pozemky', 'Plot kolem pozemku'],
+  11: ['Kvádry', 'Krychle'], 12: ['Dort ze dvou forem'], 16: ['Vybarvování sítě'] };
+const bezObrazku = [];
+for (const [poz, tituly] of Object.entries(S_OBRAZKEM)) for (const tit of tituly) {
+  let t = null;
+  for (let i = 0; i < 3000 && !t; i++) { const u = C.genSlot(poz - 1); if (u.title === tit) t = u; }
+  if (!t) bezObrazku.push(tit + ' se na pozici ' + poz + ' nevylosoval');
+  else if (!/<svg/.test(t.svg || '')) bezObrazku.push(tit);
+}
+ok(bezObrazku.length === 0, 'varianty s obrázkem v předloze ho mají i tady (8 variant)', bezObrazku.join(', '));
+const podilObrazku = (poz, n) => { let k = 0; for (let i = 0; i < n; i++) if (/<svg/.test(JSON.stringify(C.genSlot(poz - 1)))) k++; return k / n; };
+// Naměřeno: pozice 8 83–84 % (5 ze 6 variant), pozice 13 56–57 % (váhy 12 ze 21 losů).
+const p8 = podilObrazku(8, 2000), p13 = podilObrazku(13, 2000);
+ok(p8 >= 0.7, 'pozice 8 má obrázek v ' + Math.round(100 * p8) + ' % úloh (ostré 86 %, podlaha 70 %)');
+ok(p13 >= 0.45, 'pozice 13 má obrázek v ' + Math.round(100 * p13) + ' % úloh (ostré 2023–2026 ~56 %, podlaha 45 %)');
 
 // Podíl v celém testu — volná podlaha, jen aby se poznalo úplné vymizení.
 // Naměřeno na 10× 400 testech: válec 51–59 %, graf 52–61 % (ostré testy: 33 % a 53 %).

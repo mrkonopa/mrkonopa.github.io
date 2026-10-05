@@ -31,8 +31,10 @@
     // `okruh: 'slovni'`. Dřív nepatřila ŽÁDNÉMU okruhu, takže chyběla v procvičování i v diagnostice.
     // Pozice 6 (index 5) přidává „Bílý a šedý obdélník“, pozice 7 (index 6) „Krychli a hranol“ —
     // jako v ostrých testech 2026, kde se geometrie v rovině i tělesa na pozicích 6–8 střídají.
-    { id: 'geometrie', name: 'Geometrie v rovině', oblast: 'Geometrie', slots: [4, 5, 6, 7, 8, 9, 15] },
-    { id: 'telesa', name: 'Tělesa (objem a povrch)', oblast: 'Geometrie', slots: [5, 6, 10, 11] },
+    // Pozice 13 (index 12) nese od září 2026 i tělesa a trojúhelník z ostrých úloh 13
+    // (hranol, polepená krychle, válec, rovnoramenný trojúhelník) vedle slovních úloh.
+    { id: 'geometrie', name: 'Geometrie v rovině', oblast: 'Geometrie', slots: [4, 5, 6, 7, 8, 9, 12, 15] },
+    { id: 'telesa', name: 'Tělesa (objem a povrch)', oblast: 'Geometrie', slots: [5, 6, 10, 11, 12] },
     { id: 'data', name: 'Tabulky, data a statistika', oblast: 'Závislosti a data', slots: [13] },
   ];
 
@@ -136,9 +138,10 @@
       /* Pozice může střídat úlohy různých okruhů (pozice 11: tělesa, diagramy,
          mapa, mnohoúhelníky). Losuje se proto znovu, dokud úloha do okruhu
          nepatří — jinak by „Tělesa" nabídla kruhový diagram. Kytice (poměr) je
-         jedna z 9 variant pozice 13, takže 40 pokusů selhalo v 0,9 % a test
-         procvičování by občas chytil prázdnou položku; 200 pokusů = 6 · 10⁻¹¹. */
-      for (let i = 0; i < 200; i++) {
+         na pozici 13 jediná úloha svého okruhu a od září 2026 (váhy losu, úlohy
+         s obrázkem 3×) padá jen v 1 z 21 losů: 200 pokusů by selhalo s pravděpodobností
+         6 · 10⁻⁵, 800 pokusů 1 · 10⁻¹⁷. Dřív (1 z 9) stačilo 200. */
+      for (let i = 0; i < 800; i++) {
         const t = window.RPG_CERMAT_9.genSlot(idx);
         if (topicsForTask(t).indexOf(topicId) !== -1) { const it = taskToItem(t); it.uroven = 'test'; return it; }
       }

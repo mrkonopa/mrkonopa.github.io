@@ -534,6 +534,24 @@ html[data-theme="violet"]{--gold:#b06cff;--panel:#100a20;--panel2:#18103a;--blue
  #s-battle .bt-col-task{overflow-y:auto;overscroll-behavior:contain}
  #s-battle .bt-akce{position:sticky;bottom:0;z-index:4;background:var(--bg);padding:6px 0 2px}
  #s-battle .bt-top{margin-bottom:6px}
+ /* Obrázek úlohy nesmí vytlačit VSTUP pod okraj — ten není v přišpendlené liště.
+    Kvádr je při plné šířce 201 px vysoký, telefon na šířku má 360 px okna;
+    viewBox drží poměr stran, kresba se jen zmenší. */
+ #s-battle .prob-svg svg{max-height:32vh}
+ /* Fokus na vstup posune sloupec jen tak, aby byl vstup vidět — o přišpendlené liště
+    nic neví, takže vstup skončil ZA ní (naměřeno na telefonu u 136 z 306 úloh s obrázkem).
+    Odsazení o výšku lišty (41 px) a kousek navíc to srovná. */
+ #s-battle .bt-col-task{scroll-padding-bottom:50px}
+}
+@media(orientation:landscape) and (max-height:500px) and (min-width:700px){
+ /* Nízká obrazovka na šířku (telefon, tablet s klávesnicí): obrázek jde VEDLE zadání,
+    ne nad něj. Pod sebou zabraly na telefonu 740 × 360 přes 200 px a vstup zajel pod
+    přišpendlenou lištu s DÁLE. :has() omezí změnu na zadání s obrázkem (minihry ne);
+    prohlížeč, který ho nezná, nechá úlohu pod sebou jako dřív. */
+ #s-battle .bt-problem:has(> .prob-svg){display:flex;flex-direction:row-reverse;align-items:flex-start;gap:10px}
+ #s-battle .bt-problem > .prob-svg{flex:0 0 45%;margin-bottom:0}
+ #s-battle .bt-problem > .prob-svg svg{max-height:30vh}
+ #s-battle .bt-problem > .prob-txt{flex:1;min-width:0}
 }
 @media(max-height:750px){
  .bt-top{min-height:140px;padding:8px 18px 30px}
@@ -955,31 +973,81 @@ function svgRightTri(a,b,opt){
   return `<svg viewBox="0 0 250 165"><polygon points="55,135 55,35 195,135" fill="#101a2e" stroke="#5dade2" stroke-width="3"/><rect x="55" y="120" width="15" height="15" fill="none" stroke="#e74c3c" stroke-width="2"/>${lbl.b?`<text x="40" y="88" fill="#f4d03f" font-size="14" font-family="monospace" text-anchor="middle" transform="rotate(-90 40 88)">${lbl.b}</text>`:''}${lbl.a?`<text x="125" y="152" fill="#f4d03f" font-size="14" font-family="monospace" text-anchor="middle">${lbl.a}</text>`:''}${lbl.c?`<text x="138" y="75" fill="#2ecc71" font-size="14" font-family="monospace" text-anchor="middle">${lbl.c}</text>`:''}</svg>`;
  }
  opt=opt||{};
- const Cx=58,Cy=140,s=Math.min(150/Math.max(a,1),100/Math.max(b,1));
- const Bx=+(Cx+a*s).toFixed(1), By=Cy, Ax=Cx, Ay=+(Cy-b*s).toFixed(1), msz=13;
  const la=opt.la!==undefined?opt.la:'a', lb=opt.lb!==undefined?opt.lb:'b', lc=opt.lc!==undefined?opt.lc:'c';
+ // Popisek svislé odvěsny končí 9 px vlevo od rohu C: dlouhý („b = 40") by vyjel z plátna, roh se proto posune.
+ const Cx=Math.max(58,String(lb||'').length*8.4+15),Cy=140,s=Math.min((208-Cx)/Math.max(a,1),100/Math.max(b,1));
+ const Bx=+(Cx+a*s).toFixed(1), By=Cy, Ax=Cx, Ay=+(Cy-b*s).toFixed(1), msz=13;
  const vl=opt.v||['A','B','C'];
  let t='';
  if(la) t+=`<text x="${((Cx+Bx)/2).toFixed(1)}" y="${Cy+18}" fill="#f4d03f" font-size="14" font-family="monospace" text-anchor="middle">${la}</text>`;
  if(lb) t+=`<text x="${Cx-9}" y="${((Cy+Ay)/2+5).toFixed(1)}" fill="#f4d03f" font-size="14" font-family="monospace" text-anchor="end">${lb}</text>`;
  if(lc) t+=`<text x="${((Ax+Bx)/2+8).toFixed(1)}" y="${((Ay+By)/2-4).toFixed(1)}" fill="#2ecc71" font-size="14" font-family="monospace" text-anchor="start">${lc}</text>`;
- t+=`<text x="${Ax-11}" y="${Ay+4}" fill="#fff" font-size="13" font-family="monospace" text-anchor="middle">${vl[0]}</text>`;
+ // U nízké svislé odvěsny by popisek horního vrcholu (vlevo od něj) seděl na jejím popisku → jde NAD vrchol.
+ const nizka=Cy-Ay<34;
+ t+=`<text x="${nizka?Ax:Ax-11}" y="${+(nizka?Ay-7:Ay+4).toFixed(1)}" fill="#fff" font-size="13" font-family="monospace" text-anchor="middle">${vl[0]}</text>`;
  t+=`<text x="${Bx+11}" y="${By+14}" fill="#fff" font-size="13" font-family="monospace" text-anchor="middle">${vl[1]}</text>`;
  t+=`<text x="${Cx-11}" y="${Cy+14}" fill="#fff" font-size="13" font-family="monospace" text-anchor="middle">${vl[2]}</text>`;
  return `<svg viewBox="0 0 250 165"><polygon points="${Cx},${Cy} ${Bx},${By} ${Ax},${Ay}" fill="#101a2e" stroke="#5dade2" stroke-width="3"/><rect x="${Cx}" y="${Cy-msz}" width="${msz}" height="${msz}" fill="none" stroke="#e74c3c" stroke-width="2"/>${t}</svg>`;
 }
+// Pythagoras bez fyzické orientace („a = 7, b = 24"): delší odvěsna leží dole, aby se
+// popisek pod ní vešel mezi popisky vrcholů B a C. Vrcholy se prohodí spolu s odvěsnami,
+// takže strana a leží pořád naproti A. Slovní úlohy (žebřík, stožár) volají svgRightTri
+// přímo: zem je vodorovně, výška svisle.
+function svgPyt(a,b,la,lb,lc){
+ return a>=b?svgRightTri(a,b,{la,lb,lc}):svgRightTri(b,a,{la:lb,lb:la,lc,v:['B','A','C']});
+}
+// Obdélník V MĚŘÍTKU s úhlopříčkou (= přepona pravoúhlého trojúhelníku). Delší strana leží
+// dole; ld = popisek úhlopříčky ('' = bez popisku, null = úhlopříčka se nekreslí). Popisek
+// úhlopříčky stojí v těžišti horního trojúhelníku, takže nekříží žádnou čáru.
+function svgObdUhl(a,b,la,lb,ld){
+ if(a<b){[a,b]=[b,a];[la,lb]=[lb,la];}
+ const vl=lb?String(lb).length*8.4+12:0, s=Math.min((226-vl)/Math.max(a,1),96/Math.max(b,1));
+ const w=Math.max(40,a*s),h=Math.max(26,b*s),x=vl+(250-vl-w)/2,y=14,H=Math.round(h+46),f=v=>(+v).toFixed(1);
+ let t=`<rect x="${f(x)}" y="${y}" width="${f(w)}" height="${f(h)}" fill="#101a2e" stroke="#5dade2" stroke-width="3"/>`;
+ if(ld!=null) t+=`<line x1="${f(x)}" y1="${f(y+h)}" x2="${f(x+w)}" y2="${y}" stroke="#2ecc71" stroke-width="2" stroke-dasharray="6 4"/>`
+  +(ld?`<text x="${f(x+w/3)}" y="${f(y+h/3+5)}" fill="#2ecc71" font-size="14" font-family="monospace" text-anchor="middle">${ld}</text>`:'');
+ if(la) t+=`<text x="${f(x+w/2)}" y="${f(y+h+20)}" fill="#f4d03f" font-size="14" font-family="monospace" text-anchor="middle">${la}</text>`;
+ if(lb) t+=`<text x="${f(x-8)}" y="${f(y+h/2+5)}" fill="#f4d03f" font-size="14" font-family="monospace" text-anchor="end">${lb}</text>`;
+ return `<svg viewBox="0 0 250 ${H}">${t}</svg>`;
+}
 // Kruh s poloměrem r NEBO průměrem d (předej jen jeden popisek).
 function svgCircleR(lbl={}){
  const hasD=!!lbl.d;
- return `<svg viewBox="0 0 250 160"><circle cx="125" cy="80" r="58" fill="#101a2e" stroke="#5dade2" stroke-width="3"/><circle cx="125" cy="80" r="3" fill="#e74c3c"/>${hasD?`<line x1="67" y1="80" x2="183" y2="80" stroke="#f4d03f" stroke-width="2"/><text x="125" y="70" fill="#f4d03f" font-size="14" font-family="monospace" text-anchor="middle">${lbl.d}</text>`:`<line x1="125" y1="80" x2="183" y2="80" stroke="#f4d03f" stroke-width="2"/><text x="125" y="70" fill="#f4d03f" font-size="14" font-family="monospace" text-anchor="middle">${lbl.r}</text>`}</svg>`;
+ // popisek poloměru patří nad poloměr (střed úsečky x = 154), dlouhý se posune doleva, aby nekřížil kružnici
+ const xr=Math.min(154,177-String(lbl.r||'').length*4.2).toFixed(1);
+ return `<svg viewBox="0 0 250 160"><circle cx="125" cy="80" r="58" fill="#101a2e" stroke="#5dade2" stroke-width="3"/><circle cx="125" cy="80" r="3" fill="#e74c3c"/>${hasD?`<line x1="67" y1="80" x2="183" y2="80" stroke="#f4d03f" stroke-width="2"/><text x="125" y="70" fill="#f4d03f" font-size="14" font-family="monospace" text-anchor="middle">${lbl.d}</text>`:`<line x1="125" y1="80" x2="183" y2="80" stroke="#f4d03f" stroke-width="2"/><text x="${xr}" y="70" fill="#f4d03f" font-size="14" font-family="monospace" text-anchor="middle">${lbl.r}</text>`}</svg>`;
 }
 // Válec: r poloměr podstavy, v výška (popisky se předávají hotové).
-function svgCyl(rl,vl){
- return `<svg viewBox="0 0 250 160"><path d="M 79 35 L 79 120 A 46 14 0 0 0 171 120 L 171 35" fill="#101a2e" stroke="#5dade2" stroke-width="2.5"/><ellipse cx="125" cy="120" rx="46" ry="14" fill="none" stroke="#5dade2" stroke-width="2.5" stroke-dasharray="5 4"/><ellipse cx="125" cy="35" rx="46" ry="14" fill="#16203a" stroke="#5dade2" stroke-width="2.5"/><line x1="125" y1="35" x2="171" y2="35" stroke="#e74c3c" stroke-width="2"/><text x="148" y="15" fill="#e74c3c" font-size="13" font-family="monospace" text-anchor="middle">${rl}</text><text x="186" y="82" fill="#f4d03f" font-size="13" font-family="monospace">${vl}</text></svg>`;
+function svgCyl(rl,vl,prumer){
+ return `<svg viewBox="0 0 250 160"><path d="M 79 35 L 79 120 A 46 14 0 0 0 171 120 L 171 35" fill="#101a2e" stroke="#5dade2" stroke-width="2.5"/><ellipse cx="125" cy="120" rx="46" ry="14" fill="none" stroke="#5dade2" stroke-width="2.5" stroke-dasharray="5 4"/><ellipse cx="125" cy="35" rx="46" ry="14" fill="#16203a" stroke="#5dade2" stroke-width="2.5"/><line x1="${prumer?79:125}" y1="35" x2="171" y2="35" stroke="#e74c3c" stroke-width="2"/><text x="${prumer?125:148}" y="15" fill="#e74c3c" font-size="13" font-family="monospace" text-anchor="middle">${rl}</text><text x="${Math.min(186,248-String(vl).length*7.8).toFixed(1)}" y="82" fill="#f4d03f" font-size="13" font-family="monospace">${vl}</text></svg>`;
 }
 // Thaletova kružnice: průměr AB, bod C na oblouku, pravý úhel u C.
 function svgThales(abl){
  return `<svg viewBox="0 0 250 160"><path d="M 35 125 A 90 90 0 0 1 215 125" fill="#101a2e" stroke="#5dade2" stroke-width="3"/><line x1="35" y1="125" x2="215" y2="125" stroke="#f4d03f" stroke-width="2.5"/><circle cx="125" cy="125" r="3" fill="#e74c3c"/><text x="125" y="143" fill="#e74c3c" font-size="12" font-family="monospace" text-anchor="middle">S</text><circle cx="80" cy="46" r="4" fill="#2ecc71"/><line x1="35" y1="125" x2="80" y2="46" stroke="#2ecc71" stroke-width="2"/><line x1="215" y1="125" x2="80" y2="46" stroke="#2ecc71" stroke-width="2"/><text x="80" y="34" fill="#2ecc71" font-size="13" font-family="monospace" text-anchor="middle">C</text><text x="25" y="140" fill="#fff" font-size="13" font-family="monospace">A</text><text x="218" y="140" fill="#fff" font-size="13" font-family="monospace">B</text><text x="125" y="115" fill="#f4d03f" font-size="13" font-family="monospace" text-anchor="middle">${abl}</text></svg>`;
+}
+// Kopie sdíleného svgTrojUhly s pomocníky (záměna palety): trojúhelník ABC z úhlů α (u A)
+// a β (u B), γ se dopočítá; popisky úhlů vně vrcholů. Shodu se jádrem hlídá rpg-diagramy-geometrie.
+const _txt = (x, y, t, barva, kotva, vel) => `<text x="${(+x).toFixed(1)}" y="${(+y).toFixed(1)}" fill="${barva || '#f4d03f'}" font-size="${vel || 14}" font-family="monospace" text-anchor="${kotva || 'middle'}">${t}</text>`;
+const _sirka = (t, vel) => String(t).length * (vel || 14) * 0.6;
+function _oblouk(V, P, Q, r, barva) {
+  const u = (A) => { const dx = A[0] - V[0], dy = A[1] - V[1], d = Math.hypot(dx, dy) || 1; return [dx / d, dy / d]; };
+  const a = u(P), b = u(Q), sweep = (a[0] * b[1] - a[1] * b[0]) > 0 ? 1 : 0;
+  const x1 = V[0] + r * a[0], y1 = V[1] + r * a[1], x2 = V[0] + r * b[0], y2 = V[1] + r * b[1];
+  return `<path data-vrchol="${V[0].toFixed(1)} ${V[1].toFixed(1)}" data-r="${r}" d="M ${x1.toFixed(1)} ${y1.toFixed(1)} A ${r} ${r} 0 0 ${sweep} ${x2.toFixed(1)} ${y2.toFixed(1)}" fill="none" stroke="${barva || '#f4d03f'}" stroke-width="2"/>`;
+}
+function svgTrojUhly(al, be, la, lb, lc) {
+  const ra = al * Math.PI / 180, rb = be * Math.PI / 180, rg = Math.PI - ra - rb;
+  const b = Math.sin(rb) / Math.sin(rg);                       // |AC| při |AB| = 1
+  const cx = b * Math.cos(ra), cy = b * Math.sin(ra);
+  const minX = Math.min(0, cx), maxX = Math.max(1, cx);
+  const s = Math.min(150 / (maxX - minX), 92 / Math.max(cy, 0.01));
+  const W = 250, x0 = (W - (maxX - minX) * s) / 2 - minX * s, yb = 22 + cy * s;
+  const A = [x0, yb], B = [x0 + s, yb], C = [x0 + cx * s, yb - cy * s], H = Math.round(yb + 24);
+  const r = Math.max(10, Math.min(20, 0.3 * s * Math.min(1, b)));
+  return `<svg viewBox="0 0 ${W} ${H}"><polygon points="${[A, B, C].map(p => p.map(n => n.toFixed(1)).join(',')).join(' ')}" fill="#101a2e" stroke="#5dade2" stroke-width="2.5"/>`
+    + _oblouk(A, B, C, r) + _oblouk(B, C, A, r) + _oblouk(C, A, B, r, '#2ecc71')
+    + _txt(A[0] + 4, A[1] + 18, la, null, 'end') + _txt(B[0] - 4, B[1] + 18, lb, null, 'start')
+    + _txt(C[0], C[1] - 8, lc, '#2ecc71') + `</svg>`;
 }
 // isYN/answerYN/trAnswerYN → rpg-shared.js
 
@@ -1119,15 +1187,19 @@ const AREAS = [
  text:`Jsou strany 3, 4, 5 stranami\npravoúhlého trojúhelníku?\n(napiš ANO nebo NE)`,ans:'ANO',
  hints:[`Ověř, zda platí a² + b² = c² pro tyto strany.`,`Spočítej 3² + 4² a porovnej s 5².`],skill:'geo'};})(),
  (()=>{const a=ri(4,10),b=ri(4,10);const c2=a*a+b*b;const ans=Math.sqrt(c2).toFixed(2);return{
+ svg:svgRightTri(b,a,{la:`${b} m`,lb:`${a} m`,lc:'? m'}),
  text:`Žebřík je opřený o zeď.\nVýška zdi = ${a} m, odstup paty od zdi = ${b} m.\nJak dlouhý je žebřík? (2 des. místa)`,ans,
  hints:[`Žebřík tvoří přeponu pravoúhlého trojúhelníku.`,`Spočítej ${a}² + ${b}² a odmocni.`],skill:'geo'};})(),
  (()=>{const trojice=[[5,12,13],[8,15,17],[7,24,25],[20,21,29],[9,40,41]];const t=trojice[ri(0,trojice.length-1)];const a=t[0],b=t[1],ans=String(t[2]);return{
+ svg:svgPyt(a,b,`a = ${a}`,`b = ${b}`,'c = ?'),
  text:`Pravoúhlý trojúhelník: a = ${a}, b = ${b}.\nVypočítej přeponu c.\n(přepona je celé číslo)`,ans,
  hints:[`c² = a² + b². Spočítej a² + b².`,`Po sečtení odmocni. Výsledek je celé číslo (pythagorejská trojice).`],skill:'geo'};})(),
  (()=>{const a=ri(6,12);let b=ri(6,16);if(b===a)b=b<16?b+1:b-1; /* strany musi byt ruzne, jinak z obdelniku vyjde ctverec */ const c2=a*a+b*b;const ans=Math.sqrt(c2).toFixed(2);return{
+ svg:svgObdUhl(a,b,`${a} m`,`${b} m`,'?'),
  text:`${['Obdélníková zahrada akademie','Školní pozemek','Obdélníkové hřiště'][ri(0,2)]} má strany ${a} m a ${b} m.\nJak dlouhá je úhlopříčka? (2 des. místa)`,ans,
  hints:[`Úhlopříčka obdélníku = přepona pravoúhlého trojúhelníku.`,`Spočítej ${a}² + ${b}² a odmocni.`],skill:'geo'};})(),
  (()=>{const a=ri(40,80),b=ri(20,50);const c2=a*a+b*b;const ans=Math.sqrt(c2).toFixed(1);return{
+ svg:svgObdUhl(a,b,`${a} cm`,`${b} cm`,'?'),
  text:`TV obrazovka má šířku ${a} cm a výšku ${b} cm.\nJaká je úhlopříčka? (1 des. místo, v cm)`,ans,
  hints:[`Úhlopříčka TV = přepona pravoúhlého trojúhelníku.`,`Spočítej ${a}² + ${b}² a odmocni.`],skill:'geo'};})()
  ]
@@ -1147,15 +1219,19 @@ const AREAS = [
  text:`Pravoúhlý trojúhelník:\nc = 13, a = 5.\nVypočítej odvěsnu b.`,ans:'12',
  hints:[`b² = c² - a². Spočítej druhé mocniny.`,`b² = 169 - 25. Pak odmocni.`],skill:'geo'};})(),
  (()=>{const c=ri(10,20),b=ri(3,c-3);const a2=c*c-b*b;const ans=Math.sqrt(a2).toFixed(2);return{
+ svg:svgRightTri(b,Math.sqrt(a2),{la:`${b} m`,lb:'?',lc:`${c} m`}),
  text:`U vrcholu stromu je drak. Vzdálenost ke konci stínu = ${c} m,\ndélka stínu = ${b} m.\nJak vysoko je drak? (2 des. místa)`,ans,
  hints:[`Výška = odvěsna pravoúhlého trojúhelníku.`,`Spočítej ${c}² - ${b}² a odmocni.`],skill:'geo'};})(),
  (()=>{return{
+ svg:svgPyt(7,24,'a = 7','b = ?','c = 25'),
  text:`Pravoúhlý trojúhelník:\nc = 25, a = 7.\nVypočítej odvěsnu b.`,ans:'24',
  hints:[`b² = c² - a². Spočítej druhé mocniny.`,`b² = 625 - 49. Pak odmocni.`],skill:'geo'};})(),
  (()=>{const v=ri(5,12),c=v+ri(3,8);const sirka2=c*c-v*v;const ans=Math.sqrt(sirka2).toFixed(2);return{
+ svg:svgRightTri(Math.sqrt(sirka2),v,{la:'?',lb:`${v} m`,lc:`${c} m`}),
  text:`${['Žebřík ve školním skladu','Malířský žebřík','Žebřík'][ri(0,2)]} dlouhý ${c} m je opřený o zeď,\nvrchol dosahuje výšky ${v} m.\nJak daleko je pata od zdi? (2 des. místa)`,ans,
  hints:[`Žebřík je přepona, výška a odstup jsou odvěsny.`,`Odstup² = ${c}² - ${v}².`],skill:'geo'};})(),
  (()=>{const a=ri(8,15),c=a+ri(3,10);const b2=c*c-a*a;const ans=Math.sqrt(b2).toFixed(1);return{
+ svg:svgRightTri(a,Math.sqrt(b2),{la:`${a} m`,lb:'?',lc:`${c} m`}),
  text:`Lano dlouhé ${c} m vede z vrcholu stožáru k zemi,\nvzdálenost paty stožáru od kotvy = ${a} m.\nJak vysoký je stožár? (1 des. místo)`,ans,
  hints:[`Lano = přepona, vzdálenost a výška = odvěsny.`,`Výška² = ${c}² - ${a}².`],skill:'geo'};})()
  ]
@@ -1233,6 +1309,7 @@ const AREAS = [
  text:`Každá kniha ve školním obchodě akademie stojí ${price} Kč.\nKoupíš ${count} ${skl(count,'knihu','knihy','knih')} a zaplatíš ${paid} Kč.\nKolik Kč dostaneš zpět?`,ans:String(change),
  hints:[`Cena celkem = ${price} × ${count} = ${price*count} Kč.`,`Vráceno = ${paid} - ${price*count}.`],skill:'anal'};})(),
  (()=>{const w=ri(4,15);let h=ri(4,20);if(h===w)h=h<20?h+1:h-1; /* strany musi byt ruzne, jinak z obdelniku vyjde ctverec */ return{
+ svg:svgObdUhl(h,w,`${h} cm`,`${w} cm`,null),
  text:`Obdélník má šířku ${w} cm a délku ${h} cm.\nVypočítej obvod. (cm)`,ans:String(2*(w+h)),
  hints:[`Obvod obdélníku: O = 2 × (a + b).`,`O = 2 × (${w} + ${h}) = ?`],skill:'geo'};})(),
  (()=>{const tot=ri(10,25)*2,diff=ri(1,8)*2;const big=(tot+diff)/2;return{
@@ -1359,12 +1436,15 @@ const AREAS = [
  text:`Průměr kruhu d = ${d} cm.\nVypočítej obvod kružnice. (π = 3,14)`,ans,
  hints:[`Průměr = 2r, tedy r = ${r}. Vzorec: O = 2πr = πd.`,`O = 3,14 × ${d} = ?`],skill:'geo'};})(),
  (()=>{const r=ri(3,10);const o=2*3.14*r;const ans=(o/2/3.14).toFixed(1);return{
+ svg:svgCircleR({r:'r = ?'}),
  text:`Obvod kružnice je ${o.toFixed(2).replace('.',',')} cm.\nVypočítej poloměr r. (π = 3,14, 1 des. místo)`,ans,
  hints:[`Z O = 2πr plyne r = O : (2π).`,`r = ${o.toFixed(2)} : (2 × 3,14) = ${o.toFixed(2)} : 6,28.`],skill:'geo'};})(),
  (()=>{const d=ri(2,8)*2;const r=d/2;const ans=(3.14*r*r).toFixed(2);return{
+ svg:svgCircleR({d:`d = ${d} cm`}),
  text:`Kruh má průměr d = ${d} cm.\nVypočítej obsah kruhu. (π = 3,14)`,ans,
  hints:[`Nejdřív poloměr: r = d : 2 = ${r}. Pak S = πr².`,`S = 3,14 × ${r}² = 3,14 × ${r*r} = ?`],skill:'geo'};})(),
  (()=>{const r=ri(3,9);const ans=(3.14*r*r).toFixed(2);return{
+ svg:svgCircleR({r:`r = ${r} cm`}),
  text:`Pizzeria prodává pizza s poloměrem ${r} cm.\nJaký je obsah pizzy? cm² (π = 3,14)`,ans,
  hints:[`Pizza = kruh s r = ${r} cm. S = πr².`,`S = 3,14 × ${r*r} = ?`],skill:'geo'};})()
  ]
@@ -1384,12 +1464,15 @@ const AREAS = [
  text:`${['Vypočítej','Urči','Spočítej'][ri(0,2)]} povrch válce (π = 3,14):\nr = ${r} cm, h = ${h} cm\nS = ?`,ans,
  hints:[`Vzorec: S = 2πr(r + h) = plášť + dvě základny.`,`S = 2 × 3,14 × ${r} × (${r} + ${h}) = 6,28 × ${r} × ${r+h}.`],skill:'geo'};})(),
  (()=>{const r=ri(2,6),v_target=ri(3,10);const h=v_target;const ans=(3.14*r*r*h).toFixed(2);return{
+ svg:svgCyl(`r = ${r} cm`,`h = ${h} cm`),
  text:`Plechovka má r = ${r} cm a výšku h = ${h} cm.\nJaký je objem? (π = 3,14, cm³)`,ans,
  hints:[`V = πr²h.`,`V = 3,14 × ${r*r} × ${h} = ?`],skill:'craft'};})(),
  (()=>{const r=ri(2,5),h=ri(4,10);const v=(3.14*r*r*h).toFixed(2);return{
+ svg:svgCyl(`r = ${r} dm`,`h = ${h} dm`),
  text:`Válec: r = ${r} dm, h = ${h} dm.\nKolik litrů vody pojme?\n(1 dm³ = 1 litr, π = 3,14)`,ans:v,
  hints:[`Objem v dm³ = V = πr²h. Objem v dm³ přímo = litry.`,`V = 3,14 × ${r*r} × ${h} = ?`],skill:'craft'};})(),
  (()=>{const r=ri(3,7),h=ri(5,14);const ans=Math.round(3.14*r*r*h).toString();return{
+ svg:svgCyl(`r = ${r} m`,`h = ${h} m`),
  text:`Silo (válec) má r = ${r} m a h = ${h} m.\nJaký je objem? (m³, celé číslo, π = 3,14)`,ans,
  hints:[`V = πr²h ≈ 3,14 × ${r*r} × ${h}.`,`Zaokrouhli výsledek na celé číslo.`],skill:'craft'};})(),
  (()=>{const r=ri(2,5),h1=ri(3,8),h2=ri(3,8);const v1=3.14*r*r*h1,v2=3.14*r*r*h2;return{
@@ -1404,21 +1487,27 @@ const AREAS = [
  tc:6,
  tasks:()=>[
  (()=>{const r=ri(5,15);const ans=Math.round(2*3.14*r);return{
+ svg:svgCircleR({r:`r = ${r} m`}),
  text:`Kulatý bazén má poloměr ${r} m.\nJak dlouhé je jeho oplocení? (m, celé číslo, π = 3,14)`,ans:String(ans),
  hints:[`Délka oplocení = obvod kružnice = 2πr.`,`O = 2 × 3,14 × ${r} ≈ ?`],skill:'geo'};})(),
  (()=>{const r=ri(10,20);const ans=Math.round(3.14*r*r);return{
+ svg:svgCircleR({r:`r = ${r} m`}),
  text:`${['Hřiště akademie','Kruhový trávník','Sportovní hřiště'][ri(0,2)]} má tvar kruhu s r = ${r} m.\nJaká je jeho plocha? (m², celé číslo, π = 3,14)`,ans:String(ans),
  hints:[`Plocha kruhu = πr².`,`S ≈ 3,14 × ${r*r} = ?`],skill:'geo'};})(),
  (()=>{const d=ri(3,8)*2;const r=d/2;const ans=(3.14*r*r).toFixed(2);return{
+ svg:svgCircleR({d:`d = ${d} m`}),
  text:`Kruhová fontána má průměr ${d} m.\nJaká je plocha vodní hladiny? (m², π = 3,14)`,ans,
  hints:[`Průměr = ${d} m → r = ${r} m. Obsah = πr².`,`S = 3,14 × ${r}² = 3,14 × ${r*r} = ?`],skill:'geo'};})(),
  (()=>{const r=ri(3,7),h=ri(10,25);const ans=Math.round(2*3.14*r*h);return{
+ svg:svgCyl(`r = ${r} m`,`h = ${h} m`),
  text:`Válcová nádrž r = ${r} m, h = ${h} m.\nJaký je povrch pláště? (m², celé číslo, π = 3,14)`,ans:String(ans),
  hints:[`Plášť válce = 2πrh.`,`P = 2 × 3,14 × ${r} × ${h} ≈ ?`],skill:'craft'};})(),
  (()=>{const r=ri(4,9),h=ri(5,12);const ans=Math.round(3.14*r*r*h);return{
+ svg:svgCyl(`r = ${r} m`,`h = ${h} m`),
  text:`Do válcové studny (r = ${r} m, h = ${h} m) se napustí voda.\nKolik m³ vody pojme? (celé číslo, π = 3,14)`,ans:String(ans),
  hints:[`Objem = πr²h.`,`V ≈ 3,14 × ${r*r} × ${h} = ?`],skill:'craft'};})(),
  (()=>{const o=ri(5,14)*2;const r=(o/(2*3.14)).toFixed(1);return{
+ svg:svgCircleR({r:'r = ?'}),
  text:`Obvod kolečka je ${o} cm.\nJaký je jeho poloměr? (1 des. místo, π = 3,14)`,ans:r,
  hints:[`Z O = 2πr: r = O : (2π).`,`r = ${o} : 6,28 = ?`],skill:'geo'};})()
  ]
@@ -1441,6 +1530,7 @@ const AREAS = [
  text:`Osa úsečky AB délky ${r*2} cm je kolmá přímka\nprocházející středem. Jak daleko je střed\nod každého krajního bodu? (cm)`,ans:String(r),
  hints:[`Střed úsečky = polovina délky.`,`${r*2} : 2 = ?`],skill:'geo'};})(),
  (()=>{const a=ri(30,70),b=ri(10,a-5);return{
+ svg:svgTrojUhly(a,b,`${a}°`,`${b}°`,'?'),
  text:`Trojúhelník ABC: α = ${a}°, β = ${b}°.\nJaký je úhel γ? (°)`,ans:String(180-a-b),
  hints:[`Součet vnitřních úhlů trojúhelníku = 180°.`,`γ = 180° - ${a}° - ${b}° = ?`],skill:'geo'};})(),
  (()=>{const r=ri(4,12);return{
@@ -1472,9 +1562,11 @@ const AREAS = [
  text:`Bod C leží na Thaletově kružnici nad AB.\nCa = ${a} cm, Cb = ${b} cm.\nUrči délku průměru AB. (2 des. místa)`,ans:c,
  hints:[`Úhel ACB = 90°, takže AB je přepona pravoúhlého trojúhelníku.`,`AB = √(${a}² + ${b}²) = √${a*a+b*b}.`],skill:'geo'};})(),
  (()=>{const a=ri(3,10),b=ri(3,10);const c=Math.sqrt(a*a+b*b).toFixed(2);const r=(Math.sqrt(a*a+b*b)/2).toFixed(2);return{
+ svg:svgPyt(a,b,`a = ${a}`,`b = ${b}`,'c = ?'),
  text:`Pravoúhlý trojúhelník: odvěsny ${a} a ${b} cm.\nPočítáme poloměr opsané kružnice.\nNejdřív urči přeponu c. (2 des. místa)`,ans:c,
  hints:[`Pythagorova věta: c² = a² + b².`,`c = √(${a}²+${b}²) = √${a*a+b*b}.`],skill:'geo'};})(),
  (()=>{const a=ri(3,10),b=ri(3,10);const c2=a*a+b*b;const c=Math.sqrt(c2);const r=(c/2).toFixed(2);return{
+ svg:svgPyt(a,b,`a = ${a}`,`b = ${b}`,'c'),
  text:`Pravoúhlý trojúhelník: odvěsny ${a} a ${b} cm.\nJaký je poloměr opsané kružnice? (2 des. místa)`,ans:r,
  hints:[`U pravoúhlého trojúhelníku je přepona průměr opsané kružnice.`,`přepona c = √(${a}²+${b}²) = √${c2}, r = c : 2.`],skill:'geo'};})(),
  (()=>{const sides=[3,4,5,5,12,13,8,15,17,7,24,25];const i=ri(0,3)*3;const a=sides[i],b=sides[i+1],c=sides[i+2];return{
@@ -1526,12 +1618,14 @@ const AREAS = [
  tc:6,
  tasks:()=>[
  (()=>{const a=ri(3,8),b=ri(3,10),c=a*a+b*b;const cv=Math.sqrt(c).toFixed(2);return{
+ svg:svgPyt(a,b,`a = ${a}`,`b = ${b}`,'c = ?'),
  text:`Pravoúhlý trojúhelník: a = ${a}, b = ${b}.\nVypočítej přeponu c. (2 des. místa)`,ans:cv,
  hints:[`c² = a² + b².`,`√(${a}²+${b}²) = √${c}.`],skill:'geo'};})(),
  (()=>{const p=ri(5,40),z=ri(5,20)*1000;const sleva=Math.round(z*p/100);return{
  text:`Laptop stál ${z} Kč, nyní je zlevněn o ${p} %.\nKolik stojí teď? (Kč)`,ans:String(z-sleva),
  hints:[`Sleva = ${p} % z ${z} = ${sleva} Kč.`,`Nová cena = ${z} - ${sleva}.`],skill:'anal'};})(),
  (()=>{const r=ri(3,8),h=ri(4,10);return{
+ svg:svgCyl(`r = ${r} cm`,`h = ${h} cm`),
  text:`Válec: r = ${r} cm, h = ${h} cm.\nObjem? (cm³, π = 3,14, celé číslo)`,ans:String(Math.round(3.14*r*r*h)),
  hints:[`V = πr²h.`,`V ≈ 3,14 × ${r*r} × ${h} = ?`],skill:'geo'};})(),
  (()=>{const aa=ri(3,8),cc=ri(1,aa-1),xx=ri(2,7),bb=ri(1,8),dd=(aa-cc)*xx+bb;return{
@@ -1563,16 +1657,19 @@ const AREAS = [
  // Nesedělo to ve 100 % generování (a někdy vyšla strana 0 cm),
  // takže úloha byla VŽDY neřešitelná a nápověda vedla ke stejnému
  // špatnému číslu. Kontrola: O = 2(a+b)k ⇒ O:2 − a*k = b*k. ✓
- (()=>{const a=ri(2,8),b=ri(2,8),k=ri(2,6);const ans=2*(a+b)*k;return{
+ (()=>{const a=ri(2,8);let b=ri(2,8);if(b===a)b=b<8?b+1:b-1; /* strany musi byt ruzne, jinak z obdelniku vyjde ctverec */ const k=ri(2,6);const ans=2*(a+b)*k;return{
+ svg:svgObdUhl(a*k,b*k,`${a*k} cm`,'?',null),
  text:`Obvod obdélníku je ${ans} cm.\nJedna strana je ${a*k} cm.\nJaká je druhá strana? (cm)`,ans:String(b*k),
  hints:[`O = 2(a+b), tedy a+b = O:2 = ${ans/2}.`,`Druhá strana = ${ans/2} - ${a*k} = ?`],skill:'geo'};})(),
  (()=>{const p=ri(10,40),tot=ri(20,60)*10;const ans=Math.round(tot*p/100);return{
  text:`Na přednášku v akademii přišlo ${tot} studentů.\n${p} % z nich tvoří chlapci.\nKolik chlapců přišlo?`,ans:String(ans),
  hints:[`${p} % z ${tot} = ${tot} × ${p}:100.`,`= ?`],skill:'anal'};})(),
  (()=>{const r=ri(4,10);const o=Math.round(2*3.14*r);return{
+ svg:svgCircleR({r:'r = ?'}),
  text:`Obvod kružnice je ${o} cm. (π = 3,14)\nJaký je poloměr? (cm, celé číslo)`,ans:String(r),
  hints:[`r = O : (2π) = ${o} : 6,28.`,`Výsledek zaokrouhli na celé číslo.`],skill:'geo'};})(),
  (()=>{const a=ri(3,12);let b=ri(3,12);if(b===a)b=b<12?b+1:b-1; /* strany musi byt ruzne, jinak z obdelniku vyjde ctverec */ const c2=a*a+b*b;const c=Math.sqrt(c2).toFixed(2);return{
+ svg:svgObdUhl(a,b,`${a} cm`,`${b} cm`,'?'),
  text:`Úhlopříčka obdélníku ${a} × ${b} cm.\nJak je dlouhá? (cm, 2 des. místa)`,ans:c,
  hints:[`Úhlopříčka = přepona pravoúhlého trojúhelníku.`,`d = √(${a}²+${b}²) = √${c2}.`],skill:'geo'};})()
  ]
@@ -1587,6 +1684,7 @@ const AREAS = [
  text:`${['Vypočítej','Spočítej','Urči'][ri(0,2)]} bez kalkulačky:\n(${a} + ${b})²`,ans:String(ans),distractors:[String(a*a+b*b)],
  hints:[`(a+b)² = a²+2ab+b².`,`${a*a} + ${2*a*b} + ${b*b} = ?`],skill:'calc'};})(),
  (()=>{const r=ri(4,9),h=ri(4,10);const v=Math.round(3.14*r*r*h);return{
+ svg:svgCyl(`r = ${r} m`,`h = ${h} m`),
  text:`Válcová nádrž: r = ${r} m, h = ${h} m.\nKolik m³ vody pojme? (π = 3,14)`,ans:String(v),
  hints:[`V = πr²h ≈ 3,14 × ${r*r} × ${h}.`,`Zaokrouhli: ?`],skill:'geo'};})(),
  (()=>{const aa=ri(4,9),cc=ri(1,aa-2),xx=ri(2,9),bb=ri(2,10),dd=(aa-cc)*xx+bb;return{
@@ -1599,6 +1697,7 @@ const AREAS = [
  text:`Třída: ${a} výborných, ${b} chvalitebných, ${c} ostatních.\n${p} % celé třídy pojede na výlet.\nKolik žáků pojede?`,ans:String(ans),
  hints:[`Celkem žáků: ${a}+${b}+${c} = ${tot}.`,`${p} % z ${tot} = ${tot} × ${p} : 100 = ?`],skill:'anal'};})(),
  (()=>{const c=ri(10,17),a=ri(3,c-3);const b2=c*c-a*a;const b=Math.sqrt(b2).toFixed(2);return{
+ svg:svgPyt(a,Math.sqrt(b2),`a = ${a} cm`,'b = ?',`c = ${c} cm`),
  text:`Pravoúhlý trojúhelník:\npřepona c = ${c} cm, odvěsna a = ${a} cm.\nOdvěsna b = ? (2 des. místa)`,ans:b,
  hints:[`b² = c² - a².`,`b = √(${c}²-${a}²) = √${b2}.`],skill:'geo'};})()
  ]
@@ -2500,27 +2599,8 @@ function _mcVolby(t){
 function renderMC(t){
  const grid=document.getElementById('mc-grid');
  grid.style.display='grid';
- // generate 3 wrong answers
- const correct=czMC(t.ans);
- const cn=parseFloat(correct.replace(',','.'));
- const opts=new Set([correct]);
- if(Array.isArray(t.distractors))t.distractors.forEach(d=>{const s=czMC(d);if(s!==correct&&opts.size<4)opts.add(s);});
- if(!isNaN(cn)&&cn!==0){const opp=czMC(-cn);if(opp!==correct)opts.add(opp);}
- let tries=0;
- while(opts.size<4 && tries<30){
- tries++;
- let alt;
- if(!isNaN(cn)){
- const delta=ri(-5,5)||ri(1,3);
- let v=Math.round((cn+delta)*100)/100;
- if(Number.isInteger(cn) && Math.abs(cn)<200) v=cn+delta;
- alt=czMC(v);
- }else{
- alt=correct==='ANO'?'NE':'ANO';
- }
- if(alt!==correct) opts.add(alt);
- }
- const arr=_mcVolby(t)||[...opts].sort(()=>Math.random()-.5);
+ // volby staví sdílené mcVolby2 (rpg-shared.js): rovnoměrné pořadí, znaménko jen u záporných čísel
+ const arr=_mcVolby(t)||mcVolby2(t);
  grid.innerHTML='';
  arr.forEach((opt,i)=>{
  const b=document.createElement('button');
@@ -3343,24 +3423,16 @@ function trRender(){
   document.getElementById('tr-yn-row').style.display=yn?'flex':'none';
   hbtn.style.display='inline-block';
   document.getElementById('tr-mc').style.display='none';
-  const inp=document.getElementById('tr-ans');inp.value='';inp.disabled=false;if(!yn)inp.focus();inp.inputMode=/^\d+$/.test(String(TR.task.ans))?'numeric':/^\d+[.,]\d+$/.test(String(TR.task.ans))?'decimal':'text';
+  // Fokus bez centrování: Chrome vstup pod okrajem VYCENTRUJE, takže na tabletu s klávesnicí odjel začátek obrázku; „nearest“ posune jen o tolik, kolik je třeba.
+  const inp=document.getElementById('tr-ans');inp.value='';inp.disabled=false;if(!yn){inp.focus({preventScroll:true});document.getElementById('tr-input-row').scrollIntoView({block:'nearest'});}inp.inputMode=/^\d+$/.test(String(TR.task.ans))?'numeric':/^\d+[.,]\d+$/.test(String(TR.task.ans))?'decimal':'text';
  }
 }
 
 function trRenderMC(t){
  const grid=document.getElementById('tr-mc');
  grid.style.display='grid';
- const correct=czMC(t.ans),cn=parseFloat(String(correct).replace(',','.'));
- const opts=new Set([correct]);
- if(Array.isArray(t.distractors))t.distractors.forEach(d=>{const s=czMC(d);if(s!==correct&&opts.size<4)opts.add(s);});
- if(!isNaN(cn)&&cn!==0){const opp=czMC(-cn);if(opp!==String(correct))opts.add(opp);}
- let tries=0;
- while(opts.size<4 && tries<30){tries++;let alt;
-  if(!isNaN(cn)){const delta=ri(-5,5)||ri(1,3);let v=Math.round((cn+delta)*100)/100;if(Number.isInteger(cn)&&Math.abs(cn)<200)v=cn+delta;alt=czMC(v);}
-  else alt=correct==='ANO'?'NE':'ANO';
-  if(alt!==correct)opts.add(alt);
- }
- const arr=_mcVolby(t)||[...opts].sort(()=>Math.random()-.5);
+ // volby staví sdílené mcVolby2 (rpg-shared.js): rovnoměrné pořadí, znaménko jen u záporných čísel
+ const arr=_mcVolby(t)||mcVolby2(t);
  grid.innerHTML='';
  arr.forEach((opt,i)=>{const b=document.createElement('button');b.className='mc-btn c'+i;b.innerHTML=`<span class="mc-key">${'ABCD'[i]}</span>${opt}`;b.onclick=()=>trPickMC(opt,b);grid.appendChild(b);});
 }

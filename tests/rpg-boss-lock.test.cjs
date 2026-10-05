@@ -1,8 +1,10 @@
 /* ══════════════════════════════════════════════════════════════════
    Regrese: (1) po porážce bosse je VŠECHEN vstup trvale zamčený
    (útok, input, MC, ANO/NE, nápověda) a submitAnswer/submitMC nic
-   nedělají; (2) MC distraktory obsahují i opačné znaménko, když je
-   správná odpověď nenulová; (3) jediná nápověda — tlačítko se po
+   nedělají; (2) MC volby obsahují opačné znaménko u úloh se zápornými
+   čísly — tam je to TA typická chyba — a jinde žádnou zápornou volbu
+   (dřív i u „Kolik litrů…", v 6. ročníku u 99,9 % úloh, kde se
+   záporná čísla ještě neučí); (3) jediná nápověda — tlačítko se po
    použití vypne a text neprozrazuje výsledek.
    Spusť: node tests/rpg-boss-lock.test.cjs
    ══════════════════════════════════════════════════════════════════ */
@@ -146,23 +148,29 @@ async function answerCorrect(page){
    ok(mcErr==='',`g${g} submitMC po porážce bosse je no-op (bez výjimky)`);
   }
 
-  // ── 3) MC distraktory: záporná odpověď ⇒ aspoň jedna záporná volba; opačné znaménko v nabídce ──
+  // ── 3) MC volby: opačné znaménko u úloh se zápornými čísly vždy, jinde žádná záporná volba ──
   {
    const mc=await page.evaluate(()=>{
-    const res={negHasNeg:true,oppPresent:true,checked:0};
-    for(let it=0;it<60;it++){
-     const fake={ans:String((it%2?-1:1)*( (it%7)+2 )),hints:['x'],skill:'calc'};
+    const res={zaporna:0,kontext:0,bezne:0,checked:0};
+    for(let it=0;it<90;it++){
+     const k=(it%7)+2, typ=it%3;
+     const fake=typ===0?{text:'Vypočítej: '+k+' − '+(2*k)+' = ?',ans:String(-k)}
+      :typ===1?{text:'Vypočítej: (−'+(k+3)+') + '+(2*k+3)+' = ?',ans:String(k)}
+      :{text:'Kolik litrů se vejde do nádrže?',ans:String(k)};
+     fake.hints=['x'];fake.skill='calc';
      renderMC(fake);
      const opts=[...document.querySelectorAll('#mc-grid .mc-btn')].map(b=>b.textContent.replace(/^[A-D]/,''));
      const cn=parseFloat(fake.ans);
      res.checked++;
-     if(!opts.includes(String(-cn)))res.oppPresent=false;
-     if(cn<0&&!opts.some(o=>parseFloat(o)<0))res.negHasNeg=false;
+     if(typ===0&&!opts.includes(String(-cn)))res.zaporna++;
+     if(typ===1&&!opts.includes(String(-cn)))res.kontext++;
+     if(typ===2&&opts.some(o=>parseFloat(o)<0))res.bezne++;
     }
     return res;
    });
-   ok(mc.oppPresent,`g${g} MC: opačné znaménko je vždy mezi volbami (${mc.checked}×)`);
-   ok(mc.negHasNeg,`g${g} MC: záporná odpověď ⇒ záporné volby existují`);
+   ok(mc.zaporna===0,`g${g} MC: záporná odpověď ⇒ opačné znaménko je mezi volbami (chybí ${mc.zaporna}× z ${mc.checked/3})`);
+   ok(mc.kontext===0,`g${g} MC: úloha se zápornými čísly ⇒ opačné znaménko je mezi volbami (chybí ${mc.kontext}× z ${mc.checked/3})`);
+   ok(mc.bezne===0,`g${g} MC: úloha bez záporných čísel nemá zápornou volbu (${mc.bezne}× z ${mc.checked/3})`);
   }
 
   ok(errs.length===0,`g${g} žádné JS chyby (${errs.slice(0,2).join(' | ')})`);

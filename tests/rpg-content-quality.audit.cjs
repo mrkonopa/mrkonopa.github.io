@@ -157,6 +157,30 @@ function typography(text) {
   return out;
 }
 
+/* ── Záporná čísla (poučení z přijímaček: „v textu vždy zn()/zav()“) ──
+   ZAPORNE_CISLO = mínus PŘILEPENÝ k číslici („−3“, „(−3“, „= −3“);
+   „5 − 3“ je odčítání. Celá čísla se učí až v 7. ročníku, takže ve 3.–6.
+   nemá záporné číslo co dělat — naměřeno 30. 9. 2026: „Koupíš 5 svíček po
+   43 Kč a zaplatíš dvoustovkou“ (vrátí −15 Kč, 3. roč.), „Je pravda, že
+   2322 − 1588 = −266?“ (4. roč.), průměr čísel „8, 9 a −8“ a volba −81
+   u „9 × 3 − 12“ (6. roč.). VÝJIMKA: mise 6/5-2 učí souřadnice obrazu
+   v osové souměrnosti a záporná souřadnice je tam smyslem úlohy (výklad
+   v rpg-learn-6.js ji vysvětluje: „[3 ; 2] → [−3 ; 2]“). */
+const ZAPORNE_CISLO = /(^|[\s(\[=,;:+×·*\/])[−-]\d/;
+const ZAPORNE_VYJIMKA = new Set(['6/5-2']);
+const zapornaHodnota = v => parseFloat(String(v).replace(',', '.').replace('−', '-')) < 0;
+/* Záporné číslo hned za operátorem patří do závorky: „2 · (−1) − 6“, ne
+   „2·-1−6“; „(10 + (−2)) : 2“, ne „(10 + −2) / 2“. Dvojtečka BEZ mezery
+   před sebou je popisek („Výsledek: −30“), ne dělení. */
+/* Každá rovnost v nápovědě platí — skener sdílený s přijímačkami
+   (tests/rovnosti.cjs, původem prijimacky-dopocet). Spojovník, který je
+   ve skutečnosti mínus („-6 + 4"), se před měřením převede na mínus. */
+const { rovnostiVKroku, spocti, minusZeSpojovniku: _minus, ZA_OPERATOREM } = require('./rovnosti.cjs');
+/* Trojúhelník ze tří stran musí jít sestrojit — sdílený rozpoznávač
+   (tests/trojuhelniky.cjs), používá ho i audit banky testu nanečisto. */
+const { trojuhelniky } = require('./trojuhelniky.cjs');
+const minusZeSpojovniku = h => _minus(czTxt(h));
+
 /* ── načtení úloh ze hry ───────────────────────────────────────────── */
 function loadGrade(g) {
   const items = [];
@@ -198,12 +222,14 @@ function loadGrade(g) {
 
 /* ── běh ──────────────────────────────────────────────────────────── */
 console.log('\n── Audit kvality zadání (3.–9. ročník) ──\n');
-const found = { objekt: [], frac: [], decl: [], hintEmpty: [], hintDup: [], nan: [], typo: [], float: [], dotText: [], dotHint: [], periodic: [], hintMath: [], geoInv: [], geoNezn: [], geoFwd: [], pct: [], ctverec: [] };
+const found = { zap16: [], zavorka: [], rovnost: [], objekt: [], frac: [], decl: [], hintEmpty: [], hintDup: [], nan: [], typo: [], float: [], dotText: [], dotHint: [], periodic: [], hintMath: [], geoInv: [], geoNezn: [], geoFwd: [], pct: [], ctverec: [], troj: [] };
 let hintDop = 0;   // kolik nápověd se podařilo dopočítat (pojistka proti planému běhu)
 let geoDop = 0;    // kolik inverzních geometrických úloh se dopočítalo
 let geoFwdDop = 0, geoFwdNezn = 0;   // dopředná geometrie: dopočítané / neznámý tvar
 let pctDop = 0, pctNezn = 0;         // procenta/převody/průměr
 let generated = 0;
+let trojDop = 0;      // kolik trojúhelníků ze tří stran se posoudilo
+let rovnostiDop = 0;   // kolik rovností v nápovědách se vyhodnotilo
 
 for (const g of GRADES) {
   const items = loadGrade(g);
@@ -519,8 +545,34 @@ for (const g of GRADES) {
         typography(text).forEach(x => push('typo', where, x + '  «' + text.slice(0, 60) + '»'));
         { const c = obdelnikJeCtverec(text);
           if (c) push('ctverec', where, c + '  «' + text.replace(/\n/g,' ').slice(0, 60) + '»'); }
+        for (const tr of trojuhelniky(text, t.ans)) {
+          trojDop++;
+          if (!tr.ok) push('troj', where, tr.strany.join(' / ') + '  «' + text.replace(/\n/g, ' ').slice(0, 60) + '»');
+        }
         if (hints.length && hints.some(h => !String(h || '').trim())) push('hintEmpty', where, text.slice(0, 60));
         if (hints.length >= 2 && String(hints[0]).trim() === String(hints[1]).trim()) push('hintDup', where, text.slice(0, 60));
+        if (g <= 6 && !ZAPORNE_VYJIMKA.has(g + '/' + it.mid)) {
+          const kde = [];
+          if (ZAPORNE_CISLO.test(text)) kde.push('zadání');
+          if (zapornaHodnota(t.ans)) kde.push('odpověď');
+          if ((t.distractors || []).some(zapornaHodnota)) kde.push('volba');
+          if (hints.some(h => ZAPORNE_CISLO.test(czTxt(h)))) kde.push('nápověda');
+          if (kde.length) push('zap16', where, kde.join('+') + '  «' + text.replace(/\n/g, ' ').slice(0, 60) + '»');
+        }
+        for (const s of [text, ...hints.map(minusZeSpojovniku)]) {
+          const m = ZA_OPERATOREM.exec(String(s));
+          if (m) push('zavorka', where, '„' + String(s).slice(Math.max(0, m.index - 14), m.index + 8).replace(/\n/g, ' ') + '“');
+        }
+        for (const h of hints) {
+          const k = minusZeSpojovniku(h);
+          for (const [Ls, Rs] of rovnostiVKroku(k)) {
+            const l = spocti(Ls), pr = spocti(Rs);
+            if (l === null || pr === null) continue;
+            rovnostiDop++;
+            if (Math.abs(l - pr) >= 1e-9 * Math.max(1, Math.abs(l), Math.abs(pr)))
+              push('rovnost', where, '„' + Ls + ' = ' + Rs + '“ (vyjde ' + +l.toFixed(6) + ')  «' + k.slice(0, 60) + '»');
+          }
+        }
       }
     }
   }
@@ -534,6 +586,8 @@ console.log('  vygenerováno a zkontrolováno ' + generated.toLocaleString('cs-C
 const report = (kind, label) => {
   const b = found[kind];
   ok(label + ' (' + b.length + ')', b.length === 0);
+  // WHERE=<pravidlo> vypíše nálezy po misích (ladění)
+  if (process.env.WHERE && kind === process.env.WHERE) [...new Set(b.map(x => x.where))].forEach(w => console.log('        ' + w + ' ' + b.filter(x => x.where === w).length + '× ' + b.filter(x => x.where === w).slice(0, 2).map(x => x.detail).join(' ‖ ')));
   b.slice(0, 8).forEach(x => console.log('        • ' + x.where + ': ' + x.detail));
   if (b.length > 8) console.log('        … a dalších ' + (b.length - 8));
 };
@@ -550,6 +604,15 @@ report('geoInv', 'inverzní geometrie: rozměr se dopočítá ze zadané veliči
 report('geoFwd', 'dopředná geometrie: veličina se dopočítá ze zadaných rozměrů');
 report('pct', 'procenta, převody jednotek a průměr se dopočítají');
 report('ctverec', 'žádný „obdélník" nemá obě strany stejné');
+report('troj', 'každý trojúhelník ze tří stran jde sestrojit (součet dvou kratších > nejdelší)');
+/* Pojistka proti planému běhu: rozpoznávač zná jen tvary zadání, které
+   v bankách skutečně jsou; po přeformulování by pravidlo tiše mlčelo.
+   Naměřeno 1. 10. 2026: 7 540 trojúhelníků při ITER 260 (75 400 při 2 600),
+   mezi běhy PŘESNĚ stabilní — proto těsná podlaha jako u inverzní geometrie:
+   přírůstek projde, pokles ne. Když legitimně přibude nebo ubude úloha
+   s trojúhelníkem, přeměř a číslo uprav. */
+ok('trojúhelníky se vůbec posuzovaly (' + trojDop + ')', trojDop >= 29 * ITER,
+   'posouzeno jen ' + trojDop + ' (čekáno ≥ ' + 29 * ITER + ') — ubylo pokrytí, nebo se změnil tvar zadání');
 report('geoNezn', 'inverzní geometrie: každý tvar zadání je rozpoznaný');
 /* Kanárek na TICHÝ pokles pokrytí. Pravidlo pozná jen zadání, která
    projdou filtrem (obsahují slovo Obvod/Obsah/Objem/Povrch a ptají se
@@ -575,6 +638,14 @@ ok('inverzní geometrie se vůbec měřila (' + geoDop + ' dopočítaných)', ge
 /* Pojistka proti planému běhu: kdyby se tvar nápověd změnil, filtr by
    nepustil nic a pravidlo by MLČELO. Naměřeno 4 940 dopočítaných. */
 ok('aritmetika nápověd se vůbec měřila (' + hintDop + ' dopočítaných)', hintDop > 3000, 'dopočítáno jen ' + hintDop);
+report('zap16', 've 3.–6. ročníku žádné záporné číslo (celá čísla až v 7.)');
+report('zavorka', 'záporné číslo hned za operátorem je v závorce');
+report('rovnost', 'každá rovnost v nápovědě platí');
+/* Pojistka proti planému běhu. Naměřeno 30. 9. 2026: 67 742 a 67 734
+   vyhodnocených rovností (mírně kolísá, generátory losují tvar). Při
+   zavedení pravidlo hlásilo jen vady ZÁPISU („2·-1−6", „(9+4+-1) : 3",
+   „- (−15) = + 15") — aritmetika sama seděla všude. */
+ok('rovnosti v nápovědách se vůbec měřily (' + rovnostiDop + ' vyhodnocených)', rovnostiDop > 60000, 'vyhodnoceno jen ' + rovnostiDop);
 report('objekt', 'žádné „[object Object]" v zadání');
 report('decl', 'skloňování počitatelných jmen');
 report('hintEmpty', 'žádná prázdná nápověda');

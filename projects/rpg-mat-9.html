@@ -545,6 +545,24 @@ body::before{
  #s-battle .bt-col-task{overflow-y:auto;overscroll-behavior:contain}
  #s-battle .bt-akce{position:sticky;bottom:0;z-index:4;background:var(--bg);padding:6px 0 2px}
  #s-battle .bt-top{margin-bottom:6px}
+ /* Obrázek úlohy nesmí vytlačit VSTUP pod okraj — ten není v přišpendlené liště.
+    Kvádr je při plné šířce 201 px vysoký, telefon na šířku má 360 px okna;
+    viewBox drží poměr stran, kresba se jen zmenší. */
+ #s-battle .prob-svg svg{max-height:32vh}
+ /* Fokus na vstup posune sloupec jen tak, aby byl vstup vidět — o přišpendlené liště
+    nic neví, takže vstup skončil ZA ní (naměřeno na telefonu u 136 z 306 úloh s obrázkem).
+    Odsazení o výšku lišty (41 px) a kousek navíc to srovná. */
+ #s-battle .bt-col-task{scroll-padding-bottom:50px}
+}
+@media(orientation:landscape) and (max-height:500px) and (min-width:700px){
+ /* Nízká obrazovka na šířku (telefon, tablet s klávesnicí): obrázek jde VEDLE zadání,
+    ne nad něj. Pod sebou zabraly na telefonu 740 × 360 přes 200 px a vstup zajel pod
+    přišpendlenou lištu s DÁLE. :has() omezí změnu na zadání s obrázkem (minihry ne);
+    prohlížeč, který ho nezná, nechá úlohu pod sebou jako dřív. */
+ #s-battle .bt-problem:has(> .prob-svg){display:flex;flex-direction:row-reverse;align-items:flex-start;gap:10px}
+ #s-battle .bt-problem > .prob-svg{flex:0 0 45%;margin-bottom:0}
+ #s-battle .bt-problem > .prob-svg svg{max-height:30vh}
+ #s-battle .bt-problem > .prob-txt{flex:1;min-width:0}
 }
 @media(max-height:750px){
  .bt-top{min-height:140px;padding:8px 18px 30px}
@@ -1411,7 +1429,7 @@ const AREAS = [
    (()=>{const x=ri(2,12),y=ri(2,12),sm=x+y,df=x-y;return{text:`${['Vyřeš soustavu','Rozlušti soustavu'][ri(0,1)]}, urči y:\nx + y = ${sm}\nx − y = ${df}`,ans:String(y),hints:[`Odečti rovnice: 2y = ${sm-df}.`,`y = ${(sm-df)/2}`],skill:'anal'};})(),
    (()=>{const x=ri(2,9),y=ri(2,9),e1=x+y,e2=2*x+y;return{text:`${['Vyřeš soustavu','Rozlušti soustavu'][ri(0,1)]}, urči x:\nx + y = ${e1}\n2x + y = ${e2}`,ans:String(x),hints:[`Odečti rovnice: x = ${e2-e1}.`,`Výsledek: ${x}`],skill:'anal'};})(),
    (()=>{const x=ri(2,8),y=2*x,sm=x+y;return{text:`${['Vyřeš soustavu','Rozlušti soustavu'][ri(0,1)]}, urči x:\ny = 2x\nx + y = ${sm}`,ans:String(x),hints:[`Dosaď: x + 2x = ${sm}, tedy 3x = ${sm}.`,`x = ${sm/3}`],skill:'anal'};})(),
-   (()=>{const x=ri(3,10),y=ri(2,9),sm=x+y,d=x-y;return{text:`Součet dvou čísel je ${sm}, jejich rozdíl je ${d}.\nVětší z čísel?`,ans:String(x),hints:[`Větší = (součet + rozdíl)/2.`,`(${sm} + ${d}) / 2`],skill:'anal'};})(),
+   (()=>{const x=ri(3,10),y=ri(2,x-1),sm=x+y,d=x-y;/* dřív y až 9: při x < y vyšel rozdíl záporný a „větší z čísel“ bylo to MENŠÍ (asi 40 % losů) */return{text:`Součet dvou čísel je ${sm}, jejich rozdíl je ${d}.\nVětší z čísel?`,ans:String(x),hints:[`Větší = (součet + rozdíl) : 2.`,`(${sm} + ${d}) : 2`],skill:'anal'};})(),
    (()=>{const x=ri(3,9),y=ri(2,8),e1=2*x+3*y,e2=x;return{text:`${['Vyřeš soustavu','Rozlušti soustavu'][ri(0,1)]}, urči y:\n2x + 3y = ${e1}\nx = ${e2}`,ans:String(y),hints:[`Dosaď x = ${e2}: ${2*e2} + 3y = ${e1}.`,`3y = ${e1-2*e2}`],skill:'anal'};})()
   ]
  },
@@ -2376,28 +2394,8 @@ function _mcVolby(t){
 function renderMC(t){
  const grid=document.getElementById('mc-grid');
  grid.style.display='grid';
- // generate 3 wrong answers
- const correct=czMC(t.ans);
- const cn=parseFloat(correct.replace(',','.'));
- const opts=new Set([correct]);
- if(Array.isArray(t.distractors))t.distractors.forEach(d=>{const s=czMC(d);if(s!==correct&&opts.size<4)opts.add(s);});
- // always include opposite-sign distractor so sign errors are testable
- if(!isNaN(cn)&&cn!==0){const opp=czMC(-cn);if(opp!==correct)opts.add(opp);}
- let tries=0;
- while(opts.size<4 && tries<30){
- tries++;
- let alt;
- if(!isNaN(cn)){
- const delta=ri(-5,5)||ri(1,3);
- let v=Math.round((cn+delta)*100)/100;
- if(Number.isInteger(cn) && Math.abs(cn)<200) v=cn+delta;
- alt=czMC(v);
- }else{
- alt=correct==='ANO'?'NE':'ANO';
- }
- if(alt!==correct) opts.add(alt);
- }
- const arr=_mcVolby(t)||[...opts].sort(()=>Math.random()-.5);
+ // volby staví sdílené mcVolby2 (rpg-shared.js): rovnoměrné pořadí, znaménko jen u záporných čísel
+ const arr=_mcVolby(t)||mcVolby2(t);
  grid.innerHTML='';
  arr.forEach((opt,i)=>{
  const b=document.createElement('button');
@@ -2802,24 +2800,16 @@ function trRender(){
   document.getElementById('tr-yn-row').style.display=yn?'flex':'none';
   hbtn.style.display='inline-block';
   document.getElementById('tr-mc').style.display='none';
-  const inp=document.getElementById('tr-ans');inp.value='';inp.disabled=false;if(!yn)inp.focus();inp.inputMode=/^\d+$/.test(String(TR.task.ans))?'numeric':/^\d+[.,]\d+$/.test(String(TR.task.ans))?'decimal':'text';
+  // Fokus bez centrování: Chrome vstup pod okrajem VYCENTRUJE, takže na tabletu s klávesnicí odjel začátek obrázku; „nearest“ posune jen o tolik, kolik je třeba.
+  const inp=document.getElementById('tr-ans');inp.value='';inp.disabled=false;if(!yn){inp.focus({preventScroll:true});document.getElementById('tr-input-row').scrollIntoView({block:'nearest'});}inp.inputMode=/^\d+$/.test(String(TR.task.ans))?'numeric':/^\d+[.,]\d+$/.test(String(TR.task.ans))?'decimal':'text';
  }
 }
 
 function trRenderMC(t){
  const grid=document.getElementById('tr-mc');
  grid.style.display='grid';
- const correct=czMC(t.ans),cn=parseFloat(String(correct).replace(',','.'));
- const opts=new Set([correct]);
- if(Array.isArray(t.distractors))t.distractors.forEach(d=>{const s=czMC(d);if(s!==correct&&opts.size<4)opts.add(s);});
- if(!isNaN(cn)&&cn!==0){const opp=czMC(-cn);if(opp!==correct)opts.add(opp);}
- let tries=0;
- while(opts.size<4 && tries<30){tries++;let alt;
-  if(!isNaN(cn)){const delta=ri(-5,5)||ri(1,3);let v=Math.round((cn+delta)*100)/100;if(Number.isInteger(cn)&&Math.abs(cn)<200)v=cn+delta;alt=czMC(v);}
-  else alt=correct==='ANO'?'NE':'ANO';
-  if(alt!==correct)opts.add(alt);
- }
- const arr=_mcVolby(t)||[...opts].sort(()=>Math.random()-.5);
+ // volby staví sdílené mcVolby2 (rpg-shared.js): rovnoměrné pořadí, znaménko jen u záporných čísel
+ const arr=_mcVolby(t)||mcVolby2(t);
  grid.innerHTML='';
  arr.forEach((opt,i)=>{const b=document.createElement('button');b.className='mc-btn c'+i;b.innerHTML=`<span class="mc-key">${'ABCD'[i]}</span>${opt}`;b.onclick=()=>trPickMC(opt,b);grid.appendChild(b);});
 }

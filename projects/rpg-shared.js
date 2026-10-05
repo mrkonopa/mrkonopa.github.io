@@ -582,6 +582,66 @@ function closeModal(){document.getElementById('modal').classList.remove('show');
 function stopTimer(){if(BT.timer){clearInterval(BT.timer);BT.timer=null;}}
 function czTxt(t){return String(t).replace(/(\d)\.(\d)/g,'$1,$2');}
 function czMC(x){return String(x).replace(/(\d)\.(\d)/g,'$1,$2');}
+/* ══ Volby u úloh s výběrem — boj i trénink, všech 7 ročníků ═══════════
+   Dvě vady, obě naměřené 30. 9. 2026 (po stejném poučení z přijímaček:
+   „správně ± k" prozradí odpověď i bez počítání):
+   1) Správná odpověď šla poznat podle VELIKOSTI. Sousední hodnoty se
+      přidávaly v pevném pořadí (−1, +1, −2 …), takže ve 3. ročníku byla
+      správná v 88 % případů druhá největší a NIKDY největší; ve 2. stupni
+      stačilo tipnout „druhou největší" a vyšlo to zhruba v polovině
+      (náhodný tip = 25 %). Počet voleb POD správnou se teď losuje
+      rovnoměrně ze všech, které jsou možné.
+   2) Opačné znaménko se ve 2. stupni přidávalo VŽDY („ať jde testovat
+      chyba ve znaménku"), takže u „Kolik litrů…" stálo mezi volbami −24:
+      v 6. ročníku, kde se záporná čísla ještě neučí, u 99,9 % úloh.
+      Chyba ve znaménku je typická jen tam, kde úloha se zápornými čísly
+      pracuje — jinde je to volba, kterou dítě škrtne bez počítání. */
+function mcZaporne(t){
+ const n=parseFloat(String(t&&t.ans).replace(',','.').replace('−','-'));
+ if(n<0)return true;
+ // záporné číslo = mínus PŘILEPENÝ k číslici („−3", „(−3", „= −3"); „5 − 3" je odčítání
+ return /(^|[\s(\[=,;:+×·*\/|])[−-]\d/.test(String(t&&t.text||''));   // i |−5|
+}
+/* Tři špatné volby: nejdřív ty, které MUSÍ zůstat (kurátorské distraktory),
+   pak z kandidátů pod (`dolu`) a nad (`nahoru`) správnou, oba seznamy od
+   nejvhodnějšího. Kolik jich půjde pod správnou, se losuje rovnoměrně. */
+function mcRozloz(spravna,povinne,dolu,nahoru){
+ const out=[];
+ const pridej=v=>{if(out.length<3&&Number.isFinite(v)&&v!==spravna&&!out.includes(v))out.push(v);};
+ (povinne||[]).forEach(pridej);
+ const d=[...new Set(dolu)].filter(v=>v<spravna&&!out.includes(v));
+ const n=[...new Set(nahoru)].filter(v=>v>spravna&&!out.includes(v));
+ const chybi=3-out.length,moz=[];
+ for(let k=0;k<=chybi;k++)if(k<=d.length&&chybi-k<=n.length)moz.push(k);
+ const k=moz.length?moz[Math.floor(Math.random()*moz.length)]:Math.min(chybi,d.length);
+ d.slice(0,k).forEach(pridej);n.slice(0,chybi-k).forEach(pridej);
+ d.forEach(pridej);n.forEach(pridej);   // pojistka, kdyby na jedné straně nebylo dost
+ return out;
+}
+/* Volby 2. stupně (6.–9.): dřív osm totožných kopií v renderMC a trRenderMC. */
+function mcCislo(s){const x=String(s).replace(/\s+/g,'').replace(',','.').replace('−','-');return /^-?\d+(\.\d+)?$/.test(x)?Number(x):NaN;}
+function mcVolby2(t){
+ const correct=czMC(t.ans),cn=mcCislo(correct);
+ // kurátorské distraktory zůstanou VŽDY a tak, jak je generátor napsal
+ const kur=[];
+ if(Array.isArray(t.distractors))t.distractors.forEach(d=>{const s=czMC(d);if(s!==correct&&!kur.includes(s)&&kur.length<3)kur.push(s);});
+ if(isNaN(cn)){
+  const opts=[correct,...kur];
+  if(opts.length<2)opts.push(correct==='ANO'?'NE':'ANO');
+  return shuffleArr(opts);
+ }
+ const zap=mcZaporne(t),cele=Number.isInteger(cn)&&Math.abs(cn)<200;
+ const hodnota=k=>cele?cn+k:Math.round((cn+k)*100)/100;
+ const dolu=[],nahoru=[];
+ shuffleArr([1,2,3,4,5]).forEach(k=>{const v=hodnota(-k);if(zap||v>=0)dolu.push(v);nahoru.push(hodnota(k));});
+ for(let k=6;k<40;k++)nahoru.push(hodnota(k));
+ const povinne=kur.map(mcCislo).filter(v=>!isNaN(v));
+ // Chyba ve znaménku je u úloh se zápornými čísly TA typická, proto je mezi
+ // volbami vždy (jako kurátorský distraktor); vyrovnání pořadí počítá s ní.
+ const znamenko=zap&&cn!==0&&kur.length<3&&!povinne.includes(-cn)?[-cn]:[];
+ const doplnek=mcRozloz(cn,[...povinne,...znamenko],dolu,nahoru).filter(v=>!povinne.includes(v)).map(czMC);
+ return shuffleArr([...new Set([correct,...kur,...doplnek])].slice(0,4));
+}
 function todayStr(){return new Date().toISOString().slice(0,10);}
 function achToast(a){_achQ.push(a);if(!_achBusy)_achNext();}
 function goPractice(mid){go('train');startTrain(mid);}

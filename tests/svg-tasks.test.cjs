@@ -222,7 +222,8 @@ const EXPECT = RULES.filter(r => r.grades.includes(GRADE));
     const bad = /undefined|NaN|ERR:/.test(t.svg) || /undefined|NaN/.test(t.text);
     ok(!bad, 'svg/text obsahuje undefined/NaN: ' + t.text.slice(0,40));
     ok(/^<svg[ >]/.test(t.svg.trim()) && t.svg.includes('</svg>'), 'svg není validní obal: ' + t.text.slice(0,40));
-    ok(/^-?\d+$/.test(t.ans) || t.ans === 'ANO' || t.ans === 'NE', 'ans není číslo/ANO/NE: ' + t.ans + ' (' + t.text.slice(0,30) + ')');
+    // desetinné číslo je platná odpověď (8. ročník: obvod a obsah kruhu s π = 3,14 → „56,52")
+    ok(/^-?\d+([.,]\d+)?$/.test(t.ans) || t.ans === 'ANO' || t.ans === 'NE', 'ans není číslo/ANO/NE: ' + t.ans + ' (' + t.text.slice(0,30) + ')');
 
     // ── ROZMÍSTĚNÍ popisků: nesmí přetéct viewBox ani překrýt čárkovanou výškovou čáru ──
     const vb = (t.svg.match(/viewBox="0 0 ([\d.]+) ([\d.]+)"/)||[]);

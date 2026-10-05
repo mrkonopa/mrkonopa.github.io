@@ -16,6 +16,9 @@ global.svgCircleR = ()=>'<svg></svg>';
 global.window = {};
 
 const code = fs.readFileSync(path.join(__dirname,'..','projects','rpg-tasks-8.js'),'utf8');
+// Náhražky kreseb podle toho, co banka SKUTEČNĚ volá. Ruční seznam se
+// rozešel s bankou hned při první nové kresbě (svgKrychle, září 2026).
+for (const k of new Set(code.match(/\bsvg[A-Z]\w*/g) || [])) if (!global[k]) global[k] = () => '<svg></svg>';
 new Function(code)();   // naplní window.RPG_TASK_EXTRA_8
 const EX = global.window.RPG_TASK_EXTRA_8;
 

@@ -64,8 +64,13 @@ ok(skupiny.length === 16, 'SLOTS má 16 pozic', 'nalezeno=' + skupiny.length);
    Pozice 9 a 10: jednokrokové úlohy (přepona žebříku, „k · 9 = 18“, měřítko modelu)
    nahradila Thaletova kružnice a počet řešení, proto 5. Pozice 15: tři sady jednokrokových
    procent nahradily dvě se společným kontextem (Prvňáci, Zedníci), proto 7. */
+/* 2026-09-30: varianty podle ostré úlohy 13 se vrátily na pozici 13 (tři tělesa
+   z pozice 12, rovnoramenný trojúhelník z pozice 14), proto 12 → 8, 13 → 13, 14 → 6.
+   Nic neubylo — přesun hlídá podlaha CELKOVÉHO počtu níž, aby se jím nedalo
+   schovat smazání. */
 const VARIANT = { 1: 11, 2: 6, 3: 6, 4: 5, 5: 8, 6: 8, 7: 5, 8: 6,
-  9: 5, 10: 5, 11: 8, 12: 11, 13: 9, 14: 7, 15: 7, 16: 10 };
+  9: 5, 10: 5, 11: 8, 12: 8, 13: 13, 14: 6, 15: 7, 16: 10 };
+const CELKEM = 104;
 const maloVariant = [];
 skupiny.forEach((g, i) => {
   const p = i + 1;
@@ -74,6 +79,8 @@ skupiny.forEach((g, i) => {
 ok(maloVariant.length === 0,
   'každá pozice má aspoň tolik variant, kolik měla naměřeno (celkem ' +
   skupiny.reduce((s, g) => s + g.length, 0) + ' generátorů)', maloVariant.join(' | '));
+const celkem = skupiny.reduce((s, g) => s + g.length, 0);
+ok(celkem >= CELKEM, 'celkový počet variant neklesl (' + celkem + ', podlaha ' + CELKEM + ')');
 /* Pojistka proti překlepu v seznamu: kdyby se generátor přejmenoval,
    regex ho sice napočítá, ale funkce by neexistovala a genSlot by spadl.
    Proto se každý název dohledá i jako definice. */
