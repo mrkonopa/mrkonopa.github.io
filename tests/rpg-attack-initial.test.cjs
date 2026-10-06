@@ -45,11 +45,13 @@ async function answerCorrect(page){
   }
   const qBtns=[...document.querySelectorAll('#bt-prob .ttm-q:not(.done)')];
   if(qBtns.length>0){
+   // tlačítko odpovědi ukazuje zobraz(a) („−5“, „4,8“), data-a nese surové „-5“, „4.8“
+   const zob=x=>window.RPGTaskTypes&&RPGTaskTypes.zobraz?String(RPGTaskTypes.zobraz(x)):String(x);
    for(const q of qBtns){
     q.click();await new Promise(r=>setTimeout(r,80));
     const ans=q.dataset.a;
     const a=[...document.querySelectorAll('#bt-prob .ttm-a:not(.done)')]
-      .find(b=>b.textContent.trim()===String(ans).trim());
+      .find(b=>b.textContent.trim()===zob(ans).trim());
     if(a)a.click();
     await new Promise(r=>setTimeout(r,120));
    }
@@ -87,7 +89,7 @@ async function answerCorrect(page){
   const errs=[]; page.on('pageerror',e=>errs.push(e.message));
   await page.addInitScript((seed)=>{localStorage.setItem('RPG_MAT_'+document.title.match(/\d/),JSON.stringify(seed));},SEED);
   await page.goto(base+'/projects/rpg-mat-'+g+'.html',{waitUntil:'load'});
-  await page.waitForFunction(()=>typeof AREAS!=='undefined'&&typeof launchBattle==='function',{timeout:8000});
+  await page.waitForFunction(()=>typeof AREAS!=='undefined'&&typeof launchBattle==='function',null,{timeout:8000});
   await page.evaluate((seed)=>{localStorage.setItem(SAVE_KEY,JSON.stringify(seed));},SEED).catch(()=>{});
   await page.evaluate(()=>{S.done={};S.xpClaimed=S.xpClaimed||{};});
 
@@ -99,7 +101,7 @@ async function answerCorrect(page){
 
   // 1) HP bar viditelny ihned po vstupu
   await page.evaluate(({a,m})=>launchBattle(a,m), {a:aid,m:mid});
-  await page.waitForFunction(()=>document.querySelector('#s-battle').classList.contains('active'),{timeout:5000});
+  await page.waitForFunction(()=>document.querySelector('#s-battle').classList.contains('active'),null,{timeout:5000});
 
   const hpState = await page.evaluate(()=>{
    const bar=document.getElementById('bt-hpbar');
@@ -142,25 +144,48 @@ async function answerCorrect(page){
   // 4) Dokonci misi — spust znovu s cistym S.done, pockej na lock
   await page.evaluate(()=>{S.done={};});
   await page.evaluate(({a,m})=>launchBattle(a,m), {a:aid,m:mid});
-  await page.waitForFunction(()=>document.querySelector('#s-battle').classList.contains('active'),{timeout:5000});
+  await page.waitForFunction(()=>document.querySelector('#s-battle').classList.contains('active'),null,{timeout:5000});
   await page.waitForTimeout(850); // vstupni lock
 
+  /* Horší větev pokaždé, ne podle losu: spojovačka se zápornou a desetinnou
+     odpovědí. Tlačítka ukazují zobraz(a) („−5“, „4,8“), data-a nese surové
+     „-5“, „4.8“. Pomocník hledal surovou hodnotu, kolo nedořešil a boj běžel
+     naprázdno až do limitu 7 min (CI 6. 10. 2026: 1. pokus TIMEOUT, 2. prošel,
+     protože los žádnou takovou spojovačku nedal). */
+  const vynuceno=await page.evaluate(()=>{
+   BT.mini=BT.mini||{};
+   BT.mini[BT.idx]={type:'match',data:[{q:'2 - 7',a:'-5'},{q:'1.2 + 3.6',a:'4.8'},{q:'3 · 4',a:'12'},{q:'10 : 4',a:'2.5'}]};
+   renderTask();
+   return {idx:BT.idx,txt:[...document.querySelectorAll('#bt-prob .ttm-a')].map(b=>b.textContent.trim())};
+  });
+  ok(vynuceno.txt.includes('−5')&&vynuceno.txt.includes('4,8'),
+     'g'+g+' vynucená spojovačka ukazuje odpovědi tak, jak je vidí žák ('+vynuceno.txt.join(' · ')+')');
+
   const tot=await page.evaluate(()=>BT.tasks.length);
-  let maxIter=tot*6;
+  let maxIter=tot*6, bezPokroku=0, zaseknuto=null;
   while(maxIter-->0){
    const st0=await page.evaluate(()=>({done:Object.keys(S.done).length,defeated:BT.bossDefeated}));
    if(st0.defeated)break;
    await answerCorrect(page);
-   await page.waitForFunction(()=>document.getElementById('next-btn').style.display!=='none'||BT.bossDefeated,{timeout:6000}).catch(()=>{});
+   // volby až 3. argument: 2. je ARG funkce — s {timeout} na jeho místě se čekalo
+   // výchozích 30 s, takže zaseknuté kolo stálo 36 × 31 s a test spadl na limit běhu
+   await page.waitForFunction(()=>document.getElementById('next-btn').style.display!=='none'||BT.bossDefeated,null,{timeout:6000}).catch(()=>{});
    const st=await page.evaluate(()=>({
     defeated:BT.bossDefeated,done:Object.keys(S.done).length,
     nextShown:document.getElementById('next-btn').style.display!=='none'
    }));
    if(st.defeated)break;
-   if(st.nextShown){await page.evaluate(()=>nextTask());await page.waitForTimeout(400);}
-   else if(st.done===st0.done){await page.waitForTimeout(500);}
+   if(st.nextShown){bezPokroku=0;await page.evaluate(()=>nextTask());await page.waitForTimeout(400);}
+   else if(st.done===st0.done){
+    // zaseknuté kolo: spadnout hned a říct proč, ne čekat na limit běhu
+    if(++bezPokroku>=4){zaseknuto=await page.evaluate(()=>({kolo:BT.idx+1,mini:(BT.mini&&BT.mini[BT.idx]&&BT.mini[BT.idx].type)||'žádná'}));break;}
+    await page.waitForTimeout(500);
+   }
+   else bezPokroku=0;
   }
   await page.waitForTimeout(500);
+  ok(await page.evaluate(k=>!!S.done[k],mid+'-'+vynuceno.idx),
+     'g'+g+' vynucená spojovačka („−5“, „4,8“) se dořešila'+(zaseknuto?' — boj se zasekl na kole '+zaseknuto.kolo+' (minihra: '+zaseknuto.mini+')':''));
 
   const defeatedLocked = await page.evaluate(()=>({
    defeated:BT.bossDefeated===true,
@@ -174,7 +199,7 @@ async function answerCorrect(page){
 
   // 5) Re-entry: vstup znovu do stejne mise — behem animace opet zamceno, pak odemceno
   await page.evaluate(({a,m})=>launchBattle(a,m), {a:aid,m:mid});
-  await page.waitForFunction(()=>document.querySelector('#s-battle').classList.contains('active'),{timeout:5000});
+  await page.waitForFunction(()=>document.querySelector('#s-battle').classList.contains('active'),null,{timeout:5000});
   const reentryLocked = await page.evaluate(()=>{
    const inpEl=document.getElementById('bt-ans');
    return inpEl?inpEl.disabled:null;

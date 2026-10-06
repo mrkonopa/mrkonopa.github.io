@@ -90,14 +90,14 @@ async function answerCorrect(page){
   const errs=[]; page.on('pageerror',e=>errs.push(e.message));
   await page.addInitScript((seed)=>{localStorage.setItem('RPG_MAT_'+document.title.match(/\d/),JSON.stringify(seed));},SEED);
   await page.goto(`${base}/projects/rpg-mat-${g}.html`,{waitUntil:'load'});
-  await page.waitForFunction(()=>typeof AREAS!=='undefined'&&typeof launchBattle==='function',{timeout:8000});
+  await page.waitForFunction(()=>typeof AREAS!=='undefined'&&typeof launchBattle==='function',null,{timeout:8000});
   await page.evaluate((seed)=>{localStorage.setItem(SAVE_KEY,JSON.stringify(seed));loadS&&typeof loadS==='function';},SEED).catch(()=>{});
   await page.evaluate(()=>{S.done={};continueGame?continueGame():startGame&&startGame();}).catch(()=>{});
   await page.evaluate(()=>{S.done={};S.xpClaimed=S.xpClaimed||{};});
 
   // ── 1) nápověda: jediná, vypne tlačítko, neprozrazuje výsledek (ne-MC mise) ──
   await page.evaluate(()=>{const ar=AREAS.find(a=>a.missions.some(m=>!m.mc));const m=ar.missions.find(m=>!m.mc);launchBattle(ar.id,m.id);});
-  await page.waitForFunction(()=>document.querySelector('#s-battle').classList.contains('active'),{timeout:5000});
+  await page.waitForFunction(()=>document.querySelector('#s-battle').classList.contains('active'),null,{timeout:5000});
   await page.waitForTimeout(600);
   {
    const h=await page.evaluate(()=>{
@@ -118,19 +118,28 @@ async function answerCorrect(page){
   // ── 2) porážka bosse → vstup trvale zamčený ──
   {
    const tot=await page.evaluate(()=>BT.tasks.length);
-   let maxIter=tot*6;
+   let maxIter=tot*6, bezPokroku=0;
    while(maxIter-->0){
     const st0=await page.evaluate(()=>({done:Object.keys(S.done).length,defeated:BT.bossDefeated}));
     if(st0.defeated)break;
     await answerCorrect(page);
-    await page.waitForFunction(()=>document.getElementById('next-btn').style.display!=='none'||BT.bossDefeated,{timeout:6000}).catch(()=>{});
+    // volby až 3. argument (2. je ARG funkce, jinak se čeká výchozích 30 s)
+    await page.waitForFunction(()=>document.getElementById('next-btn').style.display!=='none'||BT.bossDefeated,null,{timeout:6000}).catch(()=>{});
     const st=await page.evaluate(()=>({
      defeated:BT.bossDefeated,done:Object.keys(S.done).length,
      nextShown:document.getElementById('next-btn').style.display!=='none'
     }));
     if(st.defeated)break;
-    if(st.nextShown){await page.evaluate(()=>nextTask());await page.waitForTimeout(350);}
-    else if(st.done===st0.done){await page.waitForTimeout(500);}
+    if(st.nextShown){bezPokroku=0;await page.evaluate(()=>nextTask());await page.waitForTimeout(350);}
+    else if(st.done===st0.done){
+     // zaseknuté kolo: spadnout hned a říct proč, ne čekat na limit běhu
+     if(++bezPokroku>=4){
+      const z=await page.evaluate(()=>({kolo:BT.idx+1,mini:(BT.mini&&BT.mini[BT.idx]&&BT.mini[BT.idx].type)||'žádná'}));
+      ok(false,`g${g} boj se zasekl na kole ${z.kolo} (minihra: ${z.mini})`);break;
+     }
+     await page.waitForTimeout(500);
+    }
+    else bezPokroku=0;
    }
    await page.waitForTimeout(400);
    const st=await page.evaluate(()=>({
