@@ -160,15 +160,22 @@ const fails = [], flaky = [], skipy = [];
 const t0 = Date.now();
 for (let i = 0; i < runs.length; i++) {
   const { f, args, label } = runs[i];
-  let r = runOne(f, args);
+  let r = runOne(f, args), prvni = null;
   // Retry-once: Playwright testy občas na CI bliknou (timing pod zátěží).
   // Skutečná chyba selže 2×; flaky projde na druhý pokus → nezčervená bránu.
-  if (!r.ok) { const r2 = runOne(f, args); if (r2.ok) { flaky.push(label); r = r2; } else r = r2; }
+  if (!r.ok) { prvni = r; const r2 = runOne(f, args); if (r2.ok) { flaky.push(label); r = r2; } else r = r2; }
   if (r.ok && r.skipped) skipy.push(label);
   const tag = !r.ok ? (r.timedOut ? '⏱ TIMEOUT' : '❌')
             : r.skipped ? '⏭ SKIP' : (flaky.includes(label) ? '✅~' : '✅');
   console.log(`[${String(i + 1).padStart(2)}/${runs.length}] ${tag} ${label} (${r.secs}s)  ${r.last.trim().slice(0, 70)}`);
   if (!r.ok) { fails.push(label); if (r.out.trim()) console.log(r.out.trim().split('\n').slice(-8).map(l => '      ' + l).join('\n')); }
+  /* Prošlo až na druhý pokus: vypsat, na čem padl první — jinak se „flaky" na CI
+     nedá dohledat (tablet-landscape 6. 10. 2026: jen „✅~“ bez důvodu). */
+  else if (prvni) {
+    const chyby = prvni.out.split('\n').filter(l => /❌|✗|Error/.test(l)).slice(0, 5);
+    console.log((prvni.timedOut ? ['⏱ TIMEOUT'] : chyby.length ? chyby : prvni.out.trim().split('\n').slice(-5))
+      .map(l => '      1. pokus: ' + l.trim().slice(0, 400)).join('\n'));
+  }
 }
 if (flaky.length) console.log('\n⚠ flaky (prošlo až na 2. pokus): ' + flaky.join(', '));
 
