@@ -33,7 +33,7 @@ const isNoise = t => /Failed to load resource|ERR_CERT_AUTHORITY_INVALID|net::ER
 // dohraje jednu misi: čte správné odpovědi z BT.tasks
 async function finishMission(page, aid, mid, tc) {
   await page.evaluate(p => launchBattle(p.aid, p.mid), { aid, mid });
-  await page.waitForFunction(() => document.querySelector('#s-battle')?.classList.contains('active'), { timeout: 6000 }).catch(()=>{});
+  await page.waitForFunction(() => document.querySelector('#s-battle')?.classList.contains('active'), null, { timeout: 6000 }).catch(()=>{});
   for (let step = 0; step < tc + 4; step++) {
     const st = await page.evaluate(() => {
       if (!document.querySelector('#s-battle')?.classList.contains('active')) return { done:true };
@@ -78,7 +78,7 @@ async function finishMission(page, aid, mid, tc) {
     await page.waitForSelector('#ni', { timeout: 8000 });
     await page.fill('#ni', 'TESTER');
     await page.evaluate(() => startGame());
-    await page.waitForFunction(() => document.querySelector('#s-map')?.classList.contains('active'), { timeout: 8000 });
+    await page.waitForFunction(() => document.querySelector('#s-map')?.classList.contains('active'), null, { timeout: 8000 });
 
     ok('ACH a evalAch jsou definované', await page.evaluate(() => Array.isArray(ACH) && typeof evalAch==='function'));
     ok('po startu má hráč denní sérii ≥1', await page.evaluate(() => (S.streak&&S.streak.count)>=1));
@@ -96,7 +96,7 @@ async function finishMission(page, aid, mid, tc) {
 
     // profil renderuje odznaky
     await page.evaluate(() => go('profile'));
-    await page.waitForFunction(() => document.querySelector('#s-profile')?.classList.contains('active'), { timeout: 4000 });
+    await page.waitForFunction(() => document.querySelector('#s-profile')?.classList.contains('active'), null, { timeout: 4000 });
     const slots = await page.$$('#pr-ach .ach-slot');
     ok('profil vykreslí mřížku odznaků', slots.length === await page.evaluate(()=>ACH.length), 'slotů='+slots.length);
     const haveSlots = await page.$$('#pr-ach .ach-slot.have');

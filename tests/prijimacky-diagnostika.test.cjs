@@ -32,10 +32,10 @@ const UROVEN = v => v[0] ? (v[1] ? 3 : 2) : (v[1] ? 1 : 0);
   const errs=[]; page.on('pageerror',e=>errs.push(e.message));
   page.on('console',m=>{ if(m.type()==='error'&&!/Failed to load resource|net::ERR/i.test(m.text()))errs.push(m.text()); });
   await page.goto(base+'/projects/prijimacky-matematika/diagnostika.html',{waitUntil:'domcontentloaded'});
-  await page.waitForFunction(()=>window.PZ_TOPICS&&window.RPG_CERMAT_9&&window.PZ,{timeout:8000});
+  await page.waitForFunction(()=>window.PZ_TOPICS&&window.RPG_CERMAT_9&&window.PZ,null,{timeout:8000});
   console.log('── Přijímačky: diagnostika ──');
   await page.click('button.pz-btn.primary:has-text("Začít")');
-  await page.waitForFunction(()=>document.getElementById('dg-run').style.display!=='none',{timeout:5000});
+  await page.waitForFunction(()=>document.getElementById('dg-run').style.display!=='none',null,{timeout:5000});
   const T=await page.evaluate(()=>PZ_TOPICS.list.length);
   ok(await page.evaluate(()=>document.getElementById('dg-n').textContent)===String(2*T),'dvě úlohy na téma ('+(2*T)+')');
 
@@ -59,7 +59,7 @@ const UROVEN = v => v[0] ? (v[1] ? 3 : 2) : (v[1] ? 1 : 0);
       else { document.getElementById('dg-input').value=spravne?String(it.ans):'___WRONG___'; dgSubmit(); }
     },{spravne,pouzijNevim});
   }
-  await page.waitForFunction(()=>document.getElementById('dg-end').style.display!=='none',{timeout:5000});
+  await page.waitForFunction(()=>document.getElementById('dg-end').style.display!=='none',null,{timeout:5000});
 
   ok(urovne.filter(x=>x.krok===0).every(x=>x.u==='test'),'první úloha tématu je vždy na úrovni testu');
   const druhe=urovne.filter(x=>x.krok===1);

@@ -65,12 +65,12 @@ async function run() {
     const page = await ctx.newPage();
     page.on('pageerror', e=>errors.push(e.message));
     await page.setContent(harness(), { waitUntil:'load' });
-    await page.waitForFunction(()=>typeof window.RPGBattle!=='undefined',{timeout:5000});
+    await page.waitForFunction(()=>typeof window.RPGBattle!=='undefined',null,{timeout:5000});
 
     // založ souboj jako host
     await page.evaluate(()=>{ RPGBattle.open({game:'RPG_MAT_9', name:'Me', autoAction:'host'}); });
     await page.evaluate(()=>RPGBattle._create(5));
-    await page.waitForFunction(()=>!!window.__cb,{timeout:4000});
+    await page.waitForFunction(()=>!!window.__cb,null,{timeout:4000});
     ok('host založil místnost (polling běží)', true);
 
     const now=new Date().toISOString();
@@ -81,13 +81,13 @@ async function run() {
     // lobby
     await feed({battle:{status:'lobby',code:'WXYZ',q_seed:7,q_count:5,q_index:-1},
       players:[{user_id:'u-me',display_name:'Me'},{user_id:'u-op',display_name:'Soupeř'}],me:'u-me'});
-    await page.waitForFunction(()=>/Čekárna/.test(document.body.textContent),{timeout:3000});
+    await page.waitForFunction(()=>/Čekárna/.test(document.body.textContent),null,{timeout:3000});
     ok('lobby ukazuje kód a 2 hráče', await page.evaluate(()=>/WXYZ/.test(document.body.textContent)));
 
     // start → otázka 0 (odpočet se přeskočí kvůli reduced-motion)
     await feed({battle:{status:'active',q_seed:7,q_count:5,q_index:0,q_started_at:now},
       players:[P(0,0,-1),O(0,0,-1)],me:'u-me'});
-    await page.waitForFunction(()=>!!document.getElementById('rpgb-choices'),{timeout:3000});
+    await page.waitForFunction(()=>!!document.getElementById('rpgb-choices'),null,{timeout:3000});
     ok('otázka 0 vykreslena', await page.evaluate(()=>/OTÁZKA 1 \/ 5/.test(document.body.textContent)));
 
     // Kahoot dlaždice: 4 barvy + tvary
@@ -101,14 +101,14 @@ async function run() {
 
     // odpovím správně (tile 0) → zápis odpovědi + žebříček
     await page.click('#rpgb-c0');
-    await page.waitForFunction(()=>/Správně/.test(document.body.textContent),{timeout:2000});
+    await page.waitForFunction(()=>/Správně/.test(document.body.textContent),null,{timeout:2000});
     ok('správná odpověď → zelená zpětná vazba', await page.evaluate(()=>/Správně/.test(document.getElementById('rpgb-fb').textContent)));
     ok('správná dlaždice označena .ok', await page.evaluate(()=>document.getElementById('rpgb-c0').classList.contains('ok')));
 
     // poll s aktualizovaným skóre → host přehled + průběžný žebříček
     await feed({battle:{status:'active',q_seed:7,q_count:5,q_index:0,q_started_at:now},
       players:[P(1200,1,0),O(0,0,0)],me:'u-me'});
-    await page.waitForFunction(()=>/PRŮBĚŽNÉ POŘADÍ/.test(document.body.textContent),{timeout:2000});
+    await page.waitForFunction(()=>/PRŮBĚŽNÉ POŘADÍ/.test(document.body.textContent),null,{timeout:2000});
     ok('mezikolo: průběžný žebříček s 🥇', await page.evaluate(()=>/🥇/.test(document.getElementById('rpgb-stand').textContent)));
     const ansTxt = await page.evaluate(()=>document.getElementById('rpgb-ans').textContent);
     ok('host přehled: ✓1 ✗1 (jeden správně, jeden špatně)', /✓1/.test(ansTxt)&&/✗1/.test(ansTxt), ansTxt);
@@ -116,7 +116,7 @@ async function run() {
     // konec souboje → výsledky + zápis výsledku
     await feed({battle:{status:'finished',q_seed:7,q_count:5,q_index:5},
       players:[P(1200,1,0),O(0,0,0)],me:'u-me'});
-    await page.waitForFunction(()=>/Konec souboje/.test(document.body.textContent),{timeout:3000});
+    await page.waitForFunction(()=>/Konec souboje/.test(document.body.textContent),null,{timeout:3000});
     ok('výsledková listina: 🥇 vítěz', await page.evaluate(()=>/🥇/.test(document.body.textContent)));
     ok('recordBattleResult zavolán jednou', await page.evaluate(()=>window.__rec)===1);
 
@@ -129,28 +129,28 @@ async function run() {
     // ── ODVETA (host) ──
     ok('výsledky mají tlačítko Odveta', await page.evaluate(()=>/Odveta/.test(document.body.textContent)));
     await page.evaluate(()=>RPGBattle._rematch());
-    await page.waitForFunction(()=>window.__rematch===1,{timeout:2000});
+    await page.waitForFunction(()=>window.__rematch===1,null,{timeout:2000});
     ok('Odveta volá rematchBattle', true);
     // poll po odvetě vrátí lobby → klient sám spadne do čekárny
     await feed({battle:{status:'lobby',code:'WXYZ',q_seed:99,q_count:5,q_index:-1},
       players:[{user_id:'u-me',display_name:'Me'},{user_id:'u-op',display_name:'Soupeř'}],me:'u-me'});
-    await page.waitForFunction(()=>/Čekárna/.test(document.body.textContent),{timeout:3000});
+    await page.waitForFunction(()=>/Čekárna/.test(document.body.textContent),null,{timeout:3000});
     ok('po odvetě zpět v čekárně (stejná místnost)', true);
 
     // ── TÝMOVÝ REŽIM ──
     await page.evaluate(()=>{ RPGBattle.open({game:'RPG_MAT_9', name:'Me', autoAction:'host'}); RPGBattle._mode(1); });
     await page.evaluate(()=>RPGBattle._create(5));
-    await page.waitForFunction(()=>!!window.__cb,{timeout:3000});
+    await page.waitForFunction(()=>!!window.__cb,null,{timeout:3000});
     const T=(id,nm,score,team)=>({user_id:id,display_name:nm,score:score,correct_count:0,last_qi:-1,team:team});
     await feed({battle:{status:'lobby',code:'WXYZ',q_seed:7,q_count:5,q_index:-1,team_mode:true},
       players:[T('u-me','Me',0,0),T('u-op','Soupeř',0,1)],teams:{'0':0,'1':0},me:'u-me'});
-    await page.waitForFunction(()=>/Modří/.test(document.body.textContent),{timeout:3000});
+    await page.waitForFunction(()=>/Modří/.test(document.body.textContent),null,{timeout:3000});
     ok('týmové lobby: Modří vs. Červení', await page.evaluate(()=>/Modří/.test(document.body.textContent)&&/Červení/.test(document.body.textContent)));
 
     // konec týmového souboje → banner vítězného týmu
     await feed({battle:{status:'finished',q_seed:7,q_count:5,q_index:5,team_mode:true},
       players:[T('u-me','Me',1500,0),T('u-op','Soupeř',300,1)],teams:{'0':1500,'1':300},me:'u-me'});
-    await page.waitForFunction(()=>/Vyhráli modří/.test(document.body.textContent),{timeout:3000});
+    await page.waitForFunction(()=>/Vyhráli modří/.test(document.body.textContent),null,{timeout:3000});
     ok('týmové výsledky: banner „Vyhráli modří!"', await page.evaluate(()=>/Vyhráli modří/.test(document.body.textContent)&&/1500 : 300/.test(document.body.textContent)));
 
     ok('žádné JS chyby', errors.length===0, errors.join(' | '));

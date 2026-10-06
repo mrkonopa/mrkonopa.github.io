@@ -53,7 +53,7 @@ function serve() {
         const page = await ctx.newPage();
         page.on('pageerror', e => errs.push(g + '/' + vp.label + ': ' + e.message));
         await page.goto(`http://localhost:${PORT}/projects/rpg-mat-${g}.html`, { waitUntil: 'domcontentloaded' });
-        await page.waitForFunction(() => typeof startGame === 'function' && typeof launchBattle === 'function', { timeout: 8000 });
+        await page.waitForFunction(() => typeof startGame === 'function' && typeof launchBattle === 'function', null, { timeout: 8000 });
         await page.evaluate(() => { localStorage.clear(); startGame('Test'); S.tutorialDone = true; });
         await page.evaluate(() => { const ar = AREAS.find(a => a.id === 1); launchBattle(1, ar.missions[0].id); });
         await page.waitForTimeout(400);   // nech doběhnout pár snímků smyčky

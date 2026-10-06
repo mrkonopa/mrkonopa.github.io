@@ -73,7 +73,7 @@ const ok=(c,m)=>{if(c){pass++;console.log('  ✓ '+m);}else{fail++;console.log('
     BT.idx=idx;renderTask();
   });
   // launchBattle zamkne ÚTOK na ~700 ms (boss-entry animace) → počkej na odemčení
-  await page.waitForFunction(()=>!document.getElementById('attack-btn').disabled,{timeout:2500}).catch(()=>{});
+  await page.waitForFunction(()=>!document.getElementById('attack-btn').disabled,null,{timeout:2500}).catch(()=>{});
   ok(await page.evaluate(()=>!document.getElementById('attack-btn').disabled),'ÚTOK je na startu enabled');
   await page.evaluate(()=>{document.getElementById('bt-ans').value=BT.curTask.ans;submitAnswer();});
   await page.waitForFunction(()=>document.getElementById('next-btn').style.display!=='none');
@@ -91,7 +91,7 @@ const ok=(c,m)=>{if(c){pass++;console.log('  ✓ '+m);}else{fail++;console.log('
   await page.waitForTimeout(150);
   const ynNow=await page.evaluate(()=>document.getElementById('yn-row').style.display!=='none');
   if(!ynNow){
-    await page.waitForFunction(()=>!document.getElementById('attack-btn').disabled,{timeout:4000}).catch(()=>{});
+    await page.waitForFunction(()=>!document.getElementById('attack-btn').disabled,null,{timeout:4000}).catch(()=>{});
     ok(await page.evaluate(()=>!document.getElementById('attack-btn').disabled),'ÚTOK je po DÁLE zase enabled');
   }
   else console.log('  (další úkol je ANO/NE — zámek tlačítka se netýká)');

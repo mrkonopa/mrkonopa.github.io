@@ -50,7 +50,7 @@ async function testGrade(ctx, g){
   const perr=[];
   pg.on('pageerror', e=>perr.push(e.message));
   await pg.goto(`${BASE}/projects/rpg-mat-${g}.html`,{waitUntil:'domcontentloaded'});
-  await pg.waitForFunction(()=>typeof launchBattle==='function'&&typeof submitAnswer==='function'&&typeof AREAS!=='undefined',{timeout:8000});
+  await pg.waitForFunction(()=>typeof launchBattle==='function'&&typeof submitAnswer==='function'&&typeof AREAS!=='undefined',null,{timeout:8000});
   await pg.evaluate(PLAY);
 
   // start hry
@@ -77,7 +77,7 @@ async function testGrade(ctx, g){
 
   // 4) xpClaimed přežije reload (trvalý záznam)
   await pg.reload({waitUntil:'domcontentloaded'});
-  await pg.waitForFunction(()=>typeof loadS==='function',{timeout:8000});
+  await pg.waitForFunction(()=>typeof loadS==='function',null,{timeout:8000});
   await pg.evaluate(PLAY);
   const persisted=await pg.evaluate(()=>{loadS();return Object.keys(S.xpClaimed||{}).length;});
   ok(`[g${g}] xpClaimed přežije reload`, persisted>=6, 'claimů='+persisted);

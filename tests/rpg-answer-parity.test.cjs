@@ -114,7 +114,7 @@ console.log('\n── Hodnocení odpovědí je ve všech ročnících stejné �
       await ctx.route('**/*', r => r.request().url().startsWith('http://localhost:' + PORT) ? r.continue() : r.abort());
       const page = await ctx.newPage();
       await page.goto(`http://localhost:${PORT}/projects/rpg-mat-${g}.html`, { waitUntil: 'domcontentloaded' });
-      await page.waitForFunction(() => typeof checkAns === 'function', { timeout: 8000 });
+      await page.waitForFunction(() => typeof checkAns === 'function', null, { timeout: 8000 });
 
       const r = await page.evaluate((vstupy) => ({
         podpis: checkAns.toString().replace(/\s+/g, ' ').trim(),

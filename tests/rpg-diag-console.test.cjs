@@ -87,13 +87,13 @@ async function run() {
     page.on('console', m=>{ if(m.type()==='error' && !/Failed to load resource|ERR_/i.test(m.text())) errors.push(m.text()); });
     await page.addInitScript(mockScript(scenario));
     await page.goto(`${BASE}/projects/rpg-ucitel.html`, { waitUntil:'load' });
-    await page.waitForFunction(()=>!document.getElementById('console').classList.contains('hidden'), {timeout:8000});
+    await page.waitForFunction(()=>!document.getElementById('console').classList.contains('hidden'), null, {timeout:8000});
     // počkej na načtení ROWS
-    await page.waitForFunction(()=>Array.isArray(window.ROWS) && window.ROWS.length>=2, {timeout:6000}).catch(()=>{});
+    await page.waitForFunction(()=>Array.isArray(window.ROWS) && window.ROWS.length>=2, null, {timeout:6000}).catch(()=>{});
 
     // přepni na DIAGNOSTIKA
     await page.click('.tab[data-tab="diag"]');
-    await page.waitForFunction(()=>!document.getElementById('t-diag').classList.contains('hidden'),{timeout:4000});
+    await page.waitForFunction(()=>!document.getElementById('t-diag').classList.contains('hidden'),null,{timeout:4000});
     ok('záložka Diagnostika se otevře', true);
 
     const opts = await page.evaluate(()=>document.getElementById('diag-game').options.length);
@@ -101,7 +101,7 @@ async function run() {
 
     // vyber 9. ročník
     await page.evaluate(()=>{ const s=document.getElementById('diag-game'); s.value='RPG_MAT_9'; renderDiag(); });
-    await page.waitForFunction(()=>/Bootovací sekvence/.test(document.getElementById('diag-wrap').textContent),{timeout:4000});
+    await page.waitForFunction(()=>/Bootovací sekvence/.test(document.getElementById('diag-wrap').textContent),null,{timeout:4000});
     const txt = await page.evaluate(()=>document.getElementById('diag-wrap').textContent);
 
     ok('heatmapa ukazuje názvy misí', /Bootovací sekvence/.test(txt));
@@ -151,7 +151,7 @@ async function run() {
       const p2 = await c2.newPage();
       await p2.addInitScript(mockScript(podvrh));
       await p2.goto(`${BASE}/projects/rpg-ucitel.html`, { waitUntil:'domcontentloaded' });
-      await p2.waitForFunction(()=>!document.getElementById('console').classList.contains('hidden'), {timeout:8000});
+      await p2.waitForFunction(()=>!document.getElementById('console').classList.contains('hidden'), null, {timeout:8000});
       await p2.click('[data-tab="diag"]');
       await p2.waitForTimeout(700);
       const t2 = await p2.evaluate(()=>{ const s=document.getElementById('diag-game'); if(s){s.value='RPG_MAT_9';}

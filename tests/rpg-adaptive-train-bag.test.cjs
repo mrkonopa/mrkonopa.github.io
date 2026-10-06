@@ -25,13 +25,13 @@ const ok = (c, m) => { if (c) { pass++; } else { fail++; console.log('  ❌ ' + 
   page.on('pageerror', e => errs.push(e.message));
   console.log(`  (ročník ${GRADE})`);
   await page.goto(`http://127.0.0.1:${PORT}/projects/rpg-mat-${GRADE}.html`, { waitUntil: 'domcontentloaded' });
-  await page.waitForFunction(() => typeof startTrain === 'function' && typeof trBuildBag === 'function', { timeout: 8000 });
+  await page.waitForFunction(() => typeof startTrain === 'function' && typeof trBuildBag === 'function', null, { timeout: 8000 });
 
   await page.evaluate(() => { localStorage.clear(); const inp = document.getElementById('ni'); if (inp) inp.value = 'TEST'; startGame(); });
-  await page.waitForFunction(() => document.querySelector('#s-map')?.classList.contains('active'), { timeout: 5000 });
+  await page.waitForFunction(() => document.querySelector('#s-map')?.classList.contains('active'), null, { timeout: 5000 });
 
   await page.evaluate(() => startTrain('1-1'));
-  await page.waitForFunction(() => TR.task != null, { timeout: 5000 });
+  await page.waitForFunction(() => TR.task != null, null, { timeout: 5000 });
 
   // ── 1) bez chyb: pytlík má poolLen položek přesně jednou (žádné duplikáty) ──
   const uniformCheck = await page.evaluate(() => {

@@ -87,10 +87,10 @@ async function run() {
     page.on('console', m=>{ if(m.type()==='error' && !/Failed to load resource|ERR_/i.test(m.text())) errors.push(m.text()); });
     await page.addInitScript(mockScript(scenario));
     await page.goto(`${BASE}/projects/rpg-ucitel.html`, { waitUntil:'load' });
-    await page.waitForFunction(()=>!document.getElementById('console').classList.contains('hidden'), {timeout:8000});
-    await page.waitForFunction(()=>Array.isArray(window.ROWS) && window.ROWS.length>=5, {timeout:6000}).catch(()=>{});
+    await page.waitForFunction(()=>!document.getElementById('console').classList.contains('hidden'), null, {timeout:8000});
+    await page.waitForFunction(()=>Array.isArray(window.ROWS) && window.ROWS.length>=5, null, {timeout:6000}).catch(()=>{});
     // karta se renderuje na PŘEHLEDU (výchozí tab) přes renderTable
-    await page.waitForFunction(()=>{const el=document.getElementById('insights');return el && !el.classList.contains('hidden');},{timeout:5000});
+    await page.waitForFunction(()=>{const el=document.getElementById('insights');return el && !el.classList.contains('hidden');},null,{timeout:5000});
 
     const txt = await page.evaluate(()=>document.getElementById('insights').textContent);
     const html = await page.evaluate(()=>document.getElementById('insights').innerHTML);

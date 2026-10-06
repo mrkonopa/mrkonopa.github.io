@@ -32,7 +32,7 @@ async function testGame(ctx, g) {
   const perr = []; pg.on('pageerror', e => perr.push(e.message));
   try {
     await pg.goto(`${BASE}/projects/rpg-mat-${g}.html`, { waitUntil: 'domcontentloaded' });
-    await pg.waitForFunction(() => typeof AREAS !== 'undefined' && typeof startGame === 'function' && typeof launchBattle === 'function', { timeout: 8000 });
+    await pg.waitForFunction(() => typeof AREAS !== 'undefined' && typeof startGame === 'function' && typeof launchBattle === 'function', null, { timeout: 8000 });
     // nová postava + vysoká chybovost (stresuje váhy pytlíku/výběru → nutí opakování)
     await pg.evaluate(() => { document.getElementById('ni').value = 'TEST'; startGame(); S.tutorialDone = true; });
 

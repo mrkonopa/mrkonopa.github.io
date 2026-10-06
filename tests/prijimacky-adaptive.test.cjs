@@ -37,7 +37,7 @@ localStorage.setItem('PZ_DIAG_LAST', JSON.stringify({date:'2026-07-27',ok:6,n:10
   const page=await ctx.newPage(); page.on('pageerror',e=>errs.push(e.message));
   await page.addInitScript(SEED);
   await page.goto(URL,{waitUntil:'domcontentloaded'});
-  await page.waitForFunction(()=>window.PZ&&window.PZ_TOPICS&&PZ.pickWeakTopic,{timeout:8000});
+  await page.waitForFunction(()=>window.PZ&&window.PZ_TOPICS&&PZ.pickWeakTopic,null,{timeout:8000});
   console.log('── Přijímačky: adaptivní „Trénuj slabiny" ──');
 
   // váhy témat
@@ -57,7 +57,7 @@ localStorage.setItem('PZ_DIAG_LAST', JSON.stringify({date:'2026-07-27',ok:6,n:10
 
   // adaptivní režim reálně běží
   await page.click('#pr-adaptive-btn');
-  await page.waitForFunction(()=>document.getElementById('pr-run').style.display!=='none',{timeout:4000});
+  await page.waitForFunction(()=>document.getElementById('pr-run').style.display!=='none',null,{timeout:4000});
   // Nadpis nese ikonu režimu (dřív emoji 🎯, teď vektorová ikona terče —
   // emoji se na každém systému kreslí jinak) a hned za ní jméno okruhu.
   ok(await page.evaluate(()=>{

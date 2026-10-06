@@ -24,14 +24,14 @@ const ok = (c, m) => { if (c) { pass++; } else { fail++; console.log('  ❌ ' + 
   page.on('pageerror', e => errs.push(e.message));
   console.log(`  (ročník ${GRADE})`);
   await page.goto(`http://127.0.0.1:${PORT}/projects/rpg-mat-${GRADE}.html`, { waitUntil: 'domcontentloaded' });
-  await page.waitForFunction(() => typeof startTrain === 'function' && typeof trWeightedPick === 'function', { timeout: 8000 });
+  await page.waitForFunction(() => typeof startTrain === 'function' && typeof trWeightedPick === 'function', null, { timeout: 8000 });
 
   await page.evaluate(() => { localStorage.clear(); const inp = document.getElementById('ni'); if (inp) inp.value = 'TEST'; startGame(); });
-  await page.waitForFunction(() => document.querySelector('#s-map')?.classList.contains('active'), { timeout: 5000 });
+  await page.waitForFunction(() => document.querySelector('#s-map')?.classList.contains('active'), null, { timeout: 5000 });
 
   // vyber první nenáhodnou misi (1-1) a spusť trénink
   await page.evaluate(() => startTrain('1-1'));
-  await page.waitForFunction(() => TR.task != null, { timeout: 5000 });
+  await page.waitForFunction(() => TR.task != null, null, { timeout: 5000 });
 
   const poolLen = await page.evaluate(() => trPool().length);
   ok(poolLen >= 4, `pool mise 1-1 má aspoň 4 úlohy (má ${poolLen})`);

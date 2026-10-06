@@ -88,17 +88,17 @@ async function run() {
     page.on('pageerror', e=>errors.push(e.message));
     await page.addInitScript(mockScript(scenario));
     await page.goto(`${BASE}/projects/rpg-ucitel.html`, { waitUntil:'load' });
-    await page.waitForFunction(()=>!document.getElementById('console').classList.contains('hidden'), {timeout:8000});
+    await page.waitForFunction(()=>!document.getElementById('console').classList.contains('hidden'), null, {timeout:8000});
 
     await page.click('.tab[data-tab="battles"]');
-    await page.waitForFunction(()=>!document.getElementById('t-battles').classList.contains('hidden'),{timeout:4000});
+    await page.waitForFunction(()=>!document.getElementById('t-battles').classList.contains('hidden'),null,{timeout:4000});
     ok('záložka Souboje se otevře', true);
 
     const opts = await page.evaluate(()=>document.getElementById('bt-game').options.length);
     ok('výběr ročníku: 1 „vše" + 7 her (1.+2. stupeň)', opts===8, 'options='+opts);
     ok('výchozí = všechny ročníky (prázdná hodnota)', await page.evaluate(()=>document.getElementById('bt-game').value)==='');
 
-    await page.waitForFunction(()=>/Odehráno/.test(document.getElementById('bt-wrap').textContent),{timeout:4000});
+    await page.waitForFunction(()=>/Odehráno/.test(document.getElementById('bt-wrap').textContent),null,{timeout:4000});
     const t = await page.evaluate(()=>document.getElementById('bt-wrap').textContent);
     ok('řádek Neo: skutečné jméno + 5 odehráno', /Tomáš Anderson/.test(t)&&/neo@/.test(t));
     ok('úspěšnost Neo = 75 % (30/40)', /75%/.test(t), t.slice(0,200));
@@ -117,7 +117,7 @@ async function run() {
 
     // přepnutí na 6. ročník filtruje
     await page.evaluate(()=>{const s=document.getElementById('bt-game');s.value='RPG_MAT_6';renderBattles();});
-    await page.waitForFunction(()=>window.__rpcCalls.some(c=>c.fn==='battle_stats_all'&&c.args.p_game==='RPG_MAT_6'),{timeout:4000});
+    await page.waitForFunction(()=>window.__rpcCalls.some(c=>c.fn==='battle_stats_all'&&c.args.p_game==='RPG_MAT_6'),null,{timeout:4000});
     await page.waitForTimeout(150);
     const t6 = await page.evaluate(()=>document.getElementById('bt-wrap').textContent);
     ok('filtr 6. ročník: jen Adam Šestý, ne Neo', /Adam Šestý/.test(t6)&&!/Tomáš Anderson/.test(t6), t6.slice(0,200));

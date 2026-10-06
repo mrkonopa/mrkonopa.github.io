@@ -87,18 +87,18 @@ async function run() {
     await page.addInitScript(mockScript(scenario));
     await page.goto(`${BASE}/projects/rpg-ucitel.html`, { waitUntil:'load' });
 
-    await page.waitForFunction(()=>!document.getElementById('console').classList.contains('hidden'), {timeout:8000});
+    await page.waitForFunction(()=>!document.getElementById('console').classList.contains('hidden'), null, {timeout:8000});
     ok('konzole se zobrazí superadminovi', true);
 
     // přepni na záložku Třídy
     await page.click('.tab[data-tab="classes"]');
-    await page.waitForFunction(()=>!document.getElementById('t-classes').classList.contains('hidden'),{timeout:4000});
+    await page.waitForFunction(()=>!document.getElementById('t-classes').classList.contains('hidden'),null,{timeout:4000});
     ok('záložka Třídy se otevře', true);
 
     // založ třídu
     await page.fill('#new-class','9.A');
     await page.click('button[onclick="createClassUI()"]');
-    await page.waitForFunction(()=>/9\.A/.test(document.getElementById('classes-wrap').textContent),{timeout:4000});
+    await page.waitForFunction(()=>/9\.A/.test(document.getElementById('classes-wrap').textContent),null,{timeout:4000});
     ok('nová třída „9.A" se objeví v seznamu', true);
 
     // rozbal roster a přiřaď prvního žáka
@@ -107,13 +107,13 @@ async function run() {
     const boxes = await page.$$('#classes-wrap input[type="checkbox"]');
     ok('roster ukazuje žáky k přiřazení', boxes.length>=2, 'nalezeno '+boxes.length);
     await boxes[0].click();
-    await page.waitForFunction(()=>/1 žáků|1 žák/.test(document.getElementById('classes-wrap').textContent),{timeout:4000}).catch(()=>{});
+    await page.waitForFunction(()=>/1 žáků|1 žák/.test(document.getElementById('classes-wrap').textContent),null,{timeout:4000}).catch(()=>{});
     const memberCount = await page.evaluate(()=>MEMBERSHIPS.length);
     ok('přiřazení žáka přidá členství', memberCount===1, 'memberships='+memberCount);
 
     // filtr podle třídy v přehledu
     await page.click('.tab[data-tab="overview"]');
-    await page.waitForFunction(()=>!document.getElementById('t-overview').classList.contains('hidden'),{timeout:4000});
+    await page.waitForFunction(()=>!document.getElementById('t-overview').classList.contains('hidden'),null,{timeout:4000});
     const optCount = await page.evaluate(()=>document.getElementById('fclass').options.length);
     ok('filtr tříd je naplněn', optCount===2, 'options='+optCount);
     const assignedUid = await page.evaluate(()=>MEMBERSHIPS[0].user_id);
@@ -128,7 +128,7 @@ async function run() {
     ok('detail žáka má pole pro poznámku', true);
     await page.fill('#note-body','Výborně zvládnutý reaktor!');
     await page.click('button[onclick="addNoteUI(0)"]');
-    await page.waitForFunction(()=>/Výborně zvládnutý reaktor/.test(document.getElementById('notes-box').textContent),{timeout:4000});
+    await page.waitForFunction(()=>/Výborně zvládnutý reaktor/.test(document.getElementById('notes-box').textContent),null,{timeout:4000});
     ok('přidaná poznámka se zobrazí v detailu', true);
     const noteCount = await page.evaluate(()=>document.querySelectorAll('#notes-box button.red').length);
     ok('poznámka má tlačítko smazat', noteCount===1);

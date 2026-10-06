@@ -117,7 +117,7 @@ async function runTests() {
     console.log('[ 2 ] rpg-cloud.js — CONFIG a configured()');
     const { ctx: c1, page } = await newMockedPage();
     await page.goto(`${BASE}/projects/rpg-matematika.html`, { waitUntil: 'domcontentloaded' });
-    await page.waitForFunction(() => typeof window.RPGCloud !== 'undefined', { timeout: 8000 });
+    await page.waitForFunction(() => typeof window.RPGCloud !== 'undefined', null, { timeout: 8000 });
 
     const cfg = await page.evaluate(() => window.RPGCloud.CONFIG);
     ok('SUPABASE_URL vyplněna', cfg.SUPABASE_URL.startsWith('https://'), cfg.SUPABASE_URL);
@@ -133,7 +133,7 @@ async function runTests() {
     await page.waitForFunction(() => {
       const b = document.getElementById('cloud-bar');
       return b && b.style.display !== 'none' && b.style.display !== '';
-    }, { timeout: 5000 }).catch(() => {});
+    }, null, { timeout: 5000 }).catch(() => {});
 
     const barVisible = await page.evaluate(() => {
       const b = document.getElementById('cloud-bar');
@@ -182,11 +182,11 @@ async function runTests() {
     for (const g of games) {
       const { ctx: gc, page: gpage } = await newMockedPage();
       await gpage.goto(`${BASE}/projects/${g.file}`, { waitUntil: 'domcontentloaded' });
-      await gpage.waitForFunction(() => typeof window.RPGCloud !== 'undefined', { timeout: 8000 });
+      await gpage.waitForFunction(() => typeof window.RPGCloud !== 'undefined', null, { timeout: 8000 });
       await gpage.waitForFunction(() => {
         const b = document.getElementById('cloud-bar');
         return b && b.style.display !== 'none' && b.style.display !== '';
-      }, { timeout: 5000 }).catch(() => {});
+      }, null, { timeout: 5000 }).catch(() => {});
       const hasBar = await gpage.evaluate(() => {
         const b = document.getElementById('cloud-bar');
         return b ? (b.style.display !== 'none' && b.style.display !== '') : false;
@@ -228,7 +228,7 @@ async function runTests() {
     const pg4 = await ctx4.newPage();
     await pg4.addInitScript(MOCK_WITH_USER);
     await pg4.goto(`${BASE}/projects/rpg-matematika.html`, { waitUntil: 'domcontentloaded' });
-    await pg4.waitForFunction(() => typeof window.RPGCloud !== 'undefined', { timeout: 8000 });
+    await pg4.waitForFunction(() => typeof window.RPGCloud !== 'undefined', null, { timeout: 8000 });
     await pg4.waitForTimeout(1500);
     const loggedInEmail = await pg4.evaluate(() => {
       const u = window.RPGCloud.currentUser();
@@ -266,7 +266,7 @@ async function runTests() {
     // Intercept alert
     pg5.on('dialog', async d => { await d.dismiss(); });
     await pg5.goto(`${BASE}/projects/rpg-matematika.html`, { waitUntil: 'domcontentloaded' });
-    await pg5.waitForFunction(() => typeof window.RPGCloud !== 'undefined', { timeout: 8000 });
+    await pg5.waitForFunction(() => typeof window.RPGCloud !== 'undefined', null, { timeout: 8000 });
     await pg5.waitForTimeout(1500);
     const outsiderUser = await pg5.evaluate(() => {
       const u = window.RPGCloud.currentUser();

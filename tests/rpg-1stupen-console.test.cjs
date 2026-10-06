@@ -89,7 +89,7 @@ async function run(){
     {
       const {ctx,pg}=await page(SUPER);
       await pg.goto(`${BASE}/projects/rpg-ucitel.html`,{waitUntil:'domcontentloaded'});
-      await pg.waitForFunction(()=>document.querySelectorAll('.tbl tbody tr').length>0,{timeout:8000}).catch(()=>{});
+      await pg.waitForFunction(()=>document.querySelectorAll('.tbl tbody tr').length>0,null,{timeout:8000}).catch(()=>{});
       const rows=await pg.evaluate(()=>document.querySelectorAll('.tbl tbody tr').length);
       ok('Tabulka má 4 žáky (3.,4.,5.,9.)', rows===4, 'řádků: '+rows);
       const body=await pg.evaluate(()=>document.querySelector('.tbl tbody').textContent);
@@ -105,7 +105,7 @@ async function run(){
     {
       const {ctx,pg}=await page(SUPER);
       await pg.goto(`${BASE}/projects/rpg-ucitel.html`,{waitUntil:'domcontentloaded'});
-      await pg.waitForFunction(()=>typeof GAMES!=='undefined',{timeout:8000}).catch(()=>{});
+      await pg.waitForFunction(()=>typeof GAMES!=='undefined',null,{timeout:8000}).catch(()=>{});
       const has35=await pg.evaluate(()=>['RPG_MAT_3','RPG_MAT_4','RPG_MAT_5'].every(k=>GAMES.some(g=>g.key===k)&&MISSIONS_BY_GAME[k]&&MISSIONS_BY_GAME[k].length===21&&AREA_NAMES[k]&&AREA_NAMES[k].length===7));
       ok('GAMES+MISSIONS+AREA_NAMES kompletní pro 3.–5.', has35);
       // diagnostika: vyber 3. ročník a vykresli heatmapu

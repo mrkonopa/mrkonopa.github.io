@@ -130,7 +130,7 @@ async function answerWrong(page){
           if (BT.mcMode) return [...document.querySelectorAll('#mc-grid .mc-btn')].some(b => !b.disabled);
           if (BT.curTask && (BT.curTask.ans === 'ANO' || BT.curTask.ans === 'NE')) return [...document.querySelectorAll('#yn-row button')].some(b => !b.disabled);
           const inp = document.getElementById('bt-ans'); return inp && !inp.disabled;
-        }, { timeout: 4000 }).catch(() => {});
+        }, null, { timeout: 4000 }).catch(() => {});
         const before = await page.evaluate(() => document.querySelectorAll('#player-hp .heart:not(.lost)').length);
         await answerWrong(page);
         await page.waitForFunction(b => document.querySelectorAll('#player-hp .heart:not(.lost)').length < b, before, { timeout: 4000 }).catch(() => {});

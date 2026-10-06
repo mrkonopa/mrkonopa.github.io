@@ -34,15 +34,15 @@ function overlap(a, b) { return a && b && a.width > 0 && b.width > 0 && !(a.x + 
   }
   async function bootWithPet(page) {
     await page.goto(URL, { waitUntil: 'domcontentloaded' });
-    await page.waitForFunction(() => typeof RPGWallet !== 'undefined' && typeof startGame === 'function', { timeout: 8000 });
+    await page.waitForFunction(() => typeof RPGWallet !== 'undefined' && typeof startGame === 'function', null, { timeout: 8000 });
     await page.evaluate(() => { window.__SPONKA_COOLDOWN_MS = 0; localStorage.clear(); const i = document.getElementById('ni'); if (i) i.value = 'TEST'; startGame(); });
-    await page.waitForFunction(() => document.querySelector('#s-map')?.classList.contains('active'), { timeout: 5000 });
+    await page.waitForFunction(() => document.querySelector('#s-map')?.classList.contains('active'), null, { timeout: 5000 });
     await page.evaluate(() => { RPGWallet.earn(30000); RPGWallet.buy('pet-sova'); });
     await page.waitForTimeout(150);
   }
   async function enterBattle(page) {
     await page.evaluate(() => { const ar = AREAS[0], m = ar.missions[0]; launchBattle(ar.id, m.id); });
-    await page.waitForFunction(() => typeof BT !== 'undefined' && BT.curTask, { timeout: 5000 });
+    await page.waitForFunction(() => typeof BT !== 'undefined' && BT.curTask, null, { timeout: 5000 });
     await page.waitForTimeout(800); // ať se scéna a tlačítka ustálí
   }
 
@@ -74,14 +74,14 @@ function overlap(a, b) { return a && b && a.width > 0 && b.width > 0 && !(a.x + 
   {
     const { ctx, page } = await newPage();
     await page.goto(URL, { waitUntil: 'domcontentloaded' });
-    await page.waitForFunction(() => typeof RPGWallet !== 'undefined' && typeof startGame === 'function', { timeout: 8000 });
+    await page.waitForFunction(() => typeof RPGWallet !== 'undefined' && typeof startGame === 'function', null, { timeout: 8000 });
     // NEnastavuj cooldown=0 → ověř skutečný cooldown
     await page.evaluate(() => { localStorage.clear(); const i = document.getElementById('ni'); if (i) i.value = 'TEST'; startGame(); });
-    await page.waitForFunction(() => document.querySelector('#s-map')?.classList.contains('active'), { timeout: 5000 });
+    await page.waitForFunction(() => document.querySelector('#s-map')?.classList.contains('active'), null, { timeout: 5000 });
     await page.evaluate(() => { RPGWallet.earn(30000); RPGWallet.buy('pet-sova'); });
     await page.waitForTimeout(150);
     await page.evaluate(() => { go('train'); startTrain('1-1'); });
-    await page.waitForFunction(() => document.querySelector('#s-train')?.classList.contains('active') && TR.task != null, { timeout: 5000 });
+    await page.waitForFunction(() => document.querySelector('#s-train')?.classList.contains('active') && TR.task != null, null, { timeout: 5000 });
     // vyvolej dobrou náladu, ale s reálným cooldownem 100 s
     await page.evaluate(() => { TR.streak = 5; TR.total = 5; TR.correct = 5; });
     await page.waitForTimeout(4300);

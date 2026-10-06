@@ -52,7 +52,7 @@ window.RPGCloud = {
 
   // ── A: pozvánka pro tento ročník se zobrazí ──────────────────────
   await openMenu([{ id:'i1', code:'ABCD', host_name:'Karel', game:'RPG_MAT_9', status:'lobby' }]);
-  await page.waitForFunction(() => /Máš pozvánku/.test(document.getElementById('rpgb-invites')?.textContent || ''), { timeout: 3000 }).catch(()=>{});
+  await page.waitForFunction(() => /Máš pozvánku/.test(document.getElementById('rpgb-invites')?.textContent || ''), null, { timeout: 3000 }).catch(()=>{});
   const invHtml = await page.evaluate(() => document.getElementById('rpgb-invites').innerHTML);
   ok(/Máš pozvánku/.test(invHtml), 'menu ukáže box s pozvánkou');
   ok(/ABCD/.test(invHtml) && /Karel/.test(invHtml), 'pozvánka obsahuje kód i jméno hosta');
@@ -81,7 +81,7 @@ window.RPGCloud = {
   ok(true, 'host čekárna ukáže pole pro pozvání e-mailem');
   await page.fill('#rpgb-invmail', 'zak@husovaliberec.cz');
   await page.click('button[onclick="RPGBattle._invite()"]');
-  await page.waitForFunction(() => /odeslána/.test(document.getElementById('rpgb-invmsg')?.textContent || ''), { timeout: 3000 }).catch(()=>{});
+  await page.waitForFunction(() => /odeslána/.test(document.getElementById('rpgb-invmsg')?.textContent || ''), null, { timeout: 3000 }).catch(()=>{});
   const inviteCalls = await page.evaluate(() => window.__calls.invite);
   ok(inviteCalls.length === 1 && inviteCalls[0][0] === 'b9' && inviteCalls[0][1] === 'zak@husovaliberec.cz', 'Pozvat zavolá inviteBattleEmail(battleId, email)');
   const msg = await page.evaluate(() => document.getElementById('rpgb-invmsg').textContent);

@@ -32,7 +32,7 @@ async function testGame(ctx, g){
   const perr=[];pg.on('pageerror',e=>perr.push(e.message));
   try{
     await pg.goto(`${BASE}/projects/rpg-mat-${g}.html`,{waitUntil:'domcontentloaded'});
-    await pg.waitForFunction(()=>typeof recommendedMission==='function'&&typeof AREAS!=='undefined'&&typeof startGame==='function',{timeout:8000});
+    await pg.waitForFunction(()=>typeof recommendedMission==='function'&&typeof AREAS!=='undefined'&&typeof startGame==='function',null,{timeout:8000});
 
     // nová postava + nastav chybovost: 3-1 nejvíc (5), 2-2 vysoká ale ZVLÁDNUTÁ (9), 1-1 jen 1 chyba
     await pg.evaluate(()=>{document.getElementById('ni').value='TEST';startGame();});

@@ -27,7 +27,7 @@ const ok=(c,m)=>{ if(c){pass++;console.log('  ✅ '+m);} else {fail++;console.lo
 
   // ── část 1: mapa slot→okruh + agregace (na stránce testu, kde je vše načtené) ──
   await page.goto(base+'/projects/prijimacky-matematika/test.html',{waitUntil:'domcontentloaded'});
-  await page.waitForFunction(()=>window.PZ&&window.PZ_TOPICS&&PZ_TOPICS.topicsForSlot&&PZ.recordTestTopics,{timeout:8000});
+  await page.waitForFunction(()=>window.PZ&&window.PZ_TOPICS&&PZ_TOPICS.topicsForSlot&&PZ.recordTestTopics,null,{timeout:8000});
   console.log('── Smyčka test → adaptivita ──');
 
   const map = await page.evaluate(()=>({
@@ -127,12 +127,12 @@ const ok=(c,m)=>{ if(c){pass++;console.log('  ✅ '+m);} else {fail++;console.lo
 
   // deep-link z doporučení skutečně nastartuje daný okruh
   await page.goto(base+'/projects/prijimacky-matematika/procvicovani.html?okruh=rovnice',{waitUntil:'domcontentloaded'});
-  await page.waitForFunction(()=>window.PR&&PR.topic,{timeout:6000}).catch(()=>{});
+  await page.waitForFunction(()=>window.PR&&PR.topic,null,{timeout:6000}).catch(()=>{});
   ok(await page.evaluate(()=>!!(PR.topic&&PR.topic.id==='rovnice')), 'deep-link ?okruh=rovnice nastartuje ten okruh');
 
   // ── část 5: cloud merge nesmí testová data ztratit ──
   await page.goto(base+'/projects/prijimacky-matematika/statistiky.html',{waitUntil:'domcontentloaded'});
-  await page.waitForFunction(()=>window.PZ&&PZ.topicWeights,{timeout:8000});
+  await page.waitForFunction(()=>window.PZ&&PZ.topicWeights,null,{timeout:8000});
   const stat = await page.evaluate(()=>{
     localStorage.setItem('PZ_TEST_TOPICS', JSON.stringify({ rovnice:{ok:1,total:4,last:Date.now()} }));
     localStorage.removeItem('PZ_PRACTICE_PROGRESS');

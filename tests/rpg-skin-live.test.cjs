@@ -51,7 +51,7 @@ const otisk = s => crypto.createHash('sha256').update(s || '').digest('hex').sli
     const chyby = [];
     pg.on('pageerror', e => chyby.push(e.message));
     await pg.goto(`http://localhost:${PORT}/projects/rpg-mat-${g}.html`, { waitUntil: 'domcontentloaded' });
-    await pg.waitForFunction(() => typeof startGame === 'function', { timeout: 20000 });
+    await pg.waitForFunction(() => typeof startGame === 'function', null, { timeout: 20000 });
 
     const r = await pg.evaluate(async gg => {
       const spi = () => window['RPGSprites' + gg];
@@ -129,7 +129,7 @@ const otisk = s => crypto.createHash('sha256').update(s || '').digest('hex').sli
 
     const nacti = async g => {
       await pg.goto(`http://localhost:${PORT}/projects/rpg-mat-${g}.html`, { waitUntil: 'domcontentloaded' });
-      await pg.waitForFunction(() => typeof startGame === 'function', { timeout: 20000 });
+      await pg.waitForFunction(() => typeof startGame === 'function', null, { timeout: 20000 });
       return pg.evaluate(async () => {
         startGame('Zkouška'); S.tutorialDone = true;
         document.documentElement.classList.add('reduced-motion');
@@ -141,14 +141,14 @@ const otisk = s => crypto.createHash('sha256').update(s || '').digest('hex').sli
     };
 
     await pg.goto(`http://localhost:${PORT}/projects/rpg-mat-6.html`, { waitUntil: 'domcontentloaded' });
-    await pg.waitForFunction(() => typeof RPGWallet !== 'undefined', { timeout: 20000 });
+    await pg.waitForFunction(() => typeof RPGWallet !== 'undefined', null, { timeout: 20000 });
     await pg.evaluate(() => localStorage.clear());
 
     const cista = await nacti(7);
     ok(cista.aktivni == null, 'čistá peněženka nemá aktivní skin', String(cista.aktivni));
 
     await pg.goto(`http://localhost:${PORT}/projects/rpg-mat-6.html`, { waitUntil: 'domcontentloaded' });
-    await pg.waitForFunction(() => typeof RPGWallet !== 'undefined', { timeout: 20000 });
+    await pg.waitForFunction(() => typeof RPGWallet !== 'undefined', null, { timeout: 20000 });
     const koupe = await pg.evaluate(() => { RPGWallet.earn(99999); const r = RPGWallet.buy('skin-gold');
       return { ok: !!(r && r.ok), aktivni: RPGWallet.activeId('skin') }; });
     ok(koupe.ok, 'skin se dá koupit v 6. ročníku');

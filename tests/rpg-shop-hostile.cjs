@@ -118,12 +118,12 @@ async function runStudent(browser, base, idx) {
     await page.waitForSelector('#ni', { timeout: 8000 });
     await page.fill('#ni', 'HACKER' + idx);
     await page.evaluate(() => startGame());
-    await page.waitForFunction(() => document.querySelector('#s-map')?.classList.contains('active'), { timeout: 8000 });
+    await page.waitForFunction(() => document.querySelector('#s-map')?.classList.contains('active'), null, { timeout: 8000 });
 
     // ── LEGIT: dokonči numerickou misi 1-2, vydělej kredity (MC je flaky na klikání) ──
     const before = await page.evaluate(() => __eco.credits());
     await page.evaluate(() => { try { launchBattle(1, '1-2'); } catch(e){} });
-    await page.waitForFunction(() => document.querySelector('#s-battle')?.classList.contains('active'), { timeout: 6000 }).catch(()=>{});
+    await page.waitForFunction(() => document.querySelector('#s-battle')?.classList.contains('active'), null, { timeout: 6000 }).catch(()=>{});
     // Vypni náhodné minihry (34 % šance/úkol) — test měří EKONOMIKU, ne minihry;
     // žák, který si vylosoval minihru na idx 0, by jinak nevydělal nic.
     await page.evaluate(() => { try { BT.mini = Object.fromEntries(Array.from({ length: 20 }, (_, i) => [i, null])); renderTask(); } catch(e){} });
@@ -136,7 +136,7 @@ async function runStudent(browser, base, idx) {
         if (!document.querySelector('#s-battle')?.classList.contains('active')) return true;
         if (BT.mcMode) return [...document.querySelectorAll('#mc-grid .mc-btn')].some(b => !b.disabled);
         const inp = document.getElementById('bt-ans'); return inp && !inp.disabled;
-      }, { timeout: 4000 }).catch(()=>{});
+      }, null, { timeout: 4000 }).catch(()=>{});
       const st = await page.evaluate(async () => {
         if (!document.querySelector('#s-battle')?.classList.contains('active')) return { done:true };
         const t = BT.curTask || BT.tasks[BT.idx]; if (!t) return { done:true };

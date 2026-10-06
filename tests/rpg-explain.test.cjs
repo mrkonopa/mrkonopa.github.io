@@ -73,7 +73,7 @@ async function freshPage() {
   await page.waitForSelector('#ni', { timeout: 8000 });
   await page.fill('#ni', 'TestHrdina');
   await page.evaluate(() => startGame());
-  await page.waitForFunction(() => document.querySelector('#s-map')?.classList.contains('active'), { timeout: 8000 });
+  await page.waitForFunction(() => document.querySelector('#s-map')?.classList.contains('active'), null, { timeout: 8000 });
   // onboarding overlay (#172) jinak zachytí reálné page.click/page.fill
   await page.evaluate(() => { S.tutorialDone = true; });
 }
@@ -91,7 +91,7 @@ async function openNonMCBattle() {
     return false;
   });
   if (!result) return false;
-  await page.waitForFunction(() => document.querySelector('#s-battle')?.classList.contains('active'), { timeout: 5000 }).catch(() => {});
+  await page.waitForFunction(() => document.querySelector('#s-battle')?.classList.contains('active'), null, { timeout: 5000 }).catch(() => {});
   // Vypni náhodné minihry (34 % šance/úkol) — při minihře je curTask.ans=''
   // („No answer found") a tlačítko ÚTOK skryté (click visel 30 s) → flaky.
   // Zároveň vynuť čisté text-input kolo (ne ANO/NE) — u YN je ÚTOK skryté taky.
@@ -102,7 +102,7 @@ async function openNonMCBattle() {
   } catch (e) {} });
   // počkej na vykreslenou úlohu s odpovědí — fixní sleep byl flaky (curTask
   // se plní v drawTask; pod zátěží 300 ms nestačilo → „No answer found")
-  await page.waitForFunction(() => !!(window.BT && BT.curTask && String(BT.curTask.ans ?? '').length), { timeout: 5000 }).catch(() => {});
+  await page.waitForFunction(() => !!(window.BT && BT.curTask && String(BT.curTask.ans ?? '').length), null, { timeout: 5000 }).catch(() => {});
   return await page.evaluate(() => !!(BT && BT.curTask && !BT.mcMode));
 }
 
@@ -117,8 +117,8 @@ async function openMCBattle() {
     return false;
   });
   if (!result) return false;
-  await page.waitForFunction(() => document.querySelector('#s-battle')?.classList.contains('active'), { timeout: 5000 }).catch(() => {});
-  await page.waitForFunction(() => !!(window.BT && BT.curTask && String(BT.curTask.ans ?? '').length), { timeout: 5000 }).catch(() => {});
+  await page.waitForFunction(() => document.querySelector('#s-battle')?.classList.contains('active'), null, { timeout: 5000 }).catch(() => {});
+  await page.waitForFunction(() => !!(window.BT && BT.curTask && String(BT.curTask.ans ?? '').length), null, { timeout: 5000 }).catch(() => {});
   return await page.evaluate(() => !!(BT && BT.curTask && BT.mcMode));
 }
 
@@ -144,10 +144,10 @@ async function openMCBattle() {
       if (!found) { console.log('    (skipped — no text-input battle found)'); return; }
       const ans = await page.evaluate(() => BT?.curTask?.ans || '');
       assert.ok(ans, 'No answer found');
-      await page.waitForFunction(() => { const i = document.getElementById('bt-ans'); return i && !i.disabled; }, { timeout: 4000 }).catch(() => {});
+      await page.waitForFunction(() => { const i = document.getElementById('bt-ans'); return i && !i.disabled; }, null, { timeout: 4000 }).catch(() => {});
       await page.fill('#bt-ans', ans);
       await page.click('button:has-text("ÚTOK")');
-      await page.waitForFunction(() => document.getElementById('bt-explain').style.display !== 'none', { timeout: 4000 }).catch(() => {});
+      await page.waitForFunction(() => document.getElementById('bt-explain').style.display !== 'none', null, { timeout: 4000 }).catch(() => {});
       const display = await page.evaluate(() => document.getElementById('bt-explain').style.display);
       assert.notStrictEqual(display, 'none', 'bt-explain should be visible after correct answer');
     });
@@ -179,7 +179,7 @@ async function openMCBattle() {
         await page.click('#next-btn');
         // čekej na skutečné překreslení další úlohy — fixní sleep(400) pod
         // zátěží nestačil a textarea ještě nebyla vyčištěná
-        await page.waitForFunction(() => document.getElementById('bt-explain').style.display === 'none', { timeout: 4000 }).catch(() => {});
+        await page.waitForFunction(() => document.getElementById('bt-explain').style.display === 'none', null, { timeout: 4000 }).catch(() => {});
         const val = await page.evaluate(() => document.getElementById('bt-explain-txt').value);
         assert.strictEqual(val, '', 'textarea should be empty after next task');
         const display = await page.evaluate(() => document.getElementById('bt-explain').style.display);

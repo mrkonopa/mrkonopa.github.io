@@ -18,7 +18,7 @@ function serve(){return new Promise(res=>{const s=http.createServer((q,r)=>{let 
  const ctx=await browser.newContext(); const page=await ctx.newPage();
  const errs=[]; page.on('pageerror',e=>errs.push(e.message));
  await page.goto(base+'/projects/rpg-ucitel.html',{waitUntil:'load'});
- await page.waitForFunction(()=>typeof exportCSV==='function',{timeout:8000});
+ await page.waitForFunction(()=>typeof exportCSV==='function',null,{timeout:8000});
 
  const cap = await page.evaluate(()=>{
   // izoluj test na cell(): zastub pomocné funkce a vlož nepřátelský řádek

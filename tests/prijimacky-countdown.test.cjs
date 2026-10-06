@@ -64,7 +64,7 @@ const SKLONY = [
       await ctx.route('**/*', r => r.request().url().startsWith('http://localhost:' + PORT) ? r.continue() : r.abort());
       const page = await ctx.newPage();
       await page.goto(`http://localhost:${PORT}/projects/prijimacky-matematika/index.html`, { waitUntil: 'domcontentloaded' });
-      await page.waitForFunction(() => window.__CC_TEST, { timeout: 8000 });
+      await page.waitForFunction(() => window.__CC_TEST, null, { timeout: 8000 });
 
       const spatne = await page.evaluate((vzorky) =>
         vzorky.filter(([n, ocek]) => window.__CC_TEST.skl(n, 'den', 'dny', 'dní') !== ocek)
@@ -90,7 +90,7 @@ const SKLONY = [
       await ctx.route('**/*', r => r.request().url().startsWith('http://localhost:' + PORT) ? r.continue() : r.abort());
       const page = await ctx.newPage();
       await page.goto(`http://localhost:${PORT}/projects/prijimacky-matematika/index.html`, { waitUntil: 'domcontentloaded' });
-      await page.waitForFunction(() => window.__CC_TEST, { timeout: 8000 });
+      await page.waitForFunction(() => window.__CC_TEST, null, { timeout: 8000 });
       const r = await page.evaluate(() => {
         // 249 dní = nejdelší reálný stav (odpočet běží necelý rok).
         window.__CC_TEST.init(new Date(Date.now() + 249 * 864e5 + 16 * 36e5 + 61e3), 'test');

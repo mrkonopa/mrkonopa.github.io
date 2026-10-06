@@ -35,7 +35,7 @@ const ok = (c, m, d = '') => { if (c) { pass++; console.log('  ✅ ' + m); } els
   const page = await ctx.newPage();
   const errs = []; page.on('pageerror', e => errs.push(e.message));
   await page.goto(`http://127.0.0.1:${PORT}/projects/procenta_priklady.html`, { waitUntil: 'domcontentloaded' });
-  await page.waitForFunction(() => typeof genPart === 'function', { timeout: 8000 });
+  await page.waitForFunction(() => typeof genPart === 'function', null, { timeout: 8000 });
 
   const r = await page.evaluate(() => {
     const GEN = { part: genPart, base: genBase, percent: genPercent, increase: genIncrease,

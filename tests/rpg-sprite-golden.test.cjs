@@ -75,7 +75,7 @@ const ZMRAZ = () => {
       const chyby = [];
       pg.on('pageerror', e => chyby.push(e.message));
       await pg.goto(`http://localhost:${PORT}/projects/rpg-mat-${g}.html`, { waitUntil: 'domcontentloaded' });
-      await pg.waitForFunction(() => typeof startGame === 'function', { timeout: 20000 });
+      await pg.waitForFunction(() => typeof startGame === 'function', null, { timeout: 20000 });
       await pg.evaluate(([anim, zmrazSrc]) => {
         localStorage.clear(); startGame('T'); S.tutorialDone = true;
         if (anim) (new Function(zmrazSrc))();

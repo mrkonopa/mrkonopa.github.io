@@ -60,7 +60,7 @@ const vysledek=page=>page.evaluate(()=>{ const v=document.querySelector('#kn-vys
   page.on('console',m=>{ if(m.type()==='error'&&!/Failed to load resource|net::ERR/i.test(m.text()))errs.push(m.text()); });
   page.on('dialog',d=>d.accept());
   await page.goto(base+URL_K,{waitUntil:'domcontentloaded'});
-  await page.waitForFunction(()=>typeof KN!=='undefined'&&KN.u,{timeout:8000});
+  await page.waitForFunction(()=>typeof KN!=='undefined'&&KN.u,null,{timeout:8000});
   console.log('── Konstrukce: počítač ──');
   ok(await page.$$eval('#kn-nastroje [data-n]',b=>b.length)===7 && await page.$$eval('#kn-nastroje [data-a]',b=>b.length)===3,'lišta: 7 nástrojů (i úhloměr) + zpět, smazat, zvětšit');
   // výběr typu nesmí zapomenout nový generátor ani nabízet neexistující typ
@@ -270,7 +270,7 @@ const vysledek=page=>page.evaluate(()=>{ const v=document.querySelector('#kn-vys
   // 11) odkaz z rozboru testu (?typ=) otevře rovnou ten typ; hodnocení ukáže body jako v testu nanečisto
   {
     await page.goto(base+URL_K+'?typ=obdelnik',{waitUntil:'domcontentloaded'});
-    await page.waitForFunction(()=>typeof KN!=='undefined'&&KN.u,{timeout:8000});
+    await page.waitForFunction(()=>typeof KN!=='undefined'&&KN.u,null,{timeout:8000});
     const t=await page.evaluate(()=>({typ:KN.u.typ, sel:document.getElementById('kn-typ').value}));
     ok(t.typ==='obdelnik'&&t.sel==='obdelnik','?typ=obdelnik otevře obdélník a nastaví výběr ('+t.typ+')');
     await page.evaluate(()=>KN.u.reseni.forEach(r=>Object.values(r).forEach(p=>KN.tvary.push({typ:'bod',p}))));
@@ -284,7 +284,7 @@ const vysledek=page=>page.evaluate(()=>{ const v=document.querySelector('#kn-vys
     ok(/Správně/.test(p1)&&/za 3 z 3 b\./.test(p1)&&/Skoro!.*mírná nepřesnost/.test(p2)&&/za 2 z 3 b\./.test(p2),
       'hodnocení ukáže body jako v testu nanečisto: přesně 3 z 3, kousek vedle „Skoro!" a 2 z 3');
     await page.goto(base+URL_K+'?typ=__proto__',{waitUntil:'domcontentloaded'});
-    await page.waitForFunction(()=>typeof KN!=='undefined'&&KN.u,{timeout:8000});
+    await page.waitForFunction(()=>typeof KN!=='undefined'&&KN.u,null,{timeout:8000});
     ok(await page.evaluate(()=>PZ_KONSTRUKCE.TYPY.indexOf(KN.u.typ)>=0&&document.getElementById('kn-typ').value===''),'podvržené ?typ=__proto__ nic nerozbije (náhodný typ)');
   }
   /* 12) popisky ve snímku se vzorovým řešením (rozbor testu i procvičování).
@@ -323,7 +323,7 @@ const vysledek=page=>page.evaluate(()=>{ const v=document.querySelector('#kn-vys
     await mctx.route('**/*',blok);
     const mp=await mctx.newPage();
     await mp.goto(base+URL_K,{waitUntil:'domcontentloaded'});
-    await mp.waitForFunction(()=>typeof KN!=='undefined'&&KN.u,{timeout:8000});
+    await mp.waitForFunction(()=>typeof KN!=='undefined'&&KN.u,null,{timeout:8000});
     // Přirozená šířka výběru (bez max-width) = nejdelší položka + odsazení + šipka,
     // spočítaná TÝMŽ prohlížečem. Vejde-li se do panelu, výběr se nikdy nezúží
     // a zvolená položka se nikdy neuřízne.
@@ -347,12 +347,12 @@ const vysledek=page=>page.evaluate(()=>{ const v=document.querySelector('#kn-vys
     const tp=await tctx.newPage();
     const terrs=[]; tp.on('pageerror',e=>terrs.push(e.message));
     await tp.goto(base+URL_K,{waitUntil:'domcontentloaded'});
-    await tp.waitForFunction(()=>typeof KN!=='undefined'&&KN.u,{timeout:8000});
+    await tp.waitForFunction(()=>typeof KN!=='undefined'&&KN.u,null,{timeout:8000});
     const u=await nova(tp,'kruznice');
     // klepnutí mimo celou obrazovku nekreslí, jen otevře okno
     const [st]=await naObrazovku(tp,[{x:200,y:150}]);
     await tp.touchscreen.tap(st.x,st.y);
-    await tp.waitForFunction(()=>KN.full,{timeout:3000}).catch(()=>{});
+    await tp.waitForFunction(()=>KN.full,null,{timeout:3000}).catch(()=>{});
     const f=await tp.evaluate(()=>{ const r=document.getElementById('kn-svg').getBoundingClientRect();
       return {full:KN.full, tvaru:KN.tvary.length, v:document.getElementById('kn-full-plocha').contains(document.getElementById('kn-svg')),
         nastroje:document.getElementById('kn-full-top').contains(document.getElementById('kn-nastroje')), zvetsit:!!document.querySelector('#kn-nastroje [data-a="zvetsit"]'),

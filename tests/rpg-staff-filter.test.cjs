@@ -86,8 +86,8 @@ const mock = (opts) => `(() => {
     await pg.addInitScript(mock({ roles:ROLES, saves:SAVES, rpcWorks,
       session:{ user:{ id:'u-uc', email:UCITELKA, user_metadata:{ full_name:'Kolegyně' } } } }));
     await pg.goto(`http://127.0.0.1:${PORT}/projects/rpg-ucitel.html`, { waitUntil:'domcontentloaded' });
-    await pg.waitForFunction(() => typeof RPGCloud !== 'undefined' && typeof renderTable === 'function', { timeout:8000 });
-    await pg.waitForFunction(() => typeof ROWS !== 'undefined' && ROWS.length > 0, { timeout:8000 }).catch(()=>{});
+    await pg.waitForFunction(() => typeof RPGCloud !== 'undefined' && typeof renderTable === 'function', null, { timeout:8000 });
+    await pg.waitForFunction(() => typeof ROWS !== 'undefined' && ROWS.length > 0, null, { timeout:8000 }).catch(()=>{});
     return { ctx, pg, errs };
   }
 

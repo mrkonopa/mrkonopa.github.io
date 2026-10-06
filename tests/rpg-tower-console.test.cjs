@@ -85,10 +85,10 @@ async function run() {
     page.on('pageerror', e=>errors.push(e.message));
     await page.addInitScript(mockScript(scenario));
     await page.goto(`${BASE}/projects/rpg-ucitel.html`, { waitUntil:'load' });
-    await page.waitForFunction(()=>!document.getElementById('console').classList.contains('hidden'), {timeout:8000});
+    await page.waitForFunction(()=>!document.getElementById('console').classList.contains('hidden'), null, {timeout:8000});
 
     await page.click('.tab[data-tab="tower"]');
-    await page.waitForFunction(()=>!document.getElementById('t-tower').classList.contains('hidden'),{timeout:4000});
+    await page.waitForFunction(()=>!document.getElementById('t-tower').classList.contains('hidden'),null,{timeout:4000});
     ok('záložka Věž legend se otevře', true);
 
     const opts = await page.evaluate(()=>document.getElementById('tower-game').options.length);
@@ -96,13 +96,13 @@ async function run() {
     ok('výchozí = souhrn všech ročníků (prázdná hodnota)', await page.evaluate(()=>document.getElementById('tower-game').value)==='');
 
     // souhrn všech ročníků: přehled má nadpisy ročníků a uzavření sezóny je skryté
-    await page.waitForFunction(()=>/patro|nikdo/.test(document.getElementById('tower-board-wrap').textContent),{timeout:4000});
+    await page.waitForFunction(()=>/patro|nikdo/.test(document.getElementById('tower-board-wrap').textContent),null,{timeout:4000});
     const allView = await page.evaluate(()=>({txt:document.getElementById('tower-board-wrap').textContent, closeHidden:document.getElementById('tower-close-btn').style.display==='none'}));
     ok('souhrn ukazuje více ročníků + skrývá Uzavřít sezónu', /Neo/.test(allView.txt)&&allView.closeHidden, allView.txt.slice(0,100));
 
     // vyber konkrétní ročník (9.) → správa a single žebříček
     await page.evaluate(()=>{ const s=document.getElementById('tower-game'); s.value='RPG_MAT_9'; renderTower(); });
-    await page.waitForFunction(()=>/patro/.test(document.getElementById('tower-board-wrap').textContent)&&/top 10/.test(document.getElementById('tower-board-wrap').textContent),{timeout:4000});
+    await page.waitForFunction(()=>/patro/.test(document.getElementById('tower-board-wrap').textContent)&&/top 10/.test(document.getElementById('tower-board-wrap').textContent),null,{timeout:4000});
     const board = await page.evaluate(()=>document.getElementById('tower-board-wrap').textContent);
     ok('žebříček: 1. místo Neo 23. patro', /🥇/.test(board)&&/Neo/.test(board)&&/23\. patro/.test(board), board.slice(0,120));
     ok('žebříček: 3 řádky + popisek top 10', /Trinity/.test(board)&&/top 10/.test(board));
@@ -114,10 +114,10 @@ async function run() {
     // uzavření sezóny (confirm → OK)
     page.once('dialog', d=>d.accept());
     await page.click('#tower-close-btn');
-    await page.waitForFunction(()=>window.__rpcCalls.some(c=>c.fn==='tower_close_season'),{timeout:4000});
+    await page.waitForFunction(()=>window.__rpcCalls.some(c=>c.fn==='tower_close_season'),null,{timeout:4000});
     const call = await page.evaluate(()=>window.__rpcCalls.find(c=>c.fn==='tower_close_season'));
     ok('Uzavřít sezónu volá tower_close_season(RPG_MAT_9)', call&&call.args.p_game==='RPG_MAT_9');
-    await page.waitForFunction(()=>/zapsáno 3 jmen/.test(document.body.textContent),{timeout:4000}).catch(()=>{});
+    await page.waitForFunction(()=>/zapsáno 3 jmen/.test(document.body.textContent),null,{timeout:4000}).catch(()=>{});
     ok('toast hlásí počet zapsaných', await page.evaluate(()=>/zapsáno 3 jmen/.test(document.body.textContent)));
 
     // odmítnutý confirm → žádné další volání
@@ -130,7 +130,7 @@ async function run() {
 
     // přepnutí ročníku načte znovu
     await page.evaluate(()=>{const s=document.getElementById('tower-game');s.value='RPG_MAT_6';renderTower();});
-    await page.waitForFunction(()=>window.__rpcCalls.some(c=>c.fn==='tower_board'&&c.args.p_game==='RPG_MAT_6'),{timeout:4000});
+    await page.waitForFunction(()=>window.__rpcCalls.some(c=>c.fn==='tower_board'&&c.args.p_game==='RPG_MAT_6'),null,{timeout:4000});
     ok('přepnutí ročníku volá tower_board pro RPG_MAT_6', true);
 
     ok('žádné JS chyby', errors.length===0, errors.join(' | '));

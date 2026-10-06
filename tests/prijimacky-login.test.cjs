@@ -63,7 +63,7 @@ localStorage.setItem('PZ_PRACTICE_PROGRESS', JSON.stringify({ rovnice:{ok:5,tota
   await c0.route('**/*', r=> r.request().url().startsWith('http://127.0.0.1') ? r.continue() : r.abort());
   const p0=await c0.newPage(); p0.on('pageerror',e=>errs.push(e.message));
   await p0.goto(STATS,{waitUntil:'domcontentloaded'});
-  await p0.waitForFunction(()=>document.querySelectorAll('#st-big .st-stat').length===4,{timeout:8000});
+  await p0.waitForFunction(()=>document.querySelectorAll('#st-big .st-stat').length===4,null,{timeout:8000});
   await p0.waitForTimeout(300);
   ok(await p0.evaluate(()=>!document.querySelector('#pz-login')),'graceful: bez cloudu žádná login lišta');
   await c0.close();
@@ -75,7 +75,7 @@ localStorage.setItem('PZ_PRACTICE_PROGRESS', JSON.stringify({ rovnice:{ok:5,tota
   await p1.addInitScript(MOCK);
   await p1.goto(STATS,{waitUntil:'domcontentloaded'});
   // počkej, až sync sloučí testy (lokál 1 + cloud 1 = 2)
-  await p1.waitForFunction(()=>{ try{ return JSON.parse(localStorage.getItem('PZ_CERMAT_ATTEMPTS')||'[]').length===2; }catch(e){ return false; } },{timeout:8000});
+  await p1.waitForFunction(()=>{ try{ return JSON.parse(localStorage.getItem('PZ_CERMAT_ATTEMPTS')||'[]').length===2; }catch(e){ return false; } },null,{timeout:8000});
 
   const att=await p1.evaluate(()=>JSON.parse(localStorage.getItem('PZ_CERMAT_ATTEMPTS')));
   ok(att.length===2 && att.some(a=>a.score===20) && att.some(a=>a.score===44),'testy sloučeny (lokál 20 + cloud 44)');

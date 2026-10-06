@@ -97,7 +97,7 @@ const mockScript = (S) => `(function(){const SCENARIO=${JSON.stringify(S)};
       page.on('pageerror', e => errs.push(e.message));
       await page.addInitScript(mockScript(SC));
       await page.goto(`http://localhost:${PORT}/projects/rpg-ucitel.html`, { waitUntil: 'domcontentloaded' });
-      await page.waitForFunction(() => typeof openDetail === 'function' && window.__filtered && window.__filtered.length, { timeout: 10000 });
+      await page.waitForFunction(() => typeof openDetail === 'function' && window.__filtered && window.__filtered.length, null, { timeout: 10000 });
       // Týdenní snímky chyb (fáze 6b) — trend se počítá z posledních dvou.
       await page.evaluate(() => {
         window.SNAP_DATA = window.SNAP_DATA || {};

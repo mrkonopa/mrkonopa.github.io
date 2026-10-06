@@ -30,7 +30,7 @@ async function run(){
       await pg.waitForSelector('#ni',{timeout:9000});
       await pg.fill('#ni','Z');
       await pg.evaluate(()=>{startGame();});
-      await pg.waitForFunction(()=>document.querySelector('#s-map')?.classList.contains('active'),{timeout:9000});
+      await pg.waitForFunction(()=>document.querySelector('#s-map')?.classList.contains('active'),null,{timeout:9000});
       // prosinec: zimní režim ON, letní zámek OFF (věž otevřená)
       const dec=await pg.evaluate(()=>({winter:twWinter().on,holiday:twHoliday().on}));
       ok(`g${g}: prosinec → zimní režim ON`, dec.winter===true, JSON.stringify(dec));
