@@ -129,7 +129,8 @@ const ok=(c,m)=>{ if(c){pass++;console.log('  ✅ '+m);} else {fail++;console.lo
      šířku se nevejde nikdy, tam se smí posunout zadání, ovládání ne.
      Sabotáž: bez `scroll-padding-bottom` spadne telefon, bez obrázku vedle
      zadání (:has) spadnou tablety s klávesnicí. */
-  let obrMer = 0, trMer = 0, twMer = 0, trDale = 0, btDale = 0, twDale = 0;
+  let obrMer = 0, trMer = 0, twMer = 0, trDale = 0, btDale = 0, twDale = 0, btPrvni = 0;
+  const mise = {};
   for (const g of [3,4,5,6,7,8,9]) {
     const spatne = [];
     for (const [jm, w, h] of ZARIZENI) {
@@ -156,7 +157,12 @@ const ok=(c,m)=>{ if(c){pass++;console.log('  ✅ '+m);} else {fail++;console.lo
             }
           }
         }
-        const nejhorsi = [...vyber.values()].sort((a, b) => b.t.text.length - a.t.text.length).slice(0, 6);
+        /* Řazení podle délky ŠABLONY (číslice → #), ne konkrétního zadání: délka zadání
+           kolísá s počtem číslic a nejhorší šablona (7. roč., 6-3) se pak do šestice
+           dostala jen někdy — test na CI padal podle losu (6. 10. 2026). */
+        const nejhorsi = [...vyber.entries()]
+          .sort((a, b) => b[0].length - a[0].length || (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0))
+          .slice(0, 6).map(e => e[1]);
         const vady = [];
         /* Trénink a věž nemají přišpendlenou lištu: roluje celá stránka a fokus
            do vstupu ji posune. Chrome ale vstup pod okrajem VYCENTRUJE, takže na
@@ -208,10 +214,12 @@ const ok=(c,m)=>{ if(c){pass++;console.log('  ✅ '+m);} else {fail++;console.lo
              takže to je ta těžší cesta. Dřív záleželo na losu první úlohy boje
              (s fokusem jen u textové), a proto test padal zhruba 1 běh z 5. */
           document.getElementById('bt-input-row').style.display = 'flex';
-          const bi = document.getElementById('bt-ans'); bi.disabled = false; bi.focus();
+          // preventScroll: test nesmí rolovat sám (prohlížeč může rolování po focus() odložit)
+          const bi = document.getElementById('bt-ans'); bi.disabled = false; bi.focus({ preventScroll: true });
           const col = document.querySelector('.bt-col-task'); col.scrollTop = 0;
           BT.tasks[BT.idx] = p.t; if (BT.mini) BT.mini[BT.idx] = null;
           renderTask();                                     // dá fokus do vstupu
+          const poRender = col.scrollTop;
           document.getElementById('next-btn').style.display = '';
           await new Promise(res => requestAnimationFrame(() => res()));
           const vh = innerHeight, lista = document.querySelector('.bt-akce').getBoundingClientRect();
@@ -219,7 +227,7 @@ const ok=(c,m)=>{ if(c){pass++;console.log('  ✅ '+m);} else {fail++;console.lo
           const prob = document.getElementById('bt-prob').getBoundingClientRect(), c = col.getBoundingClientRect();
           const zakryto = Math.round(vstup.bottom - Math.min(vh, lista.top));
           // diagnostika do hlášky: kdyby to padalo jen občas, ať je z logu vidět proč
-          if (zakryto > 1) vady.push(`vstup ${zakryto} px pod lištou (${p.mi}; sloupec ${col.scrollTop}/${col.scrollHeight - col.clientHeight}, zadání ${Math.round(prob.top)}–${Math.round(prob.bottom)}, vstup ${Math.round(vstup.top)}–${Math.round(vstup.bottom)}, lišta ${Math.round(lista.top)}, fokus ${document.activeElement && document.activeElement.id}, úloha ${BT.curTask === p.t ? 'zadaná' : 'VYMĚNĚNÁ: ' + String(BT.curTask && BT.curTask.text).slice(0, 30)})`);
+          if (zakryto > 1) vady.push(`vstup ${zakryto} px pod lištou (${p.mi}; sloupec ${poRender}→${col.scrollTop}/${col.scrollHeight - col.clientHeight}, zadání ${Math.round(prob.top)}–${Math.round(prob.bottom)}, vstup ${Math.round(vstup.top)}–${Math.round(vstup.bottom)}, lišta ${Math.round(lista.top)}, fokus ${document.activeElement && document.activeElement.id}, úloha ${BT.curTask === p.t ? 'zadaná' : 'VYMĚNĚNÁ: ' + String(BT.curTask && BT.curTask.text).slice(0, 30)})`);
           if (tablet && c.top - prob.top > 1) vady.push(`začátek zadání odjel o ${Math.round(c.top - prob.top)} px (${p.mi})`);
         }
         /* Boj a věž realisticky (průchod 5. 10. 2026): žák odpoví, sjede k DÁLE (boj),
@@ -257,18 +265,41 @@ const ok=(c,m)=>{ if(c){pass++;console.log('  ✅ '+m);} else {fail++;console.lo
           }
           TW.on = false; if (typeof twStopTimer === 'function') twStopTimer(); window.twDrawTask = puvodni;
         }
-        return { n: nejhorsi.length, vady, tr, tw, trD, btD, twD };
+        /* PRVNÍ úloha boje jako ve hře: z mapy se renderTask pustí ještě na SKRYTÉM boji
+           (go('battle') je až za ním), takže vstup zaostří a posune až konec vstupní
+           animace (700 ms). Smyčka výš tuhle cestu obchází — volá renderTask znovu. */
+        let btPrvni = 0;
+        if (innerHeight <= 500) {
+          const p = nejhorsi[0], m = AREAS.find(a => a.id === p.ar).missions.find(x => x.id === p.mi);
+          const banky = Object.keys(window).filter(k => /^RPG_TASK_EXTRA_\d$/.test(k) && window[k][p.mi]);
+          const puvB = banky.map(k => window[k][p.mi]), puvT = m.tasks, puvM = window.miniForIdx;
+          m.tasks = () => Array(12).fill(p.t); banky.forEach(k => { window[k][p.mi] = () => []; });
+          window.miniForIdx = () => null;                   // 1. kolo bez minihry
+          try { go('map'); launchBattle(p.ar, p.mi); }
+          finally { m.tasks = puvT; banky.forEach((k, i) => { window[k][p.mi] = puvB[i]; }); window.miniForIdx = puvM; }
+          await cekej(800); await raf();
+          const col = document.querySelector('.bt-col-task'), lista = document.querySelector('.bt-akce').getBoundingClientRect();
+          const v = document.getElementById('bt-input-row').getBoundingClientRect(), pr = document.getElementById('bt-prob').getBoundingClientRect(), c = col.getBoundingClientRect();
+          const zakryto = Math.round(v.bottom - Math.min(innerHeight, lista.top));
+          if (BT.curTask !== p.t) vady.push(`první úloha boje: zadaná je jiná úloha (${p.mi})`);
+          else if (document.activeElement !== document.getElementById('bt-ans')) vady.push(`první úloha boje: vstup nemá fokus (${p.mi})`);
+          else if (zakryto > 1) vady.push(`první úloha boje: vstup ${zakryto} px pod lištou (${p.mi}; sloupec ${col.scrollTop}/${col.scrollHeight - col.clientHeight})`);
+          if (tablet && c.top - pr.top > 1) vady.push(`první úloha boje: začátek zadání odjel o ${Math.round(c.top - pr.top)} px (${p.mi})`);
+          btPrvni++;
+        }
+        return { n: nejhorsi.length, vady, tr, tw, trD, btD, twD, btPrvni, mise: nejhorsi.map(p => p.mi).join(' ') };
       }, h >= 420);
-      obrMer += r.n; trMer += r.tr; twMer += r.tw; trDale += r.trD; btDale += r.btD; twDale += r.twD;
+      obrMer += r.n; trMer += r.tr; twMer += r.tw; trDale += r.trD; btDale += r.btD; twDale += r.twD; btPrvni += r.btPrvni; mise[g] = r.mise;
       for (const v of r.vady) spatne.push(`${jm}: ${v}`);
       await ctx.close();
     }
-    ok(spatne.length===0, `${g}. ročník: u 6 úloh s obrázkem a nejdelším zadáním je vstup vidět v boji, tréninku${g>=6?' i věži':''} na všech ${ZARIZENI.length} rozměrech`
+    ok(spatne.length===0, `${g}. ročník: u 6 úloh s obrázkem a nejdelším zadáním (${mise[g]}) je vstup vidět v boji, tréninku${g>=6?' i věži':''} na všech ${ZARIZENI.length} rozměrech`
       + (spatne.length ? ' — ' + spatne.slice(0,3).join(' · ') : ''));
   }
   // Pod šest úloh s obrázkem by ročník klesl jen tehdy, kdyby se obrázky ztratily.
-  ok(obrMer === 7*ZARIZENI.length*6 && trMer === obrMer && trDale === obrMer && twMer === 4*ZARIZENI.length*6 && btDale === 7*ZARIZENI.length*5 && twDale === 4*ZARIZENI.length*4,
-    `proměřeno ${obrMer} úloh s obrázkem v boji (+ ${btDale} po DÁLE), ${trMer} v tréninku (+ ${trDale} po „DALŠÍ ÚKOL“) a ${twMer} ve věži (+ ${twDale} po správné odpovědi)`);
+  const nizke = ZARIZENI.filter(z => z[2] <= 500).length;
+  ok(obrMer === 7*ZARIZENI.length*6 && trMer === obrMer && trDale === obrMer && twMer === 4*ZARIZENI.length*6 && btDale === 7*ZARIZENI.length*5 && twDale === 4*ZARIZENI.length*4 && btPrvni === 7*nizke,
+    `proměřeno ${obrMer} úloh s obrázkem v boji (+ ${btDale} po DÁLE, + ${btPrvni} prvních po vstupní animaci), ${trMer} v tréninku (+ ${trDale} po „DALŠÍ ÚKOL“) a ${twMer} ve věži (+ ${twDale} po správné odpovědi)`);
 
   await br.close(); srv.close();
   console.log(`\n══════════════════════════════════════════\n  VÝSLEDEK: ${pass} ✅ / ${fail} ❌\n══════════════════════════════════════════`);

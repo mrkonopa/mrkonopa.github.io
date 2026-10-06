@@ -1192,7 +1192,7 @@ function launchBattle(aid,mid){
  renderTask();
  {const inpEl=document.getElementById('bt-ans');const atkEl=document.getElementById('attack-btn');
   if(inpEl)inpEl.disabled=true;if(atkEl)atkEl.disabled=true;
-  setTimeout(()=>{if(!BT.bossDefeated){if(inpEl)inpEl.disabled=false;if(atkEl)atkEl.disabled=false;if(inpEl&&!BT.mcMode&&!isYN(BT.curTask))inpEl.focus();}},700);}
+  setTimeout(()=>{if(!BT.bossDefeated){if(inpEl)inpEl.disabled=false;if(atkEl)atkEl.disabled=false;if(inpEl&&!BT.mcMode&&!isYN(BT.curTask))fokusVstup(inpEl,document.getElementById('bt-input-row'));}},700);}
  go('battle');
  if(typeof RPGTutorial!=='undefined')RPGTutorial.maybe(S,saveS,stopTimer,startTimer);
 }

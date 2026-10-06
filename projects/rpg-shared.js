@@ -604,8 +604,16 @@ function ukazUlohu(zacatek,cil){const M=10,vh=window.innerHeight;if(!zacatek)ret
    při ZMĚNĚ fokusu. Vstup nové úlohy tak občas zůstal za přišpendlenou lištou
    (naměřeno 5. 10. 2026 v tablet-landscape: 7. roč., 6-3, iPad s klávesnicí, 29 px,
    zhruba 1 běh z 5). Proto fokus bez rolování a pak nejmenší posun řádku se vstupem;
-   lištu započítá `scroll-padding-bottom` sloupce úlohy. */
-function fokusVstup(inp,radek){if(!inp)return;inp.focus({preventScroll:true});(radek||inp).scrollIntoView({block:'nearest'});}
+   lištu započítá `scroll-padding-bottom` sloupce úlohy.
+   Na `scroll-padding` se ale spolehnout nedá: Chrome 148 (CI, 6. 10. 2026) sloupcem
+   nepohnul vůbec (0 z 35 px) a vstup zůstal 29 px pod lištou, Chrome 141 ho posunul.
+   `nadListu` proto řádek proti liště dorovná ručně — hned a ještě jednou po
+   vykreslení snímku, kdyby se rozvržení mezitím pohnulo. */
+function fokusVstup(inp,radek){if(!inp)return;inp.focus({preventScroll:true});const r=radek||inp;r.scrollIntoView({block:'nearest'});nadListu(r);if(typeof requestAnimationFrame==='function')requestAnimationFrame(()=>nadListu(r));}
+/* Řádek, který leží pod přišpendlenou lištou boje (.bt-akce, sticky jen na šířku),
+   posune sloupec úlohy tak, aby končil 6 px nad lištou. Na výšku lišta přišpendlená
+   není a leží v toku POD řádkem, takže se nic neděje. */
+function nadListu(r){const col=r&&r.closest&&r.closest('.bt-col-task'),li=col&&col.querySelector('.bt-akce');if(!li||!r.offsetParent||getComputedStyle(li).position!=='sticky')return;const d=r.getBoundingClientRect().bottom+6-li.getBoundingClientRect().top;if(d>0)col.scrollTop+=Math.ceil(d);}
 /* ══ Volby u úloh s výběrem — boj i trénink, všech 7 ročníků ═══════════
    Dvě vady, obě naměřené 30. 9. 2026 (po stejném poučení z přijímaček:
    „správně ± k" prozradí odpověď i bez počítání):
