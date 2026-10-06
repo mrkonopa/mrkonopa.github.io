@@ -74,7 +74,9 @@ function serve() {
         const vidi = id => {
           const el = document.getElementById(id);
           const txt = el && el.querySelector('.prob-txt');
-          return { svg: !!(el && el.querySelector('.prob-svg svg')), text: !!txt && txt.textContent === String(hit.t.text) };
+          // zadání se zobrazuje přes zapis() (minus „−“, mocnina horním indexem)
+          const cekane = typeof zapis === 'function' ? zapis(String(hit.t.text)) : String(hit.t.text);
+          return { svg: !!(el && el.querySelector('.prob-svg svg')), text: !!txt && txt.textContent === cekane };
         };
         const out = { mise: hit.m.id };
         launchBattle(hit.aid, hit.m.id);

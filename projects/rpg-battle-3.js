@@ -26,9 +26,17 @@
      Volby se porovnávají INDEXEM (`idx === q.correct` v rpg-battle-ui.js),
      nikdy se neparsují, takže změna zápisu nic nerozbije. Nečíselné
      hodnoty (ANO/NE, zlomky, záložní „x1") jdou beze změny. */
+  /* Zápis jako ve škole: minus „−“ (ne spojovník „-“) a mocnina horním indexem
+     („10³“, ne „10^3“). Naměřeno 4. 10. 2026: spojovník v 7.–9. ročníku u tisíců
+     otázek a voleb, stříška v 8. a 9. ročníku ~360× každý. Volby se porovnávají
+     INDEXEM, nikdy se neparsují, takže změna zápisu nic nerozbije. */
+  const HORNI = { 0: '⁰', 1: '¹', 2: '²', 3: '³', 4: '⁴', 5: '⁵', 6: '⁶', 7: '⁷', 8: '⁸', 9: '⁹', '-': '⁻' };
+  const zapis = s => String(s)
+    .replace(/(^|[\s(\[=:;,+×·*\/−])-(?=\d)/g, '$1−')
+    .replace(/\^(-?\d+)/g, (_, e) => [...e].map(c => HORNI[c]).join(''));
   const S = v => {
-    if (typeof v !== 'number' || !Number.isFinite(v)) return String(v);
-    return String(Math.round(v * 1e6) / 1e6).replace('.', ',');
+    if (typeof v !== 'number' || !Number.isFinite(v)) return zapis(String(v));
+    return zapis(String(Math.round(v * 1e6) / 1e6).replace('.', ','));
   };
   const skl = (n, one, few, many) => { const a = Math.abs(n); return a === 1 ? one : a >= 2 && a <= 4 ? few : many; };
   // FRAMING-POOL: uvození drilu (deterministické přes seedovaný r, nemění hodnotu ani distraktory)
@@ -101,9 +109,10 @@
                distractors: [a / 10 + 1, a, a / 10 - 1] };
     },
 
-    // 10) obvod trojúhelníku
+    // 10) obvod trojúhelníku — třetí strana tak, aby trojúhelník šel sestrojit
+    //     (dřív nezávisle: „strany 2, 7, 3 cm“ v 37 % losů, naměřeno 4. 10. 2026)
     function (r) {
-      const a = ri(r, 2, 12), b = ri(r, 2, 12), c = ri(r, 2, 12);
+      const a = ri(r, 2, 12), b = ri(r, 2, 12), c = ri(r, Math.max(2, Math.abs(a - b) + 1), Math.min(12, a + b - 1));
       return { topic: 'obvod', text: `Obvod trojúhelníku se stranami ${a}, ${b}, ${c} cm? (cm)`,
                value: a + b + c, distractors: [a + b + c + 1, a * b, a + b + c - 2] };
     },
@@ -117,7 +126,7 @@
 
     // 12) obvod obdélníku
     function (r) {
-      const a = ri(r, 2, 12), b = ri(r, 2, 9);
+      const a = ri(r, 2, 12), b0 = ri(r, 2, 9), b = b0 === a ? b0 + 1 : b0;   // obdélník, ne čtverec
       return { topic: 'obvod', text: `Obvod obdélníku ${a} cm a ${b} cm? (cm)`, value: 2 * (a + b),
                distractors: [a + b, a * b, 2 * (a + b) + 2] };
     },
@@ -161,7 +170,7 @@
     // 18) slovní úloha — násobení
     function (r) {
       const a = ri(r, 2, 8), b = ri(r, 2, 9);
-      return { topic: 'slovní úloha', text: pick(r, [`Na ${a} větvích sedí po ${b} ptácích. Kolik ptáků celkem?`, `Na každé z ${a} větví sedí ${b} ptáků. Kolik ptáků je na stromě?`]),
+      return { topic: 'slovní úloha', text: pick(r, [`Na ${a} větvích sedí po ${b} ptácích. Kolik ptáků celkem?`, `Na každé z ${a} větví sedí ${b} ${skl(b, 'pták', 'ptáci', 'ptáků')}. Kolik ptáků je na stromě?`]),
                value: a * b, distractors: [a + b, a * b + a, a * b - b] };
     },
 
@@ -172,13 +181,19 @@
                value: price * ks, distractors: [price + ks, price * ks + price, price * ks - ks] };
     },
 
-    // 20) porovnávání (které je větší)
+    // 20) porovnávání — volby jsou ta čísla, která se porovnávají
+    //     Dřív „Které číslo je větší? 926 nebo 850“ a mezi volbami cizí 840 a 1026
+    //     (dítě vybíralo ze čtyř, ač se ptáme na dvě) a při shodě „337 nebo 337“
+    //     čekala hra 338. Teď čtyři různá čísla lišící se v různých řádech,
+    //     takže porovnávat se musí od stovek dolů.
     function (r) {
-      const a = ri(r, 100, 999), b = ri(r, 100, 999);
-      const bigger = Math.max(a, b), smaller = Math.min(a, b);
-      const v = a === b ? a + 1 : bigger;
-      return { topic: 'porovnávání', text: `Které číslo je větší?\n${a}  nebo  ${b}\n(napiš to větší)`,
-               value: v, distractors: [smaller, smaller - 10, bigger + 100] };
+      const n = ri(r, 210, 790), nej = pick(r, ['největší', 'nejmenší']);
+      const set = new Set([n]);
+      for (let k = 0; set.size < 4 && k < 50; k++) set.add(n + pick(r, [-110, -100, -90, -10, -9, -1, 1, 9, 10, 90, 100, 110]));
+      const cisla = [...set];
+      const v = nej === 'největší' ? Math.max(...cisla) : Math.min(...cisla);
+      return { topic: 'porovnávání', text: `Které z těchto čísel je ${nej}?`,
+               value: v, distractors: cisla.filter(x => x !== v) };
     },
 
     // 21) násobení desítkami
@@ -261,7 +276,7 @@
       const j = Math.floor(r() * (i + 1));
       [choices[i], choices[j]] = [choices[j], choices[i]];
     }
-    return { id, topic: raw.topic, text: raw.text, choices,
+    return { id, topic: raw.topic, text: zapis(raw.text), choices,
              correct: choices.indexOf(correct), answer: correct };
   }
 

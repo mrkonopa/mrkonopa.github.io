@@ -153,10 +153,11 @@ function dgRender(){
     ans.innerHTML = '<div class="yn-row"><button class="pz-btn" onclick="dgSubmitYN(\'A\')">ANO</button><button class="pz-btn" onclick="dgSubmitYN(\'N\')">NE</button></div>'+
       '<div class="dg-akce">'+nevim+'</div>';
   } else {
-    ans.innerHTML = '<input type="text" id="dg-input" inputmode="'+(it.klavesnice||PZ.inputMode(it.ans))+'" autocomplete="off" placeholder="výsledek" '+
+    ans.innerHTML = '<input type="text" id="dg-input" aria-label="Tvoje odpověď" inputmode="'+(it.klavesnice||PZ.inputMode(it.ans))+'" autocomplete="off" placeholder="výsledek" '+
       'onkeydown="if(event.key===\'Enter\')dgSubmit()"><div class="dg-akce"><button class="pz-btn primary" onclick="dgSubmit()">Další →</button>'+nevim+'</div>';
-    setTimeout(()=>{ const i=document.getElementById('dg-input'); if(i)i.focus(); },30);
   }
+  // začátek nové úlohy (úvod, obrázek nebo zadání) musí být vidět, ne jen vstup
+  setTimeout(()=>PZ.ukaz([introEl,svgEl,document.getElementById('dg-prompt')].find(e=>e.style.display!=='none'), document.getElementById('dg-input')),30);
 }
 function dgSubmitYN(v){ dgZapis(v===DG.it.ans, v); }
 function dgNevim(){ dgZapis(false, null); }
@@ -173,12 +174,8 @@ function dgZapis(ok, given){
   dgDalsi();
 }
 // Zobrazitelný tvar odpovědi: volba celým textem, A/N slovem, číslo s čárkou.
-function dgText(it, v){
-  if(v==null) return 'nevím';
-  if(it.type==='mc'){ const o=(it.options||[]).find(x=>String(x).charAt(0)===v); return o||v; }
-  if(it.type==='yn') return v==='A'?'ANO':v==='N'?'NE':v;
-  return PZ.czNum(v);
-}
+// zápis odpovědi je sdílený s procvičováním (PZ.odpovedText): ANO/NE, celé znění volby, čárka
+function dgText(it, v){ return PZ.odpovedText(it, v); }
 function dgEnd(){
   document.getElementById('dg-run').style.display='none';
   document.getElementById('dg-end').style.display='block';

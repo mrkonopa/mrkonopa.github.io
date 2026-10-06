@@ -575,14 +575,42 @@
     hranaZObjemu: ['Hledáš číslo, které třikrát vynásobené sebou dá objem.', 'Zkoušej: 4·4·4 = 64, 5·5·5 = 125… dokud netrefíš zadaný objem.'],
   };
 
+  /* Odpověď tak, jak ji žák zná z tlačítek: ANO / NE, celé znění volby, jinak
+     číslo s desetinnou čárkou. Dřív procvičování u ANO/NE psalo v nápovědě
+     „Výsledek: N" a v hlášce „Správná odpověď: N", přestože tlačítka říkají
+     ANO a NE, a u výběru jen písmeno „D" (průchod 5. 10. 2026, 28 z 3 000 losů).
+     Diagnostika to uměla (dgText) — teď je to jedno místo pro všechny. */
+  function odpovedText(it, v) {
+    if (v === undefined) v = it && it.ans;
+    if (v == null) return 'nevím';
+    if (it && it.type === 'mc') { const o = (it.options || []).find(x => String(x).charAt(0) === String(v)); return o || String(v); }
+    if (it && it.type === 'yn') return v === 'A' ? 'ANO' : v === 'N' ? 'NE' : String(v);
+    return czNum(v);
+  }
+  /* L2 = první krok VLASTNÍHO postupu úlohy, když neprozradí výsledek. Dřív byly
+     L1 i L2 obecné podle okruhu („Rozepiš si výpočet krok za krokem."), zatímco
+     v RPG je nápověda k úloze. Krok, ve kterém už stojí výsledek, se přeskočí
+     (L2 nesmí udělat práci L3) — pak zůstane obecná nápověda. */
+  function prvniKrok(item) {
+    if (!item || !item.sol) return '';
+    const kroky = solSteps(item.sol);
+    if (kroky.length < 2) return '';                 // jediný krok = celé řešení
+    const k = String(kroky[0] || '').trim();
+    if (!k || k.length > 220) return '';
+    const vys = [odpovedText(item)].concat(item.type === 'mc' ? [] : [String(item.ans)])
+      .map(x => String(x).replace(/^[A-F]\)\s*/, '').trim()).filter(x => x && x.length < 30);
+    const cisla = vys.flatMap(x => x.match(/-?\d+(?:[.,]\d+)?/g) || []);
+    const prozradi = cisla.some(c => new RegExp('(^|[^\\d,.])' + c.replace(/[.,]/, '[.,]').replace('-', '[−-]') + '(?![\\d]|[.,]\\d)').test(k));
+    return prozradi ? '' : k;
+  }
   function hintsFor(item, topicId) {
     const th = TOPIC_HINTS[topicId] || ['Zkus si vzpomenout na postup pro tento typ úlohy.', 'Rozepiš si výpočet krok za krokem.'];
-    // priorita: vlastní hint generátoru → nápověda pro TYP úlohy → baseline okruhu
+    // priorita: vlastní hint generátoru → první krok postupu → nápověda pro TYP úlohy → baseline okruhu
     const kind = item && item._check && item._check.kind;
     const kh = (kind && KIND_HINTS[kind]) || null;
     const l1 = (item && item.hint1) || (kh && kh[0]) || th[0];
-    const l2 = (item && item.hint2) || (kh && kh[1]) || th[1];
-    const l3 = 'Výsledek: ' + (item && item.ans != null ? czNum(item.ans) : '');
+    const l2 = (item && item.hint2) || prvniKrok(item) || (kh && kh[1]) || th[1];
+    const l3 = 'Výsledek: ' + (item && item.ans != null ? odpovedText(item) : '');
     return [l1, l2, l3];
   }
 
@@ -642,6 +670,23 @@
       '</svg>';
   }
 
+  /* Nová úloha (nebo vyhodnocení) na obrazovce: ZAČÁTEK musí být vidět a pod ním cíl
+     (vstup, tlačítko „Další"), pokud se vejde. Prostý focus() nechal stránku tam, kde žák
+     klikl na „Další", nebo vstup vycentroval — obrázek nové úlohy pak zůstal nad okrajem
+     (naměřeno až 381 px na iPadu bez klávesnice, s klávesnicí u každé úlohy s obrázkem).
+     Posouvá se jen o tolik, kolik je třeba; když se obojí nevejde, má přednost začátek. */
+  function ukaz(zacatek, cil) {
+    const M = 10;
+    if (zacatek) {
+      const s = zacatek.getBoundingClientRect().top - M;
+      let d = 0;
+      if (s < 0) d = s;
+      else { const v = (cil || zacatek).getBoundingClientRect().bottom + M - window.innerHeight; if (v > 0) d = Math.min(v, s); }
+      if (d) window.scrollBy(0, d);
+    }
+    if (cil) cil.focus({ preventScroll: true });
+  }
+
   window.PZ = { esc, check, store, inputMode, czNum, solSteps, themeSvg, icon, ring, attachLoginBar, cloudPush, cloudSync, topicWeights, pickWeakTopic, hintsFor, recordTestTopics, weakTopicsFromReview,
-    computeReadiness, pokusy, odhadBodu, cistyPokus, diagUrovne, mergeStats };
+    computeReadiness, pokusy, odhadBodu, cistyPokus, diagUrovne, mergeStats, ukaz, odpovedText };
 })();

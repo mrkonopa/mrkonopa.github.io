@@ -275,6 +275,33 @@ function nactiVyklad(g) {
     ok(p.dvojic >= 800, 'porovnáno '+p.dvojic+' dvojic popisků (podlaha 800)');
     ok(p.out.length === 0, 'žádné dva popisky se v diagramu nepřekrývají'
       + (p.out.length ? ' — '+p.out.length+'×: '+p.out.slice(0,3).join(' · ') : ''));
+
+    // ── 1e3) a přes popisek nesmí vést ČÁRA ──
+    // Třetí tichá vada, kterou 1e ani 1e2 nevidí: popisek je uvnitř plátna i bez
+    // překryvu s jiným, jen přes něj vede čára. Velký průchod 5. 10. 2026 našel
+    // 31 popisků v 17 kresbách 3.–9. ročníku: ručička přes „12" na ciferníku,
+    // „B[5; 2]" na mřížce, „8" na čáře průměru, „přímý" přes oblouk, rovnost
+    // přes stranu trojúhelníku, „tětiva" přes kružnici, „s" na plášti kužele…
+    // Měřidlo je sdílené s bankami úloh a konstrukcemi (tests/popisky-mer.cjs).
+    // Barvy 1. stupně jsou CSS proměnné — bez nich by čáry vyšly „bez tahu"
+    // a měřidlo by je přeskočilo, proto je tu stránka definuje.
+    const page3 = await browser.newPage();
+    await page3.setContent('<!DOCTYPE html><style>:root{--blue:#4ab0e0;--gold:#e8c84a;--green:#5fd35f;--red:#e05050;--text:#ddd;--muted:#889;--bg:#111;--panel:#222;--line:#444}</style><body style="margin:0"></body>');
+    const c = await page3.evaluate(({ kresby, merSrc }) => {
+      const MER = new Function('return ' + merSrc)(), out = { cara: [], textu: 0, kreseb: 0, tahu: 0 };
+      for (const k of kresby) {
+        const d = document.createElement('div');
+        d.style.cssText = 'width:600px'; d.innerHTML = k.svg; document.body.appendChild(d);
+        const m = MER([...d.querySelectorAll('svg')], k.kde); out.cara.push(...m.cara); out.textu += m.textu; out.kreseb += m.kreseb;
+        out.tahu += [...d.querySelectorAll('line,path,polygon,circle,ellipse,rect')].filter(e => getComputedStyle(e).stroke !== 'none').length;
+        d.remove();
+      }
+      return out;
+    }, { kresby, merSrc: require('./popisky-mer.cjs').mer.toString() });
+    await page3.close();
+    ok(c.kreseb >= 70 && c.textu >= 380 && c.tahu >= 300, 'čára přes popisek: proměřeno '+c.kreseb+' kreseb, '+c.textu+' popisků a '+c.tahu+' tahů (naměřeno 73 / 392 / 377, podlaha 70 / 380 / 300)');
+    ok(c.cara.length === 0, 'přes žádný popisek výkladu nevede čára, oblouk ani kružnice'
+      + (c.cara.length ? ' — '+c.cara.length+'×: '+c.cara.slice(0,3).join(' · ') : ''));
   }
 
   // ── 1f) žebřík jednotek musí ukázat SKUTEČNÉ kroky ──

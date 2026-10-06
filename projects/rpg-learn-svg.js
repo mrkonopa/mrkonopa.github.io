@@ -253,13 +253,16 @@
       };
       const uhelH = (h % 12) * 30 + min * 0.5;   // hodinová se posouvá i s minutami
       const uhelM = min * 6;
+      /* Číslice dál od středu (37) a minutová ručička kratší (28) než jejich vnitřní
+         okraj — dřív sahala ručička na 36 a ve 3:00 i čtvrt na dvě ležela přes „12“
+         nebo „3“ (5. 10. 2026). Hodinová zůstává o třetinu kratší. */
       let telo = '<circle cx="60" cy="60" r="46" fill="none" stroke="var(--blue)" stroke-width="2.5"/>'
-        + t(60, 31, 12, 13, 'text', 'middle')
-        + t(94, 65, 3, 13, 'text', 'middle')
-        + t(60, 99, 6, 13, 'text', 'middle')
-        + t(26, 65, 9, 13, 'text', 'middle')
-        + rucicka(26, uhelH, 'green', 2.5)
-        + rucicka(36, uhelM, 'gold', 2.5)
+        + t(60, 27.7, 12, 13, 'text', 'middle')
+        + t(97, 64.7, 3, 13, 'text', 'middle')
+        + t(60, 101.7, 6, 13, 'text', 'middle')
+        + t(23, 64.7, 9, 13, 'text', 'middle')
+        + rucicka(18, uhelH, 'green', 2.5)
+        + rucicka(28, uhelM, 'gold', 2.5)
         + '<circle cx="60" cy="60" r="4" fill="var(--gold)"/>';
       (vztahy || []).forEach((v, i) => { telo += t(180, 42 + i * 24, v, 13, 'text', 'middle'); });
       return svg(250, 120, popis || ('Ciferník ukazující ' + h + ':' + String(min).padStart(2, '0')), telo);
@@ -334,11 +337,12 @@
         + line(x0, y0, x0, y0 + n * c, 'blue', 2)
         + line(x0, py, px, py, 'red', 1.5, '4 3')
         + line(px, y0 + n * c, px, py, 'red', 1.5, '4 3')
+        // u bodu jen „B“ uvnitř políčka: „B[5; 2]“ vedle bodu leželo přes čáru sítě
         + kruh(px, py, 5, 'gold')
-        + t(px + 9, py - 6, 'B[' + x1 + '; ' + y1 + ']', 13, 'gold')
+        + t(px + 6, py - 7, 'B', 13, 'gold')
         + t(px, y0 + n * c + 16, x1, 12, 'red', 'middle')
         + t(x0 - 8, py + 4, y1, 12, 'red', 'end')
-        + t(x0 + n * c / 2, y0 + n * c + 34, popisB || 'nejdřív doprava, pak nahoru', 12, 'text', 'middle');
+        + t(x0 + n * c / 2, y0 + n * c + 34, popisB || ('B[' + x1 + '; ' + y1 + ']: doprava ' + x1 + ', pak nahoru ' + y1), 12, 'text', 'middle');
       return svg(x0 + n * c + 60, y0 + n * c + 42,
         popis || ('Souřadnicová síť s bodem B na souřadnicích ' + x1 + ' a ' + y1), telo);
     },
@@ -370,7 +374,8 @@
        si zlomek představí jen jako výseč, pak neumí zlomek z čísla; pás vede
        rovnou na pásový model v misi 4-3. */
     zlomek(citatel, jmenovatel, popis) {
-      const cx = 66, cy = 74, r = 44;
+      // kruh níž než věta nahoře — dřív přes ni vedl jeho obvod (cy 74 → 90)
+      const cx = 66, cy = 90, r = 44;
       const bod = k => {
         const a = k / jmenovatel * 2 * Math.PI - Math.PI / 2;
         return [+(cx + r * Math.cos(a)).toFixed(1), +(cy + r * Math.sin(a)).toFixed(1)];
@@ -391,14 +396,14 @@
       }
       const bx = 140, bw = 150, bh = 44, dilek = bw / jmenovatel;
       for (let i = 0; i < jmenovatel; i++)
-        telo += '<rect x="' + (bx + i * dilek) + '" y="52" width="' + dilek + '" height="' + bh + '"'
+        telo += '<rect x="' + (bx + i * dilek) + '" y="' + (cy - bh / 2) + '" width="' + dilek + '" height="' + bh + '"'
           + ' fill="' + (i < citatel ? 'var(--gold)' : 'none') + '" stroke="var(--blue)" stroke-width="2"/>';
       const W = bx + bw + 12;
       telo += t(W / 2, 20, citatel + ' / ' + jmenovatel, 22, 'gold', 'middle')
         + t(W / 2, 38, 'beru ' + citatel + ' ze ' + jmenovatel + ' stejných dílů', 12, 'text', 'middle')
-        + t(66, 136, 'jmenovatel = na kolik', 11, 'muted', 'middle')
-        + t(bx + bw / 2, 136, 'čitatel = kolik beru', 11, 'muted', 'middle');
-      return svg(W, 146, popis || ('Kruh a pás rozdělené na ' + jmenovatel + ' dílů, ' + citatel + ' z nich vybarvené'), telo);
+        + t(66, 152, 'jmenovatel = na kolik', 11, 'muted', 'middle')
+        + t(bx + bw / 2, 152, 'čitatel = kolik beru', 11, 'muted', 'middle');
+      return svg(W, 162, popis || ('Kruh a pás rozdělené na ' + jmenovatel + ' dílů, ' + citatel + ' z nich vybarvené'), telo);
     },
 
     /* Sčítání zlomků se stejným jmenovatelem. Díly mají STEJNOU ŠÍŘKU a jen se
@@ -498,7 +503,8 @@
       const W = 280;
       const telo = t(W / 2, 26, String(cislo), 24, 'gold', 'middle')
         + t(W / 2, 48, (doprava ? '× ' : ': ') + nasobitel, 14, 'text', 'middle')
-        + '<path d="M ' + (W / 2 - 40) + ',56 Q ' + (W / 2) + ',34 ' + (W / 2 + 40) + ',56" fill="none"'
+        // šipka od čísla k výsledku VEDLE nich — dřív oblouk vedl přes „× 100“
+        + '<path d="M ' + (W / 2 + 48) + ',18 Q ' + (W / 2 + 84) + ',48 ' + (W / 2 + 48) + ',78" fill="none"'
         + ' stroke="var(--green)" stroke-width="2" stroke-dasharray="4 3"/>'
         + t(W / 2, 86, vysl, 24, 'green', 'middle')
         + t(W / 2, 110, 'čárka o ' + mist + (mist === 1 ? ' místo ' : ' místa ')
@@ -520,8 +526,8 @@
         const x = bx + i * (bw + mez), h = vyska(v);
         telo += '<rect x="' + x + '" y="' + (dno - h) + '" width="' + bw + '" height="' + h + '"'
           + ' fill="var(--blue)" stroke="var(--blue)" stroke-width="2"/>'
-          + t(x + bw / 2, dno - h - 6, v, 13, 'text', 'middle')
-          + t(x + bw / 2, dno + 16, i + 1 + '.', 11, 'muted', 'middle');
+          // hodnota POD sloupcem: nad sloupcem menším než průměr ležela přímo na čáře průměru („8“ u [12, 8, 10])
+          + t(x + bw / 2, dno + 17, v, 13, 'text', 'middle');
       });
       const W = bx + n * (bw + mez) - mez + 30;
       const yPr = dno - vyska(pr);

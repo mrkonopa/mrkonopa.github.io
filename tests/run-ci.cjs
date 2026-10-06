@@ -61,6 +61,12 @@ const PARAM = {
   'rpg-revive-stars.test.cjs': ['3', '4', '5', '6', '7', '8', '9'],
   'rpg-sound.test.cjs': ['3', '4', '5', '6', '7', '8', '9'],
   'rpg-sponka.test.cjs': ['3', '4', '5', '6', '7', '8', '9'],
+  /* Velký průchod 5. 10. 2026: tyhle dva hostile testy braly ročník argumentem
+     (výchozí 9.) a v PARAM nebyly — sponka, „Najdi chybu“, klávesy i tutoriál
+     přitom běží ve všech 3.–9. Ověřeno na ročníku z každého stupně (3., 6.),
+     pak zapsáno pro všech sedm. Hlídá to teď `brana-uplnost` (oddíl 6). */
+  'rpg-newfeatures-hostile.cjs': ['3', '4', '5', '6', '7', '8', '9'],
+  'rpg-sponka-hostile.cjs': ['3', '4', '5', '6', '7', '8', '9'],
   'rpg-tutorial.test.cjs': ['3', '4', '5', '6', '7', '8', '9'],
 };
 // Harnessy/hostile skripty, co nesedí na *.test.cjs / *.audit.cjs vzor:
@@ -154,15 +160,22 @@ const fails = [], flaky = [], skipy = [];
 const t0 = Date.now();
 for (let i = 0; i < runs.length; i++) {
   const { f, args, label } = runs[i];
-  let r = runOne(f, args);
+  let r = runOne(f, args), prvni = null;
   // Retry-once: Playwright testy občas na CI bliknou (timing pod zátěží).
   // Skutečná chyba selže 2×; flaky projde na druhý pokus → nezčervená bránu.
-  if (!r.ok) { const r2 = runOne(f, args); if (r2.ok) { flaky.push(label); r = r2; } else r = r2; }
+  if (!r.ok) { prvni = r; const r2 = runOne(f, args); if (r2.ok) { flaky.push(label); r = r2; } else r = r2; }
   if (r.ok && r.skipped) skipy.push(label);
   const tag = !r.ok ? (r.timedOut ? '⏱ TIMEOUT' : '❌')
             : r.skipped ? '⏭ SKIP' : (flaky.includes(label) ? '✅~' : '✅');
   console.log(`[${String(i + 1).padStart(2)}/${runs.length}] ${tag} ${label} (${r.secs}s)  ${r.last.trim().slice(0, 70)}`);
   if (!r.ok) { fails.push(label); if (r.out.trim()) console.log(r.out.trim().split('\n').slice(-8).map(l => '      ' + l).join('\n')); }
+  /* Prošlo až na druhý pokus: vypsat, na čem padl první — jinak se „flaky" na CI
+     nedá dohledat (tablet-landscape 6. 10. 2026: jen „✅~“ bez důvodu). */
+  else if (prvni) {
+    const chyby = prvni.out.split('\n').filter(l => /❌|✗|Error/.test(l)).slice(0, 5);
+    console.log((prvni.timedOut ? ['⏱ TIMEOUT'] : chyby.length ? chyby : prvni.out.trim().split('\n').slice(-5))
+      .map(l => '      1. pokus: ' + l.trim().slice(0, 400)).join('\n'));
+  }
 }
 if (flaky.length) console.log('\n⚠ flaky (prošlo až na 2. pokus): ' + flaky.join(', '));
 

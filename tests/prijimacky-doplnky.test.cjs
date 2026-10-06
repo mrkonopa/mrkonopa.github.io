@@ -156,6 +156,66 @@ t(!/materialId/.test(DOP), 'applety nezávisí na uloženém materiálu na geoge
   t(/<button[^>]*class="ggb-btn"[^>]*>\s*[^<\s][^<]*</.test(DOP), 'tlačítko má text, tedy přístupné jméno');
 }
 
+// GeoGebra applety musí ukázat TOTÉŽ co obrázek: oba čtyřúhelníky a Thaletovu kružnici.
+// Vojta nahlásil, že body v appletu nejsou spojené do tvarů. Ověřeno na jádru GeoGebry
+// (offline balík z npm): SetColor s čísly bere složky 0–1, takže „26,115,200" dalo bílou
+// (#FFFFFF) — mnohoúhelníky, jejich strany i kružnice byly na bílé nákresně neviditelné.
+// Navíc ZoomIn s pevným oknem dával ose x a y jiné měřítko (kružnice jako elipsa) a ⟳
+// GeoGebry smazal celou konstrukci (26 objektů → 0). Applet tu nejde spustit (geogebra.org
+// není v CI k dispozici), proto se hlídají příkazy a funkce postav() se pustí nad záznamníkem.
+{
+  const blok = DOP.slice(DOP.indexOf('var APPLETY = {') + 'var APPLETY = '.length, DOP.indexOf('var nacitaSe'));
+  const APPLETY = new Function('return ' + blok.trim().replace(/;\s*$/, ''))();
+  const kody = Object.keys(APPLETY);
+  t(kody.length === 2, `applety: ${kody.join(', ')}`);
+  const clanky = DOP.split('<article').slice(1);
+  for (const kod of kody) {
+    const cfg = APPLETY[kod], p = cfg.prikazy.join('\n');
+    const barvy = cfg.prikazy.filter(c => /^SetColor\(/.test(c));
+    const spatne = barvy.filter(c => !/^SetColor\(\w+,\s*"#[0-9A-Fa-f]{6}"\)$/.test(c));
+    t(barvy.length >= 3 && spatne.length === 0, `${kod}: barvy hexem — GeoGebra bere čísla jen 0–1 (${barvy.length} SetColor${spatne.length ? ', špatně: ' + spatne.join(' ') : ''})`);
+    t(!/ZoomIn\(/.test(p) && Array.isArray(cfg.okno) && cfg.okno.length === 4 && cfg.okno[0] < cfg.okno[2] && cfg.okno[1] < cfg.okno[3],
+      `${kod}: okno konstrukce je v cfg.okno, ne v ZoomIn (ten dá osám různé měřítko)`);
+    // tvary z popisku obrázku („AB₁C₁D₁") musí být v appletu jako Polygon se stejnými vrcholy
+    const cl = clanky.find(c => c.includes(`id="ggb-${kod}"`)) || '';
+    const popis = (cl.match(/<figcaption>([\s\S]*?)<\/figcaption>/) || [, ''])[1];
+    const tvary = [...popis.matchAll(/<b[^>]*>([A-Z₀-₉]+)<\/b>/g)].map(m => [...m[1].matchAll(/[A-Z][₀-₉]*/g)]
+      .map(v => v[0].replace(/[₀-₉]/g, d => '_' + '₀₁₂₃₄₅₆₇₈₉'.indexOf(d))));
+    const poly = [...p.matchAll(/Polygon\(([^)]*)\)/g)].map(m => m[1].split(',').map(s => s.trim()));
+    const stejne = (a, b) => a.length === b.length && [...Array(a.length).keys()].some(o => [b, [...b].reverse()].some(c => a.every((v, i) => v === c[(i + o) % c.length])));
+    const chybi = tvary.filter(tv => !poly.some(pl => stejne(tv, pl)));
+    t(tvary.length === 2 && chybi.length === 0, `${kod}: oba tvary z obrázku (${tvary.map(v => v.join('')).join(', ')}) jsou v appletu jako mnohoúhelník${chybi.length ? ' — chybí ' + chybi.map(v => v.join('')).join(', ') : ''}`);
+    t(/Thaletov/.test(popis) && /=Circle\(/.test(p), `${kod}: Thaletova kružnice z obrázku je i v appletu`);
+  }
+  t(/showResetIcon:\s*false/.test(DOP) && /if \(API\[kod\]\) return postav\(API\[kod\], cfg\);/.test(DOP),
+    'místo ⟳ GeoGebry (maže konstrukci) postaví tlačítko konstrukci znovu');
+  t(/appName:\s*'classic',\s*perspective:\s*'G'/.test(DOP), 'applet je jen nákresna (bez panelu algebry přes třetinu šířky)');
+
+  // postav() nad záznamníkem: celá konstrukce znovu, stejné měřítko os, popisky bodů
+  const i0 = DOP.indexOf('function postav(api, cfg) {');
+  let i = DOP.indexOf('{', i0), hl = 0;
+  for (; i < DOP.length; i++) { if (DOP[i] === '{') hl++; else if (DOP[i] === '}' && --hl === 0) break; }
+  const postav = i0 > 0 ? new Function(DOP.slice(i0, i + 1) + '\nreturn postav;')() : null;
+  t(!!postav, 'funkce postav() je ve stránce');
+  if (postav) for (const kod of kody) {
+    const cfg = APPLETY[kod], log = [], W = 818, H = 428;
+    const typy = { A: 'point', B_1: 'point', k: 'circle', lich1: 'quadrilateral' };
+    const api = { newConstruction: () => log.push('nova'), evalCommand: c => { log.push(c); return true; },
+      setAxesVisible: (x, y) => log.push('osy ' + x + y), setGridVisible: g => log.push('mrizka ' + g),
+      getAllObjectNames: () => Object.keys(typy), getObjectType: n => typy[n], setLabelVisible: (n, v) => log.push('popisek ' + n + ' ' + v),
+      getViewProperties: () => JSON.stringify({ width: W, height: H }), setCoordSystem: (...a) => log.push(a) };
+    postav(api, cfg); postav(api, cfg);
+    const sys = log.filter(x => Array.isArray(x));
+    const [x0, x1, y0, y1] = sys[0] || [0, 0, 0, 0], o = cfg.okno;
+    t(log[0] === 'nova' && log.filter(x => x === 'nova').length === 2 && cfg.prikazy.every(c => log.filter(x => x === c).length === 2),
+      `${kod}: druhé postavení (tlačítko) projde celou konstrukci znovu od prázdné nákresny`);
+    t(sys.length === 2 && Math.abs((x1 - x0) / W - (y1 - y0) / H) < 1e-9 && x0 <= o[0] && x1 >= o[2] && y0 <= o[1] && y1 >= o[3],
+      `${kod}: osy mají stejné měřítko a celé okno konstrukce je vidět`);
+    t(log.includes('popisek A true') && log.includes('popisek B_1 true') && !log.some(x => /popisek (k|lich1)/.test(x)) && log.includes('osy falsefalse') && log.includes('mrizka false'),
+      `${kod}: popisky jen u bodů, bez os a mřížky`);
+  }
+}
+
 // desetinná ČÁRKA. Pravidlo se dívá jen na čísla S JEDNOTKOU — „6.2" je
 // číslo úlohy a „1.5" v CSS je řádkování, obojí je v pořádku a hlásit to
 // by znamenalo křičet vlka. Jednotka za číslem zároveň znamená, že se

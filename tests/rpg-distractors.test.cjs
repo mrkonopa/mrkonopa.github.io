@@ -42,7 +42,9 @@ const ok = (c, m) => { if (c) { pass++; } else { fail++; console.log('  ❌ ' + 
        nad nabídkou, která je v pořádku. Rovnost se proto posuzuje na
        normalizovaném zápisu; JESTLI je zápis jednotný, hlídá vlastní
        pravidlo níž. */
-    const nrm = x => String(x).replace(/(\d)\.(\d)/g, '$1,$2');
+    /* …a minus píše jako „−“ (U+2212, zapis() v rpg-shared.js), takže se
+       na zpětnou cestu převádí i on — jinak by „−5“ nebylo −5 ani číslo. */
+    const nrm = x => String(x).replace(/−/g, '-').replace(/(\d)\.(\d)/g, '$1,$2');
     let renders = 0, badCount = 0, badDup = 0, distrEqAns = 0, curatedSeen = 0, curatedTotal = 0, nan = 0;
     let mixCislaSlova = 0, nejednotnyZapis = 0, cizíVolba = 0, uzavrenych = 0;
     for (const ar of AREAS) for (const m of ar.missions) {
@@ -66,7 +68,7 @@ const ok = (c, m) => { if (c) { pass++; } else { fail++; console.log('  ❌ ' + 
           if (!opts.map(nrm).includes(nrm(t.ans))) badCount++;
           if (opts.some(o => o === 'NaN' || o === 'undefined')) nan++;
           /* Je odpověď číslo? Pak žádná volba nesmí být slovo. */
-          const jeCislo = x => !isNaN(parseFloat(String(x).replace(',', '.')));
+          const jeCislo = x => !isNaN(parseFloat(String(x).replace(/−/g, '-').replace(',', '.')));
           if (jeCislo(t.ans) && opts.some(o => !jeCislo(o))) mixCislaSlova++;
           /* UZAVŘENÝ VÝBĚR: vyjmenuje-li zadání kandidáty, musí být volby
              právě ony. Dřív se dopočítávaly sousedy, takže u „Které číslo
@@ -101,7 +103,7 @@ const ok = (c, m) => { if (c) { pass++; } else { fail++; console.log('  ❌ ' + 
             if (opts.some(o => !cisla.has(nrmC(o)))) cizíVolba++;
           }
           /* Desetinné volby musí mít všechny stejný oddělovač. */
-          const des = opts.filter(o => /^-?\d+[.,]\d+$/.test(o));
+          const des = opts.map(o => o.replace(/^−/, '-')).filter(o => /^-?\d+[.,]\d+$/.test(o));
           if (des.length > 1) {
             const sTeckou = des.filter(o => o.includes('.')).length;
             if (sTeckou !== 0 && sTeckou !== des.length) nejednotnyZapis++;

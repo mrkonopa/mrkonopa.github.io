@@ -580,8 +580,40 @@ function wPerk(p){return typeof RPGWallet!=='undefined'&&RPGWallet.hasPerk&&RPGW
 function toggleSponka(on){if(typeof RPGWallet!=='undefined')RPGWallet.setSponkaEnabled(on);}
 function closeModal(){document.getElementById('modal').classList.remove('show');}
 function stopTimer(){if(BT.timer){clearInterval(BT.timer);BT.timer=null;}}
-function czTxt(t){return String(t).replace(/(\d)\.(\d)/g,'$1,$2');}
-function czMC(x){return String(x).replace(/(\d)\.(\d)/g,'$1,$2');}
+/* Zápis jako ve škole, JEN při zobrazení (banky i odpovědi zůstávají, jak jsou —
+   checkAns spojovník i minus bere stejně): minus „−“ místo spojovníku „-“ a mocnina
+   horním indexem („2⁵“, „10ⁿ“, „3⁻¹“) místo stříšky. Naměřeno 4. 10. 2026: spojovník
+   v zadáních 6.–9. roč. 60 / 627 / 615 / 531×, v nápovědách 400 / 731 / 631 / 158×,
+   v odpovědích stovky; stříška v 8. a 9. roč. 30 a 405×. Spojovník mezi číslicemi
+   („1-10“) a s mezerou za sebou („5 - 10“) se nemění — to není znaménko. */
+// mapa uvnitř funkce: deklarace funkce se vytáhne nahoru, const ne — volání před
+// řádkem s mapou (načítání modulu, izolovaný test) by jinak spadlo na „before initialization"
+function zapis(s){const H={0:'⁰',1:'¹',2:'²',3:'³',4:'⁴',5:'⁵',6:'⁶',7:'⁷',8:'⁸',9:'⁹','-':'⁻','−':'⁻',n:'ⁿ'},h=e=>[...e].map(c=>H[c]).join('');return String(s).replace(/\^\(([−-]?\d+)\)/g,(_,e)=>h(e)).replace(/\^([−-]?\d+|n)(?![\w])/g,(_,e)=>h(e)).replace(/(^|[\s(\[=:;,+×·*\/−])-(?=\d)/g,'$1−');}
+function czTxt(t){return zapis(String(t).replace(/(\d)\.(\d)/g,'$1,$2'));}
+function czMC(x){return zapis(String(x).replace(/(\d)\.(\d)/g,'$1,$2'));}
+/* Posun po „DALŠÍ ÚKOL" v tréninku: žák klikne na tlačítko dole, nová úloha se
+   vykreslí na totéž místo a `scrollIntoView({block:'nearest'})` na vstupu nic
+   neposune, protože vstup JE vidět — jenže začátek úlohy (zadání, obrázek) zůstal
+   nad okrajem. Naměřeno 5. 10. 2026 na iPadu 10,2" s klávesnicí: 5–15 px ve 3.,
+   6. a 8. roč. Vejde-li se úloha i s odpovědí do okna, posune se nejmenší možný
+   kus tak, aby byl vidět začátek i odpověď. Nevejde-li se (telefon na šířku),
+   má přednost ovládání — odpověď se zarovná k dolnímu okraji a nad ní zůstane
+   co nejvíc zadání (stejné pravidlo jako v boji: zadání se smí posunout, ovládání ne). */
+function ukazUlohu(zacatek,cil){const M=10,vh=window.innerHeight;if(!zacatek)return;const z=zacatek.getBoundingClientRect().top,k=(cil||zacatek).getBoundingClientRect().bottom;let d=0;if(k-z+2*M<=vh){if(z<M)d=z-M;else if(k>vh-M)d=k-(vh-M);}else d=k-(vh-M);if(d)window.scrollBy(0,d);}
+/* Boj: focus() na vstup, který fokus UŽ MÁ, sloupcem nepohne — prohlížeč roluje jen
+   při ZMĚNĚ fokusu. Vstup nové úlohy tak občas zůstal za přišpendlenou lištou
+   (naměřeno 5. 10. 2026 v tablet-landscape: 7. roč., 6-3, iPad s klávesnicí, 29 px,
+   zhruba 1 běh z 5). Proto fokus bez rolování a pak nejmenší posun řádku se vstupem;
+   lištu započítá `scroll-padding-bottom` sloupce úlohy.
+   Na `scroll-padding` se ale spolehnout nedá: Chrome 148 (CI, 6. 10. 2026) sloupcem
+   nepohnul vůbec (0 z 35 px) a vstup zůstal 29 px pod lištou, Chrome 141 ho posunul.
+   `nadListu` proto řádek proti liště dorovná ručně — hned a ještě jednou po
+   vykreslení snímku, kdyby se rozvržení mezitím pohnulo. */
+function fokusVstup(inp,radek){if(!inp)return;inp.focus({preventScroll:true});const r=radek||inp;r.scrollIntoView({block:'nearest'});nadListu(r);if(typeof requestAnimationFrame==='function')requestAnimationFrame(()=>nadListu(r));}
+/* Řádek, který leží pod přišpendlenou lištou boje (.bt-akce, sticky jen na šířku),
+   posune sloupec úlohy tak, aby končil 6 px nad lištou. Na výšku lišta přišpendlená
+   není a leží v toku POD řádkem, takže se nic neděje. */
+function nadListu(r){const col=r&&r.closest&&r.closest('.bt-col-task'),li=col&&col.querySelector('.bt-akce');if(!li||!r.offsetParent||getComputedStyle(li).position!=='sticky')return;const d=r.getBoundingClientRect().bottom+6-li.getBoundingClientRect().top;if(d>0)col.scrollTop+=Math.ceil(d);}
 /* ══ Volby u úloh s výběrem — boj i trénink, všech 7 ročníků ═══════════
    Dvě vady, obě naměřené 30. 9. 2026 (po stejném poučení z přijímaček:
    „správně ± k" prozradí odpověď i bez počítání):

@@ -26,9 +26,17 @@
      Volby se porovnávají INDEXEM (`idx === q.correct` v rpg-battle-ui.js),
      nikdy se neparsují, takže změna zápisu nic nerozbije. Nečíselné
      hodnoty (ANO/NE, zlomky, záložní „x1") jdou beze změny. */
+  /* Zápis jako ve škole: minus „−“ (ne spojovník „-“) a mocnina horním indexem
+     („10³“, ne „10^3“). Naměřeno 4. 10. 2026: spojovník v 7.–9. ročníku u tisíců
+     otázek a voleb, stříška v 8. a 9. ročníku ~360× každý. Volby se porovnávají
+     INDEXEM, nikdy se neparsují, takže změna zápisu nic nerozbije. */
+  const HORNI = { 0: '⁰', 1: '¹', 2: '²', 3: '³', 4: '⁴', 5: '⁵', 6: '⁶', 7: '⁷', 8: '⁸', 9: '⁹', '-': '⁻' };
+  const zapis = s => String(s)
+    .replace(/(^|[\s(\[=:;,+×·*\/−])-(?=\d)/g, '$1−')
+    .replace(/\^(-?\d+)/g, (_, e) => [...e].map(c => HORNI[c]).join(''));
   const S = v => {
-    if (typeof v !== 'number' || !Number.isFinite(v)) return String(v);
-    return String(Math.round(v * 1e6) / 1e6).replace('.', ',');
+    if (typeof v !== 'number' || !Number.isFinite(v)) return zapis(String(v));
+    return zapis(String(Math.round(v * 1e6) / 1e6).replace('.', ','));
   };
   const skl = (n, one, few, many) => { const a = Math.abs(n); return a === 1 ? one : a >= 2 && a <= 4 ? few : many; };
   // FRAMING pool — seedované (nemění value ani distraktory, jen slovní obal).
@@ -74,7 +82,7 @@
 
     // 6) obvod obdélníku
     function (r) {
-      const a = ri(r, 4, 16), b = ri(r, 3, 10);
+      const a = ri(r, 4, 16), b0 = ri(r, 3, 10), b = b0 === a ? b0 - 1 : b0;   // obdélník, ne čtverec
       const v = 2 * (a + b);
       return { topic: 'obvod', text: `Obdélník: a = ${a} cm, b = ${b} cm. Obvod? (cm)`,
                value: v, distractors: [a + b, a * b, v + 2] };
@@ -82,7 +90,7 @@
 
     // 7) obsah obdélníku
     function (r) {
-      const a = ri(r, 4, 14), b = ri(r, 3, 9);
+      const a = ri(r, 4, 14), b0 = ri(r, 3, 9), b = b0 === a ? b0 - 1 : b0;   // obdélník, ne čtverec
       const v = a * b;
       return { topic: 'obsah', text: `Obdélník: a = ${a} cm, b = ${b} cm. Obsah? (cm²)`,
                value: v, distractors: [2 * (a + b), v + a, (a + 1) * b] };
@@ -276,7 +284,7 @@
       const j = Math.floor(r() * (i + 1));
       [choices[i], choices[j]] = [choices[j], choices[i]];
     }
-    return { id, topic: raw.topic, text: raw.text, choices,
+    return { id, topic: raw.topic, text: zapis(raw.text), choices,
              correct: choices.indexOf(correct), answer: correct };
   }
 

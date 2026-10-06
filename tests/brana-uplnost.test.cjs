@@ -107,6 +107,22 @@ const posouzeno = vsechny.filter(f => !vBrane.has(f)).length;
 ok('pravidlo něco posuzovalo (' + posouzeno + ' souborů mimo seznam brány)', posouzeno >= 5,
   'mimo bránu nezůstalo skoro nic — buď je vše v pořádku, nebo se špatně čte seznam');
 
+/* ── 6. test, který bere ROČNÍK argumentem, musí být v PARAM ──────────
+   Jinak ho brána pouští jen s výchozím ročníkem. Sken se dělal ručně dvakrát
+   (8 testů, pak „Najdi chybu") a potřetí ho nikdo neudělal: 4. 10. 2026 byly mimo
+   PARAM rpg-newfeatures-hostile a rpg-sponka-hostile (výchozí 9. ročník), přestože
+   sponka, „Najdi chybu“, klávesy i tutoriál běží ve všech 3.–9. Výjimky jmenovitě. */
+const BEZ_PARAM = {
+  'run-ci.cjs': 'argv jsou přepínače brány (--only, --shard), ne ročník',
+};
+const rc = fs.readFileSync(path.join(TESTY, 'run-ci.cjs'), 'utf8');
+const iP = rc.indexOf('const PARAM = {');
+const vParam = new Set([...rc.slice(iP, rc.indexOf('\n};', iP)).matchAll(/'([\w.-]+\.cjs)'\s*:/g)].map(m => m[1]));
+const sRocnikem = [...vBrane].filter(f => /(GRADE|ROCNIK|ročník|g)\s*=\s*(?:\+|Number\()?\s*process\.argv\[2\]|process\.argv\[2\]\s*\|\|\s*['"]?\d/.test(fs.readFileSync(path.join(TESTY, f), 'utf8')));
+const mimoParam = sRocnikem.filter(f => !vParam.has(f) && !BEZ_PARAM[f]);
+ok('každý test s ročníkem v argumentu je v PARAM (' + sRocnikem.length + ' takových, v PARAM ' + vParam.size + ')',
+  mimoParam.length === 0 && sRocnikem.length >= 10, mimoParam.join(', '));
+
 console.log('\n══════════════════════════════════════════');
 console.log('  Úplnost brány: ' + pass + ' ✅ / ' + fail + ' ❌');
 console.log('  v bráně ' + vBrane.size + ' souborů · v tests/ ' + vsechny.length +

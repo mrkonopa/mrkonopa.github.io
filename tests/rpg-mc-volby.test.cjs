@@ -42,7 +42,7 @@ function fn(src, jm) {
   return src.slice(i, j + 1);
 }
 const shared = fs.readFileSync(P('rpg-shared.js'), 'utf8');
-const SDILENE = ['czMC', 'mcZaporne', 'mcRozloz', 'mcCislo', 'mcVolby2'];
+const SDILENE = ['zapis', 'czMC', 'mcZaporne', 'mcRozloz', 'mcCislo', 'mcVolby2'];
 ok(SDILENE.every(j => fn(shared, j)), 'rpg-shared.js nabízí ' + SDILENE.join(', '));
 
 const cislo = v => parseFloat(String(v).replace(/\s/g, '').replace(',', '.').replace('−', '-'));

@@ -51,9 +51,105 @@
     return '<path d="M' + f1(p0.x) + ' ' + f1(p0.y) + ' A' + f1(k.r) + ' ' + f1(k.r) + ' 0 ' + (Math.abs(k.rozpeti) > Math.PI ? 1 : 0) + ' ' + (k.rozpeti > 0 ? 1 : 0) + ' ' + f1(p1.x) + ' ' + f1(p1.y) + '" class="' + cls + '"/>';
   }
   function krizek(p, cls) { const s = 4.5; return '<path d="M' + f1(p.x - s) + ' ' + f1(p.y - s) + 'L' + f1(p.x + s) + ' ' + f1(p.y + s) + 'M' + f1(p.x + s) + ' ' + f1(p.y - s) + 'L' + f1(p.x - s) + ' ' + f1(p.y + s) + '" class="' + cls + '"/>'; }
-  function popisek(p, t, smer, cls) {
-    const x = Math.max(10, Math.min(390, p.x + smer.x * 13)), y = Math.max(12, Math.min(292, p.y + smer.y * 13));
-    return '<text x="' + f1(x) + '" y="' + f1(y) + '" class="' + cls + '" text-anchor="middle" dominant-baseline="middle">' + esc(t) + '</text>';
+  const textSvg = (m, t, cls) => '<text x="' + f1(m.x) + '" y="' + f1(m.y) + '" class="' + cls + '" text-anchor="middle" dominant-baseline="middle">' + esc(t) + '</text>';
+
+  /* ── Rozmístění popisků ──
+     Popisek se dřív kladl pevným posunem (zadaný bod ven od těžiště, řešení
+     vpravo nahoru, krok postupu vlevo nahoru) — a ve 240 snímcích rozboru ležel
+     711× na čáře nebo kružnici a 5× na jiném popisku (5. 10. 2026). Teď dostane
+     každý popisek nejlepší z 96 míst kolem svého bodu (16 směrů × 6 vzdáleností):
+     nekříží čáru ani kružnici celé kresby (zadání + VŠECHNY kroky řešení, aby
+     popisek nepřeskakoval mezi kroky), nezakrývá bod ani jiný popisek a drží se
+     v okně; mezi rovnocennými vyhraje bližší a ve směru, kam ukazoval dřív.
+     Rozměr textu je odhad (Lexend tučně ≈ 0,78 em na písmeno, index 0,42 em),
+     výška 1,2 em jako rámeček, který měří test. */
+  const sirka = (t, fs) => [...String(t)].reduce((a, c) => a + fs * (/[₀-₉′’']/.test(c) ? 0.42 : c === ' ' ? 0.3 : /[0-9]/.test(c) ? 0.62 : /[MWmw]/.test(c) ? 0.95 : 0.78), 0);
+  function usekVObdelniku(p, q, R) {               // Liangův–Barskyho ořez
+    let t0 = 0, t1 = 1; const dx = q.x - p.x, dy = q.y - p.y;
+    const P = [-dx, dx, -dy, dy], Q = [p.x - R[0], R[2] - p.x, p.y - R[1], R[3] - p.y];
+    for (let i = 0; i < 4; i++) {
+      if (P[i] === 0) { if (Q[i] < 0) return false; continue; }
+      const r = Q[i] / P[i];
+      if (P[i] < 0) { if (r > t1) return false; if (r > t0) t0 = r; } else { if (r < t0) return false; if (r < t1) t1 = r; }
+    }
+    return true;
+  }
+  const vzdalOdObdelniku = (b, R) => Math.hypot(Math.max(R[0] - b.x, 0, b.x - R[2]), Math.max(R[1] - b.y, 0, b.y - R[3]));
+  function kruzniceVObdelniku(k, R) {
+    const dmin = vzdalOdObdelniku(k.c, R), dmax = Math.max(...[[R[0], R[1]], [R[2], R[1]], [R[0], R[3]], [R[2], R[3]]].map(([x, y]) => Math.hypot(x - k.c.x, y - k.c.y)));
+    if (dmin > k.r || dmax < k.r) return false;
+    if (k.rozpeti == null) return true;
+    const n = Math.ceil(Math.abs(k.rozpeti) * k.r / 2);      // oblouk: vzorky po ~2 jednotkách
+    for (let i = 0; i <= n; i++) { const a = k.od + k.rozpeti * i / n, x = k.c.x + k.r * Math.cos(a), y = k.c.y + k.r * Math.sin(a);
+      if (x >= R[0] && x <= R[2] && y >= R[1] && y <= R[3]) return true; }
+    return false;
+  }
+  /* Měřítko „1 cm" jde do toho rohu, přes který nevede žádná čára (dřív pevně vlevo
+     dole a v 16 snímcích ze 240 přes něj vedla čára řešení); při shodě vlevo dole. */
+  const ROHY = [[12, 288], [358, 288], [12, 24], [358, 24]];
+  const meritkoR = ([x, y]) => [x - 4, y - 20, x + 34, y + 8];
+  function prekazky(u) {
+    const d = u.dane, s = [], c = [], b = Object.values(d.body).slice();
+    const tvar = t => {
+      if (t.typ === 'usecka') s.push([t.p, t.q]);
+      else if (t.typ === 'primka') { const o = G.oriznoutNaOkno(t.p, t.q, 0); if (o) s.push([o.p, o.q]); }
+      else if (t.typ === 'poloprimka') { const o = G.oriznoutPoloprimku(t.p, t.q); if (o) s.push([o.p, o.q]); }
+      else if (t.typ === 'kruznice') c.push(t);
+      else if (t.typ === 'bod') b.push(t.p);
+    };
+    daneTvary(u).forEach(tvar);
+    (u.postup || []).forEach(st => st.tvary.forEach(tvar));
+    (u.reseni || []).forEach(r => Object.values(r).forEach(p => b.push(p)));
+    return { s, c, b };
+  }
+  function rozmisti(pole, pr, MR) {
+    const hotove = [];
+    for (const L of pole) {
+      const hw = sirka(L.t, L.fs) / 2 + 1, hh = L.fs * 0.6, sv = Math.hypot(L.smer.x, L.smer.y) || 1;
+      let bs = Infinity;
+      for (const dd of [10, 13, 16, 20, 25, 31, 38]) for (let i = 0; i < 24; i++) {
+        const vx = Math.cos(i * Math.PI / 12), vy = Math.sin(i * Math.PI / 12), cx = L.p.x + vx * dd, cy = L.p.y + vy * dd;
+        const R = [cx - hw, cy - hh, cx + hw, cy + hh], Ri = [R[0] - 1.5, R[1] - 1.5, R[2] + 1.5, R[3] + 1.5];
+        let sk = dd + 8 * (1 - (vx * L.smer.x + vy * L.smer.y) / sv);
+        if (R[0] < 2 || R[2] > 398 || R[1] < 2 || R[3] > 298) sk += 5000;
+        for (const [p, q] of pr.s) if (usekVObdelniku(p, q, Ri)) sk += 1000;
+        for (const k of pr.c) if (kruzniceVObdelniku(k, Ri)) sk += 1000;
+        for (const b of pr.b) if (vzdalOdObdelniku(b, R) < 5) sk += 1000;
+        for (const H of hotove) if (Math.min(R[2], H[2]) - Math.max(R[0], H[0]) > -2 && Math.min(R[3], H[3]) - Math.max(R[1], H[1]) > -2) sk += 1000;
+        if (Math.min(R[2], MR[2]) > Math.max(R[0], MR[0]) && Math.min(R[3], MR[3]) > Math.max(R[1], MR[1])) sk += 1000;
+        if (sk < bs) { bs = sk; L.x = cx; L.y = cy; L.R = R; }
+      }
+      // bod u okraje okna (průsečík pomocných kružnic): popisek se dotlačí dovnitř
+      const dx = Math.max(0, 2 - L.R[0]) - Math.max(0, L.R[2] - 398), dy = Math.max(0, 2 - L.R[1]) - Math.max(0, L.R[3] - 298);
+      L.x += dx; L.y += dy; L.R = [L.R[0] + dx, L.R[1] + dy, L.R[2] + dx, L.R[3] + dy];
+      hotove.push(L.R);
+    }
+  }
+  // Rozvržení všech popisků úlohy — jednou na úlohu (okno kreslí zadání při každém tahu)
+  const ROZ = new WeakMap();
+  function rozlozeni(u) {
+    if (ROZ.has(u)) return ROZ.get(u);
+    const d = u.dane, body = Object.entries(d.body), tez = body.reduce((a, [, p]) => G.bod(a.x + p.x / body.length, a.y + p.y / body.length), G.bod(0, 0));
+    const dane = {}, mista = [], pole = [], pr = prekazky(u);
+    const roh = ROHY.map(c => { const R = meritkoR(c); return { c, n: pr.s.filter(([p, q]) => usekVObdelniku(p, q, R)).length + pr.c.filter(k => kruzniceVObdelniku(k, R)).length + pr.b.filter(b => vzdalOdObdelniku(b, R) < 5).length }; })
+      .reduce((a, b) => (b.n < a.n ? b : a)).c;
+    const MERITKO = G.bod(roh[0] + 15, roh[1] - 2);
+    body.forEach(([k, p]) => { const s = G.jednot(G.odecti(p, tez)); pole.push(dane['b:' + k] = { p, t: k, fs: 14, smer: (s.x || s.y) ? s : G.bod(0, -1) }); });
+    // název přímky u toho konce, který je dál od měřítka vlevo dole (jinak „p" leželo na „1 cm")
+    (d.primky || []).forEach(l => { const o = G.oriznoutNaOkno(l.p, l.q, 14); if (!o) return;
+      const [E, F] = G.vzdal(o.q, MERITKO) >= G.vzdal(o.p, MERITKO) ? [o.q, o.p] : [o.p, o.q], u2 = G.jednot(G.odecti(E, F));
+      pole.push(dane['l:' + l.nazev] = { p: G.secti(E, G.nasob(u2, -6)), t: l.nazev, fs: 14, smer: G.bod(-u2.y, u2.x) }); });
+    // zadaná kružnice: název vpravo nahoře na obvodu
+    (d.kruznice || []).forEach(k => { const s = G.bod(Math.SQRT1_2, -Math.SQRT1_2); pole.push(dane['k:' + k.nazev] = { p: G.secti(k.c, G.nasob(s, k.r)), t: k.nazev, fs: 14, smer: s }); });
+    // řešení a body s popiskem v postupu: jedno místo na bod (text nejdelší, který tam kdy stojí)
+    const vic = (u.reseni || []).length > 1, idx = '₁₂₃₄';
+    const pridej = (p, t, smer) => { const m = mista.find(x => G.vzdal(x.p, p) < 1); if (m) { if (t.length > m.t.length) m.t = t; return; } mista.push({ p, t, fs: 13, smer }); };
+    (u.postup || []).forEach(st => st.tvary.forEach(t => { if (t.typ === 'bod' && t.popis) pridej(t.p, t.popis, G.bod(-0.7, -0.7)); }));
+    (u.reseni || []).forEach((r, i) => Object.entries(r).forEach(([k, p]) => pridej(p, k + (vic && u.reseni.filter(x => x[k] && G.vzdal(x[k], p) < 1).length < 2 ? idx[i] : ''), G.bod(0.7, -0.7))));
+    rozmisti(pole.concat(mista), pr, meritkoR(roh));
+    const r = { dane, roh, misto: p => mista.find(x => G.vzdal(x.p, p) < 1) || { x: p.x + 9, y: p.y - 9 } };
+    ROZ.set(u, r);
+    return r;
   }
   function tvarSvg(t, cls) {
     if (t.typ === 'usecka') return cara(t.p, t.q, cls);
@@ -74,26 +170,18 @@
     (d.mnohouhelniky || []).forEach(m => m.forEach((k, i) => out.push({ typ: 'usecka', p: d.body[k], q: d.body[m[(i + 1) % m.length]] })));
     return out;
   }
-  const MERITKO = G.bod(27, 286);                  // střed měřítka 1 cm
   function svgDane(u) {
-    const d = u.dane, body = Object.entries(d.body), tez = body.reduce((a, [, p]) => G.bod(a.x + p.x / body.length, a.y + p.y / body.length), G.bod(0, 0));
+    const d = u.dane, R = rozlozeni(u), roz = R.dane, [mx, my] = R.roh;
     let h = '';
     (d.mnohouhelniky || []).forEach(m => { h += '<polygon points="' + m.map(k => f1(d.body[k].x) + ',' + f1(d.body[k].y)).join(' ') + '" class="kn-d-plocha"/>'; });
     (d.usecky || []).forEach(s => { h += cara(s.p, s.q, 'kn-d'); });
     // zadaná polopřímka (např. BX): jméno nese bod X, který je mezi zadanými body
     (d.poloprimky || []).forEach(s => { h += tvarSvg({ typ: 'poloprimka', p: s.p, q: s.q }, 'kn-d'); });
-    // zadaná kružnice: název vpravo nahoře na obvodu
-    (d.kruznice || []).forEach(k => { const s = G.bod(Math.SQRT1_2, -Math.SQRT1_2); h += kruzSvg({ c: k.c, r: k.r }, 'kn-d') + popisek(G.secti(k.c, G.nasob(s, k.r)), k.nazev, s, 'kn-d-txt kn-d-prim'); });
-    (d.primky || []).forEach(l => {
-      h += primkaSvg(l.p, l.q, 'kn-d'); const o = G.oriznoutNaOkno(l.p, l.q, 14);
-      if (!o) return;
-      // název na ten konec, který je dál od měřítka vlevo dole (jinak „p" leželo na „1 cm")
-      const [E, F] = G.vzdal(o.q, MERITKO) >= G.vzdal(o.p, MERITKO) ? [o.q, o.p] : [o.p, o.q], u2 = G.jednot(G.odecti(E, F));
-      h += popisek(G.secti(E, G.nasob(u2, -6)), l.nazev, G.bod(-u2.y, u2.x), 'kn-d-txt kn-d-prim');
-    });
-    body.forEach(([k, p]) => { const s = G.jednot(G.odecti(p, tez)); h += '<circle cx="' + f1(p.x) + '" cy="' + f1(p.y) + '" r="3" class="kn-d-bod"/>' + popisek(p, k, (s.x || s.y) ? s : G.bod(0, -1), 'kn-d-txt'); });
-    // měřítko 1 cm vlevo dole
-    h += '<path d="M12 288h30 M12 284v8 M42 284v8" class="kn-meritko"/><text x="27" y="280" class="kn-meritko-t" text-anchor="middle">1 cm</text>';
+    (d.kruznice || []).forEach(k => { h += kruzSvg({ c: k.c, r: k.r }, 'kn-d') + textSvg(roz['k:' + k.nazev], k.nazev, 'kn-d-txt kn-d-prim'); });
+    (d.primky || []).forEach(l => { h += primkaSvg(l.p, l.q, 'kn-d'); if (roz['l:' + l.nazev]) h += textSvg(roz['l:' + l.nazev], l.nazev, 'kn-d-txt kn-d-prim'); });
+    Object.entries(d.body).forEach(([k, p]) => { h += '<circle cx="' + f1(p.x) + '" cy="' + f1(p.y) + '" r="3" class="kn-d-bod"/>' + textSvg(roz['b:' + k], k, 'kn-d-txt'); });
+    // měřítko 1 cm v rohu, přes který nevede žádná čára (viz ROHY)
+    h += '<path d="M' + mx + ' ' + my + 'h30 M' + mx + ' ' + (my - 4) + 'v8 M' + (mx + 30) + ' ' + (my - 4) + 'v8" class="kn-meritko"/><text x="' + (mx + 15) + '" y="' + (my - 8) + '" class="kn-meritko-t" text-anchor="middle">1 cm</text>';
     return h;
   }
   // Vzorové řešení: hledané body (uk.reseni) a tvary postupu do kroku uk.krok
@@ -112,11 +200,11 @@
         if (popsane.some(x => blizko(x, p))) return;
         const sdileny = u.reseni.filter(r => r[k] && blizko(r[k], p)).length > 1;
         popsane.push(p);
-        h += popisek(p, k + (vic && !sdileny ? idx[i] : ''), G.bod(0.7, -0.7), 'kn-r-txt');
+        h += textSvg(rozlozeni(u).misto(p), k + (vic && !sdileny ? idx[i] : ''), 'kn-r-txt');
       }));
     }
     kroky.forEach(s => s.tvary.forEach(t => {
-      h += t.typ === 'bod' ? '<circle cx="' + f1(t.p.x) + '" cy="' + f1(t.p.y) + '" r="3.5" class="kn-r-bod"/>' + (t.popis ? popisek(t.p, t.popis, G.bod(-0.7, -0.7), 'kn-r-txt') : '') : tvarSvg(t, 'kn-r');
+      h += t.typ === 'bod' ? '<circle cx="' + f1(t.p.x) + '" cy="' + f1(t.p.y) + '" r="3.5" class="kn-r-bod"/>' + (t.popis ? textSvg(rozlozeni(u).misto(t.p), t.popis, 'kn-r-txt') : '') : tvarSvg(t, 'kn-r');
     }));
     return h;
   }

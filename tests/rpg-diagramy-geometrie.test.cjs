@@ -551,6 +551,78 @@ function bankaCermat() {
     ok(r.tvar.length === 0 && r.tvarN >= 200, 'banky 3.–8. roč.: trojúhelník ze stran má tvar podle délek ze zadání (poměr stran do 1 %, ' + r.tvarN + ' posouzených)', r.tvar.slice(0, 3).join(' | '));
   }
 
+  /* ── 9. popisek nesmí mít přes sebe ČÁRU — ve všech kresbách ze všech zdrojů ──
+     Kontroly výš hlídají text proti textu a u trojúhelníku ze stran popisek proti
+     straně. Průzkum všech zdrojů (4. 10. 2026) našel 222 popisků, přes které vedla
+     čára, hrana nebo oblouk: výška u úzkého trojúhelníku, „v“ u kužele, „r“ přes
+     rovník koule, „70°“ na rameni, výška podstavy hranolu v boční stěně, písmeno B
+     na ose úhlu, φ v osmistupňovém klínu, „30°“ přes hranici výseče, D na úhlopříčce
+     haly… Projdou se proto banky I základní šablony 3.–9. ročníku, test nanečisto
+     a „základ“ přijímaček; čára = úsečka, hrana mnohoúhelníku, křivka, kružnice
+     i obdélník (kromě podkladu, který popisek celý obepíná). Navíc popisek úhlu
+     nesmí utéct od SVÉHO oblouku (data-vrchol): „115°“ od X se ocitl u vrcholu C
+     a četl se jako úhel u C. */
+  {
+    const vse = new Function(jadroSrc + '\n;return {' + [...new Set(jadroSrc.match(/\nfunction (svg\w+)/g).map(s => s.slice(10)))].join(',') + '};')();
+    const zakl = () => ({ ri: (a, b) => Math.floor(Math.random() * (b - a + 1)) + a, pick: a => a[Math.floor(Math.random() * a.length)],
+      gcd: function gcd(a, b) { return b ? gcd(b, a % b) : Math.abs(a); }, cz: n => String(n).replace('.', ','),
+      skl: (n, o, f, m) => (n === 1 ? o : (n >= 2 && n <= 4 ? f : m)), shuffleArr: a => a, countDiv: () => 1,
+      r1: x => Math.round(x * 10) / 10, r2: x => Math.round(x * 100) / 100, PI: 3.14 });
+    const kresby = [], videno = new Set(), zdroje = {};
+    const pridej = (zdroj, t) => { if (!t || !t.svg || videno.has(t.svg)) return; videno.add(t.svg);
+      const z = zdroj.split('/')[0]; zdroje[z] = (zdroje[z] || 0) + 1;
+      kresby.push({ jm: zdroj + ' „' + String(t.text || t.prompt || t.intro || '').replace(/\n/g, ' ').slice(0, 40) + '…"', svg: t.svg }); };
+    for (const g of [3, 4, 5, 6, 7, 8, 9]) {
+      const H = g === 9 ? vse : kresbyZeHry('projects/rpg-mat-' + g + '.html');
+      const c = { window: {}, ...zakl(), ...H }, k = Object.keys(c);
+      new Function(...k, fs.readFileSync(path.join(ROOT, 'projects/rpg-tasks-' + g + '.js'), 'utf8'))(...k.map(x => c[x]));
+      const EX = c.window['RPG_TASK_EXTRA_' + g];
+      for (const mid of Object.keys(EX)) for (let i = 0; i < 25; i++) for (const t of EX[mid]()) pridej(g + '/' + mid, t);
+      // základní šablony ve hře (svgAngle je jen tam)
+      const m = fs.readFileSync(path.join(ROOT, 'projects/rpg-mat-' + g + '.html'), 'utf8').match(/const AREAS\s*=\s*(\[[\s\S]*?\n\s*\];)/);
+      Object.assign(global, zakl(), H);
+      const AREAS = new Function('return ' + m[1].replace(/;\s*$/, ''))();
+      for (const ar of AREAS) for (const mi of ar.missions) for (let i = 0; i < 25; i++) for (const t of mi.tasks() || []) pridej(g + '/' + mi.id + 'z', t);
+    }
+    { const g = { window: {}, ...zakl(), ...vse }, k = Object.keys(g);
+      new Function(...k, fs.readFileSync(path.join(ROOT, 'projects/rpg-cermat-9.js'), 'utf8'))(...k.map(x => g[x]));
+      const B = g.window.RPG_CERMAT_9;
+      for (let p = 0; p < 16; p++) for (let i = 0; i < 120; i++) { const t = B.genSlot(p); pridej('test/' + (p + 1), t); for (const q of (t && t.parts) || []) pridej('test/' + (p + 1), q); } }
+    { Object.assign(globalThis, vse, zakl()); globalThis.window = globalThis;
+      new Function(fs.readFileSync(path.join(ROOT, 'projects/prijimacky-matematika/prijimacky-gen.js'), 'utf8'))();
+      for (const gens of Object.values(globalThis.PZ_GEN)) for (const f of gens) for (let i = 0; i < 40; i++) pridej('zaklad', f()); }
+    // doplňky k řešením přijímaček: dvě ruční kresby konstrukcí (7 popisků přes čáru, 5. 10. 2026)
+    for (const m of fs.readFileSync(path.join(ROOT, 'projects/prijimacky-matematika/doplnky.html'), 'utf8').matchAll(/<svg[^>]*aria-label="(Konstrukce[^"]*)"[\s\S]*?<\/svg>/g))
+      pridej('doplnky', { svg: m[0], text: m[1] });
+    /* Měřidlo je sdílené (tests/popisky-mer.cjs) — totéž měří výklad 3.–9. ročníku,
+       doplňky a snímky konstrukcí; dvě kopie téhož měřidla by se rozešly. */
+    const r = await page.evaluate(({ kresby, merSrc }) => {
+      const MER = new Function('return ' + merSrc)();
+      const cara = [], prekryv = [], orez = [], utek = []; let textu = 0, oblouku = 0;
+      for (const k of kresby) {
+        const d = document.createElement('div'); d.style.cssText = 'width:260px'; d.innerHTML = k.svg; document.body.appendChild(d);
+        const svg = d.querySelector('svg'); svg.style.cssText = 'display:block;width:260px;height:auto';
+        const m = MER([svg], k.jm); cara.push(...m.cara); prekryv.push(...m.prekryv); orez.push(...m.orez); textu += m.textu;
+        /* jen test nanečisto: tam se oblouk a jeho popisek kreslí vždy hned za sebou
+           (oblouk + stitek / volnyUhel); trojúhelník z úhlů v RPG kreslí popisky až po obloucích */
+        if (k.jm.startsWith('test/')) for (const a of svg.querySelectorAll('path[data-vrchol]')) { const t = a.nextElementSibling; if (!t || t.tagName !== 'text') continue; oblouku++;
+          const [vx, vy] = a.dataset.vrchol.split(' ').map(Number), bb = t.getBBox(), od = Math.hypot(bb.x + bb.width / 2 - vx, bb.y + bb.height / 2 - vy) - +a.dataset.r;
+          if (od > 36) utek.push(k.jm + ': „' + t.textContent + '" ' + od.toFixed(0) + ' px za svým obloukem'); }
+        d.remove();
+      }
+      return { cara, prekryv, orez, utek, textu, oblouku };
+    }, { kresby, merSrc: require('./popisky-mer.cjs').mer.toString() });
+    /* Naměřeno 4. 10. 2026: ~6 000 různých kreseb (banky + šablony 3.–9. ~2 800,
+       test nanečisto ~1 900, základ ~1 000), ~18 000 popisků, ~250 dvojic oblouk–
+       popisek s odstupem 10–30 px (dřív až ~70). Podlahy hlídají, že se měřilo. */
+    ok(kresby.length >= 4000 && r.textu >= 12000 && r.oblouku >= 100 && ['3', '6', '9', 'test', 'zaklad'].every(z => zdroje[z] > 50) && zdroje.doplnky === 2,
+      'všechny zdroje: proměřeno ' + kresby.length + ' kreseb (' + Object.entries(zdroje).map(([z, n]) => z + ' ' + n).join(', ') + '), ' + r.textu + ' popisků, ' + r.oblouku + ' oblouků');
+    ok(r.cara.length === 0, 'všechny zdroje: přes žádný popisek nevede čára, hrana, oblouk ani kružnice', r.cara.length + '× — ' + r.cara.slice(0, 3).join(' | '));
+    ok(r.prekryv.length === 0, 'všechny zdroje: popisky se nepřekrývají', r.prekryv.slice(0, 3).join(' | '));
+    ok(r.orez.length === 0, 'všechny zdroje: žádný popisek nevyčuhuje z kresby', r.orez.length + '× — ' + r.orez.slice(0, 3).join(' | '));
+    ok(r.utek.length === 0, 'test nanečisto: popisek úhlu stojí u svého oblouku (nejvýš 36 px za ním)', r.utek.slice(0, 3).join(' | '));
+  }
+
   await br.close();
 
   /* ── 7. světlý motiv přijímaček musí mít rozhodnutí o KAŽDÉ barvě ──

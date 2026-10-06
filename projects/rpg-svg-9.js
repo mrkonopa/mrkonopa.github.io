@@ -32,7 +32,12 @@ function svgAngle(deg,opt={}){
  const cx=+((W-(maxX-minX))/2-minX).toFixed(1), cy=+((H-(maxY-minY))/2-minY).toFixed(1);
  const x2=(cx+len*co).toFixed(1), y2=(cy-len*si).toFixed(1);
  const ax2=(cx+r*co).toFixed(1), ay2=(cy-r*si).toFixed(1);
- const lblx=(cx+(r+20)*Math.cos(rad/2)).toFixed(1), lbly=(cy-(r+20)*Math.sin(rad/2)+6).toFixed(1);
+ // Popisek na ose úhlu tak daleko, aby jeho rámeček nesahal na ramena (viz svgCross);
+ // pevných r + 20 stačilo jen u širokých úhlů.
+ // Rámeček nesmí ani na oblouk: střed musí být od vrcholu dál o průmět půlrozměrů na osu.
+ const pa=opt.label?_sirka(opt.label,17)/2:0, ch=Math.cos(rad/2), sh=Math.sin(rad/2);
+ const D=opt.label?Math.min(len-10,Math.max(r+20,r+3+pa*ch+11*sh,(Math.max(11,pa*si+11*Math.abs(co))+1)/sh)):r+20;
+ const lblx=(cx+D*Math.cos(rad/2)).toFixed(1), lbly=(cy-D*Math.sin(rad/2)+6).toFixed(1);
  return `<svg viewBox="0 0 ${W} ${H}"><line x1="${cx}" y1="${cy}" x2="${(cx+len).toFixed(1)}" y2="${cy}" stroke="#19e6e6" stroke-width="3.5"/><line x1="${cx}" y1="${cy}" x2="${x2}" y2="${y2}" stroke="#19e6e6" stroke-width="3.5"/><path d="M ${(cx+r).toFixed(1)} ${cy} A ${r} ${r} 0 0 0 ${ax2} ${ay2}" fill="none" stroke="#ff3d7f" stroke-width="2.5"/>${opt.label?`<text x="${lblx}" y="${lbly}" fill="#ff3d7f" font-size="17" font-family="monospace" text-anchor="middle">${opt.label}</text>`:''}<circle cx="${cx}" cy="${cy}" r="3.5" fill="#fff"/></svg>`;
 }
 // Dvě protínající se přímky (vedlejší / vrcholové úhly). Vyznačí úhel α (opt.label)
@@ -48,7 +53,9 @@ function svgCross(deg,opt={}){
  const len=Math.min(115,(W/2-PAD)/Math.max(Math.abs(co),0.001),(H/2-PAD)/Math.max(si,0.001));
  const dx=len*co,dy=len*si;
  const ax2=(cx+r*co).toFixed(1), ay2=(cy-r*si).toFixed(1);
- const lab=opt.label||'α', vzd=t=>Math.min(len-8,Math.max(r+16,(Math.max(10,_sirka(t,16)/2*si+10*Math.abs(co))+1)/Math.sin(rad/2)));
+ const lab=opt.label||'α', ch=Math.cos(rad/2), sh=Math.sin(rad/2);
+ // + odstup od oblouku: u „102°“ se široký popisek dotýkal oblouku
+ const vzd=t=>{const pa=_sirka(t,16)/2; return Math.min(len-8,Math.max(r+16,r+3+pa*ch+10*sh,(Math.max(10,pa*si+10*Math.abs(co))+1)/sh));};
  const d1=vzd(lab), lblx=(cx+d1*Math.cos(rad/2)).toFixed(1), lbly=(cy-d1*Math.sin(rad/2)+5).toFixed(1);
  let vrch='';
  if(opt.label2){ const d2=vzd(opt.label2);
@@ -155,8 +162,10 @@ function svgParallelogram(a,v,b){
  return `<svg viewBox="0 0 250 160"><polygon points="55,125 185,125 215,45 85,45" fill="#16203a" stroke="#19e6e6" stroke-width="2.5"/><line x1="115" y1="125" x2="115" y2="45" stroke="#ff3d7f" stroke-width="2" stroke-dasharray="5 4"/><rect x="115" y="113" width="12" height="12" fill="none" stroke="#ff3d7f" stroke-width="1.5"/><text x="120" y="142" fill="#ff3d7f" font-size="14" font-family="monospace" text-anchor="middle">a = ${a}</text><text x="121" y="90" fill="#ff3d7f" font-size="13" font-family="monospace" text-anchor="start">v = ${v}</text></svg>`;
 }
 // Lichoběžník: a (dolní základna), c (horní základna), v (výška).
+// Výška stojí u levého horního vrcholu (x 92), aby se popisek „v = 12 cm“ vešel
+// k pravému rameni; z x 110 ho rameno křížilo.
 function svgTrapezoid(a,c,v){
- return `<svg viewBox="0 0 250 160"><polygon points="40,125 210,125 165,45 85,45" fill="#16203a" stroke="#19e6e6" stroke-width="2.5"/><line x1="110" y1="125" x2="110" y2="45" stroke="#ff3d7f" stroke-width="2" stroke-dasharray="5 4"/><rect x="110" y="113" width="12" height="12" fill="none" stroke="#ff3d7f" stroke-width="1.5"/><text x="125" y="142" fill="#ff3d7f" font-size="13" font-family="monospace" text-anchor="middle">a = ${a}</text><text x="125" y="38" fill="#39ff9e" font-size="13" font-family="monospace" text-anchor="middle">c = ${c}</text><text x="116" y="90" fill="#ff3d7f" font-size="13" font-family="monospace" text-anchor="start">v = ${v}</text></svg>`;
+ return `<svg viewBox="0 0 250 160"><polygon points="40,125 210,125 165,45 85,45" fill="#16203a" stroke="#19e6e6" stroke-width="2.5"/><line x1="92" y1="125" x2="92" y2="45" stroke="#ff3d7f" stroke-width="2" stroke-dasharray="5 4"/><rect x="92" y="113" width="12" height="12" fill="none" stroke="#ff3d7f" stroke-width="1.5"/><text x="125" y="142" fill="#ff3d7f" font-size="13" font-family="monospace" text-anchor="middle">a = ${a}</text><text x="125" y="38" fill="#39ff9e" font-size="13" font-family="monospace" text-anchor="middle">c = ${c}</text><text x="98" y="90" fill="#ff3d7f" font-size="13" font-family="monospace" text-anchor="start">v = ${v}</text></svg>`;
 }
 
 // Graf lineární funkce y = kx + q (osy + přímka).
@@ -175,16 +184,20 @@ function svgCylinder(r,v){
  const botY=topY+h;
  return `<svg viewBox="0 0 250 160"><path d="M ${cx-rx} ${topY} L ${cx-rx} ${botY} A ${rx} ${ry} 0 0 0 ${cx+rx} ${botY} L ${cx+rx} ${topY}" fill="#16203a" stroke="#19e6e6" stroke-width="2.5"/><ellipse cx="${cx}" cy="${botY}" rx="${rx}" ry="${ry}" fill="none" stroke="#19e6e6" stroke-width="2.5" stroke-dasharray="5 4"/><ellipse cx="${cx}" cy="${topY}" rx="${rx}" ry="${ry}" fill="#1b2742" stroke="#19e6e6" stroke-width="2.5"/><line x1="${cx}" y1="${topY}" x2="${cx+rx}" y2="${topY}" stroke="#ff3d7f" stroke-width="2"/><text x="${cx+rx/2}" y="${topY-ry-6}" fill="#ff3d7f" font-size="14" font-family="monospace" text-anchor="middle">r=${r}</text><text x="${cx+rx+8}" y="${topY+h/2}" fill="#ff3d7f" font-size="14" font-family="monospace">v=${v}</text></svg>`;
 }
-// Kužel: r poloměr podstavy, v výška.
+// Kužel: r poloměr podstavy, v výška. Popisek výšky patří k čárkované OSE,
+// ne ven ke straně (tam by se četl jako délka strany s, která je jiná než v).
+// Při rx 46 se ani „v=7“ k ose nevešlo a strana vedla přes popisek; teď je
+// kužel širší a popisek ve třech čtvrtinách výšky, kde je místo.
 function svgCone(r,v){
- const cx=125,apexY=20,h=100,rx=46,ry=13;
+ const cx=125,apexY=20,h=100,rx=58,ry=13;
  const baseY=apexY+h;
- return `<svg viewBox="0 0 250 160"><path d="M ${cx} ${apexY} L ${cx-rx} ${baseY} A ${rx} ${ry} 0 0 0 ${cx+rx} ${baseY} Z" fill="#16203a" stroke="#19e6e6" stroke-width="2.5"/><ellipse cx="${cx}" cy="${baseY}" rx="${rx}" ry="${ry}" fill="none" stroke="#19e6e6" stroke-width="2.5" stroke-dasharray="5 4"/><line x1="${cx}" y1="${apexY}" x2="${cx}" y2="${baseY}" stroke="#39ff9e" stroke-width="1.5" stroke-dasharray="4 3"/><text x="${cx+10}" y="${apexY+h/2}" fill="#39ff9e" font-size="13" font-family="monospace">v=${v}</text><text x="${cx+rx/2}" y="${baseY+ry+12}" fill="#ff3d7f" font-size="14" font-family="monospace" text-anchor="middle">r=${r}</text></svg>`;
+ return `<svg viewBox="0 0 250 160"><path d="M ${cx} ${apexY} L ${cx-rx} ${baseY} A ${rx} ${ry} 0 0 0 ${cx+rx} ${baseY} Z" fill="#16203a" stroke="#19e6e6" stroke-width="2.5"/><ellipse cx="${cx}" cy="${baseY}" rx="${rx}" ry="${ry}" fill="none" stroke="#19e6e6" stroke-width="2.5" stroke-dasharray="5 4"/><line x1="${cx}" y1="${apexY}" x2="${cx}" y2="${baseY}" stroke="#39ff9e" stroke-width="1.5" stroke-dasharray="4 3"/><text x="${cx+5}" y="${apexY+0.75*h}" fill="#39ff9e" font-size="13" font-family="monospace">v=${v}</text><text x="${cx+rx/2}" y="${baseY+ry+12}" fill="#ff3d7f" font-size="14" font-family="monospace" text-anchor="middle">r=${r}</text></svg>`;
 }
-// Koule s poloměrem r.
+// Koule s poloměrem r. Popisek stojí na konci poloměru VNĚ koule — nad poloměrem
+// ho křížil čárkovaný rovník.
 function svgSphere(r){
  const cx=125,cy=80,R=52;
- return `<svg viewBox="0 0 250 160"><circle cx="${cx}" cy="${cy}" r="${R}" fill="#16203a" stroke="#19e6e6" stroke-width="2.5"/><ellipse cx="${cx}" cy="${cy}" rx="${R}" ry="16" fill="none" stroke="#19e6e6" stroke-width="1.8" stroke-dasharray="5 4"/><line x1="${cx}" y1="${cy}" x2="${cx+R}" y2="${cy}" stroke="#ff3d7f" stroke-width="2"/><text x="${cx+R/2}" y="${cy-6}" fill="#ff3d7f" font-size="14" font-family="monospace" text-anchor="middle">r=${r}</text><circle cx="${cx}" cy="${cy}" r="3" fill="#ff3d7f"/></svg>`;
+ return `<svg viewBox="0 0 250 160"><circle cx="${cx}" cy="${cy}" r="${R}" fill="#16203a" stroke="#19e6e6" stroke-width="2.5"/><ellipse cx="${cx}" cy="${cy}" rx="${R}" ry="16" fill="none" stroke="#19e6e6" stroke-width="1.8" stroke-dasharray="5 4"/><line x1="${cx}" y1="${cy}" x2="${cx+R}" y2="${cy}" stroke="#ff3d7f" stroke-width="2"/><text x="${cx+R+6}" y="${cy+5}" fill="#ff3d7f" font-size="14" font-family="monospace">r=${r}</text><circle cx="${cx}" cy="${cy}" r="3" fill="#ff3d7f"/></svg>`;
 }
 // Dva podobné trojúhelníky (malý + velký) s koeficientem k.
 function svgSimilar(k){
@@ -196,10 +209,13 @@ function svgNumLine(min,max,opt={}){
  const x0=25,x1=225,ay=52,rng=(max-min)||1;
  const px=v=>+(x0+(v-min)/rng*(x1-x0)).toFixed(1);
  const step=rng<=12?1:(rng<=24?2:5);
- let ticks='';
- for(let v=Math.ceil(min/step)*step; v<=max; v+=step){
-  const X=px(v),zero=v===0;
-  ticks+=`<line x1="${X}" y1="${ay-4}" x2="${X}" y2="${ay+4}" stroke="${zero?'#fff':'#5d6e94'}" stroke-width="${zero?2.5:1.5}"/><text data-nltick="${v}" x="${X}" y="${ay+18}" fill="${zero?'#fff':'#8a9bc4'}" font-size="12" font-family="monospace" text-anchor="middle">${v}</text>`;
+ // Popisky, které se do rozestupu dílků nevejdou („−11“ = 22 px na 16,7 px), se
+ // střídají ve dvou řádcích — každé celé číslo zůstane popsané. Záporná čísla mínusem.
+ const roz=step*(x1-x0)/rng, sir=Math.max(String(min).length,String(max).length)*7.2, stridat=sir+3>roz;
+ let ticks='', n=0;
+ for(let v=Math.ceil(min/step)*step; v<=max; v+=step, n++){
+  const X=px(v),zero=v===0, ty=ay+18+(stridat&&n%2?14:0);
+  ticks+=`<line x1="${X}" y1="${ay-4}" x2="${X}" y2="${ay+4}" stroke="${zero?'#fff':'#5d6e94'}" stroke-width="${zero?2.5:1.5}"/><text data-nltick="${v}" x="${X}" y="${ty}" fill="${zero?'#fff':'#8a9bc4'}" font-size="12" font-family="monospace" text-anchor="middle">${v<0?'−'+(-v):v}</text>`;
  }
  let extra='';
  if(opt.arrow){const A=px(opt.arrow.from),B=px(opt.arrow.to),mid=((A+B)/2).toFixed(1);
@@ -245,10 +261,12 @@ function svgTrojVyska(z, v, lz, lv) {
   let w = Math.max(40, z * s), h = Math.max(30, v * s);
   const px = 0.3 * w, yb = h + 14;
   // Popisek výšky vedle čárkované čáry: zkusí se 62 % a 80 % výšky (dole je
-  // obrazec širší), ale nesmí sjet na značku pravého úhlu u paty.
+  // obrazec širší), ale nesmí sjet na značku pravého úhlu u paty. Místo se
+  // měří u HORNÍHO okraje písmen (o 12 px výš než účaří) — tam je trojúhelník
+  // užší, a u účaří změřené místo pouštělo pravou stranu přes popisek.
   let yl = null;
   for (const k of [0.62, 0.8]) {
-    const y = 14 + k * h, misto = k * (w - px) - 8;
+    const y = 14 + k * h, misto = Math.max(0, k - 12 / h) * (w - px) - 9;
     if (sirV <= misto && y + 4 < yb - 12) { yl = y; break; }
   }
   const venku = yl === null;
@@ -273,7 +291,9 @@ function svgVedlejsi(x, lx, ly) {
   const pol = (uhel, r) => [V[0] + r * Math.cos(uhel * Math.PI / 180), V[1] - r * Math.sin(uhel * Math.PI / 180) + 5];
   // Popisek musí mít od obou ramen aspoň půl výšky písma, i svým koncem
   // blíž k vrcholu: d · sin(θ/2) ≥ 9 pro d zmenšené o půl šířky popisku.
-  const vzdal = (uhel, r, t) => Math.min(L - 8, Math.max(r + 20, 9 / Math.sin(uhel * Math.PI / 360) + _sirka(t) / 2 + 2));
+  const vzdal = (uhel, r, t) => { const u = uhel * Math.PI / 180, pa = _sirka(t) / 2;
+    return Math.min(L - 8, Math.max(r + 20, r + 3 + pa * Math.cos(u / 2) + 9 * Math.sin(u / 2),
+      9 / Math.sin(u / 2) + pa + 2, (Math.max(9, pa * Math.sin(u) + 9 * Math.abs(Math.cos(u))) + 1) / Math.sin(u / 2))); };
   const p1 = pol(x / 2, vzdal(x, 24, lx)), p2 = pol((180 + x) / 2, vzdal(180 - x, 32, ly));
   return `<svg viewBox="0 0 ${W} ${H}"><line x1="${Q[0]}" y1="${V[1]}" x2="${P[0]}" y2="${V[1]}" stroke="#19e6e6" stroke-width="3"/>`
     + `<line x1="${V[0]}" y1="${V[1]}" x2="${K[0].toFixed(1)}" y2="${K[1].toFixed(1)}" stroke="#19e6e6" stroke-width="3"/>`
@@ -340,17 +360,28 @@ function svgKrychle(t) {
 function svgHranol3(a, va, v, la, lva, lv) {
   const k = Math.min(170 / Math.max(a, 1), 88 / Math.max(va, 1), 120 / Math.max(va + 0.5 * v, 1));
   const Z = a * k, V = va * k, g = Math.max(22, 0.5 * v * k), dx = g * 0.36, dy = g;
-  const W = 300, x0 = Math.max(70, (W - Z - dx - 50) / 2), y0 = V + dy + 20, H = Math.round(y0 + 26);
+  const x0 = Math.max(70, (300 - Z - dx - 50) / 2), y0 = V + dy + 20, H = Math.round(y0 + 26);
   const P1 = [x0, y0], P2 = [x0 + Z, y0], P3 = [x0 + Z / 2, y0 - V], M = [x0 + Z / 2, y0];
   const sh = Q => [Q[0] + dx, Q[1] - dy];
   const pts = (...p) => p.map(q => q.map(n => n.toFixed(1)).join(',')).join(' ');
-  const sirV = lva ? _sirka(lva) : 0, uvnitr = sirV <= 0.4 * Z - 12;
+  // Uvnitř: popisek u paty výšky, vpravo od ní; pravá strana se k němu nahoře
+  // přibližuje o 3,5·Z/V. Když se nevejde, stojí VLEVO OD CELÉHO TĚLESA (vedle
+  // trojúhelníku leží boční stěny, takže „vlevo od strany“ padalo do levé stěny)
+  // s tečkovaným odkazem k čárkované výšce — výšku podstavy je nutné poznat,
+  // záměna s výškou hranolu je u téhle úlohy nejčastější chyba.
+  // Účaří aspoň 5 px nad základnou (u plochého trojúhelníku leželo spodkem písma na ní).
+  const sirV = lva ? _sirka(lva) : 0, yb = Math.min(y0 - 0.2 * V + 4, y0 - 5), yM = y0 - V / 2;
+  const uvnitr = sirV <= (Z / 2) * (1 - (y0 - yb + 11) / Math.max(V, 1)) - 14;
+  // Šířka plátna podle popisku výšky hranolu: u dlouhé podstavy stál „15 cm“ za pravým
+  // okrajem 300 a uřízl se (naměřeno 5. 10. 2026 na úlohách „základu“ přijímaček).
+  const xLv = (P2[0] + sh(P2)[0]) / 2 + 10, W = Math.max(300, Math.ceil(xLv + (lv ? _sirka(lv) : 0) + 6));
   return `<svg viewBox="0 0 ${W} ${H}"><polygon points="${pts(P1, P3, sh(P3), sh(P1))}" fill="#1b2742" stroke="#19e6e6" stroke-width="2"/>`
     + `<polygon points="${pts(P2, P3, sh(P3), sh(P2))}" fill="#101a30" stroke="#19e6e6" stroke-width="2"/>`
     + `<polygon points="${pts(P1, P2, P3)}" fill="#1b2742" stroke="#19e6e6" stroke-width="2.5"/>`
     + `<line x1="${P3[0].toFixed(1)}" y1="${P3[1].toFixed(1)}" x2="${M[0].toFixed(1)}" y2="${M[1].toFixed(1)}" stroke="#ff3d7f" stroke-width="2" stroke-dasharray="5 4"/>`
     + `<rect x="${M[0].toFixed(1)}" y="${(y0 - 9).toFixed(1)}" width="9" height="9" fill="none" stroke="#ff3d7f" stroke-width="1.5"/>`
     + (la ? _txt(x0 + Z / 2, y0 + 20, la) : '')
-    + (lva ? (uvnitr ? _txt(M[0] + 12, y0 - 0.2 * V + 4, lva, null, 'start') : _txt(x0 + Z / 4 - 8, y0 - V / 2 + 5, lva, null, 'end')) : '')
-    + (lv ? _txt((P2[0] + sh(P2)[0]) / 2 + 10, (P2[1] + sh(P2)[1]) / 2 + 6, lv, '#39ff9e', 'start') : '') + `</svg>`;
+    + (lva ? (uvnitr ? _txt(M[0] + 12, yb, lva, null, 'start')
+      : `<line x1="${x0 - 3}" y1="${yM.toFixed(1)}" x2="${(M[0] - 2).toFixed(1)}" y2="${yM.toFixed(1)}" stroke="#ff3d7f" stroke-width="1" stroke-dasharray="1 3"/>` + _txt(x0 - 6, yM + 5, lva, null, 'end')) : '')
+    + (lv ? _txt(xLv, (P2[1] + sh(P2)[1]) / 2 + 6, lv, '#39ff9e', 'start') : '') + `</svg>`;
 }

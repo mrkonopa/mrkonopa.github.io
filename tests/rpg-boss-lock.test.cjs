@@ -29,11 +29,13 @@ async function answerCorrect(page){
     return true;
    }
    const sorted=[...mt.data].sort((a,b)=>mt.desc?(b.v-a.v):(a.v-b.v));
+   // čip ukazuje ZOBRAZENÝ tvar (minus „−“, desetinná čárka), ne surový popisek z dat
+   const zob=x=>window.RPGTaskTypes&&RPGTaskTypes.zobraz?String(RPGTaskTypes.zobraz(x)):String(x);
    for(const d of sorted){
     let chip=null;const t1=Date.now();
     while(!chip&&Date.now()-t1<500){
      chip=[...document.querySelectorAll('#bt-prob .tto-chip:not(.done)')]
-       .find(c=>c.textContent.trim()===d.label.trim());
+       .find(c=>c.textContent.trim()===zob(d.label).trim());
      if(!chip)await new Promise(r=>setTimeout(r,50));
     }
     if(chip)chip.click();
@@ -44,11 +46,12 @@ async function answerCorrect(page){
   }
   const qBtns=[...document.querySelectorAll('#bt-prob .ttm-q:not(.done)')];
   if(qBtns.length>0){
+   const zob=x=>window.RPGTaskTypes&&RPGTaskTypes.zobraz?String(RPGTaskTypes.zobraz(x)):String(x);
    for(const q of qBtns){
     q.click();await new Promise(r=>setTimeout(r,80));
     const ans=q.dataset.a;
     const a=[...document.querySelectorAll('#bt-prob .ttm-a:not(.done)')]
-      .find(b=>b.textContent.trim()===String(ans).trim());
+      .find(b=>b.textContent.trim()===zob(ans).trim()||b.textContent.trim()===String(ans).trim());
     if(a)a.click();
     await new Promise(r=>setTimeout(r,120));
    }
@@ -64,7 +67,8 @@ async function answerCorrect(page){
   const a=String(t.ans);if(!a.trim())return;
   if(BT.mcMode){
    const btns=[...document.querySelectorAll('#mc-grid .mc-btn')];
-   const target=btns.find(b=>b.textContent.replace(/^[A-D]/,'')===a);
+   // tlačítko píše minus jako „−“ (zapis() v rpg-shared.js), odpověď v bance „-“
+   const target=btns.find(b=>b.textContent.replace(/^[A-D]/,'').replace(/−/g,'-')===a);
    if(target)target.click();else if(btns[0])submitMC(a,btns[0]);
   }else if(/^(ANO|NE)$/i.test(a.trim())){
    answerYN(a.toUpperCase());
@@ -86,14 +90,14 @@ async function answerCorrect(page){
   const errs=[]; page.on('pageerror',e=>errs.push(e.message));
   await page.addInitScript((seed)=>{localStorage.setItem('RPG_MAT_'+document.title.match(/\d/),JSON.stringify(seed));},SEED);
   await page.goto(`${base}/projects/rpg-mat-${g}.html`,{waitUntil:'load'});
-  await page.waitForFunction(()=>typeof AREAS!=='undefined'&&typeof launchBattle==='function',{timeout:8000});
+  await page.waitForFunction(()=>typeof AREAS!=='undefined'&&typeof launchBattle==='function',null,{timeout:8000});
   await page.evaluate((seed)=>{localStorage.setItem(SAVE_KEY,JSON.stringify(seed));loadS&&typeof loadS==='function';},SEED).catch(()=>{});
   await page.evaluate(()=>{S.done={};continueGame?continueGame():startGame&&startGame();}).catch(()=>{});
   await page.evaluate(()=>{S.done={};S.xpClaimed=S.xpClaimed||{};});
 
   // ── 1) nápověda: jediná, vypne tlačítko, neprozrazuje výsledek (ne-MC mise) ──
   await page.evaluate(()=>{const ar=AREAS.find(a=>a.missions.some(m=>!m.mc));const m=ar.missions.find(m=>!m.mc);launchBattle(ar.id,m.id);});
-  await page.waitForFunction(()=>document.querySelector('#s-battle').classList.contains('active'),{timeout:5000});
+  await page.waitForFunction(()=>document.querySelector('#s-battle').classList.contains('active'),null,{timeout:5000});
   await page.waitForTimeout(600);
   {
    const h=await page.evaluate(()=>{
@@ -114,19 +118,28 @@ async function answerCorrect(page){
   // ── 2) porážka bosse → vstup trvale zamčený ──
   {
    const tot=await page.evaluate(()=>BT.tasks.length);
-   let maxIter=tot*6;
+   let maxIter=tot*6, bezPokroku=0;
    while(maxIter-->0){
     const st0=await page.evaluate(()=>({done:Object.keys(S.done).length,defeated:BT.bossDefeated}));
     if(st0.defeated)break;
     await answerCorrect(page);
-    await page.waitForFunction(()=>document.getElementById('next-btn').style.display!=='none'||BT.bossDefeated,{timeout:6000}).catch(()=>{});
+    // volby až 3. argument (2. je ARG funkce, jinak se čeká výchozích 30 s)
+    await page.waitForFunction(()=>document.getElementById('next-btn').style.display!=='none'||BT.bossDefeated,null,{timeout:6000}).catch(()=>{});
     const st=await page.evaluate(()=>({
      defeated:BT.bossDefeated,done:Object.keys(S.done).length,
      nextShown:document.getElementById('next-btn').style.display!=='none'
     }));
     if(st.defeated)break;
-    if(st.nextShown){await page.evaluate(()=>nextTask());await page.waitForTimeout(350);}
-    else if(st.done===st0.done){await page.waitForTimeout(500);}
+    if(st.nextShown){bezPokroku=0;await page.evaluate(()=>nextTask());await page.waitForTimeout(350);}
+    else if(st.done===st0.done){
+     // zaseknuté kolo: spadnout hned a říct proč, ne čekat na limit běhu
+     if(++bezPokroku>=4){
+      const z=await page.evaluate(()=>({kolo:BT.idx+1,mini:(BT.mini&&BT.mini[BT.idx]&&BT.mini[BT.idx].type)||'žádná'}));
+      ok(false,`g${g} boj se zasekl na kole ${z.kolo} (minihra: ${z.mini})`);break;
+     }
+     await page.waitForTimeout(500);
+    }
+    else bezPokroku=0;
    }
    await page.waitForTimeout(400);
    const st=await page.evaluate(()=>({
@@ -159,7 +172,8 @@ async function answerCorrect(page){
       :{text:'Kolik litrů se vejde do nádrže?',ans:String(k)};
      fake.hints=['x'];fake.skill='calc';
      renderMC(fake);
-     const opts=[...document.querySelectorAll('#mc-grid .mc-btn')].map(b=>b.textContent.replace(/^[A-D]/,''));
+     // „−“ na tlačítku zpět na „-“: jinak by parseFloat dal NaN a kontrola záporných voleb oslepla
+     const opts=[...document.querySelectorAll('#mc-grid .mc-btn')].map(b=>b.textContent.replace(/^[A-D]/,'').replace(/−/g,'-'));
      const cn=parseFloat(fake.ans);
      res.checked++;
      if(typ===0&&!opts.includes(String(-cn)))res.zaporna++;

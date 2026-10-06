@@ -28,9 +28,17 @@
      Volby se porovnávají INDEXEM (`idx === q.correct` v rpg-battle-ui.js),
      nikdy se neparsují, takže změna zápisu nic nerozbije. Nečíselné
      hodnoty (ANO/NE, zlomky, záložní „x1") jdou beze změny. */
+  /* Zápis jako ve škole: minus „−“ (ne spojovník „-“) a mocnina horním indexem
+     („10³“, ne „10^3“). Naměřeno 4. 10. 2026: spojovník v 7.–9. ročníku u tisíců
+     otázek a voleb, stříška v 8. a 9. ročníku ~360× každý. Volby se porovnávají
+     INDEXEM, nikdy se neparsují, takže změna zápisu nic nerozbije. */
+  const HORNI = { 0: '⁰', 1: '¹', 2: '²', 3: '³', 4: '⁴', 5: '⁵', 6: '⁶', 7: '⁷', 8: '⁸', 9: '⁹', '-': '⁻' };
+  const zapis = s => String(s)
+    .replace(/(^|[\s(\[=:;,+×·*\/−])-(?=\d)/g, '$1−')
+    .replace(/\^(-?\d+)/g, (_, e) => [...e].map(c => HORNI[c]).join(''));
   const S = v => {
-    if (typeof v !== 'number' || !Number.isFinite(v)) return String(v);
-    return String(Math.round(v * 1e6) / 1e6).replace('.', ',');
+    if (typeof v !== 'number' || !Number.isFinite(v)) return zapis(String(v));
+    return zapis(String(Math.round(v * 1e6) / 1e6).replace('.', ','));
   };
 
   const GEN = [
@@ -106,9 +114,10 @@
 
     // 8) rovnice s neznámou na obou stranách
     function (r) {
-      const x = ri(r, 1, 9), a = ri(r, 2, 5), b = ri(r, 2, 5), c = ri(r, 1, 8);
-      // (a+b)x = a*x + c  → b*x = c ... nebezpečné pokud c%b != 0
-      // Použij ax + c = bx + d kde a>b
+      // ax + c = bx + d, kde a > b. Dřív se a, b losovaly nezávisle: a = b dalo
+      // rovnici „5x + 3 = 5x + 3“, kterou splní každé x (hra čekala 8), a a < b
+      // zápis „4x + -1“ (8. roč., 67 + 238 z 18 000 otázek).
+      const x = ri(r, 1, 9), b = ri(r, 2, 4), a = b + ri(r, 1, 3), c = ri(r, 1, 8);
       const d = (a - b) * x + c;
       return { topic: 'rovnice',
                text: `Vyřeš: ${a}x + ${c} = ${b}x + ${d}`, value: x,
@@ -197,11 +206,11 @@
                distractors: [(rhs / a) | 0, x + a, x * a] };
     },
 
-    // 15) pravidla mocnin — součin (a^m · a^n = a^?)
+    // 15) pravidla mocnin — součin (aᵐ · aⁿ = aᵐ⁺ⁿ); exponenty horním indexem přes zapis()
     function (r) {
       const base = pick(r, [2, 3, 5]), m = ri(r, 2, 5), n = ri(r, 2, 5);
       const v = m + n;
-      return { topic: 'mocniny', text: `Zjednodušte: ${base}^${m} · ${base}^${n} = ${base}^?`, value: v,
+      return { topic: 'mocniny', text: `Zjednoduš: ${base}^${m} · ${base}^${n} = ${base}ⁿ. Kolik je n?`, value: v,
                distractors: [m * n, v + 1, v - 1] };
     },
 
@@ -252,7 +261,7 @@
       const j = Math.floor(r() * (i + 1));
       [choices[i], choices[j]] = [choices[j], choices[i]];
     }
-    return { id, topic: raw.topic, text: raw.text, choices,
+    return { id, topic: raw.topic, text: zapis(raw.text), choices,
              correct: choices.indexOf(correct), answer: correct };
   }
 

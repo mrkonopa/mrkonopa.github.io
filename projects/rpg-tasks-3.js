@@ -234,7 +234,7 @@
   function gen_3_3() {
     const tasks = [];
     const T = [
-      () => { const a = ri(2, 9), b = ri(3, 9); return { text: pick([`Na ${a} ${skl(a, 'větvi', 'větvích', 'větvích')} sedí po ${b} ptácích. Kolik ptáků je celkem?`, `Na každé z ${a} ${skl(a, 'větve', 'větví', 'větví')} sedí ${b} ptáků. Kolik ptáků sedí na stromě?`]), ans: a * b, h1: `${a} ${skl(a, 'větev', 'větve', 'větví')} po ${b} ptácích = ${a} × ${b}.`, h2: `= ${a * b}` }; },
+      () => { const a = ri(2, 9), b = ri(3, 9); return { text: pick([`Na ${a} ${skl(a, 'větvi', 'větvích', 'větvích')} sedí po ${b} ptácích. Kolik ptáků je celkem?`, `Na každé z ${a} ${skl(a, 'větve', 'větví', 'větví')} sedí ${b} ${skl(b, 'pták', 'ptáci', 'ptáků')}. Kolik ptáků sedí na stromě?`]), ans: a * b, h1: `${a} ${skl(a, 'větev', 'větve', 'větví')} po ${b} ptácích = ${a} × ${b}.`, h2: `= ${a * b}` }; },
       () => { const a = ri(2, 8), b = ri(2, 9); return { text: `Veverka má ${a} ${skl(a, 'skrýš', 'skrýše', 'skrýší')} a v každé ${b} ${skl(b, 'oříšek', 'oříšky', 'oříšků')}. Kolik oříšků má celkem?`, ans: a * b, h1: `${a} × ${b}`, h2: `= ${a * b}` }; },
       () => { const a = ri(2, 6), b = ri(10, 50); return { text: `Jeden košík lesních jahod stojí ${b} Kč. Kolik zaplatíš za ${a} ${skl(a, 'košík', 'košíky', 'košíků')}?`, ans: a * b, h1: `${a} × ${b}`, h2: `= ${a * b} Kč` }; },
       () => { const r = ri(2, 6), s = ri(3, 9); return { text: `Trpaslíci vysadili ${r} ${skl(r, 'řadu', 'řady', 'řad')} stromků, v každé řadě ${s} ${skl(s, 'stromek', 'stromky', 'stromků')}. Kolik stromků vysadili?`, ans: r * s, h1: `${r} × ${s}`, h2: `= ${r * s}` }; },
