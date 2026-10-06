@@ -41,7 +41,7 @@ const ok=(c,m)=>{ if(c){pass++;console.log('  ✅ '+m);} else {fail++;console.lo
 
   let mereni = 0;
   for (const g of [3,4,5,6,7,8,9]) {
-    const spatne = [];
+    const spatne = [], prekryvy = [];
     for (const [jm, w, h] of ZARIZENI) {
       const ctx = await br.newContext({ viewport:{width:w,height:h}, hasTouch:true });
       await ctx.route('**/*', r => r.request().url().startsWith(base) ? r.continue() : r.abort());
@@ -53,10 +53,33 @@ const ok=(c,m)=>{ if(c){pass++;console.log('  ✅ '+m);} else {fail++;console.lo
         // a v CI flakoval. Pevné semínko dá pokaždé tutéž sadu úloh.
         let sem = 42;
         Math.random = () => { sem = (sem * 1103515245 + 12345) % 2147483648; return sem / 2147483648; };
+        /* Na každé obrazovce smí být vidět PRÁVĚ JEDNA .screen. Pravidlo boje na šířku
+           (#s-battle.screen, id přebije .screen{display:none}) platilo i pro NEAKTIVNÍ
+           boj, takže na tabletu na šířku ležel boj přes úvod, mapu i trénink a zakryl
+           tlačítko startu — hra nešla spustit (Vojtův snímek z iPadu, 6. 10. 2026).
+           Měřilo se jen uvnitř boje, proto to měsíc nikdo neviděl. */
+        const viditelne = () => [...document.querySelectorAll('.screen')]
+          .filter(s => getComputedStyle(s).display !== 'none').map(s => s.id);
+        const zakryva = el => { const b = el.getBoundingClientRect(), x = b.left + b.width / 2, y = b.top + b.height / 2;
+          const hit = document.elementFromPoint(x, y);
+          return hit && hit !== el && !el.contains(hit) ? (hit.id || String(hit.className) || hit.tagName) : null; };
+        const obrazovky = [];
+        let vid = viditelne();
+        if (vid.join() !== 's-intro') obrazovky.push('úvod: vidět ' + vid.join(' + '));
+        const start = document.querySelector('#s-intro button[onclick*="startGame"]');
+        if (!start) obrazovky.push('úvod: chybí tlačítko startu');
+        else { start.scrollIntoView({ block: 'center' }); const k = zakryva(start); if (k) obrazovky.push('úvod: tlačítko startu zakrývá ' + k); }
         document.getElementById('ni').value = 'Test';
         startGame(); S.tutorialDone = true;
+        for (const s of document.querySelectorAll('.screen')) {
+          const jm = s.id.slice(2); if (jm === 'intro' || jm === 'battle') continue;
+          go(jm); vid = viditelne();
+          if (vid.join() !== s.id) obrazovky.push(jm + ': vidět ' + vid.join(' + '));
+        }
+        go('map');
         const a = AREAS[0], m = a.missions[1] || a.missions[0];   // X-1 jsou MC
         launchBattle(a.id, m.id);
+        vid = viditelne(); if (vid.join() !== 's-battle') obrazovky.push('boj: vidět ' + vid.join(' + '));
         document.getElementById('next-btn').style.display = '';
         const vh = window.innerHeight;
         // OVLÁDÁNÍ (vstup, DÁLE) musí být celé vidět — na to se kliká.
@@ -75,11 +98,12 @@ const ok=(c,m)=>{ if(c){pass++;console.log('  ✅ '+m);} else {fail++;console.lo
         const lzeRolovat = getComputedStyle(col).overflowY === 'auto' || getComputedStyle(col).overflowY === 'scroll';
         return { zacatekZadani: Math.max(0, Math.round(prob.top - vh)),
                  vstup: podOkrajem('bt-ans'), dale: podOkrajem('next-btn'),
-                 nedosazitelne: (preteka && !lzeRolovat) ? 1 : 0 };
+                 nedosazitelne: (preteka && !lzeRolovat) ? 1 : 0, obrazovky };
       });
       mereni++;
+      for (const o of r.obrazovky) prekryvy.push(`${jm}: ${o}`);
       for (const [co, px] of Object.entries(r)) {
-        if (px <= 0) continue;
+        if (co === 'obrazovky' || px <= 0) continue;
         spatne.push(co === 'nedosazitelne'
           ? `${jm}: zadání přetéká a sloupec NEROLUJE — konec je nedosažitelný`
           : `${jm}: ${co} ${px} px pod okrajem`);
@@ -88,6 +112,8 @@ const ok=(c,m)=>{ if(c){pass++;console.log('  ✅ '+m);} else {fail++;console.lo
     }
     ok(spatne.length===0, `${g}. ročník: začátek zadání, vstup i DÁLE jsou dosažitelné na všech ${ZARIZENI.length} rozměrech`
       + (spatne.length ? ' — ' + spatne.slice(0,3).join(' · ') : ''));
+    ok(prekryvy.length===0, `${g}. ročník: na každé obrazovce je vidět jen ona a tlačítko startu jde stisknout (${ZARIZENI.length} rozměrů)`
+      + (prekryvy.length ? ' — ' + prekryvy.slice(0,3).join(' · ') : ''));
   }
   // Pojistka proti běhu naprázdno: bez skutečných měření by kontrola prošla i tak.
   ok(mereni === 7*ZARIZENI.length, `proměřeno ${mereni} kombinací ročník × rozměr (čekáno ${7*ZARIZENI.length})`);

@@ -492,8 +492,11 @@ html[data-theme="violet"]{--gold:#b06cff;--panel:#100a20;--panel2:#18103a;--blue
     obal končil 23 px pod okrajem a přišpendlené tlačítko s ním.
     Tímhle žádné dopočítávání odsazení není potřeba.
     min-height:0 je nutné dvakrát: bez něj se flex ani grid nesmrští pod
-    velikost obsahu a rolování ve sloupci by se nikdy nezapnulo. */
- #s-battle.screen{position:fixed;inset:0;overflow:hidden;display:flex;justify-content:center;padding:10px 12px}
+    velikost obsahu a rolování ve sloupci by se nikdy nezapnulo.
+    .active je nutné: id přebije .screen{display:none}, takže bez něj byl boj
+    vidět přes VŠECHNY obrazovky a na tabletu na šířku zakryl i tlačítko startu
+    (od 9. 9. do 6. 10. 2026, hlídá tablet-landscape). */
+ #s-battle.screen.active{position:fixed;inset:0;overflow:hidden;display:flex;justify-content:center;padding:10px 12px}
  #s-battle .wrap{max-width:1180px;height:100%;display:flex;flex-direction:column;min-height:0}
  #s-battle .bt-cols{flex:1;min-height:0}
  #s-battle .bt-col-task{min-height:0;align-self:stretch}
