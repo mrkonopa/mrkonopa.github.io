@@ -137,7 +137,16 @@ if (SHARD) {
 }
 
 console.log(`\n╔══ CI brána${CAST?" ["+CAST+"]":""}${SHARD?" díl "+SHARD:""}: ${runs.length} běhů (sekvenčně) ══╗\n`);
-if (LIST_ONLY) { runs.forEach(r => console.log('  •', r.label)); process.exit(0); }
+if (LIST_ONLY) {
+  /* Celý výpis najednou a SYNCHRONNĚ. `console.log` do roury je asynchronní a `process.exit` hned za ním
+     zahodil konec výstupu — naměřeno 9 ze 80 volání zkrácených (171–243 z 270 řádků), takže
+     `brana-uplnost` občas „neviděl“ 63 testů a prošel až na druhý pokus. */
+  const buf = Buffer.from(runs.map(r => '  • ' + r.label).join('\n') + '\n');
+  for (let off = 0; off < buf.length;) {
+    try { off += fs.writeSync(1, buf, off); } catch (e) { if (e.code !== 'EAGAIN') throw e; }
+  }
+  process.exit(0);
+}
 
 function runOne(f, args) {
   const started = Date.now();

@@ -106,6 +106,7 @@ Zkratky testů jsou názvy souborů v `tests/` bez přípony. „—“ = nehlí
 | F1 | `waitForFunction(fn, arg, volby)` — volby až 3.; limit odvozený z měření, nad prodlevou produktu | 254 volání čekalo 30 s (#36); limit 3 000 = odpočet 3 000 (#38) | waitforfunction-volby; háček na dobu čekání (CLAUDE.md) |
 | F2 | podmínka nečte `window.X`, když je X ve stránce `let`/`const` | 6 slepých čekání, 2 mrtvé větve, 2 vady webu (#39) | window-lexikalni |
 | F3 | volbu/tlačítko hledat podle ZOBRAZENÉHO tvaru (`czMC`, `zobraz`) a nenalezené hlásit nahlas | 4 testy klikaly na první tlačítko (#40) | rpg-ach, pr83-boss-hp, rpg-1stupen-play, rpg-explain |
+| F4 | výstup, který čte jiný proces, se píše celý a synchronně (ne `console.log` + `process.exit`); „prošlo až na 2. pokus“ (`✅~`) se čte jako nález, ne jako zelená | `run-ci --list` zkrácený v 9 z 80 volání → `brana-uplnost` neviděl až 63 testů (#48) | smyčka `execFileSync` × 150 (úplných 150 ze 150) |
 
 ## Velký průchod — deník (od 4. 10. 2026)
 
@@ -178,6 +179,8 @@ mezery, (6) brána znovu.
 | 44 | Rh | **Trénink na telefonu: OVĚŘIT / DALŠÍ ÚKOL mimo obrazovku** (360 px: 257–371 a 257–409; i ve 3. ročníku 259–364) — pole pro odpověď je `flex:1` bez `min-width:0` a drží ~270 px. Stránka nepřetéká (ořízne ji `body`), takže `layout-overflow` mlčel; #42 to jen zhoršilo (DALŠÍ ÚKOL je delší než OVĚŘIT) | ✅ `.bt-row .bt-input{min-width:0}` v `rpg-shared.js` (všech 7 her), `rpg-plovouci` měří rámečky řádku |
 | 45 | Rh | **Plovoucí Úkoly a Vzkazy ležely přes spodní řadu voleb** v boji a tréninku (telefon: volby C a D, ťuknutí trefilo widget) a na konci stránek přes poslední odkaz (profil: „RPG Matematika HUB“) | ✅ v boji, tréninku a věži se schovají (`:has`, bez podpory prohlížeče zůstanou jako dřív), konec stránky má mezeru 64 px, na dotyku mají 44 px; `rpg-plovouci` |
 | 46 | Rh | **Mazlíček ležel pod tlačítkem Úkoly** (obě `left:14px; bottom:14px`; na iPadu na výšku z něj byla vidět jen hlava) a na telefonu přes volby v boji | ✅ na užších obrazovkách stojí nad Úkoly, a když by se protnul s tlačítkem nebo polem, schová se (`_spKryjeOvladani` v `rpg-wallet.js`), `rpg-plovouci` |
+| 47 | test | **Nový kód v `rpg-cloud.js` sáhl na DOM při načtení modulu** a shodil 4 Node testy, které ho načítají ve `vm` s okleštěným `document` (`rpg-classes`, `rpg-leaderboard`, `rpg-snap`, `rpg-tower`) — na CI červené „Rychlé testy“. Lokálně jsem 33 testů nad cloudem pustil PŘED poslední úpravou modulu | ✅ vložení stylu v `try`; po každé úpravě sdíleného modulu pustit `--only=node` (2,7 min), než se pushne |
+| 48 | test | **`run-ci.cjs --list` se zkracoval** (`process.exit` hned po `console.log` do roury; 9 z 80 volání), takže `brana-uplnost` v ~11 % prvních pokusů padal („63 souborů mimo bránu“) a brána ho potichu zopakovala | ✅ synchronní zápis; 150 ze 150 úplných, pravidlo F4 |
 | — | Rh | věž a boj na tabletech po „DÁLE“: 0 nálezů z 324 měření | ✅ |
 | — | Pd | rovnosti v textu doplňků (7) platí | ✅ |
 | — | Rb | skeny z CLAUDE.md: funkce mezi ročníky (rozdíly jen kresby a 1./2. stupeň), pomocníci `gcd`/`shuffleArr`/`countDiv` významově shodní, neuzavřená pole 0, `\b` za č. písmenem 0; mrtvý kód jen `countDiv` (3., 4., 5., 7.) a kopie `svgAngle` (7.) — neškodí | ✅ / úklid volitelný |
