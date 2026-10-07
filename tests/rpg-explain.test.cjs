@@ -1,14 +1,22 @@
-/* rpg-explain.test.cjs — Playwright test for "Vysvětli postup" (Snorkl style) */
+/* rpg-explain.test.cjs — pole „Jak jsi na to přišel?“ je z boje PRYČ (všech 7 her).
 
+   Vojtův lístek 7. 10. 2026: „Dát pryč ‚jak jsi na to přišel‘! Vysvětlení to brzdí.“
+   Pole se po správné odpovědi vklínilo mezi hlášku a tlačítko DÁLE, na tabletu
+   odsouvalo DÁLE níž a ťuknutí do něj otevíralo klávesnici. Test hlídá, že:
+     1) pole ani jeho popisek ve hře nejsou (ani skryté),
+     2) po správné textové odpovědi se v boji neobjeví žádné textové pole,
+     3) DÁLE nic neposílá do cloudu (saveExplanation se nevolá) a boj pokračuje,
+     4) konzole dál ukáže STARŠÍ vysvětlení (záložka i API zůstávají). */
 const { chromium } = require('playwright');
 const path = require('path');
 const http = require('http');
 const fs = require('fs');
-const assert = require('assert');
 
 const ROOT = path.join(__dirname, '..');
 const BROWSER_PATH = '/opt/pw-browsers/chromium-1194/chrome-linux/chrome';
-const MIME = {'.html':'text/html','.js':'text/javascript','.css':'text/css','.json':'application/json'};
+const MIME = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.svg': 'image/svg+xml' };
+let pass = 0, fail = 0;
+const ok = (n, c, d = '') => { if (c) { console.log('  ✅ ' + n); pass++; } else { console.log('  ❌ ' + n + (d ? ' — ' + d : '')); fail++; } };
 
 function serve() {
   return new Promise(res => {
@@ -17,313 +25,77 @@ function serve() {
       if (u.endsWith('/')) u += 'index.html';
       const fp = path.normalize(path.join(ROOT, u));
       if (!fp.startsWith(ROOT + path.sep) || !fs.existsSync(fp) || fs.statSync(fp).isDirectory()) { rep.writeHead(404); return rep.end('nf'); }
-      rep.writeHead(200, {'Content-Type': MIME[path.extname(fp)] || 'application/octet-stream'});
+      rep.writeHead(200, { 'Content-Type': MIME[path.extname(fp)] || 'application/octet-stream' });
       fs.createReadStream(fp).pipe(rep);
     });
     srv.listen(0, () => res(srv));
   });
 }
 
+// cloud bez přihlášení + špeh na saveExplanation (nesmí se zavolat)
 const MOCK_CLOUD = `
-window.__explainCalls = [];
+window.__explainCalls = 0;
 window.RPGCloud = {
-  configured: () => false,
-  init: async () => false,
-  currentUser: () => null,
-  onChange: () => {},
-  pull: async () => null,
-  push: () => {},
-  leaderboard: async () => [],
-  renderLeaderboardInto: async () => {},
+  configured: () => false, init: async () => false, currentUser: () => null, onChange: () => {},
+  pull: async () => null, push: () => {}, leaderboard: async () => [], renderLeaderboardInto: async () => {},
   pullMyNotes: async () => [],
-  saveExplanation: async (game, mid, taskIdx, taskText, answer, explanation) => {
-    window.__explainCalls.push({ game, mid, taskIdx, taskText, answer, explanation });
-    return true;
-  },
+  saveExplanation: async () => { window.__explainCalls++; return true; },
   listExplanations: async () => [],
-};
-`;
-
-const sleep = ms => new Promise(r => setTimeout(r, ms));
-
-let browser, page, server, base;
-let passed = 0, failed = 0;
-
-async function test(name, fn) {
-  try {
-    await fn();
-    console.log(`  ✓ ${name}`);
-    passed++;
-  } catch (e) {
-    console.error(`  ✗ ${name}: ${e.message}`);
-    failed++;
-  }
-}
-
-async function freshPage() {
-  if (page) await page.close().catch(() => {});
-  page = await browser.newPage();
-  page.setDefaultTimeout(10000); // stuck akce ať selže rychle, ne že visí celý běh
-  // Blokuj externí zdroje (Google Fonts, jsdelivr CDN) — jinak `load` čeká
-  // ~12 s/stránku na zablokované CDN a 6× freshPage() test vytimeoutuje.
-  await page.route('**/*', r => r.request().url().startsWith('http://127.0.0.1') ? r.continue() : r.abort());
-  page.on('pageerror', e => { if (!String(e).includes('ERR_CERT') && !String(e).includes('supabase') && !String(e).includes('jsdelivr')) console.error('[page error]', e); });
-  await page.addInitScript(MOCK_CLOUD);
-  await page.goto(`${base}/projects/rpg-mat-9.html`, { waitUntil: 'load' });
-  await page.waitForSelector('#ni', { timeout: 8000 });
-  await page.fill('#ni', 'TestHrdina');
-  await page.evaluate(() => startGame());
-  await page.waitForFunction(() => document.querySelector('#s-map')?.classList.contains('active'), null, { timeout: 8000 });
-  // onboarding overlay (#172) jinak zachytí reálné page.click/page.fill
-  await page.evaluate(() => { S.tutorialDone = true; });
-}
-
-async function openNonMCBattle() {
-  // In grade 9, missions x-2 and x-3 are NOT MC. Launch directly via launchBattle.
-  const result = await page.evaluate(() => {
-    const area = AREAS[0];
-    // find first non-MC mission in any area
-    for (const ar of AREAS) {
-      for (const m of ar.missions) {
-        if (!m.mc) { launchBattle(ar.id, m.id); return true; }
-      }
-    }
-    return false;
-  });
-  if (!result) return false;
-  await page.waitForFunction(() => document.querySelector('#s-battle')?.classList.contains('active'), null, { timeout: 5000 }).catch(() => {});
-  // Vypni náhodné minihry (34 % šance/úkol) — při minihře je curTask.ans=''
-  // („No answer found") a tlačítko ÚTOK skryté (click visel 30 s) → flaky.
-  // Zároveň vynuť čisté text-input kolo (ne ANO/NE) — u YN je ÚTOK skryté taky.
-  await page.evaluate(() => { try {
-    let idx = BT.tasks.findIndex(t => !isYN(t)); if (idx < 0) idx = 0;
-    BT.mini = Object.fromEntries(Array.from({ length: 20 }, (_, i) => [i, null]));
-    BT.idx = idx; renderTask();
-  } catch (e) {} });
-  // počkej na vykreslenou úlohu s odpovědí — fixní sleep byl flaky (curTask
-  // se plní v drawTask; pod zátěží 300 ms nestačilo → „No answer found")
-  await page.waitForFunction(() => !!(window.BT && BT.curTask && String(BT.curTask.ans ?? '').length), null, { timeout: 5000 }).catch(() => {});
-  return await page.evaluate(() => !!(BT && BT.curTask && !BT.mcMode));
-}
-
-async function openMCBattle() {
-  // In grade 9, missions x-1 are MC. Launch directly.
-  const result = await page.evaluate(() => {
-    for (const ar of AREAS) {
-      for (const m of ar.missions) {
-        if (m.mc) { launchBattle(ar.id, m.id); return true; }
-      }
-    }
-    return false;
-  });
-  if (!result) return false;
-  await page.waitForFunction(() => document.querySelector('#s-battle')?.classList.contains('active'), null, { timeout: 5000 }).catch(() => {});
-  await page.waitForFunction(() => !!(window.BT && BT.curTask && String(BT.curTask.ans ?? '').length), null, { timeout: 5000 }).catch(() => {});
-  return await page.evaluate(() => !!(BT && BT.curTask && BT.mcMode));
-}
+};`;
 
 (async () => {
-  console.log('\n═══ rpg-explain: Vysvětli postup ═══\n');
-  server = await serve();
-  base = `http://127.0.0.1:${server.address().port}`;
-  browser = await chromium.launch({ executablePath: BROWSER_PATH, headless: true });
-
-  try {
-    // ── Test 1: explain div hidden at battle start ──
-    await test('explain div is hidden at battle start', async () => {
-      await freshPage();
-      const found = await openNonMCBattle();
-      assert.ok(found, 'Could not find non-MC battle');
-      const display = await page.evaluate(() => document.getElementById('bt-explain').style.display);
-      assert.strictEqual(display, 'none', `bt-explain should be hidden, got: "${display}"`);
-    });
-
-    // ── Test 2: explain div appears after correct answer ──
-    await test('explain div appears after correct answer', async () => {
-      const found = await openNonMCBattle();
-      if (!found) { console.log('    (skipped — no text-input battle found)'); return; }
-      const ans = await page.evaluate(() => BT?.curTask?.ans || '');
-      assert.ok(ans, 'No answer found');
-      await page.waitForFunction(() => { const i = document.getElementById('bt-ans'); return i && !i.disabled; }, null, { timeout: 4000 }).catch(() => {});
-      await page.fill('#bt-ans', ans);
-      await page.click('button:has-text("ÚTOK")');
-      await page.waitForFunction(() => document.getElementById('bt-explain').style.display !== 'none', null, { timeout: 4000 }).catch(() => {});
-      const display = await page.evaluate(() => document.getElementById('bt-explain').style.display);
-      assert.notStrictEqual(display, 'none', 'bt-explain should be visible after correct answer');
-    });
-
-    // ── Test 3: explain div stays hidden after wrong answer ──
-    await test('explain div stays hidden after wrong answer', async () => {
-      await freshPage();
-      const found = await openNonMCBattle();
-      if (!found) { console.log('    (skipped)'); return; }
-      await page.fill('#bt-ans', '___WRONG___xyz999');
-      await page.click('button:has-text("ÚTOK")');
-      await sleep(200);
-      const display = await page.evaluate(() => document.getElementById('bt-explain').style.display);
-      assert.strictEqual(display, 'none', 'bt-explain must stay hidden after wrong answer');
-    });
-
-    // ── Test 4: textarea cleared on next task ──
-    await test('textarea is cleared and hidden when advancing to next task', async () => {
-      await freshPage();
-      const found = await openNonMCBattle();
-      if (!found) { console.log('    (skipped)'); return; }
-      const ans = await page.evaluate(() => BT?.curTask?.ans || '');
-      await page.fill('#bt-ans', ans);
-      await page.click('button:has-text("ÚTOK")');
-      await sleep(300);
-      await page.fill('#bt-explain-txt', 'Použil jsem vzorec.');
-      const nextVisible = await page.isVisible('#next-btn');
-      if (nextVisible) {
-        await page.click('#next-btn');
-        // čekej na skutečné překreslení další úlohy — fixní sleep(400) pod
-        // zátěží nestačil a textarea ještě nebyla vyčištěná
-        await page.waitForFunction(() => document.getElementById('bt-explain').style.display === 'none', null, { timeout: 4000 }).catch(() => {});
-        const val = await page.evaluate(() => document.getElementById('bt-explain-txt').value);
-        assert.strictEqual(val, '', 'textarea should be empty after next task');
-        const display = await page.evaluate(() => document.getElementById('bt-explain').style.display);
-        assert.strictEqual(display, 'none', 'bt-explain should be hidden after next task');
-      }
-    });
-
-    // ── Test 5: saveExplanation called when text entered ──
-    await test('saveExplanation called with explanation text when advancing', async () => {
-      await freshPage();
-      // Patch real RPGCloud.saveExplanation after scripts load (initScript mock is overwritten by rpg-cloud.js)
-      await page.evaluate(() => {
-        window.__explainCalls = [];
-        if (window.RPGCloud) {
-          window.RPGCloud.saveExplanation = async (game, mid, taskIdx, taskText, answer, explanation) => {
-            window.__explainCalls.push({ game, mid, taskIdx, taskText, answer, explanation });
-            return true;
-          };
-        }
-      });
-      const found = await openNonMCBattle();
-      if (!found) { console.log('    (skipped)'); return; }
-      const taskInfo = await page.evaluate(() => ({
-        ans: BT?.curTask?.ans || '',
-        mid: BT?.mid || '',
-        idx: BT?.idx || 0,
-      }));
-      await page.fill('#bt-ans', taskInfo.ans);
-      await page.click('button:has-text("ÚTOK")');
-      await sleep(300);
-      await page.fill('#bt-explain-txt', 'Dosadil jsem do vzorce a vyřešil.');
-      const nextVisible = await page.isVisible('#next-btn');
-      if (nextVisible) {
-        await page.click('#next-btn');
-        await sleep(400);
-        const calls = await page.evaluate(() => window.__explainCalls);
-        assert.ok(calls.length >= 1, 'saveExplanation should have been called at least once');
-        assert.strictEqual(calls[0].game, 'RPG_MAT_9');
-        assert.strictEqual(calls[0].mid, taskInfo.mid);
-        assert.ok(calls[0].explanation.includes('Dosadil'), `explanation text mismatch: "${calls[0].explanation}"`);
-      }
-    });
-
-    // ── Test 6: saveExplanation NOT called when textarea empty ──
-    await test('saveExplanation NOT called when textarea is empty', async () => {
-      await freshPage();
-      await page.evaluate(() => {
-        window.__explainCalls = [];
-        if (window.RPGCloud) {
-          window.RPGCloud.saveExplanation = async (game, mid, taskIdx, taskText, answer, explanation) => {
-            window.__explainCalls.push({ game, mid, taskIdx, taskText, answer, explanation });
-            return true;
-          };
-        }
-      });
-      const found = await openNonMCBattle();
-      if (!found) { console.log('    (skipped)'); return; }
-      const ans = await page.evaluate(() => BT?.curTask?.ans || '');
-      await page.fill('#bt-ans', ans);
-      await page.click('button:has-text("ÚTOK")');
-      await sleep(300);
-      // leave textarea EMPTY
-      const nextVisible = await page.isVisible('#next-btn');
-      if (nextVisible) {
-        await page.click('#next-btn');
-        await sleep(400);
-        const calls = await page.evaluate(() => window.__explainCalls);
-        assert.strictEqual(calls.length, 0, 'saveExplanation must NOT be called when textarea is empty');
-      }
-    });
-
-    // ── Test 7: explain field NOT shown in MC mode ──
-    await test('explain field NOT shown after correct MC answer', async () => {
-      await freshPage();
-      const found = await openMCBattle();
-      if (!found) { console.log('    (skipped — no MC battle found)'); return; }
-      // tlačítko nese ZOBRAZENÝ tvar (czMC) a před ním písmeno volby v .mc-key — dřív se
-      // porovnávalo „A12“ s „12“, nesedělo nikdy a klikalo se na první tlačítko
-      const correctAns = await page.evaluate(() => czMC(BT?.curTask?.ans));
-      const btns = await page.$$('#mc-grid .mc-btn');
-      let clicked = false;
-      for (const btn of btns) {
-        const txt = await btn.evaluate(b => { const k = b.querySelector('.mc-key'); return b.textContent.slice(k ? k.textContent.length : 0).trim(); });
-        if (txt === correctAns) { await btn.click(); clicked = true; break; }
-      }
-      if (!clicked) throw new Error('správná MC volba nenalezena: ' + correctAns);
-      await sleep(300);
-      const display = await page.evaluate(() => document.getElementById('bt-explain').style.display);
-      assert.strictEqual(display, 'none', 'bt-explain must stay hidden in MC mode');
-    });
-
-    // ── Test 8: label text is correct Czech ──
-    await test('explain label contains correct Czech text', async () => {
-      const label = await page.evaluate(() => {
-        const el = document.querySelector('#bt-explain label');
-        return el ? el.textContent : '';
-      });
-      assert.ok(label.includes('Jak jsi na to přišel'), `Wrong label: "${label}"`);
-    });
-
-    // ── Test 9: saveExplanation in cloud.js guards empty string ──
-    await test('cloud.js saveExplanation: returns false for whitespace-only explanation', async () => {
-      await freshPage();
-      // Override to use "real" logic (whitespace guard is in cloud.js)
-      // The mock always returns true, but we test the guard via direct call
-      // Verify no crash even with weird inputs
-      const result = await page.evaluate(async () => {
-        try {
-          // whitespace only should be returned false by real cloud, but mock returns true
-          // just verify no crash and call succeeds
-          if (window.RPGCloud && window.RPGCloud.saveExplanation) {
-            const r = await window.RPGCloud.saveExplanation('RPG_MAT_9', '1-1', 0, 'q', '42', '');
-            return { ok: true, result: r };
-          }
-          return { ok: true, result: 'no-cloud' };
-        } catch (e) { return { ok: false, error: e.message }; }
-      });
-      assert.ok(result.ok, `saveExplanation threw: ${result.error}`);
-    });
-
-    // ── Test 10: no crash when RPGCloud is undefined ──
-    await test('nextTask does not crash if RPGCloud.saveExplanation missing', async () => {
-      await freshPage();
-      const result = await page.evaluate(async () => {
-        try {
-          // Temporarily remove saveExplanation
-          const orig = window.RPGCloud.saveExplanation;
-          window.RPGCloud.saveExplanation = undefined;
-          // Simulate the guard in nextTask
-          const explTxt = 'test';
-          const hasCloud = typeof RPGCloud !== 'undefined' && RPGCloud.saveExplanation;
-          window.RPGCloud.saveExplanation = orig;
-          return { ok: true, hadCloud: hasCloud };
-        } catch (e) { return { ok: false, error: e.message }; }
-      });
-      assert.ok(result.ok, `Crash: ${result.error}`);
-      assert.ok(!result.hadCloud, 'saveExplanation should be falsy when undefined');
-    });
-
-  } finally {
-    if (page) await page.close().catch(() => {});
-    await browser.close();
-    server.close();
-    console.log(`\n${passed + failed} tests: ${passed} passed, ${failed} failed`);
-    if (failed > 0) process.exit(1);
+  console.log('\n── Pole „Jak jsi na to přišel?“ je z boje pryč ──\n');
+  // statika: hry pole nemají, konzole si nechává starší záznamy
+  for (const g of [3, 4, 5, 6, 7, 8, 9]) {
+    const h = fs.readFileSync(path.join(ROOT, 'projects/rpg-mat-' + g + '.html'), 'utf8');
+    ok(`g${g}: ve zdroji není pole ani ukládání vysvětlení`, !/bt-explain|Jak jsi na to přišel|saveExplanation/.test(h));
   }
-})();
+  const konzole = fs.readFileSync(path.join(ROOT, 'projects/rpg-ucitel.html'), 'utf8');
+  ok('konzole: záložka VYSVĚTLENÍ zůstává (starší záznamy) a říká, že sběr je vypnutý',
+    /data-tab="explain"/.test(konzole) && /listExplanations/.test(konzole) && /vypnut/.test(konzole));
+
+  const server = await serve();
+  const base = `http://127.0.0.1:${server.address().port}`;
+  const browser = await chromium.launch({ executablePath: BROWSER_PATH, headless: true });
+  const errs = [];
+  try {
+    for (const g of [3, 4, 5, 6, 7, 8, 9]) {
+      const page = await browser.newPage();
+      page.setDefaultTimeout(10000);
+      await page.route('**/*', r => r.request().url().startsWith('http://127.0.0.1') ? r.continue() : r.abort());
+      page.on('pageerror', e => errs.push('g' + g + ': ' + String(e.message).slice(0, 120)));
+      await page.addInitScript(MOCK_CLOUD);
+      await page.goto(`${base}/projects/rpg-mat-${g}.html`, { waitUntil: 'load' });
+      await page.fill('#ni', 'TESTER');
+      await page.evaluate(() => { startGame(); S.tutorialDone = true; });
+      // první textová mise, čisté textové kolo (bez minihry a ANO/NE)
+      const mid = await page.evaluate(() => {
+        for (const ar of AREAS) for (const m of ar.missions) if (!m.mc) {
+          launchBattle(ar.id, m.id);
+          const i = BT.tasks.findIndex(t => !isYN(t) && t.text); if (i < 0) continue;
+          if (BT.mini) BT.mini[i] = null; BT.idx = i; renderTask(); return m.id;
+        }
+        return null;
+      });
+      await page.waitForFunction(() => !document.getElementById('bt-ans').disabled, null, { timeout: 5000 });
+      const pred = await page.evaluate(() => ({ idx: BT.idx, pole: !!document.querySelector('#bt-explain, #bt-explain-txt, #s-battle textarea') }));
+      await page.evaluate(() => { document.getElementById('bt-ans').value = String(BT.curTask.ans); submitAnswer(); });
+      await page.waitForTimeout(150);
+      const po = await page.evaluate(() => ({
+        textarea: [...document.querySelectorAll('#s-battle textarea')].filter(t => getComputedStyle(t).display !== 'none').length,
+        text: /Jak jsi na to přišel/.test(document.getElementById('s-battle').textContent),
+        dale: getComputedStyle(document.getElementById('next-btn')).display !== 'none' || document.getElementById('attack-btn').textContent.includes('DÁLE'),
+      }));
+      await page.evaluate(() => nextTask());
+      await page.waitForTimeout(150);
+      const dal = await page.evaluate(i => ({ posun: BT.idx !== i || !document.querySelector('#s-battle.active'), volani: window.__explainCalls }), pred.idx);
+      ok(`g${g} (${mid}): po správné odpovědi žádné pole, DÁLE je, další úloha bez odesílání vysvětlení`,
+        !pred.pole && po.textarea === 0 && !po.text && po.dale && dal.posun && dal.volani === 0,
+        JSON.stringify({ pred: pred.pole, po, dal }));
+      await page.close();
+    }
+  } finally { await browser.close(); server.close(); }
+  ok('žádné JS chyby', errs.length === 0, errs.slice(0, 3).join(' | '));
+  console.log(`\n  VÝSLEDEK: ${pass} ✅ / ${fail} ❌\n`);
+  process.exit(fail ? 1 : 0);
+})().catch(e => { console.error(e); process.exit(1); });

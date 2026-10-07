@@ -609,6 +609,33 @@ function ukazUlohu(zacatek,cil){const M=10,vh=window.innerHeight;if(!zacatek)ret
    nepohnul vůbec (0 z 35 px) a vstup zůstal 29 px pod lištou, Chrome 141 ho posunul.
    `nadListu` proto řádek proti liště dorovná ručně — hned a ještě jednou po
    vykreslení snímku, kdyby se rozvržení mezitím pohnulo. */
+/* ÚTOK a DÁLE na jednom místě (Vojtův lístek 7. 10. 2026: „Spojit tlačítko útok“).
+   Po správné TEXTOVÉ odpovědi se DÁLE ukáže tam, kde byl ÚTOK — prst nemusí jinam a na
+   tabletu ho nic nezakryje (v liště dole přes něj vyjížděl toast odznaku). Je to pořád
+   tentýž prvek (#next-btn): klávesa Enter i testy ho hledají podle id. Když řádek se
+   vstupem vidět není (ANO/NE, volby, minihra), zůstane DÁLE na svém místě. Pojistka:
+   dvojité ťuknutí nesmí rovnou přeskočit na další úlohu, proto je DÁLE prvních 400 ms
+   neaktivní. Stejně trénink (OVĚŘIT → DALŠÍ ÚKOL) a věž (VÝŠ → DÁLE po chybě). */
+function ukazDale(daleId,radekId){
+ const n=document.getElementById(daleId||'next-btn');if(!n)return;
+ const row=document.getElementById(radekId||'bt-input-row');
+ const a=row&&[...row.querySelectorAll('button')].find(b=>b!==n);
+ const vRadku=!!(a&&getComputedStyle(row).display!=='none'&&getComputedStyle(a).display!=='none');
+ if(vRadku){
+  if(!n._domov)n._domov={rodic:n.parentNode,za:n.nextSibling};
+  row.insertBefore(n,a.nextSibling);a.style.display='none';n._puvodni=a;
+  n.classList.remove('sm');n.style.whiteSpace='nowrap';
+  n.disabled=true;clearTimeout(n._t);n._t=setTimeout(()=>{n.disabled=false;},400);
+ }
+ n.style.display='inline-block';
+}
+// Nová úloha: DÁLE zpátky na své místo (skryté), odesílací tlačítko zpátky do řádku.
+function daleZpet(daleId){
+ const n=document.getElementById(daleId||'next-btn');if(!n)return;
+ clearTimeout(n._t);n.disabled=false;n.style.display='none';
+ if(n._domov){const d=n._domov;d.rodic.insertBefore(n,d.za&&d.za.parentNode===d.rodic?d.za:null);n._domov=null;n.classList.add('sm');n.style.whiteSpace='';}
+ if(n._puvodni){n._puvodni.style.display='';n._puvodni=null;}
+}
 function fokusVstup(inp,radek){if(!inp)return;inp.focus({preventScroll:true});const r=radek||inp;r.scrollIntoView({block:'nearest'});nadListu(r);if(typeof requestAnimationFrame==='function')requestAnimationFrame(()=>nadListu(r));}
 /* Řádek, který leží pod přišpendlenou lištou boje (.bt-akce, sticky jen na šířku),
    posune sloupec úlohy tak, aby končil 6 px nad lištou. Na výšku lišta přišpendlená

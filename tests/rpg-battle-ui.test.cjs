@@ -84,10 +84,11 @@ async function run() {
     await page.waitForFunction(()=>/Čekárna/.test(document.body.textContent),null,{timeout:3000});
     ok('lobby ukazuje kód a 2 hráče', await page.evaluate(()=>/WXYZ/.test(document.body.textContent)));
 
-    // start → otázka 0 (odpočet se přeskočí kvůli reduced-motion)
+    // start → otázka 0 až PO odpočtu 3-2-1 (COUNTDOWN_MS = 3000 od q_started_at; reduced-motion
+    // vypne jen animaci číslic, ne odpočet) — limit 3000 vycházel na milisekundy (naměřeno 2994)
     await feed({battle:{status:'active',q_seed:7,q_count:5,q_index:0,q_started_at:now},
       players:[P(0,0,-1),O(0,0,-1)],me:'u-me'});
-    await page.waitForFunction(()=>!!document.getElementById('rpgb-choices'),null,{timeout:3000});
+    await page.waitForFunction(()=>!!document.getElementById('rpgb-choices'),null,{timeout:8000});
     ok('otázka 0 vykreslena', await page.evaluate(()=>/OTÁZKA 1 \/ 5/.test(document.body.textContent)));
 
     // Kahoot dlaždice: 4 barvy + tvary

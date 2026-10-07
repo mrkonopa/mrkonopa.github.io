@@ -65,7 +65,10 @@ window.supabase={ createClient:function(){ return {
   await sleep(150);
   ok('TOKEN_REFRESHED (stejný uživatel) NEemituje', await pg.evaluate(()=>window.__emits)===0, 'emits='+await pg.evaluate(()=>window.__emits));
 
-  // 3) SIGNED_OUT → uživatel se změní (na null) → MUSÍ emitovat jednou
+  // 3) SIGNED_OUT → uživatel se změní (na null) → MUSÍ emitovat jednou.
+  // Odhlášení (i v jiné kartě) osobní data ze zařízení smaže — bez toho by přihlášení U2 v kroku 4
+  // správně zahodilo data U1 a stránku načetlo znovu (hlídá sdilene-zarizeni), takže čítač by zmizel.
+  await pg.evaluate(()=>Object.keys(localStorage).filter(k=>/^(RPG_MAT_\d|RPG_HUB_WALLET|PZ_|RPG_CLOUD_OWNER)/.test(k)).forEach(k=>localStorage.removeItem(k)));
   await pg.evaluate(()=>window.__authCb('SIGNED_OUT',null));
   await sleep(150);
   ok('SIGNED_OUT emituje jednou', await pg.evaluate(()=>window.__emits)===1, 'emits='+await pg.evaluate(()=>window.__emits));

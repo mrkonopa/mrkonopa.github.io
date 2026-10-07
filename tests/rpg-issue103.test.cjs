@@ -118,7 +118,7 @@ async function runConsole(browser, base){
   await page.addInitScript(consoleMock(scenario));
   await page.goto(`${base}/projects/rpg-ucitel.html`,{waitUntil:'load'});
   await page.waitForFunction(()=>!document.getElementById('console').classList.contains('hidden'),null,{timeout:8000});
-  await page.waitForFunction(()=>Array.isArray(window.ROWS)&&window.ROWS.length>0,null,{timeout:6000}).catch(()=>{});
+  await page.waitForFunction(()=>typeof ROWS!=='undefined'&&Array.isArray(ROWS)&&ROWS.length>0,null,{timeout:6000}).catch(()=>{});
 
   // (2) ŽEBŘÍČKY tab
   await page.click('.tab[data-tab="leaderboard"]');

@@ -90,7 +90,7 @@ function twRenderTask(){
  else probEl.textContent=zapis(t.text);
  probEl.classList.remove('pop');void probEl.offsetWidth;probEl.classList.add('pop');
  const fb=document.getElementById('tw-fb');fb.className='feedback';fb.textContent='';
- document.getElementById('tw-next-btn').style.display='none';
+ daleZpet('tw-next-btn');
  if(TW.m.mc){
   document.getElementById('tw-input-row').style.display='none';
   document.getElementById('tw-yn-row').style.display='none';
@@ -156,7 +156,7 @@ function twWrong(given,timeout){
  const inp=document.getElementById('tw-ans');inp.disabled=true;
  twStats();
  if(TW.lives<=0){setTimeout(twEndRun,900);return;}
- const nb=document.getElementById('tw-next-btn');nb.style.display='inline-block';nb.focus();
+ ukazDale('tw-next-btn','tw-input-row');
 }
 
 

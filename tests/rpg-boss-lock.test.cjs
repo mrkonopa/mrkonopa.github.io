@@ -23,7 +23,7 @@ async function answerCorrect(page){
  const handled=await page.evaluate(async()=>{
   const chips=[...document.querySelectorAll('#bt-prob .tto-chip:not(.done)')];
   if(chips.length>0){
-   const mt=window.BT&&BT.mini&&BT.mini[BT.idx];
+   const mt=typeof BT!=='undefined'&&BT.mini&&BT.mini[BT.idx];
    if(!mt||!mt.data){
     if(typeof battleMiniDone==='function'&&!BT.bossDefeated&&BT.hp>0){BT.miniStarting=false;battleMiniDone(0);}
     return true;

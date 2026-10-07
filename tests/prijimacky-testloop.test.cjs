@@ -127,7 +127,7 @@ const ok=(c,m)=>{ if(c){pass++;console.log('  ✅ '+m);} else {fail++;console.lo
 
   // deep-link z doporučení skutečně nastartuje daný okruh
   await page.goto(base+'/projects/prijimacky-matematika/procvicovani.html?okruh=rovnice',{waitUntil:'domcontentloaded'});
-  await page.waitForFunction(()=>window.PR&&PR.topic,null,{timeout:6000}).catch(()=>{});
+  await page.waitForFunction(()=>typeof PR!=='undefined'&&PR.topic,null,{timeout:6000}).catch(()=>{});
   ok(await page.evaluate(()=>!!(PR.topic&&PR.topic.id==='rovnice')), 'deep-link ?okruh=rovnice nastartuje ten okruh');
 
   // ── část 5: cloud merge nesmí testová data ztratit ──

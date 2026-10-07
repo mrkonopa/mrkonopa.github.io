@@ -167,7 +167,9 @@ async function run() {
     await gp.evaluate(()=>{ window.goPractice = (mid)=>{ window.__practiced=mid; }; });
     await gp.click('#rpg-asg-btn');
     const ptxt = await gp.evaluate(()=>document.getElementById('rpg-asg-panel').textContent);
-    ok('panel ukáže misi + termín + třídu + Procvičit', /2-3/.test(ptxt) && /Procvičit/.test(ptxt) && /9\.B/.test(ptxt), ptxt.slice(0,90));
+    // NÁZEV mise z AREAS, ne kód: „Mise 2-3“ se ukazovalo jen kvůli slepému window.AREAS (AREAS je const)
+    const nazev = await gp.evaluate(()=>AREAS.flatMap(a=>a.missions).find(m=>m.id==='2-3').name);
+    ok('panel ukáže název mise + termín + třídu + Procvičit', ptxt.includes(nazev) && !/Mise 2-3/.test(ptxt) && /Procvičit/.test(ptxt) && /9\.B/.test(ptxt), nazev+' · '+ptxt.slice(0,90));
     await gp.click('.rpg-asg-go');
     const practiced = await gp.evaluate(()=>window.__practiced);
     ok('„Procvičit" volá goPractice(mid)', practiced==='2-3', 'practiced='+practiced);

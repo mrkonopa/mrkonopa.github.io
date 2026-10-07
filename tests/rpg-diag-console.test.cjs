@@ -89,7 +89,7 @@ async function run() {
     await page.goto(`${BASE}/projects/rpg-ucitel.html`, { waitUntil:'load' });
     await page.waitForFunction(()=>!document.getElementById('console').classList.contains('hidden'), null, {timeout:8000});
     // počkej na načtení ROWS
-    await page.waitForFunction(()=>Array.isArray(window.ROWS) && window.ROWS.length>=2, null, {timeout:6000}).catch(()=>{});
+    await page.waitForFunction(()=>typeof ROWS!=='undefined' && Array.isArray(ROWS) && ROWS.length>=2, null, {timeout:6000}).catch(()=>{});
 
     // přepni na DIAGNOSTIKA
     await page.click('.tab[data-tab="diag"]');

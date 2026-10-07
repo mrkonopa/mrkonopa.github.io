@@ -244,7 +244,11 @@ const ok=(c,m)=>{ if(c){pass++;console.log('  ✅ '+m);} else {fail++;console.lo
             const col = document.querySelector('.bt-col-task'); col.scrollTop = col.scrollHeight; window.scrollTo(0, document.body.scrollHeight);
             const nb = document.getElementById('next-btn'); if (!nb || nb.style.display === 'none') { vady.push('boj: DÁLE se neukázalo'); break; }
             if (document.activeElement) document.activeElement.blur();
+            // DÁLE je prvních 400 ms neaktivní (pojistka proti dvojitému ťuknutí) — počkat jako dítě, které čte hlášku
+            for (const t0 = Date.now(); nb.disabled && Date.now() - t0 < 2000;) await cekej(30);
+            const predIdx = BT.idx;
             nb.click(); await raf(); await cekej(80);
+            if (BT.idx === predIdx) { vady.push('boj po DÁLE: klik na DÁLE úlohu neposunul'); break; }
             const p = document.getElementById('bt-prob').getBoundingClientRect(), v = document.getElementById('bt-input-row').getBoundingClientRect();
             const c = col.getBoundingClientRect(), horni = Math.max(0, c.top), dolni = Math.min(innerHeight, document.querySelector('.bt-akce').getBoundingClientRect().top);
             if (tablet && p.top < horni - 1) vady.push(`boj po DÁLE: začátek zadání ${Math.round(horni - p.top)} px nad okrajem`);

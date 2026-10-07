@@ -100,7 +100,8 @@ const mockScript = (S) => `(function(){const SCENARIO=${JSON.stringify(S)};
       await page.waitForFunction(() => typeof openDetail === 'function' && window.__filtered && window.__filtered.length, null, { timeout: 10000 });
       // Týdenní snímky chyb (fáze 6b) — trend se počítá z posledních dvou.
       await page.evaluate(() => {
-        window.SNAP_DATA = window.SNAP_DATA || {};
+        // SNAP_DATA je `let` v konzoli — na window není, proto přímo (window.SNAP_DATA by byl jiný, nepoužitý objekt)
+        if (typeof SNAP_DATA === 'undefined' || !SNAP_DATA) throw new Error('SNAP_DATA v konzoli chybí');
         SNAP_DATA['RPG_MAT_9'] = [
           { user_id: 'u-zak1', snapped_at: '2026-07-25', errs: { '2-1': 6, '3-3': 4 } },
           { user_id: 'u-zak1', snapped_at: '2026-08-01', errs: { '2-1': 9, '3-3': 5 } },

@@ -88,7 +88,7 @@ async function run() {
     await page.addInitScript(mockScript(scenario));
     await page.goto(`${BASE}/projects/rpg-ucitel.html`, { waitUntil:'load' });
     await page.waitForFunction(()=>!document.getElementById('console').classList.contains('hidden'), null, {timeout:8000});
-    await page.waitForFunction(()=>Array.isArray(window.ROWS) && window.ROWS.length>=5, null, {timeout:6000}).catch(()=>{});
+    await page.waitForFunction(()=>typeof ROWS!=='undefined' && Array.isArray(ROWS) && ROWS.length>=5, null, {timeout:6000}).catch(()=>{});
     // karta se renderuje na PŘEHLEDU (výchozí tab) přes renderTable
     await page.waitForFunction(()=>{const el=document.getElementById('insights');return el && !el.classList.contains('hidden');},null,{timeout:5000});
 

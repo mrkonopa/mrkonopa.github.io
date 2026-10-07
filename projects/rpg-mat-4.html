@@ -242,7 +242,7 @@ html[data-theme="violet"]{--gold:#b06cff;--panel:#100a20;--panel2:#18103a;--blue
 .ach-slot .ach-nm{font-family:var(--px);font-weight:700;font-size:10px;color:var(--text);line-height:1.15}
 .ach-slot.have .ach-nm{color:var(--gold)}
 .ach-slot .ach-desc{font-family:var(--px);font-weight:400;font-size:9px;color:var(--muted);line-height:1.2}
-.ach-toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,140%);z-index:130;display:flex;align-items:center;gap:12px;background:var(--panel);border:3px solid var(--gold);box-shadow:4px 4px 0 #7a5c00,0 0 18px #4ab0e055;padding:11px 18px 11px 13px;transition:transform .34s cubic-bezier(.2,1.4,.4,1);max-width:90vw}
+.ach-toast{pointer-events:none;position:fixed;left:50%;bottom:24px;transform:translate(-50%,140%);z-index:130;display:flex;align-items:center;gap:12px;background:var(--panel);border:3px solid var(--gold);box-shadow:4px 4px 0 #7a5c00,0 0 18px #4ab0e055;padding:11px 18px 11px 13px;transition:transform .34s cubic-bezier(.2,1.4,.4,1);max-width:90vw}
 .ach-toast.show{transform:translate(-50%,0)}
 .ach-toast-ic{font-size:34px;line-height:1;animation:ach-pop .5s ease}
 @keyframes ach-pop{0%{transform:scale(0) rotate(-30deg)}70%{transform:scale(1.3) rotate(10deg)}100%{transform:scale(1)}}
@@ -590,10 +590,6 @@ html[data-theme="violet"]{--gold:#b06cff;--panel:#100a20;--panel2:#18103a;--blue
  <div class="mc-grid" id="mc-grid" style="display:none"></div>
  <div id="hint-box" class="hint-box"></div>
  <div id="bt-fb" class="feedback"></div>
- <div id="bt-explain" style="display:none;margin:8px 0">
-  <label style="font-size:13px;color:var(--green);opacity:.85;display:block;margin-bottom:4px">✍ Jak jsi na to přišel? <span style="opacity:.6">(volitelně, 1–2 věty)</span></label>
-  <textarea id="bt-explain-txt" rows="2" aria-label="Jak jsi na to přišel?" style="width:100%;box-sizing:border-box;background:#0a0a0f;color:#d0d0e0;border:1px solid var(--green);border-radius:4px;padding:6px;font-family:var(--read);font-size:15px;resize:vertical" placeholder="Napsal jsem…"></textarea>
- </div>
  <div class="bt-akce" style="display:flex;gap:8px;flex-wrap:wrap">
  <button class="btn sm b" id="hint-btn" onclick="showHint()">💡 NÁPOVĚDA</button>
  <button class="btn sm r" id="bt-mini-hint" style="display:none" onclick="useMiniHint()">💡 −1 ❤️</button>
@@ -1248,6 +1244,7 @@ function onTimeOut(){
 
 // ══ TICHÁ ADAPTIVNÍ OBTÍŽNOST BOJE (ZPD) ══
 function renderTask(){
+ daleZpet(); // DÁLE zpátky do lišty, ÚTOK na své místo — i před minihrou
  const mt=miniForIdx(BT.idx);if(mt){renderBattleMini(mt);return;}
  BT.miniStarting=false;
  const mhBtn=document.getElementById('bt-mini-hint');if(mhBtn)mhBtn.style.display='none';
@@ -1270,7 +1267,6 @@ function renderTask(){
  document.getElementById('hint-box').textContent='';document.getElementById('hint-box').classList.remove('show');
  document.getElementById('hint-btn').textContent='💡 NÁPOVĚDA';document.getElementById('hint-btn').disabled=false;
  document.getElementById('next-btn').style.display='none';
- document.getElementById('bt-explain').style.display='none';document.getElementById('bt-explain-txt').value='';
  if(BT.mcMode){
   document.getElementById('bt-input-row').style.display='none';document.getElementById('yn-row').style.display='none';document.getElementById('hint-btn').style.display='none';renderMC(t);
  }else{
@@ -1306,7 +1302,7 @@ function renderBattleMini(mt){
  document.getElementById('timer-bar').classList.remove('frozen');
  document.getElementById('bt-num').textContent=BT.idx+1;document.getElementById('bt-tot').textContent=BT.tasks.length;
  updateBossHpBar();
- ['bt-input-row','yn-row','mc-grid','hint-btn','next-btn','bt-explain'].forEach(id=>document.getElementById(id).style.display='none');
+ ['bt-input-row','yn-row','mc-grid','hint-btn','next-btn'].forEach(id=>document.getElementById(id).style.display='none');
  document.getElementById('bt-fb').className='feedback';document.getElementById('bt-fb').textContent='';
  const hb=document.getElementById('hint-box');hb.textContent='';hb.classList.remove('show');
  const probEl=document.getElementById('bt-prob');
@@ -1472,8 +1468,7 @@ function submitAnswer(){
   const _first=!S.xpClaimed[xpKey];const xpGain=(_first?7:2)+((_first&&BT.adapt&&BT.adapt.mode>0)?2:0);S.xpClaimed[xpKey]=true;S.done[xpKey]=true;BT._doneBattle++;saveS();
   awardXp(xpGain,isCrit);if(typeof RPGWallet!=='undefined')RPGWallet.earn(isCrit?7+wCritBonus():5,SAVE_KEY);if(typeof RPGSound!=='undefined')RPGSound.play(isCrit?'crit':'ok');if(_first)tryDropItem();
   fb.textContent='✓ SPRÁVNĚ!';fb.className='feedback ok';
-  document.getElementById('next-btn').style.display='inline-block';
-  if(!BT.mcMode)document.getElementById('bt-explain').style.display='block';
+  ukazDale();
   damageMonster(xpGain,isCrit);updateCombo();
   if(!S.stats)S.stats={};if(BT.combo>(S.stats.bestCombo||0))S.stats.bestCombo=BT.combo;
   evalAch({correct:true,combo:BT.combo,timeLeft:BT.timeLeft});wBump('tasks');if(isCrit)wBump('crits');adaptOnAnswer(true);checkMissionComplete();
@@ -1494,10 +1489,6 @@ function showHint(){
 }
 
 function nextTask(){
- const explTxt=(document.getElementById('bt-explain-txt').value||'').trim();
- if(explTxt&&typeof RPGCloud!=='undefined'&&RPGCloud.saveExplanation){
-  const t=BT.curTask;RPGCloud.saveExplanation('RPG_MAT_4',BT.mid,BT.idx,t?t.text:'',t?t.ans:'',explTxt);
- }
  let nxt=-1;for(let i=BT.idx+1;i<BT.tasks.length;i++){if(!S.done[`${BT.mid}-${i}`]){nxt=i;break;}}
  if(nxt>=0){BT.idx=nxt;renderTask();}else openArea(BT.aid);
 }
@@ -1725,6 +1716,7 @@ function trDraw(){
  let entry=TR.pool.pop();if(entry){const _ar=AREAS.find(a=>a.missions.some(m=>m.id===TR.mid));const _m=_ar?_ar.missions.find(x=>x.id===TR.mid):null;let _fp=_m?_m.tasks():[];const _ex=window.RPG_TASK_EXTRA_4;if(_ex&&typeof _ex[TR.mid]==='function'){try{_fp=_fp.concat(_ex[TR.mid]());}catch(e){}}if(_fp[entry.idx])entry={t:_fp[entry.idx],idx:entry.idx};}if(entry&&TR._lastText&&String(entry.t.text)===TR._lastText){for(let k=TR.pool.length-1;k>=0;k--){if(String(TR.pool[k].t.text)!==TR._lastText){const _tmp=TR.pool[k];TR.pool[k]=entry;entry=_tmp;break;}}}TR._lastText=entry&&entry.t?String(entry.t.text):undefined;TR.task=entry.t;TR.curIdx=entry.idx;TR.hl=0;trRender();trStats();
 }
 function trRender(){
+ daleZpet('tr-next-btn');
  const t=TR.task;if(!t)return;
  document.getElementById('tr-hint-box').textContent='';document.getElementById('tr-hint-box').classList.remove('show');
  document.getElementById('tr-fb').className='feedback';
@@ -1786,7 +1778,7 @@ function trCorrect(){
   }
   trReviveChip();
  }
- trStats();document.getElementById('tr-next-btn').style.display='inline-block';
+ trStats();ukazDale('tr-next-btn','tr-input-row');
 }
 function trWrong(){
  TR.total++;if(!trGuard())TR.streak=0;
@@ -1797,7 +1789,7 @@ function trWrong(){
  saveS();
  const fb=document.getElementById('tr-fb');const t=TR.task;
  fb.textContent=(TR.guardJust?'🔁 Studijní rádce tě podržel — série zůstává! ':'✗ ')+'Správně: '+czMC(t.ans);fb.className='feedback err';
- trStats();document.getElementById('tr-next-btn').style.display='inline-block';
+ trStats();ukazDale('tr-next-btn','tr-input-row');
 }
 function trHint(){
  const t=TR.task;if(TR.hl>=2)return;const hb=document.getElementById('tr-hint-box');
