@@ -1006,7 +1006,7 @@ window.RPGCloud = (function () {
      z ní navíc vytrhlo — takže se tam schovají. `:has()` umí Chrome 105+ a Safari 15.4+; starší
      prohlížeč pravidlo celé zahodí a tlačítka zůstanou vidět jako dřív. Mezera na konci stránky
      dovolí odrolovat poslední odkaz nad tlačítka. Na dotyku dostanou tlačítka 44 px. */
-  (function () {
+  try {   // testy načítají modul ve vm s okleštěným `document` — bez try by tam spadl celý modul
     const st = document.createElement('style');
     st.id = 'rpg-plovouci-css';
     st.textContent =
@@ -1014,7 +1014,7 @@ window.RPGCloud = (function () {
       '#rpg-widget-mezera{height:64px;flex:none;pointer-events:none}' +
       '@media(pointer:coarse){#rpg-asg-btn,#rpg-notes-btn{min-height:44px}.rpg-note-del,.rpg-asg-go{min-width:44px;min-height:44px}}';
     (document.head || document.documentElement).appendChild(st);
-  })();
+  } catch (e) { /* bez DOM (Node) se nic nevkládá */ }
   function mezeraPodWidgety() {
     const maji = !!(document.getElementById('rpg-notes-btn') || document.getElementById('rpg-asg-btn'));
     let m = document.getElementById('rpg-widget-mezera');
