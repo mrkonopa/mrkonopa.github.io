@@ -332,7 +332,10 @@ const RPGTutorial = (function () {
    Injektováno centrálně, žádné per-game CSS edity. */
 (function () {
   const st = document.createElement('style');
-  st.textContent = '@media(pointer:coarse){.mc-btn,.bt-row .btn,.bt-row .bt-input,[id$="yn-row"] .btn,[id$="yn-row"] button{min-height:44px}}';
+  st.textContent = '@media(pointer:coarse){.mc-btn,.bt-row .btn,.bt-row .bt-input,[id$="yn-row"] .btn,[id$="yn-row"] button{min-height:44px}}' +
+    // Pole pro odpověď je flex:1 a bez min-width:0 si drží vnitřní šířku (~270 px), takže se řádek
+    // na telefonu nesmrští a tlačítko vedle něj (OVĚŘIT / DALŠÍ ÚKOL) vyjede z obrazovky.
+    '.bt-row .bt-input{min-width:0}';
   (document.head || document.documentElement).appendChild(st);
 })();
 
