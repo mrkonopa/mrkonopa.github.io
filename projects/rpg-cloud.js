@@ -1111,6 +1111,39 @@ window.RPGCloud = (function () {
     else cb();
   }
 
+  /* Odhlášení z profilu hry. Doménového žáka přihlášení rovnou pustí na mapu, takže úvodní
+     obrazovku s lištou neuvidí — na sdíleném tabletu by se neměl kde odhlásit. Blok se vloží
+     do panelu NASTAVENÍ (kolem #pr-rm) a ukáže se jen přihlášenému mimo náhled. */
+  function profilOdhlaseni() {
+    const rm = document.getElementById('pr-rm');
+    const panel = rm && rm.closest('.panel');
+    if (!panel) return;
+    let box = document.getElementById('pr-cloud');
+    if (!user || previewActive || !configured()) { if (box) box.style.display = 'none'; return; }
+    if (!box) {
+      box = document.createElement('div');
+      box.id = 'pr-cloud';
+      box.style.cssText = 'margin-top:14px;padding-top:12px;border-top:1px solid var(--line,#2a3450);display:flex;' +
+        'align-items:center;gap:12px;flex-wrap:wrap;font-family:var(--read);font-size:14px;color:var(--text)';
+      const t = document.createElement('span');
+      t.id = 'pr-cloud-txt';
+      t.style.cssText = 'flex:1 1 220px;min-width:0;overflow-wrap:anywhere';
+      const b = document.createElement('button');
+      b.id = 'pr-logout'; b.type = 'button'; b.className = 'btn sm r';
+      b.style.minHeight = '44px';
+      b.textContent = 'Odhlásit';
+      b.onclick = () => logout();
+      box.appendChild(t); box.appendChild(b); panel.appendChild(box);
+    }
+    box.style.display = 'flex';
+    const t = document.getElementById('pr-cloud-txt');
+    const kdo = document.createElement('span'); kdo.textContent = '☁️ ' + (user.email || 'přihlášen');
+    const rada = document.createElement('span');
+    rada.style.cssText = 'font-size:12px;color:var(--muted)';
+    rada.textContent = 'Na sdíleném tabletu se po hraní odhlas — postava z tabletu zmizí, v cloudu zůstane.';
+    t.replaceChildren(kdo, document.createElement('br'), rada);
+  }
+
   let hraKlic = null;          // klíč hry na této stránce (pro tep)
   // Cloud platí, ale hra už jede se starým stavem v paměti → načíst ho i do hry (z boje na mapu).
   function nactiDoHry() {
@@ -1190,6 +1223,7 @@ window.RPGCloud = (function () {
       if (wrap) wrap.insertBefore(makeBar(), wrap.firstChild);
       onChange(async (u) => {
         paint();
+        profilOdhlaseni();
         if (u) {
           refreshNotesWidget();
           refreshAssignmentsWidget(saveKey);

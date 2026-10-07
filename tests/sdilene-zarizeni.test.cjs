@@ -138,8 +138,13 @@ const OSOBNI = /^(RPG_MAT_[0-9]|RPG_HUB_WALLET|PZ_(CERMAT_ATTEMPTS|PRACTICE_PROG
     await pg.goto(hra, { waitUntil: 'load' });
     await cekejNaMapu(pg);
     await pg.evaluate(() => { S.xp = 777; saveS(); });            // změna těsně před odhlášením (push čeká 800 ms)
-    // odhlášení stránku přenačte — čeká se na nové načtení, ne na výsledek evaluate
-    await Promise.all([pg.waitForEvent('load', { timeout: 8000 }), pg.evaluate(() => { RPGCloud.logout(); })]);
+    // doménový žák úvodní obrazovku s lištou nevidí — odhlašuje se z PROFILU (NASTAVENÍ)
+    await pg.evaluate(() => go('profile'));
+    const tl = await pg.evaluate(() => { const b = document.getElementById('pr-logout'); const t = document.getElementById('pr-cloud-txt');
+      return { videt: !!b && b.offsetParent !== null, text: t ? t.textContent : '' }; });
+    ok('profil: tlačítko Odhlásit je vidět a říká, kdo je přihlášený', tl.videt && /adam@husovaliberec\.cz/.test(tl.text), JSON.stringify(tl));
+    // odhlášení stránku přenačte — čeká se na nové načtení
+    await Promise.all([pg.waitForEvent('load', { timeout: 8000 }), pg.click('#pr-logout')]);
     await sleep(600);
     const st = await ulozeno(pg);
     const zbylo = Object.keys(st).filter(k => OSOBNI.test(k));
@@ -150,6 +155,7 @@ const OSOBNI = /^(RPG_MAT_[0-9]|RPG_HUB_WALLET|PZ_(CERMAT_ATTEMPTS|PRACTICE_PROG
     ok('odhlášení: nastavení zařízení (stupeň v hubu) zůstalo', st.RPG_HUB_STUPEN === '"2"', String(st.RPG_HUB_STUPEN));
     ok('odhlášení: hra je zpátky na úvodu bez „Pokračovat“', await pg.evaluate(() =>
       document.getElementById('s-intro').classList.contains('active') && getComputedStyle(document.getElementById('continue-panel')).display === 'none'));
+    ok('odhlášení: v profilu už tlačítko Odhlásit není', await pg.evaluate(() => { const b = document.getElementById('pr-cloud'); return !b || b.style.display === 'none'; }));
     await ctx.close();
   } catch (e) { ok('scénář 1 doběhl', false, e.message.split('\n')[0]); }
 
