@@ -61,7 +61,11 @@ const ok = (n, c, d = '') => { if (c) { console.log('  ✅ ' + n); pass++; } els
       const hpBefore = st.hp;
       // odpověz správně podle typu
       if (st.isMini) await pg.evaluate(() => battleMiniDone(0));
-      else if (st.mc) await pg.evaluate(a => { const b = [...document.querySelectorAll('#mc-grid .mc-btn')].find(x => x.textContent.trim() === a); if (b) b.click(); }, st.ans);
+      else if (st.mc) {
+        // tlačítko nese ZOBRAZENÝ tvar (czMC: minus „−“, desetinná čárka), ne surové t.ans
+        const chybi = await pg.evaluate(a => { const btns = [...document.querySelectorAll('#mc-grid .mc-btn')]; const b = btns.find(x => (x.dataset.v ?? x.textContent.trim()) === czMC(a)); if (b) { b.click(); return ''; } return czMC(a) + ' mezi ' + btns.map(x => x.textContent.trim()).join(' | '); }, st.ans);
+        if (chybi) throw new Error('MC volba nenalezena: ' + chybi);
+      }
       else if (st.yn) await pg.evaluate(a => answerYN(a), st.ans);
       else if (st.input) await pg.evaluate(a => { document.getElementById('bt-ans').value = a; submitAnswer(); }, st.ans);
       await sleep(260);

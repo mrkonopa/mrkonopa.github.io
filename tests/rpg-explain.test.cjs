@@ -256,15 +256,16 @@ async function openMCBattle() {
       await freshPage();
       const found = await openMCBattle();
       if (!found) { console.log('    (skipped — no MC battle found)'); return; }
-      const correctAns = await page.evaluate(() => BT?.curTask?.ans);
-      // find and click the correct MC button
-      const btns = await page.$$('.mc-btn');
+      // tlačítko nese ZOBRAZENÝ tvar (czMC) a před ním písmeno volby v .mc-key — dřív se
+      // porovnávalo „A12“ s „12“, nesedělo nikdy a klikalo se na první tlačítko
+      const correctAns = await page.evaluate(() => czMC(BT?.curTask?.ans));
+      const btns = await page.$$('#mc-grid .mc-btn');
       let clicked = false;
       for (const btn of btns) {
-        const txt = (await btn.textContent() || '').trim();
-        if (txt === String(correctAns)) { await btn.click(); clicked = true; break; }
+        const txt = await btn.evaluate(b => { const k = b.querySelector('.mc-key'); return b.textContent.slice(k ? k.textContent.length : 0).trim(); });
+        if (txt === correctAns) { await btn.click(); clicked = true; break; }
       }
-      if (!clicked && btns.length) { await btns[0].click(); }
+      if (!clicked) throw new Error('správná MC volba nenalezena: ' + correctAns);
       await sleep(300);
       const display = await page.evaluate(() => document.getElementById('bt-explain').style.display);
       assert.strictEqual(display, 'none', 'bt-explain must stay hidden in MC mode');

@@ -44,12 +44,16 @@ async function finishMission(page, aid, mid, tc) {
     });
     if (st.done) break;
     if (st.isMC) {
-      await page.evaluate(ans => {
-        // text tlačítka = klávesa (A–D) + možnost → odstraň úvodní písmeno
-        const val = b => b.textContent.trim().replace(/^[ABCD]/, '');
-        const btns = Array.from(document.querySelectorAll('#mc-grid .mc-btn')).filter(b=>val(b)!=='');
-        (btns.find(b=>val(b)===ans)||btns[0]).click();
+      const chybi = await page.evaluate(ans => {
+        // tlačítko ukazuje ZOBRAZENÝ tvar (czMC: „−8“, desetinná čárka), t.ans má „-8“ — dřív se
+        // při neshodě klikalo na první tlačítko a na zamčené špatné pak dokola (mise nedoběhla)
+        const val = b => { const k = b.querySelector('.mc-key'); return b.textContent.slice(k ? k.textContent.length : 0).trim(); };
+        const btns = Array.from(document.querySelectorAll('#mc-grid .mc-btn'));
+        const b = btns.find(x => val(x) === czMC(ans));
+        if (b) { b.click(); return ''; }
+        return czMC(ans) + ' mezi ' + btns.map(val).join(' | ');
       }, st.ans);
+      if (chybi) throw new Error('MC volba nenalezena: ' + chybi);
     } else {
       await page.fill('#bt-ans', st.ans).catch(()=>{});
       await page.evaluate(() => { try{ submitAnswer(); }catch(e){} });

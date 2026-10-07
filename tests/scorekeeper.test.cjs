@@ -53,7 +53,9 @@ async function run(){
 
     // Q1: fresh, score 0
     await feed({battle:{status:'active',q_seed:7,q_count:5,q_index:0,q_started_at:now},players:[P(0,0,-1),O(0,0,-1)],me:'u-me'});
-    await page.waitForFunction(()=>!!document.getElementById('rpgb-choices'),null,{timeout:3000});
+    // 1. otázka se vykreslí až po odpočtu 3-2-1: COUNTDOWN_MS = 3000 od q_started_at (rpg-battle-ui.js),
+    // takže limit 3000 nestačí nikdy (naměřeno 3007 ms → timeout); 8000 = odpočet + rezerva na CI
+    await page.waitForFunction(()=>!!document.getElementById('rpgb-choices'),null,{timeout:8000});
     ok('Q1 myscore shows ⭐ 0', /⭐\s*0/.test(await myscore()), await myscore());
 
     // answer correctly → server reflects score 1200 (still Q1)
