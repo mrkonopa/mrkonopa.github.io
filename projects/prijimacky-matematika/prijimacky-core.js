@@ -372,6 +372,7 @@
     if (!hasCloud() || !RPGCloud.currentUser || !RPGCloud.currentUser()) return;
     clearTimeout(pushTimer);
     pushTimer = setTimeout(() => {
+      pushTimer = null;
       const l = readLocal();
       RPGCloud.pzSaveStats({ attempts: l.attempts, practice: l.practice, diag: l.diag, test: l.test, readiness: l.readiness });
     }, 800);
@@ -407,6 +408,13 @@
       }
     };
     RPGCloud.onChange((u) => { paint(u); if (u) cloudSync(); });
+    // Odhlášení na sdíleném tabletu výsledky smaže — co čeká v debounce, se musí dopsat dřív.
+    if (typeof RPGCloud.priOdhlaseni === 'function') RPGCloud.priOdhlaseni(() => {
+      if (!pushTimer) return true;
+      clearTimeout(pushTimer); pushTimer = null;
+      const l = readLocal();
+      return RPGCloud.pzSaveStats({ attempts: l.attempts, practice: l.practice, diag: l.diag, test: l.test, readiness: l.readiness });
+    });
     paint(RPGCloud.currentUser ? RPGCloud.currentUser() : null);
     RPGCloud.init();
   }

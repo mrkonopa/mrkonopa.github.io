@@ -32,7 +32,7 @@ const ok=(c,m)=>{ if(c){pass++;console.log('  ✅ '+m);} else {fail++;console.lo
   page.on('console',m=>{ if(m.type()==='error'&&!/Failed to load resource|net::ERR/i.test(m.text()))errs.push(m.text()); });
 
   await page.goto(base+'/projects/prijimacky-matematika/procvicovani.html',{waitUntil:'domcontentloaded'});
-  await page.waitForFunction(()=>window.PZ_TOPICS&&window.RPG_CERMAT_9&&window.PZ,{timeout:8000});
+  await page.waitForFunction(()=>window.PZ_TOPICS&&window.RPG_CERMAT_9&&window.PZ,null,{timeout:8000});
   console.log('── Přijímačky: procvičování po tématech ──');
 
   const nTopics=await page.evaluate(()=>PZ_TOPICS.list.length);
@@ -74,14 +74,14 @@ const ok=(c,m)=>{ if(c){pass++;console.log('  ✅ '+m);} else {fail++;console.lo
   ok(it.type==='text','rovnice dává text položku');
   await page.fill('#pr-input', it.ans);
   await page.click('button.pz-btn.primary:has-text("Zkontrolovat")');
-  await page.waitForFunction(()=>document.getElementById('pr-fb').style.display!=='none',{timeout:4000});
+  await page.waitForFunction(()=>document.getElementById('pr-fb').style.display!=='none',null,{timeout:4000});
   ok(await page.evaluate(()=>/Správně/.test(document.getElementById('pr-fb').textContent)),'správná odpověď → ✓ Správně');
   ok(await page.evaluate(()=>PR.ok===1&&PR.total===1),'počítadlo 1/1');
   ok(!it.hasSol || await page.evaluate(()=>document.getElementById('pr-sol').style.display!=='none'),'vyřešený postup se zobrazí');
 
   // Další úloha
   await page.click('#pr-next');
-  await page.waitForFunction(()=>document.getElementById('pr-fb').style.display==='none',{timeout:4000}).catch(()=>{});
+  await page.waitForFunction(()=>document.getElementById('pr-fb').style.display==='none',null,{timeout:4000}).catch(()=>{});
   ok(await page.evaluate(()=>!PR.answered),'Další úloha → nová položka');
 
   // pokrok se uloží do localStorage

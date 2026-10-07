@@ -26,9 +26,9 @@ const ok = (c, m) => { if (c) { pass++; console.log('  ✅ ' + m); } else { fail
   const errs = [];
   page.on('pageerror', e => errs.push(e.message));
   await page.goto(`http://127.0.0.1:${PORT}/projects/rpg-mat-${GRADE}.html`, { waitUntil: 'domcontentloaded' });
-  await page.waitForFunction(() => typeof startGame === 'function' && typeof launchBattle === 'function' && typeof AREAS !== 'undefined', { timeout: 8000 });
+  await page.waitForFunction(() => typeof startGame === 'function' && typeof launchBattle === 'function' && typeof AREAS !== 'undefined', null, { timeout: 8000 });
   await page.evaluate(() => { localStorage.clear(); const i = document.getElementById('ni'); if (i) i.value = 'TEST'; startGame(); if (typeof S !== 'undefined') S.tutorialDone = true; });
-  await page.waitForFunction(() => document.querySelector('#s-map')?.classList.contains('active'), { timeout: 5000 });
+  await page.waitForFunction(() => document.querySelector('#s-map')?.classList.contains('active'), null, { timeout: 5000 });
 
   console.log(`\n── Boj: neopakování „stejných čísel" — ${GRADE}. ročník (${ITERS}×/misi) ──`);
   const missions = await page.evaluate(() => AREAS.flatMap(a => a.missions.map(m => ({ aid: a.id, mid: m.id, nm: m.name || m.id }))));

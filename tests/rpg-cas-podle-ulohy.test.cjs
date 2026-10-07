@@ -45,7 +45,7 @@ const ZAKLAD = { 3: 60, 4: 55, 5: 50, 6: 40, 7: 40, 8: 40, 9: 40 };
     const chyby = [];
     pg.on('pageerror', e => chyby.push(e.message));
     await pg.goto(`http://localhost:${PORT}/projects/rpg-mat-${g}.html`, { waitUntil: 'domcontentloaded' });
-    await pg.waitForFunction(() => typeof startGame === 'function', { timeout: 8000 });
+    await pg.waitForFunction(() => typeof startGame === 'function', null, { timeout: 8000 });
 
     const r = await pg.evaluate(() => {
       localStorage.clear(); startGame('Testovací žákyně'); S.tutorialDone = true;

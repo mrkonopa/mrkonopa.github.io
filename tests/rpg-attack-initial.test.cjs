@@ -24,7 +24,7 @@ async function answerCorrect(page){
  const handled=await page.evaluate(async()=>{
   const chips=[...document.querySelectorAll('#bt-prob .tto-chip:not(.done)')];
   if(chips.length>0){
-   const mt=window.BT&&BT.mini&&BT.mini[BT.idx];
+   const mt=typeof BT!=='undefined'&&BT.mini&&BT.mini[BT.idx];
    if(!mt||!mt.data){
     if(typeof battleMiniDone==='function'&&!BT.bossDefeated&&BT.hp>0){BT.miniStarting=false;battleMiniDone(0);}
     return true;
@@ -40,6 +40,8 @@ async function answerCorrect(page){
     if(chip)chip.click();
     await new Promise(r=>setTimeout(r,100));
    }
+   // počítadlo: dřív `window.BT` (BT je let → vždy undefined) poslalo KAŽDÉ řazení do zkratky výše
+   window.__razeniCipy=(window.__razeniCipy||0)+1;
    await new Promise(r=>setTimeout(r,300));
    return true;
   }
@@ -186,6 +188,8 @@ async function answerCorrect(page){
   await page.waitForTimeout(500);
   ok(await page.evaluate(k=>!!S.done[k],mid+'-'+vynuceno.idx),
      'g'+g+' vynucená spojovačka („−5“, „4,8“) se dořešila'+(zaseknuto?' — boj se zasekl na kole '+zaseknuto.kolo+' (minihra: '+zaseknuto.mini+')':''));
+
+  console.log('  · g'+g+' řadicí minihra vyřešená přes čipy: '+(await page.evaluate(()=>window.__razeniCipy||0))+'× (los ~17 % kol)');
 
   const defeatedLocked = await page.evaluate(()=>({
    defeated:BT.bossDefeated===true,

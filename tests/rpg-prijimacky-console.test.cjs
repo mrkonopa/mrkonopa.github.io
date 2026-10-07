@@ -79,15 +79,15 @@ async function run() {
     page.on('dialog', d=>d.accept());
     await page.addInitScript(mockScript(scenario));
     await page.goto(`${BASE}/projects/rpg-ucitel.html`, { waitUntil:'load' });
-    await page.waitForFunction(()=>!document.getElementById('console').classList.contains('hidden'), {timeout:8000});
+    await page.waitForFunction(()=>!document.getElementById('console').classList.contains('hidden'), null, {timeout:8000});
 
     // ── záložka PŘIJÍMAČKY ──
     await page.click('[data-tab="prijimacky"]');
-    await page.waitForFunction(()=>!document.getElementById('t-prijimacky').classList.contains('hidden'), {timeout:4000});
+    await page.waitForFunction(()=>!document.getElementById('t-prijimacky').classList.contains('hidden'), null, {timeout:4000});
     ok('záložka PŘIJÍMAČKY se otevře', true);
 
     // select tříd naplněn
-    await page.waitForFunction(()=>document.querySelectorAll('#pz-class option').length>=2, {timeout:4000});
+    await page.waitForFunction(()=>document.querySelectorAll('#pz-class option').length>=2, null, {timeout:4000});
     ok('select tříd naplněn', await page.evaluate(()=>document.querySelectorAll('#pz-class option').length)>=2);
 
     // před výběrem: výzva
@@ -95,8 +95,8 @@ async function run() {
 
     // vyber třídu → připravenost
     await page.selectOption('#pz-class','cls-9b');
-    await page.waitForFunction(()=>window.__rpcCalls.some(c=>c.fn==='pz_class_readiness'), {timeout:4000});
-    await page.waitForFunction(()=>/Anička/.test(document.getElementById('pz-wrap').textContent), {timeout:4000});
+    await page.waitForFunction(()=>window.__rpcCalls.some(c=>c.fn==='pz_class_readiness'), null, {timeout:4000});
+    await page.waitForFunction(()=>/Anička/.test(document.getElementById('pz-wrap').textContent), null, {timeout:4000});
     const called = await page.evaluate(()=>window.__rpcCalls.find(c=>c.fn==='pz_class_readiness'));
     ok('pz_class_readiness volán se správnou třídou', called && called.args.p_class==='cls-9b', JSON.stringify(called&&called.args));
 
@@ -110,7 +110,7 @@ async function run() {
 
     // prázdný výběr → výzva
     await page.selectOption('#pz-class','');
-    await page.waitForFunction(()=>/Vyber třídu/.test(document.getElementById('pz-wrap').textContent), {timeout:4000});
+    await page.waitForFunction(()=>/Vyber třídu/.test(document.getElementById('pz-wrap').textContent), null, {timeout:4000});
     ok('návrat na prázdný výběr ukáže výzvu', true);
 
     ok('žádné JS chyby', errors.length===0, errors[0]||'');

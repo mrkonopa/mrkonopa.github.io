@@ -31,12 +31,12 @@ const SEED = {name:'TEST',xp:0,level:1,attrs:{calc:0,geo:0,anal:0,craft:0},done:
   const errs=[]; page.on('pageerror',e=>errs.push(e.message));
   await page.addInitScript((seed)=>{localStorage.setItem('RPG_MAT_'+document.title.match(/\d/),JSON.stringify(seed));},SEED);
   await page.goto(`${base}/projects/rpg-mat-${g}.html`,{waitUntil:'load'});
-  await page.waitForFunction(()=>typeof AREAS!=='undefined'&&typeof launchBattle==='function'&&typeof _walletBal==='function',{timeout:8000});
+  await page.waitForFunction(()=>typeof AREAS!=='undefined'&&typeof launchBattle==='function'&&typeof _walletBal==='function',null,{timeout:8000});
   await page.evaluate(()=>{S.done={};S.xpClaimed=S.xpClaimed||{};continueGame?continueGame():startGame&&startGame();}).catch(()=>{});
 
   // Najdi non-MC misi a uvnitř ní obyčejnou textovou úlohu (ne minihra, ne ANO/NE).
   await page.evaluate(()=>{const ar=AREAS.find(a=>a.missions.some(m=>!m.mc));const m=ar.missions.find(m=>!m.mc);launchBattle(ar.id,m.id);});
-  await page.waitForFunction(()=>document.querySelector('#s-battle').classList.contains('active'),{timeout:5000});
+  await page.waitForFunction(()=>document.querySelector('#s-battle').classList.contains('active'),null,{timeout:5000});
   await page.waitForTimeout(600);
 
   const found=await page.evaluate(()=>{

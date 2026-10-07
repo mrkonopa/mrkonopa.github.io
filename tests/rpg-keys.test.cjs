@@ -23,9 +23,9 @@ const ok = (c, m) => { if (c) { pass++; } else { fail++; console.log('  ❌ ' + 
   const errs = [];
   page.on('pageerror', e => errs.push(e.message));
   await page.goto(`http://127.0.0.1:${PORT}/projects/rpg-mat-${GRADE}.html`, { waitUntil: 'domcontentloaded' });
-  await page.waitForFunction(() => typeof startGame === 'function' && typeof launchBattle === 'function', { timeout: 8000 });
+  await page.waitForFunction(() => typeof startGame === 'function' && typeof launchBattle === 'function', null, { timeout: 8000 });
   await page.evaluate(() => { localStorage.clear(); const i = document.getElementById('ni'); if (i) i.value = 'TEST'; startGame(); });
-  await page.waitForFunction(() => document.querySelector('#s-map')?.classList.contains('active'), { timeout: 5000 });
+  await page.waitForFunction(() => document.querySelector('#s-map')?.classList.contains('active'), null, { timeout: 5000 });
 
   // ── 1) MC: nastartuj MC misi, zobraz mc-mřížku ──
   const mcReady = await page.evaluate(() => {
@@ -35,7 +35,7 @@ const ok = (c, m) => { if (c) { pass++; } else { fail++; console.log('  ❌ ' + 
     return { ok: false };
   });
   ok(mcReady.ok, 'nalezena MC mise');
-  await page.waitForFunction(() => typeof BT !== 'undefined' && BT.curTask, { timeout: 5000 });
+  await page.waitForFunction(() => typeof BT !== 'undefined' && BT.curTask, null, { timeout: 5000 });
   const gridVisible = await page.evaluate(() => {
     const g = document.getElementById('mc-grid');
     return g && g.offsetParent !== null && g.querySelectorAll('.mc-btn').length >= 2;
@@ -85,7 +85,7 @@ const ok = (c, m) => { if (c) { pass++; } else { fail++; console.log('  ❌ ' + 
   // ale reaguje na JAKÝKOLI viditelný [id$="yn-row"] v aktivní obrazovce, tak
   // ověříme mapování kláves deterministicky přímo na jeho DOM kontraktu.
   await page.evaluate(() => { if (typeof go === 'function') go('map'); });
-  await page.waitForFunction(() => document.querySelector('#s-map')?.classList.contains('active'), { timeout: 5000 });
+  await page.waitForFunction(() => document.querySelector('#s-map')?.classList.contains('active'), null, { timeout: 5000 });
   const yn = await page.evaluate(() => {
     const scr = document.querySelector('.screen.active');
     const row = document.createElement('div');

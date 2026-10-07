@@ -44,9 +44,12 @@ async function answerCorrect(page){
     await new Promise(r => setTimeout(r, 250));
   });
 }
+/* vrací, co se stalo: 'spatne' (stojí srdíčko), 'spravne' (MC bez špatných voleb),
+   'nepripraveno' (ANO/NE během vstupní animace — answerYN tiše nic neudělá) */
 async function answerWrong(page){
   return page.evaluate(async () => {
     const t = BT.curTask;
+    let co = 'spatne';
     if (BT.mcMode) {
       // U MC mise špatná odpověď zablokuje jen ten knoflík a zůstane na téže úloze;
       // jedna úloha má jen 3 špatné možnosti. Když dojdou, postup správně na další úlohu.
@@ -56,18 +59,21 @@ async function answerWrong(page){
       else {
         const good = btns.find(b => (b.dataset.v ?? b.textContent.replace(/^[A-D]\s*/,'').trim()) === czMC(t.ans));
         if (good) good.click();
+        co = 'spravne';
         await new Promise(r => setTimeout(r, 300));
         const nb = document.getElementById('next-btn');
         if (nb && nb.style.display !== 'none') nextTask();
       }
     } else if (t.ans === 'ANO' || t.ans === 'NE') {
-      answerYN(t.ans === 'ANO' ? 'NE' : 'ANO');
+      if (document.getElementById('bt-ans').disabled) co = 'nepripraveno';
+      else answerYN(t.ans === 'ANO' ? 'NE' : 'ANO');
     } else {
       document.getElementById('bt-ans').disabled = false;
       document.getElementById('bt-ans').value = '−999999';
       submitAnswer();
     }
     await new Promise(r => setTimeout(r, 250));
+    return co;
   });
 }
 
@@ -130,10 +136,12 @@ async function answerWrong(page){
           if (BT.mcMode) return [...document.querySelectorAll('#mc-grid .mc-btn')].some(b => !b.disabled);
           if (BT.curTask && (BT.curTask.ans === 'ANO' || BT.curTask.ans === 'NE')) return [...document.querySelectorAll('#yn-row button')].some(b => !b.disabled);
           const inp = document.getElementById('bt-ans'); return inp && !inp.disabled;
-        }, { timeout: 4000 }).catch(() => {});
+        }, null, { timeout: 4000 }).catch(() => {});
         const before = await page.evaluate(() => document.querySelectorAll('#player-hp .heart:not(.lost)').length);
-        await answerWrong(page);
-        await page.waitForFunction(b => document.querySelectorAll('#player-hp .heart:not(.lost)').length < b, before, { timeout: 4000 }).catch(() => {});
+        if (before === 0) break;   // prohráno, overlay jen ještě nenaskočil — není co ztratit (čekání by vypršelo)
+        // na ztrátu srdíčka čekat jen po skutečně špatné odpovědi (jinak čekání vždy vyprší — 10× po 4 s)
+        if (await answerWrong(page) === 'spatne')
+          await page.waitForFunction(b => document.querySelectorAll('#player-hp .heart:not(.lost)').length < b, before, { timeout: 4000 }).catch(() => {});
         await sleep(250);
       }
       const hearts1 = await page.evaluate(() => document.querySelectorAll('#player-hp .heart:not(.lost)').length);

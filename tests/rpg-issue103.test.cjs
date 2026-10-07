@@ -117,13 +117,13 @@ async function runConsole(browser, base){
   const errs=[];page.on('pageerror',e=>errs.push(e.message));
   await page.addInitScript(consoleMock(scenario));
   await page.goto(`${base}/projects/rpg-ucitel.html`,{waitUntil:'load'});
-  await page.waitForFunction(()=>!document.getElementById('console').classList.contains('hidden'),{timeout:8000});
-  await page.waitForFunction(()=>Array.isArray(window.ROWS)&&window.ROWS.length>0,{timeout:6000}).catch(()=>{});
+  await page.waitForFunction(()=>!document.getElementById('console').classList.contains('hidden'),null,{timeout:8000});
+  await page.waitForFunction(()=>typeof ROWS!=='undefined'&&Array.isArray(ROWS)&&ROWS.length>0,null,{timeout:6000}).catch(()=>{});
 
   // (2) ŽEBŘÍČKY tab
   await page.click('.tab[data-tab="leaderboard"]');
-  await page.waitForFunction(()=>!document.getElementById('t-leaderboard').classList.contains('hidden'),{timeout:4000});
-  await page.waitForFunction(()=>/XP/.test(document.getElementById('lb-wrap').textContent),{timeout:4000}).catch(()=>{});
+  await page.waitForFunction(()=>!document.getElementById('t-leaderboard').classList.contains('hidden'),null,{timeout:4000});
+  await page.waitForFunction(()=>/XP/.test(document.getElementById('lb-wrap').textContent),null,{timeout:4000}).catch(()=>{});
   const lb=await page.evaluate(()=>document.getElementById('lb-wrap').textContent);
   ok(/🥇/.test(lb)&&/Morpheus/.test(lb)&&/560 XP/.test(lb),'žebříček: 1. Morpheus 560 XP (řazeno dle XP)');
   // pořadí: Morpheus(560) > Neo(340) > Trinity(120)
@@ -137,19 +137,19 @@ async function runConsole(browser, base){
 
   // (3) VĚŽ LEGEND — mazání žáka z žebříčku
   await page.click('.tab[data-tab="tower"]');
-  await page.waitForFunction(()=>!document.getElementById('t-tower').classList.contains('hidden'),{timeout:4000});
+  await page.waitForFunction(()=>!document.getElementById('t-tower').classList.contains('hidden'),null,{timeout:4000});
   // #174: výchozí je „Všechny ročníky" (read-only přehled bez mazání) → pro
   // správu (🗑) vyber konkrétní ročník
   await page.selectOption('#tower-game','RPG_MAT_9');
   await page.evaluate(()=>renderTower());
-  await page.waitForFunction(()=>/patro/.test(document.getElementById('tower-board-wrap').textContent),{timeout:4000});
+  await page.waitForFunction(()=>/patro/.test(document.getElementById('tower-board-wrap').textContent),null,{timeout:4000});
   const hasDel=await page.evaluate(()=>document.querySelectorAll('#tower-board-wrap button').length);
   ok(hasDel>=2,'žebříček věže (admin): u každého řádku je 🗑 tlačítko ('+hasDel+')');
   ok(/4× pokus/.test(await page.evaluate(()=>document.getElementById('tower-board-wrap').textContent)),'žebříček věže ukazuje počet pokusů');
   // klik na první 🗑 → confirm → tower_delete_run(s3)
   page.once('dialog',d=>d.accept());
   await page.evaluate(()=>document.querySelector('#tower-board-wrap button').click());
-  await page.waitForFunction(()=>window.__rpcCalls.some(c=>c.fn==='tower_delete_run'),{timeout:4000});
+  await page.waitForFunction(()=>window.__rpcCalls.some(c=>c.fn==='tower_delete_run'),null,{timeout:4000});
   const del=await page.evaluate(()=>window.__rpcCalls.find(c=>c.fn==='tower_delete_run'));
   ok(del&&del.args.p_user_id==='s3'&&del.args.p_game==='RPG_MAT_9','🗑 volá tower_delete_run(user_id=s3, RPG_MAT_9)');
   ok(errs.length===0,'konzole bez JS chyb'+(errs.length?(' ['+errs[0]+']'):''));

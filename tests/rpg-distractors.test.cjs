@@ -24,9 +24,9 @@ const ok = (c, m) => { if (c) { pass++; } else { fail++; console.log('  ❌ ' + 
   const errs = [];
   page.on('pageerror', e => errs.push(e.message));
   await page.goto(`http://127.0.0.1:${PORT}/projects/rpg-mat-${GRADE}.html`, { waitUntil: 'domcontentloaded' });
-  await page.waitForFunction(() => typeof startGame === 'function' && typeof launchBattle === 'function' && typeof renderMC === 'function', { timeout: 8000 });
+  await page.waitForFunction(() => typeof startGame === 'function' && typeof launchBattle === 'function' && typeof renderMC === 'function', null, { timeout: 8000 });
   await page.evaluate(() => { localStorage.clear(); const i = document.getElementById('ni'); if (i) i.value = 'TEST'; startGame(); });
-  await page.waitForFunction(() => document.querySelector('#s-map')?.classList.contains('active'), { timeout: 5000 });
+  await page.waitForFunction(() => document.querySelector('#s-map')?.classList.contains('active'), null, { timeout: 5000 });
 
   // ── 1) broad sweep: všechny MC mise × mnoho generací ──
   const sweep = await page.evaluate((g) => {

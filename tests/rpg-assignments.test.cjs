@@ -85,15 +85,15 @@ async function run() {
     page.on('dialog', d=>d.accept());
     await page.addInitScript(mockScript(scenario));
     await page.goto(`${BASE}/projects/rpg-ucitel.html`, { waitUntil:'load' });
-    await page.waitForFunction(()=>!document.getElementById('console').classList.contains('hidden'), {timeout:8000});
+    await page.waitForFunction(()=>!document.getElementById('console').classList.contains('hidden'), null, {timeout:8000});
 
     // ── záložka ÚKOLY ──
     await page.click('[data-tab="assignments"]');
-    await page.waitForFunction(()=>!document.getElementById('t-assignments').classList.contains('hidden'), {timeout:4000});
+    await page.waitForFunction(()=>!document.getElementById('t-assignments').classList.contains('hidden'), null, {timeout:4000});
     ok('záložka ÚKOLY se otevře', true);
 
     // selecty se naplní
-    await page.waitForFunction(()=>document.querySelectorAll('#asg-class option').length>=2, {timeout:4000});
+    await page.waitForFunction(()=>document.querySelectorAll('#asg-class option').length>=2, null, {timeout:4000});
     const classOpts = await page.evaluate(()=>document.querySelectorAll('#asg-class option').length);
     ok('select tříd naplněn', classOpts>=2, 'opts='+classOpts);
     const gameOpts = await page.evaluate(()=>document.querySelectorAll('#asg-game option').length);
@@ -101,7 +101,7 @@ async function run() {
 
     // vyber hru → mise se doplní podle hry
     await page.selectOption('#asg-game','RPG_MAT_9');
-    await page.waitForFunction(()=>document.querySelectorAll('#asg-mid option').length>=2, {timeout:4000});
+    await page.waitForFunction(()=>document.querySelectorAll('#asg-mid option').length>=2, null, {timeout:4000});
     const midOpts = await page.evaluate(()=>document.querySelectorAll('#asg-mid option').length);
     ok('mise se doplní podle hry', midOpts>=2, 'opts='+midOpts);
 
@@ -110,14 +110,14 @@ async function run() {
     await page.selectOption('#asg-mid','2-3');
     await page.fill('#asg-due','2026-09-05');
     await page.click('button:has-text("Zadat úkol")');
-    await page.waitForFunction(()=>window.__rpcCalls.some(c=>c.fn==='create_assignment'), {timeout:4000});
+    await page.waitForFunction(()=>window.__rpcCalls.some(c=>c.fn==='create_assignment'), null, {timeout:4000});
     const created = await page.evaluate(()=>window.__rpcCalls.find(c=>c.fn==='create_assignment'));
     ok('create_assignment volán se správnými parametry',
       created && created.args.p_class_id==='cls-9b' && created.args.p_game==='RPG_MAT_9' && created.args.p_mission_id==='2-3' && created.args.p_due_date==='2026-09-05',
       JSON.stringify(created&&created.args));
 
     // úkol se objeví v seznamu
-    await page.waitForFunction(()=>document.querySelectorAll('#assignments-wrap button').length>0, {timeout:4000});
+    await page.waitForFunction(()=>document.querySelectorAll('#assignments-wrap button').length>0, null, {timeout:4000});
     const listed = await page.evaluate(()=>document.getElementById('assignments-wrap').textContent);
     ok('úkol je v seznamu (mise + třída)', /2-3/.test(listed) && /9\.B/.test(listed), listed.slice(0,80));
 
@@ -127,8 +127,8 @@ async function run() {
 
     // progress: kdo splnil
     await page.click('button:has-text("Kdo splnil")');
-    await page.waitForFunction(()=>window.__rpcCalls.some(c=>c.fn==='assignment_progress'), {timeout:4000});
-    await page.waitForFunction(()=>/Splnilo/.test(document.getElementById('assignments-wrap').textContent), {timeout:4000});
+    await page.waitForFunction(()=>window.__rpcCalls.some(c=>c.fn==='assignment_progress'), null, {timeout:4000});
+    await page.waitForFunction(()=>/Splnilo/.test(document.getElementById('assignments-wrap').textContent), null, {timeout:4000});
     const prog = await page.evaluate(()=>document.getElementById('assignments-wrap').textContent);
     ok('progress ukáže splnil/nesplnil + počet', /Splnilo/.test(prog) && /Anička/.test(prog) && /1 \/ 2/.test(prog), prog.slice(-120));
     const xss2 = await page.evaluate(()=>window.__xss);
@@ -136,8 +136,8 @@ async function run() {
 
     // smazání úkolu
     await page.click('#assignments-wrap button.red');
-    await page.waitForFunction(()=>window.__rpcCalls.some(c=>c.fn==='delete_assignment'), {timeout:4000});
-    await page.waitForFunction(()=>/žádné úkoly/.test(document.getElementById('assignments-wrap').textContent), {timeout:4000});
+    await page.waitForFunction(()=>window.__rpcCalls.some(c=>c.fn==='delete_assignment'), null, {timeout:4000});
+    await page.waitForFunction(()=>/žádné úkoly/.test(document.getElementById('assignments-wrap').textContent), null, {timeout:4000});
     ok('úkol smazán (seznam prázdný)', true);
 
     ok('žádné JS chyby (konzole)', errors.length===0, errors.join(' | '));
@@ -167,7 +167,9 @@ async function run() {
     await gp.evaluate(()=>{ window.goPractice = (mid)=>{ window.__practiced=mid; }; });
     await gp.click('#rpg-asg-btn');
     const ptxt = await gp.evaluate(()=>document.getElementById('rpg-asg-panel').textContent);
-    ok('panel ukáže misi + termín + třídu + Procvičit', /2-3/.test(ptxt) && /Procvičit/.test(ptxt) && /9\.B/.test(ptxt), ptxt.slice(0,90));
+    // NÁZEV mise z AREAS, ne kód: „Mise 2-3“ se ukazovalo jen kvůli slepému window.AREAS (AREAS je const)
+    const nazev = await gp.evaluate(()=>AREAS.flatMap(a=>a.missions).find(m=>m.id==='2-3').name);
+    ok('panel ukáže název mise + termín + třídu + Procvičit', ptxt.includes(nazev) && !/Mise 2-3/.test(ptxt) && /Procvičit/.test(ptxt) && /9\.B/.test(ptxt), nazev+' · '+ptxt.slice(0,90));
     await gp.click('.rpg-asg-go');
     const practiced = await gp.evaluate(()=>window.__practiced);
     ok('„Procvičit" volá goPractice(mid)', practiced==='2-3', 'practiced='+practiced);

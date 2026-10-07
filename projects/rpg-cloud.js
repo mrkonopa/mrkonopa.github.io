@@ -16,7 +16,72 @@ window.RPGCloud = (function () {
   let client = null, user = null, role = null;
   const listeners = [];
   const pushTimers = {};
+  const pushCeka = {};         // hra → poslední stav, který čeká na odeslání (debounce 800 ms)
+  const synchronizuje = {};    // hra → po přihlášení se ještě rozhoduje, čí postup platí (attachGame)
+  const predOdhlasenim = [];   // dopsání jiných modulů před odhlášením (přijímačky)
   let previewActive = false;   // ?preview=1 nebo ?su=… → nic se neukládá
+
+  /* ════════ SDÍLENÉ ZAŘÍZENÍ (školní tablety) ════════
+     Data v localStorage patří účtu, který byl na zařízení naposledy přihlášený
+     (RPG_CLOUD_OWNER). Odhlášení je dopošle a smaže, přihlášení JINÉHO účtu je
+     zahodí dřív, než se cokoli pošle do cloudu. Dřív vyhrál ten, kdo měl víc
+     splněných úkolů, takže cizí postava se nahrála do cloudu nového žáka
+     (Vojtův lístek 7. 10. 2026: „Nové přihlášení nemaže průběh?“). */
+  const VLASTNIK = 'RPG_CLOUD_OWNER';
+  // Osobní data: postavy, sdílená peněženka, výsledky přijímaček. Nastavení
+  // zařízení (zvolený stupeň v hubu, úvod konzole) zůstávají.
+  const jeOsobni = k => /^RPG_MAT_[0-9]$/.test(k) || k === 'RPG_HUB_WALLET' ||
+    /^PZ_(CERMAT_ATTEMPTS|PRACTICE_PROGRESS|DIAG_LAST|TEST_TOPICS)$/.test(k);
+  // Čerstvé přihlášení = stránka se právě vrátila od Googlu s tokenem v adrese.
+  // Zachytit hned při načtení — knihovna Supabase adresu po zpracování vyčistí.
+  const cerstvePrihlaseni = /(^#|&)access_token=|[?&]code=[\w-]{16,}/.test((location.hash || '') + (location.search || ''));
+  function osobniKlice() {
+    const out = [];
+    try { for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (jeOsobni(k)) out.push(k); } } catch (e) {}
+    return out;
+  }
+  function smazOsobni() { for (const k of osobniKlice()) { try { localStorage.removeItem(k); } catch (e) {} } }
+  // Co v zařízení leží — do dotazu „patří ti to?“ (jen text pro confirm, žádné HTML)
+  function popisDat(klice) {
+    const radky = [];
+    for (const k of klice) {
+      const m = /^RPG_MAT_([0-9])$/.exec(k);
+      if (!m) continue;
+      let s = null; try { s = JSON.parse(localStorage.getItem(k)); } catch (e) {}
+      const jm = s && typeof s.name === 'string' ? s.name.slice(0, 20) : '?';
+      const lv = s && Number.isFinite(+s.level) ? Math.max(1, Math.floor(+s.level)) : 1;
+      radky.push('• postava „' + jm + '“ (' + m[1] + '. ročník, úroveň ' + lv + ')');
+    }
+    if (klice.some(k => /^PZ_/.test(k))) radky.push('• výsledky přijímaček');
+    if (!radky.length) radky.push('• kredity a vylepšení');
+    return radky.join('\n');
+  }
+  /* Převezme zařízení pro účet `u`. Vrací true, když se lokální data zahodila.
+     - data jiného účtu → pryč bez ptaní (jsou v jeho cloudu),
+     - data bez vlastníka + čerstvé přihlášení → zeptat se (mohl hrát bez přihlášení),
+     - data bez vlastníka + obnovená relace → převzít (ukládala se do tohoto účtu). */
+  function prevezmiZarizeni(u, cerstve) {
+    if (previewActive || !u) return false;
+    let vl = null;
+    try { vl = localStorage.getItem(VLASTNIK); } catch (e) { return false; }
+    if (vl === u.id) return false;
+    const klice = osobniKlice();
+    let zahodit = false;
+    if (klice.length && vl) zahodit = true;
+    else if (klice.length && cerstve) {
+      const otazka = 'Na tomto zařízení jsou uložená data:\n' + popisDat(klice) +
+        '\n\nPatří TOBĚ (' + (u.email || '') + ')?\n\nOK = ano, ulož je do mého účtu\nZrušit = ne, smaž je z tohoto zařízení';
+      zahodit = !(typeof window.confirm === 'function' && window.confirm(otazka));
+    }
+    if (zahodit) smazOsobni();
+    try { localStorage.setItem(VLASTNIK, u.id); } catch (e) {}
+    return zahodit;
+  }
+  // Hra už běží (není na úvodu) — po zahození dat ji je třeba načíst znovu, v paměti má cizí postavu.
+  function hraBezi() {
+    const intro = document.getElementById('s-intro');
+    return !!intro && !intro.classList.contains('active') && !!document.querySelector('.screen.active');
+  }
 
   const configured = () =>
     !!(CONFIG.SUPABASE_URL && CONFIG.SUPABASE_ANON_KEY && window.supabase);
@@ -61,6 +126,8 @@ window.RPGCloud = (function () {
         alert('Přihlas se prosím školním účtem @' + CONFIG.ALLOWED_DOMAIN + '.');
       }
       role = null;
+      // Cizí data v zařízení pryč DŘÍV než syncWallet a emit — jinak by je sloučily s cloudem.
+      if (user && prevezmiZarizeni(user, cerstvePrihlaseni) && hraBezi()) { location.reload(); return true; }
       if (user) { await fetchRole(); syncWallet(); }
       client.auth.onAuthStateChange(async (_event, s) => {
         // INITIAL_SESSION už pokryl getSession()+emit() níže → přeskočit. Jinak by se
@@ -70,6 +137,8 @@ window.RPGCloud = (function () {
         const nu = s ? s.user : null;
         if (nu && !emailOK(nu)) { client.auth.signOut(); return; }
         const prevId = user ? user.id : null;
+        // jiný účet na tomtéž zařízení (přihlášení v jiné kartě) — data předchozího pryč dřív, než se cokoli pošle
+        if (nu && nu.id !== prevId && prevezmiZarizeni(nu, true) && hraBezi()) { location.reload(); return; }
         const wasOut = !user;
         user = nu;
         if (user) { await fetchRole(); if (wasOut) syncWallet(); } else role = null;
@@ -92,7 +161,23 @@ window.RPGCloud = (function () {
       }
     });
   }
-  async function logout() { if (client) { await client.auth.signOut(); user = null; emit(); } }
+  /* Odhlášení na sdíleném tabletu: nejdřív dopošli, co čeká v debounce, pak smaž
+     osobní data a načti stránku znovu (hra má postavu i v paměti). V náhledu se
+     nic nemaže — tam se do úložiště žáka vůbec nesahá. */
+  async function logout() {
+    if (!client) return;
+    const ulozeno = await doposli();
+    if (!ulozeno && !(typeof window.confirm === 'function' && window.confirm(
+      'Poslední změny se nepodařilo uložit do cloudu (není připojení?).\n\n' +
+      'Odhlásit se i tak? Neuložené změny na tomto zařízení se ztratí.'))) return;
+    await client.auth.signOut();
+    user = null; role = null;
+    if (previewActive) { emit(); return; }
+    smazOsobni();
+    try { localStorage.removeItem(VLASTNIK); } catch (e) {}
+    emit();
+    location.reload();
+  }
 
   async function pull(game) {
     if (!client || !user) return null;
@@ -117,20 +202,37 @@ window.RPGCloud = (function () {
 
   function push(game, obj) {
     if (!client || !user || previewActive) return;  // bez přihlášení / náhled = jen localStorage
+    pushCeka[game] = obj;
     clearTimeout(pushTimers[game]);
-    pushTimers[game] = setTimeout(async () => {
-      try {
-        await client.from('saves').upsert({
-          user_id: user.id, game,
-          data: obj,
-          name: (obj && obj.name) || '',
-          email: user.email || '',
-          full_name: (user.user_metadata && user.user_metadata.full_name) || '',
-          updated_at: new Date().toISOString()
-        }, { onConflict: 'user_id,game' });
-      } catch (e) { console.warn('[RPGCloud] push selhal:', e); }
-    }, 800);
+    if (synchronizuje[game]) return;   // po přihlášení se ještě rozhoduje, čí postup platí — odešle attachGame
+    pushTimers[game] = setTimeout(() => { posli(game); }, 800);
   }
+  async function posli(game) {
+    if (!(game in pushCeka) || !client || !user) return true;
+    const obj = pushCeka[game]; delete pushCeka[game];
+    try {
+      const { error } = await client.from('saves').upsert({
+        user_id: user.id, game,
+        data: obj,
+        name: (obj && obj.name) || '',
+        email: user.email || '',
+        full_name: (user.user_metadata && user.user_metadata.full_name) || '',
+        updated_at: new Date().toISOString()
+      }, { onConflict: 'user_id,game' });
+      if (error) throw error;
+      return true;
+    } catch (e) { console.warn('[RPGCloud] push selhal:', e); return false; }
+  }
+  // Dopošle všechno, co čeká (postavy, peněženka, přijímačky). true = vše došlo.
+  async function doposli() {
+    const hry = Object.keys(pushCeka);
+    hry.forEach(g => clearTimeout(pushTimers[g]));
+    const vysl = await Promise.all(hry.map(posli));
+    const dalsi = await Promise.all(predOdhlasenim.map(fn =>
+      Promise.resolve().then(fn).then(r => r !== false, () => false)));
+    return vysl.every(Boolean) && dalsi.every(Boolean);
+  }
+  function priOdhlaseni(fn) { if (typeof fn === 'function') predOdhlasenim.push(fn); }
 
   /* ════════ ROLE A UČITELSKÉ FUNKCE (Fáze 2) ════════ */
   async function fetchRole() {
@@ -860,7 +962,7 @@ window.RPGCloud = (function () {
     if (!configured()) { wrap.style.display = 'none'; return; }
     wrap.style.display = 'flex';
     if (user) {
-      status.textContent = '☁️ ' + (user.email || '') + ' — postava se ukládá do cloudu';
+      status.textContent = '☁️ ' + (user.email || '') + ' — postava se ukládá do cloudu. Odhlášení ji z tohoto zařízení smaže (v cloudu zůstane).';
       btn.textContent = 'Odhlásit';
       btn.onclick = logout;
     } else {
@@ -964,7 +1066,8 @@ window.RPGCloud = (function () {
     items = (items || []).filter(a => a.game === saveKey);
     let btn = document.getElementById('rpg-asg-btn');
     if (!items.length) { if (btn) btn.remove(); const p = document.getElementById('rpg-asg-panel'); if (p) p.remove(); return; }
-    const mname = mid => { try { const A = window.AREAS; if (Array.isArray(A)) for (const ar of A) for (const m of (ar.missions || [])) if (m.id === mid) return m.name; } catch (e) {} return 'Mise ' + mid; };
+    // AREAS je ve hrách `const` — na window není (dřív `window.AREAS` → panel ukazoval jen „Mise 3-2“)
+    const mname = mid => { try { const A = typeof AREAS !== 'undefined' ? AREAS : null; if (Array.isArray(A)) for (const ar of A) for (const m of (ar.missions || [])) if (m.id === mid) return m.name; } catch (e) {} return 'Mise ' + mid; };
     if (!btn) {
       btn = document.createElement('button');
       btn.id = 'rpg-asg-btn';
@@ -1006,6 +1109,68 @@ window.RPGCloud = (function () {
   function onDomReady(cb) {
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', cb);
     else cb();
+  }
+
+  /* Odhlášení z profilu hry. Doménového žáka přihlášení rovnou pustí na mapu, takže úvodní
+     obrazovku s lištou neuvidí — na sdíleném tabletu by se neměl kde odhlásit. Blok se vloží
+     do panelu NASTAVENÍ (kolem #pr-rm) a ukáže se jen přihlášenému mimo náhled. */
+  function profilOdhlaseni() {
+    const rm = document.getElementById('pr-rm');
+    const panel = rm && rm.closest('.panel');
+    if (!panel) return;
+    let box = document.getElementById('pr-cloud');
+    if (!user || previewActive || !configured()) { if (box) box.style.display = 'none'; return; }
+    if (!box) {
+      box = document.createElement('div');
+      box.id = 'pr-cloud';
+      box.style.cssText = 'margin-top:14px;padding-top:12px;border-top:1px solid var(--line,#2a3450);display:flex;' +
+        'align-items:center;gap:12px;flex-wrap:wrap;font-family:var(--read);font-size:14px;color:var(--text)';
+      const t = document.createElement('span');
+      t.id = 'pr-cloud-txt';
+      t.style.cssText = 'flex:1 1 220px;min-width:0;overflow-wrap:anywhere';
+      const b = document.createElement('button');
+      b.id = 'pr-logout'; b.type = 'button'; b.className = 'btn sm r';
+      b.style.minHeight = '44px';
+      b.textContent = 'Odhlásit';
+      b.onclick = () => logout();
+      box.appendChild(t); box.appendChild(b); panel.appendChild(box);
+    }
+    box.style.display = 'flex';
+    const t = document.getElementById('pr-cloud-txt');
+    const kdo = document.createElement('span'); kdo.textContent = '☁️ ' + (user.email || 'přihlášen');
+    const rada = document.createElement('span');
+    rada.style.cssText = 'font-size:12px;color:var(--muted)';
+    rada.textContent = 'Na sdíleném tabletu se po hraní odhlas — postava z tabletu zmizí, v cloudu zůstane.';
+    t.replaceChildren(kdo, document.createElement('br'), rada);
+  }
+
+  let hraKlic = null;          // klíč hry na této stránce (pro tep)
+  // Cloud platí, ale hra už jede se starým stavem v paměti → načíst ho i do hry (z boje na mapu).
+  function nactiDoHry() {
+    try { if (document.querySelector('#s-battle.active') && typeof exitBattle === 'function') exitBattle(); } catch (e) {}
+    if (typeof window.continueGame === 'function') { try { window.continueGame(); } catch (e) {} }
+  }
+  /* Tep hry (co 120 s): drží updated_at čerstvé (tečka „online“ v konzoli) a přenese do hry
+     nové odemčení od učitele. Nejdřív sloučit, pak odeslat — dřív se odesílalo PŘED
+     stažením, takže do cloudu šel stav bez odemčení a učitelův zásah zmizel. */
+  async function tep(saveKey) {
+    try {
+      if (!client || !currentUser() || synchronizuje[saveKey]) return;
+      let localNow = null;
+      try { localNow = JSON.parse(localStorage.getItem(saveKey)); } catch (e) {}
+      if (!localNow || typeof localNow !== 'object') return;
+      const cloud = await pull(saveKey);
+      const mam = Array.isArray(localNow.teacherUnlocked) ? localNow.teacherUnlocked : [];
+      const merged = [...new Set([...(cloud && Array.isArray(cloud.teacherUnlocked) ? cloud.teacherUnlocked : []), ...mam])];
+      if (merged.length !== mam.length) {
+        localNow.teacherUnlocked = merged;
+        localStorage.setItem(saveKey, JSON.stringify(localNow));
+        // Ve hrách je stav `let S` — na window není (dřív `window.S` → do hry se odemčení nedostalo nikdy)
+        if (hraBezi() && typeof S !== 'undefined' && S && typeof S === 'object') S.teacherUnlocked = merged.slice();
+        if (typeof window.renderMap === 'function') { try { window.renderMap(); } catch (e) {} }
+      }
+      push(saveKey, localNow);
+    } catch (e) {}
   }
 
   function attachGame(saveKey, onLoaded) {
@@ -1058,37 +1223,57 @@ window.RPGCloud = (function () {
       if (wrap) wrap.insertBefore(makeBar(), wrap.firstChild);
       onChange(async (u) => {
         paint();
+        profilOdhlaseni();
         if (u) {
           refreshNotesWidget();
           refreshAssignmentsWidget(saveKey);
           // žebříček na mapě (pokud hra má prvek #map-leaderboard a renderMap)
           if (typeof window.renderMap === 'function') { try { window.renderMap(); } catch (e) {} }
-          const cloud = await pull(saveKey);
-          let local = null;
-          try { local = JSON.parse(localStorage.getItem(saveKey)); } catch {}
-          const localDone = local && local.done ? Object.keys(local.done).length : 0;
-          const cloudDone = cloud && cloud.done ? Object.keys(cloud.done).length : 0;
+          // Dokud se nerozhodne, čí postup platí, hra do cloudu nic neposílá (push jen poznamená).
+          synchronizuje[saveKey] = true;
+          let cloud = null, local = null, cloudDone = 0, mergedTU = [], chosen = null;
+          try {
+            cloud = await pull(saveKey);
+            try { local = JSON.parse(localStorage.getItem(saveKey)); } catch {}
+            const localDone = local && local.done ? Object.keys(local.done).length : 0;
+            cloudDone = cloud && cloud.done ? Object.keys(cloud.done).length : 0;
 
-          // Vždy sluč teacherUnlocked z cloudu i lokálu — unlock nesmí být nikdy ztracen
-          const tuSet = new Set([
-            ...(Array.isArray(cloud && cloud.teacherUnlocked) ? cloud.teacherUnlocked : []),
-            ...(Array.isArray(local && local.teacherUnlocked) ? local.teacherUnlocked : [])
-          ]);
-          const mergedTU = [...tuSet];
+            // Vždy sluč teacherUnlocked z cloudu i lokálu — unlock nesmí být nikdy ztracen
+            mergedTU = [...new Set([
+              ...(Array.isArray(cloud && cloud.teacherUnlocked) ? cloud.teacherUnlocked : []),
+              ...(Array.isArray(local && local.teacherUnlocked) ? local.teacherUnlocked : [])
+            ])];
 
-          let chosen = null;
-          if (cloud && cloudDone >= localDone) {
-            // cloud je stejně pokročilý nebo lepší → přepiš lokál
-            if (mergedTU.length) cloud.teacherUnlocked = mergedTU;
-            localStorage.setItem(saveKey, JSON.stringify(cloud));
-            chosen = cloud;
-            if (typeof onLoaded === 'function') onLoaded(cloud);
-          } else if (local && localDone > 0) {
-            // lokál je pokročilejší → nahraj ho do cloudu (s mergnutými unlocks)
-            if (mergedTU.length) local.teacherUnlocked = mergedTU;
-            localStorage.setItem(saveKey, JSON.stringify(local));
-            push(saveKey, local);
-            chosen = local;
+            if (cloud && cloudDone >= localDone) {
+              // cloud je stejně pokročilý nebo lepší → přepiš lokál
+              if (mergedTU.length) cloud.teacherUnlocked = mergedTU;
+              localStorage.setItem(saveKey, JSON.stringify(cloud));
+              chosen = cloud;
+              if (typeof onLoaded === 'function') onLoaded(cloud);
+            } else if (local && localDone > 0) {
+              // lokál je pokročilejší (a patří tomuto účtu — cizí zahodilo prevezmiZarizeni) → do cloudu
+              if (mergedTU.length) local.teacherUnlocked = mergedTU;
+              localStorage.setItem(saveKey, JSON.stringify(local));
+              chosen = local;
+            }
+          } finally { synchronizuje[saveKey] = false; }
+
+          const introVisible = (()=>{ const s=document.getElementById('s-intro'); return s&&s.classList.contains('active'); })();
+          // Ve hrách je stav `let S` — na window není, proto přímo (dřív `window.S` → sem se nedošlo nikdy)
+          const vPameti = (!introVisible && typeof S !== 'undefined' && S && typeof S === 'object') ? S : null;
+          if (chosen === cloud && cloud) {
+            // Co hra uložila během rozhodování, je starý stav — do cloudu nesmí.
+            delete pushCeka[saveKey];
+            // Žák klikl „Pokračovat“ dřív, než dorazil cloud: hra jede se starým stavem v paměti
+            // a první uložení by cloud přepsalo („zůstává na začátku“). Načíst cloud i do hry.
+            if (vPameti && (Object.keys(vPameti.done || {}).length !== cloudDone ||
+                (vPameti.xp | 0) !== (cloud.xp | 0) || vPameti.name !== cloud.name)) nactiDoHry();
+            else if (vPameti && mergedTU.length) vPameti.teacherUnlocked = mergedTU.slice();
+          } else if (chosen === local && local) {
+            if (vPameti && mergedTU.length) vPameti.teacherUnlocked = mergedTU.slice();
+            push(saveKey, vPameti && (saveKey in pushCeka) ? pushCeka[saveKey] : local);
+          } else if (saveKey in pushCeka) {
+            push(saveKey, pushCeka[saveKey]);   // nová postava založená během rozhodování
           }
 
           // Předvyplnit #ni jménem z libovolného existujícího save (cross-game)
@@ -1103,8 +1288,6 @@ window.RPGCloud = (function () {
 
           // Doménový žák (@husovaliberec.cz): přeskočit intro obrazovku → rovnou do hry
           const isDomain = (u.email || '').toLowerCase().endsWith('@husovaliberec.cz');
-          // Zjistit, zda hráč už hraje (není na intro obrazovce) — pokud ano, nepřerušovat
-          const introVisible = (()=>{ const s=document.getElementById('s-intro'); return s&&s.classList.contains('active'); })();
           if (isDomain) {
             // Předvyplnit z Google jména, pokud ještě nic není
             if (ni && !ni.value) {
@@ -1112,12 +1295,8 @@ window.RPGCloud = (function () {
               if (gFirst) ni.value = gFirst.toUpperCase().slice(0, 14);
             }
             if (!introVisible) {
-              // Hráč je ve hře — pouze slouč teacherUnlocked, nerušit in-memory stav
-              if (chosen && mergedTU.length && typeof window.S !== 'undefined') {
-                window.S.teacherUnlocked = mergedTU;
-                if (typeof window.saveS === 'function') window.saveS();
-                if (typeof window.renderMap === 'function') { try { window.renderMap(); } catch (e) {} }
-              }
+              // Hráč je ve hře — stav v paměti srovnalo rozhodování výše; jen překreslit mapu
+              if (typeof window.renderMap === 'function') { try { window.renderMap(); } catch (e) {} }
             } else if (chosen && typeof window.continueGame === 'function') {
               window.continueGame();
             } else if (!chosen && typeof window.startGame === 'function') {
@@ -1138,36 +1317,8 @@ window.RPGCloud = (function () {
           }
         }
       });
-      // Heartbeat: udržuje updated_at čerstvé + kontroluje teacherUnlocked ze serveru
-      setInterval(async () => {
-        try {
-          if (!client || !currentUser()) return;
-          const s = JSON.parse(localStorage.getItem(saveKey));
-          if (!s) return;
-          push(saveKey, s);
-          // Stáhni aktuální save ze serveru a sluč teacherUnlocked
-          const cloud = await pull(saveKey);
-          if (!cloud) return;
-          const localNow = (() => { try { return JSON.parse(localStorage.getItem(saveKey)); } catch { return null; } })();
-          const tuSet = new Set([
-            ...(Array.isArray(cloud.teacherUnlocked) ? cloud.teacherUnlocked : []),
-            ...(Array.isArray(localNow && localNow.teacherUnlocked) ? localNow.teacherUnlocked : [])
-          ]);
-          if (tuSet.size === (Array.isArray(localNow && localNow.teacherUnlocked) ? localNow.teacherUnlocked.length : 0)) return;
-          // Nové učitelské odemčení → aktualizuj in-memory stav + localStorage + překresli mapu
-          const merged = [...tuSet];
-          if (localNow) {
-            localNow.teacherUnlocked = merged;
-            localStorage.setItem(saveKey, JSON.stringify(localNow));
-            // Aktualizuj i globální S (in-memory) aby mapa ihned reagovala
-            if (typeof window.S !== 'undefined' && window.S) {
-              window.S.teacherUnlocked = merged;
-              if (typeof window.saveS === 'function') window.saveS();
-            }
-            if (typeof window.renderMap === 'function') { try { window.renderMap(); } catch (e) {} }
-          }
-        } catch {}
-      }, 120000);
+      hraKlic = saveKey;
+      setInterval(() => { tep(saveKey); }, 120000);
       init().then(paint);
     });
   }
@@ -1273,6 +1424,8 @@ window.RPGCloud = (function () {
 
   return { CONFIG, configured, hasKeys, libLoaded, init, login, logout, currentUser, getError,
            pull, push, syncWallet, onChange, attachGame, attachHub,
+           // sdílené zařízení: dopsání před odhlášením (přijímačky); _tep = jeden tep hry (testy)
+           priOdhlaseni, _tep: () => (hraKlic ? tep(hraKlic) : Promise.resolve()),
            // Fáze 2 — role a učitelská konzole
            getRole, isStaff, isAdmin, fetchRole, requireStaff,
            listAllSaves, pullSaveFor, updateSaveFor, deleteSaveFor,

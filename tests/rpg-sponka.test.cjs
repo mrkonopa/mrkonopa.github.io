@@ -25,10 +25,10 @@ const ok = (c, m) => { if (c) { pass++; } else { fail++; console.log('  ❌ ' + 
   const errs = [];
   page.on('pageerror', e => errs.push(e.message));
   await page.goto(`http://127.0.0.1:${PORT}/projects/rpg-mat-${GRADE}.html`, { waitUntil: 'domcontentloaded' });
-  await page.waitForFunction(() => typeof RPGWallet !== 'undefined' && typeof go === 'function', { timeout: 8000 });
+  await page.waitForFunction(() => typeof RPGWallet !== 'undefined' && typeof go === 'function', null, { timeout: 8000 });
 
   await page.evaluate(() => { localStorage.clear(); const inp = document.getElementById('ni'); if (inp) inp.value = 'TEST'; startGame(); });
-  await page.waitForFunction(() => document.querySelector('#s-map')?.classList.contains('active'), { timeout: 5000 });
+  await page.waitForFunction(() => document.querySelector('#s-map')?.classList.contains('active'), null, { timeout: 5000 });
 
   ok(await page.evaluate(() => !document.getElementById('rw-sponka')), 'bez mazlíčka se sponka nezobrazí');
 
@@ -67,7 +67,7 @@ const ok = (c, m) => { if (c) { pass++; } else { fail++; console.log('  ❌ ' + 
   // trénink: streak>=5 → nálada 'good'
   await page.evaluate(() => go('train'));
   await page.evaluate(() => startTrain('1-1'));
-  await page.waitForFunction(() => TR.task != null, { timeout: 5000 });
+  await page.waitForFunction(() => TR.task != null, null, { timeout: 5000 });
   await page.evaluate(() => { TR.streak = 5; TR.total = 5; TR.correct = 5; });
   await page.waitForTimeout(4300);
   const bubbleGoodVisible = await page.evaluate(() => document.getElementById('rw-sponka-bubble').style.display === 'block');
@@ -86,7 +86,7 @@ const ok = (c, m) => { if (c) { pass++; } else { fail++; console.log('  ❌ ' + 
     const ar = AREAS[0], m = ar.missions[0];
     launchBattle(ar.id, m.id);
   });
-  await page.waitForFunction(() => typeof BT !== 'undefined' && BT.curTask, { timeout: 5000 });
+  await page.waitForFunction(() => typeof BT !== 'undefined' && BT.curTask, null, { timeout: 5000 });
   await page.evaluate(() => { BT.hp = 1; BT.hl = 0; BT.missionHinted = false; });
   await page.waitForTimeout(4300);
   // sponka pošeptá nápovědu ve SVÉ bublině — nesahá na herní stav (BT.hl/missionHinted zůstávají)

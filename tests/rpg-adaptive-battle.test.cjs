@@ -24,13 +24,13 @@ const ok = (c, m) => { if (c) { pass++; } else { fail++; console.log('  ❌ ' + 
   const errs = [];
   page.on('pageerror', e => errs.push(e.message));
   await page.goto(`http://127.0.0.1:${PORT}/projects/rpg-mat-${GRADE}.html`, { waitUntil: 'domcontentloaded' });
-  await page.waitForFunction(() => typeof adaptMaybeSwap === 'function' && typeof startGame === 'function', { timeout: 8000 });
+  await page.waitForFunction(() => typeof adaptMaybeSwap === 'function' && typeof startGame === 'function', null, { timeout: 8000 });
   await page.evaluate(() => { localStorage.clear(); const i = document.getElementById('ni'); if (i) i.value = 'TEST'; startGame(); });
-  await page.waitForFunction(() => document.querySelector('#s-map')?.classList.contains('active'), { timeout: 5000 });
+  await page.waitForFunction(() => document.querySelector('#s-map')?.classList.contains('active'), null, { timeout: 5000 });
 
   // použij NE-MC misi (1-2), ať jde o textové odpovědi
   await page.evaluate(() => { const ar = AREAS[0]; launchBattle(ar.id, ar.missions[1].id); });
-  await page.waitForFunction(() => typeof BT !== 'undefined' && BT.curTask, { timeout: 5000 });
+  await page.waitForFunction(() => typeof BT !== 'undefined' && BT.curTask, null, { timeout: 5000 });
 
   // ── 1) invarianty poolu ──
   const inv = await page.evaluate(() => ({

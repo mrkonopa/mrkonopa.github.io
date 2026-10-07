@@ -25,9 +25,9 @@ const dAgo = n => new Date(Date.now() - n * 864e5).toISOString().slice(0, 10);
   const errs = [];
   page.on('pageerror', e => errs.push(e.message));
   await page.goto(`http://127.0.0.1:${PORT}/projects/rpg-mat-${GRADE}.html`, { waitUntil: 'domcontentloaded' });
-  await page.waitForFunction(() => typeof reviveState === 'function' && typeof startGame === 'function', { timeout: 8000 });
+  await page.waitForFunction(() => typeof reviveState === 'function' && typeof startGame === 'function', null, { timeout: 8000 });
   await page.evaluate(() => { localStorage.clear(); const i = document.getElementById('ni'); if (i) i.value = 'TEST'; startGame(); });
-  await page.waitForFunction(() => document.querySelector('#s-map')?.classList.contains('active'), { timeout: 5000 });
+  await page.waitForFunction(() => document.querySelector('#s-map')?.classList.contains('active'), null, { timeout: 5000 });
 
   // ── 1) due detekce a panel ──
   await page.evaluate((d) => { S.mastery['1-1'] = { score: 15, mastered: true, stars: 0, lastOk: d, starHist: [] }; saveS(); renderMap(); }, dAgo(4));
@@ -40,7 +40,7 @@ const dAgo = n => new Date(Date.now() - n * 864e5).toISOString().slice(0, 10);
   // ── 2) klik Oživit → trénink s revive sezením ──
   await page.evaluate((d) => { S.mastery['1-1'].lastOk = d; saveS(); renderMap(); }, dAgo(4));
   await page.evaluate(() => document.querySelector('#map-revive button').click());
-  await page.waitForFunction(() => document.querySelector('#s-train')?.classList.contains('active') && TR.task != null, { timeout: 5000 });
+  await page.waitForFunction(() => document.querySelector('#s-train')?.classList.contains('active') && TR.task != null, null, { timeout: 5000 });
   ok(await page.evaluate(() => TR.revive && TR.revive.count === 0 && !TR.revive.earned), 'trénink startuje s revive sezením');
   ok(await page.evaluate(() => document.getElementById('tr-revive-chip').style.display !== 'none'), 'chip „Oživení: 0/5" viditelný');
 
@@ -55,7 +55,7 @@ const dAgo = n => new Date(Date.now() - n * 864e5).toISOString().slice(0, 10);
 
   // ── 4) anti-farming: týž den znovu → žádné revive sezení, hvězda drží ──
   await page.evaluate(() => { go('map'); goPractice('1-1'); });
-  await page.waitForFunction(() => TR.task != null, { timeout: 5000 });
+  await page.waitForFunction(() => TR.task != null, null, { timeout: 5000 });
   ok(await page.evaluate(() => TR.revive === null), 'nový trénink týž den → revive sezení neběží');
   await page.evaluate(() => { for (let i = 0; i < 5; i++) { TR.task = { ans: '1', skill: null, hints: [] }; TR.curIdx = 0; trCorrect(); } });
   ok(await page.evaluate(() => S.mastery['1-1'].stars === 1), 'hvězdy zůstávají 1 (nelze farmit)');

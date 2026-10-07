@@ -40,7 +40,7 @@ async function run(){
 
   try{
     await pg.goto(`${BASE}/projects/rpg-mat-8.html`,{waitUntil:'domcontentloaded'});
-    await pg.waitForFunction(()=>typeof AREAS!=='undefined' && typeof launchBattle==='function',{timeout:8000});
+    await pg.waitForFunction(()=>typeof AREAS!=='undefined' && typeof launchBattle==='function',null,{timeout:8000});
 
     // 1) banka načtená
     const bank=await pg.evaluate(()=>!!window.RPG_TASK_EXTRA_8 && Object.keys(window.RPG_TASK_EXTRA_8).length);

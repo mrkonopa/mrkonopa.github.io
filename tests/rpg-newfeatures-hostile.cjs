@@ -23,9 +23,9 @@ const ok = (c, m) => { if (c) { pass++; } else { fail++; console.log('  ❌ ' + 
   const errs = [];
   page.on('pageerror', e => errs.push(e.message));
   await page.goto(`http://127.0.0.1:${PORT}/projects/rpg-mat-${GRADE}.html`, { waitUntil: 'domcontentloaded' });
-  await page.waitForFunction(() => typeof startGame === 'function' && typeof RPGFindError !== 'undefined' && typeof RPGTutorial !== 'undefined', { timeout: 8000 });
+  await page.waitForFunction(() => typeof startGame === 'function' && typeof RPGFindError !== 'undefined' && typeof RPGTutorial !== 'undefined', null, { timeout: 8000 });
   await page.evaluate(() => { localStorage.clear(); const i = document.getElementById('ni'); if (i) i.value = 'TEST'; startGame(); });
-  await page.waitForFunction(() => document.querySelector('#s-map')?.classList.contains('active'), { timeout: 5000 });
+  await page.waitForFunction(() => document.querySelector('#s-map')?.classList.contains('active'), null, { timeout: 5000 });
 
   // ══ ŽÁK: farm kreditů přes „Najdi chybu" (cap musí přežít reopen) ══
   const farm = await page.evaluate(g => {
@@ -57,7 +57,7 @@ const ok = (c, m) => { if (c) { pass++; } else { fail++; console.log('  ❌ ' + 
 
   // ══ ŽÁK: spam kláves v boji nezpůsobí dvojí odeslání / crash ══
   await page.evaluate(() => { document.getElementById('find-error-overlay').querySelector('#fe-close').click(); const ar = AREAS[0]; const mc = ar.missions.find(m => m.mc); launchBattle(ar.id, (mc || ar.missions[0]).id); });
-  await page.waitForFunction(() => typeof BT !== 'undefined' && BT.curTask, { timeout: 5000 });
+  await page.waitForFunction(() => typeof BT !== 'undefined' && BT.curTask, null, { timeout: 5000 });
   const spam = await page.evaluate(() => {
     // zavři případný tutoriál
     const to = document.getElementById('tutorial-overlay'); if (to && to.style.display === 'flex') { S.tutorialDone = true; to.style.display = 'none'; }

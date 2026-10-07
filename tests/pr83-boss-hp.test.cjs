@@ -47,12 +47,16 @@ const ok=(c,m)=>{if(c){pass++;console.log('  ✓ '+m);}else{fail++;console.log('
   // zodpověz správně 3 úkoly (MC) — bar má klesat o 1/tc
   const tc=await page.evaluate(()=>BT.tasks.length);
   for(let i=0;i<3;i++){
-    await page.evaluate(()=>{
-      const ans=String(BT.curTask.ans);
+    const chybi=await page.evaluate(()=>{
+      // tlačítko nese ZOBRAZENÝ tvar (czMC: „−8“), BT.curTask.ans „-8“ — bez převodu se klikalo na první
+      const ans=czMC(BT.curTask.ans);
+      const val=b=>{const k=b.querySelector('.mc-key');return b.textContent.slice(k?k.textContent.length:0).trim();};
       const btns=[...document.querySelectorAll('#mc-grid .mc-btn')];
-      const btn=btns.find(b=>b.textContent.trim().replace(/^[A-D]/,'')===ans)||btns[0];
-      btn.click();
+      const btn=btns.find(b=>val(b)===ans);
+      if(btn){btn.click();return '';}
+      return ans+' mezi '+btns.map(val).join(' | ');
     });
+    if(chybi)throw new Error('MC volba nenalezena: '+chybi);
     await page.waitForFunction(()=>document.getElementById('next-btn').style.display!=='none');
     const expected=Math.round((1-(i+1)/tc)*1000)/10;
     const got=parseFloat(await page.evaluate(()=>document.getElementById('bt-hpbar').style.width));
@@ -73,7 +77,7 @@ const ok=(c,m)=>{if(c){pass++;console.log('  ✓ '+m);}else{fail++;console.log('
     BT.idx=idx;renderTask();
   });
   // launchBattle zamkne ÚTOK na ~700 ms (boss-entry animace) → počkej na odemčení
-  await page.waitForFunction(()=>!document.getElementById('attack-btn').disabled,{timeout:2500}).catch(()=>{});
+  await page.waitForFunction(()=>!document.getElementById('attack-btn').disabled,null,{timeout:2500}).catch(()=>{});
   ok(await page.evaluate(()=>!document.getElementById('attack-btn').disabled),'ÚTOK je na startu enabled');
   await page.evaluate(()=>{document.getElementById('bt-ans').value=BT.curTask.ans;submitAnswer();});
   await page.waitForFunction(()=>document.getElementById('next-btn').style.display!=='none');
@@ -91,7 +95,7 @@ const ok=(c,m)=>{if(c){pass++;console.log('  ✓ '+m);}else{fail++;console.log('
   await page.waitForTimeout(150);
   const ynNow=await page.evaluate(()=>document.getElementById('yn-row').style.display!=='none');
   if(!ynNow){
-    await page.waitForFunction(()=>!document.getElementById('attack-btn').disabled,{timeout:4000}).catch(()=>{});
+    await page.waitForFunction(()=>!document.getElementById('attack-btn').disabled,null,{timeout:4000}).catch(()=>{});
     ok(await page.evaluate(()=>!document.getElementById('attack-btn').disabled),'ÚTOK je po DÁLE zase enabled');
   }
   else console.log('  (další úkol je ANO/NE — zámek tlačítka se netýká)');

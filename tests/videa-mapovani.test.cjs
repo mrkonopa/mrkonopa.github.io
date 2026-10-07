@@ -120,10 +120,10 @@ async function run() {
 
     /* únikové zaškrtávátko musí vrátit všech patnáct */
     await page.click('#d-vse');
-    await page.waitForFunction(() => document.getElementById('d-dil').options.length - 1 === 15, { timeout: 4000 });
+    await page.waitForFunction(() => document.getElementById('d-dil').options.length - 1 === 15, null, { timeout: 4000 });
     ok('zaškrtnutím se ukáže všech 15 dílů', true);
     await page.click('#d-vse');
-    await page.waitForFunction(() => document.getElementById('d-dil').options.length - 1 === 3, { timeout: 4000 });
+    await page.waitForFunction(() => document.getElementById('d-dil').options.length - 1 === 3, null, { timeout: 4000 });
 
     /* NÁVRHY podle tématu strany */
     const navrhu = await page.evaluate(() => document.querySelectorAll('.navrh').length);
@@ -208,7 +208,7 @@ async function run() {
     ok('návod uvádí NAMĚŘENÝ počet misí bez návrhu',
       !!mBez && +mBez[2] === 63 && +mBez[1] >= 0 && +mBez[1] < 20, JSON.stringify(bez));
     await page.click('#b-navod');
-    await page.waitForFunction(() => document.getElementById('navod').classList.contains('skryty'), { timeout: 4000 });
+    await page.waitForFunction(() => document.getElementById('navod').classList.contains('skryty'), null, { timeout: 4000 });
     ok('návod jde schovat', true);
     /* schování se musí pamatovat — kdo si ho schová, nechce ho vidět zas */
     await page.reload({ waitUntil: 'domcontentloaded' });
@@ -243,7 +243,7 @@ async function run() {
     ok('strana nabídne konkrétní cvičení', vidu >= 1, 'videí=' + vidu);
 
     await page.click('.vid');
-    await page.waitForFunction(() => /^1 z 63/.test(document.getElementById('stav').textContent), { timeout: 4000 });
+    await page.waitForFunction(() => /^1 z 63/.test(document.getElementById('stav').textContent), null, { timeout: 4000 });
     ok('výběr cvičení se započítá do postupu', true);
 
     const oznaceno = await page.evaluate(() => document.querySelectorAll('#seznam .m.hot').length);

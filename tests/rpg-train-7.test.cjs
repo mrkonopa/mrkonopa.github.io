@@ -33,7 +33,7 @@ async function run(){
   const perr=[];pg.on('pageerror',e=>perr.push(e.message));
   try{
     await pg.goto(`${BASE}/projects/rpg-mat-7.html`,{waitUntil:'domcontentloaded'});
-    await pg.waitForFunction(()=>typeof startTrain==='function'&&typeof AREAS!=='undefined',{timeout:8000});
+    await pg.waitForFunction(()=>typeof startTrain==='function'&&typeof AREAS!=='undefined',null,{timeout:8000});
 
     // start game + otevři trénink
     await pg.evaluate(()=>{document.getElementById('ni').value='TRENER';startGame();});
@@ -78,7 +78,7 @@ async function run(){
 
     // mastery se ukládá do localStorage (přežije reload)
     await pg.reload({waitUntil:'domcontentloaded'});
-    await pg.waitForFunction(()=>typeof loadS==='function',{timeout:8000});
+    await pg.waitForFunction(()=>typeof loadS==='function',null,{timeout:8000});
     const persisted=await pg.evaluate(()=>{loadS();return S.mastery&&S.mastery['1-2']&&S.mastery['1-2'].mastered;});
     ok('Mastery přežije reload (uloženo v save)', persisted===true);
 

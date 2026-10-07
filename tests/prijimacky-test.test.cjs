@@ -42,7 +42,7 @@ async function fillAndSubmit(page, sabotage, tfSpatne, kn){
     });
   }, [!!sabotage, tfSpatne||0, kn||'presne']);
   await page.click('button.pz-btn.primary:has-text("Odevzdat")');
-  await page.waitForFunction(()=>document.getElementById('cm-end').style.display!=='none',{timeout:5000});
+  await page.waitForFunction(()=>document.getElementById('cm-end').style.display!=='none',null,{timeout:5000});
 }
 
 (async()=>{
@@ -56,7 +56,7 @@ async function fillAndSubmit(page, sabotage, tfSpatne, kn){
   page.on('console',m=>{ if(m.type()==='error'&&!/Failed to load resource|net::ERR/i.test(m.text()))errs.push(m.text()); });
 
   await page.goto(base+'/projects/prijimacky-matematika/test.html',{waitUntil:'domcontentloaded'});
-  await page.waitForFunction(()=>window.RPG_CERMAT_9&&window.PZ&&typeof window.checkAns==='function',{timeout:8000});
+  await page.waitForFunction(()=>window.RPG_CERMAT_9&&window.PZ&&typeof window.checkAns==='function',null,{timeout:8000});
   console.log('── Přijímačky: test nanečisto ──');
 
   ok(await page.evaluate(()=>RPG_CERMAT_9.maxScore===50&&RPG_CERMAT_9.timeLimitSec===70*60),'generátor: 50 bodů / 70 min');
@@ -69,7 +69,7 @@ async function fillAndSubmit(page, sabotage, tfSpatne, kn){
 
   // spusť test
   await page.click('button.pz-btn.primary:has-text("Začít")');
-  await page.waitForFunction(()=>document.getElementById('cm-play').style.display!=='none',{timeout:5000});
+  await page.waitForFunction(()=>document.getElementById('cm-play').style.display!=='none',null,{timeout:5000});
   const nTasks=await page.evaluate(()=>CM.tasks.length);
   ok(nTasks===16,'vygenerováno 16 úloh ('+nTasks+')');
 
@@ -116,7 +116,7 @@ async function fillAndSubmit(page, sabotage, tfSpatne, kn){
 
   // ── jedna chyba → méně než 50 + review ukáže správně/tvoje ──
   await page.click('button.pz-btn.primary:has-text("Zkusit znovu")');
-  await page.waitForFunction(()=>document.getElementById('cm-play').style.display!=='none',{timeout:5000});
+  await page.waitForFunction(()=>document.getElementById('cm-play').style.display!=='none',null,{timeout:5000});
   await fillAndSubmit(page, true);
   const sc2=await page.evaluate(()=>parseInt(document.getElementById('cm-end-score').textContent));
   ok(sc2<50 && sc2>0,'jedna chyba → částečné skóre ('+sc2+')');
@@ -151,7 +151,7 @@ async function fillAndSubmit(page, sabotage, tfSpatne, kn){
   // 1 tvrzení špatně → 2 správně → 2 body ze 4; 2 špatně → 1 správně → 0 bodů.
   for (const [spatne, cekam] of [[1, 48], [2, 46], [3, 46]]) {
     await page.click('button.pz-btn.primary:has-text("Zkusit znovu")');
-    await page.waitForFunction(()=>document.getElementById('cm-play').style.display!=='none',{timeout:5000});
+    await page.waitForFunction(()=>document.getElementById('cm-play').style.display!=='none',null,{timeout:5000});
     await fillAndSubmit(page, false, spatne);
     const sc=await page.evaluate(()=>parseInt(document.getElementById('cm-end-score').textContent));
     ok(sc===cekam,'úloha 11: '+spatne+' tvrzení špatně → '+cekam+' / 50 ('+sc+')');
@@ -164,7 +164,7 @@ async function fillAndSubmit(page, sabotage, tfSpatne, kn){
   // ── konstrukce se bodují podle klíče CERMAT a mají svůj rozbor ──
   for (const [jak, cekam, u9, u10] of [['mirne', 48, 2, 1], ['nic', 45, 0, 0]]) {
     await page.click('button.pz-btn.primary:has-text("Zkusit znovu")');
-    await page.waitForFunction(()=>document.getElementById('cm-play').style.display!=='none',{timeout:5000});
+    await page.waitForFunction(()=>document.getElementById('cm-play').style.display!=='none',null,{timeout:5000});
     await fillAndSubmit(page, false, 0, jak);
     const sc=await page.evaluate(()=>parseInt(document.getElementById('cm-end-score').textContent));
     const u=await page.evaluate(()=>{ const a=JSON.parse(localStorage.getItem('PZ_CERMAT_ATTEMPTS')); return a[a.length-1].ulohy; });
@@ -190,11 +190,11 @@ async function fillAndSubmit(page, sabotage, tfSpatne, kn){
   await tctx.route('**/*', r=> r.request().url().startsWith('http://127.0.0.1') ? r.continue() : r.abort());
   const tp=await tctx.newPage(); tp.on('pageerror',e=>errs.push('tablet: '+e.message));
   await tp.goto(base+'/projects/prijimacky-matematika/test.html',{waitUntil:'domcontentloaded'});
-  await tp.waitForFunction(()=>window.RPG_CERMAT_9&&window.PZ_OKNO,{timeout:8000});
+  await tp.waitForFunction(()=>window.RPG_CERMAT_9&&window.PZ_OKNO,null,{timeout:8000});
   await tp.evaluate(()=>cmStart());
   await tp.evaluate(()=>document.getElementById('cm-kn9-svg').scrollIntoView({block:'center'}));
   await tp.tap('#cm-kn9-svg');
-  await tp.waitForFunction(()=>CM.okna[9].jePlna(),{timeout:3000}).catch(()=>{});
+  await tp.waitForFunction(()=>CM.okna[9].jePlna(),null,{timeout:3000}).catch(()=>{});
   const f=await tp.evaluate(()=>({ plna:CM.okna[9].jePlna(), tlacitka:[...document.querySelectorAll('#kn-full-akce button')].map(b=>b.textContent),
     cas:document.getElementById('kn-full-cas').textContent, text:document.getElementById('kn-full-text').textContent===CM.tasks[8].u.text }));
   ok(f.plna && f.tlacitka.join()==='✓ Hotovo' && f.text,'tablet: celá obrazovka se zadáním a jen tlačítkem Hotovo — v testu se průběžně nevyhodnocuje ('+f.tlacitka.join()+')');

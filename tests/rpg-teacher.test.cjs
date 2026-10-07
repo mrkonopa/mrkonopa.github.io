@@ -120,12 +120,12 @@ async function run(){
       const {ctx,pg}=await page({ session: sess('ucitel@husovaliberec.cz'),
         roles:[{email:'ucitel@husovaliberec.cz',role:'teacher'}], saves:SAVES });
       await pg.goto(`${BASE}/projects/rpg-ucitel.html`,{waitUntil:'domcontentloaded'});
-      await pg.waitForFunction(()=>!document.getElementById('console').classList.contains('hidden'),{timeout:6000}).catch(()=>{});
+      await pg.waitForFunction(()=>!document.getElementById('console').classList.contains('hidden'),null,{timeout:6000}).catch(()=>{});
       const conShown=await pg.evaluate(()=>!document.getElementById('console').classList.contains('hidden'));
       ok('Konzole zobrazena učiteli', conShown);
       const teachersTabHidden=await pg.evaluate(()=>document.getElementById('tab-teachers').classList.contains('hidden'));
       ok('Záložka "Správa učitelů" skrytá (jen teacher)', teachersTabHidden);
-      await pg.waitForFunction(()=>document.querySelectorAll('.tbl tbody tr').length>0,{timeout:6000}).catch(()=>{});
+      await pg.waitForFunction(()=>document.querySelectorAll('.tbl tbody tr').length>0,null,{timeout:6000}).catch(()=>{});
       const rowCount=await pg.evaluate(()=>document.querySelectorAll('.tbl tbody tr').length);
       ok('Tabulka má 2 řádky (2 postavy)', rowCount===2, `řádků: ${rowCount}`);
       const students=await pg.evaluate(()=>document.getElementById('st-students').textContent);
@@ -148,10 +148,10 @@ async function run(){
         roles:[{email:'vojta@husovaliberec.cz',role:'superadmin'},{email:'kolega@husovaliberec.cz',role:'teacher'}],
         saves:SAVES });
       await pg.goto(`${BASE}/projects/rpg-ucitel.html`,{waitUntil:'domcontentloaded'});
-      await pg.waitForFunction(()=>!document.getElementById('console').classList.contains('hidden'),{timeout:6000}).catch(()=>{});
+      await pg.waitForFunction(()=>!document.getElementById('console').classList.contains('hidden'),null,{timeout:6000}).catch(()=>{});
       const teachersTabShown=await pg.evaluate(()=>!document.getElementById('tab-teachers').classList.contains('hidden'));
       ok('Záložka "Správa učitelů" viditelná superadminovi', teachersTabShown);
-      await pg.waitForFunction(()=>document.querySelectorAll('.tbl tbody tr').length>0,{timeout:6000}).catch(()=>{});
+      await pg.waitForFunction(()=>document.querySelectorAll('.tbl tbody tr').length>0,null,{timeout:6000}).catch(()=>{});
       // mazací tlačítka jsou v rozbalených řádcích postav → rozbal prvního žáka
       const hasDelete=await pg.evaluate(()=>{toggleUserRow(0);return !!document.querySelector('.tbl .mini.red');});
       ok('Superadmin vidí mazací tlačítka (v rozbaleném řádku)', hasDelete);
@@ -216,7 +216,7 @@ async function run(){
       const {ctx,pg}=await page({ session: sess('ucitel@husovaliberec.cz'),
         roles:[{email:'ucitel@husovaliberec.cz',role:'teacher'}], saves:[] });
       await pg.goto(`${BASE}/projects/rpg-matematika.html`,{waitUntil:'domcontentloaded'});
-      await pg.waitForFunction(()=>{const l=document.getElementById('teacher-link');return l&&l.style.display!=='none';},{timeout:6000}).catch(()=>{});
+      await pg.waitForFunction(()=>{const l=document.getElementById('teacher-link');return l&&l.style.display!=='none';},null,{timeout:6000}).catch(()=>{});
       const linkShown=await pg.evaluate(()=>{const l=document.getElementById('teacher-link');return l&&l.style.display!=='none';});
       ok('Učitel vidí odkaz na konzoli na hubu', linkShown);
       await ctx.close();
@@ -253,7 +253,7 @@ async function run(){
       const {ctx,pg}=await page({ session: sess('vojta@husovaliberec.cz'),
         roles:[{email:'vojta@husovaliberec.cz',role:'superadmin'}], saves:masterySaves });
       await pg.goto(`${BASE}/projects/rpg-ucitel.html`,{waitUntil:'domcontentloaded'});
-      await pg.waitForFunction(()=>document.querySelectorAll('.tbl tbody tr').length>0,{timeout:6000}).catch(()=>{});
+      await pg.waitForFunction(()=>document.querySelectorAll('.tbl tbody tr').length>0,null,{timeout:6000}).catch(()=>{});
 
       // stat počítá mistrovství napříč všemi ročníky (1+2+3+1 = 7)
       const stMastery=await pg.evaluate(()=>document.getElementById('st-mastery').textContent);
@@ -306,7 +306,7 @@ async function run(){
       const {ctx,pg}=await page({ session: sess('admin@husovaliberec.cz'),
         roles:[{email:'admin@husovaliberec.cz',role:'superadmin'}], saves:unlockSaves });
       await pg.goto(`${BASE}/projects/rpg-ucitel.html`,{waitUntil:'domcontentloaded'});
-      await pg.waitForFunction(()=>document.querySelectorAll('.tbl tbody tr').length>0,{timeout:6000}).catch(()=>{});
+      await pg.waitForFunction(()=>document.querySelectorAll('.tbl tbody tr').length>0,null,{timeout:6000}).catch(()=>{});
 
       // buildUnlockHtml vrací HTML pro všechny ročníky (ne prázdné)
       const unlockHtmls=await pg.evaluate(()=>{
@@ -348,7 +348,7 @@ async function run(){
       const {ctx,pg}=await page({ session: sess('admin@husovaliberec.cz'),
         roles:[{email:'admin@husovaliberec.cz',role:'superadmin'}], saves:bulkSaves });
       await pg.goto(`${BASE}/projects/rpg-ucitel.html`,{waitUntil:'domcontentloaded'});
-      await pg.waitForFunction(()=>document.querySelectorAll('.tbl tbody tr').length>0,{timeout:6000}).catch(()=>{});
+      await pg.waitForFunction(()=>document.querySelectorAll('.tbl tbody tr').length>0,null,{timeout:6000}).catch(()=>{});
 
       // superadmin vidí zaškrtávací sloupec
       // checkboxy: hlavička žáka má .sel-user (3 žáci), .sel-row až po rozbalení
@@ -452,7 +452,7 @@ async function run(){
       const {ctx:ctx2,pg:pg2}=await page({ session: sess('ucitel@husovaliberec.cz'),
         roles:[{email:'ucitel@husovaliberec.cz',role:'teacher'}], saves:bulkSaves });
       await pg2.goto(`${BASE}/projects/rpg-ucitel.html`,{waitUntil:'domcontentloaded'});
-      await pg2.waitForFunction(()=>document.querySelectorAll('.tbl tbody tr').length>0,{timeout:6000}).catch(()=>{});
+      await pg2.waitForFunction(()=>document.querySelectorAll('.tbl tbody tr').length>0,null,{timeout:6000}).catch(()=>{});
       const teacherChecks=await pg2.evaluate(()=>document.querySelectorAll('.sel-row,.sel-user').length);
       ok('Učitel (ne admin) nevidí zaškrtávací sloupec', teacherChecks===0, 'checkboxů: '+teacherChecks);
       await ctx2.close();

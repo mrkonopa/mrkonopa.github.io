@@ -47,19 +47,19 @@ async function runStudent(browser, base, idx) {
     await page.waitForSelector('#ni', { timeout: 8000 });
     await page.fill('#ni', name);
     await page.evaluate(() => startGame());
-    await page.waitForFunction(() => document.querySelector('#s-map')?.classList.contains('active'), { timeout: 8000 });
+    await page.waitForFunction(() => document.querySelector('#s-map')?.classList.contains('active'), null, { timeout: 8000 });
 
     // projdi až 2 oblasti (1. odemčená, 2. se odemkne dokončením 1.)
     for (let area = 1; area <= 2; area++) {
       const opened = await page.evaluate((aid) => { try { openArea(aid); return true; } catch(e){ return false; } }, area);
       if (!opened) break;
-      await page.waitForFunction(() => document.querySelector('#s-area')?.classList.contains('active'), { timeout: 6000 });
+      await page.waitForFunction(() => document.querySelector('#s-area')?.classList.contains('active'), null, { timeout: 6000 });
 
       // otevři Teorii u první mise, co ji má
       const learnBtn = await page.$('#mission-list .learn-btn');
       if (learnBtn) {
         await learnBtn.click();
-        await page.waitForFunction(() => document.querySelector('#s-learn')?.classList.contains('active'), { timeout: 5000 }).catch(()=>{});
+        await page.waitForFunction(() => document.querySelector('#s-learn')?.classList.contains('active'), null, { timeout: 5000 }).catch(()=>{});
         const info = await page.evaluate(() => {
           const c = document.querySelector('#learn-content');
           const vid = document.querySelector('#learn-content .learn-video');
@@ -80,7 +80,7 @@ async function runStudent(browser, base, idx) {
       for (const m of missionIds) {
         const started = await page.evaluate((p) => { try { launchBattle(p.aid, p.id); return true; } catch(e){ return false; } }, { aid: area, id: m.id });
         if (!started) continue;
-        await page.waitForFunction(() => document.querySelector('#s-battle')?.classList.contains('active'), { timeout: 6000 }).catch(()=>{});
+        await page.waitForFunction(() => document.querySelector('#s-battle')?.classList.contains('active'), null, { timeout: 6000 }).catch(()=>{});
         did.battles++;
 
         // odpověz na všechny úkoly mise

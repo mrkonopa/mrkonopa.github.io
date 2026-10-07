@@ -41,10 +41,10 @@ async function run(){
     const page=await ctx.newPage();
     page.on('pageerror',e=>errors.push(e.message));
     await page.setContent(harness(),{waitUntil:'load'});
-    await page.waitForFunction(()=>typeof window.RPGBattle!=='undefined',{timeout:5000});
+    await page.waitForFunction(()=>typeof window.RPGBattle!=='undefined',null,{timeout:5000});
     await page.evaluate(()=>RPGBattle.open({game:'RPG_MAT_9',name:'Me',autoAction:'host'}));
     await page.evaluate(()=>RPGBattle._create(5));
-    await page.waitForFunction(()=>!!window.__cb,{timeout:4000});
+    await page.waitForFunction(()=>!!window.__cb,null,{timeout:4000});
     const now=new Date().toISOString();
     const P=(s,cc,lq)=>({user_id:'u-me',display_name:'Me',score:s,correct_count:cc,last_qi:lq});
     const O=(s,cc,lq)=>({user_id:'u-op',display_name:'Soupeř',score:s,correct_count:cc,last_qi:lq});
@@ -53,7 +53,9 @@ async function run(){
 
     // Q1: fresh, score 0
     await feed({battle:{status:'active',q_seed:7,q_count:5,q_index:0,q_started_at:now},players:[P(0,0,-1),O(0,0,-1)],me:'u-me'});
-    await page.waitForFunction(()=>!!document.getElementById('rpgb-choices'),{timeout:3000});
+    // 1. otázka se vykreslí až po odpočtu 3-2-1: COUNTDOWN_MS = 3000 od q_started_at (rpg-battle-ui.js),
+    // takže limit 3000 nestačí nikdy (naměřeno 3007 ms → timeout); 8000 = odpočet + rezerva na CI
+    await page.waitForFunction(()=>!!document.getElementById('rpgb-choices'),null,{timeout:8000});
     ok('Q1 myscore shows ⭐ 0', /⭐\s*0/.test(await myscore()), await myscore());
 
     // answer correctly → server reflects score 1200 (still Q1)
@@ -63,7 +65,7 @@ async function run(){
 
     // advance to Q2 → score must PERSIST (was the bug: per-question tracker reset)
     await feed({battle:{status:'active',q_seed:7,q_count:5,q_index:1,q_started_at:now},players:[P(1200,1,0),O(0,0,0)],me:'u-me'});
-    await page.waitForFunction(()=>/OTÁZKA 2 \/ 5/.test(document.body.textContent),{timeout:3000});
+    await page.waitForFunction(()=>/OTÁZKA 2 \/ 5/.test(document.body.textContent),null,{timeout:3000});
     ok('Q2 header advanced', /OTÁZKA 2 \/ 5/.test(await page.evaluate(()=>document.body.textContent)));
     ok('Q2 myscore STILL ⭐ 1200 (persists across question)', /⭐\s*1200/.test(await myscore()), await myscore());
 

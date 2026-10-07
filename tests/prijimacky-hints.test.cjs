@@ -25,7 +25,7 @@ const ok=(c,m)=>{ if(c){pass++;console.log('  ✅ '+m);} else {fail++;console.lo
   await ctx.route('**/*', r=> r.request().url().startsWith('http://127.0.0.1') ? r.continue() : r.abort());
   const page=await ctx.newPage(); page.on('pageerror',e=>errs.push(e.message));
   await page.goto(URL,{waitUntil:'domcontentloaded'});
-  await page.waitForFunction(()=>window.PZ&&window.PZ_TOPICS&&PZ.hintsFor,{timeout:8000});
+  await page.waitForFunction(()=>window.PZ&&window.PZ_TOPICS&&PZ.hintsFor,null,{timeout:8000});
   console.log('── Přijímačky: progresivní nápovědy ──');
 
   // hintsFor přímo: L1/L2 z tématu, L3 = výsledek
@@ -67,7 +67,7 @@ const ok=(c,m)=>{ if(c){pass++;console.log('  ✅ '+m);} else {fail++;console.lo
 
   // spusť okruh a odhaluj nápovědy postupně
   await page.evaluate(()=>prStart('procenta'));
-  await page.waitForFunction(()=>document.getElementById('pr-hintwrap').style.display!=='none',{timeout:4000});
+  await page.waitForFunction(()=>document.getElementById('pr-hintwrap').style.display!=='none',null,{timeout:4000});
   ok(await page.evaluate(()=>document.querySelectorAll('#pr-hints .pr-hint').length===0), 'na startu žádná nápověda odhalená');
 
   await page.click('#pr-hint-btn');

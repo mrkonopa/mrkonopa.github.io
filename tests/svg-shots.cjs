@@ -64,7 +64,7 @@ const CALLS = {
     r.request().url().startsWith('http://127.0.0.1') ? r.continue() : r.abort();
   });
   await page.goto(`${base}/projects/rpg-mat-9.html`, { waitUntil: 'domcontentloaded' });
-  await page.waitForFunction(() => typeof svgTriangle === 'function', { timeout: 8000 });
+  await page.waitForFunction(() => typeof svgTriangle === 'function', null, { timeout: 8000 });
 
   for (const [name, expr] of Object.entries(CALLS)) {
     const svg = await page.evaluate((e) => {

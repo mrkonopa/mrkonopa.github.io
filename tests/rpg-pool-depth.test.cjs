@@ -72,7 +72,7 @@ function serve() {
       const errs = [];
       page.on('pageerror', e => errs.push(e.message));
       await page.goto(`http://localhost:${PORT}/projects/rpg-mat-${g}.html`, { waitUntil: 'domcontentloaded' });
-      await page.waitForFunction(() => typeof startGame === 'function', { timeout: 8000 });
+      await page.waitForFunction(() => typeof startGame === 'function', null, { timeout: 8000 });
       const r = await page.evaluate(([klid, strop]) => {
         localStorage.clear(); startGame('T'); S.tutorialDone = true;
         const roc = SAVE_KEY.split('_')[2];

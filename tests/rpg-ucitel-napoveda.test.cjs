@@ -59,14 +59,14 @@ const SESSION = `{user:{id:'u-uc',email:'${UCITELKA}',user_metadata:{full_name:'
     const errs=[]; pg.on('pageerror',e=>errs.push(e.message));
     await pg.addInitScript(mock(session));
     await pg.goto(`http://127.0.0.1:${PORT}/projects/rpg-ucitel.html`,{waitUntil:'domcontentloaded'});
-    await pg.waitForFunction(()=>typeof RPGCloud!=='undefined'&&typeof otevriNapovedu==='function',{timeout:8000});
+    await pg.waitForFunction(()=>typeof RPGCloud!=='undefined'&&typeof otevriNapovedu==='function',null,{timeout:8000});
     return {ctx,pg,errs};
   }
 
   /* ── 1) Nový učitel: úvod se spustí sám ── */
   {
     const {ctx,pg,errs}=await otevri();
-    await pg.waitForFunction(()=>!document.getElementById('intro-wrap').hidden,{timeout:8000}).catch(()=>{});
+    await pg.waitForFunction(()=>!document.getElementById('intro-wrap').hidden,null,{timeout:8000}).catch(()=>{});
     ok('novému učiteli se úvod spustí sám',
        await pg.evaluate(()=>!document.getElementById('intro-wrap').hidden));
     const kroku=await pg.evaluate(()=>UVOD.length);
@@ -97,7 +97,7 @@ const SESSION = `{user:{id:'u-uc',email:'${UCITELKA}',user_metadata:{full_name:'
     const {ctx,pg}=await otevri();
     await pg.evaluate(()=>{localStorage.setItem('RPG_UCITEL_UVOD_HOTOVO','1');});
     await pg.reload({waitUntil:'domcontentloaded'});
-    await pg.waitForFunction(()=>!document.getElementById('help-btn').hidden,{timeout:8000});
+    await pg.waitForFunction(()=>!document.getElementById('help-btn').hidden,null,{timeout:8000});
     await pg.waitForTimeout(300);
     ok('podruhé se úvod NEspustí', await pg.evaluate(()=>document.getElementById('intro-wrap').hidden));
     ok('ale „?" je k dispozici', await pg.evaluate(()=>!document.getElementById('help-btn').hidden));

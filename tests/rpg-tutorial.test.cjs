@@ -24,7 +24,7 @@ const ok = (c, m) => { if (c) { pass++; } else { fail++; console.log('  ❌ ' + 
   const errs = [];
   page.on('pageerror', e => errs.push(e.message));
   await page.goto(`http://127.0.0.1:${PORT}/projects/rpg-mat-${GRADE}.html`, { waitUntil: 'domcontentloaded' });
-  await page.waitForFunction(() => typeof startGame === 'function' && typeof launchBattle === 'function' && typeof RPGTutorial !== 'undefined', { timeout: 8000 });
+  await page.waitForFunction(() => typeof startGame === 'function' && typeof launchBattle === 'function' && typeof RPGTutorial !== 'undefined', null, { timeout: 8000 });
 
   const startFresh = () => page.evaluate(() => { localStorage.clear(); const i = document.getElementById('ni'); if (i) i.value = 'TEST'; startGame(); });
   const firstMission = () => page.evaluate(() => { const ar = AREAS[0]; launchBattle(ar.id, ar.missions[0].id); });
@@ -35,9 +35,9 @@ const ok = (c, m) => { if (c) { pass++; } else { fail++; console.log('  ❌ ' + 
 
   // ── 2) nový žák → tutoriál se ukáže při 1. boji, timer pauznutý ──
   await startFresh();
-  await page.waitForFunction(() => document.querySelector('#s-map')?.classList.contains('active'), { timeout: 5000 });
+  await page.waitForFunction(() => document.querySelector('#s-map')?.classList.contains('active'), null, { timeout: 5000 });
   await firstMission();
-  await page.waitForFunction(() => { const o = document.getElementById('tutorial-overlay'); return o && o.style.display === 'flex'; }, { timeout: 5000 });
+  await page.waitForFunction(() => { const o = document.getElementById('tutorial-overlay'); return o && o.style.display === 'flex'; }, null, { timeout: 5000 });
   const t2 = await page.evaluate(() => ({ visible: document.getElementById('tutorial-overlay').style.display === 'flex', timerPaused: typeof BT !== 'undefined' && !BT.timer, steps: RPGTutorial._steps.length, dotDone: !S.tutorialDone }));
   ok(t2.visible, 'nový žák: tutoriál se zobrazí při 1. boji');
   ok(t2.timerPaused, 'časomíra je během tutoriálu pauznutá');
@@ -58,10 +58,10 @@ const ok = (c, m) => { if (c) { pass++; } else { fail++; console.log('  ❌ ' + 
 
   // ── 5) klávesa Enter posouvá; Esc/Přeskočit dokončí ──
   await startFresh();
-  await page.waitForFunction(() => document.querySelector('#s-map')?.classList.contains('active'), { timeout: 5000 });
+  await page.waitForFunction(() => document.querySelector('#s-map')?.classList.contains('active'), null, { timeout: 5000 });
   await page.evaluate(() => { S.tutorialDone = false; S.done = {}; });
   await firstMission();
-  await page.waitForFunction(() => document.getElementById('tutorial-overlay').style.display === 'flex', { timeout: 5000 });
+  await page.waitForFunction(() => document.getElementById('tutorial-overlay').style.display === 'flex', null, { timeout: 5000 });
   const kb = await page.evaluate(() => {
     document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
     const dots = document.getElementById('tut-dots').textContent;

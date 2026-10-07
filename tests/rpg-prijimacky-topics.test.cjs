@@ -83,10 +83,10 @@ async function openConsole(browser, scenario, errors){
   page.on('dialog', d=>d.accept());
   await page.addInitScript(mockScript(scenario));
   await page.goto(`${BASE}/projects/rpg-ucitel.html`, { waitUntil:'load' });
-  await page.waitForFunction(()=>!document.getElementById('console').classList.contains('hidden'), {timeout:8000});
+  await page.waitForFunction(()=>!document.getElementById('console').classList.contains('hidden'), null, {timeout:8000});
   await page.click('[data-tab="prijimacky"]');
-  await page.waitForFunction(()=>!document.getElementById('t-prijimacky').classList.contains('hidden'), {timeout:4000});
-  await page.waitForFunction(()=>document.querySelectorAll('#pz-class option').length>=2, {timeout:4000});
+  await page.waitForFunction(()=>!document.getElementById('t-prijimacky').classList.contains('hidden'), null, {timeout:4000});
+  await page.waitForFunction(()=>document.querySelectorAll('#pz-class option').length>=2, null, {timeout:4000});
   return page;
 }
 
@@ -115,8 +115,8 @@ async function run() {
       await page.evaluate(()=>document.getElementById('pz-topics-box').classList.contains('hidden')));
 
     await page.selectOption('#pz-class','cls-9b');
-    await page.waitForFunction(()=>window.__rpcCalls.some(c=>c.fn==='pz_class_topics'), {timeout:5000});
-    await page.waitForFunction(()=>!document.getElementById('pz-topics-box').classList.contains('hidden'), {timeout:5000});
+    await page.waitForFunction(()=>window.__rpcCalls.some(c=>c.fn==='pz_class_topics'), null, {timeout:5000});
+    await page.waitForFunction(()=>!document.getElementById('pz-topics-box').classList.contains('hidden'), null, {timeout:5000});
     ok('po výběru třídy se heatmapa zobrazí', true);
 
     const call = await page.evaluate(()=>window.__rpcCalls.find(c=>c.fn==='pz_class_topics'));
@@ -145,9 +145,9 @@ async function run() {
     sc2.topicsByClass = { 'cls-9b': sc.topics, 'cls-9a': [] };
     const page2 = await openConsole(browser, sc2, errors);
     await page2.selectOption('#pz-class','cls-9b');
-    await page2.waitForFunction(()=>!document.getElementById('pz-topics-box').classList.contains('hidden'), {timeout:5000});
+    await page2.waitForFunction(()=>!document.getElementById('pz-topics-box').classList.contains('hidden'), null, {timeout:5000});
     await page2.selectOption('#pz-class','cls-9a');
-    await page2.waitForFunction(()=>document.getElementById('pz-topics-box').classList.contains('hidden'), {timeout:5000});
+    await page2.waitForFunction(()=>document.getElementById('pz-topics-box').classList.contains('hidden'), null, {timeout:5000});
     ok('přepnutí na třídu bez dat heatmapu SCHOVÁ', true);
     await page2.selectOption('#pz-class','');
     ok('prázdný výběr heatmapu taky schová',
@@ -158,7 +158,7 @@ async function run() {
     sc3.topicsMissing = true;
     const page3 = await openConsole(browser, sc3, errors);
     await page3.selectOption('#pz-class','cls-9b');
-    await page3.waitForFunction(()=>/Anička/.test(document.getElementById('pz-wrap').textContent), {timeout:5000});
+    await page3.waitForFunction(()=>/Anička/.test(document.getElementById('pz-wrap').textContent), null, {timeout:5000});
     ok('bez phase22.sql zůstane heatmapa skrytá',
       await page3.evaluate(()=>document.getElementById('pz-topics-box').classList.contains('hidden')));
     ok('bez phase22.sql funguje zbytek záložky (připravenost)',
@@ -172,7 +172,7 @@ async function run() {
     ];
     const page4 = await openConsole(browser, sc4, errors);
     await page4.selectOption('#pz-class','cls-9b');
-    await page4.waitForFunction(()=>!document.getElementById('pz-topics-box').classList.contains('hidden'), {timeout:5000});
+    await page4.waitForFunction(()=>!document.getElementById('pz-topics-box').classList.contains('hidden'), null, {timeout:5000});
     const t4 = await page4.evaluate(()=>document.getElementById('pz-topics').textContent);
     ok('nečíselné hodnoty nedají NaN', !/NaN/.test(t4), t4.slice(0,160));
     ok('zdravý okruh se vykreslí správně (data 3/6 = 50 %)', /50 %/.test(t4), t4.slice(0,200));

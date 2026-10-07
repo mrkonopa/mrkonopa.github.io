@@ -54,7 +54,7 @@ function serve() {
         await ctx.route('**/*', r => r.request().url().startsWith('http://localhost:' + PORT) ? r.continue() : r.abort());
         const page = await ctx.newPage();
         await page.goto(`http://localhost:${PORT}/projects/rpg-mat-${g}.html`, { waitUntil: 'domcontentloaded' });
-        await page.waitForFunction(() => typeof startGame === 'function', { timeout: 8000 });
+        await page.waitForFunction(() => typeof startGame === 'function', null, { timeout: 8000 });
         const r = await page.evaluate(() => {
           localStorage.clear(); startGame('Testovací žák'); S.tutorialDone = true;
           if (typeof renderMap === 'function') renderMap();

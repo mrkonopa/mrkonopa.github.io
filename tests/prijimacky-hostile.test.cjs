@@ -54,7 +54,7 @@ ${localSeed||''}
     const page=await ctx.newPage(); page.on('pageerror',e=>errs.push(e.message));
     await page.addInitScript(initScript);
     await page.goto(STATS,{waitUntil:'domcontentloaded'});
-    await page.waitForFunction(()=>document.querySelectorAll('#st-big .st-stat').length===4,{timeout:8000});
+    await page.waitForFunction(()=>document.querySelectorAll('#st-big .st-stat').length===4,null,{timeout:8000});
     return { ctx, page };
   }
 
@@ -70,7 +70,7 @@ ${localSeed||''}
     localStorage.setItem('PZ_CERMAT_ATTEMPTS', JSON.stringify([{date:'2026-05-01',score:30,max:50}]));
     localStorage.setItem('PZ_PRACTICE_PROGRESS', JSON.stringify({rovnice:{ok:4,total:8}}));`;
   let { ctx, page } = await load(mock(evil1, seed1));
-  await page.waitForFunction(()=>window.__MOCK_SAVED!==null,{timeout:8000});
+  await page.waitForFunction(()=>window.__MOCK_SAVED!==null,null,{timeout:8000});
   ok(!({}.polluted), 'žádná prototype pollution (Object.prototype čistý)');
   ok(await page.evaluate(()=>({}).polluted===undefined), 'ani ve stránce není prototyp znečištěn');
   const att1 = await page.evaluate(()=>JSON.parse(localStorage.getItem('PZ_CERMAT_ATTEMPTS')));
@@ -88,7 +88,7 @@ ${localSeed||''}
   const bigPra = 'Object.fromEntries(Array.from({length:400},(_,i)=>["t"+i,{ok:1,total:2}]))';
   const evil2 = `{ attempts: ${bigAtt}, practice: ${bigPra}, diag:null, readiness:50 }`;
   ({ ctx, page } = await load(mock(evil2)));
-  await page.waitForFunction(()=>window.__MOCK_SAVED!==null,{timeout:8000});
+  await page.waitForFunction(()=>window.__MOCK_SAVED!==null,null,{timeout:8000});
   const att2 = await page.evaluate(()=>JSON.parse(localStorage.getItem('PZ_CERMAT_ATTEMPTS')));
   ok(att2.length<=50, 'attempts zastropováno na 50 (anti-flood): '+att2.length);
   const pra2 = await page.evaluate(()=>Object.keys(JSON.parse(localStorage.getItem('PZ_PRACTICE_PROGRESS'))).length);
@@ -105,7 +105,7 @@ ${localSeed||''}
   const p3=await c3.newPage(); p3.on('pageerror',e=>errs.push(e.message));
   await p3.addInitScript(corrupt);
   await p3.goto(STATS,{waitUntil:'domcontentloaded'});
-  await p3.waitForFunction(()=>document.querySelectorAll('#st-big .st-stat').length===4,{timeout:8000});
+  await p3.waitForFunction(()=>document.querySelectorAll('#st-big .st-stat').length===4,null,{timeout:8000});
   ok(await p3.evaluate(()=>document.querySelector('#st-big .st-stat .v').textContent==='—'),'poškozený localStorage → render funguje (připravenost —)');
   await c3.close();
 

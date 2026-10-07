@@ -38,7 +38,7 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
     await page.waitForSelector('#ni', { timeout: 8000 });
     await page.fill('#ni', 'Test');
     await page.evaluate(() => startGame());
-    await page.waitForFunction(() => document.querySelector('#s-map')?.classList.contains('active'), { timeout: 8000 });
+    await page.waitForFunction(() => document.querySelector('#s-map')?.classList.contains('active'), null, { timeout: 8000 });
 
     for (const aid of [1, 4, 7]) {
       // odemkni oblast + spusť 1. misi
@@ -47,7 +47,7 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
         const ar = AREAS.find(a => a.id === aid);
         launchBattle(aid, ar.missions[0].id);
       }, aid);
-      await page.waitForFunction(() => document.querySelector('#s-battle')?.classList.contains('active'), { timeout: 6000 });
+      await page.waitForFunction(() => document.querySelector('#s-battle')?.classList.contains('active'), null, { timeout: 6000 });
       await sleep(900); // doběhne enter animace
       await page.screenshot({ path: `${OUT}/g${game}-a${aid}-fresh.png` });
 

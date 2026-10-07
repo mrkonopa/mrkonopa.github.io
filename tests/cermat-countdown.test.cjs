@@ -36,7 +36,7 @@ async function run() {
     const pg = await ctx.newPage();
     const perr = []; pg.on('pageerror', e => perr.push(e.message));
     await pg.goto(URL, { waitUntil: 'domcontentloaded' });
-    await pg.waitForFunction(() => { const c = document.getElementById('cermat-chip'); return c && c.style.display !== 'none'; }, { timeout: 6000 });
+    await pg.waitForFunction(() => { const c = document.getElementById('cermat-chip'); return c && c.style.display !== 'none'; }, null, { timeout: 6000 });
     const info = await pg.evaluate(() => {
       const c = document.getElementById('cermat-chip');
       return {

@@ -103,11 +103,11 @@ async function otevri(browser, scenario, errors) {
   page.on('console', m => { if (m.type() === 'error' && !/Failed to load resource|ERR_/i.test(m.text())) errors.push(m.text()); });
   await page.addInitScript(mockScript(scenario));
   await page.goto(`${BASE}/projects/rpg-ucitel.html`, { waitUntil: 'load' });
-  await page.waitForFunction(() => !document.getElementById('console').classList.contains('hidden'), { timeout: 8000 });
+  await page.waitForFunction(() => !document.getElementById('console').classList.contains('hidden'), null, { timeout: 8000 });
   /* POZOR: ROWS je `let` na úrovni skriptu, takže NENÍ na window —
      `window.ROWS` je vždy undefined a čekání by vypršelo nad zdravou
      stránkou. Ptát se musíš holým jménem. */
-  await page.waitForFunction(() => typeof ROWS !== 'undefined' && ROWS.length > 0, { timeout: 8000 });
+  await page.waitForFunction(() => typeof ROWS !== 'undefined' && ROWS.length > 0, null, { timeout: 8000 });
   return { ctx, page };
 }
 
@@ -158,12 +158,12 @@ async function run() {
 
     /* ── Založ třídu a zařaď JEDNOHO ─────────────────────────────────── */
     await page.click('.tab[data-tab="classes"]');
-    await page.waitForFunction(() => !document.getElementById('t-classes').classList.contains('hidden'), { timeout: 4000 });
+    await page.waitForFunction(() => !document.getElementById('t-classes').classList.contains('hidden'), null, { timeout: 4000 });
     await page.fill('#new-class', '6.A');
     await page.click('button[onclick="createClassUI()"]');
-    await page.waitForFunction(() => CLASSES.length === 1, { timeout: 4000 });
+    await page.waitForFunction(() => CLASSES.length === 1, null, { timeout: 4000 });
     await page.click('.tab[data-tab="overview"]');
-    await page.waitForFunction(() => !document.getElementById('t-overview').classList.contains('hidden'), { timeout: 4000 });
+    await page.waitForFunction(() => !document.getElementById('t-overview').classList.contains('hidden'), null, { timeout: 4000 });
 
     const selCount = await page.evaluate(() => document.querySelectorAll('#nocls select').length);
     ok('po založení třídy má každý nezařazený žák výběr třídy', selCount === 2, 'selectů=' + selCount);
@@ -194,7 +194,7 @@ async function run() {
       s.value = s.options[1].value;
       s.dispatchEvent(new Event('change'));
     });
-    await page.waitForFunction(() => MEMBERSHIPS.length === 1, { timeout: 4000 });
+    await page.waitForFunction(() => MEMBERSHIPS.length === 1, null, { timeout: 4000 });
     ok('výběr třídy v panelu žáka opravdu zařadí', true);
 
     txt = await bannerText(page);
@@ -224,7 +224,7 @@ async function run() {
       s.value = s.options[1].value;
       s.dispatchEvent(new Event('change'));
     });
-    await page.waitForFunction(() => MEMBERSHIPS.length === 2, { timeout: 4000 });
+    await page.waitForFunction(() => MEMBERSHIPS.length === 2, null, { timeout: 4000 });
     txt = await bannerText(page);
     ok('po zařazení všech se panel schová', txt === null, 'zbylo: ' + JSON.stringify((txt || '').slice(0, 60)));
 

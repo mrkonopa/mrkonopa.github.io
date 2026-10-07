@@ -40,7 +40,7 @@ async function otevri(browser, base, init, errs){
   page.on('pageerror',e=>errs.push(e.message));
   if(init) await page.addInitScript(init);
   await page.goto(base+'/projects/prijimacky-matematika/statistiky.html',{waitUntil:'domcontentloaded'});
-  await page.waitForFunction(()=>window.PZ&&window.PZ_TOPICS&&document.querySelectorAll('#st-big .st-stat').length===4,{timeout:8000});
+  await page.waitForFunction(()=>window.PZ&&window.PZ_TOPICS&&document.querySelectorAll('#st-big .st-stat').length===4,null,{timeout:8000});
   return { ctx, page };
 }
 const big = page => page.evaluate(()=>[...document.querySelectorAll('#st-big .st-stat .v')].map(e=>e.textContent));

@@ -31,7 +31,7 @@ const ok = (c, m) => { if (c) { pass++; } else { fail++; console.log('  ❌ ' + 
     if (window.webkitAudioContext) window.webkitAudioContext = wrap(window.webkitAudioContext);
   });
   await page.goto(`http://127.0.0.1:${PORT}/projects/rpg-mat-${GRADE}.html`, { waitUntil: 'domcontentloaded' });
-  await page.waitForFunction(() => typeof RPGSound !== 'undefined' && typeof startGame === 'function' && typeof RPGWallet !== 'undefined', { timeout: 8000 });
+  await page.waitForFunction(() => typeof RPGSound !== 'undefined' && typeof startGame === 'function' && typeof RPGWallet !== 'undefined', null, { timeout: 8000 });
 
   // ── 1) default: němý ──
   const d = await page.evaluate(() => ({ enabled: RPGSound._enabled(), soundOn: RPGWallet.getSoundOn(), acAtLoad: window.__ACount }));
@@ -59,7 +59,7 @@ const ok = (c, m) => { if (c) { pass++; } else { fail++; console.log('  ❌ ' + 
 
   // ── 5) juice: shakeBattle přidá .shaking na #s-battle ──
   await page.evaluate(() => { localStorage.clear(); const i = document.getElementById('ni'); if (i) i.value = 'TEST'; startGame(); });
-  await page.waitForFunction(() => document.querySelector('#s-map')?.classList.contains('active'), { timeout: 5000 });
+  await page.waitForFunction(() => document.querySelector('#s-map')?.classList.contains('active'), null, { timeout: 5000 });
   const shake = await page.evaluate(() => {
     const el = document.getElementById('s-battle');
     shakeBattle();

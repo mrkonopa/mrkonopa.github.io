@@ -255,7 +255,7 @@ const DET=()=>{
    await pg.goto('http://localhost:'+PORT+url,{waitUntil:'domcontentloaded',timeout:15000});
    await pg.waitForTimeout(400);
    const jeHra=/^g\d$/.test(jm);
-   if(jeHra){await pg.waitForFunction(()=>typeof startGame==='function',{timeout:8000});
+   if(jeHra){await pg.waitForFunction(()=>typeof startGame==='function',null,{timeout:8000});
      await pg.evaluate(()=>{localStorage.clear();startGame('Testovací žákyně');S.tutorialDone=true;});}
    const typ=jeHra?null:typPruchodu(jm);
    const P=typ?PRUCHODY[typ]:null;
