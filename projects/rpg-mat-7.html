@@ -2252,16 +2252,7 @@ function onTimeOut(){
  damagePlayer();
  adaptOnAnswer(false);
  // hide hint/next, let player retry on this task
- setTimeout(()=>{
- if(BT.hp>0){
- // re-enable input and restart timer for same task
- const inp=document.getElementById('bt-ans');
- if(inp){inp.disabled=false;inp.value='';inp.focus();}
- document.querySelectorAll('#mc-grid .mc-btn').forEach(b=>{b.disabled=false;b.classList.remove('right','wrong');});
- fb.className='feedback';
- startTimer();
- }
- },1300);
+ poCase(fb);
 }
 
 // ══ TICHÁ ADAPTIVNÍ OBTÍŽNOST BOJE (ZPD) ══
@@ -2385,8 +2376,9 @@ function renderBattleMini(mt){
  const fb=document.getElementById('bt-fb');
  fb.className='feedback mini-banner';
  fb.textContent=mt.type==='order'?'↕ ŘAZENÍ — seřaď od '+(mt.desc?'největšího':'nejmenšího')+' (chyba = -1 ❤️)':'🔗 SPOJOVAČKA — spoj správné dvojice (chyba = -1 ❤️)';
+ const _bid=BT._bid,_ix=BT.idx;
  setTimeout(()=>{
-  if(!BT.miniStarting)return;
+  if(!BT.miniStarting||BT._bid!==_bid||BT.idx!==_ix||!document.querySelector('#s-battle.active'))return;
   BT.miniStarting=false;
   fb.className='feedback';fb.textContent='';
   if(mhBtn&&!BT.miniHintUsed&&BT.hp>1){mhBtn.style.display='';}
@@ -2654,7 +2646,7 @@ function useItem(type){
 }
 
 function submitAnswer(){
- if(BT.bossDefeated)return;
+ if(BT.bossDefeated||document.getElementById('bt-ans').disabled)return;
  const t=BT.curTask;
  const inp=document.getElementById('bt-ans').value;
  if(!inp.trim())return;
@@ -3400,12 +3392,12 @@ document.addEventListener('keydown',e=>{
  if(active.id==='s-intro'){startGame();return;}
  if(active.id==='s-battle'){
  const nxt=document.getElementById('next-btn');
- if(nxt.style.display!=='none')nextTask();
+ if(nxt.style.display!=='none'){if(!nxt.disabled)nextTask();}
  else submitAnswer();
  }
  if(active.id==='s-train'){
   const nxt=document.getElementById('tr-next-btn');
-  if(nxt.style.display!=='none')trNext();
+  if(nxt.style.display!=='none'){if(!nxt.disabled)trNext();}
   else if(!TR.m||!TR.m.mc)trSubmit();
  }
  if(active.id==='s-learn'){launchLearnBattle();}
@@ -3439,7 +3431,7 @@ window.addEventListener('load',()=>{
 <script defer src="./rpg-cloud.js"></script>
 <script defer src="./rpg-battle-7.js"></script>
 <script defer src="./rpg-badwords.js"></script>
-<script defer src="./rpg-shared.js"></script>
+<script defer src="./rpg-shared.js?v=20261008"></script>
 <script defer src="./rpg-2stupen.js"></script>
 <script defer src="./rpg-tasktypes.js"></script>
 <script defer src="./rpg-battle-ui.js"></script>

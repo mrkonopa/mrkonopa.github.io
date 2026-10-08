@@ -1253,13 +1253,7 @@ function onTimeOut(){
  if(BT.hp<=0)return;
  const fb=document.getElementById('bt-fb');fb.textContent='⏱ ČAS VYPRŠEL!';fb.className='feedback err';
  if(typeof RPGSound!=='undefined')RPGSound.play('bad');monsterAttack();damagePlayer();adaptOnAnswer(false);
- setTimeout(()=>{
-  if(BT.hp>0){
-   const inp=document.getElementById('bt-ans');if(inp){inp.disabled=false;inp.value='';inp.focus();}
-   document.querySelectorAll('#mc-grid .mc-btn').forEach(b=>{b.disabled=false;b.classList.remove('right','wrong');});
-   fb.className='feedback';startTimer();
-  }
- },1300);
+ poCase(fb);
 }
 
 // ══ TICHÁ ADAPTIVNÍ OBTÍŽNOST BOJE (ZPD) ══
@@ -1336,7 +1330,8 @@ function renderBattleMini(mt){
  const fb=document.getElementById('bt-fb');
  fb.className='feedback mini-banner';
  fb.textContent=mt.type==='order'?'↕ ŘAZENÍ — seřaď od '+(mt.desc?'největšího':'nejmenšího')+' (chyba = -1 ❤️)':'🔗 SPOJOVAČKA — spoj správné dvojice (chyba = -1 ❤️)';
- setTimeout(()=>{if(!BT.miniStarting)return;BT.miniStarting=false;fb.className='feedback';fb.textContent='';if(mhBtn&&!BT.miniHintUsed&&BT.hp>1)mhBtn.style.display='';startTimer();},1500);
+ const _bid=BT._bid,_ix=BT.idx;
+ setTimeout(()=>{if(!BT.miniStarting||BT._bid!==_bid||BT.idx!==_ix||!document.querySelector('#s-battle.active'))return;BT.miniStarting=false;fb.className='feedback';fb.textContent='';if(mhBtn&&!BT.miniHintUsed&&BT.hp>1)mhBtn.style.display='';startTimer();},1500);
 }
 function battleMiniMistake(){if(BT.bossDefeated||BT.hp<=0)return;BT.miniStarting=false;BT.combo=0;updateCombo();monsterAttack();damagePlayer();}
 function battleMiniDone(mistakes){
@@ -1478,12 +1473,13 @@ function pickMC(btn,chosen,correct){
 }
 
 function submitAnswer(){
+ if(BT.bossDefeated||document.getElementById('bt-ans').disabled)return;
  const inp=document.getElementById('bt-ans');const raw=inp.value.trim();if(!raw)return;
  const t=BT.curTask;const ok=checkAns(raw,String(t.ans));stopTimer();
  const fb=document.getElementById('bt-fb');
  const xpKey=`${BT.mid}-${BT.idx}`;if(!S.xpClaimed)S.xpClaimed={};
  if(ok){
-  inp.disabled=true;document.getElementById('attack-btn').disabled=true;
+  inp.disabled=true;document.getElementById('attack-btn').disabled=true;document.getElementById('hint-btn').disabled=true;
   BT.combo++;updateCombo();const isCrit=BT.combo>=3;
   const _first=!S.xpClaimed[xpKey];const xpGain=(_first?7:2)+((_first&&BT.adapt&&BT.adapt.mode>0)?2:0);S.xpClaimed[xpKey]=true;S.done[xpKey]=true;BT._doneBattle++;saveS();
   awardXp(xpGain,isCrit);if(typeof RPGWallet!=='undefined')RPGWallet.earn(isCrit?7+wCritBonus():5,SAVE_KEY);if(typeof RPGSound!=='undefined')RPGSound.play(isCrit?'crit':'ok');if(_first)tryDropItem();
@@ -1941,8 +1937,8 @@ document.addEventListener('keydown',e=>{
  if(e.key!=='Enter')return;
  const active=document.querySelector('.screen.active');if(!active)return;
  if(active.id==='s-intro'){startGame();return;}
- if(active.id==='s-battle'){const nxt=document.getElementById('next-btn');if(nxt.style.display!=='none')nextTask();else submitAnswer();}
- if(active.id==='s-train'){const nxt=document.getElementById('tr-next-btn');if(nxt.style.display!=='none')trNext();else if(!TR.m||!TR.m.mc)trSubmit();}
+ if(active.id==='s-battle'){const nxt=document.getElementById('next-btn');if(nxt.style.display!=='none'){if(!nxt.disabled)nextTask();}else submitAnswer();}
+ if(active.id==='s-train'){const nxt=document.getElementById('tr-next-btn');if(nxt.style.display!=='none'){if(!nxt.disabled)trNext();}else if(!TR.m||!TR.m.mc)trSubmit();}
  if(active.id==='s-learn'){launchLearnBattle();}
 });
 
@@ -2014,7 +2010,7 @@ window.addEventListener('load',()=>{
 <script defer src="./rpg-cloud.js"></script>
 <script defer src="./rpg-battle-3.js"></script>
 <script defer src="./rpg-badwords.js"></script>
-<script defer src="./rpg-shared.js"></script>
+<script defer src="./rpg-shared.js?v=20261008"></script>
 <script defer src="./rpg-tasktypes.js"></script>
 <script defer src="./rpg-battle-ui.js"></script>
 <script>window.addEventListener('load',function(){if(window.RPGCloud&&RPGCloud.attachGame)RPGCloud.attachGame(SAVE_KEY);});</script>

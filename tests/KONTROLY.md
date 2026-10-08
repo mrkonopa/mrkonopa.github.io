@@ -19,6 +19,11 @@ Najdi všechny problémy v jednom průchodu, pak je oprav — a příště bude�
    jako nový i přihlášený žák (úkoly, vzkazy, mazlíček) a měří zásah ovladačů, překryvy a vyčnívání;
    `pruchody=R` otáčí tablet uprostřed úlohy, `P` projde přijímačky. Měřidlo nestačí — dívej se na snímky
    z `souhrn.txt`. Trvalou obdobou v bráně je `rpg-plovouci` (výřez: 7 her × 3 rozměry, geometrie rámečků).
+6. **Po změně boje, ovladačů nebo časovačů pusť náhodný průchod** `node tools/nahodny-pruchod-boje.cjs`
+   (ručně, 7 her × 3 rozměry × 6 semínek ≈ 10 min; `hry=`, `rozmery=`, `seedy=`, `anim=1`, `tutorial=1` ho zúží nebo
+   přepnou). Žák s pevným semínkem dělá cokoli a po každém druhém kroku musí existovat ovladač, kterým jde pokračovat;
+   hlásí i zakrytí toastem či lištou. V bráně běží logická část (`rpg-nahodny-pruchod`) a scénář se skutečným
+   ťuknutím (`rpg-utok-opakovane`). Scénářové testy hlídají jen cesty, které jsme si vymysleli.
 
 ## Místa (sloupce matice)
 
@@ -90,6 +95,7 @@ Zkratky testů jsou názvy souborů v `tests/` bez přípony. „—“ = nehlí
 | D6 | seznam stránek = skutečné soubory; testy v bráně; testy s ročníkem v `PARAM` | 4× rozejitý seznam; 7 testů mimo bránu; 2 hostile testy jen pro 9. roč. | stranky-uplnost, brana-uplnost (§6 PARAM) |
 | D8 | informační prvek (toast, bublina) nechytá dotyk; po odpovědi je DÁLE tam, kde je prst — hned stisknutelné i na tabletu | toast odznaku přes DÁLE 1–2,5 s (#42) | rpg-dale (dotyk: boj, trénink, věž × 7 her) |
 | D9 | plovoucí prvky (Úkoly, Vzkazy, mazlíček, toasty) nezakrývají ovládání ani se nepřekrývají navzájem; toast, který nese tlačítko, chytá dotyk právě jím; řádek s odpovědí se vejde do 360 px; konec stránky jde odrolovat nad plovoucí tlačítka | „Do věže →“ mrtvé po `pointer-events:none` na toastu (regrese #266); OVĚŘIT 257–371 a DALŠÍ ÚKOL 257–409 z 360 px; Úkoly přes volby C a D; mazlíček pod Úkoly (#43–#46) | rpg-plovouci (7 her × telefon, iPad na výšku i na šířku; geometrie, ne jen zásah středu) |
+| D10 | **ÚTOK je povolený v KAŽDÉ úloze** (po správné odpovědi i po ANO/NE se vypíná a nová úloha ho musí zapnout); po vypršení času zpožděná obsluha nesmí zasáhnout do vyřešené úlohy ani do mapy; toasty jedou shora (dole leží ovládání); ovladač zakrytý přišpendlenou lištou se po změně okna dorovná | ÚTOK šedý a mrtvý od 2. úlohy ve 3.–8. ročníku (99 ze 108 běhů; jen 9. roč. měl odemykání), nabídka věže na DÁLE, časomíra na mapě (#49–#53) | rpg-utok-opakovane (120 kontrol, skutečné ťuknutí, 4 sabotáže), rpg-nahodny-pruchod (logika), ruční tools/nahodny-pruchod-boje.cjs (geometrie) |
 
 ### E. Bezpečnost a cloud
 
@@ -107,6 +113,8 @@ Zkratky testů jsou názvy souborů v `tests/` bez přípony. „—“ = nehlí
 | F2 | podmínka nečte `window.X`, když je X ve stránce `let`/`const` | 6 slepých čekání, 2 mrtvé větve, 2 vady webu (#39) | window-lexikalni |
 | F3 | volbu/tlačítko hledat podle ZOBRAZENÉHO tvaru (`czMC`, `zobraz`) a nenalezené hlásit nahlas | 4 testy klikaly na první tlačítko (#40) | rpg-ach, pr83-boss-hp, rpg-1stupen-play, rpg-explain |
 | F4 | výstup, který čte jiný proces, se píše celý a synchronně (ne `console.log` + `process.exit`); „prošlo až na 2. pokus“ (`✅~`) se čte jako nález, ne jako zelená | `run-ci --list` zkrácený v 9 z 80 volání → `brana-uplnost` neviděl až 63 testů (#48) | smyčka `execFileSync` × 150 (úplných 150 ze 150) |
+| F5 | **test ovládá hru tak, jak to dělá dítě** — `touchscreen.tap` na tlačítko, ne `submitAnswer()` ani Enter; `disabled` je jiný stav než „vidět“ (šedé tlačítko s opacity .35 dítě čte jako zmizelé) | ÚTOK mrtvý od 2. úlohy, protože testy odpovídaly voláním funkce nebo Enterem a dva si ho před odpovědí odemykaly samy (#49) | rpg-utok-opakovane |
+| F6 | když se tatáž funkce liší mezi hrami, rozdíl v hlídání stavu bývá vada (porovnat těla `renderTask`, `onTimeOut`, `submitAnswer` … po příkazech); falešné hodiny neřídí CSS animace — měřit s `reducedMotion` nebo počkat skutečný čas | rozdíl proti 9. ročníku ukázal přesně chybějící odemykání; první „nález“ průchodu byl artefakt (opacity 0 ve zmrazeném čase) | tests/nahodny-pruchod.cjs |
 
 ## Velký průchod — deník (od 4. 10. 2026)
 
@@ -187,3 +195,9 @@ mezery, (6) brána znovu.
 | — | Pg | „základ“ nemá trojúhelník zadaný třemi stranami (jen odvěsny, úhly, podstava hranolu) → A4 n/a; generátory nejvýš 191 losů na úlohu → nezamrzá | ✅ |
 | — | Pb | pozice 7 „Přímky jedním bodem“: α = zadaný úhel 25° ze 100 % — NENÍ vada, úhly jsou zadané obrázkem („vyznačeny v obrázku“) a rovnost je smyslem úlohy | ✅ planý poplach, pravidlo C2 musí brát popisky jako zadání, když to intro říká |
 | — | Rt Pd | „√5 = 2,2360679…“, „0,0000045“, čísla úloh „6.2“ v doplňcích, výklad číselných oborů „−3 ∈ Z“ v 6/1-1 | ✅ plané poplachy (záměr) |
+| 49 | Rh | **ÚTOK byl od druhé úlohy mrtvý ve 3.–8. ročníku** (Vojtův lístek 8. 10.: „při hodině s dětmi občas mizelo tlačítko útok/další“). `submitAnswer` ho po správné odpovědi vypne (ochrana proti dvojímu odeslání, tj. i po ANO/NE přes `answerYN`), ale `renderTask` ho zapnul jen v 9. ročníku (od 26. 8., 3ef3910). Ve zbylých šesti zůstal šedý (opacity .35 — dítě čte „zmizelo“), ťuknutí nic neudělalo, šel jen Enter. Ověřeno skutečným ťuknutím (3. a 6. ročník) i na verzi před #266 (6. 10.), takže to NENÍ regrese sloučení ÚTOKU a DÁLE. Hlídal to jediný test (`pr83-boss-hp`: „ÚTOK je po DÁLE zase enabled“), ale natvrdo jen na 9. ročníku; `rpg-attack-spam` a `rpg-item-drop` si ÚTOK před odpovědí odemykaly samy (`ab.disabled=false`) a vadu tak obešly; ostatní odpovídaly `submitAnswer()` nebo Enterem. Našel to náhodný průchod (99 ze 108 běhů hned prvním kolem) a rozdíl v těle funkcí proti 9. ročníku | ✅ odemknutí v `daleZpet` (volá ho každý `renderTask` všech 7 her), `submitAnswer` nejde při vypnutém poli, 1. stupeň dostal chybějící `bossDefeated` a vypnutí nápovědy po odpovědi. `rpg-utok-opakovane` (skutečné ťuknutí, 3 úlohy po sobě, text → ANO/NE → text), `rpg-nahodny-pruchod`; sabotáž (bez odemknutí) shodí obojí |
+| 50 | Rh | **Nabídka věže („Do věže →“, 6,5 s) přistávala po splnění mise přesně na DÁLE** (telefon 360×740 i jinde) a toast odznaku ho vizuálně zakrýval, i když dotyk propouštěl — dole je řádek s ovládáním | ✅ toasty jedou shora (`rpg-shared.js`); `rpg-utok-opakovane` měří rámečky toastů proti DÁLE a že žádný není ve spodní půlce; sabotáž (toasty dole) chycena |
+| 51 | Rh | **Zpožděný blok po vypršení času (1,3 s) se provedl vždy**: když dítě mezitím správně odpovědělo, znovu zapnul pole a rozjel časomíru u vyřešené úlohy (srdíčka ubývala u DÁLE); po odchodu z boje rozjel časomíru na mapě | ✅ `poCase` v `rpg-shared.js` (jedna kopie místo sedmi): jen tatáž úloha a tentýž boj, boj aktivní, DÁLE nevidět; `rpg-utok-opakovane` scénáře 3 a 4; sabotáž chycena |
+| 52 | Rh | **Start časomíry minihry (1,5 s) po odchodu z boje** (DÁLE po poslední úloze, přeskočení předmětem) rozjel časomíru na mapě — po vypršení by na mapě vyskočilo „PORAŽEN“. Průchod našel 1 běh ze 126 | ✅ zámek na tentýž boj a úlohu a aktivní boj ve všech 7 hrách; `rpg-utok-opakovane` scénář 5 |
+| 53 | Rh | **DÁLE pod přišpendlenou lištou** po zmenšení okna (otočení tabletu, klávesnice): lišta se posune a zakryje řádek, který byl před chvílí vidět; `nadListu` běžel jen při fokusu | ✅ `ukazDale` řádek po odpovědi dorovná a `resize` / `visualViewport` ho dorovnává znovu (`listaZnovu`); Enter během pojistky 400 ms už nepřeskočí úlohu |
+| 54 | test | **HTML a sdílený skript se po nasazení rozejdou v mezipaměti** (GitHub Pages `max-age=600`): nová stránka + starý `rpg-shared.js` = ReferenceError uprostřed odpovědi | ✅ `rpg-shared.js?v=…` ve všech 7 hrách, `skripty-verze` hlídá, že verze je a je shodná; **při změně sdíleného skriptu verzi zvedni** (zatím ručně) |
