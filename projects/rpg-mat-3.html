@@ -1955,6 +1955,7 @@ function checkMissionComplete(){
  if(!BT.tasks.every((_,i)=>S.done[`${m.id}-${i}`]))return;
  BT.bossDefeated=true;
  const ans=document.getElementById('bt-ans');if(ans)ans.disabled=true;
+ const atkBtn=document.getElementById('attack-btn');if(atkBtn)atkBtn.disabled=true;   // po výhře zamčený i ÚTOK (nová úloha ho už zapíná sama — daleZpet)
  const hintBtn=document.getElementById('hint-btn');if(hintBtn)hintBtn.disabled=true;
  document.querySelectorAll('#mc-grid .mc-btn').forEach(b=>b.disabled=true);
  document.querySelectorAll('#yn-row button').forEach(b=>b.disabled=true);
