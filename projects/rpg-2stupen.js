@@ -207,7 +207,7 @@ function submitMC(opt,btn){
 function suggestTower(){
  if(document.getElementById('tower-suggest'))return;
  const t=document.createElement('div');t.className='ach-toast';t.id='tower-suggest';
- t.innerHTML=`<div class="ach-toast-ic">🗼</div><div style="flex:1"><div class="ach-toast-h">NOVÁ VÝZVA</div><div class="ach-toast-n">Vyzkoušej Věž legend!</div></div><button class="btn sm" style="flex:none;margin-left:6px" onclick="this.closest('.ach-toast').remove();go('tower')">Do věže →</button>`;
+ t.innerHTML=`<div class="ach-toast-ic">🗼</div><div style="flex:1"><div class="ach-toast-h">NOVÁ VÝZVA</div><div class="ach-toast-n">Vyzkoušej Věž legend!</div></div><button class="btn sm" style="flex:none;margin-left:6px;pointer-events:auto" onclick="this.closest('.ach-toast').remove();go('tower')">Do věže →</button>`;
  document.body.appendChild(t);void t.offsetWidth;t.classList.add('show');
  setTimeout(()=>{const e=document.getElementById('tower-suggest');if(!e)return;e.classList.remove('show');setTimeout(()=>e.remove(),360);},6500);
 }

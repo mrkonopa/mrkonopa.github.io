@@ -477,6 +477,7 @@ html[data-theme="leto"]{--gold:#ffd166;--panel:#062033;--panel2:#0a2e4a;--blue:#
 #rw-sponka-bubble::after{content:'';position:absolute;left:16px;bottom:-9px;width:0;height:0;border:9px solid transparent;border-top-color:#c9a95a;border-bottom:0}
 #rw-sponka-bubble::before{content:'';position:absolute;left:17.5px;bottom:-6.5px;width:0;height:0;border:7.5px solid transparent;border-top-color:#f4ecd8;border-bottom:0;z-index:1}
 #rw-sponka{position:fixed;z-index:9997;left:14px;bottom:14px}
+@media(max-width:899px){body:has(#rpg-asg-btn) #rw-sponka{bottom:64px}}
 @media(min-width:900px){#rw-sponka{left:max(14px,calc(50% - 400px));top:50%;bottom:auto;transform:translateY(-50%)}}`;
     (document.head || document.documentElement).appendChild(st);
   }
@@ -644,11 +645,32 @@ html[data-theme="leto"]{--gold:#ffd166;--panel:#062033;--panel2:#0a2e4a;--blue:#
     ctx.restore();
   }
   // schová sponku na vážných časovaných obrazovkách (CERMAT test, Věž legend)
+  /* Mazlíček nikdy nezakrývá ovládání: na telefonu by ležel přes volby C a D a ťuknutí na ně by trefilo
+     jeho. Když by se (i s bublinou) protnul s viditelným tlačítkem nebo polem, schová se, dokud se mu
+     neuvolní místo. Plovoucí tlačítka Úkoly a Vzkazy se nepočítají — mazlíček stojí nad nimi. */
+  const _SP_JINE_WIDGETY = ['rpg-asg-btn', 'rpg-notes-btn', 'rpg-asg-panel', 'rpg-notes-panel'];
+  function _spKryjeOvladani() {
+    if (!_spEl) return false;
+    const r = _spEl.getBoundingClientRect();
+    if (r.width < 2 || r.height < 2) return false;
+    const els = document.querySelectorAll('button,input,select,textarea,a[href],[onclick]');
+    for (let i = 0; i < els.length; i++) {
+      const el = els[i];
+      if (_spEl.contains(el) || (el.id && _SP_JINE_WIDGETY.indexOf(el.id) !== -1) || el.closest('#rpg-asg-panel,#rpg-notes-panel')) continue;
+      const q = el.getBoundingClientRect();
+      if (q.width < 2 || q.height < 2) continue;
+      const ix = Math.min(r.right, q.right) - Math.max(r.left, q.left), iy = Math.min(r.bottom, q.bottom) - Math.max(r.top, q.top);
+      if (ix > 4 && iy > 4) return true;
+    }
+    return false;
+  }
   function _spUpdateVisibility() {
     if (!_spEl) return;
     let scr = '';
     try { const a = document.querySelector('.screen.active'); scr = a ? a.id : ''; } catch (e) {}
-    _spEl.style.visibility = SPONKA_HIDE_SCREENS.indexOf(scr) !== -1 ? 'hidden' : 'visible';
+    let skryt = SPONKA_HIDE_SCREENS.indexOf(scr) !== -1;
+    if (!skryt) { try { skryt = _spKryjeOvladani(); } catch (e) {} }
+    _spEl.style.visibility = skryt ? 'hidden' : 'visible';
   }
   function _spLoop(t) {
     _spDraw(t || 0);

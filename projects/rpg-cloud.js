@@ -1000,12 +1000,34 @@ window.RPGCloud = (function () {
   /* plovoucí widget „Vzkazy" — poznámky učitele pro přihlášeného žáka.
      Funguje ve všech hrách bez per-game úprav (volá se z attachGame). */
   function esc(s){return String(s==null?'':s).replace(/[<>&"']/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;',"'":'&#39;'}[c]));}
+
+  /* Plovoucí tlačítka Úkoly a Vzkazy leží přes spodní okraj obrazovky. V boji, tréninku a věži jsou
+     tam odpovědi (na telefonu volby C a D) a uprostřed úlohy je žák nepotřebuje — „Procvičit“ by ho
+     z ní navíc vytrhlo — takže se tam schovají. `:has()` umí Chrome 105+ a Safari 15.4+; starší
+     prohlížeč pravidlo celé zahodí a tlačítka zůstanou vidět jako dřív. Mezera na konci stránky
+     dovolí odrolovat poslední odkaz nad tlačítka. Na dotyku dostanou tlačítka 44 px. */
+  try {   // testy načítají modul ve vm s okleštěným `document` — bez try by tam spadl celý modul
+    const st = document.createElement('style');
+    st.id = 'rpg-plovouci-css';
+    st.textContent =
+      'body:has(#s-battle.active,#s-train.active,#s-tower.active) :is(#rpg-asg-btn,#rpg-notes-btn,#rpg-asg-panel,#rpg-notes-panel){display:none!important}' +
+      '#rpg-widget-mezera{height:64px;flex:none;pointer-events:none}' +
+      '@media(pointer:coarse){#rpg-asg-btn,#rpg-notes-btn{min-height:44px}.rpg-note-del,.rpg-asg-go{min-width:44px;min-height:44px}}';
+    (document.head || document.documentElement).appendChild(st);
+  } catch (e) { /* bez DOM (Node) se nic nevkládá */ }
+  function mezeraPodWidgety() {
+    const maji = !!(document.getElementById('rpg-notes-btn') || document.getElementById('rpg-asg-btn'));
+    let m = document.getElementById('rpg-widget-mezera');
+    if (maji && !m) { m = document.createElement('div'); m.id = 'rpg-widget-mezera'; m.setAttribute('aria-hidden', 'true'); document.body.appendChild(m); }
+    else if (!maji && m) m.remove();
+  }
+
   async function refreshNotesWidget() {
     if (previewActive || !user) return;
     let notes = [];
     try { notes = await pullMyNotes(); } catch (e) { return; }
     let btn = document.getElementById('rpg-notes-btn');
-    if (!notes.length) { if (btn) btn.remove(); const p=document.getElementById('rpg-notes-panel'); if(p)p.remove(); return; }
+    if (!notes.length) { if (btn) btn.remove(); const p=document.getElementById('rpg-notes-panel'); if(p)p.remove(); mezeraPodWidgety(); return; }
     if (!btn) {
       btn = document.createElement('button');
       btn.id = 'rpg-notes-btn';
@@ -1025,6 +1047,7 @@ window.RPGCloud = (function () {
         }
       };
       document.body.appendChild(btn);
+      mezeraPodWidgety();
     }
     const unread = notes.filter(n => !n.read_at).length;
     btn.textContent = '📨 Vzkazy (' + notes.length + ')';
@@ -1065,7 +1088,7 @@ window.RPGCloud = (function () {
     try { items = await pullMyAssignments(); } catch (e) { return; }
     items = (items || []).filter(a => a.game === saveKey);
     let btn = document.getElementById('rpg-asg-btn');
-    if (!items.length) { if (btn) btn.remove(); const p = document.getElementById('rpg-asg-panel'); if (p) p.remove(); return; }
+    if (!items.length) { if (btn) btn.remove(); const p = document.getElementById('rpg-asg-panel'); if (p) p.remove(); mezeraPodWidgety(); return; }
     // AREAS je ve hrách `const` — na window není (dřív `window.AREAS` → panel ukazoval jen „Mise 3-2“)
     const mname = mid => { try { const A = typeof AREAS !== 'undefined' ? AREAS : null; if (Array.isArray(A)) for (const ar of A) for (const m of (ar.missions || [])) if (m.id === mid) return m.name; } catch (e) {} return 'Mise ' + mid; };
     if (!btn) {
@@ -1074,6 +1097,7 @@ window.RPGCloud = (function () {
       btn.style.cssText = 'position:fixed;left:14px;bottom:14px;z-index:9998;background:#ffb020;color:#06101e;border:none;border-radius:22px;padding:10px 16px;font-family:inherit;font-weight:700;font-size:14px;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.4)';
       btn.onclick = () => { const p = document.getElementById('rpg-asg-panel'); if (p) p.style.display = (p.style.display === 'none') ? 'block' : 'none'; };
       document.body.appendChild(btn);
+      mezeraPodWidgety();
     }
     btn.textContent = '📋 Úkoly (' + items.length + ')';
     let panel = document.getElementById('rpg-asg-panel');
