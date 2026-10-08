@@ -681,9 +681,11 @@ function listaZnovu(){
  if(r&&r.offsetParent)nadListu(r);
 }
 (function(){
+ // Node testy načítají tenhle soubor bez prohlížeče (okleštěný `document`, žádné `addEventListener`) — viz KONTROLY.md #47
+ if(typeof addEventListener!=='function')return;
  const f=()=>{listaZnovu();if(typeof requestAnimationFrame==='function')requestAnimationFrame(listaZnovu);};
  addEventListener('resize',f);
- if(window.visualViewport)visualViewport.addEventListener('resize',f);
+ if(typeof visualViewport!=='undefined'&&visualViewport)visualViewport.addEventListener('resize',f);
 })();
 /* ══ Volby u úloh s výběrem — boj i trénink, všech 7 ročníků ═══════════
    Dvě vady, obě naměřené 30. 9. 2026 (po stejném poučení z přijímaček:

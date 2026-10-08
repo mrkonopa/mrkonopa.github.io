@@ -102,9 +102,16 @@ if (FILTER) runs = runs.filter(r => r.label.includes(FILTER));
    přibude test. Rozhoduje, jestli si soubor sám vyžádá playwright.
    Bez přepínače běží všechno jako dřív (a tak to zůstává lokálně). */
 const CAST = (process.argv.find(a => a.startsWith('--only=')) || '').slice(7);
-const jeProhlizec = f => {
-  try { return /require\(['"]playwright['"]\)/.test(fs.readFileSync(path.join(DIR, f), 'utf8')); }
-  catch (e) { return true; }   // nepřečtu-li ho, ať radši spadne do pomalé části
+const jeProhlizec = (f, videno = new Set()) => {
+  if (videno.has(f)) return false; videno.add(f);
+  try {
+    const src = fs.readFileSync(path.join(DIR, f), 'utf8');
+    if (/require\(['"]playwright['"]\)/.test(src)) return true;
+    // test, který prohlížeč spouští přes pomocný modul v tests/ (`require('./x.cjs')`), je prohlížečový taky —
+    // rpg-nahodny-pruchod si playwright nevyžádá sám a v rychlé části CI (bez prohlížeče) spadl (8. 10. 2026)
+    for (const m of src.matchAll(/require\(['"]\.\/([\w.-]+\.cjs)['"]\)/g)) if (jeProhlizec(m[1], videno)) return true;
+    return false;
+  } catch (e) { return true; }   // nepřečtu-li ho, ať radši spadne do pomalé části
 };
 if (CAST) {
   if (!['node', 'browser'].includes(CAST)) {
