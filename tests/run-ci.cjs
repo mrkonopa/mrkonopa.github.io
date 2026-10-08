@@ -184,7 +184,15 @@ for (let i = 0; i < runs.length; i++) {
   const tag = !r.ok ? (r.timedOut ? '⏱ TIMEOUT' : '❌')
             : r.skipped ? '⏭ SKIP' : (flaky.includes(label) ? '✅~' : '✅');
   console.log(`[${String(i + 1).padStart(2)}/${runs.length}] ${tag} ${label} (${r.secs}s)  ${r.last.trim().slice(0, 70)}`);
-  if (!r.ok) { fails.push(label); if (r.out.trim()) console.log(r.out.trim().split('\n').slice(-8).map(l => '      ' + l).join('\n')); }
+  if (!r.ok) {
+    fails.push(label);
+    // Neúspěšný test musí říct PROČ: posledních 8 řádků bývá souhrn a zelené kontroly, takže skutečná ❌ chyběla
+    // (rpg-dale „73 ✅ / 2 ❌“ na CI 8. 10. 2026 se nedalo dohledat). Nejdřív řádky s chybou, pak konec výpisu.
+    if (r.out.trim()) {
+      const radky = r.out.trim().split('\n'), chyby = radky.filter(l => /❌|✗|Error/.test(l)).slice(0, 12);
+      console.log([...chyby, ...(chyby.length ? ['…'] : []), ...radky.slice(-8)].map(l => '      ' + l).join('\n'));
+    }
+  }
   /* Prošlo až na druhý pokus: vypsat, na čem padl první — jinak se „flaky" na CI
      nedá dohledat (tablet-landscape 6. 10. 2026: jen „✅~“ bez důvodu). */
   else if (prvni) {
