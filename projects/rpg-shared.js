@@ -332,7 +332,15 @@ const RPGTutorial = (function () {
    Injektováno centrálně, žádné per-game CSS edity. */
 (function () {
   const st = document.createElement('style');
-  st.textContent = '@media(pointer:coarse){.mc-btn,.bt-row .btn,.bt-row .bt-input,[id$="yn-row"] .btn,[id$="yn-row"] button{min-height:44px}}';
+  st.textContent = '@media(pointer:coarse){.mc-btn,.bt-row .btn,.bt-row .bt-input,[id$="yn-row"] .btn,[id$="yn-row"] button{min-height:44px}}' +
+    // Pole pro odpověď je flex:1 a bez min-width:0 si drží vnitřní šířku (~270 px), takže se řádek
+    // na telefonu nesmrští a tlačítko vedle něj (OVĚŘIT / DALŠÍ ÚKOL) vyjede z obrazovky.
+    '.bt-row .bt-input{min-width:0}' +
+    // Toasty (odznak, nabídka věže) jezdí SHORA. Dole leží ovládání: po splnění mise nabídka věže (6,5 s, s tlačítkem)
+    // přistála přesně na DÁLE (naměřeno náhodným průchodem 8. 10. 2026 i na telefonu 360×740) a toast odznaku
+    // ho vizuálně zakrýval, i když dotyk propouštěl. Nahoře je jen aréna.
+    '.ach-toast{top:calc(env(safe-area-inset-top,0px) + 10px);bottom:auto;transform:translate(-50%,-170%)}' +
+    '.ach-toast.show{transform:translate(-50%,0)}';
   (document.head || document.documentElement).appendChild(st);
 })();
 
@@ -628,6 +636,7 @@ function ukazDale(daleId,radekId){
   n.disabled=true;clearTimeout(n._t);n._t=setTimeout(()=>{n.disabled=false;},400);
  }
  n.style.display='inline-block';
+ if(vRadku){row.scrollIntoView({block:'nearest'});nadListu(row);if(typeof requestAnimationFrame==='function')requestAnimationFrame(()=>nadListu(row));}
 }
 // Nová úloha: DÁLE zpátky na své místo (skryté), odesílací tlačítko zpátky do řádku.
 function daleZpet(daleId){
@@ -635,12 +644,49 @@ function daleZpet(daleId){
  clearTimeout(n._t);n.disabled=false;n.style.display='none';
  if(n._domov){const d=n._domov;d.rodic.insertBefore(n,d.za&&d.za.parentNode===d.rodic?d.za:null);n._domov=null;n.classList.add('sm');n.style.whiteSpace='';}
  if(n._puvodni){n._puvodni.style.display='';n._puvodni=null;}
+ /* Boj: správná odpověď ÚTOK vypne (i u ANO/NE, kde je řádek skrytý a `_puvodni` se nenastaví), takže ho
+    musí zapnout KAŽDÁ nová úloha. Odemykání bylo jen v 9. ročníku — ve 3.–8. zůstal ÚTOK od druhé úlohy
+    šedý a mrtvý (ťuknutí nic neudělalo; šel jen Enter) — naměřeno 8. 10. 2026 po hodině s dětmi. */
+ if(!daleId||daleId==='next-btn'){const u=document.getElementById('attack-btn');if(u)u.disabled=false;}
+}
+/* Uplynul čas: za 1,3 s stejná úloha znovu s novým časem. Zpožděná obsluha smí zasáhnout jen do TÉŽE úlohy,
+   ve které čas vypršel — dítě mezitím mohlo správně odpovědět (DÁLE je vidět: časomíra se nesmí rozjet znovu
+   a ubírat srdíčka u hotové úlohy), odejít z boje nebo začít jiný. Dřív se blok provedl vždy a zapnul pole,
+   ÚTOK i čas na úloze, která už byla vyřešená, nebo na mapě. */
+function poCase(fb){
+ const bid=BT._bid,idx=BT.idx;
+ setTimeout(()=>{
+  if(BT._bid!==bid||BT.idx!==idx||BT.hp<=0||BT.bossDefeated)return;
+  if(!document.querySelector('#s-battle.active'))return;
+  const dale=document.getElementById('next-btn');if(dale&&dale.style.display!=='none')return;
+  const inp=document.getElementById('bt-ans'),radek=document.getElementById('bt-input-row');
+  if(inp){inp.disabled=false;inp.value='';if(radek&&radek.offsetParent)fokusVstup(inp,radek);}
+  const u=document.getElementById('attack-btn');if(u)u.disabled=false;
+  document.querySelectorAll('#mc-grid .mc-btn').forEach(b=>{b.disabled=false;b.classList.remove('right','wrong');});
+  if(fb)fb.className='feedback';
+  startTimer();
+ },1300);
 }
 function fokusVstup(inp,radek){if(!inp)return;inp.focus({preventScroll:true});const r=radek||inp;r.scrollIntoView({block:'nearest'});nadListu(r);if(typeof requestAnimationFrame==='function')requestAnimationFrame(()=>nadListu(r));}
 /* Řádek, který leží pod přišpendlenou lištou boje (.bt-akce, sticky jen na šířku),
    posune sloupec úlohy tak, aby končil 6 px nad lištou. Na výšku lišta přišpendlená
    není a leží v toku POD řádkem, takže se nic neděje. */
 function nadListu(r){const col=r&&r.closest&&r.closest('.bt-col-task'),li=col&&col.querySelector('.bt-akce');if(!li||!r.offsetParent||getComputedStyle(li).position!=='sticky')return;const d=r.getBoundingClientRect().bottom+6-li.getBoundingClientRect().top;if(d>0)col.scrollTop+=Math.ceil(d);}
+/* Okno se změnilo (otočení tabletu, klávesnice nahoru či dolů): přišpendlená lišta se posune a může zakrýt
+   řádek s ÚTOKEM nebo s DÁLE, který byl před chvílí vidět (náhodný průchod, 8. 10. 2026: DÁLE zakryté lištou
+   po zmenšení okna). Dorovná se stejně jako při fokusu na vstup. */
+function listaZnovu(){
+ const n=document.getElementById('next-btn'),r0=document.getElementById('bt-input-row');
+ const r=(n&&n.style.display!=='none'&&n.parentNode&&n.parentNode.id==='bt-input-row')?n.parentNode:r0;
+ if(r&&r.offsetParent)nadListu(r);
+}
+(function(){
+ // Node testy načítají tenhle soubor bez prohlížeče (okleštěný `document`, žádné `addEventListener`) — viz KONTROLY.md #47
+ if(typeof addEventListener!=='function')return;
+ const f=()=>{listaZnovu();if(typeof requestAnimationFrame==='function')requestAnimationFrame(listaZnovu);};
+ addEventListener('resize',f);
+ if(typeof visualViewport!=='undefined'&&visualViewport)visualViewport.addEventListener('resize',f);
+})();
 /* ══ Volby u úloh s výběrem — boj i trénink, všech 7 ročníků ═══════════
    Dvě vady, obě naměřené 30. 9. 2026 (po stejném poučení z přijímaček:
    „správně ± k" prozradí odpověď i bez počítání):

@@ -102,9 +102,16 @@ if (FILTER) runs = runs.filter(r => r.label.includes(FILTER));
    přibude test. Rozhoduje, jestli si soubor sám vyžádá playwright.
    Bez přepínače běží všechno jako dřív (a tak to zůstává lokálně). */
 const CAST = (process.argv.find(a => a.startsWith('--only=')) || '').slice(7);
-const jeProhlizec = f => {
-  try { return /require\(['"]playwright['"]\)/.test(fs.readFileSync(path.join(DIR, f), 'utf8')); }
-  catch (e) { return true; }   // nepřečtu-li ho, ať radši spadne do pomalé části
+const jeProhlizec = (f, videno = new Set()) => {
+  if (videno.has(f)) return false; videno.add(f);
+  try {
+    const src = fs.readFileSync(path.join(DIR, f), 'utf8');
+    if (/require\(['"]playwright['"]\)/.test(src)) return true;
+    // test, který prohlížeč spouští přes pomocný modul v tests/ (`require('./x.cjs')`), je prohlížečový taky —
+    // rpg-nahodny-pruchod si playwright nevyžádá sám a v rychlé části CI (bez prohlížeče) spadl (8. 10. 2026)
+    for (const m of src.matchAll(/require\(['"]\.\/([\w.-]+\.cjs)['"]\)/g)) if (jeProhlizec(m[1], videno)) return true;
+    return false;
+  } catch (e) { return true; }   // nepřečtu-li ho, ať radši spadne do pomalé části
 };
 if (CAST) {
   if (!['node', 'browser'].includes(CAST)) {
@@ -137,7 +144,16 @@ if (SHARD) {
 }
 
 console.log(`\n╔══ CI brána${CAST?" ["+CAST+"]":""}${SHARD?" díl "+SHARD:""}: ${runs.length} běhů (sekvenčně) ══╗\n`);
-if (LIST_ONLY) { runs.forEach(r => console.log('  •', r.label)); process.exit(0); }
+if (LIST_ONLY) {
+  /* Celý výpis najednou a SYNCHRONNĚ. `console.log` do roury je asynchronní a `process.exit` hned za ním
+     zahodil konec výstupu — naměřeno 9 ze 80 volání zkrácených (171–243 z 270 řádků), takže
+     `brana-uplnost` občas „neviděl“ 63 testů a prošel až na druhý pokus. */
+  const buf = Buffer.from(runs.map(r => '  • ' + r.label).join('\n') + '\n');
+  for (let off = 0; off < buf.length;) {
+    try { off += fs.writeSync(1, buf, off); } catch (e) { if (e.code !== 'EAGAIN') throw e; }
+  }
+  process.exit(0);
+}
 
 function runOne(f, args) {
   const started = Date.now();
@@ -168,7 +184,15 @@ for (let i = 0; i < runs.length; i++) {
   const tag = !r.ok ? (r.timedOut ? '⏱ TIMEOUT' : '❌')
             : r.skipped ? '⏭ SKIP' : (flaky.includes(label) ? '✅~' : '✅');
   console.log(`[${String(i + 1).padStart(2)}/${runs.length}] ${tag} ${label} (${r.secs}s)  ${r.last.trim().slice(0, 70)}`);
-  if (!r.ok) { fails.push(label); if (r.out.trim()) console.log(r.out.trim().split('\n').slice(-8).map(l => '      ' + l).join('\n')); }
+  if (!r.ok) {
+    fails.push(label);
+    // Neúspěšný test musí říct PROČ: posledních 8 řádků bývá souhrn a zelené kontroly, takže skutečná ❌ chyběla
+    // (rpg-dale „73 ✅ / 2 ❌“ na CI 8. 10. 2026 se nedalo dohledat). Nejdřív řádky s chybou, pak konec výpisu.
+    if (r.out.trim()) {
+      const radky = r.out.trim().split('\n'), chyby = radky.filter(l => /❌|✗|Error/.test(l)).slice(0, 12);
+      console.log([...chyby, ...(chyby.length ? ['…'] : []), ...radky.slice(-8)].map(l => '      ' + l).join('\n'));
+    }
+  }
   /* Prošlo až na druhý pokus: vypsat, na čem padl první — jinak se „flaky" na CI
      nedá dohledat (tablet-landscape 6. 10. 2026: jen „✅~“ bez důvodu). */
   else if (prvni) {
