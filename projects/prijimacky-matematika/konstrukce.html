@@ -177,7 +177,7 @@ function bumpProg(ok){
 function knVyhodnot(){
   if(KN.full) knFull(false);
   const v=G.vyhodnot(KN.u,KN.tvary), prvni=!KN.vyhodnoceno;
-  KN.vyhodnoceno=true;
+  KN.vyhodnoceno=true; PZ.event('konstrukce_check');
   if(prvni){ KN.total++; if(v.spravne) KN.ok++; bumpProg(v.spravne); document.getElementById('kn-ok').textContent=KN.ok; document.getElementById('kn-total').textContent=KN.total; }
   // Stejné bodování jako v testu nanečisto: ať je vidět, že mírná nepřesnost stojí bod
   const max=bodyVTestu(KN.u.typ), b=G.bodovat(KN.u,KN.tvary,max||3);

@@ -140,6 +140,7 @@ function cmStart(obnov){
     CM.konec = Date.now() + CM.timeLeft * 1000;
   }
   CM.on = true;
+  if(!obnov) PZ.event('test_start');
   document.getElementById('cm-gate').style.display='none';
   document.getElementById('cm-end').style.display='none';
   document.getElementById('cm-play').style.display='block';
@@ -263,7 +264,7 @@ function cmGiveUp(){ if(CM.on && confirm('Vzdát test bez uložení výsledku?')
 
 function cmSubmit(auto){
   if(!CM.on) return;
-  stopTimer(); CM.on=false; smazBeh();
+  stopTimer(); CM.on=false; smazBeh(); PZ.event('test_done');
   if(window.PZ_OKNO) PZ_OKNO.zavritPlnou();
   let score=0; const review=[];
   // Rozbor ukazuje celou volbu („C) 54 m"), ne jen písmeno — u seřazených voleb

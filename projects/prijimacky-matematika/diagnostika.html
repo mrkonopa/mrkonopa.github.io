@@ -233,6 +233,7 @@ function dgEnd(){
   PZ.store.set(DIAG_KEY, { date:new Date().toISOString().slice(0,10), ver:2, ok:okN, n,
     topics:rows.map(r=>({ id:r.t.id, level:r.lv, correct:r.lv>=2 })) });
   if(PZ.cloudPush)PZ.cloudPush();
+  PZ.event('diag_done');
   window.scrollTo(0,0);
 }
 </script>

@@ -695,6 +695,11 @@
     if (cil) cil.focus({ preventScroll: true });
   }
 
-  window.PZ = { esc, check, store, inputMode, czNum, solSteps, themeSvg, icon, ring, attachLoginBar, cloudPush, cloudSync, topicWeights, pickWeakTopic, hintsFor, recordTestTopics, weakTopicsFromReview,
+  // Anonymní počítadlo (fáze 27): jen „co se stalo“, bez identity. RPGCloud se načítá odloženě, počítadlo si poradí s oběma pořadími.
+  function event(name) { try { if (typeof RPGCloud !== 'undefined' && RPGCloud.pzEvent) RPGCloud.pzEvent(name); } catch (e) { /* počítadlo nic nerozbije */ } }
+  // (jádro se načítá i v Node testech bez DOM — tam nic neposílá)
+  if (typeof document !== 'undefined' && document.addEventListener) document.addEventListener('DOMContentLoaded', () => event('vstup'));
+
+  window.PZ = { event, esc, check, store, inputMode, czNum, solSteps, themeSvg, icon, ring, attachLoginBar, cloudPush, cloudSync, topicWeights, pickWeakTopic, hintsFor, recordTestTopics, weakTopicsFromReview,
     computeReadiness, pokusy, odhadBodu, cistyPokus, diagUrovne, mergeStats, ukaz, odpovedText };
 })();
