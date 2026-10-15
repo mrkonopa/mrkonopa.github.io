@@ -18,7 +18,7 @@ require(path.join(ROOT, 'projects/prijimacky-matematika/konstrukce-geo.js'));
 require(path.join(ROOT, 'projects/prijimacky-matematika/konstrukce-ulohy.js'));
 const K = global.window.PZ_KONSTRUKCE;
 
-const PODLAHA_ANO = 28;   // zvedni, když přibude pokrytá konstrukce (viz hlavička)
+const PODLAHA_ANO = 36;   // zvedni, když přibude pokrytá konstrukce (viz hlavička)
 const POCET_RADKU = 74;   // M9 2015–2026: 74 konstrukcí na pozicích 9 a 10
 
 let pass = 0, fail = 0;
