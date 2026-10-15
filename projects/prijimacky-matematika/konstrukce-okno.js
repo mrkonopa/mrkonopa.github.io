@@ -276,7 +276,7 @@
         AKCE.filter(a => !(a[0] === 'zvetsit' && S.plna)).map(([a, t, d]) => '<button type="button" class="kn-tool" data-a="' + a + '"' + (S.zamceno ? ' disabled' : '') + '>' + ik(d) + t + '</button>').join('');
     }
     const kresliDane = () => { $('dane').innerHTML = S.u ? svgDane(S.u) : ''; };
-    const kresliZaka = () => { $('zak').innerHTML = S.tvary.map(t => tvarSvg(t, 'kn-z')).join(''); };
+    const kresliZaka = () => { $('zak').innerHTML = S.tvary.map(t => tvarSvg(t, 'kn-z')).join(''); if (typeof o.zmena === 'function') o.zmena(); };
     const kresliReseni = () => { $('reseni').innerHTML = S.u ? svgReseni(S.u, S.uk) : ''; };
     // x = poloha ukazatele (úhloměr ukazuje druhé rameno a velikost úhlu za ním)
     function kresliNahled(t, x) {
@@ -430,6 +430,13 @@
       id, svg,
       get u() { return S.u; },
       get tvary() { return S.tvary; },
+      // Vrátí dřív uložený náčrt (rozepsaný test po obnovení stránky). Poškozený záznam náčrt nezmění.
+      nacti(t) {
+        if (S.zamceno || !Array.isArray(t)) return;
+        const puvodni = S.tvary;
+        try { S.tvary = t.filter(x => x && typeof x === 'object' && typeof x.typ === 'string'); S.vyber = null; kresliZaka(); kresliNahled(); }
+        catch (e) { S.tvary = puvodni; kresliZaka(); kresliNahled(); }
+      },
       uloha, ukaz, plna, zamkni, prekresli: kresli,
       jePlna: () => S.plna,
     };

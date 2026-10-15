@@ -31,7 +31,7 @@ window.RPGCloud = (function () {
   // Osobní data: postavy, sdílená peněženka, výsledky přijímaček. Nastavení
   // zařízení (zvolený stupeň v hubu, úvod konzole) zůstávají.
   const jeOsobni = k => /^RPG_MAT_[0-9]$/.test(k) || k === 'RPG_HUB_WALLET' ||
-    /^PZ_(CERMAT_ATTEMPTS|PRACTICE_PROGRESS|DIAG_LAST|TEST_TOPICS)$/.test(k);
+    /^PZ_(CERMAT_ATTEMPTS|PRACTICE_PROGRESS|DIAG_LAST|TEST_TOPICS|TEST_RUN)$/.test(k);
   // Čerstvé přihlášení = stránka se právě vrátila od Googlu s tokenem v adrese.
   // Zachytit hned při načtení — knihovna Supabase adresu po zpracování vyčistí.
   const cerstvePrihlaseni = /(^#|&)access_token=|[?&]code=[\w-]{16,}/.test((location.hash || '') + (location.search || ''));

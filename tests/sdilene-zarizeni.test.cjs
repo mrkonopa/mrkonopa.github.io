@@ -97,7 +97,7 @@ window.supabase = { createClient: function () {
     channel: () => ({ on: () => ({ subscribe: () => ({}) }) }) };
 } };`;
 
-const OSOBNI = /^(RPG_MAT_[0-9]|RPG_HUB_WALLET|PZ_(CERMAT_ATTEMPTS|PRACTICE_PROGRESS|DIAG_LAST|TEST_TOPICS))$/;
+const OSOBNI = /^(RPG_MAT_[0-9]|RPG_HUB_WALLET|PZ_(CERMAT_ATTEMPTS|PRACTICE_PROGRESS|DIAG_LAST|TEST_TOPICS|TEST_RUN))$/;
 
 (async () => {
   console.log('\n── Sdílený tablet: přihlášení, odhlášení, cizí postup ──\n');
@@ -134,7 +134,8 @@ const OSOBNI = /^(RPG_MAT_[0-9]|RPG_HUB_WALLET|PZ_(CERMAT_ATTEMPTS|PRACTICE_PROG
     SRV.user = A; SRV.saves.set('uA|RPG_MAT_9', postava('ADAM', 5));
     const { ctx, pg } = await zarizeni();
     await ulozDoTabletu(pg, { RPG_CLOUD_OWNER: 'uA', RPG_MAT_9: postava('ADAM', 5), RPG_HUB_WALLET: { v: 1, credits: 40 },
-      PZ_CERMAT_ATTEMPTS: [{ date: '2026-10-01', score: 30, max: 50 }], RPG_HUB_STUPEN: '"2"' });
+      PZ_CERMAT_ATTEMPTS: [{ date: '2026-10-01', score: 30, max: 50 }], RPG_HUB_STUPEN: '"2"',
+      PZ_TEST_RUN: { v: 1, konec: Date.now() + 3600000, tasks: [{ no: 1 }], odp: {}, kresby: {} } });   // rozepsaný test nanečisto
     await pg.goto(hra, { waitUntil: 'load' });
     await cekejNaMapu(pg);
     await pg.evaluate(() => { S.xp = 777; saveS(); });            // změna těsně před odhlášením (push čeká 800 ms)
