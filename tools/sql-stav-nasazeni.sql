@@ -37,4 +37,12 @@ union all select 'fáze 25 · authenticated smí volat my_role()',
 union all select 'fáze 26 · staff_emails()',
        exists(select 1 from f where proname = 'staff_emails')
 union all select 'security.sql · _save_num v triggeru stropů',
-       exists(select 1 from f where proname = '_save_num');
+       exists(select 1 from f where proname = '_save_num')
+union all select 'fáze 27 · anonymní počítadlo přijímaček (pz_event smí volat anon, tabulka je zavřená)',
+       exists(select 1 from f where proname = 'pz_event')
+       and coalesce((select has_function_privilege('anon', p.oid, 'execute')
+                     from pg_proc p join pg_namespace n on n.oid = p.pronamespace
+                     where n.nspname = 'public' and p.proname = 'pz_event' limit 1), false)
+       and to_regclass('public.pz_usage') is not null
+       and not has_table_privilege('anon', 'public.pz_usage', 'select')
+       and not has_table_privilege('anon', 'public.pz_usage', 'insert');

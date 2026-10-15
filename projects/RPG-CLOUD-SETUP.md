@@ -121,6 +121,7 @@ Postupem času přibyly další funkce, každá má svůj SQL soubor. **Stačí 
 | 24 | [`rpg-cloud-setup-phase24.sql`](./rpg-cloud-setup-phase24.sql) | 20 | oprava: poškozený save žáka neshodí učiteli přehled úkolů |
 | 25 | [`rpg-cloud-setup-phase25.sql`](./rpg-cloud-setup-phase25.sql) | 2, 23 | oprava: „permission denied for function my_role" |
 | 26 | [`rpg-cloud-setup-phase26.sql`](./rpg-cloud-setup-phase26.sql) | 2, 23 | `staff_emails()` — „Skrýt učitele" funguje i běžnému učiteli |
+| 27 | [`rpg-cloud-setup-phase27.sql`](./rpg-cloud-setup-phase27.sql) | 2, 23 | anonymní počítadlo přijímaček — `pz_usage` (den, událost, počet), `pz_event` (smí volat i nepřihlášený), `pz_usage_summary` (učitel) |
 | S | [`../rpg-cloud-setup-security.sql`](../rpg-cloud-setup-security.sql) | 1 | serverové stropy kreditů a XP (trigger na `saves`), v kořeni repa |
 
 Číselné pořadí je vždy bezpečné (6b po 6, bezpečnostní trigger kdykoli po fázi 1). **Fázi 7 nenechávej bez fáze 9** — teprve devítka odebere novým funkcím právo pro `anon`.

@@ -31,7 +31,7 @@ window.RPGCloud = (function () {
   // Osobní data: postavy, sdílená peněženka, výsledky přijímaček. Nastavení
   // zařízení (zvolený stupeň v hubu, úvod konzole) zůstávají.
   const jeOsobni = k => /^RPG_MAT_[0-9]$/.test(k) || k === 'RPG_HUB_WALLET' ||
-    /^PZ_(CERMAT_ATTEMPTS|PRACTICE_PROGRESS|DIAG_LAST|TEST_TOPICS)$/.test(k);
+    /^PZ_(CERMAT_ATTEMPTS|PRACTICE_PROGRESS|DIAG_LAST|TEST_TOPICS|TEST_RUN)$/.test(k);
   // Čerstvé přihlášení = stránka se právě vrátila od Googlu s tokenem v adrese.
   // Zachytit hned při načtení — knihovna Supabase adresu po zpracování vyčistí.
   const cerstvePrihlaseni = /(^#|&)access_token=|[?&]code=[\w-]{16,}/.test((location.hash || '') + (location.search || ''));
@@ -129,6 +129,7 @@ window.RPGCloud = (function () {
       // Cizí data v zařízení pryč DŘÍV než syncWallet a emit — jinak by je sloučily s cloudem.
       if (user && prevezmiZarizeni(user, cerstvePrihlaseni) && hraBezi()) { location.reload(); return true; }
       if (user) { await fetchRole(); syncWallet(); }
+      vyprazdniFrontuUdalosti();   // role je známá, učitelské účty se nepočítají
       client.auth.onAuthStateChange(async (_event, s) => {
         // INITIAL_SESSION už pokryl getSession()+emit() níže → přeskočit. Jinak by se
         // celý onChange (včetně continueGame → renderMap) spustil DVAKRÁT hned po načtení
@@ -564,6 +565,28 @@ window.RPGCloud = (function () {
       return true;
     } catch (e) { console.warn('[RPGCloud] pzSaveStats selhal:', e); return false; }
   }
+  /* ════════ PŘIJÍMAČKY — Fáze 27: anonymní počítadlo používání ════════
+     Počítá se jen KOLIKRÁT nastala událost (den × druh), nic o tom, KDO. Posílá se i bez přihlášení, protože
+     děti přijímačky používají bez účtu — jinak by učitel nevěděl, jestli je někdo vůbec otevřel. Učitelské účty
+     se nepočítají. Počítadlo nesmí nikdy nic rozbít: každá chyba se tiše spolkne. Jména musí sedět se seznamem
+     ve fázi 27 (SQL ostatní zahazuje). */
+  const UDALOSTI_PZ = ['vstup', 'test_start', 'test_done', 'procvic', 'diag_done', 'konstrukce_check'];
+  const JEDNOU_ZA_KARTU = { vstup: 1, procvic: 1 };   // „vstup" a „procvičování" = jednou za návštěvu, ne za každou odpověď
+  const frontaUdalosti = [];
+  let udalostiPripraveny = false;
+  function odesliUdalost(n) {
+    if (!client || previewActive || isStaff()) return;
+    try { client.rpc('pz_event', { p_event: n }).then(() => {}, () => {}); } catch (e) { /* počítadlo nic nerozbije */ }
+  }
+  function pzEvent(n) {
+    if (UDALOSTI_PZ.indexOf(n) < 0) return;
+    if (JEDNOU_ZA_KARTU[n]) {
+      try { const k = 'PZ_EVT_' + n; if (sessionStorage.getItem(k)) return; sessionStorage.setItem(k, '1'); } catch (e) { /* bez sessionStorage se počítá pokaždé */ }
+    }
+    if (udalostiPripraveny) odesliUdalost(n); else if (frontaUdalosti.length < 12) frontaUdalosti.push(n);
+  }
+  function vyprazdniFrontuUdalosti() { udalostiPripraveny = true; frontaUdalosti.splice(0).forEach(odesliUdalost); }
+
   // STAFF: připravenost třídy (jméno + %). Prázdné pole když nemáš práva/offline.
   async function pzClassReadiness(classId) {
     if (!client || !user) return [];
@@ -1484,5 +1507,5 @@ window.RPGCloud = (function () {
            // Fáze 20 — úkoly s termínem
            listAssignments, createAssignment, deleteAssignment, assignmentProgress, pullMyAssignments,
            // Fáze 21 — přijímačky: cloud sync pokroku
-           pzGetStats, pzSaveStats, pzClassReadiness, pzClassTopics };
+           pzGetStats, pzSaveStats, pzClassReadiness, pzClassTopics, pzEvent };
 })();

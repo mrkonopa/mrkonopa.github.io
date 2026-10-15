@@ -10,8 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="prijimacky.css">
-</head>
+<link rel="stylesheet" href="prijimacky.css"></head>
 <body>
 <div class="top-bar">
   <a href="./"><span class="crumb">← Přijímačky z matematiky</span></a>
@@ -32,6 +31,7 @@
         <span class="hl">16 úloh · 50 bodů · 70 minut.</span><br>
         Mix otevřených, uzavřených (A–E), pravda/nepravda a přiřazovacích úloh a dvě konstrukce, které se rýsují přímo v okně — jako u skutečného testu.</div>
       <div id="cm-gate-status" class="cm-gate-status"></div>
+      <div id="cm-resume" style="display:none;margin-top:14px;padding:12px 14px;border:1.5px solid var(--blue);border-radius:10px;background:#fff;text-align:left"></div>
       <div style="margin-top:16px"><button class="pz-btn primary" onclick="cmStart()">▶ Začít test</button></div>
     </div>
     <div class="cm-panel" id="cm-history" style="display:none;margin-top:14px"></div>
@@ -85,7 +85,7 @@
 <script>document.addEventListener('DOMContentLoaded',function(){if(window.PZ&&PZ.attachLoginBar)PZ.attachLoginBar();});</script>
 <script>
 const ATTEMPTS_KEY = 'PZ_CERMAT_ATTEMPTS';
-let CM = { on:false, tasks:[], timeLeft:0, timerId:null, okna:{} };
+let CM = { on:false, tasks:[], timeLeft:0, konec:0, timerId:null, okna:{} };
 const G = () => window.RPG_CERMAT_9;
 
 function loadAttempts(){ return PZ.store.get(ATTEMPTS_KEY, []); }
@@ -119,6 +119,7 @@ function renderGate(){
     st.textContent = 'Zatím jsi test nezkoušel/a.';
     hist.style.display='none';
   }
+  renderObnova();
 }
 
 /* Úlohy 9 a 10 ostrého testu jsou VŽDY rýsovací konstrukce. Banka má na těch pozicích
@@ -129,12 +130,17 @@ function konstrukceUloha(t){
   const u = PZ_KONSTRUKCE.proTest(t.no);
   return u ? { no:t.no, points:t.points, kind:'konstrukce', title:u.nazev, okruh:'konstrukce', u } : t;
 }
-function cmStart(){
+function cmStart(obnov){
   if(!G()) return;
-  CM.tasks = G().generate();
-  if(sKonstrukcemi()) CM.tasks = CM.tasks.map((t,i)=>PZ_TOPICS.konstrukcePozice.indexOf(i)>=0 ? konstrukceUloha(t) : t);
-  CM.timeLeft = G().timeLimitSec;
+  if(obnov){ CM.tasks = obnov.tasks; CM.konec = obnov.konec; CM.timeLeft = Math.max(0, Math.ceil((CM.konec - Date.now()) / 1000)); }
+  else {
+    CM.tasks = G().generate();
+    if(sKonstrukcemi()) CM.tasks = CM.tasks.map((t,i)=>PZ_TOPICS.konstrukcePozice.indexOf(i)>=0 ? konstrukceUloha(t) : t);
+    CM.timeLeft = G().timeLimitSec;
+    CM.konec = Date.now() + CM.timeLeft * 1000;
+  }
   CM.on = true;
+  if(!obnov) PZ.event('test_start');
   document.getElementById('cm-gate').style.display='none';
   document.getElementById('cm-end').style.display='none';
   document.getElementById('cm-play').style.display='block';
@@ -143,12 +149,66 @@ function cmStart(){
   CM.okna = {};
   CM.tasks.forEach(t=>{ if(t.kind!=='konstrukce') return;
     // v testu se průběžně nevyhodnocuje: celá obrazovka má jen „Hotovo"
-    const okno = PZ_OKNO.vytvor(document.getElementById('cm-kn-'+t.no), { id:'cm-kn'+t.no, akce:[['✓ Hotovo','primary',()=>okno.plna(false)]] });
+    const okno = PZ_OKNO.vytvor(document.getElementById('cm-kn-'+t.no), { id:'cm-kn'+t.no, akce:[['✓ Hotovo','primary',()=>okno.plna(false)]], zmena:planujUlozeni });
     okno.uloha(t.u); CM.okna[t.no] = okno; });
+  const boxUloh = document.getElementById('cm-tasks');
+  boxUloh.oninput = boxUloh.onchange = planujUlozeni;
+  if(obnov) obnovOdpovedi(obnov);
   updateTimerUI();
   stopTimer();
   CM.timerId = setInterval(cmTick, 1000);
   window.scrollTo(0,0);
+  if(obnov && CM.timeLeft<=0){ cmSubmit(true); return; }   // čas vypršel, než se žák vrátil: vyhodnotí se, co stihl
+  ulozBeh();
+}
+
+/* ── Rozepsaný test přežije obnovení stránky ──
+   Na tabletu stačí přepnout aplikaci a Safari kartu zahodí; bez uložení by žák přišel o odpovědi i nákresy
+   (a po odpočtu 70 minut). Ukládá se vše potřebné k návratu: úlohy, odpovědi, nákresy a KONEC testu
+   (čas běží dál). Klíč je osobní (po odhlášení se z tabletu smaže, viz jeOsobni v rpg-cloud.js). */
+const RUN_KEY = 'PZ_TEST_RUN';
+function ulozBeh(){
+  if(!CM.on) return;
+  const odp = {};
+  document.querySelectorAll('#cm-tasks input[type=text], #cm-tasks select').forEach(el=>{ if(el.id && el.value) odp[el.id]=el.value; });
+  document.querySelectorAll('#cm-tasks input[type=radio]:checked').forEach(el=>{ odp[el.name]=el.value; });
+  const kresby = {}; Object.keys(CM.okna).forEach(no=>{ kresby[no] = CM.okna[no].tvary; });
+  PZ.store.set(RUN_KEY, { v:1, konec:CM.konec, limit:G().timeLimitSec, tasks:CM.tasks, odp, kresby });
+}
+function planujUlozeni(){ clearTimeout(CM.ulozT); CM.ulozT = setTimeout(ulozBeh, 700); }
+function smazBeh(){ clearTimeout(CM.ulozT); try{ localStorage.removeItem(RUN_KEY); }catch(e){} }
+function nactiBeh(){
+  const r = PZ.store.get(RUN_KEY, null);
+  if(!r || r.v!==1 || !Array.isArray(r.tasks) || !r.tasks.length || !Number.isFinite(r.konec)) return null;
+  if(!r.tasks.every(t=>t && typeof t==='object' && Number.isInteger(t.no))) return null;
+  return r;
+}
+function obnovOdpovedi(r){
+  const odp = (r.odp && typeof r.odp==='object') ? r.odp : {};
+  Object.keys(odp).forEach(k=>{
+    const v = String(odp[k]);
+    const el = document.getElementById(k);
+    if(el && el.type!=='radio') el.value = v;
+    else document.querySelectorAll('#cm-tasks input[type=radio]').forEach(rd=>{ if(rd.name===k && rd.value===v) rd.checked = true; });
+  });
+  const kresby = (r.kresby && typeof r.kresby==='object') ? r.kresby : {};
+  Object.keys(kresby).forEach(no=>{ if(CM.okna[no]) CM.okna[no].nacti(kresby[no]); });
+}
+function renderObnova(){
+  const box = document.getElementById('cm-resume'); if(!box) return;
+  box.textContent = '';
+  const r = nactiBeh();
+  if(!r){ box.style.display='none'; return; }
+  const zbyva = Math.ceil((r.konec - Date.now()) / 1000);
+  const t = document.createElement('div'); t.style.fontWeight = '600';
+  t.textContent = zbyva>0 ? 'Máš rozepsaný test — zbývá '+Math.floor(zbyva/60)+':'+String(zbyva%60).padStart(2,'0')+', čas běží dál.'
+                         : 'Máš rozepsaný test, ale čas na něj už vypršel.';
+  const radek = document.createElement('div'); radek.style.cssText = 'display:flex;gap:10px;flex-wrap:wrap;margin-top:10px';
+  const jo = document.createElement('button'); jo.type='button'; jo.className='pz-btn primary'; jo.id='cm-resume-go';
+  jo.textContent = zbyva>0 ? '▶ Pokračovat' : '✓ Vyhodnotit, co jsi stihl/a'; jo.onclick = ()=>cmStart(r);
+  const ne = document.createElement('button'); ne.type='button'; ne.className='pz-btn'; ne.id='cm-resume-drop';
+  ne.textContent = '🗑 Zahodit'; ne.onclick = ()=>{ smazBeh(); renderObnova(); };
+  radek.appendChild(jo); radek.appendChild(ne); box.appendChild(t); box.appendChild(radek); box.style.display = 'block';
 }
 
 function taskHtml(t){
@@ -183,15 +243,28 @@ function updateTimerUI(){
   const fc = document.getElementById('kn-full-cas');      // čas i při kreslení přes celou obrazovku
   if(fc) fc.textContent = CM.on ? '⏱ '+m+':'+String(s).padStart(2,'0') : '';
 }
-function cmTick(){ CM.timeLeft--; updateTimerUI(); if(CM.timeLeft<=0){ stopTimer(); cmSubmit(true); } }
+// Čas se počítá z konce (CM.konec), ne z počtu tiknutí: tablet při zamčené obrazovce nebo přepnuté aplikaci
+// intervaly pozastaví, takže odpočet po vteřinách by běžel pomaleji a dítě by dostalo víc než 70 minut.
+function cmTick(){
+  CM.timeLeft = Math.max(0, Math.ceil((CM.konec - Date.now()) / 1000));
+  updateTimerUI();
+  if(CM.timeLeft<=0){ stopTimer(); cmSubmit(true); }
+  else if(CM.timeLeft % 5 === 0) ulozBeh();
+}
+// Po návratu na stránku se čas dorovná hned, ne až při dalším tiknutí.
+document.addEventListener('visibilitychange', ()=>{ if(!CM.on) return; if(document.hidden) ulozBeh(); else cmTick(); });
+window.addEventListener('pagehide', ()=>{ if(CM.on) ulozBeh(); });
+window.addEventListener('pageshow', ()=>{ if(CM.on) cmTick(); });
+// Rozepsaný test se obnovením stránky ztratí — aspoň se zeptat (na iPadu Safari dotaz nemusí ukázat).
+window.addEventListener('beforeunload', e=>{ if(CM.on){ e.preventDefault(); e.returnValue=''; } });
 function stopTimer(){ if(CM.timerId){ clearInterval(CM.timerId); CM.timerId=null; } }
 
 function cmConfirmSubmit(){ if(CM.on && confirm('Opravdu odevzdat test? Po odevzdání se úlohy vyhodnotí a už je nepůjde upravit.')) cmSubmit(false); }
-function cmGiveUp(){ if(CM.on && confirm('Vzdát test bez uložení výsledku?')){ stopTimer(); CM.on=false; renderGate(); window.scrollTo(0,0); } }
+function cmGiveUp(){ if(CM.on && confirm('Vzdát test bez uložení výsledku?')){ stopTimer(); CM.on=false; smazBeh(); renderGate(); window.scrollTo(0,0); } }
 
 function cmSubmit(auto){
   if(!CM.on) return;
-  stopTimer(); CM.on=false;
+  stopTimer(); CM.on=false; smazBeh(); PZ.event('test_done');
   if(window.PZ_OKNO) PZ_OKNO.zavritPlnou();
   let score=0; const review=[];
   // Rozbor ukazuje celou volbu („C) 54 m"), ne jen písmeno — u seřazených voleb

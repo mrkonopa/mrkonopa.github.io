@@ -201,10 +201,43 @@ async function fillAndSubmit(page, sabotage, tfSpatne, kn){
   await tp.evaluate(()=>updateTimerUI());
   ok(/^⏱ \d+:\d\d$/.test(await tp.evaluate(()=>document.getElementById('kn-full-cas').textContent)),'tablet: čas testu je vidět i při kreslení přes celou obrazovku');
   // čas vyprší při otevřeném kreslení: test se odevzdá a celá obrazovka zavře
-  await tp.evaluate(()=>{ CM.timeLeft=1; cmTick(); });
+  await tp.evaluate(()=>{ CM.konec=Date.now(); cmTick(); });
   const po=await tp.evaluate(()=>({ plna:CM.okna[9].jePlna(), on:document.getElementById('kn-full').classList.contains('on'), konec:document.getElementById('cm-end').style.display!=='none' }));
   ok(!po.plna && !po.on && po.konec,'tablet: vypršení času při kreslení test odevzdá a celou obrazovku zavře');
   await tctx.close();
+
+  /* ── Odpočet se počítá ze skutečného času, ne z počtu tiknutí (15. 10. 2026) ──
+     Tablet při zamčené obrazovce nebo přepnuté aplikaci intervaly pozastaví. Falešné hodiny `fastForward`
+     dělají totéž: pošlou čas dopředu a každý časovač spustí nejvýš JEDNOU — starý odpočet (timeLeft--)
+     by tak po „10 minutách spánku“ ubral jednu vteřinu a dítě by dostalo skoro 11 minut navíc. */
+  const cctx=await browser.newContext({ viewport:{width:820,height:1180}, isMobile:true, hasTouch:true });
+  await cctx.route('**/*',r=>r.request().url().startsWith('http://127.0.0.1')?r.continue():r.abort());
+  const cp=await cctx.newPage(); cp.on('pageerror',e=>errs.push('hodiny: '+e.message));
+  await cp.clock.install();
+  await cp.goto(base+'/projects/prijimacky-matematika/test.html',{waitUntil:'domcontentloaded'});
+  await cp.waitForFunction(()=>typeof cmStart==='function'&&window.RPG_CERMAT_9,null,{timeout:8000});
+  await cp.evaluate(()=>cmStart());
+  const plny=await cp.evaluate(()=>({ zbyva:CM.timeLeft, limit:G().timeLimitSec }));
+  await cp.clock.fastForward('10:00');
+  const po10=await cp.evaluate(()=>({ zbyva:CM.timeLeft, bezi:CM.on }));
+  ok(plny.zbyva===70*60 && Math.abs(po10.zbyva-(70*60-600))<=2 && po10.bezi,
+    'odpočet: po 10 minutách, kdy hodiny skočily dopředu a časovač se spustil jednou, zbývá 60 minut (zbývá '+po10.zbyva+' s)');
+  // návrat na stránku dorovná čas hned, ne až při dalším tiknutí
+  await cp.evaluate(()=>{ CM.konec -= 300000; document.dispatchEvent(new Event('visibilitychange')); });
+  const po15=await cp.evaluate(()=>CM.timeLeft);
+  ok(Math.abs(po15-(70*60-900))<=2,'odpočet: po návratu na stránku se čas dorovná hned (zbývá '+po15+' s, čekáno '+(70*60-900)+')');
+  // uplynutí celé doby během spánku test odevzdá
+  await cp.clock.fastForward('01:00:00');
+  const konec=await cp.evaluate(()=>({ bezi:CM.on, vysledek:document.getElementById('cm-end').style.display!=='none' }));
+  ok(!konec.bezi && konec.vysledek,'odpočet: čas vypršel během spánku — test se odevzdal a ukázal výsledek');
+  // rozepsaný test se při zavření nesmí ztratit potichu
+  await cp.evaluate(()=>cmStart());
+  const beforeUnload=await cp.evaluate(()=>{ const e=new Event('beforeunload',{cancelable:true}); window.dispatchEvent(e); return e.defaultPrevented; });
+  ok(beforeUnload,'rozepsaný test: zavření nebo obnovení stránky se zeptá');
+  await cp.evaluate(()=>{ CM.on=false; stopTimer(); });
+  const beforeUnloadPo=await cp.evaluate(()=>{ const e=new Event('beforeunload',{cancelable:true}); window.dispatchEvent(e); return e.defaultPrevented; });
+  ok(!beforeUnloadPo,'mimo test se zavření stránky neptá');
+  await cctx.close();
 
   ok(errs.length===0,'žádné JS chyby'+(errs.length?(' ['+errs[0]+']'):''));
 
