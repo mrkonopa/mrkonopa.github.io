@@ -10,8 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="prijimacky.css">
-</head>
+<link rel="stylesheet" href="prijimacky.css"></head>
 <body>
 <div class="top-bar">
   <a href="./"><span class="crumb">← Přijímačky z matematiky</span></a>
@@ -85,7 +84,7 @@
 <script>document.addEventListener('DOMContentLoaded',function(){if(window.PZ&&PZ.attachLoginBar)PZ.attachLoginBar();});</script>
 <script>
 const ATTEMPTS_KEY = 'PZ_CERMAT_ATTEMPTS';
-let CM = { on:false, tasks:[], timeLeft:0, timerId:null, okna:{} };
+let CM = { on:false, tasks:[], timeLeft:0, konec:0, timerId:null, okna:{} };
 const G = () => window.RPG_CERMAT_9;
 
 function loadAttempts(){ return PZ.store.get(ATTEMPTS_KEY, []); }
@@ -134,6 +133,7 @@ function cmStart(){
   CM.tasks = G().generate();
   if(sKonstrukcemi()) CM.tasks = CM.tasks.map((t,i)=>PZ_TOPICS.konstrukcePozice.indexOf(i)>=0 ? konstrukceUloha(t) : t);
   CM.timeLeft = G().timeLimitSec;
+  CM.konec = Date.now() + CM.timeLeft * 1000;
   CM.on = true;
   document.getElementById('cm-gate').style.display='none';
   document.getElementById('cm-end').style.display='none';
@@ -183,7 +183,18 @@ function updateTimerUI(){
   const fc = document.getElementById('kn-full-cas');      // čas i při kreslení přes celou obrazovku
   if(fc) fc.textContent = CM.on ? '⏱ '+m+':'+String(s).padStart(2,'0') : '';
 }
-function cmTick(){ CM.timeLeft--; updateTimerUI(); if(CM.timeLeft<=0){ stopTimer(); cmSubmit(true); } }
+// Čas se počítá z konce (CM.konec), ne z počtu tiknutí: tablet při zamčené obrazovce nebo přepnuté aplikaci
+// intervaly pozastaví, takže odpočet po vteřinách by běžel pomaleji a dítě by dostalo víc než 70 minut.
+function cmTick(){
+  CM.timeLeft = Math.max(0, Math.ceil((CM.konec - Date.now()) / 1000));
+  updateTimerUI();
+  if(CM.timeLeft<=0){ stopTimer(); cmSubmit(true); }
+}
+// Po návratu na stránku se čas dorovná hned, ne až při dalším tiknutí.
+document.addEventListener('visibilitychange', ()=>{ if(CM.on && !document.hidden) cmTick(); });
+window.addEventListener('pageshow', ()=>{ if(CM.on) cmTick(); });
+// Rozepsaný test se obnovením stránky ztratí — aspoň se zeptat (na iPadu Safari dotaz nemusí ukázat).
+window.addEventListener('beforeunload', e=>{ if(CM.on){ e.preventDefault(); e.returnValue=''; } });
 function stopTimer(){ if(CM.timerId){ clearInterval(CM.timerId); CM.timerId=null; } }
 
 function cmConfirmSubmit(){ if(CM.on && confirm('Opravdu odevzdat test? Po odevzdání se úlohy vyhodnotí a už je nepůjde upravit.')) cmSubmit(false); }
