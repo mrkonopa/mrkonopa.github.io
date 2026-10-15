@@ -11,8 +11,8 @@
    Proto se otevření celé obrazovky konstrukce dělá tlačítkem Zvětšit a tah prstem skutečnými dotykovými
    událostmi WebDriveru (pointerType touch).
 
-   Pomocný server vkládá do každé stránky sběr chyb (window.__err) a vyhazuje externí skripty a písma, aby se
-   nečekalo na blokovanou síť. Nástroj ničeho v repozitáři nemění. */
+   Pomocný server vkládá do každé stránky sběr chyb (window.__err); externí skripty a písma proxy odmítne hned (403),
+   takže se na ně nečeká. Nástroj ničeho v repozitáři nemění. */
 'use strict';
 const { spawn } = require('child_process');
 const http = require('http'), fs = require('fs'), path = require('path'), os = require('os');
@@ -37,7 +37,9 @@ function server() {
       if (!f.startsWith(ROOT + path.sep) || !fs.existsSync(f) || fs.statSync(f).isDirectory()) { r.writeHead(404); return r.end('nf'); }
       let body = fs.readFileSync(f);
       if (f.endsWith('.html')) {
-        body = String(body).replace(/<(link|script)\b[^>]*(?:href|src)="https?:[^"]*"[^>]*>(\s*<\/script>)?/gi, '').replace(/<head[^>]*>/i, m => m + SBER);
+        // sběr chyb se vkládá hned za otevírací <head>; HTML se NEČISTÍ regulárním výrazem (CodeQL: neúplné čištění značek)
+        const html = String(body), i = html.toLowerCase().indexOf('<head'), j = i < 0 ? -1 : html.indexOf('>', i);
+        body = j < 0 ? html : html.slice(0, j + 1) + SBER + html.slice(j + 1);
       }
       r.writeHead(200, { 'Content-Type': MIME[path.extname(f)] || 'application/octet-stream' }); r.end(body);
     });
