@@ -245,19 +245,21 @@ body.kn-full-on { overflow:hidden; }
   .kn-tip-dotyk { display:inline; }
   .kn-svgwrap:not(.plna) .kn-svg { touch-action:pan-y; }
 }
-/* barvy kresby: zadání tmavě, žák modře, vzorové řešení oranžově (barva L3 nápovědy) */
-.kn-d { stroke:#1a1a2e; stroke-width:2; fill:none; }
-.kn-d-plocha { fill:#e8f1fb; stroke:#1a1a2e; stroke-width:2; }
+/* barvy kresby: zadání tmavě, žák modře, vzorové řešení oranžově (barva L3 nápovědy).
+   Tloušťky čar násobí --kn-t (tlačítko „Čáry“ v okně: tenké 0,6 / střední 1 / silné 1,6); výchozí jsou užší než dřív (2 → 1,5),
+   protože při zvětšení na celou obrazovku tabletu (až 2,5×) byla čára ~5 px a v hustém postupu zakrývala průsečíky. */
+.kn-d { stroke:#1a1a2e; stroke-width:calc(1.5px * var(--kn-t, 1)); fill:none; }
+.kn-d-plocha { fill:#e8f1fb; stroke:#1a1a2e; stroke-width:calc(1.5px * var(--kn-t, 1)); }
 .kn-d-bod { fill:#1a1a2e; }
 /* popisky s bílým obtažením: kde se čáře vyhnout nedá (hustý střed kružnic), čára pod písmem zmizí */
 .kn-d-txt, .kn-r-txt { paint-order:stroke; stroke:#fff; stroke-width:3px; stroke-linejoin:round; }
 .kn-d-txt { font-family:var(--sans); font-size:14px; font-weight:700; fill:#1a1a2e; }
 .kn-d-prim { font-style:italic; }
-.kn-z { stroke:#196ec0; stroke-width:2; fill:none; stroke-linecap:round; }
+.kn-z { stroke:#196ec0; stroke-width:calc(1.7px * var(--kn-t, 1)); fill:none; stroke-linecap:round; }
 .kn-kresba { stroke-opacity:.45; }
-.kn-nahled { stroke:#196ec0; stroke-width:1.6; stroke-dasharray:5 4; fill:none; }
+.kn-nahled { stroke:#196ec0; stroke-width:calc(1.4px * var(--kn-t, 1)); stroke-dasharray:5 4; fill:none; }
 .kn-vyber { stroke:#196ec0; stroke-width:5; stroke-opacity:.35; fill:none; }
-.kn-r { stroke:#c2410c; stroke-width:1.8; stroke-dasharray:6 4; fill:none; }
+.kn-r { stroke:#c2410c; stroke-width:calc(1.4px * var(--kn-t, 1)); stroke-dasharray:6 4; fill:none; }
 .kn-r-bod { fill:#c2410c; }
 .kn-r-txt { font-family:var(--sans); font-size:13px; font-weight:700; fill:#c2410c; }
 /* úhloměr: průsvitný půlkruh se stupnicí, druhé rameno a velikost úhlu modře jako kresba žáka */
