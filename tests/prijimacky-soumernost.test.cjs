@@ -164,6 +164,59 @@ function zkontroluj(C, N8, N11) {
   return st;
 }
 
+/* ── Úroveň „základ“ (procvičování a diagnostika): jeden útvar, jen svislá nebo vodorovná osa ── */
+function zkontrolujZaklad(C, N) {
+  const chyby = [], st = { n: 0, yn: 0, A: 0, odeber: 0, kose: [0, 0, 0, 0, 0], vyjimek: 0, velikosti: new Set(), rodiny: { sv: 0, vo: 0, jina: 0 } };
+  const chyba = m => { if (chyby.length < 8 && !chyby.includes(m)) chyby.push(m); };
+  for (let i = 0; i < N; i++) {
+    let z; try { z = C.zakladSoumernost(); } catch (e) { st.vyjimek++; chyba('generátor spadl: ' + e.message); continue; }
+    st.n++;
+    const u = ctiUtvary(z.svg), b = u.A.slice().sort((p, q) => p.n - q.n);
+    if (!b.length) { chyba('útvar nejde přečíst z kresby'); continue; }
+    if (u.B.length || u.C.length) chyba('na obrázku základu je víc než jeden útvar');
+    st.velikosti.add(b.length);
+    if (b.length < 5 || b.length > 9) chyba('útvar základu má ' + b.length + ' čtverců (5–9)');
+    if (b.some((c, k) => c.n !== k + 1) || !b.every((c, k) => !k || c.y > b[k - 1].y || (c.y === b[k - 1].y && c.x > b[k - 1].x))) chyba('čísla nejdou 1…n zleva doprava a shora dolů');
+    if (b.some(c => c.x < 0 || c.x > 6 || c.y < 0 || c.y > 5)) chyba('čtverec mimo mřížku 7 × 6');
+    if (!kraloveSouvisly(b)) chyba('útvar se rozpadá na kusy');
+    if (!z.prompt || !z.intro || !z.hint1 || !z.hint2 || !Array.isArray(z.sol) || z.sol.length < 3) chyba('chybí zadání, nápověda nebo třikrokový postup');
+    const osy = osyGeom(pole(b));
+    if (z.type === 'yn') {
+      st.yn++;
+      const souměrný = osy.length > 0;
+      if (z.ans !== (souměrný ? 'A' : 'N')) chyba('A/N: odpověď ' + z.ans + ', útvar má ' + osy.length + ' os');
+      if (souměrný) {
+        st.A++;
+        if (osy.length !== 1) chyba('souměrný útvar základu má ' + osy.length + ' os (právě jednu)');
+        osy.forEach(o => { st.rodiny[o.rodina === 'sv' || o.rodina === 'vo' ? o.rodina : 'jina']++; if (o.rodina !== 'sv' && o.rodina !== 'vo') chyba('A/N: osa základu je šikmá nebo jiná (' + o.rodina + ')'); });
+        if (!osy.some(o => paryPodleOsy(b, o, -1) === paryZTextu(z.sol[1]))) chyba('A/N postup: dvojice čtverců nesedí na osu');
+        if (!/Správně je A/.test(z.sol[2])) chyba('A/N postup nekončí odpovědí A');
+      } else {
+        const r = reseniOdebrani(b), m = /Čtverec (\d+) ale protějšek nemá/.exec(z.sol[1]);
+        if (r.length !== 1) chyba('nesouměrný útvar základu nemá právě jedno řešení (' + r.join(',') + ')');
+        if (!m || +m[1] !== r[0]) chyba('A/N postup: čtverec bez protějšku ' + (m && m[1]) + ', správně ' + r.join(','));
+        const mapy = osyGeom(pole(bez(b, r[0]))).map(o => paryPodleOsy(b, o, r[0]));
+        if (!mapy.includes(paryZTextu(z.sol[1]))) chyba('A/N postup: dvojice čtverců nesedí na žádnou osu');
+        if (!/Správně je N/.test(z.sol[2])) chyba('A/N postup nekončí odpovědí N');
+      }
+    } else {
+      st.odeber++;
+      const r = reseniOdebrani(b);
+      if (osy.length) chyba('útvar „odeber čtverec“ je sám souměrný');
+      if (r.length !== 1) chyba('„odeber čtverec“: řešení není právě jedno (' + r.join(',') + ')');
+      if (String(z.ans) !== String(r[0])) chyba('„odeber čtverec“: odpověď ' + z.ans + ', správně ' + r.join(','));
+      const os = osyGeom(pole(bez(b, r[0])));
+      if (os.length !== 1) chyba('„odeber čtverec“: zbytek má ' + os.length + ' os (právě jednu)');
+      os.forEach(o => { st.rodiny[o.rodina === 'sv' || o.rodina === 'vo' ? o.rodina : 'jina']++; if (o.rodina !== 'sv' && o.rodina !== 'vo') chyba('„odeber čtverec“: osa základu je šikmá nebo jiná (' + o.rodina + ')'); });
+      if (!os.map(o => paryPodleOsy(b, o, r[0])).includes(paryZTextu(z.sol[1]))) chyba('„odeber čtverec“ postup: dvojice čtverců nesedí na žádnou osu');
+      if (!new RegExp('odpověď je ' + z.ans + '\\.').test(z.sol[2])) chyba('„odeber čtverec“ postup nekončí odpovědí');
+      st.kose[Math.min(4, Math.floor((r[0] - 1) / b.length * 5))]++;
+    }
+  }
+  st.chyby = chyby;
+  return st;
+}
+
 console.log('\n── Test nanečisto: osová souměrnost ve čtvercové síti ──\n');
 
 /* ── 1. Hlavní kontrola nad skutečnou bankou ───────────────────── */
@@ -208,6 +261,21 @@ ok(Math.min(...S.kose) / kSoucet >= 0.14, 'odebíraný čtverec je v útvaru na 
   ok(tmavy >= 4.5 && svetly >= 4.5, 'číslo na čtverci má kontrast ≥ 4,5 : 1 v obou motivech (hra ' + tmavy.toFixed(1) + ', přijímačky ' + svetly.toFixed(1) + ')');
 }
 
+/* ── 3b. Úroveň základ: nezávislý řešič nad útvarem přečteným z kresby ─────────── */
+{
+  const NZ = 1500, Z = zkontrolujZaklad(C, NZ);
+  ok(Z.n >= NZ * 0.99 && Z.vyjimek === 0, 'základ: ' + Z.n + ' úloh se vygenerovalo, generátor nespadl (' + Z.yn + ' A/N, ' + Z.odeber + ' „odeber čtverec“)');
+  ok(Z.chyby.length === 0, 'základ: útvar, odpověď, jedinost řešení i postup sedí s NEZÁVISLÝM řešičem', Z.chyby.join(' | '));
+  const rz = Z.rodiny, sz = rz.sv + rz.vo;
+  ok(rz.jina === 0 && sz > 0 && Math.min(rz.sv, rz.vo) / sz >= 0.3, 'základ: osa je jen svislá nebo vodorovná, obě stejně často (sv ' + rz.sv + ', vo ' + rz.vo + ', jiná ' + rz.jina + ')');
+  ok(Z.velikosti.size >= 3 && Math.max(...Z.velikosti) <= 9 && Math.min(...Z.velikosti) >= 5, 'základ: útvary jsou menší než v testu (' + [...Z.velikosti].sort((a, b) => a - b).join(', ') + ' čtverců)');
+  const podYn = Z.yn / Z.n, podA = Z.A / Z.yn;
+  ok(podYn >= 0.4 && podYn <= 0.6, 'základ: A/N a „odeber čtverec“ se střídají zhruba stejně (A/N ' + (podYn * 100).toFixed(0) + ' %)');
+  ok(podA >= 0.4 && podA <= 0.6, 'základ: souměrný útvar je zhruba v polovině A/N úloh (' + (podA * 100).toFixed(0) + ' %), odpověď se neodhadne');
+  const kz = Z.kose.reduce((a, b) => a + b, 0);
+  ok(Math.min(...Z.kose) / kz >= 0.12, 'základ: odebíraný čtverec je na začátku i na konci útvaru (pětiny: ' + Z.kose.map(k => (k / kz * 100).toFixed(0) + ' %').join(' / ') + ')');
+}
+
 /* ── 4. Sabotáže: každá pojistka musí něco chytit ──────────────── */
 const sabotaze = [
   ['odpověď 8.1 je jiný čtverec než ten, který se odebírá', 'ans: String(B.X), sol: sol(B', 'ans: String(B.X === 1 ? 2 : B.X - 1), sol: sol(B'],
@@ -231,6 +299,24 @@ sabotaze.forEach(([popis, hledej, nahrad]) => {
   const slabe = sou > 0 && Math.min(s.sv, s.vo, s.d, s.a) / sou < 0.08;
   const chyceno = vysl.chyby.length > 0 || vysl.vyjimek > 0 || slabe || nerovn;
   ok(chyceno, 'sabotáž „' + popis + '“ je chycena (' + (vysl.chyby[0] || (slabe ? 'chybí šikmé osy' : nerovn ? 'odpovědi u okraje útvaru' : vysl.vyjimek ? 'výjimka' : '')).slice(0, 70) + ')', 'test prošel i nad rozbitou bankou');
+});
+
+/* ── 5. Sabotáže úrovně základ ──────────────────────────────────── */
+[
+  ['osa základu smí být i šikmá', "const t = zakl ? pick(['sv', 'vo']) :", "const t = zakl ? pick(['sv', 'vo', 'd', 'a']) :"],
+  ['A/N má obrácenou odpověď', "ans: souměrný ? 'A' : 'N',", "ans: souměrný ? 'N' : 'A',"],
+  ['„odeber čtverec“ odpovídá jiný čtverec', "type: 'text', ans: String(u.X),", "type: 'text', ans: String(u.X === 1 ? 2 : u.X - 1),"],
+  ['na obrázku základu jsou dva útvary', 'svg: svgUtvary([u]), type: \'yn\'', 'svg: svgUtvary([u, u]), type: \'yn\''],
+  ['útvary základu jsou velké jako v testu', 'zakladSoum([o], zakl ? ri(5, 7) : ri(6, 11))', 'zakladSoum([o], zakl ? ri(9, 11) : ri(6, 11))'],
+  ['postup A/N ukazuje jiný čtverec bez protějšku', 'Čtverec ${u.X} ale protějšek nemá.`, `Útvar souměrný není.', 'Čtverec ${u.X + 1} ale protějšek nemá.`, `Útvar souměrný není.']
+].forEach(([popis, hledej, nahrad]) => {
+  const pocet = ZDROJ.split(hledej).length - 1;
+  ok(pocet === 1, 'sabotáž základu „' + popis + '“ se aplikovala (' + pocet + '× nalezeno)');
+  if (pocet !== 1) return;
+  let v;
+  try { v = zkontrolujZaklad(nactiBanku(ZDROJ.replace(hledej, () => nahrad)), 600); }
+  catch (e) { v = { chyby: ['pád: ' + e.message], vyjimek: 1 }; }
+  ok(v.chyby.length > 0 || v.vyjimek > 0, 'sabotáž základu „' + popis + '“ je chycena (' + ((v.chyby[0] || 'výjimka') + '').slice(0, 70) + ')');
 });
 
 console.log('\n  ' + pass + ' ✅  ' + fail + ' ❌\n');

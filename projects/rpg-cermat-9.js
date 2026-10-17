@@ -3687,8 +3687,8 @@
     }
     return [...vyb.values()];
   }
-  function osaNahodna() {
-    const t = pick(['sv', 'sv', 'vo', 'vo', 'd', 'a']);
+  function osaNahodna(zakl) {
+    const t = zakl ? pick(['sv', 'vo']) : pick(['sv', 'sv', 'vo', 'vo', 'd', 'a']);
     return t === 'sv' ? { typ: 'sv', k: pick([4, 5, 5, 6]) } : t === 'vo' ? { typ: 'vo', k: pick([3, 4, 4]) }
       : t === 'd' ? { typ: 'd', c: pick([0, 0, 1, -1]) } : { typ: 'a', c: pick([4, 4, 3, 5]) };
   }
@@ -3709,10 +3709,11 @@
   }
   /* Útvar, který sám souměrný není, ale po odebrání JEDINÉHO čtverce X souměrný je
      (a žádným jiným čtvercem se to nepodaří): souměrný základ + čtverec bez protějšku. */
-  function utvarJednoReseni() {
+  function utvarJednoReseni(zakl) {
     for (let pokus = 0; pokus < 4000; pokus++) {
-      const o = osaNahodna(), S = zakladSoum([o], ri(6, 11));
-      if (S.length < 6 || S.length > 12 || !sitSouvisly(S)) continue;
+      const o = osaNahodna(zakl), S = zakladSoum([o], zakl ? ri(5, 7) : ri(6, 11));
+      if (S.length < (zakl ? 5 : 6) || S.length > (zakl ? 8 : 12) || !sitSouvisly(S)) continue;
+      if (zakl && osyUtvaru(S).length !== 1) continue;      // základ: souměrný zbytek má JEDINOU osu (ne i šikmou)
       const mn = new Set(S.map(([x, y]) => bk(x, y))), kand = [];
       for (let x = 0; x < PLATNO_W; x++) for (let y = 0; y < PLATNO_H; y++) {
         if (mn.has(bk(x, y)) || !SIT_KRAL.some(([dx, dy]) => mn.has(bk(x + dx, y + dy)))) continue;
@@ -3735,21 +3736,22 @@
     throw new Error('útvar s jedním řešením se nepodařilo vytvořit');
   }
   // Souměrný útvar s PŘESNĚ n osami (1 nebo 2).
-  function utvarSOsami(n) {
+  function utvarSOsami(n, zakl) {
     for (let pokus = 0; pokus < 4000; pokus++) {
-      const S = zakladSoum(n === 1 ? [osaNahodna()] : pick(DVE_OSY)(), ri(6, 11));
-      if (S.length < 6 || S.length > 12 || !rozmerOk(S) || !sitSouvisly(S) || osyUtvaru(S).length !== n) continue;
+      const S = zakladSoum(n === 1 ? [osaNahodna(zakl)] : pick(DVE_OSY)(), zakl ? ri(5, 8) : ri(6, 11));
+      if (S.length < (zakl ? 5 : 6) || S.length > (zakl ? 9 : 12) || !rozmerOk(S) || !sitSouvisly(S) || osyUtvaru(S).length !== n) continue;
       return umistiUtvar(S, null);
     }
     throw new Error('souměrný útvar s ' + n + ' osami se nepodařilo vytvořit');
   }
   // Tři mřížky vedle sebe. Každý čtverec nese číslo i polohu (test útvar čte z kresby).
   function svgUtvary(utvary) {
-    const g = SIT_W * SIT_B, mez = 16, x0 = 8, y0 = 22;
-    let o = `<svg viewBox="0 0 ${2 * x0 + 3 * g + 2 * mez} ${y0 + SIT_H * SIT_B + 8}">`;
+    const n = utvary.length, g = SIT_W * SIT_B, mez = 16, x0 = 8, y0 = n === 1 ? 6 : 22;
+    // jediný útvar (úroveň základ) je menší: viewBox je jen na jednu mřížku a svg má strop šířky
+    let o = `<svg viewBox="0 0 ${2 * x0 + n * g + (n - 1) * mez} ${y0 + SIT_H * SIT_B + 8}"${n === 1 ? ' style="width:100%;max-width:250px"' : ''}>`;
     utvary.forEach((u, i) => {
       const gx = x0 + i * (g + mez);
-      o += napis(gx + g / 2, 15, 'ABC'[i], VRCHOL);
+      if (n > 1) o += napis(gx + g / 2, 15, 'ABC'[i], VRCHOL);
       for (let j = 0; j <= SIT_W; j++) o += `<path d="M ${gx + j * SIT_B} ${y0} V ${y0 + SIT_H * SIT_B}" stroke="#2a3a5e" stroke-width="0.8"/>`;
       for (let j = 0; j <= SIT_H; j++) o += `<path d="M ${gx} ${y0 + j * SIT_B} H ${gx + g}" stroke="#2a3a5e" stroke-width="0.8"/>`;
       u.bunky.forEach(([x, y]) => {
@@ -3804,6 +3806,40 @@
         { key: '8.1', points: 2, prompt: `Určete číslo čtverce, jehož odebráním vznikne z útvaru B osově souměrný útvar.`, ans: String(B.X), sol: sol(B, 'B') },
         { key: '8.2', points: 2, prompt: `Určete číslo čtverce, jehož odebráním vznikne z útvaru C osově souměrný útvar.`, ans: String(C.X), sol: sol(C, 'C') }
       ]
+    };
+  }
+
+  /* Úroveň „základ“ pro procvičování a diagnostiku (prijimacky-gen.js): JEDEN útvar, jeden krok.
+     Střídá otázku „je útvar souměrný?“ (A/N; nesouměrný je vždy „téměř souměrný“ — o jediný čtverec,
+     což je přesně ta záměna, kterou žák dělá) s otázkou „který čtverec odebrat?“. Útvary jsou menší
+     (5–8 čtverců) a mají jen svislou nebo vodorovnou osu; odpověď se vždy POČÍTÁ řešičem. */
+  function zakladSoumernost() {
+    const IN = 'Ve čtvercové síti je z tmavých čtverců složen útvar, každý tmavý čtverec je označen číslem.';
+    if (ri(0, 1) === 1) {
+      const souměrný = ri(0, 1) === 1, u = souměrný ? utvarSOsami(1, true) : utvarJednoReseni(true);
+      const o = souměrný ? u.osy[0] : u.osaZb, d = sitDvojice(u, o, !souměrný);
+      return {
+        varianta: 'souměrný', svg: svgUtvary([u]), type: 'yn', intro: IN + ' Útvar je osově souměrný, jestliže se podle nějaké osy obě jeho poloviny překryjí.',
+        prompt: 'Je útvar na obrázku osově souměrný?', ans: souměrný ? 'A' : 'N',
+        hint1: 'Útvar je souměrný, když každý čtverec najde protějšek (čtverec stejně daleko od osy na druhé straně).',
+        hint2: 'Zkus osu svislou i vodorovnou a ke každému čtverci hledej protějšek. Stačí jediný čtverec bez protějšku a útvar souměrný není.',
+        sol: souměrný
+          ? [SIT_POJEM, `Vychází ${sitPopisOsy(o)}. Protějšky tvoří dvojice čtverců ${d.pary}. ${d.naOseTxt}`, `Každý čtverec má protějšek, útvar je souměrný. Správně je A (ano).`]
+          : [SIT_POJEM, `Nejblíž souměrnosti je ${sitPopisOsy(o)}: spárují se dvojice čtverců ${d.pary}. Čtverec ${u.X} ale protějšek nemá.`, `Útvar souměrný není. Správně je N (ne).`],
+        utvar: u
+      };
+    }
+    const u = utvarJednoReseni(true), d = sitDvojice(u, u.osaZb, true);
+    return {
+      varianta: 'odeber', svg: svgUtvary([u]), type: 'text', ans: String(u.X),
+      intro: IN + ' Odebráním jediného tmavého čtverce lze vytvořit osově souměrný útvar.',
+      prompt: 'Určete číslo čtverce, jehož odebráním vznikne osově souměrný útvar.',
+      hint1: 'Hledáš čtverec, který nemá protějšek podle osy souměrnosti.',
+      hint2: 'Najdi osu, podle které se spáruje většina čtverců, a vyhledej ten jediný čtverec bez páru.',
+      sol: [`${SIT_POJEM} Hledáš čtverec, který protějšek nemá.`,
+        `Vychází ${sitPopisOsy(u.osaZb)}. Protějšky tvoří dvojice čtverců ${d.pary}. ${d.naOseTxt} Jediný čtverec bez protějšku je čtverec ${u.X}.`,
+        `Po odebrání čtverce ${u.X} je zbytek útvaru souměrný, odpověď je ${u.X}.`],
+      utvar: u
     };
   }
 
@@ -5158,6 +5194,7 @@
     // Vystaveno pro přijímačkový hub (procvičování po tématech): 16 pozic testu,
     // každá = pole variant. genSlot(i) vygeneruje úlohu z pozice i (0-indexováno).
     slotCount: function () { return SLOTS.length; },
+    zakladSoumernost: zakladSoumernost,                   // úroveň „základ“ pro prijimacky-gen.js (viz výše)
     genSlot: function (i) { return losuj(SLOTS[i])(); }
   };
 })();

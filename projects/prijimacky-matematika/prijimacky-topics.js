@@ -20,12 +20,12 @@
     // Který okruh úloha opravdu cvičí, říká její `okruh` (topicsForTask); procvičování
     // okruhu z pozice bere jen úlohy, které do něj patří.
     // Pozice 10 (index 9): měřítko mapy a plánu je poměr; úlohy to nesou v `okruh`.
-    { id: 'pomer', name: 'Poměr a úměrnost', oblast: 'Závislosti a data', slots: [12, 4, 0, 9] },
+    { id: 'pomer', name: 'Poměr a úměrnost', oblast: 'Závislosti a data', slots: [12, 4, 0, 9], navic: [10, 11] },
     { id: 'vyrazy-promenna', name: 'Výrazy s proměnnou', oblast: 'Číslo a proměnná', slots: [2] },
-    { id: 'rovnice', name: 'Rovnice a soustavy', oblast: 'Číslo a proměnná', slots: [3] },
+    { id: 'rovnice', name: 'Rovnice a soustavy', oblast: 'Číslo a proměnná', slots: [3], navic: [13] },
     // Pozice 12 (index 11) sem už nepatří: všechny její varianty jsou tělesa (okruh 'telesa'),
     // takže by procvičování slovních úloh z ní nikdy nic nevylosovalo.
-    { id: 'slovni', name: 'Slovní úlohy', oblast: 'Nestandardní úlohy', slots: [12, 4, 5, 0] },
+    { id: 'slovni', name: 'Slovní úlohy', oblast: 'Nestandardní úlohy', slots: [12, 4, 5, 0], navic: [15] },
     // Pozice 16 (index 15) sem patří taky: většina jejích obrazců (mozaika, patra, čtverce
     // z pruhů, vybarvování sítě) je geometrie; číselné řady (roboti, Mirek a Zuzka) nesou
     // `okruh: 'slovni'`. Dřív nepatřila ŽÁDNÉMU okruhu, takže chyběla v procvičování i v diagnostice.
@@ -33,10 +33,19 @@
     // jako v ostrých testech 2026, kde se geometrie v rovině i tělesa na pozicích 6–8 střídají.
     // Pozice 13 (index 12) nese od září 2026 i tělesa a trojúhelník z ostrých úloh 13
     // (hranol, polepená krychle, válec, rovnoramenný trojúhelník) vedle slovních úloh.
-    { id: 'geometrie', name: 'Geometrie v rovině', oblast: 'Geometrie', slots: [4, 5, 6, 7, 8, 9, 12, 15] },
+    { id: 'geometrie', name: 'Geometrie v rovině', oblast: 'Geometrie', slots: [4, 5, 6, 7, 8, 9, 12, 15], navic: [10, 11] },
     { id: 'telesa', name: 'Tělesa (objem a povrch)', oblast: 'Geometrie', slots: [5, 6, 10, 11, 12] },
-    { id: 'data', name: 'Tabulky, data a statistika', oblast: 'Závislosti a data', slots: [13] },
+    { id: 'data', name: 'Tabulky, data a statistika', oblast: 'Závislosti a data', slots: [13], navic: [10] },
   ];
+
+  /* `navic` = pozice, ze kterých okruh dostane JEN úlohy, které ho nesou ve vlastním `okruh`
+     (pozice 11 střídá tělesa, kruhový diagram, mapu, mnohoúhelník i útvary ze čtverců; pozice 12
+     jsou skoro samá tělesa, ale „Obdélník ze dvou čtverců“ je geometrie; pozice 16 nese řady
+     „Roboti“ a „Mirek a Zuzka“ jako slovní úlohy; pozice 14 „Ze které rovnice“). Do `slots` nepatří:
+     `slots` je i záložní mapování pozice → okruh (topicsForSlot) pro úlohy bez `okruh` a rozšíření
+     by chybu v takové úloze připsalo víc okruhům. Bez `navic` bylo naměřeno 12 z 90 variant banky
+     (13 %) NEDOSAŽITELNÝCH v procvičování i diagnostice, včetně tří tvrzení o osové souměrnosti.
+     Úplnost hlídá tests/prijimacky-dosazitelnost.test.cjs ze SKUTEČNÉ banky, ne z tohoto seznamu. */
 
   /* Okruh → výklad a video. Ročník NENÍ vždy devátý: test nanečisto zkouší látku
      6.–9. třídy, takže výklad má přijít z ročníku, kde se to probírá. Poslat žáka
@@ -103,23 +112,24 @@
     const intro = t.intro || '';
     const svg = t.svg || '';
     const kind = t.kind || 'open';
+    const title = t.title || '';
     if (kind === 'mc') {
-      return { intro, svg, prompt: t.prompt, type: 'mc', options: (t.options || []).slice(), ans: t.ans, sol: t.sol || '' };
+      return { title, intro, svg, prompt: t.prompt, type: 'mc', options: (t.options || []).slice(), ans: t.ans, sol: t.sol || '' };
     }
     if (kind === 'tfgrid') {
       const s = t.statements[Math.floor(Math.random() * t.statements.length)];
-      return { intro, svg, prompt: s.text, type: 'yn', ans: s.ans, sol: s.sol || '' };
+      return { title, intro, svg, prompt: s.text, type: 'yn', ans: s.ans, sol: s.sol || '' };
     }
     if (kind === 'match') {
       const i = Math.floor(Math.random() * t.prompts.length);
-      return { intro, svg, prompt: t.prompts[i], type: 'mc', options: (t.options || []).slice(), ans: t.ans[i], sol: (t.sol && t.sol[i]) || '' };
+      return { title, intro, svg, prompt: t.prompts[i], type: 'mc', options: (t.options || []).slice(), ans: t.ans[i], sol: (t.sol && t.sol[i]) || '' };
     }
     // open — vyber jednu podúlohu (generátor je dělá samostatné, viz reálný M9A)
     const parts = t.parts || [];
     const p = parts.length ? parts[Math.floor(Math.random() * parts.length)] : { prompt: t.prompt || '', ans: '', sol: '' };
     // `klavesnice`: rovnice mají vždy textovou klávesnici — číselná by prozradila, že odpověď
     // není „nemá řešení" (viz inputMode v prijimacky-core.js).
-    return { intro, svg, prompt: p.prompt, type: 'text', ans: String(p.ans), sol: p.sol || '', ...(p.klavesnice ? { klavesnice: p.klavesnice } : {}) };
+    return { title, intro, svg, prompt: p.prompt, type: 'text', ans: String(p.ans), sol: p.sol || '', ...(p.klavesnice ? { klavesnice: p.klavesnice } : {}) };
   }
 
   // Vygeneruj procvičovací položku pro daný okruh. Zdroj = pozice testu (SLOTS)
@@ -133,7 +143,7 @@
     const topic = TOPICS.find(x => x.id === topicId);
     if (!topic) return null;
     let gens = (window.PZ_GEN && window.PZ_GEN[topicId]) || [];
-    let slots = (typeof window.RPG_CERMAT_9 !== 'undefined') ? (topic.slots || []) : [];
+    let slots = (typeof window.RPG_CERMAT_9 !== 'undefined') ? (topic.slots || []).concat(topic.navic || []) : [];
     if (uroven === 'zaklad' && gens.length) slots = [];
     else if (uroven === 'test' && slots.length) gens = [];
     const total = gens.length + slots.length;

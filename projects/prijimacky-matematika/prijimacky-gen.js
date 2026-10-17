@@ -1109,6 +1109,18 @@
     };
   }
 
+  /* Osová souměrnost ve čtvercové síti, úroveň „základ“: jeden útvar, jeden krok. Útvar, odpověď i postup
+     počítá řešič z banky testu nanečisto (rpg-cermat-9.js, `zakladSoumernost`) — jediný zdroj pravdy, žádná
+     druhá kopie geometrie. Banka se načítá dřív (procvičování i diagnostika), ale kdyby tu nebyla, generátor
+     NEVRÁTÍ prázdno (practiceItem by tím zastavil diagnostiku), nýbrž prostou úlohu z téhož okruhu. */
+  function soumernostG() {
+    const B = window.RPG_CERMAT_9;
+    if (!B || typeof B.zakladSoumernost !== 'function') return ctverecG();
+    const z = B.zakladSoumernost();
+    return { svg: z.svg, intro: z.intro, prompt: z.prompt, type: z.type, ans: z.ans, sol: z.sol,
+      hint1: z.hint1, hint2: z.hint2, _check: { kind: 'soumernost', varianta: z.varianta } };
+  }
+
   window.PZ_GEN = {
     'vyrazy-mocniny': [mocnina, odmocnina, mocninaVyraz, mocnina10, kvadratSouctu, odmocninaSoucin,
                        poradiOperaci, rozdilMocnin],
@@ -1127,7 +1139,7 @@
     'data': [prumer, prumerPridani, median5, modus, rozsah,
              prumerChybejici, soucetZPrumeru],
     'geometrie': [obvodObdelnikG, obsahObdelnikG, ctverecG, obsahTrojuhelnikG, uhelVedlejsi, pythagorasG,
-                  lichobeznik, tretiUhel],
+                  lichobeznik, tretiUhel, soumernostG],
     'telesa': [objemKvadrT, povrchKvadrT, krychleT, hranyKvadrT, objemKvadrLitr,
                hranol, hranaZObjemu],
   };
