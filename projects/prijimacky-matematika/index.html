@@ -92,9 +92,11 @@
     .top-bar {
       max-width: 920px; margin: 0 auto;
       padding: 20px 24px 0;
-      display: flex; justify-content: space-between; gap: 18px;
+      display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 18px;
       font-size: .82rem; color: var(--muted);
     }
+    /* Na hlavní stránce přihlašuje karta „Ulož si postup“, malé tlačítko v liště by ho jen zdvojovalo. */
+    .top-bar #pz-login { display: none !important; }
     .top-bar a { color: var(--muted); display: inline-block; padding: 6px 0; }
     .top-bar a:hover { color: var(--blue); }
     .top-bar .crumb { color: var(--text); font-weight: 500; }
@@ -416,34 +418,76 @@
     .hub-card h3 { font-size:1.15rem; font-weight:700; color:var(--text); }
     .hub-card p { font-size:.88rem; font-weight:300; color:var(--muted); line-height:1.5; }
     .hub-card .go { margin-top:auto; font-weight:700; font-size:.88rem; color:var(--blue); }
+    /* ── Přihlášení a počítadla (jádro: PZ.attachAccountCard / PZ.vykresliSouhrn) ── */
+    .vh { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
+    [hidden] { display:none !important; }
+    .pz-authbtn { cursor:pointer; font-family:var(--sans); font-weight:600; font-size:.8rem;
+      padding:5px 12px; border-radius:8px; border:1px solid var(--border);
+      background:var(--card); color:var(--blue); transition:all .12s; }
+    .pz-authbtn:hover { border-color:var(--blue); background:var(--blue-light); }
+    .pz-authbtn:focus-visible { outline:2px solid var(--blue); outline-offset:2px; }
+    .acct-wrap { max-width:920px; margin:22px auto 0; padding:0 24px; }
+    .acct { background:var(--card); border:1px solid var(--border); border-left:4px solid var(--blue);
+      border-radius:var(--radius); box-shadow:var(--shadow); padding:16px 20px;
+      display:flex; align-items:center; gap:18px; flex-wrap:wrap; }
+    .acct.acct-in { border-left-color:var(--green); }
+    .acct-tx { flex:1 1 320px; min-width:0; }
+    .acct h2 { font-size:1.05rem; font-weight:700; color:var(--text); margin-bottom:3px; }
+    .acct p { font-size:.88rem; font-weight:300; color:var(--muted); line-height:1.5; }
+    .acct p b { font-weight:600; color:var(--text); }
+    .acct .acct-sub { margin-top:4px; font-size:.82rem; }
+    .acct .acct-mail { overflow-wrap:anywhere; }
+    .acct .acct-stav { margin-top:4px; font-size:.82rem; color:var(--green); min-height:1.2em; }
+    .acct-btn { font-size:.88rem; padding:9px 16px; flex:0 0 auto; }
+    .acct-primary { background:var(--blue); border-color:var(--blue); color:#fff; }
+    .acct-primary:hover { background:var(--blue-dark); border-color:var(--blue-dark); color:#fff; }
+    @media (max-width:520px) { .acct-wrap { padding:0 16px; } .acct-btn { width:100%; } }
+    @media (pointer:coarse) { .acct-btn { min-height:44px; } }
+    /* Počítadla pod kartami: číslo je tučné a stojí na místě (tabulkové číslice), aby se při počítání nehýbal text. */
+    .hc-stat { margin-top:6px; padding-top:9px; border-top:1px dashed var(--border);
+      font-size:.88rem; color:var(--text); font-variant-numeric:tabular-nums; position:relative; }
+    .hc-stat b { font-weight:800; font-size:1.2rem; }
+    .hc-stat.s-test b { color:var(--blue); }
+    .hc-stat.s-procvic b { color:var(--teal); }
+    .hc-stat.s-diag b { color:var(--gold); }
+    .hc-stat.s-pokrok b { color:var(--green); }
+    .pz-bar { display:block; height:6px; margin-top:7px; border-radius:6px; background:var(--green-light); overflow:hidden; }
+    .pz-bar i { display:block; height:100%; border-radius:6px; background:var(--green); transition:width .9s cubic-bezier(.2,.7,.2,1); }
+    @media (prefers-reduced-motion: reduce) { .pz-bar i { transition:none; } }
     .hub-card.soon { opacity:.72; }
     .hub-card.soon .badge { margin-top:auto; align-self:flex-start; font-size:.68rem; font-weight:700;
       letter-spacing:.06em; text-transform:uppercase; color:var(--gold); background:var(--gold-light);
       padding:3px 10px; border-radius:20px; }
   </style>
+  <section class="acct-wrap" aria-label="Přihlášení a ukládání postupu"><div id="pz-ucet" class="acct" hidden></div></section>
+
   <section class="hub-grid" aria-label="Trenažér přijímaček">
     <a class="hub-card" href="test.html">
       <span class="ic i-test"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 3h8l4 4v14H6z M14 3v4h4 M9 12h6 M9 16h4"/></svg></span>
       <h3>Test nanečisto</h3>
       <p>Celý test na čas — 16 úloh, 50 bodů, 70 minut. Okamžité vyhodnocení a vyřešený postup.</p>
+      <div class="hc-stat s-test" data-pz-stat="test" hidden></div>
       <span class="go">Spustit test →</span>
     </a>
     <a class="hub-card" href="procvicovani.html">
       <span class="ic i-practice"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 3.5a8.5 8.5 0 1 0 0 17 8.5 8.5 0 1 0 0-17 M12 7.5a4.5 4.5 0 1 0 0 9 4.5 4.5 0 1 0 0-9 M12 12h.01"/></svg></span>
       <h3>Procvičování</h3>
       <p>Trénuj po tématech — úlohy ve znění přijímaček a vyřešený postup u každé.</p>
+      <div class="hc-stat s-procvic" data-pz-stat="procvic" hidden></div>
       <span class="go">Vybrat okruh →</span>
     </a>
     <a class="hub-card" href="diagnostika.html">
       <span class="ic i-diag"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 3a9 9 0 1 0 0 18 9 9 0 1 0 0-18 M15.6 8.4l-2.3 4.9-4.9 2.3 2.3-4.9z"/></svg></span>
       <h3>Diagnostika</h3>
       <p>Dvě úlohy z každého tématu určí, jak na tom jsi, a ukážou, kde získáš nejvíc bodů.</p>
+      <div class="hc-stat s-diag" data-pz-stat="diag" hidden></div>
       <span class="go">Spustit diagnostiku →</span>
     </a>
     <a class="hub-card" href="statistiky.html">
       <span class="ic i-stats"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 20V10 M9.3 20V4 M14.7 20v-7 M20 20v-4"/></svg></span>
       <h3>Statistiky</h3>
       <p>Sleduj svůj pokrok, trend výsledků a připravenost na zkoušku.</p>
+      <div class="hc-stat s-pokrok" data-pz-stat="pokrok" hidden></div>
       <span class="go">Zobrazit pokrok →</span>
     </a>
   </section>
@@ -716,6 +760,15 @@
     <span>© Vojtěch Konopa</span>
     <span><a href="/">domů</a> · <a href="../">projekty</a></span>
   </footer>
+
+<script src="prijimacky-core.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script defer src="../rpg-cloud.js"></script>
+<script>document.addEventListener('DOMContentLoaded',function(){
+  if(!window.PZ) return;
+  PZ.vykresliSouhrn();                                   // počítadla pod kartami (z localStorage, i bez přihlášení)
+  PZ.attachAccountCard(document.getElementById('pz-ucet'));  // přihlášení + synchronizace (bez cloudu zůstane skryté)
+});</script>
 
 <script>
 (function(){

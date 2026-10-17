@@ -398,11 +398,11 @@
     if (!bar || bar.querySelector('#pz-login')) return;
     const wrap = document.createElement('span');
     wrap.id = 'pz-login';
-    wrap.style.cssText = 'margin-left:auto;display:inline-flex;align-items:center;gap:10px;font-size:.85rem';
+    wrap.style.cssText = 'margin-left:auto;display:inline-flex;flex-wrap:wrap;justify-content:flex-end;align-items:center;gap:6px 10px;min-width:0;max-width:100%;font-size:.85rem';
     bar.appendChild(wrap);
     const paint = (u) => {
       if (u) {
-        wrap.innerHTML = '<span style="color:var(--muted)">' + esc(u.email || 'přihlášen') + '</span>' +
+        wrap.innerHTML = '<span style="color:var(--muted);min-width:0;overflow-wrap:anywhere">' + esc(u.email || 'přihlášen') + '</span>' +
           '<button id="pz-logout" class="pz-authbtn">Odhlásit</button>';
         wrap.querySelector('#pz-logout').onclick = () => RPGCloud.logout();
       } else {
@@ -698,11 +698,132 @@
     if (cil) cil.focus({ preventScroll: true });
   }
 
+  /* ════════ Hlavní stránka: co žák už udělal + karta s přihlášením ════════
+     Souhrn se počítá z TÝCHŽ dat jako statistiky (pokusy, procvičování, diagnostika, připravenost),
+     takže čísla na hlavní stránce nemají vlastní vzorec, který by se s nimi rozešel. Data jsou
+     v localStorage / cloudu a patří komukoli — proto každá hodnota prochází num/isObj. */
+  function souhrn() {
+    const p = pokusy(), o = odhadBodu(), pra = store.get(K_PRA, {});
+    let uloh = 0, spravne = 0, okruhu = 0;
+    if (isObj(pra)) for (const k in pra) {
+      const v = pra[k]; if (!isObj(v)) continue;
+      const t = Math.max(0, Math.min(Math.floor(num(v.total)), 1e6));
+      uloh += t; spravne += Math.min(t, Math.max(0, Math.floor(num(v.ok))));
+      if (t > 0 && k !== 'konstrukce') okruhu++;
+    }
+    const dl = diagUrovne(store.get(K_DIA, null));
+    let zvladas = 0; dl.forEach(l => { if (l === 3) zvladas++; });
+    return {
+      testy: p.length,
+      odhad: o ? { body: Math.round(o.body * 10) / 10, max: o.max } : null,
+      uloh, spravne, uspesnost: uloh ? Math.round(spravne / uloh * 100) : null, okruhu,
+      diagOkruhu: dl.size, diagZvladas: zvladas,
+      pripravenost: computeReadiness(),
+      neco: p.length > 0 || uloh > 0 || dl.size > 0
+    };
+  }
+  const sklon = (n, jedna, dve, pet) => (n === 1 ? jedna : (n >= 2 && n <= 4 ? dve : pet));
+  const cislo = (v, dec) => (dec ? (Math.round(v * 10) / 10).toFixed(1) : String(Math.round(v))).replace('.', ',');
+  // Dosud ukázaná hodnota každého čísla: změna po přihlášení (cloud) se pak animuje z ní, ne od nuly.
+  const ukazano = new Map();
+  const bezPohybu = () => { try { return !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches); } catch (e) { return false; } };
+  // Číslo v prvku, který nese data-k (klíč), data-to (cílová hodnota) a případně data-dec="1".
+  function pocitejCislo(el, zpozdeni) {
+    const k = el.dataset.k, to = Number(el.dataset.to), dec = el.dataset.dec === '1';
+    const od = ukazano.has(k) ? ukazano.get(k) : 0;
+    ukazano.set(k, to);
+    if (!Number.isFinite(to)) return;
+    if (bezPohybu() || od === to || typeof requestAnimationFrame !== 'function') { el.textContent = cislo(to, dec); return; }
+    const t0 = performance.now() + (zpozdeni || 0), dobaMs = 900;
+    el.textContent = cislo(od, dec);
+    const krok = (ted) => {
+      const x = Math.min(1, Math.max(0, (ted - t0) / dobaMs)), e = 1 - Math.pow(1 - x, 3);   // easeOutCubic
+      el.textContent = cislo(x >= 1 ? to - 1 : od + (to - od) * e, dec);
+      if (x < 1) requestAnimationFrame(krok);
+    };
+    requestAnimationFrame(krok);
+  }
+  /* Čtyři proužky pod kartami hlavní stránky (data-pz-stat = test | procvic | diag | pokrok).
+     Vizuální část je pro čtečku skrytá (aria-hidden) a vedle ní stojí celá věta s konečnými čísly —
+     čtečka nesmí číst „1, 2, 3 … 128“. */
+  function vykresliSouhrn(root) {
+    const s = souhrn(), r = root || document;
+    const b = (k, to, dec) => '<b class="pz-cnt" data-k="' + k + '" data-to="' + to + '"' + (dec ? ' data-dec="1"' : '') + '>' + cislo(to, dec) + '</b>';
+    const tvar = {
+      test: () => !s.testy ? null : {
+        html: b('testy', s.testy) + ' ' + sklon(s.testy, 'test', 'testy', 'testů') + (s.odhad ? ' · odhad ' + b('odhad', s.odhad.body, s.odhad.body % 1) + ' / ' + s.odhad.max + ' b.' : ''),
+        veta: s.testy + ' ' + sklon(s.testy, 'test', 'testy', 'testů') + (s.odhad ? ', odhad ' + cislo(s.odhad.body, s.odhad.body % 1) + ' z ' + s.odhad.max + ' bodů' : '') },
+      procvic: () => !s.uloh ? null : {
+        html: b('uloh', s.uloh) + ' ' + sklon(s.uloh, 'úloha', 'úlohy', 'úloh') + ' · ' + b('uspesnost', s.uspesnost) + ' % správně',
+        veta: s.uloh + ' ' + sklon(s.uloh, 'úloha', 'úlohy', 'úloh') + ' procvičeno, ' + s.uspesnost + ' % správně' },
+      diag: () => !s.diagOkruhu ? null : {
+        html: b('zvladas', s.diagZvladas) + ' z ' + b('okruhu', s.diagOkruhu) + ' ' + sklon(s.diagOkruhu, 'okruhu', 'okruhů', 'okruhů') + ' zvládáš',
+        veta: s.diagZvladas + ' z ' + s.diagOkruhu + ' okruhů zvládáš' },
+      pokrok: () => !s.neco ? null : {
+        html: 'připravenost ' + b('pripravenost', s.pripravenost) + ' %<span class="pz-bar" aria-hidden="true"><i data-w="' + s.pripravenost + '" style="width:' + s.pripravenost + '%"></i></span>',
+        veta: 'Odhad připravenosti ' + s.pripravenost + ' %' }
+    };
+    const pozorovatel = (typeof IntersectionObserver === 'function' && !bezPohybu()) ? new IntersectionObserver((zaznamy, ob) => {
+      zaznamy.forEach(z => { if (!z.isIntersecting) return; ob.unobserve(z.target); z.target._spust && z.target._spust(); });
+    }, { threshold: 0.4 }) : null;
+    let poradi = 0;
+    r.querySelectorAll('[data-pz-stat]').forEach(el => {
+      const f = tvar[el.dataset.pzStat], d = f && f();
+      if (!d) { el.hidden = true; el.innerHTML = ''; return; }
+      el.innerHTML = '<span aria-hidden="true">' + d.html + '</span><span class="vh">' + esc(d.veta) + '</span>';
+      el.hidden = false;
+      const pruh = el.querySelector('.pz-bar i'), cil = pruh && pruh.dataset.w;
+      const mojePoradi = poradi;     // zachytit teď: proměnná `poradi` poroste dál a spust běží až později
+      const spust = () => {
+        el.querySelectorAll('.pz-cnt').forEach(c => pocitejCislo(c, mojePoradi * 120));
+        if (pruh && !bezPohybu()) { pruh.style.width = cil + '%'; }
+      };
+      if (pruh && !bezPohybu()) pruh.style.width = '0%';
+      // Do chvíle, než karta vjede do záběru, ukazuje počáteční hodnotu (ne konečnou, která by pak blikla).
+      if (pozorovatel) el.querySelectorAll('.pz-cnt').forEach(c => { c.textContent = cislo(ukazano.has(c.dataset.k) ? ukazano.get(c.dataset.k) : 0, c.dataset.dec === '1'); });
+      poradi++;
+      // Karty pod okrajem (na telefonu skoro všechny) se rozběhnou, až do záběru vjedou.
+      if (pozorovatel) { el._spust = () => { el._spust = null; spust(); }; pozorovatel.observe(el); } else spust();
+    });
+    return s;
+  }
+  // Karta „Ulož si postup“ s přihlášením (graceful: bez cloudu zůstane skrytá, hlavní stránka běží jako dřív).
+  function attachAccountCard(host) {
+    if (!host) return;
+    if (!hasCloud()) { host.hidden = true; return; }
+    attachLoginBar();    // malé přihlášení v horní liště + synchronizace po přihlášení
+    let stav = '';
+    const paint = (u) => {
+      host.hidden = false;
+      if (u) {
+        host.className = 'acct acct-in';
+        host.innerHTML = '<div class="acct-tx"><h2>Postup se ukládá</h2>' +
+          '<p>Přihlášen jako <b class="acct-mail">' + esc(u.email || 'školní účet') + '</b>. Tvoje testy, procvičování i diagnostika se ukládají do cloudu a uvidíš je na každém zařízení.</p>' +
+          '<p class="acct-stav" id="acct-stav" role="status">' + esc(stav) + '</p></div>' +
+          '<button class="pz-authbtn acct-btn" id="acct-logout" type="button">Odhlásit</button>';
+        host.querySelector('#acct-logout').onclick = () => RPGCloud.logout();
+      } else {
+        host.className = 'acct acct-out';
+        host.innerHTML = '<div class="acct-tx"><h2>Ulož si postup</h2>' +
+          '<p>Přihlas se školním účtem ZŠ Husova (<b>@husovaliberec.cz</b>) a tvoje testy, procvičování i diagnostika se uloží do cloudu. Uvidíš je na každém zařízení a nezmizí, když se vyčistí prohlížeč.</p>' +
+          '<p class="acct-sub">Bez přihlášení všechno funguje dál, jen se postup pamatuje pouze v tomhle prohlížeči.</p></div>' +
+          '<button class="pz-authbtn acct-btn acct-primary" id="acct-login" type="button">🔑 Přihlásit se školním účtem</button>';
+        host.querySelector('#acct-login').onclick = () => RPGCloud.login();
+      }
+    };
+    const nastavStav = (t) => { stav = t; const e = host.querySelector('#acct-stav'); if (e) e.textContent = t; };
+    RPGCloud.onChange((u) => { stav = u ? 'Synchronizuji…' : ''; paint(u); if (u) setTimeout(() => { if (stav === 'Synchronizuji…') nastavStav(''); }, 10000); });
+    // Po synchronizaci (po přihlášení) se čísla na kartách přepočítají a doběhnou z dosavadní hodnoty.
+    const puvodni = window.PZ_ON_SYNC;
+    window.PZ_ON_SYNC = () => { try { if (typeof puvodni === 'function') puvodni(); } catch (e) { /* hák stránky nesmí shodit synchronizaci */ } nastavStav('✓ Synchronizováno'); vykresliSouhrn(); };
+    paint(RPGCloud.currentUser ? RPGCloud.currentUser() : null);
+  }
+
   // Anonymní počítadlo (fáze 27): jen „co se stalo“, bez identity. RPGCloud se načítá odloženě, počítadlo si poradí s oběma pořadími.
   function event(name) { try { if (typeof RPGCloud !== 'undefined' && RPGCloud.pzEvent) RPGCloud.pzEvent(name); } catch (e) { /* počítadlo nic nerozbije */ } }
   // (jádro se načítá i v Node testech bez DOM — tam nic neposílá)
   if (typeof document !== 'undefined' && document.addEventListener) document.addEventListener('DOMContentLoaded', () => event('vstup'));
 
   window.PZ = { event, esc, check, store, inputMode, czNum, solSteps, themeSvg, icon, ring, attachLoginBar, cloudPush, cloudSync, topicWeights, pickWeakTopic, hintsFor, recordTestTopics, weakTopicsFromReview,
-    computeReadiness, pokusy, odhadBodu, cistyPokus, diagUrovne, mergeStats, ukaz, odpovedText };
+    computeReadiness, pokusy, odhadBodu, cistyPokus, diagUrovne, mergeStats, ukaz, odpovedText, souhrn, vykresliSouhrn, attachAccountCard };
 })();
