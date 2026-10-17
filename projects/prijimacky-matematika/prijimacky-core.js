@@ -738,7 +738,7 @@
     el.textContent = cislo(od, dec);
     const krok = (ted) => {
       const x = Math.min(1, Math.max(0, (ted - t0) / dobaMs)), e = 1 - Math.pow(1 - x, 3);   // easeOutCubic
-      el.textContent = cislo(x >= 1 ? to - 1 : od + (to - od) * e, dec);
+      el.textContent = cislo(x >= 1 ? to : od + (to - od) * e, dec);
       if (x < 1) requestAnimationFrame(krok);
     };
     requestAnimationFrame(krok);

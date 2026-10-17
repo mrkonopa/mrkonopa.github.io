@@ -27,6 +27,18 @@ const path = require('path');
 const ROOT = path.join(__dirname, '..');
 const EXEC = '/opt/pw-browsers/chromium-1194/chrome-linux/chrome';
 const STR = path.join(ROOT, 'projects', 'prijimacky-matematika');
+/* Pojistná záloha sabotovaných souborů. `finally` nepomůže, když se proces ZABIJE (Ctrl+C, vypršený limit):
+   jednou tak zůstala v kódu sabotáž „animace končí o 1 níž“ a skončila v commitu. Záloha leží vedle testu
+   (je v .gitignore); každý další běh ji NAJDE, soubory obnoví a nahlas selže. */
+const POJISTKA = path.join(__dirname, '.uvod-sabotaz-zaloha.json');
+function obnovZPojistky() {
+  if (!fs.existsSync(POJISTKA)) return false;
+  const z = JSON.parse(fs.readFileSync(POJISTKA, 'utf8'));
+  for (const f of Object.keys(z)) fs.writeFileSync(f, z[f]);
+  fs.unlinkSync(POJISTKA);
+  return true;
+}
+for (const sig of ['SIGINT', 'SIGTERM']) process.on(sig, () => { try { obnovZPojistky(); } catch (e) { /* nic dalšího se dělat nedá */ } process.exit(130); });
 const MIME = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.svg': 'image/svg+xml', '.json': 'application/json' };
 
 function serve() {
@@ -50,6 +62,7 @@ const MOCK = `
 window.__VOLANI = { login: 0, logout: 0 };
 (function(){
   let session = window.__SESSION === undefined ? null : window.__SESSION;
+  try { if (sessionStorage.getItem('__LOGOUT')) session = null; } catch (e) {}   // po odhlášení a znovunačtení je žák zase odhlášený
   const okp = d => Promise.resolve({ data: d, error: null });
   function q(){ const o={data:null,error:null};
     ['select','eq','maybeSingle','order','limit','single','insert','update','upsert','delete','in','gte','lte','is'].forEach(m=>o[m]=()=>o);
@@ -83,10 +96,13 @@ function ocekavane(d) {
     pripravenost: Math.round(odhad / 50 * 100)
   };
 }
-const seed = d => `
+// Jen JEDNOU za kartu: init skript běží i po znovunačtení (např. po odhlášení) a smazaná data by vrátil.
+const seed = (d, extra) => `
+if (!sessionStorage.getItem('__SEEDED')) { sessionStorage.setItem('__SEEDED', '1');
 localStorage.setItem('PZ_CERMAT_ATTEMPTS', ${JSON.stringify(JSON.stringify(d.attempts))});
 localStorage.setItem('PZ_PRACTICE_PROGRESS', ${JSON.stringify(JSON.stringify(d.practice))});
-localStorage.setItem('PZ_DIAG_LAST', ${JSON.stringify(JSON.stringify(d.diag))});`;
+localStorage.setItem('PZ_DIAG_LAST', ${JSON.stringify(JSON.stringify(d.diag))});
+${extra || ''} }`;
 
 (async () => {
   const srv = await serve(); const base = 'http://127.0.0.1:' + srv.address().port + '/projects/prijimacky-matematika/';
@@ -97,8 +113,7 @@ localStorage.setItem('PZ_DIAG_LAST', ${JSON.stringify(JSON.stringify(d.diag))});
     const ctx = await browser.newContext({ viewport: { width: sirka, height: 900 }, reducedMotion: reduced ? 'reduce' : 'no-preference' });
     await ctx.route('**/*', r => r.request().url().startsWith('http://127.0.0.1') ? r.continue() : r.abort());
     if (!bezCloudu) await ctx.addInitScript('window.__SESSION = ' + JSON.stringify(session === undefined ? null : session) + '; window.__CLOUD = ' + JSON.stringify(cloud || null) + ';' + MOCK);
-    if (data) await ctx.addInitScript(seed(data));
-    if (init) await ctx.addInitScript(init);
+    if (data) await ctx.addInitScript(seed(data, init));
     const pg = await ctx.newPage(); pg.on('pageerror', e => chyby.push(e.message));
     await pg.goto(base + cil, { waitUntil: 'domcontentloaded' });
     return { ctx, pg };
@@ -108,6 +123,9 @@ localStorage.setItem('PZ_DIAG_LAST', ${JSON.stringify(JSON.stringify(d.diag))});
   const hotovo = (pg) => pg.waitForFunction(() => [...document.querySelectorAll('.pz-cnt')].every(e => e.textContent.replace(',', '.') === String(Number(e.dataset.to))), null, { timeout: 6000 }).then(() => true, () => false);
 
   console.log('\n── Hlavní stránka přijímaček: přihlášení a počítadla ──\n');
+  // Potomek (běží nad sabotovaným kódem schválně) zálohu nechává být; hlavní běh ji vyřeší hned na začátku.
+  if (!process.argv.includes('--bez-sabotazi')) ok(!obnovZPojistky(), 'předchozí běh nebyl přerušen uprostřed sabotáže (jinak by v souborech zůstala sabotáž — soubory obnoveny, zkontroluj git diff)');
+  if (process.env.UVOD_JEN_POJISTKA) { console.log('\n  ' + pass + ' ✅  ' + fail + ' ❌\n'); process.exit(fail ? 1 : 0); }   // jen pro zkoušku samotné pojistky
   const E = ocekavane(DATA);
 
   /* ── 1) Odhlášený, s daty: čísla doběhnou na NEZÁVISLE spočtené hodnoty ── */
@@ -182,6 +200,30 @@ localStorage.setItem('PZ_DIAG_LAST', ${JSON.stringify(JSON.stringify(d.diag))});
     await ctx.close();
   }
 
+  /* ── 4b) Odhlášení na sdíleném tabletu smaže VEŠKERÝ postup v zařízení ──
+     Vojtův požadavek: další dítě na tomtéž tabletu nesmí zdědit cizí výsledky ani je nahrát do svého cloudu
+     (stejná vada se v RPG hrách dělala). Smazat se musí všech pět datových klíčů přijímaček i značka vlastníka;
+     nastavení zařízení (tloušťka čar v konstrukcích) zůstává. */
+  {
+    const PZ_KLICE = ['PZ_CERMAT_ATTEMPTS', 'PZ_PRACTICE_PROGRESS', 'PZ_DIAG_LAST', 'PZ_TEST_TOPICS', 'PZ_TEST_RUN'];
+    const extra = "localStorage.setItem('RPG_CLOUD_OWNER','u1'); localStorage.setItem('PZ_TEST_TOPICS','{\"rovnice\":{\"ok\":1,\"total\":2}}'); " +
+      "localStorage.setItem('PZ_TEST_RUN','{\"v\":1}'); localStorage.setItem('PZ_KN_CARY','2');";
+    const { ctx, pg } = await otevri({ data: DATA, init: extra, session: { user: { id: 'u1', email: 'zak@husovaliberec.cz' } }, cloud: { attempts: DATA.attempts, practice: DATA.practice, diag: DATA.diag } });
+    await pg.waitForSelector('#acct-logout', { timeout: 5000 });
+    const pred = await pg.evaluate(k => k.map(x => localStorage.getItem(x) !== null), PZ_KLICE);
+    ok(pred.every(Boolean), 'před odhlášením je v zařízení všech 5 klíčů s výsledky přijímaček');
+    await pg.click('#acct-logout');
+    await pg.waitForSelector('#acct-login', { timeout: 8000 });      // stránka se po odhlášení znovu načetla a žák je odhlášený
+    await pg.waitForTimeout(500);
+    const po = await pg.evaluate(k => ({ klice: k.map(x => localStorage.getItem(x)), vlastnik: localStorage.getItem('RPG_CLOUD_OWNER'), cary: localStorage.getItem('PZ_KN_CARY'),
+      pocitadla: document.querySelectorAll('.pz-cnt').length, skryta: [...document.querySelectorAll('[data-pz-stat]')].every(e => e.hidden) }), PZ_KLICE);
+    ok(po.klice.every(v => v === null), 'po odhlášení je v zařízení smazáno všech 5 klíčů s výsledky', JSON.stringify(po.klice));
+    ok(po.vlastnik === null, 'po odhlášení je smazaná i značka vlastníka zařízení (další žák si zařízení převezme čistě)');
+    ok(po.cary === '2', 'nastavení zařízení (tloušťka čar) zůstává, není to postup žáka');
+    ok(po.pocitadla === 0 && po.skryta, 'na hlavní stránce po odhlášení nezůstala žádná čísla předchozího žáka');
+    await ctx.close();
+  }
+
   /* ── 5) Bez cloudu: karta skrytá, počítadla dál fungují ── */
   {
     const { ctx, pg } = await otevri({ data: DATA, bezCloudu: true });
@@ -246,7 +288,7 @@ localStorage.setItem('PZ_DIAG_LAST', ${JSON.stringify(JSON.stringify(d.diag))});
   if (process.argv.includes('--bez-sabotazi')) { console.log('\n  ' + pass + ' ✅  ' + fail + ' ❌\n'); process.exit(fail ? 1 : 0); }
 
   /* ── 10) Sabotáže: každá pojistka musí něco chytit ── */
-  const soubory = { core: path.join(STR, 'prijimacky-core.js'), css: path.join(STR, 'prijimacky.css'), idx: path.join(STR, 'index.html') };
+  const soubory = { core: path.join(STR, 'prijimacky-core.js'), css: path.join(STR, 'prijimacky.css'), idx: path.join(STR, 'index.html'), cloud: path.join(ROOT, 'projects', 'rpg-cloud.js') };
   const zaloha = Object.fromEntries(Object.entries(soubory).map(([k, f]) => [k, fs.readFileSync(f, 'utf8')]));
   const SAB = [
     ['souhrn počítá správné odpovědi místo všech úloh', 'core', 'uloh += t; spravne +=', 'uloh += Math.floor(num(v.ok)); spravne +=', /137 úloh|čísla doběhla/],
@@ -259,10 +301,13 @@ localStorage.setItem('PZ_DIAG_LAST', ${JSON.stringify(JSON.stringify(d.diag))});
     ['přihlašovací lišta se zase nezalamuje (původní stav)', 'core',
       ["margin-left:auto;display:inline-flex;flex-wrap:wrap;justify-content:flex-end;align-items:center;gap:6px 10px;min-width:0;max-width:100%;font-size:.85rem", "style=\"color:var(--muted);min-width:0;overflow-wrap:anywhere\""],
       ["margin-left:auto;display:inline-flex;align-items:center;gap:10px;font-size:.85rem", "style=\"color:var(--muted)\""], /vodorovně posuvnou/],
+    ['odhlášení nesmaže rozepsaný test', 'cloud', "/^PZ_(CERMAT_ATTEMPTS|PRACTICE_PROGRESS|DIAG_LAST|TEST_TOPICS|TEST_RUN)$/.test(k)", "/^PZ_(CERMAT_ATTEMPTS|PRACTICE_PROGRESS|DIAG_LAST|TEST_TOPICS)$/.test(k)", /smazáno všech 5 klíčů/],
+    ['odhlášení nesmaže vůbec nic', 'cloud', "function smazOsobni() { for (const k of osobniKlice()) { try { localStorage.removeItem(k); } catch (e) {} } }", "function smazOsobni() { }", /smazáno všech 5 klíčů/],
     ['karta se po synchronizaci nepřepočítá', 'core', "nastavStav('✓ Synchronizováno'); vykresliSouhrn();", "nastavStav('✓ Synchronizováno');", /přepočítají/]
   ];
   console.log('\n  — sabotáže —');
   const { spawnSync } = require('child_process');
+  fs.writeFileSync(POJISTKA, JSON.stringify(zaloha));
   try {
     for (const [popis, kdo, hledej, nahrad, vzor] of SAB) {
       const H = [].concat(hledej), N = [].concat(nahrad);
@@ -279,6 +324,7 @@ localStorage.setItem('PZ_DIAG_LAST', ${JSON.stringify(JSON.stringify(d.diag))});
     }
   } finally {
     for (const k of Object.keys(soubory)) fs.writeFileSync(soubory[k], zaloha[k]);
+    try { fs.unlinkSync(POJISTKA); } catch (e) { /* už není */ }
   }
   ok(Object.keys(soubory).every(k => fs.readFileSync(soubory[k], 'utf8') === zaloha[k]), 'po sabotážích jsou všechny soubory zpět beze změny');
 

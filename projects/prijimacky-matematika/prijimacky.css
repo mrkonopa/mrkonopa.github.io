@@ -37,6 +37,8 @@ a:focus-visible { outline:2px solid var(--blue); outline-offset:3px; border-radi
 .top-bar a { color:var(--muted); padding:6px 0; }
 .top-bar a:hover { color:var(--blue); }
 .top-bar .crumb { color:var(--text); font-weight:500; }
+/* Dotyk: odkazy v liště mají 44 px (jinak byly 33 px; na 360 px je dřív zachránilo jen to, že se text zalomil na dva řádky). */
+@media (pointer:coarse) { .top-bar a { min-height:44px; display:inline-flex; align-items:center; } }
 
 /* HLAVIČKA / hero */
 header.title-block { max-width:920px; margin:0 auto; padding:36px 24px 18px; }
