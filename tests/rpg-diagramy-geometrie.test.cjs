@@ -652,11 +652,15 @@ function bankaCermat() {
     const kontrast = h => 1.05 / (lum(h) + 0.05);
 
     const C = bankaCermat();
-    const barvy = new Map(), textPo = new Map();
+    const barvy = new Map(), textPo = new Map(), naVyplni = new Map();
     const sber = (s, kde) => {
       for (const m of s.matchAll(/(?:fill|stroke)="(#[0-9a-fA-F]{3,6})"/g))
         (barvy.get(m[1]) || barvy.set(m[1], new Set()).get(m[1])).add(kde);
-      for (const m of theme(s).matchAll(/<text[^>]*fill="(#[0-9a-fA-F]{3,6})"/g))
+      /* Číslo UVNITŘ tvaru (data-na-vyplni = výplň tvaru, např. číslo na tmavém čtverci
+         útvaru) se nesrovnává s bílou, ale s výplní, na které leží — v obou motivech. */
+      for (const m of s.matchAll(/<text[^>]*data-na-vyplni="(#[0-9a-fA-F]{3,6})"[^>]*fill="(#[0-9a-fA-F]{3,6})"/g))
+        (naVyplni.get(m[1] + '|' + m[2]) || naVyplni.set(m[1] + '|' + m[2], new Set()).get(m[1] + '|' + m[2])).add(kde);
+      for (const m of theme(s).matchAll(/<text(?![^>]*data-na-vyplni)[^>]*fill="(#[0-9a-fA-F]{3,6})"/g))
         (textPo.get(m[1]) || textPo.set(m[1], new Set()).get(m[1])).add(kde);
     };
     for (let b = 0; b < 300; b++) for (let k = 0; k < C.slotCount(); k++) {
@@ -673,6 +677,12 @@ function bankaCermat() {
 
     const nemapovane = [...barvy.keys()].filter(c => !MAP.some(([a]) => a === c));
     const slabyText = [...textPo.keys()].filter(c => kontrast(c) < 4.5);
+    // text na výplni: kontrast proti SVÉ výplni, v tmavém motivu (barvy z kresby) i ve světlém (po převodu)
+    const mezi = (a, b) => { const x = lum(a), y = lum(b); return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05); };
+    const slabyNaVyplni = [...naVyplni.keys()].filter(k => {
+      const [v, c] = k.split('|');
+      return mezi(c, v) < 4.5 || mezi(theme(c), theme(v)) < 4.5;
+    });
     ok(barvy.size >= 18, 'posbíráno ' + barvy.size + ' barev z kreseb (podlaha 18)');
     ok(nemapovane.length === 0,
       'světlý motiv přijímaček má rozhodnutí o každé barvě kresby (' + MAP.length + ' pravidel)',
@@ -682,6 +692,9 @@ function bankaCermat() {
       'po převodu na světlý motiv je každý popisek čitelný (nejnižší kontrast ' +
       Math.min(...[...textPo.keys()].map(kontrast)).toFixed(1) + ':1, práh 4,5)',
       slabyText.map(c => c + ' → ' + kontrast(c).toFixed(1) + ':1 v ' + [...textPo.get(c)][0]).join(' | '));
+    ok(naVyplni.size >= 1 && slabyNaVyplni.length === 0,
+      'text na výplni tvaru (číslo ve čtverci útvaru) čitelný proti své výplni v obou motivech (' + naVyplni.size + ' dvojic)',
+      slabyNaVyplni.join(' | '));
   }
 
   console.log('\n  ' + pass + ' ✅  ' + fail + ' ❌\n');

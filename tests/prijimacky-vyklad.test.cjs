@@ -29,8 +29,17 @@ const vyklady = [];
 for (let i = 0; i < 16; i++) { const v = T.vykladProSlot(i); if (v) vyklady.push({ kde: 'pozice ' + (i + 1), v }); }
 for (const t of T.list) { const v = T.vykladProOkruh(t.id); if (v) vyklady.push({ kde: 'okruh ' + t.id, v }); }
 
-// Pojistka proti auditu, který nic neviděl: všech 16 pozic + 10 okruhů.
-ok(vyklady.length === 26, 'zkontrolováno ' + vyklady.length + ' odkazů (čekáno 26 = 16 pozic + 10 okruhů)');
+// Úlohy s vlastním tématem poznané podle názvu (útvary ve čtvercové síti → osová souměrnost).
+for (const tit of Object.keys(T.vykladTitul)) { const v = T.vykladProUlohu({ no: 8, okruh: 'geometrie', title: tit }); if (v) vyklady.push({ kde: 'název „' + tit + '"', v }); }
+
+// Pojistka proti auditu, který nic neviděl: všech 16 pozic + 10 okruhů + 2 názvy.
+ok(vyklady.length === 28, 'zkontrolováno ' + vyklady.length + ' odkazů (čekáno 28 = 16 pozic + 10 okruhů + 2 názvy úloh)');
+{
+  const vS = T.vykladProUlohu({ no: 8, okruh: 'geometrie', title: 'Útvary ve čtvercové síti' }), vD = T.vykladProUlohu({ no: 8, okruh: 'geometrie', title: 'Dlaždice' });
+  ok(vS && vS.mise === '5-1' && /souměrnost/i.test(vS.nazev), 'útvary ze čtverců vedou na výklad osové souměrnosti, ne na obvod a obsah');
+  ok(vD && vD.mise !== '5-1', 'úloha bez vlastního výkladu (Dlaždice) dál padá na okruh / pozici');
+  ok(T.vykladProUlohu({ no: 8, title: '__proto__' }) !== null && T.vykladProUlohu({ no: 8, title: 'constructor' }) !== null, 'název „__proto__“ ani „constructor“ výklad nezmate');
+}
 
 // ── 1) mise musí v příslušném ročníku SKUTEČNĚ existovat ──
 const chybi = vyklady.filter(x => !(LEARN[x.v.hra] && LEARN[x.v.hra][x.v.mise]));

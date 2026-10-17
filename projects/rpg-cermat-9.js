@@ -3610,6 +3610,239 @@
     };
   }
 
+  /* ══ Osová souměrnost ve čtvercové síti (2026-10-17) ══════════════════
+     Podle ostré úlohy 8 (M9D 2023, 4 b.) a úloh 8 a 10 starších testů M5/M7: útvary
+     A, B, C z tmavých očíslovaných čtverců (čísla zleva doprava, shora dolů), žák
+     hledá čtverec, jehož odebráním vznikne osově souměrný útvar, nebo rozhoduje,
+     zda útvar souměrný je. ŘEŠIČ je jediný zdroj pravdy: odpověď i pravdivost
+     tvrzení se z útvaru POČÍTAJÍ, nikdy nezadávají ručně.
+     Útvar z čtverců může být souměrný jen podle os svislých, vodorovných a šikmých
+     pod 45° (obraz čtverce podle jiné osy není rovnoběžný s mřížkou), proto čtyři
+     rodiny os s libovolným posunem. Ostrá úloha má v každé části DVĚ řešení; náš útvar
+     má jedno, aby zůstal jednoodpovědní kontrolor (stejně jako 16.3 „Vybarvování sítě“). */
+  const SIT_W = 7, SIT_H = 6, SIT_B = 18;                   // mřížka útvaru: 7 × 6 čtverců po 18 jednotkách
+  const PLATNO_W = 6, PLATNO_H = 5;                         // v ní se útvar generuje (zbytek je odsazení)
+  const SIT_BARVA = '#1b6f8f', SIT_CISLO = '#f4f9ff';
+  const bk = (x, y) => x + ',' + y;
+  const SIT_KRAL = [[1, 0], [-1, 0], [0, 1], [0, -1], [1, 1], [1, -1], [-1, 1], [-1, -1]];
+  const zrcadloOsy = (o, x, y) => (o.typ === 'sv' ? [o.k - x, y] : o.typ === 'vo' ? [x, o.k - y]
+    : o.typ === 'd' ? [y + o.c, x - o.c] : [o.c - y, o.c - x]);
+  /* Osy souměrnosti útvaru: svislá x = k/2, vodorovná y = k/2, šikmá x − y = c
+     (shora zleva dolů doprava) a x + y = c (zdola zleva nahoru doprava), k i c celé. */
+  function osyUtvaru(bunky) {
+    const mn = new Set(bunky.map(([x, y]) => bk(x, y)));
+    const xs = bunky.map(b => b[0]), ys = bunky.map(b => b[1]);
+    const x0 = Math.min(...xs), x1 = Math.max(...xs), y0 = Math.min(...ys), y1 = Math.max(...ys);
+    const vse = o => bunky.every(([x, y]) => mn.has(bk(...zrcadloOsy(o, x, y))));
+    const osy = [];
+    for (let k = 2 * x0; k <= 2 * x1; k++) if (vse({ typ: 'sv', k })) osy.push({ typ: 'sv', k });
+    for (let k = 2 * y0; k <= 2 * y1; k++) if (vse({ typ: 'vo', k })) osy.push({ typ: 'vo', k });
+    for (let c = x0 - y1; c <= x1 - y0; c++) if (vse({ typ: 'd', c })) osy.push({ typ: 'd', c });
+    for (let c = x0 + y0; c <= x1 + y1; c++) if (vse({ typ: 'a', c })) osy.push({ typ: 'a', c });
+    return osy;
+  }
+  // Dotýkají se čtverce aspoň rohem (jako v ostré úloze)? Jinak by útvar rozpadl na kusy.
+  function sitSouvisly(bunky) {
+    const mn = new Set(bunky.map(([x, y]) => bk(x, y)));
+    const videno = new Set([bk(...bunky[0])]), zas = [bunky[0]];
+    while (zas.length) {
+      const [x, y] = zas.pop();
+      SIT_KRAL.forEach(([dx, dy]) => {
+        const k = bk(x + dx, y + dy);
+        if (mn.has(k) && !videno.has(k)) { videno.add(k); zas.push([x + dx, y + dy]); }
+      });
+    }
+    return videno.size === bunky.length;
+  }
+  function rozmerOk(bunky) {
+    const xs = bunky.map(b => b[0]), ys = bunky.map(b => b[1]);
+    const w = Math.max(...xs) - Math.min(...xs) + 1, h = Math.max(...ys) - Math.min(...ys) + 1;
+    return w <= PLATNO_W && h <= PLATNO_H && Math.min(w, h) >= 3;
+  }
+  // Obraz buňky ve všech zadaných osách (uzávěr); null, kdyby některý obraz vypadl z plátna.
+  function orbitaOs(osy, x, y) {
+    const v = new Map([[bk(x, y), [x, y]]]), zas = [[x, y]];
+    while (zas.length) {
+      const [px, py] = zas.pop();
+      for (const o of osy) {
+        const [qx, qy] = zrcadloOsy(o, px, py);
+        if (qx < 0 || qx >= PLATNO_W || qy < 0 || qy >= PLATNO_H) return null;
+        if (!v.has(bk(qx, qy))) { v.set(bk(qx, qy), [qx, qy]); zas.push([qx, qy]); }
+      }
+    }
+    return [...v.values()];
+  }
+  // Souměrný základ: roste po sousedních buňkách, každá přibývá i s obrazy ve všech osách.
+  function zakladSoum(osy, pocet) {
+    const vyb = new Map();
+    const dej = (x, y) => {
+      if (x < 0 || x >= PLATNO_W || y < 0 || y >= PLATNO_H) return;
+      const ob = orbitaOs(osy, x, y);
+      if (ob) ob.forEach(([a, b]) => vyb.set(bk(a, b), [a, b]));
+    };
+    for (let t = 0; t < 40 && !vyb.size; t++) dej(ri(0, PLATNO_W - 1), ri(0, PLATNO_H - 1));
+    for (let g = 0; g < 200 && vyb.size < pocet; g++) {
+      const [x, y] = pick([...vyb.values()]), [dx, dy] = pick(SIT_KRAL);
+      dej(x + dx, y + dy);
+    }
+    return [...vyb.values()];
+  }
+  function osaNahodna() {
+    const t = pick(['sv', 'sv', 'vo', 'vo', 'd', 'a']);
+    return t === 'sv' ? { typ: 'sv', k: pick([4, 5, 5, 6]) } : t === 'vo' ? { typ: 'vo', k: pick([3, 4, 4]) }
+      : t === 'd' ? { typ: 'd', c: pick([0, 0, 1, -1]) } : { typ: 'a', c: pick([4, 4, 3, 5]) };
+  }
+  // Dvě osy najednou: svislá + vodorovná, nebo obě šikmé.
+  const DVE_OSY = [
+    () => [{ typ: 'sv', k: pick([4, 5, 6]) }, { typ: 'vo', k: pick([3, 4]) }],
+    () => [{ typ: 'd', c: pick([0, 0, 1, -1]) }, { typ: 'a', c: pick([4, 4, 3, 5]) }]
+  ];
+  // Útvar do mřížky 7 × 6 s náhodným odsazením a s čísly čtverců zleva doprava, shora dolů.
+  function umistiUtvar(bunky, Xb) {
+    const xs = bunky.map(b => b[0]), ys = bunky.map(b => b[1]);
+    const ox = ri(-Math.min(...xs), SIT_W - 1 - Math.max(...xs)), oy = ri(-Math.min(...ys), SIT_H - 1 - Math.max(...ys));
+    const b = bunky.map(([x, y]) => [x + ox, y + oy]).sort((p, q) => p[1] - q[1] || p[0] - q[0]);
+    const cisla = new Map(b.map(([x, y], i) => [bk(x, y), i + 1]));
+    const X = Xb ? [Xb[0] + ox, Xb[1] + oy] : null;
+    const bezX = X ? b.filter(([x, y]) => !(x === X[0] && y === X[1])) : null;
+    return { bunky: b, cisla, osy: osyUtvaru(b), X: X ? cisla.get(bk(...X)) : null, osaZb: bezX ? osyUtvaru(bezX)[0] : null };
+  }
+  /* Útvar, který sám souměrný není, ale po odebrání JEDINÉHO čtverce X souměrný je
+     (a žádným jiným čtvercem se to nepodaří): souměrný základ + čtverec bez protějšku. */
+  function utvarJednoReseni() {
+    for (let pokus = 0; pokus < 4000; pokus++) {
+      const o = osaNahodna(), S = zakladSoum([o], ri(6, 11));
+      if (S.length < 6 || S.length > 12 || !sitSouvisly(S)) continue;
+      const mn = new Set(S.map(([x, y]) => bk(x, y))), kand = [];
+      for (let x = 0; x < PLATNO_W; x++) for (let y = 0; y < PLATNO_H; y++) {
+        if (mn.has(bk(x, y)) || !SIT_KRAL.some(([dx, dy]) => mn.has(bk(x + dx, y + dy)))) continue;
+        const [mx, my] = zrcadloOsy(o, x, y);
+        if (!mn.has(bk(mx, my)) && !(mx === x && my === y)) kand.push([x, y]);      // bez protějšku, mimo osu
+      }
+      if (!kand.length) continue;
+      /* Číslo odebíraného čtverce nesmí prozradit odpověď: čtverec přibývá na okraji
+         souměrného základu, takže by byl nejčastěji první nebo poslední v pořadí zleva
+         doprava a shora dolů (naměřeno 61 % místo 40 %). Pětina pořadí se proto losuje. */
+      const pet = ri(0, 4), poradi = c => 1 + S.filter(d => d[1] < c[1] || (d[1] === c[1] && d[0] < c[0])).length;
+      const vPeti = kand.filter(c => Math.floor((poradi(c) - 1) / (S.length + 1) * 5) === pet);
+      if (!vPeti.length) continue;
+      const X = pick(vPeti), F = S.concat([X]);
+      if (!rozmerOk(F) || osyUtvaru(F).length) continue;
+      const reseni = F.filter(c => osyUtvaru(F.filter(d => d !== c)).length);
+      if (reseni.length !== 1 || reseni[0] !== X) continue;
+      return umistiUtvar(F, X);
+    }
+    throw new Error('útvar s jedním řešením se nepodařilo vytvořit');
+  }
+  // Souměrný útvar s PŘESNĚ n osami (1 nebo 2).
+  function utvarSOsami(n) {
+    for (let pokus = 0; pokus < 4000; pokus++) {
+      const S = zakladSoum(n === 1 ? [osaNahodna()] : pick(DVE_OSY)(), ri(6, 11));
+      if (S.length < 6 || S.length > 12 || !rozmerOk(S) || !sitSouvisly(S) || osyUtvaru(S).length !== n) continue;
+      return umistiUtvar(S, null);
+    }
+    throw new Error('souměrný útvar s ' + n + ' osami se nepodařilo vytvořit');
+  }
+  // Tři mřížky vedle sebe. Každý čtverec nese číslo i polohu (test útvar čte z kresby).
+  function svgUtvary(utvary) {
+    const g = SIT_W * SIT_B, mez = 16, x0 = 8, y0 = 22;
+    let o = `<svg viewBox="0 0 ${2 * x0 + 3 * g + 2 * mez} ${y0 + SIT_H * SIT_B + 8}">`;
+    utvary.forEach((u, i) => {
+      const gx = x0 + i * (g + mez);
+      o += napis(gx + g / 2, 15, 'ABC'[i], VRCHOL);
+      for (let j = 0; j <= SIT_W; j++) o += `<path d="M ${gx + j * SIT_B} ${y0} V ${y0 + SIT_H * SIT_B}" stroke="#2a3a5e" stroke-width="0.8"/>`;
+      for (let j = 0; j <= SIT_H; j++) o += `<path d="M ${gx} ${y0 + j * SIT_B} H ${gx + g}" stroke="#2a3a5e" stroke-width="0.8"/>`;
+      u.bunky.forEach(([x, y]) => {
+        const n = u.cisla.get(bk(x, y)), px = gx + x * SIT_B, py = y0 + y * SIT_B;
+        o += `<rect data-utvar="${'ABC'[i]}" data-bunka="${n}" data-x="${x}" data-y="${y}" x="${px}" y="${py}" width="${SIT_B}" height="${SIT_B}" fill="${SIT_BARVA}" stroke="#8a9bc4" stroke-width="1"/>`
+          + `<text data-na-vyplni="${SIT_BARVA}" x="${px + SIT_B / 2}" y="${py + SIT_B / 2 + 4}" fill="${SIT_CISLO}" font-size="11" font-family="monospace" text-anchor="middle">${n}</text>`;
+      });
+    });
+    return o + `</svg>`;
+  }
+  // Slovní popis osy. Pozice čtverců se počítají v mřížce: sloupce zleva, řádky shora.
+  function sitPopisOsy(o) {
+    if (o.typ === 'sv') return o.k % 2 === 0 ? `svislá osa vedoucí středem sloupce č. ${o.k / 2 + 1} (počítáno zleva)`
+      : `svislá osa vedoucí mezi sloupci č. ${(o.k - 1) / 2 + 1} a ${(o.k + 1) / 2 + 1} (počítáno zleva)`;
+    if (o.typ === 'vo') return o.k % 2 === 0 ? `vodorovná osa vedoucí středem řádku č. ${o.k / 2 + 1} (počítáno shora)`
+      : `vodorovná osa vedoucí mezi řádky č. ${(o.k - 1) / 2 + 1} a ${(o.k + 1) / 2 + 1} (počítáno shora)`;
+    return o.typ === 'd' ? 'šikmá osa vedoucí přes středy čtverců zleva shora doprava dolů'
+      : 'šikmá osa vedoucí přes středy čtverců zleva zdola doprava nahoru';
+  }
+  const sitVycet = a => (a.length === 1 ? String(a[0]) : a.slice(0, -1).join(', ') + ' a ' + a[a.length - 1]);
+  // Dvojice protějšků podle osy o (bezX = bez čtverce, který se odebírá) a čtverce ležící na ose.
+  function sitDvojice(u, o, bezX) {
+    const pary = [], naOse = [];
+    u.bunky.forEach(([x, y]) => {
+      const n = u.cisla.get(bk(x, y));
+      if (bezX && n === u.X) return;
+      const [mx, my] = zrcadloOsy(o, x, y);
+      if (mx === x && my === y) { naOse.push(n); return; }
+      const m = u.cisla.get(bk(mx, my));
+      if (m !== undefined && !(bezX && m === u.X) && n < m) pary.push(`${n} ↔ ${m}`);
+    });
+    const naOseTxt = !naOse.length ? 'Na ose neleží žádný čtverec.'
+      : naOse.length === 1 ? `Na ose leží čtverec ${naOse[0]}.` : `Na ose leží čtverce ${sitVycet(naOse)}.`;
+    return { pary: pary.join(', '), naOseTxt };
+  }
+  const SIT_POJEM = `Útvar je osově souměrný, když se každému čtverci najde protějšek podle téže osy (svislé, vodorovné nebo šikmé); čtverec ležící na ose je sám sobě protějškem.`;
+
+  function gen8h() {
+    // 4 body — odeber jeden čtverec, aby vznikl souměrný útvar (podle M9D/2023, úloha 8; u nás jedno řešení)
+    const A = utvarJednoReseni(), B = utvarJednoReseni(), C = utvarJednoReseni();
+    const sol = (u, kdo) => {
+      const d = sitDvojice(u, u.osaZb, true);
+      return [`${SIT_POJEM} Hledáš čtverec, který protějšek nemá.`,
+        `U útvaru ${kdo} vychází ${sitPopisOsy(u.osaZb)}. Protějšky tvoří dvojice čtverců ${d.pary}. ${d.naOseTxt} Jediný čtverec bez protějšku je čtverec ${u.X}.`,
+        `Po odebrání čtverce ${u.X} je zbytek útvaru ${kdo} souměrný, odpověď je ${u.X}.`];
+    };
+    return {
+      no: 8, points: 4, title: 'Útvary ve čtvercové síti', okruh: 'geometrie',
+      svg: svgUtvary([A, B, C]),
+      intro: `Ve čtvercové síti jsou z tmavých čtverců složeny tři útvary A, B a C, každý tmavý čtverec je označen číslem. Z každého útvaru lze odebráním jediného tmavého čtverce vytvořit osově souměrný útvar; osa může být svislá, vodorovná i šikmá. U útvaru A to jde odebráním čtverce ${A.X}. V každé části úlohy je řešení právě jedno.`,
+      parts: [
+        { key: '8.1', points: 2, prompt: `Určete číslo čtverce, jehož odebráním vznikne z útvaru B osově souměrný útvar.`, ans: String(B.X), sol: sol(B, 'B') },
+        { key: '8.2', points: 2, prompt: `Určete číslo čtverce, jehož odebráním vznikne z útvaru C osově souměrný útvar.`, ans: String(C.X), sol: sol(C, 'C') }
+      ]
+    };
+  }
+
+  function gen11j() {
+    // 4 body — tři tvrzení o souměrnosti útvarů ve čtvercové síti (podle M7A/2022 ú. 10 a M9D/2023 ú. 8)
+    const p1 = ri(0, 1) === 1, p2 = ri(0, 1) === 1, p3 = ri(0, 1) === 1, k = pick([1, 2]);
+    const A = p1 ? utvarSOsami(pick([1, 1, 2])) : utvarJednoReseni();
+    const B = utvarJednoReseni();
+    const pocetC = p3 ? k : 3 - k, C = utvarSOsami(pocetC);
+    // Nepravdivé 11.2: čtverec poblíž čtverce X, tedy přesně ten, který žák zkusí, když se spletne.
+    let N = B.X;
+    if (!p2) {
+      const bx = B.bunky.find(([x, y]) => B.cisla.get(bk(x, y)) === B.X);
+      const bliz = B.bunky.filter(([x, y]) => B.cisla.get(bk(x, y)) !== B.X && Math.max(Math.abs(x - bx[0]), Math.abs(y - bx[1])) <= 2);
+      const [nx, ny] = pick(bliz.length ? bliz : B.bunky.filter(([x, y]) => B.cisla.get(bk(x, y)) !== B.X));
+      N = B.cisla.get(bk(nx, ny));
+    }
+    const dA = p1 ? sitDvojice(A, A.osy[0], false) : sitDvojice(A, A.osaZb, true);
+    const dB = sitDvojice(B, B.osaZb, true);
+    const POCET = { 1: 'jednu osu', 2: 'dvě osy' };
+    return {
+      no: 11, points: 4, stupnice: STUPNICE11, title: 'Osová souměrnost útvarů', kind: 'tfgrid', okruh: 'geometrie',
+      svg: svgUtvary([A, B, C]),
+      intro: `Ve čtvercové síti jsou z tmavých čtverců složeny tři útvary A, B a C, každý tmavý čtverec je označen číslem. Útvar je osově souměrný, jestliže se podle nějaké osy (svislé, vodorovné nebo šikmé) obě jeho poloviny překryjí. Rozhodněte o každém z tvrzení (11.1–11.3), zda je pravdivé (A), či nikoli (N).`,
+      statements: [
+        tvrzeni(`Útvar A je osově souměrný.`, p1, p1
+          ? [SIT_POJEM, `U útvaru A vychází ${sitPopisOsy(A.osy[0])}. Protějšky tvoří dvojice čtverců ${dA.pary}. ${dA.naOseTxt}`, `Každý čtverec má protějšek, útvar A je souměrný. ${verdikt(true)}`]
+          : [SIT_POJEM, `Nejblíž souměrnosti je ${sitPopisOsy(A.osaZb)}: spárují se dvojice čtverců ${dA.pary}. Čtverec ${A.X} ale protějšek nemá a žádná jiná osa nevychází.`, `Útvar A souměrný není. ${verdikt(false)}`]),
+        tvrzeni(`Odebráním čtverce ${N} z útvaru B vznikne osově souměrný útvar.`, p2, p2
+          ? [SIT_POJEM, `Po odebrání čtverce ${B.X} vychází ${sitPopisOsy(B.osaZb)}. Protějšky tvoří dvojice čtverců ${dB.pary}. ${dB.naOseTxt}`, `Zbytek útvaru B je souměrný. ${verdikt(true)}`]
+          : [SIT_POJEM, `Čtverec ${B.X} protějšek nemá: podle osy (${sitPopisOsy(B.osaZb)}) by mu odpovídalo místo, kde žádný čtverec není. Odebráním čtverce ${N} se to nezmění a žádná jiná osa nevychází.`, `Souměrný útvar by vznikl odebráním čtverce ${B.X}, ne čtverce ${N}. ${verdikt(false)}`]),
+        tvrzeni(`Útvar C má právě ${POCET[k]} souměrnosti.`, p3,
+          [`Počet os zjistíš tak, že vyzkoušíš osy svislé, vodorovné i obě šikmé a spočítáš ty, podle kterých se útvar překryje.`,
+            `Útvar C má právě ${POCET[pocetC]} souměrnosti: ${C.osy.map(sitPopisOsy).join('; ')}.`,
+            `Tvrzení uvádí právě ${POCET[k]}, útvar C jich má ${pocetC}. ${verdikt(p3)}`])
+      ]
+    };
+  }
+
   /* ══ Pozice 12–14: úlohy s výběrem odpovědi (2026-09-24) ══════════════
      Ostré úlohy 12–14 nabízejí pět voleb SEŘAZENÝCH podle velikosti (jednou
      vzestupně, jindy sestupně) a pátá bývá „jiný objem / jiný počet".
@@ -4912,8 +5145,8 @@
     return varianty[idx[ri(0, idx.length - 1)]];
   }
   const SLOTS = [
-    [gen1, gen1b, gen1c, gen1d, gen1e, gen1f, gen1g, gen1h, gen1i, gen1j, gen1k], [gen2, gen2b, gen2c, gen2d, gen2e, gen2f], [gen3, gen3b, gen3c, gen3d, gen3e, gen3f], [gen4, gen4d, gen4e, gen4f, gen4g], [gen5, gen5b, gen5d, gen5e, gen5f, gen5g, gen5h, gen5i], [gen6, gen6b, gen6c, gen6d, gen6e, gen6f, gen6g, gen6h], [gen7d, gen7e, gen7f, gen7g, gen7h], [gen8, gen8b, gen8d, gen8e, gen8f, gen8g],
-    [gen9c, gen9d, gen9e, gen9f, gen9g], [gen10b, gen10d, gen10e, gen10f, gen10g], [gen11, gen11b, gen11d, gen11e, gen11f, gen11g, gen11h, gen11i], [gen12, gen12c, gen12f, gen12h, gen12i, gen12j, gen12l, gen12m], [gen12e, gen12g, gen12k, gen14h, gen13, gen13b, gen13d, gen13e, gen13f, gen13g, gen13h, gen13i, gen13j], [gen14, gen14b, gen14e, gen14i, gen14f, gen14g], [gen15d, gen15e, gen15f, gen15g, gen15h, gen15i, gen15j], [gen16d, gen16e, gen16f, gen16g, gen16h, gen16i, gen16j, gen16k, gen16l, gen16m]
+    [gen1, gen1b, gen1c, gen1d, gen1e, gen1f, gen1g, gen1h, gen1i, gen1j, gen1k], [gen2, gen2b, gen2c, gen2d, gen2e, gen2f], [gen3, gen3b, gen3c, gen3d, gen3e, gen3f], [gen4, gen4d, gen4e, gen4f, gen4g], [gen5, gen5b, gen5d, gen5e, gen5f, gen5g, gen5h, gen5i], [gen6, gen6b, gen6c, gen6d, gen6e, gen6f, gen6g, gen6h], [gen7d, gen7e, gen7f, gen7g, gen7h], [gen8, gen8b, gen8d, gen8e, gen8f, gen8g, gen8h],
+    [gen9c, gen9d, gen9e, gen9f, gen9g], [gen10b, gen10d, gen10e, gen10f, gen10g], [gen11, gen11b, gen11d, gen11e, gen11f, gen11g, gen11h, gen11i, gen11j], [gen12, gen12c, gen12f, gen12h, gen12i, gen12j, gen12l, gen12m], [gen12e, gen12g, gen12k, gen14h, gen13, gen13b, gen13d, gen13e, gen13f, gen13g, gen13h, gen13i, gen13j], [gen14, gen14b, gen14e, gen14i, gen14f, gen14g], [gen15d, gen15e, gen15f, gen15g, gen15h, gen15i, gen15j], [gen16d, gen16e, gen16f, gen16g, gen16h, gen16i, gen16j, gen16k, gen16l, gen16m]
   ];
 
   window.RPG_CERMAT_9 = {

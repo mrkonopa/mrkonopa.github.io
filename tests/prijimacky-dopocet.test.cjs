@@ -300,6 +300,7 @@ const ZLS = { polovinu: 1 / 2, třetinu: 1 / 3, čtvrtinu: 1 / 4, pětinu: 1 / 5
 const tv = (t, k) => t.statements[+k.split('.')[1] - 1].text;
 // Popisky výsečí kruhového diagramu v pořadí kreslení: [úhel nebo procento?, jméno] za každou výsečí.
 const popiskyVyseci = svg => String(svg).split('<path').slice(1).map(ch => [...ch.matchAll(/>([^<]+)<\/text>/g)].map(m => m[1]));
+const SIT = require('./soumernost-site.cjs');
 const V69 = {
   // ── pozice 6 ──
   'Sud': (t, k) => { const [S] = cisla(t.intro, /Dno sudu má obsah (\d+) cm²/), p = t.parts.find(x => x.key === k).prompt;
@@ -579,7 +580,19 @@ const V69 = {
   'Obdélník a kosočtverec': (t, k) => { const [a, b] = cisla(t.intro, /stranami délek (\d+) cm a (\d+) cm/), s = tv(t, k);
     const str = Math.hypot(a / 2, b);
     if (k === '11.1') return /je stejný jako obsah/.test(s);
-    return blizko(k === '11.2' ? str : a * b / str, cisla(s, /měří ([\d,]+) cm/)[0]); }
+    return blizko(k === '11.2' ? str : a * b / str, cisla(s, /měří ([\d,]+) cm/)[0]); },
+  // Útvary z čtverců: útvar se čte Z KRESBY a osy dopočítá sdílený řešič skutečnou geometrií
+  // (tests/soumernost-site.cjs, jiná cesta než celočíselné vzorce generátoru).
+  'Útvary ve čtvercové síti': (t, k) => {
+    const u = SIT.ctiUtvary(t.svg), r = SIT.reseniOdebrani(u[k === '8.1' ? 'B' : 'C']);
+    if (r.length !== 1) throw new Error('útvar ' + (k === '8.1' ? 'B' : 'C') + ' nemá jediné řešení (' + r.join(',') + ')');
+    return r[0]; },
+  'Osová souměrnost útvarů': (t, k) => {
+    const u = SIT.ctiUtvary(t.svg), s = tv(t, k);
+    if (k === '11.1') return SIT.osyGeom(SIT.pole(u.A)).length > 0;
+    if (k === '11.2') { const [N] = cisla(s, /Odebráním čtverce (\d+) z útvaru B/); return SIT.osyGeom(SIT.pole(SIT.bez(u.B, N))).length > 0; }
+    const [, j] = s.match(/právě (jednu|dvě) /);
+    return SIT.osyGeom(SIT.pole(u.C)).length === (j === 'jednu' ? 1 : 2); }
 };
 const POZ69 = [4, 5, 6, 7, 8, 9, 10, 15], POPIS69 = 'pozice 5–11 a 16';
 const videno69 = {}, nerozp69 = new Set(), spatne69 = [];
