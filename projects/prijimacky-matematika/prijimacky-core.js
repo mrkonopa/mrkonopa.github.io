@@ -50,7 +50,38 @@
     ['#8a9bc4', '#6b7280'], ['#5d6e94', '#6b7280'],
     ['#fff', '#1a1a2e'],
   ];
-  function themeSvg(s) { let o = String(s == null ? '' : s); for (const [a, b] of SVG_MAP) o = o.split(a).join(b); return o; }
+  /* Světlý vzhled přebarvuje obrázky seznamem SVG_MAP (kresby jsou navržené na tmavé pozadí hry).
+     TMAVÝ vzhled je nechává v původní herní paletě — ta je na tmavé navržená — a seznam se
+     nepoužije. Obrázek, který je právě na stránce, se při přepnutí vzhledu překreslí:
+     `data-pz-svg` v kořenovém <svg> odkazuje na původní (nepřebarvený) text, protože
+     přebarvení nejde obrátit (víc tmavých barev končí na téže světlé). Značku dostane jen
+     samostatný obrázek (jeden <svg> v celém řetězci), jen u takového jde bezpečně vyměnit
+     element za nově vybarvený. */
+  const SVG_RAW = new Map(); let svgPoc = 0;
+  const jeTmavy = () => typeof document !== 'undefined' && document.documentElement.getAttribute('data-motiv') === 'dark';
+  function vybarviSvg(raw, id) {
+    let o = raw;
+    if (!jeTmavy()) for (const [a, b] of SVG_MAP) o = o.split(a).join(b);
+    const t = o.trim();
+    if (t.indexOf('<svg') !== 0 || t.split('<svg').length !== 2) return o;
+    if (id == null) {
+      id = ++svgPoc; SVG_RAW.set(id, raw);
+      if (SVG_RAW.size > 400) SVG_RAW.delete(SVG_RAW.keys().next().value);   // strop: stránka s dlouhým procvičováním
+    }
+    return t.replace('<svg', '<svg data-pz-svg="' + id + '"');
+  }
+  function themeSvg(s) { return vybarviSvg(String(s == null ? '' : s)); }
+  if (typeof document !== 'undefined') {
+    document.addEventListener('pz-motiv', () => {
+      document.querySelectorAll('svg[data-pz-svg]').forEach(el => {
+        const id = +el.getAttribute('data-pz-svg'), raw = SVG_RAW.get(id);
+        if (raw == null) return;
+        const tpl = document.createElement('template'); tpl.innerHTML = vybarviSvg(raw, id);
+        const novy = tpl.content.firstElementChild;
+        if (novy) el.replaceWith(novy);
+      });
+    });
+  }
 
   // Escapování user-controlled textu do innerHTML (i jednoduché uvozovky kvůli onclick kontextům)
   function esc(s) {

@@ -7,6 +7,7 @@
 <meta name="description" content="Diagnostika z matematiky k přijímačkám: dvě úlohy z každého tématu určí, jak na tom v něm jsi, a ukážou, kde získáš nejvíc bodů." />
 <meta name="author" content="Vojtěch Konopa" />
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<script src="motiv.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -16,7 +17,7 @@
   .dg-prog-in { height:100%; background:var(--blue); transition:width .2s; }
   .dg-map-row { display:flex; align-items:center; gap:12px; padding:11px 0; border-top:1px solid var(--border); }
   .dg-map-row:first-child { border-top:none; }
-  .dg-dot { width:22px; height:22px; border-radius:50%; flex:none; display:grid; place-items:center; color:#fff; font-weight:800; font-size:.8rem; }
+  .dg-dot { width:22px; height:22px; border-radius:50%; flex:none; display:grid; place-items:center; color:var(--on-accent,#fff); font-weight:800; font-size:.8rem; }
   .dg-dot.ok { background:var(--green); }
   .dg-dot.bad { background:var(--red); }
   .dg-dot.l0 { background:var(--red); } .dg-dot.l1 { background:var(--gold); }
@@ -36,6 +37,7 @@
   .dg-reco { background:var(--blue-light); border-radius:12px; padding:16px 18px; margin-top:16px; }
   .dg-reco h3 { font-size:1.05rem; color:var(--blue-dark); margin-bottom:6px; }
 </style>
+<link rel="stylesheet" href="motiv.css">
 </head>
 <body>
 <div class="top-bar">

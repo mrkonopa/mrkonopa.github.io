@@ -1,0 +1,86 @@
+/* ─────────────────────────────────────────────────────────────────────────
+   PŘIJÍMAČKY — světlý / tmavý vzhled (přepínač v horní liště, motiv.js).
+
+   Výchozí je SVĚTLÝ (to je odladěné a změřené); tmavý se zapíná jen volbou
+   žáka a pamatuje se v zařízení. Tmavý vzhled je DOPLŇKOVÝ: přepisuje barevné
+   tokeny (--bg, --card, --text …) a těch pár míst, kde je barva zapsaná
+   natvrdo. Světlý vzhled se tímto souborem nemění (kromě samotného přepínače).
+
+   Pravidla, ze kterých se nesmí couvnout:
+   · rýsovací plocha a obrázky v doplňcích zůstávají BÍLÝ PAPÍR — rýsuje se
+     a čte se na papíře, barvy tahů jsou na bílou navržené (kn-*, figure.obr),
+   · tisk je vždy světlý (celý tmavý blok je v @media not print),
+   · obrázky úloh se nepřebarvují seznamem SVG_MAP (ten je pro světlé pozadí),
+     v tmavém zůstává původní herní paleta, navržená na tmavé — viz themeSvg.
+   ───────────────────────────────────────────────────────────────────────── */
+
+/* PŘEPÍNAČ — v obou vzhledech stejný (přepínač je jen v horní liště). */
+.pz-motiv { order:99; display:inline-flex; align-items:center; gap:9px; cursor:pointer;
+  font-family:var(--sans); font-size:.82rem; font-weight:500; color:var(--muted);
+  background:none; border:0; padding:6px 0; }
+.pz-motiv:hover { color:var(--text); }
+.pz-motiv:focus-visible { outline:2px solid var(--blue); outline-offset:3px; border-radius:6px; }
+.pz-motiv-prep { position:relative; flex:none; width:34px; height:18px; border-radius:9px;
+  border:1.5px solid var(--muted); background:transparent; transition:background .15s, border-color .15s; }
+.pz-motiv-prep::after { content:''; position:absolute; top:2px; left:2px; width:11px; height:11px; border-radius:50%;
+  background:var(--muted); transition:transform .15s, background .15s; }
+.pz-motiv[aria-checked="true"] .pz-motiv-prep { background:var(--blue); border-color:var(--blue); }
+.pz-motiv[aria-checked="true"] .pz-motiv-prep::after { transform:translateX(16px); background:var(--on-accent,#fff); }
+@media (pointer:coarse) { .pz-motiv { min-height:44px; } }
+@media (prefers-reduced-motion:reduce) { .pz-motiv-prep, .pz-motiv-prep::after { transition:none; } }
+@media print { .pz-motiv { display:none; } }
+
+@media not print {
+  html[data-motiv="dark"] {
+    color-scheme:dark;                       /* rolovací lišty, výběry, automatické doplňování */
+    --bg:#12161f; --card:#1b2130; --text:#e9edf5; --muted:#a8b2c6; --border:#2f3850;
+    --blue:#7ab4ee;  --blue-dark:#a9cdf6; --blue-light:#1d3253;
+    --teal:#58c9ae;                        --teal-light:#173730;
+    --gold:#e3b84c;                        --gold-light:#3a2f17;
+    --green:#55cb8c;                       --green-light:#17352a;
+    --red:#ff8f82;                         --red-light:#3d2020;
+    --shadow:0 2px 14px rgba(0,0,0,.40);
+    --shadow-hover:0 6px 22px rgba(0,0,0,.55);
+    /* nové tokeny (ve světlém mají záložní hodnotu přímo v pravidlech) */
+    --on-accent:#0b1424;                     /* text na plné modré / zelené / červené */
+    --field:#10151f;                         /* pole, výběry, nástroje */
+    --btn-bg:#232b3d;                        /* tlačítka a poznámky */
+    --explain-bg:#161c2a;
+  }
+  /* zář na pozadí: ve světlém teplá, v tmavém jen náznak chladné */
+  html[data-motiv="dark"], html[data-motiv="dark"] body {
+    background-image:
+      radial-gradient(circle at 8% 12%,rgba(122,180,238,.07) 0%,transparent 38%),
+      radial-gradient(circle at 92% 88%,rgba(88,201,174,.05) 0%,transparent 38%);
+  }
+
+  /* — místa, kde je barva zapsaná natvrdo (každé je jmenovitě, aby šlo dohledat proč) — */
+  html[data-motiv="dark"] .cm-review-steps li + li { border-top-color:rgba(255,255,255,.10); }
+  html[data-motiv="dark"] .cm-kn-legenda .z { color:#7ab4ee; }
+  html[data-motiv="dark"] .cm-kn-legenda .r { color:#ff9d6e; }
+  html[data-motiv="dark"] .kn-hint.l3 { background:#3a2615; border-left-color:#ff9d6e; }
+  html[data-motiv="dark"] .kn-hint .hl { color:var(--muted); }
+  /* rozcestník: kód v řádku archivu, tlačítko k doplňkům, odpočet */
+  html[data-motiv="dark"] .row-header .code { background:#232b3d; }
+  html[data-motiv="dark"] .dopl-btn { border-color:#5a4a1e; }
+  html[data-motiv="dark"] .dopl-btn:hover, html[data-motiv="dark"] .dopl-btn:focus { background:#483a1c; }
+  html[data-motiv="dark"] .cermat-countdown.cc-far  { color:#9cc9f5; background:#17283f; border-color:#2f527f; }
+  html[data-motiv="dark"] .cermat-countdown.cc-soon { color:#ff9d92; background:#3d2020; border-color:#7a3a36; }
+  html[data-motiv="dark"] .cermat-countdown:hover { box-shadow:0 8px 22px rgba(0,0,0,.5); }
+  /* doplňky: čip s kódem, blok s výpočtem a tlačítko apletu v tmavém */
+  html[data-motiv="dark"] .chip.kod { background:#232b3d; }
+  html[data-motiv="dark"] .vypocet { background:var(--field); }
+  html[data-motiv="dark"] .ggb-btn:hover { background:#2a4a78; }
+
+  /* PAPÍR: rýsovací plocha (.kn-svg, i snímek v rozboru), obrázky v doplňcích a aplet GeoGebry zůstávají světlé — kresby mají
+     tmavé tahy a nesmí se na nich měnit barva textu. Je to „světlý ostrůvek": uvnitř platí světlé tokeny
+     (jinak by popisek dědil světlou barvu z tmavé stránky a splynul s papírem). `color` se musí nastavit
+     znovu, protože se dědí už rozpočtená hodnota, ne token. */
+  html[data-motiv="dark"] figure.obr, html[data-motiv="dark"] .ggb-wrap, html[data-motiv="dark"] .kn-svg {
+    --text:#1a1a2e; --muted:#676d7b; --border:#e2dccc; --card:#fff;
+    --blue:#196ec0; --blue-dark:#1250a0; --blue-light:#e8f1fb;
+    --teal:#0e7c67; --teal-light:#e4f5f1; --gold:#8e6d0b; --gold-light:#fef9ec;
+    --green:#187e48; --green-light:#e6f7ef; --red:#c7382c; --red-light:#fdeceb;
+    color:var(--text);
+  }
+}

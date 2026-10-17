@@ -44,6 +44,7 @@ const MIMO_BRANU = {
   'sql-harness.cjs': 'pomocník ostatních SQL testů (startuje PostgreSQL), sám nic netvrdí',
   'verify-qol.cjs': 'čeká ručně spuštěný dev server na :8765 (zapsáno v CLAUDE.md)',
   'shot-g3.cjs': 'nástroj na snímky, ne test',
+  'shot-motiv.cjs': 'nástroj na snímky světlého a tmavého vzhledu přijímaček (a porovnání před/po), ne test',
   'shot-hub.cjs': 'nástroj na snímky, ne test',
   'shot-review.cjs': 'nástroj na snímky, ne test',
   'shot-verify.cjs': 'nástroj na snímky, ne test',

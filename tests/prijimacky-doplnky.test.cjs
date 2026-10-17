@@ -141,7 +141,9 @@ t(!/materialId/.test(DOP), 'applety nezávisí na uloženém materiálu na geoge
 // rozdíl shodil CI, zatímco v sandboxu (kde je doména blokovaná) audit
 // procházel. Výsledek auditu nesmí záviset na dostupnosti cizího serveru.
 {
-  t(!/<script[^>]+\bsrc=/i.test(DOP), 'stránka při otevření nestahuje žádný cizí skript');
+  // Jediný skript se `src` je vlastní motiv.js (přepínač vzhledu, běží synchronně v <head>). Cokoli jiného — zvlášť z cizího serveru — shodí test.
+  const skripty = [...DOP.matchAll(/<script[^>]+\bsrc=["']([^"']+)["']/gi)].map(m => m[1]);
+  t(skripty.every(u => u === 'motiv.js'), 'stránka při otevření nestahuje žádný cizí skript (jen vlastní motiv.js)' + (skripty.some(u => u !== 'motiv.js') ? ' — našel: ' + skripty.join(', ') : ''));
   // POZOR: počítej skutečné NAČTENÍ, ne zmínky. Název souboru je i v komentáři
   // a v chybové hlášce a hlásit je znamená chybu v měřidle, ne na stránce.
   const nacteni = [...DOP.matchAll(/\.src\s*=\s*'https:\/\/www\.geogebra\.org\/apps\/deployggb\.js'/g)];

@@ -57,27 +57,8 @@ function serve() {
 let pass = 0, fail = 0;
 const ok = (c, m, d) => { if (c) { pass++; console.log('  ✅ ' + m); } else { fail++; console.log('  ❌ ' + m + (d ? ' — ' + d : '')); } };
 
-// Mock Supabase: session podle `window.__SESSION`, RPC volání se počítají.
-const MOCK = `
-window.__VOLANI = { login: 0, logout: 0 };
-(function(){
-  let session = window.__SESSION === undefined ? null : window.__SESSION;
-  try { if (sessionStorage.getItem('__LOGOUT')) session = null; } catch (e) {}   // po odhlášení a znovunačtení je žák zase odhlášený
-  const okp = d => Promise.resolve({ data: d, error: null });
-  function q(){ const o={data:null,error:null};
-    ['select','eq','maybeSingle','order','limit','single','insert','update','upsert','delete','in','gte','lte','is'].forEach(m=>o[m]=()=>o);
-    o.then=(r)=>r({data:null,error:null}); return o; }
-  window.supabase = { createClient: ()=>({
-    auth: {
-      getSession: ()=>okp({ session }),
-      signOut: ()=>{ try { sessionStorage.setItem('__LOGOUT', String(Number(sessionStorage.getItem('__LOGOUT') || 0) + 1)); } catch (e) {} session=null; return okp(null); },
-      signInWithOAuth: ()=>{ window.__VOLANI.login++; return okp(null); },
-      onAuthStateChange: ()=>({ data:{ subscription:{ unsubscribe(){} } } }),
-    },
-    from: ()=>q(),
-    rpc: (fn)=> okp(fn==='pz_get_stats' ? (window.__CLOUD || {}) : null),
-  }) };
-})();`;
+// Mock Supabase (sdílený modul): session podle `window.__SESSION`, RPC volání se počítají.
+const { MOCK } = require('./pz-mock-cloud.cjs');
 
 // Data, která žák „už udělal“. Čísla v očekávání níže se počítají z TÉHO SAMÉHO pole, ale vlastním kódem testu.
 const DATA = {

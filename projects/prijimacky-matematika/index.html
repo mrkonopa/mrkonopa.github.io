@@ -22,6 +22,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Přijímačky na SŠ — Matematika · Vojtěch Konopa</title>
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<script src="motiv.js"></script>
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Vojtěch Konopa">
 <meta property="og:locale" content="cs_CZ">
@@ -247,7 +248,7 @@
       font-size: .87rem;
       font-weight: 500;
       color: var(--text);
-      background: #fafaf2;
+      background: var(--btn-bg, #fafaf2);
       transition: all .12s ease;
     }
     .files a:hover, .files a:focus {
@@ -259,12 +260,12 @@
     .files a.primary {
       background: var(--blue);
       border-color: var(--blue);
-      color: #fff;
+      color: var(--on-accent, #fff);
     }
     .files a.primary:hover, .files a.primary:focus {
       background: var(--blue-dark);
       border-color: var(--blue-dark);
-      color: #fff;
+      color: var(--on-accent, #fff);
     }
     .files .ico { font-size: .9em; }
 
@@ -272,7 +273,7 @@
     .note {
       max-width: 920px; margin: 30px auto 0;
       padding: 14px 18px;
-      background: #fafaf2;
+      background: var(--btn-bg, #fafaf2);
       border: 1px dashed var(--border);
       border-radius: 12px;
       font-size: .85rem;
@@ -360,6 +361,7 @@
     /* mobil: větší dotykové plochy PDF tlačítek a navigace */
     @media(pointer:coarse){.files a{min-height:44px;padding:10px 14px}.top-bar a{min-height:44px;display:inline-flex;align-items:center}footer a{display:inline-flex;align-items:center;min-height:40px}}
   </style>
+<link rel="stylesheet" href="motiv.css">
 </head>
 <body>
 
@@ -439,8 +441,8 @@
     .acct .acct-mail { overflow-wrap:anywhere; }
     .acct .acct-stav { margin-top:4px; font-size:.82rem; color:var(--green); min-height:1.2em; }
     .acct-btn { font-size:.88rem; padding:9px 16px; flex:0 0 auto; }
-    .acct-primary { background:var(--blue); border-color:var(--blue); color:#fff; }
-    .acct-primary:hover { background:var(--blue-dark); border-color:var(--blue-dark); color:#fff; }
+    .acct-primary { background:var(--blue); border-color:var(--blue); color:var(--on-accent,#fff); }
+    .acct-primary:hover { background:var(--blue-dark); border-color:var(--blue-dark); color:var(--on-accent,#fff); }
     @media (max-width:520px) { .acct-wrap { padding:0 16px; } .acct-btn { width:100%; } }
     @media (pointer:coarse) { .acct-btn { min-height:44px; } }
     /* Počítadla pod kartami: číslo je tučné a stojí na místě (tabulkové číslice), aby se při počítání nehýbal text. */
