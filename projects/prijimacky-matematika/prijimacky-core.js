@@ -37,6 +37,9 @@
     // v OBOU motivech — žádná barva ze seznamu to nesplňuje, #4cc9f0 by na bílé
     // ztmavla na #1a73c8 a s #1b6f8f by splynula.
     ['#a8c8e0', '#d6e4f0'],
+    // číslo na tmavém čtverci útvaru (osová souměrnost ve čtvercové síti): na tmavé
+    // výplni #1b6f8f musí zůstat SVĚTLÉ v obou motivech (kontrast 5,3 : 1), proto se nemění
+    ['#f4f9ff', '#f4f9ff'],
     // 🔴 popisky pod sloupci. Světle modrý text má na bílé kontrast 1,3 : 1,
     // tedy byl prakticky NEVIDITELNÝ — musí zčernat jako ostatní text.
     ['#cfe8ff', '#1a1a2e'],

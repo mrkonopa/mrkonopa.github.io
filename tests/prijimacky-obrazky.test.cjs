@@ -111,6 +111,10 @@ ok(pomer.length > 150 && Math.max(...pomer) < 0.01, 'obdélník se kreslí ve sk
       casti++;
       const zad = [t.intro, c.prompt, t.prompt].filter(Boolean).join(' ');
       if (/vyznačen/.test(zad)) continue;
+      /* Číslované čtverce útvaru (data-bunka): čísla jsou jen OZNAČENÍ čtverců a odpověď
+         je označení jednoho z nich — nic se tím neprozrazuje, hledá se právě on. Správnost
+         odpovědi hlídá prijimacky-soumernost / prijimacky-dopocet nezávislým řešičem. */
+      if (/data-bunka=/.test(String(c.svg))) continue;
       const popisky = [...String(c.svg).matchAll(/>([^<>]*)</g)].map(m => m[1].trim()).filter(Boolean);
       const hit = popisky.find(l => cislo(c.ans).test(l));
       if (hit && !cislo(c.ans).test(zad)) nal.set(c.key + ' ' + (t.title || ''), (nal.get(c.key + ' ' + (t.title || '')) || 0) + 1);

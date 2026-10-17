@@ -70,6 +70,13 @@
     8: { hra: 8, mise: '2-2', nazev: 'Pythagorova věta',          video: 'ssvz3u8imgk' },  // 29 shod
     9: { hra: 9, mise: '7-1', nazev: 'Podobnost trojúhelníků',    video: 'XFIg5VJ2Ujc' },  // 10 shod
   };
+  /* Úlohy s vlastním tématem uvnitř okruhu poznáme podle NÁZVU úlohy v rozboru —
+     pozice tu nestačí (pozice 8 a 11 míchají obvody, dlaždice i útvary ze čtverců).
+     Útvary ve čtvercové síti jsou osová souměrnost, ne obvod a obsah obdélníku. */
+  const VYKLAD_TITUL = {
+    'Útvary ve čtvercové síti': { hra: 6, mise: '5-1', nazev: 'Osová souměrnost', video: 'Yp5u-LyQUXQ' },
+    'Osová souměrnost útvarů':  { hra: 6, mise: '5-1', nazev: 'Osová souměrnost', video: 'Yp5u-LyQUXQ' },
+  };
   // Výklad pro pozici testu (0-indexovanou). Nejdřív výjimka pro konkrétní pozici,
   // teprve pak okruh; topicsForSlot zůstává jediným zdrojem mapování pozice → okruh.
   function vykladProSlot(idx) {
@@ -79,6 +86,8 @@
   }
   // Výklad pro konkrétní úlohu z rozboru: vlastní okruh úlohy má přednost před pozicí.
   function vykladProUlohu(r) {
+    const tit = r && r.title;
+    if (typeof tit === 'string' && Object.prototype.hasOwnProperty.call(VYKLAD_TITUL, tit)) return Object.assign({ okruh: 'soumernost' }, VYKLAD_TITUL[tit]);
     const id = r && r.okruh;
     if (typeof id === 'string' && VYKLAD[id] && TOPICS.some(x => x.id === id)) return Object.assign({ okruh: id }, VYKLAD[id]);
     return vykladProSlot(Number(r && r.no) - 1);
@@ -205,5 +214,5 @@
     return out;
   }
 
-  window.PZ_TOPICS = { list: TOPICS, item: practiceItem, topicsForSlot, topicsForTask, vykladProSlot, vykladProUlohu, vykladProOkruh, vykladUrl, videoUrl, bodyVTestu, konstrukcePozice: KONSTRUKCE_POZICE };
+  window.PZ_TOPICS = { list: TOPICS, item: practiceItem, topicsForSlot, topicsForTask, vykladProSlot, vykladProUlohu, vykladProOkruh, vykladTitul: VYKLAD_TITUL, vykladUrl, videoUrl, bodyVTestu, konstrukcePozice: KONSTRUKCE_POZICE };
 })();

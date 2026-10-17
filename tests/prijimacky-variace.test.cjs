@@ -64,13 +64,15 @@ ok(skupiny.length === 16, 'SLOTS má 16 pozic', 'nalezeno=' + skupiny.length);
    Pozice 9 a 10: jednokrokové úlohy (přepona žebříku, „k · 9 = 18“, měřítko modelu)
    nahradila Thaletova kružnice a počet řešení, proto 5. Pozice 15: tři sady jednokrokových
    procent nahradily dvě se společným kontextem (Prvňáci, Zedníci), proto 7. */
+/* 2026-10-17: osová souměrnost ve čtvercové síti (pozice 8 → 7 a 11 → 9 variant, celkem 106),
+   podle ostré úlohy 8 (M9D 2023) a úloh M5/M7; v bance dřív nebyla vůbec. */
 /* 2026-09-30: varianty podle ostré úlohy 13 se vrátily na pozici 13 (tři tělesa
    z pozice 12, rovnoramenný trojúhelník z pozice 14), proto 12 → 8, 13 → 13, 14 → 6.
    Nic neubylo — přesun hlídá podlaha CELKOVÉHO počtu níž, aby se jím nedalo
    schovat smazání. */
-const VARIANT = { 1: 11, 2: 6, 3: 6, 4: 5, 5: 8, 6: 8, 7: 5, 8: 6,
-  9: 5, 10: 5, 11: 8, 12: 8, 13: 13, 14: 6, 15: 7, 16: 10 };
-const CELKEM = 104;
+const VARIANT = { 1: 11, 2: 6, 3: 6, 4: 5, 5: 8, 6: 8, 7: 5, 8: 7,
+  9: 5, 10: 5, 11: 9, 12: 8, 13: 13, 14: 6, 15: 7, 16: 10 };
+const CELKEM = 106;
 const maloVariant = [];
 skupiny.forEach((g, i) => {
   const p = i + 1;
