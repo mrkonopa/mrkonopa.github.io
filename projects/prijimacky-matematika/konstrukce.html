@@ -7,6 +7,7 @@
 <meta name="description" content="Konstrukční úlohy k přijímačkám z matematiky: nakresli řešení od ruky nebo pravítkem a kružítkem, stránka ho vyhodnotí a ukáže postup krok za krokem." />
 <meta name="author" content="Vojtěch Konopa" />
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<script src="motiv.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -15,7 +16,7 @@
   .kn-hlava { display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:8px 14px; margin-bottom:10px; }
   .kn-nazev { font-weight:700; color:var(--text); }
   .kn-skore { font-size:.88rem; color:var(--muted); font-weight:600; }
-  .kn-typ { font-family:var(--sans); font-size:.9rem; padding:8px 10px; border:1.5px solid var(--border); border-radius:8px; background:#fff; color:var(--text); max-width:100%; }
+  .kn-typ { font-family:var(--sans); font-size:.9rem; padding:8px 10px; border:1.5px solid var(--border); border-radius:8px; background:var(--field,#fff); color:var(--text); max-width:100%; }
   .kn-text { margin:12px 0 4px; line-height:1.55; color:var(--text); }
   .kn-akce { display:flex; flex-wrap:wrap; gap:10px; margin-top:14px; }
   .kn-vysl { margin-top:14px; border-radius:10px; padding:12px 14px; font-weight:600; line-height:1.45; }
@@ -32,6 +33,7 @@
   .kn-hint .hl { display:block; font-size:.75rem; font-weight:700; color:#5d6371; margin-bottom:2px; }
   @media (pointer:coarse) { .kn-akce .pz-btn { min-height:44px; } }
 </style>
+<link rel="stylesheet" href="motiv.css">
 </head>
 <body>
 <div class="top-bar">

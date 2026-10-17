@@ -66,14 +66,14 @@ p.lede { font-size:1rem; font-weight:300; color:var(--muted); max-width:640px; }
 .pz-btn { display:inline-flex; align-items:center; gap:7px; cursor:pointer;
   font-family:var(--sans); font-weight:700; font-size:.95rem;
   padding:11px 20px; border-radius:10px; border:1px solid var(--border);
-  background:#fafaf2; color:var(--text); transition:all .12s; }
+  background:var(--btn-bg,#fafaf2); color:var(--text); transition:all .12s; }
 .pz-btn:hover { border-color:var(--blue); background:var(--blue-light); color:var(--blue-dark); transform:translateY(-1px); }
-.pz-btn.primary { background:var(--blue); border-color:var(--blue); color:#fff; }
+.pz-btn.primary { background:var(--blue); border-color:var(--blue); color:var(--on-accent,#fff); }
 .pz-authbtn { cursor:pointer; font-family:var(--sans); font-weight:600; font-size:.8rem;
   padding:5px 12px; border-radius:8px; border:1px solid var(--border);
   background:var(--card); color:var(--blue); transition:all .12s; }
 .pz-authbtn:hover { border-color:var(--blue); background:var(--blue-light); }
-.pz-btn.primary:hover { background:var(--blue-dark); color:#fff; }
+.pz-btn.primary:hover { background:var(--blue-dark); color:var(--on-accent,#fff); }
 .pz-btn.ghost { background:transparent; }
 .pz-btn.danger { color:var(--red); }
 .pz-btn.danger:hover { background:var(--red-light); border-color:var(--red); color:var(--red); }
@@ -114,9 +114,9 @@ main { max-width:920px; margin:0 auto; padding:18px 24px 80px; }
 /* Pole odpovědi: test, procvičování i diagnostika stejně (v posledních dvou bylo
    dřív úplně nestylované — malé výchozí pole prohlížeče). */
 .cm-part input[type=text], #pr-answer input[type=text], #dg-answer input[type=text] { width:100%; font-family:var(--sans); font-weight:600; font-size:1.05rem;
-  background:#fff; color:var(--text); border:1.5px solid var(--border); border-radius:8px; padding:10px 12px; outline:none; }
+  background:var(--field,#fff); color:var(--text); border:1.5px solid var(--border); border-radius:8px; padding:10px 12px; outline:none; }
 .cm-part input[type=text]:focus, #pr-answer input[type=text]:focus, #dg-answer input[type=text]:focus { border-color:var(--blue); box-shadow:0 0 0 3px var(--blue-light); }
-.cm-explain { display:block; width:100%; margin-top:8px; background:#fafaf6; color:var(--text);
+.cm-explain { display:block; width:100%; margin-top:8px; background:var(--explain-bg,#fafaf6); color:var(--text);
   border:1px solid var(--border); border-radius:8px; padding:8px 10px; font-family:var(--sans);
   font-size:.9rem; resize:vertical; }
 .cm-explain-lbl { font-size:.8rem; color:var(--muted); margin-top:8px; }
@@ -139,7 +139,7 @@ main { max-width:920px; margin:0 auto; padding:18px 24px 80px; }
 .cm-match-row { display:flex; justify-content:space-between; align-items:center; gap:10px;
   padding:10px 0; border-top:1px solid var(--border); }
 .cm-match-row:first-child { border-top:none; }
-.cm-match-row select { font-family:var(--sans); font-size:.92rem; background:#fff; color:var(--text);
+.cm-match-row select { font-family:var(--sans); font-size:.92rem; background:var(--field,#fff); color:var(--text);
   border:1.5px solid var(--border); border-radius:8px; padding:7px 10px; }
 
 /* výsledek + rozbor */
@@ -216,9 +216,9 @@ main { max-width:920px; margin:0 auto; padding:18px 24px 80px; }
 /* ── KONSTRUKCE: kreslicí okno (konstrukce-okno.js) — procvičování i test nanečisto ── */
 .kn-nastroje { display:flex; flex-wrap:wrap; gap:6px; margin:10px 0 8px; }
 .kn-tool { display:inline-flex; align-items:center; gap:6px; font-family:var(--sans); font-size:.82rem; font-weight:600;
-  padding:7px 10px; border:1.5px solid var(--border); border-radius:8px; background:#fff; color:var(--text); cursor:pointer; }
+  padding:7px 10px; border:1.5px solid var(--border); border-radius:8px; background:var(--field,#fff); color:var(--text); cursor:pointer; }
 .kn-tool:hover { border-color:var(--blue); }
-.kn-tool[aria-pressed="true"] { background:var(--blue); border-color:var(--blue); color:#fff; }
+.kn-tool[aria-pressed="true"] { background:var(--blue); border-color:var(--blue); color:var(--on-accent,#fff); }
 .kn-tool:disabled { opacity:.5; cursor:default; }
 .kn-tool svg { flex:none; }
 .kn-svgwrap { position:relative; }

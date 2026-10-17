@@ -23,7 +23,8 @@ const STR = path.join(PROJ, 'prijimacky-matematika');
 
 /* Nastavení zařízení — zůstává i po odhlášení, protože nepatří žákovi, ale tabletu. */
 const NASTAVENI_ZARIZENI = {
-  PZ_KN_CARY: 'tloušťka čar v rýsovacím okně (pohodlí při psaní prstem, žádná data o žákovi)'
+  PZ_KN_CARY: 'tloušťka čar v rýsovacím okně (pohodlí při psaní prstem, žádná data o žákovi)',
+  PZ_MOTIV: 'světlý / tmavý vzhled (volba tabletu, žádná data o žákovi; po odhlášení zůstává, jak ji dítě na zařízení nastavilo)'
 };
 /* Klíče, které se do localStorage nezapisují: PZ_EVT_ + jméno události je v sessionStorage (jednou za návštěvu karty). */
 const MIMO_LOCALSTORAGE = { PZ_EVT_: 'sessionStorage, mizí se zavřením karty' };

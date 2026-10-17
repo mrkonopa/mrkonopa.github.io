@@ -7,10 +7,13 @@
 <meta name="description" content="Cvičný test na čas ve struktuře jednotné přijímací zkoušky z matematiky: 16 úloh, 50 bodů, 70 minut. Okamžité vyhodnocení a vyřešený postup." />
 <meta name="author" content="Vojtěch Konopa" />
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<script src="motiv.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="prijimacky.css"></head>
+<link rel="stylesheet" href="prijimacky.css">
+<link rel="stylesheet" href="motiv.css">
+</head>
 <body>
 <div class="top-bar">
   <a href="./"><span class="crumb">← Přijímačky z matematiky</span></a>
@@ -31,7 +34,7 @@
         <span class="hl">16 úloh · 50 bodů · 70 minut.</span><br>
         Mix otevřených, uzavřených (A–E), pravda/nepravda a přiřazovacích úloh a dvě konstrukce, které se rýsují přímo v okně — jako u skutečného testu.</div>
       <div id="cm-gate-status" class="cm-gate-status"></div>
-      <div id="cm-resume" style="display:none;margin-top:14px;padding:12px 14px;border:1.5px solid var(--blue);border-radius:10px;background:#fff;text-align:left"></div>
+      <div id="cm-resume" style="display:none;margin-top:14px;padding:12px 14px;border:1.5px solid var(--blue);border-radius:10px;background:var(--field,#fff);text-align:left"></div>
       <div style="margin-top:16px"><button class="pz-btn primary" onclick="cmStart()">▶ Začít test</button></div>
     </div>
     <div class="cm-panel" id="cm-history" style="display:none;margin-top:14px"></div>
