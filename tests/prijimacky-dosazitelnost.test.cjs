@@ -95,5 +95,36 @@ sabotaz('žádný okruh nemá navic', () => T.list.forEach(o => { o.navic = []; 
 // po sabotážích je stav zase v pořádku (nic se nezapomnělo vrátit)
 ok(nedosazitelne(varianty).length === 0, 'po sabotážích je vše zase dosažitelné');
 
+/* ── Úroveň základ: osová souměrnost jde vylosovat a bez banky nevznikne prázdná položka ── */
+{
+  const G = global.window.PZ_GEN.geometrie, gen = G.find(f => f.name === 'soumernostG');
+  const vzorek = () => {
+    let n = 0, s = 0, yn = 0, text = 0, bezHintu = 0;
+    for (let i = 0; i < 3000; i++) {
+      const it = T.item('geometrie', 'zaklad'); n++;
+      if (it && /data-utvar=/.test(it.svg || '')) {
+        s++; if (it.type === 'yn') yn++; else text++;
+        if (!it.hint1 || !it.hint2 || it.uroven !== 'zaklad' || !it._check || it._check.kind !== 'soumernost') bezHintu++;
+      }
+    }
+    return { n, s, yn, text, bezHintu };
+  };
+  ok(!!gen, 'generátor soumernostG je v seznamu základu okruhu geometrie');
+  const v = vzorek();
+  // 1 generátor z 9 ≈ 11 % (naměřeno 10,8 %); rozmezí drží s velkou rezervou, 0 by znamenalo slepý test
+  ok(v.s >= 150 && v.s <= 600, 'základ geometrie: osová souměrnost je v ' + v.s + ' z ' + v.n + ' losů (' + (100 * v.s / v.n).toFixed(1) + ' %)');
+  ok(v.yn > 0 && v.text > 0, 'základ nabízí A/N i „odeber čtverec“ (' + v.yn + ' / ' + v.text + ')');
+  ok(v.bezHintu === 0, 'každá úloha základu o souměrnosti nese úroveň, vlastní nápovědy L1 a L2 a _check.kind');
+  // bez banky generátor nevrátí prázdno (practiceItem by tím zastavil diagnostiku), ale úlohu z téhož okruhu
+  const banka = global.window.RPG_CERMAT_9;
+  let nahr; try { delete global.window.RPG_CERMAT_9; nahr = gen(); } finally { global.window.RPG_CERMAT_9 = banka; }
+  ok(nahr && nahr.prompt && !/data-utvar=/.test(nahr.svg || ''), 'bez banky vrátí generátor prostou úlohu místo prázdna');
+  // sabotáž: generátor vyřazený ze seznamu → souměrnost na základu zmizí
+  const idx = G.indexOf(gen); G.splice(idx, 1);
+  let bez; try { bez = vzorek(); } finally { G.splice(idx, 0, gen); }
+  ok(bez.s === 0, 'sabotáž: bez generátoru v seznamu je souměrnost na základu 0 (' + bez.s + ') — kontrola by to chytila');
+  ok(vzorek().s >= 150, 'po sabotáži je generátor zase v seznamu');
+}
+
 console.log('\n  ' + pass + ' ✅  ' + fail + ' ❌\n');
 process.exit(fail ? 1 : 0);
