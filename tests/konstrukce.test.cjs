@@ -66,6 +66,7 @@ const vysledek=page=>page.evaluate(()=>{ const v=document.querySelector('#kn-vys
   // tloušťka čar: tlačítko střídá tenké / střední / silné, mění vykreslenou šířku čáry i zapamatuje volbu v zařízení
   { const sirka = () => page.evaluate(() => parseFloat(getComputedStyle(document.querySelector('#kn-svg .kn-d')).strokeWidth));
     const cary = () => page.evaluate(() => ({ t: document.querySelector('[data-a="cary"]').textContent, u: localStorage.getItem('PZ_KN_CARY') }));
+    await nova(page, 'thales');   // úloha s úsečkou a přímkou; první úloha z losu závisí na počtu typů a čáru mít nemusí
     const w0 = await sirka(), c0 = await cary();
     await page.click('[data-a="cary"]'); const w1 = await sirka(), c1 = await cary();
     await page.click('[data-a="cary"]'); const w2 = await sirka(), c2 = await cary();

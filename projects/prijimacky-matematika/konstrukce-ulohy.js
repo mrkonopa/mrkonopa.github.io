@@ -2198,6 +2198,124 @@
     return null;
   }
 
+  // ── 73) Pravoúhlý lichoběžník ABCD: AB a přímka p ∋ B dané, C ∈ p, |AC| = |AB| (M9 2023/1. náhr. ú. 9; 2 řešení) ──
+  // Úhel při B je ostrý (ABC je rovnoramenný se základnou BC), takže pravé úhly jsou při A a D (AB ∥ CD), nebo při C a D (BC ∥ AD).
+  function pravouhlyLichAC() {
+    for (let g = 0; g < 20000; g++) {
+      const A = bod(nah(60, 340), nah(60, 240)), L = nah(100, 135), xh = smer(nah(0, 2 * Math.PI)), Bb = secti(A, nasob(xh, L));
+      const C = secti(A, nasob(otoc(xh, RAD(nah(40, 72)) * vyber([-1, 1])), L)), nn = rot(xh), u = jednot(odecti(C, Bb)), p = primka(Bb, u);
+      const D1 = secti(A, nasob(nn, skal(odecti(C, A), nn))), D2 = secti(A, nasob(u, skal(odecti(C, A), u)));
+      const vse = [A, Bb, C, D1, D2];
+      if (!vsechnyUvnitr(vse) || !rozestup(vse, 36) || !konvexni([A, Bb, C, D1]) || !konvexni([A, Bb, C, D2])) continue;
+      return {
+        typ: 'pravouhlyLichAC', nazev: 'Pravoúhlý lichoběžník — |AC| = |AB|',
+        text: 'Úsečka AB je strana pravoúhlého lichoběžníku ABCD. Vrchol C leží na přímce p, která prochází bodem B, a úhlopříčka AC je stejně dlouhá jako strana AB. Sestrojte vrcholy C, D a lichoběžník narýsujte. Najděte všechna řešení.',
+        dane: { body: { A, B: Bb }, primky: [Object.assign({ nazev: 'p' }, p)], usecky: [{ p: A, q: Bb }] },
+        hledane: ['C', 'D'], reseni: [{ C, D: D1 }, { C, D: D2 }], pomocne: [],
+        postup: [
+          { text: '|AC| = |AB|: C leží na kružnici se středem A a poloměrem |AB|. Kružnice protne přímku p v bodě B a ještě jednou — to je hledaný vrchol C.', tvary: [K(A, L), B(C, 'C')] },
+          { text: 'Trojúhelník ABC je rovnoramenný se základnou BC, takže úhel při B je ostrý a pravé úhly jsou jinde. První možnost: základny AB a CD, pravé úhly při A a D. Kolmice k AB bodem A a rovnoběžka s AB bodem C se protnou v bodě D₁.',
+            tvary: [P({ p: A, q: secti(A, nn) }), P({ p: C, q: secti(C, xh) }), B(D1, 'D₁')].concat(strany([A, Bb, C, D1])) },
+          { text: 'Druhá možnost: základny BC a AD, pravé úhly při C a D. AD je rovnoběžná s p (rovnoběžka bodem A) a CD je kolmá k p (kolmice bodem C); jejich průsečík je D₂.',
+            tvary: [P({ p: A, q: secti(A, u) }), P({ p: C, q: secti(C, rot(u)) }), B(D2, 'D₂')].concat(strany([A, Bb, C, D2])) },
+        ],
+        napovedy: ['Na jaké kružnici leží C, když |AC| = |AB|? Může být pravý úhel při B? A kde tedy mohou být dva pravé úhly lichoběžníku?',
+          'C je druhý průsečík kružnice (A, |AB|) s přímkou p. Pak dvě možnosti: základny AB, CD (pravé úhly při A, D) nebo základny BC, AD (pravé úhly při C, D).',
+          'Řešení jsou dvě, vrchol C mají společný. V okně je teď vidíte.'],
+      };
+    }
+    return null;
+  }
+
+  // ── 74) Obdélník KLMN s vrcholy na různoběžkách p, q, bod R uvnitř strany MN (M9 2025/1. řádný ú. 9; osa většího úhlu) ──
+  // Úhlopříčky leží na p, q a půlí se v O = p ∩ q, takže |OM| = |ON| a MN je kolmá k ose úhlu MON; R leží v úhlu většího z úhlů p, q.
+  function obdelnikDvePrimky() {
+    for (let g = 0; g < 20000; g++) {
+      const O = bod(nah(150, 250), nah(110, 190)), up = smer(nah(0, 2 * Math.PI)), uq = otoc(up, RAD(nah(100, 138)) * vyber([-1, 1]));
+      const s = nah(52, 82), sg = vyber([-1, 1]), Xp = secti(O, nasob(up, sg * s)), Yp = secti(O, nasob(uq, sg * s));
+      const R = secti(Xp, nasob(odecti(Yp, Xp), nah(0.3, 0.7))), [Mm, N] = Math.random() < 0.5 ? [Xp, Yp] : [Yp, Xp];
+      const Kk = stredove(Mm, O), L = stredove(N, O), vse = [Kk, L, Mm, N, R];
+      if (!vsechnyUvnitr(vse) || !rozestup(vse, 36) || vzdal(R, O) < 28) continue;
+      const os = jednot(secti(up, uq));
+      return {
+        typ: 'obdelnikDvePrimky', nazev: 'Obdélník — vrcholy na dvou přímkách',
+        text: 'V rovině leží různoběžky p, q a bod R. Všechny čtyři vrcholy obdélníku KLMN leží na přímkách p, q a bod R leží uvnitř strany MN. Sestrojte vrcholy K, L, M, N a obdélník narýsujte. Pomůže vám osa většího z úhlů, které přímky p, q svírají.',
+        dane: { body: { R }, primky: [Object.assign({ nazev: 'p' }, primka(O, up)), Object.assign({ nazev: 'q' }, primka(O, uq))] },
+        hledane: ['K', 'L', 'M', 'N'], reseni: [{ K: Kk, L, M: Mm, N }], pomocne: [O],
+        postup: [
+          { text: 'Sestrojte osu o většího z úhlů, které přímky p, q svírají (bod R leží v tomto úhlu nebo v úhlu k němu vrcholovém). Průsečík p a q je bod O.', tvary: [P({ p: O, q: secti(O, os) }), B(O, 'O')] },
+          { text: 'Úhlopříčky obdélníku jsou shodné a půlí se. Leží na p a q, takže mají střed O a |OM| = |ON|. Trojúhelník OMN je rovnoramenný, a proto je MN kolmá k ose o. Sestrojte kolmici k o bodem R; protne p a q v bodech M, N.',
+            tvary: [P({ p: R, q: secti(R, rot(os)) }), B(Mm, 'M'), B(N, 'N')] },
+          { text: 'O je střed úhlopříček MK a NL. Vrcholy K, L jsou obrazy M, N ve středové souměrnosti podle O (kružítkem |OK| = |OM|, |OL| = |ON|). Dorýsujte obdélník.', tvary: [B(Kk, 'K'), B(L, 'L')].concat(strany([Kk, L, Mm, N])) },
+        ],
+        napovedy: ['Kde leží střed obdélníku, jehož vrcholy jsou na dvou různoběžkách? A jak vede strana MN vzhledem k ose většího úhlu přímek p, q?',
+          'Střed je O = p ∩ q. Strana MN je kolmá k ose o a prochází bodem R; M, N jsou její průsečíky s p a q. K a L jsou obrazy M a N ve středové souměrnosti podle O.',
+          'Vrcholy K, L, M, N jsou teď vidět v okně.'],
+      };
+    }
+    return null;
+  }
+
+  // ── 75) Čtverec ABCD se stranou AB na přímce a; dva z bodů P, Q, R leží uvnitř různých stran, třetí vně (M9 2023/2. náhr. ú. 9; 2 řešení) ──
+  // Dvojici bodů na dvojici stran (DA, BC kolmé k a; CD rovnoběžná s a) určuje čtverec z lineární rovnice; zkouší se všechny dvojice, strany i polorovina.
+  function ctverecTriBody() {
+    const M = 36, jm = ['P', 'Q', 'R'], idx = '₁₂';
+    const naStrane = (q, st, t) => st === 'DA' ? [q.x0, q.e * q.s * t] : st === 'BC' ? [q.x0 + q.s, q.e * q.s * t] : [q.x0 + q.s * t, q.e * q.s];
+    for (let g = 0; g < 60000; g++) {
+      // body se skládají ze dvou čtverců: P je na kolmé straně většího a na vodorovné straně menšího čtverce, Q na dalším boku většího, R na boku menšího
+      const e = vyber([1, -1]), sb = nah(80, 125), xb = nah(-150, 50), Pu = nah(xb + M, xb + sb - M);
+      const sa = nah(sb + 40, 150), sv = vyber(['DA', 'BC']), qa = { e, x0: sv === 'DA' ? Pu : Pu - sa, s: sa }, qb = { e, x0: xb, s: sb };
+      const sQ = vyber(['DA', 'BC', 'CD'].filter(x => x !== sv)), sR = vyber(['DA', 'BC']);
+      const O0 = bod(nah(100, 300), nah(80, 220)), xh = smer(nah(0, 2 * Math.PI)), nn = rot(xh), a = primka(O0, xh);
+      const dopl = ([u, n]) => secti(O0, secti(nasob(xh, u), nasob(nn, n)));
+      const ord = [0, 1, 2]; for (let i = 2; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [ord[i], ord[j]] = [ord[j], ord[i]]; }
+      const pts = [dopl([Pu, e * sb]), dopl(naStrane(qa, sQ, nah(M / sa, 1 - M / sa))), dopl(naStrane(qb, sR, nah(M / sb, 1 - M / sb)))];
+      const bodyUlohy = ord.map(i => pts[i]);
+      if (!vsechnyUvnitr(bodyUlohy) || !rozestup(bodyUlohy, 36)) continue;
+      // úplný výčet čtverců, které úloha připouští
+      const uu = bodyUlohy.map(x => skal(odecti(x, O0), xh)), nv = bodyUlohy.map(x => skal(odecti(x, O0), nn)), res = [], videno = new Set();
+      for (const ee of [1, -1]) for (let i = 0; i < 3; i++) for (let j = 0; j < 3; j++) if (i !== j) for (const dvojice of [['DA', 'BC'], ['DA', 'CD'], ['BC', 'CD']]) {
+        let x0, s;
+        if (dvojice[1] === 'BC') { x0 = uu[i]; s = uu[j] - uu[i]; } else { s = ee * nv[j]; x0 = dvojice[0] === 'DA' ? uu[i] : uu[i] - s; }
+        if (!(s >= 72)) continue;
+        const uvnitrStrany = (k, st) => st === 'CD' ? uu[k] > x0 + M && uu[k] < x0 + s - M : ee * nv[k] > M && ee * nv[k] < s - M;
+        if (!uvnitrStrany(i, dvojice[0]) || !uvnitrStrany(j, dvojice[1])) continue;
+        const k = 3 - i - j;
+        if (Math.hypot(Math.max(0, x0 - uu[k], uu[k] - x0 - s), Math.max(0, -ee * nv[k], ee * nv[k] - s)) < M) continue;
+        const klic = [ee, x0.toFixed(2), s.toFixed(2)].join();
+        if (videno.has(klic)) continue;
+        videno.add(klic);
+        res.push({ i, j, s1: dvojice[0], s2: dvojice[1], A: dopl([x0, 0]), B: dopl([x0 + s, 0]), C: dopl([x0 + s, ee * s]), D: dopl([x0, ee * s]) });
+      }
+      if (res.length !== 2) continue;
+      const vrcholy = res.map(q => [q.A, q.B, q.C, q.D]), vse = [].concat(...vrcholy);
+      let odstup = true;
+      for (let x = 0; x < 4; x++) for (let y = 0; y < 4; y++) { const d = vzdal(vrcholy[0][x], vrcholy[1][y]); if (d > 1e-6 && d < 36) odstup = false; }
+      if (!odstup || !vsechnyUvnitr(vse) || bodyUlohy.some(x => vse.some(v => vzdal(x, v) < 36))) continue;
+      const popis = q => {
+        const X = jm[q.i], Y = jm[q.j];
+        if (q.s1 === 'DA' && q.s2 === 'BC') return X + ' leží na straně DA, ' + Y + ' na straně BC. Obě strany jsou kolmé k a: kolmice k a body ' + X + ', ' + Y + ' protnou a v bodech A, B. Strana čtverce je |AB|, vrcholy C, D leží na kolmicích ve vzdálenosti |AB| od a (kružítkem).';
+        if (q.s1 === 'DA') return X + ' leží na straně DA (kolmé k a), ' + Y + ' na straně CD (rovnoběžné s a). Kolmice k a bodem ' + X + ' a rovnoběžka s a bodem ' + Y + ' se protnou ve vrcholu D; A je pata kolmice z D na a, B leží na a ve vzdálenosti |AD| od A a C naproti A.';
+        return X + ' leží na straně BC (kolmé k a), ' + Y + ' na straně CD (rovnoběžné s a). Kolmice k a bodem ' + X + ' a rovnoběžka s a bodem ' + Y + ' se protnou ve vrcholu C; B je pata kolmice z C na a, A leží na a ve vzdálenosti |BC| od B a D naproti B.';
+      };
+      const stranaPrimka = (q, st) => st === 'DA' ? P({ p: q.A, q: q.D }) : st === 'BC' ? P({ p: q.B, q: q.C }) : P({ p: q.D, q: q.C });
+      return {
+        typ: 'ctverecTriBody', nazev: 'Čtverec — tři body u stran',
+        text: 'Čtverec ABCD má stranu AB na přímce a. Dva z bodů P, Q, R leží uvnitř dvou různých stran čtverce, třetí bod leží mimo čtverec. Sestrojte vrcholy A, B, C, D a čtverec narýsujte. Najděte všechna řešení.',
+        dane: { body: { P: bodyUlohy[0], Q: bodyUlohy[1], R: bodyUlohy[2] }, primky: [Object.assign({ nazev: 'a' }, a)] },
+        hledane: ['A', 'B', 'C', 'D'], reseni: res.map(q => ({ A: q.A, B: q.B, C: q.C, D: q.D })), pomocne: [],
+        postup: [{ text: 'Dva z bodů P, Q, R leží na stranách čtverce, třetí ne. Zkoušíme dvojice bodů a dvojice stran; strany DA a BC jsou kolmé k a, strana CD je s a rovnoběžná. Vyhovují jen čtverce, kde třetí bod leží vně.', tvary: [] }].concat(res.map((q, n) => ({
+          text: 'Čtverec ' + (n + 1) + ': ' + popis(q),
+          tvary: [stranaPrimka(q, q.s1), stranaPrimka(q, q.s2)].concat(['A', 'B', 'C', 'D'].map(k => B(q[k], k + idx[n])), strany([q.A, q.B, q.C, q.D])),
+        }))),
+        napovedy: ['Který pár bodů leží na stranách čtverce? Strana kolmá k a prochází bodem jako kolmice, strana rovnoběžná s a jako rovnoběžka. Vzdálenost takového bodu od a je pak strana čtverce.',
+          'Zkoušejte dvojice bodů: kolmice k a bodem a rovnoběžka s a druhým bodem se protnou ve vrcholu čtverce; nebo dvě kolmice k a, jejichž vzdálenost je strana. Zkontrolujte, že třetí bod leží vně.',
+          'Řešení jsou dvě. V okně je teď vidíte.'],
+      };
+    }
+    return null;
+  }
+
   const GENERATORY = { thales, osa, kruznice, vyska, soumernost, rovnobeznik, obdelnik, ctverec, kosoctverec, lichobeznik, teznice, rovnoramenny,
     stredova, osauhlu, opsana, vysky, obdelnikUhl, obdelnikM, lichobeznikZakl, rovnoramennyOsa, ctverecUhl, vcTc, obdelnikStrana,
     kosoctverecOsa, teziste, dveThalet, rovnoramennyKruz, pravouhlyLich, osaStrany, sestiuhelnik, stredyStran, lichobeznikTri, obdelnikSp, rovnoramennyZakl,
@@ -2205,7 +2323,8 @@
     rovnoramennyStred, obdelnikKolmice, trojuhelnikRozdil, pravouhlyRovnoramenny, obdelnikOpsana, sestiuhelnikOsa, rovnobeznikUhlopricka, rovnoramennyTc,
     rovnoramennyVyskaM, rovnobeznikStred, rovnostrannyOsa, obdelnikAE, pravouhlyStrana, rovnoramennyKruzP, thalesQ, rovnoramennyVyskaC,
     rovnostrannyStred, pravouhlyLichKruz, rovnoramennyStredQ, rovnoramennyOsaQ, obdelnikRovnobezky, rovnobeznikRovnobezkaP, obdelnikOpsanaM, trojuhelnikOsy,
-    rovnoramennyDvojnasobek, obdelnikCDCS, pravouhlyRovnoramennyX, rovnobeznikVyskaBD, ctverecPolorovina, lichobeznikKolmeUhl, rovnobeznikDvojnasobek, lichobeznikKruzAC };
+    rovnoramennyDvojnasobek, obdelnikCDCS, pravouhlyRovnoramennyX, rovnobeznikVyskaBD, ctverecPolorovina, lichobeznikKolmeUhl, rovnobeznikDvojnasobek, lichobeznikKruzAC,
+    pravouhlyLichAC, obdelnikDvePrimky, ctverecTriBody };
   const TYPY = Object.keys(GENERATORY);
   /* Úlohy 9 a 10 testu nanečisto. V ostrých testech 2019–2026 jsou obě VŽDY
      konstrukce za 2 nebo 3 body; tříbodové bývají „najděte všechna řešení"
@@ -2220,7 +2339,8 @@
       'rovnoramennyUhel', 'uhelOsaStrany', 'rovnobeznikUhel', 'rovnoramennyStred', 'trojuhelnikRozdil', 'pravouhlyRovnoramenny', 'rovnoramennyTc', 'sestiuhelnikOsa',
       'rovnoramennyVyskaM', 'rovnostrannyOsa', 'rovnoramennyKruzP', 'thalesQ', 'pravouhlyStrana',
       'rovnostrannyStred', 'pravouhlyLichKruz', 'rovnoramennyStredQ',
-      'rovnoramennyDvojnasobek', 'pravouhlyRovnoramennyX', 'ctverecPolorovina', 'rovnobeznikDvojnasobek'],
+      'rovnoramennyDvojnasobek', 'pravouhlyRovnoramennyX', 'ctverecPolorovina', 'rovnobeznikDvojnasobek',
+      'pravouhlyLichAC', 'obdelnikDvePrimky', 'ctverecTriBody'],
     10: ['ctverec', 'kosoctverec', 'soumernost', 'stredova', 'osauhlu', 'opsana', 'obdelnikM', 'lichobeznikZakl', 'ctverecUhl',
       'vcTc', 'kosoctverecOsa', 'pravouhlyLich', 'sestiuhelnik', 'obdelnikSp', 'rovnoramennyZakl', 'pravouhlyUhel', 'obdelnikKolmice', 'obdelnikOpsana',
       'rovnobeznikUhlopricka', 'rovnobeznikStred', 'obdelnikAE', 'rovnoramennyVyskaC',
