@@ -38,6 +38,13 @@
     ['smazat', 'Smazat', 'M4 7h16 M9 7V4h6v3 M6 7l1 13h10l1-13'],
     ['zvetsit', 'Zvětšit', 'M4 9V4h5 M20 9V4h-5 M4 15v5h5 M20 15v5h-5'],
   ];
+  /* Tloušťka čar: násobek --kn-t na <html> (platí pro každé okno, celou obrazovku i snímky rozboru),
+     zapamatovaný v zařízení (nastavení, ne osobní data žáka). */
+  const CARY = [['tenké', 0.6], ['střední', 1], ['silné', 1.6]], CARY_KLIC = 'PZ_KN_CARY';
+  let cary = 1;
+  try { const v = parseInt(localStorage.getItem(CARY_KLIC), 10); if (v >= 0 && v < CARY.length) cary = v; } catch (e) { /* bez úložiště zůstane střední */ }
+  const pouzijCary = () => { if (typeof document !== 'undefined' && document.documentElement) document.documentElement.style.setProperty('--kn-t', String(CARY[cary][1])); };
+  pouzijCary();
   const ik = d => '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="' + d + '"/></svg>';
   const f1 = v => (Math.round(v * 10) / 10).toString();
 
@@ -273,7 +280,8 @@
 
     function kresliListu() {
       lista.innerHTML = NASTROJE.map(([n, t, d]) => '<button type="button" class="kn-tool" data-n="' + n + '" aria-pressed="' + (S.nastroj === n) + '"' + (S.zamceno ? ' disabled' : '') + '>' + ik(d) + t + '</button>').join('') +
-        AKCE.filter(a => !(a[0] === 'zvetsit' && S.plna)).map(([a, t, d]) => '<button type="button" class="kn-tool" data-a="' + a + '"' + (S.zamceno ? ' disabled' : '') + '>' + ik(d) + t + '</button>').join('');
+        AKCE.filter(a => !(a[0] === 'zvetsit' && S.plna)).map(([a, t, d]) => '<button type="button" class="kn-tool" data-a="' + a + '"' + (S.zamceno ? ' disabled' : '') + '>' + ik(d) + t + '</button>').join('') +
+        '<button type="button" class="kn-tool" data-a="cary" title="Tloušťka čar: ' + CARY[cary][0] + ' (klepnutím změníš)">' + ik('M4 6h16 M4 12h16 M4 18h16') + 'Čáry: ' + CARY[cary][0] + '</button>';
     }
     const kresliDane = () => { $('dane').innerHTML = S.u ? svgDane(S.u) : ''; };
     const kresliZaka = () => { $('zak').innerHTML = S.tvary.map(t => tvarSvg(t, 'kn-z')).join(''); if (typeof o.zmena === 'function') o.zmena(); };
@@ -414,7 +422,10 @@
 
     lista.addEventListener('click', e => {
       const b = e.target.closest && e.target.closest('button');
-      if (!b || !lista.contains(b) || S.zamceno) return;
+      if (!b || !lista.contains(b)) return;
+      // tloušťka čar jde měnit i v zamčeném okně (rozbor po odevzdání): je to zobrazení, ne kresba
+      if (b.dataset.a === 'cary') { cary = (cary + 1) % CARY.length; try { localStorage.setItem(CARY_KLIC, String(cary)); } catch (e) { /* zůstane jen do zavření stránky */ } pouzijCary(); kresliListu(); return; }
+      if (S.zamceno) return;
       if (b.dataset.n) { S.nastroj = b.dataset.n; S.vyber = null; S.tah = null; kresliListu(); kresliNahled(); }
       else if (b.dataset.a === 'zpet') zpet();
       else if (b.dataset.a === 'smazat') smazat();

@@ -62,7 +62,19 @@ const vysledek=page=>page.evaluate(()=>{ const v=document.querySelector('#kn-vys
   await page.goto(base+URL_K,{waitUntil:'domcontentloaded'});
   await page.waitForFunction(()=>typeof KN!=='undefined'&&KN.u,null,{timeout:8000});
   console.log('── Konstrukce: počítač ──');
-  ok(await page.$$eval('#kn-nastroje [data-n]',b=>b.length)===7 && await page.$$eval('#kn-nastroje [data-a]',b=>b.length)===3,'lišta: 7 nástrojů (i úhloměr) + zpět, smazat, zvětšit');
+  ok(await page.$$eval('#kn-nastroje [data-n]',b=>b.length)===7 && await page.$$eval('#kn-nastroje [data-a]',b=>b.length)===4,'lišta: 7 nástrojů (i úhloměr) + zpět, smazat, zvětšit a tloušťka čar');
+  // tloušťka čar: tlačítko střídá tenké / střední / silné, mění vykreslenou šířku čáry i zapamatuje volbu v zařízení
+  { const sirka = () => page.evaluate(() => parseFloat(getComputedStyle(document.querySelector('#kn-svg .kn-d')).strokeWidth));
+    const cary = () => page.evaluate(() => ({ t: document.querySelector('[data-a="cary"]').textContent, u: localStorage.getItem('PZ_KN_CARY') }));
+    const w0 = await sirka(), c0 = await cary();
+    await page.click('[data-a="cary"]'); const w1 = await sirka(), c1 = await cary();
+    await page.click('[data-a="cary"]'); const w2 = await sirka(), c2 = await cary();
+    await page.click('[data-a="cary"]'); const w3 = await sirka();
+    ok(Math.abs(w0 - 1.5) < 0.01 && w1 > w0 && w2 < w0 && Math.abs(w3 - w0) < 0.01, 'tloušťka čar: střední 1,5 → silná ' + w1.toFixed(2) + ' → tenká ' + w2.toFixed(2) + ' → střední (' + w0 + ', ' + w1 + ', ' + w2 + ', ' + w3 + ')');
+    ok(/střední/.test(c0.t) && /silné/.test(c1.t) && /tenké/.test(c2.t) && c1.u === '2' && c2.u === '0', 'tlačítko ukazuje stav a volba se ukládá do zařízení (' + c0.t + ' / ' + c1.t + ' / ' + c2.t + ', uloženo ' + c1.u + ', ' + c2.u + ')');
+    await page.evaluate(() => localStorage.removeItem('PZ_KN_CARY'));
+    await page.click('[data-a="cary"]'); await page.click('[data-a="cary"]');   // zpět na střední pro další kontroly
+  }
   // výběr typu nesmí zapomenout nový generátor ani nabízet neexistující typ
   const vyber=await page.evaluate(()=>{ const v=[...document.querySelectorAll('#kn-typ option')].map(o=>o.value).filter(Boolean);
     return { n:v.length, typu:PZ_KONSTRUKCE.TYPY.length, chybi:PZ_KONSTRUKCE.TYPY.filter(t=>!v.includes(t)), navic:v.filter(t=>!PZ_KONSTRUKCE.GENERATORY[t]) }; });
