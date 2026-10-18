@@ -70,9 +70,9 @@ ok(skupiny.length === 16, 'SLOTS má 16 pozic', 'nalezeno=' + skupiny.length);
    z pozice 12, rovnoramenný trojúhelník z pozice 14), proto 12 → 8, 13 → 13, 14 → 6.
    Nic neubylo — přesun hlídá podlaha CELKOVÉHO počtu níž, aby se jím nedalo
    schovat smazání. */
-const VARIANT = { 1: 11, 2: 6, 3: 6, 4: 5, 5: 8, 6: 8, 7: 5, 8: 7,
+const VARIANT = { 1: 11, 2: 6, 3: 6, 4: 5, 5: 8, 6: 8, 7: 5, 8: 8,
   9: 5, 10: 5, 11: 9, 12: 8, 13: 13, 14: 6, 15: 7, 16: 10 };
-const CELKEM = 106;
+const CELKEM = 107;
 const maloVariant = [];
 skupiny.forEach((g, i) => {
   const p = i + 1;

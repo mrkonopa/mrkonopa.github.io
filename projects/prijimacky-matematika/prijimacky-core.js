@@ -59,11 +59,19 @@
      element za nově vybarvený. */
   const SVG_RAW = new Map(); let svgPoc = 0;
   const jeTmavy = () => typeof document !== 'undefined' && document.documentElement.getAttribute('data-motiv') === 'dark';
+  /* Jeden samostatný obrázek: začíná <svg> a kořen se zavře až úplně na konci. Vnořená <svg> jsou v pořádku (oříznutá
+     síť trojúhelníků), několik obrázků za sebou ne — to by přepsání kořene vzalo celé a poškodilo. */
+  function jedenKoren(t) {
+    if (t.indexOf('<svg') !== 0 || !/<\/svg>\s*$/.test(t)) return false;
+    const re = /<svg[\s>]|<\/svg>/g; let hl = 0, m;
+    while ((m = re.exec(t))) { hl += m[0] === '</svg>' ? -1 : 1; if (hl === 0 && re.lastIndex < t.length) return false; }
+    return hl === 0;
+  }
   function vybarviSvg(raw, id) {
     let o = raw;
     if (!jeTmavy()) for (const [a, b] of SVG_MAP) o = o.split(a).join(b);
     const t = o.trim();
-    if (t.indexOf('<svg') !== 0 || t.split('<svg').length !== 2) return o;
+    if (!jedenKoren(t)) return o;
     if (id == null) {
       id = ++svgPoc; SVG_RAW.set(id, raw);
       if (SVG_RAW.size > 400) SVG_RAW.delete(SVG_RAW.keys().next().value);   // strop: stránka s dlouhým procvičováním

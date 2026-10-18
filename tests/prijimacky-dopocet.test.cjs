@@ -301,6 +301,7 @@ const tv = (t, k) => t.statements[+k.split('.')[1] - 1].text;
 // Popisky výsečí kruhového diagramu v pořadí kreslení: [úhel nebo procento?, jméno] za každou výsečí.
 const popiskyVyseci = svg => String(svg).split('<path').slice(1).map(ch => [...ch.matchAll(/>([^<]+)<\/text>/g)].map(m => m[1]));
 const SIT = require('./soumernost-site.cjs');
+const TRI = require('./trojuhelniky-sit.cjs');
 const V69 = {
   // ── pozice 6 ──
   'Sud': (t, k) => { const [S] = cisla(t.intro, /Dno sudu má obsah (\d+) cm²/), p = t.parts.find(x => x.key === k).prompt;
@@ -588,6 +589,12 @@ const V69 = {
   'Útvary ve čtvercové síti': (t, k) => {
     const u = SIT.ctiUtvary(t.svg), r = SIT.reseniOdebrani(u[k === '8.1' ? 'B' : 'C']);
     if (r.length !== 2) throw new Error('útvar ' + (k === '8.1' ? 'B' : 'C') + ' nemá právě dvě řešení (' + r.join(',') + ')');
+    return r; },
+  // Trojúhelníková síť: útvar se čte Z KRESBY a osy / středy počítá skutečná geometrie (tests/trojuhelniky-sit.cjs).
+  'Útvary v trojúhelníkové síti': (t, k) => {
+    const { u, prazdne } = TRI.ctiTr(t.svg), p = k === '8.1' ? 'B' : 'C';
+    const r = k === '8.1' ? TRI.reseniOdebrani(u.B) : TRI.reseniPresunuti(u.C, prazdne.C);
+    if (r.length !== 2) throw new Error('útvar ' + p + ' nemá právě dvě řešení (' + r.join(',') + ')');
     return r; },
   'Osová souměrnost útvarů': (t, k) => {
     const u = SIT.ctiUtvary(t.svg), s = tv(t, k);
