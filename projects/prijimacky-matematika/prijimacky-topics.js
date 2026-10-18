@@ -129,7 +129,8 @@
     const p = parts.length ? parts[Math.floor(Math.random() * parts.length)] : { prompt: t.prompt || '', ans: '', sol: '' };
     // `klavesnice`: rovnice mají vždy textovou klávesnici — číselná by prozradila, že odpověď
     // není „nemá řešení" (viz inputMode v prijimacky-core.js).
-    return { title, intro, svg, prompt: p.prompt, type: 'text', ans: String(p.ans), sol: p.sol || '', ...(p.klavesnice ? { klavesnice: p.klavesnice } : {}) };
+    // `reseni`: úloha „najděte všechna řešení“ (body podle počtu správných, viz PZ.hodnotReseni)
+    return { title, intro, svg, prompt: p.prompt, type: 'text', ans: String(p.ans), sol: p.sol || '', ...(p.klavesnice ? { klavesnice: p.klavesnice } : {}), ...(Array.isArray(p.reseni) ? { reseni: p.reseni.map(String) } : {}) };
   }
 
   // Vygeneruj procvičovací položku pro daný okruh. Zdroj = pozice testu (SLOTS)

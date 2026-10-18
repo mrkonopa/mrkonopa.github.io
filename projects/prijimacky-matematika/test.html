@@ -302,8 +302,10 @@ function cmSubmit(auto){
     } else {
       let earned=0;
       const items=(t.parts||[]).map((p,i)=>{ const inp=document.getElementById('cm-p-'+t.no+'-'+i);
-        const v=inp?inp.value:''; const given=v.trim()||null; const ok=v.trim()!=='' && PZ.check(v, p.ans);
-        if(ok)earned+=p.points; return {prompt:p.prompt, given, correct:String(p.ans), ok, sol:p.sol}; });
+        const v=inp?inp.value:''; const given=v.trim()||null; const h=v.trim()!==''?PZ.vyhodnot(v, p):null; const ok=!!h && h.ok;
+        // úloha „najděte všechna řešení“: body podle počtu správných (klíče CERMAT), jinak vše, nebo nic
+        if(p.reseni) earned+=h?Math.min(p.points,h.body):0; else if(ok) earned+=p.points;
+        return {prompt:p.prompt, given, correct:String(p.ans), ok, sol:p.sol, ...(h&&h.castecne?{castecne:h}:{})}; });
       score+=earned; review.push({no:t.no, okruh:t.okruh, title:t.title, intro:t.intro, svg:t.svg, earned, max:t.points, items});
     }
   });
@@ -385,7 +387,7 @@ function showResults(score, review, auto){
     if(r.intro) headHtml+='<div class="cm-review-intro">'+PZ.esc(r.intro)+'</div>';
     if(r.svg)   headHtml+='<div class="cm-review-svg">'+PZ.themeSvg(r.svg)+'</div>';
     const bodyHtml=(r.items||[]).map(it=>{
-      const givenLine=it.ok?'':'<div class="cm-review-given">Tvoje odpověď: '+(it.given!=null?PZ.esc(String(it.given)):'(nevyplněno)')+'</div>';
+      const givenLine=it.ok?'':'<div class="cm-review-given">Tvoje odpověď: '+(it.given!=null?PZ.esc(String(it.given)):'(nevyplněno)')+(it.castecne?' — ◐ '+PZ.esc(PZ.popisCastecne(it.castecne)):'')+'</div>';
       return '<div class="cm-review-sub"><div class="cm-review-q">'+PZ.esc(it.prompt)+'</div>'+givenLine+'<div class="cm-review-correct">Správně: '+PZ.esc(PZ.czNum(it.correct))+'</div>'+solHtml(it.sol)+'</div>';
     }).join('');
     html+='<details class="cm-review-item '+cls+'"'+openAttr+'><summary>Úloha '+r.no+(r.title?' — '+PZ.esc(r.title):'')+': '+r.earned+' / '+r.max+' b</summary><div class="cm-review-body">'+headHtml+bodyHtml+odkazyHtml+'</div></details>';

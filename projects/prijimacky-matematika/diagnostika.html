@@ -166,7 +166,7 @@ function dgNevim(){ dgZapis(false, null); }
 function dgSubmit(){
   const it=DG.it;
   if(it.type==='mc'){ const s=document.querySelector('input[name="dg-mc"]:checked'); if(!s)return; dgZapis(s.value===it.ans, s.value); }
-  else { const inp=document.getElementById('dg-input'); const v=inp?inp.value:''; if(!v.trim())return; dgZapis(PZ.check(v,it.ans), v.trim()); }
+  else { const inp=document.getElementById('dg-input'); const v=inp?inp.value:''; if(!v.trim())return; dgZapis(PZ.vyhodnot(v,it).ok, v.trim()); }
 }
 function dgZapis(ok, given){
   const v=DG.vysl[DG.k];

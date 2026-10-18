@@ -195,6 +195,42 @@
     return (!isNaN(un) && !isNaN(cn)) ? Math.abs(un - cn) < 0.016 : false;
   }
 
+  /* ÚLOHA S VÍCE ŘEŠENÍMI („Najděte všechna řešení“). Ostré klíče (M9 2023 ú. 8 a 16.3,
+     2025 ú. 7.2, 2026 ú. 16.3, nanečisto 2026 ú. 8) bodují tak, že každé správné řešení
+     přidá bod a každé chybné uvedené číslo i každé chybějící správné řešení jeden bod
+     ubere: z dvou řešení (2 b.) dá 2 b. obě správná, 1 b. jedno správné nebo obě
+     správná a k nim jedno chybné, jinak 0 b.; z tří řešení (3 b.) odpovídá klíč 2025
+     „za každý nedostatek ztráta 1 b.“. Tedy body = správná − chybná, nejméně 0, a body
+     úlohy se rovnají počtu řešení. (Klíče 2023 jsou o kousek mírnější — jedno správné a
+     jedno chybné jim je ještě 1 b. —, tady platí pravidlo nejnovějších, 2026.)
+     Řešení jsou celá čísla; čísla v odpovědi se hledají jako řady číslic, takže
+     „6; 10“, „6, 10“, „6 a 10“ i „6 nebo 10“ jsou totéž a pořadí nehraje roli. */
+  function hodnotReseni(raw, reseni) {
+    const cislo = x => String(Number(x));
+    const spravna = new Set((reseni || []).map(cislo));
+    const dano = new Set((String(raw == null ? '' : raw).match(/\d+/g) || []).map(cislo));
+    let spravne = 0, chybne = 0;
+    dano.forEach(x => { if (spravna.has(x)) spravne++; else chybne++; });
+    const max = spravna.size;
+    return { body: Math.max(0, spravne - chybne), max, spravne, chybne, chybi: max - spravne };
+  }
+  /* Jedno místo pro „je odpověď správně“ — úloha s `reseni` se hodnotí množinou řešení,
+     ostatní jako dřív přes check(). `castecne` = něco z řešení máš, ale ne vše správně. */
+  function vyhodnot(raw, x) {
+    if (x && Array.isArray(x.reseni) && x.reseni.length) {
+      const h = hodnotReseni(raw, x.reseni);
+      return { ok: h.body === h.max, castecne: h.body > 0 && h.body < h.max, body: h.body, max: h.max, spravne: h.spravne, chybne: h.chybne, chybi: h.chybi };
+    }
+    const ok = check(raw, x && x.ans);
+    return { ok, castecne: false, body: ok ? 1 : 0, max: 1, spravne: ok ? 1 : 0, chybne: ok ? 0 : 1, chybi: ok ? 0 : 1 };
+  }
+
+  // Úloha s víc řešeními, částečně dobře: co je dobře a co chybí / přebývá, řečeno tak, aby se z toho dalo učit.
+  function popisCastecne(h) {
+    if (h.chybne === 0) return 'Skoro! Máš ' + h.spravne + ' z ' + h.max + ' řešení správně, další ještě chybí.';
+    return 'Skoro! Všechna správná čísla tu jsou, ale ' + (h.chybne === 1 ? 'jedno číslo navíc je chybné' : 'některá čísla navíc jsou chybná') + '.';
+  }
+
   // localStorage wrapper (bezpečný proti privátnímu režimu / plné kvótě)
   const store = {
     get(key, def) { try { const r = localStorage.getItem(key); return r == null ? def : JSON.parse(r); } catch (e) { return def; } },
@@ -855,6 +891,6 @@
   // (jádro se načítá i v Node testech bez DOM — tam nic neposílá)
   if (typeof document !== 'undefined' && document.addEventListener) document.addEventListener('DOMContentLoaded', () => event('vstup'));
 
-  window.PZ = { event, esc, check, store, inputMode, czNum, solSteps, themeSvg, icon, ring, attachLoginBar, cloudPush, cloudSync, topicWeights, pickWeakTopic, hintsFor, recordTestTopics, weakTopicsFromReview,
+  window.PZ = { event, esc, check, hodnotReseni, vyhodnot, popisCastecne, store, inputMode, czNum, solSteps, themeSvg, icon, ring, attachLoginBar, cloudPush, cloudSync, topicWeights, pickWeakTopic, hintsFor, recordTestTopics, weakTopicsFromReview,
     computeReadiness, pokusy, odhadBodu, cistyPokus, diagUrovne, mergeStats, ukaz, odpovedText, souhrn, vykresliSouhrn, attachAccountCard };
 })();

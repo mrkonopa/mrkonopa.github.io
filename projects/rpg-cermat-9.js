@@ -3170,9 +3170,10 @@
   function gen16h() {
     // 4 body — vybarvování polí čtvercové sítě (věrné M9B/2023, úloha 16; klíč 32, o 19, 361 nebo 441)
     /* Do k-tého obrazce přibude 4 · (k − 1) polí (k ≥ 2), světlá v lichých, tmavá
-       v sudých. Po 2q-tém obrazci je tmavých 4q² a světlých (2q − 1)². Ostré zadání
-       má u 16.3 dvě řešení (361 i 441); tady je doplněné, že naposledy přibyla
-       tmavá pole, aby odpověď byla jedna. */
+       v sudých. Po 2q-tém obrazci je tmavých 4q² a světlých (2q − 1)². V lichém
+       (2q + 1)-ním obrazci přibudou jen světlá pole, takže tmavých zůstane 4q² a světlých
+       je (2q + 1)². Tmavých 4q² mají tedy DVA obrazce a ostré zadání má u 16.3 dvě řešení
+       (361 i 441, 2 b.); tady jsou obě. */
     const n = ri(8, 14), m = ri(8, 12), q = ri(8, 14);
     const svetla = x => 1 + Array.from({ length: x }, (_, i) => i + 1).filter(i => i >= 3 && i % 2).reduce((a, i) => a + 4 * (i - 1), 0);
     const tmava = x => Array.from({ length: x }, (_, i) => i + 1).filter(i => i % 2 === 0).reduce((a, i) => a + 4 * (i - 1), 0);
@@ -3192,10 +3193,11 @@
           sol: [`Světlá pole přibývají v lichých obrazcích a tmavá v sudých; do k-tého obrazce přibude 4 · (k − 1) polí. Obě barvy se proto sčítají zvlášť.`,
             `Světlá: 1 + ${lichy.join(' + ')} = ${S}. Tmavá: ${sudy.join(' + ')} = ${T}.`,
             `Rozdíl: ${Math.max(S, T)} − ${Math.min(S, T)} = ${Math.abs(S - T)}.`] },
-        { key: '16.3', points: 2, prompt: `Obrazec má ${4 * q * q} tmavých polí a naposledy do něj přibyla tmavá pole. Určete, kolik má světlých polí.`, ans: String((2 * q - 1) ** 2),
+        { key: '16.3', points: 2, prompt: `Obrazec má ${4 * q * q} tmavých polí. Určete, kolik může mít světlých polí. Najděte obě řešení.`,
+          ans: `${(2 * q - 1) ** 2}; ${(2 * q + 1) ** 2}`, reseni: [String((2 * q - 1) ** 2), String((2 * q + 1) ** 2)],
           sol: [`Tmavá pole přibývají ve 2., 4., 6. … obrazci po 4, 12, 20, … kusech, tedy čtyřnásobky lichých čísel. Po 2q-tém obrazci je jich 4 · (1 + 3 + … ) = 4q², protože součet prvních q lichých čísel je q².`,
-            `4q² = ${4 * q * q}, tedy q² = ${4 * q * q} : 4 = ${q * q} a q = ${q}. Naposledy přibyla tmavá pole, takže jde o ${2 * q}. obrazec.`,
-            `Světlá pole ${2 * q}. obrazce jsou všechna z ${2 * q - 1}. obrazce: 1 + 8 + 16 + … + ${4 * (2 * q - 2)} = ${(2 * q - 1) ** 2}.`] }
+            `4q² = ${4 * q * q}, tedy q² = ${4 * q * q} : 4 = ${q * q} a q = ${q}. Tmavých polí je ${4 * q * q} v ${2 * q}. obrazci, ale i v následujícím ${2 * q + 1}. obrazci, protože do lichého obrazce přibývají jen světlá pole. Úloha má proto dvě řešení.`,
+            `${2 * q}. obrazec: světlá pole jsou všechna z ${2 * q - 1}. obrazce, 1 + 8 + 16 + … + ${4 * (2 * q - 2)} = ${(2 * q - 1) ** 2}. ${2 * q + 1}. obrazec: k tomu přibude ${8 * q} světlých, ${(2 * q - 1) ** 2} + ${8 * q} = ${(2 * q + 1) ** 2}. Obě řešení: ${(2 * q - 1) ** 2} a ${(2 * q + 1) ** 2}.`] }
       ]
     };
   }
@@ -3681,6 +3683,7 @@
       if (ob) ob.forEach(([a, b]) => vyb.set(bk(a, b), [a, b]));
     };
     for (let t = 0; t < 40 && !vyb.size; t++) dej(ri(0, PLATNO_W - 1), ri(0, PLATNO_H - 1));
+    if (!vyb.size) return [];            // šikmé osy: obrazy vypadají z plátna skoro vždy, 40 pokusů může selhat
     for (let g = 0; g < 200 && vyb.size < pocet; g++) {
       const [x, y] = pick([...vyb.values()]), [dx, dy] = pick(SIT_KRAL);
       dej(x + dx, y + dy);
@@ -3698,14 +3701,22 @@
     () => [{ typ: 'd', c: pick([0, 0, 1, -1]) }, { typ: 'a', c: pick([4, 4, 3, 5]) }]
   ];
   // Útvar do mřížky 7 × 6 s náhodným odsazením a s čísly čtverců zleva doprava, shora dolů.
-  function umistiUtvar(bunky, Xb) {
+  function umistiUtvar(bunky, Xb, Xb2) {
     const xs = bunky.map(b => b[0]), ys = bunky.map(b => b[1]);
     const ox = ri(-Math.min(...xs), SIT_W - 1 - Math.max(...xs)), oy = ri(-Math.min(...ys), SIT_H - 1 - Math.max(...ys));
     const b = bunky.map(([x, y]) => [x + ox, y + oy]).sort((p, q) => p[1] - q[1] || p[0] - q[0]);
     const cisla = new Map(b.map(([x, y], i) => [bk(x, y), i + 1]));
-    const X = Xb ? [Xb[0] + ox, Xb[1] + oy] : null;
-    const bezX = X ? b.filter(([x, y]) => !(x === X[0] && y === X[1])) : null;
-    return { bunky: b, cisla, osy: osyUtvaru(b), X: X ? cisla.get(bk(...X)) : null, osaZb: bezX ? osyUtvaru(bezX)[0] : null };
+    const posun = P => (P ? [P[0] + ox, P[1] + oy] : null);
+    // osa, podle které je útvar souměrný po odebrání čtverce P
+    const osaBez = P => (P ? osyUtvaru(b.filter(([x, y]) => !(x === P[0] && y === P[1])))[0] : null);
+    const X = posun(Xb), X2 = posun(Xb2);
+    // X2 = druhé řešení (útvar se dvěma řešeními): X je vždy menší číslo
+    const u = { bunky: b, cisla, osy: osyUtvaru(b), X: X ? cisla.get(bk(...X)) : null, osaZb: osaBez(X) };
+    if (X2) {
+      u.X2 = cisla.get(bk(...X2)); u.osaZb2 = osaBez(X2);
+      if (u.X2 < u.X) { [u.X, u.X2] = [u.X2, u.X]; [u.osaZb, u.osaZb2] = [u.osaZb2, u.osaZb]; }
+    }
+    return u;
   }
   /* Útvar, který sám souměrný není, ale po odebrání JEDINÉHO čtverce X souměrný je
      (a žádným jiným čtvercem se to nepodaří): souměrný základ + čtverec bez protějšku. */
@@ -3734,6 +3745,39 @@
       return umistiUtvar(F, X);
     }
     throw new Error('útvar s jedním řešením se nepodařilo vytvořit');
+  }
+  /* Útvar se DVĚMA řešeními (jako ostrá úloha 8 v M9D 2023, každá část má dvě): jádro souměrné
+     podle dvou os (svislá + vodorovná, nebo obě šikmé) a k němu tři ze čtyř obrazů jednoho čtverce.
+     Čtvrtý obraz chybí, takže odebráním kteréhokoli ze dvou jeho „sousedů“ zbyde útvar souměrný
+     podle jedné z os. Počet řešení se přesto vždy PŘEPOČÍTÁ (odebere se každý čtverec zvlášť)
+     a musí vyjít přesně dva — odebrání samotného třetího obrazu by mohlo dát osu navíc.
+     Čísla obou řešení nesmí prozradit odpověď: odebírané čtverce jsou obrazy téhož čtverce na
+     protilehlých stranách útvaru, takže bývaly první a poslední v pořadí zleva doprava a shora
+     dolů (naměřeno 24 % losů, náhodně 2,7 %). Proto se nasbírá hrst platných útvarů, roztřídí se
+     podle pětin pořadí obou řešení a vybere se NEJDŘÍV třída, pak útvar v ní. */
+  function utvarDveReseni() {
+    const pool = [];
+    for (let pokus = 0; pokus < 20000 && pool.length < 48; pokus++) {
+      const osy = pick(DVE_OSY)(), S = zakladSoum(osy, ri(3, 7));
+      const mn = new Set(S.map(([x, y]) => bk(x, y))), kand = [];
+      for (let x = 0; x < PLATNO_W; x++) for (let y = 0; y < PLATNO_H; y++) {
+        if (mn.has(bk(x, y))) continue;
+        const ob = orbitaOs(osy, x, y);
+        if (ob && ob.length === 4 && ob.every(c => !mn.has(bk(...c)))) kand.push(ob);
+      }
+      if (!kand.length) continue;
+      const ob = pick(kand).slice(); ob.splice(ri(0, 3), 1);
+      const F = S.concat(ob);
+      if (F.length < 6 || F.length > 12 || !rozmerOk(F) || !sitSouvisly(F) || osyUtvaru(F).length) continue;
+      const reseni = F.filter(c => osyUtvaru(F.filter(d => d !== c)).length);
+      if (reseni.length !== 2) continue;
+      const poradi = c => F.filter(d => d[1] < c[1] || (d[1] === c[1] && d[0] < c[0])).length;      // 0 … n − 1
+      if (reseni.every(c => poradi(c) === 0 || poradi(c) === F.length - 1)) continue;              // právě první a poslední
+      pool.push({ F, reseni, trida: reseni.map(c => Math.floor(poradi(c) / F.length * 5)).sort().join() });
+    }
+    if (!pool.length) throw new Error('útvar se dvěma řešeními se nepodařilo vytvořit');
+    const trida = pick([...new Set(pool.map(c => c.trida))]), c = pick(pool.filter(d => d.trida === trida));
+    return umistiUtvar(c.F, c.reseni[0], c.reseni[1]);
   }
   // Souměrný útvar s PŘESNĚ n osami (1 nebo 2).
   function utvarSOsami(n, zakl) {
@@ -3773,15 +3817,15 @@
   }
   const sitVycet = a => (a.length === 1 ? String(a[0]) : a.slice(0, -1).join(', ') + ' a ' + a[a.length - 1]);
   // Dvojice protějšků podle osy o (bezX = bez čtverce, který se odebírá) a čtverce ležící na ose.
-  function sitDvojice(u, o, bezX) {
+  function sitDvojice(u, o, bezX, odeb = u.X) {
     const pary = [], naOse = [];
     u.bunky.forEach(([x, y]) => {
       const n = u.cisla.get(bk(x, y));
-      if (bezX && n === u.X) return;
+      if (bezX && n === odeb) return;
       const [mx, my] = zrcadloOsy(o, x, y);
       if (mx === x && my === y) { naOse.push(n); return; }
       const m = u.cisla.get(bk(mx, my));
-      if (m !== undefined && !(bezX && m === u.X) && n < m) pary.push(`${n} ↔ ${m}`);
+      if (m !== undefined && !(bezX && m === odeb) && n < m) pary.push(`${n} ↔ ${m}`);
     });
     const naOseTxt = !naOse.length ? 'Na ose neleží žádný čtverec.'
       : naOse.length === 1 ? `Na ose leží čtverec ${naOse[0]}.` : `Na ose leží čtverce ${sitVycet(naOse)}.`;
@@ -3790,22 +3834,22 @@
   const SIT_POJEM = `Útvar je osově souměrný, když se každému čtverci najde protějšek podle téže osy (svislé, vodorovné nebo šikmé); čtverec ležící na ose je sám sobě protějškem.`;
 
   function gen8h() {
-    // 4 body — odeber jeden čtverec, aby vznikl souměrný útvar (podle M9D/2023, úloha 8; u nás jedno řešení)
-    const A = utvarJednoReseni(), B = utvarJednoReseni(), C = utvarJednoReseni();
+    // 4 body — odeber jeden čtverec, aby vznikl souměrný útvar; v každé části DVĚ řešení (M9D/2023, úloha 8)
+    const A = utvarDveReseni(), B = utvarDveReseni(), C = utvarDveReseni();
     const sol = (u, kdo) => {
-      const d = sitDvojice(u, u.osaZb, true);
-      return [`${SIT_POJEM} Hledáš čtverec, který protějšek nemá.`,
-        `U útvaru ${kdo} vychází ${sitPopisOsy(u.osaZb)}. Protějšky tvoří dvojice čtverců ${d.pary}. ${d.naOseTxt} Jediný čtverec bez protějšku je čtverec ${u.X}.`,
-        `Po odebrání čtverce ${u.X} je zbytek útvaru ${kdo} souměrný, odpověď je ${u.X}.`];
+      const d1 = sitDvojice(u, u.osaZb, true, u.X), d2 = sitDvojice(u, u.osaZb2, true, u.X2);
+      return [`${SIT_POJEM} Hledáš čtverce, které protějšek nemají. Úloha má dvě řešení: útvar ${kdo} lze zesouměrnit podle dvou různých os.`,
+        `Po odebrání čtverce ${u.X} vychází ${sitPopisOsy(u.osaZb)}. Protějšky tvoří dvojice čtverců ${d1.pary}. ${d1.naOseTxt}`,
+        `Po odebrání čtverce ${u.X2} vychází ${sitPopisOsy(u.osaZb2)}. Protějšky tvoří dvojice čtverců ${d2.pary}. ${d2.naOseTxt}`,
+        `Obě řešení pro útvar ${kdo}: ${u.X} a ${u.X2}.`];
     };
+    const cast = (key, u, kdo) => ({ key, points: 2, prompt: `Určete číslo čtverce, jehož odebráním vznikne z útvaru ${kdo} osově souměrný útvar. Najděte obě řešení.`,
+      ans: `${u.X}; ${u.X2}`, reseni: [String(u.X), String(u.X2)], sol: sol(u, kdo) });
     return {
       no: 8, points: 4, title: 'Útvary ve čtvercové síti', okruh: 'geometrie',
       svg: svgUtvary([A, B, C]),
-      intro: `Ve čtvercové síti jsou z tmavých čtverců složeny tři útvary A, B a C, každý tmavý čtverec je označen číslem. Z každého útvaru lze odebráním jediného tmavého čtverce vytvořit osově souměrný útvar; osa může být svislá, vodorovná i šikmá. U útvaru A to jde odebráním čtverce ${A.X}. V každé části úlohy je řešení právě jedno.`,
-      parts: [
-        { key: '8.1', points: 2, prompt: `Určete číslo čtverce, jehož odebráním vznikne z útvaru B osově souměrný útvar.`, ans: String(B.X), sol: sol(B, 'B') },
-        { key: '8.2', points: 2, prompt: `Určete číslo čtverce, jehož odebráním vznikne z útvaru C osově souměrný útvar.`, ans: String(C.X), sol: sol(C, 'C') }
-      ]
+      intro: `Ve čtvercové síti jsou z tmavých čtverců složeny tři útvary A, B a C, každý tmavý čtverec je označen číslem. Z každého útvaru lze odebráním jediného tmavého čtverce vytvořit osově souměrný útvar; osa může být svislá, vodorovná i šikmá. U útvaru A to jde odebráním čtverce ${A.X}, nebo čtverce ${A.X2}. V každé části úlohy jsou právě dvě řešení; za obě správná dostaneš 2 body, za jedno správné 1 bod.`,
+      parts: [cast('8.1', B, 'B'), cast('8.2', C, 'C')]
     };
   }
 

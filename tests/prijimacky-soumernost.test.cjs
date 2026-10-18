@@ -42,10 +42,18 @@ const ok = (c, m, d) => { if (c) { pass++; console.log('  ✅ ' + m); } else { f
 
 const { osyGeom, ctiUtvary, bez, pole, kraloveSouvisly, reseniOdebrani, paryPodleOsy, paryZTextu } = require('./soumernost-site.cjs');
 
+/* Slovní popis osy z GEOMETRIE (ne z banky): svislá x = c, vodorovná y = c, jinak podle znaménka. Souřadnice buněk jako v kresbě. */
+function popisOsyGeom(o) {
+  const [a, b, c] = o.os;
+  if (Math.abs(b) < 1e-7) { const x = Math.round(c / a * 2) / 2; return Number.isInteger(x) ? 'svislá osa vedoucí středem sloupce č. ' + (x + 1) : 'svislá osa vedoucí mezi sloupci č. ' + (Math.floor(x) + 1) + ' a ' + (Math.floor(x) + 2); }
+  if (Math.abs(a) < 1e-7) { const y = Math.round(c / b * 2) / 2; return Number.isInteger(y) ? 'vodorovná osa vedoucí středem řádku č. ' + (y + 1) : 'vodorovná osa vedoucí mezi řádky č. ' + (Math.floor(y) + 1) + ' a ' + (Math.floor(y) + 2); }
+  return a * b > 0 ? 'šikmá osa vedoucí přes středy čtverců zleva zdola doprava nahoru' : 'šikmá osa vedoucí přes středy čtverců zleva shora doprava dolů';
+}
+
 /* ── Hlavní kontrola nad jednou bankou (původní, nebo sabotovanou) ── */
 function zkontroluj(C, N8, N11) {
   const chyby = [], st = {
-    utvaru: 0, ukol8: 0, ukol11: 0, vyjimek: 0, rodiny: { sv: 0, vo: 0, d: 0, a: 0 }, p1: 0, p2: 0, p3: 0, dveOsy: 0,
+    utvaru: 0, ukol8: 0, ukol11: 0, vyjimek: 0, rodiny: { sv: 0, vo: 0, d: 0, a: 0 }, p1: 0, p2: 0, p3: 0, dveOsy: 0, obaKrajni: 0, kose11: [0, 0, 0, 0, 0],
     velikosti: new Set(), kose: [0, 0, 0, 0, 0]
   };
   const chyba = m => { if (chyby.length < 8 && !chyby.includes(m)) chyby.push(m); };
@@ -84,33 +92,47 @@ function zkontroluj(C, N8, N11) {
     return u;
   };
 
-  /* Pozice 8 */
+  /* Pozice 8: v každé části DVĚ řešení (M9D 2023 ú. 8). Čtverce, jejichž odebráním útvar zesouměrní,
+     se dopočtou skutečnou geometrií z kresby; banka musí uvádět právě tutéž množinu. */
   for (const t of losuj(7, T8, N8)) {
     st.ukol8++;
     if (t.no !== 8 || t.points !== 4 || !t.parts || t.parts.length !== 2 || t.parts.some(p => p.points !== 2)) chyba('pozice 8: tvar úlohy (2 části po 2 b.)');
     const u = kresba(t);
-    const mA = /odebráním čtverce (\d+)/.exec(t.intro || '');
     const R = { A: reseniOdebrani(u.A), B: reseniOdebrani(u.B), C: reseniOdebrani(u.C) };
     ['A', 'B', 'C'].forEach(p => {
       if (osyGeom(pole(u[p])).length) chyba('útvar ' + p + ' je sám souměrný');
-      if (R[p].length !== 1) chyba('útvar ' + p + ' nemá právě jedno řešení (' + R[p].join(',') + ')');
+      if (R[p].length !== 2) chyba('útvar ' + p + ' nemá právě dvě řešení (' + R[p].join(',') + ')');
     });
-    if (!mA || +mA[1] !== R.A[0]) chyba('vzor A: v zadání ' + (mA && mA[1]) + ', správně ' + R.A.join(','));
+    const mA = /odebráním čtverce (\d+), nebo čtverce (\d+)\./.exec(t.intro || '');
+    if (!mA || [+mA[1], +mA[2]].sort((a, b) => a - b).join() !== R.A.slice().sort((a, b) => a - b).join()) chyba('vzor A: v zadání ' + (mA && mA[1] + ', ' + mA[2]) + ', správně ' + R.A.join(','));
+    if (!/dvě řešení/.test(t.intro || '') || !/2 body/.test(t.intro || '')) chyba('zadání neříká, že jsou dvě řešení a jak se boduje');
     [['B', 0], ['C', 1]].forEach(([p, i]) => {
-      const part = t.parts[i];
-      if (String(part.ans) !== String(R[p][0])) chyba('část ' + part.key + ': odpověď ' + part.ans + ', správně ' + R[p].join(','));
-      if (!/útvaru [BC]/.test(part.prompt) || !part.prompt.includes('útvaru ' + p)) chyba('část ' + part.key + ' se ptá na jiný útvar než ' + p);
-      if (!Array.isArray(part.sol) || part.sol.length < 3) chyba('postup ' + part.key + ' má méně než 3 kroky');
+      const part = t.parts[i], r = R[p].slice().sort((a, b) => a - b);
+      if (!Array.isArray(part.reseni) || part.reseni.map(Number).sort((a, b) => a - b).join() !== r.join()) chyba('část ' + part.key + ': řešení v bance ' + (part.reseni || []).join(',') + ', správně ' + r.join(','));
+      if (part.points !== r.length) chyba('část ' + part.key + ': body ' + part.points + ' ≠ počet řešení ' + r.length);
+      if (String(part.ans) !== r.join('; ')) chyba('část ' + part.key + ': zobrazená odpověď „' + part.ans + '“, správně „' + r.join('; ') + '“');
+      if (!part.prompt.includes('útvaru ' + p) || !/obě řešení/.test(part.prompt)) chyba('část ' + part.key + ' se neptá na útvar ' + p + ' a na obě řešení');
+      if (!Array.isArray(part.sol) || part.sol.length < 4) chyba('postup ' + part.key + ' má méně než 4 kroky');
       else {
-        if (!new RegExp('odpověď je ' + part.ans + '\\.').test(part.sol[part.sol.length - 1])) chyba('postup ' + part.key + ' nekončí odpovědí');
-        const osy = osyGeom(pole(bez(u[p], R[p][0])));
-        const mapy = osy.map(o => paryPodleOsy(u[p], o, R[p][0]));
-        if (!mapy.includes(paryZTextu(part.sol[1]))) chyba('postup ' + part.key + ': dvojice čtverců nesedí na žádnou osu');
-        const mX = /čtverec bez protějšku je čtverec (\d+)/.exec(part.sol[1]);
-        if (!mX || +mX[1] !== R[p][0]) chyba('postup ' + part.key + ': čtverec bez protějšku není ' + R[p][0]);
-        osy.slice(0, 1).forEach(o => { if (o.rodina === 'jina') chyba('část ' + part.key + ': osa jiného směru než svislá, vodorovná a pod 45°'); else st.rodiny[o.rodina]++; });
+        if (!new RegExp('Obě řešení pro útvar ' + p + ': ' + r[0] + ' a ' + r[1] + '\\.').test(part.sol[part.sol.length - 1])) chyba('postup ' + part.key + ' nekončí oběma řešeními');
+        // každé řešení má svůj krok: dvojice čtverců musí sedět na osu útvaru bez toho čtverce
+        r.forEach(n => {
+          const krok = part.sol.find(k => new RegExp('^Po odebrání čtverce ' + n + ' vychází').test(k));
+          if (!krok) { chyba('postup ' + part.key + ': chybí krok pro řešení ' + n); return; }
+          const osy = osyGeom(pole(bez(u[p], n)));
+          if (!osy.map(o => paryPodleOsy(u[p], o, n)).includes(paryZTextu(krok))) chyba('postup ' + part.key + ': dvojice čtverců pro řešení ' + n + ' nesedí na žádnou osu');
+          // slovní popis osy v kroku musí být tou osou, ne jinou (dvojice čtverců pak sedí na osu, o které se nemluví)
+          if (!osy.some(o => krok.includes('vychází ' + popisOsyGeom(o)))) chyba('postup ' + part.key + ': popis osy pro řešení ' + n + ' („' + (/vychází ([^.]*) \(?/.exec(krok) || [])[1] + '“) nesedí na osu útvaru');
+          osy.slice(0, 1).forEach(o => { if (o.rodina === 'jina') chyba('část ' + part.key + ': osa jiného směru než svislá, vodorovná a pod 45°'); else st.rodiny[o.rodina]++; });
+        });
+        // dvě řešení = dvě RŮZNÉ osy (jinak by jeden čtverec šlo odebrat dvakrát stejným způsobem)
+        const osyDvou = r.map(n => osyGeom(pole(bez(u[p], n)))[0].rodina);
+        if (osyDvou[0] === osyDvou[1]) chyba('část ' + part.key + ': obě řešení vedou na osu téhož směru (' + osyDvou[0] + ')');
       }
-      st.kose[Math.min(4, Math.floor((R[p][0] - 1) / u[p].length * 5))]++;
+      // polohy řešení v pořadí: žádné řešení nesmí prozradit odpověď (první a poslední zároveň)
+      const n = u[p].length;
+      if (r.includes(1) && r.includes(n)) st.obaKrajni++;
+      r.forEach(x => { st.kose[Math.min(4, Math.floor((x - 1) / n * 5))]++; });
     });
   }
 
@@ -138,6 +160,7 @@ function zkontroluj(C, N8, N11) {
     if (pr2) st.p2++;
     if (m2 && !u.B.some(c => c.n === N)) chyba('11.2: čtverec ' + N + ' v útvaru B není');
     const rB = reseniOdebrani(u.B);
+    if (rB.length === 1) st.kose11[Math.min(4, Math.floor((rB[0] - 1) / u.B.length * 5))]++;      // 11.2: čtverec bez protějšku v útvaru B
     if (!pr2) {
       const m = /by vznikl odebráním čtverce (\d+), ne čtverce (\d+)/.exec(s2.sol[2]);
       if (!m || rB.length !== 1 || +m[1] !== rB[0] || +m[2] !== N) chyba('11.2 postup: souměrný útvar vznikne odebráním ' + rB.join(',') + ', v textu ' + (m && m[1] + '/' + m[2]));
@@ -239,8 +262,16 @@ const pr = [pod(S.p1, S.ukol11), pod(S.p2, S.ukol11), pod(S.p3, S.ukol11)];
 ok(pr.every(p => p >= 0.4 && p <= 0.6), 'pravdivých tvrzení je zhruba polovina u 11.1, 11.2 i 11.3 (' + pr.map(p => (p * 100).toFixed(0) + ' %').join(', ') + ')');
 ok(pod(S.dveOsy, S.ukol11) >= 0.4 && pod(S.dveOsy, S.ukol11) <= 0.6, 'útvar C má dvě osy zhruba v polovině úloh (' + (pod(S.dveOsy, S.ukol11) * 100).toFixed(0) + ' %)');
 ok(S.velikosti.size >= 6, 'velikosti útvarů se liší (' + [...S.velikosti].sort((a, b) => a - b).join(', ') + ' čtverců)');
+/* Dvě řešení jsou obrazy téhož čtverce na protilehlých stranách útvaru, takže bývala první a poslední
+   (naměřeno 24 % částí, náhodně 2,7 %). Generátor tu dvojici vylučuje a pětiny pořadí vyrovnává.
+   Naměřeno 22,6 / 18,9 / 29,2 / 18,9 / 10,4 % (poslední pětina je nejřidší, protože šikmá poloha
+   obrazu čtverce končí dřív než poslední řádek). Podlaha 7 % leží pod nejnižší pětinou s rezervou
+   3 body a nad sabotáží bez vylučování. */
 const kSoucet = S.kose.reduce((a, b) => a + b, 0);
-ok(Math.min(...S.kose) / kSoucet >= 0.14, 'odebíraný čtverec je v útvaru na začátku i na konci (pětiny: ' + S.kose.map(k => (k / kSoucet * 100).toFixed(0) + ' %').join(' / ') + ')');
+const k11 = S.kose11.reduce((a, b) => a + b, 0);
+ok(Math.min(...S.kose11) / k11 >= 0.14, 'čtverec bez protějšku v útvaru B (11.2) je na začátku i na konci (pětiny: ' + S.kose11.map(k => (k / k11 * 100).toFixed(0) + ' %').join(' / ') + ')');
+ok(S.obaKrajni === 0, 'řešení části 8.1 ani 8.2 nejsou zároveň první a poslední číslo útvaru (' + S.obaKrajni + ' částí)');
+ok(Math.min(...S.kose) / kSoucet >= 0.07, 'čísla obou řešení jsou v útvaru na začátku i na konci (pětiny: ' + S.kose.map(k => (k / kSoucet * 100).toFixed(0) + ' %').join(' / ') + ')');
 
 /* ── 3. Světlý motiv a kontrast čísla na tmavém čtverci ────────── */
 {
@@ -278,9 +309,12 @@ ok(Math.min(...S.kose) / kSoucet >= 0.14, 'odebíraný čtverec je v útvaru na 
 
 /* ── 4. Sabotáže: každá pojistka musí něco chytit ──────────────── */
 const sabotaze = [
-  ['odpověď 8.1 je jiný čtverec než ten, který se odebírá', 'ans: String(B.X), sol: sol(B', 'ans: String(B.X === 1 ? 2 : B.X - 1), sol: sol(B'],
+  ['druhé řešení v bance je jiný čtverec', 'reseni: [String(u.X), String(u.X2)]', 'reseni: [String(u.X), String(u.X2 === 1 ? 2 : u.X2 - 1)]'],
+  ['body části nejsou počet řešení', "points: 2, prompt: `Určete číslo čtverce, jehož odebráním vznikne z útvaru ${kdo}", "points: 3, prompt: `Určete číslo čtverce, jehož odebráním vznikne z útvaru ${kdo}"],
+  ['postup pro druhé řešení ukazuje osu prvního', 'sitPopisOsy(u.osaZb2)}. Protějšky tvoří dvojice čtverců ${d2.pary}', 'sitPopisOsy(u.osaZb)}. Protějšky tvoří dvojice čtverců ${d2.pary}'],
   ['řešič nezná šikmé osy', "    for (let c = x0 - y1; c <= x1 - y0; c++) if (vse({ typ: 'd', c })) osy.push({ typ: 'd', c });\n    for (let c = x0 + y0; c <= x1 + y1; c++) if (vse({ typ: 'a', c })) osy.push({ typ: 'a', c });\n", ''],
-  ['generátor nehlídá jedinost řešení', 'if (reseni.length !== 1 || reseni[0] !== X) continue;', 'if (!reseni.includes(X)) continue;'],
+  ['generátor nehlídá jedinost řešení u útvaru s jedním řešením', 'if (reseni.length !== 1 || reseni[0] !== X) continue;', 'if (!reseni.includes(X)) continue;'],
+  ['řešení části jsou právě první a poslední číslo', "      if (reseni.every(c => poradi(c) === 0 || poradi(c) === F.length - 1)) continue;              // právě první a poslední\n", ''],
   ['čtverce se číslují zdola nahoru', '.sort((p, q) => p[1] - q[1] || p[0] - q[0]);\n    const cisla', '.sort((p, q) => q[1] - p[1] || p[0] - q[0]);\n    const cisla'],
   ['útvar C má jiný počet os, než tvrdí postup', 'const pocetC = p3 ? k : 3 - k, C = utvarSOsami(pocetC);', 'const pocetC = p3 ? k : 3 - k, C = utvarSOsami(pocetC === 1 ? 2 : 1);'],
   ['nepravdivé 11.2 odebírá správný čtverec', 'let N = B.X;\n    if (!p2) {', 'let N = B.X;\n    if (false) {'],
@@ -292,10 +326,10 @@ sabotaze.forEach(([popis, hledej, nahrad]) => {
   ok(pocet === 1, 'sabotáž „' + popis + '“ se aplikovala (' + pocet + '× nalezeno)');
   if (pocet !== 1) return;
   let vysl;
-  try { vysl = zkontroluj(nactiBanku(ZDROJ.replace(hledej, () => nahrad)), 800, 800); }
-  catch (e) { vysl = { chyby: ['pád: ' + e.message], ukol8: 0, ukol11: 0, vyjimek: 1, rodiny: { sv: 0, vo: 0, d: 0, a: 0 }, kose: [1, 1, 1, 1, 1] }; }
+  try { vysl = zkontroluj(nactiBanku(ZDROJ.replace(hledej, () => nahrad)), 500, 500); }
+  catch (e) { vysl = { chyby: ['pád: ' + e.message], ukol8: 0, ukol11: 0, vyjimek: 1, rodiny: { sv: 0, vo: 0, d: 0, a: 0 }, kose: [1, 1, 1, 1, 1], obaKrajni: 0, kose11: [1, 1, 1, 1, 1] }; }
   const s = vysl.rodiny, sou = s.sv + s.vo + s.d + s.a;
-  const kSou = vysl.kose.reduce((a, b) => a + b, 0), nerovn = kSou > 0 && Math.min(...vysl.kose) / kSou < 0.14;
+  const kSou = vysl.kose.reduce((a, b) => a + b, 0), k11s = (vysl.kose11 || [1]).reduce((a, b) => a + b, 0), nerovn = kSou > 0 && (Math.min(...vysl.kose) / kSou < 0.07 || vysl.obaKrajni > 0 || (k11s > 0 && Math.min(...vysl.kose11) / k11s < 0.14));
   const slabe = sou > 0 && Math.min(s.sv, s.vo, s.d, s.a) / sou < 0.08;
   const chyceno = vysl.chyby.length > 0 || vysl.vyjimek > 0 || slabe || nerovn;
   ok(chyceno, 'sabotáž „' + popis + '“ je chycena (' + (vysl.chyby[0] || (slabe ? 'chybí šikmé osy' : nerovn ? 'odpovědi u okraje útvaru' : vysl.vyjimek ? 'výjimka' : '')).slice(0, 70) + ')', 'test prošel i nad rozbitou bankou');

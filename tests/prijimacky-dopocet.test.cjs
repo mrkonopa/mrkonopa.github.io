@@ -505,9 +505,11 @@ const V69 = {
     const pr = t.parts.find(x => x.key === k).prompt;
     if (k === '16.1') return pridano[cisla(pr, /jsme z (\d+)\. obrazce/)[0] + 1];
     if (k === '16.2') { const b = barvy(cisla(pr, /v (\d+)\. obrazci/)[0]); return Math.abs(b.sv - b.tm); }
+    // 16.3: tmavých polí je stejně v sudém obrazci i v lichém za ním (do lichého přibývají jen světlá) — OBĚ řešení
     const [D] = cisla(pr, /má (\d+) tmavých/);
-    for (let n = 2; n <= 40; n += 2) if (barvy(n).tm === D) return barvy(n).sv;
-    throw new Error('žádný sudý obrazec nemá ' + D + ' tmavých polí'); },
+    const sv = []; for (let n = 2; n <= 40; n++) if (barvy(n).tm === D && !sv.includes(barvy(n).sv)) sv.push(barvy(n).sv);
+    if (sv.length !== 2) throw new Error('obrazců s ' + D + ' tmavými poli je světlých variant ' + sv.length + ', čekala jsem dvě');
+    return sv; },
   'Mirek a Zuzka': (t, k) => {
     const sl = []; for (let m = 1; m <= 1000; m++) { sl.push(m); if (m % 2 === 0) sl.push(m - 1 + m); }
     const pr = t.parts.find(x => x.key === k).prompt;
@@ -585,8 +587,8 @@ const V69 = {
   // (tests/soumernost-site.cjs, jiná cesta než celočíselné vzorce generátoru).
   'Útvary ve čtvercové síti': (t, k) => {
     const u = SIT.ctiUtvary(t.svg), r = SIT.reseniOdebrani(u[k === '8.1' ? 'B' : 'C']);
-    if (r.length !== 1) throw new Error('útvar ' + (k === '8.1' ? 'B' : 'C') + ' nemá jediné řešení (' + r.join(',') + ')');
-    return r[0]; },
+    if (r.length !== 2) throw new Error('útvar ' + (k === '8.1' ? 'B' : 'C') + ' nemá právě dvě řešení (' + r.join(',') + ')');
+    return r; },
   'Osová souměrnost útvarů': (t, k) => {
     const u = SIT.ctiUtvary(t.svg), s = tv(t, k);
     if (k === '11.1') return SIT.osyGeom(SIT.pole(u.A)).length > 0;
@@ -619,6 +621,14 @@ for (const i of POZ69) {
           spatne69.push(t.title + ' ' + p.key + ': banka ' + p.ans + ' neodpovídá výrazu ze zadání (v bodě 7 čeká ' + ceka(7) + ')');
         return;
       }
+      if (Array.isArray(ceka)) {                         // úloha „najděte všechna řešení“: celá množina řešení
+        const banka = Array.isArray(p.reseni) ? p.reseni.map(Number).sort((a, b) => a - b) : null, cek = ceka.slice().sort((a, b) => a - b);
+        if (!banka || banka.join() !== cek.join()) spatne69.push(t.title + ' ' + p.key + ': banka uvádí řešení ' + (banka ? banka.join(', ') : '(žádná)') + ', ze zadání ' + cek.join(', '));
+        else if (String(p.ans) !== cek.join('; ')) spatne69.push(t.title + ' ' + p.key + ': zobrazená odpověď „' + p.ans + '“ neodpovídá řešením ' + cek.join('; '));
+        else if (p.points !== cek.length) spatne69.push(t.title + ' ' + p.key + ': body ' + p.points + ' ≠ počet řešení ' + cek.length + ' (body = počet řešení, viz PZ.hodnotReseni)');
+        return;
+      }
+      if (Array.isArray(p.reseni)) { spatne69.push(t.title + ' ' + p.key + ': banka uvádí víc řešení, dopočet ze zadání jen jedno'); return; }
       if (typeof ceka === 'boolean') {
         if (ceka !== (p.ans === 'A')) spatne69.push(t.title + ' ' + p.key + ': banka ' + p.ans + ', ze zadání ' + (ceka ? 'A' : 'N') + ' — „' + p.prompt.slice(0, 70) + '"');
         return;
