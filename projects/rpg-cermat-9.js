@@ -3995,6 +3995,8 @@
       for (let j = -1; j <= TR_H; j++) for (let a = -6; a <= TR_W + 2; a++) for (const t of ['u', 'd']) {
         const c = { t, i: a, j }, k = trKlic(c); if (mn.has(k)) continue;
         const pts = bodyPx(gx, gy, c), uvnitr = TR_PODLE.has(k);
+        /* pozadí sítě jen tam, kde buňka zasahuje do výřezu — ostatní by vnořené <svg> stejně oříznulo */
+        if (!uvnitr && (Math.max(...pts.map(p => p[0])) <= gx || Math.min(...pts.map(p => p[0])) >= gx + gw || Math.max(...pts.map(p => p[1])) <= gy || Math.min(...pts.map(p => p[1])) >= gy + gh)) continue;
         o += `<polygon ${uvnitr ? `data-prazdne="${'ABC'[i]}" ` : ''}points="${pts.map(p => p[0].toFixed(2) + ',' + p[1].toFixed(2)).join(' ')}" fill="none" stroke="#2a3a5e" stroke-width="0.8"/>`;
       }
       u.bunky.forEach(c => {

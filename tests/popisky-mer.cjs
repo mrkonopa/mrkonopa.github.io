@@ -39,6 +39,14 @@ function mer(svgs, jm) {
       for (let i = 0; i <= 120 && L; i++) { const q = el.getPointAtLength(L * i / 120); body.push({ el, p: bod(el, q.x, q.y) }); } }
     for (const el of svg.querySelectorAll('rect')) { const x = el.x.baseVal.value, y = el.y.baseVal.value, w = el.width.baseVal.value, h = el.height.baseVal.value;
       usek(el, [x, y], [x + w, y]); usek(el, [x + w, y], [x + w, y + h]); usek(el, [x + w, y + h], [x, y + h]); usek(el, [x, y + h], [x, y]); }
+    /* Vnořené <svg> (overflow: hidden) ořezává to, co leží mimo jeho výřez: čára tam není vidět, takže přes popisek nevede.
+       Bod hrany mimo výřez některého vnořeného <svg> nad prvkem se proto nepočítá. */
+    const vyrez = new Map(), vyrezDe = a => { if (!vyrez.has(a)) { const c = a.parentNode.getScreenCTM(), x = a.x.baseVal.value, y = a.y.baseVal.value, w = a.width.baseVal.value, h = a.height.baseVal.value,
+      X = [c.a * x + c.c * y + c.e, c.a * (x + w) + c.c * (y + h) + c.e], Y = [c.b * x + c.d * y + c.f, c.b * (x + w) + c.d * (y + h) + c.f];
+      vyrez.set(a, { l: Math.min(...X), r: Math.max(...X), t: Math.min(...Y), b: Math.max(...Y) }); } return vyrez.get(a); };
+    const vOrezu = b => { for (let a = b.el.parentNode; a && a !== svg; a = a.parentNode) { if (a.tagName !== 'svg') continue;
+      const v = vyrezDe(a); if (b.p[0] < v.l - 0.5 || b.p[0] > v.r + 0.5 || b.p[1] < v.t - 0.5 || b.p[1] > v.b + 0.5) return false; } return true; };
+    if (svg.querySelector('svg')) { const videt = body.filter(vOrezu); body.length = 0; for (const b of videt) body.push(b); }
     const popis = svg.getAttribute('aria-label') || '';
     const styl = new Map(), st = el => { if (!styl.has(el)) styl.set(el, getComputedStyle(el)); return styl.get(el); };
     for (const t of T) {
