@@ -361,9 +361,19 @@ function bankaCermat() {
         const svg = d.querySelector('svg');
         svg.style.cssText = 'display:block;width:260px;height:auto';
         const vb = svg.viewBox.baseVal, R = svg.getBoundingClientRect(), s = vb.width / R.width;
+        /* Vnořené <svg> (overflow: hidden) ořezává záměrně: prvek, který z jeho výřezu vyčuhuje, se nekreslí, takže
+           se měří jen jeho viditelná část; samotný vnořený <svg> se měří jako výřez (x, y, width, height). */
+        const vyrez = a => { const m = a.parentNode.getScreenCTM(), x = a.x.baseVal.value, y = a.y.baseVal.value, w = a.width.baseVal.value, h = a.height.baseVal.value,
+          X = [m.a * x + m.c * y + m.e, m.a * (x + w) + m.c * (y + h) + m.e], Y = [m.b * x + m.d * y + m.f, m.b * (x + w) + m.d * (y + h) + m.f];
+          return { left: Math.min(...X), right: Math.max(...X), top: Math.min(...Y), bottom: Math.max(...Y) }; };
         svg.querySelectorAll('*').forEach(el => {
           if (!el.getBBox) return;
-          const c = el.getBoundingClientRect();
+          const r0 = el.tagName === 'svg' ? vyrez(el) : el.getBoundingClientRect();
+          let l = r0.left, t = r0.top, rr = r0.right, bb = r0.bottom;
+          for (let a = el.parentNode; a && a !== svg; a = a.parentNode) if (a.tagName === 'svg') {
+            const v = vyrez(a); l = Math.max(l, v.left); t = Math.max(t, v.top); rr = Math.min(rr, v.right); bb = Math.min(bb, v.bottom); }
+          if (rr < l - 1e-6 || bb < t - 1e-6) return;                      // celé mimo výřez = nekreslí se (vodorovná/svislá čára má rozměr 0, ne záporný)
+          const c = { left: l, top: t, width: rr - l, height: bb - t };
           if (!c.width && !c.height) return;
           mereno++;
           const L = vb.x + (c.left - R.left) * s, T = vb.y + (c.top - R.top) * s;
