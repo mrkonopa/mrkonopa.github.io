@@ -245,12 +245,12 @@ function prHint(){
 function prSubmitYN(v){ if(PR.answered) return; grade(v===PR.item.ans, v); }
 function prSubmit(){
   if(PR.answered) return;
-  const it=PR.item; let given=null, correct=false;
+  const it=PR.item; let given=null, correct=false, cast=null;
   if(it.type==='mc'){ const s=document.querySelector('input[name="pr-mc"]:checked'); if(!s)return; given=s.value; correct=given===it.ans; }
-  else { const inp=document.getElementById('pr-input'); const v=inp?inp.value:''; if(!v.trim())return; given=v; correct=PZ.check(v, it.ans); }
-  grade(correct, given);
+  else { const inp=document.getElementById('pr-input'); const v=inp?inp.value:''; if(!v.trim())return; given=v; const h=PZ.vyhodnot(v, it); correct=h.ok; cast=h.castecne?h:null; }
+  grade(correct, given, cast);
 }
-function grade(correct){
+function grade(correct, given, cast){
   PR.answered = true; PR.total++; if(correct) PR.ok++;
   // ZPD: série + přilnutí k tématu při chybě (konsolidace, max 3× za sebou)
   if(correct){ PR.streak++; PR.stick=null; PR.stickN=0; }
@@ -261,10 +261,11 @@ function grade(correct){
   document.getElementById('pr-hint-btn').disabled=true;
   const fb=document.getElementById('pr-fb');
   fb.className='pr-feedback '+(correct?'ok':'bad');
+  const cz0 = cast ? '◐ '+PZ.popisCastecne(cast)+' ' : '';
   fb.textContent = correct
     ? (PR.streak>=3 ? '🔥 Paráda, série '+PR.streak+'!' : '✓ Správně!')
-    : ((PR.adaptive&&PR.stick) ? '✗ Nevadí — mrkni na postup, dáme ještě jednu z tohoto tématu. Správná odpověď: '+PZ.odpovedText(PR.item)
-                               : '✗ Špatně. Správná odpověď: '+PZ.odpovedText(PR.item));
+    : ((PR.adaptive&&PR.stick) ? (cast?cz0:'✗ Nevadí — ')+'mrkni na postup, dáme ještě jednu z tohoto tématu. Správná odpověď: '+PZ.odpovedText(PR.item)
+                               : (cast?cz0:'✗ Špatně. ')+'Správná odpověď: '+PZ.odpovedText(PR.item));
   fb.style.display='block';
   if(PR.item.sol){ const sol=document.getElementById('pr-sol');
     let odk='';
