@@ -3853,6 +3853,208 @@
     };
   }
 
+  /* ══ Útvary v trojúhelníkové síti (2026-10-18) ═══════════════════════
+     Podle nanečisto 2026, úloha 8: trojúhelníková síť z rovnostranných trojúhelníků, tři útvary A, B, C
+     z tmavých očíslovaných trojúhelníků (čísla zleva doprava a shora dolů). V každém útvaru se buď jeden
+     trojúhelník ODEBERE (osově souměrný útvar), nebo PŘESUNE (středově souměrný útvar). Ostrá úloha má 1 b. + 2 b.
+     (8.1 jedno řešení, 8.2 dvě); tady jsou obě části o dvou řešeních po 2 b., aby pozice 8 zůstala za 4 body
+     a test za 50 (vzor: úloha 8 v M9D 2023 se čtverci, viz gen8h).
+     ŘEŠIČ je jediný zdroj pravdy a počítá přesně, v celých číslech: trojúhelník je trojice vrcholů (a, b) =
+     a·e1 + b·e2 (e1 vodorovně, e2 pod 60°), každá souměrnost mřížky je celočíselná izometrie (šest zrcadel
+     M_k·p + t, kde M_k = R60^k ∘ odraz podle vodorovné osy, a středový obraz −p + t). Útvar se dvěma řešeními:
+     jádro souměrné podle dvou kolmých os + tři ze čtyř obrazů jednoho trojúhelníku (odebrání), resp. jádro
+     souměrné podle středu, z něhož se jeden trojúhelník přesunul na volné místo (středová souměrnost): řešením
+     je pak přesunutý trojúhelník (vrátí se) a protějšek toho, který chyběl (přesune se k jeho protějšku). */
+  const TR_W = 6, TR_H = 5, TR_S = 30, TR_V = TR_S * Math.sqrt(3) / 2;
+  const TR_CERNA = SIT_BARVA, TR_BILA = '#8a9bc4';
+  const trCart = ([a, b]) => [a + b / 2, b * Math.sqrt(3) / 2];
+  const trVr = (c) => (c.t === 'u' ? [[c.i, c.j], [c.i + 1, c.j], [c.i, c.j + 1]] : [[c.i + 1, c.j], [c.i, c.j + 1], [c.i + 1, c.j + 1]]);
+  // klíč trojúhelníku = součet souřadnic jeho vrcholů (jednoznačný: hrot nahoru dává 1 mod 3, hrot dolů 2 mod 3); číslo, ne řetězec
+  const trKlicV = vs => (vs[0][0] + vs[1][0] + vs[2][0] + 200) * 1000 + (vs[0][1] + vs[1][1] + vs[2][1] + 200);
+  const trKlic = c => trKlicV(trVr(c));
+  // buňky plátna: těžiště uvnitř obdélníku 6 × 5 řad (strana = 1)
+  const TR_BUNKY = [];
+  for (let j = 0; j < TR_H; j++) for (let i = -4; i <= TR_W + 1; i++) for (const t of ['u', 'd']) {
+    const c = { t, i, j }, v = trVr(c), x = v.reduce((s, p) => s + trCart(p)[0], 0) / 3;
+    if (x > 0.3 && x < TR_W - 0.3) TR_BUNKY.push(c);
+  }
+  const TR_PODLE = new Map(TR_BUNKY.map(c => [trKlic(c), c]));
+  const TR_ODRAZ = [0, 1, 2, 3, 4, 5].map(k => p => { let q = [p[0] + p[1], -p[1]]; for (let n = 0; n < k; n++) q = [-q[1], q[0] + q[1]]; return q; });
+  const trObraz = (c, g) => TR_PODLE.get(trKlicV(trVr(c).map(g))) || null;     // buňka na plátně, nebo null (vypadla)
+  const trSouvisly = F => {                                                    // aspoň vrcholem (jako ostrá úloha)
+    const vs = F.map(c => new Set(trVr(c).map(v => v.join(',')))), vid = new Set([0]), zas = [0];
+    while (zas.length) { const k = zas.pop(); vs.forEach((s, m) => { if (!vid.has(m) && [...vs[k]].some(x => s.has(x))) { vid.add(m); zas.push(m); } }); }
+    return vid.size === F.length;
+  };
+  /* Souměrnosti dané rodiny (zrcadla M_k·p + t, nebo −p + t), které útvar převádějí sám na sebe. Osa i střed musí
+     vést těžištěm útvaru, takže t je u každého M jediné: t = P − M·P, P = těžiště (součet všech vrcholů : 3n). */
+  function trSymetrie(F, rodina) {
+    const mn = new Set(F.map(trKlic)), d = 3 * F.length, res = [];
+    const S = F.reduce((s, c) => { trVr(c).forEach(p => { s[0] += p[0]; s[1] += p[1]; }); return s; }, [0, 0]);
+    rodina.forEach((M, k) => {
+      const MS = M(S), ta = (S[0] - MS[0]) / d, tb = (S[1] - MS[1]) / d;
+      if (!Number.isInteger(ta) || !Number.isInteger(tb)) return;
+      const g = p => { const q = M(p); return [q[0] + ta, q[1] + tb]; };
+      if (F.every(c => mn.has(trKlicV(trVr(c).map(g))))) res.push({ k, t: [ta, tb], g });
+    });
+    return res;
+  }
+  const TR_STRED = [([a, b]) => [-a, -b]];
+  const trOsy = F => trSymetrie(F, TR_ODRAZ);
+  const trStredy = F => trSymetrie(F, TR_STRED);
+  const trBez = (F, c) => F.filter(d => d !== c);
+  const trOdebrani = F => F.filter(c => trOsy(trBez(F, c)).length);                // řešení „odeber“
+  const trPresunuti = F => {                                                       // řešení „přesuň“ (trojúhelník, ne cíl)
+    const mn = new Set(F.map(trKlic));
+    return F.filter(c => TR_BUNKY.some(q => !mn.has(trKlic(q)) && trStredy(trBez(F, c).concat([q])).length));
+  };
+  /* Dvojice kolmých zrcadel, která spolu komutují (jejich součin je středový obraz): k a k + 3 (kolmé osy), posuny t1, t2 v malém
+     rozsahu; platí (M1 − I)·t2 = (M2 − I)·t1. Všechny se spočítají jednou — losování pak stojí jedno volání ri() místo hledání. */
+  let TR_DVOJICE = null;
+  function trDveOsy() {
+    if (!TR_DVOJICE) {
+      TR_DVOJICE = [];
+      for (let k = 0; k < 3; k++) for (let a = -3; a <= 5; a++) for (let b = -3; b <= 5; b++) for (let c = -3; c <= 5; c++) for (let d = -3; d <= 5; d++) {
+        const l = TR_ODRAZ[k]([c, d]), r = TR_ODRAZ[k + 3]([a, b]);
+        if (l[0] - c === r[0] - a && l[1] - d === r[1] - b) TR_DVOJICE.push([k, [a, b], [c, d]]);
+      }
+    }
+    const [k, t1, t2] = pick(TR_DVOJICE), M1 = TR_ODRAZ[k], M2 = TR_ODRAZ[k + 3];
+    return [p => { const q = M1(p); return [q[0] + t1[0], q[1] + t1[1]]; }, p => { const q = M2(p); return [q[0] + t2[0], q[1] + t2[1]]; }];
+  }
+  function trOrbita(c, gs) {
+    const v = new Map([[trKlic(c), c]]), zas = [c];
+    while (zas.length) {
+      const x = zas.pop();
+      for (const g of gs) { const y = trObraz(x, g); if (!y) return null; if (!v.has(trKlic(y))) { v.set(trKlic(y), y); zas.push(y); } }
+    }
+    return [...v.values()];
+  }
+  /* Čísla trojúhelníků: shora dolů a zleva doprava (řada = součet b vrcholů, poloha = součet a + b/2, obojí celé). */
+  function trUmisti(F) {
+    const radek = c => c.j, sloupec = c => trVr(c).reduce((s, p) => s + 2 * p[0] + p[1], 0);
+    const b = F.slice().sort((p, q) => radek(q) - radek(p) || sloupec(p) - sloupec(q));
+    return { bunky: b, cisla: new Map(b.map((c, i) => [trKlic(c), i + 1])) };
+  }
+  const trCislo = (u, c) => u.cisla.get(trKlic(c));
+  /* Odebírané / přesouvané trojúhelníky nesmí prozradit odpověď podle pořadí (viz utvarDveReseni):
+     vyloučí se dvojice „první a poslední“, vybírá se třída podle pětin pořadí obou řešení. */
+  function trVyber(pool) {
+    const trida = pick([...new Set(pool.map(c => c.trida))]);
+    return pick(pool.filter(d => d.trida === trida));
+  }
+  const trTrida = (F, reseni) => {
+    const u = trUmisti(F), cs = reseni.map(c => trCislo(u, c)), n = F.length;
+    if (cs.every(x => x === 1 || x === n)) return null;
+    return cs.map(x => Math.floor((x - 1) / n * 5)).sort().join();
+  };
+  // Útvar se dvěma řešeními „odeber“ (osová souměrnost): jádro s dvěma kolmými osami + tři ze čtyř obrazů trojúhelníku.
+  function trUtvarOsa() {
+    const pool = [];
+    for (let pokus = 0; pokus < 20000 && pool.length < 5; pokus++) {
+      const gs = trDveOsy(), S = new Map();
+      for (let n = ri(1, 4); n > 0; n--) { const o = trOrbita(pick(TR_BUNKY), gs); if (o) o.forEach(x => S.set(trKlic(x), x)); }
+      let ob = null;                                    // čtyři obrazy volného trojúhelníku (stačí pár pokusů)
+      for (let k = 0; k < 12 && !ob; k++) { const o = trOrbita(pick(TR_BUNKY), gs); if (o && o.length === 4 && o.every(x => !S.has(trKlic(x)))) ob = o.slice(); }
+      if (!ob) continue;
+      ob.splice(ri(0, 3), 1);
+      const F = [...S.values()].concat(ob);
+      if (F.length < 8 || F.length > 14 || !trSouvisly(F) || trOsy(F).length) continue;
+      const reseni = trOdebrani(F), trida = reseni.length === 2 ? trTrida(F, reseni) : null;
+      if (trida) pool.push({ F, reseni, trida });
+    }
+    if (!pool.length) throw new Error('útvar v trojúhelníkové síti (osa) se nepodařilo vytvořit');
+    return trVyber(pool);
+  }
+  // Útvar se dvěma řešeními „přesuň“ (středová souměrnost): souměrný útvar, z něhož se jeden trojúhelník přesunul jinam.
+  function trUtvarStred() {
+    const pool = [];
+    for (let pokus = 0; pokus < 20000 && pool.length < 4; pokus++) {
+      const t = [ri(2, 12), ri(0, 8)], g = ([a, b]) => [-a + t[0], -b + t[1]], T = new Map();
+      for (let n = ri(4, 6); n > 0; n--) { const c = pick(TR_BUNKY), im = trObraz(c, g); if (im && trKlic(im) !== trKlic(c)) { T.set(trKlic(c), c); T.set(trKlic(im), im); } }
+      if (T.size < 8 || T.size > 12) continue;
+      const Tl = [...T.values()], a = pick(Tl), ap = pick(TR_BUNKY.filter(c => !T.has(trKlic(c))));
+      const F = Tl.filter(c => c !== a).concat([ap]);
+      if (!trSouvisly(F) || trStredy(F).length) continue;
+      const reseni = trPresunuti(F), trida = reseni.length === 2 ? trTrida(F, reseni) : null;
+      if (trida) pool.push({ F, reseni, trida });
+    }
+    if (!pool.length) throw new Error('útvar v trojúhelníkové síti (střed) se nepodařilo vytvořit');
+    return trVyber(pool);
+  }
+  /* Kresba: útvary A, B, C ve dvou řadách (A, B nahoře, C dole). Každá síť je vnořené <svg> o rozměru plátna, jehož
+     viewBox má počátek v místě sítě — souřadnice uvnitř jsou tedy shodné s obrázkem a okraje se oříznou čistě. */
+  function svgTrUtvary(utvary) {
+    const gw = TR_W * TR_S, gh = TR_H * TR_V, mez = 18, x0 = 8, rad = gh + 24;
+    let o = `<svg viewBox="0 0 ${2 * x0 + 2 * gw + mez} ${2 * rad + 8}">`;
+    const bodyPx = (gx, gy, c) => trVr(c).map(p => { const [x, y] = trCart(p); return [gx + x * TR_S, gy + gh - y * TR_S]; });
+    utvary.forEach((u, i) => {
+      const gx = x0 + (i % 2) * (gw + mez), gy = 22 + Math.floor(i / 2) * rad, mn = new Set(u.bunky.map(trKlic));
+      o += napis(gx + gw / 2, gy - 8, 'ABC'[i], VRCHOL);
+      o += `<svg x="${gx}" y="${gy}" width="${gw}" height="${gh}" viewBox="${gx} ${gy} ${gw} ${gh}">`;
+      for (let j = -1; j <= TR_H; j++) for (let a = -6; a <= TR_W + 2; a++) for (const t of ['u', 'd']) {
+        const c = { t, i: a, j }, k = trKlic(c); if (mn.has(k)) continue;
+        const pts = bodyPx(gx, gy, c), uvnitr = TR_PODLE.has(k);
+        o += `<polygon ${uvnitr ? `data-prazdne="${'ABC'[i]}" ` : ''}points="${pts.map(p => p[0].toFixed(2) + ',' + p[1].toFixed(2)).join(' ')}" fill="none" stroke="#2a3a5e" stroke-width="0.8"/>`;
+      }
+      u.bunky.forEach(c => {
+        const n = trCislo(u, c), pts = bodyPx(gx, gy, c), cx = (pts[0][0] + pts[1][0] + pts[2][0]) / 3, cy = (pts[0][1] + pts[1][1] + pts[2][1]) / 3;
+        o += `<polygon data-utvar="${'ABC'[i]}" data-bunka="${n}" points="${pts.map(p => p[0].toFixed(2) + ',' + p[1].toFixed(2)).join(' ')}" fill="${TR_CERNA}" stroke="${TR_BILA}" stroke-width="1"/>`
+          + `<text data-na-vyplni="${TR_CERNA}" x="${cx.toFixed(2)}" y="${(cy + (c.t === 'u' ? 5 : 3)).toFixed(2)}" fill="${SIT_CISLO}" font-size="12" font-family="monospace" text-anchor="middle">${n}</text>`;
+      });
+      o += `</svg>`;
+    });
+    return o + `</svg>`;
+  }
+  const TR_OSA = ['vodorovná', 'šikmá', 'šikmá', 'svislá', 'šikmá', 'šikmá'];
+  const TR_POJEM_OSA = `Útvar je osově souměrný, když se každému trojúhelníku najde protějšek podle téže osy (vodorovné, svislé nebo šikmé); trojúhelník ležící na ose je sám sobě protějškem.`;
+  const TR_POJEM_STRED = `Útvar je středově souměrný, když se otočením o 180° kolem jednoho bodu (středu souměrnosti) převede sám na sebe; každý trojúhelník pak má protějšek na opačné straně od středu.`;
+  // dvojice protějšků podle zobrazení g ve skupině trojúhelníků G (čísla z útvaru u); naOse = trojúhelníky zobrazené samy na sebe
+  function trDvojice(u, G, g) {
+    const pary = [], naOse = [];
+    G.forEach(c => {
+      const im = trObraz(c, g); if (!im) return;
+      const n = trCislo(u, c), m = trCislo(u, im);
+      if (trKlic(im) === trKlic(c)) naOse.push(n); else if (n < m) pary.push(`${n} ↔ ${m}`);
+    });
+    return { pary: pary.join(', '), naOse };
+  }
+  function gen8i() {
+    // 4 body — trojúhelníková síť, v každé části dvě řešení (nanečisto 2026, úloha 8: 1 b. + 2 b., tady 2 + 2 b.)
+    const FA = trUtvarOsa(), FB = trUtvarOsa(), FC = trUtvarStred();
+    const A = trUmisti(FA.F), B = trUmisti(FB.F), C = trUmisti(FC.F);
+    const cisla = (u, F) => F.reseni.map(c => trCislo(u, c)).sort((p, q) => p - q);
+    const rA = cisla(A, FA), rB = cisla(B, FB), rC = cisla(C, FC);
+    const osaTxt = (u, F, kdo) => {
+      const kroky = [TR_POJEM_OSA + ' Hledáš trojúhelníky, které protějšek nemají. Úloha má dvě řešení: útvar ' + kdo + ' lze zesouměrnit podle dvou různých os.'];
+      F.reseni.slice().sort((p, q) => trCislo(u, p) - trCislo(u, q)).forEach(c => {
+        const zb = trBez(F.F, c), os = trOsy(zb)[0], d = trDvojice(u, zb, os.g);
+        kroky.push(`Po odebrání trojúhelníku ${trCislo(u, c)} vychází ${TR_OSA[os.k]} osa souměrnosti. Protějšky tvoří dvojice trojúhelníků ${d.pary}. ${d.naOse.length ? 'Na ose leží ' + (d.naOse.length === 1 ? 'trojúhelník ' : 'trojúhelníky ') + sitVycet(d.naOse) + '.' : 'Na ose neleží žádný trojúhelník.'}`);
+      });
+      kroky.push(`Obě řešení pro útvar ${kdo}: ${cisla(u, F).join(' a ')}.`);
+      return kroky;
+    };
+    const stredTxt = (u, F, kdo) => {
+      const mn = new Set(F.F.map(trKlic)), kroky = [TR_POJEM_STRED + ' Hledáš trojúhelník, který přesuneš tak, aby všechny dostaly protějšek. Úloha má dvě řešení.'];
+      F.reseni.slice().sort((p, q) => trCislo(u, p) - trCislo(u, q)).forEach(c => {
+        const zb = trBez(F.F, c), q = TR_BUNKY.find(x => !mn.has(trKlic(x)) && trStredy(zb.concat([x])).length), s = trStredy(zb.concat([q]))[0];
+        const m = trObraz(q, s.g), d = trDvojice(u, zb.filter(x => trKlic(x) !== trKlic(m)), s.g);
+        kroky.push(`Přesuneme-li trojúhelník ${trCislo(u, c)} na místo protějšku trojúhelníku ${trCislo(u, m)}, má každý trojúhelník protějšek: ${d.pary}.`);
+      });
+      kroky.push(`Obě řešení pro útvar ${kdo}: ${cisla(u, F).join(' a ')}.`);
+      return kroky;
+    };
+    return {
+      no: 8, points: 4, title: 'Útvary v trojúhelníkové síti', okruh: 'geometrie',
+      svg: svgTrUtvary([A, B, C]),
+      intro: `Trojúhelníková síť se skládá z rovnostranných trojúhelníků. V této síti jsou z tmavých trojúhelníků složeny tři útvary A, B a C, každý tmavý trojúhelník je označen číslem. V každém útvaru buď přesuneme, nebo odebereme vždy pouze jeden tmavý trojúhelník tak, aby vznikl osově souměrný nebo středově souměrný útvar. Například z útvaru A vznikne osově souměrný útvar odebráním trojúhelníku ${rA[0]}, nebo trojúhelníku ${rA[1]}. V každé části úlohy jsou právě dvě řešení; za obě správná dostaneš 2 body, za jedno správné 1 bod.`,
+      parts: [
+        { key: '8.1', points: 2, prompt: `Určete číslo trojúhelníku, jehož odebráním vznikne z útvaru B osově souměrný útvar. Najděte obě řešení.`, ans: rB.join('; '), reseni: rB.map(String), sol: osaTxt(B, FB, 'B') },
+        { key: '8.2', points: 2, prompt: `Určete číslo trojúhelníku, jehož přesunutím vznikne z útvaru C středově souměrný útvar. Najděte obě řešení.`, ans: rC.join('; '), reseni: rC.map(String), sol: stredTxt(C, FC, 'C') }
+      ]
+    };
+  }
+
   /* Úroveň „základ“ pro procvičování a diagnostiku (prijimacky-gen.js): JEDEN útvar, jeden krok.
      Střídá otázku „je útvar souměrný?“ (A/N; nesouměrný je vždy „téměř souměrný“ — o jediný čtverec,
      což je přesně ta záměna, kterou žák dělá) s otázkou „který čtverec odebrat?“. Útvary jsou menší
@@ -5225,7 +5427,7 @@
     return varianty[idx[ri(0, idx.length - 1)]];
   }
   const SLOTS = [
-    [gen1, gen1b, gen1c, gen1d, gen1e, gen1f, gen1g, gen1h, gen1i, gen1j, gen1k], [gen2, gen2b, gen2c, gen2d, gen2e, gen2f], [gen3, gen3b, gen3c, gen3d, gen3e, gen3f], [gen4, gen4d, gen4e, gen4f, gen4g], [gen5, gen5b, gen5d, gen5e, gen5f, gen5g, gen5h, gen5i], [gen6, gen6b, gen6c, gen6d, gen6e, gen6f, gen6g, gen6h], [gen7d, gen7e, gen7f, gen7g, gen7h], [gen8, gen8b, gen8d, gen8e, gen8f, gen8g, gen8h],
+    [gen1, gen1b, gen1c, gen1d, gen1e, gen1f, gen1g, gen1h, gen1i, gen1j, gen1k], [gen2, gen2b, gen2c, gen2d, gen2e, gen2f], [gen3, gen3b, gen3c, gen3d, gen3e, gen3f], [gen4, gen4d, gen4e, gen4f, gen4g], [gen5, gen5b, gen5d, gen5e, gen5f, gen5g, gen5h, gen5i], [gen6, gen6b, gen6c, gen6d, gen6e, gen6f, gen6g, gen6h], [gen7d, gen7e, gen7f, gen7g, gen7h], [gen8, gen8b, gen8d, gen8e, gen8f, gen8g, gen8h, gen8i],
     [gen9c, gen9d, gen9e, gen9f, gen9g], [gen10b, gen10d, gen10e, gen10f, gen10g], [gen11, gen11b, gen11d, gen11e, gen11f, gen11g, gen11h, gen11i, gen11j], [gen12, gen12c, gen12f, gen12h, gen12i, gen12j, gen12l, gen12m], [gen12e, gen12g, gen12k, gen14h, gen13, gen13b, gen13d, gen13e, gen13f, gen13g, gen13h, gen13i, gen13j], [gen14, gen14b, gen14e, gen14i, gen14f, gen14g], [gen15d, gen15e, gen15f, gen15g, gen15h, gen15i, gen15j], [gen16d, gen16e, gen16f, gen16g, gen16h, gen16i, gen16j, gen16k, gen16l, gen16m]
   ];
 

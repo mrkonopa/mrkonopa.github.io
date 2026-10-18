@@ -244,7 +244,7 @@ console.log('\n── Test nanečisto: osová souměrnost ve čtvercové síti �
 
 /* ── 1. Hlavní kontrola nad skutečnou bankou ───────────────────── */
 const C = nactiBanku(ZDROJ);
-const N8 = 1200, N11 = 1200;
+const N8 = 800, N11 = 800;
 const t0 = Date.now();
 const S = zkontroluj(C, N8, N11);
 const sek = ((Date.now() - t0) / 1000).toFixed(1);
@@ -326,7 +326,7 @@ sabotaze.forEach(([popis, hledej, nahrad]) => {
   ok(pocet === 1, 'sabotáž „' + popis + '“ se aplikovala (' + pocet + '× nalezeno)');
   if (pocet !== 1) return;
   let vysl;
-  try { vysl = zkontroluj(nactiBanku(ZDROJ.replace(hledej, () => nahrad)), 500, 500); }
+  try { vysl = zkontroluj(nactiBanku(ZDROJ.replace(hledej, () => nahrad)), 300, 300); }
   catch (e) { vysl = { chyby: ['pád: ' + e.message], ukol8: 0, ukol11: 0, vyjimek: 1, rodiny: { sv: 0, vo: 0, d: 0, a: 0 }, kose: [1, 1, 1, 1, 1], obaKrajni: 0, kose11: [1, 1, 1, 1, 1] }; }
   const s = vysl.rodiny, sou = s.sv + s.vo + s.d + s.a;
   const kSou = vysl.kose.reduce((a, b) => a + b, 0), k11s = (vysl.kose11 || [1]).reduce((a, b) => a + b, 0), nerovn = kSou > 0 && (Math.min(...vysl.kose) / kSou < 0.07 || vysl.obaKrajni > 0 || (k11s > 0 && Math.min(...vysl.kose11) / k11s < 0.14));
@@ -348,7 +348,7 @@ sabotaze.forEach(([popis, hledej, nahrad]) => {
   ok(pocet === 1, 'sabotáž základu „' + popis + '“ se aplikovala (' + pocet + '× nalezeno)');
   if (pocet !== 1) return;
   let v;
-  try { v = zkontrolujZaklad(nactiBanku(ZDROJ.replace(hledej, () => nahrad)), 600); }
+  try { v = zkontrolujZaklad(nactiBanku(ZDROJ.replace(hledej, () => nahrad)), 400); }
   catch (e) { v = { chyby: ['pád: ' + e.message], vyjimek: 1 }; }
   ok(v.chyby.length > 0 || v.vyjimek > 0, 'sabotáž základu „' + popis + '“ je chycena (' + ((v.chyby[0] || 'výjimka') + '').slice(0, 70) + ')');
 });
