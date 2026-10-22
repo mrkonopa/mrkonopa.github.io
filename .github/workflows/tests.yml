@@ -31,7 +31,7 @@ concurrency:
 # audity, generátory) doběhnou za pár desítek vteřin a prohlížeč vůbec
 # nepotřebují — proto si ho ani neinstalují.
 #
-# Prohlížečová část se dělí na tři díly. Uvnitř JEDNOHO stroje se testy
+# Prohlížečová část se dělí na čtyři díly (podle naměřených dob, tests/ci-casy.json). Uvnitř JEDNOHO stroje se testy
 # musí pouštět sekvenčně (tři souběžné Playwrighty se navzájem uškrtí a
 # dělají falešné timeouty), ale každý díl dostane vlastní runner, takže
 # se nemají o co prát. Čekání pak trvá zhruba jako nejdelší díl.
@@ -56,13 +56,13 @@ jobs:
         run: node tests/run-ci.cjs --only=node
 
   prohlizec:
-    name: Prohlížečové testy (díl ${{ matrix.dil }}/3)
+    name: Prohlížečové testy (díl ${{ matrix.dil }}/4)
     runs-on: ubuntu-latest
     timeout-minutes: 45
     strategy:
       fail-fast: false      # ať vidíme nálezy ze VŠECH dílů, ne jen z prvního
       matrix:
-        dil: [1, 2, 3]
+        dil: [1, 2, 3, 4]
     steps:
       - uses: actions/checkout@v4
 
@@ -111,5 +111,5 @@ jobs:
         run: |
           echo "127.0.0.1 cdn.jsdelivr.net fonts.googleapis.com fonts.gstatic.com www.youtube.com youtube.com" | sudo tee -a /etc/hosts
 
-      - name: Spustit díl ${{ matrix.dil }}/3
-        run: node tests/run-ci.cjs --only=browser --shard=${{ matrix.dil }}/3
+      - name: Spustit díl ${{ matrix.dil }}/4
+        run: node tests/run-ci.cjs --only=browser --shard=${{ matrix.dil }}/4

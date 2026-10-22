@@ -130,16 +130,29 @@ runs.sort((a, b) => (b.f.startsWith('vstudents-deep') ? 1 : 0) - (a.f.startsWith
    Tím se zkracuje čekání: brána trvá zhruba tak dlouho jako nejdelší díl,
    ne jako součet všech.
 
-   Rozdělení je round-robin přes seřazený seznam, takže drahé a levné
-   testy padnou rovnoměrně; deep harness zůstává první v dílu 1, aby
-   nejdůležitější kontrola selhala co nejdřív. */
+   Rozdělení jde podle NAMĚŘENÝCH dob (`tests/ci-casy.json`), ne podle počtu
+   běhů: nejdelší běh se vždy přidělí dílu, který má zatím nejméně práce
+   (LPT). Round-robin přes seřazený seznam dal na CI díly 12,4 / 15,8 / 20,2 min
+   (naměřeno 19. 10. 2026), protože tři běhy po 120–250 s padly do téhož dílu.
+   Běh bez záznamu se počítá jako `vychozi`; uvnitř dílu zůstává pořadí
+   seznamu, takže deep harness je dál první v dílu 1. Rozdělení je čistá
+   funkce seznamu a časů — každý díl ho spočítá znovu a vyjde totéž. */
 const SHARD = (process.argv.find(a => a.startsWith('--shard=')) || '').slice(8);
+const rozdelNaDily = (seznam, poc, casy) => {
+  const cas = r => casy.casy[r.label] ?? casy.vychozi;
+  const zatez = Array(poc).fill(0), dil = new Map();
+  seznam.map((r, i) => ({ r, i })).sort((a, b) => cas(b.r) - cas(a.r) || a.i - b.i).forEach(({ r }) => {
+    const k = zatez.indexOf(Math.min(...zatez)); dil.set(r, k); zatez[k] += cas(r);
+  });
+  return { dil, zatez };
+};
 if (SHARD) {
   const m = /^(\d+)\/(\d+)$/.exec(SHARD);
   if (!m) { console.error(`Špatný tvar --shard: „${SHARD}" (čekám i/n, např. 2/3)`); process.exit(2); }
   const idx = +m[1], poc = +m[2];
   if (idx < 1 || poc < 1 || idx > poc) { console.error(`--shard=${SHARD} je mimo rozsah`); process.exit(2); }
-  runs = runs.filter((_, i) => i % poc === idx - 1);
+  const { dil } = rozdelNaDily(runs, poc, JSON.parse(fs.readFileSync(path.join(DIR, 'ci-casy.json'), 'utf8')));
+  runs = runs.filter(r => dil.get(r) === idx - 1);
   if (!runs.length) { console.error(`Díl ${SHARD} je prázdný — dílů je víc než testů.`); process.exit(2); }
 }
 
