@@ -397,7 +397,12 @@ const V69 = {
   'Soutěž ve vědomostech': (t, k) => {
     const [lo, c, hi] = cisla(t.intro, /získali jednotliví soutěžící (\d+), (\d+), nebo (\d+) bodů/), [n] = cisla(t.intro, /přihlásilo (\d+) soutěžících/);
     const bunka = id => cislo(t.svg.match(new RegExp('data-bunka="' + id + '">([^<]+)<'))[1]), kk = bunka('k'), mu2 = bunka('prum');
-    if (k === '7.1') { const e = /o jednoho méně/.test(t.parts[0].prompt) ? 1 : 2, a = (n - kk - e) / 2; return (lo * a + c * kk + hi * (a + e)) / n; }
+    /* Průměr 1. kola i množina řešení 2. kola na počtu kk NEZÁVISÍ (součet bodů vyjde c · n + e při každém kk), takže špatné
+       číslo v tabulce odpověď nezmění — jen z úlohy udělá nesestavitelnou. Proto se hlídá, že se 1. kolo dá sestavit:
+       zbytek n − kk se rozdělí na a + (a + e) s celým a ≥ 1. */
+    const e = /o jednoho méně/.test(t.parts[0].prompt) ? 1 : 2, a = (n - kk - e) / 2;
+    if (!Number.isInteger(a) || a < 1) return k === '7.1' ? NaN : [];
+    if (k === '7.1') return (lo * a + c * kk + hi * (a + e)) / n;
     const [pt] = cisla(t.parts[1].prompt, /získat (\d+) bodů/), S = Math.round(mu2 * n), res = new Set();
     for (let x = 0; x <= n; x++) for (let y = 0; x + y <= n; y++) { const z = n - x - y; if (lo * x + c * y + hi * z === S) res.add(pt === lo ? x : pt === c ? y : z); }
     return [...res];
