@@ -86,13 +86,14 @@ jobs:
 
       - name: Instalace Chromia (Playwright)
         # Systémové knihovny (apt) se nekešují, ty je potřeba vždy;
-        # samotný prohlížeč se přeskočí, když ho cache vrátila.
+        # samotný prohlížeč se přeskočí, když ho cache vrátila. Knihovny jdou přes
+        # tools/ci-playwright-deps.sh: limit na pokus a vyřazení pomalého zrcadla
+        # (22. 10. 2026 apt stahoval 37 kB/s a krok trval 8,6 min místo 13-40 s).
         run: |
-          if [ "${{ steps.cache-pw.outputs.cache-hit }}" = "true" ]; then
-            npx playwright install-deps chromium
-          else
-            npx playwright install --with-deps chromium
+          if [ "${{ steps.cache-pw.outputs.cache-hit }}" != "true" ]; then
+            npx playwright install chromium
           fi
+          bash tools/ci-playwright-deps.sh
 
       - name: Symlink Chromia na cestu, kterou testy očekávají
         # Testy hardkódují /opt/pw-browsers/chromium-1194/... (sandbox cesta).
