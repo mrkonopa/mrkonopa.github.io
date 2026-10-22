@@ -391,6 +391,17 @@ const V69 = {
   'Krychle a hranol': (t, k) => { const m = t.intro.match(/s povrchem (\d+) cm²[\s\S]*je o (\S+) delší než hrana šedé krychle/), a = Math.sqrt(m[1] / 6), f = ZLS[m[2]];
     if (!f) throw new Error('zlomek „' + m[2] + '"');
     return k === '7.1' ? a : a * a * (a + a * (1 + f)); },
+  /* Tabulka dvou kol soutěže (M9D/2025): počet s prostředním počtem bodů v 1. kole a průměr 2. kola se čtou Z KRESBY
+     (data-bunka), průměr 1. kola se počítá ze součtu bodů a množina řešení 7.2 PROHLEDÁNÍM všech trojic (x, y, z)
+     s daným součtem bodů — generátor jde po vzorci (0, 3, 7) / (1, 1, 8). */
+  'Soutěž ve vědomostech': (t, k) => {
+    const [lo, c, hi] = cisla(t.intro, /získali jednotliví soutěžící (\d+), (\d+), nebo (\d+) bodů/), [n] = cisla(t.intro, /přihlásilo (\d+) soutěžících/);
+    const bunka = id => cislo(t.svg.match(new RegExp('data-bunka="' + id + '">([^<]+)<'))[1]), kk = bunka('k'), mu2 = bunka('prum');
+    if (k === '7.1') { const e = /o jednoho méně/.test(t.parts[0].prompt) ? 1 : 2, a = (n - kk - e) / 2; return (lo * a + c * kk + hi * (a + e)) / n; }
+    const [pt] = cisla(t.parts[1].prompt, /získat (\d+) bodů/), S = Math.round(mu2 * n), res = new Set();
+    for (let x = 0; x <= n; x++) for (let y = 0; x + y <= n; y++) { const z = n - x - y; if (lo * x + c * y + hi * z === S) res.add(pt === lo ? x : pt === c ? y : z); }
+    return [...res];
+  },
   'Dlaždice': (t, k) => { const [a, b] = cisla(t.intro, /o rozměrech (\d+) cm a (\d+) cm/); let s = a; while (s % b) s += a;
     return k === '8.1' ? s : k === '8.2' ? (s / a) * (s / b) - 4 : 4 * s; },
   // ── pozice 9–11: Thaletova kružnice, počet řešení, nepřímá úměrnost ──

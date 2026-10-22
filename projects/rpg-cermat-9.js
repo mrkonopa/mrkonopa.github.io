@@ -1828,6 +1828,22 @@
     return s + `</svg>`;
   }
 
+  // Tabulka dvou kol soutěže: počty soutěžících podle bodů a průměr (věrné M9D/2025, úloha 7).
+  // Buňky, které žák zná, nesou data-bunka (k = počet s prostředním počtem bodů v 1. kole, prum = průměr 2. kola).
+  function svgSoutez(body, k, prum) {
+    const X = [2, 58, 110, 162, 214, 298], Y = [2, 36, 68, 100];
+    const stred = i => (X[i] + X[i + 1]) / 2;
+    let s = `<svg viewBox="0 0 300 102">`;
+    Y.forEach(y => { s += `<line x1="${X[0]}" y1="${y}" x2="${X[5]}" y2="${y}" stroke="#19e6e6" stroke-width="1.5"/>`; });
+    X.forEach(x => { s += `<line x1="${x}" y1="${Y[0]}" x2="${x}" y2="${Y[3]}" stroke="#19e6e6" stroke-width="1.5"/>`; });
+    const t = (x, y, txt, fs, barva, bunka) => `<text x="${x}" y="${y}" fill="${barva}" font-size="${fs}" font-family="monospace" text-anchor="middle"${bunka ? ` data-bunka="${bunka}"` : ''}>${txt}</text>`;
+    body.forEach((b, i) => { s += t(stred(i + 1), 23, `${b} bodů`, 10.5, '#cfe8ff'); });
+    s += t(stred(4), 23, 'průměr bodů', 10, '#cfe8ff')
+      + t(stred(0), 56, '1. kolo', 11, '#cfe8ff') + t(stred(0), 88, '2. kolo', 11, '#cfe8ff')
+      + t(stred(2), 57, k, 13, '#39ff9e', 'k') + t(stred(4), 89, cz(prum), 13, '#39ff9e', 'prum');
+    return s + `</svg>`;
+  }
+
   function gen6d() {
     // 2 body — skleněné těžítko: válec ve válci (věrné M9A/2024 1. ř., úloha 2)
     // R je násobek 10 a h sudé ⇒ oba objemy vyjdou celé, žádné plovoucí zbytky.
@@ -4894,6 +4910,46 @@
     };
   }
 
+  function gen7i() {
+    // 3 body — tabulka dvou kol soutěže: průměr a všechna řešení (věrné M9D/2025, úloha 7)
+    /* Ostrá úloha 7.2 má tři řešení za 3 b. a celá úloha 4 b.; všechny varianty pozice 7 mají
+       3 body (jinak by test nedal 50), proto má tahle část DVĚ řešení za 2 b. Průměr 2. kola se od
+       prostředního počtu bodů c liší o 0,7, takže (počet s c − s body, s c body, s c + s body) je
+       (0, 3, 7), nebo (1, 1, 8) — s = +1 při průměru nad c, s = −1 pod ním. */
+    const n = 10, c = pick([7, 8, 9]), e = pick([1, 2]), s = pick([1, -1]), kraj = ri(0, 1) === 1;
+    const k = pick(kraj ? (e === 1 ? [1, 3, 5] : [2, 4, 6]) : (e === 1 ? [5, 7] : [4, 6]));
+    const lo = c - 1, hi = c + 1, r = n - k, a = (r - e) / 2;
+    const sum1 = lo * a + c * k + hi * (a + e), avg1 = sum1 / n;
+    const sum2 = n * c + 7 * s, mu2 = sum2 / n;
+    const ptano = kraj ? c + s : c, reseni = kraj ? ['7', '8'] : ['1', '3'];
+    const o = e === 1 ? 'jednoho' : 'dva', vic = s > 0 ? 'větší' : 'menší';
+    return {
+      no: 7, points: 3, title: 'Soutěž ve vědomostech', okruh: 'data',
+      svg: svgSoutez([lo, c, hi], k, mu2),
+      intro: `Do vědomostní soutěže se přihlásilo ${n} soutěžících a všichni se zúčastnili 1. i 2. kola. V každém kole získali jednotliví soutěžící ${lo}, ${c}, nebo ${hi} bodů. Některé údaje jsou v tabulce.`,
+      parts: [
+        { key: '7.1', points: 1,
+          prompt: `V 1. kole bylo soutěžících, kteří získali ${lo} bodů, o ${o} méně než těch, kteří získali ${hi} bodů. Určete průměrný bodový zisk všech soutěžících v 1. kole.`,
+          ans: String(avg1),
+          sol: [
+            `V 1. kole je ${n} soutěžících, v tabulce je u ${c} bodů číslo ${k}. Zbývá ${n} − ${k} = ${r} soutěžících, kteří získali ${lo}, nebo ${hi} bodů.`,
+            `Počty obou skupin se liší o ${e} a dávají dohromady ${r}: ${a} + ${a + e} = ${r}.`,
+            `Součet bodů je ${lo} · ${a} + ${c} · ${k} + ${hi} · ${a + e} = ${sum1}. Průměr: ${sum1} : ${n} = ${cz(avg1)} bodu.`
+          ] },
+        { key: '7.2', points: 2,
+          prompt: `Určete, kolik soutěžících mohlo ve 2. kole získat ${ptano} bodů. Najděte obě řešení.`,
+          ans: reseni.join('; '), reseni,
+          sol: [
+            `Průměr ${cz(mu2)} je součet bodů dělený ${n} soutěžícími, takže ve 2. kole je součet bodů ${n} · ${cz(mu2)} = ${sum2}.`,
+            `Kdyby všichni získali ${c} bodů, bylo by to ${n} · ${c} = ${n * c}. Skutečný součet je ${vic}: ${Math.max(sum2, n * c)} − ${Math.min(sum2, n * c)} = 7.`,
+            `Kdo získal ${c + s} bodů, posouvá součet správným směrem o 1, kdo získal ${c - s} bodů, o 1 opačným, ostatní nic. Těch, kteří získali ${c + s} bodů, je proto o 7 víc než těch, kteří získali ${c - s} bodů.`,
+            `Je-li jich u, kteří získali ${c - s} bodů, pak u + 7 získalo ${c + s} bodů a ${c} bodů získalo ${n} − u − (u + 7) = 3 − 2u soutěžících. To nesmí být záporné číslo, takže u je 0, nebo 1.`,
+            `Počty pro ${c - s} / ${c} / ${c + s} bodů: u = 0 dává 0 / 3 / 7 (0 + 3 + 7 = ${n}), u = 1 dává 1 / 1 / 8 (1 + 1 + 8 = ${n}). Soutěžících, kteří získali ${ptano} bodů, mohlo být ${kraj ? '7, nebo 8' : '1, nebo 3'}.`
+          ] }
+      ]
+    };
+  }
+
   // Čtverec z obdélníkových dlaždic (delší strany vodorovně) bez čtyř rohových dlaždic.
   function svgDlazdice(a, b, s) {
     const u = 176 / s, x0 = 12, y0 = 12, na = s / a, nb = s / b;
@@ -5429,7 +5485,7 @@
     return varianty[idx[ri(0, idx.length - 1)]];
   }
   const SLOTS = [
-    [gen1, gen1b, gen1c, gen1d, gen1e, gen1f, gen1g, gen1h, gen1i, gen1j, gen1k], [gen2, gen2b, gen2c, gen2d, gen2e, gen2f], [gen3, gen3b, gen3c, gen3d, gen3e, gen3f], [gen4, gen4d, gen4e, gen4f, gen4g], [gen5, gen5b, gen5d, gen5e, gen5f, gen5g, gen5h, gen5i], [gen6, gen6b, gen6c, gen6d, gen6e, gen6f, gen6g, gen6h], [gen7d, gen7e, gen7f, gen7g, gen7h], [gen8, gen8b, gen8d, gen8e, gen8f, gen8g, gen8h, gen8i],
+    [gen1, gen1b, gen1c, gen1d, gen1e, gen1f, gen1g, gen1h, gen1i, gen1j, gen1k], [gen2, gen2b, gen2c, gen2d, gen2e, gen2f], [gen3, gen3b, gen3c, gen3d, gen3e, gen3f], [gen4, gen4d, gen4e, gen4f, gen4g], [gen5, gen5b, gen5d, gen5e, gen5f, gen5g, gen5h, gen5i], [gen6, gen6b, gen6c, gen6d, gen6e, gen6f, gen6g, gen6h], [gen7d, gen7e, gen7f, gen7g, gen7h, gen7i], [gen8, gen8b, gen8d, gen8e, gen8f, gen8g, gen8h, gen8i],
     [gen9c, gen9d, gen9e, gen9f, gen9g], [gen10b, gen10d, gen10e, gen10f, gen10g], [gen11, gen11b, gen11d, gen11e, gen11f, gen11g, gen11h, gen11i, gen11j], [gen12, gen12c, gen12f, gen12h, gen12i, gen12j, gen12l, gen12m], [gen12e, gen12g, gen12k, gen14h, gen13, gen13b, gen13d, gen13e, gen13f, gen13g, gen13h, gen13i, gen13j], [gen14, gen14b, gen14e, gen14i, gen14f, gen14g], [gen15d, gen15e, gen15f, gen15g, gen15h, gen15i, gen15j], [gen16d, gen16e, gen16f, gen16g, gen16h, gen16i, gen16j, gen16k, gen16l, gen16m]
   ];
 
