@@ -5290,6 +5290,90 @@
     };
   }
 
+  /* Hra se žetony (věrné M9D/2026 2. náhr., úloha 16): 10 kol, 5 lehčích a 5 těžších otázek, odměny a < b žetonů,
+     klíč původní úlohy 25 žetonů, 10 žetonů a „ani jednou; dvakrát“. Všechny strategie (kolik lehčích a těžších otázek
+     si hráč koupil a na kolik z nich odpověděl správně) se VYČTOU a z výčtu se vyberou jen zadání, která mají přesně
+     tvar ostré úlohy: 16.3 má právě dvě řešení a 16.2 jedinou dvojici správných odpovědí (obě aspoň 1). Řešení 16.3
+     smí být i 0 („ani jednou“), jako v ostrém klíči. */
+  const zetonyStrategie = (K, nE, nH, a, b) => {
+    const S = [];
+    for (let be = 0; be <= nE; be++) for (let e = 0; e <= be; e++) for (let bh = 0; bh <= nH; bh++) for (let h = 0; h <= bh; h++)
+      S.push({ be, e, bh, h, k: be + bh, fin: K - be - bh + a * e + b * h });
+    return S;
+  };
+  let zetonySadyPamet = null;
+  function zetonySady() {
+    if (zetonySadyPamet) return zetonySadyPamet;
+    const K = 10, nE = 5, nH = 5, vse = [];
+    [[2, 3], [3, 4], [3, 5], [4, 5]].forEach(([a, b]) => {
+      const S = zetonyStrategie(K, nE, nH, a, b);
+      for (let T = 4; T <= 3 * K; T++) {
+        const ok = S.filter(x => x.fin === T);
+        if (!ok.length) continue;
+        const w = Math.max(...ok.map(x => x.k - x.e - x.h));
+        const reseni = [...new Set(ok.filter(x => x.k - x.e - x.h === w).map(x => x.e))].sort((p, q) => p - q);
+        if (reseni.length !== 2) continue;
+        for (const sk of [1, 2]) for (let d = 1; d <= 6; d++) {
+          const par = new Set(S.filter(x => x.k === K - sk && a * x.e - b * x.h === d).map(x => x.e + ',' + x.h));
+          if (par.size !== 1) continue;
+          const [e2, h2] = [...par][0].split(',').map(Number);
+          if (e2 >= 1 && h2 >= 1) vse.push({ a, b, T, w, reseni, sk, d, e2, h2 });
+        }
+      }
+    });
+    return (zetonySadyPamet = vse);
+  }
+  function gen16n() {
+    // 4 body — hra se žetony: největší výhra, rozdíl odměn a všechna řešení (věrné M9D/2026 2. náhr., úloha 16)
+    const K = 10, nE = 5, nH = 5;
+    const zet = n => `${n} ${skl(n, 'žeton', 'žetony', 'žetonů')}`;
+    const { a, b, T, w, reseni, sk, d, e2, h2 } = pick(zetonySady());
+    const S = zetonyStrategie(K, nE, nH, a, b);
+    const nej = a * nE + b * nH, fin2 = K - (K - sk) + a * e2 + b * h2;
+    const hned = n => (n === 0 ? 'ani jednou' : `${n}×`);
+    // 16.2: pro každý počet h správných těžších odpovědí musí lehčí dát b·h + d žetonů
+    const radky162 = [];
+    for (let h = 0; h <= nH; h++) {
+      const v = b * h + d, e = v / a;
+      let res;
+      if (v % a) res = `${v} není násobek čísla ${a}`;
+      else if (e > nE) res = `to by bylo ${e} správných lehčích odpovědí, ale lehčích otázek je jen ${nE}`;
+      else if (!S.some(x => x.k === K - sk && x.e === e && x.h === h)) res = `e = ${e}, ale s ${K - sk} koupenými otázkami (nejvýš ${nE} lehčích a ${nH} těžších) to nejde`;
+      else res = `e = ${e}, vyhovuje`;
+      radky162.push(`h = ${h}: ${a}e = ${b} · ${h} + ${d} = ${v}, ${res}`);
+    }
+    // 16.3: všechny dvojice (e; h) s výsledkem T a počet chybných odpovědí u každé
+    const dvojice = new Map();
+    S.filter(x => x.fin === T).forEach(x => dvojice.set(`${x.e}; ${x.h}`, x.k - x.e - x.h));
+    const poradi = [...dvojice.entries()].sort((p, q) => q[1] - p[1] || p[0].localeCompare(q[0]));
+    const nejDv = poradi.filter(([, v]) => v === w).map(([k]) => `(${k})`);
+    const dalsi = poradi.filter(([, v]) => v < w).slice(0, 3).map(([k, v]) => `(${k}) → ${v}`);
+    return {
+      no: 16, points: 4, title: 'Hra se žetony', okruh: 'slovni',
+      intro: `Vědomostní hra má ${K} kol. Hráč má na začátku hry celkem ${zet(K)} a postupně může odpovědět na ${nE} lehčích a na ${nH} těžších otázek. V každém kole si může koupit pouze 1 otázku a zaplatí za ni 1 žeton. Pokud hráč kolo vynechá (otázku si nekoupí), žeton mu zůstane. Za správnou odpověď na lehčí otázku získá hráč ${zet(a)}, za správnou odpověď na těžší otázku ${zet(b)}. Za chybnou odpověď žádný žeton nezíská. (Např. hráč, který 3 kola vynechal a ze 7 zakoupených otázek správně odpověděl pouze na 1 lehčí, měl na konci hry celkem ${zet(K - 7 + a)}.)`,
+      parts: [
+        { key: '16.1', points: 1, prompt: 'Určete, kolik nejvíce žetonů může mít hráč na konci hry.', ans: String(nej),
+          sol: [`Nejvíc žetonů hráč získá, když si koupí všech ${K} otázek a na všechny odpoví správně.`,
+            `Za otázky zaplatí ${K} · 1 = ${K} žetonů, za správné odpovědi získá ${nE} · ${a} + ${nH} · ${b} = ${nej} žetonů.`,
+            `Na konci hry má ${K} − ${K} + ${nej} = ${nej} ${skl(nej, 'žeton', 'žetony', 'žetonů')}.`] },
+        { key: '16.2', points: 1,
+          prompt: `Hráč vynechal pouze ${sk} ${skl(sk, 'kolo', 'kola', 'kol')} a ve zbývajících kolech získal za odpovědi na lehčí otázky o ${zet(d)} více než za odpovědi na těžší otázky. Určete, kolik žetonů měl hráč na konci hry.`,
+          ans: String(fin2),
+          sol: [`Hráč vynechal ${sk} ${skl(sk, 'kolo', 'kola', 'kol')}, takže si koupil ${K - sk} otázek. Označme e počet jeho správných odpovědí na lehčí otázky a h počet správných odpovědí na těžší otázky.`,
+            `Za lehčí otázky získal ${a}e žetonů, za těžší ${b}h žetonů a platí ${a}e = ${b}h + ${d}. Zkusíme h = 0 až ${nH}:`,
+            ...radky162,
+            `Vyhovuje jen e = ${e2}, h = ${h2}. Na konci hry má ${K} − ${K - sk} + ${a} · ${e2} + ${b} · ${h2} = ${fin2} ${skl(fin2, 'žeton', 'žetony', 'žetonů')}.`] },
+        { key: '16.3', points: 2,
+          prompt: `Hráč měl na konci hry ${zet(T)} a přitom měl největší možný počet chybných odpovědí s tímto výsledkem. Určete, kolikrát v této hře správně odpověděl na lehčí otázku. Najděte obě řešení.`,
+          ans: reseni.join('; '), reseni: reseni.map(String),
+          sol: [`Označme k počet koupených otázek, e správných odpovědí na lehčí a h na těžší otázky. Na konci hry je ${K} − k + ${a}e + ${b}h = ${T} žetonů, takže k = ${mnoho([[a, 'e'], [b, 'h'], [K - T, '']])}.`,
+            `Chybných odpovědí je k − e − h = ${mnoho([[a - 1, 'e'], [b - 1, 'h'], [K - T, '']])}. Otázek je ${K}, takže k nejvýš ${K}, a lehčích i těžších otázek je nejvýš ${nE}.`,
+            `Možné dvojice (e; h) a počet chybných odpovědí: ${poradi.slice(0, 5).map(([k, v]) => `(${k}) → ${v}`).join(', ')}${poradi.length > 5 ? ', …' : ''}.`,
+            `Nejvíc chybných odpovědí (${w}) mají dvojice ${nejDv.join(' a ')}${dalsi.length ? `; další mají nejvýš ${w - 1}, např. ${dalsi.join(', ')}` : ''}. Správně odpověděl na lehčí otázku ${hned(reseni[0])}, nebo ${hned(reseni[1])}.`] }
+      ]
+    };
+  }
+
   /* ── Pozice 9–12 podle ostrých testů 2017–2026 ──────────────────── */
 
   // Obdélník ABCD vepsaný do kružnice se středem S; popsaná je jen strana AB.
@@ -5486,7 +5570,7 @@
   }
   const SLOTS = [
     [gen1, gen1b, gen1c, gen1d, gen1e, gen1f, gen1g, gen1h, gen1i, gen1j, gen1k], [gen2, gen2b, gen2c, gen2d, gen2e, gen2f], [gen3, gen3b, gen3c, gen3d, gen3e, gen3f], [gen4, gen4d, gen4e, gen4f, gen4g], [gen5, gen5b, gen5d, gen5e, gen5f, gen5g, gen5h, gen5i], [gen6, gen6b, gen6c, gen6d, gen6e, gen6f, gen6g, gen6h], [gen7d, gen7e, gen7f, gen7g, gen7h, gen7i], [gen8, gen8b, gen8d, gen8e, gen8f, gen8g, gen8h, gen8i],
-    [gen9c, gen9d, gen9e, gen9f, gen9g], [gen10b, gen10d, gen10e, gen10f, gen10g], [gen11, gen11b, gen11d, gen11e, gen11f, gen11g, gen11h, gen11i, gen11j], [gen12, gen12c, gen12f, gen12h, gen12i, gen12j, gen12l, gen12m], [gen12e, gen12g, gen12k, gen14h, gen13, gen13b, gen13d, gen13e, gen13f, gen13g, gen13h, gen13i, gen13j], [gen14, gen14b, gen14e, gen14i, gen14f, gen14g], [gen15d, gen15e, gen15f, gen15g, gen15h, gen15i, gen15j], [gen16d, gen16e, gen16f, gen16g, gen16h, gen16i, gen16j, gen16k, gen16l, gen16m]
+    [gen9c, gen9d, gen9e, gen9f, gen9g], [gen10b, gen10d, gen10e, gen10f, gen10g], [gen11, gen11b, gen11d, gen11e, gen11f, gen11g, gen11h, gen11i, gen11j], [gen12, gen12c, gen12f, gen12h, gen12i, gen12j, gen12l, gen12m], [gen12e, gen12g, gen12k, gen14h, gen13, gen13b, gen13d, gen13e, gen13f, gen13g, gen13h, gen13i, gen13j], [gen14, gen14b, gen14e, gen14i, gen14f, gen14g], [gen15d, gen15e, gen15f, gen15g, gen15h, gen15i, gen15j], [gen16d, gen16e, gen16f, gen16g, gen16h, gen16i, gen16j, gen16k, gen16l, gen16m, gen16n]
   ];
 
   window.RPG_CERMAT_9 = {
