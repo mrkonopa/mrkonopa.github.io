@@ -593,10 +593,13 @@ function stopTimer(){if(BT.timer){clearInterval(BT.timer);BT.timer=null;}}
    horním indexem („2⁵“, „10ⁿ“, „3⁻¹“) místo stříšky. Naměřeno 4. 10. 2026: spojovník
    v zadáních 6.–9. roč. 60 / 627 / 615 / 531×, v nápovědách 400 / 731 / 631 / 158×,
    v odpovědích stovky; stříška v 8. a 9. roč. 30 a 405×. Spojovník mezi číslicemi
-   („1-10“) a s mezerou za sebou („5 - 10“) se nemění — to není znaménko. */
+   („1-10“) a s mezerou za sebou („5 - 10“) se nemění — to není znaménko.
+   Číslo + jednotka drží PEVNOU mezeru („12 cm“, „25 %“): na úzké obrazovce se jinak „12“ a „cm“ zlomí
+   na dva řádky. Naměřeno 23. 10. 2026: 18–42 % zadání 3.–9. roč. (26 800 z 88 320 vzorků), 44 480 výskytů.
+   Seznam jednotek je stejný jako v přijímačkách (PZ.typo); „s“ v něm schválně není (předložka). */
 // mapa uvnitř funkce: deklarace funkce se vytáhne nahoru, const ne — volání před
 // řádkem s mapou (načítání modulu, izolovaný test) by jinak spadlo na „before initialization"
-function zapis(s){const H={0:'⁰',1:'¹',2:'²',3:'³',4:'⁴',5:'⁵',6:'⁶',7:'⁷',8:'⁸',9:'⁹','-':'⁻','−':'⁻',n:'ⁿ'},h=e=>[...e].map(c=>H[c]).join('');return String(s).replace(/\^\(([−-]?\d+)\)/g,(_,e)=>h(e)).replace(/\^([−-]?\d+|n)(?![\w])/g,(_,e)=>h(e)).replace(/(^|[\s(\[=:;,+×·*\/−])-(?=\d)/g,'$1−');}
+function zapis(s){const H={0:'⁰',1:'¹',2:'²',3:'³',4:'⁴',5:'⁵',6:'⁶',7:'⁷',8:'⁸',9:'⁹','-':'⁻','−':'⁻',n:'ⁿ'},h=e=>[...e].map(c=>H[c]).join('');return String(s).replace(/\^\(([−-]?\d+)\)/g,(_,e)=>h(e)).replace(/\^([−-]?\d+|n)(?![\w])/g,(_,e)=>h(e)).replace(/(^|[\s(\[=:;,+×·*\/−])-(?=\d)/g,'$1−').replace(/(\d) (cm|dm|mm|km|kg|dkg|mg|ml|dl|hl|Kč|min|hod|[mglht]|%)(?![\p{L}\d])/gu,'$1\u00A0$2');}
 function czTxt(t){return zapis(String(t).replace(/(\d)\.(\d)/g,'$1,$2'));}
 function czMC(x){return zapis(String(x).replace(/(\d)\.(\d)/g,'$1,$2'));}
 /* Posun po „DALŠÍ ÚKOL" v tréninku: žák klikne na tlačítko dole, nová úloha se
