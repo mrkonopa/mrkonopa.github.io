@@ -4002,7 +4002,8 @@
      viewBox má počátek v místě sítě — souřadnice uvnitř jsou tedy shodné s obrázkem a okraje se oříznou čistě. */
   function svgTrUtvary(utvary) {
     const gw = TR_W * TR_S, gh = TR_H * TR_V, mez = 18, x0 = 8, rad = gh + 24;
-    let o = `<svg viewBox="0 0 ${2 * x0 + 2 * gw + mez} ${2 * rad + 8}">`;
+    const sam = utvary.length === 1;                       // úroveň základ: jedna síť, bez prázdného místa vedle
+    let o = `<svg viewBox="0 0 ${2 * x0 + (sam ? gw : 2 * gw + mez)} ${(sam ? 1 : 2) * rad + 8}"${sam ? ' style="width:100%;max-width:250px"' : ''}>`;
     const bodyPx = (gx, gy, c) => trVr(c).map(p => { const [x, y] = trCart(p); return [gx + x * TR_S, gy + gh - y * TR_S]; });
     utvary.forEach((u, i) => {
       const gx = x0 + (i % 2) * (gw + mez), gy = 22 + Math.floor(i / 2) * rad, mn = new Set(u.bunky.map(trKlic));
@@ -4033,9 +4034,10 @@
     G.forEach(c => {
       const im = trObraz(c, g); if (!im) return;
       const n = trCislo(u, c), m = trCislo(u, im);
-      if (trKlic(im) === trKlic(c)) naOse.push(n); else if (n < m) pary.push(`${n} ↔ ${m}`);
+      if (trKlic(im) === trKlic(c)) naOse.push(n); else if (n < m) pary.push([n, m]);
     });
-    return { pary: pary.join(', '), naOse };
+    // vždy vzestupně (kroky postupu čte dítě): dvojice podle menšího čísla, trojúhelníky na ose podle čísla
+    return { pary: pary.sort((p, q) => p[0] - q[0]).map(([n, m]) => `${n} ↔ ${m}`).join(', '), naOse: naOse.sort((p, q) => p - q) };
   }
   function gen8i() {
     // 4 body — trojúhelníková síť, v každé části dvě řešení (nanečisto 2026, úloha 8: 1 b. + 2 b., tady 2 + 2 b.)
@@ -4070,6 +4072,83 @@
         { key: '8.1', points: 2, prompt: `Určete číslo trojúhelníku, jehož odebráním vznikne z útvaru B osově souměrný útvar. Najděte obě řešení.`, ans: rB.join('; '), reseni: rB.map(String), sol: osaTxt(B, FB, 'B') },
         { key: '8.2', points: 2, prompt: `Určete číslo trojúhelníku, jehož přesunutím vznikne z útvaru C středově souměrný útvar. Najděte obě řešení.`, ans: rC.join('; '), reseni: rC.map(String), sol: stredTxt(C, FC, 'C') }
       ]
+    };
+  }
+
+  /* Úroveň „základ“ v trojúhelníkové síti (prijimacky-gen.js): JEDEN útvar, jeden krok, JEDNO řešení — stejně jako
+     u čtverců (zakladSoumernost) a ze stejného důvodu: kdo neumí najít protějšek, nenajde ani dvě řešení.
+     Střídá „je útvar osově souměrný?“ (A/N; nesouměrný je vždy o jediný trojúhelník vedle souměrného, tedy ta
+     záměna, kterou žák dělá) a „který trojúhelník odebrat?“. Útvary jsou menší (5–9 trojúhelníků) a mají jen
+     vodorovnou nebo svislou osu; odpověď i postup POČÍTÁ řešič z gen8i (tr*), žádná druhá kopie geometrie. */
+  let TR_ZRC = null;
+  function trZrcadlo(k) {                      // zrcadlo M_k·p + t pro k = 0 (vodorovná osa) nebo 3 (svislá), které je opravdu zrcadlo: M(t) = −t
+    if (!TR_ZRC) {
+      TR_ZRC = { 0: [], 3: [] };
+      [0, 3].forEach(q => { for (let a = -6; a <= 12; a++) for (let b = -8; b <= 12; b++) { const m = TR_ODRAZ[q]([a, b]); if (m[0] + a === 0 && m[1] + b === 0) TR_ZRC[q].push([a, b]); } });
+    }
+    return [k, pick(TR_ZRC[k])];
+  }
+  /* Buňky sítě, které se aspoň vrcholem dotýkají útvaru S (Map klíč → buňka) a v něm nejsou. */
+  function trSousedi(S) {
+    const vr = new Set(); S.forEach(c => trVr(c).forEach(v => vr.add(v.join(','))));
+    return TR_BUNKY.filter(c => !S.has(trKlic(c)) && trVr(c).some(v => vr.has(v.join(','))));
+  }
+  /* Útvar o n trojúhelnících. nes = false: souměrný podle vodorovné nebo svislé osy. nes = true: souměrné jádro
+     o n − 1 trojúhelnících a jeden trojúhelník Z navíc; právě jeho odebráním vznikne souměrný útvar (jediné řešení).
+     Počet trojúhelníků je pro obě možnosti stejný, takže ho žák nemůže použít k odhadu odpovědi A/N. */
+  function trZakladUtvar(n, nes) {
+    // Osa vede hranami sítě (vodorovná) nebo výškami trojúhelníků (svislá). Vodorovná osa nemá žádný trojúhelník ležící na ose, takže
+    // souměrný útvar s ní má sudý počet; odtud sudé m. Při sudém m je vodorovná v 80 % (jinak by byla jen v 25 % úloh).
+    const m = nes ? n - 1 : n, pool = [], os = m % 2 === 0 && ri(1, 10) <= 8 ? 0 : 3;
+    for (let pokus = 0; pokus < 6000 && pool.length < 4; pokus++) {
+      const [k, t] = trZrcadlo(os), g = p => { const q = TR_ODRAZ[k](p); return [q[0] + t[0], q[1] + t[1]]; };
+      const S = new Map();
+      const z = trOrbita(pick(TR_BUNKY), [g]);
+      if (!z) continue;
+      z.forEach(x => S.set(trKlic(x), x));
+      for (let krok = 0; krok < 12 && S.size < m; krok++) { const o = trOrbita(pick(trSousedi(S)), [g]); if (o) o.forEach(x => S.set(trKlic(x), x)); }
+      const jadro = [...S.values()];
+      if (jadro.length !== m || !trSouvisly(jadro)) continue;
+      const osy = trOsy(jadro);
+      if (!osy.length || osy.some(o => o.k !== 0 && o.k !== 3)) continue;
+      if (!nes) { pool.push({ F: jadro, trida: 'a' }); continue; }
+      const kand = trSousedi(S).filter(c => { const F = jadro.concat([c]); return !trOsy(F).length && (r => r.length === 1 && trKlic(r[0]) === trKlic(c))(trOdebrani(F)); });
+      if (!kand.length) continue;
+      const Z = pick(kand), F = jadro.concat([Z]), trida = trTrida(F, [Z]);
+      if (trida) pool.push({ F, jadro, Z, trida });
+    }
+    if (!pool.length) throw new Error('útvar základu v trojúhelníkové síti se nepodařilo vytvořit');
+    return nes ? trVyber(pool) : pick(pool);
+  }
+  function zakladTrojuhelniky() {
+    const IN = 'V trojúhelníkové síti je z tmavých trojúhelníků složen útvar, každý tmavý trojúhelník je označen číslem.';
+    const naOseTxt = d => d.naOse.length ? 'Na ose leží ' + (d.naOse.length === 1 ? 'trojúhelník ' : 'trojúhelníky ') + sitVycet(d.naOse) + '.' : 'Na ose neleží žádný trojúhelník.';
+    const n = ri(6, 8), yn = ri(0, 1) === 1, souměrný = yn && ri(0, 1) === 1;
+    const U = trZakladUtvar(n, !souměrný), u = trUmisti(U.F);
+    if (yn) {
+      const zb = souměrný ? U.F : U.jadro, os = trOsy(zb)[0], d = trDvojice(u, zb, os.g);
+      return {
+        varianta: 'souměrný', svg: svgTrUtvary([u]), type: 'yn', intro: IN + ' Útvar je osově souměrný, jestliže se podle nějaké osy obě jeho poloviny překryjí.',
+        prompt: 'Je útvar na obrázku osově souměrný?', ans: souměrný ? 'A' : 'N',
+        hint1: 'Útvar je souměrný, když každý trojúhelník najde protějšek (trojúhelník stejně daleko od osy na druhé straně).',
+        hint2: 'Zkus osu svislou i vodorovnou a ke každému trojúhelníku hledej protějšek. Stačí jediný trojúhelník bez protějšku a útvar souměrný není.',
+        sol: souměrný
+          ? [TR_POJEM_OSA, `Vychází ${TR_OSA[os.k]} osa souměrnosti. Protějšky tvoří dvojice trojúhelníků ${d.pary}. ${naOseTxt(d)}`, `Každý trojúhelník má protějšek, útvar je souměrný. Správně je A (ano).`]
+          : [TR_POJEM_OSA, `Nejblíž souměrnosti je ${TR_OSA[os.k]} osa: spárují se dvojice trojúhelníků ${d.pary}. Trojúhelník ${trCislo(u, U.Z)} ale protějšek nemá.`, `Útvar souměrný není. Správně je N (ne).`],
+        utvar: u
+      };
+    }
+    const os = trOsy(U.jadro)[0], d = trDvojice(u, U.jadro, os.g), cislo = trCislo(u, U.Z);
+    return {
+      varianta: 'odeber', svg: svgTrUtvary([u]), type: 'text', ans: String(cislo),
+      intro: IN + ' Odebráním jediného tmavého trojúhelníku lze vytvořit osově souměrný útvar.',
+      prompt: 'Určete číslo trojúhelníku, jehož odebráním vznikne osově souměrný útvar.',
+      hint1: 'Hledáš trojúhelník, který nemá protějšek podle osy souměrnosti.',
+      hint2: 'Najdi osu, podle které se spáruje většina trojúhelníků, a vyhledej ten jediný trojúhelník bez páru.',
+      sol: [`${TR_POJEM_OSA} Hledáš trojúhelník, který protějšek nemá.`,
+        `Vychází ${TR_OSA[os.k]} osa souměrnosti. Protějšky tvoří dvojice trojúhelníků ${d.pary}. ${naOseTxt(d)} Jediný trojúhelník bez protějšku je trojúhelník ${cislo}.`,
+        `Po odebrání trojúhelníku ${cislo} je zbytek útvaru souměrný, odpověď je ${cislo}.`],
+      utvar: u
     };
   }
 
@@ -5582,6 +5661,7 @@
     // Vystaveno pro přijímačkový hub (procvičování po tématech): 16 pozic testu,
     // každá = pole variant. genSlot(i) vygeneruje úlohu z pozice i (0-indexováno).
     slotCount: function () { return SLOTS.length; },
+    zakladTrojuhelniky: zakladTrojuhelniky,               // úroveň „základ“ v trojúhelníkové síti (viz výše)
     zakladSoumernost: zakladSoumernost,                   // úroveň „základ“ pro prijimacky-gen.js (viz výše)
     genSlot: function (i) { return losuj(SLOTS[i])(); }
   };
