@@ -28,6 +28,10 @@
   function cloud() { return (typeof RPGCloud !== 'undefined') ? RPGCloud : null; }
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) {
     return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]; }); }
+  /* Text otázky tak, jak ho dítě vidí: pevná mezera u jednotek („12 cm“, „25 %“) — naměřeno 23. 10. 2026
+     u 20–39 % otázek všech sedmi bank. Jediná implementace je `zapis()` v rpg-shared.js (minus, mocniny
+     i jednotky), tady se jen zavolá; bez ní (stránka bez sdíleného skriptu) zůstane text beze změny. */
+  function zobrazText(t) { return typeof zapis === 'function' ? zapis(t) : String(t == null ? '' : t); }
   function reducedMotion() {
     try { if (typeof RPGWallet !== 'undefined' && RPGWallet.getReducedMotion) return !!RPGWallet.getReducedMotion(); } catch (e) {}
     try { return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) { return false; }
@@ -440,7 +444,7 @@
       var inner = '<div class="rpgb-row"><span>OTÁZKA ' + (qi + 1) + ' / ' + bt.q_count + '</span>' +
         '<span><span id="rpgb-myscore" style="color:var(--gold,#19e6e6);font-weight:700;margin-right:10px"></span><span id="rpgb-ans">·</span></span></div>' +
         '<div class="rpgb-bar"><i id="rpgb-time" style="transform:scaleX(1)"></i></div>' +
-        '<div class="rpgb-q">' + esc(q.text) + '</div>' +
+        '<div class="rpgb-q">' + esc(zobrazText(q.text)) + '</div>' +
         '<div id="rpgb-choices">' +
         q.choices.map(function (ch, i) {
           return '<button class="rpgb-ch k' + (i % 4) + '" id="rpgb-c' + i + '" onclick="RPGBattle._pick(' + i + ')">' +

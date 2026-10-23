@@ -29,14 +29,20 @@ function startServer() {
   return new Promise(r=>srv.listen(PORT,()=>r(srv)));
 }
 
+// `zapis` bere z rpg-shared.js (jediná implementace), jako ho má stránka hry; BEZ_ZAPIS=1 simuluje stránku bez sdíleného skriptu
+const SHARED = fs.readFileSync(path.join(ROOT, 'projects/rpg-shared.js'), 'utf8');
+const ZAPIS_ZDROJ = (() => { const i = SHARED.indexOf('function zapis('); if (i < 0) throw new Error('v rpg-shared.js chybí zapis()'); return SHARED.slice(i, SHARED.indexOf('\n', i)); })();
+function harness(bezZapis) {
+  return harnessZ(bezZapis ? '' : '<script>' + ZAPIS_ZDROJ + '</script>');
+}
 // minimální harness: mock cloud + banka, načte rpg-battle-ui.js
-function harness() {
+function harnessZ(zapisSkript) {
   return `<!doctype html><html><head><meta charset="utf-8"><style>:root{--gold:#19e6e6}</style></head>
-  <body><script>
+  <body>${zapisSkript}<script>
     window.__rec = 0;
     window.RPGWallet = { getReducedMotion:()=>true };   // skip odpočtu/konfet pro rychlost
     window.RPG_BATTLE_9 = { build:function(seed,count){
-      var a=[]; for(var i=0;i<count;i++) a.push({text:'Otázka '+(i+1)+'?',choices:['Alfa','Beta','Gama','Delta'],correct:0}); return a; } };
+      var a=[]; for(var i=0;i<count;i++) a.push({text:i===0?'Otázka 1: délka 12 cm, sleva 25 % a 2 s kamarádem?':'Otázka '+(i+1)+'?',choices:['Alfa','Beta','Gama','Delta'],correct:0}); return a; } };
     window.__rematch=0;
     window.RPGCloud = {
       currentUser:()=>({id:'u-me'}),
@@ -90,6 +96,8 @@ async function run() {
       players:[P(0,0,-1),O(0,0,-1)],me:'u-me'});
     await page.waitForFunction(()=>!!document.getElementById('rpgb-choices'),null,{timeout:8000});
     ok('otázka 0 vykreslena', await page.evaluate(()=>/OTÁZKA 1 \/ 5/.test(document.body.textContent)));
+    const otazka = await page.evaluate(() => document.querySelector('.rpgb-q').textContent);
+    ok('otázka v živém souboji drží pevnou mezeru u jednotek, „s“ zůstane', otazka === 'Otázka 1: délka 12\u00A0cm, sleva 25\u00A0% a 2 s kamarádem?', JSON.stringify(otazka));
 
     // Kahoot dlaždice: 4 barvy + tvary
     const tiles = await page.evaluate(()=>{
@@ -153,6 +161,19 @@ async function run() {
       players:[T('u-me','Me',1500,0),T('u-op','Soupeř',300,1)],teams:{'0':1500,'1':300},me:'u-me'});
     await page.waitForFunction(()=>/Vyhráli modří/.test(document.body.textContent),null,{timeout:3000});
     ok('týmové výsledky: banner „Vyhráli modří!"', await page.evaluate(()=>/Vyhráli modří/.test(document.body.textContent)&&/1500 : 300/.test(document.body.textContent)));
+
+    // stránka BEZ sdíleného skriptu (bez zapis): text zůstane beze změny a nic nespadne (graceful)
+    const err2 = [];
+    const page2 = await ctx.newPage(); page2.on('pageerror', e => err2.push(e.message));
+    await page2.setContent(harness(true), { waitUntil: 'load' });
+    await page2.waitForFunction(()=>typeof window.RPGBattle!=='undefined',null,{timeout:5000});
+    await page2.evaluate(()=>{ RPGBattle.open({game:'RPG_MAT_9', name:'Me', autoAction:'host'}); });
+    await page2.evaluate(()=>RPGBattle._create(5));
+    await page2.waitForFunction(()=>!!window.__cb,null,{timeout:4000});
+    await page2.evaluate((n)=>window.__cb({battle:{status:'active',q_seed:7,q_count:5,q_index:0,q_started_at:n},players:[{user_id:'u-me',display_name:'Me',score:0,correct_count:0,last_qi:-1}],me:'u-me'}), new Date().toISOString());
+    await page2.waitForFunction(()=>!!document.getElementById('rpgb-choices'),null,{timeout:8000});
+    const bez = await page2.evaluate(() => document.querySelector('.rpgb-q').textContent);
+    ok('bez zapis() zůstane text otázky beze změny a nic nespadne', bez === 'Otázka 1: délka 12 cm, sleva 25 % a 2 s kamarádem?' && err2.length === 0, JSON.stringify(bez) + ' ' + err2.join(' | '));
 
     ok('žádné JS chyby', errors.length===0, errors.join(' | '));
   } finally {

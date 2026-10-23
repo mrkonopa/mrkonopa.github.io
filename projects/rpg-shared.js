@@ -593,12 +593,35 @@ function stopTimer(){if(BT.timer){clearInterval(BT.timer);BT.timer=null;}}
    horním indexem („2⁵“, „10ⁿ“, „3⁻¹“) místo stříšky. Naměřeno 4. 10. 2026: spojovník
    v zadáních 6.–9. roč. 60 / 627 / 615 / 531×, v nápovědách 400 / 731 / 631 / 158×,
    v odpovědích stovky; stříška v 8. a 9. roč. 30 a 405×. Spojovník mezi číslicemi
-   („1-10“) a s mezerou za sebou („5 - 10“) se nemění — to není znaménko. */
+   („1-10“) a s mezerou za sebou („5 - 10“) se nemění — to není znaménko.
+   Číslo + jednotka drží PEVNOU mezeru („12 cm“, „25 %“): na úzké obrazovce se jinak „12“ a „cm“ zlomí
+   na dva řádky. Naměřeno 23. 10. 2026: 18–42 % zadání 3.–9. roč. (26 800 z 88 320 vzorků), 44 480 výskytů.
+   Seznam jednotek je stejný jako v přijímačkách (PZ.typo); „s“ v něm schválně není (předložka). */
 // mapa uvnitř funkce: deklarace funkce se vytáhne nahoru, const ne — volání před
 // řádkem s mapou (načítání modulu, izolovaný test) by jinak spadlo na „before initialization"
-function zapis(s){const H={0:'⁰',1:'¹',2:'²',3:'³',4:'⁴',5:'⁵',6:'⁶',7:'⁷',8:'⁸',9:'⁹','-':'⁻','−':'⁻',n:'ⁿ'},h=e=>[...e].map(c=>H[c]).join('');return String(s).replace(/\^\(([−-]?\d+)\)/g,(_,e)=>h(e)).replace(/\^([−-]?\d+|n)(?![\w])/g,(_,e)=>h(e)).replace(/(^|[\s(\[=:;,+×·*\/−])-(?=\d)/g,'$1−');}
+function zapis(s){const H={0:'⁰',1:'¹',2:'²',3:'³',4:'⁴',5:'⁵',6:'⁶',7:'⁷',8:'⁸',9:'⁹','-':'⁻','−':'⁻',n:'ⁿ'},h=e=>[...e].map(c=>H[c]).join('');return String(s).replace(/\^\(([−-]?\d+)\)/g,(_,e)=>h(e)).replace(/\^([−-]?\d+|n)(?![\w])/g,(_,e)=>h(e)).replace(/(^|[\s(\[=:;,+×·*\/−])-(?=\d)/g,'$1−').replace(/(\d) (cm|dm|mm|km|kg|dkg|mg|ml|dl|hl|Kč|min|hod|[mglht]|%)(?![\p{L}\d])/gu,'$1\u00A0$2');}
 function czTxt(t){return zapis(String(t).replace(/(\d)\.(\d)/g,'$1,$2'));}
 function czMC(x){return zapis(String(x).replace(/(\d)\.(\d)/g,'$1,$2'));}
+/* Teorie (#learn-content) je HTML psané rukou, ne text úlohy: pevná mezera u jednotek se tam dělá nad
+   TEXTOVÝMI UZLY po vykreslení (regulární výraz nad HTML by sáhl do atributů a dat křivek SVG; a „<“ je
+   v matematice „menší než“). Naměřeno 23. 10. 2026: 929 míst „12 cm“ / „25 %“ v 7 modulech teorie; minus
+   a mocniny tam zapsané jsou už správně (0 výskytů), proto je to tatáž `zapis()`, ne druhá kopie pravidla. */
+function pevneMezeryDom(root){
+  if(!root||typeof document==='undefined')return;
+  const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);let n;const uzly=[];
+  while((n=w.nextNode()))uzly.push(n);
+  uzly.forEach(u=>{
+    if(u.parentElement&&u.parentElement.closest('svg,script,style,textarea,[data-bez-typo]'))return;
+    const t=zapis(u.data);if(t!==u.data)u.data=t;
+  });
+}
+(function(){
+  if(typeof document==='undefined'||typeof MutationObserver==='undefined')return;
+  const start=()=>{const el=document.getElementById('learn-content');if(!el)return;
+    // jen childList: změna `data` uzlu pozorovatele znovu nespouští
+    new MutationObserver(()=>pevneMezeryDom(el)).observe(el,{childList:true,subtree:true});pevneMezeryDom(el);};
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);else start();
+})();
 /* Posun po „DALŠÍ ÚKOL" v tréninku: žák klikne na tlačítko dole, nová úloha se
    vykreslí na totéž místo a `scrollIntoView({block:'nearest'})` na vstupu nic
    neposune, protože vstup JE vidět — jenže začátek úlohy (zadání, obrázek) zůstal
