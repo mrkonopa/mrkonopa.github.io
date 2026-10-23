@@ -1121,6 +1121,16 @@
       hint1: z.hint1, hint2: z.hint2, _check: { kind: 'soumernost', varianta: z.varianta } };
   }
 
+  /* Totéž v trojúhelníkové síti (úloha 8 nanečisto 2026): jeden útvar, jedno řešení, řešič z banky (`zakladTrojuhelniky`).
+     Bez banky vrátí prostou úlohu, ne prázdno (viz soumernostG). */
+  function soumernostTrG() {
+    const B = window.RPG_CERMAT_9;
+    if (!B || typeof B.zakladTrojuhelniky !== 'function') return ctverecG();
+    const z = B.zakladTrojuhelniky();
+    return { svg: z.svg, intro: z.intro, prompt: z.prompt, type: z.type, ans: z.ans, sol: z.sol,
+      hint1: z.hint1, hint2: z.hint2, _check: { kind: 'soumernost', varianta: z.varianta, sit: 'trojuhelniky' } };
+  }
+
   window.PZ_GEN = {
     'vyrazy-mocniny': [mocnina, odmocnina, mocninaVyraz, mocnina10, kvadratSouctu, odmocninaSoucin,
                        poradiOperaci, rozdilMocnin],
@@ -1139,7 +1149,7 @@
     'data': [prumer, prumerPridani, median5, modus, rozsah,
              prumerChybejici, soucetZPrumeru],
     'geometrie': [obvodObdelnikG, obsahObdelnikG, ctverecG, obsahTrojuhelnikG, uhelVedlejsi, pythagorasG,
-                  lichobeznik, tretiUhel, soumernostG],
+                  lichobeznik, tretiUhel, soumernostG, soumernostTrG],
     'telesa': [objemKvadrT, povrchKvadrT, krychleT, hranyKvadrT, objemKvadrLitr,
                hranol, hranaZObjemu],
   };
