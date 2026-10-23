@@ -103,7 +103,7 @@ async function fillAndSubmit(page, sabotage, tfSpatne, kn){
   await fillAndSubmit(page, false);
   const scoreTxt=await page.evaluate(()=>document.getElementById('cm-end-score').textContent);
   ok(/^50 \/ 50 bodů/.test(scoreTxt),'správné odpovědi → 50 / 50 ('+scoreTxt+')');
-  ok(await page.evaluate(()=>document.getElementById('cm-end-pct').textContent==='100 %'),'100 %');
+  ok(await page.evaluate(()=>document.getElementById('cm-end-pct').textContent.replace(/\u00A0/g,' ')==='100 %'),'100 %');
   ok(await page.evaluate(()=>document.querySelectorAll('#cm-end-detail details').length===16),'rozbor: 16 úloh');
 
   // historie se uloží (localStorage)

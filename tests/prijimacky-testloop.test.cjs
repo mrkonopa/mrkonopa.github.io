@@ -140,7 +140,7 @@ const ok=(c,m)=>{ if(c){pass++;console.log('  ✅ '+m);} else {fail++;console.lo
     const row=[...document.querySelectorAll('.st-bar-row')].find(r=>/Rovnice/.test(r.textContent));
     return { txt: row?row.textContent:'', all: document.getElementById('st-topics').textContent };
   });
-  ok(/📝 test 25 %/.test(stat.txt), 'statistiky ukazují testovou přesnost okruhu (📝 test 25 %)');
+  ok(/📝 test 25\s%/.test(stat.txt), 'statistiky ukazují testovou přesnost okruhu (📝 test 25 %)');
   ok(/chyby v testu nanečisto/.test(stat.all), 'mapa témat pojmenuje slabinu z testu');
 
   ok(errs.length===0,'žádné JS chyby'+(errs.length?(' ['+errs[0]+']'):''));
