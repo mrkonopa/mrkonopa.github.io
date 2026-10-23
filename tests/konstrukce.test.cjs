@@ -43,6 +43,8 @@ async function nova(page,typ){
   await page.evaluate(()=>document.getElementById('kn-svg').scrollIntoView({block:'center'}));
   return page.evaluate(()=>JSON.parse(JSON.stringify(KN.u)));
 }
+/* Zobrazený text projde PZ.typo (pevná mezera u jednotek, „−“ místo spojovníku); zadání v bance je beze změny, proto se před porovnáním vrací. */
+const bezTypo=t=>String(t).replace(/\u00A0/g,' ').replace(/\u2212/g,'-');
 const vysledek=page=>page.evaluate(()=>{ const v=document.querySelector('#kn-vysledek .kn-vysl'); return v?{t:v.textContent, ok:v.classList.contains('ok')}:null; });
 
 (async()=>{
@@ -87,7 +89,7 @@ const vysledek=page=>page.evaluate(()=>{ const v=document.querySelector('#kn-vys
     const u=await nova(page,typ);
     const popisky=await page.$$eval('#kn-dane text.kn-d-txt',t=>t.map(x=>x.textContent));
     const dane=Object.keys(u.dane.body);
-    ok(dane.every(k=>popisky.includes(k)) && (await page.textContent('#kn-text'))===u.text,typ+': zadané body '+dane.join(', ')+' jsou v okně popsané a text zadání je pod ním');
+    ok(dane.every(k=>popisky.includes(k)) && bezTypo(await page.textContent('#kn-text'))===u.text,typ+': zadané body '+dane.join(', ')+' jsou v okně popsané a text zadání je pod ním');
     await nastroj(page,'bod');
     for(const s of u.reseni) for(const p of Object.values(s)) await klik(page,p);
     await page.click('#kn-vyhodnot');
@@ -371,7 +373,7 @@ const vysledek=page=>page.evaluate(()=>{ const v=document.querySelector('#kn-vys
         nastroje:document.getElementById('kn-full-top').contains(document.getElementById('kn-nastroje')), zvetsit:!!document.querySelector('#kn-nastroje [data-a="zvetsit"]'),
         text:document.getElementById('kn-full-text').textContent, r:{l:r.left,t:r.top,rr:r.right,b:r.bottom,w:r.width}, W:innerWidth, H:innerHeight}; });
     ok(f.full&&f.v&&f.nastroje&&!f.zvetsit&&f.tvaru===0,vp.n+': klepnutí do okna otevře kreslení přes celou obrazovku (nástroje nahoře, žádná kresba navíc)');
-    ok(f.text===u.text,vp.n+': zadání je vidět i v celé obrazovce');
+    ok(bezTypo(f.text)===u.text,vp.n+': zadání je vidět i v celé obrazovce');
     ok(f.r.l>=0&&f.r.t>=0&&f.r.rr<=f.W+0.5&&f.r.b<=f.H+0.5&&f.r.w>=f.W*0.6,vp.n+': okno se vejde na displej a je velké ('+Math.round(f.r.w)+' × '+Math.round(f.r.b-f.r.t)+' px z '+f.W+' × '+f.H+')');
     // prst: tah od ruky přes CDP (dotyk začne, pohne se, skončí)
     const cdp=await tctx.newCDPSession(tp);

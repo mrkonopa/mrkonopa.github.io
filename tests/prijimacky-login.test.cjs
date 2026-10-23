@@ -97,7 +97,7 @@ localStorage.setItem('PZ_PRACTICE_PROGRESS', JSON.stringify({ rovnice:{ok:5,tota
   ok(saved && saved.readiness===64,'readiness přepočítán a uložen (64): '+(saved&&saved.readiness));
 
   ok(await p1.evaluate(()=>{ const el=document.querySelector('#pz-login'); return el && /zak@husovaliberec\.cz/.test(el.textContent) && /Odhlásit/.test(el.textContent); }),'login lišta ukazuje účet + Odhlásit');
-  ok(await p1.evaluate(()=>document.querySelector('#st-big .st-stat .v').textContent==='64 %'),'statistiky překresleny po syncu (64 %)');
+  ok(await p1.evaluate(()=>document.querySelector('#st-big .st-stat .v').textContent.replace(/\u00A0/g,' ')==='64 %'),'statistiky překresleny po syncu (64 %)');
   await c1.close();
 
   ok(errs.length===0,'žádné JS chyby'+(errs.length?(' ['+errs[0]+']'):''));

@@ -43,7 +43,7 @@ async function otevri(browser, base, init, errs){
   await page.waitForFunction(()=>window.PZ&&window.PZ_TOPICS&&document.querySelectorAll('#st-big .st-stat').length===4,null,{timeout:8000});
   return { ctx, page };
 }
-const big = page => page.evaluate(()=>[...document.querySelectorAll('#st-big .st-stat .v')].map(e=>e.textContent));
+const big = page => page.evaluate(()=>[...document.querySelectorAll('#st-big .st-stat .v')].map(e=>e.textContent.replace(/\u00A0/g,' ')));   // číslo + jednotka drží pevná mezera (PZ.typo), test porovnává s obyčejnou
 const txt = (page, id) => page.evaluate(id=>document.getElementById(id).textContent, id);
 
 (async()=>{
@@ -69,7 +69,7 @@ const txt = (page, id) => page.evaluate(id=>document.getElementById(id).textCont
     ok(b[1]==='50 / 50' && b[2]==='18' && b[3]==='4','nejlepší 50/50, 18 úloh, 4 testy ('+b.slice(1).join(' | ')+')');
     const pokusy=await page.evaluate(()=>[...document.querySelectorAll('#st-tests .st-attempt')].map(e=>e.textContent));
     ok(pokusy.length===4 && /2026-01-03/.test(pokusy[0]) && /2025-12-01/.test(pokusy[3]),'trend: od nejnovějšího, i když pole seřazené nebylo');
-    ok(/50 min/.test(pokusy[2]) && /60 min/.test(pokusy[1]),'u pokusu je čas do odevzdání');
+    ok(/50\smin/.test(pokusy[2]) && /60\smin/.test(pokusy[1]),'u pokusu je čas do odevzdání');
     ok(!/Trend:/.test(await txt(page,'st-tests')),'trend se neukáže, dokud nejsou aspoň 2 × 3 testy');
     const z=await page.evaluate(()=>({ t:document.getElementById('st-ztraty').textContent,
       rows:[...document.querySelectorAll('#st-ztraty .st-bar-row')].map(r=>({t:r.textContent, a:(r.querySelector('a')||{getAttribute:()=>''}).getAttribute('href')})) }));

@@ -125,7 +125,7 @@ for (const id of ['m9c-2025-10', 'nanecisto-2025-10']) {
 }
 
 // dopočty u číselných doplňků musí sedět s klíčem CERMAT
-t(/o = 48 cm/.test(DOP), 'M9B 2024/6.2: doplněný obvod 48 cm (klíč)');
+t(/o = 48(?: |&nbsp;)cm/.test(DOP), 'M9B 2024/6.2: doplněný obvod 48 cm (klíč)');
 t(/12,5 dne → volba B/.test(DOP), 'M9C 2024/16.3: správná volba B (12,5 dne)');
 t(/x = −3 — souhlasí s klíčem/.test(DOP), 'M9B 2023/5.1: opravený výsledek x = −3');
 t(DOP.includes('zkouška:'), 'M9B 2023/5.1: je připojená zkouška');

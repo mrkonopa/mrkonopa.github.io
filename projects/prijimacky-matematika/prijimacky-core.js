@@ -268,6 +268,45 @@
 
   const czNum = v => String(v == null ? '' : v).replace(/(\d)\.(\d)/g, '$1,$2');
 
+  /* ════════ TYPOGRAFIE PŘI ZOBRAZENÍ ════════
+     Banky i generátory píšou záporná čísla se spojovníkem („Výsledek: -7,45“ — naměřeno u ~7 % nápověd úrovně test)
+     a jednotky za obyčejnou mezerou („12 cm“ — ~47 000 míst v 102 variantách, 0 pevných mezer). Na úzké obrazovce se
+     pak „12“ a „cm“ rozdělí na dva řádky a „-“ se čte jako spojovník. Opravuje se až při ZOBRAZENÍ, ne v bance: banka je
+     i vstupem testů a kontroly odpovědí. `typo` je čistá funkce (idempotentní), `typoDom` ji pouští na textové uzly
+     a hlídá je MutationObserver, takže pokrývá `textContent`, `innerHTML` i `PZ.esc` na všech stránkách s jádrem.
+     Jednotka „s“ v seznamu schválně není: za číslem je to i předložka („2 s kamarádem“). */
+  /* Mocniny jednotek (cm², m³) ani zlomky (km/h, m/s) v seznamu být nemusí: „²“ a „/“ nejsou písmeno ani číslice,
+     takže jednotku ukončí samy a pevná mezera se vloží stejně. */
+  const TYPO_JEDNOTKY = 'cm|dm|mm|km|kg|dkg|mg|ml|dl|hl|Kč|min|hod|[mglht]|%';
+  const TYPO_RE_JEDNOTKA = new RegExp('(\\d) (' + TYPO_JEDNOTKY + ')(?![\\p{L}\\d])', 'gu');
+  const TYPO_RE_MINUS = /(^|[\s(\[=;:·×<>\/])-(?=\d)/g;
+  const typo = s => String(s == null ? '' : s).replace(TYPO_RE_MINUS, '$1−').replace(TYPO_RE_JEDNOTKA, '$1\u00A0$2');
+  function typoDom(root) {
+    if (!root || typeof document === 'undefined' || !document.createTreeWalker) return;
+    const w = document.createTreeWalker(root, 4 /* SHOW_TEXT */, {
+      acceptNode: n => (n.parentElement && n.parentElement.closest('script,style,textarea,svg,noscript,[data-bez-typo]')) ? 2 /* REJECT */ : 1 /* ACCEPT */
+    });
+    const uzly = [];
+    for (let n = w.nextNode(); n; n = w.nextNode()) uzly.push(n);
+    uzly.forEach(n => { const t = typo(n.nodeValue); if (t !== n.nodeValue) n.nodeValue = t; });
+  }
+  function typoStart() {
+    if (typeof document === 'undefined' || typeof MutationObserver === 'undefined' || !document.body && document.readyState !== 'loading') return;
+    const spust = () => {
+      typoDom(document.body);
+      new MutationObserver(zmeny => {
+        const kde = new Set();
+        zmeny.forEach(z => {
+          if (z.type === 'characterData') kde.add(z.target.parentNode);
+          else z.addedNodes.forEach(n => kde.add(n.nodeType === 1 ? n : n.parentNode));
+        });
+        kde.forEach(n => { if (n && n.isConnected) typoDom(n); });
+      }).observe(document.body, { childList: true, subtree: true, characterData: true });
+    };
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', spust); else spust();
+  }
+  typoStart();
+
   /* ════════ CLOUD SYNC POKROKU — Fáze 21 (graceful) ════════
      Bez RPGCloud / bez přihlášení běží vše lokálně jako dřív. Po přihlášení
      školním Google účtem se pokrok slévá napříč zařízeními (nikdy neztratí). */
@@ -899,6 +938,6 @@
   // (jádro se načítá i v Node testech bez DOM — tam nic neposílá)
   if (typeof document !== 'undefined' && document.addEventListener) document.addEventListener('DOMContentLoaded', () => event('vstup'));
 
-  window.PZ = { event, esc, check, hodnotReseni, vyhodnot, popisCastecne, store, inputMode, czNum, solSteps, themeSvg, icon, ring, attachLoginBar, cloudPush, cloudSync, topicWeights, pickWeakTopic, hintsFor, recordTestTopics, weakTopicsFromReview,
+  window.PZ = { event, esc, check, hodnotReseni, vyhodnot, popisCastecne, store, inputMode, czNum, typo, typoDom, solSteps, themeSvg, icon, ring, attachLoginBar, cloudPush, cloudSync, topicWeights, pickWeakTopic, hintsFor, recordTestTopics, weakTopicsFromReview,
     computeReadiness, pokusy, odhadBodu, cistyPokus, diagUrovne, mergeStats, ukaz, odpovedText, souhrn, vykresliSouhrn, attachAccountCard };
 })();
