@@ -66,13 +66,15 @@ ok(skupiny.length === 16, 'SLOTS má 16 pozic', 'nalezeno=' + skupiny.length);
    procent nahradily dvě se společným kontextem (Prvňáci, Zedníci), proto 7. */
 /* 2026-10-17: osová souměrnost ve čtvercové síti (pozice 8 → 7 a 11 → 9 variant, celkem 106),
    podle ostré úlohy 8 (M9D 2023) a úloh M5/M7; v bance dřív nebyla vůbec. */
+/* 2026-10-22: pozice 7 → 6 variant (celkem 121): tabulka dvou kol soutěže (M9D 2025 ú. 7, průměr a obě řešení; okruh data). */
+/* 2026-10-23: pozice 16 → 11 variant (celkem 122, tedy součet podlah pozic; dřív stála podlaha celku níž, než byl součet): hra se žetony (M9D 2026 ú. 16, řešení 0 a 2 v ostré úloze). */
 /* 2026-09-30: varianty podle ostré úlohy 13 se vrátily na pozici 13 (tři tělesa
    z pozice 12, rovnoramenný trojúhelník z pozice 14), proto 12 → 8, 13 → 13, 14 → 6.
    Nic neubylo — přesun hlídá podlaha CELKOVÉHO počtu níž, aby se jím nedalo
    schovat smazání. */
-const VARIANT = { 1: 11, 2: 6, 3: 6, 4: 5, 5: 8, 6: 8, 7: 5, 8: 8,
-  9: 5, 10: 5, 11: 9, 12: 8, 13: 13, 14: 6, 15: 7, 16: 10 };
-const CELKEM = 107;
+const VARIANT = { 1: 11, 2: 6, 3: 6, 4: 5, 5: 8, 6: 8, 7: 6, 8: 8,
+  9: 5, 10: 5, 11: 9, 12: 8, 13: 13, 14: 6, 15: 7, 16: 11 };
+const CELKEM = 122;
 const maloVariant = [];
 skupiny.forEach((g, i) => {
   const p = i + 1;

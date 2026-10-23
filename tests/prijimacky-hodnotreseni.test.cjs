@@ -47,7 +47,14 @@ const TABULKA = [
   [[1, 3, 5], '1; 3; 5; 2', 2, 'chybný sudý počet (−1 b.)'],
   [[1, 3, 5], '1; 3; 7', 1, 'chybí 5 a přibylo 7 (−2 b.)'],
   [[1, 3, 5], '2; 4', 0, 'jen chybná'],
-  [[361, 441], '361 nebo 441', 2, '16.3 z M9B 2023']
+  [[361, 441], '361 nebo 441', 2, '16.3 z M9B 2023'],
+  // 16.3 z M9D 2026 (klíč: „ani jednou; dvakrát“): jedním z řešení je 0, řady číslic ho musí poznat
+  [[0, 2], '0; 2', 2, '16.3 z M9D 2026: nula a dvě'],
+  [[0, 2], '2 a 0', 2, 'pořadí s nulou nehraje roli'],
+  [[0, 2], '0', 1, 'jen nula ze dvou správných'],
+  [[0, 2], '2', 1, 'jen dvojka, nula chybí'],
+  [[0, 2], '0; 2; 4', 1, 'nula a dvě a k nim chybné číslo'],
+  [[0, 2], '02; 2', 1, '„02“ je číslo 2, takže nula chybí a dvojka je uvedena dvakrát (jako jedna)']
 ];
 
 function zkus(PZ, popis) {
@@ -94,7 +101,7 @@ function auditBanky(C) {
         if (p.reseni === undefined) return;
         const klic = t.title + ' ' + p.key; nalezeno[klic] = (nalezeno[klic] || 0) + 1;
         if (!Array.isArray(p.reseni) || p.reseni.length < 2) { chyba(klic + ': `reseni` musí být pole aspoň dvou řešení'); return; }
-        if (!p.reseni.every(x => /^[1-9]\d*$/.test(String(x)))) chyba(klic + ': řešení musí být celá kladná čísla bez nul na začátku (' + p.reseni + ')');
+        if (!p.reseni.every(x => /^(0|[1-9]\d*)$/.test(String(x)))) chyba(klic + ': řešení musí být celá nezáporná čísla bez nul na začátku (' + p.reseni + '; 0 smí být, ostrý klíč M9D/2026 ú. 16.3 má „ani jednou“)');
         if (new Set(p.reseni.map(String)).size !== p.reseni.length) chyba(klic + ': řešení se opakují (' + p.reseni + ')');
         if (p.points !== p.reseni.length) chyba(klic + ': body ' + p.points + ' ≠ počet řešení ' + p.reseni.length + ' (bodování „správná − chybná“ to předpokládá)');
         const srov = p.reseni.map(Number).sort((a, b) => a - b).join('; ');

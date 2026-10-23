@@ -35,7 +35,7 @@
     // (hranol, polepená krychle, válec, rovnoramenný trojúhelník) vedle slovních úloh.
     { id: 'geometrie', name: 'Geometrie v rovině', oblast: 'Geometrie', slots: [4, 5, 6, 7, 8, 9, 12, 15], navic: [10, 11] },
     { id: 'telesa', name: 'Tělesa (objem a povrch)', oblast: 'Geometrie', slots: [5, 6, 10, 11, 12] },
-    { id: 'data', name: 'Tabulky, data a statistika', oblast: 'Závislosti a data', slots: [13], navic: [10] },
+    { id: 'data', name: 'Tabulky, data a statistika', oblast: 'Závislosti a data', slots: [13], navic: [10, 6] },
   ];
 
   /* `navic` = pozice, ze kterých okruh dostane JEN úlohy, které ho nesou ve vlastním `okruh`

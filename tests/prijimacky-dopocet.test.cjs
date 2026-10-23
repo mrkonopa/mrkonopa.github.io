@@ -302,6 +302,25 @@ const tv = (t, k) => t.statements[+k.split('.')[1] - 1].text;
 const popiskyVyseci = svg => String(svg).split('<path').slice(1).map(ch => [...ch.matchAll(/>([^<]+)<\/text>/g)].map(m => m[1]));
 const SIT = require('./soumernost-site.cjs');
 const TRI = require('./trojuhelniky-sit.cjs');
+/* Hra se žetony (M9D/2026 2. náhr., úloha 16): řeší se z PARAMETRŮ PŘEČTENÝCH ze zadání a vyčtením všech strategií
+   (kolik lehčích a těžších otázek hráč koupil a kolik z nich zodpověděl správně), jinak než generátor, který z výčtu
+   jen vybírá zadání. Ostrá úloha: 25 žetonů, 10 žetonů a „ani jednou; dvakrát“ (klíč CERMAT, kontroluje se níže). */
+const hraZetony = (K, nE, nH, a, b) => {
+  const strategie = [];
+  for (let k = 0; k <= nE + nH; k++) for (let be = Math.max(0, k - nH); be <= Math.min(k, nE); be++) {
+    const bh = k - be;
+    for (let e = 0; e <= be; e++) for (let h = 0; h <= bh; h++) strategie.push({ k, e, h, fin: K - k + a * e + b * h });
+  }
+  return {
+    nejvic: () => Math.max(...strategie.map(x => x.fin)),
+    // vynechaných kol je sk (koupeno K − sk), lehčí vyšly o d žetonů víc než těžší
+    rozdil: (sk, d) => [...new Set(strategie.filter(x => x.k === K - sk && a * x.e - b * x.h === d).map(x => x.fin))],
+    // nejvíc chybných odpovědí (koupeno − správně) při T žetonech na konci: počty správných lehčích
+    nejChybne: T => { const ok = strategie.filter(x => x.fin === T); if (!ok.length) return [];
+      const w = Math.max(...ok.map(x => x.k - x.e - x.h));
+      return [...new Set(ok.filter(x => x.k - x.e - x.h === w).map(x => x.e))].sort((p, q) => p - q); }
+  };
+};
 const V69 = {
   // ── pozice 6 ──
   'Sud': (t, k) => { const [S] = cisla(t.intro, /Dno sudu má obsah (\d+) cm²/), p = t.parts.find(x => x.key === k).prompt;
@@ -388,9 +407,34 @@ const V69 = {
   'Kruh z výsečí': (t, k) => { const m = t.intro.match(/poloměru (\d+) cm je rozdělen na (dvě|tři|čtyři) shodné bílé[\s\S]*středový úhel (\d+)°/);
     const r = +m[1], n = { dvě: 2, tři: 3, čtyři: 4 }[m[2]], w = +m[3], g = 360 / n - w;
     return k === '7.1' ? w / g : na1(2 * r + w / 360 * 2 * 3.14 * r); },
+  'Hra se žetony': (t, k) => {
+    const [K] = cisla(t.intro, /Vědomostní hra má (\d+) kol/), [nE, nH] = cisla(t.intro, /odpovědět na (\d+) lehčích a na (\d+) těžších/);
+    const [a, b] = cisla(t.intro, /na lehčí otázku získá hráč (\d+) žeton\S*, za správnou odpověď na těžší otázku (\d+) žeton/);
+    const H = hraZetony(K, nE, nH, a, b);
+    if (k === '16.1') return H.nejvic();
+    if (k === '16.2') { const [sk, d] = cisla(t.parts[1].prompt, /vynechal pouze (\d+) \S+ a ve zbývajících kolech získal za odpovědi na lehčí otázky o (\d+) žeton\S* více/);
+      const f = H.rozdil(sk, d); return f.length === 1 ? f[0] : NaN; }
+    const [T] = cisla(t.parts[2].prompt, /na konci hry (\d+) žeton/);
+    return H.nejChybne(T); },
   'Krychle a hranol': (t, k) => { const m = t.intro.match(/s povrchem (\d+) cm²[\s\S]*je o (\S+) delší než hrana šedé krychle/), a = Math.sqrt(m[1] / 6), f = ZLS[m[2]];
     if (!f) throw new Error('zlomek „' + m[2] + '"');
     return k === '7.1' ? a : a * a * (a + a * (1 + f)); },
+  /* Tabulka dvou kol soutěže (M9D/2025): počet s prostředním počtem bodů v 1. kole a průměr 2. kola se čtou Z KRESBY
+     (data-bunka), průměr 1. kola se počítá ze součtu bodů a množina řešení 7.2 PROHLEDÁNÍM všech trojic (x, y, z)
+     s daným součtem bodů — generátor jde po vzorci (0, 3, 7) / (1, 1, 8). */
+  'Soutěž ve vědomostech': (t, k) => {
+    const [lo, c, hi] = cisla(t.intro, /získali jednotliví soutěžící (\d+), (\d+), nebo (\d+) bodů/), [n] = cisla(t.intro, /přihlásilo (\d+) soutěžících/);
+    const bunka = id => cislo(t.svg.match(new RegExp('data-bunka="' + id + '">([^<]+)<'))[1]), kk = bunka('k'), mu2 = bunka('prum');
+    /* Průměr 1. kola i množina řešení 2. kola na počtu kk NEZÁVISÍ (součet bodů vyjde c · n + e při každém kk), takže špatné
+       číslo v tabulce odpověď nezmění — jen z úlohy udělá nesestavitelnou. Proto se hlídá, že se 1. kolo dá sestavit:
+       zbytek n − kk se rozdělí na a + (a + e) s celým a ≥ 1. */
+    const e = /o jednoho méně/.test(t.parts[0].prompt) ? 1 : 2, a = (n - kk - e) / 2;
+    if (!Number.isInteger(a) || a < 1) return k === '7.1' ? NaN : [];
+    if (k === '7.1') return (lo * a + c * kk + hi * (a + e)) / n;
+    const [pt] = cisla(t.parts[1].prompt, /získat (\d+) bodů/), S = Math.round(mu2 * n), res = new Set();
+    for (let x = 0; x <= n; x++) for (let y = 0; x + y <= n; y++) { const z = n - x - y; if (lo * x + c * y + hi * z === S) res.add(pt === lo ? x : pt === c ? y : z); }
+    return [...res];
+  },
   'Dlaždice': (t, k) => { const [a, b] = cisla(t.intro, /o rozměrech (\d+) cm a (\d+) cm/); let s = a; while (s % b) s += a;
     return k === '8.1' ? s : k === '8.2' ? (s / a) * (s / b) - 4 : 4 * s; },
   // ── pozice 9–11: Thaletova kružnice, počet řešení, nepřímá úměrnost ──
@@ -655,6 +699,9 @@ const var69 = Object.keys(V69).length;
    (celkem naměřeno 44 578). Podlahy leží pod tím s rezervou; rozbitý los dá 0. */
 ok(Object.keys(videno69).length === var69 && Object.values(videno69).every(n => n >= 150),
   POPIS69 + ': všech ' + var69 + ' variant se v losu objevuje (podlaha 150×)', JSON.stringify(videno69));
+{ const H = hraZetony(10, 5, 5, 2, 3);      // klíč CERMAT M9D/2026 2. náhr., úloha 16: 25 žetonů, 10 žetonů, „ani jednou; dvakrát“
+  ok(H.nejvic() === 25 && H.rozdil(1, 3).join() === '10' && H.nejChybne(10).join() === '0,2',
+    'hra se žetony: řešič dává klíč ostré úlohy (25; 10; ani jednou a dvakrát)', [H.nejvic(), H.rozdil(1, 3), H.nejChybne(10)].join(' | ')); }
 ok(podul69 > 41000, POPIS69 + ': dopočítáno ' + podul69 + ' podúloh (podlaha 41 000)', 'naměřeno=' + podul69);
 ok(nerozp69.size === 0, POPIS69 + ': každé zadání se dalo přečíst', [...nerozp69].slice(0, 3).join(' | '));
 ok(spatne69.length === 0, POPIS69 + ': odpověď banky se shoduje s dopočtem ze zadání',
