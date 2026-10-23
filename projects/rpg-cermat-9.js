@@ -5330,7 +5330,7 @@
     const { a, b, T, w, reseni, sk, d, e2, h2 } = pick(zetonySady());
     const S = zetonyStrategie(K, nE, nH, a, b);
     const nej = a * nE + b * nH, fin2 = K - (K - sk) + a * e2 + b * h2;
-    const hned = n => (n === 0 ? 'ani jednou' : `${n}×`);
+    const hned = n => ['ani jednou', 'jednou', 'dvakrát', 'třikrát', 'čtyřikrát', 'pětkrát'][n];
     // 16.2: pro každý počet h správných těžších odpovědí musí lehčí dát b·h + d žetonů
     const radky162 = [];
     for (let h = 0; h <= nH; h++) {
