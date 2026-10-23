@@ -39,16 +39,17 @@ const ok=(c,m)=>{ if(c){pass++;console.log('  ✅ '+m);} else {fail++;console.lo
      #12 — u ANO/NE ukazovala L3 „Výsledek: N" (tlačítka říkají ANO/NE) a u výběru
      jen písmeno „D" bez znění volby. */
   const hs = await page.evaluate(() => {
-    const out = { n: 0, sKroky: 0, l2krok: 0, prozradi: [], yn: 0, ynSpatne: [], mc: 0, mcSpatne: [], hygiena: [], hygienaTest: null };
+    const out = { n: 0, sKroky: 0, l2krok: 0, prozradi: [], yn: 0, ynSpatne: [], mc: 0, mcSpatne: [], hygiena: [], hygienaTest: null,
+      nTest: 0, l1krok: 0, l1jiny: new Set(), l1spatny: [], l1prozradi: [] };
     /* Hygiena textu nápověd (matice KONTROLY, B1 + B5): žádné NaN / undefined / [object / Infinity, žádná prázdná úroveň,
-       úrovně se neopakují a žádná desetinná TEČKA mezi číslicemi — kromě odkazu na číslo úlohy („jako v úloze 16.1“). */
+       úrovně se neopakují a žádná desetinná TEČKA mezi číslicemi — kromě odkazu na číslo úlohy („jako v úloze 16.1“, „jako v 16.1“). */
     const hygiena = h => {
       const v = [];
       for (let i = 0; i < 3; i++) {
         const x = String(h[i] == null ? '' : h[i]);
         if (!x.trim()) v.push('L' + (i + 1) + ' je prázdná');
         if (/NaN|undefined|\[object|Infinity/.test(x)) v.push('L' + (i + 1) + ' má NaN/undefined/[object');
-        if (/\d\.\d/.test(x.replace(/úlo(?:h[aeuy]|ze)\s+\d+\.\d+/gi, ''))) v.push('L' + (i + 1) + ' má desetinnou tečku');
+        if (/\d\.\d/.test(x.replace(/(?:úlo(?:h[aeuy]|ze)|(?:^|\s)v)\s+\d+\.\d+/gi, ''))) v.push('L' + (i + 1) + ' má desetinnou tečku');
       }
       if (h[0] === h[1] || h[1] === h[2]) v.push('dvě úrovně jsou shodné');
       return v;
@@ -56,14 +57,27 @@ const ok=(c,m)=>{ if(c){pass++;console.log('  ✅ '+m);} else {fail++;console.lo
     // pravidla samotná: špatné nápovědy je musí chytit, dobré a odkaz na úlohu ne (jinak by „0 nálezů“ nic neznamenalo)
     out.hygienaTest = {
       spatne: [['a', '', 'c'], ['a', 'b', 'NaN'], ['Dosaď 2.5 cm', 'b', 'c'], ['a', 'a', 'c'], ['a', 'b', 'x undefined'], ['a', 'b', '[object Object]']].filter(h => hygiena(h).length === 0).length,
-      dobre: [['a', 'b', 'c'], ['Stejně jako v úloze 16.1', 'Dosaď 2,5 cm', 'Výsledek: 3,75']].filter(h => hygiena(h).length > 0).length
+      dobre: [['a', 'b', 'c'], ['Stejně jako v úloze 16.1', 'Spočítej jako v 16.1 a odečti', 'Výsledek: 3,75']].filter(h => hygiena(h).length > 0).length
     };
     for (const t of PZ_TOPICS.list) for (const lvl of ['zaklad', 'test']) for (let i = 0; i < 40; i++) {
       let it; try { it = PZ_TOPICS.item(t.id, lvl); } catch (e) { continue; }
       if (!it) continue; out.n++;
       const h = PZ.hintsFor(it, t.id), kroky = it.sol ? PZ.solSteps(it.sol) : [];
       hygiena(h).forEach(x => out.hygiena.push(t.id + '/' + lvl + ': ' + x + ' (' + String(h.join(' ‖ ')).slice(0, 70) + ')'));
-      if (kroky.length > 1) { out.sKroky++; if (h[1] === String(kroky[0]).trim()) out.l2krok++; }
+      /* První krok postupu je buď L1 (pojmový: bez „=“, krátký), nebo L2 (výpočetní nebo u ručně psaných nápověd typu) */
+      if (kroky.length > 1) { out.sKroky++; if (h[1] === String(kroky[0]).trim() || h[0] === String(kroky[0]).trim()) out.l2krok++; }
+      if (lvl === 'test') {
+        out.nTest++; out.l1jiny.add(h[0]);
+        if (kroky.some(k => String(k).trim() === h[0])) {
+          out.l1krok++;
+          if (h[0].indexOf('=') >= 0 || h[0].length > 180) out.l1spatny.push(t.id + ': ' + h[0].slice(0, 60));
+          const an = String(it.ans);
+          if (/^-?\d+([.,]\d+)?$/.test(an) && an.replace('-', '').length >= 2) {
+            const rl = new RegExp('(^|[^\\d,.])' + an.replace(/[.,]/, '[.,]').replace('-', '[−-]') + '(?![\\d]|[.,]\\d)');
+            if (rl.test(h[0]) && !rl.test(it.prompt || '') && !rl.test(it.intro || '')) out.l1prozradi.push(t.id + ': ' + h[0].slice(0, 60));
+          }
+        }
+      }
       if (it.type === 'yn') { out.yn++; if (!/^Výsledek: (ANO|NE)$/.test(h[2])) out.ynSpatne.push(h[2]); }
       if (it.type === 'mc') { out.mc++; if (h[2].replace('Výsledek: ', '').length < 4) out.mcSpatne.push(h[2]); }
       const a = String(it.ans);
@@ -72,17 +86,43 @@ const ok=(c,m)=>{ if(c){pass++;console.log('  ✅ '+m);} else {fail++;console.lo
         if (re.test(h[1]) && !re.test(it.prompt || '') && !re.test(it.intro || '')) out.prozradi.push(t.id + ': ' + h[1].slice(0, 60));
       }
     }
+    out.l1jinych = out.l1jiny.size; delete out.l1jiny;
     return out;
   });
   ok(hs.n >= 600, 'nápovědy: proměřeno ' + hs.n + ' úloh všech okruhů (základ i test)');
-  ok(hs.l2krok >= 0.9 * hs.sKroky, 'L2 je první krok vlastního postupu u ' + hs.l2krok + ' z ' + hs.sKroky + ' úloh s postupem (naměřeno 98,7 %, podlaha 90 %)');
+  ok(hs.l2krok >= 0.9 * hs.sKroky, 'první krok vlastního postupu je L1, nebo L2 u ' + hs.l2krok + ' z ' + hs.sKroky + ' úloh s postupem (podlaha 90 %)');
+  ok(hs.l1krok >= 0.6 * hs.nTest, 'úroveň test: L1 je krok vlastního postupu úlohy u ' + hs.l1krok + ' z ' + hs.nTest + ' úloh (dřív 0, obecná L1 podle okruhu; podlaha 60 %)');
+  ok(hs.l1jinych >= 100, 'úroveň test: ' + hs.l1jinych + ' různých L1 z ' + hs.nTest + ' úloh (dřív 10 obecných; podlaha 100)');
+  ok(hs.l1spatny.length === 0, 'L1 z postupu je pojmová (bez „=“, do 180 znaků)' + (hs.l1spatny.length ? ' — ' + hs.l1spatny.slice(0, 3).join(' | ') : ''));
+  ok(hs.l1prozradi.length === 0, 'L1 z postupu neprozradí výsledek' + (hs.l1prozradi.length ? ' — ' + hs.l1prozradi.slice(0, 3).join(' | ') : ''));
   ok(hs.prozradi.length === 0, 'L2 neprozradí výsledek' + (hs.prozradi.length ? ' — ' + hs.prozradi.slice(0, 3).join(' | ') : ''));
   ok(hs.hygienaTest.spatne === 0 && hs.hygienaTest.dobre === 0, 'hygiena nápověd: pravidlo chytí všech 6 špatných nápověd a nechá dobré i odkaz „v úloze 16.1“ (nepropuštěno ' + hs.hygienaTest.spatne + ', planý poplach ' + hs.hygienaTest.dobre + ')');
   ok(hs.hygiena.length === 0, 'hygiena nápověd: bez NaN/undefined, prázdných a shodných úrovní, bez desetinné tečky (' + hs.n + ' úloh)' + (hs.hygiena.length ? ' — ' + hs.hygiena.slice(0, 3).join(' | ') : ''));
+  /* Pravidlo L1/L2 na podvržených úlohách (bez náhody): pojmový první krok → L1, druhý krok → L2; výpočetní první krok
+     zůstává na L2 (L1 obecná); krok s výsledkem se nepoužije; ruční a typové nápovědy mají přednost. */
+  const poZ = await page.evaluate(() => {
+    const H = (it, o) => PZ.hintsFor(it, o);
+    const zaklad = H({ ans: '42', prompt: 'Kolik?', sol: ['Nejdřív zjisti, o co se jedná.', 'Dosaď: 6 · 7 je dost.', 'Hotovo: 42.'] }, 'geometrie');
+    const vypocet = H({ ans: '42', prompt: 'Kolik?', sol: ['Obsah: 6 · 7 = 40 + 2.', 'Dosaď.', 'Hotovo: 42.'] }, 'geometrie');
+    const prozrazuje = H({ ans: '42', prompt: 'Kolik?', sol: ['Je to 42 a tečka.', 'Dosaď.', 'Hotovo.'] }, 'geometrie');
+    const druhyProzrazuje = H({ ans: '42', prompt: 'Kolik?', sol: ['Nejdřív zjisti, o co se jedná.', 'Vyjde 42.', 'Hotovo.'] }, 'geometrie');
+    const rucni = H({ ans: '42', hint1: 'Moje L1', hint2: 'Moje L2', sol: ['Nejdřív zjisti, o co se jedná.', 'Dosaď.', 'Hotovo: 42.'] }, 'geometrie');
+    const typ = H({ ans: '42', _check: { kind: 'obsahObd' }, sol: ['Nejdřív zjisti, o co se jedná.', 'Dosaď.', 'Hotovo: 42.'] }, 'geometrie');
+    const dvaKroky = H({ ans: '42', sol: ['Nejdřív zjisti, o co se jedná.', 'Hotovo: 42.'] }, 'geometrie');
+    return { zaklad, vypocet, prozrazuje, druhyProzrazuje, rucni, typ, dvaKroky, gen: PZ.hintsFor({ ans: '1' }, 'geometrie') };
+  });
+  const gen0 = poZ.gen[0], gen1 = poZ.gen[1];
+  ok(poZ.zaklad[0] === 'Nejdřív zjisti, o co se jedná.' && poZ.zaklad[1] === 'Dosaď: 6 · 7 je dost.', 'pojmový první krok je L1, druhý krok je L2');
+  ok(poZ.vypocet[0] === gen0 && poZ.vypocet[1] === 'Obsah: 6 · 7 = 40 + 2.', 'výpočetní první krok („=“) zůstává na L2, L1 je obecná podle okruhu');
+  ok(poZ.prozrazuje[0] === gen0 && poZ.prozrazuje[1] === gen1, 'krok s výsledkem se nepoužije ani jako L1, ani jako L2');
+  ok(poZ.druhyProzrazuje[0] === 'Nejdřív zjisti, o co se jedná.' && poZ.druhyProzrazuje[1] === gen1, 'druhý krok s výsledkem se jako L2 nepoužije (L2 obecná)');
+  ok(poZ.rucni[0] === 'Moje L1' && poZ.rucni[1] === 'Moje L2', 'ruční nápovědy generátoru mají přednost');
+  ok(poZ.typ[0] !== 'Nejdřív zjisti, o co se jedná.' && poZ.typ[0] === 'Obsah obdélníku je součin stran.', 'nápověda pro TYP úlohy („základ“) má přednost před kroky postupu');
+  ok(poZ.dvaKroky[0] === 'Nejdřív zjisti, o co se jedná.' && poZ.dvaKroky[1] === gen1, 'postup o dvou krocích: první je L1, L2 obecná (druhý krok je závěr)');
   // v bance první krok výsledek neprozrazuje nikde — pojistku proto ověř na podvržené úloze
   const umela = await page.evaluate(() => [PZ.hintsFor({ ans: '42', prompt: 'Kolik?', sol: ['Obsah je 6 · 7 = 42 cm².', 'Hotovo.'] }, 'geometrie')[1],
     PZ.hintsFor({ ans: '42', prompt: 'Kolik?', sol: ['Obsah obdélníku je a · b.', 'S = 6 · 7 = 42 cm².'] }, 'geometrie')[1]]);
-  ok(!/42/.test(umela[0]) && umela[1] === 'Obsah obdélníku je a · b.', 'krok s výsledkem se jako L2 nepoužije, krok bez něj ano (' + umela.map(x => '„' + x.slice(0, 30) + '“').join(' / ') + ')');
+  ok(!/42/.test(umela[0]) && !/42/.test(umela[1]), 'krok s výsledkem se jako L2 nepoužije (' + umela.map(x => '„' + x.slice(0, 30) + '“').join(' / ') + ')');
   ok(hs.yn > 0 && hs.ynSpatne.length === 0, 'ANO/NE: L3 říká „ANO" nebo „NE" (' + hs.yn + ' úloh)' + (hs.ynSpatne.length ? ' — ' + hs.ynSpatne.slice(0, 3).join(' | ') : ''));
   ok(hs.mc > 0 && hs.mcSpatne.length === 0, 'výběr: L3 ukáže celé znění volby, ne jen písmeno (' + hs.mc + ' úloh)' + (hs.mcSpatne.length ? ' — ' + hs.mcSpatne.slice(0, 3).join(' | ') : ''));
 

@@ -712,15 +712,18 @@
     if (it && it.type === 'yn') return v === 'A' ? 'ANO' : v === 'N' ? 'NE' : String(v);
     return czNum(v);
   }
-  /* L2 = první krok VLASTNÍHO postupu úlohy, když neprozradí výsledek. Dřív byly
-     L1 i L2 obecné podle okruhu („Rozepiš si výpočet krok za krokem."), zatímco
-     v RPG je nápověda k úloze. Krok, ve kterém už stojí výsledek, se přeskočí
-     (L2 nesmí udělat práci L3) — pak zůstane obecná nápověda. */
-  function prvniKrok(item) {
+  /* Nápověda = krok VLASTNÍHO postupu úlohy, ale jen takový, který nedělá práci L3: krok, ve kterém už stojí
+     výsledek, se přeskočí. Poslední krok postupu je vždy závěr s výsledkem, proto se nikdy nebere. Dřív byly L1 i L2
+     obecné podle okruhu („Rozepiš si výpočet krok za krokem.“), zatímco v RPG je nápověda k úloze; od #9 (5. 10. 2026)
+     je L2 první krok postupu. Obecná L1 byla u úloh testu navíc často MIMO téma („Sklenice“ — násobky počtu —
+     dostala „Převeď procenta na díl“, kruhový diagram dostal „průměr, medián, modus“), proto od 23. 10. 2026
+     bere L1 první krok, pokud je POJMOVÝ (viz hintsFor), a L2 druhý. Titul úlohy k tomu nestačí: pod jedním titulem
+     („Kolik procent“, „Věk“, „Číselný výraz“) je 3–33 různých zadání. */
+  function krokNapovedy(item, i) {
     if (!item || !item.sol) return '';
     const kroky = solSteps(item.sol);
-    if (kroky.length < 2) return '';                 // jediný krok = celé řešení
-    const k = String(kroky[0] || '').trim();
+    if (kroky.length < i + 2) return '';             // poslední krok = celé řešení
+    const k = String(kroky[i] || '').trim();
     if (!k || k.length > 220) return '';
     const vys = [odpovedText(item)].concat(item.type === 'mc' ? [] : [String(item.ans)])
       .map(x => String(x).replace(/^[A-F]\)\s*/, '').trim()).filter(x => x && x.length < 30);
@@ -728,13 +731,19 @@
     const prozradi = cisla.some(c => new RegExp('(^|[^\\d,.])' + c.replace(/[.,]/, '[.,]').replace('-', '[−-]') + '(?![\\d]|[.,]\\d)').test(k));
     return prozradi ? '' : k;
   }
+  const prvniKrok = item => krokNapovedy(item, 0);
+  /* POJMOVÝ krok vysvětluje, co si uvědomit („Kdo má kratší krok, musí jich udělat víc“), a nepočítá: bez „=“ a krátký.
+     Výpočetní krok („40 · 40 = 1600 m²“) jako první nápověda prozrazuje moc, ten zůstává až na L2 jako dřív. */
+  const jePojmovy = k => !!k && k.indexOf('=') < 0 && k.length <= 180;
   function hintsFor(item, topicId) {
     const th = TOPIC_HINTS[topicId] || ['Zkus si vzpomenout na postup pro tento typ úlohy.', 'Rozepiš si výpočet krok za krokem.'];
-    // priorita: vlastní hint generátoru → první krok postupu → nápověda pro TYP úlohy → baseline okruhu
+    // priorita: vlastní hint generátoru → nápověda pro TYP úlohy (jen „základ“) → kroky postupu → baseline okruhu
     const kind = item && item._check && item._check.kind;
     const kh = (kind && KIND_HINTS[kind]) || null;
-    const l1 = (item && item.hint1) || (kh && kh[0]) || th[0];
-    const l2 = (item && item.hint2) || prvniKrok(item) || (kh && kh[1]) || th[1];
+    const k0 = prvniKrok(item);
+    const zPostupu = !(item && item.hint1) && !kh && jePojmovy(k0);   // L1 = pojmový první krok, L2 = druhý
+    const l1 = (item && item.hint1) || (kh && kh[0]) || (zPostupu ? k0 : th[0]);
+    const l2 = (item && item.hint2) || (zPostupu ? (krokNapovedy(item, 1) || th[1]) : (k0 || (kh && kh[1]) || th[1]));
     const l3 = 'Výsledek: ' + (item && item.ans != null ? odpovedText(item) : '');
     return [l1, l2, l3];
   }
