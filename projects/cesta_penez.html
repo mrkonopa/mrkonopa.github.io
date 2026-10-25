@@ -669,7 +669,10 @@ function setLang(l) {
   const active = document.querySelector('.screen.active')?.id;
   if (active === 'intro') buildIntro();
   else if (active === 'hub') { renderHub(); }
-  else if (active === 'act') renderScene();
+  else if (active === 'act') {
+    // po poslední scéně je sceneIdx == počet scén: na obrazovce stojí „Kapitola hotová“, ne scéna (renderScene by tu spadla na s.build)
+    if (sceneIdx >= activeAct.scenes.length) showActComplete(); else renderScene();
+  }
   else if (active === 'result') buildResult();
 }
 
