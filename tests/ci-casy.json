@@ -91,6 +91,7 @@
     "prijimacky-nahodny-pruchod.test.cjs": 119,
     "stranky-nahodny-pruchod.test.cjs": 158,
     "cesta-penez-jazyk.test.cjs": 2,
+    "pevne-mezery-stranky.test.cjs": 5,
     "rpg-1stupen-console.test.cjs": 5,
     "rpg-ach.test.cjs": 4,
     "rpg-answer-parity.test.cjs": 2,
