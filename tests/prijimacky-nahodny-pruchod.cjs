@@ -56,7 +56,7 @@ const VE_STRANCE = `(function () {
     if (!document.body) return [];
     return [...document.querySelectorAll(SEL)].filter(el => {
       if (!viditelny(el) || el.disabled) return false;
-      if (el.tagName === 'A') { const h = el.getAttribute('href') || ''; let p = ''; try { p = new URL(el.href).pathname; } catch (e) {} if (/^(mailto:|tel:|#?$)/.test(h) || p.indexOf('/projects/prijimacky-matematika/') !== 0 || p.indexOf('/pdfs/') >= 0 || /\\.pdf$/i.test(p) || el.hasAttribute('download') || el.target === '_blank') return false; }
+      if (el.tagName === 'A') { const h = el.getAttribute('href') || ''; let p = ''; try { p = new URL(el.href).pathname; } catch (e) {} if (/^(mailto:|tel:|#?$)/.test(h) || p.indexOf(window.__SEKCE || '/projects/prijimacky-matematika/') !== 0 || p.indexOf('/pdfs/') >= 0 || /\\.pdf$/i.test(p) || el.hasAttribute('download') || el.target === '_blank') return false; }
       if (el.tagName === 'INPUT' && /^(hidden|file|password)$/.test(el.type)) return false;
       return true;
     });
@@ -85,7 +85,7 @@ const VE_STRANCE = `(function () {
   };
 })();`;
 
-async function projdi({ base, stranka, rozmer, semeno, kroku, chyba }) {
+async function projdi({ base, stranka, rozmer, semeno, kroku, url, sekce }) {   // url (např. '/projects/cesta_penez.html') a sekce (předpona povolených odkazů) pro jiné stránky než přijímačky
   const [W, H] = ROZMERY[rozmer], rnd = mulberry32(semeno), nalezy = [], zaznam = [], stat = { kroku: 0, tuku: 0, poli: 0, vyberu: 0, obrazovky: new Set() };
   const nalez = (krok, co) => { if (nalezy.length < 12 && !nalezy.some(n => n.co === co)) nalezy.push({ stranka, rozmer, semeno, krok, co }); };
   const browser = await chromium.launch({ headless: true, executablePath: EXEC });
@@ -96,6 +96,7 @@ async function projdi({ base, stranka, rozmer, semeno, kroku, chyba }) {
     Math.random = function () { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
   }, semeno);
   await ctx.addInitScript('window.__SIRKA = ' + W + ';');
+  await ctx.addInitScript('window.__SEKCE = ' + JSON.stringify(sekce || DIR) + ';');
   await ctx.addInitScript(VE_STRANCE);                                    // znovu po každém přechodu na jinou stránku (odkaz, reload)
   const page = await ctx.newPage();
   let krok = 0;
@@ -109,7 +110,7 @@ async function projdi({ base, stranka, rozmer, semeno, kroku, chyba }) {
       catch (e) { if (!/Execution context was destroyed|navigation|Target closed/.test(e.message) || pokus === 2) throw e; await page.waitForLoadState('domcontentloaded').catch(() => {}); }
     }
   };
-  const nacti = async () => { await page.goto(base + DIR + STRANKY[stranka], { waitUntil: 'domcontentloaded' }); };
+  const nacti = async () => { await page.goto(base + (url || DIR + STRANKY[stranka]), { waitUntil: 'domcontentloaded' }); };
   try {
     await nacti();
     for (krok = 1; krok <= kroku; krok++) {
