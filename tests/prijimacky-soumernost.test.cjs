@@ -338,7 +338,7 @@ sabotaze.forEach(([popis, hledej, nahrad]) => {
 /* ── 5. Sabotáže úrovně základ ──────────────────────────────────── */
 [
   ['osa základu smí být i šikmá', "const t = zakl ? pick(['sv', 'vo']) :", "const t = zakl ? pick(['sv', 'vo', 'd', 'a']) :"],
-  ['A/N má obrácenou odpověď', "ans: souměrný ? 'A' : 'N',", "ans: souměrný ? 'N' : 'A',"],
+  ['A/N má obrácenou odpověď', "ans: souměrný ? 'A' : 'N',\n        hint1: 'Útvar je souměrný, když každý čtverec", "ans: souměrný ? 'N' : 'A',\n        hint1: 'Útvar je souměrný, když každý čtverec"],
   ['„odeber čtverec“ odpovídá jiný čtverec', "type: 'text', ans: String(u.X),", "type: 'text', ans: String(u.X === 1 ? 2 : u.X - 1),"],
   ['na obrázku základu jsou dva útvary', 'svg: svgUtvary([u]), type: \'yn\'', 'svg: svgUtvary([u, u]), type: \'yn\''],
   ['útvary základu jsou velké jako v testu', 'zakladSoum([o], zakl ? ri(5, 7) : ri(6, 11))', 'zakladSoum([o], zakl ? ri(9, 11) : ri(6, 11))'],

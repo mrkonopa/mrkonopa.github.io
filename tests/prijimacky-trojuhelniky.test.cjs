@@ -37,6 +37,14 @@ const T = require('./trojuhelniky-sit.cjs');
 const SMER = { 0: 'vodorovná', 90: 'svislá' };                    // ostatní směry jsou „šikmá“
 const smerSlovem = uhel => SMER[uhel] || 'šikmá';
 
+/* Čísla v kroku postupu čte dítě: dvojice jdou podle menšího čísla vzestupně (každá „a ↔ b“ má a < b) a trojúhelníky na ose
+   vzestupně — dřív stály v pořadí prvků útvaru („Na ose leží trojúhelníky 6, 3 a 1“). */
+function poradiVKroku(krok) {
+  const pary = [...krok.matchAll(/(\d+) ↔ (\d+)/g)].map(m => [+m[1], +m[2]]);
+  const naOse = /Na ose leží trojúhelníky? ([^.]+)\./.exec(krok), cisla = naOse ? naOse[1].match(/\d+/g).map(Number) : [];
+  return pary.every(([p, q], i) => p < q && (!i || pary[i - 1][0] < p)) && cisla.every((c, i) => !i || cisla[i - 1] < c);
+}
+
 function zkontroluj(C, N) {
   const chyby = [], st = { n: 0, vyjimek: 0, kose: [0, 0, 0, 0, 0], obaKrajni: 0, smery: { vodorovná: 0, svislá: 0, šikmá: 0 }, velikosti: new Set() };
   const chyba = m => { if (chyby.length < 8 && !chyby.includes(m)) chyby.push(m); };
@@ -86,6 +94,7 @@ function zkontroluj(C, N) {
         if (i === 0) {
           const krok = part.sol.find(k => new RegExp('^Po odebrání trojúhelníku ' + n + ' vychází').test(k));
           if (!krok) { chyba('postup 8.1: chybí krok pro řešení ' + n); return; }
+          if (!poradiVKroku(krok)) chyba('postup 8.1: dvojice nebo trojúhelníky na ose nejsou vzestupně (' + krok.slice(0, 120) + ')');
           const osy = T.osyTr(T.bez(b, n)), m = /vychází (vodorovná|svislá|šikmá) osa/.exec(krok);
           // dvojice protějšků z kroku musí být dvojicemi podle NĚJAKÉ osy a slovo směru musí patřit téže ose
           const sedi = osy.some(o => T.paryPodle(T.bez(b, n), o.f, -1).pary === T.paryZTextu(krok) && m && smerSlovem(o.uhel) === m[1]);
@@ -94,6 +103,7 @@ function zkontroluj(C, N) {
         } else {
           const krok = part.sol.find(k => new RegExp('^Přesuneme-li trojúhelník ' + n + ' na místo protějšku').test(k));
           if (!krok) { chyba('postup 8.2: chybí krok pro řešení ' + n); return; }
+          if (!poradiVKroku(krok)) chyba('postup 8.2: dvojice nejsou vzestupně (' + krok.slice(0, 120) + ')');
           const m = /protějšku trojúhelníku (\d+),/.exec(krok), mm = m && +m[1];
           const cile = T.cilePresunuti(b, prazdne.C, n);
           // zbylé dvojice musí být dvojicemi podle středu vzniklého útvaru (bez trojúhelníku mm, jehož protějškem je přesunutý)
@@ -145,6 +155,7 @@ ok(Math.min(...S.kose) / kS >= 0.07, 'čísla obou řešení jsou v útvaru na z
 
 /* ── Sabotáže: každá pojistka musí něco chytit ── */
 const sabotaze = [
+  ['dvojice a trojúhelníky na ose v postupu nejsou seřazené', "pary: pary.sort((p, q) => p[0] - q[0]).map(([n, m]) => `${n} ↔ ${m}`).join(', '), naOse: naOse.sort((p, q) => p - q) };", "pary: pary.map(([n, m]) => `${n} ↔ ${m}`).join(', '), naOse };"],
   ['druhé řešení části 8.1 v bance je jiný trojúhelník', "reseni: rB.map(String), sol: osaTxt", "reseni: rB.map((x, i) => String(i ? (x === 1 ? 2 : x - 1) : x)), sol: osaTxt"],
   ['řešič zná jen dvě zrcadla (vodorovné a svislé)', 'const TR_ODRAZ = [0, 1, 2, 3, 4, 5].map(', 'const TR_ODRAZ = [0, 3, 0, 3, 0, 3].map('],
   ['čísla trojúhelníků jdou od dolní řady', 'const radek = c => c.j, sloupec', 'const radek = c => -c.j, sloupec'],
