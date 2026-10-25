@@ -40,6 +40,8 @@ const PRIPADY = [
   ['Délka 12 cm', 'Délka 12\u00A0cm'], ['sleva 25 %', 'sleva 25\u00A0%'], ['rychlost 5 km/h', 'rychlost 5\u00A0km/h'], ['3 m²', '3\u00A0m²'],
   ['500 Kč', '500\u00A0Kč'], ['x = -3 m', 'x = −3\u00A0m'], ['2,5 kg', '2,5\u00A0kg'], ['40 min', '40\u00A0min'], ['7 l', '7\u00A0l'],
   ['3 minuty', '3 minuty'], ['2 s kamarádem', '2 s kamarádem'], ['5 metrů', '5 metrů'], ['4 hodiny', '4 hodiny'], ['3 listy', '3 listy'],
+  // tisícové skupiny: pevná mezera uvnitř čísla; čtyřmístné číslo před skupinou a desetinná část ne
+  ['12 000 Kč', '12\u00A0000\u00A0Kč'], ['1 000 000', '1\u00A0000\u00A0000'], ['Kolik je 2 × 15 000?', 'Kolik je 2 × 15\u00A0000?'], ['2023 100', '2023 100'], ['0,5 000', '0,5 000'], ['3 a 100', '3 a 100'],
 ];
 const spatne = PRIPADY.filter(([z, c]) => zapis(z) !== c).map(([z, c]) => JSON.stringify(z) + ' → ' + JSON.stringify(zapis(z)) + ' (čekáno ' + JSON.stringify(c) + ')');
 ok(spatne.length === 0, 'zapis(): minus, mocniny a spojovník, který znaménkem není (' + PRIPADY.length + ' případů)' + (spatne.length ? ' — ' + spatne.join(' | ') : ''));
@@ -49,11 +51,12 @@ ok(czMC('-2.5') === '−2,5' && czTxt('x = -1.5') === 'x = −1,5', 'czMC a czTx
 const MINUS = /(^|[\s(\[=:;,+×·*\/−])-(?=\d)/, STRISKA = /\^/;
 const JEDN = '(?:cm|dm|mm|km|kg|dkg|mg|ml|dl|hl|Kč|min|hod|[mglht]|%)';
 const JEDN_OBYC = new RegExp('\\d ' + JEDN + '(?![\\p{L}\\d])', 'u'), JEDN_PEVNA = new RegExp('\\d\u00A0' + JEDN + '(?![\\p{L}\\d])', 'gu');
-let pevnych = 0;
+let pevnych = 0, tisicu = 0;
+const TIS_OBYC = /(^|[^\d,.])\d{1,3}(?: \d{3})+(?!\d)/, TIS_PEVNA = /(^|[^\d,.])\d{1,3}(?:\u00A0\d{3})+(?!\d)/g;
 const zakl = { ri: (a, b) => Math.floor(Math.random() * (b - a + 1)) + a, pick: a => a[Math.floor(Math.random() * a.length)],
   gcd: function g(a, b) { return b ? g(b, a % b) : Math.abs(a); }, cz: n => String(n).replace('.', ','), skl: (n, o, f, m) => (n === 1 ? o : (n >= 2 && n <= 4 ? f : m)),
   shuffleArr: a => a, countDiv: () => 1, r1: x => Math.round(x * 10) / 10, r2: x => Math.round(x * 100) / 100 };
-let uloh = 0; const vady = [], vadyJ = [];
+let uloh = 0; const vady = [], vadyJ = [], vadyT = [];
 for (const g of [3, 4, 5, 6, 7, 8, 9]) {
   const src = fs.readFileSync(path.join(ROOT, 'projects/rpg-tasks-' + g + '.js'), 'utf8');
   const svgJmena = [...new Set(src.match(/\bsvg[A-Z]\w*/g) || [])];
@@ -72,6 +75,8 @@ for (const g of [3, 4, 5, 6, 7, 8, 9]) {
     const casti = [['zadání', zapis(t.text)], ['odpověď', czMC(t.ans)], ...(t.hints || []).map(h => ['nápověda', czTxt(h)])];
     for (const [co, s] of casti) {
       pevnych += (s.match(JEDN_PEVNA) || []).length;
+      tisicu += (s.match(TIS_PEVNA) || []).length;
+      if (TIS_OBYC.test(s)) { if (vadyT.length < 5) vadyT.push(g + '/' + mid + ' ' + co + ': ' + JSON.stringify(s.slice(0, 60))); else vadyT.length++; }
       if (JEDN_OBYC.test(s)) { if (vadyJ.length < 5) vadyJ.push(g + '/' + mid + ' ' + co + ': ' + JSON.stringify(s.slice(0, 60))); else vadyJ.length++; }
     }
     for (const [co, s] of casti) if (MINUS.test(s) || STRISKA.test(s)) { if (vady.length < 5) vady.push(g + '/' + mid + ' ' + co + ': ' + JSON.stringify(s.slice(0, 60))); else vady.length++; }
@@ -81,6 +86,8 @@ ok(uloh > 30000, 'proměřeno ' + uloh + ' úloh z bank 3.–9. ročníku (podla
 ok(vady.length === 0, 'po zobrazení nezbyl spojovník jako minus ani stříška (zadání, odpověď, nápověda)' + (vady.length ? ' — ' + vady.length + '×: ' + vady.slice(0, 5).join(' | ') : ''));
 ok(vadyJ.length === 0, 'po zobrazení nezbylo „číslo jednotka“ s obyčejnou mezerou (zadání, odpověď, nápověda)' + (vadyJ.length ? ' — ' + vadyJ.length + '×: ' + vadyJ.slice(0, 5).join(' | ') : ''));
 ok(pevnych > 60000, 'pravidlo pevné mezery se v bankách skutečně uplatnilo: ' + pevnych + '× (naměřeno 66 280 shodně ve 3 bězích, podlaha 60 000)');
+ok(vadyT.length === 0, 'po zobrazení nezbyla tisícová skupina s obyčejnou mezerou (zadání, odpověď, nápověda)' + (vadyT.length ? ' — ' + vadyT.length + '×: ' + vadyT.slice(0, 5).join(' | ') : ''));
+ok(tisicu > 500, 'pravidlo tisícových skupin se v bankách skutečně uplatnilo: ' + tisicu + '× (naměřeno 629–635 ve 3 bězích, podlaha 500)');
 
 // ── 3) boj, trénink a věž opravdu zobrazují přes zapis() ─────────────────
 const MIME = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.svg': 'image/svg+xml' };

@@ -599,7 +599,7 @@ function stopTimer(){if(BT.timer){clearInterval(BT.timer);BT.timer=null;}}
    Seznam jednotek je stejný jako v přijímačkách (PZ.typo); „s“ v něm schválně není (předložka). */
 // mapa uvnitř funkce: deklarace funkce se vytáhne nahoru, const ne — volání před
 // řádkem s mapou (načítání modulu, izolovaný test) by jinak spadlo na „before initialization"
-function zapis(s){const H={0:'⁰',1:'¹',2:'²',3:'³',4:'⁴',5:'⁵',6:'⁶',7:'⁷',8:'⁸',9:'⁹','-':'⁻','−':'⁻',n:'ⁿ'},h=e=>[...e].map(c=>H[c]).join('');return String(s).replace(/\^\(([−-]?\d+)\)/g,(_,e)=>h(e)).replace(/\^([−-]?\d+|n)(?![\w])/g,(_,e)=>h(e)).replace(/(^|[\s(\[=:;,+×·*\/−])-(?=\d)/g,'$1−').replace(/(\d) (cm|dm|mm|km|kg|dkg|mg|ml|dl|hl|Kč|min|hod|[mglht]|%)(?![\p{L}\d])/gu,'$1\u00A0$2');}
+function zapis(s){const H={0:'⁰',1:'¹',2:'²',3:'³',4:'⁴',5:'⁵',6:'⁶',7:'⁷',8:'⁸',9:'⁹','-':'⁻','−':'⁻',n:'ⁿ'},h=e=>[...e].map(c=>H[c]).join('');return String(s).replace(/\^\(([−-]?\d+)\)/g,(_,e)=>h(e)).replace(/\^([−-]?\d+|n)(?![\w])/g,(_,e)=>h(e)).replace(/(^|[\s(\[=:;,+×·*\/−])-(?=\d)/g,'$1−').replace(/(\d) (cm|dm|mm|km|kg|dkg|mg|ml|dl|hl|Kč|min|hod|[mglht]|%)(?![\p{L}\d])/gu,'$1\u00A0$2').replace(/(^|[^\d,.])(\d{1,3}(?: \d{3})+)(?!\d)/g,(_,p,k)=>p+k.replace(/ /g,'\u00A0'));}
 function czTxt(t){return zapis(String(t).replace(/(\d)\.(\d)/g,'$1,$2'));}
 function czMC(x){return zapis(String(x).replace(/(\d)\.(\d)/g,'$1,$2'));}
 /* Teorie (#learn-content) je HTML psané rukou, ne text úlohy: pevná mezera u jednotek se tam dělá nad
