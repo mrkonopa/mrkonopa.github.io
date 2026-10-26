@@ -53,7 +53,7 @@ function popisOsyGeom(o) {
 /* ── Hlavní kontrola nad jednou bankou (původní, nebo sabotovanou) ── */
 function zkontroluj(C, N8, N11) {
   const chyby = [], st = {
-    utvaru: 0, ukol8: 0, ukol11: 0, vyjimek: 0, rodiny: { sv: 0, vo: 0, d: 0, a: 0 }, p1: 0, p2: 0, p3: 0, dveOsy: 0, obaKrajni: 0, kose11: [0, 0, 0, 0, 0],
+    utvaru: 0, ukol8: 0, ukol11: 0, vyjimek: 0, rodiny: { sv: 0, vo: 0, d: 0, a: 0 }, p1: 0, p2: 0, p3: 0, dveOsy: 0, obaKrajni: 0,
     velikosti: new Set(), kose: [0, 0, 0, 0, 0]
   };
   const chyba = m => { if (chyby.length < 8 && !chyby.includes(m)) chyby.push(m); };
@@ -160,7 +160,6 @@ function zkontroluj(C, N8, N11) {
     if (pr2) st.p2++;
     if (m2 && !u.B.some(c => c.n === N)) chyba('11.2: čtverec ' + N + ' v útvaru B není');
     const rB = reseniOdebrani(u.B);
-    if (rB.length === 1) st.kose11[Math.min(4, Math.floor((rB[0] - 1) / u.B.length * 5))]++;      // 11.2: čtverec bez protějšku v útvaru B
     if (!pr2) {
       const m = /by vznikl odebráním čtverce (\d+), ne čtverce (\d+)/.exec(s2.sol[2]);
       if (!m || rB.length !== 1 || +m[1] !== rB[0] || +m[2] !== N) chyba('11.2 postup: souměrný útvar vznikne odebráním ' + rB.join(',') + ', v textu ' + (m && m[1] + '/' + m[2]));
@@ -240,8 +239,30 @@ function zkontrolujZaklad(C, N) {
   return st;
 }
 
+/* Poloha čtverce bez protějšku v útvaru B (11.2) v pořadí čísel — samostatná LEVNÁ smyčka (0,6 s na 300 úloh proti ~33 s,
+   které stojí úplné ověření postupů), proto jí jde dát vzorek, na kterém je pozorované rozložení spolehlivé.
+   Úplné ověření tu stejně nic nepřidá: poloha vychází z generátoru útvaru, ne z postupu. Útvar se čte z KRESBY,
+   řešení dopočte nezávislý řešič (jako všude jinde v tomhle testu). */
+function polohaOdebraneho(C, N) {
+  const kose = [0, 0, 0, 0, 0]; let n = 0, g = 0;
+  while (n < N && g++ < N * 60) {
+    const t = C.genSlot(10);
+    if (t.title !== T11) continue;
+    const B = ctiUtvary(t.svg).B, r = reseniOdebrani(B);
+    if (r.length === 1) { kose[Math.min(4, Math.floor((r[0] - 1) / B.length * 5))]++; n++; }
+  }
+  return { n, kose, kraj: n ? (kose[0] + kose[4]) / n : 0, nejmensi: n ? Math.min(...kose) / n : 0 };
+}
+
 console.log('\n── Test nanečisto: osová souměrnost ve čtvercové síti ──\n');
 
+/* Rozložení polohy čtverce bez protějšku v 11.2 (součet první a poslední pětiny pořadí). Naměřeno 20 běhů po 2 000 úlohách:
+   skutečná banka 44,9–48,8 % (průměr 46,8 %), banka, která ho bere z kandidátů bez vyrovnání pětin, 57,6–61,1 % (59,0 %).
+   Strop 53 % leží uprostřed mezi průměry; směrodatná odchylka vzorku 2 000 je 1,1 bodu, takže obě strany jsou 5 odchylek daleko.
+   Dřív to hlídala nejmenší pětina při 300 úlohách (práh 14 %): sabotáž chytila jen ve 36 ze 40 běhů a skutečná banka by
+   při 800 úlohách občas spadla — nejmenší z pěti čísel s šumem klesá pod své střední. Spodní hranice jedné pětiny (10 %,
+   naměřené minimum 15,7 %) hlídá, aby se některá pětina nepoužívala vůbec. */
+const N_POLOHA = 2000, HORNI_KRAJ = 0.53, SPODNI_PETINA = 0.10;
 /* ── 1. Hlavní kontrola nad skutečnou bankou ───────────────────── */
 const C = nactiBanku(ZDROJ);
 const N8 = 800, N11 = 800;
@@ -268,8 +289,9 @@ ok(S.velikosti.size >= 6, 'velikosti útvarů se liší (' + [...S.velikosti].so
    obrazu čtverce končí dřív než poslední řádek). Podlaha 7 % leží pod nejnižší pětinou s rezervou
    3 body a nad sabotáží bez vylučování. */
 const kSoucet = S.kose.reduce((a, b) => a + b, 0);
-const k11 = S.kose11.reduce((a, b) => a + b, 0);
-ok(Math.min(...S.kose11) / k11 >= 0.14, 'čtverec bez protějšku v útvaru B (11.2) je na začátku i na konci (pětiny: ' + S.kose11.map(k => (k / k11 * 100).toFixed(0) + ' %').join(' / ') + ')');
+const P = polohaOdebraneho(C, N_POLOHA);
+ok(P.n >= N_POLOHA * 0.99 && P.kraj <= HORNI_KRAJ && P.nejmensi >= SPODNI_PETINA,
+  'čtverec bez protějšku v útvaru B (11.2) není první nebo poslední častěji, než kolik dává náhoda (krajní pětiny ' + (P.kraj * 100).toFixed(0) + ' %, strop ' + (HORNI_KRAJ * 100).toFixed(0) + ' %; pětiny: ' + P.kose.map(k => (k / P.n * 100).toFixed(0) + ' %').join(' / ') + ')');
 ok(S.obaKrajni === 0, 'řešení části 8.1 ani 8.2 nejsou zároveň první a poslední číslo útvaru (' + S.obaKrajni + ' částí)');
 ok(Math.min(...S.kose) / kSoucet >= 0.07, 'čísla obou řešení jsou v útvaru na začátku i na konci (pětiny: ' + S.kose.map(k => (k / kSoucet * 100).toFixed(0) + ' %').join(' / ') + ')');
 
@@ -318,18 +340,23 @@ const sabotaze = [
   ['čtverce se číslují zdola nahoru', '.sort((p, q) => p[1] - q[1] || p[0] - q[0]);\n    const cisla', '.sort((p, q) => q[1] - p[1] || p[0] - q[0]);\n    const cisla'],
   ['útvar C má jiný počet os, než tvrdí postup', 'const pocetC = p3 ? k : 3 - k, C = utvarSOsami(pocetC);', 'const pocetC = p3 ? k : 3 - k, C = utvarSOsami(pocetC === 1 ? 2 : 1);'],
   ['nepravdivé 11.2 odebírá správný čtverec', 'let N = B.X;\n    if (!p2) {', 'let N = B.X;\n    if (false) {'],
-  ['odebíraný čtverec je nejčastěji první nebo poslední', 'const X = pick(vPeti), F = S.concat([X]);', 'const X = pick(kand), F = S.concat([X]);'],
+  ['odebíraný čtverec je nejčastěji první nebo poslední', 'const X = pick(vPeti), F = S.concat([X]);', 'const X = pick(kand), F = S.concat([X]);', 'poloha'],
   ['11.1 má obrácenou pravdivost', 'tvrzeni(`Útvar A je osově souměrný.`, p1, p1', 'tvrzeni(`Útvar A je osově souměrný.`, !p1, p1']
 ];
-sabotaze.forEach(([popis, hledej, nahrad]) => {
+sabotaze.forEach(([popis, hledej, nahrad, jen]) => {
   const pocet = ZDROJ.split(hledej).length - 1;
   ok(pocet === 1, 'sabotáž „' + popis + '“ se aplikovala (' + pocet + '× nalezeno)');
   if (pocet !== 1) return;
+  if (jen === 'poloha') {   // chytá ji jen rozložení polohy čtverce (11.2), ostatní kontroly o ní nic nevědí
+    const Ps = polohaOdebraneho(nactiBanku(ZDROJ.replace(hledej, () => nahrad)), N_POLOHA);
+    ok(Ps.kraj > HORNI_KRAJ, 'sabotáž „' + popis + '“ je chycena (krajní pětiny ' + (Ps.kraj * 100).toFixed(0) + ' % nad stropem ' + (HORNI_KRAJ * 100).toFixed(0) + ' %)', 'test prošel i nad rozbitou bankou');
+    return;
+  }
   let vysl;
   try { vysl = zkontroluj(nactiBanku(ZDROJ.replace(hledej, () => nahrad)), 300, 300); }
-  catch (e) { vysl = { chyby: ['pád: ' + e.message], ukol8: 0, ukol11: 0, vyjimek: 1, rodiny: { sv: 0, vo: 0, d: 0, a: 0 }, kose: [1, 1, 1, 1, 1], obaKrajni: 0, kose11: [1, 1, 1, 1, 1] }; }
+  catch (e) { vysl = { chyby: ['pád: ' + e.message], ukol8: 0, ukol11: 0, vyjimek: 1, rodiny: { sv: 0, vo: 0, d: 0, a: 0 }, kose: [1, 1, 1, 1, 1], obaKrajni: 0 }; }
   const s = vysl.rodiny, sou = s.sv + s.vo + s.d + s.a;
-  const kSou = vysl.kose.reduce((a, b) => a + b, 0), k11s = (vysl.kose11 || [1]).reduce((a, b) => a + b, 0), nerovn = kSou > 0 && (Math.min(...vysl.kose) / kSou < 0.07 || vysl.obaKrajni > 0 || (k11s > 0 && Math.min(...vysl.kose11) / k11s < 0.14));
+  const kSou = vysl.kose.reduce((a, b) => a + b, 0), nerovn = kSou > 0 && (Math.min(...vysl.kose) / kSou < 0.07 || vysl.obaKrajni > 0);
   const slabe = sou > 0 && Math.min(s.sv, s.vo, s.d, s.a) / sou < 0.08;
   const chyceno = vysl.chyby.length > 0 || vysl.vyjimek > 0 || slabe || nerovn;
   ok(chyceno, 'sabotáž „' + popis + '“ je chycena (' + (vysl.chyby[0] || (slabe ? 'chybí šikmé osy' : nerovn ? 'odpovědi u okraje útvaru' : vysl.vyjimek ? 'výjimka' : '')).slice(0, 70) + ')', 'test prošel i nad rozbitou bankou');
