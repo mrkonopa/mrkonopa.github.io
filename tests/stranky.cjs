@@ -86,4 +86,12 @@ function vsechnyHtml(dir = ROOT, ven = []) {
 const jakoDvojiceId = () => STRANKY.map(p => [p.id, p.url]);        // layout-overflow
 const jakoDvojiceJmeno = () => STRANKY.map(p => [p.jmeno, p.url]);  // a11y, mobil, kontrast
 
-module.exports = { ROOT, STRANKY, MIMO, vsechnyHtml, jakoDvojiceId, jakoDvojiceJmeno };
+/* Stránky, které se NEMAJÍ indexovat ani sdílet (sitemap, kanonická adresa, sdílecí karta); důvod u každé.
+   Používá `tools/web-meta.cjs` a `tests/web-meta.test.cjs`. */
+const NEVEREJNE = {
+  '/404.html': 'chybová stránka (zobrazuje se z libovolné adresy, kanonická adresa by lhala)',
+  '/projects/ucitel.html': 'kódy k únikovkám, odnikud schválně nelinkovaná',
+  '/projects/rpg-ucitel.html': 'učitelská konzole, v robots.txt zakázaná'
+};
+
+module.exports = { ROOT, STRANKY, MIMO, NEVEREJNE, vsechnyHtml, jakoDvojiceId, jakoDvojiceJmeno };
