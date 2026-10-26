@@ -11,6 +11,7 @@
    výška počítá jako maximum, ne součet. Sabotáž: zvýšit max-height práh
    v media query pod 768 — případ „na šířku bez klávesnice" spadne. */
 const { chromium } = require('playwright');
+const { nactiPisma } = require('./pisma.cjs');
 const http = require('http'), fs = require('fs'), path = require('path');
 const ROOT = path.join(__dirname, '..');
 const MIME = { '.html':'text/html', '.js':'text/javascript', '.css':'text/css' };
@@ -46,7 +47,7 @@ const ok=(c,m)=>{ if(c){pass++;console.log('  ✅ '+m);} else {fail++;console.lo
       const ctx = await br.newContext({ viewport:{width:w,height:h}, hasTouch:true });
       await ctx.route('**/*', r => r.request().url().startsWith(base) ? r.continue() : r.abort());
       const page = await ctx.newPage();
-      await page.goto(`${base}/projects/rpg-mat-${g}.html`, {waitUntil:'domcontentloaded'});
+      await page.goto(`${base}/projects/rpg-mat-${g}.html`, {waitUntil:'domcontentloaded'}); await nactiPisma(page);
       await page.waitForFunction(()=>typeof window.startGame==='function', null, {timeout:10000});
       const r = await page.evaluate(() => {
         // Minihry se LOSUJÍ, takže by test bez zafixování kolísal mezi běhy
@@ -139,7 +140,7 @@ const ok=(c,m)=>{ if(c){pass++;console.log('  ✅ '+m);} else {fail++;console.lo
       const page = await ctx.newPage();
       // Věž je o prázdninách zavřená; pevné datum, ať test platí po celý rok.
       await page.addInitScript(() => { window.__TW_TESTNOW = '2026-05-15T10:00:00'; });
-      await page.goto(`${base}/projects/rpg-mat-${g}.html`, {waitUntil:'domcontentloaded'});
+      await page.goto(`${base}/projects/rpg-mat-${g}.html`, {waitUntil:'domcontentloaded'}); await nactiPisma(page);
       await page.waitForFunction(()=>typeof window.startGame==='function', null, {timeout:10000});
       const r = await page.evaluate(async (tablet) => {
         document.getElementById('ni').value = 'Test';
