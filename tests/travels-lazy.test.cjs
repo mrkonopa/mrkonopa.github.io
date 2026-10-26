@@ -11,8 +11,12 @@
        a každé `<img>` s fotkou z `images/` mimo titulní má `loading="lazy"`;
      • skutečným načtením v prohlížeči: při otevření nesmí přijít víc než MAX_FOTEK fotek a MAX_MB
        (podlaha z měření: 1 fotka, 0,2–0,4 MB; strop má rezervu na úvodní obrazovku, ne na galerii).
-   Sabotáže (přepis odpovědi serveru, soubory se nemění): vypnutí `loading="lazy"` u Ukrajiny a vrácení
-   `background-image` u ČR–BH — test musí obě chytit.
+   Rozcestník cest (`index.html`): osm titulních fotek byly plné snímky ⌀ 350 kB (3,1 MB, na 1,6 Mbps načtení 15,4 s) pro
+   karty široké ~400 px. Teď jsou to náhledy 800 × 600 z `travels/images/nahledy/` (⌀ 90 kB, dohromady ~0,65 MB;
+   `tools/nahledy-titulni.py`); test hlídá, že rozcestník při otevření nestáhne víc než MAX_INDEX_MB a že karty
+   odkazují na náhledy.
+   Sabotáže (přepis odpovědi serveru, soubory se nemění): vypnutí `loading="lazy"` u Ukrajiny, vrácení
+   `background-image` u ČR–BH a vrácení plných fotek na rozcestník — test musí všechny tři chytit.
    ═════════════════════════════════════════════════════════════════ */
 'use strict';
 const { chromium } = require('playwright');
@@ -22,6 +26,7 @@ const EXEC = '/opt/pw-browsers/chromium-1194/chrome-linux/chrome';
 const MIME = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.svg': 'image/svg+xml', '.jpg': 'image/jpeg', '.png': 'image/png', '.woff2': 'font/woff2' };
 const ZAPISKY = ['ukraine-2017', 'cr-bh-2018', 'romania-2019', 'yugoslavia-2020', 'spain-france-2021', 'italy-2022', 'baltic-2023', 'kosovo-2024'];
 const MAX_FOTEK = 6, MAX_MB = 2;      // naměřeno 1 fotka a 0,2–0,4 MB; viz hlavička
+const MAX_INDEX_FOTEK = 9, MAX_INDEX_MB = 1.2;   // rozcestník: 8 titulních náhledů, naměřeno viz hlavička
 let pass = 0, fail = 0;
 const ok = (c, m, d) => { if (c) { pass++; console.log('  ✅ ' + m); } else { fail++; console.log('  ❌ ' + m + (d ? ' — ' + d : '')); } };
 
@@ -67,6 +72,11 @@ function zZdroje(html) {
   }
   ok(celkem >= 1400, 'dohromady ' + celkem + ' fotek v <img> (podlaha 1 400; naměřeno 1 577, tolik je i souborů v travels/images)');
 
+  const idx = fs.readFileSync(path.join(ROOT, 'travels', 'index.html'), 'utf8');
+  const kryty = [...idx.matchAll(/<div class="cover"[^>]*background-image:url\('([^']+)'\)/g)].map(m => m[1]);
+  ok(kryty.length === 8 && kryty.every(u => /^\.\/images\/nahledy\//.test(u)), 'rozcestník: všech ' + kryty.length + ' titulních fotek je z images/nahledy/ (osm karet)', kryty.filter(u => !/nahledy/.test(u)).join(', '));
+  const bezSouboru = kryty.filter(u => !fs.existsSync(path.join(ROOT, 'travels', decodeURIComponent(u))));
+  ok(bezSouboru.length === 0, 'rozcestník: soubory náhledů existují', bezSouboru.join(', '));
   const browser = await chromium.launch({ headless: true, executablePath: EXEC });
   async function otevri(base, z) {
     const c = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
@@ -82,6 +92,8 @@ function zZdroje(html) {
     ok(o.img >= 1 && o.img <= MAX_FOTEK && o.mb <= MAX_MB, z + ': při otevření ' + o.img + ' fotek, ' + o.mb.toFixed(1) + ' MB (strop ' + MAX_FOTEK + ' fotek, ' + MAX_MB + ' MB)',
       o.img < 1 ? 'žádná fotka se nenačetla (měřidlo nic nevidí)' : undefined);
   }
+  const oi = await otevri(base, 'index');
+  ok(oi.img >= 1 && oi.img <= MAX_INDEX_FOTEK && oi.mb <= MAX_INDEX_MB, 'rozcestník: při otevření ' + oi.img + ' fotek, ' + oi.mb.toFixed(2) + ' MB (strop ' + MAX_INDEX_FOTEK + ' fotek, ' + MAX_INDEX_MB + ' MB)');
   srv.close();
 
   /* ── sabotáže ─────────────────────────────────────────────────── */
@@ -94,6 +106,13 @@ function zZdroje(html) {
     const o = await otevri(b, z);
     ok(s.prepsano > 0, 'sabotáž „' + popis + '“ se aplikovala (přepis uplatněn ' + s.prepsano + '×)');
     ok(o.img > MAX_FOTEK || o.mb > MAX_MB, 'sabotáž „' + popis + '“ je chycena (' + o.img + ' fotek, ' + o.mb.toFixed(1) + ' MB při otevření)', 'test prošel i nad rozbitou stránkou');
+    s.close();
+  }
+  {
+    const s = await server({ 'index.html': t => t.replace(/\.\/images\/nahledy\//g, './images/xx_zpet/').replace(/'\.\/images\/xx_zpet\/([^']+)'/g, (m, f) => "'./images/" + ({ 'ua_sk-0209-29.07.2017_web.jpg': 'ua_2017/', 'cr_bh_pano_0007_04.07.2018_web.jpg': 'cr_bh_2018/', 'ro_fagaras_0219_24.07.19_web.jpg': 'romania_2019/', 'yugoslavia_0095_20200708%20-%20kopie%20%282%29_web.jpg': 'yugoslavia_2020/', 'spain_france_0640_18.08.2021_web.jpg': 'spain_france_2021/', 'italy_jpg_0380_26.07.2022_web.jpg': 'italy_2022/', 'balt_0360_06.07.2023_web.jpg': 'baltic_2023/', 'k0100.jpg': 'kosovo_2024/' }[f] || '') + f + "'") }), b = 'http://127.0.0.1:' + s.address().port;
+    const o = await otevri(b, 'index');
+    ok(s.prepsano > 0, 'sabotáž „plné fotky na rozcestníku“ se aplikovala (přepis uplatněn ' + s.prepsano + '×)');
+    ok(o.mb > MAX_INDEX_MB, 'sabotáž „plné fotky na rozcestníku“ je chycena (' + o.img + ' fotek, ' + o.mb.toFixed(2) + ' MB při otevření)', 'test prošel i nad rozbitou stránkou');
     s.close();
   }
   /* totéž pro zdrojovou kontrolu: pozadí v ČR–BH musí zdrojová kontrola poznat */
