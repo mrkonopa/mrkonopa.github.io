@@ -330,6 +330,11 @@ ok(Math.min(...S.kose) / kSoucet >= 0.07, 'čísla obou řešení jsou v útvaru
 }
 
 /* ── 4. Sabotáže: každá pojistka musí něco chytit ──────────────── */
+/* Velikost vzorku u sabotáží. Cenu nese úloha 8 (generátor útvarů 83 ms na úlohu, úloha 11 necelou 1 ms), a všech devět sabotáží
+   mimo polohu čtverce se projeví buď v KAŽDÉ úloze (chyba řešení, postupu, číslování), nebo aspoň ve čtvrtině částí
+   (řešení první a poslední) či v nulovém podílu šikmých os. Naměřeno: při 80 + 300 úlohách chyceno 12 z 12 běhů u všech
+   devíti, 8–12 s na běh proti 33 s při 300 + 300. Hlavní kontrola nad skutečnou bankou si nechává 800 + 800. */
+const N8_SAB = 100, N11_SAB = 300;
 const sabotaze = [
   ['druhé řešení v bance je jiný čtverec', 'reseni: [String(u.X), String(u.X2)]', 'reseni: [String(u.X), String(u.X2 === 1 ? 2 : u.X2 - 1)]'],
   ['body části nejsou počet řešení', "points: 2, prompt: `Určete číslo čtverce, jehož odebráním vznikne z útvaru ${kdo}", "points: 3, prompt: `Určete číslo čtverce, jehož odebráním vznikne z útvaru ${kdo}"],
@@ -353,7 +358,7 @@ sabotaze.forEach(([popis, hledej, nahrad, jen]) => {
     return;
   }
   let vysl;
-  try { vysl = zkontroluj(nactiBanku(ZDROJ.replace(hledej, () => nahrad)), 300, 300); }
+  try { vysl = zkontroluj(nactiBanku(ZDROJ.replace(hledej, () => nahrad)), N8_SAB, N11_SAB); }
   catch (e) { vysl = { chyby: ['pád: ' + e.message], ukol8: 0, ukol11: 0, vyjimek: 1, rodiny: { sv: 0, vo: 0, d: 0, a: 0 }, kose: [1, 1, 1, 1, 1], obaKrajni: 0 }; }
   const s = vysl.rodiny, sou = s.sv + s.vo + s.d + s.a;
   const kSou = vysl.kose.reduce((a, b) => a + b, 0), nerovn = kSou > 0 && (Math.min(...vysl.kose) / kSou < 0.07 || vysl.obaKrajni > 0);
