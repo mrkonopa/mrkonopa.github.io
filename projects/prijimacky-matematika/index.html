@@ -385,6 +385,16 @@
     .hub-grid { max-width:920px; margin:22px auto 0; padding:0 24px;
       display:grid; gap:16px; grid-template-columns:1fr; }
     @media (min-width:720px) { .hub-grid { grid-template-columns:1fr 1fr; } }
+    /* Most do RPG her: tichý pruh pod hlavními kartami, ne pátá karta (hlavní cesta zůstává čtyřmi kartami) */
+    .hra-pruh { max-width:872px; margin:16px auto 0; display:flex; align-items:center; gap:14px; min-height:56px;
+      padding:10px 18px; background:var(--card); border:1px dashed var(--border); border-radius:var(--radius);
+      color:inherit; transition:border-color .12s; }
+    .hra-pruh:hover { border-color:var(--blue); }
+    .hra-pruh svg { flex:none; color:var(--blue); }
+    .hra-pruh span { font-size:.88rem; font-weight:300; color:var(--muted); line-height:1.45; }
+    .hra-pruh b { color:var(--text); font-weight:700; }
+    .hra-pruh .go { margin-left:auto; flex:none; font-weight:700; font-size:.88rem; color:var(--blue); }
+    @media (max-width:560px) { .hra-pruh { margin-left:24px; margin-right:24px; } .hra-pruh .go { display:none; } }
     .hub-card { background:var(--card); border:1px solid var(--border); border-radius:var(--radius);
       box-shadow:var(--shadow); padding:20px; display:flex; flex-direction:column; gap:7px;
       color:inherit; transition:border-color .12s, box-shadow .12s, transform .12s; }
@@ -474,6 +484,12 @@
       <span class="go">Zobrazit pokrok →</span>
     </a>
   </section>
+
+  <a class="hra-pruh" href="../rpg-mat-9.html">
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M7 8h10a4 4 0 0 1 4 4v1a3 3 0 0 1-5.2 2L14.5 14h-5l-1.3 1A3 3 0 0 1 3 13v-1a4 4 0 0 1 4-4z M8 10.5v3 M6.5 12h3 M16 11h.01 M18 12.5h.01"/></svg>
+    <span><b>Chceš si to procvičit hrou?</b> RPG Matematika pro 9. ročník — souboje, odměny a úlohy z učiva před přijímačkami.</span>
+    <span class="go">Hrát →</span>
+  </a>
 
   <div class="cermat-banner">
     <a class="cermat-countdown cc-far" id="cermat-chip"
