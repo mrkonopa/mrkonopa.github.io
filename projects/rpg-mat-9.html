@@ -310,6 +310,11 @@ body::before{
 .player-hp .heart{display:inline-block;transition:transform .2s}
 .player-hp .heart.lost{opacity:.18;filter:saturate(0)}
 .player-hp .heart.flash{animation:heart-flash .35s steps(4)}
+.player-hp .heart{display:inline-block;color:var(--red-t,#ff5a7a);line-height:1}
+.player-hp .heart svg{display:block;width:24px;height:24px}
+.tw-heart{display:inline-block;vertical-align:middle;color:var(--red-t,#ff5a7a);margin-right:3px;line-height:1}
+.tw-heart svg{display:block}
+.tw-heart.lost{opacity:.25;filter:saturate(0)}
 @keyframes heart-flash{0%,100%{transform:scale(1)}50%{transform:scale(1.6) rotate(15deg);filter:brightness(2)}}
 .bt-powerups{display:flex;gap:5px;justify-content:center;min-height:18px;margin-bottom:4px;font-size:15px;flex-wrap:wrap;opacity:.85}
 .feedback.mini-banner{background:rgba(25,230,230,.12);border:1px solid var(--green);font-size:13px;padding:8px;animation:none}
@@ -2074,9 +2079,9 @@ function retryMission(){
 
 function updatePlayerHp(){
  const el=document.getElementById('player-hp');
- let h='';
+ let h='';const _srdce=(window.RPGIcons&&RPGIcons.has&&RPGIcons.has('heart')?RPGIcons.svg('heart',24):'❤️');
  for(let i=0;i<BT.maxHp;i++){
- h+=`<span class="heart${i<BT.hp?'':' lost'}" data-i="${i}">❤️</span>`;
+ h+=`<span class="heart${i<BT.hp?'':' lost'}" data-i="${i}">${_srdce}</span>`;
  }
 el.innerHTML=h;
  if(window.RPGSprites9&&RPGSprites9.setHeroHp)RPGSprites9.setHeroHp(BT.hp/BT.maxHp);
