@@ -28,6 +28,21 @@ const ZNAME_MEZERY = {
 };
 /* Termíny bez klíče správných řešení (od 26. 10. 2026 žádný). */
 const ZNAME_BEZ_KLICE = [];
+/* Termíny bez ručně psaného řešení (Vojtův vyplněný test z iPadu, `M9X_<rok>_vyplneno.pdf`). Doplňují se postupně,
+   takže chybějící řešení je běžný stav, ale má být ZAPSANÝ i s důvodem — jinak by se nově doplněný test nebo
+   zapomenutý termín ztratil (Vojta 26. 10. 2026: „na stránkách nejsou všechny, co opravdu mám“). Stav podle Disku
+   (Synology ZŠ HUSOVA → MA → přijímačky) k 26. 10. 2026. */
+const ZNAME_BEZ_RESENI = {
+  '2021/4_nahradni': 'na Disku je jen originál CERMATu',
+  '2022/3_nahradni': 'na Disku je jen originál CERMATu',
+  '2022/4_nahradni': 'na Disku je jen originál CERMATu',
+  '2023/3_nahradni': 'na Disku je jen originál CERMATu',
+  '2023/4_nahradni': 'na Disku je jen originál CERMATu',
+  '2026/1_radny': 'zatím nevyplněno (na Disku jen originál CERMATu)',
+  '2026/2_radny': 'zatím nevyplněno (na Disku jen originál CERMATu)',
+  '2026/3_nahradni': 'zatím nevyplněno (na Disku není)',
+  '2026/4_nahradni': 'zatím nevyplněno (na Disku není)',
+};
 
 let pass = 0, fail = 0;
 const ok = (c, m) => { if (c) { pass++; console.log('  ✅ ' + m); } else { fail++; console.log('  ❌ ' + m); } };
@@ -47,8 +62,8 @@ const soubory = [];
 const html = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
 const odkazy = [...new Set([...html.matchAll(/(?:href|src)="\.?\/?(pdfs\/[^"]+\.pdf)"/g)].map(m => m[1]))];
 
-ok(soubory.length >= 102, `archiv má ${soubory.length} PDF (podlaha 102 — naměřeno 26. 10. 2026)`);
-ok(odkazy.length >= 102, `stránka odkazuje na ${odkazy.length} PDF (podlaha 102)`);
+ok(soubory.length >= 108, `archiv má ${soubory.length} PDF (podlaha 108 — naměřeno 26. 10. 2026)`);
+ok(odkazy.length >= 108, `stránka odkazuje na ${odkazy.length} PDF (podlaha 108)`);
 
 // ── 1) odkaz musí vést na existující soubor ──
 const rozbite = odkazy.filter(o => !fs.existsSync(path.join(ROOT, o)));
@@ -119,8 +134,27 @@ ok(nabidka.length >= 88, `katalog CERMATu nabízí ${nabidka.length} souborů od
 ok(chybiZKatalogu.length === 0, 'archiv obsahuje vše, co katalog CERMATu nabízí od 2020'
   + (chybiZKatalogu.length ? ` — chybí ${chybiZKatalogu.length}×, např. ${chybiZKatalogu.slice(0, 3).map(e => `${e.rok} ${e.termin} ${e.typ}`).join(', ')} (pusť python3 tools/archiv-doplnit.py --stahni)` : ''));
 
+// ── 8) ručně psané řešení: u každého termínu, nebo zapsaná výjimka; nesmí to být kopie prázdného zadání ──
+const bezReseni = [], resNavic = [], prazdna = [];
+for (const rok of Object.keys(roky).sort()) for (const t of POVINNE.filter(x => roky[rok].has(x))) {
+  const id = `${rok}/${t}`;
+  const res = soubory.filter(f => f.includes(`/${rok}/${t}/`) && /_vyplneno\.pdf$/.test(f));
+  if (!res.length && !ZNAME_BEZ_RESENI[id]) bezReseni.push(id);
+  if (res.length && ZNAME_BEZ_RESENI[id]) resNavic.push(id);
+  for (const f of res) if (fs.statSync(path.join(ROOT, f)).size < 1000000) prazdna.push(f);
+}
+const resPocet = soubory.filter(f => /_vyplneno\.pdf$/.test(f)).length;
+ok(resPocet >= 16, `archiv má ${resPocet} ručně psaných řešení „_vyplneno“ (podlaha 16 — naměřeno 26. 10. 2026: 2020 A, 2021 A–C, 2022 A+B, 2023 A+B, 2024 A–D, 2025 A–D; nanečisto 2025 má vlastní jméno)`);
+ok(bezReseni.length === 0, 'každý termín má ručně psané řešení, nebo je zapsaný v ZNAME_BEZ_RESENI'
+  + (bezReseni.length ? ` — BEZ ŘEŠENÍ A BEZ VÝJIMKY: ${bezReseni.join(', ')}` : ''));
+ok(resNavic.length === 0, 'ZNAME_BEZ_RESENI neuvádí termín, který už řešení MÁ'
+  + (resNavic.length ? ` — doplněno, odeber z výjimek: ${resNavic.join(', ')}` : ''));
+ok(prazdna.length === 0, 'ručně psané řešení není kopie prázdného zadání (každé má nad 1 MB)'
+  + (prazdna.length ? ` — podezřele malé: ${prazdna.join(', ')}` : ''));
+
 console.log(`\n  Známé mezery (rozhodnutí, ne vada): ` +
   Object.entries(ZNAME_MEZERY).map(([r, v]) => `${r} bez ${v.chybi.join('+')} (${v.proc})`).join(' · ') +
-  `\n  Bez klíče: ${ZNAME_BEZ_KLICE.join(', ')}`);
+  `\n  Bez klíče: ${ZNAME_BEZ_KLICE.join(', ')}` +
+  `\n  Bez ručního řešení (${Object.keys(ZNAME_BEZ_RESENI).length}): ${Object.keys(ZNAME_BEZ_RESENI).join(', ')}`);
 console.log(`\n══════════════════════════════════════════\n  VÝSLEDEK: ${pass} ✅ / ${fail} ❌\n══════════════════════════════════════════`);
 process.exit(fail ? 1 : 0);
