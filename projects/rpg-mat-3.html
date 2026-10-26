@@ -133,6 +133,9 @@ body{background:var(--bg);color:var(--text);font-family:var(--px);font-weight:70
 .player-hp{font-size:28px;text-align:center;margin-bottom:8px;letter-spacing:4px}
 .heart.lost{filter:grayscale(1);opacity:.35}
 .heart.flash{animation:heart-flash .36s steps(3)}
+.player-hp .heart{display:inline-block;color:var(--red-t,#ff5a7a);line-height:1}
+.player-hp .heart svg{display:block;width:1em;height:1em}
+.player-hp .heart{margin:0 3px}
 @keyframes heart-flash{0%,100%{filter:grayscale(1) brightness(.4)}50%{filter:none brightness(2)}}
 /* ── FAIL OVERLAY ── */
 .fail-overlay{display:none;position:absolute;inset:0;z-index:50;background:#000d;align-items:center;justify-content:center;flex-direction:column;text-align:center;padding:20px;gap:8px}
@@ -1196,8 +1199,8 @@ function launchBattle(aid,mid){
 function retryMission(){const m=AREAS.find(a=>a.id===BT.aid).missions.find(x=>x.id===BT.mid);for(let i=0;i<m.tc;i++)delete S.done[`${BT.mid}-${i}`];saveS();launchBattle(BT.aid,BT.mid);}
 
 function updatePlayerHp(){
- const el=document.getElementById('player-hp');let h='';
- for(let i=0;i<BT.maxHp;i++)h+=`<span class="heart${i<BT.hp?'':' lost'}" data-i="${i}">❤️</span>`;
+ const el=document.getElementById('player-hp');let h='';const _srdce=(window.RPGIcons&&RPGIcons.has&&RPGIcons.has('heart')?RPGIcons.svg('heart',28):'❤️');
+ for(let i=0;i<BT.maxHp;i++)h+=`<span class="heart${i<BT.hp?'':' lost'}" data-i="${i}">${_srdce}</span>`;
  el.innerHTML=h;
  if(window.RPGSprites3&&RPGSprites3.setHeroHp)RPGSprites3.setHeroHp(BT.hp/BT.maxHp);
  const puEl=document.getElementById('bt-powerups');
