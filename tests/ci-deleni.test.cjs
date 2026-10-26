@@ -44,7 +44,7 @@ for (const n of [2, 3, 4, 5, 6]) {
   ok(chybi.length === 0, `${n} dílů: chybí ${chybi.length} běhů (${chybi.slice(0, 3).join(', ')})`);
   ok(videno.size === vse.length, `${n} dílů: v dílech je ${videno.size} různých běhů, má jich být ${vse.length}`);
   const zatez = dily.map(d => d.reduce((a, l) => a + cas(l), 0)), prumer = zatez.reduce((a, b) => a + b, 0) / n;
-  if (n <= 4) ok(Math.max(...zatez) <= 1.1 * prumer, `${n} dílů: nejvytíženější díl ${Math.max(...zatez)} s je přes 1,1× průměr ${prumer.toFixed(0)} s (${zatez.join(' / ')})`);
+  if (n <= 6) ok(Math.max(...zatez) <= 1.1 * prumer, `${n} dílů: nejvytíženější díl ${Math.max(...zatez)} s je přes 1,1× průměr ${prumer.toFixed(0)} s (${zatez.join(' / ')})`);
   console.log(`  ${n} dílů: ${zatez.map(z => (z / 60).toFixed(1)).join(' / ')} min, ${dily.map(d => d.length).join('/')} běhů`);
 }
 
@@ -54,11 +54,21 @@ ok(zastarale.length === 0, `ci-casy.json má záznamy bez běhu: ${zastarale.joi
 ok(Number.isFinite(J.vychozi) && J.vychozi > 0, 'vychozi musí být kladné číslo');
 ok(Object.values(J.casy).every(s => Number.isFinite(s) && s >= 2), 'záznam v ci-casy.json musí být číslo od 2 s (kratší běhy počítá vychozi)');
 
-/* 4 */
-const d4 = [1, 2, 3, 4].map(i => seznam([`--shard=${i}/4`]));
-const deep = d4.find(d => d.some(l => l.startsWith('vstudents-deep')));
+/* 4 — díly, které skutečně běží na CI: počet se čte z workflow, takže se s `--shard` nemůže rozejít */
+const WF = fs.readFileSync(path.join(__dirname, '..', '.github', 'workflows', 'tests.yml'), 'utf8');
+const matice = ((WF.match(/dil:\s*\[([^\]]*)\]/) || [])[1] || '').split(',').map(x => +x.trim()).filter(Boolean);
+const N = matice.length;
+ok(N >= 2 && matice.every((x, i) => x === i + 1), `workflow má matici dílů 1…N (${matice.join(', ') || 'nenalezena'})`);
+const shardy = [...WF.matchAll(/--shard=\$\{\{\s*matrix\.dil\s*\}\}\/(\d+)/g)].map(m => +m[1]);
+ok(shardy.length === 1 && shardy[0] === N, `příkaz v workflow používá --shard=…/${shardy.join(',')} a matice má ${N} dílů`);
+const nazvy = [...WF.matchAll(/díl \$\{\{\s*matrix\.dil\s*\}\}\/(\d+)/g)].map(m => +m[1]);
+ok(nazvy.length >= 2 && nazvy.every(x => x === N), `názvy jobu a kroku říkají „díl i/${nazvy.join(',')}“, má být vždy /${N}`);
+const dN = Array.from({ length: N }, (_, i) => seznam([`--shard=${i + 1}/${N}`]));
+const zN = dN.map(d => d.reduce((a, l) => a + cas(l), 0)), prN = zN.reduce((a, b) => a + b, 0) / N;
+ok(Math.max(...zN) <= 1.1 * prN, `${N} dílů z workflow: nejvytíženější ${Math.max(...zN)} s je přes 1,1× průměr ${prN.toFixed(0)} s`);
+const deep = dN.find(d => d.some(l => l.startsWith('vstudents-deep')));
 ok(deep && deep[0].startsWith('vstudents-deep'), 'deep harness není v dílu první');
-ok(d4.every(d => d.every((l, i) => i === 0 || vse.indexOf(d[i - 1]) < vse.indexOf(l))), 'uvnitř dílu se změnilo pořadí seznamu');
+ok(dN.every(d => d.every((l, i) => i === 0 || vse.indexOf(d[i - 1]) < vse.indexOf(l))), 'uvnitř dílu se změnilo pořadí seznamu');
 
 /* 5 */
 const ukazka = [
