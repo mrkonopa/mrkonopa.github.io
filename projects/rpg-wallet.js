@@ -470,10 +470,10 @@ html[data-theme="leto"]{--gold:#ffd166;--panel:#062033;--panel2:#0a2e4a;--blue:#
 .rw-gach-row.locked .rw-gach-ic{filter:grayscale(1)}
 .rw-gach-ic{font-size:24px;flex:none}
 .rw-gach-nm{font-weight:700;font-size:13px}
-.rw-gach-desc{font-size:11px;opacity:.8}
+.rw-gach-desc{font-size:12px;opacity:.8}
 .rw-gach-bar{height:5px;background:#00000055;border-radius:3px;overflow:hidden;margin-top:4px}
 .rw-gach-fill{height:100%;background:var(--gold,#f4d03f)}
-.rw-gach-pct{font-size:10px;opacity:.7;flex:none;min-width:64px;text-align:right}
+.rw-gach-pct{font-size:12px;opacity:.7;flex:none;min-width:64px;text-align:right}
 #rw-sponka-bubble::after{content:'';position:absolute;left:16px;bottom:-9px;width:0;height:0;border:9px solid transparent;border-top-color:#c9a95a;border-bottom:0}
 #rw-sponka-bubble::before{content:'';position:absolute;left:17.5px;bottom:-6.5px;width:0;height:0;border:7.5px solid transparent;border-top-color:#f4ecd8;border-bottom:0;z-index:1}
 #rw-sponka{position:fixed;z-index:9997;left:14px;bottom:14px}

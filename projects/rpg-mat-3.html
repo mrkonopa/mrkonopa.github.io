@@ -21,7 +21,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--px);font-weight:70
 .btn:hover:not(:disabled){transform:translate(-1px,-1px);box-shadow:5px 5px 0 #7a5c00}
 .btn:active:not(:disabled){transform:translate(2px,2px);box-shadow:2px 2px 0 #7a5c00}
 .btn:disabled{opacity:.4;cursor:not-allowed;transform:none!important}
-.btn.sm{font-size:11px;padding:6px 12px;box-shadow:3px 3px 0 #7a5c00}
+.btn.sm{font-size:12px;padding:6px 12px;box-shadow:3px 3px 0 #7a5c00}
 .btn.sm:hover:not(:disabled){box-shadow:4px 4px 0 #7a5c00}
 .btn.full{width:100%;display:block}
 /* Řada akcí pod mapou. Dřív to byl flex, kde TRÉNINK měl flex:1 a ostatní
@@ -31,7 +31,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--px);font-weight:70
 .map-actions{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:8px;margin-top:12px}
 .map-actions .btn{display:flex;align-items:center;justify-content:center;gap:2px;width:100%;font-size:12px;padding:11px 8px;min-height:52px;text-align:center;line-height:1.25;white-space:normal;overflow-wrap:anywhere}
 .map-actions .btn .bic{flex:none}
-.map-actions-note{font-family:var(--px);font-weight:400;font-size:11px;color:var(--muted);margin-top:8px;line-height:1.5}
+.map-actions-note{font-family:var(--px);font-weight:400;font-size:12px;color:var(--muted);margin-top:8px;line-height:1.5}
 @media(max-width:560px){.map-actions{grid-template-columns:1fr}}
 
 .btn.g{background:var(--panel);color:var(--green);border-color:var(--green);box-shadow:4px 4px 0 #1a6632}
@@ -62,7 +62,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--px);font-weight:70
 /* 7 oblastí do 3 sloupců nechávalo poslední kartu osamocenou. */
 .map-grid .map-node:last-child{grid-column:1/-1}
 .map-node .nn{font-family:var(--read);font-weight:700;font-size:18px;color:var(--text);text-align:center;white-space:pre-line;line-height:1.32;letter-spacing:.2px;margin-bottom:5px}
-.map-node .ns{font-size:10px;color:var(--muted);letter-spacing:.8px}
+.map-node .ns{font-size:12px;color:var(--muted);letter-spacing:.8px}
 .map-node.done{border-color:var(--green);box-shadow:4px 4px 0 #1a6632}
 .map-node.done .ns{color:var(--green)}
 .map-node.active{border-color:var(--gold);cursor:pointer;animation:node-pulse 2s ease-in-out infinite}
@@ -76,8 +76,8 @@ body{background:var(--bg);color:var(--text);font-family:var(--px);font-weight:70
 .ms-item.done{border-color:var(--green)}
 .ms-num{font-family:var(--vt);font-size:22px;min-width:32px;text-align:center}
 .ms-name{font-family:var(--px);font-weight:700;font-size:14px;color:var(--text);margin-bottom:2px}
-.ms-sub{font-family:var(--px);font-weight:400;font-size:11px;color:var(--muted)}
-.learn-btn{font-family:var(--px);font-size:11px;background:var(--panel2);color:var(--blue);border:2px solid var(--blue);padding:5px 10px;cursor:pointer;white-space:nowrap;margin-right:4px}
+.ms-sub{font-family:var(--px);font-weight:400;font-size:12px;color:var(--muted)}
+.learn-btn{font-family:var(--px);font-size:12px;background:var(--panel2);color:var(--blue);border:2px solid var(--blue);padding:5px 10px;cursor:pointer;white-space:nowrap;margin-right:4px}
 .learn-btn:hover{background:var(--blue);color:#000}
 /* ── LEARN ── */
 .learn-intro{font-family:var(--read);font-size:16px;line-height:1.65;color:var(--text);background:var(--panel);border-left:4px solid var(--blue);padding:12px 14px;margin-bottom:14px}
@@ -156,7 +156,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--px);font-weight:70
 /* ── COMBO ── */
 .combo{position:absolute;top:8px;right:12px;font-family:var(--px);font-size:15px;color:var(--gold);opacity:0;transition:opacity .3s;z-index:5;text-shadow:2px 2px 0 #000}
 .combo.show{opacity:1}
-.combo .x{font-size:10px;color:var(--blue);margin-right:3px}
+.combo .x{font-size:12px;color:var(--blue);margin-right:3px}
 .combo.bump{animation:combo-bump .3s steps(4)}
 @keyframes combo-bump{0%,100%{transform:scale(1)}50%{transform:scale(1.35);color:#fff;text-shadow:0 0 8px var(--gold),2px 2px 0 #000}}
 .combo.hot{font-size:18px;animation:combo-hot .6s steps(6) infinite}
@@ -165,16 +165,16 @@ body{background:var(--bg);color:var(--text);font-family:var(--px);font-weight:70
 @keyframes combo-fire{0%{color:#ff3355;text-shadow:0 0 14px #ff3355,2px 2px 0 #000}33%{color:#ffaa00;text-shadow:0 0 18px #ffaa00,2px 2px 0 #000}66%{color:#ffee44;text-shadow:0 0 20px #fff,2px 2px 0 #000}100%{color:#ff66aa;text-shadow:0 0 16px #ff66aa,2px 2px 0 #000}}
 /* ── ITEMS ── */
 .items-bar{display:flex;gap:8px;justify-content:center;align-items:center;min-height:54px;margin-bottom:8px}
-.items-bar .empty{font-family:var(--px);font-weight:400;font-size:10px;color:var(--muted);letter-spacing:.5px}
-.item-btn{font-family:var(--px);font-weight:700;font-size:11px;background:var(--panel2);color:var(--purple);border:3px solid var(--purple);padding:8px 10px;cursor:pointer;box-shadow:3px 3px 0 #5a2a8a;display:flex;flex-direction:column;align-items:center;gap:2px;min-width:66px;line-height:1.1}
+.items-bar .empty{font-family:var(--px);font-weight:400;font-size:12px;color:var(--muted);letter-spacing:.5px}
+.item-btn{font-family:var(--px);font-weight:700;font-size:12px;background:var(--panel2);color:var(--purple);border:3px solid var(--purple);padding:8px 10px;cursor:pointer;box-shadow:3px 3px 0 #5a2a8a;display:flex;flex-direction:column;align-items:center;gap:2px;min-width:66px;line-height:1.1}
 .item-btn:hover:not(:disabled){transform:translate(-1px,-1px);box-shadow:4px 4px 0 #5a2a8a;border-color:#c084fc;color:#c084fc}
 .item-btn:active:not(:disabled){transform:translate(2px,2px);box-shadow:1px 1px 0 #5a2a8a}
 .item-btn:disabled{opacity:.35;cursor:not-allowed;transform:none!important}
 .item-btn .ib-ic{font-size:22px}
-.item-btn .ib-lb{font-size:9px;letter-spacing:.4px;opacity:.9}
+.item-btn .ib-lb{font-size:12px;letter-spacing:.4px;opacity:.9}
 .item-btn.new{animation:item-pop .5s ease-out}
 @keyframes item-pop{0%{transform:scale(0) rotate(-180deg);opacity:0}60%{transform:scale(1.25) rotate(10deg);box-shadow:0 0 24px #c084fc}100%{transform:scale(1) rotate(0)}}
-.item-pickup{text-align:center;font-family:var(--px);font-weight:700;font-size:11px;color:var(--purple);min-height:18px;margin-bottom:4px;letter-spacing:.4px;transition:opacity .4s}
+.item-pickup{text-align:center;font-family:var(--px);font-weight:700;font-size:12px;color:var(--purple);min-height:18px;margin-bottom:4px;letter-spacing:.4px;transition:opacity .4s}
 /* ── PROBLEM ── */
 .bt-problem{font-family:var(--px);font-weight:700;font-size:24px;line-height:1.6;font-variant-ligatures:none;background:linear-gradient(180deg,#091520 0%,#0f2230 100%);border:3px solid var(--blue);padding:20px 16px;margin-bottom:10px;white-space:pre-wrap;text-align:center;color:#fff;box-shadow:0 0 20px #4ab0e033,inset 0 0 26px #4ab0e014,4px 4px 0 #1a4060;text-shadow:0 2px 0 #000a;letter-spacing:.3px;position:relative}
 .bt-problem::before{content:'';position:absolute;inset:3px;border:1px solid #4ab0e033;pointer-events:none}
@@ -214,8 +214,8 @@ html[data-theme="violet"]{--gold:#b06cff;--panel:#100a20;--panel2:#18103a;--blue
 .shop-card.owned{border-color:var(--green)}
 .shop-card.active{border-color:var(--gold);background:#1a1500}
 .shop-ic{font-size:28px;margin-bottom:4px}
-.shop-nm{font-family:var(--px);font-size:11px;color:var(--text);margin-bottom:6px}
-.shop-pr{font-family:var(--px);font-size:11px;color:var(--muted)}
+.shop-nm{font-family:var(--px);font-size:12px;color:var(--text);margin-bottom:6px}
+.shop-pr{font-family:var(--px);font-size:12px;color:var(--muted)}
 .float-txt{position:fixed;font-family:var(--px);font-size:20px;color:#f4d03f;pointer-events:none;animation:float-up .9s ease-out forwards;z-index:9999}
 @keyframes float-up{0%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(-60px)}}
 .feedback{font-family:var(--px);font-weight:700;font-size:16px;text-align:center;padding:10px;margin-bottom:10px;display:none}
@@ -233,20 +233,20 @@ html[data-theme="violet"]{--gold:#b06cff;--panel:#100a20;--panel2:#18103a;--blue
 .inv-slot.have{border-color:var(--gold)}
 .inv-slot .ic{line-height:0;color:var(--muted)}
 .inv-slot.have .ic{color:var(--gold)}
-.inv-slot .nm{font-family:var(--px);font-weight:400;font-size:10px;color:var(--muted);line-height:1.2;text-align:center;white-space:pre-line}
+.inv-slot .nm{font-family:var(--px);font-weight:400;font-size:12px;color:var(--muted);line-height:1.2;text-align:center;white-space:pre-line}
 .ach-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:10px}
 .ach-slot{background:var(--panel2);border:2px solid #2a2a2a;padding:10px 6px;text-align:center;min-height:96px;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:3px;opacity:.55}
 .ach-slot.have{border-color:var(--gold);opacity:1;box-shadow:0 0 10px #4ab0e033}
 .ach-slot .ach-ic{line-height:0;color:var(--muted)}
 .ach-slot.have .ach-ic{color:var(--gold)}
-.ach-slot .ach-nm{font-family:var(--px);font-weight:700;font-size:10px;color:var(--text);line-height:1.15}
+.ach-slot .ach-nm{font-family:var(--px);font-weight:700;font-size:12px;color:var(--text);line-height:1.15}
 .ach-slot.have .ach-nm{color:var(--gold)}
-.ach-slot .ach-desc{font-family:var(--px);font-weight:400;font-size:9px;color:var(--muted);line-height:1.2}
+.ach-slot .ach-desc{font-family:var(--px);font-weight:400;font-size:12px;color:var(--muted);line-height:1.2}
 .ach-toast{pointer-events:none;position:fixed;left:50%;bottom:24px;transform:translate(-50%,140%);z-index:130;display:flex;align-items:center;gap:12px;background:var(--panel);border:3px solid var(--gold);box-shadow:4px 4px 0 #7a5c00,0 0 18px #4ab0e055;padding:11px 18px 11px 13px;transition:transform .34s cubic-bezier(.2,1.4,.4,1);max-width:90vw}
 .ach-toast.show{transform:translate(-50%,0)}
 .ach-toast-ic{font-size:34px;line-height:1;animation:ach-pop .5s ease}
 @keyframes ach-pop{0%{transform:scale(0) rotate(-30deg)}70%{transform:scale(1.3) rotate(10deg)}100%{transform:scale(1)}}
-.ach-toast-h{font-family:var(--px);font-weight:400;font-size:10px;color:var(--muted);letter-spacing:2px}
+.ach-toast-h{font-family:var(--px);font-weight:400;font-size:12px;color:var(--muted);letter-spacing:2px}
 .ach-toast-n{font-family:var(--px);font-weight:700;font-size:15px;color:var(--gold)}
 .streak-chip{display:inline-flex;align-items:center;gap:5px;font-family:var(--px);font-weight:700;font-size:12px;color:#ffae3d;background:#1c1206;border:2px solid #ffae3d;padding:3px 9px;letter-spacing:.5px}
 .streak-chip .sf{animation:streak-flicker 1.4s ease-in-out infinite}
@@ -306,10 +306,10 @@ html[data-theme="violet"]{--gold:#b06cff;--panel:#100a20;--panel2:#18103a;--blue
 .train-item{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--panel);border:2px solid var(--line);margin-bottom:6px;cursor:pointer;transition:border-color .12s}
 .train-item:hover{border-color:var(--gold)}
 .train-item .t-nm{font-family:var(--px);font-size:13px;color:var(--text);flex:1}
-.train-item .t-prog{font-family:var(--px);font-size:11px;color:var(--muted)}
+.train-item .t-prog{font-family:var(--px);font-size:12px;color:var(--muted)}
 .train-item.mastered{border-color:var(--gold)}
 .train-item.mastered .t-nm{color:var(--gold)}
-@media(max-width:480px){.map-grid{grid-template-columns:repeat(2,1fr)}.inv-grid{grid-template-columns:repeat(3,1fr)}.ach-grid{grid-template-columns:repeat(2,1fr)}.bt-problem{font-size:18px}.mc-btn{font-size:16px;padding:16px 8px}.attr-nm{min-width:140px;font-size:11px}}
+@media(max-width:480px){.map-grid{grid-template-columns:repeat(2,1fr)}.inv-grid{grid-template-columns:repeat(3,1fr)}.ach-grid{grid-template-columns:repeat(2,1fr)}.bt-problem{font-size:18px}.mc-btn{font-size:16px;padding:16px 8px}.attr-nm{min-width:140px;font-size:12px}}
 /* ── TABLET NA ŠÍŘKU: aréna VEDLE úlohy, ne nad ní ──
    Naměřeno na iPadu 10,2" na šířku: aréna zabírá 286 px a zadání začíná až
    na 553 px, takže tlačítko DÁLE leží pod okrajem. Se zapnutou klávesnicí
@@ -486,7 +486,7 @@ html[data-theme="violet"]{--gold:#b06cff;--panel:#100a20;--panel2:#18103a;--blue
   <span>🔥 Série <b style="color:var(--gold)" id="tr-streak">0</b></span>
  </div>
  <div style="margin-top:8px">
-  <div style="display:flex;justify-content:space-between;font-family:var(--px);font-size:11px;margin-bottom:4px">
+  <div style="display:flex;justify-content:space-between;font-family:var(--px);font-size:12px;margin-bottom:4px">
   <span style="color:var(--muted)">CESTA K MISTROVSTVÍ <span id="tr-revive-chip" style="display:none;color:#ffd06a;margin-left:8px"></span></span>
   <span style="color:var(--gold)"><span id="tr-mscore">0</span> / <span id="tr-msgoal">15</span></span>
   </div>
@@ -622,7 +622,7 @@ html[data-theme="violet"]{--gold:#b06cff;--panel:#100a20;--panel2:#18103a;--blue
  <div id="pr-name" style="font-family:var(--px);font-weight:700;font-size:20px;color:var(--gold);letter-spacing:1px">PRŮZKUMNÍK</div>
  <div style="font-family:var(--px);font-weight:400;font-size:13px;color:var(--muted);margin-top:4px">ÚROVEŇ <span id="pr-lv">1</span></div>
  <div style="font-family:var(--px);font-weight:400;font-size:13px;color:var(--blue);margin-top:2px">XP: <span id="pr-xp">0</span></div>
- <div style="font-family:var(--px);font-weight:400;font-size:13px;color:#f4d03f;margin-top:2px"><span class="bic" data-ic="coin"></span><span id="pr-credits">0</span> kr &nbsp;<button class="btn sm" style="font-size:11px;padding:2px 8px" onclick="go('shop')"><span class="bic" data-ic="shop"></span>OBCHOD</button></div>
+ <div style="font-family:var(--px);font-weight:400;font-size:13px;color:#f4d03f;margin-top:2px"><span class="bic" data-ic="coin"></span><span id="pr-credits">0</span> kr &nbsp;<button class="btn sm" style="font-size:12px;padding:2px 8px" onclick="go('shop')"><span class="bic" data-ic="shop"></span>OBCHOD</button></div>
  </div>
  </div>
  <div style="font-family:var(--px);font-weight:700;font-size:12px;color:var(--muted);margin-bottom:10px;letter-spacing:1px">— ATRIBUTY —</div>
@@ -662,7 +662,7 @@ html[data-theme="violet"]{--gold:#b06cff;--panel:#100a20;--panel2:#18103a;--blue
  <div style="font-family:var(--px);font-weight:700;font-size:12px;color:var(--muted);margin-bottom:10px;letter-spacing:1px">— ZÁLOHA POSTUPU —</div>
  <button class="btn sm b" onclick="exportCode()">📋 ZKOPÍROVAT KÓD</button>
  <div id="code-out" style="display:none;margin-top:10px">
- <div id="code-txt" style="font-family:var(--px);font-weight:400;font-size:11px;word-break:break-all;background:var(--bg);border:2px solid var(--muted);padding:10px;color:var(--blue);margin-bottom:8px;line-height:1.6"></div>
+ <div id="code-txt" style="font-family:var(--px);font-weight:400;font-size:12px;word-break:break-all;background:var(--bg);border:2px solid var(--muted);padding:10px;color:var(--blue);margin-bottom:8px;line-height:1.6"></div>
  <button class="btn sm" onclick="importPrompt()">NAČÍST KÓD</button>
  </div>
  </div>
@@ -1005,7 +1005,7 @@ function renderRevive(){
  if(!due.length){rp.style.display='none';return;}
  rp.style.display='block';
  rp.innerHTML='<div style="font-family:var(--px);font-size:13px;color:var(--gold);font-weight:700;margin-bottom:2px">🔁 Dnes k oživení</div>'+
-  '<div style="font-family:var(--px);font-size:11px;color:var(--muted);margin-bottom:8px">Co umíš, si udržíš jen opakováním. Oživ téma ('+REVIVE_GOAL+' správných) a získej hvězdu!</div>'+
+  '<div style="font-family:var(--px);font-size:12px;color:var(--muted);margin-bottom:8px">Co umíš, si udržíš jen opakováním. Oživ téma ('+REVIVE_GOAL+' správných) a získej hvězdu!</div>'+
   due.map(d=>{
    const stars='⭐'.repeat(d.stars)+'☆'.repeat(3-d.stars);
    return '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:5px 0;border-top:1px solid #ffffff12">'+
@@ -1612,10 +1612,10 @@ function renderShop(){
  const items=((typeof RPGWallet!=='undefined'&&RPGWallet.items)?RPGWallet.items():SHOP_ITEMS).filter(i=>i.cat===_shopCat);
  grid.innerHTML=items.map(item=>{
   const owned=(typeof RPGWallet!=='undefined')?RPGWallet.owns(item.id)||(item.price===0):(S.cosmetics&&S.cosmetics.owned&&S.cosmetics.owned.includes(item.id))||item.price===0;
-  if(item.cat==='powerup'){const levelOk=!item.minLevel||S.level>=item.minLevel;const canBuy=!owned&&bal>=item.price&&levelOk;return `<div class="shop-card${owned?' active':''}"><div class="shop-ic">${item.ic}</div><div class="shop-nm">${item.name}</div><div style="font-size:10px;opacity:.7;margin:2px 0">${item.desc||''}</div><div class="shop-pr">${item.price} kr · LV ${item.minLevel}</div><div style="margin-top:6px">${owned?`<span style="color:var(--gold);font-family:var(--px);font-size:11px">✓ AKTIVNÍ</span>`:!levelOk?`<span style="font-family:var(--px);font-size:11px;opacity:.5">🔒 LV ${item.minLevel}</span>`:`<button class="btn sm" onclick="buyItem('${item.id}')" ${canBuy?'':'disabled'}>KOUPIT ${item.price} kr</button>`}</div></div>`;}
+  if(item.cat==='powerup'){const levelOk=!item.minLevel||S.level>=item.minLevel;const canBuy=!owned&&bal>=item.price&&levelOk;return `<div class="shop-card${owned?' active':''}"><div class="shop-ic">${item.ic}</div><div class="shop-nm">${item.name}</div><div style="font-size:12px;opacity:.7;margin:2px 0">${item.desc||''}</div><div class="shop-pr">${item.price} kr · LV ${item.minLevel}</div><div style="margin-top:6px">${owned?`<span style="color:var(--gold);font-family:var(--px);font-size:12px">✓ AKTIVNÍ</span>`:!levelOk?`<span style="font-family:var(--px);font-size:12px;opacity:.5">🔒 LV ${item.minLevel}</span>`:`<button class="btn sm" onclick="buyItem('${item.id}')" ${canBuy?'':'disabled'}>KOUPIT ${item.price} kr</button>`}</div></div>`;}
   const active=(typeof RPGWallet!=='undefined')?RPGWallet.isActive(item.id):(S.cosmetics&&S.cosmetics.active&&S.cosmetics.active[item.cat]===item.id);
   const canBuy=!owned&&bal>=item.price;
-  return `<div class="shop-card${active?' active':owned?' owned':''}"><div class="shop-ic">${item.ic}</div><div class="shop-nm">${item.name}</div><div class="shop-pr">${item.price===0?'ZDARMA':item.price+' kr'}</div><div style="margin-top:6px">${active?`<span style="color:var(--gold);font-family:var(--px);font-size:11px">✓ AKTIVNÍ</span>`:owned?`<button class="btn sm g" onclick="activateItem('${item.id}')">AKTIVOVAT</button>`:`<button class="btn sm" onclick="buyItem('${item.id}')" ${canBuy?'':'disabled'}>KOUPIT ${item.price} kr</button>`}</div></div>`;
+  return `<div class="shop-card${active?' active':owned?' owned':''}"><div class="shop-ic">${item.ic}</div><div class="shop-nm">${item.name}</div><div class="shop-pr">${item.price===0?'ZDARMA':item.price+' kr'}</div><div style="margin-top:6px">${active?`<span style="color:var(--gold);font-family:var(--px);font-size:12px">✓ AKTIVNÍ</span>`:owned?`<button class="btn sm g" onclick="activateItem('${item.id}')">AKTIVOVAT</button>`:`<button class="btn sm" onclick="buyItem('${item.id}')" ${canBuy?'':'disabled'}>KOUPIT ${item.price} kr</button>`}</div></div>`;
  }).join('');
 }
 function buyItem(id){
@@ -1656,7 +1656,7 @@ function renderTrainPicker(){
   ar.missions.forEach(m=>{
    const ms=masteryOf(m.id);const it=document.createElement('div');it.className='train-item'+(ms.mastered?' mastered':'');
    const hasLearn=window.RPG_LEARN_3&&window.RPG_LEARN_3[m.id];
-   const rv=reviveState(m.id);const starTxt=ms.mastered&&rv.stars>0?' <span style="color:#ffd06a">'+'⭐'.repeat(rv.stars)+'</span>':'';const dueChip=rv.due?' <span style="color:#ffd06a;font-size:10px">🔁 k oživení</span>':'';const gapTxt=!ms.mastered?`${ms.score|0}/${MASTERY_GOAL}`:(rv.stars>=3?'⭐⭐⭐ navždy tvoje':(rv.due?'dnes k oživení!':'další hvězda za '+Math.max(1,rv.nextGap-rv.daysSince)+' '+(Math.max(1,rv.nextGap-rv.daysSince)===1?'den':(Math.max(1,rv.nextGap-rv.daysSince)<=4?'dny':'dní'))));it.innerHTML=`<div class="t-nm">${ms.mastered?'🏅':''}${starTxt}${dueChip} ${m.name}</div><div class="t-prog" style="font-size:11px;color:var(--muted)">${gapTxt}</div>${hasLearn?`<button class="learn-btn" onclick="startLearn('${m.id}');event.stopPropagation()">📖</button>`:''}`;
+   const rv=reviveState(m.id);const starTxt=ms.mastered&&rv.stars>0?' <span style="color:#ffd06a">'+'⭐'.repeat(rv.stars)+'</span>':'';const dueChip=rv.due?' <span style="color:#ffd06a;font-size:12px">🔁 k oživení</span>':'';const gapTxt=!ms.mastered?`${ms.score|0}/${MASTERY_GOAL}`:(rv.stars>=3?'⭐⭐⭐ navždy tvoje':(rv.due?'dnes k oživení!':'další hvězda za '+Math.max(1,rv.nextGap-rv.daysSince)+' '+(Math.max(1,rv.nextGap-rv.daysSince)===1?'den':(Math.max(1,rv.nextGap-rv.daysSince)<=4?'dny':'dní'))));it.innerHTML=`<div class="t-nm">${ms.mastered?'🏅':''}${starTxt}${dueChip} ${m.name}</div><div class="t-prog" style="font-size:12px;color:var(--muted)">${gapTxt}</div>${hasLearn?`<button class="learn-btn" onclick="startLearn('${m.id}');event.stopPropagation()">📖</button>`:''}`;
    it.onclick=()=>startTrain(m.id);list.appendChild(it);
   });
  });
@@ -1875,7 +1875,7 @@ function renderCrossGames(){
   html+='<div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--line)'+(cur?';font-weight:700':'')+'">' +
    '<span style="line-height:0;color:var(--gold)">'+(typeof RPGIcons!=='undefined'?RPGIcons.svg(g.ic,12):'')+'</span>'+
    '<span style="flex:1;font-size:12px;color:'+(cur?'#fff':'var(--muted)')+'">'+g.nm+(cur?' ◀':'')+'</span>'+
-   (s?'<span style="font-size:12px;color:var(--gold)">LV '+((s.level||1)|0)+' · '+((s.xp||0)|0)+' XP</span>':'<span style="font-size:11px;color:var(--muted)">—</span>')+
+   (s?'<span style="font-size:12px;color:var(--gold)">LV '+((s.level||1)|0)+' · '+((s.xp||0)|0)+' XP</span>':'<span style="font-size:12px;color:var(--muted)">—</span>')+
   '</div>';
  });
  html+='<a href="rpg-matematika.html" style="display:block;margin-top:2px;padding:13px 0;color:var(--blue);font-size:12px;font-family:var(--px);text-align:center">🌐 RPG Matematika HUB — přehled a obchod</a>';

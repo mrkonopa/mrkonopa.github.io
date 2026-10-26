@@ -923,8 +923,8 @@ window.RPGCloud = (function () {
       el.style.display = 'block';
       el.innerHTML = header +
         ghost.map(t => '<div style="' + px + ';font-size:13px;padding:5px 8px;border-radius:5px;background:rgba(255,255,255,.03);margin:3px 0;filter:blur(3.5px);user-select:none;color:var(--muted,#8895b5)">' + t + '</div>').join('') +
-        '<div style="text-align:center;margin-top:10px;' + px + ';font-size:11px;color:var(--muted,#8895b5)">Přihlas se a zjisti pořadí ve třídě<br>' +
-        '<button onclick="var b=document.getElementById(\'cloud-btn\');if(b)b.click();" style="margin-top:6px;cursor:pointer;' + px + ';font-weight:700;font-size:11px;padding:5px 10px;border-radius:4px;border:1px solid var(--blue,#5dc8f0);background:transparent;color:var(--blue,#5dc8f0)">🔑 Přihlásit</button></div>';
+        '<div style="text-align:center;margin-top:10px;' + px + ';font-size:12px;color:var(--muted,#8895b5)">Přihlas se a zjisti pořadí ve třídě<br>' +
+        '<button onclick="var b=document.getElementById(\'cloud-btn\');if(b)b.click();" style="margin-top:6px;cursor:pointer;' + px + ';font-weight:700;font-size:12px;padding:5px 10px;border-radius:4px;border:1px solid var(--blue,#5dc8f0);background:transparent;color:var(--blue,#5dc8f0)">🔑 Přihlásit</button></div>';
       return;
     }
     let rows = [];
@@ -940,7 +940,7 @@ window.RPGCloud = (function () {
         '<span style="min-width:26px;text-align:center">' + medal(i) + '</span>' +
         '<span style="flex:1;color:' + (r.is_me ? 'var(--gold,#19e6e6)' : 'var(--text,#e8eaf6)') + ';font-weight:700;' +
         'overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + esc(r.display_name) + (r.is_me ? ' (ty)' : '') + '</span>' +
-        '<span style="color:var(--muted,#8895b5);font-size:11px">LV ' + ((r.lvl || 1) | 0) + '</span>' +
+        '<span style="color:var(--muted,#8895b5);font-size:12px">LV ' + ((r.lvl || 1) | 0) + '</span>' +
         '<span style="color:var(--blue,#5dc8f0);min-width:62px;text-align:right">' + ((r.xp || 0) | 0) + ' XP</span>' +
         '</div>'
       ).join('');
@@ -972,7 +972,7 @@ window.RPGCloud = (function () {
       'padding:7px 13px;border-radius:5px;border:2px solid var(--blue,#5dc8f0);' +
       'background:var(--blue,#5dc8f0);color:#06101e">🔑 Přihlásit přes Google</button>' +
       '<span style="flex-basis:100%;height:0"></span>' +
-      '<span style="font-size:11px;color:var(--muted,#8895b5)">Přihlášením souhlasíš se ' +
+      '<span style="font-size:12px;color:var(--muted,#8895b5)">Přihlášením souhlasíš se ' +
       '<a href="soukromi.html" target="_blank" style="color:var(--blue,#5dc8f0)">zásadami soukromí</a> a ' +
       '<a href="podminky.html" target="_blank" style="color:var(--blue,#5dc8f0)">podmínkami</a>.</span>';
     return b;
@@ -1088,7 +1088,7 @@ window.RPGCloud = (function () {
         (n.read_at ? '' : ';border-left:3px solid #ffb020') + '">' +
         '<div style="font-size:14px;line-height:1.5">' + esc(n.body) + '</div>' +
         '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:5px">' +
-        '<span style="font-size:11px;color:#8896a6">' + esc(n.author_name || 'učitel') + ' · ' +
+        '<span style="font-size:12px;color:#8896a6">' + esc(n.author_name || 'učitel') + ' · ' +
         esc(new Date(n.created_at).toLocaleDateString('cs-CZ')) + '</span>' +
         '<button class="rpg-note-del" data-del="' + esc(n.id) + '" style="background:none;border:none;color:#ff6b6b;cursor:pointer;font-size:13px;padding:2px 4px" title="smazat vzkaz">🗑</button>' +
         '</div></div>'
@@ -1138,7 +1138,7 @@ window.RPGCloud = (function () {
         return '<div style="background:#1f2740;border-radius:8px;padding:8px 10px;margin:6px 0' + (overdue ? ';border-left:3px solid #ff6b6b' : '') + '">' +
           '<div style="font-size:14px;line-height:1.4">' + esc(mname(a.mission_id)) + '</div>' +
           '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:5px">' +
-          '<span style="font-size:11px;color:' + (overdue ? '#ff9b9b' : '#8896a6') + '">📅 ' + esc(due) + ' · ' + esc(a.class_name || '') + '</span>' +
+          '<span style="font-size:12px;color:' + (overdue ? '#ff9b9b' : '#8896a6') + '">📅 ' + esc(due) + ' · ' + esc(a.class_name || '') + '</span>' +
           '<button class="rpg-asg-go" data-mid="' + esc(a.mission_id) + '" style="background:#3399cc;border:none;color:#fff;border-radius:6px;padding:4px 10px;font-size:12px;cursor:pointer">🎯 Procvičit</button>' +
           '</div></div>';
       }).join('');

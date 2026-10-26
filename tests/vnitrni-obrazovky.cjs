@@ -57,9 +57,10 @@ OBRAZOVKY.push({ url: '/projects/prijimacky-matematika/konstrukce.html', jm: 'ko
 /* Projde všechny obrazovky a pro každou zavolá `mer(page, jmeno)`.
    Krok, který spadne, se vrátí jako chyba (audit pak zčervená — obrazovka,
    na kterou se nedá dostat, se nedá ani změřit). */
-async function projdi(browser, base, mer, volby) {
+async function projdi(browser, base, mer, volby, filtr) {
   const chyby = []; let obrazovek = 0;
   for (const o of OBRAZOVKY) {
+    if (filtr && !filtr(o)) continue;   // volitelný výběr stránek (sabotáže měří jen jednu hru)
     const ctx = await browser.newContext(Object.assign({ viewport: { width: 1024, height: 768 } }, volby || {}));
     await ctx.route('**/*', r => r.request().url().startsWith(base) ? r.continue() : r.abort());
     const page = await ctx.newPage();
