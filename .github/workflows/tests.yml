@@ -31,7 +31,8 @@ concurrency:
 # audity, generátory) doběhnou za pár desítek vteřin a prohlížeč vůbec
 # nepotřebují — proto si ho ani neinstalují.
 #
-# Prohlížečová část se dělí na čtyři díly (podle naměřených dob, tests/ci-casy.json). Uvnitř JEDNOHO stroje se testy
+# Prohlížečová část se dělí na šest dílů (podle naměřených dob, tests/ci-casy.json; počet a shodu se `--shard` hlídá
+# tests/ci-deleni.test.cjs). Uvnitř JEDNOHO stroje se testy
 # musí pouštět sekvenčně (tři souběžné Playwrighty se navzájem uškrtí a
 # dělají falešné timeouty), ale každý díl dostane vlastní runner, takže
 # se nemají o co prát. Čekání pak trvá zhruba jako nejdelší díl.
@@ -56,13 +57,13 @@ jobs:
         run: node tests/run-ci.cjs --only=node
 
   prohlizec:
-    name: Prohlížečové testy (díl ${{ matrix.dil }}/4)
+    name: Prohlížečové testy (díl ${{ matrix.dil }}/6)
     runs-on: ubuntu-latest
     timeout-minutes: 45
     strategy:
       fail-fast: false      # ať vidíme nálezy ze VŠECH dílů, ne jen z prvního
       matrix:
-        dil: [1, 2, 3, 4]
+        dil: [1, 2, 3, 4, 5, 6]
     steps:
       - uses: actions/checkout@v4
 
@@ -105,12 +106,14 @@ jobs:
           sudo ln -sf "$BIN" /opt/pw-browsers/chromium-1194/chrome-linux/chrome
           ls -l /opt/pw-browsers/chromium-1194/chrome-linux/chrome
 
-      - name: Blackhole externích CDN (mock Supabase platí jako v sandboxu)
-        # Testy injektují mock Supabase a spoléhají, že CDN je NEdostupné (v sandboxu
-        # blokované). Na CI je jsdelivr dostupné → načte se reálný supabase-js, přepíše
-        # mock → konzolové testy visí. Nasměrujeme CDN/fonty na 127.0.0.1 (fast-fail).
+      - name: Blackhole externích CDN (pojistka, aby nic neleželo na cizím serveru)
+        # Dřív testy injektovaly mock Supabase a spoléhaly, že jsdelivr je NEdostupné (v sandboxu
+        # blokované); na CI byl dostupný → načetl se reálný supabase-js, přepsal mock → konzolové
+        # testy visely. Od 26. 10. 2026 je knihovna vlastní kopie s podmínkou (nenačte se na
+        # 127.0.0.1 ani nad mockem), takže tohle už Supabase nedrží; zůstává jako pojistka proti
+        # cizím serverům (fonty, YouTube) — požadavek na ně má selhat hned, ne po timeoutu.
         run: |
           echo "127.0.0.1 cdn.jsdelivr.net fonts.googleapis.com fonts.gstatic.com www.youtube.com youtube.com" | sudo tee -a /etc/hosts
 
-      - name: Spustit díl ${{ matrix.dil }}/4
-        run: node tests/run-ci.cjs --only=browser --shard=${{ matrix.dil }}/4
+      - name: Spustit díl ${{ matrix.dil }}/6
+        run: node tests/run-ci.cjs --only=browser --shard=${{ matrix.dil }}/6
