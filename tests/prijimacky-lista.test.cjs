@@ -30,15 +30,15 @@ let pass = 0, fail = 0;
 const ok = (c, m, d) => { if (c) { pass++; console.log('  ✅ ' + m); } else { fail++; console.log('  ❌ ' + m + (d ? ' — ' + d : '')); } };
 
 function server(prepis) {
-  /* mapa místo `prepis[jméno]`: jméno souboru je z adresy a `constructor` by našlo funkci objektu (CodeQL: unvalidated dynamic method call) */
-  const upravy = new Map(Object.entries(prepis || {}));
+  /* úprava se hledá porovnáním jména, ne čtením `prepis[jméno]`: jméno souboru je z adresy a `constructor` by našlo funkci objektu (CodeQL: unvalidated dynamic method call) */
+  const upravy = Object.entries(prepis || {});
   return new Promise(res => {
     const s = http.createServer((q, p) => {
       const u = decodeURIComponent(q.url.split('?')[0]);
       const fp = path.normalize(path.join(ROOT, u));
       if (!fp.startsWith(ROOT + path.sep) || !fs.existsSync(fp) || fs.statSync(fp).isDirectory()) { p.writeHead(404); return p.end('nf'); }
       p.writeHead(200, { 'Content-Type': MIME[path.extname(fp)] || 'application/octet-stream' });
-      const pr = upravy.get(path.basename(fp));
+      const jmeno = path.basename(fp); let pr = null; for (const [k, f] of upravy) if (k === jmeno) pr = f;
       if (pr) { const t = fs.readFileSync(fp, 'utf8'), n = pr(t); if (n !== t) s.prepsano++; return p.end(n); }
       fs.createReadStream(fp).pipe(p);
     });
