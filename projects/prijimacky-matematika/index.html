@@ -8,12 +8,13 @@
     M9A_2025_vyplneno.pdf (hand-solved iPad version)
     M9A_2025_klic.pdf     (CERMAT extended key)
     M9A_2025_ZA.pdf       (blank answer sheet)
+    M9A_2024_vzorove_reseni.pdf (CERMAT worked solution)
 
-  How to add a new test:
-    1. Drop the PDF(s) into ./pdfs/<year>/<termin>/
-    2. Copy one <li class="row"> block in the right year section and update
-       the year/termín label, the M9X code, and the three button hrefs.
-    3. If a button has no file, just delete that <a> — the row stays clean.
+  How to add a new test (the archive below is GENERATED from the pdfs/ folders):
+    1. python3 tools/archiv-doplnit.py --stahni   (fetches the CERMAT files, checks them)
+    2. Drop the hand-solved PDF next to them as M9X_<year>_vyplneno.pdf
+    3. node tools/archiv-index.cjs                (rewrites <main>; keeps the row notes)
+    Do not edit the rows by hand — the next run would overwrite them.
   ───────────────────────────────────────────────────────────────────────────
 -->
 <html lang="cs">
@@ -526,8 +527,10 @@
       <b><svg class="pz-ik" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 20h4L19 9l-4-4L4 16z M13.5 6.5l4 4"/></svg> Řešení</b> jsou ručně dopsané přímo do testů (na iPadu) — uvidíš tedy
       celý postup výpočtu, ne jenom výsledek. <b><svg class="pz-ik" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 3h8l4 4v14H6z M14 3v4h4 M9 12h6 M9 16h4"/></svg> Zadání</b> je prázdný test
       k vlastnímu vyplnění. <b><svg class="pz-ik" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 3.5a8.5 8.5 0 1 0 0 17 8.5 8.5 0 1 0 0-17 M8 12.5l3 3 5-6"/></svg> Klíč</b> a <b>vzorový arch</b> jsou oficiální
-      řešení od CERMATu, <b><svg class="pz-ik" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M9 4h6v3H9z M7 5.5H6v15h12v-15h-1 M9 12h6 M9 16h4"/></svg> záznamový arch</b> je prázdný odpovědní formulář
-      k vytištění. Všechny soubory se otevřou v novém okně.
+      řešení od CERMATu, <b>vzorové řešení</b> je jeho podrobný postup
+      (CERMAT ho vydal jen k části testů), <b><svg class="pz-ik" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M9 4h6v3H9z M7 5.5H6v15h12v-15h-1 M9 12h6 M9 16h4"/></svg> záznamový arch</b> je prázdný odpovědní formulář
+      k vytištění. Ručně psaná řešení se doplňují
+      postupně. Všechny soubory se otevřou v novém okně.
     </p>
     <p>
       U pár úloh v řešeních něco chybí nebo nesedí s klíčem — u těch testů to
@@ -542,7 +545,7 @@
     <section class="year">
       <div class="year-header">
         <h2>2026</h2>
-        <span class="count">2 řádné termíny</span>
+        <span class="count">2 řádné · 2 náhradní</span>
       </div>
       <ul class="rows">
 
@@ -554,6 +557,7 @@
           </div>
           <div class="files">
             <a href="./pdfs/2026/1_radny/M9A_2026_TS.pdf" target="_blank" rel="noopener"><span class="ico"><svg class="pz-ik" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 3h8l4 4v14H6z M14 3v4h4 M9 12h6 M9 16h4"/></svg></span> zadání</a>
+            <a href="./pdfs/2026/1_radny/M9A_2026_KSR.pdf" target="_blank" rel="noopener"><span class="ico"><svg class="pz-ik" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 3.5a8.5 8.5 0 1 0 0 17 8.5 8.5 0 1 0 0-17 M8 12.5l3 3 5-6"/></svg></span> klíč</a>
             <a href="./pdfs/2026/1_radny/M9A_2026_VZA.pdf" target="_blank" rel="noopener"><span class="ico"><svg class="pz-ik" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 3.5a8.5 8.5 0 1 0 0 17 8.5 8.5 0 1 0 0-17 M8 12.5l3 3 5-6"/></svg></span> vzorový arch</a>
             <a href="./pdfs/2026/1_radny/M9A_2026_ZA.pdf" target="_blank" rel="noopener"><span class="ico"><svg class="pz-ik" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M9 4h6v3H9z M7 5.5H6v15h12v-15h-1 M9 12h6 M9 16h4"/></svg></span> záznamový arch</a>
           </div>
@@ -567,8 +571,37 @@
           </div>
           <div class="files">
             <a href="./pdfs/2026/2_radny/M9B_2026_TS.pdf" target="_blank" rel="noopener"><span class="ico"><svg class="pz-ik" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 3h8l4 4v14H6z M14 3v4h4 M9 12h6 M9 16h4"/></svg></span> zadání</a>
+            <a href="./pdfs/2026/2_radny/M9B_2026_KSR.pdf" target="_blank" rel="noopener"><span class="ico"><svg class="pz-ik" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 3.5a8.5 8.5 0 1 0 0 17 8.5 8.5 0 1 0 0-17 M8 12.5l3 3 5-6"/></svg></span> klíč</a>
             <a href="./pdfs/2026/2_radny/M9B_2026_VZA.pdf" target="_blank" rel="noopener"><span class="ico"><svg class="pz-ik" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 3.5a8.5 8.5 0 1 0 0 17 8.5 8.5 0 1 0 0-17 M8 12.5l3 3 5-6"/></svg></span> vzorový arch</a>
             <a href="./pdfs/2026/2_radny/M9B_2026_ZA.pdf" target="_blank" rel="noopener"><span class="ico"><svg class="pz-ik" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M9 4h6v3H9z M7 5.5H6v15h12v-15h-1 M9 12h6 M9 16h4"/></svg></span> záznamový arch</a>
+          </div>
+        </li>
+
+        <li class="row">
+          <div class="row-header">
+            <span class="label">Termín 1</span>
+            <span class="tag nahradni">náhradní</span>
+            <span class="code">M9C</span>
+          </div>
+          <div class="files">
+            <a href="./pdfs/2026/3_nahradni/M9C_2026_TS.pdf" target="_blank" rel="noopener"><span class="ico"><svg class="pz-ik" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 3h8l4 4v14H6z M14 3v4h4 M9 12h6 M9 16h4"/></svg></span> zadání</a>
+            <a href="./pdfs/2026/3_nahradni/M9C_2026_KSR.pdf" target="_blank" rel="noopener"><span class="ico"><svg class="pz-ik" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 3.5a8.5 8.5 0 1 0 0 17 8.5 8.5 0 1 0 0-17 M8 12.5l3 3 5-6"/></svg></span> klíč</a>
+            <a href="./pdfs/2026/3_nahradni/M9C_2026_VZA.pdf" target="_blank" rel="noopener"><span class="ico"><svg class="pz-ik" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 3.5a8.5 8.5 0 1 0 0 17 8.5 8.5 0 1 0 0-17 M8 12.5l3 3 5-6"/></svg></span> vzorový arch</a>
+            <a href="./pdfs/2026/3_nahradni/M9C_2026_ZA.pdf" target="_blank" rel="noopener"><span class="ico"><svg class="pz-ik" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M9 4h6v3H9z M7 5.5H6v15h12v-15h-1 M9 12h6 M9 16h4"/></svg></span> záznamový arch</a>
+          </div>
+        </li>
+
+        <li class="row">
+          <div class="row-header">
+            <span class="label">Termín 2</span>
+            <span class="tag nahradni">náhradní</span>
+            <span class="code">M9D</span>
+          </div>
+          <div class="files">
+            <a href="./pdfs/2026/4_nahradni/M9D_2026_TS.pdf" target="_blank" rel="noopener"><span class="ico"><svg class="pz-ik" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 3h8l4 4v14H6z M14 3v4h4 M9 12h6 M9 16h4"/></svg></span> zadání</a>
+            <a href="./pdfs/2026/4_nahradni/M9D_2026_KSR.pdf" target="_blank" rel="noopener"><span class="ico"><svg class="pz-ik" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 3.5a8.5 8.5 0 1 0 0 17 8.5 8.5 0 1 0 0-17 M8 12.5l3 3 5-6"/></svg></span> klíč</a>
+            <a href="./pdfs/2026/4_nahradni/M9D_2026_VZA.pdf" target="_blank" rel="noopener"><span class="ico"><svg class="pz-ik" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 3.5a8.5 8.5 0 1 0 0 17 8.5 8.5 0 1 0 0-17 M8 12.5l3 3 5-6"/></svg></span> vzorový arch</a>
+            <a href="./pdfs/2026/4_nahradni/M9D_2026_ZA.pdf" target="_blank" rel="noopener"><span class="ico"><svg class="pz-ik" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M9 4h6v3H9z M7 5.5H6v15h12v-15h-1 M9 12h6 M9 16h4"/></svg></span> záznamový arch</a>
           </div>
         </li>
 
@@ -593,6 +626,7 @@
             <a href="./pdfs/2025/1_radny/M9A_2025_zadani.pdf" target="_blank" rel="noopener"><span class="ico"><svg class="pz-ik" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 3h8l4 4v14H6z M14 3v4h4 M9 12h6 M9 16h4"/></svg></span> zadání</a>
             <a class="primary" href="./pdfs/2025/1_radny/M9A_2025_vyplneno.pdf" target="_blank" rel="noopener"><span class="ico"><svg class="pz-ik" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 20h4L19 9l-4-4L4 16z M13.5 6.5l4 4"/></svg></span> řešení</a>
             <a href="./pdfs/2025/1_radny/M9A_2025_klic.pdf" target="_blank" rel="noopener"><span class="ico"><svg class="pz-ik" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 3.5a8.5 8.5 0 1 0 0 17 8.5 8.5 0 1 0 0-17 M8 12.5l3 3 5-6"/></svg></span> klíč</a>
+            <a href="./pdfs/2025/1_radny/M9A_2025_ZA.pdf" target="_blank" rel="noopener"><span class="ico"><svg class="pz-ik" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M9 4h6v3H9z M7 5.5H6v15h12v-15h-1 M9 12h6 M9 16h4"/></svg></span> záznamový arch</a>
           </div>
         </li>
 
@@ -676,6 +710,8 @@
             <a href="./pdfs/2024/1_radny/M9A_2024_zadani.pdf" target="_blank" rel="noopener"><span class="ico"><svg class="pz-ik" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 3h8l4 4v14H6z M14 3v4h4 M9 12h6 M9 16h4"/></svg></span> zadání</a>
             <a class="primary" href="./pdfs/2024/1_radny/M9A_2024_vyplneno.pdf" target="_blank" rel="noopener"><span class="ico"><svg class="pz-ik" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 20h4L19 9l-4-4L4 16z M13.5 6.5l4 4"/></svg></span> řešení</a>
             <a href="./pdfs/2024/1_radny/M9A_2024_klic.pdf" target="_blank" rel="noopener"><span class="ico"><svg class="pz-ik" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 3.5a8.5 8.5 0 1 0 0 17 8.5 8.5 0 1 0 0-17 M8 12.5l3 3 5-6"/></svg></span> klíč</a>
+            <a href="./pdfs/2024/1_radny/M9A_2024_vzorove_reseni.pdf" target="_blank" rel="noopener"><span class="ico"><svg class="pz-ik" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z M8 8h7 M8 12h7"/></svg></span> vzorové řešení</a>
+            <a href="./pdfs/2024/1_radny/M9A_2024_ZA.pdf" target="_blank" rel="noopener"><span class="ico"><svg class="pz-ik" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M9 4h6v3H9z M7 5.5H6v15h12v-15h-1 M9 12h6 M9 16h4"/></svg></span> záznamový arch</a>
           </div>
         </li>
 
@@ -689,6 +725,8 @@
             <a href="./pdfs/2024/2_radny/M9B_2024_zadani.pdf" target="_blank" rel="noopener"><span class="ico"><svg class="pz-ik" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 3h8l4 4v14H6z M14 3v4h4 M9 12h6 M9 16h4"/></svg></span> zadání</a>
             <a class="primary" href="./pdfs/2024/2_radny/M9B_2024_vyplneno.pdf" target="_blank" rel="noopener"><span class="ico"><svg class="pz-ik" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 20h4L19 9l-4-4L4 16z M13.5 6.5l4 4"/></svg></span> řešení</a>
             <a href="./pdfs/2024/2_radny/M9B_2024_klic.pdf" target="_blank" rel="noopener"><span class="ico"><svg class="pz-ik" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 3.5a8.5 8.5 0 1 0 0 17 8.5 8.5 0 1 0 0-17 M8 12.5l3 3 5-6"/></svg></span> klíč</a>
+            <a href="./pdfs/2024/2_radny/M9B_2024_vzorove_reseni.pdf" target="_blank" rel="noopener"><span class="ico"><svg class="pz-ik" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z M8 8h7 M8 12h7"/></svg></span> vzorové řešení</a>
+            <a href="./pdfs/2024/2_radny/M9B_2024_ZA.pdf" target="_blank" rel="noopener"><span class="ico"><svg class="pz-ik" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M9 4h6v3H9z M7 5.5H6v15h12v-15h-1 M9 12h6 M9 16h4"/></svg></span> záznamový arch</a>
           </div>
           <p class="row-note"><b>Úloha 6.2</b> není v řešení dopočítaná do konce. <a href="./doplnky.html#m9b-2024-62">Dopočet obvodu →</a></p>
         </li>
@@ -703,6 +741,8 @@
             <a href="./pdfs/2024/3_nahradni/M9C_2024_zadani.pdf" target="_blank" rel="noopener"><span class="ico"><svg class="pz-ik" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 3h8l4 4v14H6z M14 3v4h4 M9 12h6 M9 16h4"/></svg></span> zadání</a>
             <a class="primary" href="./pdfs/2024/3_nahradni/M9C_2024_vyplneno.pdf" target="_blank" rel="noopener"><span class="ico"><svg class="pz-ik" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 20h4L19 9l-4-4L4 16z M13.5 6.5l4 4"/></svg></span> řešení</a>
             <a href="./pdfs/2024/3_nahradni/M9C_2024_klic.pdf" target="_blank" rel="noopener"><span class="ico"><svg class="pz-ik" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 3.5a8.5 8.5 0 1 0 0 17 8.5 8.5 0 1 0 0-17 M8 12.5l3 3 5-6"/></svg></span> klíč</a>
+            <a href="./pdfs/2024/3_nahradni/M9C_2024_vzorove_reseni.pdf" target="_blank" rel="noopener"><span class="ico"><svg class="pz-ik" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z M8 8h7 M8 12h7"/></svg></span> vzorové řešení</a>
+            <a href="./pdfs/2024/3_nahradni/M9C_2024_ZA.pdf" target="_blank" rel="noopener"><span class="ico"><svg class="pz-ik" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M9 4h6v3H9z M7 5.5H6v15h12v-15h-1 M9 12h6 M9 16h4"/></svg></span> záznamový arch</a>
           </div>
           <p class="row-note"><b>Úloha 16.3</b> — zapsaná volba nesedí s vlastním výpočtem. <a href="./doplnky.html#m9c-2024-163">Oprava →</a></p>
         </li>
@@ -717,6 +757,8 @@
             <a href="./pdfs/2024/4_nahradni/M9D_2024_zadani.pdf" target="_blank" rel="noopener"><span class="ico"><svg class="pz-ik" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 3h8l4 4v14H6z M14 3v4h4 M9 12h6 M9 16h4"/></svg></span> zadání</a>
             <a class="primary" href="./pdfs/2024/4_nahradni/M9D_2024_vyplneno.pdf" target="_blank" rel="noopener"><span class="ico"><svg class="pz-ik" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 20h4L19 9l-4-4L4 16z M13.5 6.5l4 4"/></svg></span> řešení</a>
             <a href="./pdfs/2024/4_nahradni/M9D_2024_klic.pdf" target="_blank" rel="noopener"><span class="ico"><svg class="pz-ik" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 3.5a8.5 8.5 0 1 0 0 17 8.5 8.5 0 1 0 0-17 M8 12.5l3 3 5-6"/></svg></span> klíč</a>
+            <a href="./pdfs/2024/4_nahradni/M9D_2024_vzorove_reseni.pdf" target="_blank" rel="noopener"><span class="ico"><svg class="pz-ik" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z M8 8h7 M8 12h7"/></svg></span> vzorové řešení</a>
+            <a href="./pdfs/2024/4_nahradni/M9D_2024_ZA.pdf" target="_blank" rel="noopener"><span class="ico"><svg class="pz-ik" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M9 4h6v3H9z M7 5.5H6v15h12v-15h-1 M9 12h6 M9 16h4"/></svg></span> záznamový arch</a>
           </div>
         </li>
 
@@ -727,7 +769,7 @@
     <section class="year">
       <div class="year-header">
         <h2>2023</h2>
-        <span class="count">2 řádné termíny</span>
+        <span class="count">2 řádné · 2 náhradní</span>
       </div>
       <ul class="rows">
 
@@ -760,6 +802,187 @@
           <p class="row-note"><b>Úloha 5.1</b> — v posledním kroku se ztratilo znaménko. <a href="./doplnky.html#m9b-2023-51">Oprava →</a></p>
         </li>
 
+        <li class="row">
+          <div class="row-header">
+            <span class="label">Termín 1</span>
+            <span class="tag nahradni">náhradní</span>
+            <span class="code">M9C</span>
+          </div>
+          <div class="files">
+            <a href="./pdfs/2023/3_nahradni/M9C_2023_zadani.pdf" target="_blank" rel="noopener"><span class="ico"><svg class="pz-ik" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 3h8l4 4v14H6z M14 3v4h4 M9 12h6 M9 16h4"/></svg></span> zadání</a>
+            <a href="./pdfs/2023/3_nahradni/M9C_2023_klic.pdf" target="_blank" rel="noopener"><span class="ico"><svg class="pz-ik" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 3.5a8.5 8.5 0 1 0 0 17 8.5 8.5 0 1 0 0-17 M8 12.5l3 3 5-6"/></svg></span> klíč</a>
+            <a href="./pdfs/2023/3_nahradni/M9C_2023_ZA.pdf" target="_blank" rel="noopener"><span class="ico"><svg class="pz-ik" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M9 4h6v3H9z M7 5.5H6v15h12v-15h-1 M9 12h6 M9 16h4"/></svg></span> záznamový arch</a>
+          </div>
+        </li>
+
+        <li class="row">
+          <div class="row-header">
+            <span class="label">Termín 2</span>
+            <span class="tag nahradni">náhradní</span>
+            <span class="code">M9D</span>
+          </div>
+          <div class="files">
+            <a href="./pdfs/2023/4_nahradni/M9D_2023_zadani.pdf" target="_blank" rel="noopener"><span class="ico"><svg class="pz-ik" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 3h8l4 4v14H6z M14 3v4h4 M9 12h6 M9 16h4"/></svg></span> zadání</a>
+            <a href="./pdfs/2023/4_nahradni/M9D_2023_klic.pdf" target="_blank" rel="noopener"><span class="ico"><svg class="pz-ik" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 3.5a8.5 8.5 0 1 0 0 17 8.5 8.5 0 1 0 0-17 M8 12.5l3 3 5-6"/></svg></span> klíč</a>
+            <a href="./pdfs/2023/4_nahradni/M9D_2023_ZA.pdf" target="_blank" rel="noopener"><span class="ico"><svg class="pz-ik" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M9 4h6v3H9z M7 5.5H6v15h12v-15h-1 M9 12h6 M9 16h4"/></svg></span> záznamový arch</a>
+          </div>
+        </li>
+
+      </ul>
+    </section>
+
+    <!-- ─── 2022 ─────────────────────────────────────────────────────────── -->
+    <section class="year">
+      <div class="year-header">
+        <h2>2022</h2>
+        <span class="count">2 řádné · 2 náhradní</span>
+      </div>
+      <ul class="rows">
+
+        <li class="row">
+          <div class="row-header">
+            <span class="label">Termín 1</span>
+            <span class="tag radny">řádný</span>
+            <span class="code">M9A</span>
+          </div>
+          <div class="files">
+            <a href="./pdfs/2022/1_radny/M9A_2022_zadani.pdf" target="_blank" rel="noopener"><span class="ico"><svg class="pz-ik" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 3h8l4 4v14H6z M14 3v4h4 M9 12h6 M9 16h4"/></svg></span> zadání</a>
+            <a href="./pdfs/2022/1_radny/M9A_2022_klic.pdf" target="_blank" rel="noopener"><span class="ico"><svg class="pz-ik" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 3.5a8.5 8.5 0 1 0 0 17 8.5 8.5 0 1 0 0-17 M8 12.5l3 3 5-6"/></svg></span> klíč</a>
+            <a href="./pdfs/2022/1_radny/M9A_2022_vzorove_reseni.pdf" target="_blank" rel="noopener"><span class="ico"><svg class="pz-ik" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z M8 8h7 M8 12h7"/></svg></span> vzorové řešení</a>
+            <a href="./pdfs/2022/1_radny/M9A_2022_ZA.pdf" target="_blank" rel="noopener"><span class="ico"><svg class="pz-ik" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M9 4h6v3H9z M7 5.5H6v15h12v-15h-1 M9 12h6 M9 16h4"/></svg></span> záznamový arch</a>
+          </div>
+        </li>
+
+        <li class="row">
+          <div class="row-header">
+            <span class="label">Termín 2</span>
+            <span class="tag radny">řádný</span>
+            <span class="code">M9B</span>
+          </div>
+          <div class="files">
+            <a href="./pdfs/2022/2_radny/M9B_2022_zadani.pdf" target="_blank" rel="noopener"><span class="ico"><svg class="pz-ik" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 3h8l4 4v14H6z M14 3v4h4 M9 12h6 M9 16h4"/></svg></span> zadání</a>
+            <a href="./pdfs/2022/2_radny/M9B_2022_klic.pdf" target="_blank" rel="noopener"><span class="ico"><svg class="pz-ik" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 3.5a8.5 8.5 0 1 0 0 17 8.5 8.5 0 1 0 0-17 M8 12.5l3 3 5-6"/></svg></span> klíč</a>
+            <a href="./pdfs/2022/2_radny/M9B_2022_vzorove_reseni.pdf" target="_blank" rel="noopener"><span class="ico"><svg class="pz-ik" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z M8 8h7 M8 12h7"/></svg></span> vzorové řešení</a>
+            <a href="./pdfs/2022/2_radny/M9B_2022_ZA.pdf" target="_blank" rel="noopener"><span class="ico"><svg class="pz-ik" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M9 4h6v3H9z M7 5.5H6v15h12v-15h-1 M9 12h6 M9 16h4"/></svg></span> záznamový arch</a>
+          </div>
+        </li>
+
+        <li class="row">
+          <div class="row-header">
+            <span class="label">Termín 1</span>
+            <span class="tag nahradni">náhradní</span>
+            <span class="code">M9C</span>
+          </div>
+          <div class="files">
+            <a href="./pdfs/2022/3_nahradni/M9C_2022_zadani.pdf" target="_blank" rel="noopener"><span class="ico"><svg class="pz-ik" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 3h8l4 4v14H6z M14 3v4h4 M9 12h6 M9 16h4"/></svg></span> zadání</a>
+            <a href="./pdfs/2022/3_nahradni/M9C_2022_klic.pdf" target="_blank" rel="noopener"><span class="ico"><svg class="pz-ik" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 3.5a8.5 8.5 0 1 0 0 17 8.5 8.5 0 1 0 0-17 M8 12.5l3 3 5-6"/></svg></span> klíč</a>
+            <a href="./pdfs/2022/3_nahradni/M9C_2022_ZA.pdf" target="_blank" rel="noopener"><span class="ico"><svg class="pz-ik" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M9 4h6v3H9z M7 5.5H6v15h12v-15h-1 M9 12h6 M9 16h4"/></svg></span> záznamový arch</a>
+          </div>
+        </li>
+
+        <li class="row">
+          <div class="row-header">
+            <span class="label">Termín 2</span>
+            <span class="tag nahradni">náhradní</span>
+            <span class="code">M9D</span>
+          </div>
+          <div class="files">
+            <a href="./pdfs/2022/4_nahradni/M9D_2022_zadani.pdf" target="_blank" rel="noopener"><span class="ico"><svg class="pz-ik" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 3h8l4 4v14H6z M14 3v4h4 M9 12h6 M9 16h4"/></svg></span> zadání</a>
+            <a href="./pdfs/2022/4_nahradni/M9D_2022_klic.pdf" target="_blank" rel="noopener"><span class="ico"><svg class="pz-ik" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 3.5a8.5 8.5 0 1 0 0 17 8.5 8.5 0 1 0 0-17 M8 12.5l3 3 5-6"/></svg></span> klíč</a>
+            <a href="./pdfs/2022/4_nahradni/M9D_2022_ZA.pdf" target="_blank" rel="noopener"><span class="ico"><svg class="pz-ik" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M9 4h6v3H9z M7 5.5H6v15h12v-15h-1 M9 12h6 M9 16h4"/></svg></span> záznamový arch</a>
+          </div>
+        </li>
+
+      </ul>
+    </section>
+
+    <!-- ─── 2021 ─────────────────────────────────────────────────────────── -->
+    <section class="year">
+      <div class="year-header">
+        <h2>2021</h2>
+        <span class="count">2 řádné · 2 náhradní</span>
+      </div>
+      <ul class="rows">
+
+        <li class="row">
+          <div class="row-header">
+            <span class="label">Termín 1</span>
+            <span class="tag radny">řádný</span>
+            <span class="code">M9A</span>
+          </div>
+          <div class="files">
+            <a href="./pdfs/2021/1_radny/M9A_2021_zadani.pdf" target="_blank" rel="noopener"><span class="ico"><svg class="pz-ik" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 3h8l4 4v14H6z M14 3v4h4 M9 12h6 M9 16h4"/></svg></span> zadání</a>
+            <a href="./pdfs/2021/1_radny/M9A_2021_klic.pdf" target="_blank" rel="noopener"><span class="ico"><svg class="pz-ik" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 3.5a8.5 8.5 0 1 0 0 17 8.5 8.5 0 1 0 0-17 M8 12.5l3 3 5-6"/></svg></span> klíč</a>
+            <a href="./pdfs/2021/1_radny/M9A_2021_vzorove_reseni.pdf" target="_blank" rel="noopener"><span class="ico"><svg class="pz-ik" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z M8 8h7 M8 12h7"/></svg></span> vzorové řešení</a>
+            <a href="./pdfs/2021/1_radny/M9A_2021_ZA.pdf" target="_blank" rel="noopener"><span class="ico"><svg class="pz-ik" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M9 4h6v3H9z M7 5.5H6v15h12v-15h-1 M9 12h6 M9 16h4"/></svg></span> záznamový arch</a>
+          </div>
+        </li>
+
+        <li class="row">
+          <div class="row-header">
+            <span class="label">Termín 2</span>
+            <span class="tag radny">řádný</span>
+            <span class="code">M9B</span>
+          </div>
+          <div class="files">
+            <a href="./pdfs/2021/2_radny/M9B_2021_zadani.pdf" target="_blank" rel="noopener"><span class="ico"><svg class="pz-ik" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 3h8l4 4v14H6z M14 3v4h4 M9 12h6 M9 16h4"/></svg></span> zadání</a>
+            <a href="./pdfs/2021/2_radny/M9B_2021_klic.pdf" target="_blank" rel="noopener"><span class="ico"><svg class="pz-ik" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 3.5a8.5 8.5 0 1 0 0 17 8.5 8.5 0 1 0 0-17 M8 12.5l3 3 5-6"/></svg></span> klíč</a>
+            <a href="./pdfs/2021/2_radny/M9B_2021_vzorove_reseni.pdf" target="_blank" rel="noopener"><span class="ico"><svg class="pz-ik" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z M8 8h7 M8 12h7"/></svg></span> vzorové řešení</a>
+            <a href="./pdfs/2021/2_radny/M9B_2021_ZA.pdf" target="_blank" rel="noopener"><span class="ico"><svg class="pz-ik" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M9 4h6v3H9z M7 5.5H6v15h12v-15h-1 M9 12h6 M9 16h4"/></svg></span> záznamový arch</a>
+          </div>
+        </li>
+
+        <li class="row">
+          <div class="row-header">
+            <span class="label">Termín 1</span>
+            <span class="tag nahradni">náhradní</span>
+            <span class="code">M9C</span>
+          </div>
+          <div class="files">
+            <a href="./pdfs/2021/3_nahradni/M9C_2021_zadani.pdf" target="_blank" rel="noopener"><span class="ico"><svg class="pz-ik" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 3h8l4 4v14H6z M14 3v4h4 M9 12h6 M9 16h4"/></svg></span> zadání</a>
+            <a href="./pdfs/2021/3_nahradni/M9C_2021_klic.pdf" target="_blank" rel="noopener"><span class="ico"><svg class="pz-ik" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 3.5a8.5 8.5 0 1 0 0 17 8.5 8.5 0 1 0 0-17 M8 12.5l3 3 5-6"/></svg></span> klíč</a>
+            <a href="./pdfs/2021/3_nahradni/M9C_2021_ZA.pdf" target="_blank" rel="noopener"><span class="ico"><svg class="pz-ik" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M9 4h6v3H9z M7 5.5H6v15h12v-15h-1 M9 12h6 M9 16h4"/></svg></span> záznamový arch</a>
+          </div>
+        </li>
+
+        <li class="row">
+          <div class="row-header">
+            <span class="label">Termín 2</span>
+            <span class="tag nahradni">náhradní</span>
+            <span class="code">M9D</span>
+          </div>
+          <div class="files">
+            <a href="./pdfs/2021/4_nahradni/M9D_2021_zadani.pdf" target="_blank" rel="noopener"><span class="ico"><svg class="pz-ik" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 3h8l4 4v14H6z M14 3v4h4 M9 12h6 M9 16h4"/></svg></span> zadání</a>
+            <a href="./pdfs/2021/4_nahradni/M9D_2021_klic.pdf" target="_blank" rel="noopener"><span class="ico"><svg class="pz-ik" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 3.5a8.5 8.5 0 1 0 0 17 8.5 8.5 0 1 0 0-17 M8 12.5l3 3 5-6"/></svg></span> klíč</a>
+            <a href="./pdfs/2021/4_nahradni/M9D_2021_ZA.pdf" target="_blank" rel="noopener"><span class="ico"><svg class="pz-ik" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M9 4h6v3H9z M7 5.5H6v15h12v-15h-1 M9 12h6 M9 16h4"/></svg></span> záznamový arch</a>
+          </div>
+        </li>
+
+      </ul>
+    </section>
+
+    <!-- ─── 2020 ─────────────────────────────────────────────────────────── -->
+    <section class="year">
+      <div class="year-header">
+        <h2>2020</h2>
+        <span class="count">1 řádný termín</span>
+      </div>
+      <ul class="rows">
+
+        <li class="row">
+          <div class="row-header">
+            <span class="label">Termín 1</span>
+            <span class="tag radny">řádný</span>
+            <span class="code">M9A</span>
+          </div>
+          <div class="files">
+            <a href="./pdfs/2020/1_radny/M9A_2020_zadani.pdf" target="_blank" rel="noopener"><span class="ico"><svg class="pz-ik" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 3h8l4 4v14H6z M14 3v4h4 M9 12h6 M9 16h4"/></svg></span> zadání</a>
+            <a href="./pdfs/2020/1_radny/M9A_2020_klic.pdf" target="_blank" rel="noopener"><span class="ico"><svg class="pz-ik" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 3.5a8.5 8.5 0 1 0 0 17 8.5 8.5 0 1 0 0-17 M8 12.5l3 3 5-6"/></svg></span> klíč</a>
+            <a href="./pdfs/2020/1_radny/M9A_2020_vzorove_reseni.pdf" target="_blank" rel="noopener"><span class="ico"><svg class="pz-ik" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z M8 8h7 M8 12h7"/></svg></span> vzorové řešení</a>
+            <a href="./pdfs/2020/1_radny/M9A_2020_ZA.pdf" target="_blank" rel="noopener"><span class="ico"><svg class="pz-ik" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M9 4h6v3H9z M7 5.5H6v15h12v-15h-1 M9 12h6 M9 16h4"/></svg></span> záznamový arch</a>
+          </div>
+        </li>
+
       </ul>
     </section>
 
@@ -772,7 +995,7 @@
     <b>M9C</b> · termín 1 náhradní &nbsp;·&nbsp;
     <b>M9D</b> · termín 2 náhradní.
     <b>TS</b> = testový sešit (zadání), <b>VZA</b> = vzorový záznamový arch (řešení),
-    <b>ZA</b> = záznamový arch (prázdný formulář na vyplnění), <b>klíč</b> = rozšířený klíč s vysvětlením úloh.
+    <b>ZA</b> = záznamový arch (prázdný formulář na vyplnění), <b>klíč</b> = rozšířený klíč s vysvětlením úloh, <b>vzorové řešení</b> = postup úloh od CERMATu.
   </p>
 
   <footer>
