@@ -47,7 +47,8 @@ function kusy(p) {
   return out;
 }
 
-const web = soubory(path.join(ROOT, 'projects'), /\.(html|js)$/, /^(node_modules|pdfs|\.git)$/);
+// `vendor` = cizí knihovna (Supabase, od 26. 10. 2026 vlastní kopie): čte `window.history` apod. po svém a není náš kód, aby ho měl test opravovat
+const web = soubory(path.join(ROOT, 'projects'), /\.(html|js)$/, /^(node_modules|pdfs|\.git|vendor)$/);
 const lexikalni = new Set(), naWindow = new Set();
 for (const p of web) for (const { kod } of kusy(p)) {
   for (const m of kod.matchAll(/^(?:let|const)\s+([A-Za-z_$][\w$]*)\s*=/gm)) lexikalni.add(m[1]);
