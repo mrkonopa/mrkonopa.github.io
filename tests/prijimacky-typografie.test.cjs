@@ -78,6 +78,29 @@ const NEJEDNOTKY = [
 ];
 for (const [vstup, proc] of NEJEDNOTKY) ok(typo(vstup) === vstup, 'beze změny: „' + vstup + '“ (' + proc + ')', 'dostal „' + typo(vstup) + '“');
 
+console.log('\n══ Pevná mezera v tisícových skupinách ══');
+const TISICE = [
+  ['12 000 Kč', '12' + NB + '000' + NB + 'Kč', 'tisíce + jednotka (obě mezery)'],
+  ['1 000 000', '1' + NB + '000' + NB + '000', 'milion'],
+  ['v měřítku 1 : 2 500', 'v měřítku 1 : 2' + NB + '500', 'poměr, tisíce až za dvojtečkou'],
+  ['Sada: 24 000 : 12 = 2', 'Sada: 24' + NB + '000 : 12 = 2', 'tisíce před dělením'],
+  ['(9 800)', '(9' + NB + '800)', 'za závorkou'],
+  ['9 800 cm²', '9' + NB + '800' + NB + 'cm²', 'tisíce a plocha'],
+  ['12 000,5', '12' + NB + '000,5', 'desetinná část za skupinou'],
+  ['od 1 000 do 20 000', 'od 1' + NB + '000 do 20' + NB + '000', 'dvě skupiny ve větě']
+];
+for (const [vstup, cil, proc] of TISICE) ok(typo(vstup) === cil, 'tisíce: „' + vstup + '“ (' + proc + ')', 'dostal „' + typo(vstup) + '“');
+const NETISICE = [
+  ['2023 100', 'před skupinou je číslice (čtyřmístné číslo)'],
+  ['0,5 000', 'za desetinnou čárkou'],
+  ['1 23', 'jen dvě číslice za mezerou'],
+  ['12 0000', 'čtyři číslice za mezerou'],
+  ['3 a 100', 'mezi čísly je spojka'],
+  ['5 1', 'jednotlivé číslice']
+];
+for (const [vstup, proc] of NETISICE) ok(typo(vstup) === vstup, 'beze změny: „' + vstup + '“ (' + proc + ')', 'dostal „' + typo(vstup) + '“');
+ok(typo('12 000 Kč') === typo(typo('12 000 Kč')), 'tisíce jsou idempotentní');
+
 console.log('\n══ Obecné vlastnosti ══');
 ok(typo(null) === '' && typo(undefined) === '', 'null i undefined → prázdný řetězec');
 ok(typo(5) === '5' && typo(-5) === MIN + '5', 'číslo (ne řetězec) se převede na text a záporné dostane minus', 'dostal „' + typo(-5) + '“');
@@ -136,6 +159,15 @@ ok(neidem.length === 0, 'typo je na celém korpusu idempotentní', neidem.length
 console.log('  ℹ️  změněno řetězců: ' + zmenRetezcu + ' z ' + retezce.length + ', minus ' + minusZmen + '×, pevná mezera ' + mezerZmen + '×');
 ok(minusZmen > 60, 'pravidlo minus se v korpusu skutečně uplatnilo: ' + minusZmen + '× (naměřeno 99–134 za běh, podlaha 60)');
 ok(mezerZmen > 6000, 'pravidlo pevné mezery se v korpusu skutečně uplatnilo: ' + mezerZmen + '× (naměřeno 8 853–9 334 za běh, podlaha 6 000)');
+const RE_TIS = /(^|[^\d,.])(\d{1,3}(?: \d{3})+)(?!\d)/g;
+let tisZmen = 0, tisZbylo = 0, ukT = '';
+for (const s0 of retezce) {
+  tisZmen += (s0.match(RE_TIS) || []).length;
+  const t0 = typo(s0);
+  if (/(^|[^\d,.])\d{1,3}(?: \d{3})+(?!\d)/.test(t0)) { tisZbylo++; ukT = ukT || t0; }
+}
+ok(tisZmen > 500, 'pravidlo tisícových skupin se v korpusu skutečně uplatnilo: ' + tisZmen + '× (naměřeno 630–731 za běh, podlaha 500)');
+ok(tisZbylo === 0, 'po typo nezbývá tisícová skupina s obyčejnou mezerou', tisZbylo + '× např. „' + ukT.slice(0, 80) + '“');
 
 /* po typo nezbývá žádný spojovník před číslicí za hranicí ani „číslo mezera jednotka“ */
 const ZBYLE_MINUS = /(^|[\s(\[=;:·×<>\/])-(?=\d)/, ZBYLA_MEZERA = /\d (?:cm|dm|mm|km|kg|dkg|mg|ml|dl|hl|Kč|min|hod|[mglht]|%)(?![\p{L}\d])/u;

@@ -280,7 +280,13 @@
   const TYPO_JEDNOTKY = 'cm|dm|mm|km|kg|dkg|mg|ml|dl|hl|Kč|min|hod|[mglht]|%';
   const TYPO_RE_JEDNOTKA = new RegExp('(\\d) (' + TYPO_JEDNOTKY + ')(?![\\p{L}\\d])', 'gu');
   const TYPO_RE_MINUS = /(^|[\s(\[=;:·×<>\/])-(?=\d)/g;
-  const typo = s => String(s == null ? '' : s).replace(TYPO_RE_MINUS, '$1−').replace(TYPO_RE_JEDNOTKA, '$1\u00A0$2');
+  /* Tisícové skupiny („12 000 Kč“, „1 000 000“) se zlomí uprostřed čísla stejně jako číslo a jednotka. Bez lookbehindu
+     (Safari před 16.4 by kvůli němu nenačetlo celý skript): předchozí znak se zachytí a vrátí. Před skupinou nesmí stát
+     číslice, čárka ani tečka („2023 100“, „0,5 000“). Nesprávný zásah (výčet „100 200 300“) není vidět — nová pevná mezera
+     vypadá jako obyčejná, jen se tam nezalomí řádek. */
+  const TYPO_RE_TISICE = /(^|[^\d,.])(\d{1,3}(?: \d{3})+)(?!\d)/g;
+  const typo = s => String(s == null ? '' : s).replace(TYPO_RE_MINUS, '$1−').replace(TYPO_RE_JEDNOTKA, '$1\u00A0$2')
+    .replace(TYPO_RE_TISICE, (_, pred, skupina) => pred + skupina.replace(/ /g, '\u00A0'));
   function typoDom(root) {
     if (!root || typeof document === 'undefined' || !document.createTreeWalker) return;
     const w = document.createTreeWalker(root, 4 /* SHOW_TEXT */, {

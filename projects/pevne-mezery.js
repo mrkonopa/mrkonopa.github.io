@@ -3,12 +3,16 @@
    Texty těchto stránek jsou psané rukou a skládané z JS, takže se mezera dělá PO VYKRESLENÍ nad textovými uzly
    (regulární výraz nad HTML by sáhl do atributů a dat křivek SVG; „<“ je v matematice „menší než“).
    Pravidlo je tatáž věta jako `zapis()` v rpg-shared.js a `PZ.typo` v přijímačkách; „s“ v seznamu není (předložka:
-   „2 s kamarádem“). Funkce je idempotentní, takže pozorovatel vlastní zápis znovu nezpracovává donekonečna. */
+   „2 s kamarádem“); stejně tak tisícové skupiny „12 000“. Funkce je idempotentní, takže pozorovatel vlastní zápis znovu nezpracovává donekonečna. */
 (function () {
   'use strict';
   var RE = /(\d) (cm|dm|mm|km|kg|dkg|mg|ml|dl|hl|Kč|min|hod|[mglht]|%)(?![\p{L}\d])/gu;
   var VYNECH = 'svg,script,style,textarea,input,[data-bez-typo]';
-  function text(s) { return String(s).replace(RE, '$1 $2'); }
+  /* tisícové skupiny („12 000“) — bez lookbehindu, Safari před 16.4 by kvůli němu nenačetlo celý skript */
+  var RE_TISICE = /(^|[^\d,.])(\d{1,3}(?: \d{3})+)(?!\d)/g;
+  function text(s) {
+    return String(s).replace(RE, '$1\u00A0$2').replace(RE_TISICE, function (_, pred, skupina) { return pred + skupina.replace(/ /g, '\u00A0'); });
+  }
   function uzel(u) {
     if (!u.data || u.data.indexOf(' ') < 0) return;
     if (u.parentElement && u.parentElement.closest(VYNECH)) return;
