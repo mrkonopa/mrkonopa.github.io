@@ -19,14 +19,15 @@ const path = require('path');
 const ROOT = path.join(__dirname, '..', 'projects', 'prijimacky-matematika');
 const PDFS = path.join(ROOT, 'pdfs');
 
-/* Rok → termíny, které v archivu CHYBÍ, i s důvodem. Naměřeno 9. 9. 2026.
-   Až se doplní, tenhle záznam se odebere a test na to sám upozorní. */
+/* Rok → termíny, které v archivu CHYBÍ, i s důvodem. Až se doplní, tenhle záznam se odebere a test na to
+   sám upozorní. 26. 10. 2026: 2023 a 2026 doplněny; zápis „CERMAT náhradní termíny 2023 nezveřejnil“
+   z 9. 9. 2026 byl NEPRAVDIVÝ (katalog CERMATu má M9C/M9D 2023 včetně klíče a záznamového archu) — výjimku
+   je třeba ověřit proti zdroji, ne proti vlastnímu archivu. */
 const ZNAME_MEZERY = {
-  2023: { chybi: ['3_nahradni', '4_nahradni'], proc: 'CERMAT náhradní termíny 2023 nezveřejnil' },
-  2026: { chybi: ['3_nahradni', '4_nahradni'], proc: 'zatím nedoplněno' },
+  2020: { chybi: ['2_radny', '3_nahradni', '4_nahradni'], proc: 'katalog CERMATu uvádí pro 2020 jediný řádný termín a žádný náhradní' },
 };
-/* Termíny bez klíče správných řešení. 2026 má jen TS/VZA/ZA. */
-const ZNAME_BEZ_KLICE = ['2026/1_radny', '2026/2_radny'];
+/* Termíny bez klíče správných řešení (od 26. 10. 2026 žádný). */
+const ZNAME_BEZ_KLICE = [];
 
 let pass = 0, fail = 0;
 const ok = (c, m) => { if (c) { pass++; console.log('  ✅ ' + m); } else { fail++; console.log('  ❌ ' + m); } };
@@ -46,8 +47,8 @@ const soubory = [];
 const html = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
 const odkazy = [...new Set([...html.matchAll(/(?:href|src)="\.?\/?(pdfs\/[^"]+\.pdf)"/g)].map(m => m[1]))];
 
-ok(soubory.length >= 45, `archiv má ${soubory.length} PDF (podlaha 45 — naměřeno 9. 9. 2026)`);
-ok(odkazy.length >= 45, `stránka odkazuje na ${odkazy.length} PDF (podlaha 45)`);
+ok(soubory.length >= 102, `archiv má ${soubory.length} PDF (podlaha 102 — naměřeno 26. 10. 2026)`);
+ok(odkazy.length >= 102, `stránka odkazuje na ${odkazy.length} PDF (podlaha 102)`);
 
 // ── 1) odkaz musí vést na existující soubor ──
 const rozbite = odkazy.filter(o => !fs.existsSync(path.join(ROOT, o)));
@@ -101,6 +102,22 @@ ok(bezKlice.length === 0, 'každý termín má klíč správných řešení'
   + (bezKlice.length ? ` — BEZ KLÍČE: ${bezKlice.join(', ')}` : ''));
 ok(klicNavic.length === 0, 'ZNAME_BEZ_KLICE neuvádí termín, který už klíč MÁ'
   + (klicNavic.length ? ` — doplněno, odeber z výjimek: ${klicNavic.join(', ')}` : ''));
+
+// ── 6) stránka odpovídá složce: žádný soubor bez odkazu, žádný odkaz ručně přidaný mimo generátor ──
+const { spawnSync } = require('child_process');
+const gen = spawnSync(process.execPath, [path.join(__dirname, '..', 'tools', 'archiv-index.cjs'), '--kontrola'], { encoding: 'utf8' });
+ok(gen.status === 0, 'index.html odpovídá složce pdfs/ (tools/archiv-index.cjs --kontrola)'
+  + (gen.status ? ` — ${String(gen.stderr).trim().split('\n')[0]}` : ''));
+
+// ── 7) všechno, co katalog CERMATu nabízí od 2020 (M9, česky, bez ilustračních), v archivu je ──
+const katalog = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'tools', 'cermat-archiv', 'katalog.json'), 'utf8'));
+const SLOZKA = { '1. řádný': '1_radny', '2. řádný': '2_radny', '1. náhradní': '3_nahradni', '2. náhradní': '4_nahradni' };
+const VZOR = { test: /_(zadani|TS)\.pdf$/, klic: /_(klic|KSR)\.pdf$/, arch: /_ZA\.pdf$/, reseni: /_vzorove_reseni\.pdf$/, vyplneny_arch: /_VZA\.pdf$/ };
+const nabidka = katalog.filter(e => e.stupen === 'M9' && e.rok >= 2020 && e.jazyk === 'cs' && SLOZKA[e.termin] && VZOR[e.typ]);
+const chybiZKatalogu = nabidka.filter(e => !soubory.some(f => f.includes(`/${e.rok}/${SLOZKA[e.termin]}/`) && VZOR[e.typ].test(f)));
+ok(nabidka.length >= 88, `katalog CERMATu nabízí ${nabidka.length} souborů od 2020 (podlaha 88 — naměřeno 26. 10. 2026; menší číslo by znamenalo, že kontrola nic nevidí)`);
+ok(chybiZKatalogu.length === 0, 'archiv obsahuje vše, co katalog CERMATu nabízí od 2020'
+  + (chybiZKatalogu.length ? ` — chybí ${chybiZKatalogu.length}×, např. ${chybiZKatalogu.slice(0, 3).map(e => `${e.rok} ${e.termin} ${e.typ}`).join(', ')} (pusť python3 tools/archiv-doplnit.py --stahni)` : ''));
 
 console.log(`\n  Známé mezery (rozhodnutí, ne vada): ` +
   Object.entries(ZNAME_MEZERY).map(([r, v]) => `${r} bez ${v.chybi.join('+')} (${v.proc})`).join(' · ') +
