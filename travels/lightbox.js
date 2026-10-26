@@ -4,7 +4,7 @@
    Každý zápisek má vlastní prohlížeč fotky (`#lb`), ale zapojený je ve
    TŘECH různých tvarech, jak jednotlivé stránky postupně vznikaly:
 
-     ukraine, cr-bh          `figure.shot > div.img` s background-image
+     ukraine, cr-bh          `figure.shot > div.img > img` (do 26. 10. 2026 background-image)
      romania                 `.gallery a[href]` (odkaz obaluje náhled)
      italy, yugoslavia, sf   `.gallery-grid img[src]`
 
@@ -37,6 +37,8 @@
   function adresa(el) {
     if (el.tagName === 'IMG') return uplna(el.getAttribute('src'));
     if (el.tagName === 'A') return uplna(el.getAttribute('href'));
+    var vnitrni = el.querySelector && el.querySelector('img');   // ukraine, cr-bh: <div class="img"><img loading="lazy"></div>
+    if (vnitrni) return uplna(vnitrni.getAttribute('src'));
     var m = /url\((['"]?)(.+?)\1\)/.exec(el.style.backgroundImage || '');
     return m ? uplna(m[2]) : '';
   }
