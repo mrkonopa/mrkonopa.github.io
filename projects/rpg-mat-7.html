@@ -290,7 +290,7 @@ body::before{
 .player-hp .heart.lost{opacity:.18;filter:saturate(0)}
 .player-hp .heart.flash{animation:heart-flash .35s steps(4)}
 .player-hp .heart{display:inline-block;color:var(--red-t,#ff5a7a);line-height:1}
-.player-hp .heart svg{display:block;width:1em;height:1em}
+.player-hp .heart svg{display:block;width:24px;height:24px}
 .tw-heart{display:inline-block;vertical-align:middle;color:var(--red-t,#ff5a7a);margin-right:3px;line-height:1}
 .tw-heart svg{display:block}
 .tw-heart.lost{opacity:.25;filter:saturate(0)}
@@ -2150,7 +2150,7 @@ function retryMission(){
 
 function updatePlayerHp(){
  const el=document.getElementById('player-hp');
- let h='';const _srdce=(window.RPGIcons&&RPGIcons.has&&RPGIcons.has('heart')?RPGIcons.svg('heart',28):'❤️');
+ let h='';const _srdce=(window.RPGIcons&&RPGIcons.has&&RPGIcons.has('heart')?RPGIcons.svg('heart',24):'❤️');
  for(let i=0;i<BT.maxHp;i++){
  h+=`<span class="heart${i<BT.hp?'':' lost'}" data-i="${i}">${_srdce}</span>`;
  }

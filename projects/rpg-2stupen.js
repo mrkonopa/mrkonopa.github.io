@@ -133,7 +133,7 @@ function twStats(){
  document.getElementById('tw-best').textContent=(S.tower&&S.tower.best)|0;
  { /* životy: pixelová srdíčka (zbylá plná, ztracená šedá); bez ikony v mezipaměti zůstanou emoji */
   const el=document.getElementById('tw-lives'), ic=(window.RPGIcons&&RPGIcons.has&&RPGIcons.has('heart'));
-  if(ic){let h='';for(let i=0;i<3;i++)h+='<span class="tw-heart'+(i<TW.lives?'':' lost')+'">'+RPGIcons.svg('heart',22)+'</span>';el.innerHTML=h;}
+  if(ic){let h='';for(let i=0;i<3;i++)h+='<span class="tw-heart'+(i<TW.lives?'':' lost')+'">'+RPGIcons.svg('heart',24)+'</span>';el.innerHTML=h;}
   else el.textContent='❤️'.repeat(TW.lives)+'🖤'.repeat(3-TW.lives);
  }
 }
