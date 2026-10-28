@@ -1,7 +1,7 @@
 /* Virtuální „Safari“: přijímačky v SKUTEČNÉM enginu WebKit (WebKitGTK) na velikosti iPadu.
    Playwrightův WebKit se z cloudu stáhnout nedá (403), proto se ovládá WebKitWebDriver z balíčků Ubuntu:
      apt-get install -y webkit2gtk-driver xvfb fonts-dejavu-core fonts-liberation
-   node tools/safari-sonda.cjs [out=cesta] [vp=ipad-vyska,ipad-sirka]
+   node tools/safari-sonda.cjs [out=cesta] [vp=ipad-vyska,ipad-sirka] [co=prijimacky,rpg] [hry=3,4,5,6,7,8,9]
 
    CO TO JE: stejné jádro (WebCore + JavaScriptCore, 605.1.15) jako Safari — chytí rozdíly v JS a CSS proti
    Chromiu (nepodporovaná syntaxe, jiné rolování při zaostření pole, jiné měření rozložení).
@@ -10,6 +10,11 @@
    v Chromiu), pozastavení stránky při zamčení tabletu a zrušení karty při nedostatku paměti.
    Proto se otevření celé obrazovky konstrukce dělá tlačítkem Zvětšit a tah prstem skutečnými dotykovými
    událostmi WebDriveru (pointerType touch).
+
+   RPG hry 3.–9. ročník (`co=rpg`): načtení bez chyb, žádné vodorovné přetečení, PRÁVĚ JEDNA aktivní obrazovka, tlačítko startu
+   se dá zasáhnout a skutečným kliknutím WebDriveru (to selže, když ho něco zakrývá — přesně vada z iPadu na šířku, kvůli které
+   hra nešla spustit skoro měsíc), start → mapa → oblast → mise → boj, odpověď do pole (nebo volbou) → ÚTOK → DÁLE zasažitelné
+   a skutečným kliknutím posune úlohu. Odpověď se bere z `BT.tasks[BT.idx]` (správná, aby se dalo pokračovat).
 
    Pomocný server vkládá do každé stránky sběr chyb (window.__err); externí skripty a písma proxy odmítne hned (403),
    takže se na ně nečeká. Nástroj ničeho v repozitáři nemění. */
@@ -22,6 +27,8 @@ const OUT = arg('out', path.join(os.tmpdir(), 'safari-sonda'));
 fs.mkdirSync(OUT, { recursive: true });
 const VP = { 'ipad-vyska': [820, 1180], 'ipad-sirka': [1180, 820] };
 const VYBRANE = arg('vp', 'ipad-vyska,ipad-sirka').split(',').filter(v => VP[v]);
+const CO = new Set(arg('co', 'prijimacky,rpg').split(','));
+const HRY = arg('hry', '3,4,5,6,7,8,9').split(',').map(Number).filter(g => g >= 3 && g <= 9);
 const PORT_WD = 4444;
 const MIME = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.svg': 'image/svg+xml', '.png': 'image/png' };
 const sleep = ms => new Promise(r => setTimeout(r, ms));
@@ -80,7 +87,7 @@ const STRANKY = ['index', 'test', 'procvicovani', 'diagnostika', 'statistiky', '
     const s = await wd('POST', '/session', { capabilities: { alwaysMatch: { browserName: 'MiniBrowser', 'webkitgtk:browserOptions': { binary: '/usr/lib/x86_64-linux-gnu/webkit2gtk-4.1/MiniBrowser', args: ['--automation'] } } } });
     sid = s.sessionId; console.log('WebKit ' + s.capabilities.browserVersion + ' — ' + await js(sid, 'return navigator.userAgent'));
 
-    for (const vp of VYBRANE) {
+    for (const vp of (CO.has('prijimacky') ? VYBRANE : [])) {
       const [w, h] = VP[vp]; console.log('\n══ ' + vp + ' (' + w + '×' + h + ') ══');
 
       // 1) stránky: načtou se bez chyb a nepřetékají
@@ -136,6 +143,67 @@ const STRANKY = ['index', 'test', 'procvicovani', 'diagnostika', 'statistiky', '
       await snimek(sid, vp + '-konstrukce-tah');
       const sw = await js(sid, 'return document.documentElement.scrollWidth<=innerWidth+1 && document.getElementById("kn-full").scrollWidth<=innerWidth+1');
       ok(sw, 'konstrukce: celá obrazovka nepřetéká');
+    }
+
+    /* ══ RPG hry: start, mapa, mise, boj ══ */
+    const baseRpg = 'http://127.0.0.1:' + srv.address().port + '/projects/';
+    const zasahne = (sid2, css) => js(sid2, 'const b=document.querySelector(arguments[0]);if(!b)return {nenalezeno:true};const r=b.getBoundingClientRect();' +
+      'const e=document.elementFromPoint(r.left+r.width/2,r.top+r.height/2);return {vidi:!!e&&(e===b||b.contains(e)),y:Math.round(r.top),b:Math.round(r.bottom),h:innerHeight}', [css]);
+    for (const vp of (CO.has('rpg') ? VYBRANE : [])) {
+      const [w, h] = VP[vp]; console.log('\n══ RPG · ' + vp + ' (' + w + '×' + h + ') ══');
+      for (const g of HRY) {
+        const hra = 'g' + g + ' ' + vp;
+        try {
+          await otevri(sid, w, h, baseRpg + 'rpg-mat-' + g + '.html'); await sleep(500);
+          const z = await js(sid, 'return {err:window.__err||["sběr chyb chybí"],sw:document.documentElement.scrollWidth,iw:innerWidth,akt:document.querySelectorAll(".screen.active").length}');
+          ok(z.err.length === 0, hra + ': načte se bez chyb v konzoli', z.err.join(' | '));
+          ok(z.sw <= z.iw + 1, hra + ': nepřetéká vodorovně', 'scrollWidth ' + z.sw + ' > ' + z.iw);
+          ok(z.akt === 1, hra + ': na úvodu je vidět právě jedna obrazovka (' + z.akt + ')');
+          // start: tlačítko je zasažitelné a skutečné kliknutí WebDriveru ho trefí (zakryté tlačítko = „element click intercepted“)
+          const SB = '#s-intro button[onclick="startGame()"]';
+          const hit = await zasahne(sid, SB);
+          ok(hit.vidi && hit.b <= hit.h + 1, hra + ': tlačítko startu je zasažitelné a v okně', JSON.stringify(hit));
+          await wd('POST', `/session/${sid}/element/${await prvek(sid, '#ni')}/value`, { text: 'SAFARI' });
+          await klik(sid, SB); await sleep(500);
+          ok(await js(sid, 'return document.getElementById("s-map").classList.contains("active")&&document.querySelectorAll(".screen.active").length===1'), hra + ': start otevře mapu (jedna aktivní obrazovka)');
+          await js(sid, 'S.tutorialDone=true;saveS();');            // úvodní návod by u skutečného dítěte překryl ovládání; tady se měří hra, ne návod
+          // mapa → oblast → mise → boj skutečnými kliky
+          const uzel = await js(sid, 'return [...document.querySelectorAll("#map-grid .map-node")].findIndex(n=>/VSTUP/.test(n.textContent))');
+          ok(uzel >= 0, hra + ': na mapě je odemčená oblast');
+          await klik(sid, `#map-grid .map-node:nth-child(${uzel + 1})`); await sleep(400);
+          ok(await js(sid, 'return document.getElementById("s-area").classList.contains("active")&&document.querySelectorAll(".screen.active").length===1'), hra + ': oblast se otevře');
+          await klik(sid, '#mission-list .ms-item:nth-child(1)'); await sleep(1300);
+          const boj = await js(sid, 'return {akt:document.querySelectorAll(".screen.active").length,boj:document.getElementById("s-battle").classList.contains("active"),mc:!!BT.mcMode,yn:isYN(BT.tasks[BT.idx]),idx:BT.idx,ans:String(BT.tasks[BT.idx].ans),err:window.__err}');
+          ok(boj.boj && boj.akt === 1, hra + ': mise otevře boj (jedna aktivní obrazovka)');
+          ok(boj.err.length === 0, hra + ': start a boj proběhnou bez chyb v konzoli', boj.err.join(' | '));
+          await snimek(sid, vp + '-g' + g + '-boj');
+          // odpověď: text do pole + ÚTOK, volbou, nebo ANO/NE; správná, aby šlo pokračovat
+          if (boj.mc) {
+            await js(sid, 'const t=BT.tasks[BT.idx];const b=[...document.querySelectorAll("#mc-grid .mc-btn")].find(x=>checkAns(x.textContent.replace(/^\\s*[A-D]\\s*/,""),t.ans));if(b)b.setAttribute("data-sonda","1")');
+            await klik(sid, '#mc-grid [data-sonda="1"]');
+          } else if (boj.yn) {
+            await js(sid, 'answerYN(BT.tasks[BT.idx].ans.toUpperCase())');
+          } else {
+            const ZA = await zasahne(sid, '#attack-btn');
+            ok(ZA.vidi && ZA.b <= ZA.h + 1, hra + ': tlačítko ÚTOK je zasažitelné a v okně', JSON.stringify(ZA));
+            await wd('POST', `/session/${sid}/element/${await prvek(sid, '#bt-ans')}/value`, { text: boj.ans });
+            await klik(sid, '#attack-btn');
+          }
+          await sleep(700);
+          const po = await js(sid, 'const n=document.getElementById("next-btn");const r=n?n.getBoundingClientRect():null;return {viditelne:!!n&&getComputedStyle(n).display!=="none"&&r.width>0,err:window.__err}');
+          ok(po.viditelne, hra + ': po správné odpovědi je vidět DÁLE');
+          if (po.viditelne) {
+            const ZD = await zasahne(sid, '#next-btn');
+            ok(ZD.vidi && ZD.b <= ZD.h + 1, hra + ': tlačítko DÁLE je zasažitelné a v okně', JSON.stringify(ZD));
+            await klik(sid, '#next-btn'); await sleep(900);
+            const dal = await js(sid, 'return {idx:BT.idx,akt:document.querySelectorAll(".screen.active").length,err:window.__err}');
+            ok(dal.idx === boj.idx + 1, hra + ': DÁLE posune úlohu (' + boj.idx + ' → ' + dal.idx + ')');
+            ok(dal.akt === 1 && dal.err.length === 0, hra + ': po DÁLE zůstává jedna obrazovka a žádná chyba', dal.err.join(' | '));
+          }
+          const sw2 = await js(sid, 'return document.documentElement.scrollWidth<=innerWidth+1');
+          ok(sw2, hra + ': boj nepřetéká vodorovně');
+        } catch (e) { fail++; nalezy.push(hra + ' VÝJIMKA: ' + e.message); console.log('  ❌ ' + hra + ': výjimka: ' + e.message); }
+      }
     }
   } catch (e) { fail++; nalezy.push('VÝJIMKA: ' + e.message); console.log('  ❌ výjimka: ' + e.message); }
   try { if (sid) await wd('DELETE', '/session/' + sid); } catch (e) { /* už zavřeno */ }
