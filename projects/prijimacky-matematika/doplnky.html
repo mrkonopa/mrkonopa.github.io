@@ -165,9 +165,9 @@
     <span class="eyebrow">Doplňky</span>
     <h1 class="title">Co v řešeních <span class="accent">chybí nebo nesedí</span></h1>
     <p class="lede">
-      Všech jedenáct ručně psaných řešení jsem stránku po stránce porovnal
-      s oficiálním klíčem CERMAT (137 stran, 16 úloh v každém testu).
-      Drtivá většina sedí. Tady je pět míst, kde ne — a jejich dořešení.
+      Všech sedmnáct ručně psaných řešení jsem stránku po stránce porovnal
+      s oficiálním klíčem CERMAT (199 stran, 16 úloh v každém testu).
+      Drtivá většina sedí. Tady je sedm míst, kde ne — a jejich dořešení.
     </p>
   </header>
 
@@ -181,6 +181,8 @@
         <li><a href="#m9b-2024-62">2024 · 2. řádný (M9B), úloha 6.2</a> — chybí dopočet obvodu</li>
         <li><a href="#m9c-2024-163">2024 · 1. náhradní (M9C), úloha 16.3</a> — zapsaná volba nesedí s výpočtem</li>
         <li><a href="#m9b-2023-51">2023 · 2. řádný (M9B), úloha 5.1</a> — ztracené znaménko</li>
+        <li><a href="#m9b-2022-51">2022 · 2. řádný (M9B), úloha 5.1</a> — špatně převedená čísla na druhou stranu</li>
+        <li><a href="#m9b-2021-42">2021 · 2. řádný (M9B), úloha 4.2</a> — znaménko u posledního členu</li>
         <li><a href="#drobnosti">Drobnosti v zápisu</a> — výsledky jsou správné</li>
       </ol>
     </nav>
@@ -376,7 +378,63 @@ zkouška:  L = 2 + 0,5·(−3 − 3) = 2 − 3 = −1
       </ul>
     </article>
 
-    <!-- ─── 6 · drobnosti ──────────────────────────────────────────────── -->
+        <!-- ─── 6 · M9B 2022, úloha 5.1 ────────────────────────────────────── -->
+    <article class="fix" id="m9b-2022-51">
+      <div class="meta">
+        <span class="chip rok">2022 · 2. řádný</span>
+        <span class="chip kod">M9B</span>
+        <span class="chip oprava">oprava</span>
+      </div>
+      <h2>Úloha 5.1 — špatně převedená čísla na druhou stranu</h2>
+      <p class="co">V řešení vyšlo <b>x = 1/4</b>. Chyba je ve druhém kroku: z <b>x + 5 = 4 − 3x</b>
+        je napsáno <b>x + 3x = 5 − 4</b>, správně je <b>x + 3x = 4 − 5</b>.
+        Správný výsledek je <b>x = −1/4</b>.</p>
+      <p class="zadani">Řešte rovnici: 5 · (0,2x + 1) = (8 − 6x) : 2</p>
+
+      <h3 class="krok">Celý postup</h3>
+      <div class="vypocet">5 · (0,2x + 1) = (8 − 6x) : 2
+x + 5       = 4 − 3x
+x + 3x      = 4 − 5         (v řešení bylo 5 − 4)
+4x          = −1            | : 4
+x           = −1/4
+
+zkouška:  L = 5 · (0,2 · (−1/4) + 1) = 5 · 0,95 = 4,75
+          P = (8 − 6 · (−1/4)) : 2   = 9,5 : 2  = 4,75
+          L = P</div>
+      <p class="vysledek">x = −1/4 — souhlasí s klíčem</p>
+      <ul class="pozn" style="margin-top:12px">
+        <li>Člen <em>−3x</em> převedený doleva se změní na <em>+3x</em>, číslo <em>5</em> převedené
+          doprava na <em>−5</em>. Vpravo tedy zbyde 4 − 5 = −1, ne 5 − 4 = 1.</li>
+      </ul>
+    </article>
+
+    <!-- ─── 7 · M9B 2021, úloha 4.2 ────────────────────────────────────── -->
+    <article class="fix" id="m9b-2021-42">
+      <div class="meta">
+        <span class="chip rok">2021 · 2. řádný</span>
+        <span class="chip kod">M9B</span>
+        <span class="chip oprava">oprava</span>
+      </div>
+      <h2>Úloha 4.2 — znaménko u posledního členu</h2>
+      <p class="co">V řešení je <b>y² − y − 1/4</b>. Správně je <b>y² − y + 1/4</b>:
+        druhá mocnina čísla ½ je kladná, takže poslední člen má <b>plus</b>.</p>
+      <p class="zadani">Umocněte a zjednodušte (výsledný výraz nesmí obsahovat závorky): (y − ½)²</p>
+
+      <h3 class="krok">Celý postup</h3>
+      <div class="vypocet">(y − 1/2)² = y² − 2 · y · 1/2 + (1/2)²
+           = y² − y + 1/4
+
+zkouška:  y = 2:  (2 − 1/2)²      = (3/2)² = 9/4
+                  y² − y + 1/4    = 4 − 2 + 1/4 = 9/4     ✓
+                  (s mínusem by vyšlo 4 − 2 − 1/4 = 7/4)</div>
+      <p class="vysledek">y² − y + 1/4 — souhlasí s klíčem</p>
+      <ul class="pozn" style="margin-top:12px">
+        <li>Ve vzorci (a − b)² = a² − 2ab + b² je záporný jen prostřední člen.
+          Poslední člen <em>b²</em> je druhá mocnina, a ta nikdy není záporná.</li>
+      </ul>
+    </article>
+
+    <!-- ─── 8 · drobnosti ──────────────────────────────────────────────── -->
     <article class="fix" id="drobnosti">
       <div class="meta">
         <span class="chip rok">různé roky</span>
@@ -396,6 +454,16 @@ zkouška:  L = 2 + 0,5·(−3 − 3) = 2 − 3 = −1
         <li><b>2024 · 2. řádný (M9B), úloha 15.1</b> — popisky <em>D</em> a <em>CH</em> jsou
           prohozené oproti grafu (a oproti úloze 15.3 o dva řádky níž). Součty jsou stejné,
           takže odpověď <em>A</em> je správně.</li>
+        <li><b>2022 · 1. řádný (M9A), úloha 13</b> — je napsáno 62,8&nbsp;:&nbsp;5 = 12,5;
+          správně je 62,8&nbsp;:&nbsp;5 = 12,56, takže obvod výseče je 12,56&nbsp;+&nbsp;10&nbsp;+&nbsp;10 = 32,56&nbsp;cm.
+          Po zaokrouhlení vychází 33&nbsp;cm, což je správně.</li>
+        <li><b>2022 · 1. řádný (M9A), úloha 14</b> — v čitateli je „0&nbsp;·&nbsp;5“, ale bez bodu je
+          15 soutěžících (5 jich má dva body). Násobí se nulou, takže součet 40 i průměr 0,8&nbsp;bodu
+          jsou správně.</li>
+        <li><b>2021 · 1. řádný (M9A), úloha 7.3</b> — poslední řádek říká
+          600&nbsp;·&nbsp;2/5 = 80&nbsp;dní; 600&nbsp;·&nbsp;2/5 je ale 240 a teprve 240&nbsp;:&nbsp;3 = 80.
+          Kratší cesta: 200&nbsp;·&nbsp;2/5 = 80, kde 200&nbsp;dní je doba, za kterou by 3&nbsp;koně
+          spotřebovali všechno krmivo (řádek výše). Výsledek 80&nbsp;dní je správně.</li>
       </ul>
     </article>
 
