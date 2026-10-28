@@ -222,11 +222,12 @@ function loadGrade(g) {
 
 /* ── běh ──────────────────────────────────────────────────────────── */
 console.log('\n── Audit kvality zadání (3.–9. ročník) ──\n');
-const found = { zap16: [], zavorka: [], rovnost: [], objekt: [], frac: [], decl: [], hintEmpty: [], hintDup: [], nan: [], typo: [], float: [], dotText: [], dotHint: [], periodic: [], hintMath: [], geoInv: [], geoNezn: [], geoFwd: [], pct: [], ctverec: [], troj: [] };
+const found = { pctTich: [], zap16: [], zavorka: [], rovnost: [], objekt: [], frac: [], decl: [], hintEmpty: [], hintDup: [], nan: [], typo: [], float: [], dotText: [], dotHint: [], periodic: [], hintMath: [], geoInv: [], geoNezn: [], geoFwd: [], pct: [], ctverec: [], troj: [] };
 let hintDop = 0;   // kolik nápověd se podařilo dopočítat (pojistka proti planému běhu)
 let geoDop = 0;    // kolik inverzních geometrických úloh se dopočítalo
 let geoFwdDop = 0, geoFwdNezn = 0;   // dopředná geometrie: dopočítané / neznámý tvar
 let pctDop = 0, pctNezn = 0;         // procenta/převody/průměr
+let pctTichDop = 0;                  // procentové úlohy posouzené na TICHÉ zaokrouhlení
 let generated = 0;
 let trojDop = 0;      // kolik trojúhelníků ze tří stran se posoudilo
 let rovnostiDop = 0;   // kolik rovností v nápovědách se vyhodnotilo
@@ -292,6 +293,42 @@ for (const g of GRADES) {
           if(Math.abs(z-cil)>1e-9){
             push('pct', where, vzor + ': „' + txt.slice(0, 70) + '" → vychází ' + ocek + ', ans ' + t.ans);
           }
+        })();
+        /* ── Procenta: odpověď NESMÍ být tiše zaokrouhlená ───────────────
+             Předchozí pravidlo výše porovnává očekávanou hodnotu zaokrouhlenou
+             na tolik desetinných míst, kolik má odpověď — takže u celočíselné
+             odpovědi mu „24 % z 60 = 14" PROŠLO (14,4 se zaokrouhlí na 14).
+             Dítě, které správně napíše 14,4, přitom dostane „špatně" (kontrola
+             odpovědi má toleranci 0,016) a zadání o zaokrouhlení nic neříká.
+             Našlo se 28. 10. 2026 z dat postav: mise 8/1-3 „Procenta" měla
+             4,69 chyby na splněný úkol (6. ročník nejhůř 1,56) a hráči se
+             tam ztráceli (48 → 33 → 14 → 3). Změřeno: 8. ročník 448 z 3 120
+             úloh s procenty (14,4 %), 7. ročník 271 z 7 200 (3,8 %).
+             Pravidlo je schválně NEZÁVISLÉ na tvaru zadání: ze všech dvojic čísel
+             v textu spočítá pět vzorců (část, po slevě, po zvýšení, celek, kolik
+             procent) a hlásí, když odpověď je zaokrouhlením některého z nich,
+             žádný z nich ji nedává přesně a zadání nemá pokyn k zaokrouhlení.
+             Pokyn = „zaokrouhl", „celé", „≈", „desetin" (u slov „Cena 170" by
+             vzor „na \d+" chytal i „na 1" — první verze měřidla se tak spletla). */
+        (function(){
+          if(!/%/.test(text))return;
+          const txt=text.replace(/ /g,' ').replace(/(\d) (\d{3})(?!\d)/g,'$1$2').replace(/(\d),(\d)/g,'$1.$2');
+          if(/zaokrouhl|celé|celých|≈|desetin/i.test(txt))return;
+          const cil=parseFloat(String(t&&t.ans).replace(',','.'));
+          if(!isFinite(cil))return;
+          const c=(txt.match(/\d+(?:\.\d+)?/g)||[]).map(Number);
+          if(c.length<2||c.length>6)return;
+          pctTichDop++;
+          let presne=false,zaokr=null;
+          for(let a=0;a<c.length;a++)for(let b=0;b<c.length;b++){
+            if(a===b)continue;
+            for(const v of [c[a]*c[b]/100,c[a]*(1-c[b]/100),c[a]*(1+c[b]/100),c[a]*100/c[b],c[a]/c[b]*100]){
+              if(!isFinite(v))continue;
+              if(Math.abs(v-cil)<0.0051)presne=true;
+              else if(Math.abs(Math.round(v)-cil)<0.0051&&Math.abs(v-Math.round(v))>0.0051)zaokr=v;
+            }
+          }
+          if(zaokr!==null&&!presne)push('pctTich',where,'„'+txt.replace(/\n/g,' ').slice(0,70)+'" vychází přesně '+(+zaokr.toFixed(4))+', ale ans je '+t.ans+' a zadání nemá pokyn k zaokrouhlení');
         })();
         /* ── Dopředná geometrie: ze zadaných rozměrů dopočítat veličinu ──
              Sourozenec pravidla o inverzní geometrii. Tam se ptáme na
@@ -603,6 +640,10 @@ report('hintMath', 'poslední nápověda se dopočítá na uvedenou odpověď');
 report('geoInv', 'inverzní geometrie: rozměr se dopočítá ze zadané veličiny');
 report('geoFwd', 'dopředná geometrie: veličina se dopočítá ze zadaných rozměrů');
 report('pct', 'procenta, převody jednotek a průměr se dopočítají');
+report('pctTich', 'procenta: odpověď není tiše zaokrouhlená (zadání bez pokynu k zaokrouhlení má přesný výsledek)');
+/* Naměřeno 28. 10. 2026: 23 660 úloh při ITER 260, dva běhy po sobě PŘESNĚ stejně (nic se nelosuje) — těsná podlaha: přírůstek projde, pokles ne.
+   Pokud pravidlo posuzuje míň, přeformulovalo se zadání (pokyn k zaokrouhlení) nebo některá banka vypadla z načtení. */
+ok('procenta: tiché zaokrouhlení se vůbec posuzovalo (' + pctTichDop + ' úloh)', pctTichDop >= 23600, 'posouzeno jen ' + pctTichDop + ' (čekáno ≥ 23 600)');
 report('ctverec', 'žádný „obdélník" nemá obě strany stejné');
 report('troj', 'každý trojúhelník ze tří stran jde sestrojit (součet dvou kratších > nejdelší)');
 /* Pojistka proti planému běhu: rozpoznávač zná jen tvary zadání, které

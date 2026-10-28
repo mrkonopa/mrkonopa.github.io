@@ -19,6 +19,7 @@ const cz = n => String(n).replace('.',',');
 const r2 = n => cz(Math.round(n*100)/100);
 const r1 = n => cz(Math.round(n*10)/10);
 const PI = 3.14;
+const zakladP=(p,lo,hi)=>{const k=100/gcd(p,100),a=Math.ceil(lo/k);return ri(a,Math.max(a,Math.floor(hi/k)))*k;};   // základ pro „p % z základu“: násobek 100/gcd(p,100), aby výsledek vyšel CELÝ (stejná pomůcka je v rpg-mat-8.html a rpg-tasks-7.js)
 const PYT = [[3,4,5],[6,8,10],[5,12,13],[8,15,17],[9,12,15],[7,24,25],[20,21,29],[9,40,41],[12,16,20]];
 
 // ── FRAMING / PHRASING POOLY (rozmanitost zadání beze změny odpovědi) ──
@@ -59,10 +60,10 @@ window.RPG_TASK_EXTRA_8 = {
   (()=>{const z=ri(1,6)*20,p=[10,20,25,50][ri(0,3)];return{text:`${rp(FR)} ${p} % z ${z}?`,ans:String(z*p/100),hints:[`${p} % = ${p}/100.`,`${z} × ${p} : 100`],skill:'anal'};})(),
   (()=>{const c=ri(4,20)*10,v=ri(1,c/10)*10;return{text:`Kolika procenty je ${v} z ${c}?\n(celé číslo)`,ans:String(Math.round(v/c*100)),hints:[`Část : celek × 100.`,`${v} : ${c} × 100`],skill:'anal'};})(),
   (()=>{const z=ri(10,40)*10,p=ri(1,4)*10;const ans=z-Math.round(z*p/100);return{text:`Zboží stojí ${z} Kč, sleva ${p} %.\nNová cena? (Kč)`,ans:String(ans),hints:[`Sleva = ${p} % z ${z}.`,`${z} - ${Math.round(z*p/100)}`],skill:'anal'};})(),
-  (()=>{const z=ri(10,30)*10,p=ri(1,5)*5;const ans=z+Math.round(z*p/100);return{text:`Cena ${z} Kč vzrostla o ${p} %.\nNová cena? (Kč)`,ans:String(ans),hints:[`Přírůstek = ${p} % z ${z}.`],skill:'anal'};})(),
+  (()=>{const p=ri(1,5)*5,z=zakladP(p,100,300);const ans=z+Math.round(z*p/100);return{text:`Cena ${z} Kč vzrostla o ${p} %.\nNová cena? (Kč)`,ans:String(ans),hints:[`Přírůstek = ${p} % z ${z}.`],skill:'anal'};})(),
   (()=>{const z=ri(8,30)*100,p=ri(1,4)*2;return{text:`Vklad ${z} Kč, úrok ${p} % ročně.\nÚrok za rok? (Kč)`,ans:String(Math.round(z*p/100)),hints:[`Úrok = ${p} % z vkladu.`],skill:'anal'};})(),
   (()=>{const p=[10,20,25,50][ri(0,3)],cel=ri(3,9)*20,cast=Math.round(cel*p/100);return{text:`${cast} je ${p} % celku.\nJaký je celek?`,ans:String(cel),hints:[`Celek = část : ${p} × 100.`],skill:'anal'};})(),
-  (()=>{const cena=ri(10,40)*10,dph=21;const s_dph=Math.round(cena*(1+dph/100));return{text:`Cena bez DPH: ${cena} Kč.\nCena s DPH ${dph} %? (Kč)`,ans:String(s_dph),hints:[`${dph} % z ${cena} = ${Math.round(cena*dph/100)}.`,`${cena} + ${Math.round(cena*dph/100)}`],skill:'anal'};})(),
+  (()=>{const cena=ri(1,8)*100,dph=21;const s_dph=Math.round(cena*(1+dph/100));return{text:`Cena bez DPH: ${cena} Kč.\nCena s DPH ${dph} %? (Kč)`,ans:String(s_dph),hints:[`${dph} % z ${cena} = ${Math.round(cena*dph/100)}.`,`${cena} + ${Math.round(cena*dph/100)}`],skill:'anal'};})(),
   (()=>{const orig=ri(4,16)*50,nov=ri(1,4)*50;const pct=Math.round((nov/orig)*100);return{text:`Plat vzrostl z ${orig} Kč o ${nov} Kč.\nO kolik procent? (zaokrouhli na celá %)`,ans:String(pct),hints:[`${nov} : ${orig} × 100.`],skill:'anal'};})(),
   (()=>{const z=ri(2,6)*100,p=ri(5,9)*10;const cast=z*p/100;return{text:`${p} % ze čtvrtletního výdělku ${z} Kč jde na nájem.\nKolik Kč? (Kč)`,ans:String(cast),hints:[`${p} : 100 × ${z}.`],skill:'anal'};})(),
   (()=>{const nov=ri(5,15)*10,orig=nov+ri(1,5)*10;return{text:`Cena klesla z ${orig} Kč na ${nov} Kč.\nO kolik procent? (celé číslo)`,ans:String(Math.round((orig-nov)/orig*100)),hints:[`Pokles : původní × 100.`,`${orig-nov} : ${orig} × 100`],skill:'anal'};})(),
@@ -303,7 +304,7 @@ window.RPG_TASK_EXTRA_8 = {
   (()=>{const cena=ri(3,9)*100,p=ri(2,4)*10;const sl=Math.round(cena*p/100);return{text:`Kolo stálo ${cena} Kč, zlevnili o ${p} %.\nO kolik Kč se snížila cena?`,ans:String(sl),hints:[`${p} % z ${cena}.`],skill:'anal'};})(),
   (()=>{const r=ri(10,30);const o=2*PI*r;return{svg:svgCircleR({r:`r = ${r} cm`}),text:`Kolo o poloměru ${r} cm.\nKolik cm ujede za 1 otáčku? (π = 3,14)`,ans:r2(o),hints:[`Obvod = 2πr.`],skill:'geo'};})(),
   (()=>{const a=ri(30,60);let b=ri(20,50);if(b===a)b=b<50?b+1:b-1; /* strany musi byt ruzne, jinak z obdelniku vyjde ctverec */ const c=Math.sqrt(a*a+b*b);return{svg:svgObdUhl(a,b,`${a} m`,`${b} m`,'?'),text:`Obdélníkové hřiště ${a} × ${b} m.\nDélka úhlopříčky? (2 des. místa)`,ans:r2(c),hints:[`√(${a}² + ${b}²).`],skill:'geo'};})(),
-  (()=>{const lidi=ri(4,9)*5,p=ri(2,8)*5;return{text:`Ve třídě je ${lidi} žáků, ${p} % jsou dívky.\nKolik je dívek?`,ans:String(Math.round(lidi*p/100)),hints:[`${p} % z ${lidi}.`],skill:'anal'};})(),
+  (()=>{const p=ri(2,8)*5,lidi=zakladP(p,20,45);return{text:`Ve třídě je ${lidi} žáků, ${p} % jsou dívky.\nKolik je dívek?`,ans:String(Math.round(lidi*p/100)),hints:[`${p} % z ${lidi}.`],skill:'anal'};})(),
   (()=>{const km=ri(60,120),h=ri(2,4);return{text:`Auto ujelo ${km*h} km za ${h} h.\nPrůměrná rychlost? (km/h)`,ans:String(km),hints:[`Dráha : čas.`,`${km*h} : ${h}`],skill:'anal'};})(),
   (()=>{const cel=ri(4,9)*3,t=cel/3;return{text:`Třetina žáků (${t}) odešla.\nKolik žáků bylo původně, je-li to třetina?`,ans:String(cel),hints:[`Třetina = ${t}, celek = 3×.`],skill:'anal'};})(),
   (()=>{const x=ri(3,10),a=ri(2,5),b=ri(2,8);return{text:`Rovnice: ${a}(x + ${b}) = ${a*(x+b)}\nx = ?`,ans:String(x),hints:[`Vyděl ${a}: x + ${b} = ${x+b}.`],skill:'anal'};})(),
