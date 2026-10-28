@@ -36,7 +36,11 @@ async function fillAndSubmit(page, sabotage, tfSpatne, kn){
       else if(t.kind==='mc'){ const r=document.querySelector('input[name="cm-mc-'+t.no+'"][value="'+t.ans+'"]'); if(r)r.checked=true; }
       else if(t.kind==='match'){ t.prompts.forEach((p,i)=>{ const sel=document.getElementById('cm-match-'+t.no+'-'+i); if(sel)sel.value=t.ans[i]; }); }
       else if(t.kind==='konstrukce'){ if(kn==='nic') return;
-        t.u.reseni.forEach(r=>Object.values(r).forEach(p=>CM.okna[t.no].tvary.push({typ:'bod', p: kn==='mirne' ? PZ_GEO.bod(p.x+14, p.y) : p}))); }
+        t.u.reseni.forEach(r=>Object.values(r).forEach(p=>CM.okna[t.no].tvary.push({typ:'bod', p: kn==='mirne' ? PZ_GEO.bod(p.x+14, p.y) : p})));
+        /* hledané PŘÍMKY (úloha 2015 ú. 9) jsou součást řešení; „mírně“ = posun kolmo o 14 jednotek (mezi 10 a 18), ať nezáleží na sklonu přímky */
+        (t.u.hledanePrimky||[]).forEach(l=>{ let p=l.p, q=l.q;
+          if(kn==='mirne'){ const d=PZ_GEO.jednot(PZ_GEO.odecti(q,p)), n=PZ_GEO.bod(-d.y*14, d.x*14); p=PZ_GEO.secti(p,n); q=PZ_GEO.secti(q,n); }
+          CM.okna[t.no].tvary.push({typ:'primka', p, q}); }); }
       else { (t.parts||[]).forEach((p,i)=>{ const inp=document.getElementById('cm-p-'+t.no+'-'+i);
         if(!inp)return; if(sab&&!firstOpenDone){ inp.value='___SPATNE___'; firstOpenDone=true; } else inp.value=String(p.ans); }); }
     });
@@ -96,8 +100,8 @@ async function fillAndSubmit(page, sabotage, tfSpatne, kn){
     const m=s.getScreenCTM(); return Object.values(CM.tasks[9].u.reseni[0]).map(p=>({x:m.a*p.x+m.c*p.y+m.e, y:m.b*p.x+m.d*p.y+m.f})); });
   for(const c of cile) await page.mouse.click(c.x, c.y);
   const klik=await page.evaluate(()=>{ const r=Object.values(CM.tasks[9].u.reseni[0]), tv=CM.okna[10].tvary;
-    return { n10:tv.length, n9:CM.okna[9].tvary.length, max:Math.max(...r.map(p=>Math.min(...tv.map(t=>Math.hypot(t.p.x-p.x,t.p.y-p.y))))) }; });
-  ok(klik.n10===cile.length && klik.n9===0 && klik.max<1.5,'klik myší nástrojem Bod kreslí jen do okna úlohy 10 a trefí vrcholy ('+klik.n10+' bodů, okno 9: '+klik.n9+', odchylka '+klik.max.toFixed(2)+')');
+    return { n10:tv.length, n9:CM.okna[9].tvary.length, typ:CM.tasks[9].u.typ, max:Math.max(...r.map(p=>Math.min(...tv.map(t=>Math.hypot(t.p.x-p.x,t.p.y-p.y))))) }; });
+  ok(klik.n10===cile.length && klik.n9===0 && klik.max<1.5,'klik myší nástrojem Bod kreslí jen do okna úlohy 10 a trefí vrcholy (typ '+klik.typ+': '+klik.n10+' bodů z '+cile.length+', okno 9: '+klik.n9+', odchylka '+klik.max.toFixed(2)+')');
 
   // ── vše správně → 50/50 ──
   await fillAndSubmit(page, false);
@@ -140,7 +144,9 @@ async function fillAndSubmit(page, sabotage, tfSpatne, kn){
     // konstrukce (úlohy 9 a 10) mají v rozboru snímek kresby a zadání jako úvod
     svgT: CM.tasks.filter(t=>t.svg||t.kind==='konstrukce').length,
     introT: CM.tasks.filter(t=>t.intro||t.kind==='konstrukce').length,
-    svgD: document.querySelectorAll('#cm-end-detail .cm-review-svg svg').length,
+    /* jen KOŘENOVÉ <svg> (přímý potomek): trojúhelníková síť (pozice 8, ~17 % úloh s obrázkem na této pozici) je jeden obrázek ze čtyř vnořených <svg>,
+       takže počet všech <svg> vyskočil o 3 a test padal asi v každém osmém běhu („11 / 8“, „10 / 7“) */
+    svgD: document.querySelectorAll('#cm-end-detail .cm-review-svg > svg').length,
     introD: document.querySelectorAll('#cm-end-detail .cm-review-intro').length
   }));
   ok(ctxR.svgT>0 && ctxR.introT>0,'běh obsahuje úlohy s nákresem i introm ('+ctxR.svgT+' / '+ctxR.introT+')');
@@ -196,7 +202,8 @@ async function fillAndSubmit(page, sabotage, tfSpatne, kn){
   await tp.tap('#cm-kn9-svg');
   await tp.waitForFunction(()=>CM.okna[9].jePlna(),null,{timeout:3000}).catch(()=>{});
   const f=await tp.evaluate(()=>({ plna:CM.okna[9].jePlna(), tlacitka:[...document.querySelectorAll('#kn-full-akce button')].map(b=>b.textContent),
-    cas:document.getElementById('kn-full-cas').textContent, text:document.getElementById('kn-full-text').textContent===CM.tasks[8].u.text }));
+    cas:document.getElementById('kn-full-cas').textContent, /* zobrazený text prošel PZ.typo (pevná mezera u jednotky, minus „−“), zdrojový ne: srovnává se po převodu zpět (8 % zadání se liší) */
+    text:document.getElementById('kn-full-text').textContent.replace(/\u00A0/g,' ').replace(/\u2212/g,'-')===CM.tasks[8].u.text.replace(/\u00A0/g,' ').replace(/\u2212/g,'-') }));
   ok(f.plna && f.tlacitka.join()==='✓ Hotovo' && f.text,'tablet: celá obrazovka se zadáním a jen tlačítkem Hotovo — v testu se průběžně nevyhodnocuje ('+f.tlacitka.join()+')');
   await tp.evaluate(()=>updateTimerUI());
   ok(/^⏱ \d+:\d\d$/.test(await tp.evaluate(()=>document.getElementById('kn-full-cas').textContent)),'tablet: čas testu je vidět i při kreslení přes celou obrazovku');

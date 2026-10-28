@@ -255,14 +255,35 @@
     }
     return kand;
   }
+  /* Hledaná PŘÍMKA (`u.hledanePrimky = [{nazev, p, q}]`, např. „vrcholem B veďte přímku rovnoběžnou s AC“): výsledkem není bod, ale čára,
+     takže ji kandidáti-body nepoznají. Nakreslená čára ji splní, když dva její body vzdálené 150 jednotek od sebe leží v toleranci od hledané
+     přímky: u přímky kolem jejího prvního bodu, u polopřímky od vrcholu, u úsečky její konce. Úsečka kratší než 80 jednotek se nepočítá
+     (křížek ani značka přímku neurčují a krátká by připustila libovolný sklon). Vrací nejmenší dosaženou největší odchylku, tedy ve STEJNÝCH
+     jednotkách jako vzdálenost bodu (platí TOL_PRESNE a TOL_MIRNE); bez vhodné čáry Infinity. */
+  function vzdalHledanePrimky(L, tvary) {
+    let nej = Infinity;
+    for (const t of tvary || []) {
+      let a, b;
+      if (t.typ === 'usecka') { if (vzdal(t.p, t.q) < 80) continue; a = t.p; b = t.q; }
+      else if (t.typ === 'primka' || t.typ === 'poloprimka') {
+        if (vzdal(t.p, t.q) < 1e-6) continue;
+        const u = jednot(odecti(t.q, t.p));
+        a = t.typ === 'primka' ? secti(t.p, nasob(u, -150)) : t.p; b = secti(t.p, nasob(u, 150));
+      } else continue;
+      const d = Math.max(vzdalOdPrimky(a, L.p, L.q), vzdalOdPrimky(b, L.p, L.q));
+      if (d < nej) nej = d;
+    }
+    return nej;
+  }
   function vyhodnot(u, tvary, tol) {
     const T = tol || u.tol || 10;
     const kand = kandidati(tvary);
-    const reseni = u.reseni.map(s => Object.keys(s).every(k => kand.some(c => vzdal(c.p, s[k]) <= T)));
+    const prim = (u.hledanePrimky || []).map(L => vzdalHledanePrimky(L, tvary));
+    const reseni = u.reseni.map(s => Object.keys(s).every(k => kand.some(c => vzdal(c.p, s[k]) <= T)) && prim.every(d => d <= T));
     const nalezeno = reseni.filter(Boolean).length;
     const vyznamne = [].concat(Object.values(u.dane.body || {}), ...u.reseni.map(s => Object.values(s)), u.pomocne || []);
     const navic = kand.filter(c => c.oznaceny && !vyznamne.some(v => vzdal(v, c.p) <= T)).length;
-    const hledanych = u.reseni.reduce((s, r) => s + Object.keys(r).length, 0);
+    const hledanych = u.reseni.reduce((s, r) => s + Object.keys(r).length, 0) + (u.hledanePrimky || []).length;
     const kropeni = navic > Math.max(3, hledanych);
     return { nalezeno, celkem: u.reseni.length, reseni, navic, kropeni, spravne: nalezeno === u.reseni.length && !kropeni };
   }
@@ -279,9 +300,9 @@
   const TOL_PRESNE = 10, TOL_MIRNE = 18;
   // Stav každého řešení: 'presne' | 'mirne' | 'cast' (jen některé hledané body) | null
   function stavReseni(u, tvary) {
-    const kand = kandidati(tvary);
+    const kand = kandidati(tvary), prim = (u.hledanePrimky || []).map(L => vzdalHledanePrimky(L, tvary));
     return u.reseni.map(s => {
-      const d = Object.keys(s).map(k => kand.reduce((m, c) => Math.min(m, vzdal(c.p, s[k])), Infinity));
+      const d = Object.keys(s).map(k => kand.reduce((m, c) => Math.min(m, vzdal(c.p, s[k])), Infinity)).concat(prim);
       if (d.every(x => x <= TOL_PRESNE)) return 'presne';
       if (d.every(x => x <= TOL_MIRNE)) return 'mirne';
       return d.some(x => x <= TOL_MIRNE) ? 'cast' : null;
@@ -329,5 +350,5 @@
 
   window.PZ_GEO = { CM, W, H, bod, vzdal, stred, jednot, secti, odecti, nasob, skal, vekt, uhel, pata, vzdalOdPrimky, vzdalOdUsecky,
     osove, stredove, prusecikPP, prusecikyPK, prusecikyKK, pruseciky, fitKruznice, rozpoznej, prichytne, prichyt, nejblizsi, vyhodnot, oriznoutNaOkno,
-    oriznoutPoloprimku, vzdalOdPoloprimky, otoc, TOL_PRESNE, TOL_MIRNE, stavReseni, bodovat };
+    oriznoutPoloprimku, vzdalOdPoloprimky, otoc, TOL_PRESNE, TOL_MIRNE, stavReseni, bodovat, vzdalHledanePrimky };
 })();

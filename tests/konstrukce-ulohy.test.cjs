@@ -903,6 +903,21 @@ const VLASTNOST = {
     const g0 = g(0), g1 = g(1), t0 = -g0 / (g1 - g0), B3 = G.secti(p.p, G.nasob(up, t0));
     return G.vzdal(B3, Bb) < 1e-6 ? null : 'B není jediný kořen rovnice (kořen je jinde o ' + G.vzdal(B3, Bb).toFixed(2) + ')';
   },
+  // 2015 ilustrační ú. 9: střed čtverce + rovnoběžka s AC vedená bodem B. Střed se bere jako PRŮSEČÍK úhlopříček (ne průměr vrcholů jako v generátoru),
+  // přímka se kontroluje ze zadání (prochází B, je rovnoběžná s AC) a hodnocení musí brát přímku jako součást řešení.
+  ctverecStredRovnobezka(u) {
+    const { A, B: Bb, C, D } = u.dane.body, { S } = u.reseni[0], L = (u.hledanePrimky || [])[0];
+    const e = ctverec4(A, Bb, C, D); if (e) return e;
+    if (u.hledanePrimky.length !== 1 || !L) return 'chybí hledaná přímka';
+    const X = G.prusecikPP(A, C, Bb, D);
+    if (!X || G.vzdal(X, S) > EPS) return 'S není průsečík úhlopříček';
+    if (!naPrimce(Bb, L)) return 'p neprochází bodem B';
+    if (Math.abs(G.vekt(G.jednot(G.odecti(C, A)), G.jednot(G.odecti(L.q, L.p)))) > 1e-9) return 'p není rovnoběžná s AC';
+    if (G.vzdalOdPrimky(S, L.p, L.q) < 40) return 'p vede příliš blízko středu (splývala by s úhlopříčkou)';
+    const kon = G.oriznoutNaOkno(L.p, L.q, 20);
+    if (!kon || G.vzdal(kon.p, kon.q) < 200) return 'p má v okně málo místa na narýsování';
+    return null;
+  },
 };
 const POCET_RESENI = { thales: 2, osa: 1, kruznice: 2, vyska: 2, soumernost: 1, rovnobeznik: 1, obdelnik: 2, ctverec: 1, kosoctverec: 1, lichobeznik: 1, teznice: 2, rovnoramenny: 2,
   stredova: 1, osauhlu: 1, opsana: 1, vysky: 1, obdelnikUhl: 2, obdelnikM: 1, lichobeznikZakl: 1, rovnoramennyOsa: 1, ctverecUhl: 1, vcTc: 1,
@@ -914,7 +929,7 @@ const POCET_RESENI = { thales: 2, osa: 1, kruznice: 2, vyska: 2, soumernost: 1, 
   rovnostrannyStred: 1, pravouhlyLichKruz: 1, rovnoramennyStredQ: 2, rovnoramennyOsaQ: 2, obdelnikRovnobezky: 2, rovnobeznikRovnobezkaP: 1, obdelnikOpsanaM: 1, trojuhelnikOsy: 1,
   rovnoramennyDvojnasobek: 3, obdelnikCDCS: 2, pravouhlyRovnoramennyX: 2, rovnobeznikVyskaBD: 1, ctverecPolorovina: 3, lichobeznikKolmeUhl: 1, rovnobeznikDvojnasobek: 2, lichobeznikKruzAC: 1,
   pravouhlyLichAC: 2, obdelnikDvePrimky: 1, ctverecTriBody: 2,
-  kosoctverecVyska: 1, ctverecVepsany: 1, lichobeznikKruzCD: 1, lichobeznikTrojnasobek: 1, ctverecKruzP: 3, rovnoramennyPrimkaA: 1, rovnoramennyPoloprimka: 1, rovnoramennyZaklQ: 1, ctverecStredP: 1 };
+  kosoctverecVyska: 1, ctverecVepsany: 1, lichobeznikKruzCD: 1, lichobeznikTrojnasobek: 1, ctverecKruzP: 3, rovnoramennyPrimkaA: 1, rovnoramennyPoloprimka: 1, rovnoramennyZaklQ: 1, ctverecStredP: 1, ctverecStredRovnobezka: 1 };
 
 /* Polopřímka (rameno z úhloměru) v geometrii: průsečík za vrcholem se nepočítá,
    vrchol je bod k přichycení a kreslí se jen od vrcholu dál. Kružnice
@@ -934,7 +949,7 @@ console.log('── Polopřímka ──');
 }
 
 console.log('── Konstrukce: generátory úloh ──');
-ok(K.TYPY.length === 84 && K.TYPY.every(t => VLASTNOST[t]), '84 typů a každý má nezávislou kontrolu (' + K.TYPY.join(', ') + ')');
+ok(K.TYPY.length === 85 && K.TYPY.every(t => VLASTNOST[t]), '85 typů a každý má nezávislou kontrolu (' + K.TYPY.join(', ') + ')');
 
 const N = 300;
 for (const typ of K.TYPY) {
@@ -963,17 +978,21 @@ for (const typ of K.TYPY) {
     if (u.reseni.length > 1 && !/Najděte všechna řešení\./.test(u.text)) vsechna++;
     // hodnocení nad touto úlohou: všechna řešení → správně; o jedno míň → ne; jen zadané body → nic
     const bodT = p => ({ typ: 'bod', p });
-    const vse = G.vyhodnot(u, reseni.map(bodT)), bezJednoho = G.vyhodnot(u, reseni.filter(x => G.vzdal(x, reseni[0]) > EPS).map(bodT)), zadane = G.vyhodnot(u, dane.map(bodT));
+    // hledané PŘÍMKY (jen úloha 2015 ú. 9) se k bodům přidávají jako nakreslená čára; bez ní řešení není splněné
+    const prim = (u.hledanePrimky || []).map(l => ({ typ: 'primka', p: l.p, q: l.q }));
+    const vse = G.vyhodnot(u, reseni.map(bodT).concat(prim)), bezJednoho = G.vyhodnot(u, reseni.filter(x => G.vzdal(x, reseni[0]) > EPS).map(bodT).concat(prim)), zadane = G.vyhodnot(u, dane.map(bodT));
     if (!(vse.spravne && !bezJednoho.spravne && zadane.nalezeno === 0)) hodnoceni++;
+    if (prim.length && (G.vyhodnot(u, reseni.map(bodT)).spravne || G.vyhodnot(u, prim).spravne)) hodnoceni++;   // jen body bez přímky, nebo jen přímka bez bodů, nesmí stačit
     /* bodování testu nanečisto podle klíče CERMAT, úloha za 3 b.: posun o 14 jednotek
        leží mezi tolerancí „přesně" (10) a „mírně nepřesně" (18) */
     const posun = x => { const f = Math.random() * 2 * Math.PI; return G.bod(x.x + 14 * Math.cos(f), x.y + 14 * Math.sin(f)); };
     const b3 = tv => G.bodovat(u, tv, 3).body;
-    const cekam = [[b3(reseni.map(bodT)), 3, 'přesně'], [b3(reseni.map(x => bodT(posun(x)))), 2, 'mírně nepřesně'], [b3([]), 0, 'nic'], [b3(dane.map(bodT)), 0, 'jen zadané body']];
+    const cekam = [[b3(reseni.map(bodT).concat(prim)), 3, 'přesně'], [b3(reseni.map(x => bodT(posun(x))).concat(prim)), 2, 'mírně nepřesně'], [b3([]), 0, 'nic'], [b3(dane.map(bodT)), 0, 'jen zadané body']];
     if (u.reseni.length > 1) cekam.push([b3(Object.values(u.reseni[0]).map(bodT)), 2, 'jen první řešení přesně'], [b3(Object.values(u.reseni[0]).map(x => bodT(posun(x)))), 1, 'jen první řešení mírně nepřesně']);
+    if (prim.length) cekam.push([b3(reseni.map(bodT)), 1, 'body bez hledané přímky (část)'], [b3(prim), 1, 'přímka bez hledaných bodů (část)']);
     if (u.hledane.length > 1) cekam.push([b3([bodT(Object.values(u.reseni[0])[0])]), 1, 'jen jeden hledaný bod']);
     const sit = []; for (let x = 20; x <= 380; x += 20) for (let y = 20; y <= 280; y += 20) sit.push(bodT(G.bod(x, y)));
-    cekam.push([b3(sit), 0, 'kropení (síť bodů)'], [G.bodovat(u, reseni.map(x => bodT(posun(x))), 2).body, 1, 'úloha za 2 b., mírně nepřesně']);
+    cekam.push([b3(sit), 0, 'kropení (síť bodů)'], [G.bodovat(u, reseni.map(x => bodT(posun(x))).concat(prim), 2).body, 1, 'úloha za 2 b., mírně nepřesně']);
     for (const [je, ma, co] of cekam) if (je !== ma) bodovani.push(co + ' → ' + je + ' b. místo ' + ma);
     prvni.add(dane[0].x.toFixed(1) + ',' + dane[0].y.toFixed(1));
     // popsané body (zadané + body s popiskem v postupu) se nesmí překrývat popisky

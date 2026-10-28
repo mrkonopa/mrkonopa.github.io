@@ -2552,6 +2552,34 @@
     return null;
   }
 
+  /* ── 85) Čtverec ABCD: střed S a přímka p ∥ AC vedená vrcholem B (CZVV ilustrační 2015, ú. 9, 2 b.) ──
+     JEDINÁ úloha z archivu, jejímž výsledkem je kromě bodu i PŘÍMKA: `hledanePrimky` hodnotí G.vzdalHledanePrimky
+     (stejné tolerance jako u bodů). Dvě stejně dobrá provedení: nástrojem Rovnoběžka, nebo kolmicí k BD v bodě B
+     (úhlopříčky čtverce jsou na sebe kolmé). */
+  function ctverecStredRovnobezka() {
+    for (let g = 0; g < 600; g++) {
+      const S = bod(nah(140, 260), nah(110, 190)), w = nasob(smer(nah(0, 2 * Math.PI)), nah(50, 80));
+      const A = odecti(S, w), C = secti(S, w), Bb = secti(S, rot(w)), D = odecti(S, rot(w)), vse = [S, A, Bb, C, D];
+      const l = { nazev: 'p', p: Bb, q: secti(Bb, w) }, kon = G.oriznoutNaOkno(l.p, l.q, 20);
+      // přímka musí mít v okně dost místa, aby šla narýsovat; body od sebe aspoň 36 (jedna značka nesmí trefit dva)
+      if (!vsechnyUvnitr(vse) || !kon || vzdal(kon.p, kon.q) < 200 || !rozestup(vse, 36)) continue;
+      return {
+        typ: 'ctverecStredRovnobezka', nazev: 'Čtverec — střed S, rovnoběžka s AC',
+        text: 'Je dán čtverec ABCD. Sestrojte jeho střed S a vrcholem B veďte přímku p rovnoběžnou s úhlopříčkou AC.',
+        dane: { body: { A, B: Bb, C, D }, mnohouhelniky: [['A', 'B', 'C', 'D']] },
+        hledane: ['S'], reseni: [{ S }], hledanePrimky: [{ nazev: 'p', p: l.p, q: l.q }], pomocne: [],
+        postup: [
+          { text: 'Střed čtverce je průsečík jeho úhlopříček. Narýsujte úhlopříčky AC a BD; průsečík je střed S.', tvary: [U(A, C), U(Bb, D), B(S, 'S')] },
+          { text: 'Přímka p vede bodem B rovnoběžně s AC (nástroj Rovnoběžka). Jde to i kolmicí: úhlopříčky čtverce jsou na sebe kolmé, takže kolmice k BD v bodě B je rovnoběžná s AC.', tvary: [P(l)] },
+        ],
+        napovedy: ['Kde se čtverci protínají úhlopříčky? Střed je jejich průsečík.',
+          'Úhlopříčky AC a BD se protnou ve středu S. Přímka p má stejný směr jako AC a prochází bodem B — rovnoběžka, nebo kolmice k BD v bodě B.',
+          'Střed S a přímka p jsou teď vidět v okně.'],
+      };
+    }
+    return null;
+  }
+
   const GENERATORY = { thales, osa, kruznice, vyska, soumernost, rovnobeznik, obdelnik, ctverec, kosoctverec, lichobeznik, teznice, rovnoramenny,
     stredova, osauhlu, opsana, vysky, obdelnikUhl, obdelnikM, lichobeznikZakl, rovnoramennyOsa, ctverecUhl, vcTc, obdelnikStrana,
     kosoctverecOsa, teziste, dveThalet, rovnoramennyKruz, pravouhlyLich, osaStrany, sestiuhelnik, stredyStran, lichobeznikTri, obdelnikSp, rovnoramennyZakl,
@@ -2561,7 +2589,7 @@
     rovnostrannyStred, pravouhlyLichKruz, rovnoramennyStredQ, rovnoramennyOsaQ, obdelnikRovnobezky, rovnobeznikRovnobezkaP, obdelnikOpsanaM, trojuhelnikOsy,
     rovnoramennyDvojnasobek, obdelnikCDCS, pravouhlyRovnoramennyX, rovnobeznikVyskaBD, ctverecPolorovina, lichobeznikKolmeUhl, rovnobeznikDvojnasobek, lichobeznikKruzAC,
     pravouhlyLichAC, obdelnikDvePrimky, ctverecTriBody,
-    kosoctverecVyska, ctverecVepsany, lichobeznikKruzCD, lichobeznikTrojnasobek, ctverecKruzP, rovnoramennyPrimkaA, rovnoramennyPoloprimka, rovnoramennyZaklQ, ctverecStredP };
+    kosoctverecVyska, ctverecVepsany, lichobeznikKruzCD, lichobeznikTrojnasobek, ctverecKruzP, rovnoramennyPrimkaA, rovnoramennyPoloprimka, rovnoramennyZaklQ, ctverecStredP, ctverecStredRovnobezka };
   const TYPY = Object.keys(GENERATORY);
   /* Úlohy 9 a 10 testu nanečisto. V ostrých testech 2019–2026 jsou obě VŽDY
      konstrukce za 2 nebo 3 body; tříbodové bývají „najděte všechna řešení"
@@ -2584,7 +2612,7 @@
       'rovnobeznikUhlopricka', 'rovnobeznikStred', 'obdelnikAE', 'rovnoramennyVyskaC',
       'rovnoramennyOsaQ', 'obdelnikRovnobezky', 'rovnobeznikRovnobezkaP', 'obdelnikOpsanaM', 'trojuhelnikOsy',
       'obdelnikCDCS', 'rovnobeznikVyskaBD', 'lichobeznikKolmeUhl', 'lichobeznikKruzAC',
-      'ctverecVepsany', 'lichobeznikKruzCD', 'lichobeznikTrojnasobek', 'ctverecKruzP', 'rovnoramennyPoloprimka', 'ctverecStredP'],
+      'ctverecVepsany', 'lichobeznikKruzCD', 'lichobeznikTrojnasobek', 'ctverecKruzP', 'rovnoramennyPoloprimka', 'ctverecStredP', 'ctverecStredRovnobezka'],
   };
   function proTest(cislo) {
     const typy = PRO_TEST[cislo];
