@@ -210,6 +210,8 @@
         h += textSvg(rozlozeni(u).misto(p), k + (vic && !sdileny ? idx[i] : ''), 'kn-r-txt');
       }));
     }
+    // hledané PŘÍMKY (např. rovnoběžka vedená vrcholem) se ukazují spolu s hledanými body
+    if (uk && uk.reseni) (u.hledanePrimky || []).forEach(l => { h += primkaSvg(l.p, l.q, 'kn-r'); });
     kroky.forEach(s => s.tvary.forEach(t => {
       h += t.typ === 'bod' ? '<circle cx="' + f1(t.p.x) + '" cy="' + f1(t.p.y) + '" r="3.5" class="kn-r-bod"/>' + (t.popis ? textSvg(rozlozeni(u).misto(t.p), t.popis, 'kn-r-txt') : '') : tvarSvg(t, 'kn-r');
     }));

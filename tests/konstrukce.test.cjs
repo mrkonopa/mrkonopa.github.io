@@ -92,9 +92,18 @@ const vysledek=page=>page.evaluate(()=>{ const v=document.querySelector('#kn-vys
     ok(dane.every(k=>popisky.includes(k)) && bezTypo(await page.textContent('#kn-text'))===u.text,typ+': zadané body '+dane.join(', ')+' jsou v okně popsané a text zadání je pod ním');
     await nastroj(page,'bod');
     for(const s of u.reseni) for(const p of Object.values(s)) await klik(page,p);
+    // hledaná PŘÍMKA (2015 ú. 9): bez ní „Správně“ být nesmí; narýsuje se pravítkem po celé délce okna (úsečka pod 80 jednotek se za přímku nepočítá)
+    const hledanePrimky=u.hledanePrimky||[];
+    if(hledanePrimky.length){
+      // mezikrok se vyhodnocuje přímo (ne tlačítkem): první vyhodnocení úlohy se počítá do „správně X z Y“ a pokazilo by součet
+      const bez=await page.evaluate(()=>PZ_GEO.vyhodnot(KN.u,KN.tvary));
+      ok(!bez.spravne&&bez.nalezeno===0,typ+': jen střed bez hledané přímky NENÍ správně (nalezeno '+bez.nalezeno+' z '+bez.celkem+')');
+      await nastroj(page,'pravitko');
+      for(const l of hledanePrimky){ const kon=await page.evaluate(l2=>PZ_GEO.oriznoutNaOkno(l2.p,l2.q,20),l); await tah(page,[kon.p,kon.q]); }
+    }
     await page.click('#kn-vyhodnot');
     const v=await vysledek(page);
-    ok(v&&v.ok&&/Správně/.test(v.t),typ+': Bod na každém řešení ('+u.reseni.reduce((a,s)=>a+Object.keys(s).length,0)+') → „Správně"'+(v?'':' (žádný výsledek)'));
+    ok(v&&v.ok&&/Správně/.test(v.t),typ+': Bod na každém řešení ('+u.reseni.reduce((a,s)=>a+Object.keys(s).length,0)+(hledanePrimky.length?' + '+hledanePrimky.length+' přímka':'')+') → „Správně"'+(v?'':' (žádný výsledek)'));
   }
   const pocitadlo=await page.evaluate(()=>[document.getElementById('kn-ok').textContent,document.getElementById('kn-total').textContent]);
   ok(pocitadlo[0]===String(typy.length)&&pocitadlo[1]===String(typy.length),'počítadlo „správně X z Y" = '+pocitadlo.join(' z '));

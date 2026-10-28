@@ -146,6 +146,7 @@
         <option value="lichobeznikTrojnasobek">Lichoběžník · úhel 3×</option>
         <option value="ctverecKruzP">Čtverec · dva vrcholy na k</option>
         <option value="ctverecStredP">Čtverec · střed S, AC ∥ p</option>
+        <option value="ctverecStredRovnobezka">Čtverec · střed S a p ∥ AC</option>
       </optgroup>
       <optgroup label="S úhloměrem">
         <option value="rovnoramennyUhel">Úhel při K · |LK| = |LM|</option>
@@ -242,7 +243,7 @@ function knVyhodnot(){
   else if(v.spravne) t='✓ Správně! '+(v.celkem>1?'Našel/našla jsi všechna řešení ('+v.celkem+').':'Hledané body sedí.');
   else if(b.mirne>0&&b.presne+b.mirne===b.celkem) t='Skoro! '+(b.celkem>1?'Všechna řešení máš':'Hledané body máš')+', ale kousek vedle — to je mírná nepřesnost. Průsečíky ber přesně: klepni k nim a bod se přichytí.';
   else if(v.nalezeno>0) t='Našel/našla jsi '+v.nalezeno+' z '+v.celkem+' řešení. Úloha chce všechna.';
-  else t='Hledaný bod tam zatím není. Označ ho klepnutím nástrojem Bod (nebo ať v něm končí úsečka).';
+  else t=KN.u.hledanePrimky?'Něco chybí — hledaný bod, nebo přímka. Bod označ klepnutím nástrojem Bod; přímku narýsuj nástrojem Přímka, Rovnoběžka nebo Kolmice.':'Hledaný bod tam zatím není. Označ ho klepnutím nástrojem Bod (nebo ať v něm končí úsečka).';
   if(!v.kropeni&&v.navic>0) pozn='Máš '+v.navic+' '+(v.navic===1?'bod':v.navic<5?'body':'bodů')+' mimo řešení — jsou-li pomocné, nevadí to.';
   if(max) pozn=(pozn?pozn+' ':'')+'V testu nanečisto by to bylo za '+b.body+' z '+max+' b.';
   document.getElementById('kn-vysledek').innerHTML='<div class="kn-vysl '+(v.spravne?'ok':'bad')+'">'+PZ.esc(t)+(pozn?'<span class="kn-pozn">'+PZ.esc(pozn)+'</span>':'')+'</div>';

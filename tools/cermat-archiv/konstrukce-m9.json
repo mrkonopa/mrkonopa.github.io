@@ -71,6 +71,6 @@
   {"id": 8, "rok": 2016, "termin": "ilustrační", "uloha": 10, "body": 3, "obrazec": "lichoběžník", "dane": "kružnice k, A,C", "podminky": "všechny vrcholy na k; AC=AB", "vsechna": false, "pokryti": "ano", "typ": "lichobeznikKruzAC"},
   {"id": 1, "rok": 2015, "termin": "1. řádný", "uloha": 9, "body": 2, "obrazec": "bod a přímka", "dane": "různoběžky o,p; A∈p", "podminky": "osová souměrnost podle o", "vsechna": false, "pokryti": "ano", "typ": "soumernost"},
   {"id": 2, "rok": 2015, "termin": "1. řádný", "uloha": 10, "body": 3, "obrazec": "rovnoramenný trojúhelník", "dane": "A,B,Y", "podminky": "C na polopřímce BY, základna AB; osa souměrnosti", "vsechna": false, "pokryti": "ano", "typ": "rovnoramennyPoloprimka"},
-  {"id": 3, "rok": 2015, "termin": "ilustrační", "uloha": 9, "body": 2, "obrazec": "čtverec", "dane": "čtverec ABCD", "podminky": "střed; rovnoběžka s úhlopříčkou", "vsechna": false, "pokryti": "cast", "typ": "ctverec"},
+  {"id": 3, "rok": 2015, "termin": "ilustrační", "uloha": 9, "body": 2, "obrazec": "čtverec", "dane": "čtverec ABCD", "podminky": "střed; rovnoběžka s úhlopříčkou", "vsechna": false, "pokryti": "ano", "typ": "ctverecStredRovnobezka"},
   {"id": 4, "rok": 2015, "termin": "ilustrační", "uloha": 10, "body": 3, "obrazec": "čtverec", "dane": "S,p", "podminky": "B∈p; AC∥p", "vsechna": false, "pokryti": "ano", "typ": "ctverecStredP"}
 ]

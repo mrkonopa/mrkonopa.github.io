@@ -107,6 +107,50 @@ const kropeni = G.vyhodnot(u, Array.from({ length: 40 }, (_, i) => bodT(10 + (i 
 ok(kropeni.kropeni && !kropeni.spravne, 'síť 40 bodů přes celé okno („kropení") → neuzná se, i když řešení zasáhne');
 ok(G.vyhodnot(u, [bodT(150, 60), bodT(250, 240), bodT(200, 150)]).spravne, 'jeden pomocný bod navíc nevadí');
 
+// 5) hledaná PŘÍMKA (2015 ú. 9: střed čtverce + rovnoběžka s AC vedená bodem B): výsledkem je čára, ne bod
+console.log('── hledaná přímka ──');
+{
+  const SS = B(200, 150), Ap = B(150, 150), Cp = B(250, 150), Bp = B(200, 100), Dp = B(200, 200);   // čtverec s úhlopříčkou AC vodorovně
+  const L = { nazev: 'p', p: Bp, q: B(300, 100) };                                                   // rovnoběžka s AC bodem B
+  const uP = { dane: { body: { A: Ap, B: Bp, C: Cp, D: Dp } }, reseni: [{ S: SS }], hledanePrimky: [L], pomocne: [], tol: 10 };
+  const S0 = bodT(200, 150);
+  const primka = (p, q) => ({ typ: 'primka', p, q });
+  const natoc = st => { const a = st * Math.PI / 180; return B(Bp.x + 100 * Math.cos(a), Bp.y + 100 * Math.sin(a)); };
+  ok(G.vzdalHledanePrimky(L, [primka(Bp, B(300, 100))]) < 1e-9, 'přesná přímka → odchylka 0');
+  ok(G.vzdalHledanePrimky(L, [primka(B(60, 100), B(90, 100))]) < 1e-9, 'jiné dva body téže přímky → odchylka 0');
+  ok(G.vzdalHledanePrimky(L, []) === Infinity && G.vzdalHledanePrimky(L, [bodT(200, 100)]) === Infinity, 'bez čáry (nebo jen značka) → Infinity');
+  // odchylka na koncích 150jednotkové základny je 150·sin φ: přesné pásmo do 3,8°, mírné do 6,9°
+  const o3 = G.vzdalHledanePrimky(L, [primka(Bp, natoc(3))]), o55 = G.vzdalHledanePrimky(L, [primka(Bp, natoc(5.5))]), o8 = G.vzdalHledanePrimky(L, [primka(Bp, natoc(8))]), o20 = G.vzdalHledanePrimky(L, [primka(Bp, natoc(20))]);
+  ok(o3 > 5 && o3 <= G.TOL_PRESNE, 'sklon 3° → odchylka ' + o3.toFixed(1) + ' (v přesné toleranci)');
+  ok(o55 > G.TOL_PRESNE && o55 <= G.TOL_MIRNE, 'sklon 5,5° → odchylka ' + o55.toFixed(1) + ' (mírná nepřesnost)');
+  ok(o8 > G.TOL_MIRNE && o20 > o8, 'sklon 8° → odchylka ' + o8.toFixed(1) + ' (už mimo mírnou toleranci)');
+  ok(o20 > G.TOL_MIRNE, 'sklon 20° → odchylka ' + o20.toFixed(1) + ' (mimo)');
+  ok(G.vzdalHledanePrimky(L, [primka(B(200, 120), B(300, 120))]) >= 19.9, 'rovnoběžka o 20 jednotek vedle (neprochází B) → odchylka 20');
+  ok(G.vzdalHledanePrimky(L, [primka(Ap, Cp)]) >= 49.9, 'úhlopříčka AC samotná (rovnoběžná, ale v jiné výšce) → odchylka 50');
+  ok(G.vzdalHledanePrimky(L, [{ typ: 'usecka', p: Bp, q: B(310, 100) }]) < 1e-9, 'dost dlouhá úsečka po přímce → odchylka 0');
+  ok(G.vzdalHledanePrimky(L, [{ typ: 'usecka', p: Bp, q: B(250, 100 + 5) }]) === Infinity, 'úsečka 50 jednotek se nepočítá (krátká by připustila libovolný sklon)');
+  ok(G.vzdalHledanePrimky(L, [{ typ: 'poloprimka', p: Bp, q: B(260, 100) }]) < 1e-9, 'polopřímka z B po přímce → odchylka 0');
+  ok(G.vzdalHledanePrimky(L, [primka(B(5, 5), B(5, 5))]) === Infinity, 'zdegenerovaná přímka (oba body stejné) nespadne a nepočítá se');
+  // vyhodnocení: bod I přímka
+  ok(G.vyhodnot(uP, [S0, primka(Bp, B(300, 100))]).spravne, 'střed i přímka správně → správně');
+  const jenBod = G.vyhodnot(uP, [S0]);
+  ok(!jenBod.spravne && jenBod.nalezeno === 0, 'jen střed bez přímky → NEsprávně (přímka je součást řešení)');
+  const jenPrimka = G.vyhodnot(uP, [primka(Bp, B(300, 100))]);
+  ok(!jenPrimka.spravne && jenPrimka.nalezeno === 0, 'jen přímka bez středu → NEsprávně');
+  ok(!G.vyhodnot(uP, [S0, primka(Bp, natoc(20))]).spravne, 'střed správně, přímka o 20° vedle → nesprávně');
+  ok(G.vyhodnot(uP, [S0, primka(Bp, B(300, 100)), bodT(10, 10), bodT(300, 280)]).spravne, 'pomocné body navíc nevadí ani u úlohy s přímkou');
+  // bodování (úloha za 2 b.)
+  const b2 = (...t) => G.bodovat(uP, t, 2);
+  ok(b2(S0, primka(Bp, B(300, 100))).body === 2 && b2(S0, primka(Bp, B(300, 100))).presne === 1, 'bodování: střed i přímka přesně → 2 b.');
+  ok(b2(S0, primka(Bp, natoc(5.5))).body === 1 && b2(S0, primka(Bp, natoc(5.5))).mirne === 1, 'bodování: přímka mírně vedle → 1 b. (mírná nepřesnost)');
+  ok(b2(S0, primka(Bp, natoc(20))).body === 0, 'bodování: přímka mimo, střed správně → 0 b. (jako „jen část“ ve 2bodové úloze)');
+  ok(b2().body === 0 && b2(primka(Ap, Cp)).body === 0, 'bodování: prázdný výsledek nebo úhlopříčka bez bodu → 0 b.');
+  ok(G.stavReseni(uP, [S0, primka(Bp, natoc(5.5))])[0] === 'mirne' && G.stavReseni(uP, [S0, primka(Bp, natoc(20))])[0] === 'cast', 'stav řešení: mirne / cast podle přímky');
+  // úloha BEZ hledané přímky se chová jako dřív
+  const bez = { dane: { body: { A: Ap } }, reseni: [{ S: SS }], pomocne: [], tol: 10 };
+  ok(G.vyhodnot(bez, [S0]).spravne && G.bodovat(bez, [S0], 2).body === 2, 'úloha bez hledané přímky: beze změny');
+}
+
 console.log('\n══════════════════════════════════════════');
 console.log('  VÝSLEDEK: ' + pass + ' ✅ / ' + fail + ' ❌');
 console.log('══════════════════════════════════════════');
