@@ -130,6 +130,22 @@ t(/12,5 dne → volba B/.test(DOP), 'M9C 2024/16.3: správná volba B (12,5 dne)
 t(/x = −3 — souhlasí s klíčem/.test(DOP), 'M9B 2023/5.1: opravený výsledek x = −3');
 t(DOP.includes('zkouška:'), 'M9B 2023/5.1: je připojená zkouška');
 
+// Opravy z kontroly 2020–2022 (28. 10. 2026). Správné řešení se dopočítá ze ZADÁNÍ, ne z textu stránky,
+// a stránka musí uvádět právě to číslo, které rovnici splňuje (a Vojtovo původní ne).
+{
+  const L = x => 5 * (0.2 * x + 1), P = x => (8 - 6 * x) / 2;          // M9B 2022, úloha 5.1
+  t(Math.abs(L(-0.25) - P(-0.25)) < 1e-12 && Math.abs(L(0.25) - P(0.25)) > 1e-6,
+    'M9B 2022/5.1: x = −1/4 splňuje zadanou rovnici, původní x = 1/4 ne');
+  t(/x = −1\/4 — souhlasí s klíčem/.test(DOP) && /x \+ 3x\s+= 4 − 5/.test(DOP), 'M9B 2022/5.1: stránka uvádí x = −1/4 a opravený krok 4 − 5');
+  const sq = y => (y - 0.5) ** 2, ok = y => y * y - y + 0.25, spatne = y => y * y - y - 0.25;   // M9B 2021, úloha 4.2
+  const ys = [-3, -1, 0, 0.5, 2, 7];
+  t(ys.every(y => Math.abs(sq(y) - ok(y)) < 1e-12) && ys.some(y => Math.abs(sq(y) - spatne(y)) > 1e-6),
+    'M9B 2021/4.2: (y − 1/2)² = y² − y + 1/4, původní y² − y − 1/4 ne');
+  t(/y² − y \+ 1\/4 — souhlasí s klíčem/.test(DOP), 'M9B 2021/4.2: stránka uvádí y² − y + 1/4');
+  t(/2022 · 1\. řádný \(M9A\), úloha 13/.test(DOP) && /62,8(?: |&nbsp;):(?: |&nbsp;)5 = 12,56/.test(DOP) && /2022 · 1\. řádný \(M9A\), úloha 14/.test(DOP)
+    && /2021 · 1\. řádný \(M9A\), úloha 7\.3/.test(DOP), 'drobnosti z kontroly 2020–2022 (M9A 2022/13, 14, M9A 2021/7.3) jsou vypsané');
+}
+
 // GeoGebra: applet se skládá příkazy, takže nepotřebuje uložený materiál
 t(/deployggb\.js/.test(DOP), 'GeoGebra se načítá z oficiálního CDN');
 t((DOP.match(/Thales|Circle\(S_0,\s*[AC]\)/g) || []).length >= 2, 'oba applety staví Thaletovu kružnici příkazem');
