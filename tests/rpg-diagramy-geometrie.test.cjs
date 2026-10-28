@@ -625,7 +625,7 @@ function bankaCermat() {
     /* Naměřeno 4. 10. 2026: ~6 000 různých kreseb (banky + šablony 3.–9. ~2 800,
        test nanečisto ~1 900, základ ~1 000), ~18 000 popisků, ~250 dvojic oblouk–
        popisek s odstupem 10–30 px (dřív až ~70). Podlahy hlídají, že se měřilo. */
-    ok(kresby.length >= 4000 && r.textu >= 12000 && r.oblouku >= 100 && ['3', '6', '9', 'test', 'zaklad'].every(z => zdroje[z] > 50) && zdroje.doplnky === 2,
+    ok(kresby.length >= 4000 && r.textu >= 12000 && r.oblouku >= 100 && ['3', '6', '9', 'test', 'zaklad'].every(z => zdroje[z] > 50) && zdroje.doplnky === 10,
       'všechny zdroje: proměřeno ' + kresby.length + ' kreseb (' + Object.entries(zdroje).map(([z, n]) => z + ' ' + n).join(', ') + '), ' + r.textu + ' popisků, ' + r.oblouku + ' oblouků');
     ok(r.cara.length === 0, 'všechny zdroje: přes žádný popisek nevede čára, hrana, oblouk ani kružnice', r.cara.length + '× — ' + r.cara.slice(0, 3).join(' | '));
     ok(r.prekryv.length === 0, 'všechny zdroje: popisky se nepřekrývají', r.prekryv.slice(0, 3).join(' | '));
