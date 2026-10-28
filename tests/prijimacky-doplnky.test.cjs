@@ -146,6 +146,169 @@ t(DOP.includes('zkouška:'), 'M9B 2023/5.1: je připojená zkouška');
     && /2021 · 1\. řádný \(M9A\), úloha 7\.3/.test(DOP), 'drobnosti z kontroly 2020–2022 (M9A 2022/13, 14, M9A 2021/7.3) jsou vypsané');
 }
 
+// Opravy z kontroly 2023–2025 (28. 10. 2026): jedno číslo přepsané do odpovědi a osm konstrukcí od ruky, u nichž hledaný
+// bod vycházel víc než půl centimetru vedle. Obrázek se NEBERE jako pravda: souřadnice se vytáhnou z SVG a podmínky
+// ze ZADÁNÍ (vzdálenosti, rovnoběžnost, poloha bodů) se ověří znovu. Zadané body nesou data-bod, přímky data-primka,
+// kružnice data-kruznice, takže test nepotřebuje znát, jak obrázek vznikl.
+{
+  const T = 35100, J = T + 16000;
+  t(T + J === 86200 && J - T === 16000 && 35200 + (35200 + 16000) !== 86200, 'M9C 2024/1: Třebíč má 35 100 (splňuje zadání), 35 200 ne');
+  t(/35(?: |&nbsp;)100 obyvatel — souhlasí s klíčem/.test(DOP), 'M9C 2024/1: stránka uvádí 35 100');
+  t(600000 / 20000 === 30 && 200000 / 20000 === 10 && 30 - 10 === 20, 'M9A 2023/11.2: 200 000 cm : 20 000 = 10 cm, rozdíl 20 cm');
+  t(/2023 · 1\. řádný \(M9A\), úloha 11\.2/.test(DOP) && /2023 · 2\. řádný \(M9B\), úloha 16</.test(DOP)
+    && /2025 · 1\. řádný \(M9A\), úloha 13/.test(DOP) && /2025 · 2\. náhradní \(M9D\), úloha 8\.2/.test(DOP), 'drobnosti z kontroly 2023–2025 jsou vypsané');
+  t(8 * 8 === 64 && 13 + 13 + 12 + 2 === 40 && 13 + 13 + 12 + 5 !== 40, 'M9B 2023/16 a M9D 2025/8.2: opravené mezikroky (64; 13 + 13 + 12 + 2 = 40)');
+
+  const fg = fid => { const i = DOP.indexOf(`id="${fid}"`); return i < 0 ? '' : DOP.slice(i, DOP.indexOf('</figure>', i)); };
+  const bd = (fid, n) => { const m = fg(fid).match(new RegExp(`<circle data-bod="${n}" cx="([\\d.]+)" cy="([\\d.]+)"`)); return m ? [+m[1], +m[2]] : null; };
+  const primka = (fid, n) => { const m = fg(fid).match(new RegExp(`<line data-primka="${n}" x1="([\\d.]+)" y1="([\\d.]+)" x2="([\\d.]+)" y2="([\\d.]+)"`)); return m ? [[+m[1], +m[2]], [+m[3], +m[4]]] : null; };
+  const kruz = (fid, n) => { const m = fg(fid).match(new RegExp(`<circle data-kruznice="${n}" cx="([\\d.]+)" cy="([\\d.]+)" r="([\\d.]+)"`)); return m ? { s: [+m[1], +m[2]], r: +m[3] } : null; };
+  const vzdPrimky = (P, a, b) => Math.abs(crs(sub(b, a), sub(P, a))) / del(sub(b, a));
+  const shodne = (a, b, tol = 1.5) => Math.abs(a - b) < tol;
+  const rovnobeznik = (A, B, C, D) => rovnobezne(sub(B, A), sub(C, D)) && rovnobezne(sub(D, A), sub(C, B)) && shodne(del(sub(B, A)), del(sub(C, D)));
+  const uvnitrUsecky = (X, a, b) => vzdPrimky(X, a, b) < 1.5 && dot(sub(X, a), sub(b, a)) > 0 && dot(sub(X, b), sub(a, b)) > 0;
+
+  // M9B 2025, ú. 9 — rovnoramenný ABC, M na těžnici t_c (M není těžiště)
+  {
+    const F = 'obr-m9b-2025-9', P = polygony(F);
+    const [A, B, M, S] = ['A', 'B', 'M', 'S'].map(n => bd(F, n));
+    t(P.length === 2 && [A, B, M, S].every(Boolean), 'M9B 2025/9: dvě řešení a zadané body A, B, M v obrázku');
+    if (P.length === 2 && A && M && S) {
+      t(shodne(del(sub(P[0][2], A)), del(sub(B, A))), 'M9B 2025/9 · C₁: |AC₁| = |AB|');
+      t(shodne(del(sub(P[1][2], B)), del(sub(B, A))), 'M9B 2025/9 · C₂: |BC₂| = |AB|');
+      t(stejne(S, stred(A, B)), 'M9B 2025/9: S je střed AB (těžnice vede středem strany)');
+      P.forEach((pl, n) => {
+        const C = pl[2], k = dot(sub(M, S), sub(C, S)) / dot(sub(C, S), sub(C, S));
+        t(rovnobezne(sub(C, S), sub(M, S)), `M9B 2025/9 · řešení ${n + 1}: C leží na přímce SM`);
+        t(k > 0.05 && k < 0.95, `M9B 2025/9 · řešení ${n + 1}: M leží uvnitř těžnice SC`);
+        t(Math.abs(k - 1 / 3) > 0.05, `M9B 2025/9 · řešení ${n + 1}: M není těžiště`);
+      });
+      t(!uhelPravy(sub(M, S), sub(B, A)), 'M9B 2025/9: těžnice SM není kolmá k AB, takže řešení |CA| = |CB| neexistuje');
+      t(!stejne(P[0][2], P[1][2]), 'M9B 2025/9: obě řešení jsou různá');
+    }
+  }
+
+  // M9B 2025, ú. 10 — rovnoběžník ABCD, úhlopříčka BD na polopřímce DM, |AC| = |DM|
+  {
+    const F = 'obr-m9b-2025-10', P = polygony(F);
+    const [D, A, M, S] = ['D', 'A', 'M', 'S'].map(n => bd(F, n));
+    t(P.length === 1 && P[0].length === 4 && [D, A, M, S].every(Boolean), 'M9B 2025/10: jeden rovnoběžník a zadané body A, D, M');
+    if (P.length === 1 && A && D && M && S) {
+      const [A_, B, C, D_] = P[0];
+      t(stejne(A_, A) && stejne(D_, D), 'M9B 2025/10: vrcholy A, D jsou zadané body');
+      t(rovnobeznik(A_, B, C, D_), 'M9B 2025/10: ABCD je rovnoběžník');
+      t(rovnobezne(sub(B, D), sub(M, D)) && dot(sub(B, D), sub(M, D)) > 0, 'M9B 2025/10: úhlopříčka BD leží na polopřímce DM');
+      t(shodne(del(sub(C, A_)), del(sub(M, D))), 'M9B 2025/10: |AC| = |DM|');
+      t(stejne(S, stred(A_, C)) && stejne(S, stred(B, D_)), 'M9B 2025/10: S je střed obou úhlopříček');
+      // jedinost řešení: kružnice (A; |DM|/2) protíná přímku DM v bodech s parametry s1 > 0 > s2 od D
+      const l = del(sub(M, D)), e = [(M[0] - D[0]) / l, (M[1] - D[1]) / l], w = sub(D, A), r = l / 2;
+      const b = 2 * dot(w, e), c = dot(w, w) - r * r, disc = b * b - 4 * c;
+      t(disc > 0 && (-b + Math.sqrt(disc)) / 2 > 0 && (-b - Math.sqrt(disc)) / 2 < 0, 'M9B 2025/10: právě jeden průsečík leží na polopřímce DM (řešení je jediné)');
+    }
+  }
+
+  // M9D 2025, ú. 10 — rovnoběžník KLMN, S na p, |LM| = |LN|
+  {
+    const F = 'obr-m9d-2025-10', P = polygony(F), p = primka(F, 'p');
+    const L = bd(F, 'L'), M = bd(F, 'M');
+    t(P.length === 2 && p && L && M, 'M9D 2025/10: dvě řešení, přímka p a zadané body L, M');
+    if (P.length === 2 && p && L && M) {
+      t(vzdPrimky(M, p[0], p[1]) < 1.5, 'M9D 2025/10: přímka p prochází bodem M');
+      P.forEach((pl, n) => {
+        const [K, L_, M_, N] = pl, S = stred(L_, N), pre = `M9D 2025/10 · řešení ${n + 1}`;
+        t(stejne(L_, L) && stejne(M_, M), `${pre}: L, M jsou zadané body`);
+        t(rovnobeznik(K, L_, M_, N), `${pre}: KLMN je rovnoběžník`);
+        t(shodne(del(sub(M_, L_)), del(sub(N, L_))), `${pre}: |LM| = |LN|`);
+        t(vzdPrimky(S, p[0], p[1]) < 1.5, `${pre}: střed S leží na přímce p`);
+        t(stejne(S, stred(K, M_)), `${pre}: S je i středem úhlopříčky KM`);
+      });
+      t(!stejne(P[0][0], P[1][0]) && !stejne(P[0][3], P[1][3]), 'M9D 2025/10: obě řešení jsou různá');
+    }
+  }
+
+  // nanečisto 2025, ú. 9 — středová souměrnost se středem S
+  {
+    const F = 'obr-nanecisto-2025-9', P = polygony(F);
+    t(P.length === 2 && P[0].length === 3 && P[1].length === 3, 'nanečisto 2025/9: trojúhelník ABC a jeho obraz A′B′C′');
+    if (P.length === 2) {
+      const [A, B, C] = P[0], [Ap, Bp, Cp] = P[1], S = bd(F, 'S');
+      t(uvnitrUsecky(Ap, B, C), 'nanečisto 2025/9: bod A′ leží na straně BC');
+      t(stejne(stred(A, Ap), stred(B, Bp)) && stejne(stred(B, Bp), stred(C, Cp)), 'nanečisto 2025/9: středy úseček AA′, BB′, CC′ splývají');
+      t(S && stejne(S, stred(A, Ap)), 'nanečisto 2025/9: tím společným středem je S');
+      t(!stejne(Bp, B) && !stejne(Cp, C), 'nanečisto 2025/9: obraz není shodný s původním trojúhelníkem');
+    }
+  }
+
+  // M9B 2024, ú. 10 — rovnoramenný KLM se základnou LM a vrcholem M na kružnici k
+  {
+    const F = 'obr-m9b-2024-10', P = polygony(F), k = kruz(F, 'k'), K = bd(F, 'K'), L = bd(F, 'L');
+    t(P.length === 2 && k && K && L, 'M9B 2024/10: dvě řešení, kružnice k a zadané body K, L');
+    if (P.length === 2 && k && K && L) {
+      P.forEach((pl, n) => {
+        const [K_, L_, M] = pl, pre = `M9B 2024/10 · řešení ${n + 1}`;
+        t(stejne(K_, K) && stejne(L_, L), `${pre}: K, L jsou zadané body`);
+        t(shodne(del(sub(M, K)), del(sub(L, K))), `${pre}: ramena |KM| = |KL|`);
+        t(shodne(del(sub(M, k.s)), k.r), `${pre}: M leží na kružnici k`);
+      });
+      t(!stejne(P[0][2], P[1][2]), 'M9B 2024/10: obě řešení jsou různá');
+    }
+  }
+
+  // M9A 2022, ú. 9 — rovnoramenný ABC (základna AB), S střed ramene, jeden z vrcholů A, B na q
+  {
+    const F = 'obr-m9a-2022-9', P = polygony(F), q = primka(F, 'q');
+    const C = bd(F, 'C'), S = bd(F, 'S'), X = bd(F, 'X');
+    t(P.length === 2 && q && C && S && X, 'M9A 2022/9: dvě řešení, přímka q a zadané body C, S');
+    if (P.length === 2 && q && C && S && X) {
+      t(stejne(S, stred(C, X)), 'M9A 2022/9: S je střed ramene CX');
+      t(vzdPrimky(X, q[0], q[1]) > 5, 'M9A 2022/9: pevný vrchol X na q neleží (na q leží druhý vrchol)');
+      P.forEach((pl, n) => {
+        const Y = n === 0 ? pl[1] : pl[2], pre = `M9A 2022/9 · řešení ${n + 1}`;
+        t(shodne(del(sub(Y, C)), del(sub(X, C))), `${pre}: ramena |CY| = |CX|`);
+        t(vzdPrimky(Y, q[0], q[1]) < 1.5, `${pre}: vrchol Y leží na přímce q`);
+      });
+      t(!stejne(P[0][1], P[1][2]), 'M9A 2022/9: obě řešení jsou různá');
+    }
+  }
+
+  // M9B 2021, ú. 10 — rovnoběžník ABCD, |BD| = |AD|, výška na AB je 5 cm
+  {
+    const F = 'obr-m9b-2021-10', P = polygony(F), pxcm = +((fg(F).match(/data-pxcm="([\d.]+)"/) || [])[1]);
+    const M = bd(F, 'M'), N = bd(F, 'N');
+    t(P.length === 1 && P[0].length === 4 && M && N && pxcm > 0, 'M9B 2021/10: jeden rovnoběžník, zadané body M, N a měřítko v cm');
+    if (P.length === 1 && M && N && pxcm > 0) {
+      const [A, B, C, D] = P[0];
+      t(rovnobeznik(A, B, C, D), 'M9B 2021/10: ABCD je rovnoběžník');
+      t(shodne(del(sub(B, D)), del(sub(A, D))), 'M9B 2021/10: |BD| = |AD|');
+      t(shodne(vzdPrimky(D, A, B) / pxcm, 5, 0.05), 'M9B 2021/10: výška na stranu AB měří 5 cm');
+      t(uvnitrUsecky(M, A, B) && uvnitrUsecky(N, A, D), 'M9B 2021/10: M leží uvnitř strany AB a N uvnitř strany AD');
+    }
+  }
+
+  // M9C 2021, ú. 10 — L je střed vepsané kružnice trojúhelníku ABC
+  {
+    const F = 'obr-m9c-2021-10', P = polygony(F), L = bd(F, 'L');
+    t(P.length === 1 && P[0].length === 3 && L, 'M9C 2021/10: jeden trojúhelník a zadaný bod L');
+    if (P.length === 1 && L) {
+      const [A, B, C] = P[0], uhel = (V, X, Y) => Math.acos(dot(sub(X, V), sub(Y, V)) / (del(sub(X, V)) * del(sub(Y, V))));
+      t(shodne(vzdPrimky(L, A, B), vzdPrimky(L, B, C)) && shodne(vzdPrimky(L, B, C), vzdPrimky(L, C, A)), 'M9C 2021/10: L je od všech tří stran stejně daleko');
+      t(Math.abs(uhel(A, B, L) - uhel(A, L, C)) < 0.01 && Math.abs(uhel(B, A, L) - uhel(B, L, C)) < 0.01, 'M9C 2021/10: AL půlí úhel BAC a BL půlí úhel ABC');
+      const s = [crs(sub(B, A), sub(L, A)), crs(sub(C, B), sub(L, B)), crs(sub(A, C), sub(L, C))];
+      t(s.every(v => v > 0) || s.every(v => v < 0), 'M9C 2021/10: L leží uvnitř trojúhelníku');
+    }
+  }
+
+  // obsah nových doplňků
+  for (const id of ['m9b-2025-9', 'm9b-2025-10', 'm9d-2025-10', 'nanecisto-2025-9', 'm9b-2024-10', 'm9a-2022-9', 'm9b-2021-10', 'm9c-2021-10']) {
+    const i = DOP.indexOf(`id="${id}"`), blok = i < 0 ? '' : DOP.slice(i, DOP.indexOf('</article>', i));
+    t((blok.match(/<li>/g) || []).length >= 4, `${id}: postup konstrukce má aspoň 4 kroky`);
+    t(blok.includes('class="zadani"') && blok.includes('<h3 class="krok">Rozbor</h3>'), `${id}: je uvedené zadání i rozbor`);
+    t(/<svg viewBox="0 0 \d+ \d+"/.test(blok) && /<figcaption>/.test(blok), `${id}: má obrázek s popiskem`);
+    t(/<p class="co">[^]*?(?:mm|cm|%|°)[^]*?<\/p>/.test(blok), `${id}: říká, o kolik se ruční konstrukce lišila`);
+    t(/Úloha má (?:jedno|dvě) řešení\./.test(blok), `${id}: uvádí počet řešení`);
+  }
+}
+
 // GeoGebra: applet se skládá příkazy, takže nepotřebuje uložený materiál
 t(/deployggb\.js/.test(DOP), 'GeoGebra se načítá z oficiálního CDN');
 t((DOP.match(/Thales|Circle\(S_0,\s*[AC]\)/g) || []).length >= 2, 'oba applety staví Thaletovu kružnici příkazem');
