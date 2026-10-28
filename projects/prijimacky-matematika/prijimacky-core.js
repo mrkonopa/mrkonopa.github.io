@@ -313,6 +313,56 @@
   }
   typoStart();
 
+  /* ════════ ČITELNOST OBRÁZKŮ NA TELEFONU ════════
+     Obrázek se na úzké obrazovce zmenší na šířku kontejneru (360 px → ~290 px), takže písmo, které je v kresbě
+     12 jednotek, vyjde i pod 8 px (naměřeno: čtvercová síť 7,5, trojúhelníková 8,9, sloupcový graf 9,3 px).
+     Obrázku, jehož nejmenší písmo by na 290 px vyšlo pod 10,5 px, se proto nastaví minimální šířka podle písma
+     (cíl 11 px) a kontejner se na úzké obrazovce posouvá prstem; rozdíl 10,5 / 11 brání tomu, aby se kvůli
+     půl pixelu posouvalo. Pravidlo CSS (`svg[data-pz-sirka]`) platí jen do 560 px, na tabletu je obrázek celý. */
+  const SVG_STACI = 10.5, SVG_CIL = 11, SVG_REF = 290;
+  function svgCitelnost(svg) {
+    if (!svg || svg.nodeType !== 1 || svg.getAttribute('data-pz-sirka') != null) return;
+    const vb = svg.viewBox && svg.viewBox.baseVal;
+    if (!vb || !vb.width) return;
+    let mn = Infinity;
+    svg.querySelectorAll('text').forEach(t => {
+      if (!t.textContent.trim()) return;
+      const fs = parseFloat(getComputedStyle(t).fontSize);
+      if (fs > 0 && fs < mn) mn = fs;
+    });
+    if (!isFinite(mn) || vb.width * SVG_STACI / mn <= SVG_REF) return;
+    svg.setAttribute('data-pz-sirka', Math.ceil(vb.width * SVG_CIL / mn));
+    svg.style.setProperty('--pz-sirka', Math.ceil(vb.width * SVG_CIL / mn) + 'px');
+    /* posouvací kontejner hned, ne až po vykreslení: jinak by mezi vložením obrázku a prvním snímkem přetékala stránka */
+    if (svg.parentElement) svg.parentElement.classList.add('pz-svg-k');
+  }
+  /* Kontejner dostane třídu (a nápovědu „posuň prstem“) jen tehdy, když se obrázek skutečně nevejde. */
+  function svgPosun() {
+    /* kontejner se používá opakovaně (#pr-svg při procvičování): třída zůstala po předchozí úloze, takže se musí i sundat */
+    const kontejnery = new Set(document.querySelectorAll('.pz-svg-posun'));
+    document.querySelectorAll('svg[data-pz-sirka]').forEach(svg => { if (svg.parentElement) kontejnery.add(svg.parentElement); });
+    kontejnery.forEach(k => k.classList.toggle('pz-svg-posun', !!k.querySelector(':scope > svg[data-pz-sirka]') && k.scrollWidth > k.clientWidth + 1));
+  }
+  function svgStart() {
+    if (typeof document === 'undefined' || typeof MutationObserver === 'undefined' || !document.body && document.readyState !== 'loading') return;
+    const projdi = n => {
+      if (!n || n.nodeType !== 1) return;
+      if (n.matches('svg[data-pz-svg]')) svgCitelnost(n);
+      n.querySelectorAll('svg[data-pz-svg]').forEach(svgCitelnost);
+    };
+    const spust = () => {
+      projdi(document.body);
+      svgPosun();
+      new MutationObserver(zmeny => {
+        zmeny.forEach(z => z.addedNodes.forEach(projdi));
+        requestAnimationFrame(svgPosun);
+      }).observe(document.body, { childList: true, subtree: true });
+      window.addEventListener('resize', svgPosun);
+    };
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', spust); else spust();
+  }
+  svgStart();
+
   /* ════════ CLOUD SYNC POKROKU — Fáze 21 (graceful) ════════
      Bez RPGCloud / bez přihlášení běží vše lokálně jako dřív. Po přihlášení
      školním Google účtem se pokrok slévá napříč zařízeními (nikdy neztratí). */
@@ -953,6 +1003,6 @@
   // (jádro se načítá i v Node testech bez DOM — tam nic neposílá)
   if (typeof document !== 'undefined' && document.addEventListener) document.addEventListener('DOMContentLoaded', () => event('vstup'));
 
-  window.PZ = { event, esc, check, hodnotReseni, vyhodnot, popisCastecne, store, inputMode, czNum, typo, typoDom, solSteps, themeSvg, icon, ring, attachLoginBar, cloudPush, cloudSync, topicWeights, pickWeakTopic, hintsFor, recordTestTopics, weakTopicsFromReview,
+  window.PZ = { event, esc, svgCitelnost, svgPosun, check, hodnotReseni, vyhodnot, popisCastecne, store, inputMode, czNum, typo, typoDom, solSteps, themeSvg, icon, ring, attachLoginBar, cloudPush, cloudSync, topicWeights, pickWeakTopic, hintsFor, recordTestTopics, weakTopicsFromReview,
     computeReadiness, pokusy, odhadBodu, cistyPokus, diagUrovne, mergeStats, ukaz, odpovedText, souhrn, vykresliSouhrn, attachAccountCard };
 })();

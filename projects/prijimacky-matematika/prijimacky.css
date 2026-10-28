@@ -108,6 +108,13 @@ main { max-width:920px; margin:0 auto; padding:18px 24px 80px; }
   background:var(--blue-light); padding:2px 10px; border-radius:20px; white-space:nowrap; }
 .cm-intro { font-size:1rem; color:var(--text); margin-bottom:10px; line-height:1.55; }
 .cm-svg { text-align:center; margin:6px 0 12px; }
+/* Obrázek, jehož písmo by na telefonu vyšlo pod ~10,5 px (viz svgCitelnost v prijimacky-core.js): minimální šířka podle
+   písma, kontejner se posouvá prstem. Třídu .pz-svg-posun nastavuje skript jen tehdy, když se obrázek skutečně nevejde. */
+@media (max-width:560px) { svg[data-pz-sirka] { min-width:var(--pz-sirka); } }
+.pz-svg-k { overflow-x:auto; -webkit-overflow-scrolling:touch; }
+.pz-svg-posun { text-align:left; }
+.pz-svg-posun > svg { display:block; }
+.pz-svg-posun::after { content:"\2194  Obrázek posuň prstem."; display:block; position:sticky; left:0; width:fit-content; margin-top:4px; font-size:.78rem; color:var(--muted); }
 .cm-part { margin-top:14px; }
 .cm-part-label { font-size:.78rem; font-weight:700; letter-spacing:.04em; color:var(--teal); margin-bottom:4px; }
 .cm-part-prompt { font-size:1.02rem; color:var(--text); margin-bottom:8px; line-height:1.5; }
