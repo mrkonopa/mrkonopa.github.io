@@ -77,7 +77,10 @@ async function projdi(browser, base, prepis) {
   const sken = async (p, kde) => {
     await p.waitForTimeout(120);
     const r = await p.evaluate(SKEN);
-    sum.uzlu += r.uzlu; sum.nbJednotka += r.nbJednotka; sum.minus += r.minus; sum.obrazovek++;
+    /* doplňky jádro nenačítají: jejich pevné mezery jsou napsané přímo v HTML a typoStart() je nevytváří,
+       takže do porovnání „s typoStart() / bez něj“ nepatří (vady se ale počítají i tam) */
+    if (!kde.startsWith('pz-dopl')) sum.nbJednotka += r.nbJednotka;
+    sum.uzlu += r.uzlu; sum.minus += r.minus; sum.obrazovek++;
     r.vady.forEach(v => sum.vady.push(kde + ': „' + v + '“'));
   };
   for (const s of STR) {
@@ -198,7 +201,7 @@ async function projdi(browser, base, prepis) {
     ok(s.zprava.length === 0, 'všechny průchody obrazovkami proběhly', s.zprava.join(' | '));
     ok(s.obrazovek >= 30, 'změřeno dost obrazovek: ' + s.obrazovek + ' (naměřeno 36, podlaha 30)');
     ok(s.uzlu > 3000, 'změřeno dost textových uzlů: ' + s.uzlu + ' (podlaha 3000)');
-    ok(s.nbJednotka > 60, 'pevná mezera u jednotky se na obrazovkách skutečně objevila: ' + s.nbJednotka + '× (naměřeno 142–169, podlaha 60)');
+    ok(s.nbJednotka > 60, 'pevná mezera u jednotky se na obrazovkách skutečně objevila: ' + s.nbJednotka + '× (naměřeno 125 bez doplňků, podlaha 60)');
     ok(s.vady.length === 0, 'na žádné obrazovce nezbývá „-5“ s pomlčkou ani „12 cm“ s obyčejnou mezerou', s.vady.length + '× např. ' + s.vady.slice(0, 3).join(' | '));
     console.log('  ℹ️  obrazovek ' + s.obrazovek + ', textových uzlů ' + s.uzlu + ', pevná mezera u jednotky ' + s.nbJednotka + '×, minus ' + s.minus + '×');
 
