@@ -4,6 +4,7 @@
 'use strict';
 const ri = (a,b)=>Math.floor(Math.random()*(b-a+1))+a;
 function gcd(a,b){return b?gcd(b,a%b):Math.abs(a);}
+const zakladP=(p,lo,hi)=>{const k=100/gcd(p,100),a=Math.ceil(lo/k);return ri(a,Math.max(a,Math.floor(hi/k)))*k;};   // základ pro „p % z základu“: násobek 100/gcd(p,100), aby výsledek vyšel CELÝ (odpověď je celé číslo a zadání o zaokrouhlení nic neříká)
 const skl = (n,one,few,many)=>n===1?one:(n>=2&&n<=4?few:many);
 const cz = n => String(n).replace('.',',');
 const r1 = n => cz(Math.round(n*10)/10);
@@ -370,7 +371,7 @@ function gen_4_3(){
 function gen_5_1(){
   const T=[
     ()=>{const a=[10,20,25,50][ri(0,3)],b=ri(2,9)*100;return{text:`Kolik je ${a} % z čísla ${b}?`,ans:Math.round(a/100*b),dis:(a!==50?[String(Math.round((100-a)/100*b))]:[]),h1:'Procentová část = základ × počet procent : 100.',h2:`${b} · ${a} : 100 = ${Math.round(a/100*b)}`};},
-    ()=>{const e=[5,10,20,25][ri(0,3)],f=ri(4,20)*50;return{text:`Zboží stojí ${f} Kč. Kolik Kč je ${e} % z této ceny?`,ans:Math.round(e/100*f),dis:[String(Math.round((100-e)/100*f))],h1:'Vynásob cenu procenty a vyděl stem.',h2:`= ${Math.round(e/100*f)} Kč`};},
+    ()=>{const e=[5,10,20,25][ri(0,3)],f=zakladP(e,200,1000);return{text:`Zboží stojí ${f} Kč. Kolik Kč je ${e} % z této ceny?`,ans:Math.round(e/100*f),dis:[String(Math.round((100-e)/100*f))],h1:'Vynásob cenu procenty a vyděl stem.',h2:`= ${Math.round(e/100*f)} Kč`};},
     ()=>{const g=[10,20,25,40,50][ri(0,4)],h=ri(3,8)*100;return{text:`Cena ${h} Kč se sníží o slevu ${g} %. O kolik Kč se cena sníží?`,ans:Math.round(g/100*h),dis:(g!==50?[String(Math.round(h*(1-g/100)))]:[]),h1:'Sleva v korunách = základ × procenta : 100.',h2:`= ${Math.round(g/100*h)} Kč`};},
     ()=>{const g=[10,20,25][ri(0,2)],h=ri(3,8)*100;return{text:`Cena ${h} Kč se sníží o ${g} %. Kolik Kč bude NOVÁ cena?`,ans:Math.round(h*(1-g/100)),dis:[String(Math.round(g/100*h))],h1:'Nová cena = základ − sleva.',h2:`= ${Math.round(h*(1-g/100))} Kč`};},
     ()=>{const p=[10,20,50][ri(0,2)],z=ri(3,9)*100;return{text:`O ${p} % se zvýší mzda ${z} Kč. Kolik Kč činí zvýšení?`,ans:Math.round(p/100*z),dis:[String(z+Math.round(p/100*z))],h1:'Zvýšení = základ × procenta : 100.',h2:`= ${Math.round(p/100*z)} Kč`};},
@@ -426,7 +427,7 @@ function gen_5_3(){
   tasks.push({text:`Cena se snížila o ${c} % a nyní je ${Math.round(d*(1-c/100))} Kč. Jaká byla původní cena?`,ans:d,hints:['Současná cena = základ × (1−'+c+'/100).','základ = '+Math.round(d*(1-c/100))+' : '+cz(1-c/100)+' = '+d+' Kč'],skill:'anal'});
   const e=ri(2,6)*5,f=ri(3,9)*100;
   tasks.push({text:`Třída má ${f} žáků, ${e} % jsou dívky. Kolik je dívek?`,ans:Math.round(f*e/100),hints:['Počet dívek = '+f+' × '+e+' : 100.',String(Math.round(f*e/100))],skill:'anal'});
-  const g=ri(15,35)*4,h=ri(2,4)*5;
+  const h=ri(2,4)*5,g=zakladP(h,60,140);
   tasks.push({text:`Ze zásoby ${g} litrů vody bylo použito ${h} %. Kolik litrů zbývá?`,ans:Math.round(g*(1-h/100)),hints:['Zbývá = základ × (1−p/100).',String(Math.round(g*(1-h/100)))+' l'],skill:'anal'});
   const j=ri(45,60),i=ri(30,j-5);   // trikot (i) je levnější než rifle (j)
   tasks.push({text:`Trikot stál ${i} Kč, rifle ${j} Kč. O kolik procent je trikot levnější než rifle? (zaokrouhli na celé %)`,ans:Math.round((j-i)/j*100),hints:['p = rozdíl : základ × 100 (základ = dražší, rifle).',''+Math.round((j-i)/j*100)+' %'],skill:'anal'});
@@ -586,7 +587,7 @@ function gen_7_3(){
   const zl2 = b-a<0 ? `(−${a-b}/${b})` : `${b-a}/${b}`;
   tasks.push({text:`Výsledek: ${a}/${b} + ${zl2} = ?`,ans:'1',hints:['Stejný jmenovatel, přičti čitatele.',`${a}/${b} + ${zl2} = ${b}/${b} = 1`],skill:'calc'});
   // procenta
-  const c=ri(10,30)*10,p=ri(10,30);
+  const p=ri(10,30),c=zakladP(p,100,300);
   tasks.push({text:`${p} % z ${c} = ?`,ans:Math.round(p/100*c),hints:['Část = základ × p/100.',''+Math.round(p/100*c)],skill:'calc'});
   // obvod + obsah čtverce
   const d=ri(4,10);
@@ -606,7 +607,7 @@ function gen_7_3(){
   { const g=ri(3,7),h2=ri(2,5);const top=1*g+ri(1,g-1);const g2=gcd(top,g);const ans=g2===g?String(top/g2):`${top/g2}/${g/g2}`;const zl2 = g-h2<0 ? `(−${h2-g}/${g})` : `${g-h2}/${g}`; tasks.push({text:`${h2}/${g} + ${zl2} = ?`,ans:'1',hints:['Jmenovatelé stejní, sečti čitatele.',`${h2} + ${zav(g-h2)} = ${g}, tj. ${g}/${g} = 1`],skill:'calc'}); }
   // framing pool na bare drily
   { const e=ri(2,9),f=ri(2,9); tasks.push({text:askCalc(`(−${e}) × (−${f})`),ans:e*f,hints:['Záporné × záporné = kladné.',`= ${e*f}`],skill:'calc'}); }
-  { const p=ri(10,30),c=ri(10,30)*10; tasks.push({text:askCalc(`${p} % z ${c}`),ans:Math.round(p/100*c),hints:['část = základ × p/100.',`= ${Math.round(p/100*c)}`],skill:'calc'}); }
+  { const p=ri(10,30),c=zakladP(p,100,300); tasks.push({text:askCalc(`${p} % z ${c}`),ans:Math.round(p/100*c),hints:['část = základ × p/100.',`= ${Math.round(p/100*c)}`],skill:'calc'}); }
   // thematické
   { const kn=ri(3,9)*20,p=[10,25,50][ri(0,2)]; tasks.push({text:`V truhlici je ${kn} zlatých ${skl(kn,'minci','mince','mincí')}, ${p} % z nich je pravých. Kolik pravých mincí truhlice ukrývá?`,ans:Math.round(p/100*kn),hints:['část = základ × p/100.',`= ${Math.round(p/100*kn)}`],skill:'calc'}); }
   { const a=ri(3,7),b=ri(2,5),c=ri(2,5); tasks.push({svg:svgCuboid(`${a} dm`,`${b} dm`,`${c} dm`),text:`Kamenná truhlice tvaru kvádru měří ${a} × ${b} × ${c} dm. Jaký je její objem?`,ans:a*b*c,hints:['V = a·b·c.',`${a*b*c} dm³`],skill:'geo'}); }

@@ -1125,7 +1125,8 @@ const AREAS = [
  intro:'Čaroděj procent střeží průsmyk. Každé procento je 1/100 celku — pamatuj si to.',
  tc:6,
  tasks:()=>[
- (()=>{const z=ri(2,10)*10,p=ri(5,40),ans=Math.round(z*p/100);return{
+ (()=>{const p=ri(5,40),k=100/gcd(p,100),a=Math.ceil(20/k),z=ri(a,Math.max(a,Math.floor(200/k)))*k,ans=Math.round(z*p/100);   /* základ = násobek 100/gcd(p,100): výsledek vyjde celý, zadání o zaokrouhlení nic neříká */
+ return{
  text:`Kolik je ${p} % z čísla ${z}?`,ans:String(ans),
  hints:[`${p} % znamená ${p}/100, tedy ${p} setin celku.`,`Spočítej ${z} × ${p} a vyděl 100.`],skill:'anal'};})(),
  (()=>{const c=ri(4,20)*10,v=ri(1,c/10)*10;const ans=Math.round(v/c*100);return{
@@ -1134,7 +1135,7 @@ const AREAS = [
  (()=>{const p=ri(1,4)*10,z=ri(10,40)*10;const sleva=Math.round(z*p/100),ans=z-sleva;return{
  text:`Zboží stojí ${z} Kč a je zlevněno o ${p} %.\nKolik stojí teď?`,ans:String(ans),
  hints:[`Nejdřív spočítej slevu — ${p} % z ${z} Kč.`,`Sleva je ${sleva} Kč. Odečti ji od původní ceny.`],skill:'anal'};})(),
- (()=>{const p=ri(5,25),z=ri(10,30)*10;const navic=Math.round(z*p/100),ans=z+navic;return{
+ (()=>{const p=ri(5,25),k=100/gcd(p,100),a=Math.ceil(100/k),z=ri(a,Math.max(a,Math.floor(300/k)))*k;const navic=Math.round(z*p/100),ans=z+navic;return{
  text:`Cena ${z} Kč byla zvýšena o ${p} %.\nKolik stojí teď?`,ans:String(ans),
  hints:[`Spočítej zvýšení — ${p} % z ${z} Kč.`,`Zvýšení je ${navic} Kč. Přičti k původní ceně.`],skill:'anal'};})(),
  (()=>{const p=ri(2,5)*5,z=ri(8,30)*100;const ans=Math.round(z*p/100);return{
@@ -1667,7 +1668,7 @@ const AREAS = [
  svg:svgObdUhl(a*k,b*k,`${a*k} cm`,'?',null),
  text:`Obvod obdélníku je ${ans} cm.\nJedna strana je ${a*k} cm.\nJaká je druhá strana? (cm)`,ans:String(b*k),
  hints:[`O = 2(a+b), tedy a+b = O:2 = ${ans/2}.`,`Druhá strana = ${ans/2} - ${a*k} = ?`],skill:'geo'};})(),
- (()=>{const p=ri(10,40),tot=ri(20,60)*10;const ans=Math.round(tot*p/100);return{
+ (()=>{const p=ri(10,40),k=100/gcd(p,100),a=Math.ceil(200/k),tot=ri(a,Math.max(a,Math.floor(600/k)))*k;const ans=Math.round(tot*p/100);return{
  text:`Na přednášku v akademii přišlo ${tot} studentů.\n${p} % z nich tvoří chlapci.\nKolik chlapců přišlo?`,ans:String(ans),
  hints:[`${p} % z ${tot} = ${tot} × ${p}:100.`,`= ?`],skill:'anal'};})(),
  (()=>{const r=ri(4,10);const o=Math.round(2*3.14*r);return{
