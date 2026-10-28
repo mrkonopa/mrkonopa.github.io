@@ -15,7 +15,11 @@
 function checkAns(raw, correct){
  const norm = s => String(s).trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,'').replace(/,/g,'.').replace(/[−–]/g,'-');
  const u = norm(raw), c = norm(correct);
- if(u===c) return true;
+ /* Smíšené číslo „1 4/5" (celá část, mezera, zlomek). `norm` výše z něj odstraněním mezer udělá „14/5", tedy 2,8: dítě, které
+    na „1 + 4/5" správně napíše „1 4/5", dostalo „špatně" (a naopak „1 2/3" prošlo za správné „12/3"). Čte se ze SUROVÉHO vstupu.
+    Tisícová mezera „12 000" lomítko nemá, takže se jí nedotkne. */
+ const smis = s => { const m = /^(-?)\s*(\d+)\s+(\d+)\s*\/\s*(\d+)$/.exec(String(s).trim().replace(/[−–]/g,'-')); return m && +m[4] ? (m[1]?-1:1)*(+m[2]+(+m[3])/(+m[4])) : NaN; };
+ if(u===c && isNaN(smis(raw))) return true;   // u smíšeného čísla se řetězce po odstranění mezer neporovnávají („1 2/3" by bylo „12/3")
  const evalS = s => {
  if(/^-?\d+\/-?\d+$/.test(s)){const[a,b]=s.split('/');return parseFloat(a)/parseFloat(b);}
  /* parseFloat bere i to, co číslem není celé: z „1.2.3" udělá 1.2 a z „12kg" 12.
@@ -30,7 +34,8 @@ function checkAns(raw, correct){
  if(/^\.\d/.test(s.slice(m[0].length))) return NaN;   // druhá desetinná tečka
  return parseFloat(m[0]);
  };
- const un=evalS(u), cn=evalS(c);
+ const su=smis(raw), sc=smis(correct);
+ const un=isNaN(su)?evalS(u):su, cn=isNaN(sc)?evalS(c):sc;
  if(!isNaN(un)&&!isNaN(cn)) return Math.abs(un-cn)<0.016;
  return false;
 }
