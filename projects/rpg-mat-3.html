@@ -1600,7 +1600,7 @@ function sanitizeCosmetics(){
 /* ── Peněženka: pomocníci pro perky a životní countery (graceful bez modulu) ── */
 function applyCosmetics(){
  const cos=_activeCosmetics()||S.cosmetics;if(!cos)return;
- const av=document.getElementById('pr-avatar');if(av){av.className='';const b=wCatalog().find(i=>i.id===cos.active?.border&&i.cat==='border');if(b)av.classList.add(b.cssKey);}
+ const av=document.getElementById('pr-avatar');if(av){av.className='';const b=wCatalog().find(i=>i.id===cos.active?.border&&i.cat==='border');if(window.RPGKosmetika&&RPGKosmetika.applyAvatar)RPGKosmetika.applyAvatar(av,b?b.id:null);else if(b)av.classList.add(b.cssKey);}
  const nm=document.getElementById('pr-name');const mnm=document.getElementById('map-name');
  ['nm-cyan','nm-gold','nm-green','nm-purple'].forEach(c=>{nm&&nm.classList.remove(c);mnm&&mnm.classList.remove(c);});
  const bg=wCatalog().find(i=>i.id===cos.active?.badge&&i.cat==='badge');
@@ -1620,6 +1620,13 @@ function showModal(ic,title,txt){const m=document.getElementById('modal');docume
 let _shopCat='border';
 function setShopCat(cat,btn){_shopCat=cat;document.querySelectorAll('.shop-tab').forEach(b=>b.classList.remove('on'));if(btn)btn.classList.add('on');renderShop();}
 function renderShop(){
+ renderShopBase();
+ if(window.RPGKosmetika&&RPGKosmetika.shopRendered){
+  const grid=document.getElementById('shop-grid');
+  if(grid)RPGKosmetika.shopRendered(grid,((typeof RPGWallet!=='undefined'&&RPGWallet.items)?RPGWallet.items():[]).filter(i=>i.cat===_shopCat),_shopCat);
+ }
+}
+function renderShopBase(){
  const grid=document.getElementById('shop-grid');if(!grid)return;
  const bal=_walletBal();
  if(typeof SHOP_ITEMS==='undefined'){grid.innerHTML='<div style="color:var(--muted);font-size:13px">Obchod se načítá…</div>';return;}
@@ -1915,7 +1922,7 @@ function renderProfile(){
  const spk=document.getElementById('pr-sponka');if(spk)spk.checked=(typeof RPGWallet!=='undefined')?RPGWallet.getSponkaEnabled():true;
  const snd=document.getElementById('pr-sound');if(snd)snd.checked=(typeof RPGWallet!=='undefined')?RPGWallet.getSoundOn():false;
  if(typeof RPGWallet!=='undefined'&&RPGWallet.renderGachInto)RPGWallet.renderGachInto(document.getElementById('pr-gach'));
- const av=document.getElementById('pr-avatar');if(av){const cos=_activeCosmetics()||S.cosmetics;{const b=wCatalog().find(i=>i.id===cos.active?.border&&i.cat==='border');av.className=(b&&b.cssKey)||'';}}
+ const av=document.getElementById('pr-avatar');if(av){const cos=_activeCosmetics()||S.cosmetics;{const b=wCatalog().find(i=>i.id===cos.active?.border&&i.cat==='border');if(window.RPGKosmetika&&RPGKosmetika.applyAvatar){av.className='';RPGKosmetika.applyAvatar(av,b?b.id:null);}else av.className=(b&&b.cssKey)||'';}}
  const attrsEl=document.getElementById('pr-attrs');
  attrsEl.innerHTML=svgAttrRadar(S.attrs)+Object.entries(ATTR_META).map(([k,v])=>{
   const c=(S.attrs[k]||0)|0,pct=Math.min(100,c)|0;
@@ -2021,6 +2028,7 @@ window.addEventListener('load',()=>{
 <script defer src="./rpg-learn-svg.js"></script>
 <script defer src="./rpg-learn-3.js"></script>
 <script defer src="./rpg-wallet.js"></script>
+<script defer src="./rpg-kosmetika.js?v=20261029"></script>
 <script defer src="vendor/supabase-js-2.118.0.js"></script>
 <script defer src="./rpg-cloud.js"></script>
 <script defer src="./rpg-battle-3.js"></script>

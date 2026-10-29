@@ -1602,7 +1602,7 @@ function applyCosmetics(){
  const cos=_activeCosmetics()||S.cosmetics;
  if(!cos)return;
  const av=document.getElementById('pr-avatar');
- if(av){av.className='';const b=wCatalog().find(i=>i.id===cos.active?.border&&i.cat==='border');if(b)av.classList.add(b.cssKey);}
+ if(av){av.className='';const b=wCatalog().find(i=>i.id===cos.active?.border&&i.cat==='border');if(window.RPGKosmetika&&RPGKosmetika.applyAvatar)RPGKosmetika.applyAvatar(av,b?b.id:null);else if(b)av.classList.add(b.cssKey);}
  const nm=document.getElementById('pr-name');const mnm=document.getElementById('map-name');
  [nm,mnm].forEach(el=>{if(!el)return;[...el.classList].filter(c=>c.startsWith('nm-')).forEach(c=>el.classList.remove(c));});
  const bg=wCatalog().find(i=>i.id===cos.active?.badge&&i.cat==='badge');
@@ -1617,6 +1617,13 @@ function applyCosmetics(){
  renderShop();
 }
 function renderShop(){
+ renderShopBase();
+ if(window.RPGKosmetika&&RPGKosmetika.shopRendered){
+  const grid=document.getElementById('shop-grid');
+  if(grid)RPGKosmetika.shopRendered(grid,((typeof RPGWallet!=='undefined'&&RPGWallet.items)?RPGWallet.items():[]).filter(i=>i.cat===_shopCat),_shopCat);
+ }
+}
+function renderShopBase(){
  const grid=document.getElementById('shop-grid');if(!grid)return;
  const bal=_walletBal();
  const items=((typeof RPGWallet!=='undefined'&&RPGWallet.items)?RPGWallet.items():SHOP_ITEMS).filter(i=>i.cat===_shopCat);
@@ -3412,6 +3419,7 @@ window.addEventListener('load',()=>{
 <script defer src="./rpg-tasks-6.js"></script>
 <script defer src="./rpg-learn-6.js"></script>
 <script defer src="./rpg-wallet.js"></script>
+<script defer src="./rpg-kosmetika.js?v=20261029"></script>
 <script defer src="vendor/supabase-js-2.118.0.js"></script>
 <script defer src="./rpg-cloud.js"></script>
 <script defer src="./rpg-battle-6.js"></script>
