@@ -109,6 +109,9 @@ window.RPGSpriteCore = (function () {
       return sk ? Object.assign({}, HS.pal, sk) : HS.pal;
     }
     function setSkin(key) { activeSkin = (HS.skins && HS.skins[key]) ? key : null; }
+    /* Aura a štítek jména z obchodu (rpg-kosmetika.js). Kreslí se PŘED hrdinou — nikdy ho nezakryje; při chybě se vypne. */
+    let AURA = null;
+    function setAura(fn) { AURA = (typeof fn === 'function') ? fn : null; }
 
     /* ── plátno ── */
     function attach(topEl) {
@@ -395,6 +398,14 @@ window.RPGSpriteCore = (function () {
       }
       const hpf = h.hpFrac === undefined ? 1 : h.hpFrac;
       if (hpf <= 0.34) { hy += 3; if (!rm() && h.mode === 'idle') hx += Math.sin(now / 70) * 2; }
+      if (AURA) {
+        try {
+          ctx.save();
+          AURA(ctx, { x: hx, y: hy, w: HS.cols * HS.scale, h: HERO_PAINT * HS.scale, feet: hy + HERO_PAINT * HS.scale, S: HS.scale, now: now, rm: rm() });
+          ctx.restore();
+        } catch (e) { AURA = null; ctx.restore(); }
+        ctx.globalAlpha = 1;
+      }
       contactShadow(hx + HS.cols * HS.scale / 2, hy + HERO_PAINT * HS.scale, HS.cols * HS.scale, HS.scale, 0);
       drawSprite(ctx, heroGrid(), heroPal(), hx, hy, HS.scale, false, h.mode === 'hit', rim);
 
@@ -717,7 +728,7 @@ window.RPGSpriteCore = (function () {
 
     return {
       attach, detach, active, spawn, heroAttack, bossAttack, defeat,
-      setProgress, setHeroHp, drawHeroOn, setSkin,
+      setProgress, setHeroHp, drawHeroOn, setSkin, setAura,
       skins: () => Object.keys(HS.skins || {}),
       /* nové, jen ke čtení — testy a Věž legend */
       heroSize: () => ({ cols: HS.cols, rows: HS.rows, painted: HERO_PAINT, scale: HS.scale, legacyRows: HS.legacyRows || HS.rows }),

@@ -175,7 +175,7 @@ async function proverStranku(br, base, g) {
     ok(r.nalezy.length > 0, 'sabotáž „' + nazev + '“ je chycena (' + r.nalezy.length + ' nálezů)', '');
     s.close();
   };
-  await sab('6. ročník bez modulu', 6, 'rpg-mat-6.html', t => t.replace('<script defer src="./rpg-kosmetika.js?v=20261029"></script>\n', ''));
+  await sab('6. ročník bez modulu', 6, 'rpg-mat-6.html', t => t.replace('<script defer src="./rpg-kosmetika.js?v=20261030"></script>\n', ''));
   await sab('7. ročník bez vnitřního okraje kolem hrdiny', 7, 'rpg-kosmetika.js', t => t.replace('const PAD = 2;', 'const PAD = 0;'));
   await sab('3. ročník bez napojení obchodu', 3, 'rpg-mat-3.html', t => t.replace('if(window.RPGKosmetika&&RPGKosmetika.shopRendered){', 'if(false){'));
   await sab('hub bez napojení avatara', 'hub', 'rpg-matematika.html', t => t.replace('if(window.RPGKosmetika&&RPGKosmetika.applyAvatar) RPGKosmetika.applyAvatar(', 'if(false) RPGKosmetika.applyAvatar('));
