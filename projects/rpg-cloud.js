@@ -912,6 +912,13 @@ window.RPGCloud = (function () {
 
   // centrální vykreslení žebříčku do prvku v mapě (žádné per-game edity).
   // Bez cloudu/preview → skryje. Bez přihlášení → teaser. Přihlášen → reálná data.
+  /* Barva jména z obchodu (třída `nm-*`) pro JMÉNO PŘIHLÁŠENÉHO hráče; spolužákům ji ukáže až databáze, která
+     jejich volbu vrátí (fáze SQL). Bez peněženky nebo bez koupené barvy prázdný řetězec. */
+  function jmenoTrida() {
+    try { return (typeof RPGWallet !== 'undefined' && RPGWallet.cssFor) ? String(RPGWallet.cssFor('badge') || '').replace(/[^a-z-]/g, '') : ''; }
+    catch (e) { return ''; }
+  }
+
   async function renderLeaderboardInto(elId, game) {
     const el = document.getElementById(elId);
     if (!el) return;
@@ -938,7 +945,7 @@ window.RPGCloud = (function () {
         px + ';font-size:13px;margin:3px 0;' +
         (r.is_me ? 'background:rgba(25,230,230,.14);border:1px solid var(--gold,#19e6e6)' : 'background:rgba(255,255,255,.03)') + '">' +
         '<span style="min-width:26px;text-align:center">' + medal(i) + '</span>' +
-        '<span style="flex:1;color:' + (r.is_me ? 'var(--gold,#19e6e6)' : 'var(--text,#e8eaf6)') + ';font-weight:700;' +
+        '<span' + (r.is_me && jmenoTrida() ? ' class="' + jmenoTrida() + '"' : '') + ' style="flex:1;color:' + (r.is_me ? 'var(--gold,#19e6e6)' : 'var(--text,#e8eaf6)') + ';font-weight:700;' +
         'overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + esc(r.display_name) + (r.is_me ? ' (ty)' : '') + '</span>' +
         '<span style="color:var(--muted,#8895b5);font-size:12px">LV ' + ((r.lvl || 1) | 0) + '</span>' +
         '<span style="color:var(--blue,#5dc8f0);min-width:62px;text-align:right">' + ((r.xp || 0) | 0) + ' XP</span>' +
@@ -1184,7 +1191,16 @@ window.RPGCloud = (function () {
     }
     box.style.display = 'flex';
     const t = document.getElementById('pr-cloud-txt');
-    const kdo = document.createElement('span'); kdo.textContent = '☁️ ' + (user.email || 'přihlášen');
+    const kdo = document.createElement('span');
+    const jmeno = (user.user_metadata && user.user_metadata.full_name) || '';
+    kdo.appendChild(document.createTextNode('☁️ '));
+    if (jmeno) {
+      const nm = document.createElement('span'); nm.textContent = jmeno; nm.className = jmenoTrida(); nm.style.fontWeight = '700';
+      kdo.appendChild(nm); kdo.appendChild(document.createTextNode(' · ' + (user.email || '')));
+    } else {
+      const nm = document.createElement('span'); nm.textContent = user.email || 'přihlášen'; nm.className = jmenoTrida();
+      kdo.appendChild(nm);
+    }
     const rada = document.createElement('span');
     rada.style.cssText = 'font-size:12px;color:var(--muted)';
     rada.textContent = 'Na sdíleném tabletu se po hraní odhlas — postava z tabletu zmizí, v cloudu zůstane.';

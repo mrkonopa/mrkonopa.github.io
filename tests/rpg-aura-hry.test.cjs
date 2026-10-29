@@ -1,12 +1,12 @@
 /* ═══════════════════════════════════════════════════════════════════════════
-   Aura a štítek jména v aréně ve skutečných hrách 3.–9. ročníku (Vojtův pokyn 29. 10. 2026: odměny z obchodu mají
-   být vidět i v boji, ale nesmí zakrýt postavu).
+   Aura v aréně ve skutečných hrách 3.–9. ročníku (Vojtův pokyn 29. 10. 2026: odměny z obchodu mají
+   být vidět i v boji, ale nesmí zakrýt postavu; jméno se v aréně nepíše).
 
    Pro každou hru (boj pod reduced-motion, aby byl snímek deterministický; hrdina má plné zdraví, takže se v aréně
    nelosuje nic, co by dva snímky rozlišilo):
-     1. nasazený rám + barva jména → plátno arény se proti `setAura(null)` liší aspoň o 150 pixelů (aura i štítek jsou vidět)
+     1. nasazený rám → plátno arény se proti `setAura(null)` liší aspoň o 150 pixelů (aura je vidět)
      2. změněné pixely leží vlevo (hrdina), v pravé třetině plátna (boss) se nezmění ani jeden
-     3. nad hlavou hrdiny je štítek: změněné pixely jsou i v horní polovině plátna
+     3. aura není jen pruh u země: změněné pixely jsou nad polovinou výšky hrdiny (záře za ním)
      4. ŘAZENÍ: aura, která zamaluje celý obdélník hrdiny, ho NEZAKRYJE — purpurový podíl obdélníku je pod 85 %
         (hrdina se kreslí až po auře); aura nikdy nezakrývá postavu. (Plátno celé se NEzamalovává: parťák se kreslí
         po hrdinovi, takže by pokrytí obdélníku neměřilo hrdinu.)
@@ -87,9 +87,9 @@ async function proverHru(br, base, g) {
     await page.waitForTimeout(120);
     const bez = await snimek(page);
     const d = rozdil(sAurou, bez);
-    c(d.n >= 150, g + '. ročník: aura a štítek se liší jen o ' + d.n + ' pixelů (čekáno ≥ 150)');
+    c(d.n >= 150, g + '. ročník: aura se liší jen o ' + d.n + ' pixelů (čekáno ≥ 150)');
     c(d.vPraveTretine === 0, g + '. ročník: aura zasáhla pravou třetinu plátna (boss): ' + d.vPraveTretine + ' pixelů');
-    c(d.vHorniPul > 40, g + '. ročník: nad hlavou hrdiny není štítek (' + d.vHorniPul + ' pixelů v horní polovině)');
+    c(d.n >= 150 && d.minY < d.h * 0.55, g + '. ročník: záře nesahá nad pas hrdiny (nejvyšší změněný pixel y = ' + d.minY + ' z ' + d.h + ')');
     /* řazení: aura zamalovaná přes celý obdélník hrdiny hrdinu nezakryje — kdyby se kreslila po něm, zůstane obdélník ze 100 % purpurový */
     await page.evaluate(sp => window[sp].setAura((c2, gg) => { window.__hb = { x: gg.x, y: gg.y, w: gg.w, h: gg.h }; c2.fillStyle = '#ff00ff'; c2.fillRect(gg.x, gg.y, gg.w, gg.h); }), SP);
     await page.waitForTimeout(150);

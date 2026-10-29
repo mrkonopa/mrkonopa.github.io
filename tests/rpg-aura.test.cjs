@@ -1,22 +1,21 @@
 /* ═══════════════════════════════════════════════════════════════════════════
-   Aura a štítek jména v aréně (`RPGKosmetika.arenaAura`) — čistá část, bez prohlížeče.
+   Aura v aréně (`RPGKosmetika.arenaAura`) — čistá část, bez prohlížeče.
 
    Proč: rámy se ukazovaly jen v profilu a v obchodě, ale dítě tráví čas v boji (Vojtův pokyn 29. 10. 2026:
-   odměny mají mít „oomph“). Aura se kreslí do plátna arény PŘED hrdinou, takže ho nikdy nezakryje;
-   štítek se jménem stojí nad hlavou.
+   odměny mají mít „oomph“). Aura se kreslí do plátna arény PŘED hrdinou, takže ho nikdy nezakryje.
 
    Pravidla (počítají se ze skutečných volání kreslicího kontextu — napodobenina `ctx` je zaznamená):
-     1. nic nenasazeno (bez rámu, bez barvy jména) → `null`, v aréně se nezmění ani pixel
+     1. bez rámu → `null`, v aréně se nezmění ani pixel (jméno ani barva jména se v aréně nekreslí: Vojtův pokyn
+        29. 10. 2026 „nepřidávat, kde není třeba“ — barva jména patří tam, kde se jméno vypisuje)
      2. všech 10 rámů: drawer je funkce, v 60 časech nikdy nevyhodí výjimku, počet kreslicích volání je 6–70
         (cenu kreslení nese POČET VOLÁNÍ, ne plocha — viz CLAUDE.md), všechny souřadnice jsou konečná čísla
      3. barva je z rámu: první barva záře (`glow`) se objeví ve výplni; rámy s duhou (`*hue`) mění barvu v čase
      4. POHYB: s pohybem se volání mezi časy liší, pod reduced-motion je výstup v různých časech SHODNÝ
         (a volání je méně: žádná světýlka)
      5. DETERMINISMUS: stejný vstup = stejná volání (žádné Math.random)
-     6. ŠTÍTEK: text je nejvýš 14 znaků bez řídicích znaků, písmo ≥ 12 px, štítek leží celý v plátně
-        (i u hrdiny u levého okraje na úzkém plátně) a nad hlavou hrdiny; bez místa nad hlavou se nekreslí
-     7. aura sahá jen kolem hrdiny: žádné čtvereček aury (≤ 10 px) neleží dál než 1,3 × výška hrdiny od jeho středu
-   Sabotáže: aura bez pohybu, text bez ořezu, štítek mimo plátno.
+     6. žádný text: aura nikdy nevolá `fillText`
+     7. aura sahá jen kolem hrdiny: žádný čtvereček aury (≤ 10 px) neleží dál než 1,3 × výška hrdiny od jeho středu
+   Sabotáže: aura bez pohybu, pohyb pod reduced-motion, aura píše text.
    Spusť: node tests/rpg-aura.test.cjs
    ═══════════════════════════════════════════════════════════════════════════ */
 'use strict';
@@ -56,16 +55,15 @@ const K = nacti(SRC);
 const IDS = K.ids();
 
 /* ── 1. nic nenasazeno ── */
-ok(K.arenaAura(null, {}) === null, 'bez rámu a bez barvy jména má být null');
-ok(K.arenaAura('border-neexistuje', { name: 'Vojta' }) === null, 'neznámý rám bez barvy jména má být null');
-ok(typeof K.arenaAura(null, { name: 'Vojta', nameColor: '#ffd24a' }) === 'function', 'jen barva jména má dát štítek');
-ok(typeof K.arenaAura('border-gold', {}) === 'function', 'jen rám má dát auru');
+ok(K.arenaAura(null) === null, 'bez rámu má být null');
+ok(K.arenaAura('border-neexistuje') === null, 'neznámý rám má být null');
+ok(typeof K.arenaAura('border-gold') === 'function', 'rám má dát auru');
 
 /* ── 2.–5. všech 10 rámů ── */
 ok(IDS.length === 10, 'rámů je ' + IDS.length + ' (čekáno 10)');
 let casu = 0;
 for (const id of IDS) {
-  const d = K.arenaAura(id, { name: 'Vojta' });
+  const d = K.arenaAura(id);
   ok(typeof d === 'function', id + ': drawer není funkce');
   if (typeof d !== 'function') continue;
   let nejmin = 1e9, nejvic = 0, konecne = true, vyjimka = null;
@@ -99,26 +97,12 @@ for (const id of IDS) {
 }
 ok(casu === 600, 'změřeno ' + casu + ' časů (čekáno 600)');
 
-/* ── 6. štítek ── */
-{
-  const d = K.arenaAura('border-gold', { name: 'Vojta' });
-  const l = volej(d, HERO());
-  const t = l.filter(x => x.k === 'text');
-  ok(t.length === 1 && t[0].t === 'Vojta', 'štítek: text „Vojta“ chybí (' + JSON.stringify(t.map(x => x.t)) + ')');
-  ok(t[0] && /^700 1[2-9]px/.test(t[0].font), 'štítek: písmo ' + (t[0] && t[0].font) + ' je menší než 12 px');
-  const dlouhy = volej(K.arenaAura('border-gold', { name: 'Ctirad-Přemysl-Vojtěch-Konopa\u0007\u001f' }), HERO()).filter(x => x.k === 'text')[0];
-  ok(dlouhy && dlouhy.t.length <= 14 && !/[\u0000-\u001f]/.test(dlouhy.t), 'štítek: dlouhé jméno / řídicí znaky: „' + (dlouhy && dlouhy.t) + '“');
-  /* štítek leží celý v plátně a nad hlavou */
-  for (const W of [280, 340, 400, 572]) for (const x0 of [0, 14, 20, W - 110]) {
-    const g = HERO({ x: x0 });
-    const ll = volej(K.arenaAura('border-gold', { name: x0 % 2 ? 'Vojta' : 'Ctirad-Přemysl' }), g, W);
-    const pozadi = ll.filter(r => r.k === 'rect' && r.fs.indexOf('rgba(6,10,22') === 0)[0];
-    ok(pozadi && pozadi.x >= 2 && pozadi.x + pozadi.w <= W - 2, 'štítek mimo plátno: W ' + W + ', hrdina x ' + x0 + ' (' + (pozadi && pozadi.x + '–' + (pozadi.x + pozadi.w)) + ')');
-    ok(pozadi && pozadi.y + pozadi.h <= g.feet - g.h, 'štítek není nad hlavou hrdiny (W ' + W + ')');
-  }
-  /* bez místa nad hlavou se nekreslí */
-  const nizko = volej(K.arenaAura('border-gold', { name: 'Vojta' }), HERO({ feet: 160, h: 150 }));
-  ok(nizko.filter(x => x.k === 'text').length === 0, 'štítek se nakreslil, i když nad hlavou není místo');
+/* ── 6. žádný text ── */
+for (const id of IDS) {
+  const d = K.arenaAura(id);
+  let texty = 0;
+  for (let k = 0; k < 20; k++) texty += volej(d, HERO({ now: k * 311, rm: k % 2 === 0 })).filter(x => x.k === 'text' || x.k === 'stroke').length;
+  ok(texty === 0, id + ': aura kreslí text nebo obrys (' + texty + ')');
 }
 
 /* ── sabotáže: test musí spadnout ── */
@@ -128,26 +112,21 @@ function sab(nazev, f) {
   if (zdroj === SRC) { ok(false, 'sabotáž „' + nazev + '“ se neaplikovala'); return; }
   const ctxy = nacti(zdroj);
   const before = [pass, fail];
-  /* spustí zjednodušenou kontrolu stejným způsobem jako výše */
   let chyceno = false;
   try {
-    const d = ctxy.arenaAura('border-gold', { name: 'Ctirad-Přemysl-Vojtěch-Konopa' });
+    const d = ctxy.arenaAura('border-gold');
     const a = kons(volej(d, HERO({ now: 1000 }))), b = kons(volej(d, HERO({ now: 1500 })));
     const r1 = kons(volej(d, HERO({ now: 1000, rm: true }))), r2 = kons(volej(d, HERO({ now: 7777, rm: true })));
-    const tx = volej(d, HERO()).filter(x => x.k === 'text')[0];
-    const pz = volej(ctxy.arenaAura('border-gold', { name: 'Ctirad-Přemysl' }), HERO({ x: 0 }), 280).filter(r => r.k === 'rect' && r.fs.indexOf('rgba(6,10,22') === 0)[0];
     if (a === b) chyceno = true;
     if (r1 !== r2) chyceno = true;
-    if (!tx || tx.t.length > 14) chyceno = true;
-    if (!pz || pz.x < 2) chyceno = true;
+    if (volej(d, HERO()).some(x => x.k === 'text')) chyceno = true;
   } catch (e) { chyceno = true; }
   pass = before[0]; fail = before[1];
   ok(chyceno, 'sabotáž „' + nazev + '“ je chycena');
 }
 sab('aura bez pohybu (čas se nepoužije)', t => t.replace('now = still ? 0 : g.now', 'now = 0'));
-sab('jméno bez ořezu', t => t.replace(".slice(0, 14) : '';", " : '';"));
-sab('štítek mimo plátno (bez ohraničení doleva)', t => t.replace("const px = Math.max(2, Math.min(W - pw - 2, Math.round(cx - pw / 2)));", "const px = Math.round(cx - pw / 2);"));
 sab('pod reduced-motion se hýbe', t => t.replace('still = g.rm', 'still = false'));
+sab('aura píše jméno', t => t.replace("      ctx.globalAlpha = 1;\n    };\n  }\n", "      ctx.globalAlpha = 1; ctx.fillText('Vojta', cx, g.feet - g.h);\n    };\n  }\n"));
 
 console.log('\n' + (fail ? '❌' : '✅') + ' Aura v aréně: ' + pass + ' ✅, ' + fail + ' ❌');
 process.exit(fail ? 1 : 0);
