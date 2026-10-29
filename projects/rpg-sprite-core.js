@@ -253,8 +253,20 @@ window.RPGSpriteCore = (function () {
     }
 
     /* ── pozice ── */
+    /* Vodorovné rozložení podle šířky plátna. Nad NARROW_W platí poměry světa
+       (heroX, bossX). Na užším plátně (iPad na šířku 359–397 px, telefon) by
+       poměry nechaly mezi parťákem a bossem 13–38 px, takže se při třesení
+       bosse dotýkali — a pod 264 px byl parťák uvnitř bosse. Tam se hrdina
+       posune doleva a boss se přisadí k pravému okraji (5 % rezerva pro odhození a třes); mezera mezi parťákem
+       a bossem pak u všech sedmi světů vychází nejméně 60 px od šířky 340.
+       Jediné místo pro obojí: kreslí podle něj engine i test rozestupu. */
+    const NARROW_W = 540;
+    function layoutX(W, bossCols) {
+      if (W < NARROW_W) return { heroX: Math.round(W * 0.07), bossX: Math.round(W - bossCols * BS.scale - W * 0.05) };
+      return { heroX: Math.round(W * AR.heroX), bossX: Math.round(W * AR.bossX) };
+    }
     function heroPos() {
-      return { x: Math.round(cv.width * AR.heroX), y: (AR.h - AR.groundPad) - HERO_ANCHOR * HS.scale };
+      return { x: layoutX(cv.width, bossGrids()[0][0].length).heroX, y: (AR.h - AR.groundPad) - HERO_ANCHOR * HS.scale };
     }
     function bossGrids() { return BS.grids[curArea] || BS.grids[1]; }
     function bossPos() {
@@ -263,7 +275,7 @@ window.RPGSpriteCore = (function () {
          Starý engine devítky měl hrdinu na `h - groundPad` a bosse na
          pevných 186 px — bez tohohle by se boss posunul o 2 px. */
       const pad = (typeof AR.bossPad === 'number') ? AR.bossPad : AR.groundPad + 2;
-      return { x: Math.round(cv.width * AR.bossX), y: (AR.h - pad) - rows * sc, sc: sc, rows: rows, cols: fr[0][0].length };
+      return { x: layoutX(cv.width, fr[0][0].length).bossX, y: (AR.h - pad) - rows * sc, sc: sc, rows: rows, cols: fr[0][0].length };
     }
     function heroGrid() {
       const m = ST.hero.mode, G = HS.grids;
@@ -711,6 +723,7 @@ window.RPGSpriteCore = (function () {
       heroSize: () => ({ cols: HS.cols, rows: HS.rows, painted: HERO_PAINT, scale: HS.scale, legacyRows: HS.legacyRows || HS.rows }),
       fxCount: () => ST.fx.length,
       world: () => world,
+      layoutX, narrowW: NARROW_W,
       version: VERSION
     };
   }
