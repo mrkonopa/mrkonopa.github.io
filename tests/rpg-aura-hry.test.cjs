@@ -47,6 +47,10 @@ const SNIMEK = `() => {
 }`;
 const snimek = page => page.evaluate('(' + SNIMEK + ')()');
 
+/* Po změně ve hře se čeká na DVA další snímky vykreslovací smyčky (ne na pevnou prodlevu): za vytížení stroje by se plátno
+   za 150 ms nemuselo překreslit a snímek by ukázal starý stav. */
+const prekresleno = page => page.evaluate(() => new Promise(r => requestAnimationFrame(() => requestAnimationFrame(() => requestAnimationFrame(r)))));
+
 function rozdil(a, b) {
   const w = a.w, h = a.h; let n = 0, minX = 1e9, maxX = -1, minY = 1e9, maxY = -1, vPraveTretine = 0, vHorniPul = 0;
   for (let i = 0; i < a.data.length; i += 4) {
@@ -77,14 +81,15 @@ async function proverHru(br, base, g) {
     document.documentElement.classList.add('reduced-motion');
     const ar = AREAS[0], mi = ar.missions.find(m => !m.mc) || ar.missions[0]; launchBattle(ar.id, mi.id);
   });
-  await page.waitForTimeout(1500);
+  await page.waitForFunction(() => { const c = document.querySelector('.bt-top canvas'); return !!c && c.width > 0; }, null, { timeout: 10000 });
+  await prekresleno(page); await page.waitForTimeout(600);
   const SP = 'RPGSprites' + g;
   const maAPI = await page.evaluate(sp => !!(window[sp] && typeof window[sp].setAura === 'function'), SP);
   c(maAPI, g + '. ročník: jádro nemá setAura');
   if (maAPI) {
     const sAurou = await snimek(page);
     await page.evaluate(sp => window[sp].setAura(null), SP);
-    await page.waitForTimeout(120);
+    await prekresleno(page);
     const bez = await snimek(page);
     const d = rozdil(sAurou, bez);
     c(d.n >= 150, g + '. ročník: aura se liší jen o ' + d.n + ' pixelů (čekáno ≥ 150)');
@@ -92,7 +97,7 @@ async function proverHru(br, base, g) {
     c(d.n >= 150 && d.minY < d.h * 0.55, g + '. ročník: záře nesahá nad pas hrdiny (nejvyšší změněný pixel y = ' + d.minY + ' z ' + d.h + ')');
     /* řazení: aura zamalovaná přes celý obdélník hrdiny hrdinu nezakryje — kdyby se kreslila po něm, zůstane obdélník ze 100 % purpurový */
     await page.evaluate(sp => window[sp].setAura((c2, gg) => { window.__hb = { x: gg.x, y: gg.y, w: gg.w, h: gg.h }; c2.fillStyle = '#ff00ff'; c2.fillRect(gg.x, gg.y, gg.w, gg.h); }), SP);
-    await page.waitForTimeout(150);
+    await prekresleno(page);
     const frac = await page.evaluate(() => {
       const cv = document.querySelector('.bt-top canvas'), b = window.__hb; if (!b) return null;
       const x0 = Math.max(0, Math.round(b.x)), y0 = Math.max(0, Math.round(b.y)), w = Math.min(cv.width - x0, Math.round(b.w)), h = Math.min(cv.height - y0, Math.round(b.h));
@@ -104,14 +109,14 @@ async function proverHru(br, base, g) {
     console.log('     ' + g + '. ročník: podíl purpurové v obdélníku hrdiny ' + (frac && frac.podil.toFixed(2)));
     /* bez nasazení = beze změny; výměna rámu aury změní */
     await page.evaluate(() => { RPGWallet.deactivate('border'); RPGWallet.deactivate('badge'); applyCosmetics(); });
-    await page.waitForTimeout(150);
+    await prekresleno(page);
     const nic = await snimek(page);
     c(rozdil(nic, bez).n === 0, g + '. ročník: bez nasazení se plátno liší od `setAura(null)` o ' + rozdil(nic, bez).n + ' pixelů');
     await page.evaluate(() => { RPGWallet.activate('border-dragon'); RPGWallet.activate('badge-gold'); applyCosmetics(); });
-    await page.waitForTimeout(150);
+    await prekresleno(page);
     const dr = await snimek(page);
     await page.evaluate(() => { RPGWallet.activate('border-diamond'); applyCosmetics(); });
-    await page.waitForTimeout(150);
+    await prekresleno(page);
     const di = await snimek(page);
     c(rozdil(dr, di).n >= 60, g + '. ročník: po výměně rámu se aura nezměnila (' + rozdil(dr, di).n + ' pixelů)');
     c(rozdil(dr, bez).n >= 150, g + '. ročník: zelená aura po výměně není vidět');
