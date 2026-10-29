@@ -23,6 +23,7 @@
 <script src="rpg-icons.js"></script>
 <script src="./rpg-badwords.js"></script>
 <script src="./rpg-wallet.js"></script>
+<script src="./rpg-kosmetika.js?v=20261029"></script>
 <script src="./rpg-hero-portraits.js"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -696,6 +697,13 @@ function setShopCat(cat,btn){
  renderShop();
 }
 function renderShop(){
+ renderShopBase();
+ if(HUB_HAS_WALLET&&window.RPGKosmetika&&RPGKosmetika.shopRendered){
+  const grid=document.getElementById('shop-grid');
+  if(grid)RPGKosmetika.shopRendered(grid,RPGWallet.items().filter(i=>i.cat===_shopCat),_shopCat);
+ }
+}
+function renderShopBase(){
  if(!HUB_HAS_WALLET) return;
  const grid=document.getElementById('shop-grid');
  if(!grid) return;
@@ -779,7 +787,8 @@ function renderGlobalProfile(){
  const av=document.getElementById('gp-av');
  av.className='gp-av';
  const borderCss=RPGWallet.cssFor('border');
- if(borderCss) av.classList.add(borderCss);
+ if(window.RPGKosmetika&&RPGKosmetika.applyAvatar) RPGKosmetika.applyAvatar(av,RPGWallet.activeId('border'),{inside:true,u:2,aw:25,ah:34});
+ else if(borderCss) av.classList.add(borderCss);
  // jméno + badge barva
  const nameEl=document.getElementById('gp-name');
  const firstName=GAMES.map(g=>{ const S=load(g.key); return S?S.name:null; }).find(n=>n);

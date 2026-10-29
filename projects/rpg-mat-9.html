@@ -1108,7 +1108,7 @@ function applyCosmetics(){
  if(av){
   av.className='';
   const b=wCatalog().find(i=>i.id===cos.active?.border&&i.cat==='border');
-  if(b&&b.cssKey)av.classList.add(b.cssKey);
+  if(window.RPGKosmetika&&RPGKosmetika.applyAvatar)RPGKosmetika.applyAvatar(av,b?b.id:null);else if(b&&b.cssKey)av.classList.add(b.cssKey);
  }
  const nm=document.getElementById('pr-name');
  const mnm=document.getElementById('map-name');
@@ -1137,6 +1137,13 @@ function shopCat(cat){
 }
 
 function renderShop(){
+ renderShopBase();
+ if(window.RPGKosmetika&&RPGKosmetika.shopRendered){
+  const grid=document.getElementById('shop-content');
+  if(grid)RPGKosmetika.shopRendered(grid,((typeof RPGWallet!=='undefined'&&RPGWallet.items)?RPGWallet.items():[]).filter(i=>i.cat===_shopCat),_shopCat);
+ }
+}
+function renderShopBase(){
  const cos=_activeCosmetics();
  if(!cos&&!S.cosmetics){S.cosmetics={owned:['theme-default','victory-default'],active:{border:null,badge:null,theme:'theme-default',victory:'victory-default'}};}
  _updateCreditsUI();
@@ -3370,6 +3377,7 @@ window.addEventListener('load',()=>{
 });
 </script>
 <script defer src="./rpg-wallet.js?v=sponka2"></script>
+<script defer src="./rpg-kosmetika.js?v=20261029"></script>
 <script defer src="vendor/supabase-js-2.118.0.js"></script>
 <script defer src="./rpg-cloud.js"></script>
 <script defer src="./rpg-battle-9.js"></script>
