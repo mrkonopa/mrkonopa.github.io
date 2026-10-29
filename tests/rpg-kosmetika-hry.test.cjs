@@ -44,7 +44,17 @@ const STAV = `(sel) => {
   return { n, h, w: cv.width, hh: cv.height };
 }`;
 
+const RK_PAD = 2; // RPGKosmetika.PAD — hlídá se i přímo níž
 const stav = (page, sel) => page.evaluate('(' + STAV + ')(' + JSON.stringify(sel) + ')');
+
+/* Nejmenší odstup (px) mezi hrdinou a vnitřním okrajem rámu: rám nesmí na postavu dosedat ani ji zakrývat (Vojtova výtka 29. 10. 2026). */
+const odstup = (page, hostSel, heroSel, id) => page.evaluate(([hs, hero, i]) => {
+  const host = document.querySelector(hs); if (!host) return null;
+  const a = host.querySelector(hero), f = host.querySelector('canvas.kos-frame'); if (!a || !f) return null;
+  const def = RPGKosmetika.FRAMES[i]; if (!def) return null;
+  const A = a.getBoundingClientRect(), F = f.getBoundingClientRect(), k = F.width / f.width, b = def.b * k;
+  return Math.min(A.left - (F.left + b), A.top - (F.top + b), (F.right - b) - A.right, (F.bottom - b) - A.bottom);
+}, [hostSel, heroSel, id]);
 
 async function proverStranku(br, base, g) {
   const nalezy = []; let kontrol = 0;
@@ -63,6 +73,8 @@ async function proverStranku(br, base, g) {
     const s = await stav(page, '#gp-av canvas.kos-frame');
     c(s && s.n > 100, 'hub: avatar nemá rám (' + JSON.stringify(s) + ')');
     c(await page.evaluate(() => !document.getElementById('gp-av').className.split(/\s+/).some(x => x.startsWith('av-'))), 'hub: na avataru zůstal starý stín av-*');
+    const oh = await odstup(page, '#gp-av', '#gp-av-cv', 'border-cyan');
+    c(oh !== null && oh >= 3, 'hub: hrdina je od vnitřního okraje rámu ' + oh + ' px (čekáno ≥ 3)');
     await page.evaluate(() => { toggleShop(); setShopCat('border', document.querySelector('.shop-tab')); });
     await page.waitForTimeout(400);
     const info = await page.evaluate(() => ({
@@ -82,7 +94,10 @@ async function proverStranku(br, base, g) {
     c(!obal.trida || !/(^|\s)av-/.test(obal.trida), g + '. ročník: na avataru zůstal starý stín (' + obal.trida + ')');
     const s1 = await stav(page, '.kos-av canvas.kos-frame');
     c(s1 && s1.n > 100, g + '. ročník: plátno rámu je prázdné (' + JSON.stringify(s1) + ')');
-    c(s1 && s1.w === 18 + 2 * 5 && s1.hh === 24 + 2 * 5, g + '. ročník: rozměr plátna ' + (s1 && s1.w) + '×' + (s1 && s1.hh) + ' neodpovídá rámu Kyber (28×34)');
+    c(s1 && s1.w === 18 + 2 * RK_PAD + 2 * 5 && s1.hh === 24 + 2 * RK_PAD + 2 * 5, g + '. ročník: rozměr plátna ' + (s1 && s1.w) + '×' + (s1 && s1.hh) + ' neodpovídá rámu Kyber s vnitřním okrajem (32×38)');
+    c(await page.evaluate(() => RPGKosmetika.PAD) === RK_PAD, g + '. ročník: RPGKosmetika.PAD se liší od ' + RK_PAD);
+    const og = await odstup(page, '.kos-av:has(#pr-avatar)', '#pr-avatar', 'border-cyan');
+    c(og !== null && og >= 5, g + '. ročník: hrdina je od vnitřního okraje rámu ' + og + ' px (čekáno ≥ 5, rám nesmí dosedat na postavu)');
     // pohyb
     await page.waitForTimeout(480);
     const s2 = await stav(page, '.kos-av canvas.kos-frame');
@@ -99,7 +114,7 @@ async function proverStranku(br, base, g) {
     await page.evaluate(() => { RPGWallet.activate('border-silver'); applyCosmetics(); });
     await page.waitForTimeout(150);
     const s3 = await stav(page, '.kos-av canvas.kos-frame');
-    c(s3 && s3.w === 18 + 2 * 4 && s3.n > 100, g + '. ročník: po výměně na stříbrný rám je plátno ' + (s3 && s3.w) + ' px široké (čekáno 26)');
+    c(s3 && s3.w === 18 + 2 * RK_PAD + 2 * 4 && s3.n > 100, g + '. ročník: po výměně na stříbrný rám je plátno ' + (s3 && s3.w) + ' px široké (čekáno 30)');
     await page.evaluate(() => { RPGWallet.deactivate('border'); applyCosmetics(); });
     await page.waitForTimeout(150);
     const s4 = await stav(page, '.kos-av canvas.kos-frame');
@@ -115,6 +130,10 @@ async function proverStranku(br, base, g) {
       return { pruh: !!st && !st.hidden, karty: karty.length, nahledy: karty.filter(k => k.querySelector('canvas.kos-frame')).length,
                tlacitka: karty.filter(k => k.querySelector('.kos-try-btn')).length };
     });
+    const os = await odstup(page, '#kos-try .kos-av', 'canvas:not(.kos-frame)', 'border-gold');
+    c(os !== null && os >= 5, g + '. ročník: v pruhu náhledu je hrdina od rámu ' + os + ' px (čekáno ≥ 5)');
+    const ok1 = await page.evaluate(() => { const grid = document.getElementById('shop-grid') || document.getElementById('shop-content'); const av = grid.children[1].querySelector('.kos-av'); const a = av.querySelector('canvas:not(.kos-frame)'); const f = av.querySelector('canvas.kos-frame'); const A = a.getBoundingClientRect(), F = f.getBoundingClientRect(); return Math.min(A.left - F.left, A.top - F.top, F.right - A.right, F.bottom - A.bottom); });
+    c(ok1 >= 17, g + '. ročník: na kartě v obchodě je hrdina od vnějšku rámu ' + ok1 + ' px (čekáno ≥ 17: vnitřní okraj 6 + nejtenčí rám 12)');
     c(ob.pruh, g + '. ročník: v kategorii rámů chybí pruh náhledu');
     c(ob.karty >= 6 && ob.nahledy === ob.karty && ob.tlacitka === ob.karty, g + '. ročník: ' + ob.nahledy + ' náhledů a ' + ob.tlacitka + ' tlačítek pro ' + ob.karty + ' karet');
     const nazev1 = await page.evaluate(() => document.getElementById('kos-try-name').textContent);
@@ -144,7 +163,7 @@ async function proverStranku(br, base, g) {
     const r = await proverStranku(br, base, g); kontrol += r.kontrol;
     ok(r.nalezy.length === 0, (g === 'hub' ? 'hub' : g + '. ročník') + ': rám v profilu a obchodu (' + r.kontrol + ' kontrol)', r.nalezy.slice(0, 3).join(' | '));
   }
-  ok(kontrol >= 100, 'celkem změřeno dost kontrol: ' + kontrol + ' (naměřeno 103)');
+  ok(kontrol >= 100, 'celkem změřeno dost kontrol: ' + kontrol + ' (naměřeno viz výpis)');
   srv.close();
 
   console.log('── Sabotáže: test musí spadnout ──');
@@ -157,6 +176,7 @@ async function proverStranku(br, base, g) {
     s.close();
   };
   await sab('6. ročník bez modulu', 6, 'rpg-mat-6.html', t => t.replace('<script defer src="./rpg-kosmetika.js?v=20261029"></script>\n', ''));
+  await sab('7. ročník bez vnitřního okraje kolem hrdiny', 7, 'rpg-kosmetika.js', t => t.replace('const PAD = 2;', 'const PAD = 0;'));
   await sab('3. ročník bez napojení obchodu', 3, 'rpg-mat-3.html', t => t.replace('if(window.RPGKosmetika&&RPGKosmetika.shopRendered){', 'if(false){'));
   await sab('hub bez napojení avatara', 'hub', 'rpg-matematika.html', t => t.replace('if(window.RPGKosmetika&&RPGKosmetika.applyAvatar) RPGKosmetika.applyAvatar(', 'if(false) RPGKosmetika.applyAvatar('));
   await br.close();

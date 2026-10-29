@@ -280,6 +280,8 @@ window.RPGKosmetika = (function () {
   const reduced = () => {
     try { return document.documentElement.classList.contains('reduced-motion') || (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches); } catch (e) { return false; }
   };
+  /* Vnitřní okraj mezi rámem a hrdinou (logické px): hrdina je ořezaný na výřez avatara, takže bez něj dosedal hlavou i nohama přímo na rám. */
+  const PAD = 2;
   const has = id => !!(id && FRAMES[id]);
   function geom(id, aw, ah) { const b = has(id) ? FRAMES[id].b : 0; return { b, W: aw + 2 * b, H: ah + 2 * b }; }
   function place(m) {
@@ -349,10 +351,11 @@ window.RPGKosmetika = (function () {
         host = document.createElement('span'); host.className = 'kos-av';
         el.parentNode.insertBefore(host, el); host.appendChild(el);
       }
-      host.style.cssText = 'position:relative;display:inline-block;line-height:0;flex:none;margin:' + (6 * u) + 'px';
+      host.style.cssText = 'position:relative;display:inline-block;line-height:0;flex:none;margin:' + (6 * u) + 'px;padding:' + (PAD * u) + 'px';
     } else if (!host.style.position) host.style.position = 'relative';
-    const aw = o.aw || (o.inside ? 18 : Math.round((el.clientWidth || el.width || 54) / u));
-    const ah = o.ah || (o.inside ? 24 : Math.round((el.clientHeight || el.height || 72) / u));
+    const pad = o.inside ? 0 : PAD;
+    const aw = o.aw || (o.inside ? 18 : Math.round((el.clientWidth || el.width || 54) / u)) + 2 * pad;
+    const ah = o.ah || (o.inside ? 24 : Math.round((el.clientHeight || el.height || 72) / u)) + 2 * pad;
     if (host._kos) { host._kos.set(id); return host._kos; }
     host._kos = mountFrame(host, id, { u, aw, ah });
     return host._kos;
@@ -366,7 +369,7 @@ window.RPGKosmetika = (function () {
     if (strip) return strip;
     strip = document.createElement('div');
     strip.id = 'kos-try'; strip.className = 'kos-try'; strip.hidden = true;
-    const av = document.createElement('span'); av.className = 'kos-av'; av.style.cssText = 'position:relative;display:inline-block;line-height:0;margin:18px';
+    const av = document.createElement('span'); av.className = 'kos-av'; av.style.cssText = 'position:relative;display:inline-block;line-height:0;margin:18px;padding:' + (PAD * 3) + 'px';
     const cv = document.createElement('canvas'); cv.width = 54; cv.height = 72; cv.style.cssText = 'width:54px;height:72px;image-rendering:pixelated;display:block';
     av.appendChild(cv); strip.appendChild(av);
     const txt = document.createElement('div'); txt.className = 'kos-try-t';
@@ -377,7 +380,7 @@ window.RPGKosmetika = (function () {
     strip.append(txt, off);
     grid.parentNode.insertBefore(strip, grid);
     drawHero(cv);
-    tryHandle = mountFrame(av, null, { u: 3, aw: 18, ah: 24 });
+    tryHandle = mountFrame(av, null, { u: 3, aw: 18 + 2 * PAD, ah: 24 + 2 * PAD });
     return strip;
   }
   function activeBorder() { try { return (window.RPGWallet && RPGWallet.activeId && RPGWallet.activeId('border')) || null; } catch (e) { return null; } }
@@ -398,10 +401,10 @@ window.RPGKosmetika = (function () {
   function decorateCard(card, item) {
     if (!item || item.cat !== 'border' || !has(item.id) || card.querySelector('.kos-av')) return;
     const ic = card.querySelector(SEL_IC); if (!ic) return;
-    const av = document.createElement('span'); av.className = 'kos-av'; av.style.cssText = 'position:relative;display:inline-block;line-height:0;margin:18px auto 14px';
+    const av = document.createElement('span'); av.className = 'kos-av'; av.style.cssText = 'position:relative;display:inline-block;line-height:0;margin:18px auto 14px;padding:' + (PAD * 3) + 'px';
     const cv = document.createElement('canvas'); cv.width = 54; cv.height = 72; cv.style.cssText = 'width:54px;height:72px;image-rendering:pixelated;display:block';
     av.appendChild(cv); drawHero(cv);
-    mountFrame(av, item.id, { u: 3, aw: 18, ah: 24 });
+    mountFrame(av, item.id, { u: 3, aw: 18 + 2 * PAD, ah: 24 + 2 * PAD });
     ic.replaceWith(av);
     const m = META[item.id];
     if (m) {
@@ -439,5 +442,5 @@ window.RPGKosmetika = (function () {
   }
   try { injectCss(); } catch (e) {}
 
-  return { VERSION, STEP_MS, FRAMES, META, has, ids: () => Object.keys(FRAMES), renderFrame, glowAt, mountFrame, applyAvatar, drawHero, shopRendered, tryOn, rgb, hsl, rng };
+  return { VERSION, STEP_MS, PAD, FRAMES, META, has, ids: () => Object.keys(FRAMES), renderFrame, glowAt, mountFrame, applyAvatar, drawHero, shopRendered, tryOn, rgb, hsl, rng };
 })();

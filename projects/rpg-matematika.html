@@ -229,7 +229,7 @@ body::before{
 .gp-id{display:flex;align-items:flex-end;gap:13px;flex:1;min-width:230px}
 /* avatar = pixelová postava, ne emoji */
 .gp-av{width:52px;flex:none;background:#0d111c;border:1px solid var(--line);border-radius:var(--r-md);
- display:flex;align-items:flex-end;justify-content:center;padding:5px 0 0}
+ display:flex;align-items:flex-end;justify-content:center;padding:5px 0}
 .gp-av canvas{width:44px;display:block;image-rendering:pixelated}
 /* souhrn: pět čísel vedle sebe */
 .gp-sum{display:flex;gap:26px;flex-wrap:wrap}
@@ -787,7 +787,7 @@ function renderGlobalProfile(){
  const av=document.getElementById('gp-av');
  av.className='gp-av';
  const borderCss=RPGWallet.cssFor('border');
- if(window.RPGKosmetika&&RPGKosmetika.applyAvatar) RPGKosmetika.applyAvatar(av,RPGWallet.activeId('border'),{inside:true,u:2,aw:25,ah:34});
+ if(window.RPGKosmetika&&RPGKosmetika.applyAvatar) RPGKosmetika.applyAvatar(av,RPGWallet.activeId('border'),{inside:true,u:2,aw:25,ah:37});
  else if(borderCss) av.classList.add(borderCss);
  // jméno + badge barva
  const nameEl=document.getElementById('gp-name');
