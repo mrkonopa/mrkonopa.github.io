@@ -418,11 +418,21 @@ window.RPGKosmetika = (function () {
     tb.addEventListener('click', () => { tryOn(item.id); const s = document.getElementById('kos-try'); if (s && s.scrollIntoView) s.scrollIntoView({ block: 'nearest', behavior: reduced() ? 'auto' : 'smooth' }); });
     (card.querySelector(SEL_BTN) || card).appendChild(tb);
   }
+  /* Obchod, kategorie „Výhra efekt“: u každé karty tlačítko „▶ UKÁZKA“ (modul efektů je jen ve hrách, v hubu se tlačítko neukáže). */
+  function decorateVictory(card, item) {
+    const V = window.RPGVitezstvi;
+    if (!V || !item || item.cat !== 'victory' || !V.META[item.id] || card.querySelector('.kos-uk')) return;
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'btn sm kos-uk'; b.textContent = '▶ UKÁZKA';
+    b.setAttribute('aria-label', 'Ukázka efektu vítězství ' + item.name);
+    b.addEventListener('click', () => V.ukaz(item.id, item.cssKey));
+    (card.querySelector(SEL_BTN) || card).appendChild(b);
+  }
   /* Volá se na konci každého `renderShop()` — jedna funkce pro všech 7 her i hub. `items` jsou položky vykreslené v `grid` ve stejném pořadí. */
   function shopRendered(grid, items, cat) {
     if (!grid) return;
     const strip = ensureStrip(grid);
     strip.hidden = cat !== 'border';
+    if (cat === 'victory') { const kz = Array.from(grid.children); items.forEach((it, i) => { if (kz[i]) decorateVictory(kz[i], it); }); return; }
     if (cat !== 'border') return;
     tryOn(tryName && has(tryName) ? tryName : null);
     const cards = Array.from(grid.children);
