@@ -1530,7 +1530,9 @@ function victoryBurst(){
  if(typeof RPGSound!=='undefined')RPGSound.play('boss');
  const b=document.createElement('div');b.className='victory-banner';b.textContent='⚓ VÍTĚZSTVÍ! ⚓';
  {const v=wCatalog().find(i=>i.id===_activeCosmetics()?.active?.victory&&i.cat==='victory');if(v&&v.cssKey)b.classList.add(v.cssKey);}
- document.body.appendChild(b);void b.offsetWidth;b.classList.add('go');setTimeout(()=>b.remove(),1500);
+ document.body.appendChild(b);
+ if(window.RPGVitezstvi&&RPGVitezstvi.play(_activeCosmetics()?.active?.victory||'victory-default',{banner:b}))return;   // pixelový efekt z obchodu; nápis si načasuje a odstraní modul
+ void b.offsetWidth;b.classList.add('go');setTimeout(()=>b.remove(),1500);
  if(!rmActive()){const coins=['🪙','✨','⭐','💰'];for(let i=0;i<22;i++){const d=document.createElement('div');d.className='gold-drop';d.textContent=coins[i%coins.length];d.style.left=(Math.random()*100)+'vw';const dur=(1.4+Math.random()*1.2);d.style.animationDuration=dur+'s';d.style.animationDelay=(Math.random()*0.4)+'s';document.body.appendChild(d);void d.offsetWidth;d.classList.add('go');setTimeout(()=>d.remove(),(dur+0.5)*1000);}}
 }
 function hitVignette(){const v=document.getElementById('hit-vignette');v.classList.remove('go');void v.offsetWidth;v.classList.add('go');}
@@ -2010,6 +2012,7 @@ window.addEventListener('load',()=>{
 <script defer src="./rpg-learn-5.js"></script>
 <script defer src="./rpg-wallet.js"></script>
 <script defer src="./rpg-kosmetika.js?v=20261030b"></script>
+<script defer src="./rpg-vitezstvi.js?v=20261030"></script>
 <script defer src="vendor/supabase-js-2.118.0.js"></script>
 <script defer src="./rpg-cloud.js"></script>
 <script defer src="./rpg-battle-5.js"></script>

@@ -93,6 +93,8 @@ window.RPGWallet = (function () {
     { id: 'title-legenda-veze',cat: 'title',  name: 'Legenda věže',       ic: '🗼', price: 999999, ach: true },
     { id: 'title-magnat',      cat: 'title',  name: 'Magnát',             ic: '🤑', price: 999999, ach: true },
     { id: 'pet-fenix',         cat: 'pet',    name: 'Fénix',              ic: '🔥', price: 999999, ach: true },
+    { id: 'victory-bomb',      cat: 'victory', name: 'Výbuch bomby',      ic: '💣', price: 999999, ach: true, cssKey: 'vc-bomb' },
+    { id: 'victory-tree',      cat: 'victory', name: 'Strom vítězství',   ic: '🌳', price: 999999, ach: true, cssKey: 'vc-tree' },
     { id: 'pet-zlaty-drak',    cat: 'pet',    name: 'Zlatý drak',         ic: '🐲', price: 999999, ach: true },
   ];
 
@@ -105,12 +107,12 @@ window.RPGWallet = (function () {
       desc: 'Vyřeš 1 000 příkladů (počítá se napříč všemi ročníky).' },
     { id: 'gach-tasks-10k',   ic: '🕰️', nm: 'Pán času',           stat: 'tasks',     goal: 10000, reward: { credits: 1200, grant: ['title-pan-casu'], perk: 'notimer' },
       desc: 'Vyřeš 10 000 příkladů. Odměna: čas se ti v bojích už NIKDY neodpočítává (kromě Věže legend).' },
-    { id: 'gach-crit-1k',     ic: '⚡', nm: 'Bouřlivák',           stat: 'crits',     goal: 1000,  reward: { credits: 600, perk: 'critcredit' },
-      desc: 'Dej 1 000 kritických zásahů. Odměna: každý krit navíc +2 kredity.' },
+    { id: 'gach-crit-1k',     ic: '⚡', nm: 'Bouřlivák',           stat: 'crits',     goal: 1000,  reward: { credits: 600, perk: 'critcredit', grant: ['victory-bomb'] },
+      desc: 'Dej 1 000 kritických zásahů. Odměna: každý krit navíc +2 kredity a efekt vítězství Výbuch bomby.' },
     { id: 'gach-flawless-100',ic: '💎', nm: 'Neposkvrněný',        stat: 'flawless',  goal: 100,   reward: { grant: ['border-diamond'] },
       desc: 'Vyhraj 100 misí bez jediného zranění. Odměna: exkluzivní Diamantová aura.' },
-    { id: 'gach-master-21',   ic: '🏆', nm: 'Velmistr',            stat: 'mastered',  goal: 21,    reward: { credits: 800 },
-      desc: 'Získej 21 mistrovství témat (celý jeden ročník).' },
+    { id: 'gach-master-21',   ic: '🏆', nm: 'Velmistr',            stat: 'mastered',  goal: 21,    reward: { credits: 800, grant: ['victory-tree'] },
+      desc: 'Získej 21 mistrovství témat (celý jeden ročník). Odměna: efekt vítězství Strom vítězství.' },
     { id: 'gach-master-147',  ic: '👑', nm: 'Absolutní velmistr',  stat: 'mastered',  goal: 42,   reward: { credits: 1500, grant: ['title-velmistr', 'pet-zlaty-drak'] },
       desc: 'Získej všech 147 mistrovství (7 ročníků × 21 témat).' },
     { id: 'gach-tower-50',    ic: '🗼', nm: 'Legenda věže',        stat: 'towerFloor',goal: 50,    reward: { credits: 1200, grant: ['title-legenda-veze'] },
@@ -188,6 +190,9 @@ window.RPGWallet = (function () {
     const L = {}; LIFE_KEYS.forEach(k => { const v = w.life[k]; L[k] = (typeof v === 'number' && isFinite(v) && v > 0) ? Math.floor(v) : 0; }); w.life = L;
     if (!w.gach || typeof w.gach !== 'object' || Array.isArray(w.gach)) w.gach = {};
     const G = {}; GACH.forEach(g => { if (typeof w.gach[g.id] === 'string') G[g.id] = w.gach[g.id]; }); w.gach = G;
+    /* Odměna přidaná k úspěchu později (efekty vítězství, 30. 10. 2026) se hráči, který ho už má, doplní při každém čtení:
+       jinak by ji nikdy nedostal (`_evalGach` odemčené přeskakuje). Kredity se nedoplňují, jen vlastnictví; opakování nic nemění. */
+    GACH.forEach(g => { if (G[g.id]) ((g.reward && g.reward.grant) || []).forEach(id => { if (VALID.has(id) && !owned.includes(id)) owned.push(id); }); });
     // nastavení
     if (!w.settings || typeof w.settings !== 'object') w.settings = {};
     w.settings.reducedMotion = !!w.settings.reducedMotion;
@@ -460,6 +465,8 @@ html[data-theme="vanoce"]{--gold:#ff6a6a;--panel:#08140c;--panel2:#0e2214;--blue
 html[data-theme="leto"]{--gold:#ffd166;--panel:#062033;--panel2:#0a2e4a;--blue:#4cc9f0}
 .victory-banner.vc-coins{text-shadow:3px 3px 0 #8a6d00,0 0 20px #ffd700,0 0 44px #ffb700}
 .victory-banner.vc-fireworks{text-shadow:3px 3px 0 #ff3d7f,0 0 16px #ffd75e,0 0 32px #5cc9ff,0 0 48px #b18cff}
+.victory-banner.vc-bomb{color:#fff6c8;text-shadow:-2px 0 #3a0d00,2px 0 #3a0d00,0 -2px #3a0d00,0 2px #3a0d00,4px 4px 0 #3a0d00,0 0 24px #ff7a00}
+.victory-banner.vc-tree{text-shadow:-2px 0 #0b3d1a,2px 0 #0b3d1a,0 2px #0b3d1a,4px 4px 0 #0b3d1a,0 0 20px #0b3d1a}
 .rw-title{font-size:12px;letter-spacing:1.5px;opacity:.9;color:var(--gold,#f4d03f);margin-top:2px}
 .rw-pet{display:inline-block;font-size:24px;margin-left:8px;vertical-align:middle;animation:rw-pet-b 2.4s ease-in-out infinite;cursor:default}
 @keyframes rw-pet-b{50%{transform:translateY(-5px)}}
