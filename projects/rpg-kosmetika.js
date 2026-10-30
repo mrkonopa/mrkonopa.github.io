@@ -442,5 +442,59 @@ window.RPGKosmetika = (function () {
   }
   try { injectCss(); } catch (e) {}
 
-  return { VERSION, STEP_MS, PAD, FRAMES, META, has, ids: () => Object.keys(FRAMES), renderFrame, glowAt, mountFrame, applyAvatar, drawHero, shopRendered, tryOn, rgb, hsl, rng };
+  /* ═══ ARÉNA: aura pod hrdinou ═══════════════════════════════════════════
+     Kreslí se do plátna arény PŘED hrdinou (jádro `setAura`), takže ho nikdy nezakryje. Barva je z rámu (`glow`),
+     počet světýlek z úrovně, pohyb z `fx` rámu. Bez rámu se nekreslí nic (`null`). Jméno se v aréně NEpíše —
+     barva jména z obchodu se ukazuje tam, kde se jméno vypisuje (profil, mapa, hub, žebříček, lišta přihlášení). */
+  const TIER_MOTES = { 'běžný': 4, 'vzácný': 6, 'epický': 8, 'legendární': 10 };
+  function arenaAura(frameId) {
+    const def = has(frameId) ? FRAMES[frameId] : null;
+    if (!def) return null;
+    const fx = (def.fx || []).map(f => f.k);
+    const hue = Object.keys(def.pal).some(k => def.pal[k] === '*hue');
+    const motes = TIER_MOTES[(META[frameId] || {}).tier] || 4;
+    const base = def.glow[0];
+    const colAt = now => hue ? 'hsl(' + Math.floor((now / 18) % 360) + ',90%,62%)' : base;
+    const withA = (c, al) => c.charAt(0) === '#'
+      ? 'rgba(' + parseInt(c.slice(1, 3), 16) + ',' + parseInt(c.slice(3, 5), 16) + ',' + parseInt(c.slice(5, 7), 16) + ',' + al + ')'
+      : c.replace('hsl(', 'hsla(').replace(')', ',' + al + ')');
+    return function (ctx, g) {
+      const still = g.rm, now = still ? 0 : g.now, S = g.S, cx = g.x + g.w / 2;
+      const c = colAt(now);
+      const pulse = still ? 0.5 : 0.5 + 0.5 * Math.sin(now / 420);
+      /* záře za hrdinou — jediné přechodové plátno, zbytek jsou čtverečky */
+      const gcy = g.feet - g.h * 0.45, gR = g.h * 0.8;
+      const gr = ctx.createRadialGradient(cx, gcy, 2, cx, gcy, gR);
+      gr.addColorStop(0, withA(c, (0.38 + 0.2 * pulse).toFixed(2))); gr.addColorStop(1, withA(c, 0));
+      ctx.globalAlpha = 1; ctx.fillStyle = gr;
+      ctx.fillRect(Math.round(cx - gR), Math.round(gcy - gR), Math.round(2 * gR), Math.round(2 * gR));
+      let a = 0.3 + 0.3 * pulse;
+      if (!still && fx.indexOf('flicker') >= 0 && Math.sin(now / 90) + Math.sin(now / 53) > 0.6) a *= 0.6;
+      ctx.fillStyle = c;
+      const rows = [0.9, 1.4, 0.9];
+      for (let k = 0; k < 3; k++) { ctx.globalAlpha = a; ctx.fillRect(Math.round(cx - g.w * rows[k] / 2), Math.round(g.feet - S + k * S), Math.round(g.w * rows[k]), S); }
+      for (let k = 0; k < 3; k++) { ctx.globalAlpha = Math.min(1, a * 1.6); ctx.fillRect(Math.round(cx - g.w * rows[k] * 0.3), Math.round(g.feet - S + k * S), Math.round(g.w * rows[k] * 0.6), S); }
+      if (!still) {
+        if (fx.indexOf('sweep') >= 0) {
+          ctx.globalAlpha = 0.7; ctx.fillStyle = '#fff';
+          ctx.fillRect(Math.round(g.x - g.w * 0.2 + ((now / 1200) % 1) * g.w * 1.4), Math.round(g.feet), S * 3, S);
+        }
+        if (fx.indexOf('led') >= 0 || fx.indexOf('scan') >= 0) {
+          for (let k = 0; k < 8; k++) {
+            const an = now / 1100 + k * Math.PI / 4;
+            ctx.globalAlpha = 0.85; ctx.fillStyle = k % 2 ? '#fff' : c;
+            ctx.fillRect(Math.round(cx + Math.cos(an) * g.w * 0.78) - 1, Math.round(g.feet - g.h * 0.5 + Math.sin(an) * g.h * 0.46) - 1, S, S);
+          }
+        }
+        for (let i = 0; i < motes; i++) {
+          const ph = (now / (1500 + i * 130) + i * 0.618) % 1;
+          ctx.globalAlpha = Math.sin(ph * Math.PI) * 0.9; ctx.fillStyle = i % 3 === 0 ? '#fff' : c;
+          ctx.fillRect(Math.round(g.x + g.w * (0.05 + ((i * 0.381) % 0.9)) + Math.sin(now / 500 + i) * S), Math.round(g.feet - ph * g.h * 1.05), S + 1, S + 1);
+        }
+      }
+      ctx.globalAlpha = 1;
+    };
+  }
+
+  return { VERSION, STEP_MS, PAD, FRAMES, arenaAura, META, has, ids: () => Object.keys(FRAMES), renderFrame, glowAt, mountFrame, applyAvatar, drawHero, shopRendered, tryOn, rgb, hsl, rng };
 })();
