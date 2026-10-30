@@ -351,9 +351,9 @@ window.RPGKosmetika = (function () {
         host = document.createElement('span'); host.className = 'kos-av';
         el.parentNode.insertBefore(host, el); host.appendChild(el);
       }
-      host.style.cssText = 'position:relative;display:inline-block;line-height:0;flex:none;margin:' + (6 * u) + 'px;padding:' + (PAD * u) + 'px';
+      host.style.cssText = 'position:relative;display:inline-block;line-height:0;flex:none;margin:' + (6 * u) + 'px;padding:' + (o.flush ? 0 : PAD * u) + 'px';
     } else if (!host.style.position) host.style.position = 'relative';
-    const pad = o.inside ? 0 : PAD;
+    const pad = (o.inside || o.flush) ? 0 : PAD;
     const aw = o.aw || (o.inside ? 18 : Math.round((el.clientWidth || el.width || 54) / u)) + 2 * pad;
     const ah = o.ah || (o.inside ? 24 : Math.round((el.clientHeight || el.height || 72) / u)) + 2 * pad;
     if (host._kos) { host._kos.set(id); return host._kos; }
@@ -437,10 +437,86 @@ window.RPGKosmetika = (function () {
       '.kos-try[hidden]{display:none}.kos-try-t{display:flex;flex-direction:column;gap:2px;flex:1;min-width:160px;font-size:13px}.kos-try-t b{font-size:15px;color:var(--gold,#f4d03f)}' +
       '.kos-meta{display:flex;flex-direction:column;gap:2px;align-items:center;font-size:12px;opacity:.9;margin:2px 0 4px}' +
       '.kos-tier{font-weight:700;letter-spacing:1px;text-transform:uppercase;font-size:12px}.kos-tier-a{color:#b9c4d6}.kos-tier-b{color:#6ec6ff}.kos-tier-c{color:#c58bff}.kos-tier-d{color:#ffb23e}.kos-tier-e{color:#ff7ab8}' +
-      '.kos-try-btn{margin-left:4px}';
+      '.kos-try-btn{margin-left:4px}' +
+      /* profil: hrdina na podiu a na širokém tabletu dva sloupce (jedno místo pro všech 7 her) */
+      '#s-profile div:has(> .kos-av){flex-wrap:wrap}' +
+      '@media (max-width:520px){#s-profile .kos-av{margin:24px auto!important}#s-profile div:has(> .kos-av){justify-content:center;text-align:center}}' +
+      '@media (min-width:900px){' +
+      /* dva sloupce bez zásahu do HTML: panely 2–4 plynou do dvou vyvážených sloupců, záhlaví a zbytek přes celou šířku */
+      '#s-profile .wrap{max-width:1080px;display:block;column-count:2;column-gap:14px}' +
+      '#s-profile .wrap>*{break-inside:avoid;margin:0 0 14px}' +
+      '#s-profile .wrap>.topnav,#s-profile .wrap>.panel:nth-child(n+5){column-span:all}' +
+      '#s-profile .ach-grid{grid-template-columns:repeat(auto-fill,minmax(88px,1fr))}#s-profile #pr-gach .rw-gach{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 12px}' +
+      '}';
     (document.head || document.documentElement).appendChild(st);
   }
   try { injectCss(); } catch (e) {}
+
+  /* ═══ PROFIL: hrdina na podiu ═══════════════════════════════════════════
+     Plátno `#pr-avatar` převezme tento modul: hrdina se kreslí ve velikosti 5× (jako v aréně), uvnitř je okraj PAD, za ním
+     aura rámu (ořezaná na plátno) a kolem plátna rám v pixelech téže velikosti. Bez modulu kreslí hra hrdinu 3× jako dřív. */
+  const PODIUM_S = 5, HERO_COLS = 20, HERO_ROWS = 29;
+  const podia = new Set();
+  let podiumTimer = 0;
+  function heroSprite() {
+    for (let n = 3; n <= 9; n++) { const sp = window['RPGSprites' + n]; if (sp && typeof sp.drawHeroOn === 'function') return sp; }
+    return null;
+  }
+  /* poslední namalovaný řádek hrdiny v px (aby aura věděla, kde má stát na zemi) — z offscreen plátna, jednou za sprite */
+  const heroRowsCache = new WeakMap();
+  function heroRows(sp) {
+    if (heroRowsCache.has(sp)) return heroRowsCache.get(sp);
+    let rows = HERO_ROWS;
+    try {
+      const c = document.createElement('canvas'); c.width = HERO_COLS * PODIUM_S; c.height = HERO_ROWS * PODIUM_S;
+      const x = c.getContext('2d'); x.imageSmoothingEnabled = false; sp.drawHeroOn(x, 0, 0, PODIUM_S, 0, false);
+      const d = x.getImageData(0, 0, c.width, c.height).data;
+      let last = 0; for (let r = 0; r < HERO_ROWS; r++) { for (let k = 0; k < c.width; k += PODIUM_S) { if (d[((r * PODIUM_S) * c.width + k) * 4 + 3] > 0) { last = r + 1; break; } } }
+      rows = last || HERO_ROWS;
+    } catch (e) {}
+    heroRowsCache.set(sp, rows);
+    return rows;
+  }
+  function podiumPaint(m, now) {
+    const cv = m.cv, ctx = cv.getContext('2d'); if (!ctx) return;
+    const w = cv.width, h = cv.height, S = PODIUM_S, sp = m.sp, rows = m.rows;
+    ctx.imageSmoothingEnabled = false; ctx.clearRect(0, 0, w, h);
+    const g = ctx.createLinearGradient(0, 0, 0, h); g.addColorStop(0, '#0a1224'); g.addColorStop(1, '#101c36'); ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
+    const hx = PAD * S, hy = PAD * S, feet = hy + rows * S;
+    if (m.aura) {
+      ctx.save(); ctx.beginPath(); ctx.rect(0, 0, w, h); ctx.clip();
+      try { m.aura(ctx, { x: hx, y: hy, w: HERO_COLS * S, h: rows * S, feet: feet, S: S, now: now, rm: reduced() }); } catch (e) { m.aura = null; }
+      ctx.restore(); ctx.globalAlpha = 1;
+    }
+    ctx.fillStyle = 'rgba(0,0,0,.35)'; ctx.fillRect(hx + 8, feet, HERO_COLS * S - 16, 3);
+    try { sp.drawHeroOn(ctx, hx, hy, S, 0, false); } catch (e) {}
+  }
+  function podiumTick() {
+    const now = (window.performance && performance.now) ? performance.now() : Date.now();
+    podia.forEach(m => {
+      if (!m.cv.isConnected) { podia.delete(m); return; }
+      if (m.cv.offsetParent === null) return;   // skrytá obrazovka se nekreslí
+      podiumPaint(m, now);
+    });
+    if (!podia.size) { clearInterval(podiumTimer); podiumTimer = 0; }
+  }
+  function podium(cv, frameId) {
+    const sp = heroSprite();
+    if (!cv || !sp || !cv.getContext) return null;
+    const S = PODIUM_S, rows = heroRows(sp);
+    const w = (HERO_COLS + 2 * PAD) * S, h = (rows + 2 * PAD) * S;
+    if (cv.width !== w) cv.width = w;
+    if (cv.height !== h) cv.height = h;
+    cv.style.cssText = 'width:' + w + 'px;height:' + h + 'px;image-rendering:pixelated;display:block';
+    cv.dataset.podium = '1';
+    let m = null; podia.forEach(x => { if (x.cv === cv) m = x; });
+    if (!m) { m = { cv: cv }; podia.add(m); }
+    m.sp = sp; m.rows = rows; m.aura = arenaAura(frameId || null);
+    const el = applyAvatar(cv, frameId || null, { u: S, flush: true });
+    podiumPaint(m, 0);
+    if (!podiumTimer && !reduced()) podiumTimer = setInterval(podiumTick, 40);
+    return el;
+  }
 
   /* ═══ ARÉNA: aura pod hrdinou ═══════════════════════════════════════════
      Kreslí se do plátna arény PŘED hrdinou (jádro `setAura`), takže ho nikdy nezakryje. Barva je z rámu (`glow`),
@@ -496,5 +572,5 @@ window.RPGKosmetika = (function () {
     };
   }
 
-  return { VERSION, STEP_MS, PAD, FRAMES, arenaAura, META, has, ids: () => Object.keys(FRAMES), renderFrame, glowAt, mountFrame, applyAvatar, drawHero, shopRendered, tryOn, rgb, hsl, rng };
+  return { VERSION, STEP_MS, PAD, FRAMES, arenaAura, podium, META, has, ids: () => Object.keys(FRAMES), renderFrame, glowAt, mountFrame, applyAvatar, drawHero, shopRendered, tryOn, rgb, hsl, rng };
 })();

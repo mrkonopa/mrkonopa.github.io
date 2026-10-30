@@ -3,7 +3,8 @@
 
    Čistá část (`rpg-kosmetika`) ověří kresbu; tady se ověří, že se rám SKUTEČNĚ ukáže tam, kde ho dítě hledá:
      1. profil: avatar je v obalu `.kos-av` s plátnem `.kos-frame`, které má nepřehledné pixely; starý stín
-        (`av-*`) na avataru není; rozměr plátna odpovídá rámu (18 + 2b × 24 + 2b)
+        (`av-*`) na avataru není; hrdina stojí na podiu (plátno `#pr-avatar` kreslí modul v měřítku 5× jako aréna, uvnitř
+        okraj PAD) a rám obepíná PŘESNĚ to plátno (šířka rámu = šířka plátna / 5 + 2b)
      2. pohyb: dva vzorky plátna po 480 ms se liší; s třídou `reduced-motion` jsou shodné s krokem 0
      3. výměna a vypnutí: jiný rám změní rozměr plátna, vypnutí (`RPGWallet.deactivate`) plátno vyčistí
      4. obchod: v kategorii rámů je nahoře pruh „náhled na tvém hrdinovi“, každá karta rámu má živý náhled,
@@ -44,6 +45,8 @@ const STAV = `(sel) => {
   return { n, h, w: cv.width, hh: cv.height };
 }`;
 
+/* rám kolem hrdiny v PROFILU (holé `.kos-av` v 3.–8. ročníku trefí první, skrytý obal na mapě) */
+const PROFIL_RAM = '.kos-av:has(#pr-avatar) canvas.kos-frame';
 const RK_PAD = 2; // RPGKosmetika.PAD — hlídá se i přímo níž
 const stav = (page, sel) => page.evaluate('(' + STAV + ')(' + JSON.stringify(sel) + ')');
 
@@ -55,6 +58,36 @@ const odstup = (page, hostSel, heroSel, id) => page.evaluate(([hs, hero, i]) => 
   const A = a.getBoundingClientRect(), F = f.getBoundingClientRect(), k = F.width / f.width, b = def.b * k;
   return Math.min(A.left - (F.left + b), A.top - (F.top + b), (F.right - b) - A.right, (F.bottom - b) - A.bottom);
 }, [hostSel, heroSel, id]);
+
+/* Kde na plátně podia SKUTEČNĚ stojí hrdina: sprite se vykreslí zvlášť na průhledné plátno a jeho neprůhledné pixely se hledají na plátně profilu
+   (hrdina se kreslí poslední, takže se musí shodovat přesně). Nezávisí na tom, co modul tvrdí o své poloze.
+   Vrací odstupy MŘÍŽKY hrdiny (20 × 29 čtverců, bez prázdných spodních řádků) od okrajů plátna v px; null = nenalezen / nejednoznačný. */
+const POLOHA = `(g) => {
+  const cv = document.getElementById('pr-avatar'), sp = window['RPGSprites' + g];
+  if (!cv || !sp || typeof sp.drawHeroOn !== 'function') return null;
+  const S = 5, GW = 20 * S, GH = 29 * S, W = cv.width, H = cv.height;
+  const m = document.createElement('canvas'); m.width = GW; m.height = GH;
+  const mx = m.getContext('2d'); mx.imageSmoothingEnabled = false; sp.drawHeroOn(mx, 0, 0, S, 0, false);
+  const md = mx.getImageData(0, 0, GW, GH).data;
+  let x0 = 1e9, x1 = -1, y0 = 1e9, y1 = -1; const op = [];
+  for (let y = 0; y < GH; y++) for (let x = 0; x < GW; x++) { const i = (y * GW + x) * 4; if (md[i + 3] > 0) { if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y; if (md[i + 3] === 255) op.push(i); } }
+  if (!op.length) return null;
+  const vz = op;
+  const cd = cv.getContext('2d').getImageData(0, 0, W, H).data, shody = [];
+  for (let gx = -x0; gx <= W - x0; gx++) for (let gy = -y0; gy <= H - y0; gy++) {
+    let dobre = true;
+    for (const i of vz) {
+      const px = (i / 4) % GW + gx, py = Math.floor(i / 4 / GW) + gy;
+      if (px < 0 || py < 0 || px >= W || py >= H) { dobre = false; break; }
+      const j = (py * W + px) * 4;
+      if (cd[j] !== md[i] || cd[j + 1] !== md[i + 1] || cd[j + 2] !== md[i + 2] || cd[j + 3] !== 255) { dobre = false; break; }
+    }
+    if (dobre) shody.push([gx, gy]);
+  }
+  if (shody.length !== 1) return { nalezeno: shody.length };
+  const gx = shody[0][0], gy = shody[0][1];
+  return { levy: gx, pravy: W - (gx + GW), horni: gy, dolni: H - (gy + y1 + 1), W: W, H: H };
+}`;
 
 async function proverStranku(br, base, g) {
   const nalezy = []; let kontrol = 0;
@@ -92,32 +125,41 @@ async function proverStranku(br, base, g) {
     const obal = await page.evaluate(() => { const a = document.getElementById('pr-avatar'); return { obal: !!(a && a.parentNode && a.parentNode.classList.contains('kos-av')), trida: a ? a.className : null }; });
     c(obal.obal, g + '. ročník: avatar není v obalu .kos-av');
     c(!obal.trida || !/(^|\s)av-/.test(obal.trida), g + '. ročník: na avataru zůstal starý stín (' + obal.trida + ')');
-    const s1 = await stav(page, '.kos-av canvas.kos-frame');
+    const s1 = await stav(page, PROFIL_RAM);
     c(s1 && s1.n > 100, g + '. ročník: plátno rámu je prázdné (' + JSON.stringify(s1) + ')');
-    c(s1 && s1.w === 18 + 2 * RK_PAD + 2 * 5 && s1.hh === 24 + 2 * RK_PAD + 2 * 5, g + '. ročník: rozměr plátna ' + (s1 && s1.w) + '×' + (s1 && s1.hh) + ' neodpovídá rámu Kyber s vnitřním okrajem (32×38)');
+    const pv = await page.evaluate(() => { const a = document.getElementById('pr-avatar'); return a ? { w: a.width, h: a.height, podium: a.dataset.podium || null } : null; });
+    c(pv && pv.podium === '1' && pv.w === (20 + 2 * RK_PAD) * 5, g + '. ročník: hrdina nestojí na podiu (' + JSON.stringify(pv) + ', čekáno plátno ' + (20 + 2 * RK_PAD) * 5 + ' px široké)');
+    c(s1 && pv && s1.w === pv.w / 5 + 2 * 5 && s1.hh === pv.h / 5 + 2 * 5, g + '. ročník: rám Kyber (' + (s1 && s1.w) + '×' + (s1 && s1.hh) + ') neobepíná plátno hrdiny (' + (pv && pv.w / 5 + 10) + '×' + (pv && pv.h / 5 + 10) + ')');
     c(await page.evaluate(() => RPGKosmetika.PAD) === RK_PAD, g + '. ročník: RPGKosmetika.PAD se liší od ' + RK_PAD);
     const og = await odstup(page, '.kos-av:has(#pr-avatar)', '#pr-avatar', 'border-cyan');
-    c(og !== null && og >= 5, g + '. ročník: hrdina je od vnitřního okraje rámu ' + og + ' px (čekáno ≥ 5, rám nesmí dosedat na postavu)');
-    // pohyb
+    c(og !== null && Math.abs(og) < 0.6, g + '. ročník: plátno hrdiny nesedí na vnitřním okraji rámu (odstup ' + og + ' px, čekáno 0)');
+    const pol = await page.evaluate('(' + POLOHA + ')(' + JSON.stringify(String(g)) + ')');
+    const nejm = pol && pol.levy !== undefined ? Math.min(pol.levy, pol.pravy, pol.horni, pol.dolni) : null;
+    c(nejm !== null && nejm >= 5, g + '. ročník: hrdina je od vnitřního okraje rámu ' + (nejm === null ? 'nenalezen (' + JSON.stringify(pol) + ')' : nejm + ' px (' + JSON.stringify(pol) + ')') + ' (čekáno ≥ 5, rám nesmí dosedat na postavu)');
+    // pohyb: rám i aura za rámem
+    const a1 = await stav(page, '#pr-avatar');
     await page.waitForTimeout(480);
-    const s2 = await stav(page, '.kos-av canvas.kos-frame');
+    const s2 = await stav(page, PROFIL_RAM);
+    const a2 = await stav(page, '#pr-avatar');
     c(s1 && s2 && s1.h !== s2.h, g + '. ročník: rám se za 480 ms nepohnul');
+    c(a1 && a2 && a1.h !== a2.h, g + '. ročník: aura na podiu se za 480 ms nepohnula');
     // reduced-motion: krok 0, shodné vzorky
     await page.evaluate(() => { document.documentElement.classList.add('reduced-motion'); applyCosmetics(); });
     await page.waitForTimeout(200);
-    const r1 = await stav(page, '.kos-av canvas.kos-frame');
+    const r1 = await stav(page, PROFIL_RAM), q1 = await stav(page, '#pr-avatar');
     await page.waitForTimeout(500);
-    const r2 = await stav(page, '.kos-av canvas.kos-frame');
+    const r2 = await stav(page, PROFIL_RAM), q2 = await stav(page, '#pr-avatar');
     c(r1 && r2 && r1.h === r2.h, g + '. ročník: s reduced-motion se rám hýbe');
+    c(q1 && q2 && q1.h === q2.h, g + '. ročník: s reduced-motion se hýbe aura na podiu');
     await page.evaluate(() => document.documentElement.classList.remove('reduced-motion'));
     // výměna a vypnutí
     await page.evaluate(() => { RPGWallet.activate('border-silver'); applyCosmetics(); });
     await page.waitForTimeout(150);
-    const s3 = await stav(page, '.kos-av canvas.kos-frame');
-    c(s3 && s3.w === 18 + 2 * RK_PAD + 2 * 4 && s3.n > 100, g + '. ročník: po výměně na stříbrný rám je plátno ' + (s3 && s3.w) + ' px široké (čekáno 30)');
+    const s3 = await stav(page, PROFIL_RAM);
+    c(s3 && pv && s3.w === pv.w / 5 + 2 * 4 && s3.n > 100, g + '. ročník: po výměně na stříbrný rám je plátno ' + (s3 && s3.w) + ' px široké (čekáno ' + (pv && pv.w / 5 + 8) + ')');
     await page.evaluate(() => { RPGWallet.deactivate('border'); applyCosmetics(); });
     await page.waitForTimeout(150);
-    const s4 = await stav(page, '.kos-av canvas.kos-frame');
+    const s4 = await stav(page, PROFIL_RAM);
     c(s4 && s4.n === 0, g + '. ročník: po vypnutí rámu zůstaly na plátně pixely (' + (s4 && s4.n) + ')');
     await page.evaluate(() => { RPGWallet.activate('border-gold'); applyCosmetics(); });
     // obchod
@@ -175,8 +217,10 @@ async function proverStranku(br, base, g) {
     ok(r.nalezy.length > 0, 'sabotáž „' + nazev + '“ je chycena (' + r.nalezy.length + ' nálezů)', '');
     s.close();
   };
-  await sab('6. ročník bez modulu', 6, 'rpg-mat-6.html', t => t.replace('<script defer src="./rpg-kosmetika.js?v=20261030"></script>\n', ''));
+  await sab('6. ročník bez modulu', 6, 'rpg-mat-6.html', t => t.replace('<script defer src="./rpg-kosmetika.js?v=20261030b"></script>\n', ''));
   await sab('7. ročník bez vnitřního okraje kolem hrdiny', 7, 'rpg-kosmetika.js', t => t.replace('const PAD = 2;', 'const PAD = 0;'));
+  await sab('5. ročník bez podia (hrdina se kreslí jako dřív)', 5, 'rpg-mat-5.html', t => t.split('RPGKosmetika.podium&&RPGKosmetika.podium(').join('false&&RPGKosmetika.podium('));
+  await sab('8. ročník s hrdinou přilepeným k rámu', 8, 'rpg-kosmetika.js', t => t.replace('const hx = PAD * S, hy = PAD * S, feet', 'const hx = 0, hy = 0, feet'));
   await sab('3. ročník bez napojení obchodu', 3, 'rpg-mat-3.html', t => t.replace('if(window.RPGKosmetika&&RPGKosmetika.shopRendered){', 'if(false){'));
   await sab('hub bez napojení avatara', 'hub', 'rpg-matematika.html', t => t.replace('if(window.RPGKosmetika&&RPGKosmetika.applyAvatar) RPGKosmetika.applyAvatar(', 'if(false) RPGKosmetika.applyAvatar('));
   await br.close();
