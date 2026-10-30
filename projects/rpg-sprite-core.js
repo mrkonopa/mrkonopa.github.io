@@ -112,6 +112,9 @@ window.RPGSpriteCore = (function () {
     /* Aura a štítek jména z obchodu (rpg-kosmetika.js). Kreslí se PŘED hrdinou — nikdy ho nezakryje; při chybě se vypne. */
     let AURA = null;
     function setAura(fn) { AURA = (typeof fn === 'function') ? fn : null; }
+    /* Nános tématu z obchodu (rpg-temata.js). Kreslí se po pozadí světa, před postavami; při chybě se vypne. */
+    let THEMEFX = null;
+    function setThemeFx(fn) { THEMEFX = (typeof fn === 'function') ? fn : null; }
 
     /* ── plátno ── */
     function attach(topEl) {
@@ -253,6 +256,10 @@ window.RPGSpriteCore = (function () {
       }
       if (!full) ctx.drawImage(bgc, 0, 0);
       if (!rm() && world.backdrop && world.backdrop.paintAnim) world.backdrop.paintAnim(ctx, bgEnv(now));
+      if (THEMEFX) {
+        try { ctx.save(); THEMEFX(ctx, bgEnv(now)); ctx.restore(); }
+        catch (e) { THEMEFX = null; ctx.restore(); }
+      }
     }
 
     /* ── pozice ── */
@@ -728,7 +735,7 @@ window.RPGSpriteCore = (function () {
 
     return {
       attach, detach, active, spawn, heroAttack, bossAttack, defeat,
-      setProgress, setHeroHp, drawHeroOn, setSkin, setAura,
+      setProgress, setHeroHp, drawHeroOn, setSkin, setAura, setThemeFx,
       skins: () => Object.keys(HS.skins || {}),
       /* nové, jen ke čtení — testy a Věž legend */
       heroSize: () => ({ cols: HS.cols, rows: HS.rows, painted: HERO_PAINT, scale: HS.scale, legacyRows: HS.legacyRows || HS.rows }),
