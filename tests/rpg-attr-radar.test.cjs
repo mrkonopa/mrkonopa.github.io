@@ -115,7 +115,8 @@ function serve() {
           ['na stropě', { calc: 100, geo: 100, anal: 100, craft: 100 }],
           ['přes strop', { calc: 240, geo: 180, anal: 300, craft: 150 }],
         ];
-        const out = { mereno: 0, nalezy: [], nejmensiMezera: 999 };
+        const out = { mereno: 0, nalezy: [], nejmensiMezera: 999, nula: null };
+        const plocha = el => { const v = (el.getAttribute('points') || '').trim().split(/\s+/).map(q => q.split(',').map(Number)); let a = 0; for (let i = 0; i < v.length; i++) { const p = v[i], q = v[(i + 1) % v.length]; a += p[0] * q[1] - q[0] * p[1]; } return Math.abs(a) / 2; };
         const host = document.createElement('div');
         host.style.cssText = 'position:absolute;left:0;top:0;width:400px';
         document.body.appendChild(host);
@@ -143,6 +144,12 @@ function serve() {
             continue;
           }
           out.mereno++;
+          if (jmeno.startsWith('start')) {
+            // nová postava (vše 0) nesmí mít jen shluk bodů: tvar dat musí mít plochu vůči vnějšímu obrysu
+            const data = svg.querySelector('polygon[fill-opacity]'), obrysy = [...svg.querySelectorAll('polygon')].filter(q => q !== data);
+            const vnejsi = Math.max(...obrysy.map(plocha));
+            out.nula = data && vnejsi ? plocha(data) / vnejsi : 0;
+          }
           for (let i = 0; i < hodnoty.length; i++) {
             for (const ik of ikony) {
               const p = prekryv(hodnoty[i], ik);
@@ -166,6 +173,7 @@ function serve() {
       });
 
       ok(pop.nalezy.length === 0, `g${g} popisky grafu se nepřetiskují`, pop.nalezy[0] || '');
+      ok(pop.nula !== null && pop.nula >= 0.015, `g${g} graf nové postavy (vše 0) má viditelný tvar`, 'plocha dat / vnější obrys = ' + pop.nula + ' (čekáno ≥ 0,015)');
       // pojistka proti „audit doběhl zeleně a nic neviděl"
       ok(pop.mereno === 5, `g${g} proměřeno všech 5 stavů atributů`, 'změřeno: ' + pop.mereno);
 
