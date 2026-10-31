@@ -1,0 +1,27 @@
+/* Široká mapa a oblast v RPG hrách 3.–9. ročníku — jediné pravidlo pro všech sedm her (mapa má ve všech stejné prvky).
+   Platí jen pro tablet na šířku a počítač (≥ 900 px, šířka > výška); telefon a tablet na výšku zůstávají beze změny.
+   Mapa: vlevo oblasti, vpravo zkušenosti, tlačítka, doporučení a žebříček. Oblast: vlevo karta oblasti, vpravo mise. */
+@media (min-width:900px) and (orientation:landscape){
+  #s-map .wrap,#s-area .wrap{max-width:1240px;display:grid;column-gap:18px;align-items:start}
+
+  /* MAPA — pravý sloupec má šest míst (zkušenosti, tlačítka, poznámka, doporučení, žebříček, oživení); poslední řádek 1fr
+     pohltí zbytek výšky levé mřížky, aby se pravé panely neroztahovaly */
+  #s-map .wrap{grid-template-columns:minmax(0,1.5fr) minmax(300px,1fr);grid-template-rows:auto auto repeat(6,auto) 1fr}
+  #s-map .wrap>.topnav,#s-map .map-banner{grid-column:1/-1}
+  #s-map #map-grid{grid-column:1;grid-row:3/10;margin:0;gap:12px;grid-template-columns:repeat(3,1fr)}
+  #s-map .map-node{padding:22px 8px}
+  #s-map .map-xppanel,#s-map #map-leaderboard,#s-map #map-recommend,#s-map #map-revive,#s-map .map-actions,#s-map .map-actions-note{grid-column:2}
+  #s-map .map-xppanel,#s-map #map-leaderboard,#s-map #map-recommend,#s-map #map-revive{margin-bottom:12px}
+  /* tlačítka (Trénink, Věž, Živý souboj…) hned pod zkušenostmi, doporučení a žebříček pod nimi */
+  #s-map .map-actions{margin-top:0;order:1}
+  #s-map .map-actions-note{order:2;margin-bottom:12px}
+  #s-map #map-recommend{order:3}
+  #s-map #map-leaderboard{order:4}
+  #s-map #map-revive{order:5}
+
+  /* OBLAST */
+  #s-area .wrap{grid-template-columns:minmax(300px,.8fr) minmax(0,1.2fr)}
+  #s-area .wrap>.topnav{grid-column:1/-1}
+  #s-area #area-head{grid-column:1;position:sticky;top:12px}
+  #s-area #mission-list{grid-column:2}
+}
