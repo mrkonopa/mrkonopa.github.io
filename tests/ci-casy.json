@@ -110,6 +110,7 @@
     "rpg-explain.test.cjs": 5,
     "rpg-hub-souhrn.test.cjs": 6,
     "rpg-kosmetika-hry.test.cjs": 32,
+    "rpg-mazlicci-hry.test.cjs": 152,
     "rpg-vitezstvi-hry.test.cjs": 81,
     "rpg-siroke.test.cjs": 151,
     "rpg-temata-hry.test.cjs": 143,

@@ -1,7 +1,7 @@
 /* Virtuální „Safari“: přijímačky v SKUTEČNÉM enginu WebKit (WebKitGTK) na velikosti iPadu.
    Playwrightův WebKit se z cloudu stáhnout nedá (403), proto se ovládá WebKitWebDriver z balíčků Ubuntu:
      apt-get install -y webkit2gtk-driver xvfb fonts-dejavu-core fonts-liberation
-   node tools/safari-sonda.cjs [out=cesta] [vp=ipad-vyska,ipad-sirka] [co=prijimacky,rpg] [hry=3,4,5,6,7,8,9]
+   node tools/safari-sonda.cjs [out=cesta] [vp=ipad-vyska,ipad-sirka] [co=prijimacky,rpg] [hry=3,4,5,6,7,8,9] [mazlicek=ano]
 
    CO TO JE: stejné jádro (WebCore + JavaScriptCore, 605.1.15) jako Safari — chytí rozdíly v JS a CSS proti
    Chromiu (nepodporovaná syntaxe, jiné rolování při zaostření pole, jiné měření rozložení).
@@ -29,6 +29,8 @@ const VP = { 'ipad-vyska': [820, 1180], 'ipad-sirka': [1180, 820] };
 const VYBRANE = arg('vp', 'ipad-vyska,ipad-sirka').split(',').filter(v => VP[v]);
 const CO = new Set(arg('co', 'prijimacky,rpg').split(','));
 const HRY = arg('hry', '3,4,5,6,7,8,9').split(',').map(Number).filter(g => g >= 3 && g <= 9);
+const MAZ = arg('mazlicek', 'ne') === 'ano';      // RPG s aktivním mazlíčkem z obchodu (každá hra jiný druh)
+const PETY = { 3: 'pet-sova', 4: 'pet-kocka', 5: 'pet-robot', 6: 'pet-drak', 7: 'pet-jednorozec', 8: 'pet-fenix', 9: 'pet-zlaty-drak' };
 const PORT_WD = 4444;
 const MIME = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.svg': 'image/svg+xml', '.png': 'image/png' };
 const sleep = ms => new Promise(r => setTimeout(r, ms));
@@ -155,6 +157,10 @@ const STRANKY = ['index', 'test', 'procvicovani', 'diagnostika', 'statistiky', '
         const hra = 'g' + g + ' ' + vp;
         try {
           await otevri(sid, w, h, baseRpg + 'rpg-mat-' + g + '.html'); await sleep(500);
+          if (MAZ) {   // peněženka s mazlíčkem se čte při načtení stránky, proto se stránka otevře znovu
+            await js(sid, 'localStorage.setItem("RPG_HUB_WALLET", JSON.stringify({credits:0,cosmetics:{owned:[arguments[0]],active:{pet:arguments[0]}},settings:{sponkaEnabled:true}}))', [PETY[g]]);
+            await otevri(sid, w, h, baseRpg + 'rpg-mat-' + g + '.html'); await sleep(500);
+          }
           const z = await js(sid, 'return {err:window.__err||["sběr chyb chybí"],sw:document.documentElement.scrollWidth,iw:innerWidth,akt:document.querySelectorAll(".screen.active").length}');
           ok(z.err.length === 0, hra + ': načte se bez chyb v konzoli', z.err.join(' | '));
           ok(z.sw <= z.iw + 1, hra + ': nepřetéká vodorovně', 'scrollWidth ' + z.sw + ' > ' + z.iw);
@@ -176,6 +182,12 @@ const STRANKY = ['index', 'test', 'procvicovani', 'diagnostika', 'statistiky', '
           const boj = await js(sid, 'return {akt:document.querySelectorAll(".screen.active").length,boj:document.getElementById("s-battle").classList.contains("active"),mc:!!BT.mcMode,yn:isYN(BT.tasks[BT.idx]),idx:BT.idx,ans:String(BT.tasks[BT.idx].ans),err:window.__err}');
           ok(boj.boj && boj.akt === 1, hra + ': mise otevře boj (jedna aktivní obrazovka)');
           ok(boj.err.length === 0, hra + ': start a boj proběhnou bez chyb v konzoli', boj.err.join(' | '));
+          if (MAZ) {
+            await sleep(900);
+            const pv = await js(sid, 'const s=document.getElementById("rw-sponka");return {arena:window.__petVArene===true,sponkaSchovana:!s||s.style.visibility==="hidden",modul:typeof RPGMazlicci!=="undefined"}');
+            ok(pv.modul && pv.arena, hra + ': mazlíček ' + PETY[g] + ' je v aréně (`__petVArene`)', JSON.stringify(pv));
+            ok(pv.sponkaSchovana, hra + ': plovoucí sponka je v boji schovaná', JSON.stringify(pv));
+          }
           await snimek(sid, vp + '-g' + g + '-boj');
           // odpověď: text do pole + ÚTOK, volbou, nebo ANO/NE; správná, aby šlo pokračovat
           if (boj.mc) {
