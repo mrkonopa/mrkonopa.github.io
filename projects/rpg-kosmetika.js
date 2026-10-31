@@ -427,11 +427,28 @@ window.RPGKosmetika = (function () {
     b.addEventListener('click', () => V.ukaz(item.id, item.cssKey));
     (card.querySelector(SEL_BTN) || card).appendChild(b);
   }
+  /* Náhled tématu: zapne ho na 4 s i bez vlastnictví a vrátí to, co je zrovna aktivní (čte se až po uplynutí času). */
+  function aktivniTema() {
+    try {
+      const W = window.RPGWallet; if (!W || !W.get) return '';
+      const id = W.get().cosmetics.active.theme, it = W.itemById && W.itemById(id);
+      return (it && it.cssKey) || '';
+    } catch (e) { return ''; }
+  }
+  function decorateTheme(card, item) {
+    const T = window.RPGTemata;
+    if (!T || !item || item.cat !== 'theme' || !T.hasPage(item.cssKey) || card.querySelector('.kos-nahled')) return;
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'btn sm kos-nahled'; b.textContent = '▶ NÁHLED 4 s';
+    b.setAttribute('aria-label', 'Náhled tématu ' + item.name + ' na 4 sekundy');
+    b.addEventListener('click', () => T.nahled(item.cssKey, aktivniTema, 4000));
+    (card.querySelector(SEL_BTN) || card).appendChild(b);
+  }
   /* Volá se na konci každého `renderShop()` — jedna funkce pro všech 7 her i hub. `items` jsou položky vykreslené v `grid` ve stejném pořadí. */
   function shopRendered(grid, items, cat) {
     if (!grid) return;
     const strip = ensureStrip(grid);
     strip.hidden = cat !== 'border';
+    if (cat === 'theme') { const kz = Array.from(grid.children); items.forEach((it, i) => { if (kz[i]) decorateTheme(kz[i], it); }); return; }
     if (cat === 'victory') { const kz = Array.from(grid.children); items.forEach((it, i) => { if (kz[i]) decorateVictory(kz[i], it); }); return; }
     if (cat !== 'border') return;
     tryOn(tryName && has(tryName) ? tryName : null);

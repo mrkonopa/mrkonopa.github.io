@@ -61,6 +61,22 @@ window.RPGTemata = (function () {
       R(c, cx - w, cy + dy, w * 2 + 1, 1, col, a);
     }
   }
+  /* Šestiúhelníková buňka (plochý vršek, 9 × 9 pixelů) s odstupňovanou průhledností. */
+  function hex(c, x, y, a) {
+    const rows = [5, 7, 9, 9, 9, 9, 9, 7, 5];
+    for (let i = 0; i < rows.length; i++) R(c, x - (rows[i] - 1) / 2, y + i, rows[i], 1, '#8a5cff', a * 0.16);
+    R(c, x - 1, y + 3, 3, 3, '#c590ff', a * 0.5);
+  }
+  /* 12 buněk na volné mřížce; každá má vlastní cyklus (6–10 s), místo se po každém cyklu přelosuje. */
+  function hexy(c, W, H, s) {
+    const cx = Math.floor(W / 11), cy = Math.floor(H / 8);
+    for (let i = 0; i < 12; i++) {
+      const per = 6 + rnd(300, i) * 4, k = s / per + rnd(301, i), n = Math.floor(k), f = k - n;
+      const gx = Math.floor(rnd(302 + i, n) * cx), gy = Math.floor(rnd(303 + i, n) * cy);
+      const a = Math.sin(Math.PI * f) ** 2;
+      if (a > 0.04) hex(c, gx * 11 + (gy % 2 ? 5 : 0) + 5, gy * 8, a);
+    }
+  }
   function stars(c, W, H, s, n, seed, y0, y1, cols) {
     for (let i = 0; i < n; i++) {
       const x = rnd(seed, i) * W, y = y0 + rnd(seed + 1, i) * (y1 - y0);
@@ -131,6 +147,7 @@ window.RPGTemata = (function () {
       const s = t / 1000;
       bands(c, W, H, '#07041a', '#110828', 16);
       for (let i = 0; i < 20; i++) R(c, rnd(120, i) * W, rnd(121, i) * H, 3 + Math.floor(rnd(122, i) * 6), 1, '#8a5cff', 0.07);
+      hexy(c, W, H, s);
       rise(c, W, H, s, 26, 130, 3, 6, ['#b06cff', '#c590ff'], 0.18, 0.3, true);
       const ph = mod(s, 6.5);
       if (ph < 0.55) {
@@ -197,14 +214,14 @@ window.RPGTemata = (function () {
     },
     leto(c, t, W, H) {
       const s = t / 1000;
-      bands(c, W, H, '#031420', '#052a40', 16);
+      bands(c, W, H, '#03121c', '#04202f', 16);      // jas základu < 0,014: i šedý text (muted) na něm drží 4,5 : 1
       const sx = W * 0.82, sy = H * 0.15;
-      disc(c, sx, sy, 10, '#ffd166', 0.05); disc(c, sx, sy, 7, '#ffd166', 0.09); disc(c, sx, sy, 4, '#ffe9a0', 0.75);
-      [[0.74, 0.05, 1.1], [0.84, 0.07, 1.6], [0.93, 0.1, 2.2]].forEach((L, li) => {
+      disc(c, sx, sy, 10, '#ffd166', 0.03); disc(c, sx, sy, 7, '#ffd166', 0.05); disc(c, sx, sy, 4, '#ffe9a0', 0.7);
+      [[0.74, 0.35, 1.1], [0.84, 0.45, 1.6], [0.93, 0.55, 2.2]].forEach((L, li) => {
         for (let x = 0; x < W; x += 5) {
           const y = Math.round(H * L[0] + Math.sin(x * 0.12 + s * L[2]) * 1.6);
-          R(c, x, y, 5, H - y, '#4cc9f0', L[1]);
-          if (li < 2 && x % 25 === 0) R(c, x, y, 2, 1, '#ffffff', 0.22);
+          R(c, x, y, 5, H - y, '#010a10', L[1]);                    // vlny jsou TMAVŠÍ než základ: vidět je, ale nezvyšují jas
+          if (li < 2 && x % 25 === 0) R(c, x, y, 2, 1, '#6fd8f5', 0.2);
         }
       });
       for (let i = 0; i < 10; i++) {
@@ -261,11 +278,13 @@ window.RPGTemata = (function () {
     },
     temple(c, t, W, H, hz, u) {
       const s = t / 1000;
-      R(c, 0, 0, W, hz, '#ffb43c', 0.06); R(c, 0, hz, W, H - hz, '#ffb43c', 0.09);
-      [0.3, 0.64].forEach(p => { for (let k = 0; k < 8; k++) R(c, W * p + k * hz / 8 * 0.4, k * hz / 8, 3 * u, hz / 8 + 1, '#ffd97a', 0.03); });
-      for (let i = 0; i < 20; i++) {
+      R(c, 0, 0, W, hz, '#ffb43c', 0.13); R(c, 0, hz, W, H - hz, '#ffb43c', 0.17);
+      R(c, 0, hz - u, W, u, '#ffd97a', 0.22);
+      [0.3, 0.64].forEach(p => { for (let k = 0; k < 8; k++) R(c, W * p + k * hz / 8 * 0.4, k * hz / 8, 3 * u, hz / 8 + 1, '#ffd97a', 0.06); });
+      for (let i = 0; i < 22; i++) {
         const per = H + 20, y = per - mod(s * (8 + rnd(60, i) * 16) + rnd(61, i) * per, per) - 8;
-        R(c, rnd(62, i) * W + Math.sin(s * 0.6 + i) * 5, y, u, u, '#ffe9a8', 0.18 + 0.4 * (0.5 + 0.5 * Math.sin(s * 2.4 + i * 2)));
+        const big = i % 3 === 0 ? 2 : 1;
+        R(c, rnd(62, i) * W + Math.sin(s * 0.6 + i) * 5, y, u * big, u * big, '#ffe9a8', 0.25 + 0.5 * (0.5 + 0.5 * Math.sin(s * 2.4 + i * 2)));
       }
     },
     vanoce(c, t, W, H, hz, u) {
@@ -292,8 +311,9 @@ window.RPGTemata = (function () {
   };
 
   /* ── veřejné čisté funkce (testy, ukázky) ── */
-  function frame(ctx, key, t, W, H) { if (PAGE[key]) PAGE[key](ctx, t, W, H); }
-  function arenaFrame(ctx, key, t, W, H, hz, u) { if (ARENA[key]) ARENA[key](ctx, t, W, H, hz, u || Math.max(2, Math.round(W / 160))); }
+  const ma = (o, k) => typeof k === 'string' && Object.prototype.hasOwnProperty.call(o, k);   // `__proto__`, `constructor`… nejsou téma
+  function frame(ctx, key, t, W, H) { if (ma(PAGE, key)) PAGE[key](ctx, t, W, H); }
+  function arenaFrame(ctx, key, t, W, H, hz, u) { if (ma(ARENA, key)) ARENA[key](ctx, t, W, H, hz, u || Math.max(2, Math.round(W / 160))); }
 
   /* ── plátno stránky ── */
   let cv = null, cx = null, cur = '', raf = 0, last = 0, T0 = 0, nahledToken = 0;
@@ -308,7 +328,7 @@ window.RPGTemata = (function () {
     cx = cv.getContext('2d'); cx.imageSmoothingEnabled = false;
   }
   function draw(t) {
-    if (!cv || !PAGE[cur]) return;
+    if (!cv || !ma(PAGE, cur)) return;
     if (!cx) fit();
     try { PAGE[cur](cx, t, cv.width, cv.height); cx.globalAlpha = 1; }
     catch (e) { teardown(); }
@@ -329,7 +349,7 @@ window.RPGTemata = (function () {
 
   /* Zapne pozadí tématu (`''`/neznámé téma = vypne). Vrací true, když se kreslí. */
   function apply(key) {
-    if (!PAGE[key]) { teardown(); return false; }
+    if (!ma(PAGE, key)) { teardown(); return false; }
     if (!cv) {
       cv = document.createElement('canvas');
       cv.setAttribute('data-tema', key);
@@ -349,7 +369,7 @@ window.RPGTemata = (function () {
 
   /* Funkce pro jádro spritů (`setThemeFx`). Kreslí po pozadí světa, před postavami. */
   function arenaFx(key) {
-    if (!ARENA[key]) return null;
+    if (!ma(ARENA, key)) return null;
     return function (ctx, env) {
       const t = env.animOK ? env.now : STILL;
       ARENA[key](ctx, t, env.w, env.h, env.horizon, Math.max(2, Math.round(env.w / 160)));
@@ -358,16 +378,18 @@ window.RPGTemata = (function () {
   }
 
   /* Náhled z obchodu: téma se na `ms` zapne (i bez vlastnictví) a pak se vrátí.
-     `back` = klíč původního tématu. Nový náhled nebo změna tématu starý přebije. */
+     `back` = klíč původního tématu, nebo funkce, která ho vrátí (čte se až po uplynutí času, takže
+     dítě, které mezitím téma koupilo, o něj nepřijde). Nový náhled starý přebije. */
   function nahled(key, back, ms) {
     const tok = ++nahledToken, html = document.documentElement;
     html.dataset.theme = key; apply(key);
     setTimeout(function () {
       if (tok !== nahledToken) return;
-      html.dataset.theme = back || ''; apply(back || '');
+      const b = (typeof back === 'function' ? back() : back) || '';
+      html.dataset.theme = b; apply(b);
     }, ms || 4000);
   }
 
   return { KEYS, META, STILL, frame, arenaFrame, apply, arenaFx, nahled,
-           current: () => cur, hasPage: k => !!PAGE[k], hasArena: k => !!ARENA[k] };
+           current: () => cur, hasPage: k => ma(PAGE, k), hasArena: k => ma(ARENA, k) };
 })();
