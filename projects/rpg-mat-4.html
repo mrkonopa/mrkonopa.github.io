@@ -1590,6 +1590,7 @@ function applyCosmetics(){
  const th=wCatalog().find(i=>i.id===cos.active?.theme&&i.cat==='theme');
  document.documentElement.dataset.theme=th&&th.cssKey?th.cssKey:'';
  const spMod=window.RPGSprites4;if(spMod&&typeof spMod.setSkin==='function')spMod.setSkin(cos.active?.skin||null); if(spMod&&typeof spMod.setAura==='function')spMod.setAura(window.RPGKosmetika&&RPGKosmetika.arenaAura?RPGKosmetika.arenaAura(cos.active?.border||null):null);
+ {const _tk=th&&th.cssKey?th.cssKey:'';if(window.RPGTemata){RPGTemata.apply(_tk);if(spMod&&typeof spMod.setThemeFx==='function')spMod.setThemeFx(RPGTemata.arenaFx(_tk));}}
  if(typeof RPGWallet!=='undefined'&&RPGWallet.renderTitlePet)RPGWallet.renderTitlePet({nameEl:document.getElementById('pr-name'),mapNameEl:document.getElementById('map-name'),avatarEl:document.getElementById('pr-avatar')});
  if(typeof drawAvatar==='function')drawAvatar();
  _updateCreditsUI();renderShop();
@@ -2011,8 +2012,9 @@ window.addEventListener('load',()=>{
 <script defer src="./rpg-learn-svg.js"></script>
 <script defer src="./rpg-learn-4.js"></script>
 <script defer src="./rpg-wallet.js"></script>
-<script defer src="./rpg-kosmetika.js?v=20261030b"></script>
+<script defer src="./rpg-kosmetika.js?v=20261031"></script>
 <script defer src="./rpg-vitezstvi.js?v=20261030"></script>
+<script defer src="./rpg-temata.js?v=20261031"></script>
 <script defer src="vendor/supabase-js-2.118.0.js"></script>
 <script defer src="./rpg-cloud.js"></script>
 <script defer src="./rpg-battle-4.js"></script>
