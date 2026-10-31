@@ -16,7 +16,9 @@
      D) obchod a profil: každá karta mazlíčka má živé plátno (neprázdné) a „▶ UKÁZKA“, po kliknutí mazlíček vyskočí; profil
         a hub mají pixelového mazlíčka, ne emoji; pod reduced-motion se plátna nehýbou
      E) bez modulu `rpg-mazlicci.js` hra běží po starém: parťák v aréně, sponka v boji vidět, v profilu emoji, žádná chyba
-   Sabotáže (5): hra bez zapojení, jádro bez háčku, sponka se v boji neschová, chyba v mazlíčkovi shodí boj, obchod bez ukázky.
+      F) plovoucí mazlíček na mapě kreslí tytéž sprity (RPGMazlicci.frame), při dobré náladě poskakuje
+   Sabotáže (6): hra bez zapojení, jádro bez háčku, sponka se v boji neschová, chyba v mazlíčkovi shodí boj, obchod bez ukázky,
+   plovoucí mazlíček kreslí původní sprity.
    Spusť: node tests/rpg-mazlicci-hry.test.cjs
    ═════════════════════════════════════════════════════════════════════ */
 'use strict';
@@ -30,7 +32,7 @@ let pass = 0, fail = 0;
 const ok = (c, m, d) => { if (c) pass++; else { fail++; console.log('  ❌ ' + m + (d ? ' — ' + d : '')); } };
 
 const HRY = [3, 4, 5, 6, 7, 8, 9];
-const KONTROL_MIN = 250;   /* naměřeno 263 (31. 10. 2026, dvakrát stejně) */
+const KONTROL_MIN = 285;   /* naměřeno 294 (31. 10. 2026; před částí F 263) */
 const PETS = ['pet-sova', 'pet-kocka', 'pet-robot', 'pet-drak', 'pet-jednorozec', 'pet-fenix', 'pet-zlaty-drak'];
 const PET_HRY = Object.fromEntries(HRY.map((g, i) => [g, PETS[i]]));
 
@@ -223,7 +225,34 @@ async function castE(br, base, g, f) {
   await pg.evaluate(() => go('profile')); await sleep(600);
   const prof = await pg.evaluate(() => ({ px: document.querySelectorAll('canvas.rw-pet-px').length, emoji: document.querySelectorAll('span.rw-pet').length }));
   f(prof.px === 0 && prof.emoji === 1, kde + ': v profilu zůstalo emoji', JSON.stringify(prof));
+  await pg.evaluate(() => go('map')); await sleep(500);
+  const pxE = await pg.evaluate(() => { const c = document.getElementById('rw-sponka-canvas'); if (!c) return -1; const d = c.getContext('2d').getImageData(0, 0, c.width, c.height).data; let k = 0; for (let i = 3; i < d.length; i += 4) if (d[i] > 0) k++; return k; });
+  f(pxE >= 200, kde + ': plovoucí mazlíček na mapě kreslí původní sprite (' + pxE + ' px)');
   f(errs.length === 0, kde + ': bez chyb na stránce', errs.slice(0, 2).join(' | '));
+  await ctx.close();
+}
+
+/* ── F) plovoucí mazlíček na mapě a v tréninku kreslí TYTÉŽ sprity jako aréna, obchod a profil ── */
+async function castF(br, base, g, f, nalada) {
+  const P = PET_HRY[g], kde = 'g' + g + ' ' + P;
+  const { ctx, pg, errs } = await otevri(br, base, g, { pet: P });
+  f(await sponkaVid(pg, true), kde + ': plovoucí mazlíček je na mapě vidět');
+  await pg.evaluate(() => {
+    window.__fr = 0; window.__stavy = new Set(); window.__SPONKA_COOLDOWN_MS = 0;
+    const o = RPGMazlicci.frame;
+    RPGMazlicci.frame = function (c, id, e) { window.__fr++; window.__stavy.add(e.state); return o.apply(this, arguments); };
+  });
+  await sleep(600);
+  const n = await pg.evaluate(() => window.__fr);
+  f(n > 5, kde + ': plovoucí mazlíček se kreslí funkcí RPGMazlicci.frame (volání za 0,6 s: ' + n + ')');
+  const px = await pg.evaluate(() => { const c = document.getElementById('rw-sponka-canvas'); if (!c) return -1; const d = c.getContext('2d').getImageData(0, 0, c.width, c.height).data; let k = 0; for (let i = 3; i < d.length; i += 4) if (d[i] > 0) k++; return k; });
+  f(px >= 200, kde + ': plátno plovoucího mazlíčka není prázdné (' + px + ' px)');
+  if (nalada) {   // série dnů ≥ 3 na mapě = nálada „dobrá“ → krátké poskoky; po nich zase klid
+    await pg.evaluate(() => { S.streak = { count: 5, last: new Date().toISOString().slice(0, 10) }; });
+    const vidiRadost = await cekej(pg, () => window.__stavy.has('victory'), null, 9000);
+    f(vidiRadost, kde + ': při dobré náladě poskakuje (stav „victory“); viděné stavy: ' + [...await pg.evaluate(() => [...window.__stavy])].join(', '));
+  }
+  f(errs.length === 0, kde + ': bez chyb na stránce (část F)', errs.slice(0, 2).join(' | '));
   await ctx.close();
 }
 
@@ -239,6 +268,7 @@ async function hlavni() {
     await castC(br, baseOf(srv), g, 'iPad na šířku', 1024, 768, f);
     if (g === 3 || g === 9) await castC(br, baseOf(srv), g, 'telefon', 360, 740, f);
     await castD(br, baseOf(srv), g, f);
+    await castF(br, baseOf(srv), g, f, g === 3 || g === 9);
   }
   await castDhub(br, baseOf(srv), f);
   srv.close();
@@ -258,7 +288,7 @@ async function hlavni() {
     ok(apl, 'sabotáž „' + jm + '“ se aplikovala');
     if (!apl) return;
     const sv = await server(prepis), n = [], ff = (c, m, d) => { if (!c) n.push(m + (d ? ' — ' + d : '')); };
-    try { await castA(br, baseOf(sv), g, ff); if (/obchod/.test(jm)) await castD(br, baseOf(sv), g, ff); } catch (e) { n.push('VÝJIMKA: ' + e.message); }
+    try { await castA(br, baseOf(sv), g, ff); if (/obchod/.test(jm)) await castD(br, baseOf(sv), g, ff); if (/plovouc/.test(jm)) await castF(br, baseOf(sv), g, ff, false); } catch (e) { n.push('VÝJIMKA: ' + e.message); }
     sv.close();
     ok(n.length > 0 && n.some(t => rx.test(t)), 'sabotáž „' + jm + '“ je chycena', n.length ? n[0] : 'prošla bez nálezu');
   }
@@ -266,6 +296,7 @@ async function hlavni() {
   await sabotaz('jádro bez háčku', { 'rpg-sprite-core.js': s => s.replace('        if (PET) {\n          try {', '        if (false) {\n          try {') }, 9, /kreslí se/);
   await sabotaz('sponka se v boji neschová', { 'rpg-wallet.js': s => s.replace("window.__petVArene === true) skryt = true;", "window.__petVArene === 'nikdy') skryt = true;") }, 9, /sponka je v boji schovaná/);
   await sabotaz('chyba v mazlíčkovi shodí boj', { 'rpg-sprite-core.js': s => s.replace('} catch (e) { PET = null; ctx.restore(); }', '} catch (e) { throw e; }') }, 3, /vrátí parťák|bez chyb|běží dál/);
+  await sabotaz('plovoucí mazlíček kreslí původní sprity', { 'rpg-wallet.js': s => s.replace("&& window.RPGMazlicci.has(pid)) ? window.RPGMazlicci : null;", "&& false) ? window.RPGMazlicci : null;") }, 9, /RPGMazlicci\.frame/);
   await sabotaz('obchod bez ukázky', { 'rpg-kosmetika.js': s => s.replace("b.addEventListener('click', () => { if (h) h.ukazka(); });", "b.addEventListener('click', () => {});") }, 3, /UKÁZKA/);
 
   await br.close();

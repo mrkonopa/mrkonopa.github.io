@@ -588,7 +588,7 @@ html[data-theme="leto"]{--gold:#ffd166;--panel:#062033;--panel2:#0a2e4a;--blue:#
   };
   const SPONKA_COOLDOWN_MS = 100000;
   let _spEl = null, _spCanvas = null, _spBubble = null, _spLastShown = 0, _spDismissCount = 0, _spRaf = null, _spPollId = null;
-  let _spMood = null, _spPulseStart = 0, _spPulseFrom = 1, _spPulseDur = 0;
+  let _spMood = null, _spMoodSince = 0, _spPulseStart = 0, _spPulseFrom = 1, _spPulseDur = 0;
   let _spHintedTask = null, _spFrame = 0;   // _spHintedTask: hint jen 1× na úkol; _spFrame: throttle kontroly obrazovky
   const SPONKA_HIDE_SCREENS = ['s-cermat', 's-tower'];   // vážné časované režimy — sponka se schová
 
@@ -625,7 +625,9 @@ html[data-theme="leto"]{--gold:#ffd166;--panel:#062033;--panel2:#0a2e4a;--blue:#
     const cx = _spCanvas.width / 2, cy = _spCanvas.height / 2;
     ctx.clearRect(0, 0, _spCanvas.width, _spCanvas.height);
     const rm = document.documentElement.classList.contains('reduced-motion');
-    const bob = rm ? 0 : Math.round(Math.sin(t / 450) * (_spMood === 'struggle' ? 1 : 2));
+    /* Stejné sprity jako v aréně, obchodě a profilu (`RPGMazlicci`); bez modulu se kreslí původní malý sprite níž */
+    const pid = _spPetId(), MZ = (typeof window !== 'undefined' && window.RPGMazlicci && pid && window.RPGMazlicci.has(pid)) ? window.RPGMazlicci : null;
+    const bob = (rm || MZ) ? 0 : Math.round(Math.sin(t / 450) * (_spMood === 'struggle' ? 1 : 2));
     let pulseScale = 1;
     if (!rm && _spPulseStart) {
       const el = t - _spPulseStart;
@@ -636,6 +638,13 @@ html[data-theme="leto"]{--gold:#ffd166;--panel:#062033;--panel2:#0a2e4a;--blue:#
     ctx.translate(cx, cy + bob);
     ctx.scale(pulseScale, pulseScale);
     ctx.translate(-cx, -cy);
+    if (MZ) {
+      const S3 = 3, tS = Math.max(0, t - _spMoodSince);
+      const stav = (_spMood === 'good' && tS < 1500) ? 'victory' : (_spMood === 'struggle' && tS < 2500) ? 'worry' : 'idle';
+      MZ.frame(ctx, pid, { x: Math.round((_spCanvas.width - MZ.size(pid).cols * S3) / 2), feet: _spCanvas.height - 4, S: S3, t, state: stav, tS, rm });
+      ctx.restore();
+      return;
+    }
     const ox = Math.round((_spCanvas.width - gw * scale) / 2);
     const oy = Math.round((_spCanvas.height - gh * scale) / 2);
     const blinking = !rm && ((t % 3400) > 3250);
@@ -704,6 +713,7 @@ html[data-theme="leto"]{--gold:#ffd166;--panel:#062033;--panel2:#0a2e4a;--blue:#
     _spBubble.textContent = text;
     _spBubble.style.display = 'block';
     _spMood = mood || null;
+    _spMoodSince = (typeof performance !== 'undefined' ? performance.now() : Date.now());
     _spPulse(1.18, 240);
     clearTimeout(_spBubble._hideT);
     _spBubble._hideT = setTimeout(() => { _spBubble.style.display = 'none'; _spMood = null; }, 6000);
