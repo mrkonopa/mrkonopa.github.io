@@ -115,6 +115,11 @@ window.RPGSpriteCore = (function () {
     /* Nános tématu z obchodu (rpg-temata.js). Kreslí se po pozadí světa, před postavami; při chybě se vypne. */
     let THEMEFX = null;
     function setThemeFx(fn) { THEMEFX = (typeof fn === 'function') ? fn : null; }
+    /* Mazlíček z obchodu (`RPGMazlicci`) nahradí světového parťáka. Funkce dostane plátno a okolnosti (poloha, čas, stav hrdiny
+       a bosse) a vrátí střed mazlíčka; kreslí jen na plátno, takže nemůže zasáhnout do ovládání. Při jakékoli chybě se
+       vypne a vrátí se parťák. */
+    let PET = null;
+    function setPet(fn) { PET = (typeof fn === 'function') ? fn : null; }
 
     /* ── plátno ── */
     function attach(topEl) {
@@ -462,12 +467,24 @@ window.RPGSpriteCore = (function () {
           ? alBottom - paintedRows(AL.grids[0]) * AL.scale + bob
           : hp.y + 6 * HS.scale + bob;
         const ax = hp.x + adx;
-        drawSprite(ctx, AL.grids[rm() ? 0 : tick % AL.grids.length], AL.pal, ax, ay, AL.scale, false, false, rim);
-        if (!rm() && AL.jet) {
-          ctx.fillStyle = (tick % 2) ? AL.jet.hot : AL.jet.cold;
-          AL.jet.at.forEach(p => ctx.fillRect(ax + p[0] * AL.scale, ay + p[1] * AL.scale, AL.scale, AL.scale));
+        let petKresleny = false;
+        if (PET) {
+          try {
+            ctx.save();
+            const c = PET(ctx, { x: ax, feet: hp.y + HERO_PAINT * HS.scale + 1, S: AL.scale, now: now, rm: rm(), hero: ST.hero.mode, boss: ST.boss.mode, hpFrac: ST.hero.hpFrac });
+            ctx.restore();
+            if (c) { ST._ally = c; petKresleny = true; }
+          } catch (e) { PET = null; ctx.restore(); }
+          ctx.globalAlpha = 1;
         }
-        ST._ally = { x: ax + 7 * AL.scale, y: ay + 7 * AL.scale };
+        if (!petKresleny) {
+          drawSprite(ctx, AL.grids[rm() ? 0 : tick % AL.grids.length], AL.pal, ax, ay, AL.scale, false, false, rim);
+          if (!rm() && AL.jet) {
+            ctx.fillStyle = (tick % 2) ? AL.jet.hot : AL.jet.cold;
+            AL.jet.at.forEach(p => ctx.fillRect(ax + p[0] * AL.scale, ay + p[1] * AL.scale, AL.scale, AL.scale));
+          }
+          ST._ally = { x: ax + 7 * AL.scale, y: ay + 7 * AL.scale };
+        }
       }
 
       /* ── efekty ── */
@@ -549,9 +566,10 @@ window.RPGSpriteCore = (function () {
         } else if (k === 'spit') {
           const p = Math.min(1, f.t / 420);
           const x = f.x0 + (f.x1 - f.x0) * p, y = f.y0 + (f.y1 - f.y0) * p - Math.sin(p * Math.PI) * 48;
-          ctx.fillStyle = '#8de84a'; ctx.fillRect(x - 4, y - 4, 8, 8);
-          ctx.fillStyle = 'rgba(141,232,74,.45)'; ctx.fillRect(x - 7, y - 7, 14, 14);
-          if (p >= 1) { ST.fx.splice(i, 1); impact(f, '141,232,74'); }
+          const sc = f.col || '#8de84a';
+          ctx.fillStyle = sc; ctx.fillRect(x - 4, y - 4, 8, 8);
+          ctx.globalAlpha = 0.45; ctx.fillRect(x - 7, y - 7, 14, 14); ctx.globalAlpha = 1;
+          if (p >= 1) { ST.fx.splice(i, 1); impact(f, f.col ? rgbTriple(f.col) : '141,232,74'); }
         } else if (k === 'slasharc') {
           const p = Math.min(1, f.t / 240);
           ctx.strokeStyle = 'rgba(232,236,245,' + (1 - p) + ')'; ctx.lineWidth = 5;
@@ -672,7 +690,7 @@ window.RPGSpriteCore = (function () {
       if (AL && Math.random() < 0.35) {
         setTimeout(() => {
           const a = ST._ally; if (!a || !active()) return;
-          push({ kind: 'spit', x0: a.x, y0: a.y, x1: bcx, y1: bcy - 10, t: 0 });
+          push({ kind: 'spit', x0: a.x, y0: a.y, x1: bcx, y1: bcy - 10, t: 0, col: PET && PET.shot ? PET.shot : null });
         }, 650);
       }
       void isCrit;
@@ -735,7 +753,7 @@ window.RPGSpriteCore = (function () {
 
     return {
       attach, detach, active, spawn, heroAttack, bossAttack, defeat,
-      setProgress, setHeroHp, drawHeroOn, setSkin, setAura, setThemeFx,
+      setProgress, setHeroHp, drawHeroOn, setSkin, setAura, setThemeFx, setPet,
       skins: () => Object.keys(HS.skins || {}),
       /* nové, jen ke čtení — testy a Věž legend */
       heroSize: () => ({ cols: HS.cols, rows: HS.rows, painted: HERO_PAINT, scale: HS.scale, legacyRows: HS.legacyRows || HS.rows }),
