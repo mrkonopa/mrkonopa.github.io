@@ -427,6 +427,27 @@ window.RPGKosmetika = (function () {
     b.addEventListener('click', () => V.ukaz(item.id, item.cssKey));
     (card.querySelector(SEL_BTN) || card).appendChild(b);
   }
+  /* Obchod, kategorie „Mazlíčci“: živý náhled (sprite z `rpg-mazlicci.js`, mrká a vrtí se), popis pohybu a tlačítko
+     „▶ UKÁZKA“ (zaplesá, uhne, zaskáče). Plátno nemá obsluhu událostí, takže nic nechytá. */
+  function decoratePet(card, item) {
+    const M = window.RPGMazlicci;
+    if (!M || !item || item.cat !== 'pet' || !M.has(item.id) || card.querySelector('.kos-pet')) return;
+    const box = document.createElement('div'); box.className = 'kos-pet'; box.style.cssText = 'display:flex;justify-content:center;margin:8px auto 4px;line-height:0';
+    const cv = document.createElement('canvas'); cv.className = 'kos-pet-cv'; cv.setAttribute('role', 'img'); cv.setAttribute('aria-label', 'Mazlíček ' + item.name + ' – živý náhled');
+    box.appendChild(cv);
+    const h = M.mount(cv, item.id, { S: 4 });
+    const ic = card.querySelector(SEL_IC); if (ic) ic.replaceWith(box); else card.insertBefore(box, card.firstChild);
+    const m = M.META[item.id];
+    if (m) {
+      const t = document.createElement('div'); t.className = 'kos-meta';
+      const mo = document.createElement('span'); mo.textContent = m.anim; t.appendChild(mo);
+      const nm = card.querySelector(SEL_NM); if (nm) nm.after(t);
+    }
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'btn sm kos-pet-uk'; b.textContent = '▶ UKÁZKA';
+    b.setAttribute('aria-label', 'Ukázka mazlíčka ' + item.name);
+    b.addEventListener('click', () => { if (h) h.ukazka(); });
+    (card.querySelector(SEL_BTN) || card).appendChild(b);
+  }
   /* Náhled tématu: zapne ho na 4 s i bez vlastnictví a vrátí to, co je zrovna aktivní (čte se až po uplynutí času). */
   function aktivniTema() {
     try {
@@ -450,6 +471,7 @@ window.RPGKosmetika = (function () {
     strip.hidden = cat !== 'border';
     if (cat === 'theme') { const kz = Array.from(grid.children); items.forEach((it, i) => { if (kz[i]) decorateTheme(kz[i], it); }); return; }
     if (cat === 'victory') { const kz = Array.from(grid.children); items.forEach((it, i) => { if (kz[i]) decorateVictory(kz[i], it); }); return; }
+    if (cat === 'pet') { const kz = Array.from(grid.children); items.forEach((it, i) => { if (kz[i]) decoratePet(kz[i], it); }); return; }
     if (cat !== 'border') return;
     tryOn(tryName && has(tryName) ? tryName : null);
     const cards = Array.from(grid.children);

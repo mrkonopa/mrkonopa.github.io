@@ -469,6 +469,7 @@ html[data-theme="leto"]{--gold:#ffd166;--panel:#062033;--panel2:#0a2e4a;--blue:#
 .victory-banner.vc-tree{text-shadow:-2px 0 #0b3d1a,2px 0 #0b3d1a,0 2px #0b3d1a,4px 4px 0 #0b3d1a,0 0 20px #0b3d1a}
 .rw-title{font-size:12px;letter-spacing:1.5px;opacity:.9;color:var(--gold,#f4d03f);margin-top:2px}
 .rw-pet{display:inline-block;font-size:24px;margin-left:8px;vertical-align:middle;animation:rw-pet-b 2.4s ease-in-out infinite;cursor:default}
+.rw-pet-px{animation:none;font-size:0;margin-left:6px;image-rendering:pixelated}
 @keyframes rw-pet-b{50%{transform:translateY(-5px)}}
 .reduced-motion .rw-pet,.reduced-motion .nm-shine,.reduced-motion .nm-rainbow,.reduced-motion #pr-avatar.av-heart,.reduced-motion .gp-av.av-heart,.reduced-motion #pr-avatar.av-diamond,.reduced-motion .gp-av.av-diamond{animation:none!important}
 .rw-gach{display:flex;flex-direction:column;gap:8px;margin-top:8px}
@@ -508,8 +509,19 @@ html[data-theme="leto"]{--gold:#ffd166;--panel:#062033;--panel2:#0a2e4a;--blue:#
       let sp = av.parentNode && av.parentNode.querySelector(':scope > .rw-pet');
       if (!p) { if (sp) sp.remove(); }
       else {
-        if (!sp) { sp = document.createElement('span'); sp.className = 'rw-pet'; av.after(sp); }
-        sp.textContent = p.ic; sp.title = p.name;
+        /* Pixelový mazlíček z `rpg-mazlicci.js`; bez modulu zůstává emoji jako dřív */
+        if (window.RPGMazlicci && RPGMazlicci.has(p.id)) {
+          if (!sp || sp.tagName !== 'CANVAS' || sp.dataset.pet !== p.id) {
+            if (sp) sp.remove();
+            sp = document.createElement('canvas'); sp.className = 'rw-pet rw-pet-px'; sp.dataset.pet = p.id; av.after(sp);
+            RPGMazlicci.mount(sp, p.id, { S: 3 });
+          }
+          sp.title = p.name; sp.setAttribute('role', 'img'); sp.setAttribute('aria-label', 'Mazlíček ' + p.name);
+        } else {
+          if (sp && sp.tagName === 'CANVAS') { sp.remove(); sp = null; }
+          if (!sp) { sp = document.createElement('span'); sp.className = 'rw-pet'; av.after(sp); }
+          sp.textContent = p.ic; sp.title = p.name;
+        }
       }
     }
   }
@@ -676,6 +688,8 @@ html[data-theme="leto"]{--gold:#ffd166;--panel:#062033;--panel2:#0a2e4a;--blue:#
     let scr = '';
     try { const a = document.querySelector('.screen.active'); scr = a ? a.id : ''; } catch (e) {}
     let skryt = SPONKA_HIDE_SCREENS.indexOf(scr) !== -1;
+    /* V boji stojí mazlíček v aréně (`RPGMazlicci`); plovoucí sponka by byla druhý — hra to oznámí příznakem */
+    if (!skryt && scr === 's-battle' && window.__petVArene === true) skryt = true;
     if (!skryt) { try { skryt = _spKryjeOvladani(); } catch (e) {} }
     _spEl.style.visibility = skryt ? 'hidden' : 'visible';
   }
@@ -797,6 +811,7 @@ html[data-theme="leto"]{--gold:#ffd166;--panel:#062033;--panel2:#0a2e4a;--blue:#
     buy, activate, deactivate, owns, activeId, isActive, cssFor, hasPowerup,
     getReducedMotion, setReducedMotion,
     getSponkaEnabled, setSponkaEnabled,
+    petId: _spPetId,
     getSoundOn, setSoundOn,
     bumpLife, setLifeMax, hasPerk, lifeStats, gachList, seasonOpen,
     renderTitlePet, renderGachInto,

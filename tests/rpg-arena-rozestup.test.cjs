@@ -18,7 +18,8 @@
         hrdina uvnitř plátna, od 540 px platí původní poměry (zlaté otisky se nemění).
      B) Prohlížeč: šířka plátna je u všech 126 úloh stejná (jedna hodnota) a nejméně 340 px,
         ve všech 7 hrách na iPadu 10,2" i Air na šířku.
-   Sabotáže: vypnuté úzké rozložení; `.wrap` bez `width:100%` ve 3. ročníku.
+   Mazlíčci z obchodu (`rpg-mazlicci.js`, 7 druhů, šířka z `size(id).cols`) stojí na pozici parťáka, takže platí totéž pravidlo i pro ně.
+   Sabotáže: vypnuté úzké rozložení; mazlíček dvakrát širší; `.wrap` bez `width:100%` ve 3. ročníku.
    Spusť: node tests/rpg-arena-rozestup.test.cjs
    ═══════════════════════════════════════════════════════════════════════ */
 const fs = require('fs'), path = require('path'), vm = require('vm'), http = require('http');
@@ -47,8 +48,14 @@ function nactiSvet(g, jadro) {
   return { svet: win['RPGSpriteWorld' + g], api: win['RPGSprites' + g] };
 }
 
-function meziStrana(jadroZdroj, popis) {
-  const nalezy = []; let mereni = 0;
+const MAZ = (() => {                  // mazlíčci z obchodu: `size(id).cols` = šířka mřížky (kreslí se od levého okraje `ax`)
+  const root = {}; vm.runInNewContext(fs.readFileSync(P('rpg-mazlicci.js'), 'utf8'), { window: root, globalThis: root, console, Math, performance: { now: () => 0 } });
+  return root.RPGMazlicci || null;
+})();
+
+function meziStrana(jadroZdroj, nasobekMaz) {
+  const nm = nasobekMaz || 1;
+  const nalezy = []; let mereni = 0, minMaz = 1e9;
   for (const g of [3, 4, 5, 6, 7, 8, 9]) {
     const { svet, api } = nactiSvet(g, jadroZdroj);
     if (!svet || !api || typeof api.layoutX !== 'function') { nalezy.push('g' + g + ': svět nebo layoutX chybí'); continue; }
@@ -64,6 +71,14 @@ function meziStrana(jadroZdroj, popis) {
         const L = api.layoutX(W, cols); mereni++;
         const petPravy = L.heroX + adx + (pet[1] + 1) * AL.scale;
         const mezera = bossLevy(L.bossX) - petPravy;
+        /* mazlíček z obchodu stojí na téže pozici (levý okraj = ax), ale je širší/užší než světový parťák; při zásahu
+           uhne DOLEVA (pryč od bosse), při obavě kolísá o 1 px — nejvíc doprava je tedy +1 px */
+        if (MAZ) for (const id of MAZ.IDS) {
+          const pravy = L.heroX + adx + Math.round(MAZ.size(id).cols * nm) * AL.scale + 1; mereni++;
+          const mz = bossLevy(L.bossX) - pravy; if (W >= 340) minMaz = Math.min(minMaz, mz);
+          if (W >= 340 && mz < 40) nalezy.push(`g${g}/o${area} W${W} ${id}: mazlíček → boss ${mz} px (< 40)`);
+          else if (W >= 280 && mz < 0) nalezy.push(`g${g}/o${area} W${W} ${id}: mazlíček zasahuje do bosse (${mz} px)`);
+        }
         const zbytek = W - bossPravy(L.bossX);
         const hrdinaLevy = L.heroX + heroVse[0] * HS.scale;
         if (W >= 340 && mezera < 40) nalezy.push(`g${g}/o${area} W${W}: parťák → boss ${mezera} px (< 40)`);
@@ -77,13 +92,14 @@ function meziStrana(jadroZdroj, popis) {
       }
     }
   }
-  return { nalezy, mereni };
+  return { nalezy, mereni, minMaz };
 }
 
 console.log('── A) Rozestup hrdina / parťák / boss z mřížek všech sedmi světů ──');
 const JADRO = fs.readFileSync(P('rpg-sprite-core.js'), 'utf8');
 {
-  const { nalezy, mereni } = meziStrana(JADRO);
+  const { nalezy, mereni, minMaz } = meziStrana(JADRO);
+  console.log('  nejmenší mezera mazlíček → boss od šířky plátna 340 px: ' + minMaz + ' px (pravidlo ≥ 40)');
   ok(mereni >= 7 * 7 * 100 * 0.9, 'změřeno dost kombinací: ' + mereni + ' (7 světů × oblasti × 100 šířek)');
   ok(nalezy.length === 0, 'rozestupy platí pro všechny světy, oblasti a šířky plátna', nalezy.slice(0, 3).join(' | '));
 
@@ -92,6 +108,9 @@ const JADRO = fs.readFileSync(P('rpg-sprite-core.js'), 'utf8');
   ok(sab !== JADRO, 'sabotáž A se aplikovala (NARROW_W)');
   const s = meziStrana(sab);
   ok(s.nalezy.length > 0, 'sabotáž „úzké rozložení vypnuto“ je chycena (' + s.nalezy.length + ' nálezů)');
+  ok(!!MAZ && MAZ.IDS.length === 7, 'modul mazlíčků se načetl (7 druhů)');
+  const s3 = meziStrana(JADRO, 2);
+  ok(s3.nalezy.some(t => /mazlíček/.test(t)), 'sabotáž „mazlíček dvakrát širší“ je chycena (' + s3.nalezy.filter(t => /mazlíček/.test(t)).length + ' nálezů)');
   const sab2 = JADRO.replace('W * 0.05) };', 'W * 0.0) };');
   ok(sab2 !== JADRO, 'sabotáž A2 se aplikovala (rezerva bosse)');
   const s2 = meziStrana(sab2);
