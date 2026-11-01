@@ -251,6 +251,24 @@ window.RPGCloud = (function () {
   const isAdmin   = () => role === 'superadmin';
 
   // všechny postavy všech žáků (jen pro učitele/superadmina — hlídá RLS)
+  /* Infocentrum: jen to, co přehled potřebuje (xp, úroveň, splněné úkoly, odznaky, jméno hrdiny), jen pro dané žáky
+     a jen řádky změněné po `sinceIso`. Bez inventáře, chyb a dalších polí — a hlavně malé, protože se volá každých ~6 s. */
+  async function listSavesLite(game, userIds, sinceIso) {
+    if (!client || !isStaff() || !game || !Array.isArray(userIds) || !userIds.length) return [];
+    try {
+      let q = client.from('saves')
+        .select('user_id,game,name,full_name,updated_at,xp:data->xp,level:data->level,done:data->done,ach:data->ach,hero:data->name')
+        .eq('game', game).in('user_id', userIds.slice(0, 200));
+      if (sinceIso) q = q.gt('updated_at', sinceIso);
+      const { data, error } = await q;
+      if (error) throw error;
+      return (data || []).map(r => ({
+        user_id: r.user_id, game: r.game, name: r.name, full_name: r.full_name, updated_at: r.updated_at,
+        data: { xp: r.xp, level: r.level, done: r.done, ach: r.ach, name: r.hero },
+      }));
+    } catch (e) { console.warn('[RPGCloud] listSavesLite selhal:', e); return null; }
+  }
+
   async function listAllSaves() {
     if (!client || !isStaff()) return [];
     try {
@@ -1491,7 +1509,7 @@ window.RPGCloud = (function () {
            priOdhlaseni, _tep: () => (hraKlic ? tep(hraKlic) : Promise.resolve()),
            // Fáze 2 — role a učitelská konzole
            getRole, isStaff, isAdmin, fetchRole, requireStaff,
-           listAllSaves, pullSaveFor, updateSaveFor, deleteSaveFor,
+           listAllSaves, listSavesLite, pullSaveFor, updateSaveFor, deleteSaveFor,
            listRoles, staffEmails, upsertRole, deleteRole,
            // Fáze 3 — třídy a poznámky
            listClasses, createClass, renameClass, deleteClass, updateClassMeta,

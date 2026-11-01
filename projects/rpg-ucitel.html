@@ -209,6 +209,78 @@ h4{font-family:var(--px);font-size:12px;font-weight:700;color:var(--accent);lett
 #intro-box .in-ovl .mezera{flex:1;min-width:0}
 @media(max-width:560px){#help-btn{right:12px;bottom:12px}}
 @media(pointer:coarse){#help-btn{width:52px;height:52px}.help-chip{width:26px;height:26px;font-size:13px}}
+
+/* ── INFOCENTRUM HODINY (projektor) ── */
+#ic-root{position:relative}
+.ic-chip{border:1px solid var(--line);background:var(--panel);padding:6px 10px;border-radius:4px;font-size:12px;color:var(--muted);white-space:nowrap}
+.ic-chip b{color:var(--accent)}
+.ic-chip.zle{border-color:var(--red);color:var(--red)}
+.ic-hlava{display:flex;flex-wrap:wrap;gap:6px 18px;align-items:baseline;justify-content:space-between;border-bottom:1px solid var(--line);padding-bottom:10px;margin-bottom:14px}
+.ic-hlava h1{margin:0;font-family:var(--vt);font-size:clamp(30px,4vw,48px);letter-spacing:2px;color:#fff;font-weight:400}
+.ic-hlava h1 em{font-style:normal;color:var(--accent)}
+.ic-main{display:grid;grid-template-columns:minmax(0,1.9fr) minmax(300px,1fr);gap:14px;align-items:start}
+@media(max-width:900px){.ic-main{grid-template-columns:minmax(0,1fr)}}
+.ic-panel{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:14px}
+.ic-panel h2{margin:0 0 12px;font-size:13px;letter-spacing:2px;color:var(--muted);font-weight:700;text-transform:uppercase;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.ic-panel h2 span{color:var(--accent);letter-spacing:0;text-transform:none;font-weight:400}
+.ic-side{display:grid;gap:14px}
+.ic-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px;position:relative}
+.ic-card{background:var(--panel2);border:2px solid var(--line);border-radius:4px;padding:10px 12px;display:grid;grid-template-columns:44px minmax(0,1fr);gap:4px 10px;align-items:center;position:relative;transition:border-color .3s,box-shadow .3s}
+.ic-card.off{opacity:.45}
+.ic-card.pop{border-color:var(--green);box-shadow:0 0 12px #39ff9e44}
+.ic-card.boss{border-color:var(--gold);box-shadow:0 0 12px #f4d03f55}
+.ic-card.boss::after{content:"";position:absolute;left:50%;top:6px;width:4px;height:4px;background:var(--gold);box-shadow:-70px 8px 0 var(--gold),-34px -2px 0 #fff,32px 6px 0 var(--gold),68px -2px 0 #fff,0 -4px 0 var(--gold);animation:ic-sp 1.3s steps(8) forwards;pointer-events:none}
+@keyframes ic-sp{from{transform:translateY(4px);opacity:1}to{transform:translateY(-22px);opacity:0}}
+.ic-av{width:44px;height:44px;border-radius:3px;display:grid;place-items:center;font-family:var(--vt);font-size:28px;color:#06101c;grid-row:1/3;position:relative}
+.ic-av i{position:absolute;right:-3px;bottom:-3px;width:11px;height:11px;border-radius:50%;border:2px solid var(--panel2);background:var(--green)}
+.ic-card.off .ic-av i{background:#566}
+.ic-nm{font-weight:700;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ic-last{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ic-gain{grid-column:1/-1;display:flex;gap:8px;align-items:center;margin-top:4px}
+.ic-track{flex:1;min-width:0;height:10px;background:#0c1220;border:1px solid var(--line);position:relative;overflow:hidden}
+.ic-track u{position:absolute;inset:0 auto 0 0;background:repeating-linear-gradient(90deg,var(--accent) 0 6px,#0e9a9a 6px 12px);transition:width .6s steps(12)}
+.ic-gain b{font-size:13px;color:var(--green);white-space:nowrap;font-weight:700}
+.ic-big{font-family:var(--vt);font-size:clamp(40px,5vw,64px);line-height:1;color:#fff}
+.ic-big em{font-style:normal;color:var(--gold)}
+.ic-goalbar{height:22px;border:1px solid var(--line);background:#0c1220;position:relative;overflow:hidden;margin:8px 0}
+.ic-goalbar u{position:absolute;inset:0 auto 0 0;background:repeating-linear-gradient(90deg,var(--gold) 0 8px,#b8941c 8px 16px);transition:width .6s steps(14)}
+.ic-steps{display:flex;gap:6px;align-items:center;font-size:12px;color:var(--muted);flex-wrap:wrap;margin-bottom:10px}
+.ic-steps i{display:inline-block;width:22px;height:10px;background:#0c1220;border:1px solid var(--line)}
+.ic-steps i.d{background:var(--gold);border-color:var(--gold)}
+.ic-cols3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.ic-stat{background:var(--panel2);padding:10px;text-align:center}
+.ic-stat b{display:block;font-family:var(--vt);font-size:36px;color:var(--accent);line-height:1}
+.ic-stat span{font-size:11px;color:var(--muted);letter-spacing:1px}
+.ic-tbar{display:flex;height:34px;border:1px solid var(--line);overflow:hidden;margin-bottom:8px}
+.ic-tbar div{display:grid;place-items:center;font-family:var(--vt);font-size:24px;color:#07101c;transition:flex .6s;min-width:0}
+.ic-t1{background:var(--blue,#5aa9ff)}.ic-t2{background:var(--red)}
+.ic-tnames{display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:13px;color:var(--muted)}
+.ic-tnames b{display:block;margin-bottom:4px;color:var(--text);letter-spacing:1px}
+.ic-feed{display:grid;gap:8px;max-height:430px;overflow:hidden}
+.ic-ev{display:grid;grid-template-columns:30px minmax(0,1fr) auto;gap:8px;align-items:center;background:var(--panel2);border-left:4px solid var(--accent);padding:9px 11px;font-size:15px;animation:ic-in .5s steps(6)}
+.ic-ev.oblast{border-left-color:var(--gold);background:#241f0e;font-size:17px}
+.ic-ev.uroven{border-left-color:#b48cff}
+.ic-ev.odznak{border-left-color:var(--green)}
+.ic-ev time{font-size:12px;color:var(--muted)}
+.ic-ev .ic{font-family:var(--vt);font-size:26px;text-align:center}
+@keyframes ic-in{from{transform:translateX(18px);opacity:0}}
+.ic-lv{position:fixed;inset:0;display:none;place-items:center;background:#0a0d16d9;z-index:300;pointer-events:none}
+.ic-lv.on{display:grid;animation:ic-lvin 3s steps(1) forwards}
+@keyframes ic-lvin{0%{opacity:0}8%{opacity:1}85%{opacity:1}100%{opacity:0}}
+.ic-lv div{text-align:center;font-family:var(--vt);color:#fff;animation:ic-pump .6s steps(5) both}
+@keyframes ic-pump{from{transform:scale(.6)}to{transform:scale(1)}}
+.ic-lv h3{margin:0;font-size:clamp(64px,12vw,150px);font-weight:400;color:var(--gold);letter-spacing:6px;text-shadow:0 0 24px #f4d03f88}
+.ic-lv p{margin:6px 0 0;font-size:clamp(24px,3.5vw,44px);color:var(--accent)}
+.ic-lv .ic-px{position:absolute;left:50%;top:50%;width:8px;height:8px;background:var(--gold);animation:ic-fly 1.6s steps(10) forwards}
+@keyframes ic-fly{to{transform:translate(var(--dx),var(--dy));opacity:0}}
+@media(prefers-reduced-motion:reduce){.ic-lv.on{animation:none;opacity:1}.ic-lv div,.ic-lv .ic-px,.ic-card.boss::after,.ic-ev,.ic-track u,.ic-goalbar u{animation:none;transition:none}}
+/* režim na celou obrazovku (projektor): ovládání pryč, písmo větší */
+#ic-root.ic-proj{background:var(--bg);padding:18px 24px;overflow:auto;min-height:100vh}
+#ic-root.ic-proj #ic-ovl,#ic-root.ic-proj #ic-info{display:none}
+#ic-root.ic-proj .ic-nm{font-size:clamp(18px,1.5vw,28px)}
+#ic-root.ic-proj .ic-last,#ic-root.ic-proj .ic-gain b{font-size:clamp(13px,1.1vw,20px)}
+#ic-root.ic-proj .ic-ev{font-size:clamp(15px,1.3vw,24px)}
+#ic-root.ic-proj .ic-cards{grid-template-columns:repeat(auto-fill,minmax(clamp(210px,16vw,330px),1fr))}
 </style>
 </head>
 <body>
@@ -247,6 +319,7 @@ h4{font-family:var(--px);font-size:12px;font-weight:700;color:var(--accent);lett
   <div class="tabs">
    <button class="tab on" data-tab="overview">PŘEHLED ŽÁKŮ</button>
    <button class="tab" data-tab="classes">TŘÍDY</button>
+   <button class="tab" data-tab="infocentrum">📡 INFOCENTRUM</button>
    <button class="tab" data-tab="assignments">📋 ÚKOLY</button>
    <button class="tab" data-tab="diag">DIAGNOSTIKA</button>
    <button class="tab" data-tab="prijimacky">📝 PŘIJÍMAČKY</button>
@@ -415,6 +488,39 @@ h4{font-family:var(--px);font-size:12px;font-weight:700;color:var(--accent);lett
      <h4>🏛 Síň slávy</h4>
      <div id="tower-hall-wrap"><div class="empty">Načítám…</div></div>
     </div>
+   </div>
+  </div>
+
+  <!-- INFOCENTRUM HODINY -->
+  <div id="t-infocentrum" class="hidden">
+   <div id="ic-root">
+    <div class="controls" id="ic-ovl">
+     <select id="ic-class" aria-label="Infocentrum: třída"></select>
+     <select id="ic-game" aria-label="Infocentrum: hra (ročník)"></select>
+     <button class="mini" id="ic-nova" type="button">↻ Nová hodina</button>
+     <button class="mini gold" id="ic-full" type="button">⛶ Na celou obrazovku (F)</button>
+     <span class="sp"></span>
+     <span class="ic-chip" id="ic-stav">—</span>
+    </div>
+    <div class="info-box" id="ic-info"><b>📡 Infocentrum</b> — pro dataprojektor při hodině. Ukazuje, co žáci <b>v této hodině</b> splnili (úkoly a mise od otevření záložky nebo od „Nová hodina“), řazeno podle toho. Žádné počty chyb. Obnova každých ~6 s z uložených postav. Cíl hodiny se nastavuje sám: 10 úkolů na hráče ve hře.</div>
+    <div class="ic-hlava"><h1 id="ic-nadpis">INFO<em>CENTRUM</em></h1><span class="ic-chip" id="ic-hod">—</span></div>
+    <div class="ic-main">
+     <section class="ic-panel"><h2>Kdo hraje <span id="ic-onl"></span></h2><div class="ic-cards" id="ic-cards"></div><div class="empty" id="ic-prazdno" hidden>Vyber třídu s žáky.</div></section>
+     <div class="ic-side">
+      <section class="ic-panel"><h2>Třída dohromady <span id="ic-stg">stupeň 1</span></h2>
+       <div class="ic-big"><em id="ic-gv">0</em> / <span id="ic-gt">20</span> úkolů</div>
+       <div class="ic-goalbar"><u id="ic-gb" style="width:0%"></u></div>
+       <div class="ic-steps" id="ic-steps"></div>
+       <div class="ic-cols3"><div class="ic-stat"><b id="ic-sm">0</b><span>MISÍ HOTOVO</span></div><div class="ic-stat"><b id="ic-so">0</b><span>OBLASTÍ</span></div><div class="ic-stat"><b id="ic-sa">0</b><span>ODZNAKY</span></div></div>
+      </section>
+      <section class="ic-panel" id="ic-tymy" hidden><h2>Týmy <span id="ic-tinfo">živý souboj</span></h2>
+       <div class="ic-tbar"><div class="ic-t1" id="ic-t1" style="flex:1">0</div><div class="ic-t2" id="ic-t2" style="flex:1">0</div></div>
+       <div class="ic-tnames"><div><b style="color:#5aa9ff">MODRÝ TÝM</b><span id="ic-tn1"></span></div><div><b style="color:var(--red)">ČERVENÝ TÝM</b><span id="ic-tn2"></span></div></div>
+      </section>
+      <section class="ic-panel"><h2>Děje se <span>posledních 7 událostí</span></h2><div class="ic-feed" id="ic-feed"></div></section>
+     </div>
+    </div>
+    <div class="ic-lv" id="ic-lv" aria-hidden="true"><div><h3 id="ic-lvh"></h3><p>Třída postoupila! Skvělá práce všech.</p></div></div>
    </div>
   </div>
 
@@ -2268,6 +2374,16 @@ const NAPOVEDA = [
    '<p>Připravenost na CERMAT z přijímačkového hubu: jak si třída stojí a <b>ve kterých okruzích</b> tápe. '+
    'Naplňuje se z testů nanečisto, které žáci dělají na stránce přijímaček.</p>' },
 
+ { id:'infocentrum', nadpis:'Infocentrum', kdo:'učitel i superadmin', text:
+   '<p>Obrazovka pro <b>dataprojektor při hodině</b>: žáci vidí, kdo kolik splnil, kdo je v týmu a kam třída postoupila. '+
+   'Vybereš třídu a hru (ročník se předvyplní podle kohorty třídy), klávesa <b>F</b> přepne na celou obrazovku.</p>'+
+   '<p>Počítá se <b>jen to, co žáci splnili v této hodině</b> (od otevření záložky nebo od „↻ Nová hodina“), ne celkový stav. '+
+   'Karty jsou řazené podle úkolů a pak misí; <b>počty chyb se nikde neukazují</b>.</p>'+
+   '<p><b>Cíl hodiny</b> se nastavuje sám: 10 úkolů na každého hráče ve hře. Po jeho splnění třída postoupí na další stupeň a na plátně se krátce přehraje animace. '+
+   '<b>Týmy</b> se ukážou, jen když běží živý souboj v týmovém režimu.</p>'+
+   '<p>Data se berou z uložených postav každých ~6 s (hra je ukládá po každém úkolu), takže „právě hraje“ = uloženo za posledních 3 minuty. '+
+   'Co infocentrum neumí: ukázat, <b>v které misi žák právě je</b> — vidíš jen poslední splněnou.</p>' },
+
  { id:'leaderboard', nadpis:'Žebříčky', kdo:'učitel i superadmin', text:
    '<p>Pořadí žáků podle XP v daném ročníku. Pozor na rozdíl: <b>žák ve hře vidí jen své spolužáky</b> '+
    '(ty, se kterými sdílí třídu) a jen jméno, úroveň a XP — žádné e-maily. Ty tady vidíš celý ročník.</p>' },
@@ -2320,6 +2436,150 @@ const NAPOVEDA = [
    '<p><b>Žák přišel o postup</b> — hrál na jiném počítači bez přihlášení. Přihlášený se postup slévá sám.</p>'+
    '<p><b>Něco se nenačítá</b> — zkus stránku obnovit; konzole si data tahá až po přihlášení.</p>' }
 ];
+
+
+/* ══ INFOCENTRUM HODINY ═══════════════════════════════════════════════
+   Logika (výpočty, události, cíl) je v `rpg-infocentrum.js` (RPGInfo) a má vlastní Node test;
+   tady je jen načítání a vykreslení. Jména žáků se vkládají VÝHRADNĚ přes textContent. */
+const IC={timer:null,bezi:false,stavy:{},pamet:{},zaklad:{},cil:null,start:0,cid:'',game:'',cursor:'',udal:[],tik:0,bojId:null,poradi:[]};
+const IC_KLIC='RPG_INFOCENTRUM';
+function icUloz(){try{localStorage.setItem(IC_KLIC,JSON.stringify({cid:IC.cid,game:IC.game,start:IC.start,zaklad:IC.zaklad,cil:IC.cil}));}catch(e){}}
+function icNacti(){try{const o=JSON.parse(localStorage.getItem(IC_KLIC)||'null');
+ if(o&&o.cid===IC.cid&&o.game===IC.game&&Date.now()-o.start<6*3600e3&&o.zaklad&&o.cil&&isFinite(o.cil.stupen)&&isFinite(o.cil.zaklad)&&isFinite(o.cil.krok))return o;}catch(e){}return null;}
+const icEl=id=>document.getElementById(id);
+function initInfocentrum(){
+ const sc=icEl('ic-class'),sg=icEl('ic-game');
+ if(!sg.options.length)GAMES.forEach(g=>{const o=document.createElement('option');o.value=g.key;o.textContent=g.emoji+' '+g.nm+' ('+g.gr+')';sg.appendChild(o);});
+ const tridy=activeClasses(),minule=sc.value;
+ sc.innerHTML='';tridy.forEach(c=>{const o=document.createElement('option');o.value=c.id;o.textContent='🏫 '+classLabel(c);sc.appendChild(o);});
+ if(minule&&tridy.some(c=>c.id===minule))sc.value=minule;
+ icEl('ic-prazdno').hidden=tridy.length>0;
+ if(!tridy.length){icEl('ic-cards').innerHTML='';icEl('ic-prazdno').textContent='Nejdřív založ třídu v záložce TŘÍDY a přiřaď do ní žáky.';return;}
+ if(!sg.dataset.zvoleno){const c=tridy.find(x=>x.id===sc.value),g=c?gradeOfCohort(c.cohort_start_year):null;sg.value=(g>=6&&g<=9)?'RPG_MAT_'+g:'RPG_MAT_9';}
+ sc.onchange=()=>{sg.dataset.zvoleno='';const c=tridy.find(x=>x.id===sc.value),g=c?gradeOfCohort(c.cohort_start_year):null;if(g>=6&&g<=9)sg.value='RPG_MAT_'+g;icZacni();};
+ sg.onchange=()=>{sg.dataset.zvoleno='1';icZacni();};
+ icEl('ic-nova').onclick=()=>icNova();icEl('ic-full').onclick=()=>icCela();
+ icZacni();
+}
+function infoStop(){if(IC.timer){clearInterval(IC.timer);IC.timer=null;}}
+function icZacni(){
+ infoStop();
+ IC.cid=icEl('ic-class').value;IC.game=icEl('ic-game').value;
+ IC.stavy={};IC.pamet={};IC.cursor='';IC.udal=[];IC.tik=0;IC.bojId=null;IC.poradi=[];icEl('ic-cards').innerHTML='';icEl('ic-feed').innerHTML='';
+ const c=activeClasses().find(x=>x.id===IC.cid),g=gMeta(IC.game);
+ icEl('ic-nadpis').innerHTML='INFO<em>CENTRUM</em> · '+esc(c?classLabel(c):'—')+' · '+esc(g.nm);
+ icTik(true);IC.timer=setInterval(()=>icTik(false),6000);
+}
+async function icTik(prvni){
+ if(IC.bezi)return;IC.bezi=true;const stav=icEl('ic-stav');
+ try{
+  const ids=[...membersOfClass(IC.cid)];
+  const rows=await RPGCloud.listSavesLite(IC.game,ids,prvni?'':IC.cursor);
+  if(rows===null)throw new Error('načtení selhalo');
+  const zmenene=rows.map(r=>RPGInfo.stav(r)).filter(s=>s.uid);
+  let nejnovejsi=IC.cursor?Date.parse(IC.cursor)+5000:0;
+  zmenene.forEach(s=>{IC.stavy[RPGInfo.klic(s)]=s;const t=Date.parse(s.updated);if(isFinite(t)&&t>nejnovejsi)nejnovejsi=t;});
+  if(nejnovejsi)IC.cursor=new Date(nejnovejsi-5000).toISOString();
+  const vsichni=Object.values(IC.stavy),ted=Date.now();
+  let nove=[];
+  if(prvni){
+   IC.pamet=RPGInfo.pamet(vsichni);
+   const ulozeno=icNacti(),on=vsichni.filter(s=>RPGInfo.online(s.updated,ted)).length;
+   if(ulozeno){IC.start=ulozeno.start;IC.zaklad=ulozeno.zaklad;IC.cil=ulozeno.cil;}
+   else{IC.start=ted;IC.zaklad=RPGInfo.zaklad(vsichni);IC.cil=RPGInfo.novyCil(on);}
+   RPGInfo.doplnZaklad(IC.zaklad,vsichni);
+  }else{
+   nove=RPGInfo.udalosti(IC.pamet,zmenene);
+   Object.assign(IC.pamet,RPGInfo.pamet(zmenene));
+   RPGInfo.doplnZaklad(IC.zaklad,zmenene);
+  }
+  const hraci=vsichni.map(s=>({uid:s.uid,jmeno:s.jmeno,level:s.level,updated:s.updated,on:RPGInfo.online(s.updated,ted),prir:RPGInfo.prirustek(s,IC.zaklad)}));
+  const on=hraci.filter(h=>h.on).length,sum=RPGInfo.souhrn(hraci);
+  const p=RPGInfo.posun(IC.cil,sum.ukoly,on);IC.cil=p.cil;
+  nove.forEach(e=>IC.udal.unshift({e,t:ted}));IC.udal=IC.udal.slice(0,7);
+  icKresli(hraci,sum,p,nove);
+  if(p.postoupila)icOslava(IC.cil.stupen);
+  icUloz();
+  if(IC.tik++%3===0||IC.bojId)await icTymy();
+  stav.classList.remove('zle');stav.innerHTML='✓ aktualizováno <b>'+new Date().toLocaleTimeString('cs-CZ')+'</b>';
+ }catch(e){stav.classList.add('zle');stav.textContent='⚠ nepodařilo se načíst — zkouším dál';console.warn('[infocentrum]',e);}
+ IC.bezi=false;
+}
+function icAgo(iso,ted){const t=Date.parse(iso);if(!isFinite(t))return '—';const s=Math.max(0,Math.round((ted-t)/1000));return s<60?'před '+s+' s':s<3600?'před '+Math.round(s/60)+' min':'před '+Math.round(s/3600)+' h';}
+function icKresli(hraci,sum,p,nove){
+ const ted=Date.now(),redukce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+ const box=icEl('ic-cards'),serazeni=RPGInfo.seradit(hraci),mx=Math.max(10,...hraci.map(h=>h.prir.ukoly));
+ const pred={};[...box.children].forEach(el=>{pred[el.dataset.k]=el.getBoundingClientRect();});
+ serazeni.forEach((h,i)=>{
+  const k=h.uid;let el=box.querySelector('[data-k="'+(window.CSS&&CSS.escape?CSS.escape(k):k)+'"]');
+  if(!el){el=document.createElement('div');el.className='ic-card';el.dataset.k=k;
+   el.innerHTML='<div class="ic-av"><span></span><i></i></div><div class="ic-nm"></div><div class="ic-last"></div><div class="ic-gain"><div class="ic-track"><u></u></div><b></b></div>';box.appendChild(el);}
+  el.classList.toggle('off',!h.on);
+  el.querySelector('.ic-av span').textContent=Array.from(h.jmeno)[0]||'?';
+  el.querySelector('.ic-av').style.background=icBarva(h.uid);
+  el.querySelector('.ic-nm').textContent=h.jmeno;
+  el.querySelector('.ic-last').textContent=h.on?'LV '+h.level+' · '+icAgo(h.updated,ted):'právě nehraje';
+  el.querySelector('.ic-track u').style.width=(h.prir.ukoly/mx*100)+'%';
+  el.querySelector('.ic-gain b').textContent=h.prir.ukoly?'+'+RPGInfo.ukolu(h.prir.ukoly)+' · '+RPGInfo.misi(h.prir.mise):'—';
+  el.style.order=i;
+ });
+ IC.poradi=serazeni.map(h=>h.uid);
+ if(!redukce)[...box.children].forEach(el=>{const a=pred[el.dataset.k],b=el.getBoundingClientRect();if(!a)return;const dx=a.left-b.left,dy=a.top-b.top;
+  if(dx||dy){el.style.transition='none';el.style.transform='translate('+dx+'px,'+dy+'px)';requestAnimationFrame(()=>requestAnimationFrame(()=>{el.style.transition='transform .7s steps(10),border-color .3s,box-shadow .3s';el.style.transform='';}));}});
+ nove.forEach(e=>{const el=box.querySelector('[data-k="'+(window.CSS&&CSS.escape?CSS.escape(e.uid):e.uid)+'"]');if(!el)return;const c=e.typ==='oblast'?'boss':'pop';el.classList.add(c);setTimeout(()=>el.classList.remove(c),c==='boss'?1500:1800);});
+ icEl('ic-onl').textContent=hraci.filter(h=>h.on).length+' z '+hraci.length+' ve hře';
+ icEl('ic-gv').textContent=p.vStupni;icEl('ic-gt').textContent=IC.cil.krok;icEl('ic-gb').style.width=(p.vStupni/IC.cil.krok*100)+'%';icEl('ic-stg').textContent='stupeň '+IC.cil.stupen;
+ icEl('ic-steps').innerHTML='stupně: '+Array.from({length:Math.max(5,IC.cil.stupen)},(_,k)=>'<i class="'+(k<IC.cil.stupen-1?'d':'')+'"></i>').join('');
+ icEl('ic-sm').textContent=sum.mise;icEl('ic-so').textContent=sum.oblasti;icEl('ic-sa').textContent=sum.ach;
+ const f=icEl('ic-feed');f.innerHTML='';
+ IC.udal.forEach(u=>{const r=document.createElement('div');r.className='ic-ev '+u.e.typ;
+  const ic=document.createElement('span');ic.className='ic';ic.textContent={oblast:'⚔',mise:'✓',uroven:'★',odznak:'◆'}[u.e.typ]||'•';
+  const tx=document.createElement('span');tx.textContent=RPGInfo.text(u.e,icNazvyMisi());
+  const tm=document.createElement('time');tm.textContent=icAgo(new Date(u.t).toISOString(),ted).replace('před ','');
+  r.append(ic,tx,tm);f.appendChild(r);});
+ icEl('ic-hod').innerHTML='hodina běží <b>'+Math.max(0,Math.round((ted-IC.start)/60000))+' min</b>';
+}
+function icNazvyMisi(){const o={};missionsFor(IC.game).forEach(m=>{o[m.id]=m.name;});return o;}
+function icBarva(uid){let h=0;for(const c of String(uid))h=(h*31+c.charCodeAt(0))>>>0;return ['#19e6e6','#ff9d5c','#b48cff','#39ff9e','#ff5d7f','#f4d03f','#5aa9ff','#ff8ad8'][h%8];}
+async function icTymy(){
+ const sek=icEl('ic-tymy');
+ try{
+  let st=null;
+  if(IC.bojId)st=await RPGCloud.battleState(IC.bojId);
+  if(!st||!RPGInfo.tymy(st)){
+   IC.bojId=null;st=null;
+   const sez=(await RPGCloud.listActiveBattles()||[]).filter(b=>!b.game||b.game===IC.game).slice(0,3);
+   for(const b of sez){const s=await RPGCloud.battleState(b.id);if(s&&RPGInfo.tymy(s)){IC.bojId=b.id;st=s;break;}}
+  }
+  const t=st?RPGInfo.tymy(st):null;
+  sek.hidden=!t;if(!t)return;
+  const [a,b]=t.skore;
+  icEl('ic-t1').textContent=a;icEl('ic-t2').textContent=b;icEl('ic-t1').style.flex=Math.max(1,a);icEl('ic-t2').style.flex=Math.max(1,b);
+  icEl('ic-tn1').textContent=t.modry.join(', ')||'—';icEl('ic-tn2').textContent=t.cerveny.join(', ')||'—';
+ }catch(e){sek.hidden=true;console.warn('[infocentrum] týmy',e);}
+}
+function icOslava(stupen){
+ const l=icEl('ic-lv');l.querySelectorAll('.ic-px').forEach(x=>x.remove());icEl('ic-lvh').textContent='STUPEŇ '+stupen;
+ if(!matchMedia('(prefers-reduced-motion: reduce)').matches)for(let i=0;i<28;i++){const p=document.createElement('i');p.className='ic-px';
+  p.style.setProperty('--dx',(Math.random()*900-450)+'px');p.style.setProperty('--dy',(Math.random()*520-300)+'px');p.style.background=['#f4d03f','#19e6e6','#fff','#39ff9e'][i%4];l.appendChild(p);}
+ l.classList.remove('on');void l.offsetWidth;l.classList.add('on');setTimeout(()=>l.classList.remove('on'),3000);
+}
+function icNova(){
+ const vsichni=Object.values(IC.stavy),on=vsichni.filter(s=>RPGInfo.online(s.updated,Date.now())).length;
+ IC.start=Date.now();IC.zaklad=RPGInfo.zaklad(vsichni);IC.cil=RPGInfo.novyCil(on);IC.udal=[];icUloz();
+ const ted=Date.now(),hraci=vsichni.map(s=>({uid:s.uid,jmeno:s.jmeno,level:s.level,updated:s.updated,on:RPGInfo.online(s.updated,ted),prir:RPGInfo.prirustek(s,IC.zaklad)}));
+ icKresli(hraci,RPGInfo.souhrn(hraci),RPGInfo.posun(IC.cil,0,on),[]);
+}
+function icCela(){
+ const r=icEl('ic-root');
+ if(document.fullscreenElement){document.exitFullscreen();return;}
+ const f=r.requestFullscreen||r.webkitRequestFullscreen;
+ if(f){f.call(r).catch(()=>{r.classList.toggle('ic-proj');});}else r.classList.toggle('ic-proj');
+}
+document.addEventListener('fullscreenchange',()=>{icEl('ic-root').classList.toggle('ic-proj',document.fullscreenElement===icEl('ic-root'));});
+document.addEventListener('keydown',e=>{
+ if((e.key==='f'||e.key==='F')&&_tabAktualni==='infocentrum'&&!/^(INPUT|TEXTAREA|SELECT)$/.test((e.target&&e.target.tagName)||'')&&!e.ctrlKey&&!e.metaKey&&!e.altKey){e.preventDefault();icCela();}
+});
 
 let _tabAktualni = 'overview';
 
@@ -2409,6 +2669,8 @@ document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
  const tab=t.dataset.tab; _tabAktualni=tab;
  document.getElementById('t-overview').classList.toggle('hidden',tab!=='overview');
  document.getElementById('t-classes').classList.toggle('hidden',tab!=='classes');
+ document.getElementById('t-infocentrum').classList.toggle('hidden',tab!=='infocentrum');
+ if(tab!=='infocentrum')infoStop();
  document.getElementById('t-assignments').classList.toggle('hidden',tab!=='assignments');
  document.getElementById('t-preview').classList.toggle('hidden',tab!=='preview');
  document.getElementById('t-diag').classList.toggle('hidden',tab!=='diag');
@@ -2421,6 +2683,7 @@ document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
  document.getElementById('t-teachers').classList.toggle('hidden',tab!=='teachers');
  document.getElementById('t-audit').classList.toggle('hidden',tab!=='audit');
  if(tab==='classes'){renderClasses();renderBroadcasts();}
+ if(tab==='infocentrum')initInfocentrum();
  if(tab==='assignments')renderAssignments();
  if(tab==='teachers')loadTeachers();
  if(tab==='audit')loadAudit();
@@ -2448,6 +2711,7 @@ document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
 
 <script src="vendor/supabase-js-2.118.0.js"></script>
 <script src="./rpg-cloud.js"></script>
+<script src="./rpg-infocentrum.js?v=20261104"></script>
 <script>boot();</script>
 </body>
 </html>

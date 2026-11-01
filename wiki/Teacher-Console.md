@@ -21,6 +21,7 @@ Učitele přidává superadmin v záložce **SPRÁVA UČITELŮ**.
 |---|---|---|
 | PŘEHLED ŽÁKŮ | učitel | tabulka žáků, online stav, export CSV, detail žáka, zaškrtávátko **Skrýt učitele** |
 | TŘÍDY | učitel | třídy s ročníkovou kohortou (po 1. 9. se posunou samy), hromadné vzkazy |
+| 📡 INFOCENTRUM | učitel | obrazovka pro dataprojektor při hodině: karty žáků řazené podle úkolů a misí splněných v hodině, události, automatický cíl s animací postupu, týmy z živého souboje (klávesa F = celá obrazovka; žádné počty chyb) |
 | 📋 ÚKOLY | učitel | „procvič misi X do data", žák to vidí ve hře |
 | DIAGNOSTIKA | učitel | kde třída tápe: chybovost po misích a trend |
 | 📝 PŘIJÍMAČKY | 9. ročník | připravenost žáků a slabé okruhy celé třídy |
