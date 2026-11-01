@@ -214,6 +214,30 @@ const STRANKY = ['index', 'test', 'procvicovani', 'diagnostika', 'statistiky', '
           }
           const sw2 = await js(sid, 'return document.documentElement.scrollWidth<=innerWidth+1');
           ok(sw2, hra + ': boj nepřetéká vodorovně');
+
+          /* trénink, teorie a věž: na šířku (≥ 900 px) dvě části vedle sebe (rpg-siroke.css), na výšku beze změny — v SKUTEČNÉM WebKitu
+             (jiná podpora `:has()` uvnitř `:not()`, `column-span`, `[style*=…]` než v Chromiu) */
+          const naSirku = w > h && w >= 900;
+          await js(sid, 'go("train"); renderTrainPicker();'); await sleep(300);
+          const tv = await js(sid, 'const p=[...document.querySelectorAll("#train-list > .panel, #train-list > .train-area")].map(e=>Math.round(e.getBoundingClientRect().left/4));return {oblasti:p.length,sloupcu:new Set(p).size,hra:getComputedStyle(document.getElementById("train-play")).display,sw:document.documentElement.scrollWidth,iw:innerWidth}');
+          ok(tv.oblasti >= 7 && (naSirku ? tv.sloupcu >= 2 : tv.sloupcu === 1) && tv.hra === 'none' && tv.sw <= tv.iw + 1, hra + ': výběr tréninku — oblasti ' + (naSirku ? 'vedle sebe' : 'pod sebou') + ', procvičování skryté', JSON.stringify(tv));
+          await js(sid, 'const v=[...document.querySelectorAll("#train-list .ms-item, #train-list .train-item")];v[4].setAttribute("data-sonda","1")');
+          await klik(sid, '#train-list [data-sonda="1"]'); await sleep(500);
+          const th = await js(sid, 'const s=document.querySelector("#train-play > :first-child").getBoundingClientRect(),p=document.getElementById("tr-prob").getBoundingClientRect();return {disp:getComputedStyle(document.getElementById("train-play")).display,vedle:p.left>=s.right+8,sw:document.documentElement.scrollWidth,iw:innerWidth,pick:document.getElementById("train-picker").offsetParent===null,err:window.__err}');
+          ok(th.disp === (naSirku ? 'grid' : 'block') && th.vedle === naSirku && th.pick && th.sw <= th.iw + 1 && th.err.length === 0, hra + ': klik na téma spustí trénink (' + (naSirku ? 'stav vlevo, úloha vpravo' : 'pod sebou') + ')', JSON.stringify(th));
+          await snimek(sid, vp + '-g' + g + '-trenink');
+          await js(sid, 'startLearn(AREAS[0].missions[0].id)'); await sleep(400);
+          const te = await js(sid, 'const c=document.getElementById("learn-content");const r=c.getBoundingClientRect();let v=0;c.querySelectorAll("*").forEach(e=>{const q=e.getBoundingClientRect();if(q.width&&(q.right>r.right+2||q.left<r.left-2))v++});return {sloupcu:getComputedStyle(c).columnCount,vyc:v,sw:document.documentElement.scrollWidth,iw:innerWidth,err:window.__err}');
+          ok(te.sloupcu === (naSirku ? '2' : 'auto') && te.vyc === 0 && te.sw <= te.iw + 1 && te.err.length === 0, hra + ': teorie — ' + (naSirku ? 'dva sloupce' : 'jeden sloupec') + ', nic nevyčnívá', JSON.stringify(te));
+          await snimek(sid, vp + '-g' + g + '-teorie');
+          if (g >= 6) {
+            await js(sid, 'window.__TW_TESTNOW="2026-05-15T10:00:00";go("tower");renderTowerGate();'); await sleep(900);
+            const vz = await js(sid, 'const cv=document.getElementById("tw-canvas"),x=cv.getContext("2d"),W=cv.width,H=cv.height;const d=x.getImageData(W-3,0,3,H).data;let n=0;for(let i=0;i<d.length;i+=4)if(Math.max(d[i],d[i+1],d[i+2])>140)n++;const p=document.querySelector("#s-tower .wrap > .panel").getBoundingClientRect(),b=document.getElementById("tw-gate").getBoundingClientRect();return {bmp:W,cssW:Math.round(cv.getBoundingClientRect().width),okraj:n,vedle:b.left>=p.right+8,sw:document.documentElement.scrollWidth,iw:innerWidth,err:window.__err}');
+            ok(vz.vedle === naSirku && vz.okraj === 0 && vz.bmp >= 300 && vz.sw <= vz.iw + 1 && vz.err.length === 0, hra + ': věž — ' + (naSirku ? 'věž vlevo, brána vpravo' : 'pod sebou') + ', hrdina nevyčnívá z plátna', JSON.stringify(vz));
+            await klik(sid, '#tw-gate-actions .btn'); await sleep(600);
+            ok(await js(sid, 'return TW.on&&document.getElementById("tw-play").offsetParent!==null'), hra + ': klik na vstup do věže spustí výstup');
+            await snimek(sid, vp + '-g' + g + '-vez');
+          }
         } catch (e) { fail++; nalezy.push(hra + ' VÝJIMKA: ' + e.message); console.log('  ❌ ' + hra + ': výjimka: ' + e.message); }
       }
     }
