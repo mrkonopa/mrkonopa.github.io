@@ -21,7 +21,7 @@ for (const g of [3, 4, 5, 6, 7, 8, 9]) OBRAZOVKY.push({ url: `/projects/rpg-mat-
   ['boj po chybě + nápověda', `const inp = document.getElementById('bt-ans'); if (inp) { inp.value = '987654'; submitAnswer(); } if (window.showHint) { showHint(); showHint(); }`],
   ['trénink + chyba + nápověda', `go('train'); startTrain(AREAS[3].missions[1].id); const a = document.getElementById('tr-ans'); if (a && a.offsetParent) { a.value = '987654'; trSubmit(); } if (window.trHint) { trHint(); trHint(); }`],
   ['teorie', `startLearn(AREAS[0].missions[0].id);`],
-  ['profil', `go('profile'); if (window.renderProfile) renderProfile();`],
+  ['profil', `S.ach = S.ach || {}; if (typeof ACH !== 'undefined') ACH.slice(0, 2).forEach(a => { S.ach[a.id] = S.ach[a.id] || '2026-11-01'; }); go('profile'); if (window.renderProfile) renderProfile();`],
   ['obchod', `go('shop'); if (window.renderShop) renderShop();`],
   ...(g >= 6 ? [['věž', `go('tower'); if (window.renderTowerGate) renderTowerGate(); if (window.twStart) twStart();`]] : []),
 ] });

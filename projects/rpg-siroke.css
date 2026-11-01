@@ -72,3 +72,15 @@
   #s-tower{--tw-zoom:2}
   #s-tower .wrap{grid-template-columns:minmax(610px,1fr) minmax(0,1.2fr)}
 }
+
+/* ÚVOD NA VELKÉ OBRAZOVCE (1. 11. 2026): od 900 px na šířku vlevo název a hrdina (plátno `.intro-hrdina` kreslí `rpg-shared.js`),
+   vpravo jméno a tlačítko. Telefon a tablet na výšku beze změny (plátno je tam skryté). Změřeno předtím: obsah úvodu byl na monitoru
+   35 % šířky a končil v 45 % výšky. Styl je vázaný na `.active`, ne jen na id (jinak by přebil `.screen{display:none}`). */
+@media (min-width:900px) and (orientation:landscape){
+  #s-intro.active{min-height:100vh;display:flex;align-items:center;justify-content:center}
+  #s-intro .wrap{max-width:1240px;width:100%;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:56px;align-items:center}
+  #s-intro .wrap>*{grid-column:2}
+  #s-intro .wrap>div:has(.intro-title){grid-column:1;grid-row:1/span 4;padding:0!important}
+  #s-intro .intro-title{font-size:64px}
+  #s-intro .intro-hrdina{display:block;margin:28px auto 0}
+}
