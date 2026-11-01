@@ -147,7 +147,7 @@ const ODDILY = {
     await zmen(p, 'z4', klice('1-1', 6)); await zmen(p, 'z5', klice('1-1', 2)); await tik(p);
     const por = await p.evaluate(() => IC.poradi.join());
     f(por.startsWith('z4,z5,'), 'nahoře je ten, kdo v hodině splnil nejvíc úkolů (6, pak 2)', por);
-    f(por === 'z4,z5,z6,z2,z1,z3,z4'.replace(',z4', '').replace('z4,z5,z6,z2,z1,z3', 'z4,z5,z6,z2,z1,z3') || por === 'z4,z5,z6,z2,z1,z3', 'zbylí s nulou jdou abecedně česky („<img O.“, Adam, Anna, Barbora)', por);
+    f(por === 'z4,z5,z6,z2,z1,z3', 'zbylí s nulou jdou abecedně česky („<img O.“, Adam, Anna, Barbora)', por);
     const t = await p.evaluate(() => document.querySelector('#ic-cards [data-k="z4"] .ic-gain b').textContent.replace(/ /g, ' '));
     f(/\+6 úkolů · 1 mise/.test(t), 'karta ukazuje přírůstek „+6 úkolů · 1 mise“', t);
     const prvni = await p.evaluate(() => document.querySelector('#ic-cards [data-k="z4"]').style.order);
