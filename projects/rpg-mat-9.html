@@ -2076,9 +2076,16 @@ function launchBattle(aid,mid){
  }
  renderTask();
  // Lock input during boss entry animation (~600 ms shake); re-enable after it settles
- {const inpEl=document.getElementById('bt-ans');const atkEl=document.getElementById('attack-btn');
+ /* Odemknout smí jen TENTÝŽ boj a jen dokud úloha není zodpovězená (DÁLE nevidět). Dřív časovač odemkl pole i ÚTOK
+    bezpodmínečně, takže 700 ms starý časovač PŘEDCHOZÍHO boje (nebo vlastní, po rychlé odpovědi) vrátil ÚTOK
+    a pole k už zodpovězené úloze — pr83-boss-hp padal zhruba 1 běh ze 3 (naměřeno 1. 11. 2026). Vzor: poCase. */
+ {const inpEl=document.getElementById('bt-ans');const atkEl=document.getElementById('attack-btn');const bid=BT._bid;
   if(inpEl)inpEl.disabled=true;if(atkEl)atkEl.disabled=true;
-  setTimeout(()=>{if(!BT.bossDefeated){if(inpEl)inpEl.disabled=false;if(atkEl)atkEl.disabled=false;if(inpEl&&!BT.mcMode&&!isYN(BT.curTask))fokusVstup(inpEl,document.getElementById('bt-input-row'));}},700);}
+  setTimeout(()=>{
+   if(BT._bid!==bid||BT.bossDefeated)return;
+   const dale=document.getElementById('next-btn');if(dale&&dale.style.display!=='none')return;
+   if(inpEl)inpEl.disabled=false;if(atkEl)atkEl.disabled=false;if(inpEl&&!BT.mcMode&&!isYN(BT.curTask))fokusVstup(inpEl,document.getElementById('bt-input-row'));
+  },700);}
  go('battle');
  if(typeof RPGTutorial!=='undefined')RPGTutorial.maybe(S,saveS,stopTimer,startTimer);
 }

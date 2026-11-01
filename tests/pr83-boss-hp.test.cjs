@@ -66,7 +66,7 @@ const ok=(c,m)=>{if(c){pass++;console.log('  ✓ '+m);}else{fail++;console.log('
 
   console.log('— text-input mise: zámek tlačítka ÚTOK —');
   // přepni na 1-2 (text input)
-  await page.evaluate(()=>{go('map');launchBattle(1,'1-2');});
+  await page.evaluate(()=>{go('map');launchBattle(1,'1-2');window.__t12=performance.now();});
   await page.waitForFunction(()=>document.querySelector('#s-battle')?.classList.contains('active'));
   // Pool 1-2 míchá text/ANO-NE úlohy a ~1/3 kol je minigame (spojovačka/řazení) →
   // vynuť čisté text-input kolo, jinak submitAnswer nemá kam psát a test visí.
@@ -83,22 +83,22 @@ const ok=(c,m)=>{if(c){pass++;console.log('  ✓ '+m);}else{fail++;console.log('
   await page.waitForFunction(()=>document.getElementById('next-btn').style.display!=='none');
   ok(await page.evaluate(()=>document.getElementById('attack-btn').disabled),'ÚTOK je po správné odpovědi disabled');
   ok(await page.evaluate(()=>document.getElementById('bt-ans').disabled),'input je disabled');
+  // ⚠ Zámek při vstupu bosse (launchBattle, 700 ms) odemykal pole a ÚTOK bezpodmínečně, takže ho vrátil i ke
+  // zodpovězené úloze — a to časovač PŘEDCHOZÍHO boje (1-1, spuštěn těsně před 1-2; odemkl ~300 ms po startu
+  // 1-2) i vlastní. Původní dvě kontroly výše to chytaly jen když stroj zpomalil o desítky ms mezi odpovědí
+  // a kontrolou (1 běh ze 3–6). Tady se horší větev vynutí POKAŽDÉ: počká se, až oba časovače doběhnou.
+  // Čeká se časovačem na hodinách stránky na čas startu + 800 ms; časovače se spouštějí podle splatnosti,
+  // takže ten, co je splatný na 700 ms, běží dřív než tenhle — pořadí nezávisí na rychlosti stroje.
+  await page.evaluate(()=>new Promise(r=>setTimeout(r,Math.max(0,window.__t12+800-performance.now()))));
+  ok(await page.evaluate(()=>document.getElementById('attack-btn').disabled),'ÚTOK zůstává disabled i po doběhu vstupních časovačů (zbytkový z 1-1 i vlastní)');
+  ok(await page.evaluate(()=>document.getElementById('bt-ans').disabled),'input zůstává disabled i po doběhu vstupních časovačů');
   await page.evaluate(()=>nextTask());
-  // ⚠ ZÁVOD: dřív tu bylo pevných 150 ms a pak rovnou kontrola. Jenže hra
-  // odemyká ÚTOK až po překreslení úkolu, takže na pomalejším stroji ještě
-  // zamčený byl — naměřeno sondou: při vzorku ve 200 ms vyšel zamčený ve
-  // 4 z 6 běhů, při volnějším běhu v 0 ze 4, a při vzorkování v čase
-  // 200/400/600/1200/2500 ms byl odemčený POKAŽDÉ už na prvním vzorku.
-  // Tedy kolísání stroje, ne vada hry (dítě se k tlačítku dostane).
-  // Proto se teď ČEKÁ NA PODMÍNKU. Tvrzení se tím neoslabuje: když se
-  // tlačítko neodemkne vůbec, čekání vyprší a kontrola spadne.
-  await page.waitForTimeout(150);
-  const ynNow=await page.evaluate(()=>document.getElementById('yn-row').style.display!=='none');
-  if(!ynNow){
-    await page.waitForFunction(()=>!document.getElementById('attack-btn').disabled,null,{timeout:4000}).catch(()=>{});
-    ok(await page.evaluate(()=>!document.getElementById('attack-btn').disabled),'ÚTOK je po DÁLE zase enabled');
-  }
-  else console.log('  (další úkol je ANO/NE — zámek tlačítka se netýká)');
+  // (Dřívější pevných 150 ms před kontrolou nebyla příčina nestability — ta byla ve hře, viz zámek výše.)
+  // daleZpet() (rpg-shared.js) běží na začátku KAŽDÉHO renderTask — i před ANO/NE řádkem a minihrou — takže ÚTOK
+  // se po DÁLE odemkne vždy a kontrola se nesmí přeskakovat podle druhu dalšího kola (dřív větev `ynNow`).
+  // Čeká se na podmínku s horní mezí; když se tlačítko neodemkne vůbec, čekání vyprší a kontrola spadne.
+  await page.waitForFunction(()=>!document.getElementById('attack-btn').disabled,null,{timeout:4000}).catch(()=>{});
+  ok(await page.evaluate(()=>!document.getElementById('attack-btn').disabled),'ÚTOK je po DÁLE zase enabled');
 
   console.log('— stale attack guard (BT._bid) —');
   // vyvolej špatnou odpověď → monsterAttack s 1s callbackem; hned přepni misi
