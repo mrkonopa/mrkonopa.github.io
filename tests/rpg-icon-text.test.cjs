@@ -97,6 +97,10 @@ function serve() {
         zkus('oblast', () => renderArea(AREAS[0].id));
         zkus('profil', () => renderProfile());
         if (typeof renderTrainPicker === 'function') zkus('trénink', () => renderTrainPicker());
+        /* Titulek ROZEHRANÉHO tréninku (`#tr-title`) dělá `startTrain`, ne výběr tématu —
+           ve 2. stupni tam stálo `ar.icon + ' ' + název` („fraction Hodnota výrazu“) a test ho
+           nikdy nevykreslil, protože zkoušel jen výběr. */
+        if (typeof startTrain === 'function') zkus('trénink-hra', () => { go('train'); startTrain(AREAS[0].missions[0].id); });
         if (typeof renderShop === 'function') zkus('obchod', () => renderShop());
         return { uniky: [...new Set(uniky)], videno };
       }, JMENA);

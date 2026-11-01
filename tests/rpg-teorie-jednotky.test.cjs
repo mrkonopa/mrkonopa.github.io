@@ -70,13 +70,13 @@ const ok=(c,m)=>{ if(c){pass++;console.log('  ✅ '+m);} else {fail++;console.lo
     ok(r.misi===21, g+'. ročník: otevřeno '+r.misi+' z 21 teorií');
     ok(r.spatne.length===0, g+'. ročník: v žádné teorii nezůstalo „číslo mezera jednotka" s obyčejnou mezerou'
       + (r.spatne.length?' — '+r.spatne.length+'×: '+r.spatne.slice(0,3).join(' · '):''));
-    ok(r.pevnych>=50, g+'. ročník: pevná mezera je skutečně v textu ('+r.pevnych+' míst, naměřeno 64–355, podlaha 50)');
+    ok(r.pevnych>=50, g+'. ročník: pevná mezera je skutečně v textu ('+r.pevnych+' míst, naměřeno 64–235, podlaha 50)');
     ok(r.svgZmena===0, g+'. ročník: text uvnitř SVG zůstal beze změny ('+r.svgUzlu+' uzlů)');
     ok(errs.length===0, g+'. ročník: žádná chyba stránky'+(errs.length?' — '+errs[0]:''));
     await ctx.close();
   }
 
-  ok(celkemPevnych>=1000, 'celkem pevných mezer v teorii: '+celkemPevnych+' (naměřeno 1209, podlaha 1000)');
+  ok(celkemPevnych>=800, 'celkem pevných mezer v teorii: '+celkemPevnych+' (naměřeno 929, podlaha 800; dřív 1209, ale blok „Časté chyby“ se počítal 2–3× u každé teorie 2. stupně)');
   await browser.close(); srv.close();
   console.log(`\n${pass} ✅ / ${fail} ❌`);
   process.exit(fail?1:0);

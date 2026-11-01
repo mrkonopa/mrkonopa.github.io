@@ -1957,11 +1957,11 @@ function renderLearn(mid,m){
   html+='</div>';
  }
  (L.examples||[]).forEach(ex=>{
- if(L.mistakes&&L.mistakes.length){html+='<div class="learn-mistakes"><h3>⚠️ Časté chyby</h3>';L.mistakes.forEach(mi=>{html+=`<div class="mi"><div class="mi-w">✗ ${esc2(mi.wrong)}</div><div class="mi-r">✓ ${esc2(mi.right)}</div>`+(mi.why?`<div class="mi-why">${esc2(mi.why)}</div>`:'')+'</div>';});html+='</div>';}
   html+=`<div class="learn-example"><div class="ex-q">📝 ${esc2(ex.q)}</div><div class="ex-s">`;
   (Array.isArray(ex.s)?ex.s:[ex.s]).forEach(step=>{html+=step+'<br>';});
   html+='</div></div>';
  });
+ if(L.mistakes&&L.mistakes.length){html+='<div class="learn-mistakes"><h3>⚠️ Časté chyby</h3>';L.mistakes.forEach(mi=>{html+=`<div class="mi"><div class="mi-w">✗ ${esc2(mi.wrong)}</div><div class="mi-r">✓ ${esc2(mi.right)}</div>`+(mi.why?`<div class="mi-why">${esc2(mi.why)}</div>`:'')+'</div>';});html+='</div>';}
  if(L.video){
   html+=`<div style="margin-top:16px"><a class="learn-video" href="https://www.youtube.com/watch?v=${L.video.id}" target="_blank" rel="noopener">▶ VIDEO: ${esc2(L.video.title)}</a></div>`;
  }
@@ -2752,7 +2752,7 @@ function startTrain(mid){
  TR.revive=reviveState(mid).due?{count:0,earned:false}:null;
  document.getElementById('train-picker').style.display='none';
  document.getElementById('train-play').style.display='block';
- document.getElementById('tr-title').textContent=ar.icon+' '+TR.m.name;
+ {const _t=document.getElementById('tr-title');_t.textContent='';if(typeof RPGIcons!=='undefined'){const _s=document.createElement('span');_s.style.cssText='display:inline-flex;vertical-align:middle;margin-right:6px;line-height:0';_s.innerHTML=RPGIcons.svg(ar.icon,12);_t.appendChild(_s);}_t.appendChild(document.createTextNode(TR.m.name));}
  document.getElementById('tr-msgoal').textContent=MASTERY_GOAL;
  trReviveChip();
  trStats();
