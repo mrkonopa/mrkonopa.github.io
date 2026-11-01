@@ -25,3 +25,19 @@
   #s-area #area-head{grid-column:1;position:sticky;top:12px}
   #s-area #mission-list{grid-column:2}
 }
+
+/* BOJ na velké obrazovce (monitor, dataprojektor; šířka ≥ 1400, výška > 860 — tablet na šířku má vlastní rozvržení v hrách):
+   dva sloupce jako na tabletu, aréna dvakrát větší (--bt-zoom čte rpg-sprite-core.js), úloha vedle ní. */
+@media (min-width:1400px) and (min-height:861px) and (orientation:landscape){
+  #s-battle{--bt-zoom:2}
+  #s-battle .wrap{max-width:1560px}
+  #s-battle .bt-cols{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(420px,1fr);column-gap:24px;align-items:start}
+  #s-battle .bt-col-arena,#s-battle .bt-col-task{display:block;min-width:0}
+}
+
+/* OBCHOD na tabletu na šířku a na počítači: karty vedle sebe (3–4 místo dvou), stránka až 1240 px.
+   Telefon a tablet na výšku zůstávají beze změny. */
+@media (min-width:900px) and (orientation:landscape){
+  #s-shop .wrap{max-width:1240px}
+  #s-shop .shop-grid{grid-template-columns:repeat(auto-fill,minmax(240px,1fr))}
+}

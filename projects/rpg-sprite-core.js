@@ -151,9 +151,20 @@ window.RPGSpriteCore = (function () {
     }
     const active = () => !!(cv && cv.isConnected);
 
+    /* Celočíselné zvětšení plátna na velké obrazovce (monitor, dataprojektor): stránka
+       nastaví --bt-zoom: 2, bitmapa zůstane stejně velká jako dřív (CSS šířka / 2) a
+       prohlížeč ji zvětší přesně dvakrát (image-rendering: pixelated), takže se rozložení
+       aréna → hrdina / boss nezmění a pixely jsou stále celé. Bez vlastnosti = 1. */
+    function zoom() {
+      if (!cv || typeof getComputedStyle !== 'function') return 1;      // napodobené DOM v Node testech funkci nemá
+      const z = parseFloat(getComputedStyle(cv).getPropertyValue('--bt-zoom'));
+      return z >= 2 ? 2 : 1;
+    }
     function resize() {
       if (!cv) return;
-      const w = cv.clientWidth || 600;
+      const z = zoom();
+      cv.style.height = (AR.h * z) + 'px';
+      const w = Math.round((cv.clientWidth || 600 * z) / z);
       cv.width = w; cv.height = AR.h;
       bgKey = '';                       // vynutí překreslení statického pozadí
     }
@@ -623,7 +634,7 @@ window.RPGSpriteCore = (function () {
       // Bitmapa plátna musí mít stejnou šířku jako jeho CSS box, jinak
       // prohlížeč obraz roztáhne a sprity vypadají protáhle. Při attach()
       // ještě není hotový layout (clientWidth = 0), dorovná se to tady.
-      if (cv.clientWidth && cv.width !== cv.clientWidth) resize();
+      if (cv.clientWidth && cv.width !== Math.round(cv.clientWidth / zoom())) resize();
       // zámraz úderu: 2 snímky se scéna vůbec neposune
       if (hold > 0 && !rm()) { hold--; render(lastNow); return; }
       const dt = Math.min(64, now - lastT); lastT = now; lastNow = now;
