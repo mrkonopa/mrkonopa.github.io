@@ -19,7 +19,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>RPG Matematika 3 — Kouzelný les</title>
 <link rel="stylesheet" href="../fonts/fonts.css">
-<link rel="stylesheet" href="./rpg-siroke.css?v=20261103">
+<link rel="stylesheet" href="./rpg-siroke.css?v=20261105">
 <style>
 :root{--bg:#0c1a0f;--panel:#143019;--panel2:#1c4026;--line:#2a5232;--gold:#f0c040;--blue:#4ab0e0;--red:#cc3333;--red-t:#ff7b7b;--green:#3ecc66;--purple:#9966cc;--text:#e8ecd8;--muted:#8fae89;--px:'Roboto Mono','VT323',monospace;--vt:'VT323',monospace;--read:'Lexend','Inter','Segoe UI',system-ui,-apple-system,Arial,sans-serif}
 *{box-sizing:border-box;margin:0;padding:0}
@@ -1678,12 +1678,13 @@ function renderTrainPicker(){
  document.getElementById('train-play').style.display='none';
  const list=document.getElementById('train-list');list.innerHTML='';
  AREAS.forEach(ar=>{
-  const hdr=document.createElement('div');hdr.style.cssText='font-family:var(--px);font-size:12px;color:var(--muted);letter-spacing:1px;padding:10px 0 4px;';hdr.textContent=ar.name.replace(/\n/g,' ');list.appendChild(hdr);
+  const grp=document.createElement('div');grp.className='train-area';list.appendChild(grp);   /* obal oblasti (jako .panel ve 2. stupni): na velké obrazovce se oblasti řadí vedle sebe */
+  const hdr=document.createElement('div');hdr.style.cssText='font-family:var(--px);font-size:12px;color:var(--muted);letter-spacing:1px;padding:10px 0 4px;';hdr.textContent=ar.name.replace(/\n/g,' ');grp.appendChild(hdr);
   ar.missions.forEach(m=>{
    const ms=masteryOf(m.id);const it=document.createElement('div');it.className='train-item'+(ms.mastered?' mastered':'');
    const hasLearn=window.RPG_LEARN_3&&window.RPG_LEARN_3[m.id];
    const rv=reviveState(m.id);const starTxt=ms.mastered&&rv.stars>0?' <span style="color:#ffd06a">'+'⭐'.repeat(rv.stars)+'</span>':'';const dueChip=rv.due?' <span style="color:#ffd06a;font-size:12px">🔁 k oživení</span>':'';const gapTxt=!ms.mastered?`${ms.score|0}/${MASTERY_GOAL}`:(rv.stars>=3?'⭐⭐⭐ navždy tvoje':(rv.due?'dnes k oživení!':'další hvězda za '+Math.max(1,rv.nextGap-rv.daysSince)+' '+(Math.max(1,rv.nextGap-rv.daysSince)===1?'den':(Math.max(1,rv.nextGap-rv.daysSince)<=4?'dny':'dní'))));it.innerHTML=`<div class="t-nm">${ms.mastered?'🏅':''}${starTxt}${dueChip} ${m.name}</div><div class="t-prog" style="font-size:12px;color:var(--muted)">${gapTxt}</div>${hasLearn?`<button class="learn-btn" onclick="startLearn('${m.id}');event.stopPropagation()">📖</button>`:''}`;
-   it.onclick=()=>startTrain(m.id);list.appendChild(it);
+   it.onclick=()=>startTrain(m.id);grp.appendChild(it);
   });
  });
 }

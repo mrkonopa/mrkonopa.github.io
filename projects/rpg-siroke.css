@@ -41,3 +41,34 @@
   #s-shop .wrap{max-width:1240px}
   #s-shop .shop-grid{grid-template-columns:repeat(auto-fill,minmax(240px,1fr))}
 }
+
+/* TRÉNINK, TEORIE a VĚŽ LEGEND na tabletu na šířku a na počítači (≥ 900 px, na šířku); telefon a tablet na výšku beze změny.
+   Trénink: výběr tématu = oblasti vedle sebe, procvičování = vlevo stav a postup (lepí se), vpravo úloha.
+   Teorie: dva sloupce jako noviny (nadpis a úvod přes obě), celá teorie se vejde na obrazovku.
+   Věž: vlevo věž (pixely ×2, --tw-zoom čte skript hry), vpravo brána, žebříček a výstup. */
+@media (min-width:900px) and (orientation:landscape){
+  #s-train .wrap,#s-learn .wrap,#s-tower .wrap{max-width:1240px}
+
+  #train-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));column-gap:14px;align-items:start}
+  /* #train-play přepíná skript přes style.display; mřížka platí jen u zobrazeného (style obsahuje „block“) */
+  #train-play[style*="block"]{display:grid!important;grid-template-columns:minmax(300px,.75fr) minmax(0,1.5fr);column-gap:24px;align-items:start}
+  #train-play>:first-child{grid-column:1;grid-row:1/span 12;position:sticky;top:12px}
+  #train-play>:not(:first-child){grid-column:2}
+
+  #learn-content{column-count:2;column-gap:32px}
+  #learn-content>.panel,#learn-content>.learn-intro{column-span:all}
+  #learn-content .learn-example,#learn-content .learn-mistakes,#learn-content .learn-formula,#learn-content .learn-section p{break-inside:avoid}
+  #learn-content .learn-section h3{break-after:avoid}
+
+  #s-tower .wrap{display:grid;grid-template-columns:minmax(300px,1fr) minmax(0,1.2fr);column-gap:24px;align-items:start}
+  #s-tower .wrap>.topnav{grid-column:1/-1}
+  #s-tower .wrap>.panel:has(>#tw-canvas){grid-column:1;grid-row:2/span 8;position:sticky;top:12px}
+  #s-tower .wrap>:not(.topnav):not(.panel:has(>#tw-canvas)){grid-column:2}
+}
+
+/* Věž ×2 až od 1400 px: bitmapa plátna musí mít aspoň 300 px (sloupec 610 px bez rámečku = 2 × 302), jinak hrdina na římse vyčnívá z plátna (u 6. a 8. ročníku
+   při 277 px o 2–3 px; na iPadu na šířku s 1180 px by to bylo ještě víc, proto tam zůstává ×1). */
+@media (min-width:1400px) and (orientation:landscape){
+  #s-tower{--tw-zoom:2}
+  #s-tower .wrap{grid-template-columns:minmax(610px,1fr) minmax(0,1.2fr)}
+}

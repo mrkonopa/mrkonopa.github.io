@@ -20,7 +20,7 @@
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="stylesheet" href="../fonts/fonts.css">
-<link rel="stylesheet" href="./rpg-siroke.css?v=20261103">
+<link rel="stylesheet" href="./rpg-siroke.css?v=20261105">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -3067,9 +3067,12 @@ const TW_CLEANER=[
 ];
 function twDrawCanvas(){
  const cv=document.getElementById('tw-canvas');if(!cv)return;
- const w=cv.clientWidth||600;
+ /* velká obrazovka: --tw-zoom (rpg-siroke.css) = bitmapa zůstává stejná, CSS ji zvětší celočíselně */
+ const _z=(typeof getComputedStyle==='function'&&parseFloat(getComputedStyle(cv).getPropertyValue('--tw-zoom'))>=2)?2:1;
+ const w=Math.round((cv.clientWidth||600*_z)/_z);
  if(cv.width!==w)cv.width=w;
  if(cv.height!==230)cv.height=230;
+ const _h=(230*_z)+'px';if(cv.style.height!==_h)cv.style.height=_h;
  const x=cv.getContext('2d');
  // nebe + hvězdy (deterministické)
  x.fillStyle='#05060c';x.fillRect(0,0,w,230);
