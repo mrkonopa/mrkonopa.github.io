@@ -782,3 +782,111 @@ function wCritBonus(){return wPerk('critcredit')?2:0;}
 function calcLevel(){S.level=Math.floor(S.xp/100)+1;}
 function trEnd(){renderTrainPicker();}
 function trNext(){trDraw();}
+
+/* ══════════════════════════════════════════════════════════════════
+   PROFIL ČERSTVÉ HRY a HRDINA V ÚVODU — sdíleno všemi hrami 3.–9. (1. 11. 2026)
+
+   Změřeno na čerstvé hře: profil měl na telefonu 3 373–3 714 px (4 obrazovky), z toho zamčené odznaky 1 087–1 099 px
+   (19 dlaždic „???“), prázdný inventář artefaktů 314–318 px a životní úspěchy 716–991 px.
+   `profilZhust()` volá na konci `renderProfile` každá hra. Zamčené dlaždice se NEMAŽOU (testy počítají `.ach-slot`),
+   jen se schovají třídou `pz-skryto` a místo nich je řada malých zámků s jednou větou:
+     - 6.–9. ročník: odznaky i artefakty jsou tajné („???“) → všechny zamčené se zhustí,
+     - 3.–5. ročník: zamčený odznak ukazuje jméno a popis, tedy cíl → první 4 zůstanou celé, zbytek se zhustí;
+       artefakty mají jména (cíle) a nechávají se,
+     - životní úspěchy: všechny splněné + 3 nejrozpracovanější zamčené, zbytek za tlačítkem „Zobrazit všech N“.
+   Získané odznaky a artefakty zůstávají beze změny.
+   `introHrdina()` přidá do úvodu hrdinu (dva snímky „dýchání“); plátno je skryté (`.intro-hrdina{display:none}`),
+   ukáže ho až `rpg-siroke.css` na široké obrazovce, kde má úvod dva sloupce.
+   ══════════════════════════════════════════════════════════════════ */
+let _pzGachOtevreno=false;
+function pzSklon(n,jedn,dva,pet){return n===1?jedn:(n>=2&&n<=4?dva:pet);}
+function pzRada(n,ikona,popisHtml){
+ const r=document.createElement('div');r.className='pz-rada';
+ for(let i=0;i<Math.min(n,30);i++){
+  const c=document.createElement('span');c.className='pz-cip';c.setAttribute('aria-hidden','true');
+  c.innerHTML=(typeof RPGIcons!=='undefined'&&RPGIcons.svg)?RPGIcons.svg(ikona,24):'';
+  r.appendChild(c);
+ }
+ const p=document.createElement('div');p.className='pz-popis';p.innerHTML=popisHtml;r.appendChild(p);
+ return r;
+}
+function profilZhust(){
+ const sc=document.getElementById('s-profile');if(!sc)return;
+ sc.querySelectorAll('.pz-rada,.pz-vice').forEach(e=>e.remove());
+ sc.querySelectorAll('.pz-skryto').forEach(e=>e.classList.remove('pz-skryto'));
+ const nazev=(e,sel)=>((e.querySelector(sel)||{}).textContent||'').trim();
+ /* odznaky */
+ const ag=document.getElementById('pr-ach');
+ if(ag){
+  const zam=[...ag.querySelectorAll('.ach-slot:not(.have)')];
+  const tajne=zam.length>0&&zam.every(e=>nazev(e,'.ach-nm')==='???');
+  const sbal=tajne?zam:zam.slice(4);
+  if(sbal.length>=(tajne?1:3)){
+   sbal.forEach(e=>e.classList.add('pz-skryto'));
+   const n=sbal.length;
+   ag.after(pzRada(n,'lock',tajne
+    ?'<b>'+n+'</b> '+pzSklon(n,'skrytý odznak','skryté odznaky','skrytých odznaků')+' – splňuj mise a objevíš '+pzSklon(n,'ho','je','je')+'.'
+    :'<b>+'+n+'</b> '+pzSklon(n,'další odznak','další odznaky','dalších odznaků')+' čeká – splňuj mise a odemkneš '+pzSklon(n,'ho','je','je')+'.'));
+  }
+ }
+ /* artefakty: jen tam, kde jsou tajné (6.–9. ročník) */
+ const iv=document.getElementById('pr-inv');
+ if(iv){
+  const zam=[...iv.querySelectorAll('.inv-slot:not(.have)')];
+  const mam=iv.querySelectorAll('.inv-slot.have').length;
+  if(zam.length>0&&zam.every(e=>nazev(e,'.nm')==='???')){
+   zam.forEach(e=>e.classList.add('pz-skryto'));
+   if(!mam)iv.classList.add('pz-skryto');
+   iv.after(pzRada(zam.length,'question','Artefakt získáš za každou dokončenou oblast (<b>'+mam+' / '+(mam+zam.length)+'</b>).'));
+  }
+ }
+ /* životní úspěchy */
+ const gr=document.querySelector('#pr-gach .rw-gach');
+ if(gr){
+  const pct=r=>parseFloat((r.querySelector('.rw-gach-fill')||{style:{}}).style.width)||0;
+  const zam=[...gr.querySelectorAll('.rw-gach-row.locked')];
+  const nejblize=zam.slice().sort((a,b)=>pct(b)-pct(a)).slice(0,3);
+  const sbal=zam.filter(r=>!nejblize.includes(r));
+  if(sbal.length>=2){
+   const tl=document.createElement('button');tl.type='button';tl.className='btn sm pz-vice';
+   const text=()=>{tl.textContent=_pzGachOtevreno?'▴ Zobrazit méně':'▾ Zobrazit všech '+gr.querySelectorAll('.rw-gach-row').length;tl.setAttribute('aria-expanded',_pzGachOtevreno?'true':'false');};
+   const kresli=()=>{sbal.forEach(r=>r.classList.toggle('pz-skryto',!_pzGachOtevreno));text();};
+   tl.onclick=()=>{_pzGachOtevreno=!_pzGachOtevreno;kresli();};
+   kresli();
+   gr.after(tl);
+  }
+ }
+}
+(function(){
+ const st=document.createElement('style');
+ st.textContent='.pz-skryto{display:none!important}'+
+  '.pz-rada{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:10px}'+
+  '.pz-cip{width:40px;height:40px;display:flex;align-items:center;justify-content:center;background:var(--panel2);border:2px solid #2a2a2a;color:var(--muted);opacity:.7;line-height:0}'+
+  '.pz-popis{flex-basis:100%;font-family:var(--px);font-weight:400;font-size:12px;color:var(--muted);line-height:1.3;margin-top:2px}'+
+  '.pz-popis b{color:var(--gold);font-weight:700}'+
+  '.pz-vice{margin-top:10px}'+
+  '.intro-hrdina{display:none;image-rendering:pixelated}';
+ (document.head||document.documentElement).appendChild(st);
+ function introHrdina(){
+  const n=(location.pathname.match(/rpg-mat-(\d)/)||[])[1];
+  const sp=n&&window['RPGSprites'+n];
+  const t=document.querySelector('#s-intro .intro-title');
+  const blok=t&&t.parentNode;
+  if(!sp||typeof sp.drawHeroOn!=='function'||!blok||blok.querySelector('.intro-hrdina'))return;
+  const SC=7,cv=document.createElement('canvas');
+  cv.className='intro-hrdina';cv.width=20*SC+8;cv.height=29*SC+8;cv.setAttribute('aria-hidden','true');
+  const x=cv.getContext('2d');if(!x)return;
+  x.imageSmoothingEnabled=false;
+  const kresli=f=>{x.clearRect(0,0,cv.width,cv.height);sp.drawHeroOn(x,4,cv.height-4-24*SC,SC,f,false);};
+  kresli(0);blok.appendChild(cv);
+  let f=0;
+  const iv=setInterval(()=>{
+   const a=document.getElementById('s-intro');
+   if(!a||!a.classList.contains('active')){clearInterval(iv);return;}
+   if(!cv.offsetParent)return;
+   if((window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)||document.documentElement.classList.contains('reduced-motion'))return;
+   f^=1;kresli(f);
+  },650);
+ }
+ if(document.readyState==='complete')introHrdina();else if(typeof window!=='undefined'&&typeof window.addEventListener==='function')window.addEventListener('load',introHrdina);
+})();

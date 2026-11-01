@@ -19,7 +19,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>RPG Matematika 3 — Kouzelný les</title>
 <link rel="stylesheet" href="../fonts/fonts.css">
-<link rel="stylesheet" href="./rpg-siroke.css?v=20261105">
+<link rel="stylesheet" href="./rpg-siroke.css?v=20261106">
 <style>
 :root{--bg:#0c1a0f;--panel:#143019;--panel2:#1c4026;--line:#2a5232;--gold:#f0c040;--blue:#4ab0e0;--red:#cc3333;--red-t:#ff7b7b;--green:#3ecc66;--purple:#9966cc;--text:#e8ecd8;--muted:#8fae89;--px:'Roboto Mono','VT323',monospace;--vt:'VT323',monospace;--read:'Lexend','Inter','Segoe UI',system-ui,-apple-system,Arial,sans-serif}
 *{box-sizing:border-box;margin:0;padding:0}
@@ -1943,6 +1943,7 @@ function renderProfile(){
  document.getElementById('pr-ach-n').textContent=earned;document.getElementById('pr-ach-t').textContent=ACH.length;
  achEl.innerHTML=ACH.map(a=>`<div class="ach-slot${(S.ach&&S.ach[a.id])?' have':''}"><div class="ach-ic">${RPGIcons.svg((S.ach&&S.ach[a.id])?a.ic:'lock',24)}</div><div class="ach-nm">${a.nm}</div><div class="ach-desc">${a.desc}</div></div>`).join('');
  _updateCreditsUI();renderCrossGames();updateBattleStats();
+ if(typeof profilZhust==='function')profilZhust();
 }
 async function updateBattleStats(){
  const p=document.getElementById('pr-battle');if(!p)return;p.style.display='none';
@@ -2043,7 +2044,7 @@ window.addEventListener('load',()=>{
 <script defer src="./rpg-cloud.js"></script>
 <script defer src="./rpg-battle-3.js"></script>
 <script defer src="./rpg-badwords.js"></script>
-<script defer src="./rpg-shared.js?v=20261028"></script>
+<script defer src="./rpg-shared.js?v=20261106"></script>
 <script defer src="./rpg-tasktypes.js"></script>
 <script defer src="./rpg-battle-ui.js"></script>
 <script>window.addEventListener('load',function(){if(window.RPGCloud&&RPGCloud.attachGame)RPGCloud.attachGame(SAVE_KEY);});</script>

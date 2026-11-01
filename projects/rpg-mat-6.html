@@ -20,7 +20,7 @@
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="stylesheet" href="../fonts/fonts.css">
-<link rel="stylesheet" href="./rpg-siroke.css?v=20261105">
+<link rel="stylesheet" href="./rpg-siroke.css?v=20261106">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -3099,6 +3099,7 @@ function renderProfile(){
  const snd=document.getElementById('pr-sound');if(snd)snd.checked=(typeof RPGWallet!=='undefined')?RPGWallet.getSoundOn():false;
  if(typeof RPGWallet!=='undefined'&&RPGWallet.renderGachInto)RPGWallet.renderGachInto(document.getElementById('pr-gach'));
  renderCrossGames();
+ if(typeof profilZhust==='function')profilZhust();
 }
 
 function exportCode(){
@@ -3436,7 +3437,7 @@ window.addEventListener('load',()=>{
 <script defer src="./rpg-cloud.js"></script>
 <script defer src="./rpg-battle-6.js"></script>
 <script defer src="./rpg-badwords.js"></script>
-<script defer src="./rpg-shared.js?v=20261028"></script>
+<script defer src="./rpg-shared.js?v=20261106"></script>
 <script defer src="./rpg-2stupen.js"></script>
 <script defer src="./rpg-tasktypes.js"></script>
 <script defer src="./rpg-battle-ui.js"></script>
