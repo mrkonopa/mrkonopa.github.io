@@ -989,6 +989,97 @@ window.RPGCloud = (function () {
     catch (e) { return ''; }
   }
 
+  /* ── Vzhled spolužáků z obchodu (fáze 28, `look_of`) ──
+     Server vrací jen čtyři id (rámeček, barva jména, titul, mazlíček), a to už ověřená; klient je přesto
+     znovu očistí (tvar `kategorie-slug`) a přeloží přes katalog `RPGWallet` — neznámé id se zahodí, takže
+     nová položka v katalogu nepotřebuje změnu SQL. Do stránky jde jen `textContent` a očištěné třídy `[a-z-]`.
+     Dokud fáze 28 v databázi není (funkce neexistuje), vrací se prázdný vzhled a žebříček vypadá jako dřív. */
+  const LOOK_KAT = ['border', 'badge', 'title', 'pet'];
+  const lookCache = new Map();   // user_id → { t, look }
+  let lookChybaDo = 0;           // po chybě (např. chybí fáze 28) se 5 min nezkouší znovu
+  function lookCisty(l) {
+    const o = {};
+    if (!l || typeof l !== 'object' || Array.isArray(l)) return o;
+    for (const k of LOOK_KAT) {
+      const v = Object.prototype.hasOwnProperty.call(l, k) ? l[k] : null;
+      if (typeof v === 'string' && new RegExp('^' + k + '-[a-z0-9-]{1,26}$').test(v)) o[k] = v;
+    }
+    return o;
+  }
+  async function lookOf(ids) {
+    const ven = {};
+    if (!client || !user || previewActive || !Array.isArray(ids)) return ven;
+    const ted = Date.now(), chybi = [];
+    for (const id of new Set(ids)) {
+      if (typeof id !== 'string' || !/^[0-9a-f-]{36}$/i.test(id)) continue;
+      const c = lookCache.get(id);
+      if (c && ted - c.t < 60000) ven[id] = c.look; else chybi.push(id);
+    }
+    if (chybi.length && ted >= lookChybaDo) {
+      const ptam = chybi.slice(0, 60);
+      try {
+        const { data, error } = await client.rpc('look_of', { p_ids: ptam });
+        if (error) throw error;
+        const got = {};
+        (Array.isArray(data) ? data : []).forEach(r => { if (r && typeof r.user_id === 'string') got[r.user_id] = lookCisty(r.look); });
+        ptam.forEach(id => { const l = got[id] || {}; lookCache.set(id, { t: ted, look: l }); ven[id] = l; });
+      } catch (e) { lookChybaDo = ted + 300000; console.warn('[RPGCloud] look_of nedostupné:', e && e.message ? e.message : e); }
+    }
+    return ven;
+  }
+  function lookCss() {
+    if (document.getElementById('lk-css')) return;
+    const st = document.createElement('style'); st.id = 'lk-css';
+    st.textContent = '.lk-av{position:relative;display:inline-grid;place-items:center;width:28px;height:28px;flex:0 0 28px}' +
+      '.lk-av canvas{position:absolute;inset:0;width:28px;height:28px;image-rendering:pixelated;pointer-events:none}' +
+      '.lk-av span{font-size:12px;font-weight:700;line-height:1;position:relative}' +
+      '.lb-nm{min-width:4.5em}' +
+      '.lk-col{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}' +
+      '.lk-col .lb-nm{flex:none!important}' +
+      '.lk-title{font-size:12px;line-height:1.2;color:var(--muted,#8895b5);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}' +
+      '.lk-pet{flex:0 0 auto;image-rendering:pixelated;pointer-events:none}';
+    document.head.appendChild(st);
+  }
+  /* Přidá k řádku vzhled hráče: rámeček s iniciálou před jméno, barvu jména, titul a mazlíčka za jméno.
+     `radek` je flex řádek, `jmenoEl` v něm jeho jméno. Bez vzhledu nebo bez modulů kosmetiky nedělá nic. */
+  function lookDekoruj(radek, jmenoEl, look) {
+    try {
+      const l = lookCisty(look);
+      if (!radek || !jmenoEl || !LOOK_KAT.some(k => l[k])) return;
+      const W = typeof RPGWallet !== 'undefined' && RPGWallet.itemById ? RPGWallet : null;
+      const polozka = (id, kat) => { const it = W && id ? W.itemById(id) : null; return it && it.cat === kat ? it : null; };
+      lookCss();
+      const bar = polozka(l.badge, 'badge');
+      if (bar && bar.cssKey) { const c = String(bar.cssKey).replace(/[^a-z-]/g, ''); if (c) jmenoEl.classList.add(c); }
+      if (l.border && typeof RPGKosmetika !== 'undefined' && RPGKosmetika.has && RPGKosmetika.has(l.border) && polozka(l.border, 'border')) {
+        const av = document.createElement('span'); av.className = 'lk-av'; av.setAttribute('aria-hidden', 'true');
+        const cv = document.createElement('canvas'); cv.width = 14; cv.height = 14;
+        const ctx = cv.getContext('2d');
+        if (ctx) { const img = ctx.createImageData(14, 14); img.data.set(RPGKosmetika.renderFrame(l.border, 14, 14, 0)); ctx.putImageData(img, 0, 0); }
+        const ini = document.createElement('span'); ini.textContent = Array.from(String(jmenoEl.textContent || '?'))[0] || '?';
+        av.appendChild(cv); av.appendChild(ini);
+        radek.insertBefore(av, jmenoEl);
+      }
+      /* titul stojí pod jménem (v řádku vedle jména by jméno zmizelo), proto jméno + titul tvoří sloupec */
+      const tit = polozka(l.title, 'title');
+      let sloupec = jmenoEl;
+      if (tit && tit.name) {
+        const col = document.createElement('span'); col.className = 'lk-col';
+        radek.insertBefore(col, jmenoEl); col.appendChild(jmenoEl);
+        const t = document.createElement('span'); t.className = 'lk-title'; t.textContent = String(tit.name);
+        col.appendChild(t); sloupec = col;
+      }
+      const za = sloupec.nextSibling;
+      if (l.pet && polozka(l.pet, 'pet') && typeof RPGMazlicci !== 'undefined' && RPGMazlicci.has && RPGMazlicci.has(l.pet)) {
+        const sz = RPGMazlicci.size(l.pet), S = 2, w = sz.cols * S + 4, h = sz.rows * S + 4;
+        const cv = document.createElement('canvas'); cv.className = 'lk-pet'; cv.width = w; cv.height = h; cv.setAttribute('aria-hidden', 'true');
+        const ctx = cv.getContext('2d');
+        if (ctx) RPGMazlicci.frame(ctx, l.pet, { x: 2, feet: h - 2, S, t: 0, tS: 0, state: 'idle', rm: true });
+        radek.insertBefore(cv, za);
+      }
+    } catch (e) { /* vzhled je jen ozdoba — chyba nesmí rozbít žebříček */ }
+  }
+
   async function renderLeaderboardInto(elId, game) {
     const el = document.getElementById(elId);
     if (!el) return;
@@ -1009,19 +1100,35 @@ window.RPGCloud = (function () {
     // sám hráč bez spolužáků = jen 1 řádek (on sám) → nemá smysl ukazovat
     if (!rows || rows.length < 2) { el.style.display = 'none'; return; }
     const medal = i => (i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : (i + 1) + '.');
+    let vzhled = {};
+    try { vzhled = await lookOf(rows.map(r => r.user_id)); } catch (e) { vzhled = {}; }
     el.innerHTML = header +
       rows.map((r, i) =>
-        '<div style="display:flex;align-items:center;gap:8px;padding:5px 8px;border-radius:5px;' +
+        '<div data-uid="' + esc(r.user_id) + '" style="display:flex;align-items:center;gap:8px;padding:5px 8px;border-radius:5px;' +
         px + ';font-size:13px;margin:3px 0;' +
         (r.is_me ? 'background:rgba(25,230,230,.14);border:1px solid var(--gold,#19e6e6)' : 'background:rgba(255,255,255,.03)') + '">' +
         '<span style="min-width:26px;text-align:center">' + medal(i) + '</span>' +
-        '<span' + (r.is_me && jmenoTrida() ? ' class="' + jmenoTrida() + '"' : '') + ' style="flex:1;color:' + (r.is_me ? 'var(--gold,#19e6e6)' : 'var(--text,#e8eaf6)') + ';font-weight:700;' +
+        '<span class="lb-nm' + (r.is_me && jmenoTrida() ? ' ' + jmenoTrida() : '') + '" style="flex:1;color:' + (r.is_me ? 'var(--gold,#19e6e6)' : 'var(--text,#e8eaf6)') + ';font-weight:700;' +
         'overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + esc(r.display_name) + (r.is_me ? ' (ty)' : '') + '</span>' +
-        '<span style="color:var(--muted,#8895b5);font-size:12px">LV ' + ((r.lvl || 1) | 0) + '</span>' +
+        '<span style="color:var(--muted,#8895b5);font-size:12px;white-space:nowrap">LV ' + ((r.lvl || 1) | 0) + '</span>' +
         '<span style="color:var(--blue,#5dc8f0);min-width:62px;text-align:right">' + ((r.xp || 0) | 0) + ' XP</span>' +
         '</div>'
       ).join('');
     el.style.display = 'block';
+    el.querySelectorAll('[data-uid]').forEach(radek => {
+      const jm = radek.querySelector('.lb-nm');
+      if (jm) lookDekoruj(radek, jm, vzhled[radek.getAttribute('data-uid')]);
+    });
+    /* má-li rámeček aspoň jeden řádek, ostatní dostanou prázdné místo stejné šířky, ať jména začínají pod sebou */
+    if (el.querySelector('.lk-av')) {
+      el.querySelectorAll('[data-uid]').forEach(radek => {
+        if (radek.querySelector('.lk-av')) return;
+        const jm = radek.querySelector('.lb-nm');
+        if (!jm) return;
+        const sp = document.createElement('span'); sp.className = 'lk-av lk-prazdny'; sp.setAttribute('aria-hidden', 'true');
+        radek.insertBefore(sp, jm.closest('.lk-col') || jm);
+      });
+    }
   }
 
   // stránku smí vidět jen učitel/superadmin — jinak přesměruj na hub
@@ -1570,7 +1677,7 @@ window.RPGCloud = (function () {
            listNotesFor, addNote, deleteNote, deleteBroadcast, pullMyNotes,
            listMyBroadcasts, markMyNotesRead, deleteMyNote,
            // Fáze 4 — žebříček třídy
-           leaderboard, renderLeaderboardInto,
+           leaderboard, renderLeaderboardInto, lookOf, lookDekoruj,
            // Fáze 6 — vysvětlení postupu
            saveExplanation, listExplanations, deleteExplanation,
            // Fáze 6b — snímky chybovosti
