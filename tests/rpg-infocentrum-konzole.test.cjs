@@ -22,7 +22,7 @@
 const fs = require('fs'), path = require('path'), http = require('http');
 const { chromium } = require('playwright');
 const ROOT = path.join(__dirname, '..');
-const PODLAHA = 47;                                               // naměřeno
+const PODLAHA = 55;                                               // naměřeno
 const LAUNCH = { executablePath: '/opt/pw-browsers/chromium-1194/chrome-linux/chrome' };
 
 let pass = 0, fail = 0;
@@ -41,7 +41,7 @@ const SCENAR = {
     zak('z1', 'Anna Nováková', 'Neo', { level: 5, done: done(['1-1', 6], ['1-2', 3]), ach: { boot: 1 } }, ted()),
     zak('z2', 'Adam Hrubý', 'Trinity', { level: 4, done: done(['1-1', 2]) }, ted()),
     zak('z3', 'Barbora Lesná', 'Morpheus', {}, davno()),
-    zak('z4', 'Čeněk Dvořák', 'Cypher', {}, davno()),
+    zak('z4', 'Čeněk Dvořák', 'Cypher', { cur: { s: 'boj', m: '1-1' } }, davno()),     // offline, ale s polohou: nesmí se ukázat
     zak('z5', 'Dana Pokorná', 'Switch', {}, davno()),
     zak('z6', null, '<img src=x onerror=window.__xss=1>', {}, davno()),
     zak('z7', 'Cizí Žák', 'Mimo', { done: done(['1-1', 6]) }, ted()),          // není ve třídě — nesmí se vůbec číst
@@ -65,7 +65,7 @@ function mock(S) {
         }
         if(table==='saves'&&/xp:data->xp/.test(sel)){
           if(db.selze)return Promise.resolve({data:null,error:{message:'boom'}});
-          r=r.map(x=>({user_id:x.user_id,game:x.game,name:x.name,full_name:x.full_name,updated_at:x.updated_at,xp:x.data.xp,level:x.data.level,done:x.data.done,ach:x.data.ach,hero:x.data.name}));
+          r=r.map(x=>({user_id:x.user_id,game:x.game,name:x.name,full_name:x.full_name,updated_at:x.updated_at,xp:x.data.xp,level:x.data.level,done:x.data.done,ach:x.data.ach,hero:x.data.name,cur:/cur:data->cur/.test(sel)?x.data.cur:undefined}));
         }
         return Promise.resolve({data:r,error:null});
       };
@@ -229,6 +229,23 @@ const ODDILY = {
     const po = await p.evaluate(() => ({ start: IC.start, st: IC.cil.stupen }));
     f(po.start === pred.start && po.st === pred.st && pred.st === 2, 'po obnovení stránky se zachová začátek hodiny i stupeň', JSON.stringify([pred, po]));
   },
+  /* 10 — kde žák právě je (`cur`): jen u hrajících, jen ověřený tvar, nic nevykonat */
+  async kde(p, f) {
+    const l0 = await p.evaluate(() => __db.log.filter(l => l.table === 'saves' && /xp:data->xp/.test(l.sel))[0]);
+    f(l0 && /cur:data->cur/.test(l0.sel) && !/errs|chyb/i.test(l0.sel), 'dotaz žádá pole cur a pořád ne počty chyb', l0 && l0.sel);
+    await zmen(p, 'z1', "s.data.cur={s:'boj',m:'2-1'};");
+    await zmen(p, 'z2', "s.data.cur={s:'<img src=x onerror=window.__xss=1>',m:'<b>'};");
+    await tik(p);
+    const v = await p.evaluate(() => { const c = u => document.querySelector('#ic-cards [data-k="' + u + '"] .ic-last'); return {
+      z1: c('z1').textContent, z1t: c('z1').title, z2: c('z2').textContent, z2t: c('z2').title, z4: c('z4').textContent,
+      img: document.querySelectorAll('#ic-cards img').length, x: window.__xss, cards: document.getElementById('ic-cards').textContent }; });
+    f(v.z1 === 'boj 2-1 · LV 5', 'hrající žák: karta ukáže, kde je („boj 2-1 · LV 5“)', v.z1);
+    f(/^Boj v misi 2-1/.test(v.z1t), 'tooltip má celou větu s misí', v.z1t);
+    f(/^LV 4 · před /.test(v.z2) && v.z2t === '', 'nepřátelské cur se zahodí (zbyde „LV · před …“, bez tooltipu)', v.z2 + ' | ' + v.z2t);
+    f(v.img === 0 && v.x === undefined, 'cur s HTML se nevykoná ani nevykreslí', JSON.stringify([v.img, v.x]));
+    f(v.z4 === 'právě nehraje', 'nehrající žák polohu nemá (stará poloha neplatí)', v.z4);
+    f(!/chyb|errs/i.test(v.cards), 'na kartách žádná slova o chybách');
+  },
   /* 9 — časovač */
   async stop(p, f) {
     await p.evaluate(() => icZacni());
@@ -255,7 +272,7 @@ async function hlavni() {
   const br = await chromium.launch(LAUNCH);
   const srv = await server();
   console.log('\n── Infocentrum hodiny v konzoli ──\n');
-  const VSE = ['data', 'xss', 'poradi', 'oblast', 'cil', 'cilBezPohybu', 'tymy', 'rozvrzeni', 'chyba', 'nova', 'obnova', 'stop'];
+  const VSE = ['data', 'xss', 'poradi', 'oblast', 'cil', 'cilBezPohybu', 'tymy', 'rozvrzeni', 'chyba', 'nova', 'obnova', 'kde', 'stop'];
   const r = await spust(br, baseOf(srv), VSE);
   r.nalezy.slice(0, 12).forEach(n => console.log('  ⚠ ' + n));
   ok(r.nalezy.length === 0, 'skutečná konzole projde všemi kontrolami', r.nalezy.slice(0, 4).join(' | '));
@@ -276,7 +293,11 @@ async function hlavni() {
     s.close();
   }
   await sabotaz('řazení podle abecedy', 'rpg-ucitel.html', s => s.replace('serazeni=RPGInfo.seradit(hraci)', 'serazeni=hraci.slice().sort((a,b)=>a.jmeno.localeCompare(b.jmeno,"cs"))'), ['poradi'], /nahoře je ten|pořadí 0/);
-  await sabotaz('chyby v dotazu', 'rpg-cloud.js', s => s.replace(",hero:data->name')", ",hero:data->name,errs:data->errs')"), ['data'], /nežádá počty chyb/);
+  await sabotaz('chyby v dotazu', 'rpg-cloud.js', s => s.replace(",cur:data->cur')", ",cur:data->cur,errs:data->errs')"), ['data'], /nežádá počty chyb/);
+  await sabotaz('dotaz bez pole cur', 'rpg-cloud.js', s => s.replace(",hero:data->name,cur:data->cur')", ",hero:data->name')"), ['kde'], /žádá pole cur|ukáže, kde je/);
+  await sabotaz('poloha se nezobrazí', 'rpg-ucitel.html', s => s.replace("kd&&kd.kratce?kd.kratce+' · LV '+h.level:", ''), ['kde'], /ukáže, kde je/);
+  await sabotaz('poloha i u nehrajících', 'rpg-ucitel.html', s => s.replace("lastEl.textContent=!h.on?'právě nehraje':", "lastEl.textContent="), ['kde'], /nehrající žák/);
+  // „cur jako HTML“ sabotáž není: text karty se skládá jen z pevných slov a čísla úrovně (ověřený typ i mise), takže jde o ekvivalentní mutant — ověření tvaru hlídá Node test.
   await sabotaz('jména přes innerHTML', 'rpg-ucitel.html', s => s.replace("el.querySelector('.ic-nm').textContent=h.jmeno;", "el.querySelector('.ic-nm').innerHTML=h.jmeno;"), ['xss'], /nevykoná|jako text/);
   await sabotaz('obnova bez „jen změněné“', 'rpg-ucitel.html', s => s.replace("prvni?'':IC.cursor", "''"), ['data'], /jen změněné řádky/);
   await sabotaz('časovač neběží do konce', 'rpg-ucitel.html', s => s.replace("if(tab!=='infocentrum')infoStop();", ''), ['stop'], /časovač/);

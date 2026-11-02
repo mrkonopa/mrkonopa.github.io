@@ -107,6 +107,27 @@ function kontroly(I, prefix) {
   ok(I.tymy({ battle: { team_mode: true }, teams: { 0: 'x', 1: -3 } }).skore.join() === '0,0', p + 'nesmyslné skóre týmu je 0');
 }
 
+/* 11 — kde žák právě je (`cur` z uložení): tvar se ověřuje znovu, hra ho píše, ale uložení patří žákovi */
+function kdeKontroly(I, p) {
+  const k = d => I.stav(radek('k', 'Karel Novák', { xp: 10, done: done(['1-1', 2]), cur: d })).kde;
+  ok(JSON.stringify(k({ s: 'boj', m: '3-2' })) === '{"s":"boj","m":"3-2"}', p + 'boj v misi 3-2 se přečte', JSON.stringify(k({ s: 'boj', m: '3-2' })));
+  ok(k({ s: 'trenink' }).m === null && k({ s: 'teorie', m: '7-3' }).m === '7-3', p + 'trénink bez mise a teorie s misí');
+  ok(k({ s: 'mapa', m: '3-2' }).m === null && k({ s: 'vez', m: '1-1' }).m === null, p + 'mapa a věž misi nenesou (cizí hodnota se zahodí)');
+  for (const spatne of [null, undefined, 5, 'boj', [], {}, { s: 'hack' }, { s: 'boj', m: '8-1' }, { s: 'boj', m: '3-4' }, { s: 'boj', m: '3-2-1' },
+    { s: 'boj', m: '<img src=x onerror=alert(1)>' }, { s: '__proto__' }, { s: { toString: 1 } }, { s: ['boj'], m: '3-2' }]) {
+    const v = k(spatne);
+    ok(v === null || (['boj', 'trenink', 'teorie', 'vez', 'mapa', 'souboj'].includes(v.s) && (v.m === null || /^[1-7]-[1-3]$/.test(v.m))), p + 'nepřátelské cur ' + JSON.stringify(spatne) + ' → ' + JSON.stringify(v));
+  }
+  ok(k({ s: 'boj', m: '8-1' }).m === null && k({ s: 'boj', m: '8-1' }).s === 'boj', p + 'neplatná mise se zahodí, typ obrazovky zůstane');
+  ok(k({ s: 'hack', m: '1-1' }) === null, p + 'neznámý typ obrazovky → žádná poloha');
+  const t = I.kdeText({ s: 'boj', m: '3-2' }, { '3-2': 'Zlomky <b>' });
+  ok(t.kratce === 'boj 3-2' && t.plne === 'Boj v misi 3-2 „Zlomky <b>“', p + 'věta pro kartu', JSON.stringify(t));
+  ok(I.kdeText({ s: 'vez', m: null }).kratce === 'věž legend' && I.kdeText({ s: 'mapa', m: null }).kratce === 'na mapě' && I.kdeText({ s: 'souboj', m: null }).kratce === 'živý souboj'
+    && I.kdeText({ s: 'trenink', m: null }).kratce === 'trénink' && I.kdeText(null).kratce === '', p + 'věty bez mise');
+  ok(I.kdeText({ s: 'hack' }).kratce === '', p + 'neznámý typ obrazovky nedá větu');
+  ok(!/err|chyb/i.test(JSON.stringify(k({ s: 'boj', m: '1-1', errs: 9 }))), p + 'kde žádné chyby nenese');
+}
+
 /* 8 — chyby se nikdy nečtou */
 function bezChyb() {
   const kod = ZDROJ.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/.*$/gm, '');
@@ -151,7 +172,7 @@ function rychlost() {
 
 console.log('\n── Infocentrum hodiny: logika ──\n');
 const I = nacti(ZDROJ);
-kontroly(I, '');
+kontroly(I, ''); kdeKontroly(I, '');
 bezChyb(); odznaky(); rychlost();
 
 /* ── sabotáže: každá musí shodit aspoň jednu kontrolu ── */
@@ -162,7 +183,7 @@ function sabotaz(jm, zmena, rx) {
   const f0 = fail, vypis = console.log; const hlasky = [];
   console.log = (...a) => hlasky.push(a.join(' '));
   const p0 = pass;
-  try { kontroly(nacti(nove), 'S'); rychlost2(nove); } catch (e) { hlasky.push('  ❌ výjimka ' + e.message); fail++; }
+  try { kontroly(nacti(nove), 'S'); kdeKontroly(nacti(nove), 'S'); rychlost2(nove); } catch (e) { hlasky.push('  ❌ výjimka ' + e.message); fail++; }
   console.log = vypis;
   const chyceno = fail > f0;
   const zachyceno = hlasky.some(h => rx.test(h)) || (chyceno && !rx);
@@ -180,6 +201,10 @@ sabotaz('oblast bez nahrazení', s => s.replace('if (noveOblasti.indexOf(Number(
 sabotaz('cíl bez minima', s => s.replace('Math.max(MIN_KROK, UKOLU_NA_HRACE', 'Math.max(0, UKOLU_NA_HRACE'), /minimum 20/);
 sabotaz('slovesa v minulém čase', s => s.replace("' splněna'", "' dokončila'"), /minulém čase/);
 sabotaz('strop klíčů pryč', s => s.replace('if (++n > MAX_KLICU) break;', ''), /strop/);
+sabotaz('cur bez ověření typu obrazovky', s => s.replace("const s = typeof o.s === 'string' && KDE_TYPY.indexOf(o.s) >= 0 ? o.s : null;", "const s = typeof o.s === 'string' ? o.s : null;"), /nepřátelské cur|neznámý typ/);
+sabotaz('cur bez ověření mise', s => s.replace("KDE_S_MISI.indexOf(s) >= 0 && typeof o.m === 'string' && RE_MISE.test(o.m) ? o.m : null", "typeof o.m === 'string' ? o.m : null"), /nepřátelské cur|neplatná mise|nenesou/);
+sabotaz('mapa nese misi', s => s.replace("const KDE_S_MISI = ['boj', 'trenink', 'teorie'];", "const KDE_S_MISI = KDE_TYPY;"), /nenesou/);
+sabotaz('název mise bez věty', s => s.replace("if (k.s === 'boj') return { kratce: 'boj' + mise,", "if (k.s === 'boj') return { kratce: 'boj',"), /věta pro kartu/);
 
 /* sabotáž „čtení chyb“ se chytá samostatnou kontrolou zdroje (stejné pravidlo jako bezChyb) */
 {

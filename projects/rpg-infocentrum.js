@@ -26,6 +26,9 @@
   const MAX_KLICU = 600;             // strop počtu klíčů v `done` (platných je nejvýš 7 × 3 × 6 = 126)
   const RE_UKOL = /^([1-7])-([1-3])-([0-5])$/;
   const RE_ODZNAK = /^[a-z0-9_-]{1,24}$/;
+  const RE_MISE = /^[1-7]-[1-3]$/;
+  const KDE_TYPY = ['boj', 'trenink', 'teorie', 'vez', 'mapa', 'souboj'];   // co hra posílá v poli `cur.s`
+  const KDE_S_MISI = ['boj', 'trenink', 'teorie'];
   const CS = new Intl.Collator('cs');
 
   /* Neutrální názvy odznaků (ve hrách má každý ročník svůj tematický název). Test hlídá, že každé
@@ -63,6 +66,29 @@
     return kratke((r && r.full_name) || d.name || (r && r.name) || '');
   }
 
+  /* Pole `cur` z uložení: {s: typ obrazovky, m: mise}. Píše ho hra, ale uložení patří žákovi, takže se tu ověřuje
+     znovu: typ jen z pevného seznamu, mise jen tvaru „oblast-mise“ a jen u typů, které misi mají. Cokoli jiného → null. */
+  function kde(c) {
+    const o = obj(c);
+    const s = typeof o.s === 'string' && KDE_TYPY.indexOf(o.s) >= 0 ? o.s : null;
+    if (!s) return null;
+    const m = KDE_S_MISI.indexOf(s) >= 0 && typeof o.m === 'string' && RE_MISE.test(o.m) ? o.m : null;
+    return { s, m };
+  }
+  /* Krátká věta pro kartu žáka. Název mise (je-li znám) jde jen do `plne` (tooltip), na kartu se nevejde. */
+  function kdeText(k, nazvyMisi) {
+    if (!k || KDE_TYPY.indexOf(k.s) < 0) return { kratce: '', plne: '' };
+    const jm = k.m && nazvyMisi && typeof nazvyMisi[k.m] === 'string' ? nazvyMisi[k.m] : '';
+    const mise = k.m ? ' ' + k.m : '';
+    const plne = jm ? ' „' + jm + '“' : '';
+    if (k.s === 'boj') return { kratce: 'boj' + mise, plne: 'Boj v misi' + mise + plne };
+    if (k.s === 'trenink') return { kratce: 'trénink' + mise, plne: 'Trénink' + (k.m ? ' mise' + mise + plne : '') };
+    if (k.s === 'teorie') return { kratce: 'teorie' + mise, plne: 'Čte teorii' + (k.m ? ' mise' + mise + plne : '') };
+    if (k.s === 'vez') return { kratce: 'věž legend', plne: 'Ve Věži legend' };
+    if (k.s === 'souboj') return { kratce: 'živý souboj', plne: 'V živém souboji' };
+    return { kratce: 'na mapě', plne: 'Na mapě' };
+  }
+
   /* Postava z řádku tabulky `saves` → jen to, co infocentrum potřebuje. */
   function stav(r) {
     const d = obj(r && r.data), done = obj(d.done);
@@ -88,7 +114,7 @@
     return {
       uid: String((r && r.user_id) || ''), game: String((r && r.game) || ''), jmeno: jmeno(r),
       xp: cislo(d.xp, 1e6), level: cislo(d.level, 9999) || 1,
-      ukoly, mise, oblasti, ach, updated: (r && r.updated_at) || null,
+      ukoly, mise, oblasti, ach, updated: (r && r.updated_at) || null, kde: kde(d.cur),
     };
   }
   const klic = s => s.uid + '|' + s.game;
@@ -196,7 +222,7 @@
 
   return {
     UKOLU_V_MISI, MISI_V_OBLASTI, ONLINE_MIN, UKOLU_NA_HRACE, MIN_KROK, MAX_KLICU, ODZNAKY,
-    kratke, jmeno, stav, klic, online, zaklad, doplnZaklad, prirustek, seradit, souhrn,
+    kratke, jmeno, stav, kde, kdeText, klic, online, zaklad, doplnZaklad, prirustek, seradit, souhrn,
     udalosti, pamet, pocet, ukolu, misi, text, krokPro, novyCil, posun, tymy,
   };
 });
