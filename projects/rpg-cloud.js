@@ -18,6 +18,8 @@ window.RPGCloud = (function () {
   const pushTimers = {};
   const pushCeka = {};         // hra → poslední stav, který čeká na odeslání (debounce 800 ms)
   const synchronizuje = {};    // hra → po přihlášení se ještě rozhoduje, čí postup platí (attachGame)
+  let odeslanaPoloha = '';     // poslední odeslané `cur` (JSON), ať se kvůli stejné poloze neposílá nic navíc
+  let polohaTimer = null;
   const predOdhlasenim = [];   // dopsání jiných modulů před odhlášením (přijímačky)
   let previewActive = false;   // ?preview=1 nebo ?su=… → nic se neukládá
 
@@ -201,6 +203,56 @@ window.RPGCloud = (function () {
     } catch (e) { console.warn('[RPGCloud] syncWallet selhal:', e); }
   }
 
+  /* ── Kde ve hře žák právě je (infocentrum, etapa 2) ──
+     Pole `cur` = {s: typ obrazovky, m: mise} se přidává JEN do kopie postavy, která jde do cloudu, a počítá se
+     v okamžiku odeslání z viditelné obrazovky; místní uložení (S) se nemění. Čte ho učitelské infocentrum
+     (`listSavesLite`), které `m` i `s` stejně znovu ověří — žák si do svého uložení může napsat cokoli.
+     Mimo hru (profil, obchod, úvod…) pole není. Počty chyb se sem nikdy nedostanou. */
+  const RE_POLOHA_MISE = /^[1-7]-[1-3]$/;
+  function poloha() {
+    try {
+      const mise = v => (typeof v === 'string' && RE_POLOHA_MISE.test(v)) ? v : null;
+      const ov = document.getElementById('rpgb-ovl');
+      if (ov && ov.style.display === 'flex') return { s: 'souboj' };        // živý souboj leží přes mapu
+      const sc = document.querySelector('.screen.active');
+      const id = sc && sc.id ? sc.id.replace(/^s-/, '') : '';
+      // `BT`, `TR`, `LEARN_MID` jsou `let` stránky — na window nejsou, čtou se přímo
+      if (id === 'battle') { const m = mise(typeof BT !== 'undefined' && BT ? BT.mid : null); return m ? { s: 'boj', m } : null; }
+      if (id === 'train') {
+        const hraje = document.getElementById('train-play');
+        const m = hraje && hraje.style.display === 'block' ? mise(typeof TR !== 'undefined' && TR ? TR.mid : null) : null;
+        return m ? { s: 'trenink', m } : { s: 'trenink' };
+      }
+      if (id === 'learn') { const m = mise(typeof LEARN_MID !== 'undefined' ? LEARN_MID : null); return m ? { s: 'teorie', m } : { s: 'teorie' }; }
+      if (id === 'tower') return { s: 'vez' };
+      if (id === 'map' || id === 'area') return { s: 'mapa' };
+    } catch (e) {}
+    return null;
+  }
+  function sPolohou(game, obj) {
+    if (!/^RPG_MAT_[3-9]$/.test(game) || !obj || typeof obj !== 'object' || Array.isArray(obj)) return obj;
+    const kopie = Object.assign({}, obj);
+    delete kopie.cur;                                  // starý údaj z cloudu nebo z cizího uložení nikdy neplatí
+    const p = poloha();
+    odeslanaPoloha = JSON.stringify(p);
+    if (p) kopie.cur = p;
+    return kopie;
+  }
+  /* Změna obrazovky nebo jiné polohy → za chvíli pošli postavu znovu (přes `tep`, který nejdřív sloučí odemčení od učitele). */
+  function polohaZmena() {
+    if (!hraKlic || !client || !user || previewActive) return;
+    if (JSON.stringify(poloha()) === odeslanaPoloha) return;
+    clearTimeout(polohaTimer);
+    polohaTimer = setTimeout(() => { tep(hraKlic); }, 1000);
+  }
+  function polohaStrazce() {
+    if (typeof MutationObserver === 'undefined') return;
+    const mo = new MutationObserver(polohaZmena);
+    document.querySelectorAll('.screen').forEach(el => mo.observe(el, { attributes: true, attributeFilter: ['class'] }));
+    const tr = document.getElementById('train-play');
+    if (tr) mo.observe(tr, { attributes: true, attributeFilter: ['style'] });
+  }
+
   function push(game, obj) {
     if (!client || !user || previewActive) return;  // bez přihlášení / náhled = jen localStorage
     pushCeka[game] = obj;
@@ -214,7 +266,7 @@ window.RPGCloud = (function () {
     try {
       const { error } = await client.from('saves').upsert({
         user_id: user.id, game,
-        data: obj,
+        data: sPolohou(game, obj),
         name: (obj && obj.name) || '',
         email: user.email || '',
         full_name: (user.user_metadata && user.user_metadata.full_name) || '',
@@ -257,14 +309,14 @@ window.RPGCloud = (function () {
     if (!client || !isStaff() || !game || !Array.isArray(userIds) || !userIds.length) return [];
     try {
       let q = client.from('saves')
-        .select('user_id,game,name,full_name,updated_at,xp:data->xp,level:data->level,done:data->done,ach:data->ach,hero:data->name')
+        .select('user_id,game,name,full_name,updated_at,xp:data->xp,level:data->level,done:data->done,ach:data->ach,hero:data->name,cur:data->cur')
         .eq('game', game).in('user_id', userIds.slice(0, 200));
       if (sinceIso) q = q.gt('updated_at', sinceIso);
       const { data, error } = await q;
       if (error) throw error;
       return (data || []).map(r => ({
         user_id: r.user_id, game: r.game, name: r.name, full_name: r.full_name, updated_at: r.updated_at,
-        data: { xp: r.xp, level: r.level, done: r.done, ach: r.ach, name: r.hero },
+        data: { xp: r.xp, level: r.level, done: r.done, ach: r.ach, name: r.hero, cur: r.cur },
       }));
     } catch (e) { console.warn('[RPGCloud] listSavesLite selhal:', e); return null; }
   }
@@ -1399,6 +1451,7 @@ window.RPGCloud = (function () {
         }
       });
       hraKlic = saveKey;
+      polohaStrazce();
       setInterval(() => { tep(saveKey); }, 120000);
       init().then(paint);
     });
@@ -1506,7 +1559,7 @@ window.RPGCloud = (function () {
   return { CONFIG, configured, hasKeys, libLoaded, init, login, logout, currentUser, getError,
            pull, push, syncWallet, onChange, attachGame, attachHub,
            // sdílené zařízení: dopsání před odhlášením (přijímačky); _tep = jeden tep hry (testy)
-           priOdhlaseni, _tep: () => (hraKlic ? tep(hraKlic) : Promise.resolve()),
+           priOdhlaseni, polohaZmena, _poloha: poloha, _tep: () => (hraKlic ? tep(hraKlic) : Promise.resolve()),
            // Fáze 2 — role a učitelská konzole
            getRole, isStaff, isAdmin, fetchRole, requireStaff,
            listAllSaves, listSavesLite, pullSaveFor, updateSaveFor, deleteSaveFor,

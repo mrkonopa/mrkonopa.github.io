@@ -173,6 +173,7 @@
     injectCss();
     if (!root) { root = document.createElement('div'); root.id = 'rpgb-ovl'; document.body.appendChild(root); }
     root.style.display = 'flex';
+    try { if (cloud() && cloud().polohaZmena) cloud().polohaZmena(); } catch (e) {}   // infocentrum: žák je v živém souboji
     var c = cloud();
     if (!c || !c.currentUser || !c.currentUser()) {
       shell('<div class="rpgb-h">⚔️ ŽIVÝ SOUBOJ</div>' +
@@ -667,6 +668,7 @@
     if (B && B.role === 'host') { var c = cloud(); if (c) c.setBattleStatus(B.id, 'finished'); }
     B = null;
     if (root) root.style.display = 'none';
+    try { if (cloud() && cloud().polohaZmena) cloud().polohaZmena(); } catch (e) {}
   }
 
   window.RPGBattle = {

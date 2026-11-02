@@ -2493,7 +2493,7 @@ async function icTik(prvni){
    Object.assign(IC.pamet,RPGInfo.pamet(zmenene));
    RPGInfo.doplnZaklad(IC.zaklad,zmenene);
   }
-  const hraci=vsichni.map(s=>({uid:s.uid,jmeno:s.jmeno,level:s.level,updated:s.updated,on:RPGInfo.online(s.updated,ted),prir:RPGInfo.prirustek(s,IC.zaklad)}));
+  const hraci=vsichni.map(s=>({uid:s.uid,jmeno:s.jmeno,level:s.level,kde:s.kde,updated:s.updated,on:RPGInfo.online(s.updated,ted),prir:RPGInfo.prirustek(s,IC.zaklad)}));
   const on=hraci.filter(h=>h.on).length,sum=RPGInfo.souhrn(hraci);
   const p=RPGInfo.posun(IC.cil,sum.ukoly,on);IC.cil=p.cil;
   nove.forEach(e=>IC.udal.unshift({e,t:ted}));IC.udal=IC.udal.slice(0,7);
@@ -2518,7 +2518,9 @@ function icKresli(hraci,sum,p,nove){
   el.querySelector('.ic-av span').textContent=Array.from(h.jmeno)[0]||'?';
   el.querySelector('.ic-av').style.background=icBarva(h.uid);
   el.querySelector('.ic-nm').textContent=h.jmeno;
-  el.querySelector('.ic-last').textContent=h.on?'LV '+h.level+' · '+icAgo(h.updated,ted):'právě nehraje';
+  const kd=h.on&&h.kde?RPGInfo.kdeText(h.kde,icNazvyMisi()):null,lastEl=el.querySelector('.ic-last');
+  lastEl.textContent=!h.on?'právě nehraje':kd&&kd.kratce?kd.kratce+' · LV '+h.level:'LV '+h.level+' · '+icAgo(h.updated,ted);
+  lastEl.title=kd&&kd.plne?kd.plne+' · '+icAgo(h.updated,ted):'';
   el.querySelector('.ic-track u').style.width=(h.prir.ukoly/mx*100)+'%';
   el.querySelector('.ic-gain b').textContent=h.prir.ukoly?'+'+RPGInfo.ukolu(h.prir.ukoly)+' · '+RPGInfo.misi(h.prir.mise):'—';
   el.style.order=i;
@@ -2567,7 +2569,7 @@ function icOslava(stupen){
 function icNova(){
  const vsichni=Object.values(IC.stavy),on=vsichni.filter(s=>RPGInfo.online(s.updated,Date.now())).length;
  IC.start=Date.now();IC.zaklad=RPGInfo.zaklad(vsichni);IC.cil=RPGInfo.novyCil(on);IC.udal=[];icUloz();
- const ted=Date.now(),hraci=vsichni.map(s=>({uid:s.uid,jmeno:s.jmeno,level:s.level,updated:s.updated,on:RPGInfo.online(s.updated,ted),prir:RPGInfo.prirustek(s,IC.zaklad)}));
+ const ted=Date.now(),hraci=vsichni.map(s=>({uid:s.uid,jmeno:s.jmeno,level:s.level,kde:s.kde,updated:s.updated,on:RPGInfo.online(s.updated,ted),prir:RPGInfo.prirustek(s,IC.zaklad)}));
  icKresli(hraci,RPGInfo.souhrn(hraci),RPGInfo.posun(IC.cil,0,on),[]);
 }
 function icCela(){
@@ -2711,7 +2713,7 @@ document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
 
 <script src="vendor/supabase-js-2.118.0.js"></script>
 <script src="./rpg-cloud.js"></script>
-<script src="./rpg-infocentrum.js?v=20261104"></script>
+<script src="./rpg-infocentrum.js?v=20261105"></script>
 <script>boot();</script>
 </body>
 </html>
