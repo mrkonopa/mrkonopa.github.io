@@ -38,7 +38,7 @@
     flash: 'Bleskový', survivor: 'Z posledních sil', area1: 'První oblast', half: 'Půlka oblastí',
     root: 'Všechny oblasti', lv5: 'Úroveň 5', lv10: 'Úroveň 10', master1: 'Mistr tématu',
     train50: 'Trenér', streak3: 'Tři dny v řadě', streak7: 'Týden v řadě',
-    battle1: 'První klání', battlewin: 'Vítěz souboje', battleflawless: 'Bezchybný souboj', star1: 'Oživovatel',
+    battle1: 'První klání', battlewin: 'Vítěz souboje', battleflawless: 'Bezchybný souboj', battleteam: 'Týmový hráč', battlestreak3: 'Série výher', battle10: 'Stálý bojovník', star1: 'Oživovatel',
   };
 
   function cislo(v, max) {

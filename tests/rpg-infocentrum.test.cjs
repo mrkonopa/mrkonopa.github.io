@@ -149,7 +149,7 @@ function odznaky() {
     for (const id of ids) if (!I.ODZNAKY[id]) chybi.push('g' + g + ':' + id);
   }
   ok(celkem >= 7 * 15, 'našlo se aspoň 105 odznaků ve sedmi hrách (naměřeno při psaní: ' + celkem + ')', String(celkem));
-  ok(celkem === 7 * 19, 'každá hra má 19 odznaků (naměřeno při psaní); jiný počet = zkontroluj, jestli se parsuje celé pole', String(celkem));
+  ok(celkem === 7 * 22, 'každá hra má 22 odznaků (19 při psaní, +3 za živý souboj ve fázi 30); jiný počet = zkontroluj, jestli se parsuje celé pole', String(celkem));
   ok(chybi.length === 0, 'každý odznak ze hry má neutrální název v modulu', chybi.slice(0, 6).join(' '));
 }
 
