@@ -14,7 +14,9 @@
 --   • claim_battle_rewards() ji vydá JEDNOU (claimed_at) a vrátí statistiky
 --     pro odznaky; chybějící výsledek dopočítá z dohraného souboje, takže
 --     odměnu dostane i ten, kdo stránku zavřel, nebo hrál z hubu,
---   • battle_profile() vrací souhrn pro profil (body → hodnost, výhry…).
+--   • battle_profile() vrací souhrn pro profil (body → hodnost, výhry…),
+--   • rematch_battle() před vynulováním uloží a archivuje dohrané kolo, takže
+--     i odveta (stejné battle_id) dá výsledek a odměnu.
 --
 -- Pravidla odměny (schválil Vojta 4. 11. 2026, hodnoty z dřívějška zůstávají):
 --   XP     1. místo 80, 2. 50, 3. 30, ostatní 20, k tomu 3 za správnou (nejvýš +30)
@@ -158,6 +160,7 @@ begin
     select * from battle_results
      where user_id = uid and claimed_at is null
      order by finished_at, battle_id limit 20
+       for update                                   -- dva souběžné claimy nevyplatí totéž dvakrát
   loop
     select count(*)::int + 1 into nth
       from battle_results x
@@ -183,13 +186,42 @@ returns json language sql stable security definer set search_path = public as $$
   select public._battle_stats(auth.uid())::json where auth.uid() is not null;
 $$;
 
--- ── 8) práva (vzor fáze 9: anon nikam, pomocné jen zevnitř) ───────
+-- ── 8) odveta: dosavadní kolo se uloží a archivuje ───────────────
+-- rematch_battle (fáze 14) drží STEJNÉ battle_id. Výsledek je ale jediný na (souboj, hráč),
+-- takže by se druhé a další kolo nezapsalo a odveta by nikdy nic nedala. Teď se před
+-- vynulováním uloží výsledky všech hráčů dohraného kola (i těch, kdo zavřeli stránku)
+-- a archivují se pod novým id; další kolo se pak zapíše znovu pod původním.
+create or replace function public.rematch_battle(p_battle uuid)
+returns battles language plpgsql security definer set search_path = public as $$
+declare b battles; r record;
+begin
+  if not _battle_can_control(p_battle) then raise exception 'forbidden'; end if;
+  if exists (select 1 from battles where id = p_battle and status = 'finished') then
+    for r in select user_id from battle_players where battle_id = p_battle loop
+      perform public._battle_save_result(p_battle, r.user_id);
+    end loop;
+    update battle_results set battle_id = gen_random_uuid() where battle_id = p_battle;
+  end if;
+  update battles
+     set status = 'lobby', q_index = -1, q_started_at = null,
+         q_seed = (floor(random() * 2000000000))::bigint, updated_at = now()
+   where id = p_battle returning * into b;
+  -- vynuluj skóre, ponech hráče i jejich týmy
+  update battle_players
+     set score = 0, correct_count = 0, last_qi = -1, last_seen = now()
+   where battle_id = p_battle;
+  return b;
+end; $$;
+
+-- ── 9) práva (vzor fáze 9: anon nikam, pomocné jen zevnitř) ───────
 revoke execute on function public._battle_rewards_od()                                         from public, anon, authenticated;
 revoke execute on function public._battle_save_result(uuid, uuid)                              from public, anon, authenticated;
 revoke execute on function public._battle_odmena(int, int, int, int, int, smallint, boolean, int) from public, anon, authenticated;
 revoke execute on function public._battle_stats(uuid)                                          from public, anon, authenticated;
 revoke execute on function public.claim_battle_rewards()                                       from public, anon;
 revoke execute on function public.battle_profile()                                             from public, anon;
+revoke execute on function public.rematch_battle(uuid)                                         from public, anon;
 grant  execute on function public.claim_battle_rewards()                                       to authenticated;
+grant  execute on function public.rematch_battle(uuid)                                         to authenticated;
 grant  execute on function public.battle_profile()                                             to authenticated;
 -- record_battle_result si zachová práva z fáze 13/9 (CREATE OR REPLACE je nemění)

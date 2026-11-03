@@ -10,7 +10,7 @@
        zavedením fáze se NEdopočítá, starší výsledky se nevyplatí znovu),
      • statistiky: hráči, výhry, týmové výhry, série, body, jen započítané souboje,
      • práva: anon a public nikam, pomocné funkce zavřené, cizí řádky nikdy,
-     • 7 sabotáží (zdroj fáze se mění jen v paměti, funkce se před tím dropnou).
+     • 10 sabotáží (zdroj fáze se mění jen v paměti, funkce se před tím dropnou).
 
    Produkční pořadí: 4 → 7 → 9 → 13 → 14 → 23 → 29 → 30.
    SKIP (exit 0), když v prostředí není PostgreSQL server.
@@ -95,12 +95,33 @@ function kontroly(tichy) {
   vycisti();
   const a = souboj({ hraci: [{ u: U(1), score: 9000, ok: 10 }, { u: U(2), score: 5000, ok: 6 }, { u: U(3), score: 100, ok: 1 }] });
   let r = claim(U(1));
+  kk('souběh: nevyzvednuté řádky se vybírají pod zámkem (for update)', /for\s+update/i.test(H.q("select prosrc from pg_proc where proname = 'claim_battle_rewards'")));
   kk('claim vydá odměnu vítěze (110 XP, 25 kr) a souhrn', r.rewards.length === 1 && r.rewards[0].xp === 110 && r.rewards[0].credits === 25 && r.rewards[0].rank === 1
     && r.stats.played === 1 && r.stats.wins === 1 && r.stats.points === 9000 && r.stats.streak === 1, JSON.stringify(r));
   r = claim(U(1));
   kk('podruhé nevydá nic (jednou za souboj), souhrn zůstává', r.rewards.length === 0 && r.stats.played === 1);
   kk('hráč 2. místa dostane 62 XP, claim je jen jeho', claim(U(2)).rewards[0].xp === 50 + 18 && claim(U(2)).rewards.length === 0);
   kk('cizí člověk nedostane nic a statistiky má nulové', (() => { const x = claim(OUT); return x.rewards.length === 0 && x.stats.played === 0 && x.stats.streak === 0; })());
+
+  // ── odveta: dosavadní kolo se uloží, archivuje a další kolo dá výsledek znovu ──
+  vycisti();
+  const kolo = souboj({ hraci: [{ u: U(1), score: 9000, ok: 10 }, { u: U(2), score: 100, ok: 1 }] });
+  H.exec(jako(U(1), `select public.record_battle_result('${kolo}')`));      // zapsal jen vítěz, druhý hráč stránku zavřel
+  H.exec(jako(HOST, `select public.rematch_battle('${kolo}')`));
+  kk('odveta: výsledky obou hráčů dosavadního kola jsou uložené pod archivním id', H.q(`select count(*) from battle_results where battle_id <> '${kolo}'`) === '2' && H.q(`select count(*) from battle_results where battle_id = '${kolo}'`) === '0');
+  kk('odveta: souboj je zase v lobby a skóre nulové', H.q(`select status || '/' || (select sum(score) from battle_players where battle_id = '${kolo}') from battles where id = '${kolo}'`) === 'lobby/0');
+  H.exec(`update battles set status = 'finished' where id = '${kolo}';
+          update battle_players set score = 7000, correct_count = 9, last_qi = 9 where battle_id = '${kolo}' and user_id = '${U(2)}';
+          update battle_players set score = 100, correct_count = 1, last_qi = 9 where battle_id = '${kolo}' and user_id = '${U(1)}';`);
+  r = claim(U(2));
+  kk('odveta: 2. kolo dá výsledek i odměnu (vyhrál druhý hráč), 1. kolo se nezapočítá podruhé', r.rewards.length === 2 && r.rewards.filter(w => w.rank === 1).length === 1 && r.stats.played === 2 && r.stats.wins === 1, JSON.stringify(r.rewards.map(w => [w.rank, w.xp])));
+  r = claim(U(1));
+  kk('odveta: první hráč dostane odměnu obou kol (vyhrál 1., prohrál 2.), každou jednou', r.rewards.length === 2 && claim(U(1)).rewards.length === 0, JSON.stringify(r.rewards.map(w => [w.rank, w.xp])));
+  vycisti();
+  const rozehrany = souboj({ status: 'active', hraci: [{ u: U(1), score: 5000, ok: 5, last: 4 }, { u: U(2), score: 100, ok: 1, last: 4 }] });
+  H.exec(jako(HOST, `select public.rematch_battle('${rozehrany}')`));
+  kk('odveta z rozehraného souboje nic neukládá', H.q('select count(*) from battle_results') === '0');
+  kk('rematch_battle: anon ne, authenticated ano', H.q("select has_function_privilege('anon','public.rematch_battle(uuid)','execute')::text || has_function_privilege('authenticated','public.rematch_battle(uuid)','execute')::text") === 'falsetrue');
 
   // ── dopočet výsledku po zavřené stránce, souboj před zavedením fáze se nedopočítá ──
   vycisti();
@@ -215,6 +236,9 @@ function kontroly(tichy) {
       ['solo souboj se odměňuje', '(coalesce(p_total, 0) >= 2 and', '(coalesce(p_total, 0) >= 1 and'],
       ['bez týmového bonusu', "case when p_team is null then 0 when p_team_won is true then 30 else 10 end", '0'],
       ['dopočet i souboje před zavedením fáze', "and b.created_at >= public._battle_rewards_od()", ''],
+      ['odveta kolo nearchivuje', 'update battle_results set battle_id = gen_random_uuid() where battle_id = p_battle;', ''],
+      ['odveta neukládá výsledky hráčů', 'perform public._battle_save_result(p_battle, r.user_id);', 'null;'],
+      ['claim bez zámku řádků', '       for update                                   -- dva souběžné claimy nevyplatí totéž dvakrát', ''],
       ['claim volatelný i pro anon', 'grant  execute on function public.claim_battle_rewards()                                       to authenticated;',
         'grant  execute on function public.claim_battle_rewards()                                       to authenticated, anon;']
     ];
@@ -233,7 +257,7 @@ function kontroly(tichy) {
     H.file(FILE30);
     ok('po sabotážích je obnovená původní verze (všechny kontroly zelené)', kontroly(true) === 0);
   } catch (e) {
-    console.log('  ❌ výjimka testu: ' + String(e.stderr || e.message || e).slice(0, 500)); fail++;
+    console.log('  ❌ výjimka testu: ' + String(e.stderr || e.message || e).slice(0, 500) + (e.stack ? '\n' + String(e.stack).split('\n').slice(0, 6).join('\n') : '')); fail++;
   } finally { H.stop(); }
 
   console.log('\n══════════════════════════════════════════');

@@ -92,6 +92,7 @@ window.RPGWallet = (function () {
     { id: 'title-velmistr',    cat: 'title',  name: 'Absolutní velmistr', ic: '👑', price: 999999, ach: true },
     { id: 'title-legenda-veze',cat: 'title',  name: 'Legenda věže',       ic: '🗼', price: 999999, ach: true },
     { id: 'title-magnat',      cat: 'title',  name: 'Magnát',             ic: '🤑', price: 999999, ach: true },
+    { id: 'title-sampion-areny', cat: 'title',  name: 'Šampion arény',      ic: '⚔️', price: 999999, ach: true },
     { id: 'pet-fenix',         cat: 'pet',    name: 'Fénix',              ic: '🔥', price: 999999, ach: true },
     { id: 'victory-bomb',      cat: 'victory', name: 'Výbuch bomby',      ic: '💣', price: 999999, ach: true, cssKey: 'vc-bomb' },
     { id: 'victory-tree',      cat: 'victory', name: 'Strom vítězství',   ic: '🌳', price: 999999, ach: true, cssKey: 'vc-tree' },
@@ -119,10 +120,12 @@ window.RPGWallet = (function () {
       desc: 'Vylez na 50. patro Věže legend.' },
     { id: 'gach-streak-100',  ic: '🔥', nm: 'Věčný plamen',        stat: 'streakMax', goal: 100,   reward: { credits: 1200, grant: ['pet-fenix'] },
       desc: 'Hraj 100 dní v řadě. Odměna: exkluzivní Fénix.' },
+    { id: 'gach-battle-25',   ic: '⚔️', nm: 'Šampion arény',       stat: 'battleWins',goal: 25,    reward: { credits: 500, grant: ['title-sampion-areny'] },
+      desc: 'Vyhraj 25 živých soubojů (počítají se souboje aspoň dvou hráčů). Odměna: titul Šampion arény.' },
     { id: 'gach-earned-50k',  ic: '🤑', nm: 'Magnát',              stat: 'earned',    goal: 12000, reward: { grant: ['title-magnat'] },
       desc: 'Vydělej celkem 50 000 kreditů.' },
   ];
-  const LIFE_KEYS = ['tasks', 'crits', 'flawless', 'mastered', 'streakMax', 'towerFloor', 'earned', 'spent'];
+  const LIFE_KEYS = ['tasks', 'crits', 'flawless', 'mastered', 'streakMax', 'towerFloor', 'earned', 'spent', 'battleWins'];
   const ACTIVE_CATS = ['border', 'badge', 'theme', 'victory', 'skin', 'title', 'pet'];
   /* Kategorie, které jde VYPNOUT. `theme` a `victory` ne — tam musí něco
      platit vždy (mají výchozí položku zdarma), takže jejich „vypnutí" by

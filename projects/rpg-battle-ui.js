@@ -25,6 +25,7 @@
   var B = null;                  // aktuální stav souboje
   var root = null, timer = null;
   var onResult = null;           // callback z open() — module-level, ne uzávěr
+  var onReward = null;           // fáze 30: hra vyzvedne odměnu od serveru (Promise: objekt / null = server ji nemá)
 
   function cloud() { return (typeof RPGCloud !== 'undefined') ? RPGCloud : null; }
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) {
@@ -169,6 +170,7 @@
     opts = opts || {};
     NAME = opts.name || NAME;
     onResult = opts.onResult || null;
+    onReward = opts.onReward || null;
     GAME = opts.game || GAME;
     GRADES = cleanGrades(opts.grades) || gradesFromGame(GAME);
     BANK = opts.bank || window['RPG_BATTLE_' + (GAME.replace('RPG_MAT_', ''))] || null;
@@ -377,7 +379,7 @@
     // odveta: místnost se vrátila do lobby → vyrob novou sadu otázek a vynuluj klientské příznaky kola
     if (bt.status === 'lobby' && B.lastQi !== -2) {
       B.questions = null; B.lastQi = -2; B.didCountdown = false;
-      B.recorded = false; B.celebrated = false; B.resultSent = false; B.rankPrev = null; B.lastLobbyKey = null;
+      B.recorded = false; B.celebrated = false; B.resultSent = false; B.rankPrev = null; B.lastLobbyKey = null; B.odmena = null; B.recP = null;
     }
     if (!B.questions && bt.q_seed != null) {
       var gr = gradesOf(bt);
@@ -623,7 +625,7 @@
     var c0 = cloud();
     if (c0 && c0.recordBattleResult && B && B.id && !B.recorded) {
       B.recorded = true;
-      try { c0.recordBattleResult(B.id); } catch (e) {}
+      try { B.recP = c0.recordBattleResult(B.id); } catch (e) {}
     }
     var players = (st.players || []).slice().sort(function (a, b) { return b.score - a.score; });
     var medal = function (i) { return i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : (i + 1) + '.'; };
@@ -654,26 +656,71 @@
         '<button class="rpgb-btn sm" style="display:block;width:100%" onclick="RPGBattle._menu()">⚔️ Nový souboj</button>';
     }
     inner += '<button class="rpgb-btn sm" style="display:block;width:100%" onclick="RPGBattle.close()">Zavřít</button>';
+    inner = inner.replace('<div class="rpgb-sub">Výsledková listina</div>', '<div class="rpgb-sub">Výsledková listina</div><div id="rpgb-odmena">' + odmenaHtml() + '</div>');
     shell(inner);
     // konfety, když jsem skončil na bedně (1.–3.) — jen jednou
     var myRank = players.findIndex(function (p) { return p.user_id === st.me; });
     if (!B.celebrated && myRank >= 0 && myRank < 3) { B.celebrated = true; confetti(); }
-    // Odměny: zavolej hru zpět s výsledky (jednou; XP/kredity/odznaky řeší hra)
-    if (B && !B.resultSent && typeof onResult === 'function') {
+    // Odměny (fáze 30): spočítá a vydá server, hra je jen použije na svou postavu.
+    // Server odměnu nemá (fáze není nasazená) → původní způsob: hra si ji spočítá sama.
+    if (B && !B.resultSent) {
       B.resultSent = true;
-      var me = st.me;
-      var myRow = (st.players || []).find(function (p) { return p.user_id === me; });
-      var rank = players.findIndex(function (p) { return p.user_id === me; }) + 1;
-      try {
-        onResult({
-          rank: rank || players.length,       // 1 = vítěz
-          total: players.length,
-          correct: myRow ? (myRow.correct_count || 0) : 0,
-          score:   myRow ? (myRow.score || 0) : 0,
-          q_count: (st.battle && st.battle.q_count) || 10
-        });
-      } catch (e) {}
+      var bid = B.id;
+      var starySpusob = function () {
+        if (typeof onResult !== 'function' || !B || B.id !== bid) return;
+        var me = st.me;
+        var myRow = (st.players || []).find(function (p) { return p.user_id === me; });
+        var rank = players.findIndex(function (p) { return p.user_id === me; }) + 1;
+        try {
+          onResult({
+            rank: rank || players.length,       // 1 = vítěz
+            total: players.length,
+            correct: myRow ? (myRow.correct_count || 0) : 0,
+            score:   myRow ? (myRow.score || 0) : 0,
+            q_count: (st.battle && st.battle.q_count) || 10
+          });
+        } catch (e) {}
+      };
+      if (typeof onReward === 'function' && c0 && c0.claimBattleRewards) {
+        Promise.resolve(B.recP).then(function () { return onReward(); }).then(function (res) {
+          if (!B || B.id !== bid) return;
+          if (res === null) { starySpusob(); return; }          // server odměny nemá → po starém
+          if (res && typeof res === 'object') {
+            B.odmena = res;
+            var el = document.getElementById('rpgb-odmena');
+            if (el) el.innerHTML = odmenaHtml();
+          }
+        }, function () { /* chyba sítě: odměna zůstane nevyzvednutá a vydá se příště */ });
+      } else if (typeof onResult === 'function') {
+        starySpusob();
+      }
     }
+  }
+
+  // Řádek s odměnou za TENTO souboj (z odpovědi serveru) + hodnost. Jen čísla ze serveru, vše přes |0.
+  function odmenaHtml() {
+    if (!B) return '';
+    if (typeof onReward !== 'function' && typeof onResult !== 'function') {
+      // hub: nemá postavu, na kterou by se odměna připsala
+      return '<div class="rpgb-sub" style="margin:4px 0 8px">🎁 Odměnu (XP, kredity, odznaky) ti připíšeme, jakmile otevřeš některou hru.</div>';
+    }
+    var o = B.odmena; if (!o || !Array.isArray(o.rewards)) return '';
+    var r = o.rewards.find(function (x) { return x && x.battle_id === B.id; });
+    if (!r) return '';
+    var xp = (Number(r.xp) || 0) | 0, kr = (Number(r.credits) || 0) | 0;
+    if (xp <= 0 && kr <= 0) {
+      return '<div class="rpgb-sub" style="margin:4px 0 8px">Za tenhle souboj odměna není — počítají se souboje aspoň dvou hráčů, kde odpovíš na polovinu otázek.</div>';
+    }
+    var h = '<div style="text-align:center;margin:6px 0 10px;font-weight:700;color:var(--gold,#19e6e6)">🎁 Odměna: +' + xp + ' XP · +' + kr + ' kr';
+    if (r.team != null && r.team_won === true) h += ' <span style="font-size:12px;color:#4ade80">(tým vyhrál)</span>';
+    h += '</div>';
+    var pts = o.stats && o.stats.points != null ? (Number(o.stats.points) || 0) : null;
+    if (pts != null && typeof window.bojHodnost === 'function') {
+      var hd = window.bojHodnost(pts);
+      h += '<div style="text-align:center;margin:-4px 0 10px;font-size:13px;color:var(--muted,#8895b5)">Hodnost: <b style="color:var(--text,#e8ecf8)">' + esc(hd.nm) + '</b>' +
+        (hd.dalsi ? ' · do „' + esc(hd.dalsi.nm) + '“ ti chybí ' + Math.max(0, hd.dalsi.od - hd.body) + ' b.' : '') + '</div>';
+    }
+    return h;
   }
 
   // ════════════ UČITEL: běžící souboje ════════════
@@ -702,7 +749,7 @@
     var c = cloud(); if (!c || !B || !c.rematchBattle) return;
     // reset klientského stavu — poll pak ukáže lobby (i ostatním hráčům)
     B.recorded = false; B.didCountdown = false; B.lastQi = -2;
-    B.celebrated = false; B.resultSent = false; B.rankPrev = null;
+    B.celebrated = false; B.resultSent = false; B.rankPrev = null; B.odmena = null; B.recP = null;
     B.lastLobbyKey = null; B.questions = null;
     if (!B.stop) startPoll();       // pojistka, kdyby polling neběžel
     c.rematchBattle(B.id);
