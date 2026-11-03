@@ -482,7 +482,7 @@ body::before{
   <div style="background:linear-gradient(135deg,var(--accent-bg),#081418);border:1px solid var(--accent-ui);border-radius:var(--r-lg);padding:18px;position:relative;overflow:hidden">
    <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--accent-ui),#5dc8f0)"></div>
    <div style="font-weight:700;font-size:16px;color:var(--accent-ui);letter-spacing:2px;margin-bottom:6px">⚔️ ŽIVÝ SOUBOJ</div>
-   <div style="font-size:13px;color:var(--muted);margin-bottom:14px">Vyber ročníky, z nichž budou otázky. Pak založ nebo se připoj.</div>
+   <div style="font-size:13px;color:var(--muted);margin-bottom:14px">Ročníky otázek vybírá jen ten, kdo souboj zakládá. Kdo se připojuje, výběr nepotřebuje: otázky jsou vždy podle zakladatele.</div>
    <div class="hb-grade-group" data-st="1" style="display:none;gap:16px;flex-wrap:wrap;margin-bottom:16px">
     <label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-size:14px;color:var(--text)"><input type="checkbox" class="hb-grade" value="3" style="width:16px;height:16px;accent-color:#6fc24a"> 🌳 3. roč.</label>
     <label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-size:14px;color:var(--text)"><input type="checkbox" class="hb-grade" value="4" style="width:16px;height:16px;accent-color:#4ab0e0"> 🏴‍☠️ 4. roč.</label>
@@ -911,15 +911,16 @@ RPGCloud.onChange(u=>{
 if(window.RPGBattle) document.getElementById('hub-battle').style.display='';
 function openHubBattle(role){
   if(!window.RPGBattle){alert('Živý souboj se nenačetl. Zkus obnovit stránku.');return;}
-  const grades=Array.from(document.querySelectorAll('.hb-grade:checked')).filter(el=>{const grp=el.closest('.hb-grade-group');return !grp||grp.style.display!=='none';}).map(el=>el.value);
-  if(!grades.length){alert('Vyber aspoň jeden ročník.');return;}
+  // ročníky určuje JEN autor souboje (ukládá je server); připojujícímu je výběr k ničemu
+  const grades=role==='host'?Array.from(document.querySelectorAll('.hb-grade:checked')).filter(el=>{const grp=el.closest('.hb-grade-group');return !grp||grp.style.display!=='none';}).map(el=>el.value):[];
+  if(role==='host'&&!grades.length){alert('Vyber aspoň jeden ročník.');return;}
   const banks=grades.map(g=>window['RPG_BATTLE_'+g]).filter(Boolean);
-  if(!banks.length){alert('Banka otázek se nenačetla. Zkus obnovit stránku.');return;}
-  const bank=banks.length===1?banks[0]:banks;
+  if(role==='host'&&!banks.length){alert('Banka otázek se nenačetla. Zkus obnovit stránku.');return;}
+  const bank=banks.length===0?null:banks.length===1?banks[0]:banks;
   const game=grades.length===1?'RPG_MAT_'+grades[0]:'RPG_MAT_MIX';
   let playerName='HRDINA';
   GAMES.forEach(g=>{try{const s=JSON.parse(localStorage.getItem(g.key));if(s&&s.name)playerName=s.name;}catch{}});
-  RPGBattle.open({game,name:playerName,bank,autoAction:role==='host'?'host':'join'});
+  RPGBattle.open({game,name:playerName,bank,grades:grades.map(Number),autoAction:role==='host'?'host':'join'});
 }
 async function submitFeedback(){
  const body=(document.getElementById('fb-body').value||'').trim();

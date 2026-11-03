@@ -54,4 +54,13 @@ union all select 'fáze 28 · vzhled spolužáků (look_of smí volat jen přihl
                      where n.nspname = 'public' and p.proname = 'look_of' limit 1), false)
        and not coalesce((select has_function_privilege('anon', p.oid, 'execute')
                      from pg_proc p join pg_namespace n on n.oid = p.pronamespace
-                     where n.nspname = 'public' and p.proname = 'look_of' limit 1), true);
+                     where n.nspname = 'public' and p.proname = 'look_of' limit 1), true)
+union all select 'fáze 29 · ročníky živého souboje určuje autor (sloupec battles.grades, create_battle_g jen pro přihlášené)',
+       exists(select 1 from information_schema.columns where table_schema = 'public' and table_name = 'battles' and column_name = 'grades')
+       and exists(select 1 from f where proname = 'create_battle_g' and def like '%invalid grades%')
+       and coalesce((select has_function_privilege('authenticated', p.oid, 'execute')
+                     from pg_proc p join pg_namespace n on n.oid = p.pronamespace
+                     where n.nspname = 'public' and p.proname = 'create_battle_g' limit 1), false)
+       and not coalesce((select has_function_privilege('anon', p.oid, 'execute')
+                     from pg_proc p join pg_namespace n on n.oid = p.pronamespace
+                     where n.nspname = 'public' and p.proname = 'create_battle_g' limit 1), true);
