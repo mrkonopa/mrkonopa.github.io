@@ -797,9 +797,22 @@ window.RPGCloud = (function () {
   // ════════════ Fáze 7 — živý souboj (Kahoot-style) ════════════
   // Tenké wrappery nad SECURITY DEFINER RPC funkcemi (viz phase7.sql).
   // Vše graceful: bez clienta/přihlášení vrací null/[]/false.
-  async function createBattle(game, qcount, hostName, teamMode) {
+  let ceFaze29Chybi = false;   // fáze 29 (create_battle_g) v databázi není → dál se nezkouší
+  async function createBattle(game, qcount, hostName, teamMode, grades) {
     if (!client || !user) return { error: 'Nejsi přihlášen.' };
     try {
+      // Fáze 29: ročníky souboje uloží server (create_battle_g), takže je určuje JEN autor.
+      // Bez nasazené fáze se spadne na původní funkce; otázky pak určí banka každého hráče.
+      const gr = Array.isArray(grades) ? grades.filter(n => Number.isInteger(n) && n >= 3 && n <= 9).slice(0, 7) : [];
+      if (gr.length && !ceFaze29Chybi) {
+        const r = await client.rpc('create_battle_g', {
+          p_game: game, p_qcount: qcount, p_host_name: hostName, p_team_mode: !!teamMode, p_grades: gr });
+        if (!r.error) return r.data;
+        const chybi = r.error.code === 'PGRST202' || /Could not find the function/i.test(r.error.message || '');
+        if (!chybi) return { error: r.error.message || String(r.error) };
+        ceFaze29Chybi = true;
+        console.warn('[RPGCloud] create_battle_g není nasazená (fáze 29), zakládám původním způsobem.');
+      }
       // Fáze 14: týmový režim přes create_battle_tm; jinak původní create_battle.
       const fn = teamMode ? 'create_battle_tm' : 'create_battle';
       const args = teamMode

@@ -21,6 +21,7 @@
   var QSEC = 25;                 // sekund na otázku
   var COUNTDOWN_MS = 3000;       // délka odpočtu 3-2-1 (sdílená kotva startu)
   var NAME = 'HRDINA', GAME = 'RPG_MAT_9', BANK = null;
+  var GRADES = null;             // ročníky, které při zakládání zvolil autor (posílají se serveru)
   var B = null;                  // aktuální stav souboje
   var root = null, timer = null;
   var onResult = null;           // callback z open() — module-level, ne uzávěr
@@ -169,6 +170,7 @@
     NAME = opts.name || NAME;
     onResult = opts.onResult || null;
     GAME = opts.game || GAME;
+    GRADES = cleanGrades(opts.grades) || gradesFromGame(GAME);
     BANK = opts.bank || window['RPG_BATTLE_' + (GAME.replace('RPG_MAT_', ''))] || null;
     injectCss();
     if (!root) { root = document.createElement('div'); root.id = 'rpgb-ovl'; document.body.appendChild(root); }
@@ -182,7 +184,8 @@
       return;
     }
     if (Array.isArray(BANK)) BANK = mergeBank(BANK);
-    if (!BANK || typeof BANK.build !== 'function') {
+    // připojující banku mít nemusí: otázky se stavějí z ročníků uložených u souboje (viz bankFor)
+    if (opts.autoAction !== 'join' && (!BANK || typeof BANK.build !== 'function')) {
       shell('<div class="rpgb-h">⚔️ ŽIVÝ SOUBOJ</div>' +
         '<div class="rpgb-sub">Banka otázek se nenačetla. Zkus obnovit stránku.</div>');
       return;
@@ -210,6 +213,49 @@
         return pool.slice(0, Math.min(count, pool.length));
       }
     };
+  }
+
+  // ── Ročníky souboje určuje JEN autor (fáze 29) ───────────────────
+  // Server drží `grades` u souboje; každý hráč staví otázky ze seedu VÝHRADNĚ z nich —
+  // nikdy z banky, kterou má u sebe zvolenou nebo načtenou. Pořadí je vzestupné pro všechny,
+  // takže se pole otázek shoduje bit po bitu (mergeBank solí seed indexem banky).
+  function cleanGrades(a) {
+    if (!Array.isArray(a)) return null;
+    var seen = {}, out = [];
+    a.slice(0, 20).forEach(function (x) {
+      var n = typeof x === 'number' ? x : (typeof x === 'string' && /^[3-9]$/.test(x) ? Number(x) : NaN);
+      if (n >= 3 && n <= 9 && n === Math.floor(n) && !seen[n]) { seen[n] = 1; out.push(n); }
+    });
+    out.sort(function (p, q) { return p - q; });
+    return out.length ? out : null;
+  }
+  function gradesFromGame(g) { var m = /^RPG_MAT_([3-9])$/.exec(String(g || '')); return m ? [Number(m[1])] : null; }
+  function gradesOf(bt) { return cleanGrades(bt && bt.grades) || gradesFromGame(bt && bt.game); }
+
+  var UI_BASE = (function () {
+    try {
+      var sc = document.currentScript || document.querySelector('script[src*="rpg-battle-ui.js"]');
+      return sc && sc.src ? sc.src.replace(/[^\/]*$/, '') : './';
+    } catch (e) { return './'; }
+  })();
+  var bankLoad = {};   // ročník → true (načítá se); po chybě se za 3 s zkusí znovu
+  function loadBank(g) {
+    if (bankLoad[g] || !(g >= 3 && g <= 9)) return;
+    bankLoad[g] = true;
+    var sc = document.createElement('script');
+    sc.src = UI_BASE + 'rpg-battle-' + (g | 0) + '.js';
+    sc.onerror = function () { setTimeout(function () { bankLoad[g] = false; }, 3000); };
+    document.head.appendChild(sc);
+  }
+  // Banka pro dané ročníky, nebo null, dokud se některá nenačte (pak se zkusí při dalším dotazu na stav)
+  function bankFor(grades) {
+    var banks = [], missing = false;
+    grades.forEach(function (g) {
+      var b = window['RPG_BATTLE_' + g];
+      if (b && typeof b.build === 'function') banks.push(b); else { missing = true; loadBank(g); }
+    });
+    if (missing) return null;
+    return banks.length === 1 ? banks[0] : mergeBank(banks);
   }
 
   function renderMenu() {
@@ -273,7 +319,7 @@
   function createRoom(count) {
     var c = cloud(); if (!c) return;
     shell('<div class="rpgb-sub">Zakládám místnost…</div>');
-    c.createBattle(GAME, count, NAME, HTEAM).then(function (b) {
+    c.createBattle(GAME, count, NAME, HTEAM, GRADES).then(function (b) {
       if (!b || !b.id) {
         var errMsg = (b && b.error) ? esc(b.error) : 'Zkus to znovu nebo obnov stránku.';
         shell('<div class="rpgb-h">❌ Chyba</div>' +
@@ -333,7 +379,12 @@
       B.questions = null; B.lastQi = -2; B.didCountdown = false;
       B.recorded = false; B.celebrated = false; B.resultSent = false; B.rankPrev = null; B.lastLobbyKey = null;
     }
-    if (!B.questions && bt.q_seed != null) B.questions = BANK.build(Number(bt.q_seed), bt.q_count);
+    if (!B.questions && bt.q_seed != null) {
+      var gr = gradesOf(bt);
+      // starý souboj bez uložených ročníků (před fází 29): banka hráče jako dřív
+      var bk = gr ? bankFor(gr) : BANK;
+      if (bk) B.questions = bk.build(Number(bt.q_seed), bt.q_count);
+    }
     if (bt.status === 'lobby') renderLobby(st);
     else if (bt.status === 'finished') renderResults(st);
     else {
