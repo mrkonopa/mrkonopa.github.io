@@ -79,12 +79,12 @@ async function loadCloud(opts) {
   console.log('\n── barva jména z obchodu v žebříčku ──');
   {
     const radek = (html, jmeno) => { const i = html.indexOf(jmeno); return i < 0 ? '' : html.slice(html.lastIndexOf('<span', i), i); };
-    const el = () => ({ style: {}, innerHTML: '' });
+    const el = () => ({ style: {}, innerHTML: '', querySelectorAll: () => [], querySelector: () => null });   // vzhled spolužáků (fáze 28) se kreslí do DOM, tady jen řetězec
     // koupená barva jména: třída jen u VLASTNÍHO řádku (spolužákům ji ukáže až databáze)
     const e1 = el();
     const { RPGCloud: C1 } = await loadCloud({ el: e1, wallet: { cssFor: c => c === 'badge' ? 'nm-gold' : '' } });
     await C1.renderLeaderboardInto('lb', 'RPG_MAT_9');
-    ok(/class="nm-gold"/.test(radek(e1.innerHTML, 'Vojta')), 'vlastní řádek má třídu nm-gold: ' + radek(e1.innerHTML, 'Vojta').slice(0, 60));
+    ok(/class="lb-nm nm-gold"/.test(radek(e1.innerHTML, 'Vojta')), 'vlastní řádek má třídu nm-gold: ' + radek(e1.innerHTML, 'Vojta').slice(0, 60));
     ok(!/nm-/.test(radek(e1.innerHTML, 'Neo')), 'cizí řádek nemá žádnou třídu nm-*');
     // bez koupené barvy (nebo bez peněženky) se nepřidá nic
     const e2 = el();
@@ -100,7 +100,7 @@ async function loadCloud(opts) {
     const { RPGCloud: C4 } = await loadCloud({ el: e4, wallet: { cssFor: () => 'nm-x" onclick="alert(1)' } });
     await C4.renderLeaderboardInto('lb', 'RPG_MAT_9');
     const kl = (e4.innerHTML.match(/<span class="([^"]*)"/) || [])[1];
-    ok(kl !== undefined && /^[a-z-]*$/.test(kl) && !/ onclick=/.test(e4.innerHTML), 'třída z peněženky se očistí na [a-z-] (žádný vnořený atribut): „' + kl + '“');
+    ok(kl !== undefined && /^[a-z -]*$/.test(kl) && !/ onclick=/.test(e4.innerHTML), 'třída z peněženky se očistí na [a-z-] (žádný vnořený atribut): „' + kl + '“');
   }
 
   console.log('\n── bez přihlášení (graceful) ──');

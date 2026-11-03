@@ -117,6 +117,7 @@
     "rpg-siroke-obrazovky.test.cjs": 166,
     "rpg-profil-uvod.test.cjs": 110,
     "rpg-poloha.test.cjs": 170,
+    "rpg-look.test.cjs": 16,
     "rpg-infocentrum-konzole.test.cjs": 10,
     "rpg-temata-hry.test.cjs": 143,
     "rpg-issue103.test.cjs": 14,
