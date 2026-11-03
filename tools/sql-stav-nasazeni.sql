@@ -63,4 +63,14 @@ union all select 'fáze 29 · ročníky živého souboje určuje autor (sloupec 
                      where n.nspname = 'public' and p.proname = 'create_battle_g' limit 1), false)
        and not coalesce((select has_function_privilege('anon', p.oid, 'execute')
                      from pg_proc p join pg_namespace n on n.oid = p.pronamespace
-                     where n.nspname = 'public' and p.proname = 'create_battle_g' limit 1), true);
+                     where n.nspname = 'public' and p.proname = 'create_battle_g' limit 1), true)
+union all select 'fáze 30 · odměny za živý souboj počítá server (claim_battle_rewards, battle_profile; odveta archivuje kola)',
+       exists(select 1 from information_schema.columns where table_schema = 'public' and table_name = 'battle_results' and column_name = 'claimed_at')
+       and exists(select 1 from f where proname = 'claim_battle_rewards' and def like '%for update%' and def like '%180%')
+       and exists(select 1 from f where proname = 'rematch_battle' and def like '%gen_random_uuid%')
+       and coalesce((select has_function_privilege('authenticated', p.oid, 'execute')
+                     from pg_proc p join pg_namespace n on n.oid = p.pronamespace
+                     where n.nspname = 'public' and p.proname = 'claim_battle_rewards' limit 1), false)
+       and not coalesce((select has_function_privilege('anon', p.oid, 'execute')
+                     from pg_proc p join pg_namespace n on n.oid = p.pronamespace
+                     where n.nspname = 'public' and p.proname = 'claim_battle_rewards' limit 1), true);

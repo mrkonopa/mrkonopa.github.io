@@ -101,9 +101,10 @@ async function profil(browser, base, ok, hry, vpList) {
 
     /* čerstvá hra */
     const f = await stav(0, 0);
-    ok(f.total === 19 && f.zam === 19, `${zaklad}: v DOM zůstává všech 19 dlaždic odznaků`, JSON.stringify(f));
+    const TOT = await page.evaluate(() => ACH.length);   // dřív 19; počet odznaků roste (fáze 30: +3), test ho bere z hry
+    ok(TOT >= 19 && f.total === TOT && f.zam === TOT, `${zaklad}: v DOM zůstává všech ${TOT} dlaždic odznaků`, JSON.stringify(f));
     ok(f.zamViz === (st2 ? 0 : 4), `${zaklad}: viditelných zamčených odznaků ${st2 ? 0 : 4}`, 'je ' + f.zamViz);
-    const schovano = st2 ? 19 : 15;
+    const schovano = st2 ? TOT : TOT - 4;
     ok(f.cipA === schovano, `${zaklad}: řada zámků má ${schovano} políček`, 'je ' + f.cipA);
     ok(f.vetaA === ocekavanaVeta(schovano, st2), `${zaklad}: věta u zámků`, `„${f.vetaA}“ ≠ „${ocekavanaVeta(schovano, st2)}“`);
     if (st2) {
@@ -132,10 +133,10 @@ async function profil(browser, base, ok, hry, vpList) {
     }
 
     /* postupný pokrok: skloňování a hranice, kdy se řada vůbec ukazuje */
-    const PRIP = st2 ? [1, 14, 15, 16, 17, 18, 19] : [12, 13, 16];
+    const PRIP = st2 ? [1, TOT - 5, TOT - 4, TOT - 3, TOT - 2, TOT - 1, TOT] : [TOT - 7, TOT - 6, TOT - 3];
     for (const k of PRIP) {
       const s = await stav(k, 0);
-      const n = 19 - k;
+      const n = TOT - k;
       const sbal = st2 ? n : Math.max(0, n - 4);
       const radaMa = st2 ? n >= 1 : sbal >= 3;
       ok(s.radA === (radaMa ? 1 : 0), `${zaklad}: ${k} získaných → řada ${radaMa ? 'je' : 'není'}`, 'řad ' + s.radA);
