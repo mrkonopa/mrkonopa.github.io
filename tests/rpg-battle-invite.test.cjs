@@ -70,6 +70,20 @@ window.RPGCloud = {
   const invHtml2 = await page.evaluate(() => document.getElementById('rpgb-invites').innerHTML);
   ok(invHtml2 === '' , 'pozvánka z jiného ročníku (RPG_MAT_8) je odfiltrovaná');
 
+  // ── C2: pozvánka na MIX souboj se ve hře ZOBRAZÍ (ročníky určuje autor a drží je server), cizí ročník a rozehraný MIX ne ──
+  await openMenu([
+    { id:'i3', code:'MIXA', host_name:'Honza', game:'RPG_MAT_MIX', status:'lobby' },
+    { id:'i4', code:'ZZZZ', host_name:'Eva', game:'RPG_MAT_8', status:'lobby' },
+    { id:'i5', code:'MIXB', host_name:'Pavel', game:'RPG_MAT_MIX', status:'active' }]);
+  await page.waitForTimeout(80);
+  const invMix = await page.evaluate(() => Array.from(document.querySelectorAll('#rpgb-invites button.invite')).map(b => b.textContent));
+  ok(invMix.length === 1 && /MIXA/.test(invMix[0]) && /Honza/.test(invMix[0]), 'pozvánka na MIX souboj ve hře je vidět (jen ta v čekárně), RPG_MAT_8 a rozehraný MIX ne', JSON.stringify(invMix));
+  await page.evaluate(() => { window.__cfg.joinResult = { id:'b2', code:'MIXA' }; window.__cfg.state = { battle:{ status:'lobby', q_count:5 }, players:[{user_id:'u-self',display_name:'Vojta'}], me:'u-self' }; window.__calls.join = []; });
+  await page.click('#rpgb-invites button.invite');
+  await page.waitForTimeout(50);
+  const joinMix = await page.evaluate(() => window.__calls.join);
+  ok(joinMix.length === 1 && joinMix[0][0] === 'MIXA', 'klik na pozvánku na MIX zavolá joinBattle("MIXA")');
+
   // ── D: host v čekárně — formulář pozvánky + odeslání ─────────────
   await page.evaluate(() => {
     window.__cfg = { createResult: { id:'b9', code:'QWER' }, state: { battle:{ status:'lobby', q_count:5 }, players:[{user_id:'u-self',display_name:'Vojta'}], me:'u-self' } };
