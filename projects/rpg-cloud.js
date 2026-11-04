@@ -1129,6 +1129,26 @@ window.RPGCloud = (function () {
     } catch (e) { /* vzhled je jen ozdoba — chyba nesmí rozbít žebříček */ }
   }
 
+  /* Ozdobí řádky seznamu (žebříček třídy, Věž): každému řádku `selRadek` dá vzhled, který vrátí
+     getLook(řádek), a řádkům bez rámečku přidá prázdné místo stejné šířky, ať jména začínají pod sebou. */
+  function lookRadky(koren, selRadek, selJmeno, getLook) {
+    try {
+      if (!koren || typeof getLook !== 'function') return;
+      koren.querySelectorAll(selRadek).forEach(radek => {
+        const jm = radek.querySelector(selJmeno);
+        if (jm) lookDekoruj(radek, jm, getLook(radek));
+      });
+      if (!koren.querySelector('.lk-av')) return;
+      koren.querySelectorAll(selRadek).forEach(radek => {
+        if (radek.querySelector('.lk-av')) return;
+        const jm = radek.querySelector(selJmeno);
+        if (!jm) return;
+        const sp = document.createElement('span'); sp.className = 'lk-av lk-prazdny'; sp.setAttribute('aria-hidden', 'true');
+        radek.insertBefore(sp, jm.closest('.lk-col') || jm);
+      });
+    } catch (e) { /* vzhled je jen ozdoba */ }
+  }
+
   async function renderLeaderboardInto(elId, game) {
     const el = document.getElementById(elId);
     if (!el) return;
@@ -1164,20 +1184,7 @@ window.RPGCloud = (function () {
         '</div>'
       ).join('');
     el.style.display = 'block';
-    el.querySelectorAll('[data-uid]').forEach(radek => {
-      const jm = radek.querySelector('.lb-nm');
-      if (jm) lookDekoruj(radek, jm, vzhled[radek.getAttribute('data-uid')]);
-    });
-    /* má-li rámeček aspoň jeden řádek, ostatní dostanou prázdné místo stejné šířky, ať jména začínají pod sebou */
-    if (el.querySelector('.lk-av')) {
-      el.querySelectorAll('[data-uid]').forEach(radek => {
-        if (radek.querySelector('.lk-av')) return;
-        const jm = radek.querySelector('.lb-nm');
-        if (!jm) return;
-        const sp = document.createElement('span'); sp.className = 'lk-av lk-prazdny'; sp.setAttribute('aria-hidden', 'true');
-        radek.insertBefore(sp, jm.closest('.lk-col') || jm);
-      });
-    }
+    lookRadky(el, '[data-uid]', '.lb-nm', radek => vzhled[radek.getAttribute('data-uid')]);
   }
 
   // stránku smí vidět jen učitel/superadmin — jinak přesměruj na hub
@@ -1726,7 +1733,7 @@ window.RPGCloud = (function () {
            listNotesFor, addNote, deleteNote, deleteBroadcast, pullMyNotes,
            listMyBroadcasts, markMyNotesRead, deleteMyNote,
            // Fáze 4 — žebříček třídy
-           leaderboard, renderLeaderboardInto, lookOf, lookDekoruj,
+           leaderboard, renderLeaderboardInto, lookOf, lookDekoruj, lookRadky,
            // Fáze 6 — vysvětlení postupu
            saveExplanation, listExplanations, deleteExplanation,
            // Fáze 6b — snímky chybovosti

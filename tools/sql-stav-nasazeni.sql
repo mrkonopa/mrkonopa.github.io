@@ -73,4 +73,16 @@ union all select 'fáze 30 · odměny za živý souboj počítá server (claim_b
                      where n.nspname = 'public' and p.proname = 'claim_battle_rewards' limit 1), false)
        and not coalesce((select has_function_privilege('anon', p.oid, 'execute')
                      from pg_proc p join pg_namespace n on n.oid = p.pronamespace
-                     where n.nspname = 'public' and p.proname = 'claim_battle_rewards' limit 1), true);
+                     where n.nspname = 'public' and p.proname = 'claim_battle_rewards' limit 1), true)
+union all select 'fáze 31 · žebříček Věže ukazuje vzhled spolužáků (tower_board.look, bez user_id)',
+       exists(select 1 from f where proname = 'tower_board' and def like '%_look_z_penezenky%')
+       and exists(select 1 from pg_proc p join pg_namespace n on n.oid = p.pronamespace
+                  where n.nspname = 'public' and p.proname = 'tower_board' and 'look' = any (p.proargnames))
+       and not exists(select 1 from pg_proc p join pg_namespace n on n.oid = p.pronamespace
+                  where n.nspname = 'public' and p.proname = 'tower_board' and 'user_id' = any (p.proargnames))
+       and coalesce((select has_function_privilege('authenticated', p.oid, 'execute')
+                     from pg_proc p join pg_namespace n on n.oid = p.pronamespace
+                     where n.nspname = 'public' and p.proname = 'tower_board' limit 1), false)
+       and not coalesce((select has_function_privilege('anon', p.oid, 'execute')
+                     from pg_proc p join pg_namespace n on n.oid = p.pronamespace
+                     where n.nspname = 'public' and p.proname = 'tower_board' limit 1), true);
