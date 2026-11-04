@@ -148,6 +148,8 @@
       '#rpgb-conf i{position:absolute;top:-12px;width:9px;height:14px;border-radius:2px;animation:rpgb-fall linear forwards}' +
       '@keyframes rpgb-fall{to{transform:translateY(105vh) rotate(720deg);opacity:.4}}' +
       // ── lobby hráč: jemný nástup ──
+      '.rpgb-nm{min-width:0;overflow-wrap:anywhere}.rpgb-ply>.rpgb-nm{flex:1}.rpgb-ply .lk-col>.rpgb-nm{flex:none}' +
+      '.rpgb-ply .lk-av,.rpgb-st .lk-av{margin:-2px 0}' +
       '.rpgb-ply{animation:rpgb-in .25s ease}@keyframes rpgb-in{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}' +
       // ── pozvánky ──
       '.rpgb-invbox{border:1px dashed var(--gold,#19e6e6);border-radius:10px;padding:10px;margin:0 0 14px;background:rgba(25,230,230,.06)}' +
@@ -279,7 +281,7 @@
     var c = cloud(); if (!c || !c.myBattleInvites) return;
     c.myBattleInvites().then(function (list) {
       var box = document.getElementById('rpgb-invites'); if (!box) return;
-      var mine = (list || []).filter(function (iv) { return iv.game === GAME && iv.status === 'lobby'; });
+      var mine = (list || []).filter(function (iv) { return (iv.game === GAME || iv.game === 'RPG_MAT_MIX') && iv.status === 'lobby'; });
       if (!mine.length) { box.innerHTML = ''; return; }
       box.innerHTML = '<div class="rpgb-invbox"><div class="rpgb-invh">📨 Máš pozvánku do souboje</div>' +
         mine.map(function (iv) {
@@ -409,6 +411,39 @@
   }
 
   // ════════════ LOBBY ════════════
+  // Vzhled spolužáků z obchodu (fáze 28, look_of): rámeček s iniciálou, barva jména, titul a mazlíček u řádku hráče.
+  // Dotaz jde na VŠECHNY hráče souboje najednou (pak z paměti na 60 s) a dekoruje se po každém překreslení řádků.
+  // Cizí třída nebo chybějící fáze 28 = prázdný vzhled, řádek zůstane jako dřív. `bezTitulu` = úzké a nízké řádky.
+  function ozdob(koren, st, bezTitulu) {
+    var c = cloud();
+    if (!c || !c.lookOf || !c.lookDekoruj || !koren || !st || !B) return;
+    var radky = koren.querySelectorAll('[data-uid]');
+    if (!radky.length) return;
+    var ids = (st.players || []).map(function (p) { return p.user_id; });
+    var bid = B.id;
+    try {
+      c.lookOf(ids).then(function (mapa) {
+        if (!B || B.id !== bid) return;
+        Array.prototype.forEach.call(radky, function (r) {
+          if (r.getAttribute('data-lk')) return;
+          r.setAttribute('data-lk', '1');
+          var nm = r.querySelector('.rpgb-nm');
+          if (nm) c.lookDekoruj(r, nm, mapa && mapa[r.getAttribute('data-uid')], bezTitulu ? { titul: false } : null);
+        });
+        // má-li rámeček aspoň jeden řádek, ostatní dostanou prázdné místo stejné šířky, ať jména začínají pod sebou
+        if (koren.querySelector('.lk-av')) {
+          Array.prototype.forEach.call(radky, function (r) {
+            if (r.querySelector('.lk-av')) return;
+            var nm = r.querySelector('.rpgb-nm');
+            if (!nm) return;
+            var sp = document.createElement('span'); sp.className = 'lk-av lk-prazdny'; sp.setAttribute('aria-hidden', 'true');
+            r.insertBefore(sp, nm.closest('.lk-col') || nm);
+          });
+        }
+      }, function () {});
+    } catch (e) { /* vzhled je jen ozdoba */ }
+  }
+
   function renderLobby(st) {
     var players = st.players || [];
     // Klíč = seznam jmen; změna = přibyl/odebral hráč → plný re-render
@@ -430,7 +465,7 @@
       var col = function (arr, color, name) {
         return '<div style="flex:1;min-width:0"><div style="font-weight:700;font-size:13px;color:' + color + ';margin-bottom:4px">' + name + ' (' + arr.length + ')</div>' +
           arr.map(function (p) {
-            return '<div class="rpgb-ply' + (p.user_id === st.me ? ' me' : '') + '" style="border-left:3px solid ' + color + '">' + esc(p.display_name) + (p.user_id === st.me ? ' (ty)' : '') + '</div>';
+            return '<div class="rpgb-ply' + (p.user_id === st.me ? ' me' : '') + '" data-uid="' + esc(p.user_id) + '" style="border-left:3px solid ' + color + '"><span class="rpgb-nm">' + esc(p.display_name) + (p.user_id === st.me ? ' (ty)' : '') + '</span></div>';
           }).join('') + '</div>';
       };
       plyHtml = '<div class="rpgb-row"><span>HRÁČI</span><span id="rpgb-plycount">' + players.length + '</span></div>' +
@@ -438,7 +473,7 @@
     } else {
       plyHtml = '<div class="rpgb-row"><span>HRÁČI</span><span id="rpgb-plycount">' + players.length + '</span></div>' +
         players.map(function (p) {
-          return '<div class="rpgb-ply' + (p.user_id === st.me ? ' me' : '') + '">👤 ' + esc(p.display_name) + (p.user_id === st.me ? ' (ty)' : '') + '</div>';
+          return '<div class="rpgb-ply' + (p.user_id === st.me ? ' me' : '') + '" data-uid="' + esc(p.user_id) + '">👤 <span class="rpgb-nm">' + esc(p.display_name) + (p.user_id === st.me ? ' (ty)' : '') + '</span></div>';
         }).join('');
     }
     var inner = '<div class="rpgb-h">⏳ Čekárna</div>' +
@@ -456,6 +491,7 @@
     inner += '<button class="rpgb-btn sm red" style="display:block;width:100%" onclick="RPGBattle._leave()">' +
       (B.role === 'host' ? '✕ Zrušit místnost' : '← Odejít') + '</button>';
     shell(inner);
+    ozdob(root, st, !!B.teamMode);
     if (B.role === 'host') {
       var im = document.getElementById('rpgb-invmail');
       if (im && B._invDraft) im.value = B._invDraft;   // přežij re-render při příchodu hráče
@@ -562,12 +598,13 @@
         var i = ranked.indexOf(p);
         var up = B.rankPrev && B.rankPrev[p.user_id] != null && B.rankPrev[p.user_id] > i;
         var dn = B.rankPrev && B.rankPrev[p.user_id] != null && B.rankPrev[p.user_id] < i;
-        return '<div class="rpgb-st' + (p.user_id === st.me ? ' me' : '') + '">' +
+        return '<div class="rpgb-st' + (p.user_id === st.me ? ' me' : '') + '" data-uid="' + esc(p.user_id) + '">' +
           '<span class="rk">' + medal(i) + '</span>' +
-          '<span class="nm">' + esc(p.display_name) + (p.user_id === st.me ? ' (ty)' : '') + '</span>' +
+          '<span class="nm rpgb-nm">' + esc(p.display_name) + (p.user_id === st.me ? ' (ty)' : '') + '</span>' +
           '<span class="dl">' + (up ? '<span style="color:#4ade80">▲</span>' : dn ? '<span style="color:#ff6b6b">▼</span>' : '') + '</span>' +
           '<span class="sc">' + (p.score || 0) + '</span></div>';
       }).join('');
+    ozdob(el, st, true);
     // zapamatuj pořadí pro příští šipky
     B.rankPrev = {}; ranked.forEach(function (p, i) { B.rankPrev[p.user_id] = i; });
   }
@@ -642,9 +679,9 @@
       '<div class="rpgb-sub">Výsledková listina</div>' + teamBanner +
       players.map(function (p, i) {
         var tc = p.team === 0 ? '#3b82f6' : p.team === 1 ? '#e8475f' : '';
-        return '<div class="rpgb-ply' + (p.user_id === st.me ? ' me' : '') + '"' + (tc ? ' style="border-left:3px solid ' + tc + '"' : '') + '>' +
+        return '<div class="rpgb-ply' + (p.user_id === st.me ? ' me' : '') + '" data-uid="' + esc(p.user_id) + '"' + (tc ? ' style="border-left:3px solid ' + tc + '"' : '') + '>' +
           '<span style="min-width:30px">' + medal(i) + '</span>' +
-          '<span style="flex:1;font-weight:700">' + esc(p.display_name) + (p.user_id === st.me ? ' (ty)' : '') + '</span>' +
+          '<span class="rpgb-nm" style="flex:1;font-weight:700">' + esc(p.display_name) + (p.user_id === st.me ? ' (ty)' : '') + '</span>' +
           '<span style="color:var(--muted,#8895b5);font-size:12px">' + (p.correct_count || 0) + '✓</span>' +
           '<span style="color:var(--gold,#19e6e6);min-width:64px;text-align:right">' + (p.score || 0) + '</span></div>';
       }).join('');
@@ -658,6 +695,7 @@
     inner += '<button class="rpgb-btn sm" style="display:block;width:100%" onclick="RPGBattle.close()">Zavřít</button>';
     inner = inner.replace('<div class="rpgb-sub">Výsledková listina</div>', '<div class="rpgb-sub">Výsledková listina</div><div id="rpgb-odmena">' + odmenaHtml() + '</div>');
     shell(inner);
+    ozdob(root, st, !!B.teamMode);
     // konfety, když jsem skončil na bedně (1.–3.) — jen jednou
     var myRank = players.findIndex(function (p) { return p.user_id === st.me; });
     if (!B.celebrated && myRank >= 0 && myRank < 3) { B.celebrated = true; confetti(); }

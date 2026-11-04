@@ -1090,8 +1090,8 @@ window.RPGCloud = (function () {
     document.head.appendChild(st);
   }
   /* Přidá k řádku vzhled hráče: rámeček s iniciálou před jméno, barvu jména, titul a mazlíčka za jméno.
-     `radek` je flex řádek, `jmenoEl` v něm jeho jméno. Bez vzhledu nebo bez modulů kosmetiky nedělá nic. */
-  function lookDekoruj(radek, jmenoEl, look) {
+     `radek` je flex řádek, `jmenoEl` v něm jeho jméno; `opt.titul === false` titul vynechá. Bez vzhledu nebo bez modulů kosmetiky nedělá nic. */
+  function lookDekoruj(radek, jmenoEl, look, opt) {
     try {
       const l = lookCisty(look);
       if (!radek || !jmenoEl || !LOOK_KAT.some(k => l[k])) return;
@@ -1110,7 +1110,7 @@ window.RPGCloud = (function () {
         radek.insertBefore(av, jmenoEl);
       }
       /* titul stojí pod jménem (v řádku vedle jména by jméno zmizelo), proto jméno + titul tvoří sloupec */
-      const tit = polozka(l.title, 'title');
+      const tit = opt && opt.titul === false ? null : polozka(l.title, 'title');   // úzké řádky (živý souboj) titul nenesou
       let sloupec = jmenoEl;
       if (tit && tit.name) {
         const col = document.createElement('span'); col.className = 'lk-col';
