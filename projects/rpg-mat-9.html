@@ -3029,12 +3029,14 @@ async function twRenderBoard(){
  if(!rows||!rows.length){el.style.display='none';return;}
  const medal=i=>i===0?'🥇':i===1?'🥈':i===2?'🥉':(i+1)+'.';
  el.innerHTML='<div style="font-family:var(--px);font-weight:700;font-size:12px;color:var(--gold);margin-bottom:8px;letter-spacing:1px">— 🗼 ŽEBŘÍČEK SEZÓNY —</div>'+
-  rows.map((r,i)=>'<div style="display:flex;align-items:center;gap:8px;padding:5px 8px;border-radius:5px;font-family:var(--px);font-size:13px;margin:3px 0;'+
+  rows.map((r,i)=>'<div data-i="'+i+'" style="display:flex;align-items:center;gap:8px;padding:5px 8px;border-radius:5px;font-family:var(--px);font-size:13px;margin:3px 0;'+
    (r.is_me?'background:rgba(244,208,63,.12);border:1px solid var(--gold)':'background:rgba(255,255,255,.03)')+'">'+
    '<span style="min-width:26px;text-align:center">'+medal(i)+'</span>'+
-   '<span style="flex:1;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:'+(r.is_me?'var(--gold)':'var(--text)')+'">'+twEsc(r.display_name)+(r.is_me?' (ty)':'')+'</span>'+
+   '<span class="tw-nm" style="flex:1;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:'+(r.is_me?'var(--gold)':'var(--text)')+'">'+twEsc(r.display_name)+(r.is_me?' (ty)':'')+'</span>'+
    '<span style="color:var(--blue,#19e6e6);min-width:70px;text-align:right">'+(r.best_floor|0)+'. patro</span></div>').join('');
  el.style.display='block';
+ /* rámeček, barva jména, titul a mazlíček spolužáků (server je dává jen sobě, spolužákům a učiteli) */
+ if(typeof RPGCloud!=='undefined'&&RPGCloud.lookRadky)RPGCloud.lookRadky(el,'[data-i]','.tw-nm',function(r){var d=rows[+r.getAttribute('data-i')];return d&&d.look;});
 }
 
 async function twRenderHall(){
@@ -3385,7 +3387,7 @@ window.addEventListener('load',()=>{
 <script defer src="./rpg-temata.js?v=20261031"></script>
 <script defer src="./rpg-mazlicci.js?v=20261101"></script>
 <script defer src="vendor/supabase-js-2.118.0.js"></script>
-<script defer src="./rpg-cloud.js?v=20261108"></script>
+<script defer src="./rpg-cloud.js?v=20261109"></script>
 <script defer src="./rpg-battle-9.js"></script>
 <script defer src="./rpg-badwords.js"></script>
 <script defer src="./rpg-shared.js?v=20261107"></script>

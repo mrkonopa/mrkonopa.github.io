@@ -222,13 +222,13 @@ async function scenarTelefon(browser, base, g, zdroj) {
 
   /* sabotáže: každá musí shodit aspoň jednu kontrolu */
   const SAB = [
-    ['bez vykreslení vzhledu', s => s.replace('if (jm) lookDekoruj(radek, jm, vzhled[radek.getAttribute(\'data-uid\')]);', ''), 'ok'],
+    ['bez vykreslení vzhledu', s => s.replace('if (jm) lookDekoruj(radek, jm, getLook(radek));', ''), 'ok'],
     ['bez paměti', s => s.replace('if (c && ted - c.t < 60000)', 'if (false)'), 'ok'],
     ['bez ochranné lhůty po chybě', s => s.replace('lookChybaDo = ted + 300000;', 'lookChybaDo = 0;'), 'bez-faze'],
     ['bez stropu 60', s => s.replace('const ptam = chybi.slice(0, 60);', 'const ptam = chybi;'), 'ok'],
     ['bez ověření UUID', s => s.replace("!/^[0-9a-f-]{36}$/i.test(id)", 'false'), 'ok'],
     ['rámeček za jménem', s => s.replace('radek.insertBefore(av, jmenoEl);', 'radek.insertBefore(av, jmenoEl.nextSibling);'), 'ok'],
-    ['bez zarovnání jmen', s => s.replace("if (el.querySelector('.lk-av')) {", 'if (false) {'), 'ok'],
+    ['bez zarovnání jmen', s => s.replace("if (!koren.querySelector('.lk-av')) return;", 'return;'), 'ok'],
   ];
   for (const [jm, zmena, kam] of SAB) {
     const nove = zmena(ZDROJ);

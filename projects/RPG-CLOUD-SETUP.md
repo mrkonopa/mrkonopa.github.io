@@ -125,6 +125,7 @@ Postupem času přibyly další funkce, každá má svůj SQL soubor. **Stačí 
 | 28 | [`rpg-cloud-setup-phase28.sql`](./rpg-cloud-setup-phase28.sql) | 2, 4, 23 | vzhled spolužáků z obchodu — `look_of(p_ids uuid[])` vrací jen rámeček, barvu jména, titul a mazlíčka (ověřené, jen koupené; sebe, spolužáky a učitel); žebříček třídy je ukazuje |
 | 29 | [`rpg-cloud-setup-phase29.sql`](./rpg-cloud-setup-phase29.sql) | 7, 14 | ročníky živého souboje určuje jen autor — sloupec `battles.grades` a `create_battle_g(p_game, p_qcount, p_host_name, p_team_mode, p_grades)`; klient staví otázky jen z nich |
 | 30 | [`rpg-cloud-setup-phase30.sql`](./rpg-cloud-setup-phase30.sql) | 13, 14, 29 | odměny za živý souboj počítá server — `claim_battle_rewards()` (XP, kredity, týmový bonus, denní strop, jednou za souboj), `battle_profile()` (hodnost z bodů, výhry, série), odveta (`rematch_battle`) ukládá a archivuje dohraná kola |
+| 31 | [`rpg-cloud-setup-phase31.sql`](./rpg-cloud-setup-phase31.sql) | 11, 28 | vzhled spolužáků ve Věži — `tower_board` dostane sloupec `look` (rámeček, barva jména, titul, mazlíček; jen sebe, spolužáci a učitel, jinak NULL, bez `user_id`); po této fázi nespouštěj znovu fázi 11 |
 | S | [`../rpg-cloud-setup-security.sql`](../rpg-cloud-setup-security.sql) | 1 | serverové stropy kreditů a XP (trigger na `saves`), v kořeni repa |
 
 Číselné pořadí je vždy bezpečné (6b po 6, bezpečnostní trigger kdykoli po fázi 1). **Fázi 7 nenechávej bez fáze 9** — teprve devítka odebere novým funkcím právo pro `anon`.
