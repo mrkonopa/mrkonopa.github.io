@@ -1705,6 +1705,9 @@ const ACH=[
  {id:'battle1',   ic:'swords', nm:'První klání',       desc:'Zúčastni se živého souboje'},
  {id:'battlewin', ic:'trophy', nm:'Bojovník',           desc:'Vyhraj živý souboj (1. místo)'},
  {id:'battleflawless',ic:'gem',nm:'Bezchybný',      desc:'Všechny otázky správně v živém souboji'},
+ {id:'battleteam',   ic:'shield', nm:'Týmový hráč',      desc:'Vyhraj týmový živý souboj'},
+ {id:'battlestreak3',ic:'flame',  nm:'Série výher',       desc:'Vyhraj 3 živé souboje po sobě'},
+ {id:'battle10',     ic:'medal',  nm:'Stálý bojovník',    desc:'Zahraj 10 živých soubojů'},
  {id:'star1',     ic:'star', nm:'Oživovatel',         desc:'Získej první hvězdu opakování'},
 ];
 // evalAch/touchStreak/awardStar/reviveState/_vynechanySkolniDen → sdílené v projects/rpg-shared.js (byly 7× totožné)
@@ -1789,7 +1792,7 @@ function countDone(mid,tc){
 
 function openBattle(){
  if(!window.RPGBattle){alert('Živý souboj se nenačetl. Zkus obnovit stránku.');return;}
- RPGBattle.open({game:SAVE_KEY,name:S.name||'HRDINA',bank:window.RPG_BATTLE_9,onResult:function(r){
+ RPGBattle.open({game:SAVE_KEY,name:S.name||'HRDINA',bank:window.RPG_BATTLE_9,onReward:function(){return bojOdmena({force:true});},onResult:function(r){
   // XP: 1. místo 80, 2. místo 50, 3. místo 30, ostatní 20 + 3 za každou správnou
   const base=r.rank===1?80:r.rank===2?50:r.rank===3?30:20;
   const bonus=Math.min(r.correct*3,30);
@@ -1840,6 +1843,7 @@ function renderRevive(){
 document.addEventListener('DOMContentLoaded',function(){fillIcons();});
 
 function renderMap(){
+ if(typeof bojOdmena==='function')bojOdmena();   // odměny za živé souboje (server je vydá jednou; hub a zavřené stránky)
  calcLevel();
  document.getElementById('map-name').textContent=S.name;
  document.getElementById('map-lv').textContent=S.level;
@@ -3236,25 +3240,7 @@ function svgAttrRadar(attrs){
  }).join('');
  return `<svg viewBox="0 0 212 212" style="width:206px;height:206px;display:block;margin:0 auto 4px">${grid}${lines}${poly}${dots}${lbls}${vals}</svg>`;
 }
-async function updateBattleStats(){
- const p=document.getElementById('pr-battle');
- const inner=document.getElementById('pr-battle-inner');
- if(!p||!inner)return;
- if(typeof RPGCloud==='undefined'||!RPGCloud.currentUser||!RPGCloud.currentUser()||typeof RPGCloud.battleStatsMe!=='function'){p.style.display='none';return;}
- try{
-  const st=await RPGCloud.battleStatsMe(SAVE_KEY);
-  if(!st||!st.played){p.style.display='none';return;}
-  const tot=(st.correct||0)+(st.wrong||0);
-  const acc=tot?Math.round(100*st.correct/tot):0;
-  p.style.display='';
-  inner.innerHTML=`<div style="display:flex;gap:16px;flex-wrap:wrap;font-family:var(--read,'Lexend',sans-serif);font-size:14px">
-   <span><span class="bic" data-ic="swords"></span><b>${st.played}</b> soubojů</span>
-   <span>🥇 <b>${st.wins||0}</b> výher</span>
-   <span>✓ <b>${acc}%</b> správně</span>
-   <span style="color:var(--muted)">⌀ ${st.avg_rank?Number(st.avg_rank).toFixed(1):'-'}. místo</span>
-  </div>`;
- }catch(e){p.style.display='none';}
-}
+function updateBattleStats(){if(typeof bojProfil==='function')bojProfil();}
 
 // Avatar v profilu = hrdina z bojového enginu. Kreslí se až po applyCosmetics,
 // aby seděl i zakoupený skin.
@@ -3393,19 +3379,19 @@ window.addEventListener('load',()=>{
  }
 });
 </script>
-<script defer src="./rpg-wallet.js?v=20261102"></script>
+<script defer src="./rpg-wallet.js?v=20261107"></script>
 <script defer src="./rpg-kosmetika.js?v=20261101"></script>
 <script defer src="./rpg-vitezstvi.js?v=20261030"></script>
 <script defer src="./rpg-temata.js?v=20261031"></script>
 <script defer src="./rpg-mazlicci.js?v=20261101"></script>
 <script defer src="vendor/supabase-js-2.118.0.js"></script>
-<script defer src="./rpg-cloud.js"></script>
+<script defer src="./rpg-cloud.js?v=20261107"></script>
 <script defer src="./rpg-battle-9.js"></script>
 <script defer src="./rpg-badwords.js"></script>
-<script defer src="./rpg-shared.js?v=20261106"></script>
+<script defer src="./rpg-shared.js?v=20261107"></script>
 <script defer src="./rpg-2stupen.js"></script>
 <script defer src="./rpg-tasktypes.js"></script>
-<script defer src="./rpg-battle-ui.js"></script>
+<script defer src="./rpg-battle-ui.js?v=20261107"></script>
 <script>window.addEventListener('load',function(){if(window.RPGCloud&&RPGCloud.attachGame)RPGCloud.attachGame(SAVE_KEY);});</script>
 </body>
 </html>

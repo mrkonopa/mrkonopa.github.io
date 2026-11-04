@@ -385,6 +385,12 @@ function evalAch(ev){
  if(Object.values(S.mastery||{}).some(m=>m&&(m.stars|0)>=1))unlockAch('star1');
  const br=ev.battleResult;
  if(br){unlockAch('battle1');if(br.rank===1)unlockAch('battlewin');if(br.correct>=br.q_count&&br.q_count>0)unlockAch('battleflawless');}
+ const bs=ev.battleStats;   // souhrn ze serveru (fáze 30): počítají se jen souboje s víc hráči a aspoň polovinou odpovědí
+ if(bs){
+  if((bs.team_wins|0)>=1)unlockAch('battleteam');
+  if((bs.streak|0)>=3)unlockAch('battlestreak3');
+  if((bs.played|0)>=10)unlockAch('battle10');
+ }
 }
 function touchStreak(){
  if(!S.streak)S.streak={count:0,last:''};
@@ -890,3 +896,105 @@ function profilZhust(){
  }
  if(document.readyState==='complete')introHrdina();else if(typeof window!=='undefined'&&typeof window.addEventListener==='function')window.addEventListener('load',introHrdina);
 })();
+
+/* ═══ Živý souboj: odměny ze serveru, hodnost a profil (fáze 30) ═══
+   Odměnu počítá a vydává server (claim_battle_rewards): jednou za souboj, i když hráč
+   zavřel stránku nebo hrál z hubu. Hra ji jen připíše své postavě. Bez nasazené fáze
+   vrací bojOdmena null a rpg-battle-ui dá odměnu po starém (onResult v rpg-mat-N). */
+const BOJ_HODNOSTI=[
+ {od:0,nm:'Nováček'},{od:2000,nm:'Bojovník'},{od:8000,nm:'Veterán'},
+ {od:20000,nm:'Elitní bojovník'},{od:45000,nm:'Mistr arény'},{od:100000,nm:'Legenda arény'}];
+function bojHodnost(body){
+ let b=Math.floor(Number(body));if(!isFinite(b)||b<0)b=0;
+ let i=0;while(i+1<BOJ_HODNOSTI.length&&b>=BOJ_HODNOSTI[i+1].od)i++;
+ const dalsi=BOJ_HODNOSTI[i+1]||null,od=BOJ_HODNOSTI[i].od;
+ return{i:i,nm:BOJ_HODNOSTI[i].nm,od:od,dalsi:dalsi,body:b,pct:dalsi?Math.min(100,Math.floor(100*(b-od)/(dalsi.od-od))):100};
+}
+function _bojCislo(v,max){v=Math.floor(Number(v));return isFinite(v)?Math.max(0,Math.min(max,v)):0;}
+/* Použije odpověď serveru na postavu této hry. Čísla ze serveru se ořežou (|0 nestačí). */
+function bojPouzij(res,o){
+ o=o||{};
+ if(!res||typeof res!=='object')return null;
+ const rw=Array.isArray(res.rewards)?res.rewards:[];
+ const st=(res.stats&&typeof res.stats==='object')?res.stats:null;
+ let xp=0,kr=0;const platne=[];
+ rw.forEach(r=>{
+  if(!r||typeof r!=='object')return;
+  const x=_bojCislo(r.xp,300),k=_bojCislo(r.credits,100);
+  if(x<=0)return;            // solo / krátký souboj / málo odpovědí: server nedal nic
+  xp+=x;kr+=k;platne.push(r);
+ });
+ xp=Math.min(xp,180);         // server vydá nejvýš 180 XP najednou (strop jednoho zápisu savu je +200)
+ if(xp>0){
+  const pred=Math.floor(S.xp/100)+1;
+  S.xp+=xp;
+  const po=Math.floor(S.xp/100)+1;
+  if(po>pred){S.level=po;if(typeof levelUpBurst==='function')setTimeout(()=>levelUpBurst(po),650);}
+ }
+ if(kr>0&&typeof earnCredits==='function')earnCredits(kr);
+ platne.forEach(r=>evalAch({battleResult:{rank:_bojCislo(r.rank,999),total:_bojCislo(r.total,999),correct:_bojCislo(r.correct,999),q_count:_bojCislo(r.q_count,999)}}));
+ if(st){
+  evalAch({battleStats:{played:_bojCislo(st.played,1e6),wins:_bojCislo(st.wins,1e6),team_wins:_bojCislo(st.team_wins,1e6),streak:_bojCislo(st.streak,1e6)}});
+  wMax('battleWins',_bojCislo(st.wins,1e5));
+ }
+ if(xp>0||kr>0)saveS();
+ if(o.toast&&(xp>0||kr>0)&&typeof achToast==='function')achToast({ic:'swords',nm:'Odměna za souboj',desc:'+'+xp+' XP · +'+kr+' kr'});
+ return{xp:xp,kr:kr,n:platne.length};
+}
+let _bojBezi=false,_bojCas=0;
+/* Vyzvedne odměny. Promise: objekt = vyzvednuto, null = server odměny nemá (po starém),
+   false = přeskočeno (už běží / nedávno / chyba sítě). {force:true} = hned po souboji. */
+function bojOdmena(o){
+ o=o||{};
+ const C=(typeof RPGCloud!=='undefined')?RPGCloud:null;
+ if(!C||typeof C.claimBattleRewards!=='function'||!C.currentUser||!C.currentUser())return Promise.resolve(null);
+ if(_bojBezi)return Promise.resolve(false);
+ const ted=Date.now();
+ if(!o.force&&ted-_bojCas<60000)return Promise.resolve(false);
+ _bojBezi=true;_bojCas=ted;
+ return C.claimBattleRewards().then(res=>{
+  _bojBezi=false;
+  if(res===null)return null;
+  if(!res)return false;
+  bojPouzij(res,{toast:!o.force});
+  return res;
+ },()=>{_bojBezi=false;return false;});
+}
+/* Panel „Živé souboje“ v profilu: hodnost z bodů, ukazatel k další hodnosti a souhrn.
+   3.–5. ročník panel v HTML nemá, vloží se před NASTAVENÍ. */
+function bojProfil(){
+ let p=document.getElementById('pr-battle');
+ if(!p){
+  const rm=document.getElementById('pr-rm'),ref=rm&&rm.closest&&rm.closest('.panel');
+  if(!ref||!ref.parentNode)return Promise.resolve();
+  p=document.createElement('div');p.className='panel';p.id='pr-battle';p.style.display='none';
+  p.innerHTML='<div style="font-family:var(--px);font-weight:700;font-size:12px;color:var(--muted);margin-bottom:10px;letter-spacing:1px">— ŽIVÉ SOUBOJE —</div><div id="pr-battle-inner"></div>';
+  ref.parentNode.insertBefore(p,ref);
+ }
+ const inner=document.getElementById('pr-battle-inner');
+ if(!inner)return Promise.resolve();
+ p.style.display='none';
+ const C=(typeof RPGCloud!=='undefined')?RPGCloud:null;
+ if(!C||typeof C.battleProfile!=='function'||!C.currentUser||!C.currentUser())return Promise.resolve();
+ // bez nasazené fáze 30 zůstává dřívější souhrn (battle_stats_me), jen bez hodnosti
+ return C.battleProfile().then(st=>st||(typeof C.battleStatsMe==='function'?C.battleStatsMe(SAVE_KEY):null)).then(st=>{
+  if(!st||!_bojCislo(st.played,1e6)){return;}
+  const pl=_bojCislo(st.played,1e6),wi=_bojCislo(st.wins,1e6),tw=_bojCislo(st.team_wins,1e6),
+   bo=_bojCislo(st.points,1e9),be=_bojCislo(st.best,1e9),sr=_bojCislo(st.streak,1e6),
+   ok=_bojCislo(st.correct,1e9),zl=_bojCislo(st.wrong,1e9),h=bojHodnost(bo),
+   acc=(ok+zl)?Math.round(100*ok/(ok+zl)):0,cs=n=>String(n).replace(/\B(?=(\d{3})+(?!\d))/g,' ');
+  inner.innerHTML=
+   '<div style="font-family:var(--read,\'Lexend\',sans-serif);font-size:14px">'+
+   (st.points!=null?
+   '<div style="display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:6px"><span class="bic" data-ic="swords"></span>'+
+   '<b style="font-size:17px;color:var(--gold)">'+esc2(h.nm)+'</b><span style="color:var(--muted);font-size:13px">'+cs(bo)+' bodů</span></div>'+
+   '<div class="boj-bar" role="img" aria-label="Postup k další hodnosti: '+h.pct+' %" style="height:10px;background:var(--panel2,#16203b);border-radius:5px;overflow:hidden;margin-bottom:4px"><i style="display:block;height:100%;width:'+h.pct+'%;background:var(--gold)"></i></div>'+
+   '<div style="color:var(--muted);font-size:12px;margin-bottom:10px">'+(h.dalsi?'Do hodnosti „'+esc2(h.dalsi.nm)+'“ ti chybí '+cs(Math.max(0,h.dalsi.od-bo))+' bodů.':'Nejvyšší hodnost — gratulujeme!')+'</div>':'')+
+   '<div style="display:flex;gap:6px 16px;flex-wrap:wrap">'+
+   '<span><b>'+pl+'</b> soubojů</span><span>🥇 <b>'+wi+'</b> výher</span>'+(tw?'<span>🛡 <b>'+tw+'</b> týmových výher</span>':'')+
+   '<span>✓ <b>'+acc+' %</b> správně</span>'+(st.points!=null?'<span>nejlepší <b>'+cs(be)+'</b> b.</span>':'')+(sr>=2?'<span>🔥 série <b>'+sr+'</b></span>':'')+
+   '</div></div>';
+  p.style.display='';
+  fillIcons(inner);
+ },()=>{});
+}

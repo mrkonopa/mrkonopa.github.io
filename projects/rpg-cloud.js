@@ -906,6 +906,42 @@ window.RPGCloud = (function () {
       if (error) throw error; return data || [];
     } catch (e) { console.warn('[RPGCloud] battleStatsAll selhal:', e); return []; }
   }
+  /* Fáze 30: odměny za živý souboj počítá server. claim vydá každou odměnu
+     JEDNOU (z dohraného souboje, i když se výsledek nezapsal) a vrátí souhrn
+     pro hodnost a odznaky: { rewards:[{xp,credits,rank,total,team_won,…}], stats:{…} }.
+     null = server odměny nemá (fáze 30 není nasazená) → hra dá odměnu po starém;
+     false = chyba (síť…) → NIC se nevyplácí, nevyzvednuté se vydá při dalším vyzvednutí. */
+  let ceFaze30Chybi = false;
+  function _rpgChybi(e) { return !!e && (e.code === 'PGRST202' || /Could not find the function/i.test(e.message || '')); }
+  // Dokud se po přihlášení rozhoduje, čí postup platí (attachGame), se odměna nevydává:
+  // připsala by se postavě, kterou vzápětí nahradí cloud, a vyzvednutá by už nešla znovu.
+  function _cekejNaSync(ms) {
+    return new Promise(function (hotovo) {
+      const t0 = Date.now();
+      (function kolo() {
+        if (!Object.keys(synchronizuje).some(function (k) { return synchronizuje[k]; }) || Date.now() - t0 > ms) return hotovo();
+        setTimeout(kolo, 150);
+      })();
+    });
+  }
+  async function claimBattleRewards() {
+    if (!client || !user || ceFaze30Chybi) return null;
+    try {
+      await _cekejNaSync(8000);
+      const { data, error } = await client.rpc('claim_battle_rewards');
+      if (error) { if (_rpgChybi(error)) { ceFaze30Chybi = true; return null; } throw error; }
+      return data && typeof data === 'object' ? data : false;
+    } catch (e) { console.warn('[RPGCloud] claimBattleRewards selhal:', e); return false; }
+  }
+  /* Vlastní souhrn pro profil (odehráno, výhry, body → hodnost, série…). */
+  async function battleProfile() {
+    if (!client || !user || ceFaze30Chybi) return null;
+    try {
+      const { data, error } = await client.rpc('battle_profile');
+      if (error) { if (_rpgChybi(error)) { ceFaze30Chybi = true; return null; } throw error; }
+      return data && typeof data === 'object' ? data : null;
+    } catch (e) { console.warn('[RPGCloud] battleProfile selhal:', e); return null; }
+  }
   /* Žák: vlastní soubojový souhrn. */
   async function battleStatsMe(game) {
     if (!client || !user) return null;
@@ -1705,6 +1741,8 @@ window.RPGCloud = (function () {
            rematchBattle,
            // Fáze 13 — trvalá historie soubojů
            recordBattleResult, battleStatsAll, battleStatsMe,
+           // Fáze 30 — odměny za živý souboj počítá server
+           claimBattleRewards, battleProfile,
            // Fáze 11 — věž legend
            towerEligible, towerSubmit, towerBoard, towerHall, towerCloseSeason,
            // Fáze 12 — věž legend: nástroje pro učitele

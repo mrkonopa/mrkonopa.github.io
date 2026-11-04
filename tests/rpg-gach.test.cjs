@@ -37,7 +37,7 @@ console.log('\n═══ rpg-gach: životní úspěchy + sezónní obchod ══
   const ls = W.lifeStats();
   ok('blank: všechny life countery 0', Object.values(ls).every(v => v === 0), JSON.stringify(ls));
   const gl = W.gachList();
-  ok('blank: 9 úspěchů, vše zamčené', gl.length === 9 && gl.every(g => !g.unlocked));
+  ok('blank: 10 úspěchů, vše zamčené', gl.length === 10 && gl.every(g => !g.unlocked));
 }
 
 // ── 2) Znalec (1 000 příkladů) ──
@@ -91,6 +91,17 @@ console.log('\n═══ rpg-gach: životní úspěchy + sezónní obchod ══
   const unl = W.setLifeMax('towerFloor', 50);
   ok('patro 50 → Legenda věže', unl.some(u => u.id === 'gach-tower-50'));
   ok('titul Legenda věže vlastněn', W.owns('title-legenda-veze'));
+}
+
+// ── 6b) Šampion arény — 25 výher v živém souboji (fáze 30) ──
+{
+  const { W } = makeSandbox();
+  ok('titul Šampion arény nejde koupit (ach-locked)', W.buy('title-sampion-areny').reason === 'ach-locked');
+  ok('24 výher: nic', W.setLifeMax('battleWins', 24).length === 0 && !W.owns('title-sampion-areny'));
+  const kr = W.getCredits();
+  const unl = W.setLifeMax('battleWins', 25);
+  ok('25 výher → Šampion arény (+500 kr, titul)', unl.some(u => u.id === 'gach-battle-25') && W.owns('title-sampion-areny') && W.getCredits() === kr + 500);
+  ok('opakování už toast nevrací', W.setLifeMax('battleWins', 30).length === 0);
 }
 
 // ── 7) Věčný plamen — pet Fénix ──
