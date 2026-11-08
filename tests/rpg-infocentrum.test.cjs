@@ -105,6 +105,28 @@ function kontroly(I, prefix) {
   ok(t && t.skore.join() === '5120,4380' && t.modry.join() === 'Anna N.,Tomáš B.' && t.cerveny.join() === 'Adam H.', p + 'týmy: skóre a jména obou týmů', JSON.stringify(t));
   ok(I.tymy({ battle: { team_mode: false }, teams: null, players: [] }) === null && I.tymy(null) === null && I.tymy({}) === null, p + 'bez týmového režimu je null');
   ok(I.tymy({ battle: { team_mode: true }, teams: { 0: 'x', 1: -3 } }).skore.join() === '0,0', p + 'nesmyslné skóre týmu je 0');
+
+  /* 7b — hráči týmu: skóre, správné, odpověděl / přemýšlí / odpojen */
+  const T0 = Date.parse('2026-11-06T10:00:00Z'), iso = ms => new Date(T0 - ms).toISOString();
+  const bitva = (status, qi, hraci) => ({ battle: { team_mode: true, status, q_index: qi }, teams: { 0: 100, 1: 50 }, players: hraci });
+  const hr = (team, jm, skore, spr, lastQi, vidSe) => ({ team, display_name: jm, score: skore, correct_count: spr, last_qi: lastQi, last_seen: vidSe });
+  const a = I.tymy(bitva('active', 4, [hr(0, 'Anna Nováková', 900, 5, 4, iso(0)), hr(0, 'Tomáš Bílý', 1240, 7, 3, iso(1000)), hr(0, 'Petr Starý', 5, 0, -1, iso(21000)), hr(1, 'Adam Hrubý', 'abc', -4, 4, 'nesmysl')]));
+  ok(a.faze === 'active' && a.modryHraci.map(h => h.jmeno).join() === 'Tomáš B.,Anna N.,Petr S.', p + 'hráči týmu řazeni podle skóre, ne abecedně', JSON.stringify(a.modryHraci));
+  ok(a.modryHraci.map(h => h.stav).join() === 'mysli,odp,off', p + 'stav hráče: odpověď na aktuální otázku (last_qi = q_index), přemýšlí, odpojen o víc než 20 s za nejnovějším', JSON.stringify(a.modryHraci.map(h => h.stav)));
+  ok(a.modryHraci[0].skore === 1240 && a.modryHraci[0].spravne === 7, p + 'skóre a počet správných', JSON.stringify(a.modryHraci[0]));
+  ok(a.cervenyHraci.length === 1 && a.cervenyHraci[0].skore === 0 && a.cervenyHraci[0].spravne === 0 && a.cervenyHraci[0].stav === 'odp', p + 'nesmyslné skóre = 0, záporné správné = 0, nečitelný čas neodpojí', JSON.stringify(a.cervenyHraci));
+  const hranice = d => I.tymy(bitva('active', 2, [hr(0, 'A', 1, 1, 2, iso(0)), hr(0, 'B', 1, 1, 2, iso(d))])).modryHraci.find(h => h.jmeno === 'B').stav;
+  ok(hranice(20000) === 'odp' && hranice(20001) === 'off', p + 'hranice odpojení je 20 s (včetně)', hranice(20000) + ' / ' + hranice(20001));
+  const stare = I.tymy(bitva('active', 2, [hr(0, 'A', 1, 1, 2, '2020-01-01T00:00:00Z'), hr(0, 'B', 1, 1, 1, '2020-01-01T00:00:03Z')]));
+  ok(stare.modryHraci.every(h => h.stav !== 'off'), p + 'rozdíl hodin počítače nikoho neodpojí (srovnává se s časem serveru ze stavu)', JSON.stringify(stare.modryHraci));
+  const konec = I.tymy(bitva('finished', 9, [hr(0, 'A', 1, 1, 9, iso(0)), hr(0, 'B', 1, 1, 9, iso(600000))]));
+  ok(konec.faze === 'finished' && konec.modryHraci.every(h => h.stav === 'ceka'), p + 'po skončení nikdo není odpojený ani „odpověděl“', JSON.stringify(konec.modryHraci));
+  const cekarna = I.tymy(bitva('lobby', -1, [hr(0, 'A', 0, 0, -1, iso(0))]));
+  ok(cekarna.modryHraci[0].stav === 'ceka', p + 'v čekárně (q_index −1, last_qi −1) nikdo „neodpověděl“', JSON.stringify(cekarna.modryHraci));
+  ok(I.tymy(bitva('nesmysl', 3, [hr(0, 'A', 1, 1, 3, iso(0))])).faze === 'lobby', p + 'neznámý stav souboje se bere jako čekárna');
+  const moc = []; for (let i = 0; i < 100; i++) moc.push(hr(0, 'Hráč ' + i, i, 0, 0, iso(0)));
+  ok(I.tymy(bitva('active', 0, moc)).modryHraci.length === 40, p + 'nejvýš 40 hráčů na tým');
+  ok(I.tymy(bitva('active', 0, [hr(0, '<img src=x onerror=1> Zlý', 1, 1, 0, iso(0))])).modryHraci[0].jmeno === '<img Z.', p + 'jméno hráče prochází zkrácením (bez řídicích znaků)');
 }
 
 /* 11 — kde žák právě je (`cur` z uložení): tvar se ověřuje znovu, hra ho píše, ale uložení patří žákovi */

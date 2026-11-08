@@ -22,7 +22,9 @@
 const fs = require('fs'), path = require('path'), http = require('http');
 const { chromium } = require('playwright');
 const ROOT = path.join(__dirname, '..');
-const PODLAHA = 55;                                               // naměřeno
+/* Snímky a měření jen z NESABOTOVANÉHO běhu (jinak by je přepsal sabotovaný, KONTROLY #121): po skutečném běhu se `dir` vynuluje. */
+const SNIM = { dir: process.env.SNIMEK || null };
+const PODLAHA = 72;                                               // naměřeno
 const LAUNCH = { executablePath: '/opt/pw-browsers/chromium-1194/chrome-linux/chrome' };
 
 let pass = 0, fail = 0;
@@ -75,9 +77,9 @@ function mock(S) {
         then(a,c){return res().then(a,c);}};
       return b;
     }
-    const rpc=async(name)=>{
+    const rpc=async(name,args)=>{
       if(name==='list_active_battles')return {data:db.bitvy,error:null};
-      if(name==='battle_state')return {data:db.stavBitvy,error:null};
+      if(name==='battle_state')return {data:(db.stavyPodleId&&args&&db.stavyPodleId[args.p_battle])||db.stavBitvy,error:null};
       return {data:[],error:null};
     };
     window.supabase={createClient:()=>({auth:{getSession:async()=>({data:{session:S.session}}),onAuthStateChange:()=>({data:{subscription:{unsubscribe(){}}}}),signInWithOAuth:async()=>{},signOut:async()=>{}},from:q,rpc})};
@@ -177,15 +179,90 @@ const ODDILY = {
     const v = await p.evaluate(() => ({ on: document.getElementById('ic-lv').classList.contains('on'), px: document.querySelectorAll('#ic-lv .ic-px').length }));
     f(v.on && v.px === 0, 'pod „omezit pohyb“ je animace bez konfet', JSON.stringify(v));
   },
-  /* 6 — týmy */
+  /* 6 — týmy: velký panel nad kartami, u hráče skóre, správné a stav odpovědi */
   async tymy(p, f) {
-    await p.evaluate(() => { __db.bitvy = [{ id: 'b1', game: 'RPG_MAT_8', status: 'running' }]; __db.stavBitvy = { battle: { team_mode: true }, teams: { 0: 5120, 1: 4380 }, players: [{ team: 0, display_name: 'Anna Nováková' }, { team: 1, display_name: 'Adam Hrubý' }, { team: null, display_name: 'Host' }] }; });
+    const teď = Date.now(), iso = ms => new Date(teď - ms).toISOString();
+    await p.evaluate(([t0, t1, t2]) => {
+      __db.bitvy = [{ id: 'b1', game: 'RPG_MAT_8', status: 'active' }];
+      __db.stavBitvy = { battle: { team_mode: true, status: 'active', q_index: 3 }, teams: { 0: 5120, 1: 4380 }, players: [
+        { team: 0, display_name: 'Anna Nováková', score: 900, correct_count: 5, last_qi: 2, last_seen: t0 },
+        { team: 0, display_name: 'Tomáš Bílý', score: 1240, correct_count: 7, last_qi: 3, last_seen: t0 },
+        { team: 0, display_name: 'Petr Starý', score: 300, correct_count: 2, last_qi: 1, last_seen: t2 },
+        { team: 1, display_name: 'Adam Hrubý', score: 2000, correct_count: 9, last_qi: 3, last_seen: t1 },
+        { team: null, display_name: 'Host', score: 5, correct_count: 0, last_qi: 3, last_seen: t0 }] };
+    }, [iso(0), iso(2000), iso(65000)]);
     await p.evaluate(() => icTymy());
-    const v = await p.evaluate(() => ({ hid: document.getElementById('ic-tymy').hidden, a: document.getElementById('ic-t1').textContent, b: document.getElementById('ic-t2').textContent, n1: document.getElementById('ic-tn1').textContent, n2: document.getElementById('ic-tn2').textContent }));
-    f(!v.hid && v.a === '5120' && v.b === '4380' && v.n1 === 'Anna N.' && v.n2 === 'Adam H.', 'týmy: skóre a jména (host bez týmu nikam nepatří)', JSON.stringify(v));
-    await p.evaluate(() => { __db.stavBitvy = { battle: { team_mode: false }, teams: null, players: [] }; });
+    const v = await p.evaluate(() => {
+      const radky = id => [...document.querySelectorAll('#' + id + ' .ic-tr')].map(r => ({ cls: r.className.replace('ic-tr', '').trim(), txt: r.textContent.replace(/\s+/g, ' ').trim(), jm: r.querySelector('.ic-tj').textContent }));
+      return { hid: document.getElementById('ic-tymy').hidden, a: document.getElementById('ic-t1').textContent, b: document.getElementById('ic-t2').textContent, m: radky('ic-tn1'), c: radky('ic-tn2'), h1: document.getElementById('ic-tp1').textContent, h2: document.getElementById('ic-tp2').textContent };
+    });
+    f(!v.hid && v.a === '5120' && v.b === '4380', 'týmy: panel se ukáže se skóre obou týmů', JSON.stringify([v.hid, v.a, v.b]));
+    f(v.m.map(r => r.jm).join() === 'Tomáš B.,Anna N.,Petr S.' && v.c.map(r => r.jm).join() === 'Adam H.', 'týmy: hráči řazeni podle skóre v týmu (ne abecedně), host bez týmu nikam nepatří', JSON.stringify([v.m.map(r => r.jm), v.c.map(r => r.jm)]));
+    f(/1\s?240/.test(v.m[0].txt.replace(/\u00a0/g, ' ')) && /7\s?✓/.test(v.m[0].txt), 'týmy: u hráče je skóre a počet správných', v.m[0].txt);
+    f(v.m[0].cls === 'odp' && v.m[1].cls === 'mysli' && v.c[0].cls === 'odp', 'týmy: kdo už odpověděl na tuto otázku (last_qi = q_index) a kdo ještě přemýšlí', JSON.stringify([v.m.map(r => r.cls), v.c.map(r => r.cls)]));
+    f(v.m[2].cls === 'off', 'týmy: hráč, který se neozval 65 s před ostatními, je odpojený', JSON.stringify(v.m.map(r => r.cls)));
+    f(v.h1 === 'odpovědělo 1 / 2' && v.h2 === 'odpovědělo 1 / 1', 'týmy: v záhlaví týmu kolik z přítomných odpovědělo (odpojení se nepočítají)', v.h1 + ' | ' + v.h2);
+    /* čekárna: nikdo „nepřemýšlí“ ani „neodpověděl“ */
+    await p.evaluate(() => { __db.stavBitvy.battle.status = 'lobby'; __db.stavBitvy.battle.q_index = -1; __db.stavBitvy.players.forEach(x => { x.last_qi = -1; }); });
+    await p.evaluate(() => icTymy());
+    const w = await p.evaluate(() => ({ cls: [...document.querySelectorAll('#ic-tn1 .ic-tr, #ic-tn2 .ic-tr')].map(r => r.className.replace('ic-tr', '').trim()), h: document.getElementById('ic-tp1').textContent }));
+    f(w.cls.filter(c => c !== 'off').every(c => c === 'ceka') && w.h === '', 'týmy: v čekárně se nikdo netváří, že odpovídá', JSON.stringify(w));
+    /* skončený souboj zůstane vidět, ale hledá se nový; nový ukáže své hráče */
+    await p.evaluate(() => {
+      const fin = JSON.parse(JSON.stringify(__db.stavBitvy)); fin.battle.status = 'finished';
+      const nov = JSON.parse(JSON.stringify(__db.stavBitvy)); nov.battle.status = 'active'; nov.battle.q_index = 0; nov.players = [{ team: 0, display_name: 'Nová Hráčka', score: 10, correct_count: 1, last_qi: 0, last_seen: new Date().toISOString() }];
+      __db.stavyPodleId = { b1: fin, b2: nov }; __db.bitvy = []; IC.bojId = 'b1';
+    });
+    await p.evaluate(() => icTymy());
+    f(await p.evaluate(() => !document.getElementById('ic-tymy').hidden && document.querySelectorAll('#ic-tn1 .ic-tr').length === 3 && IC.bojFaze === 'finished'), 'týmy: skončený souboj zůstane na plátně, dokud neběží jiný');
+    await p.evaluate(() => { __db.bitvy = [{ id: 'b2', game: 'RPG_MAT_8', status: 'active' }]; });
+    await p.evaluate(() => icTymy());
+    const n = await p.evaluate(() => ({ id: IC.bojId, jm: [...document.querySelectorAll('#ic-tn1 .ic-tj')].map(e => e.textContent) }));
+    f(n.id === 'b2' && n.jm.join() === 'Nová H.', 'týmy: po skončení souboje se najde nový běžící (dřív zůstal viset starý)', JSON.stringify(n));
+    await p.evaluate(() => { __db.stavyPodleId = null; __db.stavBitvy = { battle: { team_mode: false }, teams: null, players: [] }; });
     await p.evaluate(() => icTymy());
     f(await p.evaluate(() => document.getElementById('ic-tymy').hidden), 'bez týmového režimu panel týmů zmizí');
+  },
+  /* 6b — týmy: velký panel na projektoru i na telefonu, nepřátelská jména, strop řádků */
+  async tymyVelke(p, f) {
+    await p.evaluate(() => {
+      const hraci = [];
+      for (let i = 0; i < 15; i++) hraci.push({ team: 0, display_name: 'Žák Modrý' + i + ' Dlouhéjménopříjmení', score: 1000 + i, correct_count: i, last_qi: i % 2 ? 3 : 2, last_seen: new Date().toISOString() });
+      for (let i = 0; i < 15; i++) hraci.push({ team: 1, display_name: i ? 'Žák Červený' + i + ' Příjmení' : '<img src=x onerror=window.__xss2=1> Zlý', score: 900 + i, correct_count: i, last_qi: 3, last_seen: new Date().toISOString() });
+      __db.bitvy = [{ id: 'b1', game: 'RPG_MAT_8', status: 'active' }];
+      __db.stavBitvy = { battle: { team_mode: true, status: 'active', q_index: 3 }, teams: { 0: 15000, 1: 13500 }, players: hraci };
+    });
+    await p.evaluate(() => icTymy());
+    const mer = () => p.evaluate(() => {
+      const pn = document.getElementById('ic-tymy'), root = document.getElementById('ic-root'), pr = pn.getBoundingClientRect(), rr = root.getBoundingClientRect();
+      const karta = document.querySelector('#ic-cards .ic-card'), jm = document.querySelector('#ic-tn1 .ic-tj');
+      return { sirka: pr.width / rr.width, nad: !karta || pr.bottom <= karta.getBoundingClientRect().top + 1, pismo: parseFloat(getComputedStyle(jm).fontSize), pretec: root.scrollWidth - root.clientWidth, doc: document.documentElement.scrollWidth - innerWidth, pravy: Math.round(pr.right), iw: innerWidth, vyska: Math.round(pr.height), sloupcu: new Set([...document.querySelectorAll('#ic-tn1 .ic-tr')].map(r => Math.round(r.getBoundingClientRect().left))).size, sirkaTk: Math.round(document.querySelector('#ic-tn1').getBoundingClientRect().width), radek: Math.round(document.querySelector('#ic-tn1 .ic-tr').getBoundingClientRect().height), lis: [...document.querySelectorAll('#ic-tymy .ic-tj')].filter(e => e.getBoundingClientRect().right > innerWidth + 1).length };
+    });
+    const a = await mer();
+    f(a.sirka > 0.95 && a.nad, 'velký panel týmů: přes celou šířku a nad kartami žáků', JSON.stringify(a));
+    f(a.pismo >= 18, 'velký panel týmů: jména hráčů mají čitelné písmo (dřív 13 px)', String(a.pismo));
+    f(a.pretec <= 1 && a.doc <= 1 && a.lis === 0, 'velký panel týmů: 30 hráčů s dlouhými jmény nepřetéká do šířky (1920 × 1080)', JSON.stringify(a));
+    f(a.vyska <= 540, 'velký panel týmů: 30 hráčů nezabere víc než ~půl obrazovky (1080 px)', JSON.stringify(a));
+    f(await p.evaluate(() => !window.__xss2 && !document.querySelector('#ic-tymy img') && [...document.querySelectorAll('#ic-tn2 .ic-tj')].some(e => e.textContent.startsWith('<img'))), 'velký panel týmů: nepřátelské jméno se ukáže jako text a nevykoná se');
+    if (SNIM.dir) await p.screenshot({ path: path.join(SNIM.dir, 'tymy-konzole.png') });
+    await p.click('#ic-full');
+    await p.waitForFunction(() => document.getElementById('ic-root').classList.contains('ic-proj'), null, { timeout: 4000 }).catch(() => {});
+    const pr = await mer();
+    if (SNIM.dir) await p.screenshot({ path: path.join(SNIM.dir, 'tymy-projektor.png') });
+    if (SNIM.dir) console.log('  [měření] konzole ' + JSON.stringify(a) + '\n  [měření] projektor ' + JSON.stringify(pr));
+    f(pr.pretec <= 1 && pr.doc <= 1 && pr.pismo >= 18 && pr.vyska <= 600, 'velký panel týmů: v režimu projektoru bez přetečení a s velkým písmem', JSON.stringify(pr));
+    await p.evaluate(() => { if (document.fullscreenElement) return document.exitFullscreen(); document.getElementById('ic-root').classList.remove('ic-proj'); });
+    await p.waitForFunction(() => !document.getElementById('ic-root').classList.contains('ic-proj'), null, { timeout: 4000 }).catch(() => {});
+    await p.setViewportSize({ width: 390, height: 844 }); await p.waitForTimeout(250);
+    const t = await mer();
+    if (SNIM.dir) await p.screenshot({ path: path.join(SNIM.dir, 'tymy-telefon.png') });
+    f(t.pretec <= 1 && t.doc <= 1 && t.lis === 0 && t.pravy <= t.iw + 1, 'velký panel týmů: na telefonu 390 px nic nepřesahuje okno', JSON.stringify(t));
+    await p.setViewportSize({ width: 1920, height: 1080 });
+    /* strop: stav s tisíci „hráči“ nezaplaví plátno */
+    await p.evaluate(() => { const h = []; for (let i = 0; i < 500; i++) h.push({ team: 0, display_name: 'Hráč ' + i, score: i, correct_count: 0, last_qi: 0, last_seen: new Date().toISOString() }); __db.stavBitvy.players = h; });
+    await p.evaluate(() => icTymy());
+    const r = await p.evaluate(() => document.querySelectorAll('#ic-tn1 .ic-tr').length);
+    f(r === 40, 'velký panel týmů: nejvýš 40 řádků na tým', String(r));
   },
   /* 7 — rozvržení */
   async rozvrzeni(p, f) {
@@ -272,8 +349,9 @@ async function hlavni() {
   const br = await chromium.launch(LAUNCH);
   const srv = await server();
   console.log('\n── Infocentrum hodiny v konzoli ──\n');
-  const VSE = ['data', 'xss', 'poradi', 'oblast', 'cil', 'cilBezPohybu', 'tymy', 'rozvrzeni', 'chyba', 'nova', 'obnova', 'kde', 'stop'];
+  const VSE = ['data', 'xss', 'poradi', 'oblast', 'cil', 'cilBezPohybu', 'tymy', 'tymyVelke', 'rozvrzeni', 'chyba', 'nova', 'obnova', 'kde', 'stop'];
   const r = await spust(br, baseOf(srv), VSE);
+  SNIM.dir = null;
   r.nalezy.slice(0, 12).forEach(n => console.log('  ⚠ ' + n));
   ok(r.nalezy.length === 0, 'skutečná konzole projde všemi kontrolami', r.nalezy.slice(0, 4).join(' | '));
   ok(r.kontrol === PODLAHA, 'proběhl očekávaný počet kontrol', String(r.kontrol));
@@ -284,7 +362,7 @@ async function hlavni() {
   const ucitel0 = fs.readFileSync(path.join(ROOT, 'projects', 'rpg-ucitel.html'), 'utf8');
   const cloud0 = fs.readFileSync(path.join(ROOT, 'projects', 'rpg-cloud.js'), 'utf8');
   async function sabotaz(jm, soubor, zmena, oddily, rx) {
-    const orig = soubor === 'rpg-ucitel.html' ? ucitel0 : cloud0, nove = zmena(orig);
+    const orig = soubor === 'rpg-ucitel.html' ? ucitel0 : soubor === 'rpg-cloud.js' ? cloud0 : fs.readFileSync(path.join(ROOT, 'projects', soubor), 'utf8'), nove = zmena(orig);
     ok(nove !== orig, 'sabotáž „' + jm + '“ se aplikovala');
     if (nove === orig) return;
     const s = await server({ [soubor]: zmena });
@@ -303,6 +381,13 @@ async function hlavni() {
   await sabotaz('časovač neběží do konce', 'rpg-ucitel.html', s => s.replace("if(tab!=='infocentrum')infoStop();", ''), ['stop'], /časovač/);
   await sabotaz('cíl bez animace', 'rpg-ucitel.html', s => s.replace('if(p.postoupila)icOslava(IC.cil.stupen);', ''), ['cil'], /animace/);
   await sabotaz('týmy bez ohledu na režim', 'rpg-ucitel.html', s => s.replace("sek.hidden=!t;if(!t)return;", "sek.hidden=false;if(!t)return;"), ['tymy'], /panel týmů zmizí/);
+  await sabotaz('stav odpovědi se nepozná', 'rpg-infocentrum.js', s => s.replace("Number(p.last_qi) === qi", "false"), ['tymy'], /kdo už odpověděl/);
+  await sabotaz('odpojení se neurčuje', 'rpg-infocentrum.js', s => s.replace("nejnovejsi - viden <= BOJ_ODPOJEN_MS", "true"), ['tymy'], /odpojený/);
+  await sabotaz('hráči podle abecedy místo skóre', 'rpg-infocentrum.js', s => s.replace("b.skore - a.skore || CS.compare(a.jmeno, b.jmeno)", "CS.compare(a.jmeno, b.jmeno)"), ['tymy'], /řazeni podle skóre/);
+  await sabotaz('bez stropu řádků', 'rpg-infocentrum.js', s => s.replace(".slice(0, BOJ_MAX_HRACU)", ""), ['tymyVelke'], /nejvýš 40/);
+  await sabotaz('jméno hráče přes innerHTML', 'rpg-ucitel.html', s => s.replace("j.textContent=h.jmeno;", "j.innerHTML=h.jmeno;"), ['tymyVelke'], /nevykoná/);
+  await sabotaz('malé písmo jmen v týmech', 'rpg-ucitel.html', s => s.replace("font-size:clamp(14px,1vw,20px);min-width:0}", "font-size:12px;min-width:0}"), ['tymyVelke'], /čitelné písmo/);
+  await sabotaz('starý souboj zůstane viset', 'rpg-ucitel.html', s => s.replace("if(!t||t.faze==='finished'){", "if(!t){"), ['tymy'], /najde nový běžící/);
 
   await br.close();
   console.log(`\n  VÝSLEDEK: ${pass} ✅ / ${fail} ❌\n`);
