@@ -32,7 +32,8 @@ const srv = http.createServer((q, r) => {
   fs.createReadStream(f).pipe(r);
 });
 
-const ZAKLAD = { 3: 60, 4: 55, 5: 50, 6: 40, 7: 40, 8: 40, 9: 40 };
+/* 1. stupeň: 60/55/50 → 90/80/70 s od 9. 11. 2026 (Vojtův pokyn po hodině v 5. třídě); 2. stupeň beze změny. */
+const ZAKLAD = { 3: 90, 4: 80, 5: 70, 6: 40, 7: 40, 8: 40, 9: 40 };
 
 (async () => {
   await new Promise(r => srv.listen(PORT, r));
