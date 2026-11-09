@@ -88,14 +88,24 @@
       () => { const n = ri(1000, 9500); const r = Math.round(n / 1000) * 1000; return { text: `Zaokrouhli ${n} na tisíce.`, ans: r, h1: `Podívej se na cifru stovek: ${Math.floor((n % 1000) / 100)}.`, h2: `= ${r}` }; },
       () => { const n = ri(1100, 9800); const r = Math.round(n / 1000) * 1000; return { text: `Který celý tisíc je nejblíž číslu ${n}?`, ans: r, h1: `Zaokrouhli ${n} na tisíce.`, h2: `= ${r}` }; },
       () => { const n = ri(1000, 9900); const spravne = Math.round(n / 100) * 100; const tvrdi = ri(0, 1) ? spravne : spravne + pick([-100, 100]); const ok = tvrdi === spravne; return { text: `Bocman tvrdí: „${n} zaokrouhleno na stovky je ${tvrdi}." Má pravdu?`, ans: ok ? 'ANO' : 'NE', h1: `Rozhoduje cifra desítek: ${Math.floor((n % 100) / 10)}.`, h2: ok ? 'ANO' : 'NE' }; },
-      () => { const r = ri(2, 98) * 100; return { text: `Jaké NEJVĚTŠÍ číslo se zaokrouhlí na stovky na ${r}?`, ans: r + 49, h1: `Poslední, co ještě jde dolů, má desítky 4 a jednotky 9.`, h2: `= ${r + 49}` }; },
-      () => { const r = ri(2, 98) * 100; return { text: `Jaké NEJMENŠÍ číslo se zaokrouhlí na stovky na ${r}?`, ans: r - 50, h1: `Od padesátky se zaokrouhluje nahoru.`, h2: `= ${r - 50}` }; },
       () => { const n = ri(1050, 9950); const r = Math.round(n / 100) * 100; return { text: `Loď má v podpalubí ${n} kg zásob. Kolik je to zhruba — po zaokrouhlení na stovky?`, ans: r, h1: `Zaokrouhli na stovky.`, h2: `= ${r} kg` }; },
       () => { const n = ri(1005, 9985); const dolni = Math.floor(n / 1000) * 1000; return { text: `Mezi kterými dvěma celými tisíci leží číslo ${n}? Napiš ten MENŠÍ.`, ans: dolni, h1: `Škrtni stovky, desítky a jednotky.`, h2: `= ${dolni}` }; },
       () => { const n = ri(100, 9990); const nahoru = Math.floor((n % 100) / 10) >= 5; return { text: `Zaokrouhlí se číslo ${n} na stovky NAHORU?`, ans: nahoru ? 'ANO' : 'NE', h1: `Nahoru jde 5–9 na místě desítek. Tady je ${Math.floor((n % 100) / 10)}.`, h2: nahoru ? 'ANO' : 'NE' }; },
     ];
+    /* Úlohy „NEJVĚTŠÍ / NEJMENŠÍ číslo, které se zaokrouhlí na…“ jsou nejtěžší z mise a dřív tvořily 2 z 11 šablon, takže byly
+       v boji (6 úloh z 11) aspoň jedna v 82 % bojů a obě v 27 % (Vojtův pokyn 9. 11. 2026 po hodině v 5. třídě: „příliš časté“).
+       Teď je mezi šablonami JEN jedna z nich (náhodně největší, nebo nejmenší) a do banky se dostane jen v 55 % volání,
+       takže se v boji objeví zhruba v každém třetím (0,55 × 6/10). */
+    const HRANICE = [
+      () => { const r = ri(2, 98) * 100; return { text: `Jaké NEJVĚTŠÍ číslo se zaokrouhlí na stovky na ${r}?`, ans: r + 49, h1: `Poslední, co ještě jde dolů, má desítky 4 a jednotky 9.`, h2: `= ${r + 49}` }; },
+      () => { const r = ri(2, 98) * 100; return { text: `Jaké NEJMENŠÍ číslo se zaokrouhlí na stovky na ${r}?`, ans: r - 50, h1: `Od padesátky se zaokrouhluje nahoru.`, h2: `= ${r - 50}` }; },
+    ];
     for (let i = 0; i < T.length; i++) {
       const t = T[i % T.length]();
+      tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'calc' , mc_opts: t.mc_opts });
+    }
+    if (Math.random() < 0.55) {
+      const t = pick(HRANICE)();
       tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'calc' , mc_opts: t.mc_opts });
     }
     return tasks;

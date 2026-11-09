@@ -393,6 +393,9 @@ h4{font-family:var(--px);font-size:12px;font-weight:700;color:var(--accent);lett
     <input id="new-section" aria-label="Označení třídy (např. B)" placeholder="označení, např. B" style="max-width:140px">
     <select id="new-grade" aria-label="Ročník třídy">
      <option value="">ročník teď…</option>
+     <option value="3">3. ročník</option>
+     <option value="4">4. ročník</option>
+     <option value="5">5. ročník</option>
      <option value="6">6. ročník</option>
      <option value="7">7. ročník</option>
      <option value="8">8. ročník</option>
@@ -748,7 +751,8 @@ function classLabel(c){
 function cohortStatus(c){
  if(c.cohort_start_year==null)return '';
  const g=gradeOfCohort(c.cohort_start_year);
- if(g<6)return 'nastoupí do 6. v '+syLabel(c.cohort_start_year);
+ if(g<3)return 'nastoupí do 3. v '+syLabel(c.cohort_start_year-3);
+ if(g<6)return g+'. ročník · '+syLabel(schoolYearStart());   // 1. stupeň: třída se po 1. září posune stejně (5.B → 6.B)
  if(g>9)return 'ukončili 9. ('+syLabel(c.cohort_start_year+3)+')';
  return g+'. ročník · '+syLabel(schoolYearStart());
 }
@@ -913,8 +917,8 @@ function fillClassFilter(){
 
    Archivovaná třída se počítá jako třída: _grades_of() ani leaderboard()
    archivaci neřeší, takže žák v archivované třídě přístup pořád má.
-   1. stupeň se nepočítá jako nález — kohorty začínají 6. ročníkem, takže
-   „třeťák bez třídy" je normální stav, ne vada. Pravidlo, které křičí
+   1. stupeň se nepočítá jako nález — Věž nemá a třída je u něj volitelná (od 9. 11. 2026 jde
+   založit i pro 3.–5. ročník), takže „třeťák bez třídy" je normální stav, ne vada. Pravidlo, které křičí
    vlka, je horší než žádné. */
 function renderNoClass(){
  const el=document.getElementById('nocls');if(!el)return;
@@ -959,7 +963,7 @@ function renderNoClass(){
  html+='</div>';
  if(!cls.length)html+='<div class="empty" style="margin-top:8px">— nejdřív založ třídu v záložce TŘÍDY —</div>';
  if(mali)html+='<div style="color:var(--muted);font-size:12px;margin-top:8px">'+
-  '1. stupeň se do tříd nezařazuje (kohorty začínají 6. ročníkem); takových je tu '+mali+'.</div>';
+  '1. stupeň se tu nepočítá jako nález (Věž nemá); třídu mu ale můžeš založit v záložce TŘÍDY (žebříček spolužáků); takových je tu '+mali+'.</div>';
  el.innerHTML=html;
  el.classList.remove('hidden');
 }
@@ -1569,8 +1573,8 @@ async function createClassUI(){
  const grade=parseInt(document.getElementById('new-grade').value,10);
  let name=document.getElementById('new-class').value.trim();
  const meta={};
- if(grade>=6&&grade<=9){
-  meta.cohort_start_year=schoolYearStart()-(grade-6);
+ if(grade>=3&&grade<=9){
+  meta.cohort_start_year=schoolYearStart()-(grade-6);   // 3.–5. ročník = kohorta, která nastoupí do 6. třídy v budoucnu (rok je větší než letošní)
   meta.section=section;
   if(!name)name=section?grade+'.'+section:grade+'. ročník';
  }
@@ -1590,13 +1594,13 @@ async function createClassUI(){
 async function editCohortUI(id){
  const c=CLASSES.find(x=>x.id===id);if(!c)return;
  const cur=c.cohort_start_year!=null?String(gradeOfCohort(c.cohort_start_year)):'';
- const g=prompt('V kterém ročníku je třída TEĎ? (6–9; prázdné = zrušit automatický posun)',cur);
+ const g=prompt('V kterém ročníku je třída TEĎ? (3–9; prázdné = zrušit automatický posun)',cur);
  if(g==null)return;
  const meta={};
  if(g.trim()===''){meta.cohort_start_year='';}
  else{
   const gi=parseInt(g,10);
-  if(!(gi>=6&&gi<=9)){toast('Ročník musí být 6–9.',1);return;}
+  if(!(gi>=3&&gi<=9)){toast('Ročník musí být 3–9.',1);return;}
   meta.cohort_start_year=schoolYearStart()-(gi-6);
   const sec=prompt('Označení třídy (písmeno, např. B):',c.section||'');
   if(sec!=null)meta.section=sec;
@@ -1716,7 +1720,7 @@ function renderClasses(){
   const open=OPEN_CLASS===c.id;
   const grade=gradeOfCohort(c.cohort_start_year);
   const cohortBadge=c.cohort_start_year!=null
-   ?'<span class="tag" style="background:#3a6ea5" title="'+esc(cohortStatus(c))+'">📈 '+cohortRangeLabel(c.cohort_start_year)+'</span>'
+   ?'<span class="tag" style="background:#3a6ea5" title="'+esc(cohortStatus(c))+'">📈 '+(grade<6?grade+'. roč.':cohortRangeLabel(c.cohort_start_year))+'</span>'
    :'';
   html+='<div style="background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:12px 16px;margin-bottom:10px">'+
    '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">'+
@@ -1736,7 +1740,7 @@ function renderClasses(){
   html+='<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:10px">'+
    '<span style="color:var(--muted);font-size:12px">Hromadně třídě:</span>'+
    '<button class="mini gold" onclick="classAwardXp(\''+esc(c.id)+'\')">⭐ +XP</button>';
-  if(grade>=6&&grade<=9){
+  if(grade>=3&&grade<=9){
    const missions=missionsFor('RPG_MAT_'+grade);
    let opts='<option value="">— mise '+grade+'. roč. —</option>';
    missions.forEach(m=>{opts+='<option value="'+m.id+'">'+m.id+' '+esc(m.name)+'</option>';});
@@ -2367,15 +2371,15 @@ const NAPOVEDA = [
    '<p><b>⚠️ Červený panel „žáci bez třídy"</b> se ukáže, když někdo hraje, ale nikdo ho zatím nezařadil do třídy. '+
    'Není to kosmetika: bez třídy hra neví, do kterého ročníku žák patří, takže mu <b>nejde Věž legend ani žebříček</b>. '+
    'Zařadíš ho rovnou z panelu výběrem třídy. Typicky to naskočí v září u nových šesťáků. '+
-   'Žáci 1. stupně se v panelu nehlásí — kohorty tříd začínají 6. ročníkem.</p>' },
+   'Žáci 1. stupně se v panelu nehlásí — nemají Věž a třída je u nich volitelná.</p>' },
 
  { id:'classes', nadpis:'Třídy', kdo:'učitel i superadmin', text:
    '<p>Třída je skupina žáků, přes kterou pak filtruješ přehled a děláš hromadné věci najednou. '+
    'Žáky přiřazuješ <b>ručně</b> ze seznamu, klidně napříč ročníky (doučovací skupina je taky třída).</p>'+
    '<p>Když třídě zadáš <b>označení + „ročník teď"</b>, uloží se ročníková kohorta a třída se každé '+
    '<b>1. září sama posune</b> (6.B → 7.B → …). Nemusíš nic přepisovat.</p>'+
-   '<p>Volba ročníku nabízí 6.–9., protože kohorty se posouvají v rámci 2. stupně. '+
-   'Pro <b>1. stupeň nebo kroužek</b> nech ročník prázdný a dej třídě vlastní název.</p>'+
+   '<p>Volba ročníku nabízí 3.–9. Třída <b>1. stupně</b> (3.–5.) se posouvá stejně (5.B → 6.B) a žáci v ní uvidí žebříček spolužáků; '+
+   'Věž legend mají jen 6.–9. Pro <b>kroužek nebo doučování</b> nech ročník prázdný a dej třídě vlastní název.</p>'+
    '<p><b>📨 Vzkazy</b> — každé třídě můžeš poslat zprávu, kterou žák uvidí přímo ve hře. Níž je vidět, kdo si ji přečetl.</p>' },
 
  { id:'assignments', nadpis:'Úkoly', kdo:'učitel i superadmin', text:
@@ -2473,8 +2477,8 @@ function initInfocentrum(){
  if(minule&&tridy.some(c=>c.id===minule))sc.value=minule;
  icEl('ic-prazdno').hidden=tridy.length>0;
  if(!tridy.length){icEl('ic-cards').innerHTML='';icEl('ic-prazdno').textContent='Nejdřív založ třídu v záložce TŘÍDY a přiřaď do ní žáky.';return;}
- if(!sg.dataset.zvoleno){const c=tridy.find(x=>x.id===sc.value),g=c?gradeOfCohort(c.cohort_start_year):null;sg.value=(g>=6&&g<=9)?'RPG_MAT_'+g:'RPG_MAT_9';}
- sc.onchange=()=>{sg.dataset.zvoleno='';const c=tridy.find(x=>x.id===sc.value),g=c?gradeOfCohort(c.cohort_start_year):null;if(g>=6&&g<=9)sg.value='RPG_MAT_'+g;icZacni();};
+ if(!sg.dataset.zvoleno){const c=tridy.find(x=>x.id===sc.value),g=c?gradeOfCohort(c.cohort_start_year):null;sg.value=(g>=3&&g<=9)?'RPG_MAT_'+g:'RPG_MAT_9';}
+ sc.onchange=()=>{sg.dataset.zvoleno='';const c=tridy.find(x=>x.id===sc.value),g=c?gradeOfCohort(c.cohort_start_year):null;if(g>=3&&g<=9)sg.value='RPG_MAT_'+g;icZacni();};
  sg.onchange=()=>{sg.dataset.zvoleno='1';icZacni();};
  icEl('ic-nova').onclick=()=>icNova();icEl('ic-full').onclick=()=>icCela();
  icZacni();

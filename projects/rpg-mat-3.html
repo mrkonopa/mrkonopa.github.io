@@ -1129,7 +1129,8 @@ function renderLearn(mid,m){
 // BATTLE STATE
 let BT={tasks:[],idx:0,hl:0,curTask:null,aid:null,mid:null,combo:0,hp:3,maxHp:3,timer:null,timeLeft:30,timeMax:30,mcMode:false,phase:1,items:[],timerFrozen:false,freezeTimeout:null};
 const MAX_PLAYER_HP=6;
-const TIME_PER_TASK=60;
+/* 9. 11. 2026 (Vojtův pokyn po hodině v 5. třídě: „přidej čas na prvním stupni“): 60 → 90 s. Je to rozhodnutí, ne změřená potřeba dítěte; čas na odpověď se v datech neukládá. */
+const TIME_PER_TASK=90;
 /* Čas na úlohu podle její DÉLKY, ne jedna konstanta pro všechno.
    Naměřeno na 574 080 úlohách: v 8. ročníku je 93,9 % zadání
    víceřádkových slovních úloh, v 9. 85,8 % — a mají stejných 40 s jako
@@ -1249,6 +1250,7 @@ function missionFailed(){
  const msgs=['Hrdina padl v boji. Mise musí být zopakována.','Tvá síla byla nedostatečná. Nabuď odvahu a zkus to znovu!','Boss byl silnější. Vrať se s odhodláním a vyzkoušej znovu.'];
  document.getElementById('fail-msg').textContent=msgs[ri(0,msgs.length-1)];
  document.getElementById('fail-overlay').classList.add('show');
+ porazkaNavigace(BT.mid,!!(window.RPG_LEARN_3&&window.RPG_LEARN_3[BT.mid]));   // po 2. prohře téže mise: Procvičit / Teorie na prvním místě
 }
 
 function startTimer(){
@@ -1985,6 +1987,7 @@ function checkMissionComplete(){
  const ar=AREAS.find(a=>a.id===BT.aid);const m=ar&&ar.missions.find(x=>x.id===BT.mid);if(!m)return;
  if(!BT.tasks.every((_,i)=>S.done[`${m.id}-${i}`]))return;
  BT.bossDefeated=true;
+ porazkyVynuluj(BT.mid);
  const ans=document.getElementById('bt-ans');if(ans)ans.disabled=true;
  const atkBtn=document.getElementById('attack-btn');if(atkBtn)atkBtn.disabled=true;   // po výhře zamčený i ÚTOK (nová úloha ho už zapíná sama — daleZpet)
  const hintBtn=document.getElementById('hint-btn');if(hintBtn)hintBtn.disabled=true;
@@ -2046,7 +2049,7 @@ window.addEventListener('load',()=>{
 <script defer src="./rpg-cloud.js?v=20261109"></script>
 <script defer src="./rpg-battle-3.js"></script>
 <script defer src="./rpg-badwords.js"></script>
-<script defer src="./rpg-shared.js?v=20261107"></script>
+<script defer src="./rpg-shared.js?v=20261109"></script>
 <script defer src="./rpg-tasktypes.js"></script>
 <script defer src="./rpg-battle-ui.js?v=20261108"></script>
 <script>window.addEventListener('load',function(){if(window.RPGCloud&&RPGCloud.attachGame)RPGCloud.attachGame(SAVE_KEY);});</script>

@@ -68,6 +68,14 @@ const lbl = api.classLabel({ name: 'X', section: 'B', cohort_start_year: api.sch
 ok('classLabel(start=letos) → 6.B', lbl === '6.B', lbl);
 ok('classLabel bez kohorty → name', api.classLabel({ name: 'Doučování', section: '', cohort_start_year: null }) === 'Doučování');
 
+// 1. stupeň (od 9. 11. 2026): kohorta, která nastoupí do 6. třídy v budoucnu, má ročník 3–5 a posouvá se stejně
+ok('cohort 2028 v září 2026 → 4. ročník', api.gradeOfCohort(2028, D(2026, 9, 5)) === 4);
+ok('cohort 2028 po 1.9.2027 → 5. ročník', api.gradeOfCohort(2028, D(2027, 9, 2)) === 5);
+ok('cohort 2028 po 1.9.2028 → 6. ročník (přechod na 2. stupeň)', api.gradeOfCohort(2028, D(2028, 9, 2)) === 6);
+ok('classLabel kohorta o 1 rok vpřed + B → 5.B', api.classLabel({ name: 'X', section: 'B', cohort_start_year: api.schoolYearStart() + 1 }) === '5.B');
+ok('cohortStatus třídy 5.B říká „5. ročník“', /^5\. ročník/.test(api.cohortStatus({ cohort_start_year: api.schoolYearStart() + 1 })));
+ok('cohortStatus třídy o 4 roky vpřed (ještě před 3. ročníkem) říká „nastoupí do 3.“', /^nastoupí do 3\./.test(api.cohortStatus({ cohort_start_year: api.schoolYearStart() + 4 })));
+
 console.log('\n══════════════════════════════════════════');
 console.log('  VÝSLEDEK: ' + pass + ' ✅  /  ' + fail + ' ❌');
 console.log('══════════════════════════════════════════\n');

@@ -147,7 +147,7 @@ async function run() {
 
     /* 1. stupeň NENÍ nález — jen tichá poznámka pod seznamem */
     ok('třeťák se nepočítá mezi nálezy', !!txt && !txt.includes('Cilka Třeťačka'));
-    ok('…ale je zmíněný jako známý stav', !!txt && /1\. stupeň se do tříd nezařazuje/.test(txt));
+    ok('…ale je zmíněný jako známý stav', !!txt && /1\. stupeň se tu nepočítá jako nález/.test(txt));
     ok('a je jich uveden naměřený počet', !!txt && /takových je tu 1\./.test(txt));
 
     /* bez jediné třídy panel poradí, co udělat dřív */

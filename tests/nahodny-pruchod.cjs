@@ -26,7 +26,12 @@ const http = require('http'), fs = require('fs'), path = require('path');
 const { chromium } = require('playwright');
 const EXEC = '/opt/pw-browsers/chromium-1194/chrome-linux/chrome';
 const MIME = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.svg': 'image/svg+xml' };
-const ROZMERY = { tel: ['telefon 360×740', 360, 740], ipv: ['iPad na výšku', 768, 1024], ips: ['iPad na šířku', 1024, 768] };
+const ROZMERY = {
+  tel: ['telefon 360×740', 360, 740], ipv: ['iPad na výšku', 768, 1024], ips: ['iPad na šířku', 1024, 768],
+  /* další tablety na šířku (ruční nástroj `rozmery=ips810,…`; brána je nevolá): iPad 10,2", Air, Pro 11", Pro 12,9" */
+  ips810: ['iPad 10,2" na šířku 1080×810', 1080, 810], ips820: ['iPad Air na šířku 1180×820', 1180, 820],
+  ips834: ['iPad Pro 11" na šířku 1194×834', 1194, 834], ips1024: ['iPad Pro 12,9" na šířku 1366×1024', 1366, 1024],
+};
 const T0 = new Date('2026-05-15T10:00:00');
 
 // ── ve stránce: popis ovladače a stav boje ──

@@ -42,6 +42,7 @@ function mockScript(scenario) {
           update(p){op='update';payload=p;return b;},
           delete(){op='delete';return b;},
           eq(c,v){filters.push([c,v]);return b;},
+          in(){return b;}, gt(){return b;}, is(){return b;}, neq(){return b;}, limit(){return b;},
           order(){return b;},
           maybeSingle(){single=true;return resolve();},
           single(){single=true;return resolve();},
@@ -132,6 +133,45 @@ async function run() {
     ok('přidaná poznámka se zobrazí v detailu', true);
     const noteCount = await page.evaluate(()=>document.querySelectorAll('#notes-box button.red').length);
     ok('poznámka má tlačítko smazat', noteCount===1);
+
+    /* ── Třída 1. stupně (9. 11. 2026): ročník 3–5 jde založit, posouvá se jako ostatní a hra se předvyplní ── */
+    await page.evaluate(()=>document.getElementById('ovl').classList.remove('show'));   // detail žáka z předchozí části zůstal otevřený
+    await page.click('.tab[data-tab="classes"]');
+    await page.waitForFunction(()=>!document.getElementById('t-classes').classList.contains('hidden'),null,{timeout:4000});
+    const nabidka = await page.evaluate(()=>[...document.getElementById('new-grade').options].map(o=>o.value).join(','));
+    ok('formulář nabízí ročníky 3–9', nabidka==='' + ',3,4,5,6,7,8,9', nabidka);
+    await page.fill('#new-class','');
+    await page.fill('#new-section','B');
+    await page.selectOption('#new-grade','5');
+    await page.click('button[onclick="createClassUI()"]');
+    await page.waitForFunction(()=>CLASSES.some(c=>c.section==='B'),null,{timeout:4000});
+    const pata = await page.evaluate(()=>{ const c=CLASSES.find(x=>x.section==='B'); return { start:c.cohort_start_year, letos:schoolYearStart(), stitek:classLabel(c), stav:cohortStatus(c), g:gradeOfCohort(c.cohort_start_year), dalsiRok:gradeOfCohort(c.cohort_start_year,new Date(schoolYearStart()+1,8,2)), id:c.id, text:document.getElementById('classes-wrap').textContent }; });
+    ok('třída 5.B má kohortu o rok VPŘED (nastoupí do 6. až příští září)', pata.start===pata.letos+1, JSON.stringify(pata));
+    ok('označení je „5.B“ a ukáže se v seznamu tříd', pata.stitek==='5.B' && /5\.B/.test(pata.text), pata.stitek);
+    ok('stav kohorty říká „5. ročník“ (ne „nastoupí do 6.“)', /^5\. ročník/.test(pata.stav), pata.stav);
+    ok('po 1. září je z ní 6.B (automatický posun)', pata.g===5 && pata.dalsiRok===6, JSON.stringify([pata.g,pata.dalsiRok]));
+    const hromadne = await page.evaluate(id=>{ const sel=document.getElementById('cls-mid-'+id); return sel?{prvni:sel.options[0].textContent,pocet:sel.options.length,zaokr:[...sel.options].some(o=>o.value==='1-3')}:null; }, pata.id);
+    ok('hromadné odemknutí nabízí mise 5. ročníku', !!hromadne && /5\. roč\./.test(hromadne.prvni) && hromadne.pocet>=21 && hromadne.zaokr, JSON.stringify(hromadne));
+    /* infocentrum si pro třídu 5.B předvyplní hru 5. ročníku */
+    await page.click('.tab[data-tab="infocentrum"]');
+    await page.waitForFunction(()=>!document.getElementById('t-infocentrum').classList.contains('hidden'),null,{timeout:4000});
+    const ic = await page.evaluate(id=>{ const sc=document.getElementById('ic-class'),sg=document.getElementById('ic-game'); sc.value=id; sc.dispatchEvent(new Event('change')); const v=sg.value; if(typeof infoStop==='function')infoStop(); return v; }, pata.id);
+    ok('infocentrum předvyplní pro 5.B hru RPG_MAT_5', ic==='RPG_MAT_5', ic);
+    /* změna ročníku přes 📈: 3–9 projde, 2 ne */
+    await page.click('.tab[data-tab="classes"]');
+    await page.waitForFunction(()=>!document.getElementById('t-classes').classList.contains('hidden'),null,{timeout:4000});
+    const dialogy = ['4','B'];
+    const naDialog = async d => { await d.accept(dialogy.shift() || ''); };
+    page.on('dialog', naDialog);
+    await page.evaluate(id=>editCohortUI(id), pata.id);
+    await page.waitForFunction(id=>{ const c=CLASSES.find(x=>x.id===id); return c && gradeOfCohort(c.cohort_start_year)===4; }, pata.id, {timeout:4000});
+    ok('📈 přijme ročník 4 (a třída je 4.B)', true);
+    dialogy.push('2');
+    await page.evaluate(id=>editCohortUI(id), pata.id);
+    await page.waitForTimeout(300);
+    const po2 = await page.evaluate(id=>gradeOfCohort(CLASSES.find(x=>x.id===id).cohort_start_year), pata.id);
+    ok('📈 ročník 2 odmítne (zůstává 4)', po2===4, String(po2));
+    page.off('dialog', naDialog);
 
     ok('žádné JS chyby na stránce', errors.length===0, errors.slice(0,3).join(' | '));
 
