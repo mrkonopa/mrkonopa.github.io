@@ -74,15 +74,25 @@
       () => { const n = ri(120000, 950000); const v = Math.round(n / 100000) * 100000; return { text: `Zaokrouhli ${n} na statisíce.`, ans: v, h1: `Dívej se na cifru desetitisíců: ${Math.floor((n % 100000) / 10000)}.`, h2: `= ${v}` }; },
       () => { const n = ri(120000, 980000); const v = Math.round(n / 10000) * 10000; return { text: `Který celý desetitisíc je nejblíž číslu ${n}?`, ans: v, h1: `Zaokrouhli na desetitisíce.`, h2: `= ${v}` }; },
       () => { const n = ri(12000, 980000); const spravne = Math.round(n / 1000) * 1000; const tvrdi = ri(0, 1) ? spravne : spravne + pick([-1000, 1000]); const ok = tvrdi === spravne; return { text: `Dračí účetní tvrdí: „${n} zaokrouhleno na tisíce je ${tvrdi}." Má pravdu?`, ans: ok ? 'ANO' : 'NE', h1: `Rozhodují stovky: ${Math.floor((n % 1000) / 100)}.`, h2: ok ? 'ANO' : 'NE' }; },
-      () => { const r = ri(2, 98) * 10000; return { text: `Jaké NEJVĚTŠÍ číslo se zaokrouhlí na desetitisíce na ${r}?`, ans: r + 4999, h1: `Poslední, co ještě jde dolů, končí 4999.`, h2: `= ${r + 4999}` }; },
-      () => { const r = ri(2, 98) * 10000; return { text: `Jaké NEJMENŠÍ číslo se zaokrouhlí na desetitisíce na ${r}?`, ans: r - 5000, h1: `Od pěti tisíc pod hranicí se zaokrouhluje nahoru.`, h2: `= ${r - 5000}` }; },
       () => { const n = ri(105000, 985000); const dolni = Math.floor(n / 100000) * 100000; return { text: `Mezi kterými dvěma celými statisíci leží ${n}? Napiš ten MENŠÍ.`, ans: dolni, h1: `Nech jen cifru statisíců, zbytek nuly.`, h2: `= ${dolni}` }; },
       () => { const n = ri(120000, 970000); const v = Math.round(n / 1000) * 1000; return { text: pick([`V dračí pokladnici je ${n} dukátů. Kolik je to zhruba — po zaokrouhlení na tisíce?`, `Poklad má ${n} dukátů. Zaokrouhli tento počet na tisíce.`, `Písař napočítal ${n} dukátů. Kolik je to přibližně, zaokrouhleno na tisíce?`]), ans: v, h1: `Zaokrouhli na tisíce.`, h2: `= ${v}` }; },
       () => { const n = ri(12000, 980000); const nahoru = Math.floor((n % 10000) / 1000) >= 5; return { text: `Zaokrouhlí se ${n} na desetitisíce NAHORU?`, ans: nahoru ? 'ANO' : 'NE', h1: `Cifra tisíců je ${Math.floor((n % 10000) / 1000)} — nahoru jde 5–9.`, h2: nahoru ? 'ANO' : 'NE' }; },
       () => { const n = ri(210000, 940000); const v = Math.round(n / 10000) * 10000; return { text: pick([`Drak spočítal ${n} drahokamů. Zaokrouhli jejich počet na desetitisíce.`, `Ve věži je ${n} drahokamů. Kolik je to zhruba — po zaokrouhlení na desetitisíce?`]), ans: v, h1: `Rozhoduje cifra tisíců: ${Math.floor((n % 10000) / 1000)}.`, h2: `= ${v}` }; },
     ];
+    /* Úlohy „NEJVĚTŠÍ / NEJMENŠÍ číslo, které se zaokrouhlí na…“ jsou nejtěžší z mise a dřív tvořily 2 z 11 šablon, takže byly
+       v boji (6 úloh z 11) aspoň jedna v 82 % bojů a obě v 27 % (Vojtův pokyn 9. 11. 2026 po hodině v 5. třídě: „příliš časté“).
+       Teď je mezi šablonami JEN jedna z nich (náhodně největší, nebo nejmenší) a do banky se dostane jen v 55 % volání,
+       takže se v boji objeví zhruba v každém třetím (0,55 × 6/10). */
+    const HRANICE = [
+      () => { const r = ri(2, 98) * 1000; return { text: `Jaké NEJVĚTŠÍ číslo se po zaokrouhlení na tisíce změní na ${r}?`, ans: r + 499, h1: `Dolů se zaokrouhluje, dokud jsou stovky 0–4. Nad ${r} to platí ještě pro ${r + 400} — a co je nejvíc?`, h2: `= ${r + 499}` }; },
+      () => { const r = ri(2, 98) * 1000; return { text: `Jaké NEJMENŠÍ číslo se po zaokrouhlení na tisíce změní na ${r}?`, ans: r - 500, h1: `Nahoru se zaokrouhluje od stovek 5. Pod ${r} to platí už pro ${r - 400} — a co je nejmíň?`, h2: `= ${r - 500}` }; },
+    ];
     for (let i = 0; i < T.length; i++) {
       const t = T[i % T.length]();
+      tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'calc' , mc_opts: t.mc_opts });
+    }
+    if (Math.random() < 0.55) {
+      const t = pick(HRANICE)();
       tasks.push({ text: t.text, ans: t.ans, hints: [t.h1, t.h2], skill: 'calc' , mc_opts: t.mc_opts });
     }
     return tasks;

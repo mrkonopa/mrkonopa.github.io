@@ -345,7 +345,11 @@ const RPGTutorial = (function () {
     // přistála přesně na DÁLE (naměřeno náhodným průchodem 8. 10. 2026 i na telefonu 360×740) a toast odznaku
     // ho vizuálně zakrýval, i když dotyk propouštěl. Nahoře je jen aréna.
     '.ach-toast{top:calc(env(safe-area-inset-top,0px) + 10px);bottom:auto;transform:translate(-50%,-170%)}' +
-    '.ach-toast.show{transform:translate(-50%,0)}';
+    '.ach-toast.show{transform:translate(-50%,0)}' +
+    // Obrazovka PORAŽEN po druhé prohře nese víc tlačítek (Procvičit, Teorie, Znovu, Mapa): na nízké obrazovce na šířku
+    // by se vycentrovaný sloupec uřízl nahoře i dole, proto roluje a svisle se centruje jen, když je místo (auto okraje).
+    '.fail-overlay{overflow-y:auto;justify-content:flex-start}' +
+    '.fail-overlay>:first-child{margin-top:auto}.fail-overlay>:last-child{margin-bottom:auto}';
   (document.head || document.documentElement).appendChild(st);
 })();
 
@@ -784,6 +788,34 @@ function mcVolby2(t){
 function todayStr(){return new Date().toISOString().slice(0,10);}
 function achToast(a){_achQ.push(a);if(!_achBusy)_achNext();}
 function goPractice(mid){go('train');startTrain(mid);}
+/* Obrazovka PORAŽEN v 1. stupni (Vojtův pokyn 9. 11. 2026 po hodině v 5. třídě: „když někdo dvakrát prohraje,
+   kde může jít procvičit“). Do té doby nabízela jen „Zkusit znovu“ a „Mapa oblasti“; rada „co dál“ byla jen na mapě
+   a až po dvou chybách. Po PRVNÍ prohře zůstává vše beze změny. Po DRUHÉ prohře téže mise za sebou (výhra počítadlo
+   vynuluje, stejně jako začátek tréninku téhle mise) se nad „Zkusit znovu“ objeví věta a dvě hlavní tlačítka
+   „Procvičit v tréninku“ a „Zopakovat teorii“, a „Zkusit znovu“ se zmenší. Prvky se vyrábějí tady, aby tři hry neměly tři
+   kopie téhož (po portu se kopie rozcházejí). Počítadlo žije jen v paměti stránky. `maUcivo` = hra má teorii k téhle misi. */
+const _porazky={};
+function porazkaNavigace(mid,maUcivo){
+ _porazky[mid]=(_porazky[mid]||0)+1;
+ const ov=document.getElementById('fail-overlay');if(!ov)return;
+ const dvakrat=_porazky[mid]>=2;
+ ov.dataset.mid=mid;
+ const retry=[...ov.querySelectorAll('button')].find(b=>/retryMission/.test(b.getAttribute('onclick')||''));if(!retry)return;
+ let rada=document.getElementById('fail-rada');
+ if(!rada){
+  rada=document.createElement('div');rada.id='fail-rada';rada.className='sb';rada.style.color='var(--gold)';
+  rada.textContent='Podruhé to nevyšlo. Zkus si téma nejdřív procvičit — bez času a bez srdíček, s nápovědami.';
+  const pr=document.createElement('button');pr.id='fail-practice';pr.className='btn g';pr.type='button';pr.textContent='🎯 PROCVIČIT V TRÉNINKU';
+  pr.onclick=()=>{const m=ov.dataset.mid;_porazky[m]=0;goPractice(m);};
+  const te=document.createElement('button');te.id='fail-learn';te.className='btn b';te.type='button';te.textContent='📖 ZOPAKOVAT TEORII';
+  te.onclick=()=>startLearn(ov.dataset.mid);
+  retry.parentNode.insertBefore(rada,retry);retry.parentNode.insertBefore(pr,retry);retry.parentNode.insertBefore(te,retry);
+ }
+ const pr=document.getElementById('fail-practice'),te=document.getElementById('fail-learn');
+ rada.style.display=dvakrat?'':'none';pr.style.display=dvakrat?'':'none';te.style.display=(dvakrat&&maUcivo)?'':'none';
+ retry.classList.toggle('sm',dvakrat);
+}
+function porazkyVynuluj(mid){delete _porazky[mid];}
 function wCritBonus(){return wPerk('critcredit')?2:0;}
 function calcLevel(){S.level=Math.floor(S.xp/100)+1;}
 function trEnd(){renderTrainPicker();}
