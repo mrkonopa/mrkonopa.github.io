@@ -211,12 +211,41 @@
   }
 
   /* ── týmy z právě běžícího živého souboje (`battle_state`, fáze 14) ── */
+  /* Hráč souboje: odpojený = jeho `last_seen` je o víc než 20 s starší než NEJNOVĚJŠÍ `last_seen` v místnosti
+     (hráč volá `battle_state` každých ~1,2 s). Porovnává se s časem serveru z téhož stavu, ne s hodinami
+     počítače, takže rozdíl hodin nikoho neodpojí. Po skončení souboje se nikdo neodpojuje (všichni odcházejí). */
+  const FAZE_BOJE = ['lobby', 'active', 'paused', 'finished'];
+  const BOJ_ODPOJEN_MS = 20000;
+  const BOJ_MAX_HRACU = 40;          // strop řádků na tým, ať stav s tisíci „hráči“ nezaplaví plátno
+
+  function hraciTymu(st, t, faze, qi, nejnovejsi) {
+    const konec = faze === 'finished';
+    return (Array.isArray(st.players) ? st.players : [])
+      .filter(p => p && p.team != null && Number(p.team) === t)
+      .map(p => {
+        const viden = Date.parse(p.last_seen);
+        const on = konec || !isFinite(viden) || !isFinite(nejnovejsi) || nejnovejsi - viden <= BOJ_ODPOJEN_MS;
+        const odpovedel = faze === 'active' && qi >= 0 && Number(p.last_qi) === qi;
+        return {
+          jmeno: kratke(p.display_name), skore: cislo(p.score, 1e9), spravne: cislo(p.correct_count, 1e4),
+          stav: !on ? 'off' : faze === 'active' ? (odpovedel ? 'odp' : 'mysli') : 'ceka',
+        };
+      })
+      .sort((a, b) => b.skore - a.skore || CS.compare(a.jmeno, b.jmeno))
+      .slice(0, BOJ_MAX_HRACU);
+  }
+
   function tymy(st) {
     if (!st || !st.battle || !st.battle.team_mode || !st.teams) return null;
     const jmena = t => (Array.isArray(st.players) ? st.players : []).filter(p => p && p.team != null && Number(p.team) === t).map(p => kratke(p.display_name)).sort(CS.compare);
+    const faze = FAZE_BOJE.indexOf(st.battle.status) >= 0 ? st.battle.status : 'lobby';
+    const qi = Number.isInteger(Number(st.battle.q_index)) ? Number(st.battle.q_index) : -1;
+    const nejnovejsi = (Array.isArray(st.players) ? st.players : []).reduce((m, p) => { const v = p ? Date.parse(p.last_seen) : NaN; return isFinite(v) && v > m ? v : m; }, -Infinity);
     return {
       skore: [cislo(st.teams['0'], 1e9), cislo(st.teams['1'], 1e9)],
       modry: jmena(0), cerveny: jmena(1),
+      faze,
+      modryHraci: hraciTymu(st, 0, faze, qi, nejnovejsi), cervenyHraci: hraciTymu(st, 1, faze, qi, nejnovejsi),
     };
   }
 

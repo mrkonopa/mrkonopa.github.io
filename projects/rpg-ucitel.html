@@ -251,11 +251,24 @@ h4{font-family:var(--px);font-size:12px;font-weight:700;color:var(--accent);lett
 .ic-stat{background:var(--panel2);padding:10px;text-align:center}
 .ic-stat b{display:block;font-family:var(--vt);font-size:36px;color:var(--accent);line-height:1}
 .ic-stat span{font-size:11px;color:var(--muted);letter-spacing:1px}
-.ic-tbar{display:flex;height:34px;border:1px solid var(--line);overflow:hidden;margin-bottom:8px}
-.ic-tbar div{display:grid;place-items:center;font-family:var(--vt);font-size:24px;color:#07101c;transition:flex .6s;min-width:0}
+#ic-tymy{margin-bottom:14px}
+.ic-tbar{display:flex;height:clamp(44px,3.6vw,72px);border:1px solid var(--line);overflow:hidden;margin-bottom:12px}
+.ic-tbar div{display:grid;place-items:center;font-family:var(--vt);font-size:clamp(30px,2.8vw,54px);color:#07101c;transition:flex .6s;min-width:0}
 .ic-t1{background:var(--blue,#5aa9ff)}.ic-t2{background:var(--red)}
-.ic-tnames{display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:13px;color:var(--muted)}
-.ic-tnames b{display:block;margin-bottom:4px;color:var(--text);letter-spacing:1px}
+.ic-tcols{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 32px}
+@media(max-width:700px){.ic-tcols{grid-template-columns:minmax(0,1fr)}}
+.ic-tk{--tk:var(--blue,#5aa9ff);min-width:0}.ic-tk.c{--tk:var(--red)}
+.ic-tk h3{margin:0 0 8px;font-size:clamp(13px,1.2vw,22px);letter-spacing:2px;color:var(--tk);display:flex;justify-content:space-between;gap:4px 10px;flex-wrap:wrap}
+.ic-tk h3 span{color:var(--muted);letter-spacing:0;font-weight:400}
+.ic-tl{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:6px}
+.ic-tr{display:grid;grid-template-columns:22px minmax(0,1fr) auto auto;gap:4px 8px;align-items:baseline;background:var(--panel2);border-left:4px solid var(--tk);padding:5px 10px;font-size:clamp(14px,1vw,20px);min-width:0}
+.ic-tr.off{opacity:.45}
+.ic-td{text-align:center;font-weight:700;color:var(--muted)}
+.ic-tr.odp .ic-td{color:var(--green)}
+.ic-tj{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ic-ts{font-weight:700;color:var(--accent);white-space:nowrap}
+.ic-tc{font-size:.8em;color:var(--muted);white-space:nowrap}
+.ic-tr.prazdno{grid-template-columns:minmax(0,1fr);color:var(--muted)}
 .ic-feed{display:grid;gap:8px;max-height:430px;overflow:hidden}
 .ic-ev{display:grid;grid-template-columns:30px minmax(0,1fr) auto;gap:8px;align-items:center;background:var(--panel2);border-left:4px solid var(--accent);padding:9px 11px;font-size:15px;animation:ic-in .5s steps(6)}
 .ic-ev.oblast{border-left-color:var(--gold);background:#241f0e;font-size:17px}
@@ -280,6 +293,8 @@ h4{font-family:var(--px);font-size:12px;font-weight:700;color:var(--accent);lett
 #ic-root.ic-proj .ic-nm{font-size:clamp(18px,1.5vw,28px)}
 #ic-root.ic-proj .ic-last,#ic-root.ic-proj .ic-gain b{font-size:clamp(13px,1.1vw,20px)}
 #ic-root.ic-proj .ic-ev{font-size:clamp(15px,1.3vw,24px)}
+#ic-root.ic-proj .ic-tr{font-size:clamp(16px,1.3vw,28px)}
+#ic-root.ic-proj .ic-tl{grid-template-columns:repeat(auto-fill,minmax(clamp(280px,19vw,420px),1fr))}
 #ic-root.ic-proj .ic-cards{grid-template-columns:repeat(auto-fill,minmax(clamp(210px,16vw,330px),1fr))}
 </style>
 </head>
@@ -504,6 +519,13 @@ h4{font-family:var(--px);font-size:12px;font-weight:700;color:var(--accent);lett
     </div>
     <div class="info-box" id="ic-info"><b>📡 Infocentrum</b> — pro dataprojektor při hodině. Ukazuje, co žáci <b>v této hodině</b> splnili (úkoly a mise od otevření záložky nebo od „Nová hodina“), řazeno podle toho. Žádné počty chyb. Obnova každých ~6 s z uložených postav. Cíl hodiny se nastavuje sám: 10 úkolů na hráče ve hře.</div>
     <div class="ic-hlava"><h1 id="ic-nadpis">INFO<em>CENTRUM</em></h1><span class="ic-chip" id="ic-hod">—</span></div>
+    <section class="ic-panel" id="ic-tymy" hidden><h2>Týmy <span id="ic-tinfo">živý souboj</span></h2>
+     <div class="ic-tbar"><div class="ic-t1" id="ic-t1" style="flex:1">0</div><div class="ic-t2" id="ic-t2" style="flex:1">0</div></div>
+     <div class="ic-tcols">
+      <div class="ic-tk"><h3><b>MODRÝ TÝM</b><span id="ic-tp1"></span></h3><div class="ic-tl" id="ic-tn1"></div></div>
+      <div class="ic-tk c"><h3><b>ČERVENÝ TÝM</b><span id="ic-tp2"></span></h3><div class="ic-tl" id="ic-tn2"></div></div>
+     </div>
+    </section>
     <div class="ic-main">
      <section class="ic-panel"><h2>Kdo hraje <span id="ic-onl"></span></h2><div class="ic-cards" id="ic-cards"></div><div class="empty" id="ic-prazdno" hidden>Vyber třídu s žáky.</div></section>
      <div class="ic-side">
@@ -512,10 +534,6 @@ h4{font-family:var(--px);font-size:12px;font-weight:700;color:var(--accent);lett
        <div class="ic-goalbar"><u id="ic-gb" style="width:0%"></u></div>
        <div class="ic-steps" id="ic-steps"></div>
        <div class="ic-cols3"><div class="ic-stat"><b id="ic-sm">0</b><span>MISÍ HOTOVO</span></div><div class="ic-stat"><b id="ic-so">0</b><span>OBLASTÍ</span></div><div class="ic-stat"><b id="ic-sa">0</b><span>ODZNAKY</span></div></div>
-      </section>
-      <section class="ic-panel" id="ic-tymy" hidden><h2>Týmy <span id="ic-tinfo">živý souboj</span></h2>
-       <div class="ic-tbar"><div class="ic-t1" id="ic-t1" style="flex:1">0</div><div class="ic-t2" id="ic-t2" style="flex:1">0</div></div>
-       <div class="ic-tnames"><div><b style="color:#5aa9ff">MODRÝ TÝM</b><span id="ic-tn1"></span></div><div><b style="color:var(--red)">ČERVENÝ TÝM</b><span id="ic-tn2"></span></div></div>
       </section>
       <section class="ic-panel"><h2>Děje se <span>posledních 7 událostí</span></h2><div class="ic-feed" id="ic-feed"></div></section>
      </div>
@@ -2461,14 +2479,16 @@ function initInfocentrum(){
  icEl('ic-nova').onclick=()=>icNova();icEl('ic-full').onclick=()=>icCela();
  icZacni();
 }
-function infoStop(){if(IC.timer){clearInterval(IC.timer);IC.timer=null;}}
+function infoStop(){if(IC.timer){clearInterval(IC.timer);IC.timer=null;}if(IC.tymTimer){clearInterval(IC.tymTimer);IC.tymTimer=null;}}
 function icZacni(){
  infoStop();
  IC.cid=icEl('ic-class').value;IC.game=icEl('ic-game').value;
- IC.stavy={};IC.pamet={};IC.cursor='';IC.udal=[];IC.tik=0;IC.bojId=null;IC.poradi=[];icEl('ic-cards').innerHTML='';icEl('ic-feed').innerHTML='';
+ IC.stavy={};IC.pamet={};IC.cursor='';IC.udal=[];IC.tik=0;IC.bojId=null;IC.bojFaze=null;IC.tymBezi=false;IC.poradi=[];icEl('ic-cards').innerHTML='';icEl('ic-feed').innerHTML='';
  const c=activeClasses().find(x=>x.id===IC.cid),g=gMeta(IC.game);
  icEl('ic-nadpis').innerHTML='INFO<em>CENTRUM</em> · '+esc(c?classLabel(c):'—')+' · '+esc(g.nm);
  icTik(true);IC.timer=setInterval(()=>icTik(false),6000);
+ /* běžící týmový souboj se čte častěji než postavy (otázka trvá desítky sekund, tečky „už odpověděl“ musí stíhat) */
+ IC.tymTimer=setInterval(()=>{if(IC.bojId&&IC.bojFaze!=='finished')icTymy();},2500);
 }
 async function icTik(prvni){
  if(IC.bezi)return;IC.bezi=true;const stav=icEl('ic-stav');
@@ -2500,7 +2520,7 @@ async function icTik(prvni){
   icKresli(hraci,sum,p,nove);
   if(p.postoupila)icOslava(IC.cil.stupen);
   icUloz();
-  if(IC.tik++%3===0||IC.bojId)await icTymy();
+  if((!IC.bojId||IC.bojFaze==='finished')&&IC.tik++%3===0)await icTymy();
   stav.classList.remove('zle');stav.innerHTML='✓ aktualizováno <b>'+new Date().toLocaleTimeString('cs-CZ')+'</b>';
  }catch(e){stav.classList.add('zle');stav.textContent='⚠ nepodařilo se načíst — zkouším dál';console.warn('[infocentrum]',e);}
  IC.bezi=false;
@@ -2543,22 +2563,42 @@ function icKresli(hraci,sum,p,nove){
 }
 function icNazvyMisi(){const o={};missionsFor(IC.game).forEach(m=>{o[m.id]=m.name;});return o;}
 function icBarva(uid){let h=0;for(const c of String(uid))h=(h*31+c.charCodeAt(0))>>>0;return ['#19e6e6','#ff9d5c','#b48cff','#39ff9e','#ff5d7f','#f4d03f','#5aa9ff','#ff8ad8'][h%8];}
+function icTymRadky(el,hraci){
+ el.replaceChildren();
+ if(!hraci.length){const r=document.createElement('div');r.className='ic-tr prazdno';r.textContent='—';el.appendChild(r);return;}
+ const ZN={odp:'●',mysli:'○',ceka:'·',off:'–'},POP={odp:'odpověď odeslána',mysli:'přemýšlí',ceka:'',off:'odpojeno'};
+ hraci.forEach(h=>{
+  const r=document.createElement('div');r.className='ic-tr '+h.stav;if(POP[h.stav])r.title=POP[h.stav];
+  const d=document.createElement('span');d.className='ic-td';d.textContent=ZN[h.stav];if(POP[h.stav]){d.setAttribute('role','img');d.setAttribute('aria-label',POP[h.stav]);}
+  const j=document.createElement('span');j.className='ic-tj';j.textContent=h.jmeno;
+  const sk=document.createElement('span');sk.className='ic-ts';sk.textContent=h.skore.toLocaleString('cs-CZ');
+  const c=document.createElement('span');c.className='ic-tc';c.textContent=h.spravne+'✓';c.title='správných odpovědí: '+h.spravne;
+  r.append(d,j,sk,c);el.appendChild(r);});
+}
+function icTymHlava(el,hraci,faze){
+ const zive=hraci.filter(h=>h.stav!=='off'),odp=zive.filter(h=>h.stav==='odp').length;
+ el.textContent=faze==='active'&&zive.length?'odpovědělo '+odp+' / '+zive.length:'';
+}
 async function icTymy(){
  const sek=icEl('ic-tymy');
+ if(IC.tymBezi)return;IC.tymBezi=true;
  try{
-  let st=null;
-  if(IC.bojId)st=await RPGCloud.battleState(IC.bojId);
-  if(!st||!RPGInfo.tymy(st)){
-   IC.bojId=null;st=null;
+  let st=null,t=null;
+  if(IC.bojId){st=await RPGCloud.battleState(IC.bojId);t=st?RPGInfo.tymy(st):null;}
+  /* sledovaný souboj skončil nebo zmizel → zkus najít jiný běžící (výsledek skončeného zůstane, dokud žádný nový není) */
+  if(!t||t.faze==='finished'){
    const sez=(await RPGCloud.listActiveBattles()||[]).filter(b=>!b.game||b.game===IC.game).slice(0,3);
-   for(const b of sez){const s=await RPGCloud.battleState(b.id);if(s&&RPGInfo.tymy(s)){IC.bojId=b.id;st=s;break;}}
+   for(const b of sez){if(b.id===IC.bojId)continue;const s=await RPGCloud.battleState(b.id),tt=s?RPGInfo.tymy(s):null;if(tt){IC.bojId=b.id;st=s;t=tt;break;}}
   }
-  const t=st?RPGInfo.tymy(st):null;
+  if(!t)IC.bojId=null;
   sek.hidden=!t;if(!t)return;
+  IC.bojFaze=t.faze;
   const [a,b]=t.skore;
   icEl('ic-t1').textContent=a;icEl('ic-t2').textContent=b;icEl('ic-t1').style.flex=Math.max(1,a);icEl('ic-t2').style.flex=Math.max(1,b);
-  icEl('ic-tn1').textContent=t.modry.join(', ')||'—';icEl('ic-tn2').textContent=t.cerveny.join(', ')||'—';
+  icTymRadky(icEl('ic-tn1'),t.modryHraci);icTymRadky(icEl('ic-tn2'),t.cervenyHraci);
+  icTymHlava(icEl('ic-tp1'),t.modryHraci,t.faze);icTymHlava(icEl('ic-tp2'),t.cervenyHraci,t.faze);
  }catch(e){sek.hidden=true;console.warn('[infocentrum] týmy',e);}
+ finally{IC.tymBezi=false;}
 }
 function icOslava(stupen){
  const l=icEl('ic-lv');l.querySelectorAll('.ic-px').forEach(x=>x.remove());icEl('ic-lvh').textContent='STUPEŇ '+stupen;
@@ -2713,7 +2753,7 @@ document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
 
 <script src="vendor/supabase-js-2.118.0.js"></script>
 <script src="./rpg-cloud.js"></script>
-<script src="./rpg-infocentrum.js?v=20261107"></script>
+<script src="./rpg-infocentrum.js?v=20261108"></script>
 <script>boot();</script>
 </body>
 </html>
