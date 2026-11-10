@@ -1,6 +1,6 @@
 /**
  * Učitelská konzole — integrace 1. stupně (3.–5. ročník).
- * Ověřuje: přehled žáků 1. stupně, statistiky/diagnostika/žebříček/vysvětlení
+ * Ověřuje: přehled žáků 1. stupně, statistiky/diagnostika/žebříček (vysvětlení je od 10. 11. 2026 pryč)
  * obsahují 3.–5., a hlavně NÁHLED postavy žáka (?su=) i hra nanečisto (?preview=1)
  * fungují pro hru 1. stupně.
  * Spusť: node tests/rpg-1stupen-console.test.cjs
@@ -100,8 +100,8 @@ async function run(){
     }
     console.log();
 
-    // ── 2) Diagnostika + žebříček + vysvětlení nabízí 3.–5. ──
-    console.log('[ 2 ] Statistiky (diagnostika/žebříček/vysvětlení) mají 3.–5.');
+    // ── 2) Diagnostika + žebříček nabízí 3.–5. ──
+    console.log('[ 2 ] Statistiky (diagnostika/žebříček) mají 3.–5.');
     {
       const {ctx,pg}=await page(SUPER);
       await pg.goto(`${BASE}/projects/rpg-ucitel.html`,{waitUntil:'domcontentloaded'});
@@ -117,9 +117,9 @@ async function run(){
         return w?w.textContent.slice(0,400):'no-wrap';
       });
       ok('Diagnostika 3. ročníku vykreslí oblasti (Palouk/Houbová/…)', /Palouk|Houbová|Liščí|čísel|násobilka|Dělení/i.test(diag), diag.slice(0,80));
-      // vysvětlení dropdown
-      const explHas3=await pg.evaluate(()=>{const s=document.getElementById('expl-game');return s&&[...s.options].some(o=>o.value==='RPG_MAT_3');});
-      ok('„Vysvětlení" nabízí 3. ročník', explHas3);
+      // vysvětlení: záložka je od 10. 11. 2026 z konzole pryč (sběr je vypnutý), nesmí tu zbýt ani její filtr ročníků
+      const explPryc=await pg.evaluate(()=>!document.getElementById('expl-game')&&!document.querySelector('[data-tab="explain"]')&&!document.getElementById('t-explain'));
+      ok('Záložka „Vysvětlení“ už v konzoli není', explPryc);
       await ctx.close();
     }
     console.log();
