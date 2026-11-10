@@ -51,8 +51,10 @@ window.RPGCloud = {
     ok(`g${g}: ve zdroji není pole ani ukládání vysvětlení`, !/bt-explain|Jak jsi na to přišel|saveExplanation/.test(h));
   }
   const konzole = fs.readFileSync(path.join(ROOT, 'projects/rpg-ucitel.html'), 'utf8');
-  ok('konzole: záložka VYSVĚTLENÍ zůstává (starší záznamy) a říká, že sběr je vypnutý',
-    /data-tab="explain"/.test(konzole) && /listExplanations/.test(konzole) && /vypnut/.test(konzole));
+  // 10. 11. 2026 (Vojta: „vysvětlení můžeme z učitelského panelu dát pryč, protože už to není možné dělat“): záložka je pryč
+  ok('konzole: záložka VYSVĚTLENÍ, její panel, funkce ani nápověda už v konzoli nejsou',
+    !/data-tab="explain"/.test(konzole) && !/id="t-explain"/.test(konzole) && !/listExplanations|deleteExplanation|renderExplain|initExplainTab/.test(konzole) &&
+    !/id:'explain'/.test(konzole));
 
   const server = await serve();
   const base = `http://127.0.0.1:${server.address().port}`;

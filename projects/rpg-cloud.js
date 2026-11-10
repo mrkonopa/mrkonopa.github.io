@@ -37,6 +37,24 @@ window.RPGCloud = (function () {
   // Čerstvé přihlášení = stránka se právě vrátila od Googlu s tokenem v adrese.
   // Zachytit hned při načtení — knihovna Supabase adresu po zpracování vyčistí.
   const cerstvePrihlaseni = /(^#|&)access_token=|[?&]code=[\w-]{16,}/.test((location.hash || '') + (location.search || ''));
+  /* Návrat od Googlu: na stránce je ještě obrazovka PŘEDCHOZÍHO žáka a data se vymění až po ověření účtu (na pomalé školní síti
+     sekundy). Do rozhodnutí stránku schováme (visibility, ne display — rozvržení se počítá dál); init() ji odkryje vždy,
+     i při chybě, kromě případu, kdy se stránka právě přenačítá. Pojistky: stránka bez init() se odkryje za 2,5 s, každá za 12 s. */
+  let initZacal = false, prenacitam = false, zakrytiEl = null;
+  function zakryjStranku() {
+    try {
+      if (zakrytiEl || !document.documentElement) return;
+      zakrytiEl = document.createElement('style');
+      zakrytiEl.textContent = 'html{visibility:hidden!important}';
+      document.documentElement.appendChild(zakrytiEl);
+    } catch (e) {}
+  }
+  function odkryjStranku() { try { if (zakrytiEl) { zakrytiEl.remove(); zakrytiEl = null; } } catch (e) {} }
+  if (cerstvePrihlaseni) {
+    zakryjStranku();
+    setTimeout(() => { if (!initZacal) odkryjStranku(); }, 2500);
+    setTimeout(odkryjStranku, 12000);
+  }
   function osobniKlice() {
     const out = [];
     try { for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (jeOsobni(k)) out.push(k); } } catch (e) {}
@@ -71,9 +89,11 @@ window.RPGCloud = (function () {
     let zahodit = false;
     if (klice.length && vl) zahodit = true;
     else if (klice.length && cerstve) {
-      const otazka = 'Na tomto zařízení jsou uložená data:\n' + popisDat(klice) +
-        '\n\nPatří TOBĚ (' + (u.email || '') + ')?\n\nOK = ano, ulož je do mého účtu\nZrušit = ne, smaž je z tohoto zařízení';
-      zahodit = !(typeof window.confirm === 'function' && window.confirm(otazka));
+      // BEZPEČNÝ VÝCHOZÍ: OK (a Enter) data SMAŽE. Dřív OK znamenalo „ulož je do mého účtu“, takže dítě, které dialog jen odklepne,
+      // dostalo do účtu postavu předchozího žáka (a ta s víc splněnými úkoly přepsala jeho cloud). Ponechat si data musí chtít vědomě.
+      const otazka = 'Na tomto zařízení jsou uložená data, která nepatří k žádnému účtu:\n' + popisDat(klice) +
+        '\n\nPatří TOBĚ (' + (u.email || '') + ')?\n\nOK = NE, nepatří mi — smazat je z tohoto zařízení\nZrušit = ANO, je moje — uložit do mého účtu';
+      zahodit = typeof window.confirm !== 'function' || window.confirm(otazka);
     }
     if (zahodit) smazOsobni();
     try { localStorage.setItem(VLASTNIK, u.id); } catch (e) {}
@@ -115,10 +135,35 @@ window.RPGCloud = (function () {
   let lastError = null;
   const getError = () => lastError;
 
-  async function init() {
+  async function initVnitrni() {
     if (!configured()) { emit(); return false; }
+    let napojZmeny = null;   // napojí se po createClient; catch ji potřebuje i po vypršení getSession
     try {
       client = window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
+      /* Změny přihlášení (jiný účet v jiné kartě, POZDNÍ přihlášení po vypršení getSession). Funkce se zavolá jednou: po úspěšném
+         getSession (úvodní stav už vyřídila init) nebo po vypršení (pak je třeba zpracovat i úvodní událost, jinak by se pozdní
+         přihlášení nezpracovalo a obrazovka by zůstala odhlášená s daty předchozího žáka). */
+      let zmenyNapojeny = false;
+      napojZmeny = (uvodniVyrizeno) => {
+        if (zmenyNapojeny) return; zmenyNapojeny = true;
+        client.auth.onAuthStateChange(async (_event, s) => {
+          // INITIAL_SESSION už pokryl getSession()+emit() níže → přeskočit. Jinak by se
+          // celý onChange (včetně continueGame → renderMap) spustil DVAKRÁT hned po načtení
+          // stránky a mapa by se viditelně „načetla dvakrát" (animace nájezdu se zopakuje).
+          if (_event === 'INITIAL_SESSION' && uvodniVyrizeno) return;
+          const nu = s ? s.user : null;
+          if (nu && !emailOK(nu)) { client.auth.signOut(); return; }
+          const prevId = user ? user.id : null;
+          // jiný účet na tomtéž zařízení (přihlášení v jiné kartě) — data předchozího pryč dřív, než se cokoli pošle
+          if (nu && nu.id !== prevId && prevezmiZarizeni(nu, true)) { prenacitam = true; location.reload(); return; }
+          const wasOut = !user;
+          user = nu;
+          if (user) { await fetchRole(); if (wasOut) syncWallet(); } else role = null;
+          // emit jen při skutečné změně přihlášeného uživatele (ne při TOKEN_REFRESHED),
+          // ať se mapa zbytečně nepřekresluje každou hodinu při obnově tokenu.
+          if ((user ? user.id : null) !== prevId) emit();
+        });
+      };
       const { data: { session } } = await withTimeout(
         client.auth.getSession(), 8000, 'getSession');
       user = session ? session.user : null;
@@ -129,29 +174,25 @@ window.RPGCloud = (function () {
       }
       role = null;
       // Cizí data v zařízení pryč DŘÍV než syncWallet a emit — jinak by je sloučily s cloudem.
-      if (user && prevezmiZarizeni(user, cerstvePrihlaseni) && hraBezi()) { location.reload(); return true; }
+      // Po zahození cizích dat se stránka přenačte VŽDY (rozcestník, přijímačky i úvod hry mají cizí data v obrazovce) —
+      // dřív jen u běžící hry, takže rozcestník po přihlášení dál ukazoval postavu předchozího žáka. Vlastník je už nastavený, smyčka nehrozí.
+      if (user && prevezmiZarizeni(user, cerstvePrihlaseni)) { prenacitam = true; location.reload(); return true; }
       if (user) { await fetchRole(); syncWallet(); }
       vyprazdniFrontuUdalosti();   // role je známá, učitelské účty se nepočítají
-      client.auth.onAuthStateChange(async (_event, s) => {
-        // INITIAL_SESSION už pokryl getSession()+emit() níže → přeskočit. Jinak by se
-        // celý onChange (včetně continueGame → renderMap) spustil DVAKRÁT hned po načtení
-        // stránky a mapa by se viditelně „načetla dvakrát" (animace nájezdu se zopakuje).
-        if (_event === 'INITIAL_SESSION') return;
-        const nu = s ? s.user : null;
-        if (nu && !emailOK(nu)) { client.auth.signOut(); return; }
-        const prevId = user ? user.id : null;
-        // jiný účet na tomtéž zařízení (přihlášení v jiné kartě) — data předchozího pryč dřív, než se cokoli pošle
-        if (nu && nu.id !== prevId && prevezmiZarizeni(nu, true) && hraBezi()) { location.reload(); return; }
-        const wasOut = !user;
-        user = nu;
-        if (user) { await fetchRole(); if (wasOut) syncWallet(); } else role = null;
-        // emit jen při skutečné změně přihlášeného uživatele (ne při TOKEN_REFRESHED),
-        // ať se mapa zbytečně nepřekresluje každou hodinu při obnově tokenu.
-        if ((user ? user.id : null) !== prevId) emit();
-      });
+      napojZmeny(true);
       emit();
       return true;
-    } catch (e) { lastError = e; console.warn('[RPGCloud] init selhal:', e); emit(); return false; }
+    } catch (e) {
+      lastError = e; console.warn('[RPGCloud] init selhal:', e);
+      try { if (napojZmeny) napojZmeny(false); } catch (e2) {}
+      emit(); return false;
+    }
+  }
+
+  async function init() {
+    initZacal = true;
+    try { return await initVnitrni(); }
+    finally { if (!prenacitam) odkryjStranku(); }
   }
 
   async function login() {
@@ -777,7 +818,7 @@ window.RPGCloud = (function () {
     if (!client || !isStaff()) return [];
     try {
       const { data, error } = await client.from('feedback')
-        .select('id,created_at,display_name,body')
+        .select('id,created_at,user_id,display_name,body')
         .order('created_at', { ascending: false })
         .limit(limit);
       if (error) throw error;
@@ -1401,6 +1442,47 @@ window.RPGCloud = (function () {
   /* Odhlášení z profilu hry. Doménového žáka přihlášení rovnou pustí na mapu, takže úvodní
      obrazovku s lištou neuvidí — na sdíleném tabletu by se neměl kde odhlásit. Blok se vloží
      do panelu NASTAVENÍ (kolem #pr-rm) a ukáže se jen přihlášenému mimo náhled. */
+  /* Odhlášení přímo na MAPĚ hry (Vojta 10. 11. 2026: „chci výraznější tlačítko“). Doménový žák úvod s lištou přeskočí a
+     dřív se mohl odhlásit jen z profilu → NASTAVENÍ, takže na sdíleném tabletu zůstával přihlášený předchozí žák.
+     Pruh ukazuje, kdo je přihlášený, a tlačítko je vždy na očích (jen když je někdo přihlášený; v náhledu se nic neukazuje).
+     Jména a e-mail jen přes textContent. Pod topnav, aby se nepletl do jeho řádku (telefon 360 px). */
+  function mapaOdhlaseni() {
+    const wrap = document.querySelector('#s-map .wrap');
+    const nav = wrap && wrap.querySelector('.topnav');
+    if (!nav) return;
+    let box = document.getElementById('map-cloud');
+    if (!user || previewActive || !configured()) { if (box) box.style.display = 'none'; return; }
+    if (!box) {
+      box = document.createElement('div');
+      box.id = 'map-cloud';
+      box.style.cssText = 'margin:0 0 12px;padding:8px 12px;border:1px solid var(--line,#2a3450);border-radius:6px;' +
+        'background:rgba(0,0,0,.22);display:flex;align-items:center;gap:10px 14px;flex-wrap:wrap;' +
+        'font-family:var(--read,inherit);font-size:14px;color:var(--text,#e6ecf7)';
+      const t = document.createElement('div');
+      t.id = 'map-cloud-txt';
+      t.style.cssText = 'flex:1 1 200px;min-width:0;overflow-wrap:anywhere;line-height:1.4';
+      const b = document.createElement('button');
+      b.id = 'map-logout'; b.type = 'button'; b.className = 'btn sm r';
+      b.style.cssText = 'min-height:44px;flex:0 0 auto';
+      b.textContent = 'Odhlásit se';
+      b.onclick = () => logout();
+      box.appendChild(t); box.appendChild(b);
+      nav.insertAdjacentElement('afterend', box);
+    }
+    box.style.display = 'flex';
+    const t = document.getElementById('map-cloud-txt');
+    const kdo = document.createElement('div');
+    const jmeno = (user.user_metadata && user.user_metadata.full_name) || '';
+    kdo.appendChild(document.createTextNode('☁️ Přihlášen: '));
+    const nm = document.createElement('b');
+    nm.textContent = jmeno || user.email || 'žák';
+    kdo.appendChild(nm);
+    const rada = document.createElement('div');
+    rada.style.cssText = 'font-size:12px;color:var(--muted,#8895b5)';
+    rada.textContent = 'Končíš? Odhlas se — další žák na tomto tabletu pak začne čistě. Tvá postava zůstane v cloudu.';
+    t.replaceChildren(kdo, rada);
+  }
+
   function profilOdhlaseni() {
     const rm = document.getElementById('pr-rm');
     const panel = rm && rm.closest('.panel');
@@ -1520,6 +1602,7 @@ window.RPGCloud = (function () {
       onChange(async (u) => {
         paint();
         profilOdhlaseni();
+        mapaOdhlaseni();
         if (u) {
           refreshNotesWidget();
           refreshAssignmentsWidget(saveKey);
@@ -1630,10 +1713,9 @@ window.RPGCloud = (function () {
       onChange(async (u) => {
         paint();
         if (u) {
-          for (const g of games) {
-            const cloud = await pull(g);
-            if (cloud) localStorage.setItem(g, JSON.stringify(cloud));
-          }
+          // Najednou, ne po jedné (7 her za sebou na pomalé školní síti trvalo desítky sekund)
+          const clouds = await Promise.all(games.map(g => pull(g)));
+          games.forEach((g, i) => { if (clouds[i]) localStorage.setItem(g, JSON.stringify(clouds[i])); });
           if (typeof rerender === 'function') rerender();
         }
       });

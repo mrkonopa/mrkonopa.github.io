@@ -341,7 +341,6 @@ h4{font-family:var(--px);font-size:12px;font-weight:700;color:var(--accent);lett
    <button class="tab" data-tab="leaderboard">🏆 ŽEBŘÍČKY</button>
    <button class="tab" data-tab="tower">VĚŽ LEGEND</button>
    <button class="tab" data-tab="battles">⚔️ SOUBOJE</button>
-   <button class="tab" data-tab="explain">VYSVĚTLENÍ</button>
    <button class="tab" data-tab="feedback">ZPĚTNÁ VAZBA</button>
    <button class="tab" data-tab="preview">NÁHLED HER</button>
    <button class="tab hidden" id="tab-teachers" data-tab="teachers">SPRÁVA UČITELŮ</button>
@@ -554,31 +553,6 @@ h4{font-family:var(--px);font-size:12px;font-weight:700;color:var(--accent);lett
     <button class="mini" onclick="renderBattles()">↻ Obnovit</button>
    </div>
    <div id="bt-wrap"><div class="empty">Načítám…</div></div>
-  </div>
-
-  <!-- VYSVĚTLENÍ POSTUPU -->
-  <div id="t-explain" class="hidden">
-   <div class="info-box">Pole „Jak jsi na to přišel?“ je ve hrách od 7. 10. 2026 <b>vypnuté</b> — na tabletech brzdilo hraní (odsouvalo tlačítko DÁLE). Tady zůstávají <b>starší záznamy</b>, kdy žáci po správné odpovědi jednou větou psali, jak na to přišli.</div>
-   <div class="controls">
-    <select id="expl-game" aria-label="Vysvětlení: filtr podle ročníku" onchange="onExplGameChange()">
-     <option value="" selected>— Všechny ročníky —</option>
-     <option value="RPG_MAT_3">🌳 Kouzelný les (3. ročník)</option>
-     <option value="RPG_MAT_4">🏴‍☠️ Pirátská plavba (4. ročník)</option>
-     <option value="RPG_MAT_5">🐉 Dračí říše (5. ročník)</option>
-     <option value="RPG_MAT_6">🚀 Vesmírná expedice (6. ročník)</option>
-     <option value="RPG_MAT_7">⛏️ Ztracený chrám (7. ročník)</option>
-     <option value="RPG_MAT_8">🎓 Matematická akademie (8. ročník)</option>
-     <option value="RPG_MAT_9">💻 NULL_BYTE (9. ročník)</option>
-    </select>
-    <select id="expl-class" aria-label="Vysvětlení: filtr podle třídy" onchange="renderExplain()">
-     <option value="">Všechny třídy</option>
-    </select>
-    <select id="expl-mid" aria-label="Vysvětlení: filtr podle mise" onchange="renderExplain()">
-     <option value="">Všechny mise</option>
-    </select>
-    <button class="mini" onclick="loadExplain()">↻ Načíst</button>
-   </div>
-   <div id="expl-wrap"><div class="empty">Klikni ↻ Načíst pro zobrazení vysvětlení.</div></div>
   </div>
 
   <!-- UČITELÉ -->
@@ -1956,90 +1930,6 @@ function renderDiag(){
  wrap.innerHTML=summaryHtml+html;
 }
 
-/* ── VYSVĚTLENÍ POSTUPU ── */
-let explData=[];
-let explInited=false;
-
-function initExplainTab(){
- if(!explInited){
-  // populate class filter
-  const cs=document.getElementById('expl-class');
-  cs.innerHTML='<option value="">Všechny třídy</option>';
-  activeClasses().forEach(c=>{const o=document.createElement('option');o.value=c.id;o.textContent=classLabel(c);cs.appendChild(o);});
-  // populate mission filter dle zvoleného ročníku
-  fillExplMissions();
-  explInited=true;
- }
-}
-function fillExplMissions(){
- const game=document.getElementById('expl-game').value;
- const ms=document.getElementById('expl-mid');
- ms.innerHTML='<option value="">Všechny mise</option>';
- if(game){missionsFor(game).forEach(m=>{const o=document.createElement('option');o.value=m.id;o.textContent=m.id+' '+m.name;ms.appendChild(o);});}
- else{GAMES.forEach(g=>{missionsFor(g.key).forEach(m=>{const o=document.createElement('option');o.value=m.id;o.textContent=g.emoji+' '+m.id+' '+m.name;ms.appendChild(o);});});}
-}
-function onExplGameChange(){fillExplMissions();loadExplain();}
-
-async function loadExplain(){
- const wrap=document.getElementById('expl-wrap');
- wrap.innerHTML='<div class="empty">Načítám…</div>';
- const game=document.getElementById('expl-game').value||'';
- const mid=document.getElementById('expl-mid').value||'';
- const cid=document.getElementById('expl-class').value||'';
- try{
-  explData=await RPGCloud.listExplanations({game:game||undefined,mid,limit:200,classId:cid||undefined});
-  renderExplain();
- }catch(e){wrap.innerHTML='<div class="empty">Chyba při načítání.</div>';}
-}
-
-function renderExplain(){
- const wrap=document.getElementById('expl-wrap');
- if(!explData.length){wrap.innerHTML='<div class="empty">Žádná vysvětlení zatím. Klikni ↻ Načíst.</div>';return;}
- const mid=document.getElementById('expl-mid').value;
- const rows=mid?explData.filter(r=>r.mid===mid):explData;
- if(!rows.length){wrap.innerHTML='<div class="empty">Žádné záznamy pro vybraný filtr.</div>';return;}
- const allGrades=!document.getElementById('expl-game').value;
- let html='<table style="width:100%;border-collapse:collapse;font-size:13px">'
-  +'<thead><tr style="color:var(--muted);text-align:left;border-bottom:1px solid #2a3450">'
-  +'<th style="padding:6px 8px;white-space:nowrap">Čas</th>'
-  +(allGrades?'<th style="padding:6px 8px">Hra</th>':'')
-  +'<th style="padding:6px 8px">Žák</th>'
-  +'<th style="padding:6px 8px;white-space:nowrap">Mise</th>'
-  +'<th style="padding:6px 8px">Otázka</th>'
-  +'<th style="padding:6px 8px">Odpověď</th>'
-  +'<th style="padding:6px 8px">Jak na to přišel</th>'
-  +'<th style="padding:6px 8px"></th>'
-  +'</tr></thead><tbody>';
- rows.forEach((r,i)=>{
-  const dt=new Date(r.created_at);
-  const dstr=dt.toLocaleDateString('cs-CZ',{day:'numeric',month:'numeric'})+' '+dt.toLocaleTimeString('cs-CZ',{hour:'2-digit',minute:'2-digit'});
-  const bg=i%2===0?'':'background:#0d1226';
-  const gm=gMeta(r.game||'RPG_MAT_9');
-  const mname=(MISSIONS_BY_GAME[r.game||'RPG_MAT_9']||[]).find(m=>m.id===r.mid);
-  html+=`<tr style="${bg}">
-   <td style="padding:5px 8px;color:var(--muted);white-space:nowrap;font-size:12px">${esc(dstr)}</td>
-   ${allGrades?`<td style="padding:5px 8px;white-space:nowrap;font-size:12px">${esc(gm.emoji)} ${esc(gm.gr)}</td>`:''}
-   <td style="padding:5px 8px;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(r.display_name||'?')}</td>
-   <td style="padding:5px 8px;white-space:nowrap;color:var(--gold);font-size:12px">${esc(r.mid)}${mname?'<br><span style="color:var(--muted);font-size:11px">'+esc(mname.name)+'</span>':''}</td>
-   <td style="padding:5px 8px;max-width:200px;font-size:12px;color:#b0b8d0">${esc((r.task_text||'').slice(0,80))}</td>
-   <td style="padding:5px 8px;color:var(--green);white-space:nowrap">${esc(r.answer||'')}</td>
-   <td style="padding:5px 8px;max-width:300px;line-height:1.5">${esc(r.explanation||'')}</td>
-   <td style="padding:5px 8px"><button class="mini red" onclick="deleteExplainUI(${i})">🗑</button></td>
-  </tr>`;
- });
- html+='</tbody></table>';
- html+='<p style="color:var(--muted);font-size:12px;margin-top:10px">Zobrazeno: '+rows.length+' záznamů</p>';
- wrap.innerHTML=html;
- window.__explRows=rows;
-}
-async function deleteExplainUI(i){
- const r=window.__explRows&&window.__explRows[i];if(!r)return;
- if(!confirm('Smazat toto vysvětlení?'))return;
- const res=await RPGCloud.deleteExplanation(r.id);
- if(res.ok){toast('Vysvětlení smazáno');explData=explData.filter(x=>x.id!==r.id);renderExplain();}
- else toast('Chyba: '+res.error,1);
-}
-
 /* ── zpětná vazba ── */
 let feedbackData=[];
 async function loadFeedback(){
@@ -2050,21 +1940,61 @@ async function loadFeedback(){
   renderFeedback();
  }catch(e){wrap.innerHTML='<div class="empty">Chyba při načítání.</div>';}
 }
+/* Odpověď žákovi přímo ze zpětné vazby: vzkaz do hry (stejná cesta jako poznámky ve třídách, žák ho uvidí ve 📨 Vzkazy).
+   Rozepsaný text a stav „odesláno“ se drží podle id zprávy, takže přežijí překreslení seznamu (smazání jiné zprávy). */
+const fbStav={otevrene:{},koncept:{},odeslano:{},odesila:false};
+function fbCitace(r){const t=String(r.body||'').replace(/\s+/g,' ').trim();return t.length>60?t.slice(0,60)+'…':t;}
 function renderFeedback(){
  const wrap=document.getElementById('feedback-wrap');
  if(!feedbackData.length){wrap.innerHTML='<div class="empty">Žádná zpětná vazba zatím.</div>';return;}
  let html='';
  feedbackData.forEach((r,i)=>{
+  const mamZaka=!!r.user_id;
+  const otevrena=!!fbStav.otevrene[r.id];
   html+='<div style="background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:12px 14px;margin-bottom:8px">'+
    '<div style="font-size:14px;color:var(--text);line-height:1.6">'+esc(r.body)+'</div>'+
    '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;gap:10px;flex-wrap:wrap">'+
-    '<span style="font-size:12px;color:var(--muted)">'+esc(r.display_name||'—')+' · '+esc(fmtDate(r.created_at))+'</span>'+
-    '<button class="mini red" onclick="deleteFeedbackUI('+i+')">🗑 Smazat</button>'+
-   '</div></div>';
+    '<span style="font-size:12px;color:var(--muted)">'+esc(r.display_name||'—')+' · '+esc(fmtDate(r.created_at))+
+     (fbStav.odeslano[r.id]?' · <b style="color:var(--green)">✓ odpověď odeslána</b>':'')+'</span>'+
+    '<span style="display:flex;gap:8px;flex-wrap:wrap">'+
+     (mamZaka?'<button class="mini" onclick="fbOtevri('+i+')">✉ Odpovědět</button>'
+             :'<span style="font-size:12px;color:var(--muted)" title="Účet žáka už neexistuje, nebo zpráva vznikla bez účtu.">nelze odpovědět</span>')+
+     '<button class="mini red" onclick="deleteFeedbackUI('+i+')">🗑 Smazat</button>'+
+    '</span>'+
+   '</div>'+
+   (mamZaka&&otevrena?
+    '<div style="margin-top:10px;display:flex;flex-direction:column;gap:8px">'+
+     '<textarea id="fb-odp-'+i+'" rows="3" maxlength="1000" aria-label="Odpověď žákovi: '+esc(r.display_name||'')+'" '+
+      'style="width:100%;box-sizing:border-box;font:inherit;font-size:14px;padding:8px 10px;border-radius:6px;border:1px solid var(--line);background:var(--panel);color:var(--text)" '+
+      'placeholder="Napiš žákovi odpověď — uvidí ji ve hře ve Vzkazech." oninput="fbKoncept('+i+',this.value)">'+esc(fbStav.koncept[r.id]||'')+'</textarea>'+
+     '<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="mini gold" onclick="fbPosli('+i+')">Odeslat žákovi</button>'+
+      '<button class="mini" onclick="fbOtevri('+i+')">Zavřít</button></div>'+
+    '</div>':'')+
+   '</div>';
  });
  html+='<p style="color:var(--muted);font-size:12px;margin-top:6px">Celkem: '+feedbackData.length+' zpráv</p>';
  wrap.innerHTML=html;
  window.__feedbackData=feedbackData.slice();
+}
+function fbOtevri(i){
+ const r=window.__feedbackData&&window.__feedbackData[i];if(!r||!r.user_id)return;
+ fbStav.otevrene[r.id]=!fbStav.otevrene[r.id];
+ renderFeedback();
+ if(fbStav.otevrene[r.id]){const t=document.getElementById('fb-odp-'+i);if(t)t.focus();}
+}
+function fbKoncept(i,v){const r=window.__feedbackData&&window.__feedbackData[i];if(r)fbStav.koncept[r.id]=v;}
+async function fbPosli(i){
+ const r=window.__feedbackData&&window.__feedbackData[i];if(!r||!r.user_id||fbStav.odesila)return;
+ const txt=String(fbStav.koncept[r.id]||'').trim();
+ if(!txt){toast('Napiš odpověď.',1);return;}
+ fbStav.odesila=true;
+ try{
+  const res=await RPGCloud.addNote(r.user_id,'Odpověď na tvou zpětnou vazbu „'+fbCitace(r)+'“: '+txt);
+  if(res.ok){
+   fbStav.odeslano[r.id]=true;fbStav.otevrene[r.id]=false;delete fbStav.koncept[r.id];
+   toast('Odesláno — žák to uvidí ve hře ve Vzkazech');renderFeedback();
+  }else toast('Chyba: '+res.error,1);
+ }finally{fbStav.odesila=false;}
 }
 async function deleteFeedbackUI(i){
  const r=window.__feedbackData&&window.__feedbackData[i];if(!r)return;
@@ -2424,12 +2354,10 @@ const NAPOVEDA = [
    '<p>Souboj celé třídy na jedné otázce naráz (styl Kahoot). Ty založíš místnost, žáci se připojí ze hry. '+
    'Tady je <b>trvalý souhrn</b> odehraných místností i s pořadím.</p>' },
 
- { id:'explain', nadpis:'Vysvětlení', kdo:'učitel i superadmin', text:
-   '<p>Pole „Jak jsi na to přišel?“ je ve hrách od 7. 10. 2026 <b>vypnuté</b> (na tabletech brzdilo hraní). '+
-   'Záložka ukazuje <b>starší záznamy</b>: kdo počítal s porozuměním a kdo trefil správnou volbu tipem.</p>' },
-
  { id:'feedback', nadpis:'Zpětná vazba', kdo:'učitel i superadmin', text:
-   '<p>Nápady a hlášení od žáků z hlavní stránky RPG Matematiky. Posílat je mohou jen přihlášení školním účtem.</p>' },
+   '<p>Nápady a hlášení od žáků z hlavní stránky RPG Matematiky. Posílat je mohou jen přihlášení školním účtem.</p>'+
+   '<p>Tlačítkem <b>✉ Odpovědět</b> napíšeš žákovi odpověď rovnou u jeho zprávy. Žák ji uvidí ve hře ve <b>📨 Vzkazy</b> '+
+   '(stejně jako poznámku od učitele) a bude v ní citace začátku jeho zprávy. U zprávy, jejíž účet už neexistuje, odpovědět nejde.</p>' },
 
  { id:'preview', nadpis:'Náhled her', kdo:'učitel i superadmin', text:
    '<p>Spustí hru <b>nanečisto</b> — nic se neukládá, nic žákovi nezkazíš. Hodí se na ukázku ve třídě '+
@@ -2724,7 +2652,6 @@ document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
  document.getElementById('t-leaderboard').classList.toggle('hidden',tab!=='leaderboard');
  document.getElementById('t-tower').classList.toggle('hidden',tab!=='tower');
  document.getElementById('t-battles').classList.toggle('hidden',tab!=='battles');
- document.getElementById('t-explain').classList.toggle('hidden',tab!=='explain');
  document.getElementById('t-feedback').classList.toggle('hidden',tab!=='feedback');
  document.getElementById('t-teachers').classList.toggle('hidden',tab!=='teachers');
  document.getElementById('t-audit').classList.toggle('hidden',tab!=='audit');
@@ -2738,7 +2665,6 @@ document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
  if(tab==='leaderboard')initLeaderboardTab();
  if(tab==='tower')renderTower();
  if(tab==='battles')initBattlesTab();
- if(tab==='explain')initExplainTab();
  if(tab==='feedback')loadFeedback();
 });
 </script>

@@ -227,10 +227,12 @@ body::before{
 .gprofile{background:var(--panel);border:1px solid var(--line);border-radius:var(--r-lg);
  padding:16px 18px;margin:0 0 22px}
 .gp-row{display:flex;flex-wrap:wrap;gap:20px;align-items:center}
-.gp-id{display:flex;align-items:flex-end;gap:13px;flex:1;min-width:230px}
+.gp-id{display:flex;align-items:center;gap:13px;flex:1;min-width:230px}
 /* avatar = pixelová postava, ne emoji */
+/* Rámeček z obchodu je plátno, které vyčnívá z avatara až o 12 px (nejširší rám 6 px × 2) a k tomu září — margin mu dělá
+   místo, aby se nedotýkal jména ani okraje panelu (naměřeno: rám končil 2 px před jménem). */
 .gp-av{width:52px;flex:none;background:#0d111c;border:1px solid var(--line);border-radius:var(--r-md);
- display:flex;align-items:flex-end;justify-content:center;padding:5px 0}
+ display:flex;align-items:flex-end;justify-content:center;padding:5px 0;margin:12px 14px 12px 12px}
 .gp-av canvas{width:44px;display:block;image-rendering:pixelated}
 /* souhrn: pět čísel vedle sebe */
 .gp-sum{display:flex;gap:26px;flex-wrap:wrap}
@@ -255,7 +257,7 @@ body::before{
 .gp-av.av-gold{filter:drop-shadow(0 0 9px var(--gold)) drop-shadow(0 0 3px var(--gold))}
 .gp-av.av-holo{animation:holo 2.5s linear infinite}
 @keyframes holo{0%{filter:drop-shadow(0 0 8px var(--gold))}25%{filter:drop-shadow(0 0 8px #4d9fff)}50%{filter:drop-shadow(0 0 8px #ff6090)}75%{filter:drop-shadow(0 0 8px #39ff9e)}100%{filter:drop-shadow(0 0 8px var(--gold))}}
-.gp-name{font-weight:700;font-size:18px;color:#fff;letter-spacing:1px}
+.gp-name{font-weight:700;font-size:24px;line-height:1.15;color:#fff;letter-spacing:1px;overflow-wrap:anywhere}
 .gp-name.nm-cyan{color:#4d9fff}.gp-name.nm-gold{color:var(--gold)}.gp-name.nm-green{color:#39ff9e}.gp-name.nm-purple{color:#b06cff}
 .gp-sub{font-size:12px;color:var(--muted);margin-top:3px}
 .gp-credits{text-align:center}
@@ -885,7 +887,7 @@ applyHubMotionPref();
 setTimeout(maybeShowEditBtn,200);
 </script>
 <script src="vendor/supabase-js-2.118.0.js"></script>
-<script src="./rpg-cloud.js?v=20261109"></script>
+<script src="./rpg-cloud.js?v=20261112"></script>
 <script>
 function refreshLeaderboards(){
   if(!window.RPGCloud||!RPGCloud.renderLeaderboardInto)return;
