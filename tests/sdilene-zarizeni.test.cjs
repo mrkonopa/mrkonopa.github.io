@@ -45,10 +45,10 @@ const postava = (jmeno, n, xp) => ({ name: jmeno, xp: xp || n * 7, level: 1, att
 const pocet = s => s && s.done ? Object.keys(s.done).length : -1;
 
 /* ── stavový „server“: saves, výsledky přijímaček, přihlášený uživatel ── */
-const SRV = { user: null, saves: new Map(), pz: new Map(), zpozdeniSaves: 0, upserty: [] };
-function reset() { SRV.user = null; SRV.saves.clear(); SRV.pz.clear(); SRV.zpozdeniSaves = 0; SRV.upserty = []; }
+const SRV = { user: null, saves: new Map(), pz: new Map(), zpozdeniSaves: 0, zpozdeniSession: 0, upserty: [] };
+function reset() { SRV.user = null; SRV.saves.clear(); SRV.pz.clear(); SRV.zpozdeniSaves = 0; SRV.zpozdeniSession = 0; SRV.upserty = []; }
 async function sb(op, arg) {
-  if (op === 'session') return SRV.user;
+  if (op === 'session') { if (SRV.zpozdeniSession) await sleep(SRV.zpozdeniSession); return SRV.user; }
   if (op === 'signout') { SRV.user = null; return null; }
   if (op === 'rpc') {
     const uid = SRV.user && SRV.user.id;
@@ -199,8 +199,9 @@ const OSOBNI = /^(RPG_MAT_[0-9]|RPG_HUB_WALLET|PZ_(CERMAT_ATTEMPTS|PRACTICE_PROG
     await ctx.close();
   } catch (e) { ok('scénář 2b doběhl', false, e.message.split('\n')[0]); }
 
-  // ── 3) data bez vlastníka + ČERSTVÉ přihlášení: zeptat se, „Zrušit“ smaže ──
-  for (const volba of ['dismiss', 'accept']) {
+  // ── 3) data bez vlastníka + ČERSTVÉ přihlášení: zeptat se. BEZPEČNÝ VÝCHOZÍ: OK (Enter) data SMAŽE, ponechat je = vědomé „Zrušit“ ──
+  //    (10. 11. 2026: dřív OK znamenalo „ulož do mého účtu“, takže odklepnutý dotaz dal dítěti postavu předchozího žáka)
+  for (const volba of ['accept', 'dismiss']) {
     try {
       reset(); dialogy = []; naDialog = volba;
       SRV.user = B; SRV.saves.set('uB|RPG_MAT_9', postava('BETA', 3));
@@ -211,8 +212,11 @@ const OSOBNI = /^(RPG_MAT_[0-9]|RPG_HUB_WALLET|PZ_(CERMAT_ATTEMPTS|PRACTICE_PROG
       await sleep(1200);
       const vB = SRV.saves.get('uB|RPG_MAT_9');
       ok(`bez vlastníka (${volba === 'accept' ? 'OK' : 'Zrušit'}): dotaz se ukázal a jmenuje postavu ADAM`, dialogy.length === 1 && /ADAM/.test(dialogy[0]), dialogy.join(' | ') || 'žádný dotaz');
-      if (volba === 'dismiss') ok('bez vlastníka, Zrušit: Betin cloud zůstal její', vB && vB.name === 'BETA' && pocet(vB) === 3, vB ? vB.name + ':' + pocet(vB) : 'chybí');
-      else ok('bez vlastníka, OK: postava se převzala do účtu (žák hrál bez přihlášení)', vB && vB.name === 'ADAM' && pocet(vB) === 20, vB ? vB.name + ':' + pocet(vB) : 'chybí');
+      ok('dotaz říká, že OK data SMAŽE (bezpečný výchozí)', /OK = NE[^\n]*smazat/.test(dialogy[0] || '') && /Zrušit = ANO[^\n]*uložit/.test(dialogy[0] || ''), (dialogy[0] || '').split('\n').slice(-2).join(' | '));
+      if (volba === 'accept') {
+        ok('bez vlastníka, OK (odklepnuto): Betin cloud zůstal její', vB && vB.name === 'BETA' && pocet(vB) === 3, vB ? vB.name + ':' + pocet(vB) : 'chybí');
+        ok('bez vlastníka, OK: v tabletu nezbyla Adamova postava', !('RPG_MAT_9' in (await ulozeno(pg))) || JSON.parse((await ulozeno(pg)).RPG_MAT_9).name !== 'ADAM');
+      } else ok('bez vlastníka, Zrušit (vědomě „je moje“): postava se převzala do účtu', vB && vB.name === 'ADAM' && pocet(vB) === 20, vB ? vB.name + ':' + pocet(vB) : 'chybí');
       await ctx.close();
     } catch (e) { ok('scénář 3 (' + volba + ') doběhl', false, e.message.split('\n')[0]); }
   }
@@ -295,6 +299,64 @@ const OSOBNI = /^(RPG_MAT_[0-9]|RPG_HUB_WALLET|PZ_(CERMAT_ATTEMPTS|PRACTICE_PROG
     ok('náhled: vlastník i postava v tabletu zůstaly', st.RPG_CLOUD_OWNER === 'uA' && pocet(JSON.parse(st.RPG_MAT_9 || 'null')) === 20);
     await ctx.close();
   } catch (e) { ok('scénář 8 doběhl', false, e.message.split('\n')[0]); }
+
+
+  /* ── 9–11) CIZÍ DATA SE NESMÍ UKÁZAT ani na rozcestníku, v přijímačkách a na úvodu hry (10. 11. 2026, Vojtovo hlášení:
+        „přihlášením se nepřepsali údaje na tabletu od předchozího uživatele — totální priorita“).
+        Měřeno: rozcestník po přihlášení dál ukazoval postavu a kredity předchozího žáka, dokud nedoběhlo stahování sedmi postav
+        po jedné (na pomalé síti desítky sekund); přenačtení po zahození dat se dělalo jen u běžící hry. ── */
+  const videtelnyText = pg => pg.evaluate(() => document.body.innerText.replace(/\s+/g, ' '));
+  const cizi = t => /ADAM/.test(t) || /4\s?321/.test(t) || /41\s*\/\s*50/.test(t);
+  const CIZI_DATA = { RPG_CLOUD_OWNER: 'uA', RPG_MAT_5: postava('ADAM', 6), RPG_HUB_WALLET: { v: 1, credits: 4321 },
+    PZ_CERMAT_ATTEMPTS: [{ date: '2026-10-01', score: 41, max: 50 }] };
+  for (const [kde, url, zpSession, zpSaves] of [
+    ['rozcestník', base + '/projects/rpg-matematika.html', 1500, 2500],
+    ['přijímačky', base + '/projects/prijimacky-matematika/index.html', 1500, 0],
+    ['úvod hry 5. ročníku', base + '/projects/rpg-mat-5.html', 1500, 0]]) {
+    try {
+      reset(); SRV.user = B; SRV.zpozdeniSession = zpSession; SRV.zpozdeniSaves = zpSaves;
+      const { ctx, pg } = await zarizeni();
+      await ulozDoTabletu(pg, CIZI_DATA);
+      await pg.goto(url + CERSTVE, { waitUntil: 'domcontentloaded' });
+      const vzorky = [];
+      for (const ms of [250, 600, 1000]) { await sleep(ms === 250 ? 250 : ms === 600 ? 350 : 400); vzorky.push(await videtelnyText(pg).catch(() => '(stránka se přenačítá)')); }
+      ok(`${kde}: dokud se ověřuje účet, se nic z dat předchozího žáka neukazuje`, vzorky.every(t => !cizi(t)), vzorky.map(t => t.slice(0, 60)).join(' | '));
+      ok(`${kde}: stránka je do rozhodnutí schovaná`, await pg.evaluate(() => getComputedStyle(document.documentElement).visibility === 'hidden').catch(() => true));
+      await sleep(zpSession + 600);
+      const pozdeji = [];
+      for (let i = 0; i < 4; i++) { pozdeji.push(await videtelnyText(pg).catch(() => '')); await sleep(zpSaves ? 900 : 300); }
+      ok(`${kde}: po přihlášení se cizí data nikdy neukážou (ani při pomalém stahování postav)`, pozdeji.every(t => !cizi(t)), pozdeji.map(t => t.slice(0, 60)).join(' | '));
+      const st = await ulozeno(pg);
+      const A_zbylo = [st.RPG_MAT_5 && JSON.parse(st.RPG_MAT_5).name === 'ADAM', st.RPG_HUB_WALLET && /4321/.test(st.RPG_HUB_WALLET),
+        st.PZ_CERMAT_ATTEMPTS && /"score":41/.test(st.PZ_CERMAT_ATTEMPTS)].some(Boolean);
+      ok(`${kde}: v tabletu nezbyla postava, kredity ani výsledky předchozího žáka a zařízení patří Betě`, !A_zbylo && st.RPG_CLOUD_OWNER === 'uB', JSON.stringify(Object.keys(st)));
+      ok(`${kde}: stránka je po přihlášení odkrytá`, await pg.evaluate(() => getComputedStyle(document.documentElement).visibility !== 'hidden'));
+      await ctx.close();
+    } catch (e) { ok(`scénář 9 (${kde}) doběhl`, false, e.message.split('\n')[0]); }
+  }
+
+  /* ── 12) POMALÁ SÍŤ: getSession nedoběhne do 8 s. Pozdní přihlášení dřív nikdo nezpracoval (posluchač se napojoval až po
+        úspěšném getSession), takže stránka zůstala „odhlášená“ s daty předchozího žáka. ── */
+  try {
+    reset(); SRV.user = B; SRV.zpozdeniSession = 9500;
+    const { ctx, pg } = await zarizeni();
+    await ulozDoTabletu(pg, CIZI_DATA);
+    await pg.goto(base + '/projects/rpg-mat-5.html' + CERSTVE, { waitUntil: 'domcontentloaded' });
+    await pg.waitForFunction(() => typeof window.__authCb === 'function', null, { timeout: 12000 }).catch(() => {});
+    const napojeno = await pg.evaluate(() => typeof window.__authCb === 'function');
+    ok('pomalá síť: po vypršení getSession (8 s) je posluchač přihlášení napojený', napojeno);
+    SRV.zpozdeniSession = 0;                                            // po přenačtení už odpovídá rychle
+    if (napojeno) {
+      await Promise.all([pg.waitForEvent('load', { timeout: 10000 }).catch(() => {}),
+        pg.evaluate((u) => window.__authCb('INITIAL_SESSION', { user: u }), B).catch(() => {})]);   // pozdní událost od knihovny
+      await sleep(1800);
+      const st = await ulozeno(pg);
+      ok('pomalá síť: pozdní přihlášení vymění zařízení (cizí postava pryč, vlastník Beta)', st.RPG_CLOUD_OWNER === 'uB' && !(st.RPG_MAT_5 && JSON.parse(st.RPG_MAT_5).name === 'ADAM') && !st.RPG_HUB_WALLET?.includes('4321'),
+        JSON.stringify(Object.keys(st)) + ' vlastník ' + st.RPG_CLOUD_OWNER);
+      ok('pomalá síť: stránka ukazuje přihlášenou Betu, ne předchozího žáka', !cizi(await videtelnyText(pg)) && await pg.evaluate(() => !!window.RPGCloud.currentUser() && window.RPGCloud.currentUser().id === 'uB'));
+    }
+    await ctx.close();
+  } catch (e) { ok('scénář 12 doběhl', false, e.message.split('\n')[0]); }
 
   const re = errs.filter(e => !/ERR_CERT|net::|jsdelivr|supabase|Failed to fetch/i.test(e));
   ok('žádné JS chyby', re.length === 0, re.slice(0, 3).join(' | '));
