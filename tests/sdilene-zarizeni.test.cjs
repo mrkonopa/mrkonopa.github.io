@@ -358,6 +358,55 @@ const OSOBNI = /^(RPG_MAT_[0-9]|RPG_HUB_WALLET|PZ_(CERMAT_ATTEMPTS|PRACTICE_PROG
     await ctx.close();
   } catch (e) { ok('scénář 12 doběhl', false, e.message.split('\n')[0]); }
 
+
+  /* ── 13) ODHLÁSIT SE NA MAPĚ KAŽDÉ HRY (10. 11. 2026, Vojta: „chci výraznější tlačítko“). Doménový žák úvod s lištou přeskočí, takže se
+        dřív mohl odhlásit jen z profilu → NASTAVENÍ a na sdíleném tabletu zůstával přihlášený předchozí žák. Pruh `#map-cloud` s tlačítkem
+        `#map-logout` je na mapě všech 7 her, ukazuje, kdo je přihlášený, má dotykovou plochu ≥ 44 px, na telefonu 360 px nepřetéká a
+        odhlášený žák ho nevidí. ── */
+  for (const g of [3, 4, 5, 6, 7, 8, 9]) {
+    for (const [sirka, vyska] of [[1024, 768], [360, 740]]) {
+      try {
+        reset(); SRV.user = A; SRV.saves.set('uA|RPG_MAT_' + g, postava('ADAM', 5));
+        const { ctx, pg } = await zarizeni();
+        await pg.setViewportSize({ width: sirka, height: vyska });
+        await ulozDoTabletu(pg, { RPG_CLOUD_OWNER: 'uA', ['RPG_MAT_' + g]: postava('ADAM', 5) });
+        await pg.goto(base + '/projects/rpg-mat-' + g + '.html', { waitUntil: 'load' });
+        await cekejNaMapu(pg);
+        const m = await pg.evaluate(() => {
+          const box = document.getElementById('map-cloud'), b = document.getElementById('map-logout'), nav = document.querySelector('#s-map .topnav');
+          if (!box || !b) return null;
+          const r = box.getBoundingClientRect(), rb = b.getBoundingClientRect(), rn = nav.getBoundingClientRect();
+          const el = document.elementFromPoint(rb.left + rb.width / 2, rb.top + rb.height / 2);
+          return { videt: box.offsetParent !== null && getComputedStyle(box).display !== 'none', text: box.textContent, vyska: b.offsetHeight,   /* offsetHeight: náběhová animace mapy prvek na chvíli zmenší */
+            uvnitr: rb.left >= 0 && rb.right <= innerWidth + 0.5, pod: r.top >= rn.bottom - 1, zasah: el === b || b.contains(el),
+            pretece: document.documentElement.scrollWidth > innerWidth + 1 };
+        });
+        const kde = 'mapa ' + g + '. ročník ' + sirka + ' px';
+        ok(kde + ': pruh s odhlášením je vidět a říká, kdo je přihlášený', !!m && m.videt && /Adam Prvni/.test(m.text), JSON.stringify(m && m.text));
+        if (m) {
+          ok(kde + ': tlačítko Odhlásit se má aspoň 44 px, je uvnitř okna a trefí se na něj', m.vyska >= 44 && m.uvnitr && m.zasah, `výška ${m.vyska}, uvnitř ${m.uvnitr}, zásah ${m.zasah}`);
+          ok(kde + ': pruh leží pod horní lištou a stránka nepřetéká do šířky', m.pod && !m.pretece, `pod ${m.pod}, přetéká ${m.pretece}`);
+        }
+        if (g === 9 && sirka === 1024) {      // skutečné odhlášení tlačítkem z mapy
+          await Promise.all([pg.waitForEvent('load', { timeout: 8000 }), pg.click('#map-logout')]);
+          await sleep(600);
+          const st = await ulozeno(pg);
+          ok('mapa: odhlášení tlačítkem smaže data i vlastníka a hra je na úvodu', !('RPG_CLOUD_OWNER' in st) && !Object.keys(st).some(k => OSOBNI.test(k)) &&
+            await pg.evaluate(() => document.getElementById('s-intro').classList.contains('active')), JSON.stringify(Object.keys(st)));
+        }
+        await ctx.close();
+      } catch (e) { ok(`scénář 13 (${g}, ${sirka}) doběhl`, false, e.message.split('\n')[0]); }
+    }
+  }
+  try {       // odhlášený žák pruh nevidí
+    reset(); SRV.user = null;
+    const { ctx, pg } = await zarizeni();
+    await ulozDoTabletu(pg, {});
+    await pg.goto(base + '/projects/rpg-mat-5.html', { waitUntil: 'load' }); await sleep(1200);
+    ok('odhlášený žák: pruh s odhlášením na mapě není vidět', await pg.evaluate(() => { const b = document.getElementById('map-cloud'); return !b || b.offsetParent === null; }));
+    await ctx.close();
+  } catch (e) { ok('scénář 13 (odhlášený) doběhl', false, e.message.split('\n')[0]); }
+
   const re = errs.filter(e => !/ERR_CERT|net::|jsdelivr|supabase|Failed to fetch/i.test(e));
   ok('žádné JS chyby', re.length === 0, re.slice(0, 3).join(' | '));
   await browser.close(); srv.close();

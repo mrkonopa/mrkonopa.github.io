@@ -1442,6 +1442,47 @@ window.RPGCloud = (function () {
   /* Odhlášení z profilu hry. Doménového žáka přihlášení rovnou pustí na mapu, takže úvodní
      obrazovku s lištou neuvidí — na sdíleném tabletu by se neměl kde odhlásit. Blok se vloží
      do panelu NASTAVENÍ (kolem #pr-rm) a ukáže se jen přihlášenému mimo náhled. */
+  /* Odhlášení přímo na MAPĚ hry (Vojta 10. 11. 2026: „chci výraznější tlačítko“). Doménový žák úvod s lištou přeskočí a
+     dřív se mohl odhlásit jen z profilu → NASTAVENÍ, takže na sdíleném tabletu zůstával přihlášený předchozí žák.
+     Pruh ukazuje, kdo je přihlášený, a tlačítko je vždy na očích (jen když je někdo přihlášený; v náhledu se nic neukazuje).
+     Jména a e-mail jen přes textContent. Pod topnav, aby se nepletl do jeho řádku (telefon 360 px). */
+  function mapaOdhlaseni() {
+    const wrap = document.querySelector('#s-map .wrap');
+    const nav = wrap && wrap.querySelector('.topnav');
+    if (!nav) return;
+    let box = document.getElementById('map-cloud');
+    if (!user || previewActive || !configured()) { if (box) box.style.display = 'none'; return; }
+    if (!box) {
+      box = document.createElement('div');
+      box.id = 'map-cloud';
+      box.style.cssText = 'margin:0 0 12px;padding:8px 12px;border:1px solid var(--line,#2a3450);border-radius:6px;' +
+        'background:rgba(0,0,0,.22);display:flex;align-items:center;gap:10px 14px;flex-wrap:wrap;' +
+        'font-family:var(--read,inherit);font-size:14px;color:var(--text,#e6ecf7)';
+      const t = document.createElement('div');
+      t.id = 'map-cloud-txt';
+      t.style.cssText = 'flex:1 1 200px;min-width:0;overflow-wrap:anywhere;line-height:1.4';
+      const b = document.createElement('button');
+      b.id = 'map-logout'; b.type = 'button'; b.className = 'btn sm r';
+      b.style.cssText = 'min-height:44px;flex:0 0 auto';
+      b.textContent = 'Odhlásit se';
+      b.onclick = () => logout();
+      box.appendChild(t); box.appendChild(b);
+      nav.insertAdjacentElement('afterend', box);
+    }
+    box.style.display = 'flex';
+    const t = document.getElementById('map-cloud-txt');
+    const kdo = document.createElement('div');
+    const jmeno = (user.user_metadata && user.user_metadata.full_name) || '';
+    kdo.appendChild(document.createTextNode('☁️ Přihlášen: '));
+    const nm = document.createElement('b');
+    nm.textContent = jmeno || user.email || 'žák';
+    kdo.appendChild(nm);
+    const rada = document.createElement('div');
+    rada.style.cssText = 'font-size:12px;color:var(--muted,#8895b5)';
+    rada.textContent = 'Končíš? Odhlas se — další žák na tomto tabletu pak začne čistě. Tvá postava zůstane v cloudu.';
+    t.replaceChildren(kdo, rada);
+  }
+
   function profilOdhlaseni() {
     const rm = document.getElementById('pr-rm');
     const panel = rm && rm.closest('.panel');
@@ -1561,6 +1602,7 @@ window.RPGCloud = (function () {
       onChange(async (u) => {
         paint();
         profilOdhlaseni();
+        mapaOdhlaseni();
         if (u) {
           refreshNotesWidget();
           refreshAssignmentsWidget(saveKey);
