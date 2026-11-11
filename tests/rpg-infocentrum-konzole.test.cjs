@@ -19,12 +19,12 @@
    Spusť: node tests/rpg-infocentrum-konzole.test.cjs
    ══════════════════════════════════════════════════════════════════════ */
 'use strict';
-const fs = require('fs'), path = require('path'), http = require('http');
+const fs = require('fs'), path = require('path');
 const { chromium } = require('playwright');
 const ROOT = path.join(__dirname, '..');
 /* Snímky a měření jen z NESABOTOVANÉHO běhu (jinak by je přepsal sabotovaný, KONTROLY #121): po skutečném běhu se `dir` vynuluje. */
 const SNIM = { dir: process.env.SNIMEK || null };
-const PODLAHA = 72;                                               // naměřeno
+const PODLAHA = 73;                                               // naměřeno
 const LAUNCH = { executablePath: '/opt/pw-browsers/chromium-1194/chrome-linux/chrome' };
 
 let pass = 0, fail = 0;
@@ -50,57 +50,7 @@ const SCENAR = {
   ],
 };
 
-function mock(S) {
-  return `(function(){
-    const S=${JSON.stringify(S)};
-    const db={roles:S.roles,saves:S.saves,classes:S.classes,class_members:S.members,log:[],selze:false,bitvy:[],stavBitvy:null};
-    window.__db=db;
-    function q(table){
-      const f=[];let sel='';
-      const res=()=>{
-        db.log.push({table,sel,f:JSON.parse(JSON.stringify(f))});
-        let r=(db[table]||[]).slice();
-        for(const [op,c,v] of f){
-          if(op==='eq')r=r.filter(x=>String(x[c])===String(v));
-          else if(op==='in')r=r.filter(x=>v.map(String).includes(String(x[c])));
-          else if(op==='gt')r=r.filter(x=>String(x[c])>String(v));
-        }
-        if(table==='saves'&&/xp:data->xp/.test(sel)){
-          if(db.selze)return Promise.resolve({data:null,error:{message:'boom'}});
-          r=r.map(x=>({user_id:x.user_id,game:x.game,name:x.name,full_name:x.full_name,updated_at:x.updated_at,xp:x.data.xp,level:x.data.level,done:x.data.done,ach:x.data.ach,hero:x.data.name,cur:/cur:data->cur/.test(sel)?x.data.cur:undefined}));
-        }
-        return Promise.resolve({data:r,error:null});
-      };
-      const b={select(c){sel=c||'';return b;},eq(c,v){f.push(['eq',c,v]);return b;},in(c,v){f.push(['in',c,v]);return b;},gt(c,v){f.push(['gt',c,v]);return b;},
-        order(){return b;},is(){return b;},neq(){return b;},limit(){return b;},insert(){return b;},upsert(){return b;},update(){return b;},delete(){return b;},
-        maybeSingle(){return res().then(x=>({data:(x.data||[])[0]||null,error:x.error}));},single(){return res().then(x=>({data:(x.data||[])[0]||null,error:x.error}));},
-        then(a,c){return res().then(a,c);}};
-      return b;
-    }
-    const rpc=async(name,args)=>{
-      if(name==='list_active_battles')return {data:db.bitvy,error:null};
-      if(name==='battle_state')return {data:(db.stavyPodleId&&args&&db.stavyPodleId[args.p_battle])||db.stavBitvy,error:null};
-      return {data:[],error:null};
-    };
-    window.supabase={createClient:()=>({auth:{getSession:async()=>({data:{session:S.session}}),onAuthStateChange:()=>({data:{subscription:{unsubscribe(){}}}}),signInWithOAuth:async()=>{},signOut:async()=>{}},from:q,rpc})};
-  })();`;
-}
-
-function server(prepis) {
-  const mime = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.woff2': 'font/woff2', '.svg': 'image/svg+xml', '.json': 'application/json' };
-  const srv = http.createServer((q, r) => {
-    const u = decodeURIComponent(q.url.split('?')[0]);
-    const fp = path.normalize(path.join(ROOT, u));
-    if (!fp.startsWith(ROOT + path.sep) || !fs.existsSync(fp) || fs.statSync(fp).isDirectory()) { r.writeHead(404); return r.end(); }
-    let telo = fs.readFileSync(fp), pr = null;
-    for (const [k, f] of Object.entries(prepis || {})) if (k === path.basename(fp)) pr = f;
-    if (pr) telo = Buffer.from(pr(telo.toString('utf8')));
-    r.writeHead(200, { 'content-type': mime[path.extname(fp)] || 'application/octet-stream', 'cache-control': 'no-store' });
-    r.end(telo);
-  });
-  return new Promise(res => srv.listen(0, '127.0.0.1', () => res(srv)));
-}
-const baseOf = s => 'http://127.0.0.1:' + s.address().port;
+const { mock, server, baseOf } = require('./ic-konzole-mock.cjs');
 
 async function otevri(br, base, volby) {
   const ctx = await br.newContext(Object.assign({ viewport: { width: 1920, height: 1080 } }, volby || {}));
@@ -236,13 +186,14 @@ const ODDILY = {
     const mer = () => p.evaluate(() => {
       const pn = document.getElementById('ic-tymy'), root = document.getElementById('ic-root'), pr = pn.getBoundingClientRect(), rr = root.getBoundingClientRect();
       const karta = document.querySelector('#ic-cards .ic-card'), jm = document.querySelector('#ic-tn1 .ic-tj');
-      return { sirka: pr.width / rr.width, nad: !karta || pr.bottom <= karta.getBoundingClientRect().top + 1, pismo: parseFloat(getComputedStyle(jm).fontSize), pretec: root.scrollWidth - root.clientWidth, doc: document.documentElement.scrollWidth - innerWidth, pravy: Math.round(pr.right), iw: innerWidth, vyska: Math.round(pr.height), sloupcu: new Set([...document.querySelectorAll('#ic-tn1 .ic-tr')].map(r => Math.round(r.getBoundingClientRect().left))).size, sirkaTk: Math.round(document.querySelector('#ic-tn1').getBoundingClientRect().width), radek: Math.round(document.querySelector('#ic-tn1 .ic-tr').getBoundingClientRect().height), lis: [...document.querySelectorAll('#ic-tymy .ic-tj')].filter(e => e.getBoundingClientRect().right > innerWidth + 1).length };
+      return { sirka: pr.width / rr.width, nad: !karta || pr.bottom <= karta.getBoundingClientRect().top + 1, pismo: parseFloat(getComputedStyle(jm).fontSize), pretec: root.scrollWidth - root.clientWidth, doc: document.documentElement.scrollWidth - innerWidth, pravy: Math.round(pr.right), iw: innerWidth, vyska: Math.round(pr.height), rol: Math.max(0, pn.querySelector('.ic-vnitr').scrollHeight - pn.querySelector('.ic-vnitr').clientHeight), sloupcu: new Set([...document.querySelectorAll('#ic-tn1 .ic-tr')].map(r => Math.round(r.getBoundingClientRect().left))).size, sirkaTk: Math.round(document.querySelector('#ic-tn1').getBoundingClientRect().width), radek: Math.round(document.querySelector('#ic-tn1 .ic-tr').getBoundingClientRect().height), lis: [...document.querySelectorAll('#ic-tymy .ic-tj')].filter(e => e.getBoundingClientRect().right > innerWidth + 1).length };
     });
     const a = await mer();
     f(a.sirka > 0.95 && a.nad, 'velký panel týmů: přes celou šířku a nad kartami žáků', JSON.stringify(a));
     f(a.pismo >= 18, 'velký panel týmů: jména hráčů mají čitelné písmo (dřív 13 px)', String(a.pismo));
     f(a.pretec <= 1 && a.doc <= 1 && a.lis === 0, 'velký panel týmů: 30 hráčů s dlouhými jmény nepřetéká do šířky (1920 × 1080)', JSON.stringify(a));
-    f(a.vyska <= 540, 'velký panel týmů: 30 hráčů nezabere víc než ~půl obrazovky (1080 px)', JSON.stringify(a));
+    f(a.vyska <= 600, 'velký panel týmů: výchozí panel nezabere víc než ~půl obrazovky (1080 px)', JSON.stringify(a));
+    f(a.rol <= 1, 'velký panel týmů: 30 hráčů se do výchozího panelu vejde bez rolování', JSON.stringify(a));
     f(await p.evaluate(() => !window.__xss2 && !document.querySelector('#ic-tymy img') && [...document.querySelectorAll('#ic-tn2 .ic-tj')].some(e => e.textContent.startsWith('<img'))), 'velký panel týmů: nepřátelské jméno se ukáže jako text a nevykoná se');
     if (SNIM.dir) await p.screenshot({ path: path.join(SNIM.dir, 'tymy-konzole.png') });
     await p.click('#ic-full');
@@ -250,7 +201,7 @@ const ODDILY = {
     const pr = await mer();
     if (SNIM.dir) await p.screenshot({ path: path.join(SNIM.dir, 'tymy-projektor.png') });
     if (SNIM.dir) console.log('  [měření] konzole ' + JSON.stringify(a) + '\n  [měření] projektor ' + JSON.stringify(pr));
-    f(pr.pretec <= 1 && pr.doc <= 1 && pr.pismo >= 18 && pr.vyska <= 600, 'velký panel týmů: v režimu projektoru bez přetečení a s velkým písmem', JSON.stringify(pr));
+    f(pr.pretec <= 1 && pr.doc <= 1 && pr.pismo >= 18 && pr.vyska <= 600 && pr.rol <= 1, 'velký panel týmů: v režimu projektoru bez přetečení, bez rolování a s velkým písmem', JSON.stringify(pr));
     await p.evaluate(() => { if (document.fullscreenElement) return document.exitFullscreen(); document.getElementById('ic-root').classList.remove('ic-proj'); });
     await p.waitForFunction(() => !document.getElementById('ic-root').classList.contains('ic-proj'), null, { timeout: 4000 }).catch(() => {});
     await p.setViewportSize({ width: 390, height: 844 }); await p.waitForTimeout(250);
@@ -378,7 +329,7 @@ async function hlavni() {
   // „cur jako HTML“ sabotáž není: text karty se skládá jen z pevných slov a čísla úrovně (ověřený typ i mise), takže jde o ekvivalentní mutant — ověření tvaru hlídá Node test.
   await sabotaz('jména přes innerHTML', 'rpg-ucitel.html', s => s.replace("el.querySelector('.ic-nm').textContent=h.jmeno;", "el.querySelector('.ic-nm').innerHTML=h.jmeno;"), ['xss'], /nevykoná|jako text/);
   await sabotaz('obnova bez „jen změněné“', 'rpg-ucitel.html', s => s.replace("prvni?'':IC.cursor", "''"), ['data'], /jen změněné řádky/);
-  await sabotaz('časovač neběží do konce', 'rpg-ucitel.html', s => s.replace("if(tab!=='infocentrum')infoStop();", ''), ['stop'], /časovač/);
+  await sabotaz('časovač neběží do konce', 'rpg-ucitel.html', s => s.replace("if(tab!=='infocentrum'){infoStop();icUprava(false);}", ''), ['stop'], /časovač/);
   await sabotaz('cíl bez animace', 'rpg-ucitel.html', s => s.replace('if(p.postoupila)icOslava(IC.cil.stupen);', ''), ['cil'], /animace/);
   await sabotaz('týmy bez ohledu na režim', 'rpg-ucitel.html', s => s.replace("sek.hidden=!t;if(!t)return;", "sek.hidden=false;if(!t)return;"), ['tymy'], /panel týmů zmizí/);
   await sabotaz('stav odpovědi se nepozná', 'rpg-infocentrum.js', s => s.replace("Number(p.last_qi) === qi", "false"), ['tymy'], /kdo už odpověděl/);
