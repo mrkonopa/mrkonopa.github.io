@@ -10,8 +10,9 @@
      6. náhodné operace (3 000 kroků, pevné semínko): vždy bez překryvu, v mřížce, bez děr nad panelem, opakování nic nemění
      7. ukládání: oběh uložit → načíst, nepřátelský obsah úložiště (cokoli) dá vždy platné rozložení, strop počtu klíčů
      4b. výška podle obsahu: řádky mřížky pro obsah, přizpůsobení jen panelům řízeným obsahem, připnutí změnou výšky, uložení (0 = podle obsahu)
+     9. scénáře (Samostatná práce, Týmový souboj, vlastní), aktivní scénář po třídách, odebrání a vrácení panelu, úložiště s třemi částmi
      8. věta pro čtečku obrazovky
-   Sabotáže (11): připnutý panel se přizpůsobuje obsahu, výška podle obsahu se ukládá jako číslo, překryv povolen, bez gravitace, bez nejmenší velikosti, čtení zděděných vlastností, svislý pohyb
+   Sabotáže (18): připnutý panel se přizpůsobuje obsahu, výška podle obsahu se ukládá jako číslo, překryv povolen, bez gravitace, bez nejmenší velikosti, čtení zděděných vlastností, svislý pohyb
    jen o řádek, uložené bez kontroly verze, bez stropu klíčů, bez přednosti taženého panelu, výchozí rozložení s překryvem.
    Spusť: node tests/rpg-infocentrum-mrizka.test.cjs
    ═════════════════════════════════════════════════════════════════════════════ */
@@ -28,7 +29,7 @@ const najdi = (l, id) => l.find(p => p.id === id);
 
 /* nezávislé kontroly platnosti (nepoužívají nic z kontrolovaného modulu kromě registru) */
 function vady(G, l, vid) {
-  const v = [], viditelne = l.filter(p => vid.has(p.id));
+  const v = [], viditelne = l.filter(p => vid.has(p.id) && p.o !== false);
   for (const p of l) {
     const m = G.PANELY.find(q => q.id === p.id);
     if (!m) { v.push('neznámý panel ' + p.id); continue; }
@@ -196,6 +197,58 @@ function bezi(G, popisek, hlasit) {
   const ocistiProto = G.ocisti(JSON.parse('{"__proto__":[9,9,9,9],"kdo":[0,0,8,17]}'));
   f(({}).x === undefined && vady(G, ocistiProto, all).length === 0, 'podvržený __proto__ nic neznečistí');
 
+  /* 9 — scénáře a odebrané panely */
+  const idvych = G.vychozi();
+  f(G.SCENARE.map(x => x.id).join() === 'hodina,souboj' && G.SCENARE.map(x => x.nazev).join() === 'Samostatná práce,Týmový souboj', 'vestavěné scénáře: Samostatná práce a Týmový souboj');
+  const souboj = G.vychozi('souboj');
+  f(souboj.find(q => q.id === 'trida').o === false && najdi(souboj, 'tymy').w === 12 && najdi(souboj, 'tymy').y === 0 && najdi(souboj, 'deje').y === 12, 'Týmový souboj: Týmy přes celou šířku nahoře, Třída dohromady odebraná, Děje se vedle Kdo hraje', pol(souboj));
+  f(vady(G, souboj, all).length === 0 && pol(G.kompaktuj(souboj, all)) === pol(souboj), 'výchozí rozložení Týmového souboje je platné a stabilní', vady(G, souboj, all).join('; '));
+  f(idvych.every(q => q.o === true) && pol(G.vychozi('neznámý')) === pol(idvych) && G.vychozi('neznámý').every(q => q.o === true), 'neznámý nebo vlastní scénář začíná výchozím rozložením všech panelů');
+  const bezKdo = G.odeber(all.size ? idvych : idvych, 'kdo');
+  f(bezKdo.find(q => q.id === 'kdo').o === false && najdi(bezKdo, 'trida').o === true && najdi(idvych, 'kdo').o === true, 'odebrání panelu nemění ostatní ani vstup');
+  const kBezKdo = G.kompaktuj(bezKdo, all);
+  f(vady(G, kBezKdo, all).length === 0 && najdi(kBezKdo, 'kdo').o === false && najdi(kBezKdo, 'kdo').x === 0 && najdi(kBezKdo, 'kdo').h === najdi(idvych, 'kdo').h, 'odebraný panel nezabírá místo a zůstane odebraný, uložená poloha a velikost se pamatují', pol(kBezKdo));
+  const zpetKdo = G.pridej(bezKdo, 'kdo', all);
+  f(najdi(zpetKdo, 'kdo').o === true && vady(G, zpetKdo, all).length === 0 && najdi(zpetKdo, 'kdo').x === 0, 'vrácený panel se zařadí bez překryvu na své sloupce', pol(zpetKdo));
+  f(pol(G.odeber(idvych, 'neexistuje')) === pol(idvych) && pol(G.pridej(idvych, 'neexistuje', all)) === pol(idvych), 'neznámý panel se při odebrání a přidání ignoruje');
+  const odebrano = G.serializuj(bezKdo);
+  f(odebrano.kdo.length === 5 && odebrano.kdo[4] === 0 && odebrano.trida.length === 4, 'do úložiště jde odebraný panel s pátým prvkem 0, ostatní ne', JSON.stringify(odebrano));
+  f(G.ocisti(odebrano).find(q => q.id === 'kdo').o === false && G.ocisti(odebrano).find(q => q.id === 'trida').o === true, 'po načtení zůstane odebraný panel odebraný');
+  f(G.ocisti({}, undefined, 'souboj').find(q => q.id === 'trida').o === false && G.ocisti({}, undefined, 'hodina').every(q => q.o === true), 'chybějící panel v uloženém scénáři má výchozí podobu TOHO scénáře');
+  f(G.ocisti({ trida: [8, 12, 4, 0] }, undefined, 'souboj').find(q => q.id === 'trida').o === true, 'výslovně uložený panel zůstane zapnutý i ve scénáři, kde je ve výchozím stavu odebraný');
+  const hoPati = G.ocisti({ kdo: [0, 0, 8, 0, 1], trida: [8, 0, 4, 0, '0'], deje: [8, 8, 4, 0, null], tymy: [0, 0, 12, 12, 0, 0] });
+  f(hoPati.every(q => q.o === true), 'jen pátý prvek přesně 0 panel odebere (1, text, null i šestý prvek ne)', hoPati.map(q => q.o).join());
+  const T0 = null;
+  f(G.seznamScenaru(T0).length === 2 && G.seznamScenaru(T0).every(x => x.vlastni === false), 'bez uložených dat jsou jen vestavěné scénáře');
+  const p1 = G.pridejScenar(T0, '  Opakování   před  testem ', 'vabc1');
+  f(!p1.chyba && G.seznamScenaru(p1.text).map(x => x.nazev).join('|') === 'Samostatná práce|Týmový souboj|Opakování před testem', 'nový scénář: jméno se očistí od okrajových a dvojitých mezer', JSON.stringify(G.seznamScenaru(p1.text).map(x => x.nazev)));
+  f(G.pridejScenar(p1.text, 'opakování před TESTEM', 'vabc2').chyba && G.pridejScenar(p1.text, 'týmový souboj', 'vabc2').chyba, 'stejný název (i jinou velikostí písmen) a název vestavěného scénáře se odmítne');
+  f(G.pridejScenar(T0, '   ', 'vabc2').chyba && G.pridejScenar(T0, '\u0000\u0001', 'vabc2').chyba && G.pridejScenar(T0, 5, 'vabc2').chyba, 'prázdný název (i z řídicích znaků nebo čísla) se odmítne');
+  f(['abc', 'V1', 'v', 'v' + 'a'.repeat(13), 'hodina', 'souboj', 'vábc', '__proto__', 'vabc1', 5, null].every(id => G.pridejScenar(p1.text, 'Jiný', id).chyba), 'neplatné nebo obsazené id scénáře se odmítne');
+  const dlouhy = G.pridejScenar(T0, 'x'.repeat(80), 'vdlouhy');
+  f(G.seznamScenaru(dlouhy.text).pop().nazev.length === G.MAX_NAZEV, 'název se ořízne na ' + G.MAX_NAZEV + ' znaků');
+  let t10 = T0, chyba11 = null;
+  for (let i = 0; i < G.MAX_VLASTNICH + 1; i++) { const r = G.pridejScenar(t10, 'Sc' + i, 'v' + i); if (r.chyba) chyba11 = r.chyba; else t10 = r.text; }
+  f(G.seznamScenaru(t10).filter(x => x.vlastni).length === G.MAX_VLASTNICH && !!chyba11, 'vlastních scénářů je nejvýš ' + G.MAX_VLASTNICH, String(chyba11));
+  const nepratelskyScenar = JSON.stringify({ v: 1, r: {}, s: [null, 1, 'x', { id: 'hodina', nazev: 'x' }, { id: 'vok', nazev: '' }, { id: 'v1', nazev: 'A' }, { id: 'v2', nazev: 'a' }, { id: '__proto__', nazev: 'p' }, { id: 'v3', nazev: '<img src=x onerror=1>' }, { id: 'v1', nazev: 'B' }], a: {} });
+  f(G.seznamScenaru(nepratelskyScenar).filter(x => x.vlastni).map(x => x.id).join() === 'v1,v3' && G.seznamScenaru('{"v":1,"s":"x"}').length === 2, 'nepřátelský seznam scénářů: neplatná id, prázdná a duplicitní jména i cizí typy se zahodí', JSON.stringify(G.seznamScenaru(nepratelskyScenar)));
+  const sAkt = G.nastavAktivni(p1.text, 'c1', 'souboj');
+  f(G.aktivniScenar(sAkt, 'c1') === 'souboj' && G.aktivniScenar(sAkt, 'c2') === 'hodina' && G.aktivniScenar(T0, 'c1') === 'hodina', 'aktivní scénář se pamatuje zvlášť pro každou třídu, výchozí je Samostatná práce');
+  f(G.nastavAktivni(p1.text, 'c1', 'neznámý') === p1.text, 'neznámý scénář se jako aktivní nenastaví');
+  const hostileA = ['{"v":1,"a":[]}', '{"v":1,"a":{"c1":5}}', '{"v":1,"a":{"c1":"neexistuje"}}', '{"v":1,"a":null}', 'nejde o JSON'];
+  f(hostileA.every(txt => G.aktivniScenar(txt, 'c1') === 'hodina'), 'nepřátelský záznam aktivního scénáře dá Samostatnou práci');
+  f(({}).souboj === undefined && ({}).polluted === undefined && (G.aktivniScenar('{"v":1,"a":{"__proto__":"souboj"}}', 'c1') === 'hodina'), 'podvržený __proto__ nic neznečistí');
+  let tt = G.ulozDoTextu(p1.text, 'c1|hodina', idvych);
+  tt = G.ulozDoTextu(tt, 'c1|vabc1', bezKdo); tt = G.ulozDoTextu(tt, 'c2|vabc1', bezKdo); tt = G.nastavAktivni(tt, 'c1', 'vabc1'); tt = G.nastavAktivni(tt, 'c2', 'souboj');
+  f(G.seznamScenaru(tt).length === 3 && G.aktivniScenar(tt, 'c1') === 'vabc1' && !!G.nactiUlozene(tt, 'c1|hodina'), 'uložení rozložení zachová seznam scénářů i aktivní scénáře');
+  f(G.nactiUlozene(tt, 'c1|vabc1', 'vabc1').find(q => q.id === 'kdo').o === false, 'rozložení vlastního scénáře se načte i s odebraným panelem');
+  const bezHodiny = G.smazDoTextu(tt, 'c1|hodina');
+  f(G.seznamScenaru(bezHodiny).length === 3 && G.aktivniScenar(bezHodiny, 'c1') === 'vabc1' && G.nactiUlozene(bezHodiny, 'c1|hodina') === null, 'smazání rozložení zachová scénáře i aktivní scénář');
+  const smazan = G.smazScenar(tt, 'vabc1');
+  const sm = JSON.parse(smazan);
+  f(G.seznamScenaru(smazan).length === 2 && Object.keys(sm.r).join() === 'c1|hodina' && G.aktivniScenar(smazan, 'c1') === 'hodina' && G.aktivniScenar(smazan, 'c2') === 'souboj', 'smazání vlastního scénáře odstraní i jeho rozložení u všech tříd a odkazy na něj; ostatní zůstane', smazan.slice(0, 200));
+  f(G.smazScenar(tt, 'souboj') === tt && G.smazScenar(tt, 'hodina') === tt && G.smazScenar(tt, 'neexistuje') === tt, 'vestavěné ani neexistující scénáře se nesmažou');
+
   /* 8 — věta pro čtečku */
   const veta = G.popis({ id: 'kdo', x: 0, y: 14, w: 8, h: 17 });
   f(/Kdo hraje/.test(veta) && /sloupec 1 z 12/.test(veta) && /řádek 15/.test(veta) && /šířka 8/.test(veta) && /výška 17/.test(veta), 'věta pro čtečku nese jméno, sloupec, řádek a velikost', veta);
@@ -207,19 +260,26 @@ function bezi(G, popisek, hlasit) {
   const G = nacti(ZDROJ);
   bezi(G, 'skutečný', true);
   const ziva = pass + fail;
-  ok(ziva >= 63, 'změřeno aspoň 63 kontrol (naměřeno 63)', String(ziva));
+  ok(ziva >= 93, 'změřeno aspoň 93 kontrol (naměřeno 93)', String(ziva));
 
   /* sabotáže: každá musí aspoň jednu kontrolu shodit */
   const SAB = [
     ['překryv je povolen', s => s.replace("const prekryv = (a, b) => a.x < b.x + b.w", "const prekryv = (a, b) => false && a.x < b.x + b.w")],
     ['bez gravitace (panel zůstane tam, kam byl pushnutý)', s => s.replace("y = nad.length ? Math.max(...nad) : 0;", "")],
     ['připnutý panel se přizpůsobuje obsahu', s => s.replace("if (p.a === false || !meta(p.id) || !Object.prototype.hasOwnProperty.call(radky || {}, p.id)", "if (!meta(p.id) || !Object.prototype.hasOwnProperty.call(radky || {}, p.id)")],
-    ['výška podle obsahu se ukládá jako číslo', s => s.replace("p.a === false ? p.h : 0]; });", "p.h]; });")],
+    ['výška podle obsahu se ukládá jako číslo', s => s.replace("const a = [p.x, p.y, p.w, p.a === false ? p.h : 0];", "const a = [p.x, p.y, p.w, p.h];")],
     ['bez nejmenší velikosti', s => s.replace("const w = Math.min(SLOUPCU, Math.max(m.minW, p.w));\n    const h = Math.min(MAX_VYSKA, Math.max(m.minH, p.h));", "const w = Math.min(SLOUPCU, Math.max(1, p.w));\n    const h = Math.min(MAX_VYSKA, Math.max(1, p.h));")],
     ['čtení zděděných vlastností', s => s.replace("(o && typeof o === 'object' && !Array.isArray(o) && Object.prototype.hasOwnProperty.call(o, id)) ? o[id] : undefined", "(o && typeof o === 'object' && !Array.isArray(o)) ? o[id] : undefined")],
     ['svislá šipka jen o řádek', s => s.replace("for (let y = aktualni.y + dy; dy > 0 ? y <= MAX_RADKU : y >= 0; y += dy) {", "for (let y = aktualni.y + dy; dy > 0 ? y <= aktualni.y + 1 : y >= aktualni.y - 1; y += dy) {")],
-    ['uložené bez kontroly verze', s => s.replace("if (!o || typeof o !== 'object' || o.v !== 1 || !o.r || typeof o.r !== 'object') return null;", "if (!o || typeof o !== 'object' || !o.r || typeof o.r !== 'object') return null;")],
-    ['bez stropu počtu klíčů', s => s.replace(".slice(-(MAX_ULOZENO - 1))", "")],
+    ['uložené bez kontroly verze', s => s.replace("const platne = o && typeof o === 'object' && !Array.isArray(o) && o.v === 1;", "const platne = o && typeof o === 'object' && !Array.isArray(o);")],
+    ['bez stropu počtu klíčů', s => s.split(".slice(-(MAX_ULOZENO - 1))").join("")],
+    ['odebraný panel se dál umisťuje', s => s.replace("filter(o => vid.has(o.p.id) && o.p.o !== false)", "filter(o => vid.has(o.p.id))")],
+    ['odebraný panel se neukládá jako odebraný', s => s.replace("if (p.o === false) a.push(0);", "")],
+    ['smazání scénáře nechá jeho rozložení', s => s.replace("Object.keys(r).filter(k => !k.endsWith('|' + id)).forEach(k => { nr[k] = r[k]; });", "Object.keys(r).forEach(k => { nr[k] = r[k]; });")],
+    ['aktivní scénář se neověří proti seznamu', s => s.replace("typeof a[k] === 'string' && seznam.some(x => x.id === a[k]))", "typeof a[k] === 'string')")],
+    ['vlastní scénář s libovolným id', s => s.replace("!/^v[a-z0-9]{1,12}$/.test(x.id) || videno.has(x.id)) return;", "videno.has(x.id)) return;")],
+    ['stejný název scénáře lze přidat dvakrát', s => s.replace("if (seznam.some(x => x.nazev.toLowerCase() === jmeno.toLowerCase())) return { chyba: 'Scénář s tímto názvem už existuje.' };", "")],
+    ['chybějící panel má výchozí podobu bez ohledu na scénář', s => s.replace("const vych = vychozi(scenar);", "const vych = vychozi();")],
     ['tažený panel nemá přednost', s => s.replace("((b.p.id === prednost) - (a.p.id === prednost)) || ", "")],
     ['výchozí rozložení s překryvem', s => s.replace("{ id: 'kdo',   nazev: 'Kdo hraje',       x: 0, y: 12, w: 8,  h: 17,", "{ id: 'kdo',   nazev: 'Kdo hraje',       x: 0, y: 12, w: 9,  h: 17,")],
   ];
