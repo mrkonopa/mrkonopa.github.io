@@ -144,6 +144,72 @@
     };
   }
 
+  /* ── Rozklad na součin: od školního roku 2026/2027 JEN vytýkáním ──
+     Specifikace CERMAT vypouští rozklad dvojčlenu a trojčlenu podle vzorců (a ± b)² a a² − b²;
+     umocnění dvojčlenu a rozklad vytýkáním zůstávají. Části „3.3“ (2 body) proto rozkládají
+     vytknutím největšího společného činitele. Činitel i závorka jsou sestavené ZPĚTNĚ
+     (t·x·(u·x + w) s nesoudělnými u a w), takže zobrazený činitel je opravdu největší
+     a odpověď (číslo za otazníkem) je jediná. */
+  const kx = c => (c === 1 ? '' : String(c));                       // koeficient 1 se nepíše: „x²“, ne „1x²“
+  function nesoudelne(lo1, hi1, lo2, hi2) {                          // dvojice (u, w) s gcd = 1
+    let u, w;
+    do { u = ri(lo1, hi1); w = ri(lo2, hi2); } while (gcd(u, w) !== 1);
+    return [u, w];
+  }
+  // Úprava + vytknutí v jedné proměnné: p·(q x² + r x) + s x = t x·(u x + w)
+  function cast33Vytkni(klic) {
+    const t = ri(2, 6), [u, w] = nesoudelne(1, 4, 1, 9);
+    const C2 = t * u, C1 = t * w;
+    const delitele = [2, 3, 4, 5, 6, 7, 8].filter(d => C2 % d === 0);
+    const p = delitele.length ? pick(delitele) : C2;
+    const q = C2 / p;
+    let r, s, pokusy = 0;
+    do { r = ri(1, 4); s = C1 - p * r; pokusy++; } while (s === 0 && pokusy < 50);
+    if (s === 0) { r = 1; s = C1 - p; if (s === 0) { r = 2; s = C1 - 2 * p; } }
+    return {
+      key: klic, points: 2, showExplain: true,
+      prompt: `Upravte a rozložte na součin vytknutím největšího společného činitele: ${p}·(${kx(q)}x² + ${kx(r)}x)${clen(s, 'x')} = ${t}x·(${kx(u)}x + ?). Napište číslo místo otazníku.`,
+      ans: String(w),
+      sol: [
+        `Nejdřív roznásob závorku a sečti členy se stejnou mocninou x; potom vytkni největší společný činitel obou členů — společný dělitel čísel i proměnnou x.`,
+        `${p}·(${kx(q)}x² + ${kx(r)}x) = ${mnoho([[p * q, 'x²'], [p * r, 'x']])}, takže celkem ${mnoho([[p * q, 'x²'], [p * r, 'x'], [s, 'x']])} = ${mnoho([[C2, 'x²'], [C1, 'x']])}.`,
+        `Čísla ${C2} a ${C1} jsou dělitelná ${t} a podíly ${u} a ${w} už společného dělitele nemají; k tomu se vytkne x: ${mnoho([[C2, 'x²'], [C1, 'x']])} = ${t}x·(${kx(u)}x + ${w}).`,
+        `Místo otazníku patří ${w}.`
+      ]
+    };
+  }
+  // Vytknutí ze dvou proměnných: g·α·x²y ± g·β·xy² = g·x·y·(α x ± β y)
+  function cast33DveProm(klic) {
+    const g = ri(2, 6), [al, be] = nesoudelne(1, 5, 1, 9), zn2 = ri(0, 1) ? '+' : '−';
+    return {
+      key: klic, points: 2, showExplain: true,
+      prompt: `Rozložte na součin vytknutím největšího společného činitele: ${g * al}x²y ${zn2} ${g * be}xy² = ${g}xy·(${kx(al)}x ${zn2} ?y). Napište číslo místo otazníku.`,
+      ans: String(be),
+      sol: [
+        `Vytýkáš největší společný činitel obou členů: největší společný dělitel čísel a každou proměnnou, která je v obou členech, v nejnižší mocnině.`,
+        `Čísla ${g * al} a ${g * be} jsou dělitelná ${g} (podíly ${al} a ${be} už společného dělitele nemají). V obou členech je x i y, proto se vytkne ${g}xy.`,
+        `${g * al}x²y : (${g}xy) = ${kx(al)}x a ${g * be}xy² : (${g}xy) = ${be}y, takže ${g * al}x²y ${zn2} ${g * be}xy² = ${g}xy·(${kx(al)}x ${zn2} ${be}y).`,
+        `Místo otazníku patří ${be}.`
+      ]
+    };
+  }
+  // Roznásobení se záporným součinem a vytknutí proměnné: p·(a² + q a) − a·(r a − s) = a·(u a + w)
+  function cast33Soucin(klic) {
+    let p, q, r, s, u, w;
+    do { p = ri(3, 7); r = ri(1, p - 1); q = ri(1, 4); s = ri(1, 6); u = p - r; w = p * q + s; } while (gcd(u, w) !== 1);
+    return {
+      key: klic, points: 2, showExplain: true,
+      prompt: `Zjednodušte a rozložte na součin vytknutím: ${p}·(a² + ${kx(q)}a) − a·(${kx(r)}a − ${s}) = a·(${kx(u)}a + ?). Napište číslo místo otazníku.`,
+      ans: String(w),
+      sol: [
+        `Roznásob obě závorky (minus před součinem otočí znaménko u obou členů závorky), sečti členy se stejnou mocninou a a teprve potom vytkni a.`,
+        `${p}·(a² + ${kx(q)}a) = ${mnoho([[p, 'a²'], [p * q, 'a']])}; −a·(${kx(r)}a − ${s}) = ${mnoho([[-r, 'a²'], [s, 'a']])}.`,
+        `Dohromady ${mnoho([[p, 'a²'], [p * q, 'a'], [-r, 'a²'], [s, 'a']])} = ${mnoho([[u, 'a²'], [w, 'a']])}.`,
+        `Vytkni a: ${mnoho([[u, 'a²'], [w, 'a']])} = a·(${kx(u)}a + ${w}); místo otazníku patří ${p * q} + ${s} = ${w}.`
+      ]
+    };
+  }
+
   function gen3() {
     // 4 body — algebraické identity a úpravy (3 podúlohy)
     const a = ri(4, 9); // (x + a)^2 = x^2 + 2a x + a^2
@@ -158,10 +224,7 @@
     do { c = ri(1, 6); d = ri(1, 5); e = ri(2, 7); f = ri(1, 4); } while (d + e - f === 0);
     const coefX = d + e - f, constT = c + e * f;
     const simplified = mnoho([[coefX, 'x'], [constT, '']]);   // dřív i „1x + 17"
-    // 3.3: rozlož na součin vzorcem: g*(2h - g) + h*(2g - 2h) -> uprav a rozlož
-    const g = ri(3, 8), h = g; // use a^2-2ab+b^2 pattern generically via g,k
-    const k = ri(2, g - 1);
-    // expr: g*(g - 2k) + k^2  = g^2 - 2gk + k^2 = (g-k)^2
+    // 3.3: rozklad na součin vytknutím (rozklad podle vzorců od 2026/2027 vypuštěn)
     return {
       no: 3, points: 4, title: 'Algebraické výrazy',
       parts: [
@@ -182,14 +245,7 @@
             `Dohromady: ${c} + x² + ${clen(d, 'x', true)} + ${e}x + ${e * f} − x²${clen(-f, 'x')} — členy x² se vyruší a zbude ${simplified}.`,
             `Koeficient u x: ${d} + ${e} − ${f} = ${zn(coefX)}.`
           ] },
-        { key: '3.3', points: 2, showExplain: true,
-          prompt: `Upravte výraz x·(x − ${2 * k}) + ${k}² a rozložte na součin pomocí vzorce. Napište číslo, které patří místo otazníku v rozkladu (x − ?)².`,
-          ans: String(k),
-          sol: [
-            `Nejdřív roznásob a sečti; výsledek pak porovnej se vzorcem (a − b)² = a² − 2ab + b². Poslední člen prozradí b, prostřední ho potvrdí.`,
-            `x·(x − ${2 * k}) + ${k}² = x² − ${2 * k}x + ${k * k}.`,
-            `${k * k} = ${k}² a prostřední člen ${2 * k}x = 2 · x · ${k} sedí, takže výraz je (x − ${k})² — místo otazníku patří ${k}.`
-          ] }
+        cast33Vytkni('3.3')
       ]
     };
   }
@@ -1153,7 +1209,7 @@
       } while (Math.abs(sd - se * sa) < 2 || x0 === 0 || y0 === 0);
       rovnice = `${sa}x + y = ${zn(sc)} a ${clen(sd, 'x', true)} + ${se}y = ${zn(sf)}`;
       krokyX = [
-        `Soustavu vyřešíš dosazovací metodou: z rovnice, kde je y bez koeficientu, ho vyjádři a dosaď do druhé rovnice — zbyde rovnice s jedinou neznámou.`,
+        `Soustavu dvou rovnic lze řešit kteroukoli metodou; ukážeme jednu: z rovnice, kde je y bez koeficientu, ho vyjádři a dosaď do druhé rovnice — zbyde rovnice s jedinou neznámou.`,
         `Z první rovnice: y = ${zn(sc)} − ${sa}x.`,
         `Dosaď do druhé: ${clen(sd, 'x', true)} + ${se}·(${zn(sc)} − ${sa}x) = ${zn(sf)}, tedy ${clen(sd, 'x', true)}${pm(se * sc)} − ${se * sa}x = ${zn(sf)}.`,
         `${clen(sd - se * sa, 'x', true)} = ${zn(sf)}${pm(-se * sc)} = ${zn(sf - se * sc)}.`,
@@ -1250,7 +1306,7 @@
     };
   }
 
-  /* Rovnice se zlomky a soustava, kterou vyřeší SČÍTACÍ metoda: v obou rovnicích je
+  /* Rovnice se zlomky a soustava, kterou jde vyřešit odečtením rovnic: v obou rovnicích je
      u x stejný koeficient (2026 1. náhr. ú. 4.2, 2026 2. náhr. ú. 4.2). */
   function gen4g() {
     // 4.1: x/p + (x − a)/q = c, kořen volený první
@@ -1267,7 +1323,7 @@
     } while (x0 === 0 || y0 === 0 || sb === sd || s1 === 0 || s2 === 0);
     const rovnice = `${sa}x${clen(sb, 'y')} = ${zn(s1)} a ${sa}x${clen(-sd, 'y')} = ${zn(s2)}`;
     const krokyY = [
-      `V obou rovnicích je u x stejný koeficient ${sa}, takže se x zbavíš ODEČTENÍM rovnic (sčítací metoda). Z toho vyjde y a to pak dosadíš zpět do jedné z rovnic.`,
+      `V obou rovnicích je u x stejný koeficient ${sa}. Soustavu dvou rovnic lze řešit kteroukoli metodou; ukážeme jednu: x se zbavíš ODEČTENÍM rovnic. Z toho vyjde y a to pak dosadíš zpět do jedné z rovnic.`,
       `Odečteme druhou rovnici od první: ${clen(sb, 'y', true)} − ${zav(-sd)}y = ${zn(s1)} − ${zav(s2)}`,
       `${clen(sb + sd, 'y', true)} = ${zn(s1 - s2)}`,
       `y = ${zn(s1 - s2)} : ${sb + sd} = ${zn(y0)}`
@@ -1587,14 +1643,12 @@
      nebo na číslo místo otazníku — výpočet je ale celý, jako na ostrém
      testu. */
   function gen3d() {
-    // 4 body — umocnění s koeficientem, vytýkání, rozdíl čtverců po úpravě
+    // 4 body — umocnění s koeficientem, vytýkání (rozdíl čtverců po úpravě od 2026/2027 vypuštěn)
     // (vzor M9A/2023 ú. 4.1–4.2, M9C/2025 ú. 4.1, M9D/2025 ú. 4.2)
     const p = ri(2, 5), q = ri(1, 9);
     let A, B, C0;
     do { A = ri(2, 4); B = ri(2, 5); C0 = ri(1, 12); } while (A * B - C0 < 1);
     const zbyva = A * B - C0;
-    const [t, u] = pick([[2, 3], [3, 4], [2, 5], [3, 5], [4, 5], [2, 7], [3, 2], [4, 3]]);
-    const m = t * t, n = u * u, s = t * u;
     return {
       no: 3, points: 4, title: 'Vzorce a vytýkání',
       parts: [
@@ -1614,15 +1668,7 @@
             `${A}·(x² − ${B}x) = ${A}x² − ${A * B}x, takže celkem ${A}x² − ${A * B}x + ${C0}x = ${A}x²${clen(-zbyva, 'x')}.`,
             `Vytkni x: ${A}x²${clen(-zbyva, 'x')} = x·(${A}x − ${zbyva}); místo otazníku patří ${A * B} − ${C0} = ${zbyva}.`
           ] },
-        { key: '3.3', points: 2, showExplain: true,
-          prompt: `Upravte a rozložte na součin pomocí vzorce: k·(k − ${m}) + ${m}·(k − ${n}) = (k − ?)·(k + ?). Napište číslo místo otazníku.`,
-          ans: String(s),
-          sol: [
-            `Nejdřív roznásob obě závorky a sečti — členy s k se vyruší a zbude rozdíl druhých mocnin, který rozloží vzorec a² − b² = (a − b)(a + b).`,
-            `k·(k − ${m}) = k² − ${m}k a ${m}·(k − ${n}) = ${m}k − ${m * n}.`,
-            `Součet: k² − ${m}k + ${m}k − ${m * n} = k² − ${m * n}.`,
-            `${m * n} = ${s}², protože ${s} · ${s} = ${m * n}; tedy k² − ${m * n} = (k − ${s})·(k + ${s}).`
-          ] }
+        cast33DveProm('3.3')
       ]
     };
   }
@@ -1667,23 +1713,14 @@
     };
   }
   function gen3f() {
-    // 4 body — rozdíl čtverců, umocnění s činitelem, rozklad (A − B)² po úpravě
-    // (vzor nanečisto 2025 ú. 4.1–4.3)
+    // 4 body — součin (A − B)·(A + B), umocnění s činitelem, vytýkání po roznásobení
+    // (vzor nanečisto 2025 ú. 4.1–4.3; rozklad (A − B)² podle vzorce od 2026/2027 vypuštěn)
     const k = ri(2, 9);
     let p, q, r, s, u;
     do { p = ri(2, 6); q = ri(2, 9); r = ri(2, 4); s = ri(2, 5); u = ri(1, 5); } while (q * r - 2 * s * u === 0);
     const k2 = q * r - 2 * s * u;
-    // K + m·(a² + m) − a·(a + w) = (P·a − Q)² ⇒ m = P² + 1, w = 2PQ, K = Q² − m²
-    const P = ri(2, 3), m = P * P + 1;
-    let Q;
-    do { Q = ri(m + 1, m + 4); } while (gcd(P, Q) !== 1);
-    const w = 2 * P * Q, K = Q * Q - m * m;
-    // Jako na ostrém testu („7 · 3 + 10·(a² + 10) …") se K zapíše součinem, jde-li to.
-    const del = [2, 3, 4, 5, 6, 7, 8].filter(d => K % d === 0 && K / d >= d && K / d <= 12);
-    const Kd = del.length ? pick(del) : 0;
-    const Kz = Kd ? `${Kd} · ${K / Kd}` : String(K);
     return {
-      no: 3, points: 4, title: 'Rozklad podle vzorce',
+      no: 3, points: 4, title: 'Součin, umocnění a vytýkání',
       parts: [
         { key: '3.1', points: 1,
           prompt: `Zjednodušte (výsledek bez závorek) a napište koeficient u y²: x² − (x − ${k}y)·(x + ${k}y)`,
@@ -1701,15 +1738,7 @@
             `(${p}n − ${q})·(−${r}n) = −${p * r}n² + ${q * r}n a (${s}n − ${u})² = ${s * s}n² − ${2 * s * u}n + ${u * u}.`,
             `Členy s n: ${q * r} − ${2 * s * u} = ${zn(k2)}, výsledek je ${mnoho([[s * s - p * r, 'n²'], [k2, 'n'], [u * u, '']])}.`
           ] },
-        { key: '3.3', points: 2, showExplain: true,
-          prompt: `Zjednodušte a rozložte na součin podle vzorce: ${Kz} + ${m}·(a² + ${m}) − a·(a + ${w}) = (${P}a − ?)². Napište číslo místo otazníku.`,
-          ans: String(Q),
-          sol: [
-            `Roznásob a sečti — mají vyjít tři členy odpovídající vzorci (A − B)² = A² − 2AB + B². Z členu s a² poznáš A, z čísla bez a poznáš B.`,
-            `${Kd ? `${Kz} = ${K}, ` : ''}${m}·(a² + ${m}) = ${m}a² + ${m * m} a a·(a + ${w}) = a² + ${w}a.`,
-            `Dohromady ${K} + ${m}a² + ${m * m} − a² − ${w}a = ${P * P}a² − ${w}a + ${Q * Q}.`,
-            `${P * P}a² = (${P}a)², ${Q * Q} = ${Q}² a prostřední člen sedí: 2 · ${P} · ${Q} = ${w}. Výraz je (${P}a − ${Q})², místo otazníku patří ${Q}.`
-          ] }
+        cast33Soucin('3.3')
       ]
     };
   }
@@ -1781,23 +1810,6 @@
   /* ── Válec ve válci (skleněné těžítko) ── */
   // Vnější válec z čirého skla, uvnitř menší válec z modrého. Popisky VEDLE obrazce,
   // aby se nekřížily s tělesem (stejný důvod jako u svgSud).
-  function svgTezitko(R, H, r, h) {
-    // topY=36 (dřív 30): popisek „čiré: r=… v=…" je 15 znaků, tedy ~117 px,
-    // takže od x=6 dosáhne k x=123 a při topY=30 ležel PŘES horní podstavu
-    // (elipsa začíná na x=67). Teď je nad ní a komentář výš konečně platí.
-    const cx = 125, topY = 36, botY = 132, rxOut = 58, ryOut = 15;
-    const rxIn = Math.round(rxOut * r / R), ryIn = Math.round(ryOut * r / R);
-    const inTop = botY - Math.round((botY - topY) * h / H);
-    return `<svg viewBox="0 0 250 176">`
-      + `<path d="M ${cx - rxOut} ${topY} L ${cx - rxOut} ${botY} A ${rxOut} ${ryOut} 0 0 0 ${cx + rxOut} ${botY} L ${cx + rxOut} ${topY}" fill="#12233a" stroke="#19e6e6" stroke-width="2.5"/>`
-      + `<ellipse cx="${cx}" cy="${botY}" rx="${rxOut}" ry="${ryOut}" fill="none" stroke="#19e6e6" stroke-width="2" stroke-dasharray="5 4"/>`
-      + `<path d="M ${cx - rxIn} ${inTop} L ${cx - rxIn} ${botY} A ${rxIn} ${ryIn} 0 0 0 ${cx + rxIn} ${botY} L ${cx + rxIn} ${inTop} A ${rxIn} ${ryIn} 0 0 1 ${cx - rxIn} ${inTop} Z" fill="#1a5a80" stroke="#4cc9f0" stroke-width="2"/>`
-      + `<ellipse cx="${cx}" cy="${inTop}" rx="${rxIn}" ry="${ryIn}" fill="#2a7aa8" stroke="#4cc9f0" stroke-width="2"/>`
-      + `<ellipse cx="${cx}" cy="${topY}" rx="${rxOut}" ry="${ryOut}" fill="#1b2742" stroke="#19e6e6" stroke-width="2.5"/>`
-      + `<text x="6" y="13" fill="#19e6e6" font-size="13" font-family="monospace">čiré: r=${R} v=${H}</text>`
-      + `<text x="6" y="170" fill="#4cc9f0" font-size="13" font-family="monospace">modré: r=${r} v=${h}</text>`
-      + `</svg>`;
-  }
 
   /* ── Sloupcový graf (CERMAT ho má v 8 z 15 zadání) ── */
   // Jeden sloupec smí být neznámý ("?"). Hodnoty jsou NAD sloupci, popisky pod nimi.
@@ -1844,51 +1856,47 @@
     return s + `</svg>`;
   }
 
-  function gen6d() {
-    // 2 body — skleněné těžítko: válec ve válci (věrné M9A/2024 1. ř., úloha 2)
-    // R je násobek 10 a h sudé ⇒ oba objemy vyjdou celé, žádné plovoucí zbytky.
-    const R = ri(1, 2) * 10, r = R / 2;
-    const H = ri(5, 8) * 2, h = ri(2, (H / 2) - 1) * 2;
-    const Vcelk = 3.14 * R * R * H, Vmodre = 3.14 * r * r * h, Vcire = Vcelk - Vmodre;
-    const des = x => Math.round(x / 10) * 10;
+  function gen6i() {
+    // 2 body — skleněné těžítko s dutinou: hranol bez krychle (náhrada válce ve válci, specifikace 2026/2027)
+    // Všechny objemy vyjdou celé; dutina je vždy menší než těžítko.
+    const A = pick([8, 10, 12, 15, 20]), H = ri(5, 10) * 2, k = ri(2, 6);
+    const Vcelk = A * A * H, Vduta = k * k * k, Vsklo = Vcelk - Vduta;
     return {
-      no: 6, points: 2, title: 'Těžítko', okruh: 'telesa',
-      svg: svgTezitko(R, H, r, h),
-      intro: `Skleněné těžítko má tvar rotačního válce s poloměrem podstavy ${R} cm a výškou ${H} cm. Vnější část těžítka je z čirého skla, uvnitř je část z modrého skla, která má také tvar rotačního válce, a to s poloměrem podstavy ${r} cm a výškou ${h} cm. Pro výpočet použijte π ≐ 3,14.`,
+      no: 6, points: 2, title: 'Těžítko s dutinou', okruh: 'telesa',
+      svg: svgCuboid(A + ' cm', H + ' cm', A + ' cm', 1),
+      intro: `Skleněné těžítko má tvar pravidelného čtyřbokého hranolu s podstavnou hranou ${A} cm a výškou ${H} cm. Uvnitř těžítka je vzduchová dutina ve tvaru krychle o hraně ${k} cm.`,
       parts: [
         { key: '6.1', points: 1,
-          prompt: `Vypočítejte v cm³ objem celého těžítka. Výsledek zaokrouhlete na desítky cm³.`,
-          ans: String(des(Vcelk)),
-          sol: [`Objem válce je obsah podstavy krát výška: V = π · r² · v. Podstava je kruh, takže nejdřív spočítej jeho obsah.`,
-            `Obsah podstavy: 3,14 · ${R}² = 3,14 · ${R * R} = ${cz(3.14 * R * R)} cm².`,
-            `Objem = ${cz(3.14 * R * R)} · ${H} = ${cz(Vcelk)} cm³${des(Vcelk) === Vcelk ? '.' : `, po zaokrouhlení na desítky ${des(Vcelk)} cm³.`}`] },
+          prompt: `Vypočítejte v cm³ objem celého těžítka včetně dutiny.`,
+          ans: String(Vcelk),
+          sol: [`Objem hranolu je obsah podstavy krát výška. Podstava je čtverec, takže její obsah je hrana krát hrana.`,
+            `Obsah podstavy: ${A} · ${A} = ${tis(A * A)} cm².`,
+            `Objem = ${tis(A * A)} · ${H} = ${tis(Vcelk)} cm³.`] },
         { key: '6.2', points: 1,
-          prompt: `Vypočítejte v cm³ objem čirého skla v těžítku. Výsledek zaokrouhlete na desítky cm³.`,
-          ans: String(des(Vcire)),
-          sol: [`Čiré sklo je to, co ZBYDE, když z celého těžítka odebereš modrý válec — počítá se rozdílem, ne zvlášť.`,
-            `Objem modré části: 3,14 · ${r}² · ${h} = ${cz(3.14 * r * r)} · ${h} = ${cz(Vmodre)} cm³.`,
-            `Objem čirého skla = ${cz(Vcelk)} − ${cz(Vmodre)} = ${cz(Vcire)} cm³.`,
-            ...(des(Vcire) === Vcire ? [] : [`Po zaokrouhlení na desítky: ${des(Vcire)} cm³.`])] }
+          prompt: `Vypočítejte v cm³ objem skla v těžítku.`,
+          ans: String(Vsklo),
+          sol: [`Sklo je to, co ZBYDE, když z celého těžítka odebereš dutinu — počítá se rozdílem objemů.`,
+            `Objem dutiny (krychle): ${k} · ${k} · ${k} = ${tis(Vduta)} cm³.`,
+            `Objem skla = ${tis(Vcelk)} − ${tis(Vduta)} = ${tis(Vsklo)} cm³.`] }
       ]
     };
   }
 
-  function gen12e() {
-    // 2 body — povrch válce z poměru pláště a podstavy (věrné M9A/2023, úloha 13)
-    /* Poloměr je násobek 10 a podstava se počítá v celých (314 · r · r : 100),
-       aby povrch vyšel celý: 3,14 · 15² = 706,5 dávalo „= 3533", tedy useknuté
-       cifry s rovnítkem. */
-    const r = pick([10, 20]), k = ri(2, 4), Sp = 314 * r * r / 100, povrch = (k + 2) * Sp;
+  function gen13k() {
+    // 2 body — povrch hranolu z poměru pláště a podstavy (náhrada povrchu válce, specifikace 2026/2027;
+    // stavba jako M9A/2023 ú. 13: výšku k výpočtu nepotřebuješ)
+    // Hrana je násobek 4, takže výška k·a : 4 vyjde celá a všechny povrchy jsou celé.
+    const a = pick([8, 12, 16, 20]), k = ri(2, 6), Sp = a * a, v = k * a / 4, povrch = (k + 2) * Sp;
     // chyby: jen plášť, plášť a JEDNA podstava, plášť bez obou podstav krát dvě
-    const sh = volbyMC(povrch, [(k + 1) * Sp, k * Sp, 2 * k * Sp], Sp, 'jiný povrch', v => `${tis(v)} cm²`);
+    const sh = volbyMC(povrch, [(k + 1) * Sp, k * Sp, 2 * k * Sp], Sp, 'jiný povrch', x => `${tis(x)} cm²`);
     return {
-      no: 13, points: 2, title: 'Povrch válce', kind: 'mc', okruh: 'telesa',
-      svg: svgCylinder(r, cz(k * r / 2)),
-      intro: `Obsah pláště rotačního válce je ${k}krát větší než obsah jedné podstavy tohoto válce. Poloměr podstavy válce je ${r} cm.`,
-      prompt: `Jaký je povrch válce? Pro výpočet použijte π ≐ 3,14.`,
+      no: 13, points: 2, title: 'Povrch hranolu', kind: 'mc', okruh: 'telesa',
+      svg: svgCuboid(a + ' cm', v + ' cm', a + ' cm', 1),
+      intro: `Obsah pláště pravidelného čtyřbokého hranolu je ${k}krát větší než obsah jedné podstavy tohoto hranolu. Podstavná hrana hranolu je ${a} cm.`,
+      prompt: `Jaký je povrch hranolu?`,
       options: sh.labels, ans: sh.correctLetter,
-      sol: [`Povrch válce je plášť PLUS DVĚ podstavy. Plášť je ${k}krát větší než jedna podstava, takže celý povrch je ${k} + 2 = ${k + 2} ${skl(k + 2, 'podstava', 'podstavy', 'podstav')} — výšku válce vůbec nepotřebuješ.`,
-        `Jedna podstava: 3,14 · ${r} · ${r} = ${tis(Sp)} cm².`,
+      sol: [`Povrch hranolu je plášť PLUS DVĚ podstavy. Plášť je ${k}krát větší než jedna podstava, takže celý povrch je ${k} + 2 = ${k + 2} ${skl(k + 2, 'podstava', 'podstavy', 'podstav')} — výšku hranolu vůbec nepotřebuješ.`,
+        `Jedna podstava: ${a} · ${a} = ${tis(Sp)} cm².`,
         `Povrch: ${k + 2} · ${tis(Sp)} = ${tis(povrch)} cm²${odpovedMC(sh)}`]
     };
   }
@@ -2801,9 +2809,15 @@
       + kota(xA - rA, xA + rA, yB + 20, `${d1} cm`) + kota(xB - rB, xB + rB, yB + 20, `${d2} cm`) + `</svg>`;
   }
   // Dort ze dvou forem (M9B/2025 ú. 14): dva stejně vysoké válce na sobě, horní má 3/4 poloměru.
-  function svgDort() {
-    const cx = 110;
-    return `<svg viewBox="0 0 220 142">` + valec(cx, 84, 122, 80, 15) + valec(cx, 44, 84, 60, 11) + `</svg>`;
+  // Dvoupatrový dort z hranolových forem: dolní korpus a nad ním užší (poměr stran 4 : 3, jako v zadání).
+  function svgDortHranoly() {
+    const kvadr = (x, y, s, v) => {
+      const d = 22, dd = 16;                       // ustupující hloubka (šikmo vzhůru doprava)
+      return `<polygon points="${x},${y - v} ${x + d},${y - v - dd} ${x + s + d},${y - v - dd} ${x + s},${y - v}" fill="#16203a" stroke="${CARA}" stroke-width="2"/>`
+        + `<polygon points="${x + s},${y} ${x + s + d},${y - dd} ${x + s + d},${y - v - dd} ${x + s},${y - v}" fill="#101a30" stroke="${CARA}" stroke-width="2"/>`
+        + `<rect x="${x}" y="${y - v}" width="${s}" height="${v}" fill="#1b2742" stroke="${CARA}" stroke-width="2.5"/>`;
+    };
+    return `<svg viewBox="0 0 220 142">` + kvadr(40, 124, 112, 40) + kvadr(55, 84, 84, 40) + `</svg>`;
   }
   // Krychle: tři viditelné stěny, kóta u přední dolní hrany.
   function svgKrychle(t) {
@@ -4434,20 +4448,21 @@
     };
   }
 
-  function gen12j() {
-    // 2 body — dvoupatrový dort ze dvou válcových forem (věrné M9B/2025, úloha 14; klíč D = 500π cm³)
-    const r1 = pick([8, 12, 16]), r2 = r1 * 3 / 4, h = pick([4, 5, 6]), V = h * (r1 * r1 + r2 * r2);
+  function gen12n() {
+    // 2 body — dvoupatrový dort ze dvou hranolových forem (náhrada válcových forem, specifikace 2026/2027;
+    // stavba podle M9B/2025 ú. 14: „o čtvrtinu menší“)
+    const a1 = pick([8, 12, 16]), a2 = a1 * 3 / 4, h = pick([4, 5, 6]), V = h * (a1 * a1 + a2 * a2);
     // chyby: „o čtvrtinu menší" jako „čtvrtina", obě formy velké, rozdíl místo součtu
-    const sh = volbyMC(V, [h * (r1 * r1 + (r1 / 4) * (r1 / 4)), 2 * h * r1 * r1, h * (r1 * r1 - r2 * r2)], 10 * h, 'jiný objem', x => `${tis(x)}π cm³`);
+    const sh = volbyMC(V, [h * (a1 * a1 + (a1 / 4) * (a1 / 4)), 2 * h * a1 * a1, h * (a1 * a1 - a2 * a2)], 10 * h, 'jiný objem', x => `${tis(x)} cm³`);
     return {
-      no: 12, points: 2, title: 'Dort ze dvou forem', kind: 'mc', okruh: 'telesa',
-      svg: svgDort(),
-      intro: `Na výrobu dortu byly použity dvě různé formy tvaru rotačního válce. Poloměr podstavy první formy je ${r1} cm a poloměr podstavy druhé formy je o čtvrtinu menší. Výška obou forem je stejná, a to ${h} cm. Dvoupatrový dort je složen z většího a menšího korpusu. Každý korpus má stejný objem jako forma, v níž byl upečen.`,
+      no: 12, points: 2, title: 'Dort z hranolových forem', kind: 'mc', okruh: 'telesa',
+      svg: svgDortHranoly(),
+      intro: `Na výrobu dortu byly použity dvě různé formy tvaru pravidelného čtyřbokého hranolu. Podstavná hrana první formy je ${a1} cm a podstavná hrana druhé formy je o čtvrtinu menší. Výška obou forem je stejná, a to ${h} cm. Dvoupatrový dort je složen z většího a menšího korpusu. Každý korpus má stejný objem jako forma, v níž byl upečen.`,
       prompt: `Jaký je celkový objem obou korpusů dvoupatrového dortu?`,
       options: sh.labels, ans: sh.correctLetter,
-      sol: [`Objem válce je π · r · r · výška. „O čtvrtinu menší" znamená, že se z poloměru čtvrtina ODEČTE — zbudou tři čtvrtiny, ne jedna. Výsledek nech s π, jako ve volbách.`,
-        `Menší poloměr: ${r1} − ${r1} : 4 = ${r2} cm. Korpusy: ${r1} · ${r1} · ${h} = ${h * r1 * r1} a ${r2} · ${r2} · ${h} = ${h * r2 * r2}, tedy ${h * r1 * r1}π a ${h * r2 * r2}π cm³.`,
-        `Celkem: ${h * r1 * r1} + ${h * r2 * r2} = ${V}, objem je ${V}π cm³${odpovedMC(sh)}`]
+      sol: [`Objem hranolu se čtvercovou podstavou je hrana krát hrana krát výška. „O čtvrtinu menší" znamená, že se z hrany čtvrtina ODEČTE — zbudou tři čtvrtiny, ne jedna.`,
+        `Menší hrana: ${a1} − ${a1} : 4 = ${a2} cm. Korpusy: ${a1} · ${a1} · ${h} = ${tis(h * a1 * a1)} cm³ a ${a2} · ${a2} · ${h} = ${tis(h * a2 * a2)} cm³.`,
+        `Celkem: ${tis(h * a1 * a1)} + ${tis(h * a2 * a2)} = ${tis(V)}, objem je ${tis(V)} cm³${odpovedMC(sh)}`]
     };
   }
 
@@ -5640,7 +5655,7 @@
      úlohy s obrázkem trojnásobnou váhu: 12 ze 21 losů = 57 %.
      Váha je ZVLÁŠŤ, ne opakováním v SLOTS: seznam variant zůstává výčtem funkcí,
      ze kterého tests/prijimacky-variace.test.cjs počítá variabilitu pozic. */
-  const VAHA = new Map([[gen12e, 3], [gen12g, 3], [gen12k, 3], [gen14h, 3]]);
+  const VAHA = new Map([[gen13k, 3], [gen12g, 3], [gen12k, 3], [gen14h, 3]]);
   // Stejně jako pick() losuje přes ri(), takže testy, které ri() řídí, fungují dál.
   function losuj(varianty) {
     const idx = [];
@@ -5648,8 +5663,8 @@
     return varianty[idx[ri(0, idx.length - 1)]];
   }
   const SLOTS = [
-    [gen1, gen1b, gen1c, gen1d, gen1e, gen1f, gen1g, gen1h, gen1i, gen1j, gen1k], [gen2, gen2b, gen2c, gen2d, gen2e, gen2f], [gen3, gen3b, gen3c, gen3d, gen3e, gen3f], [gen4, gen4d, gen4e, gen4f, gen4g], [gen5, gen5b, gen5d, gen5e, gen5f, gen5g, gen5h, gen5i], [gen6, gen6b, gen6c, gen6d, gen6e, gen6f, gen6g, gen6h], [gen7d, gen7e, gen7f, gen7g, gen7h, gen7i], [gen8, gen8b, gen8d, gen8e, gen8f, gen8g, gen8h, gen8i],
-    [gen9c, gen9d, gen9e, gen9f, gen9g], [gen10b, gen10d, gen10e, gen10f, gen10g], [gen11, gen11b, gen11d, gen11e, gen11f, gen11g, gen11h, gen11i, gen11j], [gen12, gen12c, gen12f, gen12h, gen12i, gen12j, gen12l, gen12m], [gen12e, gen12g, gen12k, gen14h, gen13, gen13b, gen13d, gen13e, gen13f, gen13g, gen13h, gen13i, gen13j], [gen14, gen14b, gen14e, gen14i, gen14f, gen14g], [gen15d, gen15e, gen15f, gen15g, gen15h, gen15i, gen15j], [gen16d, gen16e, gen16f, gen16g, gen16h, gen16i, gen16j, gen16k, gen16l, gen16m, gen16n]
+    [gen1, gen1b, gen1c, gen1d, gen1e, gen1f, gen1g, gen1h, gen1i, gen1j, gen1k], [gen2, gen2b, gen2c, gen2d, gen2e, gen2f], [gen3, gen3b, gen3c, gen3d, gen3e, gen3f], [gen4, gen4d, gen4e, gen4f, gen4g], [gen5, gen5b, gen5d, gen5e, gen5f, gen5g, gen5h, gen5i], [gen6, gen6b, gen6c, gen6i, gen6e, gen6f, gen6g, gen6h], [gen7d, gen7e, gen7f, gen7g, gen7h, gen7i], [gen8, gen8b, gen8d, gen8e, gen8f, gen8g, gen8h, gen8i],
+    [gen9c, gen9d, gen9e, gen9f, gen9g], [gen10b, gen10d, gen10e, gen10f, gen10g], [gen11, gen11b, gen11d, gen11e, gen11f, gen11g, gen11h, gen11i, gen11j], [gen12, gen12c, gen12f, gen12h, gen12i, gen12n, gen12l, gen12m], [gen13k, gen12g, gen12k, gen14h, gen13, gen13b, gen13d, gen13e, gen13f, gen13g, gen13h, gen13i, gen13j], [gen14, gen14b, gen14e, gen14i, gen14f, gen14g], [gen15d, gen15e, gen15f, gen15g, gen15h, gen15i, gen15j], [gen16d, gen16e, gen16f, gen16g, gen16h, gen16i, gen16j, gen16k, gen16l, gen16m, gen16n]
   ];
 
   window.RPG_CERMAT_9 = {

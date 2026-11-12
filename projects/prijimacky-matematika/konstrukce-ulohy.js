@@ -5,13 +5,13 @@
    tools/cermat-archiv/konstrukce-m9.json): nejčastěji úhel, trojúhelník,
    „najděte všechna řešení“, souměrnost,
    obdélník a rovnoběžník. Každý typ tady cvičí jednu množinu bodů, na
-   které konstrukce stojí: Thaletovu kružnici, osu úsečky, kružnici,
+   které konstrukce stojí: osu úsečky, kružnici,
    rovnoběžky v dané vzdálenosti, osovou souměrnost a rovnoběžník.
 
    Typy 7–34 jsou CELÉ ÚTVARY jako v ostrém testu — každý podle jiné ostré
    úlohy z archivu M9 2015–2026 a M7 (zdroj je u každého typu): obdélníky,
    čtverce, kosočtverce, lichoběžníky, trojúhelníky s těžnicí, výškou,
-   těžištěm nebo průsečíkem výšek, souměrnosti, osa úhlu, kružnice opsaná
+   těžištěm nebo průsečíkem výšek, souměrnosti, osa úhlu
    i úlohy se dvěma a třemi řešeními. Z nich se losují úlohy 9 a 10 testu
    nanečisto (`proTest`). Zadání jsou vlastní, ne opsaná z CERMATu, ale ve
    stejné stavbě. Typy 35–40 mají úhel daný ve stupních (30° až 135°) a
@@ -24,6 +24,11 @@
    paty kolmic) — hodnocení je nepočítá jako body navíc.
    Čísla se losují, takže každý žák dostane jiné zadání.
    ══════════════════════════════════════════════════════════════════ */
+/* Specifikace CERMAT 2026/2027 vypouští z konstrukcí tečnu ke kružnici v jejím bodě, kružnici opsanou
+   trojúhelníku a Thaletovu kružnici při konstrukci pravoúhlého trojúhelníku. Z banky proto zmizelo pět
+   typů celých o tom (thales, dveThalet, thalesQ, opsana, ctverecVepsany); tečna tu nikdy nebyla.
+   Typy, kde je Thaletova věta jen jedním z možných kroků (obdélník, pravoúhlý rovnoramenný trojúhelník…),
+   zůstávají a čekají na rozhodnutí — viz tests/prijimacky-spec-2027.test.cjs (SPORNE_KONSTRUKCE). */
 (function () {
   'use strict';
   const G = window.PZ_GEO;
@@ -68,35 +73,6 @@
       if (d > 1e-6 && d < min) return false;
     }
     return true;
-  }
-
-  // ── 1) Pravý úhel při C → Thaletova kružnice nad AB ∩ přímka p (2 řešení) ──
-  function thales() {
-    for (let g = 0; g < 400; g++) {
-      const A = bod(nah(50, 130), nah(110, 190)), Bb = bod(A.x + nah(140, 200), A.y + nah(-35, 35));
-      const S = stred(A, Bb), r = vzdal(A, Bb) / 2;
-      const n = smer(nah(0, Math.PI)), d = r * nah(0.25, 0.7) * vyber([-1, 1]);
-      const p = primka(secti(S, nasob(n, d)), bod(-n.y, n.x));
-      const X = G.prusecikyPK(p.p, p.q, S, r);
-      if (X.length !== 2 || !X.every(x => uvnitr(x)) || !uvnitr(A) || !uvnitr(Bb)) continue;
-      if (vzdal(X[0], X[1]) < 55 || X.some(x => Math.min(vzdal(x, A), vzdal(x, Bb)) < 40)) continue;
-      return {
-        typ: 'thales', nazev: 'Pravý úhel — Thaletova kružnice',
-        text: 'Jsou dány body A, B a přímka p. Sestrojte všechny body C přímky p, pro které je trojúhelník ABC pravoúhlý s pravým úhlem při vrcholu C. Najděte všechna řešení.',
-        dane: { body: { A, B: Bb }, primky: [Object.assign({ nazev: 'p' }, p)], usecky: [{ p: A, q: Bb }] },
-        hledane: ['C'], reseni: [{ C: X[0] }, { C: X[1] }], pomocne: [S],
-        postup: [
-          { text: 'Najděte střed S úsečky AB.', tvary: [B(S, 'S')] },
-          { text: 'Narýsujte Thaletovu kružnici k se středem S a poloměrem |SA|. Z každého jejího bodu je úsečka AB vidět pod pravým úhlem.', tvary: [K(S, r)] },
-          { text: 'Průsečíky kružnice k s přímkou p jsou hledané vrcholy C₁ a C₂.', tvary: [B(X[0], 'C₁'), B(X[1], 'C₂')] },
-          { text: 'Úloha má dvě řešení: trojúhelníky ABC₁ a ABC₂.', tvary: [U(A, X[0]), U(Bb, X[0]), U(A, X[1]), U(Bb, X[1])] },
-        ],
-        napovedy: ['Pravý úhel při vrcholu C: kde leží všechny body, ze kterých je úsečka AB vidět pod pravým úhlem?',
-          'Sestrojte Thaletovu kružnici nad průměrem AB (střed je uprostřed AB) a hledejte její průsečíky s přímkou p.',
-          'Řešení jsou dvě: body C₁ a C₂, kde Thaletova kružnice protíná přímku p. V okně je teď vidíte.'],
-      };
-    }
-    return null;
   }
 
   // ── 2) Stejná vzdálenost od A a B → osa úsečky AB ∩ přímka p (1 řešení) ──
@@ -435,8 +411,8 @@
 
   /* ════════ Typy 13–34: další ostré úlohy z archivu (M9 2015–2026, M7) ════════
      Každý typ stojí na jiné myšlence, kterou ostré testy používají: středová
-     souměrnost, osa úhlu, kružnice opsaná, průsečík výšek, těžiště, dvě
-     Thaletovy kružnice, pravidelný šestiúhelník, „všechna řešení" podle toho,
+     souměrnost, osa úhlu, průsečík výšek, těžiště,
+     pravidelný šestiúhelník, „všechna řešení" podle toho,
      které strany jsou základnami nebo čí středy jsou zadané. Zadání jsou
      vlastní, stavba odpovídá ostrým úlohám (zdroj u každého typu). */
 
@@ -499,33 +475,6 @@
         napovedy: ['Úhly KLP a PLM jsou shodné, když polopřímka LP rozpůlí úhel KLM. Jak se sestrojí osa úhlu?',
           'Kružnicí se středem L vytněte na ramenech body X a Y, z nich stejnými kružnicemi najděte bod Z. Polopřímka LZ protne stranu KM v bodě P.',
           'Bod P je teď vidět v okně.'],
-      };
-    }
-    return null;
-  }
-
-  // ── 15) Kružnice opsaná trojúhelníku (M9 2019 ilustrační ú. 10, M7 2019 ilustrační ú. 9) ──
-  function opsana() {
-    for (let g = 0; g < 800; g++) {
-      const S = bod(nah(150, 250), nah(125, 175)), R = nah(70, 112), f = nah(0, 2 * Math.PI);
-      const a1 = nah(0.42, 0.92) * Math.PI, a2 = nah(0.42, 0.92) * Math.PI, a3 = 2 * Math.PI - a1 - a2;
-      if (a3 < 0.42 * Math.PI || a3 > 0.92 * Math.PI) continue;          // oblouky pod 180°: ostroúhlý, S uvnitř
-      const A = secti(S, nasob(smer(f), R)), Bb = secti(S, nasob(smer(f + a1), R)), C = secti(S, nasob(smer(f + a1 + a2), R));
-      if (!vsechnyUvnitr([A, Bb, C])) continue;
-      const oAB = osaUsecky(A, Bb), oBC = osaUsecky(Bb, C);
-      return {
-        typ: 'opsana', nazev: 'Kružnice opsaná trojúhelníku',
-        text: 'Je dán trojúhelník ABC. Sestrojte střed S kružnice opsané trojúhelníku ABC a kružnici narýsujte.',
-        dane: { body: { A, B: Bb, C }, mnohouhelniky: [['A', 'B', 'C']] },
-        hledane: ['S'], reseni: [{ S }], pomocne: [stred(A, Bb), stred(Bb, C), stred(C, A)],
-        postup: [
-          { text: 'Střed kružnice opsané má od všech tří vrcholů stejnou vzdálenost. Body stejně vzdálené od A a B leží na ose strany AB — sestrojte ji.', tvary: oAB.tvary },
-          { text: 'Body stejně vzdálené od B a C leží na ose strany BC — sestrojte i tu.', tvary: oBC.tvary },
-          { text: 'Průsečík os je střed S. Kružnice se středem S a poloměrem |SA| prochází všemi třemi vrcholy.', tvary: [B(S, 'S'), K(S, R)] },
-        ],
-        napovedy: ['Střed kružnice opsané má od A, B i C stejnou vzdálenost. Na které přímce leží všechny body, které jsou stejně daleko od A a od B?',
-          'Sestrojte osy dvou stran, třeba AB a BC. Jejich průsečík je střed S; kružnice se středem S přes A prochází i B a C.',
-          'Střed S je teď vidět v okně.'],
       };
     }
     return null;
@@ -804,32 +753,6 @@
         napovedy: ['Kde leží těžiště trojúhelníku? Na těžnici, ve dvou třetinách její délky od vrcholu. Kam tedy vede těžnice z vrcholu C?',
           'Prodlužte CT za T o polovinu délky |CT| — tak najdete střed M přepony. Přepona leží na kolmici k CM v bodě M a A, B jsou od M stejně daleko jako C.',
           'Vrcholy A a B jsou teď vidět v okně.'],
-      };
-    }
-    return null;
-  }
-
-  // ── 26) Vrchol C na dvou Thaletových kružnicích: úhly ACB i BCD pravé (M9 2026/2 ú. 10) ──
-  function dveThalet() {
-    for (let g = 0; g < 1500; g++) {
-      const A = bod(nah(40, 160), nah(40, 260)), D = secti(A, nasob(smer(nah(-0.7, 0.7)), nah(190, 260)));
-      const uAD = jednot(odecti(D, A)), C = secti(A, nasob(uAD, nah(0.3, 0.7) * vzdal(A, D)));
-      const Bb = secti(C, nasob(rot(uAD), nah(65, 120) * vyber([-1, 1])));
-      const S1 = stred(A, Bb), S2 = stred(Bb, D);
-      if (!vsechnyUvnitr([A, Bb, C, D]) || !rozestup([A, Bb, C, D, S1, S2], 30)) continue;
-      return {
-        typ: 'dveThalet', nazev: 'Dva pravoúhlé trojúhelníky',
-        text: 'Body A a B jsou vrcholy pravoúhlého trojúhelníku ABC s pravým úhlem při vrcholu C. Body B a D jsou vrcholy pravoúhlého trojúhelníku BCD s pravým úhlem při vrcholu C. Sestrojte vrchol C a oba trojúhelníky narýsujte.',
-        dane: { body: { A, B: Bb, D } },
-        hledane: ['C'], reseni: [{ C }], pomocne: [S1, S2],
-        postup: [
-          { text: 'Úhel ACB je pravý, takže vrchol C leží na Thaletově kružnici nad úsečkou AB (střed S₁ úsečky AB, poloměr |S₁A|).', tvary: [B(S1, 'S₁'), K(S1, vzdal(A, Bb) / 2)] },
-          { text: 'Úhel BCD je také pravý, takže C leží i na Thaletově kružnici nad úsečkou BD (střed S₂ úsečky BD).', tvary: [B(S2, 'S₂'), K(S2, vzdal(Bb, D) / 2)] },
-          { text: 'Kružnice se protínají v bodě B a v hledaném vrcholu C. (Bod C je zároveň pata kolmice z bodu B na přímku AD.)', tvary: [B(C, 'C'), U(A, Bb), U(A, C), U(Bb, C), U(C, D), U(Bb, D)] },
-        ],
-        napovedy: ['Kde leží všechny body, ze kterých je úsečka AB vidět pod pravým úhlem? A úsečka BD?',
-          'Narýsujte Thaletovy kružnice nad AB i nad BD. Vrchol C je jejich druhý průsečík — prvním je bod B.',
-          'Vrchol C je teď vidět v okně.'],
       };
     }
     return null;
@@ -1662,33 +1585,6 @@
     return null;
   }
 
-  // ── 55) Pravoúhlý trojúhelník ABC s pravým úhlem při C, A i B na kružnici k, jedna strana prochází Q (M9 2023/2. řádný ú. 10; 2 řešení) ──
-  function thalesQ() {
-    for (let g = 0; g < 10000; g++) {
-      const S = bod(nah(150, 250), nah(110, 190)), r = nah(70, 95), C = secti(S, nasob(smer(nah(0, 2 * Math.PI)), r));
-      const Q = secti(S, nasob(smer(nah(0, 2 * Math.PI)), r * nah(0.3, 0.75)));
-      const X1 = G.prusecikyPK(S, Q, S, r), X2 = G.prusecikyPK(C, Q, S, r).filter(x => vzdal(x, C) > 1);
-      if (X1.length !== 2 || X2.length !== 1) continue;
-      const A2 = X2[0], B2 = stredove(A2, S), vse = [C, Q, S, X1[0], X1[1], A2, B2];
-      if (!vsechnyUvnitr(vse) || !rozestup(vse, 36)) continue;
-      return {
-        typ: 'thalesQ', nazev: 'Pravý úhel při C — Thaletova věta',
-        text: 'Bod C je vrchol pravoúhlého trojúhelníku ABC s pravým úhlem při vrcholu C. Zbývající dva vrcholy A a B leží na kružnici k se středem S a jedna ze stran trojúhelníku prochází bodem Q. Sestrojte vrcholy A a B a trojúhelník narýsujte. Najděte všechna řešení.',
-        dane: { body: { C, Q, S }, kruznice: [{ c: S, r, nazev: 'k' }] },
-        hledane: ['A', 'B'], reseni: [{ A: X1[0], B: X1[1] }, { A: A2, B: B2 }], pomocne: [],
-        postup: [
-          { text: 'Pravý úhel při C: podle Thaletovy věty je přepona AB průměrem kružnice k, takže prochází středem S. Přepona je jedna ze stran trojúhelníku, a ta může procházet bodem Q.', tvary: [] },
-          { text: 'První možnost: přepona AB prochází bodem Q. Přímka SQ protne kružnici k v bodech A₁ a B₁.', tvary: [P({ p: S, q: Q }), B(X1[0], 'A₁'), B(X1[1], 'B₁')].concat(strany([X1[0], C, X1[1]])) },
-          { text: 'Druhá možnost: odvěsna CA prochází bodem Q. Přímka CQ protne kružnici k ještě v bodě A₂. Vrchol B₂ je druhý konec průměru z A₂ (přímka A₂S). Úloha má dvě řešení.', tvary: [P({ p: C, q: Q }), B(A2, 'A₂'), P({ p: A2, q: S }), B(B2, 'B₂')].concat(strany([A2, C, B2])) },
-        ],
-        napovedy: ['Kde leží přepona AB, když je při C pravý úhel a A, B leží na kružnici k? Která strana trojúhelníku může procházet bodem Q?',
-          'AB je průměr kružnice k. Buď AB prochází Q (přímka SQ), nebo odvěsna CA prochází Q (přímka CQ, druhý průsečík je A a B je protější konec průměru).',
-          'Řešení jsou dvě: A₁, B₁ a A₂, B₂. V okně je teď vidíte.'],
-      };
-    }
-    return null;
-  }
-
   // ── 56) Rovnoramenný trojúhelník ABC se základnou AC: výška z C leží na přímce p ∋ C (M9 2023/1. náhr. ú. 10) ──
   function rovnoramennyVyskaC() {
     for (let g = 0; g < 8000; g++) {
@@ -2344,34 +2240,6 @@
     return null;
   }
 
-  // ── 77) Čtverec CDEF na kružnici opsané trojúhelníku ABC (M9 2019 ilustr. ú. 10) ──
-  function ctverecVepsany() {
-    for (let g = 0; g < 20000; g++) {
-      const S = bod(nah(150, 250), nah(110, 190)), r = nah(62, 85), f = nah(0, 2 * Math.PI);
-      const [A, Bb, C] = [f, f + nah(1.2, 2.2), f + nah(3.2, 5.0)].map(t => secti(S, nasob(smer(t), r)));
-      const D = secti(S, otoc(odecti(C, S), Math.PI / 2)), E = stredove(C, S), F = secti(S, otoc(odecti(C, S), -Math.PI / 2)), vse = [A, Bb, C, S, D, E, F];
-      if (!vsechnyUvnitr(vse) || !rozestup(vse, 36)) continue;
-      const o1 = osaUsecky(A, Bb), o2 = osaUsecky(Bb, C);
-      return {
-        typ: 'ctverecVepsany', nazev: 'Čtverec vepsaný do kružnice opsané',
-        text: 'V rovině leží trojúhelník ABC, jehož všechny vrcholy leží na kružnici k. Bod C je zároveň vrchol čtverce CDEF, jehož ostatní vrcholy D, E, F také leží na kružnici k. Sestrojte střed S kružnice k, vrcholy D, E, F a čtverec narýsujte.',
-        dane: { body: { A, B: Bb, C }, usecky: [{ p: A, q: Bb }, { p: Bb, q: C }, { p: C, q: A }] },
-        hledane: ['S', 'D', 'E', 'F'], reseni: [{ S, D, E, F }], pomocne: o1.PQ.concat(o2.PQ),
-        postup: [
-          { text: 'Střed S leží stejně daleko od A, B i C. Sestrojte osu úsečky AB.', tvary: o1.tvary },
-          { text: 'Sestrojte osu úsečky BC. Průsečík obou os je střed S kružnice k, poloměr je |SC|.', tvary: o2.tvary.concat([B(S, 'S'), K(S, r)]) },
-          { text: 'Vrcholy čtverce CDEF leží na k, takže střed čtverce je S a úhlopříčka CE je průměr kružnice. E leží na přímce CS za bodem S, |SE| = |SC|.', tvary: [P({ p: C, q: S }), B(E, 'E')] },
-          { text: 'Úhlopříčky čtverce jsou shodné a kolmé: kolmice k CE v bodě S protne kružnici k ve zbylých vrcholech D, F. Dorýsujte čtverec.',
-            tvary: [P({ p: S, q: secti(S, rot(odecti(C, S))) }), B(D, 'D'), B(F, 'F')].concat(strany([C, D, E, F])) },
-        ],
-        napovedy: ['Kde leží střed kružnice, která prochází všemi třemi vrcholy trojúhelníku? A jak spolu souvisí střed čtverce a střed kružnice?',
-          'S je průsečík os stran trojúhelníku. Úhlopříčka CE je průměr kružnice, úhlopříčka DF je k ní kolmá v bodě S.',
-          'Bod S i vrcholy D, E, F jsou teď vidět v okně.'],
-      };
-    }
-    return null;
-  }
-
   // ── 78) Rovnoramenný lichoběžník ABCD vepsaný do k, C a D dané, vzdálenost A, B od CD je r (M9 2017/2. řádný ú. 10) ──
   function lichobeznikKruzCD() {
     for (let g = 0; g < 20000; g++) {
@@ -2580,16 +2448,179 @@
     return null;
   }
 
-  const GENERATORY = { thales, osa, kruznice, vyska, soumernost, rovnobeznik, obdelnik, ctverec, kosoctverec, lichobeznik, teznice, rovnoramenny,
-    stredova, osauhlu, opsana, vysky, obdelnikUhl, obdelnikM, lichobeznikZakl, rovnoramennyOsa, ctverecUhl, vcTc, obdelnikStrana,
-    kosoctverecOsa, teziste, dveThalet, rovnoramennyKruz, pravouhlyLich, osaStrany, sestiuhelnik, stredyStran, lichobeznikTri, obdelnikSp, rovnoramennyZakl,
+  /* ════════ Typy 81–85: doplněné po vypuštění Thaletovy kružnice a kružnice opsané (specifikace 2026/2027) ════════
+     Vystačí si s osou úsečky, kružnicí, rovnoběžkami v dané vzdálenosti a kolmicí — nástroji, které
+     jsou ve specifikaci výslovně. Pět typů nahrazuje pět vypuštěných (tři na pozici 9, dva na pozici 10). */
+
+  // Osa úsečky XY dvěma kružnicemi o poloměru r0; r0 se volí tak, aby pomocné body P, Q nepadly na jiné body (min. 25)
+  function osaProKroky(X, Y, ostatni) {
+    const c = vzdal(X, Y);
+    for (const k of [0.7, 0.85, 1, 1.2, 0.6]) {
+      const r0 = k * c, PQ = G.prusecikyKK(X, r0, Y, r0);
+      if (PQ.length === 2 && rozestup([X, Y].concat(ostatni, PQ), 25)) return { r0, PQ };
+    }
+    return null;
+  }
+
+  // ── 81) Rovnoramenný trojúhelník: základna AB a rameno délky r → osa AB ∩ kružnice k(A; r) (2 řešení) ──
+  function rovnoramennyRameno() {
+    for (let g = 0; g < 400; g++) {
+      const rcm = vyber([3, 3.5, 4]), r = rcm * CM;
+      const A = bod(nah(60, 150), nah(110, 190)), uAB = smer(nah(-0.5, 0.5)), c = r * nah(0.9, 1.5), Bb = secti(A, nasob(uAB, c));
+      const M = stred(A, Bb), n = bod(-uAB.y, uAB.x), h = Math.sqrt(r * r - c * c / 4);
+      const C1 = secti(M, nasob(n, h)), C2 = secti(M, nasob(n, -h));
+      if (h < 40 || ![A, Bb, C1, C2].every(x => uvnitr(x)) || !rozestup([A, Bb, C1, C2, M], 30)) continue;
+      const os = osaProKroky(A, Bb, [C1, C2]);
+      if (!os) continue;
+      return {
+        typ: 'rovnoramennyRameno', nazev: 'Rovnoramenný trojúhelník — rameno dané délky',
+        text: 'Jsou dány body A a B. Sestrojte všechny body C, pro které je trojúhelník ABC rovnoramenný se základnou AB a rameny dlouhými ' + cm(rcm) + '. Najděte všechna řešení.',
+        dane: { body: { A, B: Bb }, usecky: [{ p: A, q: Bb }] },
+        hledane: ['C'], reseni: [{ C: C1 }, { C: C2 }], pomocne: [M].concat(os.PQ), polomer: rcm,
+        postup: [
+          { text: 'Vrchol C rovnoramenného trojúhelníku se základnou AB je stejně daleko od A i B, leží tedy na ose úsečky AB. Narýsujte ji (dvě kružnice o stejném poloměru ze středů A a B).', tvary: [K(A, os.r0), K(Bb, os.r0), P({ p: os.PQ[0], q: os.PQ[1] })] },
+          { text: 'Rameno AC má délku ' + cm(rcm) + ': narýsujte kružnici k se středem A a poloměrem ' + cm(rcm) + '.', tvary: [K(A, r)] },
+          { text: 'Průsečíky kružnice k s osou jsou hledané vrcholy C₁ a C₂. Úloha má dvě řešení.', tvary: [B(C1, 'C₁'), B(C2, 'C₂'), U(A, C1), U(Bb, C1), U(A, C2), U(Bb, C2)] },
+        ],
+        napovedy: ['Vrchol C je stejně daleko od A i B. Na které přímce leží všechny takové body, a jak od A zjistíte vzdálenost ' + cm(rcm) + '?',
+          'Sestrojte osu úsečky AB a kružnici se středem A a poloměrem ' + cm(rcm) + '; hledejte jejich průsečíky.',
+          'Řešení jsou dvě: body C₁ a C₂, kde kružnice protíná osu. V okně je teď vidíte.'],
+      };
+    }
+    return null;
+  }
+
+  // ── 82) Osa úsečky AB a kružnice k(S; r) → 2 řešení ──
+  function osaKruznice() {
+    for (let g = 0; g < 400; g++) {
+      const rcm = vyber([2.5, 3, 3.5]), r = rcm * CM;
+      const A = bod(nah(50, 130), nah(70, 230)), uAB = smer(nah(-0.9, 0.9)), Bb = secti(A, nasob(uAB, nah(110, 170)));
+      const M = stred(A, Bb), n = bod(-(Bb.y - A.y) / vzdal(A, Bb), (Bb.x - A.x) / vzdal(A, Bb)), u = jednot(odecti(Bb, A));
+      const dS = r * nah(0.3, 0.75) * vyber([-1, 1]), t = nah(-50, 50);
+      const S = secti(secti(M, nasob(n, t)), nasob(u, dS));
+      const X = G.prusecikyPK(M, secti(M, n), S, r);
+      if (X.length !== 2 || ![A, Bb, S, X[0], X[1]].every(x => uvnitr(x)) || vzdal(X[0], X[1]) < 50) continue;
+      if (X.some(x => Math.min(vzdal(x, A), vzdal(x, Bb)) < 40)) continue;
+      const os = osaProKroky(A, Bb, X.concat([S]));
+      if (!os) continue;
+      return {
+        typ: 'osaKruznice', nazev: 'Osa úsečky a kružnice',
+        text: 'Jsou dány body A, B a S. Sestrojte všechny body X, které mají od bodů A a B stejnou vzdálenost a od bodu S vzdálenost ' + cm(rcm) + '. Najděte všechna řešení.',
+        dane: { body: { A, B: Bb, S } },
+        hledane: ['X'], reseni: [{ X: X[0] }, { X: X[1] }], pomocne: [M].concat(os.PQ), polomer: rcm,
+        postup: [
+          { text: 'Body se stejnou vzdáleností od A a B leží na ose úsečky AB. Narýsujte ji (dvě kružnice o stejném poloměru ze středů A a B).', tvary: [K(A, os.r0), K(Bb, os.r0), P({ p: os.PQ[0], q: os.PQ[1] })] },
+          { text: 'Body ve vzdálenosti ' + cm(rcm) + ' od S leží na kružnici k se středem S a poloměrem ' + cm(rcm) + '.', tvary: [K(S, r)] },
+          { text: 'Průsečíky kružnice k s osou jsou hledané body X₁ a X₂. Úloha má dvě řešení.', tvary: [B(X[0], 'X₁'), B(X[1], 'X₂')] },
+        ],
+        napovedy: ['Kde leží všechny body se stejnou vzdáleností od A a B, a kde všechny body ve vzdálenosti ' + cm(rcm) + ' od S?',
+          'Sestrojte osu úsečky AB a kružnici se středem S a poloměrem ' + cm(rcm) + '; hledejte jejich průsečíky.',
+          'Řešení jsou dvě: body X₁ a X₂, kde kružnice protíná osu. V okně je teď vidíte.'],
+      };
+    }
+    return null;
+  }
+
+  // ── 83) Dvě rovnoběžky s p ve vzdálenosti d a kružnice k(S; r) → 4 řešení ──
+  function rovnobezkaKruznice() {
+    for (let g = 0; g < 400; g++) {
+      const dcm = vyber([1, 1.5]), rcm = vyber([3, 3.5]), d = dcm * CM, r = rcm * CM;
+      const S = bod(nah(110, 290), nah(110, 190)), uP = smer(nah(-0.6, 0.6)), nP = bod(-uP.y, uP.x);
+      const s = r * nah(0.15, 0.4) * vyber([-1, 1]);                                  // vzdálenost S od přímky p (se znaménkem)
+      const F0 = secti(S, nasob(nP, -s)), p = primka(F0, uP);
+      const F = secti(F0, nasob(uP, nah(112, 135) * (S.x < W / 2 ? 1 : -1)));  // bod p, ve kterém se vede kolmice: za koncem tětiv, ať K a L nepadnou na X
+      const K1 = secti(F, nasob(nP, d)), K2 = secti(F, nasob(nP, -d));
+      const X = [].concat(G.prusecikyPK(K1, secti(K1, uP), S, r), G.prusecikyPK(K2, secti(K2, uP), S, r));
+      if (X.length !== 4 || !X.every(x => uvnitr(x)) || !uvnitr(S) || !rozestup(X.concat([S, F, K1, K2]), 36)) continue;
+      return {
+        typ: 'rovnobezkaKruznice', nazev: 'Vzdálenost od přímky a od bodu',
+        text: 'Jsou dány přímka p a bod S. Sestrojte všechny body X, které mají od přímky p vzdálenost ' + cm(dcm) + ' a od bodu S vzdálenost ' + cm(rcm) + '. Najděte všechna řešení.',
+        dane: { body: { S }, primky: [Object.assign({ nazev: 'p' }, p)] },
+        hledane: ['X'], reseni: X.map(x => ({ X: x })), pomocne: [F, K1, K2], vzdalenost: dcm, polomer: rcm,
+        postup: [
+          { text: 'V libovolném bodě F přímky p vedte kolmici k p a naneste na ni od p ' + cm(dcm) + ' na obě strany: dostanete body K a L.', tvary: [B(F, 'F'), P({ p: K1, q: K2 }), B(K1, 'K'), B(K2, 'L')] },
+          { text: 'Body K a L veďte rovnoběžky s přímkou p. Všechny body ve vzdálenosti ' + cm(dcm) + ' od p leží na nich.', tvary: [P({ p: K1, q: secti(K1, uP) }), P({ p: K2, q: secti(K2, uP) })] },
+          { text: 'Body ve vzdálenosti ' + cm(rcm) + ' od S leží na kružnici k se středem S a poloměrem ' + cm(rcm) + '.', tvary: [K(S, r)] },
+          { text: 'Kružnice k protíná každou rovnoběžku ve dvou bodech: hledané body X₁ až X₄. Úloha má čtyři řešení.', tvary: X.map((x, i) => B(x, 'X' + '₁₂₃₄'[i])) },
+        ],
+        napovedy: ['Kde leží všechny body ve vzdálenosti ' + cm(dcm) + ' od přímky p (pozor, jsou to dvě přímky) a kde všechny body ve vzdálenosti ' + cm(rcm) + ' od S?',
+          'Sestrojte obě rovnoběžky s p ve vzdálenosti ' + cm(dcm) + ' a kružnici se středem S a poloměrem ' + cm(rcm) + '; hledejte jejich průsečíky.',
+          'Řešení jsou čtyři: kružnice protíná každou z rovnoběžek ve dvou bodech. V okně je teď vidíte.'],
+      };
+    }
+    return null;
+  }
+
+  // ── 84) Kolmice z bodu C na p a body X na ní ve vzdálenosti d od p → 2 řešení ──
+  function kolmiceVzdalenost() {
+    for (let g = 0; g < 400; g++) {
+      const dcm = vyber([1.5, 2, 2.5]), d = dcm * CM;
+      const F = bod(nah(120, 280), nah(110, 190)), uP = smer(nah(-0.6, 0.6)), nP = bod(-uP.y, uP.x);
+      const hC = nah(55, 100) * vyber([-1, 1]), C = secti(F, nasob(nP, hC)), p = primka(secti(F, nasob(uP, nah(-50, 50))), uP);
+      const Pt = G.pata(C, p.p, p.q), X1 = secti(Pt, nasob(nP, d)), X2 = secti(Pt, nasob(nP, -d));
+      if (![C, Pt, X1, X2].every(x => uvnitr(x)) || Math.abs(Math.abs(hC) - d) < 40 || !rozestup([C, Pt, X1, X2], 30)) continue;
+      return {
+        typ: 'kolmiceVzdalenost', nazev: 'Kolmice a vzdálenost od přímky',
+        text: 'Je dána přímka p a bod C, který na ní neleží. Sestrojte všechny body X, které leží na kolmici k přímce p vedené bodem C a mají od přímky p vzdálenost ' + cm(dcm) + '. Najděte všechna řešení.',
+        dane: { body: { C }, primky: [Object.assign({ nazev: 'p' }, p)] },
+        hledane: ['X'], reseni: [{ X: X1 }, { X: X2 }], pomocne: [Pt], vzdalenost: dcm,
+        postup: [
+          { text: 'Bodem C veďte kolmici k přímce p; protne ji v bodě F.', tvary: [P({ p: C, q: Pt }), B(Pt, 'F')] },
+          { text: 'Narýsujte kružnici se středem F a poloměrem ' + cm(dcm) + '. Body kolmice ve vzdálenosti ' + cm(dcm) + ' od přímky p leží na ní.', tvary: [K(Pt, d)] },
+          { text: 'Průsečíky kružnice s kolmicí jsou hledané body X₁ a X₂. Úloha má dvě řešení (na každé straně od p jedno).', tvary: [B(X1, 'X₁'), B(X2, 'X₂')] },
+        ],
+        napovedy: ['Vzdálenost bodu od přímky se měří po kolmici. Jak z bodu C vést kolmici k p a kam na ni naneseš ' + cm(dcm) + '?',
+          'Veďte kolmici bodem C k přímce p, označte patu F a z F odměřte kružítkem ' + cm(dcm) + ' na obě strany.',
+          'Řešení jsou dvě: body X₁ a X₂ na kolmici. V okně je teď vidíte.'],
+      };
+    }
+    return null;
+  }
+
+  // ── 85) Osa úsečky AB a rovnoběžky s p ve vzdálenosti d → 2 řešení ──
+  function osaRovnobezka() {
+    for (let g = 0; g < 400; g++) {
+      const dcm = vyber([1, 1.5, 2]), d = dcm * CM;
+      const A = bod(nah(50, 130), nah(70, 230)), uAB = smer(nah(-0.9, 0.9)), Bb = secti(A, nasob(uAB, nah(110, 170)));
+      const M = stred(A, Bb), u = jednot(odecti(Bb, A)), n = bod(-u.y, u.x);
+      const up = smer(nah(0, Math.PI));
+      if (Math.abs(up.x * n.x + up.y * n.y) > Math.cos(0.7)) continue;               // p není (skoro) rovnoběžná s osou
+      const p = primka(bod(nah(120, 300), nah(80, 220)), up), np = bod(-up.y, up.x);
+      const K1 = secti(p.p, nasob(np, d)), K2 = secti(p.p, nasob(np, -d));
+      const X1 = G.prusecikPP(M, secti(M, n), K1, secti(K1, up)), X2 = G.prusecikPP(M, secti(M, n), K2, secti(K2, up));
+      if (!X1 || !X2 || ![A, Bb, X1, X2].every(x => uvnitr(x)) || vzdal(X1, X2) < 50) continue;
+      if ([X1, X2].some(x => Math.min(vzdal(x, A), vzdal(x, Bb)) < 40)) continue;
+      const os = osaProKroky(A, Bb, [X1, X2, K1, K2]);
+      if (!os) continue;
+      return {
+        typ: 'osaRovnobezka', nazev: 'Osa úsečky a rovnoběžky',
+        text: 'Jsou dány body A, B a přímka p. Sestrojte všechny body X, které mají od bodů A a B stejnou vzdálenost a od přímky p vzdálenost ' + cm(dcm) + '. Najděte všechna řešení.',
+        dane: { body: { A, B: Bb }, primky: [Object.assign({ nazev: 'p' }, p)] },
+        hledane: ['X'], reseni: [{ X: X1 }, { X: X2 }], pomocne: [M, K1, K2].concat(os.PQ), vzdalenost: dcm,
+        postup: [
+          { text: 'Body se stejnou vzdáleností od A a B leží na ose úsečky AB. Narýsujte ji (dvě kružnice o stejném poloměru ze středů A a B).', tvary: [K(A, os.r0), K(Bb, os.r0), P({ p: os.PQ[0], q: os.PQ[1] })] },
+          { text: 'Na kolmici k přímce p naneste ' + cm(dcm) + ' na obě strany od p (body K a L) a bodem K i L veďte rovnoběžku s p.', tvary: [B(K1, 'K'), B(K2, 'L'), P({ p: K1, q: secti(K1, up) }), P({ p: K2, q: secti(K2, up) })] },
+          { text: 'Průsečíky osy s oběma rovnoběžkami jsou hledané body X₁ a X₂. Úloha má dvě řešení.', tvary: [B(X1, 'X₁'), B(X2, 'X₂')] },
+        ],
+        napovedy: ['Kde leží body se stejnou vzdáleností od A a B, a kde body ve vzdálenosti ' + cm(dcm) + ' od přímky p (jsou to dvě přímky)?',
+          'Sestrojte osu úsečky AB a obě rovnoběžky s p ve vzdálenosti ' + cm(dcm) + '; hledejte jejich průsečíky.',
+          'Řešení jsou dvě: body X₁ a X₂, kde osa protíná rovnoběžky. V okně je teď vidíte.'],
+      };
+    }
+    return null;
+  }
+
+  const GENERATORY = { osa, kruznice, vyska, soumernost, rovnobeznik, obdelnik, ctverec, kosoctverec, lichobeznik, teznice, rovnoramenny,
+    stredova, osauhlu, vysky, obdelnikUhl, obdelnikM, lichobeznikZakl, rovnoramennyOsa, ctverecUhl, vcTc, obdelnikStrana,
+    kosoctverecOsa, teziste, rovnoramennyKruz, pravouhlyLich, osaStrany, sestiuhelnik, stredyStran, lichobeznikTri, obdelnikSp, rovnoramennyZakl,
     rovnoramennyUhel, uhelOsaStrany, rovnobeznikUhel, pravouhlyUhel, lichobeznikUhel, tupyUhelVyska,
     rovnoramennyStred, obdelnikKolmice, trojuhelnikRozdil, pravouhlyRovnoramenny, obdelnikOpsana, sestiuhelnikOsa, rovnobeznikUhlopricka, rovnoramennyTc,
-    rovnoramennyVyskaM, rovnobeznikStred, rovnostrannyOsa, obdelnikAE, pravouhlyStrana, rovnoramennyKruzP, thalesQ, rovnoramennyVyskaC,
+    rovnoramennyVyskaM, rovnobeznikStred, rovnostrannyOsa, obdelnikAE, pravouhlyStrana, rovnoramennyKruzP, rovnoramennyVyskaC,
     rovnostrannyStred, pravouhlyLichKruz, rovnoramennyStredQ, rovnoramennyOsaQ, obdelnikRovnobezky, rovnobeznikRovnobezkaP, obdelnikOpsanaM, trojuhelnikOsy,
     rovnoramennyDvojnasobek, obdelnikCDCS, pravouhlyRovnoramennyX, rovnobeznikVyskaBD, ctverecPolorovina, lichobeznikKolmeUhl, rovnobeznikDvojnasobek, lichobeznikKruzAC,
     pravouhlyLichAC, obdelnikDvePrimky, ctverecTriBody,
-    kosoctverecVyska, ctverecVepsany, lichobeznikKruzCD, lichobeznikTrojnasobek, ctverecKruzP, rovnoramennyPrimkaA, rovnoramennyPoloprimka, rovnoramennyZaklQ, ctverecStredP, ctverecStredRovnobezka };
+    kosoctverecVyska, lichobeznikKruzCD, lichobeznikTrojnasobek, ctverecKruzP, rovnoramennyPrimkaA, rovnoramennyPoloprimka, rovnoramennyZaklQ, ctverecStredP, ctverecStredRovnobezka,
+    rovnoramennyRameno, osaKruznice, rovnobezkaKruznice, kolmiceVzdalenost, osaRovnobezka };
   const TYPY = Object.keys(GENERATORY);
   /* Úlohy 9 a 10 testu nanečisto. V ostrých testech 2019–2026 jsou obě VŽDY
      konstrukce za 2 nebo 3 body; tříbodové bývají „najděte všechna řešení"
@@ -2599,20 +2630,22 @@
      stupních z M9 jdou na tutéž pozici jako v ostrém testu (2019–2022 ú. 9,
      2023 ú. 10); ty z M7 zůstávají pro procvičování. */
   const PRO_TEST = {
-    9: ['obdelnik', 'teznice', 'rovnoramenny', 'thales', 'vyska', 'lichobeznik', 'vysky', 'obdelnikUhl', 'rovnoramennyOsa',
-      'obdelnikStrana', 'teziste', 'dveThalet', 'rovnoramennyKruz', 'osaStrany', 'stredyStran', 'lichobeznikTri',
+    9: ['obdelnik', 'teznice', 'rovnoramenny', 'vyska', 'lichobeznik', 'vysky', 'obdelnikUhl', 'rovnoramennyOsa',
+      'obdelnikStrana', 'teziste', 'rovnoramennyKruz', 'osaStrany', 'stredyStran', 'lichobeznikTri',
       'rovnoramennyUhel', 'uhelOsaStrany', 'rovnobeznikUhel', 'rovnoramennyStred', 'trojuhelnikRozdil', 'pravouhlyRovnoramenny', 'rovnoramennyTc', 'sestiuhelnikOsa',
-      'rovnoramennyVyskaM', 'rovnostrannyOsa', 'rovnoramennyKruzP', 'thalesQ', 'pravouhlyStrana',
+      'rovnoramennyVyskaM', 'rovnostrannyOsa', 'rovnoramennyKruzP', 'pravouhlyStrana',
       'rovnostrannyStred', 'pravouhlyLichKruz', 'rovnoramennyStredQ',
       'rovnoramennyDvojnasobek', 'pravouhlyRovnoramennyX', 'ctverecPolorovina', 'rovnobeznikDvojnasobek',
       'pravouhlyLichAC', 'obdelnikDvePrimky', 'ctverecTriBody',
-      'kosoctverecVyska', 'rovnoramennyPrimkaA', 'rovnoramennyZaklQ'],
-    10: ['ctverec', 'kosoctverec', 'soumernost', 'stredova', 'osauhlu', 'opsana', 'obdelnikM', 'lichobeznikZakl', 'ctverecUhl',
+      'kosoctverecVyska', 'rovnoramennyPrimkaA', 'rovnoramennyZaklQ',
+      'rovnoramennyRameno', 'osaKruznice', 'rovnobezkaKruznice'],
+    10: ['ctverec', 'kosoctverec', 'soumernost', 'stredova', 'osauhlu', 'obdelnikM', 'lichobeznikZakl', 'ctverecUhl',
       'vcTc', 'kosoctverecOsa', 'pravouhlyLich', 'sestiuhelnik', 'obdelnikSp', 'rovnoramennyZakl', 'pravouhlyUhel', 'obdelnikKolmice', 'obdelnikOpsana',
       'rovnobeznikUhlopricka', 'rovnobeznikStred', 'obdelnikAE', 'rovnoramennyVyskaC',
       'rovnoramennyOsaQ', 'obdelnikRovnobezky', 'rovnobeznikRovnobezkaP', 'obdelnikOpsanaM', 'trojuhelnikOsy',
       'obdelnikCDCS', 'rovnobeznikVyskaBD', 'lichobeznikKolmeUhl', 'lichobeznikKruzAC',
-      'ctverecVepsany', 'lichobeznikKruzCD', 'lichobeznikTrojnasobek', 'ctverecKruzP', 'rovnoramennyPoloprimka', 'ctverecStredP', 'ctverecStredRovnobezka'],
+      'lichobeznikKruzCD', 'lichobeznikTrojnasobek', 'ctverecKruzP', 'rovnoramennyPoloprimka', 'ctverecStredP', 'ctverecStredRovnobezka',
+      'kolmiceVzdalenost', 'osaRovnobezka'],
   };
   function proTest(cislo) {
     const typy = PRO_TEST[cislo];

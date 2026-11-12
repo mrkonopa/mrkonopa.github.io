@@ -70,15 +70,6 @@ function pravouhlyLich4(A, B, C, D) {
 
 // Nezávislá kontrola: vrací popis vady, nebo null
 const VLASTNOST = {
-  thales(u) {
-    const { A, B } = u.dane.body, p = u.dane.primky[0];
-    for (const { C } of u.reseni) {
-      if (!naPrimce(C, p)) return 'C neleží na přímce p';
-      const a = G.odecti(A, C), b = G.odecti(B, C), cos = G.skal(a, b) / (Math.hypot(a.x, a.y) * Math.hypot(b.x, b.y));
-      if (Math.abs(cos) > 1e-9) return 'úhel ACB není pravý (cos = ' + cos.toFixed(4) + ')';
-    }
-    return null;
-  },
   osa(u) {
     const { A, B } = u.dane.body, p = u.dane.primky[0], { X } = u.reseni[0];
     if (!naPrimce(X, p)) return 'X neleží na přímce p';
@@ -189,10 +180,6 @@ const VLASTNOST = {
     if (G.vzdalOdUsecky(Pp, Kk, M) > EPS) return 'P neleží na straně KM';
     return Math.abs(uhel(L, Kk, Pp) - uhel(L, Pp, M)) > 1e-9 ? 'úhly KLP a PLM nejsou shodné' : null;
   },
-  opsana(u) {
-    const { A, B, C } = u.dane.body, { S } = u.reseni[0], r = [G.vzdal(S, A), G.vzdal(S, B), G.vzdal(S, C)];
-    return Math.max(...r) - Math.min(...r) > EPS ? 'S nemá od vrcholů stejnou vzdálenost' : null;
-  },
   vysky(u) {
     const { A, B, O } = u.dane.body, { C } = u.reseni[0], kolmo = (a, b) => Math.abs(G.skal(G.jednot(a), G.jednot(b))) < 1e-9;
     if (!kolmo(G.odecti(C, A), G.odecti(O, B)) || !kolmo(G.odecti(C, B), G.odecti(O, A)) || !kolmo(G.odecti(C, O), G.odecti(B, A))) return 'O není průsečík výšek trojúhelníku ABC';
@@ -249,11 +236,6 @@ const VLASTNOST = {
     const { C, T } = u.dane.body, { A, B } = u.reseni[0];
     if (Math.abs(G.skal(G.jednot(G.odecti(A, C)), G.jednot(G.odecti(B, C)))) > 1e-9 || Math.abs(G.vzdal(C, A) - G.vzdal(C, B)) > EPS) return 'není to rovnoramenný pravoúhlý trojúhelník s pravým úhlem u C';
     return G.vzdal(G.bod((A.x + B.x + C.x) / 3, (A.y + B.y + C.y) / 3), T) > EPS ? 'T není těžiště' : null;
-  },
-  dveThalet(u) {
-    const { A, B, D } = u.dane.body, { C } = u.reseni[0], prav = (X, Y) => Math.abs(G.skal(G.jednot(G.odecti(X, C)), G.jednot(G.odecti(Y, C)))) < 1e-9;
-    if (G.vzdal(B, C) < 20) return 'C splývá s B';
-    return prav(A, B) && prav(B, D) ? null : 'úhly ACB a BCD nejsou oba pravé';
   },
   rovnoramennyKruz(u) {
     const { K: Kk, L } = u.dane.body, k = u.dane.kruznice[0];
@@ -522,17 +504,6 @@ const VLASTNOST = {
       rozdil.add([Bb, C].map(x => x.x.toFixed(2) + ',' + x.y.toFixed(2)).join('|'));
     }
     return rozdil.size === 4 ? null : 'řešení nejsou čtyři různá (' + rozdil.size + ')';
-  },
-  thalesQ(u) {
-    const { C, Q, S } = u.dane.body, k = u.dane.kruznice[0], prepony = [];
-    for (const { A, B: Bb } of u.reseni) {
-      if (Math.abs(G.vzdal(S, A) - k.r) > EPS || Math.abs(G.vzdal(S, Bb) - k.r) > EPS) return 'A nebo B neleží na kružnici k';
-      if (Math.abs(G.skal(G.jednot(G.odecti(A, C)), G.jednot(G.odecti(Bb, C)))) > 1e-9) return 'úhel ACB není pravý';
-      const strany = [['AB', A, Bb], ['CA', C, A], ['CB', C, Bb]].filter(([, X, Y]) => G.vzdalOdUsecky(Q, X, Y) < 1e-6).map(t => t[0]);
-      if (!strany.length) return 'žádná strana neprochází bodem Q';
-      prepony.push(strany.includes('AB') ? 'AB' : 'odvěsna');
-    }
-    return prepony.slice().sort().join() === 'AB,odvěsna' ? null : 'jedno řešení má mít Q na přeponě a druhé na odvěsně (je ' + prepony.join() + ')';
   },
   rovnoramennyVyskaC(u) {
     const { A, C } = u.dane.body, p = u.dane.primky[0], { B: Bb } = u.reseni[0];
@@ -807,20 +778,6 @@ const VLASTNOST = {
     if (Math.abs(strana - hy / sinA) > 1e-6) return 'strana kosočtverce není |AY| / sin α';
     return strana < 40 ? 'kosočtverec je příliš malý' : null;
   },
-  ctverecVepsany(u) {
-    const { A, B: Bb, C } = u.dane.body, { S, D, E, F } = u.reseni[0], r = G.vzdal(S, C);
-    if ([A, Bb].some(x => Math.abs(G.vzdal(S, x) - r) > EPS)) return 'S není stejně daleko od A, B i C';
-    if ([D, E, F].some(x => Math.abs(G.vzdal(S, x) - r) > EPS)) return 'vrchol čtverce neleží na k';
-    const e = ctverec4(C, D, E, F); if (e) return e;
-    // střed kružnice opsané jinou cestou: průsečík os stran AB a BC (kolmice ve středech)
-    const o = (X, Y) => { const M = G.stred(X, Y); return [M, G.secti(M, G.bod(-(Y.y - X.y), Y.x - X.x))]; };
-    const S2 = G.prusecikPP(...o(A, Bb), ...o(Bb, C));
-    if (!S2 || G.vzdal(S, S2) > 1e-6) return 'S není průsečík os stran';
-    // čtverec s vrcholem C na k je jediný: E je obraz C ve středové souměrnosti, D a F obrazy při otočení o ±90° (záměnné)
-    const E2 = G.stredove(C, S), R1 = G.secti(S, G.otoc(G.odecti(C, S), Math.PI / 2)), R2 = G.secti(S, G.otoc(G.odecti(C, S), -Math.PI / 2));
-    if (G.vzdal(E, E2) > 1e-6) return 'E není protější vrchol';
-    return (G.vzdal(D, R1) < 1e-6 && G.vzdal(F, R2) < 1e-6) || (G.vzdal(D, R2) < 1e-6 && G.vzdal(F, R1) < 1e-6) ? null : 'D, F nejsou obrazy C při otočení o ±90°';
-  },
   lichobeznikKruzCD(u) {
     const { S, C, D } = u.dane.body, k = u.dane.kruznice[0], p = u.dane.primky[0], { A, B: Bb } = u.reseni[0], r = k.r;
     if ([A, Bb, C, D].some(x => Math.abs(G.vzdal(S, x) - r) > EPS)) return 'vrchol neleží na kružnici k';
@@ -918,18 +875,66 @@ const VLASTNOST = {
     if (!kon || G.vzdal(kon.p, kon.q) < 200) return 'p má v okně málo místa na narýsování';
     return null;
   },
+  // ── typy 81–85 (po vypuštění Thaletovy kružnice a kružnice opsané, specifikace 2026/2027) ──
+  rovnoramennyRameno(u) {
+    const { A, B } = u.dane.body, r = cislo(u.text, /rameny dlouhými (\d+(?:,\d+)?) cm/) * G.CM;
+    if (!(r > 0)) return 'ze zadání nejde přečíst délka ramene';
+    for (const { C } of u.reseni) {
+      if (Math.abs(G.vzdal(C, A) - G.vzdal(C, B)) > EPS) return '|CA| ≠ |CB|';
+      if (Math.abs(G.vzdal(C, A) - r) > EPS) return 'rameno nemá zadanou délku';
+    }
+    return null;
+  },
+  osaKruznice(u) {
+    const { A, B, S } = u.dane.body, r = cislo(u.text, /od bodu S vzdálenost (\d+(?:,\d+)?) cm/) * G.CM;
+    if (!(r > 0)) return 'ze zadání nejde přečíst vzdálenost od S';
+    for (const { X } of u.reseni) {
+      if (Math.abs(G.vzdal(X, A) - G.vzdal(X, B)) > EPS) return '|XA| ≠ |XB|';
+      if (Math.abs(G.vzdal(X, S) - r) > EPS) return '|XS| není zadaná vzdálenost';
+    }
+    return null;
+  },
+  rovnobezkaKruznice(u) {
+    const { S } = u.dane.body, p = u.dane.primky[0];
+    const d = cislo(u.text, /od přímky p vzdálenost (\d+(?:,\d+)?) cm/) * G.CM, r = cislo(u.text, /od bodu S vzdálenost (\d+(?:,\d+)?) cm/) * G.CM;
+    if (!(d > 0 && r > 0)) return 'ze zadání nejdou přečíst vzdálenosti';
+    for (const { X } of u.reseni) {
+      if (Math.abs(G.vzdalOdPrimky(X, p.p, p.q) - d) > EPS) return 'X nemá od p zadanou vzdálenost';
+      if (Math.abs(G.vzdal(X, S) - r) > EPS) return '|XS| není zadaná vzdálenost';
+    }
+    return null;
+  },
+  kolmiceVzdalenost(u) {
+    const { C } = u.dane.body, p = u.dane.primky[0], d = cislo(u.text, /od přímky p vzdálenost (\d+(?:,\d+)?) cm/) * G.CM;
+    if (!(d > 0)) return 'ze zadání nejde přečíst vzdálenost';
+    for (const { X } of u.reseni) {
+      if (Math.abs(G.vzdalOdPrimky(X, p.p, p.q) - d) > EPS) return 'X nemá od p zadanou vzdálenost';
+      if (Math.abs(G.skal(G.jednot(G.odecti(X, C)), G.jednot(G.odecti(p.q, p.p)))) > 1e-9) return 'X neleží na kolmici k p vedené bodem C';
+    }
+    return null;
+  },
+  osaRovnobezka(u) {
+    const { A, B } = u.dane.body, p = u.dane.primky[0], d = cislo(u.text, /od přímky p vzdálenost (\d+(?:,\d+)?) cm/) * G.CM;
+    if (!(d > 0)) return 'ze zadání nejde přečíst vzdálenost';
+    for (const { X } of u.reseni) {
+      if (Math.abs(G.vzdal(X, A) - G.vzdal(X, B)) > EPS) return '|XA| ≠ |XB|';
+      if (Math.abs(G.vzdalOdPrimky(X, p.p, p.q) - d) > EPS) return 'X nemá od p zadanou vzdálenost';
+    }
+    return null;
+  },
 };
-const POCET_RESENI = { thales: 2, osa: 1, kruznice: 2, vyska: 2, soumernost: 1, rovnobeznik: 1, obdelnik: 2, ctverec: 1, kosoctverec: 1, lichobeznik: 1, teznice: 2, rovnoramenny: 2,
-  stredova: 1, osauhlu: 1, opsana: 1, vysky: 1, obdelnikUhl: 2, obdelnikM: 1, lichobeznikZakl: 1, rovnoramennyOsa: 1, ctverecUhl: 1, vcTc: 1,
-  obdelnikStrana: 2, kosoctverecOsa: 1, teziste: 1, dveThalet: 1, rovnoramennyKruz: 2, pravouhlyLich: 1, osaStrany: 2, sestiuhelnik: 1,
+const POCET_RESENI = { osa: 1, kruznice: 2, vyska: 2, soumernost: 1, rovnobeznik: 1, obdelnik: 2, ctverec: 1, kosoctverec: 1, lichobeznik: 1, teznice: 2, rovnoramenny: 2,
+  stredova: 1, osauhlu: 1, vysky: 1, obdelnikUhl: 2, obdelnikM: 1, lichobeznikZakl: 1, rovnoramennyOsa: 1, ctverecUhl: 1, vcTc: 1,
+  obdelnikStrana: 2, kosoctverecOsa: 1, teziste: 1, rovnoramennyKruz: 2, pravouhlyLich: 1, osaStrany: 2, sestiuhelnik: 1,
   stredyStran: 3, lichobeznikTri: 2, obdelnikSp: 1, rovnoramennyZakl: 1,
   rovnoramennyUhel: 2, uhelOsaStrany: 1, rovnobeznikUhel: 1, pravouhlyUhel: 2, lichobeznikUhel: 2, tupyUhelVyska: 1,
   rovnoramennyStred: 2, obdelnikKolmice: 1, trojuhelnikRozdil: 2, pravouhlyRovnoramenny: 1, obdelnikOpsana: 1, sestiuhelnikOsa: 1, rovnobeznikUhlopricka: 1, rovnoramennyTc: 2,
-  rovnoramennyVyskaM: 1, rovnobeznikStred: 2, rovnostrannyOsa: 1, obdelnikAE: 1, pravouhlyStrana: 2, rovnoramennyKruzP: 4, thalesQ: 2, rovnoramennyVyskaC: 1,
+  rovnoramennyVyskaM: 1, rovnobeznikStred: 2, rovnostrannyOsa: 1, obdelnikAE: 1, pravouhlyStrana: 2, rovnoramennyKruzP: 4, rovnoramennyVyskaC: 1,
   rovnostrannyStred: 1, pravouhlyLichKruz: 1, rovnoramennyStredQ: 2, rovnoramennyOsaQ: 2, obdelnikRovnobezky: 2, rovnobeznikRovnobezkaP: 1, obdelnikOpsanaM: 1, trojuhelnikOsy: 1,
   rovnoramennyDvojnasobek: 3, obdelnikCDCS: 2, pravouhlyRovnoramennyX: 2, rovnobeznikVyskaBD: 1, ctverecPolorovina: 3, lichobeznikKolmeUhl: 1, rovnobeznikDvojnasobek: 2, lichobeznikKruzAC: 1,
   pravouhlyLichAC: 2, obdelnikDvePrimky: 1, ctverecTriBody: 2,
-  kosoctverecVyska: 1, ctverecVepsany: 1, lichobeznikKruzCD: 1, lichobeznikTrojnasobek: 1, ctverecKruzP: 3, rovnoramennyPrimkaA: 1, rovnoramennyPoloprimka: 1, rovnoramennyZaklQ: 1, ctverecStredP: 1, ctverecStredRovnobezka: 1 };
+  rovnoramennyRameno: 2, osaKruznice: 2, rovnobezkaKruznice: 4, kolmiceVzdalenost: 2, osaRovnobezka: 2,
+  kosoctverecVyska: 1, lichobeznikKruzCD: 1, lichobeznikTrojnasobek: 1, ctverecKruzP: 3, rovnoramennyPrimkaA: 1, rovnoramennyPoloprimka: 1, rovnoramennyZaklQ: 1, ctverecStredP: 1, ctverecStredRovnobezka: 1 };
 
 /* Polopřímka (rameno z úhloměru) v geometrii: průsečík za vrcholem se nepočítá,
    vrchol je bod k přichycení a kreslí se jen od vrcholu dál. Kružnice

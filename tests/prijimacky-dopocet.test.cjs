@@ -191,6 +191,7 @@ function jsVyraz(s) {
   let e = s.replace(/−/g, '-').replace(/[·×]/g, '*').replace(/\s:\s/g, '/').replace(/(\d),(\d)/g, '$1.$2')
     .replace(/²/g, '**2').replace(/³/g, '**3').replace(/\s+/g, '');
   e = e.replace(/(\d)([a-z(])/g, '$1*$2').replace(/\)([a-z\d(])/g, ')*$1').replace(/([a-z])\(/g, '$1*(');
+  e = e.replace(/([aknxy])(?=[aknxy])/g, '$1*');                 // „4xy“ = 4·x·y (vytknutí ze dvou proměnných)
   if (!/^[\d+\-*/().akny x]+$/.test(e) || /[a-z]{2}/.test(e)) throw new Error('nečitelný výraz „' + s + '"');
   return Function(...PROM, '"use strict";return (' + e + ');');
 }
@@ -246,11 +247,25 @@ function over34(poz, p) {
   }
   if ((m = z.match(/^Ve výrazu (.+?) napište číslo místo otazníku/)) ||
       (m = z.match(/(?:vzorce|vytknutím) a napište číslo místo otazníku: (.+)$/)) ||
-      (m = z.match(/(?:vytknutím|pomocí vzorce|podle vzorce): (.+?)\. Napište číslo místo otazníku\.$/))) {
+      (m = z.match(/(?:vytknutím(?: největšího společného činitele)?|pomocí vzorce|podle vzorce): (.+?)\. Napište číslo místo otazníku\.$/))) {
+    /* Vytknutí NEJVĚTŠÍHO společného činitele (části 3.3, od 2026/2027 místo rozkladu podle vzorců): kromě platnosti
+       rovnosti se z mnohočlenu vlevo (ne z generátoru) spočítá největší společný dělitel koeficientů a musí
+       se rovnat číslu, které je v zadání vytknuto, a závorka už nesmí mít společný dělitel (jedna proměnná:
+       koeficienty u x² a x; dvě proměnné: u x²y a xy²). */
+    if (/největšího společného činitele/.test(z)) {
+      const lev = m[1].split(' = ')[0], pra = m[1].split(' = ')[1];
+      const g2 = (a, b) => (b ? g2(b, a % b) : Math.abs(a));
+      let c2, c1, vytknuto;
+      if ((vytknuto = /^(\d+)xy·/.exec(pra))) {                    // dvě proměnné: ax²y ± bxy²
+        const mm = /^(\d+)x²y ([+−]) (\d+)xy²$/.exec(lev);
+        if (!mm) throw new Error('nečitelný dvouproměnný mnohočlen „' + lev + '"');
+        c2 = Number(mm[1]); c1 = Number(mm[3]);
+      } else if ((vytknuto = /^(\d+)x·/.exec(pra))) {                // jedna proměnná: t·x·(u·x + w)
+        c2 = koeficient(lev, 'x', 2); c1 = koeficient(lev, 'x', 1);
+      } else throw new Error('nečitelný rozklad „' + pra + '"');
+      return pouzij('vytknutí největšího činitele', () => identitaS(m[1], [ans]) && g2(c2, c1) === Number(vytknuto[1]));
+    }
     return pouzij('identita s ?', () => identitaS(m[1], [ans]));
-  }
-  if ((m = z.match(/^Upravte výraz (.+?) a rozložte na součin pomocí vzorce\. Napište číslo, které patří místo otazníku v rozkladu (.+?)\.$/))) {
-    return pouzij('rozklad (x − ?)²', () => identitaS(m[1] + ' = ' + m[2], [ans]));
   }
   if ((m = z.match(/napište koeficient u ([akny x])(²?): (.+)$/))) {
     return pouzij('koeficient', () => blizko(koeficient(m[3], m[1], m[2] ? 2 : 1), ans));
@@ -279,7 +294,7 @@ for (let b = 0; b < 3000; b++) {
    mohla v bance změnit a vzor by tiše přestal něco kontrolovat. */
 ok(videno34 > 14000, 'pozice 3 a 4: prošlo se ' + videno34 + ' podúloh (podlaha 14 000)', 'naměřeno=' + videno34);
 ok(Object.keys(druhy34).length === 10 && Object.values(druhy34).every(n => n >= 100),
-  'pozice 3 a 4: všech 10 druhů zadání se v losu objevuje (podlaha 100×)',
+  'pozice 3 a 4: všech 10 druhů zadání se v losu objevuje (podlaha 100×; od 2026/2027 místo rozkladu (x − ?)² vytknutí největšího činitele)',
   JSON.stringify(druhy34));
 ok(nerozp34.size === 0, 'pozice 3 a 4: každé zadání se dalo přečíst (' + Object.keys(druhy34).length + ' druhů)',
   [...nerozp34].slice(0, 3).join(' | '));
@@ -332,8 +347,8 @@ const V69 = {
   'Nádrže': (t, k) => { const p = t.parts.find(x => x.key === k).prompt;
     if (k === '6.1') { const [s, kv] = cisla(p, /pojme (\d+) litrů\. Konev má objem (\d+) litr/); return Math.ceil(s / kv); }
     const [V, r] = cisla(p, /objemu (\d+) litrů se napouští rychlostí (\d+) litr/); return V / r; },
-  'Těžítko': (t, k) => { const [R, H, r, h] = cisla(t.intro, /podstavy (\d+) cm a výškou (\d+) cm[\s\S]*podstavy (\d+) cm a výškou (\d+) cm/);
-    return k === '6.1' ? naDes(3.14 * R * R * H) : naDes(3.14 * (R * R * H - r * r * h)); },
+  'Těžítko s dutinou': (t, k) => { const [A, H] = cisla(t.intro, /podstavnou hranou (\d+) cm a výškou (\d+) cm/), [d] = cisla(t.intro, /krychle o hraně (\d+) cm/);
+    return k === '6.1' ? A * A * H : A * A * H - d * d * d; },
   'Sud, kbelík a konvička': (t, k) => { const p = t.parts.find(x => x.key === k).prompt;
     if (k === '6.2') { const [N, V] = cisla(p, /na (\d+) krychlí, z nichž každá má objem (\d+) dm³/); return N * V * 1000; }
     const m = p.match(/je (\d+)krát větší než objem kbelíku\. Objem kbelíku je (\d+)krát větší[\s\S]*jsme (.+?) vody odebrali, takže v něm zbylo (\d+) litrů/);
@@ -726,8 +741,9 @@ const V1214 = {
     [, h2] = cisla(t.intro, /zvětší z (\d+) m na (\d+) m/); return n * s * h1 + (d - n) * s * (h1 + h2) / 2; },
   'Kostky v krabici': t => { const [a, b, c] = cisla(t.intro, /rozměry (\d+) cm × (\d+) cm × (\d+) cm/), [k] = cisla(t.intro, /o hraně (\d+) cm/);
     return Math.floor(a / k) * Math.floor(b / k) * Math.floor(c / k); },
-  'Povrch válce': t => { const [k] = cisla(t.intro, /pláště rotačního válce je (\d+)krát/), [r] = cisla(t.intro, /Poloměr podstavy válce je (\d+) cm/);
-    return (k + 2) * 3.14 * r * r; },
+  'Povrch hranolu': t => { const [k] = cisla(t.intro, /pláště pravidelného čtyřbokého hranolu je (\d+)krát/), [a] = cisla(t.intro, /Podstavná hrana hranolu je (\d+) cm/);
+    const v = k * a / 4;                                                // plášť 4·a·v = k·a² ⇒ v = k·a : 4
+    return 2 * a * a + 4 * a * v; },
   'Lomená čára v hale': t => { const [v, d] = cisla(t.intro, /výška je (\d+) m a délka (\d+) m/), [u] = cisla(t.intro, /měří (\d+) m a tvoří úsek AC/);
     const s = odmocnina(u * u - d * d); return 2 * u + 2 * odmocnina(s * s + v * v); },
   'Polepená krychle': t => { const n = SLOVA[t.intro.match(/přelepena (\S+) shodnými/)[1]], [W] = cisla(t.intro, /ploch na povrchu krychle je (\d[\d ]*) cm²/);
@@ -735,8 +751,8 @@ const V1214 = {
   'Dvě krychle': t => { const [D] = cisla(t.intro, /o (\d+) cm² menší/), [H] = cisla(t.intro, /hran malé krychle je (\d+) cm/);
     const a = H / 12, b = odmocnina(a * a + D / 6); return b ** 3 - a ** 3; },
   'Dva hranoly': t => { const [a] = cisla(t.intro, /délky a = (\d+) cm/), [D] = cisla(t.intro, /o (\d+) cm² větší povrch/); return D / 4 / a; },
-  'Dort ze dvou forem': t => { const [r1] = cisla(t.intro, /první formy je (\d+) cm a poloměr podstavy druhé formy je o čtvrtinu menší/),
-    [h] = cisla(t.intro, /stejná, a to (\d+) cm/), r2 = r1 - r1 / 4; return h * (r1 * r1 + r2 * r2); },     // v násobcích π
+  'Dort z hranolových forem': t => { const [a1] = cisla(t.intro, /první formy je (\d+) cm a podstavná hrana druhé formy je o čtvrtinu menší/),
+    [h] = cisla(t.intro, /stejná, a to (\d+) cm/), a2 = a1 - a1 / 4; return h * (a1 * a1 + a2 * a2); },
   'Trojboký hranol': t => { const [z, S] = cisla(t.intro, /základnu délky (\d+) cm a obsah (\d+) cm²/), v = 2 * S / z;
     if (!(v < z && v < Math.hypot(z / 2, v))) throw new Error('výška podstavy není nejkratší hrana'); return S * v; },
   'Obdélník ze dvou čtverců': t => { const [o] = cisla(t.intro, /Obvod jednoho menšího obdélníku je (\d+) cm/), sq = o / 5; return 6 * sq; },

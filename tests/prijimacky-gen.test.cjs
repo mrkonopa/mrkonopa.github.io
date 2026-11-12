@@ -53,7 +53,7 @@ function expected(c) {
     case 'castJeCelek': return c.jednotka * c.q;
     case 'mocnina10': return 10 ** c.n;
     case 'kvadratSouctu': return (c.a + c.b) ** 2;
-    case 'odmocninaSoucin': return c.a * c.b;
+    case 'odmocninaDesetinna': { const r = Math.round(Math.sqrt(c.rad) * 1e6) / 1e6; return r; }
     case 'dosazeniDve': return c.a * c.v + c.b * c.w;
     case 'vyrazSlovni': return c.mul * (c.v + c.pl);
     case 'rovniceZavorka': return (c.c % c.a === 0) ? (c.c / c.a - c.b) : NaN;
@@ -217,7 +217,8 @@ for (const topic in GEN) for (const gen of GEN[topic]) for (let i = 0; i < 40; i
   const jiny = PZ.hintsFor({ ...it, ans: 'XXX' }, topic);
   const itemSpecific = jiny[1] !== h[1];
   if (itemSpecific && String(h[1]).includes(String(it.ans))) weak.push(k + ' (L2 prozrazuje výsledek)');
-  if (!String(h[2]).includes(String(it.ans))) weak.push(k + ' (L3 neobsahuje výsledek)');
+  // desetinná odpověď je v nápovědě s čárkou (odmocninaDesetinna: ans „0.7“, nápověda „0,7“)
+  if (!String(h[2]).includes(String(it.ans)) && !String(h[2]).includes(String(it.ans).replace('.', ','))) weak.push(k + ' (L3 neobsahuje výsledek)');
 }
 ok(missing.size === 0, 'každý typ úlohy má VLASTNÍ nápovědu (' + missing.size + ' bez ní: ' + [...missing].slice(0, 6).join(', ') + ')');
 ok(weak.length === 0, 'nápovědy jsou úplné a L2 neprozrazuje výsledek (' + [...new Set(weak)].slice(0, 4).join(', ') + ')');

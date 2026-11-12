@@ -523,16 +523,22 @@
       _check: { kind: 'kvadratSouctu', a, b }
     };
   }
-  function odmocninaSoucin() {
-    const a = ri(2, 9), b = ri(2, 9);
+  /* Odmocnina čísel 1–10 a jejich mocnin, 10, 100, 1 000, desetin, setin a tisícin (specifikace CERMAT 2026/2027):
+     √900 = 30, √0,49 = 0,7. Pravidla pro odmocňování součinu a zlomku jsou od 2026/2027
+     vypuštěna, proto se pod odmocninou nic nerozkládá na činitele — výsledek se najde zkouškou druhou mocninou. */
+  function odmocninaDesetinna() {
+    const n = ri(2, 9), druh = ri(0, 1);
+    // 0: stovky (√900 = 30), 1: setiny (√0,49 = 0,7); víc desetinných míst by narazilo na pravidlo ≈ u neukončených rozvojů
+    const rad = [n * n * 100, n * n / 100][druh];
+    const res = [10 * n, n / 10][druh];
     return {
-      prompt: 'Vypočtěte √(' + (a * a) + ' · ' + (b * b) + ').', type: 'text', ans: String(a * b),
+      prompt: 'Vypočtěte √' + cz(rad) + '.', type: 'text', ans: String(res),
       sol: [
-        'Odmocnina součinu se dá rozdělit: √(x · y) = √x · √y. Často je to rychlejší než násobit a odmocňovat až potom.',
-        'Odmocni každý činitel zvlášť: √' + (a * a) + ' = ' + a + ' a √' + (b * b) + ' = ' + b + '.',
-        'Výsledek = ' + a + ' · ' + b + ' = ' + (a * b) + '.'
+        'Hledáš číslo, které po vynásobení samo sebou dá ' + cz(rad) + '. U desetinných čísel hlídej počet desetinných míst: součin dvou čísel má dvakrát tolik desetinných míst, kolik má každé z nich.',
+        'Zkoušej: ' + cz(res) + ' · ' + cz(res) + ' = ' + cz(rad) + '.',
+        'Proto √' + cz(rad) + ' = ' + cz(res) + '.'
       ],
-      _check: { kind: 'odmocninaSoucin', a, b }
+      _check: { kind: 'odmocninaDesetinna', rad }
     };
   }
 
@@ -1132,7 +1138,7 @@
   }
 
   window.PZ_GEN = {
-    'vyrazy-mocniny': [mocnina, odmocnina, mocninaVyraz, mocnina10, kvadratSouctu, odmocninaSoucin,
+    'vyrazy-mocniny': [mocnina, odmocnina, mocninaVyraz, mocnina10, kvadratSouctu, odmocninaDesetinna,
                        poradiOperaci, rozdilMocnin],
     'zlomky': [zlomekCelku, zlomekZbytek, zlomekPocet, smisene, zlomekRozsir, castJeCelek,
                zlomekZCasti, zlomekZbytekDvakrat],
