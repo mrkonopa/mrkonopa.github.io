@@ -60,8 +60,8 @@ function porusenia(txt) {
 
 /* ── SPORNÉ úlohy (zůstaly, čekají na rozhodnutí): název/typ → pravidla, která chytají ────────────────── */
 const SPORNE_BANKA = {
-  'Sud': ['e'],                                         // dno 2000 cm², hladina stoupla o 11 mm: V = S·h bez π — aplikační úloha, nebo výpočet objemu válce?
-  'Přelévání vody': ['e'],                              // dvě válcové nádoby, poměr objemů a výšky hladiny
+  'Sud': ['e'],                                         // ZŮSTÁVÁ: dno zadáno, V = S·h bez π = aplikační úloha o válci (C1 str. 11 ji ponechává; vypuštěn je jen výpočet objemu a povrchu)
+  'Přelévání vody': ['e'],                              // ZŮSTÁVÁ: původní úloha CERMATu (M9C/2024 ú. 2), řeší se poměrem podstav, π se nedosazuje = aplikační úloha o válci
   'Kružnice opsaná a osa úhlu': ['d-opsana', 'd-thales'], // trojúhelník vepsaný do kružnice, střed na AB: kružnice opsaná jako údaj, Thaletova věta ve výpočtu úhlu
   'Obdélník v kružnici': ['d-thales'],                  // kružnice opsaná obdélníku jako údaj; v řešení Thaletova věta
   'Body C na přímce': ['d-thales'],                     // kolik bodů C dá pravoúhlý trojúhelník — v řešení Thaletova kružnice
@@ -88,7 +88,8 @@ function kontext() {
     cz: n => String(n).replace('.', ','),
     skl: (n, o, f, m) => n === 1 ? o : (n >= 2 && n <= 4 ? f : m),
   };
-  ['svgTriangle', 'svgLineGraph', 'svgCylinder', 'svgCone', 'svgSphere', 'svgSimilar', 'svgCuboid'].forEach(f => ctx[f] = () => '<svg></svg>');
+  ['svgTriangle', 'svgLineGraph', 'svgCylinder', 'svgCone', 'svgSphere', 'svgSimilar'].forEach(f => ctx[f] = () => '<svg></svg>');
+  ctx.svgCuboid = (a, b, c) => '<svg>' + [a, b, c].map(x => '<text>' + x + '</text>').join('') + '</svg>';   // popisky hran se předávají dál, ať je test vidí
   return vm.createContext(ctx);
 }
 function uprav(zdroj, uprava, nazev) {
@@ -199,6 +200,30 @@ ok(pocty.length === 16 && pocty.every((n, i) => n >= PUVODNI[i]), 'každá z 16 
   'původně ' + PUVODNI.join(', '));
 ok(pocty.reduce((a, b) => a + b, 0) >= 122, 'celkem ' + pocty.reduce((a, b) => a + b, 0) + ' variant (původně 122)');
 
+console.log('── Obrázky nových variant neukazují odvozený údaj (čísla v popiscích ⊆ čísla ze zadání) ──');
+{
+  // Povrch hranolu popisoval na obrázku výšku, kterou zadání (plášť = k × podstava) neuvádí a řešení nepotřebuje:
+  // žák ji přečetl z obrázku a krok úlohy obešel (nalezeno při prohlídce na iPadu 12. 11. 2026).
+  const NOVE = [[5, 'Těžítko s dutinou'], [11, 'Dort z hranolových forem'], [12, 'Povrch hranolu']];
+  const cisla = s => (String(s).match(/\d+(?:[.,]\d+)?/g) || []).map(x => x.replace(',', '.'));
+  const odvozene = Bk => {
+    const videno = {}, spatne = new Set();
+    for (const [i, titul] of NOVE) for (let k = 0; k < 400; k++) {
+      const t = Bk.genSlot(i); if (t.title !== titul) continue;
+      videno[titul] = (videno[titul] || 0) + 1;
+      const zadani = new Set(cisla([t.intro, t.prompt, ...(t.parts || []).map(p => p.prompt)].join(' ')));
+      if ([...String(t.svg || '').matchAll(/<text>([^<]*)<\/text>/g)].flatMap(m => cisla(m[1])).some(n => !zadani.has(n))) spatne.add(titul);
+    }
+    return { videno, spatne: [...spatne] };
+  };
+  const o = odvozene(B0);
+  ok(NOVE.every(([, t]) => (o.videno[t] || 0) >= 10), 'kontrola viděla všechny tři nové varianty aspoň 10× (' + JSON.stringify(o.videno) + ')');
+  ok(o.spatne.length === 0, 'obrázek žádné nové varianty neukazuje číslo, které není v zadání', o.spatne.join(', '));
+  let chyceno = false;
+  try { chyceno = odvozene(nactiBanku(s => s.replace("svgCuboid(a + ' cm', 'v', a + ' cm', 1)", "svgCuboid(a + ' cm', v + ' cm', a + ' cm', 1)"), 'výška hranolu v obrázku')).spatne.includes('Povrch hranolu'); } catch (e) { /* neaplikováno */ }
+  ok(chyceno, 'sabotáž: obrázek Povrchu hranolu popíše výšku → kontrola ji najde');
+}
+
 console.log('── Rozklad na součin jen vytýkáním (pozice 3) ──');
 {
   const casti = [];
@@ -262,7 +287,9 @@ console.log('── Úvodní stránka a dokumentace ──');
   ok(fs.existsSync(path.join(ROOT, 'docs/specifikace-2027/README.md')) && fs.existsSync(path.join(ROOT, 'docs/specifikace-2027/mereni-pred.md')),
     'docs/specifikace-2027/ má README.md a mereni-pred.md');
   const pdfs = fs.readdirSync(path.join(ROOT, 'docs/specifikace-2027')).filter(f => /\.pdf$/i.test(f));
-  console.log('  ' + (pdfs.length ? 'ℹ️  PDF specifikace v docs/specifikace-2027/: ' + pdfs.join(', ') : '⚠️  PDF specifikace zatím v docs/specifikace-2027/ nejsou (čekají na dodání; test je nevyžaduje)'));
+  const POVINNA_PDF = ['SPECIFIKACE-POZADAVKU_MAT_2026-2027_v-revizich-zmen.pdf', 'Specifikace-ve-vazbe-na-nova-RVP-ZV_2026-2027-shrnuti-zmen.pdf'];
+  ok(POVINNA_PDF.every(n => pdfs.includes(n) && fs.readFileSync(path.join(ROOT, 'docs/specifikace-2027', n)).subarray(0, 5).toString() === '%PDF-'),
+    'oba PDF specifikace od CERMATu jsou v docs/specifikace-2027/ (zdroj pravdy pro body a–h)', 'chybí: ' + POVINNA_PDF.filter(n => !pdfs.includes(n)).join(', '));
 }
 
 /* ═══ SABOTÁŽE ═════════════════════════════════════════════════════════════════════════════════════

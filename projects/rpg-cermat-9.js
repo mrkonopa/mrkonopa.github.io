@@ -1891,7 +1891,7 @@
     const sh = volbyMC(povrch, [(k + 1) * Sp, k * Sp, 2 * k * Sp], Sp, 'jiný povrch', x => `${tis(x)} cm²`);
     return {
       no: 13, points: 2, title: 'Povrch hranolu', kind: 'mc', okruh: 'telesa',
-      svg: svgCuboid(a + ' cm', v + ' cm', a + ' cm', 1),
+      svg: svgCuboid(a + ' cm', 'v', a + ' cm', 1),            // výška se NEpopisuje číslem: je odvozená a řešení ji nepotřebuje (obrázek nesmí vyřešit krok úlohy)
       intro: `Obsah pláště pravidelného čtyřbokého hranolu je ${k}krát větší než obsah jedné podstavy tohoto hranolu. Podstavná hrana hranolu je ${a} cm.`,
       prompt: `Jaký je povrch hranolu?`,
       options: sh.labels, ans: sh.correctLetter,
