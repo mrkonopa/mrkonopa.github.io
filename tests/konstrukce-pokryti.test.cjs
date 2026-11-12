@@ -18,7 +18,13 @@ require(path.join(ROOT, 'projects/prijimacky-matematika/konstrukce-geo.js'));
 require(path.join(ROOT, 'projects/prijimacky-matematika/konstrukce-ulohy.js'));
 const K = global.window.PZ_KONSTRUKCE;
 
-const PODLAHA_ANO = 73;   // zvedni, když přibude pokrytá konstrukce (viz hlavička)
+/* Od jarního termínu 2027 specifikace CERMAT vypouští Thaletovu kružnici při konstrukci pravoúhlého trojúhelníku
+   a kružnici opsanou trojúhelníku. Tři řádky tabulky (74, 50, 20) pokrývaly typy dveThalet, thalesQ a
+   ctverecVepsany; ty zmizely, řádky jsou teď „ne“ s příznakem vypusteno2027 a podlaha spadla ze 73 na 70.
+   Další čtyři řádky (60, 56, 51, 25) pokrývaly obdelnikStrana, pravouhlyStrana, pravouhlyLichKruz a obdelnikOpsanaM,
+   které bez Thaletovy kružnice nebo kružnice procházející třemi body nejdou — podlaha 70 → 66. Je to jediný případ,
+   kdy podlaha smí klesnout (a jen proto, že se změnilo zadání, ne kód). */
+const PODLAHA_ANO = 66;   // zvedni, když přibude pokrytá konstrukce (viz hlavička)
 const POCET_RADKU = 74;   // M9 2015–2026: 74 konstrukcí na pozicích 9 a 10
 
 let pass = 0, fail = 0;

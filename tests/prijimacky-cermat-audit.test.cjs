@@ -198,8 +198,11 @@ const varianty = (poz, kolik) => {
   return s;
 };
 const v6 = varianty(6, 3000), v11 = varianty(11, 3000), v13 = varianty(13, 3000), v14 = varianty(14, 3000);
-ok(v6.has('Těžítko'), 'pozice 6 nabízí válec ve válci („Těžítko“) — [' + [...v6].join(', ') + ']');
-ok(v13.has('Povrch válce'), 'pozice 13 nabízí povrch válce (M9A/2023 ú. 13) — [' + [...v13].join(', ') + ']');
+/* Od jarního termínu 2027 specifikace CERMAT vypouští odhad a výpočet objemu a povrchu válce. Úlohy „Těžítko“ (válec ve válci),
+   „Povrch válce“ a „Dort ze dvou forem“ proto nahradily hranolové varianty téže stavby; že válec už objem ani povrch nevyžaduje,
+   hlídá tests/prijimacky-spec-2027.test.cjs. */
+ok(v6.has('Těžítko s dutinou'), 'pozice 6 nabízí hranol s dutinou (náhrada válce ve válci, specifikace 2026/2027) — [' + [...v6].join(', ') + ']');
+ok(v13.has('Povrch hranolu'), 'pozice 13 nabízí povrch hranolu (náhrada povrchu válce, specifikace 2026/2027) — [' + [...v13].join(', ') + ']');
 ok(v14.has('Kroužky') && v14.has('Návštěvnost') && v14.has('Ptačí hodinka'), 'pozice 14 nabízí TŘI úlohy se sloupcovým grafem — [' + [...v14].join(', ') + ']');
 ok(v11.has('Kruhový diagram zahrady') && v11.has('Náklad lodi'), 'pozice 11 nabízí DVĚ úlohy s kruhovým diagramem — [' + [...v11].join(', ') + ']');
 
@@ -212,7 +215,7 @@ ok(v11.has('Kruhový diagram zahrady') && v11.has('Náklad lodi'), 'pozice 11 na
    a Vybarvování měly obrázek v předloze; kvádr, krychle a plot jsou bez předlohy,
    ale tělesa a pozemky jsou v ostrých testech bez obrázku výjimka. */
 const S_OBRAZKEM = { 6: ['Přelévání vody'], 8: ['Záhon', 'Dva pozemky', 'Plot kolem pozemku'],
-  11: ['Kvádry', 'Krychle'], 12: ['Dort ze dvou forem'], 16: ['Vybarvování sítě'] };
+  11: ['Kvádry', 'Krychle'], 12: ['Dort z hranolových forem'], 16: ['Vybarvování sítě'] };
 const bezObrazku = [];
 for (const [poz, tituly] of Object.entries(S_OBRAZKEM)) for (const tit of tituly) {
   let t = null;
@@ -237,16 +240,15 @@ ok(p13 >= 0.45, 'pozice 13 má obrázek v ' + Math.round(100 * p13) + ' % úloh 
    se slovem válec / graf / diagram najde přesně 5 + 5 variant (ověřeno
    výpisem titulů), takže nová varianta se započte sama. */
 const znení = t => [t.intro, t.prompt].concat((t.parts || []).map(p => p.prompt), (t.statements || []).map(x => x.text), t.prompts || []).join(' ');
-const jeValec = t => /válc|válec/i.test(znení(t)), jeGraf = t => /graf|diagram/i.test(znení(t));
-let sValcem = 0, sGrafem = 0;
+const jeGraf = t => /graf|diagram/i.test(znení(t));
+let sGrafem = 0;
 const BEHU = 400;
 for (let i = 0; i < BEHU; i++) {
   const t = C.generate();
-  if (t.some(jeValec)) sValcem++;
   if (t.some(jeGraf)) sGrafem++;
 }
-const pV = 100 * sValcem / BEHU, pG = 100 * sGrafem / BEHU;
-ok(pV >= 35, 'válcová úloha je v ' + pV.toFixed(1) + ' % testů (podlaha 35 %, naměřeno 51–59)');
+// Podíl testů s válcem se od 2026/2027 nehlídá (objem a povrch válce jsou vypuštěny); jeho nepřítomnost hlídá prijimacky-spec-2027.
+const pG = 100 * sGrafem / BEHU;
 ok(pG >= 48, 'úloha s grafem nebo diagramem je v ' + pG.toFixed(1) + ' % testů (podlaha 48 %, naměřeno 52–61)');
 
 console.log(`\n  ${pass} ✅ / ${fail} ❌  (${RUNS} vygenerovaných testů)`);

@@ -675,7 +675,7 @@
     mocninaVyraz: ['Nejdřív mocnina, až potom násobení a odčítání.', 'Spočítej zvlášť a², zvlášť b·c, a teprve pak odečti.'],
     mocnina10: ['Mocnina desíti = jednička a za ní tolik nul, kolik je exponent.', '10³ = 1 000 (tři nuly). Napiš 1 a doplň nuly.'],
     kvadratSouctu: ['Nejdřív sečti závorku, pak umocni.', 'Spočítej (a+b) a výsledek vynásob sám sebou.'],
-    odmocninaSoucin: ['Odmocnina ze součinu = součin odmocnin.', '√(a²·b²) = a·b — najdi obě odmocniny a vynásob je.'],
+    odmocninaDesetinna: ['Hledáš číslo, které po vynásobení samo sebou dá číslo pod odmocninou.', 'U desetinných čísel počítej desetinná místa: 0,7 · 0,7 = 0,49 (dvě místa), takže √0,49 = 0,7.'],
     poradiOperaci: ['Pořadí: mocniny a odmocniny → násobení → sčítání a odčítání.', 'Spočítej zvlášť a², zvlášť b·c, zvlášť odmocninu; pak teprve sečti a odečti.'],
     rozdilMocnin: ['Obě mocniny spočítej zvlášť, pak teprve odečti.', 'Urči a² a b², větší mínus menší.'],
     // ── zlomky ──

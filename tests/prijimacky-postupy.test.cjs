@@ -78,7 +78,8 @@ const podilSvg = 100 * sPodilem / zCermat;
 // spadne na 14,9 %, proto podlaha 16 %: pod naměřeným minimem s rezervou 2,5 bodu
 // a zároveň nad hodnotou rozbitého stavu. Ověřeno z OBOU stran.
 ok(podilSvg >= 16, 'nákres má ' + podilSvg.toFixed(1) + ' % zadání testu (podlaha 16 %)');
-ok(svgPouzite.size >= 3, 'používají se aspoň 3 různé nákresy: ' + [...svgPouzite].join(', '));
+// Od 2026/2027 bez svgCylinder (válec vypuštěn): zbývají svgCuboid a svgTriangle, tedy aspoň 2 různé nákresy z hotových kreseb.
+ok(svgPouzite.size >= 2, 'používají se aspoň 2 různé nákresy: ' + [...svgPouzite].join(', '));
 
 /* ════════ 2) KAŽDÉ ZADÁNÍ MÁ POSTUP ════════ */
 const bezPostupu = polozky.filter(p => solSteps(p.sol).length === 0);

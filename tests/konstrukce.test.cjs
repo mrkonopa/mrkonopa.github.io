@@ -68,7 +68,7 @@ const vysledek=page=>page.evaluate(()=>{ const v=document.querySelector('#kn-vys
   // tloušťka čar: tlačítko střídá tenké / střední / silné, mění vykreslenou šířku čáry i zapamatuje volbu v zařízení
   { const sirka = () => page.evaluate(() => parseFloat(getComputedStyle(document.querySelector('#kn-svg .kn-d')).strokeWidth));
     const cary = () => page.evaluate(() => ({ t: document.querySelector('[data-a="cary"]').textContent, u: localStorage.getItem('PZ_KN_CARY') }));
-    await nova(page, 'thales');   // úloha s úsečkou a přímkou; první úloha z losu závisí na počtu typů a čáru mít nemusí
+    await nova(page, 'vyska');   // úloha s úsečkou a přímkou; první úloha z losu závisí na počtu typů a čáru mít nemusí
     const w0 = await sirka(), c0 = await cary();
     await page.click('[data-a="cary"]'); const w1 = await sirka(), c1 = await cary();
     await page.click('[data-a="cary"]'); const w2 = await sirka(), c2 = await cary();
@@ -108,9 +108,23 @@ const vysledek=page=>page.evaluate(()=>{ const v=document.querySelector('#kn-vys
   const pocitadlo=await page.evaluate(()=>[document.getElementById('kn-ok').textContent,document.getElementById('kn-total').textContent]);
   ok(pocitadlo[0]===String(typy.length)&&pocitadlo[1]===String(typy.length),'počítadlo „správně X z Y" = '+pocitadlo.join(' z '));
 
-  // 2) Thales poctivě: bod S doprostřed AB, kružítko z S přes A, body na průsečíky
+  // 2) Kružítko a přichytávání poctivě: bod S doprostřed AB, kružítko z S přes A, body na průsečíky.
+  //    Úloha je TESTOVACÍ (dřívější typ „thales“, ze specifikace 2026/2027 vypuštěný): kružnice nad průměrem AB
+  //    protíná přímku p ve dvou bodech. Mechanika rýsování na pojmu nezávisí, proto ji test drží dál.
   {
-    const u=await nova(page,'thales');
+    await page.evaluate(()=>{
+      PZ_KONSTRUKCE.GENERATORY.testKruznice=()=>{
+        const G=PZ_GEO, A=G.bod(70,150), B=G.bod(250,170), S=G.stred(A,B), r=G.vzdal(A,B)/2;
+        const p={p:G.bod(40,215),q:G.bod(360,205)}, X=G.prusecikyPK(p.p,p.q,S,r);
+        const bod=(q,popis)=>({typ:'bod',p:q,popis}), kr=(c,rr)=>({typ:'kruznice',c,r:rr});
+        return { typ:'testKruznice', nazev:'Kružnice nad AB a přímka p', text:'Jsou dány body A, B a přímka p. Sestrojte kružnici s průměrem AB a najděte její průsečíky C s přímkou p. Najděte všechna řešení.',
+          dane:{ body:{A,B}, primky:[Object.assign({nazev:'p'},p)], usecky:[{p:A,q:B}] }, hledane:['C'], reseni:[{C:X[0]},{C:X[1]}], pomocne:[S],
+          postup:[{text:'Najděte střed S úsečky AB.',tvary:[bod(S,'S')]},{text:'Narýsujte kružnici se středem S a poloměrem |SA|.',tvary:[kr(S,r)]},{text:'Průsečíky kružnice s přímkou p jsou C₁ a C₂.',tvary:[bod(X[0],'C₁'),bod(X[1],'C₂')]}],
+          napovedy:['Kde leží střed kružnice s průměrem AB?','Střed je uprostřed AB, poloměr je |SA|.','Hledané body jsou průsečíky kružnice s přímkou p.'] };
+      };
+      const o=document.createElement('option'); o.value='testKruznice'; o.textContent='test'; document.getElementById('kn-typ').appendChild(o);
+    });
+    const u=await nova(page,'testKruznice');
     const {A,B}=u.dane.body, S={x:(A.x+B.x)/2,y:(A.y+B.y)/2};
     await nastroj(page,'bod'); await klik(page,S);
     await nastroj(page,'kruzitko'); await tah(page,[S,{x:(S.x+A.x)/2,y:(S.y+A.y)/2},A]);
@@ -126,7 +140,8 @@ const vysledek=page=>page.evaluate(()=>{ const v=document.querySelector('#kn-vys
     ok(X.length===2&&X.every(x=>body.some(p=>d(p,x)<1e-9)),'klepnutí kousek vedle průsečíku kružnice s p skočí přesně na průsečík ('+X.length+' průsečíky)');
     await page.click('#kn-vyhodnot');
     const v=await vysledek(page);
-    ok(v&&v.ok&&/všechna řešení \(2\)/.test(v.t),'Thales pravítkem a kružítkem → „Správně, všechna řešení (2)"');
+    ok(v&&v.ok&&/všechna řešení \(2\)/.test(v.t),'kružnice nad AB pravítkem a kružítkem → „Správně, všechna řešení (2)"');
+    await page.evaluate(()=>{ const o=document.querySelector('#kn-typ option[value="testKruznice"]'); if(o) o.remove(); });
   }
 
   // 3) část řešení: jedno ze dvou → „1 z 2", a opakované vyhodnocení se nepočítá znovu
