@@ -230,10 +230,15 @@ h4{font-family:var(--px);font-size:12px;font-weight:700;color:var(--accent);lett
 .ic-uchyt:focus-visible{outline:3px solid #fff;outline-offset:2px}
 .ic-roh{position:absolute;right:0;bottom:0;z-index:2;width:22px;height:22px;cursor:nwse-resize;touch-action:none;background:linear-gradient(135deg,transparent 50%,var(--accent) 50% 58%,transparent 58% 72%,var(--accent) 72% 80%,transparent 80%)}
 .ic-uprava>.ic-panel{outline:2px dashed var(--accent);outline-offset:-2px}
-.ic-uprava>.ic-panel h2{padding-right:42px}
+.ic-uprava>.ic-panel h2{padding-right:86px}
+.ic-odeber{position:absolute;top:6px;right:46px;z-index:2;width:34px;height:34px;border:1px solid var(--red);border-radius:4px;background:var(--panel2);color:var(--red);font-size:16px;line-height:1;cursor:pointer;padding:0}
+.ic-odeber:focus-visible{outline:3px solid #fff;outline-offset:2px}
+.ic-nabidka{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;background:var(--panel2);border:1px solid var(--gold);border-radius:6px;padding:8px 12px;margin-bottom:12px;font-size:14px}
+.ic-nabidka[hidden]{display:none}
+#ic-root.ic-proj .ic-nabidka{font-size:clamp(15px,1.3vw,24px)}
 .ic-uprava>.ic-taha{outline-style:solid;z-index:3;box-shadow:0 0 18px #19e6e655}
-@media(pointer:coarse){.ic-uchyt{width:44px;height:44px}.ic-roh{width:40px;height:40px}}
-@media(max-width:899px){#ic-uprav,#ic-vychozi{display:none!important}}
+@media(pointer:coarse){.ic-uchyt{width:44px;height:44px}.ic-roh{width:40px;height:40px}.ic-odeber{width:44px;height:44px;right:56px}.ic-uprava>.ic-panel h2{padding-right:108px}}
+@media(max-width:899px){#ic-uprav,#ic-vychozi,#ic-pridat,#ic-ulozit-sc,#ic-smazat-sc{display:none!important}}
 .ic-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 .ic-panel{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:14px;container-type:inline-size}
 .ic-panel h2{margin:0 0 12px;font-size:13px;letter-spacing:2px;color:var(--muted);font-weight:700;text-transform:uppercase;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
@@ -527,14 +532,19 @@ h4{font-family:var(--px);font-size:12px;font-weight:700;color:var(--accent);lett
     <div class="controls" id="ic-ovl">
      <select id="ic-class" aria-label="Infocentrum: třída"></select>
      <select id="ic-game" aria-label="Infocentrum: hra (ročník)"></select>
+     <select id="ic-scenar" aria-label="Infocentrum: scénář (rozložení panelů)"></select>
      <button class="mini" id="ic-nova" type="button">↻ Nová hodina</button>
      <button class="mini gold" id="ic-full" type="button">⛶ Na celou obrazovku (F)</button>
      <button class="mini" id="ic-uprav" type="button" aria-pressed="false">✎ Upravit rozložení</button>
+     <select id="ic-pridat" aria-label="Přidat panel do rozložení" hidden></select>
+     <button class="mini" id="ic-ulozit-sc" type="button" hidden>💾 Uložit jako scénář…</button>
+     <button class="mini" id="ic-smazat-sc" type="button" hidden>🗑 Smazat scénář</button>
      <button class="mini" id="ic-vychozi" type="button" hidden>↺ Výchozí rozložení</button>
      <span class="sp"></span>
      <span class="ic-chip" id="ic-stav">—</span>
     </div>
     <div class="info-box" id="ic-info"><b>📡 Infocentrum</b> — pro dataprojektor při hodině. Ukazuje, co žáci <b>v této hodině</b> splnili (úkoly a mise od otevření záložky nebo od „Nová hodina“), řazeno podle toho. Žádné počty chyb. Obnova každých ~6 s z uložených postav. Cíl hodiny se nastavuje sám: 10 úkolů na hráče ve hře.</div>
+    <div class="ic-nabidka" id="ic-nabidka" role="status" hidden><span>Začal týmový souboj. Přepnout rozložení na „Týmový souboj“?</span><button class="mini gold" id="ic-nab-ano" type="button">Přepnout</button><button class="mini" id="ic-nab-ne" type="button">Ne, díky</button></div>
     <div class="ic-hlava"><h1 id="ic-nadpis">INFO<em>CENTRUM</em></h1><span class="ic-chip" id="ic-hod">—</span></div>
     <div class="ic-main" id="ic-grid">
     <section class="ic-panel" id="ic-tymy" data-ic-panel="tymy" hidden><h2>Týmy <span id="ic-tinfo">živý souboj</span></h2>
@@ -2348,11 +2358,14 @@ const NAPOVEDA = [
    '<p><b>Cíl hodiny</b> se nastavuje sám: 10 úkolů na každého hráče ve hře. Po jeho splnění třída postoupí na další stupeň a na plátně se krátce přehraje animace. '+
    '<b>Týmy</b> se ukážou, jen když běží živý souboj v týmovém režimu.</p>'+
    '<p>Data se berou z uložených postav každých ~6 s (hra je ukládá po každém úkolu), takže „právě hraje“ = uloženo za posledních 3 minuty. '+
-   'Co infocentrum neumí: ukázat, <b>v které misi žák právě je</b> — vidíš jen poslední splněnou.</p>'+
+   'Hrající žák má na kartě i <b>místo, kde právě je</b> (např. „boj 2-1“); u nehrajícího se nic neukazuje.</p>'+
    '<p><b>Rozložení panelů</b> (na šířku od 900 px): „✎ Upravit rozložení“ ukáže u každého panelu úchyt <b>⠿</b>. Tažením (myší nebo prstem) panel přesuneš, rohem změníš velikost; '+
    'z klávesnice na úchytu <b>šipky</b> přesouvají a <b>Shift + šipky</b> mění velikost. Panely se nepřekrývají a volné místo se samo zaplní. '+
    '„🔒 Hotovo“ rozložení zamkne, aby se na projektoru nic nepohnulo omylem; „↺ Výchozí rozložení“ vrátí původní. '+
-   'Rozložení se pamatuje <b>jen v tomto zařízení</b> pro každou třídu zvlášť.</p>' },
+   'Rozložení se pamatuje <b>jen v tomto zařízení</b> pro každou třídu zvlášť.</p>'+
+   '<p><b>Scénáře</b>: v nabídce vedle třídy a hry vybereš rozložení pro danou činnost — „Samostatná práce“, „Týmový souboj“ nebo vlastní. '+
+   'V úpravách jde panel odebrat tlačítkem <b>✕</b> a vrátit přes „＋ Přidat panel…“; „💾 Uložit jako scénář…“ uloží právě zobrazené rozložení pod tvým názvem. '+
+   'Když začne týmový souboj, konzole <b>jen nabídne</b> přepnutí na „Týmový souboj“, sama nic nepřepne.</p>' },
 
  { id:'leaderboard', nadpis:'Žebříčky', kdo:'učitel i superadmin', text:
    '<p>Pořadí žáků podle XP v daném ročníku. Pozor na rozdíl: <b>žák ve hře vidí jen své spolužáky</b> '+
@@ -2409,7 +2422,7 @@ const NAPOVEDA = [
 /* ══ INFOCENTRUM HODINY ═══════════════════════════════════════════════
    Logika (výpočty, události, cíl) je v `rpg-infocentrum.js` (RPGInfo) a má vlastní Node test;
    tady je jen načítání a vykreslení. Jména žáků se vkládají VÝHRADNĚ přes textContent. */
-const IC={uprava:false,timer:null,bezi:false,stavy:{},pamet:{},zaklad:{},cil:null,start:0,cid:'',game:'',cursor:'',udal:[],tik:0,bojId:null,poradi:[]};
+const IC={uprava:false,nabidkaBoj:null,timer:null,bezi:false,stavy:{},pamet:{},zaklad:{},cil:null,start:0,cid:'',game:'',cursor:'',udal:[],tik:0,bojId:null,poradi:[]};
 const IC_KLIC='RPG_INFOCENTRUM';
 function icUloz(){try{localStorage.setItem(IC_KLIC,JSON.stringify({cid:IC.cid,game:IC.game,start:IC.start,zaklad:IC.zaklad,cil:IC.cil}));}catch(e){}}
 function icNacti(){try{const o=JSON.parse(localStorage.getItem(IC_KLIC)||'null');
@@ -2418,16 +2431,41 @@ const icEl=id=>document.getElementById(id);
 /* Rozložení panelů (rpg-infocentrum-mrizka.js): úprava jen na požádání, uložené v tomto zařízení pro třídu a scénář */
 let icMr=null;
 function icMrizka(){
- if(!icMr&&window.RPGInfoGrid&&icEl('ic-grid'))icMr=RPGInfoGrid.pripoj(icEl('ic-grid'),{zprava:t=>{const l=icEl('ic-live');l.textContent='';setTimeout(()=>{l.textContent=t;},30);}});
+ if(!icMr&&window.RPGInfoGrid&&icEl('ic-grid'))icMr=RPGInfoGrid.pripoj(icEl('ic-grid'),{zprava:t=>{const l=icEl('ic-live');l.textContent='';setTimeout(()=>{l.textContent=t;},30);},onZmena:()=>icScenare()});
  return icMr;
+}
+/* Scénáře: výběr, přidání odebraného panelu, uložení a smazání vlastního scénáře; jména jen přes textContent (píše je učitel) */
+function icScenare(){
+ const m=icMr;if(!m)return;
+ const s=m.scenare(),sel=icEl('ic-scenar');
+ sel.innerHTML='';s.seznam.forEach(x=>{const o=document.createElement('option');o.value=x.id;o.textContent=x.nazev;sel.appendChild(o);});sel.value=s.aktivni;
+ const ch=m.chybejici(),pr=icEl('ic-pridat');
+ pr.innerHTML='';const h=document.createElement('option');h.value='';h.textContent='＋ Přidat panel…';pr.appendChild(h);
+ ch.forEach(x=>{const o=document.createElement('option');o.value=x.id;o.textContent=x.nazev;pr.appendChild(o);});pr.value='';
+ pr.hidden=!(IC.uprava&&ch.length);
+ icEl('ic-ulozit-sc').hidden=!IC.uprava;
+ const akt=s.seznam.find(x=>x.id===s.aktivni);icEl('ic-smazat-sc').hidden=!(IC.uprava&&akt&&akt.vlastni);
+ icNabidka();
+}
+/* Při začátku týmového souboje se přepnutí scénáře jen NABÍDNE (Vojtovo rozhodnutí 10. 11. 2026); „Ne“ platí pro tento souboj */
+function icNabidka(){
+ const box=icEl('ic-nabidka');if(!box)return;
+ const bezi=!!(IC.bojId&&IC.bojFaze&&IC.bojFaze!=='finished');
+ box.hidden=!(bezi&&icMr&&icMr.scenare().aktivni!=='souboj'&&IC.nabidkaBoj!==IC.bojId);
 }
 function icUprava(zap){
  IC.uprava=!!zap;const m=icMrizka();if(m)m.uprav(IC.uprava);
- const b=icEl('ic-uprav');b.setAttribute('aria-pressed',String(IC.uprava));b.textContent=IC.uprava?'🔒 Hotovo – zamknout':'✎ Upravit rozložení';icEl('ic-vychozi').hidden=!IC.uprava;
+ const b=icEl('ic-uprav');b.setAttribute('aria-pressed',String(IC.uprava));b.textContent=IC.uprava?'🔒 Hotovo – zamknout':'✎ Upravit rozložení';icEl('ic-vychozi').hidden=!IC.uprava;icScenare();
 }
 function initInfocentrum(){
  const sc=icEl('ic-class'),sg=icEl('ic-game');
  icMrizka();icEl('ic-uprav').onclick=()=>icUprava(!IC.uprava);icEl('ic-vychozi').onclick=()=>{if(icMr)icMr.obnov();};
+ icEl('ic-scenar').onchange=e=>{if(icMr)icMr.prepniScenar(e.target.value);};
+ icEl('ic-pridat').onchange=e=>{if(icMr&&e.target.value)icMr.pridejPanel(e.target.value);};
+ icEl('ic-ulozit-sc').onclick=()=>{if(!icMr)return;const n=prompt('Název nového scénáře — uloží se do něj právě zobrazené rozložení:');if(n===null)return;const r=icMr.novyScenar(n);toast(r.ok?'Scénář je uložen.':r.chyba,!r.ok);};
+ icEl('ic-smazat-sc').onclick=()=>{if(!icMr)return;const a=icMr.scenare(),x=a.seznam.find(q=>q.id===a.aktivni);if(x&&x.vlastni&&confirm('Smazat scénář „'+x.nazev+'“? Jeho rozložení se smaže u všech tříd.'))icMr.smazScenar(x.id);};
+ icEl('ic-nab-ano').onclick=()=>{IC.nabidkaBoj=IC.bojId;if(icMr)icMr.prepniScenar('souboj');icNabidka();};
+ icEl('ic-nab-ne').onclick=()=>{IC.nabidkaBoj=IC.bojId;icNabidka();};
  if(!sg.options.length)GAMES.forEach(g=>{const o=document.createElement('option');o.value=g.key;o.textContent=g.emoji+' '+g.nm+' ('+g.gr+')';sg.appendChild(o);});
  const tridy=activeClasses(),minule=sc.value;
  sc.innerHTML='';tridy.forEach(c=>{const o=document.createElement('option');o.value=c.id;o.textContent='🏫 '+classLabel(c);sc.appendChild(o);});
@@ -2444,7 +2482,7 @@ function infoStop(){if(IC.timer){clearInterval(IC.timer);IC.timer=null;}if(IC.ty
 function icZacni(){
  infoStop();
  IC.cid=icEl('ic-class').value;IC.game=icEl('ic-game').value;
- if(icMr)icMr.nacti(RPGInfoGrid.klicUloziste(IC.cid,'hodina'));
+ if(icMr)icMr.nacti(IC.cid);
  IC.stavy={};IC.pamet={};IC.cursor='';IC.udal=[];IC.tik=0;IC.bojId=null;IC.bojFaze=null;IC.tymBezi=false;IC.poradi=[];icEl('ic-cards').innerHTML='';icEl('ic-feed').innerHTML='';
  const c=activeClasses().find(x=>x.id===IC.cid),g=gMeta(IC.game);
  icEl('ic-nadpis').innerHTML='INFO<em>CENTRUM</em> · '+esc(c?classLabel(c):'—')+' · '+esc(g.nm);
@@ -2560,7 +2598,7 @@ async function icTymy(){
   icTymRadky(icEl('ic-tn1'),t.modryHraci);icTymRadky(icEl('ic-tn2'),t.cervenyHraci);
   icTymHlava(icEl('ic-tp1'),t.modryHraci,t.faze);icTymHlava(icEl('ic-tp2'),t.cervenyHraci,t.faze);
  }catch(e){sek.hidden=true;console.warn('[infocentrum] týmy',e);}
- finally{IC.tymBezi=false;}
+ finally{IC.tymBezi=false;icNabidka();}
 }
 function icOslava(stupen){
  const l=icEl('ic-lv');l.querySelectorAll('.ic-px').forEach(x=>x.remove());icEl('ic-lvh').textContent='STUPEŇ '+stupen;
@@ -2714,7 +2752,7 @@ document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
 <script src="vendor/supabase-js-2.118.0.js"></script>
 <script src="./rpg-cloud.js"></script>
 <script src="./rpg-infocentrum.js?v=20261108"></script>
-<script src="./rpg-infocentrum-mrizka.js?v=20261110"></script>
+<script src="./rpg-infocentrum-mrizka.js?v=20261111"></script>
 <script>boot();</script>
 </body>
 </html>

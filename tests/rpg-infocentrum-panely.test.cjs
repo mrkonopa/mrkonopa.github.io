@@ -17,7 +17,10 @@
      9. projektor (celá obrazovka): úpravy se vypnou a úchyty zmizí; zpět se úpravy samy nevrátí
     10. velká třída: panel se při 40 žácích rolují, poslední karta je dosažitelná, stránka nepřetéká
     11. odchod ze záložky úpravy zamkne a schovaná záložka panely nesmrští
-   Sabotáže (13): bez mřížky, úchyty vždy vidět, tažení se neukládá, klávesnice odpojená, jeden klíč pro všechny třídy,
+    12. scénáře: výběr, pamatování po třídách i po obnovení, vlastní scénář (jméno s HTML jako text), duplicitní název, smazání
+    13. odebrání a vrácení panelu (tlačítko ✕, Enter, nabídka „Přidat panel“, úložiště, scénáře, „Výchozí rozložení“)
+    14. nabídka přepnutí při začátku týmového souboje: nepřepne sama, „Ne, díky“ platí pro souboj, další souboj ji nabídne znovu
+   Sabotáže (18): bez mřížky, úchyty vždy vidět, tažení se neukládá, klávesnice odpojená, jeden klíč pro všechny třídy,
    projektor úpravy nevypne, úzké okno s mřížkou, odchod ze záložky nezamkne, schovaný panel zabírá místo, nevykreslený obsah se měří, výška se neřídí obsahem,
    ruční výška se neukládá, klávesnice bez věty pro čtečku.
    Spusť: node tests/rpg-infocentrum-panely.test.cjs
@@ -26,7 +29,7 @@
 const { chromium } = require('playwright');
 const { mock, server, baseOf } = require('./ic-konzole-mock.cjs');
 const LAUNCH = { executablePath: '/opt/pw-browsers/chromium-1194/chrome-linux/chrome' };
-const PODLAHA = 79;                                               // naměřeno
+const PODLAHA = 125;                                              // naměřeno
 
 const sy = (() => { const d = new Date(); return d.getMonth() >= 8 ? d.getFullYear() : d.getFullYear() - 1; })();
 const ted = () => new Date().toISOString();
@@ -62,7 +65,7 @@ async function otevri(br, base, volby, o) {
   return { ctx, p, chyby };
 }
 const cekejKarty = (p, n, cid) => p.waitForFunction(([n2, c]) => document.querySelectorAll('#ic-cards .ic-card').length === n2 && (!c || IC.cid === c), [n, cid || null], { timeout: 10000 });
-const panely = p => p.evaluate(() => Object.fromEntries([...document.querySelectorAll('#ic-grid [data-ic-panel]')].filter(e => !e.hidden).map(e => { const b = e.getBoundingClientRect(); return [e.dataset.icPanel, { l: b.left, t: b.top, r: b.right, b: b.bottom, w: b.width, h: b.height }]; })));
+const panely = p => p.evaluate(() => Object.fromEntries([...document.querySelectorAll('#ic-grid [data-ic-panel]')].filter(e => !e.hidden && getComputedStyle(e).display !== 'none').map(e => { const b = e.getBoundingClientRect(); return [e.dataset.icPanel, { l: b.left, t: b.top, r: b.right, b: b.bottom, w: b.width, h: b.height }]; })));
 const bunky = p => p.evaluate(() => { const g = document.getElementById('ic-grid'), cs = getComputedStyle(g), mz = parseFloat(cs.columnGap) || 0; const b = g.getBoundingClientRect(); return { sl: (b.width + mz) / 12, ra: (parseFloat(cs.gridAutoRows) || 36) + (parseFloat(cs.rowGap) || 0), l: b.left, t: b.top, w: b.width }; });
 const prekryvy = pn => { const k = Object.keys(pn), v = []; for (let i = 0; i < k.length; i++) for (let j = i + 1; j < k.length; j++) { const a = pn[k[i]], b = pn[k[j]]; if (a.l < b.r - 0.5 && b.l < a.r - 0.5 && a.t < b.b - 0.5 && b.t < a.b - 0.5) v.push(k[i] + '/' + k[j]); } return v; };
 const pretec = p => p.evaluate(() => document.documentElement.scrollWidth - innerWidth);
@@ -71,6 +74,17 @@ const zapniUpravu = async p => { await p.click('#ic-uprav'); await p.waitForFunc
 const vychoziPol = pn => ({ kdoL: Math.round(pn.kdo.l), kdoW: Math.round(pn.kdo.w) });
 const ulozeno = p => p.evaluate(() => localStorage.getItem('RPG_INFOCENTRUM_ROZLOZENI'));
 const tahni = async (p, od, doo, kroku) => { await p.mouse.move(od.x, od.y); await p.mouse.down(); for (let i = 1; i <= (kroku || 6); i++) await p.mouse.move(od.x + (doo.x - od.x) * i / (kroku || 6), od.y + (doo.y - od.y) * i / (kroku || 6)); };
+
+const znovu = async (p, n) => { await p.reload(); await p.waitForFunction(() => !document.getElementById('console').classList.contains('hidden')); await p.click('.tab[data-tab="infocentrum"]'); await cekejKarty(p, n || 6); await p.evaluate(() => infoStop()); };
+/* souboj v týmovém režimu: stav `status` pod id; `bezici` = id, které server hlásí jako běžící */
+const souboj = (p, id, status, bezici) => p.evaluate(([id2, st, bz]) => {
+  const t = new Date().toISOString();
+  __db.stavyPodleId = Object.assign(__db.stavyPodleId || {}, { [id2]: { battle: { team_mode: true, status: st, q_index: 1 }, teams: { 0: 5, 1: 4 }, players: [
+    { team: 0, display_name: 'Anna Nováková', score: 9, correct_count: 1, last_qi: 1, last_seen: t }, { team: 1, display_name: 'Adam Hrubý', score: 8, correct_count: 1, last_qi: 1, last_seen: t }] } });
+  __db.bitvy = (bz || []).map(x => ({ id: x, game: 'RPG_MAT_8', status: 'active' }));
+}, [id, status, bezici]);
+const nabidkaVidet = p => p.evaluate(() => !document.getElementById('ic-nabidka').hidden);
+const aktivni = p => p.evaluate(() => icMr.scenare().aktivni);
 
 const ODDILY = {
   /* 1 — výchozí rozložení */
@@ -259,7 +273,7 @@ const ODDILY = {
     await p.waitForTimeout(80);
     const s = await panely(p), b = await bunky(p);
     ok(Object.keys(s).length === 4 && prekryvy(s).length === 0, 'Týmy: čtyři panely bez překryvu', prekryvy(s).join());
-    ok(s.tymy.t < s.kdo.t && Math.abs(s.tymy.w - b.w) < 2 && s.tymy.t <= bez.kdo.t + 1, 'Týmy: jsou nahoře přes celou šířku', JSON.stringify([s.tymy.t, s.tymy.w, b.w]));
+    ok(s.tymy.t < s.kdo.t && Math.abs(s.tymy.w - b.w) < 2 && Math.abs(s.tymy.t - b.t) < 2, 'Týmy: jsou nahoře přes celou šířku', JSON.stringify([s.tymy.t, s.tymy.w, b.w, b.t]));
     ok(s.kdo.t >= s.tymy.b && s.trida.t >= s.tymy.b, 'Týmy: ostatní panely ustoupily pod ně', JSON.stringify([s.tymy.b, s.kdo.t]));
     await p.evaluate(() => { __db.bitvy = []; __db.stavBitvy = { battle: { team_mode: false }, teams: null, players: [] }; IC.bojId = null; });
     await p.evaluate(() => icTymy());
@@ -333,6 +347,127 @@ const ODDILY = {
     ok(vych.rol <= 1 && Math.abs(vych.panel - a.panel) < 2, '„Výchozí rozložení“ vrátí výšku podle obsahu', JSON.stringify(vych));
     await ctx.close();
   },
+  /* 12 — scénáře: výběr, pamatování po třídách, vlastní scénář, smazání */
+  async scenare(br, base) {
+    const { ctx, p, chyby } = await otevri(br, base);
+    const moznosti = () => p.evaluate(() => ({ op: [...document.querySelectorAll('#ic-scenar option')].map(o => o.textContent), v: document.getElementById('ic-scenar').value }));
+    let s = await moznosti();
+    ok(s.op.join('|') === 'Samostatná práce|Týmový souboj' && s.v === 'hodina', 'scénáře: v nabídce Samostatná práce a Týmový souboj, výchozí je Samostatná práce', JSON.stringify(s));
+    const vych = await panely(p);
+    await p.selectOption('#ic-scenar', 'souboj'); await p.waitForTimeout(200);
+    const sb = await panely(p);
+    ok(!sb.trida && !!sb.kdo && !!sb.deje && prekryvy(sb).length === 0, 'scénáře: Týmový souboj schová Třídu dohromady a nic se nepřekrývá', Object.keys(sb).join() + ' ' + prekryvy(sb).join());
+    ok(Math.abs(sb.deje.t - sb.kdo.t) < 2 && sb.deje.l > sb.kdo.r, 'scénáře: v Týmovém souboji stojí Děje se vedle Kdo hraje', JSON.stringify([sb.kdo.t, sb.deje.t]));
+    ok(JSON.parse(await ulozeno(p)).a.c1 === 'souboj', 'scénáře: aktivní scénář třídy se uloží');
+    await znovu(p);
+    ok(await aktivni(p) === 'souboj' && !(await panely(p)).trida, 'scénáře: po obnovení stránky zůstane Týmový souboj', await aktivni(p));
+    await p.selectOption('#ic-class', 'c2'); await cekejKarty(p, 2, 'c2'); await p.waitForTimeout(150);
+    ok(await aktivni(p) === 'hodina' && !!(await panely(p)).trida, 'scénáře: jiná třída má vlastní aktivní scénář (Samostatná práce)', await aktivni(p));
+    await p.selectOption('#ic-class', 'c1'); await cekejKarty(p, 6, 'c1'); await p.waitForTimeout(150);
+    ok(await aktivni(p) === 'souboj', 'scénáře: po návratu na původní třídu se vrátí její scénář');
+    await p.selectOption('#ic-scenar', 'hodina'); await p.waitForTimeout(150);
+    const zpet = await panely(p);
+    ok(Math.abs(zpet.trida.l - vych.trida.l) < 2 && Math.abs(zpet.kdo.w - vych.kdo.w) < 2, 'scénáře: zpět na Samostatnou práci se vrátí její rozložení', (zpet.trida.l - vych.trida.l).toFixed(1));
+    await zapniUpravu(p);
+    ok(await p.evaluate(() => document.getElementById('ic-smazat-sc').offsetParent === null) && await p.evaluate(() => document.getElementById('ic-ulozit-sc').offsetParent !== null), 'scénáře: u vestavěného scénáře je „Smazat“ schované, „Uložit jako scénář“ vidět');
+    await p.focus('[data-ic-panel=trida] .ic-uchyt'); await p.keyboard.press('ArrowLeft');
+    const upraveno = await panely(p);
+    const jmeno = '<img src=x onerror=__xss=1>';
+    p.once('dialog', d => d.accept(jmeno));
+    await p.click('#ic-ulozit-sc'); await p.waitForTimeout(200);
+    s = await moznosti();
+    ok(s.op.length === 3 && s.op[2] === jmeno && s.v !== 'hodina' && s.v !== 'souboj', 'scénáře: nový scénář je v nabídce, vybraný, jeho jméno je jen text (bez HTML)', JSON.stringify(s));
+    ok(await p.evaluate(() => window.__xss === undefined && !document.querySelector('#ic-scenar img')), 'scénáře: jméno scénáře s HTML se nevykoná');
+    const idVlastni = s.v;
+    ok(await p.evaluate(() => document.getElementById('ic-smazat-sc').offsetParent !== null), 'scénáře: u vlastního scénáře je „Smazat“ vidět');
+    ok(Math.abs((await panely(p)).trida.l - upraveno.trida.l) < 2, 'scénáře: nový scénář začíná rozložením, které bylo zobrazené', ((await panely(p)).trida.l - upraveno.trida.l).toFixed(1));
+    await znovu(p);
+    ok(await aktivni(p) === idVlastni && Math.abs((await panely(p)).trida.l - upraveno.trida.l) < 2, 'scénáře: rozložení nového scénáře je uložené hned při vytvoření (přežije obnovení)', await aktivni(p) + ' ' + ((await panely(p)).trida.l - upraveno.trida.l).toFixed(1));
+    await zapniUpravu(p);
+    await p.focus('[data-ic-panel=trida] .ic-uchyt'); await p.keyboard.press('ArrowLeft');
+    const vlastniRozlozeni = await panely(p);
+    ok(vlastniRozlozeni.trida.l < upraveno.trida.l - 5, 'scénáře: úprava ve vlastním scénáři posune panel dál', (vlastniRozlozeni.trida.l - upraveno.trida.l).toFixed(1));
+    await p.selectOption('#ic-scenar', 'hodina'); await p.waitForTimeout(150);
+    ok(Math.abs((await panely(p)).trida.l - upraveno.trida.l) < 2, 'scénáře: úprava vlastního scénáře nezměnila Samostatnou práci', ((await panely(p)).trida.l - upraveno.trida.l).toFixed(1));
+    await p.selectOption('#ic-scenar', idVlastni); await p.waitForTimeout(150);
+    ok(Math.abs((await panely(p)).trida.l - vlastniRozlozeni.trida.l) < 2, 'scénáře: vlastní scénář si drží svou úpravu', ((await panely(p)).trida.l - vlastniRozlozeni.trida.l).toFixed(1));
+    await znovu(p);
+    s = await moznosti();
+    ok(s.op.length === 3 && s.v === idVlastni, 'scénáře: vlastní scénář i jeho výběr přežijí obnovení stránky', JSON.stringify(s));
+    await zapniUpravu(p);
+    p.once('dialog', d => d.accept(jmeno.toUpperCase()));
+    await p.click('#ic-ulozit-sc'); await p.waitForTimeout(200);
+    ok((await moznosti()).op.length === 3 && /už existuje/.test(await p.evaluate(() => document.getElementById('toast').textContent)), 'scénáře: stejný název (jinou velikostí písmen) se odmítne s hláškou');
+    p.once('dialog', d => d.dismiss());
+    await p.click('#ic-ulozit-sc'); await p.waitForTimeout(100);
+    ok((await moznosti()).op.length === 3, 'scénáře: zrušené zadání názvu nic nevytvoří');
+    p.once('dialog', d => d.accept());
+    await p.click('#ic-smazat-sc'); await p.waitForTimeout(200);
+    s = await moznosti();
+    const ul = JSON.parse(await ulozeno(p));
+    ok(s.op.length === 2 && s.v === 'hodina' && !Object.keys(ul.r).some(k => k.endsWith('|' + idVlastni)), 'scénáře: smazání vlastního scénáře ho odstraní z nabídky i z úložiště a vrátí Samostatnou práci', JSON.stringify([s, Object.keys(ul.r)]));
+    ok(chyby.length === 0, 'scénáře: žádná chyba JS', chyby.join(' | '));
+    await ctx.close();
+  },
+  /* 13 — odebrání a vrácení panelu */
+  async odebrani(br, base) {
+    const { ctx, p, chyby } = await otevri(br, base);
+    await zapniUpravu(p);
+    const tl = await p.evaluate(() => [...document.querySelectorAll('.ic-odeber')].filter(e => e.offsetParent !== null).map(e => e.getAttribute('aria-label')));
+    ok(tl.length === 3 && tl.every(t => /^Odebrat panel .+ z rozložení$/.test(t)), 'odebrání: u každého viditelného panelu je tlačítko ✕ s pojmenováním pro čtečku', JSON.stringify(tl));
+    ok(await p.evaluate(() => document.getElementById('ic-pridat').offsetParent === null), 'odebrání: dokud nic není odebrané, nabídka „Přidat panel“ není');
+    const pred = await panely(p);
+    await p.focus('[data-ic-panel=deje] .ic-odeber'); await p.keyboard.press('Enter'); await p.waitForTimeout(200);
+    const po = await panely(p);
+    ok(!po.deje && prekryvy(po).length === 0 && Math.abs((po.trida.t - po.kdo.t) - (pred.trida.t - pred.kdo.t)) < 2, 'odebrání: Enter na ✕ panel odebere, ostatní zůstanou bez překryvu a na místě', Object.keys(po).join());
+    const nab = await p.evaluate(() => [...document.querySelectorAll('#ic-pridat option')].map(o => o.textContent));
+    ok(nab.join('|') === '＋ Přidat panel…|Děje se', 'odebrání: odebraný panel je v nabídce „Přidat panel“', nab.join('|'));
+    const uloz = JSON.parse(await ulozeno(p)).r['c1|hodina'];
+    ok(uloz.deje.length === 5 && uloz.deje[4] === 0 && uloz.kdo.length === 4, 'odebrání: do úložiště jde jen odebraný panel s příznakem', JSON.stringify(uloz));
+    await znovu(p);
+    ok(!(await panely(p)).deje, 'odebrání: odebraný panel zůstane odebraný i po obnovení stránky');
+    await zapniUpravu(p);
+    await p.selectOption('#ic-pridat', 'deje'); await p.waitForTimeout(250);
+    const zpet = await panely(p);
+    ok(!!zpet.deje && prekryvy(zpet).length === 0 && Math.abs(zpet.deje.l - pred.deje.l) < 2, 'odebrání: vrácený panel stojí zase na svém místě, bez překryvu', JSON.stringify([zpet.deje && zpet.deje.l, pred.deje.l]));
+    ok(await p.evaluate(() => document.getElementById('ic-pridat').offsetParent === null), 'odebrání: po vrácení všech panelů nabídka „Přidat panel“ zmizí');
+    await p.selectOption('#ic-scenar', 'souboj'); await p.waitForTimeout(200);
+    ok(!(await panely(p)).trida && await p.evaluate(() => [...document.querySelectorAll('#ic-pridat option')].some(o => o.textContent === 'Třída dohromady')), 'odebrání: v Týmovém souboji je Třída dohromady odebraná a jde přidat');
+    await p.selectOption('#ic-pridat', 'trida'); await p.waitForTimeout(200);
+    ok(!!(await panely(p)).trida, 'odebrání: Třídu jde do Týmového souboje přidat');
+    await p.selectOption('#ic-scenar', 'hodina'); await p.waitForTimeout(150);
+    await p.selectOption('#ic-scenar', 'souboj'); await p.waitForTimeout(200);
+    ok(!!(await panely(p)).trida, 'odebrání: přidaný panel v Týmovém souboji zůstane po přepnutí tam a zpět');
+    await p.click('#ic-vychozi'); await p.waitForTimeout(200);
+    ok(!(await panely(p)).trida, '„Výchozí rozložení“ vrátí výchozí množinu panelů Týmového souboje');
+    ok(chyby.length === 0, 'odebrání: žádná chyba JS', chyby.join(' | '));
+    await ctx.close();
+  },
+  /* 14 — nabídka přepnutí při začátku týmového souboje */
+  async nabidka(br, base) {
+    const { ctx, p } = await otevri(br, base);
+    ok(!await nabidkaVidet(p), 'nabídka: bez souboje není');
+    await souboj(p, 'b1', 'active', ['b1']); await p.evaluate(() => icTymy()); await p.waitForTimeout(100);
+    ok(await nabidkaVidet(p) && /Týmový souboj/.test(await p.evaluate(() => document.getElementById('ic-nabidka').textContent)), 'nabídka: při začátku týmového souboje se přepnutí nabídne');
+    ok(await aktivni(p) === 'hodina', 'nabídka: scénář se sám NEPŘEPNE, jen se nabídne', await aktivni(p));
+    await p.click('#ic-nab-ne'); await p.evaluate(() => icTymy());
+    ok(!await nabidkaVidet(p), 'nabídka: „Ne, díky“ platí pro tento souboj (po další obnově se neukáže)');
+    ok(await aktivni(p) === 'hodina', 'nabídka: po „Ne, díky“ zůstane Samostatná práce');
+    await souboj(p, 'b1', 'finished', ['b2']); await souboj(p, 'b2', 'active', ['b2']); await p.evaluate(() => icTymy());
+    ok(await p.evaluate(() => IC.bojId) === 'b2' && await nabidkaVidet(p), 'nabídka: další souboj ji nabídne znovu', await p.evaluate(() => IC.bojId));
+    await p.click('#ic-nab-ano'); await p.waitForTimeout(200);
+    ok(await aktivni(p) === 'souboj' && !await nabidkaVidet(p) && !(await panely(p)).trida, 'nabídka: „Přepnout“ přepne na Týmový souboj a nabídka zmizí', await aktivni(p));
+    await souboj(p, 'b2', 'finished', ['b3']); await souboj(p, 'b3', 'active', ['b3']); await p.evaluate(() => icTymy());
+    ok(!await nabidkaVidet(p), 'nabídka: v Týmovém souboji se nenabízí');
+    await p.selectOption('#ic-scenar', 'hodina'); await p.waitForTimeout(150);
+    ok(await nabidkaVidet(p), 'nabídka: po ručním návratu na Samostatnou práci během souboje se nabídne znovu');
+    await souboj(p, 'b3', 'finished', []); await p.evaluate(() => icTymy());
+    ok(!await nabidkaVidet(p), 'nabídka: po skončení souboje zmizí');
+    await p.evaluate(() => { __db.stavyPodleId = { b4: { battle: { team_mode: false, status: 'active' }, teams: null, players: [] } }; __db.bitvy = [{ id: 'b4', game: 'RPG_MAT_8', status: 'active' }]; IC.bojId = null; });
+    await p.evaluate(() => icTymy());
+    ok(!await nabidkaVidet(p), 'nabídka: souboj bez týmového režimu ji nevyvolá');
+    await ctx.close();
+  },
   /* 11 — odchod ze záložky */
   async zalozka(br, base) {
     const { ctx, p } = await otevri(br, base);
@@ -376,10 +511,15 @@ async function beh(prepis, oddily) {
     ['projektor úpravy nevypne', MR, s => s.replace("return uprava && siroke() && !koren.closest('.ic-proj');", 'return uprava && siroke();'), ['projektor']],
     ['úzké okno s mřížkou', MR, s => s.replace("win.matchMedia('(min-width: 900px)').matches", "win.matchMedia('(min-width: 100px)').matches"), ['uzke']],
     ['odchod ze záložky nezamkne', UCITEL, s => s.replace("if(tab!=='infocentrum'){infoStop();icUprava(false);}", "if(tab!=='infocentrum'){infoStop();}"), ['zalozka']],
-    ['schovaný panel zabírá místo', MR, s => s.replace("const viditelne = () => new Set(ID.filter(id => prvky[id] && !prvky[id].el.hidden));", "const viditelne = () => new Set(ID.filter(id => prvky[id]));"), ['vychozi', 'tymy']],
+    ['schovaný panel zabírá místo', MR, s => s.replace("ID.filter(id => prvky[id] && !prvky[id].el.hidden && !vypnuty(id))", "ID.filter(id => prvky[id] && !vypnuty(id))"), ['vychozi', 'tymy']],
     ['nevykreslený obsah se měří jako prázdný', MR, s => s.replace(" && o.obsah.offsetHeight > 0) radky[id]", ") radky[id]"), ['zalozka']],
+    ['scénář se nepamatuje', MR, s => s.replace("scenar = id; zapis(nastavAktivni(text(), cid, id));", "scenar = id;"), ['scenare']],
+    ['odebrání panelu se neukládá', MR, s => s.replace("uplatni(kompaktuj(odeber(rozlozeni, id), viditelne())); uloz(); zmena();", "uplatni(kompaktuj(odeber(rozlozeni, id), viditelne())); zmena();"), ['odebrani']],
+    ['nabídka přepne sama', UCITEL, s => s.replace("icMr.scenare().aktivni!=='souboj'&&IC.nabidkaBoj!==IC.bojId);", "icMr.scenare().aktivni!=='souboj'&&IC.nabidkaBoj!==IC.bojId);if(!box.hidden)icMr.prepniScenar('souboj');"), ['nabidka']],
+    ['„Ne, díky“ platí jen na chvíli', UCITEL, s => s.replace("icEl('ic-nab-ne').onclick=()=>{IC.nabidkaBoj=IC.bojId;icNabidka();};", "icEl('ic-nab-ne').onclick=()=>{icNabidka();};"), ['nabidka']],
+    ['vlastní scénář s cizím rozložením', MR, s => s.replace("zapis(ulozDoTextu(nastavAktivni(r.text, cid, id), klic, rozlozeni));", "zapis(nastavAktivni(r.text, cid, id));"), ['scenare']],
     ['výška se neřídí obsahem', MR, s => s.replace("rozlozeni = prizpusob(rozlozeni, radky);", ""), ['rolovani']],
-    ['ruční výška se neukládá jako připnutá', MR, s => s.replace("rozlozeni.forEach(p => { if (meta(p.id)) o[p.id] = [p.x, p.y, p.w, p.a === false ? p.h : 0]; });", "rozlozeni.forEach(p => { if (meta(p.id)) o[p.id] = [p.x, p.y, p.w, 0]; });"), ['rolovani']],
+    ['ruční výška se neukládá jako připnutá', MR, s => s.replace("const a = [p.x, p.y, p.w, p.a === false ? p.h : 0];", "const a = [p.x, p.y, p.w, 0];"), ['rolovani']],
     ['klávesnice bez věty pro čtečku', MR, s => s.replace('uplatni(nove); uloz(); zprava(popis(nove.find(p => p.id === id)));', 'uplatni(nove); uloz();'), ['klavesnice']],
   ];
   const fs = require('fs'), path = require('path');
