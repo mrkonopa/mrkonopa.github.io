@@ -90,6 +90,9 @@ main { max-width:920px; margin:0 auto; padding:18px 24px 80px; }
 .cm-gate-status { font-size:.85rem; color:var(--muted); margin-top:10px; }
 
 /* sticky časomíra */
+/* Pole zaostřené šipkou zpět (iPad) WebKit posune jen na okraj okna, tedy pod přišpendlený odpočet;
+   scroll-padding mu řekne, že horních ~63 px okna je zabraných (naměřeno: odstup pole od odpočtu bez něj kolísá -63 až 357 px). */
+html:has(#cm-timer) { scroll-padding-top: 5.5rem; }
 .cm-timer { position:sticky; top:0; z-index:5; background:var(--bg); padding:10px 0 8px; }
 .cm-timer-row { display:flex; justify-content:space-between; align-items:baseline;
   font-weight:700; font-size:.9rem; color:var(--muted); }
