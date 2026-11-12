@@ -18,11 +18,11 @@ Platí od jarního termínu 2027. Rozhoduje Část C1 (str. 10–12): škrtnutý
 | a | „rozklad dvojčlenu na součin pomocí vzorců (a + b)², (a − b)², a² − b²“; **umocnění dvojčlenu zůstává** | rozklad jen vytýkáním; „umocni podle vzorce“ a násobení (A − B)(A + B) zůstávají |
 | b | „pravidla pro **odmocňování** zlomku a součinu“; umocňování zlomku a součinu zůstává | `odmocninaDesetinna` místo `odmocninaSoucin` |
 | c | NSN a NSD jen pro **dvě** čísla; NSN při určování společného jmenovatele zlomků zůstává (9. ročník) | v bankách tři čísla nebyla |
-| d | konstrukce tečny ke kružnici v jejím bodě, **kružnice opsané trojúhelníku**, **využití Thaletovy kružnice při konstrukci pravoúhlého trojúhelníku** | pět typů konstrukcí vyměněno; vztah kružnice a přímky (tečna, sečna, vnější přímka) jako pojem zůstává |
+| d | konstrukce tečny ke kružnici v jejím bodě, **kružnice opsané trojúhelníku**, **využití Thaletovy kružnice při konstrukci pravoúhlého trojúhelníku** | devět typů konstrukcí vyměněno (pět + čtyři při 2. kole), tři přepsány bez Thaleta; vztah kružnice a přímky (tečna, sečna, vnější přímka) jako pojem zůstává |
 | e | „odhad a výpočet **objemu a povrchu válce**“; rozpoznání válce a síť válce zůstávají | Těžítko, Dort, Povrch válce → hranol |
 | f | „aplikační slovní úlohy s využitím znalostí o **kouli**“; **aplikační slovní úlohy o válci zůstávají** | koule v bankách nebyla; Sud a Přelévání vody zůstávají |
 | g | soustava dvou rovnic zůstává, vypuštěna „metoda dosazovací nebo sčítací“ | v postupu „kteroukoli metodou“ |
-| h | C2: „Součástí testového sešitu bude následující text“ — čtverce 11²–20², π ≐ 3,14, π ≈ 22/7, obvod a obsah kruhu | v bance ani na stránce testu takový blok není (viz otázky v PR) |
+| h | C2: „Součástí testového sešitu bude následující text“ — čtverce 11²–20², π ≐ 3,14, π ≈ 22/7, obvod a obsah kruhu | stejný text je v běžícím testu nanečisto (`#cm-pomucka`) |
 
-Hlídá to `tests/prijimacky-spec-2027.test.cjs`; sporné úlohy, které zůstaly, jsou v něm jmenovitě vypsané.
+Hlídá to `tests/prijimacky-spec-2027.test.cjs`; úlohy, které zůstaly i přes slova ve znění (aplikační válec, výpočty), jsou v něm jmenovitě vypsané s důvodem.
 Archiv PDF (`projects/prijimacky-matematika/pdfs/`, archiv na úvodní stránce, `doplnky.html`) zůstává beze změny.

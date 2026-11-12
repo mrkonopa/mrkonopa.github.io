@@ -455,10 +455,10 @@ const V69 = {
   // ── pozice 9–11: Thaletova kružnice, počet řešení, nepřímá úměrnost ──
   'Obdélník v kružnici': (t, k) => { const [r, a] = cisla(t.intro, /poloměrem (\d+) cm\. Strana AB měří (\d+) cm/), b = Math.sqrt(4 * r * r - a * a);
     return k === '9.1' ? b : 2 * (a + b); },
-  // rovnoramenný: osa AB (1 bod) + kružnice k(A; |AB|) a k(B; |AB|); pravoúhlý: kolmice v A a B + Thaletova kružnice
+  // rovnoramenný: osa AB (1 bod) + kružnice k(A; |AB|) a k(B; |AB|); těžnice CS = |AB|/2: kružnice se středem S a poloměrem |AB|/2
   'Body C na přímce': (t, k) => { const [a, v] = cisla(t.intro, /měří (\d+) cm\. Přímka p [\s\S]*vzdálenost (\d+) cm/);
     const pruniky = (d, r) => (d < r ? 2 : d === r ? 1 : 0);
-    return k === '10.1' ? 1 + 2 * pruniky(v, a) : 2 + pruniky(v, a / 2); },
+    return k === '10.1' ? 1 + 2 * pruniky(v, a) : pruniky(v, a / 2); },
   'Natírání plotu': (t, k) => { const DIL = { polovinu: 1 / 2, třetinu: 1 / 3, čtvrtinu: 1 / 4, polovina: 1 / 2, třetina: 1 / 3, čtvrtina: 1 / 4 };
     const m = t.intro.match(/(\S+) plotu by natřeli všichni pracovníci společně za (\d+) hodin/), T = +m[2] / DIL[m[1].toLowerCase()];
     const z = tv(t, k); let x;

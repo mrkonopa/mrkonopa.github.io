@@ -5531,12 +5531,13 @@
   }
 
   function gen10g() {
-    // Počet řešení jako u konstrukčních úloh CERMAT: kolik bodů C přímky p dá rovnoramenný
-    // a kolik pravoúhlý trojúhelník ABC. Rovnoramenný: osa úsečky AB (1 bod) a kružnice
-    // k(A; |AB|), k(B; |AB|) po 2, 1 nebo 0 bodech. Pravoúhlý: kolmice v A a v B a Thaletova
-    // kružnice nad AB. Body nikdy nesplynou — to by chtělo v = a·√3/2, a to celé není.
+    // Počet řešení jako u konstrukčních úloh CERMAT: kolik bodů C přímky p dá rovnoramenný trojúhelník ABC
+    // (osa úsečky AB = 1 bod a kružnice k(A; |AB|), k(B; |AB|) po 2, 1 nebo 0 bodech) a kolik bodů C má
+    // těžnici CS dlouhou |AB|/2 (kružnice se středem S a poloměrem |AB|/2 — vzájemná poloha kružnice
+    // a přímky). Body nikdy nesplynou — to by chtělo v = a·√3/2, a to celé není. (Do 12. 11. 2026 se zde
+    // počítaly pravoúhlé trojúhelníky přes Thaletovu kružnici; ta je ve specifikaci 2026/2027 vypuštěna.)
     const a = pick([4, 6, 8]), v = ri(1, a + 2);
-    const rr = v < a ? 5 : v === a ? 3 : 1, pp = 2 * v < a ? 4 : 2 * v === a ? 3 : 2;
+    const rr = v < a ? 5 : v === a ? 3 : 1, pp = 2 * v < a ? 2 : 2 * v === a ? 1 : 0;
     const kruh = (x, meze) => (x < meze ? '2 body' : x === meze ? '1 bod (přímka p se kružnice jen dotkne)' : 'žádný bod');
     return {
       no: 10, points: 2, title: 'Body C na přímce', okruh: 'geometrie',
@@ -5553,12 +5554,12 @@
             `Dohromady ${rr} ${skl(rr, 'bod', 'body', 'bodů')}.`
           ] },
         { key: '10.2', points: 1,
-          prompt: `Kolik bodů C přímky p má tu vlastnost, že trojúhelník ABC je pravoúhlý?`,
+          prompt: `Označme S střed úsečky AB. Kolik bodů C přímky p má tu vlastnost, že těžnice CS trojúhelníku ABC měří ${cz(a / 2)} cm?`,
           ans: String(pp),
           sol: [
-            `Pravý úhel může být u vrcholu A, u vrcholu B, nebo u vrcholu C. U A a u B leží C na kolmici k úsečce AB, pravý úhel u C dává Thaletova kružnice nad AB.`,
-            `Pravý úhel u A nebo u B: kolmice v bodech A a B protnou přímku p, to jsou 2 body.`,
-            `Pravý úhel u C: C leží na Thaletově kružnici se středem ve středu úsečky AB a poloměrem ${cz(a / 2)} cm. Přímka p je od středu vzdálena ${v} cm, takže ${kruh(2 * v, a)}.`,
+            `Těžnice CS spojuje bod C se středem S úsečky AB. Má-li měřit ${cz(a / 2)} cm, leží C na kružnici se středem S a poloměrem ${cz(a / 2)} cm.`,
+            `Střed S leží na úsečce AB a přímka p je s ní rovnoběžná, takže je od přímky p vzdálen ${v} cm.`,
+            `Poloměr kružnice je ${cz(a / 2)} cm, vzdálenost středu od přímky ${v} cm, takže ${kruh(2 * v, a)}.`,
             `Dohromady ${pp} ${skl(pp, 'bod', 'body', 'bodů')}.`
           ] }
       ]

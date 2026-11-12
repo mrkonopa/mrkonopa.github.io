@@ -98,6 +98,17 @@ html:has(#cm-timer) { scroll-padding-top: 5.5rem; }
   font-weight:700; font-size:.9rem; color:var(--muted); }
 .cm-timer-v { font-size:1.3rem; color:var(--text); font-variant-numeric:tabular-nums; }
 .cm-timer.low .cm-timer-v { color:var(--red); }
+/* text z testového sešitu (čtverce 11–20, π, kruh) — od jara 2027 součást ostrého testu */
+.cm-pomucka { background:var(--card); border:1px solid var(--border); border-radius:var(--radius); margin:0 0 14px; }
+.cm-pomucka summary { list-style:none; }
+.cm-pomucka summary::-webkit-details-marker { display:none; }
+.cm-pomucka summary::before { content:"▸"; margin-right:8px; }
+.cm-pomucka[open] summary::before { content:"▾"; }
+.cm-pomucka summary { cursor:pointer; padding:10px 16px; min-height:44px; box-sizing:border-box; display:flex; align-items:center; font-weight:700; font-size:.88rem; color:var(--text); }
+.cm-pomucka-telo { padding:0 16px 12px; font-size:.92rem; line-height:1.6; color:var(--text); font-variant-numeric:tabular-nums; }
+.cm-pomucka-telo p { margin:6px 0 0; }
+.cm-pomucka-mocniny { display:grid; grid-template-columns:repeat(2, max-content); gap:0 36px; }
+.cm-pomucka-pozn { font-size:.8rem; color:var(--muted); }
 .cm-timer-bar { height:7px; background:var(--border); border-radius:4px; overflow:hidden; margin-top:5px; }
 .cm-timer-bar-in { height:100%; background:var(--blue); transition:width 1s linear; }
 .cm-timer.low .cm-timer-bar-in { background:var(--red); }

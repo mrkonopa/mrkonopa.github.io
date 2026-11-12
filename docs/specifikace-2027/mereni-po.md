@@ -48,12 +48,27 @@ Srovnání s `mereni-pred.md`. Počty jsou funkce v `SLOTS` (varianty), generát
 | Pozice 9 (test nanečisto) | 42 | 42 |
 | Pozice 10 (test nanečisto) | 38 | 38 |
 
-Vypuštěno (5): `thales`, `dveThalet`, `thalesQ` (Thaletova kružnice / věta při konstrukci pravoúhlého trojúhelníku), `opsana`, `ctverecVepsany` (kružnice opsaná trojúhelníku).
+Vypuštěno (9):
+- 1. kolo — `thales`, `dveThalet`, `thalesQ` (Thaletova kružnice / věta při konstrukci pravoúhlého trojúhelníku), `opsana`, `ctverecVepsany` (kružnice opsaná trojúhelníku);
+- 2. kolo (12. 11. 2026, po přečtení PDF) — `obdelnikStrana`, `pravouhlyStrana` (pravý úhel jen přes Thaletovu kružnici), `pravouhlyLichKruz` (AC průměr vepsané kružnice), `obdelnikOpsanaM` (střed kružnice procházející třemi body = kružnice opsaná trojúhelníku ABM).
 
-Přidáno (5, jen osa úsečky, kružnice, rovnoběžky v dané vzdálenosti a kolmice): `rovnoramennyRameno`, `osaKruznice`, `rovnobezkaKruznice` (4 řešení) na pozici 9; `kolmiceVzdalenost`, `osaRovnobezka` na pozici 10.
+Přidáno (9, jen osa úsečky, kružnice, rovnoběžky a kolmice):
+- 1. kolo — `rovnoramennyRameno`, `osaKruznice`, `rovnobezkaKruznice` (4 řešení) na pozici 9; `kolmiceVzdalenost`, `osaRovnobezka` na pozici 10;
+- 2. kolo — `obdelnikStranaP` (strana na přímce, 2 řešení), `pravouhlyPrepona` (přepona na přímce, 2 řešení), `pravouhlyLichBC` (rameno BC, 2 řešení) na pozici 9; `rovnoramennyLichVyska` (výška a základna, 2 řešení) na pozici 10.
 
-Tři řádky archivní tabulky `tools/cermat-archiv/konstrukce-m9.json` (74, 50, 20) pokrývaly vypuštěné typy: jsou teď „ne“ s příznakem `vypusteno2027` a podlaha `PODLAHA_ANO` v `tests/konstrukce-pokryti.test.cjs` klesla ze 73 na 70.
+Postup přepsán bez Thaletovy kružnice u tří typů, které ji jen zmiňovaly: `obdelnikUhl` (shodné úhlopříčky), `teziste` a `pravouhlyRovnoramenny` (úhly 45°, |MC| = |MB|). Konstrukce zůstaly, mění se jen zdůvodnění kroku.
 
-## 4. Sporné úlohy, které zůstaly
+Sedm řádků archivní tabulky `tools/cermat-archiv/konstrukce-m9.json` (74, 50, 20 a 60, 56, 51, 25) pokrývalo vypuštěné typy: jsou teď „ne“ s příznakem `vypusteno2027` a podlaha `PODLAHA_ANO` v `tests/konstrukce-pokryti.test.cjs` klesla ze 73 na 66.
 
-Jmenovitě v `tests/prijimacky-spec-2027.test.cjs` (SPORNE_BANKA, SPORNE_KONSTRUKCE); výjimka, která už nic nechytá, test shodí.
+## 4. Úlohy, které zůstaly (jmenovitě v testu i s důvodem)
+
+- `Sud`, `Přelévání vody` — aplikační úlohy o válci (specifikace je ponechává; vypuštěn je jen výpočet objemu a povrchu).
+- `Kružnice opsaná a osa úhlu`, `Obdélník v kružnici` — VÝPOČET v útvaru vepsaném do dané kružnice, ne konstrukce.
+- `obdelnikOpsana` — kružnice opsaná OBDÉLNÍKU je daná; kružnice opsaná trojúhelníku se nekonstruuje.
+- `Body C na přímce` se 12. 11. 2026 změnily: část 10.2 už nepočítá pravoúhlé trojúhelníky přes Thaletovu kružnici, ptá se na těžnici CS = |AB|/2 (vzájemná poloha kružnice a přímky).
+
+Výjimka, která už nic nechytá, test shodí (`tests/prijimacky-spec-2027.test.cjs`: SPORNE_BANKA, SPORNE_KONSTRUKCE).
+
+## 5. Bod h
+
+Text testového sešitu (11²–20², π ≐ 3,14, π ≈ 22/7, obvod a obsah kruhu) je od 12. 11. 2026 v běžícím testu nanečisto (`<details id="cm-pomucka">` nad úlohami, svinutelný); hodnoty hlídá `prijimacky-spec-2027` přepočtem.

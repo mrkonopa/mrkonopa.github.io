@@ -62,22 +62,16 @@ function porusenia(txt) {
 const SPORNE_BANKA = {
   'Sud': ['e'],                                         // ZŮSTÁVÁ: dno zadáno, V = S·h bez π = aplikační úloha o válci (C1 str. 11 ji ponechává; vypuštěn je jen výpočet objemu a povrchu)
   'Přelévání vody': ['e'],                              // ZŮSTÁVÁ: původní úloha CERMATu (M9C/2024 ú. 2), řeší se poměrem podstav, π se nedosazuje = aplikační úloha o válci
-  'Kružnice opsaná a osa úhlu': ['d-opsana', 'd-thales'], // trojúhelník vepsaný do kružnice, střed na AB: kružnice opsaná jako údaj, Thaletova věta ve výpočtu úhlu
-  'Obdélník v kružnici': ['d-thales'],                  // kružnice opsaná obdélníku jako údaj; v řešení Thaletova věta
-  'Body C na přímce': ['d-thales'],                     // kolik bodů C dá pravoúhlý trojúhelník — v řešení Thaletova kružnice
+  'Kružnice opsaná a osa úhlu': ['d-opsana', 'd-thales'], // ZŮSTÁVÁ: VÝPOČET úhlu v trojúhelníku vepsaném do dané kružnice (střed na AB); vypuštěna je KONSTRUKCE kružnice opsané a Thaletovy kružnice
+  'Obdélník v kružnici': ['d-thales'],                  // ZŮSTÁVÁ: výpočet strany obdélníku vepsaného do dané kružnice (Pythagorova věta); konstrukce se nepožaduje
 };
+// Typy konstrukcí, kde se kružnice opsaná/Thaletova kružnice objevuje, ale nic se s ní nekonstruuje (a postup bez ní stojí):
 const SPORNE_KONSTRUKCE = {
-  obdelnikUhl: ['d-thales'],                            // obdélník: vrchol C na Thaletově kružnici nad úhlopříčkou
-  obdelnikStrana: ['d-thales'],                         // obdélník: vrchol D na Thaletově kružnici nad AS
-  teziste: ['d-thales'],                                // pravoúhlý rovnoramenný trojúhelník: zmínka v postupu
-  pravouhlyRovnoramenny: ['d-thales'],                  // pravoúhlý rovnoramenný trojúhelník: C na Thaletově kružnici nad BD
-  pravouhlyStrana: ['d-thales'],                        // pravoúhlý trojúhelník: A na Thaletově kružnici nad BC
-  pravouhlyLichKruz: ['d-thales'],                      // pravoúhlý lichoběžník na kružnici: Thaletova věta v postupu
-  obdelnikOpsana: ['d-opsana'],                         // kružnice opsaná OBDÉLNÍKU (ne trojúhelníku)
-  obdelnikOpsanaM: ['d-opsana'],                        // totéž, bod M na ní
+  obdelnikOpsana: ['d-opsana'],                         // ZŮSTÁVÁ: kružnice opsaná OBDÉLNÍKU je daná (její střed S), kružnice opsaná trojúhelníku se nekonstruuje
 };
 const ODEBRANE_NAZVY = ['Těžítko', 'Povrch válce', 'Dort ze dvou forem', 'Rozklad podle vzorce'];   // názvy variant testu nanečisto vypuštěných pro 2027
-const ODEBRANE_TYPY = ['thales', 'dveThalet', 'thalesQ', 'opsana', 'ctverecVepsany'];             // typy konstrukcí vypuštěných pro 2027
+const ODEBRANE_TYPY = ['thales', 'dveThalet', 'thalesQ', 'opsana', 'ctverecVepsany',
+  'obdelnikStrana', 'pravouhlyStrana', 'pravouhlyLichKruz', 'obdelnikOpsanaM'];   // 2. kolo (12. 11. 2026): bez Thaletovy kružnice / kružnice procházející třemi body nejdou
 
 /* ── Načtení zdrojů do izolovaného kontextu (s možností upravit zdroj v paměti = sabotáž) ───────────── */
 function kontext() {
@@ -281,7 +275,7 @@ const STRANKY = ['test.html', 'procvicovani.html', 'diagnostika.html', 'statisti
 console.log('── Úvodní stránka a dokumentace ──');
 {
   const idx = cti(P + 'index.html');
-  ok(/Od roku 2027 platí nová specifikace/.test(idx) && /Thaletova kružnice/.test(idx) && /rozklad podle vzorců/.test(idx),
+  ok(/Od roku 2027 platí nová specifikace/.test(idx) && /Thaletovy kružnice/.test(idx) && /objem a povrch válce/.test(idx) && /rozklad podle vzorců/.test(idx),
     'úvodní stránka nese poznámku o nové specifikaci a o tom, co ve starších testech už nebude');
   ok(/docs\/specifikace-2027/.test(idx), 'poznámka odkazuje na docs/specifikace-2027/');
   ok(fs.existsSync(path.join(ROOT, 'docs/specifikace-2027/README.md')) && fs.existsSync(path.join(ROOT, 'docs/specifikace-2027/mereni-pred.md')),
@@ -369,6 +363,29 @@ for (const [nazev, pravidlo, fn] of SAB_KONSTR) {
     'Vypočtěte √0,49.', 'Nejmenší společný násobek čísel 20 a 15 je 60.', 'Řešte soustavu rovnic 2x + y = 5 a x − y = 1.', 'Válcová nádoba má výšku 10 cm.'];
   const planne = NEMA.filter(t => porusenia(JSON.stringify(t)).length);
   ok(planne.length === 0, 'pravidla nehlásí to, co ve specifikaci ZŮSTÁVÁ (umocnění dvojčlenu, vytýkání, √ setin, NSN dvou čísel, soustava, válec bez objemu)', planne.join(' | '));
+}
+
+/* ── h) Text testového sešitu (Specifikace 2026/2027, C2 str. 12): čtverce 11–20, π ≐ 3,14, π ≈ 22/7, o = 2πr, S = πr² ──────────
+   Běžící test ho ukazuje jako při ostré zkoušce. Hodnoty se PŘEPOČÍTAJÍ (n², ne opis), takže přepis čísla v bloku test shodí. */
+{
+  const test = cti(P + 'test.html'), m = test.match(/<details class="cm-pomucka"[\s\S]*?<\/details>/);
+  const blok = m ? m[0] : '';
+  const kontrola = b => {
+    const v = [];
+    const par = [...b.matchAll(/(\d+)² = (\d+)/g)].map(r => [+r[1], +r[2]]);
+    for (let n = 11; n <= 20; n++) if (!par.some(([a, c]) => a === n && c === n * n)) v.push(n + '² = ' + n * n);
+    if (par.some(([a, c]) => c !== a * a)) v.push('nesprávný čtverec');
+    if (!/π ≐ 3,14/.test(b)) v.push('π ≐ 3,14');
+    if (!/π ≈ 22\/7/.test(b)) v.push('π ≈ 22/7');
+    if (!/<i>o<\/i> = 2π<i>r<\/i>/.test(b)) v.push('o = 2πr');
+    if (!/<i>S<\/i> = π<i>r<\/i>²/.test(b)) v.push('S = πr²');
+    return v;
+  };
+  ok(!!blok && kontrola(blok).length === 0, 'test.html: text testového sešitu (11²–20², π ≐ 3,14, π ≈ 22/7, o = 2πr, S = πr²) je v běžícím testu a čtverce sedí', kontrola(blok).join(', '));
+  ok(blok.indexOf('id="cm-pomucka"') >= 0 && test.indexOf('id="cm-pomucka"') < test.indexOf('id="cm-tasks"'), 'test.html: text sešitu stojí nad úlohami');
+  ok(kontrola(blok.replace('14² = 196', '14² = 197')).length > 0, 'sabotáž: špatně opsaný čtverec (14² = 197) → kontrola ho vidí');
+  ok(kontrola(blok.replace('π ≈ 22/7', 'π ≈ 22/8')).length > 0, 'sabotáž: špatný zlomek π → kontrola ho vidí');
+  ok(kontrola(blok.replace(/<span>20² = 400<\/span>/, '')).length > 0, 'sabotáž: chybí poslední čtverec → kontrola ho vidí');
 }
 
 console.log('\n══════════════════════════════════════════');
