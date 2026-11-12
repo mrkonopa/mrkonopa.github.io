@@ -204,7 +204,8 @@ console.log('── Rozklad na součin jen vytýkáním (pozice 3) ──');
   const casti = [];
   for (let k = 0; k < 900; k++) for (const t of [B0.genSlot(2)]) for (const p of (t.parts || [])) casti.push(p);
   const vytk = casti.filter(p => /vytknutím/.test(p.prompt));
-  ok(vytk.length >= 600, 'pozice 3: podúlohy s rozkladem vytknutím se losují (' + vytk.length + ' z ' + casti.length + ', podlaha 600)');
+  // Naměřeno 300 běhů po 900 losech: průměr 600,0, sd 22,8, nejméně 536. Podlaha = průměr − 5 sd (dřívějších 600 padalo v polovině běhů).
+  ok(vytk.length >= 485, 'pozice 3: podúlohy s rozkladem vytknutím se losují (' + vytk.length + ' z ' + casti.length + ', podlaha 485)');
   ok(casti.filter(p => /rozlož\w* na součin/i.test(p.prompt) && !/vytknutím/.test(p.prompt)).length === 0, 'pozice 3: každý „rozklad na součin“ je vytknutím');
   const soust = [];
   for (let k = 0; k < 900; k++) for (const p of (B0.genSlot(3).parts || [])) if (/soustav/.test(p.prompt)) soust.push(p);
