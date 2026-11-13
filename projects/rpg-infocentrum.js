@@ -218,13 +218,18 @@
   const BOJ_ODPOJEN_MS = 20000;
   const BOJ_MAX_HRACU = 40;          // strop řádků na tým, ať stav s tisíci „hráči“ nezaplaví plátno
 
+  /* Je hráč souboje připojen? (po skončení souboje všichni; bez platného času se nikdo neodpojuje) */
+  function pripojen(p, konec, nejnovejsi) {
+    const viden = Date.parse(p.last_seen);
+    return konec || !isFinite(viden) || !isFinite(nejnovejsi) || nejnovejsi - viden <= BOJ_ODPOJEN_MS;
+  }
+
   function hraciTymu(st, t, faze, qi, nejnovejsi) {
     const konec = faze === 'finished';
     return (Array.isArray(st.players) ? st.players : [])
       .filter(p => p && p.team != null && Number(p.team) === t)
       .map(p => {
-        const viden = Date.parse(p.last_seen);
-        const on = konec || !isFinite(viden) || !isFinite(nejnovejsi) || nejnovejsi - viden <= BOJ_ODPOJEN_MS;
+        const on = pripojen(p, konec, nejnovejsi);
         const odpovedel = faze === 'active' && qi >= 0 && Number(p.last_qi) === qi;
         return {
           jmeno: kratke(p.display_name), skore: cislo(p.score, 1e9), spravne: cislo(p.correct_count, 1e4),
@@ -249,9 +254,173 @@
     };
   }
 
+  /* ── místnost živého souboje: kód, otázka, odpočet (z `battle_state`, funguje pro týmový i obyčejný souboj) ──
+     BOJ_OTAZKA_S a BOJ_ODPOCET_MS jsou kopie konstant QSEC a COUNTDOWN_MS z `rpg-battle-ui.js` (žákovská hra počítá
+     konec otázky stejně); shodu hlídá `tests/rpg-infocentrum.test.cjs`. */
+  const BOJ_OTAZKA_S = 25;
+  const BOJ_ODPOCET_MS = 3000;
+  const RE_KOD = /^[A-Z0-9]{3,8}$/;
+
+  function mistnost(st, ted) {
+    const b = st && typeof st === 'object' && st.battle && typeof st.battle === 'object' && !Array.isArray(st.battle) ? st.battle : null;
+    if (!b) return null;
+    const faze = FAZE_BOJE.indexOf(b.status) >= 0 ? b.status : null;
+    if (!faze) return null;
+    const kodTxt = typeof b.code === 'string' ? b.code.trim().toUpperCase() : '';
+    const qi = typeof b.q_index === 'number' && Number.isInteger(b.q_index) ? b.q_index : -1;
+    const celkem = cislo(b.q_count, 100);
+    const hraci = (Array.isArray(st.players) ? st.players : []).filter(p => p && typeof p === 'object');
+    const nejnovejsi = hraci.reduce((m, p) => { const v = Date.parse(p.last_seen); return isFinite(v) && v > m ? v : m; }, -Infinity);
+    const zive = hraci.filter(p => pripojen(p, faze === 'finished', nejnovejsi));
+    const odpovedelo = faze === 'active' && qi >= 0 ? zive.filter(p => typeof p.last_qi === 'number' && p.last_qi === qi).length : 0;
+    const t0 = Date.parse(b.q_started_at);
+    const konec = faze === 'active' && qi >= 0 && isFinite(t0) ? t0 + (qi === 0 ? BOJ_ODPOCET_MS : 0) + BOJ_OTAZKA_S * 1000 : null;
+    const otazka = qi < 0 ? 0 : celkem ? Math.min(qi + 1, celkem) : qi + 1;
+    return {
+      kod: RE_KOD.test(kodTxt) ? kodTxt : '', faze, tymovy: !!b.team_mode,
+      otazka, celkem, hracu: Math.min(hraci.length, 999), zivych: Math.min(zive.length, 999), odpovedelo: Math.min(odpovedelo, 999),
+      konec, zbyva: zbyvaSekund(konec, ted),
+    };
+  }
+  /* Sekundy do `konec` (ms), nejvíc délka otázky; bez konce nebo bez hodin null. */
+  function zbyvaSekund(konec, ted) {
+    if (typeof konec !== 'number' || !isFinite(konec) || typeof ted !== 'number' || !isFinite(ted)) return null;
+    return Math.max(0, Math.min(BOJ_OTAZKA_S, Math.ceil((konec - ted) / 1000)));
+  }
+  /* Věta o stavu souboje a podíl hotových otázek pro ukazatel. */
+  function mistnostText(m) {
+    if (!m) return { veta: '', podil: 0 };
+    const kolik = m.celkem ? m.otazka + ' z ' + m.celkem : String(m.otazka);
+    if (m.faze === 'lobby') return { veta: 'Čeká se na hráče', podil: 0 };
+    if (m.faze === 'finished') return { veta: 'Souboj skončil', podil: 1 };
+    if (m.faze === 'active' && m.otazka < 1) return { veta: 'Souboj začíná', podil: 0 };
+    const podil = m.celkem ? Math.min(1, Math.max(0, m.otazka / m.celkem)) : 0;
+    return { veta: (m.faze === 'paused' ? 'Pozastaveno · otázka ' : 'Otázka ') + kolik, podil };
+  }
+
+  /* ── kdo je kde: počty hrajících podle obrazovky (`cur` z uložení; nehrající se do míst nezapočítávají) ── */
+  const KDE_PORADI = ['boj', 'trenink', 'teorie', 'mapa', 'vez', 'souboj'];
+  const KDE_NAZVY = { boj: 'v boji', trenink: 'v tréninku', teorie: 'čte teorii', mapa: 'na mapě', vez: 've Věži legend', souboj: 'v živém souboji' };
+  function kdeSouhrn(hraci, maxJmen) {
+    const max = Math.max(0, Math.min(20, Math.floor(Number(maxJmen)) || 6));
+    const skupiny = KDE_PORADI.map(typ => ({ typ, nazev: KDE_NAZVY[typ], pocet: 0, jmena: [], dalsi: 0 }));
+    let hraje = 0, nehraje = 0, bezUdaje = 0;
+    for (const h of Array.isArray(hraci) ? hraci : []) {
+      if (!h || !h.on) { nehraje++; continue; }
+      hraje++;
+      const k = kde(h.kde), sk = k ? skupiny.find(s => s.typ === k.s) : null;
+      if (!sk) { bezUdaje++; continue; }
+      sk.pocet++; sk.jmena.push(String(h.jmeno == null ? '' : h.jmeno));
+    }
+    skupiny.forEach(s => { s.jmena.sort(CS.compare); s.dalsi = Math.max(0, s.jmena.length - max); s.jmena = s.jmena.slice(0, max); });
+    return { skupiny, hraje, nehraje, bezUdaje };
+  }
+
+  /* ── mapa misí: kolik žáků má kterou misi splněnou a kolik jich ji splnilo v téhle hodině ── */
+  const RE_KLIC_ZAKLADU = /^[A-Za-z0-9_-]{1,64}\|RPG_MAT_[3-9]$/;
+  const MAX_ZAKLADU = 400;
+  function zakladMise(stavy) {
+    const z = {};
+    for (const s of stavy) z[klic(s)] = s.mise.slice();
+    return z;
+  }
+  function doplnZakladMise(z, stavy) {
+    for (const s of stavy) if (!Object.prototype.hasOwnProperty.call(z, klic(s))) z[klic(s)] = s.mise.slice();
+    return z;
+  }
+  /* Uložený základ čteme nedůvěřivě (localStorage může obsahovat cokoli): jen platné klíče a mise, nejvýš MAX_ZAKLADU žáků. */
+  function ocistiZakladMise(raw) {
+    const ven = {};
+    if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return ven;
+    let n = 0;
+    for (const k in raw) {
+      if (++n > MAX_ZAKLADU * 4) break;
+      if (!Object.prototype.hasOwnProperty.call(raw, k) || !RE_KLIC_ZAKLADU.test(k) || !Array.isArray(raw[k])) continue;
+      if (Object.keys(ven).length >= MAX_ZAKLADU) break;
+      ven[k] = raw[k].filter(m => typeof m === 'string' && RE_MISE.test(m)).slice(0, 21);
+    }
+    return ven;
+  }
+  function mapaMisi(stavy, zm) {
+    const lide = Array.isArray(stavy) ? stavy : [];
+    const bunky = [];
+    for (let a = 1; a <= 7; a++) for (let i = 1; i <= MISI_V_OBLASTI; i++) {
+      const mid = a + '-' + i, nove = [];
+      let hotovo = 0;
+      for (const s of lide) {
+        if (s.mise.indexOf(mid) < 0) continue;
+        hotovo++;
+        const b = zm && Object.prototype.hasOwnProperty.call(zm, klic(s)) ? zm[klic(s)] : null;
+        if (b && b.indexOf(mid) < 0) nove.push(s.jmeno);
+      }
+      bunky.push({ mid, oblast: a, poradi: i, hotovo, vHodine: nove.length, jmena: nove.sort(CS.compare) });
+    }
+    return { hracu: lide.length, bunky };
+  }
+
+  /* ── stopky a odpočet (jen v prohlížeči): stav {rezim: nahoru|dolu, bezi, od (kdy spuštěno, ms), nahrano (ms před spuštěním), cil (ms)} ── */
+  const STOPKY_MAX_MS = 100 * 3600000 - 1000;       // 99:59:59
+  const STOPKY_MAX_CIL_MIN = 180;
+  const STOPKY_VYCHOZI_MIN = 10;
+  function stopkyNove() { return { rezim: 'nahoru', bezi: false, od: 0, nahrano: 0, cil: STOPKY_VYCHOZI_MIN * 60000 }; }
+  const cilMs = min => Math.max(1, Math.min(STOPKY_MAX_CIL_MIN, Math.floor(Number(min)) || 0)) * 60000;
+  function stopkyOcisti(raw, ted) {
+    const o = raw && typeof raw === 'object' && !Array.isArray(raw) && raw.v === 1 ? raw : null;
+    const s = stopkyNove();
+    if (!o) return s;
+    const kon = (v, max) => typeof v === 'number' && isFinite(v) && v >= 0 && v <= max ? Math.floor(v) : null;
+    const nahrano = kon(o.nahrano, STOPKY_MAX_MS), od = kon(o.od, 9e15), cil = kon(o.cil, STOPKY_MAX_CIL_MIN * 60000);
+    if (nahrano === null || cil === null || cil < 60000) return s;
+    s.rezim = o.rezim === 'dolu' ? 'dolu' : 'nahoru'; s.nahrano = nahrano; s.cil = cil;
+    if (o.bezi === true) {
+      if (od === null || od > ted + 60000) return s;      // běžící stopky z budoucnosti (přestavené hodiny) nevěříme
+      s.bezi = true; s.od = od;
+    }
+    return s;
+  }
+  function stopkyUplynulo(s, ted) {
+    const beh = s.bezi && isFinite(ted) ? Math.max(0, ted - s.od) : 0;
+    return Math.min(STOPKY_MAX_MS, s.nahrano + beh);
+  }
+  function stopkyCas(ms, dolu) {
+    const t = Math.max(0, Math.floor(Number(ms) || 0));
+    const sek = dolu ? Math.ceil(t / 1000) : Math.floor(t / 1000);
+    const h = Math.floor(sek / 3600), m = Math.floor((sek % 3600) / 60), x = sek % 60;
+    return h ? h + ':' + String(m).padStart(2, '0') + ':' + String(x).padStart(2, '0') : m + ':' + String(x).padStart(2, '0');
+  }
+  /* Co ukázat: čas, štítek a stav (stoji | bezi | konec). */
+  function stopkyZobraz(s, ted) {
+    const up = stopkyUplynulo(s, ted);
+    if (s.rezim === 'dolu') {
+      const zbyva = Math.max(0, s.cil - up);
+      return { text: stopkyCas(zbyva, true), stitek: zbyva === 0 ? 'čas vypršel' : 'zbývá', stav: zbyva === 0 ? 'konec' : s.bezi ? 'bezi' : 'stoji', ms: zbyva };
+    }
+    return { text: stopkyCas(up, false), stitek: 'uplynulo', stav: s.bezi ? 'bezi' : 'stoji', ms: up };
+  }
+  /* Akce nad stavem (čistá): start, pauza, nula, rezim (arg nahoru|dolu), odpocet (arg minuty: nastaví a spustí), pridej (arg minuty navíc). */
+  function stopkyAkce(s, akce, ted, arg) {
+    const n = { rezim: s.rezim, bezi: s.bezi, od: s.od, nahrano: s.nahrano, cil: s.cil };
+    const zastav = () => { if (n.bezi) { n.nahrano = stopkyUplynulo(n, ted); n.bezi = false; n.od = 0; } };
+    if (akce === 'start') { if (!n.bezi && stopkyZobraz(n, ted).stav !== 'konec') { n.bezi = true; n.od = ted; } }
+    else if (akce === 'pauza') zastav();
+    else if (akce === 'nula') { n.bezi = false; n.od = 0; n.nahrano = 0; }
+    else if (akce === 'rezim') { if (arg === 'nahoru' || arg === 'dolu') { n.rezim = arg; n.bezi = false; n.od = 0; n.nahrano = 0; } }
+    else if (akce === 'odpocet') { n.rezim = 'dolu'; n.cil = cilMs(arg); n.nahrano = 0; n.bezi = true; n.od = ted; }
+    else if (akce === 'pridej') {
+      if (n.rezim === 'dolu') n.cil = Math.min(STOPKY_MAX_CIL_MIN * 60000, n.cil + cilMs(arg));
+    }
+    return n;
+  }
+  function stopkyUloz(s) { return JSON.stringify({ v: 1, rezim: s.rezim, bezi: s.bezi, od: s.od, nahrano: s.nahrano, cil: s.cil }); }
+  function stopkyNacti(text, ted) { let o = null; try { o = JSON.parse(text); } catch (e) { o = null; } return stopkyOcisti(o, ted); }
+
   return {
     UKOLU_V_MISI, MISI_V_OBLASTI, ONLINE_MIN, UKOLU_NA_HRACE, MIN_KROK, MAX_KLICU, ODZNAKY,
     kratke, jmeno, stav, kde, kdeText, klic, online, zaklad, doplnZaklad, prirustek, seradit, souhrn,
     udalosti, pamet, pocet, ukolu, misi, text, krokPro, novyCil, posun, tymy,
+    BOJ_OTAZKA_S, BOJ_ODPOCET_MS, mistnost, zbyvaSekund, mistnostText,
+    KDE_PORADI, KDE_NAZVY, kdeSouhrn,
+    zakladMise, doplnZakladMise, ocistiZakladMise, mapaMisi,
+    STOPKY_MAX_MS, STOPKY_MAX_CIL_MIN, stopkyNove, stopkyOcisti, stopkyUplynulo, stopkyCas, stopkyZobraz, stopkyAkce, stopkyUloz, stopkyNacti,
   };
 });

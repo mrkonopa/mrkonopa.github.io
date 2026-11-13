@@ -338,7 +338,7 @@ async function hlavni() {
   await sabotaz('bez stropu řádků', 'rpg-infocentrum.js', s => s.replace(".slice(0, BOJ_MAX_HRACU)", ""), ['tymyVelke'], /nejvýš 40/);
   await sabotaz('jméno hráče přes innerHTML', 'rpg-ucitel.html', s => s.replace("j.textContent=h.jmeno;", "j.innerHTML=h.jmeno;"), ['tymyVelke'], /nevykoná/);
   await sabotaz('malé písmo jmen v týmech', 'rpg-ucitel.html', s => s.replace("font-size:clamp(14px,1vw,20px);min-width:0}", "font-size:12px;min-width:0}"), ['tymyVelke'], /čitelné písmo/);
-  await sabotaz('starý souboj zůstane viset', 'rpg-ucitel.html', s => s.replace("if(!t||t.faze==='finished'){", "if(!t){"), ['tymy'], /najde nový běžící/);
+  await sabotaz('starý souboj zůstane viset', 'rpg-ucitel.html', s => s.replace("if(!m||m.faze==='finished'){", "if(!m){"), ['tymy'], /najde nový běžící/);
 
   await br.close();
   console.log(`\n  VÝSLEDEK: ${pass} ✅ / ${fail} ❌\n`);

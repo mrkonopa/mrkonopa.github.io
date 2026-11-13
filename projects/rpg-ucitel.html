@@ -287,6 +287,52 @@ h4{font-family:var(--px);font-size:12px;font-weight:700;color:var(--accent);lett
 .ic-ts{font-weight:700;color:var(--accent);white-space:nowrap}
 .ic-tc{font-size:.8em;color:var(--muted);white-space:nowrap}
 .ic-tr.prazdno{grid-template-columns:minmax(0,1fr);color:var(--muted)}
+/* Panely z etapy 3: Místnost souboje, Kde kdo je, Mapa misí, Čas. Písmo se řídí šířkou panelu (cqw), ne okna. */
+.ic-mis{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px clamp(16px,3cqw,48px);align-items:center}
+.ic-mis small{display:block;font-size:12px;letter-spacing:2px;color:var(--muted)}
+.ic-mkod b{display:block;font-family:var(--vt);font-weight:400;font-size:clamp(48px,7cqw,128px);line-height:1;letter-spacing:.12em;color:var(--gold);user-select:all}
+.ic-mtxt{font-size:clamp(16px,1.9cqw,32px);font-weight:700;margin-bottom:4px}
+.ic-mdrobne{font-size:clamp(13px,1.3cqw,22px);color:var(--muted)}
+.ic-mcas{text-align:right}
+.ic-mcas b{display:block;font-family:var(--vt);font-weight:400;font-size:clamp(40px,5.5cqw,96px);line-height:1;color:var(--accent)}
+.ic-mcas.nizky b{color:var(--red)}
+.ic-mcas[hidden]{display:none}
+@container (max-width:640px){.ic-mis{grid-template-columns:minmax(0,1fr)}.ic-mcas{text-align:left}}
+.ic-kde{display:grid;grid-template-columns:repeat(auto-fill,minmax(clamp(150px,13cqw,260px),1fr));gap:10px}
+.ic-kt{background:var(--panel2);border:1px solid var(--line);border-left:4px solid var(--kc,var(--accent));padding:8px 10px;min-width:0}
+.ic-kt.nula{opacity:.4}
+.ic-kt b{font-family:var(--vt);font-weight:400;font-size:clamp(30px,3.4cqw,60px);line-height:1;color:var(--kc,var(--accent));margin-right:8px}
+.ic-kt span{font-size:clamp(13px,1.35cqw,24px);font-weight:700}
+.ic-kt i{display:block;font-style:normal;font-size:clamp(12px,1.15cqw,20px);color:var(--muted);margin-top:4px;overflow-wrap:anywhere}
+.ic-kt[data-typ="boj"]{--kc:var(--red)}.ic-kt[data-typ="trenink"]{--kc:var(--green)}.ic-kt[data-typ="teorie"]{--kc:#b48cff}
+.ic-kt[data-typ="mapa"]{--kc:var(--accent)}.ic-kt[data-typ="vez"]{--kc:var(--gold)}.ic-kt[data-typ="souboj"]{--kc:#ff9d5c}.ic-kt[data-typ="off"]{--kc:var(--muted)}
+.ic-mapa{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px}
+.ic-ma-h{font-size:clamp(12px,1.2cqw,20px);font-weight:700;color:var(--muted);text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.ic-ma-c{--p:0;position:relative;background:var(--panel2);border:1px solid var(--line);padding:6px 6px 8px;min-width:0;text-align:center}
+/* sytost nejvýš 28 % zelené: popisek #dfe8f7 a „+n“ mají i při plně splněné misi kontrast ≥ 5,5 : 1 (s 42 % klesl šedý popisek na 1,4 : 1) */
+@supports (background:color-mix(in srgb,red,blue)){.ic-ma-c{background:color-mix(in srgb,var(--green) calc(var(--p)*28%),var(--panel2))}}
+.ic-ma-c small{display:block;font-size:12px;color:#dfe8f7;text-align:left}
+.ic-ma-c b{display:block;font-family:var(--vt);font-weight:400;font-size:clamp(24px,2.8cqw,52px);line-height:1;color:#fff}
+.ic-ma-c u{display:block;overflow-wrap:anywhere;text-decoration:none;font-size:clamp(12px,1.2cqw,20px);color:var(--green);font-weight:700;min-height:1.2em}
+.ic-ma-c.nove{border-color:var(--green);box-shadow:0 0 10px #39ff9e44}
+.ic-ma-c.nula b{color:var(--muted)}
+@container (max-width:520px){.ic-ma-h .ic-ma-n{display:none}}
+.ic-sp{display:grid;gap:10px;justify-items:center;text-align:center}
+.ic-sp-cas{font-family:var(--vt);font-size:clamp(48px,16cqw,200px);line-height:1;color:#fff;letter-spacing:.04em}
+.ic-sp[data-stav="konec"] .ic-sp-cas{color:var(--red)}
+.ic-sp[data-stav="bezi"] .ic-sp-cas{color:var(--accent)}
+.ic-sp-lbl{font-size:clamp(13px,2.4cqw,26px);color:var(--muted);letter-spacing:2px;text-transform:uppercase}
+.ic-sp[data-stav="konec"] .ic-sp-lbl{color:var(--red);font-weight:700}
+.ic-sp-tl{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.ic-sp button{font-family:inherit;font-size:13px;font-weight:700;padding:8px 12px;min-height:36px;border:1px solid var(--accent);background:var(--panel2);color:var(--accent);border-radius:5px;cursor:pointer}
+.ic-sp button:hover{background:var(--accent);color:#06101e}
+.ic-sp button[aria-pressed="true"]{background:var(--accent);color:#06101e}
+.ic-sp button:focus-visible,.ic-sp input:focus-visible{outline:3px solid #fff;outline-offset:2px}
+.ic-sp input{font-family:inherit;font-size:14px;width:5.5em;min-height:36px;padding:6px 8px;border:1px solid var(--line);background:var(--bg);color:var(--text);border-radius:5px}
+.ic-sp-pre{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;align-items:center}
+.ic-sp-pre label{font-size:12px;color:var(--muted)}
+@media(pointer:coarse){.ic-sp button,.ic-sp input{min-height:44px}}
+#ic-root.ic-proj .ic-sp-tl,#ic-root.ic-proj .ic-sp-pre,#ic-root.ic-proj .ic-sp-rez{opacity:.55}
 .ic-feed{display:grid;gap:8px;max-height:430px;overflow:hidden}
 .ic-ev{display:grid;grid-template-columns:30px minmax(0,1fr) auto;gap:8px;align-items:center;background:var(--panel2);border-left:4px solid var(--accent);padding:9px 11px;font-size:15px;animation:ic-in .5s steps(6)}
 .ic-ev.oblast{border-left-color:var(--gold);background:#241f0e;font-size:17px}
@@ -562,6 +608,27 @@ h4{font-family:var(--px);font-size:12px;font-weight:700;color:var(--accent);lett
        <div class="ic-cols3"><div class="ic-stat"><b id="ic-sm">0</b><span>MISÍ HOTOVO</span></div><div class="ic-stat"><b id="ic-so">0</b><span>OBLASTÍ</span></div><div class="ic-stat"><b id="ic-sa">0</b><span>ODZNAKY</span></div></div>
       </section>
       <section class="ic-panel" data-ic-panel="deje"><h2>Děje se <span>posledních 7 událostí</span></h2><div class="ic-feed" id="ic-feed"></div></section>
+      <section class="ic-panel" id="ic-mistnost" data-ic-panel="mistnost" hidden><h2>Místnost souboje <span id="ic-mfaze"></span></h2>
+       <div class="ic-mis">
+        <div class="ic-mkod"><small>KÓD MÍSTNOSTI</small><b id="ic-kod">—</b></div>
+        <div><div class="ic-mtxt" id="ic-motazka">—</div><div class="ic-goalbar"><u id="ic-mbar" style="width:0%"></u></div><div class="ic-mdrobne" id="ic-modp"></div></div>
+        <div class="ic-mcas" id="ic-mcas" hidden><small>ZBÝVÁ NA OTÁZKU</small><b id="ic-mcas-s">—</b></div>
+       </div>
+      </section>
+      <section class="ic-panel" data-ic-panel="kde"><h2>Kde kdo je <span id="ic-kdesum"></span></h2><div class="ic-kde" id="ic-kde"></div></section>
+      <section class="ic-panel" data-ic-panel="mapa"><h2>Mapa misí <span id="ic-mapasum"></span></h2><div class="ic-mapa" id="ic-mapa" role="list" aria-label="Mapa misí třídy"></div></section>
+      <section class="ic-panel" data-ic-panel="stopky"><h2>Čas <span id="ic-sp-popis">stopky</span></h2>
+       <div class="ic-sp" id="ic-sp" data-stav="stoji">
+        <div class="ic-sp-cas" id="ic-sp-cas" role="timer" aria-label="Čas">0:00</div>
+        <div class="ic-sp-lbl" id="ic-sp-lbl">uplynulo</div>
+        <div class="ic-sp-tl"><button type="button" id="ic-sp-start">▶ Start</button><button type="button" id="ic-sp-nula">↺ Nula</button><button type="button" id="ic-sp-plus" hidden>+1 min</button></div>
+        <div class="ic-sp-tl ic-sp-rez" role="group" aria-label="Režim času"><button type="button" id="ic-sp-r-nahoru" aria-pressed="true">Stopky</button><button type="button" id="ic-sp-r-dolu" aria-pressed="false">Odpočet</button></div>
+        <div class="ic-sp-pre" id="ic-sp-pre" hidden>
+         <button type="button" data-min="5">5 min</button><button type="button" data-min="10">10 min</button><button type="button" data-min="15">15 min</button><button type="button" data-min="20">20 min</button>
+         <label for="ic-sp-min">vlastní:</label><input type="number" id="ic-sp-min" min="1" max="180" step="1" inputmode="numeric" placeholder="min"><button type="button" id="ic-sp-spust">Spustit</button>
+        </div>
+       </div>
+      </section>
     </div>
     <div class="ic-sr" id="ic-live" role="status" aria-live="polite"></div>
     <div class="ic-lv" id="ic-lv" aria-hidden="true"><div><h3 id="ic-lvh"></h3><p>Třída postoupila! Skvělá práce všech.</p></div></div>
@@ -2365,7 +2432,11 @@ const NAPOVEDA = [
    'Rozložení se pamatuje <b>jen v tomto zařízení</b> pro každou třídu zvlášť.</p>'+
    '<p><b>Scénáře</b>: v nabídce vedle třídy a hry vybereš rozložení pro danou činnost — „Samostatná práce“, „Týmový souboj“ nebo vlastní. '+
    'V úpravách jde panel odebrat tlačítkem <b>✕</b> a vrátit přes „＋ Přidat panel…“; „💾 Uložit jako scénář…“ uloží právě zobrazené rozložení pod tvým názvem. '+
-   'Když začne týmový souboj, konzole <b>jen nabídne</b> přepnutí na „Týmový souboj“, sama nic nepřepne.</p>' },
+   'Když začne týmový souboj, konzole <b>jen nabídne</b> přepnutí na „Týmový souboj“, sama nic nepřepne.</p>'+
+   '<p><b>Další panely</b> (v úpravách přes „＋ Přidat panel…“): <b>Místnost souboje</b> — velký kód místnosti pro žáky, která otázka právě běží, kolik hráčů už odpovědělo a odpočet otázky '+
+   '(ukáže se u každého živého souboje; v Týmovém souboji je nahoře sama). <b>Kde kdo je</b> — kolik hrajících žáků je v boji, tréninku, teorii, na mapě, ve Věži a v živém souboji (jen ti, kdo právě hrají). '+
+   '<b>Mapa misí</b> — 7 oblastí × 3 mise, v každé počet žáků, kteří ji mají splněnou; „+n v hodině“ znamená, že ji splnili od začátku hodiny (jména v bublině při najetí myší). '+
+   '<b>Čas</b> — stopky nebo odpočet (5, 10, 15, 20 minut nebo vlastní počet), jen v tomto prohlížeči; běží i po obnovení stránky, na konci se jen zčervená a napíše „čas vypršel“, nic nezazní.</p>' },
 
  { id:'leaderboard', nadpis:'Žebříčky', kdo:'učitel i superadmin', text:
    '<p>Pořadí žáků podle XP v daném ročníku. Pozor na rozdíl: <b>žák ve hře vidí jen své spolužáky</b> '+
@@ -2422,16 +2493,18 @@ const NAPOVEDA = [
 /* ══ INFOCENTRUM HODINY ═══════════════════════════════════════════════
    Logika (výpočty, události, cíl) je v `rpg-infocentrum.js` (RPGInfo) a má vlastní Node test;
    tady je jen načítání a vykreslení. Jména žáků se vkládají VÝHRADNĚ přes textContent. */
-const IC={uprava:false,nabidkaBoj:null,timer:null,bezi:false,stavy:{},pamet:{},zaklad:{},cil:null,start:0,cid:'',game:'',cursor:'',udal:[],tik:0,bojId:null,poradi:[]};
+const IC={uprava:false,nabidkaBoj:null,timer:null,bezi:false,stavy:{},pamet:{},zaklad:{},zm:{},cil:null,start:0,cid:'',game:'',cursor:'',udal:[],tik:0,bojId:null,mistId:null,mistFaze:null,mist:null,stopky:null,stopkyHlasen:false,poradi:[]};
 const IC_KLIC='RPG_INFOCENTRUM';
-function icUloz(){try{localStorage.setItem(IC_KLIC,JSON.stringify({cid:IC.cid,game:IC.game,start:IC.start,zaklad:IC.zaklad,cil:IC.cil}));}catch(e){}}
+function icUloz(){try{localStorage.setItem(IC_KLIC,JSON.stringify({cid:IC.cid,game:IC.game,start:IC.start,zaklad:IC.zaklad,zm:IC.zm,cil:IC.cil}));}catch(e){}}
 function icNacti(){try{const o=JSON.parse(localStorage.getItem(IC_KLIC)||'null');
  if(o&&o.cid===IC.cid&&o.game===IC.game&&Date.now()-o.start<6*3600e3&&o.zaklad&&o.cil&&isFinite(o.cil.stupen)&&isFinite(o.cil.zaklad)&&isFinite(o.cil.krok))return o;}catch(e){}return null;}
 const icEl=id=>document.getElementById(id);
+/* věta pro čtečku obrazovky (živá oblast se nejdřív vyprázdní, ať se přečte i stejná věta podruhé) */
+function icHlas(t){const l=icEl('ic-live');if(!l)return;l.textContent='';setTimeout(()=>{l.textContent=t;},30);}
 /* Rozložení panelů (rpg-infocentrum-mrizka.js): úprava jen na požádání, uložené v tomto zařízení pro třídu a scénář */
 let icMr=null;
 function icMrizka(){
- if(!icMr&&window.RPGInfoGrid&&icEl('ic-grid'))icMr=RPGInfoGrid.pripoj(icEl('ic-grid'),{zprava:t=>{const l=icEl('ic-live');l.textContent='';setTimeout(()=>{l.textContent=t;},30);},onZmena:()=>icScenare()});
+ if(!icMr&&window.RPGInfoGrid&&icEl('ic-grid'))icMr=RPGInfoGrid.pripoj(icEl('ic-grid'),{zprava:icHlas,onZmena:()=>icScenare()});
  return icMr;
 }
 /* Scénáře: výběr, přidání odebraného panelu, uložení a smazání vlastního scénáře; jména jen přes textContent (píše je učitel) */
@@ -2459,7 +2532,7 @@ function icUprava(zap){
 }
 function initInfocentrum(){
  const sc=icEl('ic-class'),sg=icEl('ic-game');
- icMrizka();icEl('ic-uprav').onclick=()=>icUprava(!IC.uprava);icEl('ic-vychozi').onclick=()=>{if(icMr)icMr.obnov();};
+ icMrizka();icStopkyInit();icEl('ic-uprav').onclick=()=>icUprava(!IC.uprava);icEl('ic-vychozi').onclick=()=>{if(icMr)icMr.obnov();};
  icEl('ic-scenar').onchange=e=>{if(icMr)icMr.prepniScenar(e.target.value);};
  icEl('ic-pridat').onchange=e=>{if(icMr&&e.target.value)icMr.pridejPanel(e.target.value);};
  icEl('ic-ulozit-sc').onclick=()=>{if(!icMr)return;const n=prompt('Název nového scénáře — uloží se do něj právě zobrazené rozložení:');if(n===null)return;const r=icMr.novyScenar(n);toast(r.ok?'Scénář je uložen.':r.chyba,!r.ok);};
@@ -2478,17 +2551,19 @@ function initInfocentrum(){
  icEl('ic-nova').onclick=()=>icNova();icEl('ic-full').onclick=()=>icCela();
  icZacni();
 }
-function infoStop(){if(IC.timer){clearInterval(IC.timer);IC.timer=null;}if(IC.tymTimer){clearInterval(IC.tymTimer);IC.tymTimer=null;}}
+function infoStop(){if(IC.timer){clearInterval(IC.timer);IC.timer=null;}if(IC.tymTimer){clearInterval(IC.tymTimer);IC.tymTimer=null;}if(IC.hodTimer){clearInterval(IC.hodTimer);IC.hodTimer=null;}}
 function icZacni(){
  infoStop();
  IC.cid=icEl('ic-class').value;IC.game=icEl('ic-game').value;
  if(icMr)icMr.nacti(IC.cid);
- IC.stavy={};IC.pamet={};IC.cursor='';IC.udal=[];IC.tik=0;IC.bojId=null;IC.bojFaze=null;IC.tymBezi=false;IC.poradi=[];icEl('ic-cards').innerHTML='';icEl('ic-feed').innerHTML='';
+ IC.stavy={};IC.pamet={};IC.zm={};IC.cursor='';IC.udal=[];IC.tik=0;IC.bojId=null;IC.bojFaze=null;IC.mistId=null;IC.mistFaze=null;IC.mist=null;IC.tymBezi=false;IC.poradi=[];icEl('ic-cards').innerHTML='';icEl('ic-feed').innerHTML='';
  const c=activeClasses().find(x=>x.id===IC.cid),g=gMeta(IC.game);
  icEl('ic-nadpis').innerHTML='INFO<em>CENTRUM</em> · '+esc(c?classLabel(c):'—')+' · '+esc(g.nm);
  icTik(true);IC.timer=setInterval(()=>icTik(false),6000);
  /* běžící týmový souboj se čte častěji než postavy (otázka trvá desítky sekund, tečky „už odpověděl“ musí stíhat) */
- IC.tymTimer=setInterval(()=>{if(IC.bojId&&IC.bojFaze!=='finished')icTymy();},2500);
+ IC.tymTimer=setInterval(()=>{if(IC.mistId&&IC.mistFaze!=='finished')icTymy();},2500);
+ /* jedno tikání po čtvrt sekundě: odpočet otázky mezi dotazy na server a stopky/odpočet učitele */
+ IC.hodTimer=setInterval(icHodiny,250);icHodiny();
 }
 async function icTik(prvni){
  if(IC.bezi)return;IC.bezi=true;const stav=icEl('ic-stav');
@@ -2505,13 +2580,13 @@ async function icTik(prvni){
   if(prvni){
    IC.pamet=RPGInfo.pamet(vsichni);
    const ulozeno=icNacti(),on=vsichni.filter(s=>RPGInfo.online(s.updated,ted)).length;
-   if(ulozeno){IC.start=ulozeno.start;IC.zaklad=ulozeno.zaklad;IC.cil=ulozeno.cil;}
-   else{IC.start=ted;IC.zaklad=RPGInfo.zaklad(vsichni);IC.cil=RPGInfo.novyCil(on);}
-   RPGInfo.doplnZaklad(IC.zaklad,vsichni);
+   if(ulozeno){IC.start=ulozeno.start;IC.zaklad=ulozeno.zaklad;IC.zm=RPGInfo.ocistiZakladMise(ulozeno.zm);IC.cil=ulozeno.cil;}
+   else{IC.start=ted;IC.zaklad=RPGInfo.zaklad(vsichni);IC.zm=RPGInfo.zakladMise(vsichni);IC.cil=RPGInfo.novyCil(on);}
+   RPGInfo.doplnZaklad(IC.zaklad,vsichni);RPGInfo.doplnZakladMise(IC.zm,vsichni);
   }else{
    nove=RPGInfo.udalosti(IC.pamet,zmenene);
    Object.assign(IC.pamet,RPGInfo.pamet(zmenene));
-   RPGInfo.doplnZaklad(IC.zaklad,zmenene);
+   RPGInfo.doplnZaklad(IC.zaklad,zmenene);RPGInfo.doplnZakladMise(IC.zm,zmenene);
   }
   const hraci=vsichni.map(s=>({uid:s.uid,jmeno:s.jmeno,level:s.level,kde:s.kde,updated:s.updated,on:RPGInfo.online(s.updated,ted),prir:RPGInfo.prirustek(s,IC.zaklad)}));
   const on=hraci.filter(h=>h.on).length,sum=RPGInfo.souhrn(hraci);
@@ -2520,7 +2595,7 @@ async function icTik(prvni){
   icKresli(hraci,sum,p,nove);
   if(p.postoupila)icOslava(IC.cil.stupen);
   icUloz();
-  if((!IC.bojId||IC.bojFaze==='finished')&&IC.tik++%3===0)await icTymy();
+  if((!IC.mistId||IC.mistFaze==='finished')&&IC.tik++%3===0)await icTymy();
   stav.classList.remove('zle');stav.innerHTML='✓ aktualizováno <b>'+new Date().toLocaleTimeString('cs-CZ')+'</b>';
  }catch(e){stav.classList.add('zle');stav.textContent='⚠ nepodařilo se načíst — zkouším dál';console.warn('[infocentrum]',e);}
  IC.bezi=false;
@@ -2560,6 +2635,7 @@ function icKresli(hraci,sum,p,nove){
   const tm=document.createElement('time');tm.textContent=icAgo(new Date(u.t).toISOString(),ted).replace('před ','');
   r.append(ic,tx,tm);f.appendChild(r);});
  icEl('ic-hod').innerHTML='hodina běží <b>'+Math.max(0,Math.round((ted-IC.start)/60000))+' min</b>';
+ icKde(hraci);icMapa();
 }
 function icNazvyMisi(){const o={};missionsFor(IC.game).forEach(m=>{o[m.id]=m.name;});return o;}
 function icBarva(uid){let h=0;for(const c of String(uid))h=(h*31+c.charCodeAt(0))>>>0;return ['#19e6e6','#ff9d5c','#b48cff','#39ff9e','#ff5d7f','#f4d03f','#5aa9ff','#ff8ad8'][h%8];}
@@ -2583,22 +2659,120 @@ async function icTymy(){
  const sek=icEl('ic-tymy');
  if(IC.tymBezi)return;IC.tymBezi=true;
  try{
-  let st=null,t=null;
-  if(IC.bojId){st=await RPGCloud.battleState(IC.bojId);t=st?RPGInfo.tymy(st):null;}
+  /* sledovaný souboj (týmový i obyčejný): `t` = týmy (jen v týmovém režimu), `m` = místnost (kód, otázka, odpočet) */
+  const sledId=IC.bojId||IC.mistId;
+  let idSt=sledId,st=null,t=null,m=null;
+  if(sledId){st=await RPGCloud.battleState(sledId);t=st?RPGInfo.tymy(st):null;m=st?RPGInfo.mistnost(st,Date.now()):null;}
   /* sledovaný souboj skončil nebo zmizel → zkus najít jiný běžící (výsledek skončeného zůstane, dokud žádný nový není) */
-  if(!t||t.faze==='finished'){
+  if(!m||m.faze==='finished'){
    const sez=(await RPGCloud.listActiveBattles()||[]).filter(b=>!b.game||b.game===IC.game).slice(0,3);
-   for(const b of sez){if(b.id===IC.bojId)continue;const s=await RPGCloud.battleState(b.id),tt=s?RPGInfo.tymy(s):null;if(tt){IC.bojId=b.id;st=s;t=tt;break;}}
+   for(const b of sez){if(b.id===sledId)continue;const s=await RPGCloud.battleState(b.id),mm=s?RPGInfo.mistnost(s,Date.now()):null;if(mm){idSt=b.id;st=s;m=mm;t=RPGInfo.tymy(s);break;}}
   }
-  if(!t)IC.bojId=null;
+  IC.mistId=m?idSt:null;IC.bojId=t?idSt:null;IC.mist=m;IC.mistFaze=m?m.faze:null;IC.bojFaze=t?t.faze:null;
+  icMistnostKresli(m);
   sek.hidden=!t;if(!t)return;
-  IC.bojFaze=t.faze;
   const [a,b]=t.skore;
   icEl('ic-t1').textContent=a;icEl('ic-t2').textContent=b;icEl('ic-t1').style.flex=Math.max(1,a);icEl('ic-t2').style.flex=Math.max(1,b);
   icTymRadky(icEl('ic-tn1'),t.modryHraci);icTymRadky(icEl('ic-tn2'),t.cervenyHraci);
   icTymHlava(icEl('ic-tp1'),t.modryHraci,t.faze);icTymHlava(icEl('ic-tp2'),t.cervenyHraci,t.faze);
- }catch(e){sek.hidden=true;console.warn('[infocentrum] týmy',e);}
+ }catch(e){sek.hidden=true;IC.mistId=null;IC.mist=null;IC.mistFaze=null;icMistnostKresli(null);console.warn('[infocentrum] týmy',e);}
  finally{IC.tymBezi=false;icNabidka();}
+}
+/* Panel Místnost souboje: kód, věta o stavu, ukazatel otázek, kolik už odpovědělo; odpočet otázky dotikává `icHodiny` */
+function icMistnostKresli(m){
+ const sek=icEl('ic-mistnost');sek.hidden=!m;if(!m)return;
+ const t=RPGInfo.mistnostText(m);
+ icEl('ic-kod').textContent=m.kod||'—';
+ icEl('ic-mfaze').textContent=m.tymovy?'týmový režim':'každý sám';
+ icEl('ic-motazka').textContent=t.veta;
+ icEl('ic-mbar').style.width=(t.podil*100)+'%';
+ const odp=m.faze==='active'&&m.zivych?'odpovědělo '+m.odpovedelo+' z '+m.zivych+' · ':'';
+ icEl('ic-modp').textContent=odp+m.hracu+' '+RPGInfo.pocet(m.hracu,'hráč v místnosti','hráči v místnosti','hráčů v místnosti');
+ icMistCas();
+}
+function icMistCas(){
+ const m=IC.mist,box=icEl('ic-mcas');if(!box)return;
+ const z=m&&m.konec!=null&&m.faze==='active'?RPGInfo.zbyvaSekund(m.konec,Date.now()):null;
+ box.hidden=z===null;if(z===null)return;
+ const tx=z+' s';if(icEl('ic-mcas-s').textContent!==tx)icEl('ic-mcas-s').textContent=tx;
+ box.classList.toggle('nizky',z<=5);
+}
+/* Panel Kde kdo je: počty hrajících podle obrazovky; jména jen přes textContent */
+function icKde(hraci){
+ const box=icEl('ic-kde');if(!box)return;
+ const k=RPGInfo.kdeSouhrn(hraci,6);
+ box.replaceChildren();
+ const dlazdice=(typ,nazev,pocet,jmena,dalsi)=>{
+  const d=document.createElement('div');d.className='ic-kt'+(pocet?'':' nula');d.dataset.typ=typ;
+  const b=document.createElement('b');b.textContent=String(pocet);const sp=document.createElement('span');sp.textContent=nazev;d.append(b,sp);
+  if(jmena&&jmena.length){const i=document.createElement('i');i.textContent=jmena.join(', ')+(dalsi?' +'+dalsi:'');d.appendChild(i);}
+  box.appendChild(d);};
+ k.skupiny.forEach(sk=>dlazdice(sk.typ,sk.nazev,sk.pocet,sk.jmena,sk.dalsi));
+ if(k.bezUdaje)dlazdice('off','hraje, místo neznámé',k.bezUdaje,[],0);
+ dlazdice('off','právě nehraje',k.nehraje,[],0);
+ icEl('ic-kdesum').textContent=k.hraje+' z '+hraci.length+' hraje';
+}
+/* Panel Mapa misí: 7 oblastí × 3 mise, v každé kolik žáků ji má splněnou; „+n“ = splnili ji v téhle hodině */
+function icMapa(){
+ const box=icEl('ic-mapa');if(!box)return;
+ const mp=RPGInfo.mapaMisi(Object.values(IC.stavy),IC.zm),nazvy=icNazvyMisi(),oblasti=AREA_NAMES[IC.game]||[];
+ box.replaceChildren();
+ for(let a=1;a<=7;a++){
+  const h=document.createElement('div');h.className='ic-ma-h';h.setAttribute('aria-hidden','true');
+  const nm=oblasti[a-1]||('Oblast '+a),mezera=nm.indexOf(' ');
+  h.title=nm;h.append(document.createTextNode(mezera>0?nm.slice(0,mezera):String(a)));
+  const n=document.createElement('span');n.className='ic-ma-n';n.textContent=mezera>0?' '+nm.slice(mezera+1):'';h.appendChild(n);
+  box.appendChild(h);
+ }
+ const podle={};mp.bunky.forEach(b=>{podle[b.mid]=b;});
+ for(let i=1;i<=3;i++)for(let a=1;a<=7;a++){
+  const b=podle[a+'-'+i],c=document.createElement('div');
+  c.className='ic-ma-c'+(b.vHodine?' nove':'')+(b.hotovo?'':' nula');c.setAttribute('role','listitem');
+  c.style.setProperty('--p',mp.hracu?(b.hotovo/mp.hracu).toFixed(2):'0');
+  const mi=document.createElement('small');mi.textContent=b.mid;
+  const cis=document.createElement('b');cis.textContent=String(b.hotovo);
+  const plus=document.createElement('u');plus.textContent=b.vHodine?'+'+b.vHodine+' v hodině':'';
+  const popis='Mise '+b.mid+(nazvy[b.mid]?' „'+nazvy[b.mid]+'“':'')+': splnilo '+b.hotovo+' z '+mp.hracu+(b.vHodine?'; v hodině přibylo '+b.vHodine:'');
+  c.setAttribute('aria-label',popis);c.title=popis+(b.jmena.length?'\n'+b.jmena.slice(0,12).join(', ')+(b.jmena.length>12?' +'+(b.jmena.length-12):''):'');
+  c.append(mi,cis,plus);box.appendChild(c);
+ }
+ icEl('ic-mapasum').textContent='z '+mp.hracu+' '+RPGInfo.pocet(mp.hracu,'žáka','žáků','žáků');
+}
+/* Panel Čas: stopky a odpočet učitele, jen v tomto prohlížeči (stav v localStorage přežije obnovení stránky) */
+const IC_STOPKY_KLIC='RPG_INFOCENTRUM_STOPKY';
+function icStopkyPis(){try{localStorage.setItem(IC_STOPKY_KLIC,RPGInfo.stopkyUloz(IC.stopky));}catch(e){}}
+function icStopkyAkce(akce,arg){
+ IC.stopky=RPGInfo.stopkyAkce(IC.stopky,akce,Date.now(),arg);icStopkyPis();icStopkyKresli();
+ const z=RPGInfo.stopkyZobraz(IC.stopky,Date.now());
+ icHlas(akce==='start'?'Čas běží.':akce==='pauza'?'Čas stojí na '+z.text+'.':akce==='nula'?'Čas je vynulován.':akce==='odpocet'?'Odpočet '+IC.stopky.cil/60000+' minut běží.':akce==='pridej'?'Odpočet prodloužen o minutu.':IC.stopky.rezim==='dolu'?'Režim odpočet.':'Režim stopky.');
+}
+function icStopkyKresli(){
+ const s=IC.stopky;if(!s||!icEl('ic-sp'))return;
+ const z=RPGInfo.stopkyZobraz(s,Date.now()),dolu=s.rezim==='dolu';
+ icEl('ic-sp').dataset.stav=z.stav;
+ const cas=icEl('ic-sp-cas');if(cas.textContent!==z.text)cas.textContent=z.text;
+ icEl('ic-sp-lbl').textContent=z.stitek;
+ icEl('ic-sp-r-nahoru').setAttribute('aria-pressed',String(!dolu));icEl('ic-sp-r-dolu').setAttribute('aria-pressed',String(dolu));
+ icEl('ic-sp-pre').hidden=!dolu;icEl('ic-sp-plus').hidden=!dolu;
+ const st=icEl('ic-sp-start');st.textContent=z.stav==='bezi'?'⏸ Pauza':'▶ Start';st.disabled=z.stav==='konec';
+ icEl('ic-sp-popis').textContent=dolu?'odpočet '+s.cil/60000+' min':'stopky';
+ if(z.stav==='konec'&&!IC.stopkyHlasen){IC.stopkyHlasen=true;icHlas('Čas vypršel.');}
+ if(z.stav!=='konec')IC.stopkyHlasen=false;
+}
+function icHodiny(){icMistCas();icStopkyKresli();}
+function icStopkyInit(){
+ let t=null;try{t=localStorage.getItem(IC_STOPKY_KLIC);}catch(e){}
+ IC.stopky=RPGInfo.stopkyNacti(t,Date.now());
+ const kl=(id,f)=>{icEl(id).onclick=f;};
+ kl('ic-sp-start',()=>icStopkyAkce(IC.stopky.bezi?'pauza':'start'));
+ kl('ic-sp-nula',()=>icStopkyAkce('nula'));
+ kl('ic-sp-plus',()=>icStopkyAkce('pridej',1));
+ kl('ic-sp-r-nahoru',()=>icStopkyAkce('rezim','nahoru'));
+ kl('ic-sp-r-dolu',()=>icStopkyAkce('rezim','dolu'));
+ icEl('ic-sp-pre').querySelectorAll('[data-min]').forEach(b=>{b.onclick=()=>icStopkyAkce('odpocet',Number(b.dataset.min));});
+ kl('ic-sp-spust',()=>{const v=Math.floor(Number(icEl('ic-sp-min').value));if(v>=1&&v<=RPGInfo.STOPKY_MAX_CIL_MIN){icStopkyAkce('odpocet',v);}else{icEl('ic-sp-min').focus();icHlas('Zadej počet minut od 1 do '+RPGInfo.STOPKY_MAX_CIL_MIN+'.');}});
+ icEl('ic-sp-min').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();icEl('ic-sp-spust').click();}};
+ icStopkyKresli();
 }
 function icOslava(stupen){
  const l=icEl('ic-lv');l.querySelectorAll('.ic-px').forEach(x=>x.remove());icEl('ic-lvh').textContent='STUPEŇ '+stupen;
@@ -2608,7 +2782,7 @@ function icOslava(stupen){
 }
 function icNova(){
  const vsichni=Object.values(IC.stavy),on=vsichni.filter(s=>RPGInfo.online(s.updated,Date.now())).length;
- IC.start=Date.now();IC.zaklad=RPGInfo.zaklad(vsichni);IC.cil=RPGInfo.novyCil(on);IC.udal=[];icUloz();
+ IC.start=Date.now();IC.zaklad=RPGInfo.zaklad(vsichni);IC.zm=RPGInfo.zakladMise(vsichni);IC.cil=RPGInfo.novyCil(on);IC.udal=[];icUloz();
  const ted=Date.now(),hraci=vsichni.map(s=>({uid:s.uid,jmeno:s.jmeno,level:s.level,kde:s.kde,updated:s.updated,on:RPGInfo.online(s.updated,ted),prir:RPGInfo.prirustek(s,IC.zaklad)}));
  icKresli(hraci,RPGInfo.souhrn(hraci),RPGInfo.posun(IC.cil,0,on),[]);
 }
@@ -2751,8 +2925,8 @@ document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
 
 <script src="vendor/supabase-js-2.118.0.js"></script>
 <script src="./rpg-cloud.js"></script>
-<script src="./rpg-infocentrum.js?v=20261108"></script>
-<script src="./rpg-infocentrum-mrizka.js?v=20261111"></script>
+<script src="./rpg-infocentrum.js?v=20261113"></script>
+<script src="./rpg-infocentrum-mrizka.js?v=20261113"></script>
 <script>boot();</script>
 </body>
 </html>

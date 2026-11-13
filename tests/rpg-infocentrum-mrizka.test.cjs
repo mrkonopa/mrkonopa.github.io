@@ -11,8 +11,9 @@
      7. ukládání: oběh uložit → načíst, nepřátelský obsah úložiště (cokoli) dá vždy platné rozložení, strop počtu klíčů
      4b. výška podle obsahu: řádky mřížky pro obsah, přizpůsobení jen panelům řízeným obsahem, připnutí změnou výšky, uložení (0 = podle obsahu)
      9. scénáře (Samostatná práce, Týmový souboj, vlastní), aktivní scénář po třídách, odebrání a vrácení panelu, úložiště s třemi částmi
+    10. panely z etapy 3 (Místnost, Kde kdo je, Mapa misí, Čas): v registru za původními, ve výchozí Samostatné práci odebrané, přidání/odebrání, starší uložené rozložení se nezmění, Místnost nahoře v Týmovém souboji
      8. věta pro čtečku obrazovky
-   Sabotáže (18): připnutý panel se přizpůsobuje obsahu, výška podle obsahu se ukládá jako číslo, překryv povolen, bez gravitace, bez nejmenší velikosti, čtení zděděných vlastností, svislý pohyb
+   Sabotáže (24): připnutý panel se přizpůsobuje obsahu, výška podle obsahu se ukládá jako číslo, překryv povolen, bez gravitace, bez nejmenší velikosti, čtení zděděných vlastností, svislý pohyb
    jen o řádek, uložené bez kontroly verze, bez stropu klíčů, bez přednosti taženého panelu, výchozí rozložení s překryvem.
    Spusť: node tests/rpg-infocentrum-mrizka.test.cjs
    ═════════════════════════════════════════════════════════════════════════════ */
@@ -58,7 +59,8 @@ function bezi(G, popisek, hlasit) {
   const all = VSE(G), vych = G.vychozi();
 
   /* 1 — registr */
-  f(vych.length === 4 && G.ID.join() === 'tymy,kdo,trida,deje', 'čtyři panely v pořadí Týmy, Kdo hraje, Třída dohromady, Děje se', G.ID.join());
+  f(vych.length === 8 && G.ID.join() === 'mistnost,tymy,kdo,trida,deje,kde,mapa,stopky', 'osm panelů v registru (Místnost první kvůli shodě polohy): Místnost, Týmy, Kdo hraje, Třída dohromady, Děje se, Kde kdo je, Mapa misí, Čas', G.ID.join());
+  f(vych.filter(q => q.o !== false).map(q => q.id).join() === 'tymy,kdo,trida,deje', 've výchozí Samostatné práci jsou jen původní čtyři panely (nové se přidávají přes „Přidat panel“)', vych.map(q => q.id + ':' + q.o).join());
   f(vady(G, vych, all).length === 0, 'výchozí rozložení je platné (v mřížce, bez překryvu, bez děr)', vady(G, vych, all).join('; '));
   f(pol(G.kompaktuj(vych, all)) === pol(vych), 'výchozí rozložení je stabilní (gravitace ho nemění)', pol(G.kompaktuj(vych, all)));
   const kopieVych = JSON.stringify(vych); G.kompaktuj(vych, all); G.presun(vych, 'kdo', 3, 3, all); G.zmenVelikost(vych, 'kdo', 5, 5, all);
@@ -201,9 +203,17 @@ function bezi(G, popisek, hlasit) {
   const idvych = G.vychozi();
   f(G.SCENARE.map(x => x.id).join() === 'hodina,souboj' && G.SCENARE.map(x => x.nazev).join() === 'Samostatná práce,Týmový souboj', 'vestavěné scénáře: Samostatná práce a Týmový souboj');
   const souboj = G.vychozi('souboj');
-  f(souboj.find(q => q.id === 'trida').o === false && najdi(souboj, 'tymy').w === 12 && najdi(souboj, 'tymy').y === 0 && najdi(souboj, 'deje').y === 12, 'Týmový souboj: Týmy přes celou šířku nahoře, Třída dohromady odebraná, Děje se vedle Kdo hraje', pol(souboj));
-  f(vady(G, souboj, all).length === 0 && pol(G.kompaktuj(souboj, all)) === pol(souboj), 'výchozí rozložení Týmového souboje je platné a stabilní', vady(G, souboj, all).join('; '));
-  f(idvych.every(q => q.o === true) && pol(G.vychozi('neznámý')) === pol(idvych) && G.vychozi('neznámý').every(q => q.o === true), 'neznámý nebo vlastní scénář začíná výchozím rozložením všech panelů');
+  const sk = G.kompaktuj(souboj, all);
+  f(sk.find(q => q.id === 'trida').o === false && najdi(sk, 'mistnost').o === true && najdi(sk, 'mistnost').y === 0 && najdi(sk, 'mistnost').w === 12 && najdi(sk, 'tymy').w === 12 && najdi(sk, 'tymy').y === najdi(sk, 'mistnost').h && najdi(sk, 'kdo').y === najdi(sk, 'tymy').y + najdi(sk, 'tymy').h && najdi(sk, 'deje').y === najdi(sk, 'kdo').y, 'Týmový souboj po srovnání gravitací: nahoře pruh Místnost, pod ním Týmy přes celou šířku, pod nimi Kdo hraje a Děje se; Třída dohromady odebraná', pol(sk));
+  f(['kde', 'mapa', 'stopky'].every(id => najdi(souboj, id).o === false), 'Týmový souboj: Kde kdo je, Mapa misí a Čas jsou ve výchozím stavu odebrané');
+  f(vady(G, sk, all).length === 0 && pol(G.kompaktuj(sk, all)) === pol(sk), 'srovnané rozložení Týmového souboje je platné a stabilní', vady(G, sk, all).join('; '));
+  /* sled, který se v učebně opravdu stane: souboj ještě neběží (Místnost a Týmy schované, Kdo hraje a Děje se vyrostly nahoru), pak začne */
+  const predSouj = G.kompaktuj(souboj, new Set(['kdo', 'deje'])), poZacatku = G.kompaktuj(predSouj, all);
+  f(najdi(predSouj, 'kdo').y === 0 && najdi(predSouj, 'deje').y === 0, 'před začátkem souboje jsou Kdo hraje a Děje se nahoře na y = 0', pol(predSouj));
+  f(najdi(poZacatku, 'mistnost').y === 0 && najdi(poZacatku, 'tymy').y === najdi(poZacatku, 'mistnost').h && najdi(poZacatku, 'kdo').y >= najdi(poZacatku, 'tymy').y + najdi(poZacatku, 'tymy').h && najdi(poZacatku, 'deje').y >= najdi(poZacatku, 'tymy').y + najdi(poZacatku, 'tymy').h && vady(G, poZacatku, all).length === 0, 'po začátku souboje je Místnost nad Týmy a ty nad Kdo hraje a Děje se (ne naopak)', pol(poZacatku));
+  const jenTymy = G.kompaktuj(predSouj, new Set(['kdo', 'deje', 'tymy']));
+  f(najdi(jenTymy, 'tymy').y === 0 && najdi(jenTymy, 'kdo').y >= 12, 'když se objeví jen Týmy (Místnost schovaná), jsou nahoře a ostatní pod nimi', pol(jenTymy));
+  f(pol(G.vychozi('neznámý')) === pol(idvych) && G.vychozi('neznámý').map(q => q.o).join() === idvych.map(q => q.o).join() && idvych.filter(q => q.o).length === 4, 'neznámý nebo vlastní scénář začíná rozložením Samostatné práce (původní čtyři panely)');
   const bezKdo = G.odeber(all.size ? idvych : idvych, 'kdo');
   f(bezKdo.find(q => q.id === 'kdo').o === false && najdi(bezKdo, 'trida').o === true && najdi(idvych, 'kdo').o === true, 'odebrání panelu nemění ostatní ani vstup');
   const kBezKdo = G.kompaktuj(bezKdo, all);
@@ -214,10 +224,10 @@ function bezi(G, popisek, hlasit) {
   const odebrano = G.serializuj(bezKdo);
   f(odebrano.kdo.length === 5 && odebrano.kdo[4] === 0 && odebrano.trida.length === 4, 'do úložiště jde odebraný panel s pátým prvkem 0, ostatní ne', JSON.stringify(odebrano));
   f(G.ocisti(odebrano).find(q => q.id === 'kdo').o === false && G.ocisti(odebrano).find(q => q.id === 'trida').o === true, 'po načtení zůstane odebraný panel odebraný');
-  f(G.ocisti({}, undefined, 'souboj').find(q => q.id === 'trida').o === false && G.ocisti({}, undefined, 'hodina').every(q => q.o === true), 'chybějící panel v uloženém scénáři má výchozí podobu TOHO scénáře');
+  f(G.ocisti({}, undefined, 'souboj').find(q => q.id === 'trida').o === false && G.ocisti({}, undefined, 'souboj').find(q => q.id === 'mistnost').o === true && G.ocisti({}, undefined, 'hodina').filter(q => q.o).map(q => q.id).join() === 'tymy,kdo,trida,deje', 'chybějící panel v uloženém scénáři má výchozí podobu TOHO scénáře');
   f(G.ocisti({ trida: [8, 12, 4, 0] }, undefined, 'souboj').find(q => q.id === 'trida').o === true, 'výslovně uložený panel zůstane zapnutý i ve scénáři, kde je ve výchozím stavu odebraný');
   const hoPati = G.ocisti({ kdo: [0, 0, 8, 0, 1], trida: [8, 0, 4, 0, '0'], deje: [8, 8, 4, 0, null], tymy: [0, 0, 12, 12, 0, 0] });
-  f(hoPati.every(q => q.o === true), 'jen pátý prvek přesně 0 panel odebere (1, text, null i šestý prvek ne)', hoPati.map(q => q.o).join());
+  f(hoPati.filter(q => ['tymy', 'kdo', 'trida', 'deje'].includes(q.id)).every(q => q.o === true), 'jen pátý prvek přesně 0 panel odebere (1, text, null i šestý prvek ne)', hoPati.map(q => q.o).join());
   const T0 = null;
   f(G.seznamScenaru(T0).length === 2 && G.seznamScenaru(T0).every(x => x.vlastni === false), 'bez uložených dat jsou jen vestavěné scénáře');
   const p1 = G.pridejScenar(T0, '  Opakování   před  testem ', 'vabc1');
@@ -253,6 +263,26 @@ function bezi(G, popisek, hlasit) {
   const veta = G.popis({ id: 'kdo', x: 0, y: 14, w: 8, h: 17 });
   f(/Kdo hraje/.test(veta) && /sloupec 1 z 12/.test(veta) && /řádek 15/.test(veta) && /šířka 8/.test(veta) && /výška 17/.test(veta), 'věta pro čtečku nese jméno, sloupec, řádek a velikost', veta);
 
+  /* 10 — panely z etapy 3 (Místnost, Kde kdo je, Mapa misí, Čas) */
+  const NOVE = ['mistnost', 'kde', 'mapa', 'stopky'];
+  f(NOVE.every(id => G.PANELY.some(q => q.id === id)) && G.PANELY.filter(q => !NOVE.includes(q.id)).map(q => q.id).join() === 'tymy,kdo,trida,deje', 'původní čtyři panely zůstávají v registru ve stejném pořadí');
+  const hod = G.vychozi('hodina');
+  NOVE.forEach(id => {
+    const pr = G.pridej(hod, id, all), n = najdi(pr, id);
+    f(n.o === true && vady(G, pr, all).length === 0, 'panel ' + id + ' jde přidat do Samostatné práce bez překryvu a bez děr', vady(G, pr, all).join('; ') + ' | ' + pol(pr));
+    const zpet = G.odeber(pr, id);
+    f(najdi(zpet, id).o === false && najdi(G.kompaktuj(zpet, all), 'kdo').y === najdi(G.kompaktuj(hod, all), 'kdo').y, 'odebraný panel ' + id + ' uvolní místo a ostatní se vrátí na původní místa');
+  });
+  const vseZapnute = hod.map(q => Object.assign({}, q, { o: true }));
+  f(vady(G, G.kompaktuj(vseZapnute, all), all).length === 0, 'všech osm panelů najednou je platné rozložení (bez překryvu, bez děr)', vady(G, G.kompaktuj(vseZapnute, all), all).join('; '));
+  const puvodniUlozene = { tymy: [0, 0, 12, 0], kdo: [0, 12, 8, 0], trida: [8, 12, 4, 0], deje: [8, 20, 4, 0] };
+  const nactene = G.ocisti(puvodniUlozene, undefined, 'hodina');
+  f(nactene.filter(q => q.o).map(q => q.id).join() === 'tymy,kdo,trida,deje' && vady(G, nactene, all).length === 0, 'rozložení uložené před etapou 3 (jen čtyři panely) se načte beze změny a nové panely nepřibudou', pol(nactene));
+  const sNov = G.pridej(hod, 'mapa', all), uloz = G.serializuj(sNov), zpetNactene = G.ocisti(uloz, undefined, 'hodina');
+  f(najdi(zpetNactene, 'mapa').o === true && najdi(zpetNactene, 'stopky').o === false && uloz.stopky.length === 5 && uloz.stopky[4] === 0, 'přidaný panel se uloží jako zapnutý, odebraný nový jako odebraný (pátý prvek 0) a po načtení to platí', JSON.stringify(uloz.stopky) + ' ' + pol(zpetNactene));
+  const bezMist = new Set(G.ID.filter(id => id !== 'mistnost')), jenSouboj = G.kompaktuj(souboj, bezMist);
+  f(najdi(jenSouboj, 'tymy').y === 0 && vady(G, jenSouboj, bezMist).length === 0, 'když Místnost není vidět, Týmy a ostatní spadnou nahoru');
+
   return bezi.nalez;
 }
 
@@ -260,7 +290,7 @@ function bezi(G, popisek, hlasit) {
   const G = nacti(ZDROJ);
   bezi(G, 'skutečný', true);
   const ziva = pass + fail;
-  ok(ziva >= 93, 'změřeno aspoň 93 kontrol (naměřeno 93)', String(ziva));
+  ok(ziva >= 108, 'změřeno aspoň 108 kontrol (naměřeno 108)', String(ziva));
 
   /* sabotáže: každá musí aspoň jednu kontrolu shodit */
   const SAB = [
@@ -281,6 +311,11 @@ function bezi(G, popisek, hlasit) {
     ['stejný název scénáře lze přidat dvakrát', s => s.replace("if (seznam.some(x => x.nazev.toLowerCase() === jmeno.toLowerCase())) return { chyba: 'Scénář s tímto názvem už existuje.' };", "")],
     ['chybějící panel má výchozí podobu bez ohledu na scénář', s => s.replace("const vych = vychozi(scenar);", "const vych = vychozi();")],
     ['tažený panel nemá přednost', s => s.replace("((b.p.id === prednost) - (a.p.id === prednost)) || ", "")],
+    ['nové panely jsou ve výchozí Samostatné práci zapnuté', s => s.replace("o: !NOVE.includes(p.id) }));", "o: true }));")],
+    ['Týmový souboj bez pruhu Místnost nahoře', s => s.replace("if (p.id === 'mistnost') p.o = true;", "")],
+    ['Místnost není v registru první', s => s.replace("    { id: 'mistnost', nazev: 'Místnost souboje', x: 0, y: 0,  w: 12, h: 5,  minW: 4, minH: 4 },\n", '').replace("    { id: 'stopky',   nazev: 'Čas',              x: 8, y: 29, w: 4,  h: 8,  minW: 3, minH: 6 },", "    { id: 'stopky',   nazev: 'Čas',              x: 8, y: 29, w: 4,  h: 8,  minW: 3, minH: 6 },\n    { id: 'mistnost', nazev: 'Místnost souboje', x: 0, y: 0,  w: 12, h: 5,  minW: 4, minH: 4 },")],
+    ['Týmy a Místnost v souboji nezačínají na stejné poloze', s => s.replace("        if (p.id === 'kdo' || p.id === 'deje') p.y = 17;", "        if (p.id === 'kdo' || p.id === 'deje') p.y = 17;\n        if (p.id === 'tymy') p.y = 5;")],
+    ['nový panel nejde odebrat (chybí v registru)', s => s.replace("{ id: 'stopky',   nazev: 'Čas',              x: 8, y: 29, w: 4,  h: 8,  minW: 3, minH: 6 },", "")],
     ['výchozí rozložení s překryvem', s => s.replace("{ id: 'kdo',   nazev: 'Kdo hraje',       x: 0, y: 12, w: 8,  h: 17,", "{ id: 'kdo',   nazev: 'Kdo hraje',       x: 0, y: 12, w: 9,  h: 17,")],
   ];
   let chycenoCelkem = 0;
