@@ -100,3 +100,37 @@ stroje a v sandboxu se mezi dvěma běhy lišil skoro dvojnásobně. Cenu přito
 nese právě počet volání — ověřeno: při stejném počtu volání je čtyřnásobná
 plocha zadarmo (0,99 ×), kdežto čtyřnásobek volání při stejné ploše stojí
 přesně 4,00 ×.
+
+---
+
+# Sonda „kam se poděla DÁLE“ (`tools/sonda-dale.js`, 13. 11. 2026)
+
+Druhé měření, které se dá udělat jen na skutečném tabletu. Hlášení z hodiny
+(iPad na šířku): po správné odpovědi — do pole i po A–D nebo ANO/NE — dítě tlačítko
+DÁLE nenašlo. Automatické měření ho nenašlo ani na 5 912 krocích náhodného průchodu
+(3., 4. a 5. ročník, iPad na šířku i na výšku, 10 semínek) ani ve WebKitu na velikosti
+iPadu; chybí v nich dotyková klávesnice a iPadOS.
+
+Sonda **nic ve hře nemění**, jen pozoruje `#next-btn` (boj) a `#tr-next-btn` (trénink)
+a zapisuje, jestli je tlačítko opravdu k zastižení:
+
+| značka | co znamená |
+| --- | --- |
+| **MIMO** | střed tlačítka leží mimo viditelnou část obrazovky (`visualViewport`), třeba pod klávesnicí |
+| **ZAKRYTÉ** | v jeho středu je při dotyku jiný prvek (toast, lišta, panel, plovoucí tlačítko); sonda ho jmenuje |
+| **BLEDÉ** | tlačítko je vypnuté déle než 0,8 s (vypadá jako zmizelé); prvních 0,4 s po zobrazení je vypnuté schválně |
+
+Záložka (stejný postup jako MĚŘENÍ výše):
+
+```
+javascript:(function(){var s=document.createElement('script');s.src='/tools/sonda-dale.js';s.onload=function(){RPGDale.start()};document.body.appendChild(s)})()
+```
+
+Otevři hru, klepni na záložku a hraj. V pravém horním rohu je malý panel (nechytá
+dotyk, jen ✕ ho vypne): kolikrát se DÁLE ukázalo a kolikrát mělo potíž. **Když DÁLE
+zmizí, vyfoť obrazovku s panelem** — poslední záznam má polohu tlačítka, velikost
+okna, výšku klávesnice a prvek, který leží v jeho středu.
+
+Ověřeno v Chromiu na 1080 × 810: zdravý stav 0 potíží; tři sabotáže (překryv přes
+DÁLE, DÁLE mimo obrazovku, DÁLE natrvalo vypnuté) všechny zachyceny. První verze
+sondy zamrzla stránku (pozorovatel reagoval na vlastní zápis do panelu).
