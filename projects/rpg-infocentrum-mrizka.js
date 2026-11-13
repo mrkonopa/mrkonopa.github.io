@@ -57,13 +57,28 @@
   const SCENARE = [
     { id: 'hodina', nazev: 'Samostatná práce' },
     { id: 'souboj', nazev: 'Týmový souboj' },
+    { id: 'opakovani', nazev: 'Opakování' },
+    { id: 'prijimacky', nazev: 'Přijímačky' },
   ];
   const ID_VESTAVENYCH = SCENARE.map(x => x.id);
+  /* Scénáře, které jsou jen výběr panelů a jejich poloh (Vojtovo zadání 13. 11. 2026): panely mimo `panely` jsou odebrané,
+     poloha je [x, y, w] (výška se řídí obsahem a jako záložní se bere výška z registru, stejně jako po uložení a načtení). Opakování: Kdo hraje vlevo, vpravo Čas a Kde kdo je, přes celou šířku dole Mapa misí.
+     Přijímačky: vlevo Čas a Kde kdo je, vpravo Kdo hraje (čas testu je hlavní věc, proto vlevo nahoře). */
+  const VYBER = {
+    opakovani: { kdo: [0, 0, 8], stopky: [8, 0, 4], kde: [8, 8, 4], mapa: [0, 17, 12] },
+    prijimacky: { stopky: [0, 0, 4], kde: [0, 8, 4], kdo: [4, 0, 8] },
+  };
 
   /* `a` = výška se řídí obsahem (h je jen poslední změřená hodnota); a === false = výška připnutá uživatelem;
      `o` = panel je v rozložení (o === false = odebraný, neukazuje se a nezabírá místo, uložená poloha zůstane). */
   function vychozi(scenar) {
     const l = PANELY.map(p => ({ id: p.id, x: p.x, y: p.y, w: p.w, h: p.h, a: true, o: !NOVE.includes(p.id) }));
+    if (typeof scenar === 'string' && Object.prototype.hasOwnProperty.call(VYBER, scenar)) {
+      const v = VYBER[scenar];
+      return l.map(p => (Object.prototype.hasOwnProperty.call(v, p.id)
+        ? { id: p.id, x: v[p.id][0], y: v[p.id][1], w: v[p.id][2], h: p.h, a: true, o: true }
+        : Object.assign(p, { o: false })));
+    }
     if (scenar === 'souboj') {
       /* Týmový souboj: nahoře pruh Místnost (kód, otázka, odpočet), pod ním Týmy přes celou šířku, pod nimi Kdo hraje a
          Děje se; Třída dohromady se k souboji nehodí. Místnost a Týmy mají ZÁMĚRNĚ obě y = 0 (srážku vyřeší gravitace:
@@ -232,7 +247,11 @@
     return v;
   }
   function seznamScenaru(text) {
-    return SCENARE.map(x => ({ id: x.id, nazev: x.nazev, vlastni: false })).concat(vlastniScenare(rozbor(text).s));
+    /* Vlastní scénář, který si učitel dřív pojmenoval stejně jako novější vestavěný (třeba „Opakování“), se nesmaže ani
+       neskryje (mělo by to jeho rozložení v zařízení); v nabídce jen dostane dovětek, aby se oba daly rozlišit. */
+    const vestavene = SCENARE.map(x => x.nazev.toLowerCase());
+    return SCENARE.map(x => ({ id: x.id, nazev: x.nazev, vlastni: false }))
+      .concat(vlastniScenare(rozbor(text).s).map(x => (vestavene.includes(x.nazev.toLowerCase()) ? { id: x.id, nazev: x.nazev + ' (vlastní)', vlastni: true } : x)));
   }
   /* Aktivní scénář třídy; neznámý nebo smazaný → Samostatná práce. */
   function aktivniScenar(text, cid) {

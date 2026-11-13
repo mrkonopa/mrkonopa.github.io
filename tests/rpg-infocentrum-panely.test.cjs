@@ -17,19 +17,19 @@
      9. projektor (celá obrazovka): úpravy se vypnou a úchyty zmizí; zpět se úpravy samy nevrátí
     10. velká třída: panel se při 40 žácích rolují, poslední karta je dosažitelná, stránka nepřetéká
     11. odchod ze záložky úpravy zamkne a schovaná záložka panely nesmrští
-    12. scénáře: výběr, pamatování po třídách i po obnovení, vlastní scénář (jméno s HTML jako text), duplicitní název, smazání
+    12. scénáře: výběr, pamatování po třídách i po obnovení, Opakování a Přijímačky (přesné panely a jejich poloha), vlastní scénář (jméno s HTML jako text), duplicitní název, smazání
     13. odebrání a vrácení panelu (tlačítko ✕, Enter, nabídka „Přidat panel“, úložiště, scénáře, „Výchozí rozložení“)
     14. nabídka přepnutí při začátku týmového souboje: nepřepne sama, „Ne, díky“ platí pro souboj, další souboj ji nabídne znovu
-   Sabotáže (18): bez mřížky, úchyty vždy vidět, tažení se neukládá, klávesnice odpojená, jeden klíč pro všechny třídy,
+   Sabotáže (20): bez mřížky, úchyty vždy vidět, tažení se neukládá, klávesnice odpojená, jeden klíč pro všechny třídy,
    projektor úpravy nevypne, úzké okno s mřížkou, odchod ze záložky nezamkne, schovaný panel zabírá místo, nevykreslený obsah se měří, výška se neřídí obsahem,
-   ruční výška se neukládá, klávesnice bez věty pro čtečku.
+   ruční výška se neukládá, klávesnice bez věty pro čtečku, Opakování/Přijímačky s nechtěnými panely nebo Časem na špatné straně.
    Spusť: node tests/rpg-infocentrum-panely.test.cjs
    ═════════════════════════════════════════════════════════════════════════════ */
 'use strict';
 const { chromium } = require('playwright');
 const { mock, server, baseOf } = require('./ic-konzole-mock.cjs');
 const LAUNCH = { executablePath: '/opt/pw-browsers/chromium-1194/chrome-linux/chrome' };
-const PODLAHA = 125;                                              // naměřeno
+const PODLAHA = 131;                                              // naměřeno
 
 const sy = (() => { const d = new Date(); return d.getMonth() >= 8 ? d.getFullYear() : d.getFullYear() - 1; })();
 const ted = () => new Date().toISOString();
@@ -352,7 +352,7 @@ const ODDILY = {
     const { ctx, p, chyby } = await otevri(br, base);
     const moznosti = () => p.evaluate(() => ({ op: [...document.querySelectorAll('#ic-scenar option')].map(o => o.textContent), v: document.getElementById('ic-scenar').value }));
     let s = await moznosti();
-    ok(s.op.join('|') === 'Samostatná práce|Týmový souboj' && s.v === 'hodina', 'scénáře: v nabídce Samostatná práce a Týmový souboj, výchozí je Samostatná práce', JSON.stringify(s));
+    ok(s.op.join('|') === 'Samostatná práce|Týmový souboj|Opakování|Přijímačky' && s.v === 'hodina', 'scénáře: v nabídce Samostatná práce, Týmový souboj, Opakování a Přijímačky, výchozí je Samostatná práce', JSON.stringify(s));
     const vych = await panely(p);
     await p.selectOption('#ic-scenar', 'souboj'); await p.waitForTimeout(200);
     const sb = await panely(p);
@@ -368,6 +368,19 @@ const ODDILY = {
     await p.selectOption('#ic-scenar', 'hodina'); await p.waitForTimeout(150);
     const zpet = await panely(p);
     ok(Math.abs(zpet.trida.l - vych.trida.l) < 2 && Math.abs(zpet.kdo.w - vych.kdo.w) < 2, 'scénáře: zpět na Samostatnou práci se vrátí její rozložení', (zpet.trida.l - vych.trida.l).toFixed(1));
+    /* Opakování a Přijímačky (13. 11. 2026): přesně vybrané panely, bez překryvu, uložené a po obnovení zachované */
+    await p.selectOption('#ic-scenar', 'opakovani'); await p.waitForTimeout(250);
+    const op = await panely(p);
+    ok(Object.keys(op).sort().join() === 'kde,kdo,mapa,stopky' && prekryvy(op).length === 0, 'scénáře: Opakování ukáže jen Kdo hraje, Mapu misí, Kde kdo je a Čas a nic se nepřekrývá', Object.keys(op).join() + ' ' + prekryvy(op).join());
+    ok(op.mapa.w > op.kdo.w && op.mapa.t >= op.kdo.b - 1 && await pretec(p) <= 0, 'scénáře: v Opakování je Mapa misí pod ostatními přes celou šířku a stránka nepřetéká', JSON.stringify([op.mapa.w, op.kdo.w, op.mapa.t, op.kdo.b]));
+    await p.selectOption('#ic-scenar', 'prijimacky'); await p.waitForTimeout(250);
+    const pr = await panely(p);
+    ok(Object.keys(pr).sort().join() === 'kde,kdo,stopky' && prekryvy(pr).length === 0, 'scénáře: Přijímačky ukážou jen Čas, Kdo hraje a Kde kdo je a nic se nepřekrývá', Object.keys(pr).join() + ' ' + prekryvy(pr).join());
+    ok(pr.stopky.r <= pr.kdo.l + 1 && Math.abs(pr.stopky.t - pr.kdo.t) < 2 && pr.kde.t >= pr.stopky.b - 1 && Math.abs(pr.kde.l - pr.stopky.l) < 2, 'scénáře: v Přijímačkách je Čas vlevo nahoře vedle Kdo hraje a Kde kdo je pod Časem', JSON.stringify(pr));
+    ok(JSON.parse(await ulozeno(p)).a.c1 === 'prijimacky', 'scénáře: Přijímačky se uloží jako aktivní scénář třídy');
+    await znovu(p);
+    ok(await aktivni(p) === 'prijimacky' && Object.keys(await panely(p)).sort().join() === 'kde,kdo,stopky', 'scénáře: po obnovení stránky zůstanou Přijímačky se stejnými panely', await aktivni(p));
+    await p.selectOption('#ic-scenar', 'hodina'); await p.waitForTimeout(150);
     await zapniUpravu(p);
     ok(await p.evaluate(() => document.getElementById('ic-smazat-sc').offsetParent === null) && await p.evaluate(() => document.getElementById('ic-ulozit-sc').offsetParent !== null), 'scénáře: u vestavěného scénáře je „Smazat“ schované, „Uložit jako scénář“ vidět');
     await p.focus('[data-ic-panel=trida] .ic-uchyt'); await p.keyboard.press('ArrowLeft');
@@ -376,7 +389,7 @@ const ODDILY = {
     p.once('dialog', d => d.accept(jmeno));
     await p.click('#ic-ulozit-sc'); await p.waitForTimeout(200);
     s = await moznosti();
-    ok(s.op.length === 3 && s.op[2] === jmeno && s.v !== 'hodina' && s.v !== 'souboj', 'scénáře: nový scénář je v nabídce, vybraný, jeho jméno je jen text (bez HTML)', JSON.stringify(s));
+    ok(s.op.length === 5 && s.op[4] === jmeno && s.v !== 'hodina' && s.v !== 'souboj', 'scénáře: nový scénář je v nabídce, vybraný, jeho jméno je jen text (bez HTML)', JSON.stringify(s));
     ok(await p.evaluate(() => window.__xss === undefined && !document.querySelector('#ic-scenar img')), 'scénáře: jméno scénáře s HTML se nevykoná');
     const idVlastni = s.v;
     ok(await p.evaluate(() => document.getElementById('ic-smazat-sc').offsetParent !== null), 'scénáře: u vlastního scénáře je „Smazat“ vidět');
@@ -393,19 +406,19 @@ const ODDILY = {
     ok(Math.abs((await panely(p)).trida.l - vlastniRozlozeni.trida.l) < 2, 'scénáře: vlastní scénář si drží svou úpravu', ((await panely(p)).trida.l - vlastniRozlozeni.trida.l).toFixed(1));
     await znovu(p);
     s = await moznosti();
-    ok(s.op.length === 3 && s.v === idVlastni, 'scénáře: vlastní scénář i jeho výběr přežijí obnovení stránky', JSON.stringify(s));
+    ok(s.op.length === 5 && s.v === idVlastni, 'scénáře: vlastní scénář i jeho výběr přežijí obnovení stránky', JSON.stringify(s));
     await zapniUpravu(p);
     p.once('dialog', d => d.accept(jmeno.toUpperCase()));
     await p.click('#ic-ulozit-sc'); await p.waitForTimeout(200);
-    ok((await moznosti()).op.length === 3 && /už existuje/.test(await p.evaluate(() => document.getElementById('toast').textContent)), 'scénáře: stejný název (jinou velikostí písmen) se odmítne s hláškou');
+    ok((await moznosti()).op.length === 5 && /už existuje/.test(await p.evaluate(() => document.getElementById('toast').textContent)), 'scénáře: stejný název (jinou velikostí písmen) se odmítne s hláškou');
     p.once('dialog', d => d.dismiss());
     await p.click('#ic-ulozit-sc'); await p.waitForTimeout(100);
-    ok((await moznosti()).op.length === 3, 'scénáře: zrušené zadání názvu nic nevytvoří');
+    ok((await moznosti()).op.length === 5, 'scénáře: zrušené zadání názvu nic nevytvoří');
     p.once('dialog', d => d.accept());
     await p.click('#ic-smazat-sc'); await p.waitForTimeout(200);
     s = await moznosti();
     const ul = JSON.parse(await ulozeno(p));
-    ok(s.op.length === 2 && s.v === 'hodina' && !Object.keys(ul.r).some(k => k.endsWith('|' + idVlastni)), 'scénáře: smazání vlastního scénáře ho odstraní z nabídky i z úložiště a vrátí Samostatnou práci', JSON.stringify([s, Object.keys(ul.r)]));
+    ok(s.op.length === 4 && s.v === 'hodina' && !Object.keys(ul.r).some(k => k.endsWith('|' + idVlastni)), 'scénáře: smazání vlastního scénáře ho odstraní z nabídky i z úložiště a vrátí Samostatnou práci', JSON.stringify([s, Object.keys(ul.r)]));
     ok(chyby.length === 0, 'scénáře: žádná chyba JS', chyby.join(' | '));
     await ctx.close();
   },
@@ -521,6 +534,8 @@ async function beh(prepis, oddily) {
     ['vlastní scénář s cizím rozložením', MR, s => s.replace("zapis(ulozDoTextu(nastavAktivni(r.text, cid, id), klic, rozlozeni));", "zapis(nastavAktivni(r.text, cid, id));"), ['scenare']],
     ['výška se neřídí obsahem', MR, s => s.replace("rozlozeni = prizpusob(rozlozeni, radky);", ""), ['rolovani']],
     ['ruční výška se neukládá jako připnutá', MR, s => s.replace("const a = [p.x, p.y, p.w, p.a === false ? p.h : 0];", "const a = [p.x, p.y, p.w, 0];"), ['rolovani']],
+    ['Opakování a Přijímačky nechají všechny panely zapnuté', MR, s => s.replace(": Object.assign(p, { o: false })));", ": p));"), ['scenare']],
+    ['Přijímačky mají Čas vpravo místo vlevo', MR, s => s.replace("prijimacky: { stopky: [0, 0, 4], kde: [0, 8, 4], kdo: [4, 0, 8] },", "prijimacky: { stopky: [8, 0, 4], kde: [8, 8, 4], kdo: [0, 0, 8] },"), ['scenare']],
     ['klávesnice bez věty pro čtečku', MR, s => s.replace('uplatni(nove); uloz(); zprava(popis(nove.find(p => p.id === id)));', 'uplatni(nove); uloz();'), ['klavesnice']],
   ];
   const fs = require('fs'), path = require('path');
