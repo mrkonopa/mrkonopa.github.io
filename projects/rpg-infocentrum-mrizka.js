@@ -28,13 +28,24 @@
   /* Registr panelů: výchozí poloha a nejmenší velikost, při níž je obsah ještě čitelný. Pořadí v poli je pořadí
      při shodě polohy (Týmy jsou nad ostatními). Další panely se přidávají sem. */
   const PANELY = [
+    /* Místnost je v registru PRVNÍ: při shodě polohy (všechny panely schované kromě Kdo hraje a Děje se leží na y = 0,
+       a když souboj začne, vracejí se Místnost a Týmy na y = 0 také) vyhrává dřívější panel, takže pruh Místnost je nad
+       Týmy a ty nad ostatními. Poloha je poloha při prvním přidání do Samostatné práce. */
+    { id: 'mistnost', nazev: 'Místnost souboje', x: 0, y: 0,  w: 12, h: 5,  minW: 4, minH: 4 },
     { id: 'tymy',  nazev: 'Týmy',            x: 0, y: 0,  w: 12, h: 12, minW: 6, minH: 8 },
     { id: 'kdo',   nazev: 'Kdo hraje',       x: 0, y: 12, w: 8,  h: 17, minW: 4, minH: 5 },
     { id: 'trida', nazev: 'Třída dohromady', x: 8, y: 12, w: 4,  h: 8,  minW: 3, minH: 7 },
     { id: 'deje',  nazev: 'Děje se',         x: 8, y: 20, w: 4,  h: 9,  minW: 3, minH: 5 },
+    /* Etapa 3: v Samostatné práci jsou ve výchozím stavu odebrané (přidají se přes „＋ Přidat panel“). Místnost je
+       ve scénáři Týmový souboj nahoře. */
+    { id: 'kde',      nazev: 'Kde kdo je',       x: 0, y: 29, w: 8,  h: 8,  minW: 4, minH: 5 },
+    { id: 'mapa',     nazev: 'Mapa misí',        x: 0, y: 37, w: 8,  h: 12, minW: 5, minH: 7 },
+    { id: 'stopky',   nazev: 'Čas',              x: 8, y: 29, w: 4,  h: 8,  minW: 3, minH: 6 },
   ];
   const meta = id => PANELY.find(p => p.id === id) || null;
   const ID = PANELY.map(p => p.id);
+  /* Panely z etapy 3: ve výchozím rozložení Samostatné práce nejsou (nic se nezměnilo těm, kdo je už používají) */
+  const NOVE = ['mistnost', 'kde', 'mapa', 'stopky'];
 
   const celeCislo = (v, od, do_) => {
     const n = typeof v === 'number' ? v : NaN;
@@ -52,10 +63,17 @@
   /* `a` = výška se řídí obsahem (h je jen poslední změřená hodnota); a === false = výška připnutá uživatelem;
      `o` = panel je v rozložení (o === false = odebraný, neukazuje se a nezabírá místo, uložená poloha zůstane). */
   function vychozi(scenar) {
-    const l = PANELY.map(p => ({ id: p.id, x: p.x, y: p.y, w: p.w, h: p.h, a: true, o: true }));
+    const l = PANELY.map(p => ({ id: p.id, x: p.x, y: p.y, w: p.w, h: p.h, a: true, o: !NOVE.includes(p.id) }));
     if (scenar === 'souboj') {
-      /* Týmový souboj: Týmy přes celou šířku nahoře, pod nimi Kdo hraje a Děje se; Třída dohromady se k souboji nehodí */
-      l.forEach(p => { if (p.id === 'trida') p.o = false; if (p.id === 'deje') p.y = 12; });
+      /* Týmový souboj: nahoře pruh Místnost (kód, otázka, odpočet), pod ním Týmy přes celou šířku, pod nimi Kdo hraje a
+         Děje se; Třída dohromady se k souboji nehodí. Místnost a Týmy mají ZÁMĚRNĚ obě y = 0 (srážku vyřeší gravitace:
+         vyhraje Místnost, Týmy ustoupí pod ni) — jen tak se po začátku souboje seřadí správně, i když Kdo hraje a Děje se
+         mezitím vyrostly nahoru na y = 0. Výsledek po srovnání: Místnost 0, Týmy 5, Kdo hraje a Děje se 17. */
+      l.forEach(p => {
+        if (p.id === 'trida') p.o = false;
+        if (p.id === 'mistnost') p.o = true;
+        if (p.id === 'kdo' || p.id === 'deje') p.y = 17;
+      });
     }
     return l;
   }

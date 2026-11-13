@@ -105,7 +105,7 @@ const ODDILY = {
     const obsah = await p.evaluate(() => ({ kdo: !!document.querySelector('[data-ic-panel=kdo] #ic-cards'), trida: !!document.querySelector('[data-ic-panel=trida] #ic-gv'), deje: !!document.querySelector('[data-ic-panel=deje] #ic-feed'), tymy: !!document.querySelector('[data-ic-panel=tymy] #ic-tn1'),
       oblasti: [...document.querySelectorAll('.ic-vnitr')].map(e => e.getAttribute('role') + ':' + e.getAttribute('aria-label') + ':' + e.tabIndex).join('|') }));
     ok(obsah.kdo && obsah.trida && obsah.deje && obsah.tymy, 'výchozí: prvky uvnitř panelů zůstaly na svých místech', JSON.stringify(obsah));
-    ok(obsah.oblasti === 'region:Týmy:0|region:Kdo hraje:0|region:Třída dohromady:0|region:Děje se:0', 'výchozí: obsah je v pojmenované rolovací oblasti dosažitelné klávesnicí', obsah.oblasti);
+    ok(obsah.oblasti === 'region:Týmy:0|region:Kdo hraje:0|region:Třída dohromady:0|region:Děje se:0|region:Místnost souboje:0|region:Kde kdo je:0|region:Mapa misí:0|region:Čas:0', 'výchozí: obsah je v pojmenované rolovací oblasti dosažitelné klávesnicí', obsah.oblasti);
     const zam = await p.evaluate(() => ({ uchyty: [...document.querySelectorAll('.ic-uchyt')].filter(e => e.offsetParent !== null).length, vych: document.getElementById('ic-vychozi').offsetParent !== null, pressed: document.getElementById('ic-uprav').getAttribute('aria-pressed'), text: document.getElementById('ic-uprav').textContent }));
     ok(zam.uchyty === 0 && !zam.vych && zam.pressed === 'false' && /Upravit/.test(zam.text), 'zamčeno: úchyty ani „Výchozí“ nejsou vidět, tlačítko nabízí úpravu', JSON.stringify(zam));
     ok(chyby.length === 0, 'výchozí: žádná chyba JS', chyby.join(' | '));
@@ -253,7 +253,7 @@ const ODDILY = {
       const o = await otevri(br, base, null, { uloziste: txt2 });
       const pn = await panely(o.p);
       ok(o.chyby.length === 0 && Object.keys(pn).length === 3 && prekryvy(pn).length === 0 && await pretec(o.p) <= 1, 'úložiště: rozbitý obsah (' + txt2.slice(0, 28) + '…) nic nerozbije', o.chyby.join(' | ') + ' ' + prekryvy(pn).join());
-      const ve = await o.p.evaluate(() => { const r = document.getElementById('ic-grid').getBoundingClientRect(); return [...document.querySelectorAll('#ic-grid [data-ic-panel]')].every(e => e.hidden || (e.getBoundingClientRect().right <= r.right + 1 && e.getBoundingClientRect().left >= r.left - 1)); });
+      const ve = await o.p.evaluate(() => { const r = document.getElementById('ic-grid').getBoundingClientRect(); return [...document.querySelectorAll('#ic-grid [data-ic-panel]')].every(e => e.hidden || getComputedStyle(e).display === 'none' || (e.getBoundingClientRect().right <= r.right + 1 && e.getBoundingClientRect().left >= r.left - 1)); });
       ok(ve, 'úložiště: panely po rozbitém obsahu zůstanou v mřížce (' + txt2.slice(0, 28) + '…)');
       await o.ctx.close();
     }
@@ -415,13 +415,14 @@ const ODDILY = {
     await zapniUpravu(p);
     const tl = await p.evaluate(() => [...document.querySelectorAll('.ic-odeber')].filter(e => e.offsetParent !== null).map(e => e.getAttribute('aria-label')));
     ok(tl.length === 3 && tl.every(t => /^Odebrat panel .+ z rozložení$/.test(t)), 'odebrání: u každého viditelného panelu je tlačítko ✕ s pojmenováním pro čtečku', JSON.stringify(tl));
-    ok(await p.evaluate(() => document.getElementById('ic-pridat').offsetParent === null), 'odebrání: dokud nic není odebrané, nabídka „Přidat panel“ není');
+    const nab0 = await p.evaluate(() => [...document.querySelectorAll('#ic-pridat option')].map(o => o.textContent));
+    ok(nab0.join('|') === '＋ Přidat panel…|Místnost souboje|Kde kdo je|Mapa misí|Čas', 'odebrání: dokud žádný ze čtyř původních panelů není odebraný, nabídka „Přidat panel“ obsahuje jen čtyři nové panely', nab0.join('|'));
     const pred = await panely(p);
     await p.focus('[data-ic-panel=deje] .ic-odeber'); await p.keyboard.press('Enter'); await p.waitForTimeout(200);
     const po = await panely(p);
     ok(!po.deje && prekryvy(po).length === 0 && Math.abs((po.trida.t - po.kdo.t) - (pred.trida.t - pred.kdo.t)) < 2, 'odebrání: Enter na ✕ panel odebere, ostatní zůstanou bez překryvu a na místě', Object.keys(po).join());
     const nab = await p.evaluate(() => [...document.querySelectorAll('#ic-pridat option')].map(o => o.textContent));
-    ok(nab.join('|') === '＋ Přidat panel…|Děje se', 'odebrání: odebraný panel je v nabídce „Přidat panel“', nab.join('|'));
+    ok(nab.join('|') === '＋ Přidat panel…|Místnost souboje|Děje se|Kde kdo je|Mapa misí|Čas', 'odebrání: odebraný panel je v nabídce „Přidat panel“ (v pořadí registru)', nab.join('|'));
     const uloz = JSON.parse(await ulozeno(p)).r['c1|hodina'];
     ok(uloz.deje.length === 5 && uloz.deje[4] === 0 && uloz.kdo.length === 4, 'odebrání: do úložiště jde jen odebraný panel s příznakem', JSON.stringify(uloz));
     await znovu(p);
@@ -430,7 +431,7 @@ const ODDILY = {
     await p.selectOption('#ic-pridat', 'deje'); await p.waitForTimeout(250);
     const zpet = await panely(p);
     ok(!!zpet.deje && prekryvy(zpet).length === 0 && Math.abs(zpet.deje.l - pred.deje.l) < 2, 'odebrání: vrácený panel stojí zase na svém místě, bez překryvu', JSON.stringify([zpet.deje && zpet.deje.l, pred.deje.l]));
-    ok(await p.evaluate(() => document.getElementById('ic-pridat').offsetParent === null), 'odebrání: po vrácení všech panelů nabídka „Přidat panel“ zmizí');
+    ok((await p.evaluate(() => [...document.querySelectorAll('#ic-pridat option')].map(o => o.textContent))).join('|') === nab0.join('|'), 'odebrání: po vrácení původních panelů zůstanou v nabídce jen čtyři nové');
     await p.selectOption('#ic-scenar', 'souboj'); await p.waitForTimeout(200);
     ok(!(await panely(p)).trida && await p.evaluate(() => [...document.querySelectorAll('#ic-pridat option')].some(o => o.textContent === 'Třída dohromady')), 'odebrání: v Týmovém souboji je Třída dohromady odebraná a jde přidat');
     await p.selectOption('#ic-pridat', 'trida'); await p.waitForTimeout(200);
