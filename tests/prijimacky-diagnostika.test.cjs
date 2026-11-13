@@ -104,14 +104,19 @@ const UROVEN = v => v[0] ? (v[1] ? 3 : 2) : (v[1] ? 1 : 0);
      chybami mít nemusí, proto se první chybě navíc podstrčí skutečná geometrická
      úloha s obrázkem a konec se vykreslí znovu — jinak by kontrola mohla být prázdná. */
   const obr=await page.evaluate(()=>{
-    const pocet=()=>document.querySelectorAll('#dg-rozbor .cm-review-svg svg').length;
+    // Počítá se OBRÁZEK u úlohy (obal `.cm-review-svg` s <svg> uvnitř), ne každý prvek <svg>: „Útvary
+    // v trojúhelníkové síti“ mají tři vnořené <svg> (výřezy sítí A, B, C) a jeden obrázek tak dával 4.
+    const pocet=()=>[...document.querySelectorAll('#dg-rozbor .cm-review-svg')].filter(e=>e.querySelector('svg')).length;
     const cekano=DG.odp.filter(x=>!x.ok&&x.it&&x.it.svg).length, je=pocet();
-    let it=null; for(let i=0;i<300&&!it;i++){ const u=PZ_TOPICS.item('geometrie','test'); if(u&&u.svg) it=u; }
+    // Podstrčí se úloha s VNOŘENÝMI <svg>, je-li k mání (2,2 % losů): horší případ se tak měří pokaždé,
+    // ne jen když ho náhodou vylosuje diagnostika (na CI 13. 11. 2026 spadlo 6 / 3 a 7 / 4).
+    let it=null, vne=false; for(let i=0;i<3000&&!vne;i++){ const u=PZ_TOPICS.item('geometrie','test'); if(u&&u.svg){ const v=(PZ.themeSvg(u.svg).match(/<svg/g)||[]).length>1; if(!it||v){ it=u; vne=v; } } }
     const x=DG.odp.find(o=>!o.ok&&!(o.it&&o.it.svg)); if(it&&x){ x.it=it; dgEnd(); }
-    return { cekano, je, podstrceno:!!(it&&x), po:pocet(), cekanoPo:DG.odp.filter(o=>!o.ok&&o.it&&o.it.svg).length };
+    return { cekano, je, podstrceno:!!(it&&x), vne, po:pocet(), cekanoPo:DG.odp.filter(o=>!o.ok&&o.it&&o.it.svg).length };
   });
   ok(obr.je===obr.cekano,'rozbor: obrázek u každé chybné úlohy, která ho měla ('+obr.je+' / '+obr.cekano+')');
   ok(obr.podstrceno&&obr.po===obr.cekanoPo&&obr.po>obr.je,'rozbor: podstrčená úloha s obrázkem ho v rozboru má ('+obr.po+' / '+obr.cekanoPo+')');
+  ok(obr.vne,'rozbor: podstrčená úloha má vnořená <svg> (trojúhelníková síť), počítá se jako jeden obrázek');
   ok(errs.length===0,'žádné JS chyby'+(errs.length?(' ['+errs[0]+']'):''));
   await browser.close(); srv.close();
   console.log('\n══════════════════════════════════════════');
