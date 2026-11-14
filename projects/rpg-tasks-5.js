@@ -186,7 +186,7 @@
   function gen_2_3() {
     const tasks = [];
     const T = [
-      () => { const a = ri(120, 480), b = ri(4, 9); return { text: `Drak střeží ${a} zlatých ${b < 5 ? 've' : 'v'} ${b} ${skl(b, 'jeskyni', 'jeskyních', 'jeskyních')}. Kolik zlatých střeží celkem?`, ans: a * b, h1: `${a} × ${b}`, h2: `= ${a * b}` }; },
+      () => { const a = ri(120, 480), b = ri(4, 9); return { text: `Drak střeží v každé z ${b} jeskyní ${a} zlatých. Kolik zlatých střeží celkem?`, ans: a * b, h1: `${a} × ${b}`, h2: `= ${a * b}` }; },
       () => { const a = ri(15, 60), b = ri(12, 30); return { text: `Jedna dračí šupina váží ${a} g. Kolik váží ${b} šupin?`, ans: a * b, h1: `${a} × ${b}`, h2: `= ${a * b} g` }; },
       () => { const a = ri(125, 350), b = ri(6, 9); return { text: pick([`Rytíř ujede ${a} km za den. Kolik ujede za ${b} dní?`, `Posel urazí denně ${a} km. Kolik km urazí za ${b} dní?`, `Družina zvládne za den ${a} km. Kolik km ujede za ${b} dní jízdy?`]), ans: a * b, h1: `${a} × ${b}`, h2: `= ${a * b} km` }; },
       () => { const cena = ri(120, 450), kusu = ri(3, 8); return { text: `Kouzelný lektvar stojí ${cena} dukátů. Kolik zaplatí čaroděj za ${kusu} ${skl(kusu, 'lektvar', 'lektvary', 'lektvarů')}?`, ans: cena * kusu, h1: `${cena} × ${kusu}`, h2: `= ${cena * kusu} dukátů` }; },

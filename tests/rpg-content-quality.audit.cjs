@@ -69,6 +69,47 @@ function obdelnikJeCtverec(text) {
   return null;
 }
 
+/* ── „Kolik je celkem?“ u násobení musí říct, že číslo platí pro KAŽDÝ kus ──
+   Hlášení žáka z Věže legend (5. 11. 2026): „5 beden obsahuje 27 součástek. Kolik součástek je celkem?“
+   Odpověď je 5 · 27, jenže věta říká, že v pěti bednách je dohromady 27 — a žák správně napsal, že mu
+   chybí počet beden. Stejná vada byla v 5. ročníku („Drak střeží 125 zlatých v 5 jeskyních. Kolik
+   zlatých střeží celkem?“). Všechny dosavadní kontroly ji minuly, protože matematika byla konzistentní
+   (odpověď i nápověda si odpovídaly) — jen zadání tvrdilo něco jiného než odpověď.
+   Pravidlo: zadání se dvěma až třemi čísly, ve kterém se ptáme „celkem / dohromady / ve všech“ a odpověď je součin
+   dvou čísel ze zadání, musí obsahovat signál „každý / po / jeden“. Vrací null (pravidlo se netýká),
+   '' (v pořádku), nebo text vady. Poměr se vynechává: „v poměru 3 : 5, dohromady 40“ dává součin shodou okolností. */
+const JEDNOTKA_SIGNAL = /každ|(?<![\p{L}\d])po(?![\p{L}\d])|jedn[aoyuéí]/iu;
+function jednotkaChybi(text, ans) {
+  const tx = czTxt(text).replace(/\s+/g, ' ');
+  if (!/celkem|dohromady|ve všech/i.test(tx) || /poměr/i.test(tx)) return null;
+  const cis = (tx.match(/\d+(?:,\d+)?/g) || []).map(x => parseFloat(x.replace(',', '.')));
+  const v = parseFloat(String(ans).replace(',', '.').replace('−', '-'));
+  if (cis.length < 2 || cis.length > 3 || !isFinite(v)) return null;
+  let soucin = false;
+  for (let a = 0; a < cis.length; a++) for (let b = a + 1; b < cis.length; b++) {
+    // součin shodou okolností rovný i součtu (3,5 · 1,4 = 3,5 + 1,4 = 4,9; 2 · 2 = 2 + 2) se nepočítá — to je sčítání
+    if (cis[a] > 1 && cis[b] > 1 && Math.abs(cis[a] * cis[b] - v) < 1e-9 && Math.abs(cis[a] + cis[b] - v) > 1e-9) soucin = true;
+  }
+  if (!soucin) return null;
+  return JEDNOTKA_SIGNAL.test(tx) ? '' : 'součin bez „každý / po“ — zadání nepoví, že číslo platí pro jeden kus';
+}
+
+/* ── Shoda podmětu s přísudkem po číslovce 2–4 ──
+   „3 dělníci přenese kamenné bloky“, „4 kohouti sezobe obilí“ (7. ročník, mise 4-2): po 2–4 stojí podmět v 1. pádě
+   množného čísla, takže přísudek je v množném čísle („přenesou“, „sezobou“). Po 5 a víc je podmět ve 2. pádě a přísudek
+   v jednotném („5 dělníků přenese“) — správně v bankách bylo jen to druhé. Pravidlo hledá podmět na -ci/-ti/-ni/-ové/-ři
+   (alespoň 3 písmena před koncovkou, aby „při“ nebylo podmětem) následovaný slovem na -e/-á, které není spojka ani předložka.
+   Tvary na -í („postaví“, „udělají“) se neposuzují: jsou stejné v jednotném i množném čísle. Vrací nalezený úsek, nebo null. */
+const SHODA_NEPRISUDEK = /^(a|i|na|za|ve|se|je|ale|více|než|když|že|aby|kde|jak|co|tedy|dále|tam|tu|pak|dnes|zde)$/i;
+function shodaPodmetu(text) {
+  const tx = czTxt(text).replace(/\s+/g, ' ');
+  const re = /(?<![\p{L}\d,])[234] (?:\p{L}+ )?\p{L}{3,}(?:ci|ti|ni|ové|ři|íci|ouři) (\p{L}+)(?![\p{L}])/gu;
+  for (const m of tx.matchAll(re)) {
+    if (/(e|á)$/i.test(m[1]) && !SHODA_NEPRISUDEK.test(m[1])) return m[0];
+  }
+  return null;
+}
+
 
 // zlomek musí být v základním tvaru; VÝJIMKA: úlohy, které krácení/rozšiřování
 // samy zadávají (tam je nezkrácený zlomek smyslem úlohy)
@@ -222,7 +263,8 @@ function loadGrade(g) {
 
 /* ── běh ──────────────────────────────────────────────────────────── */
 console.log('\n── Audit kvality zadání (3.–9. ročník) ──\n');
-const found = { pctTich: [], zap16: [], zavorka: [], rovnost: [], objekt: [], frac: [], decl: [], hintEmpty: [], hintDup: [], nan: [], typo: [], float: [], dotText: [], dotHint: [], periodic: [], hintMath: [], geoInv: [], geoNezn: [], geoFwd: [], pct: [], ctverec: [], troj: [] };
+const found = { pctTich: [], zap16: [], zavorka: [], rovnost: [], objekt: [], frac: [], decl: [], hintEmpty: [], hintDup: [], nan: [], typo: [], float: [], dotText: [], dotHint: [], periodic: [], hintMath: [], geoInv: [], geoNezn: [], geoFwd: [], pct: [], ctverec: [], troj: [], jednotka: [], shoda: [] };
+let jednotkaDop = 0;   // kolik úloh se „celkem“ a součinem se posoudilo (pojistka proti planému běhu)
 let hintDop = 0;   // kolik nápověd se podařilo dopočítat (pojistka proti planému běhu)
 let geoDop = 0;    // kolik inverzních geometrických úloh se dopočítalo
 let geoFwdDop = 0, geoFwdNezn = 0;   // dopředná geometrie: dopočítané / neznámý tvar
@@ -582,6 +624,10 @@ for (const g of GRADES) {
         typography(text).forEach(x => push('typo', where, x + '  «' + text.slice(0, 60) + '»'));
         { const c = obdelnikJeCtverec(text);
           if (c) push('ctverec', where, c + '  «' + text.replace(/\n/g,' ').slice(0, 60) + '»'); }
+        { const j = jednotkaChybi(text, t && t.ans);
+          if (j !== null) { jednotkaDop++; if (j) push('jednotka', where, j + '  «' + text.replace(/\n/g,' ').slice(0, 70) + '»'); } }
+        { const s = shodaPodmetu(text);
+          if (s) push('shoda', where, '„' + s + '“ — po 2–4 má být přísudek v množném čísle  «' + text.replace(/\n/g,' ').slice(0, 70) + '»'); }
         for (const tr of trojuhelniky(text, t.ans)) {
           trojDop++;
           if (!tr.ok) push('troj', where, tr.strany.join(' / ') + '  «' + text.replace(/\n/g, ' ').slice(0, 60) + '»');
@@ -645,6 +691,23 @@ report('pctTich', 'procenta: odpověď není tiše zaokrouhlená (zadání bez p
    Pokud pravidlo posuzuje míň, přeformulovalo se zadání (pokyn k zaokrouhlení) nebo některá banka vypadla z načtení. */
 ok('procenta: tiché zaokrouhlení se vůbec posuzovalo (' + pctTichDop + ' úloh)', pctTichDop >= 23600, 'posouzeno jen ' + pctTichDop + ' (čekáno ≥ 23 600)');
 report('ctverec', 'žádný „obdélník" nemá obě strany stejné');
+report('jednotka', '„celkem“ u násobení: zadání říká, že číslo platí pro každý kus („každý“, „po“)');
+report('shoda', 'po číslovce 2–4 je přísudek v množném čísle („3 dělníci přenesou“, ne „přenese“)');
+ok('pravidlo shody rozliší „4 dělníci přenese“ od „4 dělníci přenesou“ a „5 dělníků přenese“',
+   !!shodaPodmetu('4 dělníci přenese kamenné bloky za 12 dní.') && !!shodaPodmetu('3 kohouti sezobe obilí za 40 dní.')
+   && shodaPodmetu('4 dělníci přenesou kamenné bloky za 12 dní.') === null && shodaPodmetu('5 dělníků přenese kamenné bloky za 12 dní.') === null
+   && shodaPodmetu('Základny 12 m a 3 m při výšce 8 m.') === null && shodaPodmetu('3 dělníci postaví plot.') === null);
+/* Samotné pravidlo se ověřuje na zněních z hlášení žáka: vadná musí vyjít jako vada, opravená a nesouvisející jako v pořádku. */
+ok('pravidlo „každý kus“ rozliší vadné znění od opraveného',
+   !!jednotkaChybi('5 beden obsahuje 27 součástek. Kolik součástek je celkem?', 135)
+   && !!jednotkaChybi('Drak střeží 125 zlatých v 5 jeskyních. Kolik zlatých střeží celkem?', 625)
+   && jednotkaChybi('V každé z 5 beden je 27 součástek. Kolik součástek je celkem?', 135) === ''
+   && jednotkaChybi('Drak střeží 5 truhel po 12 mincích. Kolik mincí střeží dohromady?', 60) === ''
+   && jednotkaChybi('Sochy a sloupy v síni jsou v poměru 3 : 5. Dohromady je jich 40. Kolik je soch?', 15) === null
+   && jednotkaChybi('Kolik je 3 + 4 celkem?', 7) === null);
+/* Naměřeno 14. 11. 2026 při ITER 260: 4 157 – 4 215 úloh ve čtyřech během (počet kolísá, některé šablony se losují přes pick()),
+   podlaha 3 000 chytá zhroucení (přeformulování zadání, vypadlá banka), ne kolísání. */
+ok('„celkem“ u násobení se vůbec posuzovalo (' + jednotkaDop + ' úloh)', jednotkaDop >= 3000, 'posouzeno jen ' + jednotkaDop + ' (čekáno ≥ 3 000)');
 report('troj', 'každý trojúhelník ze tří stran jde sestrojit (součet dvou kratších > nejdelší)');
 /* Pojistka proti planému běhu: rozpoznávač zná jen tvary zadání, které
    v bankách skutečně jsou; po přeformulování by pravidlo tiše mlčelo.
