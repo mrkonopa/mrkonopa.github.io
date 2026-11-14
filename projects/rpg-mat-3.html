@@ -1272,7 +1272,7 @@ function updateTimerUi(){
 }
 function onTimeOut(){
  if(BT.hp<=0)return;
- const fb=document.getElementById('bt-fb');fb.textContent='⏱ ČAS VYPRŠEL!';fb.className='feedback err';
+ const fb=document.getElementById('bt-fb');zapisChybnou(BT.mid,BT.curTask,'⏱');fb.textContent='⏱ ČAS VYPRŠEL!';fb.className='feedback err';
  if(typeof RPGSound!=='undefined')RPGSound.play('bad');monsterAttack();damagePlayer();adaptOnAnswer(false);
  poCase(fb);
 }
@@ -1488,6 +1488,7 @@ function pickMC(btn,chosen,correct){
   document.getElementById('next-btn').style.display='inline-block';
  }else{
   btn.disabled=true;
+  zapisChybnou(BT.mid,BT.curTask,chosen);
   if(!S.errs)S.errs={};S.errs[BT.mid]=(S.errs[BT.mid]||0)+1;saveS();
   BT.combo=0;updateCombo();fb.textContent=`✗ Zkus jiný!`;fb.className='feedback err';if(typeof RPGSound!=='undefined')RPGSound.play('bad');monsterAttack();damagePlayer();adaptOnAnswer(false);
  }
@@ -1510,7 +1511,7 @@ function submitAnswer(){
   if(!S.stats)S.stats={};if(BT.combo>(S.stats.bestCombo||0))S.stats.bestCombo=BT.combo;
   evalAch({correct:true,combo:BT.combo,timeLeft:BT.timeLeft});wBump('tasks');if(isCrit)wBump('crits');adaptOnAnswer(true);checkMissionComplete();
  }else{
-  BT.combo=0;updateCombo();fb.textContent='✗ ŠPATNĚ — "'+raw+'" není správně.';fb.className='feedback err';
+  BT.combo=0;updateCombo();zapisChybnou(BT.mid,BT.curTask,raw);fb.textContent='✗ ŠPATNĚ — "'+raw+'" není správně.';fb.className='feedback err';
   if(typeof RPGSound!=='undefined')RPGSound.play('bad');monsterAttack();damagePlayer();adaptOnAnswer(false);
   inp.value='';if(!isYN(t))inp.focus();
  }
@@ -1799,13 +1800,13 @@ function trPickMC(btn,chosen,correct){
  document.querySelectorAll('#tr-mc .mc-btn').forEach(b=>b.disabled=true);
  const ok=checkAns(chosen,correct.trim());
  btn.classList.add(ok?'right':'wrong');
- if(!ok){const rb=Array.from(document.querySelectorAll('#tr-mc .mc-btn')).find(b=>checkAns(b.textContent.trim(),correct.trim()));if(rb)rb.classList.add('right');trWrong();}
+ if(!ok){const rb=Array.from(document.querySelectorAll('#tr-mc .mc-btn')).find(b=>checkAns(b.textContent.trim(),correct.trim()));if(rb)rb.classList.add('right');trWrong(chosen);}
  else trCorrect();
 }
 function trSubmit(){
  const inp=document.getElementById('tr-ans');const raw=inp.value.trim();if(!raw)return;
  inp.disabled=true;const ok=checkAns(raw,String(TR.task.ans));
- if(ok)trCorrect();else trWrong();
+ if(ok)trCorrect();else trWrong(raw);
 }
 function trCorrect(){
  TR.correct++;TR.total++;TR.streak++;
@@ -1829,7 +1830,8 @@ function trCorrect(){
  }
  trStats();ukazDale('tr-next-btn','tr-input-row');
 }
-function trWrong(){
+function trWrong(given){
+ zapisChybnou(TR.mid,TR.task,given);
  TR.total++;if(!trGuard())TR.streak=0;
  const ms=masteryOf(TR.mid);ms.score=Math.max(0,ms.score-1);if(!S.mastery)S.mastery={};S.mastery[TR.mid]=ms;
  if(!S.errs)S.errs={};S.errs[TR.mid]=(S.errs[TR.mid]||0)+1;
@@ -2049,7 +2051,7 @@ window.addEventListener('load',()=>{
 <script defer src="./rpg-cloud.js?v=20261112"></script>
 <script defer src="./rpg-battle-3.js"></script>
 <script defer src="./rpg-badwords.js"></script>
-<script defer src="./rpg-shared.js?v=20261109"></script>
+<script defer src="./rpg-shared.js?v=20261114"></script>
 <script defer src="./rpg-tasktypes.js"></script>
 <script defer src="./rpg-battle-ui.js?v=20261108"></script>
 <script>window.addEventListener('load',function(){if(window.RPGCloud&&RPGCloud.attachGame)RPGCloud.attachGame(SAVE_KEY);});</script>

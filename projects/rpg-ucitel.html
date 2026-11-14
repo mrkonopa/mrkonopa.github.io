@@ -1962,6 +1962,10 @@ function renderDiag(){
  const ZASEKNUTI_CHYB = 10;
  const _zasekl = (e, dc) => e >= ZASEKNUTI_CHYB && dc === 0;
  const _jmeno = r => String(r.full_name || (r.data && r.data.name) || 'žák');
+ /* Poslední chybné odpovědi žáka v misi (`S.wrong`, zapisuje `zapisChybnou` v rpg-shared.js od 14. 11. 2026): [zadání, správně, napsal]. Hodnoty píše žák,
+    takže se jen ořezávají na text; vykreslení jde přes esc() u atributu title. ⏱ = vypršel čas. */
+ const _chybne = (r, mid) => { const w = r.data && r.data.wrong && typeof r.data.wrong === 'object' ? r.data.wrong[mid] : null;
+  return Array.isArray(w) ? w.filter(e => Array.isArray(e)).slice(-3).map(e => '\n   • ' + String(e[0] == null ? '' : e[0]).slice(0, 70) + ' → ' + (String(e[2]) === '⏱' ? 'vypršel čas' : 'napsal „' + String(e[2] == null ? '' : e[2]).slice(0, 14) + '“') + ' (správně ' + String(e[1] == null ? '' : e[1]).slice(0, 14) + ')').join('') : ''; };
  miss.forEach(m=>{
   let reached=0,totErr=0,completed=0,stuck=0;
   rows.forEach(r=>{const d=r.data||{},e=_chyb((d.errs||{})[m.id]);let dc=0;for(let i=0;i<TC;i++)if((d.done||{})[m.id+'-'+i])dc++;if(e>0||dc>0){reached++;totErr+=e;if(dc>=TC)completed++;}if(_zasekl(e,dc))stuck++;});
@@ -2010,7 +2014,7 @@ function renderDiag(){
     const e=_chyb(errs[m.id]);
     let dc=0;for(let i=0;i<TC;i++)if(done[m.id+'-'+i])dc++;
     if(e>0||dc>0){reached++;totErr+=e;if(dc>=TC)completed++;}
-    if(_zasekl(e,dc)){stuck++;stuckJmena.push(_jmeno(r));}
+    if(_zasekl(e,dc)){stuck++;stuckJmena.push(_jmeno(r)+_chybne(r,m.id));}
     // Preferuj SQL snímky (fáze 6b); fallback na errsSnap v save JSON
     const sqlU=sqlByUser.get(r.user_id)||[];
     const sn=sqlU.length>=2?sqlU.map(s=>({t:s.snapped_at,errs:s.errs||{}})):(Array.isArray(d.errsSnap)?d.errsSnap:[]);
@@ -2027,7 +2031,7 @@ function renderDiag(){
     if(hasPrev){ar=(recent|0)<(prev|0)?'🔽 ':(recent|0)>(prev|0)?'🔺 ':'▶️ ';tcol=(recent|0)<(prev|0)?'#5fd38a':(recent|0)>(prev|0)?'#ff7a7a':'var(--muted)';}
     trendHtml='<div style="font-size:11px;color:'+tcol+';margin-top:3px">'+ar+'nově +'+(recent|0)+' chyb'+(hasPrev?(' (minule +'+(prev|0)+')'):' za období')+'</div>';
    }
-   const stuckHtml=stuck?'<div style="font-size:12px;color:#ff9a9a;margin-top:3px;cursor:help" title="'+esc(stuckJmena.join(', '))+'">🧱 zaseklo se '+(stuck|0)+'</div>':'';
+   const stuckHtml=stuck?'<div style="font-size:12px;color:#ff9a9a;margin-top:3px;cursor:help" title="'+esc(stuckJmena.join('\n'))+'">🧱 zaseklo se '+(stuck|0)+'</div>':'';
    cells+='<div style="background:'+bg+';border:1px solid '+bd+';border-radius:7px;padding:9px 11px">'+
     '<div style="font-weight:700;font-size:13px;color:#fff;margin-bottom:4px">'+m.id+' · '+esc(m.name)+'</div>'+
     '<div style="font-size:12px;color:var(--muted)">'+
@@ -2435,7 +2439,7 @@ const NAPOVEDA = [
    'pár týdnech provozu, takže na začátku školního roku bývá prázdný.</p>'+
    '<p><b>🧱 Zaseklo se</b> = žák, který v misi nasbíral aspoň 10 chyb a nesplnil v ní ani jeden úkol. Průměr chyb ho '+
    'schová (nemá co dělit), přitom je to ten, kdo potřebuje pomoc nejdřív. Jména najdeš v bublině u mise (najetím myši) — '+
-   'v souhrnu nahoře jsou jen počty, aby šlo tabulku promítat. Učitelské a testovací účty se do diagnostiky nepočítají.</p>' },
+   'v souhrnu nahoře jsou jen počty, aby šlo tabulku promítat. Pod jménem je v bublině i to, co žák v misi naposledy napsal (zadání, jeho odpověď a správně; jen z her od 14. 11. 2026). Učitelské a testovací účty se do diagnostiky nepočítají.</p>' },
 
  { id:'prijimacky', nadpis:'Přijímačky', kdo:'týká se 9. ročníku', text:
    '<p>Připravenost na CERMAT z přijímačkového hubu: jak si třída stojí a <b>ve kterých okruzích</b> tápe. '+

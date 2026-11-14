@@ -79,7 +79,8 @@ async function run() {
           data:{ name:'Trinity', xp:120, level:2, done:{ '1-1-0':1, '1-1-1':1, '3-1-0':1 }, errs:{ '1-1':2, '3-1':15 } } },  // 15 chyb v 3-1, ale jeden úkol splnila → NENÍ zaseknutá
         // zaseknutý: 12 chyb v misi 3-3 a ani jeden splněný úkol v ní; jméno nese pokus o vložení značky
         { user_id:'z4', game:'RPG_MAT_9', name:'Zasekly', email:'z4@husovaliberec.cz', full_name:'Žák 4 "><b id=pwn>x</b>', updated_at:new Date().toISOString(),
-          data:{ name:'Zasekly', xp:20, level:1, done:{}, errs:{ '3-3':12, '3-2':9 } } },
+          data:{ name:'Zasekly', xp:20, level:1, done:{}, errs:{ '3-3':12, '3-2':9 },
+                 wrong:{ '3-3':[['Vypočítej 12 + 8 "><b id=pwn2>x</b>','20','-5'],['Kolik je 3 · 4?','12','\u23f1']] } } },
         // postava UČITELE: 20 chyb v misi 4-1 bez splněného úkolu — do žákovské diagnostiky nepatří
         { user_id:'u-admin', game:'RPG_MAT_9', name:'Testovací', email:admin, full_name:'Vojta', updated_at:new Date().toISOString(),
           data:{ name:'Testovací', xp:5, level:1, done:{}, errs:{ '4-1':20 } } },
@@ -150,6 +151,10 @@ async function run() {
     ok('souhrn „Zasekli se“ je nad tabulkou a jmenuje misi', /ZASEKLI SE/.test(sum) && /Zatím|3-3/.test(sum) && /1 žák/.test(sum), sum.replace(/\s+/g,' ').slice(0,200));
     ok('souhrn nenese jméno žáka (tabulka se promítá)', !/Žák 4/.test(sum));
     ok('jméno se značkou se nevykoná (žádný #pwn)', await page.evaluate(()=>!document.getElementById('pwn')));
+    ok('v bublině je, co zaseknutý žák napsal (zadání, odpověď, správně)', !!c33 && /napsal „-5“ \(správně 20\)/.test(c33.stuck) && /Kolik je 3 · 4\?/.test(c33.stuck), c33&&c33.stuck);
+    ok('vypršený čas se v bublině řekne slovy', !!c33 && /vypršel čas \(správně 12\)/.test(c33.stuck), c33&&c33.stuck);
+    ok('značka v žákově odpovědi se nevykoná (žádný #pwn2)', await page.evaluate(()=>!document.getElementById('pwn2')));
+    ok('žák bez zaznamenaných odpovědí (starý save) bublinu nerozbije', await page.evaluate(()=>!/undefined|null|\[object/.test(document.getElementById('diag-wrap').innerHTML)));
     // postava učitele: dokud konzole nezná jeho e-mail, počítá se; po načtení seznamu učitelů mizí
     const pred = await bunka('4-1');
     ok('(před) postava učitele se bez seznamu učitelů počítá: ⌀ 20,0 chyb', !!pred && /⌀ 20,0 chyb/.test(pred.text), pred&&pred.text);

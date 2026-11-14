@@ -517,6 +517,24 @@ function _achNext(){
  setTimeout(()=>{t.classList.remove('show');setTimeout(()=>{t.remove();_achNext();},360);},2200);
 }
 function snapErrs(){if(!Array.isArray(S.errsSnap))S.errsSnap=[];const t=new Date().toISOString().slice(0,10);const last=S.errsSnap[S.errsSnap.length-1];if(last&&(new Date(t)-new Date(last.t))/864e5<7)return;const c={};for(const k in(S.errs||{}))if(S.errs[k]>0)c[k]=S.errs[k];S.errsSnap.push({t,errs:c,xp:S.xp||0});if(S.errsSnap.length>12)S.errsSnap=S.errsSnap.slice(-12);saveS();if(typeof RPGCloud!=='undefined'&&RPGCloud.pushErrsSnap)RPGCloud.pushErrsSnap(SAVE_KEY,S.errsSnap);}
+/* Poslední CHYBNÉ odpovědi po misích (14. 11. 2026). V `saves` byl jen POČET chyb, takže u žáků, kteří se v misi zasekli (v 6. ročníku
+   1-2 a 2-3 spolu 240 chyb), nešlo zjistit, CO píšou — a další nápověda by byla odhad. Ukládá se zadání (≤ 70 znaků), správná odpověď
+   a žákova odpověď (každá ≤ 14), nejvýš 3 poslední na misi a 8 misí; ⏱ = vypršel čas. Zdroj dat: měřeno 14. 11. 2026, 530 savů,
+   průměr 1,2 kB, největší 8 kB — strop je tedy ~2,7 kB nejhůř. `mid` musí mít tvar „oblast-mise“ (klíč z objektu `S.wrong`). */
+function zapisChybnou(mid,t,dano){
+ try{
+  if(typeof mid!=='string'||!/^\d+-\d+$/.test(mid)||!t||typeof S==='undefined'||!S||typeof S!=='object')return;
+  const o=(x,n)=>String(x==null?'':x).replace(/[\u0000-\u001f\u007f]+/g,' ').trim().slice(0,n);
+  const z=o(t.text,70);if(!z)return;
+  if(!S.wrong||typeof S.wrong!=='object'||Array.isArray(S.wrong))S.wrong={};
+  const pole=Array.isArray(S.wrong[mid])?S.wrong[mid]:[];
+  delete S.wrong[mid];
+  pole.push([z,o(t.ans,14),o(dano,14)]);
+  S.wrong[mid]=pole.slice(-3);
+  const kl=Object.keys(S.wrong);
+  while(kl.length>8)delete S.wrong[kl.shift()];
+ }catch(e){}
+}
 function trReviveChip(){
  const el=document.getElementById('tr-revive-chip');if(!el)return;
  if(TR.revive&&!TR.revive.earned){el.style.display='inline-block';el.textContent='🔁 Oživení: '+TR.revive.count+'/'+REVIVE_GOAL;}

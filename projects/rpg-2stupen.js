@@ -199,6 +199,7 @@ function submitMC(opt,btn){
  }else{
  btn.classList.add('wrong');
  btn.disabled=true;
+ zapisChybnou(BT.mid,t,opt);
  BT.combo=0;
  updateCombo();
  if(typeof RPGSound!=='undefined')RPGSound.play('bad');
