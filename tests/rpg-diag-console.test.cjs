@@ -76,7 +76,13 @@ async function run() {
           data:{ name:'Neo', xp:300, level:4, done:fullDone('1-1'), errs:{ '1-1':4, '5-2':6 },
             errsSnap:[{t:'2026-05-01',errs:{'1-1':1}},{t:'2026-05-08',errs:{'1-1':3}},{t:'2026-05-15',errs:{'1-1':4}}] } },
         { user_id:'z2', game:'RPG_MAT_9', name:'Trinity', email:'z2@husovaliberec.cz', full_name:'Žák 2', updated_at:new Date().toISOString(),
-          data:{ name:'Trinity', xp:120, level:2, done:{ '1-1-0':1, '1-1-1':1 }, errs:{ '1-1':2 } } },
+          data:{ name:'Trinity', xp:120, level:2, done:{ '1-1-0':1, '1-1-1':1, '3-1-0':1 }, errs:{ '1-1':2, '3-1':15 } } },  // 15 chyb v 3-1, ale jeden úkol splnila → NENÍ zaseknutá
+        // zaseknutý: 12 chyb v misi 3-3 a ani jeden splněný úkol v ní; jméno nese pokus o vložení značky
+        { user_id:'z4', game:'RPG_MAT_9', name:'Zasekly', email:'z4@husovaliberec.cz', full_name:'Žák 4 "><b id=pwn>x</b>', updated_at:new Date().toISOString(),
+          data:{ name:'Zasekly', xp:20, level:1, done:{}, errs:{ '3-3':12, '3-2':9 } } },
+        // postava UČITELE: 20 chyb v misi 4-1 bez splněného úkolu — do žákovské diagnostiky nepatří
+        { user_id:'u-admin', game:'RPG_MAT_9', name:'Testovací', email:admin, full_name:'Vojta', updated_at:new Date().toISOString(),
+          data:{ name:'Testovací', xp:5, level:1, done:{}, errs:{ '4-1':20 } } },
       ],
       classes: [{ id:'c1', name:'9.A', section:'A', cohort_start_year:2021, created_by:'u-admin' }],
       class_members: [{ class_id:'c1', user_id:'z1' }],  // jen Neo je v 9.A
@@ -124,6 +130,33 @@ async function run() {
     // heat barva: zkoušené mise dostanou hsl pozadí (zelená→červená dle chyb)
     const heatCells = await page.evaluate(()=>document.querySelectorAll('#diag-wrap div[style*="hsl"]').length);
     ok('mise s daty mají heat-barvu (hsl pozadí)', heatCells>=2, 'hsl buněk='+heatCells);
+
+    /* ── Zaseknutí žáci a učitelské účty (14. 11. 2026) ──────────────────
+       Zaseknutý = aspoň 10 chyb a žádný splněný úkol v misi. Průměr „chyb na žáka“ takové žáky
+       sice počítá, ale učitel z něj nepozná, KDO se zasekl; navíc postava učitele zkreslovala
+       průměry (testovací účet). Jména jsou jen v bublině (title), ne v souhrnu na plátně. */
+    const bunka = id => page.evaluate(i=>{ const b=[...document.querySelectorAll('#diag-wrap div')].find(e=>e.children.length===0&&e.textContent.trim().indexOf(i+' ·')===0);
+      return b ? { text:b.parentElement.textContent, stuck:(b.parentElement.querySelector('[title]')||{}).title||'' } : null; }, id);
+    const c33 = await bunka('3-3');
+    ok('zaseknutý žák: buňka mise 3-3 ukáže „zaseklo se 1“', !!c33 && /🧱 zaseklo se 1/.test(c33.text), c33&&c33.text);
+    ok('jméno zaseknutého je v bublině (title)', !!c33 && /Žák 4/.test(c33.stuck), c33&&c33.stuck);
+    const c32 = await bunka('3-2');
+    ok('9 chyb (pod prahem 10) ještě není zaseknutí', !!c32 && !/zaseklo se/.test(c32.text), c32&&c32.text);
+    const c31 = await bunka('3-1');
+    ok('15 chyb, ale splněný úkol v misi → není zaseknutí (3-1)', !!c31 && /⌀ 15,0 chyb/.test(c31.text) && !/zaseklo se/.test(c31.text), c31&&c31.text);
+    const c11 = await bunka('1-1');
+    ok('mise, kde žák splnil úkol, není zaseknutí (1-1)', !!c11 && !/zaseklo se/.test(c11.text), c11&&c11.text);
+    const sum = await page.evaluate(()=>{ const t=document.getElementById('diag-wrap').innerText; const i=t.indexOf('ZASEKLI SE'); return i<0?'':t.slice(i,i+400); });
+    ok('souhrn „Zasekli se“ je nad tabulkou a jmenuje misi', /ZASEKLI SE/.test(sum) && /Zatím|3-3/.test(sum) && /1 žák/.test(sum), sum.replace(/\s+/g,' ').slice(0,200));
+    ok('souhrn nenese jméno žáka (tabulka se promítá)', !/Žák 4/.test(sum));
+    ok('jméno se značkou se nevykoná (žádný #pwn)', await page.evaluate(()=>!document.getElementById('pwn')));
+    // postava učitele: dokud konzole nezná jeho e-mail, počítá se; po načtení seznamu učitelů mizí
+    const pred = await bunka('4-1');
+    ok('(před) postava učitele se bez seznamu učitelů počítá: ⌀ 20,0 chyb', !!pred && /⌀ 20,0 chyb/.test(pred.text), pred&&pred.text);
+    await page.evaluate(a=>{ STAFF_EMAILS.add(a.toLowerCase()); renderDiag(); }, admin);
+    const po = await bunka('4-1');
+    ok('postava učitele se do diagnostiky nepočítá (4-1: nikdo nezkoušel)', !!po && /zatím nikdo nezkoušel/.test(po.text) && !/zaseklo se/.test(po.text), po&&po.text);
+    await page.evaluate(a=>{ STAFF_EMAILS.delete(a.toLowerCase()); renderDiag(); }, admin);
 
     // filtr třídy: 9.A obsahuje jen Neo (errs 1-1:4) → ⌀ 4,0, 1/1 dokončilo
     const classOpts = await page.evaluate(()=>document.getElementById('diag-class')?document.getElementById('diag-class').options.length:0);
