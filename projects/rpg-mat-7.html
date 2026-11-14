@@ -2268,7 +2268,7 @@ function updateTimerUi(){
 function onTimeOut(){
  if(BT.hp<=0)return;
  const fb=document.getElementById('bt-fb');
- fb.textContent='⏱ ČAS VYPRŠEL!';
+ zapisChybnou(BT.mid,BT.curTask,'⏱');fb.textContent='⏱ ČAS VYPRŠEL!';
  fb.className='feedback err';
  if(typeof RPGSound!=='undefined')RPGSound.play('bad');
  monsterAttack();
@@ -2702,7 +2702,7 @@ function submitAnswer(){
  }else{
  BT.combo=0;
  updateCombo();
- fb.textContent='✗ ŠPATNĚ — "'+inp+'" není správně.';
+ zapisChybnou(BT.mid,BT.curTask,inp);fb.textContent='✗ ŠPATNĚ — "'+inp+'" není správně.';
  fb.className='feedback err';
  if(typeof RPGSound!=='undefined')RPGSound.play('bad');
  monsterAttack();
@@ -3353,6 +3353,7 @@ function trCorrect(){
 }
 
 function trWrong(given){
+ zapisChybnou(TR.mid,TR.task,given);
  TR.total++;
  if(!S.errs)S.errs={};if(TR.mid){S.errs[TR.mid]=(S.errs[TR.mid]||0)+1;
   if(!S.trainErrs)S.trainErrs={};if(!S.trainErrs[TR.mid])S.trainErrs[TR.mid]={};
@@ -3448,7 +3449,7 @@ window.addEventListener('load',()=>{
 <script defer src="./rpg-cloud.js?v=20261112"></script>
 <script defer src="./rpg-battle-7.js"></script>
 <script defer src="./rpg-badwords.js"></script>
-<script defer src="./rpg-shared.js?v=20261109"></script>
+<script defer src="./rpg-shared.js?v=20261114"></script>
 <script defer src="./rpg-2stupen.js"></script>
 <script defer src="./rpg-tasktypes.js"></script>
 <script defer src="./rpg-battle-ui.js?v=20261108"></script>
