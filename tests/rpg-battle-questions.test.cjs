@@ -35,6 +35,7 @@ const ok = (label, cond, d) => { if (cond) { pass++; } else { fail++; console.er
    v nedopočítaných tvarech přežily dvě vady: „Zkrať zlomek: 18/36. Napiš výsledný ČITATEL."
    čekalo 3 (správně 1, 7. roč.) a „Vyřeš: 5x + 3 = 5x + 3" čekalo 8 (8. roč.). */
 const DOP = require('./souboj-dopocet.cjs');
+const { jednotkaChybi, shodaPodmetu } = require('./zadani-pravidla.cjs');   // sdílená pravidla zadání, tentýž kód jako v rpg-content-quality.audit
 const { trojuhelniky } = require('./trojuhelniky.cjs');
 /* Pravidla obsahu převzatá z RPG a přijímaček (tests/KONTROLY.md, skupina A). */
 const PRAVIDLA = [
@@ -50,6 +51,9 @@ const PRAVIDLA = [
   // uzavřený výběr („A, nebo B?“) nabízí jen ty dvě — jako mc_opts v RPG
   ['uzavřený výběr nabízí jen čísla ze zadání', (q) => { const m = q.text.replace(/\n/g, ' ').match(/([−-]?\d+(?:,\d+)?)\s*,?\s+nebo\s+([−-]?\d+(?:,\d+)?)/);
     if (!m) return []; const z = new Set([m[1], m[2]].map(x => x.replace('-', '−'))); return m[1] === m[2] || q.choices.some(c => !z.has(String(c).replace('-', '−'))) ? [q.text.replace(/\n/g, ' ').slice(0, 40) + ' → ' + q.choices.join('/')] : []; }],
+  // 14. 11. 2026 (hlášení žáka z Věže): „5 beden obsahuje 27 součástek. Kolik je celkem?“ — číslo musí platit pro KAŽDÝ kus
+  ['„celkem“ u násobení říká „každý“ / „po“', (q) => jednotkaChybi(q.text, q.answer) ? [String(q.text).replace(/\n/g, ' ').slice(0, 60)] : []],
+  ['po číslovce 2–4 je přísudek v množném čísle', (q) => { const x = shodaPodmetu(q.text); return x ? [x] : []; }],
   ['kladné číslo bez závorky', (q) => /(^|[\s:=+−×·])\(\d+(?:,\d+)?\)(?![²³⁴⁵⁶⁷⁸⁹])/.test(q.text.replace(/f\(\d+\)/g, '')) ? [q.text.slice(0, 40)] : []],
 ];
 const KONTROLY_OBSAHU = [
