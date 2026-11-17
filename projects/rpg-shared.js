@@ -535,6 +535,42 @@ function zapisChybnou(mid,t,dano){
   while(kl.length>8)delete S.wrong[kl.shift()];
  }catch(e){}
 }
+/* Doba hraní po misích (17. 11. 2026). V `saves` byl jen počet splněných úkolů a chyb, takže se nedalo poznat, jestli žák v misi skončil,
+   protože skončila hodina, nebo protože se zasekl (u 9. ročníku mise 1-2 jen 13 z 32 hráčů po 1-1, a z dat nešlo říct proč).
+   `S.cas[<oblast>-<mise>] = {s, n, o, d}`: s = součet dob odpovědí v sekundách (od zobrazení úlohy / předchozí odpovědi po odpověď nebo
+   vypršení, jedna nejvýš 90 s kvůli odloženému tabletu), n = počet započítaných odpovědí, o = kolikrát se boj v misi spustil,
+   d = poslední den hraní jako číslo RRMMDD. ŽÁDNÝ časovač: start nastaví `daleZpet` (volá ho každé zobrazení úlohy v boji i v tréninku),
+   odpověď se zachytí v `adaptOnAnswer` (boj, všech 7 her) a `trCorrect`/`trWrong` (trénink), takže se to nemůže dostat do ovládání.
+   Minihry a Věž se neměří. Velikost: ~38 B na misi, nejvýš 30 misí. */
+let _casT0=0;
+function casDen(){const d=new Date();return(d.getFullYear()%100)*10000+(d.getMonth()+1)*100+d.getDate();}
+function casZaznam(mid){
+ if(typeof mid!=='string'||!/^[1-9]-[1-9]$/.test(mid)||typeof S==='undefined'||!S||typeof S!=='object')return null;
+ if(!S.cas||typeof S.cas!=='object'||Array.isArray(S.cas))S.cas={};
+ let c=S.cas[mid];
+ if(!c||typeof c!=='object'||Array.isArray(c)){if(Object.keys(S.cas).length>=30)return null;c=S.cas[mid]={s:0,n:0,o:0,d:0};}
+ for(const k of['s','n','o','d'])if(typeof c[k]!=='number'||!isFinite(c[k])||c[k]<0)c[k]=0;
+ c.s=Math.min(c.s,1e6);c.n=Math.min(c.n,1e5);c.o=Math.min(c.o,1e5);
+ return c;
+}
+function casStart(){_casT0=Date.now();}
+function casOdpoved(mid){
+ try{
+  const t0=_casT0,ted=Date.now();
+  _casT0=ted;   /* další pokus o tutéž úlohu se měří od této odpovědi */
+  if(!t0)return;
+  const c=casZaznam(mid);if(!c)return;
+  c.s=Math.round((c.s+Math.min(Math.max(ted-t0,0),90000)/1000)*10)/10;
+  c.n++;c.d=casDen();
+  if(typeof saveS==='function')saveS();
+ }catch(e){}
+}
+function casSpusteni(mid){
+ try{
+  const c=casZaznam(mid);if(!c)return;
+  c.o++;c.d=casDen();
+ }catch(e){}
+}
 function trReviveChip(){
  const el=document.getElementById('tr-revive-chip');if(!el)return;
  if(TR.revive&&!TR.revive.earned){el.style.display='inline-block';el.textContent='🔁 Oživení: '+TR.revive.count+'/'+REVIVE_GOAL;}
@@ -554,6 +590,7 @@ function adaptMaybeSwap(idx){
  if(pi!=null){BT.srcIdx[idx]=pi;BT.tasks[idx]=BT.pool[pi];}
 }
 function adaptOnAnswer(ok){
+ casOdpoved(typeof BT!=='undefined'&&BT?BT.mid:null);   // doba odpovědi v misi (boj, všech 7 her)
  const a=BT.adapt;if(!a)return;
  if(ok){a.okRow++;a.errRow=0;}else{a.errRow++;a.okRow=0;}
  a.mode=a.errRow>=2?-1:(a.okRow>=3?1:0);
@@ -696,6 +733,7 @@ function ukazDale(daleId,radekId){
 }
 // Nová úloha: DÁLE zpátky na své místo (skryté), odesílací tlačítko zpátky do řádku.
 function daleZpet(daleId){
+ casStart();   // nová úloha na obrazovce = začátek měření doby odpovědi
  const n=document.getElementById(daleId||'next-btn');if(!n)return;
  clearTimeout(n._t);n.disabled=false;n.style.display='none';
  if(n._domov){const d=n._domov;d.rodic.insertBefore(n,d.za&&d.za.parentNode===d.rodic?d.za:null);n._domov=null;n.classList.add('sm');n.style.whiteSpace='';}
