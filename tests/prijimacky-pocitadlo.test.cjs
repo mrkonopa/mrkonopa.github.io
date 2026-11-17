@@ -17,7 +17,7 @@ function serve() { return new Promise(res => { const s = http.createServer((q, p
 let pass = 0, fail = 0;
 const ok = (c, m, d) => { if (c) { pass++; console.log('  ✅ ' + m); } else { fail++; console.log('  ❌ ' + m + (d ? ' — ' + d : '')); } };
 const D = '/projects/prijimacky-matematika/';
-const POVOLENE = ['vstup', 'test_start', 'test_done', 'procvic', 'diag_done', 'konstrukce_check'];
+const POVOLENE = ['vstup', 'test_start', 'test_done', 'test_vzdan', 'test_obnoven', 'procvic', 'diag_done', 'konstrukce_check'];
 
 // Mock: přihlášený (role student/teacher), nebo nepřihlášený; rpc si zapisuje volání. `padat` = rpc vyhodí chybu.
 const mock = ({ prihlaseny, role, padat }) => `
@@ -80,6 +80,12 @@ window.__RPC = [];
     await otevri(p, 'test.html'); await cekej(p, () => document.getElementById('cm-resume-go'));
     await p.click('#cm-resume-go'); await cekej(p, () => CM.on);
     ok((await udalosti(p)).filter(e => e === 'test_start').length === 0, 'pokračování v rozepsaném testu nepočítá nové spuštění (po obnovení stránky: ' + ((await udalosti(p)).join() || 'nic') + ')');
+    ok((await udalosti(p)).filter(e => e === 'test_obnoven').length === 1, 'pokračování v rozepsaném testu pošle test_obnoven (' + ((await udalosti(p)).join() || 'nic') + ')');
+    await otevri(p, 'test.html'); await cekej(p, () => document.getElementById('cm-resume-go'));
+    await p.click('#cm-resume-go'); await cekej(p, () => CM.on);
+    ok((await udalosti(p)).filter(e => e === 'test_obnoven').length === 0, 'druhé obnovení stránky ve stejné kartě test_obnoven neopakuje (' + ((await udalosti(p)).join() || 'nic') + ')');
+    await p.evaluate(() => cmGiveUp());
+    ok((await udalosti(p)).filter(e => e === 'test_vzdan').length === 1 && !(await udalosti(p)).includes('test_done'), 'vzdání testu pošle test_vzdan a ne test_done (' + ((await udalosti(p)).join() || 'nic') + ')');
     await ctx.close(); }
 
   // ══ 3) Procvičování: víc odpovědí = jedna událost ══

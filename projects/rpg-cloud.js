@@ -681,8 +681,8 @@ window.RPGCloud = (function () {
      děti přijímačky používají bez účtu — jinak by učitel nevěděl, jestli je někdo vůbec otevřel. Učitelské účty
      se nepočítají. Počítadlo nesmí nikdy nic rozbít: každá chyba se tiše spolkne. Jména musí sedět se seznamem
      ve fázi 27 (SQL ostatní zahazuje). */
-  const UDALOSTI_PZ = ['vstup', 'test_start', 'test_done', 'procvic', 'diag_done', 'konstrukce_check'];
-  const JEDNOU_ZA_KARTU = { vstup: 1, procvic: 1 };   // „vstup" a „procvičování" = jednou za návštěvu, ne za každou odpověď
+  const UDALOSTI_PZ = ['vstup', 'test_start', 'test_done', 'test_vzdan', 'test_obnoven', 'procvic', 'diag_done', 'konstrukce_check'];
+  const JEDNOU_ZA_KARTU = { vstup: 1, procvic: 1, test_obnoven: 1 };   // jednou za návštěvu, ne za každou odpověď či obnovení stránky
   const frontaUdalosti = [];
   let udalostiPripraveny = false;
   function odesliUdalost(n) {
