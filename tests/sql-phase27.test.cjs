@@ -55,13 +55,13 @@ if (why) { console.log('⏭️ SKIP: ' + why); process.exit(0); }
     ok('neplatná jména nevytvořila žádný řádek', H.q('select count(*) from public.pz_usage') === '2');
     ok('tabulka po zasypání nesmysly stále existuje', H.q("select to_regclass('public.pz_usage') is not null") === 't');
 
-    // všech šest povolených událostí
-    for (const e of ['vstup', 'test_start', 'test_done', 'procvic', 'diag_done', 'konstrukce_check']) H.exec(`set role anon; select public.pz_event('${e}');`);
-    ok('všech 6 povolených událostí se zapíše (řádků ' + H.q('select count(*) from public.pz_usage') + ')', H.q('select count(*) from public.pz_usage') === '6');
+    // všech osm povolených událostí
+    for (const e of ['vstup', 'test_start', 'test_done', 'test_vzdan', 'test_obnoven', 'procvic', 'diag_done', 'konstrukce_check']) H.exec(`set role anon; select public.pz_event('${e}');`);
+    ok('všech 8 povolených událostí se zapíše (řádků ' + H.q('select count(*) from public.pz_usage') + ')', H.q('select count(*) from public.pz_usage') === '8');
 
     // počítání: 200 volání = +200, tabulka neroste
     H.exec("set role anon; select public.pz_event('procvic') from generate_series(1,200);");
-    ok('200 volání přičte 200 a nepřidá řádek', H.q("select n from public.pz_usage where event='procvic'") === '201' && H.q('select count(*) from public.pz_usage') === '6');
+    ok('200 volání přičte 200 a nepřidá řádek', H.q("select n from public.pz_usage where event='procvic'") === '201' && H.q('select count(*) from public.pz_usage') === '8');
 
     // čtení pro učitele
     ok('anon souhrn nezavolá (právo)', H.q("select has_function_privilege('anon','public.pz_usage_summary(int)','execute')") === 'f');
@@ -70,7 +70,7 @@ if (why) { console.log('⏭️ SKIP: ' + why); process.exit(0); }
     ok('role bez záznamu (student) souhrn nepřečte', /forbidden/.test(H.expectFail("set role authenticated; set test.role=''; select * from public.pz_usage_summary()") || ''));
     for (const role of ['teacher', 'superadmin']) {
       const s = H.rows(`set role authenticated; set test.role='${role}'; select event, n from public.pz_usage_summary(30) order by event`);
-      ok(role + ' souhrn přečte (6 událostí, test_start = 4)', s.length === 6 && s.some(r => r[0] === 'test_start' && r[1] === '4'), JSON.stringify(s));
+      ok(role + ' souhrn přečte (8 událostí, test_start = 4)', s.length === 8 && s.some(r => r[0] === 'test_start' && r[1] === '4'), JSON.stringify(s));
     }
     // brána s coalesce: NULL role ji nesmí otevřít (`NULL not in (…)` je NULL, ne TRUE)
     H.exec("create or replace function public.my_role() returns text language sql stable as $$ select null::text $$;");

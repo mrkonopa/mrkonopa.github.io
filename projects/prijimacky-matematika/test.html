@@ -163,7 +163,7 @@ function cmStart(obnov){
     CM.konec = Date.now() + CM.timeLeft * 1000;
   }
   CM.on = true;
-  if(!obnov) PZ.event('test_start');
+  PZ.event(obnov ? 'test_obnoven' : 'test_start');
   document.getElementById('cm-gate').style.display='none';
   document.getElementById('cm-end').style.display='none';
   document.getElementById('cm-play').style.display='block';
@@ -283,7 +283,7 @@ window.addEventListener('beforeunload', e=>{ if(CM.on){ e.preventDefault(); e.re
 function stopTimer(){ if(CM.timerId){ clearInterval(CM.timerId); CM.timerId=null; } }
 
 function cmConfirmSubmit(){ if(CM.on && confirm('Opravdu odevzdat test? Po odevzdání se úlohy vyhodnotí a už je nepůjde upravit.')) cmSubmit(false); }
-function cmGiveUp(){ if(CM.on && confirm('Vzdát test bez uložení výsledku?')){ stopTimer(); CM.on=false; smazBeh(); renderGate(); window.scrollTo(0,0); } }
+function cmGiveUp(){ if(CM.on && confirm('Vzdát test bez uložení výsledku?')){ PZ.event('test_vzdan'); stopTimer(); CM.on=false; smazBeh(); renderGate(); window.scrollTo(0,0); } }
 
 function cmSubmit(auto){
   if(!CM.on) return;

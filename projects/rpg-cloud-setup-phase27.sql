@@ -14,6 +14,12 @@
 --  (SECURITY DEFINER, povolená jsou jen známá jména událostí, cokoli jiného se tiše zahodí),
 --  čte jen `pz_usage_summary` pro učitele.
 --
+--  17. 11. 2026: přibyly `test_vzdan` (tlačítko „Vzdát test“) a `test_obnoven` (rozepsaný test se po
+--  obnovení stránky načetl znovu). Důvod: 9 spuštěných testů a 0 odevzdaných — z počtů nešlo poznat, jestli
+--  děti test vzdávají, nebo ho opouštějí. Nenačtený konec se dopočítá: test_start − test_done − test_vzdan.
+--  Starý klient nová jména neposílá a starý SQL nová jména tiše zahodí, takže pořadí nasazení je volné;
+--  na produkci stačí tento soubor spustit znovu (CREATE OR REPLACE).
+--
 --  Idempotentní: lze spustit opakovaně (CREATE OR REPLACE, IF NOT EXISTS).
 --  Nasazení: po fázi 2 (`my_role()`) a fázi 23 (`my_role()` nevrací NULL).
 -- ═════════════════════════════════════════════════════════════════════════
@@ -36,7 +42,7 @@ set search_path = public
 as $$
 begin
   if p_event is null or p_event not in
-     ('vstup', 'test_start', 'test_done', 'procvic', 'diag_done', 'konstrukce_check') then
+     ('vstup', 'test_start', 'test_done', 'test_vzdan', 'test_obnoven', 'procvic', 'diag_done', 'konstrukce_check') then
     return;   -- neznámé jméno se tiše zahodí (žádná chyba, ať se z toho nedá nic zjistit ani vynutit)
   end if;
   insert into public.pz_usage (day, event, n)

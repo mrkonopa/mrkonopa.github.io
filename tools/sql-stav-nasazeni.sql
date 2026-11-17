@@ -46,6 +46,8 @@ union all select 'fáze 27 · anonymní počítadlo přijímaček (pz_event smí
        and to_regclass('public.pz_usage') is not null
        and not has_table_privilege('anon', 'public.pz_usage', 'select')
        and not has_table_privilege('anon', 'public.pz_usage', 'insert')
+union all select 'fáze 27 (17. 11. 2026) · pz_event zná test_vzdan a test_obnoven (nevyšlo = spustit fázi 27 znovu)',
+       exists(select 1 from f where proname = 'pz_event' and def like '%test_vzdan%' and def like '%test_obnoven%')
 union all select 'fáze 28 · vzhled spolužáků (look_of smí volat jen přihlášený, pomocné jsou zavřené)',
        exists(select 1 from f where proname = 'look_of' and def like '%_look_z_penezenky%')
        and exists(select 1 from f where proname = '_look_z_penezenky' and def like '%jsonb_array_length%')
