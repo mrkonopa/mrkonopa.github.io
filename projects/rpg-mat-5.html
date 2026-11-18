@@ -1130,6 +1130,7 @@ const ITEM_TYPES=['hp','freeze','skip'];
 const ITEM_DEFS={hp:{ic:'🧪',lb:'LEKTVAR',desc:'Obnoví 1 život'},freeze:{ic:'❄️',lb:'ZMRZLINA',desc:'Zmrazí čas na 15 s'},skip:{ic:'💨',lb:'PŘESKOČ',desc:'Přeskočí úkol bez penalizace'}};
 
 function launchBattle(aid,mid){
+ casSpusteni(mid);
  const ar=AREAS.find(a=>a.id===aid);if(!ar)return;
  const m=ar.missions.find(x=>x.id===mid);if(!m)return;
  BT.aid=aid;BT.mid=mid;BT.combo=0;BT.missionHinted=false;BT.bossDefeated=false;
@@ -1789,6 +1790,7 @@ function trSubmit(){
  if(ok)trCorrect();else trWrong(raw);
 }
 function trCorrect(){
+ casOdpoved(TR.mid);
  TR.correct++;TR.total++;TR.streak++;
  if(TR.mid&&TR.curIdx!=null&&S.trainErrs&&S.trainErrs[TR.mid]&&S.trainErrs[TR.mid][TR.curIdx]){
   S.trainErrs[TR.mid][TR.curIdx]=Math.max(0,S.trainErrs[TR.mid][TR.curIdx]-1);
@@ -1811,6 +1813,7 @@ function trCorrect(){
  trStats();ukazDale('tr-next-btn','tr-input-row');
 }
 function trWrong(given){
+ casOdpoved(TR.mid);
  zapisChybnou(TR.mid,TR.task,given);
  TR.total++;if(!trGuard())TR.streak=0;
  const ms=masteryOf(TR.mid);ms.score=Math.max(0,ms.score-1);if(!S.mastery)S.mastery={};S.mastery[TR.mid]=ms;
@@ -2031,7 +2034,7 @@ window.addEventListener('load',()=>{
 <script defer src="./rpg-cloud.js?v=20261117"></script>
 <script defer src="./rpg-battle-5.js"></script>
 <script defer src="./rpg-badwords.js"></script>
-<script defer src="./rpg-shared.js?v=20261114"></script>
+<script defer src="./rpg-shared.js?v=20261117"></script>
 <script defer src="./rpg-tasktypes.js"></script>
 <script defer src="./rpg-battle-ui.js?v=20261108"></script>
 <script>window.addEventListener('load',function(){if(window.RPGCloud&&RPGCloud.attachGame)RPGCloud.attachGame(SAVE_KEY);});</script>

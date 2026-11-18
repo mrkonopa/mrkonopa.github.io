@@ -2056,6 +2056,7 @@ const ITEM_DEFS={
 };
 
 function launchBattle(aid,mid){
+ casSpusteni(mid);
  const ar=AREAS.find(a=>a.id===aid);
  const m=ar.missions.find(x=>x.id===mid);
  BT.aid=aid;BT.mid=mid;BT.combo=0;BT.missionHinted=false;BT.bossDefeated=false;
@@ -3293,6 +3294,7 @@ function trSpecialDone(mistakes){
  document.getElementById('tr-next-btn').style.display='inline-block';
 }
 function trCorrect(){
+ casOdpoved(TR.mid);
  TR.correct++;TR.total++;TR.streak++;
  if(TR.mid&&TR.curIdx!=null&&S.trainErrs&&S.trainErrs[TR.mid]&&S.trainErrs[TR.mid][TR.curIdx]){
   S.trainErrs[TR.mid][TR.curIdx]=Math.max(0,S.trainErrs[TR.mid][TR.curIdx]-1);
@@ -3330,6 +3332,7 @@ function trCorrect(){
 }
 
 function trWrong(given){
+ casOdpoved(TR.mid);
  zapisChybnou(TR.mid,TR.task,given);
  TR.total++;
  if(!S.errs)S.errs={};if(TR.mid){S.errs[TR.mid]=(S.errs[TR.mid]||0)+1;
@@ -3426,7 +3429,7 @@ window.addEventListener('load',()=>{
 <script defer src="./rpg-cloud.js?v=20261117"></script>
 <script defer src="./rpg-battle-6.js"></script>
 <script defer src="./rpg-badwords.js"></script>
-<script defer src="./rpg-shared.js?v=20261114"></script>
+<script defer src="./rpg-shared.js?v=20261117"></script>
 <script defer src="./rpg-2stupen.js"></script>
 <script defer src="./rpg-tasktypes.js"></script>
 <script defer src="./rpg-battle-ui.js?v=20261108"></script>
