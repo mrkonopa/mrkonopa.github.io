@@ -12,11 +12,19 @@
      • skutečným načtením v prohlížeči: při otevření nesmí přijít víc než MAX_FOTEK fotek a MAX_MB
        (podlaha z měření: 1 fotka, 0,2–0,4 MB; strop má rezervu na úvodní obrazovku, ne na galerii).
    Rozcestník cest (`index.html`): osm titulních fotek byly plné snímky ⌀ 350 kB (3,1 MB, na 1,6 Mbps načtení 15,4 s) pro
-   karty široké ~400 px. Teď jsou to náhledy 800 × 600 z `travels/images/nahledy/` (⌀ 90 kB, dohromady ~0,65 MB;
-   `tools/nahledy-titulni.py`); test hlídá, že rozcestník při otevření nestáhne víc než MAX_INDEX_MB a že karty
-   odkazují na náhledy.
+   karty široké ~400 px. Od 26. 10. 2026 jsou to náhledy 800 × 600 z `travels/images/nahledy/` (⌀ 90 kB, dohromady ~0,72 MB;
+   `tools/nahledy-titulni.py`). Naměřeno 19. 11. 2026: karty ale leží POD první obrazovkou (první karta má vršek na
+   1 043 px na telefonu, 1 322 px na iPadu, 1 805 px na počítači — nad nimi je hlavička a mapa) a fotky byly CSS pozadí,
+   takže se stáhlo všech 8 (720 kB) při každém otevření. Teď je titulní fotka `<img loading="lazy">` v `.cover`
+   (`object-fit: cover` místo `background-size`): při otevření se načtou jen karty blízko okna — telefon 3 fotky / 289 kB,
+   iPad 6 / 505 kB, počítač 3 / 289 kB (4G); načtení na pomalé lince (1,6 Mbps, 150 ms, CPU 4×) 5,4 s → 3,2 s.
+   Test hlídá ze zdroje, že každá karta má `<img loading="lazy">` z `images/nahledy/` a žádné `background-image`, a skutečným
+   načtením na telefonu s emulovanou sítí 4G, že rozcestník při otevření nestáhne víc než MAX_INDEX_FOTEK fotek a MAX_INDEX_MB.
+   Práh vychází z toho, že vzdálenost, ze které Chromium líné fotky načítá, závisí na typu sítě (4G 1 250 px, bez údaje o síti
+   asi 2 500 px — naměřeno v Chromiu 141) a v novější verzi se může změnit; proto se síť emuluje a strop má rezervu (6 ze 8).
    Sabotáže (přepis odpovědi serveru, soubory se nemění): vypnutí `loading="lazy"` u Ukrajiny, vrácení
-   `background-image` u ČR–BH a vrácení plných fotek na rozcestník — test musí všechny tři chytit.
+   `background-image` u ČR–BH, vrácení plných fotek na rozcestník a vypnutí `loading="lazy"` na rozcestníku — test musí
+   všechny čtyři chytit.
    ═════════════════════════════════════════════════════════════════ */
 'use strict';
 const { chromium } = require('playwright');
@@ -26,7 +34,7 @@ const EXEC = '/opt/pw-browsers/chromium-1194/chrome-linux/chrome';
 const MIME = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.svg': 'image/svg+xml', '.jpg': 'image/jpeg', '.png': 'image/png', '.woff2': 'font/woff2' };
 const ZAPISKY = ['ukraine-2017', 'cr-bh-2018', 'romania-2019', 'yugoslavia-2020', 'spain-france-2021', 'italy-2022', 'baltic-2023', 'kosovo-2024'];
 const MAX_FOTEK = 6, MAX_MB = 2;      // naměřeno 1 fotka a 0,2–0,4 MB; viz hlavička
-const MAX_INDEX_FOTEK = 9, MAX_INDEX_MB = 1.2;   // rozcestník: 8 titulních náhledů, naměřeno viz hlavička
+const MAX_INDEX_FOTEK = 6, MAX_INDEX_MB = 0.7;   // rozcestník: 8 náhledů, líně; naměřeno 3 / 0,29 MB (4G), 8 / 0,72 MB bez lazy; viz hlavička
 let pass = 0, fail = 0;
 const ok = (c, m, d) => { if (c) { pass++; console.log('  ✅ ' + m); } else { fail++; console.log('  ❌ ' + m + (d ? ' — ' + d : '')); } };
 
@@ -73,15 +81,22 @@ function zZdroje(html) {
   ok(celkem >= 1400, 'dohromady ' + celkem + ' fotek v <img> (podlaha 1 400; naměřeno 1 577, tolik je i souborů v travels/images)');
 
   const idx = fs.readFileSync(path.join(ROOT, 'travels', 'index.html'), 'utf8');
-  const kryty = [...idx.matchAll(/<div class="cover"[^>]*background-image:url\('([^']+)'\)/g)].map(m => m[1]);
+  const karty = [...idx.matchAll(/<div class="cover(?: [^"]*)?"[^>]*>(<img\b[^>]*>)?/g)].map(m => m[1] || '');
+  const kryty = karty.map(t => (t.match(/\bsrc="([^"]+)"/) || [])[1]).filter(Boolean);
   ok(kryty.length === 8 && kryty.every(u => /^\.\/images\/nahledy\//.test(u)), 'rozcestník: všech ' + kryty.length + ' titulních fotek je z images/nahledy/ (osm karet)', kryty.filter(u => !/nahledy/.test(u)).join(', '));
+  ok(karty.length === 8 && karty.every(t => /\bloading="lazy"/.test(t)), 'rozcestník: každá z ' + karty.length + ' karet má <img loading="lazy"> (pod první obrazovkou, nic se nemá stahovat předem)', karty.filter(t => !/\bloading="lazy"/.test(t)).length + ' bez lazy');
+  ok(!/<div class="cover[^"]*"[^>]*background-image/.test(idx), 'rozcestník: titulní fotka není CSS pozadí (pozadí se líně nenačítá)');
   const bezSouboru = kryty.filter(u => !fs.existsSync(path.join(ROOT, 'travels', decodeURIComponent(u))));
   ok(bezSouboru.length === 0, 'rozcestník: soubory náhledů existují', bezSouboru.join(', '));
   const browser = await chromium.launch({ headless: true, executablePath: EXEC });
-  async function otevri(base, z) {
+  async function otevri(base, z, sit4g) {
     const c = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
     await c.route('**/*', r => r.request().url().startsWith(base) ? r.continue() : r.abort());
     const p = await c.newPage(); let img = 0, bytes = 0;
+    if (sit4g) {   /* typ sítě určuje, jak daleko pod oknem se líná fotka načte (viz hlavička) — bez emulace by to záleželo na verzi Chromia */
+      const cdp = await c.newCDPSession(p); await cdp.send('Network.enable');
+      await cdp.send('Network.emulateNetworkConditions', { offline: false, latency: 40, downloadThroughput: 10e6 / 8, uploadThroughput: 5e6 / 8 });
+    }
     p.on('response', r => { const u = r.url(); if (u.startsWith(base) && /\/images\/.*\.(jpg|jpeg|png|webp)$/i.test(u)) { img++; bytes += +(r.headers()['content-length'] || 0); } });
     await p.goto(base + '/travels/' + z + '.html', { waitUntil: 'load' }); await p.waitForTimeout(1200);
     await c.close(); return { img, mb: bytes / 1e6 };
@@ -92,7 +107,7 @@ function zZdroje(html) {
     ok(o.img >= 1 && o.img <= MAX_FOTEK && o.mb <= MAX_MB, z + ': při otevření ' + o.img + ' fotek, ' + o.mb.toFixed(1) + ' MB (strop ' + MAX_FOTEK + ' fotek, ' + MAX_MB + ' MB)',
       o.img < 1 ? 'žádná fotka se nenačetla (měřidlo nic nevidí)' : undefined);
   }
-  const oi = await otevri(base, 'index');
+  const oi = await otevri(base, 'index', true);
   ok(oi.img >= 1 && oi.img <= MAX_INDEX_FOTEK && oi.mb <= MAX_INDEX_MB, 'rozcestník: při otevření ' + oi.img + ' fotek, ' + oi.mb.toFixed(2) + ' MB (strop ' + MAX_INDEX_FOTEK + ' fotek, ' + MAX_INDEX_MB + ' MB)');
   srv.close();
 
@@ -109,10 +124,18 @@ function zZdroje(html) {
     s.close();
   }
   {
-    const s = await server({ 'index.html': t => t.replace(/\.\/images\/nahledy\//g, './images/xx_zpet/').replace(/'\.\/images\/xx_zpet\/([^']+)'/g, (m, f) => "'./images/" + ({ 'ua_sk-0209-29.07.2017_web.jpg': 'ua_2017/', 'cr_bh_pano_0007_04.07.2018_web.jpg': 'cr_bh_2018/', 'ro_fagaras_0219_24.07.19_web.jpg': 'romania_2019/', 'yugoslavia_0095_20200708%20-%20kopie%20%282%29_web.jpg': 'yugoslavia_2020/', 'spain_france_0640_18.08.2021_web.jpg': 'spain_france_2021/', 'italy_jpg_0380_26.07.2022_web.jpg': 'italy_2022/', 'balt_0360_06.07.2023_web.jpg': 'baltic_2023/', 'k0100.jpg': 'kosovo_2024/' }[f] || '') + f + "'") }), b = 'http://127.0.0.1:' + s.address().port;
-    const o = await otevri(b, 'index');
+    const PLNE = { 'ua_sk-0209-29.07.2017_web.jpg': 'ua_2017/', 'cr_bh_pano_0007_04.07.2018_web.jpg': 'cr_bh_2018/', 'ro_fagaras_0219_24.07.19_web.jpg': 'romania_2019/', 'yugoslavia_0095_20200708%20-%20kopie%20%282%29_web.jpg': 'yugoslavia_2020/', 'spain_france_0640_18.08.2021_web.jpg': 'spain_france_2021/', 'italy_jpg_0380_26.07.2022_web.jpg': 'italy_2022/', 'balt_0360_06.07.2023_web.jpg': 'baltic_2023/', 'k0100.jpg': 'kosovo_2024/' };
+    const s = await server({ 'index.html': t => t.replace(/src="\.\/images\/nahledy\/([^"]+)"/g, (m, f) => 'src="./images/' + (PLNE[f] || '') + f + '"') }), b = 'http://127.0.0.1:' + s.address().port;
+    const o = await otevri(b, 'index', true);
     ok(s.prepsano > 0, 'sabotáž „plné fotky na rozcestníku“ se aplikovala (přepis uplatněn ' + s.prepsano + '×)');
     ok(o.mb > MAX_INDEX_MB, 'sabotáž „plné fotky na rozcestníku“ je chycena (' + o.img + ' fotek, ' + o.mb.toFixed(2) + ' MB při otevření)', 'test prošel i nad rozbitou stránkou');
+    s.close();
+  }
+  {
+    const s = await server({ 'index.html': t => t.replace(/ loading="lazy"/g, '') }), b = 'http://127.0.0.1:' + s.address().port;
+    const o = await otevri(b, 'index', true);
+    ok(s.prepsano > 0, 'sabotáž „rozcestník bez loading=lazy“ se aplikovala (přepis uplatněn ' + s.prepsano + '×)');
+    ok(o.img > MAX_INDEX_FOTEK || o.mb > MAX_INDEX_MB, 'sabotáž „rozcestník bez loading=lazy“ je chycena (' + o.img + ' fotek, ' + o.mb.toFixed(2) + ' MB při otevření)', 'test prošel i nad rozbitou stránkou');
     s.close();
   }
   /* totéž pro zdrojovou kontrolu: pozadí v ČR–BH musí zdrojová kontrola poznat */
