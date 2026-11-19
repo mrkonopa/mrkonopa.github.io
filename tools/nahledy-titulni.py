@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 """Náhledy titulních fotek na rozcestníku cest (travels/index.html).
 
-Karta má `.cover` s `background-size: cover` v poměru 4 : 3 a zdrojovou fotku v plné velikosti (⌀ 350 kB, 1600 px),
-ačkoli se zobrazí v ~400 px. Tenhle nástroj pro každý odkaz `url('./images/<složka>/<fotka>')` v `.cover`
-vyřízne výřez 4 : 3 (jako to dělá CSS podle `background-position`, výchozí střed), zmenší na 800 × 600 (JPEG q78, progresivní, bez EXIF) a uloží do
+Karta má `.cover` s `<img loading="lazy">` (`object-fit: cover`, poměr 4 : 3) a zdrojovou fotku v plné velikosti (⌀ 350 kB, 1600 px),
+ačkoli se zobrazí v ~400 px. Tenhle nástroj pro každé `<img src="./images/<složka>/<fotka>">` v `.cover`
+vyřízne výřez 4 : 3 (jako to dělá CSS podle `object-position` v atributu `style`, výchozí střed), zmenší na 800 × 600 (JPEG q78, progresivní, bez EXIF) a uloží do
 `travels/images/nahledy/<fotka>`; odkaz v index.html přepíše na náhled. Spouští se jen při změně titulní fotky.
+Novou titulní fotku vlož jako `<div class="cover"><img src="./images/<složka>/<fotka>" alt="" width="800" height="600" loading="lazy" decoding="async"></div>`
+(případně `style="object-position: center bottom;"`) a pusť nástroj; test `travels-lazy` hlídá, že je každá karta líná a z `nahledy/`.
 
 Použití (z kořene repa; potřebuje Pillow): python3 tools/nahledy-titulni.py
 """
@@ -16,7 +18,7 @@ INDEX = os.path.join(KOREN, 'travels', 'index.html')
 SIRKA, VYSKA, KVALITA = 800, 600, 78
 
 html = open(INDEX, encoding='utf8').read()
-vzor = re.compile(r"(<div class=\"cover\" style=\"background-image:url\(')\./images/(?!nahledy/)([^']+)('\);)([^\"]*\")")
+vzor = re.compile(r'(<div class="cover"><img src=")\./images/(?!nahledy/)([^"]+)(")([^>]*>)')
 nove, pocet = [], 0
 
 def zpracuj(m):
@@ -27,7 +29,7 @@ def zpracuj(m):
     cil_dir = os.path.join(KOREN, 'travels', 'images', 'nahledy'); os.makedirs(cil_dir, exist_ok=True)
     im = Image.open(zdroj); im.load(); im = im.convert('RGB')
     w, h = im.size; cil = SIRKA / VYSKA
-    poz = re.search(r'background-position:\s*([a-z]+)(?:\s+([a-z]+))?', m.group(4))
+    poz = re.search(r'object-position:\s*([a-z]+)(?:\s+([a-z]+))?', m.group(4))
     vodorovne, svisle = (poz.group(1), poz.group(2) or 'center') if poz else ('center', 'center')
     if w / h > cil:                       # širší než 4:3 → ořez do stran
         nw = round(h * cil); x = {'left': 0, 'right': w - nw}.get(vodorovne, (w - nw) // 2); im = im.crop((x, 0, x + nw, h))
