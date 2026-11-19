@@ -3,3 +3,7 @@
 !*_web.jpg
 !*_web.JPG
 !*_LQ.jpg
+
+# náhledy mřížek (tools/nahledy-fotek.py): složka n640 a její obsah se verzují
+!n640/
+!n640/*.jpg

@@ -99,7 +99,7 @@ function zZdroje(html) {
   /* ── sabotáže ─────────────────────────────────────────────────── */
   const SAB = [
     ['Ukrajina bez loading="lazy"', 'ukraine-2017', { 'ukraine-2017.html': t => t.replace(/ loading="lazy"/g, '') }],
-    ['ČR–BH s fotkami jako pozadí', 'cr-bh-2018', { 'cr-bh-2018.html': t => t.replace(/<div class="img"><img src="([^"]+)" alt="" loading="lazy" decoding="async"><\/div>/g, (m, u) => `<div class="img" style="background-image:url('${u}');"></div>`) }]
+    ['ČR–BH s fotkami jako pozadí', 'cr-bh-2018', { 'cr-bh-2018.html': t => t.replace(/<div class="img"><img src="([^"]+)" alt="" loading="lazy" decoding="async"(?: srcset="[^"]*" sizes="[^"]*")?><\/div>/g, (m, u) => `<div class="img" style="background-image:url('${u}');"></div>`) }]
   ];
   for (const [popis, z, prepis] of SAB) {
     const s = await server(prepis), b = 'http://127.0.0.1:' + s.address().port;
@@ -116,7 +116,7 @@ function zZdroje(html) {
     s.close();
   }
   /* totéž pro zdrojovou kontrolu: pozadí v ČR–BH musí zdrojová kontrola poznat */
-  const rozbitaZdroj = fs.readFileSync(path.join(ROOT, 'travels', 'cr-bh-2018.html'), 'utf8').replace(/<div class="img"><img src="([^"]+)" alt="" loading="lazy" decoding="async"><\/div>/g, (m, u) => `<div class="img" style="background-image:url('${u}');"></div>`);
+  const rozbitaZdroj = fs.readFileSync(path.join(ROOT, 'travels', 'cr-bh-2018.html'), 'utf8').replace(/<div class="img"><img src="([^"]+)" alt="" loading="lazy" decoding="async"(?: srcset="[^"]*" sizes="[^"]*")?><\/div>/g, (m, u) => `<div class="img" style="background-image:url('${u}');"></div>`);
   ok(zZdroje(rozbitaZdroj).v.some(x => /background-image/.test(x)), 'zdrojová kontrola pozná fotky vrácené do pozadí');
 
   await browser.close();
