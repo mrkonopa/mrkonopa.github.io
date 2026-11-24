@@ -14,6 +14,10 @@ v descriptoru `w`) a `sizes`, podle kterých prohlížeč vybere. `src` zůstáv
 
 Náhled = `travels/images/<cesta>/n640/<stejné jméno>`, šířka 640 px (výška podle poměru stran), JPEG q75, progresivní,
 bez EXIF. Fotka užší než 640 px se nezmenšuje (náhled by nebyl menší) a srcset se jí nedoplní.
+
+Druhá velikost 960 px (`n960/`) je jen u zápisků, které mají do 900 px DVA velké sloupce (ukraine, cr-bh): buňka 410 px × DPR 2 = 820 px
+je víc než 640, takže tam prohlížeč bral plnou fotku (⌀ 311 kB). Srcset má pak tři kandidáty (640w, 960w, plná); fotka užší než 960 px
+druhý náhled nedostane. Nástroj je idempotentní i při doplnění druhé velikosti do už hotových stránek (přepíše srcset na požadovaný tvar).
 """
 import os
 import re
@@ -26,6 +30,8 @@ TRAVELS = os.path.join(KOREN, 'travels')
 SIRKA = 640
 KVALITA = 75
 PODSLOZKA = 'n640'
+# zápisky s dvěma velkými sloupci na iPadu na výšku: druhá velikost náhledu (šířka v px)
+DRUHA = {'ukraine-2017.html': 960, 'cr-bh-2018.html': 960}
 
 # sizes podle skutečného rozvržení mřížky (viz CSS stránek); pod ně se prohlížeč rozhoduje mezi náhledem a plnou fotkou
 SIZES_MRIZKA = '(max-width: 768px) 50vw, min(25vw, 300px)'                    # .gallery-grid / romania .gallery (auto-fill 200–220 px)
@@ -47,14 +53,14 @@ def sirky_souboru(cesta):
         return im.size
 
 
-def udelej_nahled(plny, nahled):
+def udelej_nahled(plny, nahled, sirka=SIRKA):
     with Image.open(plny) as im:
         im = im.convert('RGB')
         w, h = im.size
-        if w <= SIRKA:
+        if w <= sirka:
             return False
-        v = round(h * SIRKA / w)
-        im = im.resize((SIRKA, v), Image.LANCZOS)
+        v = round(h * sirka / w)
+        im = im.resize((sirka, v), Image.LANCZOS)
         os.makedirs(os.path.dirname(nahled), exist_ok=True)
         im.save(nahled, 'JPEG', quality=KVALITA, optimize=True, progressive=True)
     return True
@@ -82,10 +88,10 @@ def zpracuj(soubor, kontrola):
         s = SRC.search(tag)
         if not s or s.group(2) == 'nahledy':
             continue
-        if 'srcset=' in tag:
+        url, adresar, jmeno = s.group(1), s.group(2), s.group(3)
+        if 'srcset=' in tag and soubor not in DRUHA:
             zmen['hotovo'] += 1
             continue
-        url, adresar, jmeno = s.group(1), s.group(2), s.group(3)
         plny = os.path.join(TRAVELS, 'images', adresar, unquote(jmeno))
         if not os.path.exists(plny):
             raise SystemExit(f'{soubor}: soubor {plny} neexistuje (src {url})')
@@ -98,11 +104,28 @@ def zpracuj(soubor, kontrola):
             zmen['nahledu'] += 1
             if not kontrola:
                 udelej_nahled(plny, nahled)
-        url_nahled = srcset_url(f'./images/{adresar}/{PODSLOZKA}/{jmeno}')
-        sizes = sizes_pro(html, m.start(), soubor)
-        novy = tag[:-1].rstrip('/').rstrip() if tag.endswith('/>') else tag[:-1]
-        koncovka = ' />' if tag.endswith('/>') else '>'
-        novy = f'{novy} srcset="{url_nahled} {SIRKA}w, {srcset_url(url)} {w}w" sizes="{sizes}"{koncovka}'
+        kandidati = [f'{srcset_url(f"./images/{adresar}/{PODSLOZKA}/{jmeno}")} {SIRKA}w']
+        druha = DRUHA.get(soubor)
+        if druha and w > druha:
+            nahled2 = os.path.join(TRAVELS, 'images', adresar, f'n{druha}', unquote(jmeno))
+            if not os.path.exists(nahled2):
+                zmen['nahledu'] += 1
+                if not kontrola:
+                    udelej_nahled(plny, nahled2, druha)
+            kandidati.append(f'{srcset_url(f"./images/{adresar}/n{druha}/{jmeno}")} {druha}w')
+        kandidati.append(f'{srcset_url(url)} {w}w')
+        srcset = ', '.join(kandidati)
+        if 'srcset=' in tag:
+            nyni = re.search(r'\bsrcset="([^"]*)"', tag).group(1)
+            if nyni == srcset:
+                zmen['hotovo'] += 1
+                continue
+            novy = tag.replace(f'srcset="{nyni}"', f'srcset="{srcset}"', 1)
+        else:
+            sizes = sizes_pro(html, m.start(), soubor)
+            novy = tag[:-1].rstrip('/').rstrip() if tag.endswith('/>') else tag[:-1]
+            koncovka = ' />' if tag.endswith('/>') else '>'
+            novy = f'{novy} srcset="{srcset}" sizes="{sizes}"{koncovka}'
         zmen['srcset'] += 1
         vystup.append((m.start(), m.end(), novy))
     if vystup and not kontrola:
